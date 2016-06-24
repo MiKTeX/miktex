@@ -1,0 +1,20 @@
+# TeXworks: "Smart Quotes" modes
+
+# Each mode has a label (in [square brackets]), followed by lines specifying the
+# behavior for each quote keystroke. These lines have three fields:
+#
+# <keystroke>	<open-form>		<close-form>
+#
+# separated by whitespace.
+
+[TeX ligatures]
+'	`	'
+"	``	''
+
+[TeX commands]
+'	\lq{}	\rq{}
+"	\lq\lq{}	\rq\rq{}
+
+[Unicode characters]
+'	‘	’
+"	“	”

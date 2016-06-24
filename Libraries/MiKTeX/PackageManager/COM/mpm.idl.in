@@ -1,0 +1,432 @@
+/* mpm.idl:							-*- IDL -*-
+
+   Copyright (C) 2006-2016 Christian Schenk
+
+   This file is part of MiKTeX Package Manager.
+
+   MiKTeX Package Manager is free software; you can redistribute it
+   and/or modify it under the terms of the GNU General Public License
+   as published by the Free Software Foundation; either version 2, or
+   (at your option) any later version.
+   
+   MiKTeX Package Manager is distributed in the hope that it will be
+   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with MiKTeX Package Manager; if not, write to the Free
+   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+   02111-1307, USA. */
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+import "miktexidl.idl";
+
+/* _________________________________________________________________________
+   
+   MD5
+   _________________________________________________________________________ */
+
+/// @brief MD5 sum.
+///
+/// This structure holds an MD5 hash code.
+typedef [uuid(F92D6E8F-22CC-4585-8309-58440C5A0DFB)] struct MD5
+{
+  /// @brief 128 bits.
+  BYTE bits[16];
+} MD5;
+
+
+/* _________________________________________________________________________
+   
+   PackageInfo
+   _________________________________________________________________________ */
+
+/// @brief Package information.
+typedef [uuid(22A5E6E6-04B3-4540-A122-6A612210F52E)] struct PackageInfo
+{
+  /// @brief Name of the package.
+  BSTR deploymentName;
+  /// @brief User-friendly name of the package.
+  BSTR displayName;
+  /// @brief One-line package description.
+  BSTR title;
+  /// @brief Package version number.
+  BSTR version;
+  /// @brief Package description.
+  BSTR description;
+  /// @brief Name of package creator.
+  BSTR creator;
+  /// @brief Total size (in bytes) of all run-time files.
+  DOUBLE sizeRunFiles;
+  /// @brief Total size (in bytes) of all documentation files.
+  DOUBLE sizeDocFiles;
+  /// @brief Total size (in bytes) of all source files.
+  DOUBLE sizeSourceFiles;
+  /// @brief Number of run-time files.
+  LONG numRunFiles;
+  /// @brief Number of documentation files.
+  LONG numDocFiles;
+  /// @brief Number of source files.
+  LONG numSourceFiles;
+  /// @brief Date/time the package was created.
+  DATE timePackaged;
+  /// @brief Date/time the package was installed.
+  DATE timeInstalled;
+  /// @brief Size of the package archive file.
+  LONG archiveFileSize;
+  /// @brief Package digest.
+  MD5 digest;
+  /// @brief Install flag.
+  VARIANT_BOOL isInstalled;
+} PackageInfo;
+
+/* _________________________________________________________________________
+   
+   PackageInfo2
+   _________________________________________________________________________ */
+
+/// @brief Package information.
+typedef [uuid(EBFC451C-F457-4B26-9A70-4C61519B7F45)] struct PackageInfo2
+{
+  /// @brief Name of the package.
+  BSTR deploymentName;
+  /// @brief User-friendly name of the package.
+  BSTR displayName;
+  /// @brief One-line package description.
+  BSTR title;
+  /// @brief Package version number.
+  BSTR version;
+  /// @brief Package description.
+  BSTR description;
+  /// @brief Name of package creator.
+  BSTR creator;
+  /// @brief Total size (in bytes) of all run-time files.
+  DOUBLE sizeRunFiles;
+  /// @brief Total size (in bytes) of all documentation files.
+  DOUBLE sizeDocFiles;
+  /// @brief Total size (in bytes) of all source files.
+  DOUBLE sizeSourceFiles;
+  /// @brief Number of run-time files.
+  LONG numRunFiles;
+  /// @brief Number of documentation files.
+  LONG numDocFiles;
+  /// @brief Number of source files.
+  LONG numSourceFiles;
+  /// @brief Date/time the package was created.
+  DATE timePackaged;
+  /// @brief Date/time the package was installed.
+  DATE timeInstalled;
+  /// @brief Size of the package archive file.
+  LONG archiveFileSize;
+  /// @brief Package digest.
+  MD5 digest;
+  /// @brief Install flag.
+  VARIANT_BOOL isInstalled;
+  /// @brief Copyright owner.
+  BSTR copyrightOwner;
+  /// @brief Copyright year.
+  BSTR copyrightYear;
+  /// @brief licenseType
+  BSTR licenseType;
+  /// @brief CTAN directory path.
+  BSTR ctanPath;
+} PackageInfo2;
+
+/* _________________________________________________________________________
+   
+   IPackageInstallerCallback
+   _________________________________________________________________________ */
+
+/// @brief Package installer callback.
+///
+/// This interface can be implemented by clients in order to get notified
+/// of certain events.
+[
+  object,
+  uuid(4B081787-2C08-4AFD-80E1-B4B3E23324B4),
+  nonextensible,
+  helpstring("IPackageInstallerCallback Interface"),
+  pointer_default(unique)
+]
+interface IPackageInstallerCallback : IUnknown
+{
+  /// @brief Reports progress of the package installer.
+  /// @param[in] line The message to be reported.
+  [
+    helpstring("method ReportLine")
+  ]
+  HRESULT ReportLine ([in] BSTR line);
+
+  /// @brief Reports an error.
+  /// @param[in] message The error message to be reported.
+  /// @return Returns VARIANT_FALSE, if the installation can continue.
+  [
+    helpstring("method OnRetryableError")
+  ]
+  HRESULT
+  OnRetryableError ([in] BSTR			message,
+		    [out,retval] VARIANT_BOOL * doContinue);
+
+  /// @brief Notifies the client.
+  /// @param[in] nf The notification code.
+  /// @return Returns VARIANT_TRUE, if the installation can continue.
+  [
+    helpstring("method OnProgress")
+  ]
+  HRESULT
+  OnProgress ([in] LONG nf, [out,retval] VARIANT_BOOL * doContinue);
+};
+
+/* _________________________________________________________________________
+   
+   IPackageInstaller
+   _________________________________________________________________________ */
+
+/// @brief Package installer interface.
+[
+  object,
+  uuid(74C7EE83-4851-4766-B471-9CF29E7C2DA3),
+  dual,
+  nonextensible,
+  helpstring("IPackageInstaller Interface"),
+  pointer_default(unique)
+]
+interface IPackageInstaller : IDispatch
+{
+  /// @brief Adds a package to the installer queue.
+  /// @param[in] packageName Name of the package to be installed/uninstalled.
+  /// @param[in] toBeInstalled Boolean value that determines whether
+  ///   the package shall be installed or uninstalled.
+  [
+    id(1),
+    helpstring("method Add")
+  ]
+  HRESULT
+  Add ([in] BSTR packageName, [in] VARIANT_BOOL toBeInstalled);
+
+  /// @brief Sets the client callback interface.
+  /// @param[in] callback Pointer to an interface. This interface will
+  ///   be queried for IPackageInstallerCallback.
+  [
+    id(2),
+    helpstring("method SetCallback")
+  ]
+  HRESULT
+  SetCallback ([in] IUnknown * callback);
+
+  /// @brief Installs/Uninstalls packages.
+  [
+    id(3),
+    helpstring("method InstallRemove")
+  ]
+  HRESULT
+  InstallRemove ();
+
+  /// @brief Gets information about the last error
+  /// @return Returns the error information.
+  [
+    id(4),
+    helpstring("method GetLastError")
+  ]
+  HRESULT
+  GetErrorInfo ([out,retval] ErrorInfo * errorInfo);
+
+  /// @brief Updates the package database.
+  [
+    id(5),
+    helpstring("method UpdateDb")
+  ]
+  HRESULT
+  UpdateDb ();
+
+  /// @brief Set the package repository.
+  /// @param[in] repository The repository to be used.
+  [
+    id(6),
+    helpstring("method SetRepository")
+  ]
+  HRESULT
+  SetRepository ([in] BSTR repository);
+};
+
+/* _________________________________________________________________________
+   
+   IPackageManager
+   _________________________________________________________________________ */
+
+/// @brief Package manager interface.
+[
+  object,
+  uuid(C6A0E0A9-532D-46DF-8969-0E0A17539FC9),
+  dual,
+  nonextensible,
+  helpstring("IPackageManager Interface"),
+  pointer_default(unique)
+]
+interface IPackageManager : IDispatch
+{
+  /// @brief Get a package installer interface.
+  /// @return Returns a pointer to the package installer interface.
+  [
+    id(1),
+    helpstring("method CreateInstaller")
+  ]
+  HRESULT
+  CreateInstaller ([out,retval] IPackageInstaller ** installer);
+
+  /// @brief Get information about a package.
+  /// @param[in] packageName Name of the package.
+  /// @return Returns the package information.
+  [
+    id(2),
+    helpstring("method GetPackageInfo")
+  ]
+  HRESULT
+  GetPackageInfo ([in] BSTR			packageName,
+		  [out,retval] PackageInfo *	packageInfo);
+};
+
+/* _________________________________________________________________________
+   
+   IPackageIterator
+   _________________________________________________________________________ */
+
+/// @brief Package iterator interface.
+[
+  object,
+  uuid(D02EF17D-1CEF-450B-9C58-ABBB3AE286CC),
+  helpstring("IPackageIterator Interface"),
+  pointer_default(unique)
+]
+interface IPackageIterator : IUnknown
+{
+  /// @brief Retrieve the next package info structure.
+  /// @return Returns the next structure.
+  [
+    helpstring("method GetNextPackageInfo")
+  ]
+  HRESULT
+  GetNextPackageInfo ([out] PackageInfo * packageInfo,
+		      [out,retval] VARIANT_BOOL * done);
+};
+
+/* _________________________________________________________________________
+   
+   IPackageManager2
+   _________________________________________________________________________ */
+
+/// @brief Package manager interface (version 2).
+[
+  object,
+  uuid(847D93E9-E086-4F09-B8C5-91CDCCF12CF3),
+  dual,
+  nonextensible,
+  helpstring("IPackageManager2 Interface"),
+  pointer_default(unique)
+]
+interface IPackageManager2 : IPackageManager
+{
+  /// @brief Obtains a package iterator.
+  /// @return Returns the iterator.
+  [
+    id(3),
+    helpstring("method CreatePackageIterator")
+  ]
+  HRESULT
+  CreatePackageIterator ([out,retval] IPackageIterator ** iter);
+};
+
+/* _________________________________________________________________________
+   
+   IPackageManager3
+   _________________________________________________________________________ */
+
+/// @brief Package manager interface (version 3).
+[
+  object,
+  uuid(78AD6D5E-2972-412F-9A58-E57DDDE739B2),
+  dual,
+  nonextensible,
+  helpstring("IPackageManager3 Interface"),
+  pointer_default(unique)
+]
+interface IPackageManager3 : IPackageManager2
+{
+  /// @brief Get information about a package.
+  /// @param[in] packageName Name of the package.
+  /// @return Returns the package information.
+  [
+    id(4),
+    helpstring("method GetPackageInfo2")
+  ]
+  HRESULT
+  GetPackageInfo2 ([in] BSTR			packageName,
+		   [out,retval] PackageInfo2 *	packageInfo);
+};
+
+/* _________________________________________________________________________
+   
+   IPackageIterator2
+   _________________________________________________________________________ */
+
+/// @brief Package iterator interface.
+[
+  object,
+  uuid(E29735B0-01A4-4903-910B-7AE1ECB01FF2),
+  helpstring("IPackageIterator Interface"),
+  pointer_default(unique)
+]
+interface IPackageIterator2 : IPackageIterator
+{
+  /// @brief Retrieve the next package info structure.
+  /// @return Returns the next structure.
+  [
+    helpstring("method GetNextPackageInfo2")
+  ]
+  HRESULT
+  GetNextPackageInfo2 ([out] PackageInfo2 * packageInfo,
+		       [out,retval] VARIANT_BOOL * done);
+};
+
+/* _________________________________________________________________________
+   
+   MiKTeXPackageManager@MIKTEX_SERIES_ID_STR@
+   _________________________________________________________________________ */
+
+/// @brief Package manager type library.
+[
+  uuid(@guid_MiKTeX_Package_Manager_TLB_CURVER@),
+  version(1.0),
+  helpstring("MiKTeX @MIKTEX_SERIES_STR@ Package Manager")
+]
+library MiKTeXPackageManager@MIKTEX_SERIES_ID_STR@
+{
+  importlib("stdole2.tlb");
+
+  /// @brief The MiKTeX package manager COM object.
+  ///
+  /// This COM object implements the
+  /// @link IPackageManager @endlink
+  /// interface.
+  [
+    uuid(@guid_MiKTeX_Package_Manager_CURVER@),
+    helpstring("MiKTeX @MIKTEX_SERIES_STR@ Package Manager")
+  ]
+  coclass PackageManager@MIKTEX_SERIES_ID_STR@
+  {
+    interface IPackageManager;
+    interface IPackageManager2;
+    [default] interface IPackageManager3;
+  };
+
+  struct MD5;
+  struct PackageInfo;
+  struct PackageInfo2;
+  interface IPackageInstaller;
+  interface IPackageInstallerCallback;
+  interface IPackageIterator;
+  interface IPackageIterator2;
+};

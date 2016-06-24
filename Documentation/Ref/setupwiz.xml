@@ -1,0 +1,266 @@
+<refentry id="setupwiz">
+
+<?dbhh topicname="MIKTEXHELP_SETUPWIZ" topicid="0"?>
+
+<refmeta>
+<refentrytitle>setupwiz</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refdescriptor>setupwiz</refdescriptor>
+<refname>basic-miktex</refname>
+<refname>setup</refname>
+<refpurpose>&MiKTeX; setup wizard</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+
+<cmdsynopsis>
+&basicmiktexexe;
+<arg choice="opt"><option><replaceable>options</replaceable></option></arg>
+</cmdsynopsis>
+
+<cmdsynopsis>
+&setupexe;
+<arg choice="opt"><option><replaceable>options</replaceable></option></arg>
+</cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>&MiKTeXSetupWizard; is used to install &MiKTeX;.</para>
+
+<para>There a two instances of the installer:</para>
+
+<variablelist>
+<varlistentry>
+<term>&BasicMiKTeXInstaller; (&basicmiktexexe;)</term>
+<listitem>
+<para><firstterm>&BasicMiKTeXInstaller;</firstterm> is used to set up
+a basic &MiKTeX; system. All required resources are embedded in the installer, i.e.,
+nothing else needs to be downloaded from the Internet.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>&MiKTeXNetInstaller; (&setupexe;)</term>
+<listitem>
+<para><firstterm>&MiKTeXNetInstaller;</firstterm> is used to set up a
+complete &MiKTeX; system. In a first step, all required resources will be downloaded from the Internet.
+In a second step, a complete &MiKTeX; system is installed.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>Both installers read command-line options from the file
+<indexterm>
+<primary>setupwiz.opt</primary>
+</indexterm>
+<indexterm>
+<primary>setup wizard</primary>
+<secondary>setupwiz.opt</secondary>
+</indexterm>
+<filename>setupwiz.opt</filename>, if it exists.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Options</title>
+
+<variablelist>
+
+<varlistentry>
+<term><option>--allow-unattended-reboot</option></term>
+<listitem><para>Restart the system, if necessary.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--common-config=<replaceable>dir</replaceable></option></term>
+<listitem><para>Set the location of the common configuration directory.
+This option requires administrator privileges.</para></listitem>
+</varlistentry>
+	
+<varlistentry>
+<term><option>--common-data=<replaceable>dir</replaceable></option></term>
+<listitem><para>Set the location of the common data directory.
+This option requires administrator privileges.</para></listitem>
+</varlistentry>
+	
+<varlistentry>
+<term><option>--common-install=<replaceable>dir</replaceable></option></term>
+<listitem><para>Set the common installation directory.
+This option requires administrator privileges.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--common-roots=<replaceable>dirs</replaceable></option></term>
+<listitem><para>Register additional directories for all users.
+<replaceable>dirs</replaceable> must be a semicolon-separated list of
+fully qualified path names. This option requires administrator
+privileges.</para>
+<para>Environment variables (&lt;VARNAME&gt;) can be used.</para></listitem>
+</varlistentry>
+	
+<varlistentry>
+<term><option>--download-only</option></term>
+<listitem><para>Download all required packages, but do not otherwise
+install &MiKTeX;.</para></listitem>
+</varlistentry>
+	
+<varlistentry>
+<term><option>--dry-run</option></term>
+<listitem><para>Simulate.  No files shall be
+downloaded and/or installed.</para></listitem>
+</varlistentry>
+	
+<varlistentry>
+<term><option>--install-from-local-repository</option></term>
+<listitem><para>Install &MiKTeX; from a directory (to be specified
+with the <option>--local-package-repository</option> option).</para></listitem>
+</varlistentry>
+	
+<varlistentry>
+<term><option>--local-package-repository=<replaceable>dir</replaceable></option></term>
+<listitem><para>Download into (Install from) the specified directory.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--no-additional-roots</option></term>
+<listitem><para>Do not integrate additional &TEXMF; root directories into
+the &MiKTeX; setup.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--no-registry</option></term>
+<listitem><para>Do not store path information in the &WindowsRegistry; but
+<indexterm>
+<primary>--no-registry</primary>
+</indexterm>
+<indexterm>
+<primary>startup configuration file</primary>
+</indexterm>
+write the startup configuration file (<filename>miktexstartup.ini</filename>).
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--package-set=<replaceable>set</replaceable></option></term>
+<listitem><para>Download/Install the specified package set.
+<indexterm>
+<primary>package set</primary>
+</indexterm>
+This must be one of
+<option>basic</option>,
+<option>complete</option>.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--portable</option></term>
+<listitem>
+<para>Setup &MiKTeXPortable;.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--private</option></term>
+<listitem><para>Install &MiKTeX; for the
+<indexterm>
+<primary>private installation</primary>
+</indexterm>
+current user only.</para></listitem>
+</varlistentry>
+	
+<varlistentry>
+<term><option>--program-folder=<replaceable>name</replaceable></option></term>
+<listitem><para>Add shortcuts to the specified program folder.</para></listitem>
+</varlistentry>
+	
+<varlistentry>
+<term><option>--remote-package-repository=<replaceable>url</replaceable></option></term>
+<listitem><para>Download from the specified the <acronym>URL</acronym>.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--shared</option></term>
+<listitem><para>Install &MiKTeX; for everyone using this computer.  This option
+<indexterm>
+<primary>shared installation</primary>
+</indexterm>
+requires administrator privileges.</para></listitem>
+</varlistentry>
+	
+<varlistentry>
+<term><option>--unattended</option></term>
+<listitem><para>Run in unattended mode.
+<indexterm>
+<primary>unattended setup</primary>
+</indexterm></para></listitem>
+</varlistentry>
+	
+<varlistentry>
+<term><option>--user-config=<replaceable>dir</replaceable></option></term>
+<listitem><para>Set the location of the configuration directory for
+the current user.</para>
+<para>Environment variables (&lt;VARNAME&gt;) can be used. See the example below.</para></listitem>
+</varlistentry>
+	
+<varlistentry>
+<term><option>--user-data=<replaceable>dir</replaceable></option></term>
+<listitem><para>Set the location of the data directory for
+the current user.</para>
+<para>Environment variables (&lt;VARNAME&gt;) can be used. See the example below.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--user-install=<replaceable>dir</replaceable></option></term>
+<listitem><para>Set the user installation directory.</para>
+<para>Environment variables (&lt;VARNAME&gt;) can be used. See the example below.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--user-roots=<replaceable>dirs</replaceable></option></term>
+<listitem><para>Register additional directories for the current user.
+<replaceable>dirs</replaceable> must be a semicolon-separated list of fully
+qualified path names.</para>
+<para>Environment variables (&lt;VARNAME&gt;) can be used.</para></listitem>
+</varlistentry>
+	
+</variablelist>
+      
+</refsect1>
+
+<refsect1>
+
+<title>Examples</title>
+
+<para>In this example, &MiKTeX; is installed from a network share (<filename>\\server\miktex\repository</filename>). User
+directories are specified by using environment variables (&lt;VARNAME&gt;) which are expanded at run-time.</para>
+
+<screen><prompt>&prompt;</prompt><userinput>setupwiz --install-from-local-repository ^
+  --local-package-repository=\\server\miktex\repository ^
+  --package-set=complete ^
+  --shared ^
+  --user-config=^&lt;APPDATA^&gt;\MiKTeX\2.9 ^
+  --user-data=^&lt;LOCALAPPDATA^&gt;\MiKTeX\2.9 ^
+  --user-install=^&lt;APPDATA^&gt;\MiKTeX\2.9</userinput></screen>
+
+</refsect1>
+
+</refentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "reference")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

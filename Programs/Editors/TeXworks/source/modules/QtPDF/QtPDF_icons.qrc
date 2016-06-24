@@ -1,0 +1,22 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource prefix="QtPDF">
+    <file>icons/lock.png</file>
+    <file>icons/magnifiercursor.png</file>
+    <file>icons/zoomincursor.png</file>
+    <file>icons/zoomoutcursor.png</file>
+    <file>icons/hand.png</file>
+    <file>icons/measure.png</file>
+    <file>icons/pagemode-continuous.png</file>
+    <file>icons/pagemode-single.png</file>
+    <file>icons/pagemode-twocols.png</file>
+    <file>icons/pagemode-present.png</file>
+    <file>icons/select-text.png</file>
+    <file>icons/zoom.png</file>
+    <file>icons/zoom-fitwidth.png</file>
+    <file>icons/zoom-fitwindow.png</file>
+    <file>icons/zoomin.png</file>
+    <file>icons/zoomout.png</file>
+    <file>icons/zoom-select.png</file>
+  </qresource>
+</RCC>

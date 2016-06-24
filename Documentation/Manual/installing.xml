@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                         "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+<!ENTITY % version.ent SYSTEM "version.ent">
+%version.ent;
+%entities.ent;
+]>
+
+<chapter id="installing">
+
+<title>Installing &MiKTeX;</title>
+
+<para>You use the &BasicMiKTeXInstaller; to install &MiKTeX; on your
+computer. You can download the installer from
+the <ulink url="http://miktex.org/download">&MiKTeX; download
+page</ulink>.
+</para>
+
+<para>Please read
+<ulink url="http://miktex.org/howto/install-miktex">the installation
+tutorial</ulink> for a step-to-step guide.</para>
+
+<section id="startmenu">
+
+<title>Items in the Start Menu</title>
+
+<para>&MiKTeXSetupWizard; installs the
+following menu items in the &Windows;
+<indexterm>
+<primary>start menu</primary>
+</indexterm>
+start menu:</para>
+
+<variablelist>
+
+<varlistentry>
+<term><menuchoice moreinfo="none">
+<guimenu>&progfldr;</guimenu>
+<guimenuitem>Previewer</guimenuitem>
+</menuchoice></term>
+<listitem><para>A shortcut to the &MiKTeX; previewer &Yap;.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><menuchoice moreinfo="none">
+<guimenu>&progfldr;</guimenu>
+<guimenuitem>TeXworks</guimenuitem>
+</menuchoice></term>
+<listitem><para>A shortcut to &TeXworks;, an integrated development environment
+for &TeX; and &LaTeX;.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><menuchoice moreinfo="none">
+<guimenu>&progfldr;</guimenu>
+<guisubmenu>Help</guisubmenu>
+<guimenuitem>FAQ</guimenuitem>
+</menuchoice>
+<indexterm>
+<primary>FAQ (frequently asked questions)</primary>
+</indexterm></term>
+<listitem><para>Answers to frequently asked questions.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><menuchoice moreinfo="none">
+<guimenu>&progfldr;</guimenu>
+<guisubmenu>Help</guisubmenu>
+<guimenuitem>Manual</guimenuitem>
+</menuchoice></term>
+<listitem><para>The &MiKTeX; manual.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><menuchoice moreinfo="none">
+<guimenu>&progfldr;</guimenu>
+<guisubmenu>Maintenance</guisubmenu>
+<guimenuitem>Package Manager</guimenuitem>
+</menuchoice></term>
+<listitem><para>A shortcut to the &MiKTeX; package manager.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><menuchoice moreinfo="none">
+<guimenu>&progfldr;</guimenu>
+<guisubmenu>Maintenance</guisubmenu>
+<guimenuitem>Settings</guimenuitem>
+</menuchoice></term>
+<listitem><para>A shortcut to &MiKTeXOptions;.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><menuchoice moreinfo="none">
+<guimenu>&progfldr;</guimenu>
+<guisubmenu>Maintenance</guisubmenu>
+<guimenuitem>Update</guimenuitem>
+</menuchoice></term>
+<listitem><para>A shortcut to the &MiKTeX; update wizard.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><menuchoice moreinfo="none">
+<guimenu>&progfldr;</guimenu>
+<guisubmenu>Maintenance (Admin)</guisubmenu>
+<guimenuitem>Package Manager (Admin)</guimenuitem>
+</menuchoice></term>
+<listitem><para>A shortcut to the admin variant of the &MiKTeX; package manager.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><menuchoice moreinfo="none">
+<guimenu>&progfldr;</guimenu>
+<guisubmenu>Maintenance (Admin)</guisubmenu>
+<guimenuitem>Settings (Admin)</guimenuitem>
+</menuchoice></term>
+<listitem><para>A shortcut to the admin variant of &MiKTeXOptions;.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><menuchoice moreinfo="none">
+<guimenu>&progfldr;</guimenu>
+<guisubmenu>Maintenance (Admin)</guisubmenu>
+<guimenuitem>Update (Admin)</guimenuitem>
+</menuchoice></term>
+<listitem><para>A shortcut to the admin variant of the &MiKTeX; update wizard.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><menuchoice moreinfo="none">
+<guimenu>&progfldr;</guimenu>
+<guisubmenu>MiKTeX on the Web</guisubmenu>
+<guimenuitem>Known Issues</guimenuitem>
+</menuchoice></term>
+<listitem><para>An Internet shortcut to the &MiKTeX; issues page.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><menuchoice moreinfo="none">
+<guimenu>&progfldr;</guimenu>
+<guisubmenu>MiKTeX on the Web</guisubmenu>
+<guimenuitem>MiKTeX Project Page</guimenuitem>
+</menuchoice></term>
+<listitem><para>An Internet shortcut to the &MiKTeX; project page.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><menuchoice moreinfo="none">
+<guimenu>&progfldr;</guimenu>
+<guisubmenu>MiKTeX on the Web</guisubmenu>
+<guimenuitem>Registration</guimenuitem>
+</menuchoice></term>
+<listitem><para>An Internet shortcut to the &MiKTeX; registration page.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><menuchoice moreinfo="none">
+<guimenu>&progfldr;</guimenu>
+<guisubmenu>MiKTeX on the Web</guisubmenu>
+<guimenuitem>Support</guimenuitem>
+</menuchoice></term>
+<listitem><para>An Internet shortcut to the &MiKTeX; support page.</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+</section>
+
+<section id="uninstalling">
+
+<title>Removing &MiKTeX;</title>
+
+<para>&MiKTeX; can be removed from your computer in the following way:
+<indexterm>
+<primary>uninstaller</primary>
+</indexterm>
+<indexterm>
+<primary>MiKTeX</primary>
+<secondary>uninstalling</secondary>
+</indexterm>
+<indexterm>
+<primary>Remove MiKTeX Wizard</primary>
+</indexterm></para>
+
+<procedure>
+
+<step><para>Open <application>Control Panel</application>.</para></step>
+
+<step><para>Double-click <guilabel>Add or Remove
+Programs</guilabel>.</para></step>
+
+<step><para>Click <guimenuitem>&progfldr;</guimenuitem>.</para></step>
+
+<step><para>Click <guimenuitem>Change/Remove</guimenuitem>.</para></step>
+
+</procedure>
+
+</section>
+
+</chapter>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

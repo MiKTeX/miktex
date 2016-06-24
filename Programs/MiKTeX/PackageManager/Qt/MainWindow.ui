@@ -1,0 +1,244 @@
+<ui version="4.0" >
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>582</width>
+    <height>405</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>MiKTeX Package Manager</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="mpm.qrc" >
+    <normaloff>:/Resources/Icons/32x32/apps/miktex.png</normaloff>:/Resources/Icons/32x32/apps/miktex.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QVBoxLayout" name="verticalLayout" >
+    <property name="spacing" >
+     <number>0</number>
+    </property>
+    <property name="margin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QTreeView" name="treeView" >
+      <property name="selectionMode" >
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
+      <property name="rootIsDecorated" >
+       <bool>false</bool>
+      </property>
+      <property name="sortingEnabled" >
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>582</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile" >
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionProperties" />
+    <addaction name="actionExit" />
+   </widget>
+   <widget class="QMenu" name="menuHelp" >
+    <property name="title" >
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionAbout" />
+   </widget>
+   <widget class="QMenu" name="menuRepository" >
+    <property name="title" >
+     <string>&amp;Repository</string>
+    </property>
+    <addaction name="actionChangeRepository" />
+    <addaction name="actionSynchronize" />
+   </widget>
+   <widget class="QMenu" name="menu_Edit" >
+    <property name="title" >
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="actionSelectAll" />
+    <addaction name="actionSelectInstallablePackages" />
+   </widget>
+   <widget class="QMenu" name="menu_Task" >
+    <property name="title" >
+     <string>&amp;Task</string>
+    </property>
+    <addaction name="actionInstall" />
+    <addaction name="actionUninstall" />
+   </widget>
+   <addaction name="menuFile" />
+   <addaction name="menu_Edit" />
+   <addaction name="menu_Task" />
+   <addaction name="menuRepository" />
+   <addaction name="menuHelp" />
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+  <widget class="QToolBar" name="toolBar" >
+   <property name="windowTitle" >
+    <string>toolBar</string>
+   </property>
+   <property name="toolButtonStyle" >
+    <enum>Qt::ToolButtonIconOnly</enum>
+   </property>
+   <attribute name="toolBarArea" >
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionInstall" />
+   <addaction name="actionUninstall" />
+  </widget>
+  <action name="actionExit" >
+   <property name="text" >
+    <string>E&amp;xit</string>
+   </property>
+   <property name="statusTip" >
+    <string>Quits the application.</string>
+   </property>
+  </action>
+  <action name="actionAbout" >
+   <property name="text" >
+    <string>&amp;About MiKTeX Package Manager</string>
+   </property>
+   <property name="iconText" >
+    <string>About</string>
+   </property>
+   <property name="toolTip" >
+    <string>About</string>
+   </property>
+   <property name="statusTip" >
+    <string>Show version number and copying conditions.</string>
+   </property>
+  </action>
+  <action name="actionChangeRepository" >
+   <property name="text" >
+    <string>&amp;Change Package Repository...</string>
+   </property>
+   <property name="statusTip" >
+    <string>Starts the repository wizard.</string>
+   </property>
+  </action>
+  <action name="actionSynchronize" >
+   <property name="text" >
+    <string>&amp;Synchronize</string>
+   </property>
+   <property name="statusTip" >
+    <string>Synchronizes the package database.</string>
+   </property>
+  </action>
+  <action name="actionProperties" >
+   <property name="text" >
+    <string>&amp;Properties</string>
+   </property>
+   <property name="iconText" >
+    <string>Properties</string>
+   </property>
+   <property name="statusTip" >
+    <string>Shows package properties.</string>
+   </property>
+  </action>
+  <action name="actionSelectAll" >
+   <property name="text" >
+    <string>Select &amp;All</string>
+   </property>
+   <property name="statusTip" >
+    <string>Selects all packages.</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionSelectInstallablePackages" >
+   <property name="text" >
+    <string>Select &amp;Installable Packages</string>
+   </property>
+   <property name="statusTip" >
+    <string>Selects packages which are not yet installed.</string>
+   </property>
+  </action>
+  <action name="actionInstall" >
+   <property name="icon" >
+    <iconset resource="mpm.qrc" >
+     <normaloff>:/Resources/Icons/16x16/actions/package-install.png</normaloff>:/Resources/Icons/16x16/actions/package-install.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Install...</string>
+   </property>
+   <property name="statusTip" >
+    <string>Installs the selected packages.</string>
+   </property>
+   <property name="shortcut" >
+    <string>+</string>
+   </property>
+  </action>
+  <action name="actionUninstall" >
+   <property name="icon" >
+    <iconset resource="mpm.qrc" >
+     <normaloff>:/Resources/Icons/16x16/actions/package-uninstall.png</normaloff>:/Resources/Icons/16x16/actions/package-uninstall.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Uninstall...</string>
+   </property>
+   <property name="statusTip" >
+    <string>Uninstalls the selected packages.</string>
+   </property>
+   <property name="shortcut" >
+    <string>-</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="mpm.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSelectAll</sender>
+   <signal>triggered()</signal>
+   <receiver>treeView</receiver>
+   <slot>selectAll()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>303</x>
+     <y>212</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

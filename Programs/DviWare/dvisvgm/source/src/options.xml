@@ -1,0 +1,181 @@
+<?xml version="1.0"?>
+<!-- *********************************************************************
+** options.xml                                                          **
+**                                                                      **
+** This file is part of dvisvgm - a fast DVI to SVG converter           **
+** Copyright (C) 2005-2016 Martin Gieseking <martin.gieseking@uos.de>   **
+**                                                                      **
+** This program is free software; you can redistribute it and/or        **
+** modify it under the terms of the GNU General Public License as       **
+** published by the Free Software Foundation; either version 3 of       **
+** the License, or (at your option) any later version.                  **
+**                                                                      **
+** This program is distributed in the hope that it will be useful, but  **
+** WITHOUT ANY WARRANTY; without even the implied warranty of           **
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the         **
+** GNU General Public License for more details.                         **
+**                                                                      **
+** You should have received a copy of the GNU General Public License    **
+** along with this program; if not, see <http://www.gnu.org/licenses/>. **
+***********************************************************************-->
+<!DOCTYPE cmdline SYSTEM "options.dtd">
+
+<cmdline class="CommandLine">
+	<program>
+		<name>dvisvgm</name>
+		<usage>[options] dvifile</usage>
+		<usage>-E [options] epsfile</usage>
+      <description>This program converts DVI files, as created by TeX/LaTeX, to\nthe XML-based scalable vector graphics format SVG.</description>
+	</program>
+	<options>
+		<section title="Input options">
+			<option long="page" short="p">
+				<arg type="string" name="ranges" default="1"/>
+				<description>choose pages to convert</description>
+			</option>
+			<option long="fontmap" short="m">
+				<arg type="string" name="filenames"/>
+				<description>evaluate (additional) font map files</description>
+			</option>
+			<option long="eps" short="E" if="!defined(DISABLE_GS)">
+				<description>convert an EPS file to SVG</description>
+			</option>
+		</section>
+		<section title="SVG output options">
+			<option long="bbox" short="b">
+				<arg type="string" name="size" default="min"/>
+				<description>set size of bounding box</description>
+			</option>
+			<option long="clipjoin" short="j" if="!defined(DISABLE_GS)">
+				<description>compute intersection of clipping paths</description>
+			</option>
+			<option long="colornames">
+				<description>prefer color names to RGB values if possible</description>
+			</option>
+			<option long="comments">
+				<description>add comments with additional information</description>
+			</option>
+			<option long="grad-overlap" if="!defined(DISABLE_GS)">
+				<description>create operlapping color gradient segments</description>
+			</option>
+			<option long="grad-segments" if="!defined(DISABLE_GS)">
+				<arg type="int" name="number" default="20"/>
+				<description>number of color gradient segments per row</description>
+			</option>
+			<option long="grad-simplify" if="!defined(DISABLE_GS)">
+				<arg type="double" name="delta" default="0.05"/>
+				<description>reduce level of detail for small segments</description>
+			</option>
+			<option long="linkmark" short="L">
+				<arg type="string" name="style" default="box"/>
+				<description>select how to mark hyperlinked areas</description>
+			</option>
+			<option long="output" short="o">
+				<arg type="string" name="pattern"/>
+				<description>set name pattern of output files</description>
+			</option>
+			<option long="precision" short="d">
+				<arg type="int" name="number" default="0"/>
+				<description>set number of decimal points (0-6)</description>
+			</option>
+			<option long="relative" short="R">
+				<description>create relative path commands</description>
+			</option>
+			<option long="stdout" short="s">
+				<description>write SVG output to stdout</description>
+			</option>
+			<option long="no-fonts" short="n">
+				<arg type="int" name="variant" default="0" optional="yes"/>
+				<description>draw glyphs by using path elements</description>
+			</option>
+			<option long="no-merge">
+				<description>don't merge adjacent text elements</description>
+			</option>
+			<option long="no-styles">
+				<description>don't use styles to reference fonts</description>
+			</option>
+			<option long="zip" short="z">
+				<arg type="int" name="level" default="9" optional="yes"/>
+				<description>create compressed .svgz file</description>
+			</option>
+		</section>
+		<section title="SVG transformations">
+			<option long="rotate" short="r">
+				<arg type="double" name="angle"/>
+				<description>rotate page content clockwise</description>
+			</option>
+			<option long="scale" short="c">
+				<arg type="string" name="sx[,sy]"/>
+				<description>scale page content</description>
+			</option>
+			<option long="translate" short="t">
+				<arg type="string" name="tx[,ty]"/>
+				<description>shift page content</description>
+			</option>
+			<option long="transform" short="T">
+				<arg type="string" name="commands"/>
+				<description>transform page content</description>
+			</option>
+			<option long="zoom" short="Z">
+				<arg type="double" name="factor" default="1.0"/>
+				<description>zoom page content</description>
+			</option>
+		</section>
+		<section title="Processing options">
+			<option long="cache" short="C">
+				<arg type="string" name="dir" optional="yes"/>
+				<description>set/print path of cache directory</description>
+			</option>
+         <option long="exact" short="e">
+            <description>compute exact glyph boxes</description>
+         </option>
+		   <option long="keep">
+		      <description>keep temporary files</description>
+		   </option>
+		   <option long="libgs" if="!defined(HAVE_LIBGS) &amp;&amp; !defined(DISABLE_GS)">
+				<arg name="filename" type="string"/>
+				<description>set name of Ghostscript shared library</description>
+			</option>
+			<option long="mag" short="M">
+				<arg type="double" name="factor" default="4"/>
+				<description>magnification of Metafont output</description>
+			</option>
+			<option long="no-mktexmf">
+				<description>don't try to create missing fonts</description>
+			</option>
+			<option long="no-specials" short="S">
+				<arg type="string" name="prefixes" optional="yes"/>
+				<description>don't process [selected] specials</description>
+			</option>
+			<option long="trace-all" short="a">
+            <arg name="retrace" type="bool" optional="yes" default="no"/>
+				<description>trace all glyphs of bitmap fonts</description>
+			</option>
+		</section>
+		<section title="Message options">
+			<option long="color">
+				<description>colorize messages</description>
+			</option>
+			<option long="help" short="h">
+				<arg name="mode" type="int" optional="yes" default="0"/>
+				<description>print this summary of options and exit</description>
+			</option>
+			<option long="list-specials" short="l">
+				<description>print supported special sets and exit</description>
+			</option>
+			<option long="progress" short="P">
+            <arg name="delay" type="double" optional="yes" default="0.5"/>
+				<description>enable progess indicator</description>
+			</option>
+			<option long="verbosity" short="v">
+				<arg type="unsigned" name="level" default="7"/>
+				<description>set verbosity level (0-7)</description>
+			</option>
+			<option long="version" short="V">
+				<arg type="bool" name="extended" optional="yes" default="no"/>
+				<description>print version and exit</description>
+			</option>
+		</section>
+	</options>
+</cmdline>
+

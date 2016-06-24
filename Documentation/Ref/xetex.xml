@@ -1,0 +1,164 @@
+<refentry id="xetex">
+
+<?dbhh topicname="MIKTEXHELP_XETEX" topicid="0"?>
+
+<refmeta>
+<refentrytitle>xetex</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>xetex</refname>
+<refpurpose>Unicode-based &TeX; engine</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+
+<cmdsynopsis>
+&xetex;
+<arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
+<group>
+<arg choice="opt"><replaceable>file</replaceable></arg>
+<arg choice="opt" rep="repeat">\<replaceable>command</replaceable></arg>
+</group></cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>Run the &XeTeX; typesetter on <replaceable>file</replaceable>,
+usually creating <filename>file.pdf</filename>. If the file argument
+has no extension, <filename>.tex</filename> will be appended to
+it. Instead of a file name, a set of &XeTeX; commands can be given,
+the first of which must start with a backslash.</para>
+
+<para>&XeTeX; has simple font installation;
+it can use any installed fonts in the operating system
+without configuring &TeX; font metric. As a result, &XeTeX;
+can access font features such as special ligatures and variable
+font weights.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Options</title>
+
+<variablelist>
+&optionalias;
+&optionauxdirectory;
+&optionbufsize;
+&optioncstyleerrors;
+&optiondisableinstaller;
+&optiondisablepipes;
+&optiondisablewriteeighteen;
+&optiondontparsefirstline;
+&optionenableetex;
+&optionenableinstaller;
+&optionenablemltex;
+&optionenablepipes;
+&optionenablewriteeighteen;
+&optionerrorline;
+&optionextramembot;
+&optionextramemtop;
+&optionfontmax;
+&optionfontmemsize;
+&optionhalferrorline;
+&optionhaltonerror;
+&optionhashextra;
+&optionhelp;
+&optionincludedirectory;
+&optioninitialize;
+&optioninteraction;
+&optionjobname;
+&optionjobtime;
+&optionmainmemory;
+&optionmaxinopen;
+&optionmaxprintline;
+&optionmaxstrings;
+&optionnestsize;
+&optionnocstyleerrors;
+<varlistentry>
+<indexterm>
+<primary>--no-pdf</primary>
+</indexterm>
+<term><option>--no-pdf</option></term>
+<listitem><para>Generate &XDV; (extended &DVI;) output rather than
+&PDF;</para></listitem>
+</varlistentry>
+&optionoutputdirectory;
+<varlistentry>
+<indexterm>
+<primary>--output-driver=<replaceable>cmd</replaceable></primary>
+</indexterm>
+<term><option>--output-driver=cmd</option></term>
+<listitem><para>Use <replaceable>cmd</replaceable> as the
+&XDV;-to-&PDF; driver instead of &xdvipdfmx;.</para></listitem>
+</varlistentry>
+<varlistentry>
+<indexterm>
+<primary>--papersize=<replaceable>string</replaceable></primary>
+</indexterm>
+<term><option>--papersize=string</option></term>
+<listitem><para>Set &PDF; media size to <replaceable>string</replaceable>.</para></listitem>
+</varlistentry>
+&optionparamsize;
+&optionparsefirstline;
+&optionpoolsize;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/quiet.xml" />
+&optionrecordpackageusages;
+&optionrecorder;
+&optionrestrictwriteeighteen;
+&optionsavesize;
+&optionsrcspecials;
+&optionstacksize;
+&optionstringvacancies;
+&optionsynctex;
+&optiontimestatistics;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/trace.xml" />
+&optiontriesize;
+&optionundump;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/version.xml" />
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>Environment</title>
+
+<variablelist>
+&TEXINPUTS;
+&TFMFONTS;
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>See also</title>
+
+<variablelist>
+<varlistentry>
+<term><citetitle>The &XeTeX; reference guide</citetitle></term>
+<listitem><para>Run <userinput>mthelp xetexref</userinput></para></listitem>
+</varlistentry>
+</variablelist>
+
+</refsect1>
+
+</refentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

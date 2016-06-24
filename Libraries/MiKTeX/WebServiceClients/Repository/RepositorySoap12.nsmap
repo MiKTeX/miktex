@@ -1,0 +1,18 @@
+
+#include "repositoryH.h"
+SOAP_NMAC struct Namespace namespaces[] =
+{
+	{"SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/", "http://www.w3.org/*/soap-envelope", NULL},
+	{"SOAP-ENC", "http://schemas.xmlsoap.org/soap/encoding/", "http://www.w3.org/*/soap-encoding", NULL},
+	{"xsi", "http://www.w3.org/2001/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance", NULL},
+	{"xsd", "http://www.w3.org/2001/XMLSchema", "http://www.w3.org/*/XMLSchema", NULL},
+	{"mtrep", "http://miktex.org/2006/06/repository", NULL, NULL},
+	{"mtrep2", "http://miktex.org/2007/03/repository", NULL, NULL},
+	{"mtrep3", "http://miktex.org/2007/07/repository", NULL, NULL},
+	{"mtrep4", "http://miktex.org/2007/10/repository", NULL, NULL},
+	{"mtrep5", "http://miktex.org/2008/05/repository", NULL, NULL},
+	{"ns1", "http://miktex.org/2015/06/repository/RepositorySoap", NULL, NULL},
+	{"mtrep6", "http://miktex.org/2015/06/repository", NULL, NULL},
+	{"ns2", "http://miktex.org/2015/06/repository/RepositorySoap12", NULL, NULL},
+	{NULL, NULL, NULL, NULL}
+};

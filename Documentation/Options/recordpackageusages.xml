@@ -1,0 +1,18 @@
+<varlistentry>
+<term><option>--record-package-usages=<replaceable>file</replaceable></option></term>
+<listitem>
+<para>Record all package usages and write
+<indexterm>
+<primary>--record-package-usages=file</primary>
+</indexterm>
+them into <replaceable>file</replaceable>.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

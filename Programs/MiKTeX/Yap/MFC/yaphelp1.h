@@ -1,0 +1,1 @@
+#define KEYBOARD_SHORTCUTS 101

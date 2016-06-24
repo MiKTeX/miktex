@@ -1,0 +1,100 @@
+<section id="texifying">
+
+<title>&texify;: The &MiKTeX; Compiler Driver</title>
+
+<indexterm>
+<primary>texify</primary>
+</indexterm>
+
+<para><command>texify</command> is a command-line utility that
+simplifies the creation of &DVI; (&PDF;) documents:
+<command>texify</command> automatically runs
+<application>LaTeX</application>
+(<application>pdfLaTeX</application>),
+<application>MakeIndex</application> and
+<application>BibTeX</application> as many times as necessary to
+produce a &DVI; (&PDF;) file with sorted indices and
+all cross-references resolved.</para>
+
+<indexterm>
+<primary>BibTeX</primary>
+<secondary>invoked by texify</secondary>
+</indexterm>
+
+<indexterm>
+<primary>LaTeX</primary>
+<secondary>invoked by texify</secondary>
+</indexterm>
+
+<indexterm>
+<primary>pdfLaTeX</primary>
+<secondary>invoked by texify</secondary>
+</indexterm>
+
+<indexterm>
+<primary>MakeIndex</primary>
+<secondary>invoked by texify</secondary>
+</indexterm>
+
+<indexterm>
+<primary>cross-references</primary>
+<secondary>resolving</secondary>
+</indexterm>
+
+<para>To run <command>texify</command> on an input file
+<filename>foo.tex</filename>, do this:</para>
+
+<programlisting>texify foo.tex</programlisting>
+
+<para>As shown in the example above, the input file names to
+<command>texify</command> must include any extension
+(<filename>.tex</filename>, <filename>.ltx</filename>,
+&hellip;).</para>
+
+<para>There are several command line options you can use to control
+<command>texify</command> (see <xref linkend="texify"/>).  Here are
+some examples:</para>
+
+<programlisting>texify --clean foo.tex</programlisting>
+
+<para>All auxiliary files will be removed, i.e., only the output
+<filename>foo.dvi</filename> file will be left in the current folder.</para>
+
+<indexterm>
+<primary>auxiliary files</primary>
+<secondary>removing</secondary>
+</indexterm>
+
+<programlisting>texify --tex-option=--src foo.tex</programlisting>
+
+<para>Passes the option <option>--src</option> to the
+&TeX; compiler.</para>
+
+<programlisting>texify --run-viewer foo.tex</programlisting>
+
+<para>Opens the output file <filename>foo.dvi</filename> (unless there
+are compile erros).</para>
+
+<programlisting>texify --tex-option=--src --viewer-option="-1 -s\"200 foo.tex\"" --run-viewer foo.tex</programlisting>
+
+<para>Compiles <filename>foo.tex</filename> with source file
+information (<option>--src</option>) and then initiates forward &DVI;
+<indexterm>
+<primary>DVI search</primary>
+</indexterm>
+search to open <filename>foo.dvi</filename> at the source special
+location <quote>200 foo.tex</quote>.  The previewer option
+<option>-1</option> re-uses an existing previewer window.</para>
+
+<para>See the &Yap; manual, for a complete list of previewer options.</para>
+
+</section>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("miktex.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

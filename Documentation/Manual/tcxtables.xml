@@ -1,0 +1,163 @@
+<section id="tcx">
+
+<title>&TCX; Files: Character Translations</title>
+
+<indexterm>
+<primary>character translation files</primary>
+</indexterm>
+<indexterm>
+<primary>international characters</primary>
+</indexterm>
+<indexterm>
+<primary>8-bit characters</primary>
+</indexterm>
+<indexterm>
+<primary>accented character</primary>
+</indexterm>
+<indexterm>
+<primary>TCX (character translation files)</primary>
+</indexterm>
+
+<para><emphasis>This section is <quote>borrowed</quote> from the
+<acronym>Web2C</acronym> manual.</emphasis></para>
+
+<para>&TCX; (&TeX; character translation) files help &TeX; support
+direct input of 8-bit international characters if fonts containing
+those characters are being used.  Specifically, they map an input
+(keyboard) character code to the internal &TeX; character code (a
+superset of <acronym>ASCII</acronym>).</para>
+
+<para>Of the various proposals for handling more than one input
+encoding, &TCX; files were chosen because they follow Knuth's original
+ideas for the use of the <varname>xchr</varname> and
+<varname>xord</varname> tables.  He ventured that these would be
+changed in the <acronym>WEB</acronym> source in order to adjust the
+actual version to a given environment.  It turned out, however, that
+recompiling the <acronym>WEB</acronym> sources is not as simple task
+as Knuth predicted; therefore, &TCX; files, providing the possibility
+of changing of the conversion tables on on-the-fly, has been
+implemented instead.</para>
+
+<para>This approach limits the portability of &TeX; documents, as some
+implementations do not support it (or use a different method for
+input-internal reencoding).  It may also be problematic to determine
+the encoding to use for a &TeX; document of unknown provenance; in the
+worst case, failure to do so correctly may result in subtle errors in
+the typeset output.</para>
+
+<para>While &TCX; files can be used with any format, using them breaks
+the &LaTeX; <varname>inputenc</varname> package.  This is why you
+should either use <emphasis>tcxfile</emphasis> or
+<emphasis>inputenc</emphasis> in &LaTeX; input files, but never
+both.</para>
+
+<para>This is entirely independent of the <application>MLTeX</application>
+<indexterm>
+<primary>MLTeX</primary>
+</indexterm>
+extension: whereas a &TCX; file defines how an input keyboard
+character is mapped to &TeX;'s internal code,
+<application>MLTeX</application> defines substitutions for a
+non-existing character glyph in a font with a <markup
+role="tex">\accent</markup> construction made out of two separate
+character glyphs.  &TCX; files involve no new primitives; it is not
+possible to specify that an input (keyboard) character maps to more
+than one character.</para>
+
+<para>Specifying &TCX; files:</para>
+
+<itemizedlist>
+
+<listitem><para>You can specify a &TCX; file to be used for a
+particular &TeX; run by specifying the command-line option
+<option>-translate-file=<replaceable>tcxfile</replaceable></option> or
+(preferably) specifying it explicitly in the first line of the main
+document:
+<programlisting>%&amp; -translate-file=<replaceable>tcxfile</replaceable></programlisting>
+</para></listitem>
+
+<listitem><para>&TCX; files are searched for along the <envar>TCXPath</envar> path.</para></listitem>
+
+<listitem><para><command>initex</command> ignores &TCX; files.</para></listitem>
+
+</itemizedlist>
+
+<para>&MiKTeX; comes with at least two &TCX; files,
+<filename>il1-t1.tcx</filename> and <filename>il2-t1.tcx</filename>.
+These support <acronym>ISO</acronym> Latin&nbsp;1 and
+<acronym>ISO</acronym> Latin&nbsp;2, respectively, with Cork-encoded fonts
+<indexterm>
+<primary>Cork encoding and ISO input</primary>
+</indexterm>
+<indexterm>
+<primary>T1 encoding and <acronym>ISO</acronym> input</primary>
+</indexterm>
+(a.k.a.: the T1 encoding).  &TCX; files for Czech, Polish, and Slovak
+are also provided.</para>
+
+<para>Syntax of &TCX; files:</para>
+
+<orderedlist>
+
+<listitem><para>Line-oriented.  Blank lines are ignored.</para></listitem>
+    
+<listitem><para>Whitespace is ignored except as a separator.</para></listitem>
+
+<listitem><para>Comments start with <userinput>%</userinput> and
+continue to the end of the line.</para></listitem>
+
+<listitem><para>Otherwise, a line consists of one or two character codes:
+<programlisting><replaceable>src</replaceable> [<replaceable>dest</replaceable>]</programlisting></para></listitem>
+
+<listitem><para>Each character code may be specified in octal with a
+leading <literal>0</literal>, hexadecimal with a leading
+<literal>0x</literal>, or decimal otherwise.  Values must be between
+<literal>0</literal> and <literal>255</literal>, inclusive (decimal).</para></listitem>
+
+<listitem><para>If the <replaceable>dest</replaceable> code is not
+specified, it is taken to be the same as
+<replaceable>src</replaceable>.</para></listitem>
+
+<listitem><para>If the same <replaceable>src</replaceable> code is
+specified more than once, it is the last definition that
+counts.</para></listitem>
+
+</orderedlist>
+
+<para>Finally, here's what happens: when &TeX; sees an input character
+with code <replaceable>src</replaceable>: it 1)&nbsp;changes
+<replaceable>src</replaceable> to <replaceable>dest</replaceable>; and
+2)&nbsp;makes code the <replaceable>dest</replaceable>
+<quote>printable</quote>, i.e., printed as-is in diagnostics and the
+log file instead of in <computeroutput>^^</computeroutput>
+notation.</para>
+
+<para>By default, no characters are translated, and character codes
+between <literal>32</literal> and <literal>126</literal> inclusive
+(decimal) are printable.  It is not possible to make these (or any)
+characters unprintable.</para>
+
+<para>Specifying translations for the printable
+<acronym>ASCII</acronym> characters (codes
+<literal>32</literal>&ndash;<literal>127</literal>) will yield
+unpredictable results.  Additionally you shouldn't make the following
+characters printable: <userinput>^^I</userinput>
+(<abbrev>TAB</abbrev>), <userinput>^^J</userinput> (line feed),
+<userinput>^^M</userinput> (carriage return), and
+<userinput>^^?</userinput> (delete), since &TeX; uses them in various
+ways.</para>
+
+<para>Thus, the idea is to specify the input (keyboard) character code
+for <replaceable>src</replaceable>, and the output (font) character
+code for <replaceable>dest</replaceable>.</para>
+
+</section>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("miktex.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

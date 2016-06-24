@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/miktex/">
+    <TPM:Name>CJK font utilities</TPM:Name>
+    <TPM:Title>CJK font utilities</TPM:Title>
+    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      This package includes various CJK related font conversion tools:
+      hbf2gf.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${cjklatex_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/bg5pluslatex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/bg5pluspdflatex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/bg5conv.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/bg5latex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/bg5pdflatex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/bg5platex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/bg5ppdflatex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/cef5conv.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/cef5latex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/cef5pdflatex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/cefconv.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/ceflatex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/cefpdflatex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/cefsconv.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/cefslatex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/cefspdflatex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/cjklatex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/extconv.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/gbklatex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/gbkpdflatex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/hbf2gf.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/sjisconv.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/sjislatex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/sjispdflatex.exe
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

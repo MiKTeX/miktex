@@ -1,0 +1,3 @@
+EXPORTS
+  uriParseUriA @1
+  uriFreeUriMembersA @2

@@ -1,0 +1,165 @@
+Copyright (c) 2008, 2009 jerome DOT laurens AT u-bourgogne DOT fr
+
+This file is part of the SyncTeX package.
+
+Latest Revision: Wed Jul  1 11:17:16 UTC 2009
+
+License:
+--------
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE
+
+Except as contained in this notice, the name of the copyright holder  
+shall not be used in advertising or otherwise to promote the sale,  
+use or other dealings in this Software without prior written  
+authorization from the copyright holder.
+
+Acknowledgments:
+----------------
+The author received useful remarks from the pdfTeX developers, especially Hahn The Thanh,
+and significant help from XeTeX developer Jonathan Kew
+
+Nota Bene:
+----------
+If you include or use a significant part of the synctex package into a software,
+I would appreciate to be listed as contributor and see "SyncTeX" highlighted.
+
+Version 1
+Thu Jun 19 09:39:21 UTC 2008
+
+Notice:
+-------
+This file contains TeX changes for core synctex support.
+It is missing some implementation details that are deferred to either
+sync-pdftex.ch or sync-xetex.ch
+synctex.ch is based on tex.web after the eTeX changes have been applied.
+So it might not apply as is to pdftex.web due to some typographical changes.
+In the building process, one may have to apply some suitable tex.ch0 first.
+See pdftexdir for details.
+
+@x etex.ch l.3976
+@<Reverse an hlist segment...@>=
+begin save_h:=cur_h; temp_ptr:=link(p); rule_wd:=width(p);
+free_node(p,small_node_size);
+@y
+@<Reverse an hlist segment...@>=
+begin save_h:=cur_h; temp_ptr:=link(p); rule_wd:=width(p);
+free_node(p,medium_node_size); {{\sl Sync\TeX}: p is a |math_node|}
+@z
+
+@x etex.ch l.4036
+if type(p)=kern_node then if (rule_wd=0)or(l=null) then
+  begin free_node(p,small_node_size); p:=l;
+  end;
+@y
+if type(p)=kern_node then if (rule_wd=0)or(l=null) then
+  begin free_node(p,medium_node_size); p:=l;
+  end;
+@z
+
+@x etex.ch l.4088
+@<Finish the reversed...@>=
+begin free_node(p,small_node_size);
+link(t):=q; width(t):=rule_wd; edge_dist(t):=-cur_h-rule_wd; goto done;
+end
+@y
+@<Finish the reversed...@>=
+begin free_node(p,medium_node_size); {{\sl Sync\TeX}: p is a |kern_node|}
+link(t):=q; width(t):=rule_wd; edge_dist(t):=-cur_h-rule_wd; goto done;
+end
+@z
+
+@x etex.ch l.4137
+  kern_node,math_node: begin r:=get_node(small_node_size);
+    words:=small_node_size;
+    end;
+  glue_node: begin r:=get_node(small_node_size); add_glue_ref(glue_ptr(p));
+    glue_ptr(r):=glue_ptr(p); leader_ptr(r):=null;
+    end;
+@y
+  kern_node,math_node: begin
+      words:=medium_node_size; {{\sl Sync\TeX}: proper size for math and kern}
+      r:=get_node(words);
+    end;
+  glue_node: begin r:=get_node(medium_node_size); add_glue_ref(glue_ptr(p));
+                                                 {{\sl Sync\TeX}: proper size for glue}
+    glue_ptr(r):=glue_ptr(p); leader_ptr(r):=null;
+    end;
+@z
+
+@x etex.ch l.4211 - Drop unused label
+procedure just_reverse(@!p:pointer);
+label found,done;
+@y
+procedure just_reverse(@!p:pointer);
+label done;
+@z
+
+@x etex.ch l.4234
+found:width(t):=width(p); link(t):=q; free_node(p,small_node_size);
+@y
+width(t):=width(p); link(t):=q; free_node(p,small_node_size);
+@z
+
+@x etex.ch l.4241
+    begin type(p):=kern_node; incr(LR_problems);
+    end
+  else  begin pop_LR;
+    if n>min_halfword then
+      begin decr(n); decr(subtype(p)); {change |after| into |before|}
+      end
+    else  begin if m>min_halfword then decr(m)@+else goto found;
+      type(p):=kern_node;
+      end;
+    end
+else  begin push_LR(p);
+  if (n>min_halfword)or(LR_dir(p)<>cur_dir) then
+    begin incr(n); incr(subtype(p)); {change |before| into |after|}
+    end
+  else  begin type(p):=kern_node; incr(m);
+    end;
+  end
+@y
+    begin type(p):=kern_node; incr(LR_problems);
+        {{\sl Sync\TeX} node size watch point: |math_node| size == |kern_node| size}
+    end
+  else  begin pop_LR;
+    if n>min_halfword then
+      begin decr(n); decr(subtype(p)); {change |after| into |before|}
+      end
+    else  begin if m>min_halfword then decr(m)@+else begin
+    width(t):=width(p); link(t):=q; free_node(p,medium_node_size);
+{{\sl Sync\TeX}: no more "goto found", and proper node size}
+    goto done;
+  end;
+  type(p):=kern_node;
+            {{\sl Sync\TeX} node size watch point: |math_node| size == |kern_node| size}
+      end;
+    end
+else  begin push_LR(p);
+  if (n>min_halfword)or(LR_dir(p)<>cur_dir) then
+    begin incr(n); incr(subtype(p)); {change |before| into |after|}
+    end
+  else  begin type(p):=kern_node; incr(m);
+            {{\sl Sync\TeX} node size watch point: |math_node| size == |kern_node| size}
+    end;
+  end
+@z

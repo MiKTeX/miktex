@@ -1,0 +1,316 @@
+<chapter id="keyboard">
+
+<?dbhh topicname="KEYBOARD_SHORTCUTS" topicid=""?>
+
+<title>Keyboard Shortcuts</title>
+
+<indexterm>
+<primary>keyboard shortcuts</primary>
+</indexterm>
+
+<para><application>Yap</application> recognizes certain keyboard
+shortcuts when typed in its window.  Some shortcuts may optionally be
+preceded by a number, the so called numerical prefix.  Its
+interpretation will depend on the particular shortcut.  The numerical
+prefix is displayed in the status bar.</para>
+
+<section id="numprefix">
+
+<title>Numerical Prefix</title>
+
+<indexterm>
+<primary>keyboard shortcuts</primary>
+<secondary>numerical prefix</secondary>
+</indexterm>
+
+<variablelist>
+<varlistentry>
+<term><keycap>0</keycap></term>
+<term><keycap>1</keycap></term>
+<term><keycap>2</keycap></term>
+<term><keycap>3</keycap></term>
+<term><keycap>4</keycap></term>
+<term><keycap>5</keycap></term>
+<term><keycap>6</keycap></term>
+<term><keycap>7</keycap></term>
+<term><keycap>8</keycap></term>
+<term><keycap>9</keycap></term>
+<listitem><para>Adds a digit to the numerical prefix.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycap>Escape</keycap></term>
+<listitem><para>Clears the numerical prefix.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycap>-</keycap></term>
+<listitem><para>Negates the numerical prefix.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</section>
+
+<section id="zoomkeys">
+
+<title>Zooming</title>
+
+<variablelist>
+<varlistentry>
+<term><keycombo action="seq">
+<keysym><replaceable class="parameter">prefix</replaceable></keysym>
+<keycap>+</keycap></keycombo></term>
+<listitem><para>Zooms in
+<indexterm>
+<primary>zooming</primary>
+<secondary>keyboard shortcuts for</secondary>
+</indexterm>
+<indexterm>
+<primary>magnifying</primary>
+<secondary>the view</secondary>
+</indexterm>
+(magnifies the page).</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycombo action="seq">
+<keysym><replaceable>prefix</replaceable></keysym>
+<keycap>-</keycap></keycombo></term>
+<listitem><para>Zooms out
+<indexterm>
+<primary>zooming</primary>
+</indexterm>
+<indexterm>
+<primary>reducing</primary>
+<secondary>the view</secondary>
+</indexterm>
+(reduces the page).</para></listitem>
+</varlistentry>
+</variablelist>
+
+</section>
+
+<section id="navkeys">
+
+<title>Page Navigation</title>
+
+<variablelist>
+<varlistentry>
+<term><keycombo action="seq">
+<keysym><replaceable>prefix</replaceable></keysym>
+<keycap>g</keycap></keycombo></term>
+<listitem><para>Opens the <guilabel>Goto Page</guilabel> dialog box
+(see <xref linkend="gotopage"/>) if
+the prefix argument is empty.  Otherwise goes to the
+<indexterm>
+<primary>page</primary>
+<secondary>displaying a random</secondary>
+</indexterm>
+specified page.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycombo action="seq">
+<keysym><replaceable>prefix</replaceable></keysym>
+<keycap>PgUp</keycap></keycombo></term>
+<term><keycombo action="seq">
+<keysym><replaceable>prefix</replaceable></keysym>
+<keycap>b</keycap></keycombo></term>
+<term><keycombo action="seq">
+<keysym><replaceable>prefix</replaceable></keysym>
+<keycap>p</keycap></keycombo></term>
+<term><keycombo action="seq">
+<keysym><replaceable>prefix</replaceable></keysym>
+<keycap>h</keycap>
+</keycombo></term>
+<term><keycombo action="seq">
+<keysym><replaceable>prefix</replaceable></keysym>
+<keycap>Backspace</keycap>
+</keycombo></term>
+<term><keycombo action="seq">
+<keysym><replaceable>prefix</replaceable></keysym>
+<keycap>Delete</keycap>
+</keycombo></term>
+<listitem><para>Scrolls the window up.  Goes to the previous page, if at
+the top of the current page.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycombo action="seq">
+<keysym><replaceable>prefix</replaceable></keysym>
+<keycap>PgDn</keycap>
+</keycombo></term>
+<term><keycombo action="seq">
+<keysym><replaceable>prefix</replaceable></keysym>
+<keycap>f</keycap>
+</keycombo></term>
+<term><keycombo action="seq">
+<keysym><replaceable>prefix</replaceable></keysym>
+<keycap>n</keycap>
+</keycombo></term>
+<listitem><para>Goes to the next page.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycombo action="simul">
+<keycap>Alt</keycap>
+<keysym>Left</keysym>
+</keycombo></term>
+<listitem><para>Return to the last page.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycombo action="simul">
+<keycap>Alt</keycap>
+<keysym>Right</keysym>
+</keycombo></term>
+<listitem><para>Go to the page you viewed before clicking
+<guilabel>Back</guilabel>.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycombo action="simul">
+<keycap>Alt</keycap>
+<keycap>Home</keycap>
+</keycombo></term>
+<listitem><para>Goes to the first page.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycombo action="simul">
+<keycap>Alt</keycap>
+<keycap>End</keycap>
+</keycombo></term>
+<listitem><para>Goes to the last page.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</section>
+
+<section id="scrollkeys">
+
+<title>Scrolling</title>
+
+<indexterm>
+<primary>scrolling</primary>
+<secondary>keyboard shortcuts for</secondary>
+</indexterm>
+
+<variablelist>
+<varlistentry>
+<term><keycap>End</keycap></term>
+<listitem><para>Scrolls the window to the bottom of the page.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycap>Home</keycap></term>
+<term><keycap>^</keycap></term>
+<listitem><para>Scrolls the window to the top of the page.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keysym>Left</keysym></term>
+<listitem><para>Scrolls the windows left a little bit.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycombo action="simul">
+<keycap>Shift</keycap>
+<keysym>Left</keysym>
+</keycombo></term>
+<listitem><para>Scrolls the windows left.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keysym>Right</keysym></term>
+<listitem><para>Scrolls the windows right a little bit.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycombo action="simul">
+<keycap>Shift</keycap>
+<keysym>Right</keysym>
+</keycombo></term>
+<listitem><para>Scrolls the windows right.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keysym>Space</keysym></term>
+<listitem><para>Scrolls the window down.  Goes to the next page, if at
+the bottom of the current page.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keysym>Up</keysym></term>
+<listitem><para>Scrolls the windows up a little bit.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycombo action="simul">
+<keycap>Shift</keycap>
+<keysym>Up</keysym>
+</keycombo></term>
+<listitem><para>Scrolls the windows up.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keysym>Down</keysym></term>
+<listitem><para>Scrolls the windows down a little bit.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycombo action="simul">
+<keycap>Shift</keycap>
+<keysym>Down</keysym>
+</keycombo></term>
+<listitem><para>Scrolls the windows down.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</section>
+
+<section id="misckeys">
+
+<title>Misc</title>
+
+<variablelist>
+<varlistentry>
+<term><keycombo action="simul">
+<keycap>Alt</keycap>
+<keycap>Control</keycap>
+<keycap>Plus</keycap>
+</keycombo></term>
+<listitem><para>Darker text.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycombo action="simul">
+<keycap>Alt</keycap>
+<keycap>Control</keycap>
+<keycap>Minus</keycap>
+</keycombo></term>
+<listitem><para>Lighter text.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycap>?</keycap></term>
+<listitem><para>Show the keyboard map.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycap>e</keycap></term>
+<listitem><para>Start a text editor to edit the
+&TeX; source under the mouse
+cursor (i. e. perform an inverse search).</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycap>F</keycap></term>
+<term><keycombo action="simul">
+<keycap>Control</keycap>
+<keycap>O</keycap>
+</keycombo></term>
+<listitem><para>Open a new &DVI; document.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycombo action="simul">
+<keycap>Control</keycap>
+<keycap>P</keycap>
+</keycombo></term>
+<listitem><para>Send the &DVI; document to the printer.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><keycap>q</keycap></term>
+<listitem><para>Quit the application.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</section>
+
+</chapter>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("yap.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

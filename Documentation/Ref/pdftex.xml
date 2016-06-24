@@ -1,0 +1,171 @@
+<refentry id="pdftex">
+
+<?dbhh topicname="MIKTEXHELP_PDFTEX" topicid="0"?>
+
+<refmeta>
+<refentrytitle>miktex-pdftex</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>miktex-pdftex</refname>
+<refpurpose>&DVI;/&PDF; output from &TeX;</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+
+<cmdsynopsis>
+&miktexpdftex;
+<arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
+<group>
+<arg choice="opt"><replaceable>file</replaceable></arg>
+<arg choice="opt" rep="repeat">\<replaceable>command</replaceable></arg>
+</group></cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>Run the &pdfTeX; typesetter on <replaceable>file</replaceable>,
+usually creating <filename>file.pdf</filename>. If the file argument
+has no extension, <filename>.tex</filename> will be appended to
+it. Instead of a file name, a set of &pdfTeX; commands can be given,
+the first of which must start with a backslash.</para>
+
+<para>&pdfTeX; is a version of &TeX; that can create &PDF; files as
+well as &DVI; files.</para>
+
+<para>In &PDF; mode, &pdfTeX; can natively handle the &PDF;, &JPG;,
+and &PNG; graphics formats.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Options</title>
+
+<variablelist>
+&optionalias;
+&optionauxdirectory;
+&optionbufsize;
+&optioncstyleerrors;
+&optiondisableinstaller;
+&optiondisablepipes;
+&optiondisablewriteeighteen;
+&optiondontparsefirstline;
+<varlistentry>
+<indexterm>
+<primary>--draftmode</primary>
+</indexterm>
+<term><option>--draftmode</option></term>
+<listitem><para>Switch on draft mode (generates no output).</para></listitem>
+</varlistentry>
+&optionenableenctex;
+&optionenableetex;
+&optionenableinstaller;
+&optionenablemltex;
+&optionenablepipes;
+&optionenablewriteeighteen;
+&optionerrorline;
+&optionextramembot;
+&optionextramemtop;
+&optionfontmax;
+&optionfontmemsize;
+&optionhalferrorline;
+&optionhaltonerror;
+&optionhashextra;
+&optionhelp;
+&optionincludedirectory;
+&optioninitialize;
+&optioninteraction;
+&optionjobname;
+&optionjobtime;
+&optionmainmemory;
+&optionmaxinopen;
+&optionmaxprintline;
+&optionmaxstrings;
+&optionnestsize;
+&optionnocstyleerrors;
+&optionoutputdirectory;
+<varlistentry>
+<indexterm>
+<primary>--output-format=<replaceable>format</replaceable></primary>
+</indexterm>
+<term><option>--output-format=format</option></term>
+<listitem><para>Set the output format.</para></listitem>
+</varlistentry>
+&optionparamsize;
+&optionparsefirstline;
+&optionpoolsize;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/quiet.xml" />
+&optionrecordpackageusages;
+&optionrecorder;
+&optionrestrictwriteeighteen;
+&optionsavesize;
+&optionsrcspecials;
+&optionstacksize;
+&optionstringvacancies;
+&optionsynctex;
+&optiontcx;
+&optiontimestatistics;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/trace.xml" />
+&optiontriesize;
+&optionundump;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/version.xml" />
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>Files</title>
+
+<variablelist>
+<varlistentry>
+<term><filename>pdftex.cfg</filename></term>
+<listitem>
+<para>The &MiKTeXpdfTeX; configuration file.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsect1>
+
+<refsect1>
+
+<title>Environment</title>
+
+<variablelist>
+&TEXINPUTS;
+&TFMFONTS;
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>See also</title>
+
+<variablelist>
+<varlistentry>
+<term><citetitle>The &pdfTeX; user manual</citetitle> (A4 version)</term>
+<listitem><para>Run <userinput>mthelp pdftex-a</userinput></para></listitem>
+</varlistentry>
+</variablelist>
+
+</refsect1>
+
+</refentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

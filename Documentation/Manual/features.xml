@@ -1,0 +1,142 @@
+<section id="about">
+
+<title>About &MiKTeX;</title>
+
+<para>&MiKTeX; (pronounced
+<emphasis>mik-tech</emphasis>) is an up-to-date implementation of
+<indexterm>
+<primary>MiKTeX</primary>
+<secondary>how to pronounce</secondary>
+</indexterm>
+&TeX; and related programs for
+&Windows; (all current variants).
+&TeX; is a typesetting system invented
+by D.&nbsp;E.&nbsp;Knuth.
+<indexterm>
+<primary>Knuth</primary>
+<secondary>Donald E.</secondary>
+</indexterm></para>
+
+<para>&MiKTeX;'s main features include:
+<indexterm>
+<primary>MiKTeX</primary>
+<secondary>features</secondary>
+</indexterm></para>
+
+<itemizedlist>
+<listitem><para>easy to install</para>
+</listitem>
+<listitem><para>integrated package management: missing packages can be
+installed automatically (on-the-fly) during run-time</para></listitem>
+<listitem><para>network friendly: &MiKTeX;
+can be run directly from a shared and read-only network directory</para>
+</listitem>
+<listitem><para>complete: the &MiKTeX;
+distribution contains almost all packages that are freely
+redistributable.</para>
+</listitem>
+<listitem><para>enhanced &TeX; compiler
+capabilities</para>
+</listitem>
+<listitem><para>enhanced previewer capabilities: forward/inverse
+&DVI; search, graphics, color, magnifying glass,&nbsp;&hellip;</para>
+</listitem>
+<listitem><para>open source: &MiKTeX; source
+code is get-at-able for everyone</para></listitem>
+</itemizedlist>
+
+<para>The &MiKTeX; distribution consists of the following
+components:</para>
+
+<variablelist>
+
+<varlistentry>
+<term>&TeX;</term>
+<term>&METAFONT;</term>
+<term><application>TeXware</application></term>
+<term><application>METAFONTware</application></term>
+<term><application>Computer Modern Fonts</application></term>
+<listitem><para>the base &TeX; system</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>&pdfTeX;</term>
+<term>&XeTeX;</term>
+<term>&LuaTeX;</term>
+<term>&Omega;</term>
+<listitem><para>various &TeX; derivatives</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>&MetaPost;</term>
+<listitem><para>a &METAFONT; derivative for the
+ creation of &PostScript; figures</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>&Dvipdfm;</term>
+<listitem><para>converts &TeX; output into
+&PDF; documents</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>macro packages</term>
+<listitem><para>almost all free &TeX; macro packages</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>fonts</term>
+<listitem><para>almost all free fonts</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>&Yap;</term>
+<listitem><para>a sophisticated viewer for &TeX;
+output</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>&TeXify;</term>
+<listitem>
+<para>a &TeX; compiler driver</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>&MiKTeXOptions;</term>
+<listitem><para>assists in configuring &MiKTeX;</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>&MiKTeXUpdateWizard;</term>
+<listitem><para>assists in keeping the &MiKTeX;
+system up-to-date</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>lots of utilities</term>
+<listitem><para>tools for the creation of bibliographies &amp; indexes,
+<application>PostScript</application> utilities, and more</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+</section>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("miktex.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

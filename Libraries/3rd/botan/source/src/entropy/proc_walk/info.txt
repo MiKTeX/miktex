@@ -1,0 +1,31 @@
+realname "File Tree Walking Entropy Source"
+
+define ENTROPY_SRC_FTW
+
+load_on auto
+modset unix
+
+<add>
+es_ftw.h
+es_ftw.cpp
+</add>
+
+<os>
+aix
+cygwin
+darwin
+dragonfly
+freebsd
+hpux
+irix
+linux
+netbsd
+openbsd
+qnx
+solaris
+tru64
+</os>
+
+<requires>
+alloc
+</requires>

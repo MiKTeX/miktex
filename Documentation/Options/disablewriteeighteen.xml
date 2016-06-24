@@ -1,0 +1,25 @@
+<varlistentry>
+<term><option>--disable-write18</option></term>
+<listitem>
+<indexterm>
+<primary>--disable-write18</primary>
+</indexterm>
+<indexterm>
+<primary>--no-shell-escape</primary>
+</indexterm>
+<indexterm>
+<primary>\write18 (run a program from within TeX)</primary>
+</indexterm>
+<para>Disable the
+<markup role="tex">\write18{<replaceable>command</replaceable>}</markup>
+construct.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

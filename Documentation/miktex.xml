@@ -1,0 +1,676 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                      "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+<!ENTITY % version.ent SYSTEM "version.ent">
+%version.ent;
+%entities.ent;
+
+<!ENTITY revj2000 "5845">
+<!ENTITY month "January 2016">
+<!ENTITY date "January 02, 2016">
+
+<!ENTITY rev "&MIKTEX_SERIES_STR;.&revj2000;">
+
+<!ENTITY mfappdefaults SYSTEM "mfapp.defaults">
+<!ENTITY mfdefaults SYSTEM "mf.defaults">
+<!ENTITY mpostdefaults SYSTEM "mpost.defaults">
+<!ENTITY omegadefaults SYSTEM "omega.defaults">
+<!ENTITY pdftexdefaults SYSTEM "pdftex.defaults">
+<!ENTITY texappdefaults SYSTEM "texapp.defaults">
+<!ENTITY texmfappdefaults SYSTEM "texmfapp.defaults">
+
+<!ENTITY MIKTEX_REPOSITORY SYSTEM "EnvVars/MIKTEX_REPOSITORY.xml">
+<!ENTITY MIKTEX_TRACE SYSTEM "EnvVars/MIKTEX_TRACE.xml">
+
+<!ENTITY TFMFONTS SYSTEM "EnvVars/TFMFONTS.xml">
+<!ENTITY TEXINPUTS SYSTEM "EnvVars/TEXINPUTS.xml">
+<!ENTITY MFINPUTS SYSTEM "EnvVars/MFINPUTS.xml">
+<!ENTITY MPINPUTS SYSTEM "EnvVars/MPINPUTS.xml">
+<!ENTITY BSTINPUTS SYSTEM "EnvVars/BSTINPUTS.xml">
+<!ENTITY BIBINPUTS SYSTEM "EnvVars/BIBINPUTS.xml">
+
+<!ENTITY configuring SYSTEM "Manual/configuring.xml">
+<!ENTITY features SYSTEM "Manual/features.xml">
+<!ENTITY intro SYSTEM "Manual/intro.xml">
+<!ENTITY localguide SYSTEM "Manual/localguide.xml">
+<!ENTITY manbibtex SYSTEM "Ref/bibtex.xml">
+<!ENTITY mandvicopy SYSTEM "Ref/dvicopy.xml">
+<!ENTITY mandvips SYSTEM "Ref/dvips.xml">
+<!ENTITY manfindtexmf SYSTEM "Ref/findtexmf.xml">
+<!ENTITY mangftodvi SYSTEM "Ref/gftodvi.xml">
+<!ENTITY maninitexmf SYSTEM "Ref/initexmf.xml">
+<!ENTITY manmf SYSTEM "Ref/mf.xml">
+<!ENTITY manmiktextools SYSTEM "Ref/miktex-tools.xml">
+<!ENTITY manmpost SYSTEM "Ref/mpost.xml">
+<!ENTITY manmthelp SYSTEM "Ref/mthelp.xml">
+<!ENTITY manmtprint SYSTEM "Ref/mtprint.xml">
+<!ENTITY manomega SYSTEM "Ref/omega.xml">
+<!ENTITY manxetex SYSTEM "Ref/xetex.xml">
+<!ENTITY manpdftex SYSTEM "Ref/pdftex.xml">
+<!ENTITY manpdftexcfg SYSTEM "Ref/pdftexcfg.xml">
+<!ENTITY mansetupwiz SYSTEM "Ref/setupwiz.xml">
+<!ENTITY mantex SYSTEM "Ref/tex.xml">
+<!ENTITY mantexify SYSTEM "Ref/texify.xml">
+<!ENTITY manupdmapcfg SYSTEM "Ref/updmapcfg.xml">
+<!ENTITY optionalias SYSTEM "Options/alias.xml">
+<!ENTITY optionauxdirectory SYSTEM "Options/auxdirectory.xml">
+<!ENTITY optionbistacksize SYSTEM "Options/bistacksize.xml">
+<!ENTITY optionbufsize SYSTEM "Options/bufsize.xml">
+<!ENTITY optioncstyleerrors SYSTEM "Options/cstyleerrors.xml">
+<!ENTITY optiondisableinstaller SYSTEM "Options/disableinstaller.xml">
+<!ENTITY optiondisablepipes SYSTEM "Options/disablepipes.xml">
+<!ENTITY optiondisablewriteeighteen SYSTEM "Options/disablewriteeighteen.xml">
+<!ENTITY optiondontparsefirstline SYSTEM "Options/dontparsefirstline.xml">
+<!ENTITY optionenableenctex SYSTEM "Options/enableenctex.xml">
+<!ENTITY optionenableetex SYSTEM "Options/enableetex.xml">
+<!ENTITY optionenableinstaller SYSTEM "Options/enableinstaller.xml">
+<!ENTITY optionenablemltex SYSTEM "Options/enablemltex.xml">
+<!ENTITY optionenablepipes SYSTEM "Options/enablepipes.xml">
+<!ENTITY optionenablewriteeighteen SYSTEM "Options/enablewriteeighteen.xml">
+<!ENTITY optionrestrictwriteeighteen SYSTEM "Options/restrictwriteeighteen.xml">
+<!ENTITY optionerrorline SYSTEM "Options/errorline.xml">
+<!ENTITY optionfontmax SYSTEM "Options/fontmax.xml">
+<!ENTITY optionfontmemsize SYSTEM "Options/fontmemsize.xml">
+<!ENTITY optionhalferrorline SYSTEM "Options/halferrorline.xml">
+<!ENTITY optionhaltonerror SYSTEM "Options/haltonerror.xml">
+<!ENTITY optionhelp SYSTEM "Options/help.xml">
+<!ENTITY optionhhelp SYSTEM "Options/hhelp.xml">
+<!ENTITY optionincludedirectory SYSTEM "Options/includedirectory.xml">
+<!ENTITY optioninitialize SYSTEM "Options/initialize.xml">
+<!ENTITY optioninteraction SYSTEM "Options/interaction.xml">
+<!ENTITY optionjobname SYSTEM "Options/jobname.xml">
+<!ENTITY optionjobtime SYSTEM "Options/jobtime.xml">
+<!ENTITY optionligtablesize SYSTEM "Options/ligtablesize.xml">
+<!ENTITY optionhashextra SYSTEM "Options/hashextra.xml">
+<!ENTITY optionmaxinopen SYSTEM "Options/maxinopen.xml">
+<!ENTITY optionmainmemory SYSTEM "Options/mainmemory.xml">
+<!ENTITY optionextramembot SYSTEM "Options/extramembot.xml">
+<!ENTITY optionextramemtop SYSTEM "Options/extramemtop.xml">
+<!ENTITY optionmaxprintline SYSTEM "Options/maxprintline.xml">
+<!ENTITY optionmaxstrings SYSTEM "Options/maxstrings.xml">
+<!ENTITY optionmaxwiggle SYSTEM "Options/maxwiggle.xml">
+<!ENTITY optionmovesize SYSTEM "Options/movesize.xml">
+<!ENTITY optionnestsize SYSTEM "Options/nestsize.xml">
+<!ENTITY optionnocstyleerrors SYSTEM "Options/nocstyleerrors.xml">
+<!ENTITY optionoutputdirectory SYSTEM "Options/outputdirectory.xml">
+<!ENTITY optionparamsize SYSTEM "Options/paramsize.xml">
+<!ENTITY optionparsefirstline SYSTEM "Options/parsefirstline.xml">
+<!ENTITY optionpathsize SYSTEM "Options/pathsize.xml">
+<!ENTITY optionpoolsize SYSTEM "Options/poolsize.xml">
+<!ENTITY optionrecorder SYSTEM "Options/recorder.xml">
+<!ENTITY optionrecordpackageusages SYSTEM "Options/recordpackageusages.xml">
+<!ENTITY optionsavesize SYSTEM "Options/savesize.xml">
+<!ENTITY optionsrcspecials SYSTEM "Options/srcspecials.xml">
+<!ENTITY optionstacksize SYSTEM "Options/stacksize.xml">
+<!ENTITY optionstringvacancies SYSTEM "Options/stringvacancies.xml">
+<!ENTITY optionsynctex SYSTEM "Options/synctex.xml">
+<!ENTITY optiontcx SYSTEM "Options/tcx.xml">
+<!ENTITY optiontimestatistics SYSTEM "Options/timestatistics.xml">
+<!ENTITY optiontrieopsize SYSTEM "Options/trieopsize.xml">
+<!ENTITY optiontriesize SYSTEM "Options/triesize.xml">
+<!ENTITY optionundump SYSTEM "Options/undump.xml">
+<!ENTITY printing SYSTEM "Manual/printing.xml">
+<!ENTITY tcxtables SYSTEM "Manual/tcxtables.xml">
+<!ENTITY texfeatures SYSTEM "Manual/texfeatures.xml">
+<!ENTITY texifying SYSTEM "Manual/texifying.xml">
+<!ENTITY tracestreams SYSTEM "Manual/tracestreams.xml">
+<!ENTITY envvars SYSTEM "Manual/envvars.xml">
+<!ENTITY filetypes SYSTEM "filetypes">
+]>
+
+<book lang="en">
+
+<bookinfo>
+
+<title>&MiKTeX; &miktexrev; Manual</title>
+<subtitle>Revision &rev;</subtitle>
+
+<edition>&rev;</edition>
+
+<author>
+<firstname>Christian</firstname>
+<surname>Schenk</surname>
+</author>
+
+<!--
+<revhistory>
+<revision>
+<revnumber>2.4.1779</revnumber>
+<date>November 14, 2004</date>
+<authorinitials>csc</authorinitials>
+<revdescription><itemizedlist>
+<listitem><para>Added recipes for changing the default
+paper size for various programs.</para></listitem>
+</itemizedlist>
+</revdescription></revision>
+<revision>
+<revnumber>2.4.1765</revnumber>
+<date>October 31, 2004</date>
+<authorinitials>csc</authorinitials>
+<revdescription>
+<itemizedlist>
+<listitem><para><command>initexmf &minus;&minus;mkmaps</command> must
+be run when <filename>updmap.cfg</filename> has been edited.</para></listitem>
+<listitem><para>Added <filename>updmap.cfg</filename> appendix.</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
+<revision>
+<revnumber>2.4.1588</revnumber>
+<date>May 7, 2004</date>
+<authorinitials>csc</authorinitials>
+<revdescription>
+<itemizedlist>
+<listitem><para>Documented new setup options: <option>&minus;&minus;private</option>,
+ <option>&minus;&minus;shared</option>.</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
+<revision>
+<revnumber>2.4.1545</revnumber>
+<date>March 25, 2004</date>
+<authorinitials>csc</authorinitials>
+<revdescription>
+<itemizedlist>
+<listitem><para>Documented
+<option>-time-statistics</option>. Added a recipe for
+modifying <filename>pdftex.cfg</filename>.</para></listitem>
+<listitem><para>Added an appendix for
+<filename>pdftex.cfg</filename>.</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
+<revision>
+<revnumber>2.4.1520</revnumber>
+<date>February 29, 2004</date>
+<authorinitials>csc</authorinitials>
+<revdescription>
+<itemizedlist>
+<listitem><para>
+Added recipes for modifying <filename>miktex.ini</filename>
+and <filename>updmap.cfg</filename>.</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
+</revhistory>
+-->
+
+<copyright>
+<year>2016</year>
+<holder>Christian Schenk</holder>
+</copyright>
+
+<date>&date;</date>
+
+<legalnotice>
+
+<para>Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.</para>
+
+<para>Permission is granted to copy and distribute modified versions
+of this manual under the conditions for verbatim copying, provided
+that the entire resulting derived work is distributed under the terms
+of a permission notice identical to this one.</para>
+
+<para>Permission is granted to copy and distribute translations of
+this manual into another language, under the above conditions for
+modified versions, except that this permission notice may be stated in
+a translation approved by the Free Software Foundation.</para>
+
+</legalnotice>
+
+</bookinfo>
+
+<preface id="preface">
+
+<title>About this Document</title>
+
+<para>This is version &rev; of the &MiKTeX; manual.  It corresponds to
+&MiKTeX;&nbsp;&miktexrev; as at &date;.</para>
+
+</preface>
+
+<toc/>
+
+<part id="userguide">
+
+<title>User Guide</title>
+
+&intro;
+
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/installing.xml" />
+
+&localguide;
+
+&configuring;
+
+<chapter id="advanced">
+
+<title>Advanced Topics</title>
+
+<section id="psfonts">
+
+<title>Managing Font Map Files</title>
+
+<indexterm>
+<primary>Outline fonts</primary>
+<secondary>psfonts.map</secondary>
+</indexterm>
+
+<indexterm>
+<primary>PostScript Type 1 fonts</primary>
+<secondary>psfonts.map</secondary>
+</indexterm>
+
+<para>Information about outline fonts is stored in a file by the name
+of <filename>psfonts.map</filename>.  This file is created in the
+course of the setup/update process. It can be manually created by
+<indexterm>
+<primary>psfonts.map</primary>
+<secondary>creating</secondary>
+</indexterm>
+running <userinput moreinfo="refentry">initexmf --mkmaps</userinput>.</para>
+
+<para><filename>psfonts.map</filename> depends on the
+file <filename>updmap.cfg</filename>. This configuration
+file contains declarative instructions (see
+<xref linkend="updmapcfg"/>), which will be used to
+build <filename>psfonts.map</filename>.</para>
+
+<caution>
+<para>The contents of <filename>psfonts.map</filename> should never be
+edited directly. Your modifications get lost when you install new
+packages.</para>
+</caution>
+
+<para>For example, follow these steps if you want to add an entry for
+the font map file <filename>xyz.map</filename>:</para>
+
+<procedure>
+<step><para>Run <userinput>initexmf --edit-config-file updmap</userinput>.</para></step>
+<step><para>Insert the following line at the end of the file:</para>
+<programlisting>Map xyz.map</programlisting></step>
+<step><para>Save the file and close the editor.</para></step>
+<step><para>Run <userinput>initexmf --mkmaps</userinput> to rebuild
+the font map files.</para></step>
+</procedure>
+
+</section>
+
+<section id="pkgmgt">
+
+<title>Working With the Package Manager</title>
+
+<indexterm>
+<primary>package management</primary>
+</indexterm>
+
+<para>You use &MiKTeXPackageManager; (&MPM;) to
+install and remove packages.</para>
+
+<para>The package manager can be run in two modes: batch and
+windowed.</para>
+
+<para>&MPM; runs in batch mode if you specify command-line options
+such as <option>--install</option> and <option>--update</option> (see
+<xref linkend="mpm"/> for a list of available command-line
+options).</para>
+
+<para>To start the package manager in windowed mode, click
+<menuchoice><guimenu>Start</guimenu> <guisubmenu>Programs</guisubmenu>
+<guisubmenu>&progfldr;</guisubmenu> <guimenuitem>Browse Packages</guimenuitem> </menuchoice>).
+You will see a window similar to this:</para>
+
+<informalfigure>
+<screenshot>
+<mediaobject>
+<imageobject>
+<imagedata fileref="images/mpm"/>
+</imageobject>
+</mediaobject>
+</screenshot>
+</informalfigure>
+
+<section>
+
+<title>Installing Packages</title>
+
+<indexterm>
+<primary>packages</primary>
+<secondary>installing</secondary>
+</indexterm>
+
+<para>You install packages
+<indexterm>
+<primary>packages</primary>
+<secondary>installing</secondary>
+</indexterm>
+as follows:</para>
+
+<procedure>
+<step><para>Select all wanted packages in the list view.</para></step>
+<step><para>Click on <guibutton>+</guibutton>
+to install the packages.</para></step>
+</procedure>
+
+<para>For example: you want to install the &ConTeXt; package:</para>
+
+<procedure>
+<step><para>Locate and select the &ConTeXt; package in the list view, e.g., type the key sequence
+<keycombo action="seq">
+<keycap>C</keycap>
+<keycap>O</keycap>
+<keycap>N</keycap>
+<keycap>T</keycap>
+</keycombo>.</para></step>
+<step><para>You can now click
+<guibutton>+</guibutton> to install the package.</para></step>
+</procedure>
+
+</section>
+
+<section>
+
+<title>Searching Packages</title>
+
+<para>Sometimes you don't know the name of a package, but you know the
+<indexterm>
+<primary>packages</primary>
+<secondary>searching for</secondary>
+</indexterm>
+name of a file that belongs to the wanted package. In this case, enter
+the file name information in the file name edit control.  Note that
+the file name information can include wildcard characters
+(<filename>*?</filename>).</para>
+
+<para>For example: you need to download the class file
+<filename>weekly.cls</filename>:</para>
+
+<procedure>
+<step><para>Enter <userinput>weekly.cls</userinput> in the file name
+edit control.</para></step>
+<step><para>Click the <guibutton>Filter</guibutton> button.</para></step>
+</procedure>
+
+<para>The list view will be reduced to contain
+only the <filename>calendar</filename> package.
+Selecting <filename>calendar</filename> and pressing <guilabel>+</guilabel>
+will install the package.</para>
+
+</section>
+
+</section>
+
+<section id="formats">
+
+<title>Managing Memory Dump Files</title>
+
+<para>In typical use, &TeX;, &METAFONT; and &MetaPost; require a large
+number of macros to be predefined; therefore, they support
+<firstterm>memory dump</firstterm> files, which can be read much
+<indexterm>
+<primary>memory dump files</primary>
+<secondary>defined</secondary>
+</indexterm>
+more efficiently than ordinary source code.</para>
+
+<para>For example, &LaTeX; macros are stored in the file
+<filename>latex.fmt</filename>. This file is loaded by &pdfTeX;, when
+you start &latex;.</para>
+
+<indexterm>
+<primary>memory dump files</primary>
+<secondary>defining new</secondary>
+</indexterm>
+
+<para>&MiKTeXOptions; can assist you in defining a new memory dump file:</para>
+
+<para>Click
+<menuchoice>
+<guimenu>Start</guimenu>
+<guisubmenu>Programs</guisubmenu>
+<guisubmenu>&progfldr;</guisubmenu>
+<guisubmenu>Maintenance</guisubmenu>
+<guimenuitem>Settings</guimenuitem>
+</menuchoice> to open the &MiKTeXOptions; window (see <xref linkend="mo-general"/>).</para>
+<para>Click on the <guilabel>Formats</guilabel> tab.
+You are presented
+with a list of known memory dump files.  To
+add an entry to this list, click <guibutton>New...</guibutton>.</para>
+<para>In the <guilabel>Format Definition</guilabel> dialog box,
+enter the following information:</para>
+<variablelist>
+<varlistentry>
+<term>Format name</term>
+<listitem><para>The name of the memory dump file
+without an extension.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Compiler</term>
+<listitem><para>The program which creates and loads
+the memory dump file.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Input file</term>
+<listitem><para>The name of the main input file.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Preloaded format</term>
+<listitem><para>Optional: The name of another memory dump file, which must
+be loaded before the actual memory dump file is being
+created.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Descriptioin</term>
+<listitem><para>A one-line comment which describes
+the new memory dump file.</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>A new executable file with the name of the memory dump will be
+installed in the &MiKTeX; bin directory.  This executable serves
+as a short-cut for <userinput><replaceable>compiler</replaceable>
+"&amp;<replaceable>name</replaceable>"</userinput>.  For example,
+these two commands are equivalent:</para>
+
+<programlisting>latex sample2e
+pdftex "&amp;latex" sample2e</programlisting>
+
+</section>
+
+<section id="runtimeparams">
+
+<title>Changing &TEXMF; run-time parameters</title>
+
+<para>You can control a number of run-time parameters (in particular,
+array sizes) on the command-line or in a configuration file.</para>
+
+<para>Some of the more interesting paramaters:</para>
+
+<variablelist>
+<varlistentry>
+<term>main_memory</term>
+<listitem><para>Total words of memory available, for &TeX;, &METAFONT;, and &MetaPost;.
+You must remake the format file after changing (see <xref linkend="formats"/>).</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>extra_mem_bot</term>
+<listitem><para>Extra space for large &TeX; data structures: boxes, glue,
+breakpoints, et al.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>font_mem_size</term>
+<listitem><para>Words of font info available for &TeX;.</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>See <xref linkend="defaults"/>, for a complete list of the
+&TEXMF; run-time parameters.</para>
+
+<para>Here is a typical example of a configuration file:</para>
+
+<indexterm>
+<primary>main_memory</primary>
+</indexterm>
+
+<indexterm>
+<primary>extra_mem_bot</primary>
+</indexterm>
+
+<indexterm>
+<primary>font_mem_size</primary>
+</indexterm>
+
+<programlisting>main_memory=2000000
+extra_mem_bot=2000000
+font_mem_size=2000000</programlisting>
+
+<para>The name of the configuration file is that of the engine (e.g., &pdftex;)
+or format (e.g, &pdflatex;). You use the <option>--edit-config-file</option>
+option of &initexmf; to edit the configuration file, e.g.:</para>
+
+<informalexample>
+<screen><prompt>&prompt;</prompt><userinput>initexmf --edit-config-file=pdflatex</userinput>
+
+<prompt>&prompt;</prompt></screen>
+</informalexample>
+
+</section>
+
+</chapter>
+
+</part>
+
+<part id="reference">
+
+<title>Reference</title>
+
+<chapter id="programs">
+
+<title>Programs</title>
+
+&manbibtex;
+&mandvicopy;
+&mandvips;
+&manfindtexmf;
+&mangftodvi;
+&maninitexmf;
+&manmf;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/miktexsetup.xml" />
+&manmiktextools;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/mpm.xml" />
+&manmpost;
+&manmthelp;
+&manmtprint;
+&manomega;
+&manpdftex;
+&mansetupwiz;
+&mantex;
+&mantexify;
+&manxetex;
+
+</chapter>
+
+<chapter id="files">
+
+<title>Files</title>
+
+&manpdftexcfg;
+&manupdmapcfg;
+
+</chapter>
+
+<chapter id="envvars">
+
+<title>Environment variables</title>
+
+&envvars;
+
+</chapter>
+
+<chapter id="tracestreams">
+
+<title>Trace Streams</title>
+
+&tracestreams;
+
+</chapter>
+
+<chapter id="defaults">
+
+<title>&TEXMF; Run-Time Parameters</title>
+
+<section id="texmfdefaults">
+
+<title>All &TeXMF; Programs</title>
+
+<programlisting>&texmfappdefaults;</programlisting>
+
+</section>
+
+<section id="texdefaults">
+
+<title>All &TeX; Programs</title>
+
+<programlisting>&texappdefaults;</programlisting>
+
+</section>
+
+<section id="omegadefaults">
+
+<title>&Omega;</title>
+
+<programlisting>&omegadefaults;</programlisting>
+
+</section>
+
+<section id="pdftexdefaults">
+
+<title>&pdfTeX;</title>
+
+<programlisting>&pdftexdefaults;</programlisting>
+
+</section>
+
+<section id="mpmfdefaults">
+
+<title>&METAFONT; &amp; &MetaPost;</title>
+
+<programlisting>&mfappdefaults;</programlisting>
+
+</section>
+
+<section id="mfdefaults">
+
+<title>&METAFONT;</title>
+
+<programlisting>&mfdefaults;</programlisting>
+
+</section>
+
+<section id="mpostdefaults">
+
+<title>&MetaPost;</title>
+
+<programlisting>&mpostdefaults;</programlisting>
+
+</section>
+
+</chapter>
+
+</part>
+
+<index id="idx">
+<title>Index</title>
+</index>
+
+</book>
+
+<!--
+Local Variables:
+mode: nxml
+nxml-child-indent: 0
+End:
+-->

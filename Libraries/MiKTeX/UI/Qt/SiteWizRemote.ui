@@ -1,0 +1,44 @@
+<ui version="4.0" >
+ <author>Christian Schenk</author>
+ <class>SiteWizRemote</class>
+ <widget class="QWizardPage" name="SiteWizRemote" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>220</height>
+   </rect>
+  </property>
+  <property name="title" >
+   <string>Remote Package Repository</string>
+  </property>
+  <property name="subTitle" >
+   <string>Packages will be installed from the Internet. Choose a remote package repository.</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string>Packages will be installed from the remote package repository selected below.</string>
+     </property>
+     <property name="buddy" >
+      <cstring>treeView</cstring>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTreeView" name="treeView" >
+     <property name="rootIsDecorated" >
+      <bool>false</bool>
+     </property>
+     <property name="sortingEnabled" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,19 @@
+<varlistentry>
+<term><option>--hash-extra=<replaceable>n</replaceable></option></term>
+<listitem>
+<para>Set the
+<indexterm>
+<primary>--hash-extra=n</primary>
+</indexterm>
+extra space for the hash table of control sequences (which allows 10K
+names as distributed).</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

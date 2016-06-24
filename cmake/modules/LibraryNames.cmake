@@ -1,0 +1,145 @@
+## LibraryNames.cmake
+##
+## Copyright (C) 2006-2016 Christian Schenk
+## 
+## This file is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published
+## by the Free Software Foundation; either version 2, or (at your
+## option) any later version.
+## 
+## This file is distributed in the hope that it will be useful, but
+## WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+## General Public License for more details.
+## 
+## You should have received a copy of the GNU General Public License
+## along with this file; if not, write to the Free Software
+## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+## USA.
+
+## shared library names; naming convention:
+##    MiKTeXSERIES-NAME[-REV]
+## where:
+##    NAME is the component name
+##    SERIES is the MiKTeX series (as an integer)
+##    REV is the DLL revision (relative to the current series)
+
+set(miktex_dll_prefix MiKTeX${MIKTEX_SERIES_INT})
+
+if(MIKTEX_RELEASE_STATE EQUAL 0)
+  set(miktex_dll_prefix MiKTeX${MIKTEX_SERIES_INT})
+elseif(MIKTEX_RELEASE_STATE EQUAL 1)
+  set(miktex_dll_prefix MiKTeX${MIKTEX_SERIES_INT}-next)
+elseif(MIKTEX_RELEASE_STATE EQUAL 4)
+  set(miktex_dll_prefix MiKTeX${MIKTEX_SERIES_INT}-debug)
+endif()
+
+macro(define_library _name)
+  set(_lib_name ${_name})
+  if(${ARGC} GREATER 1)
+    set(_var_name_prefix ${ARGV1})
+  else()
+    set(_var_name_prefix ${_lib_name})
+  endif()
+  if(NOT LINK_EVERYTHING_STATICALLY)
+    set(${_var_name_prefix}_dll_name "${miktex_dll_prefix}-${_lib_name}")
+  endif()
+  set(${_var_name_prefix}_lib_name "${_lib_name}-static")
+endmacro()
+
+define_library(app)
+define_library(apr)
+define_library(aprutil apr_util)
+define_library(arctrl)
+define_library(bibtex)
+define_library(botan)
+define_library(bzip2)
+define_library(cairo)
+define_library(cjklatex)
+define_library(compilerdriver mcd)
+define_library(core)
+define_library(curl)
+define_library(dib)
+define_library(dvi)
+define_library(dvicopy)
+define_library(dvipdfmx)
+define_library(dvitype)
+define_library(expat)
+define_library(extractor)
+define_library(findtexmf)
+define_library(fontconfig)
+define_library(freetype2)
+define_library(gd)
+define_library(getopt)
+define_library(gftodvi)
+define_library(gftopk)
+define_library(gftype)
+define_library(gmp)
+define_library(graphite2)
+define_library(harfbuzz)
+define_library(hunspell)
+define_library(jpeg)
+define_library(kpathsea kpsemu)
+define_library(log4cxx)
+define_library(lua52 lua)
+define_library(luajit)
+define_library(luatex luatex_program)
+define_library(lzma2 lzma)
+define_library(make makex)
+define_library(md5)
+define_library(mf)
+define_library(mft)
+define_library(mkfntmap)
+define_library(mp)
+define_library(mpfr)
+define_library(mspack)
+define_library(mthelp)
+define_library(odvicopy)
+define_library(ofm2opl)
+define_library(omega)
+define_library(opl2ofm)
+define_library(ovf2ovp)
+define_library(ovp2ovf)
+define_library(packagemanager mpm)
+define_library(pbm)
+define_library(pdftex)
+define_library(pgm)
+define_library(pixman)
+define_library(pltotf)
+define_library(png)
+define_library(pnm)
+define_library(pooltype)
+define_library(poppler)
+define_library("poppler-Qt" poppler_qt)
+define_library(popt)
+define_library(potrace)
+define_library(ppm)
+define_library(psres)
+define_library(regex)
+define_library(setup)
+define_library(tangle)
+define_library(teckit)
+define_library(tex)
+define_library(texmf)
+define_library(tftopl)
+define_library(trace)
+define_library("ui-MFC" ui_mfc)
+define_library("ui-Qt" ui_qt)
+define_library(unxemu)
+define_library(uriparser)
+define_library(utf8wrap)
+define_library(util)
+define_library(vftovp)
+define_library(vptovf)
+define_library(weave)
+define_library(web2c w2cemu)
+define_library(xetex)
+define_library(zlib)
+define_library(zzip)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  set(core_ps_dll_name  "${core_dll_name}-PS")
+  set(mpm_ps_dll_name   "${mpm_dll_name}-PS")
+  set(mpm_tlb_name      "${miktex_dll_prefix}-packageManager")
+  set(session_tlb_name  "${miktex_dll_prefix}-session")
+endif()

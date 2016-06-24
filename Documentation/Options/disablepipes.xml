@@ -1,0 +1,18 @@
+<varlistentry>
+<term><option>--disable-pipes</option></term>
+<listitem>
+<para>Disable input
+<indexterm>
+<primary>--disable-pipes</primary>
+</indexterm>
+(output) from (to) child processes.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

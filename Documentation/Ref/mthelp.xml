@@ -1,0 +1,138 @@
+<refentry id="mthelp">
+
+<?dbhh topicname="MIKTEXHELP_MTHELP" topicid="0"?>
+
+<refmeta>
+<refentrytitle>mthelp</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>mthelp</refname>
+<refpurpose>&MiKTeX; help utility</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+
+<cmdsynopsis>
+&mthelp;
+<arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
+<arg choice="req" rep="repeat"><replaceable>name</replaceable></arg>
+</cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>&mthelp; is a utility to lookup &TeX; package documentation.</para>
+
+<para>&mthelp; creates an &HTML; page which contains a short
+description of the package together with links to all documentation
+files. An &HTML; viewer is started to view the page.</para>
+
+<para>You can use the <option>--view</option> to bypass the intermediate
+&HTML; file.</para>
+
+<para><replaceable>name</replaceable> should be the name of a package
+in the &TeX; distribution.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Options</title>
+
+<variablelist>
+<varlistentry>
+<term><option>--list-only</option></term>
+<listitem><para>List documentation files,
+but do not start a viewer.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--print-only</option></term>
+<listitem><para>Print the command that would be executed to view the
+documentation, but do not start the command.</para></listitem>
+</varlistentry>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/quiet.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/version.xml" />
+<varlistentry>
+<term><option>--view</option></term>
+<listitem><para>Open the main documenation file in a viewer.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>Environment</title>
+
+<variablelist>
+
+<varlistentry>
+<term><envar>MIKTEX_VIEW_dvi</envar></term>
+<listitem><para>&DVI; viewer.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><envar>MIKTEX_VIEW_pdf</envar></term>
+<listitem><para>&PDF; viewer.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><envar>MIKTEX_VIEW_ps</envar></term>
+<listitem><para>&PostScript; viewer.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><envar>MIKTEX_VIEW_html</envar></term>
+<listitem><para>&HTML; viewer.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><envar>MIKTEX_VIEW_txt</envar></term>
+<listitem><para>Text viewer.</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+<para>The environment variables should be set with a <quote>%f</quote>
+as a placeholder for the name of the file. For example:</para>
+
+<screen><prompt>&prompt;</prompt><userinput>MIKTEX_VIEW_pdf="gv %f"</userinput></screen>
+
+</refsect1>
+
+<refsect1>
+
+<title>Files</title>
+
+<para>The intermediate &HTML; file
+(<filename><replaceable>package</replaceable>.html</filename>) is
+stored in the directory <filename>miktex/mthelp</filename> relative to
+the data &TEXMF; root.</para>
+</refsect1>
+
+<refsect1>
+
+<title>See also</title>
+
+<para><ulink url="http://www.miktex.org">&MiKTeX; Project Page</ulink></para>
+
+</refsect1>
+
+</refentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("miktex.xml" "reference")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

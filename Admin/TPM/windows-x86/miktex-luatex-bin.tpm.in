@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/luatex/">
+    <TPM:Name>LuaTeX bin</TPM:Name>
+    <TPM:Title>LuaTeX binaries</TPM:Title>
+    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+    LuaTeX is a Unicode-aware re-implementation of (pdf)TeX, which can
+    use modern (Open Type) fonts, and whose operation is supported by
+    the ability to call up a built-in Lua interpreter.
+
+    While the present release is believed to represent the final
+    functionality of LuaTeX, this cannot be guaranteed, and users
+    should assume that it is unstable.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${luatex_program_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}luatex.exe
+texmf/${MIKTEX_REL_MIKTEX_INTERNAL_BIN_DIR}/runtexlua.exe
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

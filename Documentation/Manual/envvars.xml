@@ -1,0 +1,21 @@
+<variablelist>
+
+&BIBINPUTS;
+&BSTINPUTS;
+&MFINPUTS;
+&MIKTEX_REPOSITORY;
+&MIKTEX_TRACE;
+&MPINPUTS;
+&TEXINPUTS;
+&TFMFONTS;
+
+</variablelist>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

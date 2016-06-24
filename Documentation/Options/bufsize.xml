@@ -1,0 +1,25 @@
+<varlistentry>
+<term><option>--buf-size=<replaceable>n</replaceable></option></term>
+<listitem><para>Set the
+<indexterm>
+<primary>--buf-size=n</primary>
+</indexterm>
+the maximum number of characters simultaneously present in current
+lines of open files and in control sequences between <markup
+role="tex">\csname</markup> and <markup
+role="tex">\endcsname</markup>.
+&TeX; uses the buffer to contain input lines, but macro
+expansion works by writing material into the buffer and reparsing the
+line.  As a consequence, certain constructs require the buffer to be
+very large, even though most documents can be handled
+with a small value.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

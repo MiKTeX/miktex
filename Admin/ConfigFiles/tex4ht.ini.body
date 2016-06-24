@@ -1,0 +1,9 @@
+[tex4ht]
+
+TEX4HTFONTSET=alias,iso8859,unicode
+
+[ft.other text files]
+
+path=.
+path;=%R/tex4ht/base//
+path;=%R/tex4ht/ht-fonts/{alias,iso8859,unicode}//

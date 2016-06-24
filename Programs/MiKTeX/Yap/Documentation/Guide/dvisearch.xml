@@ -1,0 +1,94 @@
+<chapter id="dvisearch">
+
+<title>Forward and Inverse Search</title>
+
+<indexterm>
+<primary>forward &DVI; search</primary>
+</indexterm>
+
+<indexterm>
+<primary>inverse &DVI; search</primary>
+</indexterm>
+
+<para>&Yap; is capable of searching the &DVI; file
+for so called source specials.  This feature can help you to optimize
+the edit-compile-view cycle:</para>
+
+<itemizedlist>
+<listitem><para>While editing a &TeX; source, issue an appropriate
+command that invokes &Yap; to display the &TeX;ed document.  &Yap;
+will indicate it's idea of the current edit position by drawing a
+small circle.  This is called <firstterm>forward
+search</firstterm>.</para></listitem>
+<listitem><para>While viewing the &TeX;ed document with &Yap;, move
+the mouse cursor over a paragraph that you want to edit next.
+Double-click to jump to the editor.  &Yap; will try to move the text
+cursor to the correct source line.  This is called <emphasis>inverse
+search</emphasis>.</para></listitem>
+</itemizedlist>
+
+<section id="srcspecials">
+
+<title>How to Enrich Your Document With Source Specials</title>
+
+<indexterm>
+<primary>source specials</primary>
+<secondary>inserting</secondary>
+</indexterm>
+
+<para>&TeX; inserts source specials into the &DVI; file, if you
+specify the command-line switch <option>-src-specials</option>. You
+can say
+<programlisting>tex --src-specials mybook.tex</programlisting>
+and the &TeX; compiler will insert
+one source special at the beginning of each paragraph.</para>
+
+</section>
+
+<section id="forwarddvisearch">
+
+<title>Initiating Forward Search</title>
+
+<para>Forward search is initiated by using
+<option>--find-src-special</option> on the
+&Yap; command-line (see <xref linkend="commandline"/>).</para>
+
+</section>
+
+<section id="inversedvisearch">
+
+<title>Initiating Inverse Search</title>
+
+<para>Provided that the &DVI; document contains source file
+information (see <xref linkend="srcspecials"/>), you can initiate inverse
+search by double-clicking inside the &Yap; document window.</para>
+
+</section>
+
+<section id="sourcelinks">
+
+<?dbhh topicname="HIDD_SOURCE_SPECIALS" topicid="0"?>
+
+<title><guilabel>Source Links</guilabel> Dialog Box</title>
+
+<para>The <guilabel>Source Links</guilabel> dialog box
+(<menuchoice>
+<guimenu>Tools</guimenu>
+<guimenuitem>Source Links...</guimenuitem></menuchoice>)
+lists all source links in the active <acronym>DVI</acronym>
+file.
+From here you can jump (<guilabel>Goto</guilabel>) to a source link anchor or
+edit the &TeX; source file.</para>
+
+</section>
+
+</chapter>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("yap.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

@@ -1,0 +1,258 @@
+<refentry id="texify">
+
+<?dbhh topicname="MIKTEXHELP_TEXIFY" topicid="0"?>
+
+<refmeta>
+<refentrytitle>texify</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>texify</refname>
+<refpurpose>&MiKTeX; compiler driver</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+
+<cmdsynopsis>
+&texify;
+<arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
+<arg choice="plain" rep="repeat"><replaceable>file</replaceable></arg>
+</cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>&texify; runs &Texinfo; or &LaTeX; input files through &tex;
+(&pdftex;) in turn until all cross-references are resolved, building
+all indices.</para>
+
+<para>The directory containing each <replaceable>file</replaceable> is
+searched for included files.  The suffix of
+<replaceable>file</replaceable> is used to determine its language
+(&LaTeX; or &Texinfo;).</para>
+
+<para>&makeinfo; is used to perform &Texinfo; macro expansion before
+running &tex; when needed.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Options</title>
+
+<variablelist>
+<varlistentry>
+<term><option>-@</option></term>
+<listitem><para>Use <markup role="tex">@input</markup> (instead of
+<markup role="tex">\input</markup>); for preloaded
+&Texinfo;.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--batch</option></term>
+<term><option>-b</option></term>
+<listitem>
+<indexterm>
+<primary>--batch</primary>
+</indexterm>
+<para>No
+interaction.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--clean</option></term>
+<term><option>-c</option></term>
+<listitem>
+<indexterm>
+<primary>--clean</primary>
+</indexterm>
+<para>Remove all auxiliary
+files.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--expand</option></term>
+<term><option>-e</option></term>
+<listitem>
+<indexterm>
+<primary>--expand</primary>
+</indexterm>
+<para>Force macro expansion
+using &makeinfo;.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-I <replaceable>dir</replaceable></option></term>
+<listitem><para>Search <replaceable>dir</replaceable> for input files.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--help</option></term>
+<term><option>-h</option></term>
+<listitem>
+<indexterm>
+<primary>--help</primary>
+</indexterm>
+<para>Display help and exit
+successfully.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--language=<replaceable>lang</replaceable></option></term>
+<term><option>-l <replaceable>lang</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--language=lang</primary>
+</indexterm>
+<para>Specify the language of input files: either
+<varname>latex</varname> or <varname>texinfo</varname>.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--max-iterations=<replaceable>n</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>-max-iterations=n</primary>
+</indexterm>
+<para>Limits the number of iterations to prevent endless
+processing.  The default for
+<replaceable>n</replaceable> is <literal>5</literal>.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--mkidx-option=<replaceable>option</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--mkidx-option=option</primary>
+</indexterm>
+<para>Pass <replaceable>option</replaceable>
+to the index generator.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--pdf</option></term>
+<term><option>-p</option></term>
+<listitem>
+<indexterm>
+<primary>--pdf</primary>
+</indexterm>
+<para>Use &pdftex; (or
+&pdflatex;) for processing.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--quiet</option></term>
+<term><option>-q</option></term>
+<term><option>--silent</option></term>
+<term><option>-s</option></term>
+<listitem>
+<indexterm>
+<primary>--quiet</primary>
+</indexterm>
+<para>No screen output unless errors
+plies <option>--batch</option>).</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--run-viewer</option></term>
+<listitem>
+<indexterm>
+<primary>--run-viewer</primary>
+</indexterm>
+<para>Run a viewer on
+the resulting &DVI;
+(&PDF;) file.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--src</option></term>
+<listitem>
+<indexterm>
+<primary>--src</primary>
+</indexterm>
+<para>Pass <option>--src-specials</option> to
+the &TeX; compiler.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--texinfo=<replaceable>cmd</replaceable></option></term>
+<term><option>-t=<replaceable>cmd</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--texinfo=cmd</primary>
+</indexterm>
+<para>Insert <replaceable>cmd</replaceable> after
+<varname>@setfilename</varname> in copy of input
+file.  Multiple values accumulate.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--tex-option=<replaceable>option</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--tex-option=option</primary>
+</indexterm>
+<para>Pass
+<replaceable>option</replaceable> to the compiler.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--verbose</option></term>
+<term><option>-V</option></term>
+<listitem>
+<indexterm>
+<primary>--verbose</primary>
+</indexterm>
+<para>Print information on what is
+being done.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--version</option></term>
+<term><option>-v</option></term>
+<listitem>
+<indexterm>
+<primary>--version</primary>
+</indexterm>
+<para>Display version information and exit
+successfully.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--viewer-option=<replaceable>option</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--viewer-option=option</primary>
+</indexterm>
+<para>Pass <replaceable>option</replaceable> to
+the viewer.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>Environment Variables</title>
+
+<para>The values of the <envar>BIBTEX</envar>, <envar>LATEX</envar>
+(or <envar>PDFLATEX</envar>), <envar>MAKEINDEX</envar>,
+<envar>MAKEINFO</envar>, <envar>TEX</envar> (or
+<envar>PDFTEX</envar>), and <envar>TEXINDEX</envar>
+environment variables are used to run those commands, if they are set.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Aliases</title>
+
+<variablelist>
+<varlistentry>
+<term>&texi2dvi;</term>
+<listitem><para>Equivalent to &texify;.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</refsect1>
+
+</refentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

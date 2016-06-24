@@ -1,0 +1,18 @@
+<varlistentry>
+<term><option>--enable-mltex</option></term>
+<listitem>
+<indexterm>
+<primary>--enable-mltex</primary>
+</indexterm>
+<para>Enable &MLTeX; extensions such
+as <markup role="tex">\charsubdef</markup>.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

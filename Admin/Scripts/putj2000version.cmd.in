@@ -1,0 +1,17 @@
+@echo off
+
+setlocal
+
+set CYGWIN=nodosfilewarning
+
+if "%1" == "" (
+  exit /B 1
+) else (
+  set file=@CMAKE_SOURCE_DIR_NATIVE@\%1
+)
+
+for /F "usebackq" %%j in (`j2000`) do set j2000=%%j
+
+sed -i "s/J2000_VERSION [0-9][0-9][0-9][0-9]/J2000_VERSION %j2000%/" %file%
+
+endlocal

@@ -1,0 +1,354 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+<!ENTITY % version.ent SYSTEM "version.ent">
+%version.ent;
+%entities.ent;
+<!ENTITY optionhelp SYSTEM "../Options/help.xml">
+<!ENTITY optionhhelp SYSTEM "../Options/hhelp.xml">
+]>
+
+<refentry id="mpm">
+
+<?dbhh topicname="MIKTEXHELP_MPMCON" topicid="0"?>
+
+<refmeta>
+<refentrytitle>mpm</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>mpm</refname>
+<refpurpose>&MiKTeX; package manager</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+
+<cmdsynopsis>
+&mpm;
+<arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
+</cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>&MPM; (&MiKTeXPackageManager;) is used to install packages from
+a &MiKTeX; package repository.</para>
+
+<para>&MPM; was originally intended to be a tool for &MiKTeX; users.
+But the program can be helpful for users of other &TeX; systems too,
+because many of the &MiKTeX; packages are system-independent.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Two variants</title>
+
+<para>The package manager can be run in two modes:</para>
+<variablelist>
+<varlistentry>
+<term>batch</term>
+<listitem><para>&MPM; is driven by command-line options.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>windowed</term>
+<listitem><para>&MPM; shows a package list
+view with standard <acronym>GUI</acronym> controls (such as tool
+bar buttons and command menus).</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>&MPM; starts in windowed mode, if you do not specify any
+command-line options.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Options</title>
+
+<variablelist>
+<varlistentry>
+<term><option>--admin</option></term>
+<listitem>
+<indexterm>
+<primary>--admin</primary>
+</indexterm>
+<para>Run in administrative mode.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--find-updates</option></term>
+<listitem>
+<indexterm>
+<primary>--find-updates</primary>
+</indexterm>
+<para>Test the package repository for updates, then print
+the list of updateable packages.</para></listitem>
+</varlistentry>
+&optionhelp;
+&optionhhelp;
+<varlistentry>
+<term><option>--import=<replaceable>PACKAGE</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--import=package</primary>
+</indexterm>
+<para>Import the specified package from another &MiKTeX; installation.
+The root directory must be specified via
+<option>--repository=<replaceable>DIR</replaceable></option>.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--import-all</option></term>
+<listitem>
+<indexterm>
+<primary>--import-all</primary>
+</indexterm>
+<para>Import all packages from another &MiKTeX; installation.
+The root directory must be specified via
+<option>--repository=<replaceable>DIR</replaceable></option>.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--install=<replaceable>package</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--install=package</primary>
+</indexterm>
+<para>Install the specified package.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--install-some=<replaceable>file</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--install-some=file</primary>
+</indexterm>
+<para>Install packages listed (line-by-line) in the specified
+file.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--list</option></term>
+<listitem>
+<indexterm>
+<primary>--list</primary>
+</indexterm>
+<para>List the contents of the package database: for each package, print the
+installation status, the number of files, the size, and the name.</para>
+</listitem>
+</varlistentry>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/listrepositories.xml" />
+<varlistentry><term><option>--pick-repository-url</option></term>
+<listitem><para>Pick up a suitable URL from the package repository
+list and print it.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--print-package-info=<replaceable>package</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--print-package-info=package</primary>
+</indexterm>
+<para>Print detailed information about the
+specified package.</para></listitem>
+</varlistentry>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/quiet.xml" />
+<varlistentry>
+<term><option>--repository=<replaceable>location</replaceable></option></term>
+<listitem><para>Use the specified location as the package repository.
+The location can be either a fully qualified path name (a local
+package repository) or an URL (a remote package repository).
+You can use the <option>--list-repositories</option> to retrieve
+a list of working package repository URLs.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--repository-release-state=<replaceable>state</replaceable></option></term>
+<listitem><para>Select the release state of the remote package
+repository.  The release state is relevant for finding appropriate
+package repositories (<option>--list-repositories</option>,
+<option>--pick-repository-url</option>).</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--set-repository=<replaceable>location</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--set-repository=location</primary>
+</indexterm>
+<para>This option is only available on Windows systems:
+permanently register the location of the default package repository
+in the user area of the Windows Registry.
+The location can be either a fully qualified path name (a local
+package repository) or an <acronym>URL</acronym>
+(a remote package repository).</para></listitem>
+</varlistentry>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/trace.xml" />
+<varlistentry>
+<term><option>--uninstall=<replaceable>package</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--uninstall=package</primary>
+</indexterm>
+<para>Uninstall the specified package.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--update=<optional><replaceable>package</replaceable></optional></option></term>
+<listitem>
+<indexterm>
+<primary>--update=package</primary>
+</indexterm>
+<para>Update the specified package, if an updated version
+is available in the package repository.  Update all installed
+packages, if <replaceable>package</replaceable> is omitted.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--update-db</option></term>
+<listitem>
+<indexterm>
+<primary>--update-db</primary>
+</indexterm>
+<para>Synchronize the local package database with
+the package repository.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--update-some=<replaceable>file</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--update-some=file</primary>
+</indexterm>
+<para>Update packages listed (line-by-line) in the specified
+file.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>--verify</term>
+<listitem>
+<indexterm>
+<primary>--verify</primary>
+</indexterm>
+<para>Verify the integrity of all installed packages.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>--verify=<replaceable>package</replaceable></term>
+<listitem>
+<indexterm>
+<primary>--verify=package</primary>
+</indexterm>
+<para>Verify the integrity of the specified package.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--verbose</option></term>
+<indexterm>
+<primary>--verbose</primary>
+</indexterm>
+<listitem><para>Turn on verbose output mode.</para></listitem>
+</varlistentry>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>Installation Destination</title>
+
+<para>All files are installed in the &TEXMF; installation directory
+(usually &commoninstalldir;).  It may be necessary to specify the location
+of the installation directory, if you are running &MPM; as a
+standalone program, i.e., if &MiKTeX; is not the &TeX; system.</para>
+
+<para>The <option>--install-root</option> option allows you to set the
+installation directory for one invocation of &MPM;.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Package Database</title>
+
+<para>All package information is retrieved from the package database,
+which must have been properly installed by running &MPM; with the
+<option>--update-db</option> option.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Examples</title>
+
+<para>Print the list of known package repository URLs:</para>
+
+<screen><prompt>&prompt;</prompt><userinput>mpm --list-repositories</userinput></screen>
+
+<para>Retrieve the package database files from the FTP server
+<systemitem class="server">some.server</systemitem>:</para>
+
+<screen><prompt>&prompt;</prompt><userinput>mpm --repository=ftp://some.server/miktex/packages/ \
+  --verbose --update-db</userinput></screen>
+
+<para>Print information about package a0poster:</para>
+
+<screen><prompt>&prompt;</prompt><userinput>mpm --print-package-info a0poster</userinput></screen>
+
+<para>Install package a0poster:</para>
+
+<screen><prompt>&prompt;</prompt><userinput>mpm --verbose --install a0poster</userinput></screen>
+
+<para>Update all installed packages:</para>
+
+<screen><prompt>&prompt;</prompt><userinput>mpm --verbose --update</userinput></screen>
+
+
+<para>Print the list of installed packages:</para>
+
+<screen><prompt>&prompt;</prompt><userinput>mpm --list | grep ^i</userinput></screen>
+
+</refsect1>
+
+<refsect1>
+
+<title>Environment</title>
+
+<variablelist>
+
+&MIKTEX_REPOSITORY;
+
+<varlistentry><term><envar>http_proxy</envar></term>
+<listitem><para>The proxy server to be used for <acronym>HTTP</acronym>.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><envar>FTP_PROXY</envar></term>
+<listitem><para>The proxy server to be used for <acronym>FTP</acronym>.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><envar>ALL_PROXY</envar></term>
+<listitem><para>The proxy server to be used, if no protocol-specific proxy is
+set.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><envar>NO_PROXY</envar></term>
+<listitem><para>Comma-separated list of host names that should not go
+through  any proxy.</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>See also</title>
+
+<para><ulink url="http://miktex.org">MiKTeX Project Page</ulink></para>
+
+</refsect1>
+
+</refentry>

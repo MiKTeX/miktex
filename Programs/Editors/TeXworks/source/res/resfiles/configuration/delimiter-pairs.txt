@@ -1,0 +1,12 @@
+# TeXworks: Paired delimiters for matching/balancing
+
+# Each line gives a pair opening and closing delimiters (a single Unicode character each),
+# separated by whitespace.
+
+(	)
+[	]
+{	}
+«	»
+‹	›
+“	”
+‘	’

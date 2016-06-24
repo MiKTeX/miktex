@@ -1,0 +1,458 @@
+<section id="texfeatures">
+
+<title>Specialities</title>
+
+<para>This section describes features that were added to the &MiKTeX;
+implementation of &TeXnFriends;.</para>
+
+<section id="autoinstalloptions">
+
+<title>Automatic Package Installation</title>
+
+<para>All &MiKTeX; programs can be configured in such a way that
+missing packages
+<indexterm>
+<primary>automatic package installation</primary>
+</indexterm>
+are automatically installed (see <xref linkend="autoinstall"/>).</para>
+
+<para>It is possible to override the global configuration setting
+with these command line options:</para>
+
+<variablelist>
+<varlistentry>
+<term><option>--disable-installer</option></term>
+<listitem><para>Missing packages
+<indexterm significance="preferred">
+<primary>--disable-installer</primary>
+</indexterm>
+will not be installed.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--enable-installer</option></term>
+<listitem><para>Missing packages will
+<indexterm significance="preferred">
+<primary>--enable-installer</primary>
+</indexterm>
+be installed.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</section>
+
+<section id="recpkgusg">
+
+<title>Finding out Package Usages</title>
+
+<para>The command line option <option>--record-package-usages</option>
+can be used to
+<indexterm>
+<primary>packages</primary>
+<secondary>finding out usages</secondary>
+</indexterm>
+<indexterm significance="preferred">
+<primary>--record-package-usages=file</primary>
+</indexterm>
+find out which packages are used in a job.</para>
+
+<para>For example, you would say</para>
+<programlisting>latex -record-package-usages=packages.txt test</programlisting>
+<para>to create the file <filename>packages.txt</filename>, which contains the
+names of the packages used by <filename>test.tex</filename>.</para>
+
+<para>If <filename>test.tex</filename> looks like this:</para>
+<programlisting>\documentclass{scrartcl}
+\begin{document}
+Hello, world!
+\end{document}</programlisting>
+<para>Then the resulting <filename>packages.txt</filename>
+would contain these lines:</para>
+<programlisting>cm
+koma-script
+ltxbase</programlisting>
+
+<para>The package list can be handed over to the package manager
+(see <xref linkend="mpm"/>), e.g.</para>
+
+<programlisting>mpm --update-some=packages.txt</programlisting>
+
+<para>would ensure that you have the latest versions installed.</para>
+
+</section>
+
+<section id="quiet">
+
+<title>Suppressing Screen Output</title>
+
+<indexterm significance="preferred">
+<primary>--quiet</primary>
+</indexterm>
+<indexterm>
+<primary>screen output</primary>
+<secondary>suppressing</secondary>
+</indexterm>
+
+<para>The option <option>--quiet</option> suppresses all diagnostic
+messages.  No screen output is produced,
+unless there are errors.  The <option>--quiet</option> option implies
+<option>--c-style-errors</option> and
+<option>--interaction=batchmode</option>, i.e. errors will be shown in a
+<quote>C style form</quote>
+<indexterm>
+<primary>error messages</primary>
+<secondary>C-style</secondary>
+</indexterm>
+and do not stop the compilation process.</para>
+
+<para>For example, the input file <filename>foo.tex</filename>
+<informalexample>
+<programlisting>\documentclass{article}
+\begin{document}
+What's \This?
+\end{documnt}</programlisting>
+</informalexample>
+would cause &TeX; to print one error message, as in the following example:</para>
+
+<informalexample>
+<screen><prompt>&prompt;</prompt><userinput>latex -quiet foo.tex</userinput>
+foo.tex:3: Undefined control sequence
+<prompt>&prompt;</prompt></screen>
+</informalexample>
+
+</section>
+
+<section id="jobname">
+
+<title>Setting the Name of the Output File</title>
+
+<indexterm significance="preferred">
+<primary>--job-name=name</primary>
+</indexterm>
+
+<para>You can change the name of all output files by using the option
+<indexterm>
+<primary>output file name</primary>
+<secondary>changing the</secondary>
+</indexterm>
+<indexterm>
+<primary>TeX job name</primary>
+<secondary>changing the</secondary>
+</indexterm>
+<option>--job-name=<replaceable>name</replaceable></option>.  This
+switch actually sets the name of the &TeX; job and has an effect of
+the output file names, because these names are derived from the job
+name.  Look at the following example:</para>
+
+<informalexample>
+<screen><prompt>&prompt;</prompt><userinput>latex -job-name=foo sample2e</userinput>
+This is TeX, Version 3.14159 (MiKTeX 2.2)
+(D:\texmf\tex\latex\base\sample2e.tex
+LaTeX2e &lt;2001/06/01&gt;
+Babel &lt;v3.7h&gt; and hyphenation patterns for english, german, ngerman, loaded.
+(D:\texmf\tex\latex\base\article.cls
+Document Class: article 2001/04/21 v1.4e Standard LaTeX document class
+(D:\texmf\tex\latex\base\size10.clo))
+No file foo.aux.
+(D:\texmf\tex\latex\base\omscmr.fd) [1] [2] [3] (foo.aux) )
+Output written on foo.dvi (3 pages, 7256 bytes).
+Transcript written on foo.log.
+<prompt>&prompt;</prompt></screen>
+</informalexample>
+
+<para>Note the altered output file names: <filename>foo.aux</filename>,
+<filename>foo.dvi</filename> and <filename>foo.log</filename>.</para>
+
+</section>
+
+<section id="srcspecials">
+
+<title>Auto-insertion of Source Specials</title>
+
+<section>
+
+<title>What Are Source Specials?</title>
+
+<para>Source specials are pieces of information embedded in a
+<indexterm>
+<primary>source specials</primary>
+<secondary>defined</secondary>
+</indexterm>
+&DVI; file.  They make a connection between the source file location
+(e.g., <quote>line 100 in <filename>foo.tex</filename></quote>) and the
+&DVI; location (e.g., <quote>page 2 in
+<filename>foo.dvi</filename></quote>).  Source specials can improve
+the edit-compile-view-edit
+<indexterm>
+<primary>edit-compile-view-edit cycle</primary>
+</indexterm>
+cycle:</para>
+
+<orderedlist>
+
+<listitem><para>You edit the source file with a &TeX; editor.</para></listitem>
+
+<listitem><para>You compile the source file.</para></listitem>
+
+<listitem><para>You execute a special editor command to open the
+previewer <application>Yap</application>, going directly to the page
+that corresponds to the cursor location in your editor
+window.</para></listitem>
+
+<listitem><para>You navigate through the viewed document.</para></listitem>
+
+<listitem><para>You double-click somewhere inside the viewed document;
+this causes <application>Yap</application> to bring the editor window
+back to the front, moving the text cursor directly to the line that
+corresponds to the view location.</para></listitem>
+
+</orderedlist>
+
+</section>
+
+<section>
+
+<title>How to Insert Source Specials</title>
+
+<para>The &TeX; compiler option <option>--src-specials</option> directs
+&TeX; to insert source specials into the &DVI; file.
+<indexterm>
+<primary>source specials</primary>
+<secondary>inserting</secondary>
+</indexterm>
+<indexterm significance="preferred">
+<primary>--src-specials</primary>
+</indexterm>
+</para>
+
+<para>You would say</para>
+<programlisting>
+latex -src-specials foo.tex
+</programlisting>
+<para>to create the &DVI; file <filename>foo.dvi</filename> with
+embedded source specials.</para>
+
+</section>
+
+</section>
+
+<section id="longfilenames">
+
+<title>Quoted File Names</title>
+
+<para>The &TeX; compiler can handle quoted file names.  This makes it
+<indexterm>
+<primary>quoted file names</primary>
+</indexterm>
+<indexterm>
+<primary>long file names</primary>
+<secondary>quoting of</secondary>
+</indexterm>
+possible to specify long file names that contain spaces.</para>
+
+<para>For example, to compile the input file <filename>long file
+name.tex</filename>, you start &TeX; as follows:</para>
+
+<programlisting>latex "long file name"</programlisting>
+
+<para>This produces the &DVI; file <filename>"long file
+name.dvi"</filename>.  The log file is named <filename>"long file
+name.log"</filename>.</para>
+
+<para>You can, to some extent, use quoted file names inside the &TeX;
+document.  For example:</para>
+
+<programlisting>\input{"extra long file name"}</programlisting>
+
+<para>This would cause &TeX; to read the file <filename>"extra long
+file name.tex"</filename>.</para>
+
+<para>Things get a little bit complicated if you want to use the
+<application>LaTeX</application> primitive
+<varname>\include</varname>.  You have to write something like
+the following:</para>
+
+<programlisting>\include{"extra\space long\space file\space name"}</programlisting>
+
+</section>
+
+<section id="includedirectory">
+
+<title>Specifying Additional Input Directories</title>
+
+<indexterm significance="preferred">
+<primary>--include-directory=dir</primary>
+</indexterm>
+
+<para>The command-line option
+<option>--include-directory=<replaceable>dir</replaceable></option>
+causes the program to include <replaceable>dir</replaceable> into
+the list of input directories.</para>
+
+<para>For example:</para>
+
+<programlisting>latex --include-directory="C:\My Styles" foo.tex</programlisting>
+
+<para>This prepends <filename>C:\My Styles</filename> to the input search
+path, i.e., <filename>C:\My Styles</filename> will be searched first,
+when &TeX; tries to find an input file.</para>
+
+</section>
+
+<section id="outputdirectory">
+
+<title>Specifying the Output Directory</title>
+
+<indexterm significance="preferred">
+<primary>--output-directory=dir</primary>
+</indexterm>
+    
+<para>The option
+<option>--output-directory=<replaceable>dir</replaceable></option>
+causes &TeX; to create all output files in another directory.</para>
+
+<para>For example:</para>
+
+<informalexample>
+<screen><prompt>&prompt;</prompt><userinput>mkdir C:\texoutput</userinput>
+<prompt>&prompt;</prompt><userinput>latex -output-directory=C:\texoutput sample2e.tex</userinput>
+...
+<prompt>&prompt;</prompt></screen>
+</informalexample>
+
+<para>This ensures that all output files
+(<filename>foo.dvi</filename>, <filename>foo.log</filename>, &hellip;)
+will be created in <filename>C:\texoutput\</filename>.</para>
+
+</section>
+
+<section id="auxdirectory">
+
+<title>Specifying the Directory for Auxiliary Files</title>
+
+<indexterm significance="preferred">
+<primary>--aux-directory=dir</primary>
+</indexterm>
+
+<indexterm>
+<primary>auxiliary files</primary>
+<secondary>specifying the directory for</secondary>
+</indexterm>
+
+<para>The option <option>--aux-directory=<replaceable>dir</replaceable></option>
+causes &TeX; to create auxiliary files in another directory. For example:</para>
+
+<informalexample><screen><prompt>&prompt;</prompt><userinput>mkdir C:\texoutput</userinput>
+<prompt>&prompt;</prompt><userinput>mkdir C:\tobedeleted</userinput>
+<prompt>&prompt;</prompt><userinput>latex -output-directory=C:\texoutput -aux-directory=C:\tobedeleted foo.tex</userinput>
+...
+<prompt>&prompt;</prompt></screen>
+</informalexample>
+
+<para>This ensures that 1)&nbsp;<filename>foo.dvi</filename> will be
+created in <filename>C:\texoutput\</filename> and 2)&nbsp;all other
+files (<filename>foo.log</filename>, &hellip;) will be created in
+<filename>C:\tobedeleted\.</filename>.</para>
+
+</section>
+
+<section>
+
+<title>Running Programs From Within &TeX;</title>
+
+<section id="writeeighteen">
+
+<title>\write18</title>
+
+<indexterm>
+<primary>\write18 (run a program from within TeX)</primary>
+</indexterm>
+
+<para>&TeX; handles output stream <literal>18</literal> in a special
+way: the token list is interpreted as a command line.  If the <markup
+role="tex">\write18</markup> feature is enabled (see below), then
+<markup
+role="tex">\write18{<replaceable>toklist</replaceable>}</markup>
+starts the command interpreter (usually <command>cmd.exe</command>) to
+carry out the command specified by <replaceable>toklist</replaceable>.
+For example:
+<programlisting>
+\write18{dir}
+</programlisting>
+lists the files and sub-directories of the current directory.</para>
+
+<note>
+<para>The <markup
+role="tex">\write18</markup> feature is only partially enabled by default to avoid security problems:
+only well known commands are allowed.
+<indexterm>
+<primary>security</primary>
+</indexterm>
+<indexterm significance="preferred">
+<primary>--enable-write18</primary>
+</indexterm>
+You fully enable the feature by specifying
+<option>--enable-write18</option> on the &TeX; command-line.</para>
+</note>
+
+</section>
+
+<section id="pipedinout">
+
+<title>Piped Input and Output</title>
+
+<para>&TeX;'s input/output primitives can be used for unidirectional
+interprocess communication by prepending a pipe symbol to the file
+name.</para>
+
+<para>If this feature is enabled, then
+<markup role="tex">\input "|<replaceable>command</replaceable>"</markup>
+starts the command interpreter (usually <command>cmd.exe</command>) to
+carry out the command. The output of the command becomes the input of
+&TeX;.
+For example:
+<programlisting>
+\input "|dir/b"
+</programlisting>
+typesets the file names of the current directory.</para>
+
+<para>Likewise, it is possible to let &TeX; write something into
+the input stream of a command. For example:
+<programlisting>
+\immediate\openout1 = "|unix2dos|sort > sorted"
+\immediate\write 1 {b}
+\immediate\write 1 {a}
+\immediate\write 1 {c}
+\immediate\closeout1
+\input sorted
+</programlisting>
+typesets a b c.</para>
+
+<note>
+<para>Piped input and output is disabled by default to avoid security
+problems.
+<indexterm>
+<primary>security</primary>
+</indexterm>
+<indexterm significance="preferred">
+<primary>--enable-pipes</primary>
+</indexterm>
+You enable the feature by specifying
+<option>--enable-pipes</option> on the &TeX; command-line.</para>
+</note>
+
+</section>
+
+</section>
+
+&tcxtables;
+
+</section>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

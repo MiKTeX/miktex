@@ -1,0 +1,18 @@
+.topic HIDC_LIST
+The list of all TEXMF root directories.
+
+.topic HIDC_SCAN
+Searches the selected TEXMF root directories for new files and updates
+the file name database (FNDB) accordingly.
+
+.topic HIDC_MOVEUP
+Moves the selected TEXMF root directory up in the search order.
+
+.topic HIDC_MOVEDOWN
+Moves the selected TEXMF root directory down in the search order.
+
+.topic HIDC_ADD
+Adds a new TEXMF root directory.
+
+.topic HIDC_REMOVE
+Removes the selected TEXMF root directories.

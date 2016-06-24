@@ -1,0 +1,777 @@
+/* miktex/Core/Paths.h: hard-coded path names           -*- C++ -*-
+
+   Copyright (C) 1996-2016 Christian Schenk
+
+   This file is part of the MiKTeX Core Library.
+
+   The MiKTeX Core Library is free software; you can redistribute it
+   and/or modify it under the terms of the GNU General Public License
+   as published by the Free Software Foundation; either version 2, or
+   (at your option) any later version.
+   
+   The MiKTeX Core Library is distributed in the hope that it will be
+   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with the MiKTeX Core Library; if not, write to the Free
+   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+   02111-1307, USA. */
+
+#if defined(_MSC_VER)
+#  pragma once
+#endif
+
+#if !defined(A36A152EB0CF4D3FBA8993B213D73156)
+#define A36A152EB0CF4D3FBA8993B213D73156
+
+#include <miktex/Definitions>
+#include <miktex/Version>
+
+#define MIKTEX_PATH_TEXMF_PLACEHOLDER "%R"
+#define MIKTEX_PATH_TEXMF_PLACEHOLDER_NO_MPM "%r"
+
+#define MIKTEX_PATH_RECURSION_INDICATOR "//"
+
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_PATH_DIRECTORY_DELIMITER_STRING "\\"
+#else
+#  define MIKTEX_PATH_DIRECTORY_DELIMITER_STRING "/"
+#endif
+
+#define MIKTEX_PREFIX "@MIKTEX_PREFIX@"
+
+#define MIKTEX_ADMIN_SUFFIX "@MIKTEX_ADMIN_SUFFIX@"
+
+#if MIKTEX_UNIX
+#  define MIKTEX_TEXMF "@MIKTEX_TEXMF_DIR@"
+#endif
+
+#define MIKTEX_PORTABLE_REL_TEXMF_ROOT "@MIKTEX_PORTABLE_REL_TEXMF_ROOT@"
+#define MIKTEX_PORTABLE_REL_INSTALL_DIR "@MIKTEX_PORTABLE_REL_INSTALL_DIR@"
+#define MIKTEX_PORTABLE_REL_CONFIG_DIR "@MIKTEX_PORTABLE_REL_CONFIG_DIR@"
+#define MIKTEX_PORTABLE_REL_DATA_DIR "@MIKTEX_PORTABLE_REL_DATA_DIR@"
+
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_EXE_FILE_SUFFIX ".exe"
+#else
+#  define MIKTEX_EXE_FILE_SUFFIX ""
+#endif
+
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_SHARED_LIB_FILE_SUFFIX ".dll"
+#else
+#  define MIKTEX_SHARED_LIB_FILE_SUFFIX ".so"
+#endif
+
+/* suffix for files which can be deleted */
+#define MIKTEX_TO_BE_DELETED_FILE_SUFFIX ".(old)"
+
+/* suffix for file name database files */
+#define MIKTEX_FNDB_FILE_SUFFIX ".fndb"
+
+#define MIKTEX_FORMAT_FILE_SUFFIX ".fmt"
+
+#define MIKTEX_POOL_FILE_SUFFIX ".pool"
+
+#define MIKTEX_CABINET_FILE_SUFFIX ".cab"
+
+#define MIKTEX_TARBZIP2_FILE_SUFFIX ".tar.bz2"
+
+#define MIKTEX_TARLZMA_FILE_SUFFIX ".tar.lzma"
+
+#define MIKTEX_TARXZ_FILE_SUFFIX ".tar.xz"
+
+#define MIKTEX_TAR_FILE_SUFFIX ".tar"
+
+#define MIKTEX_ZIP_FILE_SUFFIX ".zip"
+
+#define MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX ".tpm"
+
+#define MIKTEX_MPM_DB_LIGHT_FILE_NAME_NO_SUFFIX \
+  "miktex" "-" "zzdb" "1" "-" MIKTEX_SERIES_STR
+
+#define MIKTEX_MPM_DB_LIGHT_FILE_NAME           \
+  MIKTEX_MPM_DB_LIGHT_FILE_NAME_NO_SUFFIX       \
+  MIKTEX_TARLZMA_FILE_SUFFIX
+
+#define MIKTEX_MPM_DB_FULL_FILE_NAME_NO_SUFFIX  \
+  "miktex" "-" "zzdb" "2" "-" MIKTEX_SERIES_STR
+
+#define MIKTEX_MPM_DB_FULL_FILE_NAME            \
+  MIKTEX_MPM_DB_FULL_FILE_NAME_NO_SUFFIX        \
+  MIKTEX_TARLZMA_FILE_SUFFIX
+
+#define MIKTEX_PATH_BIBTEX_DIR                  \
+  "bibtex"
+
+#define MIKTEX_PATH_BIB_DIR                     \
+  MIKTEX_PATH_BIBTEX_DIR                        \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "bib"
+
+#define MIKTEX_PATH_BST_DIR                     \
+  MIKTEX_PATH_BIBTEX_DIR                        \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "bst"
+
+#define MIKTEX_PATH_CONTEXT_DIR                 \
+  "context"
+
+#define MIKTEX_PATH_DOC_DIR                     \
+  "doc"
+
+#define MIKTEX_PATH_MIKTEX_DOC_DIR              \
+  MIKTEX_PATH_DOC_DIR                           \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "miktex"
+
+#define MIKTEX_PATH_RELNOTES_HTML               \
+  MIKTEX_PATH_MIKTEX_DOC_DIR                    \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "relnotes"                                    \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "index.html"
+
+#define MIKTEX_PATH_DVIPDFM_DIR                 \
+  "dvipdfm"
+
+#define MIKTEX_PATH_DVIPDFM_CONFIG_DIR          \
+  MIKTEX_PATH_DVIPDFM_DIR                       \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "config"
+
+#define MIKTEX_PATH_DVIPDFMX_CONFIG_DIR         \
+  MIKTEX_PATH_DVIPDFM_DIR                       \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "config"
+
+#define MIKTEX_PATH_DVIPS_DIR                   \
+  "dvips"
+
+#define MIKTEX_PATH_DVIPS_CONFIG_DIR            \
+  MIKTEX_PATH_DVIPS_DIR                         \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "config"
+
+#define MIKTEX_PATH_FONT_DIR                    \
+  "fonts"
+
+#define MIKTEX_PATH_AFM_DIR                     \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "afm"
+
+#define MIKTEX_PATH_CMAP_DIR                    \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "cmap"
+
+#define MIKTEX_PATH_ENC_DIR                     \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "enc"
+
+#define MIKTEX_PATH_MAP_DIR                     \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "map"
+
+#define MIKTEX_PATH_MISCFONT_DIR                \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "misc"
+
+#define MIKTEX_PATH_HBF_DIR                     \
+  MIKTEX_PATH_MISCFONT_DIR                      \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "hbf"
+
+#define MIKTEX_PATH_FONT_SOURCE_DIR             \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "source"
+
+#define MIKTEX_PATH_OFM_DIR                     \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "ofm"
+
+#define MIKTEX_PATH_OPL_DIR                     \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "opl"
+
+#define MIKTEX_PATH_OVF_DIR                     \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "ovf"
+
+#define MIKTEX_PATH_OVP_DIR                     \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "ovp"
+
+#define MIKTEX_PATH_TFM_DIR                     \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "tfm"
+
+#define MIKTEX_PATH_TRUETYPE_DIR                \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "truetype"
+
+#define MIKTEX_PATH_OPENTYPE_DIR                \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "opentype"
+
+#define MIKTEX_PATH_SFD_DIR                     \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "sfd"
+
+#define MIKTEX_PATH_TYPE1_DIR                   \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "type1"
+
+#define MIKTEX_PATH_TYPE3_DIR                   \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "type3"
+
+#define MIKTEX_PATH_TYPE42_DIR                  \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "type42"
+
+#define MIKTEX_PATH_LIG_DIR                     \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "lig"
+
+#define MIKTEX_PATH_FONT_FEATURE_DIR            \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "fea"
+
+#define MIKTEX_PATH_CIDMAP_DIR                  \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "cid"
+
+#define MIKTEX_PATH_MISCFONTS_DIR               \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "misc"
+
+#define MIKTEX_PATH_VF_DIR                      \
+  MIKTEX_PATH_FONT_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "vf"
+
+#define MIKTEX_PATH_MAKEINDEX_DIR               \
+  "makeindex"
+
+#define MIKTEX_PATH_METAFONT_DIR                \
+  "metafont"
+
+#define MIKTEX_PATH_MFT_DIR                     \
+  "mft"
+
+#define MIKTEX_PATH_METAPOST_DIR                \
+  "metapost"
+
+#define MIKTEX_PATH_MPSUPPORT_DIR               \
+  MIKTEX_PATH_METAPOST_DIR                      \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "support"
+
+#define MIKTEX_PATH_MIKTEX_DIR                  \
+  "miktex"
+
+#define MIKTEX_PATH_MIKTEX_CONFIG_DIR "@MIKTEX_REL_MIKTEX_CONFIG_DIR@"
+
+#define MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR  \
+  MIKTEX_PATH_MIKTEX_CONFIG_DIR                 \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "@MIKTEX_SHORTEST_TARGET_SYSTEM_TAG@"
+
+#define MIKTEX_PATH_MIKTEX_LOG_DIR              \
+  MIKTEX_PATH_MIKTEX_DIR                        \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "log"
+
+#define MIKTEX_PATH_MIKTEX_TEMP_DIR             \
+  MIKTEX_PATH_MIKTEX_DIR                        \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "temp"
+
+#define MIKTEX_PATH_MIKTEX_MTHELP_DIR           \
+  MIKTEX_PATH_MIKTEX_DIR                        \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "mthelp"
+
+#define MIKTEX_PATH_BASE_DIR "@MIKTEX_REL_MIKTEX_BASE_DIR@"
+
+#define MIKTEX_PATH_FMT_DIR "@MIKTEX_REL_MIKTEX_FMT_DIR@"
+
+#define MIKTEX_PATH_FORMATS_INI                 \
+  MIKTEX_PATH_MIKTEX_CONFIG_DIR                 \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_FORMATS_INI_FILENAME
+
+#define MIKTEX_PATH_SCRIPTS_INI                 \
+  MIKTEX_PATH_MIKTEX_CONFIG_DIR                 \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_SCRIPTS_INI_FILENAME
+
+#define MIKTEX_PATH_LANGUAGES_INI               \
+  MIKTEX_PATH_MIKTEX_CONFIG_DIR                 \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_LANGUAGES_INI_FILENAME
+
+#define MIKTEX_PATH_CONFIG_PS                   \
+  MIKTEX_PATH_DVIPS_CONFIG_DIR                  \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_CONFIG_PS_FILENAME
+
+#define MIKTEX_PATH_DVIPDFM_CONFIG              \
+  MIKTEX_PATH_DVIPDFM_CONFIG_DIR                \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_DVIPDFM_CONFIG_FILENAME
+
+#define MIKTEX_PATH_DVIPDFMX_CONFIG             \
+  MIKTEX_PATH_DVIPDFMX_CONFIG_DIR               \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_DVIPDFMX_CONFIG_FILENAME
+
+#define MIKTEX_PATH_PDFTEX_CFG                  \
+  MIKTEX_PATH_PDFTEX_CONFIG_DIR                 \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_PDFTEX_CFG_FILENAME
+
+#define MIKTEX_PATH_PDFTEXCONFIG_DAT            \
+  MIKTEX_PATH_TEX_GENERIC_CONFIG_DIR            \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_PDFTEXCONFIG_DAT_FILENAME
+
+#define MIKTEX_PATH_PDFTEXCONFIG_TEX            \
+  MIKTEX_PATH_TEX_GENERIC_CONFIG_DIR            \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_PDFTEXCONFIG_TEX_FILENAME
+
+#define MIKTEX_PATH_LANGUAGE_DAT                \
+  MIKTEX_PATH_TEX_GENERIC_CONFIG_DIR            \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_LANGUAGE_DAT_FILENAME
+
+#define MIKTEX_PATH_LANGUAGE_DAT_LUA            \
+  MIKTEX_PATH_TEX_GENERIC_CONFIG_DIR            \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_LANGUAGE_DAT_LUA_FILENAME
+
+#define MIKTEX_PATH_LANGUAGE_DEF                \
+  MIKTEX_PATH_TEX_GENERIC_CONFIG_DIR            \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_LANGUAGE_DEF_FILENAME
+
+#define MIKTEX_PATH_EDITORS_INI                 \
+  MIKTEX_PATH_MIKTEX_CONFIG_DIR                 \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_EDITORS_INI_FILENAME
+
+#define MIKTEX_PATH_UPDMAP_CFG                  \
+  MIKTEX_PATH_MIKTEX_CONFIG_DIR                 \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_UPDMAP_CFG_FILENAME
+
+#define MIKTEX_FORMATS_INI_FILENAME "formats.ini"
+
+#define MIKTEX_SCRIPTS_INI_FILENAME "scripts.ini"
+
+#define MIKTEX_LANGUAGES_INI_FILENAME "languages.ini"
+
+#define MIKTEX_EDITORS_INI_FILENAME "editors.ini"
+
+#define MIKTEX_MPM_INI_FILENAME "mpm.ini"
+
+#define MIKTEX_YAP_INI_FILENAME "yap.ini"
+
+#define MIKTEX_PDFTEX_CFG_FILENAME "pdftex.cfg"
+
+#define MIKTEX_LANGUAGE_DAT_FILENAME "language.dat"
+
+#define MIKTEX_LANGUAGE_DAT_LUA_FILENAME "language.dat.lua"
+
+#define MIKTEX_LANGUAGE_DEF_FILENAME "language.def"
+
+#define MIKTEX_PDFTEXCONFIG_DAT_FILENAME "pdftexconfig.dat"
+
+#define MIKTEX_PDFTEXCONFIG_TEX_FILENAME "pdftexconfig.tex"
+
+#define MIKTEX_UPDMAP_CFG_FILENAME "updmap.cfg"
+
+#define MIKTEX_CONFIG_PS_FILENAME "config.ps"
+
+#define MIKTEX_DVIPDFM_CONFIG_FILENAME "config"
+#define MIKTEX_DVIPDFMX_CONFIG_FILENAME "dvipdfmx.cfg"
+
+#define MIKTEX_LOG4CXX_CONFIG_FILENAME "log4cxx." "@MIKTEX_SHORTEST_TARGET_SYSTEM_TAG@" ".xml"
+
+#define MIKTEX_PATH_MIKTEX_INI                  \
+  MIKTEX_PATH_MIKTEX_CONFIG_DIR                 \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_INI_FILE
+
+#define MIKTEX_PATH_MKFNTMAP_CFG                \
+  MIKTEX_PATH_MIKTEX_CONFIG_DIR                 \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "mkfntmap.cfg"
+
+#define MIKTEX_PATH_MPM_FNDB                    \
+  MIKTEX_PATH_FNDB_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "mpm"                                         \
+  MIKTEX_FNDB_FILE_SUFFIX
+
+#define MIKTEX_PATH_PACKAGES_INI                \
+  MIKTEX_PATH_MIKTEX_CONFIG_DIR                 \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "packages.ini"
+
+#define MIKTEX_PATH_STARTUP_CONFIG_FILE         \
+  MIKTEX_PATH_MIKTEX_CONFIG_DIR                 \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "miktexstartup.ini"
+
+#define MIKTEX_PATH_TEXMF_FNDB                  \
+  MIKTEX_PATH_FNDB_DIR                          \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "texmf"                                       \
+  MIKTEX_FNDB_FILE_SUFFIX
+
+#define MIKTEX_PATH_BIN_DIR "@MIKTEX_REL_MIKTEX_BIN_DIR@"
+
+#define MIKTEX_PATH_INTERNAL_BIN_DIR "@MIKTEX_REL_MIKTEX_INTERNAL_BIN_DIR@"
+
+#define MIKTEX_PATH_TEXWORKS_PLUGINS_DIR "@MIKTEX_REL_MIKTEX_TEXWORKS_PLUGINS_DIR@"
+
+#define MIKTEX_PATH_FNDB_DIR "@MIKTEX_REL_MIKTEX_FNDB_DIR@"
+
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_PATH_INTERNAL_COPYSTART_EXE    \
+  MIKTEX_PATH_INTERNAL_BIN_DIR                  \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_COPYSTART_EXE
+#endif
+
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_PATH_INTERNAL_COPYSTART_ADMIN_EXE      \
+  MIKTEX_PATH_INTERNAL_BIN_DIR                  \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_COPYSTART_ADMIN_EXE
+#endif
+
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_PATH_INTERNAL_UNINSTALL_EXE    \
+  MIKTEX_PATH_INTERNAL_BIN_DIR                  \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_UNINSTALL_EXE
+#endif
+
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_PATH_INTERNAL_UNINSTALL_ADMIN_EXE      \
+  MIKTEX_PATH_INTERNAL_BIN_DIR                  \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_UNINSTALL_ADMIN_EXE
+#endif
+
+#define MIKTEX_PATH_UNINST_LOG                  \
+  MIKTEX_PATH_MIKTEX_CONFIG_DIR                 \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_UNINSTALL_LOG
+
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_PATH_INTERNAL_TASKBAR_ICON_EXE \
+  MIKTEX_PATH_INTERNAL_BIN_DIR                  \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_TASKBAR_ICON_EXE
+#endif
+
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_PATH_INTERNAL_UPDATE_EXE       \
+  MIKTEX_PATH_INTERNAL_BIN_DIR                  \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_UPDATE_EXE
+#endif
+
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_PATH_INTERNAL_UPDATE_ADMIN_EXE \
+  MIKTEX_PATH_INTERNAL_BIN_DIR                  \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_UPDATE_ADMIN_EXE
+#endif
+
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_PATH_INTERNAL_RUNBAT_EXE       \
+  MIKTEX_PATH_INTERNAL_BIN_DIR                  \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_RUNBAT_EXE
+#endif
+
+#define MIKTEX_PATH_INTERNAL_RUNPERL_EXE        \
+  MIKTEX_PATH_INTERNAL_BIN_DIR                  \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_RUNPERL_EXE
+
+#define MIKTEX_PATH_INTERNAL_RUNTEXLUA_EXE      \
+  MIKTEX_PATH_INTERNAL_BIN_DIR                  \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_RUNTEXLUA_EXE
+
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_PATH_MPM_DLL                   \
+  MIKTEX_PATH_BIN_DIR                           \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_MPM_DLL
+#endif
+
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_PATH_MPM_PS_DLL                \
+  MIKTEX_PATH_BIN_DIR                           \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_MPM_PS_DLL
+#endif
+
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_PATH_CORE_DLL                  \
+  MIKTEX_PATH_BIN_DIR                           \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_CORE_DLL
+#endif
+
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_PATH_CORE_PS_DLL               \
+  MIKTEX_PATH_BIN_DIR                           \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_CORE_PS_DLL
+#endif
+
+#define MIKTEX_PATH_NTS_DIR                     \
+  "nts"
+
+#define MIKTEX_PATH_OMEGA_DIR                   \
+  "omega"
+
+#define MIKTEX_PATH_OCP_DIR                     \
+  MIKTEX_PATH_OMEGA_DIR                         \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "ocp"
+
+#define MIKTEX_PATH_OTP_DIR                     \
+  MIKTEX_PATH_OMEGA_DIR                         \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "otp"
+
+#define MIKTEX_PATH_PDFTEX_DIR                  \
+  "pdftex"
+
+#define MIKTEX_PATH_TEX_DIR                     \
+  "tex"
+
+#define MIKTEX_PATH_TEX_GENERIC_DIR             \
+  MIKTEX_PATH_TEX_DIR                           \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "generic"
+
+#define MIKTEX_PATH_TEX_GENERIC_CONFIG_DIR      \
+  MIKTEX_PATH_TEX_GENERIC_DIR                   \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "config"
+
+#define MIKTEX_PATH_PDFTEX_CONFIG_DIR           \
+  MIKTEX_PATH_PDFTEX_DIR                        \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "config"
+
+#define MIKTEX_PATH_CWEB_DIR                    \
+  "cweb"
+
+#define MIKTEX_PATH_WEB_DIR                     \
+  "web"
+
+#define MIKTEX_PATH_PSUTILS_DIR                 \
+  "psutils"
+
+#define MIKTEX_PATH_SCRIPT_DIR                  \
+  "scripts"
+
+#define MIKTEX_PATH_SOURCE_DIR                  \
+  "source"
+
+#define MIKTEX_PATH_TEX_DIR                     \
+  "tex"
+
+#define MIKTEX_PATH_WEB2C_DIR                   \
+  "web2c"
+
+#define MIKTEX_PATH_FONTCONFIG_DIR              \
+  "fontconfig"
+
+#define MIKTEX_PATH_FONTCONFIG_CACHE_DIR        \
+  MIKTEX_PATH_FONTCONFIG_DIR                    \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "cache"
+
+#define MIKTEX_PATH_FONTCONFIG_CONFIG_DIR       \
+  MIKTEX_PATH_FONTCONFIG_DIR                    \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "config"
+
+#define MIKTEX_PATH_FONTCONFIG_CONFIG_FILE      \
+  MIKTEX_PATH_FONTCONFIG_CONFIG_DIR             \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_FONTS_CONF
+
+#define MIKTEX_PATH_FONTCONFIG_LOCALFONTS_FILE  \
+  MIKTEX_PATH_FONTCONFIG_CONFIG_DIR             \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_LOCALFONTS_CONF
+
+#define MIKTEX_PATH_FONTCONFIG_LOCALFONTS2_FILE \
+  MIKTEX_PATH_FONTCONFIG_CONFIG_DIR             \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_LOCALFONTS2_CONF
+
+#define MIKTEX_PATH_HUNSPELL_DICT_DIR           \
+  "hunspell"                                    \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "dicts"
+
+#if defined(MIKTEX_WINDOWS)
+# define MIKTEX_TEMP_DIR \
+    MIKTEX_PATH_DIRECTORY_DELIMITER_STRING "MiKTeXTemp"
+#endif
+
+#define MIKTEXDIRECT_PREFIX_DIR "texmf"
+
+/* _________________________________________________________________________
+
+   MIKTEX_PATH_MPM_INI
+   _________________________________________________________________________ */
+
+#define MIKTEX_PATH_MPM_INI                     \
+  MIKTEX_PATH_MIKTEX_CONFIG_DIR                 \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  MIKTEX_MPM_INI_FILENAME
+
+/* _________________________________________________________________________
+
+   MIKTEX_PATH_TPM_DIR
+   _________________________________________________________________________ */
+
+#define MIKTEX_PATH_TPM_DIR                     \
+  "tpm"
+
+/* _________________________________________________________________________
+
+   MIKTEX_PATH_PACKAGE_DEFINITION_DIR
+   _________________________________________________________________________ */
+
+#define MIKTEX_PATH_PACKAGE_DEFINITION_DIR      \
+  MIKTEX_PATH_TPM_DIR                           \
+  MIKTEX_PATH_DIRECTORY_DELIMITER_STRING        \
+  "packages"
+
+#define MIKTEX_BIBTEX_EXE MIKTEX_PREFIX "bibtex" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_COPYSTART_ADMIN_EXE "copystart" MIKTEX_ADMIN_SUFFIX MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_COPYSTART_EXE "copystart" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_DVICOPY_EXE MIKTEX_PREFIX "dvicopy" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_DVIPDFMX_EXE MIKTEX_PREFIX "dvipdfmx" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_DVIPS_EXE "dvips" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_DVITYPE_EXE MIKTEX_PREFIX "dvitype" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_GFTODVI_EXE MIKTEX_PREFIX "gftodvi" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_GFTOPK_EXE MIKTEX_PREFIX "gftopk" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_GFTYPE_EXE MIKTEX_PREFIX "gftype" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_GSF2PK_EXE "gsf2pk" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_GS_EXE "mgs" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_HBF2GF_EXE "hbf2gf" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_INITEXMF_EXE "initexmf" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_KPSEWHICH_EXE MIKTEX_PREFIX "kpsewhich" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_LATEX_EXE MIKTEX_PREFIX "latex" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_LUALATEX_EXE MIKTEX_PREFIX "lualatex" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_LUATEX_EXE MIKTEX_PREFIX "luatex" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MAKEBASE_EXE MIKTEX_PREFIX "makebase" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MAKEFMT_EXE MIKTEX_PREFIX "makefmt" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MAKEINDEX_EXE MIKTEX_PREFIX "makeindex" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MAKEMF_EXE MIKTEX_PREFIX "makemf" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MAKEPK_EXE MIKTEX_PREFIX "makepk" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MAKETFM_EXE MIKTEX_PREFIX "maketfm" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MFT_EXE MIKTEX_PREFIX "mft" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MF_EXE MIKTEX_PREFIX "mf" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MO_ADMIN_EXE "mo" MIKTEX_ADMIN_SUFFIX MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MO_EXE "mo" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MPOST_EXE MIKTEX_PREFIX "mpost" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_ODVICOPY_EXE MIKTEX_PREFIX "odvicopy" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_OFM2OPL_EXE MIKTEX_PREFIX "ofm2opl" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_OMEGA_EXE MIKTEX_PREFIX "omega" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_OPL2OFM_EXE MIKTEX_PREFIX "opl2ofm" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_OVF2OVP_EXE MIKTEX_PREFIX "ovf2ovp" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_OVP2OVF_EXE MIKTEX_PREFIX "ovp2ovf" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_PDFLATEX_EXE MIKTEX_PREFIX "pdflatex" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_PDFTEX_EXE MIKTEX_PREFIX "pdftex" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_PLTOTF_EXE MIKTEX_PREFIX "pltotf" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_PLTOTF_EXE MIKTEX_PREFIX "pltotf" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_POOLTYPE_EXE MIKTEX_PREFIX "pooltype" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_PS2PK_EXE "ps2pk" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_RUNBAT_EXE "runbat" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_RUNPERL_EXE "runperl" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_RUNTEXLUA_EXE "runtexlua" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_TANGLE_EXE MIKTEX_PREFIX "tangle" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_TEXIFY_EXE "texify" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_TEXLUAC_EXE MIKTEX_PREFIX "texluac" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_TEXLUA_EXE MIKTEX_PREFIX "texlua" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_TEXWORKS_EXE MIKTEX_PREFIX "texworks" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_TEX_EXE MIKTEX_PREFIX "tex" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_TFTOPL_EXE MIKTEX_PREFIX "tftopl" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_TIE_EXE MIKTEX_PREFIX "tie" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_TTF2PK_EXE "ttf2pk" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_VFTOVP_EXE MIKTEX_PREFIX "vftovp" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_VPTOVF_EXE MIKTEX_PREFIX "vptovf" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_WEAVE_EXE MIKTEX_PREFIX "weave" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_XDVIPDFMX_EXE MIKTEX_PREFIX "xdvipdfmx" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_XELATEX_EXE MIKTEX_PREFIX "xelatex" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_XETEX_EXE MIKTEX_PREFIX "xetex" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_YAP_EXE "yap" MIKTEX_EXE_FILE_SUFFIX
+
+#define MIKTEX_LOCALFONTS_CONF "localfonts.conf"
+#define MIKTEX_LOCALFONTS2_CONF "localfonts2.conf"
+#define MIKTEX_FONTS_CONF "fonts.conf"
+
+#define MIKTEX_TASKBAR_ICON_EXE MIKTEX_PREFIX "taskbar-icon" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_UNINSTALL_EXE "uninstall" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_UNINSTALL_ADMIN_EXE "uninstall" MIKTEX_ADMIN_SUFFIX MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_UNINSTALL_LOG "uninst.log"
+#define MIKTEX_UPDATE_EXE MIKTEX_PREFIX "update" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_UPDATE_ADMIN_EXE MIKTEX_PREFIX "update" MIKTEX_ADMIN_SUFFIX MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MPM_MFC_EXE "mpm_mfc" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MPM_MFC_ADMIN_EXE "mpm_mfc" MIKTEX_ADMIN_SUFFIX MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MPM_QT_EXE "mpm_qt" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MPM_QT_ADMIN_EXE "mpm_qt" MIKTEX_ADMIN_SUFFIX MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MPM_EXE "mpm" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_MAIN_HELP_FILE "miktex.chm"
+#define MIKTEX_FAQ_HELP_FILE "faq.chm"
+#define MIKTEX_LATEX_HELP_FILE "latex2e.chm"
+#define MIKTEX_YAP_HELP_FILE "yap.chm"
+#define MIKTEX_INI_FILE "miktex.ini"
+
+#define MIKTEX_CORE_DLL "@core_dll_name@" MIKTEX_SHARED_LIB_FILE_SUFFIX
+#define MIKTEX_CORE_PS_DLL "@core_ps_dll_name@" MIKTEX_SHARED_LIB_FILE_SUFFIX
+#define MIKTEX_MPM_DLL "@mpm_dll_name@" MIKTEX_SHARED_LIB_FILE_SUFFIX
+#define MIKTEX_MPM_PS_DLL "@mpm_ps_dll_name@" MIKTEX_SHARED_LIB_FILE_SUFFIX
+
+#endif

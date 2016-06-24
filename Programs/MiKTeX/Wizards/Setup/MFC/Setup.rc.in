@@ -1,0 +1,649 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#include "Setup-version.h"
+#endif
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Neutral resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
+#ifdef _WIN32
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AVI
+//
+
+IDA_FILECOPY            AVI                     "@MIKTEX_FILECOPY_ANIMATION@"
+IDA_DOWNLOAD            AVI                     "@MIKTEX_DOWNLOAD_ANIMATION@"
+#endif    // Neutral resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#include ""Setup-version.h""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""@CMAKE_CURRENT_SOURCE_DIR@/res/Setup.rc2""\r\n"
+    "#include ""afxres.rc""\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFAME            ICON                    "@MIKTEX_ICON@"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_HEADER              BITMAP                  "@MIKTEX_WIZARD_HEADER_BITMAP@"
+IDB_WATERMARK           BITMAP                  "@MIKTEX_WIZARD_WATERMARK_BITMAP@"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RT_MANIFEST
+//
+
+//IDR_MANIFEST            RT_MANIFEST             "@CMAKE_CURRENT_BINARY_DIR@/res/Setup.manifest"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_WELCOME DIALOGEX 0, 0, 317, 193
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Welcome",IDC_WELCOME,115,8,195,24
+    LTEXT           "This wizard installs MiKTeX on your computer.\n\nMiKTeX is a free TeX distribution for Windows.\n\nTo continue with Setup, click Next.",IDC_STATIC,115,40,189,146
+END
+
+IDD_INSTALLDIR DIALOGEX 0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "&Install MiKTeX to:",IDC_STATIC,21,1,56,8
+    EDITTEXT        IDC_PATHNAME,21,12,218,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "&Browse...",IDC_BROWSE,247,12,50,14
+END
+
+IDD_ADD_TEXMFROOTS DIALOGEX 0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "It is possible to integrate existing TEXMF trees into your MiKTeX setup. For example, you can choose this option in order to make MiKTeX use the files of another TeX system.",IDC_STATIC,21,1,275,24
+    CONTROL         "&Don't integrate other TEXMF trees.",IDC_NOADDTEXMF,
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,21,53,275,10
+    CONTROL         "&Let me specify other TEXMF trees to be integrated with MiKTeX.",IDC_ADDTEXMF,
+                    "Button",BS_AUTORADIOBUTTON | BS_TOP,21,67,275,10
+    LTEXT           "You can carry out this step at a later date. See the MiKTeX Manual, for more information.",IDC_STATIC,21,29,275,16
+END
+
+IDD_INFOLIST DIALOGEX 0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "MiKTeX Setup Wizard has enough information to start the task.  If you want to review or change any of the settings, click Back.  If you are satisfied with the settings, click Start.",IDC_STATIC,21,1,275,16
+    EDITTEXT        IDC_INFO,21,20,275,122,ES_MULTILINE | ES_READONLY | WS_VSCROLL | WS_HSCROLL | NOT WS_TABSTOP
+END
+
+IDD_FINISH DIALOGEX 0, 0, 317, 193
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Completing the MiKTeX Setup Wizard",IDC_WELCOME,115,8,195,24
+    LTEXT           "You have sucessfully completed the MiKTeX Setup Wizard.",IDC_STATUS,115,40,195,8
+    CONTROL         "&Show the release notes",IDC_VIEW_RELNOTES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,115,133,195,10
+    LTEXT           "To exit the wizard, click Close.",IDC_STATIC,115,178,195,8
+    LTEXT           "",IDC_MESSAGE,115,55,195,64
+END
+
+IDD_FOLDER DIALOGEX 0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "&Program folder:",IDC_STATIC,21,4,48,8
+    EDITTEXT        IDC_FOLDER,71,1,114,14,ES_AUTOHSCROLL
+END
+
+IDD_FILECOPY DIALOGEX 0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Installing:",IDC_PROGRESS1_TITLE,7,36,47,8
+    CONTROL         "",IDC_PACKAGE,"Static",SS_LEFTNOWORDWRAP | SS_NOPREFIX | WS_GROUP,76,36,234,8
+    CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",PBS_SMOOTH,7,46,303,10
+    LTEXT           "Overall progress",IDC_PROGRESS2_TITLE,7,63,52,8
+    CONTROL         "Progress1",IDC_PROGRESS2,"msctls_progress32",PBS_SMOOTH,7,73,303,10
+    CONTROL         "Animate1",IDC_ANI,"SysAnimate32",ACS_CENTER | ACS_TRANSPARENT | WS_TABSTOP,7,1,303,29
+    CONTROL         "",IDC_REPORT,"RichEdit20A",ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER | WS_VSCROLL,7,90,303,52
+    LTEXT           "",IDC_ETA,105,63,112,8
+    LTEXT           "ETA:",IDC_ETA_TITLE,85,63,17,8,NOT WS_VISIBLE
+END
+
+IDD_SHARED DIALOGEX 0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Install MiKTeX for:",IDC_STATIC,21,1,58,8
+    CONTROL         "&Anyone who uses this computer (all users)",IDC_SHARED,
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,46,13,250,10
+    CONTROL         "&Only for:",IDC_JUST_FOR_ME,"Button",BS_AUTORADIOBUTTON,46,27,250,10
+END
+
+IDD_EDIT_TEXMFROOTS DIALOGEX 0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "To add an existing TEXMF tree, click Add. To remove an entry from the list, Click Delete.",IDC_STATIC,21,1,275,16
+    LTEXT           "The order in the list determines the order, in which the TEXMF trees are searched for input files.",IDC_STATIC,21,24,275,16
+    LTEXT           "To move a TEXMF tree up in the list, click Up. To move a TEXMF tree down in the list, click Down.",IDC_STATIC,21,47,275,16
+    LISTBOX         IDC_LIST_TEXMFROOTS,21,70,275,56,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+    PUSHBUTTON      "&Add...",IDC_ADD,84,129,50,14
+    PUSHBUTTON      "&Delete",IDC_DELETE,138,129,50,14
+    PUSHBUTTON      "&Up",IDC_MOVEUP,192,129,50,14
+    PUSHBUTTON      "Do&wn",IDC_MOVEDOWN,246,129,50,14
+END
+
+IDD_TASK DIALOGEX 0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "&Download MiKTeX",IDC_DOWNLOAD_ONLY,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,21,1,275,10
+    CONTROL         "&Install MiKTeX",IDC_INSTALL_FROM_LOCAL_REPOSITORY,
+                    "Button",BS_AUTORADIOBUTTON,21,44,275,10
+    CONTROL         "I&nstall MiKTeX from the Internet",IDC_INSTALL_FROM_REMOTE_REPOSITORY,
+                    "Button",BS_AUTORADIOBUTTON | NOT WS_VISIBLE | WS_DISABLED,21,69,275,10
+    LTEXT           "MiKTeX will be downloaded into a directory on your computer.",IDC_STATIC,46,14,250,8
+    PUSHBUTTON      "&Connection Settings...",IDC_CONNECTION_SETTINGS,46,26,93,14
+    LTEXT           "MiKTeX will be installed from a directory on your computer.",IDC_STATIC,46,57,250,8
+    LTEXT           "MiKTeX will be installed from the Internet.",IDC_STATIC,46,82,250,8,NOT WS_VISIBLE | WS_DISABLED
+END
+
+IDD_LOCAL_REPOSITORY DIALOGEX 0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    LTEXT           "PLACEHOLDER (don't translate)",IDC_MESSAGE,20,1,276,8
+    EDITTEXT        IDC_FILENAME,20,11,224,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    PUSHBUTTON      "B&rowse...",IDC_BROWSE,246,11,50,14
+END
+
+IDD_PACKAGE_SET_INSTALL DIALOGEX 0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "&Basic MiKTeX",IDC_SMALL,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,21,1,275,10
+    CONTROL         "&Complete MiKTeX",IDC_TOTAL,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,21,34,275,10
+    LTEXT           "This is the recommended option. MiKTeX can be configured to install missing files automatically (in the course of use).",IDC_STATIC,46,14,250,16
+END
+
+IDD_REMOTE_REPOSITORY DIALOGEX 0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Download the MiKTeX distribution from:",IDC_STATIC,7,1,303,8
+    CONTROL         "List1",IDC_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,12,303,131
+END
+
+IDD_MD_TASK DIALOGEX 0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "A ""live"" MiKTeX system is installed in the following directory location:",-1,21,1,275,8
+    EDITTEXT        IDC_TEXMF_ROOT,21,12,275,14,ES_AUTOHSCROLL | ES_READONLY
+    CONTROL         "&Prepare my computer to run MiKTeX directly from the specified directory location.",IDC_PREPARE_MIKTEXDIRECT,
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,21,41,275,10
+    CONTROL         "&Install MiKTeX.",IDC_INSTALL,"Button",BS_AUTORADIOBUTTON,21,76,275,10
+    LTEXT           "The computer will be configured to run MiKTeX directly from the specified directory location.",-1,46,54,250,16
+    LTEXT           "MiKTeX will be installed on the hard-disk.",-1,46,89,250,8
+END
+
+IDD_LICENSE DIALOGEX 0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_LICENSE,"RichEdit20A",ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER | WS_VSCROLL | WS_HSCROLL,7,1,303,129
+    CONTROL         "I &accept the MiKTeX copying conditions.",IDC_ACCEPT_LICENSE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,134,303,10
+END
+
+IDD_PACKAGE_SET_DOWNLOAD DIALOGEX 0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "&Basic MiKTeX",IDC_SMALL,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,21,1,275,10
+    CONTROL         "&Complete MiKTeX",IDC_TOTAL,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,21,50,275,10
+    LTEXT           "A directory will be created which contains the basic MiKTeX distribution.",IDC_STATIC,46,15,250,8
+    LTEXT           "This is the recommended option. MiKTeX can be configured to install missing packages automatically (in the course of use).",IDC_STATIC,46,27,250,16
+    LTEXT           "A directory will be created which contains the complete MiKTeX distribution.",IDC_STATIC,46,64,250,8
+    LTEXT           "Don't use this option unless you have a fast and reliable Internet connection.",IDC_STATIC,46,76,250,16
+END
+
+IDD_SETTINGS DIALOGEX 0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Preferred &paper:",IDC_STATIC,21,3,52,8
+    COMBOBOX        IDC_COMBO1,76,1,42,70,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Install missing packages on-the-fly:",IDC_STATIC,21,28,110,8
+    COMBOBOX        IDC_INSTALL_ON_THE_FLY,135,26,55,70,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_PROXY_AUTHENTICATION DIALOGEX 0, 0, 146, 83
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Proxy Authentication"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Proxy authentication required.",IDC_STATIC,7,7,99,8
+    LTEXT           "&Name:",IDC_STATIC,19,23,22,8
+    EDITTEXT        IDC_PROXY_NAME,59,20,80,14,ES_AUTOHSCROLL
+    LTEXT           "&Password:",IDC_STATIC,19,42,34,8
+    EDITTEXT        IDC_PROXY_PASSWORD,59,39,80,14,ES_PASSWORD | ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,34,62,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,89,62,50,14
+END
+
+IDD_CONNECTION_SETTINGS DIALOGEX 0, 0, 211, 91
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Connection Settings"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "&Use a proxy server",IDC_USE_PROXY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,7,77,10
+    LTEXT           "&Address:",IDC_STATIC_ADDRESS,18,27,30,8
+    EDITTEXT        IDC_PROXY_HOST,51,24,82,14,ES_AUTOHSCROLL
+    LTEXT           "&Port:",IDC_STATIC_PORT,141,27,17,8
+    EDITTEXT        IDC_PROXY_PORT,161,24,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Au&thentication required",IDC_AUTH_REQUIRED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,47,91,10
+    DEFPUSHBUTTON   "OK",IDOK,98,70,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,154,70,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_WELCOME, DIALOG
+    BEGIN
+        LEFTMARGIN, 115
+        RIGHTMARGIN, 310
+        BOTTOMMARGIN, 186
+    END
+
+    IDD_INSTALLDIR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        VERTGUIDE, 21
+        VERTGUIDE, 297
+        TOPMARGIN, 1
+    END
+
+    IDD_ADD_TEXMFROOTS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        VERTGUIDE, 21
+        VERTGUIDE, 296
+        TOPMARGIN, 1
+    END
+
+    IDD_INFOLIST, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        VERTGUIDE, 21
+        VERTGUIDE, 296
+        TOPMARGIN, 1
+    END
+
+    IDD_FINISH, DIALOG
+    BEGIN
+        LEFTMARGIN, 115
+        RIGHTMARGIN, 310
+        BOTTOMMARGIN, 186
+    END
+
+    IDD_FOLDER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        VERTGUIDE, 21
+        VERTGUIDE, 296
+        TOPMARGIN, 1
+    END
+
+    IDD_FILECOPY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        VERTGUIDE, 21
+        VERTGUIDE, 296
+        TOPMARGIN, 1
+    END
+
+    IDD_SHARED, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        VERTGUIDE, 21
+        VERTGUIDE, 46
+        VERTGUIDE, 296
+        TOPMARGIN, 1
+    END
+
+    IDD_EDIT_TEXMFROOTS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        VERTGUIDE, 21
+        VERTGUIDE, 296
+        TOPMARGIN, 1
+    END
+
+    IDD_TASK, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        VERTGUIDE, 21
+        VERTGUIDE, 46
+        VERTGUIDE, 296
+        TOPMARGIN, 1
+    END
+
+    IDD_LOCAL_REPOSITORY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 309
+        VERTGUIDE, 20
+        VERTGUIDE, 296
+        TOPMARGIN, 1
+    END
+
+    IDD_PACKAGE_SET_INSTALL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        VERTGUIDE, 21
+        VERTGUIDE, 46
+        VERTGUIDE, 68
+        VERTGUIDE, 296
+    END
+
+    IDD_REMOTE_REPOSITORY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        VERTGUIDE, 21
+        VERTGUIDE, 296
+        TOPMARGIN, 1
+    END
+
+    IDD_MD_TASK, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        VERTGUIDE, 21
+        VERTGUIDE, 46
+        VERTGUIDE, 296
+    END
+
+    IDD_LICENSE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        VERTGUIDE, 21
+        VERTGUIDE, 296
+        TOPMARGIN, 1
+    END
+
+    IDD_PACKAGE_SET_DOWNLOAD, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        VERTGUIDE, 21
+        VERTGUIDE, 46
+        VERTGUIDE, 68
+        VERTGUIDE, 296
+    END
+
+    IDD_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        VERTGUIDE, 21
+        VERTGUIDE, 296
+        TOPMARGIN, 1
+    END
+
+    IDD_PROXY_AUTHENTICATION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 139
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 76
+    END
+
+    IDD_CONNECTION_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 204
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 84
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_SETTINGS DLGINIT
+BEGIN
+    IDC_COMBO1, 0x403, 3, 0
+0x3441, "\000" 
+    IDC_COMBO1, 0x403, 7, 0
+0x654c, 0x7474, 0x7265, "\000" 
+    IDC_INSTALL_ON_THE_FLY, 0x403, 4, 0
+0x6559, 0x0073, 
+    IDC_INSTALL_ON_THE_FLY, 0x403, 3, 0
+0x6f4e, "\000" 
+    IDC_INSTALL_ON_THE_FLY, 0x403, 13, 0
+0x7341, 0x206b, 0x656d, 0x6620, 0x7269, 0x7473, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "MiKTeX Setup Wizard"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_SUPPORT             "Support"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_SUBHEADER_EDITTREES "You select additional TEXMF trees to be integrated into MiKTeX."
+    IDS_HEADER_INFOLIST     "Information"
+    IDS_SUBHEADER_INFOLIST  "Review the settings."
+    IDS_HEADER_FILECOPY     "Executing"
+    IDS_SUBHEADER_FILECOPY  "The main task is being executed."
+    IDS_HEADER_TASK         "Task"
+    IDS_SUBHEADER_TASK      "Choose the task you want carried out."
+    IDS_HEADER_LOCAL_REPOSITORY "MiKTeX Distribution Directory"
+    IDS_SUBHEADER_LOCAL_REPOSITORY 
+                            "Specify the localtion of the directory which contains the MiKTeX distribution files."
+    IDS_HEADER_PACKAGE_SET  "Package Set"
+    IDS_SUBHEADER_PACKAGE_SET "Select the packages you want installed."
+    IDS_HEADER_REMOTE_REPOSITORY "Download Source"
+    IDS_SUBHEADER_REMOTE_REPOSITORY "Choose a download source."
+    IDS_MPM                 "Package Manager"
+    IDP_NOT_LOCAL_REPOSITORY 
+                            "The directory\n\n%1\n\nis not a valid installation source."
+    IDS_DOWNLOAD_COMPLETE   "MiKTeX has been downloaded successfully.  You can install MiKTeX by running the wizard again."
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_PROJECT_PAGE        "MiKTeX Project Page"
+    IDS_MIKTEX_ON_THE_WEB   "MiKTeX on the Web"
+    IDS_KNOWN_ISSUES        "Known Issues"
+    IDS_GIVE_BACK           "Give back"
+    IDS_BROWSE_LOCAL        "Local package repository:"
+    IDS_HEADER_LICENSE      "Copying Conditions"
+    IDS_SUBHEADER_LICENSE   "MiKTeX is freely redistributable under certain conditions."
+    IDS_MAINTENANCE         "Maintenance"
+    IDS_MAINTENANCE_ADMIN   "Maintenance (Admin)"
+    IDS_TEXWORKS            "TeXworks"
+    IDS_MPM_ADMIN           "Package Manager (Admin)"
+    IDS_OPTIONS_ADMIN       "Settings (Admin)"
+    IDS_UPDATEWIZ_ADMIN     "Update (Admin)"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_REMEDY              "A problem report has been written to a log file."
+    IDS_RELEASE_NOTES       "Release Notes"
+    IDS_VIEW_LOG_FILE       "&Show me the log file"
+    IDS_UPDATEWIZ           "Update"
+    IDS_TIPS                "MiKTeX Tips"
+    IDS_FAQ                 "FAQ"
+    IDS_HEADER_SHARED       "Shared Installation"
+    IDS_SUBHEADER_SHARED    "You have the option to share the MiKTeX installation with other users."
+    IDS_SETUPWIZ            "MiKTeX Setup"
+    IDS_HEADER_INSTALLDIR   "Installation Directory"
+    IDS_SUBHEADER_INSTALLDIR 
+                            "Choose a location for the installation directory."
+    IDS_HEADER_FOLDER       "Program Folder"
+    IDS_SUBHEADER_FOLDER    "Specify the name of the MiKTeX program folder."
+    IDS_HEADER_ADDTREES     "Integrate TEXMF Trees"
+    IDS_SUBHEADER_ADDTREES  "You can integrate existing TEXMF trees."
+    IDS_HEADER_EDITTREES    "Integrate TEXMF Trees"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_HEADER_SETTINGS     "Settings"
+    IDS_SUBHEADER_SETTINGS  "Set your preferences."
+    IDS_INITEXMF            "File name databases and format files"
+    IDS_INSTALL_DIR_NOT_EMPTY 
+                            "The specified installation directory is not empty."
+    IDS_CANCEL_DOWNLOAD     "MiKTeX Setup Wizard will now stop the download. You can resume the download at a later date by running the wizard again."
+    IDS_CANCEL_SETUP        "MiKTeX Setup Wizard will now cancel the installation."
+    IDS_OPTIONS             "Settings"
+    IDS_LOCAL_GUIDE         "Manual"
+    IDS_LATEX2E_REFERENCE   "LaTeX2e Reference"
+    IDS_HELP                "Help"
+    IDS_DVI_VIEWER          "Previewer"
+    IDS_FINISH_ERROR        "MiKTeX Setup Wizard did not complete."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "@CMAKE_CURRENT_SOURCE_DIR@/res/Setup.rc2"
+#include "afxres.rc"
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

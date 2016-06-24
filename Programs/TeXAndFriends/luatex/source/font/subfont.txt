@@ -1,0 +1,43 @@
+map entry:cyberb @ Unicode @ <cyberbit.ttf PidEid = 3, 1 means cyberb < INFIX > = >look at Unicode.sfd = >find the mapping = >charcode = >PidEid = 3, 1 = >glyphs eg cyberb01 = >subfont 01 in Unicode.sfd = >charcodes Infix can be anything, thus the question:given a tfm name, how to find out
+    whether this is a subfont ?
+    It is safe to limit the infix to be composed from hexadecimal digits only ?
+    If so, one possibility is : (1)
+    while last
+    -char -of - tfmname is a hexdigit
+    do
+         remove the last char from tfmname
+        do
+         a lookup for the tfmname
+                if found an entry with subfont flag then break enddo(2)
+             Or, when a map entry with subfont flag is scanned,
+                let pdftex create all the relevant entries.
+                Which may be a safer and faster solution(but wastes more memory)
+
+
+           Let 's do (2), as infix can be any word.
+
+
+
+Implementation:
+
+- let' s have a map entry : cyberb @ Unicode @ <cyberbit.ttf PidEid = 3, 1 - actions:
+            -read Unicode.sfd
+                - create corresponding sfd mapping like("01", "Unicode") =
+                >long[256]
+            - added those subfont to an AVL tree -
+                create map entries for cyberb01-- cyberbff,
+                each has a pointer to the corresponding sfd mapping entry -
+                extended attributes for map entry:-Pid - Eid - sfd_map -
+                sfd_mapping:-name:sfd name, eg "Unicode" - infix,
+                eg "01" - mapping:long[256]
+
+-how to find out whether a sfd has been loaded:
+                    -lookup for any entry with the given sfd
+                    name - functions:-load_sfd -
+                    lookup_subfont -
+                    extend reading map entries -
+                    when writting ttf:-if re - encoded-- >
+                    process like in case of type1 fonts -
+                    if PidEid is being used:-read cmap
+                    tables:store(ttfname, pid, eid)
+    -search for used chars - use sfd to find the charcodes - look into cmap to

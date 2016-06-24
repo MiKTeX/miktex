@@ -1,0 +1,5 @@
+// Microsoft Visual C++ generated Help ID include file.
+// Used by mpm.rc
+//
+#define HIDC_CHANGE_URL                 0x806b0411    // IDD_PROPPAGE_PACKAGE_REPOSITORY [English (U.S.)]
+#define HIDC_URL                        0x806b0410    // IDD_PROPPAGE_PACKAGE_REPOSITORY [English (U.S.)]

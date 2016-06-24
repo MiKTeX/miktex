@@ -1,0 +1,104 @@
+% This file is part of CWEB.
+% The CWEB programs by Silvio Levy are based on programs by D. E. Knuth.
+% They are distributed WITHOUT ANY WARRANTY, express or implied.
+% This README file last updated January 2016 by Don Knuth
+
+% Copyright (C) 1987,1990,1993,2000,2016 Silvio Levy and Donald E. Knuth
+
+% Permission is granted to make and distribute verbatim copies of this
+% document provided that the copyright notice and this permission notice
+% are preserved on all copies.
+
+% Permission is granted to copy and distribute modified versions of this
+% document under the conditions for verbatim copying, provided that the
+% entire resulting derived work is given a different name and distributed
+% under the terms of a permission notice identical to this one.
+
+% Please send comments, suggestions, etc. to tex-k@tug.org, and people
+% there will verify and forward bug reports.
+%
+% DEK takes no responsibility for the changefiles; they should be
+% maintained independently. His job is to correct errors in
+% ctangle.w, cweave.w, common.w, cwebmac.tex, cwebman.tex,
+% and in the files of examples/*.w, nothing more.
+
+This directory contains the following files:
+
+Makefile
+README
+comm-amiga.ch
+comm-bs.ch
+comm-mac.ch
+comm-man.ch
+comm-pc.ch
+comm-ql.ch
+comm-vms.ch
+comm-w32.ch
+common.c
+common.h
+common.w
+ctang-bs.ch
+ctang-man.ch
+ctang-pc.ch
+ctang-ql.ch
+ctang-vms.ch
+ctang-w32.ch
+ctangle.c
+ctangle.w
+cweav-bs.ch
+cweav-man.ch
+cweav-pc.ch
+cweav-ql.ch
+cweav-vms.ch
+cweave-w32.ch
+cweave.w
+cweb.1
+cweb.el
+cwebmac.tex
+cwebman.tex
+examples/
+makefile.bs
+prod.w
+readme.ql
+c++lib.w
+
+The file cwebman.tex is the user manual.
+The examples directory contains additional examples of the use of CWEB.
+The files common.c and ctangle.c are used for bootstrapping.
+The file cweb.1 is a manual page.
+The file cweb.el is suggested for GNU-Emacs users.
+The file c++lib.w is for C++ users (say `@i c++lib.w' at beginning of program).
+The files *-man.ch are used if you want to make the full 239-page CWEB manual.
+The files *-bs.ch are used instead of *-pc.ch if you are doing BIG programs.
+You can use makefile.bs to make CWEB with *-bs.ch.
+The files *-ql.ch are for QDOS/SMSQ systems; see readme.ql for further info.
+The files *-w32.ch use __fastcall conventions on win32 systems.
+The file comm-mac.ch is for Macintosh conventions.
+The other files named *.ch are sample change files for local customization.
+
+IMPORTANT: Please touch *.c before proceeding.
+Then edit the opening lines of Makefile so that it has the proper
+directory information for your local system.
+
+To make ctangle and cweave say `make all'; this should produce roughly
+the following actions (possibly with harmless warning messages from cc):
+
+cc -g -w -c ctangle.c
+cc -g -w -DCWEBINPUTS=\"/usr/local/lib/cweb\" -c common.c
+cc -g -o ctangle ctangle.o common.o 
+./ctangle cweave
+cc -g -w -c cweave.c
+cc -g -w -o cweave cweave.o common.o
+
+To get some reassurance that things are OK, you can say `make cautiously',
+which ensures that CTANGLE will reproduce itself. (Otherwise the source
+files common.w and ctangle.w won't actually have been used.)
+
+To install cweave and ctangle say `make install'. You probably need to
+be superuser to do this; but it's wise to `make all' first, BEFORE
+becoming superuser and saying `make install'.
+
+Note that change files for VMS, AMIGA, MAC, and PCs are provided.  When you
+are first bootstrapping to a new system, you may need to edit common.c and
+ctangle.c by hand, but the vast majority of the change-file changes are
+minor refinements that are not necessary for a rudimentary ctangle.

@@ -1,0 +1,15 @@
+.topic HIDC_LIST
+Displays a list of all format definitions.
+
+.topic HIDC_MAKE
+Click this to build the selected formats.
+
+.topic HIDC_NEW
+Click this to create a new format definition.
+
+.topic HIDC_EDIT
+Click this to display or change the selected format
+definition.
+
+.topic HIDC_REMOVE
+Click this to remove the selected format definitions.

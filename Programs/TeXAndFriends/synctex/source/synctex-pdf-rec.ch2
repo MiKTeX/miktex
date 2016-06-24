@@ -1,0 +1,221 @@
+Copyright (c) 2008, 2009 jerome DOT laurens AT u-bourgogne DOT fr
+
+This file is part of the SyncTeX package.
+
+Latest Revision: Wed Jul  1 11:17:45 UTC 2009
+
+License:
+--------
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE
+
+Except as contained in this notice, the name of the copyright holder  
+shall not be used in advertising or otherwise to promote the sale,  
+use or other dealings in this Software without prior written  
+authorization from the copyright holder.
+
+Acknowledgments:
+----------------
+The author received useful remarks from the pdfTeX developers, especially Hahn The Thanh,
+and significant help from XeTeX developer Jonathan Kew
+
+Nota Bene:
+----------
+If you include or use a significant part of the synctex package into a software,
+I would appreciate to be listed as contributor and see "SyncTeX" highlighted.
+
+Version 1
+Latest Revision: Wed Jul  1 08:11:50 UTC 2009
+
+History:
+--------
+
+- if the pdf file is removed, the synctex file is removed too.
+
+@x
+margin_kern_node,
+kern_node: begin
+@y
+margin_kern_node:cur_h:=cur_h+width(p); {separate the |margin_kern_node| case in |hlist_out|}
+kern_node: begin
+@z
+
+@x
+procedure pdf_hlist_out; {output an |hlist_node| box}
+@y
+procedure pdf_hlist_out; {output an |hlist_node| box}
+@z
+
+@x pdftex.web l.18367
+while p<>null do
+    @<Output node |p| for |pdf_hlist_out| and move to the next node,
+    maintaining the condition |cur_v=base_line|@>;
+@y
+@<Start hlist {\sl Sync\TeX} information record@>;
+while p<>null do
+    @<Output node |p| for |pdf_hlist_out| and move to the next node,
+    maintaining the condition |cur_v=base_line|@>;
+@<Finish hlist {\sl Sync\TeX} information record@>;
+@z
+
+@x
+@ @<Output node |p| for |pdf_hlist_out|...@>=
+@y
+@ @<Output node |p| for |pdf_hlist_out|...@>=
+@z
+
+@x pdftex.web l.18382
+  until not is_char_node(p);
+@y
+  until not is_char_node(p);
+  @<Record current point {\sl Sync\TeX} information@>;
+@z
+
+@x
+@ @<Output the non-|char_node| |p| for |pdf_hlist_out|...@>=
+@y
+@ @<Output the non-|char_node| |p| for |pdf_hlist_out|...@>=
+@z
+
+@x
+margin_kern_node,
+kern_node:cur_h:=cur_h+width(p);
+@y
+margin_kern_node:cur_h:=cur_h+width(p);
+kern_node: begin
+  @<Record |kern_node| {\sl Sync\TeX} information@>;
+  cur_h:=cur_h+width(p);
+end;
+@z
+
+@x
+math_node: @<Handle a math node in |hlist_out|@>;
+@y
+math_node: begin
+  @<Record |math_node| {\sl Sync\TeX} information@>;
+  @<Handle a math node in |hlist_out|@>;
+end;
+@z
+
+@x pdftex.web l.18411
+move_past: cur_h:=cur_h+rule_wd;
+@y
+move_past: begin
+  cur_h:=cur_h+rule_wd;
+  @<Record horizontal |rule_node| or |glue_node| {\sl Sync\TeX} information@>;
+end;
+@z
+
+@x
+@ @<(\pdfTeX) Output a box in an hlist@>=
+@y
+@ @<(\pdfTeX) Output a box in an hlist@>=
+@z
+
+@x
+if list_ptr(p)=null then cur_h:=cur_h+width(p)
+@y
+if list_ptr(p)=null then
+  begin
+    @<Record void list {\sl Sync\TeX} information@>;
+    cur_h:=cur_h+width(p);
+  end
+@z
+
+@x
+@p procedure pdf_vlist_out; {output a |pdf_vlist_node| box}
+@y
+@p procedure pdf_vlist_out; {output a |pdf_vlist_node| box}
+@z
+
+@x pdftex.web l.18521
+left_edge:=cur_h; cur_v:=cur_v-height(this_box); top_edge:=cur_v;
+@y
+left_edge:=cur_h;
+@<Start vlist {\sl Sync\TeX} information record@>;
+cur_v:=cur_v-height(this_box); top_edge:=cur_v;
+@z
+
+@x pdftex.web l.18523
+while p<>null do
+    @<Output node |p| for |pdf_vlist_out| and move to the next node,
+    maintaining the condition |cur_h=left_edge|@>;
+@y
+while p<>null do
+    @<Output node |p| for |pdf_vlist_out| and move to the next node,
+    maintaining the condition |cur_h=left_edge|@>;
+@<Finish vlist {\sl Sync\TeX} information record@>;
+@z
+
+@x pdftex.web l.18557
+@ @<(\pdfTeX) Output a box in a vlist@>=
+if list_ptr(p)=null then cur_v:=cur_v+height(p)+depth(p)
+@y
+@ @<(\pdfTeX) Output a box in a vlist@>=
+if list_ptr(p)=null then begin
+  cur_v:=cur_v+height(p);
+  @<Record void list {\sl Sync\TeX} information@>;
+  cur_v:=cur_v+depth(p);
+end
+@z
+
+@x
+@p procedure pdf_ship_out(p: pointer; shipping_page: boolean); {output the box |p|}
+@y
+@p procedure pdf_ship_out(p: pointer; shipping_page: boolean); {output the box |p|}
+@z
+
+@x pdftex.web l.18680
+pdf_last_resources: integer; {pointer to most recently generated Resources object}
+@y
+pdf_last_resources: integer; {pointer to most recently generated Resources object}
+begin @<Start sheet {\sl Sync\TeX} information record@>;
+@z
+
+@x pdftex.web l.18699
+@<Flush the box from memory, showing statistics if requested@>;
+end;
+@y
+@<Flush the box from memory, showing statistics if requested@>;
+end;
+@<Finish sheet {\sl Sync\TeX} information record@>;
+end;
+@z
+
+@x
+procedure close_files_and_terminate;
+@y
+procedure close_files_and_terminate;
+@z
+
+@x
+        remove_pdffile;
+@y
+        remove_pdffile;
+		synctex_abort(log_opened);
+@z
+
+@x
+synctex_sheet(mag);
+@y
+pdf_output_value:=pdf_output; {{\sl Sync\TeX}: we assume that |pdf_output| is properly set up}
+synctex_sheet(mag);
+@z

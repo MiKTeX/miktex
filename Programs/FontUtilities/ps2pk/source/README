@@ -1,0 +1,212 @@
+This ps2pk program (all versions) is available under the same
+permissive license as the Type 1 interpreter code that it is based on
+(and incorporates).  For the exact wording, see, for example, the type1.c
+source file.
+--Piet Tutelaers and Pierre MacKay, May 2011.
+
+ps2pk is currently maintained as part of TeX Live (http://tug.org/texlive),
+and distributed through TL and CTAN.
+
+			Ps2pk-1.4 available
+			-------------------
+			   (January 1994)
+
+Version 1.4 of ps2pk is now available on:
+   ftp.urc.tue.nl (address: 131.155.2.79)
+   directory:    /pub/tex
+   files:	 ps2pk14.README         (  9k)    This file
+         	 ps2pk14.tar.gz	        (237k)    Sources
+
+   For MSDOS people having difficulties in handling UNIX `.tar.gz'
+   format I have made some UNIX tools (only executables) available
+   in directories:
+      /pub/unixtools/dos
+
+   See the system specific TARGZ file for some help.
+
+   Ftp.urc.tue.nl can not handle E-mail requests. But sites are free
+   to put the ps2pk14 stuff on any server that can.
+
+   I have made read-to-go 1.4 executables for MSDOS available in:
+      pub/tex/ps2pk14x/msdos/djgpp (created with DJGPP/gcc)
+                       msdos/emx   (created with EMX/gcc)
+
+When do you need ps2pk? 
+---------------------- 
+Ps2pk is a tool that converts a PostScript type1 font into a corres-
+ponding TeX PK font.  The tool is especially interesting if you want
+to use fully hinted type1 fonts in your DVI previewer (instead of the
+unhinted type1 fonts currently used in GhostScript) or on a printer
+that has no PostScript interpreter.
+
+In order to use the ps2pk generated fonts your driver and previewer need
+to support virtual fonts.  The reason is that PostScript fonts and TeX
+fonts do have a different font encoding and handle ligatures in a
+different way.  With virtual fonts the PostScript world (encoding +
+ligatures) can be mapped to the old style TeX world on which the current
+plain macro packages still are based (despite the fact that TeX3.0 can
+handle 8bits). 
+
+It is also possible to use the ps2pk generated PK fonts directly
+(without virtual fonts) but in that case you need modified plain TeX
+macros in order to acces the new (changed) font features. To make TeX
+really 8bits (the reason TeX3.0 was released) TUG has proposed a new
+font standard supporting the full 8bit range (in stead of the 7bit).
+The 128 extra characters in this new TUG standard are filled up with
+characters for 17 different European languages (see: TUGboat #10 vol.
+4 1990).  With ps2pk it is possible to generate PK fonts from
+PostScript fonts according to this new TUG font standard.
+
+Ps2pk and virtual fonts.
+------------------------
+In order to use ps2pk in combination with virtal fonts you need afm2tfm
+(the version belonging to dvips5.487 or newer), dvips and a previewer
+supporting virtual fonts (ex.: xdvi on UNIX).
+
+PS: the latest version of dvips can be retrieved from
+    labrea.stanford.edu:pub and xdvi from export.lcs.mit.edu:contrib
+
+Ps2pk without virtual fonts.
+----------------------------
+This road in not a paved one even for experienced TeX users! So be
+prepared that you need to build some bridges and other improvements to
+reach your goal. Or simply wait until the TeX community has switched to
+the new TUG font standard.
+
+Dvips (5.487 and higher) supports different TeX and PostScript
+encodings. If you choose for the new TUG fontstandard defined in the
+Cork meeting, as the TeX and PostScript encoding, you have to:
+  - generate a set of TFM/VF fonts for the `EC' (Extended Computer
+    Modern Font encoding) using afm2tfm and vptovf,
+  - install the new encoding vector EC.enc so it will also be used for
+    the resident/downloaded PostScript fonts 
+  - install a modified version of NFSS (New Font Selection Scheme) using 
+    this encoding scheme.
+
+Type1 PostScript text fonts.
+----------------------------
+Fully hinted type1 fonts are generally not PD.  You have to buy them
+unless you are satisfied with the PD available GhostScript versions
+(which are currently not hinted).  You don't need to be an expert to
+see the difference between hinted and unhinted fonts.  If you are
+using MSDOS or MacIntosh computers you probably use Adobe Type Manager
+(ATM) a program that can render type1 fonts dynamically.  With this
+program or with other programs using ATM (for example Lotus) you
+receive fully hinted type1 fonts.  On MSDOS they have funny names like
+tmr______.pfb. To save space on MSDOS type1 fonts are binary encoded
+(.pfb). On UNIX you can use this .pfb format too or the .pfa format
+(which occupies about double the space of a .pfb format).
+
+If your UNIX workstation supports DPS (Display PostScript) than
+you already may have a number of fully hinted type1 fonts. Look in
+places like /usr/lib/dps.
+
+   If you are satisfied with PK fonts derived from unhinted type1
+   fonts just for previewing then you can ftp (thanks to Karl Berry):
+	ftp.cs.umb.edu (file: pub/tex/psfonts.tar).
+
+   This set contains PK files for the standard 35 PostScript fonts in
+   various sizes, generated by `gsrenderfont' in the GNU font utilities
+   (on prep.ai.mit.edu et al.).
+
+Adobe has donated their Utopia font family to the X-consortium and IBM 
+their Courier font. Both families are available on ftp.urc.tue.nl. The
+Courier font from IBM does have a rich set of accented characters not
+found in other Adobe fonts. Both fonts are fully hinted.
+       
+Lee Hetherington has written a set of type1 conversion utilities. These
+allow to convert from binary (PFB) to ASCII (PFA) and back. Or to
+convert a type1 font into readable PostScript (disassemble) with the
+possibility to edit it and to convert it back (assemble) to some type1
+encoded form. They are now maintained by Eddie Kohler and available at
+http://www.lcdf.org/type (and as part of TeX Live).
+
+Type1 PostScript math fonts.
+----------------------------
+The PostScript type1 symbol fonts do not have the same rich set of math
+symbols as the TeX fonts.  There are two exceptions: the Lucida fonts
+and the MathTime package.  I have no experience with the Lucida fonts. 
+The MathTime package from Michael Spivak has the disadvantage that it is
+too much MacIntosh/AMSTeX oriented.  There are people who are working on
+LaTeX support based upon NFSS.  Another disadvantage of MathTime is that
+it is built on top of TimesRoman-Italic (not delivered with the package)
+and lacks bold-italic symbols. 
+
+Acknowledgements.
+-----------------
+Ps2pk uses the type1 rendering software IBM has donated to the
+X-consortium.  This rendering package is used by ps2pk as pure as
+possible.  But in order to support user specified encoding schemes, to
+generate extended and/or slanted font variations, to uncouple it from the
+X protocol and to fix some bugs I needed to change some of the sources. 
+
+I also want to thank the `ps2pk discussion forum' who helped me to make
+ps2pk as it is now. Especially Tom Rokicki for enhancing his dvips/afm2tfm.
+
+I wish you a lot of fun with type1 fonts,
+
+--Piet
+
+Piet Tutelaers
+Computer Center       Room  RC 1.90
+Eindhoven University of  Technology
+P.O. Box 513, 5600 MB Eindhoven, NL
+
+
+For those who have used earlier versions of ps2pk next differences may be
+of interest (only major differences are mentioned):
+
+Ps2pk 1.4 release (94-01)
+-------------------------
+1) Memory allocation made dynamically
+   1.1 in computing runlengths (needed to build PK fonts)
+   1.2 in scanning type1 fonts (to overcome `fixed' virtual memory)
+2) Problem with handling Lucida font (negative widths) solved
+3) Improved error handling in scanning AFM files
+4) Provided hooks to handle non 32-bit platforms
+5) Some cleanups
+6) Improved Makefiles.
+
+Ps2pk 1.3 release (92-09)
+-------------------------
+1) Official X11R5 patches included in type1 library.
+2) The -a<AFMfile> option added to ps2pk.
+3) Problem with rendering of Obique fonts solved.
+
+Ps2pk 1.2 release (92-06)
+-------------------------
+1) Ps2pk now computes the same checksum as afm2tfm (dvips5.487 or
+   higher). This means that you have to update your VF and TFM files
+   with the new dvips5487lib files.
+2) Bug fixes:
+   - the MSDOS version now correctly reads PFB font files
+   - a segmentation fault error removed (capri.pfa font)
+   - an out of memory problem fixed (davysrib.pfa font)
+3) Added Makefile for MSDOS/DJGPP (Delorie's GCC for 386 systems)
+
+Ps2pk 1.1 release (92-04)
+-------------------------
+1) Ps2pk uses now the same encoding scheme as introduced by afm2tfm 7.0
+   (dvips5485). But default (for all English/American writing TeX-friends)
+   the program uses the same encoding as is in the AFM-file belonging to
+   the type1 PostScript font (normally AdobeStandard). So the program does 
+   not longer need re-encode to create a .cmi file containing the encoding 
+   vector and the WX values. These are read directly from the AFM file.
+   
+   Typical usage for standard encoding:
+      ps2pk -X329 Utopia-Regular rputr.329pk
+   
+   or with EC.enc encoding:
+      ps2pk -eEC.enc -X329 Utopia-Regular rputr.329pk
+
+2) I have added a -E<expansion> and -S<slant> option to ps2pk thanks to
+   the patches I got from Lee Hetherington.
+
+3) I have added a MakeTeXPK script so that dvips and xdvi can use it.
+
+4) I have added manual pages and some documentation (README + INSTALLATION).
+
+5) Some inconveniences for MSDOS users are removed.
+
+Ps2pk 1.0 release (92-03)
+-------------------------

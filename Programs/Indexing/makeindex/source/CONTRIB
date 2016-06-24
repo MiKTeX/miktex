@@ -1,0 +1,47 @@
+Key contributors of this MakeIndex distribution include
+
+Pehong Chen 
+Leslie Lamport
+
+and, in reverse alphabetical order by last name,
+
+Klaus Zuenkler
+Eli Zaretskii
+Martha Wershofen-Mersbach
+Art Werschulz
+Ed Sznyter
+Joachim Schrod
+Rainer Schoepf
+Rick Rodgers
+Sebastian Rahtz
+Eberhard Mattes
+Charles Karney
+Akira Kakuto
+Mark James
+Anita Hoover
+Taco Hoekwater
+Michael Harrison
+Baron Grey 
+Thomas Esser
+Andreas Brosig
+Peter Breitenlohner
+Johannes Braams
+Karl Berry
+Nelson Beebe
+
+
+			Acknowledgements
+
+The author would like to thank the copyright holders for agreeing to
+release MakeIndex to the public domain and for allowing the author to
+continue his support for this software.
+
+The author would also like to express his gratitude to the users of
+MakeIndex for reporting bugs, and in many instances, for fixing them.
+In particular, thanks must go to the contributors who have made
+substantial contributions to the MakeIndex software.  Their names are
+listed above.
+
+					Pehong Chen
+					11/11/1989
+

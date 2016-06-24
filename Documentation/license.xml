@@ -1,0 +1,151 @@
+<?xml-stylesheet type="text/xsl" href="html.xsl" ?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                         "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
+<article lang="en">
+
+<articleinfo>
+
+<title>Redistributing &MiKTeX;</title>
+
+<date>May, 2012</date>
+
+</articleinfo>
+
+<section>
+
+<title>COPYING CONDITIONS FOR &MiKTeX;</title>
+
+<para>To the best of our knowledge, all software in this distribution
+is freely redistributable (libre, that is, not necessarily gratis),
+within the Free Software Foundation's definition and Debian Free
+Software Guidelines.  If you find any non-free files included, please
+contact us (references given below).</para>
+
+<para>That said, &MiKTeX; has neither a single copyright holder nor a
+single license covering its entire contents, since it is a collection
+of many disparate packages.  Therefore, you may copy, modify, and/or
+redistribute software from &MiKTeX; only if you comply with the
+requirements placed thereon by the owners of the respective
+packages.</para>
+
+<para>To most easily learn these requirements, we suggest checking the
+&TeX; Catalogue at: <ulink
+url="http://www.ctan.org/tex-archive/help/Catalogue/catalogue.html"/>
+(or any &CTAN; mirror).  The Catalogue is also included in &MiKTeX; in
+./texmf/doc/html/catalogue/, but the online version will have updates.
+Of course the legal statements within the packages themselves are the
+final authority.</para>
+
+</section>
+
+<section>
+
+<title>GUIDELINES FOR REDISTRIBUTION</title>
+
+<para>In general, you may redistribute &MiKTeX;, with or without
+modification, for profit or not, according to the usual free software
+tenets.  Here are some general guidelines for doing this:</para>
+
+<itemizedlist>
+<listitem><para>If you make any changes to the &MiKTeX; distribution
+or any package it contains, besides complying with any licensing
+requirements, you must prominently mention such changes in your
+modified distribution so that users do not take your work for ours,
+and know to contact you, not us, in case of questions or problems.  A
+new top-level README.<replaceable>yourwork</replaceable> file is a
+good place to describe the general situation.</para></listitem>
+
+<listitem><para>Especially (but not necessarily) if changes or
+additions are made, we recommend a clearly different title, such as
+<quote><replaceable>Your work</replaceable>, based on &MiKTeX;
+<replaceable>x.y.zzzz</replaceable> (with updates)</quote>, where
+<replaceable>x.y.zzzz</replaceable> is the version of &MiKTeX; you are
+publishing.  This credits both our work and yours.</para></listitem>
+
+<listitem><para>You absolutely may <emphasis>not</emphasis> place your
+own copyright on the entire distribution, since it is not your work
+(as stated above, &MiKTeX; is not created by any single person or
+entity).  Statements such as <quote>all rights reserved</quote> and
+<quote>may not be reproduced</quote> are especially reprehensible,
+since they are antithetical to the free software principles under
+which &MiKTeX; is produced.</para></listitem>
+
+<listitem><para>You may use any cover or media label designs that you
+wish.  Such packaging and marketing details are not covered by any
+&MiKTeX; license.</para>
+</listitem>
+
+<listitem><para>Finally, we make the following requests (not legal
+requirements):</para>
+
+<orderedlist numeration="loweralpha">
+
+<listitem><para>Acknowledging that &MiKTeX; is developed as a joint
+effort by all &TeX; user groups, and encouraging the user/reader to join
+their user group of choice.</para>
+
+<para>The web page <ulink url="http://www.tug.org/usergroups.html"/>
+may be referenced as a list of &TeX; user groups.  We also appreciate
+your explicitly listing all the user groups as given on that page,
+space permitting.</para></listitem>
+
+<listitem><para>Referencing the &MiKTeX; home page: <ulink
+url="http://miktex.org/"/>.</para></listitem>
+
+</orderedlist>
+
+<para>Such credits may be placed on the label of your media, your
+cover, and/or in accompanying text (for instance, in the
+acknowledgements section of a book).</para></listitem>
+</itemizedlist>
+
+<para>Finally, although it is certainly not a requirement, we'd like
+to invite any redistributors to make a donation to the project,
+whether cash or in-kind, for example via
+<ulink url="http://miktex.org/giveback"></ulink>.  Thanks.</para>
+
+<para>If you have any questions or comments, please contact us.  In
+general, we appreciate being given the chance to review any
+&MiKTeX;-related material in advance of publication, simply to avoid
+mistakes.  It is much better to correct text on a CD label or in a
+book before thousands of copies are made!</para>
+
+<para>We are also happy to keep anyone planning a publication informed
+as to our deadlines and progress.  Just let us know.  However, you
+should be aware that &MiKTeX; is produced entirely by volunteers, and
+no dates can be guaranteed.</para>
+
+</section>
+
+<section>
+
+<title>REFERENCES</title>
+
+<para>&MiKTeX; project page: <ulink url="http://miktex.org/"/></para>
+
+<para>The &FSF;'s free software definition:
+<ulink url="http://www.gnu.org/philosophy/free-sw.html"/></para>
+
+<para>Debian Free Software Guidelines:
+<ulink url="http://www.debian.org/intro/free"/></para>
+
+<para>FSF commentary on existing licenses:
+<ulink url="http://www.gnu.org/licenses/license-list.html"/></para>
+
+<para>LPPL: <ulink url="http://www.latex-project.org/lppl.txt"/></para>
+
+</section>
+
+</article>
+
+<!--
+Local Variables:
+mode:xml
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

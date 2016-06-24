@@ -1,0 +1,21 @@
+<varlistentry>
+<term><option>--tcx=<replaceable>name</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--tcx=name</primary>
+</indexterm>
+<indexterm>
+<primary>--translate-file=name</primary>
+</indexterm>
+<para>Process the <acronym>TCX</acronym> table
+<replaceable>name</replaceable>.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

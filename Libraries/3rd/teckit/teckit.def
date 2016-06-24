@@ -1,0 +1,13 @@
+EXPORTS
+	TECkit_CreateConverter
+	TECkit_DisposeConverter
+	TECkit_GetConverterName
+	TECkit_GetConverterFlags
+	TECkit_ResetConverter
+	TECkit_ConvertBuffer
+	TECkit_ConvertBufferOpt
+	TECkit_Flush
+	TECkit_FlushOpt
+	TECkit_GetMappingName
+	TECkit_GetMappingFlags
+	TECkit_GetVersion

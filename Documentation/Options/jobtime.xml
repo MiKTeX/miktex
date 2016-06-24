@@ -1,0 +1,17 @@
+<varlistentry>
+<term><option>--job-time=<replaceable>file</replaceable></option></term>
+<listitem><para>Set the time-stamp of all output files equal to
+<indexterm>
+<primary>--job-time=file</primary>
+</indexterm>
+<replaceable>file</replaceable>'s time-stamp.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

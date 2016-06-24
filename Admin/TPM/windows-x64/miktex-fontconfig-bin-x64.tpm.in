@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/miktex/">
+    <TPM:Name>FontConfig bin</TPM:Name>
+    <TPM:Title>FontConfig binaries</TPM:Title>
+    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      This package includes the FontConfig DLL.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${fontconfig_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/fc-cache.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/fc-cat.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/fc-list.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/fc-match.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/fc-pattern.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/fc-query.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/fc-scan.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/fc-validate.exe
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

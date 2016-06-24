@@ -1,0 +1,18 @@
+<varlistentry>
+<term><envar>TFMFONTS</envar></term>
+<listitem>
+<indexterm>
+<primary>TFMFONTS</primary>
+</indexterm>
+<para>Extra paths to locate &TeX; font metric files</para>
+</listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "reference")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

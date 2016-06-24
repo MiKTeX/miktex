@@ -1,0 +1,605 @@
+\documentstyle[11pt,epic,eepic]{article}
+% ALLTT DOCUMENT-STYLE OPTION - released 17 December 1987
+%    for LaTeX version 2.09
+% Copyright (C) 1987 by Leslie Lamport
+
+% Defines the `alltt' environment, which is like the `verbatim'
+% environment except that `\', `\{', and `\}' have their usual meanings.
+% Thus, other commands and environments can appear within an `alltt'
+% environment.  Here are some things you may want to do in an `alltt'
+% environment:
+% 
+% * Change fonts--e.g., by typing `{\em emphasized text\/}'.
+% 
+% * Insert text from a file foo.tex by typing `input{foo}'.  Beware that
+%   each <return> stars a new line, so if foo.tex ends with a <return>
+%   you can wind up with an extra blank line if you're not careful.
+% 
+% * Insert a math formula.  Note that `$' just produces a dollar sign,
+%   so you'll have to type `\(...\)' or `\[...\]'.  Also, `^' and `_'
+%   just produce their characters; use `\sp' or `\sb' for super- and
+%   subscripts, as in `\(x\sp{2}\)'.
+\makeatletter
+\def\docspecials{\do\ \do\$\do\&%
+  \do\#\do\^\do\^^K\do\_\do\^^A\do\%\do\~}
+%
+\def\alltt{\trivlist \item[]\if@minipage\else\vskip\parskip\fi
+\leftskip\@totalleftmargin\rightskip\z@
+\parindent\z@\parfillskip\@flushglue\parskip\z@
+\@tempswafalse \def\par{\if@tempswa\hbox{}\fi\@tempswatrue\@@par}
+\obeylines \tt \catcode``=13 \@noligs \let\do\@makeother \docspecials
+ \frenchspacing\@vobeyspaces}
+%
+\let\endalltt=\endtrivlist
+\makeatother
+\ifx\twltt\undefined \font\twltt=cmtt10 scaled \magstep1\fi
+
+\topmargin=-37pt\oddsidemargin=0pt\evensidemargin=0pt
+\marginparsep 10pt\marginparwidth 60pt
+\textheight 9truein\textwidth 6.5truein
+
+\chardef\BS=`\\ % It only works in \tt font
+\newcommand{\PiCTeX}{PiC\TeX}
+\newcommand{\epic}{{\sc epic}}
+\newcommand{\eepic}{{\sc eepic}}
+\newcommand{\plotchar}{\makebox(0,0){\large $\otimes$}}
+\parskip=4pt plus 2pt minus 1pt
+\title{EEPIC\\Extensions to epic\ and \LaTeX \\ Picture
+Environment Version 1.1}
+\author{Conrad Kwok\\
+  Department of Electrical Engineering and Computer Science\\
+  University of California, Davis}
+\date{Febrary 2, 1988}
+\begin{document}
+\maketitle
+
+
+\section{Introduction}
+\LaTeX\ provides a basic but limited picture drawing capability.
+\epic\footnote{\epic\ is a \LaTeX\ macro package written by Sunil
+Podar at S.U.N.Y at Stony Brook. Please read the section on
+installation for more information} is an enhancement to the
+picture environment of \LaTeX\ which provides a simpler and more
+powerful interface. It introduces new commands for drawing solid
+lines, dotted lines, dash lines and new environments suitable for
+plotting graphs.
+
+However, \epic\ still inherits many of the limitations of
+\LaTeX\ in picture drawing and hence some of the functions either
+take a long time to accomplish or the output is not very nice
+looking.
+
+tpic is preprocessor program for use with \TeX. It uses a set of
+\verb|\special|s graphics commands for drawing pictures. More and
+more DVI driver programs supports those specials. They are
+becoming a standard set of \verb|\special|s for DVI files.
+However, the major disadvantage of tpic is that the tpic
+preprocessor itself is not readily available on most machines. It
+is written in yacc and C language. It is mainly for UNIX or
+similar system.
+
+\eepic, as an extension to both \LaTeX\ and \epic, tries to
+alleviate some of the limitations in \LaTeX, \epic\ and tpic by
+generating tpic \verb|special|s using \TeX\ commands instead of
+any preprocessor program, but at the same time provides
+compatibility with the original commands such that when a DVI
+driver which understands tpic \verb|special|s are not available,
+the documents can still be formatted using standard \LaTeX\ and
+\epic. However, the output probably will not be as good as
+originally intended.
+
+Currently, \eepic\ extends \LaTeX\ and \epic\ in the following
+ways:
+\begin{itemize}\parskip=0pt
+\item Draws lines in any slopes.
+\item Draws circles and discs (filled circle) in any radii.
+\item Draws dotted lines and dash lines in a much faster way and
+requires much less \TeX\ internal memory.
+\item Provides more line thickness options.
+\end{itemize}
+
+Furthermore, \eepic\ introduces several new commands for:
+\begin{itemize}\parskip=0pt
+\item drawing of ellipsis and filled ellipsis
+\item drawing of arcs
+\item drawing of splines (cubic splines using control points)
+\item drawing of polylines
+\end{itemize}
+
+All the affected commands in \LaTeX\ and \epic\ will be discussed
+in the subsequent sections. The compatibility issues will be
+described in the section~\ref{compat}.
+
+In version 1.1, several bugs are fixed, and several commands for
+area filled are added.
+\clearpage
+
+
+\section{Extension to \LaTeX}
+
+In \LaTeX, drawing of lines and circles are done using special
+fonts. Therefore only limited functions are provided. The
+extensions in \eepic\ allow users to draw lines in any slope and
+to draw circles in any sizes. However, the limitation of slopes
+for vectors remains the same in the mean time. That is the slope
+that can be handled is $\frac{x}{y}$ where $x$ and $y$ are
+integers in the range $[-4,4]$. Please read \LaTeX\ manual for
+details.
+
+
+\subsection{\tt \BS line}
+The syntax of \verb|\line| is the same as that in \LaTeX:
+\begin{quote}
+\verb|\line(|$x$,$y$\verb|){|{\em length}\verb|}|
+\end{quote}
+But now $x$ and $y$ can be any integer values within the limit of
+\TeX. Furthermore, there is no more lower limit for {\em length}
+parameter.
+
+
+\subsection{\tt \BS circle}
+The syntax of \verb|\circle| is the same as that in \LaTeX:
+\begin{quote}
+\verb|\circle{|{\em diameter}\verb|}|
+\end{quote}
+or
+\begin{quote}
+\verb|\circle*{|{\em diameter}\verb|}|
+\end{quote}
+But now the {\em diameter} parameter can be any number acceptable
+by \TeX\ and a circle with the specified diameter (exactly) will
+be drawn.
+
+
+\subsection{\tt \BS oval}
+The \verb|\oval| command is changed such that the maximum
+diameter of the quarter circles at the corners can be set to any
+values. This is done by setting the variable \verb|\maxovaldiam|
+to the desire \TeX{} dimension. The default is 40pt.
+
+
+\clearpage
+
+
+\section{Extension to EPIC}
+\epic\ is an enhancement to the Picture Environment of \LaTeX.
+\epic\ generates standard DVI files and requires only standard
+\LaTeX\ fonts. Some of the functions it provides are:
+\begin{center}
+\begin{tabular}{lll}
+\verb|\multiputlist| & \verb|\dottedline| & \verb|\putfile| \\
+\verb|\matrixput| & \verb|\dashline| \\
+\verb|\grid| & \verb|\drawline| \\
+\end{tabular}
+\end{center}
+Details can be found in the \epic\ manual. 
+
+Extensions to \epic\ in \eepic\ include better line drawing
+output, faster operation and less memory requirement. The
+commands affected are:
+\begin{enumerate}\parskip=0pt
+\item \verb|\drawline|
+\item \verb|\dashline|
+\item \verb|\dottedline|
+\end{enumerate}
+And the three ``\verb|*join|'' environments are indirectly
+affected also.
+
+
+\subsection{\tt \BS drawline}
+The syntax of \verb|\drawline| is:
+\begin{quote}
+\begin{alltt}
+\BS{}drawline[{\em{}stretch}](\(x\sb{1}\),\(y\sb{1}\))(\(x\sb{2}\),\(y\sb{2}\))\ldots(\(x\sb{n}\),\(y\sb{n}\))
+\end{alltt}
+\end{quote}
+where {\em stretch} is an integer between $-100$ and infinity.
+However any number greater than 0 are the same. An negative {\em
+stretch} in \verb|\drawline| will call \verb|\dashline|.
+
+The thickness of the line is affected by \verb|\thinlines|,
+\verb|\thicklines| and \verb|\Thicklines| declarations.
+Horizontal and vertical lines are drawn using rules.
+
+
+\subsection{\tt \BS dottedline}
+The syntax of \verb|\dottedline| is:
+\begin{quote}
+\begin{alltt}
+\BS{}dottedline[{\em{}dot character\/}]\{{\em{}dotgap\/}\}(\(x\sb{1}\),\(y\sb{1}\))(\(x\sb{2}\),\(y\sb{2}\))\ldots(\(x\sb{n}\),\(y\sb{n}\))
+\end{alltt}
+\end{quote}
+where {\em dot character} is the character used in drawing the
+``dotted'' line. {\em dotgap} is the interdot gap in terms of
+\verb|\unitlength|. \verb|\special|s will only be generated if no
+optional dot character is specified.
+
+The size of the dots are affected by \verb|\thinlines|,
+\verb|\thicklines| and \verb|\Thicklines| declarations.
+
+
+\subsection{\tt \BS dashline}
+The syntax of \verb|\dashline| is:
+\begin{quote}
+\begin{alltt}
+\BS{}dashline[{\em{}stretch}]\{{\em{}dash-length}\}[{\em{}inter-dot-gap}](\(x\sb{1}\),\(y\sb{1}\))(\(x\sb{2}\),\(y\sb{2}\))\ldots(\(x\sb{n}\),\(y\sb{n}\))
+\end{alltt}
+\end{quote}
+where {\em stretch} is an integer between $-100$ and infinity. If
+{\em inter-dot-gap} is not specified, dashes are drawn in solid
+lines, otherwise, dashes are drawn using dotted lines.
+
+The thickness of the line is affected by \verb|\thinlines|,
+\verb|\thicklines| and \verb|\Thicklines| declarations.
+
+
+\clearpage
+
+
+\section{New Commands}
+\eepic\ introduces a number of new commands. Except the
+\verb|\path| commands, all other new commands do not have any
+equivalents in \LaTeX\ and \epic. Please read
+section~\ref{compat} about the compatibility issues.
+
+
+\subsection{\tt \BS allinethickness}
+Set the line thickness of all line drawing commands including
+lines in any slopes, circles, ellipsis, arcs, ovals and splines.
+Note there are only two `l' in the command. The syntax is:
+\begin{quote}
+\verb|\allinethickness{|{\em dimension}\verb|}|.
+\end{quote}
+
+
+\subsection{\tt \BS Thicklines}
+The syntax is:
+\begin{quote}
+\verb|\Thicklines|
+\end{quote}
+With the \verb|\Thicklines| declaration, thickness of lines drawn
+will be about 1.5 times of \verb|\thicklines|.
+
+
+\subsection{\tt \BS path}
+\verb|\path| is a fast version of \verb|\drawline|. Optional {\em
+stretch\/} argument is not allowed and so it always draw solid
+lines. The syntax is:
+\begin{quote}
+\begin{alltt}
+\BS{}path(\(x\sb{1}\),\(y\sb{1}\))(\(x\sb{2}\),\(y\sb{2}\))\ldots(\(x\sb{n}\),\(y\sb{n}\))
+\end{alltt}
+\end{quote}
+\verb|\path| is mainly used in drawing complex paths.
+
+
+\subsection{\tt \BS spline}
+Syntax of \verb|\spline| is the same as \verb|\path|.
+\begin{quote}
+\begin{alltt}
+\BS{}spline(\(x\sb{1}\),\(y\sb{1}\))(\(x\sb{2}\),\(y\sb{2}\))\ldots(\(x\sb{n}\),\(y\sb{n}\))
+\end{alltt}
+\end{quote}
+\verb|\spline| draws an Chaikin's curve which passes through only
+the first and last point. All other points are control points
+only.
+
+
+\subsection{\tt \BS ellipse}
+The command \verb|\ellipse| draws an ellipse by specifying the
+x-diameter and y-diameter.
+\begin{quote}
+\begin{alltt}
+\BS{}ellipse\{{\em{}x-diameter}\}\{{\em{}y-diameter}\}
+\end{alltt}
+\end{quote}
+or
+\begin{quote}
+\begin{alltt}
+\BS{}ellipse*\{{\em{}x-diameter}\}\{{\em{}y-diameter}\}
+\end{alltt}
+\end{quote}
+When {\em x-diameter} is equal to {\em y-diameter}, the command
+is equivalent to \verb|\circle| or \verb|\circle*|.
+
+
+\subsection{\tt \BS arc}
+\verb|\arc| draws an circular arc. The syntax is
+\begin{quote}
+\begin{alltt}
+\BS{}arc\{{\em{}diameter}\}\{{\em{}start-angle}\}\{{\em{}end-angle}\}
+\end{alltt}
+\end{quote}
+{\em diameter} is specified in \verb|\unitlength| and both {\em
+start-angle} and {\em end-angle} are in radian. {\em start-angle}
+must be within 0 and $2\pi$ and {\em end-angle} can be any value
+between {\em start-angle} and {\em start-angle} + $2\pi$. Arcs
+are drawn in clockwise direction with angle 0 pointing to the
+right on the paper.
+
+
+\subsection{\tt \BS filltype\{....\}}
+The command specifies the type of area fill for \verb|\circle*| and
+\verb|\ellipse*|. The command itself does not draw anything. 
+It only changes the interpretation of \verb|*| in the two commands
+specified above.
+The syntax of the command is:
+\begin{quote}
+\begin{alltt}
+\BS{}filltype\{{\em{}area-fill-type}\}
+\end{alltt}
+\end{quote}
+The legal area fill type are:
+\begin{itemize}
+\item black (default)
+\item white
+\item shade
+\end{itemize}
+
+For example, to change area fill type to white fill, the
+following command should be used.
+\begin{verbatim}
+        \filltype{white}
+\end{verbatim}
+
+
+These commands are only intended for advance users (those who
+know what they are doing). They are included mainly because
+\verb|fig2epic|\footnote{Another program written by me to convert
+Fig output file to eepic format.} generate these commands. The
+commands are:
+\begin{center}
+\begin{tabular}{|l|p{4.4in}|}\hline
+\multicolumn{1}{|c|}{commands} & \qquad Description \\ \hline
+\verb|\blacken| & Black fill the next figure \\
+\verb|\whiten| & White fill the next figure \\
+\verb|\shade| & Shade the interior next figure \\
+\verb|\texture| & Specify the pattern used for the next
+\verb|shade| command. The pattern will remain effective until it is
+changed by another \verb|\texture| command.
+The syntax is:
+\begin{quote}
+\begin{alltt}
+\BS{}texture\{{\em 32 32-bit hexadecimal numbers}\}
+\end{alltt}
+\end{quote}
+An example (the default) is:
+\begin{quote}
+\begin{verbatim}
+\texture{cccccccc 0 0 0 cccccccc 0 0 0 
+         cccccccc 0 0 0 cccccccc 0 0 0 
+         cccccccc 0 0 0 cccccccc 0 0 0 
+         cccccccc 0 0 0 cccccccc 0 0 0}
+\end{verbatim} 
+\end{quote} \\
+\hline
+\end{tabular}
+\end{center}
+The exact interpretation of the above commands are probably
+device driver dependent. I did most of tests using \verb|iptex|
+(imagen1) and several tests using \verb|dvips|. 
+The description below may not apply to other
+device drivers.
+
+The commands that can be specified after \verb|\blacken|,
+\verb|\whiten| and \verb|\shade| include \verb|\path|,
+\verb|\circle| (without \verb|*|), \verb|\ellipse| (again without
+\verb|*|) and \verb|\arc|. The drawings do not have to be closed.
+The imagen printer will automatically draw an imaginary line from
+the starting point to the end point, and then fill the figure.
+When using \verb|iptex|, the outline of the figures are drawn but not
+in \verb|dvips|. In another words, when using \verb|iptex|, the command:
+\begin{quote}
+\begin{verbatim}
+\shade\circle{10}
+\end{verbatim}
+\end{quote}
+will draw a circle will the circumference in solid line and the
+interior is filled in the pattern active at that time. However, when using
+dvips, the circle will not have the circumference drawn in sold line.
+
+\clearpage
+
+
+\section{Examples}
+I shamelessly stole two examples from the \epic\ manual so that
+you can compare the results. The third and fourth examples are
+created by FIG and then converted to \eepic\ using
+\verb|fig2epic| which is also written by me.
+
+\unitlength=1mm
+
+
+\subsection{Example 1}
+\begin{figure}[h]
+\begin{center}
+%\newcommand{\plotchar}{\makebox(0,0){\large $\otimes$}}
+\begin{picture}(100,100)(0,0)
+\put(0,0){\tiny \grid(100,100)(5,5)[0,0]}
+\drawline(10,5)(60,10)(85,20)(90,60)(100,95)
+\drawline[-50](10,0)(65,5)(90,15)(95,55)
+\thicklines
+\dottedline{1.4}(10,10)(60,20)(75,35)(95,95)
+\dashline{2}(80,90)(50,80)(30,50)(10,40)
+\dashline{2}[0.5](80,80)(50,70)(30,40)(10,30)
+\dashline[-30]{2}[0.5](80,70)(50,60)(30,30)(10,20)
+\end{picture}
+\end{center}
+\caption[]{\normalsize An example of Various Line Drawing Commands}
+\end{figure}
+\clearpage
+
+
+\subsection{Example 2}
+\newcount\xjunk
+\newcount\yjunk
+\begin{figure}[h]
+\begin{center}
+\begin{tiny}
+\begin{picture}(140,140)(-70,-70)
+\thinlines
+\xjunk=60 \yjunk=3
+\loop
+\drawline(0,0)(\xjunk,\yjunk)
+\drawline(0,0)(-\xjunk,\yjunk)
+\drawline(0,0)(\xjunk,-\yjunk)
+\drawline(0,0)(-\xjunk,-\yjunk)
+\put(\xjunk,\yjunk){\plotchar}
+\put(-\xjunk,\yjunk){\plotchar}
+\put(\xjunk,-\yjunk){\plotchar}
+\put(-\xjunk,-\yjunk){\plotchar}
+\put(\xjunk,\yjunk){\makebox(8,0)[l]{\ \ (\number\xjunk,\number\yjunk)}}
+\put(-\xjunk,\yjunk){\makebox(-4,0)[r]{(\number-\xjunk,\number\yjunk)}}
+\put(\xjunk,-\yjunk){\makebox(8,0)[l]{\ \ (\number\xjunk,\number-\yjunk)}}
+\put(-\xjunk,-\yjunk){\makebox(-4,0)[r]{(\number-\xjunk,\number-\yjunk)}}
+\ifnum\yjunk < 53 \advance\yjunk by 10 %will go till 53.
+\repeat
+\xjunk=3 \yjunk=60
+\loop
+\drawline(0,0)(\xjunk,\yjunk)
+\drawline(0,0)(-\xjunk,\yjunk)
+\drawline(0,0)(\xjunk,-\yjunk)
+\drawline(0,0)(-\xjunk,-\yjunk)
+\put(\xjunk,\yjunk){\plotchar}
+\put(-\xjunk,\yjunk){\plotchar}
+\put(\xjunk,-\yjunk){\plotchar}
+\put(-\xjunk,-\yjunk){\plotchar}
+\put(\xjunk,\yjunk){\makebox(0,7)[t]{(\number\xjunk,\number\yjunk)}}
+\put(-\xjunk,\yjunk){\makebox(0,5)[t]{(\number-\xjunk,\number\yjunk)}}
+\put(\xjunk,-\yjunk){\makebox(0,-4)[t]{(\number\xjunk,\number-\yjunk)}}
+\put(-\xjunk,-\yjunk){\makebox(0,-6)[t]{(\number-\xjunk,\number-\yjunk)}}
+\ifnum\xjunk < 53 \advance\xjunk by 10
+\repeat
+\end{picture}
+\end{tiny}
+\end{center}
+\caption[]{\normalsize Test Sample: Lines of various slopes with
+\verb|thinlines|}
+\end{figure}
+\clearpage
+
+
+\subsection{Example 3}
+\begin{figure}[htbp]
+\hrule
+\begin{center}
+\input{epic-eg3}
+\end{center}
+\caption{The finite automaton to detect occurrences of $P$=`$AABC$'.}
+\medskip
+\hrule
+\end{figure}
+
+
+\subsection{Example 4}
+\begin{figure}[htbp]
+\hrule
+\begin{center}
+\input{epic-eg4}
+\end{center}
+\caption{Breath-first search beginning at A}
+\medskip
+\hrule
+\end{figure}
+
+
+\clearpage
+
+
+\section{Bugs}
+\begin{itemize}
+\item The \verb|\circle*| and \verb|\ellipse*| may not work on
+all DVI drivers especially some previewers. If you have any
+problem, you should remove the related code in eepic.sty and use
+the \LaTeX{} \verb|\cirlce*| commands. To find the related codes,
+search for \verb|\special{bk}| in the file.
+\item The alignment of the quarter circles and the lines in
+\verb|\oval| command may not be correct on all printers because
+the command relies on the precise interpretation of the tpic
+specials which are not defined clearly. If you have any problem,
+you should either fixed that by changing the position of the
+quarter circles or remove the whole extended \verb|\oval| command
+from \verb|eepic.sty|.
+\item The area fill commands probably will not work on most
+previewers, and different device drivers may produce slightly
+different results.
+\end{itemize}
+
+
+\section{Compatibility}\label{compat}
+If you want your \TeX\ file to be compatible with \LaTeX\ and
+\epic\ but at the same time you want a better print out by using
+\eepic, you must avoid several features in \eepic.
+\begin{itemize}
+\item Try not to use \verb|\line| commands and use
+\verb|\drawline| instead because \verb|\line| in \LaTeX\ only
+supports a limited set of slope.
+\item Do not use \verb|\arc| command. Use \verb|\spline| if a
+curve is really necessary.
+\item Avoid using solid or small inter-dot gap in drawing long
+dash lines. They used up a lot of \TeX\ memory in original \epic.
+You should use \verb|\drawline| with negative stretch to draw the
+dash lines.
+\end{itemize}
+
+If you want to use any of the extended commands in \eepic, you
+must include the \eepic\ emulation macros (\verb|eepicemu|) in
+the file. The extended commands are emulated in the following
+ways.
+\begin{itemize}
+\item Circles larger than 40pt will be drawn using \verb|\oval|.
+\item Ellipsis will be drawn using \verb|\oval|.
+\item Spline will be approximated by \verb|\drawline|.
+\item \verb|\path| will be substituted by \verb|\drawline|.
+\item \verb|\Thicklines| will be substituted by
+\verb|\thicklines|.
+\item \verb|\allinethickness| will be substituted by
+\verb|\thicklines| and \verb|\linethickness|.
+\end{itemize}
+
+\clearpage
+
+
+\section{Installation}
+There are two possible ways of installing \eepic. If your DVI
+printer driver program supports the tpic specials, you should use
+the standard \verb|eepic.sty| file. If your DVI printer driver
+does not supports the tpic specials or you want to generate a
+standard DVI file without any special commands, you should use
+the file \verb|eepicemu.sty|.
+
+EPIC is available on \verb|cs.rochester.edu| and
+\verb|sun.soe.clarkson.edu| for anonymous ftp and e-mail request.
+
+\subsection{Use tpic Specials}
+First of all, you have to put a copy of \verb|epic.sty| and
+\verb|eepic.sty| in a place where \LaTeX\ can find it. See
+section 4 of \epic\ manual for more information.
+
+Both \epic\ and \eepic\ have been implemented as document style
+options \verb|epic| and \verb|eepic|. When using
+\verb|epic| and \verb|eepic|, \verb|eepic| must come
+after \verb|epic| in the \verb|\documentstyle| command. For example:
+\begin{quote}
+\begin{verbatim}
+\documentstyle[epic,eepic]{article}
+\end{verbatim}
+\end{quote}
+
+If you only need the extended \LaTeX\ commands and the new
+\eepic\ commands, you may include only \verb|eepic| in the
+\verb|\documentstyle| command. But then the \eepic\ emulation
+package will not work. I strongly recommend you to use
+\eepic\ with \epic\ all the time.
+
+\subsection{No tpic Specials}
+If you want to get a standard DVI file but you need the extended
+\eepic\ commands, you should rename \verb|eepicemu.sty| to
+\verb|eepic.sty| and put that in a place where \LaTeX\ can find
+it. Remember \verb|\arc| command is not supported and the output
+will not be as good as standard \eepic. Furthermore, you cannot
+use the emulation package with \LaTeX\ alone. You have to include
+\verb|epic| also.
+
+\end{document}
+

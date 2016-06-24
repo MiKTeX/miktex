@@ -1,0 +1,367 @@
+<chapter id="customizing">
+
+<title>Customizing &Yap;</title>
+
+<indexterm>
+<primary>customizing &Yap;</primary>
+</indexterm>
+
+<section id="options">
+
+<title>Options Dialog Box</title>
+
+<section id="propui">
+
+<?dbhh topicname="HIDD_USER_INTERFACE" topicid="0"?>
+
+<title>User Interface Property Page</title>
+
+<figure id="figpropui">
+<title>User Interface Settings</title>
+<screenshot>
+<mediaobject>
+<imageobject>
+<imagedata fileref="images/propui"/>
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+<para>The <guilabel>User Interface</guilabel> property page allows you
+to customize the Look &amp; Feel of
+&Yap;:</para>
+
+<variablelist>
+<varlistentry>
+<term><guilabel>Maintain vertical position</guilabel></term>
+<listitem><para>Select this checkbox to cause &Yap; to keep the
+<indexterm>
+<primary>page</primary>
+<secondary>maintaining vertical scroll position</secondary>
+</indexterm>
+vertical scroll position at a change of page.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Maintain horizontal position</guilabel></term>
+<listitem><para>Select this checkbox to cause &Yap; to keep the
+<indexterm>
+<primary>page</primary>
+<secondary>maintaining horizontal position</secondary>
+</indexterm>
+horizontal scroll position at a change of page.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Show source specials</guilabel></term>
+<listitem><para>Check this button to cause
+&Yap; to show all source specials.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+</section>
+
+<section id="propdisplay">
+
+<?dbhh topicname="HIDD_DISPLAY" topicid="0"?>
+
+<title>Display Property Page</title>
+
+<figure id="figpropdisplay">
+<title>Display Settings</title>
+<screenshot>
+<mediaobject>
+<imageobject>
+<imagedata fileref="images/propdisplay"/>
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+<para>The <guilabel>Display</guilabel> property page allows you to
+change various display settings:</para>
+
+<variablelist>
+<varlistentry>
+<term><guilabel>Unit</guilabel></term>
+<listitem>
+<para>The unit of measurement for the ruler.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Default render method</guilabel></term>
+<listitem>
+<para>The default render method (one of
+<guilabel>Pk</guilabel>,
+<guilabel>Dvips</guilabel>).
+See <xref linkend="rendermethods"/>, for more information.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Default shrink Factor</guilabel></term>
+<listitem><para>The default
+<indexterm>
+<primary>shrink factor</primary>
+<secondary>setting the</secondary>
+</indexterm>
+shrink factor.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>METAFONT Mode</guilabel></term>
+<listitem><para>The <application>METAFONT</application> mode
+<indexterm>
+<primary>METAFONT mode</primary>
+<secondary>for display</secondary>
+</indexterm>
+for the display.</para>
+<para>The <guilabel>Mode</guilabel> list field contains a list of
+known <application>METAFONT</application> modes.  This information is
+needed, when new <acronym>PK</acronym> fonts are to be generated.  In
+principle, it doesn't matter what mode name you select here.  But it's
+recommended, that you use the same mode name as for the printer, since
+this reduces the invocations of the font-generator.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</section>
+
+<section id="propprinter">
+
+<?dbhh topicname="HIDD_PRINTER" topicid="0"?>
+
+<title>Printer Property Page</title>
+
+<figure id="figpropprinter">
+<title>Printer Settings</title>
+<screenshot>
+<mediaobject>
+<imageobject>
+<imagedata fileref="images/propprinter"/>
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+<indexterm>
+<primary>printer</primary>
+<secondary>settings</secondary>
+</indexterm>
+
+<para>The <guilabel>Printer</guilabel> property page allows you to
+change various printer settings:</para>
+
+<variablelist>
+
+<varlistentry>
+<term><guilabel>Horizontal shift</guilabel></term>
+<term><guilabel>Vertical shift</guilabel></term>
+<listitem><para>The print offset.</para>
+<para>For some old printer models it may be necessary to adjust the
+<indexterm>
+<primary>printer</primary>
+<secondary>offsets</secondary>
+</indexterm>
+the print offset (i.e. the position, where printing begins).</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><guilabel>METAFONT mode</guilabel></term>
+<listitem><para>The <application>METAFONT</application> mode
+<indexterm>
+<primary>METAFONT mode</primary>
+<secondary>for printer</secondary>
+</indexterm>
+for the printer.</para>
+<para>The <guilabel>Mode</guilabel> list field contains a list of
+known <application>METAFONT</application> modes.  This information is
+needed, when new <acronym>PK</acronym> fonts are to be generated.  You
+must select a mode, that matches your printer resolution.</para>
+</listitem>
+</varlistentry>
+
+</variablelist>
+
+</section>
+
+<section id="propmagglass">
+
+<?dbhh topicname="HIDD_MAGNIFYING_GLASS" topicid="0"?>
+
+<title>Magnifying Glass Propery Page</title>
+
+<figure id="figpropmagglass">
+<title>Magnifying Glass Settings</title>
+<screenshot>
+<mediaobject>
+<imageobject>
+<imagedata fileref="images/propmagglass"/>
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+<para>This property page allows
+<indexterm>
+<primary>magnifying glass</primary>
+<secondary>customizing the</secondary>
+</indexterm>
+you to customize the three magnifying glasses:</para>
+
+<variablelist>
+<varlistentry>
+<term><guilabel>Width</guilabel></term>
+<listitem><para>Enter the
+width (in screen pixels) of the rectangular
+magnifying glass window.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Height</guilabel></term>
+<listitem><para>Enter the height (in screen pixels) of the rectangular
+magnifying glass window.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Shrink factor</guilabel></term>
+<listitem><para>Specify the shrink factor to be used in the magnifying
+glass window.  The shrink factor specifies the power
+of the magnifying glass.  A shrink factor of
+<literal>1</literal> results in a maximum
+magnification.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Hide mouse cursor</guilabel></term>
+<listitem><para>Check this button if the mouse cursor should not be
+visible while a magnifying glass is open.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Opacity</guilabel></term>
+<listitem>
+<para>The magnifying glass is partially transparent. Select the desired opacity level.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+</section>
+
+<section id="propinvsearch">
+
+<?dbhh topicname="HIDD_INVERSE_SEARCH" topicid="0"?>
+
+<title>Inverse &DVI; Search Property Page</title>
+
+<figure id="figpropinvsearch">
+<title>Inverse &DVI; Search Settings</title>
+<screenshot>
+<mediaobject>
+<imageobject>
+<imagedata fileref="images/propinvsearch"/>
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+<indexterm>
+<primary>inverse &DVI; search</primary>
+<secondary>setting options for</secondary>
+</indexterm>
+
+<para>You can choose a program for double-click events (inverse &DVI; search).</para>
+
+<para>Click <guilabel>New...</guilabel> to add a new program to the
+list.</para>
+
+<para>Click <guilabel>Change...</guilabel> to change the start options
+of the selected program. Please note that you cannot change the
+settings of automatically detected programs.</para>
+
+</section>
+
+<section id="propsecurity">
+
+<?dbhh topicname="HIDD_SECURITY" topicid="0"?>
+
+<title>Security Property Page</title>
+
+<figure id="figpropsecurity">
+<title>Security Settings</title>
+<screenshot>
+<mediaobject>
+<imageobject>
+<imagedata fileref="images/propsecurity"/>
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+<indexterm>
+<primary>security settings</primary>
+</indexterm>
+
+<para>This property page allows you to permit or forbid the execution
+of embedded shell commands:</para>
+
+<variablelist>
+<varlistentry>
+<term><guilabel>Never execute any shell commands</guilabel></term>
+<listitem><para>Check this button to prevent the execution of embedded
+shell commands.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Ask for permission to execute shell
+command</guilabel></term>
+<listitem><para>Check this button if you
+want to be warned about any embedded shell commands.  You can then
+choose whether or not to execute the command.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Execute only secure shell commands</guilabel></term>
+<listitem><para>Check this button to allow secure commands. Enter a
+comma-separated list of command names in the edit box.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Execute all shell commands</guilabel></term>
+<listitem><para>Check this button to execute embedded shell commands
+unconditionally.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</section>
+
+<section id="propadvanced">
+
+<?dbhh topicname="HIDD_ADVANCED_OPTIONS" topicid="0"?>
+
+<title>Advanced Property Page</title>
+
+<figure id="figpropadvanced">
+<title>Advanced Settings</title>
+<screenshot>
+<mediaobject>
+<imageobject>
+<imagedata fileref="images/propadvanced"/>
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+<variablelist>
+<varlistentry><term><guilabel>DVI file (*.dvi)</guilabel></term>
+<listitem><para>Check this button, if &Yap;
+should check to see whether it is associated with the
+file extension <filename>.dvi</filename>.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</section>
+
+</section>
+
+</chapter>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("yap.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

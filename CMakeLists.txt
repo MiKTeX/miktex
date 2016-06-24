@@ -1,0 +1,1628 @@
+## CMakeLists.txt: top-level CMake file for building MiKTeX
+##
+## Copyright (C) 2006-2016 Christian Schenk
+## 
+## This file is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published
+## by the Free Software Foundation; either version 2, or (at your
+## option) any later version.
+## 
+## This file is distributed in the hope that it will be useful, but
+## WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+## General Public License for more details.
+## 
+## You should have received a copy of the GNU General Public License
+## along with this file; if not, write to the Free Software
+## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+## USA.
+
+###############################################################################
+## CMake controls
+
+cmake_minimum_required(VERSION 3.2.1 FATAL_ERROR)
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+set(CMAKE_COLOR_MAKEFILE FALSE)
+#set(CMAKE_VERBOSE_MAKEFILE TRUE)
+
+set(outdir "${CMAKE_BINARY_DIR}/binlib")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${outdir}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${outdir}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${outdir}")
+
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
+
+set(CMAKE_LINK_DEPENDS_NO_SHARED 1)
+
+set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+
+###############################################################################
+## the name of the game
+
+project(miktex)
+set(MIKTEX_PRODUCT_NAME "MiKTeX")
+
+###############################################################################
+## global C/C++ options
+
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED TRUE)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
+###############################################################################
+## system type
+
+if(WIN32 AND NOT UNIX)
+  set(MIKTEX_NATIVE_WINDOWS TRUE)
+else()
+  set(MIKTEX_UNIX_ALIKE TRUE)
+endif()
+
+if(CMAKE_SYSTEM_NAME MATCHES "BSD/OS")
+  set(system_name "openbsd")
+elseif(CMAKE_SYSTEM_NAME MATCHES "HP-UX")
+  set(system_name "hpux")
+elseif(CMAKE_SYSTEM_NAME MATCHES "GNU/kFreeBSD")
+  set(system_name "freebsd")
+elseif(CMAKE_SYSTEM_NAME MATCHES "SCO_SV")
+  set(system_name "scosv")
+elseif(CMAKE_SYSTEM_NAME MATCHES "UNIX_SV")
+  set(system_name "unixsv")
+elseif(CMAKE_SYSTEM_NAME MATCHES "CYGWIN_NT-5.1")
+  set(system_name "cygwin")
+else()
+  string(TOLOWER "${CMAKE_SYSTEM_NAME}" system_name)
+endif()
+
+if(MIKTEX_NATIVE_WINDOWS)
+  if(CMAKE_CL_64)
+    set(system_cpu "x64")
+    set(MIKTEX_MANIFEST_PROCESSOR_ARCHITECTURE "amd64")
+  else()
+    set(system_cpu "x86")
+    set(MIKTEX_MANIFEST_PROCESSOR_ARCHITECTURE "x86")
+  endif()
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "i.86")
+  set(system_cpu "x86")
+else()
+  string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" system_cpu)
+endif()
+
+#set(MIKTEX_TARGET_SYSTEM_TAG "${system_cpu}-${system_name}")
+set(MIKTEX_TARGET_SYSTEM_TAG "${system_name}-${system_cpu}")
+
+set(MIKTEX_SHORTEST_TARGET_SYSTEM_TAG_WIN "win")
+set(MIKTEX_SHORTEST_TARGET_SYSTEM_TAG_UNX "unx")
+
+if(MIKTEX_NATIVE_WINDOWS)
+  set(MIKTEX_SHORTEST_TARGET_SYSTEM_TAG ${MIKTEX_SHORTEST_TARGET_SYSTEM_TAG_WIN})
+else()
+  set(MIKTEX_SHORTEST_TARGET_SYSTEM_TAG ${MIKTEX_SHORTEST_TARGET_SYSTEM_TAG_UNX})
+endif()
+
+###############################################################################
+## user options
+
+option(
+  MIKTEX_SUPPORT_WINDOWS_XP
+  "Support Windows XP."
+  ${WIN32}
+)
+
+option(
+  USE_PREFIX_OPT
+  "Install the package under /opt/miktex (Linux only)."
+  TRUE
+)
+
+option(
+  USE_SYSTEM_APR
+  "Use the system Apache Portable Runtime (APR) library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_APRUTIL
+  "Use the system Apache Portable Runtime (APR-util) library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_BOTAN
+  "Use the system Botan cryptography library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_BZIP2
+  "Use the system bzip2 compression library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_CAIRO
+  "Use the system Cairo 2D graphics library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_CURL
+  "Use the system libcurl URL transfer library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_EXPAT
+  "Use the system Expat XML parser library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_FONTCONFIG
+  "Use the system Fontconfig library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_FREETYPE2
+  "Use the system FreeType2 font engine library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_GD
+  "Use the system GD graphics library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_GMP
+  "Use the system GNU Multiple Precision Arithmetic library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_GRAPHITE2
+  "Use the system Graphite2 library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_HARFBUZZ_ICU
+  "Use the system Harfbuzz (ICU) text shaping library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_HUNSPELL
+  "Use the system Hunspell spell checker library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_JPEG
+  "Use the system JPEG library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_LOG4CXX
+  "Use the system Log4cxx logging framework library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_LZMA
+  "Use the system LZMA compression library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_MPFR
+  "Use the system GNU Multiple Precision Floating-Point Reliably (MPFR) library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_MSPACK
+  "Use the system mspack compression library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_PIXMAN
+  "Use the system Pixman pixel manipulation library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_PNG
+  "Use the system PNG library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_POPPLER
+  "Use the system Poppler PDF Rendering library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_POPPLER_QT5
+  "Use the system Poppler PDF Rendring (Qt5 Wrapper) library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_POPT
+  "Use the system popt (command-line options parser) library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_POTRACE
+  "Use the system Potrace bitmap tracing library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_URIPARSER
+  "Use the system uriparser (URI parser) library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_ZLIB
+  "Use the system zlib compression library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  USE_SYSTEM_ZZIP
+  "Use the system Zzip compression library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  INSTALL_PACKAGE_DATABASE
+  "Install the package database."
+  FALSE
+)
+
+option(
+  WITH_UI_QT
+  "Build Qt components."
+  TRUE
+)
+
+option(
+  WITH_UI_MFC
+  "Build MFC components."
+  ${MSVC}
+)
+
+option(
+  WITH_COM
+  "Build COM components."
+  ${MSVC}
+)
+
+option(
+  WITH_MPC
+  "Build mpc (MiKTeX Package Composer)."
+  TRUE
+)
+
+option(
+  WITH_SYNCTEX
+  "Enable SyncTeX extensions."
+  TRUE
+)
+
+option(
+  LINK_EVERYTHING_STATICALLY
+  "Don't build and use shared MiKTeX libraries."
+  FALSE
+)
+
+option(
+  INSTALL_MIKTEX_HEADERS
+  "Install the MiKTeX header files."
+  FALSE
+)
+
+option(
+  INSTALL_STATIC_LIBRARIES
+  "Install static libraries."
+  FALSE
+)
+
+option(
+  WITH_CONTEXT_SUPPORT
+  "Enable ConTeXt support."
+  FALSE
+)
+
+###############################################################################
+## fixed values
+
+set(MIKTEX_PREFIX "miktex-")
+set(MIKTEX_ADMIN_SUFFIX "_admin")
+
+## check all dyn.sed files, if you alter C4P_VAR_NAME_PREFIX
+set(C4P_VAR_NAME_PREFIX "g_")
+
+## autotools compatibility names
+set(PACKAGE_NAME ${MIKTEX_PRODUCT_NAME})
+set(top_srcdir "${CMAKE_SOURCE_DIR}")
+
+if(MIKTEX_NATIVE_WINDOWS)
+  set(MIKTEX_DEV_NULL "nul")
+else()
+  set(MIKTEX_DEV_NULL "/dev/null")
+endif()
+
+###############################################################################
+## version information
+
+include(miktex-version.cmake)
+include(miktex-local-version.cmake OPTIONAL)
+
+set(MIKTEX_SERIES_STR
+  "${MIKTEX_MAJOR_VERSION}.${MIKTEX_MINOR_VERSION}"
+)
+
+set(MIKTEX_SERIES_ID_STR
+  "${MIKTEX_MAJOR_VERSION}_${MIKTEX_MINOR_VERSION}"
+)
+
+math(
+  EXPR
+  MIKTEX_SERIES_INT
+  "(100 * ${MIKTEX_MAJOR_VERSION}) + ${MIKTEX_MINOR_VERSION}"
+)
+
+if(MIKTEX_RELEASE_STATE EQUAL 0)
+  set(MIKTEX_VERSION_STR
+    "${MIKTEX_SERIES_STR}"
+    CACHE STRING
+    "The MiKTeX version string."
+    FORCE
+  )
+  set(MIKTEX_FULL_VERSION_STR
+    "${MIKTEX_SERIES_STR}.${MIKTEX_J2000_VERSION}"
+    CACHE STRING
+    "The full MiKTeX version tag string."
+    FORCE
+  )
+  set(MIKTEX_VERSION_TAG_STR
+    "${MIKTEX_SERIES_STR}.${MIKTEX_J2000_VERSION}"
+    CACHE STRING
+    "The MiKTeX version tag string."
+    FORCE
+  )
+elseif(MIKTEX_RELEASE_STATE EQUAL 1)
+  set(MIKTEX_VERSION_STR
+    "${MIKTEX_SERIES_STR} NEXT"
+    CACHE STRING
+    "The MiKTeX version string."
+    FORCE
+  )
+  set(MIKTEX_FULL_VERSION_STR
+    "${MIKTEX_SERIES_STR}.${MIKTEX_J2000_VERSION} NEXT"
+    CACHE STRING
+    "The full MiKTeX version tag string."
+    FORCE
+  )
+  set(MIKTEX_VERSION_TAG_STR
+    "${MIKTEX_SERIES_STR}.${MIKTEX_J2000_VERSION}-next"
+    CACHE STRING
+    "The MiKTeX version tag string."
+    FORCE
+  )
+elseif(MIKTEX_RELEASE_STATE EQUAL 4)
+  set(MIKTEX_VERSION_STR
+    "${MIKTEX_SERIES_STR} debug"
+    CACHE STRING
+    "The MiKTeX version string."
+    FORCE
+  )
+  set(MIKTEX_FULL_VERSION_STR
+    "${MIKTEX_SERIES_STR}.${MIKTEX_J2000_VERSION} debug"
+    CACHE STRING
+    "The full MiKTeX version tag string."
+    FORCE
+  )
+  set(MIKTEX_VERSION_TAG_STR
+    "${MIKTEX_SERIES_STR}.${MIKTEX_J2000_VERSION}-debug"
+    CACHE STRING
+    "The MiKTeX version tag string."
+    FORCE
+  )
+endif()
+
+if(NOT MIKTEX_FULL_VERSION_STR)
+  set(MIKTEX_FULL_VERSION_STR
+    "${MIKTEX_VERSION_STR}"
+    CACHE STRING
+    "The full MiKTeX version string."
+    FORCE
+  )
+endif()
+
+###############################################################################
+## CMake modules
+
+include(Admin/COM/guids.cmake)
+
+include(FindPackageHandleStandardArgs)
+
+include(AddLinkFlags)
+include(CheckCCompilerFlag)
+include(CheckCXXCompilerFlag)
+include(CheckFunctionExists)
+include(CheckIncludeFileCXX)
+include(CheckIncludeFiles)
+include(CheckStructHasMember)
+include(CheckSymbolExists)
+include(CheckTypeSize)
+include(CheckVariableExists)
+include(CreateDllWrapper)
+# OBSOLETE: include(CreateExeAlias)
+include(CreateSymbolicLinks)
+include(CreateWebApp)
+include(DefaultCharTypeIsUnsigned)
+include(DelayLoad)
+include(DisableRuntimeChecks)
+include(InstallPaths)
+include(LibraryNames)
+include(MergeCommonControlsManifest)
+include(MergeCompatibilityManifest)
+include(MergeManifests)
+include(MergeTrustInfoManifest)
+include(Rebase)
+include(TestBigEndian)
+include(SourcePaths)
+include(UseStaticCRT)
+include(IgnoreWarnings)
+
+###############################################################################
+## find/check stuff
+
+if(MIKTEX_NATIVE_WINDOWS AND MSVC AND MIKTEX_SUPPORT_WINDOWS_XP)
+  add_definitions(
+    -D_USING_V110_SDK71_
+    -D_ATL_XP_TARGETING
+    -D_WIN32_WINNT=0x0501
+    -DWINVER=0x0501
+  )
+  if(CMAKE_CL_64)
+    set(CMAKE_CREATE_WIN32_EXE /SUBSYSTEM:WINDOWS,5.02)
+    set(CMAKE_CREATE_CONSOLE_EXE /SUBSYSTEM:CONSOLE,5.02)
+  else()
+    set(CMAKE_CREATE_WIN32_EXE /SUBSYSTEM:WINDOWS,5.01)
+    set(CMAKE_CREATE_CONSOLE_EXE /SUBSYSTEM:CONSOLE,5.01)
+  endif()
+endif()
+
+set(required_programs
+  cat
+  dos2unix
+  sed
+  xsltproc
+)
+
+if(WITH_UI_MFC)
+  list(APPEND required_programs
+    hhc
+    makehm
+    pandoc
+  )
+endif()
+
+if(MSVC)
+  list(APPEND required_programs
+    mc
+    midl
+    mt
+  )
+endif()
+
+if(INSTALL_PACKAGE_DATABASE)
+  list(APPEND required_programs
+    tar
+    wget
+  )
+endif()
+
+foreach(p ${required_programs})
+  string(TOUPPER "${p}" p_u)
+  find_program(${p_u}_EXECUTABLE NAMES ${p})
+  if(NOT ${p_u}_EXECUTABLE)
+    message(FATAL_ERROR "The program ${p} could not be found.")
+  endif()
+endforeach()
+
+if(MIKTEX_NATIVE_WINDOWS)
+  set(fop_name fop.cmd)
+else()
+  set(fop_name fop)
+endif()
+find_program(FOP_EXECUTABLE NAMES ${fop_name})
+if(NOT FOP_EXECUTABLE)
+  message(FATAL_ERROR "The program ${fop_name} could not be found.")
+endif()
+
+find_package(BISON REQUIRED)
+find_package(FLEX REQUIRED)
+find_package(ImageMagick REQUIRED)
+find_package(PythonInterp REQUIRED)
+find_package(Threads REQUIRED)
+
+if(MIKTEX_UNIX_ALIKE)
+  find_library(MATH_LIBRARY m)
+endif()
+
+if(WITH_UI_QT)
+  set(required_qt5_components
+    Concurrent
+    Core
+    Gui
+    PrintSupport
+    Script
+    ScriptTools
+    UiTools
+    Widgets
+    Xml
+  )
+  if(MIKTEX_NATIVE_WINDOWS)
+    list(APPEND required_qt5_components
+      WinExtras
+    )
+  endif()
+  find_package(Qt5 REQUIRED ${required_qt5_components})
+endif()
+
+if(USE_SYSTEM_APR)
+  find_package(APR REQUIRED)
+endif()
+
+if(USE_SYSTEM_APRUTIL)
+  find_package(APRUTIL REQUIRED)
+endif()
+
+if(USE_SYSTEM_BOTAN)
+  find_package(BOTAN110 REQUIRED)
+endif()
+
+if(USE_SYSTEM_BZIP2)
+  find_package(BZip2 REQUIRED)
+endif()
+
+if(USE_SYSTEM_CAIRO)
+  find_package(CAIRO REQUIRED)
+endif()
+
+if(USE_SYSTEM_CURL)
+  find_package(CURL REQUIRED)
+endif()
+
+if(USE_SYSTEM_EXPAT)
+  find_package(EXPAT REQUIRED)
+endif()
+
+if(USE_SYSTEM_FONTCONFIG)
+  find_package(FONTCONFIG REQUIRED)
+endif()
+
+if(USE_SYSTEM_FREETYPE2)
+  find_package(Freetype REQUIRED)
+endif()
+
+if(USE_SYSTEM_GD)
+  find_package(GD REQUIRED)
+endif()
+
+if(USE_SYSTEM_GMP)
+  find_package(GMP REQUIRED)
+endif()
+
+if(USE_SYSTEM_GRAPHITE2)
+  find_package(GRAPHITE2 REQUIRED)
+endif()
+
+if(USE_SYSTEM_HARFBUZZ_ICU)
+  find_package(HARFBUZZ_ICU)
+endif()
+
+if(USE_SYSTEM_HUNSPELL)
+  find_package(HUNSPELL REQUIRED)
+endif()
+
+find_package(ICU REQUIRED COMPONENTS uc i18n)
+
+if(USE_SYSTEM_JPEG)
+  find_package(JPEG REQUIRED)
+endif()
+
+if(USE_SYSTEM_LOG4CXX)
+  find_package(LOG4CXX REQUIRED)
+endif()
+
+if(USE_SYSTEM_LZMA)
+  find_package(LibLZMA REQUIRED)
+endif()
+
+if(USE_SYSTEM_MPFR)
+  find_package(MPFR REQUIRED)
+endif()
+
+if(USE_SYSTEM_MSPACK)
+  find_package(MSPACK REQUIRED)
+endif()
+
+if(USE_SYSTEM_PIXMAN)
+  find_package(PIXMAN REQUIRED)
+endif()
+
+if(USE_SYSTEM_PNG)
+  find_package(PNG REQUIRED)
+endif()
+
+if(USE_SYSTEM_POPT)
+  find_package(POPT REQUIRED)
+endif()
+
+if(USE_SYSTEM_POTRACE)
+  find_package(POTRACE REQUIRED)
+endif()
+
+if(USE_SYSTEM_POPPLER)
+  find_package(POPPLER REQUIRED)
+endif()
+
+if(USE_SYSTEM_POPPLER_QT5 AND WITH_UI_QT)
+  find_package(POPPLER_QT5 REQUIRED)
+endif()
+
+if(USE_SYSTEM_URIPARSER)
+  find_package(URIPARSER REQUIRED)
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  find_package(ZLIB REQUIRED)
+endif()
+
+if(USE_SYSTEM_ZZIP)
+  find_package(ZZIP REQUIRED)
+endif()
+
+if(NOT MSVC)
+  check_c_compiler_flag(-fvisibility=hidden HAVE_C_VISIBILITY_OPTION)
+  check_cxx_compiler_flag(-fvisibility=hidden HAVE_CXX_VISIBILITY_OPTION)
+endif()
+
+if(MSVC)
+  set(HAVE_PRAGMA_ONCE TRUE)
+endif()
+
+test_big_endian(MIKTEX_WORDS_BIGENDIAN)
+
+if(MIKTEX_NATIVE_WINDOWS AND MSVC)
+  check_symbol_exists(alloca "malloc.h" HAVE_ALLOCA)
+else()
+  check_function_exists(alloca HAVE_ALLOCA)
+endif()
+
+check_function_exists(access HAVE_ACCESS)
+check_function_exists(canonicalize_file_name HAVE_CANONICALIZE_FILE_NAME)
+check_function_exists(chdir HAVE_CHDIR)
+check_function_exists(chmod HAVE_CHMOD)
+check_function_exists(chown HAVE_CHOWN)
+check_function_exists(close HAVE_CLOSE)
+check_function_exists(closedir HAVE_CLOSEDIR)
+check_function_exists(confstr HAVE_CONFSTR)
+check_function_exists(finite HAVE_FINITE)
+check_function_exists(fork HAVE_FORK)
+check_function_exists(fseeko64 HAVE_FSEEKO64)
+check_function_exists(ftello64 HAVE_FTELLO64)
+check_function_exists(ftime HAVE_FTIME)
+check_function_exists(getcwd HAVE_GETCWD)
+check_function_exists(getenv HAVE_GETENV)
+check_function_exists(geteuid HAVE_GETEUID)
+check_function_exists(getopt_long HAVE_GETOPT_LONG)
+check_function_exists(getpid HAVE_GETPID)
+check_function_exists(getuid HAVE_GETUID)
+check_function_exists(gmtime HAVE_GMTIME)
+check_function_exists(lsqrt HAVE_LSQRT)
+check_function_exists(mbtowc HAVE_MBTOWC)
+check_function_exists(memcmp HAVE_MEMCMP)
+check_function_exists(memmove HAVE_MEMMOVE)
+check_function_exists(memset HAVE_MEMSET)
+check_function_exists(mkdir HAVE_MKDIR)
+check_function_exists(mmap HAVE_MMAP)
+check_function_exists(open HAVE_OPEN)
+check_function_exists(opendir HAVE_OPENDIR)
+check_function_exists(pclose HAVE_PCLOSE)
+check_function_exists(popen HAVE_POPEN)
+check_function_exists(readdir HAVE_READDIR)
+check_function_exists(regexec HAVE_REGEXEC)
+check_function_exists(rename HAVE_RENAME)
+check_function_exists(resolvepath HAVE_RESOLVEPATH)
+check_function_exists(rmdir HAVE_RMDIR)
+check_function_exists(setenv HAVE_SETENV)
+check_function_exists(setreuid HAVE_SETREUID)
+check_function_exists(setuid HAVE_SETUID)
+check_function_exists(snprintf HAVE_SNPRINTF)
+check_function_exists(spawnvp HAVE_SPAWNVP)
+check_function_exists(sprintf_l HAVE_SPRINTF_L)
+check_function_exists(sscanf HAVE_SSCANF)
+check_function_exists(stat HAVE_STAT)
+check_function_exists(statvfs HAVE_STATVFS)
+check_function_exists(stpcpy HAVE_DECL_STPCPY)
+check_function_exists(strcasecmp HAVE_STRCASECMP)
+check_function_exists(strdup HAVE_STRDUP)
+check_function_exists(strerror HAVE_STRERROR)
+check_function_exists(strlwr HAVE_STRLWR)
+check_function_exists(strrchr HAVE_STRRCHR)
+check_function_exists(strtod HAVE_STRTOD)
+check_function_exists(strtod_l HAVE_STRTOD_L)
+check_function_exists(strtol HAVE_STRTOL)
+check_function_exists(strtoll HAVE_STRTOLL)
+check_function_exists(strtoul HAVE_STRTOUL)
+check_function_exists(strtoull HAVE_STRTOULL)
+check_function_exists(system HAVE_SYSTEM)
+check_function_exists(uname HAVE_UNAME_SYSCALL)
+check_function_exists(unlink HAVE_UNLINK)
+check_function_exists(utime HAVE_UTIME)
+check_function_exists(vfork HAVE_VFORK)
+check_function_exists(wctomb HAVE_WCTOMB)
+
+if(WITH_UI_MFC)
+  set(HAVE_AFXWIN_H "YES")
+endif()
+
+if(WITH_COM)
+  set(HAVE_ATLBASE_H "YES")
+endif()
+
+check_include_file_cxx(hash_map HAVE_HASH_MAP)
+check_include_file_cxx(hash_set HAVE_HASH_SET)
+check_include_file_cxx(unordered_map HAVE_UNORDERED_MAP)
+check_include_file_cxx(unordered_set HAVE_UNORDERED_SET)
+
+check_include_files(alloca.h HAVE_ALLOCA_H)
+check_include_files(dirent.h HAVE_DIRENT_H)
+check_include_files(errno.h HAVE_ERRNO_H)
+check_include_files(float.h HAVE_FLOAT_H)
+check_include_files(getopt.h HAVE_GETOPT_H)
+check_include_files(inttypes.h HAVE_INTTYPES_H)
+check_include_files(io.h HAVE_IO_H)
+check_include_files(libintl.h HAVE_LIBINTL_H)
+check_include_files(limits.h HAVE_LIMITS_H)
+check_include_files(math.h HAVE_MATH_H)
+check_include_files(mcheck.h HAVE_MCHECK_H)
+check_include_files(memory.h HAVE_MEMORY_H)
+check_include_files(ndir.h HAVE_NDIR_H)
+check_include_files(regex.h HAVE_REGEX_H)
+check_include_files(stat.h HAVE_STAT_H)
+check_include_files(stddef.h HAVE_STDARG_H)
+check_include_files(stddef.h HAVE_STDDEF_H)
+check_include_files(stdint.h HAVE_STDINT_H)
+check_include_files(string.h HAVE_STRING_H)
+check_include_files(sys/dir.h HAVE_SYS_DIR_H)
+check_include_files(sys/mman.h HAVE_SYS_MMAN_H)
+check_include_files(sys/ndir.h HAVE_SYS_NDIR_H)
+check_include_files(sys/param.h HAVE_SYS_PARAM_H)
+check_include_files(sys/stat.h HAVE_SYS_STAT_H)
+check_include_files(sys/statvfs.h HAVE_SYS_STATVFS_H)
+check_include_files(sys/time.h HAVE_SYS_TIME_H)
+check_include_files(sys/timeb.h HAVE_SYS_TIMEB_H)
+check_include_files(sys/types.h HAVE_SYS_TYPES_H)
+check_include_files(sys/utime.h HAVE_SYS_UTIME_H)
+check_include_files(sys/utsname.h HAVE_SYS_UTSNAME_H)
+check_include_files(sys/wait.h HAVE_SYS_WAIT_H)
+check_include_files(unistd.h HAVE_UNISTD_H)
+check_include_files(utime.h HAVE_UTIME_H)
+
+if(WIN32)
+  check_include_files(VersionHelpers.h HAVE_VERSIONHELPERS_H)
+endif()
+
+check_struct_has_member("struct tm" tm_gmtoff time.h HAVE_TM_GMTOFF)
+
+check_variable_exists(timezone HAVE_TIMEZONE)
+
+check_type_size("long long" LONG_LONG)
+
+if(HAVE_LIMITS_H)
+  set(STDC_HEADERS)
+endif()
+
+try_compile(HAVE_STRUCT_DIRENT_D_TYPE
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/cmake/modules/HAVE_STRUCT_DIRENT_D_TYPE.c
+)
+
+###############################################################################
+## change default install prefix
+
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND MIKTEX_NATIVE_WINDOWS)
+  SET(CMAKE_INSTALL_PREFIX
+    "${CMAKE_BINARY_DIR}-install"
+    CACHE PATH "MiKTeX install prefix." FORCE
+  )
+endif()
+
+###############################################################################
+## set the build type
+##
+## the build type is derived from the MiKTeX release state; see
+## miktex-version.cmake
+
+if(MIKTEX_RELEASE_STATE EQUAL 0)
+  if(MIKTEX_NATIVE_WINDOWS)
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "The build type." FORCE)
+  else()
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "The build type." FORCE)
+  endif()
+elseif(MIKTEX_RELEASE_STATE EQUAL 1)
+  if(MIKTEX_NATIVE_WINDOWS)
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "The build type." FORCE)
+    #add_definitions(-DMIKTEX_DEBUG)
+  else()
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "The build type." FORCE)
+  endif()
+elseif(MIKTEX_RELEASE_STATE EQUAL 4)
+  set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "The build type." FORCE)
+  add_definitions(-DMIKTEX_DEBUG)
+endif()
+
+mark_as_advanced(CMAKE_BUILD_TYPE)
+
+###############################################################################
+## add global definitions
+
+add_definitions(
+  -DHAVE_CONFIG_H
+  -DMIKTEX
+)
+
+if(WITH_UI_QT)
+  add_definitions(
+    -DMIKTEX_QT
+  )
+endif()
+
+if(MIKTEX_NATIVE_WINDOWS)
+  add_definitions(
+    -DMIKTEX_WINDOWS
+  )
+  if(MSVC)
+    ## better bind to latest CRT/MFC DLLs if redistributing as private
+    ## assemblies
+    add_definitions(
+      -D_BIND_TO_CURRENT_ATL_VERSION=1
+      -D_BIND_TO_CURRENT_CRT_VERSION=1
+      -D_BIND_TO_CURRENT_MFC_VERSION=1
+      )
+  endif()
+  if(WITH_UI_MFC)
+    add_definitions(
+      -DMIKTEX_ATLMFC
+    )
+  endif()
+  ## use overloads for unsecure functions
+  #add_definitions(
+  #  -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
+  #)
+elseif(MIKTEX_UNIX_ALIKE)
+  add_definitions(
+    -DMIKTEX_UNIX
+  )
+endif()
+
+###############################################################################
+## add global include directories
+
+include_directories(BEFORE
+  ${CMAKE_BINARY_DIR}/include
+  ${CMAKE_SOURCE_DIR}/include
+)
+
+# TODO: interface library
+include_directories(BEFORE
+  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UI_DIR}/include
+)
+
+###############################################################################
+## configure files
+
+file(TO_NATIVE_PATH ${CMAKE_SOURCE_DIR} CMAKE_SOURCE_DIR_NATIVE)
+file(TO_NATIVE_PATH ${CMAKE_BINARY_DIR} CMAKE_BINARY_DIR_NATIVE)
+
+configure_file(
+  include/miktex/Version.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Version.h
+)
+
+configure_file(
+  include/miktex/config.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/config.h
+)
+
+configure_file(
+  Doxyfile.in
+  ${CMAKE_CURRENT_BINARY_DIR}/DoxyFile
+)
+
+configure_file(
+  Admin/Scripts/Doxyfile.sdk.in
+  ${CMAKE_CURRENT_BINARY_DIR}/Admin/Scripts/DoxyFile.sdk
+)
+
+configure_file(
+  BuildUtilities/docbook/catalog.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/BuildUtilities/docbook/catalog
+)
+
+configure_file(
+  Admin/Scripts/makesdk.cmd.in
+  ${CMAKE_CURRENT_BINARY_DIR}/Admin/Scripts/makesdk.cmd
+)
+             
+configure_file(
+  Admin/Scripts/makelocfile.cmd.in
+  ${CMAKE_CURRENT_BINARY_DIR}/Admin/Scripts/makelocfile.cmd
+)
+
+configure_file(
+  Admin/Scripts/putj2000version.cmd.in
+  ${CMAKE_CURRENT_BINARY_DIR}/Admin/Scripts/putj2000version.cmd
+)
+
+configure_file(
+  Resources/Manifests/Common-Controls.manifest.in
+  ${CMAKE_CURRENT_BINARY_DIR}/Resources/Manifests/Common-Controls.manifest
+)
+
+configure_file(
+  SDK/doc/mainpage.doxygen.in
+  ${CMAKE_CURRENT_BINARY_DIR}/SDK/doc/mainpage.doxygen
+)
+
+configure_file(
+  SDK/samples/c++/findfile/findfile.cpp.in
+  ${CMAKE_CURRENT_BINARY_DIR}/SDK/samples/c++/findfile/findfile.cpp
+)
+
+configure_file(
+  SDK/samples/c++/findpk/findpk.cpp.in
+  ${CMAKE_CURRENT_BINARY_DIR}/SDK/samples/c++/findpk/findpk.cpp
+)
+
+if(MIKTEX_NATIVE_WINDOWS AND MIKTEX_RELEASE_STATE EQUAL 4)
+  configure_file(
+    miktexstartup.ini.debug.in
+    ${CMAKE_CURRENT_BINARY_DIR}/miktexstartup.ini.debug
+  )
+endif()
+
+###############################################################################
+## add/import 3rd party libs
+
+if(USE_SYSTEM_APR)
+  add_library(MiKTeX::Imported::APR UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::APR
+    PROPERTIES
+      IMPORTED_LOCATION "${APR_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${APR_INCLUDE_DIRS}"
+  )
+  set(apr_dll_name MiKTeX::Imported::APR)
+  set(apr_lib_name MiKTeX::Imported::APR)
+else()
+  add_subdirectory(${MIKTEX_REL_APR_DIR})
+endif()
+
+if(USE_SYSTEM_APRUTIL)
+  add_library(MiKTeX::Imported::APRUTIL UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::APRUTIL
+    PROPERTIES
+      IMPORTED_LOCATION "${APRUTIL_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${APRUTIL_INCLUDE_DIRS}"
+  )
+  set(apr_util_dll_name MiKTeX::Imported::APRUTIL)
+  set(apr_util_lib_name MiKTeX::Imported::APRUTIL)
+else()
+  add_subdirectory(${MIKTEX_REL_APR_UTIL_DIR})
+endif()
+
+if(USE_SYSTEM_BOTAN)
+  add_library(MiKTeX::Imported::BOTAN110 UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::BOTAN110
+    PROPERTIES
+      IMPORTED_LOCATION "${BOTAN110_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${BOTAN110_INCLUDE_DIRS}"
+      INTERFACE_TARGET_LIBRARIES "${BOTAN110_LIBRARIES}"
+  )
+  set(botan_dll_name MiKTeX::Imported::BOTAN110)
+  set(botan_lib_name MiKTeX::Imported::BOTAN110)
+else()
+  add_subdirectory(${MIKTEX_REL_BOTAN_DIR})
+endif()
+
+if(USE_SYSTEM_BZIP2)
+  add_library(MiKTeX::Imported::BZIP2 UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::BZIP2
+    PROPERTIES
+      IMPORTED_LOCATION "${BZIP2_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${BZIP2_INCLUDE_DIR}"
+  )
+  set(bzip2_dll_name MiKTeX::Imported::BZIP2)
+  set(bzip2_lib_name MiKTeX::Imported::BZIP2)
+else()  
+  add_subdirectory(${MIKTEX_REL_BZIP2_DIR})
+endif()
+
+if(USE_SYSTEM_CAIRO)
+  add_library(MiKTeX::Imported::CAIRO UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::CAIRO
+    PROPERTIES
+      IMPORTED_LOCATION "${CAIRO_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${CAIRO_INCLUDE_DIRS}"
+      INTERFACE_LINK_LIBRARIES MiKTeX::Imported::PIXMAN
+      INTERFACE_LINK_LIBRARIES MiKTeX::Imported::PNG
+      INTERFACE_LINK_LIBRARIES MiKTeX::Imported::ZLIB
+  )
+  set(cairo_dll_name MiKTeX::Imported::CAIRO)
+  set(cairo_lib_name MiKTeX::Imported::CAIRO)
+else()
+  add_subdirectory(${MIKTEX_REL_CAIRO_DIR})
+endif()
+
+if(USE_SYSTEM_CURL)
+  add_library(MiKTeX::Imported::CURL UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::CURL
+    PROPERTIES
+      IMPORTED_LOCATION "${CURL_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${CURL_INCLUDE_DIRS}"
+  )
+  set(curl_dll_name MiKTeX::Imported::CURL)
+  set(curl_lib_name MiKTeX::Imported::CURL)
+else()
+  add_subdirectory(${MIKTEX_REL_CURL_DIR})
+endif()
+
+if(USE_SYSTEM_EXPAT)
+  add_library(MiKTeX::Imported::EXPAT UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::EXPAT
+    PROPERTIES
+      IMPORTED_LOCATION "${EXPAT_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${EXPAT_INCLUDE_DIRS}"
+  )
+  set(expat_dll_name MiKTeX::Imported::EXPAT)
+  set(expat_lib_name MiKTeX::Imported::EXPAT)
+else()
+  add_subdirectory(${MIKTEX_REL_EXPAT_DIR})
+endif()
+
+if(USE_SYSTEM_FONTCONFIG)
+  add_library(MiKTeX::Imported::FONTCONFIG UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::FONTCONFIG
+    PROPERTIES
+      IMPORTED_LOCATION "${FONTCONFIG_LIBRARY}"
+      INTERFACE_COMPILE_DEFINITIONS HAVE_LIBFONTCONFIG=1
+      INTERFACE_INCLUDE_DIRECTORIES "${FONTCONFIG_INCLUDE_DIRS}"
+  )
+  set(fontconfig_dll_name MiKTeX::Imported::FONTCONFIG)
+  set(fontconfig_lib_name MiKTeX::Imported::FONTCONFIG)
+else()
+  add_subdirectory(${MIKTEX_REL_FONTCONFIG_DIR})
+endif()
+
+if(USE_SYSTEM_FREETYPE2)
+  add_library(MiKTeX::Imported::FREETYPE2 UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::FREETYPE2
+    PROPERTIES
+      IMPORTED_LOCATION "${FREETYPE_LIBRARY}"
+      INTERFACE_COMPILE_DEFINITIONS "HAVE_FT2BUILD_H=1;HAVE_LIBFREETYPE=1"
+      INTERFACE_INCLUDE_DIRECTORIES "${FREETYPE_INCLUDE_DIRS}"
+  )
+  set(freetype2_dll_name MiKTeX::Imported::FREETYPE2)
+  set(freetype2_lib_name MiKTeX::Imported::FREETYPE2)
+else()
+  add_subdirectory(${MIKTEX_REL_FREETYPE2_DIR})
+endif()
+
+if(USE_SYSTEM_GD)
+  add_library(MiKTeX::Imported::GD UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::GD
+    PROPERTIES
+      IMPORTED_LOCATION "${GD_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${GD_INCLUDE_DIRS}"
+  )
+  set(gd_dll_name MiKTeX::Imported::GD)
+  set(gd_lib_name MiKTeX::Imported::GD)
+else()
+  add_subdirectory(${MIKTEX_REL_GD_DIR})
+endif()
+
+if(USE_SYSTEM_GMP)
+  add_library(MiKTeX::Imported::GMP UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::GMP
+    PROPERTIES
+      IMPORTED_LOCATION "${GMP_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${GMP_INCLUDE_DIRS}"
+  )
+  set(gmp_dll_name MiKTeX::Imported::GMP)
+  set(gmp_lib_name MiKTeX::Imported::GMP)
+else()
+  add_subdirectory(${MIKTEX_REL_GMP_DIR})
+endif()
+
+if(USE_SYSTEM_GRAPHITE2)
+  add_library(MiKTeX::Imported::GRAPHITE2 UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::GRAPHITE2
+    PROPERTIES
+      IMPORTED_LOCATION "${GRAPHITE2_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${GRAPHITE2_INCLUDE_DIRS}"
+  )
+  set(graphite2_dll_name MiKTeX::Imported::GRAPHITE2)
+  set(graphite2_lib_name MiKTeX::Imported::GRAPHITE2)
+else()
+  add_subdirectory(${MIKTEX_REL_GRAPHITE2_DIR})
+endif()
+
+if(USE_SYSTEM_HARFBUZZ_ICU)
+  add_library(MiKTeX::Imported::HARFBUZZ_ICU UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::HARFBUZZ_ICU
+    PROPERTIES
+      IMPORTED_LOCATION "${HARFBUZZ_ICU_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${HARFBUZZ_ICU_INCLUDE_DIRS}"
+  )
+  set(harfbuzz_dll_name MiKTeX::Imported::HARFBUZZ_ICU)
+  set(harfbuzz_lib_name MiKTeX::Imported::HARFBUZZ_ICU)
+else()
+  add_subdirectory(${MIKTEX_REL_HARFBUZZ_DIR})
+endif()
+
+if(USE_SYSTEM_HUNSPELL)
+  add_library(MiKTeX::Imported::HUNSPELL UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::HUNSPELL
+    PROPERTIES
+      IMPORTED_LOCATION "${HUNSPELL_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${HUNSPELL_INCLUDE_DIRS}"
+  )
+  set(hunspell_dll_name MiKTeX::Imported::HUNSPELL)
+  set(hunspell_lib_name MiKTeX::Imported::HUNSPELL)
+else()
+  add_subdirectory(${MIKTEX_REL_HUNSPELL_DIR})
+endif()
+
+if(USE_SYSTEM_JPEG)
+  add_library(MiKTeX::Imported::JPEG UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::JPEG
+    PROPERTIES
+      IMPORTED_LOCATION "${JPEG_LIBRARY}"
+      INTERFACE_COMPILE_DEFINITIONS HAVE_LIBJPEG=1
+      INTERFACE_INCLUDE_DIRECTORIES "${JPEG_INCLUDE_DIR}"
+  )
+  set(jpeg_dll_name MiKTeX::Imported::JPEG)
+  set(jpeg_lib_name MiKTeX::Imported::JPEG)
+else()
+  add_subdirectory(${MIKTEX_REL_JPEG_DIR})
+endif()
+
+if(USE_SYSTEM_LOG4CXX)
+  add_library(MiKTeX::Imported::LOG4CXX UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::LOG4CXX
+    PROPERTIES
+      IMPORTED_LOCATION "${LOG4CXX_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${LOG4CXX_INCLUDE_DIRS}"
+  )
+  set(log4cxx_dll_name MiKTeX::Imported::LOG4CXX)
+  set(log4cxx_lib_name MiKTeX::Imported::LOG4CXX)
+else()
+  add_subdirectory(${MIKTEX_REL_LOG4CXX_DIR})
+endif()
+
+if(USE_SYSTEM_LZMA)
+  add_library(MiKTeX::Imported::LZMA UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::LZMA
+    PROPERTIES
+      IMPORTED_LOCATION "${LIBLZMA_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${LIBLZMA_INCLUDE_DIRS}"
+  )
+  set(lzma_dll_name MiKTeX::Imported::LZMA)
+  set(lzma_lib_name MiKTeX::Imported::LZMA)
+else()
+  add_subdirectory(${MIKTEX_REL_XZUTILS_DIR})
+endif()
+
+if(USE_SYSTEM_MPFR)
+  add_library(MiKTeX::Imported::MPFR UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::MPFR
+    PROPERTIES
+      IMPORTED_LOCATION "${MPFR_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${MPFR_INCLUDE_DIRS}"
+  )
+  set(mpfr_dll_name MiKTeX::Imported::MPFR)
+  set(mpfr_lib_name MiKTeX::Imported::MPFR)
+else()
+  add_subdirectory(${MIKTEX_REL_MPFR_DIR})
+endif()
+
+if(USE_SYSTEM_MSPACK)
+  add_library(MiKTeX::Imported::MSPACK UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::MSPACK
+    PROPERTIES
+      IMPORTED_LOCATION "${MSPACK_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${MSPACK_INCLUDE_DIRS}"
+  )
+  set(mspack_dll_name MiKTeX::Imported::MSPACK)
+  set(mspack_lib_name MiKTeX::Imported::MSPACK)
+else()
+  add_subdirectory(${MIKTEX_REL_MSPACK_DIR})
+endif()
+
+if(USE_SYSTEM_PIXMAN)
+  add_library(MiKTeX::Imported::PIXMAN UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::PIXMAN
+    PROPERTIES
+      IMPORTED_LOCATION "${PIXMAN_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${PIXMAN_INCLUDE_DIRS}"
+  )
+  set(pixman_dll_name MiKTeX::Imported::PIXMAN)
+  set(pixman_lib_name MiKTeX::Imported::PIXMAN)
+else()
+  add_subdirectory(${MIKTEX_REL_PIXMAN_DIR})
+endif()
+
+if(USE_SYSTEM_PNG)
+  add_library(MiKTeX::Imported::PNG UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::PNG
+    PROPERTIES
+      IMPORTED_LOCATION "${PNG_LIBRARY}"
+      INTERFACE_COMPILE_DEFINITIONS HAVE_LIBPNG=1
+      INTERFACE_INCLUDE_DIRECTORIES "${PNG_INCLUDE_DIRS}"
+      INTERFACE_LINK_LIBRARIES MiKTeX::Imported::ZLIB
+  )
+  set(png_dll_name MiKTeX::Imported::PNG)
+  set(png_lib_name MiKTeX::Imported::PNG)
+else()
+  add_subdirectory(${MIKTEX_REL_PNG_DIR})
+endif()
+
+if(USE_SYSTEM_POPPLER)
+  add_library(MiKTeX::Imported::POPPLER UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::POPPLER
+    PROPERTIES
+      IMPORTED_LOCATION "${POPPLER_LIBRARY}"
+      # FIXME: get POPPLER_VERSION
+      INTERFACE_COMPILE_DEFINITIONS POPPLER_VERSION="0.0"
+      INTERFACE_INCLUDE_DIRECTORIES "${POPPLER_INCLUDE_DIRS}"
+  )
+  set(poppler_dll_name MiKTeX::Imported::POPPLER)
+  set(poppler_lib_name MiKTeX::Imported::POPPLER)
+else()
+  add_subdirectory(${MIKTEX_REL_POPPLER_DIR})
+endif()
+
+if(USE_SYSTEM_POPPLER_QT5 AND WITH_UI_QT)
+  add_library(MiKTeX::Imported::POPPLER_QT UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::POPPLER_QT
+    PROPERTIES
+      IMPORTED_LOCATION "${POPPLER_QT5_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${POPPLER_QT5_INCLUDE_DIRS}"
+  )
+  set(poppler_qt_dll_name MiKTeX::Imported::POPPLER_QT)
+  set(poppler_qt_lib_name MiKTeX::Imported::POPPLER_QT)
+else()
+#  add_subdirectory(${MIKTEX_REL_POPPLER_DIR})
+endif()
+
+if(USE_SYSTEM_POPT)
+  add_library(MiKTeX::Imported::POPT UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::POPT
+    PROPERTIES
+      IMPORTED_LOCATION "${POPT_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${POPT_INCLUDE_DIRS}"
+  )
+  set(popt_dll_name MiKTeX::Imported::POPT)
+  set(popt_lib_name MiKTeX::Imported::POPT)
+else()
+  add_subdirectory(${MIKTEX_REL_POPT_DIR})
+endif()
+
+if(USE_SYSTEM_POTRACE)
+  add_library(MiKTeX::Imported::POTRACE UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::POTRACE
+    PROPERTIES
+      IMPORTED_LOCATION "${POTRACE_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${POTRACE_INCLUDE_DIRS}"
+  )
+  set(potrace_dll_name MiKTeX::Imported::POTRACE)
+  set(potrace_lib_name MiKTeX::Imported::POTRACE)
+else()
+  add_subdirectory(${MIKTEX_REL_POTRACE_LIB_DIR})
+endif()
+
+if(USE_SYSTEM_URIPARSER)
+  add_library(MiKTeX::Imported::URIPARSER UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::URIPARSER
+    PROPERTIES
+      IMPORTED_LOCATION "${URIPARSER_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${URIPARSER_INCLUDE_DIRS}"
+  )
+  set(uriparser_dll_name MiKTeX::Imported::URIPARSER)
+  set(uriparser_lib_name MiKTeX::Imported::URIPARSER)
+else()
+  add_subdirectory(${MIKTEX_REL_URIPARSER_DIR})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  add_library(MiKTeX::Imported::ZLIB UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::ZLIB
+    PROPERTIES
+      IMPORTED_LOCATION "${ZLIB_LIBRARY}"
+      INTERFACE_COMPILE_DEFINITIONS "HAVE_LIBZ=1;HAVE_ZLIB=1;HAVE_ZLIB_H=1;HAVE_ZLIB_COMPRESS2=1"
+      INTERFACE_INCLUDE_DIRECTORIES "${ZLIB_INCLUDE_DIRS}"
+  )
+  set(zlib_dll_name MiKTeX::Imported::ZLIB)
+  set(zlib_lib_name MiKTeX::Imported::ZLIB)
+else()
+  add_subdirectory(${MIKTEX_REL_ZLIB_DIR})
+endif()
+
+if(USE_SYSTEM_ZZIP)
+  add_library(MiKTeX::Imported::ZZIP UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::ZZIP
+    PROPERTIES
+      IMPORTED_LOCATION "${ZZIP_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${ZZIP_INCLUDE_DIRS}"
+  )
+  set(zzip_dll_name MiKTeX::Imported::ZZIP)
+  set(zzip_lib_name MiKTeX::Imported::ZZIP)
+else()
+  add_subdirectory(${MIKTEX_REL_ZZIP_DIR})
+endif()
+
+###############################################################################
+## add the MiKTeX components
+
+enable_testing()
+
+add_subdirectory(${MIKTEX_REL_APP_DIR})
+add_subdirectory(${MIKTEX_REL_BIBTEXX_DIR})
+add_subdirectory(${MIKTEX_REL_BIBTEX_DIR})
+add_subdirectory(${MIKTEX_REL_BUILD_TOOLS_ETC_DIR})
+add_subdirectory(${MIKTEX_REL_C4P_DIR})
+add_subdirectory(${MIKTEX_REL_CFG_DIR})
+add_subdirectory(${MIKTEX_REL_CHKTEX_DIR})
+add_subdirectory(${MIKTEX_REL_CJKUTILS_DIR})
+add_subdirectory(${MIKTEX_REL_CONFIG_DIR})
+add_subdirectory(${MIKTEX_REL_CORE_DIR})
+add_subdirectory(${MIKTEX_REL_CWEB_DIR})
+add_subdirectory(${MIKTEX_REL_DEFAULTS_DIR})
+add_subdirectory(${MIKTEX_REL_DEVNAG_DIR})
+add_subdirectory(${MIKTEX_REL_DOC_DIR})
+add_subdirectory(${MIKTEX_REL_DVICOPY_DIR})
+add_subdirectory(${MIKTEX_REL_DVIPDFMX_DIR})
+add_subdirectory(${MIKTEX_REL_DVIPNG_DIR})
+add_subdirectory(${MIKTEX_REL_DVIPS_DIR})
+add_subdirectory(${MIKTEX_REL_DVISVGM_DIR})
+add_subdirectory(${MIKTEX_REL_EPSTOPDF_DIR})
+add_subdirectory(${MIKTEX_REL_EXTRACTOR_DIR})
+add_subdirectory(${MIKTEX_REL_FINDTEXMF_DIR})
+add_subdirectory(${MIKTEX_REL_GSF2PK_DIR})
+add_subdirectory(${MIKTEX_REL_INIPOOL_DIR})
+add_subdirectory(${MIKTEX_REL_INITEXMF_DIR})
+add_subdirectory(${MIKTEX_REL_KPSEMU_DIR})
+add_subdirectory(${MIKTEX_REL_KPSEWHICH_DIR})
+add_subdirectory(${MIKTEX_REL_LUATEX_DIR})
+add_subdirectory(${MIKTEX_REL_LUA_DIR})
+add_subdirectory(${MIKTEX_REL_MAKEINDEX_DIR})
+add_subdirectory(${MIKTEX_REL_MAKEX_DIR})
+add_subdirectory(${MIKTEX_REL_MD5WALK_DIR})
+add_subdirectory(${MIKTEX_REL_MD5_DIR})
+add_subdirectory(${MIKTEX_REL_MFWARE_DIR})
+add_subdirectory(${MIKTEX_REL_MF_DIR})
+add_subdirectory(${MIKTEX_REL_MIKTEXSETUP_DIR})
+add_subdirectory(${MIKTEX_REL_MKFNTMAP_DIR})
+add_subdirectory(${MIKTEX_REL_MPMLIB_DIR})
+add_subdirectory(${MIKTEX_REL_MPM_DIR})
+add_subdirectory(${MIKTEX_REL_MP_DIR})
+add_subdirectory(${MIKTEX_REL_MTHELP_DIR})
+add_subdirectory(${MIKTEX_REL_MTREP_DIR} EXCLUDE_FROM_ALL)
+add_subdirectory(${MIKTEX_REL_OMEGAWARE_DIR})
+add_subdirectory(${MIKTEX_REL_OMEGA_DIR})
+add_subdirectory(${MIKTEX_REL_OTPS_DIR})
+add_subdirectory(${MIKTEX_REL_PADOUT_DIR})
+add_subdirectory(${MIKTEX_REL_PDFTEX_DIR})
+add_subdirectory(${MIKTEX_REL_POPT_WRAPPER_DIR})
+add_subdirectory(${MIKTEX_REL_PROGRAMS_ETC_DIR})
+add_subdirectory(${MIKTEX_REL_PS2PK_DIR})
+add_subdirectory(${MIKTEX_REL_PSUTILS_DIR})
+add_subdirectory(${MIKTEX_REL_SETUPLIB_DIR})
+add_subdirectory(${MIKTEX_REL_TECKIT_DIR})
+add_subdirectory(${MIKTEX_REL_TEX4HT_DIR})
+add_subdirectory(${MIKTEX_REL_TEXIFY_DIR})
+add_subdirectory(${MIKTEX_REL_TEXMF_DIR})
+add_subdirectory(${MIKTEX_REL_TEXWARE_DIR})
+add_subdirectory(${MIKTEX_REL_TEX_DIR})
+add_subdirectory(${MIKTEX_REL_TEX_ETC_DIR})
+add_subdirectory(${MIKTEX_REL_TIE_DIR})
+add_subdirectory(${MIKTEX_REL_TOUCH_DIR})
+add_subdirectory(${MIKTEX_REL_TPM_DIR})
+add_subdirectory(${MIKTEX_REL_TRACE_DIR})
+add_subdirectory(${MIKTEX_REL_TTF2PK2_DIR})
+add_subdirectory(${MIKTEX_REL_UTIL_DIR})
+add_subdirectory(${MIKTEX_REL_W2CEMU_DIR})
+add_subdirectory(${MIKTEX_REL_WEB_DIR})
+add_subdirectory(${MIKTEX_REL_XETEX_DIR})
+add_subdirectory(${MIKTEX_REL_XINDY_DIR})
+
+if(WITH_UI_QT)
+  add_subdirectory(${MIKTEX_REL_MPM_QT_DIR})
+  add_subdirectory(${MIKTEX_REL_TEXWORKS_DIR})
+  if(NOT LINK_EVERYTHING_STATICALLY)
+    add_subdirectory(${MIKTEX_REL_UI_QT_DIR})
+  endif()
+endif()
+
+if(WITH_UI_MFC)
+  add_subdirectory(${MIKTEX_REL_MO_MFC_DIR})
+  add_subdirectory(${MIKTEX_REL_MPM_MFC_DIR})
+  add_subdirectory(${MIKTEX_REL_REMOVE_MFC_DIR})
+  add_subdirectory(${MIKTEX_REL_SETUP_MFC_DIR})
+  add_subdirectory(${MIKTEX_REL_UI_MFC_DIR})
+  add_subdirectory(${MIKTEX_REL_UPDATE_MFC_DIR})
+  add_subdirectory(${MIKTEX_REL_YAP_MFC_DIR})
+endif()
+
+if(WITH_MPC)
+  add_subdirectory(${MIKTEX_REL_MPC_DIR})
+endif()
+
+if(WITH_COM)
+  add_subdirectory(Libraries/MiKTeX/Core/COM/test)
+  add_subdirectory(Libraries/MiKTeX/PackageManager/COM/test)
+endif()
+
+if(MIKTEX_NATIVE_WINDOWS)
+  add_subdirectory(${MIKTEX_REL_ARCTRL_WIN_DIR})
+  add_subdirectory(${MIKTEX_REL_COPYSTART_DIR})
+  add_subdirectory(${MIKTEX_REL_DIB_DIR})
+  add_subdirectory(${MIKTEX_REL_DVI_DIR})
+  add_subdirectory(${MIKTEX_REL_MTPRINT_DIR})
+  add_subdirectory(${MIKTEX_REL_TASKBAR_ICON_WIN_DIR})
+  add_subdirectory(${MIKTEX_REL_UNXEMU_DIR})
+  add_subdirectory(${MIKTEX_REL_UTF8WRAP_DIR})
+endif()
+
+if(NOT LINK_EVERYTHING_STATICALLY AND MIKTEX_NATIVE_WINDOWS)
+  add_subdirectory(${MIKTEX_REL_LUAJIT_DIR})
+endif()
+
+if(NOT HAVE_GETOPT_LONG)
+  add_subdirectory(${MIKTEX_REL_GETOPT_DIR})
+endif()
+
+if(NOT HAVE_REGEXEC)
+  add_subdirectory(${MIKTEX_REL_REGEX_DIR})
+endif()
+
+###############################################################################
+## package database
+
+if(INSTALL_PACKAGE_DATABASE)
+  set(remote_repository
+    "http://ctan.org/systems/win32/miktex/tm/packages/"
+  )
+
+  execute_process(
+    COMMAND
+      ${WGET_EXECUTABLE} -q -O - ${remote_repository}/miktex-zzdb1-${MIKTEX_SERIES_STR}.tar.lzma
+    COMMAND
+      ${TAR_EXECUTABLE} -xJf -
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}
+  )
+
+  execute_process(
+    COMMAND
+      ${WGET_EXECUTABLE} -q -O - ${remote_repository}/miktex-zzdb2-${MIKTEX_SERIES_STR}.tar.lzma
+    COMMAND
+      ${TAR_EXECUTABLE} -xJf -
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}
+  )
+
+  install(
+    FILES
+      ${CMAKE_CURRENT_BINARY_DIR}/mpm.ini
+    DESTINATION
+      ${MIKTEX_TEXMF_DIR}/miktex/config
+  )
+
+  install(
+    DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/texmf/tpm/packages/
+    DESTINATION
+      ${MIKTEX_TEXMF_DIR}/tpm/packages
+  )
+endif()
+
+###############################################################################
+## packaging
+
+set(CPACK_GENERATOR DEB)
+
+if(LINK_EVERYTHING_STATICALLY)
+  list(APPEND CPACK_GENERATOR TGZ)
+endif()
+
+find_program(RPMBUILD_EXECUTABLE NAMES rpmbuild)
+
+if(RPMBUILD_EXECUTABLE)
+  list(APPEND CPACK_GENERATOR RPM)
+endif()
+
+set(CPACK_PROJECT_CONFIG_FILE
+  "${CMAKE_SOURCE_DIR}/Packaging/cpack-config.cmake"
+)
+
+set(CPACK_PACKAGE_DESCRIPTION_FILE
+  "${CMAKE_SOURCE_DIR}/Packaging/package-description.txt"
+)
+
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+  "MiKTeX ${MIKTEX_SERIES_STR}: a TeX distribution"
+)
+
+set(CPACK_PACKAGE_CONTACT
+  "Christian Schenk <cs@miktex.org>"
+)
+
+set(CPACK_PACKAGE_VENDOR
+  "MiKTeX.org"
+)
+
+set(CPACK_PACKAGE_VERSION_MAJOR ${MIKTEX_MAJOR_VERSION})
+set(CPACK_PACKAGE_VERSION_MINOR ${MIKTEX_MINOR_VERSION})
+set(CPACK_PACKAGE_VERSION_PATCH ${MIKTEX_J2000_VERSION})
+string(REPLACE "-" "_" CPACK_PACKAGE_VERSION "${MIKTEX_VERSION_TAG_STR}")
+
+set(CPACK_PACKAGE_FILE_NAME
+  "miktex-${CPACK_PACKAGE_VERSION}-${MIKTEX_PACKAGE_REVISION}-${MIKTEX_TARGET_SYSTEM_TAG}"
+)
+
+set(CPACK_DEBIAN_PACKAGE_VERSION
+  "${MIKTEX_VERSION_TAG_STR}-${MIKTEX_PACKAGE_REVISION}"
+)
+
+set(CPACK_DEBIAN_PACKAGE_DEPENDS
+  "libbotan-1.10-1, libbz2-1.0, libcairo2, libcurl3, libexpat1, libfontconfig1, libfreetype6, libgd3, libgmp10, libgraphite2-3, libharfbuzz-icu0, libhunspell-1.3-0, libjpeg9, liblog4cxx10v5, liblzma5, libmpfr4, libmspack0, libpixman-1-0, libpng12-0, libpoppler57, libpoppler-qt5-1, libpopt0, libpotrace0, liburiparser1, zlib1g, libzzip-0-13"
+)
+
+set(CPACK_DEBIAN_PACKAGE_SECTION
+  "TeX Authoring"
+)
+
+#set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
+#  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst"
+#)
+
+set(CPACK_RPM_PACKAGE_RELEASE ${MIKTEX_PACKAGE_REVISION})
+
+#set(CPACK_RPM_SPEC_INSTALL_POST
+#  "initexmf --admin --configure"
+#)
+
+set(CPACK_STRIP_SYMBOLS TRUE)
+
+include(CPack)

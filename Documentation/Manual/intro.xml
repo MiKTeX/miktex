@@ -1,0 +1,171 @@
+<chapter id="intro">
+
+<title>Introduction</title>
+
+<section id="aboutmanual">
+
+<title>About this Manual</title>
+
+<para>This manual is about &MiKTeX;: the purpose of this manual is not
+to give an introduction into the world of &TeX;.  If you are not
+familiar with using &TeX; (and Friends), then please consider reading
+one of the tutorials available on the <ulink
+url="http://www.tex.ac.uk/cgi-bin/texfaq2html?label=tutorials*">Internet</ulink>.</para>
+
+</section>
+
+&features;
+
+<section id="howtoget">
+
+<title>How to Get &MiKTeX;</title>
+
+<indexterm>
+<primary>MiKTeX</primary>
+<secondary>getting</secondary>
+</indexterm>
+
+<para>The &MiKTeX; distribution can be downloaded from the Internet.
+And it is available on &DVDdashR;.</para>
+
+<section>
+
+<title>Downloading &MiKTeX;</title>
+
+<indexterm>
+<primary>MiKTeX</primary>
+<secondary>downloading</secondary>
+</indexterm>
+<para>There &MiKTeX; setup program comes in two flavors:</para>
+<itemizedlist>
+<listitem><para>&BasicMiKTeXInstaller;</para></listitem>
+<listitem><para>&MiKTeXNetInstaller;</para></listitem>
+</itemizedlist>
+
+<para>You use the &BasicMiKTeXInstaller; to install a basic
+&MiKTeX; system.
+The &MiKTeXNetInstaller; can be used to download and install a
+complete &MiKTeX; system.
+All this is explained later
+in this manual (see <xref linkend="installing"/>).</para>
+
+</section>
+
+<section id="miktexcdr">
+
+<title>&MiKTeX; on &DVDdashR;</title>
+
+<para>The &MiKTeX; &DVDdashR; allows you to install &MiKTeX; on the
+hard-disk or to run the programs directly from the &DVDdashR;.</para>
+
+<para>If you wish to obtain a copy of
+the &MiKTeX; &DVDdashR;, visit <ulink url="http://miktex.org/dvd">the
+&DVDdashR; info page</ulink>.
+<indexterm>
+<primary>DVD-R</primary>
+<secondary>obtaining</secondary>
+</indexterm>
+<indexterm>
+<primary>DVD-R</primary>
+<secondary>running MiKTeX from the</secondary>
+</indexterm>
+<indexterm>
+<primary>MiKTeX DVD-R</primary>
+</indexterm>
+<indexterm>
+<primary>MiKTeX</primary>
+<secondary>DVD-R</secondary>
+</indexterm></para>
+
+</section>
+
+</section>
+
+<section id="registering">
+
+<title>Give Back</title>
+
+<para>If you enjoy &MiKTeX; and want to support the project, then
+please become an esteemed &MiKTeX; user by giving back something. It
+encourages me to continue, and is the perfect way to say thank you!</para>
+
+<para>Visit <ulink
+url="http://miktex.org/giveback">the &MiKTeX; Give Back page</ulink>,
+for more information.
+<indexterm>
+<primary>MiKTeX project</primary>
+<secondary>how to support the</secondary>
+</indexterm>
+<indexterm>
+<primary>give back</primary>
+</indexterm>
+<indexterm>
+<primary>registration</primary>
+</indexterm>
+<indexterm>
+<primary>MiKTeX</primary>
+<secondary>registering</secondary>
+</indexterm></para>
+
+</section>
+
+<section id="projectpage">
+
+<title>The &MiKTeX; Project Page</title>
+
+<para>The <ulink url="http://miktex.org">&MiKTeX; Project Page</ulink>
+is the address to turn to for &MiKTeX; related news &amp; information.
+<indexterm>
+<primary>project page</primary>
+</indexterm>
+<indexterm>
+<primary>MiKTeX Project Page</primary>
+</indexterm></para>
+
+</section>
+
+<section id="lists">
+
+<title>The &MiKTeX; Mailing List</title>
+
+<para>There is a discussion list for &MiKTeX;
+users.  You can join
+this list by visiting the <ulink
+url="http://lists.sourceforge.net/lists/listinfo/miktex-users">MiKTeX-Users
+Info Page</ulink> and filling out the form provided there.</para>
+
+<para>To see the collection of prior postings to the mailing
+<indexterm>
+<primary>mailing list</primary>
+<secondary>archive</secondary>
+</indexterm>
+list, browse the <ulink
+url="http://sourceforge.net/mailarchive/forum.php?forum=miktex-users">MiKTeX-Users
+Archives</ulink>.</para>
+
+</section>
+
+<section id="otherdoc">
+
+<title>Documentation</title>
+
+<para>Use the &mthelp; utility to quickly access general &TeX; related
+documentation. For example, run
+<indexterm>
+<primary>mthelp</primary>
+</indexterm>
+<userinput>mthelp memoir</userinput> to view documentation of the
+<filename>memoir</filename> package.</para>
+
+</section>
+
+</chapter>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

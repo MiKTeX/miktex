@@ -1,0 +1,18 @@
+<varlistentry>
+<term><option>--parse-first-line</option></term>
+<listitem><para>Check whether the first line of the main input file
+starts with <markup>%&amp;</markup>, and parse if it does.
+<indexterm>
+<primary>--parse-first-line</primary>
+</indexterm>
+This can be used to specify extra command-line options.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

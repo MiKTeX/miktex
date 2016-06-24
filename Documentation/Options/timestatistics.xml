@@ -1,0 +1,17 @@
+<varlistentry>
+<term><option>--time-statistics</option></term>
+<listitem><para>Show processing
+<indexterm>
+<primary>--time-statistics</primary>
+</indexterm>
+time statistics.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

@@ -1,0 +1,40 @@
+<section id="printing">
+
+<title>Printing</title>
+
+<section>
+
+<title>Using a Viewer to Print &DVI;/&PDF; Files</title>
+
+<para>&TeX; output files
+(<filename>*.dvi</filename>/<filename>*.pdf</filename>) can be
+printed from within the viewer.</para>
+
+</section>
+
+<section>
+
+<title>Using &mtprint; to Print &DVI; Files</title>
+
+<para>&DVI; files can also be printed with the help of the
+command-line utility &mtprint; (&MiKTeXPrintUtility;).</para>
+
+<para>For example, run <userinput>mtprint paper</userinput> to send
+the &DVI; file <filename>paper.dvi</filename> to the default &Windows;
+printer.</para>
+
+<para>See <xref linkend="mtprint"/>, for more information about
+&mtprint;</para>
+
+</section>
+
+</section>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

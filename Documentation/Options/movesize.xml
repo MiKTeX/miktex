@@ -1,0 +1,17 @@
+<varlistentry>
+<term><option>--move-size=<replaceable>n</replaceable></option></term>
+<listitem><para>Set the
+<indexterm>
+<primary>--move-size=n</primary>
+</indexterm>
+the space for storing moves in a single octant.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

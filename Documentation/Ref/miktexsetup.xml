@@ -1,0 +1,309 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+<!ENTITY % version.ent SYSTEM "version.ent">
+%version.ent;
+%entities.ent;
+]>
+
+<refentry id="miktexsetup">
+
+<?dbhh topicname="MIKTEXHELP_MIKTEXSETUP" topicid="0"?>
+
+<refmeta>
+<refentrytitle>miktexsetup</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refdescriptor>miktexsetup</refdescriptor>
+<refname>basic-miktex</refname>
+<refname>setup</refname>
+<refpurpose>&MiKTeX; setup utility</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+
+<cmdsynopsis>
+&miktexsetup;
+<arg choice="opt"><option><replaceable>options</replaceable></option></arg>
+<arg choice="plain">download</arg>
+</cmdsynopsis>
+
+<cmdsynopsis>
+&miktexsetup;
+<arg choice="opt"><option><replaceable>options</replaceable></option></arg>
+<arg choice="plain">install</arg>
+</cmdsynopsis>
+
+<cmdsynopsis>
+&miktexsetup;
+<arg choice="opt"><option><replaceable>options</replaceable></option></arg>
+<arg choice="plain">uninstall</arg>
+</cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>The &MiKTeXSetupUtility; is used to download, install and
+uninstall &MiKTeX;. This utility is the command line counterpart of the
+&MiKTeXSetupWizard; (see <xref linkend="setupwiz"/>), i.e., it is
+suitable for unattended setup tasks.
+<indexterm>
+<primary>unattended setup</primary>
+</indexterm>
+</para>
+
+<para>The <userinput>download</userinput> task creates a local package package repository
+which is a mirror of the remote package repository. It is possible to
+run the task on a regular basis in order to maintain an up-to-date
+package repository.</para>
+
+<para>The <userinput>install</userinput> task installs &MiKTeX; from the local package repository.</para>
+
+<para>The <userinput>uninstall</userinput> task removes &MiKTeX;.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Options</title>
+
+<variablelist>
+
+<varlistentry>
+<term><option>--common-config=<replaceable>dir</replaceable></option></term>
+<listitem><para>Set the location of the common configuration directory.
+This option requires administrator privileges.</para></listitem>
+</varlistentry>
+	
+<varlistentry>
+<term><option>--common-data=<replaceable>dir</replaceable></option></term>
+<listitem><para>Set the location of the common data directory.
+This option requires administrator privileges.</para></listitem>
+</varlistentry>
+	
+<varlistentry>
+<term><option>--common-install=<replaceable>dir</replaceable></option></term>
+<listitem><para>Set the common installation directory.
+This option requires administrator privileges.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--common-roots=<replaceable>dirs</replaceable></option></term>
+<listitem><para>Register additional directories for all users.
+<replaceable>dirs</replaceable> must be a semicolon-separated list of
+fully qualified path names. This option requires administrator
+privileges.</para>
+<para>Environment variables (&lt;VARNAME&gt;) can be used.</para></listitem>
+</varlistentry>
+	
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/listrepositories.xml" />
+
+<varlistentry>
+<term><option>--local-package-repository=<replaceable>dir</replaceable></option></term>
+<listitem><para>Download into (install from) the specified directory.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--modify-path</option></term>
+<listitem><para>Add &MiKTeX; to <envar>PATH</envar>.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--modify-path=no</option></term>
+<listitem><para>Don't add &MiKTeX; to <envar>PATH</envar>.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--modify-path</option></term>
+<listitem><para>Add &MiKTeX; to <envar>PATH</envar>.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--package-set=<replaceable>set</replaceable></option></term>
+<listitem><para>Download/Install the specified package set.
+<indexterm>
+<primary>package set</primary>
+</indexterm>
+This must be one of
+<option>essential</option>,
+<option>basic</option>,
+<option>complete</option>.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--portable=<replaceable>dir</replaceable></option></term>
+<listitem><para>Setup &MiKTeX; for use on a portable device.
+<indexterm>
+<primary>portable</primary>
+</indexterm>
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--print-info-only</option></term>
+<listitem><para>Print information about what would be done then exit.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--program-folder=<replaceable>name</replaceable></option></term>
+<listitem><para>Add shortcuts to the specified program folder.</para></listitem>
+</varlistentry>
+
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/quiet.xml" />
+
+<varlistentry>
+<term><option>--remote-package-repository=<replaceable>url</replaceable></option></term>
+<listitem><para>Download from the specified <acronym>URL</acronym>.
+Use <option>--list-repositories</option> to download an up-to-date list
+of possible repositories.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--shared</option></term>
+<listitem><para>Run the task for all users. This option
+requires administrator privileges.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--shared=no</option></term>
+<listitem><para>Run the task for current user only.</para></listitem>
+</varlistentry>
+
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/trace.xml" />
+
+<varlistentry>
+<term><option>--use-registry</option></term>
+<listitem><para>Write configuration
+settings into the &Windows; registry.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--use-registry=no</option></term>
+<listitem><para>Don't write configuration
+settings into the &Windows; registry. Use configuration files instead.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--user-config=<replaceable>dir</replaceable></option></term>
+<listitem><para>Set the location of the configuration directory for
+the current user.</para>
+<para>Environment variables (&lt;VARNAME&gt;) can be used. See the example below.</para></listitem>
+</varlistentry>
+	
+<varlistentry>
+<term><option>--user-data=<replaceable>dir</replaceable></option></term>
+<listitem><para>Set the location of the data directory for
+the current user.</para>
+<para>Environment variables (&lt;VARNAME&gt;) can be used. See the example below.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--user-install=<replaceable>dir</replaceable></option></term>
+<listitem><para>Set the user installation directory.</para>
+<para>Environment variables (&lt;VARNAME&gt;) can be used. See the example below.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--user-roots=<replaceable>dirs</replaceable></option></term>
+<listitem><para>Register additional directories for the current user.
+<replaceable>dirs</replaceable> must be a semicolon-separated list of fully
+qualified path names.</para>
+<para>Environment variables (&lt;VARNAME&gt;) can be used.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--verbose</option></term>
+<listitem><para>Turn on verbose output mode.</para>
+</listitem>
+</varlistentry>
+
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
+
+</variablelist>
+      
+</refsect1>
+
+<refsect1>
+
+<title>Examples</title>
+
+<refsect2>  
+
+<title>Downloading</title>
+
+<para>The first task is to download &MiKTeX; into a local package repository:</para>  
+
+<screen><prompt>&prompt;</prompt><userinput>miktexsetup ^
+  --verbose ^
+  --local-package-repository=C:\miktex-repository ^
+  --package-set=complete ^
+  download</userinput></screen>
+
+<para>This command will create a local package repository in <filename>C:\miktex-repository</filename>.</para>
+
+<para>It is possible to interrupt (<keycombo><keysym>Control</keysym><keysym>C</keysym></keycombo>)
+this operation at anytime and resume it later by running the same command again.</para>
+
+</refsect2>
+
+<refsect2>  
+
+<title>Installing for all users</title>
+
+<para>In this example, &MiKTeX; is installed for all users from the local package repository
+<filename>C:\miktex-repository</filename>. User directories
+are specified by using environment variables (&lt;VARNAME&gt;) which
+are expanded at run-time (delayed expansion).</para>
+
+<para>You can first specify <option>--print-info-only</option> in order to perform a dry run:</para>
+
+<screen><prompt>&prompt;</prompt><userinput>miktexsetup ^
+  --verbose ^
+  --local-package-repository=C:\miktex-repository ^
+  --shared ^
+  --user-config="&lt;APPDATA&gt;\MiKTeX\2.9" ^
+  --user-data="&lt;LOCALAPPDATA&gt;\MiKTeX\2.9" ^
+  --user-install=&lt;APPDATA&gt;\MiKTeX\2.9" ^
+  --print-info-only
+  install</userinput>
+setup task: install from local package repository
+local package repository: C:\miktex-repository
+package level: complete
+install for all users?: yes
+use registry?: yes
+modify path?: yes
+common install root: "C:\Program Files (x86)\MiKTeX 2.9"
+user install root: &lt;APPDATA&gt;\MiKTeX\2.9
+user config root: &lt;LOCALAPPDATA&gt;\MiKTeX\2.9
+user data root: &lt;APPDATA&gt;\MiKTeX\2.9
+program folder name: "MiKTeX 2.9"</screen>
+
+</refsect2>
+
+<refsect2>
+
+<title>Uninstalling</title>
+
+<para>&MiKTeX; can be removed by selecting the
+<userinput>uninstall</userinput> task. <option>--shared</option>
+should be specified, if &MiKTeX; is installed for all users.</para>
+
+<screen><prompt>&prompt;</prompt><userinput>miktexsetup --verbose --shared uninstall</userinput></screen>
+
+</refsect2>
+
+</refsect1>
+
+</refentry>

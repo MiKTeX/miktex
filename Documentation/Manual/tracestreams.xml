@@ -1,0 +1,188 @@
+<variablelist>
+
+<varlistentry>
+<term>access</term>
+<listitem><para>file tests (<code>access()</code>,
+<code>stat()</code>)</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>config</term>
+<listitem><para>&MiKTeX; configuration settings</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>core</term>
+<listitem><para>&MiKTeX; core library</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>curl</term>
+<listitem><para>cURL library</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>dib</term>
+<listitem><para>device independant bitmaps</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>dvibitmap</term>
+<listitem><para>&DVI; bitmaps</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>dvicolor</term>
+<listitem><para>&DVI; color</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>dvifile</term>
+<listitem><para>&DVI; files</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>dvigc</term>
+<listitem><para>&DVI; garbage collector</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>dvihypertex</term>
+<listitem><para>&DVI; hypertex specials</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>dvipage</term>
+<listitem><para>&DVI; page builder</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>dvipkbitmap</term>
+<listitem><para>&DVI; PK raster operations</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>dvipkchar</term>
+<listitem><para>&DVI; PK characters</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>dvipkfont</term>
+<listitem><para>&DVI; PK fonts</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>dvisearch</term>
+<listitem><para>&DVI; source specials</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>dvitfm</term>
+<listitem><para>&DVI; font metrics</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>dvivfchar</term>
+<listitem><para>&DVI; virtual font characters</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>dvivfont</term>
+<listitem><para>&DVI; virtual fonts</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>env</term>
+<listitem><para>environment variables</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>error</term>
+<listitem><para>error conditions</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>extractor</term>
+<listitem><para>&MiKTeX; package archive file extractor</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>files</term>
+<listitem><para>file operations</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>filesearch</term>
+<listitem><para>file searching</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>fndb</term>
+<listitem><para>file name database operations</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>fontinfo</term>
+<listitem><para>font information retrieval</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>mem</term>
+<listitem><para>&TeXAndFriends; memory allocation</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>mmap</term>
+<listitem><para>memory mapped files</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>mpm</term>
+<listitem><para>package manager</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>mtprint</term>
+<listitem><para>&MiKTeX; print utility</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>packages</term>
+<listitem><para>packages</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>process</term>
+<listitem><para>execution of secondary processes</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>tempfile</term>
+<listitem><para>temporary files</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>time</term>
+<listitem><para>execution time</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>values</term>
+<listitem><para>configuration values</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>yap</term>
+<listitem><para>&Yap;</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

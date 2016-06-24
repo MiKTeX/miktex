@@ -1,0 +1,20 @@
+<varlistentry>
+<term><option>--synctex=<replaceable>n</replaceable></option></term>
+<listitem><para>Generate &SyncTeX; data for previewers
+<indexterm>
+<primary>--synctex=n</primary>
+</indexterm>
+<indexterm>
+<primary>-src</primary>
+</indexterm>
+if nonzero.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

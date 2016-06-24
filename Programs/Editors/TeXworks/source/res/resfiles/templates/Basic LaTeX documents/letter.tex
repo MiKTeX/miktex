@@ -1,0 +1,26 @@
+\documentclass[a4paper,12pt]{letter}
+
+% Some of the article customisations are relevant for this class
+
+\name{} % To be used for the return address on the envelope
+\signature{} % Goes after the closing (ie at the end of the letter, with space for a signature)
+\address{Address \\ of \\ Sender}
+% Alternatively, these may be set on an individual basis within each letter environment.
+
+\makelabels % this command prints envelope labels on the final page of the document
+
+\begin{document}
+\begin{letter}{Name and \\ Address \\ of \\ Receiver}
+
+\opening{} % eg Hello.
+
+
+
+\closing{} % eg Regards,
+
+\cc{} % people this letter is cc-ed to
+\encl{} % list of anything enclosed
+\ps{} % any post scriptums. ``PS'' labels must be put in manually
+
+\end{letter}
+\end{document}

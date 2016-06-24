@@ -1,0 +1,18 @@
+# TeXworks: Patterns for auto-indent modes
+
+# Each entry consists of two fields:
+# "name" <regex>
+
+# "name" is a name for the mode, which will appear in the Auto-Indent submenu.
+# This is enclosed in "double quotes", and followed by whitespace to separate it from <regex>.
+
+# <regex> is the regular expression; if this matches the start of the current line when <return>
+# is pressed, then the new line will be given the same prefix. The regex is not quoted.
+# (Using ^ at the start of the pattern is not strictly necessary, but improves efficiency.)
+
+"Whitespace only"	^\s+
+
+"TeX comments"		^(\s+|\s*%+\s*)
+
+# this tries to be clever about NOT repeating the comment prefix in certain special cases
+"dtx prefixes"		^(\s+|\s*%<[A-Za-z\|\&,]+>\s*|\s*%\s*(?!\s*\\begin\{macrocode\}|\s*<\*[A-Za-z\|\&,]+>))

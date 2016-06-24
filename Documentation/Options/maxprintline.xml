@@ -1,0 +1,19 @@
+<varlistentry>
+<term><option>--max-print-line=<replaceable>n</replaceable></option></term>
+<listitem>
+<para>Set the
+<indexterm>
+<primary>--max-print-line=n</primary>
+</indexterm>
+width of longest text lines output; should be at least
+<literal>60</literal>.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

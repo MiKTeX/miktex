@@ -1,0 +1,219 @@
+<refentry id="miktex-tools">
+
+<?dbhh topicname="MIKTEXHELP_MIKTEX_TOOLS" topicid="0"?>
+
+<refmeta>
+<refentrytitle>miktex-tools</refentrytitle>
+<manvolnum>7</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">Miscellanea</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>miktex-tools</refname>
+<refpurpose>experimental &TeX; additions</refpurpose>
+</refnamediv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>&MiKTeXTools; should be regarded as an addition to the host &TeX;
+system installed on your system.</para>
+
+<para>The following utilities are included:</para>
+
+<itemizedlist>
+<listitem><para>&miktexpdftex;: &MiKTeX; implementation of the &pdfTeX;
+ engine</para></listitem>
+<listitem><para>&mpm;: &MiKTeXPackageManager;</para></listitem>
+<listitem><para>&mthelp;: &MiKTeX; Help Utility</para></listitem>
+</itemizedlist>
+
+</refsect1>
+
+<refsect1>
+
+<title>System-wide configuration</title>
+
+<para>In order to configure &MiKTeXTools; for your system, you run the
+&MiKTeX; configuration utility (&initexmf;) and the &MiKTeX; package
+manager (&mpm;):</para>
+
+<programlisting>
+sudo initexmf --admin --configure
+sudo mpm --admin --update-db
+</programlisting>
+
+<para>This is what happens:</para>
+
+<itemizedlist>
+<listitem><para>The &TEXMF; trees of the host &TeX; system are collected;
+the information is written to
+<filename>/var/lib/miktex-texmf/miktex/config/miktexstartup.ini</filename></para></listitem>
+<listitem><para>the system-wide file name database is created</para></listitem>
+<listitem><para>the package database is downloaded
+from the &MiKTeX; package repository</para></listitem>
+</itemizedlist>
+
+</refsect1>
+
+<refsect1>
+
+<title>Per-user configuration</title>
+
+<para>Once you have configured &MiKTeXTools; for the system, each user should
+  create the per-user file name database:</para>
+
+<programlisting>
+initexmf --update-fndb
+</programlisting>
+
+<para>Without this step, the on-the-fly package installer will not
+work.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>&MiKTeXpdfTeX;</title>
+
+<para>&MiKTeXpdfTeX; is an alternative &pdfTeX; engine.  The engine features
+integrated package management, i.e., missing packages will be
+installed on the-fly (after confirmation).</para>
+
+<para>You invoke &MiKTeXpdfTeX; as follows:</para>
+
+<programlisting>
+miktex-pdftex --undump=latex sample2e
+</programlisting>
+
+<para>The <option>--undump</option> option must be used to specify the
+format.  See the &miktexpdftex; reference page, for more information.</para>
+
+<para>If you prefer shortcuts, you can create symbolic links to the
+&MiKTeXpdfTeX; engine:</para>
+
+<programlisting>
+mkdir ~/bin
+cd ~/bin
+ln -s /usr/bin/miktex-pdftex latex
+ln -s /usr/bin/miktex-pdftex pdflatex
+PATH=~/bin:$PATH
+</programlisting>
+
+<para>Then you can invoke the engine in the usual way:</para>
+
+<programlisting>
+pdflatex sample2e
+</programlisting>
+
+<para>Of course, you can replace <filename>~/bin</filename> with a
+more suitable directory.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Using the &MiKTeX; package manager</title>
+
+<para>&MPM; (&MiKTeXPackageManager;) was originally intended to be a
+tool for &MiKTeX; users.  But the program can be helpful for users of
+other &TeX; systems too, because many of the &MiKTeX; packages are
+system-independent.</para>
+
+<para>There are two variants of the package manager: &GUI; and
+console. Run</para>
+
+<programlisting>
+mpm
+</programlisting>
+
+<para>to start the &GUI; variant of the package manager. You will be
+presented with a list of packages.</para>
+
+<para>The rest of this section describes the console variant of the
+package manager.</para>
+
+<para>To list the contents of the package database, run</para>
+
+<programlisting>
+mpm --list
+</programlisting>
+
+<para>To get detailed information about a package, run</para>
+
+<programlisting>
+mpm --print-package-info=<replaceable>package</replaceable>
+</programlisting>
+
+<para>If you want to install a package, run</para>
+
+<programlisting>
+mpm --install=<replaceable>package</replaceable>
+</programlisting>
+
+</refsect1>
+
+<refsect1>
+
+<title>Using the &mthelp; utility</title>
+
+<para>The &mthelp; utility can be used to lookup package
+documentation.</para>
+
+<para>Run</para>
+
+<programlisting>
+mthelp <replaceable>package</replaceable>
+</programlisting>
+
+<para>to view an &HTML; page wich contains links to
+the documentation files of a package.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Caveats</title>
+
+<para>The integrated package manager installs packages in the user
+home directory under <filename>~/miktex-texmf/</filename>.  A better
+approach would be to enhance the auto-install dialog box:</para>
+<orderedlist>
+<listitem><para>add a new check box:
+<guilabel>Install package in /usr/share/miktex-texmf</guilabel></para></listitem>
+<listitem><para>A password dialog pops up, if the user has chosen to
+install the package in the <filename>/usr/</filename> directory.</para></listitem>
+<listitem><para>the package manager is run with root privileges, if the
+the user entered the root password.</para></listitem>
+</orderedlist>
+
+<para>This will be implemented in one of the next beta releases.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>See also</title>
+
+<para><citerefentry><refentrytitle>initexmf</refentrytitle>
+<manvolnum>1</manvolnum></citerefentry>,
+<citerefentry><refentrytitle>miktex-pdftex</refentrytitle>
+<manvolnum>1</manvolnum></citerefentry>,
+<citerefentry><refentrytitle>mpm</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+<citerefentry><refentrytitle>mthelp</refentrytitle><manvolnum>1</manvolnum></citerefentry></para>
+
+</refsect1>
+
+</refentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "reference")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

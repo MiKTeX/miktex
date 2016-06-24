@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="/" >
+    <file>../../../../Resources/Icons/16x16/actions/package-uninstall.png</file>
+    <file>../../../../Resources/Icons/16x16/actions/package-install.png</file>
+    <file>../../../../Resources/Icons/32x32/apps/miktex.png</file>
+  </qresource>
+</RCC>

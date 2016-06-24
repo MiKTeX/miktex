@@ -1,0 +1,168 @@
+/* session.idl:						-*- IDL -*-
+
+   Copyright (C) 2006-2016 Christian Schenk
+
+   This file is part of the MiKTeX Core Library.
+
+   The MiKTeX Core Library is free software; you can redistribute it
+   and/or modify it under the terms of the GNU General Public License
+   as published by the Free Software Foundation; either version 2, or
+   (at your option) any later version.
+   
+   The MiKTeX Core Library is distributed in the hope that it will be
+   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with the MiKTeX Core Library; if not, write to the Free
+   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+   02111-1307, USA. */
+
+/// @file session.idl
+/// @brief The MiKTeX core COM objetcs.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+import "miktexidl.idl";
+
+/// @brief Information about the MiKTeX setup.
+typedef [uuid(A889D812-7E98-4E73-A453-30C9B69A32B1)] struct MiKTeXSetupInfo
+{
+  /// @brief Shared MiKTeX setup indicator.
+  VARIANT_BOOL sharedSetup;
+  /// @brief MiKTeX version number.
+  BSTR version;
+  /// @brief MiKTeX series number.
+  /// The MiKTeX series denoted as an integer (e.g., @MIKTEX_SERIES_INT@).
+  LONG series;
+  /// @brief MiKTeX bin directory.
+  BSTR binDirectory;
+  /// @brief Number of configured TEXMF root directories.
+  LONG numRoots;
+  /// @brief MiKTeX installation root directory.
+  BSTR installRoot;
+  /// @brief MiKTeX common configuration root directory.
+  /// Valid only for shared MiKTeX setup. 
+  BSTR commonConfigRoot;
+  /// @brief MiKTeX common data root directory.
+  /// Valid only for a shared MiKTeX setup. 
+  BSTR commonDataRoot;
+  /// @brief MiKTeX user configuration root directory.
+  BSTR userConfigRoot;
+  /// @brief MiKTeX user data root directory.
+  BSTR userDataRoot;
+} MiKTeXSetupInfo;
+
+/// @brief The MiKTeX session interface.
+///
+/// This interface provides MiKTeX core functionality.
+[
+  object,
+  uuid(8BE9F539-B949-4C7B-991C-DB6C6F737EC7),
+  dual,
+  nonextensible,
+  helpstring("ISession Interface"),
+  pointer_default(unique)
+]
+interface ISession : IDispatch
+{
+  /// @brief Register MiKTeX root directories.
+  /// @param[in] rootDirectories A semicolon-separated list of path names.
+  [
+    id(1),
+    helpstring("method RegisterRootDirectories")
+  ]
+  HRESULT RegisterRootDirectories([in] BSTR rootDirectories);
+
+  /// @brief Find a Pk file.
+  /// @param[in] fontName The name of the font (e.g. "cmr10").
+  /// @param[in] mode The METAFONT mode to be used (e.g. "ljfour").
+  /// @param[in] dpi The resolution to be used (e.g. 600).
+  /// @param[out] path The fully qualified path to the Pk file.
+  /// @return Returns VARIANT_TRUE, if the Pk file exists.
+  [
+    id(2),
+    helpstring("method FindPkFile")
+  ]
+  HRESULT FindPkFile([in] BSTR fontName, [in] BSTR mode, [in] LONG dpi, [out] BSTR * path, [out,retval] VARIANT_BOOL * found);
+
+  /// @brief Get information about the last error.
+  /// @return Returns an error information record.
+  [
+    id(3),
+    helpstring("method GetErrorInfo")
+  ]
+  HRESULT GetErrorInfo ([out,retval] ErrorInfo * errorInfo);
+
+  /// @brief Get information about the MiKTeX setup.
+  /// @return Returns an MiKTeX setup info record.
+  [
+    id(4),
+    helpstring("method GetMiKTeXSetupInfo")
+  ]
+  HRESULT GetMiKTeXSetupInfo ([out,retval] MiKTeXSetupInfo * setupInfo);
+
+  /// @brief Get a configured root directory.
+  /// @param[in] rootIdx Index of the requested root directory.
+  /// @return Returns the requested root directory.
+  [
+    id(5),
+    helpstring("method GetRootDirectory")
+  ]
+  HRESULT GetRootDirectory ([in] LONG rootIdx, [out,retval] BSTR * rootDirectory);
+};
+
+/// @brief The MiKTeX session interface (version 2).
+///
+/// This interface provides MiKTeX core functionality.
+[
+  object,
+  uuid(49C9F0B8-3DF6-4BBA-9DCD-3FE289DF95D8),
+  dual,
+  nonextensible,
+  helpstring("ISession2 Interface"),
+  pointer_default(unique)
+]
+interface ISession2 : ISession
+{
+
+  /// @brief Find a file.
+  /// @param[in] fileName The name of the file (e.g. "ptmr.vf").
+  /// @param[out] path The fully qualified path to the file.
+  /// @return Returns VARIANT_TRUE, if the file exists.
+  [
+    id(6),
+    helpstring("method FindFile")
+  ]
+  HRESULT FindFile ([in] BSTR fileName, [out] BSTR * path, [out,retval] VARIANT_BOOL * found);
+};
+
+/// @brief The MiKTeX Session type library.
+[
+  uuid(@guid_MiKTeX_Session_TLB_CURVER@),
+  version(1.0),
+  helpstring("MiKTeX @MIKTEX_SERIES_STR@ Session")
+]
+library MiKTeXSession@MIKTEX_SERIES_ID_STR@
+{
+  importlib("stdole2.tlb");
+
+  /// @brief The MiKTeX session COM object.
+  ///
+  /// This COM object implements the
+  /// @link ISession @endlink
+  /// and 
+  /// @link ISession2 @endlink
+  /// interfaces.
+  [
+    uuid(@guid_MiKTeX_Session_CURVER@),
+    helpstring("MiKTeX @MIKTEX_SERIES_STR@ Session")
+  ]
+  coclass MiKTeXSession@MIKTEX_SERIES_ID_STR@
+  {
+    interface ISession;
+    [default] interface ISession2;
+  };
+};

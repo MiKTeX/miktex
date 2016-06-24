@@ -1,0 +1,20 @@
+<varlistentry>
+<term><option>--src-specials</option></term>
+<listitem><para>Embed source file information (source specials) in the
+<indexterm>
+<primary>--src-specials</primary>
+</indexterm>
+<indexterm>
+<primary>-src</primary>
+</indexterm>
+&DVI; file.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

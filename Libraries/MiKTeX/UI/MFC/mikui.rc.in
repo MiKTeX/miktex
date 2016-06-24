@@ -1,0 +1,504 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#include "mikui-version.h"
+#include "miktex/Version"
+#endif
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Neutral resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AVI
+//
+
+IDA_DOWNLOAD            AVI                     "@MIKTEX_DOWNLOAD_ANIMATION@"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_PACKAGE_STATES      BITMAP                  "@CMAKE_CURRENT_SOURCE_DIR@/res/packagestates.bmp"
+#endif    // Neutral resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#include ""mikui-version.h""\r\n"
+    "#include ""MiKTeX/Core/Version""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""@CMAKE_CURRENT_SOURCE_DIR@/res/mikui.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""     // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PROGRESS DIALOGEX 0, 0, 187, 94
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Progress"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "",IDC_LINE1,7,31,173,8
+    LTEXT           "",IDC_LINE2,7,39,173,8
+    PUSHBUTTON      "Cancel",IDCANCEL,130,73,50,14
+END
+
+IDD_TEXT_VIEWER DIALOGEX 0, 0, 354, 223
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    EDITTEXT        IDC_EDIT,7,7,340,190,ES_MULTILINE | ES_READONLY | WS_VSCROLL | WS_HSCROLL | NOT WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,297,202,50,14
+END
+
+IDD_PROPPAGE_PACKAGE DIALOGEX 0, 0, 252, 218
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "General"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Name:",IDC_STATIC,7,7,22,8
+    EDITTEXT        IDC_NAME,51,7,55,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Date:",IDC_STATIC,7,23,18,8
+    EDITTEXT        IDC_DATE,51,23,55,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Version:",IDC_STATIC,7,39,26,8
+    EDITTEXT        IDC_VERSION,51,39,55,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Maintainer:",IDC_STATIC,7,55,36,8
+    EDITTEXT        IDC_MAINTAINER,51,55,55,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,71,238,1
+    LTEXT           "Title:",IDC_STATIC,7,79,16,8
+    EDITTEXT        IDC_TITLE,51,79,194,23,ES_MULTILINE | ES_READONLY | WS_VSCROLL | NOT WS_TABSTOP
+    LTEXT           "Description:",IDC_STATIC,7,107,38,8
+    EDITTEXT        IDC_DESCRIPTION,51,107,194,39,ES_MULTILINE | ES_READONLY | WS_VSCROLL | NOT WS_TABSTOP
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,154,238,1
+    LTEXT           "Size:",IDC_STATIC,7,162,16,8
+    EDITTEXT        IDC_PACKAGE_SIZE,51,162,194,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+END
+
+IDD_SEARCH_PACKAGE DIALOGEX 0, 0, 263, 263
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Find Package"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "&Name:",IDC_STATIC,7,10,22,8
+    EDITTEXT        IDC_NAME,48,7,145,14,ES_AUTOHSCROLL
+    LTEXT           "&Title:",IDC_STATIC,7,28,16,8
+    EDITTEXT        IDC_TITLE,48,25,145,14,ES_AUTOHSCROLL
+    LTEXT           "&Description:",IDC_STATIC,7,46,38,8
+    EDITTEXT        IDC_DESCRIPTION,48,43,145,14,ES_AUTOHSCROLL
+    LTEXT           "F&ile:",IDC_STATIC,7,64,14,8
+    EDITTEXT        IDC_FILE,48,61,145,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "&Find",IDC_FIND_NOW,206,7,50,14
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,84,249,1
+    CONTROL         "",IDC_LIST_PACKAGES,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,93,248,142
+    PUSHBUTTON      "&Goto",IDOK,151,242,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,206,242,50,14
+END
+
+IDD_PROPPAGE_FILES DIALOGEX 0, 0, 252, 218
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Files"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,238,204
+END
+
+IDD_MIKTEX_UPDATE DIALOGEX 0, 0, 353, 234
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "MiKTeX Package Manager"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Downloading:",IDC_PROGRESS1_TITLE,7,40,44,8
+    LTEXT           "",IDC_PACKAGE,58,40,288,8
+    CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",WS_BORDER,7,49,339,8
+    LTEXT           "Total:",IDC_PROGRESS2_TITLE,7,63,19,8
+    CONTROL         "Progress1",IDC_PROGRESS2,"msctls_progress32",WS_BORDER,7,72,339,8
+    LTEXT           "KB/Sec",IDC_STATIC,184,199,26,8
+    EDITTEXT        IDC_REPORT,7,91,339,76,ES_MULTILINE | ES_READONLY | WS_VSCROLL | WS_HSCROLL | NOT WS_TABSTOP
+    LTEXT           "Update statistics:",IDC_STATIC,7,176,55,8
+    LTEXT           "Removed files (packages)",IDC_STATIC,7,191,48,16
+    EDITTEXT        IDC_REMOVED_FILES,7,213,48,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    LTEXT           "Installed files (packages)",IDC_STATIC,66,191,48,16
+    EDITTEXT        IDC_NEW_FILES,66,213,48,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    LTEXT           "Downloaded bytes",IDC_STATIC,125,191,41,16
+    EDITTEXT        IDC_DOWNLOADED_BYTES,125,213,48,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    PUSHBUTTON      "Cancel",IDCANCEL,296,213,50,14
+    EDITTEXT        IDC_KB_SEC,184,213,29,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    CONTROL         "Animate1",IDC_ANI,"SysAnimate32",ACS_CENTER | ACS_TRANSPARENT | WS_TABSTOP,7,7,339,29
+END
+
+IDD_SITEWIZ_TYPE DIALOGEX 0, 0, 276, 140
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Choose where you want to install packages from.",IDC_STATIC,21,1,248,8
+    CONTROL         "Packages shall be installed from the &Internet.",IDC_INSTALL_FROM_INTERNET,
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,21,24,157,10
+    CONTROL         "Packages shall be installed from a &directory.",IDC_INSTALL_FROM_LOCAL_REPOSITORY,
+                    "Button",BS_AUTORADIOBUTTON,21,63,248,10
+    CONTROL         "Packages shall be installed from a &MiKTeX CD/DVD.",IDC_INSTALL_FROM_CD,
+                    "Button",BS_AUTORADIOBUTTON,21,84,188,10
+    CONTROL         "Get pre-release (experimental) packages.",IDC_MIKTEX_NEXT,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,32,38,237,10
+    PUSHBUTTON      "&Connection Settings...",IDC_CONNECTION_SETTINGS,187,22,82,14
+END
+
+IDD_SITEWIZ_REMOTE_REPOSITORY DIALOGEX 0, 0, 276, 140
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Packages will be installed from the remote package repository selected below.",IDC_STATIC,7,1,262,8
+    CONTROL         "List1",IDC_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,12,262,129
+END
+
+IDD_SITEWIZ_LOCAL_REPOSITORY DIALOGEX 0, 0, 276, 140
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    LTEXT           "Packages will be installed from this directory:",1047,20,1,248,8
+    EDITTEXT        IDC_FILENAME,20,11,190,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    PUSHBUTTON      "&Browse...",IDC_BROWSE,218,11,50,14
+END
+
+IDD_INSTALL_PACKAGE DIALOGEX 0, 0, 250, 158
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Package Installation"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "The required file",IDC_STATIC,7,7,236,8
+    EDITTEXT        IDC_PACKAGE_FILE,43,20,200,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "is missing. It is a part of the following package:",IDC_STATIC,7,33,236,8
+    LTEXT           "Name:",IDC_STATIC,18,46,22,8
+    EDITTEXT        IDC_PACKAGE_NAME,43,46,200,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Title:",IDC_STATIC,18,57,17,8
+    EDITTEXT        IDC_PACKAGE_TITLE,43,57,200,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "The package will be installed &from:",IDC_STATIC_REPOSITORY_LOCATION,7,73,236,8
+    EDITTEXT        IDC_EDIT_REPOSITORY_LOCATION,7,84,182,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    PUSHBUTTON      "&Change...",IDC_BUTTON_CHANGE,193,84,50,14
+    CONTROL         "&Always show this dialog before installing packages",IDC_CHECK_ALWAYS_ASK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,121,236,10
+    DEFPUSHBUTTON   "&Install",IDOK,139,137,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,193,137,50,14
+END
+
+IDD_SITEWIZ_DRIVE DIALOGEX 0, 0, 276, 140
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    LTEXT           "Packages will be installed from this drive:",IDC_STATIC,20,1,248,8
+    COMBOBOX        IDC_COMBO_DRIVE,20,12,151,52,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_ERROR DIALOGEX 0, 0, 293, 139
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CLIENTEDGE
+CAPTION "MiKTeX Problem Report"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    EDITTEXT        IDC_MESSAGE,7,7,216,40,ES_MULTILINE | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Data:",IDC_STATIC,7,55,18,8
+    EDITTEXT        IDC_INFO,7,64,216,40,ES_MULTILINE | ES_READONLY | WS_VSCROLL | NOT WS_TABSTOP
+    PUSHBUTTON      "&Copy Info",IDC_COPY,230,7,56,14
+    DEFPUSHBUTTON   "OK",IDOK,230,118,56,14
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,0,113,286,1
+END
+
+IDD_CONNECTION_SETTINGS DIALOGEX 0, 0, 211, 91
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Connection Settings"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "&Use a proxy server",IDC_USE_PROXY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,7,77,10
+    LTEXT           "&Address:",IDC_STATIC_ADDRESS,18,27,30,8
+    EDITTEXT        IDC_PROXY_HOST,51,24,82,14,ES_AUTOHSCROLL
+    LTEXT           "&Port:",IDC_STATIC_PORT,141,27,17,8
+    EDITTEXT        IDC_PROXY_PORT,161,24,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Au&thentication required",IDC_AUTH_REQUIRED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,47,91,10
+    DEFPUSHBUTTON   "OK",IDOK,98,70,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,154,70,50,14
+END
+
+IDD_PROXY_AUTHENTICATION DIALOGEX 0, 0, 146, 83
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Proxy Authentication"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Proxy authentication required.",IDC_STATIC,7,7,99,8
+    LTEXT           "&Name:",IDC_STATIC,19,23,22,8
+    EDITTEXT        IDC_PROXY_NAME,59,20,80,14,ES_AUTOHSCROLL
+    LTEXT           "&Password:",IDC_STATIC,19,42,34,8
+    EDITTEXT        IDC_PROXY_PASSWORD,59,39,80,14,ES_PASSWORD | ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,34,62,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,89,62,50,14
+END
+
+IDD_GIVE_BACK DIALOGEX 0, 0, 246, 75
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Support the Project"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "I like MiKTeX",IDOK,171,54,68,14,NOT WS_TABSTOP
+    CONTROL         "Dear MiKTeX user, thank you for using MiKTeX! You can show your appreciation and support future development by spending money.\r\n\r\nPlease visit <a>http://miktex.org/giveback</a> for more information.",IDC_SYSLINK_GIVE_BACK,
+                    "SysLink",WS_TABSTOP,7,7,232,32
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_PROGRESS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 180
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 87
+    END
+
+    IDD_TEXT_VIEWER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 347
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 216
+    END
+
+    IDD_PROPPAGE_PACKAGE, DIALOG
+    BEGIN
+    END
+
+    IDD_SEARCH_PACKAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 256
+        VERTGUIDE, 48
+        VERTGUIDE, 193
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 256
+    END
+
+    IDD_PROPPAGE_FILES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 245
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 211
+    END
+
+    IDD_MIKTEX_UPDATE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 346
+        VERTGUIDE, 58
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 227
+    END
+
+    IDD_SITEWIZ_TYPE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 269
+        VERTGUIDE, 21
+        VERTGUIDE, 32
+    END
+
+    IDD_SITEWIZ_REMOTE_REPOSITORY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 269
+        VERTGUIDE, 21
+        TOPMARGIN, 1
+    END
+
+    IDD_SITEWIZ_LOCAL_REPOSITORY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 268
+        VERTGUIDE, 20
+        TOPMARGIN, 1
+    END
+
+    IDD_INSTALL_PACKAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        VERTGUIDE, 18
+        VERTGUIDE, 43
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 151
+    END
+
+    IDD_SITEWIZ_DRIVE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 268
+        VERTGUIDE, 20
+        TOPMARGIN, 1
+    END
+
+    IDD_ERROR, DIALOG
+    BEGIN
+        RIGHTMARGIN, 286
+        VERTGUIDE, 7
+        HORZGUIDE, 7
+        HORZGUIDE, 132
+    END
+
+    IDD_CONNECTION_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 204
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 84
+    END
+
+    IDD_PROXY_AUTHENTICATION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 139
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 76
+    END
+
+    IDD_GIVE_BACK, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 239
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 68
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+ID_PACKAGE_MENU MENU
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "Find Package...",             ID_SEARCH_PACKAGE
+        MENUITEM "Properties",                  ID_PROPERTIES
+    END
+END
+
+ID_PACKAGE_MENU2 MENU
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "Properties",                  ID_PROPERTIES
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_SITEWIZ             "Change Package Repository"
+    IDS_NO_DISK             "No MiKTeX CD/DVD found"
+    IDS_CANCEL_UPDATE       "The update operation will now be cancelled."
+    IDS_BROWSE_LOCAL        "Local package repository:"
+    IDP_NOT_A_FOLDER        "%1 is not a directory."
+    IDP_NOT_LOCAL_REPOSITORY 
+                            "%1 does not seem to be a local package repository."
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "res\mikui.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"     // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

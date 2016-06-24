@@ -1,0 +1,171 @@
+This 'README' file belongs to the MiKTeX source distribution.  It
+briefly describes the build process UNIX system-like platforms.
+
+## Minimum OS requirements ##
+
+* Debian 9 "Stretch" amd64
+
+## C/C++ ##
+
+* C++ compiler
+The minimum required standard version is C++14.
+
+## Build system ##
+
+* CMake
+The minimum required version is 3.5.2.
+
+* pkg-config
+
+## Build utilities ##
+
+* bison
+
+* dos2unix
+
+* flex
+
+* fop
+This is needed to build the documentation.
+
+* ImageMagick
+This is needed to build the documentation.
+
+* Python 2.7
+
+* xsltproc
+This is needed to build the documentation.  
+
+## 3rd party libs ##
+
+* botan development files
+
+* bzip2 development files
+
+* libcairo2 development files
+
+* expat development files
+
+* freetype2 development files
+
+* libgd development files
+
+* libgraphite2 development files
+
+* libharfbuzz development files
+
+* libhunspell development files
+
+* icu development files
+
+* libjpeg library development files
+
+* libcurl development files
+
+* liblog4cxx development files
+
+* liblzma development files
+
+* libmpfr development files
+
+* libmspack development files
+
+* libpng development files
+
+* libpopt development files
+
+* libpoppler-qt5 development files
+
+* libpoppler-private development files
+
+* libpotrace development files
+
+* Qt 5 base development files
+The minimum required version is 5.5.1.
+
+* Qt 5 script development files
+
+* Qt 5 tools development files
+
+* liburiparser development files
+
+* Zlib development support files
+
+* zzip development support files
+
+## Quick start ##
+
+Only if you want to avoid reading the rest: execute these commands to
+build and install MiKTeX:
+
+   cmake -G "Unix Makefiles"
+   make
+   sudo make install
+   sudo initexmf --admin --configure
+   sudo mpm --admin --update-db
+   initexmf --update-fndb
+
+You can run these commands, if you want to check to see if it works:
+
+   miktex-pdftex --undump=pdflatex miktex-test.tex
+
+This command runs pdflatex on the file miktex-test.tex.  The
+integrated package manager is triggered, if the miktex-test package is
+not yet installed.
+
+## Compiling the package ##
+
+Run CMake to produce the makefiles customized for your system:
+
+    cmake -G "Unix Makefiles"
+
+Run the make utility to build everything:
+
+    make
+
+## Installing the package ##
+
+Specify the 'install' target to install the binaries and reference
+pages:
+
+    sudo make install
+
+## Configuration ##
+
+You use the MiKTeX configuration utility (initexmf) and the MiKTeX
+package manager (mpm) to configure "MiKTeX Tools" system-wide:
+
+    sudo initexmf --admin --configure
+    sudo mpm --admin --update-db
+
+This is what happens:
+
+- information about the TEXMF roots of the host TeX system is
+  written to /var/lib/miktex-texmf/miktex/config/miktexstartup.ini
+- the system-wide file name database is created
+
+Once you have configured MiKTeX for the system, each user should
+create the per-user file name database:
+
+    initexmf --update-fndb
+
+Without this step, the on-the-fly package installer will not work.
+
+## Documentation ##
+
+The following reference pages are available:
+
+- initexmf.1,
+- miktex-pdftex.1
+- miktex-tools.7
+- mpm.1
+- mthelp.1
+
+## Bugs & issues ##
+
+Please visit the MiKTeX project page at
+
+  http://miktex.org/
+
+if you find it difficult to install/use the MiKTeX.  You will find
+references to online forums, mailing lists and issue trackers.

@@ -1,0 +1,224 @@
+<refentry id="tex">
+
+<?dbhh topicname="MIKTEXHELP_TEX" topicid="0"?>
+
+<refmeta>
+<refentrytitle>tex</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>tex</refname>
+<refpurpose>&TeX;</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+
+<cmdsynopsis>
+&tex;
+<arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
+<group>
+<arg choice="opt"><replaceable>file</replaceable></arg>
+<arg choice="opt" rep="repeat">\<replaceable>command</replaceable></arg>
+</group></cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>Description</title>
+
+<!-- borrowed from the web2c documentation -->
+
+<para>&TeX; formats the interspersed text and commands contained in
+the named files and outputs a typesetter independent file (called
+&DVI;, which is short for DeVice Independent).  &TeX;'s capabilities
+and language are described in <citetitle>The &TeX;book</citetitle>.
+&TeX; is normally used with a large body of precompiled macros, and
+there are several specific formatting systems, such as &LaTeX;, which
+require the support of several macro files.</para>
+
+<para>&TeX; looks at its command-line to see what name it was called
+under.  Both &initex; and &virtex;
+are linked to the &tex; executable.  When called as
+&initex; (or when the <option>-initialize</option>
+option is given) it can be used to precompile macros into a
+<filename>.fmt</filename> file.  When called as
+&virtex; it will use the plain format.  When called
+under any other name, &TeX; will use that name as the name of the
+format to use.  For example, when called as &tex; the
+tex format is used, which is identical to the plain format.  The
+commands defined by the plain format are documented in <citetitle>The
+&TeX;book</citetitle>.  Other formats that are often available include
+latex and amstex.</para>
+
+<para>The commands given on the command-line to the &TeX; program are
+passed to it as the first input line.  (But it is often easier to type
+extended arguments as the first input line, since shells tend to
+gobble up or misinterpret &TeX;'s favorite symbols, like backslashes,
+unless you quote them.)  As described in <citetitle>The
+&TeX;book</citetitle>, that first line should begin with a file name,
+a <markup role="tex">\controlsequence</markup>, or a
+&amp;<replaceable>formatname</replaceable>.</para>
+
+<para>The normal usage is to say
+<programlisting>tex paper</programlisting>
+to start processing <filename>paper.tex</filename>.  The name
+<quote>paper</quote> will be the <quote>job name</quote>, and is used
+in forming output file names.  If &TeX; doesn't get a file name in the
+first line, the job name is <filename>texput</filename>.  When looking
+for a file, &TeX; looks for the name with and without the default
+extension (<filename>.tex</filename>) appended, unless the name
+already contains that extension.  If paper is the
+<quote>job name</quote>, a log of error messages, with rather more
+detail than normally appears on the screen, will appear in
+<filename>paper.log</filename>, and the output file will be in
+<filename>paper.dvi</filename>.</para>
+
+<para>&TeX; will look in the first line of the file
+<filename>paper.tex</filename> to see if it begins with the magic
+sequence <userinput>%&amp;</userinput>.  If the first line begins with
+<userinput>%&amp;format --translate-file tcxname</userinput>, then
+&TeX; will use the named format and transation table
+<replaceable>tcxname</replaceable> to process the source file.  Either
+the format name or the <option>--translate-file</option> specification
+may be omitted, but not both.</para>
+
+<para>The <userinput>e</userinput> response to &TeX;'s error prompt
+causes the default editor to start up at the current line of the
+current file.  The configuration value <parameter
+class="option">Editor</parameter> can be used to change the editor
+used.  It may contain a string with <literal>%f</literal> indicating
+where the file name goes and <literal>%l</literal> indicating where
+the decimal line number (if any) goes.</para>
+
+<para>A convenient file is <filename>null.tex</filename>, containing
+nothing.  When &TeX; can't find a file it thinks you want to input, it
+keeps asking you for another file name; responding
+<userinput>null</userinput> gets you out of the loop if you don't want
+to input anything.  You can also type your EOF<acronym></acronym>
+character (usually <keycombo>
+<keysym>Control</keysym>
+<keysym>Z</keysym>
+</keycombo>).</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Options</title>
+
+<variablelist>
+&optionalias;
+&optionauxdirectory;
+&optionbufsize;
+&optioncstyleerrors;
+&optiondisableinstaller;
+&optiondisablepipes;
+&optiondisablewriteeighteen;
+&optiondontparsefirstline;
+&optionenableenctex;
+&optionenableinstaller;
+&optionenablemltex;
+&optionenablepipes;
+&optionenablewriteeighteen;
+&optionerrorline;
+&optionextramembot;
+&optionextramemtop;
+&optionfontmax;
+&optionfontmemsize;
+&optionhalferrorline;
+&optionhaltonerror;
+&optionhashextra;
+&optionhelp;
+&optionincludedirectory;
+&optioninitialize;
+&optioninteraction;
+&optionjobname;
+&optionjobtime;
+&optionmainmemory;
+&optionmaxinopen;
+&optionmaxprintline;
+&optionmaxstrings;
+&optionnestsize;
+&optionnocstyleerrors;
+&optionoutputdirectory;
+&optionparamsize;
+&optionparsefirstline;
+&optionpoolsize;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/quiet.xml" />
+&optionrecorder;
+&optionrecordpackageusages;
+&optionrestrictwriteeighteen;
+&optionsavesize;
+&optionsrcspecials;
+&optionstacksize;
+&optionstringvacancies;
+&optiontcx;
+&optiontimestatistics;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/trace.xml" />
+&optiontriesize;
+&optionundump;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/version.xml" />
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>Aliases</title>
+
+<variablelist>
+
+<varlistentry>
+<term>&initex;</term>
+<listitem>
+<para>Equivalent to <userinput>tex -ini</userinput>.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>&virtex;</term>
+<listitem><para>Equivalent to <userinput>tex</userinput>.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>Environment</title>
+
+<variablelist>
+&TEXINPUTS;
+&TFMFONTS;
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>See Also</title>
+
+<variablelist>
+<varlistentry>
+<term><citetitle>The &TeX;book</citetitle></term>
+<listitem><para><acronym>ISBN</acronym> 0-201-13448-9</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>See <xref linkend="texify"/>, for an alternative way to invoke &TeX;.</para>
+
+</refsect1>
+
+</refentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

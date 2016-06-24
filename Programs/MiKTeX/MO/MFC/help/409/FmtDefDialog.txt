@@ -1,0 +1,23 @@
+.topic HIDC_FMT_NAME
+The short name of the format.
+
+.topic HIDC_COMPILER
+Specifies the TeX compiler.
+
+.topic HIDC_INPUT_NAME
+Specifies the name of the main input file for the format.
+
+.topic HIDC_OUTPUT_NAME
+Specifies the name of the format file.
+Leave it empty to let MiKTeX deduce the output file name
+from the input file name.
+
+.topic HIDC_PRELOADED_FMT
+Specifies another format that needs to be preloaded.
+
+.topic HIDC_DESCRIPTION
+The display name of the format.
+
+.topic HIDC_EXCLUDE
+Specifies whether the selected formats should be excluded from the
+normal build process.

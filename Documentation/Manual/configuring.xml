@@ -1,0 +1,492 @@
+<chapter id="configuring">
+    
+<title>Maintenance</title>
+
+<section id="fndbupdate">
+
+<title>Refreshing the File Name Database</title>
+
+<indexterm>
+<primary>file name database</primary>
+<secondary>defined</secondary>
+</indexterm>
+
+<indexterm>
+<primary>file name database</primary>
+<secondary>refreshing</secondary>
+</indexterm>
+
+<para>To speed up file search, &MiKTeX; makes use
+of a list of known file names.  This list is called the
+<firstterm>file name database</firstterm> (&FNDB;).</para>
+
+<para>It is necessary that you refresh the file name database whenever
+you manually install &TeX;/&LaTeX;-related files in a user-managed
+&TEXMF; directory.</para>
+
+<para>You update the file name database with the help of
+&MiKTeXOptions;.</para>
+
+<para>Click
+<menuchoice>
+<guimenu>Start</guimenu>
+<guisubmenu>Programs</guisubmenu>
+<guisubmenu>&progfldr;</guisubmenu>
+<guisubmenu>Maintenance</guisubmenu>
+<guimenuitem>Settings</guimenuitem>
+</menuchoice> to open the &MiKTeXOptions; window (see <xref linkend="mo-general"/>).</para>
+
+<figure id="mo-general">
+<title>&MiKTeXOptions;: General Settings</title>
+<screenshot>
+<mediaobject>
+<imageobject role="html">
+<imagedata format="PNG" fileref="images/mo-general.png" scale="75" />
+</imageobject>
+<imageobject role="fo">
+<imagedata format="PNG" fileref="images/mo-general.png" scalefit="1" width="100%" contentdepth="100%" />
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+<para>Click <guibutton>Refresh FNDB</guibutton> to refresh the
+file name database.</para>
+
+</section>
+
+<section id="papersize">
+
+<title>Setting the Preferred Paper Format</title>
+
+<indexterm>
+<primary>paper format</primary>
+<secondary>setting</secondary>
+</indexterm>
+
+<para>You can set the preferred paper format with the help of
+&MiKTeXOptions;.</para>
+
+<para>Click
+<menuchoice>
+<guimenu>Start</guimenu>
+<guisubmenu>Programs</guisubmenu>
+<guisubmenu>&progfldr;</guisubmenu>
+<guisubmenu>Maintenance</guisubmenu>
+<guimenuitem>Settings</guimenuitem>
+</menuchoice> to open the &MiKTeXOptions; window
+(see <xref linkend="mo-general"/>).
+Select your preferred paper format from the drop-down list
+and click <guibutton>OK</guibutton>.</para>
+
+</section>
+
+<section id="hyphenation">
+
+<title>Selecting Languages</title>
+
+<indexterm>
+<primary>hyphenation patterns</primary>
+<secondary>selecting</secondary>
+</indexterm>
+
+<indexterm>
+<primary>languages</primary>
+<secondary>selecting</secondary>
+</indexterm>
+
+<para>You can control the loading of hyphenation patterns with the
+help of &MiKTeXOptions;.</para>
+
+<para>Click
+<menuchoice>
+<guimenu>Start</guimenu>
+<guisubmenu>Programs</guisubmenu>
+<guisubmenu>&progfldr;</guisubmenu>
+<guisubmenu>Maintenance</guisubmenu>
+<guimenuitem>Settings</guimenuitem>
+</menuchoice> to open the &MiKTeXOptions; window
+(see <xref linkend="mo-general"/>).</para>
+
+<para>Click on the <guilabel>Languages</guilabel> tab.  You will
+presented with the list of available languages (<xref
+linkend="mo-languages"/>).  Mark the languages, whose hyphenation
+patterns are to be loaded by the &TeX; engines.</para>
+
+<figure id="mo-languages">
+<title>&MiKTeXOptions;: Languages</title>
+<screenshot>
+<mediaobject>
+<imageobject role="html">
+<imagedata format="PNG" fileref="images/mo-languages.png" scale="75" />
+</imageobject>
+<imageobject role="fo">
+<imagedata format="PNG" fileref="images/mo-languages.png" scale="75" />
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+</section>
+
+<section id="updating">
+
+<title>Installing Updates</title>
+
+<para>You can use the &MiKTeX; update wizard to install
+the latest &MiKTeX; updates.
+<indexterm>
+<primary>MiKTeX update wizard</primary>
+<see>update wizard</see>
+</indexterm>
+<indexterm>
+<primary>MiKTeX</primary>
+<secondary>updating</secondary>
+</indexterm>
+<indexterm>
+<primary>packages</primary>
+<secondary>updating</secondary>
+</indexterm>
+<indexterm>
+<primary>updates</primary>
+<secondary>installing</secondary>
+</indexterm>
+</para>
+
+<indexterm>
+<primary>update wizard</primary>
+<secondary>running</secondary>
+</indexterm>
+
+<para>To start the wizard, click
+<menuchoice>
+<guimenu>Start</guimenu> <guisubmenu>Programs</guisubmenu>
+<guisubmenu>&progfldr;</guisubmenu> <guimenuitem>Update</guimenuitem>
+</menuchoice>.  The wizard asks you to choose an update source:</para>
+
+<informalfigure>
+<screenshot>
+<mediaobject>
+<imageobject role="html">
+<imagedata format="PNG" fileref="images/updatewiz-download-type.png" scale="75" />
+</imageobject>
+<imageobject role="fo">
+<imagedata format="PNG" fileref="images/updatewiz-download-type.png" scalefit="1" width="100%" contentdepth="100%" />
+</imageobject>
+</mediaobject>
+</screenshot>
+</informalfigure>
+
+<para>Choose <guilabel></guilabel> to install updates
+from a remote package repository.
+ Choose <guilabel>Local folder</guilabel>,
+if you are mirroring a remote package repository on your computer.
+Chosse <guilabel>MiKTeX CD</guilabel>, if you have a new
+<indexterm>
+<primary>CD-R</primary> <secondary>installing updates</secondary>
+</indexterm>
+edition of the &MiKTeX; CD.
+Click <guibutton>Next &gt;</guibutton> to continue.</para>
+
+<para>If you have chosen to install packages from a remote package
+repository, &MiKTeXUpdateWizard; lists the available package
+repositories. Choose the nearest repository:</para>
+
+<informalfigure>
+<screenshot>
+<mediaobject>
+<imageobject role="html">
+<imagedata format="PNG" fileref="images/updatewiz-remote-repository.png" scale="75" />
+</imageobject>
+<imageobject role="fo">
+<imagedata format="PNG" fileref="images/updatewiz-remote-repository.png" scalefit="1" width="100%" contentdepth="100%" />
+</imageobject>
+</mediaobject>
+</screenshot>
+</informalfigure>
+
+<para>Click <guibutton>Next &gt;</guibutton> to continue.</para>
+
+<para>A list of updateable packages is displayed. Choose the packages
+you wish to update:</para>
+
+<informalfigure>
+<screenshot>
+<mediaobject>
+<imageobject role="html">
+<imagedata format="PNG" fileref="images/updatewiz-packagelist.png" scale="75" />
+</imageobject>
+<imageobject role="html">
+<imagedata format="PNG" fileref="images/updatewiz-packagelist.png" scalefit="1" width="100%" contentdepth="100%" />
+</imageobject>
+</mediaobject>
+</screenshot>
+</informalfigure>
+
+<para>Click <guibutton>Next &gt;</guibutton> to start the update
+process.</para>
+
+<para>&MiKTeXUpdateWizard; now updates the selected packages:</para>
+
+<informalfigure>
+<screenshot>
+<mediaobject>
+<imageobject role="html">
+<imagedata format="PNG" fileref="images/updatewiz-progress.png" scale="75" />
+</imageobject>
+<imageobject role="fo">
+<imagedata format="PNG" fileref="images/updatewiz-progress.png" scalefit="1" width="100%" contentdepth="100%" />
+</imageobject>
+</mediaobject>
+</screenshot>
+</informalfigure>
+<para>When the update operation is complete, click
+<guibutton>Next &gt;</guibutton> and then <guibutton>Finish</guibutton>.</para>
+
+</section>
+
+<section id="autoinstall">
+
+<title>Automatic Package Installation</title>
+
+<para>&MiKTeX; has the ability to automatically install
+<indexterm>
+<primary>packages</primary>
+<secondary>automatic installation of</secondary>
+</indexterm>
+missing packages.</para>
+
+<para>&MiKTeX; asks your permission before installing a package (see
+<xref linkend="autoinstalldlg"/>.</para>
+
+<figure id="autoinstalldlg">
+<title>Automatic Package Installation</title>
+<screenshot>
+<mediaobject>
+<imageobject role="html">
+<imagedata format="PNG" fileref="images/autoinstall.png" scale="75" />
+</imageobject>
+<imageobject role="fo">
+<imagedata format="PNG" fileref="images/autoinstall.png" scalefit="1" width="100%" contentdepth="100%" />
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+<para>Click <guibutton>Install</guibutton> to start the installation of the
+package. Click <guibutton>Cancel</guibutton>, to cancel the
+installation. If you do not want to see this dialog in the future,
+clear the mark from the check box <guilabel>Always show this
+dialog before installing packages</guilabel>. Your decision will be
+remembered.</para>
+
+</section>
+
+<section id="localadditions">
+
+<title>Integrating Local Additions</title>
+
+<indexterm>
+<primary>local additions</primary>
+<secondary>intergrating</secondary>
+</indexterm>
+
+<para>If you have files that you want to integrate into the &MiKTeX;
+setup, you have several options:</para>
+
+<bridgehead>Use the command-line option
+<option>--include-directory=<replaceable>dir</replaceable></option></bridgehead>
+
+<para>For example:</para>
+
+<programlisting>latex --include-directory=C:\path\to\my\style\files thesis.tex</programlisting>
+
+<para>See <xref linkend="includedirectory"/>, for more information.</para>
+
+<bridgehead>Set environment variables</bridgehead>
+
+<para>For example:</para>
+
+<programlisting>set TEXINPUTS=C:\path\to\my\style\files
+latex thesis.tex</programlisting>
+
+<para>See <xref linkend="envvars"/>, to learn more about
+&MiKTeX; environment variables.</para>
+
+<bridgehead>Register a user-managed &TEXMF; directory</bridgehead>
+
+<para>Register the root of the directory tree which
+contains your files. The directory tree must conform to the &TDS;
+standard, i.e., you must imitate the directory tree in the &MiKTeX;
+installation directory (usually
+<filename>&commoninstalldir;</filename>).</para>
+
+<tip><para>This is the recommended method. The rest of this section
+explains how you can register your own root directory.</para></tip>
+
+<section>
+
+<title>A Short Excursion: The &TeX; Directory Structure (&TDS;)</title>
+
+<para>Here is a brief summary of the &TDS; standard:</para>
+
+<para><filename>*.afm</filename> go in <filename><replaceable>root</replaceable>\fonts\afm\<replaceable>supplier</replaceable>\<replaceable>font</replaceable></filename></para>
+<para><filename>*.dvi</filename>, <filename>*.ps</filename> or <filename>*.pdf</filename> go in <filename><replaceable>root</replaceable>\doc\latex\<replaceable>package</replaceable></filename></para>
+<para><filename>*.enc</filename> go in <filename><replaceable>root</replaceable>\fonts\enc\<replaceable>syntax</replaceable>\<replaceable>bundle</replaceable></filename></para>
+<para><filename>*.map</filename> go in <filename><replaceable>root</replaceable>\fonts\map\<replaceable>syntax</replaceable>\<replaceable>bundle</replaceable></filename></para>
+<para><filename>*.mf</filename> go in <filename><replaceable>root</replaceable>\fonts\source\<replaceable>supplier</replaceable>\<replaceable>font</replaceable></filename></para>
+<para><filename>*.pfb</filename> go in <filename><replaceable>root</replaceable>\fonts\type1\<replaceable>supplier</replaceable>\<replaceable>font</replaceable></filename></para>
+<para><filename>*.sty</filename>, <filename>*.cls</filename> or <filename>*.fd</filename> go in <filename><replaceable>root</replaceable>\tex\latex\<replaceable>package</replaceable></filename></para>
+<para><filename>*.tfm</filename> go in <filename><replaceable>root</replaceable>\fonts\tfm\<replaceable>supplier</replaceable>\<replaceable>font</replaceable></filename></para>
+<para><filename>*.ttf</filename> go in <filename><replaceable>root</replaceable>\fonts\truetype\<replaceable>supplier</replaceable>\<replaceable>font</replaceable></filename></para>
+<para><filename>*.vf</filename> go in <filename><replaceable>root</replaceable>\fonts\vf\<replaceable>supplier</replaceable>\<replaceable>font</replaceable></filename></para>
+
+<para>Please run <userinput>mthelp tds</userinput> to learn more about the &TDS;.</para>
+
+</section>
+
+<section>
+
+<title>Walkthrough: Registering a User-Managed &TEXMF; Directory</title>
+
+<para>In this walkthrough, we assume that your own additions are
+located in the directory tree rooted at <filename>C:\Local TeX
+Files</filename>. This tree might look as follows:</para>
+
+<figure id="localtexmf">
+<title>Sample &TeX; Directory Structure</title>
+<screenshot>
+<mediaobject>
+<imageobject role="html">
+<imagedata format="PNG" fileref="images/localtexmf.png" scale="75" />
+</imageobject>
+<imageobject role="fo">
+<imagedata format="PNG" fileref="images/localtexmf.png" scalefit="1" width="100%" contentdepth="100%" />
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+<para>In our example, the input files are distributed over three directories:</para>
+
+<variablelist>
+<varlistentry>
+<term><filename>C:\Local TeX Files\bibtex\bib\misc</filename></term>
+<listitem><para>Contains <filename>.bib</filename> files.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><filename>C:\Local TeX Files\bibtex\bst\misc</filename></term>
+<listitem><para>Contains <filename>.bst</filename> files.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><filename>C:\Local TeX Files\tex\latex\misc</filename></term>
+<listitem><para>Contains &LaTeX; input files
+(<filename>*.sty</filename>, <filename>*.cls</filename>,
+&hellip;).</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>You use &MiKTeXOptions; to register <filename>C:\Local TeX Files</filename>.
+Click
+<menuchoice>
+<guimenu>Start</guimenu>
+<guisubmenu>Programs</guisubmenu>
+<guisubmenu>&progfldr;</guisubmenu>
+<guisubmenu>Maintenance</guisubmenu>
+<guimenuitem>Settings</guimenuitem>
+</menuchoice> 
+to open the &MiKTeXOptions; window
+(see <xref linkend="mo-general"/>).</para>
+
+<para>Click on the <guilabel>Roots</guilabel> tab.
+The <guilabel>Roots</guilabel> page
+(see <xref linkend="mo-roots"/>)
+shows the list of currently registered root directories.</para>
+
+<figure id="mo-roots">
+<title>&MiKTeXOptions;: Roots</title>
+<screenshot>
+<mediaobject>
+<imageobject role="html">
+<imagedata format="PNG" fileref="images/mo-roots.png" scale="75" />
+</imageobject>
+<imageobject role="fo">
+<imagedata format="PNG" fileref="images/mo-roots.png" scalefit="1" width="100%" contentdepth="100%" />
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+<para>Click <guibutton>Add</guibutton>.  In the following dialog box
+(<xref linkend="browselocaltexmf"/>), browse to <filename>C:\Local
+TeX Files</filename> and click <guibutton>OK</guibutton>.</para>
+
+<figure id="browselocaltexmf">
+<title>Browsing to a Root Directory</title>
+<screenshot>
+<mediaobject>
+<imageobject role="html">
+<imagedata format="PNG" fileref="images/browselocaltexmf.png" scale="75" />
+</imageobject>
+<imageobject role="html">
+<imagedata format="PNG" fileref="images/browselocaltexmf.png" scalefit="1" width="100%" contentdepth="100%" />
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+<para>The root directory will be appended to the list (<xref
+linkend="mo-roots2"/>).</para>
+
+<figure id="mo-roots2">
+<title>&MiKTeXOptions;: Root Directory Added</title>
+<screenshot>
+<mediaobject>
+<imageobject role="html">
+<imagedata format="PNG" fileref="images/mo-roots2.png" scale="75" />
+</imageobject>
+<imageobject role="fo">
+<imagedata format="PNG" fileref="images/mo-roots2.png" scalefit="1" width="100%" contentdepth="100%" />
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+<para>You can move <filename>C:\Local TeX Files</filename> before the
+installation directory, if you want to prioritize your own files.
+Click <guilabel>C:\Local TeX Files</guilabel> to select the list
+entry. Then click <guibutton>Up</guibutton> to move it before the
+installation directory (<xref linkend="mo-roots3"/>).</para>
+
+<figure id="mo-roots3">
+<title>&MiKTeXOptions;: Root Directory Moved</title>
+<screenshot>
+<mediaobject>
+<imageobject role="html">
+<imagedata format="PNG" fileref="images/mo-roots3.png" scale="75" />
+</imageobject>
+<imageobject role="fo">
+<imagedata format="PNG" fileref="images/mo-roots3.png" scalefit="1" width="100%" contentdepth="100%" />
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+<para>Click <guibutton>OK</guibutton> to close &MiKTeXOptions; The
+file name database will be refreshed. Your files in <filename>C:\Local
+TeX Files</filename> are now available to &MiKTeX;.</para>
+
+</section>
+
+</section>
+
+</chapter>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/miktex/">
+    <TPM:Name>MiKTeX config</TPM:Name>
+    <TPM:Title>MiKTeX configuration files</TPM:Title>
+    <TPM:Copyright owner="Christian Schenk" year="@MIKTEX_YEAR_VERSION@"/>
+    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      This package contains various MiKTeX configuration files.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/${MIKTEX_SHORTEST_TARGET_SYSTEM_TAG_UNX}/log4cxx.${MIKTEX_SHORTEST_TARGET_SYSTEM_TAG_UNX}.xml
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/${MIKTEX_SHORTEST_TARGET_SYSTEM_TAG_WIN}/log4cxx.${MIKTEX_SHORTEST_TARGET_SYSTEM_TAG_WIN}.xml
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/amstex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/bibtex-x.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/bibtex8.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/bibtexu.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/cslatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/csplain.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/dvilualatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/dviluatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/dvipdfm.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/dvipdfmx.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/elatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/eplain.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/etex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/fontinst.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/formats.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/frlatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/frtex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/ftex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/jadetex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/lambda.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/latex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/latex209.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/lualatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/luatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/mex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/mllatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/mltex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/olatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/omega.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfamstex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfcslatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfcsplain.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfelatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfjadetex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdflatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfmex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfplatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdftex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdftexinfo.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfxlatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfxmex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfxmltex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/pdfxtex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/platex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/t4ht.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/tex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/tex4ht.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/texapp.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/texinfo.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/texmfapp.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/ttf2pk.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/ttf2tfm.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/utf8mex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/xdvipdfmx.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/xelatex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/xeplain.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/xetex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/xmltex.ini
+texmf/${MIKTEX_REL_MIKTEX_CONFIG_DIR}/yap.ini
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

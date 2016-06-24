@@ -1,0 +1,204 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#include "afxres.h"
+#include "Remove-version.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "#include ""Remove-version.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""@CMAKE_CURRENT_SOURCE_DIR@/res/Remove.rc2""\r\n"
+    "#include ""afxres.rc""\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "@MIKTEX_ICON@"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_WELCOME DIALOGEX 0, 0, 317, 193
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Welcome to the Remove MiKTeX! Wizard",IDC_WELCOME,115,8,195,24
+    LTEXT           "This Wizard removes the following MiKTeX items from your computer:",IDC_STATIC,115,40,195,16
+    LISTBOX         IDC_LIST,115,58,195,81,LBS_NOINTEGRALHEIGHT | LBS_NOSEL | WS_VSCROLL
+    CONTROL         "&Tidy up thoroughly",IDC_THOROUGHLY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,115,144,195,10
+    LTEXT           "To remove MiKTeX now, click Remove.",IDC_STATIC,115,178,195,8
+END
+
+IDD_FINISH DIALOGEX 0, 0, 317, 193
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Completing the Remove MiKTeX Wizard",IDC_WELCOME,115,8,195,24
+    LTEXT           "You have completed the Remove MiKTeX! Wizard.",IDC_STATIC,115,40,195,24
+    LTEXT           "To exit the wizard, click Finish.",IDC_STATIC,115,178,195,8
+END
+
+IDD_REMOVE_FILES DIALOG  0, 0, 317, 143
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Removing MiKTeX...",IDC_PROMPT,21,1,275,8,SS_NOPREFIX
+    CONTROL         "Progress1",IDC_PROGRESS,"msctls_progress32",0x0,21,11,275,10
+    LTEXT           "",IDC_CURRENT_FILE,21,21,275,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_WELCOME, DIALOG
+    BEGIN
+        LEFTMARGIN, 115
+        RIGHTMARGIN, 310
+        TOPMARGIN, 1
+        BOTTOMMARGIN, 186
+    END
+
+    IDD_FINISH, DIALOG
+    BEGIN
+        LEFTMARGIN, 115
+        RIGHTMARGIN, 310
+        TOPMARGIN, 1
+        BOTTOMMARGIN, 186
+    END
+
+    IDD_REMOVE_FILES, DIALOG
+    BEGIN
+        VERTGUIDE, 21
+        VERTGUIDE, 296
+        TOPMARGIN, 1
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_HEADER              BITMAP                  "@MIKTEX_WIZARD_HEADER_BITMAP@"
+IDB_WATERMARK           BITMAP                  "@MIKTEX_WIZARD_WATERMARK_BITMAP@"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RT_MANIFEST
+//
+
+//IDR_MANIFEST            RT_MANIFEST             "@CMAKE_CURRENT_BINARY_DIR@/res/Remove.manifest"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_READY               "Click Next, to continue."
+    IDS_CANCEL              "Do you really want to abort the wizard?"
+    IDS_HEADER_REMOVE_FILES "File Deletion"
+    IDS_SUBHEADER_REMOVE_FILES 
+                            "The wizard removes the MiKTeX installation directory, registry settings and shortcuts."
+    IDS_REMOVEWIZ           "Remove MiKTeX"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\Remove.rc2"
+#include "afxres.rc"
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

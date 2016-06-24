@@ -1,0 +1,121 @@
+<refentry id="dvicopy">
+
+<?dbhh topicname="MIKTEXHELP_DVICOPY" topicid="0"?>
+
+<refmeta>
+<refentrytitle>dvicopy</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>dvicopy</refname>
+<refpurpose>produce modified copy of &DVI; file</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+
+<cmdsynopsis>
+<command>dvicopy</command>
+<arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
+<arg choice="plain"><replaceable>indvi</replaceable></arg>
+<arg choice="plain"><replaceable>outdvi</replaceable></arg>
+</cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>&dvicopy; reads a &DVI; file, expands any references to virtual
+fonts to base fonts, and writes the resulting &DVI; file.  Thus you
+can use virtual fonts
+<indexterm>
+<primary>virtual fonts</primary>
+<secondary>resolving</secondary>
+</indexterm>
+even if your &DVI; processor does not support them,
+by passing the documents through &dvicopy; first.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Options</title>
+
+<variablelist>
+&optionalias;
+&optiondisableinstaller;
+&optiondisablepipes;
+&optionenableinstaller;
+&optionenablepipes;
+&optionhelp;
+&optionhhelp;
+&optionincludedirectory;
+<varlistentry>
+<term><option>--mag=<replaceable>mag</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--mag=mag</primary>
+</indexterm>
+<para>Override existing magnification with
+<replaceable>mag</replaceable>.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--max-pages=<replaceable>n</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--max-pages=n</primary>
+</indexterm>
+<para>Process <replaceable>n</replaceable> pages; default
+one million.  This option cannot be used together with
+<option>--select</option>.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--page-start=<replaceable>page-spec</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--page-start=page-spec</primary>
+</indexterm>
+<para>Start at <replaceable>page-spec</replaceable>, for
+example 2 or 5.*.-2.  This option cannot be used together with
+<option>--select</option>.</para></listitem>
+</varlistentry>
+&optionrecordpackageusages;
+<varlistentry>
+<term><option>--select=<replaceable>sel</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--select=sel</primary>
+</indexterm>
+<para>Select pages to be copied.</para><para> The syntax for
+<replaceable>sel</replaceable> is:
+<option><replaceable>start</replaceable>
+[<replaceable>n</replaceable>]</option>, where
+<replaceable>start</replaceable> is the starting page specification
+(for example <userinput>2</userinput> or
+<userinput>5.*.-2</userinput>) and <replaceable>n</replaceable>
+(optional) is the maximum number of pages to be copied.</para>
+<para>You can use up to <literal>10</literal> <option>--select</option>
+options.  This option cannot be used together with
+<option>--max-pages</option> or <option>--page-start</option>.</para></listitem>
+</varlistentry>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/trace.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/version.xml" />
+</variablelist>
+
+</refsect1>
+
+</refentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "reference")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

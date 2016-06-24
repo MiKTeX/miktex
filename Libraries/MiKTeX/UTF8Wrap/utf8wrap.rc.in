@@ -1,0 +1,31 @@
+/* utf8wrap.rc: version number					-*- C++ -*-
+
+   Copyright (C) 2011-2016 Christian Schenk
+
+   This file is part of the MiKTeX UTF8Wrap Library.
+
+   The MiKTeX UTF8Wrap Library is free software; you can redistribute it
+   and/or modify it under the terms of the GNU Library General Public
+   License as published by the Free Software Foundation; either
+   version 2, or (at your option) any later version.
+
+   The MiKTeX UTF8Wrap Library is distributed in the hope that it will
+   be useful, but WITHOUT ANY WARRANTY; without even the implied
+   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the GNU General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public
+   License along with the MiKTeX UTF8Wrap Library; if not, write to the
+   Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
+   USA.  */
+
+#include "utf8wrap-version.h"
+
+#define VER_INTERNALNAME_STR "${utf8wrap_dll_name}"
+#define VER_ORIGINALFILENAME_STR "${utf8wrap_dll_name}.dll"
+
+#define VER_FILEDESCRIPTION_STR "UTF8 Wrapper"
+
+#define VER_FILETYPE VFT_DLL
+
+#include "miktex/win/version.rc"

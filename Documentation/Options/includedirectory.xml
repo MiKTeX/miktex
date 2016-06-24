@@ -1,0 +1,17 @@
+<varlistentry>
+<term><option>--include-directory=<replaceable>dir</replaceable></option></term>
+<listitem><para>Prefix <replaceable>dir</replaceable> to the
+<indexterm>
+<primary>--include-directory=dir</primary>
+</indexterm>
+search path.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

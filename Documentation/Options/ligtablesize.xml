@@ -1,0 +1,18 @@
+<varlistentry>
+<term><option>--lig-table-size=<replaceable>n</replaceable></option></term>
+<listitem><para>Set the
+<indexterm>
+<primary>--lib-table-size=n</primary>
+</indexterm>
+maximum number of ligature/kern steps.
+Must be at least 255 and at most 32510.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

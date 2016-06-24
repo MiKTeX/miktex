@@ -1,0 +1,14 @@
+HKCR
+{
+	NoRemove AppID
+	{
+		'%APPID%' = s 'MiKTeX Package Manager'
+		{
+			val DllSurrogate = s ''
+		}
+		'@mpm_dll_name@.DLL'
+		{
+			val AppID = s '%APPID%'
+		}
+	}
+}

@@ -1,0 +1,18 @@
+<varlistentry>
+<term><option>--main-memory=<replaceable>n</replaceable></option></term>
+<listitem><para>Change the
+<indexterm>
+<primary>--main-memory=n</primary>
+</indexterm>
+total size (in memory words) of the main memory array.
+Relevant only while creating memory dump files.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

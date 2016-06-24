@@ -1,0 +1,18 @@
+<varlistentry>
+<term><option>--path-size=<replaceable>n</replaceable></option></term>
+<listitem><para>Set the
+<indexterm>
+<primary>--path-size=n</primary>
+</indexterm>
+the maximum
+number of knots between breakpoints of a path.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

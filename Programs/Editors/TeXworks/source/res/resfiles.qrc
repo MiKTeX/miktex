@@ -1,0 +1,31 @@
+<RCC>
+<qresource>
+<file>resfiles/completion/tw-basic.txt</file>
+<file>resfiles/completion/tw-beamer.txt</file>
+<file>resfiles/completion/tw-context.txt</file>
+<file>resfiles/completion/tw-latex.txt</file>
+<file>resfiles/configuration/auto-indent-patterns.txt</file>
+<file>resfiles/configuration/delimiter-pairs.txt</file>
+<file>resfiles/configuration/smart-quotes-modes.txt</file>
+<file>resfiles/configuration/syntax-patterns.txt</file>
+<file>resfiles/configuration/tag-patterns.txt</file>
+<file>resfiles/configuration/texworks-config.txt</file>
+<file>resfiles/scripts/Hooks/babelLanguage.js</file>
+<file>resfiles/scripts/Hooks/logParser.js</file>
+<file>resfiles/scripts/LaTeX styles/toggleBold.js</file>
+<file>resfiles/scripts/LaTeX styles/toggleEmph.js</file>
+<file>resfiles/scripts/launchPdf.js</file>
+<file>resfiles/scripts/makeBold.lua</file>
+<file>resfiles/scripts/makeBold.py</file>
+<file>resfiles/scripts/system.js</file>
+<file>resfiles/scripts/Text transforms/titlecase.js</file>
+<file>resfiles/templates/Basic LaTeX documents/article.tex</file>
+<file>resfiles/templates/Basic LaTeX documents/letter.tex</file>
+<file>resfiles/templates/Beamer presentations/conference-ornate-20min.en.tex</file>
+<file>resfiles/templates/Beamer presentations/generic-ornate-15min-45min.en.tex</file>
+<file>resfiles/templates/Beamer presentations/speaker_introduction-ornate-2min.en.tex</file>
+<file>resfiles/templates/More LaTeX classes/KOMA-letter.tex</file>
+<file>resfiles/templates/More LaTeX classes/memoir.tex</file>
+<file>resfiles/templates/XeLaTeX documents/article-fontspec.tex</file>
+</qresource>
+</RCC>

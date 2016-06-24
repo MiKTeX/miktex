@@ -1,0 +1,36 @@
+#include <windows.h>
+
+#include "../src/TWVersion.h"
+#include "../src/GitRev.h"
+
+IDI_ICON1	ICON	DISCARDABLE	"images/TeXworks.ico"
+IDI_ICON2	ICON	DISCARDABLE	"images/TeXworks-doc.ico"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION    	VER_MAJOR,VER_MINOR,VER_BUGFIX,0
+PRODUCTVERSION 	VER_MAJOR,VER_MINOR,VER_BUGFIX,0
+FILEFLAGSMASK  	0
+FILEOS         	VOS__WINDOWS32
+FILETYPE       	VFT_APP
+FILESUBTYPE    	0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName",      "TeX Users Group"
+            VALUE "FileDescription",  "TeXworks editor & previewer"
+            VALUE "FileVersion",      TEXWORKS_VERSION "-r." GIT_COMMIT_HASH
+            VALUE "InternalName",     "TeXworks"
+            VALUE "LegalCopyright",   "Copyright (C) 2007-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"
+            VALUE "OriginalFilename", "TeXworks.exe"
+            VALUE "ProductName",      "TeXworks"
+            VALUE "ProductVersion",   "TeXworks " TEXWORKS_VERSION
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END

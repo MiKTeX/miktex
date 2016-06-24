@@ -1,0 +1,74 @@
+/**
+ * @mainpage MiKTeX @MIKTEX_VERSION_STR@ SDK
+ *
+ * @section intro Introduction
+ *
+ * MiKTeX @MIKTEX_SERIES_STR@ exports two COM objects
+ * that make it possible to script MiKTeX:
+ * @li The
+ *  @link
+ *   MiKTeXSession@MIKTEX_SERIES_ID_STR@::MiKTeXSession@MIKTEX_SERIES_ID_STR@
+ *   MiKTeX session object
+ *  @endlink
+ *  provides an interface to MiKTeX core functionality.
+ *  The interface can be used to search for files,
+ *  gather information about the MiKTeX @MIKTEX_SERIES_STR@
+ *  installation and to run MiKTeX @MIKTEX_SERIES_STR@ applications.
+ * @li The
+ *  @link
+     MiKTeXPackageManager@MIKTEX_SERIES_ID_STR@::PackageManager@MIKTEX_SERIES_ID_STR@
+ *   MiKTeX package manager object
+ *  @endlink
+ *  provides an interface to the MiKTeX package manager.
+ *  The interface can be used to install/remove packages and
+ *  to retrieve informataion about packages.
+ *
+ * @section getting Getting the MiKTeX @MIKTEX_VERSION_STR@ SDK
+ *
+ * The MiKTeX @MIKTEX_VERSION_STR@ SDK can be downloaded from the SDK
+ * home page:
+ * <a href="http://miktex.org/@MIKTEX_SERIES_STR@/sdk.aspx">
+ * http://miktex.org/@MIKTEX_SERIES_STR@/sdk.aspx</a>
+ *
+ * @section prerequisites What you need
+ *
+ * You need
+ * @li a working MiKTeX @MIKTEX_SERIES_STR@ system
+ * @li a COM-capable script interpreter (Perl, Ruby, Python, ...) and/or a
+ *   COM-capable high language compiler (e.g., Microsoft Visual C++)
+ *
+ * @section samples Samples
+ *
+ * The SDK contains several samples. Click the Examples tag above to
+ * browse the samples online.
+ *
+ * @example findfile.cpp
+ * Find a file (C++).
+ * Uses the FindFile() method to locate a file.
+ *
+ * @example findfile.pl
+ * Find a file (Perl)
+ * Uses the FindFile() method to locate a file.
+ *
+ * @example findpk.cpp
+ * Find a Pk font (C++).
+ * Uses the FindPkFont() method to locate a Pk font file.
+ *
+ * @example findpk.pl
+ * Find a Pk font (Perl)
+ * Uses the FindPkFont() method to locate a Pk font file.
+ *
+ * @example installpackage.pl
+ * Install a package (Perl).
+ * Uses the package manager interface to install a package.
+ *
+ * @example packageinfo.pl
+ * Print information about a package (Perl).
+ * Uses the package manager interface to print information about a
+ * package.
+ *
+ * @example setupinfo.pl
+ * Print setup info (Perl)
+ * Uses the session interface to retrieve information about the MiKTeX
+ * setup.
+ */

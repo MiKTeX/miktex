@@ -1,0 +1,30 @@
+% !TEX TS-program = pdflatex
+% !TEX encoding = UTF-8 Unicode
+
+% An alternative to the standard LaTeX letter class.
+
+\documentclass[fontsize=12pt, paper=a4]{scrlttr2}
+
+% Don't forget to read the KOMA-Script documentation, scrguien.pdf
+
+\usepackage[utf8]{inputenc}
+
+\setkomavar{fromname}{} % your name
+\setkomavar{fromaddress}{Address \\ of \\ Sender}
+
+\setkomavar{signature}{} % printed after the \closing
+\renewcommand{\raggedsignature}{\raggedright} % make the signature ragged right
+
+\setkomavar{subject}{} % subject of the letter
+
+\begin{document}
+\begin{letter}{Name and \\ Address \\ of \\ Recipient}
+
+\opening{}  % eg. Hello
+
+
+
+\closing{} %eg. Regards
+
+\end{letter}
+\end{document}

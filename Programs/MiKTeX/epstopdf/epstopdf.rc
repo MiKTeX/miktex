@@ -1,0 +1,28 @@
+/* epstopdf.rc: version number                          -*- C++ -*-
+
+   Copyright (C) 2000-2016 Christian Schenk
+
+   This file is part of EPStoPDF.
+
+   EPStoPDF is free software; you can redistribute it and/or modify it
+   under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2, or (at your option)
+   any later version.
+   
+   EPStoPDF is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with EPStoPDF; if not, write to the Free Software Foundation,
+   59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
+
+#include "epstopdf-version.h"
+
+#define VER_INTERNALNAME_STR "epstopdf"
+#define VER_ORIGINALFILENAME_STR "epstopdf.exe"
+
+#define VER_FILEDESCRIPTION_STR "EPS-to-PDF Converter"
+
+#include "miktex/win/version.rc"

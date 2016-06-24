@@ -1,0 +1,69 @@
+Prepare MiKTeXDirect:
+
+	[ Welcome ]
+	License
+	MDTask
+	Shared
+	[ Folder ]
+	Settings
+	Info
+	FileCopy
+	Finish
+
+Install From CD:
+
+	[ Welcome ]
+	License
+	MDTask
+	PackageSet
+	[ Shared ]
+	InstallDir
+	[ Folder ]
+	Settings
+	[ AddTeXMF ]
+	[ if AddTeXMF EditTeXMF ]
+	Info
+	FileCopy
+	Finish
+
+Install From Local Repository:
+
+	[ Welcome ]
+	License
+	Task
+	PackageSet
+	Shared
+	LocalRep
+	InstallDir
+	[ Folder ]
+	Settings
+	[ AddTeXMF ]
+	[ if AddTeXMF EditTeXMF ]
+	Info
+	FileCopy
+	Finish
+
+Download Only:
+	[ Welcome ]
+	License
+	Task
+	PackageSet
+	RemoteRep
+	LocalRep
+	Info
+	FileCopy
+	Finish
+
+Prefabricated Setup:
+	[ Welcome ]
+	License
+	if CompleteDist PackageSet
+	Shared
+	InstallDir
+	[ Folder ]
+	Settings
+	[ AddTeXMF ]
+	[ if AddTeXMF EditTeXMF ]
+	Info
+	FileCopy
+	Finish

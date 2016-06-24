@@ -1,0 +1,9 @@
+.topic HIDC_REFRESH_FNDB
+Refreshes the file name database.
+
+.topic HIDC_UPDATE_FMT
+Updates all format files.
+
+.topic HIDC_INSTALL_ON_THE_FLY
+Install missing packages on-the-fly.
+Choose one of: Yes, No, Ask.

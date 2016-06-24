@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/Icons" >
+    <file alias="elevationrequired16x16.png">../../../../Resources/Icons/16x16/emblems/emblem-system.png</file>
+  </qresource>
+</RCC>

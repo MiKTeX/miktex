@@ -1,0 +1,307 @@
+Copyright (c) 2008, 2009 jerome DOT laurens AT u-bourgogne DOT fr
+
+This file is part of the SyncTeX package.
+
+Latest Revision: Wed Jul  1 11:17:37 UTC 2009
+
+License:
+--------
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE
+
+Except as contained in this notice, the name of the copyright holder  
+shall not be used in advertising or otherwise to promote the sale,  
+use or other dealings in this Software without prior written  
+authorization from the copyright holder.
+
+Acknowledgments:
+----------------
+The author received useful remarks from the pdfTeX developers, especially Hahn The Thanh,
+and significant help from XeTeX developer Jonathan Kew
+
+Nota Bene:
+----------
+If you include or use a significant part of the synctex package into a software,
+I would appreciate to be listed as contributor and see "SyncTeX" highlighted.
+
+Notice:
+-------
+
+-   Fixing the bug pointed out by Hahn The Thanh during the discussion started by Reinhard Kotucha at
+	http://www.ntg.nl/pipermail/ntg-pdftex/2009-May/003786.html.
+
+The |synctex_field_size| depends on the TeX implementation.
+pdfTeX uses 2 additional words whereas XeTeX will only use one,
+because it naturally has bigger words of memory.
+@x tex.web l.2898
+@d box_node_size=7 {number of words to allocate for a box node}
+@y
+@d box_node_size=7+synctex_field_size {number of words to allocate for a box node}
+@z
+
+@x tex.web l.2944
+@d rule_node_size=4 {number of words to allocate for a rule node}
+@y
+@d rule_node_size=4+synctex_field_size {number of words to allocate for a rule node}
+@z
+
+@x tex.web l.2985
+@d small_node_size=2 {number of words to allocate for most node types}
+@y
+@d small_node_size=2 {number of words to allocate for most node types}
+@d medium_node_size=small_node_size+synctex_field_size {number of words to
+           allocate for synchronized node types like math, kern, glue and penalty nodes}
+@z
+
+@x tex.web l.3090
+@p function new_math(@!w:scaled;@!s:small_number):pointer;
+@y
+@p function new_math(@!w:scaled;@!s:small_number):pointer;
+@z
+
+@x
+begin p:=get_node(small_node_size); type(p):=math_node;
+@y
+begin p:=get_node(medium_node_size); type(p):=math_node;
+@z
+
+@x tex.web l.3185
+@p function new_param_glue(@!n:small_number):pointer;
+@y
+@p function new_param_glue(@!n:small_number):pointer;
+@z
+
+@x
+begin p:=get_node(small_node_size); type(p):=glue_node; subtype(p):=n+1;
+@y
+begin p:=get_node(medium_node_size); type(p):=glue_node; subtype(p):=n+1;
+@z
+
+@x tex.web l.3198
+@p function new_glue(@!q:pointer):pointer;
+@y
+@p function new_glue(@!q:pointer):pointer;
+@z
+
+@x
+begin p:=get_node(small_node_size); type(p):=glue_node; subtype(p):=normal;
+@y
+begin p:=get_node(medium_node_size); type(p):=glue_node; subtype(p):=normal;
+@z
+
+
+@x tex.web l.3236
+@p function new_kern(@!w:scaled):pointer;
+@y
+@p function new_kern(@!w:scaled):pointer;
+@z
+
+@x
+begin p:=get_node(small_node_size); type(p):=kern_node;
+@y
+begin p:=get_node(medium_node_size); type(p):=kern_node;
+@z
+
+@x tex.web l.3259
+@p function new_penalty(@!m:integer):pointer;
+@y
+@p function new_penalty(@!m:integer):pointer;
+@z
+
+@x
+begin p:=get_node(small_node_size); type(p):=penalty_node;
+@y
+begin p:=get_node(medium_node_size); type(p):=penalty_node;
+@z
+
+@x
+@p procedure flush_node_list(@!p:pointer); {erase list of nodes starting at |p|}
+@y
+@p procedure flush_node_list(@!p:pointer); {erase list of nodes starting at |p|}
+@z
+
+@x tex.web l.3934: free nodes with proper size
+    glue_node: begin fast_delete_glue_ref(glue_ptr(p));
+      if leader_ptr(p)<>null then flush_node_list(leader_ptr(p));
+      end;
+@y
+    glue_node: begin fast_delete_glue_ref(glue_ptr(p));
+      if leader_ptr(p)<>null then flush_node_list(leader_ptr(p));
+        free_node(p, medium_node_size);
+        goto done;
+      end;
+@z
+
+@x tex.web l.3937: free nodes with proper size
+    kern_node,math_node,penalty_node: do_nothing;
+@y
+    kern_node,math_node,penalty_node:begin
+        free_node(p, medium_node_size);
+        goto done;
+      end;
+@z
+
+@x tex.web l.4002:
+@ @<Case statement to copy...@>=
+@y
+@ @<Case statement to copy...@>=
+@z
+
+@x tex.web l.4018:
+glue_node: begin r:=get_node(small_node_size); add_glue_ref(glue_ptr(p));
+@y
+glue_node: begin r:=get_node(medium_node_size); add_glue_ref(glue_ptr(p));
+@z
+
+@x tex.web l.4021:
+kern_node,math_node,penalty_node: begin r:=get_node(small_node_size);
+  words:=small_node_size;
+  end;
+@y
+kern_node,math_node,penalty_node: begin r:=get_node(medium_node_size);
+  words:=medium_node_size;
+  end;
+@z
+
+@x tex.web l.4912
+@d pretolerance_code=0 {badness tolerance before hyphenation}
+@y
+@d REMOVE ME IF synctex_code is properly defined
+
+@d pretolerance_code=0 {badness tolerance before hyphenation}
+@z
+
+@x tex.web l.5031
+@d error_context_lines==int_par(error_context_lines_code)
+@y
+@d error_context_lines==int_par(error_context_lines_code)
+@#
+@d synctex == int_par(synctex_code)
+@z
+
+@x In the second "@<Types...@>="
+@!in_state_record = record
+  @!state_field, @!index_field: quarterword;
+  @!start_field,@!loc_field, @!limit_field, @!name_field: halfword;
+  end;
+@y
+@!in_state_record = record
+  @!state_field, @!index_field: quarterword;
+  @!start_field,@!loc_field, @!limit_field, @!name_field: halfword;
+  @!synctex_tag_field: integer; {stack the tag of the current file}
+  end;
+@z
+
+@x tex.web l.6461
+@d name==cur_input.name_field {name of the current file}
+@y
+@d name==cur_input.name_field {name of the current file}
+@d synctex_tag==cur_input.synctex_tag_field {{\sl Sync\TeX} tag of the current file}
+@z
+
+@x tex.web l. 14185
+@<Simplify a trivial box@>=
+@y
+@<Simplify a trivial box@>=
+@z
+
+@x tex.web l. 14191
+    begin free_node(r,small_node_size); link(q):=null;
+@y
+    begin free_node(r,medium_node_size); link(q):=null;
+@z
+
+@x tex.web l. 24274
+history:=spotless; {ready to go!}
+@y
+history:=spotless; {ready to go!}
+@<Initialize synctex primitive@>
+@z
+
+@x tex.web l. 24956
+@* \[54] System-dependent changes.
+@y
+@* \[54/SyncTeX] The {\sl Synchronize \TeX nology}.
+This section is devoted to the {\sl Synchronize \TeX nology}
+- or simply {\sl Sync\TeX} - used to synchronize between input and output.
+This section explains how synchronization basics are implemented.
+Before we enter into more technical details,
+let us recall in a few words what is synchronization.
+
+\TeX\ typesetting system clearly separates the input and the output material,
+and synchronization will provide a new link between both that can help
+text editors and viewers to work together.
+More precisely, forwards synchronization is the ability,
+given a location in the input source file,
+to find what is the corresponding place in the output.
+Backwards synchronization just performs the opposite:
+given a location in the output,
+retrieve the corresponding material in the input source file.
+
+For better code management and maintainance, we adopt a naming convention.
+Throughout this program, code related to the {\sl Synchronize \TeX nology} is tagged
+with the ``{\sl synctex}'' key word. Any code extract where {\sl Sync\TeX} plays
+its part, either explicitly or implicitly, (should) contain the string ``{\sl synctex}''.
+This naming convention also holds for external files.
+Moreover, all the code related to {\sl Sync\TeX} is gathered in this section,
+except the definitions.
+
+@ Enabling synchronization should be performed from the command line,
+|synctexoption| is used for that purpose.
+This global integer variable is declared here but it is not used here.
+This is just a placeholder where the command line controller will put
+the {\sl Sync\TeX} related options, and the {\sl Sync\TeX} controller will read them.
+
+@ @<Glob...@>=
+@!synctexoption:integer;
+
+@ A convenient primitive is provided:
+\.{\\synctex=1} in the input source file enables synchronization whereas
+\.{\\synctex=0} disables it.
+Its memory address is |synctex_code|.
+It is initialized by the {\sl Sync\TeX} controller to the command-line option if given.
+The controller may filter some reserved bits.
+
+@ @<Put each...@>=
+primitive("synctex",assign_int,int_base+synctex_code);@/
+@!@:synctex_}{\.{\\synctex} primitive@>
+
+@ In order to give the {\sl Sync\TeX} controller read and write access to
+the contents of the \.{\\synctex} primitive, we declare |synctexoffset|,
+such that |mem[synctexoffset]| and \.{\\synctex} correspond to
+the same memory storage. |synctexoffset| is initialized to
+the correct value when quite everything is initialized.
+
+@ @<Glob...@>=
+@!synctexoffset:integer; {holds the true value of |synctex_code|}
+
+@ @<Initialize whatever...@>=
+synctexoffset:=int_base+synctex_code;
+
+@ @<Initialize synctex primitive@>=
+synctex_init_command;
+
+@ Synchronization is achieved with the help of an auxiliary file...
+@^synctex@>
+@^synchronization@>
+
+@* \[54] System-dependent changes.
+@z

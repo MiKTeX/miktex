@@ -1,0 +1,20 @@
+<varlistentry>
+<term><option>--max-in-open=<replaceable>n</replaceable></option></term>
+<listitem>
+<para>Set the
+<indexterm>
+<primary>--max-in-open=n</primary>
+</indexterm>
+maximum number of
+input files and error insertions that can be going
+on simultaneously.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

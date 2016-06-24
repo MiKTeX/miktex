@@ -1,0 +1,103 @@
+#! /bin/sh
+#
+# The idea to this kind of setup info script was stolen from numerous
+# other packages, such as curl, neon, libxml and gnome.
+#
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+includedir=@includedir@
+
+miktexlibs="-lmiktex-bz2 -lmiktex-core -lmiktex-expat -lmiktex-md5 -lmiktex-mspack -lmiktex-packagemanager -lmiktex-popt -lmiktex-zlib"
+
+usage()
+{
+    cat <<EOF
+Usage: miktex-config [OPTION]
+
+Available values for OPTION include:
+
+  --cc            C compiler
+  --cflags        pre-processor and compiler flags
+  --cxx           C++ compiler
+  --help          display this help and exit
+  --data-root     data TEXMF root
+  --install-root  package install root
+  --libs          library linking information
+  --prefix        MiKTeX install prefix
+  --roots         TEXMF roots
+  --version       output version information
+
+EOF
+
+    exit $1
+}
+
+if test $# -eq 0; then
+    usage 1
+fi
+
+while test $# -gt 0; do
+    case "$1" in
+    # this deals with options in the style
+    # --option=value and extracts the value part
+    # [not currently used]
+    -*=*) value=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+    *) value= ;;
+    esac
+
+    case "$1" in
+
+    --cc)
+	echo "@CC@"
+	;;
+
+    --cflags)
+       	if test "X@includedir@" = "X/usr/include"; then
+          echo "@PTHREAD_CFLAGS@"
+        else
+          echo "@PTHREAD_CFLAGS@ -I@includedir@"
+        fi
+       	;;
+
+    --cxx)
+	echo "@CXX@"
+	;;
+
+    --data-root)
+	echo @MIKTEX_DATAROOT@
+	;;
+
+    --install-root)
+	echo @MIKTEX_INSTALLROOT@
+	;;
+
+    --help)
+	usage 0
+	;;
+
+    --libs)
+       	echo -L@MIKTEX_LIBRARY_DESTINATION_DIR@/miktex $miktexlibs @LDFLAGS@ @LIBS@ @PTHREAD_LIBS@
+       	;;
+
+    --prefix)
+	echo "$prefix"
+	;;
+
+    --roots)
+	echo @MIKTEX_ROOTS@
+	;;
+
+    --version)
+	echo @PACKAGE_NAME@ @MIKTEX_VERSION_STR@
+	exit 0
+	;;
+
+    *)
+        echo "unknown option: $1"
+	usage 1
+	;;
+    esac
+    shift
+done
+
+exit 0

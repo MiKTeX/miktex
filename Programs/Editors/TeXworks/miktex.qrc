@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/MiKTeX" >
+    <file alias="miktex32x32.png">../../../Resources/Icons/32x32/apps/miktex.png</file>
+  </qresource>
+</RCC>

@@ -1,0 +1,29 @@
+# TeXworks: Patterns for tag recognition
+
+# Each entry consists of two whitespace-separated fields:
+# <level> <regex>
+
+# <level> is the position in the document structure hierarchy, with 1 being the top level.
+# <regex> is the regular expression to match.
+
+# If there is a (capture group) in the regex, this is the fragment that will be used
+# as the actual tag text; if there is no group, the entire match will be used.
+
+# Patterns for LaTeX sectioning commands:
+1	^\s*\\part\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+2	^\s*\\chapter\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+3	^\s*\\section\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+4	^\s*\\subsection\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+5	^\s*\\subsubsection\*?\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+
+# Patterns for ConTeXt sectioning commands (unnumbered):
+# (numbered sections are similar to LaTeX)
+2	^\s*\\title\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+3	^\s*\\subject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+4	^\s*\\subsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+5	^\s*\\subsubsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+6	^\s*\\subsubsubsubject\s*(?:\[[^]]*\]\s*)?\{([^}]*)\}
+
+# Tags with level = 0 are special bookmarks that are separate from the hierarchy
+# and collected in a separate flat list.
+0	^%:\s*(.+)

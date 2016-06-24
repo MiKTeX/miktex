@@ -1,0 +1,187 @@
+/* StdAfx.h:                                            -*- C++ -*-
+
+   Copyright (C) 1996-2016 Christian Schenk
+
+   This file is part of the MiKTeX Core Library.
+
+   The MiKTeX Core Library is free software; you can redistribute it
+   and/or modify it under the terms of the GNU General Public License
+   as published by the Free Software Foundation; either version 2, or
+   (at your option) any later version.
+   
+   The MiKTeX Core Library is distributed in the hope that it will be
+   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with the MiKTeX Core Library; if not, write to the Free
+   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+   02111-1307, USA. */
+
+#if defined(_MSC_VER)
+#  pragma once
+#endif
+
+#define EAD86981C92C904D808A5E6CEC64B90E
+#include <miktex/First>
+
+#if defined(HAVE_CONFIG_H)
+#  include "config.h"
+#endif
+
+#if defined(_MSC_VER)
+// C4786: identifier was truncated to 'number' characters in the debug
+// information
+#  pragma warning (disable: 4786)
+#endif
+
+#if defined(_WIN32) || defined(_WIN64)
+#  include <Windows.h>
+#  include <Sddl.h>
+#  include <aclapi.h>
+#  include <htmlhelp.h>
+#  include <shellapi.h>
+#  include <shlobj.h>
+#  include <shlwapi.h>
+#  include <Tlhelp32.h>
+#  undef StrDup
+#  include <wininet.h>
+#  include <tchar.h>
+#  include <strsafe.h>
+#  include <regstr.h>
+#endif
+
+#if defined(HAVE_ATLBASE_H)
+#  define _ATL_FREE_THREADED
+#  define _ATL_NO_AUTOMATIC_NAMESPACE
+#  define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS
+#  include <atlbase.h>
+#  include <ATLComTime.h>
+#  include <atlcom.h>
+#endif
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#  include <conio.h>
+#  include <direct.h>
+#  include <io.h>
+#  include <crtdbg.h>
+#  include <malloc.h>
+#  include <process.h>
+#  include <setjmpex.h>
+#  include <share.h>
+#endif
+
+#include <fcntl.h>
+
+#if defined(_MSC_VER) || defined(HAVE_SYS_STAT_H)
+#  include <sys/stat.h>
+#endif
+
+#if defined(HAVE_UNISTD_H)
+#  include <unistd.h>
+#endif
+
+#if defined(HAVE_SYS_UTIME_H)
+#  include <sys/utime.h>
+#endif
+
+#if defined(HAVE_UTIME_H)
+#  include <utime.h>
+#endif
+
+#if defined(HAVE_SYS_UTSNAME_H)
+#  include <sys/utsname.h>
+#endif
+
+#if defined(HAVE_SYS_STATVFS_H)
+#  include <sys/statvfs.h>
+#endif
+
+#if defined(HAVE_INTTYPES_H)
+#  include <inttypes.h>
+#endif
+
+#if defined(HAVE_DIRENT_H)
+#  include <dirent.h>
+#endif
+
+#if defined(HAVE_SYS_MMAN_H)
+#  include <sys/mman.h>
+#endif
+
+#if defined(HAVE_SYS_WAIT_H)
+#  include <sys/wait.h>
+#endif
+
+#if defined(_MSC_VER)
+#  pragma warning (push, 1)
+#  pragma warning (disable: 4702)
+#  pragma warning (disable: 4267)
+#endif
+
+#include <algorithm>
+#include <array>
+#include <atomic>
+#include <bitset>
+#include <codecvt>
+#include <condition_variable>
+#include <deque>
+#include <functional>
+#include <iomanip>
+#include <iostream>
+#include <locale>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <random>
+#include <set>
+#include <sstream>
+#include <stack>
+#include <string>
+#include <thread>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#if defined(_MSC_VER)
+#  pragma warning (pop)
+#endif
+
+#include <cassert>
+#include <climits>
+#include <cmath>
+#include <csignal>
+#include <cstdarg>
+#include <cstddef>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+
+#include <errno.h>
+
+#include <md5.h>
+
+#include <botan/botan.h>
+#include <botan/look_pk.h>
+#include <botan/pk_keys.h>
+#include <botan/pk_filts.h>
+#include <botan/rsa.h>
+#include <bzlib.h>
+#include <lzma.h>
+#include <zlib.h>
+#include <uriparser/Uri.h>
+
+#include <miktex/Trace/Trace>
+#include <miktex/Trace/TraceCallback>
+#include <miktex/Trace/TraceStream>
+
+#include <miktex/Util/CharBuffer>
+#include <miktex/Util/StringUtil>
+#include <miktex/Util/Tokenizer>
+#include <miktex/Util/inliners.h>
+
+#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
+#  import "@session_tlb_name@.tlb" raw_interfaces_only
+#endif

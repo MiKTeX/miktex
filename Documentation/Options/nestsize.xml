@@ -1,0 +1,18 @@
+<varlistentry>
+<term><option>--nest-size=<replaceable>n</replaceable></option></term>
+<listitem><para>Set the
+<indexterm>
+<primary>--nest-size=n</primary>
+</indexterm>
+maximum number of
+semantic levels simultaneously active.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

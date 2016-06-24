@@ -1,0 +1,266 @@
+<?xml-stylesheet type="text/xsl" href="html.xsl" ?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                         "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY instins SYSTEM "installation-instructions.xml">
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
+<article lang="en">
+
+<articleinfo>
+
+<title>Creating a custom package repository</title>
+
+<date>January 04, 2008</date>
+
+<author>
+<firstname>Christian</firstname>
+<surname>Schenk</surname>
+</author>
+
+<copyright>
+<year>2001&ndash;2007</year>
+<holder>Christian Schenk</holder>
+</copyright>
+
+<legalnotice>
+<para>Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.</para> <para>Permission is granted to
+copy and distribute modified versions of this manual under the
+conditions for verbatim copying, provided that the entire resulting
+derived work is distributed under the terms of a permission notice
+identical to this one.</para> <para>Permission is granted to copy and
+distribute translations of this manual into another language, under
+the above conditions for modified versions, except that this
+permission notice may be stated in a translation approved by the Free
+Software Foundation.</para>
+</legalnotice>
+
+</articleinfo>
+
+<section>
+
+<title>Introduction</title>
+
+<para>This article is about &MiKTeX; packaging: You will learn
+how to maintain a custom package repository.</para>
+
+</section>
+
+<section>
+
+<title>Prerequisites</title>
+
+<para>A few utilities are required:</para>
+
+<variablelist>
+<varlistentry>
+<term>&cabextract;</term>
+<listitem><para>&cabextract; is used intnernally (by &MPC;) to
+extract files from cabinet files. It is a part of the
+&Cygwin; distribution for &Windows;.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>&lzma;</term>
+<listitem><para>&lzma; is used intnernally (by &MPC;) to
+extract files from <filename>.tar.lzma</filename> files. It is a part of the
+&Cygwin; distribution for &Windows;.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>&md5walk;</term>
+<listitem><para>&MD5Walk; is used to calculate the fingerprint of
+a package. The source code of &MD5Walk; can be obtained from
+the &MiKTeX; project page.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>&mpc;</term>
+<listitem><para>The &MiKTeXPackageCreator; (&MPC;) is used to maintain the contents
+of a custom package repository.
+The source code of &MPC; can be obtained from the
+&MiKTeX; project page.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>&rsync;</term>
+<listitem><para>&rsync; is used to initialize the custom package
+repository.  It is a part of the
+&Cygwin; distribution for &Windows;.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>&tar;</term>
+<listitem><para>&tar; is used internally (by &MPC;) to create
+package archive files. It is a part of the
+&Cygwin; distribution for &Windows;.</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>All but &MPC; and &MD5Walk; are standard utilities which are
+available on all platforms (&Windows;, &GNULinux;, &hellip;). The
+portable source code of &mpc; and &md5walk; can be obtained from the
+&MiKTeX; project page.</para>
+
+</section>
+
+<section>
+
+<title>Initializing the custom package repository</title>
+
+<para>A custom package repository can be initialized with
+the help of &rsync; as follows:</para>
+
+<informalexample>
+<screen><prompt>&prompt;</prompt><userinput>mkdir C:\package-repository</userinput>
+
+<prompt>&prompt;</prompt><userinput>cd C:\package-repository</userinput>
+
+<prompt>&prompt;</prompt><userinput>rsync -av rsync://www.ctan.org/SYSTEMS/win32/miktex/tm/packages/ .</userinput>
+
+</screen>
+</informalexample>
+
+<para>This will download a snapshot of the remote package repository to
+<filename>C:\package-repository</filename>.</para>
+</section>
+
+<section>
+
+<title>The package staging directory</title>
+
+<para>The package staging directory contains all the bits and pieces
+you will need in order to add a package to the custom package
+repository.</para>
+
+<para>Basically, the staging directory contains the following:</para>
+
+<variablelist>
+<varlistentry>
+<term><filename>Description</filename> (optional)</term>
+<listitem><para>The <filename>Description</filename> file contains
+a mult-line description of the package.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><filename>Files</filename> (optional)</term>
+<listitem><para>The <filename>Files</filename> sub-directory contains
+the actual files of the package.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><filename>package.ini</filename> (required)</term>
+<listitem><para>The <filename>package.ini</filename> file contains
+basic information about the package.</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>The <filename>Description</filename> file and the
+<filename>Files</filename> sub-directory are optional. The
+<filename>package.ini</filename> file is required.</para>
+
+<section>
+
+<title>The <filename>Files</filename> directory</title>
+
+<para>The <filename>Files</filename> directory contains just
+the sub-directory <filename>texmf</filename>, which is the
+root of a &TDS; tree populated with the actual files of the package.</para>
+
+<para>For example, <filename>Files</filename> could contain
+two files: <filename>mystuff.sty</filename> and
+<filename>mystuff.pdf</filename>:</para>
+
+<informalexample>
+<screen>Files\texmf\tex\latex\mystuff\mystuff.sty
+Files\texmf\doc\latex\mystuff\mystuff.pdf</screen>
+</informalexample>
+
+</section>
+
+<section>
+
+<title><filename>package.ini</filename>: the package information file</title>
+
+<para>The file <filename>package.ini</filename> contains basic
+information about the package:</para>
+
+<variablelist>
+<varlistentry>
+<term>externalname=<replaceable>string</replaceable></term>
+<listitem><para>The deployment name of the package. This
+is the base name of the package archive file.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>md5=<replaceable>hexstring</replaceable></term>
+<listitem><para>The fingerprint of the package.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>name=<replaceable>string</replaceable></term>
+<listitem><para>The user friendly name of the package.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>title=<replaceable>string</replaceable></term>
+<listitem><para>The title of the package.</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>The fingerprint must be calculated with the help of the
+&md5walk; utility (see below).</para>
+
+<para>Here is a sample <filename>package.ini</filename>:</para>
+
+<informalexample>
+<screen>externalname=mystuff
+md5=f3fa2edf7bfd8ae692880b59fa246650
+name=My stuff
+title=Provides my style files.
+</screen>
+</informalexample>
+
+<para>The fingerprint has been calculated as follows:</para>
+
+<informalexample>
+<screen><prompt>&prompt;</prompt><userinput>cd C:\staging\mystuff</userinput>
+
+<prompt>&prompt;</prompt><userinput>md5walk --exclude=.tpm Files</userinput>
+f3fa2edf7bfd8ae692880b59fa246650
+
+<prompt>&prompt;</prompt></screen>
+</informalexample>
+
+</section>
+
+</section>
+
+<section>
+
+<title>Running &mpc;</title>
+
+<para>You use the &MPC; utility to add a package to your custom package
+package repository.</para>
+
+<para>Here is a sample invocation:</para>
+
+<informalexample>
+<screen><prompt>&prompt;</prompt><userinput>cd C:\staging\mystuff</userinput>
+
+<prompt>&prompt;</prompt><userinput>mpc --create-package --repository=C:\package-repository --verbose</userinput>
+Loading database from C:\package-repository...
+Reading staging directory C:\staging\mystuff...
+Checking C:\package-repository\mystuff.tar.lzma...
+Creating mystuff.tar.lzma...
+Writing database to C:\package-repository...
+
+<prompt>&prompt;</prompt></screen>
+</informalexample>
+
+<para>&MPC; is run from the staging directory <filename>C:\packages\mystuff</filename>.</para>
+
+</section>
+
+</article>
+
+<!--
+Local Variables:
+mode:xml
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

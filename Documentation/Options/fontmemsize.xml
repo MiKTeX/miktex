@@ -1,0 +1,17 @@
+<varlistentry>
+<term><option>--font-mem-size=<replaceable>n</replaceable></option></term>
+<listitem><para>Set the
+<indexterm>
+<primary>--font-mem-size=n</primary>
+</indexterm>
+size, in &TeX; memory words, of the font memory.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

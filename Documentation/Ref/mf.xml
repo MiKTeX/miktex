@@ -1,0 +1,233 @@
+<refentry id="mf">
+
+<?dbhh topicname="MIKTEXHELP_MF" topicid="0"?>
+
+<refmeta>
+<refentrytitle>mf</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>mf</refname>
+<refpurpose>&METAFONT;, a language for font and logo design</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+
+<cmdsynopsis>
+&mf;
+<arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
+<group>
+<arg choice="opt" rep="repeat"><replaceable>command</replaceable></arg>
+<arg choice="opt"><replaceable>file</replaceable></arg>
+</group>
+</cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>&METAFONT; reads the program in the specified files and outputs
+font rasters (in <acronym>GF</acronym> format) and font metrics (in
+<acronym>TFM</acronym> format).  The &METAFONT; language is described
+in <citetitle>The &METAFONT;book</citetitle>.</para>
+
+<para>Like &TeX;, &METAFONT; is normally used with a large body of
+precompiled macros, and font generation in particular requires the
+support of several macro files.  &METAFONT; looks at its command line
+to see what name it was called under.  Both &inimf; and &virmf; are
+linked to the &mf; executable.  When called as &inimf; (or when the
+<option>--initialize</option> option is given) it can be used to
+precompile macros into a <filename>.base</filename> file.  When called
+as &virmf; it will use the plain base.  When called under any other
+name, &METAFONT; will use that name as the name of the base to use.
+For example, when called as &mf; the mf base is used, which is
+identical to the plain base.  Other bases than plain are rarely
+used.</para>
+
+<para>The commands given on the command line to the &METAFONT; program
+are passed to it as the first input line.  (But it is often easier to
+type extended arguments as the first input line, since shells tend to
+gobble up or misinterpret &METAFONT;'s favorite symbols, like
+semicolons, unless you quote them.)  As described in <citetitle>The
+&METAFONT;book</citetitle>, that first line should begin with a
+filename, a <markup role="metafont">\controlsequence</markup>, or a
+<filename>&amp;<replaceable>basename</replaceable></filename>.</para>
+
+<para>The normal usage is to say
+<programlisting>mf \mode=<replaceable>printengine</replaceable>; input <replaceable>font</replaceable></programlisting>
+to start processing
+<filename><replaceable>font</replaceable>.mf</filename>.  (Or you can
+just say &mf; and give the other stuff on the next line.)  Other
+control sequences, such as <userinput>batchmode</userinput> (for
+silent operation) can also appear.  The name
+<replaceable>font</replaceable> will be the <quote>job name</quote>,
+and is used in forming output file names.  If &METAFONT; doesn't get a
+file name in the first line, the job name is
+<filename>mfput</filename>.  The default extension,
+<filename>.mf</filename>, can be overridden by specifying an extension
+explicitly.</para>
+
+<para>A log of error messages goes into the file
+<filename><replaceable>font</replaceable>.log</filename>.  The output
+files are <filename><replaceable>font</replaceable>.tfm</filename> and
+<filename><replaceable>font</replaceable>.<replaceable>number</replaceable>gf</filename>,
+where <replaceable>number</replaceable> depends on the resolution and
+magnification of the font.  The mode in this example is shown
+generically as <replaceable>printengine</replaceable>, a symbolic term
+for which the name of an actual device or, most commonly, the name
+<filename>localfont</filename> must be substituted.  If the mode is
+not specified or is not valid, &METAFONT; will default to proof mode
+which produces large character images for use in font design and
+refinement.  Proof mode can be recognized by the suffix
+<filename>.2602gf</filename> after the job name.  Examples of proof
+mode output can be found in <citetitle>Computer Modern
+Typefaces</citetitle> (Volume&nbsp;E of Computers and
+Typesetting<citetitle></citetitle>).  The system of magsteps is
+identical to the system used by &TeX;, with values generally in the
+range 0.5, 1.0, 2.0, 3.0, 4.0 and 5.0.</para>
+
+<para>Magnification can also be specified not as a magstep but as an
+arbitrary value, such as 1.315, to create special character
+sizes.</para>
+
+<para>Before font production can begin, it is necessary to set up the
+appropriate base files.  The minimum set of components for font
+production for a given printengine is the
+<filename>plain.mf</filename> macro file and the local <markup
+role="metafont">mode_def</markup> file.  The macros in
+<filename>plain.mf</filename> can be studied in an appendix to
+<citetitle>The &METAFONT;book</citetitle>; they were developed by
+Donald&nbsp;E. Knuth, and this file should never be altered.  Each
+<markup role="metafont">mode_def</markup> specification helps adapt
+fonts to a particular printengine.  The local ones in use on this
+<indexterm>
+<primary>modes.mf</primary>
+</indexterm>
+computer should be in <filename>modes.mf</filename>.</para>
+
+<para>The <userinput>e</userinput> response to &METAFONT;'s error
+prompt causes the default editor to start up at the current line of
+the current file.  The configuration value <parameter
+class="option">Editor</parameter> can be used to change the editor
+used.  It may contain a string with <literal>%f</literal> indicating
+where the filename goes and <literal>%l</literal> indicating where the
+decimal line number (if any) goes.</para>
+
+<para>A convenient file is <filename>null.mf</filename>, containing
+nothing.  When &METAFONT; can't find the file it thinks you want to
+input, it keeps asking you for another file name; responding
+<userinput>null</userinput> gets you out of the loop if you don't want
+to input anything.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Online Graphics Output</title>
+
+<para>You can see &METAFONT;s output without printing.  Chapter&nbsp;23 of
+<citetitle>The &METAFONT;book</citetitle> describes what you can do.
+You enable screen ouput by giving <option>--screen</option> on the
+command-line.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Options</title>
+
+<variablelist>
+&optionalias;
+&optionauxdirectory;
+&optionbistacksize;
+&optionbufsize;
+&optioncstyleerrors;
+&optiondisableinstaller;
+&optiondisablepipes;
+&optiondontparsefirstline;
+&optionenableinstaller;
+&optionenablepipes;
+&optionerrorline;
+&optionhalferrorline;
+&optionhaltonerror;
+&optionhelp;
+&optionhhelp;
+&optionincludedirectory;
+&optioninitialize;
+&optioninteraction;
+&optionjobname;
+&optionjobtime;
+&optionligtablesize;
+&optionmainmemory;
+&optionmaxprintline;
+&optionmaxstrings;
+&optionmaxwiggle;
+&optionmovesize;
+&optionnocstyleerrors;
+&optionoutputdirectory;
+&optionparamsize;
+&optionparsefirstline;
+&optionpathsize;
+&optionpoolsize;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/quiet.xml" />
+&optionrecordpackageusages;
+&optionrecorder;
+<varlistentry>
+<term><option>--screen</option></term>
+<listitem>
+<indexterm>
+<primary>--screen</primary>
+</indexterm>
+<para>Enable screen
+output.</para></listitem>
+</varlistentry>
+&optionstacksize;
+&optionstringvacancies;
+&optiontcx;
+&optiontimestatistics;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/trace.xml" />
+&optionundump;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/version.xml" />
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>Environment</title>
+
+<variablelist>
+&MFINPUTS;
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>See also</title>
+
+<variablelist>
+<varlistentry>
+<term><citetitle>The METAFONTbook</citetitle></term>
+<listitem><para><acronym>ISBN</acronym> 0-201-13444-6</para></listitem>
+</varlistentry>
+</variablelist>
+
+</refsect1>
+
+</refentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

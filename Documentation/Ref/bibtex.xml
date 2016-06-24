@@ -1,0 +1,157 @@
+<refentry id="bibtex">
+
+<?dbhh topicname="MIKTEXHELP_BIBTEX" topicid="0"?>
+
+<refmeta>
+<refentrytitle>bibtex</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>bibtex</refname>
+<refpurpose>make a bibliography for (La)&TeX;</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+
+<cmdsynopsis>
+<command>bibtex</command>
+<arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
+<arg choice="opt"><replaceable>auxname</replaceable></arg>
+</cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>&bibtex; reads the top-level auxiliary
+(<filename>.aux</filename>) file that was output during the running of
+&latex; or &tex; and creates a
+bibliography (<filename>.bbl</filename>) file that will be
+<indexterm>
+<primary>.bbl (bibliography file)</primary>
+</indexterm>
+incorporated into the document on subsequent runs of &LaTeX; or &TeX;.
+<indexterm>
+<primary>bibliography</primary>
+<secondary>creation</secondary>
+</indexterm>
+The <replaceable>auxname</replaceable> on the command-line must be
+given without the <filename>.aux</filename> extension.  If you don't
+<indexterm>
+<primary>.aux (auxiliary file)</primary>
+</indexterm>
+give the <replaceable>auxname</replaceable>, the program prompts you
+for it.</para>
+
+<para>&bibtex; looks up, in bibliographic database
+<indexterm>
+<primary>.bib (bibliographic database)</primary>
+</indexterm>
+(<filename>.bib</filename>) files specified by the <markup
+role="tex">\bibliography</markup> command, the entries specified by
+the <markup role="tex">\cite</markup> and <markup
+role="tex">\nocite</markup> commands in the &LaTeX; or &TeX; source
+file.  It formats the information from those entries according to
+instructions in a bibliography style (<filename>.bst</filename>) file
+<indexterm>
+<primary>.bst (bibliography style file)</primary>
+</indexterm>
+(specified by the <markup role="tex">\bibliographystyle</markup>
+command, and it outputs the results to the <filename>.bbl</filename>
+<indexterm>
+<primary>.bbl</primary>
+</indexterm>
+file.</para>
+
+<para>The &LaTeX; reference manual explains what a &LaTeX; source file
+must contain to work with &bibtex;.  Appendix&nbsp;B of the manual
+describes the format of the <filename>.bib</filename> files. The
+<citetitle>&BibTeX;ing</citetitle> document describes extensions and
+details of this format, and it gives other useful hints for using
+&bibtex;.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Options</title>
+
+<variablelist>
+&optionalias;
+&optiondisableinstaller;
+&optiondisablepipes;
+&optionenableinstaller;
+&optionenablepipes;
+&optionhelp;
+&optionhhelp;
+&optionincludedirectory;
+<varlistentry>
+<term><option>--min-crossrefs=<replaceable>n</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--min-crossrefs=n</primary>
+</indexterm>
+<para>Defines the minimum number of
+<command>crossref</command>s required for automatic inclusion of the
+<indexterm>
+<primary>cross-references</primary>
+<secondary>minimum number required</secondary>
+</indexterm>
+crossref'd entry on the citation list; the default is two.</para></listitem>
+</varlistentry>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/quiet.xml" />
+&optionrecordpackageusages;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/trace.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/version.xml" />
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>Environment</title>
+
+<variablelist>
+&BIBINPUTS;
+&BSTINPUTS;
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>See Also</title>
+
+<variablelist>
+<varlistentry>
+<term><citetitle>&BibTeX;ing</citetitle></term>
+<listitem><para>Run <userinput>mthelp btxdoc</userinput></para></listitem>
+</varlistentry>
+<varlistentry>
+<term><citetitle>Designing &BibTeX; Styles</citetitle></term>
+<listitem><para>Run <userinput>mthelp btxhak</userinput></para></listitem>
+</varlistentry>
+<varlistentry>
+<term><citetitle>&LaTeX;: A Document Preparation System</citetitle></term>
+<listitem><para><acronym>ISBN</acronym> 0-201-52983-1</para></listitem>
+</varlistentry>
+</variablelist>
+
+</refsect1>
+
+</refentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "reference")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

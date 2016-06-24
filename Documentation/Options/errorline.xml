@@ -1,0 +1,22 @@
+<varlistentry>
+<term><option>--error-line=<replaceable>n</replaceable></option></term>
+<listitem><para>Set the
+ width of context lines on
+<indexterm>
+<primary>--error-line=n</primary>
+</indexterm>
+<indexterm>
+<primary>error messages</primary>
+<secondary>line width</secondary>
+</indexterm>
+terminal error messages.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

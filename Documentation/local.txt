@@ -1,0 +1,14 @@
+## Local Guide to LaTeX for MiKTeX Users
+
+MiKTeX doesn't differ very much from any other TeX system you might
+have used before.  Typesetting with MiKTeX involves these steps:
+
+1. Start TeXworks and edit your LaTeX document.
+
+2. Press Ctrl+T to create a typeset view of your document.
+
+Please consult the MiKTeX manual for more information.  You should
+find a shortcut to the manual in the Windows start menu. If not, visit
+the [MiKTeX project page](http://miktex.org) to read it on-line.
+
+Thank you for using MiKTeX!

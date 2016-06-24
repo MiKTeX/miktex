@@ -1,0 +1,19 @@
+<varlistentry>
+<term><envar>MFINPUTS</envar></term>
+<listitem>
+<indexterm>
+<primary>MFINPUTS</primary>
+</indexterm>
+<para>Extra paths to locate &METAFONT; <markup role="mf">input</markup>
+and <markup role="mf">openin</markup> files.</para>
+</listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "reference")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

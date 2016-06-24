@@ -1,0 +1,40 @@
+.topic HIDC_URL
+Displays the location of the package repository,
+where new packages will be downloaded from.
+
+.topic HIDC_TREE
+Displays available MiKTeX packages.
+
+Installed packages are marked with a check.
+
+
+Mark a package and click Apply, to install the package.
+
+
+Remove the mark from package and click Apply, to remove
+a package.
+
+
+Use the Search command (context menu), to locate a
+package.
+
+.topic HIDC_INFO
+Displays a short description of the highlighted package.
+
+.topic HIDC_VERSION
+Displays version information of the highlighted package.
+
+.topic HIDC_PACKED
+Displays the packaging date of the hihglighted package.
+
+.topic HIDC_INSTALLED
+Displays the installation date of the hihglighted package.
+
+.topic HIDC_PACKAGE_SIZE
+Displays the size of the hihglighted package.
+
+.topic HIDC_CHANGE_URL
+Click this to change to another download site.
+
+.topic HIDC_PACKAGE_MANAGER
+Click this to browse the package catalogue.

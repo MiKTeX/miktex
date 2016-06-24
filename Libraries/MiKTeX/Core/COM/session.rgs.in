@@ -1,0 +1,14 @@
+HKCR
+{
+	NoRemove AppID
+	{
+		'%APPID%' = s 'MiKTeX Session'
+		{
+			val DllSurrogate = s ''
+		}
+		'@core_dll_name@.DLL'
+		{
+			val AppID = s '%APPID%'
+		}
+	}
+}

@@ -1,0 +1,19 @@
+<varlistentry>
+<term><option>--undump=<replaceable>name</replaceable></option></term>
+<listitem><para>Use <replaceable>name</replaceable> as the name of the format to
+<indexterm>
+<primary>--undump=name</primary>
+</indexterm>
+be used, instead of the name by which the program was called or a
+<programlisting>%&amp;</programlisting>
+line.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

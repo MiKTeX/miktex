@@ -1,0 +1,46 @@
+<chapter id="localguide">
+    
+<title>Using &MiKTeX;</title>
+
+<section id="gettingstarted">
+
+<title>Getting Started</title>
+
+<para>If you have never used &TeX; before, then it is recommendable
+<indexterm>
+<primary>local guide</primary>
+</indexterm>
+to work through one of the &TeX;/&LaTeX; tutorials. A good
+starting point is this entry in the UK &TeX; &FAQ;:
+<ulink url="http://www.tex.ac.uk/cgi-bin/texfaq2html?label=tutorials*">http://www.tex.ac.uk/cgi-bin/texfaq2html?label=tutorials*</ulink>.</para>
+
+<para>&MiKTeX; doesn't differ very much from
+any other &TeX; system you might have used before.
+Typesetting with &MiKTeX; involves these steps:</para>
+<procedure>
+<step><para>Start &TeXworks; and edit your &LaTeX; document.</para></step>
+<step><para>Press <keycombo>
+<keycap>Ctrl</keycap>
+<keycap>T</keycap>
+</keycombo>
+to create a typeset view of your document.</para></step>
+</procedure>
+
+</section>
+
+&texfeatures;
+
+&texifying;
+
+&printing;
+
+</chapter>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

@@ -1,0 +1,6 @@
+ocp_buf_size=500000
+ocp_listinfo_size=1000
+ocp_list_list_size=1000
+ocp_lstack_size=1000
+ocp_stack_size=10000
+trie_op_size=35111

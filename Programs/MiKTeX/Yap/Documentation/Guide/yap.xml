@@ -1,0 +1,338 @@
+<?xml-stylesheet type="text/xsl" href="html.xsl" ?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                      "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+
+<!ENTITY rev "2.9.4066">
+<!ENTITY yaprev "2.9.4063">
+<!ENTITY date "February 18, 2011">
+<!ENTITY month "February 2011">
+
+<!ENTITY MiKTeX "<application>MiKTeX</application>">
+<!ENTITY Yap "<application>Yap</application>">
+<!ENTITY DVI "<acronym>DVI</acronym>">
+<!ENTITY CDR "<acronym>CD-R</acronym>">
+<!ENTITY TeX "<application>TeX</application>">
+<!ENTITY Dvips "<application>Dvips</application>">
+<!ENTITY PostScript "<application>PostScript</application>">
+<!ENTITY Ghostscript "<application>Ghostscript</application>">
+
+<!ENTITY commandline SYSTEM "commandline.xml">
+<!ENTITY customizing SYSTEM "customizing.xml">
+<!ENTITY dvisearch SYSTEM "dvisearch.xml">
+<!ENTITY keyboard SYSTEM "keyboard.xml">
+<!ENTITY menus SYSTEM "menus.xml">
+<!ENTITY printing SYSTEM "printing.xml">
+<!ENTITY prompt "C:\> ">
+<!ENTITY tools SYSTEM "tools.xml">
+<!ENTITY tracestreams SYSTEM "tracestreams.xml">
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
+<book>
+  
+<bookinfo>
+<title>&Yap; User's Guide</title>
+<edition>&rev; (&Yap; &yaprev;)</edition>
+<author>
+<firstname>Christian</firstname>
+<surname>Schenk</surname>
+</author>
+<copyright>
+<year>2011</year>
+<holder>Christian Schenk</holder>
+</copyright>
+<date>&date;</date>
+<legalnotice>
+<para>Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.</para>
+<para>Permission is granted to copy and distribute modified versions
+of this manual under the conditions for verbatim copying, provided
+that the entire resulting derived work is distributed under the terms
+of a permission notice identical to this one.</para>
+<para>Permission is granted to copy and distribute translations of
+this manual into another language, under the above conditions for
+modified versions, except that this permission notice may be stated in
+a translation approved by the Free Software Foundation.</para>
+</legalnotice>
+</bookinfo>
+
+<preface id="preface">
+
+<title>About this Document</title>
+
+<para>This is version &rev; of the &Yap; User's Guide.  It corresponds
+to &Yap;&nbsp;&yaprev; as at &date;.</para>
+</preface>
+  
+<chapter id="intro">
+
+<?dbhh topicname="HIDR_MAINFRAME" topicid="0"?>
+
+<title>About &Yap;</title>
+
+<para><emphasis>This section is <quote>borrowed</quote> from the
+<acronym>XDVI</acronym> help file.</emphasis></para>
+
+<para>You use &Yap; (Yet Another Previewer) to view &DVI; files, such
+as are produced by &TeX;.</para>
+
+<para>&Yap; has the capability of showing the file shrunken by various
+(integer) factors, and also has a <quote>magnifying glass</quote>
+which allows one to see a small part of the unshrunk image
+momentarily.</para>
+
+<para>Before displaying any page or part thereof, &Yap; checks to see
+if the &DVI; file has changed since the last time it was displayed.
+If this is the case, then &Yap; will reinitialize itself for the
+modified &DVI; file.</para>
+
+</chapter>
+
+<chapter id="opening">
+
+<?dbhh topicname="HID_FILE_MRU_FILE1" topicid=""?>
+<?dbhh topicname="AFX_HIDD_FILEOPEN" topicid=""?>
+
+<title>How to Open a File</title>
+
+<indexterm>
+<primary>&DVI; file</primary>
+<secondary>opening</secondary>
+</indexterm>
+      
+<para>There are several ways to open a file:</para>
+
+<itemizedlist>
+<listitem><para>by double-clicking a &DVI; file icon in
+the Windows shell (Explorer)</para></listitem>
+<listitem><para>by dragging a &DVI; file icon to the
+&Yap; application window</para></listitem>
+<listitem><para>by specifying a  file name on the
+&Yap; command-line (see <xref linkend="commandline"/>).</para></listitem>
+<listitem><para>by clicking <guimenu>Open...</guimenu> on the
+<guimenu>File</guimenu> menu.</para></listitem>
+<listitem><para>by clicking an <acronym>MRU</acronym> (most recently used}
+<indexterm> 
+<primary><acronym>MRU</acronym> (most recently used) files</primary>
+<secondary>opeing</secondary>
+</indexterm>
+item on the <guimenu>File</guimenu> menu.</para></listitem>
+</itemizedlist>
+
+<para>You can open more than one file with a single instance of
+&Yap;.</para>
+
+</chapter>
+
+<chapter id="viewing">
+
+<?dbhh topicname="HIDR_DVITYPE" topicid="0"?>
+
+<title>Viewing &DVI; Files</title>
+
+<section id="rendermethods">
+
+<title>Render Methods</title>
+
+<para>&Yap; supports two render methods:</para>
+
+<indexterm>
+<primary>render methods</primary>
+</indexterm>
+
+<indexterm>
+<primary>render method</primary>
+<secondary>Pk</secondary>
+</indexterm>
+
+<indexterm>
+<primary>render method</primary>
+<secondary>Dvips</secondary>
+</indexterm>
+
+<variablelist>
+<varlistentry>
+<term>Pk</term>
+<listitem><para>The &DVI; file is rendered using packed raster fonts. This
+is the traditional method to render &DVI; files.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Dvips</term>
+<listitem>
+<para>The &DVI; file is rendered using &Dvips;/&Ghostscript;. This
+render method is suitable for &DVI; files which contain &PostScript;
+instructions.
+<indexterm>
+<primary>PostScript specials</primary>
+</indexterm>
+(e.g., rotated text and graphics).</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>The render method for the viewed &DVI; file can be chosen in the
+<guimenu>View</guimenu> menu (<xref
+linkend="menurendermethod"/>).</para>
+
+<para>The default render method can be chosen on the
+<guilabel>Display</guilabel> property page (<xref
+linkend="propdisplay"/>).</para>
+
+</section>
+
+<section id="magnifying">
+
+<title>Magnifying and Reducing the View</title>
+
+<indexterm>
+<primary>magnifying</primary>
+<secondary>the view</secondary>
+</indexterm>
+
+<indexterm>
+<primary>reducing</primary>
+<secondary>the view</secondary>
+</indexterm>
+
+<indexterm>
+<primary>zooming</primary>
+</indexterm>
+
+<para>To increase magnification, either click the <guilabel>Zoom
+In</guilabel> button on the tool bar, or press <keycap>+</keycap> on
+the numeric keypad.</para>
+
+<para>To decrease magnification, either click the <guilabel>Zoom
+Out</guilabel> button on the tool bar, or press <keycap>-</keycap> on
+the numeric keypad.</para>
+
+</section>
+
+<section id="pagelayout">
+
+<title>Setting the Page Layout</title>
+
+<indexterm>
+<primary>page layout</primary>
+<secondary>setting the</secondary>
+</indexterm>
+<para>You can choose among four page layouts when viewing &DVI;
+files:</para>
+
+<itemizedlist>
+<listitem>
+<para>Single Page Layout displays
+one page in the document at a time.</para></listitem>
+<listitem><para>Double Page Layout displays
+two pages in the document at a time.</para></listitem>
+<listitem><para>Continuous/Single Page Layout arranges
+the pages in a continuous vertical column.</para></listitem>
+<listitem><para>Continuous/Double Page Layout arranges the pages side by
+side in a continuous vertical column.</para></listitem>
+</itemizedlist>
+
+<para>To set the page layout, either click one of the four layout
+buttons in the tool bar, or click one of the four layout commands on
+the context menu.</para>
+
+</section>
+
+<section id="fullscreen">
+      
+<title>Presenting Documents in Full Screen View</title>
+
+<indexterm>
+<primary>full screen mode</primary>
+</indexterm>
+
+<indexterm>
+<primary>presentations</primary>
+</indexterm>
+
+<para>In Full Screen view, &DVI; pages fill the entire screen; the
+menu bar, tool bar and status bar are hidden.  Full Screen view is
+often used for presentations.  The pointer remains active in Full
+Screen view so that you can click links.  You can use keybord
+shortcuts (<xref linkend="keyboard"/>) for navigational and
+magnification commands.</para>
+
+<para>To present a document in Full Screen view, click <guilabel>Full
+Screen</guilabel> on the <guimenu>View</guimenu> menu.  To exit Full
+Screen view, press <keycap>Escape</keycap>.</para>
+
+</section>
+
+<section id="gotopage">
+
+<?dbhh topicname="HIDD_GOTOPAGE" topicid="0"?>
+
+<title><guilabel>Goto Page</guilabel> Dialog Box</title>
+
+<indexterm>
+<primary>page</primary>
+<secondary>displaying a random</secondary>
+</indexterm>
+
+<para>The <guilabel>Goto Page</guilabel> dialog lets you
+select a &TeX; page number. The corresponding document location
+is scrolled into view when you close the dialog box.</para>
+
+</section>
+
+<section id="docprop">
+
+<title>Viewing Document Properties</title>
+
+<indexterm>
+<primary>&DVI; document</primary>
+<secondary>properties</secondary>
+</indexterm>
+
+<section id="docfonts">
+
+<?dbhh topicname="HIDD_DOC_PROP_FONTS" topicid="0"?>
+
+<title><guilabel>Fonts</guilabel></title>
+
+<indexterm>
+<primary>fonts</primary>
+<secondary>listing</secondary>
+</indexterm>
+
+<para>This page shows information about used fonts. If a font could
+not be loaded, then it appears as <computeroutput>&gt;&gt;&gt; Not
+loadable - double-click to see details</computeroutput>. You will get
+a detailed problem description, when you double-click the
+entry.</para>
+
+</section>
+
+</section>
+
+</chapter>
+
+&tools;
+
+&printing;
+
+&dvisearch;
+
+&customizing;
+
+&keyboard;
+
+&menus;
+
+&commandline;
+
+</book>
+
+<!--
+Local Variables:
+mode:xml
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

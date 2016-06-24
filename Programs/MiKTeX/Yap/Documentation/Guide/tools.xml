@@ -1,0 +1,157 @@
+<chapter id="tools">
+
+<title>&Yap; Tools</title>
+
+<para>&Yap; provides several tools for browsing the
+&DVI; document.</para>
+
+<section id="srcspecialsbrowser">
+
+<title>Browsing Source Specials</title>
+
+<indexterm>
+<primary>source specials</primary>
+<secondary>browsing</secondary>
+</indexterm>
+<para>The command
+<menuchoice>
+<guimenu>Tools</guimenu>
+<guimenuitem>Source Specials...</guimenuitem>
+</menuchoice>
+opens the the Source Specials window.</para>
+
+<section id="srcspecialsdlg">
+
+<title>Source Specials Window</title>
+
+<para>This window lists all source specials found in the current
+&DVI; document.</para>
+
+<para>The <guilabel>Goto</guilabel> button brings into view the
+portion of the &DVI; document which
+contains the selected source special.</para>
+
+<para>The <guilabel>Edit Source</guilabel> button invokes an editor to
+edit the <application>TeX</application> source corresponding to the
+selected source special.</para>
+
+</section>
+
+</section>
+
+<section id="rulertool">
+
+<title>Ruler</title>
+
+<para>The ruler tool allows you to measure distances on a page.
+You select the ruler tool with the command
+<menuchoice>
+<guimenu>Tools</guimenu>
+<guimenuitem>Ruler</guimenuitem>
+</menuchoice>
+or by clicking the corresponding button on the toolbar.
+</para>
+
+<figure id="figruler">
+<title>Ruler Tool</title>
+<screenshot>
+<mediaobject>
+<imageobject>
+<imagedata fileref="images/ruler"/>
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+<para>Pressing the left mouse button activates the horizontal
+ruler. Pressing the left mouse button in combination with the
+<keycap>Shift</keycap> key activates the vertical
+ruler.</para>
+
+<para>You can change the measurement unit (see <xref
+linkend="propdisplay"/>).</para>
+
+</section>
+
+<section id="handtool">
+
+<title>Hand Tool</title>
+
+<indexterm>
+<primary>hand tool</primary>
+<secondary>selecting the</secondary>
+</indexterm>
+
+<para>The hand tool allows you to scroll the page by moving the cursor
+while the left mouse button is pressed. You select the hand Tool with
+the command
+<menuchoice>
+<guimenu>Tools</guimenu>
+<guimenuitem>Hand Tool</guimenuitem>
+</menuchoice>
+or by clicking the corresponding button in the toolbar.</para>
+
+</section>
+
+<section id="magglasstool">
+
+<title>Magnifying Glass</title>
+
+<indexterm>
+<primary>magnifying glass</primary>
+<secondary>activating the</secondary>
+</indexterm>
+
+<para>The magnifying glass allows you to view a small part of the
+unshrunk page.  You select this tool with the command
+<menuchoice>
+<guimenu>Tools</guimenu>
+<guimenuitem>Magnifying Glass</guimenuitem>
+</menuchoice>
+or by clicking the corresponding button in the toolbar.</para>
+
+<figure id="figmagglass">
+<title>Magnifying Glass</title>
+<screenshot>
+<mediaobject>
+<imageobject>
+<imagedata fileref="images/magglass"/>
+</imageobject>
+</mediaobject>
+</screenshot>
+</figure>
+
+<para>You can choose between three sizes:</para>
+
+<orderedlist>
+<listitem><para>Pressing the left mouse button
+activates the small magnifying glass.</para></listitem>
+<listitem><para>Pressing the left mouse button in combination with the
+<keycap>Shift</keycap> key activates the medium sized
+magnifying glass.</para></listitem>
+<listitem><para>Pressing the left mouse button in combination with the
+<keycap>Control</keycap> key activates the large
+magnifying glass.</para></listitem>
+</orderedlist>
+
+<para>You can customize the appearance of the magnifying
+glass (see <xref linkend="propmagglass"/>).</para>
+
+<para>You can specify the power of the magnifying glass
+by entering a numerical prefix argument.  The argument is interpreted
+as a shrink factor for the text inside the magnifying glass.  A shrink
+factor of <literal>1</literal> (the default) results in a maximum
+magnification.</para>
+
+</section>
+
+</chapter>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("yap.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+  <appender name="RollingLogFile" class="org.apache.log4j.RollingFileAppender">
+    <param name="file" value="${MIKTEX_LOG_DIR}/${MIKTEX_LOG_NAME}.log" />
+    <param name="append" value="true" />
+    <param name="MaxFileSize" value="1MB" />
+    <param name="MaxBackupIndex" value="10" />
+    <param name="Threshold" value="INFO" />
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss,SSSZ} %-5p %c{2} - %m%n" />
+    </layout>
+  </appender>
+
+  <root>
+    <level value="INFO" />
+    <appender-ref ref="RollingLogFile" />
+  </root>
+
+  <logger name="trace">
+    <level value="TRACE" />
+  </logger>
+
+</log4j:configuration>

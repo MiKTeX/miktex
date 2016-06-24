@@ -1,0 +1,19 @@
+<varlistentry>
+<term><option>--hhelp</option></term>
+<listitem>
+<indexterm>
+<primary>--hhelp</primary>
+</indexterm>
+<para>This option is only available on Windows systems:
+show the manual page in an HTML Help window and exit when the window is
+closed.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

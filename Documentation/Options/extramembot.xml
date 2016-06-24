@@ -1,0 +1,19 @@
+<varlistentry>
+<term><option>--extra-mem-bot=<replaceable>n</replaceable></option></term>
+<listitem><para>Set the
+<indexterm>
+<primary>--extra-mem-bot=n</primary>
+</indexterm>
+extra size (in memory words) for large data structures like boxes,
+glue, breakpoints, et al. Relevant only after the memory dump file
+has been read.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

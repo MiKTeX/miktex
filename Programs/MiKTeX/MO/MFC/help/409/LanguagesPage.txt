@@ -1,0 +1,2 @@
+.topic HIDC_LIST
+Displays a list of all languages known by TeX.

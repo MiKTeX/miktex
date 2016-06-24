@@ -1,0 +1,59 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                      "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+<!ENTITY % version.ent SYSTEM "version.ent">
+<!ENTITY optionmainmemory SYSTEM "Options/mainmemory.xml">
+<!ENTITY optionextramembot SYSTEM "Options/extramembot.xml">
+<!ENTITY optionextramemtop SYSTEM "Options/extramemtop.xml">
+%version.ent;
+%entities.ent;
+]>
+
+<article lang="en">
+  <articleinfo>
+    <title>&MiKTeXCurrentSeries;: Release Notes</title>
+    <author>
+      <firstname>Christian</firstname>
+      <surname>Schenk</surname>
+    </author>
+    <copyright>
+      <year>2016</year>
+      <holder>Christian Schenk</holder>
+    </copyright>
+    <legalnotice>
+      <para>
+	Permission is granted to make and distribute verbatim copies
+	of this manual provided the copyright notice and this
+	permission notice are preserved on all copies.
+      </para>
+      <para>
+	Permission is granted to copy and distribute modified versions
+	of this manual under the conditions for verbatim copying,
+	provided that the entire resulting derived work is distributed
+	under the terms of a permission notice identical to this one.
+      </para>
+      <para>
+	Permission is granted to copy and distribute translations of
+	this manual into another language, under the above conditions
+	for modified versions, except that this permission notice may
+	be stated in a translation approved by the Free Software
+	Foundation.
+      </para>
+    </legalnotice>
+  </articleinfo>
+
+<section>
+<title>Please visit the &MiKTeXCurrentSeries; status page</title>
+<para>Please visit
+<ulink url="http://miktex.org/2.9/status">status page</ulink> for up-to-date release notes.</para>
+</section>
+
+</article>
+
+<!--
+Local Variables:
+mode:xml
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

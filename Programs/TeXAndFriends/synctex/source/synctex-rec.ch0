@@ -1,0 +1,430 @@
+Copyright (c) 2008, 2009 jerome DOT laurens AT u-bourgogne DOT fr
+
+This file is part of the SyncTeX package.
+
+Latest Revision: Wed Jul  1 11:17:04 UTC 2009
+
+License:
+--------
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE
+
+Except as contained in this notice, the name of the copyright holder  
+shall not be used in advertising or otherwise to promote the sale,  
+use or other dealings in this Software without prior written  
+authorization from the copyright holder.
+
+Acknowledgments:
+----------------
+The author received useful remarks from the pdfTeX developers, especially Hahn The Thanh,
+and significant help from XeTeX developer Jonathan Kew
+
+Nota Bene:
+----------
+If you include or use a significant part of the synctex package into a software,
+I would appreciate to be listed as contributor and see "SyncTeX" highlighted.
+
+Version 1
+Thu Jun 19 09:39:21 UTC 2008
+
+Notice:
+-------
+
+@x
+@p function get_node(@!s:integer):pointer; {variable-size node allocation}
+@y
+@p function get_node(@!s:integer):pointer; {variable-size node allocation}
+@z
+
+@x tex.web l.2716
+get_node:=r;
+@y
+@<Initialize bigger nodes with {\sl Sync\TeX} information@>;
+get_node:=r;
+@z
+
+@x tex.web l.4002: Copy
+@ @<Case statement to copy...@>=
+@y
+@ @<Case statement to copy...@>=
+@z
+
+@x
+hlist_node,vlist_node,unset_node: begin r:=get_node(box_node_size);
+@y
+hlist_node,vlist_node,unset_node: begin r:=get_node(box_node_size);
+  @<Copy the box {\sl Sync\TeX} information@>;
+@z
+
+@x
+rule_node: begin r:=get_node(rule_node_size); words:=rule_node_size;
+@y
+rule_node: begin r:=get_node(rule_node_size); words:=rule_node_size-synctex_field_size;{{\sl Sync\TeX}: do not let \TeX\ copy the {\sl Sync\TeX} information}
+  @<Copy the rule {\sl Sync\TeX} information@>;
+@z
+
+@x
+glue_node: begin r:=get_node(medium_node_size); add_glue_ref(glue_ptr(p));
+@y
+glue_node: begin r:=get_node(medium_node_size); add_glue_ref(glue_ptr(p));
+  @<Copy the medium sized node {\sl Sync\TeX} information@>;
+@z
+
+@x
+@p procedure begin_file_reading;
+@y
+@p procedure begin_file_reading;
+@z
+
+@x
+name:=0; {|terminal_input| is now |true|}
+@y
+name:=0; {|terminal_input| is now |true|}
+@<Prepare terminal input {\sl Sync\TeX} information@>;
+@z
+
+@x
+@p procedure start_input; {\TeX\ will \.{\\input} something}
+@y
+@p procedure start_input; {\TeX\ will \.{\\input} something}
+@z
+
+@x tex.web l.10380
+@<Read the first line of the new file@>;
+@y
+@<Prepare new file {\sl Sync\TeX} information@>;
+@<Read the first line of the new file@>;
+@z
+
+@x
+procedure hlist_out; {output an |hlist_node| box}
+@y
+procedure hlist_out; {output an |hlist_node| box}
+@z
+
+@x tex.web l.12338
+while p<>null do @<Output node |p| for |hlist_out| and move to the next node,
+  maintaining the condition |cur_v=base_line|@>;
+@y
+@<Start hlist {\sl Sync\TeX} information record@>;
+while p<>null do @<Output node |p| for |hlist_out| and move to the next node,
+  maintaining the condition |cur_v=base_line|@>;
+@<Finish hlist {\sl Sync\TeX} information record@>;
+@z
+
+@x
+@<Output node |p| for |hlist_out|...@>=
+@y
+@<Output node |p| for |hlist_out|...@>=
+@z
+
+@x
+  until not is_char_node(p);
+@y
+  until not is_char_node(p);
+  @<Record current point {\sl Sync\TeX} information@>;
+@z
+
+@x
+@ @<Output the non-|char_node| |p| for |hlist_out|...@>=
+@y
+@ @<Output the non-|char_node| |p| for |hlist_out|...@>=
+@z
+
+@x tex.web l.12390
+move_past: cur_h:=cur_h+rule_wd;
+@y
+move_past: begin
+  cur_h:=cur_h+rule_wd;
+  @<Record horizontal |rule_node| or |glue_node| {\sl Sync\TeX} information@>;
+end;
+@z
+
+@x tex.web l.12394
+@ @<Output a box in an hlist@>=
+if list_ptr(p)=null then cur_h:=cur_h+width(p)
+@y
+@ @<Output a box in an hlist@>=
+if list_ptr(p)=null then begin
+  @<Record void list {\sl Sync\TeX} information@>;
+  cur_h:=cur_h+width(p);
+end
+@z
+
+@x
+@p procedure vlist_out; {output a |vlist_node| box}
+@y
+@p procedure vlist_out; {output a |vlist_node| box}
+@z
+
+@x tex.web l.12534
+top_edge:=cur_v;
+@y
+MISSING @<Start vlist {\sl Sync\TeX} information record@> before cur_v:=cur_v-height(this_box);
+top_edge:=cur_v;
+@z
+
+@x tex.web l.12535
+while p<>null do @<Output node |p| for |vlist_out| and move to the next node,
+  maintaining the condition |cur_h=left_edge|@>;
+@y
+while p<>null do @<Output node |p| for |vlist_out| and move to the next node,
+  maintaining the condition |cur_h=left_edge|@>;
+@<Finish vlist {\sl Sync\TeX} information record@>;
+@z
+
+@x tex.web l.12569
+@<Output a box in a vlist@>=
+if list_ptr(p)=null then cur_v:=cur_v+height(p)+depth(p)
+@y
+@<Output a box in a vlist@>=
+if list_ptr(p)=null then cur_v:=cur_v+height(p)+depth(p)
+MISSING @<Record void list {\sl Sync\TeX} information@>;
+@z
+
+@x tex.web l.12669
+@!old_setting:0..max_selector; {saved |selector| setting}
+@y
+@!old_setting:0..max_selector; {saved |selector| setting}
+begin @<Start sheet {\sl Sync\TeX} information record@>;
+@z
+
+@x tex.web l.12692
+@<Flush the box from memory, showing statistics if requested@>;
+end;
+@y
+@<Flush the box from memory, showing statistics if requested@>;
+end;
+@<Finish sheet {\sl Sync\TeX} information record@>;
+end;
+@z
+
+@x
+@<Append a ligature and/or kern to the translation...@>=
+@y
+@<Append a ligature and/or kern to the translation...@>=
+@z
+
+@x tex.web l.17887
+if w<>0 then
+  begin link(t):=new_kern(w); t:=link(t); w:=0;
+@y
+if w<>0 then
+  begin link(t):=new_kern(w); t:=link(t); w:=0;
+    sync_tag(t+medium_node_size):=0; {{\sl Sync\TeX}: do nothing, it is too late}
+@z
+
+@x tex.web l.19335
+@<Initialize the special list...@>=
+type(page_head):=glue_node; subtype(page_head):=normal;
+@y
+@<Initialize the special list...@>=
+type(page_head):=glue_node; subtype(page_head):=normal;
+        {{\sl Sync\TeX} watch point: box(|page_head|) size >= |glue_node| size}
+@z
+
+@x
+@<Move the cursor past a pseudo-ligature...@>=
+@y
+@<Move the cursor past a pseudo-ligature...@>=
+@z
+
+@x tex.web l.20188
+free_node(temp_ptr,small_node_size);
+@y
+free_node(temp_ptr,small_node_size); {{\sl Sync\TeX} watch point: proper size!}
+@z
+
+@x
+procedure close_files_and_terminate;
+@y
+procedure close_files_and_terminate;
+@z
+
+@x tex.web l.24301
+if log_opened then
+@y
+@<Close {\sl Sync\TeX} file and write status@>;
+if log_opened then
+@z
+
+@x tex.web + synctex-mem.ch0
+@ Synchronization is achieved with the help of an auxiliary file...
+@y
+@ Synchronization is achieved with the help of an auxiliary file named
+`\.{{\sl jobname}.synctex}' ({\sl jobname} is the contents of the
+\.{\\jobname} macro), where a {\sl Sync\TeX} controller implemented
+in the external |synctex.c| file will store geometrical information.
+This {\sl Sync\TeX} controller will take care of every technical details
+concerning the {\sl Sync\TeX} file, we will only focus on the messages
+the controller will receive from the \TeX\ program.
+
+The most accurate synchronization information should allow to map
+any character of the input source file to the corresponding location
+in the output, if relevant.
+Ideally, the synchronization information of the input material consists of
+the file name, the line and column numbers of every character.
+The synchronization information in the output is simply the page number and
+either point coordinates, or box dimensions and position.
+The problem is that the mapping between these informations is only known at
+ship out time, which means that we must keep track of the input
+synchronization information until the pages ship out.
+
+As \TeX\ only knows about file names and line numbers,
+but forgets the column numbers, we only consider a
+restricted input synchronization information called {\sl Sync\TeX\ information}.
+It consists of a unique file name identifier, the {\sl Sync\TeX\ file tag},
+and the line number.
+ 
+Keeping track of such information,
+should be different whether characters or nodes are involved.
+Actually, only certain nodes are involved in {\sl Sync\TeX},
+we call them {\sl synchronized nodes}.
+Synchronized nodes store the {\sl Sync\TeX} information in their last two words:
+the first one contains a {\sl Sync\TeX\ file tag} uniquely identifying
+the input file, and the second one contains the current line number,
+as returned by the \.{\\inputlineno} primitive.
+The |synctex_field_size| macro contains the necessary size to store
+the {\sl Sync\TeX} information in a node.
+
+When declaring the size of a new node, it is recommanded to use the following
+convention: if the node is synchronized, use a definition similar to
+|my_synchronized_node_size|={\sl xxx}+|synctex_field_size|.
+Moreover, one should expect that the {\sl Sync\TeX} information is always stored
+in the last two words of a synchronized node.
+
+@ By default, every node with a sufficiently big size is initialized
+at creation time in the |get_node| routine with the current
+{\sl Sync\TeX} information, whether or not the node is synchronized.
+One purpose is to set this information very early in order to minimize code
+dependencies, including forthcoming extensions.
+Another purpose is to avoid the assumption that every node type has a dedicated getter,
+where initialization should take place. Actually, it appears that some nodes are created
+using directly the |get_node| routine and not the dedicated constructor.
+And finally, initializing the node at only one place is less error prone.
+
+@ @<Initialize bigger nodes with {\sl Sync\TeX} information@>=
+if s>=medium_node_size then
+begin
+  sync_tag(r+s):=synctex_tag;
+  sync_line(r+s):=line;
+end;
+
+@ Instead of storing the input file name, it is better to store just an identifier.
+Each time \TeX\ opens a new file, it notifies the {\sl Sync\TeX} controller with
+a |synctex_start_input| message.
+This controller will create a new {\sl Sync\TeX} file tag and
+will update the current input state record accordingly.
+If the input comes from the terminal or a pseudo file, the |synctex_tag| is set to 0.
+It results in automatically disabling synchronization for material
+input from the terminal or pseudo files.
+
+@ @<Prepare new file {\sl Sync\TeX} information@>=
+synctex_start_input; {Give control to the {\sl Sync\TeX} controller}
+
+@ @<Prepare terminal input {\sl Sync\TeX} information@>=
+synctex_tag:=0;
+
+@ @<Close {\sl Sync\TeX} file and write status@>=
+synctex_terminate(log_opened); {Let the {\sl Sync\TeX} controller close its files.}
+
+@ Synchronized nodes are boxes, math, kern and glue nodes.
+Other nodes should be synchronized too, in particular math noads.
+\TeX\ assumes that math, kern and glue nodes have the same size,
+this is why both are synchronized.
+{\sl In fine}, only horizontal lists are really used in {\sl Sync\TeX},
+but all box nodes are considered the same with respect to synchronization,
+because a box node type is allowed to change at execution time.
+
+The next sections are the various messages sent to the {\sl Sync\TeX} controller.
+The argument is either the box or the node currently shipped out.
+The vertical boxes are not recorded, but the code is available for clients.
+
+@ @<Start sheet {\sl Sync\TeX} information record@>=
+synctex_sheet(mag);
+
+@ @<Finish sheet {\sl Sync\TeX} information record@>=
+synctex_teehs;
+
+@ @<Start vlist {\sl Sync\TeX} information record@>=
+synctex_vlist(this_box);
+
+@ @<Finish vlist {\sl Sync\TeX} information record@>=
+synctex_tsilv(this_box);
+
+@ @<Start hlist {\sl Sync\TeX} information record@>=
+synctex_hlist(this_box);
+
+@ @<Finish hlist {\sl Sync\TeX} information record@>=
+synctex_tsilh(this_box);
+
+@ @<Record void list {\sl Sync\TeX} information@>=
+  if type(p)=vlist_node then begin
+      synctex_void_vlist(p,this_box);
+    end
+  else begin
+      synctex_void_hlist(p,this_box);
+    end;
+
+@ @<Record current point {\sl Sync\TeX} information@>=
+synctex_current;
+
+@ @<Record horizontal |rule_node| or |glue_node| {\sl Sync\TeX} information@>=
+synctex_horizontal_rule_or_glue(p,this_box);
+
+@ @<Record |kern_node| {\sl Sync\TeX} information@>=
+synctex_kern(p,this_box);
+
+@ @<Record |math_node| {\sl Sync\TeX} information@>=
+synctex_math(p,this_box);
+
+@ When making a copy of a synchronized node, we might also have to duplicate
+the {\sl Sync\TeX} information by copying the two last words.
+This is the case for a |box_node| and for a |glue_node|,
+but not for a |math_node| nor a |kern_node|. These last two nodes always keep
+the {\sl Sync\TeX} information they received at creation time.
+ 
+@ @<Copy the box {\sl Sync\TeX} information@>=
+sync_tag(r+box_node_size):=sync_tag(p+box_node_size);
+sync_line(r+box_node_size):=sync_line(p+box_node_size);
+
+@ @<Copy the rule {\sl Sync\TeX} information@>=
+{sync_tag(r+rule_node_size):=sync_tag(p+rule_node_size);
+sync_line(r+rule_node_size):=sync_line(p+rule_node_size);}
+
+@ @<Copy the medium sized node {\sl Sync\TeX} information@>=
+sync_tag(r+medium_node_size):=sync_tag(p+medium_node_size);
+sync_line(r+medium_node_size):=sync_line(p+medium_node_size);
+
+@ {\sl Nota Bene:}
+The {\sl Sync\TeX} code is very close to the memory model.
+It is not connected to any other part of the code,
+except for memory management. It is possible to neutralize the {\sl Sync\TeX} code
+rather simply. The first step is to define a null |synctex_field_size|.
+The second step is to comment out the code in ``Initialize bigger nodes...'' and every
+``Copy ... {\sl Sync\TeX} information''.
+The last step will be to comment out the |synctex_tag_field| related code in the
+definition of |synctex_tag| and the various ``Prepare ... {\sl Sync\TeX} information''.
+Then all the remaining code should be just harmless.
+The resulting program would behave exactly the same as if absolutely no {\sl Sync\TeX}
+related code was there, including memory management.
+Of course, all this assumes that {\sl Sync\TeX} is turned off from the command line.
+@z

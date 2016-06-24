@@ -1,0 +1,17 @@
+<varlistentry>
+<term><option>--halt-on-error</option></term>
+<listitem><para>Quit after the
+<indexterm>
+<primary>--halt-on-error</primary>
+</indexterm>
+first error.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

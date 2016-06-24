@@ -1,0 +1,115 @@
+<chapter id="commandline">
+
+<title>Command-line Switches</title>
+
+<cmdsynopsis>
+<command>yap</command>
+<group>
+<arg><option>--find-src-special=<replaceable>srcspecial</replaceable></option></arg>
+<arg><option>-s=<replaceable>srcspecial</replaceable></option></arg>
+</group>
+<arg><option>--goto-hyper-label=<replaceable>label</replaceable></option></arg>
+<arg><option>--register</option></arg>
+<group>
+<arg><option>--single-instance</option></arg>
+<arg><option>-1</option></arg>
+</group>
+<arg><option>--trace=<replaceable>traceflags</replaceable></option></arg>
+<arg><option>--unregister</option></arg>
+<arg><replaceable>dvifile</replaceable></arg>
+</cmdsynopsis>
+
+<simplesect>
+
+<title>Options</title>
+
+<variablelist>
+
+<varlistentry>
+<term><option>--find-src-special=<replaceable>srcspecial</replaceable></option></term>
+<term><option>-s=<replaceable>srcspecial</replaceable></option></term>
+<listitem><para>Initiates a forward search (see <xref
+linkend="dvisearch"/>).  The syntax for
+<indexterm>
+<primary>forward &DVI; search</primary>
+<secondary>command-line option</secondary>
+</indexterm>
+<replaceable>srcspecial</replaceable> is <option>NNFILENAME</option>,
+i.e. a line number followed by a source file name).  See the example
+below.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--goto-hyper-label=<replaceable>label</replaceable></option></term>
+<listitem><para>Jumps to a <application>HyperTeX</application> label which
+has been inserted by the <filename>hyperref</filename> package.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--register</option></term>
+<listitem><para>Stores &Yap; related configuration settings in
+the <application>Windows Registry</application>.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--single-instance</option></term>
+<term><option>-1</option></term>
+<listitem><para>Reuses a &Yap;
+<indexterm>
+<primary>single instance</primary>
+</indexterm>
+application window, if one exists.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--trace=<replaceable>traceflags</replaceable></option></term>
+<listitem><para>Turns tracing on.</para></listitem>
+</varlistentry>
+	    
+<varlistentry>
+<term><option>--unregister</option></term>
+<listitem><para>Removes &Yap; related keys from
+the <application>Windows Registry</application>.</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+</simplesect>
+
+<simplesect>
+
+<title>Example</title>
+    
+<para>You want &Yap; to do a forward search to the &DVI; location
+corresponding to line <literal>41</literal> of the source file
+<filename>mydoc.tex</filename>.  The name of the &DVI; file is
+<filename>mydoc.dvi</filename>.  The forward search is initiated like
+this:</para>
+
+<informalexample>
+<screen><prompt>&prompt;</prompt><userinput>yap -s 41mydoc.tex mydoc.dvi</userinput>
+<prompt>&prompt;</prompt></screen>
+</informalexample>
+
+<para>If you already have an open &Yap; application instance, and you
+don't want to start another instance, then add the <option>-1</option>
+flag:</para>
+
+<informalexample>
+<screen><prompt>&prompt;</prompt><userinput>yap -1 -s 41mydoc.tex mydoc.dvi</userinput>
+<prompt>&prompt;</prompt></screen>
+</informalexample>
+
+</simplesect>
+
+</chapter>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("yap.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

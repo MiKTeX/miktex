@@ -1,0 +1,22 @@
+<varlistentry>
+<term><option>--interaction=<replaceable>mode</replaceable></option></term>
+<listitem><para>Set the interaction mode.
+Must be one of <option>batchmode</option>,
+<indexterm>
+<primary>--interaction=mode</primary>
+</indexterm>
+<option>nonstopmode</option>,
+<option>scrollmode</option> and
+<option>errorstopmode</option>.
+The  meaning  of these modes is the same as
+the corresponding commands.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

@@ -1,0 +1,29 @@
+<varlistentry>
+<term><option>--c-style-errors</option></term>
+<listitem><para>Change the way, error messages are printed.
+The alternate style looks like error messages from many compilers
+and is easier to parse for some editors.
+<indexterm>
+<primary>--c-style-errors</primary>
+</indexterm>
+<indexterm>
+<primary>--file-line-error</primary>
+</indexterm>
+<indexterm>
+<primary>--file-line-error-style</primary>
+</indexterm>
+<indexterm>
+<primary>error messages</primary>
+<secondary>C/C++ style</secondary>
+</indexterm>
+This option implies <markup role="tex">\scrollmode</markup>.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

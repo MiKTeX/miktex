@@ -1,0 +1,10 @@
+<varlistentry>
+<term><envar>BIBINPUTS</envar></term>
+<listitem>
+<indexterm>
+<primary>BIBINPUTS</primary>
+</indexterm>
+<para>Extra paths to locate <filename>.bib</filename>
+files.</para>
+</listitem>
+</varlistentry>

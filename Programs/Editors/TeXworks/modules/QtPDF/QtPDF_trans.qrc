@@ -1,0 +1,25 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource>
+    <file>../../source/modules/QtPDF/trans/QtPDF_af.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_ar.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_ca.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_cs.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_de.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_es.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_fa.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_fo.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_fr.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_it.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_ja.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_ko.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_nl.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_nn.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_pl.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_pt_BR.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_ru.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_sl.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_tr.qm</file>
+    <file>../../source/modules/QtPDF/trans/QtPDF_zh_CN.qm</file>
+  </qresource>
+</RCC>

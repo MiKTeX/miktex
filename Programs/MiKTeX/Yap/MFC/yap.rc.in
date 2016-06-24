@@ -1,0 +1,1101 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#include "yap-version.h"
+#endif
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#include ""yap-version.h""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""@CMAKE_CURRENT_SOURCE_DIR@/res/yap.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""  \t// Standard components\r\n"
+    "#include ""afxprint.rc""\t// printing/print preview resources\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "@CMAKE_CURRENT_SOURCE_DIR@/res/yap.ico"
+IDR_DVITYPE             ICON                    "@CMAKE_CURRENT_SOURCE_DIR@/res/dvidoc.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP                  "@CMAKE_CURRENT_SOURCE_DIR@/res/toolbar.bmp"
+IDR_FULLSCREEN          BITMAP                  "@CMAKE_CURRENT_SOURCE_DIR@/res/fullscreen.bmp"
+IDB_SPLASH              BITMAP                  "@CMAKE_CURRENT_SOURCE_DIR@/res/splash.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR 16, 15
+BEGIN
+    BUTTON      ID_FILE_OPEN
+    SEPARATOR
+    BUTTON      ID_FILE_PRINT
+    SEPARATOR
+    BUTTON      ID_FIRST_PAGE
+    BUTTON      ID_PREV_PAGE
+    BUTTON      ID_NEXT_PAGE
+    BUTTON      ID_LAST_PAGE
+    SEPARATOR
+    BUTTON      ID_BACK
+    BUTTON      ID_FORWARD
+    SEPARATOR
+    BUTTON      ID_ZOOM_IN
+    BUTTON      ID_ZOOM_OUT
+    BUTTON      ID_VIEW_REFRESH
+    SEPARATOR
+    BUTTON      ID_SINGLE_PAGE
+    BUTTON      ID_DOUBLE_PAGE
+    BUTTON      ID_CONTINUOUS_SINGLE
+    BUTTON      ID_CONTINUOUS_DOUBLE
+    SEPARATOR
+    BUTTON      ID_TOOLS_ARROW
+    BUTTON      ID_TOOLS_HAND
+    BUTTON      ID_TOOLS_MAGNIFYING_GLASS
+END
+
+IDR_FULLSCREEN TOOLBAR 16, 15
+BEGIN
+    BUTTON      ID_VIEW_FULLSCREEN
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM SEPARATOR
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit\tAlt+F4",               ID_APP_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM SEPARATOR
+        MENUITEM "Trace",                       ID_VIEW_TRACE
+        MENUITEM SEPARATOR
+        MENUITEM "&Options...",                 ID_VIEW_OPTIONS
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Contents and Index\tF1",     ID_HELP_FINDER
+        MENUITEM SEPARATOR
+        MENUITEM "&Keyboard Map\t?",            ID_HELP_KEYBOARD
+        MENUITEM SEPARATOR
+        MENUITEM "&Give Back...",               ID_REGISTER_MIKTEX
+        MENUITEM SEPARATOR
+        MENUITEM "&About Yap...",               ID_APP_ABOUT
+    END
+END
+
+IDR_DVITYPE MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Close\tCtrl+F4",             ID_FILE_CLOSE
+        MENUITEM "&Edit TeX Source\te",         ID_PAGE_EDITOR
+        MENUITEM SEPARATOR
+        MENUITEM "Save &As...",                 ID_FILE_SAVEAS
+        MENUITEM SEPARATOR
+        MENUITEM "Document Properties...",      ID_FILE_DOCUMENT_PROPERTIES
+        MENUITEM SEPARATOR
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
+        MENUITEM "Print Postscript...",         ID_FILE_DVIPS
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit\tAlt+F4",               ID_APP_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM SEPARATOR
+        POPUP "Page Layout"
+        BEGIN
+            MENUITEM "Single Page",                 ID_SINGLE_PAGE
+            MENUITEM "Double Page",                 ID_DOUBLE_PAGE
+            MENUITEM "Continuous / Single",         ID_CONTINUOUS_SINGLE
+            MENUITEM "Continuous / Double",         ID_CONTINUOUS_DOUBLE
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Refresh\tF5",                 ID_VIEW_REFRESH
+        MENUITEM "Full Screen\tF11",            ID_VIEW_FULLSCREEN
+        MENUITEM "Zoom &In\tPlus",              ID_ZOOM_IN
+        MENUITEM "Zoom &Out\tMinus",            ID_ZOOM_OUT
+        MENUITEM SEPARATOR
+        POPUP "G&o To"
+        BEGIN
+            MENUITEM "Back\tAlt+Left Arrow",        ID_BACK
+            MENUITEM "&Forward\tAlt+Right Arrow",   ID_FORWARD
+            MENUITEM SEPARATOR
+            MENUITEM "&Next Page\tAlt+Down Arrow",  ID_NEXT_PAGE
+            MENUITEM "&Previous Page\tAlt+Up Arrow", ID_PREV_PAGE
+            MENUITEM SEPARATOR
+            MENUITEM "&First Page\tCtrl+Home",      ID_FIRST_PAGE
+            MENUITEM "&Last Page\tCtrl+End",        ID_LAST_PAGE
+            MENUITEM SEPARATOR
+            MENUITEM "&Goto Page...\tg",            ID_GOTO_PAGE
+        END
+        MENUITEM SEPARATOR
+        POPUP "Render Method"
+        BEGIN
+            MENUITEM "Pk",                          ID_PAGEMODE_PK
+            MENUITEM "Dvips",                       ID_PAGEMODE_DVIPS
+        END
+        POPUP "Text"
+        BEGIN
+            MENUITEM "Darker\tAlt+Ctrl+Plus",       ID_DARKER_TEXT
+            MENUITEM "Lighther\tAlt+Ctrl+Minus",    ID_LIGHTER_TEXT
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Trace",                       154
+        MENUITEM SEPARATOR
+        MENUITEM "&Options...",                 ID_VIEW_OPTIONS
+    END
+    POPUP "&Tools"
+    BEGIN
+        MENUITEM "&Source Links...",            ID_TOOLS_SOURCESPECIALS
+        MENUITEM SEPARATOR
+        MENUITEM "&Ruler",                      ID_TOOLS_ARROW
+        MENUITEM "&Hand",                       ID_TOOLS_HAND
+        MENUITEM "Magnifying &Glass",           ID_TOOLS_MAGNIFYING_GLASS
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
+        MENUITEM "&Tile",                       ID_WINDOW_TILE_HORZ
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Contents and Index\tF1",     ID_HELP_FINDER
+        MENUITEM SEPARATOR
+        MENUITEM "&Keyboard Map\t?",            ID_HELP_KEYBOARD
+        MENUITEM SEPARATOR
+        MENUITEM "&Give Back...",               ID_REGISTER_MIKTEX
+        MENUITEM SEPARATOR
+        MENUITEM "&About Yap...",               ID_APP_ABOUT
+    END
+END
+
+IDR_CONTEXT_MENU MENU
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "&Next Page\tAlt+Down Arrow",  ID_NEXT_PAGE
+        MENUITEM "&Previous Page\tAlt+Up Arrow", ID_PREV_PAGE
+        MENUITEM SEPARATOR
+        POPUP "Go To"
+        BEGIN
+            MENUITEM "&Next Page\tAlt+Down Arrow",  ID_NEXT_PAGE
+            MENUITEM "&Previous Page\tAlt+Up Arrow", ID_PREV_PAGE
+            MENUITEM SEPARATOR
+            MENUITEM "&First Page\tCtrl+Home",      ID_FIRST_PAGE
+            MENUITEM "&Last Page\tCtrl+End",        ID_LAST_PAGE
+            MENUITEM "",                            1
+            MENUITEM "&First Page\tCtrl+Home",      ID_FIRST_PAGE
+            MENUITEM "&Last Page\tCtrl+End",        ID_LAST_PAGE
+            MENUITEM SEPARATOR
+            MENUITEM "&Goto Page...\tg",            ID_GOTO_PAGE
+            MENUITEM "",                            2
+            MENUITEM "Back\tAlt+Left Arrow",        ID_BACK
+            MENUITEM "&Forward\tAlt+Right Arrow",   ID_FORWARD
+            MENUITEM SEPARATOR
+        END
+        MENUITEM SEPARATOR
+        POPUP "Page Layout"
+        BEGIN
+            MENUITEM "Single Page",                 ID_SINGLE_PAGE
+            MENUITEM "Double Page",                 ID_DOUBLE_PAGE
+            MENUITEM "Continuous / Single",         ID_CONTINUOUS_SINGLE
+            MENUITEM "Continuous / Double",         ID_CONTINUOUS_DOUBLE
+        END
+        MENUITEM SEPARATOR
+        POPUP "Render Mode"
+        BEGIN
+            MENUITEM "Pk",                          ID_PAGEMODE_PK
+            MENUITEM "Dvips",                       ID_PAGEMODE_DVIPS
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Zoom &In\t+",                 ID_ZOOM_IN
+        MENUITEM "Zoom &Out\t-",                ID_ZOOM_OUT
+        MENUITEM SEPARATOR
+        MENUITEM "Refresh\tF5",                 ID_VIEW_REFRESH
+        MENUITEM SEPARATOR
+        MENUITEM "&Edit TeX Source\te",         ID_PAGE_EDITOR
+    END
+END
+
+IDR_POINT_MENU MENU
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "Centimeters\tcm",             ID_VIEW_CENTIMETERS
+        MENUITEM "Inches\tin",                  ID_VIEW_INCHES
+        MENUITEM "Millimeters\tmm",             ID_VIEW_MILLIMETERS
+        MENUITEM "Picas\tpc",                   ID_VIEW_PICAS
+        MENUITEM "Points\tpt",                  ID_VIEW_POINTS
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS
+BEGIN
+    "?",            ID_HELP_KEYBOARD,       ASCII,  NOINVERT
+    "F",            ID_FILE_OPEN,           VIRTKEY, SHIFT, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
+    "Q",            ID_APP_EXIT,            VIRTKEY, NOINVERT
+    VK_ESCAPE,      ID_CANCEL,              VIRTKEY, NOINVERT
+    VK_F1,          ID_HELP_FINDER,         VIRTKEY, NOINVERT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
+END
+
+IDR_DVITYPE ACCELERATORS
+BEGIN
+    "+",            ID_ZOOM_IN,             ASCII,  NOINVERT
+    "-",            ID_ZOOM_OUT,            ASCII,  NOINVERT
+    "?",            ID_HELP_KEYBOARD,       ASCII,  NOINVERT
+    94,             ID_HOME,                ASCII,  NOINVERT
+    "B",            ID_PREV_PAGE,           VIRTKEY, NOINVERT
+    "E",            ID_PAGE_EDITOR,         VIRTKEY, NOINVERT
+    "E",            ID_PAGE_EDITOR,         VIRTKEY, SHIFT, NOINVERT
+    "F",            ID_NEXT_PAGE,           VIRTKEY, NOINVERT
+    "F",            ID_FILE_OPEN,           VIRTKEY, SHIFT, NOINVERT
+    "G",            ID_GOTO_PAGE,           VIRTKEY, NOINVERT
+    "L",            ID_SB_PAGELEFT,         VIRTKEY, NOINVERT
+    "N",            ID_NEXT_PAGE,           VIRTKEY, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "P",            ID_PREV_PAGE,           VIRTKEY, NOINVERT
+    "Q",            ID_APP_EXIT,            VIRTKEY, NOINVERT
+    "R",            ID_SB_PAGERIGHT,        VIRTKEY, NOINVERT
+    "U",            ID_SB_PAGEUP,           VIRTKEY, NOINVERT
+    VK_ADD,         ID_ZOOM_IN,             VIRTKEY, NOINVERT
+    VK_BACK,        ID_PREV_PAGE,           VIRTKEY, NOINVERT
+    VK_DELETE,      ID_DOCUMENT_UP,         VIRTKEY, NOINVERT
+    VK_DOWN,        ID_SB_LINEDOWN,         VIRTKEY, NOINVERT
+    VK_DOWN,        ID_NEXT_PAGE,           VIRTKEY, ALT, NOINVERT
+    VK_DOWN,        ID_SB_PAGEDOWN,         VIRTKEY, SHIFT, NOINVERT
+    VK_DOWN,        ID_LAST_PAGE,           VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_END,         ID_END,                 VIRTKEY, NOINVERT
+    VK_END,         ID_LAST_PAGE,           VIRTKEY, CONTROL, NOINVERT
+    VK_F11,         ID_VIEW_FULLSCREEN,     VIRTKEY, NOINVERT
+    VK_F5,          ID_VIEW_REFRESH,        VIRTKEY, NOINVERT
+    VK_HOME,        ID_HOME,                VIRTKEY, NOINVERT
+    VK_HOME,        ID_FIRST_PAGE,          VIRTKEY, CONTROL, NOINVERT
+    VK_LEFT,        ID_SB_LINELEFT,         VIRTKEY, NOINVERT
+    VK_LEFT,        ID_BACK,                VIRTKEY, ALT, NOINVERT
+    VK_LEFT,        ID_SB_PAGELEFT,         VIRTKEY, SHIFT, NOINVERT
+    VK_NEXT,        ID_DOCUMENT_DOWN,       VIRTKEY, NOINVERT
+    VK_ADD,         ID_DARKER_TEXT,         VIRTKEY, CONTROL, ALT, NOINVERT
+    VK_PRIOR,       ID_DOCUMENT_UP,         VIRTKEY, NOINVERT
+    VK_RETURN,      ID_SB_LINEDOWN,         VIRTKEY, NOINVERT
+    VK_RIGHT,       ID_SB_LINERIGHT,        VIRTKEY, NOINVERT
+    VK_RIGHT,       ID_FORWARD,             VIRTKEY, ALT, NOINVERT
+    VK_RIGHT,       ID_SB_PAGERIGHT,        VIRTKEY, SHIFT, NOINVERT
+    VK_SPACE,       ID_DOCUMENT_DOWN,       VIRTKEY, NOINVERT
+    VK_SUBTRACT,    ID_ZOOM_OUT,            VIRTKEY, NOINVERT
+    VK_UP,          ID_SB_LINEUP,           VIRTKEY, NOINVERT
+    VK_UP,          ID_PREV_PAGE,           VIRTKEY, ALT, NOINVERT
+    VK_UP,          ID_SB_PAGEUP,           VIRTKEY, SHIFT, NOINVERT
+    VK_UP,          ID_FIRST_PAGE,          VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_SUBTRACT,    ID_LIGHTER_TEXT,        VIRTKEY, CONTROL, ALT, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 34, 22, 273, 161
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About Yap"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,12,20,20
+    CONTROL         "",IDC_THE_NAME_OF_THE_GAME,"Static",SS_LEFTNOWORDWRAP | SS_NOPREFIX | WS_GROUP,45,13,144,19
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME | SS_SUNKEN,45,37,166,1
+    LTEXT           "Yap is free software. You are welcome to redistribute it under certain conditions. See the help file for more information.\n\nYap comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.",IDC_STATIC,45,45,166,53,SS_NOPREFIX
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME | SS_SUNKEN,45,102,166,1
+    DEFPUSHBUTTON   "OK",IDOK,216,7,50,14,WS_GROUP
+    LTEXT           "Yap is a part of the MiKTeX distribution. Please support the project by giving back something. Thank you!",IDC_STATIC,45,111,166,25
+    PUSHBUTTON      "&Give Back...",ID_REGISTER_MIKTEX,45,140,166,14
+END
+
+IDD_GOTOPAGE DIALOGEX 0, 0, 208, 62
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Goto Page"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "&Page:",IDC_STATIC,7,7,20,8
+    COMBOBOX        IDC_COMBO_PAGENO,7,18,120,126,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,152,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,152,24,50,14
+    PUSHBUTTON      "&Help",ID_HELP,152,41,50,14
+END
+
+IDD_DISPLAY DIALOGEX 0, 0, 212, 188
+STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
+CAPTION "Display"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "&Unit:",IDC_STATIC,7,9,16,8
+    COMBOBOX        IDC_COMBO_UNIT,38,7,68,112,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "DVI settings:",IDC_STATIC,7,25,41,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME | SS_SUNKEN,52,29,153,1
+    LTEXT           "Default &render method:",IDC_STATIC,11,39,73,8
+    COMBOBOX        IDC_COMBO_PAGE_MODE,87,37,48,112,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Default &shrink factor:",IDC_STATIC,11,55,66,8
+    COMBOBOX        IDC_COMBO_DISPLAY_SHRINK_FACTOR,87,53,23,68,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&METAFONT mode:",IDC_STATIC,11,71,62,8
+    COMBOBOX        IDC_COMBO_DISPLAY_MODE,11,82,194,129,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Resolution:",IDC_STATIC,38,100,36,8
+    RTEXT           "00",IDC_STATIC_RESOLUTION,75,100,23,8,SS_NOPREFIX
+    LTEXT           "pixels per inch",IDC_STATIC,102,100,46,8
+END
+
+IDD_PRINTER DIALOGEX 0, 0, 212, 188
+STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
+CAPTION "Printer"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "&Horizontal:",IDC_STATIC,11,19,34,8
+    EDITTEXT        IDC_EDIT2,50,16,23,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "pixels",IDC_STATIC,77,19,18,8
+    LTEXT           "&Vertical:",IDC_STATIC,11,37,26,8
+    EDITTEXT        IDC_EDIT3,50,34,23,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "pixels",IDC_STATIC,77,37,18,8
+    LTEXT           "METAFONT mode:",IDC_STATIC,11,67,62,8
+    COMBOBOX        IDC_COMBO_PRINTER_MODE,11,78,194,107,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Resolution:",IDC_STATIC,42,96,36,8
+    RTEXT           "00",IDC_STATIC_RESOLUTION,79,96,23,8,SS_NOPREFIX
+    LTEXT           "pixels per inch",IDC_STATIC,106,96,46,8
+    LTEXT           "DVI settings:",IDC_STATIC,7,55,41,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME | SS_SUNKEN,52,59,153,1
+    LTEXT           "Shift:",IDC_STATIC,7,7,17,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME | SS_SUNKEN,27,11,178,1
+END
+
+IDD_INVERSE_SEARCH DIALOGEX 0, 0, 212, 185
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Inverse DVI Search"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "You can choose which of the following &programs Yap should invoke when you double-click inside the DVI document:",IDC_STATIC,7,7,198,16
+    LISTBOX         IDC_LISTBOX_EDITOR,7,27,143,122,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "&New...",IDC_ADD,155,27,50,14
+    PUSHBUTTON      "&Change...",IDC_CHANGE,155,45,50,14
+    PUSHBUTTON      "&Delete",IDC_DELETE,155,65,50,14
+    LTEXT           "Command line:",IDC_STATIC,7,153,47,8
+    EDITTEXT        IDC_COMMAND_LINE,7,164,198,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+END
+
+IDD_ADVANCED_OPTIONS DIALOGEX 0, 0, 212, 188
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Advanced"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "Show Splash window at startup",IDC_CHECK_SPLASH,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,7,198,10
+    LTEXT           "Select the file types for which you want Yap to be the default viewer:",IDC_STATIC,7,28,198,16
+    CONTROL         "&DVI file (*.dvi)",IDC_CHECK_ASSOCIATION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,25,48,180,10
+END
+
+IDD_SOURCE_SPECIALS DIALOGEX 0, 0, 232, 223
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Source Links"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Source links:",IDC_STATIC,7,7,42,8
+    CONTROL         "List1",IDC_SOURCE_SPECIALS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,18,163,198
+    DEFPUSHBUTTON   "&Goto",IDC_GOTO,175,18,50,14
+    PUSHBUTTON      "&Edit Source",IDC_EDIT_SOURCE,175,37,50,14
+    PUSHBUTTON      "C&lose",IDC_CLOSE,175,58,50,14
+    PUSHBUTTON      "Help",ID_HELP,175,79,50,14
+END
+
+IDD_PROGRESS_INDICATOR DIALOG 0, 0, 186, 55
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Scanning DVI file...",IDC_STATIC,7,7,172,28
+    CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",WS_BORDER,7,34,172,14
+END
+
+IDD_DVIPS DIALOGEX 0, 0, 263, 137
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Print PostScript"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    GROUPBOX        "PostScript Printer",IDC_STATIC,7,7,249,31
+    LTEXT           "&Name:",IDC_STATIC,16,21,22,8
+    COMBOBOX        IDC_COMBO_PRINTER_NAME,41,19,208,91,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Print range",IDC_STATIC,7,45,249,61
+    CONTROL         "&All",IDC_ALL_PAGES,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,16,56,23,10
+    CONTROL         "&Current page",IDC_CURRENT_PAGE,"Button",BS_AUTORADIOBUTTON,44,56,57,10
+    CONTROL         "Page&s from",IDC_PAGE_RANGE,"Button",BS_AUTORADIOBUTTON,16,73,51,10
+    EDITTEXT        IDC_FIRST_PAGE,67,71,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "&to",IDC_STATIC,111,73,9,10,SS_CENTERIMAGE
+    EDITTEXT        IDC_LAST_PAGE,123,71,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "E&ven and odd pages",IDC_EVEN_ODD_PAGES,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,16,90,82,10
+    CONTROL         "&Even pages only",IDC_EVEN_PAGES,"Button",BS_AUTORADIOBUTTON,106,90,69,10
+    CONTROL         "&Odd pages only",IDC_ODD_PAGES,"Button",BS_AUTORADIOBUTTON,184,90,65,10
+    DEFPUSHBUTTON   "OK",IDOK,98,115,50,14
+    PUSHBUTTON      "&Help",ID_HELP,206,115,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,152,115,50,14
+END
+
+IDD_USER_INTERFACE DIALOGEX 0, 0, 212, 188
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "User Interface"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "On change of page:",IDC_STATIC,7,7,64,8
+    CONTROL         "Maintain &vertical position",IDC_MAINTAIN_VERT_POS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,19,194,10
+    CONTROL         "Maintain &horizontal position",IDC_MAINTAIN_HORZ_POS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,33,194,10
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME | SS_SUNKEN,7,47,198,1
+    CONTROL         "&Show source links",IDC_SHOW_SOURCE_SPECIALS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,52,198,10
+END
+
+IDD_MAGNIFYING_GLASS DIALOGEX 0, 0, 212, 188
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Magnifying Glass"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Small glass:",IDC_STATIC,7,7,38,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME | SS_SUNKEN,48,11,157,1
+    LTEXT           "&Width:",IDC_STATIC,11,22,22,8
+    EDITTEXT        IDC_MAGGLASS_SMALL_WIDTH,35,19,21,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "&Height:",IDC_STATIC,63,22,24,8
+    EDITTEXT        IDC_MAGGLASS_SMALL_HEIGHT,90,19,21,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Shrink &factor:",IDC_STATIC,118,22,43,8
+    COMBOBOX        IDC_MAGGLASS_SMALL_SHRINK_FACTOR,164,20,23,68,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Medium sized glass:",IDC_STATIC,7,40,64,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME | SS_SUNKEN,74,44,131,1
+    LTEXT           "W&idth:",IDC_STATIC,11,55,22,8
+    EDITTEXT        IDC_MAGGLASS_MEDIUM_WIDTH,35,52,21,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "H&eight:",IDC_STATIC,63,55,24,8
+    EDITTEXT        IDC_MAGGLASS_MEDIUM_HEIGHT,90,52,21,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Shrink f&actor:",IDC_STATIC,118,55,43,8
+    COMBOBOX        IDC_MAGGLASS_MEDIUM_SHRINK_FACTOR,164,53,23,68,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Large glass:",IDC_STATIC,7,73,39,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME | SS_SUNKEN,49,77,156,1
+    LTEXT           "Wi&dth:",IDC_STATIC,11,88,22,8
+    EDITTEXT        IDC_MAGGLASS_LARGE_WIDTH,35,85,21,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Heigh&t:",IDC_STATIC,63,88,24,8
+    EDITTEXT        IDC_MAGGLASS_LARGE_HEIGHT,90,85,21,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Shrink fact&or:",IDC_STATIC,118,88,43,8
+    COMBOBOX        IDC_MAGGLASS_LARGE_SHRINK_FACTOR,164,86,23,68,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Display settings:",IDC_STATIC,7,107,52,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME | SS_SUNKEN,61,111,144,1
+    CONTROL         "Hide mouse &cursor",IDC_HIDE_CURSOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,125,75,10
+    LTEXT           "&Opacity:",IDC_STATIC,11,141,27,8
+    COMBOBOX        IDC_COMBO_OPACITY,40,139,33,118,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_SECURITY DIALOGEX 0, 0, 212, 188
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Security"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Embedded scripts:",IDC_STATIC,7,7,59,8
+    CONTROL         "&Never execute any scripts",IDC_SECURITY_DISABLE_COMMANDS,
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,11,21,98,10
+    CONTROL         "&Ask for permission to execute scripts",IDC_SECURITY_ASK_USER,
+                    "Button",BS_AUTORADIOBUTTON,11,34,130,10
+    CONTROL         "Execute only &secure scripts:",IDC_SECURITY_SECURE_COMMANDS,
+                    "Button",BS_AUTORADIOBUTTON,11,47,104,10
+    CONTROL         "&Execute all scripts",IDC_SECURITY_ENABLE_ALL_COMMANDS,
+                    "Button",BS_AUTORADIOBUTTON,11,60,73,10
+    EDITTEXT        IDC_SECURITY_EDIT_SECURE_COMMANDS,113,45,92,14,ES_AUTOHSCROLL
+END
+
+IDD_DOC_PROP_GENERAL DIALOGEX 0, 0, 212, 188
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "General"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "File:",IDC_STATIC,7,7,45,8
+    EDITTEXT        IDC_EDIT_FILE,72,7,133,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Comment:",IDC_STATIC,7,21,32,8
+    EDITTEXT        IDC_EDIT_COMMENT,72,21,133,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Created:",IDC_STATIC,7,35,28,8
+    EDITTEXT        IDC_EDIT_CREATED,72,35,133,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Modified:",IDC_STATIC,7,49,30,8
+    EDITTEXT        IDC_EDIT_MODIFIED,72,49,133,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Size:",IDC_STATIC,7,63,16,8
+    EDITTEXT        IDC_EDIT_SIZE,72,63,133,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Number of pages:",IDC_STATIC,7,77,57,8
+    EDITTEXT        IDC_EDIT_NUM_PAGES,72,77,133,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+END
+
+IDD_DOC_PROP_FONTS DIALOGEX 0, 0, 212, 188
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Fonts"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,198,174
+END
+
+IDD_ADD_EDITOR DIALOGEX 0, 0, 218, 164
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "TeX Editor"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "&Name:",IDC_STATIC,7,7,22,8
+    EDITTEXT        IDC_NAME,7,18,204,14,ES_AUTOHSCROLL
+    LTEXT           "Specify the &program you want to use to edit TeX source files:",IDC_STATIC,7,39,204,8
+    EDITTEXT        IDC_PATH,7,50,188,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BROWSE,196,50,15,14
+    LTEXT           "Specify the program &arguments:",IDC_STATIC,7,71,204,8
+    EDITTEXT        IDC_ARGUMENTS,7,82,204,14,ES_AUTOHSCROLL
+    LTEXT           "Be sure to insert the following stand-ins:",IDC_STATIC,33,100,178,8
+    LTEXT           "%f",IDC_STATIC,56,111,9,8
+    LTEXT           "(fully qualified name of the input file)",IDC_STATIC,71,111,140,8
+    LTEXT           "%l",IDC_STATIC,56,118,9,8
+    LTEXT           "(line number)",IDC_STATIC,71,118,140,8
+    DEFPUSHBUTTON   "OK",IDOK,107,143,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,161,143,50,14
+END
+
+IDD_SPLASH DIALOGEX 0, 0, 333, 185
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CENTER | WS_POPUP
+EXSTYLE WS_EX_TOPMOST | WS_EX_TOOLWINDOW
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         134,IDC_STATIC,"Static",SS_BITMAP | SS_REALSIZEIMAGE,0,0,333,185
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 267
+        VERTGUIDE, 45
+        VERTGUIDE, 211
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 154
+    END
+
+    IDD_GOTOPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 202
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 56
+    END
+
+    IDD_DISPLAY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 205
+        VERTGUIDE, 11
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 181
+    END
+
+    IDD_PRINTER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 205
+        VERTGUIDE, 11
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 181
+    END
+
+    IDD_INVERSE_SEARCH, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 205
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 178
+    END
+
+    IDD_ADVANCED_OPTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 205
+        VERTGUIDE, 25
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 181
+    END
+
+    IDD_SOURCE_SPECIALS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 225
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 216
+    END
+
+    IDD_PROGRESS_INDICATOR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_DVIPS, DIALOG
+    BEGIN
+        VERTGUIDE, 7
+        VERTGUIDE, 256
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 130
+    END
+
+    IDD_USER_INTERFACE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 205
+        VERTGUIDE, 11
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 181
+    END
+
+    IDD_MAGNIFYING_GLASS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 205
+        VERTGUIDE, 11
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 181
+    END
+
+    IDD_SECURITY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 205
+        VERTGUIDE, 11
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 181
+    END
+
+    IDD_DOC_PROP_GENERAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 205
+        VERTGUIDE, 72
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 181
+    END
+
+    IDD_DOC_PROP_FONTS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 205
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 181
+    END
+
+    IDD_ADD_EDITOR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 211
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 157
+    END
+
+    IDD_SPLASH, DIALOG
+    BEGIN
+        RIGHTMARGIN, 316
+        BOTTOMMARGIN, 183
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_DISPLAY DLGINIT
+BEGIN
+    IDC_COMBO_UNIT, 0x403, 12, 0
+0x6543, 0x746e, 0x6d69, 0x7465, 0x7265, 0x0073, 
+    IDC_COMBO_UNIT, 0x403, 7, 0
+0x6e49, 0x6863, 0x7365, "\000" 
+    IDC_COMBO_UNIT, 0x403, 12, 0
+0x694d, 0x6c6c, 0x6d69, 0x7465, 0x7265, 0x0073, 
+    IDC_COMBO_UNIT, 0x403, 6, 0
+0x6950, 0x6163, 0x0073, 
+    IDC_COMBO_UNIT, 0x403, 7, 0
+0x6f50, 0x6e69, 0x7374, "\000" 
+    IDC_COMBO_PAGE_MODE, 0x403, 3, 0
+0x6b50, "\000" 
+    IDC_COMBO_PAGE_MODE, 0x403, 6, 0
+0x7644, 0x7069, 0x0073, 
+    IDC_COMBO_DISPLAY_SHRINK_FACTOR, 0x403, 2, 0
+0x0031, 
+    IDC_COMBO_DISPLAY_SHRINK_FACTOR, 0x403, 2, 0
+0x0032, 
+    IDC_COMBO_DISPLAY_SHRINK_FACTOR, 0x403, 2, 0
+0x0033, 
+    IDC_COMBO_DISPLAY_SHRINK_FACTOR, 0x403, 2, 0
+0x0034, 
+    IDC_COMBO_DISPLAY_SHRINK_FACTOR, 0x403, 2, 0
+0x0035, 
+    IDC_COMBO_DISPLAY_SHRINK_FACTOR, 0x403, 2, 0
+0x0036, 
+    IDC_COMBO_DISPLAY_SHRINK_FACTOR, 0x403, 2, 0
+0x0037, 
+    IDC_COMBO_DISPLAY_SHRINK_FACTOR, 0x403, 2, 0
+0x0038, 
+    IDC_COMBO_DISPLAY_SHRINK_FACTOR, 0x403, 2, 0
+0x0039, 
+    0
+END
+
+IDD_MAGNIFYING_GLASS DLGINIT
+BEGIN
+    IDC_MAGGLASS_SMALL_SHRINK_FACTOR, 0x403, 2, 0
+0x0031, 
+    IDC_MAGGLASS_SMALL_SHRINK_FACTOR, 0x403, 2, 0
+0x0032, 
+    IDC_MAGGLASS_SMALL_SHRINK_FACTOR, 0x403, 2, 0
+0x0033, 
+    IDC_MAGGLASS_SMALL_SHRINK_FACTOR, 0x403, 2, 0
+0x0034, 
+    IDC_MAGGLASS_SMALL_SHRINK_FACTOR, 0x403, 2, 0
+0x0035, 
+    IDC_MAGGLASS_SMALL_SHRINK_FACTOR, 0x403, 2, 0
+0x0036, 
+    IDC_MAGGLASS_SMALL_SHRINK_FACTOR, 0x403, 2, 0
+0x0037, 
+    IDC_MAGGLASS_SMALL_SHRINK_FACTOR, 0x403, 2, 0
+0x0038, 
+    IDC_MAGGLASS_SMALL_SHRINK_FACTOR, 0x403, 2, 0
+0x0039, 
+    IDC_MAGGLASS_MEDIUM_SHRINK_FACTOR, 0x403, 2, 0
+0x0031, 
+    IDC_MAGGLASS_MEDIUM_SHRINK_FACTOR, 0x403, 2, 0
+0x0032, 
+    IDC_MAGGLASS_MEDIUM_SHRINK_FACTOR, 0x403, 2, 0
+0x0033, 
+    IDC_MAGGLASS_MEDIUM_SHRINK_FACTOR, 0x403, 2, 0
+0x0034, 
+    IDC_MAGGLASS_MEDIUM_SHRINK_FACTOR, 0x403, 2, 0
+0x0035, 
+    IDC_MAGGLASS_MEDIUM_SHRINK_FACTOR, 0x403, 2, 0
+0x0036, 
+    IDC_MAGGLASS_MEDIUM_SHRINK_FACTOR, 0x403, 2, 0
+0x0037, 
+    IDC_MAGGLASS_MEDIUM_SHRINK_FACTOR, 0x403, 2, 0
+0x0038, 
+    IDC_MAGGLASS_MEDIUM_SHRINK_FACTOR, 0x403, 2, 0
+0x0039, 
+    IDC_MAGGLASS_LARGE_SHRINK_FACTOR, 0x403, 2, 0
+0x0031, 
+    IDC_MAGGLASS_LARGE_SHRINK_FACTOR, 0x403, 2, 0
+0x0032, 
+    IDC_MAGGLASS_LARGE_SHRINK_FACTOR, 0x403, 2, 0
+0x0033, 
+    IDC_MAGGLASS_LARGE_SHRINK_FACTOR, 0x403, 2, 0
+0x0034, 
+    IDC_MAGGLASS_LARGE_SHRINK_FACTOR, 0x403, 2, 0
+0x0035, 
+    IDC_MAGGLASS_LARGE_SHRINK_FACTOR, 0x403, 2, 0
+0x0036, 
+    IDC_MAGGLASS_LARGE_SHRINK_FACTOR, 0x403, 2, 0
+0x0037, 
+    IDC_MAGGLASS_LARGE_SHRINK_FACTOR, 0x403, 2, 0
+0x0038, 
+    IDC_MAGGLASS_LARGE_SHRINK_FACTOR, 0x403, 2, 0
+0x0039, 
+    IDC_COMBO_OPACITY, 0x403, 4, 0
+0x3031, 0x0025, 
+    IDC_COMBO_OPACITY, 0x403, 4, 0
+0x3032, 0x0025, 
+    IDC_COMBO_OPACITY, 0x403, 4, 0
+0x3033, 0x0025, 
+    IDC_COMBO_OPACITY, 0x403, 4, 0
+0x3034, 0x0025, 
+    IDC_COMBO_OPACITY, 0x403, 4, 0
+0x3035, 0x0025, 
+    IDC_COMBO_OPACITY, 0x403, 4, 0
+0x3036, 0x0025, 
+    IDC_COMBO_OPACITY, 0x403, 4, 0
+0x3037, 0x0025, 
+    IDC_COMBO_OPACITY, 0x403, 4, 0
+0x3038, 0x0025, 
+    IDC_COMBO_OPACITY, 0x403, 4, 0
+0x3039, 0x0025, 
+    IDC_COMBO_OPACITY, 0x403, 5, 0
+0x3031, 0x2530, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RT_MANIFEST
+//
+
+//IDR_MANIFEST            RT_MANIFEST             "@CMAKE_CURRENT_BINARY_DIR@/res/yap.manifest"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_MAG                 CURSOR                  "@CMAKE_CURRENT_SOURCE_DIR@/res/mag.cur"
+IDC_HAND_TOOL           CURSOR                  "@CMAKE_CURRENT_SOURCE_DIR@/res/hand.cur"
+IDC_PRESSED_HAND        CURSOR                  "@CMAKE_CURRENT_SOURCE_DIR@/res/pressed_hand.cur"
+IDC_HAND_POINT          CURSOR                  "@CMAKE_CURRENT_SOURCE_DIR@/res/H_POINT.CUR"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDP_FILE_ASSOCIATION    "Yap is not currently registered as the default DVI viewer.\nDo you wish to register Yap as the default DVI viewer?"
+    IDS_PS_DISABLED         "The document cannot be rendered properly because the current render method does not support PostScript specials.\n\nTemporarily switch to the Dvips render method?"
+    IDP_CHOOSE_EDITOR       "You must choose an editor so that Yap can perform the requested operation. Do you want to choose an editor now?"
+END
+
+STRINGTABLE
+BEGIN
+    IDR_MAINFRAME           "Yap"
+    IDR_DVITYPE             "\nDVI\n\nDVI Files (*.dvi)\n.dvi\nMiKTeX.dvi.@MIKTEX_SERIES_STR@\nDVI File"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_APP_TITLE       "Yap"
+    AFX_IDS_IDLEMESSAGE     "For Help, press F1"
+    AFX_IDS_HELPMODEMESSAGE "Select an object on which to get Help"
+END
+
+STRINGTABLE
+BEGIN
+    ID_FILE_OPEN            "Opens a DVI file.\nOpen"
+    ID_FILE_CLOSE           "Closes the current DVI file.\nClose"
+    ID_FILE_PRINT_SETUP     "Changes the printer and printing options.\nPrint Setup"
+    ID_FILE_PRINT           "Prints the current DVI file.\nPrint"
+END
+
+STRINGTABLE
+BEGIN
+    ID_APP_ABOUT            "Displays program information, version number and copyright.\nAbout"
+    ID_APP_EXIT             "Quits the application.\nE&xit"
+    ID_HELP_FINDER          "Opens Help.\nHelp"
+    ID_CONTEXT_HELP         "Displays help for clicked on buttons, menus and windows.\nHelp"
+    ID_HELP                 "Displays help for current task or command.\nHelp"
+END
+
+STRINGTABLE
+BEGIN
+    ID_FILE_MRU_FILE1       "Opens this DVI file."
+    ID_FILE_MRU_FILE2       "Opens this DVI file."
+    ID_FILE_MRU_FILE3       "Opens this DVI file."
+    ID_FILE_MRU_FILE4       "Opens this DVI file."
+END
+
+STRINGTABLE
+BEGIN
+    ID_NEXT_PANE            "Switches to the next window pane.\nNext Pane"
+    ID_PREV_PANE            "Switches back to the previous window pane.\nPrevious Pane"
+END
+
+STRINGTABLE
+BEGIN
+    ID_WINDOW_CASCADE       "Arranges windows so they overlap.\nCascade Windows"
+    ID_WINDOW_TILE_HORZ     "Arranges windows as non-overlapping tiles.\nTile Windows"
+END
+
+STRINGTABLE
+BEGIN
+    ID_VIEW_TOOLBAR         "Shows or hides the toolbar.\nToggle ToolBar"
+    ID_VIEW_STATUS_BAR      "Shows or hides the status bar.\nToggle StatusBar"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+    AFX_IDS_MDICHILD        "Activate this window"
+END
+
+STRINGTABLE
+BEGIN
+    ID_REGISTER_MIKTEX      "You can support the MiKTeX project."
+    ID_VIEW_TRACE           "Turns tracing on or off.\nTrace on/off"
+    ID_BACK                 "Returns to the last page.\nBack"
+    ID_DARKER_TEXT          "Makes the text more like the foreground.\nDarker Text"
+    ID_DOUBLE_PAGE          "Displays two pages at a time.\nDouble Page Layout"
+    ID_FILE_DVIPS           "Prints the active document on a PostScript printer\nPrint PostScript"
+    ID_FIRST_PAGE           "Goes to the first page.\nFirst Page"
+    ID_FORWARD              "Goes to the page you viewed before clicking Back.\nForward"
+    ID_FULLSCREEN           "Maximizes window to full screen."
+END
+
+STRINGTABLE
+BEGIN
+    ID_GOTO_PAGE            "Opens the pager control.\nRandom page"
+    ID_HELP_KEYBOARD        "Displays all Yap keyboard shortcuts.\nYap Shortcuts"
+    ID_INDICATOR_COMMAND_PREFIX "9999"
+    ID_INDICATOR_PAGE_M_OF_N "Page: 000 (000th of 000)"
+    ID_INDICATOR_POINT      "999.99,999.99bp"
+    ID_INDICATOR_SOURCE     "(no source links found)"
+    ID_LAST_PAGE            "Goes to the last page.\nLast Page"
+    ID_LIGHT_TEXT           "Lighter Text\nMakes the text more like the background."
+    ID_LIGHTER_TEXT         "Makes the text more like the background.\nLighter Text"
+    ID_NEXT_PAGE            "Goes to the next page.\nNext Page"
+    ID_PAGE_EDITOR          "Invokes an editor to edit the source file.\nEdit"
+    ID_PREV_PAGE            "Goes to the previous page.\nPrevious Page"
+END
+
+STRINGTABLE
+BEGIN
+    ID_SINGLE_PAGE          "Displays one page at a time.\nSingle Page Layout"
+    ID_TOOLS_ARROW          "Selects the ruler tool.\nRuler"
+    ID_TOOLS_HAND           "Selects the hand tool.\nHand Tool"
+    ID_TOOLS_MAGNIFYING_GLASS 
+                            "Selects the magnifying glass.\nMagnifying Glass"
+    ID_TOOLS_SOURCESPECIALS "Opens the source link window.\nSource Links"
+    ID_VIEW_FULLSCREEN      "Maximizes window to full screen.\nFull Screen"
+    ID_VIEW_OPTIONS         "Customizes Yap."
+    ID_VIEW_REFRESH         "Refreshes the display.\nRefresh"
+    ID_ZOOM_IN              "Zooms in.\nZoom in"
+    ID_ZOOM_OUT             "Zooms out.\nZoom out"
+    ID_CONTINUOUS_SINGLE    "Displays pages in one vertical column.\nContinuous/Single Layout"
+END
+
+STRINGTABLE
+BEGIN
+    ID_CONTINUOUS_DOUBLE    "Displays pages in two vertical columns.\nContinuous/Double Layout"
+    ID_PAGEMODE_PK          "Uses Pk fonts to render the DVI file."
+    ID_PAGEMODE_DVIPS       "Uses Dvips to render the DVI file."
+    ID_INDICATOR_EFFECTIVE_PAGE_MODE "Dvips"
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "res\yap.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"  	// Standard components
+#include "afxprint.rc"	// printing/print preview resources
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,91 @@
+<chapter id="printing">
+
+<title>Printing</title>
+
+<para>&Yap; offers two different
+<indexterm>
+<primary>printing</primary>
+</indexterm>
+print procedures:
+</para>
+
+<orderedlist>
+
+<listitem><para>Standard Windows printing</para></listitem>
+<listitem><para>&PostScript; printing</para>
+</listitem>
+
+</orderedlist>
+
+<section id="printstd">
+
+<?dbhh topicname="AFX_HIDD_PRINT" topicid="0"?>
+<?dbhh topicname="AFX_HIDD_PRINTSETUP" topicid="0"?>
+
+<title>Standard Windows Printing</title>
+
+<indexterm>
+<primary>printing</primary>
+<secondary>standard</secondary>
+</indexterm>
+
+<para>To print the document, click <guimenuitem>Print</guimenuitem> on the
+<guimenu>File</guimenu> menu. This command brings up the familiar
+print dialog box.</para>
+
+</section>
+
+<section id="printps">
+
+<?dbhh topicname="HIDD_DVIPS" topicid="0"?>
+
+<title>&PostScript; Printing</title>
+
+<indexterm>
+<primary>printing</primary>
+<secondary>&PostScript;</secondary>
+</indexterm>
+
+<para>Use the <quote>Print &PostScript;</quote> procedure if you want to
+print on a &PostScript; printer.</para>
+
+<para>The procedure works as follows:</para>
+
+<procedure>
+<step><para>The &DVI; file is processed by &Dvips;. The result is an
+intermediate &PostScript; file.</para></step>
+<step><para>The intermediate file will be send to the printer.</para></step>
+</procedure>
+
+<para>The printer must be capable of interpreting &PostScript;.</para>
+
+<para>To print the &DVI; file:</para>
+
+<procedure>
+<step><para>On the <guimenu>File</guimenu> menu, click <guimenuitem>Print
+PostScript</guimenuitem>.</para></step>
+<step>
+<para>Set the printing options:</para>
+<orderedlist>
+<listitem>
+<para>Select a printer from the drop-down list.</para>
+</listitem>
+<listitem>
+<para>Select the pages you want to print.</para>
+</listitem>
+</orderedlist>
+</step>
+</procedure>
+
+</section>
+
+</chapter>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("yap.xml" "book")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

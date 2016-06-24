@@ -1,0 +1,17 @@
+<varlistentry>
+<term><option>--enable-etex</option></term>
+<listitem>
+<indexterm>
+<primary>--enable-etex</primary>
+</indexterm>
+<para>Enable &eTeX; extensions.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

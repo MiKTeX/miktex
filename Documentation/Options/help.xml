@@ -1,0 +1,17 @@
+<varlistentry>
+<term><option>--help</option></term>
+<listitem>
+<indexterm>
+<primary>--help</primary>
+</indexterm>
+<para>Give help and exit.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

@@ -1,0 +1,17 @@
+<varlistentry>
+<term><option>--trie-size=<replaceable>n</replaceable></option></term>
+<listitem><para>Set the amount of space for
+<indexterm>
+<primary>--trie-size=n</primary>
+</indexterm>
+hyphenation patterns.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/miktex/">
+    <TPM:Name>MiKTeX lib</TPM:Name>
+    <TPM:Title>MiKTeX run-time library</TPM:Title>
+    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      This package includes the MiKTeX run-time library files.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${app_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${botan_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${bzip2_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${core_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${core_ps_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${curl_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${dib_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${expat_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${extractor_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${getopt_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${kpsemu_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${lzma_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${md5_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${mpm_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${mpm_ps_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${mspack_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${popt_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${texmf_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${trace_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${ui_mfc_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${ui_qt_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${unxemu_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${uriparser_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${utf8wrap_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${util_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${w2cemu_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${zlib_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${zzip_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_INTERNAL_BIN_DIR}/runbat.exe
+texmf/${MIKTEX_REL_MIKTEX_INTERNAL_BIN_DIR}/runjava.exe
+texmf/${MIKTEX_REL_MIKTEX_INTERNAL_BIN_DIR}/runperl.exe
+texmf/${MIKTEX_REL_MIKTEX_INTERNAL_BIN_DIR}/runpython.exe
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

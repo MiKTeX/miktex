@@ -1,0 +1,22 @@
+<varlistentry>
+<term><option>--string-vacancies=<replaceable>n</replaceable></option></term>
+<listitem><para>Set the minimum
+<indexterm>
+<primary>--string-vacancies=n</primary>
+</indexterm>
+number of characters that should be available for the
+user's control sequences and font names, after the
+compiler's own error messages are stored.
+Must be at least
+25000 less than <varname>pool_size</varname>,
+but doesn't need to be nearly that large.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

@@ -1,0 +1,273 @@
+<refentry id="initexmf">
+
+<?dbhh topicname="MIKTEXHELP_INITEXMF" topicid="0"?>
+
+<refmeta>
+<refentrytitle>initexmf</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>initexmf</refname>
+<refpurpose>&MiKTeX; configuration utility</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+
+<cmdsynopsis>
+&initexmf;
+<arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
+</cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>&initexmf; is used to configure &MiKTeX;.</para>
+
+</refsect1>
+
+<refsect1>
+<title>User mode vs. administrative mode</title>
+
+<para>This utility can be run in two modes:</para>
+
+<variablelist>
+<varlistentry>
+<term>User mode (default)</term>
+<listitem>
+<para>Only user related &MiKTeX; configuration and data files are
+modified.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Administrative mode</term>
+<listitem>
+<para>Only system-wide &MiKTeX; configuration and data files are
+modified. The utility should be run as the system administrator.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>By default, the utility runs in user mode. You can turn on
+administrative mode with the <option>--admin</option> option. For
+example, if you want to update the system-wide file name database, you
+invoke the utility as follows:</para>
+
+<programlisting>initexmf --admin --update-fndb</programlisting>
+
+</refsect1>
+
+<refsect1>
+
+<title>Options</title>
+
+<variablelist>
+<varlistentry>
+<term><option>--admin</option></term>
+<listitem>
+<indexterm>
+<primary>--admin</primary>
+</indexterm>
+<para>Run in administrative mode.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--configure</option></term>
+<listitem>
+<indexterm>
+<primary>--configure</primary>
+</indexterm>
+<para>This option is only available on &UNIXsystemlike;
+platforms. Configure &MiKTeX;:</para>
+<itemizedlist>
+<listitem><para>&kpsewhich; is run to find existing &TEXMF; trees;
+the information is written to
+<filename>/var/lib/miktex-texmf/miktex/config/miktexstartup.ini</filename>,
+if administrative mode is turned on; otherwise the information
+is written to <filename>~/.miktex/miktex/config/miktexstartup.ini</filename></para></listitem>
+<listitem><para>the system-wide (per-user) file name database is created, if
+administrative mode is turned on (off)</para></listitem>
+</itemizedlist>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--dump</option></term>
+<listitem>
+<indexterm>
+<primary>--dump</primary>
+</indexterm>
+<indexterm>
+<primary>format files</primary>
+<secondary>creating</secondary>
+</indexterm>
+<indexterm>
+<primary>memory dump files</primary>
+<secondary>creating</secondary>
+</indexterm>
+<para>Create all memory dump files.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--dump=<replaceable>key</replaceable></option></term>
+<listitem><para>Dump the specified memory dump file.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--edit-config-file=<replaceable>configfile</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--edit-config-file=file</primary>
+</indexterm>
+<para>Open the specified config file in an editor.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--force</option></term>
+<listitem>
+<indexterm>
+<primary>--force</primary>
+</indexterm>
+<para>Force <option>--mklinks</option> to overwrite existing
+executables.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--list-modes</option></term>
+<listitem>
+<indexterm>
+<primary>--list-modes</primary>
+</indexterm>
+<indexterm>
+<primary>METAFONT</primary>
+<secondary>modes</secondary>
+</indexterm>
+<para>List all known &METAFONT; modes.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--mklinks</option></term>
+<listitem>
+<indexterm>
+<primary>--mklinks</primary>
+</indexterm>
+<para>Create an executable for each known format.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--mkmaps</option></term>
+<listitem>
+<indexterm>
+<primary>--mkmaps</primary>
+</indexterm>
+<indexterm>
+<primary>psfonts.map</primary>
+<secondary>creating</secondary>
+</indexterm>
+<para>Build the font map files.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--print-only</option></term>
+<listitem>
+<indexterm>
+<primary>--print-only</primary>
+</indexterm>
+<para>Print what would be done. Nothing is changed.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--quiet</option></term>
+<listitem>
+<indexterm>
+<primary>--quiet</primary>
+</indexterm>
+<para>Suppress screen output.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--register-root=<replaceable>dir</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--register-root</primary>
+</indexterm>
+<indexterm>
+<primary>&TEXMF; root</primary>
+<secondary>registering</secondary>
+</indexterm>
+<para>Register a &TEXMF; root directory.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--report</option></term>
+<listitem>
+<indexterm>
+<primary>--report</primary>
+</indexterm>
+<para>Write a &MiKTeX; configuration report.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--unregister-root=<replaceable>dir</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--unregister-root</primary>
+</indexterm>
+<indexterm>
+<primary>&TEXMF; root</primary>
+<secondary>unregistering</secondary>
+</indexterm>
+<para>Unregister a &TEXMF; root directory.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--update-fndb</option></term>
+<listitem>
+<indexterm>
+<primary>--update-fndb</primary>
+</indexterm>
+<indexterm>
+<primary>file name datasbase</primary>
+<secondary>refreshing</secondary>
+</indexterm>
+<para>Refresh the whole file name database.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--update-fndb=<replaceable>dir</replaceable></option></term>
+<listitem><para>Refresh the file name database for a specific
+&TEXMF; tree.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--verbose</option></term>
+<listitem>
+<indexterm>
+<primary>--verbose</primary>
+</indexterm>
+<para>Print information on what is being done.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--version</option></term>
+<listitem>
+<indexterm>
+<primary>--version</primary>
+</indexterm>
+<para>Print the version number and exit.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>See also</title>
+
+<para><ulink url="http://www.miktex.org">MiKTeX Project Page</ulink></para>
+
+</refsect1>
+
+</refentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "reference")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

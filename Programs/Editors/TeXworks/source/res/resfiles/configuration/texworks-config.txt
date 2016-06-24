@@ -1,0 +1,37 @@
+# TeXworks: Miscellaneous configuration options that don't show up in the Preferences
+
+# Template commands to insert for files dragged into the editor window
+# Note that %1 represents the filename; #RET# represents a newline
+
+include-text:		\include{%1}#RET#
+
+include-postscript:	\includegraphics[]{%1}#RET#
+include-pdf:		\includegraphics[]{%1}#RET#
+include-image:		\includegraphics[]{%1}#RET#
+
+# Patterns for the Remove Aux Files command; entries are cumulative
+# (any occurrence of $jobname will be replaced by the root file name)
+
+cleanup-patterns:	*.aux
+cleanup-patterns:	$jobname.blg $jobname.brf $jobname.ccs $jobname.ent $jobname.fff
+cleanup-patterns:	$jobname.glo $jobname.idx $jobname.idv $jobname.ilg $jobname.ind $jobname.ioa
+cleanup-patterns:	$jobname.lg $jobname.lof $jobname.log $jobname.lot
+cleanup-patterns:	$jobname.mte $jobname.mlf $jobname.out $jobname.pdfsync
+cleanup-patterns:	$jobname.toc $jobname.ttt $jobname.wrm $jobname.xref
+cleanup-patterns:	$jobname.4ct $jobname.4tc
+
+# To override the built-in list of file types in the File/Open dialog,
+# uncomment and customize these entries:
+#
+# file-open-filter:	TeX documents (*.tex)
+# file-open-filter:	LaTeX documents (*.ltx)
+# file-open-filter:	Log files (*.log *.blg)
+# file-open-filter:	BibTeX databases (*.bib)
+# file-open-filter:	Style files (*.sty)
+# file-open-filter:	Class files (*.cls)
+# file-open-filter:	Documented macros (*.dtx)
+# file-open-filter:	Auxiliary files (*.aux *.toc *.lot *.lof *.nav *.out *.snm *.ind *.idx *.bbl *.brf)
+# file-open-filter:	Text files (*.txt)
+# file-open-filter:	PDF documents (*.pdf)
+# file-open-filter:	All files (*)
+

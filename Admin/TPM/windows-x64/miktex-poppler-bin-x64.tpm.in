@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/miktex/">
+    <TPM:Name>Poppler Qt bin</TPM:Name>
+    <TPM:Title>Poppler Qt binaries</TPM:Title>
+    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      This package includes the poppler Qt DLL and utilities.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${poppler_qt_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdfdetach.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdffonts.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdfimages.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdfinfo.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdfseparate.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdftohtml.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdftoppm.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdftops.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdftotext.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdfunite.exe
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

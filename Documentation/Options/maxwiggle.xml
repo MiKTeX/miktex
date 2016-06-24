@@ -1,0 +1,17 @@
+<varlistentry>
+<term><option>--max-wiggle=<replaceable>n</replaceable></option></term>
+<listitem><para>Set the
+<indexterm>
+<primary>--max-wiggle=n</primary>
+</indexterm>
+number of autorounded points per cycle.</para></listitem>
+</varlistentry>
+
+<!--
+Local Variables:
+mode:xml
+sgml-parent-document: ("../miktex.xml" "section")
+sgml-indent-step: 0
+sgml-set-face: t
+End:
+-->

@@ -1,0 +1,66 @@
+# TeXworks: Patterns for syntax coloring
+
+# Each entry consists of three whitespace-separated fields:
+# <style> <spell?> <regex>
+
+# <style> is a combination of color and style flags
+# Valid syntax:
+# <fgcolor>
+# <fgcolor>/<bgcolor>
+# ;<fontflags>
+# <fgcolor>;<fontflags>
+# <fgcolor>/<bgcolor>;<fontflags>
+#
+# The color fields <fgcolor> and <bgcolor> are either:
+# *) a color name from the list defined in the SVG standard;
+#    see http://www.w3.org/TR/SVG/types.html#ColorKeywords
+# *) a hexadecimal color value of the form #rrggbb; note that if this is used at
+#    the beginning of a line, a space " " must be added in front of it so the
+#    line is not interpreted as a comment (e.g., " #aabbcc" instead of "#aabbcc")
+#
+# The <fontflags> field is a combination of the letters
+# B (bold)
+# I (italic)
+# U (underlined)
+
+# <spell> is a flag controlling whether this style is subject to spell-checking;
+# "Y" or "y" for yes, "N" (or anything else, actually) for no.
+
+# <regex> is the regular expression to match.
+
+# Note that order of rules may be important if several rules could match at the same position;
+# this is why the generic "control sequence" rule comes AFTER the specific \begin/\end one.
+
+[LaTeX]
+# special characters
+darkred		N	[\$#\^_\{\}&]
+
+# LaTeX environments
+darkgreen	N	\\(?:begin|end)\s*\{[^\}]*\}
+
+# LaTeX packages
+darkblue	N	\\usepackage\s*(?:\[[^\]]*\]\s*)?\{[^\}]*\}
+
+# control sequences
+blue		N	\\(?:[A-Za-z@]+|.)
+
+# comments
+red			Y	%.*
+
+[ConTeXt]
+# special characters
+darkred		N	[$#^_{}&]
+
+# start/stop
+darkgreen	N	\\(?:start|stop)[A-Za-z]+
+
+# control sequences
+blue		N	\\(?:[A-Za-z@]+|.)
+
+# comments
+red			Y	%.*
+
+# other possibilities to be added....
+# [BibTeX]
+# [Metapost]
+# etc
