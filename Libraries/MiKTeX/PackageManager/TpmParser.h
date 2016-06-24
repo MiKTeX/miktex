@@ -34,7 +34,7 @@ public:
   TpmParser();
 
 public:
-  ~TpmParser();
+  virtual ~TpmParser();
 
 public:
   void Parse(const MiKTeX::Core::PathName & path);
