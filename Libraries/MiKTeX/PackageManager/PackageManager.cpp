@@ -434,6 +434,11 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
   vector<future<PackageInfo>> futurePackageInfoTable;
 
   // parse package definition files
+  if (((int)ASYNC_LAUNCH_POLICY & (int)launch::async) != 0)
+  {
+    const size_t maxPackageFiles = 4000;
+    File::SetMaxOpen(maxPackageFiles);
+  }
   unsigned count = 0;
   DirectoryEntry direntry;
   while (pLister->GetNext(direntry))

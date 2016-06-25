@@ -365,6 +365,25 @@ void File::CreateLink(const PathName & oldName, const PathName & newName, Create
   }
 }
 
+size_t File::SetMaxOpen(size_t newMax)
+{
+  newMax = min(newMax, 2048);
+  int oldMax = _getmaxstdio();
+  if (oldMax >= newMax)
+  {
+    newMax = oldMax;
+  }
+  else
+  {
+    SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("increasing maximum number of simultaneously open files (oldmax=%d, newmax=%d)"), (int)oldMax, (int)newMax);
+    if (_setmaxstdio(newMax) < 0)
+    {
+      MIKTEX_FATAL_CRT_ERROR_2("_setmaxstdio", "newmax", std::to_string(newMax));
+    }
+  }
+  return newMax;
+}
+
 FILE * File::Open(const PathName & path, FileMode mode, FileAccess access, bool isTextFile, FileShare share)
 {
   SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("opening file %s (%d 0x%x %d %d)"), Q_(path), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(share), static_cast<int>(isTextFile));

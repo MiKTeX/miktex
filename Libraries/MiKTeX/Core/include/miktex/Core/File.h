@@ -181,6 +181,10 @@ public:
 public:
   static MIKTEXCORECEEAPI(bool) Equals(const PathName & path1, const PathName & path2);
 
+public:
+  /// Sets the maximum number of simultaneously open files.
+  static MIKTEXCORECEEAPI(size_t) SetMaxOpen(size_t newMax);
+
   /// Opens a text stream on a file.
 public:
   static MIKTEXCORECEEAPI(FILE *) Open(const PathName & path, FileMode mode, FileAccess access);
