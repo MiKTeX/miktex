@@ -344,6 +344,12 @@ void File::CreateLink(const PathName & oldName, const PathName & newName, Create
   }
 }
 
+size_t File::SetMaxOpen(size_t newMax)
+{
+  // FIXME: unimplemented
+  return FOPEN_MAX;
+}
+
 FILE * File::Open(const PathName & path, FileMode mode, FileAccess access, bool isTextFile, FileShare share)
 {
   UNUSED_ALWAYS(isTextFile);
