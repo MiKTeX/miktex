@@ -74,7 +74,7 @@ CommandLineBuilder::CommandLineBuilder() :
 }
 
 CommandLineBuilder::CommandLineBuilder(const CommandLineBuilder & other) :
-  p(new Data)
+  CommandLineBuilder()
 {
   this->operator= (other);
 }
@@ -86,20 +86,20 @@ CommandLineBuilder & CommandLineBuilder::operator= (const CommandLineBuilder & o
 }
 
 CommandLineBuilder::CommandLineBuilder(const string & argument) :
-  p(new Data)
+  CommandLineBuilder()
 {
   AppendArgument(argument);
 }
 
 CommandLineBuilder::CommandLineBuilder(const string & argument1, const string & argument2) :
-  p(new Data)
+  CommandLineBuilder()
 {
   AppendArgument(argument1);
   AppendArgument(argument2);
 }
 
 CommandLineBuilder::CommandLineBuilder(const string & argument1, const string & argument2, const string & argument3) :
-  p(new Data)
+  CommandLineBuilder()
 {
   AppendArgument(argument1);
   AppendArgument(argument2);
