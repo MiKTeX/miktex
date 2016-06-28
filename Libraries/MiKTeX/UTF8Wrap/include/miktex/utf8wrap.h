@@ -234,7 +234,7 @@ static inline int _chdir(const char * path)
 #undef chmod
 static inline int chmod(const char * path, int mode)
 {
-  miktex_utf8__chmod(path, mode);
+  return miktex_utf8__chmod(path, mode);
 }
 #endif
 
@@ -242,7 +242,7 @@ static inline int chmod(const char * path, int mode)
 #undef _chmod
 static inline int _chmod(const char * path, int mode)
 {
-  miktex_utf8__chmod(path, mode);
+  return miktex_utf8__chmod(path, mode);
 }
 #endif
 
