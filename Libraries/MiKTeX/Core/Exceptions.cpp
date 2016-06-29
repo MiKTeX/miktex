@@ -34,9 +34,9 @@ MiKTeXException::MiKTeXException()
 }
 
 MiKTeXException::MiKTeXException(const string & programInvocationName, const string & message, const KVMAP & info, const SourceLocation & sourceLocation) :
-  programInvocationName(programInvocationName),
-  message(message),
   info(info),
+  message(message),
+  programInvocationName(programInvocationName),
   sourceLocation(sourceLocation)
 {
 }

@@ -88,7 +88,7 @@ inline wchar_t ToUpper(wchar_t ch)
 #if defined(MIKTEX_WINDOWS)
 inline bool IsDriveLetter(char ch)
 {
-  return ch >= 'A' && ch <= 'Z' || ch >= 'a' && ch <= 'z';
+  return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
 }
 #endif
 

@@ -67,12 +67,6 @@ MIKTEXSTATICFUNC(string &) Trim(string & str)
 class CfgValue : public Cfg::Value
 {
 public:
-  string documentation;
-
-public:
-  bool commentedOut = false;
-
-public:
   string name;
 
 public:
@@ -80,6 +74,12 @@ public:
 
 public:
   string value;
+
+public:
+  string documentation;
+
+public:
+  bool commentedOut = false;
 
 private:
   enum { INITIAL_VALUE_SIZE = 256 };

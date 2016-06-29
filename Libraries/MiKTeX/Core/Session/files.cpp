@@ -40,7 +40,11 @@ const size_t PIPE_SIZE = 4096;
 
 MIKTEXSTATICFUNC(int) Close(int fd)
 {
+#if defined(_MSC_VER)
+  return _close(fd);
+#else
   return close(fd);
+#endif
 }
 
 MIKTEXSTATICFUNC(FILE *) POpen(const char * lpszCommand, const char * lpszMode)

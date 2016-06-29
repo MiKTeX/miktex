@@ -152,6 +152,8 @@ void Application::Init(const Session::InitInfo & initInfo_)
     case TriState::True:
       commandLine.AppendOption("--enable-installer");
       break;
+    case TriState::Undetermined:
+      break;
     }
     if (session->IsAdminMode())
     {
@@ -417,6 +419,8 @@ bool Application::TryCreateFile(const PathName & fileName, FileType fileType)
     break;
   case TriState::True:
     commandLine.AppendOption("--enable-installer");
+    break;
+  case TriState::Undetermined:
     break;
   }
   if (session->IsAdminMode())

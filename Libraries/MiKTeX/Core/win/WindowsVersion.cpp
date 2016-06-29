@@ -48,14 +48,14 @@ bool WindowsVersion::IsWindows8OrGreater()
 {
   unsigned major = LOBYTE(LOWORD(windowsVersion));
   unsigned minor = HIBYTE(LOWORD(windowsVersion));
-  return major > 6 || major == 6 && minor >= 2;
+  return major > 6 || (major == 6 && minor >= 2);
 }
 
 bool WindowsVersion::IsWindows7OrGreater()
 {
   unsigned major = LOBYTE(LOWORD(windowsVersion));
   unsigned minor = HIBYTE(LOWORD(windowsVersion));
-  return major > 6 || major == 6 && minor >= 1;
+  return major > 6 || (major == 6 && minor >= 1);
 }
 
 bool WindowsVersion::IsWindowsVistaOrGreater()

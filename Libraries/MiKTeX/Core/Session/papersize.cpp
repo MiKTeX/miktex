@@ -46,14 +46,14 @@ MIKTEXSTATICFUNC(bool) IsKnownPaperSize(int width, int height, string & name)
     int height;
   } knownPaperSizes[] =
   {
-    "A3", mm2bp(297), mm2bp(420),
-    "A4", mm2bp(210), mm2bp(297),
-    "A5", mm2bp(148), mm2bp(210),
-    "A6", mm2bp(257), mm2bp(364),
-    "Ledger", inch2bp(17), inch2bp(11),
-    "Legal", inch2bp(8.5), inch2bp(14),
-    "Letter", inch2bp(8.5), inch2bp(11),
-    "Tabloid", inch2bp(11), inch2bp(17),
+    { "A3", mm2bp(297), mm2bp(420) },
+    { "A4", mm2bp(210), mm2bp(297) },
+    { "A5", mm2bp(148), mm2bp(210) },
+    { "A6", mm2bp(257), mm2bp(364) },
+    { "Ledger", inch2bp(17), inch2bp(11) },
+    { "Legal", inch2bp(8.5), inch2bp(14) },
+    { "Letter", inch2bp(8.5), inch2bp(11) },
+    { "Tabloid", inch2bp(11), inch2bp(17) },
   };
   for (const auto & paperSize : knownPaperSizes)
   {

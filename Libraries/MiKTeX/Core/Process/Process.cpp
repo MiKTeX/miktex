@@ -176,7 +176,6 @@ vector<string> Process2::GetInvokerNames()
   unique_ptr<Process2> pProcess(Process2::GetCurrentProcess());
   unique_ptr<Process2> pParentProcess(pProcess->get_Parent());
   const int maxLevels = 3;
-  int level = 0;
   for (int level = 0; pParentProcess.get() != nullptr && level < maxLevels; ++level)
   {
     result.push_back(pParentProcess->get_ProcessName());

@@ -870,7 +870,7 @@ bool SessionImpl::IsUserMemberOfGroup(DWORD localGroup)
     return false;
   }
 
-  SID_IDENTIFIER_AUTHORITY SystemSidAuthority = SECURITY_NT_AUTHORITY;
+  SID_IDENTIFIER_AUTHORITY SystemSidAuthority = { SECURITY_NT_AUTHORITY };
 
   PSID psidAdmin;
 

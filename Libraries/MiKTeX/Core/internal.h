@@ -282,7 +282,11 @@ struct StringComparerIgnoringCase :
 
 inline FILE * FdOpen(const MiKTeX::Core::PathName & path, int fd, const char * lpszMode)
 {
+#if defined(_MSC_VER)
+  FILE * stream = _fdopen(fd, lpszMode);
+#else
   FILE * stream = fdopen(fd, lpszMode);
+#endif
   if (stream == nullptr)
   {
     MIKTEX_FATAL_CRT_ERROR_2("fdopen", "path", path.ToString());
@@ -292,7 +296,11 @@ inline FILE * FdOpen(const MiKTeX::Core::PathName & path, int fd, const char * l
 
 inline FILE * FdOpen(int fd, const char * lpszMode)
 {
+#if defined(_MSC_VER)
+  FILE * stream = _fdopen(fd, lpszMode);
+#else
   FILE * stream = fdopen(fd, lpszMode);
+#endif
   if (stream == nullptr)
   {
     MIKTEX_FATAL_CRT_ERROR("fdopen");

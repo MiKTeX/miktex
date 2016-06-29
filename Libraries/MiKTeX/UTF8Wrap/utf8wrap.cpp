@@ -141,7 +141,7 @@ MIKTEXUTF8WRAPCEEAPI(char *) miktex_utf8__getcwd(char * lpszDirectoryName, size_
   {
     throw std::runtime_error("buffer too small");
   }
-  strcpy(lpszDirectoryName, utf8.get());
+  strcpy_s(lpszDirectoryName, maxSize, utf8.get());
   return lpszDirectoryName;
 }
 
@@ -198,8 +198,8 @@ MIKTEXUTF8WRAPCEEAPI(FILE *) miktex_utf8__popen(const char * lpszCommand, const 
 
 MIKTEXSTATICFUNC(HANDLE) GetConsoleHandle(FILE * pFile)
 {
-  bool isStdout = _fileno(pFile) == fileno(stdout);
-  bool isStderr = _fileno(pFile) == fileno(stderr);
+  bool isStdout = _fileno(pFile) == _fileno(stdout);
+  bool isStderr = _fileno(pFile) == _fileno(stderr);
   if (_isatty(_fileno(pFile)) && (isStdout || isStderr))
   {
     return isStdout ? GetStdHandle(STD_OUTPUT_HANDLE) : GetStdHandle(STD_ERROR_HANDLE);
