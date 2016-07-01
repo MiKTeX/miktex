@@ -21,4 +21,13 @@
 #  include <config.h>
 #endif
 
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include <miktex/App/Application>
+#include <miktex/Core/Exceptions>
+#include <miktex/Util/StringUtil>
+#include <miktex/Wrappers/PoptWrapper>
+
 #include "tdsutil-version.h"
