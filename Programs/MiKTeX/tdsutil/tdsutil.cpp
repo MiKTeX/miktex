@@ -19,15 +19,15 @@
 
 #include "StdAfx.h"
 
+#include "internal.h"
+
+#include "Recipe.h"
+
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
 using namespace std;
-
-#define T_(x) MIKTEXTEXT(x)
-
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
 
 const char * const TheNameOfTheGame = T_("MiKTeX TDS Utility");
 
@@ -36,6 +36,9 @@ class TdsUtility :
 {
 public:
   void Run(int argc, const char ** argv);
+
+private:
+  MIKTEXNORETURN void Error(const char * lpszFormat, ...);
 
 private:
   bool verbose = false;
@@ -50,7 +53,10 @@ private:
 enum Option
 {
   OPT_AAA = 1000,
+  OPT_DEST_DIR,
   OPT_PRINT_ONLY,
+  OPT_RECIPE,
+  OPT_SOURCE_DIR,
   OPT_VERBOSE,
   OPT_VERSION
 };
@@ -58,10 +64,34 @@ enum Option
 struct poptOption TdsUtility::aoption[] = {
 
   {
+    "dest-dir", 0,
+    POPT_ARG_STRING, nullptr,
+    OPT_DEST_DIR,
+    T_("The destination directory."),
+    nullptr
+  },
+
+  {
     "print-only", 'n',
     POPT_ARG_NONE, nullptr,
     OPT_PRINT_ONLY,
     T_("Print what would be done."),
+    nullptr
+  },
+
+  {
+    "recipe", 0,
+    POPT_ARG_STRING, nullptr,
+    OPT_RECIPE,
+    T_("The recipe for package installation."),
+    nullptr
+  },
+
+  {
+    "source-dir", 0,
+    POPT_ARG_STRING, nullptr,
+    OPT_SOURCE_DIR,
+    T_("The source directory."),
     nullptr
   },
 
@@ -85,11 +115,24 @@ struct poptOption TdsUtility::aoption[] = {
   POPT_TABLEEND
 };
 
+MIKTEXNORETURN void TdsUtility::Error(const char * lpszFormat, ...)
+{
+  va_list arglist;
+  VA_START(arglist, lpszFormat);
+  cerr << "tdsutil: " << StringUtil::FormatString(lpszFormat, arglist) << endl;
+  VA_END(arglist);
+  throw 1;
+}
+
 void TdsUtility::Run(int argc, const char ** argv)
 {
   PoptWrapper popt(argc, argv, aoption);
+  popt.SetOtherOptionHelp("install <package>");
 
   int option;
+  PathName recipeFile;
+  PathName sourceDir;
+  PathName destDir;
 
   Session::InitInfo initInfo(argv[0]);
 
@@ -98,8 +141,17 @@ void TdsUtility::Run(int argc, const char ** argv)
     string optArg = popt.GetOptArg();
     switch (option)
     {
+    case OPT_DEST_DIR:
+      destDir = optArg;
+      break;
     case OPT_PRINT_ONLY:
       printOnly = true;
+      break;
+    case OPT_RECIPE:
+      recipeFile = optArg;
+      break;
+    case OPT_SOURCE_DIR:
+      sourceDir = optArg;
       break;
     case OPT_VERBOSE:
       verbose = true;
@@ -113,8 +165,55 @@ void TdsUtility::Run(int argc, const char ** argv)
       return;
     }
   }
-
+  
   Init(initInfo);
+
+  vector<string> leftovers = popt.GetLeftovers();
+
+  if (leftovers.empty())
+  {
+    Error("Nothing to do?\nTry '%s --help' for more information.", argv[0]);
+  }
+
+  if (leftovers[0] == "install")
+  {
+    if (leftovers.size() != 2)
+    {
+      Error("Usage: %s install <package>", argv[0]);
+    }
+    string package = leftovers[1];
+    if (sourceDir.Empty())
+    {
+      sourceDir.SetToCurrentDirectory();
+    }
+    if (destDir.Empty())
+    {
+      destDir = sourceDir;
+      destDir /= ".tds";
+    }
+    Recipe recipe(package, sourceDir, destDir);
+    PathName globalRecipeFile("miktex");
+    globalRecipeFile.SetExtension(MIKTEX_PACKAGING_RECIPE_FILE_SUFFIX);
+    if (File::Exists(globalRecipeFile))
+    {
+      recipe.Read(globalRecipeFile);
+    }
+    PathName packageRecipeFile(sourceDir / package);
+    packageRecipeFile.SetExtension(MIKTEX_PACKAGING_RECIPE_FILE_SUFFIX);
+    if (File::Exists(packageRecipeFile))
+    {
+      recipe.Read(packageRecipeFile);
+    }      
+    if (!recipeFile.Empty())
+    {
+      recipe.Read(recipeFile);
+    }
+    recipe.Execute(printOnly);
+  }
+  else
+  {
+    Error("Unknown command: %s", leftovers[0].c_str());
+  }
 
   Finalize();
 }

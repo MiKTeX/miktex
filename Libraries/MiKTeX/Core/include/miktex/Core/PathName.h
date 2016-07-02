@@ -259,6 +259,13 @@ public:
   }
 
 public:
+  PathName GetFileName() const
+  {
+    char buf[BufferSizes::MaxPath];
+    return GetFileName(buf);
+  }
+
+public:
   char * GetFileNameWithoutExtension(char * lpszFileName) const
   {
     MIKTEX_ASSERT_CHAR_BUFFER(lpszFileName, BufferSizes::MaxPath);

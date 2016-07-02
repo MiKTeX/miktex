@@ -33,7 +33,11 @@ if(MSVC)
 endif()  
 
 set(tdsutil_sources
+  Recipe.cpp
+  Recipe.h
+  TDS.h
   StdAfx.h
+  internal.h
   tdsutil-version.h
   tdsutil.cpp
 )

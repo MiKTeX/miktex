@@ -122,6 +122,10 @@ bool File::Equals(const PathName & path1, const PathName & path2)
   {
     return false;
   }
+  if (size == 0)
+  {
+    return true;
+  }
   unique_ptr<MemoryMappedFile> pFile1(MemoryMappedFile::Create());
   const void * ptr1 = pFile1->Open(path1, false);
   unique_ptr<MemoryMappedFile> pFile2(MemoryMappedFile::Create());

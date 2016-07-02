@@ -1,4 +1,4 @@
-/* StdAfx.h: pre-compiled header stuff                  -*- C++ -*-
+/* TDS.h:                                               -*- C++ -*-
 
    Copyright (C) 2016 Christian Schenk
 
@@ -17,24 +17,40 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#if defined(HAVE_CONFIG_H)
-#  include <config.h>
-#endif
+#pragma once
 
-#include <iostream>
-#include <string>
-#include <vector>
+class TDS
+{
+public:
+  TDS(const std::string & package) :
+    package(package)
+  {
+  }
 
-#include <miktex/App/Application>
-#include <miktex/Core/Cfg>
-#include <miktex/Core/Directory>
-#include <miktex/Core/DirectoryLister>
-#include <miktex/Core/Exceptions>
-#include <miktex/Core/PathName>
-#include <miktex/Core/Paths>
-#include <miktex/Core/Quoter>
-#include <miktex/Core/TemporaryDirectory>
-#include <miktex/Util/StringUtil>
-#include <miktex/Wrappers/PoptWrapper>
+  void SetFormat(const std::string & format)
+  {
+    this->format = format;
+  }
 
-#include "tdsutil-version.h"
+public:
+  MiKTeX::Core::PathName GetSourceDir() const
+  {
+    return MiKTeX::Core::PathName("source") / package;
+  }
+
+public:
+  MiKTeX::Core::PathName GetTeXDir() const
+  {
+    if (format.empty())
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    return MiKTeX::Core::PathName("tex") / format / package;
+  }
+
+private:
+  std::string package;
+
+private:
+  std::string format;
+};

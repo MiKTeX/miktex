@@ -83,3 +83,54 @@ void Directory::Delete(const PathName & path, bool recursive)
   Directory::Delete(path);
 }
 
+void Directory::Copy(const PathName & source, const PathName & dest, DirectoryCopyOptionSet options)
+{
+  vector<PathName> files;
+  files.reserve(10);
+
+  vector<PathName> subDirectories;
+  subDirectories.reserve(10);
+
+  unique_ptr<DirectoryLister> dirLister = DirectoryLister::Open(source);
+  DirectoryEntry entry;
+  while (dirLister->GetNext(entry))
+  {
+    if (entry.isDirectory)
+    {
+      subDirectories.push_back(entry.name);
+    }
+    else
+    {
+      files.push_back(entry.name);
+    }
+  }
+  dirLister->Close();
+
+  Directory::Create(dest);
+
+  for (const PathName & file : files)
+  {
+    PathName sourceFile;
+    sourceFile = source;
+    sourceFile /= file;
+    PathName destFile;
+    destFile = dest;
+    destFile /= file;
+    File::Copy(sourceFile, destFile);
+  }
+
+  if (options[DirectoryCopyOption::CopySubDirectories])
+  {
+    for (const PathName & dir : subDirectories)
+    {
+      PathName sourceDir;
+      sourceDir = source;
+      sourceDir /= dir;
+      PathName destDir;
+      destDir = dest;
+      destDir /= dir;
+      // RECURSION
+      Directory::Copy(sourceDir, destDir, options);
+    }
+  }
+}

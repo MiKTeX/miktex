@@ -30,9 +30,21 @@
 
 #include <ctime>
 
+#include "OptionSet.h"
 #include "PathName.h"
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
+
+enum class DirectoryCopyOption
+{
+  UpdateFndb,
+  ReplaceExisting,
+  PreserveAttributes,
+  CopySubDirectories
+};
+
+typedef OptionSet<DirectoryCopyOption> DirectoryCopyOptionSet;
+
 
 /// Directory class.
 class MIKTEXNOVTABLE Directory
@@ -56,6 +68,9 @@ public:
   /// Deletes a directory (recursively).
 public:
   static MIKTEXCORECEEAPI(void) Delete(const PathName & path, bool recursive);
+
+public:
+  static MIKTEXCORECEEAPI(void) Copy(const PathName & source, const PathName & dest, DirectoryCopyOptionSet options);
 
   /// Tests if a directory exists.
 public:

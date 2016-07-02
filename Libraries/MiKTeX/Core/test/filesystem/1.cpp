@@ -81,7 +81,16 @@ BEGIN_TEST_FUNCTION(3);
   file /= "file.txt";
   Touch(file.Get());
   TEST(MiKTeX::Core::File::Exists(file));
+  MiKTeX::Core::PathName dir2;
+  dir2.SetToCurrentDirectory();
+  dir2 /= "copy-of-d";
+  TESTX(MiKTeX::Core::Directory::Copy(dir, dir2, { MiKTeX::Core::DirectoryCopyOption::CopySubDirectories }));
+  MiKTeX::Core::PathName file2 = dir2;
+  file2 /= "dd/ddd";
+  file2 /= "file.txt";
+  TEST(MiKTeX::Core::File::Equals(file, file2));
   TESTX(MiKTeX::Core::Directory::Delete(dir, true));
+  TESTX(MiKTeX::Core::Directory::Delete(dir2, true));
 }
 END_TEST_FUNCTION();
 
