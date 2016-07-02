@@ -44,6 +44,12 @@ const char * const COMMENT_CHAR_STR = ";";
 
 const char * const EMSA_ = "EMSA1(SHA-256)";
 
+MIKTEXSTATICFUNC(bool) EndsWith(const string & s, const string & suffix)
+{
+  return s.length() >= suffix.length() &&
+    s.compare(s.length() - suffix.length(), suffix.length(), suffix) == 0;
+}
+
 MIKTEXSTATICFUNC(string &) Trim(string & str)
 {
   const char * whitespace = " \t\r\n";
@@ -79,20 +85,16 @@ public:
   string lookupName;
 
 public:
-  string value;
-
-private:
-  enum { INITIAL_VALUE_SIZE = 256 };
+  vector<string> value;
 
 public:
   CfgValue()
   {
-    value.reserve(INITIAL_VALUE_SIZE);
   }
 
 public:
   CfgValue(const string & name, const string & lookupName, const string & value, const string & documentation, bool isCommentedOut) :
-    name(name), lookupName(lookupName), value(value), documentation(documentation), commentedOut(isCommentedOut)
+    name(name), lookupName(lookupName), value{ value }, documentation(documentation), commentedOut(isCommentedOut)
   {
   }
 
@@ -103,15 +105,37 @@ public:
   }
 
 public:
+  bool IsMultiValue() const
+  {
+    return EndsWith(name, "[]");
+  }
+
+public:
   string MIKTEXTHISCALL GetValue() const override
   {
+    if (IsMultiValue())
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    return value.empty() ? "" : value.front();
+  }
+
+public:
+  vector<string> MIKTEXTHISCALL GetMultiValue() const override
+  {
+    if (!IsMultiValue())
+    {
+      MIKTEX_UNEXPECTED();
+    }
     return value;
   }
+
 public:
   string MIKTEXTHISCALL GetDocumentation() const override
   {
     return documentation;
   }
+
 public:
   bool IsCommentedOut() const override
   {
@@ -236,12 +260,28 @@ void CfgKey::WriteValues(StreamWriter & writer)
         writer.WriteLine();
       }
     }
-    if (IsSearchPathValue(it->second->name) && it->second->value.find_first_of(PATH_DELIMITER) != string::npos)
+    if (it->second->value.empty())
     {
       writer.WriteFormattedLine("%s%s=",
         it->second->commentedOut ? COMMENT_CHAR_STR : "",
         it->second->name.c_str());
-      for (CSVList root(it->second->value, PATH_DELIMITER); root.GetCurrent() != nullptr; ++root)
+    }
+    else if (it->second->IsMultiValue())
+    {
+      for (const string & val : it->second->value)
+      {
+        writer.WriteFormattedLine("%s%s=%s",
+          it->second->commentedOut ? COMMENT_CHAR_STR : "",
+          it->second->name.c_str(),
+          val.c_str());
+      }
+    }
+    else if (IsSearchPathValue(it->second->name) && it->second->value.front().find_first_of(PATH_DELIMITER) != string::npos)
+    {
+      writer.WriteFormattedLine("%s%s=",
+        it->second->commentedOut ? COMMENT_CHAR_STR : "",
+        it->second->name.c_str());
+      for (CSVList root(it->second->value.front(), PATH_DELIMITER); root.GetCurrent() != nullptr; ++root)
       {
         writer.WriteFormattedLine("%s%s;=%s",
           it->second->commentedOut ? COMMENT_CHAR_STR : "",
@@ -254,7 +294,7 @@ void CfgKey::WriteValues(StreamWriter & writer)
       writer.WriteFormattedLine("%s%s=%s",
         it->second->commentedOut ? COMMENT_CHAR_STR : "",
         it->second->name.c_str(),
-        it->second->value.c_str());
+        it->second->value.front().c_str());
     }
   }
 }
@@ -277,6 +317,9 @@ public:
 
 public:
   bool MIKTEXTHISCALL TryGetValue(const string & keyName, const string & valueName, PathName & path) const override;
+
+public:
+  bool MIKTEXTHISCALL TryGetValue(const string & keyName, const string & valueName, vector<string> & value) const override;
 
 public:
   void MIKTEXTHISCALL SetModified(bool b) override;
@@ -497,10 +540,29 @@ void CfgImpl::Walk(Botan::Pipe & pipe) const
     sort(values.begin(), values.end());
     for (const CfgValue & val : values)
     {
-      pipe.write(val.lookupName);
-      pipe.write("=");
-      pipe.write(val.value);
-      pipe.write("\n");
+      if (val.value.empty())
+      {
+        pipe.write(val.lookupName);
+        pipe.write("=");
+        pipe.write("\n");
+      }
+      else if (val.IsMultiValue())
+      {
+        for (const string & v : val.value)
+        {
+          pipe.write(val.lookupName);
+          pipe.write("=");
+          pipe.write(v);
+          pipe.write("\n");
+        }
+      }
+      else
+      {
+        pipe.write(val.lookupName);
+        pipe.write("=");
+        pipe.write(val.value.front());
+        pipe.write("\n");
+      }
     }
   }
 }
@@ -566,6 +628,27 @@ bool CfgImpl::TryGetValue(const string & keyName, const string & valueName, Path
   return true;
 }
 
+bool CfgImpl::TryGetValue(const string & keyName, const string & valueName, vector<string> & outValue) const
+{
+  shared_ptr<CfgKey> key = FindKey(keyName);
+
+  if (key == nullptr)
+  {
+    return false;
+  }
+
+  shared_ptr<Cfg::Value> value = key->GetValue(valueName);
+
+  if (value == nullptr || value->IsCommentedOut())
+  {
+    return false;
+  }
+
+  outValue = value->GetMultiValue();
+
+  return true;
+}
+
 void CfgImpl::PutValue(const string & keyName_, const string & valueName, const string & value, CfgImpl::PutMode putMode, const string & documentation, bool commentedOut)
 {
   string keyName = keyName_.empty() ? GetDefaultKeyName() : keyName_;
@@ -586,23 +669,46 @@ void CfgImpl::PutValue(const string & keyName_, const string & valueName, const 
   {
     // modify existing value
     ValueMap::iterator itVal = pair2.first;
+    if (itVal->second->IsMultiValue() && putMode != None)
+    {
+      MIKTEX_UNEXPECTED();
+    }
     itVal->second->documentation = documentation;
     itVal->second->commentedOut = commentedOut;
     if (putMode == Append)
     {
-      itVal->second->value += value;
+      if (itVal->second->value.empty())
+      {
+        itVal->second->value.push_back(value);
+      }
+      else
+      {
+        itVal->second->value.front() += value.front();
+      }
     }
     else if (putMode == SearchPathAppend)
     {
-      if (!itVal->second->value.empty())
+      if (itVal->second->value.empty())
       {
-        itVal->second->value += PATH_DELIMITER;
+        itVal->second->value.push_back(value);
       }
-      itVal->second->value += value;
+      else
+      {
+        if (!itVal->second->value.front().empty())
+        {
+          itVal->second->value.front() += PATH_DELIMITER;
+        }
+        itVal->second->value.front() += value;
+      }
+    }
+    else if (itVal->second->IsMultiValue())
+    {
+      itVal->second->value.push_back(value);
     }
     else
     {
-      itVal->second->value = value;
+      itVal->second->value.clear();
+      itVal->second->value.push_back(value);
     }
   }
 }
@@ -782,7 +888,7 @@ bool CfgImpl::ParseValueDefinition(const string & line, string & valueName, stri
 
   putMode = None;
 
-  if (posEqual == string::npos)
+  if (posEqual == string::npos || posEqual == 0)
   {
     return false;
   }
