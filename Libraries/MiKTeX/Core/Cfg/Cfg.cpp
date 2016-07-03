@@ -760,6 +760,7 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
   while (reader.ReadLine(line))
   {
     ++lineno;
+    Trim(line);
     if (line.empty())
     {
       documentation = "";
