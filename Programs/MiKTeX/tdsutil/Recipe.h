@@ -72,6 +72,9 @@ private:
   void Prepare();
 
 private:
+  void RunDtxUnpacker();
+
+private:
   void DoAction(const std::string & action);
 
 private:
@@ -150,6 +153,18 @@ private:
   const std::string standardFoundry = "public";
 
 private:
+  const std::string standardInsEngine = "latex";
+
+private:
+  const std::vector<std::string> standardInsOptions = { "-interaction=nonstopmode" };
+
+private:
+  const std::vector<std::string> standardInsPatterns = { "*.ins" };
+
+private:
+  const std::vector<std::string> standardDtxPatterns = { "*.dtx" };
+
+private:
   const std::vector<std::string> standardTeXPatterns = { "*.cls", "*.sty" };
 
 private:
@@ -180,5 +195,23 @@ private:
   const std::vector<std::string> standardMfPatterns = { "*.mf" };
 
 private:
+  const std::vector<std::string> standardTfmPatterns = { "*.tfm" };
+
+private:
+  const std::vector<std::string> standardOtfPatterns = { "*.otf" };
+
+private:
+  const std::vector<std::string> standardPfbPatterns = { "*.pfb" };
+
+private:
+  const std::vector<std::string> standardAfmPatterns = { "*.afm" };
+
+private:
+  const std::vector<std::string> standardVfPatterns = { "*.vf" };
+
+private:
   const std::vector<std::string> standardMpPatterns = { "*.mp" };
+
+private:
+  const std::vector<std::string> standardScriptPatterns;
 };

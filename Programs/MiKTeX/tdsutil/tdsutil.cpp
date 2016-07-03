@@ -188,14 +188,14 @@ void TdsUtility::Run(int argc, const char ** argv)
     }
     if (destDir.Empty())
     {
-      destDir = sourceDir;
-      destDir /= ".tds";
+      // TODO: home texmf
+      destDir = session->GetSpecialPath(SpecialPath::UserDataRoot);
     }
     Recipe recipe(package, sourceDir, destDir);
-    string packageRecipeFile = package + MIKTEX_TDS_RECIPE_FILE_SUFFIX;
+    string packageRecipeFile = package + MIKTEX_TDSUTIL_RECIPE_FILE_SUFFIX;
     vector<PathName> recipeFiles;
-    session->FindFile("_miktex.ini", "%R/miktex/tdsutil/recipes", { Session::FindFileOption::All }, recipeFiles);
-    session->FindFile(packageRecipeFile.c_str(), "%R/miktex/tdsutil/recipes", { Session::FindFileOption::All }, recipeFiles);
+    session->FindFile(MIKTEX_PATH_TDSUTIL_DEFAULT_RECIPE, MIKTEX_PATH_TEXMF_PLACEHOLDER, { Session::FindFileOption::All }, recipeFiles);
+    session->FindFile(packageRecipeFile.c_str(), MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_TDSUTIL_RECIPES_DIR, { Session::FindFileOption::All }, recipeFiles);
     if (!recipeFile.Empty())
     {
       recipeFiles.push_back(recipeFile);

@@ -27,13 +27,16 @@
 
 #include <miktex/App/Application>
 #include <miktex/Core/Cfg>
+#include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Quoter>
+#include <miktex/Core/StreamWriter>
 #include <miktex/Core/TemporaryDirectory>
+#include <miktex/Core/TemporaryFile>
 #include <miktex/Util/StringUtil>
 #include <miktex/Wrappers/PoptWrapper>
 

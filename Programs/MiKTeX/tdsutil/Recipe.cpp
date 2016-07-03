@@ -28,84 +28,30 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-bool Recipe::PrintOnly(const string & message)
+class ProcessOutputTrash :
+  public IRunProcessCallback
 {
-  if (printOnly)
+public:
+  bool MIKTEXTHISCALL OnProcessOutput(const void * pOutput, size_t n) override
   {
-    cout << message << endl;
+    return true;
   }
-  return printOnly;
+};
+
+void CollectFiles(vector<PathName> & files, const PathName & dir, const string & pattern)
+{
+  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dir, pattern.c_str());
+  DirectoryEntry2 entry;
+  while (lister->GetNext(entry))
+  {
+    files.push_back(dir / entry.name);
+  }
 }
 
-void Recipe::CreateDirectory(const PathName & path)
+PathName PrettyPath(const PathName & path, const PathName & root)
 {
-  if (!PrintOnly(StringUtil::FormatString("create directory %s", Q_(path))))
-  {
-    Directory::Create(path);
-  }
-}
-
-void Recipe::Execute(bool printOnly)
-{
-  this->printOnly = printOnly;
-  if (format.empty())
-  {
-    if (!recipe->TryGetValue("general", "format", format))
-    {
-      format = standardFormat;
-    }
-    SetFormat(format);
-  }
-  if (foundry.empty())
-  {
-    if (!recipe->TryGetValue("general", "foundry", foundry))
-    {
-      foundry = standardFoundry;
-    }
-    SetFoundry(foundry);
-  }
-  CreateDirectory(destDir);
-  SetupWorkingDirectory();
-  Prepare();
-  InstallFileSets();
-  InstallFiles("tex", standardTeXPatterns, tds.GetTeXDir());
-  InstallFiles("doc", standardTeXPatterns, tds.GetTeXDir());
-  InstallFiles("bib", standardBibPatterns, tds.GetBibDir());
-  InstallFiles("bst", standardBstPatterns, tds.GetBstDir());
-  InstallFiles("csf", standardCsfPatterns, tds.GetCsfDir());
-  InstallFiles("ist", standardIstPatterns, tds.GetIstDir());
-  InstallFiles("dvips", standardDvipsPatterns, tds.GetDvipsDir());
-  InstallFiles("map", standardMapPatterns, tds.GetMapDir());
-  InstallFiles("enc", standardEncPatterns, tds.GetEncDir());
-  InstallFiles("mf", standardMfPatterns, tds.GetMfDir());
-  InstallFiles("mp", standardMpPatterns, tds.GetMetaPostDir());
-}
-
-void Recipe::SetupWorkingDirectory()
-{
-  if (printOnly)
-  {
-    scratchDir = TemporaryDirectory::Create();
-    workDir = scratchDir->GetPathName();
-  }
-  else
-  {
-    workDir = destDir / tds.GetSourceDir();
-  }
-  Directory::Copy(sourceDir, workDir, { DirectoryCopyOption::CopySubDirectories });
-}
-
-void Recipe::Prepare()
-{
-  vector<string> actions;
-  if (!recipe->TryGetValue("prepare", "actions[]", actions))
-  {
-    return;
-  }
-  for (const string & action : actions)
-  {
-    DoAction(action);
-  }
+  PathName pretty(Utils::GetRelativizedPath(path.GetData(), root.GetData()));
+  return pretty.ToUnix();
 }
 
 vector<string> Split(const string & s)
@@ -134,6 +80,95 @@ vector<string> Split(const string & s)
   return argv;
 }
 
+bool Recipe::PrintOnly(const string & message)
+{
+  if (printOnly)
+  {
+    cout << message << endl;
+  }
+  return printOnly;
+}
+
+void Recipe::CreateDirectory(const PathName & path)
+{
+  if (!printOnly)
+  {
+    Directory::Create(path);
+  }
+}
+
+void Recipe::Execute(bool printOnly)
+{
+  this->printOnly = printOnly;
+  if (format.empty())
+  {
+    if (!recipe->TryGetValue("general", "format", format))
+    {
+      format = standardFormat;
+    }
+    SetFormat(format);
+  }
+  if (foundry.empty())
+  {
+    if (!recipe->TryGetValue("general", "foundry", foundry))
+    {
+      foundry = standardFoundry;
+    }
+    SetFoundry(foundry);
+  }
+  if (Directory::Exists(destDir))
+  {
+    MIKTEX_FATAL_ERROR("destination directory alread exists");
+  }
+  SetupWorkingDirectory();
+  Prepare();
+  InstallFileSets();
+  InstallFiles("tex", standardTeXPatterns, tds.GetTeXDir());
+  InstallFiles("doc", standardDocPatterns, tds.GetDocDir());
+  InstallFiles("bib", standardBibPatterns, tds.GetBibDir());
+  InstallFiles("bst", standardBstPatterns, tds.GetBstDir());
+  InstallFiles("csf", standardCsfPatterns, tds.GetCsfDir());
+  InstallFiles("ist", standardIstPatterns, tds.GetIstDir());
+  InstallFiles("dvips", standardDvipsPatterns, tds.GetDvipsDir());
+  InstallFiles("map", standardMapPatterns, tds.GetMapDir());
+  InstallFiles("enc", standardEncPatterns, tds.GetEncDir());
+  InstallFiles("mf", standardMfPatterns, tds.GetMfDir());
+  InstallFiles("tfm", standardTfmPatterns, tds.GetTfmDir());
+  InstallFiles("otf", standardOtfPatterns, tds.GetOtfDir());
+  InstallFiles("pfb", standardPfbPatterns, tds.GetPfbDir());
+  InstallFiles("afm", standardAfmPatterns, tds.GetAfmDir());
+  InstallFiles("vf", standardVfPatterns, tds.GetVfDir());
+  InstallFiles("mp", standardMpPatterns, tds.GetMetaPostDir());
+  InstallFiles("script", standardScriptPatterns, tds.GetScriptDir());
+}
+
+void Recipe::SetupWorkingDirectory()
+{
+  if (printOnly)
+  {
+    scratchDir = TemporaryDirectory::Create();
+    workDir = scratchDir->GetPathName();
+  }
+  else
+  {
+    workDir = destDir / tds.GetSourceDir();
+  }
+  Directory::Copy(sourceDir, workDir, { DirectoryCopyOption::CopySubDirectories });
+}
+
+void Recipe::Prepare()
+{
+  vector<string> actions;
+  if (recipe->TryGetValue("prepare", "actions[]", actions))
+  {
+    for (const string & action : actions)
+    {
+      DoAction(action);
+    }
+  }
+  RunDtxUnpacker();
+}
+
 void Recipe::DoAction(const string & action)
 {
   vector<string> argv = Split(action);
@@ -152,12 +187,82 @@ void Recipe::DoAction(const string & action)
     PathName newName = PathName(workDir) / argv[2];
     if (File::Exists(oldName))
     {
+      PrintOnly(StringUtil::FormatString("move <SRCDIR>/%s <SRCDIR>/%s", Q_(PrettyPath(oldName, workDir)), Q_(PrettyPath(newName, workDir))));
       File::Move(oldName, newName);
     }
   }
   else
   {
     MIKTEX_FATAL_ERROR(T_("unknown action"));
+  }
+}
+
+void Recipe::RunDtxUnpacker()
+{
+  string engine;
+  if (!recipe->TryGetValue("ins", "engine", engine))
+  {
+    engine = standardInsEngine;
+  }
+  vector<string> options;
+  if (!recipe->TryGetValue("ins", "options[]", options))
+  {
+    options = standardInsOptions;
+  }
+  vector<string> patterns;
+  if (!recipe->TryGetValue("patterns", "ins[]", patterns))
+  {
+    patterns = standardInsPatterns;
+  }
+  vector<PathName> insFiles;
+  for (const string & pat : patterns)
+  {
+    PathName pattern(session->Expand(pat.c_str(), this));
+    PathName dir(workDir);
+    dir /= pattern;
+    dir.RemoveFileSpec();
+    pattern.RemoveDirectorySpec();
+    CollectFiles(insFiles, dir, pattern.ToString());
+  }
+  if (insFiles.empty())
+  {
+    if (!recipe->TryGetValue("patterns", "dtx[]", patterns))
+    {
+      patterns = standardDtxPatterns;
+    }
+    for (const string & pat : patterns)
+    {
+      PathName pattern(session->Expand(pat.c_str(), this));
+      PathName dir(workDir);
+      dir /= pattern;
+      dir.RemoveFileSpec();
+      pattern.RemoveDirectorySpec();
+      CollectFiles(insFiles, dir, pattern.ToString());
+    }
+  }
+  unique_ptr<TemporaryFile> alwaysYes = TemporaryFile::Create();
+  StreamWriter writer(alwaysYes->GetPathName());
+  for (int i = 0; i < 100; ++i)
+  {
+    writer.WriteLine("y");
+  }
+  writer.Close();
+  unique_ptr<TemporaryDirectory> auxDir = TemporaryDirectory::Create();
+  for (const PathName & insFile : insFiles)
+  {
+    CommandLineBuilder cmd;
+    cmd.AppendArgument(engine);
+    cmd.AppendArguments(options);
+    cmd.AppendArgument(insFile);
+    cmd.AppendStdinRedirection(alwaysYes->GetPathName());
+    ProcessOutputTrash trash;
+    Process::ExecuteSystemCommand(cmd.ToString(), nullptr, &trash, workDir.GetData());
+    PathName logFile(insFile);
+    logFile.SetExtension(".log", true);
+    if (File::Exists(logFile))
+    {
+      File::Delete(logFile);
+    }
   }
 }
 
@@ -198,14 +303,8 @@ void Recipe::Install(const vector<string> & patterns, const PathName & tdsDir)
     dir /= pattern;
     dir.RemoveFileSpec();
     pattern.RemoveDirectorySpec();
-    unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dir, pattern.GetData());
-    DirectoryEntry2 entry;
     vector<PathName> files;
-    while (lister->GetNext(entry))
-    {
-      files.push_back(dir / entry.name);
-    }
-    lister = nullptr;
+    CollectFiles(files, dir, pattern.ToString());
     if (!files.empty() && !madeDestDirectory)
     {
       CreateDirectory(destPath);
@@ -213,13 +312,21 @@ void Recipe::Install(const vector<string> & patterns, const PathName & tdsDir)
     }
     for (const PathName & file : files)
     {
-      if (PrintOnly(StringUtil::FormatString("move %s %s", Q_(file), destPath / file.GetFileName())))
+      PathName toPath(destPath / file.GetFileName());
+      if (PrintOnly(StringUtil::FormatString("install <SRCDIR>/%s <DSTDIR>/%s", Q_(PrettyPath(file, workDir)), Q_(PrettyPath(toPath, destDir)))))
       {
-        File::Delete(file);
+        if (Directory::Exists(file))
+        {
+          Directory::Delete(file, true);
+        }
+        else
+        {
+          File::Delete(file);
+        }
       }
       else
       {
-        File::Move(file, destPath / file.GetFileName());
+        File::Move(file, toPath);
       }
     }
   }

@@ -1,4 +1,4 @@
-## CMakeLists.txt:					-*- CMake -*-
+## CMakeLists.txt:                                      -*- CMake -*-
 ##
 ## Copyright (C) 2015-2016 Christian Schenk
 ## 
@@ -85,6 +85,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-ps2pk-bin.tpm.in
     windows-x86/miktex-psutils-bin.tpm.in
     windows-x86/miktex-runtime-bin.tpm.in
+    windows-x86/miktex-tdsutil-bin.tpm.in
     windows-x86/miktex-teckit-bin.tpm.in
     windows-x86/miktex-tex-bin.tpm.in
     windows-x86/miktex-tex2xindy-bin.tpm.in
@@ -150,6 +151,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-ps2pk-bin-x64.tpm.in
     windows-x64/miktex-psutils-bin-x64.tpm.in
     windows-x64/miktex-runtime-bin-x64.tpm.in
+    windows-x64/miktex-tdsutil-bin-x64.tpm.in
     windows-x64/miktex-teckit-bin-x64.tpm.in
     windows-x64/miktex-tex-bin-x64.tpm.in
     windows-x64/miktex-tex2xindy-bin-x64.tpm.in

@@ -106,9 +106,45 @@ public:
   }
 
 public:
+  MiKTeX::Core::PathName GetTfmDir() const
+  {
+    return MiKTeX::Core::PathName("fonts") / "tfm" / foundry / package;
+  }
+
+public:
+  MiKTeX::Core::PathName GetOtfDir() const
+  {
+    return MiKTeX::Core::PathName("fonts") / "opentype" / foundry / package;
+  }
+
+public:
+  MiKTeX::Core::PathName GetPfbDir() const
+  {
+    return MiKTeX::Core::PathName("fonts") / "type1" / foundry / package;
+  }
+
+public:
+  MiKTeX::Core::PathName GetVfDir() const
+  {
+    return MiKTeX::Core::PathName("fonts") / "vf" / foundry / package;
+  }
+
+public:
+  MiKTeX::Core::PathName GetAfmDir() const
+  {
+    return MiKTeX::Core::PathName("fonts") / "afm" / foundry / package;
+  }
+
+public:
   MiKTeX::Core::PathName GetMetaPostDir() const
   {
     return MiKTeX::Core::PathName("metapost") / package;
+  }
+
+public:
+  MiKTeX::Core::PathName GetScriptDir() const
+  {
+    return MiKTeX::Core::PathName("scripts") / package;
   }
 
 private:
