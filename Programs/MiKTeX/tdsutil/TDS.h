@@ -27,9 +27,16 @@ public:
   {
   }
 
+public:
   void SetFormat(const std::string & format)
   {
     this->format = format;
+  }
+
+public:
+  void SetFoundry(const std::string & foundry)
+  {
+    this->foundry = foundry;
   }
 
 public:
@@ -69,9 +76,39 @@ public:
   }
 
 public:
+  MiKTeX::Core::PathName GetIstDir() const
+  {
+    return MiKTeX::Core::PathName("makeindex") / package;
+  }
+
+public:
   MiKTeX::Core::PathName GetDvipsDir() const
   {
     return MiKTeX::Core::PathName("dvips") / package;
+  }
+
+public:
+  MiKTeX::Core::PathName GetMapDir() const
+  {
+    return MiKTeX::Core::PathName("fonts") / "map" / "dvips" / package;
+  }
+
+public:
+  MiKTeX::Core::PathName GetEncDir() const
+  {
+    return MiKTeX::Core::PathName("fonts") / "enc" / "dvips" / package;
+  }
+
+public:
+  MiKTeX::Core::PathName GetMfDir() const
+  {
+    return MiKTeX::Core::PathName("fonts") / "source" / foundry / package;
+  }
+
+public:
+  MiKTeX::Core::PathName GetMetaPostDir() const
+  {
+    return MiKTeX::Core::PathName("metapost") / package;
   }
 
 private:
@@ -79,4 +116,7 @@ private:
 
 private:
   std::string format = "format-not-set";
+
+private:
+  std::string foundry = "foundry-not-set";
 };

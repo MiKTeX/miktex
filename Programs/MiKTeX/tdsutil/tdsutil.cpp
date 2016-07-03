@@ -192,19 +192,15 @@ void TdsUtility::Run(int argc, const char ** argv)
       destDir /= ".tds";
     }
     Recipe recipe(package, sourceDir, destDir);
-    PathName globalRecipeFile("miktex");
-    globalRecipeFile.SetExtension(MIKTEX_TDS_RECIPE_FILE_SUFFIX);
-    if (File::Exists(globalRecipeFile))
-    {
-      recipe.Read(globalRecipeFile);
-    }
-    PathName packageRecipeFile(sourceDir / package);
-    packageRecipeFile.SetExtension(MIKTEX_TDS_RECIPE_FILE_SUFFIX);
-    if (File::Exists(packageRecipeFile))
-    {
-      recipe.Read(packageRecipeFile);
-    }      
+    string packageRecipeFile = package + MIKTEX_TDS_RECIPE_FILE_SUFFIX;
+    vector<PathName> recipeFiles;
+    session->FindFile("_miktex.ini", "%R/miktex/tdsutil/recipes", { Session::FindFileOption::All }, recipeFiles);
+    session->FindFile(packageRecipeFile.c_str(), "%R/miktex/tdsutil/recipes", { Session::FindFileOption::All }, recipeFiles);
     if (!recipeFile.Empty())
+    {
+      recipeFiles.push_back(recipeFile);
+    }
+    for (const PathName & recipeFile : recipeFiles)
     {
       recipe.Read(recipeFile);
     }

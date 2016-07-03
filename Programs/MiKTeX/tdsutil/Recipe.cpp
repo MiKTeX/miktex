@@ -56,16 +56,29 @@ void Recipe::Execute(bool printOnly)
     }
     SetFormat(format);
   }
+  if (foundry.empty())
+  {
+    if (!recipe->TryGetValue("general", "foundry", foundry))
+    {
+      foundry = standardFoundry;
+    }
+    SetFoundry(foundry);
+  }
   CreateDirectory(destDir);
   SetupWorkingDirectory();
   Prepare();
-  InstallTeXFiles();
-  InstallDocFiles();
-  InstallBibFiles();
-  InstallBstFiles();
-  InstallCsfFiles();
-  InstallDvipsFiles();
   InstallFileSets();
+  InstallFiles("tex", standardTeXPatterns, tds.GetTeXDir());
+  InstallFiles("doc", standardTeXPatterns, tds.GetTeXDir());
+  InstallFiles("bib", standardBibPatterns, tds.GetBibDir());
+  InstallFiles("bst", standardBstPatterns, tds.GetBstDir());
+  InstallFiles("csf", standardCsfPatterns, tds.GetCsfDir());
+  InstallFiles("ist", standardIstPatterns, tds.GetIstDir());
+  InstallFiles("dvips", standardDvipsPatterns, tds.GetDvipsDir());
+  InstallFiles("map", standardMapPatterns, tds.GetMapDir());
+  InstallFiles("enc", standardEncPatterns, tds.GetEncDir());
+  InstallFiles("mf", standardMfPatterns, tds.GetMfDir());
+  InstallFiles("mp", standardMpPatterns, tds.GetMetaPostDir());
 }
 
 void Recipe::SetupWorkingDirectory()
@@ -148,64 +161,14 @@ void Recipe::DoAction(const string & action)
   }
 }
 
-void Recipe::InstallTeXFiles()
+void Recipe::InstallFiles(const string & patternName, const vector<string> & defaultPatterns, const PathName & tdsDir)
 {
   vector<string> patterns;
-  if (!recipe->TryGetValue("patterns", "tex[]", patterns))
+  if (!recipe->TryGetValue("patterns", patternName + "[]", patterns))
   {
-    patterns = standardTexFiles;
+    patterns = defaultPatterns;
   }
-  Install(patterns, tds.GetTeXDir());
-}
-
-void Recipe::InstallDocFiles()
-{
-  vector<string> patterns;
-  if (!recipe->TryGetValue("patterns", "doc[]", patterns))
-  {
-    patterns = standardDocFiles;
-  }
-  Install(patterns, tds.GetDocDir());
-}
-
-void Recipe::InstallBibFiles()
-{
-  vector<string> patterns;
-  if (!recipe->TryGetValue("patterns", "bib[]", patterns))
-  {
-    patterns = standardBibFiles;
-  }
-  Install(patterns, tds.GetBibDir());
-}
-
-void Recipe::InstallBstFiles()
-{
-  vector<string> patterns;
-  if (!recipe->TryGetValue("patterns", "bst[]", patterns))
-  {
-    patterns = standardBstFiles;
-  }
-  Install(patterns, tds.GetBstDir());
-}
-
-void Recipe::InstallCsfFiles()
-{
-  vector<string> patterns;
-  if (!recipe->TryGetValue("patterns", "csf[]", patterns))
-  {
-    patterns = standardCsfFiles;
-  }
-  Install(patterns, tds.GetCsfDir());
-}
-
-void Recipe::InstallDvipsFiles()
-{
-  vector<string> patterns;
-  if (!recipe->TryGetValue("patterns", "dvips[]", patterns))
-  {
-    patterns = standardDvipsFiles;
-  }
-  Install(patterns, tds.GetDvipsDir());
+  Install(patterns, tdsDir);
 }
 
 void Recipe::InstallFileSets()
@@ -225,8 +188,9 @@ void Recipe::InstallFileSets()
 
 void Recipe::Install(const vector<string> & patterns, const PathName & tdsDir)
 {
-  vector<PathName> files;
-  vector<PathName> subDirectories;
+  PathName destPath(destDir);
+  destPath /= tdsDir;
+  bool madeDestDirectory = false;
   for (const string & pat : patterns)
   {
     PathName pattern(session->Expand(pat.c_str(), this));
@@ -236,38 +200,27 @@ void Recipe::Install(const vector<string> & patterns, const PathName & tdsDir)
     pattern.RemoveDirectorySpec();
     unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dir, pattern.GetData());
     DirectoryEntry2 entry;
+    vector<PathName> files;
     while (lister->GetNext(entry))
     {
-      if (entry.isDirectory)
+      files.push_back(dir / entry.name);
+    }
+    lister = nullptr;
+    if (!files.empty() && !madeDestDirectory)
+    {
+      CreateDirectory(destPath);
+      madeDestDirectory = true;
+    }
+    for (const PathName & file : files)
+    {
+      if (PrintOnly(StringUtil::FormatString("move %s %s", Q_(file), destPath / file.GetFileName())))
       {
-        subDirectories.push_back(dir / entry.name);
+        File::Delete(file);
       }
       else
       {
-        files.push_back(dir / entry.name);
+        File::Move(file, destPath / file.GetFileName());
       }
-    }
-    lister = nullptr;
-  }
-  if (files.size() + subDirectories.size() == 0)
-  {
-    return;
-  }
-  PathName destPath(destDir);
-  destPath /= tdsDir;
-  CreateDirectory(destPath);
-  for (const PathName & file : files)
-  {
-    if (!PrintOnly(StringUtil::FormatString("move file %s %s", Q_(file), destPath / file.GetFileName())))
-    {
-      File::Move(file, destPath / file.GetFileName());
-    }
-  }
-  for (const PathName & dir : subDirectories)
-  {
-    if (!PrintOnly(StringUtil::FormatString("move directory %s %s", Q_(dir), destPath / dir.GetFileName())))
-    {
-      File::Move(dir, destPath / dir.GetFileName());
     }
   }
 }

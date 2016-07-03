@@ -47,6 +47,13 @@ public:
   }
 
 public:
+  void SetFoundry(const std::string & foundry)
+  {
+    this->foundry = foundry;
+    tds.SetFoundry(foundry);
+  }
+
+public:
   void Execute(bool printOnly);
 
 private:
@@ -68,22 +75,7 @@ private:
   void DoAction(const std::string & action);
 
 private:
-  void InstallTeXFiles();
-
-private:
-  void InstallDocFiles();
-
-private:
-  void InstallBibFiles();
-
-private:
-  void InstallBstFiles();
-
-private:
-  void InstallCsfFiles();
-
-private:
-  void InstallDvipsFiles();
+  void InstallFiles(const std::string & patternName, const std::vector<std::string> & defaultPatterns, const MiKTeX::Core::PathName & tdsDir);
 
 private:
   void InstallFileSets();
@@ -102,6 +94,11 @@ private:
     else if (valueName == "format")
     {
       value = format;
+      return true;
+    }
+    else if (valueName == "foundry")
+    {
+      value = foundry;
       return true;
     }
     return false;
@@ -132,6 +129,9 @@ private:
   std::string format;
 
 private:
+  std::string foundry;
+
+private:
   bool printOnly;
 
 private:
@@ -147,20 +147,38 @@ private:
   const std::string standardFormat = "latex";
 
 private:
-  const std::vector<std::string> standardTexFiles = { "*.cls", "*.sty" };
+  const std::string standardFoundry = "public";
 
 private:
-  const std::vector<std::string> standardDocFiles = { "*.pdf" };
+  const std::vector<std::string> standardTeXPatterns = { "*.cls", "*.sty" };
 
 private:
-  const std::vector<std::string> standardBibFiles; // ignore *.bib
+  const std::vector<std::string> standardDocPatterns = { "*.pdf" };
 
 private:
-  const std::vector<std::string> standardBstFiles = { "*.bst" };
+  const std::vector<std::string> standardBibPatterns; // ignore *.bib
 
 private:
-  const std::vector<std::string> standardCsfFiles = { "*.csf" };
+  const std::vector<std::string> standardBstPatterns = { "*.bst" };
 
 private:
-  const std::vector<std::string> standardDvipsFiles = { "*.pro" };
+  const std::vector<std::string> standardCsfPatterns = { "*.csf" };
+
+private:
+  const std::vector<std::string> standardIstPatterns = { "*.ist" };
+
+private:
+  const std::vector<std::string> standardDvipsPatterns = { "*.pro" };
+
+private:
+  const std::vector<std::string> standardMapPatterns = { "*.map" };
+
+private:
+  const std::vector<std::string> standardEncPatterns = { "*.enc" };
+
+private:
+  const std::vector<std::string> standardMfPatterns = { "*.mf" };
+
+private:
+  const std::vector<std::string> standardMpPatterns = { "*.mp" };
 };
