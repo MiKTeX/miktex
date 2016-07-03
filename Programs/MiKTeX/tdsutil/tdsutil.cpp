@@ -193,13 +193,13 @@ void TdsUtility::Run(int argc, const char ** argv)
     }
     Recipe recipe(package, sourceDir, destDir);
     PathName globalRecipeFile("miktex");
-    globalRecipeFile.SetExtension(MIKTEX_PACKAGING_RECIPE_FILE_SUFFIX);
+    globalRecipeFile.SetExtension(MIKTEX_TDS_RECIPE_FILE_SUFFIX);
     if (File::Exists(globalRecipeFile))
     {
       recipe.Read(globalRecipeFile);
     }
     PathName packageRecipeFile(sourceDir / package);
-    packageRecipeFile.SetExtension(MIKTEX_PACKAGING_RECIPE_FILE_SUFFIX);
+    packageRecipeFile.SetExtension(MIKTEX_TDS_RECIPE_FILE_SUFFIX);
     if (File::Exists(packageRecipeFile))
     {
       recipe.Read(packageRecipeFile);

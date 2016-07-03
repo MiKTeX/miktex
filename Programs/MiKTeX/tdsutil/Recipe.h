@@ -62,7 +62,31 @@ private:
   void SetupWorkingDirectory();
 
 private:
+  void Prepare();
+
+private:
+  void DoAction(const std::string & action);
+
+private:
   void InstallTeXFiles();
+
+private:
+  void InstallDocFiles();
+
+private:
+  void InstallBibFiles();
+
+private:
+  void InstallBstFiles();
+
+private:
+  void InstallCsfFiles();
+
+private:
+  void InstallDvipsFiles();
+
+private:
+  void InstallFileSets();
 
 private:
   void Install(const std::vector<std::string> & patterns, const MiKTeX::Core::PathName & tdsDir);
@@ -124,4 +148,19 @@ private:
 
 private:
   const std::vector<std::string> standardTexFiles = { "*.cls", "*.sty" };
+
+private:
+  const std::vector<std::string> standardDocFiles = { "*.pdf" };
+
+private:
+  const std::vector<std::string> standardBibFiles; // ignore *.bib
+
+private:
+  const std::vector<std::string> standardBstFiles = { "*.bst" };
+
+private:
+  const std::vector<std::string> standardCsfFiles = { "*.csf" };
+
+private:
+  const std::vector<std::string> standardDvipsFiles = { "*.pro" };
 };

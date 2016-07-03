@@ -41,16 +41,42 @@ public:
 public:
   MiKTeX::Core::PathName GetTeXDir() const
   {
-    if (format.empty())
-    {
-      MIKTEX_UNEXPECTED();
-    }
     return MiKTeX::Core::PathName("tex") / format / package;
+  }
+
+public:
+  MiKTeX::Core::PathName GetDocDir() const
+  {
+    return MiKTeX::Core::PathName("doc") / format / package;
+  }
+
+public:
+  MiKTeX::Core::PathName GetBibDir() const
+  {
+    return MiKTeX::Core::PathName("bibtex") / "bib" / package;
+  }
+
+public:
+  MiKTeX::Core::PathName GetBstDir() const
+  {
+    return MiKTeX::Core::PathName("bibtex") / "bst" / package;
+  }
+
+public:
+  MiKTeX::Core::PathName GetCsfDir() const
+  {
+    return MiKTeX::Core::PathName("bibtex") / "csf" / package;
+  }
+
+public:
+  MiKTeX::Core::PathName GetDvipsDir() const
+  {
+    return MiKTeX::Core::PathName("dvips") / package;
   }
 
 private:
   std::string package;
 
 private:
-  std::string format;
+  std::string format = "format-not-set";
 };

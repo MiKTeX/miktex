@@ -58,8 +58,14 @@ void Recipe::Execute(bool printOnly)
   }
   CreateDirectory(destDir);
   SetupWorkingDirectory();
+  Prepare();
   InstallTeXFiles();
-  scratchDir = nullptr;
+  InstallDocFiles();
+  InstallBibFiles();
+  InstallBstFiles();
+  InstallCsfFiles();
+  InstallDvipsFiles();
+  InstallFileSets();
 }
 
 void Recipe::SetupWorkingDirectory()
@@ -76,14 +82,145 @@ void Recipe::SetupWorkingDirectory()
   Directory::Copy(sourceDir, workDir, { DirectoryCopyOption::CopySubDirectories });
 }
 
+void Recipe::Prepare()
+{
+  vector<string> actions;
+  if (!recipe->TryGetValue("prepare", "actions[]", actions))
+  {
+    return;
+  }
+  for (const string & action : actions)
+  {
+    DoAction(action);
+  }
+}
+
+vector<string> Split(const string & s)
+{
+  vector<string> argv;
+  string current;
+  for (const char & ch : s)
+  {
+    if (ch == ' ' || ch == '\t')
+    {
+      if (!current.empty())
+      {
+        argv.push_back(current);
+        current = "";
+      }
+    }
+    else
+    {
+      current += ch;
+    }
+  }
+  if (!current.empty())
+  {
+    argv.push_back(current);
+  }
+  return argv;
+}
+
+void Recipe::DoAction(const string & action)
+{
+  vector<string> argv = Split(action);
+  if (argv.empty())
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  string actionName = argv[0];
+  if (actionName == "move")
+  {
+    if (argv.size() != 3)
+    {
+      MIKTEX_FATAL_ERROR(T_("syntax error (action)"));
+    }
+    PathName oldName = PathName(workDir) / argv[1];
+    PathName newName = PathName(workDir) / argv[2];
+    if (File::Exists(oldName))
+    {
+      File::Move(oldName, newName);
+    }
+  }
+  else
+  {
+    MIKTEX_FATAL_ERROR(T_("unknown action"));
+  }
+}
+
 void Recipe::InstallTeXFiles()
 {
   vector<string> patterns;
-  if (!recipe->TryGetValue("pkgdir", "texfiles[]", patterns))
+  if (!recipe->TryGetValue("patterns", "tex[]", patterns))
   {
     patterns = standardTexFiles;
   }
   Install(patterns, tds.GetTeXDir());
+}
+
+void Recipe::InstallDocFiles()
+{
+  vector<string> patterns;
+  if (!recipe->TryGetValue("patterns", "doc[]", patterns))
+  {
+    patterns = standardDocFiles;
+  }
+  Install(patterns, tds.GetDocDir());
+}
+
+void Recipe::InstallBibFiles()
+{
+  vector<string> patterns;
+  if (!recipe->TryGetValue("patterns", "bib[]", patterns))
+  {
+    patterns = standardBibFiles;
+  }
+  Install(patterns, tds.GetBibDir());
+}
+
+void Recipe::InstallBstFiles()
+{
+  vector<string> patterns;
+  if (!recipe->TryGetValue("patterns", "bst[]", patterns))
+  {
+    patterns = standardBstFiles;
+  }
+  Install(patterns, tds.GetBstDir());
+}
+
+void Recipe::InstallCsfFiles()
+{
+  vector<string> patterns;
+  if (!recipe->TryGetValue("patterns", "csf[]", patterns))
+  {
+    patterns = standardCsfFiles;
+  }
+  Install(patterns, tds.GetCsfDir());
+}
+
+void Recipe::InstallDvipsFiles()
+{
+  vector<string> patterns;
+  if (!recipe->TryGetValue("patterns", "dvips[]", patterns))
+  {
+    patterns = standardDvipsFiles;
+  }
+  Install(patterns, tds.GetDvipsDir());
+}
+
+void Recipe::InstallFileSets()
+{
+  string fileset;
+  string tdsdir;
+  for (int n = 1; recipe->TryGetValue(fileset = ("fileset." + std::to_string(n)), "tdsdir", tdsdir); ++n)
+  {
+    vector<string> patterns;
+    if (!recipe->TryGetValue(fileset, "patterns[]", patterns))
+    {
+      MIKTEX_FATAL_ERROR(T_("missing file patterns"));
+    }
+    Install(patterns, session->Expand(tdsdir.c_str(), this));
+  }
 }
 
 void Recipe::Install(const vector<string> & patterns, const PathName & tdsDir)
@@ -93,7 +230,7 @@ void Recipe::Install(const vector<string> & patterns, const PathName & tdsDir)
   for (const string & pat : patterns)
   {
     PathName pattern(session->Expand(pat.c_str(), this));
-    PathName dir(sourceDir);
+    PathName dir(workDir);
     dir /= pattern;
     dir.RemoveFileSpec();
     pattern.RemoveDirectorySpec();
