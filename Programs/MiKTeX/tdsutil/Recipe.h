@@ -69,14 +69,8 @@ private:
   void SetupWorkingDirectory();
 
 private:
-  void CleanupWorkingDirectory(const std::vector<std::string> & cleanupPatterns);
+  void CleanupWorkingDirectory();
 
-private:
-  void CleanupWorkingDirectory()
-  {
-    CleanupWorkingDirectory({ "*" });
-  }
-  
 private:
   void Prepare();
 
@@ -168,7 +162,7 @@ private:
   const std::string standardInsEngine = "latex";
 
 private:
-  const std::vector<std::string> standardInsOptions = { "-interaction=nonstopmode" };
+  const std::vector<std::string> standardInsOptions;
 
 private:
   const std::vector<std::string> standardInsPatterns = { "*.ins" };

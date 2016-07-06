@@ -185,17 +185,14 @@ void Recipe::SetupWorkingDirectory()
   GetSnapshot(initialWorkDirSnapshot, workDir);
 }
 
-void Recipe::CleanupWorkingDirectory(const vector<string> & cleanupPatterns)
+void Recipe::CleanupWorkingDirectory()
 {
   unordered_set<PathName> currentWorkDirSnapshot;
-  for (const string & pattern : cleanupPatterns)
-  {
-    GetSnapshot(currentWorkDirSnapshot, workDir, pattern);
-  }
+  GetSnapshot(currentWorkDirSnapshot, workDir);
   vector<PathName> toBeDeleted;
   for (const PathName & path : currentWorkDirSnapshot)
   {
-    if (initialWorkDirSnapshot.find(path) != initialWorkDirSnapshot.end())
+    if (initialWorkDirSnapshot.find(path) == initialWorkDirSnapshot.end())
     {
       toBeDeleted.push_back(path);
     }
@@ -297,23 +294,21 @@ void Recipe::RunDtxUnpacker()
     writer.WriteLine("y");
   }
   writer.Close();
-  unique_ptr<TemporaryDirectory> auxDir = TemporaryDirectory::Create();
+  unique_ptr<TemporaryDirectory> outDir = TemporaryDirectory::Create();
   for (const PathName & insFile : insFiles)
   {
     CommandLineBuilder cmd;
     cmd.AppendArgument(engine);
+    cmd.AppendOption("-interaction=", "nonstopmode");
+    cmd.AppendOption("-disable-installer");
+    cmd.AppendOption("-output-directory=", outDir->GetPathName());
+    cmd.AppendOption("-aux-directory=", workDir);
     cmd.AppendArguments(options);
     cmd.AppendArgument(insFile);
     cmd.AppendStdinRedirection(alwaysYes->GetPathName());
     ProcessOutputTrash trash;
     Process::ExecuteSystemCommand(cmd.ToString(), nullptr, &trash, workDir.GetData());
   }
-  vector<string> cleanupPatterns;
-  if (!recipe->TryGetValue("ins", "cleanup", cleanupPatterns))
-  {
-    cleanupPatterns = standardInsCleanupPatterns;
-  }
-  CleanupWorkingDirectory(cleanupPatterns);
 }
 
 void Recipe::InstallFiles(const string & patternName, const vector<string> & defaultPatterns, const PathName & tdsDir)
