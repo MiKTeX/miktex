@@ -23,6 +23,7 @@
 
 #include <iostream>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include <miktex/App/Application>

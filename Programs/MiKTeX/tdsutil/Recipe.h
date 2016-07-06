@@ -69,6 +69,15 @@ private:
   void SetupWorkingDirectory();
 
 private:
+  void CleanupWorkingDirectory(const std::vector<std::string> & cleanupPatterns);
+
+private:
+  void CleanupWorkingDirectory()
+  {
+    CleanupWorkingDirectory({ "*" });
+  }
+  
+private:
   void Prepare();
 
 private:
@@ -144,6 +153,9 @@ private:
   MiKTeX::Core::PathName workDir;
 
 private:
+  std::unordered_set<MiKTeX::Core::PathName> initialWorkDirSnapshot;
+
+private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 
 private:
@@ -163,6 +175,9 @@ private:
 
 private:
   const std::vector<std::string> standardDtxPatterns = { "*.dtx" };
+
+private:
+  const std::vector<std::string> standardInsCleanupPatterns = { "*.dvi" };
 
 private:
   const std::vector<std::string> standardTeXPatterns = { "*.cls", "*.sty" };

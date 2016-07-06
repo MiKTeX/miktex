@@ -38,14 +38,41 @@ public:
   }
 };
 
-void CollectFiles(vector<PathName> & files, const PathName & dir, const string & pattern)
+void CollectPathNames(vector<PathName> & pathNames, const PathName & dir, const string & pattern)
 {
   unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dir, pattern.c_str());
   DirectoryEntry2 entry;
   while (lister->GetNext(entry))
   {
-    files.push_back(dir / entry.name);
+    pathNames.push_back(dir / entry.name);
   }
+}
+
+void GetSnapshot(unordered_set<PathName> & pathNames, const PathName & dir, const string & pattern)
+{
+  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dir, pattern.c_str());
+  vector<PathName> subDirectories;
+  DirectoryEntry2 entry;
+  while (lister->GetNext(entry))
+  {
+    if (entry.isDirectory)
+    {
+      subDirectories.push_back(dir / entry.name);
+    }
+    else
+    {
+      pathNames.insert(dir / entry.name);
+    }
+  }
+  for (const PathName & subDir : subDirectories)
+  {
+    GetSnapshot(pathNames, subDir, pattern);
+  }
+}
+
+void GetSnapshot(unordered_set<PathName> & pathNames, const PathName & dir)
+{
+  GetSnapshot(pathNames, dir, "*");
 }
 
 PathName PrettyPath(const PathName & path, const PathName & root)
@@ -140,6 +167,7 @@ void Recipe::Execute(bool printOnly)
   InstallFiles("vf", standardVfPatterns, tds.GetVfDir());
   InstallFiles("mp", standardMpPatterns, tds.GetMetaPostDir());
   InstallFiles("script", standardScriptPatterns, tds.GetScriptDir());
+  CleanupWorkingDirectory();
 }
 
 void Recipe::SetupWorkingDirectory()
@@ -154,6 +182,28 @@ void Recipe::SetupWorkingDirectory()
     workDir = destDir / tds.GetSourceDir();
   }
   Directory::Copy(sourceDir, workDir, { DirectoryCopyOption::CopySubDirectories });
+  GetSnapshot(initialWorkDirSnapshot, workDir);
+}
+
+void Recipe::CleanupWorkingDirectory(const vector<string> & cleanupPatterns)
+{
+  unordered_set<PathName> currentWorkDirSnapshot;
+  for (const string & pattern : cleanupPatterns)
+  {
+    GetSnapshot(currentWorkDirSnapshot, workDir, pattern);
+  }
+  vector<PathName> toBeDeleted;
+  for (const PathName & path : currentWorkDirSnapshot)
+  {
+    if (initialWorkDirSnapshot.find(path) != initialWorkDirSnapshot.end())
+    {
+      toBeDeleted.push_back(path);
+    }
+  }
+  for (const PathName & path : toBeDeleted)
+  {
+    File::Delete(path);
+  }
 }
 
 void Recipe::Prepare()
@@ -222,7 +272,7 @@ void Recipe::RunDtxUnpacker()
     dir /= pattern;
     dir.RemoveFileSpec();
     pattern.RemoveDirectorySpec();
-    CollectFiles(insFiles, dir, pattern.ToString());
+    CollectPathNames(insFiles, dir, pattern.ToString());
   }
   if (insFiles.empty())
   {
@@ -237,7 +287,7 @@ void Recipe::RunDtxUnpacker()
       dir /= pattern;
       dir.RemoveFileSpec();
       pattern.RemoveDirectorySpec();
-      CollectFiles(insFiles, dir, pattern.ToString());
+      CollectPathNames(insFiles, dir, pattern.ToString());
     }
   }
   unique_ptr<TemporaryFile> alwaysYes = TemporaryFile::Create();
@@ -257,13 +307,13 @@ void Recipe::RunDtxUnpacker()
     cmd.AppendStdinRedirection(alwaysYes->GetPathName());
     ProcessOutputTrash trash;
     Process::ExecuteSystemCommand(cmd.ToString(), nullptr, &trash, workDir.GetData());
-    PathName logFile(insFile);
-    logFile.SetExtension(".log", true);
-    if (File::Exists(logFile))
-    {
-      File::Delete(logFile);
-    }
   }
+  vector<string> cleanupPatterns;
+  if (!recipe->TryGetValue("ins", "cleanup", cleanupPatterns))
+  {
+    cleanupPatterns = standardInsCleanupPatterns;
+  }
+  CleanupWorkingDirectory(cleanupPatterns);
 }
 
 void Recipe::InstallFiles(const string & patternName, const vector<string> & defaultPatterns, const PathName & tdsDir)
@@ -304,7 +354,7 @@ void Recipe::Install(const vector<string> & patterns, const PathName & tdsDir)
     dir.RemoveFileSpec();
     pattern.RemoveDirectorySpec();
     vector<PathName> files;
-    CollectFiles(files, dir, pattern.ToString());
+    CollectPathNames(files, dir, pattern.ToString());
     if (!files.empty() && !madeDestDirectory)
     {
       CreateDirectory(destPath);
