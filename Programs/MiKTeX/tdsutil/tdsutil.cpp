@@ -130,7 +130,7 @@ void TdsUtility::Run(int argc, const char ** argv)
   popt.SetOtherOptionHelp("install <package>");
 
   int option;
-  PathName recipeFile;
+  vector<PathName> optionRecipeFiles;
   PathName sourceDir;
   PathName destDir;
 
@@ -148,7 +148,7 @@ void TdsUtility::Run(int argc, const char ** argv)
       printOnly = true;
       break;
     case OPT_RECIPE:
-      recipeFile = optArg;
+      optionRecipeFiles.push_back(optArg);
       break;
     case OPT_SOURCE_DIR:
       sourceDir = optArg;
@@ -192,14 +192,14 @@ void TdsUtility::Run(int argc, const char ** argv)
       destDir = session->GetSpecialPath(SpecialPath::UserDataRoot);
     }
     Recipe recipe(package, sourceDir, destDir);
-    string packageRecipeFile = package + MIKTEX_TDSUTIL_RECIPE_FILE_SUFFIX;
     vector<PathName> recipeFiles;
-    session->FindFile(MIKTEX_PATH_TDSUTIL_DEFAULT_RECIPE, MIKTEX_PATH_TEXMF_PLACEHOLDER, { Session::FindFileOption::All }, recipeFiles);
-    session->FindFile(packageRecipeFile.c_str(), MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_TDSUTIL_RECIPES_DIR, { Session::FindFileOption::All }, recipeFiles);
-    if (!recipeFile.Empty())
+    if (optionRecipeFiles.empty())
     {
-      recipeFiles.push_back(recipeFile);
+      string packageRecipeFile = package + MIKTEX_TDSUTIL_RECIPE_FILE_SUFFIX;
+      session->FindFile(MIKTEX_PATH_TDSUTIL_DEFAULT_RECIPE, MIKTEX_PATH_TEXMF_PLACEHOLDER, { Session::FindFileOption::All }, recipeFiles);
+      session->FindFile(packageRecipeFile.c_str(), MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_TDSUTIL_RECIPES_DIR, { Session::FindFileOption::All }, recipeFiles);
     }
+    recipeFiles.insert(recipeFiles.end(), optionRecipeFiles.begin(), optionRecipeFiles.end());
     for (const PathName & recipeFile : recipeFiles)
     {
       recipe.Read(recipeFile);
