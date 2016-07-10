@@ -25,13 +25,13 @@
 using namespace std;
 
 
-bool NoPsSpecialHandler::process (const char *prefix, istream &is, SpecialActions *actions) {
+bool NoPsSpecialHandler::process (const char *prefix, istream &is, SpecialActions &actions) {
 	_count++;
 	return true;
 }
 
 
-void NoPsSpecialHandler::dviEndPage (unsigned pageno) {
+void NoPsSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actions) {
 	if (_count > 0) {
 		string suffix = (_count > 1 ? "s" : "");
 		Message::wstream(true) << _count << " PostScript special" << suffix << " ignored. The resulting SVG might look wrong.\n";

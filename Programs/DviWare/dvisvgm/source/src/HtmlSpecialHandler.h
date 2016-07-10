@@ -26,7 +26,7 @@
 #include "Color.h"
 #include "SpecialHandler.h"
 
-struct SpecialActions;
+class SpecialActions;
 
 class HtmlSpecialHandler : public SpecialHandler, public DVIEndPageListener, public DVIPositionListener
 {
@@ -43,9 +43,9 @@ class HtmlSpecialHandler : public SpecialHandler, public DVIEndPageListener, pub
 	typedef std::map<std::string, NamedAnchor> NamedAnchors;
 
 	public:
-		HtmlSpecialHandler () : _actions(0), _anchorType(AT_NONE), _depthThreshold(0) {}
-		void preprocess(const char *prefix, std::istream &is, SpecialActions *actions);
-		bool process (const char *prefix, std::istream &is, SpecialActions *actions);
+		HtmlSpecialHandler () : _active(false), _anchorType(AT_NONE), _depthThreshold(0) {}
+		void preprocess (const char *prefix, std::istream &is, SpecialActions &actions);
+		bool process (const char *prefix, std::istream &is, SpecialActions &actions);
 		const char* name () const  {return "html";}
 		const char* info () const  {return "hyperref specials";}
 		const char** prefixes () const;
@@ -54,13 +54,13 @@ class HtmlSpecialHandler : public SpecialHandler, public DVIEndPageListener, pub
 
 	protected:
 		void preprocessHrefAnchor (const std::string &uri);
-		void preprocessNameAnchor (const std::string &name);
-		void processHrefAnchor (std::string uri);
-		void processNameAnchor (const std::string &name);
-		void dviEndPage (unsigned pageno);
-		void dviMovedTo (double x, double y);
-		void closeAnchor ();
-		void markLinkedBox ();
+		void preprocessNameAnchor (const std::string &name, SpecialActions &actions);
+		void processHrefAnchor (std::string uri, SpecialActions &actions);
+		void processNameAnchor (const std::string &name, SpecialActions &actions);
+		void dviEndPage (unsigned pageno, SpecialActions &actions);
+		void dviMovedTo (double x, double y, SpecialActions &actions);
+		void closeAnchor (SpecialActions &actions);
+		void markLinkedBox (SpecialActions &actions);
 
 		enum MarkerType {MT_NONE, MT_LINE, MT_BOX, MT_BGCOLOR};
 		static MarkerType MARKER_TYPE;  ///< selects how to mark linked areas
@@ -69,7 +69,7 @@ class HtmlSpecialHandler : public SpecialHandler, public DVIEndPageListener, pub
 		static bool USE_LINECOLOR;      ///< if true, LINK_LINECOLOR is applied
 
 	private:
-		SpecialActions *_actions;
+		bool _active;
 		AnchorType _anchorType;     ///< type of active anchor
 		int _depthThreshold;        ///< break anchor box if the DVI stack depth underruns this threshold
 		std::string _base;          ///< base URL that is prepended to all relative targets

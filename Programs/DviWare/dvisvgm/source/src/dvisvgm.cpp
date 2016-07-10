@@ -22,6 +22,7 @@
 #include <clipper.hpp>
 #include <fstream>
 #include <iostream>
+#include <potracelib.h>
 #include <sstream>
 #include <xxhash.h>
 #include "gzstream.h"
@@ -35,6 +36,7 @@
 #include "FontEngine.h"
 #include "Ghostscript.h"
 #include "HtmlSpecialHandler.h"
+#include "Message.h"
 #include "PageSize.h"
 #include "PSInterpreter.h"
 #include "PsSpecialHandler.h"
@@ -48,14 +50,6 @@
 #   include <miktex/Util/CharBuffer>
 #   define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 #  endif
-#endif
-
-#ifdef __MSVC__
-#include <potracelib.h>
-#else
-extern "C" {
-#include <potracelib.h>
-}
 #endif
 
 using namespace std;
@@ -128,7 +122,12 @@ static bool set_cache_dir (const CommandLine &args) {
 	}
 	if (args.cache_given() && args.cache_arg().empty()) {
 		cout << "cache directory: " << (PhysicalFont::CACHE_PATH ? PhysicalFont::CACHE_PATH : "(none)") << '\n';
-		FontCache::fontinfo(PhysicalFont::CACHE_PATH, cout, true);
+		try {
+			FontCache::fontinfo(PhysicalFont::CACHE_PATH, cout, true);
+		}
+		catch (StreamReaderException &e) {
+			Message::wstream(true) << "failed reading cache data";
+		}
 		return false;
 	}
 	return true;
@@ -136,7 +135,7 @@ static bool set_cache_dir (const CommandLine &args) {
 
 
 static bool check_bbox (const string &bboxstr) {
-	const char *formats[] = {"none", "min", "preview", "dvi", 0};
+	const char *formats[] = {"none", "min", "preview", "papersize", "dvi", 0};
 	for (const char **p=formats; *p; ++p)
 		if (bboxstr == *p)
 			return true;
@@ -151,6 +150,7 @@ static bool check_bbox (const string &bboxstr) {
 		}
 	}
 	try {
+		// check if given bbox argument is valid, i.e. doesn't throw an exception
 		BoundingBox bbox;
 		bbox.set(bboxstr);
 		return true;
@@ -260,11 +260,11 @@ int main (int argc, char *argv[]) {
 		return 1;
 
 	if (args.progress_given()) {
-		DVIReader::COMPUTE_PROGRESS = args.progress_given();
+		DVIToSVG::COMPUTE_PROGRESS = args.progress_given();
 		SpecialActions::PROGRESSBAR_DELAY = args.progress_arg();
 	}
 	Color::SUPPRESS_COLOR_NAMES = !args.colornames_given();
-	SVGTree::CREATE_STYLE = !args.no_styles_given();
+	SVGTree::CREATE_CSS = !args.no_styles_given();
 	SVGTree::USE_FONTS = !args.no_fonts_given();
 	SVGTree::CREATE_USE_ELEMENTS = args.no_fonts_arg() < 1;
 	SVGTree::ZOOM_FACTOR = args.zoom_arg();

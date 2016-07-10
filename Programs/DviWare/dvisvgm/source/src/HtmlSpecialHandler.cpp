@@ -24,6 +24,7 @@
 #include "HtmlSpecialHandler.h"
 #include "InputReader.h"
 #include "Message.h"
+#include "SpecialActions.h"
 #include "SVGTree.h"
 
 using namespace std;
@@ -35,10 +36,7 @@ Color HtmlSpecialHandler::LINK_LINECOLOR;
 bool HtmlSpecialHandler::USE_LINECOLOR = false;
 
 
-void HtmlSpecialHandler::preprocess (const char *prefix, istream &is, SpecialActions *actions) {
-	if (!actions)
-		return;
-	_actions = actions;
+void HtmlSpecialHandler::preprocess (const char *, istream &is, SpecialActions &actions) {
 	StreamInputReader ir(is);
 	ir.skipSpace();
 	// collect page number and ID of named anchors
@@ -46,22 +44,22 @@ void HtmlSpecialHandler::preprocess (const char *prefix, istream &is, SpecialAct
 	if (ir.check("<a ") && ir.parseAttributes(attribs, '"') > 0) {
 		map<string,string>::iterator it;
 		if ((it = attribs.find("name")) != attribs.end())
-			preprocessNameAnchor(it->second);
+			preprocessNameAnchor(it->second, actions);
 		else if ((it = attribs.find("href")) != attribs.end())
 			preprocessHrefAnchor(it->second);
 	}
 }
 
 
-void HtmlSpecialHandler::preprocessNameAnchor (const string &name) {
+void HtmlSpecialHandler::preprocessNameAnchor (const string &name, SpecialActions &actions) {
 	NamedAnchors::iterator it = _namedAnchors.find(name);
 	if (it == _namedAnchors.end()) {  // anchor completely undefined?
 		int id = static_cast<int>(_namedAnchors.size())+1;
-		_namedAnchors[name] = NamedAnchor(_actions->getCurrentPageNumber(), id, 0);
+		_namedAnchors[name] = NamedAnchor(actions.getCurrentPageNumber(), id, 0);
 	}
 	else if (it->second.id < 0) {  // anchor referenced but not defined yet?
 		it->second.id *= -1;
-		it->second.pageno = _actions->getCurrentPageNumber();
+		it->second.pageno = actions.getCurrentPageNumber();
 	}
 	else
 		Message::wstream(true) << "named hyperref anchor '" << name << "' redefined\n";
@@ -82,24 +80,22 @@ void HtmlSpecialHandler::preprocessHrefAnchor (const string &uri) {
 }
 
 
-bool HtmlSpecialHandler::process (const char *prefix, istream &is, SpecialActions *actions) {
-	if (!actions)
-		return true;
-	_actions = actions;
+bool HtmlSpecialHandler::process (const char *, istream &is, SpecialActions &actions) {
+	_active = true;
 	StreamInputReader ir(is);
 	ir.skipSpace();
 	map<string,string> attribs;
 	map<string,string>::iterator it;
 	if (ir.check("<a ") && ir.parseAttributes(attribs, '"') > 0) {
 		if ((it = attribs.find("href")) != attribs.end())   // <a href="URI">
-			processHrefAnchor(it->second);
+			processHrefAnchor(it->second, actions);
 		else if ((it = attribs.find("name")) != attribs.end())  // <a name="ID">
-			processNameAnchor(it->second);
+			processNameAnchor(it->second, actions);
 		else
 			return false;  // none or only invalid attributes
 	}
 	else if (ir.check("</a>"))
-		closeAnchor();
+		closeAnchor(actions);
 	else if (ir.check("<img src=")) {
 	}
 	else if (ir.check("<base ") && ir.parseAttributes(attribs, '"') > 0 && (it = attribs.find("href")) != attribs.end())
@@ -110,8 +106,8 @@ bool HtmlSpecialHandler::process (const char *prefix, istream &is, SpecialAction
 
 /** Handles anchors with href attribute: <a href="URI">...</a>
  *  @param uri value of href attribute */
-void HtmlSpecialHandler::processHrefAnchor (string uri) {
-	closeAnchor();
+void HtmlSpecialHandler::processHrefAnchor (string uri, SpecialActions &actions) {
+	closeAnchor(actions);
 	string name;
 	if (uri[0] == '#') {  // reference to named anchor?
 		name = uri.substr(1);
@@ -121,9 +117,9 @@ void HtmlSpecialHandler::processHrefAnchor (string uri) {
 		else {
 			int id = it->second.id;
 			uri = "#loc"+XMLString(id);
-			if (_actions->getCurrentPageNumber() != it->second.pageno) {
+			if (actions.getCurrentPageNumber() != it->second.pageno) {
 				ostringstream oss;
-				oss << _actions->getSVGFilename(it->second.pageno) << uri;
+				oss << actions.getSVGFilename(it->second.pageno) << uri;
 				uri = oss.str();
 			}
 		}
@@ -136,29 +132,29 @@ void HtmlSpecialHandler::processHrefAnchor (string uri) {
 	XMLElementNode *anchor = new XMLElementNode("a");
 	anchor->addAttribute("xlink:href", uri);
 	anchor->addAttribute("xlink:title", XMLString(name.empty() ? uri : name, false));
-	_actions->pushContextElement(anchor);
-	_actions->bbox("{anchor}", true);  // start computing the bounding box of the linked area
-	_depthThreshold = _actions->getDVIStackDepth();
+	actions.pushContextElement(anchor);
+	actions.bbox("{anchor}", true);  // start computing the bounding box of the linked area
+	_depthThreshold = actions.getDVIStackDepth();
 	_anchorType = AT_HREF;
 }
 
 
 /** Handles anchors with name attribute: <a name="NAME">...</a>
  *  @param name value of name attribute */
-void HtmlSpecialHandler::processNameAnchor (const string &name) {
-	closeAnchor();
+void HtmlSpecialHandler::processNameAnchor (const string &name, SpecialActions &actions) {
+	closeAnchor(actions);
 	NamedAnchors::iterator it = _namedAnchors.find(name);
 	assert(it != _namedAnchors.end());
-	it->second.pos = _actions->getY();
+	it->second.pos = actions.getY();
 	_anchorType = AT_NAME;
 }
 
 
 /** Handles the closing tag (</a> of the current anchor element. */
-void HtmlSpecialHandler::closeAnchor () {
+void HtmlSpecialHandler::closeAnchor (SpecialActions &actions) {
 	if (_anchorType == AT_HREF) {
-		markLinkedBox();
-		_actions->popContextElement();
+		markLinkedBox(actions);
+		actions.popContextElement();
 		_depthThreshold = 0;
 	}
 	_anchorType = AT_NONE;
@@ -169,8 +165,8 @@ void HtmlSpecialHandler::closeAnchor () {
  *  a box so that it's noticeable by the user. Additionally, an invisible rectangle is
  *  placed over this area in order to avoid flickering of the mouse cursor when moving
  *  it over the hyperlinked area. */
-void HtmlSpecialHandler::markLinkedBox () {
-	const BoundingBox &bbox = _actions->bbox("{anchor}");
+void HtmlSpecialHandler::markLinkedBox (SpecialActions &actions) {
+	const BoundingBox &bbox = actions.bbox("{anchor}");
 	if (bbox.width() > 0 && bbox.height() > 0) {  // does the bounding box extend in both dimensions?
 		if (MARKER_TYPE != MT_NONE) {
 			const double linewidth = min(0.5, bbox.height()/15);
@@ -179,7 +175,7 @@ void HtmlSpecialHandler::markLinkedBox () {
 			double y = bbox.maxY()+linewidth;
 			double w = bbox.width();
 			double h = linewidth;
-			const Color &linecolor = USE_LINECOLOR ? LINK_LINECOLOR : _actions->getColor();
+			const Color &linecolor = USE_LINECOLOR ? LINK_LINECOLOR : actions.getColor();
 			if (MARKER_TYPE == MT_LINE)
 				rect->addAttribute("fill", linecolor.svgColorString());
 			else {
@@ -204,7 +200,7 @@ void HtmlSpecialHandler::markLinkedBox () {
 			rect->addAttribute("y", y);
 			rect->addAttribute("width", w);
 			rect->addAttribute("height", h);
-			_actions->prependToPage(rect);
+			actions.prependToPage(rect);
 			if (MARKER_TYPE == MT_BOX || MARKER_TYPE == MT_BGCOLOR) {
 				// slightly enlarge the boxed area
 				x -= linewidth;
@@ -212,7 +208,7 @@ void HtmlSpecialHandler::markLinkedBox () {
 				w += 2*linewidth;
 				h += 2*linewidth;
 			}
-			_actions->embed(BoundingBox(x, y, x+w, y+h));
+			actions.embed(BoundingBox(x, y, x+w, y+h));
 		}
 		// Create an invisible rectangle around the linked area so that it's easier to access.
 		// This is only necessary when using paths rather than real text elements together with fonts.
@@ -224,30 +220,30 @@ void HtmlSpecialHandler::markLinkedBox () {
 			rect->addAttribute("height", bbox.height());
 			rect->addAttribute("fill", "white");
 			rect->addAttribute("fill-opacity", 0);
-			_actions->appendToPage(rect);
+			actions.appendToPage(rect);
 		}
 	}
 }
 
 
 /** This method is called every time the DVI position changes. */
-void HtmlSpecialHandler::dviMovedTo (double x, double y) {
-	if (_actions && _anchorType != AT_NONE) {
+void HtmlSpecialHandler::dviMovedTo (double x, double y, SpecialActions &actions) {
+	if (_active && _anchorType != AT_NONE) {
 		// Start a new box if the current depth of the DVI stack underruns
 		// the initial threshold which indicates a line break.
-		if (_actions->getDVIStackDepth() < _depthThreshold) {
-			markLinkedBox();
-			_depthThreshold = _actions->getDVIStackDepth();
-			_actions->bbox("{anchor}", true);  // start a new box on the new line
+		if (actions.getDVIStackDepth() < _depthThreshold) {
+			markLinkedBox(actions);
+			_depthThreshold = actions.getDVIStackDepth();
+			actions.bbox("{anchor}", true);  // start a new box on the new line
 		}
 	}
 }
 
 
-void HtmlSpecialHandler::dviEndPage (unsigned pageno) {
-	if (_actions) {
+void HtmlSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actions) {
+	if (_active) {
 		// create views for all collected named anchors defined on the recent page
-		const BoundingBox &pagebox = _actions->bbox();
+		const BoundingBox &pagebox = actions.bbox();
 		for (NamedAnchors::iterator it=_namedAnchors.begin(); it != _namedAnchors.end(); ++it) {
 			if (it->second.pageno == pageno && it->second.referenced) {  // current anchor referenced?
 				ostringstream oss;
@@ -256,11 +252,11 @@ void HtmlSpecialHandler::dviEndPage (unsigned pageno) {
 				XMLElementNode *view = new XMLElementNode("view");
 				view->addAttribute("id", "loc"+XMLString(it->second.id));
 				view->addAttribute("viewBox", oss.str());
-				_actions->appendToDefs(view);
+				actions.appendToDefs(view);
 			}
 		}
-		closeAnchor();
-		_actions = 0;
+		closeAnchor(actions);
+		_active = false;
 	}
 }
 

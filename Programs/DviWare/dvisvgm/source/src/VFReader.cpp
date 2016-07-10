@@ -21,6 +21,7 @@
 #include <config.h>
 #include <sstream>
 #include "Font.h"
+#include "Length.h"
 #include "VFActions.h"
 #include "VFReader.h"
 
@@ -29,8 +30,7 @@ using namespace std;
 
 /** Converts a TFM fix point value to double (PS point units). */
 static inline double fix2double (FixWord fix) {
-	const double pt2bp = 72/72.27;
-	return double(fix)/(1 << 20)*pt2bp;
+	return double(fix)/(1 << 20)*Length::pt2bp;
 }
 
 

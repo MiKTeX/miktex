@@ -29,7 +29,7 @@
 #include <sys/ioctl.h>
 #endif
 
-#ifdef __WIN32__
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -50,7 +50,7 @@ const int Terminal::WHITE   = RED|GREEN|BLUE;
 const int Terminal::DEFAULT = -1;
 const int Terminal::BLACK   = 0;
 
-#ifdef __WIN32__
+#ifdef _WIN32
 int Terminal::_defaultColor;
 int Terminal::_cursorHeight;
 #endif
@@ -62,7 +62,7 @@ int Terminal::_bgcolor = Terminal::DEFAULT;
 /** Initializes the terminal. This method should be called before any of the others.
  *  @param[in,out] os terminal output stream (currently unused) */
 void Terminal::init (ostream &os) {
-#ifdef __WIN32__
+#ifdef _WIN32
 	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (h != INVALID_HANDLE_VALUE) {
 		CONSOLE_SCREEN_BUFFER_INFO buffer_info;
@@ -93,7 +93,7 @@ int Terminal::columns () {
 	if (ioctl(fileno(stderr), TIOCGWINSZ, &ws) < 0)
 		return 0;
 	return ws.ws_col;
-#elif defined(__WIN32__)
+#elif defined(_WIN32)
 	CONSOLE_SCREEN_BUFFER_INFO info;
 	if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_ERROR_HANDLE), &info))
 		return 0;
@@ -112,7 +112,7 @@ int Terminal::rows () {
 	if (ioctl(fileno(stderr), TIOCGWINSZ, &ws) < 0)
 		return 0;
 	return ws.ws_row;
-#elif defined(__WIN32__)
+#elif defined(_WIN32)
 	CONSOLE_SCREEN_BUFFER_INFO info;
 	if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_ERROR_HANDLE), &info))
 		return 0;
@@ -129,7 +129,7 @@ int Terminal::rows () {
 void Terminal::fgcolor (int color, ostream &os) {
 	_fgcolor = color;
 
-#ifdef __WIN32__
+#ifdef _WIN32
 	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (h != INVALID_HANDLE_VALUE) {
 		CONSOLE_SCREEN_BUFFER_INFO info;
@@ -165,7 +165,7 @@ void Terminal::fgcolor (int color, ostream &os) {
  *  @param[in] os terminal output stream */
 void Terminal::bgcolor (int color, ostream &os) {
 	_bgcolor = color;
-#ifdef __WIN32__
+#ifdef _WIN32
 	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (h != INVALID_HANDLE_VALUE) {
 		CONSOLE_SCREEN_BUFFER_INFO info;
@@ -196,7 +196,7 @@ void Terminal::bgcolor (int color, ostream &os) {
 /** Disables or enables the console cursor
  *  @param[in] visible if false, the cursor is disabled, and enabled otherwise */
 void Terminal::cursor (bool visible) {
-#ifdef __WIN32__
+#ifdef _WIN32
 	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (h != INVALID_HANDLE_VALUE) {
 		CONSOLE_CURSOR_INFO cursor_info;

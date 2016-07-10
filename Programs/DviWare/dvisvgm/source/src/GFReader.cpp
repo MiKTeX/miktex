@@ -172,7 +172,11 @@ bool GFReader::executePostamble () {
 	_in.seekg(-1, ios::end);
 	while (_in.peek() == 223)        // skip fill bytes
 		_in.seekg(-1, ios::cur);
-	_in.seekg(-4, ios::cur);
+	if (_in.peek() != 131)
+		throw GFException("invalid identification byte in postpost");
+	_in.seekg(-5, ios::cur);         // now on postpost
+	if (_in.get() != 249)
+		throw GFException("invalid GF file");
 	UInt32 q = readUnsigned(4);      // pointer to begin of postamble
 	_in.seekg(q);                    // now on begin of postamble
 	while (executeCommand() != 249); // execute all commands until postpost is reached
@@ -208,7 +212,7 @@ double GFReader::getCharWidth (UInt32 c) const {
 void GFReader::cmdPre (int) {
 	UInt32 i = readUnsigned(1);
 	if (i != 131)
-		throw GFException("invalid identification number in GF preamble");
+		throw GFException("invalid identification byte in preamble");
 	else {
 		UInt32 k = readUnsigned(1);
 		string s = readString(k);
@@ -234,7 +238,7 @@ void GFReader::cmdPostPost (int) {
 	readUnsigned(4);   // pointer to begin of postamble
 	UInt32 i = readUnsigned(1);
 	if (i != 131)
-		throw GFException("invalid identification number in GF preamble");
+		throw GFException("invalid identification byte in postpost");
 	while (readUnsigned(1) == 223); // skip fill bytes
 }
 
@@ -373,4 +377,3 @@ void GFReader::cmdCharLoc (int) {
 	Int32 p  = readSigned(4);   // pointer to begin of (last) character data
 	_charInfoMap[c] = CharInfo(dx, dy, w, p);
 }
-

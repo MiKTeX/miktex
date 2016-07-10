@@ -32,14 +32,14 @@ class TpicSpecialHandler : public SpecialHandler, public DVIEndPageListener
 		const char* info () const   {return "TPIC specials";}
 		const char* name () const   {return "tpic";}
 		const char** prefixes () const;
-		bool process (const char *prefix, std::istream &is, SpecialActions *actions);
+		bool process (const char *prefix, std::istream &is, SpecialActions &actions);
 
 	protected:
-		void dviEndPage (unsigned pageno);
+		void dviEndPage (unsigned pageno, SpecialActions &actions);
 		void reset ();
-		void drawLines (bool stroke, bool fill, double ddist, SpecialActions *actions);
-		void drawSplines (double ddist, SpecialActions *actions);
-		void drawArc (double cx, double cy, double rx, double ry, double angle1, double angle2, SpecialActions *actions);
+		void drawLines (bool stroke, bool fill, double ddist, SpecialActions &actions);
+		void drawSplines (double ddist, SpecialActions &actions);
+		void drawArc (double cx, double cy, double rx, double ry, double angle1, double angle2, SpecialActions &actions);
 
 	private:
 		double _penwidth; ///< pen width in PS point units

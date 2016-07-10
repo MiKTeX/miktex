@@ -108,7 +108,7 @@ int FontManager::fontnum (int id) const {
 }
 
 
-int FontManager::vfFirstFontNum (VirtualFont *vf) const {
+int FontManager::vfFirstFontNum (const VirtualFont *vf) const {
 	VfFirstFontMap::const_iterator it = _vfFirstFontMap.find(vf);
 	return (it == _vfFirstFontMap.end()) ? -1 : (int) it->second;
 }
@@ -139,7 +139,7 @@ Font* FontManager::getFontById (int id) const {
 
 
 /** Returns the current active virtual font. */
-VirtualFont* FontManager::getVF () const {
+const VirtualFont* FontManager::getVF () const {
 	return _vfStack.empty() ? 0 : _vfStack.top();
 }
 
@@ -236,11 +236,28 @@ int FontManager::registerFont (UInt32 fontnum, string name, UInt32 checksum, dou
 }
 
 
+/** Registers a new native font to be managed by the FontManager. If there is
+ *  already a registered font assigned to number n, nothing happens.
+ *  @param[in] fontnum local font number used in DVI file
+ *  @param[in] filename name/path of font file
+ *  @param[in] ptsize font size in PS points
+ *  @param[in] style font style parameters
+ *  @param[in] color global font color
+ *  @return global font id */
 int FontManager::registerFont (UInt32 fontnum, string filename, double ptsize, const FontStyle &style, Color color) {
 	return registerFont(fontnum, filename, 0, ptsize, style, color);
 }
 
 
+/** Registers a new native font to be managed by the FontManager. If there is
+ *  already a registered font assigned to number n, nothing happens.
+ *  @param[in] fontnum local font number used in DVI file
+ *  @param[in] filename name/path of font file
+ *  @param[in] fontIndex subfont index
+ *  @param[in] ptsize font size in PS points
+ *  @param[in] style font style parameters
+ *  @param[in] color global font color
+ *  @return global font id */
 int FontManager::registerFont (UInt32 fontnum, string filename, int fontIndex, double ptsize, const FontStyle &style, Color color) {
 	int id = fontID(fontnum);
 	if (id >= 0)

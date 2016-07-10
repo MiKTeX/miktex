@@ -26,7 +26,7 @@
 #include "BoundingBox.h"
 #include "PSFilter.h"
 
-struct SpecialActions;
+class SpecialActions;
 
 class PSPreviewFilter : public PSFilter
 {

@@ -26,7 +26,7 @@
 #  include <memory>
 #  include <miktex/Core/DirectoryLister>
 #else
-#ifdef __WIN32__
+#ifdef _WIN32
 	#include <windows.h>
 #else
 	#include <dirent.h>
@@ -52,7 +52,7 @@ class Directory
                 MiKTeX::Core::DirectoryEntry currentEntry;
                 std::unique_ptr<MiKTeX::Core::DirectoryLister> directoryLister;
 #else
-#ifdef __WIN32__
+#ifdef _WIN32
 		bool firstread;
 		HANDLE handle;
 		WIN32_FIND_DATA fileData;

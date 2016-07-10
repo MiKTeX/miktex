@@ -126,8 +126,7 @@ double Calculator::prim (istream &is, bool skip) { // prim:
 /** Determines type of next token without swallowing it. That means
  *  the same token will be read again next time. */
 char Calculator::lookAhead (istream &is) {
-	while (isspace(is.peek()))  // skip whitespace
-		is.get();
+	is >> ws;
 	if (is.eof())
 		return END;
 	int c = is.peek();

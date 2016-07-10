@@ -25,16 +25,16 @@
 #include <map>
 #include <ostream>
 #include <string>
+#include <vector>
 
-#include "SpecialActions.h"
 
-
-struct XMLNode
+class XMLNode
 {
-	virtual ~XMLNode () {}
-	virtual XMLNode* clone () const =0;
-	virtual void clear () =0;
-	virtual std::ostream& write (std::ostream &os) const =0;
+	public:
+		virtual ~XMLNode () {}
+		virtual XMLNode* clone () const =0;
+		virtual void clear () =0;
+		virtual std::ostream& write (std::ostream &os) const =0;
 };
 
 
@@ -96,7 +96,7 @@ class XMLCommentNode : public XMLNode
 		XMLCommentNode (const std::string &str) : _text(str) {}
 		XMLCommentNode* clone () const {return new XMLCommentNode(*this);}
 		void clear () {_text.clear();}
-		std::ostream& write (std::ostream &os) const {return os << "<!--" << _text << "-->\n";}
+		std::ostream& write (std::ostream &os) const {return os << "<!--" << _text << "-->";}
 
 	private:
 		std::string _text;
@@ -114,5 +114,11 @@ class XMLCDataNode : public XMLNode
 	private:
 		std::string _data;
 };
+
+
+inline std::ostream& operator << (std::ostream &os, const XMLElementNode &node) {return node.write(os);}
+inline std::ostream& operator << (std::ostream &os, const XMLTextNode &node) {return node.write(os);}
+inline std::ostream& operator << (std::ostream &os, const XMLCommentNode &node) {return node.write(os);}
+inline std::ostream& operator << (std::ostream &os, const XMLCDataNode &node) {return node.write(os);}
 
 #endif

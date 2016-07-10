@@ -29,7 +29,7 @@ class PreScanDVIReader : public BasicDVIReader
 {
 	public:
 		PreScanDVIReader (std::istream &is, DVIActions *actions);
-		unsigned getCurrentPageNumber () const {return _currentPageNumber;}
+		unsigned currentPageNumber () const {return _currentPageNumber;}
 
 	protected:
 		void cmdBop (int);

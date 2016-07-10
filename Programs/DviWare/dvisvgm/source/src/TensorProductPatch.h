@@ -40,7 +40,7 @@ class TensorProductPatch : public ShadingPatch
 {
 	friend class CoonsPatch;
 
-   public:
+	public:
 		TensorProductPatch () : ShadingPatch(Color::RGB_SPACE) {}
 		TensorProductPatch (Color::ColorSpace cspace) : ShadingPatch(cspace) {}
 		TensorProductPatch (const PointVec &points, const ColorVec &colors, Color::ColorSpace cspace, int edgeflag, TensorProductPatch *patch);
@@ -68,7 +68,7 @@ class TensorProductPatch : public ShadingPatch
 		void setFirstMatrixColumn (const DPair source[4], bool reverse);
 		void setFirstMatrixColumn (DPair source[4][4], int col, bool reverse);
 
-   private:
+	private:
 		DPair _points[4][4];  ///< control point matrix defining the patch surface
 		Color _colors[4];     ///< vertex colors cK (c0->p00, c1->p03, c2->p30, c3->p33)
 };

@@ -27,7 +27,7 @@
 #include "SpecialHandler.h"
 
 class InputReader;
-struct SpecialActions;
+class SpecialActions;
 
 class DvisvgmSpecialHandler : public SpecialHandler, public DVIPreprocessingListener, public DVIEndPageListener
 {
@@ -39,8 +39,8 @@ class DvisvgmSpecialHandler : public SpecialHandler, public DVIPreprocessingList
 		const char* name () const   {return "dvisvgm";}
 		const char* info () const   {return "special set for embedding raw SVG snippets";}
 		const char** prefixes () const;
-		void preprocess (const char *prefix, std::istream &is, SpecialActions *actions);
-		bool process (const char *prefix, std::istream &is, SpecialActions *actions);
+		void preprocess (const char *prefix, std::istream &is, SpecialActions &actions);
+		bool process (const char *prefix, std::istream &is, SpecialActions &actions);
 
 	protected:
 		void preprocessRaw (InputReader &ir);
@@ -48,15 +48,15 @@ class DvisvgmSpecialHandler : public SpecialHandler, public DVIPreprocessingList
 		void preprocessRawSet (InputReader &ir);
 		void preprocessEndRawSet (InputReader &ir);
 		void preprocessRawPut (InputReader &ir);
-		void processRaw (InputReader &ir, SpecialActions *actions);
-		void processRawDef (InputReader &ir, SpecialActions *actions);
-		void processRawSet (InputReader &ir, SpecialActions *actions);
-		void processEndRawSet (InputReader &ir, SpecialActions *actions);
-		void processRawPut (InputReader &ir, SpecialActions *actions);
-		void processBBox (InputReader &ir, SpecialActions *actions);
-		void processImg (InputReader &ir, SpecialActions *actions);
+		void processRaw (InputReader &ir, SpecialActions &actions);
+		void processRawDef (InputReader &ir, SpecialActions &actions);
+		void processRawSet (InputReader &ir, SpecialActions &actions);
+		void processEndRawSet (InputReader &ir, SpecialActions &actions);
+		void processRawPut (InputReader &ir, SpecialActions &actions);
+		void processBBox (InputReader &ir, SpecialActions &actions);
+		void processImg (InputReader &ir, SpecialActions &actions);
 		void dviPreprocessingFinished ();
-		void dviEndPage (unsigned pageno);
+		void dviEndPage (unsigned pageno, SpecialActions &actions);
 
 	private:
 		MacroMap _macros;

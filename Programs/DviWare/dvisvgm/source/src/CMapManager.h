@@ -25,11 +25,11 @@
 #include <set>
 #include <string>
 #include "CharMapID.h"
-#include "Font.h"
 
 struct CMap;
 struct FontEncoding;
 class FontEncodingPair;
+class PhysicalFont;
 
 class CMapManager
 {

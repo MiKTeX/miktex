@@ -26,25 +26,32 @@
 
 struct DVIException : public MessageException
 {
-	DVIException (const std::string &msg) : MessageException(msg) {}
+	explicit DVIException (const std::string &msg) : MessageException(msg) {}
 };
 
 
 struct InvalidDVIFileException : public DVIException
 {
-	InvalidDVIFileException(const std::string &msg) : DVIException(msg) {}
+	explicit InvalidDVIFileException (const std::string &msg) : DVIException(msg) {}
 };
 
 class Matrix;
 
+/** This class provides the basic functionality to read a DVI file.
+ *  It just skips all DVI commands and apply any semantic to it. The latter must
+ *  be realized by deriving a separate class that implements the cmdXXX template
+ *  methods. These are low-level functions that represent the DVI commands and
+ *  require to read and evaluate the correct portion of data from the DVI stream.
+ *  Since the DVI commands are almost skipped by advancing the file pointer,
+ *  running through a DVI file is pretty fast. */
 class BasicDVIReader : public StreamReader
 {
 	protected:
 		typedef void (BasicDVIReader::*CommandHandler)(int);
-		enum DVIFormat {DVI_NONE=0, DVI_STANDARD=2, DVI_PTEX=3, DVI_XDVOLD=5, DVI_XDVNEW=6};
+		enum DVIVersion {DVI_NONE=0, DVI_STANDARD=2, DVI_PTEX=3, DVI_XDV5=5, DVI_XDV6=6, DVI_XDV7=7};
 
 	public:
-		BasicDVIReader (std::istream &is);
+		explicit BasicDVIReader (std::istream &is);
 		virtual ~BasicDVIReader () {}
 		virtual void executeAllPages ();
 		virtual double getXPos () const      {return 0;}
@@ -52,19 +59,21 @@ class BasicDVIReader : public StreamReader
 		virtual void finishLine ()           {}
 		virtual void translateToX (double x) {}
 		virtual void translateToY (double y) {}
-		virtual int getStackDepth () const   {return 0;}
+		virtual int stackDepth () const   {return 0;}
 		virtual void getPageTransformation (Matrix &matrix) const {}
-		virtual unsigned getCurrentPageNumber () const {return 0;}
+		virtual unsigned currentPageNumber () const {return 0;}
 
 	protected:
-		void setDVIFormat (DVIFormat format);
-		DVIFormat getDVIFormat () const {return _dviFormat;}
+		void setDVIVersion (DVIVersion version);
+		DVIVersion getDVIVersion () const {return _dviVersion;}
 		virtual int evalCommand (CommandHandler &handler, int &param);
 		virtual int executeCommand ();
 		void executePostPost ();
+		bool evalXDVOpcode (int op, CommandHandler &handler) const;
 
-		// the following methods represent the DVI commands
-		// they are called by executeCommand and should not be used directly
+		// The following template methods represent the single DVI commands. They
+		// must read the correct chunk of data from the input stream in order to
+		// process the DVI file correctly.
 		virtual void cmdSetChar0 (int c);
 		virtual void cmdSetChar (int len);
 		virtual void cmdPutChar (int len);
@@ -93,13 +102,14 @@ class BasicDVIReader : public StreamReader
 		virtual void cmdPre (int len);
 		virtual void cmdPost (int len);
 		virtual void cmdPostPost (int len);
-		virtual void cmdXFontDef (int len);     // XDV only
-		virtual void cmdXGlyphArray (int len);  // XDV only
-		virtual void cmdXGlyphString (int len); // XDV format 5 only
-		virtual void cmdXPic (int len);         // XDV format 5 only
+		virtual void cmdXFontDef (int len);       // XDV only
+		virtual void cmdXGlyphArray (int len);    // XDV only
+		virtual void cmdXGlyphString (int len);   // XDV version 5 only
+		virtual void cmdXPic (int len);           // XDV version 5 only
+		virtual void cmdXTextAndGlyphs (int len); // XDV version 7 only
 
 	private:
-		DVIFormat _dviFormat;  ///< format of DVI file being processed
+		DVIVersion _dviVersion;  ///< DVI version of file being processed
 };
 
 #endif

@@ -30,7 +30,7 @@ class PdfSpecialHandler : public SpecialHandler
 		const char* info () const      {return "pdfTeX font map specials";}
 		const char* name () const      {return "pdf";}
 		const char** prefixes () const;
-		bool process (const char *prefix, std::istream &is, SpecialActions *actions);
+		bool process (const char *prefix, std::istream &is, SpecialActions &actions);
 
 	private:
 		bool _maplineProcessed;  ///< true if a mapline or mapfile special has already been processed

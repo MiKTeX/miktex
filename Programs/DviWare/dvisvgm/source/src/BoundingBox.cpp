@@ -52,8 +52,8 @@ BoundingBox::BoundingBox (const DPair &p1, const DPair &p2)
 
 
 BoundingBox::BoundingBox (const Length &ulxx, const Length &ulyy, const Length &lrxx, const Length &lryy)
-	: _ulx(min(ulxx.pt(),lrxx.pt())), _uly(min(ulyy.pt(),lryy.pt())),
-	  _lrx(max(ulxx.pt(),lrxx.pt())), _lry(max(ulyy.pt(),lryy.pt())),
+	: _ulx(min(ulxx.bp(),lrxx.bp())), _uly(min(ulyy.bp(),lryy.bp())),
+	  _lrx(max(ulxx.bp(),lrxx.bp())), _lry(max(ulyy.bp(),lryy.bp())),
 	  _valid(true), _locked(false)
 {
 }
@@ -80,13 +80,10 @@ static string& strip (string &str) {
 }
 
 
-/** Sets or modifies the bounding box. If 'boxstr' consists of 4 length values,
- *  they denote the absolute position of two diagonal corners of the box. In case
- *  of a single length value l the current box is enlarged by adding (-l,-l) the upper
- *  left and (l,l) to the lower right corner.
- *  @param[in] boxstr whitespace and/or comma separated string of lengths. */
-void BoundingBox::set (string boxstr) {
-	vector<Length> coord;
+/** Extracts a sequence of length values from a given string.
+ *  @param[in] boxstr whitespace and/or comma separated string of lengths.
+ *  @param[out] the extracted lengths */
+void BoundingBox::extractLengths (string boxstr, vector<Length> &lengths) {
 	const size_t len = boxstr.length();
 	size_t l=0;
 	strip(boxstr);
@@ -99,31 +96,46 @@ void BoundingBox::set (string boxstr) {
 			r++;
 		lenstr = boxstr.substr(l, r-l);
 		if (!lenstr.empty()) {
-			coord.push_back(Length(lenstr));
+			lengths.push_back(Length(lenstr));
 			if (boxstr[r] == ',')
 				r++;
 			l = r;
 		}
-	} while (!lenstr.empty() && coord.size() < 4);
+	} while (!lenstr.empty() && lengths.size() < 4);
+}
 
+
+/** Sets or modifies the bounding box. If 'boxstr' consists of 4 length values,
+ *  they denote the absolute position of two diagonal corners of the box. In case
+ *  of a single length value l the current box is enlarged by adding (-l,-l) the upper
+ *  left and (l,l) to the lower right corner.
+ *  @param[in] boxstr whitespace and/or comma separated string of lengths. */
+void BoundingBox::set (const string &boxstr) {
+	vector<Length> coord;
+	extractLengths(boxstr, coord);
+	set(coord);
+}
+
+
+void BoundingBox::set (const std::vector<Length> &coord) {
 	switch (coord.size()) {
 		case 1:
-			_ulx -= coord[0].pt();
-			_uly -= coord[0].pt();
-			_lrx += coord[0].pt();
-			_lry += coord[0].pt();
+			_ulx -= coord[0].bp();
+			_uly -= coord[0].bp();
+			_lrx += coord[0].bp();
+			_lry += coord[0].bp();
 			break;
 		case 2:
-			_ulx -= coord[0].pt();
-			_uly -= coord[1].pt();
-			_lrx += coord[0].pt();
-			_lry += coord[1].pt();
+			_ulx -= coord[0].bp();
+			_uly -= coord[1].bp();
+			_lrx += coord[0].bp();
+			_lry += coord[1].bp();
 			break;
 		case 4:
-			_ulx = min(coord[0].pt(), coord[2].pt());
-			_uly = min(coord[1].pt(), coord[3].pt());
-			_lrx = max(coord[0].pt(), coord[2].pt());
-			_lry = max(coord[1].pt(), coord[3].pt());
+			_ulx = min(coord[0].bp(), coord[2].bp());
+			_uly = min(coord[1].bp(), coord[3].bp());
+			_lrx = max(coord[0].bp(), coord[2].bp());
+			_lry = max(coord[1].bp(), coord[3].bp());
 			break;
 		default:
 			throw BoundingBoxException("1, 2 or 4 length parameters expected");
@@ -218,21 +230,17 @@ void BoundingBox::operator += (const BoundingBox &bbox) {
 }
 
 
-bool BoundingBox::operator == (const BoundingBox &bbox) const {
-	return _valid && bbox._valid
-		&& _ulx == bbox._ulx
-		&& _uly == bbox._uly
-		&& _lrx == bbox._lrx
-		&& _lry == bbox._lry;
+static inline bool almost_equal (double v1, double v2) {
+	return fabs(v1-v2) < 1e-10;
 }
 
 
-bool BoundingBox::operator != (const BoundingBox &bbox) const {
-	return !_valid || !bbox._valid
-		|| _ulx != bbox._ulx
-		|| _uly != bbox._uly
-		|| _lrx != bbox._lrx
-		|| _lry != bbox._lry;
+bool BoundingBox::operator == (const BoundingBox &bbox) const {
+	return _valid && bbox._valid
+		&& almost_equal(_ulx, bbox._ulx)
+		&& almost_equal(_uly, bbox._uly)
+		&& almost_equal(_lrx, bbox._lrx)
+		&& almost_equal(_lry, bbox._lry);
 }
 
 
@@ -270,8 +278,10 @@ string BoundingBox::toSVGViewBox () const {
 
 
 ostream& BoundingBox::write (ostream &os) const {
-	return os << '('  << _ulx << ", " << _uly
-				 << ", " << _lrx << ", " << _lry << ')';
+	os << '('  << _ulx << ", " << _uly << ", " << _lrx << ", " << _lry << ')';
+	if (!_valid)
+		os << " (invalid)";
+	return os;
 }
 
 

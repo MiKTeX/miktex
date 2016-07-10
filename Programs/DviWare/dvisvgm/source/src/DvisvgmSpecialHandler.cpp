@@ -24,6 +24,7 @@
 #include "DvisvgmSpecialHandler.h"
 #include "InputBuffer.h"
 #include "InputReader.h"
+#include "Length.h"
 #include "SpecialActions.h"
 #include "XMLNode.h"
 #include "XMLString.h"
@@ -37,7 +38,7 @@ DvisvgmSpecialHandler::DvisvgmSpecialHandler ()
 }
 
 
-void DvisvgmSpecialHandler::preprocess (const char*, istream &is, SpecialActions*) {
+void DvisvgmSpecialHandler::preprocess (const char*, istream &is, SpecialActions&) {
 	struct Command {
 		const char *name;
 		void (DvisvgmSpecialHandler::*handler)(InputReader&);
@@ -114,13 +115,10 @@ void DvisvgmSpecialHandler::preprocessRawPut (InputReader &ir) {
  *  @param[in] prefix special prefix read by the SpecialManager
  *  @param[in] is the special statement is read from this stream
  *  @param[in] actions object providing the actions that can be performed by the SpecialHandler */
-bool DvisvgmSpecialHandler::process (const char *prefix, istream &is, SpecialActions *actions) {
-	if (!actions)
-		return true;
-
+bool DvisvgmSpecialHandler::process (const char *prefix, istream &is, SpecialActions &actions) {
 	struct Command {
 		const char *name;
-		void (DvisvgmSpecialHandler::*handler)(InputReader&, SpecialActions*);
+		void (DvisvgmSpecialHandler::*handler)(InputReader&, SpecialActions&);
 	} commands[] = {
 		{"raw",       &DvisvgmSpecialHandler::processRaw},
 		{"rawdef",    &DvisvgmSpecialHandler::processRawDef},
@@ -146,15 +144,15 @@ bool DvisvgmSpecialHandler::process (const char *prefix, istream &is, SpecialAct
 /** Replaces constants of the form {?name} by their corresponding value.
  *  @param[in,out] str text to expand
  *  @param[in] actions interfcae to the world outside the special handler */
-static void expand_constants (string &str, SpecialActions *actions) {
+static void expand_constants (string &str, SpecialActions &actions) {
 	struct Constant {
 		const char *name;
 		string val;
 	}
 	constants[] = {
-		{"x", XMLString(actions->getX())},
-		{"y", XMLString(actions->getY())},
-		{"color", actions->getColor().svgColorString()},
+		{"x", XMLString(actions.getX())},
+		{"y", XMLString(actions.getY())},
+		{"color", actions.getColor().svgColorString()},
 		{"nl", "\n"},
 		{0, ""}
 	};
@@ -168,7 +166,7 @@ static void expand_constants (string &str, SpecialActions *actions) {
 			while (endpos < str.length() && isalnum(str[endpos]))
 				++endpos;
 			if (str[endpos] == '}') {
-				BoundingBox &box=actions->bbox(str.substr(pos+7, endpos-pos-7));
+				BoundingBox &box=actions.bbox(str.substr(pos+7, endpos-pos-7));
 				str.replace(pos, endpos-pos+1, box.toSVGViewBox());
 			}
 			else
@@ -186,40 +184,40 @@ static void expand_constants (string &str, SpecialActions *actions) {
 }
 
 
-void DvisvgmSpecialHandler::processRaw (InputReader &ir, SpecialActions *actions) {
+void DvisvgmSpecialHandler::processRaw (InputReader &ir, SpecialActions &actions) {
 	if (_nestingLevel == 0) {
 		string str = ir.getLine();
 		if (!str.empty()) {
 			expand_constants(str, actions);
-			actions->appendToPage(new XMLTextNode(str));
+			actions.appendToPage(new XMLTextNode(str));
 		}
 	}
 }
 
 
-void DvisvgmSpecialHandler::processRawDef (InputReader &ir, SpecialActions *actions) {
+void DvisvgmSpecialHandler::processRawDef (InputReader &ir, SpecialActions &actions) {
 	if (_nestingLevel == 0) {
 		string str = ir.getLine();
 		if (!str.empty()) {
 			expand_constants(str, actions);
-			actions->appendToDefs(new XMLTextNode(str));
+			actions.appendToDefs(new XMLTextNode(str));
 		}
 	}
 }
 
 
-void DvisvgmSpecialHandler::processRawSet (InputReader&, SpecialActions*) {
+void DvisvgmSpecialHandler::processRawSet (InputReader&, SpecialActions&) {
 	_nestingLevel++;
 }
 
 
-void DvisvgmSpecialHandler::processEndRawSet (InputReader&, SpecialActions*) {
+void DvisvgmSpecialHandler::processEndRawSet (InputReader&, SpecialActions&) {
 	if (_nestingLevel > 0)
 		_nestingLevel--;
 }
 
 
-void DvisvgmSpecialHandler::processRawPut (InputReader &ir, SpecialActions *actions) {
+void DvisvgmSpecialHandler::processRawPut (InputReader &ir, SpecialActions &actions) {
 	if (_nestingLevel > 0)
 		return;
 	string id = ir.getString();
@@ -234,9 +232,9 @@ void DvisvgmSpecialHandler::processRawPut (InputReader &ir, SpecialActions *acti
 		if ((type == 'P' || type == 'D') && !def.empty()) {
 			expand_constants(def, actions);
 			if (type == 'P')
-				actions->appendToPage(new XMLTextNode(def));
+				actions.appendToPage(new XMLTextNode(def));
 			else {          // type == 'D'
-				actions->appendToDefs(new XMLTextNode(def));
+				actions.appendToDefs(new XMLTextNode(def));
 				type = 'L';  // locked
 			}
 		}
@@ -250,11 +248,11 @@ void DvisvgmSpecialHandler::processRawPut (InputReader &ir, SpecialActions *acti
  *  @param[in] h height of the rectangle in PS point units
  *  @param[in] d depth of the rectangle in PS point units
  *  @param[in] actions object providing the actions that can be performed by the SpecialHandler */
-static void update_bbox (double w, double h, double d, SpecialActions *actions) {
-	double x = actions->getX();
-	double y = actions->getY();
-	actions->embed(BoundingBox(x, y, x+w, y-h));
-	actions->embed(BoundingBox(x, y, x+w, y+d));
+static void update_bbox (double w, double h, double d, SpecialActions &actions) {
+	double x = actions.getX();
+	double y = actions.getY();
+	actions.embed(BoundingBox(x, y, x+w, y-h));
+	actions.embed(BoundingBox(x, y, x+w, y+d));
 }
 
 
@@ -263,8 +261,7 @@ static void update_bbox (double w, double h, double d, SpecialActions *actions) 
  *  variant 2: dvisvgm:bbox a[bs] <x1> <y1> <x2> <y2>
  *  variant 3: dvisvgm:bbox f[ix] <x1> <y1> <x2> <y2>
  *  variant 4: dvisvgm:bbox n[ew] <name> */
-void DvisvgmSpecialHandler::processBBox (InputReader &ir, SpecialActions *actions) {
-	const double pt2bp = 72/72.27;
+void DvisvgmSpecialHandler::processBBox (InputReader &ir, SpecialActions &actions) {
 	ir.skipSpace();
 	int c = ir.peek();
 	if (isalpha(c)) {
@@ -277,18 +274,18 @@ void DvisvgmSpecialHandler::processBBox (InputReader &ir, SpecialActions *action
 				name += char(ir.get());
 			ir.skipSpace();
 			if (!name.empty() && ir.eof())
-				actions->bbox(name, true); // create new user box
+				actions.bbox(name, true); // create new user box
 		}
 		else if (c == 'a' || c == 'f') {
 			double p[4];
 			for (int i=0; i < 4; i++)
-				p[i] = ir.getDouble()*pt2bp;
+				p[i] = ir.getDouble()*Length::pt2bp;
 			BoundingBox b(p[0], p[1], p[2], p[3]);
 			if (c == 'a')
-				actions->embed(b);
+				actions.embed(b);
 			else {
-				actions->bbox() = b;
-				actions->bbox().lock();
+				actions.bbox() = b;
+				actions.bbox().lock();
 			}
 		}
 	}
@@ -296,31 +293,28 @@ void DvisvgmSpecialHandler::processBBox (InputReader &ir, SpecialActions *action
 		c = 'r';   // no mode specifier => relative box parameters
 
 	if (c == 'r') {
-		double w = ir.getDouble()*pt2bp;
-		double h = ir.getDouble()*pt2bp;
-		double d = ir.getDouble()*pt2bp;
+		double w = ir.getDouble()*Length::pt2bp;
+		double h = ir.getDouble()*Length::pt2bp;
+		double d = ir.getDouble()*Length::pt2bp;
 		update_bbox(w, h, d, actions);
 	}
 }
 
 
-void DvisvgmSpecialHandler::processImg (InputReader &ir, SpecialActions *actions) {
-	if (actions) {
-		const double pt2bp = 72/72.27;
-		double w = ir.getDouble()*pt2bp;
-		double h = ir.getDouble()*pt2bp;
-		string f = ir.getString();
-		update_bbox(w, h, 0, actions);
-		XMLElementNode *img = new XMLElementNode("image");
-		img->addAttribute("x", actions->getX());
-		img->addAttribute("y", actions->getY());
-		img->addAttribute("width", w);
-		img->addAttribute("height", h);
-		img->addAttribute("xlink:href", f);
-		if (!actions->getMatrix().isIdentity())
-			img->addAttribute("transform", actions->getMatrix().getSVG());
-		actions->appendToPage(img);
-	}
+void DvisvgmSpecialHandler::processImg (InputReader &ir, SpecialActions &actions) {
+	double w = ir.getDouble()*Length::pt2bp;
+	double h = ir.getDouble()*Length::pt2bp;
+	string f = ir.getString();
+	update_bbox(w, h, 0, actions);
+	XMLElementNode *img = new XMLElementNode("image");
+	img->addAttribute("x", actions.getX());
+	img->addAttribute("y", actions.getY());
+	img->addAttribute("width", w);
+	img->addAttribute("height", h);
+	img->addAttribute("xlink:href", f);
+	if (!actions.getMatrix().isIdentity())
+		img->addAttribute("transform", actions.getMatrix().getSVG());
+	actions.appendToPage(img);
 }
 
 
@@ -336,7 +330,7 @@ void DvisvgmSpecialHandler::dviPreprocessingFinished () {
 }
 
 
-void DvisvgmSpecialHandler::dviEndPage (unsigned) {
+void DvisvgmSpecialHandler::dviEndPage (unsigned, SpecialActions&) {
 	for (MacroMap::iterator map_it=_macros.begin(); map_it != _macros.end(); ++map_it) {
 		StringVector &vec = map_it->second;
 		for (StringVector::iterator str_it=vec.begin(); str_it != vec.end(); ++str_it) {

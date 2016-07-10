@@ -27,7 +27,7 @@
 #include <vector>
 #include "SpecialHandler.h"
 
-struct SpecialActions;
+class SpecialActions;
 
 class SpecialManager
 {
@@ -43,12 +43,12 @@ class SpecialManager
 		void registerHandler (SpecialHandler *handler);
 		void registerHandlers (SpecialHandler **handlers, const char *ignorelist);
 		void unregisterHandlers ();
-		void preprocess (const std::string &special, SpecialActions *actions) const;
-		bool process (const std::string &special, double dvi2bp, SpecialActions *actions) const;
+		void preprocess (const std::string &special, SpecialActions &actions) const;
+		bool process (const std::string &special, double dvi2bp, SpecialActions &actions) const;
 		void notifyPreprocessingFinished () const;
-		void notifyBeginPage (unsigned pageno) const;
-		void notifyEndPage (unsigned pageno) const;
-		void notifyPositionChange (double x, double y) const;
+		void notifyBeginPage (unsigned pageno, SpecialActions &actions) const;
+		void notifyEndPage (unsigned pageno, SpecialActions &actions) const;
+		void notifyPositionChange (double x, double y, SpecialActions &actions) const;
 		void writeHandlerInfo (std::ostream &os) const;
 
 	protected:

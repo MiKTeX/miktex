@@ -33,8 +33,8 @@
 
 class  DVIToSVG;
 struct FileFinder;
-struct Font;
-struct XMLNode;
+class Font;
+class XMLNode;
 
 class DVIToSVGActions : public DVIActions, public SpecialActions
 {
@@ -46,7 +46,7 @@ class DVIToSVGActions : public DVIActions, public SpecialActions
 		DVIToSVGActions (DVIToSVG &dvisvg, SVGTree &svg);
 		~DVIToSVGActions ();
 		void reset ();
-		void setChar (double x, double y, unsigned c, bool vertical, const Font *f);
+		void setChar (double x, double y, unsigned c, bool vertical, const Font &f);
 		void setRule (double x, double y, double height, double width);
 		void setBgColor (const Color &color);
 		void setColor (const Color &color)             {_svg.setColor(color);}
@@ -54,8 +54,8 @@ class DVIToSVGActions : public DVIActions, public SpecialActions
 		const Matrix& getMatrix () const               {return _svg.getMatrix();}
 		void getPageTransform (Matrix &matrix) const   {_dvireader->getPageTransformation(matrix);}
 		Color getColor () const                        {return _svg.getColor();}
-		int getDVIStackDepth() const                   {return _dvireader->getStackDepth();}
-		unsigned getCurrentPageNumber() const          {return _dvireader->getCurrentPageNumber();}
+		int getDVIStackDepth() const                   {return _dvireader->stackDepth();}
+		unsigned getCurrentPageNumber() const          {return _dvireader->currentPageNumber();}
 		void appendToPage (XMLNode *node)              {_svg.appendToPage(node);}
 		void appendToDefs (XMLNode *node)              {_svg.appendToDefs(node);}
 		void prependToPage (XMLNode *node)             {_svg.prependToPage(node);}
@@ -64,16 +64,15 @@ class DVIToSVGActions : public DVIActions, public SpecialActions
 		void setTextOrientation(bool vertical)         {_svg.setVertical(vertical);}
 		void moveToX (double x);
 		void moveToY (double y);
-		void setFont (int num, const Font *font);
+		void setFont (int num, const Font &font);
 		void special (const std::string &spc, double dvi2bp, bool preprocessing=false);
-		void beginPage (unsigned pageno, Int32 *c);
+		void beginPage (unsigned pageno, const std::vector<Int32> &c);
 		void endPage (unsigned pageno);
 		void progress (size_t current, size_t total, const char *id=0);
 		void progress (const char *id);
 		CharMap& getUsedChars () const        {return _usedChars;}
 		const FontSet& getUsedFonts () const  {return _usedFonts;}
 		void setDVIReader (BasicDVIReader &r) {_dvireader = &r;}
-		void setPageMatrix (const Matrix &tm);
 		double getX() const   {return _dvireader->getXPos();}
 		double getY() const   {return _dvireader->getYPos();}
 		void setX (double x)  {_dvireader->translateToX(x); _svg.setX(x);}
@@ -94,7 +93,6 @@ class DVIToSVGActions : public DVIActions, public SpecialActions
 		int _currentFontNum;
 		mutable CharMap _usedChars;
 		FontSet _usedFonts;
-		Matrix *_pageMatrix;  // transformation of whole page
 		Color _bgcolor;
 		BoxMap *_boxes;
 };

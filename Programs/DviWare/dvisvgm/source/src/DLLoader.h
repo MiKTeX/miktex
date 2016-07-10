@@ -21,7 +21,7 @@
 #ifndef DVISVGM_DLLOADER_H
 #define DVISVGM_DLLOADER_H
 
-#ifdef __WIN32__
+#ifdef _WIN32
 	#include <windows.h>
 #else
 	#include <dlfcn.h>
@@ -40,7 +40,7 @@ class DLLoader
 		void* loadSymbol (const char *name);
 
 	private:
-#ifdef __WIN32__
+#ifdef _WIN32
 		HINSTANCE _handle;
 #else
 		void *_handle;

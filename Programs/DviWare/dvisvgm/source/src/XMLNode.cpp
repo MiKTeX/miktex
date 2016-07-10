@@ -180,17 +180,25 @@ XMLElementNode* XMLElementNode::getFirstDescendant (const char *name, const char
 
 ostream& XMLElementNode::write (ostream &os) const {
 	os << '<' << _name;
-	FORALL(_attributes, AttribMap::const_iterator, i)
-		os << ' ' << i->first << "='" << i->second << '\'';
+	FORALL(_attributes, AttribMap::const_iterator, it)
+		os << ' ' << it->first << "='" << it->second << '\'';
 	if (_children.empty())
-		os << "/>\n";
+		os << "/>";
 	else {
 		os << '>';
-		if (dynamic_cast<XMLElementNode*>(_children.front()))
+		// Insert newlines around children except text nodes. According to the
+		// SVG specification, pure whitespace nodes are ignored by the SVG renderer.
+		if (!dynamic_cast<XMLTextNode*>(_children.front()))
 			os << '\n';
-		FORALL(_children, ChildList::const_iterator, i)
-			(*i)->write(os);
-		os << "</" << _name << ">\n";
+		FORALL(_children, ChildList::const_iterator, it) {
+			(*it)->write(os);
+			if (!dynamic_cast<XMLTextNode*>(*it)) {
+				ChildList::const_iterator next=it;
+				if (++next == _children.end() || !dynamic_cast<XMLTextNode*>(*next))
+					os << '\n';
+			}
+		}
+		os << "</" << _name << '>';
 	}
 	return os;
 }
@@ -255,7 +263,7 @@ void XMLTextNode::prepend (XMLNode *node) {
 
 ostream& XMLCDataNode::write (ostream &os) const {
 	if (!_data.empty())
-		os << "<![CDATA[\n" << _data << "]]>\n";
+		os << "<![CDATA[\n" << _data << "]]>";
 	return os;
 }
 

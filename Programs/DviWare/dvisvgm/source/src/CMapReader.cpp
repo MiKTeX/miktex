@@ -118,11 +118,7 @@ void CMapReader::op_def (InputReader&) {
 	if (size >= 2) {
 		const string val = popToken().strvalue();
 		const string name = popToken().strvalue();
-		if (name == "CMapName") {
-			if (val != _cmap->_name)
-				throw CMapReaderException("CMapName doesn't match filename");
-		}
-		else if (name == "WMode") {
+		if (name == "WMode") {
 			if (val == "0" || val == "1")
 				_cmap->_vertical = (val == "1");
 			else

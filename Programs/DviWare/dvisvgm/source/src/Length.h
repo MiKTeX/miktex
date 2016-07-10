@@ -37,26 +37,43 @@ struct UnitException : MessageException
 class Length
 {
 	public:
-		enum Unit {PT, BP, CM, MM, IN, PC};
+		enum Unit {PT, BP, CM, MM, IN, PC, DD, CC, SP};
 
 	public:
 		Length () : _pt(0) {}
-		Length (double val, Unit unit=PT)            {set(val, unit);}
-		Length (double val, const std::string &unit) {set(val, unit);}
-		Length (const std::string &len)              {set(len);}
+		Length (double val, Unit unit=PT)               {set(val, unit);}
+		Length (double val, const std::string &unitstr) {set(val, unitstr);}
+		Length (const std::string &lenstr)              {set(lenstr);}
 		void set (double val, Unit unit);
 		void set (double val, std::string unit);
-		void set (const std::string &len);
-
+		void set (const std::string &lenstr);
 		double pt () const {return _pt;}
-		double in () const {return _pt/72.27;}
-		double bp () const {return in()*72;}
-		double cm () const {return in()*2.54;}
-		double mm () const {return cm()*10;}
-		double pc () const {return in()*12;}
+		double in () const {return _pt*pt2in;}
+		double bp () const {return _pt*pt2bp;}
+		double cm () const {return _pt*pt2cm;}
+		double mm () const {return _pt*pt2mm;}
+		double pc () const {return _pt*pt2pc;}
+		double dd () const {return _pt*pt2dd;}
+		double cc () const {return _pt*pt2cc;}
+		double sp () const {return _pt*pt2sp;}
+		double get (Unit unit) const;
+		std::string toString (Unit unit) const;
+
+		static Unit stringToUnit (const std::string &unitstr);
+		static std::string unitToString (Unit unit);
+
+	public:
+		static const double pt2bp;
+		static const double pt2in;
+		static const double pt2cm;
+		static const double pt2mm;
+		static const double pt2pc;
+		static const double pt2dd;
+		static const double pt2cc;
+		static const double pt2sp;
 
 	private:
-		double _pt;  // length in TeX point units
+		double _pt;  // length in TeX point units (72.27pt = 1in)
 };
 
 #endif

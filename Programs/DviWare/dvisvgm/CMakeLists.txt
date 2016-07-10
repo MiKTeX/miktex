@@ -62,6 +62,7 @@ set(libxxhash_sources
 )
 
 set(libdvisvgm_sources
+  source/src/AGLTable.h
   source/src/BasicDVIReader.cpp
   source/src/BasicDVIReader.h
   source/src/Bezier.cpp
@@ -72,17 +73,19 @@ set(libdvisvgm_sources
   source/src/Bitmap.h
   source/src/BoundingBox.cpp
   source/src/BoundingBox.h
-  source/src/Calculator.cpp
-  source/src/Calculator.h
-  source/src/Character.h
-  source/src/CharMapID.cpp
-  source/src/CharMapID.h
   source/src/CMap.cpp
   source/src/CMap.h
   source/src/CMapManager.cpp
   source/src/CMapManager.h
   source/src/CMapReader.cpp
   source/src/CMapReader.h
+  source/src/CRC32.cpp
+  source/src/CRC32.h
+  source/src/Calculator.cpp
+  source/src/Calculator.h
+  source/src/CharMapID.cpp
+  source/src/CharMapID.h
+  source/src/Character.h
   source/src/CmdLineParserBase.cpp
   source/src/CmdLineParserBase.h
   source/src/Color.cpp
@@ -91,30 +94,28 @@ set(libdvisvgm_sources
   source/src/ColorSpecialHandler.h
   source/src/CommandLine.cpp
   source/src/CommandLine.h
-  source/src/CRC32.cpp
-  source/src/CRC32.h
-  source/src/DependencyGraph.h
-  source/src/Directory.cpp
-  source/src/Directory.h
   source/src/DLLoader.cpp
   source/src/DLLoader.h
   source/src/DVIActions.h
   source/src/DVIReader.cpp
   source/src/DVIReader.h
-  source/src/DvisvgmSpecialHandler.cpp
-  source/src/DvisvgmSpecialHandler.h
   source/src/DVIToSVG.cpp
   source/src/DVIToSVG.h
   source/src/DVIToSVGActions.cpp
   source/src/DVIToSVGActions.h
-  source/src/EmSpecialHandler.cpp
-  source/src/EmSpecialHandler.h
-  source/src/EncFile.cpp
-  source/src/EncFile.h
+  source/src/DependencyGraph.h
+  source/src/Directory.cpp
+  source/src/Directory.h
+  source/src/DvisvgmSpecialHandler.cpp
+  source/src/DvisvgmSpecialHandler.h
   source/src/EPSFile.cpp
   source/src/EPSFile.h
   source/src/EPSToSVG.cpp
   source/src/EPSToSVG.h
+  source/src/EmSpecialHandler.cpp
+  source/src/EmSpecialHandler.h
+  source/src/EncFile.cpp
+  source/src/EncFile.h
   source/src/FileFinder.cpp
   source/src/FileFinder.h
   source/src/FilePath.cpp
@@ -157,7 +158,6 @@ set(libdvisvgm_sources
   source/src/JFM.h
   source/src/Length.cpp
   source/src/Length.h
-  source/src/macros.h
   source/src/MapLine.cpp
   source/src/MapLine.h
   source/src/Matrix.cpp
@@ -170,11 +170,20 @@ set(libdvisvgm_sources
   source/src/NoPsSpecialHandler.cpp
   source/src/NoPsSpecialHandler.h
   source/src/NumericRanges.h
+  source/src/PSFilter.h
+  source/src/PSInterpreter.cpp
+  source/src/PSInterpreter.h
+  source/src/PSPattern.cpp
+  source/src/PSPattern.h
+  source/src/PSPreviewFilter.cpp
+  source/src/PSPreviewFilter.h
   source/src/PageRanges.cpp
   source/src/PageRanges.h
   source/src/PageSize.cpp
   source/src/PageSize.h
   source/src/Pair.h
+  source/src/PapersizeSpecialHandler.cpp
+  source/src/PapersizeSpecialHandler.h
   source/src/PathClipper.cpp
   source/src/PathClipper.h
   source/src/PdfSpecialHandler.cpp
@@ -183,18 +192,24 @@ set(libdvisvgm_sources
   source/src/PreScanDVIReader.h
   source/src/Process.cpp
   source/src/Process.h
-  source/src/psdefs.cpp
-  source/src/PSFilter.h
-  source/src/PSInterpreter.cpp
-  source/src/PSInterpreter.h
-  source/src/PSPattern.cpp
-  source/src/PSPattern.h
-  source/src/PSPreviewFilter.cpp
-  source/src/PSPreviewFilter.h
   source/src/PsSpecialHandler.cpp
   source/src/PsSpecialHandler.h
   source/src/RangeMap.cpp
   source/src/RangeMap.h
+  source/src/SVGCharHandler.cpp
+  source/src/SVGCharHandler.h
+  source/src/SVGCharHandlerFactory.cpp
+  source/src/SVGCharHandlerFactory.h
+  source/src/SVGCharPathHandler.cpp
+  source/src/SVGCharPathHandler.h
+  source/src/SVGCharTspanTextHandler.cpp
+  source/src/SVGCharTspanTextHandler.h
+  source/src/SVGOutput.cpp
+  source/src/SVGOutput.h
+  source/src/SVGSingleCharTextHandler.cpp
+  source/src/SVGSingleCharTextHandler.h
+  source/src/SVGTree.cpp
+  source/src/SVGTree.h
   source/src/ShadingPatch.cpp
   source/src/ShadingPatch.h
   source/src/SignalHandler.cpp
@@ -209,38 +224,36 @@ set(libdvisvgm_sources
   source/src/StreamWriter.h
   source/src/Subfont.cpp
   source/src/Subfont.h
-  source/src/SVGOutput.cpp
-  source/src/SVGOutput.h
-  source/src/SVGTree.cpp
-  source/src/SVGTree.h
   source/src/System.cpp
   source/src/System.h
+  source/src/TFM.cpp
+  source/src/TFM.h
   source/src/TensorProductPatch.cpp
   source/src/TensorProductPatch.h
   source/src/Terminal.cpp
   source/src/Terminal.h
-  source/src/TFM.cpp
-  source/src/TFM.h
   source/src/ToUnicodeMap.cpp
   source/src/ToUnicodeMap.h
   source/src/TpicSpecialHandler.cpp
   source/src/TpicSpecialHandler.h
   source/src/TriangularPatch.cpp
   source/src/TriangularPatch.h
-  source/src/types.h
   source/src/Unicode.cpp
   source/src/Unicode.h
-  source/src/VectorIterator.h
-  source/src/VectorStream.h
   source/src/VFActions.h
   source/src/VFReader.cpp
   source/src/VFReader.h
+  source/src/VectorIterator.h
+  source/src/VectorStream.h
   source/src/XMLDocument.cpp
   source/src/XMLDocument.h
   source/src/XMLNode.cpp
   source/src/XMLNode.h
   source/src/XMLString.cpp
   source/src/XMLString.h
+  source/src/macros.h
+  source/src/psdefs.cpp
+  source/src/types.h
 )
 
 set(dvisvgm_c_sources

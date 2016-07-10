@@ -86,9 +86,9 @@ class GraphicsPath
 			virtual void lineto (const Point &p) {}
 			virtual void hlineto (const T &y) {}
 			virtual void vlineto (const T &x) {}
-			virtual void sconicto (const Point &p) {}
+			virtual void conicto (const Point &p) {}
 			virtual void conicto (const Point &p1, const Point &p2) {}
-			virtual void scubicto (const Point &p1, const Point &p2) {}
+			virtual void cubicto (const Point &p1, const Point &p2) {}
 			virtual void cubicto (const Point &p1, const Point &p2, const Point &p3) {}
 			virtual void closepath () {}
 			virtual void draw (char cmd, const Point *points, int n) {}
@@ -339,7 +339,7 @@ class GraphicsPath
  *  curve commands that require less parameters. If 'optimize' is true, this method detects such
  *  command sequences.
  *  @param[in] actions template methods called by each iteration step
- *  @param[in] optimize if true, shorthand drawing commands (sconicto, scubicto,...) are considered */
+ *  @param[in] optimize if true, shorthand drawing commands (hlineto, vlineto,...) are considered */
 template <typename T>
 void GraphicsPath<T>::iterate (Actions &actions, bool optimize) const {
 	ConstIterator prev = _commands.end();  // pointer to preceding command
@@ -376,7 +376,7 @@ void GraphicsPath<T>::iterate (Actions &actions, bool optimize) const {
 				break;
 			case Command::CONICTO:
 				if (optimize && prev != _commands.end() && prev->type == Command::CONICTO && params[0] == pstore[1]*T(2)-pstore[0]) {
-					actions.sconicto(params[1]);
+					actions.conicto(params[1]);
 					actions.draw('T', params+1, 1);
 				}
 				else {
@@ -389,7 +389,7 @@ void GraphicsPath<T>::iterate (Actions &actions, bool optimize) const {
 			case Command::CUBICTO:
 				// is first control point reflection of preceding second control point?
 				if (optimize && prev != _commands.end() && prev->type == Command::CUBICTO && params[0] == pstore[1]*T(2)-pstore[0]) {
-					actions.scubicto(params[1], params[2]);
+					actions.cubicto(params[1], params[2]);
 					actions.draw('S', params+1, 2);
 				}
 				else {

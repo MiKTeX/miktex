@@ -34,9 +34,7 @@ PdfSpecialHandler::PdfSpecialHandler () : _maplineProcessed(false)
 }
 
 
-bool PdfSpecialHandler::process (const char *prefix, istream &is, SpecialActions *actions) {
-	if (!actions)
-		return true;
+bool PdfSpecialHandler::process (const char *prefix, istream &is, SpecialActions &actions) {
 	StreamInputReader ir(is);
 	ir.skipSpace();
 	string cmd = ir.getWord();

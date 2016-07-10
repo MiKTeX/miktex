@@ -49,7 +49,7 @@ class Terminal
 		static int _fgcolor;  ///< current foreground color
 		static int _bgcolor;  ///< current background color
 
-#ifdef __WIN32__
+#ifdef _WIN32
 		static int _defaultColor;
 		static int _cursorHeight;  ///< current height of the cursor in percent
 #endif

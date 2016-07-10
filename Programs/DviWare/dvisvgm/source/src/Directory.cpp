@@ -27,7 +27,7 @@ using namespace std;
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
 #else
-#ifdef __WIN32__
+#ifdef _WIN32
 	#include <windows.h>
 #else
 	#include <errno.h>
@@ -38,7 +38,7 @@ using namespace std;
 Directory::Directory () {
 #if defined(MIKTEX)
 #else
-#if __WIN32__
+#if _WIN32
 	handle = INVALID_HANDLE_VALUE;
 	firstread = true;
 	memset(&fileData, 0, sizeof(WIN32_FIND_DATA));
@@ -53,7 +53,7 @@ Directory::Directory () {
 Directory::Directory (string dirname) {
 #if defined(MIKTEX)
 #else
-#if __WIN32__
+#if _WIN32
 	handle = INVALID_HANDLE_VALUE;
 	firstread = true;
 	memset(&fileData, 0, sizeof(WIN32_FIND_DATA));
@@ -81,7 +81,7 @@ bool Directory::open (string dname) {
         directoryLister = MiKTeX::Core::DirectoryLister::Open(dname);
         return true;
 #else
-#ifdef __WIN32__
+#ifdef _WIN32
 	firstread = true;
 	if (dname[dname.length()-1] == '/' || dname[dname.length()-1] == '\\')
 		dname = dname.substr(0, dname.length()-1);
@@ -100,7 +100,7 @@ void Directory::close () {
 #if defined(MIKTEX)
   directoryLister->Close();
 #else
-#ifdef __WIN32__
+#ifdef _WIN32
 	FindClose(handle);
 #else
 	closedir(_dir);
@@ -136,7 +136,7 @@ const char* Directory::read (EntryType type) {
   directoryLister = nullptr;
   return nullptr;
 #else
-#ifdef __WIN32__
+#ifdef _WIN32
 	if (handle == INVALID_HANDLE_VALUE)
 		return 0;
 	while (firstread || FindNextFile(handle, &fileData)) {

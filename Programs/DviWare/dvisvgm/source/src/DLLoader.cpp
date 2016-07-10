@@ -29,7 +29,7 @@
 DLLoader::DLLoader (const char *dlname) : _handle(0)
 {
 	if (dlname && *dlname) {
-#ifdef __WIN32__
+#ifdef _WIN32
 #if defined(MIKTEX)
           _handle = LoadLibraryW(UW_(dlname));
 #else
@@ -44,7 +44,7 @@ DLLoader::DLLoader (const char *dlname) : _handle(0)
 
 DLLoader::~DLLoader () {
 	if (_handle) {
-#ifdef __WIN32__
+#ifdef _WIN32
 		FreeLibrary(_handle);
 #else
 		dlclose(_handle);
@@ -58,7 +58,7 @@ DLLoader::~DLLoader () {
  *  @return pointer to loaded symbol, or 0 if the symbol could not be loaded */
 void* DLLoader::loadSymbol (const char *name) {
 	if (_handle) {
-#ifdef __WIN32__
+#ifdef _WIN32
 		return (void*)GetProcAddress(_handle, name);
 #else
 		return dlsym(_handle, name);

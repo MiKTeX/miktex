@@ -36,9 +36,9 @@ string PSPattern::svgID () const {
 
 
 /** Appends the definition of this pattern to the "def" section of the SVG tree. */
-void PSPattern::apply (SpecialActions *actions) {
+void PSPattern::apply (SpecialActions &actions) {
 	if (XMLElementNode *pattern = createPatternNode())
-		actions->appendToDefs(pattern);
+		actions.appendToDefs(pattern);
 }
 
 
@@ -107,7 +107,7 @@ XMLElementNode* PSTilingPattern::createGroupNode () const {
 }
 
 
-void PSTilingPattern::apply (SpecialActions *actions) {
+void PSTilingPattern::apply (SpecialActions &actions) {
 	PSPattern::apply(actions);
 	_groupNode = 0;
 }
@@ -145,7 +145,7 @@ string PSUncoloredTilingPattern::svgID () const {
 
 /** Appends the definition of this pattern with the current color applied
  *  to the "def" section of the SVG tree. */
-void PSUncoloredTilingPattern::apply (SpecialActions* actions) {
+void PSUncoloredTilingPattern::apply (SpecialActions &actions) {
 	set<Color>::iterator it=_colors.find(_currentColor);
 	if (it == _colors.end()) {
 		if (_applied)

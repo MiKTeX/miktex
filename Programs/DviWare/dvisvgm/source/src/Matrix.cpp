@@ -30,8 +30,6 @@
 
 using namespace std;
 
-
-
 /** Computes the determinant of a given matrix */
 double det (const Matrix &m) {
 	double sum=0;
@@ -332,8 +330,7 @@ bool Matrix::isTranslation (double &tx, double &ty) const {
  *  @param[in] leadingComma true if first non-blank must be a comma
  *  @return value of argument */
 static double getArgument (istream &is, Calculator &calc, double def, bool optional, bool leadingComma) {
-	while (isspace(is.peek()))
-		is.get();
+	is >> ws;
 	if (!optional && leadingComma && is.peek() != ',')
 		throw ParserException("',' expected");
 	if (is.peek() == ',') {
@@ -341,7 +338,7 @@ static double getArgument (istream &is, Calculator &calc, double def, bool optio
 		optional = false; // now we expect a parameter
 	}
 	string expr;
-	while (is && !isupper(is.peek()) && is.peek() != ',')
+	while (!isupper(is.peek()) && is.peek() != ',' && is)
 		expr += (char)is.get();
 	if (expr.length() == 0) {
 		if (optional)
@@ -356,8 +353,7 @@ static double getArgument (istream &is, Calculator &calc, double def, bool optio
 Matrix& Matrix::parse (istream &is, Calculator &calc) {
 	*this = Matrix(1);
 	while (is) {
-		while (isspace(is.peek()))
-			is.get();
+		is >> ws;
 		int cmd = is.get();
 		switch (cmd) {
 			case 'T': {
@@ -418,7 +414,7 @@ Matrix& Matrix::parse (istream &is, Calculator &calc) {
 			}
 			default:
 				ostringstream oss;
-				oss << "transformation command expected (found '" << cmd << "' instead)";
+				oss << "transformation command expected (found '" << char(cmd) << "' instead)";
 				throw ParserException(oss.str());
 		}
 	}
@@ -487,5 +483,4 @@ RotationMatrix::RotationMatrix (double deg) {
 	double v[] = {c, -s, 0, s, c};
 	set(v, 5);
 }
-
 

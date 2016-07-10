@@ -33,7 +33,7 @@
 	#include "iapi.h"
 #endif
 
-#if defined(__WIN32__) && !defined(_Windows)
+#if defined(_WIN32) && !defined(_Windows)
 	#define _Windows
 #endif
 

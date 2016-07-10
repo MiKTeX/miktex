@@ -41,7 +41,7 @@ static string& single_slashes (string &str) {
 }
 
 
-#ifdef __WIN32__
+#ifdef _WIN32
 static char strip_drive_letter (string &path) {
 	char letter = 0;
 	if (path.length() >= 2 && path[1] == ':' && isalpha(path[0])) {
@@ -107,7 +107,7 @@ FilePath::FilePath (const string &path, bool isfile, string current_dir) {
 void FilePath::init (string path, bool isfile, string current_dir) {
 	single_slashes(path);
 	single_slashes(current_dir);
-#ifdef __WIN32__
+#ifdef _WIN32
 	tolower(path);
 	path = FileSystem::adaptPathSeperators(path);
 	_drive = strip_drive_letter(path);
@@ -122,7 +122,7 @@ void FilePath::init (string path, bool isfile, string current_dir) {
 	}
 	if (current_dir.empty())
 		current_dir = FileSystem::getcwd();
-#ifdef __WIN32__
+#ifdef _WIN32
 	tolower(current_dir);
 	_drive = adapt_current_path(current_dir, _drive);
 #endif
@@ -134,7 +134,7 @@ void FilePath::init (string path, bool isfile, string current_dir) {
 		else {
 			FilePath curr(current_dir, false, "/");
 			current_dir = curr.absolute();
-#ifdef __WIN32__
+#ifdef _WIN32
 			adapt_current_path(current_dir, _drive);
 #endif
 		}
@@ -216,7 +216,7 @@ string FilePath::absolute (bool with_filename) const {
 		path = "/";
 	if (with_filename && !_fname.empty())
 		path += "/"+_fname;
-#ifdef __WIN32__
+#ifdef _WIN32
 	if (_drive)
 		path.insert(0, string(1, _drive) + ":");
 #endif
@@ -234,14 +234,14 @@ string FilePath::absolute (bool with_filename) const {
 string FilePath::relative (string reldir, bool with_filename) const {
 	if (reldir.empty())
 		reldir = FileSystem::getcwd();
-#ifdef __WIN32__
+#ifdef _WIN32
 	adapt_current_path(reldir, _drive);
 #endif
 	if (reldir[0] != '/')
 		return absolute();
 	FilePath rel(reldir, false);
 	string path;
-#ifdef __WIN32__
+#ifdef _WIN32
 	if (rel._drive && _drive && rel._drive != _drive)
 		path += string(1, _drive) + ":";
 #endif

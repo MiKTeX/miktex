@@ -20,17 +20,10 @@
 
 #include <config.h>
 #include <fstream>
+#include <potracelib.h>
 #include "GFTracer.h"
 #include "Glyph.h"
 #include "Message.h"
-
-#ifdef __MSVC__
-#include <potracelib.h>
-#else
-extern "C" {
-#include <potracelib.h>
-}
-#endif
 
 using namespace std;
 

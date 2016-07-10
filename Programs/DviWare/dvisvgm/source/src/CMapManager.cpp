@@ -24,6 +24,7 @@
 #include "CMapManager.h"
 #include "CMapReader.h"
 #include "FileFinder.h"
+#include "Font.h"
 #include "Message.h"
 
 using namespace std;

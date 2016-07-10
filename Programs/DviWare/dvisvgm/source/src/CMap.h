@@ -89,8 +89,8 @@ class SegmentedCMap : public CMap
 	friend class CMapReader;
 
 	public:
-		SegmentedCMap (const std::string &name) : _name(name), _basemap(0), _vertical(false), _mapsToCID(true) {}
-		const char* name () const {return _name.c_str();}
+		SegmentedCMap (const std::string &fname) : _filename(fname), _basemap(0), _vertical(false), _mapsToCID(true) {}
+		const char* name () const {return _filename.c_str();}
 		UInt32 cid (UInt32 c) const;
 		UInt32 bfcode (UInt32 cid) const;
 		void addCIDRange (UInt32 first, UInt32 last, UInt32 cid)    {_cidranges.addRange(first, last, cid);}
@@ -103,7 +103,7 @@ class SegmentedCMap : public CMap
 		std::string getROString () const;
 
 	private:
-		std::string _name;
+		std::string _filename;
 		std::string _registry;
 		std::string _ordering;
 		CMap *_basemap;

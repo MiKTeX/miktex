@@ -54,41 +54,41 @@ struct GlyphMetrics
 
 
 /** Abstract base for all font classes. */
-struct Font {
-	virtual ~Font () {}
-	virtual Font* clone (double ds, double sc) const =0;
-	virtual const Font* uniqueFont () const =0;
-	virtual std::string name () const =0;
-	virtual double designSize () const =0;
-	virtual double scaledSize () const =0;
-	virtual double scaleFactor () const     {return scaledSize()/designSize();}
-	virtual double charWidth (int c) const =0;
-	virtual double charDepth (int c) const =0;
-	virtual double charHeight (int c) const =0;
-	virtual double italicCorr (int c) const =0;
-	virtual const FontMetrics* getMetrics () const =0;
-	virtual const char* path () const =0;
-	virtual const char* filename () const;
-	virtual const FontEncoding* encoding () const;
-	virtual bool getGlyph (int c, Glyph &glyph, GFGlyphTracer::Callback *cb=0) const =0;
-	virtual void getGlyphMetrics (int c, bool vertical, GlyphMetrics &metrics) const;
-	virtual UInt32 unicode (UInt32 c) const;
-	virtual void tidy () const {}
-	virtual bool findAndAssignBaseFontMap () {return true;}
-	virtual bool verticalLayout () const     {return getMetrics() ? getMetrics()->verticalLayout() : false;}
-	virtual bool verifyChecksums () const    {return true;}
-	virtual int fontIndex () const           {return 0;}
-	virtual const FontStyle* style () const  {return 0;}
-	virtual Color color () const             {return Color::BLACK;}
-	virtual const FontMap::Entry* fontMapEntry () const;
+class Font {
+	public:
+		virtual ~Font () {}
+		virtual Font* clone (double ds, double sc) const =0;
+		virtual const Font* uniqueFont () const =0;
+		virtual std::string name () const =0;
+		virtual double designSize () const =0;
+		virtual double scaledSize () const =0;
+		virtual double scaleFactor () const     {return scaledSize()/designSize();}
+		virtual double charWidth (int c) const =0;
+		virtual double charDepth (int c) const =0;
+		virtual double charHeight (int c) const =0;
+		virtual double italicCorr (int c) const =0;
+		virtual const FontMetrics* getMetrics () const =0;
+		virtual const char* path () const =0;
+		virtual const char* filename () const;
+		virtual const FontEncoding* encoding () const;
+		virtual bool getGlyph (int c, Glyph &glyph, GFGlyphTracer::Callback *cb=0) const =0;
+		virtual void getGlyphMetrics (int c, bool vertical, GlyphMetrics &metrics) const;
+		virtual UInt32 unicode (UInt32 c) const;
+		virtual void tidy () const {}
+		virtual bool findAndAssignBaseFontMap () {return true;}
+		virtual bool verticalLayout () const     {return getMetrics() ? getMetrics()->verticalLayout() : false;}
+		virtual bool verifyChecksums () const    {return true;}
+		virtual int fontIndex () const           {return 0;}
+		virtual const FontStyle* style () const  {return 0;}
+		virtual Color color () const             {return Color::BLACK;}
+		virtual const FontMap::Entry* fontMapEntry () const;
 };
 
 
 /** Empty font without any glyphs. Instances of this class are used
  *  if no physical or virtual font file can be found.
  *  The metric values returned by the member functions are based on cmr10. */
-struct EmptyFont : public Font
-{
+class EmptyFont : public Font {
 	public:
 		EmptyFont (std::string name) : _fontname(name) {}
 		Font* clone (double ds, double sc) const  {return new EmptyFont(*this);}
@@ -110,8 +110,7 @@ struct EmptyFont : public Font
 
 
 /** Interface for all physical fonts. */
-class PhysicalFont : public virtual Font
-{
+class PhysicalFont : public virtual Font {
 	public:
 		enum Type {MF, OTF, PFB, TTC, TTF, UNKNOWN};
 
@@ -154,8 +153,7 @@ class PhysicalFont : public virtual Font
 
 
 /** Interface for all virtual fonts. */
-class VirtualFont : public virtual Font
-{
+class VirtualFont : public virtual Font {
 	friend class FontManager;
 	public:
 		typedef std::vector<UInt8> DVIVector;
@@ -170,8 +168,7 @@ class VirtualFont : public virtual Font
 };
 
 
-class TFMFont : public virtual Font
-{
+class TFMFont : public virtual Font {
 	public:
 		TFMFont (std::string name, UInt32 checksum, double dsize, double ssize);
 		~TFMFont ();
@@ -194,8 +191,7 @@ class TFMFont : public virtual Font
 };
 
 
-class PhysicalFontProxy : public PhysicalFont
-{
+class PhysicalFontProxy : public PhysicalFont {
 	friend class PhysicalFontImpl;
 	public:
 		Font* clone (double ds, double sc) const    {return new PhysicalFontProxy(*this, ds, sc);}
@@ -228,8 +224,7 @@ class PhysicalFontProxy : public PhysicalFont
 };
 
 
-class PhysicalFontImpl : public PhysicalFont, public TFMFont
-{
+class PhysicalFontImpl : public PhysicalFont, public TFMFont {
 	friend class PhysicalFont;
 	public:
 		~PhysicalFontImpl();
@@ -258,8 +253,7 @@ class PhysicalFontImpl : public PhysicalFont, public TFMFont
 };
 
 
-class NativeFont : public PhysicalFont
-{
+class NativeFont : public PhysicalFont {
 	public:
 		virtual NativeFont* clone (double ptsize, const FontStyle &style, Color color) const =0;
 		virtual Font* clone (double ds, double sc) const =0;
@@ -287,8 +281,7 @@ class NativeFont : public PhysicalFont
 };
 
 
-class NativeFontProxy : public NativeFont
-{
+class NativeFontProxy : public NativeFont {
 	friend class NativeFontImpl;
 	public:
 		NativeFont* clone (double ptsize, const FontStyle &style, Color color) const {
@@ -312,8 +305,7 @@ class NativeFontProxy : public NativeFont
 };
 
 
-class NativeFontImpl : public NativeFont
-{
+class NativeFontImpl : public NativeFont {
 	public:
 		NativeFontImpl (const std::string &fname, int fontIndex, double ptsize, const FontStyle &style, Color color)
 			: NativeFont(ptsize, style, color), _path(fname), _fontIndex(fontIndex) {}
@@ -339,8 +331,7 @@ class NativeFontImpl : public NativeFont
 };
 
 
-class VirtualFontProxy : public VirtualFont
-{
+class VirtualFontProxy : public VirtualFont {
 	friend class VirtualFontImpl;
 	public:
 		Font* clone (double ds, double ss) const {return new VirtualFontProxy(*this, ds, ss);}
@@ -368,8 +359,7 @@ class VirtualFontProxy : public VirtualFont
 };
 
 
-class VirtualFontImpl : public VirtualFont, public TFMFont
-{
+class VirtualFontImpl : public VirtualFont, public TFMFont {
 	friend class VirtualFont;
 	public:
 		~VirtualFontImpl ();

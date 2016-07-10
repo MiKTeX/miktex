@@ -29,17 +29,17 @@
 class BgColorSpecialHandler : public SpecialHandler, public DVIBeginPageListener
 {
 	public:
-		BgColorSpecialHandler () : _actions(0) {}
-		void preprocess (const char *prefix, std::istream &is, SpecialActions *actions);
-		bool process (const char *prefix, std::istream &is, SpecialActions *actions);
-		void dviBeginPage (unsigned pageno);
+		void preprocess (const char *prefix, std::istream &is, SpecialActions &actions);
+		bool process (const char *prefix, std::istream &is, SpecialActions &actions);
 		const char* info () const   {return "background color special";}
 		const char* name () const   {return "bgcolor";}
 		const char**  prefixes () const;
 
+	protected:
+		void dviBeginPage (unsigned pageno, SpecialActions &actions);
+
 	private:
 		typedef std::pair<unsigned,Color> PageColor;  // page number and color
-		SpecialActions *_actions;
 		std::vector<PageColor> _pageColors;
 };
 

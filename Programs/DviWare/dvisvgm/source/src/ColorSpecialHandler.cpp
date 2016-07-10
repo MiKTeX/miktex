@@ -92,7 +92,7 @@ Color ColorSpecialHandler::readColor (istream &is) {
 }
 
 
-bool ColorSpecialHandler::process (const char*, istream &is, SpecialActions *actions) {
+bool ColorSpecialHandler::process (const char *, istream &is, SpecialActions &actions) {
 	string cmd;
 	is >> cmd;
 	if (cmd == "push")               // color push <model> <params>
@@ -106,12 +106,10 @@ bool ColorSpecialHandler::process (const char*, istream &is, SpecialActions *act
 			_colorStack.pop();
 		_colorStack.push(readColor(cmd, is));
 	}
-	if (actions) {
-		if (_colorStack.empty())
-			actions->setColor(Color::BLACK);
-		else
-			actions->setColor(_colorStack.top());
-	}
+	if (_colorStack.empty())
+		actions.setColor(Color::BLACK);
+	else
+		actions.setColor(_colorStack.top());
 	return true;
 }
 

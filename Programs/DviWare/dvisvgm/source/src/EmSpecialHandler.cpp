@@ -23,6 +23,7 @@
 #include "EmSpecialHandler.h"
 #include "InputBuffer.h"
 #include "InputReader.h"
+#include "Length.h"
 #include "SpecialActions.h"
 #include "XMLNode.h"
 #include "XMLString.h"
@@ -30,7 +31,7 @@
 using namespace std;
 
 
-EmSpecialHandler::EmSpecialHandler () : _linewidth(0.4*72/72.27), _actions(0) {
+EmSpecialHandler::EmSpecialHandler () : _linewidth(0.4*72/72.27) {
 }
 
 
@@ -40,24 +41,31 @@ EmSpecialHandler::EmSpecialHandler () : _linewidth(0.4*72/72.27), _actions(0) {
  *  a horizontal, vertical or orthogonal cut of a line end. Depending on c and the
  *  line's slope a cut vector v can be computed that, relatively to endpoint p, denotes
  *  the 2 vertices of that line end: v1=p+v and v2=p-v.
- *  @param[in] c cut direction ('h', 'v' or 'p')
- *  @param[in] v direction vector of line to be drawn
+ *  @param[in] cuttype character identifying the cut direction ('h', 'v' or 'p')
+ *  @param[in] linedir direction vector of line to be drawn
  *  @param[in] lw width of line to be drawn
  *  @return the "cut vector" */
-static DPair cut_vector (char c, const DPair &v, double lw) {
-	if (c == 'p')
-		return v.ortho()/v.length() * (lw/2);
+static DPair cut_vector (char cuttype, const DPair &linedir, double linewidth) {
 	DPair cut;
-	if (c == 'v' && v.x() != 0) {
-		double slope = v.y()/v.x();
-		double h = sqrt(lw*lw*(1+slope*slope));
-		cut.y(0.5*h);
-	}
-	else if (v.y() != 0) {  // c == 'h'
-		double slope = v.x()/v.y();
-		double h = sqrt(lw*lw*(1+slope*slope));
-		double sgn = slope < 0 ? 1.0 : -1.0;
-		cut.x(0.5*h*sgn);
+	switch (cuttype) {
+		case 'v':  // vertical
+			if (linedir.x() != 0) {
+				double slope = linedir.y()/linedir.x();
+				double h = sqrt(linewidth*linewidth*(1+slope*slope));
+				cut.y(h/2);
+			}
+			break;
+		case 'h':  // horizontal
+			if (linedir.y() != 0) {
+				double slope = linedir.x()/linedir.y();
+				double h = sqrt(linewidth*linewidth*(1+slope*slope));
+				double sgn = slope < 0 ? 1.0 : -1.0;
+				cut.x(h*sgn/2);
+			}
+			break;
+		default: // c == 'p': perpendicular to the line vector
+			if (linedir.x() != 0 && linedir.y() != 0)
+				return linedir.ortho()/linedir.length() * (linewidth/2);
 	}
 	return cut;
 }
@@ -70,7 +78,7 @@ static DPair cut_vector (char c, const DPair &v, double lw) {
  * @param[in] c2 cut method of second endpoint ('h', 'v' or 'p')
  * @param[in] lw line width in PS point units
  * @param[in] actions object providing the actions that can be performed by the SpecialHandler */
-static void create_line (const DPair &p1, const DPair &p2, char c1, char c2, double lw, SpecialActions *actions) {
+static void create_line (const DPair &p1, const DPair &p2, char c1, char c2, double lw, SpecialActions &actions) {
 	XMLElementNode *node=0;
 	DPair dir = p2-p1;
 	if (dir.x() == 0 || dir.y() == 0 || (c1 == 'p' && c2 == 'p')) {
@@ -81,10 +89,13 @@ static void create_line (const DPair &p1, const DPair &p2, char c1, char c2, dou
 		node->addAttribute("x2", p2.x());
 		node->addAttribute("y2", p2.y());
 		node->addAttribute("stroke-width", lw);
-		node->addAttribute("stroke", actions->getColor().svgColorString());
+		node->addAttribute("stroke", actions.getColor().svgColorString());
 		// update bounding box
-		actions->embed(p1);
-		actions->embed(p2);
+		DPair cv = cut_vector('p', dir, lw);
+		actions.embed(p1+cv);
+		actions.embed(p1-cv);
+		actions.embed(p2+cv);
+		actions.embed(p2-cv);
 	}
 	else {
 		// draw polygon
@@ -92,56 +103,45 @@ static void create_line (const DPair &p1, const DPair &p2, char c1, char c2, dou
 		DPair cv2 = cut_vector(c2, dir, lw);
 		DPair q11 = p1+cv1, q12 = p1-cv1;
 		DPair q21 = p2+cv2, q22 = p2-cv2;
-		node = new XMLElementNode("polygon");
 		ostringstream oss;
 		oss << XMLString(q11.x()) << ',' << XMLString(q11.y()) << ' '
 			 << XMLString(q12.x()) << ',' << XMLString(q12.y()) << ' '
 			 << XMLString(q22.x()) << ',' << XMLString(q22.y()) << ' '
 			 << XMLString(q21.x()) << ',' << XMLString(q21.y());
+		node = new XMLElementNode("polygon");
 		node->addAttribute("points", oss.str());
-		if (actions->getColor() != Color::BLACK)
-			node->addAttribute("fill", actions->getColor().svgColorString());
+		if (actions.getColor() != Color::BLACK)
+			node->addAttribute("fill", actions.getColor().svgColorString());
 		// update bounding box
-		actions->embed(q11);
-		actions->embed(q12);
-		actions->embed(q21);
-		actions->embed(q22);
+		actions.embed(q11);
+		actions.embed(q12);
+		actions.embed(q21);
+		actions.embed(q22);
 	}
-	actions->appendToPage(node);
+	actions.appendToPage(node);
 }
 
 
+/** Reads a length (value + unit) and returns its value in PS points (bp).
+ *  If no unit is specified, TeX points are assumed. */
 static double read_length (InputReader &in) {
-	struct Unit {
-		const char *name;
-		double factor;
+	double val = in.getDouble();
+	string unitstr;
+	if (isalpha(in.peek())) unitstr += in.get();
+	if (isalpha(in.peek())) unitstr += in.get();
+	Length::Unit unit = Length::PT;
+	try {
+		unit = Length::stringToUnit(unitstr);
 	}
-	units[] = {
-		{"pt", 1.0},
-		{"pc", 12.0},
-		{"in", 72.27},
-		{"bp", 72.27/72},
-		{"cm", 72.27/2.54},
-		{"mm", 72.27/25.4},
-		{"dd", 1238.0/1157},
-		{"cc", 1238.0/1157*12},
-		{"sp", 1.0/65536},
-		{0, 0}
-	};
-	double len = in.getDouble();
-	in.skipSpace();
-	for (Unit *p=units; p->name; p++)
-		if (in.check(p->name)) {
-			len *= p->factor;
-			break;
-		}
-	return len*72/72.27;
+	catch (UnitException &e) {
+	}
+	return Length(val, unit).bp();
 }
 
 
-bool EmSpecialHandler::process (const char *prefix, istream &is, SpecialActions *actions) {
-	// em:moveto => move graphic cursor to dvi cursor
-	// em:lineto => draw line from graphic cursor to dvi cursor, move graphic cursor to dvi cursor
+bool EmSpecialHandler::process (const char *prefix, istream &is, SpecialActions &actions) {
+	// em:moveto => move graphic cursor to dvi position
+	// em:lineto => draw line from graphic cursor to dvi cursor, then move graphic cursor to dvi position
 	// em:linewidth <w> => set line width to <w>
 	// em:point <n>[,<x>[,<y>]] => defines point <n> as (<x>,<y>); if <x> and/or <y> is missing,
 	//                             the corresponding dvi cursor coordinate is inserted
@@ -155,71 +155,103 @@ bool EmSpecialHandler::process (const char *prefix, istream &is, SpecialActions 
 	//
 	// supported length units: pt, pc, in, bp, cm, mm, dd, cc, sp
 	// default line width: 0.4pt
+	struct Command {
+		const char *name;
+		void (EmSpecialHandler::*handler)(InputReader&, SpecialActions&);
+	} commands[] = {
+		{"point",     &EmSpecialHandler::point},
+		{"line",      &EmSpecialHandler::line},
+		{"moveto",    &EmSpecialHandler::moveto},
+		{"lineto",    &EmSpecialHandler::lineto},
+		{"linewidth", &EmSpecialHandler::linewidth},
+		{0, 0}
+	};
 
-	if (actions) {
-		_actions = actions;  // save pointer to SpecialActions for later use in endPage
-		StreamInputBuffer ib(is, 128);
-		BufferInputReader in(ib);
-		string cmd = in.getWord();
-		if (cmd == "moveto")
-			_pos = DPair(actions->getX(), actions->getY());
-		else if (cmd == "lineto") {
-			DPair p(actions->getX(), actions->getY());
-			create_line(_pos, p, 'p', 'p', _linewidth, actions);
-			_pos = p;
-		}
-		else if (cmd == "linewidth")
-			_linewidth = read_length(in);
-		else if (cmd == "point") {
-			DPair p(actions->getX(), actions->getY());
-			int n = in.getInt();
-			if (in.getPunct() == ',') {
-				p.x(in.getDouble());
-				if (in.getPunct() == ',')
-					p.y(in.getDouble());
-			}
-			_points[n] = p;
-		}
-		else if (cmd == "line") {
-			int n1 = in.getInt();
-			int c1 = 'p';
-			if (isalpha(in.peek()))
-				c1 = in.get();
-			in.getPunct();
-			int n2 = in.getInt();
-			int c2 = 'p';
-			if (isalpha(in.peek()))
-				c2 = in.get();
-			double lw = _linewidth;
-			if (in.getPunct() == ',')
-				lw = read_length(in);
-			map<int,DPair>::iterator it1=_points.find(n1);
-			map<int,DPair>::iterator it2=_points.find(n2);
-			if (it1 != _points.end() && it2 != _points.end())
-				create_line(it1->second, it2->second, char(c1), char(c2), lw, actions);
-			else {
-				// Line endpoints havn't necessarily to be defined before
-				// a line definition. If a point wasn't defined yet we push the line
-				// in a wait list and process the lines at the end of the page.
-				_lines.push_back(Line(n1, n2, char(c1), char(c2), lw));
-			}
+	StreamInputReader ir(is);
+	string cmdstr = ir.getWord();
+	for (Command *cmd=commands; cmd->name; cmd++) {
+		if (cmdstr == cmd->name) {
+			(this->*cmd->handler)(ir, actions);
+			break;
 		}
 	}
 	return true;
 }
 
 
+/** Handles the "moveto" command that sets the drawing position to the current DVI position. */
+void EmSpecialHandler::moveto (InputReader&, SpecialActions &actions) {
+	_pos.x(actions.getX());
+	_pos.y(actions.getY());
+}
+
+
+/** Handles the "lineto" command that sraws a straight line from the current drawing position
+ *  to the current DVI position, and sets the drawing position to the DVI position afterwards. */
+void EmSpecialHandler::lineto (InputReader&, SpecialActions &actions) {
+	DPair currpos(actions.getX(), actions.getY());
+	create_line(_pos, currpos, 'p', 'p', _linewidth, actions);
+	_pos = currpos;
+}
+
+
+/** Handles the "linewidth" command that changes the line width which affects all following
+ *  drawing commands. */
+void EmSpecialHandler::linewidth (InputReader &ir, SpecialActions&) {
+	_linewidth = read_length(ir);
+}
+
+
+/** Handles the "point" command that adds a point to the point list. */
+void EmSpecialHandler::point (InputReader &ir, SpecialActions &actions) {
+	DPair pos(actions.getX(), actions.getY());
+	int n = ir.getInt();
+	if (ir.getPunct() == ',') {
+		pos.x(ir.getDouble());
+		if (ir.getPunct() == ',')
+			pos.y(ir.getDouble());
+	}
+	_points[n] = pos;
+}
+
+
+/** Handles the "line" command that draws a straight line between two points
+ *  from the point list. */
+void EmSpecialHandler::line (InputReader &ir, SpecialActions& actions) {
+	int pointnum1 = ir.getInt();
+	int cut1 = 'p';
+	if (isalpha(ir.peek()))
+		cut1 = ir.get();
+	ir.getPunct();
+	int pointnum2 = ir.getInt();
+	int cut2 = 'p';
+	if (isalpha(ir.peek()))
+		cut2 = ir.get();
+	double linewidth = _linewidth;
+	if (ir.getPunct() == ',')
+		linewidth = read_length(ir);
+	map<int,DPair>::iterator it1=_points.find(pointnum1);
+	map<int,DPair>::iterator it2=_points.find(pointnum2);
+	if (it1 != _points.end() && it2 != _points.end())
+		create_line(it1->second, it2->second, char(cut1), char(cut2), linewidth, actions);
+	else {
+		// Line endpoints don't necessarily have to be defined before
+		// a line definition. If a point isn't defined yet, we put the line
+		// in a wait list and process the lines at the end of the page.
+		_lines.push_back(Line(pointnum1, pointnum2, char(cut1), char(cut2), linewidth));
+	}
+}
+
+
 /** This method is called at the end of a DVI page. Here we have to draw all pending
  *   lines that are still in the line list. All line endpoints must be defined until here. */
-void EmSpecialHandler::dviEndPage (unsigned pageno) {
-	if (_actions) {
-		FORALL(_lines, list<Line>::iterator, it) {
-			map<int,DPair>::iterator pit1=_points.find(it->p1);
-			map<int,DPair>::iterator pit2=_points.find(it->p2);
-			if (pit1 != _points.end() && pit2 != _points.end())
-				create_line(pit1->second, pit2->second, it->c1, it->c2, it->width, _actions);
-			// all lines with still undefined points are ignored
-		}
+void EmSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actions) {
+	FORALL(_lines, list<Line>::iterator, it) {
+		map<int,DPair>::iterator pit1=_points.find(it->p1);
+		map<int,DPair>::iterator pit2=_points.find(it->p2);
+		if (pit1 != _points.end() && pit2 != _points.end())
+			create_line(pit1->second, pit2->second, it->c1, it->c2, it->width, actions);
+		// all lines with still undefined points are ignored
 	}
 	// line and point definitions are local to a page
 	_lines.clear();

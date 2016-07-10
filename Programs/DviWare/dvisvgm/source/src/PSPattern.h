@@ -28,7 +28,7 @@
 #include "Matrix.h"
 
 
-struct SpecialActions;
+class SpecialActions;
 class SVGTree;
 class XMLElementNode;
 
@@ -38,7 +38,7 @@ class PSPattern
 		virtual ~PSPattern () {}
 		virtual int psID () const {return _id;}
 		virtual std::string svgID () const;
-		virtual void apply (SpecialActions *actions);
+		virtual void apply (SpecialActions &actions);
 
 	protected:
 		PSPattern (int id) : _id(id) {}
@@ -54,7 +54,7 @@ class PSTilingPattern : public PSPattern
 	public:
 		~PSTilingPattern ();
 		virtual XMLElementNode* getContainerNode ()     {return _groupNode;}
-		void apply (SpecialActions *actions);
+		void apply (SpecialActions &actions);
 
 	protected:
 		PSTilingPattern (int id, BoundingBox &bbox, Matrix &matrix, double xstep, double ystep);
@@ -86,7 +86,7 @@ class PSUncoloredTilingPattern : public PSTilingPattern
 		~PSUncoloredTilingPattern ();
 		std::string svgID () const;
 		void setColor (Color color) {_currentColor = color;}
-		void apply (SpecialActions *actions);
+		void apply (SpecialActions &actions);
 
 	protected:
 		XMLElementNode* createClipNode () const;

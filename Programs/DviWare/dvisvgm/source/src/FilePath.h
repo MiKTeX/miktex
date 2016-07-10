@@ -50,7 +50,7 @@ class FilePath
 	private:
 		Directories _dirs;
 		std::string _fname;
-#ifdef __WIN32__
+#ifdef _WIN32
 		char _drive;
 #endif
 };

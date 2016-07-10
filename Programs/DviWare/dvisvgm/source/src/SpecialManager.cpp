@@ -122,7 +122,7 @@ static string extract_prefix (istream &is) {
 }
 
 
-void SpecialManager::preprocess (const string &special, SpecialActions *actions) const {
+void SpecialManager::preprocess (const string &special, SpecialActions &actions) const {
 	istringstream iss(special);
 	string prefix = extract_prefix(iss);
 	if (SpecialHandler *handler = findHandler(prefix))
@@ -136,7 +136,7 @@ void SpecialManager::preprocess (const string &special, SpecialActions *actions)
  *  @param[in] actions actions the special handlers can perform
  *  @return true if the special could be processed successfully
  *  @throw SpecialException in case of errors during special processing */
-bool SpecialManager::process (const string &special, double dvi2bp, SpecialActions *actions) const {
+bool SpecialManager::process (const string &special, double dvi2bp, SpecialActions &actions) const {
 	istringstream iss(special);
 	string prefix = extract_prefix(iss);
 	bool success=false;
@@ -154,21 +154,21 @@ void SpecialManager::notifyPreprocessingFinished () const {
 }
 
 
-void SpecialManager::notifyBeginPage (unsigned pageno) const {
+void SpecialManager::notifyBeginPage (unsigned pageno, SpecialActions &actions) const {
 	FORALL(_beginPageListeners, vector<DVIBeginPageListener*>::const_iterator, it)
-		(*it)->dviBeginPage(pageno);
+		(*it)->dviBeginPage(pageno, actions);
 }
 
 
-void SpecialManager::notifyEndPage (unsigned pageno) const {
+void SpecialManager::notifyEndPage (unsigned pageno, SpecialActions &actions) const {
 	FORALL(_endPageListeners, vector<DVIEndPageListener*>::const_iterator, it)
-		(*it)->dviEndPage(pageno);
+		(*it)->dviEndPage(pageno, actions);
 }
 
 
-void SpecialManager::notifyPositionChange (double x, double y) const {
+void SpecialManager::notifyPositionChange (double x, double y, SpecialActions &actions) const {
 	FORALL(_positionListeners, vector<DVIPositionListener*>::const_iterator, it)
-		(*it)->dviMovedTo(x, y);
+		(*it)->dviMovedTo(x, y, actions);
 }
 
 

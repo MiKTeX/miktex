@@ -54,7 +54,7 @@ bool MetafontWrapper::call (const string &mode, double mag) {
 		return false;     // mf file not available => no need to call the "slow" Metafont
 	FileSystem::remove(_fontname+".gf");
 
-#ifdef __WIN32__
+#ifdef _WIN32
 #ifdef TEXLIVEWIN32
 	const char *mfname = "mf-nowin.exe";
 #else

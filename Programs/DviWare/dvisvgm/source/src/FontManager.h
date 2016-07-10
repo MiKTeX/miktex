@@ -33,7 +33,7 @@
 
 
 struct FileFinder;
-struct Font;
+class Font;
 class  VirtualFont;
 
 /** This class provides methods for easy DVI font handling.
@@ -45,8 +45,8 @@ class FontManager
 {
 	typedef std::map<UInt32,int> Num2IdMap;
 	typedef std::map<std::string,int> Name2IdMap;
-	typedef std::map<VirtualFont*,Num2IdMap> VfNum2IdMap;
-	typedef std::map<VirtualFont*, UInt32> VfFirstFontMap;
+	typedef std::map<const VirtualFont*,Num2IdMap> VfNum2IdMap;
+	typedef std::map<const VirtualFont*, UInt32> VfFirstFontMap;
 	typedef std::stack<VirtualFont*> VfStack;
 
 	public:
@@ -58,12 +58,12 @@ class FontManager
 		Font* getFont (int n) const;
 		Font* getFont (const std::string &name) const;
 		Font* getFontById (int id) const;
-		VirtualFont* getVF () const;
+		const VirtualFont* getVF () const;
 		int fontID (int n) const;
 		int fontID (const Font *font) const;
 		int fontID (const std::string &name) const;
 		int fontnum (int id) const;
-		int vfFirstFontNum (VirtualFont *vf) const;
+		int vfFirstFontNum (const VirtualFont *vf) const;
 		void enterVF (VirtualFont *vf);
 		void leaveVF ();
 		void assignVfChar (int c, std::vector<UInt8> *dvi);

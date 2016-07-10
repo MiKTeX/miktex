@@ -19,7 +19,6 @@
 *************************************************************************/
 
 #include <config.h>
-#include <stdio.h>
 #include <comdef.h>
 #include <string>
 #include "MessageException.h"

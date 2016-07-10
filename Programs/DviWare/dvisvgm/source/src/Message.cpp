@@ -68,7 +68,7 @@ void MessageStream::putChar (const char c, ostream &os) {
 			else {
 				const int cols = Terminal::columns();
 				if (cols > 0 && _col >= cols) {
-#ifndef __WIN32__
+#ifndef _WIN32
 					// move cursor to next line explicitly (not necessary in Windows/DOS terminal)
 					os << '\n';
 #endif
@@ -92,7 +92,7 @@ MessageStream& MessageStream::operator << (const char *str) {
 			const char *last = strchr(first, '\n');
 			if (!last)
 				last = first+strlen(first)-1;
-#ifndef __WIN32__
+#ifndef _WIN32
 			// move cursor to next line explicitly (not necessary in Windows/DOS terminal)
 			const int cols = Terminal::columns();
 			int len = last-first+1;

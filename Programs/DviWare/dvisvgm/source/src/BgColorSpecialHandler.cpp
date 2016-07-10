@@ -30,20 +30,19 @@ using namespace std;
 /** Collect all background color changes while preprocessing the DVI file.
  *  We need them in order to apply the correct background colors even if
  *  not all but only selected DVI pages are converted. */
-void BgColorSpecialHandler::preprocess (const char*, std::istream &is, SpecialActions *actions) {
+void BgColorSpecialHandler::preprocess (const char*, std::istream &is, SpecialActions &actions) {
 	Color color = ColorSpecialHandler::readColor(is);
-	unsigned pageno = actions->getCurrentPageNumber();
+	unsigned pageno = actions.getCurrentPageNumber();
 	if (_pageColors.empty() || _pageColors.back().second != color) {
 		if (!_pageColors.empty() && _pageColors.back().first == pageno)
 			_pageColors.back().second = color;
 		else
 			_pageColors.push_back(PageColor(pageno, color));
 	}
-	_actions = actions;
 }
 
 
-bool BgColorSpecialHandler::process (const char*, istream&, SpecialActions*) {
+bool BgColorSpecialHandler::process (const char*, istream &, SpecialActions&) {
 	return true;
 }
 
@@ -54,7 +53,7 @@ static bool operator < (const pair<unsigned,Color> &pc1, const pair<unsigned,Col
 }
 
 
-void BgColorSpecialHandler::dviBeginPage (unsigned pageno) {
+void BgColorSpecialHandler::dviBeginPage (unsigned pageno, SpecialActions &actions) {
 	// Ensure that the background color of the preceeding page is set as the
 	// default background color of the current page because this special affects
 	// the current and all subsequent pages until the next change.
@@ -64,9 +63,9 @@ void BgColorSpecialHandler::dviBeginPage (unsigned pageno) {
 	// find number of page with bg color change not lower than the current one
 	vector<PageColor>::iterator it = lower_bound(_pageColors.begin(), _pageColors.end(), PageColor(pageno, Color::BLACK));
 	if (it != _pageColors.end() && it->first == pageno)
-		_actions->setBgColor(it->second);
+		actions.setBgColor(it->second);
 	else if (it != _pageColors.begin())
-		_actions->setBgColor((--it)->second);
+		actions.setBgColor((--it)->second);
 }
 
 

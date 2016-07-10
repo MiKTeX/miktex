@@ -76,8 +76,8 @@ class PsSpecialHandler : public SpecialHandler, public DVIEndPageListener, prote
 		const char* name () const   {return "ps";}
 		const char* info () const   {return "dvips PostScript specials";}
 		const char** prefixes () const;
-		void preprocess (const char *prefix, std::istream &is, SpecialActions *actions);
-		bool process (const char *prefix, std::istream &is, SpecialActions *actions);
+		void preprocess (const char *prefix, std::istream &is, SpecialActions &actions);
+		bool process (const char *prefix, std::istream &is, SpecialActions &actions);
 		void setDviScaleFactor (double dvi2bp) {_previewFilter.setDviScaleFactor(dvi2bp);}
 		void enterBodySection ();
 
@@ -94,7 +94,7 @@ class PsSpecialHandler : public SpecialHandler, public DVIEndPageListener, prote
 		void executeAndSync (std::istream &is, bool updatePos);
 		void processHeaderFile (const char *fname);
 		void psfile (const std::string &fname, const std::map<std::string,std::string> &attr);
-		void dviEndPage (unsigned pageno);
+		void dviEndPage (unsigned pageno, SpecialActions &actions);
 		void clip (Path &path, bool evenodd);
 		void processSequentialPatchMesh (int shadingTypeID, ColorSpace cspace, VectorIterator<double> &it);
 		void processLatticeTriangularPatchMesh (ColorSpace colorSpace, VectorIterator<double> &it);

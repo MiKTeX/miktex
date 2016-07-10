@@ -45,7 +45,7 @@ class Bezier
 	protected:
 		int approximate (double delta, double t0, double t1, std::vector<DPair> &p, std::vector<double> *t) const;
 
-   private:
+	private:
 		DPair _points[4];
 };
 

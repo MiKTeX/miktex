@@ -31,7 +31,6 @@
 #include "MetafontWrapper.h"
 #include "SignalHandler.h"
 #include "Subfont.h"
-#include "SVGTree.h"
 #include "Unicode.h"
 
 

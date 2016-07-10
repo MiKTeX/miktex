@@ -31,7 +31,7 @@
 class ColorSpecialHandler : public SpecialHandler
 {
 	public:
-		bool process (const char *prefix, std::istream &is, SpecialActions *actions);
+		bool process (const char *prefix, std::istream &is, SpecialActions &actions);
 		static Color readColor (std::istream &is);
 		static Color readColor (const std::string &model, std::istream &is);
 		const char* name () const   {return "color";}

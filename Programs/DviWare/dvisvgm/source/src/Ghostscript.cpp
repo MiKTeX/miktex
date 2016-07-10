@@ -38,7 +38,7 @@ string Ghostscript::LIBGS_NAME;
 
 #ifndef HAVE_LIBGS
 
-#ifdef __WIN32__
+#ifdef _WIN32
 #if defined(MIKTEX) && _WIN32_WINNT < _WIN32_WINNT_VISTA
 #else
 /** Looks up the path of the Ghostscript DLL in the Windows registry and returns it.
@@ -82,7 +82,7 @@ static string get_path_from_registry () {
 	return "";
 }
 #endif
-#endif  // __WIN32__
+#endif  // _WIN32
 
 
 /** Try to detect name of the Ghostscript shared library depending on the user settings.
@@ -101,7 +101,7 @@ static string get_libgs (const string &fname) {
 	if (const char *gsdll_path = FileFinder::lookup(gsdll))
 		return gsdll_path;
 #endif // MIKTEX
-#if defined(__WIN32__)
+#if defined(_WIN32)
 #if defined(MIKTEX) && _WIN32_WINNT < _WIN32_WINNT_VISTA
 #else
 	// try to look up the path of the Ghostscript DLL in the Windows registry
@@ -112,7 +112,7 @@ static string get_libgs (const string &fname) {
 #endif
 #if defined(__WIN64__)
 	return "gsdll64.dll";
-#elif defined(__WIN32__)
+#elif defined(_WIN32)
 	return "gsdll32.dll";
 #else
 	// try to find libgs.so.X on the user's system
@@ -346,7 +346,7 @@ const char* Ghostscript::error_name (int code) {
 #if defined(HAVE_LIBGS)
 	// use array defined in libgs to avoid linking the error strings into the binary
 	return gs_error_names[code-1];
-#elif defined(__WIN32__)
+#elif defined(_WIN32)
 	// gs_error_names is private in the Ghostscript DLL so we can't access it here
 	return error_names[code-1];
 #else

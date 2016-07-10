@@ -29,11 +29,11 @@
 #include <vector>
 #include "Character.h"
 #include "CharMapID.h"
-#include "Font.h"
 #include "Glyph.h"
 #include "RangeMap.h"
 #include "types.h"
 
+class Font;
 
 /** This class provides methods to handle font files and font data.
  *  It's a wrapper for the Freetype font library. */

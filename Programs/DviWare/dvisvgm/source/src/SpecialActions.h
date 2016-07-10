@@ -26,40 +26,40 @@
 #include "Color.h"
 #include "Matrix.h"
 
-
-struct XMLNode;
+class XMLNode;
 class XMLElementNode;
 
-struct SpecialActions
+class SpecialActions
 {
-	virtual ~SpecialActions () {}
-	virtual double getX () const =0;
-	virtual double getY () const =0;
-	virtual void setX (double x) =0;
-	virtual void setY (double y) =0;
-	virtual void finishLine () =0;
-	virtual void setColor (const Color &color) =0;
-	virtual Color getColor () const =0;
-	virtual void setMatrix (const Matrix &m) =0;
-	virtual const Matrix& getMatrix () const =0;
-	virtual void getPageTransform (Matrix &matrix) const =0;
-	virtual void setBgColor (const Color &color) =0;
-	virtual void appendToPage (XMLNode *node) =0;
-	virtual void appendToDefs (XMLNode *node) =0;
-	virtual void prependToPage (XMLNode *node) =0;
-	virtual void pushContextElement (XMLElementNode *node) =0;
-	virtual void popContextElement () =0;
-	virtual BoundingBox& bbox () =0;
-	virtual BoundingBox& bbox (const std::string &name, bool reset=false) =0;
-	virtual void embed (const BoundingBox &bbox) =0;
-	virtual void embed (const DPair &p, double r=0) =0;
-	virtual unsigned getCurrentPageNumber () const =0;
-	virtual std::string getSVGFilename (unsigned pageno) const =0;
-	virtual std::string getBBoxFormatString () const =0;
-	virtual void progress (const char *id) {}
-	virtual int getDVIStackDepth () const  {return 0;}
+	public:
+		virtual ~SpecialActions () {}
+		virtual double getX () const =0;
+		virtual double getY () const =0;
+		virtual void setX (double x) =0;
+		virtual void setY (double y) =0;
+		virtual void finishLine () =0;
+		virtual void setColor (const Color &color) =0;
+		virtual Color getColor () const =0;
+		virtual void setMatrix (const Matrix &m) =0;
+		virtual const Matrix& getMatrix () const =0;
+		virtual void getPageTransform (Matrix &matrix) const =0;
+		virtual void setBgColor (const Color &color) =0;
+		virtual void appendToPage (XMLNode *node) =0;
+		virtual void appendToDefs (XMLNode *node) =0;
+		virtual void prependToPage (XMLNode *node) =0;
+		virtual void pushContextElement (XMLElementNode *node) =0;
+		virtual void popContextElement () =0;
+		virtual BoundingBox& bbox () =0;
+		virtual BoundingBox& bbox (const std::string &name, bool reset=false) =0;
+		virtual void embed (const BoundingBox &bbox) =0;
+		virtual void embed (const DPair &p, double r=0) =0;
+		virtual unsigned getCurrentPageNumber () const =0;
+		virtual std::string getSVGFilename (unsigned pageno) const =0;
+		virtual std::string getBBoxFormatString () const =0;
+		virtual void progress (const char *id) {}
+		virtual int getDVIStackDepth () const  {return 0;}
 
-	static double PROGRESSBAR_DELAY; ///< progress bar doesn't appear before this time has elapsed (in sec)
+		static double PROGRESSBAR_DELAY; ///< progress bar doesn't appear before this time has elapsed (in sec)
 };
 
 

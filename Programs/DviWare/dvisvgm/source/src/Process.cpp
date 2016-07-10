@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#ifdef __WIN32__
+#ifdef _WIN32
 	#include <windows.h>
 #else
 	#include <fcntl.h>
@@ -48,7 +48,7 @@ Process::Process (const string &cmd, const string &paramstr)
 }
 
 
-#ifdef __WIN32__
+#ifdef _WIN32
 static void pipe_read (HANDLE handle, string &out) {
 	char buf[4096];
 	out.clear();
@@ -113,7 +113,7 @@ static void split_paramstr (string &paramstr, vector<const char*> &params) {
  *  @return true if process terminated properly
  *  @throw SignalException if CTRL-C was pressed during execution */
 bool Process::run (string *out) {
-#ifdef __WIN32__
+#ifdef _WIN32
 	SECURITY_ATTRIBUTES sa;
 	ZeroMemory(&sa, sizeof(SECURITY_ATTRIBUTES));
 	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -186,8 +186,6 @@ bool Process::run (string *out) {
 	if (pid > 0) {		// parent process
 		for (;;) {
 			if (out) {
-				//
-				out->clear();
 				char buf[512];
 				ssize_t len;
 				while ((len = read(pipefd[0], buf, sizeof(buf)-1)) > 0) {
