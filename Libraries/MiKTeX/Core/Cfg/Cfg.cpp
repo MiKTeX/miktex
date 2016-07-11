@@ -703,7 +703,14 @@ void CfgImpl::PutValue(const string & keyName_, const string & valueName, const 
     }
     else if (itVal->second->IsMultiValue())
     {
-      itVal->second->value.push_back(value);
+      if (value.empty())
+      {
+	itVal->second->value.clear();
+      }
+      else
+      {
+	itVal->second->value.push_back(value);
+      }
     }
     else
     {
