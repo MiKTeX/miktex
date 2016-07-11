@@ -25,6 +25,7 @@
 #include <string>
 
 #include <miktex/Core/Cfg>
+#include <miktex/Core/StreamWriter>
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
@@ -61,9 +62,21 @@ BEGIN_TEST_FUNCTION(2);
   vector<string> arr;
   TEST(cfg->TryGetValue("abc", "arr[]", arr));
   TEST(arr.size() == 2 && arr[0] == "abc" && arr[1] == "def");
-  TESTX(cfg->PutValue("abc", "arr[]", ""));
-  TEST(cfg->TryGetValue("abc", "arr[]", arr));
   TEST(cfg->GetValue("abc", "empty") == "");
+}
+END_TEST_FUNCTION();
+
+BEGIN_TEST_FUNCTION(3);
+{
+  StreamWriter writer("test2.ini");
+  writer.WriteLine("[sec1]");
+  writer.WriteLine("arr1[]=");
+  writer.Close();
+  shared_ptr<Cfg> cfg;
+  TESTX(cfg = Cfg::Create());
+  TESTX(cfg->Read("test2.ini"));
+  vector<string> arr;
+  TEST(cfg->TryGetValue("sec1", "arr1[]", arr));
   TEST(arr.size() == 0);
 }
 END_TEST_FUNCTION();
@@ -72,6 +85,7 @@ BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
   CALL_TEST_FUNCTION(2);
+  CALL_TEST_FUNCTION(3);
 }
 END_TEST_PROGRAM();
 
