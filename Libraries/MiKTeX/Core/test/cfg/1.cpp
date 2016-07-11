@@ -44,6 +44,7 @@ BEGIN_TEST_FUNCTION(1);
   vector<string> arr;
   TEST(cfg->TryGetValue("abc", "arr[]", arr));
   TEST(arr.size() == 2 && arr[0] == "abc" && arr[1] == "def");
+  TESTX(cfg->PutValue("abc", "empty", ""));
   TESTX(cfg->Write("test.ini"));
 }
 END_TEST_FUNCTION();
@@ -60,6 +61,10 @@ BEGIN_TEST_FUNCTION(2);
   vector<string> arr;
   TEST(cfg->TryGetValue("abc", "arr[]", arr));
   TEST(arr.size() == 2 && arr[0] == "abc" && arr[1] == "def");
+  TESTX(cfg->PutValue("abc", "arr[]", ""));
+  TEST(cfg->TryGetValue("abc", "arr[]", arr));
+  TEST(cfg->GetValue("abc", "empty") == "");
+  TEST(arr.size() == 0);
 }
 END_TEST_FUNCTION();
 
