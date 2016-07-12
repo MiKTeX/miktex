@@ -70,14 +70,20 @@ BEGIN_TEST_FUNCTION(3);
 {
   StreamWriter writer("test2.ini");
   writer.WriteLine("[sec1]");
-  writer.WriteLine("arr1[]=");
+  writer.WriteLine("arr1[]= abc ");
+  writer.WriteLine("arr1[]=     ");
+  writer.WriteLine("arr2[]=abc");
+  writer.WriteLine("!clear arr2[]");
   writer.Close();
   shared_ptr<Cfg> cfg;
   TESTX(cfg = Cfg::Create());
   TESTX(cfg->Read("test2.ini"));
-  vector<string> arr;
-  TEST(cfg->TryGetValue("sec1", "arr1[]", arr));
-  TEST(arr.size() == 0);
+  vector<string> arr1;
+  TEST(cfg->TryGetValue("sec1", "arr1[]", arr1));
+  TEST(arr1.size() == 2 && arr1[0] == "abc" && arr1[1] == "");
+  vector<string> arr2;
+  TEST(cfg->TryGetValue("sec1", "arr2[]", arr2));
+  TEST(arr2.size() == 0);
 }
 END_TEST_FUNCTION();
 

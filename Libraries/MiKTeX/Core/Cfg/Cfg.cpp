@@ -445,6 +445,9 @@ private:
   void PutValue(const string & keyName, const string & valueName, const string & value, PutMode putMode, const string & documentation, bool commentedOut);
 
 private:
+  bool ClearValue(const string & keyName, const string & valueName);
+  
+private:
   int lineno = 0;
 
 private:
@@ -703,14 +706,7 @@ void CfgImpl::PutValue(const string & keyName_, const string & valueName, const 
     }
     else if (itVal->second->IsMultiValue())
     {
-      if (value.empty())
-      {
-	itVal->second->value.clear();
-      }
-      else
-      {
-	itVal->second->value.push_back(value);
-      }
+      itVal->second->value.push_back(value);
     }
     else
     {
@@ -718,6 +714,25 @@ void CfgImpl::PutValue(const string & keyName_, const string & valueName, const 
       itVal->second->value.push_back(value);
     }
   }
+}
+
+bool CfgImpl::ClearValue(const string & keyName_, const string & valueName)
+{
+  string keyName = keyName_.empty() ? GetDefaultKeyName() : keyName_;
+  if (keyName.empty())
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  string lookupKeyName = Utils::MakeLower(keyName);
+  KeyMap::iterator itKey = keyMap.find(lookupKeyName);
+  if (itKey == keyMap.end())
+  {
+    return false;
+  }
+  string lookupValueName = Utils::MakeLower(valueName);
+  ValueMap::iterator itValue = itKey->second->valueMap.find(lookupValueName);
+  itValue->second->value.clear();
+  return true;
 }
 
 void CfgImpl::PutValue(const string & keyName, const string & valueName, const string & value)
@@ -794,6 +809,16 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
         path2.RemoveFileSpec();
         path2 /= lpsz;
         Read(path2, keyName, level + 1, false);
+      }
+      if (StringCompare(lpsz, "clear") == 0)
+      {
+        ++tok;
+        lpsz = tok.GetCurrent();
+        if (lpsz == nullptr)
+        {
+          FATAL_CFG_ERROR(T_("missing value name argument"));
+        }
+	ClearValue(keyName, lpsz);
       }
       else
       {
