@@ -74,6 +74,7 @@ BEGIN_TEST_FUNCTION(3);
   writer.WriteLine("arr1[]=     ");
   writer.WriteLine("arr2[]=abc");
   writer.WriteLine("!clear arr2[]");
+  writer.WriteLine("!clear arr3[]");
   writer.Close();
   shared_ptr<Cfg> cfg;
   TESTX(cfg = Cfg::Create());
@@ -84,6 +85,8 @@ BEGIN_TEST_FUNCTION(3);
   vector<string> arr2;
   TEST(cfg->TryGetValue("sec1", "arr2[]", arr2));
   TEST(arr2.size() == 0);
+  vector<string> arr3;
+  TEST(!cfg->TryGetValue("sec1", "arr3[]", arr3));
 }
 END_TEST_FUNCTION();
 

@@ -731,6 +731,10 @@ bool CfgImpl::ClearValue(const string & keyName_, const string & valueName)
   }
   string lookupValueName = Utils::MakeLower(valueName);
   ValueMap::iterator itValue = itKey->second->valueMap.find(lookupValueName);
+  if (itValue == itKey->second->valueMap.end())
+  {
+    return false;
+  }
   itValue->second->value.clear();
   return true;
 }
