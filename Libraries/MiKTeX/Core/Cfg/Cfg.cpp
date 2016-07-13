@@ -814,7 +814,7 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
         path2 /= lpsz;
         Read(path2, keyName, level + 1, false);
       }
-      if (StringCompare(lpsz, "clear") == 0)
+      else if (StringCompare(lpsz, "clear") == 0)
       {
         ++tok;
         lpsz = tok.GetCurrent();
@@ -822,7 +822,7 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
         {
           FATAL_CFG_ERROR(T_("missing value name argument"));
         }
-	ClearValue(keyName, lpsz);
+        ClearValue(keyName, lpsz);
       }
       else
       {
