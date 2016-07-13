@@ -299,7 +299,6 @@ void Recipe::RunDtxUnpacker()
   {
     CommandLineBuilder cmd;
     cmd.AppendArgument(engine);
-    cmd.AppendOption("-interaction=", "nonstopmode");
     cmd.AppendOption("-disable-installer");
     cmd.AppendOption("-output-directory=", outDir->GetPathName());
     cmd.AppendOption("-aux-directory=", workDir);

@@ -162,16 +162,16 @@ private:
   const std::string standardInsEngine = "latex";
 
 private:
-  const std::vector<std::string> standardInsOptions;
+  const std::vector<std::string> standardInsOptions = {
+    "-interaction=scrollmode",
+    "-halt-on-error"
+  };
 
 private:
   const std::vector<std::string> standardInsPatterns = { "*.ins" };
 
 private:
   const std::vector<std::string> standardDtxPatterns = { "*.dtx" };
-
-private:
-  const std::vector<std::string> standardInsCleanupPatterns = { "*.dvi" };
 
 private:
   const std::vector<std::string> standardTeXPatterns = { "*.cls", "*.sty" };
