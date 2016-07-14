@@ -224,7 +224,21 @@ void Recipe::DoAction(const string & action)
     MIKTEX_UNEXPECTED();
   }
   string actionName = argv[0];
-  if (actionName == "move")
+  if (actionName == "copy")
+  {
+    if (argv.size() != 3)
+    {
+      MIKTEX_FATAL_ERROR(T_("syntax error (action)"));
+    }
+    PathName existingName = PathName(workDir) / argv[1];
+    PathName newName = PathName(workDir) / argv[2];
+    if (File::Exists(existingName))
+    {
+      PrintOnly(StringUtil::FormatString("copy <SRCDIR>/%s <SRCDIR>/%s", Q_(PrettyPath(existingName, workDir)), Q_(PrettyPath(newName, workDir))));
+      File::Copy(existingName, newName);
+    }
+  }
+  else if (actionName == "move")
   {
     if (argv.size() != 3)
     {
@@ -237,6 +251,36 @@ void Recipe::DoAction(const string & action)
       PrintOnly(StringUtil::FormatString("move <SRCDIR>/%s <SRCDIR>/%s", Q_(PrettyPath(oldName, workDir)), Q_(PrettyPath(newName, workDir))));
       File::Move(oldName, newName);
     }
+  }
+  else if (actionName == "remove")
+  {
+    if (argv.size() != 2)
+    {
+      MIKTEX_FATAL_ERROR(T_("syntax error (action)"));
+    }
+    PathName name = PathName(workDir) / argv[1];
+    if (File::Exists(name))
+    {
+      PrintOnly(StringUtil::FormatString("remove <SRCDIR>/%s", Q_(PrettyPath(name, workDir))));
+      File::Delete(name);
+    }
+  }
+  else if (actionName == "echo")
+  {
+    for (int idx = 1; idx < argv.size(); ++ idx)
+    {
+      cout << (idx == 1 ? "! " : " ") << argv[idx];
+    }
+    cout << endl;
+  }
+  else if (actionName == "abort")
+  {
+    if (argv.size() != 1)
+    {
+      MIKTEX_FATAL_ERROR(T_("syntax error (action)"));
+    }
+    cerr << "aborting" << endl;
+    throw 1;
   }
   else
   {
