@@ -398,7 +398,6 @@ void Recipe::RunDtxUnpacker()
 
 void Recipe::InstallFiles(const string & patternName, const vector<string> & defaultPatterns, const PathName & tdsDir)
 {
-  Verbose("installing '" + patternName + "' patterns");
   vector<string> patterns;
   if (!recipe->TryGetValue("patterns", patternName + "[]", patterns))
   {
@@ -418,7 +417,6 @@ void Recipe::InstallFileSets()
     {
       MIKTEX_FATAL_ERROR(T_("missing file patterns"));
     }
-    Verbose("installing '" + fileset + "' in '" + tdsdir + "'");
     Install(patterns, session->Expand(tdsdir.c_str(), this));
   }
 }
@@ -437,10 +435,14 @@ void Recipe::Install(const vector<string> & patterns, const PathName & tdsDir)
     pattern.RemoveDirectorySpec();
     vector<PathName> files;
     CollectPathNames(files, dir, pattern.ToString());
-    if (!files.empty() && !madeDestDirectory)
+    if (!files.empty())
     {
-      CreateDirectory(destPath);
-      madeDestDirectory = true;
+      if (!madeDestDirectory)
+      {
+        CreateDirectory(destPath);
+        madeDestDirectory = true;
+      }
+      Verbose("installing '" + pat + "': " + std::to_string(files.size()) + " file(s)");
     }
     for (const PathName & file : files)
     {
