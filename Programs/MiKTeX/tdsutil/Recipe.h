@@ -25,11 +25,12 @@ class Recipe :
   public MiKTeX::Core::HasNamedValues
 {
 public:
-  Recipe(const std::string & package, const MiKTeX::Core::PathName & sourceDir, const MiKTeX::Core::PathName & destDir) :
+  Recipe(const std::string & package, const MiKTeX::Core::PathName & sourceDir, const MiKTeX::Core::PathName & destDir, bool verbose) :
     package(package),
     sourceDir(sourceDir),
     destDir(destDir),
-    tds(package)
+    tds(package),
+    verbose(verbose)
   {
   }
 
@@ -57,6 +58,9 @@ public:
   void Execute(bool printOnly);
 
 private:
+  void Verbose(const std::string & message);
+
+private:
   bool PrintOnly(const std::string & message);
 
 private:
@@ -75,10 +79,16 @@ private:
   void Prepare();
 
 private:
+  void Finalize();
+
+private:
+  void RunInsEngine(const std::string & engine, const std::vector<std::string> & options, const MiKTeX::Core::PathName & insFile, const MiKTeX::Core::PathName & outDir );
+
+private:
   void RunDtxUnpacker();
 
 private:
-  void DoAction(const std::string & action);
+  void DoAction(const std::string & action, const MiKTeX::Core::PathName & actionDir);
 
 private:
   void InstallFiles(const std::string & patternName, const std::vector<std::string> & defaultPatterns, const MiKTeX::Core::PathName & tdsDir);
@@ -137,6 +147,9 @@ private:
 private:
   std::string foundry;
 
+private:
+  bool verbose;
+  
 private:
   bool printOnly;
 

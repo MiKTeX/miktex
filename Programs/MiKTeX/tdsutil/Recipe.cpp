@@ -107,6 +107,14 @@ vector<string> Split(const string & s)
   return argv;
 }
 
+void Recipe::Verbose(const string & message)
+{
+  if (verbose)
+  {
+    cout << message << endl;
+  }
+}
+
 bool Recipe::PrintOnly(const string & message)
 {
   if (printOnly)
@@ -167,6 +175,7 @@ void Recipe::Execute(bool printOnly)
   InstallFiles("vf", standardVfPatterns, tds.GetVfDir());
   InstallFiles("mp", standardMpPatterns, tds.GetMetaPostDir());
   InstallFiles("script", standardScriptPatterns, tds.GetScriptDir());
+  Finalize();
   CleanupWorkingDirectory();
 }
 
@@ -210,15 +219,27 @@ void Recipe::Prepare()
   {
     for (const string & action : actions)
     {
-      DoAction(action);
+      DoAction(action, workDir);
     }
   }
   RunDtxUnpacker();
 }
 
-void Recipe::DoAction(const string & action)
+void Recipe::Finalize()
 {
-  vector<string> argv = Split(action);
+  vector<string> actions;
+  if (recipe->TryGetValue("finalize", "actions[]", actions))
+  {
+    for (const string & action : actions)
+    {
+      DoAction(action, destDir);
+    }
+  }
+}
+
+void Recipe::DoAction(const string & action, const PathName & actionDir)
+{
+  vector<string> argv = Split(session->Expand(action.c_str(), this));
   if (argv.empty())
   {
     MIKTEX_UNEXPECTED();
@@ -230,11 +251,12 @@ void Recipe::DoAction(const string & action)
     {
       MIKTEX_FATAL_ERROR(T_("syntax error (action)"));
     }
-    PathName existingName = PathName(workDir) / argv[1];
-    PathName newName = PathName(workDir) / argv[2];
+    PathName existingName = PathName(actionDir) / argv[1];
+    PathName newName = PathName(actionDir) / argv[2];
     if (File::Exists(existingName))
     {
-      PrintOnly(StringUtil::FormatString("copy <SRCDIR>/%s <SRCDIR>/%s", Q_(PrettyPath(existingName, workDir)), Q_(PrettyPath(newName, workDir))));
+      Verbose("copying '" + argv[1] + "' to '" + argv[2] + "'");
+      PrintOnly(StringUtil::FormatString("copy %s %s", Q_(PrettyPath(existingName, actionDir)), Q_(PrettyPath(newName, actionDir))));
       File::Copy(existingName, newName);
     }
   }
@@ -244,11 +266,12 @@ void Recipe::DoAction(const string & action)
     {
       MIKTEX_FATAL_ERROR(T_("syntax error (action)"));
     }
-    PathName oldName = PathName(workDir) / argv[1];
-    PathName newName = PathName(workDir) / argv[2];
+    PathName oldName = PathName(actionDir) / argv[1];
+    PathName newName = PathName(actionDir) / argv[2];
     if (File::Exists(oldName))
     {
-      PrintOnly(StringUtil::FormatString("move <SRCDIR>/%s <SRCDIR>/%s", Q_(PrettyPath(oldName, workDir)), Q_(PrettyPath(newName, workDir))));
+      Verbose("moving '" + argv[1] + "' to '" + argv[2] + "'");
+      PrintOnly(StringUtil::FormatString("move %s %s", Q_(PrettyPath(oldName, actionDir)), Q_(PrettyPath(newName, actionDir))));
       File::Move(oldName, newName);
     }
   }
@@ -258,10 +281,11 @@ void Recipe::DoAction(const string & action)
     {
       MIKTEX_FATAL_ERROR(T_("syntax error (action)"));
     }
-    PathName name = PathName(workDir) / argv[1];
+    PathName name = PathName(actionDir) / argv[1];
     if (File::Exists(name))
     {
-      PrintOnly(StringUtil::FormatString("remove <SRCDIR>/%s", Q_(PrettyPath(name, workDir))));
+      Verbose("removing file '" + argv[1] + "'");
+      PrintOnly(StringUtil::FormatString("remove %s", Q_(PrettyPath(name, actionDir))));
       File::Delete(name);
     }
   }
@@ -286,6 +310,28 @@ void Recipe::DoAction(const string & action)
   {
     MIKTEX_FATAL_ERROR(T_("unknown action"));
   }
+}
+
+void Recipe::RunInsEngine(const string & engine, const vector<string> & options, const PathName & insFile, const PathName & outDir )
+{
+  unique_ptr<TemporaryFile> alwaysYes = TemporaryFile::Create();
+  StreamWriter writer(alwaysYes->GetPathName());
+  for (int i = 0; i < 100; ++i)
+  {
+    writer.WriteLine("y");
+  }
+  writer.Close();
+  CommandLineBuilder cmd;
+  cmd.AppendArgument(engine);
+  cmd.AppendOption("-disable-installer");
+  cmd.AppendOption("-output-directory=", outDir);
+  cmd.AppendOption("-aux-directory=", workDir);
+  cmd.AppendArguments(options);
+  cmd.AppendArgument(insFile);
+  cmd.AppendStdinRedirection(alwaysYes->GetPathName());
+  ProcessOutputTrash trash;
+  Verbose("running .ins engine on '" + insFile.GetFileName().ToString() + "'");
+  Process::ExecuteSystemCommand(cmd.ToString(), nullptr, &trash, workDir.GetData());
 }
 
 void Recipe::RunDtxUnpacker()
@@ -331,31 +377,28 @@ void Recipe::RunDtxUnpacker()
       CollectPathNames(insFiles, dir, pattern.ToString());
     }
   }
-  unique_ptr<TemporaryFile> alwaysYes = TemporaryFile::Create();
-  StreamWriter writer(alwaysYes->GetPathName());
-  for (int i = 0; i < 100; ++i)
-  {
-    writer.WriteLine("y");
-  }
-  writer.Close();
+  PathName packageInsFile = workDir;
+  packageInsFile /= package + ".ins";
+  bool packageInsFileExists = File::Exists(packageInsFile);
   unique_ptr<TemporaryDirectory> outDir = TemporaryDirectory::Create();
   for (const PathName & insFile : insFiles)
   {
-    CommandLineBuilder cmd;
-    cmd.AppendArgument(engine);
-    cmd.AppendOption("-disable-installer");
-    cmd.AppendOption("-output-directory=", outDir->GetPathName());
-    cmd.AppendOption("-aux-directory=", workDir);
-    cmd.AppendArguments(options);
-    cmd.AppendArgument(insFile);
-    cmd.AppendStdinRedirection(alwaysYes->GetPathName());
-    ProcessOutputTrash trash;
-    Process::ExecuteSystemCommand(cmd.ToString(), nullptr, &trash, workDir.GetData());
+    RunInsEngine(engine, options, insFile, outDir->GetPathName());
+    if (!packageInsFileExists)
+    {
+      packageInsFileExists = File::Exists(packageInsFile);
+      if (packageInsFileExists)
+      {
+        Verbose("re-running .ins engine because '" + package + ".ins' has been unpacked");
+        RunInsEngine(engine, options, packageInsFile, outDir->GetPathName());
+      }
+    }
   }
 }
 
 void Recipe::InstallFiles(const string & patternName, const vector<string> & defaultPatterns, const PathName & tdsDir)
 {
+  Verbose("installing '" + patternName + "' patterns");
   vector<string> patterns;
   if (!recipe->TryGetValue("patterns", patternName + "[]", patterns))
   {
@@ -375,6 +418,7 @@ void Recipe::InstallFileSets()
     {
       MIKTEX_FATAL_ERROR(T_("missing file patterns"));
     }
+    Verbose("installing '" + fileset + "' in '" + tdsdir + "'");
     Install(patterns, session->Expand(tdsdir.c_str(), this));
   }
 }

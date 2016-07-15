@@ -191,7 +191,7 @@ void TdsUtility::Run(int argc, const char ** argv)
       // TODO: home texmf
       destDir = session->GetSpecialPath(SpecialPath::UserDataRoot);
     }
-    Recipe recipe(package, sourceDir, destDir);
+    Recipe recipe(package, sourceDir, destDir, verbose);
     vector<PathName> recipeFiles;
     if (optionRecipeFiles.empty())
     {
