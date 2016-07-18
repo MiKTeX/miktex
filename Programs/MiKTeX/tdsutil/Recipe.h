@@ -25,9 +25,9 @@ class Recipe :
   public MiKTeX::Core::HasNamedValues
 {
 public:
-  Recipe(const std::string & package, const MiKTeX::Core::PathName & sourceDir, const MiKTeX::Core::PathName & destDir, bool verbose) :
+  Recipe(const std::string & package, const MiKTeX::Core::PathName & source, const MiKTeX::Core::PathName & destDir, bool verbose) :
     package(package),
-    sourceDir(sourceDir),
+    source(source),
     destDir(destDir),
     tds(package),
     verbose(verbose)
@@ -91,6 +91,12 @@ private:
   void DoAction(const std::string & action, const MiKTeX::Core::PathName & actionDir);
 
 private:
+  void Unpack(const MiKTeX::Core::PathName & path);
+
+private:
+  void WriteFiles();
+  
+private:
   void InstallFiles(const std::string & patternName, const std::vector<std::string> & defaultPatterns, const MiKTeX::Core::PathName & tdsDir);
 
 private:
@@ -133,7 +139,7 @@ private:
   std::string package;
 
 private:
-  MiKTeX::Core::PathName sourceDir;
+  MiKTeX::Core::PathName source;
 
 private:
   MiKTeX::Core::PathName destDir;

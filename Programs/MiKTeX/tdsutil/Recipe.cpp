@@ -190,7 +190,14 @@ void Recipe::SetupWorkingDirectory()
   {
     workDir = destDir / tds.GetSourceDir();
   }
-  Directory::Copy(sourceDir, workDir, { DirectoryCopyOption::CopySubDirectories });
+  if (File::Exists(source))
+  {
+    File::Copy(source, workDir / source.GetFileName());
+  }
+  else
+  {
+    Directory::Copy(source, workDir, { DirectoryCopyOption::CopySubDirectories });
+  }
   GetSnapshot(initialWorkDirSnapshot, workDir);
 }
 
@@ -214,6 +221,7 @@ void Recipe::CleanupWorkingDirectory()
 
 void Recipe::Prepare()
 {
+  WriteFiles();
   vector<string> actions;
   if (recipe->TryGetValue("prepare", "actions[]", actions))
   {
@@ -234,6 +242,26 @@ void Recipe::Finalize()
     {
       DoAction(action, destDir);
     }
+  }
+}
+
+void Recipe::WriteFiles()
+{
+  string file;
+  string fileName;
+  for (int n = 1; recipe->TryGetValue(file = ("file." + std::to_string(n)), "filename", fileName); ++n)
+  {
+    vector<string> lines;
+    if (!recipe->TryGetValue(file, "lines[]", lines))
+    {
+      MIKTEX_FATAL_ERROR(T_("missing lines"));
+    }
+    StreamWriter writer(workDir / fileName);
+    for (const string & line : lines)
+    {
+      writer.WriteLine(line);
+    }
+    writer.Close();
   }
 }
 
@@ -288,6 +316,25 @@ void Recipe::DoAction(const string & action, const PathName & actionDir)
       PrintOnly(StringUtil::FormatString("remove %s", Q_(PrettyPath(name, actionDir))));
       File::Delete(name);
     }
+    else if (Directory::Exists(name))
+    {
+      Verbose("removing directory '" + argv[1] + "'");
+      PrintOnly(StringUtil::FormatString("remove %s", Q_(PrettyPath(name, actionDir))));
+      Directory::Delete(name, true);
+    }
+  }
+  else if (actionName == "unpack")
+  {
+    if (argv.size() != 2)
+    {
+      MIKTEX_FATAL_ERROR(T_("syntax error (action)"));
+    }
+    PathName name = PathName(actionDir) / argv[1];
+    if (!File::Exists(name))
+    {
+      MIKTEX_FATAL_ERROR(T_("cannot run unpack action because the file does not exist"));
+    }
+    Unpack(name);
   }
   else if (actionName == "echo")
   {
@@ -309,6 +356,46 @@ void Recipe::DoAction(const string & action, const PathName & actionDir)
   else
   {
     MIKTEX_FATAL_ERROR(T_("unknown action"));
+  }
+}
+
+void Recipe::Unpack(const PathName & path)
+{
+  string fileName = path.GetFileName().ToString();
+  size_t extPos = fileName.find('.');
+  if (extPos == string::npos)
+  {
+    MIKTEX_FATAL_ERROR(T_("no archive file type"));
+  }
+  string command;
+  PathName extension = fileName.substr(extPos);
+  string relPath = Utils::GetRelativizedPath(path.GetData(), workDir.GetData());
+  if (extension == ".zip")
+  {
+    command = string("unzip") + " " + relPath;
+  }
+  else if (extension == ".tar.gz")
+  {
+    command = string("tar") + " -xzf " + relPath;
+  }
+  else if (extension == ".tar.bz2")
+  {
+    command = string("tar") + " -xjf " + relPath;
+  }
+  else if (extension == ".tar.lzma" || extension == ".tar.xz")
+  {
+    command = string("tar") + " -xJf " + relPath;
+  }
+  else
+  {
+    MIKTEX_FATAL_ERROR(T_("unknown archive file type"));
+  }
+  Verbose("unpacking '" + relPath + "'");
+  PrintOnly(command);
+  int exitCode = 0;
+  if (!Process::ExecuteSystemCommand(command, &exitCode, nullptr, workDir.GetData()) || exitCode != 0)
+  {
+    MIKTEX_FATAL_ERROR(T_("unpack failure"));
   }
 }
 

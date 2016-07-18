@@ -56,7 +56,7 @@ enum Option
   OPT_DEST_DIR,
   OPT_PRINT_ONLY,
   OPT_RECIPE,
-  OPT_SOURCE_DIR,
+  OPT_SOURCE,
   OPT_VERBOSE,
   OPT_VERSION
 };
@@ -88,10 +88,10 @@ struct poptOption TdsUtility::aoption[] = {
   },
 
   {
-    "source-dir", 0,
+    "source", 0,
     POPT_ARG_STRING, nullptr,
-    OPT_SOURCE_DIR,
-    T_("The source directory."),
+    OPT_SOURCE,
+    T_("The source directory or file."),
     nullptr
   },
 
@@ -131,7 +131,7 @@ void TdsUtility::Run(int argc, const char ** argv)
 
   int option;
   vector<PathName> optionRecipeFiles;
-  PathName sourceDir;
+  PathName source;
   PathName destDir;
 
   Session::InitInfo initInfo(argv[0]);
@@ -150,8 +150,8 @@ void TdsUtility::Run(int argc, const char ** argv)
     case OPT_RECIPE:
       optionRecipeFiles.push_back(optArg);
       break;
-    case OPT_SOURCE_DIR:
-      sourceDir = optArg;
+    case OPT_SOURCE:
+      source = optArg;
       break;
     case OPT_VERBOSE:
       verbose = true;
@@ -182,16 +182,16 @@ void TdsUtility::Run(int argc, const char ** argv)
       Error("Usage: %s install <package>", argv[0]);
     }
     string package = leftovers[1];
-    if (sourceDir.Empty())
+    if (source.Empty())
     {
-      sourceDir.SetToCurrentDirectory();
+      source.SetToCurrentDirectory();
     }
     if (destDir.Empty())
     {
       // TODO: home texmf
       destDir = session->GetSpecialPath(SpecialPath::UserDataRoot);
     }
-    Recipe recipe(package, sourceDir, destDir, verbose);
+    Recipe recipe(package, source, destDir, verbose);
     vector<PathName> recipeFiles;
     if (optionRecipeFiles.empty())
     {
