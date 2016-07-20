@@ -192,6 +192,7 @@ void Recipe::SetupWorkingDirectory()
   }
   if (File::Exists(source))
   {
+    Directory::Create(workDir);
     File::Copy(source, workDir / source.GetFileName());
   }
   else
