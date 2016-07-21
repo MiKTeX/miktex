@@ -408,7 +408,8 @@ void PackageInstallerImpl::LoadDbLight(bool download)
 #endif
 
   // install (if necessary)
-  if (download || !File::Exists(pathMpmIni))
+  time_t ONE_DAY_IN_SECONDS = 86400;
+  if (download || !File::Exists(pathMpmIni) || File::GetLastWriteTime(pathMpmIni) + ONE_DAY_IN_SECONDS < time(nullptr))
   {
     InstallDbLight();
   }
