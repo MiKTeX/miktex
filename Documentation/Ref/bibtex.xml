@@ -3,7 +3,7 @@
 <?dbhh topicname="MIKTEXHELP_BIBTEX" topicid="0"?>
 
 <refmeta>
-<refentrytitle>bibtex</refentrytitle>
+<refentrytitle>miktex-bibtex</refentrytitle>
 <manvolnum>1</manvolnum>
 <refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
 <refmiscinfo class="version">&miktexrev;</refmiscinfo>
@@ -11,14 +11,14 @@
 </refmeta>
 
 <refnamediv>
-<refname>bibtex</refname>
+<refname>miktex-bibtex</refname>
 <refpurpose>make a bibliography for (La)&TeX;</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
 
 <cmdsynopsis>
-<command>bibtex</command>
+<command>miktex-bibtex</command>
 <arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
 <arg choice="opt"><replaceable>auxname</replaceable></arg>
 </cmdsynopsis>
@@ -29,7 +29,7 @@
 
 <title>Description</title>
 
-<para>&bibtex; reads the top-level auxiliary
+<para>&BibTeX; reads the top-level auxiliary
 (<filename>.aux</filename>) file that was output during the running of
 &latex; or &tex; and creates a
 bibliography (<filename>.bbl</filename>) file that will be
@@ -49,7 +49,7 @@ given without the <filename>.aux</filename> extension.  If you don't
 give the <replaceable>auxname</replaceable>, the program prompts you
 for it.</para>
 
-<para>&bibtex; looks up, in bibliographic database
+<para>&BibTeX; looks up, in bibliographic database
 <indexterm>
 <primary>.bib (bibliographic database)</primary>
 </indexterm>
@@ -70,11 +70,11 @@ command, and it outputs the results to the <filename>.bbl</filename>
 file.</para>
 
 <para>The &LaTeX; reference manual explains what a &LaTeX; source file
-must contain to work with &bibtex;.  Appendix&nbsp;B of the manual
+must contain to work with &BibTeX;.  Appendix&nbsp;B of the manual
 describes the format of the <filename>.bib</filename> files. The
 <citetitle>&BibTeX;ing</citetitle> document describes extensions and
 details of this format, and it gives other useful hints for using
-&bibtex;.</para>
+&BibTeX;.</para>
 
 </refsect1>
 

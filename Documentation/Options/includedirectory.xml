@@ -1,10 +1,10 @@
 <varlistentry>
 <term><option>--include-directory=<replaceable>dir</replaceable></option></term>
-<listitem><para>Prefix <replaceable>dir</replaceable> to the
+<listitem><para>Add the directory <replaceable>dir</replaceable> to the
 <indexterm>
 <primary>--include-directory=dir</primary>
 </indexterm>
-search path.</para></listitem>
+head of the list of directories to be searched for input files.</para></listitem>
 </varlistentry>
 
 <!--

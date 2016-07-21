@@ -3,7 +3,7 @@
 <?dbhh topicname="MIKTEXHELP_DVICOPY" topicid="0"?>
 
 <refmeta>
-<refentrytitle>dvicopy</refentrytitle>
+<refentrytitle>miktex-dvicopy</refentrytitle>
 <manvolnum>1</manvolnum>
 <refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
 <refmiscinfo class="version">&miktexrev;</refmiscinfo>
@@ -11,14 +11,14 @@
 </refmeta>
 
 <refnamediv>
-<refname>dvicopy</refname>
+<refname>miktex-dvicopy</refname>
 <refpurpose>produce modified copy of &DVI; file</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
 
 <cmdsynopsis>
-<command>dvicopy</command>
+<command>miktex-dvicopy</command>
 <arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
 <arg choice="plain"><replaceable>indvi</replaceable></arg>
 <arg choice="plain"><replaceable>outdvi</replaceable></arg>
@@ -30,7 +30,7 @@
 
 <title>Description</title>
 
-<para>&dvicopy; reads a &DVI; file, expands any references to virtual
+<para>&miktexdvicopy; reads a &DVI; file, expands any references to virtual
 fonts to base fonts, and writes the resulting &DVI; file.  Thus you
 can use virtual fonts
 <indexterm>
@@ -38,7 +38,7 @@ can use virtual fonts
 <secondary>resolving</secondary>
 </indexterm>
 even if your &DVI; processor does not support them,
-by passing the documents through &dvicopy; first.</para>
+by passing the documents through &miktexdvicopy; first.</para>
 
 </refsect1>
 

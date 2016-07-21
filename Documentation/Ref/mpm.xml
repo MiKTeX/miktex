@@ -7,6 +7,7 @@
 %entities.ent;
 <!ENTITY optionhelp SYSTEM "../Options/help.xml">
 <!ENTITY optionhhelp SYSTEM "../Options/hhelp.xml">
+<!ENTITY MIKTEX_REPOSITORY SYSTEM "../EnvVars/MIKTEX_REPOSITORY.xml">
 ]>
 
 <refentry id="mpm">

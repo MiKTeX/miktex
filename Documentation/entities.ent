@@ -113,7 +113,9 @@
 <!ENTITY UNIX "<application>UNIX</application>">
 <!ENTITY Yap "<application>Yap</application>">
 <!ENTITY Cygwin "<application>Cygwin</application>">
+<!ENTITY miktexbibtex "<command>miktex-bibtex</command>">
 <!ENTITY bibtex "<command>bibtex</command>">
+<!ENTITY miktexdvicopy "<command>miktex-dvicopy</command>">
 <!ENTITY dvicopy "<command>dvicopy</command>">
 <!ENTITY dvips "<command>dvips</command>">
 <!ENTITY eplain "<command>eplain</command>">

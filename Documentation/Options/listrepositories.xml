@@ -2,7 +2,6 @@
 <!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
                        "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <varlistentry><term><option>--list-repositories</option></term>
-<listitem><para>Download the list of known package repository URLs from
-the &MiKTeX; project server, then print the list.</para>
+<listitem><para>Download the list of known package repository URLs, then print the list.</para>
 </listitem>
 </varlistentry>

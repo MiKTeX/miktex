@@ -678,6 +678,8 @@ add_custom_command(
 if(MIKTEX_UNIX_ALIKE)
   add_custom_command(
     OUTPUT
+      ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}bibtex.1
+      ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}dvicopy.1
       ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}pdftex.1
       ${CMAKE_CURRENT_BINARY_DIR}/initexmf.1
       ${CMAKE_CURRENT_BINARY_DIR}/miktex-tools.7
@@ -695,6 +697,8 @@ if(MIKTEX_UNIX_ALIKE)
       ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS
       ${CMAKE_CURRENT_BINARY_DIR}/filetypes
+      ${CMAKE_CURRENT_SOURCE_DIR}/Ref/bibtex.xml
+      ${CMAKE_CURRENT_SOURCE_DIR}/Ref/dvicopy.xml
       ${CMAKE_CURRENT_SOURCE_DIR}/Ref/initexmf.xml
       ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktex-tools.xml
       ${CMAKE_CURRENT_SOURCE_DIR}/Ref/mpm.xml
@@ -707,6 +711,8 @@ if(MIKTEX_UNIX_ALIKE)
   )
   install(
     FILES
+      ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}bibtex.1
+      ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}dvicopy.1
       ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}pdftex.1
       ${CMAKE_CURRENT_BINARY_DIR}/initexmf.1
       ${CMAKE_CURRENT_BINARY_DIR}/mpm.1
