@@ -160,6 +160,7 @@ void Recipe::Execute(bool printOnly)
   InstallFileSets();
   InstallFiles("tex", standardTeXPatterns, tds.GetTeXDir());
   InstallFiles("doc", standardDocPatterns, tds.GetDocDir());
+  InstallFiles("man1", standardMan1Patterns, tds.GetMan1Dir());
   InstallFiles("bib", standardBibPatterns, tds.GetBibDir());
   InstallFiles("bst", standardBstPatterns, tds.GetBstDir());
   InstallFiles("csf", standardCsfPatterns, tds.GetCsfDir());

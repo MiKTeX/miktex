@@ -241,5 +241,8 @@ private:
   const std::vector<std::string> standardMpPatterns = { "*.mp" };
 
 private:
+  const std::vector<std::string> standardMan1Patterns = { "*.1" };
+  
+private:
   const std::vector<std::string> standardScriptPatterns;
 };

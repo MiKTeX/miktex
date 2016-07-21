@@ -147,6 +147,12 @@ public:
     return MiKTeX::Core::PathName("scripts") / package;
   }
 
+public:
+  MiKTeX::Core::PathName GetMan1Dir() const
+  {
+    return MiKTeX::Core::PathName("doc") / "man" / "man1";
+  }
+
 private:
   std::string package;
 
