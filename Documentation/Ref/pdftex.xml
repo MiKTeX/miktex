@@ -42,11 +42,11 @@ well as &DVI; files.</para>
 
 <para>In &DVI; mode, &pdfTeX; can be used as a complete replacement for the &TeX; engine.</para>
 
-<oara>The typical use of &pdfTeX; is with a pregenerated formats for
+<para>The typical use of &pdfTeX; is with a pregenerated formats for
 which &PDF; output has been enabled.  The &miktexpdftex; command uses
 the equivalent of the plain &TeX; format, and the &pdflatex; command
 uses the equivalent of the &LaTeX; format. To generate formats, use
-the <option>-initialize</option> switch.</oara>
+the <option>-initialize</option> switch.</para>
 
 <para>In &PDF; mode, &pdfTeX; can natively handle the &PDF;, &JPG;,
 <acronym>JBIG2</acronym> and &PNG; graphics formats.  &pdfTeX; cannot
