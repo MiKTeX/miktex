@@ -3,7 +3,7 @@
 <?dbhh topicname="MIKTEXHELP_XETEX" topicid="0"?>
 
 <refmeta>
-<refentrytitle>xetex</refentrytitle>
+<refentrytitle>miktex-xetex</refentrytitle>
 <manvolnum>1</manvolnum>
 <refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
 <refmiscinfo class="version">&miktexrev;</refmiscinfo>
@@ -11,14 +11,14 @@
 </refmeta>
 
 <refnamediv>
-<refname>xetex</refname>
+<refname>miktex-xetex</refname>
 <refpurpose>Unicode-based &TeX; engine</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
 
 <cmdsynopsis>
-&xetex;
+&miktexxetex;
 <arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
 <group>
 <arg choice="opt"><replaceable>file</replaceable></arg>
@@ -153,12 +153,3 @@ font weights.</para>
 </refsect1>
 
 </refentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "book")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

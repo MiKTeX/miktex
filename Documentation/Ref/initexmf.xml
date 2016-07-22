@@ -49,12 +49,12 @@ modified.</para>
 <term>Administrative mode</term>
 <listitem>
 <para>Only system-wide &MiKTeX; configuration and data files are
-modified. The utility should be run as the system administrator.</para>
+modified.  The utility should be run as the system administrator.</para>
 </listitem>
 </varlistentry>
 </variablelist>
 
-<para>By default, the utility runs in user mode. You can turn on
+<para>By default, the utility runs in user mode.  You can turn on
 administrative mode with the <option>--admin</option> option. For
 example, if you want to update the system-wide file name database, you
 invoke the utility as follows:</para>
@@ -76,25 +76,7 @@ invoke the utility as follows:</para>
 </indexterm>
 <para>Run in administrative mode.</para></listitem>
 </varlistentry>
-<varlistentry>
-<term><option>--configure</option></term>
-<listitem>
-<indexterm>
-<primary>--configure</primary>
-</indexterm>
-<para>This option is only available on &UNIXsystemlike;
-platforms. Configure &MiKTeX;:</para>
-<itemizedlist>
-<listitem><para>&kpsewhich; is run to find existing &TEXMF; trees;
-the information is written to
-<filename>/var/lib/miktex-texmf/miktex/config/miktexstartup.ini</filename>,
-if administrative mode is turned on; otherwise the information
-is written to <filename>~/.miktex/miktex/config/miktexstartup.ini</filename></para></listitem>
-<listitem><para>the system-wide (per-user) file name database is created, if
-administrative mode is turned on (off)</para></listitem>
-</itemizedlist>
-</listitem>
-</varlistentry>
+&optiondisableinstaller;
 <varlistentry>
 <term><option>--dump</option></term>
 <listitem>
@@ -112,7 +94,7 @@ administrative mode is turned on (off)</para></listitem>
 <para>Create all memory dump files.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><option>--dump=<replaceable>key</replaceable></option></term>
+<term><option>--dump=<replaceable>name</replaceable></option></term>
 <listitem><para>Dump the specified memory dump file.</para></listitem>
 </varlistentry>
 <varlistentry>
@@ -121,8 +103,13 @@ administrative mode is turned on (off)</para></listitem>
 <indexterm>
 <primary>--edit-config-file=file</primary>
 </indexterm>
-<para>Open the specified config file in an editor.</para>
+<para>Open the specified config file in a text editor.</para>
 </listitem>
+</varlistentry>
+&optionenableinstaller;
+<varlistentry>
+<term><option>--engine=<replaceable>engine</replaceable></option></term>
+<listitem><para>Engine to be used when generating format files.</para></listitem>  
 </varlistentry>
 <varlistentry>
 <term><option>--force</option></term>
@@ -133,6 +120,14 @@ administrative mode is turned on (off)</para></listitem>
 <para>Force <option>--mklinks</option> to overwrite existing
 executables.</para>
 </listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--list-formats</option></term>
+<listitem>
+<indexterm>
+<primary>--list-formats</primary>
+</indexterm>
+<para>List all known formats.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--list-modes</option></term>
@@ -172,7 +167,7 @@ executables.</para>
 <indexterm>
 <primary>--print-only</primary>
 </indexterm>
-<para>Print what would be done. Nothing is changed.</para></listitem>
+<para>Print what would be done.  Nothing is changed.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--quiet</option></term>
@@ -234,6 +229,10 @@ executables.</para>
 &TEXMF; tree.</para></listitem>
 </varlistentry>
 <varlistentry>
+<term><option>--user-roots=<replaceable>directories</replaceable></option></term>
+<listitem><para>Register user root directories.</para></listitem>
+</varlistentry>
+<varlistentry>
 <term><option>--verbose</option></term>
 <listitem>
 <indexterm>
@@ -262,12 +261,3 @@ executables.</para>
 </refsect1>
 
 </refentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "reference")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

@@ -29,11 +29,11 @@
 
 <title>Description</title>
 
-<para>&findtexmf; can be used to find &MiKTeX; related files. When the
+<para>&findtexmf; can be used to find &MiKTeX; related files.  When the
 <option>-file-type</option> option is not given, the search path used
 when looking for a file is inferred from the name given, by looking
-for a known extension.  If no known extension is found, the search path
-for &TeX; source files is used.</para>
+for a known extension.  If no known extension is found, the search
+path for &TeX; source files is used.</para>
 
 </refsect1>
 
@@ -42,12 +42,12 @@ for &TeX; source files is used.</para>
 
 <variablelist>
 <varlistentry>
-<term><option>--alias=<replaceable>app</replaceable></option></term>
+<term><option>--alias=<replaceable>name</replaceable></option></term>
 <listitem>
 <indexterm>
-<primary>--alias=app</primary>
+<primary>--alias=name</primary>
 </indexterm>
-<para>Pretend to be <replaceable>app</replaceable> when finding
+<para>Pretend to be <replaceable>name</replaceable> when finding
 files.</para></listitem>
 </varlistentry>
 &optionhelp;
@@ -110,12 +110,3 @@ files.</para></listitem>
 </refsect1>
 
 </refentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "book")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

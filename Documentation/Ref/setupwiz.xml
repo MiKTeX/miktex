@@ -255,12 +255,3 @@ directories are specified by using environment variables (&lt;VARNAME&gt;) which
 </refsect1>
 
 </refentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "reference")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

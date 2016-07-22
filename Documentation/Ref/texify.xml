@@ -247,12 +247,3 @@ environment variables are used to run those commands, if they are set.</para>
 </refsect1>
 
 </refentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "book")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

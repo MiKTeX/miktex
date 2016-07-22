@@ -41,11 +41,9 @@
 <!ENTITY mangftodvi SYSTEM "Ref/gftodvi.xml">
 <!ENTITY maninitexmf SYSTEM "Ref/initexmf.xml">
 <!ENTITY manmf SYSTEM "Ref/mf.xml">
-<!ENTITY manmiktextools SYSTEM "Ref/miktex-tools.xml">
 <!ENTITY manmpost SYSTEM "Ref/mpost.xml">
 <!ENTITY manmthelp SYSTEM "Ref/mthelp.xml">
 <!ENTITY manmtprint SYSTEM "Ref/mtprint.xml">
-<!ENTITY manomega SYSTEM "Ref/omega.xml">
 <!ENTITY manxetex SYSTEM "Ref/xetex.xml">
 <!ENTITY manpdftex SYSTEM "Ref/pdftex.xml">
 <!ENTITY manpdftexcfg SYSTEM "Ref/pdftexcfg.xml">
@@ -559,12 +557,10 @@ option of &initexmf; to edit the configuration file, e.g.:</para>
 &maninitexmf;
 &manmf;
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/miktexsetup.xml" />
-&manmiktextools;
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/mpm.xml" />
 &manmpost;
 &manmthelp;
 &manmtprint;
-&manomega;
 &manpdftex;
 &mansetupwiz;
 &mantex;

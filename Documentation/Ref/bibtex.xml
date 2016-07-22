@@ -146,12 +146,3 @@ crossref'd entry on the citation list; the default is two.</para></listitem>
 </refsect1>
 
 </refentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "reference")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

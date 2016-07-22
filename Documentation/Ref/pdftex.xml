@@ -40,8 +40,18 @@ the first of which must start with a backslash.</para>
 <para>&pdfTeX; is a version of &TeX; that can create &PDF; files as
 well as &DVI; files.</para>
 
+<para>In &DVI; mode, &pdfTeX; can be used as a complete replacement for the &TeX; engine.</para>
+
+<oara>The typical use of &pdfTeX; is with a pregenerated formats for
+which &PDF; output has been enabled.  The &miktexpdftex; command uses
+the equivalent of the plain &TeX; format, and the &pdflatex; command
+uses the equivalent of the &LaTeX; format. To generate formats, use
+the <option>-initialize</option> switch.</oara>
+
 <para>In &PDF; mode, &pdfTeX; can natively handle the &PDF;, &JPG;,
-and &PNG; graphics formats.</para>
+<acronym>JBIG2</acronym> and &PNG; graphics formats.  &pdfTeX; cannot
+include &PostScript; or Encapsulated PostScript (&EPS;) graphics
+files; first convert them to &PDF; using epstopdf(1).</para>
 
 </refsect1>
 
@@ -63,7 +73,9 @@ and &PNG; graphics formats.</para>
 <primary>--draftmode</primary>
 </indexterm>
 <term><option>--draftmode</option></term>
-<listitem><para>Switch on draft mode (generates no output).</para></listitem>
+<listitem><para>Sets <markup role="tex">\pdfdraftmode</markup> so
+&pdfTeX; doesn't write a &PDF; and doesn't read any included images,
+thus speeding up execution.</para></listitem>
 </varlistentry>
 &optionenableenctex;
 &optionenableetex;
@@ -97,7 +109,10 @@ and &PNG; graphics formats.</para>
 <primary>--output-format=<replaceable>format</replaceable></primary>
 </indexterm>
 <term><option>--output-format=format</option></term>
-<listitem><para>Set the output format.</para></listitem>
+<listitem><para>Set the output format mode, where
+<replaceable>format</replaceable> must be either <option>dvi</option>
+or <option>pdf</option>.  This also influences the set of graphics
+formats understood by &pdfTeX;.</para></listitem>
 </varlistentry>
 &optionparamsize;
 &optionparsefirstline;
@@ -160,12 +175,3 @@ and &PNG; graphics formats.</para>
 </refsect1>
 
 </refentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "book")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

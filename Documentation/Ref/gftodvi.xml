@@ -3,7 +3,7 @@
 <?dbhh topicname="MIKTEXHELP_GFTODVI" topicid="0"?>
 
 <refmeta>
-<refentrytitle>gftodvi</refentrytitle>
+<refentrytitle>miktex-gftodvi</refentrytitle>
 <manvolnum>1</manvolnum>
 <refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
 <refmiscinfo class="version">&miktexrev;</refmiscinfo>
@@ -11,14 +11,14 @@
 </refmeta>
 
 <refnamediv>
-<refname>gftodvi</refname>
+<refname>miktex-gftodvi</refname>
 <refpurpose>make proof sheets from generic font files</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
 
 <cmdsynopsis>
-&gftodvi;
+<command>miktex-gftodvi</command>
 <arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
 <arg choice="opt"><replaceable>gffile</replaceable></arg>
 </cmdsynopsis>
@@ -29,7 +29,7 @@
 
 <title>Description</title>
 
-<para>The &gftodvi; program converts a generic font
+<para>The &miktexgftodvi; program converts a generic font
 (<acronym>GF</acronym>) file output by, for example, &METAFONT;, to a
 device independent (&DVI;) file (that can then be typeset using the
 same software that has already been written for). The characters in
@@ -37,7 +37,7 @@ the <acronym>GF</acronym> file will appear one per page, with labels,
 titles, and annotations as specified in Appendix&nbsp;H (Hardcopy
 Proofs) of <citetitle>The METAFONTbook</citetitle>.</para>
 
-<para>&gftodvi; uses other fonts in addition to the main
+<para>&miktexgftodvi; uses other fonts in addition to the main
 <acronym>GF</acronym> file. A <quote>gray</quote> font is used to
 typeset the pixels that actually make up the character. (We wouldn't
 want all the pixels to be simply black, since then labels, key points,
@@ -56,9 +56,8 @@ your source file, or you can change the fonts on the
 command-line.</para>
 
 <para>The <acronym>GF</acronym> file name on the command-line must be
-complete. (The program prompts you for it if you don't give it.)
-Because the resolution is part of the extension, it would not make
-sense to append a default extension as is done with other
+complete.  Because the resolution is part of the extension, it would
+not make sense to append a default extension as is done with other
 &DVI;-reading software. The output file name defaults to the same root
 as the <acronym>GF</acronym> file, with the <filename>.dvi</filename>
 extension added. For example, the input file
@@ -166,12 +165,3 @@ There is no default.</para></listitem>
 </refsect1>
 
 </refentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "book")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

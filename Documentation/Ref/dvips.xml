@@ -3,7 +3,7 @@
 <?dbhh topicname="MIKTEXHELP_DVIPS" topicid="0"?>
 
 <refmeta>
-<refentrytitle>dvips</refentrytitle>
+<refentrytitle>miktex-dvips</refentrytitle>
 <manvolnum>1</manvolnum>
 <refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
 <refmiscinfo class="version">&miktexrev;</refmiscinfo>
@@ -11,14 +11,14 @@
 </refmeta>
 
 <refnamediv>
-<refname>dvips</refname>
+<refname>miktex-dvips</refname>
 <refpurpose>convert a &DVI; file to &PostScript;</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
 
 <cmdsynopsis>
-<command>dvips</command>
+<command>miktex-dvips</command>
 <arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
 <arg choice="plain"><replaceable>dvifile</replaceable></arg>
 </cmdsynopsis>
@@ -29,8 +29,8 @@
 
 <title>Description</title>
 
-<para>&dvips; takes a &DVI; file produced by &TeX; (or by
-some other processor such as &gftodvi;) and
+<para>&Dvips; takes a &DVI; file produced by &TeX; (or by some other
+processor such as &gftodvi;) and
 <indexterm>
 <primary>gftodvi</primary>
 </indexterm>
@@ -39,8 +39,7 @@ converts it to &PostScript;.
 <primary>PostScript</primary>
 <secondary>converting TeX output into</secondary>
 </indexterm>
-The &DVI; file may be specified without
-the <filename>.dvi</filename>
+The &DVI; file may be specified without the <filename>.dvi</filename>
 <indexterm>
 <primary>.dvi (DVI file)</primary>
 </indexterm>
@@ -59,9 +58,24 @@ options are marked with a trailing <literal>*</literal>.</para>
 
 <variablelist>
 <varlistentry>
+<term><option>-</option></term>
+<listitem><para>Read additional options from standard input after
+processing the command line.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--help</option></term>
+<listitem><para>Print a usage message and exit.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--version</option></term>
+<listitem><para>Print the version number and exit.</para></listitem>
+</varlistentry>
+<varlistentry>
 <term><option>-a*</option></term>
-<listitem><para>Conserve memory by making three passes over the &DVI; file
-instead of two and only loading those characters actually used.</para></listitem>
+<listitem><para>Conserve memory by making three passes over the &DVI;
+file instead of two and only loading those characters actually used.
+Generally only useful on machines with a very limited amount of
+memory.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-A</option></term> <listitem><para>Print only the odd
@@ -78,15 +92,14 @@ to do color separations or other neat tricks.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-B</option></term>
-<listitem><para>Print only the even
-pages.  This option uses &TeX; page numbers, not physical page
-numbers.</para></listitem>
+<listitem><para>Print only the even pages.  This option uses &TeX;
+page numbers, not physical page numbers.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-c <replaceable>num</replaceable></option></term>
-<listitem><para>Generate <replaceable>num</replaceable> consecutive copies
-of every page, i.e., the output is uncollated.  This
-merely sets the builtin &PostScript; variable
+<listitem><para>Generate <replaceable>num</replaceable> consecutive
+copies of every page, i.e., the output is uncollated.  This merely
+sets the builtin &PostScript; variable
 <command>/#copies</command>.</para></listitem>
 </varlistentry>
 <varlistentry>
@@ -94,57 +107,56 @@ merely sets the builtin &PostScript; variable
 <listitem><para>Generate <replaceable>num</replaceable> copies, but
 collated (by replicating the data in the &PostScript; file).  Slower
 than the <option>-c</option> option, but easier on the hands, and
-faster than resubmitting the same &PostScript; file multiple times.</para></listitem>
+faster than resubmitting the same &PostScript; file multiple
+times.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-d <replaceable>num</replaceable></option></term>
-<listitem><para>Set the debug flags, showing what &Dvips; (thinks it) is
-doing. See the &Dvips; manual, for the possible values of
+<listitem><para>Set the debug flags, showing what &Dvips; (thinks it)
+is doing.  See the &Dvips; manual, for the possible values of
 <replaceable>num</replaceable>.  Use <option>-d -1</option> as the
 first option for maximum output.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-D <replaceable>num</replaceable></option></term>
 <listitem><para>Set both the horizontal and vertical resolution to
-<replaceable>num</replaceable>, given in <acronym>dpi</acronym>
-(dots per inch).  This
-affects the choice of bitmap fonts that are loaded and also the
-positioning of letters in resident &PostScript; fonts.  Must be between
-10 and 10000.  This affects both the horizontal and vertical
-resolution.  If a high resolution (something greater than 400 dpi,
-say) is selected, the <option>-Z</option> flag should probably also be
-used.  If you are using fonts made with
+<replaceable>num</replaceable>, given in <acronym>dpi</acronym> (dots
+per inch).  This affects the choice of bitmap fonts that are loaded
+and also the positioning of letters in resident &PostScript; fonts.
+Must be between 10 and 10000.  This affects both the horizontal and
+vertical resolution.  If a high resolution (something greater than 400
+<acronym>dpi</acronym>, say) is selected, the <option>-Z</option> flag
+should probably also be used.  If you are using fonts made with
 &METAFONT;, such as <application>Computer Modern</application>,
 <command>makepk</command> needs to know about the value for
-<replaceable>num</replaceable> that you use or
-&METAFONT; will fail.  See the file
-<filename>modes.mf</filename> for a list of resolutions and mode names
-for most devices.</para></listitem>
+<replaceable>num</replaceable> that you use or &METAFONT; will fail.
+See the file <filename>modes.mf</filename> for a list of resolutions
+and mode names for most devices.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-e <replaceable>num</replaceable></option></term>
 <listitem><para>Maximum drift in pixels of each character from its
-`true' resolution-independent position on the page. The default value
-of this parameter is resolution dependent (it is the number of entries
-in the list [100, 200, 300, 400, 500, 600, 800, 1000, 1200, 1600,
-2000, 2400, 2800, 3200, &hellip;] that are less than or equal to the
-resolution in dots per inch). Allowing individual characters to
-`drift' from their correctly rounded positions by a few pixels, while
-regaining the true position at the beginning of each new word,
-improves the spacing of letters in words.</para></listitem>
+<quote>true</quote> resolution-independent position on the page.  The
+default value of this parameter is resolution dependent (it is the
+number of entries in the list [100, 200, 300, 400, 500, 600, 800,
+1000, 1200, 1600, 2000, 2400, 2800, 3200, &hellip;] that are less than
+or equal to the resolution in dots per inch).  Allowing individual
+characters to <quote>drift</quote> from their correctly rounded
+positions by a few pixels, while regaining the true position at the
+beginning of each new word, improves the spacing of letters in
+words.</para></listitem>
 </varlistentry>
-
 <varlistentry>
 <term><option>-E*</option></term>
-<listitem><para>Generate an <acronym>EPSF</acronym> file with a tight bounding
-box.  This only looks at marks made by characters and rules, not by
-any included graphics.  In addition, it gets the glyph metrics from
-the <acronym>TFM</acronym> file, so characters that print outside
+<listitem><para>Generate an <acronym>EPSF</acronym> file with a tight
+bounding box.  This only looks at marks made by characters and rules,
+not by any included graphics.  In addition, it gets the glyph metrics
+from the <acronym>TFM</acronym> file, so characters that print outside
 their enclosing <acronym>TFM</acronym> box may confuse it.  In
 addition, the bounding box might be a bit too loose if the character
 glyph has significant left or right side bearings.  Nonetheless, this
 option works well enough for creating small <acronym>EPSF</acronym>
-files for equations or tables or the like.  (Of course, &dvips;
+files for equations or tables or the like.  (Of course, &Dvips;
 output, especially when using bitmap fonts, is resolution-dependent
 and thus does not make very good <acronym>EPSF</acronym> files,
 especially if the images are to be scaled; use these
@@ -159,7 +171,7 @@ the single output file.</para></listitem>
 &PostScript; to standard output.  The standard input must be seekable,
 so it cannot be a pipe.  If your input must be a pipe, write a shell
 script that copies the pipe output to a temporary file and then points
-&dvips; at this file.  It turns off the automatic sending of control-D
+&Dvips; at this file.  It turns off the automatic sending of control-D
 if it was turned on with the <option>-F</option> option or in the
 configuration file; use <option>-F</option> after the
 <option>-f</option> to send it anyway.</para></listitem>
@@ -168,14 +180,18 @@ configuration file; use <option>-F</option> after the
 <term><option>-F*</option></term>
 <listitem>
 <para>Write control-D (<acronym>ASCII</acronym> code 4) as the very
-last character of the &PostScript; file.  This is useful when &dvips;
+last character of the &PostScript; file.  This is useful when &Dvips;
 is driving the printer directly instead of working through a spooler,
 as is common on personal systems.  On systems shared by more than one
 person, this is not recommended.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-G</option></term>
-<listitem><para>Shift low chars to higher pos.</para></listitem>
+<listitem><para>Shift non-printing characters
+(<acronym>ASCII</acronym> 0-32, 127) to higher-numbered positions.
+This was useful to work around bugs in old versions of Adobe's &PDF;
+reader.  It's more likely to cause problems
+nowadays.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-h <replaceable>name</replaceable></option></term>
@@ -198,7 +214,10 @@ and <option>-S</option> is not, each page is output as a separate
 file.  For instance, some phototypesetters cannot print more than ten
 or so consecutive pages before running out of steam; these options can
 be used to automatically split a book into ten-page sections, each to
-its own file.</para></listitem>
+its own file.</para><para>On the other hand, if your document uses
+very large fonts or very large included figures, &Dvips; might take it
+upon itself to split the output into unwanted sections, to try to
+avoid overflowing printer memory.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-j*</option></term>
@@ -239,11 +258,21 @@ specified) is treated as a physical (absolute) page number, rather
 than a value to compare with the &TeX; <markup
 role="tex">\count0</markup> values stored in the &DVI; file.  Thus,
 using <option>-l =9</option> will end with the ninth page of the
-document, no matter what the pages are actually numbered.</para></listitem>
+document, no matter what the pages are actually
+numbered.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-m*</option></term>
-<listitem><para>Specify manual feed, if supported by the output device.</para></listitem>
+<listitem><para>Specify manual feed, if supported by the output
+device.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-mode <replaceable>mode</replaceable></option></term>
+<listitem><para>Use <replaceable>mode</replaceable> as the &METAFONT;
+device name for path searching and font generation.  This overrides
+any value from configuration files.  With the default paths,
+explicitly specifying the mode also makes the program assume the fonts
+are in a subdirectory named mode.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-M*</option></term>
@@ -255,13 +284,40 @@ document, no matter what the pages are actually numbered.</para></listitem>
 Default is 100000.</para></listitem>
 </varlistentry>
 <varlistentry>
+<term><option>-n <replaceable>num</replaceable></option></term>
+<listitem><para>Print at most <replaceable>num</replaceable> pages.
+Default is 100000.</para></listitem>
+</varlistentry>
+<varlistentry>
 <term><option>-N*</option></term>
-
 <listitem><para>Turns off generation of structured comments such as
 <command>%%Page</command>; this may be necessary on some systems that
 try to interpret &PostScript; comments in weird ways, or on some
 &PostScript; printers.  Beware: This also disables page movement,
-etc., in &PostScript; viewers such as <application>GSview</application>.</para></listitem>
+etc., in &PostScript; viewers such as
+<application>GSview</application>.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-noomega</option></term>
+<listitem><para>Disable the use of &Omega; extensions when
+interpreting &DVI; files.  By default, the additional opcodes 129 and
+134 are recognized by &Dvips; as &Omega; or &pTeX; extensions and
+interpreted as requests to set 2-byte characters.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-noptex</option></term>
+<listitem><para>Disable the use of &pTeX; extensions when interpreting
+&DVI; files.  By default, the additional opcodes 130 and 135 are
+recognized by &Dvips; as &Omega; extensions and interpreted as
+requests to set 3-byte characters, and 255 as request to change the
+typesetting direction.</para><para>The only drawback is that the
+virtual font array will (at least temporarily) require 65536 or more
+positions instead of the default 256 positions, i.e., the memory
+requirements of &Dvips; will be somewhat larger.  If you find this
+unacceptable or encounter another problem with the &Omega; or &pTeX;
+extensions, you can switch off the &pTeX; extension by
+<option>-noptex</option>, or both by
+<option>-noomega</option>.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-o <replaceable>name</replaceable></option></term>
@@ -273,13 +329,13 @@ input &DVI; file was
 <filename><replaceable>file</replaceable>.dvi</filename>.  If
 <option>-o</option> isn't given at all, the configuration file default
 is used.</para>
-<para>If <replaceable>name</replaceable> is <filename>-</filename>, output
-goes to standard output.  If the first character of
+<para>If <replaceable>name</replaceable> is <filename>-</filename>,
+output goes to standard output.  If the first character of
 <replaceable>name</replaceable> is <option>!</option> or
 <option>|</option>, then the remainder will be used as an argument to
 <option>popen</option>; thus, specifying <option>|lpr</option> as the
 output file will automatically queue the file for printing as usual.
-&dvips; will print to the local printer device <option>PRN</option>
+&Dvips; will print to the local printer device <option>PRN</option>
 when <replaceable>name</replaceable> is <option>|lpr</option> and a
 program by that name cannot be found.</para>
 <para><option>-o</option> turns off the automatic sending of
@@ -297,7 +353,7 @@ upper left corner of the paper) by this amount.  This is usually best
 specified in the printer-specific configuration file.</para>
 <para>This is useful for a printer that consistently offsets output
 pages by a certain amount.  You can use the file
-<option>testpage.tex</option> to determine the correct value for your
+<filename>testpage.tex</filename> to determine the correct value for your
 printer.  Be sure to do several runs with the same <option>O</option>
 value-some printers vary widely from run to run.</para>
 <para>If your printer offsets every other page consistently, instead
@@ -308,7 +364,6 @@ information).</para></listitem>
 <varlistentry>
 <term><option>-p [=]<replaceable>num</replaceable></option></term>
 <listitem>
-
 <para>The first page printed will be the first one numbered
 <replaceable>num</replaceable>. Default is the first page in the
 document.  If <replaceable>num</replaceable> is prefixed by an equals
@@ -317,7 +372,8 @@ specified) is treated as a physical (absolute) page number, rather
 than a value to compare with the &TeX; <markup
 role="tex">\count0</markup> values stored in the &DVI; file.  Thus,
 using <option>-p =3</option> will start with the third page of the
-document, no matter what the pages are actually numbered.</para></listitem>
+document, no matter what the pages are actually
+numbered.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-pp <replaceable>first</replaceable>-<replaceable>last</replaceable></option></term>
@@ -333,16 +389,20 @@ and <option>-l</option>.  The <option>-</option> separator can also be
 <varlistentry>
 <term><option>-P <replaceable>printer</replaceable></option></term>
 <listitem><para>Read the configuration file
-<option>config.<replaceable>printer</replaceable></option>, which can
-set the output name (most likely <option>o |lpr
+<filename>config.<replaceable>printer</replaceable></filename>, which
+can set the output name (most likely <option>o |lpr
 -P<replaceable>printer</replaceable></option>), resolution,
 <application>METAFONT</application> mode, and perhaps font paths and
 other printer-specific defaults.  It works best to put sitewide
-defaults in the one master <option>config.ps</option> file and only
-things that vary printer to printer in the
-<option>config.<replaceable>printer</replaceable></option> files;
-<option>config.ps</option> is read before
-<option>config.<replaceable>printer</replaceable></option>.</para></listitem>
+defaults in the one master <filename>config.ps</filename> file and
+only things that vary printer to printer in the
+<filename>config.<replaceable>printer</replaceable></filename> files;
+<filename>config.ps</filename> is read before
+<filename>config.<replaceable>printer</replaceable></filename>.</para><para>A
+configuration file for eventual creation of Adobe &PDF; files is
+provided in <filename>config.pdf</filename> and thus can be loaded
+with <option>-Ppdf</option>.  It will try to include Type&nbsp;1
+outline fonts into the &PostScript; file.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-q*</option></term>
@@ -358,13 +418,17 @@ output first.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-R</option></term>
-<listitem><para>Run securely.  This disables shell command execution
+<listitem><para>Run securely.  <option>-R2</option> disables both
+shell command execution
 <indexterm>
 <primary>security</primary>
 </indexterm>
 in <markup role="tex">\special</markup> (via <option>`</option>) and
 config files (via the <option>E</option>), pipes as output files, and
-opening of any absolute filenames.</para></listitem>
+opening of any absolute or <filename>..</filename>-relative filenames.
+<option>-R1</option>, the default, forbids shell escapes but allows
+absolute filenames.  <option>-R0</option> allows
+both.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-s*</option></term>
@@ -391,27 +455,44 @@ select it.  You can also specify a
 which rotates a document by 90 degrees.  To rotate a document whose
 paper type is not the default, you can use the <option>-t</option>
 option twice, once for the paper type, and once for
-<option>landscape</option>.</para></listitem>
+<option>landscape</option>.</para>
+<para>In general, you should not use any <option>-t</option> option
+when using a <markup role="tex">papaersize</markup> special, which
+some &LaTeX; packages (e.g., <filename>hyperref</filename>)
+insert</para>
+<para>One exception is when using a nonstandard paper size that is not
+already defined in <filename>config.ps</filename>; in this case, you
+need to specify <option>-t unknown</option>.</para>
+<para>Another exception is when producing multi-page files for further
+processing; use <option>-t nopaper</option> to omit any paper size
+information in the output. (If you just have a single page document,
+you can use <option>-E</option> to get pure <acronym>EPSF</acronym>
+output.)</para>
+</listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-T <replaceable>hsize,vsize</replaceable></option></term>
 <listitem><para>Set the paper size to
-(<replaceable>hsize</replaceable>,<replaceable>vsize</replaceable>),
-a comma-separated pair of dimensions such as
-<option>.1in,-.3cm</option> .  It overrides any paper size
-special in the &DVI; file.</para></listitem>
+(<replaceable>hsize</replaceable>,<replaceable>vsize</replaceable>), a
+comma-separated pair of dimensions such as
+<option>.1in,-.3cm</option>.  It overrides any paper size special in
+the &DVI; file.  Be careful, as the paper size will stick to a
+predefined size if there is one close enough.  To disable this
+behavior, use <option>-tunknown</option></para></listitem>
 </varlistentry>
 <varlistentry>
-<term><option>-u <replaceable>name</replaceable></option></term>
-<listitem><para>Examine <replaceable>name</replaceable> for &PostScript; font
-aliases. Default is <filename>psfonts.map</filename>. This option
+<term><option>-u <replaceable>psmapfile</replaceable></option></term>
+<listitem><para>Set <replaceable>psmapfile</replaceable> to be the
+file that &Dvips; uses for looking up &PostScript; font aliases.
 <indexterm>
 <primary>psfonts.map</primary>
 </indexterm>
-allows you to specify different resident fonts that different printers
-may have. If <replaceable>name</replaceable> starts with a
-<filename>+</filename> character, then the rest of the name (after any
-leading spaces) is used as an additional map file.</para></listitem>
+If <replaceable>psmapfile</replaceable> starts with a
+<filename>+</filename> character, then the rest of the name is used as
+the name of the map file, and the map file is appended to the list of
+map files (instead of replacing the list). In either case, if the name
+has no extension, <filename>.map</filename> is added at the
+end.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-U*</option></term>
@@ -421,6 +502,10 @@ string that is used to store the bitmap information.  This is only
 necessary when driving the Xerox 4045 &PostScript; interpreter, which
 has a bug that puts garbage on the bottom of each character.  Not
 recommended unless you must drive this printer.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-v</option></term>
+<listitem><para>Print the &Dvips; version number and exit.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-V*</option></term>
@@ -498,12 +583,3 @@ file.</para></listitem>
 </refsect1>
 
 </refentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "reference")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

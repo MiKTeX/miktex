@@ -60,6 +60,7 @@
 <!ENTITY UpdateWizard "<application>Update Wizard</application>">
 <!ENTITY NTS "<application>NTS</application>">
 <!ENTITY PDF "<acronym>PDF</acronym>">
+<!ENTITY SVG "<acronym>SVG</acronym>">
 <!ENTITY JPG "<acronym>JPG</acronym>">
 <!ENTITY PNG "<acronym>PNG</acronym>">
 <!ENTITY Perl "<application>Perl</application>">
@@ -130,6 +131,7 @@
 <!ENTITY tar "<command>tar</command>">
 <!ENTITY rsync "<command>rsync</command>">
 <!ENTITY lzma "<command>lzma</command>">
+<!ENTITY miktexgftodvi "<command>miktex-gftodvi</command>">
 <!ENTITY gftodvi "<command>gftodvi</command>">
 <!ENTITY inimf "<command>inimf</command>">
 <!ENTITY inimpost "<command>inimpost</command>">
@@ -146,6 +148,7 @@
 <!ENTITY mf "<command>mf</command>">
 <!ENTITY miktexrev "&MIKTEX_VERSION_STR;">
 <!ENTITY mpm "<command>mpm</command>">
+<!ENTITY miktexmpost "<command>miktex-mpost</command>">
 <!ENTITY mpost "<command>mpost</command>">
 <!ENTITY mtprint "<command>mtprint</command>">
 <!ENTITY networkfolder "\\server\miktex">
@@ -163,6 +166,7 @@
 <!ENTITY miktexpdftex "<command>miktex-pdftex</command>">
 <!ENTITY pdftex "<command>pdftex</command>">
 <!ENTITY xdvipdfmx "<command>xdvipdfmx</command>">
+<!ENTITY miktexxetex "<command>miktex-xetex</command>">
 <!ENTITY xetex "<command>xetex</command>">
 <!ENTITY pdfetex "<command>pdfetex</command>">
 <!ENTITY pdfvirtex "<command>pdfvirtex</command>">
@@ -173,6 +177,7 @@
 <!ENTITY miktexsetup "<command>miktexsetup</command>">
 <!ENTITY setupexe "<command>setup-&MIKTEX_SERIES_STR;.<replaceable>xxxx</replaceable>.exe</command>">
 <!ENTITY setupexefile "<filename>setup-&MIKTEX_SERIES_STR;.<replaceable>xxxx</replaceable>.exe</filename>">
+<!ENTITY miktextex "<command>tex</command>">
 <!ENTITY tex "<command>tex</command>">
 <!ENTITY mthelp "<command>mthelp</command>">
 <!ENTITY texi2dvi "<command>tex2dvi</command>">
@@ -186,6 +191,7 @@
 <!ENTITY nbsp "<symbol>&#160;</symbol>">
 <!ENTITY ndash "<symbol>&#8211;</symbol>">
 <!ENTITY Omega "<application>Omega</application>">
+<!ENTITY pTeX "<application>pTeX</application>">
 <!ENTITY TeXnicCenter "<application>TeXnicCenter</application>">
 <!ENTITY TeXnFriends "&TeX;&nbsp;&amp;&nbsp;Friends">
 <!ENTITY InternetExplorer "<application>Internet Explorer</application>">

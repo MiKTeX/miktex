@@ -3,7 +3,7 @@
 <?dbhh topicname="MIKTEXHELP_MF" topicid="0"?>
 
 <refmeta>
-<refentrytitle>mf</refentrytitle>
+<refentrytitle>miktex-mf</refentrytitle>
 <manvolnum>1</manvolnum>
 <refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
 <refmiscinfo class="version">&miktexrev;</refmiscinfo>
@@ -11,14 +11,14 @@
 </refmeta>
 
 <refnamediv>
-<refname>mf</refname>
+<refname>miktex-mf</refname>
 <refpurpose>&METAFONT;, a language for font and logo design</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
 
 <cmdsynopsis>
-&mf;
+<command>miktex-mf</command>
 <arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
 <group>
 <arg choice="opt" rep="repeat"><replaceable>command</replaceable></arg>
@@ -59,9 +59,9 @@ semicolons, unless you quote them.)  As described in <citetitle>The
 filename, a <markup role="metafont">\controlsequence</markup>, or a
 <filename>&amp;<replaceable>basename</replaceable></filename>.</para>
 
-<para>The normal usage is to say
-<programlisting>mf \mode=<replaceable>printengine</replaceable>; input <replaceable>font</replaceable></programlisting>
-to start processing
+<para>The normal usage is to say <programlisting>mf
+\mode=<replaceable>printengine</replaceable>; input
+<replaceable>font</replaceable></programlisting> to start processing
 <filename><replaceable>font</replaceable>.mf</filename>.  (Or you can
 just say &mf; and give the other stuff on the next line.)  Other
 control sequences, such as <userinput>batchmode</userinput> (for
@@ -222,12 +222,3 @@ output.</para></listitem>
 </refsect1>
 
 </refentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "book")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

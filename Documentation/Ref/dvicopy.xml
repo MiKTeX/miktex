@@ -110,12 +110,3 @@ options.  This option cannot be used together with
 </refsect1>
 
 </refentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "reference")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

@@ -3,7 +3,7 @@
 <?dbhh topicname="MIKTEXHELP_TEX" topicid="0"?>
 
 <refmeta>
-<refentrytitle>tex</refentrytitle>
+<refentrytitle>miktex-tex</refentrytitle>
 <manvolnum>1</manvolnum>
 <refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
 <refmiscinfo class="version">&miktexrev;</refmiscinfo>
@@ -11,8 +11,8 @@
 </refmeta>
 
 <refnamediv>
-<refname>tex</refname>
-<refpurpose>&TeX;</refpurpose>
+<refname>miktex-tex</refname>
+<refpurpose>text formatting and typesetting</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
@@ -31,7 +31,18 @@
 
 <title>Description</title>
 
-<!-- borrowed from the web2c documentation -->
+<para>Run the &TeX; typesetter on <replaceable>file</replaceable>,
+usually creating
+<filename><replaceable>file</replaceable>.dvi</filename>.  If the file
+argument has no extension, <filename>.tex</filename> will be appended
+to it.  Instead of a filename, a set of &TeX; commands can be given,
+the first of which must start with a backslash. With a
+<option>&amp;format</option> argument &TeX; uses a different set of
+precompiled commands, contained in
+<filename><replaceable>format</replaceable>.fmt</filename>; it is
+usually better to use the
+<option>-undump=<replaceable>format</replaceable></option> option
+instead.</para>
 
 <para>&TeX; formats the interspersed text and commands contained in
 the named files and outputs a typesetter independent file (called
@@ -41,21 +52,18 @@ and language are described in <citetitle>The &TeX;book</citetitle>.
 there are several specific formatting systems, such as &LaTeX;, which
 require the support of several macro files.</para>
 
-<para>&TeX; looks at its command-line to see what name it was called
-under.  Both &initex; and &virtex;
-are linked to the &tex; executable.  When called as
-&initex; (or when the <option>-initialize</option>
-option is given) it can be used to precompile macros into a
-<filename>.fmt</filename> file.  When called as
-&virtex; it will use the plain format.  When called
-under any other name, &TeX; will use that name as the name of the
-format to use.  For example, when called as &tex; the
-tex format is used, which is identical to the plain format.  The
-commands defined by the plain format are documented in <citetitle>The
-&TeX;book</citetitle>.  Other formats that are often available include
-latex and amstex.</para>
+<para>This version of &TeX; looks at its command-line to see what name
+it was called under.  Both &initex; and &virtex; are linked to the
+&miktextex; executable.  When called as &initex; (or when the
+<option>-initialize</option> option is given) it can be used to
+precompile macros into a <filename>.fmt</filename> file.  When called
+as &virtex; it will use the plain format.  When called under any other
+name, &TeX; will use that name as the name of the format to use.  For
+example, when called as &miktextex; the tex format is used, which is
+identical to the plain format.  The commands defined by the plain
+format are documented in <citetitle>The &TeX;book</citetitle>.</para>
 
-<para>The commands given on the command-line to the &TeX; program are
+<para>The non-option command line argiments to the &TeX; program are
 passed to it as the first input line.  (But it is often easier to type
 extended arguments as the first input line, since shells tend to
 gobble up or misinterpret &TeX;'s favorite symbols, like backslashes,
@@ -64,21 +72,20 @@ unless you quote them.)  As described in <citetitle>The
 a <markup role="tex">\controlsequence</markup>, or a
 &amp;<replaceable>formatname</replaceable>.</para>
 
-<para>The normal usage is to say
-<programlisting>tex paper</programlisting>
-to start processing <filename>paper.tex</filename>.  The name
-<quote>paper</quote> will be the <quote>job name</quote>, and is used
-in forming output file names.  If &TeX; doesn't get a file name in the
-first line, the job name is <filename>texput</filename>.  When looking
-for a file, &TeX; looks for the name with and without the default
-extension (<filename>.tex</filename>) appended, unless the name
-already contains that extension.  If paper is the
-<quote>job name</quote>, a log of error messages, with rather more
-detail than normally appears on the screen, will appear in
-<filename>paper.log</filename>, and the output file will be in
-<filename>paper.dvi</filename>.</para>
+<para>The normal usage is to say <programlisting>tex
+paper</programlisting> to start processing
+<filename>paper.tex</filename>.  The name <quote>paper</quote> will be
+the <quote>job name</quote>, and is used in forming output file names.
+If &TeX; doesn't get a file name in the first line, the job name is
+<filename>texput</filename>.  When looking for a file, &TeX; looks for
+the name with and without the default extension
+(<filename>.tex</filename>) appended, unless the name already contains
+that extension.  If paper is the <quote>job name</quote>, a log of
+error messages, with rather more detail than normally appears on the
+screen, will appear in <filename>paper.log</filename>, and the output
+file will be in <filename>paper.dvi</filename>.</para>
 
-<para>&TeX; will look in the first line of the file
+<para>This version of &TeX; will look in the first line of the file
 <filename>paper.tex</filename> to see if it begins with the magic
 sequence <userinput>%&amp;</userinput>.  If the first line begins with
 <userinput>%&amp;format --translate-file tcxname</userinput>, then
@@ -169,25 +176,6 @@ character (usually <keycombo>
 
 <refsect1>
 
-<title>Aliases</title>
-
-<variablelist>
-
-<varlistentry>
-<term>&initex;</term>
-<listitem>
-<para>Equivalent to <userinput>tex -ini</userinput>.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term>&virtex;</term>
-<listitem><para>Equivalent to <userinput>tex</userinput>.</para></listitem>
-</varlistentry>
-</variablelist>
-
-</refsect1>
-
-<refsect1>
-
 <title>Environment</title>
 
 <variablelist>
@@ -213,12 +201,3 @@ character (usually <keycombo>
 </refsect1>
 
 </refentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "book")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

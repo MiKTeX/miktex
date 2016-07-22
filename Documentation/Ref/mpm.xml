@@ -43,30 +43,6 @@
 <para>&MPM; (&MiKTeXPackageManager;) is used to install packages from
 a &MiKTeX; package repository.</para>
 
-<para>&MPM; was originally intended to be a tool for &MiKTeX; users.
-But the program can be helpful for users of other &TeX; systems too,
-because many of the &MiKTeX; packages are system-independent.</para>
-
-</refsect1>
-
-<refsect1>
-
-<title>Two variants</title>
-
-<para>The package manager can be run in two modes:</para>
-<variablelist>
-<varlistentry>
-<term>batch</term>
-<listitem><para>&MPM; is driven by command-line options.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term>windowed</term>
-<listitem><para>&MPM; shows a package list
-view with standard <acronym>GUI</acronym> controls (such as tool
-bar buttons and command menus).</para></listitem>
-</varlistentry>
-</variablelist>
-
 <para>&MPM; starts in windowed mode, if you do not specify any
 command-line options.</para>
 
@@ -91,7 +67,7 @@ command-line options.</para>
 <indexterm>
 <primary>--find-updates</primary>
 </indexterm>
-<para>Test the package repository for updates, then print
+<para>Check the package repository for updates, then print
 the list of updateable packages.</para></listitem>
 </varlistentry>
 &optionhelp;
@@ -145,7 +121,20 @@ file.</para></listitem>
 installation status, the number of files, the size, and the name.</para>
 </listitem>
 </varlistentry>
+<varlistentry>
+<term><option>--list-package-names</option></term>
+<listitem>
+<indexterm>
+<primary>--list-package-names</primary>
+</indexterm>
+<para>List the package names.</para>
+</listitem>
+</varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/listrepositories.xml" />
+<varlistentry>
+<term><option>--max-count=<replaceable>num</replaceable></option></term>
+<listitem><para>Stop after <replaceable>num</replaceable> packages.</para></listitem>
+</varlistentry>
 <varlistentry><term><option>--pick-repository-url</option></term>
 <listitem><para>Pick up a suitable URL from the package repository
 list and print it.</para></listitem>
@@ -168,7 +157,6 @@ package repository) or an URL (a remote package repository).
 You can use the <option>--list-repositories</option> to retrieve
 a list of working package repository URLs.</para></listitem>
 </varlistentry>
-
 <varlistentry>
 <term><option>--repository-release-state=<replaceable>state</replaceable></option></term>
 <listitem><para>Select the release state of the remote package
@@ -176,7 +164,10 @@ repository.  The release state is relevant for finding appropriate
 package repositories (<option>--list-repositories</option>,
 <option>--pick-repository-url</option>).</para></listitem>
 </varlistentry>
-
+<varlistentry>
+<term><option>--reverse</option></term>
+<listitem><para>Reverse the result of comparisons (when listing packages).</para></listitem>
+</varlistentry>
 <varlistentry>
 <term><option>--set-repository=<replaceable>location</replaceable></option></term>
 <listitem>
@@ -254,20 +245,6 @@ file.</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
 </variablelist>
-
-</refsect1>
-
-<refsect1>
-
-<title>Installation Destination</title>
-
-<para>All files are installed in the &TEXMF; installation directory
-(usually &commoninstalldir;).  It may be necessary to specify the location
-of the installation directory, if you are running &MPM; as a
-standalone program, i.e., if &MiKTeX; is not the &TeX; system.</para>
-
-<para>The <option>--install-root</option> option allows you to set the
-installation directory for one invocation of &MPM;.</para>
 
 </refsect1>
 
