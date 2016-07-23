@@ -17,7 +17,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION 6000
+#define MIKTEX_COMP_J2000_VERSION 6050
 #define MIKTEX_COMP_ORIG_VERSION_STR "20160106"
 
 #define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1998,1999 Mark Wicks, Copyright (C) 2008-2016 by Jin-Hwan Cho and Matthias Franz and the dvipdfmx project team"
