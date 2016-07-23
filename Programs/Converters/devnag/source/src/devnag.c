@@ -1,9 +1,9 @@
 /*  $Id: devnag.c,v 1.15 2008-03-09 15:57:59 icebearsoft Exp $
-    Version 2.15
+    Version 2.17
 
  *
  Preprocessor for Devanagari for TeX package
- Copyright (C) 1991-1998  University of Groningen, The Netherlands
+ Copyright (C) 1991-2016  University of Groningen, The Netherlands
  *
  Author   : Frans J. Velthuis <velthuis@rc.rug.nl>
  Date     : 09 May 1991
@@ -277,7 +277,23 @@
  (requested by Karl Berry)
 */
 
-const char *version = "2.15";
+/*
+ Modifications in version 2.16:
+
+ Character and string handling commands were improved by TeX Live developers,
+ these commands cuased errors in several platforms.
+*/
+
+/*
+ Modification in version 2.17
+
+ Character '\0' replaced with an empty string so that it compiles
+ using a C++ compiler.
+ The patch is taken from here:
+ https://sourceforge.net/p/miktex/patches/11/
+*/
+
+const char *version = "2.17";
 
 #if defined(MIKTEX_WINDOWS)
 #  define MIKTEX_UTF8_WRAP_ALL 1
@@ -377,15 +393,6 @@ void put_syll(void);
 void tst_half(void);
 void put_macro(short macro);
 void err_ill(const char *str);
-#if defined(MIKTEX)
-inline void err_ill(char ch)
-{
-  char str[2];
-  str[0] = ch;
-  str[1] = 0;
-  err_ill(str);
-}
-#endif
 char inp_ch(void);
 void expand(void);
 char find_dn(void);
@@ -1586,6 +1593,7 @@ void dnproc(void) {
    int test_val;                           /* Marc Csernel */
    char savchr = 0;
    char wrong[10];
+   const char *empty = "";
    brace_lev = 1;
    saved = FALSE;
    dnready = FALSE;
@@ -1812,13 +1820,13 @@ void dnproc(void) {
 	 }
 	 break;
        case ill_char:
-	 err_ill('\0');
+	 err_ill(empty);
 	 break;
        case end_of_file:
 	 fputs("Error: missing }", stderr);
 	 exit(1);
        default:
-	 if (symbol < 0) err_ill('\0');  /* accented character inside dn mode */
+	 if (symbol < 0) err_ill(empty);  /* accented character inside dn mode */
 	 i = 0;
 	 do { i++; } while ((i != 10) && (chset4[i-1] != symbol));
 	 if (i == 10) put_ch(symbol);

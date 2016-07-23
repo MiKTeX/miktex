@@ -19,9 +19,9 @@
 
 #define MIKTEX_COMP_J2000_VERSION 6000
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "2.15"
+#define MIKTEX_COMP_ORIG_VERSION_STR "2.17"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "(C) 1991-1998  University of Groningen, The Netherlands"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1991-1998  University of Groningen, The Netherlands"
+#define MIKTEX_COMP_COPYRIGHT_STR "(C) 1991-2016  University of Groningen, The Netherlands"
+#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1991-2016  University of Groningen, The Netherlands"
 
 #include <miktex/Version>
