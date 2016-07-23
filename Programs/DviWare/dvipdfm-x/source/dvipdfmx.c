@@ -465,8 +465,11 @@ do_early_args (int argc, char *argv[])
   }
 }
 
+/* Set "unsafe" to non-zero value when parsing config specials to
+ * disallow overriding "D" option value.
+ */
 static void
-do_args (int argc, char *argv[], const char *source)
+do_args (int argc, char *argv[], const char *source, int unsafe)
 {
   int c;
   char *nextptr;
@@ -488,7 +491,11 @@ do_args (int argc, char *argv[], const char *source)
       break;
 
     case 'D':
+      if (unsafe) {
+        WARN("Ignoring \"D\" option for dvipdfmx:config special. (unsafe)");
+      } else {
       set_distiller_template(optarg);
+      }
       break;
 
     case 'r':
@@ -705,7 +712,7 @@ read_config_file (const char *config)
           argv[2] = parse_ident (&start, end);
       }
     }
-    do_args (argc, argv, config);
+    do_args (argc, argv, config, 0);
     while (argc > 1) {
       RELEASE (argv[--argc]);
     }
@@ -745,7 +752,7 @@ read_config_special (const char **start, const char *end)
 	argv[2] = parse_ident (start, end);
     }
   }
-  do_args (argc, argv, argv0);
+  do_args (argc, argv, argv0, 1); /* Set to unsafe */
   while (argc > 1) {
     RELEASE (argv[--argc]);
   }
@@ -1005,7 +1012,7 @@ main (int argc, char *argv[])
 
   read_config_file(DPX_CONFIG_FILE);
 
-  do_args (argc, argv, NULL);
+  do_args (argc, argv, NULL, 0);
 
 #ifndef MIKTEX_NO_KPATHSEA
   kpse_init_prog("", font_dpi, NULL, NULL);

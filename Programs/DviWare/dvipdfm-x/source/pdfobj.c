@@ -1937,10 +1937,14 @@ write_stream (pdf_stream *stream, FILE *file)
   memcpy(filtered, stream->stream, stream->stream_length);
   filtered_length = stream->stream_length;
 
-#if 0
-  if (stream->stream_length < 10)
-    stream->_flags &= ^STREAM_COMPRESS;
-#endif
+  /* PDF/A requires Metadata to be not filtered. */
+  {
+    pdf_obj *type;
+    type = pdf_lookup_dict(stream->dict, "Type");
+    if (type && !strcmp("Metadata", pdf_name_value(type))) {
+      stream->_flags &= ~STREAM_COMPRESS;
+    }
+  }
 
 #ifdef HAVE_ZLIB
   /* Apply compression filter if requested */

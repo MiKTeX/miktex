@@ -915,8 +915,15 @@ CIDFont_type2_dofont (CIDFont *font)
 
   /*
    * CIDToGIDMap
+   * Adobe's PDF Reference had been describing it as "optional" and
+   * default value as "Identity". However, ISO 32000-1 requires it
+   * for Type 2 CIDFonts with embedded font programs.
    */
-  if (cidtogidmap) {
+  if (!cidtogidmap) {
+    pdf_add_dict(font->fontdict,
+                 pdf_new_name("CIDToGIDMap"),
+                 pdf_new_name("Identity"));
+  } else {
     pdf_obj *c2gmstream;
 
     c2gmstream = pdf_new_stream(STREAM_COMPRESS);

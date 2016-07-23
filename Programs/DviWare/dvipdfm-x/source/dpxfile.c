@@ -824,7 +824,7 @@ dpx_create_temp_file (void)
 
 #if defined(MIKTEX)
   {
-    tmp = NEW(260 + 1, char);
+    tmp = NEW(_MAX_PATH + 1, char);
     miktex_create_temp_file_name(tmp); /* FIXME_FIXME */
 #if defined(MIKTEX_WINDOWS)
     {

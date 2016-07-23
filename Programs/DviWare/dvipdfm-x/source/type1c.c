@@ -201,10 +201,18 @@ add_SimpleMetrics (pdf_font *font, cff_font *cffont,
         double width;
         if (tfm_id < 0) /* tfm is not found */
           width = scaling * widths[code];
-        else
+        else {
+          double diff;
           width = 1000. * tfm_get_width(tfm_id, code);
+          diff  = width - scaling * widths[code];
+          if (fabs(diff) > 1.) {
+            WARN("Glyph width mismatch for TFM and font (%s)",
+                 pdf_font_get_mapname(font));
+            WARN("TFM: %g vs. CFF font: %g", width, widths[code]);
+            }
 	pdf_add_array(tmp_array,
 		      pdf_new_number(ROUND(width, 0.1)));
+        }
       } else {
 	pdf_add_array(tmp_array, pdf_new_number(0.0));
       }
@@ -229,6 +237,7 @@ int
 pdf_font_load_type1c (pdf_font *font)
 {
   pdf_obj      *fontdict, *descriptor;
+  pdf_obj      *pdfcharset; /* Actually string object */
   char         *usedchars;
   char         *fontname, *uniqueTag, *ident, *fullname;
   FILE         *fp = NULL;
@@ -449,6 +458,7 @@ pdf_font_load_type1c (pdf_font *font)
    * Subset font
    */
   num_glyphs = 1;
+  pdfcharset = pdf_new_stream(0);
   for (code = 0; code < 256; code++) {
     card16 gid, j;
     s_SID  sid_orig, sid;
@@ -498,6 +508,9 @@ pdf_font_load_type1c (pdf_font *font)
       usedchars[code] = 0; /* Set unused for writing correct encoding */
       continue;
     }
+    pdf_add_stream(pdfcharset, "/", 1);
+    pdf_add_stream(pdfcharset, enc_vec[code], strlen(enc_vec[code]));
+
     if (verbose > 2) {
       MESG("/%s", enc_vec[code]);
     }
@@ -717,10 +730,13 @@ pdf_font_load_type1c (pdf_font *font)
   }
 
   /*
-   * CharSet might be recommended for subsetted font, but it is meaningful
-   * only for Type 1 font...
+   * CharSet
    */
-
+  pdf_add_dict(descriptor,
+               pdf_new_name("CharSet"),
+               pdf_new_string(pdf_stream_dataptr(pdfcharset),
+                              pdf_stream_length(pdfcharset)));
+  pdf_release_obj(pdfcharset);
   /*
    * Write PDF FontFile data.
    */
