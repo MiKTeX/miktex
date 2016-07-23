@@ -92,6 +92,7 @@ extern "C" {
 // does not allow it.
 extern int getpdfsuppresswarningpagegroup(void);
 extern integer getpdfsuppressptexinfo(void);
+extern integer zround(double);
 #if ! defined(MIKTEX)
 }
 #endif

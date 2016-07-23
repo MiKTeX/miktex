@@ -853,12 +853,16 @@ void printmoddate(void)
     pdf_printf("/ModDate (%s)\n", start_time_str);
 }
 
+
 #define DEFAULT_SUB_MATCH_COUNT 10
 static int sub_match_count = DEFAULT_SUB_MATCH_COUNT;
 static regmatch_t *pmatch = NULL;
 static char *match_string = NULL;
+static int last_match_succeeded = 0;
 
-void matchstrings(strnumber s, strnumber t, int subcount, boolean icase)
+/* Implements \pdfmatch */
+void
+matchstrings(strnumber s, strnumber t, int subcount, boolean icase)
 {
     regex_t preg;
     int cflags = REG_EXTENDED;
@@ -893,20 +897,31 @@ void matchstrings(strnumber s, strnumber t, int subcount, boolean icase)
             pmatch = xtalloc(sub_match_count, regmatch_t);
         }
         ret = regexec(&preg, str, sub_match_count, pmatch, eflags);
+        
         xfree(match_string);
-        match_string = xstrdup(str);
-        strpool[poolptr++] = ((ret == 0) ? '1' : '0');
+        match_string = xstrdup(str);  /* save searched-in string, used below */
+        last_match_succeeded = ret == 0;     /* save whether match succeeded */
+        strpool[poolptr++] = ((ret == 0) ? '1' : '0'); /* in string pool too */
     }
 
     regfree(&preg);
 }
 
-void getmatch(int i)
-{
-    int size, len = 0;          /* to avoid warning about uninitialized use of len */
+/* Implements \pdflastmatch */
 
-    boolean found = i < sub_match_count
-        && match_string != NULL && pmatch[i].rm_so >= 0 && i >= 0;
+void
+getmatch(int i)
+{
+    int size;
+    int len = 0;                /* avoid spurious uninitialized warning */
+
+    boolean found
+      = i >= 0                  /* should always be so due to pdftex.web */
+        && i < sub_match_count  /* if >subcount, not found by definition */
+        && match_string != NULL /* first call, and just in case */
+        && last_match_succeeded /* if no match, not found */
+        && pmatch[i].rm_so >= 0 /* if no starting position, not found */
+        && pmatch[i].rm_eo >= pmatch[i].rm_so; /* just in case */
 
     if (found) {
         len = pmatch[i].rm_eo - pmatch[i].rm_so;
@@ -939,6 +954,7 @@ void getmatch(int i)
     strpool[poolptr++] = '>';
 }
 
+
 /* function strips trailing zeros in string with numbers; */
 /* leading zeros are not stripped (as in real life) */
 char *stripzeros(char *a)
