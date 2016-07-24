@@ -101,6 +101,7 @@ extern pfnSHGetFolderPathA pSHGetFolderPathA;
 #define FC_DBG_SCANV	256
 #define FC_DBG_CONFIG	1024
 #define FC_DBG_LANGSET	2048
+#define FC_DBG_MATCH2	4096
 
 #define _FC_ASSERT_STATIC1(_line, _cond) typedef int _static_assert_on_line_##_line##_failed[(_cond)?1:-1] FC_UNUSED
 #define _FC_ASSERT_STATIC0(_line, _cond) _FC_ASSERT_STATIC1 (_line, (_cond))
@@ -352,11 +353,19 @@ struct _FcCharSet {
 					       FcCharLeaf))
 #define FcCharSetNumbers(c)	FcOffsetMember(c,numbers_offset,FcChar16)
 
+#define FCSS_DEFAULT            0 /* default behavior */
+#define FCSS_ALLOW_DUPLICATES   1 /* allows for duplicate strings in the set */
+#define FCSS_GROW_BY_64         2 /* grows buffer by 64 elements instead of 1 */
+
+#define FcStrSetHasControlBit(s,c)  (s->control & c)
+#define FcStrSetHasControlBits(s,c) ( (c) == (s->control & (c)) )
+
 struct _FcStrSet {
     FcRef	    ref;	/* reference count */
     int		    num;
     int		    size;
     FcChar8	    **strs;
+    unsigned int    control;    /* control bits for set behavior */
 };
 
 struct _FcStrList {
@@ -382,6 +391,7 @@ struct _FcCache {
     int		dirs_count;	    /* number of subdir strings */
     intptr_t	set;		    /* offset to font set */
     int		checksum;	    /* checksum of directory state */
+    int64_t	checksum_nano;	    /* checksum of directory state */
 };
 
 #undef FcCacheDir
@@ -603,6 +613,13 @@ FcCacheFini (void);
 FcPrivate void
 FcDirCacheReference (FcCache *cache, int nref);
 
+FcPrivate int
+FcDirCacheLock (const FcChar8 *dir,
+		FcConfig      *config);
+
+FcPrivate void
+FcDirCacheUnlock (int fd);
+
 /* fccfg.c */
 
 FcPrivate FcBool
@@ -807,6 +824,9 @@ FcSubstPrint (const FcSubst *subst);
 FcPrivate void
 FcCharSetPrint (const FcCharSet *c);
 
+FcPrivate void
+FcPatternPrint2 (FcPattern *p1, FcPattern *p2, const FcObjectSet *os);
+
 extern FcPrivate int FcDebugVal;
 
 #define FcDebug() (FcDebugVal)
@@ -845,13 +865,7 @@ FcDirScanConfig (FcFontSet	*set,
 		 FcBlanks	*blanks,
 		 const FcChar8	*dir,
 		 FcBool		force,
-		 FcConfig	*config,
-		 FcBool		scanOnly);
-
-FcPrivate FcBool
-FcDirScanOnly (FcStrSet		*dirs,
-	       const FcChar8	*dir,
-	       FcConfig		*config);
+		 FcConfig	*config);
 
 /* fcfont.c */
 FcPrivate int
@@ -1053,6 +1067,9 @@ FcPatternObjectGetRange (const FcPattern *p, FcObject object, int id, FcRange **
 FcPrivate FcBool
 FcPatternAppend (FcPattern *p, FcPattern *s);
 
+FcPrivate int
+FcPatternPosition (const FcPattern *p, const char *object);
+
 FcPrivate FcChar32
 FcStringHash (const FcChar8 *s);
 
@@ -1112,6 +1129,9 @@ FcPrivate FcBool
 FcIsFsMtimeBroken (const FcChar8 *dir);
 
 /* fcstr.c */
+FcPrivate FcStrSet *
+FcStrSetCreateEx (unsigned int control);
+
 FcPrivate FcBool
 FcStrSetAddLangs (FcStrSet *strs, const char *languages);
 

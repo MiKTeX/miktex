@@ -186,6 +186,9 @@
 /* Define to 1 if `f_fstypename' is a member of `struct statvfs'. */
 #undef HAVE_STRUCT_STATVFS_F_FSTYPENAME
 
+/* Define to 1 if `st_mtim' is a member of `struct stat'. */
+#undef HAVE_STRUCT_STAT_ST_MTIM
+
 /* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
    */
 #undef HAVE_SYS_DIR_H
@@ -239,8 +242,7 @@
 /* Define to 1 if you have the `_mktemp_s' function. */
 #undef HAVE__MKTEMP_S
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
 
 /* Name of package */

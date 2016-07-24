@@ -211,6 +211,84 @@ FcPatternPrint (const FcPattern *p)
     }
 
 void
+FcPatternPrint2 (FcPattern         *pp1,
+		 FcPattern         *pp2,
+		 const FcObjectSet *os)
+{
+    int i, j, k, pos;
+    FcPatternElt *e1, *e2;
+    FcPattern *p1, *p2;
+
+    if (os)
+    {
+	p1 = FcPatternFilter (pp1, os);
+	p2 = FcPatternFilter (pp2, os);
+    }
+    else
+    {
+	p1 = pp1;
+	p2 = pp2;
+    }
+    printf ("Pattern has %d elts (size %d), %d elts (size %d)\n",
+	    p1->num, p1->size, p2->num, p2->size);
+    for (i = 0, j = 0; i < p1->num; i++)
+    {
+	e1 = &FcPatternElts(p1)[i];
+	e2 = &FcPatternElts(p2)[j];
+	if (!e2 || e1->object != e2->object)
+	{
+	    pos = FcPatternPosition (p2, FcObjectName (e1->object));
+	    if (pos >= 0)
+	    {
+		for (k = j; k < pos; k++)
+		{
+		    e2 = &FcPatternElts(p2)[k];
+		    printf ("\t%s: (None) -> ", FcObjectName (e2->object));
+		    FcValueListPrint (FcPatternEltValues (e2));
+		    printf ("\n");
+		}
+		j = pos;
+		goto cont;
+	    }
+	    else
+	    {
+		printf ("\t%s:", FcObjectName (e1->object));
+		FcValueListPrint (FcPatternEltValues (e1));
+		printf (" -> (None)\n");
+	    }
+	}
+	else
+	{
+	cont:
+	    printf ("\t%s:", FcObjectName (e1->object));
+	    FcValueListPrint (FcPatternEltValues (e1));
+	    printf (" -> ");
+	    e2 = &FcPatternElts(p2)[j];
+	    FcValueListPrint (FcPatternEltValues (e2));
+	    printf ("\n");
+	    j++;
+	}
+    }
+    if (j < p2->num)
+    {
+	for (k = j; k < p2->num; k++)
+	{
+	    e2 = &FcPatternElts(p2)[k];
+	    if (FcObjectName (e2->object))
+	    {
+		printf ("\t%s: (None) -> ", FcObjectName (e2->object));
+		FcValueListPrint (FcPatternEltValues (e2));
+		printf ("\n");
+	    }
+	}
+    }
+    if (p1 != pp1)
+	FcPatternDestroy (p1);
+    if (p2 != pp2)
+	FcPatternDestroy (p2);
+}
+
+void
 FcOpPrint (FcOp op_)
 {
     FcOp op = FC_OP_GET_OP (op_);

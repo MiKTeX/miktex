@@ -22,7 +22,7 @@
  * PERFORMANCE OF THIS SOFTWARE.
  */
 
-#define FC_NUM_CASE_FOLD	271
+#define FC_NUM_CASE_FOLD	277
 #define FC_NUM_CASE_FOLD_CHARS	471
 #define FC_MAX_CASE_FOLD_CHARS	6
 #define FC_MAX_CASE_FOLD_EXPAND	4
@@ -137,6 +137,7 @@ static const FcCaseFold    fcCaseFold[FC_NUM_CASE_FOLD] = {
     { 0x000010a0, FC_CASE_FOLD_RANGE,    0x0026,   7264 },
     { 0x000010c7, FC_CASE_FOLD_RANGE,    0x0001,   7264 },
     { 0x000010cd, FC_CASE_FOLD_RANGE,    0x0001,   7264 },
+    { 0x000013f8, FC_CASE_FOLD_RANGE,    0x0006,     -8 },
     { 0x00001e00, FC_CASE_FOLD_EVEN_ODD, 0x0095,      1 },
     { 0x00001e96, FC_CASE_FOLD_FULL,     0x0003,     27 },
     { 0x00001e97, FC_CASE_FOLD_FULL,     0x0003,     30 },
@@ -286,6 +287,10 @@ static const FcCaseFold    fcCaseFold[FC_NUM_CASE_FOLD] = {
     { 0x0000a7ad, FC_CASE_FOLD_RANGE,    0x0001,  23231 },
     { 0x0000a7b0, FC_CASE_FOLD_RANGE,    0x0001,  23278 },
     { 0x0000a7b1, FC_CASE_FOLD_RANGE,    0x0001,  23254 },
+    { 0x0000a7b2, FC_CASE_FOLD_RANGE,    0x0001,  23275 },
+    { 0x0000a7b3, FC_CASE_FOLD_RANGE,    0x0001,    928 },
+    { 0x0000a7b4, FC_CASE_FOLD_EVEN_ODD, 0x0003,      1 },
+    { 0x0000ab70, FC_CASE_FOLD_RANGE,    0x0050,  26672 },
     { 0x0000fb00, FC_CASE_FOLD_FULL,     0x0002,    435 },
     { 0x0000fb01, FC_CASE_FOLD_FULL,     0x0002,    437 },
     { 0x0000fb02, FC_CASE_FOLD_FULL,     0x0002,    439 },
@@ -300,6 +305,7 @@ static const FcCaseFold    fcCaseFold[FC_NUM_CASE_FOLD] = {
     { 0x0000fb17, FC_CASE_FOLD_FULL,     0x0004,    467 },
     { 0x0000ff21, FC_CASE_FOLD_RANGE,    0x001a,     32 },
     { 0x00010400, FC_CASE_FOLD_RANGE,    0x0028,     40 },
+    { 0x00010c80, FC_CASE_FOLD_RANGE,    0x0033,     64 },
     { 0x000118a0, FC_CASE_FOLD_RANGE,    0x0020,     32 },
 };
 

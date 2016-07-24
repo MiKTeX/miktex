@@ -689,6 +689,47 @@ FcFontSetMatchInternal (FcFontSet   **sets,
 	printf ("\n");
 	FcPatternPrint (best);
     }
+    if (FcDebug () & FC_DBG_MATCH2)
+    {
+	char *env = getenv ("FC_DBG_MATCH_FILTER");
+	FcObjectSet *os = NULL;
+
+	if (env)
+	{
+	    char *ss, *s;
+	    char *p;
+	    FcBool f = FcTrue;
+
+	    ss = s = strdup (env);
+	    os = FcObjectSetCreate ();
+	    while (f)
+	    {
+		size_t len;
+		char *x;
+
+		if (!(p = strchr (s, ',')))
+		{
+		    f = FcFalse;
+		    len = strlen (s) + 1;
+		}
+		else
+		{
+		    len = (p - s) + 1;
+		}
+		x = malloc (sizeof (char) * len);
+		strncpy (x, s, len - 1);
+		x[len - 1] = 0;
+		if (FcObjectFromName (x) > 0)
+		    FcObjectSetAdd (os, x);
+		s = p + 1;
+		free (x);
+	    }
+	    free (ss);
+	}
+	FcPatternPrint2 (p, best, os);
+	if (os)
+	    FcObjectSetDestroy (os);
+    }
     /* assuming that 'result' is initialized with FcResultNoMatch
      * outside this function */
     if (best)
