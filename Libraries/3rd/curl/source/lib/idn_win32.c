@@ -5,7 +5,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2014, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -29,9 +29,10 @@
 #ifdef USE_WIN32_IDN
 
 #include "curl_multibyte.h"
-
 #include "curl_memory.h"
-/* The last #include file should be: */
+#include "warnless.h"
+
+  /* The last #include file should be: */
 #include "memdebug.h"
 
 #ifdef WANT_IDN_PROTOTYPES
@@ -64,12 +65,13 @@ WINBASEAPI int WINAPI IdnToUnicode(DWORD dwFlags,
 
 #define IDN_MAX_LENGTH 255
 
-int curl_win32_idn_to_ascii(const char *in, char **out);
-int curl_win32_ascii_to_idn(const char *in, char **out);
+bool curl_win32_idn_to_ascii(const char *in, char **out);
+bool curl_win32_ascii_to_idn(const char *in, char **out);
 
-int curl_win32_idn_to_ascii(const char *in, char **out)
+bool curl_win32_idn_to_ascii(const char *in, char **out)
 {
-  int ret = 0;
+  bool success = FALSE;
+
   wchar_t *in_w = Curl_convert_UTF8_to_wchar(in);
   if(in_w) {
     wchar_t punycode[IDN_MAX_LENGTH];
@@ -78,27 +80,32 @@ int curl_win32_idn_to_ascii(const char *in, char **out)
     if(chars) {
       *out = Curl_convert_wchar_to_UTF8(punycode);
       if(*out)
-        ret = 1; /* success */
+        success = TRUE;
     }
   }
-  return ret;
+
+  return success;
 }
 
-int curl_win32_ascii_to_idn(const char *in, char **out)
+bool curl_win32_ascii_to_idn(const char *in, char **out)
 {
-  int ret = 0;
+  bool success = FALSE;
+
   wchar_t *in_w = Curl_convert_UTF8_to_wchar(in);
   if(in_w) {
+    size_t in_len = wcslen(in_w) + 1;
     wchar_t unicode[IDN_MAX_LENGTH];
-    int chars = IdnToUnicode(0, in_w, wcslen(in_w)+1, unicode, IDN_MAX_LENGTH);
+    int chars = IdnToUnicode(0, in_w, curlx_uztosi(in_len),
+                             unicode, IDN_MAX_LENGTH);
     free(in_w);
     if(chars) {
       *out = Curl_convert_wchar_to_UTF8(unicode);
       if(*out)
-        ret = 1; /* success */
+        success = TRUE;
     }
   }
-  return ret;
+
+  return success;
 }
 
 #endif /* USE_WIN32_IDN */

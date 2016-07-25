@@ -5,7 +5,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -198,12 +198,12 @@ static const char* nss_error_to_name(PRErrorCode code)
   return "unknown error";
 }
 
-static void nss_print_error_message(struct SessionHandle *data, PRUint32 err)
+static void nss_print_error_message(struct Curl_easy *data, PRUint32 err)
 {
   failf(data, "%s", PR_ErrorToString(err, PR_LANGUAGE_I_DEFAULT));
 }
 
-static SECStatus set_ciphers(struct SessionHandle *data, PRFileDesc * model,
+static SECStatus set_ciphers(struct Curl_easy *data, PRFileDesc * model,
                              char *cipher_list)
 {
   unsigned int i;
@@ -275,21 +275,21 @@ static SECStatus set_ciphers(struct SessionHandle *data, PRFileDesc * model,
 }
 
 /*
- * Get the number of ciphers that are enabled. We use this to determine
+ * Return true if at least one cipher-suite is enabled. Used to determine
  * if we need to call NSS_SetDomesticPolicy() to enable the default ciphers.
  */
-static int num_enabled_ciphers(void)
+static bool any_cipher_enabled(void)
 {
-  PRInt32 policy = 0;
-  int count = 0;
   unsigned int i;
 
   for(i=0; i<NUM_OF_CIPHERS; i++) {
+    PRInt32 policy = 0;
     SSL_CipherPolicyGet(cipherlist[i].num, &policy);
     if(policy)
-      count++;
+      return TRUE;
   }
-  return count;
+
+  return FALSE;
 }
 
 /*
@@ -319,7 +319,7 @@ static int is_file(const char *filename)
  * should be later deallocated using free().  If the OOM failure occurs, we
  * return NULL, too.
  */
-static char* dup_nickname(struct SessionHandle *data, enum dupstring cert_kind)
+static char* dup_nickname(struct Curl_easy *data, enum dupstring cert_kind)
 {
   const char *str = data->set.str[cert_kind];
   const char *n;
@@ -328,8 +328,8 @@ static char* dup_nickname(struct SessionHandle *data, enum dupstring cert_kind)
     /* no such file exists, use the string as nickname */
     return strdup(str);
 
-  /* search the last slash; we require at least one slash in a file name */
-  n = strrchr(str, '/');
+  /* search the first slash; we require at least one slash in a file name */
+  n = strchr(str, '/');
   if(!n) {
     infof(data, "warning: certificate file name \"%s\" handled as nickname; "
           "please use \"./%s\" to force file name\n", str, str);
@@ -597,7 +597,7 @@ static int display_error(struct connectdata *conn, PRInt32 err,
 static CURLcode cert_stuff(struct connectdata *conn, int sockindex,
                            char *cert_file, char *key_file)
 {
-  struct SessionHandle *data = conn->data;
+  struct Curl_easy *data = conn->data;
   CURLcode result;
 
   if(cert_file) {
@@ -696,7 +696,7 @@ static void HandshakeCallback(PRFileDesc *sock, void *arg)
   unsigned int buflen;
   SSLNextProtoState state;
 
-  if(!conn->data->set.ssl_enable_npn && !conn->data->set.ssl_enable_alpn) {
+  if(!conn->bits.tls_enable_npn && !conn->bits.tls_enable_alpn) {
     return;
   }
 
@@ -736,7 +736,7 @@ static SECStatus CanFalseStartCallback(PRFileDesc *sock, void *client_data,
                                        PRBool *canFalseStart)
 {
   struct connectdata *conn = client_data;
-  struct SessionHandle *data = conn->data;
+  struct Curl_easy *data = conn->data;
 
   SSLChannelInfo channelInfo;
   SSLCipherSuiteInfo cipherInfo;
@@ -791,7 +791,7 @@ end:
 }
 #endif
 
-static void display_cert_info(struct SessionHandle *data,
+static void display_cert_info(struct Curl_easy *data,
                               CERTCertificate *cert)
 {
   char *subject, *issuer, *common_name;
@@ -892,7 +892,7 @@ static CURLcode display_conn_info(struct connectdata *conn, PRFileDesc *sock)
 static SECStatus BadCertHandler(void *arg, PRFileDesc *sock)
 {
   struct connectdata *conn = (struct connectdata *)arg;
-  struct SessionHandle *data = conn->data;
+  struct Curl_easy *data = conn->data;
   PRErrorCode err = PR_GetError();
   CERTCertificate *cert;
 
@@ -928,12 +928,6 @@ static SECStatus check_issuer_cert(PRFileDesc *sock,
   SECStatus res=SECSuccess;
   void *proto_win = NULL;
 
-  /*
-    PRArenaPool   *tmpArena = NULL;
-    CERTAuthKeyID *authorityKeyID = NULL;
-    SECITEM       *caname = NULL;
-  */
-
   cert = SSL_PeerCertificate(sock);
   cert_issuer = CERT_FindCertIssuer(cert, PR_Now(), certUsageObjectSigner);
 
@@ -956,7 +950,7 @@ static CURLcode cmp_peer_pubkey(struct ssl_connect_data *connssl,
                                 const char *pinnedpubkey)
 {
   CURLcode result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
-  struct SessionHandle *data = connssl->data;
+  struct Curl_easy *data = connssl->data;
   CERTCertificate *cert;
 
   if(!pinnedpubkey)
@@ -1008,7 +1002,7 @@ static SECStatus SelectClientCert(void *arg, PRFileDesc *sock,
                                   struct SECKEYPrivateKeyStr **pRetKey)
 {
   struct ssl_connect_data *connssl = (struct ssl_connect_data *)arg;
-  struct SessionHandle *data = connssl->data;
+  struct Curl_easy *data = connssl->data;
   const char *nickname = connssl->client_nickname;
 
   if(connssl->obj_clicert) {
@@ -1140,7 +1134,7 @@ static PRStatus nspr_io_close(PRFileDesc *fd)
 }
 
 /* data might be NULL */
-static CURLcode nss_init_core(struct SessionHandle *data, const char *cert_dir)
+static CURLcode nss_init_core(struct Curl_easy *data, const char *cert_dir)
 {
   NSSInitParameters initparams;
 
@@ -1178,7 +1172,7 @@ static CURLcode nss_init_core(struct SessionHandle *data, const char *cert_dir)
 }
 
 /* data might be NULL */
-static CURLcode nss_init(struct SessionHandle *data)
+static CURLcode nss_init(struct Curl_easy *data)
 {
   char *cert_dir;
   struct_stat st;
@@ -1228,7 +1222,7 @@ static CURLcode nss_init(struct SessionHandle *data)
   if(result)
     return result;
 
-  if(num_enabled_ciphers() == 0)
+  if(!any_cipher_enabled())
     NSS_SetDomesticPolicy();
 
   initialized = 1;
@@ -1257,7 +1251,7 @@ int Curl_nss_init(void)
 }
 
 /* data might be NULL */
-CURLcode Curl_nss_force_init(struct SessionHandle *data)
+CURLcode Curl_nss_force_init(struct Curl_easy *data)
 {
   CURLcode result;
   if(!nss_initlock) {
@@ -1403,7 +1397,7 @@ static Curl_send nss_send;
 static CURLcode nss_load_ca_certificates(struct connectdata *conn,
                                          int sockindex)
 {
-  struct SessionHandle *data = conn->data;
+  struct Curl_easy *data = conn->data;
   const char *cafile = data->set.ssl.CAfile;
   const char *capath = data->set.ssl.CApath;
 
@@ -1453,7 +1447,7 @@ static CURLcode nss_load_ca_certificates(struct connectdata *conn,
 }
 
 static CURLcode nss_init_sslver(SSLVersionRange *sslver,
-                                struct SessionHandle *data)
+                                struct Curl_easy *data)
 {
   switch(data->set.ssl.version) {
   default:
@@ -1506,7 +1500,7 @@ static CURLcode nss_init_sslver(SSLVersionRange *sslver,
 }
 
 static CURLcode nss_fail_connect(struct ssl_connect_data *connssl,
-                                 struct SessionHandle *data,
+                                 struct Curl_easy *data,
                                  CURLcode curlerr)
 {
   PRErrorCode err = 0;
@@ -1533,7 +1527,7 @@ static CURLcode nss_fail_connect(struct ssl_connect_data *connssl,
 
 /* Switch the SSL socket into non-blocking mode. */
 static CURLcode nss_set_nonblock(struct ssl_connect_data *connssl,
-                                 struct SessionHandle *data)
+                                 struct Curl_easy *data)
 {
   static PRSocketOptionData sock_opt;
   sock_opt.option = PR_SockOpt_Nonblocking;
@@ -1552,7 +1546,7 @@ static CURLcode nss_setup_connect(struct connectdata *conn, int sockindex)
   PRFileDesc *nspr_io_stub = NULL;
   PRBool ssl_no_cache;
   PRBool ssl_cbc_random_iv;
-  struct SessionHandle *data = conn->data;
+  struct Curl_easy *data = conn->data;
   curl_socket_t sockfd = conn->sock[sockindex];
   struct ssl_connect_data *connssl = &conn->ssl[sockindex];
   CURLcode result;
@@ -1750,14 +1744,14 @@ static CURLcode nss_setup_connect(struct connectdata *conn, int sockindex)
 #endif
 
 #ifdef SSL_ENABLE_NPN
-  if(SSL_OptionSet(connssl->handle, SSL_ENABLE_NPN, data->set.ssl_enable_npn
-        ? PR_TRUE : PR_FALSE) != SECSuccess)
+  if(SSL_OptionSet(connssl->handle, SSL_ENABLE_NPN, conn->bits.tls_enable_npn
+                   ? PR_TRUE : PR_FALSE) != SECSuccess)
     goto error;
 #endif
 
 #ifdef SSL_ENABLE_ALPN
-  if(SSL_OptionSet(connssl->handle, SSL_ENABLE_ALPN, data->set.ssl_enable_alpn
-        ? PR_TRUE : PR_FALSE) != SECSuccess)
+  if(SSL_OptionSet(connssl->handle, SSL_ENABLE_ALPN, conn->bits.tls_enable_alpn
+                   ? PR_TRUE : PR_FALSE) != SECSuccess)
     goto error;
 #endif
 
@@ -1774,7 +1768,7 @@ static CURLcode nss_setup_connect(struct connectdata *conn, int sockindex)
 #endif
 
 #if defined(SSL_ENABLE_NPN) || defined(SSL_ENABLE_ALPN)
-  if(data->set.ssl_enable_npn || data->set.ssl_enable_alpn) {
+  if(conn->bits.tls_enable_npn || conn->bits.tls_enable_alpn) {
     int cur = 0;
     unsigned char protocols[128];
 
@@ -1821,7 +1815,7 @@ error:
 static CURLcode nss_do_connect(struct connectdata *conn, int sockindex)
 {
   struct ssl_connect_data *connssl = &conn->ssl[sockindex];
-  struct SessionHandle *data = conn->data;
+  struct Curl_easy *data = conn->data;
   CURLcode result = CURLE_SSL_CONNECT_ERROR;
   PRUint32 timeout;
 
@@ -1884,7 +1878,7 @@ static CURLcode nss_connect_common(struct connectdata *conn, int sockindex,
                                    bool *done)
 {
   struct ssl_connect_data *connssl = &conn->ssl[sockindex];
-  struct SessionHandle *data = conn->data;
+  struct Curl_easy *data = conn->data;
   const bool blocking = (done == NULL);
   CURLcode result;
 
@@ -2021,14 +2015,14 @@ size_t Curl_nss_version(char *buffer, size_t size)
 }
 
 /* data might be NULL */
-int Curl_nss_seed(struct SessionHandle *data)
+int Curl_nss_seed(struct Curl_easy *data)
 {
   /* make sure that NSS is initialized */
   return !!Curl_nss_force_init(data);
 }
 
 /* data might be NULL */
-int Curl_nss_random(struct SessionHandle *data,
+int Curl_nss_random(struct Curl_easy *data,
                     unsigned char *entropy,
                     size_t length)
 {

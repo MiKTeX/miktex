@@ -7,7 +7,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -68,9 +68,9 @@ typedef struct FormInfo {
   struct FormInfo *more;
 } FormInfo;
 
-int Curl_FormInit(struct Form *form, struct FormData *formdata );
+int Curl_FormInit(struct Form *form, struct FormData *formdata);
 
-CURLcode Curl_getformdata(struct SessionHandle *data,
+CURLcode Curl_getformdata(struct Curl_easy *data,
                           struct FormData **,
                           struct curl_httppost *post,
                           const char *custom_contenttype,
@@ -93,6 +93,6 @@ char *Curl_FormBoundary(void);
 
 void Curl_formclean(struct FormData **);
 
-CURLcode Curl_formconvert(struct SessionHandle *, struct FormData *);
+CURLcode Curl_formconvert(struct Curl_easy *, struct FormData *);
 
 #endif /* HEADER_CURL_FORMDATA_H */

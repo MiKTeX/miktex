@@ -34,13 +34,10 @@ set(curl_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_gssapi.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_memrchr.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_multibyte.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_ntlm.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_ntlm_core.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_ntlm_msgs.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_ntlm_wb.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_rtmp.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_sasl.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_sasl_gssapi.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_sspi.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_threads.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/dict.c
@@ -67,7 +64,7 @@ set(curl_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http_chunks.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http_digest.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http_negotiate.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http_negotiate_sspi.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http_ntlm.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http_proxy.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/idn_win32.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/if2ip.c
@@ -163,9 +160,7 @@ set(curl_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_memory.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_memrchr.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_multibyte.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_ntlm.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_ntlm_core.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_ntlm_msgs.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_ntlm_wb.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_printf.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/curl_rtmp.h
@@ -195,6 +190,7 @@ set(curl_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http_chunks.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http_digest.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http_negotiate.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http_ntlm.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/http_proxy.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/if2ip.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/imap.h
@@ -239,6 +235,22 @@ set(curl_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/transfer.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/url.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/urldata.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/cleartext.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/cram.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/digest.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/digest_sspi.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/krb5_gssapi.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/krb5_sspi.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/ntlm.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/ntlm_sspi.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/oauth2.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/spnego_gssapi.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/spnego_sspi.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/vauth.c
+
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/digest.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/ntlm.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vauth/vauth.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/axtls.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/cyassl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/vtls/darwinssl.h
@@ -262,5 +274,7 @@ set(curl_sources
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND curl_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/config-win32.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/system_win32.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/system_win32.h
   )
 endif()

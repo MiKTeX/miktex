@@ -37,6 +37,8 @@
  */
 int Curl_http2_ver(char *p, size_t len);
 
+const char *Curl_http2_strerror(uint32_t err);
+
 CURLcode Curl_http2_init(struct connectdata *conn);
 void Curl_http2_init_state(struct UrlState *state);
 void Curl_http2_init_userset(struct UserDefined *set);
@@ -48,7 +50,7 @@ CURLcode Curl_http2_switched(struct connectdata *conn,
                              const char *data, size_t nread);
 /* called from Curl_http_setup_conn */
 void Curl_http2_setup_conn(struct connectdata *conn);
-void Curl_http2_setup_req(struct SessionHandle *data);
+void Curl_http2_setup_req(struct Curl_easy *data);
 #else /* USE_NGHTTP2 */
 #define Curl_http2_init(x) CURLE_UNSUPPORTED_PROTOCOL
 #define Curl_http2_send_request(x) CURLE_UNSUPPORTED_PROTOCOL

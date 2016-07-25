@@ -7,7 +7,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -219,6 +219,15 @@
 
 #ifdef __VMS
 #  include "setup-vms.h"
+#endif
+
+/*
+ * Use getaddrinfo to resolve the IPv4 address literal. If the current network
+ * interface doesn’t support IPv4, but supports IPv6, NAT64, and DNS64,
+ * performing this task will result in a synthesized IPv6 address.
+ */
+#ifdef  __APPLE__
+#define USE_RESOLVE_ON_IPS 1
 #endif
 
 /*
@@ -473,7 +482,7 @@
 #  endif
 
 #  ifndef fileno /* sunos 4 have this as a macro! */
-     int fileno( FILE *stream);
+     int fileno(FILE *stream);
 #  endif
 
 #endif /* WIN32 */
@@ -628,11 +637,7 @@ int netware_init(void);
     defined(USE_GNUTLS) || defined(USE_NSS) || defined(USE_DARWINSSL) || \
     defined(USE_OS400CRYPTO) || defined(USE_WIN32_CRYPTO)
 
-#ifdef HAVE_BORINGSSL /* BoringSSL is not NTLM capable */
-#undef USE_NTLM
-#else
 #define USE_NTLM
-#endif
 #endif
 #endif
 
@@ -725,5 +730,20 @@ endings either CRLF or LF so 't' is appropriate.
 #define FOPEN_READTEXT "r"
 #define FOPEN_WRITETEXT "w"
 #endif
+
+/* WinSock destroys recv() buffer when send() failed.
+ * Enabled automatically for Windows and for Cygwin as Cygwin sockets are
+ * wrappers for WinSock sockets. https://github.com/curl/curl/issues/657
+ * Define DONT_USE_RECV_BEFORE_SEND_WORKAROUND to force disable workaround.
+ */
+#if !defined(DONT_USE_RECV_BEFORE_SEND_WORKAROUND)
+#  if defined(WIN32) || defined(__CYGWIN__)
+#    define USE_RECV_BEFORE_SEND_WORKAROUND
+#  endif
+#else  /* DONT_USE_RECV_BEFORE_SEND_WORKAROUNDS */
+#  ifdef USE_RECV_BEFORE_SEND_WORKAROUND
+#    undef USE_RECV_BEFORE_SEND_WORKAROUND
+#  endif
+#endif /* DONT_USE_RECV_BEFORE_SEND_WORKAROUNDS */
 
 #endif /* HEADER_CURL_SETUP_H */

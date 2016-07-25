@@ -5,7 +5,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -119,7 +119,7 @@ CURLcode Curl_SOCKS4(const char *proxy_name,
   int result;
   CURLcode code;
   curl_socket_t sock = conn->sock[sockindex];
-  struct SessionHandle *data = conn->data;
+  struct Curl_easy *data = conn->data;
 
   if(Curl_timeleft(data, NULL, TRUE) < 0) {
     /* time-out, bail out, go home */
@@ -173,8 +173,8 @@ CURLcode Curl_SOCKS4(const char *proxy_name,
       unsigned short ip[4];
       Curl_printable_address(hp, buf, sizeof(buf));
 
-      if(4 == sscanf( buf, "%hu.%hu.%hu.%hu",
-                      &ip[0], &ip[1], &ip[2], &ip[3])) {
+      if(4 == sscanf(buf, "%hu.%hu.%hu.%hu",
+                     &ip[0], &ip[1], &ip[2], &ip[3])) {
         /* Set DSTIP */
         socksreq[4] = (unsigned char)ip[0];
         socksreq[5] = (unsigned char)ip[1];
@@ -374,7 +374,7 @@ CURLcode Curl_SOCKS5(const char *proxy_name,
   int result;
   CURLcode code;
   curl_socket_t sock = conn->sock[sockindex];
-  struct SessionHandle *data = conn->data;
+  struct Curl_easy *data = conn->data;
   long timeout;
   bool socks5_resolve_local = (conn->proxytype == CURLPROXY_SOCKS5)?TRUE:FALSE;
   const size_t hostname_len = strlen(hostname);

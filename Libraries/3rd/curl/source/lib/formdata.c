@@ -5,7 +5,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -30,15 +30,14 @@
 #include <libgen.h>
 #endif
 
-#include "urldata.h" /* for struct SessionHandle */
+#include "urldata.h" /* for struct Curl_easy */
 #include "formdata.h"
 #include "vtls/vtls.h"
 #include "strequal.h"
 #include "sendf.h"
 #include "strdup.h"
+/* The last 3 #include files should be in this order */
 #include "curl_printf.h"
-
-/* The last #include files should be: */
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -48,7 +47,7 @@ static char *Curl_basename(char *path);
 #endif
 
 static size_t readfromfile(struct Form *form, char *buffer, size_t size);
-static char *formboundary(struct SessionHandle *data);
+static char *formboundary(struct Curl_easy *data);
 
 /* What kind of Content-Type to use on un-specified files with unrecognized
    extensions. */
@@ -387,7 +386,7 @@ CURLFORMcode FormAdd(struct curl_httppost **httppost,
     case CURLFORM_CONTENTLEN:
       current_form->flags |= CURL_HTTPPOST_LARGE;
       current_form->contentslength =
-        array_state?(curl_off_t)array_value:va_arg(params, curl_off_t);
+        array_state?(curl_off_t)(size_t)array_value:va_arg(params, curl_off_t);
       break;
 
       /* Get contents from a given file name */
@@ -632,7 +631,7 @@ CURLFORMcode FormAdd(struct curl_httppost **httppost,
       else {
         if(((form->flags & HTTPPOST_FILENAME) ||
             (form->flags & HTTPPOST_BUFFER)) &&
-           !form->contenttype ) {
+           !form->contenttype) {
           char *f = form->flags & HTTPPOST_BUFFER?
             form->showfilename : form->value;
 
@@ -770,7 +769,7 @@ curl_off_t VmsRealFileSize(const char * name,
   int ret_stat;
   FILE * file;
 
-  file = fopen(name, "r"); /* VMS */
+  file = fopen(name, FOPEN_READTEXT); /* VMS */
   if(file == NULL)
     return 0;
 
@@ -825,28 +824,34 @@ static CURLcode AddFormData(struct FormData **formp,
                             curl_off_t length,
                             curl_off_t *size)
 {
-  struct FormData *newform = malloc(sizeof(struct FormData));
+  struct FormData *newform;
+  char *alloc2 = NULL;
+  CURLcode result = CURLE_OK;
+  if(length < 0 || (size && *size < 0))
+    return CURLE_BAD_FUNCTION_ARGUMENT;
+
+  newform = malloc(sizeof(struct FormData));
   if(!newform)
     return CURLE_OUT_OF_MEMORY;
   newform->next = NULL;
-
-  if(length < 0 || (size && *size < 0))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
 
   if(type <= FORM_CONTENT) {
     /* we make it easier for plain strings: */
     if(!length)
       length = strlen((char *)line);
 #if (SIZEOF_SIZE_T < CURL_SIZEOF_CURL_OFF_T)
-    else if(length >= (curl_off_t)(size_t)-1)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    else if(length >= (curl_off_t)(size_t)-1) {
+      result = CURLE_BAD_FUNCTION_ARGUMENT;
+      goto error;
+    }
 #endif
 
     newform->line = malloc((size_t)length+1);
     if(!newform->line) {
-      free(newform);
-      return CURLE_OUT_OF_MEMORY;
+      result = CURLE_OUT_OF_MEMORY;
+      goto error;
     }
+    alloc2 = newform->line;
     memcpy(newform->line, line, (size_t)length);
     newform->length = (size_t)length;
     newform->line[(size_t)length]=0; /* zero terminate for easier debugging */
@@ -877,12 +882,20 @@ static CURLcode AddFormData(struct FormData **formp,
         struct_stat file;
         if(!stat(newform->line, &file) && !S_ISDIR(file.st_mode))
           *size += filesize(newform->line, file);
-        else
-          return CURLE_BAD_FUNCTION_ARGUMENT;
+        else {
+          result = CURLE_BAD_FUNCTION_ARGUMENT;
+          goto error;
+        }
       }
     }
   }
   return CURLE_OK;
+  error:
+  if(newform)
+    free(newform);
+  if(alloc2)
+    free(alloc2);
+  return result;
 }
 
 /*
@@ -1123,7 +1136,7 @@ static CURLcode formdata_add_filename(const struct curl_httppost *file,
  * a NULL pointer in the 'data' argument.
  */
 
-CURLcode Curl_getformdata(struct SessionHandle *data,
+CURLcode Curl_getformdata(struct Curl_easy *data,
                           struct FormData **finalform,
                           struct curl_httppost *post,
                           const char *custom_content_type,
@@ -1259,7 +1272,7 @@ CURLcode Curl_getformdata(struct SessionHandle *data,
       curList = file->contentheader;
       while(curList) {
         /* Process the additional headers specified for this form */
-        result = AddFormDataf( &form, &size, "\r\n%s", curList->data );
+        result = AddFormDataf(&form, &size, "\r\n%s", curList->data);
         if(result)
           break;
         curList = curList->next;
@@ -1372,7 +1385,7 @@ CURLcode Curl_getformdata(struct SessionHandle *data,
  * Curl_FormInit() inits the struct 'form' points to with the 'formdata'
  * and resets the 'sent' counter.
  */
-int Curl_FormInit(struct Form *form, struct FormData *formdata )
+int Curl_FormInit(struct Form *form, struct FormData *formdata)
 {
   if(!formdata)
     return 1; /* error */
@@ -1407,10 +1420,10 @@ static FILE * vmsfopenread(const char *file, const char *mode) {
   case FAB$C_VAR:
   case FAB$C_VFC:
   case FAB$C_STMCR:
-    return fopen(file, "r"); /* VMS */
+    return fopen(file, FOPEN_READTEXT); /* VMS */
     break;
   default:
-    return fopen(file, "r", "rfm=stmlf", "ctx=stm");
+    return fopen(file, FOPEN_READTEXT, "rfm=stmlf", "ctx=stm");
   }
 }
 #endif
@@ -1485,9 +1498,9 @@ size_t Curl_FormReader(char *buffer,
   }
   do {
 
-    if((form->data->length - form->sent ) > wantedsize - gotsize) {
+    if((form->data->length - form->sent) > wantedsize - gotsize) {
 
-      memcpy(buffer + gotsize , form->data->line + form->sent,
+      memcpy(buffer + gotsize, form->data->line + form->sent,
              wantedsize - gotsize);
 
       form->sent += wantedsize-gotsize;
@@ -1536,7 +1549,7 @@ char *Curl_formpostheader(void *formp, size_t *len)
  * formboundary() creates a suitable boundary string and returns an allocated
  * one.
  */
-static char *formboundary(struct SessionHandle *data)
+static char *formboundary(struct Curl_easy *data)
 {
   /* 24 dashes and 16 hexadecimal digits makes 64 bit (18446744073709551615)
      combinations */

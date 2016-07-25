@@ -5,7 +5,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -28,7 +28,7 @@
  * NTLM details:
  *
  * http://davenport.sourceforge.net/ntlm.html
- * http://www.innovation.ch/java/ntlm.html
+ * https://www.innovation.ch/java/ntlm.html
  */
 
 #define DEBUG_ME 0
@@ -36,12 +36,10 @@
 #include "urldata.h"
 #include "sendf.h"
 #include "rawstr.h"
-#include "curl_ntlm.h"
-#include "curl_ntlm_msgs.h"
+#include "http_ntlm.h"
 #include "curl_ntlm_wb.h"
-#include "curl_sasl.h"
+#include "vauth/vauth.h"
 #include "url.h"
-#include "curl_printf.h"
 
 #if defined(USE_NSS)
 #include "vtls/nssg.h"
@@ -49,7 +47,8 @@
 #include "curl_sspi.h"
 #endif
 
-/* The last #include files should be: */
+/* The last 3 #include files should be in this order */
+#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -77,7 +76,7 @@ CURLcode Curl_input_ntlm(struct connectdata *conn,
       header++;
 
     if(*header) {
-      result = Curl_sasl_decode_ntlm_type2_message(conn->data, header, ntlm);
+      result = Curl_auth_decode_ntlm_type2_message(conn->data, header, ntlm);
       if(result)
         return result;
 
@@ -171,7 +170,7 @@ CURLcode Curl_output_ntlm(struct connectdata *conn, bool proxy)
   case NTLMSTATE_TYPE1:
   default: /* for the weird cases we (re)start here */
     /* Create a type-1 message */
-    result = Curl_sasl_create_ntlm_type1_message(userp, passwdp, ntlm, &base64,
+    result = Curl_auth_create_ntlm_type1_message(userp, passwdp, ntlm, &base64,
                                                  &len);
     if(result)
       return result;
@@ -191,7 +190,7 @@ CURLcode Curl_output_ntlm(struct connectdata *conn, bool proxy)
 
   case NTLMSTATE_TYPE2:
     /* We already received the type-2 message, create a type-3 message */
-    result = Curl_sasl_create_ntlm_type3_message(conn->data, userp, passwdp,
+    result = Curl_auth_create_ntlm_type3_message(conn->data, userp, passwdp,
                                                  ntlm, &base64, &len);
     if(result)
       return result;
@@ -228,8 +227,8 @@ CURLcode Curl_output_ntlm(struct connectdata *conn, bool proxy)
 
 void Curl_http_ntlm_cleanup(struct connectdata *conn)
 {
-  Curl_sasl_ntlm_cleanup(&conn->ntlm);
-  Curl_sasl_ntlm_cleanup(&conn->proxyntlm);
+  Curl_auth_ntlm_cleanup(&conn->ntlm);
+  Curl_auth_ntlm_cleanup(&conn->proxyntlm);
 
 #if defined(NTLM_WB_ENABLED)
   Curl_ntlm_wb_cleanup(conn);
