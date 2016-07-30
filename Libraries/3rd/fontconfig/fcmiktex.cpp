@@ -19,6 +19,7 @@
 
 #include <config.h>
 
+#include <cstdarg>
 #include <cstdlib>
 
 #include <io.h>
@@ -169,7 +170,10 @@ extern "C" void miktex_close_cache_file(int fd, const char  * lpszDir)
     } while (modificationTimes.find(cache_mtime) != modificationTimes.end());
     File::SetTimes(fd, cache_mtime, cache_mtime, cache_mtime);
     modificationTimes.insert(cache_mtime);
-    _close(fd);
+    if (_close(fd) < 0)
+    {
+      fprintf(stderr, "cannot close file: %s\n", strerror(errno));
+    }
   }
   catch (const MiKTeXException & e)
   {
@@ -180,5 +184,42 @@ extern "C" void miktex_close_cache_file(int fd, const char  * lpszDir)
   {
     Utils::PrintException(e);
     exit(1);
+  }
+}
+
+extern "C" void miktex_report_crt_error(const char * message, ...)
+{
+  va_list arglist;
+  va_start(arglist, message);
+  vfprintf(stderr, message, arglist);
+  va_end(arglist);
+  fprintf(stderr, ": %s\n", strerror(errno));
+}
+
+extern "C" void miktex_report_problem(const char * message, ...)
+{
+  va_list arglist;
+  va_start(arglist, message);
+  vfprintf(stderr, message, arglist);
+  va_end(arglist);
+  fputc('\n', stderr);
+}
+
+extern "C" int miktex_file_delete(const char * path)
+{
+  try
+  {
+    File::Delete(path, { FileDeleteOption::TryHard, FileDeleteOption::UpdateFndb });
+    return 1;
+  }
+  catch (const MiKTeXException & e)
+  {
+    Utils::PrintException(e);
+    return 0;
+  }
+  catch (const exception & e)
+  {
+    Utils::PrintException(e);
+    return 0;
   }
 }

@@ -55,10 +55,8 @@
 #include <time.h>
 
 #ifdef _WIN32
-#if !defined(MIKTEX)
 #include <direct.h>
 #define mkdir(path,mode) _mkdir(path)
-#endif
 #endif
 
 #define NEW_NAME	".NEW"
@@ -177,7 +175,14 @@ FcAtomicLock (FcAtomic *atomic)
 	}
 	return FcFalse;
     }
+#if defined(MIKTEX)
+    if (access(atomic->new, 0) == 0)
+    {
+      miktex_file_delete(atomic->new);
+    }
+#else
     (void) unlink ((char *) atomic->new);
+#endif
     return FcTrue;
 }
 
@@ -197,17 +202,36 @@ FcBool
 FcAtomicReplaceOrig (FcAtomic *atomic)
 {
 #ifdef _WIN32
+#if defined(MIKTEX)
+  if (access(atomic->file, 0) == 0)
+  {
+    miktex_file_delete(atomic->file);
+  }
+#else
     unlink ((const char *) atomic->file);
 #endif
+#endif
+#if defined(MIKTEX)
+    if (rename(atomic->new, atomic->file) != 0)
+    {
+      miktex_report_crt_error("cannot rename file '%s' to '%s", atomic->new, atomic->file);
+      return FcFalse;
+    }
+#else
     if (rename ((char *) atomic->new, (char *) atomic->file) < 0)
 	return FcFalse;
+#endif
     return FcTrue;
 }
 
 void
 FcAtomicDeleteNew (FcAtomic *atomic)
 {
+#if defined(MIKTEX)
+  miktex_file_delete(atomic->new);
+#else
     unlink ((char *) atomic->new);
+#endif
 }
 
 void
@@ -217,7 +241,14 @@ FcAtomicUnlock (FcAtomic *atomic)
     if (unlink ((char *) atomic->lck) == -1)
 	rmdir ((char *) atomic->lck);
 #else
+#if defined(MIKTEX)
+  if (rmdir(atomic->lck) != 0)
+  {
+    miktex_report_crt_error("cannot remove lock directory '%s'", atomic->lck);
+  }
+#else
     rmdir ((char *) atomic->lck);
+#endif
 #endif
 }
 

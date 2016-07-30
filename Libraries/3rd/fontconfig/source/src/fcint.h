@@ -60,6 +60,11 @@
 #if defined(MIKTEX)
 #  include "fcmiktex.h"
 #  if defined(MIKTEX_WINDOWS)
+#    define MIKTEX_USE_FCSTAT_WORKAROUND 1
+     /* file locking is currently (fontconfig 2.12.0) not correctly
+        implemented: fc-cache doesn't update existing cache files and
+        instead leaves behind a bunch of .NEW files */
+#    define MIKTEX_FILE_LOCKING_WORKS_CORRECTLY 0
 #    include <direct.h>
 #    include <io.h>
 #  endif

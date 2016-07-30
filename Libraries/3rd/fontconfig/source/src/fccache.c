@@ -141,7 +141,11 @@ FcDirCacheUnlink (const FcChar8 *dir, FcConfig *config)
 	    cache_hashed = FcStrBuildFilename (cache_dir, cache_base, NULL);
         if (!cache_hashed)
 	    break;
+#if defined(MIKTEX)
+        miktex_file_delete(cache_hashed);
+#else
 	(void) unlink ((char *) cache_hashed);
+#endif
 	FcStrFree (cache_hashed);
     }
     FcStrListDone (list);
@@ -257,7 +261,7 @@ struct _FcCacheSkip {
     ino_t	    cache_ino;
     time_t	    cache_mtime;
     long	    cache_mtime_nano;
-#if defined(MIKTEX)
+#if defined(MIKTEX) && !MIKTEX_USE_FCSTAT_WORKAROUND
     time_t	    cache_atime;
     time_t	    cache_ctime;
     size_t	    cache_size;
@@ -394,7 +398,7 @@ FcCacheInsert (FcCache *cache, struct stat *cache_stat)
 #else
 	s->cache_mtime_nano = 0;
 #endif
-#if defined(MIKTEX)
+#if defined(MIKTEX) && !MIKTEX_USE_FCSTAT_WORKAROUND
 	s->cache_atime = cache_stat->st_atime;
 	s->cache_ctime = cache_stat->st_ctime;
 	s->cache_size = cache_stat->st_size;
@@ -406,7 +410,7 @@ FcCacheInsert (FcCache *cache, struct stat *cache_stat)
 	s->cache_ino = 0;
 	s->cache_mtime = 0;
 	s->cache_mtime_nano = 0;
-#if defined(MIKTEX)
+#if defined(MIKTEX) && !MIKTEX_USE_FCSTAT_WORKAROUND
 	s->cache_atime = 0;
 	s->cache_ctime = 0;
 	s->cache_size = 0;
@@ -496,7 +500,7 @@ FcCacheFindByStat (struct stat *cache_stat)
     for (s = fcCacheChains[0]; s; s = s->next[0])
 	if (s->cache_dev == cache_stat->st_dev &&
 	    s->cache_ino == cache_stat->st_ino &&
-#if defined(MIKTEX)
+#if defined(MIKTEX) && !MIKTEX_USE_FCSTAT_WORKAROUND
 	    s->cache_atime == cache_stat->st_atime &&
 	    s->cache_ctime == cache_stat->st_ctime &&
 	    s->cache_size == cache_stat->st_size &&
@@ -1156,11 +1160,15 @@ FcDirCacheClean (const FcChar8 *cache_dir, FcBool verbose)
 	}
 	if (remove)
 	{
+#if defined(MIKTEX)
+          ret = miktex_file_delete(file_name) ? ret : FcFalse;
+#else
 	    if (unlink ((char *) file_name) < 0)
 	    {
 		perror ((char *) file_name);
 		ret = FcFalse;
 	    }
+#endif
 	}
         FcStrFree (file_name);
     }
@@ -1176,6 +1184,9 @@ int
 FcDirCacheLock (const FcChar8 *dir,
 		FcConfig      *config)
 {
+#if defined(MIKTEX_WINDOWS) && !MIKTEX_FILE_LOCKING_WORKS_CORRECTLY
+  return -1;
+#else
     FcChar8 *cache_hashed = NULL;
     FcChar8 cache_base[CACHEBASE_LEN];
     FcStrList *list;
@@ -1225,11 +1236,15 @@ bail:
     if (fd != -1)
 	close (fd);
     return -1;
+#endif
 }
 
 void
 FcDirCacheUnlock (int fd)
 {
+#if defined(MIKTEX_WINDOWS) && !MIKTEX_FILE_LOCKING_WORKS_CORRECTLY
+  return -1;
+#else
     if (fd != -1)
     {
 #if defined(_WIN32)
@@ -1246,6 +1261,7 @@ FcDirCacheUnlock (int fd)
 #endif
 	close (fd);
     }
+#endif
 }
 
 /*

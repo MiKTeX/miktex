@@ -1,4 +1,4 @@
-/* fcmiktex.h:							-*- C++ -*-
+/* fcmiktex.h:                                          -*- C++ -*-
 
    Copyright (C) 2007-2016 Christian Schenk
 
@@ -17,25 +17,23 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-const char *
-miktex_fontconfig_path ();
+const char * miktex_fontconfig_path();
 
-const char *
-miktex_fc_cachedir ();
+const char * miktex_fc_cachedir();
 
-const char *
-miktex_fc_default_fonts ();
+const char * miktex_fc_default_fonts();
 
-const char *
-miktex_fontconfig_file ();
+const char * miktex_fontconfig_file();
 
-int
-miktex_get_fontconfig_config_dirs (/*[in,out]*/ char ** pPaths,
-				   /*[in]*/ int nPaths);
+int miktex_get_fontconfig_config_dirs(char ** pPaths, int nPaths);
 
-void
-miktex_close_cache_file (/*[in]*/ int fd,
-			 /*[in]*/ const char * lpszDir);
+void miktex_close_cache_file(int fd, const char * lpszDir);
+
+void miktex_report_crt_error(const char * message, ...);
+
+void miktex_report_problem(const char * message, ...);
+
+int miktex_file_delete(const char * path);
 
 #define FONTCONFIG_PATH miktex_fontconfig_path()
 
