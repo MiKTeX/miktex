@@ -65,8 +65,8 @@ struct gmp_primes_dtab {
 struct gmp_primes_ptab {
   mp_limb_t ppp;	/* primes, multiplied together */
   mp_limb_t cps[7];	/* ppp values pre-computed for mpn_mod_1s_4p */
-  unsigned int idx:24;	/* index of  first primes in dtab */
-  unsigned int np :8;	/* number of primes related to this entry */
+  gmp_uint_least32_t idx:24;	/* index of  first primes in dtab */
+  gmp_uint_least32_t np :8;	/* number of primes related to this entry */
 };
 
 

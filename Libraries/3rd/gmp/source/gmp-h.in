@@ -1,6 +1,6 @@
 /* Definitions for GNU multiple precision functions.   -*- mode: c -*-
 
-Copyright 1991, 1993-1997, 1999-2015 Free Software Foundation, Inc.
+Copyright 1991, 1993-1997, 1999-2016 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -2334,7 +2334,7 @@ enum
 /* Major version number is the value of __GNU_MP__ too, above and in mp.h. */
 #define __GNU_MP_VERSION            6
 #define __GNU_MP_VERSION_MINOR      1
-#define __GNU_MP_VERSION_PATCHLEVEL 0
+#define __GNU_MP_VERSION_PATCHLEVEL 1
 #define __GNU_MP_RELEASE (__GNU_MP_VERSION * 10000 + __GNU_MP_VERSION_MINOR * 100 + __GNU_MP_VERSION_PATCHLEVEL)
 
 #define __GMP_H__

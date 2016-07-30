@@ -511,6 +511,9 @@ see https://www.gnu.org/licenses/.
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #cmakedefine LT_OBJDIR
 
+/* Define to 1 to disable the use of inline assembly */
+#cmakedefine NO_ASM
+
 /* Name of package */
 #cmakedefine PACKAGE
 
@@ -564,9 +567,6 @@ see https://www.gnu.org/licenses/.
 
 /* Version number of package */
 #cmakedefine VERSION "${VERSION}"
-
-/* Defined to 1 as per --enable-assembly */
-#cmakedefine WANT_ASSEMBLY 1
 
 /* Define to 1 to enable ASSERT checking, per --enable-assert */
 #cmakedefine WANT_ASSERT 1
