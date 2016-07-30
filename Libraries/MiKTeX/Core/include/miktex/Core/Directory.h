@@ -79,6 +79,9 @@ public:
   /// Set directory time-stamps.
 public:
   static MIKTEXCORECEEAPI(void) SetTimes(const PathName & path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime);
+
+public:
+  static MIKTEXCORECEEAPI(void) Move(const PathName & source, const PathName & dest);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

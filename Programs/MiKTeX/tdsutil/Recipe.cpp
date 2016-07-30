@@ -300,9 +300,15 @@ void Recipe::DoAction(const string & action, const PathName & actionDir)
     PathName newName = PathName(actionDir) / argv[2];
     if (File::Exists(oldName))
     {
-      Verbose("moving '" + argv[1] + "' to '" + argv[2] + "'");
+      Verbose("moving file '" + argv[1] + "' to '" + argv[2] + "'");
       PrintOnly(StringUtil::FormatString("move %s %s", Q_(PrettyPath(oldName, actionDir)), Q_(PrettyPath(newName, actionDir))));
       File::Move(oldName, newName);
+    }
+    else if (Directory::Exists(oldName))
+    {
+      Verbose("moving directory '" + argv[1] + "' to '" + argv[2] + "'");
+      PrintOnly(StringUtil::FormatString("move %s %s", Q_(PrettyPath(oldName, actionDir)), Q_(PrettyPath(newName, actionDir))));
+      Directory::Move(oldName, newName);
     }
   }
   else if (actionName == "remove")

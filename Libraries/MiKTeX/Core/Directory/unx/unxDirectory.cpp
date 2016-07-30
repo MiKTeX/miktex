@@ -77,3 +77,8 @@ void Directory::SetTimes(const PathName & path, time_t creationTime, time_t last
 {
   File::SetTimes(path, creationTime, lastAccessTime, lastWriteTime);
 }
+
+void Directory::Move(const PathName & source, const PathName & dest)
+{
+  File::Move(source, dest);
+}
