@@ -16,7 +16,7 @@
 // Copyright (C) 2006, 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2007, 2010, 2011 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2008 Hugo Mercier <hmercier31@gmail.com>
-// Copyright (C) 2008-2010, 2012-2014 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008-2010, 2012-2014, 2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 // Copyright (C) 2009 Ilya Gorenbein <igorenbein@finjan.com>
 // Copyright (C) 2012 Tobias Koening <tobias.koenig@kdab.com>
@@ -231,30 +231,26 @@ LinkDest::LinkDest(Array *a) {
 
   // Fit link
   } else if (obj1.isName("Fit")) {
-    if (a->getLength() < 2) {
-      error(errSyntaxWarning, -1, "Annotation destination array is too short");
-      goto err2;
-    }
     kind = destFit;
 
   // FitH link
   } else if (obj1.isName("FitH")) {
-    if (a->getLength() < 3) {
-      error(errSyntaxWarning, -1, "Annotation destination array is too short");
-      goto err2;
-    }
     kind = destFitH;
-    a->get(2, &obj2);
-    if (obj2.isNull()) {
+    if (a->getLength() < 3) {
       changeTop = gFalse;
-    } else if (obj2.isNum()) {
-      changeTop = gTrue;
-      top = obj2.getNum();
     } else {
-      error(errSyntaxWarning, -1, "Bad annotation destination position");
-      kind = destFit;
+      a->get(2, &obj2);
+      if (obj2.isNull()) {
+	changeTop = gFalse;
+      } else if (obj2.isNum()) {
+	changeTop = gTrue;
+	top = obj2.getNum();
+      } else {
+	error(errSyntaxWarning, -1, "Bad annotation destination position");
+	kind = destFit;
+      }
+      obj2.free();
     }
-    obj2.free();
 
   // FitV link
   } else if (obj1.isName("FitV")) {
@@ -313,10 +309,6 @@ LinkDest::LinkDest(Array *a) {
 
   // FitB link
   } else if (obj1.isName("FitB")) {
-    if (a->getLength() < 2) {
-      error(errSyntaxWarning, -1, "Annotation destination array is too short");
-      goto err2;
-    }
     kind = destFitB;
 
   // FitBH link

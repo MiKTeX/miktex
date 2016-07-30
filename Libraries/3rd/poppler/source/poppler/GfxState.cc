@@ -16,7 +16,7 @@
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006, 2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2006, 2010 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2006-2015 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006-2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009, 2012 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2009, 2011-2016 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Christian Persch <chpe@gnome.org>
@@ -2033,7 +2033,6 @@ GfxColorSpace *GfxICCBasedColorSpace::parse(Array *arr, OutputDev *out, GfxState
 
 #ifdef USE_CMS
   arr->get(1, &obj1);
-  dict = obj1.streamGetDict();
   Guchar *profBuf;
   Stream *iccStream = obj1.getStream();
   int length = 0;
@@ -5548,7 +5547,7 @@ GfxPatchMeshShading *GfxPatchMeshShading::parse(GfxResources *res, int typeA, Di
 	p->x[1][0] = x[7];
 	p->y[1][0] = y[7];
 	for (j = 0; j < nComps; ++j) {
-	  p->color[0][1].c[j] = patchesA[nPatchesA-1].color[1][0].c[j];
+	  p->color[0][0].c[j] = patchesA[nPatchesA-1].color[1][0].c[j];
 	  p->color[0][1].c[j] = patchesA[nPatchesA-1].color[0][0].c[j];
 	  p->color[1][1].c[j] = c[0][j];
 	  p->color[1][0].c[j] = c[1][j];

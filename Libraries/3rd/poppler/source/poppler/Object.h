@@ -21,6 +21,7 @@
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2013 Adrian Perez de Castro <aperez@igalia.com>
+// Copyright (C) 2016 Jakub Kucharski <jakubkucharski97@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -235,6 +236,7 @@ public:
   int dictGetLength();
   void dictAdd(char *key, Object *val);
   void dictSet(const char *key, Object *val);
+  void dictRemove(const char *key);
   GBool dictIs(const char *dictType);
   Object *dictLookup(const char *key, Object *obj, int recursion = 0);
   Object *dictLookupNF(const char *key, Object *obj);
@@ -318,7 +320,10 @@ inline void Object::dictAdd(char *key, Object *val)
   { OBJECT_TYPE_CHECK(objDict); dict->add(key, val); }
 
 inline void Object::dictSet(const char *key, Object *val)
- 	{ OBJECT_TYPE_CHECK(objDict); dict->set(key, val); }
+  { OBJECT_TYPE_CHECK(objDict); dict->set(key, val); }
+
+inline void Object::dictRemove(const char *key)
+  { OBJECT_TYPE_CHECK(objDict); dict->remove(key); }
 
 inline GBool Object::dictIs(const char *dictType)
   { OBJECT_TYPE_CHECK(objDict); return dict->is(dictType); }

@@ -38,6 +38,7 @@
 // Copyright (C) 2013 Julien Nabet <serval2412@yahoo.fr>
 // Copyright (C) 2013 Johannes Brandstätter <jbrandstaetter@gmail.com>
 // Copyright (C) 2014 Fabio D'Urso <fabiodurso@hotmail.it>
+// Copyright (C) 2016 Vincent Le Garrec <legarrec.vincent@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1392,6 +1393,13 @@ void HtmlOutputDev::drawPngImage(GfxState *state, Stream *str, int width, int he
 
       // Convert into a PNG row
       p = imgStr->getLine();
+      if (!p) {
+        error(errIO, -1, "Failed to read PNG. '{0:t}' will be incorrect", fName);
+        delete writer;
+        delete imgStr;
+        fclose(f1);
+        return;
+      }
       for (int x = 0; x < width; x++) {
         colorMap->getRGB(p, &rgb);
         // Write the RGB pixels into the row

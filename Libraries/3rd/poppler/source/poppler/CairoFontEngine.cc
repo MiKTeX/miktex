@@ -27,7 +27,7 @@
 // Copyright (C) 2010 Jan Kümmel <jan+freedesktop@snorc.org>
 // Copyright (C) 2012 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
-// Copyright (C) 2015 Jason Crain <jason@aquaticape.us>
+// Copyright (C) 2015, 2016 Jason Crain <jason@aquaticape.us>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -113,7 +113,7 @@ CairoFont::getGlyph(CharCode code,
 double
 CairoFont::getSubstitutionCorrection(GfxFont *gfxFont)
 {
-  double w1, w2;
+  double w1, w2, w3;
   CharCode code;
   char *name;
 
@@ -143,7 +143,8 @@ CairoFont::getSubstitutionCorrection(GfxFont *gfxFont)
 	cairo_font_options_destroy(options);
 	w2 = extents.x_advance;
       }
-      if (!gfxFont->isSymbolic()) {
+      w3 = ((Gfx8BitFont *)gfxFont)->getWidth(0);
+      if (!gfxFont->isSymbolic() && w2 > 0 && w1 > w3) {
 	// if real font is substantially narrower than substituted
 	// font, reduce the font size accordingly
 	if (w1 > 0.01 && w1 < 0.9 * w2) {
@@ -465,6 +466,11 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
       codeToGID[i] = 0;
       if ((name = enc[i])) {
 	codeToGID[i] = FT_Get_Name_Index(face, (char*)name);
+	if (codeToGID[i] == 0) {
+	  Unicode u;
+	  u = globalParams->mapNameToUnicodeText (name);
+	  codeToGID[i] = FT_Get_Char_Index (face, u);
+	}
 	if (codeToGID[i] == 0) {
 	  name = GfxFont::getAlternateName(name);
 	  if (name) {

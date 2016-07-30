@@ -22,6 +22,7 @@
 // Copyright (C) 2012, 2013, 2016 Thomas Freitag <Thomas.Freitag@kabelmail.de>
 // Copyright (C) 2012, 2013 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2016 Jakub Kucharski <jakubkucharski97@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -149,6 +150,13 @@ public:
   Object *getDocInfo(Object *obj);
   Object *getDocInfoNF(Object *obj);
 
+  // Create and return the document's Info dictionary if none exists.
+  // Otherwise return the existing one.
+  Object *createDocInfoIfNoneExists(Object *obj);
+
+  // Remove the document's Info dictionary and update the trailer dictionary.
+  void removeDocInfo();
+
   // Return the number of objects in the xref table.
   int getNumObjects() { return size; }
 
@@ -174,6 +182,11 @@ public:
   // Direct access.
   XRefEntry *getEntry(int i, GBool complainIfMissing = gTrue);
   Object *getTrailerDict() { return &trailerDict; }
+
+  // Was the XRef modified?
+  GBool isModified() { return modified; }
+  // Set the modification flag for XRef to true.
+  void setModified() { modified = gTrue; }
 
   // Write access
   void setModifiedObject(Object* o, Ref r);
@@ -203,6 +216,7 @@ private:
   int errCode;			// error code (if <ok> is false)
   GBool xrefReconstructed;	// marker, true if xref was already reconstructed
   Object trailerDict;		// trailer dictionary
+  GBool modified;
   Goffset *streamEnds;		// 'endstream' positions - only used in
 				//   damaged files
   int streamEndsLen;		// number of valid entries in streamEnds

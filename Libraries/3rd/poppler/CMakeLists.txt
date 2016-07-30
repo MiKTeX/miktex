@@ -22,7 +22,7 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/poppler")
 set(projdir ${CMAKE_CURRENT_SOURCE_DIR})
   
 set(POPPLER_MAJOR_VERSION "0")
-set(POPPLER_MINOR_VERSION "42")
+set(POPPLER_MINOR_VERSION "46")
 set(POPPLER_MICRO_VERSION "0")
 set(POPPLER_VERSION "${POPPLER_MAJOR_VERSION}.${POPPLER_MINOR_VERSION}.${POPPLER_MICRO_VERSION}")
 
@@ -85,6 +85,7 @@ set(${poppler_lib_name}_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/ImgWriter.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gstrtod.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/grandom.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/glibc.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi/FoFiBase.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi/FoFiEncodings.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi/FoFiTrueType.cc

@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2005 Martin Kretzschmar <martink@gnome.org>
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2006-2009, 2011-2013, 2015 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006-2009, 2011-2013, 2015, 2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2007, 2008 Brad Hards <bradh@kde.org>
 // Copyright (C) 2008, 2009 Koji Otani <sho@bbr.jp>
@@ -7664,8 +7664,10 @@ GooString* PSOutputDev::filterPSLabel(GooString *label, GBool *needParens) {
     } else if (c == '(') {
       label2->append("\\(");
     } else if (c < 0x20 || c > 0x7e) {
-      label2->append(GooString::format("\\{0:03o}", c));
+      GooString *aux = GooString::format("\\{0:03o}", c);
+      label2->append(aux);
       j += 4;
+      delete aux;
     } else {
       label2->append(c);
       ++j;

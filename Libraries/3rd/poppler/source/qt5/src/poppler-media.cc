@@ -123,7 +123,7 @@ MediaRendition::autoPlay() const
     return d->rendition->getBEParameters()->autoPlay;
   } else if (d->rendition->getMHParameters()) {
     return d->rendition->getMHParameters()->autoPlay;
-  } else qDebug("No BE or MH paremeters to reference!");
+  } else qDebug("No BE or MH parameters to reference!");
   return false;
 }
 
@@ -135,7 +135,7 @@ MediaRendition::showControls() const
     return d->rendition->getBEParameters()->showControls;
   } else if (d->rendition->getMHParameters()) {
     return d->rendition->getMHParameters()->showControls;
-  } else qDebug("No BE or MH paremeters to reference!");
+  } else qDebug("No BE or MH parameters to reference!");
   return false;
 }
 
@@ -147,7 +147,7 @@ MediaRendition::repeatCount() const
     return d->rendition->getBEParameters()->repeatCount;
   } else if (d->rendition->getMHParameters()) {
     return d->rendition->getMHParameters()->repeatCount;
-  } else qDebug("No BE or MH paremeters to reference!");
+  } else qDebug("No BE or MH parameters to reference!");
   return 1.f;
 }
 
@@ -161,7 +161,7 @@ MediaRendition::size() const
     mp = d->rendition->getBEParameters();
   else if (d->rendition->getMHParameters())
     mp = d->rendition->getMHParameters();
-  else qDebug("No BE or MH paremeters to reference!");
+  else qDebug("No BE or MH parameters to reference!");
 
   if (mp)
     return QSize(mp->windowParams.width, mp->windowParams.height);

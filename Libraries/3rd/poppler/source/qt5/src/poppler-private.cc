@@ -4,6 +4,7 @@
  * Copyright (C) 2008, 2010, 2011, 2014 by Pino Toscano <pino@kde.org>
  * Copyright (C) 2013 by Thomas Freitag <Thomas.Freitag@alfa.de>
  * Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
+ * Copyright (C) 2016 Jakub Kucharski <jakubkucharski97@gmail.com>
  * Inspired on code by
  * Copyright (C) 2004 by Albert Astals Cid <tsdgeos@terra.es>
  * Copyright (C) 2004 by Enrico Ros <eros.kde@email.it>
@@ -155,6 +156,14 @@ namespace Debug {
         GooString *ret = new GooString(cstring, len);
         gfree(cstring);
         return ret;
+    }
+
+    GooString *QDateTimeToUnicodeGooString(const QDateTime &dt) {
+        if (!dt.isValid()) {
+            return NULL;
+        }
+
+        return QStringToUnicodeGooString(dt.toUTC().toString("yyyyMMddhhmmss+00'00'"));
     }
 
     void linkActionToTocItem( ::LinkAction * a, DocumentData * doc, QDomElement * e )

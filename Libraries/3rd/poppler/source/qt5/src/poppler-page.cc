@@ -15,6 +15,7 @@
  * Copyright (C) 2012, 2015 Adam Reichold <adamreichold@myopera.com>
  * Copyright (C) 2012, 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
  * Copyright (C) 2015 William Bader <williambader@hotmail.com>
+ * Copyright (C) 2016 Arseniy Lartsev <arseniy@alumni.chalmers.se>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -209,7 +210,7 @@ Link* PageData::convertLinkActionToLink(::LinkAction * a, DocumentData *parentDo
       if ( lrn->hasScreenAnnot() )
         reference = lrn->getScreenAnnot();
 
-      popplerLink = new LinkRendition( linkArea, lrn->getMedia()->copy(), lrn->getOperation(), UnicodeParsedString( lrn->getScript() ), reference );
+      popplerLink = new LinkRendition( linkArea, lrn->getMedia() ? lrn->getMedia()->copy() : NULL, lrn->getOperation(), UnicodeParsedString( lrn->getScript() ), reference );
     }
     break;
 

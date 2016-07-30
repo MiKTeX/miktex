@@ -11,9 +11,9 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2005-2015 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Marco Pesenti Gritti <mpg@redhat.com>
-// Copyright (C) 2010-2015 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2010-2016 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 // Copyright (C) 2011-2013, 2015 William Bader <williambader@hotmail.com>
 // Copyright (C) 2012 Markus Trippelsdorf <markus@trippelsdorf.de>
@@ -5768,6 +5768,9 @@ GBool Splash::gouraudTriangleShadedFill(SplashGouraudColor *shading)
       }
     }
   } else {
+    if (!bDirectBlit) {
+      delete blitTarget;
+    }
     return gFalse;
   }
 
@@ -5914,7 +5917,7 @@ SplashPath *Splash::makeStrokePath(SplashPath *path, SplashCoord w,
 SplashPath *pathIn, *dashPath, *pathOut;
   SplashCoord d, dx, dy, wdx, wdy, dxNext, dyNext, wdxNext, wdyNext;
   SplashCoord crossprod, dotprod, miter, m;
-  GBool first, last, closed;
+  GBool first, last, closed, hasangle;
   int subpathStart0, subpathStart1, seg, i0, i1, j0, j1, k0, k1;
   int left0, left1, left2, right0, right1, right2, join0, join1, join2;
   int leftFirst, rightFirst, firstPt;
@@ -6142,6 +6145,7 @@ SplashPath *pathIn, *dashPath, *pathOut;
       // compute the join parameters
       crossprod = dx * dyNext - dy * dxNext;
       dotprod = -(dx * dxNext + dy * dyNext);
+      hasangle = crossprod != 0 || dx * dxNext < 0 || dy * dyNext < 0;
       if (dotprod > 0.9999) {
 	// avoid a divide-by-zero -- set miter to something arbitrary
 	// such that sqrt(miter) will exceed miterLimit (and m is never
@@ -6161,7 +6165,7 @@ SplashPath *pathIn, *dashPath, *pathOut;
       }
 
       // round join
-      if (state->lineJoin == splashLineJoinRound) {
+      if (hasangle && state->lineJoin == splashLineJoinRound) {
 	pathOut->moveTo(pathIn->pts[j0].x + (SplashCoord)0.5 * w,
 			pathIn->pts[j0].y);
 	pathOut->curveTo(pathIn->pts[j0].x + (SplashCoord)0.5 * w,
@@ -6189,7 +6193,7 @@ SplashPath *pathIn, *dashPath, *pathOut;
 			 pathIn->pts[j0].x + (SplashCoord)0.5 * w,
 			 pathIn->pts[j0].y);
 
-      } else {
+      } else if (hasangle) {
 	pathOut->moveTo(pathIn->pts[j0].x, pathIn->pts[j0].y);
 
 	// angle < 180

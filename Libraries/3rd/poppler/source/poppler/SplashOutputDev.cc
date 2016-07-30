@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2005 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2006 Stefan Schweizer <genstef@gentoo.org>
-// Copyright (C) 2006-2015 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006-2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
@@ -36,6 +36,7 @@
 // Copyright (C) 2014 Richard PALO <richard@netbsd.org>
 // Copyright (C) 2015 Tamas Szekeres <szekerest@gmail.com>
 // Copyright (C) 2015 Kenji Uno <ku@digitaldolphins.jp>
+// Copyright (C) 2016 Takahiro Hashimoto <kenya888.en@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -96,6 +97,13 @@ extern "C" int unlink(char *filename);
 #include <ieeefp.h>
 #ifndef isfinite
 #define isfinite(x) finite(x)
+#endif
+#endif
+
+#if __cplusplus > 199711L
+#include <cmath>
+#ifndef isfinite
+#define isfinite(x) std::isfinite(x)
 #endif
 #endif
 
@@ -2057,6 +2065,7 @@ void SplashOutputDev::doUpdateFont(GfxState *state) {
 reload:
   delete id;
   delete fontLoc;
+  fontLoc = NULL;
   if (fontsrc && !fontsrc->isFile)
       fontsrc->unref();
 
@@ -3274,17 +3283,17 @@ void SplashOutputDev::iccTransform(void *data, SplashBitmap *bitmap) {
       Guchar *q;
       Guchar *b = p;
       int x;
-      for (x = 0, q = rgbxLine; x < bitmap->getWidth(); ++x, ++b) {
-        *q++ = *b++;
-        *q++ = *b++;
-        *q++ = *b++;
+      for (x = 0, q = rgbxLine; x < bitmap->getWidth(); ++x, b+=4) {
+        *q++ = b[2];
+        *q++ = b[1];
+        *q++ = b[0];
       }
       imgData->colorMap->getRGBLine(rgbxLine, colorLine, bitmap->getWidth());
       b = p;
-      for (x = 0, q = colorLine; x < bitmap->getWidth(); ++x, ++b) {
-        *b++ = *q++;
-        *b++ = *q++;
-        *b++ = *q++;
+      for (x = 0, q = colorLine; x < bitmap->getWidth(); ++x, b+=4) {
+        b[2] = *q++;
+        b[1] = *q++;
+        b[0] = *q++;
       }
       break;
     }

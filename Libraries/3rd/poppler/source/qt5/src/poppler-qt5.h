@@ -15,6 +15,7 @@
  * Copyright (C) 2012, 2014, 2015 Adam Reichold <adamreichold@myopera.com>
  * Copyright (C) 2012, 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
  * Copyright (C) 2013 Anthony Granger <grangeranthony@gmail.com>
+ * Copyright (C) 2016 Jakub Kucharski <jakubkucharski97@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1072,6 +1073,37 @@ QDateTime modified = m_doc->date("ModDate");
 	QDateTime date( const QString & data ) const;
 
 	/**
+	   Set the Info dict date entry specified by \param key to \param val
+
+	   \returns true on success, false on failure
+	*/
+	bool setDate( const QString & key, const QDateTime & val );
+
+	/**
+	   The date of the creation of the document
+	*/
+	QDateTime creationDate() const;
+
+	/**
+	   Set the creation date of the document to \param val
+
+	   \returns true on success, false on failure
+	*/
+	bool setCreationDate( const QDateTime & val );
+
+	/**
+	   The date of the last change in the document
+	*/
+	QDateTime modificationDate() const;
+
+	/**
+	   Set the modification date of the document to \param val
+
+	   \returns true on success, false on failure
+	*/
+	bool setModificationDate( const QDateTime & val );
+
+	/**
 	   Get specified information associated with the document
 
 	   You would use this method with something like:
@@ -1088,6 +1120,92 @@ QString subject = m_doc->info("Subject");
 	   \sa infoKeys() to get a list of the available keys
 	*/
 	QString info( const QString & data ) const;
+
+	/**
+	   Set the value of the document's Info dictionary entry specified by \param key to \param val
+
+	   \returns true on success, false on failure
+	*/
+	bool setInfo( const QString & key, const QString & val );
+
+	/**
+	   The title of the document
+	*/
+	QString title() const;
+
+	/**
+	   Set the title of the document to \param val
+
+	   \returns true on success, false on failure
+	*/
+	bool setTitle( const QString & val );
+
+	/**
+	   The author of the document
+	*/
+	QString author() const;
+
+	/**
+	   Set the author of the document to \param val
+
+	   \returns true on success, false on failure
+	*/
+	bool setAuthor( const QString & val );
+
+	/**
+	   The subject of the document
+	*/
+	QString subject() const;
+
+	/**
+	   Set the subject of the document to \param val
+
+	   \returns true on success, false on failure
+	*/
+	bool setSubject( const QString & val );
+
+	/**
+	   The keywords of the document
+	*/
+	QString keywords() const;
+
+	/**
+	   Set the keywords of the document to \param val
+
+	   \returns true on success, false on failure
+	*/
+	bool setKeywords( const QString & val );
+
+	/**
+	   The creator of the document
+	*/
+	QString creator() const;
+
+	/**
+	   Set the creator of the document to \param val
+
+	   \returns true on success, false on failure
+	*/
+	bool setCreator( const QString & val );
+
+	/**
+	   The producer of the document
+	*/
+	QString producer() const;
+
+	/**
+	   Set the producer of the document to \param val
+
+	   \returns true on success, false on failure
+	*/
+	bool setProducer( const QString & val );
+
+	/**
+	   Remove the document's Info dictionary
+
+	   \returns true on success, false on failure
+	*/
+	bool removeInfo();
 
 	/**
 	   Obtain a list of the available string information keys.

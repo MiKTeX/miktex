@@ -4046,6 +4046,7 @@ void Gfx::doShowText(GooString *s) {
       curX += tdx;
       curY += tdy;
       state->moveTo(curX, curY);
+      out->updateCTM(state, 0, 0, 0, 0, 0, 0);
       p += n;
       len -= n;
     }
