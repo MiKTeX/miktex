@@ -246,16 +246,16 @@ void inxbuild(nn_quant *nnq)
 
 /* Search for ABGR values 0..255 (after net is unbiased) and return colour index
 	 ---------------------------------------------------------------------------- */
-int inxsearch(nnq, al,b,g,r)
+unsigned int inxsearch(nnq, al,b,g,r)
 nn_quant *nnq;
 register int al, b, g, r;
 {
 	register int i, j, dist, a, bestd;
 	register int *p;
-	int best;
+	unsigned int best;
 
 	bestd = 1000;		/* biggest possible dist is 256*3 */
-	best = -1;
+	best = 0;
 	i = nnq->netindex[g];	/* index on g */
 	j = i-1;		/* start at netindex[g] and work outwards */
 
@@ -330,12 +330,13 @@ register int al,b,g,r;
 	/* bias[i] = gamma*((1/netsize)-freq[i]) */
 
 	register int i,dist,a,biasdist,betafreq;
-	int bestpos,bestbiaspos,bestd,bestbiasd;
+	unsigned int bestpos,bestbiaspos;
+	double bestd,bestbiasd;
 	register int *p,*f, *n;
 
 	bestd = ~(((int) 1)<<31);
 	bestbiasd = bestd;
-	bestpos = -1;
+	bestpos = 0;
 	bestbiaspos = bestpos;
 	p = nnq->bias;
 	f = nnq->freq;
@@ -463,7 +464,7 @@ int verbose;
 	radius = initradius;
 
 	rad = radius >> radiusbiasshift;
-	if (rad <= 1) rad = 0;
+	
 	for (i=0; i<rad; i++)
 		nnq->radpower[i] = alpha*(((rad*rad - i*i)*radbias)/(rad*rad));
 
@@ -505,6 +506,9 @@ int verbose;
 	if (verbose) gd_error_ex(GD_NOTICE, "finished 1D learning: final alpha=%f !\n",((float)alpha)/initalpha);
 }
 
+/*
+	Function: gdImageNeuQuant
+*/
 BGD_DECLARE(gdImagePtr) gdImageNeuQuant(gdImagePtr im, const int max_color, int sample_factor)
 {
 	const int newcolors = max_color;

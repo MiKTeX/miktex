@@ -60,6 +60,9 @@ static int gdBMPPutInt(gdIOCtx *out, int w)
 	return 0;
 }
 
+/*
+	Function: gdImageBmpPtr
+*/
 BGD_DECLARE(void *) gdImageBmpPtr(gdImagePtr im, int *size, int compression)
 {
 	void *rv;
@@ -71,6 +74,9 @@ BGD_DECLARE(void *) gdImageBmpPtr(gdImagePtr im, int *size, int compression)
 	return rv;
 }
 
+/*
+	Function: gdImageBmp
+*/
 BGD_DECLARE(void) gdImageBmp(gdImagePtr im, FILE *outFile, int compression)
 {
 	gdIOCtx *out = gdNewFileCtx(outFile);
@@ -79,6 +85,9 @@ BGD_DECLARE(void) gdImageBmp(gdImagePtr im, FILE *outFile, int compression)
 	out->gd_free(out);
 }
 
+/*
+	Function: gdImageBmpCtx
+*/
 BGD_DECLARE(void) gdImageBmpCtx(gdImagePtr im, gdIOCtxPtr out, int compression)
 {
 	int bitmap_size = 0, info_size, total_size, padding;
@@ -343,8 +352,6 @@ static int compress_row(unsigned char *row, int length)
 	if (compressed_run) {
 		if (rle_type == BMP_RLE_TYPE_RLE) {
 			compressed_length += build_rle_packet(row, rle_type, compressed_run, uncompressed_row);
-		} else {
-			compressed_length += build_rle_packet(row, rle_type, compressed_run, uncompressed_row);
 		}
 	}
 
@@ -399,6 +406,9 @@ static int build_rle_packet(unsigned char *row, int packet_type, int length, uns
 	return compressed_size;
 }
 
+/*
+	Function: gdImageCreateFromBmp
+*/
 BGD_DECLARE(gdImagePtr) gdImageCreateFromBmp(FILE * inFile)
 {
 	gdImagePtr im = 0;
@@ -409,6 +419,9 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFromBmp(FILE * inFile)
 	return im;
 }
 
+/*
+	Function: gdImageCreateFromBmpPtr
+*/
 BGD_DECLARE(gdImagePtr) gdImageCreateFromBmpPtr(int size, void *data)
 {
 	gdImagePtr im;
@@ -419,6 +432,9 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFromBmpPtr(int size, void *data)
 	return im;
 }
 
+/*
+	Function: gdImageCreateFromBmpCtx
+*/
 BGD_DECLARE(gdImagePtr) gdImageCreateFromBmpCtx(gdIOCtxPtr infile)
 {
 	bmp_hdr_t *hdr;
@@ -678,11 +694,13 @@ static int bmp_read_direct(gdImagePtr im, gdIOCtxPtr infile, bmp_info_t *info, b
 			BMP_DEBUG(printf("RLE is only valid for 8-bit images\n"));
 			return 1;
 		}
+		break;
 	case BMP_BI_RLE4:
 		if (info->depth != 4) {
 			BMP_DEBUG(printf("RLE is only valid for 4-bit images\n"));
 			return 1;
 		}
+		break;
 	case BMP_BI_JPEG:
 	case BMP_BI_PNG:
 	default:
@@ -792,7 +810,7 @@ static int bmp_read_1bit(gdImagePtr im, gdIOCtxPtr infile, bmp_info_t *info, bmp
 	}
 
 	/* The line must be divisible by 4, else its padded with NULLs */
-	padding = ((int)ceill(0.1 * info->width)) % 4;
+	padding = ((int)ceil(0.1 * info->width)) % 4;
 	if (padding) {
 		padding = 4 - padding;
 	}

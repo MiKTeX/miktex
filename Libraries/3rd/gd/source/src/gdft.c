@@ -92,6 +92,9 @@ static char *font_path(char **fontpath, char *name_list);
 #define TRUE !FALSE
 #endif
 
+/*
+	Function: gdImageStringTTF
+*/
 BGD_DECLARE(char *) gdImageStringTTF (gdImage * im, int *brect, int fg, char *fontlist,
                                       double ptsize, double angle, int x, int y, char *string)
 {
@@ -448,12 +451,8 @@ static int useFontConfig(int flag)
 #ifdef HAVE_LIBFONTCONFIG
 	if (fontConfigFlag) {
 		return (!(flag & gdFTEX_FONTPATHNAME));
-	} else
-#endif
-	{
-		return flag & gdFTEX_FONTCONFIG;
-		
 	}
+#endif
 	return flag & gdFTEX_FONTCONFIG;
 }
 
@@ -734,8 +733,6 @@ gdft_draw_bitmap (gdCache_head_t * tc_cache, gdImage * im, int fg,
 				                + bitmap.num_grays / 2)
 				               / (bitmap.num_grays - 1);
 			} else if (bitmap.pixel_mode == ft_pixel_mode_mono) {
-				tc_key.pixel = ((bitmap.buffer[pc / 8]
-				                 << (pc % 8)) & 128) ? GD_NUMCOLORS : 0;
 				/* 2.0.5: mode_mono fix from Giuliano Pochini */
 				tc_key.pixel =
 				    ((bitmap.
@@ -771,11 +768,17 @@ gdft_draw_bitmap (gdCache_head_t * tc_cache, gdImage * im, int fg,
 	return (char *) NULL;
 }
 
+/*
+	Function: gdFreeFontCache
+*/
 BGD_DECLARE(void) gdFreeFontCache ()
 {
 	gdFontCacheShutdown ();
 }
 
+/*
+	Function: gdFontCacheShutdown
+*/
 BGD_DECLARE(void) gdFontCacheShutdown ()
 {
 	if (fontCache) {
@@ -789,9 +792,11 @@ BGD_DECLARE(void) gdFontCacheShutdown ()
 	}
 }
 
-/********************************************************************/
-/* gdImageStringFT -  render a utf8 string onto a gd image          */
+/*
+	Function: gdImageStringFT
 
+	Render a utf8 string onto a gd image.
+*/
 BGD_DECLARE(char *) gdImageStringFT (gdImage * im, int *brect, int fg, char *fontlist,
                                      double ptsize, double angle, int x, int y, char *string)
 {
@@ -799,6 +804,9 @@ BGD_DECLARE(char *) gdImageStringFT (gdImage * im, int *brect, int fg, char *fon
 	                          ptsize, angle, x, y, string, 0);
 }
 
+/*
+	Function: gdFontCacheSetup
+*/
 BGD_DECLARE(int) gdFontCacheSetup (void)
 {
 	if (fontCache) {
@@ -1741,6 +1749,9 @@ static char * font_path(char **fontpath, char *name_list)
 	return NULL;
 }
 
+/*
+	Function: gdFTUseFontConfig
+*/
 BGD_DECLARE(int) gdFTUseFontConfig(int flag)
 {
 #ifdef HAVE_LIBFONTCONFIG

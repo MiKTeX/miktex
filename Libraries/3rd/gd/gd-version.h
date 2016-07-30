@@ -1,4 +1,4 @@
-/* gd-version.h: version number				-*- C++ -*-
+/* gd-version.h: version number                         -*- C++ -*-
 
    Copyright (C) 2004-2016 Christian Schenk
 
@@ -19,7 +19,7 @@
 
 #define MIKTEX_COMP_J2000_VERSION 6050
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "2.1.1"
+#define MIKTEX_COMP_ORIG_VERSION_STR "2.2.3"
 
 #define MIKTEX_COMP_COPYRIGHT_STR ""
 #define MIKTEX_COMP_COPYRIGHT_STR_1252 ""

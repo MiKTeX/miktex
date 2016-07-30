@@ -42,45 +42,46 @@ configure_file(
 )
 
 set(sources
+  source/src/bmp.h
   source/src/gd.c
-  source/src/gdfx.c
-  source/src/gdfx.h
+  source/src/gd.h
+  source/src/gd_bmp.c
   source/src/gd_color.c
   source/src/gd_color.h
   source/src/gd_color_map.c
   source/src/gd_color_map.h
   source/src/gd_crop.c
-  source/src/gd_transform.c
-  source/src/gd_security.c
-  source/src/gdpp.cxx
-  source/src/gdpp.h
-  source/src/gd_bmp.c
-  source/src/bmp.h
+  source/src/gd_filename.c
   source/src/gd_filter.c
   source/src/gd_gd.c
   source/src/gd_gd2.c
-  source/src/gd_io.c
-  source/src/gd_io.h
-  source/src/gd_io_stream.cxx
-  source/src/gd_io_stream.h
-  source/src/gd_io_dp.c
-  source/src/gd_interpolation.c
   source/src/gd_gif_in.c
   source/src/gd_gif_out.c
+  source/src/gd_interpolation.c
+  source/src/gd_io.c
+  source/src/gd_io.h
+  source/src/gd_io_dp.c
   source/src/gd_io_file.c
   source/src/gd_io_ss.c
+  source/src/gd_io_stream.cxx
+  source/src/gd_io_stream.h
   source/src/gd_jpeg.c
   source/src/gd_matrix.c
   source/src/gd_nnquant.c
   source/src/gd_nnquant.h
   source/src/gd_png.c
   source/src/gd_rotate.c
-  source/src/gd_tiff.c
+  source/src/gd_security.c
+  source/src/gd_ss.c
   source/src/gd_tga.c
   source/src/gd_tga.h
-  source/src/gd_ss.c
+  source/src/gd_tiff.c
   source/src/gd_topal.c
+  source/src/gd_transform.c
+  source/src/gd_version.c
   source/src/gd_wbmp.c
+  source/src/gd_webp.c
+  source/src/gd_xbm.c
   source/src/gdcache.c
   source/src/gdcache.h
   source/src/gdfontg.c
@@ -94,19 +95,18 @@ set(sources
   source/src/gdfontt.c
   source/src/gdfontt.h
   source/src/gdft.c
+  source/src/gdfx.c
+  source/src/gdfx.h
   source/src/gdhelpers.c
   source/src/gdhelpers.h
   source/src/gdkanji.c
+  source/src/gdpp.cxx
+  source/src/gdpp.h
   source/src/gdtables.c
   source/src/gdxpm.c
   source/src/jisx0208.h
   source/src/wbmp.c
-  source/src/gd.h
   source/src/wbmp.h
-  source/src/gd_webp.c
-  source/src/webpimg.c
-  source/src/gd_xbm.c
-  source/src/gd_version.c
 
   gd-version.h
 )

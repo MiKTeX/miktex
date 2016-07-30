@@ -12,10 +12,14 @@
 #include "gd_errors.h"
 #include "gdhelpers.h"
 
-/*!	\brief Creates a gdImage from a TGA file
- *	Creates a gdImage from a TGA binary file via a gdIOCtx.
- *	\param infile Pointer to TGA binary file
- *	\return gdImagePtr
+/*
+	Function: gdImageCreateFromTga
+
+	Creates a gdImage from a TGA file
+
+	Parameters:
+
+		infile - Pointer to TGA binary file
  */
 BGD_DECLARE(gdImagePtr) gdImageCreateFromTga(FILE *fp)
 {
@@ -27,6 +31,9 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFromTga(FILE *fp)
 	return image;
 }
 
+/*
+	Function: gdImageCreateFromTgaPtr
+*/
 BGD_DECLARE(gdImagePtr) gdImageCreateFromTgaPtr(int size, void *data)
 {
 	gdImagePtr im;
@@ -38,10 +45,13 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFromTgaPtr(int size, void *data)
 }
 
 
-/*!	\brief Creates a gdImage from a gdIOCtx
- *	Creates a gdImage from a gdIOCtx referencing a TGA binary file.
- *	\param ctx Pointer to a gdIOCtx structure
- *	\return gdImagePtr
+/*
+	Function: gdImageCreateFromTgaCtx
+
+	Creates a gdImage from a gdIOCtx referencing a TGA binary file.
+
+	Parameters:
+		ctx - Pointer to a gdIOCtx structure
  */
 BGD_DECLARE(gdImagePtr) gdImageCreateFromTgaCtx(gdIOCtx* ctx)
 {
@@ -61,7 +71,7 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFromTgaCtx(gdIOCtx* ctx)
 	tga->bitmap = NULL;
 	tga->ident = NULL;
 
-	if (!read_header_tga(ctx, tga)) {
+	if (read_header_tga(ctx, tga) < 0) {
 		free_tga(tga);
 		return NULL;
 	}
@@ -71,7 +81,7 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFromTgaCtx(gdIOCtx* ctx)
 		image_block_size = (tga->width * tga->height) * pixel_block_size;
 	*/
 
-	if (read_image_tga(ctx, tga)) {
+	if (read_image_tga(ctx, tga) < 0) {
 		free_tga(tga);
 		return NULL;
 	}
@@ -99,7 +109,7 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFromTgaCtx(gdIOCtx* ctx)
 			if (tga->bits == TGA_BPP_24) {
 				*tpix = gdTrueColor(tga->bitmap[bitmap_caret + 2], tga->bitmap[bitmap_caret + 1], tga->bitmap[bitmap_caret]);
 				bitmap_caret += 3;
-			} else if (tga->bits == TGA_BPP_32 || tga->alphabits) {
+			} else if (tga->bits == TGA_BPP_32 && tga->alphabits) {
 				register int a = tga->bitmap[bitmap_caret + 3];
 
 				*tpix = gdTrueColorAlpha(tga->bitmap[bitmap_caret + 2], tga->bitmap[bitmap_caret + 1], tga->bitmap[bitmap_caret], gdAlphaMax - (a >> 1));
@@ -159,16 +169,12 @@ int read_header_tga(gdIOCtx *ctx, oTga *tga)
 	printf("wxh: %i %i\n", tga->width, tga->height);
 #endif
 
-	switch(tga->bits) {
-	case 8:
-	case 16:
-	case 24:
-	case 32:
-		break;
-	default:
-		gd_error("bps %i not supported", tga->bits);
+	if (!((tga->bits == TGA_BPP_24 && tga->alphabits == 0)
+		|| (tga->bits == TGA_BPP_32 && tga->alphabits == 8)))
+	{
+		gd_error_ex(GD_WARNING, "gd-tga: %u bits per pixel with %u alpha bits not supported\n",
+			tga->bits, tga->alphabits);
 		return -1;
-		break;
 	}
 
 	tga->ident = NULL;
@@ -179,7 +185,7 @@ int read_header_tga(gdIOCtx *ctx, oTga *tga)
 			return -1;
 		}
 
-		gdGetBuf( &( tga->ident ), tga->identsize, ctx );
+		gdGetBuf(tga->ident, tga->identsize, ctx);
 	}
 
 	return 1;
@@ -200,8 +206,7 @@ int read_image_tga( gdIOCtx *ctx, oTga *tga )
 	int buffer_caret = 0;
 	int bitmap_caret = 0;
 	int i = 0;
-	int j = 0;
-	uint8_t encoded_pixels;
+	int encoded_pixels;
 
 	if(overflow2(tga->width, tga->height)) {
 		return -1;
@@ -211,73 +216,70 @@ int read_image_tga( gdIOCtx *ctx, oTga *tga )
 		return -1;
 	}
 
-	if(overflow2(image_block_size, sizeof(uint8_t))) {
+	if(overflow2(image_block_size, sizeof(int))) {
 		return -1;
 	}
+
+	/*! \todo Add more image type support.
+	 */
+	if (tga->imagetype != TGA_TYPE_RGB && tga->imagetype != TGA_TYPE_RGB_RLE)
+		return -1;
 
 	/*!	\brief Allocate memmory for image block
 	 *  Allocate a chunk of memory for the image block to be passed into.
 	 */
-	tga->bitmap = (int *) gdMalloc(image_block_size * sizeof(uint8_t));
-	if (tga->bitmap == NULL) {
+	tga->bitmap = (int *) gdMalloc(image_block_size * sizeof(int));
+	if (tga->bitmap == NULL)
 		return -1;
-	}
 
-	/*! \todo Add image type support
-	 *  Add support for this image type.
-	 */
-	if (tga->imagetype == TGA_TYPE_INDEXED) {
-		return -1;
-	}
-
-	/*! \todo Add image type support
-	 *  Add support for this image type.
-	 */
-	if (tga->imagetype == TGA_TYPE_INDEXED_RLE) {
-		return -1;
-	}
-
-	/*! \brief Read in uncompressed RGB TGA
-	 *  Chunk load the pixel data from an uncompressed RGB type TGA.
-	 */
-	if (tga->imagetype == TGA_TYPE_RGB) {
+	switch (tga->imagetype) {
+	case TGA_TYPE_RGB:
+		/*! \brief Read in uncompressed RGB TGA
+		 *  Chunk load the pixel data from an uncompressed RGB type TGA.
+		 */
 		conversion_buffer = (unsigned char *) gdMalloc(image_block_size * sizeof(unsigned char));
 		if (conversion_buffer == NULL) {
-			gdFree(conversion_buffer);
 			return -1;
 		}
 
-		gdGetBuf(conversion_buffer, image_block_size, ctx);
+		if (gdGetBuf(conversion_buffer, image_block_size, ctx) != image_block_size) {
+			gd_error("gd-tga: premature end of image data\n");
+			gdFree(conversion_buffer);
+			return -1;
+		}
 
 		while (buffer_caret < image_block_size) {
 			tga->bitmap[buffer_caret] = (int) conversion_buffer[buffer_caret];
 			buffer_caret++;
 		}
 
-		gdFree( conversion_buffer );
-	}
+		gdFree(conversion_buffer);
+		break;
 
-	/*! \brief Read in RLE compressed RGB TGA
-	 *  Chunk load the pixel data from an RLE compressed RGB type TGA.
-	 */
-	if (tga->imagetype == TGA_TYPE_RGB_RLE) {
+	case TGA_TYPE_RGB_RLE:
+		/*! \brief Read in RLE compressed RGB TGA
+		 *  Chunk load the pixel data from an RLE compressed RGB type TGA.
+		 */
 		decompression_buffer = (uint8_t*) gdMalloc(image_block_size * sizeof(uint8_t));
 		if (decompression_buffer == NULL) {
-			gdFree( decompression_buffer );
 			return -1;
 		}
 		conversion_buffer = (unsigned char *) gdMalloc(image_block_size * sizeof(unsigned char));
 		if (conversion_buffer == NULL) {
+			gd_error("gd-tga: premature end of image data\n");
 			gdFree( decompression_buffer );
-			gdFree( conversion_buffer );
 			return -1;
 		}
 
-		gdGetBuf( conversion_buffer, image_block_size, ctx );
+		if (gdGetBuf(conversion_buffer, image_block_size, ctx) != image_block_size) {
+			gdFree(conversion_buffer);
+			gdFree(decompression_buffer);
+			return -1;
+		}
 
 		buffer_caret = 0;
 
-		while( buffer_caret < image_block_size ) {
+		while( buffer_caret < image_block_size) {
 			decompression_buffer[buffer_caret] = (int)conversion_buffer[buffer_caret];
 			buffer_caret++;
 		}
@@ -285,50 +287,44 @@ int read_image_tga( gdIOCtx *ctx, oTga *tga )
 		buffer_caret = 0;
 
 		while( bitmap_caret < image_block_size ) {
-
+			
 			if ((decompression_buffer[buffer_caret] & TGA_RLE_FLAG) == TGA_RLE_FLAG) {
-				encoded_pixels = ( ( decompression_buffer[ buffer_caret ] & 127 ) + 1 );
+				encoded_pixels = ( ( decompression_buffer[ buffer_caret ] & ~TGA_RLE_FLAG ) + 1 );
 				buffer_caret++;
 
+				if ((bitmap_caret + (encoded_pixels * pixel_block_size)) >= image_block_size) {
+					gdFree( decompression_buffer );
+					gdFree( conversion_buffer );
+					return -1;
+				}
+
 				for (i = 0; i < encoded_pixels; i++) {
-					for (j = 0; j < pixel_block_size; j++, bitmap_caret++) {
-						tga->bitmap[ bitmap_caret ] = decompression_buffer[ buffer_caret + j ];
-					}
+					memcpy(tga->bitmap + bitmap_caret, decompression_buffer + buffer_caret, pixel_block_size);
+					bitmap_caret += pixel_block_size;
 				}
 				buffer_caret += pixel_block_size;
+
 			} else {
 				encoded_pixels = decompression_buffer[ buffer_caret ] + 1;
 				buffer_caret++;
 
-				for (i = 0; i < encoded_pixels; i++) {
-					for( j = 0; j < pixel_block_size; j++, bitmap_caret++ ) {
-						tga->bitmap[ bitmap_caret ] = decompression_buffer[ buffer_caret + j ];
-					}
-					buffer_caret += pixel_block_size;
+				if ((bitmap_caret + (encoded_pixels * pixel_block_size)) >= image_block_size) {
+					gdFree( decompression_buffer );
+					gdFree( conversion_buffer );
+					return -1;
 				}
+
+				memcpy(tga->bitmap + bitmap_caret, decompression_buffer + buffer_caret, encoded_pixels * pixel_block_size);
+				bitmap_caret += (encoded_pixels * pixel_block_size);
+				buffer_caret += (encoded_pixels * pixel_block_size);
 			}
 		}
-
 		gdFree( decompression_buffer );
 		gdFree( conversion_buffer );
-
+		break;
 	}
 
-	/*!	\todo Add image type support
-	 *  Add support for this image type.
-	 */
-	if( tga->imagetype == TGA_TYPE_GREYSCALE ) {
-		return -1;
-	}
-
-	/*!	\todo Add image type support
-	 *  Add support for this image type.
-	 */
-	if( tga->imagetype == TGA_TYPE_GREYSCALE_RLE ) {
-		return -1;
-	}
-
-	return 0;
+	return 1;
 }
 
 /*!	\brief Cleans up a TGA structure.
@@ -338,15 +334,10 @@ int read_image_tga( gdIOCtx *ctx, oTga *tga )
 void free_tga(oTga * tga)
 {
 	if (tga) {
-		if (tga->ident) {
+		if (tga->ident)
 			gdFree(tga->ident);
-			tga->ident = NULL;
-		}
-		if (tga->bitmap) {
+		if (tga->bitmap)
 			gdFree(tga->bitmap);
-			tga->bitmap = NULL;
-		}
 		gdFree(tga);
-		tga = NULL;
 	}
 }

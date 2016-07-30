@@ -321,14 +321,17 @@ han2zen (int *p1, int *p2)
 	if (daku) {
 		if ((*p2 >= 74 && *p2 <= 103) || (*p2 >= 110 && *p2 <= 122))
 			(*p2)++;
-		else if (*p2 == 131 && *p2 == 69)
+		else if (*p2 == 131 || *p2 == 69)
 			*p2 = 148;
 	} else if (handaku && *p2 >= 110 && *p2 <= 122)
 		(*p2) += 2;
 }
 
 /* Recast strcpy to handle unsigned chars used below. */
+
 #define ustrcpy(A,B) (strcpy((char*)(A),(const char*)(B)))
+
+#define ustrncpy(A,B, maxsize) (strncpy((char*)(A),(const char*)(B), maxsize))
 
 static void
 do_convert (unsigned char **to_p, unsigned char **from_p, const char *code)
@@ -439,6 +442,7 @@ do_check_and_conv (unsigned char *to, unsigned char *from)
 	unsigned char *tmp_p = &tmp[0];
 	int p1, p2, i, j;
 	int kanji = TRUE;
+	int copy_string = FALSE;
 
 	switch (DetectKanjiCode (from)) {
 	case NEW:
@@ -456,12 +460,12 @@ do_check_and_conv (unsigned char *to, unsigned char *from)
 	case NEC:
 		gd_error_ex(GD_DEBUG, "Kanji code is NEC Kanji.");
 		gd_error("cannot convert NEC Kanji.");
-		ustrcpy (tmp, from);
+		copy_string = TRUE;
 		kanji = FALSE;
 		break;
 	case EUC:
 		gd_error_ex(GD_DEBUG, "Kanji code is EUC.");
-		ustrcpy (tmp, from);
+		copy_string = TRUE;
 		break;
 	case SJIS:
 		gd_error_ex(GD_DEBUG, "Kanji code is SJIS.");
@@ -469,19 +473,24 @@ do_check_and_conv (unsigned char *to, unsigned char *from)
 		break;
 	case EUCORSJIS:
 		gd_error_ex(GD_DEBUG, "Kanji code is EUC or SJIS.");
-		ustrcpy (tmp, from);
+		copy_string = TRUE;
 		kanji = FALSE;
 		break;
 	case ASCII:
 		gd_error_ex(GD_DEBUG, "This is ASCII string.");
-		ustrcpy (tmp, from);
+		copy_string = TRUE;
 		kanji = FALSE;
 		break;
 	default:
 		gd_error_ex(GD_DEBUG, "This string includes unknown code.");
-		ustrcpy (tmp, from);
+		copy_string = TRUE;
 		kanji = FALSE;
 		break;
+	}
+
+	if (copy_string) {
+		ustrncpy (tmp, from, BUFSIZ);
+		tmp[BUFSIZ-1] = '\0';
 	}
 
 	/* Hankaku Kana ---> Zenkaku Kana */

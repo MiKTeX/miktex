@@ -43,8 +43,8 @@
 #include "gd.h"
 #include "gdhelpers.h"
 
-#ifdef HAVE_LIBIMAGEQUANT_H
-#include <libimagequant.h> /* if this fails then set -DENABLE_LIQ=NO in cmake or make static libimagequant.a in libimagequant/ */
+#ifdef HAVE_LIBIMAGEQUANT
+#include <libimagequant.h>
 #endif
 
 /* (Re)define some defines known by libjpeg */
@@ -1366,16 +1366,18 @@ zeroHistogram (hist3d histogram)
 
 
 /*
-  Selects quantization method used for subsequent gdImageTrueColorToPalette calls.
-  See gdPaletteQuantizationMethod enum (e.g. GD_QUANT_NEUQUANT, GD_QUANT_LIQ).
-  Speed is from 1 (highest quality) to 10 (fastest).
-  Speed 0 selects method-specific default (recommended).
+	Function: gdImageTrueColorToPaletteSetMethod
 
-  Returns FALSE if the given method is invalid or not available.
+	Selects quantization method used for subsequent gdImageTrueColorToPalette calls.
+	See gdPaletteQuantizationMethod enum (e.g. GD_QUANT_NEUQUANT, GD_QUANT_LIQ).
+	Speed is from 1 (highest quality) to 10 (fastest).
+	Speed 0 selects method-specific default (recommended).
+
+	Returns FALSE if the given method is invalid or not available.
 */
 BGD_DECLARE(int) gdImageTrueColorToPaletteSetMethod (gdImagePtr im, int method, int speed)
 {
-#ifndef HAVE_LIBIMAGEQUANT_H
+#ifndef HAVE_LIBIMAGEQUANT
 	if (method == GD_QUANT_LIQ) {
 		return FALSE;
 	}
@@ -1393,11 +1395,13 @@ BGD_DECLARE(int) gdImageTrueColorToPaletteSetMethod (gdImagePtr im, int method, 
 }
 
 /*
-  Chooses quality range that subsequent call to gdImageTrueColorToPalette will aim for.
-  Min and max quality is in range 1-100 (1 = ugly, 100 = perfect). Max must be higher than min.
-  If palette cannot represent image with at least min_quality, then image will remain true-color.
-  If palette can represent image with quality better than max_quality, then lower number of colors will be used.
-  This function has effect only when GD_QUANT_LIQ method has been selected.
+	Function: gdImageTrueColorToPaletteSetQuality
+
+	Chooses quality range that subsequent call to gdImageTrueColorToPalette will aim for.
+	Min and max quality is in range 1-100 (1 = ugly, 100 = perfect). Max must be higher than min.
+	If palette cannot represent image with at least min_quality, then image will remain true-color.
+	If palette can represent image with quality better than max_quality, then lower number of colors will be used.
+	This function has effect only when GD_QUANT_LIQ method has been selected.
 */
 BGD_DECLARE(void) gdImageTrueColorToPaletteSetQuality (gdImagePtr im, int min_quality, int max_quality)
 {
@@ -1410,6 +1414,9 @@ BGD_DECLARE(void) gdImageTrueColorToPaletteSetQuality (gdImagePtr im, int min_qu
 
 static int gdImageTrueColorToPaletteBody (gdImagePtr oim, int dither, int colorsWanted, gdImagePtr *cimP);
 
+/*
+	Function: gdImageCreatePaletteFromTrueColor
+*/
 BGD_DECLARE(gdImagePtr) gdImageCreatePaletteFromTrueColor (gdImagePtr im, int dither, int colorsWanted)
 {
 	gdImagePtr nim;
@@ -1419,12 +1426,15 @@ BGD_DECLARE(gdImagePtr) gdImageCreatePaletteFromTrueColor (gdImagePtr im, int di
 	return NULL;
 }
 
+/*
+	Function: gdImageTrueColorToPalette
+*/
 BGD_DECLARE(int) gdImageTrueColorToPalette (gdImagePtr im, int dither, int colorsWanted)
 {
 	return gdImageTrueColorToPaletteBody(im, dither, colorsWanted, 0);
 }
 
-#ifdef HAVE_LIBIMAGEQUANT_H
+#ifdef HAVE_LIBIMAGEQUANT
 /**
   LIQ library needs pixels in RGBA order with alpha 0-255 (opaque 255).
   This callback is run whenever source rows need to be converted from GD's format.
@@ -1506,7 +1516,7 @@ static int gdImageTrueColorToPaletteBody (gdImagePtr oim, int dither, int colors
 			goto outOfMemory;
 		}
 		for (i = 0; (i < nim->sy); i++) {
-			nim->pixels[i] = (unsigned char *) gdCalloc (sizeof (unsigned char *), oim->sx);
+			nim->pixels[i] = (unsigned char *) gdCalloc (sizeof (unsigned char), oim->sx);
 			if (!nim->pixels[i]) {
 				goto outOfMemory;
 			}
@@ -1521,6 +1531,9 @@ static int gdImageTrueColorToPaletteBody (gdImagePtr oim, int dither, int colors
 		nim = gdImageNeuQuant(oim, colorsWanted, oim->paletteQuantizationSpeed ? oim->paletteQuantizationSpeed : 2);
 		if (cimP) {
 			*cimP = nim;
+		} 
+		if (!nim) {
+			return FALSE;
 		} else {
 			gdImageCopy(oim, nim, 0, 0, 0, 0, oim->sx, oim->sy);
 			gdImageDestroy(nim);
@@ -1529,7 +1542,7 @@ static int gdImageTrueColorToPaletteBody (gdImagePtr oim, int dither, int colors
 	}
 
 
-#ifdef HAVE_LIBIMAGEQUANT_H
+#ifdef HAVE_LIBIMAGEQUANT
 	if (oim->paletteQuantizationMethod == GD_QUANT_DEFAULT ||
 	        oim->paletteQuantizationMethod == GD_QUANT_LIQ) {
 		liq_attr *attr = liq_attr_create_with_allocator(gdMalloc, gdFree);

@@ -14,11 +14,9 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
 /* 2.0.29: no more errno.h, makes windows happy */
 #include <math.h>
 #include <string.h>
-#include <stdlib.h>
 #include "gd.h"
 #include "gd_errors.h"
 #include "gdhelpers.h"
@@ -154,10 +152,18 @@ _gd2GetHeader (gdIOCtxPtr in, int *sx, int *sy,
 
 	if (gd2_compressed (*fmt)) {
 		nc = (*ncx) * (*ncy);
+
 		GD2_DBG (printf ("Reading %d chunk index entries\n", nc));
+		if (overflow2(sizeof(t_chunk_info), nc)) {
+			goto fail1;
+		}
 		sidx = sizeof (t_chunk_info) * nc;
+		if (sidx <= 0) {
+			goto fail1;
+		}
+
 		cidx = gdCalloc (sidx, 1);
-		if (!cidx) {
+		if (cidx == NULL) {
 			goto fail1;
 		}
 		for (i = 0; i < nc; i++) {
@@ -167,6 +173,8 @@ _gd2GetHeader (gdIOCtxPtr in, int *sx, int *sy,
 			if (gdGetInt (&cidx[i].size, in) != 1) {
 				goto fail2;
 			};
+			if (cidx[i].offset < 0 || cidx[i].size < 0)
+				goto fail2;
 		};
 		*chunkIdx = cidx;
 	};
@@ -359,9 +367,8 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFromGd2Ctx (gdIOCtxPtr in)
 	im =
 	    _gd2CreateFromFile (in, &sx, &sy, &cs, &vers, &fmt, &ncx, &ncy,
 	                        &chunkIdx);
-
 	if (im == NULL) {
-		gdFree (chunkIdx);
+		/* No need to free chunkIdx as _gd2CreateFromFile does it for us. */
 		return 0;
 	}
 
@@ -1036,6 +1043,9 @@ fail:
 
 }
 
+/*
+	Function: gdImageGd2
+*/
 BGD_DECLARE(void) gdImageGd2 (gdImagePtr im, FILE * outFile, int cs, int fmt)
 {
 	gdIOCtx *out = gdNewFileCtx (outFile);
@@ -1044,6 +1054,9 @@ BGD_DECLARE(void) gdImageGd2 (gdImagePtr im, FILE * outFile, int cs, int fmt)
 	out->gd_free (out);
 }
 
+/*
+	Function: gdImageGd2Ptr
+*/
 BGD_DECLARE(void *) gdImageGd2Ptr (gdImagePtr im, int cs, int fmt, int *size)
 {
 	void *rv;
@@ -1056,15 +1069,55 @@ BGD_DECLARE(void *) gdImageGd2Ptr (gdImagePtr im, int cs, int fmt, int *size)
 }
 
 #else /* no HAVE_LIBZ */
-BGD_DECLARE(gdImagePtr) gdImageCreateFromGd2 (FILE * inFile)
+static void _noLibzError (void)
 {
 	gd_error("GD2 support is not available - no libz\n");
+}
+
+BGD_DECLARE(gdImagePtr) gdImageCreateFromGd2 (FILE * inFile)
+{
+	_noLibzError();
 	return NULL;
 }
 
 BGD_DECLARE(gdImagePtr) gdImageCreateFromGd2Ctx (gdIOCtxPtr in)
 {
-	gd_error("GD2 support is not available - no libz\n");
+	_noLibzError();
 	return NULL;
+}
+
+BGD_DECLARE(gdImagePtr) gdImageCreateFromGd2Part (FILE * inFile, int srcx, int srcy, int w, int h)
+{
+	_noLibzError();
+	return NULL;
+}
+
+BGD_DECLARE(gdImagePtr) gdImageCreateFromGd2Ptr (int size, void *data)
+{
+	_noLibzError();
+	return NULL;
+}
+
+BGD_DECLARE(gdImagePtr) gdImageCreateFromGd2PartCtx (gdIOCtx * in, int srcx, int srcy, int w, int h)
+{
+	_noLibzError();
+	return NULL;
+}
+
+BGD_DECLARE(gdImagePtr) gdImageCreateFromGd2PartPtr (int size, void *data, int srcx, int srcy, int w,
+        int h)
+{
+	_noLibzError();
+	return NULL;
+}
+
+BGD_DECLARE(void) gdImageGd2 (gdImagePtr im, FILE * outFile, int cs, int fmt)
+{
+	_noLibzError();
+}
+
+BGD_DECLARE(void *) gdImageGd2Ptr (gdImagePtr im, int cs, int fmt, int *size)
+{
+	_noLibzError();
 }
 #endif /* HAVE_LIBZ */

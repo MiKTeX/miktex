@@ -25,6 +25,9 @@
 #define MAXY(x) MAX4(x[1],x[3],x[5],x[7])
 #define MINY(x) MIN4(x[1],x[3],x[5],x[7])
 
+/*
+	Function: gdImageStringFTCircle
+*/
 BGD_DECLARE(char *)
 gdImageStringFTCircle (gdImagePtr im,
                        int cx,
@@ -165,9 +168,15 @@ gdImageStringFTCircle (gdImagePtr im,
 		fclose (out);
 	}
 #endif /* STEP_PNGS */
+
+	gdImageDestroy (im1);
+
 	/* Ready to produce a circle */
 	im3 = gdImageSquareToCircle (im2, radius);
-	gdImageDestroy (im1);
+	if (im3 == NULL) {
+		gdImageDestroy(im2);
+		return 0;
+	}
 	gdImageDestroy (im2);
 	/* Now blend im3 with the destination. Cheat a little. The
 	   source (im3) is white-on-black, so we can use the
@@ -248,6 +257,9 @@ main (int argc, char *argv[])
 #define SUPERBITS1 1
 #define SUPERBITS2 2
 
+/*
+	Function: gdImageSquareToCircle
+*/
 BGD_DECLARE(gdImagePtr)
 gdImageSquareToCircle (gdImagePtr im, int radius)
 {
@@ -259,6 +271,9 @@ gdImageSquareToCircle (gdImagePtr im, int radius)
 		return 0;
 	}
 	im2 = gdImageCreateTrueColor (radius * 2, radius * 2);
+	if (!im2) {
+		return 0;
+	}
 	/* Supersampling for a nicer result */
 	c = (im2->sx / 2) * SUPER;
 	for (y = 0; (y < im2->sy * SUPER); y++) {
@@ -372,16 +387,18 @@ gdImageSubSharpen (int pc, int c, int nc, float inner_coeff, float
 }
 
 /*
-  * Sharpen function added on 2003-11-19
-  * by Paul Troughton (paul<dot>troughton<at>ieee<dot>org)
-  * Simple 3x3 convolution kernel
-  * Makes use of seperability
-  * Faster, but less flexible, than full-blown unsharp masking
-  * pct is sharpening percentage, and can be greater than 100
-  * Silently does nothing to non-truecolor images
-  * Silently does nothing for pct<0, as not a useful blurring function
-  * Leaves transparency/alpha-channel untouched
-  */
+	Function: gdImageSharpen
+
+	Sharpen function added on 2003-11-19
+	by Paul Troughton (paul<dot>troughton<at>ieee<dot>org)
+	Simple 3x3 convolution kernel
+	Makes use of seperability
+	Faster, but less flexible, than full-blown unsharp masking
+	pct is sharpening percentage, and can be greater than 100
+	Silently does nothing to non-truecolor images
+	Silently does nothing for pct<0, as not a useful blurring function
+	Leaves transparency/alpha-channel untouched
+*/
 BGD_DECLARE(void)
 gdImageSharpen (gdImagePtr im, int pct)
 {
