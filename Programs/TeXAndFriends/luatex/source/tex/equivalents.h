@@ -279,23 +279,26 @@ the |number_regs| \.{\\dimen} registers.
 #  define math_display_skip_mode_code 88
 #  define math_scripts_mode_code 89
 #  define synctex_code 90                                               /* is synctex file generation enabled ?  */
-#  define first_valid_language_code 91
+#  define shape_mode_code 91
+#  define first_valid_language_code 92
+#  define hyphenation_bounds_code 93
 
-#  define math_option_code 92
+#  define math_option_code 94
 
-#  define mathoption_int_base (int_base+93)
-#  define mathoption_int_last (int_base+99)
+#  define mathoption_int_base (int_base+95)                             /* one reserve */
+#  define mathoption_int_last (int_base+100)
 
-#  define backend_int_base (int_base+100)
-#  define backend_int_last (int_base+124)
+#  define backend_int_base (int_base+101)
+#  define backend_int_last (int_base+125)
 
-#  define tex_int_pars (125)                                            /* total number of integer parameters */
+#  define tex_int_pars (126)                                            /* total number of integer parameters */
 
 #  define page_direction_code (tex_int_pars)
 #  define body_direction_code (tex_int_pars+1)
 #  define par_direction_code  (tex_int_pars+2)
 #  define text_direction_code (tex_int_pars+3)
 #  define math_direction_code (tex_int_pars+4)
+#  define line_direction_code (tex_int_pars+5)                          /* gets remapped so is no real register */
 
 #  define int_pars (tex_int_pars+5)                                     /* total number of integer parameters */
 
@@ -533,16 +536,248 @@ extern void show_eqtb(halfword n);
 
 extern halfword last_cs_name;
 
-/* more will move here */
+/*
+    The *_par macros expand to the variables that are (in most cases) also accessible
+    at the users end. Most are registers but some are in the (stack) lists.
 
-#define space_skip glue_par(space_skip_code)
-#define xspace_skip glue_par(xspace_skip_code)
-#define math_skip glue_par(math_skip_code)
+    More *_par will move here : there is no real need for thse macros but because there
+    were already a bunch and because they were defined all over the place we moved them
+    here.
 
-#define body_direction int_par(body_direction_code)
-#define page_direction int_par(page_direction_code)
-#define par_direction  int_par(par_direction_code)
-#define text_direction int_par(text_direction_code)
-#define math_direction int_par(math_direction_code)
+*/
+
+#define space_skip_par                     glue_par(space_skip_code)
+#define xspace_skip_par                    glue_par(xspace_skip_code)
+#define math_skip_par                      glue_par(math_skip_code)
+
+#define pre_display_size_par               dimen_par(pre_display_size_code)
+#define display_width_par                  dimen_par(display_width_code)
+#define display_indent_par                 dimen_par(display_indent_code)
+#define math_surround_par                  dimen_par(math_surround_code)
+
+#define display_skip_mode_par              int_par(math_display_skip_mode_code)
+#define math_eqno_gap_step_par             int_par(math_eqno_gap_step_code)
+
+#define body_direction_par                 int_par(body_direction_code)
+#define page_direction_par                 int_par(page_direction_code)
+#define par_direction_par                  int_par(par_direction_code)
+#define text_direction_par                 int_par(text_direction_code)
+#define math_direction_par                 int_par(math_direction_code)
+
+#define shape_mode_par                     int_par(shape_mode_code)
+#define hyphenation_bounds_par             int_par(hyphenation_bounds_code)
+#define first_valid_language_par           int_par(first_valid_language_code)
+
+#define hsize_par                          dimen_par(hsize_code)
+#define vsize_par                          dimen_par(vsize_code)
+#define hfuzz_par                          dimen_par(hfuzz_code)
+#define vfuzz_par                          dimen_par(vfuzz_code)
+#define hbadness_par                       int_par(hbadness_code)
+#define vbadness_par                       int_par(vbadness_code)
+
+#define baseline_skip_par                  glue_par(baseline_skip_code)
+#define par_indent_par                     dimen_par(par_indent_code)
+#define hang_indent_par                    dimen_par(hang_indent_code)
+#define hang_after_par                     int_par(hang_after_code)
+#define left_skip_par                      glue_par(left_skip_code)
+#define right_skip_par                     glue_par(right_skip_code)
+
+#define emergency_stretch_par              dimen_par(emergency_stretch_code)
+#define pretolerance_par                   int_par(pretolerance_code)
+#define tolerance_par                      int_par(tolerance_code)
+#define looseness_par                      int_par(looseness_code)
+#define adjust_spacing_par                 int_par(adjust_spacing_code)
+#define adj_demerits_par                   int_par(adj_demerits_code)
+#define protrude_chars_par                 int_par(protrude_chars_code)
+#define line_penalty_par                   int_par(line_penalty_code)
+#define last_line_fit_par                  int_par(last_line_fit_code)
+#define double_hyphen_demerits_par         int_par(double_hyphen_demerits_code)
+#define final_hyphen_demerits_par          int_par(final_hyphen_demerits_code)
+#define inter_line_penalty_par             int_par(inter_line_penalty_code)
+#define club_penalty_par                   int_par(club_penalty_code)
+#define broken_penalty_par                 int_par(broken_penalty_code)
+#define display_widow_penalty_par          int_par(display_widow_penalty_code)
+#define widow_penalty_par                  int_par(widow_penalty_code)
+#define line_skip_limit_par                dimen_par(line_skip_limit_code)
+
+#define delimiter_shortfall_par            dimen_par(delimiter_shortfall_code)
+#define null_delimiter_space_par           dimen_par(null_delimiter_space_code)
+#define script_space_par                   dimen_par(script_space_code)
+#define max_depth_par                      dimen_par(max_depth_code)
+#define box_max_depth_par                  dimen_par(box_max_depth_code)
+#define split_max_depth_par                dimen_par(split_max_depth_code)
+#define overfull_rule_par                  dimen_par(overfull_rule_code)
+#define box_max_depth_par                  dimen_par(box_max_depth_code)
+#define top_skip_par                       glue_par(top_skip_code)
+#define split_top_skip_par                 glue_par(split_top_skip_code)
+
+#define cur_fam_par                        int_par(cur_fam_code)
+#define pre_display_direction_par          int_par(pre_display_direction_code)
+#define pre_display_penalty_par            int_par(pre_display_penalty_code)
+#define post_display_penalty_par           int_par(post_display_penalty_code)
+
+#define cur_fam_par_in_range               ((cur_fam_par>=0)&&(cur_fam_par<256))
+
+#define local_inter_line_penalty_par       int_par(local_inter_line_penalty_code)
+#define local_broken_penalty_par           int_par(local_broken_penalty_code)
+#define local_left_box_par                 equiv(local_left_box_base)
+#define local_right_box_par                equiv(local_right_box_base)
+
+#define end_line_char_par                  int_par(end_line_char_code)
+#define new_line_char_par                  int_par(new_line_char_code)
+#define escape_char_par                    int_par(escape_char_code)
+
+#define end_line_char_inactive             ((end_line_char_par < 0) || (end_line_char_par > 127))
+
+#define delimiter_factor_par               int_par(delimiter_factor_code)
+#define bin_op_penalty_par                 int_par(bin_op_penalty_code)
+#define rel_penalty_par                    int_par(rel_penalty_code)
+#define null_delimiter_space_par           dimen_par(null_delimiter_space_code)
+#define disable_lig_par                    int_par(disable_lig_code)
+#define disable_kern_par                   int_par(disable_kern_code)
+#define disable_space_par                  int_par(disable_space_code)
+#define scripts_mode_par                   int_par(math_scripts_mode_code)
+
+#define thin_mu_skip_par                   glue_par(thin_mu_skip_code)
+#define med_mu_skip_par                    glue_par(med_mu_skip_code)
+#define thick_mu_skip_par                  glue_par(thick_mu_skip_code)
+
+#define every_math_par                     equiv(every_math_loc)
+#define every_display_par                  equiv(every_display_loc)
+#define every_cr_par                       equiv(every_cr_loc)
+#define every_hbox_par                     equiv(every_hbox_loc)
+#define every_vbox_par                     equiv(every_vbox_loc)
+#define every_eof_par                      equiv(every_eof_loc)
+#define every_par_par                      equiv(every_par_loc)
+#define err_help_par                       equiv(err_help_loc)
+
+#define no_local_whatsits_par              int_par(no_local_whatsits_code)
+#define no_local_dirs_par                  int_par(no_local_dirs_code)
+
+#define prev_depth_par                     cur_list.prev_depth_field
+#define prev_graf_par                      cur_list.pg_field
+#define tail_par                           cur_list.tail_field
+#define head_par                           cur_list.head_field
+#define mode_par                           cur_list.mode_field
+#define dirs_par                           cur_list.dirs_field
+#define space_factor_par                   cur_list.space_factor_field
+#define incompleat_noad_par                cur_list.incompleat_noad_field
+#define mode_line_par                      cur_list.ml_field
+#define aux_par                            cur_list.eTeX_aux_field
+#define delim_par                          aux_par
+
+#define par_shape_par_ptr                  equiv(par_shape_loc)
+#define inter_line_penalties_par_ptr       equiv(inter_line_penalties_loc)
+#define club_penalties_par_ptr             equiv(club_penalties_loc)
+#define widow_penalties_par_ptr            equiv(widow_penalties_loc)
+#define display_widow_penalties_par_ptr    equiv(display_widow_penalties_loc)
+
+#define page_width_par                     dimen_par(page_width_code)
+#define page_height_par                    dimen_par(page_height_code)
+#define h_offset_par                       dimen_par(h_offset_code)
+#define v_offset_par                       dimen_par(v_offset_code)
+#define page_left_offset_par               dimen_par(page_left_offset_code)
+#define page_top_offset_par                dimen_par(page_top_offset_code)
+#define page_right_offset_par              dimen_par(page_right_offset_code)
+#define page_bottom_offset_par             dimen_par(page_bottom_offset_code)
+#define px_dimen_par                       dimen_par(px_dimen_code)
+
+#define max_dead_cycles_par                int_par(max_dead_cycles_code)
+#define output_box_par                     int_par(output_box_code)
+#define holding_inserts_par                int_par(holding_inserts_code)
+#define output_routine_par                 equiv(output_routine_loc)
+#define floating_penalty_par               int_par(floating_penalty_code)
+
+#define mag_par                            int_par(mag_code)
+
+#define global_defs_par                    int_par(global_defs_code)
+#define cat_code_table_par                 int_par(cat_code_table_code)
+#define saving_vdiscards_par               int_par(saving_vdiscards_code)
+
+#define tracing_output_par                 int_par(tracing_output_code)
+#define tracing_stats_par                  int_par(tracing_stats_code)
+#define tracing_online_par                 int_par(tracing_online_code)
+#define tracing_paragraphs_par             int_par(tracing_paragraphs_code)
+#define tracing_nesting_par                int_par(tracing_nesting_code)
+#define tracing_lost_chars_par             int_par(tracing_lost_chars_code)
+#define tracing_scan_tokens_par            int_par(tracing_scan_tokens_code)
+#define tracing_ifs_par                    int_par(tracing_ifs_code)
+#define tracing_commands_par               int_par(tracing_commands_code)
+#define tracing_macros_par                 int_par(tracing_macros_code)
+#define tracing_assigns_par                int_par(tracing_assigns_code)
+#define tracing_fonts_par                  int_par(tracing_fonts_code)
+#define tracing_pages_par                  int_par(tracing_pages_code)
+#define tracing_restores_par               int_par(tracing_restores_code)
+#define tracing_groups_par                 int_par(tracing_groups_code)
+
+#define show_box_depth_par                 int_par(show_box_depth_code)
+#define show_box_breadth_par               int_par(show_box_breadth_code)
+
+#define pausing_par                        int_par(pausing_code)
+
+#define suppress_outer_error_par           int_par(suppress_outer_error_code)
+#define suppress_long_error_par            int_par(suppress_long_error_code)
+#define suppress_mathpar_error_par         int_par(suppress_mathpar_error_code)
+#define suppress_fontnotfound_error_par    int_par(suppress_fontnotfound_error_code)
+#define suppress_ifcsname_error_par        int_par(suppress_ifcsname_error_code)
+#define error_context_lines_par            int_par(error_context_lines_code)
+
+#define math_old_par                       mathoption_int_par(c_mathoption_old_code)
+#define math_no_italic_compensation_par    mathoption_int_par(c_mathoption_no_italic_compensation_code)
+#define math_no_char_italic_par            mathoption_int_par(c_mathoption_no_char_italic_code)
+#define math_use_old_fraction_scaling_par  mathoption_int_par(c_mathoption_use_old_fraction_scaling_code)
+#define math_umathcode_meaning_par         mathoption_int_par(c_mathoption_umathcode_meaning_code)
+
+#define time_par                           int_par(time_code)
+#define day_par                            int_par(day_code)
+#define month_par                          int_par(month_code)
+#define year_par                           int_par(year_code)
+
+#define output_mode_par                    int_par(output_mode_code)
+#define draft_mode_par                     int_par(draft_mode_code)
+#define synctex_par                        int_par(synctex_code)
+
+#define language_par                       int_par(language_code)
+#define uc_hyph_par                        int_par(uc_hyph_code)
+#define left_hyphen_min_par                int_par(left_hyphen_min_code)
+#define right_hyphen_min_par               int_par(right_hyphen_min_code)
+#define ex_hyphen_char_par                 int_par(ex_hyphen_char_code)
+#define hyphen_penalty_par                 int_par(hyphen_penalty_code)
+#define ex_hyphen_penalty_par              int_par(ex_hyphen_penalty_code)
+#define default_hyphen_char_par            int_par(default_hyphen_char_code)
+#define default_skew_char_par              int_par(default_skew_char_code)
+#define saving_hyph_codes_par              int_par(saving_hyph_codes_code)
+
+#define cur_lang_par                       int_par(cur_lang_code)
+#define cur_font_par                       equiv(cur_font_loc)
+
+/* */
+
+#define math_use_current_family_code 7
+
+/*
+    #define box(A) equiv(box_base+(A))
+    #define box(A) eqtb[box_base+(A)].hh.rh
+*/
+
+#define attribute(A) equiv(attribute_base+(A))
+#define box(A)       equiv(box_base+(A))
+#define count(A)     equiv(count_base+(A))
+#define dimen(A)     equiv(scaled_base+(A))
+#define mu_skip(A)   equiv(mu_skip_base+(A))
+#define skip(A)      equiv(skip_base+(A))
+#define toks(A)      equiv(toks_base+(A))
+
+#define get_tex_attribute_register(j) attribute(j)
+#define get_tex_box_register(j)       box(j)
+#define get_tex_count_register(j)     count(j)
+#define get_tex_dimen_register(j)     dimen(j)
+#define get_tex_mu_skip_register(j)   mu_skip(j)
+#define get_tex_skip_register(j)      skip(j)
+
+#define font_id_text(A) cs_text(font_id_base+(A))
+
+#define end_template_token  (cs_token_flag+frozen_end_template)
+#define end_write_token     (cs_token_flag+end_write)
 
 #endif

@@ -22,14 +22,10 @@
 #include "ptexlib.h"
 
 @ @c
-#define end_line_char int_par(end_line_char_code)
-#define error_context_lines int_par(error_context_lines_code)
-
 in_state_record *input_stack = NULL;
 int input_ptr = 0;              /* first unused location of |input_stack| */
 int max_in_stack = 0;           /* largest value of |input_ptr| when pushing */
 in_state_record cur_input;      /* the ``top'' input state */
-
 
 int in_open = 0;                /* the number of lines in the buffer, less one */
 int open_parens = 0;            /* the number of open text files */
@@ -38,7 +34,6 @@ int line = 0;                   /* current line number in the current source fil
 int *line_stack = NULL;
 str_number *source_filename_stack = NULL;
 char **full_source_filename_stack = NULL;
-
 
 int scanner_status = 0;         /* can a subfile end now? */
 pointer warning_index = null;   /* identifier relevant to non-|normal| scanner status */
@@ -235,7 +230,7 @@ void set_trick_count(void)
 
 #define PSEUDO_PRINT_THE_LINE()	do { \
     begin_pseudoprint(); \
-    if (buffer[ilimit]==end_line_char) \
+    if (buffer[ilimit]==end_line_char_par) \
         j=ilimit; \
     else \
         j=ilimit+1; /* determine the effective end of the line */ \
@@ -300,7 +295,7 @@ void show_context(void)
             if ((iname > 21) || (base_ptr == 0))
                 bottom_line = true;
         }
-        if ((base_ptr == input_ptr) || bottom_line || (nn < error_context_lines)) {
+        if ((base_ptr == input_ptr) || bottom_line || (nn < error_context_lines_par)) {
             /* Display the current context */
             if ((base_ptr == input_ptr) || (istate != token_list) || (token_type != backed_up) || (iloc != null)) {
                 /* we omit backed-up token lists that have already been read */
@@ -381,10 +376,10 @@ void show_context(void)
                     tprint("...");
                 incr(nn);
             }
-        } else if (nn == error_context_lines) {
+        } else if (nn == error_context_lines_par) {
             tprint_nl("...");
             incr(nn);
-            /* omitted if |error_context_lines<0| */
+            /* omitted if |error_context_lines_par<0| */
         }
         if (bottom_line)
             break;
@@ -435,7 +430,7 @@ void begin_token_list(halfword p, quarterword t)
             param_start = param_ptr;
         } else {
             iloc = token_link(p);
-            if (int_par(tracing_macros_code) > 1) {
+            if (tracing_macros_par > 1) {
                 begin_diagnostic();
                 tprint_nl("");
                 if (t == mark_text)
@@ -726,7 +721,7 @@ void pseudo_from_string(void)
     halfword p;    /* for list construction */
     s = make_string();
     /* Convert string |s| into a new pseudo file */
-    p = string_to_pseudo(s, int_par(new_line_char_code));
+    p = string_to_pseudo(s, new_line_char_par);
     vlink(p) = pseudo_files;
     pseudo_files = p;
     flush_str(s);
@@ -735,7 +730,7 @@ void pseudo_from_string(void)
     line = 0;
     ilimit = istart;
     iloc = ilimit + 1; /* force line read */
-    if (int_par(tracing_scan_tokens_code) > 0) {
+    if (tracing_scan_tokens_par > 0) {
         if (term_offset > max_print_line - 3)
             print_ln();
         else if ((term_offset > 0) || (file_offset > 0))

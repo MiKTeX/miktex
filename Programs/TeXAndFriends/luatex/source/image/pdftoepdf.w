@@ -609,6 +609,10 @@ void read_pdf_info(image_dict * idict)
         pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL);
     else if (img_type(idict) == IMG_TYPE_PDFMEMSTREAM) {
         pdf_doc = findPdfDocument(img_filepath(idict)) ;
+        if (pdf_doc == NULL ) 
+           normal_error("pdf inclusion", "memstream not initialized");
+        if (pdf_doc->doc == NULL)
+           normal_error("pdf inclusion", "memstream document is empty");
         pdf_doc->occurences++;
     } else {
         normal_error("pdf inclusion","unknown document");

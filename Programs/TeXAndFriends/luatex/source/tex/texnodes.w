@@ -33,16 +33,8 @@ makes no sense, not even to make it configureable. There is a little more memory
 used but that is neglectable compared to other memory usage.
 
 @c
-#define attribute(A) eqtb[attribute_base+(A)].cint
-
-#define uc_hyph int_par(uc_hyph_code)
-#define cur_lang int_par(cur_lang_code)
-#define left_hyphen_min int_par(left_hyphen_min_code)
-#define right_hyphen_min int_par(right_hyphen_min_code)
-
-#define MAX_CHAIN_SIZE 13 /* why not a bit larger */
-
-#define CHECK_NODE_USAGE 1 /* this triggers checking */
+#define MAX_CHAIN_SIZE   13 /* why not a bit larger */
+#define CHECK_NODE_USAGE  1 /* this triggers checking */
 
 memory_word *volatile varmem = NULL;
 
@@ -61,8 +53,8 @@ int fix_node_lists = 1; /* used in font and lang */
 
 halfword slow_get_node(int s);  /* defined below */
 
-#define fake_node 100
-#define fake_node_size 2
+#define fake_node       100
+#define fake_node_size  2
 #define fake_node_name "fake"
 
 #define variable_node_size 2
@@ -143,18 +135,6 @@ const char *node_fields_boundary[] = {
 const char *node_fields_noad[] = {
     "attr", "nucleus", "sub", "sup", NULL
 };
-
-#define node_fields_ord     node_fields_noad
-#define node_fields_op      node_fields_noad
-#define node_fields_bin     node_fields_noad
-#define node_fields_rel     node_fields_noad
-#define node_fields_open    node_fields_noad
-#define node_fields_close   node_fields_noad
-#define node_fields_punct   node_fields_noad
-#define node_fields_inner   node_fields_noad
-#define node_fields_under   node_fields_noad
-#define node_fields_over    node_fields_noad
-#define node_fields_vcenter node_fields_noad
 
 const char *node_fields_style[] = {
     "attr", "style", NULL
@@ -342,7 +322,7 @@ node_info node_data[] = { /* the last entry in a row is the etex number */
     { unset_node,          box_node_size,         node_fields_unset,                         "unset",          14 },
     { style_node,          style_node_size,       node_fields_style,                         "style",          15 },
     { choice_node,         style_node_size,       node_fields_choice,                        "choice",         15 },
-    { simple_noad,         noad_size,             node_fields_ord,                           "noad",           15 },
+    { simple_noad,         noad_size,             node_fields_noad,                          "noad",           15 },
     { radical_noad,        radical_noad_size,     node_fields_radical,                       "radical",        15 },
     { fraction_noad,       fraction_noad_size,    node_fields_fraction,                      "fraction",       15 },
     { accent_noad,         accent_noad_size,      node_fields_accent,                        "accent",         15 },
@@ -376,8 +356,6 @@ node_info node_data[] = { /* the last entry in a row is the etex number */
     { shape_node,          variable_node_size,    NULL,                                      "shape",          -1 },
     { -1,                 -1,                     NULL,                                      NULL,             -1 },
 };
-
-#define last_normal_node shape_node
 
 const char *node_subtypes_pdf_destination[] = {
     "xyz", "fit", "fith", "fitv", "fitb", "fitbh", "fitbv", "fitr", NULL
@@ -552,6 +530,8 @@ important, don't keep resolving the registry index.
 
 /* isn't there a faster way to metatable? */
 
+/*
+
 #define lua_properties_copy(target,source) do { \
     if (lua_properties_enabled) { \
         if (lua_properties_level == 0) { \
@@ -578,6 +558,55 @@ important, don't keep resolving the registry index.
                     lua_newtable(Luas); \
                     lua_insert(Luas,-2); \
                     lua_setfield(Luas,-2,"__index"); \
+                    lua_newtable(Luas); \
+                    lua_insert(Luas,-2); \
+                    lua_setmetatable(Luas,-2); \
+                } \
+                lua_rawseti(Luas,-2,target); \
+            } else { \
+                lua_pop(Luas,1); \
+            } \
+        } \
+    } \
+} while(0)
+
+*/
+
+/*
+    A simple testrun on many pages of dumb text shows 1% gain (of course it depends
+    on how properties are used but some other tests confirm it).
+*/
+
+#define lua_properties_copy(target,source) do { \
+    if (lua_properties_enabled) { \
+        if (lua_properties_level == 0) { \
+            lua_get_metatablelua_l(Luas,node_properties); \
+            lua_rawgeti(Luas,-1,source); \
+            if (lua_type(Luas,-1)==LUA_TTABLE) { \
+                if (lua_properties_use_metatable) { \
+                    lua_newtable(Luas); \
+                    lua_insert(Luas,-2); \
+                    lua_push_string_by_name(Luas,__index); \
+                    lua_insert(Luas,-2); \
+                    lua_rawset(Luas, -3); \
+                    lua_newtable(Luas); \
+                    lua_insert(Luas,-2); \
+                    lua_setmetatable(Luas,-2); \
+                } \
+                lua_rawseti(Luas,-2,target); \
+            } else { \
+                lua_pop(Luas,1); \
+            } \
+            lua_pop(Luas,1); \
+        } else { \
+            lua_rawgeti(Luas,-1,source); \
+            if (lua_type(Luas,-1)==LUA_TTABLE) { \
+                if (lua_properties_use_metatable) { \
+                    lua_newtable(Luas); \
+                    lua_insert(Luas,-2); \
+                    lua_push_string_by_name(Luas,__index); \
+                    lua_insert(Luas,-2); \
+                    lua_rawset(Luas, -3); \
                     lua_newtable(Luas); \
                     lua_insert(Luas,-2); \
                     lua_setmetatable(Luas,-2); \
@@ -862,7 +891,7 @@ halfword new_node(int i, int j)
         default:
             break;
     }
-    if (int_par(synctex_code)) {
+    if (synctex_par) {
         /* handle synctex extension */
         switch (i) {
             case math_node:
@@ -1063,7 +1092,7 @@ halfword copy_node(const halfword p)
 
     (void) memcpy((void *) (varmem + r), (void *) (varmem + p), (sizeof(memory_word) * (unsigned) i));
 
-    if (int_par(synctex_code)) {
+    if (synctex_par) {
         /* handle synctex extension */
         switch (type(p)) {
             case math_node:
@@ -1223,6 +1252,9 @@ static void flush_node_wrapup_core(halfword p)
                 delete_attribute_ref(user_node_value(p));
                 break;
             case 'd':
+                break;
+            case 'l':
+                free_user_lua(user_node_value(p));
                 break;
             case 'n':
                 flush_node_list(user_node_value(p));
@@ -2815,7 +2847,7 @@ void show_node_list(int p)
     while (p != null) {
         print_ln();
         print_current_string(); /* display the nesting history */
-        if (int_par(tracing_online_code) < -2)
+        if (tracing_online_par < -2)
             print_int(p);
         incr(n);
         if (n > breadth_max) {  /* time to stop */
@@ -3296,7 +3328,7 @@ The |subtype| field is set to |min_quarterword|, since that's the desired
 halfword new_null_box(void)
 {                               /* creates a new box node */
     halfword p = new_node(hlist_node, min_quarterword);
-    box_dir(p) = text_direction;
+    box_dir(p) = text_direction_par;
     return p;
 }
 
@@ -3413,7 +3445,7 @@ halfword new_char(int f, int c)
     set_to_character(p);
     font(p) = f;
     character(p) = c;
-    lang_data(p) = make_lang_data(uc_hyph, cur_lang, left_hyphen_min, right_hyphen_min);
+    lang_data(p) = make_lang_data(uc_hyph_par, cur_lang_par, left_hyphen_min_par, right_hyphen_min_par);
     return p;
 }
 
@@ -3471,7 +3503,7 @@ not chosen.
 halfword new_disc(void)
 {                               /* creates an empty |disc_node| */
     halfword p = new_node(disc_node, 0);
-    disc_penalty(p) = int_par(hyphen_penalty_code);
+    disc_penalty(p) = hyphen_penalty_par;
     return p;
 }
 
@@ -3694,19 +3726,19 @@ halfword make_local_par_node(int mode)
     int callback_id;
     halfword q;
     halfword p = new_node(local_par_node,0);
-    local_pen_inter(p) = local_inter_line_penalty;
-    local_pen_broken(p) = local_broken_penalty;
-    if (local_left_box != null) {
-        q = copy_node_list(local_left_box);
+    local_pen_inter(p) = local_inter_line_penalty_par;
+    local_pen_broken(p) = local_broken_penalty_par;
+    if (local_left_box_par != null) {
+        q = copy_node_list(local_left_box_par);
         local_box_left(p) = q;
-        local_box_left_width(p) = width(local_left_box);
+        local_box_left_width(p) = width(local_left_box_par);
     }
-    if (local_right_box != null) {
-        q = copy_node_list(local_right_box);
+    if (local_right_box_par != null) {
+        q = copy_node_list(local_right_box_par);
         local_box_right(p) = q;
-        local_box_right_width(p) = width(local_right_box);
+        local_box_right_width(p) = width(local_right_box_par);
     }
-    local_par_dir(p) = par_direction;
+    local_par_dir(p) = par_direction_par;
     /* callback with node passed */
     callback_id = callback_defined(insert_local_par_callback);
     if (callback_id > 0) {

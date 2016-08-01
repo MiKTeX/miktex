@@ -161,6 +161,7 @@ typedef enum {
     assign_mu_glue_cmd,                   /* user-defined muglue ( \.{\\thinmuskip}, etc.~) */
     assign_font_dimen_cmd,                /* user-defined font dimension ( \.{\\fontdimen} ) */
     assign_font_int_cmd,                  /* user-defined font integer ( \.{\\hyphenchar}, \.{\\skewchar} ) */
+    assign_hang_indent_cmd,
     set_aux_cmd,                          /* specify state info ( \.{\\spacefactor}, \.{\\prevdepth} ) */
     set_prev_graf_cmd,                    /* specify state info ( \.{\\prevgraf} ) */
     set_page_dimen_cmd,                   /* specify state info ( \.{\\pagegoal}, etc.~) */
@@ -326,11 +327,14 @@ typedef enum {
     expand_font_code,
 } normal_codes;
 
-#  define lp_code_base 2
-#  define rp_code_base 3
-#  define ef_code_base 4
-#  define tag_code 5
-#  define no_lig_code 6
+typedef enum {
+    lp_code_base = 2,
+    rp_code_base = 3,
+    ef_code_base = 4,
+    tag_code     = 5,
+    no_lig_code  = 6,
+    gp_code_base = 7
+} font_codes ;
 
 #  define immediate_code 4      /* command modifier for \.{\\immediate} */
 

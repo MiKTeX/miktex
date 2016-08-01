@@ -21,10 +21,6 @@
 
 #include "ptexlib.h"
 
-@ @c
-#define page_width dimen_par(page_width_code)
-#define page_height dimen_par(page_height_code)
-
 @ Threads are handled in similar way as link annotations
 @c
 void append_bead(PDF pdf, halfword p)
@@ -168,8 +164,8 @@ void pdf_fix_thread(PDF pdf, int t)
     pdf_begin_array(pdf);
     pdf_add_int(pdf, 0);
     pdf_add_int(pdf, 0);
-    pdf_add_bp(pdf, page_width);
-    pdf_add_bp(pdf, page_height);
+    pdf_add_bp(pdf, page_width_par);
+    pdf_add_bp(pdf, page_height_par);
     pdf_end_array(pdf);
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);

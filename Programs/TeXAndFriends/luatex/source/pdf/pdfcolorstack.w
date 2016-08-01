@@ -47,9 +47,6 @@ They have the following properties:
 */
 
 #define COLOR_DEFAULT "0 g 0 G"
-#define SET_ORIGIN    0
-#define DIRECT_PAGE   1
-#define DIRECT_ALWAYS 2
 
 typedef struct {
     char **page_stack;
@@ -89,7 +86,7 @@ static void colstacks_first_init(void)
     colstacks[0].page_current = xstrdup(COLOR_DEFAULT);
     colstacks[0].form_current = xstrdup(COLOR_DEFAULT);
     colstacks[0].form_init = xstrdup(COLOR_DEFAULT);
-    colstacks[0].literal_mode = DIRECT_ALWAYS;
+    colstacks[0].literal_mode = direct_always;
     colstacks[0].page_start = true;
 }
 

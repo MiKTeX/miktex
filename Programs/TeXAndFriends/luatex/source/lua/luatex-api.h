@@ -198,6 +198,7 @@ extern void preset_environment(lua_State * L, const parm_struct * p, const char 
 extern char *startup_filename;
 extern int safer_option;
 extern int nosocket_option;
+extern int utc_option;
 
 extern char *last_source_name;
 extern int last_lineno;
@@ -824,7 +825,8 @@ make_lua_key(xsize);\
 make_lua_key(xyz_zoom);\
 make_lua_key(yoffset); \
 make_lua_key(yres); \
-make_lua_key(ysize)
+make_lua_key(ysize); \
+make_lua_key(__index)
 
 #define set_init_keys \
 init_lua_key(cmdname);init_lua_key(expandable);init_lua_key(protected);\
@@ -1178,10 +1180,12 @@ init_lua_key(xyz_zoom);\
 init_lua_key(yoffset);\
 init_lua_key(yres);\
 init_lua_key(ysize);\
+init_lua_key(__index);\
 init_lua_key_alias(empty_string,"");\
 init_lua_key_alias(lua_bytecodes_indirect,"lua.bytecodes.indirect");\
 init_lua_key_alias(lua_functions,"lua.functions");\
 init_lua_key_alias(luatex_node, "luatex.node");\
+init_lua_key_alias(luatex_token, "luatex.token");\
 init_lua_key_alias(mLTL,"-LTL");\
 init_lua_key_alias(mRTT,"-RTT");\
 init_lua_key_alias(mTLT,"-TLT");\
@@ -1599,3 +1603,4 @@ use_lua_key(xyz_zoom);
 use_lua_key(yoffset);
 use_lua_key(yres);
 use_lua_key(ysize);
+use_lua_key(__index);

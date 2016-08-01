@@ -555,7 +555,7 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
         print_hex(chr_code);
         break;
     case math_given_cmd:
-        if (mathoption_int_par(c_mathoption_umathcode_meaning_code) == 1) {
+        if (math_umathcode_meaning_par == 1) {
             tprint_esc("Umathchar");
             show_mathcode_value(mathchar_from_integer(chr_code, tex_mathcode));
         } else {

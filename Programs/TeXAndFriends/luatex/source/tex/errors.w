@@ -25,9 +25,6 @@ luafflib.c
 @ @c
 #include "ptexlib.h"
 
-@ @c
-#define new_line_char int_par(new_line_char_code)
-
 @ When something anomalous is detected, \TeX\ typically does something like this:
 $$\vbox{\halign{#\hfil\cr
 |print_err("Something anomalous has been detected");|\cr
@@ -72,9 +69,9 @@ void set_last_error_context(void)
     int saved_new_line_char;
     int saved_new_string_line;
     selector = new_string;
-    saved_new_line_char = new_line_char;
+    saved_new_line_char = new_line_char_par;
     saved_new_string_line = new_string_line;
-    new_line_char = 10;
+    new_line_char_par = 10;
     new_string_line = 10;
     show_context();
     xfree(last_error_context);
@@ -82,7 +79,7 @@ void set_last_error_context(void)
     last_error_context = makecstring(str);
     flush_str(str);
     selector = sel;
-    new_line_char = saved_new_line_char;
+    new_line_char_par = saved_new_line_char;
     new_string_line = saved_new_string_line;
     return;
 }
@@ -511,6 +508,11 @@ void overflow(const char *s, unsigned int n)
     print_char('=');
     print_int((int) n);
     print_char(']');
+    if (varmem == NULL) {
+      print_err("Sorry, I ran out of memory.");
+      print_ln();
+      exit(EXIT_FAILURE);
+    }
     help2("If you really absolutely need more capacity,",
           "you can ask a wizard to enlarge me.");
     succumb();
@@ -629,10 +631,10 @@ void char_warning(internal_font_number f, int c)
 {
     int old_setting;            /* saved value of |tracing_online| */
     int k;                      /* index to current digit; we assume that $0\L n<16^{22}$ */
-    if (int_par(tracing_lost_chars_code) > 0) {
-        old_setting = int_par(tracing_online_code);
-        if (int_par(tracing_lost_chars_code) > 1)
-            int_par(tracing_online_code) = 1;
+    if (tracing_lost_chars_par > 0) {
+        old_setting = tracing_online_par;
+        if (tracing_lost_chars_par > 1)
+            tracing_online_par = 1;
         begin_diagnostic();
         tprint_nl("Missing character: There is no ");
         print(c);
@@ -654,7 +656,7 @@ void char_warning(internal_font_number f, int c)
         print_font_name(f);
         print_char('!');
         end_diagnostic(false);
-        int_par(tracing_online_code) = old_setting;
+        tracing_online_par = old_setting;
     }
 }
 
@@ -737,8 +739,8 @@ void normal_warning(const char *t, const char *p)
     int report_id ;
     if (strcmp(t,"lua") == 0) {
         int saved_new_line_char;
-        saved_new_line_char = new_line_char;
-        new_line_char = 10;
+        saved_new_line_char = new_line_char_par;
+        new_line_char_par = 10;
         report_id = callback_defined(show_lua_error_hook_callback);
         if (report_id == 0) {
             tprint(p);
@@ -748,7 +750,7 @@ void normal_warning(const char *t, const char *p)
             (void) run_callback(report_id, "->");
         }
         error();
-        new_line_char = saved_new_line_char;
+        new_line_char_par = saved_new_line_char;
     } else {
         report_id = callback_defined(show_warning_message_callback);
         if (report_id > 0) {

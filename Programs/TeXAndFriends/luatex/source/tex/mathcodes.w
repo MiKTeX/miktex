@@ -124,7 +124,7 @@ static void unsavemathcode(quarterword gl)
         st = mathcode_head->stack[mathcode_head->stack_ptr];
         if (st.level > 0) {
             rawset_sa_item(mathcode_head, st.code, st.value);
-            if (int_par(tracing_restores_code) > 1) {
+            if (tracing_restores_par > 1) {
                 begin_diagnostic();
                 print_char('{');
                 tprint("restoring");
@@ -150,7 +150,7 @@ void set_math_code(int n, int mathclass, int mathfamily, int mathcharacter, quar
         v.math_code_value.character_value = mathcharacter;
     }
     set_sa_item(mathcode_head, n, v, level);
-    if (int_par(tracing_assigns_code) > 1) {
+    if (tracing_assigns_par > 1) {
         begin_diagnostic();
         print_char('{');
         tprint("assigning");
@@ -242,7 +242,7 @@ static void unsavedelcode(quarterword gl)
         st = delcode_head->stack[delcode_head->stack_ptr];
         if (st.level > 0) {
             rawset_sa_item(delcode_head, st.code, st.value);
-            if (int_par(tracing_restores_code) > 1) {
+            if (tracing_restores_par > 1) {
                 begin_diagnostic();
                 print_char('{');
                 tprint("restoring");
@@ -267,7 +267,7 @@ void set_del_code(int n, int smathfamily, int smathcharacter, int lmathfamily, i
     v.del_code_value.large_family_value = lmathfamily;
     v.del_code_value.large_character_value = lmathcharacter;
     set_sa_item(delcode_head, n, v, gl); /* always global */
-    if (int_par(tracing_assigns_code) > 1) {
+    if (tracing_assigns_par > 1) {
         begin_diagnostic();
         print_char('{');
         tprint("assigning");

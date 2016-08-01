@@ -22,17 +22,6 @@
 #include "ptexlib.h"
 
 @ @c
-#define pausing int_par(pausing_code)
-#define cat_code_table int_par(cat_code_table_code)
-#define tracing_nesting int_par(tracing_nesting_code)
-#define suppress_outer_error int_par(suppress_outer_error_code)
-#define suppress_mathpar_error int_par(suppress_mathpar_error_code)
-
-
-#define every_eof equiv(every_eof_loc)
-#define box(A) equiv(box_base+(A))
-#define toks(A) equiv(toks_base+(A))
-
 #define detokenized_line() (line_catcode_table==NO_CAT_TABLE)
 
 /*
@@ -42,13 +31,13 @@
     else if (line_catcode_table!=DEFAULT_CAT_TABLE) \
       a=get_cat_code(line_catcode_table,b); \
     else \
-      a=get_cat_code(cat_code_table,b); \
+      a=get_cat_code(cat_code_table_par,b); \
   } while (0)
 */
 
 #define do_get_cat_code(a,b) do { \
     if (line_catcode_table==DEFAULT_CAT_TABLE) \
-      a=get_cat_code(cat_code_table,b); \
+      a=get_cat_code(cat_code_table_par,b); \
     else if (line_catcode_table>-0xFF) \
       a=get_cat_code(line_catcode_table,b); \
     else \
@@ -766,7 +755,7 @@ void firm_up_the_line(void)
 {
     int k;                      /* an index into |buffer| */
     ilimit = last;
-    if (pausing > 0) {
+    if (pausing_par > 0) {
         if (interaction > nonstop_mode) {
             wake_up_terminal();
             print_ln();
@@ -795,7 +784,7 @@ void check_outer_validity(void)
 {
     halfword p;                 /* points to inserted token list */
     halfword q;                 /* auxiliary pointer */
-    if (suppress_outer_error)
+    if (suppress_outer_error_par)
         return;
     if (scanner_status != normal) {
         deletions_allowed = false;
@@ -980,7 +969,7 @@ static boolean get_next_file(void)
             case skip_blanks + escape_cmd:
                 /* Scan a control sequence ...; */
                 istate = (unsigned char) scan_control_sequence();
-                if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                if (! suppress_outer_error_par && cur_cmd >= outer_call_cmd)
                     check_outer_validity();
                 break;
             case mid_line + active_char_cmd:
@@ -991,7 +980,7 @@ static boolean get_next_file(void)
                 cur_cmd = eq_type(cur_cs);
                 cur_chr = equiv(cur_cs);
                 istate = mid_line;
-                if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                if (! suppress_outer_error_par && cur_cmd >= outer_call_cmd)
                     check_outer_validity();
                 break;
             case mid_line + sup_mark_cmd:
@@ -1041,7 +1030,7 @@ static boolean get_next_file(void)
                 cur_cs = par_loc;
                 cur_cmd = eq_type(cur_cs);
                 cur_chr = equiv(cur_cs);
-                if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                if (! suppress_outer_error_par && cur_cmd >= outer_call_cmd)
                     check_outer_validity();
                 break;
             case skip_blanks + left_brace_cmd:
@@ -1141,7 +1130,7 @@ static boolean get_next_file(void)
             switch (c-new_line) {
                 case escape_cmd:
                     istate = (unsigned char) scan_control_sequence();
-                    if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                    if (! suppress_outer_error_par && cur_cmd >= outer_call_cmd)
                         check_outer_validity();
                     return true;
                 case left_brace_cmd:
@@ -1164,7 +1153,7 @@ static boolean get_next_file(void)
                     cur_cs = par_loc;
                     cur_cmd = eq_type(cur_cs);
                     cur_chr = equiv(cur_cs);
-                    if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                    if (! suppress_outer_error_par && cur_cmd >= outer_call_cmd)
                         check_outer_validity();
                     return true;
                 case mac_param_cmd:
@@ -1196,7 +1185,7 @@ static boolean get_next_file(void)
                     cur_cmd = eq_type(cur_cs);
                     cur_chr = equiv(cur_cs);
                     istate = mid_line;
-                    if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                    if (! suppress_outer_error_par && cur_cmd >= outer_call_cmd)
                         check_outer_validity();
                     return true;
                 case comment_cmd:
@@ -1214,7 +1203,7 @@ static boolean get_next_file(void)
                 case escape_cmd:
                     /* Scan a control sequence ...; */
                     istate = (unsigned char) scan_control_sequence();
-                    if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                    if (! suppress_outer_error_par && cur_cmd >= outer_call_cmd)
                         check_outer_validity();
                     return true;
                 case left_brace_cmd:
@@ -1262,7 +1251,7 @@ static boolean get_next_file(void)
                     cur_cmd = eq_type(cur_cs);
                     cur_chr = equiv(cur_cs);
                     istate = mid_line;
-                    if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                    if (! suppress_outer_error_par && cur_cmd >= outer_call_cmd)
                         check_outer_validity();
                     return true;
                 case comment_cmd:
@@ -1281,7 +1270,7 @@ static boolean get_next_file(void)
             switch (c-mid_line) {
                 case escape_cmd:
                     istate = (unsigned char) scan_control_sequence();
-                    if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                    if (! suppress_outer_error_par && cur_cmd >= outer_call_cmd)
                         check_outer_validity();
                     return true;
                 case left_brace_cmd:
@@ -1334,7 +1323,7 @@ static boolean get_next_file(void)
                     cur_cmd = eq_type(cur_cs);
                     cur_chr = equiv(cur_cs);
                     istate = mid_line;
-                    if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                    if (! suppress_outer_error_par && cur_cmd >= outer_call_cmd)
                         check_outer_validity();
                     return true;
                 case comment_cmd:
@@ -1694,11 +1683,11 @@ one more branch.
                     line_catcode_table = DEFAULT_CAT_TABLE;
                     if ((iname == 19) && (pseudo_lines(pseudo_files) == null))
                         inhibit_eol = true;
-                } else if ((every_eof != null) && !eof_seen[iindex]) {
+                } else if ((every_eof_par != null) && !eof_seen[iindex]) {
                     ilimit = first - 1;
                     eof_seen[iindex] = true; /* fake one empty line */
                     if (iname != 19)
-                        begin_token_list(every_eof, every_eof_text);
+                        begin_token_list(every_eof_par, every_eof_text);
                     return next_line_restart;
                 } else {
                     force_eof = true;
@@ -1721,10 +1710,10 @@ one more branch.
                     if (lua_input_ln(cur_file, 0, true)) { /* not end of file */
                         firm_up_the_line(); /* this sets |ilimit| */
                         line_catcode_table = DEFAULT_CAT_TABLE;
-                    } else if ((every_eof != null) && (!eof_seen[iindex])) {
+                    } else if ((every_eof_par != null) && (!eof_seen[iindex])) {
                         ilimit = first - 1;
                         eof_seen[iindex] = true; /* fake one empty line */
-                        begin_token_list(every_eof, every_eof_text);
+                        begin_token_list(every_eof_par, every_eof_text);
                         return next_line_restart;
                     } else {
                         force_eof = true;
@@ -1733,7 +1722,7 @@ one more branch.
             }
         }
         if (force_eof) {
-            if (tracing_nesting > 0)
+            if (tracing_nesting_par > 0)
                 if ((grp_stack[in_open] != cur_boundary) || (if_stack[in_open] != cond_ptr))
                     if (!((iname == 19) || (iname == 21))) {
                         /* give warning for some unfinished groups and/or conditionals */
@@ -1749,7 +1738,7 @@ one more branch.
                 end_file_reading();
             } else {
                 end_file_reading();
-                if (! suppress_outer_error)
+                if (! suppress_outer_error_par)
                     check_outer_validity();
             }
             return next_line_restart;
@@ -1757,7 +1746,7 @@ one more branch.
         if (inhibit_eol || end_line_char_inactive)
             ilimit--;
         else
-            buffer[ilimit] = (packed_ASCII_code) end_line_char;
+            buffer[ilimit] = (packed_ASCII_code) end_line_char_par;
         first = ilimit + 1;
         iloc = istart; /* ready to read */
     } else {
@@ -1788,7 +1777,7 @@ one more branch.
             if (end_line_char_inactive)
                 ilimit--;
             else
-                buffer[ilimit] = (packed_ASCII_code) end_line_char;
+                buffer[ilimit] = (packed_ASCII_code) end_line_char_par;
             first = ilimit + 1;
             iloc = istart;
         } else {
@@ -1829,7 +1818,7 @@ static boolean get_next_tokenlist(void)
                     cur_chr = no_expand_flag;
                     return true;
                 }
-            } else if (! suppress_outer_error) {
+            } else if (! suppress_outer_error_par) {
                 check_outer_validity();
             }
         }
@@ -2364,7 +2353,7 @@ static int do_feedback_dvi(halfword c)
 
 /* codes not really needed but cleaner when testing */
 
-#define pdftex_version  40  /* these values will not change any more */
+#define pdftex_version  140 /* these values will not change any more */
 #define pdftex_revision "0" /* these values will not change any more */
 
 static int do_feedback_pdf(halfword c)
@@ -3160,7 +3149,7 @@ void read_toks(int n, halfword r, halfword j)
         if (end_line_char_inactive)
             decr(ilimit);
         else
-            buffer[ilimit] = (packed_ASCII_code) int_par(end_line_char_code);
+            buffer[ilimit] = (packed_ASCII_code) end_line_char_par;
         first = ilimit + 1;
         iloc = istart;
         istate = new_line;
@@ -3291,7 +3280,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
     ret = xmalloc(alloci);
     p = token_link(p);          /* skip refcount */
     if (p != null) {
-        e = int_par(escape_char_code);
+        e = escape_char_par;
     }
     while (p != null) {
         if (p < (int) fix_mem_min || p > (int) fix_mem_end) {

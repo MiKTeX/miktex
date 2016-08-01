@@ -29,13 +29,21 @@ void pdf_write_obj(PDF pdf, int k)
     lstring data;
     const_lstring st;
     size_t li;                  /* index into |data.s| */
-    int saved_compress_level = pdf->compress_level;
+    int saved_compress_level ;
     int os_threshold = OBJSTM_ALWAYS;   /* gives compressed objects for \.{\\pdfvariable objcompresslevel} >= |OBJSTM_ALWAYS| */
     int l = 0;                          /* possibly a lua registry reference */
     int ll = 0;
     data.s = NULL;
-    if (obj_obj_pdfcompresslevel(pdf, k) > -1)  /* -1 = "unset" */
+    /* we can have an immediate object before we are initialized */
+    ensure_output_state(pdf, ST_HEADER_WRITTEN);
+    saved_compress_level = pdf->compress_level;
+    /* end of ugly hack */
+    if (obj_obj_pdfcompresslevel(pdf, k) > -1) { /* -1 = "unset" */
         pdf->compress_level = obj_obj_pdfcompresslevel(pdf, k);
+        if (pdf->compress_level == 0) {
+            pdf->objcompresslevel = 0;
+        }
+    }
     if (obj_obj_objstm_threshold(pdf, k) != OBJSTM_UNSET)
         os_threshold = obj_obj_objstm_threshold(pdf, k);
     if (obj_obj_is_stream(pdf, k)) {
@@ -183,21 +191,19 @@ void scan_obj(PDF pdf)
 }
 
 @ @c
-#define tail cur_list.tail_field
-
 void scan_refobj(PDF pdf)
 {
     scan_int();
     check_obj_type(pdf, obj_type_obj, cur_val);
     new_whatsit(pdf_refobj_node);
-    pdf_obj_objnum(tail) = cur_val;
+    pdf_obj_objnum(tail_par) = cur_val;
 }
 
 void scan_refobj_lua(PDF pdf, int k)
 {
     check_obj_type(pdf, obj_type_obj, k);
     new_whatsit(pdf_refobj_node);
-    pdf_obj_objnum(tail) = k;
+    pdf_obj_objnum(tail_par) = k;
 }
 
 @ @c

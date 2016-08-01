@@ -309,13 +309,13 @@ char **load_enc_file(char *enc_name)
     }
     names_count = 0;
     r++;                        /* skip '[' */
-    skip(r, ' ');
+    skip_char(r, ' ');
     for (;;) {
         while (*r == '/') {
             for (p = buf, r++;
                  *r != ' ' && *r != 10 && *r != ']' && *r != '/'; *p++ = *r++);
             *p = 0;
-            skip(r, ' ');
+            skip_char(r, ' ');
             if (names_count >= 256)
                 normal_error("type 1","encoding vector contains more than 256 names");
             if (strcmp(buf, notdef) != 0)
@@ -444,7 +444,7 @@ static char *eol(char *s)
 static float t1_scan_num(char *p, char **r)
 {
     float f;
-    skip(p, ' ');
+    skip_char(p, ' ');
     if (sscanf(p, "%g", &f) != 1) {
         remove_eol(p, t1_line_array);
         formatted_error("type 1","a number expected: '%s'", t1_line_array);
@@ -682,7 +682,7 @@ static void t1_scan_keys(PDF pdf)
     if (key - font_key == FONT_KEYS_NUM)
         return;
     p = t1_line_array + strlen(key->t1name) + 1;
-    skip(p, ' ');
+    skip_char(p, ' ');
     if ((k = (int) (key - font_key)) == FONTNAME_CODE) {
         if (*p != '/') {
             remove_eol(p, t1_line_array);
@@ -787,14 +787,14 @@ static char **t1_builtin_enc(void)
     t1_encoding = ENC_BUILTIN;
     if (t1_prefix("/Encoding [") || t1_prefix("/Encoding[")) {  /* the first case */
         r = strchr(t1_line_array, '[') + 1;
-        skip(r, ' ');
+        skip_char(r, ' ');
         for (;;) {
             while (*r == '/') {
                 for (p = t1_buf_array, r++;
                      *r != 32 && *r != 10 && *r != ']' && *r != '/';
                      *p++ = *r++);
                 *p = 0;
-                skip(r, ' ');
+                skip_char(r, ' ');
                 if (counter > 255)
                     normal_error("type 1","encoding vector contains more than 256 names");
                 if (strcmp(t1_buf_array, notdef) != 0)
@@ -827,7 +827,7 @@ static char **t1_builtin_enc(void)
                 if (strcmp(t1_buf_array + 1, notdef) != 0)
                     glyph_names[i] = xstrdup(t1_buf_array + 1);
                 p = strstr(p, " put") + strlen(" put");
-                skip(p, ' ');
+                skip_char(p, ' ');
             }
             /*
                check for \.{dup dup <to> exch <from> get put}
@@ -836,7 +836,7 @@ static char **t1_builtin_enc(void)
                      && valid_code(a) && valid_code(b)) {
                 copy_glyph_names(glyph_names, a, b);
                 p = strstr(p, " get put") + strlen(" get put");
-                skip(p, ' ');
+                skip_char(p, ' ');
             }
             /*
                check for \.{dup dup <from> <size> getinterval <to> exch putinterval}
@@ -848,7 +848,7 @@ static char **t1_builtin_enc(void)
                 for (i = 0; i < c; i++)
                     copy_glyph_names(glyph_names, a + i, b + i);
                 p = strstr(p, " putinterval") + strlen(" putinterval");
-                skip(p, ' ');
+                skip_char(p, ' ');
             }
             /*
                check for \.{def} or \.{readonly def}
@@ -862,7 +862,7 @@ static char **t1_builtin_enc(void)
             else {
                 while (*p != ' ' && *p != 10)
                     p++;
-                skip(p, ' ');
+                skip_char(p, ' ');
             }
         }
     }

@@ -80,7 +80,7 @@ void expand(void)
   RESWITCH:
     if (cur_cmd < call_cmd) {
         /* Expand a nonmacro */
-        if (int_par(tracing_commands_code) > 1)
+        if (tracing_commands_par > 1)
             show_cur_cmd_chr();
         switch (cur_cmd) {
         case top_bot_mark_cmd:
@@ -247,8 +247,8 @@ void expand(void)
                code, which is actually part of |expand|. It comes into play when
                \.{\\or}, \.{\\else}, or \.{\\fi} is scanned. */
 
-            if (int_par(tracing_ifs_code) > 0)
-                if (int_par(tracing_commands_code) <= 1)
+            if (tracing_ifs_par > 0)
+                if (tracing_commands_par <= 1)
                     show_cur_cmd_chr();
             if (cur_chr > if_limit) {
                 if (if_limit == if_code) {
@@ -554,7 +554,7 @@ void macro_call(void)
     warning_index = cur_cs;
     ref_count = cur_chr;
     r = token_link(ref_count);
-    if (int_par(tracing_macros_code) > 0) {
+    if (tracing_macros_par > 0) {
         /* Show the text of the macro being expanded */
         begin_diagnostic();
         print_ln();
@@ -686,7 +686,7 @@ void macro_call(void)
 
             if (cur_tok == par_token)
                 if (long_state != long_call_cmd)
-                    if (!int_par(suppress_long_error_code)) {
+                    if (!suppress_long_error_par) {
                         goto RUNAWAY;
                     }
             if (cur_tok < right_brace_limit) {
@@ -698,7 +698,7 @@ void macro_call(void)
                         get_token();
                         if (cur_tok == par_token) {
                             if (long_state != long_call_cmd) {
-                                if (!int_par(suppress_long_error_code)) {
+                                if (!suppress_long_error_par) {
                                     goto RUNAWAY;
 
                                 }
@@ -768,7 +768,7 @@ void macro_call(void)
                     pstack[n] = token_link(temp_token_head);
                 }
                 incr(n);
-                if (int_par(tracing_macros_code) > 0) {
+                if (tracing_macros_par > 0) {
                     begin_diagnostic();
                     print_nl(match_chr);
                     print_int(n);

@@ -1389,9 +1389,9 @@ int font_from_lua(lua_State * L, int f)
         i = FONT_SLANT_MAX;
     set_font_slant(f, i);
 
-    i = lua_numeric_field_by_index(L,lua_key_index(hyphenchar), int_par(default_hyphen_char_code));
+    i = lua_numeric_field_by_index(L,lua_key_index(hyphenchar), default_hyphen_char_par);
     set_hyphen_char(f, i);
-    i = lua_numeric_field_by_index(L,lua_key_index(skewchar), int_par(default_skew_char_code));
+    i = lua_numeric_field_by_index(L,lua_key_index(skewchar), default_skew_char_par);
     set_skew_char(f, i);
     i = n_boolean_field(L, lua_key_index(used), 0);
     set_font_used(f, (char) i);
@@ -2126,21 +2126,20 @@ halfword handle_kerning(halfword head, halfword tail)
 @c
 static halfword run_lua_ligkern_callback(halfword head, halfword tail, int callback_id)
 {
-    lua_State *L = Luas;
     int i;
-    int top = lua_gettop(L);
-    if (!get_callback(L, callback_id)) {
-        lua_pop(L, 2);
+    int top = lua_gettop(Luas);
+    if (!get_callback(Luas, callback_id)) {
+        lua_pop(Luas, 2);
         return tail;
     }
-    nodelist_to_lua(L, head);
-    nodelist_to_lua(L, tail);
-    if ((i=lua_pcall(L, 2, 0, 0)) != 0) {
-        luatex_error(L, (i == LUA_ERRRUN ? 0 : 1));
+    nodelist_to_lua(Luas, head);
+    nodelist_to_lua(Luas, tail);
+    if ((i=lua_pcall(Luas, 2, 0, 0)) != 0) {
+        luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
         return tail;
     }
     fix_node_list(head);
-    lua_settop(L, top);
+    lua_settop(Luas, top);
     return tail;
 }
 

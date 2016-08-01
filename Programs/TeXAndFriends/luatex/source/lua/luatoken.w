@@ -113,6 +113,7 @@ command_item command_names[] = {
     {"assign_mu_glue", assign_mu_glue_cmd, NULL},
     {"assign_font_dimen", assign_font_dimen_cmd, NULL},
     {"assign_font_int", assign_font_int_cmd, NULL},
+    {"assign_hang_indent", assign_hang_indent_cmd, NULL},
     {"set_aux", set_aux_cmd, NULL},
     {"set_prev_graf", set_prev_graf_cmd, NULL},
     {"set_page_dimen", set_page_dimen_cmd, NULL},
@@ -362,34 +363,33 @@ int tokenlist_from_lua(lua_State * L)
 
 static void do_get_token_lua(int callback_id)
 {
-    lua_State *L = Luas;
     while (1) {
-        if (!get_callback(L, callback_id)) {
+        if (!get_callback(Luas, callback_id)) {
             get_next();
-            lua_pop(L, 2);
+            lua_pop(Luas, 2);
             break;
         }
-        if (lua_pcall(L, 0, 1, 0) != 0) {
-            tex_error(lua_tostring(L, -1), NULL);
-            lua_pop(L, 2);
+        if (lua_pcall(Luas, 0, 1, 0) != 0) {
+            tex_error(lua_tostring(Luas, -1), NULL);
+            lua_pop(Luas, 2);
             break;
         }
-        if (lua_istable(L, -1)) {
-            lua_rawgeti(L, -1, 1);
-            if (lua_istable(L, -1)) {
+        if (lua_istable(Luas, -1)) {
+            lua_rawgeti(Luas, -1, 1);
+            if (lua_istable(Luas, -1)) {
                 int p, q, r;
                 size_t i, j;
-                lua_pop(L, 1);
+                lua_pop(Luas, 1);
                 r = get_avail();
                 p = r;
-                j = lua_rawlen(L, -1);
+                j = lua_rawlen(Luas, -1);
                 if (j > 0) {
                     for (i = 1; i <= j; i++) {
-                        lua_rawgeti(L, -1, (int) i);
-                        if (get_cur_cmd(L) || get_cur_cs(L)) {
+                        lua_rawgeti(Luas, -1, (int) i);
+                        if (get_cur_cmd(Luas) || get_cur_cs(Luas)) {
                             store_new_token(cur_tok);
                         }
-                        lua_pop(L, 1);
+                        lua_pop(Luas, 1);
                     }
                 }
                 if (p != r) {
@@ -399,23 +399,22 @@ static void do_get_token_lua(int callback_id)
                     cur_input.nofilter_field = true;
                     get_next();
                 } else {
-                    tex_error("error: illegal or empty token list returned",
-                              NULL);
+                    tex_error("error: illegal or empty token list returned", NULL);
                 }
-                lua_pop(L, 2);
+                lua_pop(Luas, 2);
                 break;
             } else {
-                lua_pop(L, 1);
-                if (get_cur_cmd(L) || get_cur_cs(L)) {
-                    lua_pop(L, 2);
+                lua_pop(Luas, 1);
+                if (get_cur_cmd(Luas) || get_cur_cs(Luas)) {
+                    lua_pop(Luas, 2);
                     break;
                 } else {
-                    lua_pop(L, 2);
+                    lua_pop(Luas, 2);
                     continue;
                 }
             }
         } else {
-            lua_pop(L, 2);
+            lua_pop(Luas, 2);
         }
     }
     return;

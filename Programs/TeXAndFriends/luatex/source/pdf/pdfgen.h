@@ -188,7 +188,7 @@ extern scaled round_xn_over_d(scaled x, int n, unsigned int d);
 
 extern char *convertStringToPDFString(const char *in, int len);
 
-extern void init_start_time(PDF);
+extern void initialize_start_time(PDF);
 extern char *getcreationdate(PDF);
 
 extern void check_o_mode(PDF pdf, const char *s, int o_mode, boolean errorflag);

@@ -202,13 +202,13 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c, int ex_glyph)
             break;
         case packet_char_code:
             packet_number(k);
-            if (!char_exists(vp->lf, (int) k))
+            /* we also check if c == k and font(c) == font)k) */
+            if (!char_exists(vp->lf, (int) k)) {
                 char_warning(vp->lf, (int) k);
-            else {
-                if (has_packet(vp->lf, (int) k))
-                    do_vf_packet(pdf, vp->lf, (int) k, ex_glyph);
-                else
-                    backend_out[glyph_node] (pdf, vp->lf, (int) k, ex_glyph);
+            } else if (! ((c == k && vp->lf == vf_f)) && (has_packet(vp->lf, (int) k))) {
+                do_vf_packet(pdf, vp->lf, (int) k, ex_glyph);
+            } else {
+                backend_out[glyph_node] (pdf, vp->lf, (int) k, ex_glyph);
             }
             w = char_width(vp->lf, (int) k);
             mat_p->pos.h += round_xn_over_d(w, 1000 + ex_glyph, 1000);

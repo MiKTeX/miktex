@@ -354,22 +354,21 @@ int char_exists(internal_font_number f, int c)
 static int lua_char_exists_callback(internal_font_number f, int c)
 {
     int callback_id;
-    lua_State *L = Luas;
     int ret = 0;
     callback_id = callback_defined(char_exists_callback);
     if (callback_id != 0) {
-        if (!get_callback(L, callback_id)) {
-            lua_pop(L, 2);
+        if (!get_callback(Luas, callback_id)) {
+            lua_pop(Luas, 2);
             return 0;
         }
-        lua_pushinteger(L, f);
-        lua_pushinteger(L, c);
-        if (lua_pcall(L, 2, 1, 0) != 0) {       /* two args, 1 result */
-            fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
-            lua_pop(L, 2);
+        lua_pushinteger(Luas, f);
+        lua_pushinteger(Luas, c);
+        if (lua_pcall(Luas, 2, 1, 0) != 0) {       /* two args, 1 result */
+            fprintf(stdout, "error: %s\n", lua_tostring(Luas, -1));
+            lua_pop(Luas, 2);
             error();
         } else {
-            ret = lua_toboolean(L, -1);
+            ret = lua_toboolean(Luas, -1);
         }
     }
     return ret;
@@ -1798,8 +1797,6 @@ void undump_font(int f)
 /* moved from pdffont.w */
 
 @ @c
-#define font_id_text(A) cs_text(font_id_base+(A)) /* a frozen font identifier's name */
-
 int pk_dpi; /* PK pixel density value from \.{texmf.cnf} */
 
 @ @c

@@ -39,21 +39,6 @@
 
 #define mode cur_list.mode_field        /* current mode */
 
-#define mag int_par(mag_code)
-#define tracing_output int_par(tracing_output_code)
-#define tracing_stats int_par(tracing_stats_code)
-#define tracing_online int_par(tracing_online_code)
-#define page_width dimen_par(page_width_code)
-#define page_height dimen_par(page_height_code)
-#define page_left_offset dimen_par(page_left_offset_code)
-#define page_right_offset dimen_par(page_right_offset_code)
-#define page_top_offset dimen_par(page_top_offset_code)
-#define page_bottom_offset dimen_par(page_bottom_offset_code)
-#define h_offset dimen_par(h_offset_code)
-#define v_offset dimen_par(v_offset_code)
-
-#define count(A) eqtb[count_base+(A)].cint
-
 @ The most important output produced by a run of \TeX\ is the ``device
 independent'' (\.{DVI}) file that specifies where characters and rules
 are to appear on printed pages. The form of these files was designed by
@@ -1136,7 +1121,7 @@ void ensure_dvi_header_written(PDF pdf)
     dvi_four(25400000);
     dvi_four(473628672);        /* conversion ratio for sp */
     prepare_mag();
-    dvi_four(mag);              /* magnification factor is frozen */
+    dvi_four(mag_par);          /* magnification factor is frozen */
     if (output_comment) {
         l = (unsigned) strlen(output_comment);
         dvi_out(l);
@@ -1146,14 +1131,14 @@ void ensure_dvi_header_written(PDF pdf)
         old_setting = selector;
         selector = new_string;
         tprint(" LuaTeX output ");
-        print_int(int_par(year_code));
+        print_int(year_par);
         print_char('.');
-        print_two(int_par(month_code));
+        print_two(month_par);
         print_char('.');
-        print_two(int_par(day_code));
+        print_two(day_par);
         print_char(':');
-        print_two(int_par(time_code) / 60);
-        print_two(int_par(time_code) % 60);
+        print_two(time_par / 60);
+        print_two(time_par % 60);
         selector = old_setting;
         dvi_out(cur_length);
         for (s = 0; s < cur_length; s++)
@@ -1236,7 +1221,7 @@ void finish_dvi_file(PDF pdf, int version, int revision)
         dvi_four(25400000);
         dvi_four(473628672);    /* conversion ratio for sp */
         prepare_mag();
-        dvi_four(mag);          /* magnification factor */
+        dvi_four(mag_par);      /* magnification factor */
         dvi_four(max_v);
         dvi_four(max_h);
         dvi_out(max_push / 256);

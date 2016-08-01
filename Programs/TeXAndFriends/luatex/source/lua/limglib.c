@@ -298,17 +298,16 @@ void vf_out_image(PDF pdf, unsigned i)
 {
     image *a, **aa;
     image_dict *ad;
-    lua_State *L = Luas;
-    lua_rawgeti(L, LUA_REGISTRYINDEX, (int) i);
-    aa = (image **) luaL_checkudata(L, -1, TYPE_IMG);
+    lua_rawgeti(Luas, LUA_REGISTRYINDEX, (int) i);
+    aa = (image **) luaL_checkudata(Luas, -1, TYPE_IMG);
     a = *aa;
     ad = img_dict(a);
     if (ad == NULL) {
-        luaL_error(L, "invalid image dictionary");
+        luaL_error(Luas, "invalid image dictionary");
     }
     setup_image(pdf, a, WR_VF_IMG);
     place_img(pdf, ad, img_dimen(a), img_transform(a));
-    lua_pop(L, 1);
+    lua_pop(Luas, 1);
 }
 
 /* metamethods for image */

@@ -19,14 +19,11 @@
 
 @ @c
 
-
 #include "ptexlib.h"
 
 @ these are for |show_activities|
 @c
 #define page_goal page_so_far[0]
-#define count(A) eqtb[count_base+(A)].cint
-
 
 @ \TeX\ is typically in the midst of building many lists at once. For example,
 when a math formula is being processed, \TeX\ is in math mode and
@@ -251,9 +248,7 @@ void initialize_nesting(void)
     init_math_fields();
 }
 
-
-
-@ Here is a common way to make the current list grow: 
+@ Here is a common way to make the current list grow:
 
 @c
 void tail_append(halfword p)
@@ -261,7 +256,6 @@ void tail_append(halfword p)
     couple_nodes(cur_list.tail_field, p);
     cur_list.tail_field = vlink(cur_list.tail_field);
 }
-
 
 @ @c
 halfword pop_tail(void)
@@ -311,7 +305,6 @@ void push_nest(void)
     init_math_fields();
 }
 
-
 @ Conversely, when \TeX\ is finished on the current level, the former
 state is restored by calling |pop_nest|. This routine will never be
 called at the lowest semantic level, nor will it be called unless |head|
@@ -324,7 +317,7 @@ void pop_nest(void)
     decr(nest_ptr);
 }
 
-@ Here is a procedure that displays what \TeX\ is working on, at all levels. 
+@ Here is a procedure that displays what \TeX\ is working on, at all levels.
 
 @c
 void show_activities(void)
@@ -343,7 +336,7 @@ void show_activities(void)
         print_int(abs(nest[p].ml_field));
         /* we dont do this any more */
 #if 0
-        
+
            if (m == hmode)
            if (nest[p].pg_field != 040600000) {
            tprint(" (language");

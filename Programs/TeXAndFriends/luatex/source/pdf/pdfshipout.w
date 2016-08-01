@@ -22,20 +22,6 @@
 #include "ptexlib.h"
 
 @ @c
-#define count(A) eqtb[count_base+(A)].cint
-
-#define mag                int_par(mag_code)
-#define h_offset           dimen_par(h_offset_code)
-#define page_bottom_offset dimen_par(page_bottom_offset_code)
-#define page_height        dimen_par(page_height_code)
-#define page_left_offset   dimen_par(page_left_offset_code)
-#define page_right_offset  dimen_par(page_right_offset_code)
-#define page_top_offset    dimen_par(page_top_offset_code)
-#define page_width         dimen_par(page_width_code)
-#define tracing_output     int_par(tracing_output_code)
-#define tracing_stats      int_par(tracing_stats_code)
-#define v_offset           dimen_par(v_offset_code)
-
 scaledpos shipbox_refpos;
 
 @ |ship_out| is used to shipout a box to PDF or DVI mode. If |shipping_mode| is
@@ -61,16 +47,16 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
         Start sheet {\sl Sync\TeX} information record; we assume that |pdf_output| is
         properly set up.
     */
-    if (int_par(synctex_code)) {
+    if (synctex_par) {
         if (output_mode_used == OMODE_DVI) {
-            synctexsheet(mag);
+            synctexsheet(mag_par);
         } else {
             synctexsheet(1000);
         }
     }
     pre_callback_id = callback_defined(start_page_number_callback);
     post_callback_id = callback_defined(stop_page_number_callback);
-    if ((tracing_output > 0) && (pre_callback_id == 0)) {
+    if ((tracing_output_par > 0) && (pre_callback_id == 0)) {
         tprint_nl("");
         print_ln();
         tprint("Completed box being shipped out");
@@ -95,7 +81,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
             }
         }
     }
-    if ((tracing_output > 0) && shipping_mode == SHIPPING_PAGE) {
+    if ((tracing_output_par > 0) && shipping_mode == SHIPPING_PAGE) {
         print_char(']');
         update_terminal();
         begin_diagnostic();
@@ -103,7 +89,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
         end_diagnostic(true);
     }
     /* Ship box |p| out */
-    if (shipping_mode == SHIPPING_PAGE && box_dir(p) != page_direction)
+    if (shipping_mode == SHIPPING_PAGE && box_dir(p) != page_direction_par)
         normal_warning("backend","pagedir differs from bodydir, the output may be placed wrongly on the page");
     /*
         Update the values of |max_h| and |max_v|; but if the page is too large,
@@ -111,14 +97,14 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
         error messages are being ignored. Such pages are not output to the
         \.{dvi} file, since they may confuse the printing software.
     */
-    if ((height(p) > max_dimen) || (depth(p) > max_dimen) || (height(p) + depth(p) + v_offset > max_dimen) || (width(p) + h_offset > max_dimen)) {
+    if ((height(p) > max_dimen) || (depth(p) > max_dimen) || (height(p) + depth(p) + v_offset_par > max_dimen) || (width(p) + h_offset_par > max_dimen)) {
         const char *hlp[] = {
             "The page just created is more than 18 feet tall or",
             "more than 18 feet wide, so I suspect something went wrong.",
             NULL
         };
         tex_error("Huge page cannot be shipped out", hlp);
-        if (tracing_output <= 0) {
+        if (tracing_output_par <= 0) {
             begin_diagnostic();
             tprint_nl("The following box has been deleted:");
             show_box(p);
@@ -126,47 +112,47 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
         }
         goto DONE;
     }
-    if (height(p) + depth(p) + v_offset > max_v)
-        max_v = height(p) + depth(p) + v_offset;
-    if (width(p) + h_offset > max_h)
-        max_h = width(p) + h_offset;
+    if (height(p) + depth(p) + v_offset_par > max_v)
+        max_v = height(p) + depth(p) + v_offset_par;
+    if (width(p) + h_offset_par > max_h)
+        max_h = width(p) + h_offset_par;
     /* Calculate page dimensions and margins */
     if (global_shipping_mode == SHIPPING_PAGE) {
-        if (page_width > 0)
-            pdf->page_size.h = page_width;
+        if (page_width_par > 0)
+            pdf->page_size.h = page_width_par;
         else {
-            switch (page_direction) {
+            switch (page_direction_par) {
                 case dir_TLT:
-                    pdf->page_size.h = width(p) + 2 * page_left_offset;
+                    pdf->page_size.h = width(p) + 2 * page_left_offset_par;
                     break;
                 case dir_TRT:
-                    pdf->page_size.h = width(p) + 2 * page_right_offset;
+                    pdf->page_size.h = width(p) + 2 * page_right_offset_par;
                     break;
                 case dir_LTL:
-                    pdf->page_size.h = height(p) + depth(p) + 2 * page_left_offset;
+                    pdf->page_size.h = height(p) + depth(p) + 2 * page_left_offset_par;
                     break;
                 case dir_RTT:
-                    pdf->page_size.h = height(p) + depth(p) + 2 * page_right_offset;
+                    pdf->page_size.h = height(p) + depth(p) + 2 * page_right_offset_par;
                     break;
                 default:
-                    pdf->page_size.h = width(p) + 2 * page_left_offset;
+                    pdf->page_size.h = width(p) + 2 * page_left_offset_par;
                     normal_warning("pdf backend","bad page direction, assuming TLT, case 1");
             }
         }
-        if (page_height > 0)
-            pdf->page_size.v = page_height;
+        if (page_height_par > 0)
+            pdf->page_size.v = page_height_par;
         else {
-            switch (page_direction) {
+            switch (page_direction_par) {
                 case dir_TLT:
                 case dir_TRT:
-                    pdf->page_size.v = height(p) + depth(p) + 2 * page_top_offset;
+                    pdf->page_size.v = height(p) + depth(p) + 2 * page_top_offset_par;
                     break;
                 case dir_LTL:
                 case dir_RTT:
-                    pdf->page_size.v = width(p) + 2 * page_top_offset;
+                    pdf->page_size.v = width(p) + 2 * page_top_offset_par;
                     break;
                 default:
-                    pdf->page_size.v = height(p) + depth(p) + 2 * page_top_offset;
+                    pdf->page_size.v = height(p) + depth(p) + 2 * page_top_offset_par;
                     normal_warning("pdf backend","bad page direction, assuming TLT, case 2");
                 }
         }
@@ -193,27 +179,27 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
             Then shift |refpoint.pos| of the DVI origin depending on the
             |page_direction| within the upright (TLT) page coordinate system
         */
-        switch (page_direction) {
+        switch (page_direction_par) {
             case dir_TLT:
             case dir_LTL:
-                refpoint.pos.h += h_offset;
-                refpoint.pos.v -= v_offset;
+                refpoint.pos.h += h_offset_par;
+                refpoint.pos.v -= v_offset_par;
                 break;
             case dir_TRT:
             case dir_RTT:
-                refpoint.pos.h += pdf->page_size.h - page_right_offset - one_true_inch;
-                refpoint.pos.v -= v_offset;
+                refpoint.pos.h += pdf->page_size.h - page_right_offset_par - one_true_inch;
+                refpoint.pos.v -= v_offset_par;
                 break;
             default:
-                refpoint.pos.h += h_offset;
-                refpoint.pos.v -= v_offset;
+                refpoint.pos.h += h_offset_par;
+                refpoint.pos.v -= v_offset_par;
                 normal_warning("pdf backend","bad page direction, assuming TLT, case 3");
         }
         /*
             Then switch to page box coordinate system; do |height(p)| movement,
             to get the location of the box origin.
         */
-        pdf->posstruct->dir = page_direction;
+        pdf->posstruct->dir = page_direction_par;
         cur.h = 0;
         cur.v = height(p);
         synch_pos_with_cur(pdf->posstruct, &refpoint, cur);
@@ -297,13 +283,13 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
             normal_error("pdf backend", "unknown output mode");
     }
   DONE:
-    if ((tracing_output <= 0) && (post_callback_id == 0) && shipping_mode == SHIPPING_PAGE) {
+    if ((tracing_output_par <= 0) && (post_callback_id == 0) && shipping_mode == SHIPPING_PAGE) {
         print_char(']');
         update_terminal();
     }
     dead_cycles = 0;
     /* Flush the box from memory, showing statistics if requested */
-    if ((tracing_stats > 1) && (pre_callback_id == 0)) {
+    if ((tracing_stats_par > 1) && (pre_callback_id == 0)) {
         tprint_nl("Memory usage before: ");
         print_int(var_used);
         print_char('&');
@@ -311,7 +297,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
         print_char(';');
     }
     flush_node_list(p);
-    if ((tracing_stats > 1) && (post_callback_id == 0)) {
+    if ((tracing_stats_par > 1) && (post_callback_id == 0)) {
         tprint(" after: ");
         print_int(var_used);
         print_char('&');
@@ -321,7 +307,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
     if (shipping_mode == SHIPPING_PAGE && (post_callback_id > 0))
         (void) run_callback(post_callback_id, "->");
     /* Finish sheet {\sl Sync\TeX} information record */
-    if (int_par(synctex_code))
+    if (synctex_par)
         synctexteehs();
     global_shipping_mode = NOT_SHIPPING;
 }

@@ -950,6 +950,20 @@ static int getpdforigin(lua_State * L)
     return 2 ;
 }
 
+static int setpdfimageresolution(lua_State * L)
+{
+    if (lua_type(L, 1) == LUA_TNUMBER) {
+        set_tex_extension_count_register(c_pdf_image_resolution,lua_tointeger(L, 1));
+    }
+    return 0;
+}
+
+static int getpdfimageresolution(lua_State * L)
+{
+    lua_pushinteger(L,get_tex_extension_count_register(c_pdf_image_resolution));
+    return 1 ;
+}
+
 static int setpdfthreadmargin(lua_State * L) {
     if (lua_type(L, 1) == LUA_TNUMBER) {
         set_tex_extension_dimen_register(d_pdf_thread_margin,lua_tointeger(L, 1));
@@ -1065,6 +1079,24 @@ static int newpdfcolorstack(lua_State * L)
     return 1 ;
 }
 
+
+static int l_set_font_attributes(lua_State * L)
+{
+    int f = luaL_checkinteger(L, -2);
+    int i ;
+    /*char *s;*/
+    const char *st;
+    if ((lua_type(L,-1) == LUA_TSTRING) && (st = lua_tostring(L, -1)) != NULL) {
+        /* is this dup needed? */
+        /*s = xstrdup(st);*/
+        i = maketexstring(st); /* brrr */
+        set_pdf_font_attr(f, i);
+        /*free(s);*/
+    }
+    return 0;
+}
+
+
 static const struct luaL_Reg pdflib[] = {
     { "gethpos", l_gethpos },
     { "getvpos", l_getvpos },
@@ -1081,6 +1113,7 @@ static const struct luaL_Reg pdflib[] = {
     { "objtype", l_objtype },
     { "getmatrix", l_getmatrix },
     { "hasmatrix", l_hasmatrix },
+    { "setfontattributes", l_set_font_attributes },
     { "setcatalog", l_set_catalog },
     { "setinfo", l_set_info },
     { "setnames", l_set_names },
@@ -1126,6 +1159,8 @@ static const struct luaL_Reg pdflib[] = {
     { "newcolorstack", newpdfcolorstack },
     { "setorigin", setpdforigin },
     { "getorigin", getpdforigin },
+    { "setimageresolution", setpdfimageresolution },
+    { "getimageresolution", getpdfimageresolution },
     { "setthreadmargin", setpdfthreadmargin },
     { "setdestmargin", setpdfdestmargin },
     { "setlinkmargin", setpdflinkmargin },

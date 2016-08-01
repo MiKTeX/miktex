@@ -22,8 +22,6 @@
 #include "ptexlib.h"
 
 @ @c
-#define tail cur_list.tail_field
-
 void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
     scaled_whd alt_rule;
@@ -52,15 +50,15 @@ void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     scaled_whd alt_rule;
     new_whatsit(w);
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
-    set_width(tail, alt_rule.wd);
-    set_height(tail, alt_rule.ht);
-    set_depth(tail, alt_rule.dp);
+    set_width(tail_par, alt_rule.wd);
+    set_height(tail_par, alt_rule.ht);
+    set_depth(tail_par, alt_rule.dp);
     if ((w == pdf_thread_node) || (w == pdf_start_thread_node)) {
         if (scan_keyword("attr")) {
             scan_toks(false, true);
-            set_pdf_thread_attr(tail, def_ref);
+            set_pdf_thread_attr(tail_par, def_ref);
         } else {
-            set_pdf_thread_attr(tail, null);
+            set_pdf_thread_attr(tail_par, null);
         }
     }
 }
@@ -87,10 +85,10 @@ void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
             k = pdf_create_obj(pdf, obj_type_annot, 0);
         }
         new_annot_whatsit(pdf_annot_node);
-        obj_annot_ptr(pdf, k) = tail;
-        set_pdf_annot_objnum(tail, k);
+        obj_annot_ptr(pdf, k) = tail_par;
+        set_pdf_annot_objnum(tail_par, k);
         scan_toks(false, true);
-        set_pdf_annot_data(tail, def_ref);
+        set_pdf_annot_data(tail_par, def_ref);
     }
     pdf_last_annot = k;
 }

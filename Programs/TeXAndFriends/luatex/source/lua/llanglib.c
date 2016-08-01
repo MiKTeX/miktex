@@ -227,7 +227,7 @@ static int do_lang_clean(lua_State * L)
 {
     char *cleaned;
     if (lua_type(L, 1) == LUA_TSTRING) {
-        (void) clean_hyphenation(int_par(cur_lang_code), lua_tostring(L, 1), &cleaned);
+        (void) clean_hyphenation(cur_lang_par, lua_tostring(L, 1), &cleaned);
     } else {
         struct tex_language **lang_ptr;
         lang_ptr = check_islang(L, 1);
