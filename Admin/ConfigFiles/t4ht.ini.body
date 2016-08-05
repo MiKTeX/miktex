@@ -1,4 +1,4 @@
-[ft.other text files]
+[t4ht]
 
-path=.
-path;=%R/tex4ht//
+  T4HTINPUTS=.
+  T4HTINPUTS;=%R/tex4ht//
