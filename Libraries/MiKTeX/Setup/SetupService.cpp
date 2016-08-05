@@ -1294,14 +1294,8 @@ void SetupServiceImpl::ConfigureMiKTeX()
   if (!options.PaperSize.empty())
   {
     cmdLine.Clear();
-    if (Utils::EqualsIgnoreCase(options.PaperSize.c_str(), "a4"))
-    {
-      cmdLine.AppendOption("--default-paper-size=", "A4size");
-      RunIniTeXMF(cmdLine);
-    }
-    else
-    {
-    }
+    cmdLine.AppendOption("--default-paper-size=", options.PaperSize);
+    RunIniTeXMF(cmdLine);
   }
 
   // set auto-install
