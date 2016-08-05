@@ -34,14 +34,21 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
+constexpr int inch2bp(double inch)
+{
+  return (inch * 72.0) + 0.5;
+}
+
+constexpr int mm2bp(int mm)
+{
+  return inch2bp(mm * (1.0 / 25.4));
+}
+
 MIKTEXSTATICFUNC(bool) IsKnownPaperSize(int width, int height, string & name)
 {
-#define mm2bp(mm) static_cast<int>(((mm) * (1.0 / 25.4) * 72.0) + 0.5)
-#define inch2bp(inch) static_cast<int>(((inch) * 72.0) + 0.5)
-
   static const struct
   {
-    const char * lpszName;
+    string name;
     int width;
     int height;
   } knownPaperSizes[] =
@@ -59,7 +66,7 @@ MIKTEXSTATICFUNC(bool) IsKnownPaperSize(int width, int height, string & name)
   {
     if (paperSize.width == width && paperSize.height == height)
     {
-      name = paperSize.lpszName;
+      name = paperSize.name;
       return true;
     }
   }
@@ -74,21 +81,21 @@ MIKTEXSTATICFUNC(int) CalculatePostScriptPoints(double value, const string & uni
     double factor;
   } unittable[] =
   {
-    { "pt", (72.27) / 72.0 },
+    { "pt", 72.27 / 72.0 },
     { "pc", (72.27 / 12) / 72.0 },
-    { "in", (1.0) / 72.0 },
-    { "bp", (72.0) / 72.0 },
-    { "cm", (2.54) / 72.0 },
-    { "mm", (25.4) / 72.0 },
+    { "in", 1.0 / 72.0 },
+    { "bp", 1.0 },
+    { "cm", 2.54 / 72.0 },
+    { "mm", 25.4 / 72.0 },
     { "dd", (72.27 / (1238.0 / 1157)) / 72.0 },
     { "cc", (72.27 / 12 / (1238.0 / 1157)) / 72.0 },
-    { "sp", (72.27 * 65536) / 72.0 }, };
+    { "sp", (72.27 * 65536) / 72.0 },
+  };
   for (const auto & u : unittable)
   {
     if (u.unit == unit)
     {
-#define round(x) static_cast<int>(x + 0.5)
-      return round(value / u.factor);
+      return (value / u.factor) + 0.5;
     }
   }
   MIKTEX_UNEXPECTED();
@@ -134,11 +141,11 @@ MIKTEXSTATICFUNC(bool) ChopToken(char * & lpsz, string & ret)
 
 void SessionImpl::AddDvipsPaperSize(const DvipsPaperSizeInfo & dvipsPaperSizeInfo)
 {
-  for (vector<DvipsPaperSizeInfo>::iterator it = dvipsPaperSizes.begin(); it != dvipsPaperSizes.end(); ++it)
+  for (DvipsPaperSizeInfo & siz : dvipsPaperSizes)
   {
-    if (Utils::EqualsIgnoreCase(it->dvipsName.c_str(), dvipsPaperSizeInfo.dvipsName.c_str()))
+    if (Utils::EqualsIgnoreCase(siz.dvipsName.c_str(), dvipsPaperSizeInfo.dvipsName.c_str()))
     {
-      *it = dvipsPaperSizeInfo;
+      siz = dvipsPaperSizeInfo;
       return;
     }
   }
@@ -162,77 +169,74 @@ void SessionImpl::ReadDvipsPaperSizes()
       DvipsPaperSizeInfo current;
       while (reader.ReadLine(line))
       {
-	if (line.empty() || line[0] != '@')
-	{
-	  if (inDefinition)
-	  {
-	    AddDvipsPaperSize(current);
-	    current.definition.clear();
-	    inDefinition = false;
-	  }
-	  continue;
-	}
-	CharBuffer<char> buf(line.c_str() + 1);
-	char * lpsz = buf.GetData();
-	SkipSpace(lpsz);
-	if (*lpsz == 0)
-	{
-	  dvipsPaperSizes.clear();
-	  inDefinition = false;
-	  continue;
-	}
-	if (*lpsz == '+')
-	{
-	  if (!inDefinition)
-	  {
-	    MIKTEX_UNEXPECTED();
-	  }
-	}
-	else if (!inDefinition)
-	{
-	  inDefinition = true;
-	  if (!ChopToken(lpsz, current.dvipsName))
-	  {
-	    MIKTEX_UNEXPECTED();
-	  }
-	  double texWidth;
-	  if (!ChopFloat(lpsz, texWidth))
-	  {
-	    MIKTEX_UNEXPECTED();
-	  }
-	  string unit1;
-	  if (!ChopToken(lpsz, unit1))
-	  {
-	    MIKTEX_UNEXPECTED();
-	  }
-	  double texHeight;
-	  if (!ChopFloat(lpsz, texHeight))
-	  {
-	    MIKTEX_UNEXPECTED();
-	  }
-	  string unit2;
-	  if (!ChopToken(lpsz, unit2))
-	  {
-	    MIKTEX_UNEXPECTED();
-	  }
-	  current.width = CalculatePostScriptPoints(texWidth, unit1);
-	  current.height = CalculatePostScriptPoints(texHeight, unit2);
-
-	  if (!IsKnownPaperSize(current.width, current.height, current.name))
-	  {
-	    current.name = current.dvipsName;
-	  }
-
-	}
-	current.definition.push_back(line);
+        if (line.empty() || line[0] != '@')
+        {
+          if (inDefinition)
+          {
+            AddDvipsPaperSize(current);
+            current.definition.clear();
+            inDefinition = false;
+          }
+          continue;
+        }
+        CharBuffer<char> buf(line.c_str() + 1);
+        char * lpsz = buf.GetData();
+        SkipSpace(lpsz);
+        if (*lpsz == 0)
+        {
+          dvipsPaperSizes.clear();
+          inDefinition = false;
+          continue;
+        }
+        if (*lpsz == '+')
+        {
+          if (!inDefinition)
+          {
+            MIKTEX_UNEXPECTED();
+          }
+        }
+        else if (!inDefinition)
+        {
+          inDefinition = true;
+          if (!ChopToken(lpsz, current.dvipsName))
+          {
+            MIKTEX_UNEXPECTED();
+          }
+          double texWidth;
+          if (!ChopFloat(lpsz, texWidth))
+          {
+            MIKTEX_UNEXPECTED();
+          }
+          string unit1;
+          if (!ChopToken(lpsz, unit1))
+          {
+            MIKTEX_UNEXPECTED();
+          }
+          double texHeight;
+          if (!ChopFloat(lpsz, texHeight))
+          {
+            MIKTEX_UNEXPECTED();
+          }
+          string unit2;
+          if (!ChopToken(lpsz, unit2))
+          {
+            MIKTEX_UNEXPECTED();
+          }
+          current.width = CalculatePostScriptPoints(texWidth, unit1);
+          current.height = CalculatePostScriptPoints(texHeight, unit2);
+          if (!IsKnownPaperSize(current.width, current.height, current.name))
+          {
+            current.name = current.dvipsName;
+          }
+        }
+        current.definition.push_back(line);
       }
       if (inDefinition)
       {
-	AddDvipsPaperSize(current);
+        AddDvipsPaperSize(current);
       }
     }
   }
-
   if (dvipsPaperSizes.empty())
   {
     MIKTEX_UNEXPECTED();
@@ -253,11 +257,11 @@ bool SessionImpl::GetPaperSizeInfo(int idx, PaperSizeInfo & paperSizeInfo)
     // get default paper size
     idx = 0;
   }
-  else if (static_cast<size_t>(idx) == dvipsPaperSizes.size())
+  else if (idx == dvipsPaperSizes.size())
   {
     return false;
   }
-  else if (static_cast<size_t>(idx) > dvipsPaperSizes.size())
+  else if (idx > dvipsPaperSizes.size())
   {
     INVALID_ARGUMENT("index", std::to_string(idx));
   }
@@ -404,7 +408,7 @@ public:
       File::Delete(bak);
       if (!Fndb::FileExists(path))
       {
-	Fndb::Add(path);
+        Fndb::Add(path);
       }
     }
     catch (const exception &)
