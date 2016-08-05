@@ -1264,7 +1264,7 @@ std::string SessionImpl::ExpandValues(const char * lpszToBeExpanded, HasNamedVal
         valueName = "";
         if (endChar == 0)
         {
-          for (lpsz += 1; *lpsz != 0 && (isalpha(*lpsz) || *lpsz == '_'); ++lpsz)
+          for (lpsz += 1; *lpsz != 0 && (isalnum(*lpsz) || *lpsz == '_'); ++lpsz)
           {
             valueName += *lpsz;
           }
