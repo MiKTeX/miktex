@@ -6793,10 +6793,12 @@ if( !p && !q ){
 if( dump_htf_search || dump_env_search ) {
                                 U_CHAR *p, *q;
    
+#if !defined(MIKTEX)
 p = kpse_find_file ( "texmf.cnf", kpse_cnf_format, 0);
 if( p ){
    (IGNORED) printf( "texmf.cnf = %s\n", p);
 } else { warn_i_str(1, "texmf.cnf" ); }
+#endif
 p = (U_CHAR *) kpse_var_value( "TEX4HTINPUTS" );
 if( p ){
    (IGNORED) printf("TEX4HTINPUTS = %s\n", p);
