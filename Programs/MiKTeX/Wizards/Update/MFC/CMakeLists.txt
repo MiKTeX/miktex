@@ -1,4 +1,4 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
 ## Copyright (C) 2006-2016 Christian Schenk
 ## 
@@ -124,8 +124,9 @@ endif()
 
 target_link_libraries(update_mfc ${libs})
 
-merge_trustinfo_manifest(update_mfc asInvoker)
 merge_compatibility_manifest(update_mfc)
+merge_dpi_aware_manifest(update_mfc)
+merge_trustinfo_manifest(update_mfc asInvoker)
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_custom_command(
@@ -157,8 +158,9 @@ endif()
 
 target_link_libraries(update_mfc${MIKTEX_ADMIN_SUFFIX} ${libs})
 
-merge_trustinfo_manifest(update_mfc${MIKTEX_ADMIN_SUFFIX} requireAdministrator)
 merge_compatibility_manifest(update_mfc${MIKTEX_ADMIN_SUFFIX})
+merge_dpi_aware_manifest(update_mfc${MIKTEX_ADMIN_SUFFIX})
+merge_trustinfo_manifest(update_mfc${MIKTEX_ADMIN_SUFFIX} requireAdministrator)
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_custom_command(

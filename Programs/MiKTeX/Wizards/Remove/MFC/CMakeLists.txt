@@ -91,8 +91,9 @@ endif()
 
 target_link_libraries(remove_mfc ${libs})
 
-merge_trustinfo_manifest(remove_mfc asInvoker)
 merge_compatibility_manifest(remove_mfc)
+merge_dpi_aware_manifest(remove_mfc)
+merge_trustinfo_manifest(remove_mfc asInvoker)
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_custom_command(
@@ -124,8 +125,9 @@ endif()
 
 target_link_libraries(remove_mfc${MIKTEX_ADMIN_SUFFIX} ${libs})
 
-merge_trustinfo_manifest(remove_mfc${MIKTEX_ADMIN_SUFFIX} requireAdministrator)
 merge_compatibility_manifest(remove_mfc${MIKTEX_ADMIN_SUFFIX})
+merge_dpi_aware_manifest(remove_mfc${MIKTEX_ADMIN_SUFFIX})
+merge_trustinfo_manifest(remove_mfc${MIKTEX_ADMIN_SUFFIX} requireAdministrator)
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_custom_command(

@@ -149,8 +149,9 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-merge_trustinfo_manifest(setup highestAvailable)
 merge_compatibility_manifest(setup)
+merge_dpi_aware_manifest(setup)
+merge_trustinfo_manifest(setup highestAvailable)
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_custom_command(

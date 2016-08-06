@@ -91,8 +91,9 @@ endif()
 
 target_link_libraries(mo ${libs})
 
-merge_trustinfo_manifest(mo asInvoker)
 merge_compatibility_manifest(mo)
+merge_dpi_aware_manifest(mo)
+merge_trustinfo_manifest(mo asInvoker)
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_custom_command(
@@ -120,8 +121,9 @@ endif()
 
 target_link_libraries(mo${MIKTEX_ADMIN_SUFFIX} ${libs})
 
-merge_trustinfo_manifest(mo${MIKTEX_ADMIN_SUFFIX} requireAdministrator)
 merge_compatibility_manifest(mo${MIKTEX_ADMIN_SUFFIX})
+merge_dpi_aware_manifest(mo${MIKTEX_ADMIN_SUFFIX})
+merge_trustinfo_manifest(mo${MIKTEX_ADMIN_SUFFIX} requireAdministrator)
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_custom_command(
