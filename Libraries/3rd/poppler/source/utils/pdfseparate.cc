@@ -140,7 +140,11 @@ bool extractPages (const char *srcFileName, const char *destFileName) {
 }
 
 int
+#if defined(MIKTEX)
+Main(int argc, char** argv)
+#else
 main (int argc, char *argv[])
+#endif
 {
   Object info;
   GBool ok;

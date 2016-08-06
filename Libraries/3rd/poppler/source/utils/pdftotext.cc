@@ -167,7 +167,11 @@ static std::string myXmlTokenReplace(const char *inString){
   return myString;
 }
 
+#if defined(MIKTEX)
+int Main(int argc, char** argv) {
+#else
 int main(int argc, char *argv[]) {
+#endif
   PDFDoc *doc;
   GooString *fileName;
   GooString *textFileName;

@@ -79,7 +79,11 @@ static ArgDesc argDesc[] = {
   {NULL}
 };
 
+#if defined(MIKTEX)
+int Main(int argc, char** argv) {
+#else
 int main(int argc, char *argv[]) {
+#endif
   GooString *fileName;
   UnicodeMap *uMap;
   GooString *ownerPW, *userPW;

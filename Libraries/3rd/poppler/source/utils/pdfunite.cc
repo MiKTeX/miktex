@@ -171,7 +171,11 @@ void doMergeNameDict(PDFDoc *doc, XRef *srcXRef, XRef *countRef, int oldRefNum, 
 }
 
 ///////////////////////////////////////////////////////////////////////////
+#if defined(MIKTEX)
+int Main(int argc, char** argv)
+#else
 int main (int argc, char *argv[])
+#endif
 ///////////////////////////////////////////////////////////////////////////
 // Merge PDF files given by arguments 1 to argc-2 and write the result
 // to the file specified by argument argc-1.

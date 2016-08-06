@@ -463,7 +463,11 @@ void printInfo(PDFDoc *doc, UnicodeMap *uMap, long long filesize, GBool multiPag
   printf("PDF version:    %d.%d\n", doc->getPDFMajorVersion(), doc->getPDFMinorVersion());
 }
 
+#if defined(MIKTEX)
+int Main(int argc, char** argv) {
+#else
 int main(int argc, char *argv[]) {
+#endif
   PDFDoc *doc;
   GooString *fileName;
   GooString *ownerPW, *userPW;

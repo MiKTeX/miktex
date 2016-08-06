@@ -174,7 +174,11 @@ public:
 };
 #endif
 
+#if defined(MIKTEX)
+int Main(int argc, char** argv) {
+#else
 int main(int argc, char *argv[]) {
+#endif
   PDFDoc *doc = NULL;
   GooString *fileName = NULL;
   GooString *docTitle = NULL;

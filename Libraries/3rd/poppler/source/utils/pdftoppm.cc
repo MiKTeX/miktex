@@ -317,7 +317,11 @@ static int numberOfCharacters(unsigned int n)
   return charNum;
 }
 
+#if defined(MIKTEX)
+int Main(int argc, char** argv) {
+#else
 int main(int argc, char *argv[]) {
+#endif
   PDFDoc *doc;
   GooString *fileName = NULL;
   char *ppmRoot = NULL;

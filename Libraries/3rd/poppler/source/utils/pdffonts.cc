@@ -87,7 +87,11 @@ static const ArgDesc argDesc[] = {
   {NULL}
 };
 
+#if defined(MIKTEX)
+int Main(int argc, char** argv) {
+#else
 int main(int argc, char *argv[]) {
+#endif
   PDFDoc *doc;
   GooString *fileName;
   GooString *ownerPW, *userPW;
