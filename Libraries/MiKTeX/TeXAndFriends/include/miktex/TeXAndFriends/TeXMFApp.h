@@ -607,12 +607,22 @@ public:
   template<typename CharType> int MakeTeXString(const CharType * lpsz)
   {
     MIKTEX_ASSERT_STRING(lpsz);
+#if defined(MIKTEX_TEXMF_UNICODE)
+    MiKTeX::Util::CharBuffer<wchar_t, 200> buf(lpsz);
+    std::size_t len = buf.GetLength();
+    CheckPoolPointer(THEDATA(poolptr), len);
+    for (size_t idx = 0; idx < len; ++idx)
+    {
+      THEDATA(strpool)[THEDATA(poolptr)++] = buf[idx];
+    }
+#else
     std::size_t len = MiKTeX::Util::StrLen(lpsz);
     CheckPoolPointer(THEDATA(poolptr), len);
     while (len-- > 0)
     {
       THEDATA(strpool)[THEDATA(poolptr)++] = *lpsz++;
     }
+#endif
     return makestring();
   }
 #endif
