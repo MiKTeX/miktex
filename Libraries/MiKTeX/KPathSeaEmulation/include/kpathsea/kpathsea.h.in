@@ -62,7 +62,17 @@
 #endif
 
 // kpathsea/simpletype.h
+#if !defined(TRUE)
+#  if defined(__cplusplus)
+#    define TRUE true
+#  else
+#    define TRUE 1
+#  endif
+#endif
 #if !defined(FALSE)
-#  define TRUE true
-#  define FALSE false
+#  if defined(__cplusplus)
+#    define FALSE false
+#  else
+#    define FALSE 0
+#  endif
 #endif
