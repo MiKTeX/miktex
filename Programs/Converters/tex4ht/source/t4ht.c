@@ -674,7 +674,11 @@ static void execute_script
                                  const Q_CHAR *t;
   
 #ifdef KPATHSEA
+#if defined(MIKTEX)
+const char* texmf = kpse_var_value("TEXMFDIST");
+#else
 const char * texmf = kpse_var_value( "SELFAUTOPARENT" );
+#endif
 #endif
 
 
