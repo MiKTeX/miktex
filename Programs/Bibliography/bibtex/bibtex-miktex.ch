@@ -151,7 +151,7 @@ end;
 @x
 @!max_strings=4000; {maximum number of strings, including pre-defined;
 @y
-@!max_strings=100000; {maximum number of strings, including pre-defined;
+@!max_strings=35000; {maximum number of strings, including pre-defined;
 @z
 
 @x
