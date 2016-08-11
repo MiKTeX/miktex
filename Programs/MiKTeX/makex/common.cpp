@@ -62,7 +62,7 @@ bool MakeUtility::RunMETAFONT(const char * lpszName, const char * lpszMode, cons
     break;
   }
   arguments += " \"\\mode:=";
-  arguments += (lpszMode == nullptr ? "cx" : lpszMode);
+  arguments += (lpszMode == nullptr ? "ljfour" : lpszMode);
   arguments += ";\"";
   if (lpszMag != nullptr)
   {
