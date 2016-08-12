@@ -175,7 +175,7 @@ protected:
   MpcPackageInfo InitializePackageInfo(const char * lpszStagingDir);
 
 protected:
-  char GetPackageLevel(const MpcPackageInfo & packageInfo);
+  char GetPackageLevel(const MpcPackageInfo & packageInfo) const;
 
 protected:
   ArchiveFileType GetPackageArchiveFileType(const MpcPackageInfo & packageInfo);
@@ -201,7 +201,10 @@ public:
   }
 
 protected:
-  bool ConsiderP(const MpcPackageInfo & packageInfo);
+  bool IsToBeIgnored(const MpcPackageInfo & packageInfo) const;
+
+protected:
+  bool IsPureContainerPackage(const MpcPackageInfo & packageInfo) const;
 
 protected:
   bool IsInTeXMFDirectory(const PathName & relPath, const char * lpszDirectory);
@@ -795,7 +798,7 @@ MpcPackageInfo PackageCreator::InitializePackageInfo(const char * lpszStagingDir
   return packageInfo;
 }
 
-char PackageCreator::GetPackageLevel(const MpcPackageInfo & packageInfo)
+char PackageCreator::GetPackageLevel(const MpcPackageInfo & packageInfo) const
 {
   map<string, PackageSpec>::const_iterator it = packageList.find(packageInfo.deploymentName);
   if (it == packageList.end())
@@ -819,9 +822,26 @@ ArchiveFileType PackageCreator::GetPackageArchiveFileType(const MpcPackageInfo &
 }
 #endif
 
-bool PackageCreator::ConsiderP(const MpcPackageInfo & packageInfo)
+bool PackageCreator::IsToBeIgnored(const MpcPackageInfo & packageInfo) const
 {
-  return GetPackageLevel(packageInfo) != '-';
+  return GetPackageLevel(packageInfo) == '-';
+}
+
+bool PackageCreator::IsPureContainerPackage(const MpcPackageInfo & packageInfo) const
+{
+  if ((packageInfo.docFiles.size() + packageInfo.sourceFiles.size()) == 0)
+  {
+    size_t n = packageInfo.runFiles.size();
+    if (n == 0)
+    {
+      return true;
+    }
+    else if (n == 1)
+    {
+      return PathName(packageInfo.runFiles[0]).HasExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
+    }
+  }
+  return false;
 }
 
 bool PackageCreator::IsInTeXMFDirectory(const PathName & relPath, const char * lpszDirectory)
@@ -934,7 +954,7 @@ void PackageCreator::CollectPackages(const PathName & stagingRoot, map<string, M
     // read package.ini and Description
     MpcPackageInfo packageInfo = InitializePackageInfo(stagingDir.Get());
 
-    if (!ConsiderP(packageInfo))
+    if (IsToBeIgnored(packageInfo))
     {
       continue;
     }
@@ -963,7 +983,7 @@ void PackageCreator::BuildTDS(const map<string, MpcPackageInfo> & packageTable, 
 {
   for (const pair<string, MpcPackageInfo> & p : packageTable)
   {
-    if (!ConsiderP(p.second))
+    if (IsToBeIgnored(p.second))
     {
       continue;
     }
@@ -995,8 +1015,7 @@ void PackageCreator::WritePackageDefinitionFiles(const map<string, MpcPackageInf
 
   for (const pair<string, MpcPackageInfo> & p : packageTable)
   {
-    // ignore unwanted packages
-    if (!ConsiderP(p.second))
+    if (IsToBeIgnored(p.second))
     {
       continue;
     }
@@ -1157,8 +1176,7 @@ void PackageCreator::CreateFileListFile(const map<string, MpcPackageInfo> & pack
   }
   for (const pair<string, MpcPackageInfo> & p : packageTable)
   {
-    // ignore unwanted packages
-    if (!ConsiderP(p.second))
+    if (IsToBeIgnored(p.second))
     {
       continue;
     }
@@ -1265,7 +1283,7 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo> & packageTa
     for (const shared_ptr<Cfg::Key> & key : dbLight.GetKeys())
     {
       map<string, MpcPackageInfo>::const_iterator it = packageTable.find(key->GetName());
-      if (it == packageTable.end() || !ConsiderP(it->second))
+      if (it == packageTable.end() || IsToBeIgnored(it->second))
       {
         obsoletePackages.push_back(key->GetName());
       }
@@ -1670,28 +1688,9 @@ void PackageCreator::UpdateRepository(map<string, MpcPackageInfo> & packageTable
 {
   for (pair<const string, MpcPackageInfo> & p : packageTable)
   {
-    // ignore unwanted packages
-    if (!ConsiderP(p.second))
+    if (IsToBeIgnored(p.second) || IsPureContainerPackage(p.second))
     {
       continue;
-    }
-
-    // ignore pure container packages
-    if ((p.second.docFiles.size() + p.second.sourceFiles.size()) == 0)
-    {
-      size_t n = p.second.runFiles.size();
-      if (n == 0)
-      {
-        continue;
-      }
-      else if (n == 1)
-      {
-        PathName onlyFile(p.second.runFiles[0]);
-        if (onlyFile.HasExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX))
-        {
-          continue;
-        }
-      }
     }
 
     // update level field
