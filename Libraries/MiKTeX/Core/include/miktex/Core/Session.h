@@ -330,8 +330,8 @@ public:
     /// @param flags Init flags.
   public:
     InitInfo(const std::string & programInvocationName, InitOptionSet options) :
-      programInvocationName(programInvocationName),
-      options(options)
+      options(options),
+      programInvocationName(programInvocationName)
     {
     }
 

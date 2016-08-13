@@ -446,7 +446,7 @@ public:
 #if defined(MIKTEX_WINDOWS)
     for (const char * lpsz = Get(); *lpsz != 0; ++lpsz)
     {
-      if (*lpsz == DosDirectoryDelimiter || *lpsz >= 'A' && *lpsz <= 'Z')
+      if (*lpsz == DosDirectoryDelimiter || (*lpsz >= 'A' && *lpsz <= 'Z'))
       {
         return false;
       }

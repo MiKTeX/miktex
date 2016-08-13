@@ -145,7 +145,7 @@ MIKTEXSTATICFUNC(void) CreateDirectoryForEveryone(const char * lpszPath)
   AutoSid pEveryoneSID;
   PACL pACL = nullptr;
 
-  SID_IDENTIFIER_AUTHORITY SIDAuthWorld = SECURITY_WORLD_SID_AUTHORITY;
+  SID_IDENTIFIER_AUTHORITY SIDAuthWorld = { SECURITY_WORLD_SID_AUTHORITY };
   if (!AllocateAndInitializeSid(&SIDAuthWorld, 1, SECURITY_WORLD_RID, 0, 0, 0, 0, 0, 0, 0, &pEveryoneSID))
   {
     MIKTEX_FATAL_WINDOWS_ERROR("AllocateAndInitializeSid");

@@ -121,10 +121,8 @@ PathName & PathName::Convert(ConvertPathNameOptions options)
   bool toLower = options[ConvertPathNameOption::MakeLower];
   MIKTEX_ASSERT(!(toUpper && toLower));
 
-  bool relativize = options[ConvertPathNameOption::MakeRelative];
-  UNUSED(relativize);
+  MIKTEX_ASSERT(!options[ConvertPathNameOption::MakeRelative]);
   bool makeFQ = options[ConvertPathNameOption::MakeAbsolute];
-  MIKTEX_ASSERT(!(relativize && makeFQ));
 
 #if defined(MIKTEX_WINDOWS)
   bool removeBlanks = options[ConvertPathNameOption::RemoveBlanks];
@@ -139,11 +137,11 @@ PathName & PathName::Convert(ConvertPathNameOptions options)
   }
 
 #if defined(MIKTEX_WINDOWS)
-  if (options[ConvertPathNameOption::RemoveBlanks])
+  if (removeBlanks)
   {
     Utils::RemoveBlanksFromPathName(*this);
   }
-  if (options[ConvertPathNameOption::ToLongPathName])
+  if (toLongPathName)
   {
     wchar_t longPathName[_MAX_PATH];
     DWORD len = GetLongPathNameW(this->ToWideCharString().c_str(), longPathName, _MAX_PATH);

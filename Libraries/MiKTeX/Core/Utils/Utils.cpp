@@ -242,14 +242,6 @@ static const char * const forbiddenFileNames[] = {
   nullptr,
 };
 
-static const char * const forbiddenExtensions[] = {
-#if defined(MIKTEX_WINDOWS)
-  ".bat", ".cmd", ".com", ".exe", ".js", ".jse", ".lnk", ".msc", ".pif", ".reg", ".scr", ".pl"
-  ".py", ".pyw", ".tcl", ".url", ".vbe", ".vbs", ".ws", ".wsf", ".wsh",
-#endif
-  nullptr
-};
-
 bool Utils::IsSafeFileName(const char * lpszPath, bool forInput)
 {
   if (forInput)

@@ -56,7 +56,6 @@ static string ExpandEnvironmentVariables(const char * lpszToBeExpanded)
   {
     if (lpsz[0] == '<')
     {
-      const char * lpszBegin = lpsz;
       const char endChar = '>';
       valueName = "";
       for (lpsz += 1; *lpsz != 0 && *lpsz != endChar; ++lpsz)

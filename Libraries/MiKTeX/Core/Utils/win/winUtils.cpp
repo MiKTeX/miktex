@@ -196,7 +196,7 @@ string GetOperatingSystem(const OSVERSIONINFOEXW & osvi, const SYSTEM_INFO & si)
       str += "Server 2016";
     }
   }
-  else if (osvi.dwMajorVersion == 6 && (osvi.dwMinorVersion >= 0 && osvi.dwMinorVersion <= 3))
+  else if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion <= 3)
   {
     if (osvi.wProductType == VER_NT_WORKSTATION)
     {
@@ -473,10 +473,10 @@ string GetWindowsProductType(const OSVERSIONINFOEXW & osvi, const SYSTEM_INFO & 
       str = "MultiPoint Server Premium (full installation)";
       break;
     case PRODUCT_PROFESSIONAL:
-      str = osvi.dwMajorVersion >= 10 || osvi.dwMajorVersion == 6 && osvi.dwMinorVersion >= 2 ? "Pro" : "Professional";
+      str = osvi.dwMajorVersion >= 10 || (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion >= 2) ? "Pro" : "Professional";
       break;
     case PRODUCT_PROFESSIONAL_N:
-      str = osvi.dwMajorVersion >= 10 || osvi.dwMajorVersion == 6 && osvi.dwMinorVersion >= 2 ? "Pro N" : "Professional N";
+      str = osvi.dwMajorVersion >= 10 || (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion >= 2) ? "Pro N" : "Professional N";
       break;
 #if !defined(PRODUCT_PROFESSIONAL_WMC)
 #  define PRODUCT_PROFESSIONAL_WMC 0x00000067
