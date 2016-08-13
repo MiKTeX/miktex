@@ -1700,7 +1700,6 @@ static void mp_binary_m_unif_rand (MP mp, mp_number *ret, mp_number x_orig) {
                   ret->data.num, // mpfr_t op,           
                   ROUNDING // mpfr_rnd_t rnd       
                   );
-  printf("\nret=%s e=%ld\n",r,e);
   mpfr_free_str(r);
   free_number (abs_x);
   free_number (x);
