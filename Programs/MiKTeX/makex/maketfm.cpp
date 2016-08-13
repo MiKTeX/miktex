@@ -211,7 +211,7 @@ void MakeTfm::Run(int argc, const char ** argv)
   if (!done)
   {
     Verbose(T_("Making %s from %s..."), Q_(pathTFMName), Q_(mfPath));
-    if (!RunMETAFONT(name.c_str(), "cx", 0, wrkDir->GetPathName()))
+    if (!RunMETAFONT(name.c_str(), nullptr, nullptr, wrkDir->GetPathName()))
     {
       FatalError(T_("METAFONT failed on %s."), Q_(name));
     }
