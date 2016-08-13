@@ -37,8 +37,6 @@ static void diagnostic_trace(halfword p, const char *s)
 }
 
 @ @c
-#define par_shape_ptr equiv(par_shape_loc)
-
 void show_eqtb_meaning(halfword n);     /* forward */
 
 @ Now that we have studied the data structures for \TeX's semantic routines,
@@ -216,7 +214,7 @@ void new_save_level(group_code c)
     /* quit if |(cur_level+1)| is too big to be stored in |eqtb| */
     cur_boundary = save_ptr;
     cur_group = c;
-    if (int_par(tracing_groups_code) > 0)
+    if (tracing_groups_par > 0)
         group_trace(false);
     incr(cur_level);
     incr(save_ptr);
@@ -627,7 +625,7 @@ the call, since |eq_save| makes the necessary test.
 @c
 void eq_define(halfword p, quarterword t, halfword e)
 {
-    boolean trace = int_par(tracing_assigns_code) > 0;
+    boolean trace = tracing_assigns_par > 0;
     if ((eq_type(p) == t) && (equiv(p) == e)) {
         if (trace)
             diagnostic_trace(p, "reassigning");
@@ -654,7 +652,7 @@ void eq_define(halfword p, quarterword t, halfword e)
 @c
 void eq_word_define(halfword p, int w)
 {
-    boolean trace = int_par(tracing_assigns_code) > 0;
+    boolean trace = tracing_assigns_par > 0;
     if (eqtb[p].cint == w) {
         if (trace)
             diagnostic_trace(p, "reassigning");
@@ -680,7 +678,7 @@ to save old values, and the new value is associated with |level_one|.
 @c
 void geq_define(halfword p, quarterword t, halfword e)
 {                               /* global |eq_define| */
-    boolean trace = int_par(tracing_assigns_code) > 0;
+    boolean trace = tracing_assigns_par > 0;
     if (trace)
         diagnostic_trace(p, "globally changing");
     eq_destroy(eqtb[p]);
@@ -693,7 +691,7 @@ void geq_define(halfword p, quarterword t, halfword e)
 
 void geq_word_define(halfword p, int w)
 {                               /* global |eq_word_define| */
-    boolean trace = int_par(tracing_assigns_code) > 0;
+    boolean trace = tracing_assigns_par > 0;
     if (trace)
         diagnostic_trace(p, "globally changing");
     eqtb[p].cint = w;
@@ -727,11 +725,11 @@ void unsave(void)
     quarterword l = level_one;  /* saved level, if in fullword regions of |eqtb| */
     boolean a = false;          /* have we already processed an \.{\\aftergroup} ? */
     unsave_math_codes(cur_level);
-    unsave_cat_codes(int_par(cat_code_table_code), cur_level);
+    unsave_cat_codes(cat_code_table_par, cur_level);
     unsave_text_codes(cur_level);
     unsave_math_data(cur_level);
     if (cur_level > level_one) {
-        boolean trace = int_par(tracing_restores_code) > 0;
+        boolean trace = tracing_restores_par > 0;
         decr(cur_level);
         /* Clear off top level from |save_stack| */
         while (true) {
@@ -778,7 +776,7 @@ void unsave(void)
                 }
             }
         }
-        if (int_par(tracing_groups_code) > 0)
+        if (tracing_groups_par > 0)
             group_trace(true);
         if (grp_stack[in_open] == cur_boundary)
             group_warning();    /* groups possibly not properly nested with files */
@@ -798,19 +796,17 @@ entire run. The global variable |mag_set| is set to the current magnification
 whenever it becomes necessary to ``freeze'' it at a particular value.
 
 @c
-int mag_set; /* if nonzero, this magnification should be used henceforth */
+int mag_set = 0; /* if nonzero, this magnification should be used henceforth */
 
 @ The |prepare_mag| subroutine is called whenever \TeX\ wants to use |mag|
 for magnification.
 
 @c
-#define mag int_par(mag_code)
-
 void prepare_mag(void)
 {
-    if ((mag_set > 0) && (mag != mag_set)) {
+    if ((mag_set > 0) && (mag_par != mag_set)) {
         print_err("Incompatible magnification (");
-        print_int(mag);
+        print_int(mag_par);
         tprint(");");
         tprint_nl(" the previous value will be retained");
         help2("I can handle only one magnification ratio per job. So I've",
@@ -818,19 +814,19 @@ void prepare_mag(void)
         int_error(mag_set);
         geq_word_define(int_base + mag_code, mag_set);  /* |mag:=mag_set| */
     }
-    if ((mag <= 0) || (mag > 32768)) {
+    if ((mag_par <= 0) || (mag_par > 32768)) {
         print_err("Illegal magnification has been changed to 1000");
         help1("The magnification ratio must be between 1 and 32768.");
-        int_error(mag);
+        int_error(mag_par);
         geq_word_define(int_base + mag_code, 1000);
     }
-    if ((mag_set == 0) && (mag != mag_set)) {
-        if (mag != 1000)
-            one_true_inch = xn_over_d(one_hundred_inch, 10, mag);
+    if ((mag_set == 0) && (mag_par != mag_set)) {
+        if (mag_par != 1000)
+            one_true_inch = xn_over_d(one_hundred_inch, 10, mag_par);
         else
             one_true_inch = one_inch;
     }
-    mag_set = mag;
+    mag_set = mag_par;
 }
 
 @ Let's pause a moment now and try to look at the Big Picture.
@@ -888,8 +884,6 @@ halfword cur_tok;               /* packed representative of |cur_cmd| and |cur_c
 @ Here is a procedure that displays the current command.
 
 @c
-#define mode cur_list.mode_field
-
 void show_cur_cmd_chr(void)
 {
     int n;                      /* level of \.{\\if...\\fi} nesting */
@@ -897,13 +891,13 @@ void show_cur_cmd_chr(void)
     halfword p;
     begin_diagnostic();
     tprint_nl("{");
-    if (mode != shown_mode) {
-        print_mode(mode);
+    if (mode_par != shown_mode) {
+        print_mode(mode_par);
         tprint(": ");
-        shown_mode = mode;
+        shown_mode = mode_par;
     }
     print_cmd_chr((quarterword) cur_cmd, cur_chr);
-    if (int_par(tracing_ifs_code) > 0) {
+    if (tracing_ifs_par > 0) {
         if (cur_cmd >= if_test_cmd) {
             if (cur_cmd <= fi_or_else_cmd) {
                 tprint(": ");
@@ -1013,7 +1007,7 @@ void show_eqtb(halfword n)
                 if (penalty(equiv(n)) > 1)
                     tprint_esc("ETC.");
             } else {
-                print_int(vinfo(par_shape_ptr + 1));
+                print_int(vinfo(par_shape_par_ptr + 1));
             }
         } else if (n < toks_base) {
             print_cmd_chr(assign_toks_cmd, n);

@@ -22,8 +22,6 @@
 #include "lua/luatex-api.h" /* for luatex_banner */
 
 @ @c
-#define font_id_text(A) cs_text(font_id_base+(A))
-
 #define wlog(A)  fputc(A,log_file)
 #define wterm(A) fputc(A,term_out)
 
@@ -182,7 +180,7 @@ void print_char(int s)
         formatted_warning("print","weird character %i",s);
         return;
     }
-    if (s == int_par(new_line_char_code)) {
+    if (s == new_line_char_par) {
         if (selector < pseudo) {
             print_ln();
             return;
@@ -270,7 +268,7 @@ void print(int s)
                 print_char(s);
                 return;
             }
-            if (s == int_par(new_line_char_code)) {
+            if (s == new_line_char_par) {
                 if (selector < pseudo) {
                     print_ln();
                     return;
@@ -364,7 +362,7 @@ void tprint(const char *sss)
 {
     char *buffer = NULL;
     int i = 0; /* buffer index */
-    int newlinechar = int_par(new_line_char_code);
+    int newlinechar = new_line_char_par;
     int dolog = 0;
     int doterm = 0;
     switch (selector) {
@@ -513,22 +511,22 @@ void log_banner(const char *v)
         "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
         "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
     };
-    unsigned month = (unsigned) int_par(month_code);
+    unsigned month = (unsigned) month_par;
     if (month > 12)
         month = 0;
     fprintf(log_file, "This is " MyName ", Version %s%s ", v, WEB2CVERSION);
     print(format_ident);
     print_char(' ');
     print_char(' ');
-    print_int(int_par(day_code));
+    print_int(day_par);
     print_char(' ');
     fprintf(log_file, "%s", months[month]);
     print_char(' ');
-    print_int(int_par(year_code));
+    print_int(year_par);
     print_char(' ');
-    print_two(int_par(time_code) / 60);
+    print_two(time_par / 60);
     print_char(':');
-    print_two(int_par(time_code) % 60);
+    print_two(time_par % 60);
     if (shellenabledp) {
         wlog_cr();
         wlog(' ');
@@ -554,7 +552,7 @@ the user's escape character (which is usually a backslash).
 @c
 void print_esc(str_number s)
 {
-    int c = int_par(escape_char_code); /* Set variable |c| to the current escape character */
+    int c = escape_char_par; /* Set variable |c| to the current escape character */
     if (c >= 0 && c < STRING_OFFSET)
         print(c);
     print(s);
@@ -565,7 +563,7 @@ void print_esc(str_number s)
 @c
 void tprint_esc(const char *s)
 {
-    int c = int_par(escape_char_code); /* Set variable |c| to the current escape character */
+    int c = escape_char_par; /* Set variable |c| to the current escape character */
     if (c >= 0 && c < STRING_OFFSET)
         print(c);
     tprint(s);
@@ -728,8 +726,7 @@ void print_cs(int p)
         } else {
             print_esc(t);
             if (single_letter(t)) {
-                if (get_cat_code(int_par(cat_code_table_code),
-                                 pool_to_unichar(str_string(t))) == letter_cmd)
+                if (get_cat_code(cat_code_table_par, pool_to_unichar(str_string(t))) == letter_cmd)
                     print_char(' ');
             } else {
                 print_char(' ');
@@ -855,7 +852,7 @@ void print_font_identifier(internal_font_number f)
         tprint_esc("FONT");
         print_int(f);
     }
-    if (int_par(tracing_fonts_code) > 0) {
+    if (tracing_fonts_par > 0) {
         tprint(" (");
         print_font_name(f);
         if (font_size(f) != font_dsize(f)) {
@@ -959,8 +956,8 @@ int breadth_max;     /* maximum number of items shown at the same list level */
 @c
 void show_box(halfword p)
 {
-    depth_threshold = int_par(show_box_depth_code);
-    breadth_max = int_par(show_box_breadth_code);
+    depth_threshold = show_box_depth_par;
+    breadth_max = show_box_breadth_par;
     if (breadth_max <= 0)
         breadth_max = 5;
     /* the show starts at |p| */
@@ -1076,7 +1073,7 @@ Here are two routines that adjust the destination of print commands:
 void begin_diagnostic(void)
 {
     global_old_setting = selector;
-    if ((int_par(tracing_online_code) <= 0) && (selector == term_and_log)) {
+    if ((tracing_online_par <= 0) && (selector == term_and_log)) {
         decr(selector);
         if (history == spotless)
             history = warning_issued;

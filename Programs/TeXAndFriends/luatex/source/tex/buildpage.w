@@ -22,29 +22,9 @@
 #include "ptexlib.h"
 
 @ @c
-#define box(A) eqtb[box_base+(A)].hh.rh
-#define count(A) eqtb[count_base+(A)].hh.rh
-#undef skip
-#define skip(A) eqtb[skip_base+(A)].hh.rh
-#define dimen(A) eqtb[scaled_base+(A)].hh.rh
-
-#define vbadness int_par(vbadness_code)
-#define max_dead_cycles int_par(max_dead_cycles_code)
-#define output_box int_par(output_box_code)
-#define holding_inserts int_par(holding_inserts_code)
-
-#define vsize dimen_par(vsize_code)
-#define vfuzz dimen_par(vfuzz_code)
-#define max_depth dimen_par(max_depth_code)
-
-#define output_routine equiv(output_routine_loc)
-#define split_top_skip glue_par(split_top_skip_code)
-
-#define prev_depth cur_list.prev_depth_field
-#define mode_line cur_list.ml_field
-#define mode cur_list.mode_field
-#define tail cur_list.tail_field
-#define head cur_list.head_field
+#define mode mode_par
+#define head head_par
+#define tail tail_par
 
 @ When \TeX\ appends new material to its main vlist in vertical mode, it uses
 a method something like |vsplit| to decide where a page ends, except that
@@ -221,12 +201,12 @@ from |empty| to |inserts_only| or |box_there|.
 void freeze_page_specs(int s)
 {
     page_contents = s;
-    page_goal = vsize;
-    page_max_depth = max_depth;
+    page_goal = vsize_par;
+    page_max_depth = max_depth_par;
     page_depth = 0;
     do_all_six(set_page_so_far_zero);
     least_page_cost = awful_bad;
-    if (int_par(tracing_pages_code) > 0) {
+    if (tracing_pages_par > 0) {
         begin_diagnostic();
         tprint_nl("%% goal height=");
         print_scaled(page_goal);
@@ -360,7 +340,7 @@ void build_page(void)
                 else
                     page_contents = box_there;
                 q = new_skip_param(top_skip_code);
-                if ((type(p) == hlist_node) && is_mirrored(body_direction)) {
+                if ((type(p) == hlist_node) && is_mirrored(body_direction_par)) {
                     if (width(q) > depth(p))
                         width(q) = width(q) - depth(p);
                     else
@@ -378,7 +358,7 @@ void build_page(void)
             } else {
                 /* Prepare to move a box or rule node to the current page,
                    then |goto contribute| */
-                if ((type(p) == hlist_node) && is_mirrored(body_direction)) {
+                if ((type(p) == hlist_node) && is_mirrored(body_direction_par)) {
                     page_total = page_total + page_depth + depth(p);
                     page_depth = height(p);
                 } else {
@@ -510,7 +490,7 @@ void build_page(void)
                         w = dimen(n) - height(r);
                     q = vert_break(ins_ptr(p), w, depth(p));
                     height(r) = height(r) + best_height_plus_depth;
-                    if (int_par(tracing_pages_code) > 0) {
+                    if (tracing_pages_par > 0) {
                         /* Display the insertion split cost */
                         begin_diagnostic();
                         tprint_nl("% split");
@@ -582,7 +562,7 @@ void build_page(void)
             }
             if (insert_penalties >= 10000)
                 c = awful_bad;
-            if (int_par(tracing_pages_code) > 0) {
+            if (tracing_pages_par > 0) {
                 /* Display the page break cost */
                 begin_diagnostic();
                 tprint_nl("%");
@@ -670,7 +650,7 @@ void build_page(void)
         /* Recycle node |p| */
         try_couple_nodes(contrib_head,vlink(p));
         vlink(p) = null;
-        if (int_par(saving_vdiscards_code) > 0) {
+        if (saving_vdiscards_par > 0) {
             if (page_disc == null) {
                 page_disc = p;
             } else {
@@ -746,18 +726,18 @@ void fire_up(halfword c)
     if (c == best_page_break)
         best_page_break = null; /* |c| not yet linked in */
     /* Ensure that box |output_box| is empty before output */
-    if (box(output_box) != null) {
+    if (box(output_box_par) != null) {
         print_err("\\box");
-        print_int(output_box);
+        print_int(output_box_par);
         tprint(" is not void");
         help2("You shouldn't use \\box\\outputbox except in \\output routines.",
               "Proceed, and I'll discard its present contents.");
-        box_error(output_box);
+        box_error(output_box_par);
     }
 
     insert_penalties = 0;       /* this will count the number of insertions held over */
-    save_split_top_skip = split_top_skip;
-    if (holding_inserts <= 0) {
+    save_split_top_skip = split_top_skip_par;
+    if (holding_inserts_par <= 0) {
         /* Prepare all the boxes involved in insertions to act as queues */
         /* If many insertions are supposed to go into the same box, we want to know
            the position of the last node in that box, so that we don't need to waste time
@@ -787,7 +767,7 @@ void fire_up(halfword c)
     p = vlink(prev_p);
     while (p != best_page_break) {
         if (type(p) == ins_node) {
-            if (holding_inserts <= 0) {
+            if (holding_inserts_par <= 0) {
                 /* Either insert the material specified by node |p| into the
                    appropriate box, or hold it for the next page;
                    also delete node |p| from the current page */
@@ -814,7 +794,7 @@ void fire_up(halfword c)
                                 while (vlink(s) != broken_ptr(r))
                                     s = vlink(s);
                                 vlink(s) = null;
-                                split_top_skip = split_top_ptr(p);
+                                split_top_skip_par = split_top_ptr(p);
                                 ins_ptr(p) =
                                     prune_page_top(broken_ptr(r), false);
                                 if (ins_ptr(p) != null) {
@@ -831,7 +811,7 @@ void fire_up(halfword c)
                         t = list_ptr(box(n));
                         list_ptr(box(n)) = null;
                         flush_node(box(n));
-                        box(n) = vpack(t, 0, additional, body_direction);
+                        box(n) = vpack(t, 0, additional, body_direction_par);
 
                     } else {
                         while (vlink(s) != null)
@@ -869,7 +849,7 @@ void fire_up(halfword c)
         prev_p = p;
         p = vlink(prev_p);
     }
-    split_top_skip = save_split_top_skip;
+    split_top_skip_par = save_split_top_skip;
     /* Break the current page at node |p|, put it in box~|output_box|,
        and put the remaining nodes on the contribution list */
     /* When the following code is executed, the current page runs from node
@@ -891,14 +871,14 @@ void fire_up(halfword c)
         couple_nodes(contrib_head, p);
         vlink(prev_p) = null;
     }
-    save_vbadness = vbadness;
-    vbadness = inf_bad;
-    save_vfuzz = vfuzz;
-    vfuzz = max_dimen;          /* inhibit error messages */
-    box(output_box) = filtered_vpackage(vlink(page_head),
-        best_size, exactly, page_max_depth, output_group, body_direction, 0, 0);
-    vbadness = save_vbadness;
-    vfuzz = save_vfuzz;
+    save_vbadness = vbadness_par;
+    vbadness_par = inf_bad;
+    save_vfuzz = vfuzz_par;
+    vfuzz_par = max_dimen;          /* inhibit error messages */
+    box(output_box_par) = filtered_vpackage(vlink(page_head),
+        best_size, exactly, page_max_depth, output_group, body_direction_par, 0, 0);
+    vbadness_par = save_vbadness;
+    vfuzz_par = save_vfuzz;
     if (last_glue != max_halfword)
         flush_node(last_glue);
     /* Start a new current page */
@@ -911,7 +891,7 @@ void fire_up(halfword c)
     /* Delete the page-insertion nodes */
     r = vlink(page_ins_head);
     while (r != page_ins_head) {
-	    /* todo: couple */ 
+	    /* todo: couple */
         q = vlink(r);
         flush_node(r);
         r = q;
@@ -924,8 +904,8 @@ void fire_up(halfword c)
             add_token_ref(top_mark(i));
         }
     }
-    if (output_routine != null) {
-        if (dead_cycles >= max_dead_cycles) {
+    if (output_routine_par != null) {
+        if (dead_cycles >= max_dead_cycles_par) {
             /* Explain that too many dead cycles have occurred in a row */
             print_err("Output loop---");
             print_int(dead_cycles);
@@ -941,9 +921,9 @@ void fire_up(halfword c)
             incr(dead_cycles);
             push_nest();
             mode = -vmode;
-            prev_depth = ignore_depth;
-            mode_line = -line;
-            begin_token_list(output_routine, output_text);
+            prev_depth_par = ignore_depth;
+            mode_line_par = -line;
+            begin_token_list(output_routine_par, output_text);
             new_save_level(output_group);
             normal_paragraph();
             scan_left_brace();
@@ -967,8 +947,8 @@ void fire_up(halfword c)
     }
     flush_node_list(page_disc);
     page_disc = null;
-    ship_out(static_pdf, box(output_box), SHIPPING_PAGE);
-    box(output_box) = null;
+    ship_out(static_pdf, box(output_box_par), SHIPPING_PAGE);
+    box(output_box_par) = null;
 }
 
 @ When the user's output routine finishes, it has constructed a vlist
@@ -996,13 +976,13 @@ void resume_after_output(void)
     output_active = false;
     insert_penalties = 0;
     /* Ensure that box |output_box| is empty after output */
-    if (box(output_box) != null) {
+    if (box(output_box_par) != null) {
         print_err("Output routine didn't use all of \\box");
-        print_int(output_box);
+        print_int(output_box_par);
         help3("Your \\output commands should empty \\box\\outputbox,",
               "e.g., by saying `\\shipout\\box\\outputbox'.",
               "Proceed; I'll discard its present contents.");
-        box_error(output_box);
+        box_error(output_box_par);
     }
 
     if (tail != head) {         /* current list goes after heldover insertions */

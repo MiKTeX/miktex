@@ -99,6 +99,10 @@ depending on the object type; however it may be used as a counter as well.
 #  define inf_pk_dpi   72 /* min PK pixel density value from \.{texmf.cnf} */
 #  define sup_pk_dpi 8000 /* max PK pixel density value from \.{texmf.cnf} */
 
+#  define pdf2double(a) ((double) (a).m / ten_pow[(a).e])
+
+#  define by_one_bp ((double) 65536 * (double) 72.27 / 72)  /* number of sp per 1bp */
+
 extern int find_obj(PDF pdf, int t, int i, boolean byname);
 extern void check_obj_exists(PDF pdf, int objnum);
 extern void check_obj_type(PDF pdf, int t, int objnum);

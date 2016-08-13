@@ -170,7 +170,6 @@ while (vlink(t)!=current && t != null) { \
     t = vlink(t);                        \
 }
 
-#define box(A) eqtb[box_base+(A)].hh.rh
 #define direct_check_index_range(j,s)                                      \
     if (j<0 || j > 65535) {                                                \
         luaL_error(L, "incorrect index value %d for tex.%s()", (int)j, s); \
@@ -2180,8 +2179,7 @@ static int lua_nodelib_direct_has_attribute(lua_State * L)
 
 static int lua_nodelib_get_attribute(lua_State * L)
 {
-    halfword p;
-    p = *check_isnode(L, 1);
+    halfword p = *check_isnode(L, 1);
     if (nodetype_has_attributes(type(p))) {
         p = node_attr(p);
         if (p != null) {
@@ -2207,6 +2205,43 @@ static int lua_nodelib_get_attribute(lua_State * L)
     }
     lua_pushnil(L);
     return 1;
+}
+
+static int lua_nodelib_find_attribute(lua_State * L) /* returns attr value and node */
+{
+    halfword c = *check_isnode(L, 1);
+    halfword p ;
+    int i = lua_tointeger(L, 2);
+    while (c != null) {
+        if (nodetype_has_attributes(type(c))) {
+            p = node_attr(c);
+            if (p != null) {
+                p = vlink(p);
+                while (p != null) {
+                    if (attribute_id(p) == i) {
+                        int ret = attribute_value(p);
+                        if (ret == UNUSED_ATTRIBUTE) {
+                            break;
+                        } else {
+                            lua_pushinteger(L,ret);
+                            lua_nodelib_push_fast(L, p);
+                            return 2;
+                        }
+                    } else if (attribute_id(p) > i) {
+                        break;
+                    }
+                    p = vlink(p);
+                }
+            }
+        }
+        c = vlink(c);
+    }
+    /*
+        lua_pushnil(L);
+        lua_pushnil(L);
+        return 2;
+    */
+    return 0;
 }
 
 /* node.direct.get_attribute */
@@ -2239,6 +2274,43 @@ static int lua_nodelib_direct_get_attribute(lua_State * L)
     }
     lua_pushnil(L);
     return 1;
+}
+
+static int lua_nodelib_direct_find_attribute(lua_State * L) /* returns attr value and node */
+{
+    halfword c = lua_tointeger(L, 1);
+    halfword p ;
+    int i = lua_tointeger(L, 2);
+    while (c != null) {
+        if (nodetype_has_attributes(type(c))) {
+            p = node_attr(c);
+            if (p != null) {
+                p = vlink(p);
+                while (p != null) {
+                    if (attribute_id(p) == i) {
+                        int ret = attribute_value(p);
+                        if (ret == UNUSED_ATTRIBUTE) {
+                            break;
+                        } else {
+                            lua_pushinteger(L,ret);
+                            lua_pushinteger(L,p);
+                            return 2;
+                        }
+                    } else if (attribute_id(p) > i) {
+                        break;
+                    }
+                    p = vlink(p);
+                }
+            }
+        }
+        c = vlink(c);
+    }
+    /*
+        lua_pushnil(L);
+        lua_pushnil(L);
+        return 2;
+    */
+    return 0;
 }
 
 /* node.set_attribute */
@@ -2392,7 +2464,7 @@ static int lua_nodelib_is_zero_glue(lua_State * L)
 {
     halfword n = *check_isnode(L, 1);
     if ((n != null) && (type(n) == glue_node || type(n) == glue_spec_node)) {
-        lua_toboolean(L,(width(n) == 0 && stretch(n) == 0 && shrink(n) == 0));
+        lua_pushboolean(L,(width(n) == 0 && stretch(n) == 0 && shrink(n) == 0));
         return 1;
     } else {
         return luaL_error(L, "glue (spec) expected");
@@ -2403,7 +2475,7 @@ static int lua_nodelib_direct_is_zero_glue(lua_State * L)
 {
     halfword n = lua_tointeger(L, 1);
     if ((n != null) && (type(n) == glue_node || type(n) == glue_spec_node)) {
-        lua_toboolean(L,(width(n) == 0 && stretch(n) == 0 && shrink(n) == 0));
+        lua_pushboolean(L,(width(n) == 0 && stretch(n) == 0 && shrink(n) == 0));
         return 1;
     } else {
         return luaL_error(L, "glue (spec) expected");
@@ -3291,7 +3363,7 @@ static int lua_nodelib_fast_getfield(lua_State * L)
             lua_pushinteger(L, height(n));
         } else if ((lua_key_eq(s, list)) || (lua_key_eq(s, head))) { /* already mapped */
             fast_metatable_or_nil_alink(ins_ptr(n));
-		/* glue parameters */
+        /* glue parameters */
         } else if (lua_key_eq(s, width)) {
             lua_pushinteger(L, width(n));
         } else if (lua_key_eq(s, stretch)) {
@@ -3310,7 +3382,7 @@ static int lua_nodelib_fast_getfield(lua_State * L)
             lua_pushinteger(L, subtype(n));
         } else if (lua_key_eq(s, surround)) {
             lua_pushinteger(L, surround(n));
-		/* glue parameters */
+        /* glue parameters */
         } else if (lua_key_eq(s, width)) {
             lua_pushinteger(L, width(n));
         } else if (lua_key_eq(s, stretch)) {
@@ -4000,7 +4072,7 @@ static int lua_nodelib_direct_getfield(lua_State * L)
             lua_pushinteger(L, height(n));
         } else if ((lua_key_eq(s, list)) || (lua_key_eq(s, head))) {
             nodelib_pushdirect_or_nil_alink(ins_ptr(n));
-		/* glue */
+        /* glue */
         } else if (lua_key_eq(s, width)) {
             lua_pushinteger(L, width(n));
         } else if (lua_key_eq(s, stretch)) {
@@ -6495,12 +6567,12 @@ static int lua_nodelib_direct_setbox(lua_State * L)
         }
 
     }
-    save_global_defs = int_par(global_defs_code);
+    save_global_defs = global_defs_par;
     if (isglobal) {
-        int_par(global_defs_code) = 1;
+        global_defs_par = 1;
     }
     err = set_tex_box_register(k, j);
-    int_par(global_defs_code) = save_global_defs;
+    global_defs_par = save_global_defs;
     if (err) {
         luaL_error(L, "incorrect value");
     }
@@ -6787,6 +6859,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"has_glyph", lua_nodelib_direct_has_glyph},
     {"has_attribute", lua_nodelib_direct_has_attribute},
     {"get_attribute", lua_nodelib_direct_get_attribute},
+    {"find_attribute", lua_nodelib_direct_find_attribute},
     {"has_field", lua_nodelib_direct_has_field},
     {"is_char", lua_nodelib_direct_is_char},
     {"is_glyph", lua_nodelib_direct_is_glyph},
@@ -6881,6 +6954,7 @@ static const struct luaL_Reg nodelib_f[] = {
     {"has_glyph", lua_nodelib_has_glyph},
     {"has_attribute", lua_nodelib_has_attribute},
     {"get_attribute", lua_nodelib_get_attribute},
+    {"find_attribute", lua_nodelib_find_attribute},
     {"has_field", lua_nodelib_has_field},
     {"is_char", lua_nodelib_is_char},
     {"is_glyph", lua_nodelib_is_glyph},

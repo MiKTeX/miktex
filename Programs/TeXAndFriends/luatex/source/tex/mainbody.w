@@ -449,9 +449,9 @@ void main_body(void)
             incr(iloc);
     }
     if (output_mode_option != 0)
-        int_par(output_mode_code) = output_mode_value;
+        output_mode_par = output_mode_value;
     if (draft_mode_option != 0) {
-        int_par(draft_mode_code) = draft_mode_value;
+        draft_mode_par = draft_mode_value;
     }
     /* can this be moved? */
     pdf_init_map_file((char *) pdftex_map);
@@ -459,15 +459,14 @@ void main_body(void)
     if (end_line_char_inactive)
         decr(ilimit);
     else
-        buffer[ilimit] = (packed_ASCII_code) int_par(end_line_char_code);
+        buffer[ilimit] = (packed_ASCII_code) end_line_char_par;
     fix_date_and_time();
     random_seed = (microseconds * 1000) + (epochseconds % 1000000);
     init_randoms(random_seed);
     initialize_math();
     fixup_selector(log_opened_global);
     check_texconfig_init();
-    if ((iloc < ilimit) && (get_cat_code(int_par(cat_code_table_code),
-                                         buffer[iloc]) != escape_cmd))
+    if ((iloc < ilimit) && (get_cat_code(cat_code_table_code, buffer[iloc]) != escape_cmd))
         start_input();          /* \.{\\input} assumed */
     /* DIR: Initialize |text_dir_ptr| */
     text_dir_ptr = new_dir(0);
@@ -504,7 +503,7 @@ void close_files_and_terminate(void)
     int callback_id;
     callback_id = callback_defined(stop_run_callback);
     finalize_write_files();
-    if (int_par(tracing_stats_code) > 0) {
+    if (tracing_stats_par > 0) {
         if (callback_id == 0) {
             /* Output statistics about this job */
             /* The present section goes directly to the log file instead of using

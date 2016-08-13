@@ -71,9 +71,9 @@ since the following routines test for the \.{\\global} prefix as follows.
 
 #  define define_cat_code(A,B) do {			\
      if (is_global(a))					\
-       set_cat_code(int_par(cat_code_table_code),(A),(B),level_one);	\
+       set_cat_code(cat_code_table_par,(A),(B),level_one);	\
      else						\
-       set_cat_code(int_par(cat_code_table_code),(A),(B),cur_level);	\
+       set_cat_code(cat_code_table_par,(A),(B),cur_level);	\
    } while (0)
 
 #  define define_fam_fnt(A,B,C) do {		\
@@ -173,6 +173,17 @@ extern void fixup_directions(void);
 #  define print_if_line(A) if ((A)!=0) {			\
     tprint(" entered on line "); print_int((A));	\
   }
+
+/*
+    extern halfword swap_hang_indent(halfword indentation, halfword shape_mode);
+    extern halfword swap_parshape_indent(halfword indentation, halfword width, halfword shape_mode);
+*/
+
+#define swap_hang_indent(indentation) \
+    ( ((shape_mode_par == 1 || shape_mode_par == 3 || shape_mode_par == -1 || shape_mode_par == -3)) ? negate(indentation) : indentation )
+
+#define swap_parshape_indent(indentation,width) \
+    ( ((shape_mode_par == 2 || shape_mode_par == 3 || shape_mode_par == -2 || shape_mode_par == -3)) ? (hsize_par - width - indentation) : indentation )
 
 extern void get_r_token(void);
 extern void assign_internal_value(int a, halfword p, int cur_val);

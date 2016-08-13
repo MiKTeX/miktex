@@ -21,9 +21,6 @@
 
 #include "ptexlib.h"
 
-@ @c
-#define box(A) eqtb[box_base+(A)].hh.rh
-
 @* We consider now the way \TeX\ handles various kinds of \.{\\if} commands.
 
 @ Conditions can be inside conditions, and this nesting has a stack
@@ -79,7 +76,7 @@ void pass_text(void)
         }
     }
     scanner_status = save_scanner_status;
-    if (int_par(tracing_ifs_code) > 0)
+    if (tracing_ifs_par > 0)
         show_cur_cmd_chr();
 }
 
@@ -163,7 +160,7 @@ static boolean test_for_cs(void)
     }
     if (cur_cmd != end_cs_name_cmd) {
         last_tested_cs = null_cs;
-        if (int_par(suppress_ifcsname_error_code)) {
+        if (suppress_ifcsname_error_par) {
             do {
                 get_x_token();
             } while (cur_cmd != end_cs_name_cmd);
@@ -241,7 +238,7 @@ void conditional(void)
     halfword save_cond_ptr;     /*|cond_ptr| corresponding to this conditional */
     int this_if;                /*type of this conditional */
     boolean is_unless;          /*was this if preceded by `\.{\\unless}' ? */
-    if ((int_par(tracing_ifs_code) > 0) && (int_par(tracing_commands_code) <= 1))
+    if ((tracing_ifs_par > 0) && (tracing_commands_par <= 1))
         show_cur_cmd_chr();
     push_condition_stack();
     save_cond_ptr = cond_ptr;
@@ -441,7 +438,7 @@ void conditional(void)
             scan_int();
             /* |n| is the number of cases to pass */
             n = cur_val;
-            if (int_par(tracing_commands_code) > 1) {
+            if (tracing_commands_par > 1) {
                 begin_diagnostic();
                 tprint("{case ");
                 print_int(n);
@@ -508,7 +505,7 @@ void conditional(void)
     }
     if (is_unless)
         b = !b;
-    if (int_par(tracing_commands_code) > 1) {
+    if (tracing_commands_par > 1) {
         /* Display the value of |b| */
         begin_diagnostic();
         if (b)

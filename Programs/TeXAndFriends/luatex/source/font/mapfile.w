@@ -58,7 +58,7 @@ mapitem *mitem = NULL;
     while (*r != ' ' && *r != '<' && *r != '"' && *r != '\0') \
         *q++ = *r++;                \
     *q = '\0';                      \
-    skip (r, ' ');                  \
+    skip_char(r, ' ');                  \
 } while (0)
 
 #define set_field(F) do {           \
@@ -367,7 +367,7 @@ static void fm_scan_line(void)
         }
     }
     while (1) {                 /* loop through "specials", encoding, font file */
-        skip(r, ' ');
+        skip_char(r, ' ');
         switch (*r) {
         case '\0':
             goto done;
@@ -375,7 +375,7 @@ static void fm_scan_line(void)
             r++;
             u = v = 0;
             do {
-                skip(r, ' ');
+                skip_char(r, ' ');
                 if (sscanf(r, "%f %n", &d, &j) > 0) {
                     s = r + j;  /* jump behind number, eat also blanks, if any */
                     if (*(s - 1) == 'E' || *(s - 1) == 'e')

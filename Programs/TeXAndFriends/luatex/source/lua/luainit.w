@@ -105,6 +105,7 @@ const_string LUATEX_IHELP[] = {
     "   --[no-]shell-escape           disable/enable system commands",
     "   --shell-restricted            restrict system commands to a list of commands given in texmf.cnf",
     "   --synctex=NUMBER              enable synctex",
+    "   --utc                         init time to UTC",
     "   --version                     display version and exit",
     "",
     "Alternate behaviour models can be obtained by special switches",
@@ -200,6 +201,7 @@ char *jithash_hashname = NULL;
 
 int safer_option = 0;
 int nosocket_option = 0;
+int utc_option = 0;
 
 @ Reading the options.
 
@@ -229,6 +231,7 @@ static struct option long_options[] = {
     {"jithash", 1, 0, 0},
 #endif
     {"safer", 0, &safer_option, 1},
+    {"utc", 0, &utc_option, 1},
     {"nosocket", 0, &nosocket_option, 1},
     {"help", 0, 0, 0},
 #if defined(MIKTEX)
@@ -665,6 +668,7 @@ static void init_kpse(void)
 
     kpse_set_program_name(argv[0], user_progname);
     init_shell_escape();        /* set up 'restrictedshell' */
+    init_start_time();
     program_name_set = 1 ;
     if (recorderoption) {
         recorder_enabled = 1;
@@ -948,6 +952,8 @@ void lua_initialize(int ac, char **av)
     char *banner;
     int kpse_init;
     size_t len;
+    int starttime;
+    int utc;
     static char LC_CTYPE_C[] = "LC_CTYPE=C";
     static char LC_COLLATE_C[] = "LC_COLLATE=C";
     static char LC_NUMERIC_C[] = "LC_NUMERIC=C";
@@ -1134,6 +1140,25 @@ void lua_initialize(int ac, char **av)
                 mk_shellcmdlist(v1);
             free(v1);
             }
+        }
+
+        starttime = -1 ;
+        get_lua_number("texconfig", "start_time", &starttime);
+        if (starttime < 0) {
+            /*
+                We provide this one for compatibility reasons and therefore also in
+                uppercase.
+            */
+            get_lua_number("texconfig", "SOURCE_DATE_EPOCH", &starttime);
+        }
+        if (starttime >= 0) {
+            set_start_time(starttime);
+        }
+
+        utc = -1 ;
+        get_lua_boolean("texconfig", "use_utc_time", &utc);
+        if (utc >= 0 && utc <= 1) {
+            utc_option = utc;
         }
 
         fix_dumpname();

@@ -105,17 +105,17 @@ static void clear_operand_stack (scannerdata *self, int from);
 static Token *_parseToken (scannerdata *self, int c);
 static void push_token (lua_State *L, scannerdata *self);
 
-void *xmalloc (size_t size)
+static void *priv_xmalloc (size_t size)
 {
     void *new_mem = (void *)malloc(size);
     if (new_mem == NULL) {
-        fprintf(stderr, "fatal: memory exhausted (xmalloc of %lu bytes).\n", (unsigned long)size);
+        fprintf(stderr, "fatal: memory exhausted (priv_xmalloc of %lu bytes).\n", (unsigned long)size);
         exit(1);
     }
     return new_mem;
 }
 
-void *xrealloc (void *old_ptr, size_t size)
+static void *priv_xrealloc (void *old_ptr, size_t size)
 {
     void *new_mem = (void *)realloc(old_ptr, size);
     if (new_mem == NULL) {
@@ -125,12 +125,12 @@ void *xrealloc (void *old_ptr, size_t size)
     return new_mem;
 }
 
-#define xreallocarray(ptr,type,size) ((type*)xrealloc(ptr,(size+1)*sizeof(type)))
+#define xreallocarray(ptr,type,size) ((type*)priv_xrealloc(ptr,(size+1)*sizeof(type)))
 
 #define INITBUFSIZE 64
 
 #define define_buffer(a)				\
-  char *a = (char *)xmalloc (INITBUFSIZE);		\
+  char *a = (char *)priv_xmalloc (INITBUFSIZE);		\
   int a##_size = INITBUFSIZE;				\
   int a##index = 0;					\
   memset (a,0,INITBUFSIZE)
@@ -194,7 +194,7 @@ static void push_operand (scannerdata *self, Token *token)
 
 static Token * new_operand (pdf_token_type c)
 {
-  Token *token = (Token *)xmalloc(sizeof(Token));
+  Token *token = (Token *)priv_xmalloc(sizeof(Token));
   memset (token, 0, sizeof(Token));
   token->type = c;
   return token;
@@ -586,7 +586,7 @@ static int scanner_scan(lua_State * L)
   luaL_checktype(L, 3, LUA_TTABLE);
   self = scanner_push(L);
   memset(self,0,sizeof(scannerdata));
-  self->_operandstack = (Token **)xmalloc (MAXOPERANDS * sizeof (Token));
+  self->_operandstack = (Token **)priv_xmalloc (MAXOPERANDS * sizeof (Token));
   memset (self->_operandstack,0,(MAXOPERANDS * sizeof (Token)));
   // 4 = self
   if (lua_type(L,1)== LUA_TTABLE) {
@@ -598,7 +598,7 @@ static int scanner_scan(lua_State * L)
 	uin = (udstruct *) luaL_checkudata(L, -1, M_Object);
 	if (((Object *) uin->d)->isStream()) {
 	  ObjectList *rover = self->_streams;
-	  ObjectList *item = (ObjectList *)xmalloc (sizeof(ObjectList));
+	  ObjectList *item = (ObjectList *)priv_xmalloc (sizeof(ObjectList));
 	  item->stream = ((Object *) uin->d);
 	  item->next = NULL;
 	  if (!rover) {
@@ -637,7 +637,7 @@ static int scanner_scan(lua_State * L)
 	arrayref->get(i, val);
 	if (val->isStream()) {
 	  ObjectList *rover = self->_streams;
-	  ObjectList *item = (ObjectList *)xmalloc (sizeof(ObjectList));
+	  ObjectList *item = (ObjectList *)priv_xmalloc (sizeof(ObjectList));
 	  item->stream = val;
 	  item->next = NULL;
 	  if (!rover) {

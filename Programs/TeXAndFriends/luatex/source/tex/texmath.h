@@ -109,8 +109,6 @@ void print_math_style(void);
 #  define script_size 1
 #  define script_script_size 2
 
-#  define math_direction int_par(math_direction_code)
-
 #  define dir_math_save cur_list.math_field
 #  define m_style cur_list.math_style_field
 #  define init_math_fields() do {               \

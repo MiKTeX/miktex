@@ -146,7 +146,7 @@ void line_break(boolean d, int line_break_context)
                 succumb();
             }
         } else {
-            if (int_par(tracing_paragraphs_code) > 0) {
+            if (tracing_paragraphs_par > 0) {
                 begin_diagnostic();
                 print_int(line);
                 end_diagnostic(true);
@@ -160,31 +160,31 @@ void line_break(boolean d, int line_break_context)
             confusion("weird par dir"); /* assert(0); */ /* |paragraph_dir = 0|; */
         }
         ext_do_line_break(paragraph_dir,
-                          int_par(pretolerance_code),
-                          int_par(tracing_paragraphs_code),
-                          int_par(tolerance_code),
-                          dimen_par(emergency_stretch_code),
-                          int_par(looseness_code),
-                          int_par(adjust_spacing_code),
-                          equiv(par_shape_loc),
-                          int_par(adj_demerits_code),
-                          int_par(protrude_chars_code),
-                          int_par(line_penalty_code),
-                          int_par(last_line_fit_code),
-                          int_par(double_hyphen_demerits_code),
-                          int_par(final_hyphen_demerits_code),
-                          dimen_par(hang_indent_code),
-                          dimen_par(hsize_code),
-                          int_par(hang_after_code),
-                          glue_par(left_skip_code),
-                          glue_par(right_skip_code),
-                          equiv(inter_line_penalties_loc),
-                          int_par(inter_line_penalty_code),
-                          int_par(club_penalty_code),
-                          equiv(club_penalties_loc),
-                          (d ? equiv(display_widow_penalties_loc) : equiv(widow_penalties_loc)),
-                          (d ? int_par(display_widow_penalty_code) : int_par(widow_penalty_code)),
-                          int_par(broken_penalty_code),
+                          pretolerance_par,
+                          tracing_paragraphs_par,
+                          tolerance_par,
+                          emergency_stretch_par,
+                          looseness_par,
+                          adjust_spacing_par,
+                          par_shape_par_ptr,
+                          adj_demerits_par,
+                          protrude_chars_par,
+                          line_penalty_par,
+                          last_line_fit_par,
+                          double_hyphen_demerits_par,
+                          final_hyphen_demerits_par,
+                          hang_indent_par,
+                          hsize_par,
+                          hang_after_par,
+                          left_skip_par,
+                          right_skip_par,
+                          inter_line_penalties_par_ptr,
+                          inter_line_penalty_par,
+                          club_penalty_par,
+                          club_penalties_par_ptr,
+                          (d ? display_widow_penalties_par_ptr : widow_penalties_par_ptr),
+                          (d ? display_widow_penalty_code : widow_penalty_code),
+                          broken_penalty_par,
                           final_par_glue);
     }
     lua_node_filter(post_linebreak_filter_callback,
@@ -898,7 +898,7 @@ static void compute_break_width(int break_type, int line_break_dir, int adjust_s
         switch (type(s)) {
             case math_node:
                 /* begin mathskip code */
-                if (glue_is_zero(math_skip)) {
+                if (glue_is_zero(math_skip_par)) {
                     break_width[1] -= surround(s);
                     break;
                 } else {
@@ -1630,14 +1630,15 @@ void ext_do_line_break(int paragraph_dir,
             second_width = hsize;
             second_indent = 0;
         } else {
+            halfword used_hang_indent = swap_hang_indent(hang_indent);
             /*  Set line length parameters in preparation for hanging indentation */
             /* We compute the values of |easy_line| and the other local variables relating
                to line length when the |line_break| procedure is initializing itself. */
             last_special_line = abs(hang_after);
             if (hang_after < 0) {
-                first_width = hsize - abs(hang_indent);
-                if (hang_indent >= 0)
-                    first_indent = hang_indent;
+                first_width = hsize - abs(used_hang_indent);
+                if (used_hang_indent >= 0)
+                    first_indent = used_hang_indent;
                 else
                     first_indent = 0;
                 second_width = hsize;
@@ -1645,19 +1646,18 @@ void ext_do_line_break(int paragraph_dir,
             } else {
                 first_width = hsize;
                 first_indent = 0;
-                second_width = hsize - abs(hang_indent);
-                if (hang_indent >= 0)
-                    second_indent = hang_indent;
+                second_width = hsize - abs(used_hang_indent);
+                if (used_hang_indent >= 0)
+                    second_indent = used_hang_indent;
                 else
                     second_indent = 0;
             }
         }
     } else {
         last_special_line = vinfo(par_shape_ptr + 1) - 1;
-        second_indent =
-            varmem[(par_shape_ptr + 2 * (last_special_line + 1))].cint;
-        second_width =
-            varmem[(par_shape_ptr + 2 * (last_special_line + 1) + 1)].cint;
+        second_indent = varmem[(par_shape_ptr + 2 * (last_special_line + 1))].cint;
+        second_width = varmem[(par_shape_ptr + 2 * (last_special_line + 1) + 1)].cint;
+        second_indent = swap_parshape_indent(second_indent,second_width);
     }
     if (looseness == 0)
         easy_line = last_special_line;
@@ -1840,7 +1840,7 @@ void ext_do_line_break(int paragraph_dir,
                 case math_node:
                     auto_breaking = (subtype(cur_p) == after);
                     /* begin mathskip code */
-                    if (glue_is_zero(math_skip)) {
+                    if (glue_is_zero(math_skip_par)) {
                         kern_break();
                         break;
                     } else {
@@ -2132,7 +2132,7 @@ void ext_do_line_break(int paragraph_dir,
                         protrude_chars,
                         par_shape_ptr,
                         adjust_spacing,
-                        inter_line_penalties_ptr,
+                        inter_line_penalties_par_ptr,
                         inter_line_penalty,
                         club_penalty,
                         club_penalties_ptr,

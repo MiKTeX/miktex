@@ -45,6 +45,8 @@ extern void scan_something_internal(int level, boolean negative);
 
 extern void scan_limited_int(int max, const char *name);
 
+extern void negate_cur_val(boolean delete_glue);
+
 #  define scan_register_num() scan_limited_int(65535,"register code")
 #  define scan_mark_num() scan_limited_int(65535,"marks code")
 #  define scan_char_num() scan_limited_int(biggest_char,"character code")

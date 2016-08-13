@@ -26,11 +26,6 @@
 #include <assert.h>
 #include <math.h>
 
-@ eternal constant: number of sp per 1bp
-
-@c
-#define one_bp ((double) 65536 * (double) 72.27 / 72)
-
 @ @c
 void init_pdf_pagecalculations(PDF pdf)
 {
@@ -66,7 +61,7 @@ void init_pdf_pagecalculations(PDF pdf)
     p->ishex = 0;
     p->need_tf = false;
     p->need_tm = false;
-    p->k1 = ten_pow[p->pdf.h.e] / one_bp;
+    p->k1 = ten_pow[p->pdf.h.e] / by_one_bp;
 }
 
 @ @c

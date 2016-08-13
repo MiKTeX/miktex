@@ -28,109 +28,57 @@ nodes are removed or inserted, temp nodes don't interfere */
 @ @c
 void lua_node_filter_s(int filterid, int extrainfo)
 {
-    lua_State *L = Luas;
     int callback_id = callback_defined(filterid);
-    int s_top = lua_gettop(L);
+    int s_top = lua_gettop(Luas);
     if (callback_id <= 0) {
-        lua_settop(L, s_top);
+        lua_settop(Luas, s_top);
         return;
     }
-    if (!get_callback(L, callback_id)) {
-        lua_settop(L, s_top);
+    if (!get_callback(Luas, callback_id)) {
+        lua_settop(Luas, s_top);
         return;
     }
-    lua_push_string_by_index(L,extrainfo); /* arg 1 */
-    if (lua_pcall(L, 1, 0, 0) != 0) {
-        fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
-        lua_settop(L, s_top);
+    lua_push_string_by_index(Luas,extrainfo); /* arg 1 */
+    if (lua_pcall(Luas, 1, 0, 0) != 0) {
+        fprintf(stdout, "error: %s\n", lua_tostring(Luas, -1));
+        lua_settop(Luas, s_top);
         error();
         return;
     }
-    lua_settop(L, s_top);
+    lua_settop(Luas, s_top);
     return;
 }
 
 @ @c
-/*
-void lua_node_filter(int filterid, int extrainfo, halfword head_node, halfword * tail_node)
-{
-    halfword ret;
-    int a;
-    lua_State *L = Luas;
-    int s_top = lua_gettop(L);
-    int callback_id = callback_defined(filterid);
-    if (head_node == null || vlink(head_node) == null || callback_id <= 0) {
-	lua_settop(L, s_top);
-        return;
-    }
-    if (!get_callback(L, callback_id)) {
-        lua_settop(L, s_top);
-        return;
-    }
-    alink(vlink(head_node)) = null ;
-    nodelist_to_lua(L, vlink(head_node));
-    lua_push_group_code(L,extrainfo);
-    if (lua_pcall(L, 2, 1, 0) != 0) {
-        fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
-        lua_settop(L, s_top);
-        error();
-        return;
-    }
-    if (lua_isboolean(L, -1)) {
-        if (lua_toboolean(L, -1) != 1) {
-            flush_node_list(vlink(head_node));
-            vlink(head_node) = null;
-        }
-    } else {
-        a = nodelist_from_lua(L);
-        try_couple_nodes(head_node,a);
-    }
-    lua_pop(L, 2);
-    if (fix_node_lists)
-        fix_node_list(head_node);
-    ret = vlink(head_node);
-    if (ret != null) {
-        while (vlink(ret) != null)
-            ret = vlink(ret);
-        *tail_node = ret;
-    } else {
-        *tail_node = head_node;
-    }
-    lua_settop(L, s_top);
-    return;
-}
-*/
-
 void lua_node_filter(int filterid, int extrainfo, halfword head_node, halfword * tail_node)
 {
     halfword start_node, start_done, last_node;
-    lua_State *L = Luas;
-    int s_top = lua_gettop(L);
+    int s_top = lua_gettop(Luas);
     int callback_id = callback_defined(filterid);
     if (head_node == null || callback_id <= 0) {
-        lua_settop(L, s_top);
+        lua_settop(Luas, s_top);
         return;
     }
     /* we start after head */
     start_node = vlink(head_node);
-    if (start_node == null || !get_callback(L, callback_id)) {
-        lua_settop(L, s_top);
+    if (start_node == null || !get_callback(Luas, callback_id)) {
+        lua_settop(Luas, s_top);
         return;
     }
     /* we make sure we have no prev */
     alink(start_node) = null ;
     /* the action */
-    nodelist_to_lua(L, start_node);
-    lua_push_group_code(L,extrainfo);
-    if (lua_pcall(L, 2, 1, 0) != 0) {
-        fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
-        lua_settop(L, s_top);
+    nodelist_to_lua(Luas, start_node);
+    lua_push_group_code(Luas,extrainfo);
+    if (lua_pcall(Luas, 2, 1, 0) != 0) {
+        fprintf(stdout, "error: %s\n", lua_tostring(Luas, -1));
+        lua_settop(Luas, s_top);
         error();
         return;
     }
     /* the result */
-    if (lua_isboolean(L, -1)) {
-        if (lua_toboolean(L, -1) != 1) {
+    if (lua_isboolean(Luas, -1)) {
+        if (lua_toboolean(Luas, -1) != 1) {
             /* discard */
             flush_node_list(start_node);
             vlink(head_node) = null;
@@ -139,11 +87,11 @@ void lua_node_filter(int filterid, int extrainfo, halfword head_node, halfword *
         }
     } else {
         /* append to old head */
-        start_done = nodelist_from_lua(L);
+        start_done = nodelist_from_lua(Luas);
         try_couple_nodes(head_node,start_done);
     }
     /* redundant as we set top anyway */
-    lua_pop(L, 2);
+    lua_pop(Luas, 2);
     /* find tail in order to update tail */
     start_node = vlink(head_node);
     if (start_node != null) {
@@ -168,7 +116,7 @@ void lua_node_filter(int filterid, int extrainfo, halfword head_node, halfword *
         *tail_node = head_node;
     }
     /* clean up */
-    lua_settop(L, s_top);
+    lua_settop(Luas, s_top);
     return;
 }
 
@@ -178,33 +126,32 @@ int lua_linebreak_callback(int is_broken, halfword head_node, halfword * new_hea
     int a;
     register halfword *p;
     int ret = 0;                /* failure */
-    lua_State *L = Luas;
-    int s_top = lua_gettop(L);
+    int s_top = lua_gettop(Luas);
     int callback_id = callback_defined(linebreak_filter_callback);
     if (head_node == null || vlink(head_node) == null || callback_id <= 0) {
-        lua_settop(L, s_top);
+        lua_settop(Luas, s_top);
         return ret;
     }
-    if (!get_callback(L, callback_id)) {
-       lua_settop(L, s_top);
+    if (!get_callback(Luas, callback_id)) {
+       lua_settop(Luas, s_top);
         return ret;
     }
     alink(vlink(head_node)) = null ; /* hh-ls */
-    nodelist_to_lua(L, vlink(head_node));       /* arg 1 */
-    lua_pushboolean(L, is_broken);      /* arg 2 */
-    if (lua_pcall(L, 2, 1, 0) != 0) {   /* no arg, 1 result */
-        fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
-        lua_settop(L, s_top);
+    nodelist_to_lua(Luas, vlink(head_node));       /* arg 1 */
+    lua_pushboolean(Luas, is_broken);      /* arg 2 */
+    if (lua_pcall(Luas, 2, 1, 0) != 0) {   /* no arg, 1 result */
+        fprintf(stdout, "error: %s\n", lua_tostring(Luas, -1));
+        lua_settop(Luas, s_top);
         error();
         return ret;
     }
-    p = lua_touserdata(L, -1);
+    p = lua_touserdata(Luas, -1);
     if (p != NULL) {
-        a = nodelist_from_lua(L);
+        a = nodelist_from_lua(Luas);
         try_couple_nodes(*new_head,a);
         ret = 1;
     }
-    lua_settop(L, s_top);
+    lua_settop(Luas, s_top);
     return ret;
 }
 
@@ -212,39 +159,38 @@ int lua_linebreak_callback(int is_broken, halfword head_node, halfword * new_hea
 int lua_appendtovlist_callback(halfword box, int location, halfword prev_depth, boolean is_mirrored, halfword * result, int * next_depth, boolean * prev_set)
 {
     register halfword *p;
-    lua_State *L = Luas;
-    int s_top = lua_gettop(L);
+    int s_top = lua_gettop(Luas);
     int callback_id = callback_defined(append_to_vlist_filter_callback);
     if (box == null || callback_id <= 0) {
-        lua_settop(L, s_top);
+        lua_settop(Luas, s_top);
         return 0;
     }
-    if (!get_callback(L, callback_id)) {
-        lua_settop(L, s_top);
+    if (!get_callback(Luas, callback_id)) {
+        lua_settop(Luas, s_top);
         return 0;
     }
-    nodelist_to_lua(L, box);
-    lua_push_string_by_index(L,location);
-    lua_pushinteger(L, (int) prev_depth);
-    lua_pushboolean(L, is_mirrored);
-    if (lua_pcall(L, 4, 2, 0) != 0) {
-        fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
-        lua_settop(L, s_top);
+    nodelist_to_lua(Luas, box);
+    lua_push_string_by_index(Luas,location);
+    lua_pushinteger(Luas, (int) prev_depth);
+    lua_pushboolean(Luas, is_mirrored);
+    if (lua_pcall(Luas, 4, 2, 0) != 0) {
+        fprintf(stdout, "error: %s\n", lua_tostring(Luas, -1));
+        lua_settop(Luas, s_top);
         error();
         return 0;
     }
-    if (lua_type(L,-1) == LUA_TNUMBER) {
-        *next_depth = lua_tointeger(L,-1);
+    if (lua_type(Luas,-1) == LUA_TNUMBER) {
+        *next_depth = lua_tointeger(Luas,-1);
         *prev_set = true;
-        if (lua_type(L, -2) != LUA_TNIL) {
-            p = check_isnode(L, -2);
+        if (lua_type(Luas, -2) != LUA_TNIL) {
+            p = check_isnode(Luas, -2);
             *result = *p;
         }
-    } else if (lua_type(L, -1) != LUA_TNIL) {
-        p = check_isnode(L, -1);
+    } else if (lua_type(Luas, -1) != LUA_TNIL) {
+        p = check_isnode(Luas, -1);
         *result = *p;
     }
-    lua_settop(L, s_top);
+    lua_settop(Luas, s_top);
     return 1;
 }
 
@@ -252,50 +198,49 @@ int lua_appendtovlist_callback(halfword box, int location, halfword prev_depth, 
 halfword lua_hpack_filter(halfword head_node, scaled size, int pack_type, int extrainfo, int pack_direction, halfword attr)
 {
     halfword ret;
-    lua_State *L = Luas;
-    int s_top = lua_gettop(L);
+    int s_top = lua_gettop(Luas);
     int callback_id = callback_defined(hpack_filter_callback);
     if (head_node == null || callback_id <= 0) {
-        lua_settop(L, s_top);
+        lua_settop(Luas, s_top);
         return head_node;
     }
-    if (!get_callback(L, callback_id)) {
-        lua_settop(L, s_top);
+    if (!get_callback(Luas, callback_id)) {
+        lua_settop(Luas, s_top);
         return head_node;
     }
     alink(head_node) = null ; /* hh-ls */
-    nodelist_to_lua(L, head_node);
-    lua_push_group_code(L,extrainfo);
-    lua_pushinteger(L, size);
-    lua_push_pack_type(L,pack_type);
+    nodelist_to_lua(Luas, head_node);
+    lua_push_group_code(Luas,extrainfo);
+    lua_pushinteger(Luas, size);
+    lua_push_pack_type(Luas, pack_type);
     if (pack_direction >= 0) {
-        lua_push_dir_par(L, pack_direction);
+        lua_push_dir_par(Luas, pack_direction);
     } else {
-        lua_pushnil(L);
+        lua_pushnil(Luas);
     }
     if (attr != null) {
-        nodelist_to_lua(L, attr);
+        nodelist_to_lua(Luas, attr);
     } else {
-        lua_pushnil(L);
+        lua_pushnil(Luas);
     }
-    if (lua_pcall(L, 6, 1, 0) != 0) {
-        fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
-        lua_settop(L, s_top);
+    if (lua_pcall(Luas, 6, 1, 0) != 0) {
+        fprintf(stdout, "error: %s\n", lua_tostring(Luas, -1));
+        lua_settop(Luas, s_top);
         error();
         return head_node;
     }
     ret = head_node;
-    if (lua_isboolean(L, -1)) {
-        if (lua_toboolean(L, -1) != 1) {
+    if (lua_isboolean(Luas, -1)) {
+        if (lua_toboolean(Luas, -1) != 1) {
             flush_node_list(head_node);
             ret = null;
         }
     } else {
-        ret = nodelist_from_lua(L);
+        ret = nodelist_from_lua(Luas);
     }
-    lua_settop(L, s_top);
+    lua_settop(Luas, s_top);
 #if 0
-    lua_gc(L,LUA_GCSTEP, LUA_GC_STEP_SIZE);
+    lua_gc(Luas,LUA_GCSTEP, LUA_GC_STEP_SIZE);
 #endif
     if (fix_node_lists)
         fix_node_list(ret);
@@ -308,10 +253,9 @@ halfword lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled
 {
     halfword ret;
     int callback_id;
-    lua_State *L = Luas;
-    int s_top = lua_gettop(L);
+    int s_top = lua_gettop(Luas);
     if (head_node == null) {
-        lua_settop(L, s_top);
+        lua_settop(Luas, s_top);
         return head_node;
     }
     if  (extrainfo == 8)  { /* output */
@@ -320,47 +264,47 @@ halfword lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled
         callback_id = callback_defined(vpack_filter_callback);
     }
     if (callback_id <= 0) {
-        lua_settop(L, s_top);
+        lua_settop(Luas, s_top);
         return head_node;
     }
-    if (!get_callback(L, callback_id)) {
-        lua_settop(L, s_top);
+    if (!get_callback(Luas, callback_id)) {
+        lua_settop(Luas, s_top);
         return head_node;
     }
     alink(head_node) = null ; /* hh-ls */
-    nodelist_to_lua(L, head_node);
-    lua_push_group_code(L,extrainfo);
-    lua_pushinteger(L, size);
-    lua_push_pack_type(L,pack_type);
-    lua_pushinteger(L, maxd);
+    nodelist_to_lua(Luas, head_node);
+    lua_push_group_code(Luas, extrainfo);
+    lua_pushinteger(Luas, size);
+    lua_push_pack_type(Luas, pack_type);
+    lua_pushinteger(Luas, maxd);
     if (pack_direction >= 0) {
-         lua_push_dir_par(L, pack_direction);
+         lua_push_dir_par(Luas, pack_direction);
     } else {
-        lua_pushnil(L);
+        lua_pushnil(Luas);
     }
     if (attr != null) {
-        nodelist_to_lua(L, attr);
+        nodelist_to_lua(Luas, attr);
     } else {
-        lua_pushnil(L);
+        lua_pushnil(Luas);
     }
-    if (lua_pcall(L, 7, 1, 0) != 0) {
-        fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
-        lua_settop(L, s_top);
+    if (lua_pcall(Luas, 7, 1, 0) != 0) {
+        fprintf(stdout, "error: %s\n", lua_tostring(Luas, -1));
+        lua_settop(Luas, s_top);
         error();
         return head_node;
     }
     ret = head_node;
-    if (lua_isboolean(L, -1)) {
-        if (lua_toboolean(L, -1) != 1) {
+    if (lua_isboolean(Luas, -1)) {
+        if (lua_toboolean(Luas, -1) != 1) {
             flush_node_list(head_node);
             ret = null;
         }
     } else {
-        ret = nodelist_from_lua(L);
+        ret = nodelist_from_lua(Luas);
     }
-    lua_settop(L, s_top);
+    lua_settop(Luas, s_top);
 #if 0
-    lua_gc(L,LUA_GCSTEP, LUA_GC_STEP_SIZE);
+    lua_gc(Luas,LUA_GCSTEP, LUA_GC_STEP_SIZE);
 #endif
     if (fix_node_lists)
         fix_node_list(ret);

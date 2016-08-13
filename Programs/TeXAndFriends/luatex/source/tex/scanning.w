@@ -22,19 +22,6 @@
 #include "ptexlib.h"
 
 @ @c
-#define prev_depth cur_list.prev_depth_field
-#define space_factor cur_list.space_factor_field
-#define par_shape_ptr  equiv(par_shape_loc)
-#define font_id_text(A) cs_text(font_id_base+(A))
-
-#define attribute(A) eqtb[attribute_base+(A)].hh.rh
-#define dimen(A) eqtb[scaled_base+(A)].hh.rh
-#undef skip
-#define skip(A) eqtb[skip_base+(A)].hh.rh
-#define mu_skip(A) eqtb[mu_skip_base+(A)].hh.rh
-#define count(A) eqtb[count_base+(A)].hh.rh
-#define box(A) equiv(box_base+(A))
-
 static void scan_expr(void);
 
 @ Let's turn now to some procedures that \TeX\ calls upon frequently to digest
@@ -165,7 +152,7 @@ static void downgrade_cur_val(boolean delete_glue)
     decr(cur_val_level);
 }
 
-static void negate_cur_val(boolean delete_glue)
+void negate_cur_val(boolean delete_glue)
 {
     halfword m;
     if (cur_val_level >= glue_val_level) {
@@ -208,6 +195,9 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
         scanned_result(eqtb[m].cint, int_val_level);
         break;
     case assign_dir_cmd:
+        if (m == (int_base + line_direction_code)) {
+            m = int_base + text_direction_code;
+        }
         scanned_result(eqtb[m].cint, dir_val_level);
         break;
     case assign_dimen_cmd:
@@ -215,11 +205,9 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
         break;
     case assign_glue_cmd:
         scanned_result(equiv(m), glue_val_level);
-// cur_val = new_spec(cur_val);
         break;
     case assign_mu_glue_cmd:
         scanned_result(equiv(m), mu_val_level);
-// cur_val = new_spec(cur_val);
         break;
     case math_style_cmd:
         scanned_result(m, int_val_level);
@@ -239,9 +227,9 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
             else
                 scanned_result(0, int_val_level);
         } else if (m == vmode) {
-            scanned_result(prev_depth, dimen_val_level);
+            scanned_result(prev_depth_par, dimen_val_level);
         } else {
-            scanned_result(space_factor, int_val_level);
+            scanned_result(space_factor_par, int_val_level);
         }
         break;
     case set_prev_graf_cmd:
@@ -279,10 +267,10 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
         break;
     case set_tex_shape_cmd:
         /* Fetch the |par_shape| size */
-        if (par_shape_ptr == null)
+        if (par_shape_par_ptr == null)
             cur_val = 0;
         else
-            cur_val = vinfo(par_shape_ptr + 1);
+            cur_val = vinfo(par_shape_par_ptr + 1);
         cur_val_level = int_val_level;
         break;
     case set_etex_shape_cmd:
@@ -381,17 +369,17 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                 case par_shape_dimen_code:
                     q = cur_chr - par_shape_length_code;
                     scan_int();
-                    if ((par_shape_ptr == null) || (cur_val <= 0)) {
+                    if ((par_shape_par_ptr == null) || (cur_val <= 0)) {
                         cur_val = 0;
                     } else {
                         if (q == 2) {
                             q = cur_val % 2;
                             cur_val = (cur_val + q) / 2;
                         }
-                        if (cur_val > vinfo(par_shape_ptr + 1))
-                            cur_val = vinfo(par_shape_ptr + 1);
+                        if (cur_val > vinfo(par_shape_par_ptr + 1))
+                            cur_val = vinfo(par_shape_par_ptr + 1);
                         cur_val =
-                            varmem[par_shape_ptr + 2 * cur_val - q + 1].cint;
+                            varmem[par_shape_par_ptr + 2 * cur_val - q + 1].cint;
                     }
                     cur_val_level = dimen_val_level;
                     break;
@@ -531,7 +519,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                     break;
                 case lastskip_code:
                     if (last_glue != max_halfword)
-                        cur_val = last_glue; /* maybe new_glue */ 
+                        cur_val = last_glue; /* maybe new_glue */
                     break;
                 case last_node_type_code:
                     cur_val = last_node_type;
@@ -614,7 +602,7 @@ void scan_something_internal(int level, boolean negative)
                 cur_val1 = get_sf_code(cur_val);
                 scanned_result(cur_val1, int_val_level);
             } else if (m == cat_code_base) {
-                cur_val1 = get_cat_code(int_par(cat_code_table_code), cur_val);
+                cur_val1 = get_cat_code(cat_code_table_par, cur_val);
                 scanned_result(cur_val1, int_val_level);
             } else {
                 confusion("def_char");
@@ -690,11 +678,11 @@ void scan_something_internal(int level, boolean negative)
             } else {
                 cur_val1 = get_math_param(cur_val1, cur_chr);
                 if (cur_val1 == thin_mu_skip_code)
-                    cur_val1 = glue_par(thin_mu_skip_code);
+                    cur_val1 = thin_mu_skip_par;
                 else if (cur_val1 == med_mu_skip_code)
-                    cur_val1 = glue_par(med_mu_skip_code);
+                    cur_val1 = med_mu_skip_par;
                 else if (cur_val1 == thick_mu_skip_code)
-                    cur_val1 = glue_par(thick_mu_skip_code);
+                    cur_val1 = thick_mu_skip_par;
                 scanned_result(cur_val1, mu_val_level);
             }
             break;
@@ -803,28 +791,28 @@ void scan_something_internal(int level, boolean negative)
                     goto DEFAULT;
                     break;
                 case 2:
-                    cur_val = get_pre_hyphen_char(int_par(language_code));
+                    cur_val = get_pre_hyphen_char(language_par);
                     cur_val_level = int_val_level;
                     break;
                 case 3:
-                    cur_val = get_post_hyphen_char(int_par(language_code));
+                    cur_val = get_post_hyphen_char(language_par);
                     cur_val_level = int_val_level;
                     break;
                 case 4:
-                    cur_val = get_pre_exhyphen_char(int_par(language_code));
+                    cur_val = get_pre_exhyphen_char(language_par);
                     cur_val_level = int_val_level;
                     break;
                 case 5:
-                    cur_val = get_post_exhyphen_char(int_par(language_code));
+                    cur_val = get_post_exhyphen_char(language_par);
                     cur_val_level = int_val_level;
                     break;
                 case 6:
-                    cur_val = get_hyphenation_min(int_par(language_code));
+                    cur_val = get_hyphenation_min(language_par);
                     cur_val_level = int_val_level;
                     break;
                 case 7:
                     scan_int();
-                    cur_val = get_hj_code(int_par(language_code),cur_val);
+                    cur_val = get_hj_code(language_par,cur_val);
                     cur_val_level = int_val_level;
                     break;
             }
@@ -1192,15 +1180,16 @@ static void scan_dimen_out_of_range_error(void) {
 
 void scan_dimen(boolean mu, boolean inf, boolean shortcut)
 {
-    boolean negative; /* should the answer be negated? */
-    int f = 0;        /* numerator of a fraction whose denominator is $2^{16}$ */
-    int num, denom;   /* conversion ratio for the scanned units */
-    halfword q;       /* top of decimal digit stack */
-    scaled v;         /* an internal dimension */
-    int save_cur_val; /* temporary storage of |cur_val| */
+    boolean negative = false; /* should the answer be negated? */
+    boolean is_true  = false;
+    int f = 0;                /* numerator of a fraction whose denominator is $2^{16}$ */
+    int num = 0;              /* conversion ratio for the scanned units */
+    int denom = 0;
+    halfword q;               /* top of decimal digit stack */
+    scaled v;                 /* an internal dimension */
+    int save_cur_val;         /* temporary storage of |cur_val| */
     arith_error = false;
     cur_order = normal;
-    negative = false;
     if (!shortcut) {
         /* Get the next non-blank non-sign... */
         do {
@@ -1370,7 +1359,7 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
     } else if (scan_keyword("ex")) {
         v = x_height(get_cur_font());
     } else if (scan_keyword("px")) {
-        v = dimen_par(px_dimen_code);
+        v = px_dimen_par;
     } else {
         goto PICKUP_UNIT;
     }
@@ -1388,7 +1377,7 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
     */
   PICKUP_UNIT:
     if (scan_keyword("pt")) {
-        goto ATTACH_FRACTION;   /* the easy case */
+        goto SCALE_VALUE;   /* the easy case */
     } else if (scan_keyword("mm")) {
         set_conversion(7227, 2540);
         goto SCALE_VALUE;
@@ -1418,28 +1407,37 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
     } else if (scan_keyword("nc")) {
         set_conversion(1370, 107);
         goto SCALE_VALUE;
-    } else if (scan_keyword("true")) {
-        /* Adjust (f)for the magnification ratio */
-        if (output_mode_used == OMODE_DVI) {
+    } else if (!is_true && scan_keyword("true")) {
+        is_true = true;
+        goto PICKUP_UNIT;
+    }
+    /* Complain about unknown unit and |goto done2| */
+    scan_dimen_unknown_unit_error();
+    goto BAD_NEWS;
+  SCALE_VALUE:
+    /* Adjust (f) for the magnification ratio */
+    if (is_true) {
+        /* maybe at some point we will drop mag completely, even in dvi mode */
+        if (output_mode_used <= OMODE_DVI) {
             prepare_mag();
-            if (int_par(mag_code) != 1000) {
-                cur_val = xn_over_d(cur_val, 1000, int_par(mag_code));
-                f = (1000 * f + 0200000 * tex_remainder) / int_par(mag_code);
+            if (mag_par != 1000) {
+                cur_val = xn_over_d(cur_val, 1000, mag_par);
+                f = (1000 * f + 0200000 * tex_remainder) / mag_par;
                 cur_val = cur_val + (f / 0200000);
                 f = f % 0200000;
             }
+        } else {
+            /* in pdf mode we're always true */
+            one_true_inch = one_inch; /* saveguard */
         }
-        goto PICKUP_UNIT;
-    } else {
-        /* Complain about unknown unit and |goto done2| */
-        scan_dimen_unknown_unit_error();
-        goto BAD_NEWS;
     }
-  SCALE_VALUE:
-    cur_val = xn_over_d(cur_val, num, denom);
-    f = (num * f + 0200000 * tex_remainder) / denom;
-    cur_val = cur_val + (f / 0200000);
-    f = f % 0200000;
+    /* */
+    if (num) {
+        cur_val = xn_over_d(cur_val, num, denom);
+        f = (num * f + 0200000 * tex_remainder) / denom;
+        cur_val = cur_val + (f / 0200000);
+        f = f % 0200000;
+    }
   BAD_NEWS:
   ATTACH_FRACTION:
     if (cur_val >= 040000) {
@@ -1837,11 +1835,11 @@ halfword scan_rule_spec(void)
     }
     if (cur_cmd == vrule_cmd) {
         width(q) = default_rule;
-        rule_dir(q) = body_direction;
+        rule_dir(q) = body_direction_par;
     } else {
         height(q) = default_rule;
         depth(q) = 0;
-        rule_dir(q) = text_direction;
+        rule_dir(q) = text_direction_par;
     }
   RESWITCH:
     if (scan_keyword("width")) {
@@ -2157,14 +2155,13 @@ parenthesis.
 
 @c
 typedef enum {
-    expr_none = 0,              /* \.( seen, or \.( $\langle\it expr\rangle$ \.) seen */
-    expr_add = 1,               /* \.( $\langle\it expr\rangle$ \.+ seen */
-    expr_sub = 2,               /* \.( $\langle\it expr\rangle$ \.- seen */
-    expr_mult = 3,              /* $\langle\it term\rangle$ \.* seen */
-    expr_div = 4,               /* $\langle\it term\rangle$ \./ seen */
-    expr_scale = 5,             /* $\langle\it term\rangle$ \.*  $\langle\it factor\rangle$ \./ seen */
+    expr_none  = 0, /* \.( seen, or \.( $\langle\it expr\rangle$ \.) seen */
+    expr_add   = 1, /* \.( $\langle\it expr\rangle$ \.+ seen */
+    expr_sub   = 2, /* \.( $\langle\it expr\rangle$ \.- seen */
+    expr_mult  = 3, /* $\langle\it term\rangle$ \.* seen */
+    expr_div   = 4, /* $\langle\it term\rangle$ \./ seen */
+    expr_scale = 5, /* $\langle\it term\rangle$ \.*  $\langle\it factor\rangle$ \./ seen */
 } expression_states;
-
 
 @  We want to make sure that each term and (intermediate) result is in
   the proper range.  Integer values must not exceed |infinity|
@@ -2202,12 +2199,6 @@ term so far and |s| is the state of its evaluation; finally |n| is the
 numerator for a combined multiplication and division, if any.
 
 @c
-#define expr_type(A) type((A)+1)
-#define expr_state(A) subtype((A)+1)
-#define expr_e_field(A) vlink((A)+1)    /* saved expression so far */
-#define expr_t_field(A) vlink((A)+2)    /* saved term so far */
-#define expr_n_field(A) vinfo((A)+2)    /* saved numerator */
-
 #define expr_add_sub(A,B,C) add_or_sub((A),(B),(C),(r==expr_sub))
 #define expr_a(A,B) expr_add_sub((A),(B),max_dimen)
 
@@ -2493,7 +2484,7 @@ static void scan_expr(void)
          */
         t = f;
         if ((l >= glue_val_level) && (o != expr_none)) {
-	        /* do we really need to copy here ? */ 
+	        /* do we really need to copy here ? */
             t = new_spec(f);
             flush_node(f);
             normalize_glue(t);

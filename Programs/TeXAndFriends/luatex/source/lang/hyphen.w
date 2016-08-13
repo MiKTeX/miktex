@@ -805,10 +805,14 @@ void hnj_hyphen_hyphenate(HyphenDict * dict,
          here = get_vlink(here)) {
 
         int ch;
-        if (here == begin_point || here == end_point)
+        if (here == begin_point || here == end_point) {
             ch = '.';
-        else
-            ch = get_lc_code(get_character(here));
+        } else {
+            ch = get_hj_code(char_lang(here),get_character(here));
+            if (ch <= 32) {
+                ch = get_character(here);
+            }
+        }
         while (state != -1) {
 #if 0
             printf("%*s%s%c",char_num-strlen(get_state_str(state)),"",get_state_str(state),(char)ch);

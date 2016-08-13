@@ -51,12 +51,7 @@ to italics. Axis are another area of concern, as it looks like opentype math fon
 already apply that shift.
 
 @ @c
-#define math_old                      mathoption_int_par(c_mathoption_old_code)
-#define math_no_italic_compensation   mathoption_int_par(c_mathoption_no_italic_compensation_code)
-#define math_no_char_italic           mathoption_int_par(c_mathoption_no_char_italic_code)
-#define math_use_old_fraction_scaling mathoption_int_par(c_mathoption_use_old_fraction_scaling_code)
-
-#define is_new_mathfont(A)   ((font_math_params(A) >0) && (math_old == 0))
+#define is_new_mathfont(A)   ((font_math_params(A) >0) && (math_old_par == 0))
 #define is_old_mathfont(A,B) ((font_math_params(A)==0) && (font_params(A)>=(B)))
 
 @
@@ -68,17 +63,6 @@ already apply that shift.
 #include "lua/luatex-api.h"
 
 @ @c
-#define delimiter_factor     int_par(delimiter_factor_code)
-#define delimiter_shortfall  dimen_par(delimiter_shortfall_code)
-#define bin_op_penalty       int_par(bin_op_penalty_code)
-#define rel_penalty          int_par(rel_penalty_code)
-#define null_delimiter_space dimen_par(null_delimiter_space_code)
-#define script_space         dimen_par(script_space_code)
-#define disable_lig          int_par(disable_lig_code)
-#define disable_kern         int_par(disable_kern_code)
-#define disable_space        int_par(disable_space_code)
-#define scripts_mode         int_par(math_scripts_mode_code)
-
 #define nDEBUG
 
 #define reset_attributes(p,newatt) do {                \
@@ -322,8 +306,8 @@ static scaled get_delimiter_height(scaled max_d, scaled max_h, boolean axis) {
         /* |delta1| is max distance from axis */
         delta1 = delta2;
     }
-    delta = (delta1 / 500) * delimiter_factor;
-    delta2 = delta1 + delta1 - delimiter_shortfall;
+    delta = (delta1 / 500) * delimiter_factor_par;
+    delta2 = delta1 + delta1 - delimiter_shortfall_par;
     if (delta < delta2) {
         return delta2;
     } else {
@@ -884,27 +868,27 @@ backward compatibility with \.{\\scriptspace}.
 @c
 static void finalize_math_parameters(void)
 {
-    int saved_trace = int_par(tracing_assigns_code);
-    int_par(tracing_assigns_code) = 0;
+    int saved_trace = tracing_assigns_par;
+    tracing_assigns_par = 0;
     if (get_math_param(math_param_space_after_script, display_style) == undefined_math_parameter) {
         def_math_param(math_param_space_after_script, display_style,
-            script_space, level_one);
+            script_space_par, level_one);
         def_math_param(math_param_space_after_script, text_style,
-            script_space, level_one);
+            script_space_par, level_one);
         def_math_param(math_param_space_after_script, script_style,
-            script_space, level_one);
+            script_space_par, level_one);
         def_math_param(math_param_space_after_script, script_script_style,
-            script_space, level_one);
+            script_space_par, level_one);
         def_math_param(math_param_space_after_script, cramped_display_style,
-            script_space, level_one);
+            script_space_par, level_one);
         def_math_param(math_param_space_after_script, cramped_text_style,
-            script_space, level_one);
+            script_space_par, level_one);
         def_math_param(math_param_space_after_script, cramped_script_style,
-            script_space, level_one);
+            script_space_par, level_one);
         def_math_param(math_param_space_after_script, cramped_script_script_style,
-            script_space, level_one);
+            script_space_par, level_one);
     }
-    int_par(tracing_assigns_code) = saved_trace;
+    tracing_assigns_par = saved_trace;
 }
 
 @ In order to convert mlists to hlists, i.e., noads to nodes, we need several
@@ -968,7 +952,7 @@ static pointer do_fraction_rule(scaled t, pointer att)
 {
     pointer p;                  /* the new node */
     p = new_rule(normal_rule);
-    rule_dir(p) = math_direction;
+    rule_dir(p) = math_direction_par;
     height(p) = t;
     depth(p) = 0;
     reset_attributes(p, att);
@@ -991,7 +975,7 @@ static pointer overbar(pointer b, scaled k, scaled t, scaled ht, pointer att)
     p = new_kern(ht);
     reset_attributes(p, att);
     couple_nodes(p,q);
-    q = vpackage(p, 0, additional, max_dimen, math_direction);
+    q = vpackage(p, 0, additional, max_dimen, math_direction_par);
     reset_attributes(q, att);
     return q;
 }
@@ -1134,7 +1118,7 @@ static pointer get_delim_box(pointer q, extinfo * ext, internal_font_number f, s
                 NULL
             };
             tex_error("Variant part doesn't exist.", hlp);
-            width(b) = null_delimiter_space;
+            width(b) = null_delimiter_space_par;
             return b;
         }
         if (cur->extender > 0)
@@ -1447,7 +1431,7 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
             width(b) = 0;
         } else {
             /* use this width if no delimiter was found */
-            width(b) = null_delimiter_space;
+            width(b) = null_delimiter_space_par;
         }
         if (delta != NULL) {
             *delta = 0;
@@ -1595,7 +1579,6 @@ void run_mlist_to_hlist(halfword p, boolean penalties, int mstyle)
 {
     int callback_id;
     int a, sfix;
-    lua_State *L = Luas;
     if (p == null) {
         vlink(temp_head) = null;
         return;
@@ -1603,26 +1586,26 @@ void run_mlist_to_hlist(halfword p, boolean penalties, int mstyle)
     finalize_math_parameters();
     callback_id = callback_defined(mlist_to_hlist_callback);
     if (callback_id > 0) {
-        sfix = lua_gettop(L);
-        if (!get_callback(L, callback_id)) {
-            lua_settop(L, sfix);
+        sfix = lua_gettop(Luas);
+        if (!get_callback(Luas, callback_id)) {
+            lua_settop(Luas, sfix);
             return;
         }
         alink(p) = null ;
-        nodelist_to_lua(L, p);
-        lua_push_math_style_name(L,mstyle);
-        lua_pushboolean(L, penalties);
-        if (lua_pcall(L, 3, 1, 0) != 0) {            /* 3 args, 1 result */
+        nodelist_to_lua(Luas, p);
+        lua_push_math_style_name(Luas, mstyle);
+        lua_pushboolean(Luas, penalties);
+        if (lua_pcall(Luas, 3, 1, 0) != 0) {            /* 3 args, 1 result */
             char errmsg[256]; /* temp hack ... we will have a formatted error */
-            snprintf(errmsg, 255, "error: %s\n", lua_tostring(L, -1));
+            snprintf(errmsg, 255, "error: %s\n", lua_tostring(Luas, -1));
             errmsg[255]='\0';
-            lua_settop(L, sfix);
+            lua_settop(Luas, sfix);
             normal_error("mlist to hlist",errmsg); /* to be done */
             return;
         }
-        a = nodelist_from_lua(L);
+        a = nodelist_from_lua(Luas);
         /* alink(vlink(a)) = null; */
-        lua_settop(L, sfix);
+        lua_settop(Luas, sfix);
         vlink(temp_head) = a;
     } else if (callback_id == 0) {
         mlist_to_hlist(p, penalties, mstyle);
@@ -1803,7 +1786,7 @@ static void make_under(pointer q, int cur_style)
     couple_nodes(x,p);
     r = do_fraction_rule(underbar_rule(cur_style), node_attr(q));
     couple_nodes(p,r);
-    y = vpackage(x, 0, additional, max_dimen, math_direction);
+    y = vpackage(x, 0, additional, max_dimen, math_direction_par);
     reset_attributes(y, node_attr(q));
     delta = height(y) + depth(y) + underbar_kern(cur_style);
     height(y) = height(x);
@@ -2304,7 +2287,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
             /* just take the center */
             sa = half(width(y));
         }
-        if (math_direction == dir_TRT) {
+        if (math_direction_par == dir_TRT) {
            shift_amount(y) = s + sa - width(y);
         } else {
            shift_amount(y) = s - sa;
@@ -2312,7 +2295,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
     } else {
         if (width(y)== 0) {
             shift_amount(y) = s + w;
-        } else if (math_direction == dir_TRT) {
+        } else if (math_direction_par == dir_TRT) {
             shift_amount(y) = s + width(y); /* ok? */
         } else {
             shift_amount(y) = s + half(w - width(y));
@@ -2328,7 +2311,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
         couple_nodes(x,y);
         y = x;
     }
-    r = vpackage(y, 0, additional, max_dimen, math_direction);
+    r = vpackage(y, 0, additional, max_dimen, math_direction_par);
     reset_attributes(r, node_attr(q));
     width(r) = width(x);
     y = r;
@@ -2564,7 +2547,7 @@ static void make_fraction(pointer q, int cur_style)
         point to it
     */
     if (is_new_mathfont(cur_f)) {
-        if (math_use_old_fraction_scaling) {
+        if (math_use_old_fraction_scaling_par) {
             delta = fraction_del_size_old(cur_style);
         } else {
             delta = fraction_del_size_new(cur_style);
@@ -2711,7 +2694,7 @@ static scaled make_op(pointer q, int cur_style)
         type(v) = vlist_node;
         if (is_new_mathfont(cur_f)) {
             n = null;
-            if (! math_no_italic_compensation) {
+            if (! math_no_italic_compensation_par) {
                 n = nucleus(q);
                 if (n != null) {
                     if ((type(n) == sub_mlist_node) || (type(n) == sub_box_node)) {
@@ -2885,7 +2868,7 @@ static void make_ord(pointer q)
                     ligatures only when this convention makes sense
                 */
 
-                if (disable_lig == 0 && has_lig(cur_f, a)) {
+                if (disable_lig_par == 0 && has_lig(cur_f, a)) {
                     lig = get_ligature(cur_f, a, cur_c);
                     if (is_valid_ligature(lig)) {
                         check_interrupt();      /* allow a way out of infinite ligature loop */
@@ -2941,7 +2924,7 @@ static void make_ord(pointer q)
                         goto RESTART;
                     }
                 }
-                if (disable_kern == 0 && has_kern(cur_f, a)) {
+                if (disable_kern_par == 0 && has_kern(cur_f, a)) {
                     /* todo: should this use mathkerns? */
                     k = get_kern(cur_f, a, cur_c);
                     if (k != 0) {
@@ -3239,7 +3222,7 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
         */
         x = clean_box(subscr(q), sub_style(cur_style), cur_style);
         width(x) = width(x) + space_after_script(cur_style);
-        switch (scripts_mode) {
+        switch (scripts_mode_par) {
             case 1:
                 shift_down = sub_shift_down(cur_style) ;
                 break;
@@ -3289,7 +3272,7 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
         */
         x = clean_box(supscr(q), sup_style(cur_style), cur_style);
         width(x) = width(x) + space_after_script(cur_style);
-        switch (scripts_mode) {
+        switch (scripts_mode_par) {
             case 1:
                 shift_up = sup_shift_up(cur_style);
                 break;
@@ -3344,7 +3327,7 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
             */
             y = clean_box(subscr(q), sub_style(cur_style), cur_style);
             width(y) = width(y) + space_after_script(cur_style);
-            switch (scripts_mode) {
+            switch (scripts_mode_par) {
                 case 1:
                     shift_down = sub_shift_down(cur_style) ;
                     break;
@@ -3413,7 +3396,7 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
             couple_nodes(x,p);
             couple_nodes(p,y);
             /* we end up with funny dimensions */
-            x = vpackage(x, 0, additional, max_dimen, math_direction);
+            x = vpackage(x, 0, additional, max_dimen, math_direction_par);
             reset_attributes(x, node_attr(q));
             shift_amount(x) = shift_down;
         }
@@ -3758,7 +3741,7 @@ static pointer check_nucleus_complexity(halfword q, scaled * delta, int cur_styl
             p = new_glyph(cur_f, cur_c);
             reset_attributes(p, node_attr(nucleus(q)));
             if (is_new_mathfont(cur_f)) {
-                if (! math_no_char_italic) {
+                if (! math_no_char_italic_par) {
                     /* keep italic, but bad with two successive letters */
                 } else if (get_char_cat_code(cur_c) == 11) {
                     /* no italic correction in mid-word of text font */
@@ -4087,10 +4070,10 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
             t_subtype = subtype(q);
             switch (t_subtype) {
             case bin_noad_type:
-                pen = bin_op_penalty;
+                pen = bin_op_penalty_par;
                 break;
             case rel_noad_type:
-                pen = rel_penalty;
+                pen = rel_penalty_par;
                 break;
             case vcenter_noad_type:
             case over_noad_type:

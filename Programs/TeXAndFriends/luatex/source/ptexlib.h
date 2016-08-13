@@ -138,7 +138,7 @@ extern char **suffixlist;       /* in luainit.w */
         *p = 0;                                        \
 } while (0)
 
-#  define skip(p, c)   if (*p == c)  p++
+#  define skip_char(p, c)   if (*p == c)  p++
 
 #  define alloc_array(T, n, s) do {					\
 	if (T##_array == NULL) {					\

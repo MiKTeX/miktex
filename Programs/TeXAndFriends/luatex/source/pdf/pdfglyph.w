@@ -22,13 +22,10 @@
 #include "ptexlib.h"
 #include "pdf/pdfpage.h"
 
-#define pdf2double(a) ((double) (a).m / ten_pow[(a).e])
-
 @ eternal constants
 
 @c
-#define one_bp ((double) 65536 * (double) 72.27 / 72)  /* number of sp per 1bp */
-#define e_tj 3                                         /* must be 3; movements in []TJ are in fontsize/$10^3$ units */
+#define e_tj 3 /* must be 3; movements in []TJ are in fontsize/$10^3$ units */
 
 @ @c
 static int64_t pdf_char_width(pdfstructure * p, internal_font_number f, int i)
@@ -58,7 +55,7 @@ static void setup_fontparameters(PDF pdf, internal_font_number f, int ex_glyph)
         u = font_units_per_em(f) / 1000.0;
     pdf->f_cur = f;
     p->f_pdf = pdf_set_font(pdf, f);
-    p->fs.m = i64round(font_size(f) / u / one_bp * ten_pow[p->fs.e]);
+    p->fs.m = i64round(font_size(f) / u / by_one_bp * ten_pow[p->fs.e]);
     slant = font_slant(f) / 1000.0;
     extend = font_extend(f) / 1000.0;
     expand = 1.0 + (ex_glyph/1) / 1000.0;

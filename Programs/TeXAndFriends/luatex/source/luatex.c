@@ -28,10 +28,10 @@
 
 #define TeX
 
-int luatex_version = 95;        /* \.{\\luatexversion}  */
+int luatex_version = 97;        /* \.{\\luatexversion}  */
 int luatex_revision = '0';      /* \.{\\luatexrevision}  */
-int luatex_date_info = 2016042515;     /* the compile date is now hardwired */
-const char *luatex_version_string = "0.95.0";
+int luatex_date_info = 2016060720;     /* the compile date is now hardwired */
+const char *luatex_version_string = "0.97.0";
 const char *engine_name = my_name;     /* the name of this engine */
 
 #include <kpathsea/c-ctype.h>
@@ -147,6 +147,88 @@ void mk_shellcmdlist(char *v)
 
 /* Called from maininit.  Not static because also called from
    luatexdir/lua/luainit.c.  */
+
+/*
+    In order to avoid all kind of time code in the backend code we use a function.
+    The start time can be overloaded in several ways:
+
+    (1) By setting the environmment variable SOURCE_DATE_EPOCH. This will influence
+    the tex parameters, random seed, pdf timestamp and pdf id that is derived
+    from the time. This variable is consulted when the kpse library is enabled
+    which is analogue to other properties.
+
+    (2) By setting the texconfig.start_time variable (as with other variables
+    we use the internal name there). This has the same effect as (1) and is
+    provided for when kpse is not used to set these variables or when an overloaded
+    is wanted. This is analogue to other properties.
+
+    When an utc time is needed one can provide the flag --utc. This property is
+    independent of this time hackery. This flag has a corresponding texconfig
+    option use_utc_time.
+
+    To some extend a cleaner solution would be to have a flag that disables all
+    variable data in one go (like filenames and so) but we just follow the method
+    implemented in pdftex where primitives are used tod disable it.
+
+*/
+
+static int start_time = -1;
+
+int get_start_time(void) {
+    if (start_time < 0) {
+        start_time = time((time_t *) NULL);
+    }
+    return start_time;
+}
+
+/*
+    This one is called as part of the kpse initialization which only happens
+    when this library is enabled.
+*/
+#if defined(_MSC_VER)
+#define strtoull _strtoui64
+#endif
+
+void init_start_time(void) {
+    if (start_time < 0) {
+        unsigned long long epoch;
+        char *endptr;
+        /*
+            We don't really care how kpse sets up this variable but we prefer to
+            just use its abstract interface.
+        */
+     /* char *source_date_epoch = getenv("SOURCE_DATE_EPOCH"); */
+        char *source_date_epoch = kpse_var_value("SOURCE_DATE_EPOCH");
+        if (source_date_epoch && source_date_epoch != '\0' ) {
+            errno = 0;
+            epoch = strtoull(source_date_epoch, &endptr, 10);
+            if (epoch < 0 || *endptr != '\0' || errno != 0) {
+                epoch = 0;
+            }
+#if defined(_MSC_VER)
+            /* We avoid to crash if users test a large value which is not
+             * supported by Visual Studio 2010:
+             * a later time than 3001/01/01 20:59:59.
+             */
+            if (epoch > 32535291599ULL)
+                epoch = 32535291599ULL;
+#endif
+            start_time = epoch;
+        }
+    }
+}
+
+/*
+    This one is used to fetch a value from texconfig which can also be used to
+    set properties. This might come in handy when one has other ways to get date
+    info in the pdf file.
+*/
+
+void set_start_time(int s) {
+    if (s >= 0) {
+        start_time = s ;
+    }
+}
 
 void init_shell_escape(void)
 {
@@ -499,7 +581,10 @@ main (int ac, string *av)
 #    endif
     av[0] = kpse_program_basename (av[0]);
     _setmaxstdio(2048);
+/*
+ *  We choose to crash for fatal errors
     SetErrorMode (SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
+ */
     setmode(fileno(stdin), _O_BINARY);
 #  endif
 
@@ -890,8 +975,13 @@ static RETSIGTYPE catch_interrupt(int arg)
 
 void get_date_and_time(int *minutes, int *day, int *month, int *year)
 {
-    time_t myclock = time((time_t *) 0);
-    struct tm *tmptr = localtime(&myclock);
+    time_t myclock = get_start_time();
+    struct tm *tmptr ;
+    if (utc_option) {
+        tmptr = gmtime(&myclock);
+    } else {
+        tmptr = localtime(&myclock);
+    }
 
     *minutes = tmptr->tm_hour * 60 + tmptr->tm_min;
     *day = tmptr->tm_mday;
@@ -965,8 +1055,13 @@ int getrandomseed(void)
     ftime(&tb);
     return (tb.millitm + 1000 * tb.time);
 #else
-    time_t myclock = time((time_t *) NULL);
-    struct tm *tmptr = localtime(&myclock);
+    time_t myclock = get_start_time((time_t *) NULL);
+    struct tm *tmptr ;
+    if (utc_option) {
+        tmptr = gmtime(&myclock);
+    } else {
+        tmptr = localtime(&myclock);
+    }
     return (tmptr->tm_sec + 60 * (tmptr->tm_min + 60 * tmptr->tm_hour));
 #endif
 }

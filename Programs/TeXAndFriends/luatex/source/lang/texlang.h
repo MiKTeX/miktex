@@ -17,7 +17,6 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-
 #ifndef TEXLANG_H
 #  define TEXLANG_H
 
@@ -46,8 +45,7 @@ struct tex_language {
 extern struct tex_language *new_language(int n);
 extern struct tex_language *get_language(int n);
 extern void load_patterns(struct tex_language *lang, const unsigned char *buf);
-extern void load_hyphenation(struct tex_language *lang,
-                             const unsigned char *buf);
+extern void load_hyphenation(struct tex_language *lang, const unsigned char *buf);
 extern int hyphenate_string(struct tex_language *lang, char *w, char **ret);
 
 extern void new_hyphenation(halfword h, halfword t);

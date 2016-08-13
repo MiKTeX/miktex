@@ -24,14 +24,6 @@ setter no prev link is created so we can presume that it's not used later on. */
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
-#define attribute(A) eqtb[attribute_base+(A)].hh.rh
-#define dimen(A) eqtb[scaled_base+(A)].hh.rh
-#undef skip
-#define skip(A) eqtb[skip_base+(A)].hh.rh
-#define mu_skip(A) eqtb[mu_skip_base+(A)].hh.rh
-#define count(A) eqtb[count_base+(A)].hh.rh
-#define box(A) equiv(box_base+(A))
-
 /* tex random generators */
 extern int unif_rand(int );
 extern int norm_rand(void );
@@ -541,7 +533,7 @@ static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
         v = (x_height(get_cur_font()));
     } else if (strncmp(s, "px", 2) == 0) {
         s += 2;
-        v = dimen_par(px_dimen_code);
+        v = px_dimen_par;
     } else {
         goto NOT_FOUND;
     }
@@ -560,11 +552,11 @@ static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
     if (strncmp(s, "true", 4) == 0) {
         /* Adjust (f)for the magnification ratio */
         s += 4;
-        if (output_mode_used == OMODE_DVI) {
+        if (output_mode_used <= OMODE_DVI) {
             prepare_mag();
-            if (int_par(mag_code) != 1000) {
-                cur_val = xn_over_d(cur_val, 1000, int_par(mag_code));
-                f = (1000 * f + 0200000 * tex_remainder) / int_par(mag_code);
+            if (mag_par != 1000) {
+                cur_val = xn_over_d(cur_val, 1000, mag_par);
+                f = (1000 * f + 0200000 * tex_remainder) / mag_par;
                 cur_val = cur_val + (f / 0200000);
                 f = f % 0200000;
             }
@@ -749,9 +741,9 @@ static int get_item_index(lua_State * L, int i, int base)
     size_t len;                                                                       \
     const char *str;                                                                  \
     int key, err, cs;                                                                 \
-    int save_global_defs = int_par(global_defs_code);                                 \
+    int save_global_defs = global_defs_par;                                           \
     if (is_global) {                                                                  \
-        int_par(global_defs_code) = 1;                                                \
+        global_defs_par = 1;                                                          \
     }                                                                                 \
     switch (lua_type(L, where)) {                                                     \
         case LUA_TSTRING:                                                             \
@@ -779,7 +771,7 @@ static int get_item_index(lua_State * L, int i, int base)
             }                                                                         \
             break;                                                                    \
         case LUA_TNUMBER:                                                             \
-            key = luaL_checkinteger(L, where);                                  \
+            key = luaL_checkinteger(L, where);                                        \
             if (key>=0 && key <= 65535) {                                             \
                 err = set_register(key, value);                                       \
                 if (err) {                                                            \
@@ -792,7 +784,7 @@ static int get_item_index(lua_State * L, int i, int base)
         default:                                                                      \
             luaL_error(L, "argument of 'set%s' must be a string or a number", what);  \
     }                                                                                 \
-    int_par(global_defs_code) = save_global_defs;                                     \
+    global_defs_par = save_global_defs;                                               \
 }
 
 static int gettex(lua_State * L);
@@ -1088,7 +1080,7 @@ static int settoks(lua_State * L)
     char *s;
     const char *ss;
     int is_global = 0;
-    int save_global_defs = int_par(global_defs_code);
+    int save_global_defs = global_defs_par;
     int n = lua_gettop(L);
     if (n == 3 && (lua_type(L,1) == LUA_TSTRING)) {
         const char *s = lua_tostring(L, 1);
@@ -1096,7 +1088,7 @@ static int settoks(lua_State * L)
             is_global = 1;
     }
     if (is_global)
-        int_par(global_defs_code) = 1;
+        global_defs_par = 1;
     i = lua_gettop(L);
     if (lua_type(L,i) != LUA_TSTRING) {
         luaL_error(L, "unsupported value type");
@@ -1109,7 +1101,7 @@ static int settoks(lua_State * L)
     check_index_range(k, "settoks");
     err = set_tex_toks_register(k, str);
     xfree(str.s);
-    int_par(global_defs_code) = save_global_defs;
+    global_defs_par = save_global_defs;
     if (err) {
         luaL_error(L, "incorrect value");
     }
@@ -1123,7 +1115,7 @@ static int scantoks(lua_State * L)
     char *s;
     const char *ss;
     int is_global = 0;
-    int save_global_defs = int_par(global_defs_code);
+    int save_global_defs = global_defs_par;
     int n = lua_gettop(L);
     if (n == 4 && (lua_type(L,1) == LUA_TSTRING)) {
         const char *s = lua_tostring(L, 1);
@@ -1132,7 +1124,7 @@ static int scantoks(lua_State * L)
     }
     /* action : vsettokscct(L, is_global); */
     if (is_global)
-        int_par(global_defs_code) = 1;
+        global_defs_par = 1;
     i = lua_gettop(L);
     if (lua_type(L,i) != LUA_TSTRING) {
         luaL_error(L, "unsupported value type");
@@ -1146,7 +1138,7 @@ static int scantoks(lua_State * L)
     check_index_range(k, "settoks");
     err = scan_tex_toks_register(k, c, str);
     xfree(str.s);
-    int_par(global_defs_code) = save_global_defs;
+    global_defs_par = save_global_defs;
     if (err) {
         luaL_error(L, "incorrect value");
     }
@@ -1243,9 +1235,9 @@ static int isbox(lua_State * L)
 static int vsetbox(lua_State * L, int is_global)
 {
     int j, k, err;
-    int save_global_defs = int_par(global_defs_code);
+    int save_global_defs = global_defs_par;
     if (is_global)
-        int_par(global_defs_code) = 1;
+        global_defs_par = 1;
     k = get_box_id(L, -2, true);
     check_index_range(k, "setbox");
     if (lua_isboolean(L, -1)) {
@@ -1263,7 +1255,7 @@ static int vsetbox(lua_State * L, int is_global)
 
     }
     err = set_tex_box_register(k, j);
-    int_par(global_defs_code) = save_global_defs;
+    global_defs_par = save_global_defs;
     if (err) {
         luaL_error(L, "incorrect value");
     }
@@ -1361,7 +1353,7 @@ static int setcatcode(lua_State * L)
     int ch;
     halfword val;
     int level = cur_level;
-    int cattable = int_par(cat_code_table_code);
+    int cattable = cat_code_table_par;
     int n = lua_gettop(L);
     int f = 1;
     if (n>1 && lua_type(L,1) == LUA_TTABLE)
@@ -1386,7 +1378,7 @@ static int setcatcode(lua_State * L)
 
 static int getcatcode(lua_State * L)
 {
-    int cattable = int_par(cat_code_table_code);
+    int cattable = cat_code_table_par;
     int ch = luaL_checkinteger(L, -1);
     if (lua_gettop(L)>=2 && lua_type(L,-2)==LUA_TNUMBER) {
         cattable = luaL_checkinteger(L, -2);
@@ -1860,7 +1852,7 @@ static int getromannumeral(lua_State * L)
 
 static int get_parshape(lua_State * L)
 {
-    halfword par_shape_ptr = equiv(par_shape_loc);
+    halfword par_shape_ptr = par_shape_par_ptr;
     if (par_shape_ptr != 0) {
         int m = 1;
         int n = vinfo(par_shape_ptr + 1);
@@ -2591,27 +2583,27 @@ static int tex_run_linebreak(lua_State * L)
     }
     lua_pop(L, 1);
 
-    get_int_par  (pretolerance, int_par(pretolerance_code));
-    get_int_par  (tracingparagraphs, int_par(tracing_paragraphs_code));
-    get_int_par  (tolerance, int_par(tolerance_code));
-    get_int_par  (looseness, int_par(looseness_code));
-    get_int_par  (adjustspacing, int_par(adjust_spacing_code));
-    get_int_par  (adjdemerits, int_par(adj_demerits_code));
-    get_int_par  (protrudechars, int_par(protrude_chars_code));
-    get_int_par  (linepenalty, int_par(line_penalty_code));
-    get_int_par  (lastlinefit, int_par(last_line_fit_code));
-    get_int_par  (doublehyphendemerits, int_par(double_hyphen_demerits_code));
-    get_int_par  (finalhyphendemerits, int_par(final_hyphen_demerits_code));
-    get_int_par  (hangafter, int_par(hang_after_code));
-    get_intx_par (interlinepenalty,int_par(inter_line_penalty_code), interlinepenalties, equiv(inter_line_penalties_loc));
-    get_intx_par (clubpenalty, int_par(club_penalty_code), clubpenalties, equiv(club_penalties_loc));
-    get_intx_par (widowpenalty, int_par(widow_penalty_code), widowpenalties, equiv(widow_penalties_loc));
-    get_int_par  (brokenpenalty, int_par(broken_penalty_code));
-    get_dimen_par(emergencystretch, dimen_par(emergency_stretch_code));
-    get_dimen_par(hangindent, dimen_par(hang_indent_code));
-    get_dimen_par(hsize, dimen_par(hsize_code));
-    get_glue_par (leftskip, glue_par(left_skip_code));
-    get_glue_par (rightskip, glue_par(right_skip_code));
+    get_int_par  (pretolerance, pretolerance_par);
+    get_int_par  (tracingparagraphs, tracing_paragraphs_par);
+    get_int_par  (tolerance, tolerance_par);
+    get_int_par  (looseness, looseness_par);
+    get_int_par  (adjustspacing, adjust_spacing_par);
+    get_int_par  (adjdemerits, adj_demerits_par);
+    get_int_par  (protrudechars, protrude_chars_par);
+    get_int_par  (linepenalty, line_penalty_par);
+    get_int_par  (lastlinefit, last_line_fit_par);
+    get_int_par  (doublehyphendemerits, double_hyphen_demerits_par);
+    get_int_par  (finalhyphendemerits, final_hyphen_demerits_par);
+    get_int_par  (hangafter, hang_after_par);
+    get_intx_par (interlinepenalty,inter_line_penalty_par, interlinepenalties, equiv(inter_line_penalties_loc));
+    get_intx_par (clubpenalty, club_penalty_par, clubpenalties, equiv(club_penalties_loc));
+    get_intx_par (widowpenalty, widow_penalty_par, widowpenalties, equiv(widow_penalties_loc));
+    get_int_par  (brokenpenalty, broken_penalty_par);
+    get_dimen_par(emergencystretch, emergency_stretch_par);
+    get_dimen_par(hangindent, hang_indent_par);
+    get_dimen_par(hsize, hsize_par);
+    get_glue_par (leftskip, left_skip_par);
+    get_glue_par (rightskip, right_skip_par);
     ext_do_line_break(paragraph_dir,
                       pretolerance,
                       tracingparagraphs,
@@ -2846,6 +2838,7 @@ static int tex_save_box_resource(lua_State * L)
     int index = null;
     int attributes = null;
     int resources = null;
+    int type = 0;
     boolean immediate = false;
     /* box attributes resources */
     halfword boxnumber = lua_tointeger(L,1);
@@ -2859,6 +2852,9 @@ static int tex_save_box_resource(lua_State * L)
     }
     if (lua_type(L,4) == LUA_TBOOLEAN) {
         immediate = lua_toboolean(L, 4);
+    }
+    if (lua_type(L,5) == LUA_TNUMBER) {
+        type = lua_tointeger(L, 5);
     }
     /* more or less same as scanner variant */
     boxdata = box(boxnumber);
@@ -2875,6 +2871,7 @@ static int tex_save_box_resource(lua_State * L)
     set_obj_xform_width(static_pdf, index, width(boxdata));
     set_obj_xform_height(static_pdf, index, height(boxdata));
     set_obj_xform_depth(static_pdf, index, depth(boxdata));
+    set_obj_xform_type(static_pdf, index, type);
     box(boxnumber) = null;
     last_saved_box_index = index;
     lua_pushinteger(L, index);

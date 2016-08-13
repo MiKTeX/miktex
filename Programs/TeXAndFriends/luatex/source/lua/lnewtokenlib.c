@@ -63,7 +63,7 @@ typedef struct saved_tex_scanner {
 
 static lua_token *check_istoken(lua_State * L, int ud);
 
-#define TOKEN_METATABLE  "luatex_token"
+#define TOKEN_METATABLE  "luatex.token"
 
 #define DEBUG 0
 #define DEBUG_OUT stdout
@@ -534,7 +534,7 @@ static int run_build(lua_State * L)
     if (lua_type(L, 1) == LUA_TNUMBER) {
         int cs = 0;
         int chr = (int) lua_tointeger(L, 1);
-        int cmd = (int) luaL_optinteger(L, 2, get_cat_code(int_par(cat_code_table_code),chr));
+        int cmd = (int) luaL_optinteger(L, 2, get_cat_code(cat_code_table_par,chr));
         if (cmd == 0 || cmd == 9 || cmd == 14 || cmd == 15) {
             formatted_warning("token lib","not a good token, catcode %i can not be returned, so 12 will be used",(int) cmd);
             cmd = 12;
@@ -821,7 +821,7 @@ static int set_macro(lua_State * L)
         if (n > 3)
             s = lua_tostring(L, 4);
     } else {
-        ct = int_par(cat_code_table_code) ;
+        ct = cat_code_table_par;
         name = lua_tolstring(L, 1, &lname);
         if (n > 1)
             str = lua_tolstring(L, 2, &lstr);

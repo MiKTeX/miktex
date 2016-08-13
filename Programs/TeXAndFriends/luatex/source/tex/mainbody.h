@@ -214,8 +214,7 @@ is conditionally compiled in the C code.
 @^system dependencies@>
 */
 
-
-#  define fix_date_and_time() dateandtime(int_par(time_code),int_par(day_code),int_par(month_code),int_par(year_code))
+#  define fix_date_and_time() dateandtime(time_par,day_par,month_par,year_par)
 
 extern int get_luatexversion(void);
 extern str_number get_luatexrevision(void);
