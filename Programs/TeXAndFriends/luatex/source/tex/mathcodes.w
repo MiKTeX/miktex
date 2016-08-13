@@ -252,7 +252,7 @@ static void unsavedelcode(quarterword gl)
                 end_diagnostic(false);
             }
         }
-        (mathcode_head->stack_ptr)--;
+        (delcode_head->stack_ptr)--;
     }
 }
 

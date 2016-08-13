@@ -40,7 +40,7 @@ static int font_read_tfm(lua_State * L)
     if (lua_type(L, 1) == LUA_TSTRING) {
         const char *cnom = lua_tostring(L, 1);
         if (lua_type(L, 2) == LUA_TNUMBER) {
-            scaled s = (int) lua_tointeger(L, 2);
+            scaled s = (int) lua_roundnumber(L, 2);
             if (strlen(cnom)) {
                 internal_font_number f = get_fontid();
                 if (read_tfm_info(f, cnom, s)) {
@@ -70,7 +70,7 @@ static int font_read_vf(lua_State * L)
         const char *cnom = lua_tostring(L, 1);
         if (strlen(cnom)) {
             if (lua_type(L, 2) == LUA_TNUMBER) {
-                int i = lua_tointeger(L, 2);
+                int i = lua_roundnumber(L, 2);
                 return make_vf_table(L, cnom, (scaled) i);
             } else {
                 luaL_error(L, "expected an integer size as second argument");

@@ -462,7 +462,11 @@ halfword insert_character(halfword t, int c)
 void set_disc_field(halfword f, halfword t)
 {
     if (t != null) {
-        couple_nodes(f, t);
+        /*
+            couple_nodes(f, t); // better not expose f as prev pointer
+        */
+        vlink(f) = t ;
+        alink(t) = null ;
         tlink(f) = tail_of_list(t);
     } else {
         vlink(f) = null;

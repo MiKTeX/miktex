@@ -2430,7 +2430,6 @@ static void make_fraction(pointer q, int cur_style)
             delta1 = clr1 - ((shift_up   - depth(x) ) - (math_axis_size(cur_size) + delta));
             delta2 = clr2 - ((shift_down - height(z)) + (math_axis_size(cur_size) - delta));
         } else {
-            delta = half(thickness(q));
             clr1 = ext_xn_over_d(clr1, thickness(q), fraction_rule(cur_style));
             clr2 = ext_xn_over_d(clr2, thickness(q), fraction_rule(cur_style));
             delta1 = clr1 - ((shift_up   - depth(x) ) - (math_axis_size(cur_size) + delta));

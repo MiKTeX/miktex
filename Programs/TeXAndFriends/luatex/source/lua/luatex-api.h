@@ -586,6 +586,7 @@ make_lua_key(finalhyphendemerits);\
 make_lua_key(font);\
 make_lua_key(fonts);\
 make_lua_key(format);\
+make_lua_key(fraction);\
 make_lua_key(fullname);\
 make_lua_key(global);\
 make_lua_key(glue);\
@@ -657,6 +658,7 @@ make_lua_key(mathkern);\
 make_lua_key(mathstyle);\
 make_lua_key(media);\
 make_lua_key(mid);\
+make_lua_key(middle);\
 make_lua_key(mode);\
 make_lua_key(modeline);\
 make_lua_key(name);\
@@ -681,6 +683,7 @@ make_lua_key(objcompression);\
 make_lua_key(objnum);\
 make_lua_key(oldmath);\
 make_lua_key(ordering);\
+make_lua_key(options);\
 make_lua_key(origin);\
 make_lua_key(output);\
 make_lua_key(overlay_accent);\
@@ -950,6 +953,7 @@ init_lua_key(finalhyphendemerits);\
 init_lua_key(font);\
 init_lua_key(fonts);\
 init_lua_key(format);\
+init_lua_key(fraction);\
 init_lua_key(fullname);\
 init_lua_key(global);\
 init_lua_key(glue);\
@@ -1019,6 +1023,7 @@ init_lua_key(mathkern);\
 init_lua_key(mathstyle);\
 init_lua_key(media);\
 init_lua_key(mid);\
+init_lua_key(middle);\
 init_lua_key(mode);\
 init_lua_key(modeline);\
 init_lua_key(name);\
@@ -1040,6 +1045,7 @@ init_lua_key(number);\
 init_lua_key(objcompression);\
 init_lua_key(objnum);\
 init_lua_key(oldmath);\
+init_lua_key(options);\
 init_lua_key(origin);\
 init_lua_key(ordering);\
 init_lua_key(output);\
@@ -1363,6 +1369,7 @@ use_lua_key(finalhyphendemerits);
 use_lua_key(font);
 use_lua_key(fonts);
 use_lua_key(format);
+use_lua_key(fraction);
 use_lua_key(fullname);
 use_lua_key(global);
 use_lua_key(glue);
@@ -1434,6 +1441,7 @@ use_lua_key(mathkern);
 use_lua_key(mathstyle);
 use_lua_key(media);
 use_lua_key(mid);
+use_lua_key(middle);
 use_lua_key(mode);
 use_lua_key(modeline);
 use_lua_key(name);
@@ -1457,6 +1465,7 @@ use_lua_key(number);
 use_lua_key(objcompression);
 use_lua_key(objnum);
 use_lua_key(oldmath);
+use_lua_key(options);
 use_lua_key(origin);
 use_lua_key(ordering);
 use_lua_key(output);

@@ -180,7 +180,7 @@ int lua_appendtovlist_callback(halfword box, int location, halfword prev_depth, 
         return 0;
     }
     if (lua_type(Luas,-1) == LUA_TNUMBER) {
-        *next_depth = lua_tointeger(Luas,-1);
+        *next_depth = lua_roundnumber(Luas,-1);
         *prev_set = true;
         if (lua_type(Luas, -2) != LUA_TNIL) {
             p = check_isnode(Luas, -2);

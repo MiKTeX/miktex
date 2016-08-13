@@ -964,7 +964,7 @@ static void read_lua_math_parameters(lua_State * L, int f)
             } else if (t == LUA_TSTRING) {
                 i = ff_checkoption(L, -2, NULL, MATH_param_names);
             }
-            n = (int) lua_tointeger(L, -1);
+            n = (int) lua_roundnumber(L, -1);
             if (i > 0) {
                 set_font_math_param(f, i, n);
             }

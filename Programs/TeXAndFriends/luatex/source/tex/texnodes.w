@@ -143,17 +143,17 @@ const char *node_fields_choice[] = {
     "attr", "display", "text", "script", "scriptscript", NULL
 };
 const char *node_fields_radical[] = {
-    "attr", "nucleus", "sub", "sup", "left", "degree", NULL
+    "attr", "nucleus", "sub", "sup", "left", "degree", "width", "options", NULL
 };
 const char *node_fields_fraction[] = {
-    "attr", "width", "num", "denom", "left", "right", NULL
+    "attr", "width", "num", "denom", "left", "right", "middle", "options", NULL
 };
 const char *node_fields_accent[] = {
     "attr", "nucleus", "sub", "sup", "accent", "bot_accent", "top_accent",
-    "overlay_accent", NULL
+    "overlay_accent", "fraction", NULL
 };
 const char *node_fields_fence[] = {
-    "attr", "delim", NULL
+    "attr", "delim", "italic", "height", "depth", "options", "class", NULL
 };
 const char *node_fields_math_char[] = {
     "attr", "fam", "char", NULL

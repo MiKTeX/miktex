@@ -482,7 +482,7 @@ static void lua_to_image(lua_State * L, image * a, image_dict * d)
         if (t == LUA_TNIL) {
             set_wd_running(a);
         } else if (t == LUA_TNUMBER) {
-            img_width(a) = (int) lua_tointeger(L, -1);
+            img_width(a) = (int) lua_roundnumber(L, -1);
         } else if (t == LUA_TSTRING) {
             img_width(a) = dimen_to_number(L, lua_tostring(L, -1));
         } else {
@@ -492,7 +492,7 @@ static void lua_to_image(lua_State * L, image * a, image_dict * d)
         if (t == LUA_TNIL) {
             set_ht_running(a);
         } else if (t == LUA_TNUMBER) {
-            img_height(a) = (int) lua_tointeger(L, -1);
+            img_height(a) = (int) lua_roundnumber(L, -1);
         } else if (t == LUA_TSTRING) {
             img_height(a) = dimen_to_number(L, lua_tostring(L, -1));
         } else {
@@ -502,7 +502,7 @@ static void lua_to_image(lua_State * L, image * a, image_dict * d)
         if (t == LUA_TNIL) {
             set_dp_running(a);
         } else if (t == LUA_TNUMBER) {
-            img_depth(a) = (int) lua_tointeger(L, -1);
+            img_depth(a) = (int) lua_roundnumber(L, -1);
         } else if (t == LUA_TSTRING) {
             img_depth(a) = dimen_to_number(L, lua_tostring(L, -1));
         } else {
@@ -618,7 +618,7 @@ static void lua_to_image(lua_State * L, image * a, image_dict * d)
                 lua_gettable(L, -2);        /* int v k t ... */
                 t = lua_type(L, -1);
                 if (t == LUA_TNUMBER) {
-                    img_bbox(d)[i - 1] = (int) lua_tointeger(L, -1);
+                    img_bbox(d)[i - 1] = (int) lua_roundnumber(L, -1);
                 } else if (t == LUA_TSTRING) {
                     img_bbox(d)[i - 1] = dimen_to_number(L, lua_tostring(L, -1));
                 } else {

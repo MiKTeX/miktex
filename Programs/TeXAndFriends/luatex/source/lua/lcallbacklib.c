@@ -129,7 +129,7 @@ void get_lua_number(const char *table, const char *name, int *target)
     if (lua_istable(Luas, -1)) {
         lua_getfield(Luas, -1, name);
         if (lua_type(Luas, -1) == LUA_TNUMBER) {
-            *target = (int) lua_tointeger(Luas, -1);
+            *target = (int) lua_roundnumber(Luas, -1); /* was lua_tointeger */
         }
     }
     lua_settop(Luas, stacktop);
