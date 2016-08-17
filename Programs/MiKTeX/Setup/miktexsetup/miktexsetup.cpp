@@ -636,7 +636,7 @@ void Application::Main(int argc, const char ** argv)
 
   if (optShared)
   {
-    pSession->SetAdminMode(true);
+    pSession->SetAdminMode(true, true);
   }
 
   if (optListRepositories)
@@ -760,11 +760,6 @@ void Application::Main(int argc, const char ** argv)
   pSetupService->SetOptions(setupOptions);
 
   pSetupService->SetCallback(this);
-
-  if (optShared)
-  {
-    pSession->SetAdminMode(true, true);
-  }
 
   if (optPrintInfoOnly)
   {
