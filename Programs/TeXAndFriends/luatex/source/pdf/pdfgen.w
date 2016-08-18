@@ -576,7 +576,7 @@ void print_pdffloat(PDF pdf, pdffloat f)
                 pdf_out(pdf, '1');
             } else {
                 char a[24];
-                snprintf(a, 23, "%" LONGINTEGER_PRI "i", m);
+                snprintf(a, 23, "%" LONGINTEGER_PRI "i", (LONGINTEGER_TYPE) m);
                 pdf_puts(pdf, a);
             }
         } else {
