@@ -1,4 +1,4 @@
-% $Id: mp.w 2080 2016-03-06 21:26:30Z luigi $
+% $Id: mp.w 2089 2016-08-22 09:42:23Z luigi $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -2568,7 +2568,7 @@ void mp_new_randoms (MP mp) {
   mp->j_random = 54;
 }
 
-@ To consume a random fraction, the program below will say `|next_random|'. 
+@ To consume a random fraction, the program below will say `|next_random|'.
 Now each number system has its own implementation,
 true to the original as much as possibile.
 
@@ -2597,7 +2597,7 @@ As said before, now each number system has its own implementation.
 @c
 /*Unused.
 static void mp_unif_rand (MP mp, mp_number *ret, mp_number x_orig) {
-  mp_number y;     // trial value 
+  mp_number y;     // trial value
   mp_number x, abs_x;
   mp_number u;
   new_fraction (y);
@@ -31126,15 +31126,10 @@ void mp_scan_with_list (MP mp, mp_node p) {
       }
     } else if (t == with_mp_post_script) {
       if (cur_exp_str ()->len) {
-        mp_node k = NULL;    /* for finding the near-last item in a list  */
         if (bp == MP_VOID)
-          k = p;
-        bp = k;
-        while (k && mp_link (k) != NULL) { /* clang: dereference null pointer 'k' */
-          k = mp_link (k);
-          if (has_color (k))
-            bp = k;
-        }
+           bp = p;
+        while ((bp != NULL) && (!has_color (bp)))
+        bp = mp_link (bp);
         if (bp != NULL) {
           if (mp_post_script (bp) != NULL) {
             unsigned old_setting; /* saved |selector| setting */
