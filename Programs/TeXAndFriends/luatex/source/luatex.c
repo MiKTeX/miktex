@@ -1055,7 +1055,11 @@ int getrandomseed(void)
     ftime(&tb);
     return (tb.millitm + 1000 * tb.time);
 #else
+#if defined(MIKTEX)
+    time_t myclock = get_start_time();
+#else
     time_t myclock = get_start_time((time_t *) NULL);
+#endif
     struct tm *tmptr ;
     if (utc_option) {
         tmptr = gmtime(&myclock);
