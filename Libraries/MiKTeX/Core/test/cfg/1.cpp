@@ -19,6 +19,8 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include "config.h"
+
 #include <miktex/Core/Test>
 
 #include <memory>
@@ -90,11 +92,20 @@ BEGIN_TEST_FUNCTION(3);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(4);
+{
+  shared_ptr<Cfg> cfg;
+  TESTX(cfg = Cfg::Create());
+  TESTX(cfg->Read(MiKTeX::Core::PathName(TEST_SOURCE_DIR) / "cfg" / "sigtest.ini"));
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
   CALL_TEST_FUNCTION(2);
   CALL_TEST_FUNCTION(3);
+  CALL_TEST_FUNCTION(4);
 }
 END_TEST_PROGRAM();
 

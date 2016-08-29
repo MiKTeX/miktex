@@ -23,6 +23,9 @@ set(sandbox "${CMAKE_CURRENT_BINARY_DIR}/sandbox")
 set(installroot "${sandbox}/texmf")
 set(dataroot "${sandbox}/localtexmf")
 
+set(TEST_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+set(TEST_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
 make_directory(${installroot}/miktex/config)
 make_directory(${installroot}/tex/latex/base)
 make_directory(${installroot}/tex/test/base)
@@ -39,10 +42,19 @@ configure_file(
   ${installroot}/miktex/config/log4cxx.xml
 )
 
+configure_file(
+  config.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
 file(WRITE ${installroot}/ab/cd/ef/xxx/xyz.txt ".")
 file(WRITE ${installroot}/jk/lm/no/xxx/xyz.txt ".")
 file(WRITE ${installroot}/tex/latex/base/test.cls ".")
 file(WRITE ${installroot}/tex/test/base/test.tex ".")
+
+include_directories(BEFORE
+  ${CMAKE_CURRENT_BINARY_DIR}
+)
 
 add_subdirectory(strings)
 add_subdirectory(cfg)
