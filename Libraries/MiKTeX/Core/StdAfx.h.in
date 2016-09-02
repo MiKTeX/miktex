@@ -163,11 +163,21 @@
 
 #include <md5.h>
 
+#if defined(ENABLE_BOTAN)
 #include <botan/botan.h>
 #include <botan/look_pk.h>
 #include <botan/pk_keys.h>
 #include <botan/pk_filts.h>
 #include <botan/rsa.h>
+#endif
+
+#if defined(ENABLE_OPENSSL)
+#include <openssl/err.h>
+#include <openssl/evp.h>
+#include <openssl/pem.h>
+#include <openssl/x509.h>
+#endif
+
 #include <bzlib.h>
 #include <lzma.h>
 #include <zlib.h>

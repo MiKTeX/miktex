@@ -102,6 +102,11 @@ if(MIKTEX_NATIVE_WINDOWS)
         htmlhelp.lib
     )
   endif()
+else()
+  target_link_libraries(${core_dll_name}
+    PRIVATE
+      ${openssl_crypto_dll_name}
+  )
 endif()
 
 delay_load(${core_dll_name}

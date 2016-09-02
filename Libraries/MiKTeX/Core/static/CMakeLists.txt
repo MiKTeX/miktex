@@ -66,6 +66,11 @@ if(MIKTEX_NATIVE_WINDOWS)
         htmlhelp.lib
     )
   endif()
+else()
+  target_link_libraries(${core_lib_name}
+    PRIVATE
+      ${openssl_crypto_lib_name}
+  )
 endif()
 
 source_group("C API" FILES ${c_api_sources})

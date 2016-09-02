@@ -182,6 +182,19 @@ const size_t MPM_ROOT_PATH_LEN_ = 14;
 const size_t MPM_ROOT_PATH_LEN = MPM_ROOT_PATH_LEN_;
 #endif
 
+#if defined(ENABLE_BOTAN)
+Botan::Public_Key * LoadPublicKey_Botan(const MiKTeX::Core::PathName & publicKeyFile);
+#endif
+
+#if defined(ENABLE_OPENSSL)
+using BIO_ptr = std::unique_ptr<BIO, decltype(&::BIO_free)>;
+using EVP_MD_CTX_ptr = std::unique_ptr<EVP_MD_CTX, decltype(&::EVP_MD_CTX_destroy)>;
+using EVP_PKEY_ptr = std::unique_ptr<EVP_PKEY, decltype(&::EVP_PKEY_free)>;
+using RSA_ptr = std::unique_ptr<RSA, decltype(&::RSA_free)>;
+void FatalOpenSSLError();
+RSA_ptr LoadPublicKey_OpenSSL(const MiKTeX::Core::PathName & publicKeyFile);
+#endif
+
 void AppendDirectoryDelimiter(std::string & path);
 void AppendDirectoryDelimiter(char * lpszPath, size_t size);
 void CopyString2(char * lpszBuf, size_t bufSize, const char * lpszSource, size_t count);
@@ -208,7 +221,13 @@ bool GetWindowsErrorMessage(unsigned long functionResult, std::string & errorMes
 #endif
 
 const char * GetFileNameExtension(const char * lpszPath);
-Botan::Public_Key * LoadPublicKey();
+enum class CryptoLib
+{
+  None,
+  Botan,
+  OpenSSL
+};
+CryptoLib GetCryptoLib();
 bool HaveEnvironmentString(const char * lpszName);
 bool GetEnvironmentString(const char * lpszName, std::string & value);
 bool IsExplicitlyRelativePath(const char * lpszPath);

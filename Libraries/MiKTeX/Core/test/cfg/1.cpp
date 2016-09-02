@@ -94,9 +94,45 @@ END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(4);
 {
+#if 0
+  // TODO: can be enabled when we switch to EMSA3(SHA-256)
   shared_ptr<Cfg> cfg;
   TESTX(cfg = Cfg::Create());
   TESTX(cfg->Read(MiKTeX::Core::PathName(TEST_SOURCE_DIR) / "cfg" / "sigtest.ini"));
+#endif
+}
+END_TEST_FUNCTION();
+
+class PrivateKeyProvider : public IPrivateKeyProvider
+{
+public:
+  PathName MIKTEXTHISCALL GetPrivateKeyFile() override
+  {
+    return MiKTeX::Core::PathName(TEST_SOURCE_DIR) / "cfg" / "test.pkcs8.pem";
+  }
+public:
+  bool GetPassphrase(std::string & passphrase) override
+  {
+    passphrase = "fortestingonly";
+    return true;
+  }
+};
+
+BEGIN_TEST_FUNCTION(5);
+{
+  shared_ptr<Cfg> cfg;
+  TESTX(cfg = Cfg::Create());
+  TESTX(cfg->Read("test.ini"));
+  PrivateKeyProvider privKey;
+  TESTX(cfg->Write("sigtest2.ini", "signed with test key", &privKey));
+}
+END_TEST_FUNCTION();
+
+BEGIN_TEST_FUNCTION(6);
+{
+  shared_ptr<Cfg> cfg;
+  TESTX(cfg = Cfg::Create());
+  TESTX(cfg->Read("sigtest2.ini", MiKTeX::Core::PathName(TEST_SOURCE_DIR) / "cfg" / "test.pub.pem"));
 }
 END_TEST_FUNCTION();
 
@@ -106,6 +142,8 @@ BEGIN_TEST_PROGRAM();
   CALL_TEST_FUNCTION(2);
   CALL_TEST_FUNCTION(3);
   CALL_TEST_FUNCTION(4);
+  CALL_TEST_FUNCTION(5);
+  CALL_TEST_FUNCTION(6);
 }
 END_TEST_PROGRAM();
 

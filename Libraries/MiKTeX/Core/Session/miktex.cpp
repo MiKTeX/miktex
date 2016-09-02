@@ -543,10 +543,85 @@ namespace {
 #include "miktex.der.h"
 }
 
-MIKTEXINTERNALFUNC(Botan::Public_Key *) LoadPublicKey()
+MIKTEXINTERNALFUNC(CryptoLib) GetCryptoLib()
 {
-  return Botan::X509::load_key(Botan::MemoryVector<Botan::byte>(&PUBLIC_KEY_NAME[0], sizeof(PUBLIC_KEY_NAME)));
+#if defined(ENABLE_BOTAN)
+  return CryptoLib::Botan;
+#elif defined(ENABLE_OPENSSL)
+  static bool initDone = false;
+  if (!initDone)
+  {
+    OpenSSL_add_all_algorithms();
+    ERR_load_crypto_strings();
+    initDone = true;
+  }
+  return CryptoLib::OpenSSL;
+#else
+  return CryptoLib::None;
+#endif
 }
+
+#if defined(ENABLE_BOTAN)
+MIKTEXINTERNALFUNC(Botan::Public_Key*) LoadPublicKey_Botan(const PathName & publicKeyFile)
+{
+  if (publicKeyFile.Empty())
+  {
+    return Botan::X509::load_key(Botan::MemoryVector<Botan::byte>(&PUBLIC_KEY_NAME[0], sizeof(PUBLIC_KEY_NAME)));
+  }
+  else
+  {
+    return Botan::X509::load_key(publicKeyFile.ToString());
+  }
+}
+#endif
+
+#if defined(ENABLE_OPENSSL)
+extern "C" int OnOpenSSLError(const char * str, size_t len, void * u)
+{
+  // TODO: log
+  return 1;
+}
+
+MIKTEXINTERNALFUNC(void) FatalOpenSSLError()
+{
+  ERR_print_errors_cb(OnOpenSSLError, nullptr);
+  MIKTEX_UNEXPECTED();
+}
+#endif
+
+#if defined(ENABLE_OPENSSL)
+MIKTEXINTERNALFUNC(RSA_ptr) LoadPublicKey_OpenSSL(const PathName & publicKeyFile)
+{
+  BIO_ptr mem(BIO_new(BIO_s_mem()), BIO_free);
+  if (mem == nullptr)
+  {
+    FatalOpenSSLError();
+  }
+  RSA * rsa;
+  if (publicKeyFile.Empty())
+  {
+    if (BIO_write(mem.get(), &PUBLIC_KEY_NAME[0], sizeof(PUBLIC_KEY_NAME)) != sizeof(PUBLIC_KEY_NAME))
+    {
+      FatalOpenSSLError();
+    }
+    if (BIO_flush(mem.get()) != 1)
+    {
+      FatalOpenSSLError();
+    }
+    rsa = d2i_RSA_PUBKEY_bio(mem.get(), nullptr);
+  }
+  else
+  {
+    FileStream stream(File::Open(publicKeyFile, FileMode::Open, FileAccess::Read));
+    rsa = PEM_read_RSA_PUBKEY(stream.Get(), nullptr, nullptr, nullptr);
+  }
+  if (rsa == nullptr)
+  {
+    FatalOpenSSLError();
+  }
+  return RSA_ptr(rsa, RSA_free);
+}
+#endif
 
 void SessionImpl::SetCWDEnv()
 {

@@ -42,7 +42,15 @@ using namespace std;
 const char COMMENT_CHAR = ';';
 const char * const COMMENT_CHAR_STR = ";";
 
+#if defined(ENABLE_BOTAN)
+#if 0
+// TODO: switch to EMSA3(SHA-256) and recreate scripts.ini
+const char * const EMSA_ = "EMSA3(SHA-256)";
+#else
+// COMPAT: EMSA1 is not compatible with OpenSSL
 const char * const EMSA_ = "EMSA1(SHA-256)";
+#endif
+#endif
 
 MIKTEXSTATICFUNC(bool) EndsWith(const string & s, const string & suffix)
 {
@@ -301,6 +309,154 @@ void CfgKey::WriteValues(StreamWriter & writer)
 
 typedef unordered_map<string, shared_ptr<CfgKey>> KeyMap;
 
+class WalkCallback
+{
+public:
+  virtual ~WalkCallback() {}
+  virtual void addData(const string & data) = 0;
+};
+
+class MD5WalkCallback : public WalkCallback
+{
+public:
+  void addData(const string & data) override
+  {
+    md5Builder.Update(data.c_str(), data.length());
+  }
+
+public:
+  MD5 GetMD5() const
+  {
+    return md5Builder.GetMD5();
+  }
+  
+private:
+  MD5Builder md5Builder;
+};
+
+#if defined(ENABLE_BOTAN)
+class BotanWalkCallback : public WalkCallback
+{
+public:
+  BotanWalkCallback(Botan::Pipe & pipe) :
+    pipe(pipe)
+  {
+  }
+
+private:
+  Botan::Pipe & pipe;
+  
+public:
+  void addData(const string & data) override
+  {
+    pipe.write(data);
+  }
+};
+#endif
+
+#if defined(ENABLE_OPENSSL)
+class OpenSSLWalkCallback : public WalkCallback
+{
+public:
+  OpenSSLWalkCallback(EVP_PKEY * pkey, bool verify) :
+    mdctx(EVP_MD_CTX_create(), EVP_MD_CTX_destroy)
+  {
+    this->isVerifying = verify;
+    this->pkey = pkey;
+    if (mdctx == nullptr)
+    {
+      FatalOpenSSLError();
+    }
+    const EVP_MD * md = EVP_get_digestbyname("SHA256");
+    if (md == nullptr)
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    if (isVerifying)
+    {
+      if (EVP_DigestVerifyInit(mdctx.get(), nullptr, md, nullptr, pkey) != 1)
+      {
+	FatalOpenSSLError();
+      }
+    }
+    else
+    {
+      if (EVP_DigestSignInit(mdctx.get(), nullptr, md, nullptr, pkey) != 1)
+      {
+	FatalOpenSSLError();
+      }
+    }
+  }
+
+public:
+  void addData(const string & data) override
+  {
+    if (isVerifying)
+    {
+      if (EVP_DigestVerifyUpdate(mdctx.get(), data.c_str(), data.length()) != 1)
+      {
+	FatalOpenSSLError();
+      }
+    }
+    else
+    {
+      if (EVP_DigestSignUpdate(mdctx.get(), data.c_str(), data.length()) != 1)
+      {
+	FatalOpenSSLError();
+      }
+    }
+  }
+
+public:
+  bool Verify(const vector<unsigned char> & sig)
+  {
+    if (!isVerifying)
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    vector<unsigned char> modifiableSig = sig;
+    bool ok = EVP_DigestVerifyFinal(mdctx.get(), &modifiableSig[0], modifiableSig.size()) == 1;
+    if (!ok)
+    {
+#if 0
+      FatalOpenSSLError();
+#endif
+    }
+    return ok;
+  }
+
+public:
+  vector<unsigned char> Sign()
+  {
+    if (isVerifying)
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    vector<unsigned char> sig;
+    size_t sigLen = 0;
+    if (EVP_DigestSignFinal(mdctx.get(), nullptr, &sigLen) != 1)
+    {
+      FatalOpenSSLError();
+    }
+    sig.resize(sigLen);
+    if (EVP_DigestSignFinal(mdctx.get(), &sig[0], &sigLen) != 1)
+    {
+      FatalOpenSSLError();
+    }
+    return sig;
+  }
+  
+private:
+  bool isVerifying;
+
+private:
+  EVP_MD_CTX_ptr mdctx;
+
+private:
+  EVP_PKEY * pkey;
+};
+#endif
+
 class CfgImpl : public Cfg
 {
 public:
@@ -333,12 +489,30 @@ public:
 public:
   void MIKTEXTHISCALL PutValue(const string & keyName, const string & valueName, const string & value, const string & documentation, bool commentedOut) override;
 
+private:
+  void Read(const PathName & path, const string & defaultKeyName, int level, bool mustBeSigned, const PathName & publicKeyFile);
+
 public:
   void MIKTEXTHISCALL Read(const PathName & path) override
   {
+    this->path = path;
     Read(path, false);
   }
 
+public:
+  void MIKTEXTHISCALL Read(const PathName & path, bool mustBeSigned) override
+  {
+    this->path = path;
+    Read(path, path.GetFileNameWithoutExtension().ToString(), 0, mustBeSigned, PathName());
+  }
+
+public:
+  void MIKTEXTHISCALL Read(const PathName & path, const PathName & publicKeyFile) override
+  {
+    this->path = path;
+    Read(path, path.GetFileNameWithoutExtension().ToString(), 0, true, publicKeyFile);
+  }
+  
 public:
   void MIKTEXTHISCALL Write(const PathName & path) override
   {
@@ -375,19 +549,13 @@ public:
   void MIKTEXTHISCALL DeleteValue(const string & keyName, const string & valueName) override;
 
 public:
-  void MIKTEXTHISCALL Read(const PathName & path, bool mustBeSigned) override;
-
-public:
   bool MIKTEXTHISCALL IsSigned() const override
   {
-    return signature.size() > 0;
+    return !signature.empty();
   }
 
 public:
   void MIKTEXTHISCALL Write(const PathName & path, const string & header, IPrivateKeyProvider * pPrivateKeyProvider) override;
-
-private:
-  void Read(const PathName & path, const string & defaultKeyName, int level, bool mustBeSigned);
 
 private:
   enum PutMode {
@@ -400,7 +568,7 @@ private:
   bool ParseValueDefinition(const string & line, string & valueName, string & value, PutMode & putMode);
 
 private:
-  void Walk(Botan::Pipe & pipe) const;
+  void Walk(WalkCallback * callback) const;
 
 private:
   PathName path;
@@ -418,7 +586,7 @@ private:
   MD5 snapshotDigest;
 
 private:
-  Botan::SecureVector<Botan::byte> signature;
+  string signature;
 
 private:
   unique_ptr<TraceStream> traceStream;
@@ -520,7 +688,7 @@ void CfgImpl::DeleteKey(const string & keyName)
   keyMap.erase(it);
 }
 
-void CfgImpl::Walk(Botan::Pipe & pipe) const
+void CfgImpl::Walk(WalkCallback * callback) const
 {
   vector<CfgKey> keys;
   keys.reserve(keyMap.size());
@@ -531,9 +699,9 @@ void CfgImpl::Walk(Botan::Pipe & pipe) const
   sort(keys.begin(), keys.end());
   for (const CfgKey & key : keys)
   {
-    pipe.write("[");
-    pipe.write(key.lookupName);
-    pipe.write("]\n");
+    callback->addData("[");
+    callback->addData(key.lookupName);
+    callback->addData("]\n");
     vector<CfgValue> values;
     values.reserve(key.valueMap.size());
     for (const auto & p : key.valueMap)
@@ -545,26 +713,26 @@ void CfgImpl::Walk(Botan::Pipe & pipe) const
     {
       if (val.value.empty())
       {
-        pipe.write(val.lookupName);
-        pipe.write("=");
-        pipe.write("\n");
+        callback->addData(val.lookupName);
+        callback->addData("=");
+        callback->addData("\n");
       }
       else if (val.IsMultiValue())
       {
         for (const string & v : val.value)
         {
-          pipe.write(val.lookupName);
-          pipe.write("=");
-          pipe.write(v);
-          pipe.write("\n");
+          callback->addData(val.lookupName);
+          callback->addData("=");
+          callback->addData(v);
+          callback->addData("\n");
         }
       }
       else
       {
-        pipe.write(val.lookupName);
-        pipe.write("=");
-        pipe.write(val.value.front());
-        pipe.write("\n");
+        callback->addData(val.lookupName);
+        callback->addData("=");
+        callback->addData(val.value.front());
+        callback->addData("\n");
       }
     }
   }
@@ -572,16 +740,9 @@ void CfgImpl::Walk(Botan::Pipe & pipe) const
 
 MD5 CfgImpl::GetDigest() const
 {
-  Botan::Pipe pipe(new Botan::Hash_Filter("MD5"));
-  pipe.start_msg();
-  Walk(pipe);
-  pipe.end_msg();
-  Botan::SecureVector<Botan::byte> md5 = pipe.read_all(0);
-  MiKTeX::Core::MD5 result;
-  MIKTEX_ASSERT(sizeof(result) == 16);
-  MIKTEX_ASSERT(md5.size() == sizeof(result));
-  memcpy(&result[0], &md5[0], md5.size());
-  return result;
+  MD5WalkCallback callback;
+  Walk(&callback);
+  return callback.GetMD5();
 }
 
 unique_ptr<Cfg> Cfg::Create()
@@ -749,16 +910,10 @@ void CfgImpl::PutValue(const string & keyName, const string & valueName, const s
   return PutValue(keyName, valueName, value, None, value, commentedOut);
 }
 
-void CfgImpl::Read(const PathName & path, bool mustBeSigned)
-{
-  Read(path, path.GetFileNameWithoutExtension().ToString(), 0, mustBeSigned);
-  this->path = path;
-}
-
-void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int level, bool mustBeSigned)
+void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int level, bool mustBeSigned, const PathName & publicKeyFile)
 {
   MIKTEX_ASSERT(!(level > 0 && mustBeSigned));
-
+  
   traceStream->WriteFormattedLine("core", T_("parsing: %s..."), path.Get());
 
   if (mustBeSigned)
@@ -812,7 +967,7 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
         path2.MakeAbsolute();
         path2.RemoveFileSpec();
         path2 /= lpsz;
-        Read(path2, keyName, level + 1, false);
+        Read(path2, keyName, level + 1, false, PathName());
       }
       else if (StringCompare(lpsz, "clear") == 0)
       {
@@ -872,9 +1027,7 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
           lpsz = tok.GetCurrent();
           if (lpsz != nullptr && wasEmpty && level == 0)
           {
-            Botan::Pipe pipe(new Botan::Base64_Decoder(Botan::Decoder_Checking::FULL_CHECK));
-            pipe.process_msg(lpsz);
-            signature = pipe.read_all();
+	    signature = lpsz;
           }
         }
       }
@@ -883,37 +1036,94 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
 
   reader.Close();
 
-  if (mustBeSigned && signature.size() == 0)
+  if (mustBeSigned && signature.empty())
   {
     FATAL_CFG_ERROR(T_("the configuration file is not signed"));
   }
 
-  if (wasEmpty && level == 0 && signature.size() > 0)
+  if (wasEmpty && level == 0 && !signature.empty())
   {
-    unique_ptr<Botan::Public_Key> pPublicKey(LoadPublicKey());
-    Botan::RSA_PublicKey * pRsaKey = dynamic_cast<Botan::RSA_PublicKey*>(pPublicKey.get());
-    if (pRsaKey == nullptr)
+#if defined(ENABLE_BOTAN)
+    if (GetCryptoLib() == CryptoLib::Botan)
     {
-      MIKTEX_UNEXPECTED();
-    }
+      Botan::Pipe sigPipe(new Botan::Base64_Decoder(Botan::Decoder_Checking::FULL_CHECK));
+      sigPipe.process_msg(signature);
+      unique_ptr<Botan::Public_Key> pPublicKey(LoadPublicKey_Botan(publicKeyFile));
+      Botan::RSA_PublicKey * pRsaKey = dynamic_cast<Botan::RSA_PublicKey*>(pPublicKey.get());
+      if (pRsaKey == nullptr)
+      {
+	MIKTEX_UNEXPECTED();
+      }
 #if BOTAN_VERSION_CODE >= BOTAN_VERSION_CODE_FOR(1, 10, 0)
-    Botan::Pipe pipe(new Botan::PK_Verifier_Filter(new Botan::PK_Verifier(*pRsaKey, EMSA_), signature));
+      Botan::Pipe pipe(new Botan::PK_Verifier_Filter(new Botan::PK_Verifier(*pRsaKey, EMSA_), sigPipe.read_all()));
 #else
-    Botan::Pipe pipe(new Botan::PK_Verifier_Filter(Botan::get_pk_verifier(*pRsaKey, EMSA_), signature));
+      Botan::Pipe pipe(new Botan::PK_Verifier_Filter(Botan::get_pk_verifier(*pRsaKey, EMSA_), sigPipe.read_all()));
 #endif
-    pipe.start_msg();
-    Walk(pipe);
-    pipe.end_msg();
-    Botan::byte ok;
-    if (pipe.read_byte(ok) != 1)
-    {
-      MIKTEX_UNEXPECTED();
+      BotanWalkCallback callback(pipe);
+      pipe.start_msg();
+      Walk(&callback);
+      pipe.end_msg();
+      Botan::byte ok;
+      if (pipe.read_byte(ok) != 1)
+      {
+	MIKTEX_UNEXPECTED();
+      }
+      MIKTEX_ASSERT(ok == 1 || ok == 0);
+      if (ok != 1)
+      {
+	FATAL_CFG_ERROR(T_("the file has been tampered with"));
+      }
     }
-    MIKTEX_ASSERT(ok == 1 || ok == 0);
-    if (ok != 1)
+#endif
+#if defined(ENABLE_OPENSSL)
+    if (GetCryptoLib() == CryptoLib::OpenSSL)
     {
-      FATAL_CFG_ERROR(T_("the file has been tampered with"));
+      BIO_ptr b64 (BIO_new(BIO_f_base64()), BIO_free);
+      if (b64 == nullptr)
+      {
+	FatalOpenSSLError();
+      }
+      BIO_set_flags(b64.get(), BIO_FLAGS_BASE64_NO_NL);
+      vector<char> modifiableSignature;
+      for (const char & ch : signature)
+      {
+	modifiableSignature.push_back(ch);
+      }
+      BIO_ptr mem (BIO_new_mem_buf(&modifiableSignature[0], modifiableSignature.size()), BIO_free);
+      if (mem == nullptr)
+      {
+	FatalOpenSSLError();
+      }
+      BIO * bio = BIO_push(b64.get(), mem.get());
+      unsigned char buf[1000];
+      vector<unsigned char> sig;
+      int n = 0;
+      while ((n = BIO_read(bio, buf, 1000)) > 0)
+      {
+	sig.insert(sig.end(), buf, buf + n);
+      }
+      if (n < -1)
+      {
+	FatalOpenSSLError();
+      }
+      RSA_ptr rsa = LoadPublicKey_OpenSSL(publicKeyFile);
+      EVP_PKEY_ptr pkey (EVP_PKEY_new(), EVP_PKEY_free);
+      if (pkey == nullptr)
+      {
+	FatalOpenSSLError();
+      }
+      if (EVP_PKEY_set1_RSA(pkey.get(), rsa.get()) != 1)
+      {
+	FatalOpenSSLError();
+      }
+      OpenSSLWalkCallback callback(pkey.get(), true);
+      Walk(&callback);
+      if (!callback.Verify(sig))
+      {
+	FATAL_CFG_ERROR(T_("the file has been tampered with"));
+      }
     }
+#endif
   }
 }
 
@@ -950,6 +1160,7 @@ bool CfgImpl::ParseValueDefinition(const string & line, string & valueName, stri
   return true;
 }
 
+#if defined(ENABLE_BOTAN)
 class BotanUI : public Botan::User_Interface
 {
 public:
@@ -967,6 +1178,65 @@ public:
 private:
   IPrivateKeyProvider * pPrivateKeyProvider = nullptr;
 };
+#endif
+
+#if defined(ENABLE_OPENSSL)
+extern "C" int OpenSSLPasswordCallback(char * buf, int size, int rwflag, void * userdata)
+{
+  IPrivateKeyProvider * privKey = (IPrivateKeyProvider*)userdata;
+  string passphrase;
+  if (!privKey->GetPassphrase(passphrase))
+  {
+    return 0;
+  }
+  if (passphrase.length() >= size)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  strcpy(buf, passphrase.c_str());
+  return passphrase.length();
+}
+#endif
+
+string ToBase64(const vector<unsigned char> & bytes)
+{
+#if defined(ENABLE_OPENSSL)
+  BIO_ptr b64 (BIO_new(BIO_f_base64()), BIO_free);
+  if (b64 == nullptr)
+  {
+    FatalOpenSSLError();
+  }
+  BIO_ptr mem (BIO_new(BIO_s_mem()), BIO_free);
+  if (mem == nullptr)
+  {
+    FatalOpenSSLError();
+  }
+  BIO_set_flags(b64.get(), BIO_FLAGS_BASE64_NO_NL);
+  BIO_push(b64.get(), mem.get());
+  if (BIO_write(b64.get(), &bytes[0], bytes.size()) != bytes.size())
+  {
+    FatalOpenSSLError();
+  }
+  if (BIO_flush(b64.get()) != 1)
+  {
+    FatalOpenSSLError();
+  }
+  char buf[1024];
+  int n;
+  string s;
+  while ((n = BIO_read(mem.get(), buf, sizeof(buf))) > 0)
+  {
+    s.insert(s.end(), buf, buf + n);
+  }
+  if (n < -1)
+  {
+    FatalOpenSSLError();
+  }
+  return s;
+#else
+  UNIMPLEMENTED();
+#endif
+}
 
 void CfgImpl::Write(const PathName & path, const string & header, IPrivateKeyProvider * pPrivateKeyProvider)
 {
@@ -980,29 +1250,58 @@ void CfgImpl::Write(const PathName & path, const string & header, IPrivateKeyPro
   WriteKeys(writer);
   if (pPrivateKeyProvider != nullptr)
   {
-    unique_ptr<Botan::PKCS8_PrivateKey> privateKey;
-    Botan::AutoSeeded_RNG rng;
-    BotanUI ui(pPrivateKeyProvider);
-    unique_ptr<Botan::Pipe> pPipe;
-    privateKey.reset(Botan::PKCS8::load_key(
-      pPrivateKeyProvider->GetPrivateKeyFile().ToString(),
-      rng,
-      ui));
-    Botan::RSA_PrivateKey * pRsaKey = dynamic_cast<Botan::RSA_PrivateKey *>(privateKey.get());
-    if (pRsaKey == nullptr)
+    string sig;
+#if defined(ENABLE_BOTAN)
+    if (GetCryptoLib() == CryptoLib::Botan)
     {
-      MIKTEX_UNEXPECTED();
-    }
-    pPipe.reset(new Botan::Pipe(
+      unique_ptr<Botan::PKCS8_PrivateKey> privateKey;
+      Botan::AutoSeeded_RNG rng;
+      BotanUI ui(pPrivateKeyProvider);
+      unique_ptr<Botan::Pipe> pPipe;
+      privateKey.reset(Botan::PKCS8::load_key(pPrivateKeyProvider->GetPrivateKeyFile().ToString(), rng, ui));
+      Botan::RSA_PrivateKey * pRsaKey = dynamic_cast<Botan::RSA_PrivateKey *>(privateKey.get());
+      if (pRsaKey == nullptr)
+      {
+	MIKTEX_UNEXPECTED();
+      }
+      pPipe.reset(new Botan::Pipe(
 #if BOTAN_VERSION_CODE >= BOTAN_VERSION_CODE_FOR(1, 10, 0)
-      new Botan::PK_Signer_Filter(new Botan::PK_Signer(*pRsaKey, EMSA_), rng),
+				  new Botan::PK_Signer_Filter(new Botan::PK_Signer(*pRsaKey, EMSA_), rng),
 #else
-      new Botan::PK_Signer_Filter(new Botan::PK_Signer(*pRsaKey, Botan::get_emsa(EMSA_)), rng),
+				  new Botan::PK_Signer_Filter(new Botan::PK_Signer(*pRsaKey, Botan::get_emsa(EMSA_)), rng),
 #endif
-      new Botan::Base64_Encoder()));
-    pPipe->start_msg();
-    Walk(*pPipe);
-    pPipe->end_msg();
+				  new Botan::Base64_Encoder()));
+      pPipe->start_msg();
+      BotanWalkCallback callback(*pPipe);
+      Walk(&callback);
+      pPipe->end_msg();
+      sig = pPipe->read_all_as_string();
+    }
+#endif
+#if defined(ENABLE_OPENSSL)
+    if (GetCryptoLib() == CryptoLib::OpenSSL)
+    {
+      FileStream stream(File::Open(pPrivateKeyProvider->GetPrivateKeyFile(), FileMode::Open, FileAccess::Read));
+      RSA_ptr rsa (PEM_read_RSAPrivateKey(stream.Get(), nullptr, OpenSSLPasswordCallback, pPrivateKeyProvider), RSA_free);
+      stream.Close();
+      if (rsa == nullptr)
+      {
+	FatalOpenSSLError();
+      }
+      EVP_PKEY_ptr pkey (EVP_PKEY_new(), EVP_PKEY_free);
+      if (pkey == nullptr)
+      {
+	FatalOpenSSLError();
+      }
+      if (EVP_PKEY_set1_RSA(pkey.get(), rsa.get()) != 1)
+      {
+	FatalOpenSSLError();
+      }
+      OpenSSLWalkCallback callback(pkey.get(), false);
+      Walk(&callback);
+      sig = ToBase64(callback.Sign());
+    }
+#endif
     writer.WriteLine();
     writer.WriteFormattedLine(
       T_("%c%c%c%c This configuration file is signed by a MiKTeX maintainer. The signature follows."),
@@ -1012,7 +1311,7 @@ void CfgImpl::Write(const PathName & path, const string & header, IPrivateKeyPro
       COMMENT_CHAR, COMMENT_CHAR, COMMENT_CHAR, COMMENT_CHAR);
     writer.WriteFormattedLine("%c%c%c%c signature/miktex: %s",
       COMMENT_CHAR, COMMENT_CHAR, COMMENT_CHAR, COMMENT_CHAR,
-      pPipe->read_all_as_string().c_str());
+      sig.c_str());
     writer.WriteFormattedLine(
       T_("%c%c%c%c-----END MIKTEX SIGNATURE-----"),
       COMMENT_CHAR, COMMENT_CHAR, COMMENT_CHAR, COMMENT_CHAR);

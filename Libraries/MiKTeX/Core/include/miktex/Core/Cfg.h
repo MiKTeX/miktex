@@ -129,6 +129,12 @@ public:
 public:
   virtual void MIKTEXTHISCALL Read(const PathName & path) = 0;
 
+public:
+  virtual void MIKTEXTHISCALL Read(const PathName & path, bool mustBeSigned) = 0;
+
+ public:
+  virtual void MIKTEXTHISCALL Read(const PathName & path, const PathName & publicKeyFile) = 0;
+
   /// Write configuration settings into a file.
 public:
   virtual void MIKTEXTHISCALL Write(const PathName & path) = 0;
@@ -136,6 +142,10 @@ public:
   /// Write configuration settings into a file.
 public:
   virtual void MIKTEXTHISCALL Write(const PathName & path, const std::string & header) = 0;
+
+  /// Write configuration settings into a file and sign the file.
+public:
+  virtual void MIKTEXTHISCALL Write(const PathName & path, const std::string & header, IPrivateKeyProvider * privateKeyProvider) = 0;
 
   /// Gets all keys.
 public:
@@ -158,14 +168,7 @@ public:
   virtual void MIKTEXTHISCALL DeleteValue(const std::string & keyName, const std::string & valueName) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL Read(const PathName & path, bool mustBeSigned) = 0;
-
-public:
   virtual bool MIKTEXTHISCALL IsSigned() const = 0;
-
-  /// Write configuration settings into a file and sign the file.
-public:
-  virtual void MIKTEXTHISCALL Write(const PathName & path, const std::string & header, IPrivateKeyProvider * privateKeyProvider) = 0;
 };
 
 MIKTEX_CORE_END_NAMESPACE;

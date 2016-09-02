@@ -234,6 +234,12 @@ option(
 )
 
 option(
+  USE_SYSTEM_OPENSSL
+  "Use the system OpenSSL/LibreSSL library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
   USE_SYSTEM_PIXMAN
   "Use the system Pixman pixel manipulation library."
   ${MIKTEX_UNIX_ALIKE}
@@ -664,6 +670,10 @@ endif()
 
 if(USE_SYSTEM_MSPACK)
   find_package(MSPACK REQUIRED)
+endif()
+
+if(USE_SYSTEM_OPENSSL)
+  find_package(OpenSSL REQUIRED)
 endif()
 
 if(USE_SYSTEM_PIXMAN)
@@ -1268,6 +1278,25 @@ if(USE_SYSTEM_MSPACK)
   set(mspack_lib_name MiKTeX::Imported::MSPACK)
 else()
   add_subdirectory(${MIKTEX_REL_MSPACK_DIR})
+endif()
+
+if(USE_SYSTEM_OPENSSL)
+  add_library(MiKTeX::Imported::OPENSSL::CRYPTO UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::OPENSSL::CRYPTO
+    PROPERTIES
+      IMPORTED_LOCATION "${OPENSSL_CRYPTO_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${OPENSSL_INCLUDE_DIR}"
+  )
+  set(openssl_crypto_dll_name MiKTeX::Imported::OPENSSL::CRYPTO)
+  set(openssl_crypto_lib_name MiKTeX::Imported::OPENSSL::CRYPTO)
+  add_library(MiKTeX::Imported::OPENSSL::SSL UNKNOWN IMPORTED)
+  set_target_properties(MiKTeX::Imported::OPENSSL::SSL
+    PROPERTIES
+      IMPORTED_LOCATION "${OPENSSL_SSL_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${OPENSSL_INCLUDE_DIR}"
+  )
+  set(openssl_ssl_dll_name MiKTeX::Imported::OPENSSL::SSL)
+  set(openssl_ssl_lib_name MiKTeX::Imported::OPENSSL::SSL)
 endif()
 
 if(USE_SYSTEM_PIXMAN)
