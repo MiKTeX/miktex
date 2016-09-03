@@ -35,6 +35,8 @@ set(public_include_directories
 
 add_definitions(
   -DHAVE_LIBCURL
+  -DWITH_OPENSSL
+  -DHAVE_OPENSSL_SSL_H
 )
 
 configure_file(

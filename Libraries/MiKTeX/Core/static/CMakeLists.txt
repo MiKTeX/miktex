@@ -66,9 +66,11 @@ if(MIKTEX_NATIVE_WINDOWS)
         htmlhelp.lib
     )
   endif()
-else()
+endif()
+
+if(MIKTEX_NATIVE_WINDOWS OR USE_SYSTEM_OPENSSL)
   target_link_libraries(${core_lib_name}
-    PRIVATE
+    PUBLIC
       ${openssl_crypto_lib_name}
   )
 endif()

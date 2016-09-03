@@ -63,7 +63,7 @@
 
 #cmakedefine USE_SYSTEM_OPENSSL ${USE_SYSTEM_OPENSSL}
 
-#if defined(USE_SYSTEM_OPENSSL)
+#if defined(MIKTEX_WINDOWS) || defined(USE_SYSTEM_OPENSSL)
 #  define ENABLE_OPENSSL 1
 #endif
 
