@@ -545,7 +545,7 @@ namespace {
 
 MIKTEXINTERNALFUNC(CryptoLib) GetCryptoLib()
 {
-#if defined(ENABLE_BOTANx)
+#if defined(ENABLE_BOTAN)
   return CryptoLib::Botan;
 #elif defined(ENABLE_OPENSSL)
   static bool initDone = false;
