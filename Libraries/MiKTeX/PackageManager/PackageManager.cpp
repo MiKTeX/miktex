@@ -34,7 +34,12 @@ using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace std;
 
+#if 0
+// TODO
+#define WEBSVCURL "https://api.miktex.org/Repository.asmx"
+#else
 #define WEBSVCURL "http://api.miktex.org/Repository.asmx"
+#endif
 
 string PackageManagerImpl::proxyUser;
 string PackageManagerImpl::proxyPassword;
@@ -1647,7 +1652,11 @@ bool PackageManager::TryGetProxy(const string & url, ProxySettings & proxySettin
     Uri uri(url.c_str());
     string scheme = uri.GetScheme();
     string envName;
-    if (scheme == "http")
+    if (scheme == "https")
+    {
+      envName = "https_proxy";
+    }
+    else if (scheme == "http")
     {
       envName = "http_proxy";
     }
