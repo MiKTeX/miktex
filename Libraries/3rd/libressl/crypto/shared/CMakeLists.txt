@@ -35,6 +35,14 @@ add_library(${libressl_crypto_dll_name} SHARED ${${libressl_crypto_dll_name}_sou
 
 set_property(TARGET ${libressl_crypto_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+add_dependencies(${libressl_crypto_dll_name} gen-crypto-sources)
+
+set_source_files_properties(
+  ${generated_crypto_sources}
+  PROPERTIES
+    GENERATED TRUE
+)
+
 set_target_properties(${libressl_crypto_dll_name}
   PROPERTIES
     VERSION "${MIKTEX_SERIES_STR}"

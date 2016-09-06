@@ -63,11 +63,21 @@
 #include <openssl/err.h>
 #include <openssl/x509.h>
 
+#if defined(MIKTEX)
+#include "cert.pem.h"
+#endif
+
 int
 X509_STORE_set_default_paths(X509_STORE *ctx)
 {
 	X509_LOOKUP *lookup;
 
+#if defined(MIKTEX)
+        if (X509_STORE_load_mem(ctx, cert_pem, sizeof(cert_pem)) != 1)
+        {
+          return 0;
+        }
+#else
 	lookup = X509_STORE_add_lookup(ctx, X509_LOOKUP_file());
 	if (lookup == NULL)
 		return (0);
@@ -77,6 +87,7 @@ X509_STORE_set_default_paths(X509_STORE *ctx)
 	if (lookup == NULL)
 		return (0);
 	X509_LOOKUP_add_dir(lookup, NULL, X509_FILETYPE_DEFAULT);
+#endif
 
 	/* clear any errors */
 	ERR_clear_error();

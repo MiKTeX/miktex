@@ -26,6 +26,7 @@ add_definitions(
 )
 
 include_directories(BEFORE
+  ${CMAKE_CURRENT_BINARY_DIR}
   ${crypto_source_dir}
   ${crypto_source_dir}/asn1
   ${crypto_source_dir}/dsa
@@ -648,6 +649,56 @@ endif()
 if(NOT HAVE_TIMINGSAFE_MEMCMP)
   list(APPEND crypto_sources ${crypto_source_dir}/compat/timingsafe_memcmp.c)
 endif()
+
+set(cert_pem ${libressl_source_dir}/apps/openssl/cert.pem)
+
+set(squeezed_cert_pem ${CMAKE_CURRENT_BINARY_DIR}/squeezed-cert.pem)
+
+add_custom_command(
+  OUTPUT
+    ${squeezed_cert_pem}
+  COMMAND
+    ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/cert-squeeze.py
+    < ${cert_pem}
+    > ${squeezed_cert_pem}
+  DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/cert-squeeze.py
+    ${cert_pem}
+  VERBATIM
+)
+
+set(cert_pem_h ${CMAKE_CURRENT_BINARY_DIR}/cert.pem.h)
+
+add_custom_command(
+  OUTPUT
+    ${cert_pem_h}
+  COMMAND
+    bintoc cert_pem
+    < ${squeezed_cert_pem}
+    > ${CMAKE_CURRENT_BINARY_DIR}/cert.pem.h.tmp
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_BINARY_DIR}/cert.pem.h.tmp
+    ${cert_pem_h}
+  COMMAND
+    ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_BINARY_DIR}/cert.pem.h.tmp
+  DEPENDS
+    bintoc
+    ${squeezed_cert_pem}
+  VERBATIM
+)
+
+list(APPEND generated_crypto_sources
+  ${cert_pem_h}
+)
+
+list(APPEND crypto_sources ${generated_crypto_sources})
+
+add_custom_target(gen-crypto-sources DEPENDS
+  ${generated_crypto_sources}
+)
+
+set_property(TARGET gen-crypto-sources PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}/gen)
 
 if(NOT LINK_EVERYTHING_STATICALLY)
   add_subdirectory(shared)
