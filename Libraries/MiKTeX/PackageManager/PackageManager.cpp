@@ -41,6 +41,18 @@ string PackageManagerImpl::proxyPassword;
 bool PackageManagerImpl::localServer = false;
 #endif
 
+class MyRepositorySoapProxy : public RepositorySoapProxy
+{
+public:
+  MyRepositorySoapProxy(const string & soapEndpoint) :
+    soapEndpoint(soapEndpoint)
+  {
+    this->soap_endpoint = this->soapEndpoint.c_str();
+  }
+private:
+  string soapEndpoint;
+};
+
 template<class Base> struct ClientInfo : public Base
 {
   ClientInfo() :
@@ -1042,7 +1054,7 @@ template<class RepositoryInfo_> MPMSTATICFUNC(RepositoryInfo) MakeRepositoryInfo
   return repositoryInfo;
 }
 
-string GetSoapEndpoint()
+string PackageManagerImpl::GetSoapEndpoint()
 {
   if (soapEndpoint.empty())
   {
@@ -1055,7 +1067,7 @@ void PackageManagerImpl::DownloadRepositoryList()
 {
   repositories.clear();
 
-  RepositorySoapProxy repositorySoapProxy(GetSoapEndpoint());
+  MyRepositorySoapProxy repositorySoapProxy(GetSoapEndpoint());
   ProxySettings proxySettings;
   if (TryGetProxy(GetSoapEndpoint(), proxySettings) && proxySettings.useProxy)
   {
@@ -1099,7 +1111,7 @@ void PackageManagerImpl::DownloadRepositoryList()
 
 string PackageManagerImpl::PickRepositoryUrl()
 {
-  RepositorySoapProxy repositorySoapProxy(GetSoapEndpoint());
+  MyRepositorySoapProxy repositorySoapProxy(GetSoapEndpoint());
   ProxySettings proxySettings;
   if (TryGetProxy(GetSoapEndpoint(), proxySettings) && proxySettings.useProxy)
   {
@@ -1728,7 +1740,7 @@ bool PackageManagerImpl::TryGetRepositoryInfo(const string & url, RepositoryInfo
   RepositoryType repositoryType = PackageManagerImpl::DetermineRepositoryType(url);
   if (repositoryType == RepositoryType::Remote)
   {
-    RepositorySoapProxy repositorySoapProxy(GetSoapEndpoint());
+    MyRepositorySoapProxy repositorySoapProxy(GetSoapEndpoint());
     ProxySettings proxySettings;
     if (TryGetProxy(GetSoapEndpoint(), proxySettings) && proxySettings.useProxy)
     {
@@ -1790,7 +1802,7 @@ RepositoryInfo PackageManagerImpl::VerifyPackageRepository(const string & url)
     }
   }
   RepositoryInfo repositoryInfo;
-  RepositorySoapProxy repositorySoapProxy(GetSoapEndpoint());
+  MyRepositorySoapProxy repositorySoapProxy(GetSoapEndpoint());
   ProxySettings proxySettings;
   if (TryGetProxy(GetSoapEndpoint(), proxySettings) && proxySettings.useProxy)
   {

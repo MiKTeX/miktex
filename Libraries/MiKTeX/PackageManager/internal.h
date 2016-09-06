@@ -358,6 +358,12 @@ public:
   static MiKTeX::Packages::RepositoryType DetermineRepositoryType(const std::string & repository);
 
 private:
+  std::string GetSoapEndpoint();
+
+private:
+  std::string soapEndpoint;
+
+private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_error;
 
 private:
@@ -853,12 +859,6 @@ private:
     trace_mpm->WriteFormattedLine("libmpm", T_("turning %s autoFndbSync"), autoFndbSync ? "on" : "off");
     this->autoFndbSync = autoFndbSync;
   }
-
-private:
-  std::string GetSoapEndpoint();
-
-private:
-  std::string soapEndpoint;
 
 private:
   bool noPostProcessing = false;
