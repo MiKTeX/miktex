@@ -855,6 +855,12 @@ private:
   }
 
 private:
+  std::string GetSoapEndpoint();
+
+private:
+  std::string soapEndpoint;
+
+private:
   bool noPostProcessing = false;
 
 private:

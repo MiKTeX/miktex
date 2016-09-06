@@ -34,28 +34,12 @@ using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace std;
 
-#if 0
-// TODO
-#define WEBSVCURL "https://api.miktex.org/Repository.asmx"
-#else
-#define WEBSVCURL "http://api.miktex.org/Repository.asmx"
-#endif
-
 string PackageManagerImpl::proxyUser;
 string PackageManagerImpl::proxyPassword;
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
 bool PackageManagerImpl::localServer = false;
 #endif
-
-class MyRepositorySoapProxy : public RepositorySoapProxy
-{
-public:
-  MyRepositorySoapProxy()
-  {
-    this->soap_endpoint = WEBSVCURL;
-  }
-};
 
 template<class Base> struct ClientInfo : public Base
 {
@@ -1058,13 +1042,22 @@ template<class RepositoryInfo_> MPMSTATICFUNC(RepositoryInfo) MakeRepositoryInfo
   return repositoryInfo;
 }
 
+string GetSoapEndpoint()
+{
+  if (soapEndpoint.empty())
+  {
+    soapEndpoint = "https://api.miktex.org/Repository.asmx";
+  }
+  return soapEndpoint;
+}
+
 void PackageManagerImpl::DownloadRepositoryList()
 {
   repositories.clear();
 
-  MyRepositorySoapProxy repositorySoapProxy;
+  RepositorySoapProxy repositorySoapProxy(GetSoapEndpoint());
   ProxySettings proxySettings;
-  if (TryGetProxy(WEBSVCURL, proxySettings) && proxySettings.useProxy)
+  if (TryGetProxy(GetSoapEndpoint(), proxySettings) && proxySettings.useProxy)
   {
     repositorySoapProxy.proxy_host = proxySettings.proxy.c_str();
     repositorySoapProxy.proxy_port = proxySettings.port;
@@ -1106,9 +1099,9 @@ void PackageManagerImpl::DownloadRepositoryList()
 
 string PackageManagerImpl::PickRepositoryUrl()
 {
-  MyRepositorySoapProxy repositorySoapProxy;
+  RepositorySoapProxy repositorySoapProxy(GetSoapEndpoint());
   ProxySettings proxySettings;
-  if (TryGetProxy(WEBSVCURL, proxySettings) && proxySettings.useProxy)
+  if (TryGetProxy(GetSoapEndpoint(), proxySettings) && proxySettings.useProxy)
   {
     repositorySoapProxy.proxy_host = proxySettings.proxy.c_str();
     repositorySoapProxy.proxy_port = proxySettings.port;
@@ -1735,9 +1728,9 @@ bool PackageManagerImpl::TryGetRepositoryInfo(const string & url, RepositoryInfo
   RepositoryType repositoryType = PackageManagerImpl::DetermineRepositoryType(url);
   if (repositoryType == RepositoryType::Remote)
   {
-    MyRepositorySoapProxy repositorySoapProxy;
+    RepositorySoapProxy repositorySoapProxy(GetSoapEndpoint());
     ProxySettings proxySettings;
-    if (TryGetProxy(WEBSVCURL, proxySettings) && proxySettings.useProxy)
+    if (TryGetProxy(GetSoapEndpoint(), proxySettings) && proxySettings.useProxy)
     {
       repositorySoapProxy.proxy_host = proxySettings.proxy.c_str();
       repositorySoapProxy.proxy_port = proxySettings.port;
@@ -1797,9 +1790,9 @@ RepositoryInfo PackageManagerImpl::VerifyPackageRepository(const string & url)
     }
   }
   RepositoryInfo repositoryInfo;
-  MyRepositorySoapProxy repositorySoapProxy;
+  RepositorySoapProxy repositorySoapProxy(GetSoapEndpoint());
   ProxySettings proxySettings;
-  if (TryGetProxy(WEBSVCURL, proxySettings) && proxySettings.useProxy)
+  if (TryGetProxy(GetSoapEndpoint(), proxySettings) && proxySettings.useProxy)
   {
     repositorySoapProxy.proxy_host = proxySettings.proxy.c_str();
     repositorySoapProxy.proxy_port = proxySettings.port;
