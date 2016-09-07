@@ -73,8 +73,6 @@ namespace MiKTeXPackageManagerLib = MAKE_CURVER_ID(MiKTeXPackageManager);
 #  define UNUSED_ALWAYS(x) static_cast<void>(x)
 #endif
 
-#define FATAL_SOAP_ERROR(pSoap) FatalSoapError(pSoap, MIKTEX_SOURCE_LOCATION())
-
 #define T_(x) MIKTEXTEXT(x)
 
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
@@ -358,7 +356,7 @@ public:
   static MiKTeX::Packages::RepositoryType DetermineRepositoryType(const std::string & repository);
 
 private:
-  std::string GetSoapEndpoint();
+  std::string GetRemoteServiceEndpoint();
 
 private:
   std::string soapEndpoint;
