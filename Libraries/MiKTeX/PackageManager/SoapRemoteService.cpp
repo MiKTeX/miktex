@@ -24,6 +24,8 @@
 
 #include "SoapRemoteService.h"
 
+#include "../WebServiceClients/Repository/RepositorySoap.nsmap"
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Trace;

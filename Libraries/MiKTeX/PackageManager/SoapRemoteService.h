@@ -27,7 +27,6 @@
 #define D7BDFD4C0DE446F4BFE09214304D0CBD
 
 #include "../WebServiceClients/Repository/repositoryRepositorySoapProxy.h"
-#include "../WebServiceClients/Repository/RepositorySoap.nsmap"
 
 #include "RemoteService.h"
 
