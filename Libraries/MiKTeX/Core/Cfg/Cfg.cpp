@@ -198,6 +198,22 @@ public:
   }
 
 public:
+  vector<CfgValue> GetCfgValues(bool sorted) const
+  {
+    vector<CfgValue> values;
+    values.reserve(valueMap.size());
+    for (const auto & p : valueMap)
+    {
+      values.push_back(*p.second);
+    }
+    if (sorted)
+    {
+      sort(values.begin(), values.end());
+    }
+    return values;
+  }
+
+public:
   vector<shared_ptr<Cfg::Value>> MIKTEXTHISCALL GetValues() const override
   {
     vector<shared_ptr<Cfg::Value>> values;
@@ -212,7 +228,7 @@ private:
   ValueMap::iterator iter = valueMap.end();
 
 public:
-  void WriteValues(StreamWriter & writer);
+  void WriteValues(StreamWriter & writer) const;
 };
 
 inline bool operator< (const CfgKey & lhs, const CfgKey & rhs)
@@ -239,10 +255,10 @@ bool IsSearchPathValue(const string & valueName)
   return false;
 }
 
-void CfgKey::WriteValues(StreamWriter & writer)
+void CfgKey::WriteValues(StreamWriter & writer) const
 {
   bool isKeyWritten = false;
-  for (const pair<string, shared_ptr<CfgValue>> & kv : valueMap)
+  for (const CfgValue & v : GetCfgValues(true))
   {
     if (!isKeyWritten)
     {
@@ -250,11 +266,11 @@ void CfgKey::WriteValues(StreamWriter & writer)
       writer.WriteFormattedLine("[%s]", name.c_str());
       isKeyWritten = true;
     }
-    if (!kv.second->documentation.empty())
+    if (!v.documentation.empty())
     {
       writer.WriteLine();
       bool start = true;
-      for (const char & ch : kv.second->documentation)
+      for (const char & ch : v.documentation)
       {
         if (start)
         {
@@ -268,41 +284,41 @@ void CfgKey::WriteValues(StreamWriter & writer)
         writer.WriteLine();
       }
     }
-    if (kv.second->value.empty())
+    if (v.value.empty())
     {
       writer.WriteFormattedLine("%s%s=",
-        kv.second->commentedOut ? COMMENT_CHAR_STR : "",
-        kv.second->name.c_str());
+        v.commentedOut ? COMMENT_CHAR_STR : "",
+        v.name.c_str());
     }
-    else if (kv.second->IsMultiValue())
+    else if (v.IsMultiValue())
     {
-      for (const string & val : kv.second->value)
+      for (const string & val : v.value)
       {
         writer.WriteFormattedLine("%s%s=%s",
-          kv.second->commentedOut ? COMMENT_CHAR_STR : "",
-          kv.second->name.c_str(),
+          v.commentedOut ? COMMENT_CHAR_STR : "",
+          v.name.c_str(),
           val.c_str());
       }
     }
-    else if (IsSearchPathValue(kv.second->name) && kv.second->value.front().find_first_of(PATH_DELIMITER) != string::npos)
+    else if (IsSearchPathValue(v.name) && v.value.front().find_first_of(PATH_DELIMITER) != string::npos)
     {
       writer.WriteFormattedLine("%s%s=",
-        kv.second->commentedOut ? COMMENT_CHAR_STR : "",
-        kv.second->name.c_str());
-      for (CSVList root(kv.second->value.front(), PATH_DELIMITER); root.GetCurrent() != nullptr; ++root)
+        v.commentedOut ? COMMENT_CHAR_STR : "",
+        v.name.c_str());
+      for (CSVList root(v.value.front(), PATH_DELIMITER); root.GetCurrent() != nullptr; ++root)
       {
         writer.WriteFormattedLine("%s%s;=%s",
-          kv.second->commentedOut ? COMMENT_CHAR_STR : "",
-          kv.second->name.c_str(),
+          v.commentedOut ? COMMENT_CHAR_STR : "",
+          v.name.c_str(),
           root.GetCurrent());
       }
     }
     else
     {
       writer.WriteFormattedLine("%s%s=%s",
-        kv.second->commentedOut ? COMMENT_CHAR_STR : "",
-        kv.second->name.c_str(),
-        kv.second->value.front().c_str());
+        v.commentedOut ? COMMENT_CHAR_STR : "",
+        v.name.c_str(),
+        v.value.front().c_str());
     }
   }
 }
@@ -526,6 +542,22 @@ public:
   }
 
 public:
+  vector<CfgKey> GetCfgKeys(bool sorted) const
+  {
+    vector<CfgKey> keys;
+    keys.reserve(keyMap.size());
+    for (const auto & p : keyMap)
+    {
+      keys.push_back(*p.second);
+    }
+    if (sorted)
+    {
+      sort(keys.begin(), keys.end());
+    }
+    return keys;
+  }
+
+public:
   vector<shared_ptr<Key>> GetKeys() override
   {
     vector<shared_ptr<Cfg::Key>> keys;
@@ -668,9 +700,9 @@ shared_ptr<CfgKey> CfgImpl::FindKey(const string & keyName) const
 
 void CfgImpl::WriteKeys(StreamWriter & writer)
 {
-  for (auto & p : keyMap)
+  for (const CfgKey & k : GetCfgKeys(true))
   {
-    p.second->WriteValues(writer);
+    k.WriteValues(writer);
   }
   if (tracking)
   {
@@ -690,26 +722,12 @@ void CfgImpl::DeleteKey(const string & keyName)
 
 void CfgImpl::Walk(WalkCallback * callback) const
 {
-  vector<CfgKey> keys;
-  keys.reserve(keyMap.size());
-  for (const auto & p : keyMap)
-  {
-    keys.push_back(*p.second);
-  }
-  sort(keys.begin(), keys.end());
-  for (const CfgKey & key : keys)
+  for (const CfgKey & key : GetCfgKeys(true))
   {
     callback->addData("[");
     callback->addData(key.lookupName);
     callback->addData("]\n");
-    vector<CfgValue> values;
-    values.reserve(key.valueMap.size());
-    for (const auto & p : key.valueMap)
-    {
-      values.push_back(*p.second);
-    }
-    sort(values.begin(), values.end());
-    for (const CfgValue & val : values)
+    for (const CfgValue & val : key.GetCfgValues(true))
     {
       if (val.value.empty())
       {
