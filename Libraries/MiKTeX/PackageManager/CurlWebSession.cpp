@@ -131,11 +131,11 @@ void CurlWebSession::Initialize()
     {
       if (proxySettings.user.find(':') != string::npos)
       {
-	MIKTEX_UNEXPECTED();
+        MIKTEX_UNEXPECTED();
       }
       if (proxySettings.password.find(':') != string::npos)
       {
-	MIKTEX_UNEXPECTED();
+        MIKTEX_UNEXPECTED();
       }
       userPassword = proxySettings.user;
       userPassword += ':';
@@ -267,19 +267,19 @@ void CurlWebSession::Perform()
 
       if (n < 0)
       {
-	MIKTEX_FATAL_ERROR_2(T_("select() did not succeed."), "result", std::to_string(n));
+        MIKTEX_FATAL_ERROR_2(T_("select() did not succeed."), "result", std::to_string(n));
       }
 
       if (n > 0)
       {
-	do
-	{
-	  code = curl_multi_perform(pCurlm, &runningHandles);
-	  if (code != CURLM_OK && code != CURLM_CALL_MULTI_PERFORM)
-	  {
-	    MIKTEX_FATAL_ERROR(GetCurlErrorString(code));
-	  }
-	} while (code == CURLM_CALL_MULTI_PERFORM);
+        do
+        {
+          code = curl_multi_perform(pCurlm, &runningHandles);
+          if (code != CURLM_OK && code != CURLM_CALL_MULTI_PERFORM)
+          {
+            MIKTEX_FATAL_ERROR(GetCurlErrorString(code));
+          }
+        } while (code == CURLM_CALL_MULTI_PERFORM);
       }
     }
   }
