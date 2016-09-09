@@ -376,14 +376,14 @@ public:
     {
       if (EVP_DigestVerifyInit(mdctx.get(), nullptr, md, nullptr, pkey) != 1)
       {
-	FatalOpenSSLError();
+        FatalOpenSSLError();
       }
     }
     else
     {
       if (EVP_DigestSignInit(mdctx.get(), nullptr, md, nullptr, pkey) != 1)
       {
-	FatalOpenSSLError();
+        FatalOpenSSLError();
       }
     }
   }
@@ -395,14 +395,14 @@ public:
     {
       if (EVP_DigestVerifyUpdate(mdctx.get(), data.c_str(), data.length()) != 1)
       {
-	FatalOpenSSLError();
+        FatalOpenSSLError();
       }
     }
     else
     {
       if (EVP_DigestSignUpdate(mdctx.get(), data.c_str(), data.length()) != 1)
       {
-	FatalOpenSSLError();
+        FatalOpenSSLError();
       }
     }
   }
@@ -1027,7 +1027,7 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
           lpsz = tok.GetCurrent();
           if (lpsz != nullptr && wasEmpty && level == 0)
           {
-	    signature = lpsz;
+            signature = lpsz;
           }
         }
       }
@@ -1052,7 +1052,7 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
       Botan::RSA_PublicKey * pRsaKey = dynamic_cast<Botan::RSA_PublicKey*>(pPublicKey.get());
       if (pRsaKey == nullptr)
       {
-	MIKTEX_UNEXPECTED();
+        MIKTEX_UNEXPECTED();
       }
 #if BOTAN_VERSION_CODE >= BOTAN_VERSION_CODE_FOR(1, 10, 0)
       Botan::Pipe pipe(new Botan::PK_Verifier_Filter(new Botan::PK_Verifier(*pRsaKey, EMSA_), sigPipe.read_all()));
@@ -1066,12 +1066,12 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
       Botan::byte ok;
       if (pipe.read_byte(ok) != 1)
       {
-	MIKTEX_UNEXPECTED();
+        MIKTEX_UNEXPECTED();
       }
       MIKTEX_ASSERT(ok == 1 || ok == 0);
       if (ok != 1)
       {
-	FATAL_CFG_ERROR(T_("the file has been tampered with"));
+        FATAL_CFG_ERROR(T_("the file has been tampered with"));
       }
     }
 #endif
@@ -1081,18 +1081,18 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
       BIO_ptr b64 (BIO_new(BIO_f_base64()), BIO_free);
       if (b64 == nullptr)
       {
-	FatalOpenSSLError();
+        FatalOpenSSLError();
       }
       BIO_set_flags(b64.get(), BIO_FLAGS_BASE64_NO_NL);
       vector<char> modifiableSignature;
       for (const char & ch : signature)
       {
-	modifiableSignature.push_back(ch);
+        modifiableSignature.push_back(ch);
       }
       BIO_ptr mem (BIO_new_mem_buf(&modifiableSignature[0], modifiableSignature.size()), BIO_free);
       if (mem == nullptr)
       {
-	FatalOpenSSLError();
+        FatalOpenSSLError();
       }
       BIO * bio = BIO_push(b64.get(), mem.get());
       unsigned char buf[1000];
@@ -1100,27 +1100,27 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
       int n = 0;
       while ((n = BIO_read(bio, buf, 1000)) > 0)
       {
-	sig.insert(sig.end(), buf, buf + n);
+        sig.insert(sig.end(), buf, buf + n);
       }
       if (n < -1)
       {
-	FatalOpenSSLError();
+        FatalOpenSSLError();
       }
       RSA_ptr rsa = LoadPublicKey_OpenSSL(publicKeyFile);
       EVP_PKEY_ptr pkey (EVP_PKEY_new(), EVP_PKEY_free);
       if (pkey == nullptr)
       {
-	FatalOpenSSLError();
+        FatalOpenSSLError();
       }
       if (EVP_PKEY_set1_RSA(pkey.get(), rsa.get()) != 1)
       {
-	FatalOpenSSLError();
+        FatalOpenSSLError();
       }
       OpenSSLWalkCallback callback(pkey.get(), true);
       Walk(&callback);
       if (!callback.Verify(sig))
       {
-	FATAL_CFG_ERROR(T_("the file has been tampered with"));
+        FATAL_CFG_ERROR(T_("the file has been tampered with"));
       }
     }
 #endif
@@ -1262,15 +1262,15 @@ void CfgImpl::Write(const PathName & path, const string & header, IPrivateKeyPro
       Botan::RSA_PrivateKey * pRsaKey = dynamic_cast<Botan::RSA_PrivateKey *>(privateKey.get());
       if (pRsaKey == nullptr)
       {
-	MIKTEX_UNEXPECTED();
+        MIKTEX_UNEXPECTED();
       }
       pPipe.reset(new Botan::Pipe(
 #if BOTAN_VERSION_CODE >= BOTAN_VERSION_CODE_FOR(1, 10, 0)
-				  new Botan::PK_Signer_Filter(new Botan::PK_Signer(*pRsaKey, EMSA_), rng),
+                                  new Botan::PK_Signer_Filter(new Botan::PK_Signer(*pRsaKey, EMSA_), rng),
 #else
-				  new Botan::PK_Signer_Filter(new Botan::PK_Signer(*pRsaKey, Botan::get_emsa(EMSA_)), rng),
+                                  new Botan::PK_Signer_Filter(new Botan::PK_Signer(*pRsaKey, Botan::get_emsa(EMSA_)), rng),
 #endif
-				  new Botan::Base64_Encoder()));
+                                  new Botan::Base64_Encoder()));
       pPipe->start_msg();
       BotanWalkCallback callback(*pPipe);
       Walk(&callback);
@@ -1286,16 +1286,16 @@ void CfgImpl::Write(const PathName & path, const string & header, IPrivateKeyPro
       stream.Close();
       if (rsa == nullptr)
       {
-	FatalOpenSSLError();
+        FatalOpenSSLError();
       }
       EVP_PKEY_ptr pkey (EVP_PKEY_new(), EVP_PKEY_free);
       if (pkey == nullptr)
       {
-	FatalOpenSSLError();
+        FatalOpenSSLError();
       }
       if (EVP_PKEY_set1_RSA(pkey.get(), rsa.get()) != 1)
       {
-	FatalOpenSSLError();
+        FatalOpenSSLError();
       }
       OpenSSLWalkCallback callback(pkey.get(), false);
       Walk(&callback);
