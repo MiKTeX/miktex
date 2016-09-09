@@ -64,7 +64,7 @@ void CurlWebSession::Initialize()
 
   SetOption(CURLOPT_USERAGENT, MPM_AGENT);
 
-  string ftpMode = session->GetConfigValue(0, MIKTEX_REGVAL_FTP_MODE, "default");
+  string ftpMode = session->GetConfigValue(nullptr, MIKTEX_REGVAL_FTP_MODE, "default");
 
   if (ftpMode == "default")
   {
@@ -110,7 +110,7 @@ void CurlWebSession::Initialize()
 
   // SF 2855025
 #if ALLOW_REDIRECTS
-  int maxRedirects = session->GetConfigValue(0, MIKTEX_REGVAL_MAX_REDIRECTS, DEFAULT_MAX_REDIRECTS);
+  int maxRedirects = session->GetConfigValue(nullptr, MIKTEX_REGVAL_MAX_REDIRECTS, DEFAULT_MAX_REDIRECTS);
   SetOption(CURLOPT_FOLLOWLOCATION, static_cast<long>(true));
   SetOption(CURLOPT_MAXREDIRS, static_cast<long>(maxRedirects));
 #endif
@@ -294,7 +294,7 @@ void CurlWebSession::ReadInformationals()
 {
   CURLMsg * pCurlMsg;
   int remaining;
-  while ((pCurlMsg = curl_multi_info_read(pCurlm, &remaining)) != 0)
+  while ((pCurlMsg = curl_multi_info_read(pCurlm, &remaining)) != nullptr)
   {
     if (pCurlMsg->msg != CURLMSG_DONE)
     {
@@ -360,7 +360,7 @@ int CurlWebSession::ProgressCallback(void * pv, double dltotal, double dlnow, do
   try
   {
     CurlWebFile * This = reinterpret_cast<CurlWebSession*>(pv);
-    if (This->pIProgressNotify != 0)
+    if (This->pIProgressNotify != nullptr)
     {
       This->pIProgressNotify->OnProgress();
     }
