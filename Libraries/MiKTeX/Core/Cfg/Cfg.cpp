@@ -229,9 +229,9 @@ static const char * const knownSearchPathValues[] = {
 
 bool IsSearchPathValue(const string & valueName)
 {
-  for (int idx = 0; idx != sizeof(knownSearchPathValues) / sizeof(knownSearchPathValues[0]); ++idx)
+  for (const char * path : knownSearchPathValues)
   {
-    if (Utils::EqualsIgnoreCase(valueName, knownSearchPathValues[idx]))
+    if (Utils::EqualsIgnoreCase(valueName, path))
     {
       return true;
     }
@@ -242,7 +242,7 @@ bool IsSearchPathValue(const string & valueName)
 void CfgKey::WriteValues(StreamWriter & writer)
 {
   bool isKeyWritten = false;
-  for (ValueMap::iterator it = valueMap.begin(); it != valueMap.end(); ++it)
+  for (const pair<string, shared_ptr<CfgValue>> & kv : valueMap)
   {
     if (!isKeyWritten)
     {
@@ -250,59 +250,59 @@ void CfgKey::WriteValues(StreamWriter & writer)
       writer.WriteFormattedLine("[%s]", name.c_str());
       isKeyWritten = true;
     }
-    if (!it->second->documentation.empty())
+    if (!kv.second->documentation.empty())
     {
       writer.WriteLine();
       bool start = true;
-      for (string::const_iterator it2 = it->second->documentation.begin(); it2 != it->second->documentation.end(); ++it2)
+      for (const char & ch : kv.second->documentation)
       {
         if (start)
         {
           writer.WriteFormatted("%c%c ", COMMENT_CHAR, COMMENT_CHAR);
         }
-        writer.Write(*it2);
-        start = (*it2 == '\n');
+        writer.Write(ch);
+        start = (ch == '\n');
       }
       if (!start)
       {
         writer.WriteLine();
       }
     }
-    if (it->second->value.empty())
+    if (kv.second->value.empty())
     {
       writer.WriteFormattedLine("%s%s=",
-        it->second->commentedOut ? COMMENT_CHAR_STR : "",
-        it->second->name.c_str());
+        kv.second->commentedOut ? COMMENT_CHAR_STR : "",
+        kv.second->name.c_str());
     }
-    else if (it->second->IsMultiValue())
+    else if (kv.second->IsMultiValue())
     {
-      for (const string & val : it->second->value)
+      for (const string & val : kv.second->value)
       {
         writer.WriteFormattedLine("%s%s=%s",
-          it->second->commentedOut ? COMMENT_CHAR_STR : "",
-          it->second->name.c_str(),
+          kv.second->commentedOut ? COMMENT_CHAR_STR : "",
+          kv.second->name.c_str(),
           val.c_str());
       }
     }
-    else if (IsSearchPathValue(it->second->name) && it->second->value.front().find_first_of(PATH_DELIMITER) != string::npos)
+    else if (IsSearchPathValue(kv.second->name) && kv.second->value.front().find_first_of(PATH_DELIMITER) != string::npos)
     {
       writer.WriteFormattedLine("%s%s=",
-        it->second->commentedOut ? COMMENT_CHAR_STR : "",
-        it->second->name.c_str());
-      for (CSVList root(it->second->value.front(), PATH_DELIMITER); root.GetCurrent() != nullptr; ++root)
+        kv.second->commentedOut ? COMMENT_CHAR_STR : "",
+        kv.second->name.c_str());
+      for (CSVList root(kv.second->value.front(), PATH_DELIMITER); root.GetCurrent() != nullptr; ++root)
       {
         writer.WriteFormattedLine("%s%s;=%s",
-          it->second->commentedOut ? COMMENT_CHAR_STR : "",
-          it->second->name.c_str(),
+          kv.second->commentedOut ? COMMENT_CHAR_STR : "",
+          kv.second->name.c_str(),
           root.GetCurrent());
       }
     }
     else
     {
       writer.WriteFormattedLine("%s%s=%s",
-        it->second->commentedOut ? COMMENT_CHAR_STR : "",
-        it->second->name.c_str(),
-        it->second->value.front().c_str());
+        kv.second->commentedOut ? COMMENT_CHAR_STR : "",
+        kv.second->name.c_str(),
+        kv.second->value.front().c_str());
     }
   }
 }
