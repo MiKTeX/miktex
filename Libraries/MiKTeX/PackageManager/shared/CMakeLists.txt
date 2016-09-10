@@ -73,6 +73,7 @@ target_link_libraries(${mpm_dll_name}
     ${expat_dll_name}
     ${extractor_dll_name}
     ${md5_dll_name}
+    ${nlohmann_json_dll_name}
     ${openssl_ssl_dll_name}
 )
 

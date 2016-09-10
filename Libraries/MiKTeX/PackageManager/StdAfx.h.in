@@ -71,6 +71,8 @@
 
 #include <expat.h>
 
+#include <nlohmann/json.hpp>
+
 #if defined(_MSC_VER)
 #  include <malloc.h>
 #  include <direct.h>
