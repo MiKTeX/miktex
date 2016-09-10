@@ -73,6 +73,8 @@ set(mpm_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/RemoteService.h
   ${CMAKE_CURRENT_SOURCE_DIR}/SoapRemoteService.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/SoapRemoteService.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/RestRemoteService.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/RestRemoteService.h
   ${CMAKE_CURRENT_SOURCE_DIR}/TpmParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/TpmParser.h
   ${CMAKE_CURRENT_SOURCE_DIR}/WebFile.h

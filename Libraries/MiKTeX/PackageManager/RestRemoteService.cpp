@@ -1,4 +1,4 @@
-/* RemoteService.cpp:
+/* RestRemoteService.cpp
 
    Copyright (C) 2001-2016 Christian Schenk
 
@@ -15,38 +15,37 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with MiKTeX Package Manager; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+   along with MiKTeX Package Manager; if not, write to the Free Software
+   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
 #include "StdAfx.h"
 
 #include "internal.h"
 
-#include "RemoteService.h"
 #include "RestRemoteService.h"
-#include "SoapRemoteService.h"
 
+using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
+using namespace MiKTeX::Trace;
+using namespace MiKTeX::Util;
 using namespace std;
 
-RemoteService::~RemoteService()
+vector<RepositoryInfo> RestRemoteService::GetRepositories(RepositoryReleaseState repositoryReleaseState)
 {
+  UNIMPLEMENTED();
 }
 
-bool endsWith(const string & s, const string & suffix)
+string RestRemoteService::PickRepositoryUrl(RepositoryReleaseState repositoryReleaseState)
 {
-  return s.length() >= suffix.length() && s.compare(s.length() - suffix.length(), suffix.length(), suffix) == 0;
+  UNIMPLEMENTED();
 }
 
-unique_ptr<RemoteService> RemoteService::Create(const string & endpoint, const ProxySettings & proxySettings)
+pair<bool, RepositoryInfo> RestRemoteService::TryGetRepositoryInfo(const string & url)
 {
-  if (endsWith(endpoint, ".asmx"))
-  {
-    return make_unique<SoapRemoteService>(endpoint, proxySettings);
-  }
-  else
-  {
-    return make_unique<RestRemoteService>(endpoint, proxySettings);
-  }
+  UNIMPLEMENTED();
+}
+
+RepositoryInfo RestRemoteService::Verify(const string & url)
+{
+  UNIMPLEMENTED();
 }

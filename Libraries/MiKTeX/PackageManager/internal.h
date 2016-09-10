@@ -73,6 +73,8 @@ namespace MiKTeXPackageManagerLib = MAKE_CURVER_ID(MiKTeXPackageManager);
 #  define UNUSED_ALWAYS(x) static_cast<void>(x)
 #endif
 
+#define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
+
 #define T_(x) MIKTEXTEXT(x)
 
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
