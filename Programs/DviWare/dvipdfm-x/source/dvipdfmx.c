@@ -66,6 +66,7 @@
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/unxemu.h>
 #include <getopt.h>
+#include <miktex/dvipdfm-x.h>
 #endif
 
 int is_xdv = 0;
@@ -125,7 +126,11 @@ int always_embed = 0; /* always embed fonts, regardless of licensing flags */
 
 char *dvi_filename = NULL, *pdf_filename = NULL;
 
+#if defined(MIKTEX)
+void
+#else
 static void
+#endif
 read_config_file (const char *config);
 
 static void
@@ -672,7 +677,11 @@ cleanup (void)
     RELEASE(page_ranges);
 }
 
+#if defined(MIKTEX)
+void
+#else
 static void
+#endif
 read_config_file (const char *config)
 {
   const char *start, *end;
@@ -1010,7 +1019,11 @@ main (int argc, char *argv[])
 
   pdf_init_fontmaps(); /* This must come before parsing options... */
 
+#if defined(MIKTEX)
+  miktex_read_config_files();
+#else
   read_config_file(DPX_CONFIG_FILE);
+#endif
 
   do_args (argc, argv, NULL, 0);
 
