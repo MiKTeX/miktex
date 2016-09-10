@@ -211,7 +211,12 @@ set(common_program_sources
   source/type1.c
 )
 
-set(dvipdfmx_dll_sources ${libutil_sources} ${common_program_sources} dvipdfm-x-version.h)
+set(miktex_sources
+  miktex/dvipdfm-x.h
+  miktex/miktex.cpp
+)
+
+set(dvipdfmx_dll_sources ${libutil_sources} ${common_program_sources} ${miktex_sources} dvipdfm-x-version.h)
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND dvipdfmx_dll_sources
@@ -277,6 +282,7 @@ install(TARGETS ${MIKTEX_PREFIX}dvipdfmx DESTINATION ${MIKTEX_BINARY_DESTINATION
 set(xdvipdfmx_sources
   ${common_program_sources}
   ${libutil_sources}
+  ${miktex_sources}
   ${MIKTEX_LIBRARY_WRAPPER}
   dvipdfm-x-version.h
 )
