@@ -36,7 +36,8 @@ class RestRemoteService :
 public:
   RestRemoteService(const std::string & endpoint, const MiKTeX::Packages::ProxySettings & proxySettings) :
     endpoint(endpoint),
-    proxySettings(proxySettings)
+    proxySettings(proxySettings),
+    webSession(WebSession::Create(nullptr))
   {
   }
   
@@ -57,6 +58,9 @@ private:
 
 private:
   MiKTeX::Packages::ProxySettings proxySettings;
+
+private:
+  std::unique_ptr<WebSession> webSession;
 };
 
 END_INTERNAL_NAMESPACE;

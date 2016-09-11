@@ -918,34 +918,38 @@ void PackageManager::SetDefaultPackageRepository(RepositoryType repositoryType, 
   session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REPOSITORY_TYPE, repositoryTypeStr.c_str());
 }
 
-string PackageManagerImpl::GetRemoteServiceEndpoint()
+string PackageManagerImpl::GetRemoteServiceBaseUrl()
 {
-  if (soapEndpoint.empty())
+  if (remoteServiceBaseUrl.empty())
   {
-    soapEndpoint = "https://api.miktex.org/Repository.asmx";
+#if defined(DEBUG)
+    remoteServiceBaseUrl = "http://localhost:54718/";
+#else
+    remoteServiceBaseUrl = "https://api.miktex.org/Repository.asmx";
+#endif
   }
-  return soapEndpoint;
+  return remoteServiceBaseUrl;
 }
 
 void PackageManagerImpl::DownloadRepositoryList()
 {
   ProxySettings proxySettings;
-  if (!TryGetProxy(GetRemoteServiceEndpoint(), proxySettings))
+  if (!TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
   {
     proxySettings.useProxy = false;
   }
-  unique_ptr<RemoteService> remoteService = RemoteService::Create(GetRemoteServiceEndpoint(), proxySettings);
+  unique_ptr<RemoteService> remoteService = RemoteService::Create(GetRemoteServiceBaseUrl(), proxySettings);
   repositories = remoteService->GetRepositories(repositoryReleaseState);
 }
 
 string PackageManagerImpl::PickRepositoryUrl()
 {
   ProxySettings proxySettings;
-  if (!TryGetProxy(GetRemoteServiceEndpoint(), proxySettings))
+  if (!TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
   {
     proxySettings.useProxy = false;
   }
-  unique_ptr<RemoteService> remoteService = RemoteService::Create(GetRemoteServiceEndpoint(), proxySettings);
+  unique_ptr<RemoteService> remoteService = RemoteService::Create(GetRemoteServiceBaseUrl(), proxySettings);
   return remoteService->PickRepositoryUrl(repositoryReleaseState);
 }
 
@@ -1539,11 +1543,11 @@ bool PackageManagerImpl::TryGetRepositoryInfo(const string & url, RepositoryInfo
   if (repositoryType == RepositoryType::Remote)
   {
     ProxySettings proxySettings;
-    if (!TryGetProxy(GetRemoteServiceEndpoint(), proxySettings))
+    if (!TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
       {
 	proxySettings.useProxy = false;
       }
-    unique_ptr<RemoteService> remoteService = RemoteService::Create(GetRemoteServiceEndpoint(), proxySettings);
+    unique_ptr<RemoteService> remoteService = RemoteService::Create(GetRemoteServiceBaseUrl(), proxySettings);
     pair<bool, RepositoryInfo> result = remoteService->TryGetRepositoryInfo(url);
     if (result.first)
     {
@@ -1585,11 +1589,11 @@ RepositoryInfo PackageManagerImpl::VerifyPackageRepository(const string & url)
     }
   }
   ProxySettings proxySettings;
-  if (!TryGetProxy(GetRemoteServiceEndpoint(), proxySettings))
+  if (!TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
   {
     proxySettings.useProxy = false;
   }
-  unique_ptr<RemoteService> remoteService = RemoteService::Create(GetRemoteServiceEndpoint(), proxySettings);
+  unique_ptr<RemoteService> remoteService = RemoteService::Create(GetRemoteServiceBaseUrl(), proxySettings);
   RepositoryInfo repositoryInfo = remoteService->Verify(url);
   repositories.push_back(repositoryInfo);
   return repositoryInfo;

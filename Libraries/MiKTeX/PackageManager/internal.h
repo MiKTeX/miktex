@@ -358,10 +358,10 @@ public:
   static MiKTeX::Packages::RepositoryType DetermineRepositoryType(const std::string & repository);
 
 private:
-  std::string GetRemoteServiceEndpoint();
+  std::string GetRemoteServiceBaseUrl();
 
 private:
-  std::string soapEndpoint;
+  std::string remoteServiceBaseUrl;
 
 private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_error;
