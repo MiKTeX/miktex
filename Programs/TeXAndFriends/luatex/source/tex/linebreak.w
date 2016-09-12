@@ -183,7 +183,7 @@ void line_break(boolean d, int line_break_context)
                           club_penalty_par,
                           club_penalties_par_ptr,
                           (d ? display_widow_penalties_par_ptr : widow_penalties_par_ptr),
-                          (d ? display_widow_penalty_code : widow_penalty_code),
+                          (d ? display_widow_penalty_par : widow_penalty_par),
                           broken_penalty_par,
                           final_par_glue);
     }

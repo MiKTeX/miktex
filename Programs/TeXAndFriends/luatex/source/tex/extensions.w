@@ -294,7 +294,6 @@ static void do_resource_pdf(int immediate, int code)
             }
             break;
         case save_image_resource_code:
-            fix_pdf_minorversion(static_pdf);
             scan_pdfximage(static_pdf);
             if (immediate) {
                 pdf_write_image(static_pdf, last_saved_image_index);

@@ -557,6 +557,8 @@ void initialize_commands(void)
     primitive_luatex("Umathlimitbelowvgap", set_math_param_cmd, math_param_limit_below_vgap, 0);
     primitive_luatex("Umathlimitbelowbgap", set_math_param_cmd, math_param_limit_below_bgap, 0);
     primitive_luatex("Umathlimitbelowkern", set_math_param_cmd, math_param_limit_below_kern, 0);
+    primitive_luatex("Umathnolimitsubfactor", set_math_param_cmd, math_param_nolimit_sub_factor, 0); /* bonus */
+    primitive_luatex("Umathnolimitsupfactor", set_math_param_cmd, math_param_nolimit_sup_factor, 0); /* bonus */
     primitive_luatex("Umathunderdelimitervgap", set_math_param_cmd, math_param_under_delimiter_vgap, 0);
     primitive_luatex("Umathunderdelimiterbgap", set_math_param_cmd, math_param_under_delimiter_bgap, 0);
     primitive_luatex("Umathoverdelimitervgap", set_math_param_cmd, math_param_over_delimiter_vgap, 0);
@@ -751,6 +753,7 @@ void initialize_etex_commands(void)
     primitive_luatex("matheqnogapstep", assign_int_cmd, int_base + math_eqno_gap_step_code, int_base);
     primitive_luatex("mathdisplayskipmode", assign_int_cmd, int_base + math_display_skip_mode_code, int_base);
     primitive_luatex("mathscriptsmode", assign_int_cmd, int_base + math_scripts_mode_code, int_base);
+    primitive_luatex("mathnolimitsmode", assign_int_cmd, int_base + math_nolimits_mode_code, int_base);
     primitive_luatex("synctex", assign_int_cmd, int_base + synctex_code, int_base);
 
     primitive_etex("currentgrouplevel", last_item_cmd, current_group_level_code, 0);

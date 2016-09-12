@@ -107,13 +107,21 @@ static char *find_in_output_directory(const char *s)
 @ find an \.{\\input} or \.{\\read} file. |n| differentiates between those case.
 
 @c
+int kpse_available(const char *m) {
+    if (!kpse_init) {
+          fprintf(stdout,"missing kpse replacement callback '%s', quitting\n",m);
+          exit(1);
+    }
+    return 1 ;
+}
+
 char *luatex_find_read_file(const char *s, int n, int callback_index)
 {
     char *ftemp = NULL;
     int callback_id = callback_defined(callback_index);
     if (callback_id > 0) {
         (void) run_callback(callback_id, "dS->R", n, s, &ftemp);
-    } else {
+    } else if (kpse_available("find_read_file")) {
         /* use kpathsea here */
         ftemp = find_in_output_directory(s);
         if (!ftemp)
@@ -140,7 +148,7 @@ char *luatex_find_file(const char *s, int callback_index)
     if (callback_id > 0) {
         (void) run_callback(callback_id, "S->R", s, &ftemp);
 
-    } else {
+    } else if (kpse_available("find_read_file")) {
         /* use kpathsea here */
         switch (callback_index) {
         case find_enc_file_callback:

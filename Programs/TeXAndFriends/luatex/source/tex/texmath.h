@@ -155,6 +155,8 @@ typedef enum {
     math_param_limit_below_vgap,
     math_param_limit_below_bgap,
     math_param_limit_below_kern,
+    math_param_nolimit_sub_factor, /* bonus */
+    math_param_nolimit_sup_factor, /* bonus */
     math_param_under_delimiter_vgap,
     math_param_under_delimiter_bgap,
     math_param_over_delimiter_vgap,
@@ -307,6 +309,8 @@ typedef enum {
     SubscriptShiftDownWithSuperscript,
     FractionDelimiterSize,
     FractionDelimiterDisplayStyleSize,
+    NoLimitSubFactor,
+    NoLimitSupFactor,
     MATH_param_last,
 } MATH_param_codes;
 

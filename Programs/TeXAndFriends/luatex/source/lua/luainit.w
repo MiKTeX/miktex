@@ -184,6 +184,10 @@ static void prepare_cmdline(lua_State * L, char **av, int ac, int zero_offset)
     return;
 }
 
+
+@ @c
+int kpse_init = -1;
+
 @ @c
 string input_name = NULL;
 
@@ -555,26 +559,16 @@ static void parse_options(int ac, char **av)
             }
         }
 #ifdef WIN32
-    } else if (sargv[sargc-1] && sargv[sargc-1][0] != '-' &&
+    } else if (sargc > 1 && sargv[sargc-1] && sargv[sargc-1][0] != '-' &&
                sargv[sargc-1][0] != '\\') {
         if (sargv[sargc-1][0] == '&')
             dump_name = xstrdup(sargv[sargc-1] + 1);
         else  {
-            char *p;
             if (sargv[sargc-1][0] == '*')
                 input_name = xstrdup(sargv[sargc-1] + 1);
             else
                 input_name = xstrdup(sargv[sargc-1]);
             sargv[sargc-1] = normalize_quotes(input_name, "argument");
-            /* Same as
-                  input_name = (char *)xbasename(input_name);
-               but without cast const => non-const.  */
-            input_name += xbasename(input_name) - input_name;
-            p = strrchr(input_name, '.');
-            if (p != NULL && strcasecmp(p, ".tex") == 0)
-                *p = '\0';
-            if (!c_job_name)
-                c_job_name = normalize_quotes(input_name, "jobname");
         }
         if (safer_option)      /* --safer implies --nosocket */
             nosocket_option = 1;
@@ -688,8 +682,10 @@ static void fix_dumpname(void)
             TEX_format_default = concat(dump_name, DUMP_EXT);
     } else {
         /* For |dump_name| to be NULL is a bug.  */
-        if (!ini_version)
-            normal_error("luatex","no format given");
+        if (!ini_version) {
+          fprintf(stdout, "no format given, quitting\n");
+          exit(1);
+        }
     }
 }
 
@@ -950,7 +946,7 @@ void lua_initialize(int ac, char **av)
 {
     char *given_file = NULL;
     char *banner;
-    int kpse_init;
+    /*int kpse_init;*/
     size_t len;
     int starttime;
     int utc;

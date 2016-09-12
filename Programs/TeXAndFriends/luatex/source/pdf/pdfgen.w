@@ -284,9 +284,13 @@ void fix_pdf_minorversion(PDF pdf)
         /* Check that variables for \.{PDF} output are unchanged */
         if (pdf->minor_version != pdf_minor_version)
             normal_error("pdf backend", "minorversion cannot be changed after data is written to the PDF file");
-        if (pdf->draftmode != draft_mode_par)
-            normal_error("pdf backend", "draftmode cannot be changed after data is written to the PDF file");
     }
+}
+
+static void fix_pdf_draftmode(PDF pdf)
+{
+    if (pdf->draftmode != draft_mode_par)
+        normal_error("pdf backend", "draftmode cannot be changed after data is written to the PDF file");
     if (pdf->draftmode != 0) {
         pdf->compress_level = 0;        /* re-fix it, might have been changed inbetween */
         pdf->objcompresslevel = 0;
@@ -1025,6 +1029,7 @@ static void ensure_pdf_header_written(PDF pdf)
     /* Initialize variables for \.{PDF} output */
     fix_pdf_minorversion(pdf);
     init_pdf_outputparameters(pdf);
+    fix_pdf_draftmode(pdf);
     /* Write \.{PDF} header */
     pdf_printf(pdf, "%%PDF-1.%d\n", pdf->minor_version);
     /* The next blob will be removed 1.0. */

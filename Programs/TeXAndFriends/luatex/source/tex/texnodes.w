@@ -2827,9 +2827,21 @@ void show_node_wrapup_pdf(int p)
 @ Recursive calls on |show_node_list| therefore use the following pattern:
 @c
 #define node_list_display(A) do { \
-    append_char('.');             \
-    show_node_list(A);            \
-    flush_char();                 \
+    append_char('.');  \
+    show_node_list(A); \
+    flush_char();      \
+} while (0)
+
+#define node_list_display_x(A,B) do { \
+    if ((B) != null) {     \
+        append_char('.');  \
+        append_char(A);    \
+        append_char(' ');  \
+        show_node_list(B); \
+        flush_char();      \
+        flush_char();      \
+        flush_char();      \
+    } \
 } while (0)
 
 /* prints a node list symbolically */
@@ -3145,17 +3157,26 @@ void show_node_list(int p)
                 /* Display discretionary |p|; */
                 /* The |post_break| list of a discretionary node is indicated by a prefixed
                    `\.{\char'174}' instead of the `\..' before the |pre_break| list. */
+                /* We're not compatible anyway  so ...
+                    tprint_esc("discretionary");
+                    print_int(disc_penalty(p));
+                    print_char('|');
+                    if (vlink(no_break(p)) != null) {
+                        tprint(" replacing ");
+                        node_list_display(vlink(no_break(p)));
+                    }
+                    node_list_display(vlink(pre_break(p)));
+                    append_char('|');
+                    show_node_list(vlink(post_break(p)));
+                    flush_char();
+                */
                 tprint_esc("discretionary");
+                tprint(" (penalty ");
                 print_int(disc_penalty(p));
-                print_char('|');
-                if (vlink(no_break(p)) != null) {
-                    tprint(" replacing ");
-                    node_list_display(vlink(no_break(p)));
-                }
-                node_list_display(vlink(pre_break(p))); /* recursive call */
-                append_char('|');
-                show_node_list(vlink(post_break(p)));
-                flush_char();   /* recursive call */
+                print_char(')');
+                node_list_display_x('<',vlink(pre_break(p)));
+                node_list_display_x('>',vlink(post_break(p)));
+                node_list_display_x('=',vlink(no_break(p)));
                 break;
             case mark_node:
                 /* Display mark |p|; */

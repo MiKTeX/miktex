@@ -278,20 +278,21 @@ the |number_regs| \.{\\dimen} registers.
 #  define math_eqno_gap_step_code 87                                    /* factor/1000 used for distance between eq and eqno */
 #  define math_display_skip_mode_code 88
 #  define math_scripts_mode_code 89
-#  define synctex_code 90                                               /* is synctex file generation enabled ?  */
-#  define shape_mode_code 91
-#  define first_valid_language_code 92
-#  define hyphenation_bounds_code 93
+#  define math_nolimits_mode_code 90
+#  define synctex_code 91                                               /* is synctex file generation enabled ?  */
+#  define shape_mode_code 92
+#  define first_valid_language_code 93
+#  define hyphenation_bounds_code 94
 
-#  define math_option_code 94
+#  define math_option_code 95
 
-#  define mathoption_int_base (int_base+95)                             /* one reserve */
-#  define mathoption_int_last (int_base+100)
+#  define mathoption_int_base (int_base+96)                             /* one reserve */
+#  define mathoption_int_last (int_base+104)
 
-#  define backend_int_base (int_base+101)
-#  define backend_int_last (int_base+125)
+#  define backend_int_base (int_base+105)
+#  define backend_int_last (int_base+129)
 
-#  define tex_int_pars (126)                                            /* total number of integer parameters */
+#  define tex_int_pars (130)                                            /* total number of integer parameters */
 
 #  define page_direction_code (tex_int_pars)
 #  define body_direction_code (tex_int_pars+1)
@@ -637,6 +638,7 @@ extern halfword last_cs_name;
 #define disable_kern_par                   int_par(disable_kern_code)
 #define disable_space_par                  int_par(disable_space_code)
 #define scripts_mode_par                   int_par(math_scripts_mode_code)
+#define nolimits_mode_par                  int_par(math_nolimits_mode_code)
 
 #define thin_mu_skip_par                   glue_par(thin_mu_skip_code)
 #define med_mu_skip_par                    glue_par(med_mu_skip_code)

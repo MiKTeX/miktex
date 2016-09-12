@@ -139,7 +139,6 @@ typedef struct texfont {
     int _font_cache_id;         /* internal information */
     char _font_encodingbytes;   /* 1 or 2 bytes */
     boolean _font_oldmath;      /* default to false when MathConstants seen */
-
     int _font_slant;            /* a slant in ppt */
     int _font_extend;           /* an extension in ppt, or 1000 */
     int font_max_shrink;
@@ -230,114 +229,114 @@ extern const char *font_embedding_strings[];
 
 boolean cmp_font_area(int, str_number);
 
-#  define font_reassign(a,b)            { if (a!=NULL) free(a); a = b; }
+#  define font_reassign(a,b)             { if (a!=NULL) free(a); a = b; }
 
-#  define font_filename(a)            font_tables[a]->_font_filename
-#  define set_font_filename(f,b)      font_reassign(font_filename(f),b)
+#  define font_filename(a)               font_tables[a]->_font_filename
+#  define set_font_filename(f,b)         font_reassign(font_filename(f),b)
 
-#  define font_fullname(a)            font_tables[a]->_font_fullname
-#  define set_font_fullname(f,b)      font_reassign(font_fullname(f),b)
+#  define font_fullname(a)               font_tables[a]->_font_fullname
+#  define set_font_fullname(f,b)         font_reassign(font_fullname(f),b)
 
-#  define font_psname(a)              font_tables[a]->_font_psname
-#  define set_font_psname(f,b)        font_reassign(font_psname(f),b)
+#  define font_psname(a)                 font_tables[a]->_font_psname
+#  define set_font_psname(f,b)           font_reassign(font_psname(f),b)
 
-#  define font_encodingname(a)        font_tables[a]->_font_encodingname
-#  define set_font_encodingname(f,b)  font_reassign(font_encodingname(f),b)
+#  define font_encodingname(a)           font_tables[a]->_font_encodingname
+#  define set_font_encodingname(f,b)     font_reassign(font_encodingname(f),b)
 
-#  define cmp_font_filename(a,b)      (!(font_filename(a)!=NULL || font_filename(b)!=NULL || \
-                                       strcmp(font_filename(a),font_filename(b))))
-#  define cmp_font_fullname(a,b)      (!(font_fullname(a)!=NULL || font_fullname(b)!=NULL || \
-                                       strcmp(font_fullname(a),font_fullname(b))))
-#  define cmp_font_encodingname(a,b)  (!(font_encoding(a)!=NULL || font_encodingname(b)!=NULL || \
-                                       strcmp(font_encodingname(a),font_encodingname(b))))
+#  define cmp_font_filename(a,b)         (!(font_filename(a)!=NULL || font_filename(b)!=NULL || \
+                                          strcmp(font_filename(a),font_filename(b))))
+#  define cmp_font_fullname(a,b)         (!(font_fullname(a)!=NULL || font_fullname(b)!=NULL || \
+                                          strcmp(font_fullname(a),font_fullname(b))))
+#  define cmp_font_encodingname(a,b)     (!(font_encoding(a)!=NULL || font_encodingname(b)!=NULL || \
+                                          strcmp(font_encodingname(a),font_encodingname(b))))
 
-#  define font_bc(a)                  font_tables[a]->_font_bc
-#  define set_font_bc(f,b)            font_bc(f) = b
+#  define font_bc(a)                     font_tables[a]->_font_bc
+#  define set_font_bc(f,b)               font_bc(f) = b
 
-#  define font_ec(a)                  font_tables[a]->_font_ec
-#  define set_font_ec(f,b)            font_ec(f) = b
+#  define font_ec(a)                     font_tables[a]->_font_ec
+#  define set_font_ec(f,b)               font_ec(f) = b
 
-#  define font_used(a)                (font_tables[a]!=NULL && font_tables[a]->_font_used)
-#  define set_font_used(a,b)          font_tables[a]->_font_used = b
+#  define font_used(a)                   (font_tables[a]!=NULL && font_tables[a]->_font_used)
+#  define set_font_used(a,b)             font_tables[a]->_font_used = b
 
-#  define font_touched(a)             font_tables[a]->_font_touched
-#  define set_font_touched(a,b)       font_touched(a) = b
+#  define font_touched(a)                font_tables[a]->_font_touched
+#  define set_font_touched(a,b)          font_touched(a) = b
 
-#  define font_type(a)                font_tables[a]->_font_type
-#  define set_font_type(a,b)          font_type(a) = b;
+#  define font_type(a)                   font_tables[a]->_font_type
+#  define set_font_type(a,b)             font_type(a) = b;
 
-#  define font_format(a)              font_tables[a]->_font_format
-#  define font_format_name(a)         font_format_strings[font_tables[a]->_font_format]
-#  define set_font_format(a,b)        font_format(a) = b
+#  define font_format(a)                 font_tables[a]->_font_format
+#  define font_format_name(a)            font_format_strings[font_tables[a]->_font_format]
+#  define set_font_format(a,b)           font_format(a) = b
 
-#  define font_embedding(a)           font_tables[a]->_font_embedding
-#  define set_font_embedding(a,b)     font_embedding(a) = b
+#  define font_embedding(a)              font_tables[a]->_font_embedding
+#  define set_font_embedding(a,b)        font_embedding(a) = b
 
-#  define font_cidversion(a)          font_tables[a]->_font_cidversion
-#  define set_font_cidversion(a,b)    font_cidversion(a) = b
+#  define font_cidversion(a)             font_tables[a]->_font_cidversion
+#  define set_font_cidversion(a,b)       font_cidversion(a) = b
 
-#  define font_cidsupplement(a)       font_tables[a]->_font_cidsupplement
-#  define set_font_cidsupplement(a,b) font_cidsupplement(a) = b
+#  define font_cidsupplement(a)          font_tables[a]->_font_cidsupplement
+#  define set_font_cidsupplement(a,b)    font_cidsupplement(a) = b
 
-#  define font_cidordering(a)         font_tables[a]->_font_cidordering
-#  define set_font_cidordering(f,b)   font_reassign(font_cidordering(f),b)
+#  define font_cidordering(a)            font_tables[a]->_font_cidordering
+#  define set_font_cidordering(f,b)      font_reassign(font_cidordering(f),b)
 
-#  define font_cidregistry(a)         font_tables[a]->_font_cidregistry
-#  define set_font_cidregistry(f,b)   font_reassign(font_cidregistry(f),b)
+#  define font_cidregistry(a)            font_tables[a]->_font_cidregistry
+#  define set_font_cidregistry(f,b)      font_reassign(font_cidregistry(f),b)
 
-#  define font_map(a)                 font_tables[a]->_font_map
-#  define set_font_map(a,b)           font_map(a) = b
+#  define font_map(a)                    font_tables[a]->_font_map
+#  define set_font_map(a,b)              font_map(a) = b
 
-#  define font_cache_id(a)            font_tables[a]->_font_cache_id
-#  define set_font_cache_id(a,b)      font_cache_id(a) = b
+#  define font_cache_id(a)               font_tables[a]->_font_cache_id
+#  define set_font_cache_id(a,b)         font_cache_id(a) = b
 
-#  define font_encodingbytes(a)       font_tables[a]->_font_encodingbytes
-#  define set_font_encodingbytes(a,b) font_encodingbytes(a) = b
+#  define font_encodingbytes(a)          font_tables[a]->_font_encodingbytes
+#  define set_font_encodingbytes(a,b)    font_encodingbytes(a) = b
 
-#  define font_oldmath(a)             font_tables[a]->_font_oldmath
-#  define set_font_oldmath(a,b)       font_oldmath(a) = b
+#  define font_oldmath(a)                font_tables[a]->_font_oldmath
+#  define set_font_oldmath(a,b)          font_oldmath(a) = b
 
-#  define font_slant(a)               font_tables[a]->_font_slant
-#  define set_font_slant(a,b)         font_slant(a) = b
+#  define font_slant(a)                  font_tables[a]->_font_slant
+#  define set_font_slant(a,b)            font_slant(a) = b
 
-#  define font_extend(a)              font_tables[a]->_font_extend
-#  define set_font_extend(a,b)        font_extend(a) = b
+#  define font_extend(a)                 font_tables[a]->_font_extend
+#  define set_font_extend(a,b)           font_extend(a) = b
 
-#  define font_shrink(a)              font_tables[a]->_font_shrink
-#  define set_font_shrink(a,b)        font_shrink(a) = b
+#  define font_shrink(a)                 font_tables[a]->_font_shrink
+#  define set_font_shrink(a,b)           font_shrink(a) = b
 
-#  define font_stretch(a)             font_tables[a]->_font_stretch
-#  define set_font_stretch(a,b)       font_stretch(a) = b
+#  define font_stretch(a)                font_tables[a]->_font_stretch
+#  define set_font_stretch(a,b)          font_stretch(a) = b
 
-#  define font_max_shrink(a)          font_tables[a]->font_max_shrink
-#  define set_font_max_shrink(a,b)    font_max_shrink(a) = b
+#  define font_max_shrink(a)             font_tables[a]->font_max_shrink
+#  define set_font_max_shrink(a,b)       font_max_shrink(a) = b
 
-#  define font_max_stretch(a)         font_tables[a]->font_max_stretch
-#  define set_font_max_stretch(a,b)   font_max_stretch(a) = b
+#  define font_max_stretch(a)            font_tables[a]->font_max_stretch
+#  define set_font_max_stretch(a,b)      font_max_stretch(a) = b
 
-#  define font_step(a)                font_tables[a]->_font_step
-#  define set_font_step(a,b)          font_step(a) = b
+#  define font_step(a)                   font_tables[a]->_font_step
+#  define set_font_step(a,b)             font_step(a) = b
 
-#  define font_auto_expand(a)         font_tables[a]->_font_auto_expand
-#  define set_font_auto_expand(a,b)   font_auto_expand(a) = b
+#  define font_auto_expand(a)            font_tables[a]->_font_auto_expand
+#  define set_font_auto_expand(a,b)      font_auto_expand(a) = b
 
-#  define font_tounicode(a)           font_tables[a]->_font_tounicode
-#  define set_font_tounicode(a,b)     font_tounicode(a) = b
+#  define font_tounicode(a)              font_tables[a]->_font_tounicode
+#  define set_font_tounicode(a,b)        font_tounicode(a) = b
 
-#  define hyphen_char(a)              font_tables[a]->_hyphen_char
-#  define set_hyphen_char(a,b)        hyphen_char(a) = b
+#  define hyphen_char(a)                 font_tables[a]->_hyphen_char
+#  define set_hyphen_char(a,b)           hyphen_char(a) = b
 
-#  define skew_char(a)                font_tables[a]->_skew_char
-#  define set_skew_char(a,b)          skew_char(a) = b
+#  define skew_char(a)                   font_tables[a]->_skew_char
+#  define set_skew_char(a,b)             skew_char(a) = b
 
-#  define font_natural_dir(a)         font_tables[a]->_font_natural_dir
-#  define set_font_natural_dir(a,b)   font_natural_dir(a) = b
+#  define font_natural_dir(a)            font_tables[a]->_font_natural_dir
+#  define set_font_natural_dir(a,b)      font_natural_dir(a) = b
 
-#  define pdf_font_num(a)             font_tables[a]->_pdf_font_num
-#  define set_pdf_font_num(a,b)       pdf_font_num(a) = b
+#  define pdf_font_num(a)                font_tables[a]->_pdf_font_num
+#  define set_pdf_font_num(a,b)          pdf_font_num(a) = b
 
-#  define pdf_font_attr(a)            font_tables[a]->_pdf_font_attr
-#  define set_pdf_font_attr(a,b)      pdf_font_attr(a) = b
+#  define pdf_font_attr(a)               font_tables[a]->_pdf_font_attr
+#  define set_pdf_font_attr(a,b)         pdf_font_attr(a) = b
 
 #  define left_boundarychar  -1
 #  define right_boundarychar -2

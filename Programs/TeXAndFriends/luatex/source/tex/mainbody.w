@@ -466,7 +466,7 @@ void main_body(void)
     initialize_math();
     fixup_selector(log_opened_global);
     check_texconfig_init();
-    if ((iloc < ilimit) && (get_cat_code(cat_code_table_code, buffer[iloc]) != escape_cmd))
+    if ((iloc < ilimit) && (get_cat_code(cat_code_table_par, buffer[iloc]) != escape_cmd))
         start_input();          /* \.{\\input} assumed */
     /* DIR: Initialize |text_dir_ptr| */
     text_dir_ptr = new_dir(0);

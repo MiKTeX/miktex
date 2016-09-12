@@ -452,6 +452,7 @@ const char *math_param_names[] = {
     "fractiondenomvgap", "fractiondenomdown", "fractiondelsize",
     "limitabovevgap", "limitabovebgap", "limitabovekern",
     "limitbelowvgap", "limitbelowbgap", "limitbelowkern",
+    "nolimitsubfactor", "nolimitsupfactor", /* bonus */
     "underdelimitervgap", "underdelimiterbgap",
     "overdelimitervgap", "overdelimiterbgap",
     "subshiftdrop", "supshiftdrop", "subshiftdown",

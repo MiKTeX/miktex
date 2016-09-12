@@ -103,6 +103,8 @@ const char *MATH_param_names[] = {
     "SubscriptShiftDownWithSuperscript",
     "FractionDelimiterSize",
     "FractionDelimiterDisplayStyleSize",
+    "NoLimitSubFactor",
+    "NoLimitSupFactor",
     NULL,
 };
 

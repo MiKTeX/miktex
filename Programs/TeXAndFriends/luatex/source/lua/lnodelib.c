@@ -1694,6 +1694,28 @@ static int lua_nodelib_dimensions(lua_State * L)
     return 0;                   /* not reached */
 }
 
+static int lua_nodelib_rangedimensions(lua_State * L) /* parent, first, last */
+{
+    int top = lua_gettop(L);
+    if (top > 1) {
+        scaled_whd siz;
+        halfword l = *(check_isnode(L, 1)); /* parent */
+        halfword n = *(check_isnode(L, 2)); /* first */
+        halfword p = null;
+        if (top > 2) {
+            p = *(check_isnode(L, 3)); /* last */
+        }
+        siz = natural_sizes(n, p, (glue_ratio) glue_set(l), glue_sign(l), glue_order(l), box_dir(l));
+        lua_pushinteger(L, siz.wd);
+        lua_pushinteger(L, siz.ht);
+        lua_pushinteger(L, siz.dp);
+        return 3;
+    } else {
+        luaL_error(L, "missing argument to 'rangedimensions' (2 or more nodes expected)");
+    }
+    return 0;                   /* not reached */
+}
+
 /* node.direct.dimensions*/
 
 static int lua_nodelib_direct_dimensions(lua_State * L)
@@ -1729,7 +1751,29 @@ static int lua_nodelib_direct_dimensions(lua_State * L)
         lua_pushinteger(L, siz.dp);
         return 3;
     } else {
-        luaL_error(L, "missing argument to 'dimensions' (node expected)");
+        luaL_error(L, "missing argument to 'dimensions' (direct node expected)");
+    }
+    return 0;                   /* not reached */
+}
+
+static int lua_nodelib_direct_rangedimensions(lua_State * L) /* parent, first, last */
+{
+    int top = lua_gettop(L);
+    if (top > 1) {
+        scaled_whd siz;
+        halfword l = (halfword) lua_tointeger(L,1); /* parent */
+        halfword n = (halfword) lua_tointeger(L,2); /* first */
+        halfword p = null;
+        if (top > 2) {
+            p = (halfword) lua_tointeger(L,3); /* last */
+        }
+        siz = natural_sizes(n, p, (glue_ratio) glue_set(l), glue_sign(l), glue_order(l), box_dir(l));
+        lua_pushinteger(L, siz.wd);
+        lua_pushinteger(L, siz.ht);
+        lua_pushinteger(L, siz.dp);
+        return 3;
+    } else {
+        luaL_error(L, "missing argument to 'rangedimensions' (2 or more direct nodes expected)");
     }
     return 0;                   /* not reached */
 }
@@ -6991,6 +7035,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"count", lua_nodelib_direct_count},
     {"current_attr", lua_nodelib_direct_currentattr},
     {"dimensions", lua_nodelib_direct_dimensions},
+    {"rangedimensions", lua_nodelib_direct_rangedimensions},
  /* {"do_ligature_n", lua_nodelib_direct_do_ligature_n}, */
     {"end_of_math", lua_nodelib_direct_end_of_math},
  /* {"family_font", lua_nodelib_mfont}, */ /* no node argument */
@@ -7086,6 +7131,7 @@ static const struct luaL_Reg nodelib_f[] = {
     {"count", lua_nodelib_count},
     {"current_attr", lua_nodelib_currentattr},
     {"dimensions", lua_nodelib_dimensions},
+    {"rangedimensions", lua_nodelib_rangedimensions},
  /* {"do_ligature_n", lua_nodelib_do_ligature_n}, */
     {"end_of_math", lua_nodelib_end_of_math},
     {"family_font", lua_nodelib_mfont},

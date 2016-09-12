@@ -219,6 +219,7 @@ void do_final_end(void)
 {
     update_terminal();
     ready_already = 0;
+    lua_close(Luas); /* new per 0.99 */
     if ((history != spotless) && (history != warning_issued))
         uexit(1);
     else

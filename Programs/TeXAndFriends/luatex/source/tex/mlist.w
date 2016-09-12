@@ -53,6 +53,7 @@ already apply that shift.
 @ @c
 #define is_new_mathfont(A)   ((font_math_params(A) >0) && (math_old_par == 0))
 #define is_old_mathfont(A,B) ((font_math_params(A)==0) && (font_params(A)>=(B)))
+#define do_new_math(A)       ((font_math_params(A) >0) && (font_oldmath(A) == 0) && (math_old_par == 0))
 
 @
 \def\LuaTeX{Lua\TeX}
@@ -94,7 +95,7 @@ already apply that shift.
     }                                                        \
   } while (0)
 
-#define font_MATH_par(a,b)                                                  \
+#define font_MATH_par(a,b) \
   (font_math_params(a)>=b ? font_math_param(a,b) : undefined_math_parameter)
 
 @ here are the math parameters that are font-dependant
@@ -197,7 +198,7 @@ static void math_param_error(const char *param, int style)
 static scaled accent_base_height(int f)
 {
     scaled a;
-    if (is_new_mathfont(f)) {
+    if (do_new_math(f)) {
         a = font_MATH_par(f, AccentBaseHeight);
         if (a == undefined_math_parameter)
             a = x_height(f);
@@ -280,12 +281,22 @@ static scaled radical_rule(int var)
 
 @c
 #define get_math_param_or_error(a,b) do_get_math_param_or_error(a, math_param_##b, #b)
+#define get_math_param_or_zero(a,b) do_get_math_param_or_zero(a, math_param_##b, #b)
 
 static scaled do_get_math_param_or_error(int var, int param, const char *name)
 {
     scaled a = get_math_param(param, var);
     if (a == undefined_math_parameter) {
         math_param_error(name, var);
+        a = 0;
+    }
+    return a;
+}
+
+static scaled do_get_math_param_or_zero(int var, int param, const char *name)
+{
+    scaled a = get_math_param(param, var);
+    if (a == undefined_math_parameter) {
         a = 0;
     }
     return a;
@@ -364,6 +375,9 @@ static scaled get_delimiter_height(scaled max_d, scaled max_h, boolean axis) {
 #define limit_below_vgap(a)      get_math_param_or_error(a, limit_below_vgap)
 #define limit_below_bgap(a)      get_math_param_or_error(a, limit_below_bgap)
 #define limit_below_kern(a)      get_math_param_or_error(a, limit_below_kern)
+
+#define nolimit_sub_factor(a)    get_math_param_or_zero(a, nolimit_sub_factor)
+#define nolimit_sup_factor(a)    get_math_param_or_zero(a, nolimit_sup_factor)
 
 #define sub_shift_drop(a)        get_math_param_or_error(a, sub_shift_drop)
 #define sup_shift_drop(a)        get_math_param_or_error(a, sup_shift_drop)
@@ -563,6 +577,14 @@ void fixup_math_parameters(int fam_id, int size_id, int f, int lvl)
             0, lvl);
         DEFINE_DMATH_PARAMETERS(math_param_limit_below_kern, size_id,
             0, lvl);
+        DEFINE_MATH_PARAMETERS(math_param_nolimit_sub_factor, size_id,
+            font_MATH_par(f, NoLimitSubFactor), lvl); /* bonus */
+        DEFINE_DMATH_PARAMETERS(math_param_nolimit_sub_factor, size_id,
+            font_MATH_par(f, NoLimitSubFactor), lvl); /* bonus */
+        DEFINE_MATH_PARAMETERS(math_param_nolimit_sup_factor, size_id,
+            font_MATH_par(f, NoLimitSupFactor), lvl); /* bonus */
+        DEFINE_DMATH_PARAMETERS(math_param_nolimit_sup_factor, size_id,
+            font_MATH_par(f, NoLimitSupFactor), lvl); /* bonus */
 
         DEFINE_MATH_PARAMETERS(math_param_fraction_rule, size_id,
             font_MATH_par(f, FractionRuleThickness), lvl);
@@ -819,6 +841,14 @@ void fixup_math_parameters(int fam_id, int size_id, int f, int lvl)
            big_op_spacing5(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_limit_below_kern, size_id,
             big_op_spacing5(size_id), lvl);
+        DEFINE_MATH_PARAMETERS(math_param_nolimit_sub_factor, size_id,
+            font_MATH_par(f, NoLimitSubFactor), lvl); /* bonus */
+        DEFINE_DMATH_PARAMETERS(math_param_nolimit_sub_factor, size_id,
+            font_MATH_par(f, NoLimitSubFactor), lvl); /* bonus */
+        DEFINE_MATH_PARAMETERS(math_param_nolimit_sup_factor, size_id,
+            font_MATH_par(f, NoLimitSupFactor), lvl); /* bonus */
+        DEFINE_DMATH_PARAMETERS(math_param_nolimit_sup_factor, size_id,
+            font_MATH_par(f, NoLimitSupFactor), lvl); /* bonus */
         DEFINE_MATH_PARAMETERS(math_param_subsup_vgap, size_id,
             4 * default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_subsup_vgap, size_id,
@@ -991,7 +1021,7 @@ static pointer char_box(internal_font_number f, int c, pointer bb)
 {
     pointer b, p; /* the new box and its character node */
     b = new_null_box();
-    if (is_new_mathfont(f))
+    if (do_new_math(f))
         width(b) = char_width(f, c);
     else
         width(b) = char_width(f, c) + char_italic(f, c);
@@ -1404,7 +1434,7 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
                 b = get_delim_box(d, ext, f, v, att, cur_style, vlist_node);
             }
             if (delta != NULL) {
-                if (is_new_mathfont(f)) {
+                if (do_new_math(f)) {
                     *delta = char_vert_italic(f,x);
                 } else {
                     *delta = char_italic(f,x);
@@ -1414,12 +1444,12 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
                 *stack = true ;
         } else {
             b = char_box(f, c, att);
-            if (!is_new_mathfont(f)) {
+            if (!do_new_math(f)) {
                 /* italic gets added to width */
                 width(b) += char_italic(f, c);
             }
             if (delta != NULL) {
-                *delta = char_italic(f,x);
+                *delta = char_italic(f, c); /* was historically (f, x) */
             }
             if (stack != NULL)
                 *stack = false ;
@@ -2113,7 +2143,7 @@ static boolean compute_accent_skew(pointer q, int flags, scaled *s)
     boolean s_is_absolute = false; /* will be true if a top-accent is placed in |s| */
     if (type(nucleus(q)) == math_char_node) {
         fetch(nucleus(q));
-        if (is_new_mathfont(cur_f)) {
+        if (do_new_math(cur_f)) {
             /*
                 there is no bot_accent so let's assume similarity
 
@@ -2183,7 +2213,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
     x = clean_box(nucleus(q), cramped_style(cur_style), cur_style);
     w = width(x);
     h = height(x);
-    if (is_new_mathfont(cur_f) && !s_is_absolute) {
+    if (do_new_math(cur_f) && !s_is_absolute) {
         s = half(w);
         s_is_absolute = true;
     }
@@ -2261,7 +2291,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
     } else if ((vlink(q) != null) && (type(nucleus(q)) == math_char_node)) {
         /* only pure math char nodes */
         internal_font_number f = fam_fnt(math_fam(nucleus(q)),cur_size);
-        if (is_new_mathfont(f)) {
+        if (do_new_math(f)) {
             ic = char_italic(f,math_character(nucleus(q)));
         }
     }
@@ -2545,7 +2575,7 @@ static void make_fraction(pointer q, int cur_style)
         put the fraction into a box with its delimiters, and make |new_hlist(q)|
         point to it
     */
-    if (is_new_mathfont(cur_f)) {
+    if (do_new_math(cur_f)) {
         if (math_use_old_fraction_scaling_par) {
             delta = fraction_del_size_old(cur_style);
         } else {
@@ -2610,7 +2640,7 @@ static scaled make_op(pointer q, int cur_style)
                 small_fam(y) = math_fam(nucleus(q));
                 small_char(y) = math_character(nucleus(q));
                 x = do_delimiter(q, y, text_size, ok_size, false, cur_style, true, NULL, &delta);
-                if (is_new_mathfont(cur_f)) {
+                if (do_new_math(cur_f)) {
                     /* we never added italic correction */
                 } else if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits)) {
                     /* remove italic correction */
@@ -2628,7 +2658,7 @@ static scaled make_op(pointer q, int cur_style)
                 delta = char_italic(cur_f, cur_c);
                 x = clean_box(nucleus(q), cur_style, cur_style);
                 if (delta != null) {
-                    if (is_new_mathfont(cur_f)) {
+                    if (do_new_math(cur_f)) {
                         /* we never added italic correction */
                     } else if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits)) {
                         /* remove italic correction */
@@ -2642,7 +2672,7 @@ static scaled make_op(pointer q, int cur_style)
             delta = char_italic(cur_f, cur_c);
             x = clean_box(nucleus(q), cur_style, cur_style);
             if (delta != 0) {
-                if (is_new_mathfont(cur_f)) {
+                if (do_new_math(cur_f)) {
                     /* we never added italic correction */
                 } else if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits)) {
                     /* remove italic correction */
@@ -2662,15 +2692,56 @@ static scaled make_op(pointer q, int cur_style)
     /* we now handle op_nod_type_no_limits here too */
 
     if (subtype(q) == op_noad_type_no_limits) {
-        if (is_new_mathfont(cur_f)) {
-            if (delta != 0) {
-                delta = half(delta) ;
-            }
+        if (do_new_math(cur_f)) {
+            /*
+                if (delta != 0) {
+                    delta = half(delta) ;
+                }
+            */
             p = check_nucleus_complexity(q, &dummy, cur_style);
             if ((subscr(q) == null) && (supscr(q) == null)) {
                 assign_new_hlist(q, p);
             } else {
-                make_scripts(q, p, 0, cur_style, delta, -delta);
+                /*
+                    make_scripts(q, p, 0, cur_style, delta, -delta);
+                */
+                int mode = nolimits_mode_par; /* wins */
+                /*
+                    for easy configuration ... fonts are somewhat inconsistent and the
+                    values for italic correction run from 30 to 60% of the width
+                */
+                switch (mode) {
+                    case 0 :
+                        /* as with limits */
+                        make_scripts(q, p, 0, cur_style, half(delta), -half(delta));
+                        break;
+                    case 1 :
+                        /* MathConstants driven */
+                        make_scripts(q, p, 0, cur_style,
+                             round_xn_over_d(delta, nolimit_sup_factor(cur_style), 1000),
+                            -round_xn_over_d(delta, nolimit_sub_factor(cur_style), 1000));
+                    case 2 :
+                        /* no correction */
+                        make_scripts(q, p, 0, cur_style, 0, 0);
+                        break;
+                    case 3 :
+                        /* half bottom correction */
+                        make_scripts(q, p, 0, cur_style, 0, -half(delta));
+                        break;
+                    case 4 :
+                        /* full bottom correction */
+                        make_scripts(q, p, 0, cur_style, 0, -delta);
+                        break;
+                    default :
+                        /* half bottom and top correction */
+                        if (mode > 15) {
+                            /* for quickly testing values */
+                            make_scripts(q, p, 0, cur_style, 0, -round_xn_over_d(delta, mode, 1000));
+                        } else {
+                            make_scripts(q, p, 0, cur_style, half(delta), -half(delta));
+                        }
+                        break;
+                }
             }
             delta = 0;
         } else {
@@ -2691,7 +2762,7 @@ static scaled make_op(pointer q, int cur_style)
         v = new_null_box();
         reset_attributes(v, node_attr(q));
         type(v) = vlist_node;
-        if (is_new_mathfont(cur_f)) {
+        if (do_new_math(cur_f)) {
             n = null;
             if (! math_no_italic_compensation_par) {
                 n = nucleus(q);
@@ -2802,7 +2873,7 @@ static scaled make_op(pointer q, int cur_style)
             supscr(q) = null;
         }
         assign_new_hlist(q, v);
-        if (is_new_mathfont(cur_f)) {
+        if (do_new_math(cur_f)) {
             delta = 0;
         }
     }
@@ -2844,7 +2915,7 @@ static void make_ord(pointer q)
             fetch(nucleus(q));
             a = cur_c;
             /* add italic correction */
-            if (is_new_mathfont(cur_f) && (char_italic(cur_f,math_character(nucleus(q))) != 0)) {
+            if (do_new_math(cur_f) && (char_italic(cur_f,math_character(nucleus(q))) != 0)) {
                 p = new_kern(char_italic(cur_f,math_character(nucleus(q))));
                 reset_attributes(p, node_attr(q));
                 couple_nodes(p,vlink(q));
@@ -3005,7 +3076,7 @@ static scaled find_math_kern(internal_font_number l_f, int l_c,
 {
     scaled corr_height_top = 0, corr_height_bot = 0;
     scaled krn_l = 0, krn_r = 0, krn = 0;
-    if ((!is_new_mathfont(l_f)) || (!is_new_mathfont(r_f)) || (!char_exists(l_f, l_c)) || (!char_exists(r_f, r_c)))
+    if ((!do_new_math(l_f)) || (!do_new_math(r_f)) || (!char_exists(l_f, l_c)) || (!char_exists(r_f, r_c)))
         return MATH_KERN_NOT_FOUND;
 
     if (cmd == sup_mark_cmd) {
@@ -3732,14 +3803,14 @@ static pointer check_nucleus_complexity(halfword q, scaled * delta, int cur_styl
         fetch(nucleus(q));
         if (char_exists(cur_f, cur_c)) {
             /* we could look at neighbours */
-            if (is_new_mathfont(cur_f)) {
+            if (do_new_math(cur_f)) {
                 *delta = 0 ; /* cf spec only the last one */
             } else {
                 *delta = char_italic(cur_f, cur_c);
             }
             p = new_glyph(cur_f, cur_c);
             reset_attributes(p, node_attr(nucleus(q)));
-            if (is_new_mathfont(cur_f)) {
+            if (do_new_math(cur_f)) {
                 if (! math_no_char_italic_par) {
                     /* keep italic, but bad with two successive letters */
                 } else if (get_char_cat_code(cur_c) == 11) {
@@ -3759,7 +3830,7 @@ static pointer check_nucleus_complexity(halfword q, scaled * delta, int cur_styl
                 couple_nodes(p,x);
                 *delta = 0;
             }
-            if (is_new_mathfont(cur_f)) {
+            if (do_new_math(cur_f)) {
                 *delta = char_italic(cur_f, cur_c); /* must be more selective */
             }
         }
