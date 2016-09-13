@@ -175,7 +175,7 @@ RepositoryInfo Deserialize(const json & j_rep)
 
 vector<RepositoryInfo> RestRemoteService::GetRepositories(RepositoryReleaseState repositoryReleaseState)
 {
-  string url = endpoint + "repositories?releaseState=" + ToString(repositoryReleaseState);
+  string url = MakeUrl("repositories", { "releaseState=" + ToString(repositoryReleaseState) });
   unique_ptr<WebFile> webFile(webSession->OpenUrl(url.c_str()));
   char buf[1024];
   size_t n;
@@ -194,12 +194,42 @@ vector<RepositoryInfo> RestRemoteService::GetRepositories(RepositoryReleaseState
 
 string RestRemoteService::PickRepositoryUrl(RepositoryReleaseState repositoryReleaseState)
 {
-  UNIMPLEMENTED();
+  string url = MakeUrl("repositories", { "releaseState=" + ToString(repositoryReleaseState), "orderBy=distance", "desc=true", "take=1" });
+  unique_ptr<WebFile> webFile(webSession->OpenUrl(url.c_str()));
+  char buf[1024];
+  size_t n;
+  stringstream response;
+  while ((n = webFile->Read(buf, sizeof(buf))) > 0)
+  {
+    response.write(buf, n);
+  }
+  for (const json & j_rep : json::parse(response))
+  {
+    return Deserialize(j_rep).url;
+  }
+  MIKTEX_UNEXPECTED();
 }
 
-pair<bool, RepositoryInfo> RestRemoteService::TryGetRepositoryInfo(const string & url)
+pair<bool, RepositoryInfo> RestRemoteService::TryGetRepositoryInfo(const string & repositoryUrl)
 {
-  UNIMPLEMENTED();
+  string url = MakeUrl("repositories/" + MD5::FromChars(repositoryUrl).ToString(), { });
+  unique_ptr<WebFile> webFile(webSession->OpenUrl(url.c_str()));
+  char buf[1024];
+  size_t n;
+  stringstream response;
+  while ((n = webFile->Read(buf, sizeof(buf))) > 0)
+  {
+    response.write(buf, n);
+  }
+  json j_rep = json::parse(response);
+  if (j_rep.empty())
+  {
+    return make_pair(false, RepositoryInfo());
+  }
+  else
+  {
+    return make_pair(true, Deserialize(j_rep));
+  }
 }
 
 RepositoryInfo RestRemoteService::Verify(const string & url)

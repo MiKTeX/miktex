@@ -35,7 +35,7 @@ class RestRemoteService :
 {
 public:
   RestRemoteService(const std::string & endpoint, const MiKTeX::Packages::ProxySettings & proxySettings) :
-    endpoint(endpoint),
+    endpointBaseUrl(endpoint),
     proxySettings(proxySettings),
     webSession(WebSession::Create(nullptr))
   {
@@ -48,13 +48,28 @@ public:
   std::string PickRepositoryUrl(MiKTeX::Packages::RepositoryReleaseState repositoryReleaseState) override;
 
 public:
-  std::pair<bool, MiKTeX::Packages::RepositoryInfo> TryGetRepositoryInfo(const std::string & url) override;
+  std::pair<bool, MiKTeX::Packages::RepositoryInfo> TryGetRepositoryInfo(const std::string & repositoryUrl) override;
 
 public:
   MiKTeX::Packages::RepositoryInfo Verify(const std::string & url) override;
 
 private:
-  std::string endpoint;
+  std::string MakeUrl(const std::string & path, const std::initializer_list<std::string> & query)
+  {
+    std::string url = endpointBaseUrl + path;
+    if (query.size() > 0)
+    {
+      url += "?";
+      for (const std::string & q : query)
+      {
+        url += "&" + q;
+      }
+    }
+    return url;
+  }
+
+private:
+  std::string endpointBaseUrl;
 
 private:
   MiKTeX::Packages::ProxySettings proxySettings;

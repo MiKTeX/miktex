@@ -49,6 +49,12 @@ class MD5 : public std::array<md5_byte_t, 16>
 public:
   static MIKTEXCORECEEAPI(MD5) FromFile(const PathName & path);
 
+  /// Calculates the MD5 value of a char sequence.
+  /// @param s The char sequence.
+  /// @return Returns the MD5 of the char sequence.
+public:
+  static MIKTEXCORECEEAPI(MD5) FromChars(const std::string & s);
+
   /// Parses the string represention of an MD5.
   /// @param lpszHexString The string representation (32 hex characters).
   /// @return Returns the MD5.

@@ -46,6 +46,15 @@ MD5 MD5::FromFile(const PathName & path)
   return md5Builder.GetMD5();
 }
 
+MD5 MD5::FromChars(const string & s)
+{
+  MD5Builder md5Builder;
+  md5Builder.Init();
+  md5Builder.Update(s.data(), s.length());
+  md5Builder.Final();
+  return md5Builder.GetMD5();
+}
+
 MIKTEXSTATICFUNC(int) Unhex(char x)
 {
   if (x >= '0' && x <= '9')
