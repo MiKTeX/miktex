@@ -69,6 +69,9 @@ private:
   }
 
 private:
+  void SayHello();
+
+private:
   std::string endpointBaseUrl;
 
 private:
@@ -76,6 +79,12 @@ private:
 
 private:
   std::shared_ptr<WebSession> webSession;
+
+private:
+  std::string token;
+
+private:
+  std::chrono::time_point<std::chrono::system_clock> tokenNotValidAfter;
 };
 
 END_INTERNAL_NAMESPACE;

@@ -175,6 +175,7 @@ RepositoryInfo Deserialize(const json & j_rep)
 
 vector<RepositoryInfo> RestRemoteService::GetRepositories(RepositoryReleaseState repositoryReleaseState)
 {
+  SayHello();
   unique_ptr<WebFile> webFile(webSession->OpenUrl(MakeUrl("repositories", { "releaseState=" + ToString(repositoryReleaseState) })));
   char buf[1024];
   size_t n;
@@ -193,6 +194,7 @@ vector<RepositoryInfo> RestRemoteService::GetRepositories(RepositoryReleaseState
 
 string RestRemoteService::PickRepositoryUrl(RepositoryReleaseState repositoryReleaseState)
 {
+  SayHello();
   unique_ptr<WebFile> webFile(webSession->OpenUrl(MakeUrl("repositories", { "releaseState=" + ToString(repositoryReleaseState), "orderBy=distance", "desc=true", "take=1" })));
   char buf[1024];
   size_t n;
@@ -210,6 +212,7 @@ string RestRemoteService::PickRepositoryUrl(RepositoryReleaseState repositoryRel
 
 pair<bool, RepositoryInfo> RestRemoteService::TryGetRepositoryInfo(const string & repositoryUrl)
 {
+  SayHello();
   unique_ptr<WebFile> webFile(webSession->OpenUrl(MakeUrl("repositories/" + MD5::FromChars(repositoryUrl).ToString(), { })));
   char buf[1024];
   size_t n;
@@ -218,18 +221,55 @@ pair<bool, RepositoryInfo> RestRemoteService::TryGetRepositoryInfo(const string 
   {
     response.write(buf, n);
   }
-  json j_rep = json::parse(response);
-  if (j_rep.empty())
+  json j_response = json::parse(response);
+  if (j_response.empty())
   {
     return make_pair(false, RepositoryInfo());
   }
   else
   {
-    return make_pair(true, Deserialize(j_rep));
+    return make_pair(true, Deserialize(j_response));
   }
 }
 
 RepositoryInfo RestRemoteService::Verify(const string & url)
 {
   UNIMPLEMENTED();
+}
+
+void RestRemoteService::SayHello()
+{
+  if (!token.empty() && chrono::system_clock::now() < tokenNotValidAfter)
+  {
+    return;
+  }
+  unordered_map<string, string> form;
+  form["username"] = "anonymous";
+  form["password"] = "abrakadabra";
+  form["useragent"] = MPM_AGENT;
+  unique_ptr<WebFile> webFile(webSession->OpenUrl(MakeUrl("hello", {}), form));
+  char buf[1024];
+  size_t n;
+  stringstream response;
+  while ((n = webFile->Read(buf, sizeof(buf))) > 0)
+  {
+    response.write(buf, n);
+  }
+  json j_response = json::parse(response);
+  for (json::const_iterator it = j_response.begin(); it != j_response.end(); ++it)
+  {
+    if (it.key() == "access_token")
+    {
+      token = it.value().get<string>();
+    }
+    else if (it.key() == "expires_in")
+    {
+      chrono::seconds expiresIn(it.value().get<int>());
+      tokenNotValidAfter = chrono::system_clock::now() + expiresIn;
+    }
+  }
+  if (token.empty())
+  {
+    MIKTEX_UNEXPECTED();
+  }
 }

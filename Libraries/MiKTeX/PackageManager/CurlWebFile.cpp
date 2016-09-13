@@ -39,15 +39,13 @@ CurlWebFile::CurlWebFile(shared_ptr<CurlWebSession> webSession, const std::strin
 {
   try
   {
-    string postFields;
     for (const auto & kv : formData)
     {
-      if (!postFields.empty())
+      if (!urlEncodedpostFields.empty())
       {
-        postFields += "&";
-        postFields += kv.first + "=" + kv.second;
+        urlEncodedpostFields += "&";
       }
-      urlEncodedpostFields = webSession->UrlEncode(postFields);
+      urlEncodedpostFields +=  webSession->UrlEncode(kv.first) + "=" +  webSession->UrlEncode(kv.second);
     }
     Initialize();
     webSession->Connect();
