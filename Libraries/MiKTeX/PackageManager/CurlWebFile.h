@@ -35,16 +35,16 @@ class
   CurlWebFile : public WebFile
 {
 public:
-  CurlWebFile(CurlWebSession * pSession, const char * lpszUrl);
+  CurlWebFile(std::shared_ptr<CurlWebSession> webSession, const std::string & url);
 
 public:
-  virtual ~CurlWebFile();
+  ~CurlWebFile() override;
 
 public:
-  virtual size_t Read(void * pBuffer, size_t n);
+  size_t Read(void * pBuffer, size_t n) override;
 
 public:
-  virtual void Close();
+  void Close() override;
 
 private:
   static size_t WriteCallback(char * pData, size_t elemSize, size_t numElements, void * pv);
@@ -59,7 +59,7 @@ private:
   bool initialized = false;
 
 private:
-  CurlWebSession * pSession;
+  std::shared_ptr<CurlWebSession> webSession;
 
 private:
   std::string url;

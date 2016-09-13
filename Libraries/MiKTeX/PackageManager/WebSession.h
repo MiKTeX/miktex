@@ -42,13 +42,13 @@ public:
   virtual ~WebSession() = 0;
 
 public:
-  virtual WebFile * OpenUrl(const char * lpszUrl) = 0;
+  virtual std::unique_ptr<WebFile> OpenUrl(const std::string & url) = 0;
 
 public:
   virtual void Dispose() = 0;
 
 public:
-  static WebSession * Create(IProgressNotify_ * pIProgressNotify);
+  static std::shared_ptr<WebSession> Create(IProgressNotify_ * pIProgressNotify);
 };
 
 END_INTERNAL_NAMESPACE;

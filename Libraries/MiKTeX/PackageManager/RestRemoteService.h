@@ -75,7 +75,7 @@ private:
   MiKTeX::Packages::ProxySettings proxySettings;
 
 private:
-  std::unique_ptr<WebSession> webSession;
+  std::shared_ptr<WebSession> webSession;
 };
 
 END_INTERNAL_NAMESPACE;

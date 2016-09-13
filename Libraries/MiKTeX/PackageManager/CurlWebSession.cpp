@@ -156,15 +156,15 @@ CurlWebSession::~CurlWebSession()
   }
 }
 
-WebFile * CurlWebSession::OpenUrl(const char * lpszUrl)
+unique_ptr<WebFile> CurlWebSession::OpenUrl(const string & url)
 {
   runningHandles = -1;
   if (pCurl == nullptr)
   {
     Initialize();
   }
-  trace_mpm->WriteFormattedLine("libmpm", T_("going to download %s"), Q_(lpszUrl));
-  return new CurlWebFile(this, lpszUrl);
+  trace_mpm->WriteFormattedLine("libmpm", T_("going to download %s"), Q_(url));
+  return make_unique<CurlWebFile>(shared_from_this(), url);
 }
 
 void CurlWebSession::Dispose()

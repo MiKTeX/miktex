@@ -397,7 +397,7 @@ private:
   std::shared_ptr<MiKTeX::Core::Session> pSession;
 
 private:
-  std::unique_ptr<WebSession> webSession;
+  std::shared_ptr<WebSession> webSession;
 
 public:
   WebSession * GetWebSession() const

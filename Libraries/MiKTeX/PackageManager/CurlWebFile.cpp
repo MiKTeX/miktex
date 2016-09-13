@@ -32,21 +32,21 @@ using namespace std;
 
 const int READ_TIMEOUT_SECONDS = 40;
 
-CurlWebFile::CurlWebFile(CurlWebSession * pSession, const char * lpszUrl) :
-  pSession(pSession),
-  url(lpszUrl),
+CurlWebFile::CurlWebFile(shared_ptr<CurlWebSession> webSession, const std::string & url) :
+  webSession(webSession),
+  url(url),
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM))
 {
   try
   {
     Initialize();
-    pSession->Connect();
+    webSession->Connect();
   }
   catch (const exception &)
   {
     if (initialized)
     {
-      curl_multi_remove_handle(pSession->GetMultiHandle(), pSession->GetEasyHandle());
+      curl_multi_remove_handle(webSession->GetMultiHandle(), webSession->GetEasyHandle());
     }
     throw;
   }
@@ -65,14 +65,14 @@ CurlWebFile::~CurlWebFile()
 
 void CurlWebFile::Initialize()
 {
-  pSession->SetOption(CURLOPT_URL, url.c_str());
-  pSession->SetOption(CURLOPT_WRITEDATA, reinterpret_cast<void*>(this));
+  webSession->SetOption(CURLOPT_URL, url.c_str());
+  webSession->SetOption(CURLOPT_WRITEDATA, reinterpret_cast<void*>(this));
   curl_write_callback writeCallback = WriteCallback;
-  pSession->SetOption(CURLOPT_WRITEFUNCTION, writeCallback);
-  CURLMcode code = curl_multi_add_handle(pSession->GetMultiHandle(), pSession->GetEasyHandle());
+  webSession->SetOption(CURLOPT_WRITEFUNCTION, writeCallback);
+  CURLMcode code = curl_multi_add_handle(webSession->GetMultiHandle(), webSession->GetEasyHandle());
   if (code != CURLM_OK && code != CURLM_CALL_MULTI_PERFORM)
   {
-    MIKTEX_FATAL_ERROR(pSession->GetCurlErrorString(code));
+    MIKTEX_FATAL_ERROR(webSession->GetCurlErrorString(code));
   }
   initialized = true;
 }
@@ -103,9 +103,9 @@ size_t CurlWebFile::Read(void * pBuffer, size_t n)
   clock_t due = now + READ_TIMEOUT_SECONDS * CLOCKS_PER_SEC;
   do
   {
-    pSession->Perform();
-  } while (buffer.size() < n && !pSession->IsReady() && clock() < due);
-  if (buffer.size() == 0 && !pSession->IsReady())
+    webSession->Perform();
+  } while (buffer.size() < n && !webSession->IsReady() && clock() < due);
+  if (buffer.size() == 0 && !webSession->IsReady())
   {
     MIKTEX_FATAL_ERROR(T_("A timeout was reached while receiving data from the server."));
   }
@@ -124,10 +124,10 @@ void CurlWebFile::Close()
   {
     trace_mpm->WriteLine("libmpm", T_("closing Web file"));
     initialized = false;
-    CURLMcode code = curl_multi_remove_handle(pSession->GetMultiHandle(), pSession->GetEasyHandle());
+    CURLMcode code = curl_multi_remove_handle(webSession->GetMultiHandle(), webSession->GetEasyHandle());
     if (code != CURLM_OK)
     {
-      MIKTEX_FATAL_ERROR(pSession->GetCurlErrorString(code));
+      MIKTEX_FATAL_ERROR(webSession->GetCurlErrorString(code));
     }
   }
   buffer.clear();

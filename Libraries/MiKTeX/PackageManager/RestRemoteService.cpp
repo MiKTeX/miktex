@@ -175,8 +175,7 @@ RepositoryInfo Deserialize(const json & j_rep)
 
 vector<RepositoryInfo> RestRemoteService::GetRepositories(RepositoryReleaseState repositoryReleaseState)
 {
-  string url = MakeUrl("repositories", { "releaseState=" + ToString(repositoryReleaseState) });
-  unique_ptr<WebFile> webFile(webSession->OpenUrl(url.c_str()));
+  unique_ptr<WebFile> webFile(webSession->OpenUrl(MakeUrl("repositories", { "releaseState=" + ToString(repositoryReleaseState) })));
   char buf[1024];
   size_t n;
   stringstream response;
@@ -194,8 +193,7 @@ vector<RepositoryInfo> RestRemoteService::GetRepositories(RepositoryReleaseState
 
 string RestRemoteService::PickRepositoryUrl(RepositoryReleaseState repositoryReleaseState)
 {
-  string url = MakeUrl("repositories", { "releaseState=" + ToString(repositoryReleaseState), "orderBy=distance", "desc=true", "take=1" });
-  unique_ptr<WebFile> webFile(webSession->OpenUrl(url.c_str()));
+  unique_ptr<WebFile> webFile(webSession->OpenUrl(MakeUrl("repositories", { "releaseState=" + ToString(repositoryReleaseState), "orderBy=distance", "desc=true", "take=1" })));
   char buf[1024];
   size_t n;
   stringstream response;
@@ -212,8 +210,7 @@ string RestRemoteService::PickRepositoryUrl(RepositoryReleaseState repositoryRel
 
 pair<bool, RepositoryInfo> RestRemoteService::TryGetRepositoryInfo(const string & repositoryUrl)
 {
-  string url = MakeUrl("repositories/" + MD5::FromChars(repositoryUrl).ToString(), { });
-  unique_ptr<WebFile> webFile(webSession->OpenUrl(url.c_str()));
+  unique_ptr<WebFile> webFile(webSession->OpenUrl(MakeUrl("repositories/" + MD5::FromChars(repositoryUrl).ToString(), { })));
   char buf[1024];
   size_t n;
   stringstream response;

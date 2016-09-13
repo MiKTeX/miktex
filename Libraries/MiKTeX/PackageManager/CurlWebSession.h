@@ -28,19 +28,21 @@
 
 BEGIN_INTERNAL_NAMESPACE;
 
-class CurlWebSession : public WebSession
+class CurlWebSession :
+  public std::enable_shared_from_this<CurlWebSession>,
+  public WebSession
 {
 public:
   CurlWebSession(IProgressNotify_ * pIProgressNotify);
 
 public:
-  virtual ~CurlWebSession();
+  ~CurlWebSession() override;
 
 public:
-  virtual WebFile * OpenUrl(const char * lpszUrl);
+  std::unique_ptr<WebFile> OpenUrl(const std::string & url) override;
 
 public:
-  virtual void Dispose();
+  void Dispose() override;
 
 public:
   void Connect();

@@ -54,6 +54,7 @@
 
 #include <algorithm>
 #include <future>
+#include <initializer_list>
 #include <locale>
 #include <map>
 #include <memory>

@@ -44,7 +44,7 @@ WebFile::~WebFile()
 {
 }
 
-WebSession * WebSession::Create(IProgressNotify_ * pIProgressNotify)
+shared_ptr<WebSession> WebSession::Create(IProgressNotify_ * pIProgressNotify)
 {
 #if defined (MIKTEX_WINDOWS) && defined(WITH_WININET)
   if (USE_WININET)
@@ -53,7 +53,7 @@ WebSession * WebSession::Create(IProgressNotify_ * pIProgressNotify)
   }
 #endif
 #if defined(HAVE_LIBCURL)
-  return new CurlWebSession(pIProgressNotify);
+  return make_shared<CurlWebSession>(pIProgressNotify);
 #else
   #  warning Unimplemented : WebSession::Create()
     MIKTEX_FATAL_ERROR(T_("libCURL does not seem to be available."));
