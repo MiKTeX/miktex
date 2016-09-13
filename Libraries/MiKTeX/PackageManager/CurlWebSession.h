@@ -39,7 +39,13 @@ public:
   ~CurlWebSession() override;
 
 public:
-  std::unique_ptr<WebFile> OpenUrl(const std::string & url) override;
+  std::unique_ptr<WebFile> OpenUrl(const std::string & url) override
+  {
+    return OpenUrl(url, {});
+  }
+
+public:
+  std::unique_ptr<WebFile> OpenUrl(const std::string & url, const std::unordered_map<std::string, std::string> & formData) override;
 
 public:
   void Dispose() override;
@@ -115,6 +121,15 @@ public:
     {
       MIKTEX_FATAL_ERROR_2(GetCurlErrorString(code), "option", std::to_string(option));
     }
+  }
+
+public:
+  std::string UrlEncode(const std::string & s) const
+  {
+    char * encoded = curl_easy_escape(pCurl, s.c_str(), s.length());
+    std::string result = encoded;
+    curl_free(encoded);
+    return result;
   }
 
 private:

@@ -32,13 +32,23 @@ using namespace std;
 
 const int READ_TIMEOUT_SECONDS = 40;
 
-CurlWebFile::CurlWebFile(shared_ptr<CurlWebSession> webSession, const std::string & url) :
+CurlWebFile::CurlWebFile(shared_ptr<CurlWebSession> webSession, const std::string & url, const std::unordered_map<std::string, std::string> & formData) :
   webSession(webSession),
   url(url),
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM))
 {
   try
   {
+    string postFields;
+    for (const auto & kv : formData)
+    {
+      if (!postFields.empty())
+      {
+        postFields += "&";
+        postFields += kv.first + "=" + kv.second;
+      }
+      urlEncodedpostFields = webSession->UrlEncode(postFields);
+    }
     Initialize();
     webSession->Connect();
   }
@@ -66,6 +76,14 @@ CurlWebFile::~CurlWebFile()
 void CurlWebFile::Initialize()
 {
   webSession->SetOption(CURLOPT_URL, url.c_str());
+  if (!urlEncodedpostFields.empty())
+  {
+    webSession->SetOption(CURLOPT_POSTFIELDS, urlEncodedpostFields.data());
+  }
+  else
+  {
+    webSession->SetOption(CURLOPT_HTTPGET, 1);
+  }
   webSession->SetOption(CURLOPT_WRITEDATA, reinterpret_cast<void*>(this));
   curl_write_callback writeCallback = WriteCallback;
   webSession->SetOption(CURLOPT_WRITEFUNCTION, writeCallback);

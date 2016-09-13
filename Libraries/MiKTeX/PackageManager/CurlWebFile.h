@@ -35,7 +35,7 @@ class
   CurlWebFile : public WebFile
 {
 public:
-  CurlWebFile(std::shared_ptr<CurlWebSession> webSession, const std::string & url);
+  CurlWebFile(std::shared_ptr<CurlWebSession> webSession, const std::string & url, const std::unordered_map<std::string, std::string> & formData);
 
 public:
   ~CurlWebFile() override;
@@ -63,6 +63,9 @@ private:
 
 private:
   std::string url;
+
+private:
+  std::string urlEncodedpostFields;
 
 private:
   std::vector<char> buffer;

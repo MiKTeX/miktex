@@ -156,7 +156,7 @@ CurlWebSession::~CurlWebSession()
   }
 }
 
-unique_ptr<WebFile> CurlWebSession::OpenUrl(const string & url)
+unique_ptr<WebFile> CurlWebSession::OpenUrl(const string & url, const std::unordered_map<std::string, std::string> & formData)
 {
   runningHandles = -1;
   if (pCurl == nullptr)
@@ -164,7 +164,7 @@ unique_ptr<WebFile> CurlWebSession::OpenUrl(const string & url)
     Initialize();
   }
   trace_mpm->WriteFormattedLine("libmpm", T_("going to download %s"), Q_(url));
-  return make_unique<CurlWebFile>(shared_from_this(), url);
+  return make_unique<CurlWebFile>(shared_from_this(), url, formData);
 }
 
 void CurlWebSession::Dispose()
