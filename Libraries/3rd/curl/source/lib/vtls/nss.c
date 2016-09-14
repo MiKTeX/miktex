@@ -78,13 +78,12 @@
 #define SLOTSIZE 13
 
 PRFileDesc *PR_ImportTCPSocket(PRInt32 osfd);
-
-PRLock * nss_initlock = NULL;
-PRLock * nss_crllock = NULL;
-struct curl_llist *nss_crl_list = NULL;
-NSSInitContext * nss_context = NULL;
-
-volatile int initialized = 0;
+static PRLock *nss_initlock = NULL;
+static PRLock *nss_crllock = NULL;
+static PRLock *nss_findslot_lock = NULL;
+static struct curl_llist *nss_crl_list = NULL;
+static NSSInitContext *nss_context = NULL;
+static volatile int initialized = 0;
 
 typedef struct {
   const char *name;
@@ -183,7 +182,7 @@ static const cipher_s cipherlist[] = {
 };
 
 static const char* pem_library = "libnsspem.so";
-SECMODModule* mod = NULL;
+static SECMODModule* mod = NULL;
 
 /* NSPR I/O layer we use to detect blocking direction during SSL handshake */
 static PRDescIdentity nspr_io_identity = PR_INVALID_IO_LAYER;
@@ -340,6 +339,19 @@ static char* dup_nickname(struct Curl_easy *data, enum dupstring cert_kind)
   return NULL;
 }
 
+/* Lock/unlock wrapper for PK11_FindSlotByName() to work around race condition
+ * in nssSlot_IsTokenPresent() causing spurious SEC_ERROR_NO_TOKEN.  For more
+ * details, go to <https://bugzilla.mozilla.org/1297397>.
+ */
+static PK11SlotInfo* nss_find_slot_by_name(const char *slot_name)
+{
+  PK11SlotInfo *slot;
+  PR_Lock(nss_initlock);
+  slot = PK11_FindSlotByName(slot_name);
+  PR_Unlock(nss_initlock);
+  return slot;
+}
+
 /* Call PK11_CreateGenericObject() with the given obj_class and filename.  If
  * the call succeeds, append the object handle to the list of objects so that
  * the object can be destroyed in Curl_nss_close(). */
@@ -362,7 +374,7 @@ static CURLcode nss_create_object(struct ssl_connect_data *ssl,
   if(!slot_name)
     return CURLE_OUT_OF_MEMORY;
 
-  slot = PK11_FindSlotByName(slot_name);
+  slot = nss_find_slot_by_name(slot_name);
   free(slot_name);
   if(!slot)
     return result;
@@ -563,7 +575,7 @@ static CURLcode nss_load_key(struct connectdata *conn, int sockindex,
     return result;
   }
 
-  slot = PK11_FindSlotByName("PEM Token #1");
+  slot = nss_find_slot_by_name("PEM Token #1");
   if(!slot)
     return CURLE_SSL_CERTPROBLEM;
 
@@ -1004,16 +1016,16 @@ static SECStatus SelectClientCert(void *arg, PRFileDesc *sock,
   struct ssl_connect_data *connssl = (struct ssl_connect_data *)arg;
   struct Curl_easy *data = connssl->data;
   const char *nickname = connssl->client_nickname;
+  static const char pem_slotname[] = "PEM Token #1";
 
   if(connssl->obj_clicert) {
     /* use the cert/key provided by PEM reader */
-    static const char pem_slotname[] = "PEM Token #1";
     SECItem cert_der = { 0, NULL, 0 };
     void *proto_win = SSL_RevealPinArg(sock);
     struct CERTCertificateStr *cert;
     struct SECKEYPrivateKeyStr *key;
 
-    PK11SlotInfo *slot = PK11_FindSlotByName(pem_slotname);
+    PK11SlotInfo *slot = nss_find_slot_by_name(pem_slotname);
     if(NULL == slot) {
       failf(data, "NSS: PK11 slot not found: %s", pem_slotname);
       return SECFailure;
@@ -1068,6 +1080,12 @@ static SECStatus SelectClientCert(void *arg, PRFileDesc *sock,
   nickname = (*pRetCert)->nickname;
   if(NULL == nickname)
     nickname = "[unknown]";
+
+  if(!strncmp(nickname, pem_slotname, sizeof(pem_slotname) - 1U)) {
+    failf(data, "NSS: refusing previously loaded certificate from file: %s",
+          nickname);
+    return SECFailure;
+  }
 
   if(NULL == *pRetKey) {
     failf(data, "NSS: private key not found for certificate: %s", nickname);
@@ -1243,6 +1261,7 @@ int Curl_nss_init(void)
     PR_Init(PR_USER_THREAD, PR_PRIORITY_NORMAL, 256);
     nss_initlock = PR_NewLock();
     nss_crllock = PR_NewLock();
+    nss_findslot_lock = PR_NewLock();
   }
 
   /* We will actually initialize NSS later */
@@ -1297,6 +1316,7 @@ void Curl_nss_cleanup(void)
 
   PR_DestroyLock(nss_initlock);
   PR_DestroyLock(nss_crllock);
+  PR_DestroyLock(nss_findslot_lock);
   nss_initlock = NULL;
 
   initialized = 0;

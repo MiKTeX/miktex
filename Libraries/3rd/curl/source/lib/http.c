@@ -5,7 +5,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -462,7 +462,7 @@ static CURLcode http_perhapsrewind(struct connectdata *conn)
 #endif
 
     /* This is not NTLM or many bytes left to send: close */
-    connclose(conn, "Mid-auth HTTP and much data left to send");
+    streamclose(conn, "Mid-auth HTTP and much data left to send");
     data->req.size = 0; /* don't download any more than 0 bytes */
 
     /* There still is data left to send, but this connection is marked for
@@ -784,23 +784,27 @@ CURLcode Curl_http_input_auth(struct connectdata *conn, bool proxy,
   while(*auth) {
 #ifdef USE_SPNEGO
     if(checkprefix("Negotiate", auth)) {
-      *availp |= CURLAUTH_NEGOTIATE;
-      authp->avail |= CURLAUTH_NEGOTIATE;
+      if((authp->avail & CURLAUTH_NEGOTIATE) ||
+         Curl_auth_is_spnego_supported()) {
+        *availp |= CURLAUTH_NEGOTIATE;
+        authp->avail |= CURLAUTH_NEGOTIATE;
 
-      if(authp->picked == CURLAUTH_NEGOTIATE) {
-        if(negdata->state == GSS_AUTHSENT || negdata->state == GSS_AUTHNONE) {
-          CURLcode result = Curl_input_negotiate(conn, proxy, auth);
-          if(!result) {
-            DEBUGASSERT(!data->req.newurl);
-            data->req.newurl = strdup(data->change.url);
-            if(!data->req.newurl)
-              return CURLE_OUT_OF_MEMORY;
-            data->state.authproblem = FALSE;
-            /* we received a GSS auth token and we dealt with it fine */
-            negdata->state = GSS_AUTHRECV;
+        if(authp->picked == CURLAUTH_NEGOTIATE) {
+          if(negdata->state == GSS_AUTHSENT ||
+             negdata->state == GSS_AUTHNONE) {
+            CURLcode result = Curl_input_negotiate(conn, proxy, auth);
+            if(!result) {
+              DEBUGASSERT(!data->req.newurl);
+              data->req.newurl = strdup(data->change.url);
+              if(!data->req.newurl)
+                return CURLE_OUT_OF_MEMORY;
+              data->state.authproblem = FALSE;
+              /* we received a GSS auth token and we dealt with it fine */
+              negdata->state = GSS_AUTHRECV;
+            }
+            else
+              data->state.authproblem = TRUE;
           }
-          else
-            data->state.authproblem = TRUE;
         }
       }
     }
@@ -809,39 +813,44 @@ CURLcode Curl_http_input_auth(struct connectdata *conn, bool proxy,
 #ifdef USE_NTLM
       /* NTLM support requires the SSL crypto libs */
       if(checkprefix("NTLM", auth)) {
-        *availp |= CURLAUTH_NTLM;
-        authp->avail |= CURLAUTH_NTLM;
-        if(authp->picked == CURLAUTH_NTLM ||
-           authp->picked == CURLAUTH_NTLM_WB) {
-          /* NTLM authentication is picked and activated */
-          CURLcode result = Curl_input_ntlm(conn, proxy, auth);
-          if(!result) {
-            data->state.authproblem = FALSE;
-#ifdef NTLM_WB_ENABLED
-            if(authp->picked == CURLAUTH_NTLM_WB) {
-              *availp &= ~CURLAUTH_NTLM;
-              authp->avail &= ~CURLAUTH_NTLM;
-              *availp |= CURLAUTH_NTLM_WB;
-              authp->avail |= CURLAUTH_NTLM_WB;
+        if((authp->avail & CURLAUTH_NTLM) ||
+           (authp->avail & CURLAUTH_NTLM_WB) ||
+           Curl_auth_is_ntlm_supported()) {
+          *availp |= CURLAUTH_NTLM;
+          authp->avail |= CURLAUTH_NTLM;
 
-              /* Get the challenge-message which will be passed to
-               * ntlm_auth for generating the type 3 message later */
-              while(*auth && ISSPACE(*auth))
-                auth++;
-              if(checkprefix("NTLM", auth)) {
-                auth += strlen("NTLM");
+          if(authp->picked == CURLAUTH_NTLM ||
+             authp->picked == CURLAUTH_NTLM_WB) {
+            /* NTLM authentication is picked and activated */
+            CURLcode result = Curl_input_ntlm(conn, proxy, auth);
+            if(!result) {
+              data->state.authproblem = FALSE;
+#ifdef NTLM_WB_ENABLED
+              if(authp->picked == CURLAUTH_NTLM_WB) {
+                *availp &= ~CURLAUTH_NTLM;
+                authp->avail &= ~CURLAUTH_NTLM;
+                *availp |= CURLAUTH_NTLM_WB;
+                authp->avail |= CURLAUTH_NTLM_WB;
+
+                /* Get the challenge-message which will be passed to
+                 * ntlm_auth for generating the type 3 message later */
                 while(*auth && ISSPACE(*auth))
                   auth++;
-                if(*auth)
-                  if((conn->challenge_header = strdup(auth)) == NULL)
-                    return CURLE_OUT_OF_MEMORY;
+                if(checkprefix("NTLM", auth)) {
+                  auth += strlen("NTLM");
+                  while(*auth && ISSPACE(*auth))
+                    auth++;
+                  if(*auth)
+                    if((conn->challenge_header = strdup(auth)) == NULL)
+                      return CURLE_OUT_OF_MEMORY;
+                }
               }
-            }
 #endif
-          }
-          else {
-            infof(data, "Authentication problem. Ignoring this.\n");
-            data->state.authproblem = TRUE;
+            }
+            else {
+              infof(data, "Authentication problem. Ignoring this.\n");
+              data->state.authproblem = TRUE;
+            }
           }
         }
       }
@@ -849,18 +858,18 @@ CURLcode Curl_http_input_auth(struct connectdata *conn, bool proxy,
 #endif
 #ifndef CURL_DISABLE_CRYPTO_AUTH
         if(checkprefix("Digest", auth)) {
-          if((authp->avail & CURLAUTH_DIGEST) != 0) {
+          if((authp->avail & CURLAUTH_DIGEST) != 0)
             infof(data, "Ignoring duplicate digest auth header.\n");
-          }
-          else {
+          else if(Curl_auth_is_digest_supported()) {
             CURLcode result;
+
             *availp |= CURLAUTH_DIGEST;
             authp->avail |= CURLAUTH_DIGEST;
 
             /* We call this function on input Digest headers even if Digest
              * authentication isn't activated yet, as we need to store the
-             * incoming data from this header in case we are gonna use
-             * Digest. */
+             * incoming data from this header in case we are going to use
+             * Digest */
             result = Curl_input_digest(conn, proxy, auth);
             if(result) {
               infof(data, "Authentication problem. Ignoring this.\n");
@@ -1443,9 +1452,8 @@ CURLcode Curl_http_done(struct connectdata *conn,
 {
   struct Curl_easy *data = conn->data;
   struct HTTP *http = data->req.protop;
-#ifdef USE_NGHTTP2
-  struct http_conn *httpc = &conn->proto.httpc;
-#endif
+
+  infof(data, "Curl_http_done: called premature == %d\n", premature);
 
   Curl_unencode_cleanup(conn);
 
@@ -1458,7 +1466,7 @@ CURLcode Curl_http_done(struct connectdata *conn,
      * Do not close CONNECT_ONLY connections. */
     if((data->req.httpcode != 401) && (data->req.httpcode != 407) &&
        !data->set.connect_only)
-      connclose(conn, "Negotiate transfer completed");
+      streamclose(conn, "Negotiate transfer completed");
     Curl_cleanup_negotiate(data);
   }
 #endif
@@ -1475,27 +1483,7 @@ CURLcode Curl_http_done(struct connectdata *conn,
     http->send_buffer = NULL; /* clear the pointer */
   }
 
-#ifdef USE_NGHTTP2
-  if(http->header_recvbuf) {
-    DEBUGF(infof(data, "free header_recvbuf!!\n"));
-    Curl_add_buffer_free(http->header_recvbuf);
-    http->header_recvbuf = NULL; /* clear the pointer */
-    Curl_add_buffer_free(http->trailer_recvbuf);
-    http->trailer_recvbuf = NULL; /* clear the pointer */
-    if(http->push_headers) {
-      /* if they weren't used and then freed before */
-      for(; http->push_headers_used > 0; --http->push_headers_used) {
-        free(http->push_headers[http->push_headers_used - 1]);
-      }
-      free(http->push_headers);
-      http->push_headers = NULL;
-    }
-  }
-  if(http->stream_id) {
-    nghttp2_session_set_stream_user_data(httpc->h2, http->stream_id, 0);
-    http->stream_id = 0;
-  }
-#endif
+  Curl_http2_done(conn, premature);
 
   if(HTTPREQ_POST_FORM == data->set.httpreq) {
     data->req.bytecount = http->readbytecount + http->writebytecount;
@@ -2305,6 +2293,7 @@ CURLcode Curl_http(struct connectdata *conn, bool *done)
                      "%s" /* TE: */
                      "%s" /* accept-encoding */
                      "%s" /* referer */
+                     "%s" /* Proxy-Connection */
                      "%s",/* transfer-encoding */
 
                      ftp_typecode,
@@ -2327,6 +2316,10 @@ CURLcode Curl_http(struct connectdata *conn, bool *done)
                      conn->allocptr.accept_encoding:"",
                      (data->change.referer && conn->allocptr.ref)?
                      conn->allocptr.ref:"" /* Referer: <data> */,
+                     (conn->bits.httpproxy &&
+                      !conn->bits.tunnel_proxy &&
+                      !Curl_checkProxyheaders(conn, "Proxy-Connection:"))?
+                     "Proxy-Connection: Keep-Alive\r\n":"",
                      te
       );
 
@@ -3040,19 +3033,19 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy *data,
 #endif /* CURL_DOES_CONVERSIONS */
 
       if(100 <= k->httpcode && 199 >= k->httpcode) {
-        /*
-         * We have made a HTTP PUT or POST and this is 1.1-lingo
-         * that tells us that the server is OK with this and ready
-         * to receive the data.
-         * However, we'll get more headers now so we must get
-         * back into the header-parsing state!
-         */
-        k->header = TRUE;
-        k->headerline = 0; /* restart the header line counter */
-
         /* "A user agent MAY ignore unexpected 1xx status responses." */
         switch(k->httpcode) {
         case 100:
+          /*
+           * We have made a HTTP PUT or POST and this is 1.1-lingo
+           * that tells us that the server is OK with this and ready
+           * to receive the data.
+           * However, we'll get more headers now so we must get
+           * back into the header-parsing state!
+           */
+          k->header = TRUE;
+          k->headerline = 0; /* restart the header line counter */
+
           /* if we did wait for this do enable write now! */
           if(k->exp100 > EXP100_SEND_DATA) {
             k->exp100 = EXP100_SEND_DATA;
@@ -3062,8 +3055,13 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy *data,
         case 101:
           /* Switching Protocols */
           if(k->upgr101 == UPGR101_REQUESTED) {
+            /* Switching to HTTP/2 */
             infof(data, "Received 101\n");
             k->upgr101 = UPGR101_RECEIVED;
+
+            /* we'll get more headers (HTTP/2 response) */
+            k->header = TRUE;
+            k->headerline = 0; /* restart the header line counter */
 
             /* switch to http2 now. The bytes after response headers
                are also processed here, otherwise they are lost. */
@@ -3072,8 +3070,16 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy *data,
               return result;
             *nread = 0;
           }
+          else {
+            /* Switching to another protocol (e.g. WebSocket) */
+            k->header = FALSE; /* no more header to parse! */
+          }
           break;
         default:
+          /* the status code 1xx indicates a provisional response, so
+             we'll get another set of headers */
+          k->header = TRUE;
+          k->headerline = 0; /* restart the header line counter */
           break;
         }
       }
@@ -3091,7 +3097,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy *data,
              signal the end of the document. */
           infof(data, "no chunk, no close, no size. Assume close to "
                 "signal end\n");
-          connclose(conn, "HTTP: No end-of-message indicator");
+          streamclose(conn, "HTTP: No end-of-message indicator");
         }
       }
 
@@ -3172,7 +3178,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy *data,
              */
             if(!k->upload_done) {
               infof(data, "HTTP error before end of send, stop sending\n");
-              connclose(conn, "Stop sending data before everything sent");
+              streamclose(conn, "Stop sending data before everything sent");
               k->upload_done = TRUE;
               k->keepon &= ~KEEP_SEND; /* don't send */
               if(data->state.expect100header)
@@ -3476,7 +3482,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy *data,
         /* Negative Content-Length is really odd, and we know it
            happens for example when older Apache servers send large
            files */
-        connclose(conn, "negative content-length");
+        streamclose(conn, "negative content-length");
         infof(data, "Negative content-length: %" CURL_FORMAT_CURL_OFF_T
               ", closing after transfer\n", contentlength);
       }
@@ -3549,7 +3555,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy *data,
        * the connection will close when this request has been
        * served.
        */
-      connclose(conn, "Connection: close used");
+      streamclose(conn, "Connection: close used");
     }
     else if(checkprefix("Transfer-Encoding:", k->p)) {
       /* One or more encodings. We check for chunked and/or a compression
