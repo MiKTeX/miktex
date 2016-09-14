@@ -918,15 +918,19 @@ void PackageManager::SetDefaultPackageRepository(RepositoryType repositoryType, 
   session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REPOSITORY_TYPE, repositoryTypeStr.c_str());
 }
 
+#if MIKTEX_RELEASE_STATE == 0
+const char * DEFAULT_REMOTE_SERVICE = "https://api.miktex.org/Repository.asmx";
+#else
+const char * DEFAULT_REMOTE_SERVICE = "https://api2.miktex.org/";
+#endif
+
 string PackageManagerImpl::GetRemoteServiceBaseUrl()
 {
   if (remoteServiceBaseUrl.empty())
   {
-#if defined(DEBUG)
-    remoteServiceBaseUrl = "http://localhost:54718/";
-#else
-    remoteServiceBaseUrl = "https://api.miktex.org/Repository.asmx";
-#endif
+    shared_ptr<Session> session = Session::Get();
+    // TODO: use MIKTEX_REGVAL_REMOTE_SERVICE
+    remoteServiceBaseUrl = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, "RemoteService", DEFAULT_REMOTE_SERVICE);
   }
   return remoteServiceBaseUrl;
 }
