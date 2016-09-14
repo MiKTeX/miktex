@@ -33,6 +33,8 @@ add_definitions(-DBUILDING_LIBCURL)
 ignore_warnings()
 
 if(MIKTEX_NATIVE_WINDOWS)
+  add_definitions(-DUSE_SCHANNEL)
+  add_definitions(-DUSE_WINDOWS_SSPI)
   add_definitions(-DENABLE_IPV6)
   remove_definitions(-DHAVE_CONFIG_H)
 endif()

@@ -32,3 +32,14 @@ target_include_directories(${curl_lib_name}
   PUBLIC
     ${public_include_directories}
 )
+
+if (MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${curl_lib_name}
+    PUBLIC
+      crypt32
+      winmm
+      wsock32
+      ws2_32
+      Wldap32
+  )
+endif()

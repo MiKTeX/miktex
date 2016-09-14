@@ -47,6 +47,7 @@ set_target_properties(${curl_dll_name}
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${curl_dll_name}
     PRIVATE
+      crypt32
       winmm
       wsock32
       ws2_32
