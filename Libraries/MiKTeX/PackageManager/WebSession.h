@@ -48,6 +48,9 @@ public:
   virtual std::unique_ptr<WebFile> OpenUrl(const std::string & url, const std::unordered_map<std::string, std::string> & formData) = 0;
 
 public:
+  virtual void SetCustomHeaders(const std::unordered_map<std::string, std::string> & headers) = 0;
+
+public:
   virtual void Dispose() = 0;
 
 public:

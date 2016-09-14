@@ -167,8 +167,28 @@ unique_ptr<WebFile> CurlWebSession::OpenUrl(const string & url, const std::unord
   return make_unique<CurlWebFile>(shared_from_this(), url, formData);
 }
 
+void CurlWebSession::SetCustomHeaders(const unordered_map<string, string> & headers)
+{
+  if (this->headers != nullptr)
+  {
+    curl_slist_free_all(this->headers);
+    this->headers = nullptr;
+  }
+  for (const auto & kv : headers)
+  {
+    string header = kv.first + ": " + kv.second;
+    this->headers = curl_slist_append(this->headers, header.c_str());
+  }
+  SetOption(CURLOPT_HTTPHEADER, this->headers);
+}
+
 void CurlWebSession::Dispose()
 {
+  if (headers != nullptr)
+  {
+    curl_slist_free_all(headers);
+    headers = nullptr;
+  }
   if (pCurl != nullptr)
   {
     trace_curl->WriteLine("libmpm", T_("releasing cURL easy handle"));

@@ -132,6 +132,9 @@ public:
     return result;
   }
 
+public:
+  void SetCustomHeaders(const std::unordered_map<std::string, std::string> & headers) override;
+
 private:
   void Initialize();
 
@@ -146,6 +149,9 @@ private:
 
 private:
   std::string userPassword;
+
+private:
+  struct curl_slist * headers = nullptr;
 
 private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_curl;

@@ -244,9 +244,13 @@ void RestRemoteService::SayHello()
     return;
   }
   unordered_map<string, string> form;
-  form["username"] = "anonymous";
-  form["password"] = "abrakadabra";
-  form["useragent"] = MPM_AGENT;
+  MiKTeXUserInfo userinfo;
+  if (Session::Get()->TryGetMiKTeXUserInfo(userinfo))
+  {
+    form["userid"] = userinfo.id;
+  }
+  form["apikey"] = MPM_AGENT;
+  form["apisecret"] = "abrakadabra";
   unique_ptr<WebFile> webFile(webSession->OpenUrl(MakeUrl("hello", {}), form));
   char buf[1024];
   size_t n;
@@ -272,4 +276,5 @@ void RestRemoteService::SayHello()
   {
     MIKTEX_UNEXPECTED();
   }
+  webSession->SetCustomHeaders({ {"Authorization", "Bearer " + token} });
 }
