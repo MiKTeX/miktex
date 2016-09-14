@@ -125,6 +125,10 @@ RepositoryInfo Deserialize(const json & j_rep)
     {
       rep.delay = it.value().get<int>();
     }
+    else if (it.key() == "relativeDelay")
+    {
+      rep.relativeDelay = it.value().get<int>();
+    }
     else if (it.key() == "description")
     {
       rep.description = it.value().get<string>();
@@ -232,9 +236,26 @@ pair<bool, RepositoryInfo> RestRemoteService::TryGetRepositoryInfo(const string 
   }
 }
 
-RepositoryInfo RestRemoteService::Verify(const string & url)
+RepositoryInfo RestRemoteService::Verify(const string & repositoryUrl)
 {
-  UNIMPLEMENTED();
+  pair<bool, RepositoryInfo> p = TryGetRepositoryInfo(repositoryUrl);
+  if (!p.first)
+  {
+    MIKTEX_FATAL_ERROR_2(T_("The remote package repository is not registered. You have to choose another repository."), "url", repositoryUrl);
+  }
+  else if (p.second.status != RepositoryStatus::Online)
+  {
+    MIKTEX_FATAL_ERROR_2(T_("The remote package repository is not online. You have to choose another repository."), "url", repositoryUrl);
+  }
+  else if (p.second.integrity == RepositoryIntegrity::Corrupted)
+  {
+    MIKTEX_FATAL_ERROR_2(T_("The remote package repository is corrupted. You have to choose another repository."), "url", repositoryUrl);
+  }
+  else if (p.second.relativeDelay > 0)
+  {
+    MIKTEX_FATAL_ERROR_2(T_("The remote package repository is outdated. You have to choose another repository."), "url", repositoryUrl);
+  }
+  return p.second;
 }
 
 void RestRemoteService::SayHello()

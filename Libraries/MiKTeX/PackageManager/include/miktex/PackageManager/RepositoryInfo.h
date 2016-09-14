@@ -102,6 +102,8 @@ struct RepositoryInfo
   RepositoryIntegrity integrity = RepositoryIntegrity::Unknown;
   /// Delay (in days).
   unsigned delay = 0;
+  /// Relative delay (in days).
+  unsigned relativeDelay = 0;
   /// Repository release State.
   RepositoryReleaseState releaseState = RepositoryReleaseState::Unknown;
 };
