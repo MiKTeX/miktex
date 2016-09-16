@@ -33,33 +33,75 @@ BEGIN_INTERNAL_NAMESPACE;
 class NoRemoteService :
   public RemoteService
 {
+private:
+  std::vector<RepositoryInfo> repositories;
+
 public:
   NoRemoteService(const std::vector<std::string> & wellKnownBaseUrls)
   {
+    for (const std::string & url : wellKnownBaseUrls)
+    {
+      RepositoryInfo rep;
+      rep.url = url + "systems/win32/miktex/tm/packages/";
+      rep.packageLevel = PackageLevel::Complete;
+      rep.status = RepositoryStatus::Online;
+      rep.releaseState = RepositoryReleaseState::Stable;
+      repositories.push_back(rep);
+      rep.url += "next/";
+      rep.releaseState = RepositoryReleaseState::Next;
+      repositories.push_back(rep);
+    }
   }
   
 public:
   std::vector<MiKTeX::Packages::RepositoryInfo> GetRepositories(MiKTeX::Packages::RepositoryReleaseState repositoryReleaseState) override
   {
-    UNIMPLEMENTED();
+    std::vector<RepositoryInfo> result;
+    for (const RepositoryInfo & rep : repositories)
+    {
+      if (rep.releaseState == repositoryReleaseState)
+      {
+        result.push_back(rep);
+      }
+    }
+    return result;
   }
 
 public:
   std::string PickRepositoryUrl(MiKTeX::Packages::RepositoryReleaseState repositoryReleaseState) override
   {
-    UNIMPLEMENTED();
+    for (const RepositoryInfo & rep : repositories)
+    {
+      if (rep.releaseState == repositoryReleaseState)
+      {
+        return rep.url;
+      }
+    }
+    MIKTEX_FATAL_ERROR(T_("No package repository available."));
   }
   
 public:
-  std::pair<bool, MiKTeX::Packages::RepositoryInfo> TryGetRepositoryInfo(const std::string & url) override
+  std::pair<bool, MiKTeX::Packages::RepositoryInfo> TryGetRepositoryInfo(const std::string & repositoryUrl) override
   {
-    UNIMPLEMENTED();
+    for (const RepositoryInfo & rep : repositories)
+    {
+      if (rep.url == repositoryUrl)
+      {
+        return std::make_pair(true, rep);
+      }
+    }
+    return std::make_pair(false, RepositoryInfo());
   }
 
 public:
-  MiKTeX::Packages::RepositoryInfo Verify(const std::string & url) override
+  MiKTeX::Packages::RepositoryInfo Verify(const std::string & repositoryUrl) override
   {
-    UNIMPLEMENTED();
+    std::pair<bool, RepositoryInfo> p = TryGetRepositoryInfo(repositoryUrl);
+    if (!p.first)
+    {
+      MIKTEX_FATAL_ERROR_2(T_("The remote package repository is not registered. You have to choose another repository."), "url", repositoryUrl);
+    }
+    return p.second;
   }
 };
 
