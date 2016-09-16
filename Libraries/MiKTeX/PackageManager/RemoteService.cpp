@@ -44,7 +44,7 @@ unique_ptr<RemoteService> RemoteService::Create(const string & endpoint, const P
 {
   if (endpoint.empty() || endpoint == "multiplexor")
   {
-    return make_unique<NoRemoteService>({ "http://mirrors.ctan.org/" });
+    return make_unique<NoRemoteService>(vector<string>({ "http://mirrors.ctan.org/" }));
   }
   else if (endsWith(endpoint, ".asmx"))
   {
