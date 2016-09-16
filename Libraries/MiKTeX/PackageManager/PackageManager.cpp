@@ -938,7 +938,7 @@ string PackageManagerImpl::GetRemoteServiceBaseUrl()
 void PackageManagerImpl::DownloadRepositoryList()
 {
   ProxySettings proxySettings;
-  if (!TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
+  if (!IsUrl(GetRemoteServiceBaseUrl()) || !TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
   {
     proxySettings.useProxy = false;
   }
@@ -949,7 +949,7 @@ void PackageManagerImpl::DownloadRepositoryList()
 string PackageManagerImpl::PickRepositoryUrl()
 {
   ProxySettings proxySettings;
-  if (!TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
+  if (!IsUrl(GetRemoteServiceBaseUrl()) || !TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
   {
     proxySettings.useProxy = false;
   }
@@ -1547,7 +1547,7 @@ bool PackageManagerImpl::TryGetRepositoryInfo(const string & url, RepositoryInfo
   if (repositoryType == RepositoryType::Remote)
   {
     ProxySettings proxySettings;
-    if (!TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
+    if (!IsUrl(GetRemoteServiceBaseUrl()) || !TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
       {
 	proxySettings.useProxy = false;
       }
@@ -1593,7 +1593,7 @@ RepositoryInfo PackageManagerImpl::VerifyPackageRepository(const string & url)
     }
   }
   ProxySettings proxySettings;
-  if (!TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
+  if (!IsUrl(GetRemoteServiceBaseUrl()) || !TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
   {
     proxySettings.useProxy = false;
   }

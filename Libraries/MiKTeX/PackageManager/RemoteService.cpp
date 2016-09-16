@@ -23,6 +23,7 @@
 
 #include "internal.h"
 
+#include "NoRemoteService.h"
 #include "RemoteService.h"
 #include "RestRemoteService.h"
 #include "SoapRemoteService.h"
@@ -41,7 +42,11 @@ bool endsWith(const string & s, const string & suffix)
 
 unique_ptr<RemoteService> RemoteService::Create(const string & endpoint, const ProxySettings & proxySettings)
 {
-  if (endsWith(endpoint, ".asmx"))
+  if (endpoint.empty() || endpoint == "multiplexor")
+  {
+    return make_unique<NoRemoteService>({ "http://mirrors.ctan.org/" });
+  }
+  else if (endsWith(endpoint, ".asmx"))
   {
     return make_unique<SoapRemoteService>(endpoint, proxySettings);
   }
