@@ -472,6 +472,7 @@ void Application::Main(int argc, const char ** argv)
   bool optModifyPath = true;
   bool optThoroughly = true;
 #if defined(MIKTEX_WINDOWS)
+  string optProgramFolder;
   bool optUseRegistry = true;
 #endif
   bool optListRepositories = false;
@@ -558,6 +559,11 @@ void Application::Main(int argc, const char ** argv)
     case OPT_PRINT_VERSION_NUMBER:
       optPrintVersionNumber = true;
       break;
+#if defined(MIKTEX_WINDOWS)
+    case OPT_PROGRAM_FOLDER:
+      optProgramFolder = optArg;
+      break;
+#endif
     case OPT_QUIET:
       if (verbose)
       {
@@ -694,7 +700,14 @@ void Application::Main(int argc, const char ** argv)
     setupOptions.IsRegistryEnabled = true;
   }
 #endif
-  
+
+#if defined(MIKTEX_WINDOWS)
+  if (!optProgramFolder.empty())
+  {
+    setupOptions.FolderName = optProgramFolder;
+  }
+#endif
+
   if (optModifyPath)
   {
     setupOptions.IsRegisterPathEnabled = true;
