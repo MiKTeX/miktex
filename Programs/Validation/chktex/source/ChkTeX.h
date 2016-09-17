@@ -278,8 +278,8 @@ extern struct ErrMsg PrgMsgs[pmMaxFault + 1];
 struct ErrInfo
 {
     char *Data;
-    const char *LineBuf;
-    const char *File;
+    char *LineBuf;
+    char *File;
     unsigned long Line, Column, ErrLen;
     enum
     {

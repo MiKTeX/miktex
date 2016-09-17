@@ -96,8 +96,9 @@ static const char *BigBanner =
     "ChkTeX comes with ABSOLUTELY NO WARRANTY; details on this and\n"
     "distribution conditions in the GNU General Public License file.\n"
     "Type \"ChkTeX -h\" for help, \"ChkTeX -i\" for distribution info.\n"
-    "Author: Jens Berger, Spektrumvn. 4, N-0666 Oslo, Norway.\n"
-    "E-mail: <jensthi@ifi.uio.no>\n"
+    "Author: Jens Berger.\n"
+    "Bug reports: https://savannah.nongnu.org/bugs/?group=chktex\n"
+    "             or darthandrus@gmail.com\n"
     "Press " STDIN_BREAK " to terminate stdin input.\n";
 
 static const char *Distrib =
@@ -334,8 +335,7 @@ static void ExpandTabs(char *From, char *To, long TSize, long MaxDiff)
     strcpy(To, From);
 }
 
-#if defined(MIKTEX)
-#endif
+
 int main(int argc, char **argv)
 {
     int retval = EXIT_FAILURE, ret, CurArg;

@@ -836,15 +836,29 @@ struct ErrInfo *PushErr(const char *Data, const unsigned long Line,
     {
         if ((ci->Data = strdup(Data)))
         {
-            ci->File = CurStkName(&InputStack);
-            ci->Line = Line;
-            ci->ErrLen = ErrLen;
-            ci->Column = Column;
-            ci->LineBuf = LineCpy;
-            ci->Flags = efNone;
+            if ((ci->File = strdup(CurStkName(&InputStack))))
+            {
+                if ((ci->LineBuf = strdup(LineCpy)))
+                {
+                    ci->Line = Line;
+                    ci->ErrLen = ErrLen;
+                    ci->Column = Column;
+                    ci->Flags = efNone;
 
-            if (StkPush(ci, Stk))
-                return (ci);
+                    if (StkPush(ci, Stk))
+                        return (ci);
+
+                    free(ci->LineBuf);
+                }
+                else
+                    PrintPrgErr(pmStrDupErr);
+
+                free(ci->File);
+            }
+            else
+                PrintPrgErr(pmStrDupErr);
+
+            free(ci->Data);
         }
         else
             PrintPrgErr(pmStrDupErr);
@@ -909,6 +923,10 @@ void FreeErrInfo(struct ErrInfo *ei)
     {
         if (ei->Data)
             free(ei->Data);
+        if (ei->File)
+            free(ei->File);
+        if (ei->LineBuf)
+            free(ei->LineBuf);
 
         free(ei);
     }

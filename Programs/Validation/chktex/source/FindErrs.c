@@ -152,7 +152,6 @@ static uint64_t UserLineSuppressions;
 static unsigned long Line;
 
 static const char *RealBuf;
-static char *LineCpy = NULL;
 static char *BufPtr;
 
 static int ItFlag = efNone;
@@ -295,17 +294,6 @@ static char *GetLTXArg(char *SrcBuf, char *OrigDest, const int Until,
     return (Retval);
 }
 
-
-static char *MakeCpy(void)
-{
-    if (!LineCpy)
-        LineCpy = strdup(RealBuf);
-
-    if (!LineCpy)
-        PrintPrgErr(pmStrDupErr);
-
-    return (LineCpy);
-}
 
 static char *PreProcess(void)
 {
@@ -674,7 +662,7 @@ static void PerformBigCmd(char *CmdPtr)
             if (CmdBuffer[1] == 'b')
             {
                 if (!(PushErr(ArgBuffer, Line, CmdPtr - Buf,
-                              CmdLen, MakeCpy(), &EnvStack)))
+                              CmdLen, RealBuf, &EnvStack)))
                     PrintPrgErr(pmNoStackMem);
             }
             else
@@ -709,7 +697,7 @@ static void PerformBigCmd(char *CmdPtr)
         {
             TmpPtr = CmdBuffer + 6;
             if (!(PushErr(TmpPtr, Line, CmdPtr - Buf + 6,
-                          CmdLen - 6, MakeCpy(), &EnvStack)))
+                          CmdLen - 6, RealBuf, &EnvStack)))
                 PrintPrgErr(pmNoStackMem);
         }
         else
@@ -857,12 +845,15 @@ static void CheckRest(void)
                     {
                         CommentEnd = strchr(pattern, ')');
                         /* TODO: check for PCRE/POSIX only regexes */
-                        *CommentEnd = '\0';
-                        /* We're leaking a little here, but this was never freed until exit anyway... */
-                        UserWarnRegex.Stack.Data[NumRegexes] = pattern+3;
+                        if ( CommentEnd != NULL )
+                        {
+                            *CommentEnd = '\0';
+                            /* We're leaking a little here, but this was never freed until exit anyway... */
+                            UserWarnRegex.Stack.Data[NumRegexes] = pattern+3;
 
-                        /* Compile past the end of the comment so that it works with POSIX too. */
-                        pattern = CommentEnd + 1;
+                            /* Compile past the end of the comment so that it works with POSIX too. */
+                            pattern = CommentEnd + 1;
+                        }
                     }
 
                     /* Ignore PCRE and POSIX specific regexes.
@@ -964,7 +955,17 @@ static void CheckRest(void)
                                (int)(MATCH.rm_eo - MATCH.rm_so),
                                TmpBuffer + offset + MATCH.rm_so);
                     }
-                    offset += MATCH.rm_eo;
+                    if ( MATCH.rm_eo == 0 )
+                    {
+                        /* Break out of loop if the match was empty.
+                         * This avoids an infinite loop when the match
+                         * is empty, e.g $ */
+                        offset = len;
+                    }
+                    else
+                    {
+                        offset += MATCH.rm_eo;
+                    }
 #undef MATCH
                 }
             }
@@ -1170,7 +1171,7 @@ static void HandleBracket(char Char)
         else                    /* Opening bracket of some sort  */
         {
             if ((ei = PushChar(Char, Line, BufPtr - Buf - 1,
-                               &CharStack, MakeCpy())))
+                               &CharStack, RealBuf)))
             {
                 if (Char == '{')
                 {
@@ -1713,7 +1714,18 @@ int FindErr(const char *_RealBuf, const unsigned long _Line)
                 if (*PrePtr != '\\')
                 {
                     if (*BufPtr == '$')
+                    {
                         BufPtr++;
+                        TmpPtr = BufPtr;
+                        SKIP_AHEAD(TmpPtr, TmpC, (TmpC != '$' && TmpC != '\0'));
+                        PSERR(BufPtr - Buf - 2, TmpPtr-BufPtr+4, emDisplayMath);
+                    }
+                    else
+                    {
+                        TmpPtr = BufPtr;
+                        SKIP_AHEAD(TmpPtr, TmpC, (TmpC != '$' && TmpC != '\0'));
+                        PSERR(BufPtr - Buf - 1, TmpPtr-BufPtr+2, emInlineMath);
+                    }
                     MathMode ^= TRUE;
                 }
 
@@ -1730,12 +1742,6 @@ int FindErr(const char *_RealBuf, const unsigned long _Line)
 
     }
 
-    /* Free and reset LineCpy if it was used */
-    if ( LineCpy != NULL )
-    {
-        free(LineCpy);
-        LineCpy = NULL;
-    }
     return FoundErr;
 }
 

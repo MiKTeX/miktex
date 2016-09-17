@@ -124,7 +124,11 @@
  MSG(emNoCharMean, etWarn, iuOK, ctNone,\
      "`%s' is normally not followed by `%c'.")\
  MSG(emUserWarnRegex, etWarn, iuOK, ctNone,\
-     "User Regex: %.*s.")
+     "User Regex: %.*s.") \
+ MSG(emDisplayMath, etWarn, iuOK, ctOutMath,\
+     "Use \\[ ... \\] instead of $$ ... $$.")\
+ MSG(emInlineMath, etWarn, iuNotSys, ctOutMath,\
+     "Use \\( ... \\) instead of $ ... $.")
 
 #undef MSG
 #define MSG(num, type, inuse, ctxt, text) num,
