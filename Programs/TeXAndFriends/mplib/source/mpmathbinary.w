@@ -1100,6 +1100,24 @@ void mp_ab_vs_cd (MP mp, mp_number *ret, mp_number a_orig, mp_number b_orig, mp_
   mpfr_set(b, (mpfr_ptr )b_orig.data.num, ROUNDING);
   mpfr_set(c, (mpfr_ptr )c_orig.data.num, ROUNDING);
   mpfr_set(d, (mpfr_ptr )d_orig.data.num, ROUNDING);
+  
+  mpfr_mul(q,a,b,ROUNDING);
+  mpfr_mul(r,c,d,ROUNDING);
+  cmp = mpfr_cmp(q,r);
+  if (cmp==0) {
+    mpfr_set(ret->data.num, zero, ROUNDING);
+    goto RETURN;
+  }
+  if (cmp>0) {
+    mpfr_set(ret->data.num, one, ROUNDING);
+    goto RETURN;
+  }
+  if (cmp<0) {
+    mpfr_set(ret->data.num, minusone, ROUNDING);
+    goto RETURN;
+  }
+
+  /*TODO: remove this part of the code until RETURN */
   @<Reduce to the case that |a,c>=0|, |b,d>0|@>;
   while (1) {
     mpfr_div(q,a,d, ROUNDING);

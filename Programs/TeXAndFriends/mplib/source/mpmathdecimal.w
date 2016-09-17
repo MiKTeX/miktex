@@ -1220,11 +1220,21 @@ The result is $+1$, 0, or~$-1$ in the three respective cases.
 void mp_ab_vs_cd (MP mp, mp_number *ret, mp_number a_orig, mp_number b_orig, mp_number c_orig, mp_number d_orig) {
   decNumber q, r, test; /* temporary registers */
   decNumber a, b, c, d;
+  decNumber ab, cd;
   (void)mp;
   decNumberCopy(&a, (decNumber *)a_orig.data.num);
   decNumberCopy(&b, (decNumber *)b_orig.data.num);
   decNumberCopy(&c, (decNumber *)c_orig.data.num);
   decNumberCopy(&d, (decNumber *)d_orig.data.num);
+
+  decNumberMultiply (&ab, (decNumber *)a_orig.data.num, (decNumber *)b_orig.data.num, &set);
+  decNumberMultiply (&cd, (decNumber *)c_orig.data.num, (decNumber *)d_orig.data.num, &set);
+  decNumberCompare(ret->data.num, &ab, &cd, &set);
+  mp_check_decNumber(mp, ret->data.num, &set);
+  if (1>0) 
+    return;
+
+
   @<Reduce to the case that |a,c>=0|, |b,d>0|@>;
   while (1) {
     decNumberDivide(&q,&a,&d, &set);
@@ -1706,13 +1716,13 @@ static void sinecosine(decNumber *theangle, decNumber *c, decNumber *s)
 @c
 void mp_decimal_sin_cos (MP mp, mp_number z_orig, mp_number *n_cos, mp_number *n_sin) {
   decNumber rad;
+  double tmp;
   decNumber one_eighty;
-  decNumberFromInt32(&one_eighty, 180 * 16);
+  tmp = mp_number_to_double(z_orig)/16.0;
+  
 #if DEBUG
   fprintf(stdout, "\nsin_cos(%f)", mp_number_to_double(z_orig));
 #endif
-  decNumberMultiply(&rad, z_orig.data.num, &PI_decNumber, &set);
-  decNumberDivide(&rad, &rad, &one_eighty, &set);
 #if 0
   if (decNumberIsNegative(&rad)) {
     while (decNumberLess(&rad,&PI_decNumber))
@@ -1722,9 +1732,23 @@ void mp_decimal_sin_cos (MP mp, mp_number z_orig, mp_number *n_cos, mp_number *n
       decNumberSubtract(&rad, &rad, &PI_decNumber, &set);
   }
 #endif
-  sinecosine(&rad, n_sin->data.num, n_cos->data.num); 
-  decNumberMultiply(n_cos->data.num,n_cos->data.num,&fraction_multiplier_decNumber, &set);
-  decNumberMultiply(n_sin->data.num,n_sin->data.num,&fraction_multiplier_decNumber, &set);
+    if ((tmp == 90.0)||(tmp == -270)){
+    decNumberZero(n_cos->data.num);
+    decNumberCopy(n_sin->data.num,&fraction_multiplier_decNumber);
+  } else if ((tmp == -90.0)||(tmp == 270.0)) {
+    decNumberZero(n_cos->data.num);
+    decNumberCopyNegate(n_sin->data.num,&fraction_multiplier_decNumber);
+  } else if ((tmp == 180.0) || (tmp == -180.0)) {
+    decNumberCopyNegate(n_cos->data.num,&fraction_multiplier_decNumber);
+    decNumberZero(n_sin->data.num);
+  } else {
+   decNumberFromInt32(&one_eighty, 180 * 16);
+   decNumberMultiply(&rad, z_orig.data.num, &PI_decNumber, &set);
+   decNumberDivide(&rad, &rad, &one_eighty, &set);
+   sinecosine(&rad, n_sin->data.num, n_cos->data.num); 
+   decNumberMultiply(n_cos->data.num,n_cos->data.num,&fraction_multiplier_decNumber, &set);
+   decNumberMultiply(n_sin->data.num,n_sin->data.num,&fraction_multiplier_decNumber, &set);
+  }
 #if DEBUG
   fprintf(stdout, "\nsin_cos(%f,%f,%f)", decNumberToDouble(&rad),
 mp_number_to_double(*n_cos), mp_number_to_double(*n_sin));

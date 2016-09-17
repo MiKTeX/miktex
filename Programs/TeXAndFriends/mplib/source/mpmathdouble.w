@@ -1,4 +1,4 @@
-% $Id: mpmathdouble.w 2070 2015-10-06 10:35:23Z luigi $
+% $Id: mpmathdouble.w 2091 2016-09-16 23:07:58Z luigi $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -821,6 +821,11 @@ void mp_ab_vs_cd (MP mp, mp_number *ret, mp_number a_orig, mp_number b_orig, mp_
   integer q, r; /* temporary registers */
   integer a, b, c, d;
   (void)mp;
+  
+  mp_double_ab_vs_cd(mp,ret, a_orig, b_orig, c_orig, d_orig);
+  if (1>0) 
+    return ;
+  /* TODO: remove this code until the end */
   a = a_orig.data.dval;
   b = b_orig.data.dval;
   c = c_orig.data.dval;
@@ -1215,9 +1220,21 @@ any loss of accuracy. Then |x| and~|y| are divided by~|r|.
 @c
 void mp_double_sin_cos (MP mp, mp_number z_orig, mp_number *n_cos, mp_number *n_sin) {
   double rad;
-  rad = (z_orig.data.dval / angle_multiplier) * PI/180.0;
-  n_cos->data.dval = cos(rad) * fraction_multiplier;
-  n_sin->data.dval = sin(rad) * fraction_multiplier;
+  rad = (z_orig.data.dval / angle_multiplier); /* still degrees */
+  if ((rad == 90.0)||(rad == -270)){
+    n_cos->data.dval = 0.0;
+    n_sin->data.dval = fraction_multiplier;
+  } else if ((rad == -90.0)||(rad == 270.0)) {
+    n_cos->data.dval = 0.0;
+    n_sin->data.dval = -fraction_multiplier;
+  } else if ((rad == 180.0) || (rad == -180.0)) {
+    n_cos->data.dval = -fraction_multiplier;
+    n_sin->data.dval = 0.0;
+  } else {
+    rad = rad * PI/180.0;
+    n_cos->data.dval = cos(rad) * fraction_multiplier;
+    n_sin->data.dval = sin(rad) * fraction_multiplier;
+  }
 #if DEBUG
   fprintf(stdout, "\nsin_cos(%f,%f,%f)", mp_number_to_double(z_orig),
 mp_number_to_double(*n_cos), mp_number_to_double(*n_sin));
