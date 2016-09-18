@@ -23,6 +23,7 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/source/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src
 )
 
 add_definitions(
