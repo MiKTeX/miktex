@@ -28,10 +28,10 @@
 
 #define TeX
 
-int luatex_version = 98;        /* \.{\\luatexversion}  */
-int luatex_revision = '4';      /* \.{\\luatexrevision}  */
-int luatex_date_info = 2016090500;     /* the compile date is now hardwired */
-const char *luatex_version_string = "0.98.4";
+int luatex_version = 99;        /* \.{\\luatexversion}  */
+int luatex_revision = '5';      /* \.{\\luatexrevision}  */
+int luatex_date_info = 2016092300;     /* the compile date is now hardwired */
+const char *luatex_version_string = "0.99.5";
 const char *engine_name = my_name;     /* the name of this engine */
 
 #include <kpathsea/c-ctype.h>
@@ -61,10 +61,6 @@ const char *engine_name = my_name;     /* the name of this engine */
 #include <signal.h>             /* Catch interrupts.  */
 
 
-/* {tex,mf}d.h defines TeX, MF, INI, and other such symbols.
-   Unfortunately there's no way to get the banner into this code, so
-   just repeat the text.  */
-#define edit_var "TEXEDIT"
 
 /* Shell escape.
 

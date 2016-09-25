@@ -66,6 +66,7 @@ typedef enum {
     process_rule_callback,
     insert_local_par_callback,
     contribute_filter_callback,
+    call_edit_callback,
     total_callbacks
 } callback_callback_types;
 

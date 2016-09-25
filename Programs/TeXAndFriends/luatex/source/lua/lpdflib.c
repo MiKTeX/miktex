@@ -43,6 +43,8 @@ static int luapdfprint(lua_State * L)
                 literal_mode = direct_always;
             else if (lua_key_eq(modestr_s,page))
                 literal_mode = direct_page;
+            else if (lua_key_eq(modestr_s,raw))
+                literal_mode = direct_raw;
             else {
                 luaL_error(L, "invalid first argument for print literal mode");
             }
@@ -62,6 +64,9 @@ static int luapdfprint(lua_State * L)
             (void) calc_pdfpos(static_pdf->pstruct, static_pdf->posstruct->pos);
             break;
         case (direct_always):
+            pdf_end_string_nl(static_pdf);
+            break;
+        case (direct_raw):
             pdf_end_string_nl(static_pdf);
             break;
         default:
@@ -1069,11 +1074,13 @@ static int newpdfcolorstack(lua_State * L)
     if (lua_type(L,2) == LUA_TSTRING) {
         l =	lua_tostring(L, 2);
         if (lua_key_eq(l,origin)) {
-            literal_mode = 0;
+            literal_mode = set_origin;
         } else if (lua_key_eq(l,page))  {
-            literal_mode = 1; /* direct_page */
+            literal_mode = direct_page;
         } else if (lua_key_eq(l,direct)) {
-            literal_mode = 2; /* direct_always */
+            literal_mode = direct_always;
+        } else if (lua_key_eq(l,raw)) {
+            literal_mode = direct_raw;
         } else {
             luaL_error(L, "invalid literal mode in pdf.newcolorstack()");
         }

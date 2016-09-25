@@ -261,6 +261,10 @@ typedef enum {
     image_rule,
     empty_rule,
     user_rule,
+    math_over_rule,
+    math_under_rule,
+    math_fraction_rule,
+    math_radical_rule,
 } rule_subtypes;
 
 #  define rule_node_size       8
@@ -269,6 +273,9 @@ typedef enum {
 #  define rule_transform(a)    vlink((a)+6)
 #  define synctex_tag_rule(a)  vinfo((a)+7)
 #  define synctex_line_rule(a) vlink((a)+7)
+
+#  define rule_math_size       rule_index
+#  define rule_math_font       rule_transform
 
 #  define mark_node_size   3
 #  define mark_ptr(a)      vlink((a)+2)
@@ -716,6 +723,7 @@ typedef enum {
     set_origin = 0,
     direct_page,
     direct_always,
+    direct_raw,
     scan_special,
 } ctm_transform_modes;
 

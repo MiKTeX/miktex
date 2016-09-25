@@ -267,18 +267,25 @@ charinfo *copy_charinfo(charinfo * ci)
     x = ci->top_left_math_kerns;
     co->top_left_math_kerns = x;
     if (x > 0) {
-        co->top_left_math_kern_array =
-            xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
+        co->top_left_math_kern_array = xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
         for (k = 0; k < co->top_left_math_kerns; k++) {
             co->top_left_math_kern_array[(2 * k)] = ci->top_left_math_kern_array[(2 * k)];
             co->top_left_math_kern_array[(2 * k) + 1] = ci->top_left_math_kern_array[(2 * k) + 1];
         }
     }
+    x = ci->bottom_left_math_kerns;
+    co->bottom_left_math_kerns = x;
+    if (x > 0) {
+        co->bottom_left_math_kern_array = xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
+        for (k = 0; k < co->bottom_left_math_kerns; k++) {
+            co->bottom_left_math_kern_array[(2 * k)] = ci->bottom_left_math_kern_array[(2 * k)];
+            co->bottom_left_math_kern_array[(2 * k) + 1] = ci->bottom_left_math_kern_array[(2 * k) + 1];
+        }
+    }
     x = ci->top_right_math_kerns;
     co->top_right_math_kerns = x;
     if (x > 0) {
-        co->top_right_math_kern_array =
-            xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
+        co->top_right_math_kern_array = xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
         for (k = 0; k < co->top_right_math_kerns; k++) {
             co->top_right_math_kern_array[(2 * k)] = ci->top_right_math_kern_array[(2 * k)];
             co->top_right_math_kern_array[(2 * k) + 1] = ci->top_right_math_kern_array[(2 * k) + 1];
@@ -287,21 +294,10 @@ charinfo *copy_charinfo(charinfo * ci)
     x = ci->bottom_right_math_kerns;
     co->bottom_right_math_kerns = x;
     if (x > 0) {
-        co->bottom_right_math_kern_array =
-            xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
+        co->bottom_right_math_kern_array = xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
         for (k = 0; k < co->bottom_right_math_kerns; k++) {
             co->bottom_right_math_kern_array[(2 * k)] = ci->bottom_right_math_kern_array[(2 * k)];
             co->bottom_right_math_kern_array[(2 * k) + 1] = ci->bottom_right_math_kern_array[(2 * k) + 1];
-        }
-    }
-    x = ci->bottom_left_math_kerns;
-    co->bottom_left_math_kerns = x;
-    if (x > 0) {
-        co->bottom_left_math_kern_array =
-            xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
-        for (k = 0; k < co->bottom_left_math_kerns; k++) {
-            co->bottom_left_math_kern_array[(2 * k)] = ci->bottom_left_math_kern_array[(2 * k)];
-            co->bottom_left_math_kern_array[(2 * k) + 1] = ci->bottom_left_math_kern_array[(2 * k) + 1];
         }
     }
     return co;
@@ -652,10 +648,10 @@ int get_charinfo_math_kerns(charinfo * ci, int id)
         k = ci->top_left_math_kerns;
     } else if (id == bottom_left_kern) {
         k = ci->bottom_left_math_kerns;
-    } else if (id == bottom_right_kern) {
-        k = ci->bottom_right_math_kerns;
     } else if (id == top_right_kern) {
         k = ci->top_right_math_kerns;
+    } else if (id == bottom_right_kern) {
+        k = ci->bottom_right_math_kerns;
     } else {
         confusion("get_charinfo_math_kerns");
     }
@@ -674,25 +670,22 @@ void add_charinfo_math_kern(charinfo * ci, int id, scaled ht, scaled krn)
         ci->top_left_math_kerns++;
     } else if (id == bottom_left_kern) {
         k = ci->bottom_left_math_kerns;
-        do_realloc(ci->bottom_left_math_kern_array, ((k + 1) * 2),
-                   sizeof(scaled));
+        do_realloc(ci->bottom_left_math_kern_array, ((k + 1) * 2), sizeof(scaled));
         ci->bottom_left_math_kern_array[(2 * (k))] = ht;
         ci->bottom_left_math_kern_array[(2 * (k)) + 1] = krn;
         ci->bottom_left_math_kerns++;
-    } else if (id == bottom_right_kern) {
-        k = ci->bottom_right_math_kerns;
-        do_realloc(ci->bottom_right_math_kern_array, ((k + 1) * 2),
-                   sizeof(scaled));
-        ci->bottom_right_math_kern_array[(2 * (k))] = ht;
-        ci->bottom_right_math_kern_array[(2 * (k)) + 1] = krn;
-        ci->bottom_right_math_kerns++;
     } else if (id == top_right_kern) {
         k = ci->top_right_math_kerns;
-        do_realloc(ci->top_right_math_kern_array, ((k + 1) * 2),
-                   sizeof(scaled));
+        do_realloc(ci->top_right_math_kern_array, ((k + 1) * 2), sizeof(scaled));
         ci->top_right_math_kern_array[(2 * (k))] = ht;
         ci->top_right_math_kern_array[(2 * (k)) + 1] = krn;
         ci->top_right_math_kerns++;
+    } else if (id == bottom_right_kern) {
+        k = ci->bottom_right_math_kerns;
+        do_realloc(ci->bottom_right_math_kern_array, ((k + 1) * 2), sizeof(scaled));
+        ci->bottom_right_math_kern_array[(2 * (k))] = ht;
+        ci->bottom_right_math_kern_array[(2 * (k)) + 1] = krn;
+        ci->bottom_right_math_kerns++;
     } else {
         confusion("add_charinfo_math_kern");
     }
@@ -715,17 +708,17 @@ static void dump_math_kerns(charinfo * ci)
         dump_int(ci->bottom_left_math_kern_array[(2 * k)]);
         dump_int(ci->bottom_left_math_kern_array[(2 * k) + 1]);
     }
+    l = ci->top_right_math_kerns;
+    dump_int(l);
+    for (k = 0; k < l; k++) {
+        dump_int(ci->top_right_math_kern_array[(2 * k)]);
+        dump_int(ci->top_right_math_kern_array[(2 * k) + 1]);
+    }
     l = ci->bottom_right_math_kerns;
     dump_int(l);
     for (k = 0; k < l; k++) {
         dump_int(ci->bottom_right_math_kern_array[(2 * k)]);
         dump_int(ci->bottom_right_math_kern_array[(2 * k) + 1]);
-    }
-    l = ci->top_right_math_kerns;
-    dump_int(l);
-    for (k = 0; k < l; k++) {
-        dump_int(ci->bottom_left_math_kern_array[(2 * k)]);
-        dump_int(ci->bottom_left_math_kern_array[(2 * k) + 1]);
     }
 }
 
@@ -737,8 +730,7 @@ static void undump_math_kerns(charinfo * ci)
     undump_int(x);
     ci->top_left_math_kerns = x;
     if (x > 0)
-        ci->top_left_math_kern_array =
-            xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
+        ci->top_left_math_kern_array = xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
     for (k = 0; k < ci->top_left_math_kerns; k++) {
         undump_int(x);
         ci->top_left_math_kern_array[(2 * k)] = (scaled) x;
@@ -748,8 +740,7 @@ static void undump_math_kerns(charinfo * ci)
     undump_int(x);
     ci->bottom_left_math_kerns = x;
     if (x > 0)
-        ci->bottom_left_math_kern_array =
-            xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
+        ci->bottom_left_math_kern_array = xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
     for (k = 0; k < ci->bottom_left_math_kerns; k++) {
         undump_int(x);
         ci->bottom_left_math_kern_array[(2 * k)] = (scaled) x;
@@ -757,26 +748,24 @@ static void undump_math_kerns(charinfo * ci)
         ci->bottom_left_math_kern_array[(2 * k) + 1] = (scaled) x;
     }
     undump_int(x);
-    ci->bottom_right_math_kerns = x;
-    if (x > 0)
-        ci->bottom_right_math_kern_array =
-            xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
-    for (k = 0; k < ci->bottom_right_math_kerns; k++) {
-        undump_int(x);
-        ci->bottom_right_math_kern_array[(2 * k)] = (scaled) x;
-        undump_int(x);
-        ci->bottom_right_math_kern_array[(2 * k) + 1] = (scaled) x;
-    }
-    undump_int(x);
     ci->top_right_math_kerns = x;
     if (x > 0)
-        ci->top_right_math_kern_array =
-            xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
+        ci->top_right_math_kern_array = xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
     for (k = 0; k < ci->top_right_math_kerns; k++) {
         undump_int(x);
         ci->top_right_math_kern_array[(2 * k)] = (scaled) x;
         undump_int(x);
         ci->top_right_math_kern_array[(2 * k) + 1] = (scaled) x;
+    }
+    undump_int(x);
+    ci->bottom_right_math_kerns = x;
+    if (x > 0)
+        ci->bottom_right_math_kern_array = xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
+    for (k = 0; k < ci->bottom_right_math_kerns; k++) {
+        undump_int(x);
+        ci->bottom_right_math_kern_array[(2 * k)] = (scaled) x;
+        undump_int(x);
+        ci->bottom_right_math_kern_array[(2 * k) + 1] = (scaled) x;
     }
 }
 

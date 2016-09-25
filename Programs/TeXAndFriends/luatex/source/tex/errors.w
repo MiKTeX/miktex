@@ -24,6 +24,7 @@ luafflib.c
 
 @ @c
 #include "ptexlib.h"
+#define edit_var "TEXEDIT"
 
 @ When something anomalous is detected, \TeX\ typically does something like this:
 $$\vbox{\halign{#\hfil\cr
@@ -232,6 +233,155 @@ void jump_out(void)
     close_files_and_terminate();
     do_final_end();
 }
+@ Here is the function that calls the editor, if one is defined. This
+is loosely based on a similar function in kpathsea, but the calling
+convention is quite different.
+
+@c
+static const_string edit_value = EDITOR;
+
+#if defined(WIN32)
+static int
+Isspace (char c)
+{
+  return (c == ' ' || c == '\t');
+}
+#endif /* WIN32 */
+
+__attribute__ ((noreturn))
+static void luatex_calledit (int baseptr, int linenumber)
+{
+  char *temp, *command, *fullcmd;
+  char c;
+  int sdone, ddone, i;
+  char *filename = makecstring(input_stack[base_ptr].name_field);
+  int fnlength = strlen(filename);
+
+#ifdef WIN32
+  char *fp, *ffp, *env, editorname[256], buffer[256];
+  int cnt = 0;
+  int dontchange = 0;
+#endif
+
+  sdone = ddone = 0;
+
+  /* Close any open input files, since we're going to kill the job.  */
+  close_files_and_terminate();
+
+  /* Replace the default with the value of the appropriate environment
+     variable or config file value, if it's set.  */
+  temp = kpse_var_value (edit_var);
+  if (temp != NULL)
+    edit_value = temp;
+
+  /* Construct the command string.  The `11' is the maximum length an
+     integer might be.  */
+  command = xmalloc (strlen (edit_value) + fnlength + 11);
+
+  /* So we can construct it as we go.  */
+  temp = command;
+
+#ifdef WIN32
+  fp = editorname;
+  if ((isalpha(*edit_value) && *(edit_value + 1) == ':'
+        && IS_DIR_SEP (*(edit_value + 2)))
+      || (*edit_value == '"' && isalpha(*(edit_value + 1))
+        && *(edit_value + 2) == ':'
+        && IS_DIR_SEP (*(edit_value + 3)))
+     )
+    dontchange = 1;
+#endif
+
+  while ((c = *edit_value++) != 0)
+    {
+      if (c == '%')
+        {
+          switch (c = *edit_value++)
+            {
+            case 'd':
+              if (ddone)
+                FATAL1 ("call_edit: `%%d' appears twice in editor command: `%s'", edit_value);
+              sprintf (temp, "%ld", (long int)linenumber);
+              while (*temp != '\0')
+                temp++;
+              ddone = 1;
+              break;
+
+            case 's':
+              if (sdone)
+                FATAL1 ("call_edit: `%%s' appears twice in editor command: `%s'", edit_value);
+              for (i =0; i < fnlength; i++)
+                *temp++ = filename[i];
+              sdone = 1;
+              break;
+
+            case '\0':
+              *temp++ = '%';
+              /* Back up to the null to force termination.  */
+              edit_value--;
+              break;
+
+            default:
+              *temp++ = '%';
+              *temp++ = c;
+              break;
+            }
+        }
+      else {
+#ifdef WIN32
+        if (dontchange)
+          *temp++ = c;
+        else { if(Isspace(c) && cnt == 0) {
+            cnt++;
+            temp = command;
+            *temp++ = c;
+            *fp = '\0';
+          } else if(!Isspace(c) && cnt == 0) {
+            *fp++ = c;
+          } else {
+            *temp++ = c;
+          }
+        }
+#else
+        *temp++ = c;
+#endif
+      }
+    }
+
+  *temp = 0;
+
+#ifdef WIN32
+  if (dontchange == 0) {
+    if(editorname[0] == '.' ||
+       editorname[0] == '/' ||
+       editorname[0] == '\\') {
+      fprintf(stderr, "%s is not allowed to execute.\n", editorname);
+      do_final_end();
+    }
+    env = (char *)getenv("PATH");
+    if(SearchPath(env, editorname, ".exe", 256, buffer, &ffp)==0) {
+      if(SearchPath(env, editorname, ".bat", 256, buffer, &ffp)==0) {
+        fprintf(stderr, "I cannot find %s in the PATH.\n", editorname);
+        do_final_end();
+      }
+    }
+    fullcmd = (char *)xmalloc(strlen(buffer)+strlen(command)+5);
+    strcpy(fullcmd, "\"");
+    strcat(fullcmd, buffer);
+    strcat(fullcmd, "\"");
+    strcat(fullcmd, command);
+  } else
+#endif
+  fullcmd = command;
+
+  /* Execute the command.  */
+  if (system (fullcmd) != 0)
+    fprintf (stderr, "! Trouble executing `%s'.\n", command);
+
+  /* Quit, since we found an error.  */
+  do_final_end ();
+}
+
 
 @ @c
 void error(void)
@@ -325,12 +475,23 @@ void error(void)
 #endif
             case 'E':
                 if (base_ptr > 0) {
-                    tprint_nl("You want to edit file ");
-                    print(input_stack[base_ptr].name_field);
-                    tprint(" at line ");
-                    print_int(line);
-                    interaction = scroll_mode;
-                    jump_out();
+                    int callback_id = callback_defined(call_edit_callback);
+                    if (callback_id>0) {
+                        (void)run_callback(callback_id, "Sd->", makecstring(input_stack[base_ptr].name_field), line);
+                        jump_out(); /* should not be reached */
+                    } else {
+                        tprint_nl("You want to edit file ");
+                        print(input_stack[base_ptr].name_field);
+                        tprint(" at line ");
+                        print_int(line);
+                        interaction = scroll_mode;
+                        if (kpse_init) {
+                            luatex_calledit(base_ptr, line);
+                        } else {
+                            tprint_nl("There is no valid callback defined.");
+                            jump_out(); /* should not be reached */
+                        }
+                    }
                 }
                 break;
             case 'H':

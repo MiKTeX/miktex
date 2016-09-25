@@ -72,6 +72,7 @@ static const char *const callbacknames[] = {
     "process_rule",
     "insert_local_par",
     "contribute_filter",
+    "call_edit",
     NULL
 };
 

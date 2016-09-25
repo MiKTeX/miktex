@@ -30,14 +30,22 @@ void pdf_place_rule(PDF pdf, halfword q, scaledpos size, int callback_id)
     pdfpos dim;
     pdfstructure *p = pdf->pstruct;
     scaledpos pos = pdf->posstruct->pos;
+    halfword s = subtype(q);
     /*  (void) q; */
-    if (subtype(q) == box_rule) {
+    if (s >= math_over_rule && s <= math_radical_rule) {
+        if (callback_id == 0) {
+            s = normal_rule;
+        } else {
+            s = user_rule;
+        }
+    }
+    if (s == box_rule) {
         pdf_place_form(pdf,q);
-    } else if (subtype(q) == image_rule) {
+    } else if (s == image_rule) {
         pdf_place_image(pdf,q);
-    } else if (subtype(q) == empty_rule) {
+    } else if (s == empty_rule) {
         /* place nothing, only take space */
-    } else if (subtype(q) == user_rule) {
+    } else if (s == user_rule) {
         if (callback_id != 0) {
             pdf_goto_pagemode(pdf);
             pdf_puts(pdf, "q\n");

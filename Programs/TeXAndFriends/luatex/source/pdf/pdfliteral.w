@@ -66,6 +66,9 @@ void pdf_out_literal(PDF pdf, halfword p)
                 pdf_end_string_nl(pdf);
                 ps->need_tm = true;
                 break;
+            case direct_raw:
+                pdf_end_string_nl(pdf);
+                break;
             default:
                 normal_error("pdf backend","bad literal mode");
                 break;
@@ -114,6 +117,9 @@ void pdf_literal(PDF pdf, str_number s, int literal_mode, boolean warn)
             } else if (str_in_cstr(s, "page:", strlen("PDF:"))) {
                 j = j + (pool_pointer) strlen("page:");
                 literal_mode = direct_page;
+            } else if (str_in_cstr(s, "raw:", strlen("PDF:"))) {
+                j = j + (pool_pointer) strlen("raw:");
+                literal_mode = direct_raw;
             } else {
                 literal_mode = set_origin;
             }
@@ -130,6 +136,9 @@ void pdf_literal(PDF pdf, str_number s, int literal_mode, boolean warn)
         case direct_always:
             pdf_end_string_nl(pdf);
             p->need_tm = true;
+            break;
+        case direct_raw:
+            pdf_end_string_nl(pdf);
             break;
         default:
             normal_error("pdf backend","bad literal mode");

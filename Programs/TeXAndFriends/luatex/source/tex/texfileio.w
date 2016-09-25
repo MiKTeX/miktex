@@ -174,12 +174,12 @@ char *luatex_find_file(const char *s, int callback_index)
         case find_data_file_callback:
             ftemp = find_in_output_directory(s);
             if (!ftemp)
-                ftemp = kpse_find_file(s, kpse_tex_format, 0);
+                ftemp = kpse_find_file(s, kpse_tex_format, 1);
             break;
         case find_font_file_callback:
-            ftemp = kpse_find_file(s, kpse_ofm_format, 0);
+            ftemp = kpse_find_file(s, kpse_ofm_format, 1);
             if (ftemp == NULL)
-                ftemp = kpse_find_file(s, kpse_tfm_format, 0);
+                ftemp = kpse_find_file(s, kpse_tfm_format, 1);
             break;
         case find_vf_file_callback:
             ftemp = kpse_find_file(s, kpse_ovf_format, 0);

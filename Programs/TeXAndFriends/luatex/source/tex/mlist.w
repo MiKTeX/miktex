@@ -271,7 +271,7 @@ static scaled minimum_operator_size(int var)
 the backward compatibility code, and it means that we can't raise an error here.
 
 @c
-static scaled radical_rule(int var)
+static scaled radical_rule_par(int var)
 {
     scaled a = get_math_param(math_param_radical_rule, var);
     return a;
@@ -978,10 +978,16 @@ static pointer math_clone(pointer q)
   that eventually contains it.
 
 @c
-static pointer do_fraction_rule(scaled t, pointer att)
+static pointer do_fraction_rule(scaled t, pointer att, halfword some_rule, halfword cur_size, halfword cur_fam)
 {
     pointer p;                  /* the new node */
-    p = new_rule(normal_rule);
+    if (math_rules_mode_par) {
+        p = new_rule(some_rule);
+        rule_math_size(p) = cur_size;
+        rule_math_font(p) = fam_fnt(cur_fam, cur_size);
+    } else {
+        p = new_rule(normal_rule);
+    }
     rule_dir(p) = math_direction_par;
     height(p) = t;
     depth(p) = 0;
@@ -994,13 +1000,13 @@ static pointer do_fraction_rule(scaled t, pointer att)
   fraction rule of thickness |t| under additional space of height |ht|.
 
 @c
-static pointer overbar(pointer b, scaled k, scaled t, scaled ht, pointer att)
+static pointer overbar(pointer b, scaled k, scaled t, scaled ht, pointer att, halfword index, halfword cur_size, halfword cur_fam)
 {
     pointer p, q;               /* nodes being constructed */
     p = new_kern(k);
     reset_attributes(p, att);
     couple_nodes(p,b);
-    q = do_fraction_rule(t, att);
+    q = do_fraction_rule(t, att, index, cur_size, cur_fam);
     couple_nodes(q,p);
     p = new_kern(ht);
     reset_attributes(p, att);
@@ -1796,17 +1802,17 @@ illustrate the general setup of such procedures, let's begin with a
 couple of simple ones.
 
 @c
-static void make_over(pointer q, int cur_style)
+static void make_over(pointer q, int cur_style, int cur_size, int cur_fam)
 {
     pointer p;
     p = overbar(clean_box(nucleus(q), cramped_style(cur_style), cur_style),
                 overbar_vgap(cur_style), overbar_rule(cur_style),
-                overbar_kern(cur_style), node_attr(nucleus(q)));
+                overbar_kern(cur_style), node_attr(nucleus(q)), math_over_rule, cur_size, cur_fam);
     math_list(nucleus(q)) = p;
     type(nucleus(q)) = sub_box_node;
 }
 
-static void make_under(pointer q, int cur_style)
+static void make_under(pointer q, int cur_style, int cur_size, int cur_fam)
 {
     pointer p, x, y, r;         /* temporary registers for box construction */
     scaled delta;               /* overall height plus depth */
@@ -1814,7 +1820,7 @@ static void make_under(pointer q, int cur_style)
     p = new_kern(underbar_vgap(cur_style));
     reset_attributes(p, node_attr(q));
     couple_nodes(x,p);
-    r = do_fraction_rule(underbar_rule(cur_style), node_attr(q));
+    r = do_fraction_rule(underbar_rule(cur_style), node_attr(q), math_under_rule, cur_size, cur_fam);
     couple_nodes(p,r);
     y = vpackage(x, 0, additional, max_dimen, math_direction_par);
     reset_attributes(y, node_attr(q));
@@ -1878,7 +1884,7 @@ static void make_radical(pointer q, int cur_style)
     scaled delta, clr, theta, h; /* dimensions involved in the calculation */
     x = clean_box(nucleus(q), cramped_style(cur_style), cur_style);
     clr = radical_vgap(cur_style);
-    theta = radical_rule(cur_style);
+    theta = radical_rule_par(cur_style);
     if (theta == undefined_math_parameter) {
         /* a real radical */
         theta = fraction_rule(cur_style);
@@ -1912,7 +1918,7 @@ static void make_radical(pointer q, int cur_style)
     }
     shift_amount(y) = (height(y) - theta) - (height(x) + clr);
     h = depth(y) + height(y);
-    p = overbar(x, clr, theta, radical_kern(cur_style), node_attr(y));
+    p = overbar(x, clr, theta, radical_kern(cur_style), node_attr(y), math_radical_rule, cur_size, small_fam(left_delimiter(q)));
     couple_nodes(y,p);
     if (degree(q) != null) {
         scaled wr, br, ar;
@@ -2559,7 +2565,7 @@ static void make_fraction(pointer q, int cur_style)
             p = new_kern((shift_up - depth(x)) - (height(z) - shift_down));
             couple_nodes(p,z);
         } else {
-            y = do_fraction_rule(thickness(q), node_attr(q));
+            y = do_fraction_rule(thickness(q), node_attr(q), math_fraction_rule, cur_size, math_rules_fam_par);
             p = new_kern((math_axis_size(cur_size) - delta) - (height(z) - shift_down));
             reset_attributes(p, node_attr(q));
             couple_nodes(y,p);
@@ -2656,8 +2662,9 @@ static scaled make_op(pointer q, int cur_style)
                     math_character(nucleus(q)) = c;
                 }
                 delta = char_italic(cur_f, cur_c);
+printf("delta %i\n",delta);
                 x = clean_box(nucleus(q), cur_style, cur_style);
-                if (delta != null) {
+                if (delta != 0) {
                     if (do_new_math(cur_f)) {
                         /* we never added italic correction */
                     } else if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits)) {
@@ -2712,8 +2719,8 @@ static scaled make_op(pointer q, int cur_style)
                 */
                 switch (mode) {
                     case 0 :
-                        /* as with limits */
-                        make_scripts(q, p, 0, cur_style, half(delta), -half(delta));
+                        /* full bottom correction */
+                        make_scripts(q, p, 0, cur_style, 0, -delta);
                         break;
                     case 1 :
                         /* MathConstants driven */
@@ -2723,22 +2730,21 @@ static scaled make_op(pointer q, int cur_style)
                     case 2 :
                         /* no correction */
                         make_scripts(q, p, 0, cur_style, 0, 0);
-                        break;
+                        break ;
                     case 3 :
                         /* half bottom correction */
                         make_scripts(q, p, 0, cur_style, 0, -half(delta));
                         break;
                     case 4 :
-                        /* full bottom correction */
-                        make_scripts(q, p, 0, cur_style, 0, -delta);
+                        /* half bottom and top correction */
+                        make_scripts(q, p, 0, cur_style, half(delta), -half(delta));
                         break;
                     default :
-                        /* half bottom and top correction */
                         if (mode > 15) {
                             /* for quickly testing values */
                             make_scripts(q, p, 0, cur_style, 0, -round_xn_over_d(delta, mode, 1000));
                         } else {
-                            make_scripts(q, p, 0, cur_style, half(delta), -half(delta));
+                            make_scripts(q, p, 0, cur_style, 0, 0);
                         }
                         break;
                 }
@@ -3913,10 +3919,10 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
                 }
                 break;
             case over_noad_type:
-                make_over(q, cur_style);
+                make_over(q, cur_style, cur_size, math_rules_fam_par);
                 break;
             case under_noad_type:
-                make_under(q, cur_style);
+                make_under(q, cur_style, cur_size, math_rules_fam_par);
                 break;
             case vcenter_noad_type:
                 make_vcenter(q);

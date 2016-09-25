@@ -25,3 +25,9 @@
 
 #define RETSIGTYPE void
 #include <w2c/c-auto.h>
+
+#if defined(MIKTEX_WINDOWS)
+#define EDITOR "notepad.exe"
+#else
+#define EDITOR ""
+#endif

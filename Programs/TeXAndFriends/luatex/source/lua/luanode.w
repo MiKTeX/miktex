@@ -420,6 +420,9 @@ void show_pdf_literal(pointer p)
         case direct_always:
             tprint(" direct");
             break;
+        case direct_raw:
+            tprint(" raw");
+            break;
         default:
             confusion("literal2");
             break;
