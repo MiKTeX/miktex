@@ -1,4 +1,4 @@
-% $Id: mp.w 2091 2016-09-16 23:07:58Z luigi $
+% $Id: mp.w 2093 2016-09-20 10:09:14Z luigi $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -13174,8 +13174,10 @@ Since an envelope spec only determines relative changes in pen offsets,
 @<Glob...@>=
 integer spec_offset;    /* number of pen edges between |h| and the initial offset */
 
-@ The next function calculates $1/3 B'(t) =   (-p + (3*c1 + (-3*c2 + q)))*t^2 + (2*p + (-4*c1 + 2*c2))*t + (-p + c1)$,
-and it's used for |t| near 0 and |t| near 1.
+@ The next function calculates $1/3 B'(t) = (-p + (3c_1 + (-3c_2 + q)))*t^2 + (2p + (-4c_1 + 2*c_2))t + (-p + c_1)$,
+for cubic curve |B(t)| given by |p|,|c1|,|c2|,|q|
+and it's used for |t| near 0 and |t| near 1. We use double mode, otherwise we have to 
+take care of overflow.
 
 @<Declarations@>=
 static void mp_dx_dy_approx(MP mp, mp_number *dx_ap, mp_number *dy_ap,mp_knot p, mp_knot q,mp_number t);
@@ -13183,21 +13185,15 @@ static void mp_dx_dy_approx(MP mp, mp_number *dx_ap, mp_number *dy_ap,mp_knot p,
 @ @c
 static void mp_dx_dy_approx(MP mp, mp_number *dx_ap, mp_number *dy_ap,mp_knot kp, mp_knot kq,mp_number t) { /* find dx dy at |t| */
 
-  /* 1/3 B'(t) =   (-p + (3c1 + (-3c2 + q)))t^2 + (2p + (-4c1 + 2c2))*t + (-p + c1) */   
-  mp_number p,c1,c2,q;
-  mp_number s1,s2,s3;
+  /* 1/3 B'(t) = (-p + (3c1 + (-3c2 + q)))t^2 + (2p + (-4c1 + 2c2))t + (-p + c1) */   
+  /* 1/3  B'(u) = (p + (-3*c1 + (3c2 - q)))*u^2 + (2c1 + (-4c2 + 2q))u + (c2 - q) */
+
   mp_number absval;
   mp_number max_coef;       /* used while scaling */
   mp_number small_nr, big_nr;
   mp_number abs_dx, abs_dy;
 
-  new_number(p);
-  new_number(c1);
-  new_number(c2);
-  new_number(q);
-  new_number(s1);
-  new_number(s2);
-  new_number(s3);
+  double p,c1,c2,q,dt,s1;
   new_number (absval);
   new_number(max_coef);
   new_number(small_nr);
@@ -13207,49 +13203,26 @@ static void mp_dx_dy_approx(MP mp, mp_number *dx_ap, mp_number *dy_ap,mp_knot kp
   
   set_number_from_double(small_nr,0.001);
   set_number_from_double(big_nr,1000);
+
+  dt = number_to_double(t);
+
+  p  = number_to_double(kp->x_coord);
+  c1 = number_to_double(kp->right_x);
+  c2 = number_to_double(kq->left_x);
+  q  = number_to_double(kq->x_coord);
+
+  s1 = (-p + (3*c1 + (-3*c2 + q)))*(dt*dt) + (2*p + (-4*c1 + 2*c2))*dt + (-p + c1);
+  set_number_from_double(*dx_ap,s1);
+
+
+  p  = number_to_double(kp->y_coord);
+  c1 = number_to_double(kp->right_y);
+  c2 = number_to_double(kq->left_y);
+  q  = number_to_double(kq->y_coord);
+
+  s1 = (-p + (3*c1 + (-3*c2 + q)))*(dt*dt) + (2*p + (-4*c1 + 2*c2))*dt + (-p + c1);
+  set_number_from_double(*dy_ap,s1);
   
-  number_clone (p,kp->x_coord);
-  number_clone (c1,kp->right_x);
-  number_clone (c2,kq->left_x);
-  number_clone (q,kq->x_coord);
-
-  number_clone (s1,p);
-  number_negate (s1);
-  number_add (s1,c1);number_add (s1,c1);number_add (s1,c1);
-  number_substract(s1,c2);number_substract (s1,c2);number_substract (s1,c2); 
-  number_add (s1,q);
-  set_number_from_mul(s1,s1,t);set_number_from_mul(s1,s1,t);
-  number_clone (s2,p);  number_add (s2,p);
-  number_substract(s2,c1);number_substract (s2,c1);number_substract (s2,c1);number_substract (s2,c1); 
-  number_add (s2,c2);number_add (s2,c2);  
-  set_number_from_mul (s2,s2,t);
-  number_clone (s3,c1);  
-  number_substract(s3,p);
-  number_add (s3,s2);
-  number_add (s3,s1);
-  number_clone(*dx_ap,s3);
-
-  number_clone(p,kp->y_coord);
-  number_clone(c1,kp->right_y);
-  number_clone(c2,kq->left_y);
-  number_clone(q,kq->y_coord);
-
-  number_clone (s1,p);
-  number_negate (s1);
-  number_add (s1,c1);number_add (s1,c1);number_add (s1,c1);
-  number_substract(s1,c2);number_substract (s1,c2);number_substract (s1,c2); 
-  number_add (s1,q);
-  set_number_from_mul(s1,s1,t);set_number_from_mul(s1,s1,t);
-  number_clone (s2,p);  number_add (s2,p);
-  number_substract(s2,c1);number_substract (s2,c1);number_substract (s2,c1);number_substract (s2,c1); 
-  number_add (s2,c2);number_add (s2,c2);  
-  set_number_from_mul (s2,s2,t);
-  number_clone (s3,c1);  
-  number_substract(s3,p);
-  number_add (s3,s2);
-  number_add (s3,s1);
-  number_clone(*dy_ap,s3);
-
 
   if (!number_zero(*dx_ap) || !number_zero(*dy_ap)) {
     number_clone(absval, *dx_ap);
@@ -13269,7 +13242,6 @@ static void mp_dx_dy_approx(MP mp, mp_number *dx_ap, mp_number *dy_ap,mp_knot kp
     number_abs(abs_dx);
     number_abs(abs_dy);
     /* This is an experimental approximation */
-    /* We should put a warning here */
     if (number_greaterequal(abs_dy,big_nr) && number_lessequal(abs_dx,small_nr)) {
       set_number_to_zero(*dx_ap);
     }
@@ -13277,14 +13249,16 @@ static void mp_dx_dy_approx(MP mp, mp_number *dx_ap, mp_number *dy_ap,mp_knot kp
       set_number_to_zero(*dy_ap);
     }
   }
-  free_number(p);
-  free_number(c1);
-  free_number(c2);
-  free_number(q);
-  free_number(s1);
-  free_number(s2);
-  free_number(s3);
+
+  free_number(absval);
+  free_number(max_coef);
+  free_number(small_nr);
+  free_number(big_nr);
+  free_number(abs_dx);
+  free_number(abs_dy);
+
 }
+
 
 @ @c
 static mp_knot mp_offset_prep (MP mp, mp_knot c, mp_knot h) {
@@ -13940,6 +13914,7 @@ if (number_zero(dx) && !(number_zero(dy)) && number_zero(x0) && number_zero(x2) 
      set_number_from_substraction (dx, dx, epsilon_t);  
     }
 } 
+/* this patch can conflict with the previous one */
 /* hm what about dx=dy=0 ? */
 if (number_zero(dx_ap) && !number_zero(dx)){
   set_number_to_zero(dx);
