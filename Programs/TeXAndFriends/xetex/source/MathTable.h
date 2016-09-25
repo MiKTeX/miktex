@@ -251,7 +251,12 @@ typedef struct {
 typedef struct {
 	uint16_t		heightCount;
 	MathValueRecord	height[ANY_NUMBER];
+/*
+ * The offset of this will vary depending on the size of the height[] array,
+ * so we have to compute it at runtime, not refer to a fixed field offset.
+ *
 	MathValueRecord	kern[ANY_NUMBER];
+ */
 } MathKernTable;
 
 typedef struct {

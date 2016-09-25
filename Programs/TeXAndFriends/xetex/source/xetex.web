@@ -15773,8 +15773,8 @@ macro capabilities. This seems a bit ugly, but it works.
     rval: scaled;
   begin
     f:=fam_fnt(2 + size_code);
-    if is_new_mathfont(cur_f) then
-      rval:=get_native_mathsy_param(cur_f, #)
+    if is_new_mathfont(f) then
+      rval:=get_native_mathsy_param(f, #)
     else
       rval:=mathsy(#);
     define_mathsy_end
@@ -15816,8 +15816,8 @@ omitted (since it is always |cur_size| when we refer to such parameters).
     rval: scaled;
   begin
     f:=fam_fnt(3 + cur_size);
-    if is_new_mathfont(cur_f) then
-      rval:=get_native_mathex_param(cur_f, #)
+    if is_new_mathfont(f) then
+      rval:=get_native_mathex_param(f, #)
     else
       rval:=mathex(#);
   define_mathex_end
@@ -16456,9 +16456,7 @@ if (z<>0)or(x<>min_quarterword) then
 
 @ @<Look at the list of characters starting with |x|...@>=
 if is_ot_font(g) then begin
-  b:=new_native_character(g, x);
-  x:=get_native_glyph(b, 0);
-  free_node(b, native_size(b));
+  x:=map_char_to_glyph(g, x);
   f:=g; c:=x; w:=0; n:=0;
   repeat
     y:=get_ot_math_variant(g, x, n, addressof(u), 0);
