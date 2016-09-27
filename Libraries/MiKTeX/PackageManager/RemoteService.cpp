@@ -26,7 +26,10 @@
 #include "NoRemoteService.h"
 #include "RemoteService.h"
 #include "RestRemoteService.h"
-#include "SoapRemoteService.h"
+
+#if defined(WITH_SOAP_CLIENT)
+#  include "SoapRemoteService.h"
+#endif
 
 using namespace MiKTeX::Packages;
 using namespace std;
@@ -46,10 +49,12 @@ unique_ptr<RemoteService> RemoteService::Create(const string & endpoint, const P
   {
     return make_unique<NoRemoteService>(vector<string>({ "http://mirrors.ctan.org/" }));
   }
+#if defined(WITH_SOAP_CLIENT)
   else if (endsWith(endpoint, ".asmx"))
   {
     return make_unique<SoapRemoteService>(endpoint, proxySettings);
   }
+#endif
   else
   {
     return make_unique<RestRemoteService>(endpoint, proxySettings);

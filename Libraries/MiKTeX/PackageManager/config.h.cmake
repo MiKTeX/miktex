@@ -41,6 +41,8 @@
 #cmakedefine HAVE_UNORDERED_SET 1
 #cmakedefine HAVE_WCTOMB 1
 
+#cmakedefine WITH_SOAP_CLIENT 1
+
 #if defined(_MSC_VER)
 #  define SOAP_LONG_FORMAT "%I64d"
 #  define SOAP_ULONG_FORMAT "%I64u"

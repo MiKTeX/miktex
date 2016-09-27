@@ -300,6 +300,12 @@ option(
 )
 
 option(
+  WITH_SOAP_CLIENT
+  "Use the (legacy) SOAP web service to retrieve the repository list."
+  ${WIN32}
+)
+
+option(
   WITH_UI_QT
   "Build Qt components."
   TRUE
@@ -1474,7 +1480,6 @@ add_subdirectory(${MIKTEX_REL_MPMLIB_DIR})
 add_subdirectory(${MIKTEX_REL_MPM_DIR})
 add_subdirectory(${MIKTEX_REL_MP_DIR})
 add_subdirectory(${MIKTEX_REL_MTHELP_DIR})
-add_subdirectory(${MIKTEX_REL_MTREP_DIR} EXCLUDE_FROM_ALL)
 add_subdirectory(${MIKTEX_REL_NLOHMANN_JSON_DIR})
 add_subdirectory(${MIKTEX_REL_OMEGAWARE_DIR})
 add_subdirectory(${MIKTEX_REL_OMEGA_DIR})
@@ -1504,6 +1509,10 @@ add_subdirectory(${MIKTEX_REL_W2CEMU_DIR})
 add_subdirectory(${MIKTEX_REL_WEB_DIR})
 add_subdirectory(${MIKTEX_REL_XETEX_DIR})
 add_subdirectory(${MIKTEX_REL_XINDY_DIR})
+
+if(WITH_SOAP_CLIENT)
+  add_subdirectory(${MIKTEX_REL_MTREP_DIR} EXCLUDE_FROM_ALL)
+endif()
 
 if(WITH_UI_QT)
   add_subdirectory(${MIKTEX_REL_MPM_QT_DIR})

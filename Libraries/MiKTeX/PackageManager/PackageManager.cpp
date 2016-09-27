@@ -918,7 +918,7 @@ void PackageManager::SetDefaultPackageRepository(RepositoryType repositoryType, 
   session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REPOSITORY_TYPE, repositoryTypeStr.c_str());
 }
 
-#if MIKTEX_RELEASE_STATE == 0
+#if defined(WITH_SOAP_CLIENT) && MIKTEX_RELEASE_STATE == 0
 const char * DEFAULT_REMOTE_SERVICE = "https://api.miktex.org/Repository.asmx";
 #else
 const char * DEFAULT_REMOTE_SERVICE = "https://api2.miktex.org/";
