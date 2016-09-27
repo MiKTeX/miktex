@@ -689,9 +689,9 @@ if(MIKTEX_UNIX_ALIKE)
       ${CMAKE_CURRENT_BINARY_DIR}/initexmf.1
       ${CMAKE_CURRENT_BINARY_DIR}/mpm.1
       ${CMAKE_CURRENT_BINARY_DIR}/mthelp.1
-      ${CMAKE_CURRENT_BINARY_DIR}/pdftexcfg.5
+      ${CMAKE_CURRENT_BINARY_DIR}/pdftex.cfg.5
       ${CMAKE_CURRENT_BINARY_DIR}/texify.1
-      ${CMAKE_CURRENT_BINARY_DIR}/updmapcfg.5
+      ${CMAKE_CURRENT_BINARY_DIR}/updmap.cfg.5
     COMMAND
       ${CMAKE_COMMAND}
       -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
@@ -746,10 +746,10 @@ if(MIKTEX_UNIX_ALIKE)
   )
   install(
     FILES
-      ${CMAKE_CURRENT_BINARY_DIR}/pdftexcfg.5
-      ${CMAKE_CURRENT_BINARY_DIR}/updmapcfg.5
+      ${CMAKE_CURRENT_BINARY_DIR}/pdftex.cfg.5
+      ${CMAKE_CURRENT_BINARY_DIR}/updmap.cfg.5
     DESTINATION
-      ${MIKTEX_MAN_DESTINATION_DIR}/man1
+      ${MIKTEX_MAN_DESTINATION_DIR}/man5
   )
 endif()
 
@@ -810,9 +810,9 @@ if(MIKTEX_UNIX_ALIKE)
 	${CMAKE_CURRENT_BINARY_DIR}/initexmf.1
 	${CMAKE_CURRENT_BINARY_DIR}/mpm.1
 	${CMAKE_CURRENT_BINARY_DIR}/mthelp.1
-	${CMAKE_CURRENT_BINARY_DIR}/pdftexcfg.5
+	${CMAKE_CURRENT_BINARY_DIR}/pdftex.cfg.5
 	${CMAKE_CURRENT_BINARY_DIR}/texify.1
-	${CMAKE_CURRENT_BINARY_DIR}/updmapcfg.5
+	${CMAKE_CURRENT_BINARY_DIR}/updmap.cfg.5
   )
   set_property(TARGET gen-man PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})  
 endif()
