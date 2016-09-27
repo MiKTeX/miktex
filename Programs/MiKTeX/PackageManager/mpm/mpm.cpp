@@ -1675,6 +1675,7 @@ void Application::Main(int argc, const char ** argv)
 
   pPackageManager = nullptr;
   pSession = nullptr;
+  logger = nullptr;
 }
 
 extern "C" void Application::SignalHandler(int signalToBeHandled)

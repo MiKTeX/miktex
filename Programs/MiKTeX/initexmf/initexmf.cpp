@@ -1767,6 +1767,7 @@ void IniTeXMFApp::Finalize()
   packageInstaller = nullptr;
   packageManager = nullptr;
   session = nullptr;
+  logger = nullptr;
 }
 
 void IniTeXMFApp::FindWizards()
