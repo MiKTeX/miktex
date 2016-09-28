@@ -58,6 +58,12 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
+install(TARGETS ${cjklatex_dll_name}
+  RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
+  LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+  ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+)
+
 set(exes
   bg5pluslatex
   bg5pluspdflatex
@@ -80,7 +86,10 @@ set(exes
 
 foreach(t ${exes})
   create_dll_wrapper(${t} ${cjklatex_dll_name} cjklatexmain)
+  install(TARGETS ${t}
+    RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
+    LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+    ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+  )
   set_property(TARGET ${t} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 endforeach()
-
-install(TARGETS ${cjklatex_dll_name} ${exes} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

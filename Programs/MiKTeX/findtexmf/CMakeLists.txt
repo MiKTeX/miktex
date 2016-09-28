@@ -51,11 +51,20 @@ target_link_libraries(${findtexmf_dll_name}
 )
 
 rebase(${findtexmf_dll_name})
-  
+
+install(TARGETS ${findtexmf_dll_name}
+  RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
+  LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+  ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+)
+
 set(exes findtexmf)
 
 foreach(t ${exes})
   create_dll_wrapper(${t} ${findtexmf_dll_name} findtexmf)
+  install(TARGETS ${t}
+    RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
+    LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+    ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+  )
 endforeach()
-
-install(TARGETS ${findtexmf_dll_name} ${exes} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
