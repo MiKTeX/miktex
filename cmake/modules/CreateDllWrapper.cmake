@@ -32,10 +32,6 @@ macro(create_dll_wrapper _name _dll)
   if(MIKTEX_CURRENT_FOLDER)
     set_property(TARGET ${_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   endif()
-  set_target_properties(${_name}
-    PROPERTIES
-      VERSION "${MIKTEX_SERIES_STR}"
-  )
   if(MSVC)
     set_source_files_properties(
       ${CMAKE_CURRENT_BINARY_DIR}/${_name}wrapper.cpp
