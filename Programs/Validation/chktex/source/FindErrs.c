@@ -1872,7 +1872,6 @@ PrintError(const char *File, const char *String,
             }
             else
             {
-                FoundErr = EXIT_FAILURE;
                 Context = LaTeXMsgs[Error].Context;
 
                 if (!HeadErrOut)
@@ -1889,9 +1888,11 @@ PrintError(const char *File, const char *String,
                 {
                 case etWarn:
                     WarnPrint++;
+                    FoundErr = EXIT_FAILURE;
                     break;
                 case etErr:
                     ErrPrint++;
+                    FoundErr = EXIT_FAILURE;
                     break;
                 case etMsg:
                     break;
