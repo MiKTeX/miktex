@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(version.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_LIBRARIES_FOLDER}/core")
 
 set(core_source_dir ${CMAKE_CURRENT_SOURCE_DIR})
@@ -63,6 +65,11 @@ configure_file(
   StdAfx.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/StdAfx.h
 )  
+
+configure_file(
+  core-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/core-version.h
+)
 
 set(miktex_der_h ${CMAKE_CURRENT_BINARY_DIR}/miktex.der.h)
 
@@ -277,9 +284,9 @@ endif()
 
 set(misc_sources
   ${CMAKE_CURRENT_BINARY_DIR}/StdAfx.h
+  ${CMAKE_CURRENT_BINARY_DIR}/core-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Debug.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Exceptions.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/core-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
   ${miktex_der_h}
 )

@@ -62,8 +62,8 @@ set_source_files_properties(
 
 set_target_properties(${core_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_SERIES_STR}"
-    SOVERSION "1"
+    VERSION "${MIKTEX_SERIES_STR}.${MIKTEX_COMP_J2000_VERSION}"
+    SOVERSION "${MIKTEX_COMP_INTERFACE_VERSION}"
 )
 
 target_compile_definitions(${core_dll_name}
