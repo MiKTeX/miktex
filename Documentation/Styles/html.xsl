@@ -17,4 +17,6 @@
     </l:l10n>
   </l:i18n>
 
+  <xsl:output method="html" encoding="UTF-8" indent="no"/>
+
 </xsl:stylesheet>

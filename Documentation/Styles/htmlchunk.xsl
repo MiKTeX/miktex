@@ -10,6 +10,7 @@
   <xsl:param name="navig.showtitles" select="0"/>
   <xsl:param name="suppress.footer.navigation" select="1"/>
   <xsl:param name="use.id.as.filename" select="1"/>
+  <xsl:param name="chunker.output.encoding">UTF-8</xsl:param>
 
   <!-- ==================================================================== -->
   
