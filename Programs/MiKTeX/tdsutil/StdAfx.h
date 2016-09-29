@@ -21,6 +21,8 @@
 #  include <config.h>
 #endif
 
+#include <cstdarg>
+
 #include <iostream>
 #include <string>
 #include <unordered_set>
