@@ -63,9 +63,11 @@
 #endif
 #endif
 
+#if defined(MIKTEX)
 #if defined(__APPLE__)
 #include <sys/syslimits.h>
 #  define _MAX_PATH     PATH_MAX
+#endif
 #endif
 
 static int verbose = 0;
@@ -829,7 +831,7 @@ dpx_create_temp_file (void)
 
 #if defined(MIKTEX)
   {
-    tmp = NEW(300, char);
+    tmp = NEW(_MAX_PATH + 1, char);
     miktex_create_temp_file_name(tmp); /* FIXME_FIXME */
 #if defined(MIKTEX_WINDOWS)
     {
