@@ -266,7 +266,7 @@ void RestRemoteService::SayHello()
   }
   unordered_map<string, string> form;
   MiKTeXUserInfo userinfo;
-  if (Session::Get()->TryGetMiKTeXUserInfo(userinfo))
+  if (Session::Get()->TryGetMiKTeXUserInfo(userinfo) && userinfo.IsMember())
   {
     form["userid"] = userinfo.id;
   }
