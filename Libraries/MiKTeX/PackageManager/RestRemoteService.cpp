@@ -175,7 +175,7 @@ RepositoryInfo Deserialize(const json & j_rep)
     }
     else if (it.key() == "ranking")
     {
-      // TODO
+      rep.ranking = it.value().get<int>();
     }
   }
   return rep;

@@ -106,6 +106,8 @@ struct RepositoryInfo
   unsigned relativeDelay = 0;
   /// Repository release State.
   RepositoryReleaseState releaseState = RepositoryReleaseState::Unknown;
+  /// Ranking (low is better than high).
+  unsigned ranking = 0;
 };
 
 MPM_END_NAMESPACE;

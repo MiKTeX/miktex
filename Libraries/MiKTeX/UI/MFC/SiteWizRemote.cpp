@@ -98,7 +98,14 @@ class CountryComparer
 public:
   inline bool operator() (const RepositoryInfo & lhs, const RepositoryInfo & rhs)
   {
-    return StringCompare(lhs.country.c_str(), rhs.country.c_str(), true) < 0;
+    if (lhs.ranking == rhs.ranking)
+    {
+      return StringCompare(lhs.country.c_str(), rhs.country.c_str(), true) < 0;
+    }
+    else
+    {
+      return lhs.ranking < rhs.ranking;
+    }
   }
 };
 
