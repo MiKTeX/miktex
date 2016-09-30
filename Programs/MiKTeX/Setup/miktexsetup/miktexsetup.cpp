@@ -352,6 +352,22 @@ bool Application::OnProcessOutput(const void * pOutput, size_t n)
   return !interrupted;
 }
 
+class CountryComparer
+{
+public:
+  inline bool operator() (const RepositoryInfo & lhs, const RepositoryInfo & rhs)
+  {
+    if (lhs.ranking == rhs.ranking)
+    {
+      return StringCompare(lhs.country.c_str(), rhs.country.c_str(), true) < 0;
+    }
+    else
+    {
+      return lhs.ranking < rhs.ranking;
+    }
+  }
+};
+
 void Application::ListRepositories()
 {
   std::shared_ptr<MiKTeX::Packages::PackageManager> pPackageManager = PackageManager::Create();
@@ -361,6 +377,7 @@ void Application::ListRepositories()
   {
     Message(T_("No package repositories are currently available."));
   }
+  sort(repositories.begin(), repositories.end(), CountryComparer());
   for (const RepositoryInfo & ri : repositories)
   {
     cout << ri.url << endl;

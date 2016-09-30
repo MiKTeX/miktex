@@ -1084,6 +1084,22 @@ void Application::List(OutputFormat outputFormat, int maxCount)
   }
 }
 
+class CountryComparer
+{
+public:
+  inline bool operator() (const RepositoryInfo & lhs, const RepositoryInfo & rhs)
+  {
+    if (lhs.ranking == rhs.ranking)
+    {
+      return StringCompare(lhs.country.c_str(), rhs.country.c_str(), true) < 0;
+    }
+    else
+    {
+      return lhs.ranking < rhs.ranking;
+    }
+  }
+};
+
 void Application::ListRepositories(OutputFormat outputFormat)
 {
   pPackageManager->DownloadRepositoryList();
@@ -1092,6 +1108,7 @@ void Application::ListRepositories(OutputFormat outputFormat)
   {
     Message(T_("No package repositories are currently available."));
   }
+  sort(repositories.begin(), repositories.end(), CountryComparer());
   for (const RepositoryInfo & ri : repositories)
   {
     cout << ri.url << endl;
