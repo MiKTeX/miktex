@@ -413,7 +413,11 @@ bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo & info)
     }
     unique_ptr<Cfg> cfg = Cfg::Create();
     cfg->Read(userInfoFile, true);
-    if (!cfg->TryGetValue("user", "id", result.id))
+    if (!cfg->TryGetValue("user", "id", result.userid))
+    {
+      return false;
+    }
+    if (!cfg->TryGetValue("user", "secret", result.usersecret))
     {
       return false;
     }
