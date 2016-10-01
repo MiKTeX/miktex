@@ -302,7 +302,7 @@ option(
 option(
   WITH_SOAP_CLIENT
   "Use the (legacy) SOAP web service to retrieve the repository list."
-  ${WIN32}
+  FALSE
 )
 
 option(
