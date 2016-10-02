@@ -561,7 +561,10 @@ public:
   MIKTEXMFTHISAPI(unsigned long) InitializeBuffer(C4P::C4P_signed32 * pBuffer);
 
 public:
-  MIKTEXMFTHISAPI(void) InvokeEditor(const MiKTeX::Core::PathName & editFileName, int editLineNumber, const MiKTeX::Core::PathName & transcriptFileName) const;
+  void InvokeEditor(const MiKTeX::Core::PathName & editFileName, int editLineNumber, const MiKTeX::Core::PathName & transcriptFileName) const
+  {
+    Application::InvokeEditor(editFileName, editLineNumber, GetInputFileType(), transcriptFileName);
+  }
 
 public:
 

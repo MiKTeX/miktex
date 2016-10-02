@@ -141,6 +141,9 @@ public:
   MIKTEXNORETURN MIKTEXAPPCEEAPI(void) FatalError(const char * lpszFormat, ...);
 
 public:
+  MIKTEXAPPTHISAPI(void) InvokeEditor(const MiKTeX::Core::PathName & editFileName, int editLineNumber, MiKTeX::Core::FileType editFileType, const MiKTeX::Core::PathName & transcriptFileName) const;
+
+public:
   static MIKTEXAPPCEEAPI(void) Sorry(const std::string & name, const MiKTeX::Core::MiKTeXException & ex);
 
 public:

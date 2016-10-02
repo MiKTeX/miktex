@@ -36,6 +36,7 @@
 #include <iostream>
 #include <memory>
 
+#include <miktex/Core/Cfg>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/File>

@@ -594,3 +594,109 @@ MIKTEXNORETURN void Application::FatalError(const char * lpszFormat, ...)
   Sorry(Utils::GetExeName(), s);
   throw 1;
 }
+
+void Application::InvokeEditor(const PathName & editFileName, int editLineNumber, FileType editFileType, const PathName & transcriptFileName) const
+{
+  string defaultEditor;
+
+  PathName texworks;
+  if (session->FindFile(MIKTEX_TEXWORKS_EXE, FileType::EXE, texworks))
+  {
+    defaultEditor = Q_(texworks);
+    defaultEditor += " -p=%l \"%f\"";
+  }
+  else
+  {
+    defaultEditor = "notepad \"%f\"";
+  }
+
+  // read information from yap.ini
+  PathName yapIni = session->GetSpecialPath(SpecialPath::UserConfigRoot);
+  yapIni /= MIKTEX_PATH_MIKTEX_CONFIG_DIR;
+  yapIni /= MIKTEX_YAP_INI_FILENAME;
+  if (File::Exists(yapIni))
+  {
+    unique_ptr<Cfg> yapConfig(Cfg::Create());
+    yapConfig->Read(yapIni);
+    string yapEditor;
+    if (yapConfig->TryGetValue("Settings", "Editor", yapEditor))
+    {
+      defaultEditor = yapEditor;
+    }
+  }
+
+  string templ = session->GetConfigValue(nullptr, MIKTEX_REGVAL_EDITOR, defaultEditor.c_str());
+
+  const char * lpszCommandLineTemplate = templ.c_str();
+
+  string fileName;
+
+  bool quoted = false;
+
+  for (; *lpszCommandLineTemplate != ' ' || (*lpszCommandLineTemplate != 0 && quoted); ++lpszCommandLineTemplate)
+  {
+    if (*lpszCommandLineTemplate == '"')
+    {
+      quoted = !quoted;
+    }
+    else
+    {
+      fileName += *lpszCommandLineTemplate;
+    }
+  }
+
+  for (; *lpszCommandLineTemplate == ' '; ++lpszCommandLineTemplate)
+  {
+
+  }
+
+  string arguments;
+
+  while (*lpszCommandLineTemplate != 0)
+  {
+    if (lpszCommandLineTemplate[0] == '%' && lpszCommandLineTemplate[1] != 0)
+    {
+      switch (lpszCommandLineTemplate[1])
+      {
+      default:
+        break;
+      case '%':
+        arguments += '%';
+        break;
+      case 'f':
+      {
+        PathName path;
+        if (session->FindFile(editFileName.Get(), editFileType, path))
+        {
+          arguments += path.Get();
+        }
+        else
+        {
+          arguments += editFileName.Get();
+        }
+        break;
+      }
+      case 'h':
+        // TODO
+        break;
+      case 't':
+        arguments += transcriptFileName.Get();
+        break;
+      case 'l':
+        arguments += std::to_string(editLineNumber);
+        break;
+      case 'm':
+        // TODO
+        break;
+      }
+      lpszCommandLineTemplate += 2;
+    }
+    else
+    {
+      arguments += *lpszCommandLineTemplate;
+      ++lpszCommandLineTemplate;
+    }
+  }
+
+  Process::Start(fileName, arguments);
+}
