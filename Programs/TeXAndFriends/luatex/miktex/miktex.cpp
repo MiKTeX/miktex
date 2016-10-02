@@ -108,3 +108,8 @@ const char * miktex_get_aux_directory()
     return auxDirectory.GetData();
   }
 }
+
+void miktex_invoke_editor(const char * filename, int lineno)
+{
+  Application::GetApplication()->InvokeEditor(filename, lineno, FileType::TEX, PathName());
+}

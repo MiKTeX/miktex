@@ -251,6 +251,11 @@ Isspace (char c)
 __attribute__ ((noreturn))
 static void luatex_calledit (int baseptr, int linenumber)
 {
+#if defined(MIKTEX)
+  close_files_and_terminate();
+  miktex_invoke_editor(makecstring(input_stack[base_ptr].name_field), linenumber);
+  do_final_end ();
+#else
   char *temp, *command, *fullcmd;
   char c;
   int sdone, ddone, i;
@@ -380,6 +385,7 @@ static void luatex_calledit (int baseptr, int linenumber)
 
   /* Quit, since we found an error.  */
   do_final_end ();
+#endif
 }
 
 
