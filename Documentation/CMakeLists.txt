@@ -24,6 +24,11 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/version.ent
 )
 
+configure_file(
+  entities.ent.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
+)
+
 set(screenshots_png
   ${CMAKE_CURRENT_SOURCE_DIR}/Images/autoinstall.png
   ${CMAKE_CURRENT_SOURCE_DIR}/Images/browselocaltexmf.png
@@ -246,6 +251,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
       ${CMAKE_CURRENT_BINARY_DIR}/version.ent
       ${MIKTEX_CORE_CONTEXT_HELP}
       ${MIKTEX_DOCBOOK_HTMLHELP}
@@ -253,7 +259,6 @@ if(MIKTEX_NATIVE_WINDOWS)
       ${manual_xml_files}
       ${MIKTEX_HELP_STYLES}
       ${screenshots_png}
-      entities.ent
     VERBATIM
   )
   install(
@@ -301,13 +306,13 @@ add_custom_command(
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
+    ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
     ${CMAKE_CURRENT_BINARY_DIR}/version.ent
     ${MIKTEX_DOCBOOK_CHUNKED_HTML}
     ${manual_listings}
     ${manual_xml_files}
     ${MIKTEX_HELP_STYLES}
     ${screenshots_png}
-    entities.ent
   VERBATIM
 )
 
@@ -336,11 +341,11 @@ add_custom_command(
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
+    ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
     ${CMAKE_CURRENT_BINARY_DIR}/version.ent
     ${manual_listings}
     ${manual_xml_files}
     ${MIKTEX_DOCBOOK_FO}
-    entities.ent
   VERBATIM
 )
 
@@ -415,12 +420,12 @@ add_custom_command(
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
+    ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
     ${CMAKE_CURRENT_BINARY_DIR}/version.ent
     ${CMAKE_CURRENT_SOURCE_DIR}/packaging.xml
     ${MIKTEX_DOCBOOK_HTML}
     ${MIKTEX_HELP_STYLES}
     ${screenshots_png}
-    entities.ent
   VERBATIM
 )
 
@@ -472,12 +477,12 @@ add_custom_command(
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
+    ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
     ${CMAKE_CURRENT_BINARY_DIR}/version.ent
     ${CMAKE_CURRENT_SOURCE_DIR}/relnotes.xml
     ${MIKTEX_DOCBOOK_HTML}
     ${MIKTEX_HELP_STYLES}
     ${screenshots_png}
-    entities.ent
   VERBATIM
 )
 
@@ -505,9 +510,9 @@ add_custom_command(
     html.xsl
     license.xml
   DEPENDS
+    ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
     ${CMAKE_CURRENT_SOURCE_DIR}/license.xml
     ${MIKTEX_DOCBOOK_HTML}
-    entities.ent
   VERBATIM
 )
 
@@ -574,10 +579,10 @@ if(MIKTEX_NATIVE_WINDOWS)
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
       ${MIKTEX_DOCBOOK_HTMLHELP}
       ${manual_xml_files}
       ${MIKTEX_HELP_STYLES}
-      entities.ent
     VERBATIM
   )
   install(
@@ -625,11 +630,11 @@ add_custom_command(
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
+    ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
     ${CMAKE_CURRENT_BINARY_DIR}/version.ent
     ${MIKTEX_DOCBOOK_CHUNKED_HTML}
     ${MIKTEX_HELP_STYLES}
     ${screenshots_png}
-    entities.ent
     faq.xml
   VERBATIM
 ) 
@@ -661,11 +666,11 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
     ${CMAKE_CURRENT_BINARY_DIR}/html/faq/index.html
+    ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
     ${CMAKE_CURRENT_BINARY_DIR}/version.ent
     ${MIKTEX_DOCBOOK_HTML}
     ${MIKTEX_HELP_STYLES}
     ${screenshots_png}
-    entities.ent
     faq.xml
   VERBATIM
 ) 
@@ -703,6 +708,7 @@ if(MIKTEX_UNIX_ALIKE)
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
       ${CMAKE_CURRENT_BINARY_DIR}/filetypes
       ${CMAKE_CURRENT_SOURCE_DIR}/Ref/bibtex.xml
       ${CMAKE_CURRENT_SOURCE_DIR}/Ref/dvicopy.xml
@@ -722,7 +728,6 @@ if(MIKTEX_UNIX_ALIKE)
       ${CMAKE_CURRENT_SOURCE_DIR}/Ref/xetex.xml
       ${CMAKE_CURRENT_SOURCE_DIR}/Styles/manpages.xsl
       ${CMAKE_CURRENT_SOURCE_DIR}/miktex.xml
-      entities.ent
     VERBATIM
   )
   install(

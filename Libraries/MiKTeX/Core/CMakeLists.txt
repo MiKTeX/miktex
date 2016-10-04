@@ -47,6 +47,11 @@ configure_file(
 )
 
 configure_file(
+  include/miktex/Core/Urls.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/Urls.h
+)
+
+configure_file(
   include/miktex/Core/IntegerTypes.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/IntegerTypes.h
 )
@@ -76,6 +81,7 @@ set(miktex_der_h ${CMAKE_CURRENT_BINARY_DIR}/miktex.der.h)
 set(public_headers_core
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/IntegerTypes.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/Paths.h
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/Urls.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/config.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/AutoResource
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/AutoResource.h
@@ -154,7 +160,6 @@ set(public_headers_core
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Uri
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Uri.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Urls
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Urls.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Utils
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Utils.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/VersionNumber

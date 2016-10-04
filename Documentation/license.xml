@@ -94,7 +94,7 @@ your explicitly listing all the user groups as given on that page,
 space permitting.</para></listitem>
 
 <listitem><para>Referencing the &MiKTeX; home page: <ulink
-url="http://miktex.org/"/>.</para></listitem>
+url="&hqbaseurl;"/>.</para></listitem>
 
 </orderedlist>
 
@@ -106,7 +106,7 @@ acknowledgements section of a book).</para></listitem>
 <para>Finally, although it is certainly not a requirement, we'd like
 to invite any redistributors to make a donation to the project,
 whether cash or in-kind, for example via
-<ulink url="http://miktex.org/giveback"></ulink>.  Thanks.</para>
+<ulink url="&hqbaseurl;giveback"></ulink>.  Thanks.</para>
 
 <para>If you have any questions or comments, please contact us.  In
 general, we appreciate being given the chance to review any
@@ -125,7 +125,7 @@ no dates can be guaranteed.</para>
 
 <title>REFERENCES</title>
 
-<para>&MiKTeX; project page: <ulink url="http://miktex.org/"/></para>
+<para>&MiKTeX; project page: <ulink url="&hqbaseurl;"/></para>
 
 <para>The &FSF;'s free software definition:
 <ulink url="http://www.gnu.org/philosophy/free-sw.html"/></para>

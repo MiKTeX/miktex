@@ -89,7 +89,7 @@ section</para></listitem>
 </question>
 <answer>
 <para>Yes.  The official project page is <ulink
-url="http://miktex.org">http://miktex.org</ulink>.</para>
+url="&hqbaseurl;">&hqbaseurl;</ulink>.</para>
 </answer>
 </qandaentry>
 
@@ -142,7 +142,7 @@ url="http://www.debian.org/social_contract#guidelines">Debian Free
 Software Guidelines</ulink>.  This means that &MiKTeX; may be freely
 used, copied, modified, and redistributed.</para>
 <para>Please visit <ulink
-url="http://miktex.org/copying">this page</ulink>,
+url="&hqbaseurl;copying">this page</ulink>,
 for more information</para>
 </answer>
 </qandaentry>
@@ -164,12 +164,12 @@ for more information</para>
 <answer>
 <para>It is recommended that you download the
 <ulink
-url="http://miktex.org/download"><quote>&BasicMiKTeXInstaller;</quote></ulink>.
+url="&hqbaseurl;download"><quote>&BasicMiKTeXInstaller;</quote></ulink>.
 This allows you set up a basic &MiKTeX; system
 (see <xref linkend="basicmiktex"/>).</para>
 <para>Download the
 <ulink
-url="http://miktex.org/download"><quote>&MiKTeXNetInstaller;</quote></ulink>, if you want
+url="&hqbaseurl;download"><quote>&MiKTeXNetInstaller;</quote></ulink>, if you want
 to set up a complete &MiKTeX; system
 (see <xref linkend="netinstaller"/>).</para>
 </answer>
@@ -199,7 +199,7 @@ complete &MiKTeX; system.</para>
 </varlistentry>
 </variablelist>
 <para>For more information, read the tutorial <ulink
- url="http://miktex.org/howto/install-miktex"><citetitle>Install &MiKTeX;</citetitle></ulink>.</para>
+ url="&hqbaseurl;howto/install-miktex"><citetitle>Install &MiKTeX;</citetitle></ulink>.</para>
 </answer>
 </qandaentry>
 
@@ -234,7 +234,7 @@ archive files to your computer.</para></listitem>
 </question>
 <answer>
 <para>Yes, &MiKTeX; is available on &DVDdashR; (see <ulink
-url="http://miktex.org/dvd">this page</ulink>).</para>
+url="&hqbaseurl;dvd">this page</ulink>).</para>
 <para>The &DVDdashR; contains a live &MiKTeX; system,
 which makes it possible to run &MiKTeX; directly from the &DVDdashR;.
 Alternatively, the &DVDdashR; allows you to install &MiKTeX;
@@ -267,7 +267,7 @@ directory <filename>systems/win32/miktex</filename>.</para>
 <qandaentry>
 <question><para>How do I get support?</para></question>
 <answer>
-<para>Please visit <ulink url="http://miktex.org/support"></ulink>,
+<para>Please visit <ulink url="&hqbaseurl;support"></ulink>,
 for an overview of available support options.</para>
 </answer>
 </qandaentry>
@@ -381,7 +381,7 @@ a simple environment for editing &TeX;/&LaTeX; documents.</para>
 (<menuchoice><guimenu>Start</guimenu><guisubmenu>MiKTeX</guisubmenu><guimenuitem>MiKTeX
 Update Wizard</guimenuitem></menuchoice>) to update installed
 packages. For more information, read the section
-<ulink url="http://docs.miktex.org/manual/updating.html"><citetitle>Installing Updates</citetitle></ulink> in the &MiKTeX; manual.</para>
+<ulink url="&docbaseurl;manual/updating.html"><citetitle>Installing Updates</citetitle></ulink> in the &MiKTeX; manual.</para>
 </answer>
 </qandaentry>
 
@@ -413,7 +413,7 @@ in &MiKTeXOptions;.</para>
 </step>
 </procedure>
 <para>For more information, read the section
-<ulink url="http://docs.miktex.org/manual/localadditions.html"><citetitle>Integrating Local Additions</citetitle></ulink>
+<ulink url="&docbaseurl;manual/localadditions.html"><citetitle>Integrating Local Additions</citetitle></ulink>
 in the &MiKTeX; manual.</para>
 </answer>
 </qandaentry>
@@ -426,7 +426,7 @@ in the &MiKTeX; manual.</para>
 <answer>
 <para>You use &MiKTeXOptions; to add new languages.
 For more information, read the section
-<ulink url="http://docs.miktex.org/manual/hyphenation.html"><citetitle>Selecting Hyphenation Tables</citetitle></ulink>
+<ulink url="&docbaseurl;manual/hyphenation.html"><citetitle>Selecting Hyphenation Tables</citetitle></ulink>
 in the &MiKTeX; manual.</para>
 </answer>
 </qandaentry>
@@ -472,7 +472,7 @@ in the &MiKTeX; manual.</para>
 <para>If package <replaceable>X</replaceable> is a part of the
 &MiKTeX; package repository, then you install it with the help of
 &MiKTeXPackageManager;. See the section
-<ulink url="http://docs.miktex.org/manual/pkgmgt.html"><citetitle>Working
+<ulink url="&docbaseurl;manual/pkgmgt.html"><citetitle>Working
 With the Package Manager</citetitle></ulink> in the &MiKTeX; manual.</para>
 <para>For the impatient: try it with
 <informalexample>
@@ -737,7 +737,7 @@ For example,</para>
 </informalexample>
 <para>will trace all errors and file accesses.
 For more information, read the section
-<ulink url="http://docs.miktex.org/manual/tracestreams.html"><citetitle>Trace
+<ulink url="&docbaseurl;manual/tracestreams.html"><citetitle>Trace
 Streams</citetitle></ulink> in the &MiKTeX; manual.</para>
 </answer>
 </qandaentry>

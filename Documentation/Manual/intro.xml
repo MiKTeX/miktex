@@ -59,7 +59,7 @@ in this manual (see <xref linkend="installing"/>).</para>
 hard-disk or to run the programs directly from the &DVDdashR;.</para>
 
 <para>If you wish to obtain a copy of
-the &MiKTeX; &DVDdashR;, visit <ulink url="http://miktex.org/dvd">the
+the &MiKTeX; &DVDdashR;, visit <ulink url="&hqbaseurl;dvd">the
 &DVDdashR; info page</ulink>.
 <indexterm>
 <primary>DVD-R</primary>
@@ -90,7 +90,7 @@ please become an esteemed &MiKTeX; user by giving back something. It
 encourages me to continue, and is the perfect way to say thank you!</para>
 
 <para>Visit <ulink
-url="http://miktex.org/giveback">the &MiKTeX; Give Back page</ulink>,
+url="&hqbaseurl;giveback">the &MiKTeX; Give Back page</ulink>,
 for more information.
 <indexterm>
 <primary>MiKTeX project</primary>
@@ -113,7 +113,7 @@ for more information.
 
 <title>The &MiKTeX; Project Page</title>
 
-<para>The <ulink url="http://miktex.org">&MiKTeX; Project Page</ulink>
+<para>The <ulink url="&hqbaseurl;">&MiKTeX; Project Page</ulink>
 is the address to turn to for &MiKTeX; related news &amp; information.
 <indexterm>
 <primary>project page</primary>

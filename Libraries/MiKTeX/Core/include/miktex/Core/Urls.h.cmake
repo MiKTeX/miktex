@@ -28,7 +28,7 @@
 
 #include <miktex/Version>
 
-#define MIKTEX_URL_WWW_NO_SLASH "http://miktex.org"
+#define MIKTEX_URL_WWW_NO_SLASH "${MIKTEX_HQ_BASE_URL_NO_SLASH}"
 
 #define MIKTEX_URL_WWW MIKTEX_URL_WWW_NO_SLASH "/"
 

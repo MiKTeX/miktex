@@ -45,7 +45,7 @@
 <section>
 <title>Please visit the &MiKTeXCurrentSeries; status page</title>
 <para>Please visit
-<ulink url="http://miktex.org/2.9/status">status page</ulink> for up-to-date release notes.</para>
+<ulink url="&hqbaseurl;2.9/status">status page</ulink> for up-to-date release notes.</para>
 </section>
 
 </article>

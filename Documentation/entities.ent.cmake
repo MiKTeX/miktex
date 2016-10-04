@@ -1,3 +1,5 @@
+<!ENTITY hqbaseurl "${MIKTEX_HQ_BASE_URL}">
+<!ENTITY docbaseurl "${MIKTEX_DOC_BASE_URL}">
 <!ENTITY codename25 "The Uninvited">
 <!ENTITY codename30 "?">
 <!ENTITY codename40 "Tamer of the Tux">

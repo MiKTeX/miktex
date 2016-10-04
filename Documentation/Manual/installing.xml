@@ -13,12 +13,12 @@
 
 <para>You use the &BasicMiKTeXInstaller; to install &MiKTeX; on your
 computer. You can download the installer from
-the <ulink url="http://miktex.org/download">&MiKTeX; download
+the <ulink url="&hqbaseurl;download">&MiKTeX; download
 page</ulink>.
 </para>
 
 <para>Please read
-<ulink url="http://miktex.org/howto/install-miktex">the installation
+<ulink url="&hqbaseurl;howto/install-miktex">the installation
 tutorial</ulink> for a step-to-step guide.</para>
 
 <section id="startmenu">

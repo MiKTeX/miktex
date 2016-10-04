@@ -362,6 +362,12 @@ option(
 ###############################################################################
 ## fixed values
 
+set(MIKTEX_HQ_BASE_URL_NO_SLASH "https://miktex.org")
+set(MIKTEX_HQ_BASE_URL "${MIKTEX_HQ_BASE_URL_NO_SLASH}/")
+
+set(MIKTEX_DOC_BASE_URL_NO_SLASH "https://docs.miktex.org")
+set(MIKTEX_DOC_BASE_URL "${MIKTEX_DOC_BASE_URL_NO_SLASH}/")
+
 set(MIKTEX_PREFIX "miktex-")
 set(MIKTEX_ADMIN_SUFFIX "_admin")
 
