@@ -66,7 +66,11 @@
 #if defined(MIKTEX)
 #if defined(__APPLE__)
 #include <sys/syslimits.h>
+#endif
+#if defined(PATH_MAX)
 #  define _MAX_PATH     PATH_MAX
+#else
+#  define _MAX_PATH MAX_PATH
 #endif
 #endif
 
