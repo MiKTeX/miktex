@@ -37,8 +37,10 @@ public:
   RestRemoteService(const std::string & endpoint, const MiKTeX::Packages::ProxySettings & proxySettings) :
     endpointBaseUrl(endpoint),
     proxySettings(proxySettings),
+    session(MiKTeX::Core::Session::Get()),
     webSession(WebSession::Create(nullptr))
   {
+    Initialize();
   }
   
 public:
@@ -52,6 +54,15 @@ public:
 
 public:
   MiKTeX::Packages::RepositoryInfo Verify(const std::string & url) override;
+
+private:
+  void Initialize();
+
+private:
+  void SetAuthHeader(const std::string & token)
+  {
+    webSession->SetCustomHeaders({ {"Authorization", "Bearer " + token} });
+  }
 
 private:
   std::string MakeUrl(const std::string & path, const std::initializer_list<std::string> & query)
@@ -77,6 +88,9 @@ private:
 private:
   MiKTeX::Packages::ProxySettings proxySettings;
 
+private:
+  std::shared_ptr<MiKTeX::Core::Session> session;
+  
 private:
   std::shared_ptr<WebSession> webSession;
 

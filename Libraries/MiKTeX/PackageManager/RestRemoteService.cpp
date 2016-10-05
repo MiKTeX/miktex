@@ -31,6 +31,7 @@ using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace nlohmann;
 using namespace std;
+using namespace std::chrono;
 
 inline string ToString(RepositoryReleaseState releaseState)
 {
@@ -182,6 +183,19 @@ RepositoryInfo Deserialize(const json & j_rep)
   return rep;
 }
 
+void RestRemoteService::Initialize()
+{
+  string configAuthToken;
+  string configAuthTokenNotValidAfter;
+  if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, "AuthToken", configAuthToken) &&
+      session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, "AuthTokenNotValidAfter", configAuthTokenNotValidAfter))
+  {
+    token = configAuthToken;
+    tokenNotValidAfter = system_clock::from_time_t((time_t)std::stoi(configAuthTokenNotValidAfter));
+    SetAuthHeader(token);
+  }
+}
+
 vector<RepositoryInfo> RestRemoteService::GetRepositories(RepositoryReleaseState repositoryReleaseState)
 {
   SayHello();
@@ -265,13 +279,13 @@ RepositoryInfo RestRemoteService::Verify(const string & repositoryUrl)
 
 void RestRemoteService::SayHello()
 {
-  if (!token.empty() && chrono::system_clock::now() < tokenNotValidAfter)
+  if (!token.empty() && system_clock::now() < tokenNotValidAfter)
   {
     return;
   }
   unordered_map<string, string> form;
   MiKTeXUserInfo userinfo;
-  if (Session::Get()->TryGetMiKTeXUserInfo(userinfo) && userinfo.IsMember())
+  if (session->TryGetMiKTeXUserInfo(userinfo) && userinfo.IsMember())
   {
     form["userid"] = userinfo.userid;
     form["usersecret"] = userinfo.usersecret;
@@ -296,12 +310,21 @@ void RestRemoteService::SayHello()
     else if (it.key() == "expires_in")
     {
       chrono::seconds expiresIn(it.value().get<int>());
-      tokenNotValidAfter = chrono::system_clock::now() + expiresIn;
+      tokenNotValidAfter = system_clock::now() + expiresIn;
     }
   }
   if (token.empty())
   {
     MIKTEX_UNEXPECTED();
   }
-  webSession->SetCustomHeaders({ {"Authorization", "Bearer " + token} });
+  if (tokenNotValidAfter < system_clock::now() + chrono::minutes(3))
+  {
+    // TODO: remove config values
+  }
+  else
+  {
+    session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, "AuthToken", token.c_str());
+    session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, "AuthTokenNotValidAfter", (int)system_clock::to_time_t(tokenNotValidAfter));
+  }
+  SetAuthHeader(token);
 }
