@@ -179,6 +179,10 @@ void CurlWebSession::SetCustomHeaders(const unordered_map<string, string> & head
     string header = kv.first + ": " + kv.second;
     this->headers = curl_slist_append(this->headers, header.c_str());
   }
+  if (pCurl == nullptr)
+  {
+    Initialize();
+  }
   SetOption(CURLOPT_HTTPHEADER, this->headers);
 }
 
