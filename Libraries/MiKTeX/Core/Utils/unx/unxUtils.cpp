@@ -74,8 +74,12 @@ void Utils::CheckHeap()
 void Utils::CanonicalizePathName(PathName & path)
 {
   char resolved[PATH_MAX];
-  if (realpath(path.Get(), resolved) == nullptr && errno != ENOENT)
+  if (realpath(path.Get(), resolved) == nullptr)
   {
+    if (errno == ENOENT)
+    {
+      return;
+    }
     MIKTEX_FATAL_CRT_ERROR_2("realpath", "path", path.ToString());
   }
   path = resolved;
