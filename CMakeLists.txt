@@ -874,9 +874,13 @@ try_compile(HAVE_STRUCT_DIRENT_D_TYPE
 
 ###############################################################################
 ## change default install prefix
+##
+## CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT is currently an
+## internal variable; see:
+## shttps://cmake.org/pipermail/cmake/2011-March/043531.html
 
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND MIKTEX_NATIVE_WINDOWS)
-  SET(CMAKE_INSTALL_PREFIX
+  set(CMAKE_INSTALL_PREFIX
     "${CMAKE_BINARY_DIR}-install"
     CACHE PATH "MiKTeX install prefix." FORCE
   )
