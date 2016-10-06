@@ -114,12 +114,6 @@ option(
 )
 
 option(
-  USE_PREFIX_OPT
-  "Install the package under /opt/miktex (Linux only)."
-  TRUE
-)
-
-option(
   USE_SYSTEM_APR
   "Use the system Apache Portable Runtime (APR) library."
   ${MIKTEX_UNIX_ALIKE}
@@ -884,6 +878,13 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND MIKTEX_NATIVE_WINDOWS)
     "${CMAKE_BINARY_DIR}-install"
     CACHE PATH "MiKTeX install prefix." FORCE
   )
+endif()
+
+###############################################################################
+## handle install prefix standards
+
+if(CMAKE_INSTALL_PREFIX MATCHES "^.*/opt(/.*)?$")
+  set(USE_PREFIX_OPT TRUE)
 endif()
 
 ###############################################################################
