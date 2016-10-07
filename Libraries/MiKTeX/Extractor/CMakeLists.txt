@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_LIBRARIES_FOLDER}/extractor")
 
 include_directories(BEFORE
@@ -32,8 +34,14 @@ set(public_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Extractor/Extractor.h
 )
 
+configure_file(
+  extractor-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/extractor-version.h
+)
+
 set(extractor_sources
   ${public_headers}
+  ${CMAKE_CURRENT_BINARY_DIR}/extractor-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CabExtractor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CabExtractor.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Extractor.cpp
@@ -44,7 +52,6 @@ set(extractor_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/TarExtractor.h
   ${CMAKE_CURRENT_SOURCE_DIR}/TarLzmaExtractor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/TarLzmaExtractor.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/extractor-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
 )
 

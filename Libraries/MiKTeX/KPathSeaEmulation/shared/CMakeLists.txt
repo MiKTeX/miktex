@@ -37,8 +37,8 @@ set_property(TARGET ${kpsemu_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 set_target_properties(${kpsemu_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_SERIES_STR}"
-    SOVERSION "1"
+    VERSION "${MIKTEX_COMP_INTERFACE_VERSION}.${MIKTEX_COMP_J2000_VERSION}"
+    SOVERSION "${MIKTEX_COMP_INTERFACE_VERSION}"
 )
 
 target_compile_definitions(${kpsemu_dll_name}

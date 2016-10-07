@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_LIBRARIES_FOLDER}/kpsemu")
 
 include_directories(BEFORE
@@ -100,8 +102,14 @@ if(INSTALL_MIKTEX_HEADERS)
   )
 endif()
 
+configure_file(
+  kpsemu-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/kpsemu-version.h
+)
+
 set(kpsemu_sources
   ${public_headers}
+  ${CMAKE_CURRENT_BINARY_DIR}/kpsemu-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
   ${CMAKE_CURRENT_SOURCE_DIR}/kpsemu.cpp

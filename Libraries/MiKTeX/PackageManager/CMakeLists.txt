@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_LIBRARIES_FOLDER}/packagemanager")
 
 set(mpm_source_dir ${CMAKE_CURRENT_SOURCE_DIR})
@@ -54,6 +56,11 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/StdAfx.h
 )
 
+configure_file(
+  mpm-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/mpm-version.h
+)
+
 set(public_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/PackageManager/PackageInfo.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/PackageManager/PackageInstaller.h
@@ -67,6 +74,7 @@ set(public_headers
 set(mpm_sources
   ${public_headers}
   ${CMAKE_CURRENT_BINARY_DIR}/StdAfx.h
+  ${CMAKE_CURRENT_BINARY_DIR}/mpm-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebFile.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebFile.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebSession.cpp
@@ -85,7 +93,6 @@ set(mpm_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/WebSession.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/WebSession.h
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/mpm-version.h
 )
 
 if(WITH_SOAP_CLIENT)

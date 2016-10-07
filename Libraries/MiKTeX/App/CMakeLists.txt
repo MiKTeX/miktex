@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_LIBRARIES_FOLDER}/app")
 
 include_directories(BEFORE
@@ -33,9 +35,14 @@ set(public_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/App/Application.h
 )
 
+configure_file(
+  app-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/app-version.h
+)
+
 set(app_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/app-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/app-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/app.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
   ${public_headers}
