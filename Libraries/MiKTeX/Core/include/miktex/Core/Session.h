@@ -184,7 +184,6 @@ struct MiKTeXUserInfo
   enum { Developer = 1, Contributor = 2, Sponsor = 4, KnownUser = 8 };
   enum { Individual = 100 };
   std::string userid;
-  std::string usersecret;
   std::string name;
   std::string organization;
   std::string email;

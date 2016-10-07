@@ -417,10 +417,6 @@ bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo & info)
     {
       return false;
     }
-    if (!cfg->TryGetValue("user", "secret", result.usersecret))
-    {
-      return false;
-    }
     if (!cfg->TryGetValue("user", "name", result.name))
     {
       return false;

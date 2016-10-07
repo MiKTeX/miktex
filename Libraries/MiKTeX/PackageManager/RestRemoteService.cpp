@@ -288,7 +288,6 @@ void RestRemoteService::SayHello()
   if (session->TryGetMiKTeXUserInfo(userinfo) && userinfo.IsMember())
   {
     form["userid"] = userinfo.userid;
-    form["usersecret"] = userinfo.usersecret;
   }
   form["apikey"] = MPM_AGENT;
   form["apisecret"] = "abrakadabra";
