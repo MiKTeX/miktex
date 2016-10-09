@@ -22,6 +22,7 @@ The minimum required version is 3.5.2.
 * bison
 
 * dos2unix
+This is a part of the unix2dos package.
 
 * flex
 
@@ -31,14 +32,15 @@ This is needed to build the documentation.
 * ImageMagick
 This is needed to build the documentation.
 
-* Python 2.7
+* Python
 
 * xsltproc
-This is needed to build the documentation.  
+This is needed to build the documentation.
+It's a part of the libxslt package.
 
 ## 3rd party libs ##
 
-* botan development files
+* crypto/ssl development files (LibreSSL or OpenSSL)
 
 * bzip2 development files
 
@@ -75,23 +77,33 @@ This is needed to build the documentation.
 * libpopt development files
 
 * libpoppler-qt5 development files
+Needed for TeXworks.
 
 * libpoppler-private development files
 
 * libpotrace development files
 
-* Qt 5 base development files
+* Qt5 base development files
 The minimum required version is 5.5.1.
+Needed for building the Qt5 apps.
 
-* Qt 5 script development files
+* Qt5 script development files
+Needed for building the Qt5 apps.
 
-* Qt 5 tools development files
+* Qt5 tools development files
+Needed for building the Qt5 apps.
 
 * liburiparser development files
 
 * Zlib development support files
 
 * zzip development support files
+
+## Running CMake
+
+For a mininal (non-UI) setup:
+
+cmake -DWITH_UI_QT=OFF ../source
 
 ## Quick start ##
 
