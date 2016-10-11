@@ -43,7 +43,6 @@ target_include_directories(${core_lib_name}
 
 target_link_libraries(${core_lib_name}
   PUBLIC
-    ${botan_lib_name}
     ${bzip2_lib_name}
     ${lzma_lib_name}
     ${md5_lib_name}
@@ -66,6 +65,13 @@ if(MIKTEX_NATIVE_WINDOWS)
         htmlhelp.lib
     )
   endif()
+endif()
+
+if(MIKTEX_NATIVE_WINDOWS OR USE_SYSTEM_BOTAN)
+  target_link_libraries(${core_lib_name}
+    PUBLIC
+    ${botan_lib_name}
+  )
 endif()
 
 if(MIKTEX_NATIVE_WINDOWS OR USE_SYSTEM_OPENSSL)

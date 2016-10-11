@@ -78,7 +78,6 @@ target_include_directories(${core_dll_name}
 
 target_link_libraries(${core_dll_name}
   PRIVATE
-    ${botan_dll_name}
     ${bzip2_dll_name}
     ${lzma_dll_name}
     ${uriparser_dll_name}
@@ -102,6 +101,13 @@ if(MIKTEX_NATIVE_WINDOWS)
         htmlhelp.lib
     )
   endif()
+endif()
+
+if(MIKTEX_NATIVE_WINDOWS OR USE_SYSTEM_BOTAN)
+  target_link_libraries(${core_dll_name}
+    PRIVATE
+    ${botan_dll_name}
+  )
 endif()
 
 if(MIKTEX_NATIVE_WINDOWS OR USE_SYSTEM_OPENSSL)

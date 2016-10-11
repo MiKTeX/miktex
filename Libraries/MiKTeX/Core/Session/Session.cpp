@@ -135,7 +135,9 @@ void SessionImpl::Initialize(const Session::InitInfo & initInfo)
   }
 #endif
 
+#if defined(ENABLE_BOTAN)
   Botan::LibraryInitializer::initialize();
+#endif
 
   initialized = true;
 
@@ -229,7 +231,9 @@ void SessionImpl::Uninitialize()
     inputDirectories.clear();
     UnregisterLibraryTraceStreams();
     configurationSettings.clear();
+#if defined(ENABLE_BOTAN)
     Botan::LibraryInitializer::deinitialize();
+#endif
   }
   catch (const exception &)
   {

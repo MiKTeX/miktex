@@ -127,8 +127,8 @@ option(
 
 option(
   USE_SYSTEM_BOTAN
-  "Use the system Botan cryptography library."
-  ${MIKTEX_UNIX_ALIKE}
+  "Use the system Botan cryptography library as an alternative crypto library."
+  FALSE
 )
 
 option(
@@ -1080,7 +1080,7 @@ if(USE_SYSTEM_BOTAN)
   )
   set(botan_dll_name MiKTeX::Imported::BOTAN110)
   set(botan_lib_name MiKTeX::Imported::BOTAN110)
-else()
+elseif(MIKTEX_NATIVE_WINDOWS)
   add_subdirectory(${MIKTEX_REL_BOTAN_DIR})
 endif()
 
