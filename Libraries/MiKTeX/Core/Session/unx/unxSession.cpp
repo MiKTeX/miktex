@@ -23,6 +23,7 @@
 
 #include "internal.h"
 
+#include "miktex/Core/Paths.h"
 #include "Session/SessionImpl.h"
 
 using namespace MiKTeX::Core;
@@ -67,12 +68,12 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
  * UserConfig:    $HOME/.miktex/texmfs/config
  * UserData:      $HOME/.miktex/texmfs/data
  * UserInstall:   $HOME/.miktex/texmfs/install
- * CommonConfig:  /var/lib/miktex
- *             or /var/local/lib/miktex
+ * CommonConfig:  /var/lib/miktex-texmf
+ *             or /var/local/lib/miktex-texmf
  *             or /opt/miktex/texmfs/config
- * CommonData:    /var/cache/miktex
- * CommonInstall: /usr/share/miktex
- *             or /usr/local/share/miktex
+ * CommonData:    /var/cache/miktex-texmf
+ * CommonInstall: /usr/share/miktex-texmf
+ *             or /usr/local/share/miktex-texmf
  *             or /opt/miktex/texmfs/install
  */
 StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathName & commonPrefixArg, const PathName & userPrefixArg)
@@ -98,19 +99,22 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
   ret.userDataRoot /= "data";
   ret.userInstallRoot = home_miktex_texmfs;
   ret.userInstallRoot /= "install";
-  PathName bindir = GetMyLocation(true);
   PathName prefix = GetMyPrefix();
-  if (bindir == "/usr/bin" || bindir == "/usr/local/bin")
+  if (prefix == "/usr" || prefix == "/usr/local")
   {
-    ret.commonConfigRoot = prefix / "lib" / "miktex";
-    ret.commonDataRoot = PathName("/var") / "cache" / "miktex";
-    ret.commonInstallRoot = prefix / "share" / "miktex";
+    ret.commonConfigRoot = PathName("/var/lib") / MIKTEX_PREFIX "texmf";
+    ret.commonDataRoot = PathName("/var/cache") / MIKTEX_PREFIX "texmf";
+    ret.commonInstallRoot = prefix / MIKTEX_TEXMF_DIR;
   }
   else
   {
+    if (!PathName::Match("*miktex*", prefix.Get()))
+    {
+      // TODO: log funny installation prefix
+    }
     ret.commonConfigRoot = prefix / "texmfs" / "config";
-    ret.commonDataRoot = PathName("/var") / "cache" / "miktex";
-    ret.commonInstallRoot = prefix / "texmfs" / "install";
+    ret.commonDataRoot = PathName("/var/cache") / MIKTEX_PREFIX "texmf";
+    ret.commonInstallRoot = prefix / MIKTEX_TEXMF_DIR;
   }
   return ret;
 }
