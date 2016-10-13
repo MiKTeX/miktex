@@ -169,6 +169,17 @@ BEGIN_TEST_FUNCTION(8);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(9);
+{
+  TEST(PathName::Match("*/ka/*", "/abra/ka/da/bra"));
+  TEST(PathName::Match("*/?a/da/*", "/abra/ka/da/bra"));
+  TEST(PathName::Match("/abra/*", "/abra/ka/da/bra"));
+  TEST(PathName::Match("*/bra", "/abra/ka/da/bra"));
+  TEST(PathName::Match("/abra/*/br*", "/abra/ka/da/bra"));
+  TEST(PathName::Match("*ka*", "/abra/ka/da/bra"));
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
@@ -179,6 +190,7 @@ BEGIN_TEST_PROGRAM();
   CALL_TEST_FUNCTION(6);
   CALL_TEST_FUNCTION(7);
   CALL_TEST_FUNCTION(8);
+  CALL_TEST_FUNCTION(9);
 }
 END_TEST_PROGRAM();
 

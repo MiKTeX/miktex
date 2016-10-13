@@ -64,12 +64,16 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
 }
 
 /*
- * UserInstall:   $HOME/.miktex/texmfs/install
  * UserConfig:    $HOME/.miktex/texmfs/config
  * UserData:      $HOME/.miktex/texmfs/data
- * CommonInstall: /opt/miktex/texmfs/install
- * CommonConfig:  /opt/miktex/texmfs/config
- * CommonData:    /opt/miktex/texmfs/data
+ * UserInstall:   $HOME/.miktex/texmfs/install
+ * CommonConfig:  /var/lib/miktex
+ *             or /var/local/lib/miktex
+ *             or /opt/miktex/texmfs/config
+ * CommonData:    /var/cache/miktex
+ * CommonInstall: /usr/share/miktex
+ *             or /usr/local/share/miktex
+ *             or /opt/miktex/texmfs/install
  */
 StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathName & commonPrefixArg, const PathName & userPrefixArg)
 {
@@ -88,20 +92,26 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
   home_miktex /= ".miktex";
   PathName home_miktex_texmfs(home_miktex);
   home_miktex_texmfs /= "texmfs";
-  ret.userInstallRoot = home_miktex_texmfs;
-  ret.userInstallRoot /= "install";
   ret.userConfigRoot = home_miktex_texmfs;
   ret.userConfigRoot /= "config";
   ret.userDataRoot = home_miktex_texmfs;
   ret.userDataRoot /= "data";
-  PathName common_miktex_texmfs(GetMyPrefix());
-  common_miktex_texmfs /= "texmfs";
-  ret.commonInstallRoot = common_miktex_texmfs;
-  ret.commonInstallRoot /= "install";
-  ret.commonConfigRoot = common_miktex_texmfs;
-  ret.commonConfigRoot /= "config";
-  ret.commonDataRoot = common_miktex_texmfs;
-  ret.commonDataRoot /= "data";
+  ret.userInstallRoot = home_miktex_texmfs;
+  ret.userInstallRoot /= "install";
+  PathName bindir = GetMyLocation(true);
+  PathName prefix = GetMyPrefix();
+  if (bindir == "/usr/bin" || bindir == "/usr/local/bin")
+  {
+    ret.commonConfigRoot = prefix / "lib" / "miktex";
+    ret.commonDataRoot = PathName("/var") / "cache" / "miktex";
+    ret.commonInstallRoot = prefix / "share" / "miktex";
+  }
+  else
+  {
+    ret.commonConfigRoot = prefix / "texmfs" / "config";
+    ret.commonDataRoot = PathName("/var") / "cache" / "miktex";
+    ret.commonInstallRoot = prefix / "texmfs" / "install";
+  }
   return ret;
 }
 
