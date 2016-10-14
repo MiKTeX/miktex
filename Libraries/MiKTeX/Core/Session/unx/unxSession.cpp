@@ -72,6 +72,7 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
  *             or /var/local/lib/miktex-texmf
  *             or /opt/miktex/texmfs/config
  * CommonData:    /var/cache/miktex-texmf
+ *             or /opt/miktex/texmfs/data
  * CommonInstall: /usr/share/miktex-texmf
  *             or /usr/local/share/miktex-texmf
  *             or /opt/miktex/texmfs/install
@@ -113,8 +114,8 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
       // TODO: log funny installation prefix
     }
     ret.commonConfigRoot = prefix / "texmfs" / "config";
-    ret.commonDataRoot = PathName("/var/cache") / MIKTEX_PREFIX "texmf";
-    ret.commonInstallRoot = prefix / MIKTEX_TEXMF_DIR;
+    ret.commonDataRoot = prefix / "texmfs" / "data";
+    ret.commonInstallRoot = prefix / "texmfs" / "install";
   }
   return ret;
 }
