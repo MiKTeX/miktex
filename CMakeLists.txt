@@ -105,7 +105,38 @@ else()
 endif()
 
 ###############################################################################
+## change default install prefix (Windows)
+##
+## CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT is currently an
+## internal variable; see:
+## shttps://cmake.org/pipermail/cmake/2011-March/043531.html
+
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND MIKTEX_NATIVE_WINDOWS)
+  set(CMAKE_INSTALL_PREFIX
+    "${CMAKE_BINARY_DIR}-install"
+    CACHE PATH "MiKTeX install prefix." FORCE
+  )
+endif()
+
+###############################################################################
+## handle install prefix standards
+
+if(CMAKE_INSTALL_PREFIX STREQUAL "/usr")
+  set(MIKTEX_SELF_CONTAINED_DEFAULT FALSE)
+elseif(CMAKE_INSTALL_PREFIX STREQUAL "/usr/local")
+  set(MIKTEX_SELF_CONTAINED_DEFAULT FALSE)
+elseif(MIKTEX_UNIX_ALIKE)
+  set(MIKTEX_SELF_CONTAINED_DEFAULT TRUE)
+endif()
+
+###############################################################################
 ## user options
+
+option(
+  MIKTEX_SELF_CONTAINED
+  "Build and install a self-contained MiKTeX distribution."
+  ${MIKTEX_SELF_CONTAINED_DEFAULT}
+)
 
 option(
   MIKTEX_SUPPORT_WINDOWS_XP
@@ -865,27 +896,6 @@ try_compile(HAVE_STRUCT_DIRENT_D_TYPE
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/cmake/modules/HAVE_STRUCT_DIRENT_D_TYPE.c
 )
-
-###############################################################################
-## change default install prefix
-##
-## CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT is currently an
-## internal variable; see:
-## shttps://cmake.org/pipermail/cmake/2011-March/043531.html
-
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND MIKTEX_NATIVE_WINDOWS)
-  set(CMAKE_INSTALL_PREFIX
-    "${CMAKE_BINARY_DIR}-install"
-    CACHE PATH "MiKTeX install prefix." FORCE
-  )
-endif()
-
-###############################################################################
-## handle install prefix standards
-
-if(CMAKE_INSTALL_PREFIX MATCHES "^.*/opt(/.*)?$")
-  set(USE_PREFIX_OPT TRUE)
-endif()
 
 ###############################################################################
 ## set the build type

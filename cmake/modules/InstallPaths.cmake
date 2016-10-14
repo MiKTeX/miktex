@@ -19,7 +19,7 @@
 
 if(MIKTEX_NATIVE_WINDOWS)
   set(MIKTEX_TEXMF_DIR "texmf")
-elseif(USE_PREFIX_OPT)
+elseif(MIKTEX_SELF_CONTAINED)
   set(MIKTEX_TEXMF_DIR "texmfs/install")
 else()
   set(MIKTEX_TEXMF_DIR "share/${MIKTEX_PREFIX}texmf")
@@ -56,7 +56,7 @@ endif()
 
 set(MIKTEX_HEADER_DESTINATION_DIR "include")
 set(MIKTEX_LIBRARY_DESTINATION_DIR "lib")
-if(USE_PREFIX_OPT)
+if(MIKTEX_SELF_CONTAINED)
   set(MIKTEX_MAN_DESTINATION_DIR "man")
 else()
   set(MIKTEX_MAN_DESTINATION_DIR "share/man")
