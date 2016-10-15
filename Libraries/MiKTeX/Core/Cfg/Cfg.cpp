@@ -341,9 +341,9 @@ public:
   }
 
 public:
-  MD5 GetMD5() const
+  MD5 GetFinalMD5()
   {
-    return md5Builder.GetMD5();
+    return md5Builder.Final();
   }
   
 private:
@@ -760,7 +760,7 @@ MD5 CfgImpl::GetDigest() const
 {
   MD5WalkCallback callback;
   Walk(&callback);
-  return callback.GetMD5();
+  return callback.GetFinalMD5();
 }
 
 unique_ptr<Cfg> Cfg::Create()
