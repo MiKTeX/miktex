@@ -110,7 +110,7 @@ if(MIKTEX_NATIVE_WINDOWS OR USE_SYSTEM_BOTAN)
   )
 endif()
 
-if(MIKTEX_NATIVE_WINDOWS OR USE_SYSTEM_OPENSSL)
+if(MIKTEX_NATIVE_WINDOWS OR USE_SYSTEM_OPENSSL_CRYPTO)
   target_link_libraries(${core_dll_name}
     PRIVATE
       ${openssl_crypto_dll_name}

@@ -23,7 +23,6 @@ texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${extractor_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${getopt_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${kpsemu_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${libressl_crypto_dll_name}.dll
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${libressl_ssl_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${lzma_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${md5_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${mpm_dll_name}.dll

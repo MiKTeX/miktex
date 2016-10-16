@@ -61,9 +61,9 @@
 #  define ENABLE_BOTAN 1
 #endif
 
-#cmakedefine USE_SYSTEM_OPENSSL ${USE_SYSTEM_OPENSSL}
+#cmakedefine USE_SYSTEM_OPENSSL_CRYPTO ${USE_SYSTEM_OPENSSL_CRYPTO}
 
-#if defined(MIKTEX_WINDOWS) || defined(USE_SYSTEM_OPENSSL)
+#if defined(MIKTEX_WINDOWS) || defined(USE_SYSTEM_OPENSSL_CRYPTO)
 #  define ENABLE_OPENSSL 1
 #endif
 

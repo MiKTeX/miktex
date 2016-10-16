@@ -259,8 +259,8 @@ option(
 )
 
 option(
-  USE_SYSTEM_OPENSSL
-  "Use the system OpenSSL/LibreSSL library."
+  USE_SYSTEM_OPENSSL_CRYPTO
+  "Use the system OpenSSL/LibreSSL crypto library."
   ${MIKTEX_UNIX_ALIKE}
 )
 
@@ -709,7 +709,7 @@ if(USE_SYSTEM_MSPACK)
   find_package(MSPACK REQUIRED)
 endif()
 
-if(USE_SYSTEM_OPENSSL)
+if(USE_SYSTEM_OPENSSL_CRYPTO)
   find_package(OpenSSL REQUIRED)
 endif()
 
@@ -1308,7 +1308,7 @@ else()
   add_subdirectory(${MIKTEX_REL_MSPACK_DIR})
 endif()
 
-if(USE_SYSTEM_OPENSSL)
+if(USE_SYSTEM_OPENSSL_CRYPTO)
   add_library(MiKTeX::Imported::OPENSSL::CRYPTO UNKNOWN IMPORTED)
   set_target_properties(MiKTeX::Imported::OPENSSL::CRYPTO
     PROPERTIES
