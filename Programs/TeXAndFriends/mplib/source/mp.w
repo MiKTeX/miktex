@@ -1,4 +1,4 @@
-% $Id: mp.w 2093 2016-09-20 10:09:14Z luigi $
+% $Id: mp.w 2096 2016-10-14 09:58:16Z luigi $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -142,16 +142,20 @@ typedef struct MP_instance {
 @ @c
 /*#define DEBUGENVELOPE */
 #ifdef DEBUGENVELOPE 
-#define dbg_n(A) printf("['%s']=%s, ", #A, number_tostring(A))
-#define dbg_in(A) printf("['%s']=%d, ", #A, (int)(A))
-#define dbg_dn(A) printf("['%s']=%.100f, ", #A, (double)(A))
-#define dbg_key(A) printf("['%s']= ", #A)
-#define dbg_sp printf(" ")
-#define dbg_str(A) printf("%s",#A)
-#define dbg_open_t printf("{")
-#define dbg_close_t printf("}")
-#define dbg_comma printf(",")
-#define dbg_nl printf("\n")
+#define dbg_str(A) printf("DEBUGENVELOPE %s",#A)
+#define dbg_n(A) printf("DEBUGENVELOPE ['%s']=%s, ", #A, number_tostring(A))
+#define dbg_in(A) printf("DEBUGENVELOPE ['%s']=%d, ", #A, (int)(A))
+#define dbg_dn(A) printf("DEBUGENVELOPE ['%s']=%.100f, ", #A, (double)(A))
+#define dbg_key(A) printf("DEBUGENVELOPE ['%s']= ", #A)
+#define dbg_key_nval(K,V) printf("DEBUGENVELOPE ['%s']=%s", #K,number_tostring(V))
+#define dbg_key_ival(K,V) printf("DEBUGENVELOPE ['%s']=%d", #K,(int)(V))
+#define dbg_key_dval(K,V) printf("DEBUGENVELOPE ['%s']=%.100f", #K,(double)(V))
+#define dbg_comment(A) printf("DEBUGENVELOPE --[==[%s]==]",#A)
+#define dbg_sp printf("DEBUGENVELOPE  ")
+#define dbg_open_t printf("DEBUGENVELOPE {")
+#define dbg_close_t printf("DEBUGENVELOPE }")
+#define dbg_comma printf("DEBUGENVELOPE ,")
+#define dbg_nl printf("DEBUGENVELOPE \n")
 #endif
 #define KPATHSEA_DEBUG_H 1
 #include <w2c/config.h>
@@ -190,6 +194,7 @@ mp_number dy_ap;    /* approximation of dy */
 mp_number dxin_ap;  /* approximation of dxin */
 mp_number dyin_ap;  /* approximation of dyin */
 mp_number ueps_ap;  /* epsilon for above approximations */
+boolean is_dxdy, is_dxindyin;
 /* END PATCH */
 
 
@@ -205,7 +210,7 @@ most compilers understand the non-debug version.
 @^system dependencies@>
 
 @<MPlib internal header stuff@>=
-#define DEBUG 0
+/*#define DEBUG 2*/
 #if DEBUG
 #define debug_number(A) printf("%d: %s=%.32f (%d)\n", __LINE__, #A, number_to_double(A), number_to_scaled(A))
 #else
@@ -2258,8 +2263,11 @@ in a row.
 
 
 @ @<Put help message on the transcript file@>=
-if (mp->interaction > mp_batch_mode)
-  decr (mp->selector);          /* avoid terminal output */
+if (! mp->noninteractive) {
+    if (mp->interaction > mp_batch_mode) {
+        decr (mp->selector);          /* avoid terminal output */
+    }
+}
 if (mp->use_err_help) {
   mp_print_nl (mp, "");
   @<Print the string |err_help|, possibly on several lines@>;
@@ -2269,8 +2277,10 @@ if (mp->use_err_help) {
     mp_print_nl (mp, help_line[help_ptr]);
   };
   mp_print_ln (mp);
-  if (mp->interaction > mp_batch_mode)
-    incr (mp->selector);        /* re-enable terminal output */
+  if (! mp->noninteractive) {
+   if (mp->interaction > mp_batch_mode)
+     incr (mp->selector);        /* re-enable terminal output */
+  }
   mp_print_ln (mp);
 }
 
@@ -13259,7 +13269,6 @@ static void mp_dx_dy_approx(MP mp, mp_number *dx_ap, mp_number *dy_ap,mp_knot kp
 
 }
 
-
 @ @c
 static mp_knot mp_offset_prep (MP mp, mp_knot c, mp_knot h) {
   int n;   /* the number of vertices in the pen polygon */
@@ -13300,6 +13309,7 @@ static mp_knot mp_offset_prep (MP mp, mp_knot c, mp_knot h) {
   new_number(v0);
   new_number(v1);
   new_number(dx_m);
+  new_number(dy_m);
   new_number(dxin_m);
   new_number(dx_ap);
   new_number(dy_ap);
@@ -13316,6 +13326,8 @@ static mp_knot mp_offset_prep (MP mp, mp_knot c, mp_knot h) {
   k_needed = 0;
 #ifdef DEBUGENVELOPE
 dbg_nl;dbg_str(--[==[BEGIN]==]);dbg_nl; 
+dbg_n(w0->x_coord);
+dbg_n(w0->y_coord);
 #endif
  do {
     q = mp_next_knot (p);
@@ -13325,25 +13337,40 @@ dbg_n(p->x_coord);dbg_n(p->y_coord);
 dbg_n(p->right_x);dbg_n(p->right_y);
 dbg_n(q->left_x);dbg_n(q->left_y);
 dbg_n(q->x_coord);dbg_n(q->y_coord);
+dbg_n(w0->x_coord);
+dbg_n(w0->y_coord);
 #endif 
     @<Split the cubic between |p| and |q|, if necessary, into cubics
       associated with single offsets, after which |q| should
       point to the end of the final such cubic@>;
+#ifdef DEBUGENVELOPE   
+dbg_key(end Split the cubic between |p| and |q|);dbg_open_t;dbg_nl;
+dbg_n(w->x_coord);dbg_n(w->y_coord);
+dbg_n(w0->x_coord);dbg_n(w0->y_coord);
+dbg_close_t; dbg_comma;dbg_nl;
+#endif
   NOT_FOUND:
     @<Advance |p| to node |q|, removing any ``dead'' cubics that
       might have been introduced by the splitting process@>;
 #ifdef DEBUGENVELOPE
+dbg_n(w0->x_coord);dbg_n(w0->y_coord);
 dbg_str(--[==[end loop]==]);dbg_nl; dbg_close_t;dbg_comma;dbg_nl;
 #endif 
   } while (q != c);
 #ifdef DEBUGENVELOPE
  dbg_key(Fix the offset change);dbg_open_t;dbg_nl;
-  dbg_in(mp_knot_info(p));dbg_close_t;dbg_comma;dbg_nl;
+ dbg_n(p->x_coord);dbg_n(p->y_coord);
+ dbg_key_ival(info pre,mp_knot_info(p));dbg_comma;dbg_nl;
+ dbg_n(c->x_coord);dbg_n(c->y_coord);
+ dbg_key_ival(info pre,mp_knot_info(c));dbg_close_t;dbg_comma;dbg_nl;
 #endif
   @<Fix the offset change in |mp_knot_info(c)| and set |c| to the return value of
     |offset_prep|@>;
 #ifdef DEBUGENVELOPE  
-dbg_in(mp_knot_info(p));
+dbg_n(p->x_coord);dbg_n(p->y_coord);
+dbg_key_ival(info post,mp_knot_info(p));dbg_comma;dbg_nl;
+dbg_n(c->x_coord);dbg_n(c->y_coord);
+dbg_key_ival(info post,mp_knot_info(c));
 dbg_close_t;dbg_comma;dbg_nl;
 dbg_nl;dbg_str(--[==[END]==]);dbg_nl;
 #endif
@@ -13378,6 +13405,7 @@ dbg_nl;dbg_str(--[==[END]==]);dbg_nl;
   free_number (v0);
   free_number (v1);
   free_number(dx_m);
+  free_number(dy_m);
   free_number(dxin_m);
   free_number(dx_ap);
   free_number(dy_ap);
@@ -13438,6 +13466,9 @@ the testcase reported by Bogus\l{}aw Jackowski in tracker id 267, case 52c
 on Sarovar.)
 
 @<Advance |p| to node |q|, removing any ``dead'' cubics...@>=
+#ifdef DEBUGENVELOPE 
+dbg_comment(Advance |p| to node |q|);dbg_nl;
+#endif
 q0 = q;
 do {
   r = mp_next_knot (p);
@@ -13460,6 +13491,11 @@ if ((q != q0) && (q != c || c == c0))
 
 @ @<Remove the cubic following |p| and update the data structures...@>=
 {
+ #ifdef DEBUGENVELOPE 
+ dbg_key(Remove the cubic following p);dbg_open_t;dbg_nl;
+ dbg_n(p->x_coord);dbg_n(p->y_coord);
+ dbg_key_ival(pre info p,mp_knot_info(p)); dbg_comma; dbg_close_t;dbg_nl;
+ #endif 
   k_needed = mp_knot_info (p) - zero_off;
   if (r == q) {
     q = p;
@@ -13477,6 +13513,11 @@ if ((q != q0) && (q != c || c == c0))
     mp->spec_p2 = p;
   r = p;
   mp_remove_cubic (mp, p);
+  #ifdef DEBUGENVELOPE 
+  dbg_key(Remove the cubic following p);dbg_open_t;dbg_nl;
+  dbg_n(p->x_coord);dbg_n(p->y_coord);
+  dbg_key_ival(post info p,mp_knot_info (p));dbg_comma; dbg_close_t;dbg_nl;
+  #endif 
 }
 
 
@@ -13545,7 +13586,16 @@ We may have to split a cubic into many pieces before each
 piece corresponds to a unique offset.
 
 @<Split the cubic between |p| and |q|, if necessary, into cubics...@>=
+#ifdef DEBUGENVELOPE 
+dbg_comment(Split the cubic between |p| and |q|);dbg_nl;
+dbg_key(Split the cubic);dbg_open_t;dbg_nl;
+dbg_key_ival(pre info p,mp_knot_info(p));dbg_comma;
+dbg_n(w0->x_coord);dbg_n(w0->y_coord);
+#endif 
 mp_knot_info (p) = zero_off + k_needed;
+#ifdef DEBUGENVELOPE 
+dbg_key_ival(post info p,mp_knot_info(p));dbg_comma; dbg_close_t;dbg_nl;
+#endif 
 k_needed = 0;
 @<Prepare for derivative computations;
   |goto not_found| if the current cubic is dead@>;
@@ -13600,6 +13650,7 @@ mp_number x0a, x1a, x2a, y0a, y1a, y2a;   /* intermediate values */
 mp_number t;     /* where the derivative passes through zero */
 mp_number s;     /* a temporary value */
 mp_number dx_m;     /* signal a pertubation of dx */
+mp_number dy_m;     /* signal a pertubation of dx */
 mp_number dxin_m;   /* signal a pertubation of dxin */
 
 
@@ -13858,7 +13909,13 @@ the true initial direction for the given cubic, even if it is almost
 degenerate.
 
 @<Find the initial direction |(dx,dy)|@>=
+#ifdef DEBUGENVELOPE
+dbg_nl;
+dbg_comment(Find the initial direction |(dx,dy)|);dbg_nl;
+dbg_n(w0->x_coord);dbg_n(w0->y_coord);
+#endif
 number_clone(dx_m, zero_t);
+number_clone(dy_m, zero_t);
 number_clone(dx, x0);
 number_clone(dy, y0);
 if (number_zero(dx) && number_zero(dy)) {
@@ -13900,31 +13957,41 @@ dbg_n(q->x_coord);dbg_n(q->y_coord);
 #endif
 mp_dx_dy_approx(mp,&dx_ap,&dy_ap,p,q,ueps_ap); /*|eps|*/
 #ifdef DEBUGENVELOPE
-dbg_n(dx_ap);dbg_n(dy_ap);
-dbg_close_t;dbg_comma;dbg_nl;
 dbg_key(derivatives);dbg_open_t;dbg_nl;
+dbg_n(dx_m);dbg_n(dy_m);
 dbg_n(dx);dbg_n(dy);dbg_n(dx_ap);dbg_n(dy_ap);dbg_close_t;dbg_comma;dbg_nl;
 #endif
 /* BEGIN PATCH */
+/* it should be done also for dy */
+/* TODO: if |p==c| we have also to set dx0 dy0 */
 if (number_zero(dx) && !(number_zero(dy)) && number_zero(x0) && number_zero(x2) && !number_zero(dxin) ){
     number_clone(dx_m, epsilon_t);
     if (number_positive(x1)){      
      set_number_from_addition (dx, dx, epsilon_t); 
+     mp_warn(mp,"x component of derivative at t=0 approximated to epsilon.");
     } else if (number_negative(x1)) {
      set_number_from_substraction (dx, dx, epsilon_t);  
+     mp_warn(mp,"x component of derivative at t=0 approximated to -epsilon.");
     }
 } 
+#ifdef DEBUGENVELOPE
+dbg_key(derivatives after first patch );dbg_open_t;dbg_nl;
+dbg_n(dx_m);dbg_n(dy_m);
+dbg_n(dx);dbg_n(dy);dbg_n(dx_ap);dbg_n(dy_ap);dbg_close_t;dbg_comma;dbg_nl;
+#endif
 /* this patch can conflict with the previous one */
 /* hm what about dx=dy=0 ? */
-if (number_zero(dx_ap) && !number_zero(dx)){
+if (number_zero(dx_ap) && !number_zero(dx) && number_zero(dx_m) ){
   set_number_to_zero(dx);
+  set_number_from_substraction(dx_m, zero_t,epsilon_t);
   if (p == c) {
     set_number_to_zero(dx0);
     }
   mp_warn(mp,"x component of derivative at t=0 approximated to zero.");
  } 
-if (number_zero(dy_ap) && !number_zero(dy)){
+if (number_zero(dy_ap) && !number_zero(dy) && number_zero(dy_m)){
   set_number_to_zero(dy);
+  set_number_from_substraction(dy_m, zero_t,epsilon_t);
   if (p == c) {
     set_number_to_zero(dy0);
     }
@@ -13932,6 +13999,7 @@ if (number_zero(dy_ap) && !number_zero(dy)){
  } 
 #ifdef DEBUGENVELOPE
 dbg_key(derivatives patched);dbg_open_t;dbg_nl;
+dbg_n(dx_m);dbg_n(dy_m);
 dbg_n(dx);dbg_n(dy);dbg_n(dx_ap);dbg_n(dy_ap);dbg_close_t;dbg_comma;dbg_nl;
 #endif
 /* END PATCH */
@@ -13949,16 +14017,23 @@ if (number_zero(dxin) && number_zero(dyin)) {
     number_clone(dyin, y0);
   }
 }
+#ifdef DEBUGENVELOPE
+dbg_key(dxin dyin before);dbg_open_t;dbg_nl;
+dbg_n(dxin);dbg_n(dyin);
+dbg_close_t;dbg_comma; 
+#endif
+/* BEGIN PATCH */
 if (number_zero(dxin_ap) && !number_zero(dxin)){
   set_number_to_zero(dxin);
-  mp_warn(mp,"x component of derivative at t=1 approximated at zero");
+  mp_warn(mp,"x component of derivative at t=1 approximated to zero.");
  } 
 if (number_zero(dyin_ap) && !number_zero(dyin)){
   set_number_to_zero(dyin);
-  mp_warn(mp,"y component of derivative at t=1 approximated at zero");
+  mp_warn(mp,"y component of derivative at t=1 approximated to zero.");
  } 
+/* END PATCH */
 #ifdef DEBUGENVELOPE
-dbg_key(dxin dyin);dbg_open_t;dbg_nl;
+dbg_key(dxin dyin after);dbg_open_t;dbg_nl;
 dbg_n(dxin);dbg_n(dyin);
 dbg_close_t;dbg_comma; 
 #endif
@@ -13969,7 +14044,7 @@ $ 1/3 B'(s,0,X_1,0)   =  (-2s^2 + 2s)X_1 \approx 2sX_1 $ for $s\rightarrow 0$ \p
 $ 1/3 B'(1-s,0,X_1,0) = (-2s^2 + 2s)X_1 \approx 2sX_1  $ for $s\rightarrow 0$ $\par
 */
 /* Of course the same should be done for dy and dyin */
-if ( ((number_zero(dx)||number_positive(dx_m)) && number_positive(dy)) &&
+if ( ((number_zero(dx) && number_positive(dx_m)) && number_positive(dy)) &&
      (number_zero(dxin) && number_positive(dyin)) ){
      number_clone(dx_m, epsilon_t);
      number_clone(dxin_m, epsilon_t);
@@ -13987,6 +14062,12 @@ if ( ((number_zero(dx)||number_positive(dx_m)) && number_positive(dy)) &&
        set_number_from_substraction (dx, dx, epsilon_t);  
      }
 }
+#ifdef DEBUGENVELOPE
+dbg_key(dx dy dxin dyin after patch);dbg_open_t;dbg_nl;
+dbg_n(dx);dbg_n(dy);dbg_n(dx_ap);dbg_n(dy_ap);
+dbg_n(dxin);dbg_n(dyin);dbg_n(dxin_ap);dbg_n(dyin_ap);
+dbg_close_t;dbg_comma; 
+#endif
 /* END PATCH ****/
 
 @ The next step is to bracket the initial direction between consecutive
@@ -14003,10 +14084,14 @@ right.) This code depends on |w0| being the offset for |(dxin,dyin)|.
   ab_vs_cd (ab_vs_cd, dy, dxin, dx, dyin);
 #ifdef DEBUGENVELOPE
 dbg_nl;
+dbg_comment(Update |mp_knot_info(p)|);dbg_nl;
 dbg_key(mp_get_turn_amt_dx_dy);dbg_open_t;dbg_str(--[==[call mp_get_turn_amt]==]);dbg_nl; 
 dbg_n(w0->x_coord);dbg_n(w0->y_coord);dbg_n(dx);dbg_n(dy);dbg_in(number_nonnegative(ab_vs_cd));
+dbg_n(ab_vs_cd);
 #endif
+ is_dxdy=true;
  turn_amt = mp_get_turn_amt (mp, w0, dx, dy, number_nonnegative(ab_vs_cd));
+ is_dxdy=false; 
 #ifdef DEBUGENVELOPE
 dbg_dn(turn_amt);
 dbg_close_t;dbg_comma;
@@ -14066,16 +14151,26 @@ integer mp_get_turn_amt (MP mp, mp_knot w, mp_number dx, mp_number dy, boolean c
 #ifdef DEBUGENVELOPE
      dbg_sp;
      dbg_open_t;dbg_str(--[==[inside mp_get_turn_amt do loop ]==]);dbg_nl; 
-      dbg_n(w->x_coord);dbg_n(w->y_coord);dbg_n(ww->x_coord);dbg_n(ww->y_coord);
-      dbg_n(t);dbg_n(dy);dbg_n(arg1);dbg_n(dx);dbg_n(arg2);
-      dbg_n(t_ap);dbg_n(dy_ap);dbg_n(dx_ap);
+     dbg_n(w->x_coord);dbg_n(w->y_coord);dbg_n(ww->x_coord);dbg_n(ww->y_coord);
+     dbg_n(t);dbg_n(dy);dbg_n(arg1);dbg_n(dx);dbg_n(arg2);
+     dbg_n(t_ap);dbg_n(dy_ap);dbg_n(dx_ap);dbg_n(dyin_ap);dbg_n(dxin_ap);
      dbg_close_t;dbg_comma;
+     dbg_in(number_zero(dx) && number_zero(arg1) && number_positive(dy) && number_positive(arg2) && is_dxdy);
+     dbg_in(is_dxdy && number_zero(dx) && number_zero(arg1) && number_negative(dy) && number_negative(arg2)  && number_positive(dyin_ap)); 
+     dbg_in(is_dxindyin && number_zero(dx) && number_zero(arg1) && number_positive(dy) && number_positive(arg2) && number_negative(dyin_ap));
+     dbg_in(number_zero(dy) && number_zero(arg2) && number_negative(dx) && number_negative(arg1));
+     dbg_in(number_zero(dx) && number_zero(arg1) && number_negative(dy) && number_positive(arg2));
+     dbg_in(number_zero(dy) && number_zero(arg2) && number_positive(dx) && number_negative(arg1));
      dbg_nl;
 #endif
       /* BEGIN PATCH */
-           if (number_zero(dx) && number_zero(arg1) && number_positive(dy) && number_positive(arg2)) 
-        break;
-      if (number_zero(dx) && number_zero(arg1) && number_negative(dy) && number_negative(arg2)) 
+      if (number_zero(dx) && number_zero(arg1) && number_positive(dy) && number_positive(arg2) && is_dxdy) 
+        break; 
+      if (is_dxdy && number_zero(dx) && number_zero(arg1) && number_negative(dy) && number_negative(arg2)  && number_positive(dyin_ap)) 
+        break; 
+      if (is_dxindyin && number_zero(dx) && number_zero(arg1) && number_positive(dy) && number_positive(arg2) && number_negative(dyin_ap)) 
+        break; 
+      if (number_zero(dx) && number_zero(arg1) && number_negative(dy) && number_negative(arg2) && !(is_dxdy)) 
         break;
       if (number_zero(dy) && number_zero(arg2) && number_negative(dx) && number_negative(arg1)) 
         break;
@@ -14083,7 +14178,6 @@ integer mp_get_turn_amt (MP mp, mp_knot w, mp_number dx, mp_number dy, boolean c
         set_number_to_unity(t);
       if (number_zero(dy) && number_zero(arg2) && number_positive(dx) && number_negative(arg1)) 
         set_number_to_unity(t);
-     
       /* END PATCH */
       if (number_negative(t)) 
         break;
@@ -14096,6 +14190,21 @@ integer mp_get_turn_amt (MP mp, mp_knot w, mp_number dx, mp_number dy, boolean c
     set_number_from_substraction (arg1, w->x_coord, ww->x_coord);
     set_number_from_substraction (arg2, w->y_coord, ww->y_coord);
     ab_vs_cd (t, dy, arg1, dx, arg2);
+#ifdef DEBUGENVELOPE
+     dbg_sp;
+     dbg_open_t;dbg_str(--[==[outside mp_get_turn_amt do loop ]==]);dbg_nl; 
+     dbg_n(w->x_coord);dbg_n(w->y_coord);dbg_n(ww->x_coord);dbg_n(ww->y_coord);
+     dbg_n(t);dbg_n(dy);dbg_n(arg1);dbg_n(dx);dbg_n(arg2);
+     dbg_n(t_ap);dbg_n(dy_ap);dbg_n(dx_ap);dbg_n(dyin_ap);dbg_n(dxin_ap);
+     dbg_close_t;dbg_comma;
+     dbg_nl;
+#endif
+     /* BEGIN PATCH */
+     if (number_negative(dy) && number_zero(arg1) && number_zero(dx) && number_negative(arg2)) {
+        set_number_to_unity(t);
+	number_negate(t);
+      }
+      /* END PATCH */ 
     while (number_negative(t)) {
       decr (s);
       w = ww;
@@ -14103,6 +14212,15 @@ integer mp_get_turn_amt (MP mp, mp_knot w, mp_number dx, mp_number dy, boolean c
       set_number_from_substraction (arg1, w->x_coord, ww->x_coord);
       set_number_from_substraction (arg2, w->y_coord, ww->y_coord);
       ab_vs_cd (t, dy, arg1, dx, arg2);
+#ifdef DEBUGENVELOPE
+     dbg_sp;
+     dbg_open_t;dbg_str(--[==[inside mp_get_turn_amt do loop ]==]);dbg_nl; 
+     dbg_n(w->x_coord);dbg_n(w->y_coord);dbg_n(ww->x_coord);dbg_n(ww->y_coord);
+     dbg_n(t);dbg_n(dy);dbg_n(arg1);dbg_n(dx);dbg_n(arg2);
+     dbg_n(t_ap);dbg_n(dy_ap);dbg_n(dx_ap);
+     dbg_close_t;dbg_comma;
+     dbg_nl;
+#endif
     }
   }
   free_number (t);
@@ -14149,7 +14267,19 @@ with respect to $d_{k-1}$, and apply |fin_offset_prep| to each part.
 
 @<Complete the offset splitting process@>=
 ww = mp_prev_knot (w);
+#ifdef DEBUGENVELOPE 
+dbg_key(Complete the offset splitting process);dbg_open_t;dbg_nl;
+dbg_n(w->x_coord);dbg_n(w->y_coord);
+dbg_n(w0->x_coord);dbg_n(w0->y_coord);
+dbg_close_t; dbg_comma;dbg_nl;
+#endif
 @<Compute test coeff...@>;
+#ifdef DEBUGENVELOPE 
+dbg_key(after Compute test coeff);dbg_open_t;dbg_nl;
+dbg_n(w->x_coord);dbg_n(w->y_coord);
+dbg_n(w0->x_coord);dbg_n(w0->y_coord);
+dbg_close_t; dbg_comma;dbg_nl;
+#endif
 @<Find the first |t| where $d(t)$ crosses $d_{k-1}$ or set
   |t:=fraction_one+1|@>;
 if (number_greater(t, fraction_one_t)) {
@@ -14191,7 +14321,13 @@ if (number_greater(t, fraction_one_t)) {
     mp_fin_offset_prep (mp, r, ww, x0, x1, x2, y0, y1, y2, -1, (-1 - turn_amt));
   }
 }
-
+#ifdef DEBUGENVELOPE 
+dbg_key(end Complete the offset splitting process);dbg_open_t;dbg_nl;
+dbg_n(w->x_coord);dbg_n(w->y_coord);
+dbg_n(w0->x_coord);dbg_n(w0->y_coord);
+dbg_in(turn_amt);
+dbg_close_t; dbg_comma;dbg_nl;
+#endif
 
 @ @<Split off another rising cubic for |fin_offset_prep|@>=
 mp_split_cubic (mp, r, t);
@@ -14273,8 +14409,16 @@ dbg_key(Decide on the net change in pen offsets and set turn_amt);dbg_open_t;dbg
   ab_vs_cd (ab_vs_cd, dx, dyin, dxin, dy);
 #ifdef DEBUGENVELOPE
 dbg_n(ab_vs_cd);dbg_n(dx);dbg_n(dyin);dbg_n(dxin);dbg_n(dy);
+#endif
+/* BEGIN PATCH */
+ if (number_negative(dy) && number_equal(dy,dyin) && number_equal(dx,epsilon_t))
+        set_number_to_unity(ab_vs_cd);
+#ifdef DEBUGENVELOPE
+dbg_key_nval(ab_vs_cd patched,ab_vs_cd);
 dbg_close_t;dbg_comma;dbg_nl;
 #endif
+
+/* END PATCH */
   if (number_negative (ab_vs_cd))
     d_sign = -1;
   else if (number_zero (ab_vs_cd))
@@ -14304,16 +14448,27 @@ if (d_sign == 0) {
   more than $180^\circ$@>;
 #ifdef DEBUGENVELOPE
 dbg_nl;
+dbg_key(Make |ss| negative if and only if); dbg_open_t;dbg_nl;
 dbg_key(mp_get_turn_amt_dxin_dyin);dbg_open_t;dbg_str(--[==[call mp_get_turn_amt]==]);dbg_nl; ;
 dbg_n(w->x_coord);dbg_n(w->y_coord);dbg_n(dxin);dbg_n(dyin);dbg_in((d_sign > 0));
 #endif
+is_dxindyin=true;
 turn_amt = mp_get_turn_amt (mp, w, dxin, dyin, (d_sign > 0));
+is_dxindyin=false;
 #ifdef DEBUGENVELOPE
-dbg_dn(turn_amt);
-dbg_close_t;dbg_nl;dbg_nl;
+dbg_key_dval(turn_amt 1,turn_amt);dbg_comma;dbg_nl;
+dbg_key_nval(ss,ss);dbg_comma;dbg_nl;
+dbg_key_ival(d_sign,d_sign);dbg_comma;dbg_nl;
+dbg_key_ival(n,n);dbg_comma;dbg_nl;
 #endif
 if (number_negative(ss))
-  turn_amt = turn_amt - d_sign * n
+  turn_amt = turn_amt - d_sign * n;
+#ifdef DEBUGENVELOPE
+dbg_key_dval(turn_amt 2,turn_amt);dbg_comma;dbg_nl;
+dbg_close_t;dbg_comma;dbg_nl;
+dbg_close_t;dbg_comma;dbg_nl;
+#endif
+
 
 @ We check rotation direction by looking at the vector connecting the current
 node with the next. If its angle with incoming and outgoing tangents has the
@@ -14418,9 +14573,8 @@ if (number_positive(t0)) {
   set_number_from_addition (ss, r1, r2);
   /* BEGIN PATCH */
 #ifdef DEBUGENVELOPE
-dbg_key(patch ss before);dbg_open_t;dbg_nl;
-dbg_n(ss);
-dbg_close_t;dbg_comma;dbg_nl;
+dbg_key(patch ss before);dbg_open_t;
+dbg_n(ss);dbg_close_t;dbg_comma;
 #endif
   new_number(abs_ss);
   new_number(eps_ss);
@@ -14431,9 +14585,8 @@ dbg_close_t;dbg_comma;dbg_nl;
     set_number_to_zero(ss);/* a warning here ? */
   }
 #ifdef DEBUGENVELOPE
-dbg_key(patch ss after);dbg_open_t;dbg_nl;
-dbg_n(ss);
-dbg_close_t;dbg_comma;dbg_nl;
+dbg_key(patch ss after);dbg_open_t;
+dbg_n(ss);dbg_close_t;dbg_comma;
 #endif
   free_number(abs_ss);
   free_number(eps_ss);
@@ -14482,6 +14635,14 @@ static void mp_print_spec (MP mp, mp_knot cur_spec, mp_knot cur_pen,
 {
   w = mp_pen_walk (mp, w, (mp_knot_info (p) - zero_off));
   mp_print (mp, " % ");
+#ifdef DEBUGENVELOPE
+ dbg_nl;dbg_open_t;dbg_str(--[==[START]==]);dbg_nl;
+ dbg_key(Printing mp_knot_info (p));dbg_open_t;dbg_nl;
+ dbg_n(p->x_coord);dbg_n(p->y_coord);
+ dbg_in(mp_knot_info(p));
+ dbg_close_t;dbg_close_t;dbg_comma;dbg_nl;
+ dbg_nl;dbg_str(--[==[STOP]==]);dbg_nl;
+#endif
   if (mp_knot_info (p) > zero_off)
     mp_print (mp, "counter");
   mp_print (mp, "clockwise to offset ");
@@ -23247,8 +23408,27 @@ RESTART:
           set_value_number (magenta_part (t), value_number (green_part (r)));
           mp_type (yellow_part (t)) = mp_type (blue_part (r));
           set_value_number (yellow_part (t), value_number (blue_part (r)));
-          mp_recycle_value (mp, r);
-          r = t;
+	  /*see |mp_stash_in| */
+	  if ( ((mp_type (cyan_part (t))) != mp_independent) && ((mp_type (cyan_part (t))) != mp_known) ) {
+     	     /* Copy the dep list */
+            set_dep_list (cyan_part(t),dep_list ((mp_value_node) red_part(r)));
+            set_prev_dep (cyan_part(t),prev_dep ((mp_value_node) red_part(r)));
+            set_mp_link (prev_dep (cyan_part(t)), (mp_node) cyan_part(t));
+          }		
+	  if ( ((mp_type (magenta_part (t))) != mp_independent) && ((mp_type (magenta_part (t))) != mp_known) ) {
+     	     /* Copy the dep list */
+            set_dep_list (magenta_part(t),dep_list ((mp_value_node) green_part(r)));
+            set_prev_dep (magenta_part(t),prev_dep ((mp_value_node) green_part(r)));
+            set_mp_link (prev_dep (magenta_part(t)), (mp_node) magenta_part(t));
+          }		
+	  if ( ((mp_type (yellow_part (t))) != mp_independent) && ((mp_type (yellow_part (t))) != mp_known)) {
+     	     /* Copy the dep list */
+            set_dep_list (yellow_part(t),dep_list ((mp_value_node) blue_part(r)));
+            set_prev_dep (yellow_part(t),prev_dep ((mp_value_node) blue_part(r)));
+            set_mp_link (prev_dep (yellow_part(t)), (mp_node) yellow_part(t));
+          }
+	  mp_recycle_value (mp, r);
+	  r = t;
           /* Scan the last of a quartet of numerics */
           mp_get_x_next (mp);
           mp_scan_expression (mp);
