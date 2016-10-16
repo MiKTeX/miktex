@@ -20,13 +20,13 @@
 
 #include <config.h>
 #include <sstream>
-#include "EmSpecialHandler.h"
-#include "InputBuffer.h"
-#include "InputReader.h"
-#include "Length.h"
-#include "SpecialActions.h"
-#include "XMLNode.h"
-#include "XMLString.h"
+#include "EmSpecialHandler.hpp"
+#include "InputBuffer.hpp"
+#include "InputReader.hpp"
+#include "Length.hpp"
+#include "SpecialActions.hpp"
+#include "XMLNode.hpp"
+#include "XMLString.hpp"
 
 using namespace std;
 
@@ -129,7 +129,7 @@ static double read_length (InputReader &in) {
 	string unitstr;
 	if (isalpha(in.peek())) unitstr += in.get();
 	if (isalpha(in.peek())) unitstr += in.get();
-	Length::Unit unit = Length::PT;
+	Length::Unit unit = Length::Unit::PT;
 	try {
 		unit = Length::stringToUnit(unitstr);
 	}
@@ -238,7 +238,7 @@ void EmSpecialHandler::line (InputReader &ir, SpecialActions& actions) {
 		// Line endpoints don't necessarily have to be defined before
 		// a line definition. If a point isn't defined yet, we put the line
 		// in a wait list and process the lines at the end of the page.
-		_lines.push_back(Line(pointnum1, pointnum2, char(cut1), char(cut2), linewidth));
+		_lines.emplace_back(Line(pointnum1, pointnum2, char(cut1), char(cut2), linewidth));
 	}
 }
 
@@ -246,11 +246,11 @@ void EmSpecialHandler::line (InputReader &ir, SpecialActions& actions) {
 /** This method is called at the end of a DVI page. Here we have to draw all pending
  *   lines that are still in the line list. All line endpoints must be defined until here. */
 void EmSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actions) {
-	FORALL(_lines, list<Line>::iterator, it) {
-		map<int,DPair>::iterator pit1=_points.find(it->p1);
-		map<int,DPair>::iterator pit2=_points.find(it->p2);
+	for (const Line &line : _lines) {
+		auto pit1=_points.find(line.p1);
+		auto pit2=_points.find(line.p2);
 		if (pit1 != _points.end() && pit2 != _points.end())
-			create_line(pit1->second, pit2->second, it->c1, it->c2, it->width, actions);
+			create_line(pit1->second, pit2->second, line.c1, line.c2, line.width, actions);
 		// all lines with still undefined points are ignored
 	}
 	// line and point definitions are local to a page

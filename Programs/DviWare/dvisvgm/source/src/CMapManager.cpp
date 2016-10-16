@@ -20,20 +20,14 @@
 
 #include <config.h>
 #include <sstream>
-#include "CMap.h"
-#include "CMapManager.h"
-#include "CMapReader.h"
-#include "FileFinder.h"
-#include "Font.h"
-#include "Message.h"
+#include "CMap.hpp"
+#include "CMapManager.hpp"
+#include "CMapReader.hpp"
+#include "FileFinder.hpp"
+#include "Font.hpp"
+#include "Message.hpp"
 
 using namespace std;
-
-
-CMapManager::~CMapManager () {
-	for (CMaps::iterator it=_cmaps.begin(); it != _cmaps.end(); ++it)
-		delete it->second;
-}
 
 
 CMapManager& CMapManager::instance () {
@@ -46,7 +40,7 @@ CMapManager& CMapManager::instance () {
 CMap* CMapManager::lookup (const string &name) {
 	CMaps::iterator it = _cmaps.find(name);
 	if (it != _cmaps.end())
-		return it->second;
+		return it->second.get();
 
 	if (_includedCMaps.find(name) != _includedCMaps.end()) {
 		_level = 0;
@@ -63,7 +57,7 @@ CMap* CMapManager::lookup (const string &name) {
 	else if (name == "unicode")
 		cmap = new UnicodeCMap;
 	if (cmap) {
-		_cmaps[name] = cmap;
+		_cmaps[name].reset(cmap);
 		return cmap;
 	}
 	// Load cmap data of file <name> and also process all cmaps referenced by operator "usecmap".
@@ -78,7 +72,7 @@ CMap* CMapManager::lookup (const string &name) {
 			_level = 1;
 			Message::wstream(true) << "CMap file '" << name << "' not found\n";
 		}
-		_cmaps[name] = cmap;
+		_cmaps[name].reset(cmap);
 	}
 	catch (const CMapReaderException &e) {
 		Message::estream(true) << "CMap file " << name << ": " << e.what() << "\n";
@@ -130,7 +124,7 @@ const CMap* CMapManager::findCompatibleBaseFontMap (const PhysicalFont *font, co
 		for (size_t i=0; i < charmapIDs.size(); i++) {
 			if (enc->id == charmapIDs[i]) {
 				string cmapname = ro+"-"+enc->encname;
-				if (is_unicode_map || FileFinder::lookup(cmapname, "cmap", false)) {
+				if (is_unicode_map || FileFinder::instance().lookup(cmapname, "cmap", false)) {
 					charmapID = enc->id;
 					return is_unicode_map ? cmap : lookup(cmapname);
 				}

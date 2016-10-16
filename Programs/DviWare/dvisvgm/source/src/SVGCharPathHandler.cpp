@@ -19,10 +19,10 @@
 *************************************************************************/
 
 #include <sstream>
-#include "Font.h"
-#include "FontManager.h"
-#include "SVGCharPathHandler.h"
-#include "XMLNode.h"
+#include "Font.hpp"
+#include "FontManager.hpp"
+#include "SVGCharPathHandler.hpp"
+#include "XMLNode.hpp"
 
 using namespace std;
 
@@ -49,7 +49,7 @@ void SVGCharPathHandler::resetContextNode () {
  *  @param[in] c code of the character to be appended
  *  @param[in] x horizontal position of the character (in bp units)
  *  @param[in] y vertical position of the character (in bp units) */
-void SVGCharPathHandler::appendChar (UInt32 c, double x, double y) {
+void SVGCharPathHandler::appendChar (uint32_t c, double x, double y) {
 	if (_font.changed()) {
 		_fontColor.set(_font.get()->color());
 		if (_fontColor.changed() && _fontColor.get() != Color::BLACK)
@@ -107,7 +107,7 @@ void SVGCharPathHandler::appendChar (UInt32 c, double x, double y) {
 }
 
 
-void SVGCharPathHandler::appendUseElement (UInt32 c, double x, double y, const Matrix &matrix) {
+void SVGCharPathHandler::appendUseElement (uint32_t c, double x, double y, const Matrix &matrix) {
 	ostringstream oss;
 	oss << "#g" << FontManager::instance().fontID(_font) << '-' << c;
 	XMLElementNode *useNode = new XMLElementNode("use");
@@ -120,7 +120,7 @@ void SVGCharPathHandler::appendUseElement (UInt32 c, double x, double y, const M
 }
 
 
-void SVGCharPathHandler::appendPathElement (UInt32 c, double x, double y, const Matrix &matrix) {
+void SVGCharPathHandler::appendPathElement (uint32_t c, double x, double y, const Matrix &matrix) {
 	Glyph glyph;
 	const PhysicalFont *pf = dynamic_cast<const PhysicalFont*>(_font.get());
 	if (pf && pf->getGlyph(c, glyph)) {

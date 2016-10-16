@@ -18,11 +18,11 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include "SVGCharHandlerFactory.h"
-#include "SVGCharPathHandler.h"
-#include "SVGSingleCharTextHandler.h"
-#include "SVGCharTspanTextHandler.h"
-#include "SVGTree.h"
+#include "SVGCharHandlerFactory.hpp"
+#include "SVGCharPathHandler.hpp"
+#include "SVGSingleCharTextHandler.hpp"
+#include "SVGCharTspanTextHandler.hpp"
+#include "SVGTree.hpp"
 
 
 SVGCharHandler* SVGCharHandlerFactory::createHandler () {

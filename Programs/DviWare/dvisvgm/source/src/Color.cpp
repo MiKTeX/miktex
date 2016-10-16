@@ -20,6 +20,7 @@
 
 #define _USE_MATH_DEFINES
 #include <config.h>
+#include <array>
 #include <algorithm>
 #include <cctype>
 #include <cmath>
@@ -27,38 +28,32 @@
 #include <cstring>
 #include <iomanip>
 #include <sstream>
-#include "Color.h"
+#include "Color.hpp"
 
 using namespace std;
 
 bool Color::SUPPRESS_COLOR_NAMES = true;
 
-const Color Color::BLACK(UInt32(0));
-const Color Color::WHITE(UInt8(255), UInt8(255), UInt8(255));
-const Color Color::TRANSPARENT(UInt32(0xff000000));
+const Color Color::BLACK(uint32_t(0));
+const Color Color::WHITE(uint8_t(255), uint8_t(255), uint8_t(255));
+const Color Color::TRANSPARENT(uint32_t(0xff000000));
 
 
-static inline UInt8 double_to_byte (double v) {
+static inline uint8_t double_to_byte (double v) {
 	v = max(0.0, min(1.0, v));
-	return UInt8(floor(255*v+0.5));
-}
-
-
-static void tolower (string &str) {
-	for (size_t i=0; i < str.length(); i++)
-		str[i] = tolower(str[i]);
+	return uint8_t(floor(255*v+0.5));
 }
 
 
 Color::Color (const char *psname) {
 	if (!setPSName(psname, false))
-		setGray(UInt8(0));
+		setGray(uint8_t(0));
 }
 
 
 Color::Color (const string &psname) {
 	if (!setPSName(psname, false))
-		setGray(UInt8(0));
+		setGray(uint8_t(0));
 }
 
 
@@ -74,17 +69,18 @@ void Color::setRGB (double r, double g, double b) {
 bool Color::setPSName (string name, bool case_sensitive) {
 	if (name[0] == '#') {
 		char *p=0;
-		_rgb = UInt32(strtol(name.c_str()+1, &p, 16));
+		_rgb = uint32_t(strtol(name.c_str()+1, &p, 16));
 		while (isspace(*p))
 			p++;
 		return (*p == 0 && _rgb <= 0xFFFFFF);
 	}
-	// converted color constants from color.pro
-	static const struct ColorConstant {
+
+	struct ColorConstant {
 		const char *name;
-		const UInt32 rgb;
-	}
-	constants[] = {
+		const uint32_t rgb;
+	};
+	// converted color constants from color.pro
+	static const array<ColorConstant, 68> constants = {{
 		{"Apricot",        0xFFAD7A},
 		{"Aquamarine",     0x2DFFB2},
 		{"Bittersweet",    0xC10200},
@@ -153,31 +149,28 @@ bool Color::setPSName (string name, bool case_sensitive) {
 		{"Yellow",         0xFFFF00},
 		{"YellowGreen",    0x8EFF42},
 		{"YellowOrange",   0xFF9300},
-	};
-	if (!case_sensitive) {
-		tolower(name);
-		for (size_t i=0; i < sizeof(constants)/sizeof(ColorConstant); i++) {
-			string cmpname = constants[i].name;
-			tolower(cmpname);
-			if (name == cmpname) {
-				_rgb = constants[i].rgb;
-				return true;
+	}};
+	if (case_sensitive) {
+		const ColorConstant cmppair = {name.c_str(), 0};
+		auto it = lower_bound(constants.begin(), constants.end(), cmppair,
+			[](const ColorConstant &c1, const ColorConstant &c2) {
+				return strcmp(c1.name, c2.name) < 0;
 			}
+		);
+		if (it != constants.end() && it->name == name) {
+			_rgb = it->rgb;
+			return true;
 		}
-		return false;
 	}
-
-	// binary search
-	int first=0, last=sizeof(constants)/sizeof(ColorConstant)-1;
-	while (first <= last) {
-		int mid = first+(last-first)/2;
-		int cmp = strcmp(constants[mid].name, name.c_str());
-		if (cmp > 0)
-			last = mid-1;
-		else if (cmp < 0)
-			first = mid+1;
-		else {
-			_rgb = constants[mid].rgb;
+	else {
+		transform(name.begin(), name.end(), name.begin(), ::tolower);
+		auto it = find_if(constants.begin(), constants.end(), [&](const ColorConstant &cc) {
+			string cmpname = cc.name;
+			transform(cmpname.begin(), cmpname.end(), cmpname.begin(), ::tolower);
+			return name == cmpname;
+		});
+		if (it != constants.end()) {
+			_rgb = it->rgb;
 			return true;
 		}
 	}
@@ -215,18 +208,18 @@ void Color::setCMYK (const std::valarray<double> &cmyk) {
 
 void Color::set (ColorSpace colorSpace, VectorIterator<double> &it) {
 	switch (colorSpace) {
-		case GRAY_SPACE: setGray(*it++); break;
-		case RGB_SPACE : setRGB(*it, *(it+1), *(it+2)); it+=3; break;
-		case LAB_SPACE : setLab(*it, *(it+1), *(it+2)); it+=3; break;
-		case CMYK_SPACE: setCMYK(*it, *(it+1), *(it+2), *(it+3)); it+=4; break;
+		case ColorSpace::GRAY: setGray(*it++); break;
+		case ColorSpace::RGB : setRGB(*it, *(it+1), *(it+2)); it+=3; break;
+		case ColorSpace::LAB : setLab(*it, *(it+1), *(it+2)); it+=3; break;
+		case ColorSpace::CMYK: setCMYK(*it, *(it+1), *(it+2), *(it+3)); it+=4; break;
 	}
 }
 
 
 void Color::operator *= (double c) {
-	UInt32 rgb=0;
+	uint32_t rgb=0;
 	for (int i=0; i < 3; i++) {
-		rgb |= UInt32(floor((_rgb & 0xff)*c+0.5)) << (8*i);
+		rgb |= uint32_t(floor((_rgb & 0xff)*c+0.5)) << (8*i);
 		_rgb >>= 8;
 	}
 	_rgb = rgb;
@@ -250,10 +243,11 @@ string Color::rgbString () const {
  *  define a name for the current color. */
 string Color::svgColorString (bool rgbonly) const {
 	if (!rgbonly) {
-		static const struct ColorName {
-			UInt32 rgb;
+		struct ColorName {
+			uint32_t rgb;
 			const char *name;
-		} colornames[] = {
+		};
+		static const array<ColorName, 138> colornames = {{
 			{0x000000, "black"},
 			{0x000080, "navy"},
 			{0x00008b, "darkblue"},
@@ -392,18 +386,13 @@ string Color::svgColorString (bool rgbonly) const {
 			{0xffffe0, "lightyellow"},
 			{0xfffff0, "ivory"},
 			{0xffffff, "white"}
-		};
-		int left=0;
-		int right=sizeof(colornames)/sizeof(ColorName)-1;
-		while (left <= right) {
-			int mid = left+(right-left)/2;
-			if (colornames[mid].rgb == _rgb)
-				return colornames[mid].name;
-			if (colornames[mid].rgb > _rgb)
-				right = mid-1;
-			else
-				left = mid+1;
-		}
+		}};
+		ColorName cmppair = {_rgb, 0};
+		auto it = lower_bound(colornames.begin(), colornames.end(), cmppair, [](const ColorName &c1, const ColorName &c2) {
+			return c1.rgb < c2.rgb;
+		});
+		if (it != colornames.end() && it->rgb == _rgb)
+			return it->name;
 	}
 	return rgbString();
 }
@@ -670,10 +659,10 @@ double Color::deltaE (const Color &c) const {
 
 int Color::numComponents (ColorSpace colorSpace) {
 	switch (colorSpace) {
-		case GRAY_SPACE: return 1;
-		case LAB_SPACE:
-		case RGB_SPACE:  return 3;
-		case CMYK_SPACE: return 4;
+		case ColorSpace::GRAY: return 1;
+		case ColorSpace::LAB:
+		case ColorSpace::RGB:  return 3;
+		case ColorSpace::CMYK: return 4;
 	}
 	return 0;
 }

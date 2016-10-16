@@ -20,18 +20,13 @@
 
 #include <config.h>
 #include <sstream>
-#include "Font.h"
-#include "Length.h"
-#include "VFActions.h"
-#include "VFReader.h"
+#include "FixWord.hpp"
+#include "Font.hpp"
+#include "Length.hpp"
+#include "VFActions.hpp"
+#include "VFReader.hpp"
 
 using namespace std;
-
-
-/** Converts a TFM fix point value to double (PS point units). */
-static inline double fix2double (FixWord fix) {
-	return double(fix)/(1 << 20)*Length::pt2bp;
-}
 
 
 VFReader::VFReader (istream &is)
@@ -97,16 +92,12 @@ bool VFReader::executeAll () {
 }
 
 
-/// Returns true if op indicates the preamble or a font definition
-static bool is_pre_or_fontdef (int op) {return op > 242;}
-static bool is_chardef (int op)        {return op < 243;}
-
-
 bool VFReader::executePreambleAndFontDefs () {
 	clearStream();
 	if (!isStreamValid())
 		return false;
 	seek(0);  // move file pointer to first byte of the input stream
+	auto is_pre_or_fontdef = [](int op) {return op > 242;};
 	while (!eof() && executeCommand(is_pre_or_fontdef) > 242); // stop reading after last font definition
 	return true;
 }
@@ -117,6 +108,7 @@ bool VFReader::executeCharDefs () {
 	if (!isStreamValid())
 		return false;
 	seek(0);
+	auto is_chardef = [](int op) {return op < 243;};
 	while (!eof() && executeCommand(is_chardef) < 243); // stop reading after last char definition
 	return true;
 }
@@ -125,36 +117,36 @@ bool VFReader::executeCharDefs () {
 
 /** Reads and executes DVI preamble command. */
 void VFReader::cmdPre () {
-	UInt32 i   = readUnsigned(1);  // identification number (should be 2)
-	UInt32 k   = readUnsigned(1);  // length of following comment
+	uint32_t i = readUnsigned(1);  // identification number (should be 2)
+	uint32_t k = readUnsigned(1);  // length of following comment
 	string cmt = readString(k);    // comment
-	UInt32 cs  = readUnsigned(4);  // check sum to be compared with TFM cecksum
-	UInt32 ds  = readUnsigned(4);  // design size (same as TFM design size) (fix_word)
-	_designSize = fix2double(ds);
+	uint32_t cs = readUnsigned(4); // check sum to be compared with TFM cecksum
+	int32_t ds = readUnsigned(4);  // design size (same as TFM design size) (fix_word)
+	_designSize = double(FixWord(ds))*Length::pt2bp;
 	if (i != 202)
 		throw VFException("invalid identification value in preamble");
 	if (_actions)
-		_actions->preamble(cmt, cs, ds);
+		_actions->vfPreamble(cmt, cs, ds);
 }
 
 
 void VFReader::cmdPost () {
 	while ((readUnsigned(1)) == 248); // skip fill bytes
 	if (_actions)
-		_actions->postamble();
+		_actions->vfPostamble();
 }
 
 
 void VFReader::cmdLongChar () {
-	UInt32 pl  = readUnsigned(4);      // packet length (length of DVI subroutine)
+	uint32_t pl  = readUnsigned(4);    // packet length (length of DVI subroutine)
 	if (!_actions)
 		seek(8+pl, ios::cur);           // skip remaining char definition bytes
 	else {
-		UInt32 cc  = readUnsigned(4);   // character code
-		readUnsigned(4);                // character width from corresponding TFM file
-		vector<UInt8> *dvi = new vector<UInt8>(pl); // DVI subroutine
-		readBytes(pl, *dvi);
-		_actions->defineVFChar(cc, dvi); // call template method for user actions
+		uint32_t cc  = readUnsigned(4); // character code
+		readUnsigned(4);                // equals character width from corresponding TFM file
+		vector<uint8_t> dvi(pl);        // DVI subroutine
+		readBytes(pl, dvi);
+		_actions->defineVFChar(cc, std::move(dvi)); // call template method for user actions
 	}
 }
 
@@ -163,29 +155,29 @@ void VFReader::cmdLongChar () {
  *  @param[in] pl packet length (length of DVI subroutine) */
 void VFReader::cmdShortChar (int pl) {
 	if (!_actions)
-		seek(4+pl, ios::cur);     // skip char definition bytes
+		seek(4+pl, ios::cur);  // skip char definition bytes
 	else {
-		UInt32 cc  = readUnsigned(1);   // character code
+		uint32_t cc  = readUnsigned(1); // character code
 		readUnsigned(3);                // character width from corresponding TFM file
-		vector<UInt8> *dvi = new vector<UInt8>(pl); // DVI subroutine
-		readBytes(pl, *dvi);
-		_actions->defineVFChar(cc, dvi); // call template method for user actions
+		vector<uint8_t> dvi(pl);        // DVI subroutine
+		readBytes(pl, dvi);
+		_actions->defineVFChar(cc, std::move(dvi)); // call template method for user actions
 	}
 }
 
 
 void VFReader::cmdFontDef (int len) {
-	UInt32 fontnum  = readUnsigned(len);   // font number
-	UInt32 checksum = readUnsigned(4);     // font checksum (to be compared with corresponding TFM checksum)
-	UInt32 ssize    = readUnsigned(4);     // scaled size of font relative to design size (fix_word)
-	UInt32 dsize    = readUnsigned(4);     // design size of font (same as TFM design size) (fix_word)
-	UInt32 pathlen  = readUnsigned(1);     // length of font path
-	UInt32 namelen  = readUnsigned(1);     // length of font name
+	uint32_t fontnum  = readUnsigned(len);  // font number
+	uint32_t checksum = readUnsigned(4);    // font checksum (to be compared with corresponding TFM checksum)
+	uint32_t ssize    = readUnsigned(4);    // scaled size of font relative to design size (fix_word)
+	uint32_t dsize    = readUnsigned(4);    // design size of font (same as TFM design size) (fix_word)
+	uint32_t pathlen  = readUnsigned(1);    // length of font path
+	uint32_t namelen  = readUnsigned(1);    // length of font name
 	string fontpath = readString(pathlen);
 	string fontname = readString(namelen);
 	if (_actions) {
-		double ss = fix2double(ssize);
-		double ds = fix2double(dsize);
+		double ss = double(FixWord(ssize))*Length::pt2bp;
+		double ds = double(FixWord(dsize))*Length::pt2bp;
 		_actions->defineVFFont(fontnum, fontpath, fontname, checksum, ds, ss*_designSize);
 	}
 }

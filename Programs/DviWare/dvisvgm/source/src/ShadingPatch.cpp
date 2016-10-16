@@ -19,28 +19,28 @@
 *************************************************************************/
 
 #include <sstream>
-#include "ShadingPatch.h"
-#include "TensorProductPatch.h"
-#include "TriangularPatch.h"
+#include "ShadingPatch.hpp"
+#include "TensorProductPatch.hpp"
+#include "TriangularPatch.hpp"
 
 using namespace std;
 
 /** Get functions to get/set the current color depending on the assigned color space. */
 void ShadingPatch::colorQueryFuncs (ColorGetter &getter, ColorSetter &setter) const {
 	switch (_colorspace) {
-		case Color::CMYK_SPACE:
+		case Color::ColorSpace::CMYK:
 			getter = &Color::getCMYK;
 			setter = &Color::setCMYK;
 			break;
-		case Color::LAB_SPACE:
+		case Color::ColorSpace::LAB:
 			getter = &Color::getLab;
 			setter = &Color::setLab;
 			break;
-		case Color::RGB_SPACE:
+		case Color::ColorSpace::RGB:
 			getter = &Color::getRGB;
 			setter = &Color::setRGB;
 			break;
-		case Color::GRAY_SPACE:
+		case Color::ColorSpace::GRAY:
 			getter = &Color::getGray;
 			setter = &Color::setGray;
 	}

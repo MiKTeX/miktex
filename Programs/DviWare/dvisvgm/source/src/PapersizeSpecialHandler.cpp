@@ -1,7 +1,7 @@
-#include "Length.h"
-#include "Message.h"
-#include "PapersizeSpecialHandler.h"
-#include "SpecialActions.h"
+#include "Length.hpp"
+#include "Message.hpp"
+#include "PapersizeSpecialHandler.hpp"
+#include "SpecialActions.hpp"
 
 using namespace std;
 
@@ -24,7 +24,7 @@ void PapersizeSpecialHandler::preprocess (const char*, std::istream &is, Special
 		if (!_pageSizes.empty() && _pageSizes.back().first == pageno)
 			_pageSizes.back().second = whpair;
 		else
-			_pageSizes.push_back(PageSize(pageno, whpair));
+			_pageSizes.emplace_back(PageSize(pageno, whpair));
 	}
 }
 
@@ -34,19 +34,17 @@ bool PapersizeSpecialHandler::process (const char *, std::istream &, SpecialActi
 }
 
 
-bool PapersizeSpecialHandler::isLess (const PageSize &ps1, const PageSize &ps2) {
-	// order PageSize objects by page number
-	return ps1.first < ps2.first;
-}
-
-
 void PapersizeSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actions) {
 	if (actions.getBBoxFormatString() != "papersize")
 		return;
 
 	// find number of page with size change not lower than the current one
 	typedef vector<PageSize>::iterator Iterator;
-	Iterator lb_it = lower_bound(_pageSizes.begin(), _pageSizes.end(), PageSize(pageno, DoublePair()), isLess);
+	Iterator lb_it = lower_bound(_pageSizes.begin(), _pageSizes.end(), PageSize(pageno, DoublePair()),
+		[](const PageSize &ps1, const PageSize &ps2) {
+			// order PageSize objects by page number
+			return ps1.first < ps2.first;
+		});
 	Iterator it = _pageSizes.end();
 	if (lb_it != _pageSizes.end() && lb_it->first == pageno)
 		it = lb_it;

@@ -19,8 +19,8 @@
 *************************************************************************/
 
 #include <limits>
-#include "ToUnicodeMap.h"
-#include "Unicode.h"
+#include "ToUnicodeMap.hpp"
+#include "Unicode.hpp"
 
 using namespace std;
 
@@ -32,10 +32,10 @@ using namespace std;
  *  characters are numbered from 1 to maxIndex.
  *  @param[in] maxIndex largest character index to consider
  *  @return true on success */
-bool ToUnicodeMap::addMissingMappings (UInt32 maxIndex) {
+bool ToUnicodeMap::addMissingMappings (uint32_t maxIndex) {
 	bool success=true;
 	// collect Unicode points already in assigned
-	NumericRanges<UInt32> codepoints;
+	NumericRanges<uint32_t> codepoints;
 	for (size_t i=0; i < size() && success; i++)
 		codepoints.addRange(rangeAt(i).minval(), rangeAt(i).maxval());
 	// fill unmapped ranges
@@ -57,13 +57,13 @@ bool ToUnicodeMap::addMissingMappings (UInt32 maxIndex) {
  * @param[in] used_codepoints codepoints already in use
  * @param[in] ascending if true, increase ucp to look for valid/unused codepoints
  * @return true on success */
-static bool fix_codepoint (UInt32 &ucp, const NumericRanges<UInt32> &used_codepoints, bool ascending) {
-	UInt32 start = ucp;
+static bool fix_codepoint (uint32_t &ucp, const NumericRanges<uint32_t> &used_codepoints, bool ascending) {
+	uint32_t start = ucp;
 	while (!Unicode::isValidCodepoint(ucp) && used_codepoints.valueExists(ucp)) {
 		if (ascending)
-			ucp = (ucp == numeric_limits<UInt32>::max()) ? 0 : ucp+1;
+			ucp = (ucp == numeric_limits<uint32_t>::max()) ? 0 : ucp+1;
 		else
-			ucp = (ucp == 0) ? numeric_limits<UInt32>::max() : ucp-1;
+			ucp = (ucp == 0) ? numeric_limits<uint32_t>::max() : ucp-1;
 		if (ucp == start) // no free Unicode point found
 			return false;
 	}
@@ -71,8 +71,8 @@ static bool fix_codepoint (UInt32 &ucp, const NumericRanges<UInt32> &used_codepo
 }
 
 
-static bool is_less_or_equal (UInt32 a, UInt32 b) {return a <= b;}
-static bool is_greater_or_equal (UInt32 a, UInt32 b) {return a >= b;}
+static bool is_less_or_equal (uint32_t a, uint32_t b) {return a <= b;}
+static bool is_greater_or_equal (uint32_t a, uint32_t b) {return a >= b;}
 
 
 /** Adds index to Unicode mappings for a given range of character indexes.
@@ -82,17 +82,17 @@ static bool is_greater_or_equal (UInt32 a, UInt32 b) {return a >= b;}
  *  @param[in,out] used_ucps Unicode points already in use
  *  @param[in] ascending if true, fill range from lower to upper bound
  *  @return true on success */
-bool ToUnicodeMap::fillRange (UInt32 minIndex, UInt32 maxIndex, UInt32 ucp, NumericRanges<UInt32> &used_ucps, bool ascending) {
+bool ToUnicodeMap::fillRange (uint32_t minIndex, uint32_t maxIndex, uint32_t ucp, NumericRanges<uint32_t> &used_ucps, bool ascending) {
 	if (minIndex <= maxIndex) {
-		UInt32 first=minIndex, last=maxIndex;
+		uint32_t first=minIndex, last=maxIndex;
 		int inc=1;
-		bool (*cmp)(UInt32, UInt32) = is_less_or_equal;
+		bool (*cmp)(uint32_t, uint32_t) = is_less_or_equal;
 		if (!ascending) {
 			swap(first, last);
 			inc = -1;
 			cmp = is_greater_or_equal;
 		}
-		for (UInt32 i=first; cmp(i, last); i += inc) {
+		for (uint32_t i=first; cmp(i, last); i += inc) {
 			if (!fix_codepoint(ucp, used_ucps, ascending))
 				return false;
 			else {

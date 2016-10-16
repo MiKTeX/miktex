@@ -19,8 +19,7 @@
 *************************************************************************/
 
 #include <config.h>
-#include "macros.h"
-#include "XMLDocument.h"
+#include "XMLDocument.hpp"
 
 using namespace std;
 
@@ -30,44 +29,32 @@ XMLDocument::XMLDocument (XMLElementNode *root)
 }
 
 
-XMLDocument::~XMLDocument () {
-	clear();
-}
-
-
 void XMLDocument::clear () {
-	delete _rootElement;
-	_rootElement = 0;
-	FORALL(_nodes, list<XMLNode*>::iterator, i)
-		delete *i;
+	_rootElement.reset();
 	_nodes.clear();
 }
 
 
 void XMLDocument::append (XMLNode *node) {
-	if (!node)
-		return;
-	if (XMLElementNode *newRoot = dynamic_cast<XMLElementNode*>(node)) {
-		// there can only be one root element node in the document
-		delete _rootElement;     // so if there is already one...
-		_rootElement = newRoot;  // ...we replace it
+	if (node) {
+		if (XMLElementNode *newRoot = dynamic_cast<XMLElementNode*>(node))
+			_rootElement.reset(newRoot);
+		else
+			_nodes.emplace_back(unique_ptr<XMLNode>(node));
 	}
-	else
-		_nodes.push_back(node);
 }
 
 
 void XMLDocument::setRootNode (XMLElementNode *root) {
-	delete _rootElement;
-	_rootElement = root;
+	_rootElement.reset(root);
 }
 
 
 ostream& XMLDocument::write (ostream &os) const {
 	if (_rootElement) { // no root element => no output
 		os << "<?xml version='1.0' encoding='UTF-8'?>\n";
-		FORALL(_nodes, list<XMLNode*>::const_iterator, i) {
-			(*i)->write(os);
+		for (const auto &node : _nodes) {
+			node->write(os);
 			os << '\n';
 		}
 		_rootElement->write(os);

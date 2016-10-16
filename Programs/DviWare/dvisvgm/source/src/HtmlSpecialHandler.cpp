@@ -21,16 +21,16 @@
 #include <config.h>
 #include <cassert>
 #include <sstream>
-#include "HtmlSpecialHandler.h"
-#include "InputReader.h"
-#include "Message.h"
-#include "SpecialActions.h"
-#include "SVGTree.h"
+#include "HtmlSpecialHandler.hpp"
+#include "InputReader.hpp"
+#include "Message.hpp"
+#include "SpecialActions.hpp"
+#include "SVGTree.hpp"
 
 using namespace std;
 
 // variable to select the link marker variant (none, underlined, boxed, or colored background)
-HtmlSpecialHandler::MarkerType HtmlSpecialHandler::MARKER_TYPE = HtmlSpecialHandler::MT_LINE;
+HtmlSpecialHandler::MarkerType HtmlSpecialHandler::MARKER_TYPE = HtmlSpecialHandler::MarkerType::LINE;
 Color HtmlSpecialHandler::LINK_BGCOLOR;
 Color HtmlSpecialHandler::LINK_LINECOLOR;
 bool HtmlSpecialHandler::USE_LINECOLOR = false;
@@ -135,7 +135,7 @@ void HtmlSpecialHandler::processHrefAnchor (string uri, SpecialActions &actions)
 	actions.pushContextElement(anchor);
 	actions.bbox("{anchor}", true);  // start computing the bounding box of the linked area
 	_depthThreshold = actions.getDVIStackDepth();
-	_anchorType = AT_HREF;
+	_anchorType = AnchorType::HREF;
 }
 
 
@@ -146,18 +146,18 @@ void HtmlSpecialHandler::processNameAnchor (const string &name, SpecialActions &
 	NamedAnchors::iterator it = _namedAnchors.find(name);
 	assert(it != _namedAnchors.end());
 	it->second.pos = actions.getY();
-	_anchorType = AT_NAME;
+	_anchorType = AnchorType::NAME;
 }
 
 
 /** Handles the closing tag (</a> of the current anchor element. */
 void HtmlSpecialHandler::closeAnchor (SpecialActions &actions) {
-	if (_anchorType == AT_HREF) {
+	if (_anchorType == AnchorType::HREF) {
 		markLinkedBox(actions);
 		actions.popContextElement();
 		_depthThreshold = 0;
 	}
-	_anchorType = AT_NONE;
+	_anchorType = AnchorType::NONE;
 }
 
 
@@ -168,7 +168,7 @@ void HtmlSpecialHandler::closeAnchor (SpecialActions &actions) {
 void HtmlSpecialHandler::markLinkedBox (SpecialActions &actions) {
 	const BoundingBox &bbox = actions.bbox("{anchor}");
 	if (bbox.width() > 0 && bbox.height() > 0) {  // does the bounding box extend in both dimensions?
-		if (MARKER_TYPE != MT_NONE) {
+		if (MARKER_TYPE != MarkerType::NONE) {
 			const double linewidth = min(0.5, bbox.height()/15);
 			XMLElementNode *rect = new XMLElementNode("rect");
 			double x = bbox.minX();
@@ -176,14 +176,14 @@ void HtmlSpecialHandler::markLinkedBox (SpecialActions &actions) {
 			double w = bbox.width();
 			double h = linewidth;
 			const Color &linecolor = USE_LINECOLOR ? LINK_LINECOLOR : actions.getColor();
-			if (MARKER_TYPE == MT_LINE)
+			if (MARKER_TYPE == MarkerType::LINE)
 				rect->addAttribute("fill", linecolor.svgColorString());
 			else {
 				x -= linewidth;
 				y = bbox.minY()-linewidth;
 				w += 2*linewidth;
 				h += bbox.height()+linewidth;
-				if (MARKER_TYPE == MT_BGCOLOR) {
+				if (MARKER_TYPE == MarkerType::BGCOLOR) {
 					rect->addAttribute("fill", LINK_BGCOLOR.svgColorString());
 					if (USE_LINECOLOR) {
 						rect->addAttribute("stroke", linecolor.svgColorString());
@@ -201,7 +201,7 @@ void HtmlSpecialHandler::markLinkedBox (SpecialActions &actions) {
 			rect->addAttribute("width", w);
 			rect->addAttribute("height", h);
 			actions.prependToPage(rect);
-			if (MARKER_TYPE == MT_BOX || MARKER_TYPE == MT_BGCOLOR) {
+			if (MARKER_TYPE == MarkerType::BOX || MARKER_TYPE == MarkerType::BGCOLOR) {
 				// slightly enlarge the boxed area
 				x -= linewidth;
 				y -= linewidth;
@@ -228,7 +228,7 @@ void HtmlSpecialHandler::markLinkedBox (SpecialActions &actions) {
 
 /** This method is called every time the DVI position changes. */
 void HtmlSpecialHandler::dviMovedTo (double x, double y, SpecialActions &actions) {
-	if (_active && _anchorType != AT_NONE) {
+	if (_active && _anchorType != AnchorType::NONE) {
 		// Start a new box if the current depth of the DVI stack underruns
 		// the initial threshold which indicates a line break.
 		if (actions.getDVIStackDepth() < _depthThreshold) {
@@ -244,13 +244,13 @@ void HtmlSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actions) {
 	if (_active) {
 		// create views for all collected named anchors defined on the recent page
 		const BoundingBox &pagebox = actions.bbox();
-		for (NamedAnchors::iterator it=_namedAnchors.begin(); it != _namedAnchors.end(); ++it) {
-			if (it->second.pageno == pageno && it->second.referenced) {  // current anchor referenced?
+		for (auto &stranchorpair : _namedAnchors) {
+			if (stranchorpair.second.pageno == pageno && stranchorpair.second.referenced) {  // current anchor referenced?
 				ostringstream oss;
-				oss << pagebox.minX() << ' ' << it->second.pos << ' '
+				oss << pagebox.minX() << ' ' << stranchorpair.second.pos << ' '
 					 << pagebox.width() << ' ' << pagebox.height();
 				XMLElementNode *view = new XMLElementNode("view");
-				view->addAttribute("id", "loc"+XMLString(it->second.id));
+				view->addAttribute("id", "loc"+XMLString(stranchorpair.second.id));
 				view->addAttribute("viewBox", oss.str());
 				actions.appendToDefs(view);
 			}
@@ -275,18 +275,18 @@ bool HtmlSpecialHandler::setLinkMarker (const string &marker) {
 		color = marker.substr(seppos+1);
 	}
 	if (type.empty() || type == "none")
-		MARKER_TYPE = MT_NONE;
+		MARKER_TYPE = MarkerType::NONE;
 	else if (type == "line")
-		MARKER_TYPE = MT_LINE;
+		MARKER_TYPE = MarkerType::LINE;
 	else if (type == "box")
-		MARKER_TYPE = MT_BOX;
+		MARKER_TYPE = MarkerType::BOX;
 	else {
 		if (!LINK_BGCOLOR.setPSName(type, false))
 			return false;
-		MARKER_TYPE = MT_BGCOLOR;
+		MARKER_TYPE = MarkerType::BGCOLOR;
 	}
 	USE_LINECOLOR = false;
-	if (MARKER_TYPE != MT_NONE && !color.empty()) {
+	if (MARKER_TYPE != MarkerType::NONE && !color.empty()) {
 		if (!LINK_LINECOLOR.setPSName(color, false))
 			return false;
 		USE_LINECOLOR = true;

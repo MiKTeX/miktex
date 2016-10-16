@@ -23,17 +23,15 @@
 #include <cstdlib>
 #include <iomanip>
 #include <sstream>
-#include "macros.h"
-#include "types.h"
-#include "Unicode.h"
-#include "XMLString.h"
+#include "Unicode.hpp"
+#include "XMLString.hpp"
 
 using namespace std;
 
 int XMLString::DECIMAL_PLACES = 0;
 
 
-static string translate (UInt32 c) {
+static string translate (uint32_t c) {
 	switch (c) {
 		case '<' : return "&lt;";
 		case '&' : return "&amp;";
@@ -48,8 +46,8 @@ XMLString::XMLString (const string &str, bool plain) {
 	if (plain)
 		assign(str);
 	else {
-		FORALL(str, string::const_iterator, i)
-			*this += translate(*i);
+		for (char c : str)
+			*this += translate(c);
 	}
 }
 

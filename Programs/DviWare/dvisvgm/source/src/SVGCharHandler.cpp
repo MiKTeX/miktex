@@ -18,8 +18,8 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include "SVGCharHandler.h"
-#include "XMLNode.h"
+#include "SVGCharHandler.hpp"
+#include "XMLNode.hpp"
 
 using namespace std;
 

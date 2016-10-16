@@ -19,7 +19,7 @@
 *************************************************************************/
 
 #include <valarray>
-#include "TensorProductPatch.h"
+#include "TensorProductPatch.hpp"
 
 using namespace std;
 

@@ -21,13 +21,13 @@
 #include <config.h>
 #include <cmath>
 #include <cstring>
-#include "InputBuffer.h"
+#include "InputBuffer.hpp"
 
 using namespace std;
 
 
 StreamInputBuffer::StreamInputBuffer (istream &is, size_t bufsize)
-	: _is(is), _bufsize(bufsize), _buf1(new UInt8[_bufsize]), _buf2(new UInt8[_bufsize]), _bufptr(_buf1)
+	: _is(is), _bufsize(bufsize), _buf1(new uint8_t[_bufsize]), _buf2(new uint8_t[_bufsize]), _bufptr(_buf1)
 {
 	_size1 = fillBuffer(_buf1);
 	_size2 = fillBuffer(_buf2);
@@ -49,7 +49,7 @@ int StreamInputBuffer::get () {
 		_bufptr = _buf1;
 		_size2 = fillBuffer(_buf2);
 	}
-	UInt8 c = *_bufptr++;
+	uint8_t c = *_bufptr++;
 	return c;
 }
 
@@ -77,7 +77,7 @@ int StreamInputBuffer::peek (size_t n) const {
  *  input stream.
  *  @param[in] buf pointer to character buffer to be filled
  *  @return number of characters read */
-int StreamInputBuffer::fillBuffer (UInt8 *buf) {
+int StreamInputBuffer::fillBuffer (uint8_t *buf) {
 	if (_is && !_is.eof()) {
 		_is.read((char*)buf, _bufsize);
 		return  _is.gcount();

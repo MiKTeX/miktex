@@ -21,10 +21,10 @@
 #include <config.h>
 #include <cstring>
 #include <sstream>
-#include "InputBuffer.h"
-#include "InputReader.h"
-#include "MapLine.h"
-#include "Subfont.h"
+#include "InputBuffer.hpp"
+#include "InputReader.hpp"
+#include "MapLine.hpp"
+#include "Subfont.hpp"
 
 using namespace std;
 

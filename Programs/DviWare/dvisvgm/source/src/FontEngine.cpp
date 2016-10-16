@@ -26,10 +26,10 @@
 #include FT_OUTLINE_H
 #include FT_TRUETYPE_TABLES_H
 #include FT_TYPES_H
-#include "Font.h"
-#include "FontEngine.h"
-#include "FontStyle.h"
-#include "Message.h"
+#include "Font.hpp"
+#include "FontEngine.hpp"
+#include "FontStyle.hpp"
+#include "Message.hpp"
 
 using namespace std;
 
@@ -133,7 +133,7 @@ bool FontEngine::setCharMap (const CharMapID &charMapID) {
 void FontEngine::buildCharMap (RangeMap &charmap) {
 	charmap.clear();
 	FT_UInt glyph_index;
-	UInt32 charcode = FT_Get_First_Char(_currentFace, &glyph_index);
+	uint32_t charcode = FT_Get_First_Char(_currentFace, &glyph_index);
 	while (glyph_index) {
 		charmap.addRange(glyph_index, glyph_index, charcode);
 		charcode = FT_Get_Next_Char(_currentFace, charcode, &glyph_index);
@@ -153,9 +153,9 @@ const RangeMap* FontEngine::createCustomToUnicodeMap () {
 		return 0;
 	RangeMap *charmap = new RangeMap;
 	FT_UInt glyph_index;
-	UInt32 unicode_point = FT_Get_First_Char(_currentFace, &glyph_index);
+	uint32_t unicode_point = FT_Get_First_Char(_currentFace, &glyph_index);
 	while (glyph_index) {
-		UInt32 custom_charcode = index_to_source_chrcode.valueAt(glyph_index);
+		uint32_t custom_charcode = index_to_source_chrcode.valueAt(glyph_index);
 		charmap->addRange(custom_charcode, custom_charcode, unicode_point);
 		unicode_point = FT_Get_Next_Char(_currentFace, unicode_point, &glyph_index);
 	}
@@ -179,15 +179,19 @@ int FontEngine::getUnitsPerEM () const {
 }
 
 
-/** Returns the ascender of the current font in font units. */
+/** Returns the ascender of the current font in font units.
+ *  The (usually) positive value denotes the maximum height
+ *  (extent above the baseline) of the font. */
 int FontEngine::getAscender () const {
 	return _currentFace ? _currentFace->ascender : 0;
 }
 
 
-/** Returns the descender of the current font in font units. */
+/** Returns the descender of the current font in font units.
+ *  The (usually) positive value denotes the maximum depth
+ *  (extent below the baseline) of the font. */
 int FontEngine::getDescender () const {
-	return _currentFace ? _currentFace->descender : 0;
+	return _currentFace ? -_currentFace->descender : 0;
 }
 
 
@@ -299,7 +303,7 @@ int FontEngine::getCharMapIDs (vector<CharMapID> &charmapIDs) const {
 	if (_currentFace) {
 		for (int i=0; i < _currentFace->num_charmaps; i++) {
 			FT_CharMap charmap = _currentFace->charmaps[i];
-			charmapIDs.push_back(CharMapID(charmap->platform_id, charmap->encoding_id));
+			charmapIDs.emplace_back(CharMapID(charmap->platform_id, charmap->encoding_id));
 		}
 	}
 	return charmapIDs.size();

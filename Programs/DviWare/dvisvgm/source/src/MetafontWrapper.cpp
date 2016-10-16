@@ -23,12 +23,12 @@
 #include <cctype>
 #include <fstream>
 #include <sstream>
-#include "FileSystem.h"
-#include "FileFinder.h"
-#include "Message.h"
-#include "MetafontWrapper.h"
-#include "Process.h"
-#include "XMLString.h"
+#include "FileSystem.hpp"
+#include "FileFinder.hpp"
+#include "Message.hpp"
+#include "MetafontWrapper.hpp"
+#include "Process.hpp"
+#include "XMLString.hpp"
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
@@ -50,7 +50,7 @@ MetafontWrapper::MetafontWrapper (const string &fname) : _fontname(fname)
  *  @param[in] mag magnification factor
  *  @return true on success */
 bool MetafontWrapper::call (const string &mode, double mag) {
-	if (!FileFinder::lookup(_fontname+".mf"))
+	if (!FileFinder::instance().lookup(_fontname+".mf"))
 		return false;     // mf file not available => no need to call the "slow" Metafont
 	FileSystem::remove(_fontname+".gf");
 
@@ -60,7 +60,7 @@ bool MetafontWrapper::call (const string &mode, double mag) {
 #else
 	const char *mfname = "mf.exe";
 #endif
-	const char *cmd = FileFinder::lookup(mfname, false);
+	const char *cmd = FileFinder::instance().lookup(mfname, false);
 	if (!cmd) {
 		Message::estream(true) << "can't run Metafont (" << mfname << " not found)\n";
 		return false;

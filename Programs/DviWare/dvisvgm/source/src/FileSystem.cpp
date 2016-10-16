@@ -22,8 +22,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
-#include "FileSystem.h"
-#include "macros.h"
+#include "FileSystem.hpp"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -98,7 +97,7 @@ bool FileSystem::rename (const string &oldname, const string &newname) {
 }
 
 
-UInt64 FileSystem::filesize (const string &fname) {
+uint64_t FileSystem::filesize (const string &fname) {
 #ifdef _WIN32
 	// unfortunately, stat doesn't work properly under Windows
 	// so we have to use this freaky code
@@ -108,7 +107,7 @@ UInt64 FileSystem::filesize (const string &fname) {
 #else
 	GetFileAttributesExA(fname.c_str(), GetFileExInfoStandard, &attr);
 #endif
-	return (static_cast<UInt64>(attr.nFileSizeHigh) << (8*sizeof(attr.nFileSizeLow))) | attr.nFileSizeLow;
+	return (static_cast<uint64_t>(attr.nFileSizeHigh) << (8*sizeof(attr.nFileSizeLow))) | attr.nFileSizeLow;
 #else
 	struct stat attr;
 	return (stat(fname.c_str(), &attr) == 0) ? attr.st_size : 0;
@@ -296,6 +295,7 @@ bool FileSystem::rmdir (const string &dirname) {
 /** Checks if a file or directory exits. */
 bool FileSystem::exists (const string &fname) {
 	if (const char *cfname = fname.c_str()) {
+
 #if defined(MIKTEX)
         return MiKTeX::Core::File::Exists(fname) || MiKTeX::Core::Directory::Exists(fname);
 #else
@@ -375,7 +375,7 @@ int FileSystem::collect (const char *dirname, vector<string> &entries) {
 		string path = string(dirname)+"/"+fname;
 		string typechar = isFile(path) ? "f" : isDirectory(path) ? "d" : "?";
 		if (fname != "." && fname != "..")
-			entries.push_back(typechar+fname);
+			entries.emplace_back(typechar+fname);
 		ready = !FindNextFile(h, &data);
 	}
 	FindClose(h);
@@ -387,7 +387,7 @@ int FileSystem::collect (const char *dirname, vector<string> &entries) {
 			string path = string(dirname)+"/"+fname;
 			string typechar = isFile(path) ? "f" : isDirectory(path) ? "d" : "?";
 			if (fname != "." && fname != "..")
-				entries.push_back(typechar+fname);
+				entries.emplace_back(typechar+fname);
 		}
 		closedir(dir);
 	}

@@ -22,8 +22,8 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_DVIWARE_FOLDER}/dvisvgm")
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
-  source/clipper
-  source/xxHash
+  source/libs/clipper
+  source/libs/xxHash
 )
 
 add_definitions(
@@ -36,15 +36,17 @@ if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(
     -DUNICODE
     -D_UNICODE
-    -D__WIN32__
   )
 endif()
 
 if(CMAKE_CL_64)
   add_definitions(
-    -D__WIN64__
+    -D_WIN64
   )
 endif()
+
+set(DISABLE_WOFF 1)
+set(HAVE_CXX11 1)
 
 configure_file(
   config.h.cmake
@@ -52,223 +54,224 @@ configure_file(
 )
 
 set(libclipper_sources
-  source/clipper/clipper.cpp
-  source/clipper/clipper.hpp
+  source/libs/clipper/clipper.cpp
+  source/libs/clipper/clipper.hpp
 )
 
 set(libxxhash_sources
-  source/xxHash/xxhash.c
-  source/xxHash/xxhash.h
+  source/libs/xxHash/xxhash.c
+  source/libs/xxHash/xxhash.h
 )
 
 set(libdvisvgm_sources
-  source/src/AGLTable.h
+  source/src/AGLTable.hpp
   source/src/BasicDVIReader.cpp
-  source/src/BasicDVIReader.h
+  source/src/BasicDVIReader.hpp
   source/src/Bezier.cpp
-  source/src/Bezier.h
+  source/src/Bezier.hpp
   source/src/BgColorSpecialHandler.cpp
-  source/src/BgColorSpecialHandler.h
+  source/src/BgColorSpecialHandler.hpp
   source/src/Bitmap.cpp
-  source/src/Bitmap.h
+  source/src/Bitmap.hpp
   source/src/BoundingBox.cpp
-  source/src/BoundingBox.h
+  source/src/BoundingBox.hpp
+  source/src/CLCommandLine.cpp
+  source/src/CLCommandLine.hpp
+  source/src/CLOption.hpp
   source/src/CMap.cpp
-  source/src/CMap.h
+  source/src/CMap.hpp
   source/src/CMapManager.cpp
-  source/src/CMapManager.h
+  source/src/CMapManager.hpp
   source/src/CMapReader.cpp
-  source/src/CMapReader.h
+  source/src/CMapReader.hpp
   source/src/CRC32.cpp
-  source/src/CRC32.h
+  source/src/CRC32.hpp
   source/src/Calculator.cpp
-  source/src/Calculator.h
+  source/src/Calculator.hpp
   source/src/CharMapID.cpp
-  source/src/CharMapID.h
-  source/src/Character.h
-  source/src/CmdLineParserBase.cpp
-  source/src/CmdLineParserBase.h
+  source/src/CharMapID.hpp
+  source/src/Character.hpp
   source/src/Color.cpp
-  source/src/Color.h
+  source/src/Color.hpp
   source/src/ColorSpecialHandler.cpp
-  source/src/ColorSpecialHandler.h
-  source/src/CommandLine.cpp
-  source/src/CommandLine.h
+  source/src/ColorSpecialHandler.hpp
   source/src/DLLoader.cpp
-  source/src/DLLoader.h
-  source/src/DVIActions.h
+  source/src/DLLoader.hpp
+  source/src/DVIActions.hpp
   source/src/DVIReader.cpp
-  source/src/DVIReader.h
+  source/src/DVIReader.hpp
   source/src/DVIToSVG.cpp
-  source/src/DVIToSVG.h
+  source/src/DVIToSVG.hpp
   source/src/DVIToSVGActions.cpp
-  source/src/DVIToSVGActions.h
-  source/src/DependencyGraph.h
+  source/src/DVIToSVGActions.hpp
+  source/src/DependencyGraph.hpp
   source/src/Directory.cpp
-  source/src/Directory.h
+  source/src/Directory.hpp
   source/src/DvisvgmSpecialHandler.cpp
-  source/src/DvisvgmSpecialHandler.h
+  source/src/DvisvgmSpecialHandler.hpp
   source/src/EPSFile.cpp
-  source/src/EPSFile.h
+  source/src/EPSFile.hpp
   source/src/EPSToSVG.cpp
-  source/src/EPSToSVG.h
+  source/src/EPSToSVG.hpp
   source/src/EmSpecialHandler.cpp
-  source/src/EmSpecialHandler.h
+  source/src/EmSpecialHandler.hpp
   source/src/EncFile.cpp
-  source/src/EncFile.h
+  source/src/EncFile.hpp
   source/src/FileFinder.cpp
-  source/src/FileFinder.h
+  source/src/FileFinder.hpp
   source/src/FilePath.cpp
-  source/src/FilePath.h
+  source/src/FilePath.hpp
   source/src/FileSystem.cpp
-  source/src/FileSystem.h
+  source/src/FileSystem.hpp
+  source/src/FixWord.hpp
   source/src/Font.cpp
-  source/src/Font.h
+  source/src/Font.hpp
   source/src/FontCache.cpp
-  source/src/FontCache.h
+  source/src/FontCache.hpp
   source/src/FontEncoding.cpp
-  source/src/FontEncoding.h
+  source/src/FontEncoding.hpp
   source/src/FontEngine.cpp
-  source/src/FontEngine.h
+  source/src/FontEngine.hpp
   source/src/FontManager.cpp
-  source/src/FontManager.h
+  source/src/FontManager.hpp
   source/src/FontMap.cpp
-  source/src/FontMap.h
+  source/src/FontMap.hpp
   source/src/FontMetrics.cpp
-  source/src/FontMetrics.h
-  source/src/FontStyle.h
+  source/src/FontMetrics.hpp
+  source/src/FontStyle.hpp
+  source/src/FontWriter.cpp
+  source/src/FontWriter.hpp
   source/src/GFGlyphTracer.cpp
-  source/src/GFGlyphTracer.h
+  source/src/GFGlyphTracer.hpp
   source/src/GFReader.cpp
-  source/src/GFReader.h
+  source/src/GFReader.hpp
   source/src/GFTracer.cpp
-  source/src/GFTracer.h
+  source/src/GFTracer.hpp
   source/src/Ghostscript.cpp
-  source/src/Ghostscript.h
-  source/src/Glyph.h
-  source/src/GlyphTracerMessages.h
-  source/src/GraphicsPath.h
+  source/src/Ghostscript.hpp
+  source/src/Glyph.hpp
+  source/src/GlyphTracerMessages.hpp
+  source/src/GraphicsPath.hpp
   source/src/HtmlSpecialHandler.cpp
-  source/src/HtmlSpecialHandler.h
+  source/src/HtmlSpecialHandler.hpp
   source/src/InputBuffer.cpp
-  source/src/InputBuffer.h
+  source/src/InputBuffer.hpp
   source/src/InputReader.cpp
-  source/src/InputReader.h
+  source/src/InputReader.hpp
   source/src/JFM.cpp
-  source/src/JFM.h
+  source/src/JFM.hpp
   source/src/Length.cpp
-  source/src/Length.h
+  source/src/Length.hpp
   source/src/MapLine.cpp
-  source/src/MapLine.h
+  source/src/MapLine.hpp
   source/src/Matrix.cpp
-  source/src/Matrix.h
+  source/src/Matrix.hpp
   source/src/Message.cpp
-  source/src/Message.h
-  source/src/MessageException.h
+  source/src/Message.hpp
+  source/src/MessageException.hpp
   source/src/MetafontWrapper.cpp
-  source/src/MetafontWrapper.h
+  source/src/MetafontWrapper.hpp
   source/src/NoPsSpecialHandler.cpp
-  source/src/NoPsSpecialHandler.h
-  source/src/NumericRanges.h
-  source/src/PSFilter.h
+  source/src/NoPsSpecialHandler.hpp
+  source/src/NumericRanges.hpp
+  source/src/PSFilter.hpp
   source/src/PSInterpreter.cpp
-  source/src/PSInterpreter.h
+  source/src/PSInterpreter.hpp
   source/src/PSPattern.cpp
-  source/src/PSPattern.h
+  source/src/PSPattern.hpp
   source/src/PSPreviewFilter.cpp
-  source/src/PSPreviewFilter.h
+  source/src/PSPreviewFilter.hpp
   source/src/PageRanges.cpp
-  source/src/PageRanges.h
+  source/src/PageRanges.hpp
   source/src/PageSize.cpp
-  source/src/PageSize.h
-  source/src/Pair.h
+  source/src/PageSize.hpp
+  source/src/Pair.hpp
   source/src/PapersizeSpecialHandler.cpp
-  source/src/PapersizeSpecialHandler.h
+  source/src/PapersizeSpecialHandler.hpp
   source/src/PathClipper.cpp
-  source/src/PathClipper.h
+  source/src/PathClipper.hpp
   source/src/PdfSpecialHandler.cpp
-  source/src/PdfSpecialHandler.h
+  source/src/PdfSpecialHandler.hpp
   source/src/PreScanDVIReader.cpp
-  source/src/PreScanDVIReader.h
+  source/src/PreScanDVIReader.hpp
   source/src/Process.cpp
-  source/src/Process.h
+  source/src/Process.hpp
   source/src/PsSpecialHandler.cpp
-  source/src/PsSpecialHandler.h
+  source/src/PsSpecialHandler.hpp
   source/src/RangeMap.cpp
-  source/src/RangeMap.h
+  source/src/RangeMap.hpp
   source/src/SVGCharHandler.cpp
-  source/src/SVGCharHandler.h
+  source/src/SVGCharHandler.hpp
   source/src/SVGCharHandlerFactory.cpp
-  source/src/SVGCharHandlerFactory.h
+  source/src/SVGCharHandlerFactory.hpp
   source/src/SVGCharPathHandler.cpp
-  source/src/SVGCharPathHandler.h
+  source/src/SVGCharPathHandler.hpp
   source/src/SVGCharTspanTextHandler.cpp
-  source/src/SVGCharTspanTextHandler.h
+  source/src/SVGCharTspanTextHandler.hpp
   source/src/SVGOutput.cpp
-  source/src/SVGOutput.h
+  source/src/SVGOutput.hpp
   source/src/SVGSingleCharTextHandler.cpp
-  source/src/SVGSingleCharTextHandler.h
+  source/src/SVGSingleCharTextHandler.hpp
   source/src/SVGTree.cpp
-  source/src/SVGTree.h
+  source/src/SVGTree.hpp
   source/src/ShadingPatch.cpp
-  source/src/ShadingPatch.h
+  source/src/ShadingPatch.hpp
   source/src/SignalHandler.cpp
-  source/src/SignalHandler.h
-  source/src/SpecialActions.h
-  source/src/SpecialHandler.h
+  source/src/SignalHandler.hpp
+  source/src/SpecialActions.hpp
+  source/src/SpecialHandler.hpp
   source/src/SpecialManager.cpp
-  source/src/SpecialManager.h
+  source/src/SpecialManager.hpp
   source/src/StreamReader.cpp
-  source/src/StreamReader.h
+  source/src/StreamReader.hpp
   source/src/StreamWriter.cpp
-  source/src/StreamWriter.h
+  source/src/StreamWriter.hpp
   source/src/Subfont.cpp
-  source/src/Subfont.h
+  source/src/Subfont.hpp
   source/src/System.cpp
-  source/src/System.h
+  source/src/System.hpp
   source/src/TFM.cpp
-  source/src/TFM.h
+  source/src/TFM.hpp
   source/src/TensorProductPatch.cpp
-  source/src/TensorProductPatch.h
+  source/src/TensorProductPatch.hpp
   source/src/Terminal.cpp
-  source/src/Terminal.h
+  source/src/Terminal.hpp
   source/src/ToUnicodeMap.cpp
-  source/src/ToUnicodeMap.h
+  source/src/ToUnicodeMap.hpp
   source/src/TpicSpecialHandler.cpp
-  source/src/TpicSpecialHandler.h
+  source/src/TpicSpecialHandler.hpp
   source/src/TriangularPatch.cpp
-  source/src/TriangularPatch.h
+  source/src/TriangularPatch.hpp
   source/src/Unicode.cpp
-  source/src/Unicode.h
-  source/src/VFActions.h
+  source/src/Unicode.hpp
+  source/src/VFActions.hpp
   source/src/VFReader.cpp
-  source/src/VFReader.h
-  source/src/VectorIterator.h
-  source/src/VectorStream.h
+  source/src/VFReader.hpp
+  source/src/VectorIterator.hpp
+  source/src/VectorStream.hpp
   source/src/XMLDocument.cpp
-  source/src/XMLDocument.h
+  source/src/XMLDocument.hpp
   source/src/XMLNode.cpp
-  source/src/XMLNode.h
+  source/src/XMLNode.hpp
   source/src/XMLString.cpp
-  source/src/XMLString.h
-  source/src/macros.h
+  source/src/XMLString.hpp
+  source/src/ZLibOutputStream.hpp
+  source/src/macros.hpp
   source/src/psdefs.cpp
-  source/src/types.h
+  source/src/version.hpp
 )
 
 set(dvisvgm_c_sources
   source/src/dvisvgm.cpp
-  source/src/gzstream.cpp
-  source/src/gzstream.h
 )
 
 set(dvisvgm_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
   ${MIKTEX_LIBRARY_WRAPPER}
   ${dvisvgm_c_sources}
   ${libclipper_sources}
   ${libdvisvgm_sources}
   ${libxxhash_sources}
-  config.h
   dvisvgm-version.h
 )
 

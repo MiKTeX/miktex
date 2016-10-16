@@ -21,10 +21,10 @@
 #include <config.h>
 #include <iomanip>
 #include <sstream>
-#include "SpecialActions.h"
-#include "SpecialHandler.h"
-#include "SpecialManager.h"
-#include "PsSpecialHandler.h"
+#include "SpecialActions.hpp"
+#include "SpecialHandler.hpp"
+#include "SpecialManager.hpp"
+#include "PsSpecialHandler.hpp"
 
 using namespace std;
 
@@ -44,8 +44,8 @@ SpecialManager& SpecialManager::instance() {
 
 /** Remove all registered handlers. */
 void SpecialManager::unregisterHandlers () {
-	FORALL(_pool, vector<SpecialHandler*>::iterator, it)
-		delete *it;
+	for (SpecialHandler *handler : _pool)
+		delete handler;
 	_pool.clear();
 	_handlers.clear();
 	_endPageListeners.clear();
@@ -82,14 +82,14 @@ void SpecialManager::registerHandler (SpecialHandler *handler) {
  *  @param[in] ignorelist list of special names to be ignored */
 void SpecialManager::registerHandlers (SpecialHandler **handlers, const char *ignorelist) {
 	if (handlers) {
-		string ign = ignorelist ? ignorelist : "";
-		FORALL(ign, string::iterator, it)
-			if (!isalnum(*it))
-				*it = '%';
-		ign = "%"+ign+"%";
+		string ignorestr = ignorelist ? ignorelist : "";
+		for (char &c : ignorestr)
+			if (!isalnum(c))
+				c = '%';
+		ignorestr = "%"+ignorestr+"%";
 
 		for (; *handlers; handlers++) {
-			if (!(*handlers)->name() || ign.find("%"+string((*handlers)->name())+"%") == string::npos)
+			if (!(*handlers)->name() || ignorestr.find("%"+string((*handlers)->name())+"%") == string::npos)
 				registerHandler(*handlers);
 			else
 				delete *handlers;
@@ -102,7 +102,7 @@ void SpecialManager::registerHandlers (SpecialHandler **handlers, const char *ig
  *  @param[in] prefix the special prefix, e.g. "color" or "em"
  *  @return in case of success: pointer to handler, 0 otherwise */
 SpecialHandler* SpecialManager::findHandler (const string &prefix) const {
-	ConstIterator it = _handlers.find(prefix);
+	auto it = _handlers.find(prefix);
 	if (it != _handlers.end())
 		return it->second;
 	return 0;
@@ -149,40 +149,39 @@ bool SpecialManager::process (const string &special, double dvi2bp, SpecialActio
 
 
 void SpecialManager::notifyPreprocessingFinished () const {
-	FORALL(_preprocListeners, vector<DVIPreprocessingListener*>::const_iterator, it)
-		(*it)->dviPreprocessingFinished();
+	for (DVIPreprocessingListener *listener : _preprocListeners)
+		listener->dviPreprocessingFinished();
 }
 
 
 void SpecialManager::notifyBeginPage (unsigned pageno, SpecialActions &actions) const {
-	FORALL(_beginPageListeners, vector<DVIBeginPageListener*>::const_iterator, it)
-		(*it)->dviBeginPage(pageno, actions);
+	for (DVIBeginPageListener *listener : _beginPageListeners)
+		listener->dviBeginPage(pageno, actions);
 }
 
 
 void SpecialManager::notifyEndPage (unsigned pageno, SpecialActions &actions) const {
-	FORALL(_endPageListeners, vector<DVIEndPageListener*>::const_iterator, it)
-		(*it)->dviEndPage(pageno, actions);
+	for (DVIEndPageListener *listener : _endPageListeners)
+		listener->dviEndPage(pageno, actions);
 }
 
 
 void SpecialManager::notifyPositionChange (double x, double y, SpecialActions &actions) const {
-	FORALL(_positionListeners, vector<DVIPositionListener*>::const_iterator, it)
-		(*it)->dviMovedTo(x, y, actions);
+	for (DVIPositionListener *listener : _positionListeners)
+		listener->dviMovedTo(x, y, actions);
 }
 
 
 void SpecialManager::writeHandlerInfo (ostream &os) const {
 	ios::fmtflags osflags(os.flags());
-	typedef map<string, SpecialHandler*> SortMap;
-	SortMap m;
-	FORALL(_handlers, ConstIterator, it)
-		if (it->second->name())
-			m[it->second->name()] = it->second;
-	FORALL(m, SortMap::iterator, it) {
-		os << setw(10) << left << it->second->name() << ' ';
-		if (it->second->info())
-			os << it->second->info();
+	HandlerMap sortmap;
+	for (const auto &strhandlerpair : _handlers)
+		if (strhandlerpair.second->name())
+			sortmap[strhandlerpair.second->name()] = strhandlerpair.second;
+	for (auto &strhandlerpair : sortmap) {
+		os << setw(10) << left << strhandlerpair.second->name() << ' ';
+		if (strhandlerpair.second->info())
+			os << strhandlerpair.second->info();
 		os << endl;
 	}
 	os.flags(osflags);  // restore format flags

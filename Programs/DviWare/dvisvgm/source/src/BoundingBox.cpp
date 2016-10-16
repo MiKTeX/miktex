@@ -21,10 +21,10 @@
 #include <config.h>
 #include <algorithm>
 #include <sstream>
-#include "BoundingBox.h"
-#include "Matrix.h"
-#include "XMLNode.h"
-#include "XMLString.h"
+#include "BoundingBox.hpp"
+#include "Matrix.hpp"
+#include "XMLNode.hpp"
+#include "XMLString.hpp"
 
 using namespace std;
 
@@ -96,7 +96,7 @@ void BoundingBox::extractLengths (string boxstr, vector<Length> &lengths) {
 			r++;
 		lenstr = boxstr.substr(l, r-l);
 		if (!lenstr.empty()) {
-			lengths.push_back(Length(lenstr));
+			lengths.emplace_back(Length(lenstr));
 			if (boxstr[r] == ',')
 				r++;
 			l = r;

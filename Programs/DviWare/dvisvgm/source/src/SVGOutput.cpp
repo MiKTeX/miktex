@@ -20,30 +20,25 @@
 
 #include <algorithm>
 #include <cmath>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include "gzstream.h"
-#include "Calculator.h"
-#include "FileSystem.h"
-#include "Message.h"
-#include "SVGOutput.h"
+#include "Calculator.hpp"
+#include "FileSystem.hpp"
+#include "Message.hpp"
+#include "SVGOutput.hpp"
+#include "ZLibOutputStream.hpp"
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
 #define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 #endif
 
-
 using namespace std;
 
-SVGOutput::SVGOutput (const char *base, string pattern, int zipLevel)
-	: _path(base ? base : ""),
-	_pattern(pattern),
-	_stdout(base == 0),
-	_zipLevel(zipLevel),
-	_page(-1),
-	_os(0)
+SVGOutput::SVGOutput (const char *base, const string &pattern, int zipLevel)
+	: _path(base ? base : ""), _pattern(pattern), _stdout(base == 0), _zipLevel(zipLevel), _page(-1)
 {
 }
 
@@ -55,29 +50,24 @@ SVGOutput::SVGOutput (const char *base, string pattern, int zipLevel)
 ostream& SVGOutput::getPageStream (int page, int numPages) const {
 	string fname = filename(page, numPages);
 	if (fname.empty()) {
-		delete _os;
-		_os = 0;
+		_osptr.reset();
 		return cout;
 	}
 	if (page == _page)
-		return *_os;
+		return *_osptr;
 
 	_page = page;
-	delete _os;
 	if (_zipLevel > 0)
-		_os = new ogzstream(fname.c_str(), _zipLevel);
+		_osptr.reset(new ZLibOutputStream(fname, _zipLevel));
 	else
 #if defined(MIKTEX_WINDOWS)
-          _os = new ofstream(UW_(fname.c_str()));
+        _osptr.reset(new ofstream(UW_(fname.c_str())));
 #else
-		_os = new ofstream(fname.c_str());
+		_osptr.reset(new ofstream(fname.c_str()));
 #endif
-	if (!_os || !*_os) {
-		delete _os;
-		_os = 0;
+	if (!_osptr)
 		throw MessageException("can't open file "+fname+" for writing");
-	}
-	return *_os;
+	return *_osptr;
 }
 
 

@@ -22,7 +22,7 @@
 #include <cmath>
 #include <functional>
 #include <vector>
-#include "InputReader.h"
+#include "InputReader.hpp"
 
 using namespace std;
 

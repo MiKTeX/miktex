@@ -19,8 +19,8 @@
 *************************************************************************/
 
 #include <config.h>
-#include "CRC32.h"
-#include "StreamWriter.h"
+#include "CRC32.hpp"
+#include "StreamWriter.hpp"
 
 using namespace std;
 
@@ -28,7 +28,7 @@ using namespace std;
 /** Writes an unsigned integer to the output stream.
  *  @param[in] val the value to write
  *  @param[in] n number of bytes to be considered */
-void StreamWriter::writeUnsigned (UInt32 val, int n) {
+void StreamWriter::writeUnsigned (uint32_t val, int n) {
 	for (n--; n >= 0; n--)
 		_os.put(char((val >> (8*n)) & 0xff));
 }
@@ -37,8 +37,8 @@ void StreamWriter::writeUnsigned (UInt32 val, int n) {
 /** Writes a signed integer to the output stream.
  *  @param[in] val the value to write
  *  @param[in] n number of bytes to be considered */
-void StreamWriter::writeSigned (Int32 val, int n) {
-	writeUnsigned((UInt32)val, n);
+void StreamWriter::writeSigned (int32_t val, int n) {
+	writeUnsigned((uint32_t)val, n);
 }
 
 
@@ -57,7 +57,7 @@ void StreamWriter::writeString (const string &str, bool finalZero) {
  *  @param[in] val the value to write
  *  @param[in] n number of bytes to be considered
  *  @param[in,out] crc32 checksum to be updated */
-void StreamWriter::writeUnsigned (UInt32 val, int n, CRC32 &crc32) {
+void StreamWriter::writeUnsigned (uint32_t val, int n, CRC32 &crc32) {
 	writeUnsigned(val, n);
 	crc32.update(val, n);
 }
@@ -67,8 +67,8 @@ void StreamWriter::writeUnsigned (UInt32 val, int n, CRC32 &crc32) {
  *  @param[in] val the value to write
  *  @param[in] n number of bytes to be considered
  *  @param[in,out] crc32 checksum to be updated */
-void StreamWriter::writeSigned (Int32 val, int n, CRC32 &crc32) {
-	writeUnsigned((UInt32)val, n, crc32);
+void StreamWriter::writeSigned (int32_t val, int n, CRC32 &crc32) {
+	writeUnsigned((uint32_t)val, n, crc32);
 }
 
 
@@ -78,5 +78,5 @@ void StreamWriter::writeSigned (Int32 val, int n, CRC32 &crc32) {
  *  @param[in] finalZero if true, a final 0-byte is appended */
 void StreamWriter::writeString (const std::string &str, CRC32 &crc32, bool finalZero) {
 	writeString(str, finalZero);
-	crc32.update((const UInt8*)str.c_str(), str.length() + (finalZero ? 1 : 0));
+	crc32.update((const uint8_t*)str.c_str(), str.length() + (finalZero ? 1 : 0));
 }

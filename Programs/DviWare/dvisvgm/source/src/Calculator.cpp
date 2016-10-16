@@ -21,7 +21,7 @@
 #include <config.h>
 #include <cmath>
 #include <sstream>
-#include "Calculator.h"
+#include "Calculator.hpp"
 
 using namespace std;
 

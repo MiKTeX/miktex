@@ -20,9 +20,9 @@
 
 #include <config.h>
 #include <fstream>
-#include "FileFinder.h"
-#include "FontMetrics.h"
-#include "JFM.h"
+#include "FileFinder.hpp"
+#include "FontMetrics.hpp"
+#include "JFM.hpp"
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
@@ -33,7 +33,7 @@ using namespace std;
 
 
 FontMetrics* FontMetrics::read (const char *fontname) {
-	const char *path = FileFinder::lookup(string(fontname) + ".tfm");
+	const char *path = FileFinder::instance().lookup(string(fontname) + ".tfm");
 #if defined(MIKTEX_WINDOWS)
         ifstream ifs(UW_(path), ios::binary);
 #else
@@ -41,7 +41,7 @@ FontMetrics* FontMetrics::read (const char *fontname) {
 #endif
 	if (!ifs)
 		return 0;
-	UInt16 id = 256*ifs.get();
+	uint16_t id = 256*ifs.get();
 	id += ifs.get();
 	if (id == 9 || id == 11)  // Japanese font metric file?
 		return new JFM(ifs);

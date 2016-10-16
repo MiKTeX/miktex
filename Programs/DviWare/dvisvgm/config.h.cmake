@@ -6,8 +6,14 @@
 /* Set to 1 if PostScript support should be disabled */
 #cmakedefine DISABLE_GS 1
 
+/* Define if WOFF support is disabled */
+#cmakedefine DISABLE_WOFF 1
+
 /* Define to 1 if `TIOCGWINSZ' requires <sys/ioctl.h>. */
 #cmakedefine GWINSZ_IN_SYS_IOCTL 1
+
+/* define if the compiler supports basic C++11 syntax */
+#cmakedefine HAVE_CXX11 1
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
@@ -151,7 +157,7 @@
 #cmakedefine TM_IN_SYS_TIME 1
 
 /* Version number of package */
-#define VERSION "1.14.2"
+#define VERSION "2.0.3"
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #cmakedefine const

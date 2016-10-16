@@ -35,10 +35,9 @@
 #endif
 
 #include <cstdlib>
-#include "FileSystem.h"
-#include "Process.h"
-#include "SignalHandler.h"
-#include "macros.h"
+#include "FileSystem.hpp"
+#include "Process.hpp"
+#include "SignalHandler.hpp"
 
 using namespace std;
 

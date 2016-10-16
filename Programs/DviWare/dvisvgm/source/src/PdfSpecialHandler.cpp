@@ -20,11 +20,11 @@
 
 #include <config.h>
 #include <cstring>
-#include "InputReader.h"
-#include "MapLine.h"
-#include "PdfSpecialHandler.h"
-#include "FontMap.h"
-#include "Message.h"
+#include "InputReader.hpp"
+#include "MapLine.hpp"
+#include "PdfSpecialHandler.hpp"
+#include "FontMap.hpp"
+#include "Message.hpp"
 
 using namespace std;
 

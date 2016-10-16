@@ -21,13 +21,13 @@
 #include <config.h>
 #include <fstream>
 #include <sstream>
-#include "EPSFile.h"
-#include "EPSToSVG.h"
-#include "Message.h"
-#include "MessageException.h"
-#include "PsSpecialHandler.h"
-#include "SVGOutput.h"
-#include "System.h"
+#include "EPSFile.hpp"
+#include "EPSToSVG.hpp"
+#include "Message.hpp"
+#include "MessageException.hpp"
+#include "PsSpecialHandler.hpp"
+#include "SVGOutput.hpp"
+#include "System.hpp"
 
 
 using namespace std;

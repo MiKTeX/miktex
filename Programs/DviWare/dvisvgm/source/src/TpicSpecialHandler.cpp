@@ -23,13 +23,13 @@
 #include <cmath>
 #include <cstring>
 #include <sstream>
-#include "Color.h"
-#include "InputBuffer.h"
-#include "InputReader.h"
-#include "GraphicsPath.h"
-#include "SpecialActions.h"
-#include "SVGTree.h"
-#include "TpicSpecialHandler.h"
+#include "Color.hpp"
+#include "InputBuffer.hpp"
+#include "InputReader.hpp"
+#include "GraphicsPath.hpp"
+#include "SpecialActions.hpp"
+#include "SVGTree.hpp"
+#include "TpicSpecialHandler.hpp"
 
 
 using namespace std;
@@ -86,7 +86,7 @@ void TpicSpecialHandler::drawLines (bool stroke, bool fill, double ddist, Specia
 				elem->addAttribute("fill", fill ? color.svgColorString() : "none");
 			}
 			ostringstream oss;
-			FORALL(_points, vector<DPair>::iterator, it) {
+			for (auto it=_points.begin(); it != _points.end(); ++it) {
 				if (it != _points.begin())
 					oss << ' ';
 				double x = it->x()+actions.getX();
@@ -240,7 +240,9 @@ void TpicSpecialHandler::drawArc (double cx, double cy, double rx, double ry, do
 }
 
 
-#define cmd_id(c1,c2) ((c1 << 8) | c2)
+static constexpr int cmd_id (int a, int b) {
+	return (a << 8) | b;
+};
 
 bool TpicSpecialHandler::process (const char *prefix, istream &is, SpecialActions &actions) {
 	if (!prefix || strlen(prefix) != 2)
@@ -248,10 +250,10 @@ bool TpicSpecialHandler::process (const char *prefix, istream &is, SpecialAction
 
 	const double mi2bp=0.072; // factor for milli-inch to PS points
 	StreamInputBuffer ib(is);
-	BufferInputReader in(ib);
+	BufferInputReader ir(ib);
 	switch (cmd_id(prefix[0], prefix[1])) {
 		case cmd_id('p','n'): // set pen width in milli-inches
-			_penwidth = in.getDouble()*mi2bp;
+			_penwidth = ir.getDouble()*mi2bp;
 			break;
 		case cmd_id('b','k'): // set fill color to black
 			_fill = 0;
@@ -260,15 +262,15 @@ bool TpicSpecialHandler::process (const char *prefix, istream &is, SpecialAction
 			_fill = 1;
 			break;
 		case cmd_id('s','h'): // set fill color to given gray level
-			in.skipSpace();
-			_fill = in.eof() ? 0.5 : max(0.0, min(1.0, in.getDouble()));
+			ir.skipSpace();
+			_fill = ir.eof() ? 0.5 : max(0.0, min(1.0, ir.getDouble()));
 			break;
 		case cmd_id('t','x'): // set fill pattern
 			break;
 		case cmd_id('p','a'): { // add point to path
-			double x = in.getDouble()*mi2bp;
-			double y = in.getDouble()*mi2bp;
-			_points.push_back(DPair(x,y));
+			double x = ir.getDouble()*mi2bp;
+			double y = ir.getDouble()*mi2bp;
+			_points.emplace_back(DPair(x,y));
 			break;
 		}
 		case cmd_id('f','p'): // draw solid lines through recorded points; close and fill path if fill color was defined
@@ -278,33 +280,33 @@ bool TpicSpecialHandler::process (const char *prefix, istream &is, SpecialAction
 			drawLines(false, true, 0, actions);
 			break;
 		case cmd_id('d','a'): // as fp but draw dashed lines
-			drawLines(true, _fill >= 0, in.getDouble()*72, actions);
+			drawLines(true, _fill >= 0, ir.getDouble()*72, actions);
 			break;
 		case cmd_id('d','t'): // as fp but draw dotted lines
-			drawLines(true, _fill >= 0, -in.getDouble()*72, actions);
+			drawLines(true, _fill >= 0, -ir.getDouble()*72, actions);
 			break;
 		case cmd_id('s','p'): { // draw quadratic splines through recorded points
-			double ddist = in.getDouble();
+			double ddist = ir.getDouble();
 			drawSplines(ddist, actions);
 			break;
 		}
 		case cmd_id('a','r'): { // draw elliptical arc
-			double cx = in.getDouble()*mi2bp;
-			double cy = in.getDouble()*mi2bp;
-			double rx = in.getDouble()*mi2bp;
-			double ry = in.getDouble()*mi2bp;
-			double a1 = in.getDouble();
-			double a2 = in.getDouble();
+			double cx = ir.getDouble()*mi2bp;
+			double cy = ir.getDouble()*mi2bp;
+			double rx = ir.getDouble()*mi2bp;
+			double ry = ir.getDouble()*mi2bp;
+			double a1 = ir.getDouble();
+			double a2 = ir.getDouble();
 			drawArc(cx, cy, rx, ry, a1, a2, actions);
 			break;
 		}
 		case cmd_id('i','a'): { // fill elliptical arc
-			double cx = in.getDouble()*mi2bp;
-			double cy = in.getDouble()*mi2bp;
-			double rx = in.getDouble()*mi2bp;
-			double ry = in.getDouble()*mi2bp;
-			double a1 = in.getDouble();
-			double a2 = in.getDouble();
+			double cx = ir.getDouble()*mi2bp;
+			double cy = ir.getDouble()*mi2bp;
+			double rx = ir.getDouble()*mi2bp;
+			double ry = ir.getDouble()*mi2bp;
+			double a1 = ir.getDouble();
+			double a2 = ir.getDouble();
 			if (_fill < 0)
 				_fill = 1;
 			drawArc(cx, cy, rx, ry, a1, a2, actions);

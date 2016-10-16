@@ -21,11 +21,11 @@
 #include <config.h>
 #include <fstream>
 #include <vector>
-#include "FileFinder.h"
-#include "Length.h"
-#include "Message.h"
-#include "StreamReader.h"
-#include "TFM.h"
+#include "FileFinder.hpp"
+#include "Length.hpp"
+#include "Message.hpp"
+#include "StreamReader.hpp"
+#include "TFM.hpp"
 
 using namespace std;
 
@@ -43,29 +43,23 @@ static void read_words (StreamReader &reader, vector<T> &v, unsigned n) {
 }
 
 
-/** Converts a TFM fix point value to double. */
-static inline double fix2double (FixWord fix) {
-	return double(fix)/(1 << 20);
-}
-
-
-TFM::TFM (istream &is) : _checksum(0), _firstChar(0), _lastChar(0), _designSize(0) {
+TFM::TFM (istream &is) : _checksum(0), _firstChar(0), _lastChar(0), _designSize(0), _ascent(0), _descent(0) {
    if (!is)
       return;
 	is.seekg(0);
 	StreamReader reader(is);
-	UInt16 lf = UInt16(reader.readUnsigned(2)); // length of entire file in 4 byte words
-	UInt16 lh = UInt16(reader.readUnsigned(2)); // length of header in 4 byte words
-	_firstChar= UInt16(reader.readUnsigned(2)); // smallest character code in font
-	_lastChar = UInt16(reader.readUnsigned(2)); // largest character code in font
-	UInt16 nw = UInt16(reader.readUnsigned(2)); // number of words in width table
-	UInt16 nh = UInt16(reader.readUnsigned(2)); // number of words in height table
-	UInt16 nd = UInt16(reader.readUnsigned(2)); // number of words in depth table
-	UInt16 ni = UInt16(reader.readUnsigned(2)); // number of words in italic corr. table
-	UInt16 nl = UInt16(reader.readUnsigned(2)); // number of words in lig/kern table
-	UInt16 nk = UInt16(reader.readUnsigned(2)); // number of words in kern table
-	UInt16 ne = UInt16(reader.readUnsigned(2)); // number of words in ext. char table
-	UInt16 np = UInt16(reader.readUnsigned(2)); // number of font parameter words
+	uint16_t lf = uint16_t(reader.readUnsigned(2)); // length of entire file in 4 byte words
+	uint16_t lh = uint16_t(reader.readUnsigned(2)); // length of header in 4 byte words
+	_firstChar= uint16_t(reader.readUnsigned(2));   // smallest character code in font
+	_lastChar = uint16_t(reader.readUnsigned(2));   // largest character code in font
+	uint16_t nw = uint16_t(reader.readUnsigned(2)); // number of words in width table
+	uint16_t nh = uint16_t(reader.readUnsigned(2)); // number of words in height table
+	uint16_t nd = uint16_t(reader.readUnsigned(2)); // number of words in depth table
+	uint16_t ni = uint16_t(reader.readUnsigned(2)); // number of words in italic corr. table
+	uint16_t nl = uint16_t(reader.readUnsigned(2)); // number of words in lig/kern table
+	uint16_t nk = uint16_t(reader.readUnsigned(2)); // number of words in kern table
+	uint16_t ne = uint16_t(reader.readUnsigned(2)); // number of words in ext. char table
+	uint16_t np = uint16_t(reader.readUnsigned(2)); // number of font parameter words
 
 	if (6+lh+(_lastChar-_firstChar+1)+nw+nh+nd+ni+nl+nk+ne+np != lf)
 		throw FontMetricException("inconsistent length values");
@@ -82,7 +76,7 @@ TFM::TFM (istream &is) : _checksum(0), _firstChar(0), _lastChar(0), _designSize(
 
 void TFM::readHeader (StreamReader &reader) {
 	_checksum = reader.readUnsigned(4);
-	_designSize = fix2double(reader.readUnsigned(4))*Length::pt2bp;
+	_designSize = double(FixWord(reader.readUnsigned(4)))*Length::pt2bp;
 }
 
 
@@ -92,6 +86,10 @@ void TFM::readTables (StreamReader &reader, int nw, int nh, int nd, int ni) {
 	read_words(reader, _heightTable, nh);
 	read_words(reader, _depthTable, nd);
 	read_words(reader, _italicTable, ni);
+	for (FixWord h : _heightTable)
+		_ascent = max(_ascent, h);
+	for (FixWord d : _depthTable)
+		_descent = max(_descent, d);
 }
 
 
@@ -110,25 +108,27 @@ void TFM::readParameters (StreamReader &reader, int np) {
 
 /** Returns the optimal space width between words (in PS point units). */
 double TFM::getSpace () const {
-	return _params.empty() ? 0 : fix2double(_params[1])*_designSize;
+	return _params.empty() ? 0 : double(_params[1])*_designSize;
 }
 
 
 /** Returns the amount of glue stretching between words (in PS point units). */
 double TFM::getSpaceStretch () const {
-	return _params.empty() ? 0 : fix2double(_params[2])*_designSize;
+	return _params.empty() ? 0 : double(_params[2])*_designSize;
 }
 
 
 /** Returns the amount of glue shrinking between words (in PS point units). */
 double TFM::getSpaceShrink () const {
-	return _params.empty() ? 0 : fix2double(_params[3])*_designSize;
+	return _params.empty() ? 0 : double(_params[3])*_designSize;
 }
 
 
 /** Returns the size of one EM unit (in PS point units). */
 double TFM::getQuad () const {
-	return _params.empty() ? 0 : fix2double(_params[5])*_designSize;
+	if (_params.empty() || _params[5] == 0)
+		return _designSize;
+	return double(_params[5])*_designSize;
 }
 
 
@@ -156,7 +156,7 @@ double TFM::getCharWidth (int c) const {
 	if (index < 0)
 		return 0;
 	index = (_charInfoTable[index] >> 24) & 0xFF;
-	return fix2double(_widthTable[index]) * _designSize;
+	return double(_widthTable[index]) * _designSize;
 }
 
 
@@ -166,7 +166,7 @@ double TFM::getCharHeight (int c) const {
 	if (index < 0)
 		return 0;
 	index = (_charInfoTable[index] >> 20) & 0x0F;
-	return fix2double(_heightTable[index]) * _designSize;
+	return double(_heightTable[index]) * _designSize;
 }
 
 
@@ -176,7 +176,7 @@ double TFM::getCharDepth (int c) const {
 	if (index < 0)
 		return 0;
 	index = (_charInfoTable[index] >> 16) & 0x0F;
-	return fix2double(_depthTable[index]) * _designSize;
+	return double(_depthTable[index]) * _designSize;
 }
 
 
@@ -186,5 +186,5 @@ double TFM::getItalicCorr (int c) const {
 	if (index < 0)
 		return 0;
 	index = (_charInfoTable[index] >> 10) & 0x3F;
-	return fix2double(_italicTable[index]) * _designSize;
+	return double(_italicTable[index]) * _designSize;
 }

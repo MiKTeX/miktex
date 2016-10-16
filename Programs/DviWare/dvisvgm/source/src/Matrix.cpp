@@ -24,9 +24,9 @@
 #include <cmath>
 #include <limits>
 #include <sstream>
-#include "Calculator.h"
-#include "Matrix.h"
-#include "XMLString.h"
+#include "Calculator.hpp"
+#include "Matrix.hpp"
+#include "XMLString.hpp"
 
 using namespace std;
 

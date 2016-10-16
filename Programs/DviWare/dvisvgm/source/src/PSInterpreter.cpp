@@ -22,12 +22,12 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
-#include "FileFinder.h"
-#include "InputReader.h"
-#include "Message.h"
-#include "PSFilter.h"
-#include "PSInterpreter.h"
-#include "SignalHandler.h"
+#include "FileFinder.hpp"
+#include "InputReader.hpp"
+#include "Message.hpp"
+#include "PSFilter.hpp"
+#include "PSInterpreter.hpp"
+#include "SignalHandler.hpp"
 
 using namespace std;
 
@@ -314,7 +314,7 @@ void PSInterpreter::callActions (InputReader &in) {
 					_rawData.clear();
 					in.skipSpace();
 					while (!in.eof()) {
-						_rawData.push_back(in.getString());
+						_rawData.emplace_back(in.getString());
 						in.skipSpace();
 					}
 				}
@@ -325,14 +325,14 @@ void PSInterpreter::callActions (InputReader &in) {
 					if (pcount < 0) {       // variable number of parameters?
 						in.skipSpace();
 						while (!in.eof()) {  // read all available parameters
-							params.push_back(in.getString());
+							params.emplace_back(in.getString());
 							in.skipSpace();
 						}
 					}
 					else {   // fix number of parameters
 						for (int i=0; i < pcount; i++) {
 							in.skipSpace();
-							params.push_back(in.getString());
+							params.emplace_back(in.getString());
 						}
 					}
 					vector<double> v(params.size());

@@ -19,11 +19,11 @@
 *************************************************************************/
 
 #include <config.h>
-#include "CMap.h"
-#include "CMapManager.h"
-#include "EncFile.h"
-#include "FileFinder.h"
-#include "FontEncoding.h"
+#include "CMap.hpp"
+#include "CMapManager.hpp"
+#include "EncFile.hpp"
+#include "FileFinder.hpp"
+#include "FontEncoding.hpp"
 
 using namespace std;
 
@@ -31,8 +31,8 @@ using namespace std;
 struct EncodingMap : public map<string, EncFile*>
 {
 	~EncodingMap () {
-		for (EncodingMap::iterator it=begin(); it != end(); ++it)
-			delete it->second;
+		for (auto &entry : *this)
+			delete entry.second;
 	}
 };
 
@@ -48,7 +48,7 @@ FontEncoding* FontEncoding::encoding (const string &encname) {
 	EncodingMap::const_iterator it = encmap.find(encname);
 	if (it != encmap.end())
 		return it->second;
-	if (FileFinder::lookup(encname + ".enc", false)) {
+	if (FileFinder::instance().lookup(encname + ".enc", false)) {
 		EncFile *enc = new EncFile(encname);
 		encmap[encname] = enc;
 		return enc;
@@ -61,7 +61,7 @@ FontEncoding* FontEncoding::encoding (const string &encname) {
 
 /////////////////////////////////////////////////////////////////////////
 
-Character FontEncodingPair::decode (UInt32 c) const {
+Character FontEncodingPair::decode (uint32_t c) const {
 	if (_enc1) {
 		Character chr = _enc1->decode(c);
 		if (_enc2 && chr.type() != Character::NAME)

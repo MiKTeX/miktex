@@ -22,7 +22,7 @@
 #include "config.h"
 #endif
 
-#include "PSInterpreter.h"
+#include "PSInterpreter.hpp"
 
 const char *PSInterpreter::PSDEFS =
 "<</Install{matrix setmatrix}/HWResolution[72 72]/PageSize[10000 10000]/Imaging"

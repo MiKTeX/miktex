@@ -20,9 +20,9 @@
 
 #include <config.h>
 #include <algorithm>
-#include "BgColorSpecialHandler.h"
-#include "ColorSpecialHandler.h"
-#include "SpecialActions.h"
+#include "BgColorSpecialHandler.hpp"
+#include "ColorSpecialHandler.hpp"
+#include "SpecialActions.hpp"
 
 using namespace std;
 
@@ -37,7 +37,7 @@ void BgColorSpecialHandler::preprocess (const char*, std::istream &is, SpecialAc
 		if (!_pageColors.empty() && _pageColors.back().first == pageno)
 			_pageColors.back().second = color;
 		else
-			_pageColors.push_back(PageColor(pageno, color));
+			_pageColors.emplace_back(PageColor(pageno, color));
 	}
 }
 

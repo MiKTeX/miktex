@@ -20,10 +20,13 @@
 
 #include <config.h>
 #include <sstream>
-#include "GFReader.h"
-#include "SignalHandler.h"
+#include "FixWord.hpp"
+#include "GFReader.hpp"
+#include "Length.hpp"
+#include "SignalHandler.hpp"
 
 using namespace std;
+
 
 struct GFCommand
 {
@@ -32,13 +35,8 @@ struct GFCommand
 };
 
 
-/** Converts a fix point length to double (PS point units) */
-static inline double fix2double (Int32 fix) {
-	return double(fix)/(1 << 20)*72/72.27;
-}
-
-
-static inline double scaled2double (Int32 scaled) {
+/** Converts a scaled value to double */
+static inline double scaled2double (int32_t scaled) {
 	return double(scaled)/(1 << 16);
 }
 
@@ -53,18 +51,18 @@ GFReader::GFReader (istream &is) : _in(is), _insideCharDef(false), _penDown(fals
 }
 
 
-UInt32 GFReader::readUnsigned (int bytes) {
-	UInt32 ret = 0;
+uint32_t GFReader::readUnsigned (int bytes) {
+	uint32_t ret = 0;
 	for (int i=bytes-1; i >= 0 && !_in.eof(); i--) {
-		UInt32 b = _in.get();
+		uint32_t b = _in.get();
 		ret |= b << (8*i);
 	}
 	return ret;
 }
 
 
-Int32 GFReader::readSigned (int bytes) {
-	Int32 ret = _in.get();
+int32_t GFReader::readSigned (int bytes) {
+	int32_t ret = _in.get();
 	if (ret & 128)        // negative value?
 		ret |= 0xffffff00;
 	for (int i=bytes-2; i >= 0 && !_in.eof(); i--)
@@ -126,12 +124,12 @@ int GFReader::executeCommand () {
 }
 
 
-bool GFReader::executeChar (UInt8 c) {
+bool GFReader::executeChar (uint8_t c) {
 	_in.clear();
 	if (_charInfoMap.empty())
 		executePostamble();          // read character info
 	_in.clear();
-	Iterator it = _charInfoMap.find(c);
+	auto it = _charInfoMap.find(c);
 	if (_in && it != _charInfoMap.end()) {
 		_in.seekg(it->second.location);
 		while (executeCommand() != 69);  // execute all commands until eoc is reached
@@ -177,31 +175,16 @@ bool GFReader::executePostamble () {
 	_in.seekg(-5, ios::cur);         // now on postpost
 	if (_in.get() != 249)
 		throw GFException("invalid GF file");
-	UInt32 q = readUnsigned(4);      // pointer to begin of postamble
+	uint32_t q = readUnsigned(4);    // pointer to begin of postamble
 	_in.seekg(q);                    // now on begin of postamble
 	while (executeCommand() != 249); // execute all commands until postpost is reached
 	return true;
 }
 
 
-/** Returns the design size of this font in PS point units. */
-double GFReader::getDesignSize () const {
-	return fix2double(_designSize);
-}
-
-/** Returns the number of horizontal pixels per point. */
-double GFReader::getHPixelsPerPoint () const {
-	return scaled2double(_hppp)*72/72.27;
-}
-
-/** Returns the number of vertical pixels per point. */
-double GFReader::getVPixelsPerPoint () const {
-	return scaled2double(_vppp)*72/72.27;
-}
-
 /** Returns the width of character c in PS point units */
-double GFReader::getCharWidth (UInt32 c) const {
-	ConstIterator it = _charInfoMap.find(c%256);
+double GFReader::getCharWidth (uint32_t c) const {
+	auto it = _charInfoMap.find(c%256);
 	return it == _charInfoMap.end() ? 0 : it->second.width*getDesignSize()/(1<<24);
 }
 
@@ -210,11 +193,11 @@ double GFReader::getCharWidth (UInt32 c) const {
 
 /** Reads the preamble. */
 void GFReader::cmdPre (int) {
-	UInt32 i = readUnsigned(1);
+	uint32_t i = readUnsigned(1);
 	if (i != 131)
 		throw GFException("invalid identification byte in preamble");
 	else {
-		UInt32 k = readUnsigned(1);
+		uint32_t k = readUnsigned(1);
 		string s = readString(k);
 		preamble(s);
 	}
@@ -224,10 +207,10 @@ void GFReader::cmdPre (int) {
 /** Reads the postamble. */
 void GFReader::cmdPost (int) {
 	readUnsigned(4);                // pointer to byte after final eoc
-	_designSize = readUnsigned(4);  // design size of font in points
+	_designSize = double(FixWord(readUnsigned(4)))*Length::pt2bp; // design size of font in points
 	_checksum   = readUnsigned(4);  // checksum
-	_hppp       = readUnsigned(4);  // horizontal pixels per point (scaled int)
-	_vppp       = readUnsigned(4);  // vertical pixels per point (scaled int)
+	_hppp       = scaled2double(readUnsigned(4))/Length::pt2bp; // horizontal pixels per PS point
+	_vppp       = scaled2double(readUnsigned(4))/Length::pt2bp; // vertical pixels per PS point
 	_in.seekg(16, ios::cur);        // skip x and y bounds
 	postamble();
 }
@@ -236,7 +219,7 @@ void GFReader::cmdPost (int) {
 /** Reads trailing bytes at end of stream. */
 void GFReader::cmdPostPost (int) {
 	readUnsigned(4);   // pointer to begin of postamble
-	UInt32 i = readUnsigned(1);
+	uint32_t i = readUnsigned(1);
 	if (i != 131)
 		throw GFException("invalid identification byte in postpost");
 	while (readUnsigned(1) == 223); // skip fill bytes
@@ -249,10 +232,10 @@ void GFReader::cmdPostPost (int) {
 void GFReader::cmdPaint0 (int n) {
 	if (!_insideCharDef)
 		throw GFException("character-related command outside BOC and EOC");
-	if (_penDown)                    // set pixels?
+	if (_penDown)  // set pixels?
 		_bitmap.setBits(_y, _x, n);
 	_x += n;
-	_penDown = !_penDown;             // inverse pen state
+	_penDown = !_penDown;  // invert pen state
 }
 
 
@@ -261,7 +244,7 @@ void GFReader::cmdPaint0 (int n) {
  *  the input stream.
  *  @param[in] len size of n in bytes */
 void GFReader::cmdPaint (int len) {
-	UInt32 pixels = readUnsigned(len);
+	uint32_t pixels = readUnsigned(len);
 	cmdPaint0(pixels);
 }
 
@@ -286,10 +269,10 @@ void GFReader::cmdBoc (int) {
 /** Beginning of character (compact format). */
 void GFReader::cmdBoc1 (int) {
 	_currentChar = readUnsigned(1);
-	UInt32 dx = readUnsigned(1);
+	uint32_t dx = readUnsigned(1);
 	_maxX = readUnsigned(1);
 	_minX = _maxX - dx;
-	UInt32 dy = readUnsigned(1);
+	uint32_t dy = readUnsigned(1);
 	_maxY = readUnsigned(1);
 	_minY = _maxY - dy;
 	_x = _minX;
@@ -339,14 +322,14 @@ void GFReader::cmdNewRow (int col) {
 
 
 void GFReader::cmdXXX (int len) {
-	UInt32 n = readUnsigned(len);
+	uint32_t n = readUnsigned(len);
 	string str = readString(n);
 	special(str);
 }
 
 
 void GFReader::cmdYYY (int) {
-	Int32 y = readSigned(4);
+	int32_t y = readSigned(4);
 	numspecial(y);
 }
 
@@ -358,22 +341,22 @@ void GFReader::cmdNop (int) {
 
 /** Reads character locator (part of postamble) */
 void GFReader::cmdCharLoc0 (int) {
-	UInt8 c  = readUnsigned(1); // character code mod 256
-	UInt8 dm = readUnsigned(1); //
-	Int32 w  = readSigned(4);   // (1<<24)*characterWidth/designSize
-	Int32 p   = readSigned(4);  // pointer to begin of (last) character data
-	Int32 dx  = 65536*dm;
-	Int32 dy  = 0;
+	uint8_t c  = readUnsigned(1); // character code mod 256
+	uint8_t dm = readUnsigned(1); //
+	int32_t w  = readSigned(4);   // (1<<24)*characterWidth/designSize
+	int32_t p   = readSigned(4);  // pointer to begin of (last) character data
+	int32_t dx  = 65536*dm;
+	int32_t dy  = 0;
 	_charInfoMap[c] = CharInfo(dx, dy, w, p);
 }
 
 
 /** Reads character locator (part of postamble) */
 void GFReader::cmdCharLoc (int) {
-	UInt32 c = readUnsigned(1); // character code mod 256
-	Int32 dx = readSigned(4);   // horizontal escapement (scaled pixel units)
-	Int32 dy = readSigned(4);   // vertical escapement (scaled pixel units)
-	Int32 w  = readSigned(4);   // (1<<24)*characterWidth/designSize
-	Int32 p  = readSigned(4);   // pointer to begin of (last) character data
+	uint32_t c = readUnsigned(1); // character code mod 256
+	int32_t dx = readSigned(4);   // horizontal escapement (scaled pixel units)
+	int32_t dy = readSigned(4);   // vertical escapement (scaled pixel units)
+	int32_t w  = readSigned(4);   // (1<<24)*characterWidth/designSize
+	int32_t p  = readSigned(4);   // pointer to begin of (last) character data
 	_charInfoMap[c] = CharInfo(dx, dy, w, p);
 }

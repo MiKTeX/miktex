@@ -19,8 +19,8 @@
 *************************************************************************/
 
 #include <config.h>
-#include "Message.h"
-#include "NoPsSpecialHandler.h"
+#include "Message.hpp"
+#include "NoPsSpecialHandler.hpp"
 
 using namespace std;
 

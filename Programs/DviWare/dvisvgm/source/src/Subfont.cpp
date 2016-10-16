@@ -23,9 +23,9 @@
 #include <cstring>
 #include <fstream>
 #include <limits>
-#include "FileFinder.h"
-#include "Message.h"
-#include "Subfont.h"
+#include "FileFinder.hpp"
+#include "Message.hpp"
+#include "Subfont.hpp"
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
@@ -37,7 +37,7 @@ using namespace std;
 // helper functions
 
 static int skip_mapping_data (istream &is);
-static bool scan_line (const char *line, int lineno, UInt16 *mapping, const string &fname, long &pos);
+static bool scan_line (const char *line, int lineno, uint16_t *mapping, const string &fname, long &pos);
 
 
 /** Constructs a new SubfontDefinition object.
@@ -60,7 +60,7 @@ SubfontDefinition::SubfontDefinition (const string &name, const char *fpath) : _
 			while (is && !isspace(is.peek()))
 				id += is.get();
 			if (!id.empty()) {
-				pair<Iterator, bool> state = _subfonts.insert(pair<string,Subfont*>(id, (Subfont*)0));
+				auto state = _subfonts.emplace(pair<string,Subfont*>(id, (Subfont*)0));
 				if (state.second) // id was not present in map already
 					state.first->second = new Subfont(*this, state.first->first);
 				skip_mapping_data(is);
@@ -71,8 +71,8 @@ SubfontDefinition::SubfontDefinition (const string &name, const char *fpath) : _
 
 
 SubfontDefinition::~SubfontDefinition () {
-	for (Iterator it=_subfonts.begin(); it != _subfonts.end(); ++it)
-		delete it->second;
+	for (auto &entry : _subfonts)
+		delete entry.second;
 }
 
 
@@ -87,7 +87,7 @@ SubfontDefinition* SubfontDefinition::lookup (const std::string &name) {
 	if (it != sfdMap.end())
 		return it->second;
 	SubfontDefinition *sfd=0;
-	if (const char *path = FileFinder::lookup(name+".sfd", false)) {
+	if (const char *path = FileFinder::instance().lookup(name+".sfd", false)) {
 		sfd = new SubfontDefinition(name, path);
 		sfdMap[name] = sfd;
 	}
@@ -97,13 +97,13 @@ SubfontDefinition* SubfontDefinition::lookup (const std::string &name) {
 
 /** Returns the full path to the corresponding .sfd file or 0 if it can't be found. */
 const char* SubfontDefinition::path () const {
-	return FileFinder::lookup(filename(), false);
+	return FileFinder::instance().lookup(filename(), false);
 }
 
 
 /** Returns the subfont with the given ID, or 0 if it doesn't exist. */
 Subfont* SubfontDefinition::subfont (const string &id) const {
-	ConstIterator it = _subfonts.find(id);
+	auto it = _subfonts.find(id);
 	if (it != _subfonts.end())
 		return it->second;
 	return 0;
@@ -112,8 +112,8 @@ Subfont* SubfontDefinition::subfont (const string &id) const {
 
 /** Returns all subfonts defined in this SFD. */
 int SubfontDefinition::subfonts (vector<Subfont*> &sfs) const {
-	for (ConstIterator it=_subfonts.begin(); it != _subfonts.end(); ++it)
-		sfs.push_back(it->second);
+	for (const auto &strsfpair : _subfonts)
+		sfs.push_back(strsfpair.second);
 	return int(sfs.size());
 }
 
@@ -164,8 +164,8 @@ bool Subfont::read () {
 					lineno += skip_mapping_data(is);
 				else {
 					// build mapping array
-					_mapping = new UInt16[256];
-					memset(_mapping, 0, 256*sizeof(UInt16));
+					_mapping = new uint16_t[256];
+					memset(_mapping, 0, 256*sizeof(uint16_t));
 					long pos=0;
 					char buf[1024];
 					bool complete=false;
@@ -186,7 +186,7 @@ bool Subfont::read () {
  *  (local) character code of the subfont.
  *  @param[in] c local character code relative to the subfont
  *  @return character code of the target font */
-UInt16 Subfont::decode (unsigned char c) {
+uint16_t Subfont::decode (unsigned char c) {
 	if (!_mapping && !read())
 		return 0;
 	return _mapping[c];
@@ -223,7 +223,7 @@ static int skip_mapping_data (istream &is) {
  *  @param[in] fname name of the mapfile being scanned
  *  @param[in,out] offset position/index of next mapping value
  *  @return true if the line is the last one the current mapping sequence, i.e. the line doesn't end with a backslash */
-static bool scan_line (const char *line, int lineno, UInt16 *mapping, const string &fname, long &offset) {
+static bool scan_line (const char *line, int lineno, uint16_t *mapping, const string &fname, long &offset) {
 	const char *p=line;
 	char *q;
 	for (; *p && isspace(*p); p++);
@@ -268,7 +268,7 @@ static bool scan_line (const char *line, int lineno, UInt16 *mapping, const stri
 				for (long v=val1; v <= val2; v++) {
 					if (mapping[offset])
 						throw SubfontException(oss << "mapping of character " << offset << " already defined", fname, lineno);
-					mapping[offset++] = static_cast<UInt16>(v);
+					mapping[offset++] = static_cast<uint16_t>(v);
 				}
 			}
 			for (p=q; *p && isspace(*p); p++);

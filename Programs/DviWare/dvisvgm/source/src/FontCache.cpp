@@ -25,14 +25,13 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
-#include "CRC32.h"
-#include "FileSystem.h"
-#include "FontCache.h"
-#include "Glyph.h"
-#include "Pair.h"
-#include "StreamReader.h"
-#include "StreamWriter.h"
-#include "types.h"
+#include "CRC32.hpp"
+#include "FileSystem.hpp"
+#include "FontCache.hpp"
+#include "Glyph.hpp"
+#include "Pair.hpp"
+#include "StreamReader.hpp"
+#include "StreamWriter.hpp"
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
@@ -41,12 +40,12 @@
 
 using namespace std;
 
-const UInt8 FontCache::FORMAT_VERSION = 5;
+const uint8_t FontCache::FORMAT_VERSION = 5;
 
 
 static Pair32 read_pair (int bytes, StreamReader &sr) {
-	Int32 x = sr.readSigned(bytes);
-	Int32 y = sr.readSigned(bytes);
+	int32_t x = sr.readSigned(bytes);
+	int32_t y = sr.readSigned(bytes);
 	return Pair32(x, y);
 }
 
@@ -116,8 +115,8 @@ bool FontCache::write (const char* dir) const {
 
 
 /** Returns the minimal number of bytes needed to store the given value. */
-static int max_int_size (Int32 value) {
-	Int32 limit = 0x7f;
+static int max_int_size (int32_t value) {
+	int32_t limit = 0x7f;
 	for (int i=1; i <= 4; i++) {
 		if ((value < 0  && -value <= limit+1) || (value >= 0 && value <= limit))
 			return i;
@@ -129,7 +128,7 @@ static int max_int_size (Int32 value) {
 
 /** Returns the minimal number of bytes needed to store the biggest
  *  pair component of the given vector. */
-static int max_int_size (const Pair<Int32> *pairs, size_t n) {
+static int max_int_size (const Pair<int32_t> *pairs, size_t n) {
 	int ret=0;
 	for (size_t i=0; i < n; i++) {
 		ret = max(ret, max_int_size(pairs[i].x()));
@@ -156,7 +155,7 @@ bool FontCache::write (const char *fontname, ostream &os) const {
 	struct WriteActions : Glyph::Actions {
 		WriteActions (StreamWriter &sw, CRC32 &crc32) : _sw(sw), _crc32(crc32) {}
 
-		void draw (char cmd, const Glyph::Point *points, int n) {
+		void draw (char cmd, const Glyph::Point *points, int n) override {
 			int bytes = max_int_size(points, n);
 			int cmdchar = (bytes << 5) | (cmd - 'A');
 			_sw.writeUnsigned(cmdchar, 1, _crc32);
@@ -173,9 +172,9 @@ bool FontCache::write (const char *fontname, ostream &os) const {
 	sw.writeUnsigned(0, 4);  // space for checksum
 	sw.writeString(fontname, crc32, true);
 	sw.writeUnsigned(_glyphs.size(), 4, crc32);
-	FORALL(_glyphs, GlyphMap::const_iterator, it) {
-		const Glyph &glyph = it->second;
-		sw.writeUnsigned(it->first, 4, crc32);
+	for (const auto &charglyphpair : _glyphs) {
+		const Glyph &glyph = charglyphpair.second;
+		sw.writeUnsigned(charglyphpair.first, 4, crc32);
 		sw.writeUnsigned(glyph.size(), 2, crc32);
 		glyph.iterate(actions, false);
 	}
@@ -225,7 +224,7 @@ bool FontCache::read (const char *fontname, istream &is) {
 	if (sr.readUnsigned(1, crc32) != FORMAT_VERSION)
 		return false;
 
-	UInt32 crc32_cmp = sr.readUnsigned(4);
+	uint32_t crc32_cmp = sr.readUnsigned(4);
 	crc32.update(is);
 	if (crc32.get() != crc32_cmp)
 		return false;
@@ -237,14 +236,14 @@ bool FontCache::read (const char *fontname, istream &is) {
 	if (fname != fontname)
 		return false;
 
-	UInt32 num_glyphs = sr.readUnsigned(4);
+	uint32_t num_glyphs = sr.readUnsigned(4);
 	while (num_glyphs-- > 0) {
-		UInt32 c = sr.readUnsigned(4);  // character code
-		UInt16 s = sr.readUnsigned(2);  // number of path commands
+		uint32_t c = sr.readUnsigned(4);  // character code
+		uint16_t s = sr.readUnsigned(2);  // number of path commands
 		Glyph &glyph = _glyphs[c];
 		while (s-- > 0) {
-			UInt8 cmdval = sr.readUnsigned(1);
-			UInt8 cmdchar = (cmdval & 0x1f) + 'A';
+			uint8_t cmdval = sr.readUnsigned(1);
+			uint8_t cmdchar = (cmdval & 0x1f) + 'A';
 			int bytes = cmdval >> 5;
 			switch (cmdchar) {
 				case 'C': {
@@ -287,19 +286,19 @@ bool FontCache::fontinfo (const char *dirname, vector<FontInfo> &infos, vector<s
 	if (dirname) {
 		vector<string> fnames;
 		FileSystem::collect(dirname, fnames);
-		FORALL(fnames, vector<string>::iterator, it) {
-			if ((*it)[0] == 'f' && it->length() > 5 && it->substr(it->length()-4) == ".fgd") {
+		for (const string &fname : fnames) {
+			if (fname[0] == 'f' && fname.length() > 5 && fname.substr(fname.length()-4) == ".fgd") {
 				FontInfo info;
-				string path = string(dirname)+"/"+(it->substr(1));
+				string path = string(dirname)+"/"+(fname.substr(1));
 #if defined(MIKTEX_WINDOWS)
                                 ifstream ifs(UW_(path.c_str()), ios::binary);
 #else
 				ifstream ifs(path.c_str(), ios::binary);
 #endif
 				if (fontinfo(ifs, info))
-					infos.push_back(info);
+					infos.emplace_back(move(info));
 				else
-					invalid.push_back(it->substr(1));
+					invalid.emplace_back(fname.substr(1));
 			}
 		}
 	}
@@ -333,12 +332,12 @@ bool FontCache::fontinfo (std::istream &is, FontInfo &info) {
 
 			info.name = sr.readString();
 			info.numchars = sr.readUnsigned(4);
-			for (UInt32 i=0; i < info.numchars; i++) {
+			for (uint32_t i=0; i < info.numchars; i++) {
 				sr.readUnsigned(4);  // character code
-				UInt16 s = sr.readUnsigned(2);  // number of path commands
+				uint16_t s = sr.readUnsigned(2);  // number of path commands
 				while (s-- > 0) {
-					UInt8 cmdval = sr.readUnsigned(1);
-					UInt8 cmdchar = (cmdval & 0x1f) + 'A';
+					uint8_t cmdval = sr.readUnsigned(1);
+					uint8_t cmdchar = (cmdval & 0x1f) + 'A';
 					int bytes = cmdval >> 5;
 					int bc = 0;
 					switch (cmdchar) {
@@ -378,29 +377,27 @@ void FontCache::fontinfo (const char *dirname, ostream &os, bool purge) {
 		ios::fmtflags osflags(os.flags());
 		vector<FontInfo> infos;
 		vector<string> invalid_files;
-		if (fontinfo(dirname, infos, invalid_files)) {
+		if (!fontinfo(dirname, infos, invalid_files))
+			os << "cache is empty\n";
+		else {
 			os << "cache format version " << infos[0].version << endl;
-			typedef map<string,FontInfo*> SortMap;
-			SortMap sortmap;
-			FORALL(infos, vector<FontInfo>::iterator, it)
-				sortmap[it->name] = &(*it);
-
-			FORALL(sortmap, SortMap::iterator, it) {
+			map<string, const FontInfo*> sortmap;
+			for (const FontInfo &info : infos)
+				sortmap[info.name] = &info;
+			for (const auto &strinfopair : sortmap) {
 				os	<< dec << setfill(' ') << left
-					<< setw(10) << left  << it->second->name
-					<< setw(5)  << right << it->second->numchars << " glyph" << (it->second->numchars == 1 ? ' ':'s')
-					<< setw(10) << right << it->second->numcmds  << " cmd"   << (it->second->numcmds == 1 ? ' ':'s')
-					<< setw(12) << right << it->second->numbytes << " byte"  << (it->second->numbytes == 1 ? ' ':'s')
-					<< setw(6) << "crc:" << setw(8) << hex << right << setfill('0') << it->second->checksum
+					<< setw(10) << left  << strinfopair.second->name
+					<< setw(5)  << right << strinfopair.second->numchars << " glyph" << (strinfopair.second->numchars == 1 ? ' ':'s')
+					<< setw(10) << right << strinfopair.second->numcmds  << " cmd"   << (strinfopair.second->numcmds == 1 ? ' ':'s')
+					<< setw(12) << right << strinfopair.second->numbytes << " byte"  << (strinfopair.second->numbytes == 1 ? ' ':'s')
+					<< setw(6) << "crc:" << setw(8) << hex << right << setfill('0') << strinfopair.second->checksum
 					<< endl;
 			}
 		}
-		else
-			os << "cache is empty\n";
-		FORALL(invalid_files, vector<string>::iterator, it) {
-			string path=string(dirname)+"/"+(*it);
+		for (const string &str : invalid_files) {
+			string path=string(dirname)+"/"+str;
 			if (FileSystem::remove(path))
-				os << "invalid cache file " << (*it) << " removed\n";
+				os << "invalid cache file " << str << " removed\n";
 		}
 		os.flags(osflags);  // restore format flags
 	}

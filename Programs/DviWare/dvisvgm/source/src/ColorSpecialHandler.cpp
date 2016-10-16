@@ -22,8 +22,8 @@
 #include <cstring>
 #include <sstream>
 #include <vector>
-#include "ColorSpecialHandler.h"
-#include "SpecialActions.h"
+#include "ColorSpecialHandler.hpp"
+#include "SpecialActions.hpp"
 
 using namespace std;
 

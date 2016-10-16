@@ -19,18 +19,15 @@
 *************************************************************************/
 
 #include <config.h>
+#include <algorithm>
+#include <array>
 #include <fstream>
 #include <sstream>
-#include "CMap.h"
-#include "CMapManager.h"
-#include "CMapReader.h"
-#include "FileFinder.h"
-#include "InputReader.h"
-
-#if defined(MIKTEX_WINDOWS)
-#include <miktex/Util/CharBuffer>
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
-#endif
+#include "CMap.hpp"
+#include "CMapManager.hpp"
+#include "CMapReader.hpp"
+#include "FileFinder.hpp"
+#include "InputReader.hpp"
 
 using namespace std;
 
@@ -44,12 +41,8 @@ CMapReader::CMapReader () : _cmap(0), _inCMap(false)
  *  @param fname[in] name/path of cmap file
  *  @return CMap object representing the read data, or 0 if file could not be read */
 CMap* CMapReader::read (const string &fname) {
-	if (const char *path = FileFinder::lookup(fname.c_str(), "cmap", false)) {
-#if defined(MIKTEX_WINDOWS)
-          ifstream ifs(UW_(path));
-#else
+	if (const char *path = FileFinder::instance().lookup(fname.c_str(), "cmap", false)) {
 		ifstream ifs(path);
-#endif
 		if (ifs)
 			return read(ifs, fname);
 	}
@@ -69,15 +62,15 @@ CMap* CMapReader::read (std::istream& is, const string &name) {
 	try {
 		while (ir) {
 			Token token(ir);
-			if (token.type() == Token::TT_EOF)
+			if (token.type() == Token::Type::END)
 				break;
 			if (_inCMap) {
-				if (token.type() == Token::TT_OPERATOR)
+				if (token.type() == Token::Type::OPERATOR)
 					executeOperator(token.strvalue(), ir);
 				else
 					_tokens.push_back(token);
 			}
-			else if (token.type() == Token::TT_OPERATOR && token.strvalue() == "begincmap")
+			else if (token.type() == Token::Type::OPERATOR && token.strvalue() == "begincmap")
 				_inCMap = true;
 		}
 	}
@@ -90,25 +83,27 @@ CMap* CMapReader::read (std::istream& is, const string &name) {
 }
 
 
-void CMapReader::executeOperator (const string &op, InputReader &ir) {
-	const struct Operator {
+/** Executes a PS operator from the CMap file.
+ *  @param[in] opname name of operator to execute
+ *  @param[in] ir reader object used to read the CMap stream */
+void CMapReader::executeOperator (const string &opname, InputReader &ir) {
+	struct Operator {
 		const char *name;
 		void (CMapReader::*handler)(InputReader&);
-	} operators[] = {
+	};
+	array<Operator, 6> operators = {{
 		{"beginbfchar",   &CMapReader::op_beginbfchar},
 		{"beginbfrange",  &CMapReader::op_beginbfrange},
 		{"begincidrange", &CMapReader::op_begincidrange},
 		{"def",           &CMapReader::op_def},
 		{"endcmap",       &CMapReader::op_endcmap},
 		{"usecmap",       &CMapReader::op_usecmap},
-	};
-
-	for (size_t i=0; i < sizeof(operators)/sizeof(Operator); i++) {
-		if (operators[i].name == op) {
-			(this->*operators[i].handler)(ir);
-			break;
-		}
-	}
+	}};
+	auto it = find_if(operators.begin(), operators.end(), [&](const Operator &op) {
+		return op.name == opname;
+	});
+	if (it != operators.end())
+		(this->*it->handler)(ir);
 	_tokens.clear();
 }
 
@@ -148,7 +143,7 @@ void CMapReader::op_usecmap (InputReader &) {
 }
 
 
-static UInt32 parse_hexentry (InputReader &ir) {
+static uint32_t parse_hexentry (InputReader &ir) {
 	ir.skipSpace();
 	if (ir.get() != '<')
 		throw CMapReaderException("invalid range entry ('<' expected)");
@@ -157,18 +152,18 @@ static UInt32 parse_hexentry (InputReader &ir) {
 		throw CMapReaderException("invalid range entry (hexadecimal value expected)");
 	if (ir.get() != '>')
 		throw CMapReaderException("invalid range entry ('>' expected)");
-	return UInt32(val);
+	return uint32_t(val);
 }
 
 
 void CMapReader::op_begincidrange (InputReader &ir) {
-	if (!_tokens.empty() && _tokens.back().type() == Token::TT_NUMBER) {
+	if (!_tokens.empty() && _tokens.back().type() == Token::Type::NUMBER) {
 		ir.skipSpace();
 		int num_entries = static_cast<int>(popToken().numvalue());
 		while (num_entries > 0 && ir.peek() == '<') {
-			UInt32 first = parse_hexentry(ir);
-			UInt32 last =  parse_hexentry(ir);
-			UInt32 cid;
+			uint32_t first = parse_hexentry(ir);
+			uint32_t last = parse_hexentry(ir);
+			uint32_t cid;
 			ir.skipSpace();
 			if (!ir.parseUInt(cid))
 				throw CMapReaderException("invalid range entry (decimal value expected)");
@@ -180,13 +175,13 @@ void CMapReader::op_begincidrange (InputReader &ir) {
 
 
 void CMapReader::op_beginbfrange (InputReader &ir) {
-	if (!_tokens.empty() && _tokens.back().type() == Token::TT_NUMBER) {
+	if (!_tokens.empty() && _tokens.back().type() == Token::Type::NUMBER) {
 		ir.skipSpace();
 		int num_entries = static_cast<int>(popToken().numvalue());
 		while (num_entries > 0 && ir.peek() == '<') {
-			UInt32 first = parse_hexentry(ir);
-			UInt32 last =  parse_hexentry(ir);
-			UInt32 chrcode = parse_hexentry(ir);
+			uint32_t first = parse_hexentry(ir);
+			uint32_t last = parse_hexentry(ir);
+			uint32_t chrcode = parse_hexentry(ir);
 			_cmap->addBFRange(first, last, chrcode);
 			ir.skipSpace();
 		}
@@ -196,15 +191,15 @@ void CMapReader::op_beginbfrange (InputReader &ir) {
 
 
 void CMapReader::op_beginbfchar (InputReader &ir) {
-	if (!_tokens.empty() && _tokens.back().type() == Token::TT_NUMBER) {
+	if (!_tokens.empty() && _tokens.back().type() == Token::Type::NUMBER) {
 		ir.skipSpace();
 		int num_entries = static_cast<int>(popToken().numvalue());
 		while (num_entries > 0 && ir.peek() == '<') {
-			UInt32 cid = parse_hexentry(ir);
+			uint32_t cid = parse_hexentry(ir);
 			ir.skipSpace();
 			if (ir.peek() == '/')
 				throw CMapReaderException("mapping of named characters is not supported");
-			UInt32 chrcode = parse_hexentry(ir);
+			uint32_t chrcode = parse_hexentry(ir);
 			_cmap->addBFRange(cid, cid, chrcode);
 			ir.skipSpace();
 		}
@@ -229,12 +224,12 @@ void CMapReader::Token::scan (InputReader &ir) {
 	}
 	ir.skipSpace();
 	if (ir.eof())
-		_type = TT_EOF;
+		_type = Type::END;
 	else if (ir.peek() == '/') { // PS name?
 		ir.get();
 		while (!strchr("[]{}<>", ir.peek()) && !isspace(ir.peek()))
 			_value += ir.get();
-		_type = TT_NAME;
+		_type = Type::NAME;
 	}
 	else if (ir.peek() == '(') { // string?
 		ir.get();
@@ -247,11 +242,11 @@ void CMapReader::Token::scan (InputReader &ir) {
 			_value += ir.get();
 		}
 		ir.get();  // skip ')'
-		_type = TT_STRING;
+		_type = Type::STRING;
 	}
 	else if (strchr("[]{}<>", ir.peek())) {  // PS delimiter
 		_value = ir.get();
-		_type = TT_DELIM;
+		_type = Type::DELIM;
 	}
 	else if (isdigit(ir.peek())) {  // number?
 		double val;
@@ -259,12 +254,12 @@ void CMapReader::Token::scan (InputReader &ir) {
 			ostringstream oss;
 			oss << val;
 			_value = oss.str();
-			_type = TT_NUMBER;
+			_type = Type::NUMBER;
 		}
 	}
 	else {
 		while (!strchr("[]{}<>", ir.peek()) && !isspace(ir.peek()))
 			_value += ir.get();
-		_type = TT_OPERATOR;
+		_type = Type::OPERATOR;
 	}
 }

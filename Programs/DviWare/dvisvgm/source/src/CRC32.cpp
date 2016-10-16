@@ -20,16 +20,16 @@
 
 #include <config.h>
 #include <cstring>
-#include "CRC32.h"
+#include "CRC32.hpp"
 
 using namespace std;
 
 
 CRC32::CRC32 () : _crc32(0xFFFFFFFF)
 {
-	const UInt32 poly = 0xEDB88320;
+	const uint32_t poly = 0xEDB88320;
 	for (int i = 0; i < 256; i++) {
-		UInt32 crc=i;
+		uint32_t crc=i;
 		for (int j=8; j > 0; j--) {
 			if (crc & 1)
 				crc = (crc >> 1) ^ poly;
@@ -50,16 +50,16 @@ void CRC32::reset () {
 /** Appends string bytes to the previous data and computes the resulting checksum.
  *  @param[in] data string to update the checksum with */
 void CRC32::update (const char *data) {
-	update((const UInt8*)data, strlen(data));
+	update((const uint8_t*)data, strlen(data));
 }
 
 
 /** Appends a single value to the previous data and computes the resulting checksum.
  *  @param[in] n value to update the checksum with
  *  @param[in] bytes number of bytes to consider (0-4) */
-void CRC32::update (UInt32 n, int bytes) {
+void CRC32::update (uint32_t n, int bytes) {
 	for (int i=bytes-1; i >= 0; --i) {
-		UInt8 byte = UInt8((n >> (8*i)) & 0xff);
+		uint8_t byte = uint8_t((n >> (8*i)) & 0xff);
 		update(&byte, 1);
 	}
 }
@@ -68,7 +68,7 @@ void CRC32::update (UInt32 n, int bytes) {
 /** Appends a sequence of bytes to the previous data and computes the resulting checksum.
  *  @param[in] bytes pointer to array of bytes
  *  @param[in] len number of bytes in array */
-void CRC32::update (const UInt8 *bytes, size_t len) {
+void CRC32::update (const uint8_t *bytes, size_t len) {
 	for (size_t i=0; i < len; ++i)
 		_crc32 = ((_crc32 >> 8) & 0x00FFFFFF) ^ _tab[(_crc32 ^ *bytes++) & 0xFF];
 }
@@ -78,13 +78,13 @@ void CRC32::update (istream &is) {
 	char buf [4096];
 	while (is) {
 		is.read(buf, 4096);
-		update((UInt8*)buf, is.gcount());
+		update((uint8_t*)buf, is.gcount());
 	}
 }
 
 
 /** Returns the checksum computed from values added with the update functions. */
-UInt32 CRC32::get () const {
+uint32_t CRC32::get () const {
 	return _crc32 ^ 0xFFFFFFFF;
 }
 
@@ -93,7 +93,7 @@ UInt32 CRC32::get () const {
  *  @param[in] bytes pointer to array of bytes
  *  @param[in] len number of bytes in array
  *  @return CRC32 checksum */
-UInt32 CRC32::compute (const UInt8 *bytes, size_t len) {
+uint32_t CRC32::compute (const uint8_t *bytes, size_t len) {
 	CRC32 crc32;
 	crc32.update(bytes, len);
 	return crc32.get();
@@ -101,12 +101,12 @@ UInt32 CRC32::compute (const UInt8 *bytes, size_t len) {
 
 
 /** Computes the CRC32 checksum of a string. */
-UInt32 CRC32::compute (const char *str) {
-	return compute((const UInt8*)str, strlen(str));
+uint32_t CRC32::compute (const char *str) {
+	return compute((const uint8_t*)str, strlen(str));
 }
 
 
-UInt32 CRC32::compute (istream &is) {
+uint32_t CRC32::compute (istream &is) {
 	CRC32 crc32;
 	crc32.update(is);
 	return crc32.get();

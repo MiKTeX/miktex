@@ -22,8 +22,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <limits>
-#include "Bitmap.h"
-#include "macros.h"
+#include "Bitmap.hpp"
 
 using namespace std;
 
@@ -50,8 +49,8 @@ void Bitmap::resize (int minx, int maxx, int miny , int maxy) {
 	_yshift = miny;
 	_bpr  = _cols/8 + (_cols % 8 ? 1 : 0);  // bytes per row
 	_bytes.resize(_rows*_bpr);
-	FORALL(_bytes, vector<UInt8>::iterator, it)
-		*it = 0;
+	for (uint8_t &byte : _bytes)
+		byte = 0;
 }
 
 
@@ -62,16 +61,16 @@ void Bitmap::resize (int minx, int maxx, int miny , int maxy) {
 void Bitmap::setBits (int row, int col, int n) {
 	row -= _yshift;
 	col -= _xshift;
-	UInt8 *byte = &_bytes[row*_bpr + col/8];
+	uint8_t *byte = &_bytes[row*_bpr + col/8];
 	if (byte < &_bytes[0])
 		return;
-	const UInt8 *maxptr = &_bytes[0]+_bytes.size()-1;
+	const uint8_t *maxptr = &_bytes[0]+_bytes.size()-1;
 	while (n > 0 && byte <= maxptr) {
 		int b = 7 - col%8;          // number of leftmost bit in current byte to be set
 		int m = min(n, b+1);        // number of bits to be set in current byte
 		int bitseq = (1 << m)-1;    // sequence of n set bits (bits 0..n-1 are set)
 		bitseq <<= b-m+1;           // move bit sequence so that bit b is the leftmost set bit
-		*byte |= UInt8(bitseq);     // apply bit sequence to current byte
+		*byte |= uint8_t(bitseq);     // apply bit sequence to current byte
 		byte++;
 		n -= m;
 		col += m;
@@ -82,7 +81,7 @@ void Bitmap::setBits (int row, int col, int n) {
 void Bitmap::forAllPixels (Callback &data) const {
 	for (int row=0; row < _rows ; row++) {
 		for (int col=0; col < _bpr; col++) {
-			UInt8 byte = _bytes[row*_bpr+col];
+			uint8_t byte = _bytes[row*_bpr+col];
 			int x;
 			for (int b=7; (b >= 0) && ((x = 8*col+(7-b)) < _cols); b--)
 				data.pixel(x, row, bool(byte & (1 << b)), *this);
@@ -102,7 +101,7 @@ class BBoxCallback : public Bitmap::Callback
 		int maxy () const   {return _maxy;}
 		bool empty () const {return !_changed;}
 
-		void pixel (int x, int y, bool set, const Bitmap&) {
+		void pixel (int x, int y, bool set, const Bitmap&) override {
 			if (set) {
 				_minx = min(_minx, x);
 				_miny = min(_miny, y);
@@ -112,7 +111,7 @@ class BBoxCallback : public Bitmap::Callback
 			}
 		}
 
-		void finish () {
+		void finish () override {
 			if (empty())
 				_minx = _miny = 0;
 		}
@@ -151,7 +150,7 @@ void Bitmap::getExtent (int &w, int &h) const {
 ostream& Bitmap::write (ostream &os) const {
 	for (int r=_rows-1; r >= 0 ; r--) {
 		for (int c=0; c < _bpr; c++) {
-			UInt8 byte = _bytes[r*_bpr+c];
+			uint8_t byte = _bytes[r*_bpr+c];
 			for (int b=128; b; b>>=1)
 				os << (byte & b ? '*' : '-');
 			os << ' ';

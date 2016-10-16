@@ -19,7 +19,7 @@
 *************************************************************************/
 
 #include <config.h>
-#include "Directory.h"
+#include "Directory.hpp"
 
 using namespace std;
 
@@ -39,9 +39,9 @@ Directory::Directory () {
 #if defined(MIKTEX)
 #else
 #if _WIN32
-	handle = INVALID_HANDLE_VALUE;
-	firstread = true;
-	memset(&fileData, 0, sizeof(WIN32_FIND_DATA));
+	_handle = INVALID_HANDLE_VALUE;
+	_firstread = true;
+	memset(&_fileData, 0, sizeof(WIN32_FIND_DATA));
 #else
 	_dir = 0;
 	_dirent = 0;
@@ -50,13 +50,13 @@ Directory::Directory () {
 }
 
 
-Directory::Directory (string dirname) {
+Directory::Directory (const string &dirname) {
 #if defined(MIKTEX)
 #else
 #if _WIN32
-	handle = INVALID_HANDLE_VALUE;
-	firstread = true;
-	memset(&fileData, 0, sizeof(WIN32_FIND_DATA));
+	_handle = INVALID_HANDLE_VALUE;
+	_firstread = true;
+	memset(&_fileData, 0, sizeof(WIN32_FIND_DATA));
 #else
 	_dir = 0;
 	_dirent = 0;
@@ -71,23 +71,23 @@ Directory::~Directory () {
 }
 
 
-bool Directory::open (string dname) {
-	_dirname = dname;
+bool Directory::open (string dirname) {
+	_dirname = dirname;
 #if defined(MIKTEX)
-        if (!MiKTeX::Core::Directory::Exists(dname))
+        if (!MiKTeX::Core::Directory::Exists(dirname))
         {
           return false;
         }
-        directoryLister = MiKTeX::Core::DirectoryLister::Open(dname);
+        directoryLister = MiKTeX::Core::DirectoryLister::Open(dirname);
         return true;
 #else
 #ifdef _WIN32
-	firstread = true;
-	if (dname[dname.length()-1] == '/' || dname[dname.length()-1] == '\\')
-		dname = dname.substr(0, dname.length()-1);
-	dname += "\\*";
-	handle = FindFirstFile(dname.c_str(), &fileData);
-	return handle != INVALID_HANDLE_VALUE;
+	_firstread = true;
+	if (dirname[dirname.length()-1] == '/' || dirname[dirname.length()-1] == '\\')
+		dirname = dirname.substr(0, dirname.length()-1);
+	dirname += "\\*";
+	_handle = FindFirstFile(dirname.c_str(), &_fileData);
+	return _handle != INVALID_HANDLE_VALUE;
 #else
 	_dir = opendir(_dirname.c_str());
 	return bool(_dir);
@@ -101,7 +101,7 @@ void Directory::close () {
   directoryLister->Close();
 #else
 #ifdef _WIN32
-	FindClose(handle);
+	FindClose(_handle);
 #else
 	closedir(_dir);
 #endif
@@ -137,19 +137,19 @@ const char* Directory::read (EntryType type) {
   return nullptr;
 #else
 #ifdef _WIN32
-	if (handle == INVALID_HANDLE_VALUE)
+	if (_handle == INVALID_HANDLE_VALUE)
 		return 0;
-	while (firstread || FindNextFile(handle, &fileData)) {
-		firstread = false;
-		if (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+	while (_firstread || FindNextFile(_handle, &_fileData)) {
+		_firstread = false;
+		if (_fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 			if (type == ET_FILE_OR_DIR || type == ET_DIR)
-				return fileData.cFileName;
+				return _fileData.cFileName;
 		}
 		else if (type == ET_FILE_OR_DIR || type == ET_FILE)
-			return fileData.cFileName;
+			return _fileData.cFileName;
 	}
-	FindClose(handle);
-	handle = INVALID_HANDLE_VALUE;
+	FindClose(_handle);
+	_handle = INVALID_HANDLE_VALUE;
 	return 0;
 #else
 	if (!_dir)

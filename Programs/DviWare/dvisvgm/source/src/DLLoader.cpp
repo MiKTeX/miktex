@@ -19,7 +19,7 @@
 *************************************************************************/
 
 #include <config.h>
-#include "DLLoader.h"
+#include "DLLoader.hpp"
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>

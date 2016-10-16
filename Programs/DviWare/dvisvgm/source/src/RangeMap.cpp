@@ -18,7 +18,7 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include "RangeMap.h"
+#include "RangeMap.hpp"
 
 using namespace std;
 
@@ -75,24 +75,24 @@ bool RangeMap::Range::join (const Range &r) {
  *  @param[in] cmin smallest number in the range
  *  @param[in] cmax largest number in the range
  *  @param[in] vmin map value of cmin */
-void RangeMap::addRange (UInt32 cmin, UInt32 cmax, UInt32 vmin) {
+void RangeMap::addRange (uint32_t cmin, uint32_t cmax, uint32_t vmin) {
 	if (cmin > cmax)
 		swap(cmin, cmax);
 
 	Range range(cmin, cmax, vmin);
 	if (_ranges.empty())
-		_ranges.push_back(range);
+		_ranges.emplace_back(std::move(range));
 	else {
 		// check for simple cases that can be handled pretty fast
 		Range &lrange = *_ranges.begin();
 		Range &rrange = *_ranges.rbegin();
 		if (cmin > rrange.max()) {       // non-overlapping range at end of vector?
 			if (!rrange.join(range))
-				_ranges.push_back(range);
+				_ranges.emplace_back(std::move(range));
 		}
 		else if (cmax < lrange.min()) {  // non-overlapping range at begin of vector?
 			if (!lrange.join(range))
-				_ranges.insert(_ranges.begin(), range);
+				_ranges.emplace(_ranges.begin(), std::move(range));
 		}
 		else {
 			// ranges overlap and/or must be inserted somewhere inside the vector
@@ -103,13 +103,13 @@ void RangeMap::addRange (UInt32 cmin, UInt32 cmax, UInt32 vmin) {
 			if (!it->join(range) && (it == _ranges.begin() || !(it-1)->join(range))) {
 				if (it->min() < cmin && it->max() > cmax) { // new range completely inside an existing range?
 					//split existing range
-					UInt32 itmax = it->max();
+					uint32_t itmax = it->max();
 					it->max(cmin-1);
-					it = _ranges.insert(it+1, Range(cmax+1, itmax, it->valueAt(cmax+1)));
+					it = _ranges.emplace(it+1, Range(cmax+1, itmax, it->valueAt(cmax+1)));
 				}
 				else if (at_end)        // does new range overlap right side of last range in vector?
 					it = _ranges.end();  // => append new range at end of vector
-				it = _ranges.insert(it, range);
+				it = _ranges.emplace(it, std::move(range));
 			}
 			adaptNeighbors(it);  // resolve overlaps
 		}
@@ -125,19 +125,11 @@ void RangeMap::addRange (UInt32 cmin, UInt32 cmax, UInt32 vmin) {
 void RangeMap::adaptNeighbors (Ranges::iterator it) {
 	if (it != _ranges.end()) {
 		// adapt left neighbor
-#if defined(MIKTEX)
-          Ranges::iterator lit;
-          if (it != _ranges.begin())
-          {
-            lit = it - 1;
-          }
-#else
-		Ranges::iterator lit = it-1;    // points to left neighbor
-#endif
-		if (it != _ranges.begin() && it->min() <= lit->max()) {
+		if (it != _ranges.begin() && it->min() <= (it-1)->max()) {
+			Ranges::iterator lit = it-1;  // points to left neighbor
 			bool left_neighbor_valid = (it->min() > 0 && it->min()-1 >= lit->min());
-			if (left_neighbor_valid)     // is adapted left neighbor valid?
-				lit->max(it->min()-1);  // => assign new max value
+			if (left_neighbor_valid)      // is adapted left neighbor valid?
+				lit->max(it->min()-1);     // => assign new max value
 			if (!left_neighbor_valid || it->join(*lit))
 				it = _ranges.erase(lit);
 		}
@@ -162,7 +154,7 @@ void RangeMap::adaptNeighbors (Ranges::iterator it) {
 /** Finds the index of the range that contains a given value c.
  *  @param[in] c find range that contains this value
  *  @return index of the range found, or -1 if range was not found */
-int RangeMap::lookup (UInt32 c) const {
+int RangeMap::lookup (uint32_t c) const {
 	// simple binary search
 	int left=0, right=_ranges.size()-1;
 	while (left <= right) {
@@ -178,7 +170,7 @@ int RangeMap::lookup (UInt32 c) const {
 }
 
 
-UInt32 RangeMap::valueAt (UInt32 c) const {
+uint32_t RangeMap::valueAt (uint32_t c) const {
 	int pos = lookup(c);
 	return pos < 0 ? 0 : _ranges[pos].valueAt(c);
 }

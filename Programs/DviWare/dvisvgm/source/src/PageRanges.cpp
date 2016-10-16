@@ -20,11 +20,9 @@
 
 #include <config.h>
 #include <sstream>
-#include "InputBuffer.h"
-#include "InputReader.h"
-#include "PageRanges.h"
-
-#include "macros.h"
+#include "InputBuffer.hpp"
+#include "InputReader.hpp"
+#include "PageRanges.hpp"
 
 using namespace std;
 
@@ -34,7 +32,7 @@ using namespace std;
  *  @param[in] str string to parse
  *  @param[in] max_page greatest allowed value
  *  @return true on success; false denotes a syntax error */
-bool PageRanges::parse (string str, int max_page) {
+bool PageRanges::parse (const string &str, int max_page) {
 	StringInputBuffer ib(str);
 	BufferInputReader ir(ib);
 	while (ir) {

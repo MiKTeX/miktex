@@ -20,10 +20,9 @@
 
 #include <config.h>
 #include <cctype>
-#include "FilePath.h"
-#include "FileSystem.h"
-#include "MessageException.h"
-#include "macros.h"
+#include "FilePath.hpp"
+#include "FileSystem.hpp"
+#include "MessageException.hpp"
 
 #if defined(MIKTEX)
 #  include <miktex/Core/PathName>
@@ -95,7 +94,7 @@ FilePath::FilePath (const string &path) {
  *  @param[in] path absolute or relative path to a file or directory
  *  @param[in] isfile true if 'path' references a file, false if a directory is referenced
  *  @param[in] current_dir if 'path' is a relative path expression it will be related to 'current_dir' */
-FilePath::FilePath (const string &path, bool isfile, string current_dir) {
+FilePath::FilePath (const string &path, bool isfile, const string &current_dir) {
 	init(path, isfile, current_dir);
 }
 
@@ -141,13 +140,13 @@ void FilePath::init (string path, bool isfile, string current_dir) {
 	}
 	path.insert(0, current_dir + "/");
 	string elem;
-	FORALL (path, string::const_iterator, it) {
-		if (*it == '/') {
+	for (char c : path) {
+		if (c != '/')
+			elem += c;
+		else {
 			add(elem);
 			elem.clear();
 		}
-		else
-			elem += *it;
 	}
 	add(elem);
 }
@@ -209,9 +208,8 @@ string FilePath::basename () const {
  *  @return the absolute path string */
 string FilePath::absolute (bool with_filename) const {
 	string path;
-	FORALL (_dirs, ConstIterator, it) {
-		path += "/" + *it;
-	}
+	for (const string &dir : _dirs)
+		path += "/" + dir;
 	if (path.empty())
 		path = "/";
 	if (with_filename && !_fname.empty())
@@ -245,14 +243,14 @@ string FilePath::relative (string reldir, bool with_filename) const {
 	if (rel._drive && _drive && rel._drive != _drive)
 		path += string(1, _drive) + ":";
 #endif
-	ConstIterator i = _dirs.begin();
-	ConstIterator j = rel._dirs.begin();
-	while (i != _dirs.end() && j != rel._dirs.end() && *i == *j)
-		++i, ++j;
-	for (; j != rel._dirs.end(); ++j)
+	auto it1 = _dirs.begin();
+	auto it2 = rel._dirs.begin();
+	while (it1 != _dirs.end() && it2 != rel._dirs.end() && *it1 == *it2)
+		++it1, ++it2;
+	for (; it2 != rel._dirs.end(); ++it2)
 		path += "../";
-	for (; i != _dirs.end(); ++i)
-		path += *i + "/";
+	for (; it1 != _dirs.end(); ++it1)
+		path += *it1 + "/";
 	if (!path.empty())
 		path.erase(path.length()-1, 1);  // remove trailing slash
 	if (with_filename && !_fname.empty()) {

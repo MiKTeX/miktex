@@ -19,7 +19,7 @@
 *************************************************************************/
 
 #include <config.h>
-#include "Terminal.h"
+#include "Terminal.hpp"
 
 #ifdef HAVE_TERMIOS_H
 #include <termios.h>

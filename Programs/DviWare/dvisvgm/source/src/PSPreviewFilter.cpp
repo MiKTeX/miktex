@@ -20,11 +20,11 @@
 
 #include <config.h>
 #include <vector>
-#include "InputBuffer.h"
-#include "InputReader.h"
-#include "PSInterpreter.h"
-#include "PSPreviewFilter.h"
-#include "SpecialActions.h"
+#include "InputBuffer.hpp"
+#include "InputReader.hpp"
+#include "PSInterpreter.hpp"
+#include "PSPreviewFilter.hpp"
+#include "SpecialActions.hpp"
 
 
 using namespace std;

@@ -23,7 +23,7 @@
 #include <cctype>
 #include <cmath>
 #include <sstream>
-#include "PageSize.h"
+#include "PageSize.hpp"
 
 using namespace std;
 
@@ -86,7 +86,7 @@ static void computeDSize (int n, double &width, double &height) {
 
 /** Constructs a PageSize object of given size.
  *  @param[in] name specifies the page size, e.g. "A4" or "letter" */
-PageSize::PageSize (string name) : _width(0), _height(0) {
+PageSize::PageSize (const string &name) : _width(0), _height(0) {
 	resize(name);
 }
 

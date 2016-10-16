@@ -22,7 +22,7 @@
 #include <cerrno>
 #include <csignal>
 #include <cstdlib>
-#include "SignalHandler.h"
+#include "SignalHandler.hpp"
 
 using namespace std;
 

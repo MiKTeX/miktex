@@ -21,7 +21,7 @@
 #include <config.h>
 #include <algorithm>
 #include <sstream>
-#include "BasicDVIReader.h"
+#include "BasicDVIReader.hpp"
 
 using namespace std;
 
@@ -207,9 +207,9 @@ void BasicDVIReader::setDVIVersion (DVIVersion version) {
  *  Format: pre i[1] num[4] den[4] mag[4] k[1] x[k] */
 void BasicDVIReader::cmdPre (int) {
 	setDVIVersion((DVIVersion)readUnsigned(1)); // identification number
-	seek(12, ios::cur);         // skip numerator, denominator, and mag factor
-	UInt32 k = readUnsigned(1); // length of following comment
-	seek(k, ios::cur);          // skip comment
+	seek(12, ios::cur);           // skip numerator, denominator, and mag factor
+	uint32_t k = readUnsigned(1); // length of following comment
+	seek(k, ios::cur);            // skip comment
 }
 
 
@@ -261,9 +261,9 @@ void BasicDVIReader::cmdXXX (int len)     {seek(readUnsigned(len), ios::cur);}
  *  Format: fontdef k[len] c[4] s[4] d[4] a[1] l[1] n[a+l]
  * @param[in] len size of font number variable (in bytes) */
 void BasicDVIReader::cmdFontDef (int len) {
-	seek(len+12, ios::cur);             // skip font number
-	UInt32 pathlen  = readUnsigned(1);  // length of font path
-	UInt32 namelen  = readUnsigned(1);  // length of font name
+	seek(len+12, ios::cur);               // skip font number
+	uint32_t pathlen  = readUnsigned(1);  // length of font path
+	uint32_t namelen  = readUnsigned(1);  // length of font name
 	seek(pathlen+namelen, ios::cur);
 }
 
@@ -272,15 +272,15 @@ void BasicDVIReader::cmdFontDef (int len) {
  *  parameters: box[1] matrix[4][6] p[2] len[2] path[l] */
 void BasicDVIReader::cmdXPic (int) {
 	seek(1+24+2, ios::cur);
-	UInt16 len = readUnsigned(2);
+	uint16_t len = readUnsigned(2);
 	seek(len, ios::cur);
 }
 
 
 void BasicDVIReader::cmdXFontDef (int) {
 	seek(4+4, ios::cur);
-	UInt16 flags = readUnsigned(2);
-	UInt8 len = readUnsigned(1);
+	uint16_t flags = readUnsigned(2);
+	uint8_t len = readUnsigned(1);
 	if (_dviVersion == DVI_XDV5)
 		len += readUnsigned(1)+readUnsigned(1);
 	seek(len, ios::cur);
@@ -295,7 +295,7 @@ void BasicDVIReader::cmdXFontDef (int) {
 	if (flags & 0x4000)   // embolden?
 		seek(4, ios::cur);
 	if ((flags & 0x0800) && (_dviVersion == DVI_XDV5)) { // variations?
-		UInt16 num_variations = readSigned(2);
+		uint16_t num_variations = readSigned(2);
 		seek(4*num_variations, ios::cur);
 	}
 }
@@ -306,7 +306,7 @@ void BasicDVIReader::cmdXFontDef (int) {
  *  parameters: w[4] n[2] xy[(4+4)n] g[2n] */
 void BasicDVIReader::cmdXGlyphArray (int) {
 	seek(4, ios::cur);
-	UInt16 num_glyphs = readUnsigned(2);
+	uint16_t num_glyphs = readUnsigned(2);
 	seek(10*num_glyphs, ios::cur);
 }
 
@@ -316,7 +316,7 @@ void BasicDVIReader::cmdXGlyphArray (int) {
  *  parameters: w[4] n[2] x[4n] y[4] g[2n] */
 void BasicDVIReader::cmdXGlyphString (int) {
 	seek(4, ios::cur);
-	UInt16 num_glyphs = readUnsigned(2);
+	uint16_t num_glyphs = readUnsigned(2);
 	seek(6*num_glyphs, ios::cur);
 }
 
@@ -328,7 +328,7 @@ void BasicDVIReader::cmdXGlyphString (int) {
  *  introduced with XeTeX 0.99995 and can be triggered by <tt>\\XeTeXgenerateactualtext1</tt>.
  *  parameters: l[2] t[2l] w[4] n[2] xy[8n] g[2n] */
 void BasicDVIReader::cmdXTextAndGlyphs (int) {
-	UInt16 l = readUnsigned(2);
+	uint16_t l = readUnsigned(2);
 	seek(2*l, ios::cur);
 	cmdXGlyphArray(0);
 }

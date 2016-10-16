@@ -24,8 +24,8 @@
 #include <cstring>
 #include <iostream>
 #include <map>
-#include "Message.h"
-#include "Terminal.h"
+#include "Message.hpp"
+#include "Terminal.hpp"
 
 using namespace std;
 
@@ -234,15 +234,16 @@ void Message::init () {
 	_classColors[MC_PROGRESS]     = Color(Terminal::MAGENTA);
 
 	if (const char *color_str = getenv("DVISVGM_COLORS")) {
-		map<string, MessageClass> classes;
-		classes["er"] = MC_ERROR;
-		classes["wn"] = MC_WARNING;
-		classes["pn"] = MC_PAGE_NUMBER;
-		classes["ps"] = MC_PAGE_SIZE;
-		classes["fw"] = MC_PAGE_WRITTEN;
-		classes["sm"] = MC_STATE;
-		classes["tr"] = MC_TRACING;
-		classes["pi"] = MC_PROGRESS;
+		map<string, MessageClass> classes = {
+			{"er", MC_ERROR},
+			{"wn", MC_WARNING},
+			{"pn", MC_PAGE_NUMBER},
+			{"ps", MC_PAGE_SIZE},
+			{"fw", MC_PAGE_WRITTEN},
+			{"sm", MC_STATE},
+			{"tr", MC_TRACING},
+			{"pi", MC_PROGRESS},
+		};
 		const char *p=color_str;
 
 		// skip leading whitespace
@@ -251,7 +252,7 @@ void Message::init () {
 
 		// iterate over color assignments
 		while (strlen(p) >= 5) {
-			map<string, MessageClass>::iterator it = classes.find(string(p, 2));
+			auto it = classes.find(string(p, 2));
 			if (it != classes.end() && p[2] == '=') {
 				int bgcolor, fgcolor;
 				if (colorchar2int(p[3], &bgcolor) && colorchar2int(p[4], &fgcolor)) {

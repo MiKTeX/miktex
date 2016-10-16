@@ -23,13 +23,11 @@
 <!ATTLIST cmdline
   class NMTOKEN #REQUIRED>
 
-<!ELEMENT program (name,usage+,description)>
-
+<!ELEMENT program (usage+,description,copyright)>
 <!ELEMENT options (section)+>
-
 <!ELEMENT name (#PCDATA)>
-
 <!ELEMENT usage (#PCDATA)>
+<!ELEMENT copyright (#PCDATA)>
 
 <!ELEMENT section (option)+>
 <!ATTLIST section

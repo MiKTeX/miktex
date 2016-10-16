@@ -20,7 +20,7 @@
 
 #include <algorithm>
 #include <utility>
-#include "Bezier.h"
+#include "Bezier.hpp"
 
 using namespace std;
 

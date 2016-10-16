@@ -18,7 +18,7 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include "CharMapID.h"
+#include "CharMapID.hpp"
 
 const CharMapID CharMapID::NONE(0, 0);
 const CharMapID CharMapID::WIN_SYMBOL(3, 0);

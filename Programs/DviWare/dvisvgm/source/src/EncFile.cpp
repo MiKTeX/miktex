@@ -20,12 +20,12 @@
 
 #include <config.h>
 #include <fstream>
-#include "Font.h"
-#include "EncFile.h"
-#include "InputBuffer.h"
-#include "InputReader.h"
-#include "FileFinder.h"
-#include "Message.h"
+#include "Font.hpp"
+#include "EncFile.hpp"
+#include "InputBuffer.hpp"
+#include "InputReader.hpp"
+#include "FileFinder.hpp"
+#include "Message.hpp"
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
@@ -45,7 +45,7 @@ EncFile::EncFile (const string &encname) : _encname(encname)
 
 
 const char* EncFile::path () const {
-	return FileFinder::lookup(_encname+".enc", false);
+	return FileFinder::instance().lookup(_encname+".enc", false);
 }
 
 
@@ -135,7 +135,7 @@ static bool valid_name_char (int c) {
 /** Returns an entry of the encoding table.
  * @param[in] c character code
  * @return character name assigned to character code c*/
-const char* EncFile::charName (UInt32 c) const {
+const char* EncFile::charName (uint32_t c) const {
 	if (c < _table.size())
 		return !_table[c].empty() ? _table[c].c_str() : 0;
 	return 0;

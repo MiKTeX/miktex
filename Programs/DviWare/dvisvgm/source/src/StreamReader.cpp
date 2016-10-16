@@ -19,9 +19,8 @@
 *************************************************************************/
 
 #include <config.h>
-#include "CRC32.h"
-#include "StreamReader.h"
-#include "macros.h"
+#include "CRC32.hpp"
+#include "StreamReader.hpp"
 
 using namespace std;
 
@@ -36,10 +35,10 @@ istream& StreamReader::replaceStream (istream &in) {
 /** Reads an unsigned integer from assigned input stream.
  *  @param[in] bytes number of bytes to read (max. 4)
  *  @return read integer */
-UInt32 StreamReader::readUnsigned (int bytes) {
-	UInt32 ret = 0;
+uint32_t StreamReader::readUnsigned (int bytes) {
+	uint32_t ret = 0;
 	for (bytes--; bytes >= 0 && !_is->eof(); bytes--) {
-		UInt32 b = UInt32(_is->get());
+		uint32_t b = uint32_t(_is->get());
 		ret |= b << (8*bytes);
 	}
 	return ret;
@@ -50,8 +49,8 @@ UInt32 StreamReader::readUnsigned (int bytes) {
  *  @param[in] bytes number of bytes to read (max. 4)
  *  @param[in,out] crc32 checksum to be updated
  *  @return read integer */
-UInt32 StreamReader::readUnsigned (int bytes, CRC32 &crc32) {
-	UInt32 ret = readUnsigned(bytes);
+uint32_t StreamReader::readUnsigned (int bytes, CRC32 &crc32) {
+	uint32_t ret = readUnsigned(bytes);
 	crc32.update(ret, bytes);
 	return ret;
 }
@@ -60,8 +59,8 @@ UInt32 StreamReader::readUnsigned (int bytes, CRC32 &crc32) {
 /** Reads an signed integer from assigned input stream.
  *  @param[in] bytes number of bytes to read (max. 4)
  *  @return read integer */
-Int32 StreamReader::readSigned (int bytes) {
-	Int32 ret = Int32(_is->get());
+int32_t StreamReader::readSigned (int bytes) {
+	int32_t ret = int32_t(_is->get());
 	if (ret & 128)        // negative value?
 		ret |= 0xffffff00;
 	for (bytes-=2; bytes >= 0 && !_is->eof(); bytes--)
@@ -74,9 +73,9 @@ Int32 StreamReader::readSigned (int bytes) {
  *  @param[in] bytes number of bytes to read (max. 4)
  *  @param[in,out] crc32 checksum to be updated
  *  @return read integer */
-Int32 StreamReader::readSigned (int bytes, CRC32 &crc32) {
-	Int32 ret = readSigned(bytes);
-	crc32.update(UInt32(ret), bytes);
+int32_t StreamReader::readSigned (int bytes, CRC32 &crc32) {
+	int32_t ret = readSigned(bytes);
+	crc32.update(uint32_t(ret), bytes);
 	return ret;
 }
 
@@ -99,7 +98,7 @@ string StreamReader::readString () {
  *  @return the string read */
 string StreamReader::readString (CRC32 &crc32, bool finalZero) {
 	string ret = readString();
-	crc32.update((const UInt8*)ret.c_str(), ret.length());
+	crc32.update((const uint8_t*)ret.c_str(), ret.length());
 	if (finalZero)
 		crc32.update(0, 1);
 	return ret;
@@ -136,14 +135,14 @@ string StreamReader::readString (int length, CRC32 &crc32) {
 }
 
 
-vector<UInt8>& StreamReader::readBytes (int n, vector<UInt8> &bytes) {
+vector<uint8_t>& StreamReader::readBytes (int n, vector<uint8_t> &bytes) {
 	if (n > 0)
 		_is->read((char*)&bytes[0], n);
 	return bytes;
 }
 
 
-vector<UInt8>& StreamReader::readBytes (int n, vector<UInt8> &bytes, CRC32 &crc32) {
+vector<uint8_t>& StreamReader::readBytes (int n, vector<uint8_t> &bytes, CRC32 &crc32) {
 	readBytes(n, bytes);
 	crc32.update(&bytes[0], bytes.size());
 	return bytes;
@@ -153,7 +152,7 @@ vector<UInt8>& StreamReader::readBytes (int n, vector<UInt8> &bytes, CRC32 &crc3
 int StreamReader::readByte (CRC32 &crc32) {
 	int ret = readByte();
 	if (ret >= 0) {
-		const UInt8 c = UInt8(ret & 0xff);
+		const uint8_t c = uint8_t(ret & 0xff);
 		crc32.update(&c, 1);
 	}
 	return ret;

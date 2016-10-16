@@ -18,12 +18,12 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include "SVGSingleCharTextHandler.h"
-#include "XMLNode.h"
+#include "SVGSingleCharTextHandler.hpp"
+#include "XMLNode.hpp"
 
 using namespace std;
 
-void SVGSingleCharTextHandler::appendChar (UInt32 c, double x, double y) {
+void SVGSingleCharTextHandler::appendChar (uint32_t c, double x, double y) {
 	const Font *font = _font.get();
 	XMLElementNode *textNode = createTextNode(x, y);
 	textNode->append(XMLString(font->unicode(c), false));
