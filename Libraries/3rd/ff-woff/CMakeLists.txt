@@ -100,6 +100,7 @@ set_property(TARGET ${ff_woff_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER}
 
 target_include_directories(${ff_woff_lib_name}
   PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/fontforge
     ${CMAKE_CURRENT_SOURCE_DIR}/source/inc
 )
 

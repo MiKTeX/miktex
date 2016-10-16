@@ -24,6 +24,8 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
   source/libs/clipper
   source/libs/xxHash
+  source/libs/woff2/brotli/enc
+  source/libs/woff2/src
 )
 
 add_definitions(
@@ -45,7 +47,6 @@ if(CMAKE_CL_64)
   )
 endif()
 
-set(DISABLE_WOFF 1)
 set(HAVE_CXX11 1)
 
 configure_file(
@@ -61,6 +62,83 @@ set(libclipper_sources
 set(libxxhash_sources
   source/libs/xxHash/xxhash.c
   source/libs/xxHash/xxhash.h
+)
+
+set(libbrotli_sources
+  source/libs/woff2/brotli/enc/backward_references.cc
+  source/libs/woff2/brotli/enc/backward_references.h
+  source/libs/woff2/brotli/enc/bit_cost.h
+  source/libs/woff2/brotli/enc/block_splitter.cc
+  source/libs/woff2/brotli/enc/block_splitter.h
+  source/libs/woff2/brotli/enc/brotli_bit_stream.cc
+  source/libs/woff2/brotli/enc/brotli_bit_stream.h
+  source/libs/woff2/brotli/enc/cluster.h
+  source/libs/woff2/brotli/enc/command.h
+  source/libs/woff2/brotli/enc/compress_fragment.cc
+  source/libs/woff2/brotli/enc/compress_fragment.h
+  source/libs/woff2/brotli/enc/compress_fragment_two_pass.cc
+  source/libs/woff2/brotli/enc/compress_fragment_two_pass.h
+  source/libs/woff2/brotli/enc/compressor.h
+  source/libs/woff2/brotli/enc/context.h
+  source/libs/woff2/brotli/enc/dictionary.cc
+  source/libs/woff2/brotli/enc/dictionary.h
+  source/libs/woff2/brotli/enc/dictionary_hash.h
+  source/libs/woff2/brotli/enc/encode.cc
+  source/libs/woff2/brotli/enc/encode.h
+  source/libs/woff2/brotli/enc/encode_parallel.cc
+  source/libs/woff2/brotli/enc/encode_parallel.h
+  source/libs/woff2/brotli/enc/entropy_encode.cc
+  source/libs/woff2/brotli/enc/entropy_encode.h
+  source/libs/woff2/brotli/enc/entropy_encode_static.h
+  source/libs/woff2/brotli/enc/fast_log.h
+  source/libs/woff2/brotli/enc/find_match_length.h
+  source/libs/woff2/brotli/enc/hash.h
+  source/libs/woff2/brotli/enc/histogram.cc
+  source/libs/woff2/brotli/enc/histogram.h
+  source/libs/woff2/brotli/enc/literal_cost.cc
+  source/libs/woff2/brotli/enc/literal_cost.h
+  source/libs/woff2/brotli/enc/metablock.cc
+  source/libs/woff2/brotli/enc/metablock.h
+  source/libs/woff2/brotli/enc/port.h
+  source/libs/woff2/brotli/enc/prefix.h
+  source/libs/woff2/brotli/enc/ringbuffer.h
+  source/libs/woff2/brotli/enc/static_dict.cc
+  source/libs/woff2/brotli/enc/static_dict.h
+  source/libs/woff2/brotli/enc/static_dict_lut.h
+  source/libs/woff2/brotli/enc/streams.cc
+  source/libs/woff2/brotli/enc/streams.h
+  source/libs/woff2/brotli/enc/transform.h
+  source/libs/woff2/brotli/enc/types.h
+  source/libs/woff2/brotli/enc/utf8_util.cc
+  source/libs/woff2/brotli/enc/utf8_util.h
+  source/libs/woff2/brotli/enc/write_bits.h
+)
+
+set(libwoff2_sources
+  source/libs/woff2/src/buffer.h
+  source/libs/woff2/src/file.h
+  source/libs/woff2/src/font.cc
+  source/libs/woff2/src/font.h
+  source/libs/woff2/src/glyph.cc
+  source/libs/woff2/src/glyph.h
+  source/libs/woff2/src/normalize.cc
+  source/libs/woff2/src/normalize.h
+  source/libs/woff2/src/port.h
+  source/libs/woff2/src/round.h
+  source/libs/woff2/src/store_bytes.h
+  source/libs/woff2/src/table_tags.cc
+  source/libs/woff2/src/table_tags.h
+  source/libs/woff2/src/transform.cc
+  source/libs/woff2/src/transform.h
+  source/libs/woff2/src/variable_length.cc
+  source/libs/woff2/src/variable_length.h
+  source/libs/woff2/src/woff2_common.cc
+  source/libs/woff2/src/woff2_common.h
+  source/libs/woff2/src/woff2_dec.h
+  source/libs/woff2/src/woff2_enc.cc
+  source/libs/woff2/src/woff2_enc.h
+  source/libs/woff2/src/woff2_out.cc
+  source/libs/woff2/src/woff2_out.h
 )
 
 set(libdvisvgm_sources
@@ -261,6 +339,11 @@ set(libdvisvgm_sources
   source/src/version.hpp
 )
 
+list(APPEND libdvisvgm_sources
+  source/src/ffwrapper.c
+  source/src/ffwrapper.h
+)
+
 set(dvisvgm_c_sources
   source/src/dvisvgm.cpp
 )
@@ -269,8 +352,10 @@ set(dvisvgm_sources
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
   ${MIKTEX_LIBRARY_WRAPPER}
   ${dvisvgm_c_sources}
+  ${libbrotli_sources}
   ${libclipper_sources}
   ${libdvisvgm_sources}
+  ${libwoff2_sources}
   ${libxxhash_sources}
   dvisvgm-version.h
 )
@@ -298,6 +383,7 @@ merge_compatibility_manifest(dvisvgm)
 target_link_libraries(dvisvgm
   ${app_dll_name}
   ${core_dll_name}
+  ${ff_woff_lib_name}
   ${freetype2_dll_name}
   ${kpsemu_dll_name}
   ${potrace_lib_name}
