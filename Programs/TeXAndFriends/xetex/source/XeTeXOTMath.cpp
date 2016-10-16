@@ -38,6 +38,7 @@ authorization from the copyright holders.
 #include <w2c/config.h>
 
 #include <assert.h>
+#include <algorithm>
 #if defined(MIKTEX)
 #include "xetex-miktex.h"
 #endif
@@ -157,8 +158,13 @@ get_native_mathsy_param(int f, int n)
 {
     int rval = 0;
 
-    if (n == math_quad || n == delim2)
+    if (n == math_quad) {
         rval = fontsize[f];
+    }
+    else if (n == delim2) { // XXX not sure what OT parameter we should use here;
+                            // for now we use 1.5em, clamped to delim1 height
+        rval = std::min<int>(1.5 * fontsize[f], get_native_mathsy_param(f, delim1));
+    }
     else {
         if (n < sizeof(TeX_sym_to_OT_map) / sizeof(mathConstantIndex)) {
             mathConstantIndex ot_index = TeX_sym_to_OT_map[n];
