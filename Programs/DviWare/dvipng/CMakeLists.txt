@@ -93,11 +93,21 @@ set_property(TARGET dvipng PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 merge_trustinfo_manifest(dvipng asInvoker)
 merge_compatibility_manifest(dvipng)
 
+if(USE_SYSTEM_FREETYPE2)
+  target_link_libraries(dvipng MiKTeX::Imported::FREETYPE2)
+else()
+  target_link_libraries(dvipng ${freetype2_dll_name})
+endif()
+
+if(USE_SYSTEM_GD)
+  target_link_libraries(dvipng MiKTeX::Imported::GD)
+else()
+  target_link_libraries(dvipng ${gd_dll_name})
+endif()
+
 target_link_libraries(dvipng
   ${app_dll_name}
   ${core_dll_name}
-  ${freetype2_dll_name}
-  ${gd_dll_name}
   ${kpsemu_dll_name}
   ${texmf_dll_name}
 )

@@ -41,15 +41,35 @@ target_include_directories(${core_lib_name}
     ${public_include_directories}
 )
 
+if(USE_SYSTEM_BZIP2)
+  target_link_libraries(${core_lib_name} PUBLIC MiKTeX::Imported::BZIP2)
+else()
+  target_link_libraries(${core_lib_name} PUBLIC ${bzip2_lib_name})
+endif()
+
+if(USE_SYSTEM_LZMA)
+  target_link_libraries(${core_lib_name} PUBLIC MiKTeX::Imported::LZMA)
+else()
+  target_link_libraries(${core_lib_name} PUBLIC ${lzma_lib_name})
+endif()
+
+if(USE_SYSTEM_URIPARSER)
+  target_link_libraries(${core_lib_name} PUBLIC MiKTeX::Imported::URIPARSER)
+else()
+  target_link_libraries(${core_lib_name} PUBLIC ${uriparser_lib_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${core_lib_name} PUBLIC MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${core_lib_name} PUBLIC ${zlib_lib_name})
+endif()
+
 target_link_libraries(${core_lib_name}
   PUBLIC
-    ${bzip2_lib_name}
-    ${lzma_lib_name}
     ${md5_lib_name}
     ${trace_lib_name}
-    ${uriparser_lib_name}
     ${util_lib_name}
-    ${zlib_lib_name}
     Threads::Threads
 )
 
@@ -67,18 +87,16 @@ if(MIKTEX_NATIVE_WINDOWS)
   endif()
 endif()
 
-if(MIKTEX_NATIVE_WINDOWS OR USE_SYSTEM_BOTAN)
-  target_link_libraries(${core_lib_name}
-    PUBLIC
-    ${botan_lib_name}
-  )
+if(USE_SYSTEM_BOTAN)
+  target_link_libraries(${core_lib_name} PUBLIC MiKTeX::Imported::BOTAN110)
+elseif(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${core_lib_name} PUBLIC ${botan_lib_name})
 endif()
 
-if(MIKTEX_NATIVE_WINDOWS OR USE_SYSTEM_OPENSSL_CRYPTO)
-  target_link_libraries(${core_lib_name}
-    PUBLIC
-      ${openssl_crypto_lib_name}
-  )
+if(USE_SYSTEM_OPENSSL_CRYPTO)
+  target_link_libraries(${core_lib_name} PUBLIC MiKTeX::Imported::OPENSSL::CRYPTO)
+elseif(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${core_lib_name} PUBLIC ${openssl_crypto_lib_name})
 endif()
 
 source_group("C API" FILES ${c_api_sources})

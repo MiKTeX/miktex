@@ -30,10 +30,11 @@ target_include_directories(miktex-popt-wrapper
     ${public_include_directories}
 )
 
-target_link_libraries(miktex-popt-wrapper
-  INTERFACE
-    ${popt_dll_name}
-)
+if(USE_SYSTEM_POPT)
+  target_link_libraries(miktex-popt-wrapper INTERFACE MiKTeX::Imported::POPT)
+else()
+  target_link_libraries(miktex-popt-wrapper INTERFACE ${popt_dll_name})
+endif()
 
 add_library(miktex-popt-wrapper-static INTERFACE)
 
@@ -42,7 +43,8 @@ target_include_directories(miktex-popt-wrapper-static
     ${public_include_directories}
 )
 
-target_link_libraries(miktex-popt-wrapper-static
-  INTERFACE
-    ${popt_lib_name}
-)
+if(USE_SYSTEM_POPT)
+  target_link_libraries(miktex-popt-wrapper-static INTERFACE MiKTeX::Imported::POPT)
+else()
+  target_link_libraries(miktex-popt-wrapper-static INTERFACE ${popt_lib_name})
+endif()

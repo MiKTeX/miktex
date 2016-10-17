@@ -82,12 +82,22 @@ set_property(TARGET ttf2pk PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 merge_trustinfo_manifest(ttf2pk asInvoker)
 merge_compatibility_manifest(ttf2pk)
 
+if(USE_SYSTEM_FREETYPE2)
+  target_link_libraries(ttf2pk MiKTeX::Imported::FREETYPE2)
+else()
+  target_link_libraries(ttf2pk ${freetype2_dll_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(ttf2pk MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(ttf2pk ${zlib_dll_name})
+endif()
+
 target_link_libraries(ttf2pk
   ${app_dll_name}
   ${core_dll_name}
-  ${freetype2_dll_name}
   ${kpsemu_dll_name}
-  ${zlib_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -127,12 +137,22 @@ set_property(TARGET ttf2tfm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 merge_trustinfo_manifest(ttf2tfm asInvoker)
 merge_compatibility_manifest(ttf2tfm)
 
+if(USE_SYSTEM_FREETYPE2)
+  target_link_libraries(ttf2tfm MiKTeX::Imported::FREETYPE2)
+else()
+  target_link_libraries(ttf2tfm ${freetype2_dll_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(ttf2tfm MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(ttf2tfm ${zlib_dll_name})
+endif()
+
 target_link_libraries(ttf2tfm
   ${app_dll_name}
   ${core_dll_name}
-  ${freetype2_dll_name}
   ${kpsemu_dll_name}
-  ${zlib_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

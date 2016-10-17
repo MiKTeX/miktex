@@ -67,10 +67,11 @@ target_include_directories(${teckit_dll_name}
     ${public_include_directories}
 )
 
-target_link_libraries(${teckit_dll_name}
-  PRIVATE
-    ${zlib_dll_name}
-)
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${teckit_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${teckit_dll_name} PRIVATE ${zlib_dll_name})
+endif()
 
 delay_load(${teckit_dll_name}
   ${zlib_dll_name}

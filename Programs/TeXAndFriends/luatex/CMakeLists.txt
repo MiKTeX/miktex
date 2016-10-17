@@ -166,12 +166,22 @@ add_library(luatex-luamisc-static STATIC ${luamisc_sources})
 
 set_property(TARGET luatex-luamisc-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(luatex-luamisc-static PUBLIC MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(luatex-luamisc-static PUBLIC ${zlib_dll_name})
+endif()
+
+if(USE_SYSTEM_ZZIP)
+  target_link_libraries(luatex-luamisc-static PUBLIC MiKTeX::Imported::ZZIP)
+else()
+  target_link_libraries(luatex-luamisc-static PUBLIC ${zzip_dll_name})
+endif()
+
 target_link_libraries(luatex-luamisc-static
   PUBLIC
     ${core_dll_name}
     ${lua_lib_name}
-    ${zlib_dll_name}
-    ${zzip_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -599,16 +609,31 @@ add_library(luatex-static STATIC ${luatexlib_sources})
 
 set_property(TARGET luatex-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+if(USE_SYSTEM_PNG)
+  target_link_libraries(luatex-static PUBLIC MiKTeX::Imported::PNG)
+else()
+  target_link_libraries(luatex-static PUBLIC ${png_dll_name})
+endif()
+
+if(USE_SYSTEM_POPPLER)
+  target_link_libraries(luatex-static PUBLIC MiKTeX::Imported::POPPLER)
+else()
+  target_link_libraries(luatex-static PUBLIC ${poppler_dll_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(luatex-static PUBLIC MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(luatex-static PUBLIC ${zlib_dll_name})
+endif()
+
 target_link_libraries(luatex-static
   PUBLIC
     ${core_dll_name}
     ${kpsemu_dll_name}
     ${lua_lib_name}
     ${mp_lib_name}
-    ${png_dll_name}
-    ${poppler_lib_name}
     ${w2cemu_dll_name}
-    ${zlib_dll_name}
     luatex-luamisc-static
     luatex-luasocket-static
     luatex-luafontforge-static
@@ -642,19 +667,12 @@ endif()
 
 set(libs
   ${app_dll_name}
-  ${cairo_dll_name}
   ${core_dll_name}
-  ${jpeg_dll_name}
   ${kpsemu_dll_name}
   ${lua_lib_name}
   ${md5_dll_name}
   ${mp_lib_name}
-  ${pixman_lib_name}
-  ${png_dll_name}
-  ${poppler_lib_name}
-  ${zzip_dll_name}
   ${w2cemu_dll_name}
-  ${zlib_dll_name}
 
   luatex-luafontforge-static
   luatex-luamisc-static
@@ -665,6 +683,48 @@ set(libs
 
   luatex-miktex-static
 )
+
+if(USE_SYSTEM_CAIRO)
+  list(APPEND libs MiKTeX::Imported::CAIRO)
+else()
+  list(APPEND libs ${cairo_dll_name})
+endif()
+
+if(USE_SYSTEM_JPEG)
+  list(APPEND libs MiKTeX::Imported::JPEG)
+else()
+  list(APPEND libs ${jpeg_dll_name})
+endif()
+
+if(USE_SYSTEM_PIXMAN)
+  list(APPEND libs MiKTeX::Imported::PIXMAN)
+else()
+  list(APPEND libs ${pixman_lib_name})
+endif()
+
+if(USE_SYSTEM_PNG)
+  list(APPEND libs MiKTeX::Imported::PNG)
+else()
+  list(APPEND libs ${png_dll_name})
+endif()
+
+if(USE_SYSTEM_POPPLER)
+  list(APPEND libs MiKTeX::Imported::POPPLER)
+else()
+  list(APPEND libs ${poppler_lib_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  list(APPEND libs MiKTeX::Imported::ZLIB)
+else()
+  list(APPEND libs ${zlib_dll_name})
+endif()
+
+if(USE_SYSTEM_ZZIP)
+  list(APPEND libs MiKTeX::Imported::ZZIP)
+else()
+  list(APPEND libs ${zzip_dll_name})
+endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND libs

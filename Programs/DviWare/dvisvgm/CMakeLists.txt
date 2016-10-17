@@ -380,15 +380,30 @@ set_property(TARGET dvisvgm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 merge_trustinfo_manifest(dvisvgm asInvoker)
 merge_compatibility_manifest(dvisvgm)
 
+if(USE_SYSTEM_FREETYPE2)
+  target_link_libraries(dvisvgm MiKTeX::Imported::FREETYPE2)
+else()
+  target_link_libraries(dvisvgm ${freetype2_dll_name})
+endif()
+
+if(USE_SYSTEM_POTRACE)
+  target_link_libraries(dvisvgm MiKTeX::Imported::POTRACE)
+else()
+  target_link_libraries(dvisvgm ${potrace_lib_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(dvisvgm MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(dvisvgm ${zlib_dll_name})
+endif()
+
 target_link_libraries(dvisvgm
   ${app_dll_name}
   ${core_dll_name}
   ${ff_woff_lib_name}
-  ${freetype2_dll_name}
   ${kpsemu_dll_name}
-  ${potrace_lib_name}
   ${texmf_dll_name}
-  ${zlib_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

@@ -376,40 +376,59 @@ target_include_directories(${poppler_lib_name}
 target_link_libraries(${poppler_lib_name}
   PUBLIC
     ${core_dll_name}
-    ${freetype2_dll_name}
-    ${png_dll_name}
     ${tiff_dll_name}
     ${unxemu_dll_name}
     ${utf8wrap_dll_name}
-    ${zlib_dll_name}
 )
 
-if(ENABLE_LIBJPEG)
-  target_link_libraries(${poppler_lib_name}
-    PUBLIC
-      ${curl_dll_name}
-  )
+if(USE_SYSTEM_FREETYPE2)
+  target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::FREETYPE2)
+else()
+  target_link_libraries(${poppler_lib_name} PUBLIC ${freetype2_dll_name})
+endif()
+
+if(USE_SYSTEM_PNG)
+  target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::PNG)
+else()
+  target_link_libraries(${poppler_lib_name} PUBLIC ${png_dll_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${poppler_lib_name} PUBLIC ${zlib_dll_name})
+endif()
+
+if(ENABLE_LIBCURL)
+  if(USE_SYSTEM_CURL)
+    target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::CURL)
+  else()
+    target_link_libraries(${poppler_lib_name} PUBLIC ${curl_dll_name})
+  endif()
 endif()
 
 if(ENABLE_LIBJPEG)
-  target_link_libraries(${poppler_lib_name}
-    PUBLIC
-      ${jpeg_dll_name}
-  )
+  if(USE_SYSTEM_JPEG)
+    target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::JPEG)
+  else()
+    target_link_libraries(${poppler_lib_name} PUBLIC ${jpeg_dll_name})
+  endif()
 endif()
 
 if(ENABLE_ZLIB)
-  target_link_libraries(${poppler_lib_name}
-    PUBLIC
-      ${zlib_dll_name}
-  )
+  if(USE_SYSTEM_ZLIB)
+    target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::ZLIB)
+  else()
+    target_link_libraries(${poppler_lib_name} PUBLIC ${zlib_dll_name})
+  endif()
 endif()
 
 if(WITH_FONTCONFIGURATION_FONTCONFIG)
-  target_link_libraries(${poppler_lib_name}
-    PUBLIC
-      ${fontconfig_dll_name}
-  )
+  if(USE_SYSTEM_FONTCONFIG)
+    target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::FONTCONFIG)
+  else()
+    target_link_libraries(${poppler_lib_name} PUBLIC ${fontconfig_dll_name})
+  endif()
 endif()
 
 if(WITH_UI_QT)

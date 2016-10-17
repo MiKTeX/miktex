@@ -55,9 +55,14 @@ set_property(TARGET initexmf PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 install(TARGETS initexmf DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
+if (USE_SYSTEM_LOG4CXX)
+  target_link_libraries(initexmf MiKTeX::Imported::LOG4CXX)
+else()
+  target_link_libraries(initexmf ${log4cxx_dll_name})
+endif()
+
 target_link_libraries(initexmf
   ${core_dll_name}
-  ${log4cxx_dll_name}
   ${mpm_dll_name}
   miktex-popt-wrapper
 )

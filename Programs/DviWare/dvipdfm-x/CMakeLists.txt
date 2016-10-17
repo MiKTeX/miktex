@@ -239,14 +239,24 @@ install(
   ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
 )
 
+if(USE_SYSTEM_PNG)
+  target_link_libraries(${dvipdfmx_dll_name} PRIVATE MiKTeX::Imported::PNG)
+else()
+  target_link_libraries(${dvipdfmx_dll_name} PRIVATE ${png_dll_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${dvipdfmx_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${dvipdfmx_dll_name} PRIVATE ${zlib_dll_name})
+endif()
+
 target_link_libraries(${dvipdfmx_dll_name}
   PRIVATE
     ${app_dll_name}
     ${core_dll_name}
     ${kpsemu_dll_name}
-    ${png_dll_name}
     ${texmf_dll_name}
-    ${zlib_dll_name}
 )
 
 if (MIKTEX_NATIVE_WINDOWS)
@@ -304,15 +314,35 @@ set_property(
 merge_trustinfo_manifest(${MIKTEX_PREFIX}xdvipdfmx asInvoker)
 merge_compatibility_manifest(${MIKTEX_PREFIX}xdvipdfmx)
 
+if(USE_SYSTEM_FONTCONFIG)
+  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx PRIVATE MiKTeX::Imported::FONTCONFIG)
+else()
+  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx PRIVATE ${fontconfig_dll_name})
+endif()
+
+if(USE_SYSTEM_FREETYPE2)
+  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx PRIVATE MiKTeX::Imported::FREETYPE2)
+else()
+  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx PRIVATE ${freetype2_dll_name})
+endif()
+
+if(USE_SYSTEM_PNG)
+  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx PRIVATE MiKTeX::Imported::PNG)
+else()
+  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx PRIVATE ${png_dll_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx PRIVATE MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx PRIVATE ${zlib_dll_name})
+endif()
+
 target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx
   PRIVATE
     ${app_dll_name}
     ${core_dll_name}
-    ${fontconfig_dll_name}
-    ${freetype2_dll_name}
     ${kpsemu_dll_name}
-    ${png_dll_name}
-    ${zlib_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

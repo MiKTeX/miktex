@@ -49,11 +49,21 @@ target_include_directories(${extractor_dll_name}
     ${public_include_directories}
 )
 
+if(USE_SYSTEM_BZIP2)
+  target_link_libraries(${extractor_dll_name} PRIVATE MiKTeX::Imported::BZIP2)
+else()
+  target_link_libraries(${extractor_dll_name} PRIVATE ${bzip2_dll_name})
+endif()
+
+if(USE_SYSTEM_MSPACK)
+  target_link_libraries(${extractor_dll_name} PRIVATE MiKTeX::Imported::MSPACK)
+else()
+  target_link_libraries(${extractor_dll_name} PRIVATE ${mspack_dll_name})
+endif()
+
 target_link_libraries(${extractor_dll_name}
   PRIVATE
     ${core_dll_name}
-    ${bzip2_dll_name}
-    ${mspack_dll_name}
 )
 
 delay_load(${extractor_dll_name}

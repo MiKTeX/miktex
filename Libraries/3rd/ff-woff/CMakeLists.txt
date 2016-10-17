@@ -104,7 +104,8 @@ target_include_directories(${ff_woff_lib_name}
     ${CMAKE_CURRENT_SOURCE_DIR}/source/inc
 )
 
-target_link_libraries(${ff_woff_lib_name}
-  PUBLIC
-    ${zlib_dll_name}
-)
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${ff_woff_lib_name} PUBLIC MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${ff_woff_lib_name} PUBLIC ${zlib_dll_name})
+endif()

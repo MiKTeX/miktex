@@ -33,8 +33,14 @@ target_include_directories(${apr_util_lib_name}
     ${public_include_directories}
 )
 
-target_link_libraries(${apr_util_lib_name}
-  PUBLIC
-    ${apr_lib_name}
-    ${expat_lib_name}
-)
+if(USE_SYSTEM_APR)
+  target_link_libraries(${apr_util_lib_name} PUBLIC MiKTeX::Imported::APR)
+else()
+  target_link_libraries(${apr_util_lib_name} PUBLIC ${apr_lib_name})
+endif()
+
+if(USE_SYSTEM_EXPAR)
+  target_link_libraries(${apr_util_lib_name} PUBLIC MiKTeX::Imported::EXPAT)
+else()
+  target_link_libraries(${apr_util_lib_name} PUBLIC ${expat_lib_name})
+endif()

@@ -35,26 +35,28 @@ target_include_directories(${mpm_lib_name}
       ${public_include_directories}
 )
 
+if(USE_SYSTEM_EXPAT)
+  target_link_libraries(${mpm_lib_name} PUBLIC MiKTeX::Imported::EXPAT)
+else()
+  target_link_libraries(${mpm_lib_name} PUBLIC ${expat_lib_name})
+endif()
+
 target_link_libraries(${mpm_lib_name}
   PUBLIC
     ${core_lib_name}
-    ${expat_lib_name}
     ${extractor_lib_name}
     ${md5_lib_name}
     ${nlohmann_json_lib_name}
   )
 
-if(MIKTEX_NATIVE_WINDOWS)
+if(USE_SYSTEM_CURL)
+  target_link_libraries(${mpm_lib_name} PUBLIC MiKTeX::Imported::CURL)
+else()
   target_link_libraries(${mpm_lib_name}
     PUBLIC
       ${curl_lib_name}
       Ws2_32
       wininet
-  )
-else()
-  target_link_libraries(${mpm_lib_name}
-    PUBLIC
-    ${CURL_LIBRARIES}
   )
 endif()
 

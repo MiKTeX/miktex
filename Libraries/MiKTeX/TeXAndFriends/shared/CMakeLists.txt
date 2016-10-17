@@ -65,12 +65,22 @@ target_include_directories(${texmf_dll_name}
     ${public_include_directories}
 )
 
+if(USE_SYSTEM_BZIP2)
+  target_link_libraries(${texmf_dll_name} PRIVATE MiKTeX::Imported::BZIP2)
+else()
+  target_link_libraries(${texmf_dll_name} PRIVATE ${bzip2_dll_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${texmf_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${texmf_dll_name} PRIVATE ${zlib_dll_name})
+endif()
+
 target_link_libraries(${texmf_dll_name}
   PRIVATE
     ${app_dll_name}
-    ${bzip2_dll_name}
     ${core_dll_name}
-    ${zlib_dll_name}
     miktex-popt-wrapper
 )
 

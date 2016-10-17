@@ -136,8 +136,13 @@ target_include_directories(${harfbuzz_lib_name}
     ${ICU_INCLUDE_DIRS}
 )
 
+if(USE_SYSTEM_GRAPHITE2)
+  target_link_libraries(${harfbuzz_lib_name} PUBLIC MiKTeX::Imported::GRAPHITE2)
+else()
+  target_link_libraries(${harfbuzz_lib_name} PUBLIC ${graphite2_dll_name})
+endif()
+
 target_link_libraries(${harfbuzz_lib_name}
   PUBLIC
-    ${graphite2_dll_name}
     ${ICU_LIBRARIES}
 )

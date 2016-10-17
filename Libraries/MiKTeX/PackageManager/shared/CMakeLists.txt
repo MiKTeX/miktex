@@ -70,23 +70,24 @@ target_include_directories(${mpm_dll_name}
 target_link_libraries(${mpm_dll_name}
   PRIVATE
     ${core_dll_name}
-    ${expat_dll_name}
     ${extractor_dll_name}
     ${md5_dll_name}
     ${nlohmann_json_dll_name}
 )
 
-if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(${mpm_dll_name}
-    PRIVATE
-      ${curl_dll_name}
-      Ws2_32
-      wininet
-  )
+if(USE_SYSTEM_EXPAT)
+  target_link_libraries(${mpm_dll_name} PRIVATE MiKTeX::Imported::EXPAT)
 else()
-  target_link_libraries(${mpm_dll_name}
-    PRIVATE
-      ${CURL_LIBRARIES}
+  target_link_libraries(${mpm_dll_name} PRIVATE ${expat_dll_name})
+endif()
+
+if(USE_SYSTEM_CURL)
+  target_link_libraries(${mpm_dll_name} PRIVATE MiKTeX::Imported::CURL)
+else()
+  target_link_libraries(${mpm_dll_name} PRIVATE
+    ${curl_dll_name}
+    Ws2_32
+    wininet
   )
 endif()
 

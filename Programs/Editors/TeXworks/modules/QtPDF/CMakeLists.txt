@@ -66,12 +66,16 @@ target_include_directories(qtpdf-static
     ${projdir}/source/modules/QtPDF/src/backend
 )
 
+if(USE_SYSTEM_POPPLER_QT5)
+  target_link_libraries(qtpdf-static PUBLIC MiKTeX::Imported::POPPLER_QT)
+else()
+  target_link_libraries(qtpdf-static PUBLIC ${poppler_qt_dll_name})
+endif()
+
 target_link_libraries(qtpdf-static
   PRIVATE
     Qt5::Concurrent
     Qt5::Core
     Qt5::Gui
     Qt5::Widgets
-  PUBLIC
-    ${poppler_qt_dll_name}
 )

@@ -151,10 +151,11 @@ add_library(${mpfr_lib_name} STATIC ${sources})
 
 set_property(TARGET ${mpfr_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_link_libraries(${mpfr_lib_name}
-  PUBLIC
-    ${gmp_lib_name}
-)
+if(USE_SYSTEM_GMP)
+  target_link_libraries(${mpfr_lib_name} PUBLIC MiKTeX::Imported::GMP)
+else()
+  target_link_libraries(${mpfr_lib_name} PUBLIC ${gmp_lib_name})
+endif()
 
 target_include_directories(${mpfr_lib_name}
   PUBLIC

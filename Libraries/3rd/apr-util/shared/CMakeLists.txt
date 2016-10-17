@@ -49,11 +49,17 @@ target_include_directories(${apr_util_dll_name}
     ${public_include_directories}
 )
 
-target_link_libraries(${apr_util_dll_name}
-  PRIVATE
-    ${apr_dll_name}
-    ${expat_dll_name}
-)
+if(USE_SYSTEM_APR)
+  target_link_libraries(${apr_util_dll_name} PRIVATE MiKTeX::Imported::APR)
+else()
+  target_link_libraries(${apr_util_dll_name} PRIVATE ${apr_dll_name})
+endif()
+
+if(USE_SYSTEM_EXPAT)
+  target_link_libraries(${apr_util_dll_name} PRIVATE MiKTeX::Imported::EXPAT)
+else()
+  target_link_libraries(${apr_util_dll_name} PRIVATE ${expat_dll_name})
+endif()
 
 rebase(${apr_util_dll_name})
 

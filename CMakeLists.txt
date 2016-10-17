@@ -1055,60 +1055,79 @@ endif()
 ## add/import 3rd party libs
 
 if(USE_SYSTEM_APR)
-  add_library(MiKTeX::Imported::APR UNKNOWN IMPORTED)
+  get_filename_component(suffix ${APR_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::APR SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::APR STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::APR
     PROPERTIES
       IMPORTED_LOCATION "${APR_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${APR_INCLUDE_DIRS}"
   )
-  set(apr_dll_name MiKTeX::Imported::APR)
-  set(apr_lib_name MiKTeX::Imported::APR)
 else()
   add_subdirectory(${MIKTEX_REL_APR_DIR})
 endif()
 
 if(USE_SYSTEM_APRUTIL)
-  add_library(MiKTeX::Imported::APRUTIL UNKNOWN IMPORTED)
+  get_filename_component(suffix ${APRUTIL_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::APRUTIL SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::APRUTIL STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::APRUTIL
     PROPERTIES
       IMPORTED_LOCATION "${APRUTIL_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${APRUTIL_INCLUDE_DIRS}"
   )
-  set(apr_util_dll_name MiKTeX::Imported::APRUTIL)
-  set(apr_util_lib_name MiKTeX::Imported::APRUTIL)
 else()
   add_subdirectory(${MIKTEX_REL_APR_UTIL_DIR})
 endif()
 
 if(USE_SYSTEM_BOTAN)
-  add_library(MiKTeX::Imported::BOTAN110 UNKNOWN IMPORTED)
+  get_filename_component(suffix ${BOTAN110_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::BOTAN110 SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::BOTAN110 STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::BOTAN110
     PROPERTIES
       IMPORTED_LOCATION "${BOTAN110_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${BOTAN110_INCLUDE_DIRS}"
       INTERFACE_TARGET_LIBRARIES "${BOTAN110_LIBRARIES}"
   )
-  set(botan_dll_name MiKTeX::Imported::BOTAN110)
-  set(botan_lib_name MiKTeX::Imported::BOTAN110)
 elseif(MIKTEX_NATIVE_WINDOWS)
   add_subdirectory(${MIKTEX_REL_BOTAN_DIR})
 endif()
 
 if(USE_SYSTEM_BZIP2)
-  add_library(MiKTeX::Imported::BZIP2 UNKNOWN IMPORTED)
+  get_filename_component(suffix ${BZIP2_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::BZIP2 SHARED IMPORTED)
+    set(bzip2_dll_name MiKTeX::Imported::BZIP2)
+  else()
+    add_library(MiKTeX::Imported::BZIP2 STATIC IMPORTED)
+    set(bzip2_lib_name MiKTeX::Imported::BZIP2)
+  endif()
   set_target_properties(MiKTeX::Imported::BZIP2
     PROPERTIES
       IMPORTED_LOCATION "${BZIP2_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${BZIP2_INCLUDE_DIR}"
   )
-  set(bzip2_dll_name MiKTeX::Imported::BZIP2)
-  set(bzip2_lib_name MiKTeX::Imported::BZIP2)
 else()  
   add_subdirectory(${MIKTEX_REL_BZIP2_DIR})
 endif()
 
 if(USE_SYSTEM_CAIRO)
-  add_library(MiKTeX::Imported::CAIRO UNKNOWN IMPORTED)
+  get_filename_component(suffix ${CAIRO_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::CAIRO SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::CAIRO STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::CAIRO
     PROPERTIES
       IMPORTED_LOCATION "${CAIRO_LIBRARY}"
@@ -1117,237 +1136,278 @@ if(USE_SYSTEM_CAIRO)
       INTERFACE_LINK_LIBRARIES MiKTeX::Imported::PNG
       INTERFACE_LINK_LIBRARIES MiKTeX::Imported::ZLIB
   )
-  set(cairo_dll_name MiKTeX::Imported::CAIRO)
-  set(cairo_lib_name MiKTeX::Imported::CAIRO)
 else()
   add_subdirectory(${MIKTEX_REL_CAIRO_DIR})
 endif()
 
 if(USE_SYSTEM_CURL)
-  add_library(MiKTeX::Imported::CURL UNKNOWN IMPORTED)
+  get_filename_component(suffix ${CURL_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::CURL SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::CURL STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::CURL
     PROPERTIES
       IMPORTED_LOCATION "${CURL_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${CURL_INCLUDE_DIRS}"
   )
-  set(curl_dll_name MiKTeX::Imported::CURL)
-  set(curl_lib_name MiKTeX::Imported::CURL)
 else()
   add_subdirectory(${MIKTEX_REL_CURL_DIR})
 endif()
 
 if(USE_SYSTEM_EXPAT)
-  add_library(MiKTeX::Imported::EXPAT UNKNOWN IMPORTED)
+  get_filename_component(suffix ${EXPAT_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::EXPAT SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::EXPAT STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::EXPAT
     PROPERTIES
       IMPORTED_LOCATION "${EXPAT_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${EXPAT_INCLUDE_DIRS}"
   )
-  set(expat_dll_name MiKTeX::Imported::EXPAT)
-  set(expat_lib_name MiKTeX::Imported::EXPAT)
 else()
   add_subdirectory(${MIKTEX_REL_EXPAT_DIR})
 endif()
 
 if(USE_SYSTEM_FONTCONFIG)
-  add_library(MiKTeX::Imported::FONTCONFIG UNKNOWN IMPORTED)
+  get_filename_component(suffix ${FONTCONFIG_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::FONTCONFIG SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::FONTCONFIG STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::FONTCONFIG
     PROPERTIES
       IMPORTED_LOCATION "${FONTCONFIG_LIBRARY}"
       INTERFACE_COMPILE_DEFINITIONS HAVE_LIBFONTCONFIG=1
       INTERFACE_INCLUDE_DIRECTORIES "${FONTCONFIG_INCLUDE_DIRS}"
   )
-  set(fontconfig_dll_name MiKTeX::Imported::FONTCONFIG)
-  set(fontconfig_lib_name MiKTeX::Imported::FONTCONFIG)
 else()
   add_subdirectory(${MIKTEX_REL_FONTCONFIG_DIR})
 endif()
 
 if(USE_SYSTEM_FREETYPE2)
-  add_library(MiKTeX::Imported::FREETYPE2 UNKNOWN IMPORTED)
+  get_filename_component(suffix ${FREETYPE_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::FREETYPE2 SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::FREETYPE2 STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::FREETYPE2
     PROPERTIES
       IMPORTED_LOCATION "${FREETYPE_LIBRARY}"
       INTERFACE_COMPILE_DEFINITIONS "HAVE_FT2BUILD_H=1;HAVE_LIBFREETYPE=1"
       INTERFACE_INCLUDE_DIRECTORIES "${FREETYPE_INCLUDE_DIRS}"
   )
-  set(freetype2_dll_name MiKTeX::Imported::FREETYPE2)
-  set(freetype2_lib_name MiKTeX::Imported::FREETYPE2)
 else()
   add_subdirectory(${MIKTEX_REL_FREETYPE2_DIR})
 endif()
 
 if(USE_SYSTEM_GD)
-  add_library(MiKTeX::Imported::GD UNKNOWN IMPORTED)
+  get_filename_component(suffix ${GD_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::GD SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::GD STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::GD
     PROPERTIES
       IMPORTED_LOCATION "${GD_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${GD_INCLUDE_DIRS}"
   )
-  set(gd_dll_name MiKTeX::Imported::GD)
-  set(gd_lib_name MiKTeX::Imported::GD)
 else()
   add_subdirectory(${MIKTEX_REL_GD_DIR})
 endif()
 
 if(USE_SYSTEM_GMP)
-  add_library(MiKTeX::Imported::GMP UNKNOWN IMPORTED)
+  get_filename_component(suffix ${GMP_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::GMP SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::GMP STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::GMP
     PROPERTIES
       IMPORTED_LOCATION "${GMP_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${GMP_INCLUDE_DIRS}"
   )
-  set(gmp_dll_name MiKTeX::Imported::GMP)
-  set(gmp_lib_name MiKTeX::Imported::GMP)
 else()
   add_subdirectory(${MIKTEX_REL_GMP_DIR})
 endif()
 
 if(USE_SYSTEM_GRAPHITE2)
-  add_library(MiKTeX::Imported::GRAPHITE2 UNKNOWN IMPORTED)
+  get_filename_component(suffix ${GRAPHITE2_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::GRAPHITE2 SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::GRAPHITE2 STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::GRAPHITE2
     PROPERTIES
       IMPORTED_LOCATION "${GRAPHITE2_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${GRAPHITE2_INCLUDE_DIRS}"
   )
-  set(graphite2_dll_name MiKTeX::Imported::GRAPHITE2)
-  set(graphite2_lib_name MiKTeX::Imported::GRAPHITE2)
 else()
   add_subdirectory(${MIKTEX_REL_GRAPHITE2_DIR})
 endif()
 
 if(USE_SYSTEM_HARFBUZZ_ICU)
-  add_library(MiKTeX::Imported::HARFBUZZ_ICU UNKNOWN IMPORTED)
+  get_filename_component(suffix ${HARFBUZZ_ICU_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::HARFBUZZ_ICU SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::HARFBUZZ_ICU STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::HARFBUZZ_ICU
     PROPERTIES
       IMPORTED_LOCATION "${HARFBUZZ_ICU_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${HARFBUZZ_ICU_INCLUDE_DIRS}"
   )
-  set(harfbuzz_dll_name MiKTeX::Imported::HARFBUZZ_ICU)
-  set(harfbuzz_lib_name MiKTeX::Imported::HARFBUZZ_ICU)
 else()
   add_subdirectory(${MIKTEX_REL_HARFBUZZ_DIR})
 endif()
 
 if(USE_SYSTEM_HUNSPELL)
-  add_library(MiKTeX::Imported::HUNSPELL UNKNOWN IMPORTED)
+  get_filename_component(suffix ${HUNSPELL_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::HUNSPELL SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::HUNSPELL STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::HUNSPELL
     PROPERTIES
       IMPORTED_LOCATION "${HUNSPELL_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${HUNSPELL_INCLUDE_DIRS}"
   )
-  set(hunspell_dll_name MiKTeX::Imported::HUNSPELL)
-  set(hunspell_lib_name MiKTeX::Imported::HUNSPELL)
 else()
   add_subdirectory(${MIKTEX_REL_HUNSPELL_DIR})
 endif()
 
 if(USE_SYSTEM_JPEG)
-  add_library(MiKTeX::Imported::JPEG UNKNOWN IMPORTED)
+  get_filename_component(suffix ${JPEG_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::JPEG SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::JPEG STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::JPEG
     PROPERTIES
       IMPORTED_LOCATION "${JPEG_LIBRARY}"
       INTERFACE_COMPILE_DEFINITIONS HAVE_LIBJPEG=1
       INTERFACE_INCLUDE_DIRECTORIES "${JPEG_INCLUDE_DIR}"
   )
-  set(jpeg_dll_name MiKTeX::Imported::JPEG)
-  set(jpeg_lib_name MiKTeX::Imported::JPEG)
 else()
   add_subdirectory(${MIKTEX_REL_JPEG_DIR})
 endif()
 
 if(USE_SYSTEM_LOG4CXX)
-  add_library(MiKTeX::Imported::LOG4CXX UNKNOWN IMPORTED)
+  get_filename_component(suffix ${LOG4CXX_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::LOG4CXX SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::LOG4CXX STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::LOG4CXX
     PROPERTIES
       IMPORTED_LOCATION "${LOG4CXX_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${LOG4CXX_INCLUDE_DIRS}"
   )
-  set(log4cxx_dll_name MiKTeX::Imported::LOG4CXX)
-  set(log4cxx_lib_name MiKTeX::Imported::LOG4CXX)
 else()
   add_subdirectory(${MIKTEX_REL_LOG4CXX_DIR})
 endif()
 
 if(USE_SYSTEM_LZMA)
-  add_library(MiKTeX::Imported::LZMA UNKNOWN IMPORTED)
+  get_filename_component(suffix ${LIBLZMA_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::LZMA SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::LZMA STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::LZMA
     PROPERTIES
       IMPORTED_LOCATION "${LIBLZMA_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${LIBLZMA_INCLUDE_DIRS}"
   )
-  set(lzma_dll_name MiKTeX::Imported::LZMA)
-  set(lzma_lib_name MiKTeX::Imported::LZMA)
 else()
   add_subdirectory(${MIKTEX_REL_XZUTILS_DIR})
 endif()
 
 if(USE_SYSTEM_MPFR)
-  add_library(MiKTeX::Imported::MPFR UNKNOWN IMPORTED)
+  get_filename_component(suffix ${MPFR_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::MPFR SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::MPFR STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::MPFR
     PROPERTIES
       IMPORTED_LOCATION "${MPFR_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${MPFR_INCLUDE_DIRS}"
   )
-  set(mpfr_dll_name MiKTeX::Imported::MPFR)
-  set(mpfr_lib_name MiKTeX::Imported::MPFR)
 else()
   add_subdirectory(${MIKTEX_REL_MPFR_DIR})
 endif()
 
 if(USE_SYSTEM_MSPACK)
-  add_library(MiKTeX::Imported::MSPACK UNKNOWN IMPORTED)
+  get_filename_component(suffix ${MSPACK_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::MSPACK SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::MSPACK STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::MSPACK
     PROPERTIES
       IMPORTED_LOCATION "${MSPACK_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${MSPACK_INCLUDE_DIRS}"
   )
-  set(mspack_dll_name MiKTeX::Imported::MSPACK)
-  set(mspack_lib_name MiKTeX::Imported::MSPACK)
 else()
   add_subdirectory(${MIKTEX_REL_MSPACK_DIR})
 endif()
 
 if(USE_SYSTEM_OPENSSL_CRYPTO)
-  add_library(MiKTeX::Imported::OPENSSL::CRYPTO UNKNOWN IMPORTED)
+  get_filename_component(suffix ${OPENSSL_CRYPTO_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::OPENSSL::CRYPTO SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::OPENSSL::CRYPTO STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::OPENSSL::CRYPTO
     PROPERTIES
       IMPORTED_LOCATION "${OPENSSL_CRYPTO_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${OPENSSL_INCLUDE_DIR}"
   )
-  set(openssl_crypto_dll_name MiKTeX::Imported::OPENSSL::CRYPTO)
-  set(openssl_crypto_lib_name MiKTeX::Imported::OPENSSL::CRYPTO)
-  add_library(MiKTeX::Imported::OPENSSL::SSL UNKNOWN IMPORTED)
-  set_target_properties(MiKTeX::Imported::OPENSSL::SSL
-    PROPERTIES
-      IMPORTED_LOCATION "${OPENSSL_SSL_LIBRARY}"
-      INTERFACE_INCLUDE_DIRECTORIES "${OPENSSL_INCLUDE_DIR}"
-  )
-  set(openssl_ssl_dll_name MiKTeX::Imported::OPENSSL::SSL)
-  set(openssl_ssl_lib_name MiKTeX::Imported::OPENSSL::SSL)
 else()
   add_subdirectory(${MIKTEX_REL_LIBRESSL_DIR})
   set(openssl_crypto_dll_name ${libressl_crypto_dll_name})
   set(openssl_crypto_lib_name ${libressl_crypto_lib_name})
-  set(openssl_ssl_dll_name ${libressl_ssl_dll_name})
-  set(openssl_ssl_lib_name ${libressl_ssl_lib_name})
 endif()
 
 if(USE_SYSTEM_PIXMAN)
-  add_library(MiKTeX::Imported::PIXMAN UNKNOWN IMPORTED)
+  get_filename_component(suffix ${PIXMAN_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::PIXMAN SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::PIXMAN STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::PIXMAN
     PROPERTIES
       IMPORTED_LOCATION "${PIXMAN_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${PIXMAN_INCLUDE_DIRS}"
   )
-  set(pixman_dll_name MiKTeX::Imported::PIXMAN)
-  set(pixman_lib_name MiKTeX::Imported::PIXMAN)
 else()
   add_subdirectory(${MIKTEX_REL_PIXMAN_DIR})
 endif()
 
 if(USE_SYSTEM_PNG)
-  add_library(MiKTeX::Imported::PNG UNKNOWN IMPORTED)
+  get_filename_component(suffix ${PNG_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::PNG SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::PNG STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::PNG
     PROPERTIES
       IMPORTED_LOCATION "${PNG_LIBRARY}"
@@ -1355,14 +1415,17 @@ if(USE_SYSTEM_PNG)
       INTERFACE_INCLUDE_DIRECTORIES "${PNG_INCLUDE_DIRS}"
       INTERFACE_LINK_LIBRARIES MiKTeX::Imported::ZLIB
   )
-  set(png_dll_name MiKTeX::Imported::PNG)
-  set(png_lib_name MiKTeX::Imported::PNG)
 else()
   add_subdirectory(${MIKTEX_REL_PNG_DIR})
 endif()
 
 if(USE_SYSTEM_POPPLER)
-  add_library(MiKTeX::Imported::POPPLER UNKNOWN IMPORTED)
+  get_filename_component(suffix ${POPPLER_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::POPPLER SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::POPPLER STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::POPPLER
     PROPERTIES
       IMPORTED_LOCATION "${POPPLER_LIBRARY}"
@@ -1370,87 +1433,103 @@ if(USE_SYSTEM_POPPLER)
       INTERFACE_COMPILE_DEFINITIONS POPPLER_VERSION="0.0"
       INTERFACE_INCLUDE_DIRECTORIES "${POPPLER_INCLUDE_DIRS}"
   )
-  set(poppler_dll_name MiKTeX::Imported::POPPLER)
-  set(poppler_lib_name MiKTeX::Imported::POPPLER)
 else()
   add_subdirectory(${MIKTEX_REL_POPPLER_DIR})
 endif()
 
 if(USE_SYSTEM_POPPLER_QT5 AND WITH_UI_QT)
-  add_library(MiKTeX::Imported::POPPLER_QT UNKNOWN IMPORTED)
+  get_filename_component(suffix ${POPPLER_QT5_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::POPPLER_QT SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::POPPLER_QT STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::POPPLER_QT
     PROPERTIES
       IMPORTED_LOCATION "${POPPLER_QT5_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${POPPLER_QT5_INCLUDE_DIRS}"
   )
-  set(poppler_qt_dll_name MiKTeX::Imported::POPPLER_QT)
-  set(poppler_qt_lib_name MiKTeX::Imported::POPPLER_QT)
 else()
 #  add_subdirectory(${MIKTEX_REL_POPPLER_DIR})
 endif()
 
 if(USE_SYSTEM_POPT)
-  add_library(MiKTeX::Imported::POPT UNKNOWN IMPORTED)
+  get_filename_component(suffix ${POPT_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::POPT SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::POPT STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::POPT
     PROPERTIES
       IMPORTED_LOCATION "${POPT_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${POPT_INCLUDE_DIRS}"
   )
-  set(popt_dll_name MiKTeX::Imported::POPT)
-  set(popt_lib_name MiKTeX::Imported::POPT)
 else()
   add_subdirectory(${MIKTEX_REL_POPT_DIR})
 endif()
 
 if(USE_SYSTEM_POTRACE)
-  add_library(MiKTeX::Imported::POTRACE UNKNOWN IMPORTED)
+  get_filename_component(suffix ${POTRACE_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::POTRACE SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::POTRACE STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::POTRACE
     PROPERTIES
       IMPORTED_LOCATION "${POTRACE_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${POTRACE_INCLUDE_DIRS}"
   )
-  set(potrace_dll_name MiKTeX::Imported::POTRACE)
-  set(potrace_lib_name MiKTeX::Imported::POTRACE)
 else()
   add_subdirectory(${MIKTEX_REL_POTRACE_LIB_DIR})
 endif()
 
 if(USE_SYSTEM_URIPARSER)
-  add_library(MiKTeX::Imported::URIPARSER UNKNOWN IMPORTED)
+  get_filename_component(suffix ${URIPARSER_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::URIPARSER SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::URIPARSER STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::URIPARSER
     PROPERTIES
       IMPORTED_LOCATION "${URIPARSER_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${URIPARSER_INCLUDE_DIRS}"
   )
-  set(uriparser_dll_name MiKTeX::Imported::URIPARSER)
-  set(uriparser_lib_name MiKTeX::Imported::URIPARSER)
 else()
   add_subdirectory(${MIKTEX_REL_URIPARSER_DIR})
 endif()
 
 if(USE_SYSTEM_ZLIB)
-  add_library(MiKTeX::Imported::ZLIB UNKNOWN IMPORTED)
+  get_filename_component(suffix ${ZLIB_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::ZLIB SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::ZLIB STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::ZLIB
     PROPERTIES
       IMPORTED_LOCATION "${ZLIB_LIBRARY}"
       INTERFACE_COMPILE_DEFINITIONS "HAVE_LIBZ=1;HAVE_ZLIB=1;HAVE_ZLIB_H=1;HAVE_ZLIB_COMPRESS2=1"
       INTERFACE_INCLUDE_DIRECTORIES "${ZLIB_INCLUDE_DIRS}"
   )
-  set(zlib_dll_name MiKTeX::Imported::ZLIB)
-  set(zlib_lib_name MiKTeX::Imported::ZLIB)
 else()
   add_subdirectory(${MIKTEX_REL_ZLIB_DIR})
 endif()
 
 if(USE_SYSTEM_ZZIP)
-  add_library(MiKTeX::Imported::ZZIP UNKNOWN IMPORTED)
+  get_filename_component(suffix ${ZZIP_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::ZZIP SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::ZZIP STATIC IMPORTED)
+  endif()
   set_target_properties(MiKTeX::Imported::ZZIP
     PROPERTIES
       IMPORTED_LOCATION "${ZZIP_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${ZZIP_INCLUDE_DIRS}"
   )
-  set(zzip_dll_name MiKTeX::Imported::ZZIP)
-  set(zzip_lib_name MiKTeX::Imported::ZZIP)
 else()
   add_subdirectory(${MIKTEX_REL_ZZIP_DIR})
 endif()

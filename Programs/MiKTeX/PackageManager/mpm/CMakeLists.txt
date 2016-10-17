@@ -42,9 +42,14 @@ add_executable(mpm ${mpm_sources})
 
 set_property(TARGET mpm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+if(USE_SYSTEM_LOG4CXX)
+  target_link_libraries(mpm MiKTeX::Imported::LOG4CXX)
+else()
+  target_link_libraries(mpm ${log4cxx_lib_name})
+endif()
+
 target_link_libraries(mpm
   ${core_lib_name}
-  ${log4cxx_lib_name}
   ${mpm_lib_name}
   miktex-popt-wrapper-static
 )

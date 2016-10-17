@@ -128,15 +128,29 @@ target_include_directories(${cairo_dll_name}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+if(USE_SYSTEM_PIXMAN)
+  target_link_libraries(${cairo_dll_name} PUBLIC MiKTeX::Imported::PIXMAN)
+else()
+  target_link_libraries(${cairo_dll_name} PUBLIC ${pixman_lib_name})
+endif()
+
+if(USE_SYSTEM_PNG)
+  target_link_libraries(${cairo_dll_name} PUBLIC MiKTeX::Imported::PNG)
+else()
+  target_link_libraries(${cairo_dll_name} PUBLIC ${png_dll_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${cairo_dll_name} PUBLIC MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${cairo_dll_name} PUBLIC ${zlib_dll_name})
+endif()
+
 target_link_libraries(${cairo_dll_name}
   PRIVATE
     gdi32.lib
     msimg32.lib
     user32.lib
-  PUBLIC
-    ${pixman_lib_name}
-    ${png_dll_name}
-    ${zlib_dll_name}
 )
 
 #delay_load(${cairo_dll_name}

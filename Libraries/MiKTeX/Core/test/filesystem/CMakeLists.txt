@@ -24,9 +24,13 @@ foreach(t ${tests})
   set_property(TARGET core_filesystem_test${t} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   merge_trustinfo_manifest(core_filesystem_test${t} asInvoker)
   merge_compatibility_manifest(core_filesystem_test${t})
+  if(USE_SYSTEM_LOG4CXX)
+    target_link_libraries(core_filesystem_test${t} MiKTeX::Imported::LOG4CXX)
+  else()
+    target_link_libraries(core_filesystem_test${t} ${log4cxx_dll_name})
+  endif()
   target_link_libraries(core_filesystem_test${t}
     ${core_dll_name}
-    ${log4cxx_dll_name}
     miktex-popt-wrapper
   )
   add_test(

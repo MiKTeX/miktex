@@ -244,15 +244,40 @@ target_include_directories(${mp_lib_name}
     ${CMAKE_BINARY_DIR}/${MIKTEX_REL_MP_DIR}
 )
 
+if(USE_SYSTEM_CAIRO)
+  target_link_libraries(${mp_lib_name} PUBLIC MiKTeX::Imported::CAIRO)
+else()
+  target_link_libraries(${mp_lib_name} PUBLIC ${cairo_dll_name})
+endif()
+
+if(USE_SYSTEM_GMP)
+  target_link_libraries(${mp_lib_name} PUBLIC MiKTeX::Imported::GMP)
+else()
+  target_link_libraries(${mp_lib_name} PUBLIC ${gmp_lib_name})
+endif()
+
+if(USE_SYSTEM_MPFR)
+  target_link_libraries(${mp_lib_name} PUBLIC MiKTeX::Imported::MPFR)
+else()
+  target_link_libraries(${mp_lib_name} PUBLIC ${mpfr_lib_name})
+endif()
+
+if(USE_SYSTEM_PIXMAN)
+  target_link_libraries(${mp_lib_name} PUBLIC MiKTeX::Imported::PIXMAN)
+else()
+  target_link_libraries(${mp_lib_name} PUBLIC ${pixman_lib_name})
+endif()
+
+if(USE_SYSTEM_PNG)
+  target_link_libraries(${mp_lib_name} PUBLIC MiKTeX::Imported::PNG)
+else()
+  target_link_libraries(${mp_lib_name} PUBLIC ${png_dll_name})
+endif()
+
 target_link_libraries(${mp_lib_name}
   PUBLIC
-    ${cairo_dll_name}
     ${core_dll_name}
-    ${gmp_lib_name}
     ${kpsemu_dll_name}
-    ${mpfr_lib_name}
-    ${pixman_lib_name}
-    ${png_dll_name}
     ${w2cemu_dll_name}
 )
 

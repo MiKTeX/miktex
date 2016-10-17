@@ -129,10 +129,11 @@ target_include_directories(${zzip_dll_name}
     ${public_include_directories}
 )
 
-target_link_libraries(${zzip_dll_name}
-  PRIVATE
-    ${zlib_dll_name}
-)
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${zzip_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${zzip_dll_name} PRIVATE ${zlib_dll_name})
+endif()
 
 rebase(${zzip_dll_name})
 

@@ -248,19 +248,59 @@ set_source_files_properties(
   PROPERTIES COMPILE_FLAGS "-DCOMPILING_XETEX_CC"
 )
 
+if(USE_SYSTEM_FONTCONFIG)
+  target_link_libraries(${xetex_dll_name} PRIVATE MiKTeX::Imported::FONTCONFIG)
+else()
+  target_link_libraries(${xetex_dll_name} PRIVATE ${fontconfig_dll_name})
+endif()
+
+if(USE_SYSTEM_FREETYPE2)
+  target_link_libraries(${xetex_dll_name} PRIVATE MiKTeX::Imported::FREETYPE2)
+else()
+  target_link_libraries(${xetex_dll_name} PRIVATE ${freetype2_dll_name})
+endif()
+
+if(USE_SYSTEM_GRAPHITE2)
+  target_link_libraries(${xetex_dll_name} PRIVATE MiKTeX::Imported::GRAPHITE2)
+else()
+  target_link_libraries(${xetex_dll_name} PRIVATE ${graphite2_dll_name})
+endif()
+
+if(USE_SYSTEM_HARFBUZZ_ICU)
+  target_link_libraries(${xetex_dll_name} PRIVATE MiKTeX::Imported::HARFBUZZ_ICU)
+else()
+  target_link_libraries(${xetex_dll_name} PRIVATE ${harfbuzz_lib_name})
+endif()
+
+if(USE_SYSTEM_JPEG)
+  target_link_libraries(${xetex_dll_name} PRIVATE MiKTeX::Imported::JPEG)
+else()
+  target_link_libraries(${xetex_dll_name} PRIVATE ${jpeg_dll_name})
+endif()
+
+if(USE_SYSTEM_PNG)
+  target_link_libraries(${xetex_dll_name} PRIVATE MiKTeX::Imported::PNG)
+else()
+  target_link_libraries(${xetex_dll_name} PRIVATE ${png_dll_name})
+endif()
+
+if(USE_SYSTEM_POPPLER)
+  target_link_libraries(${xetex_dll_name} PRIVATE MiKTeX::Imported::POPPLER)
+else()
+  target_link_libraries(${xetex_dll_name} PRIVATE ${poppler_lib_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${xetex_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${xetex_dll_name} PRIVATE ${zlib_dll_name})
+endif()
+
 target_link_libraries(${xetex_dll_name}
   PRIVATE
-    ${fontconfig_dll_name}
-    ${freetype2_dll_name}
-    ${graphite2_dll_name}
-    ${harfbuzz_lib_name}
-    ${jpeg_dll_name}
     ${kpsemu_dll_name}
-    ${png_dll_name}
-    ${poppler_lib_name}
     ${teckit_dll_name}
     ${w2cemu_dll_name}
-    ${zlib_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

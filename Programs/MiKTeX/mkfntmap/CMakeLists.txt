@@ -55,11 +55,16 @@ set_target_properties(${mkfntmap_dll_name}
     SOVERSION "1"
 )
 
+if(USE_SYSTEM_LOG4CXX)
+  target_link_libraries(${mkfntmap_dll_name} PRIVATE MiKTeX::Imported::LOG4CXX)
+else()
+  target_link_libraries(${mkfntmap_dll_name} PRIVATE ${log4cxx_dll_name})
+endif()
+
 target_link_libraries(${mkfntmap_dll_name}
   PRIVATE
     ${app_dll_name}
     ${core_dll_name}
-    ${log4cxx_dll_name}
     miktex-popt-wrapper
 )
 

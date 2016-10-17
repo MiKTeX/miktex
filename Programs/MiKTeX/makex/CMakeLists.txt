@@ -68,11 +68,15 @@ if(LINK_EVERYTHING_STATICALLY)
 else()
   add_library(${makex_target_name} SHARED ${${makex_target_name}_sources})
   set_property(TARGET ${makex_target_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  if(USE_SYSTEM_LOG4CXX)
+    target_link_libraries(${makex_target_name} PRIVATE MiKTeX::Imported::LOG4CXX)
+  else()
+    target_link_libraries(${makex_target_name} PRIVATE ${log4cxx_dll_name})
+  endif()
   target_link_libraries(${makex_target_name}
     PRIVATE
       ${app_dll_name}
       ${core_dll_name}
-      ${log4cxx_dll_name}
       ${texmf_dll_name}
   )
   if(MIKTEX_NATIVE_WINDOWS)

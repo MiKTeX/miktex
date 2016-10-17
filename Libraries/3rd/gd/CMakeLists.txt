@@ -136,14 +136,39 @@ target_include_directories(${gd_dll_name}
     ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
+if(USE_SYSTEM_FONTCONFIG)
+  target_link_libraries(${gd_dll_name} PRIVATE MiKTeX::Imported::FONTCONFIG)
+else()
+  target_link_libraries(${gd_dll_name} PRIVATE ${fontconfig_dll_name})
+endif()
+
+if(USE_SYSTEM_FONTCONFIG)
+  target_link_libraries(${gd_dll_name} PRIVATE MiKTeX::Imported::FREETYPE2)
+else()
+  target_link_libraries(${gd_dll_name} PRIVATE ${freetype2_dll_name})
+endif()
+
+if(USE_SYSTEM_JPEG)
+  target_link_libraries(${gd_dll_name} PRIVATE MiKTeX::Imported::JPEG)
+else()
+  target_link_libraries(${gd_dll_name} PRIVATE ${jpeg_dll_name})
+endif()
+
+if(USE_SYSTEM_PNG)
+  target_link_libraries(${gd_dll_name} PRIVATE MiKTeX::Imported::PNG)
+else()
+  target_link_libraries(${gd_dll_name} PRIVATE ${png_dll_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${gd_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${gd_dll_name} PRIVATE ${zlib_dll_name})
+endif()
+
 target_link_libraries(${gd_dll_name}
   PRIVATE
-    ${fontconfig_dll_name}
-    ${freetype2_dll_name}
-    ${jpeg_dll_name}
-    ${png_dll_name}
     ${utf8wrap_dll_name}
-    ${zlib_dll_name}
 )
 
 delay_load(${gd_dll_name}

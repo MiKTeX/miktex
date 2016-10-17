@@ -76,12 +76,32 @@ target_include_directories(${core_dll_name}
     ${public_include_directories}
 )
 
+if(USE_SYSTEM_BZIP2)
+  target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::BZIP2)
+else()
+  target_link_libraries(${core_dll_name} PRIVATE ${bzip2_dll_name})
+endif()
+
+if(USE_SYSTEM_LZMA)
+  target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::LZMA)
+else()
+  target_link_libraries(${core_dll_name} PRIVATE ${lzma_dll_name})
+endif()
+
+if(USE_SYSTEM_URIPARSER)
+  target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::URIPARSER)
+else()
+  target_link_libraries(${core_dll_name} PRIVATE ${uriparser_dll_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${core_dll_name} PRIVATE ${zlib_dll_name})
+endif()
+
 target_link_libraries(${core_dll_name}
   PRIVATE
-    ${bzip2_dll_name}
-    ${lzma_dll_name}
-    ${uriparser_dll_name}
-    ${zlib_dll_name}
     Threads::Threads
   PUBLIC
     ${md5_dll_name}
@@ -103,18 +123,16 @@ if(MIKTEX_NATIVE_WINDOWS)
   endif()
 endif()
 
-if(MIKTEX_NATIVE_WINDOWS OR USE_SYSTEM_BOTAN)
-  target_link_libraries(${core_dll_name}
-    PRIVATE
-    ${botan_dll_name}
-  )
+if(USE_SYSTEM_BOTAN)
+  target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::BOTAN110)
+elseif(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${core_dll_name} PRIVATE ${botan_dll_name})
 endif()
 
-if(MIKTEX_NATIVE_WINDOWS OR USE_SYSTEM_OPENSSL_CRYPTO)
-  target_link_libraries(${core_dll_name}
-    PRIVATE
-      ${openssl_crypto_dll_name}
-  )
+if(USE_SYSTEM_OPENSSL_CRYPTO)
+  target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::OPENSSL::CRYPTO)
+elseif(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${core_dll_name} PRIVATE ${openssl_crypto_dll_name})
 endif()
 
 delay_load(${core_dll_name}

@@ -523,12 +523,21 @@ target_include_directories(${fontconfig_dll_name}
 target_link_libraries(${fontconfig_dll_name}
   PRIVATE
     ${core_dll_name}
-    ${expat_dll_name}
     ${unxemu_dll_name}
     ${utf8wrap_dll_name}
-  PUBLIC
-    ${freetype2_dll_name}
 )
+
+if(USE_SYSTEM_EXPAT)
+  target_link_libraries(${fontconfig_dll_name} PRIVATE MiKTeX::Imported::EXPAT)
+else()
+  target_link_libraries(${fontconfig_dll_name} PRIVATE ${expat_dll_name})
+endif()
+
+if(USE_SYSTEM_FREETYPE2)
+  target_link_libraries(${fontconfig_dll_name} PUBLIC MiKTeX::Imported::FREETYPE2)
+else()
+  target_link_libraries(${fontconfig_dll_name} PUBLIC ${freetype2_dll_name})
+endif()
 
 rebase(${fontconfig_dll_name})
 

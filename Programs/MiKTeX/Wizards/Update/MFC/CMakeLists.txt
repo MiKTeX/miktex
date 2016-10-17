@@ -100,9 +100,14 @@ endif()
 set(libs
   ${core_lib_name}
   ${getopt_lib_name}
-  ${log4cxx_lib_name}
   ${mpm_lib_name}
 )
+
+if (USE_SYSTEM_LOG4CXX)
+  list(APPEND libs MiKTeX::Imported::LOG4CXX)
+else()
+  list(APPEND libs ${log4cxx_lib_name})
+endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND libs

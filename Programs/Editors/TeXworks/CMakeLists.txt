@@ -172,9 +172,6 @@ set(libs
   #twpythonplugin-static
   qtpdf-static
   ${core_dll_name}
-  ${hunspell_dll_name}
-  ${log4cxx_dll_name}
-  ${zlib_dll_name}
   Qt5::Concurrent
   Qt5::Core
   Qt5::Gui
@@ -185,6 +182,24 @@ set(libs
   Qt5::ScriptTools
   Qt5::Xml
 )
+
+if(USE_SYSTEM_HUNSPELL)
+  list(APPEND libs MiKTeX::Imported::HUNSPELL)
+else()
+  list(APPEND libs ${hunspell_dll_name})
+endif()
+
+if(USE_SYSTEM_LOG4CXX)
+  list(APPEND libs MiKTeX::Imported::LOG4CXX)
+else()
+  list(APPEND libs ${log4cxx_dll_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  list(APPEND libs MiKTeX::Imported::ZLIB)
+else()
+  list(APPEND libs ${zlib_dll_name})
+endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND libs

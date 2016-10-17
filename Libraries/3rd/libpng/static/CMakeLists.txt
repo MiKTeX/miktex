@@ -33,10 +33,11 @@ target_include_directories(${png_lib_name}
     ${public_include_directories}
 )
 
-target_link_libraries(${png_lib_name}
-  PUBLIC
-    ${zlib_lib_name}
-)
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${png_lib_name} PUBLIC MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${png_lib_name} PUBLIC ${zlib_lib_name})
+endif()
 
 if(INSTALL_STATIC_LIBRARIES)
   install(TARGETS ${png_lib_name}

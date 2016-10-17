@@ -84,13 +84,25 @@ endif()
 
 add_executable(pdftosrc ${pdftosrc_sources})
 set_property(TARGET pdftosrc PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+if(USE_SYSTEM_JPEG)
+  target_link_libraries(pdftosrc MiKTeX::Imported::JPEG)
+else()
+  target_link_libraries(pdftosrc ${jpeg_dll_name})
+endif()
+if(USE_SYSTEM_POPPLER)
+  target_link_libraries(pdftosrc MiKTeX::Imported::POPPLER)
+else()
+  target_link_libraries(pdftosrc ${poppler_dll_name})
+endif()
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(pdftosrc MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(pdftosrc ${zlib_dll_name})
+endif()
 target_link_libraries(pdftosrc
   ${app_dll_name}
   ${core_dll_name}
-  ${jpeg_dll_name}
-  ${poppler_lib_name}
   ${w2cemu_dll_name}
-  ${zlib_dll_name}
 )
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(pdftosrc
@@ -322,12 +334,24 @@ set_source_files_properties(
 )
 
 if(LINK_EVERYTHING_STATICALLY)
+  if(USE_SYSTEM_JPEG)
+    target_link_libraries(${MIKTEX_PREFIX}pdftex MiKTeX::Imported::JPEG)
+  else()
+    target_link_libraries(${MIKTEX_PREFIX}pdftex ${jpeg_lib_name})
+  endif()
+  if(USE_SYSTEM_PNG)
+    target_link_libraries(${MIKTEX_PREFIX}pdftex MiKTeX::Imported::PNG)
+  else()
+    target_link_libraries(${MIKTEX_PREFIX}pdftex ${png_lib_name})
+  endif()
+  if(USE_SYSTEM_POPPLER)
+    target_link_libraries(${MIKTEX_PREFIX}pdftex MiKTeX::Imported::POPPLER)
+  else()
+    target_link_libraries(${MIKTEX_PREFIX}pdftex ${png_poppler_name})
+  endif()
   target_link_libraries(${MIKTEX_PREFIX}pdftex
-    ${jpeg_dll_name}
     ${kpsemu_lib_name}
     ${md5_lib_name}
-    ${png_lib_name}
-    ${poppler_lib_name}
     ${w2cemu_lib_name}
   )
   if(MIKTEX_NATIVE_WINDOWS)
@@ -337,13 +361,25 @@ if(LINK_EVERYTHING_STATICALLY)
     )
   endif()
 else()
+  if(USE_SYSTEM_JPEG)
+    target_link_libraries(${pdftex_dll_name} PRIVATE MiKTeX::Imported::JPEG)
+  else()
+    target_link_libraries(${pdftex_dll_name} PRIVATE ${jpeg_dll_name})
+  endif()
+  if(USE_SYSTEM_PNG)
+    target_link_libraries(${pdftex_dll_name} PRIVATE MiKTeX::Imported::PNG)
+  else()
+    target_link_libraries(${pdftex_dll_name} PRIVATE ${png_dll_name})
+  endif()
+  if(USE_SYSTEM_POPPLER)
+    target_link_libraries(${pdftex_dll_name} PRIVATE MiKTeX::Imported::POPPLER)
+  else()
+    target_link_libraries(${pdftex_dll_name} PRIVATE ${poppler_dll_name})
+  endif()
   target_link_libraries(${pdftex_dll_name}
     PRIVATE
-      ${jpeg_dll_name}
       ${kpsemu_dll_name}
       ${md5_dll_name}
-      ${png_dll_name}
-      ${poppler_lib_name}
       ${w2cemu_dll_name}
   )
   if(MIKTEX_NATIVE_WINDOWS)
@@ -356,16 +392,15 @@ else()
 endif()
 
 if(NOT LINK_EVERYTHING_STATICALLY)
+  if(USE_SYSTEM_ZLIB)
+    target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::ZLIB)
+  else()
+    target_link_libraries(${pdftex_target_name} PRIVATE ${zlib_dll_name})
+  endif()
   if(MIKTEX_NATIVE_WINDOWS)
     target_link_libraries(${pdftex_target_name}
       PRIVATE
         ${regex_dll_name}
-	${zlib_dll_name}
-    )
-  else()
-    target_link_libraries(${pdftex_target_name}
-      PRIVATE
-        ${zlib_lib_name}
     )
   endif()
 endif()

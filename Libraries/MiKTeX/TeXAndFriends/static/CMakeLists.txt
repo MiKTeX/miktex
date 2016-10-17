@@ -40,13 +40,23 @@ target_include_directories(${texmf_lib_name}
   PUBLIC
     ${public_include_directories}
 )
-  
+
+if(USE_SYSTEM_BZIP2)
+  target_link_libraries(${texmf_lib_name} PUBLIC MiKTeX::Imported::BZIP2)
+else()
+  target_link_libraries(${texmf_lib_name} PUBLIC ${bzip2_lib_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${texmf_lib_name} PUBLIC MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${texmf_lib_name} PUBLIC ${zlib_lib_name})
+endif()
+
 target_link_libraries(${texmf_lib_name}
   PUBLIC
     ${app_lib_name}
-    ${bzip2_lib_name}
     ${core_lib_name}
-    ${zlib_lib_name}
     miktex-popt-wrapper-static
 )
 
