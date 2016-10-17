@@ -618,7 +618,7 @@ endif()
 if(USE_SYSTEM_POPPLER)
   target_link_libraries(luatex-static PUBLIC MiKTeX::Imported::POPPLER)
 else()
-  target_link_libraries(luatex-static PUBLIC ${poppler_dll_name})
+  target_link_libraries(luatex-static PUBLIC ${poppler_lib_name})
 endif()
 
 if(USE_SYSTEM_ZLIB)

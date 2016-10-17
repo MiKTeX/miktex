@@ -36,13 +36,13 @@ target_include_directories(${extractor_lib_name}
 if(USE_SYSTEM_BZIP2)
   target_link_libraries(${extractor_lib_name} PUBLIC MiKTeX::Imported::BZIP2)
 else()
-  target_link_libraries(${extractor_lib_name} ${bzip2_lib_name})
+  target_link_libraries(${extractor_lib_name} PUBLIC ${bzip2_lib_name})
 endif()
 
 if(USE_SYSTEM_MSPACK)
   target_link_libraries(${extractor_lib_name} PUBLIC MiKTeX::Imported::MSPACK)
 else()
-  target_link_libraries(${extractor_lib_name} ${mspack_lib_name})
+  target_link_libraries(${extractor_lib_name} PUBLIC ${mspack_lib_name})
 endif()
 
 target_link_libraries(${extractor_lib_name}
