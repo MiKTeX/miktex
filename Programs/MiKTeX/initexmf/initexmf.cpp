@@ -1906,7 +1906,10 @@ MIKTEXNORETURN void IniTeXMFApp::FatalError(const char * lpszFormat, ...)
   va_start(arglist, lpszFormat);
   string s = StringUtil::FormatString(lpszFormat, arglist);
   va_end(arglist);
-  LOG4CXX_FATAL(logger, s);
+  if (isLog4cxxConfigured)
+  {
+    LOG4CXX_FATAL(logger, s);
+  }
   Sorry(s);
   throw (1);
 }
@@ -3898,16 +3901,22 @@ int MAIN(int argc, MAINCHAR * argv[])
   }
   catch (const MiKTeXException & e)
   {
-    LOG4CXX_FATAL(logger, e.what());
-    LOG4CXX_FATAL(logger, "Info: " << e.GetInfo());
-    LOG4CXX_FATAL(logger, "Source: " << e.GetSourceFile());
-    LOG4CXX_FATAL(logger, "Line: " << e.GetSourceLine());
+    if (logger != nullptr)
+    {
+      LOG4CXX_FATAL(logger, e.what());
+      LOG4CXX_FATAL(logger, "Info: " << e.GetInfo());
+      LOG4CXX_FATAL(logger, "Source: " << e.GetSourceFile());
+      LOG4CXX_FATAL(logger, "Line: " << e.GetSourceLine());
+    }
     Sorry();
     return 1;
   }
   catch (const exception & e)
   {
-    LOG4CXX_FATAL(logger, e.what());
+    if (logger != nullptr)
+    {
+      LOG4CXX_FATAL(logger, e.what());
+    }
     Sorry();
     return 1;
   }

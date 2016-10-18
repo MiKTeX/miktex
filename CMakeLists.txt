@@ -537,6 +537,10 @@ include(IgnoreWarnings)
 ###############################################################################
 ## find/check stuff
 
+if(LINK_EVERYTHING_STATICALLY)
+  set(CMAKE_FIND_LIBRARY_SUFFIXES .a)
+endif()
+
 if(MIKTEX_NATIVE_WINDOWS AND MSVC AND MIKTEX_SUPPORT_WINDOWS_XP)
   add_definitions(
     -D_USING_V110_SDK71_
