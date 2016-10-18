@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_LIBRARIES_FOLDER}/trace")
 
 set(trace_source_dir ${CMAKE_CURRENT_SOURCE_DIR})
@@ -41,9 +43,14 @@ set(public_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Trace/config.h
 )
 
+configure_file(
+  trace-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/trace-version.h
+)
+
 set(trace_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/trace-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/TraceStream.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/trace-version.h
   ${public_headers}
 )
 

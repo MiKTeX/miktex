@@ -51,8 +51,8 @@ set_source_files_properties(
 
 set_target_properties(${texmf_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_SERIES_STR}"
-    SOVERSION "1"
+    VERSION "${MIKTEX_COMP_INTERFACE_VERSION}.${MIKTEX_COMP_J2000_VERSION}"
+    SOVERSION "${MIKTEX_COMP_INTERFACE_VERSION}"
 )
 
 target_compile_definitions(${texmf_dll_name}

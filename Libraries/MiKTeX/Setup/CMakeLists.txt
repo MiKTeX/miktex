@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_LIBRARIES_FOLDER}/setup")
 
 include_directories(BEFORE
@@ -33,13 +35,18 @@ set(public_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Setup/SetupService.h
 )
 
+configure_file(
+  setup-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/setup-version.h
+)
+
 set(setup_sources
-  ${public_headers}
+  ${CMAKE_CURRENT_BINARY_DIR}/setup-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/LogFile.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/SetupService.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Setup/SetupService.h
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/setup-version.h
+  ${public_headers}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

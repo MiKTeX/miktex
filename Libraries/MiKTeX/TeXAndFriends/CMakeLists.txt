@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_LIBRARIES_FOLDER}/texmf")
 
 include_directories(BEFORE
@@ -80,8 +82,13 @@ set(public_headers
   ${public_headers_texmf}
 )
 
+configure_file(
+  texmf-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/texmf-version.h
+)
+
 set(texmf_sources
-  ${public_headers}
+  ${CMAKE_CURRENT_BINARY_DIR}/texmf-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h
   ${CMAKE_CURRENT_SOURCE_DIR}/c4plib.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/c4pstart.cpp
@@ -90,11 +97,11 @@ set(texmf_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
   ${CMAKE_CURRENT_SOURCE_DIR}/mfapp.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/texapp.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/texmf-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/texmfapp.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/texmflib.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/webapp.cpp
   ${generated_texmf_sources}
+  ${public_headers}
 )
 
 if(NOT LINK_EVERYTHING_STATICALLY)
