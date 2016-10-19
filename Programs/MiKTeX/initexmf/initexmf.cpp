@@ -2464,7 +2464,9 @@ void IniTeXMFApp::ModifyPath()
 
 vector<FileLink> explicitFileLinks =
 {
+#if defined(MIKTEX_WINDOWS)
   { "arctrl" MIKTEX_EXE_FILE_SUFFIX, { "pdfclose", "pdfdde", "pdfopen" } },
+#endif
   { "mkfntmap" MIKTEX_EXE_FILE_SUFFIX, { "updmap" } },
   { "mthelp" MIKTEX_EXE_FILE_SUFFIX, { "texdoc" } },
   { MIKTEX_BIBTEX_EXE, { "bibtex" } },
