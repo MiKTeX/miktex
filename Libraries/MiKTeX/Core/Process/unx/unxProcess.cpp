@@ -25,6 +25,7 @@
 
 #include "miktex/Core/Directory.h"
 #include "miktex/Core/CommandLineBuilder.h"
+#include "miktex/Core/StreamReader.h"
 
 #include "unxProcess.h"
 
@@ -520,13 +521,34 @@ Process2 * Process2::GetCurrentProcess()
 
 Process2 * unxProcess::get_Parent()
 {
-  unxProcess * pParentProcess = new unxProcess();
-  pParentProcess->pid = getppid();
-  return pParentProcess;
+#if defined(__linux__)
+  string path = "/proc/" + std::to_string(pid) + "/stat";
+  StreamReader reader(path);
+  string line;
+  while (reader.ReadLine(line))
+  {
+    Tokenizer tok(line.c_str(), " ");
+    ++tok;
+    ++tok;
+    ++tok;
+    unxProcess * pParentProcess = new unxProcess();
+    pParentProcess->pid = std::stoi(tok.GetCurrent());
+    return pParentProcess;
+  }
+#endif
+  return nullptr;
 }
 
 string unxProcess::get_ProcessName()
 {
-  // TODO: get process name
+#if defined(__linux__)
+  string path = "/proc/" + std::to_string(pid) + "/comm";
+  StreamReader reader(path);
+  string line;
+  while (reader.ReadLine(line))
+  {
+    return line;
+  }
+#endif
   return "?";
 }
