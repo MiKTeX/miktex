@@ -253,7 +253,7 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
       SHARED ${${_target_name}_sources})
     set_target_properties(${_target_name}
       PROPERTIES
-        VERSION "${MIKTEX_SERIES_STR}"
+        VERSION "1.${MIKTEX_J2000_VERSION}"
         SOVERSION "1"
       )
     target_link_libraries(${_target_name}
