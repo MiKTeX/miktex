@@ -1073,7 +1073,17 @@ bool SessionImpl::IsSharedSetup()
     if (isSharedSetup == TriState::Undetermined)
     {
       string value;
-      isSharedSetup = TryGetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, value) ? TriState::True : TriState::False;
+      isSharedSetup = TryGetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, value) ? TriState::True : TriState::Undetermined;
+      if (isSharedSetup == TriState::Undetermined)
+      {
+#if defined(MIKTEX_WINDOWS)
+	isSharedSetup = TriState::False;
+#else
+	PathName myLoc = GetMyLocation(true);
+	isSharedSetup = Utils::IsParentDirectoryOf("/usr", myLoc.Get()) || Utils::IsParentDirectoryOf("/opt", myLoc.Get()) ? TriState::True : TriState::False;
+
+#endif
+      }
     }
   }
   return isSharedSetup == TriState::True;
