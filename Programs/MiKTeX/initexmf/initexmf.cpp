@@ -297,7 +297,7 @@ private:
   vector<FileLink> CollectLinks(bool overwrite);
 
 private:
-  void MakeLinks(bool force);
+  void ManageLinks(bool remove, bool force);
 
 private:
   void MakeLanguageDat(bool force);
@@ -314,7 +314,7 @@ private:
   void ModifyPath();
 
 private:
-  void CreateLink(const FileLink & fileLink, bool supportsHardLinks, bool overwrite);
+  void ManageLink(const FileLink & fileLink, bool supportsHardLinks, bool remove, bool overwrite);
 
 private:
   void ReportMiKTeXVersion();
@@ -522,6 +522,7 @@ enum Option
   OPT_MKMAPS,
   OPT_PRINT_ONLY,
   OPT_REGISTER_ROOT,
+  OPT_REMOVE_LINKS,
   OPT_QUIET,
   OPT_UNREGISTER_ROOT,
   OPT_REPORT,
@@ -783,6 +784,14 @@ const struct poptOption IniTeXMFApp::aoption_user[] = {
     OPT_REMOVE_FILE,
     T_("Remove a file from the file name database."),
     T_("FILE")
+  },
+
+  {
+    "remove-links", 0,
+    POPT_ARG_NONE, nullptr,
+    OPT_REMOVE_LINKS,
+    T_("Remove linked executables."),
+    nullptr
   },
 
   {
@@ -1152,6 +1161,14 @@ const struct poptOption IniTeXMFApp::aoption_setup[] = {
   },
 
   {
+    "remove-links", 0,
+    POPT_ARG_NONE, nullptr,
+    OPT_REMOVE_LINKS,
+    T_("Remove linked executables."),
+    nullptr
+  },
+
+  {
     "report", 0,
     POPT_ARG_NONE, nullptr,
     OPT_REPORT,
@@ -1513,6 +1530,14 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
     OPT_REMOVE_FILE,
     T_("Remove a file from the file name database."),
     T_("FILE")
+  },
+
+  {
+    "remove-links", 0,
+    POPT_ARG_NONE, nullptr,
+    OPT_REMOVE_LINKS,
+    T_("Remove linked executables."),
+    nullptr
   },
 
   {
@@ -2217,7 +2242,7 @@ void IniTeXMFApp::MakeFormatFilesByName(const vector<string> & formatsByName, co
   }
 }
 
-void IniTeXMFApp::CreateLink(const FileLink & fileLink, bool supportsHardLinks, bool overwrite)
+void IniTeXMFApp::ManageLink(const FileLink & fileLink, bool supportsHardLinks, bool remove, bool overwrite)
 {
   LinkType linkType = fileLink.linkType;
   if (linkType == LinkType::Hard && !supportsHardLinks)
@@ -2228,11 +2253,15 @@ void IniTeXMFApp::CreateLink(const FileLink & fileLink, bool supportsHardLinks, 
   {
     if (File::Exists(linkName))
     {
-      if (!overwrite || (linkType == LinkType::Copy && File::Equals(fileLink.target, linkName)))
+      if (!remove && (!overwrite || (linkType == LinkType::Copy && File::Equals(fileLink.target, linkName))))
       {
         continue;
       }
       File::Delete(linkName, { FileDeleteOption::TryHard, FileDeleteOption::UpdateFndb });
+    }
+    if (remove)
+    {
+      continue;
     }
     switch (linkType)
     {
@@ -2604,7 +2633,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
   return result;
 }
 
-void IniTeXMFApp::MakeLinks(bool force)
+void IniTeXMFApp::ManageLinks(bool remove, bool force)
 {
   PathName pathBinDir = session->GetSpecialPath(SpecialPath::BinDirectory);
   PathName internalBinDir = session->GetSpecialPath(SpecialPath::InternalBinDirectory);
@@ -2613,19 +2642,19 @@ void IniTeXMFApp::MakeLinks(bool force)
 
   bool supportsHardLinks = Utils::SupportsHardLinks(pathBinDir);
 
-  if (!Directory::Exists(pathBinDir))
+  if (!remove && !Directory::Exists(pathBinDir))
   {
     Directory::Create(pathBinDir);
   }
 
-  if (logStream.IsOpen())
+  if (!remove && logStream.IsOpen())
   {
     logStream.WriteLine("[files]");
   }
 
   for (const FileLink & fileLink : CollectLinks(force))
   {
-    CreateLink(fileLink, supportsHardLinks, force);
+    ManageLink(fileLink, supportsHardLinks, remove, force);
   }
 }
 
@@ -3321,6 +3350,7 @@ void IniTeXMFApp::Run(int argc, const char * argv[])
 #endif
   bool optPortable = false;
   bool optRegisterShellFileTypes = false;
+  bool optRemoveLinks = false;
   bool optModifyPath = false;
   bool optReport = false;
   bool optUnRegisterShellFileTypes = false;
@@ -3535,6 +3565,11 @@ void IniTeXMFApp::Run(int argc, const char * argv[])
       removeFiles.push_back(optArg);
       break;
 
+    case OPT_REMOVE_LINKS:
+
+      optRemoveLinks = true;
+      break;
+      
     case OPT_REPORT:
 
       optReport = true;
@@ -3723,9 +3758,9 @@ void IniTeXMFApp::Run(int argc, const char * argv[])
     MakeLanguageDat(optForce);
   }
 
-  if (optMakeLinks)
+  if (optMakeLinks || optRemoveLinks)
   {
-    MakeLinks(optForce);
+    ManageLinks(optRemoveLinks, optForce);
   }
 
   if (optMakeMaps)
