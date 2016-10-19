@@ -63,7 +63,11 @@ struct FileLink
   }
   string target;
   vector<string> linkNames;
+#if defined(MIKTEX_WINDOWS)
   LinkType linkType = LinkType::Hard;
+#else
+  LinkType linkType = LinkType::Symbolic;
+#endif
 };
 
 class ProcessOutput :
