@@ -2265,6 +2265,13 @@ void IniTeXMFApp::ManageLink(const FileLink & fileLink, bool supportsHardLinks, 
     }
     switch (linkType)
     {
+    case LinkType::Symbolic:
+      PrintOnly("ln -s %s %s", Q_(fileLink.target), Q_(linkName));
+      if (!printOnly)
+      {
+        File::CreateLink(fileLink.target, linkName, { CreateLinkOption::UpdateFndb, CreateLinkOption::Symbolic });
+      }
+      break;
     case LinkType::Hard:
       PrintOnly("ln %s %s", Q_(fileLink.target), Q_(linkName));
       if (!printOnly)
