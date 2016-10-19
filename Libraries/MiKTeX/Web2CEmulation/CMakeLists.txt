@@ -17,11 +17,14 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_LIBRARIES_FOLDER}/w2cemu")
 
 hide_symbols()
 
 include_directories(BEFORE
+  ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -40,8 +43,14 @@ set(generated_texmf_sources
   ${CMAKE_BINARY_DIR}/include/miktex/texmfapp.defaults.h
 )
 
+configure_file(
+  w2cemu-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/w2cemu-version.h
+)
+
 set(${w2cemu_dll_name}_sources
   ${CMAKE_CURRENT_BINARY_DIR}/include/w2c/c-auto.h
+  ${CMAKE_CURRENT_BINARY_DIR}/w2cemu-version.h
   ${generated_texmf_sources}
   ${public_headers}
   StdAfx.h
@@ -50,7 +59,6 @@ set(${w2cemu_dll_name}_sources
   include/lib/lib.h
   include/w2c/config.h
   internal.h
-  w2cemu-version.h
   w2cemu.cpp
 )
 
@@ -79,8 +87,8 @@ if(NOT LINK_EVERYTHING_STATICALLY)
 
   set_target_properties(${w2cemu_dll_name}
     PROPERTIES
-      VERSION "${MIKTEX_SERIES_STR}"
-      SOVERSION "1"
+      VERSION "${MIKTEX_COMP_INTERFACE_VERSION}.${MIKTEX_COMP_J2000_VERSION}"
+      SOVERSION "${MIKTEX_COMP_INTERFACE_VERSION}"
   )
 
   target_include_directories(${w2cemu_dll_name}

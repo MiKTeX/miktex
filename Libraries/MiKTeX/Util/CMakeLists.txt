@@ -42,11 +42,16 @@ set(public_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Util/inliners.h
 )
 
+configure_file(
+  util-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/util-version.h
+)
+
 set(util_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/util-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/StringUtil.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Tokenizer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/util-version.h
   ${public_headers}
 )
 

@@ -28,6 +28,7 @@ use_static_crt()
 use_static_libraries()
 
 set(${ui_qt_lib_name}_sources
+  ${CMAKE_BINARY_DIR}/${MIKTEX_REL_UI_QT_DIR}/mikuiqt-version.h
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UI_QT_DIR}/ConnectionSettingsDialog.cpp
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UI_QT_DIR}/ConnectionSettingsDialog.h
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UI_QT_DIR}/ErrorDialog.cpp
@@ -56,7 +57,6 @@ set(${ui_qt_lib_name}_sources
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UI_QT_DIR}/include/miktex/UI/Qt/SiteWizSheet.h
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UI_QT_DIR}/include/miktex/UI/Qt/UpdateDialog.h
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UI_QT_DIR}/internal.h
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UI_QT_DIR}/mikuiqt-version.h
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_UI_QT_DIR}/mikuiqt.cpp
 )
 

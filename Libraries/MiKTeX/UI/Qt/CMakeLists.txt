@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_LIBRARIES_FOLDER}/ui-qt")
 
 hide_symbols()
@@ -33,7 +35,13 @@ set(public_headers
   include/miktex/UI/Qt/UpdateDialog.h
 )  
 
+configure_file(
+  mikuiqt-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/mikuiqt-version.h
+)
+
 set(${ui_qt_dll_name}_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/mikuiqt-version.h
   ${public_headers}
   ConnectionSettingsDialog.cpp
   ConnectionSettingsDialog.h
@@ -59,7 +67,6 @@ set(${ui_qt_dll_name}_sources
   UpdateDialog.cpp
   UpdateDialog.h
   internal.h
-  mikuiqt-version.h
   mikuiqt.cpp
 )
 
@@ -122,8 +129,8 @@ set_property(TARGET ${ui_qt_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 set_target_properties(${ui_qt_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_SERIES_STR}"
-    SOVERSION "1"
+  VERSION "${MIKTEX_COMP_INTERFACE_VERSION}.${MIKTEX_COMP_J2000_VERSION}"
+  SOVERSION "${MIKTEX_COMP_INTERFACE_VERSION}"
 )
 
 target_compile_definitions(${ui_qt_dll_name}

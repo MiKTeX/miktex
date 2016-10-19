@@ -24,7 +24,7 @@
 #define VER_INTERNALNAME_STR "${ui_qt_dll_name}"
 #define VER_ORIGINALFILENAME_STR "${ui_qt_dll_name}.dll"
 
-#define VER_FILEDESCRIPTION_STR "MiKTeX UI DLL (Qt)"
+#define VER_FILEDESCRIPTION_STR "${MIKTEX_COMP_DESCRIPTION}"
 
 #define VER_FILETYPE VFT_DLL
 

@@ -1,4 +1,4 @@
-/* util.rc: MiKTeX Util resource file                   -*- C++ -*-
+/* util-version.h: MiKTeX DLL version number            -*- C++ -*-
 
    Copyright (C) 1996-2016 Christian Schenk
 
@@ -19,13 +19,6 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include "util-version.h"
+#define MIKTEX_COMP_J2000_VERSION ${MIKTEX_COMP_DESCRIPTION}
 
-#define VER_INTERNALNAME_STR "${util_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${util_dll_name}.dll"
-
-#define VER_FILEDESCRIPTION_STR "${MIKTEX_COMP_DESCRIPTION}"
-
-#define VER_FILETYPE VFT_DLL
-
-#include <miktex/win/version.rc>
+#include <miktex/Version>
