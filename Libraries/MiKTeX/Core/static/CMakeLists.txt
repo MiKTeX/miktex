@@ -89,13 +89,13 @@ endif()
 
 if(USE_SYSTEM_BOTAN)
   target_link_libraries(${core_lib_name} PUBLIC MiKTeX::Imported::BOTAN110)
-elseif(MIKTEX_NATIVE_WINDOWS)
+elseif(WITH_BOTAN)
   target_link_libraries(${core_lib_name} PUBLIC ${botan_lib_name})
 endif()
 
 if(USE_SYSTEM_OPENSSL_CRYPTO)
   target_link_libraries(${core_lib_name} PUBLIC MiKTeX::Imported::OPENSSL::CRYPTO)
-elseif(MIKTEX_NATIVE_WINDOWS)
+elseif(WITH_LIBRESSL_CRYPTO)
   target_link_libraries(${core_lib_name} PUBLIC ${openssl_crypto_lib_name})
 endif()
 

@@ -125,13 +125,13 @@ endif()
 
 if(USE_SYSTEM_BOTAN)
   target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::BOTAN110)
-elseif(MIKTEX_NATIVE_WINDOWS)
+elseif(WITH_BOTAN)
   target_link_libraries(${core_dll_name} PRIVATE ${botan_dll_name})
 endif()
 
 if(USE_SYSTEM_OPENSSL_CRYPTO)
   target_link_libraries(${core_dll_name} PRIVATE MiKTeX::Imported::OPENSSL::CRYPTO)
-elseif(MIKTEX_NATIVE_WINDOWS)
+elseif(WITH_LIBRESSL_CRYPTO)
   target_link_libraries(${core_dll_name} PRIVATE ${openssl_crypto_dll_name})
 endif()
 

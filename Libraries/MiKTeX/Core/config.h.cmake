@@ -56,14 +56,16 @@
 #cmakedefine REPORT_EVENTS 1
 
 #cmakedefine USE_SYSTEM_BOTAN ${USE_SYSTEM_BOTAN}
+#cmakedefine WITH_BOTAN ${WITH_BOTAN}
 
-#if defined(MIKTEX_WINDOWS) || defined(USE_SYSTEM_BOTAN)
+#if defined(WITH_BOTAN) || defined(USE_SYSTEM_BOTAN)
 #  define ENABLE_BOTAN 1
 #endif
 
 #cmakedefine USE_SYSTEM_OPENSSL_CRYPTO ${USE_SYSTEM_OPENSSL_CRYPTO}
+#cmakedefine WITH_LIBRESSL_CRYPTO ${WITH_LIBRESSL_CRYPTO}
 
-#if defined(MIKTEX_WINDOWS) || defined(USE_SYSTEM_OPENSSL_CRYPTO)
+#if defined(WITH_LIBRESSL_CRYPTO) || defined(USE_SYSTEM_OPENSSL_CRYPTO)
 #  define ENABLE_OPENSSL 1
 #endif
 

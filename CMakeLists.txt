@@ -325,6 +325,18 @@ option(
 )
 
 option(
+  WITH_BOTAN
+  "Use the Botan crypto library supplied with MiKTeX."
+  FALSE
+)
+
+option(
+  WITH_LIBRESSL_CRYPTO
+  "Use the LibreSSL crypto library supplied with MiKTeX."
+  ${WIN32}
+)
+
+option(
   WITH_SOAP_CLIENT
   "Use the (legacy) SOAP web service to retrieve the repository list."
   FALSE
@@ -1103,7 +1115,7 @@ if(USE_SYSTEM_BOTAN)
       INTERFACE_INCLUDE_DIRECTORIES "${BOTAN110_INCLUDE_DIRS}"
       INTERFACE_TARGET_LIBRARIES "${BOTAN110_LIBRARIES}"
   )
-elseif(MIKTEX_NATIVE_WINDOWS)
+elseif(WITH_BOTAN)
   add_subdirectory(${MIKTEX_REL_BOTAN_DIR})
 endif()
 
@@ -1383,7 +1395,7 @@ if(USE_SYSTEM_OPENSSL_CRYPTO)
       IMPORTED_LOCATION "${OPENSSL_CRYPTO_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${OPENSSL_INCLUDE_DIR}"
   )
-else()
+elseif(WITH_LIBRESSL_CRYPTO)
   add_subdirectory(${MIKTEX_REL_LIBRESSL_DIR})
   set(openssl_crypto_dll_name ${libressl_crypto_dll_name})
   set(openssl_crypto_lib_name ${libressl_crypto_lib_name})
