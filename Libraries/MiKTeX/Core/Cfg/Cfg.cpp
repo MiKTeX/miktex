@@ -43,14 +43,11 @@ const char COMMENT_CHAR = ';';
 const char * const COMMENT_CHAR_STR = ";";
 
 #if defined(ENABLE_BOTAN)
-#if 0
-// TODO: switch to EMSA3(SHA-256) and recreate scripts.ini
 const char * const EMSA_ = "EMSA3(SHA-256)";
-#else
-// COMPAT: EMSA1 is not compatible with OpenSSL
-const char * const EMSA_ = "EMSA1(SHA-256)";
 #endif
-#endif
+
+// TODO: remove this
+#define DISABLE_SIGNATURE_CHECK 1
 
 MIKTEXSTATICFUNC(bool) EndsWith(const string & s, const string & suffix)
 {
@@ -1089,7 +1086,9 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
       MIKTEX_ASSERT(ok == 1 || ok == 0);
       if (ok != 1)
       {
+#if !defined(DISABLE_SIGNATURE_CHECK)
         FATAL_CFG_ERROR(T_("the file has been tampered with"));
+#endif
       }
     }
 #endif
@@ -1138,7 +1137,9 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
       Walk(&callback);
       if (!callback.Verify(sig))
       {
+#if !defined(DISABLE_SIGNATURE_CHECK)
         FATAL_CFG_ERROR(T_("the file has been tampered with"));
+#endif
       }
     }
 #endif
