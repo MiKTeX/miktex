@@ -1796,7 +1796,6 @@ void IniTeXMFApp::Finalize()
   packageInstaller = nullptr;
   packageManager = nullptr;
   session = nullptr;
-  logger = nullptr;
 }
 
 void IniTeXMFApp::FindWizards()
@@ -3975,4 +3974,5 @@ int MAIN(int argc, MAINCHAR * argv[])
   {
     return exitCode;
   }
+  logger = nullptr;
 }
