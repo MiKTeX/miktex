@@ -2265,12 +2265,21 @@ void IniTeXMFApp::ManageLink(const FileLink & fileLink, bool supportsHardLinks, 
     switch (linkType)
     {
     case LinkType::Symbolic:
-      PrintOnly("ln -s %s %s", Q_(fileLink.target), Q_(linkName));
-      if (!printOnly)
       {
-        File::CreateLink(fileLink.target, linkName, { CreateLinkOption::UpdateFndb, CreateLinkOption::Symbolic });
+        PathName directory (linkName);
+        directory.RemoveFileSpec();
+        const char * target = Utils::GetRelativizedPath(fileLink.target.c_str(), directory.Get());
+        if (target == nullptr)
+        {
+          target = fileLink.target.c_str();
+        }
+        PrintOnly("ln -s %s %s", Q_(target), Q_(linkName));
+        if (!printOnly)
+        {
+          File::CreateLink(target, linkName, { CreateLinkOption::UpdateFndb, CreateLinkOption::Symbolic });
+        }
+        break;
       }
-      break;
     case LinkType::Hard:
       PrintOnly("ln %s %s", Q_(fileLink.target), Q_(linkName));
       if (!printOnly)
