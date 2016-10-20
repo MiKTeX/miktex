@@ -41,6 +41,9 @@ extern "C" {
 #include <string.h>
 #include <ctype.h>
 
+#if defined(MIKTEX)
+#include <poppler-config.h>
+#endif
 #ifdef POPPLER_VERSION
 #include <dirent.h>
 #include <poppler-config.h>

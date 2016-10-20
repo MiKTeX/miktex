@@ -37,6 +37,9 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <zlib.h>
 #include "ptexlib.h"
 #include <png.h>
+#if defined(MIKTEX)
+#include <poppler-config.h>
+#endif
 #ifdef POPPLER_VERSION
 #include <poppler-config.h>
 #define xpdfVersion POPPLER_VERSION

@@ -28,6 +28,9 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 #include <ctype.h>
 
+#if defined(MIKTEX)
+#include <poppler-config.h>
+#endif
 #ifdef POPPLER_VERSION
 #define GString GooString
 #define xpdfVersion POPPLER_VERSION

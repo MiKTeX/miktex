@@ -360,11 +360,6 @@ add_library(${poppler_lib_name} STATIC ${${poppler_lib_name}_sources})
 
 set_property(TARGET ${poppler_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_compile_definitions(${poppler_lib_name}
-  INTERFACE
-    -DPOPPLER_VERSION="${POPPLER_VERSION}"
-)
-
 target_include_directories(${poppler_lib_name}
   PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}/include
