@@ -105,7 +105,6 @@ You use the MiKTeX packagement utility to install some required packages:
     sudo mpm --admin --install amsfonts
 	sudo mpm --admin --install cm
 	sudo mpm --admin --install ltxbase
-	sudo mpm --admin --install miktex-fontconfig-base
 	sudo mpm --admin --install miktex-misc
 	sudo mpm --admin --install miktex-pdftex-base-2.9
 	
