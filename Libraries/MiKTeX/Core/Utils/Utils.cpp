@@ -150,13 +150,13 @@ inline int StrNCmpI(const char * lpsz1, const char * lpsz2, size_t n)
 
    Return the part of PATH that is relative to ROOT.
 
-   lpszPath lpszRoot return
+   lpszPath                     lpszRoot                return
    --------                     --------                ------
-   C:\ab\cd\ef.gh C:\ab\                  cd\ef.gh
-   C:\ab\cd\ef.gh C:\ab cd\ef.gh
-   C:\abcd\ef.gh C:\ab\                  <NULL>
-   C:\abcd\ef.gh C:\ab                   <NULL>
-   C:\ef.gh C:\                     ef.gh
+   C:\ab\cd\ef.gh               C:\ab\                  cd\ef.gh
+   C:\ab\cd\ef.gh               C:\ab                   cd\ef.gh
+   C:\abcd\ef.gh                C:\ab\                  <NULL>
+   C:\abcd\ef.gh                C:\ab                   <NULL>
+   C:\ef.gh                     C:\                     ef.gh
    _________________________________________________________________________ */
 
 const char * Utils::GetRelativizedPath(const char * lpszPath, const char * lpszRoot)
@@ -278,7 +278,7 @@ bool Utils::IsSafeFileName(const char * lpszPath, bool forInput)
     {
       if (PathName::Compare(ext.GetCurrent(), lpszExtension) == 0)
       {
-	return false;
+        return false;
       }
     }
   }
@@ -538,7 +538,7 @@ void Utils::PrintException(const MiKTeXException & e)
     {
       if (haveName && last == '\n')
       {
-	cerr << szName << ": ";
+        cerr << szName << ": ";
       }
       cerr << *lpsz;
       last = *lpsz;
@@ -553,11 +553,11 @@ void Utils::PrintException(const MiKTeXException & e)
     {
       if (haveName && last == '\n')
       {
-	cerr << szName << ": ";
+        cerr << szName << ": ";
       }
       if (last == '\n')
       {
-	cerr << "Data: ";
+        cerr << "Data: ";
       }
       cerr << *lpsz;
       last = *lpsz;
@@ -698,19 +698,19 @@ bool Utils::ParseDvipsMapLine(const string & line, FontMapEntry & mapEntry)
       ++it;
       for (; it != line.end() && *it != '"'; ++it)
       {
-	temp += *it;
+        temp += *it;
       }
       for (Tokenizer tok(temp.c_str(), " \t"); tok.GetCurrent() != 0; ++tok)
       {
-	if (mapEntry.specialInstructions.length() > 0)
-	{
-	  mapEntry.specialInstructions += ' ';
-	}
-	mapEntry.specialInstructions += tok.GetCurrent();
+        if (mapEntry.specialInstructions.length() > 0)
+        {
+          mapEntry.specialInstructions += ' ';
+        }
+        mapEntry.specialInstructions += tok.GetCurrent();
       }
       if (it == line.end())
       {
-	break;
+        break;
       }
     }
     else if (*it == '<')
@@ -718,62 +718,62 @@ bool Utils::ParseDvipsMapLine(const string & line, FontMapEntry & mapEntry)
       ++it;
       if (it == line.end())
       {
-	break;
+        break;
       }
       bool haveEncoding = false;
       bool noPartial = false;
       if (*it == '[')
       {
-	haveEncoding = true;
-	++it;
+        haveEncoding = true;
+        ++it;
       }
       else if (*it == '<')
       {
-	noPartial = true;
-	++it;
+        noPartial = true;
+        ++it;
       }
       if (it == line.end())
       {
-	break;
+        break;
       }
       for (; it != line.end() && *it <= ' '; ++it)
       {
       }
       if (it == line.end())
       {
-	break;
+        break;
       }
       string temp;
       for (; it != line.end() && *it > ' '; ++it)
       {
-	temp += *it;
+        temp += *it;
       }
       if (it == line.end())
       {
-	--it;
+        --it;
       }
       PathName fileName(temp);
       if (mapEntry.headerList.length() > 0)
       {
-	mapEntry.headerList += ';';
+        mapEntry.headerList += ';';
       }
       mapEntry.headerList += '<';
       if (haveEncoding || fileName.HasExtension(".enc"))
       {
-	mapEntry.encFile = fileName.Get();
-	if (haveEncoding)
-	{
-	  mapEntry.headerList += '[';
-	}
+        mapEntry.encFile = fileName.Get();
+        if (haveEncoding)
+        {
+          mapEntry.headerList += '[';
+        }
       }
       else if (fileName.HasExtension(".pfa")
-	|| fileName.HasExtension(".pfb"))
+        || fileName.HasExtension(".pfb"))
       {
-	mapEntry.fontFile = fileName.Get();
+        mapEntry.fontFile = fileName.Get();
       }
       if (noPartial)
       {
-	mapEntry.headerList += '<';
+        mapEntry.headerList += '<';
       }
       mapEntry.headerList += fileName.Get();
     }
@@ -782,19 +782,19 @@ bool Utils::ParseDvipsMapLine(const string & line, FontMapEntry & mapEntry)
       string name;
       for (; it != line.end() && *it > ' '; ++it)
       {
-	name += *it;
+        name += *it;
       }
       if (mapEntry.texName.length() == 0)
       {
-	mapEntry.texName = name;
+        mapEntry.texName = name;
       }
       else
       {
-	mapEntry.psName = name;
+        mapEntry.psName = name;
       }
       if (it == line.end())
       {
-	break;
+        break;
       }
     }
   }
@@ -841,7 +841,7 @@ bool Utils::ReadUntilDelim(string & str, int delim, FILE * stream)
       str += static_cast<char>(ch);
       if (ch == delim)
       {
-	return true;
+        return true;
       }
     }
     return ch == EOF ? !str.empty() : true;
@@ -862,19 +862,19 @@ bool Utils::ReadLine(string & str, FILE * stream, bool keepLineEnding)
     {
       if (keepLineEnding)
       {
-	str += '\r';
+        str += '\r';
       }
       ch = GetC(stream);
       if (ch == '\n')
       {
-	if (keepLineEnding)
-	{
-	  str += '\n';
-	}
+        if (keepLineEnding)
+        {
+          str += '\n';
+        }
       }
       else if (ch != EOF)
       {
-	UnGetC(ch, stream);
+        UnGetC(ch, stream);
       }
       return true;
     }
@@ -882,7 +882,7 @@ bool Utils::ReadLine(string & str, FILE * stream, bool keepLineEnding)
     {
       if (keepLineEnding)
       {
-	str += '\n';
+        str += '\n';
       }
       return true;
     }
@@ -914,12 +914,12 @@ bool Utils::FindProgram(const std::string & programName, PathName & path)
     {
       for (const char * ext : pathext)
       {
-	cand.SetExtension(ext);
-	if (File::Exists(cand))
-	{
-	  path = cand;
-	  return true;
-	}
+        cand.SetExtension(ext);
+        if (File::Exists(cand))
+        {
+          path = cand;
+          return true;
+        }
       }
     }
 #endif
