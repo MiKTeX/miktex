@@ -5,7 +5,7 @@ MiKTeX is:
 * a C/C++ implemenentation of TeX & Friends
 * a TeX distribution
 
-More information: please visit the [MiKTeX project page](http://miktex.org)
+More information: please visit the [MiKTeX project page](https://miktex.org)
 
 ## What you will find here
 
@@ -73,3 +73,49 @@ everything in the standard location. On Linux, you run
 	
 This will install MiKTeX in the `/usr/local`-prefixed directory
 tree.
+
+## First steps
+
+### Initialize the package database
+
+MiKTeX has the ability to install missing packages "on-the-fly". The
+package database must be initialized for this to work:
+
+    sudo mpm --admin --update-db
+
+In order to enable the automatic package installer, run:
+
+    sudo initexmf --admin --set-config-value [MPM]AutoInstall=1
+   
+### Symbolic links
+
+Some MiKTeX binaries are prefixed with `miktex-` in order to allow a
+peaceful coexistence with the other popular TeX distribution. For
+example, the pdfTeX binary is named `miktex-pdftex`. You can create
+symbolic links targetting the `miktex-` prefixed binaries:
+
+    sudo initexmf --admin --force --mklinks
+	
+After running this command, the pdfTeX engine can be invoked via `pdftex`.
+
+### Installing packages
+
+You use the MiKTeX packagement utility to install some required packages:
+
+    sudo mpm --admin --install amsfonts
+	sudo mpm --admin --install cm
+	sudo mpm --admin --install ltxbase
+	sudo mpm --admin --install miktex-fontconfig-base
+	sudo mpm --admin --install miktex-misc
+	sudo mpm --admin --install miktex-pdftex-base-2.9
+	
+Run this, to create font/language configuration files used by the TeX engines:
+
+    sudo initexmf --admin --mkmaps --mklinks
+   
+### Running (pdf)latex for the first time
+
+You can now test your installation by running
+
+    pdflatex sample2e
+	
