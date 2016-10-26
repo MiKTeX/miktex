@@ -46,9 +46,6 @@ const char * const COMMENT_CHAR_STR = ";";
 const char * const EMSA_ = "EMSA3(SHA-256)";
 #endif
 
-// TODO: remove this
-#define DISABLE_SIGNATURE_CHECK 1
-
 MIKTEXSTATICFUNC(bool) EndsWith(const string & s, const string & suffix)
 {
   return s.length() >= suffix.length() &&
