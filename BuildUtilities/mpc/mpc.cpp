@@ -1922,7 +1922,7 @@ void PackageCreator::Run(int argc, const char ** argv)
   bool optVersion = false;
 
   optVerbose = false;
-  programStartTime = time(0);
+  programStartTime = time(nullptr);
 
   PoptWrapper popt(argc, argv, options);
 

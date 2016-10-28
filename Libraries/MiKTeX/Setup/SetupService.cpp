@@ -402,7 +402,7 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
 
   // make the final log path name
   PathName pathLogFile(pathLogDir);
-  time_t t = time(0);
+  time_t t = time(nullptr);
   char dateTime[128];
   strftime(dateTime, 128, "%Y-%m-%d-%H-%M", localtime(&t));
   string fileName;
@@ -432,7 +432,7 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
 void SetupServiceImpl::LogHeader()
 {
   Log(T_("%s %s Report\n\n"), options.Banner.c_str(), options.Version.c_str());
-  time_t t = time(0);
+  time_t t = time(nullptr);
   struct tm * pTm = localtime(&t);
   char dateString[128];
   strftime(dateString, 128, "%A, %B %d, %Y", pTm);

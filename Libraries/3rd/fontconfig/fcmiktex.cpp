@@ -158,7 +158,7 @@ extern "C" void miktex_close_cache_file(int fd, const char  * lpszDir)
       dirCreationTime,
       dirAccessTime,
       dirWriteTime);
-    time_t cache_mtime = time(0);
+    time_t cache_mtime = time(nullptr);
     static set<time_t> modificationTimes;
     if (dirWriteTime != static_cast<time_t>(-1) && cache_mtime < dirWriteTime)
     {

@@ -1177,7 +1177,7 @@ void PackageInstallerImpl::InstallPackage(const string & deploymentName)
   }
 
   // set the timeInstalled value => package is installed
-  packageInfo.timeInstalled = time(0);
+  packageInfo.timeInstalled = time(nullptr);
   pManager->SetTimeInstalled(deploymentName, packageInfo.timeInstalled);
   pManager->SetReleaseState(deploymentName, repositoryReleaseState);
   pManager->FlushVariablePackageTable();

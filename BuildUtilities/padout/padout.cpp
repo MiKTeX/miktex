@@ -58,7 +58,7 @@ main (/*[in]*/ int		argc,
       return (1);
     }
   
-  srand (static_cast<unsigned>(time(0)));
+  srand (static_cast<unsigned>(time(nullptr)));
 
   for (; (size % 512) != 0; ++ size)
     {

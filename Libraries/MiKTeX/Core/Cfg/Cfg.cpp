@@ -1256,7 +1256,7 @@ string ToBase64(const vector<unsigned char> & bytes)
 
 void CfgImpl::Write(const PathName & path, const string & header, IPrivateKeyProvider * pPrivateKeyProvider)
 {
-  time_t t = time(0);
+  time_t t = time(nullptr);
   StreamWriter writer(path);
   if (!header.empty())
   {

@@ -1500,7 +1500,7 @@ void DviImpl::GarbageCollector()
       int biggestPageIdx = -1;
       DviPageImpl * pPage;
       size_t totalSize = 0;
-      time_t now = time(0);
+      time_t now = time(nullptr);
       for (int pageIdx = 0; (wait = WaitForSingleObject(hByeByteEvent, 0)) != WAIT_OBJECT_0; ++pageIdx)
       {
         if (wait == WAIT_FAILED)

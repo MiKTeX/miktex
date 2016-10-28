@@ -479,7 +479,7 @@ bool FndbManager::Create(const char * lpszFndbPath, const char * lpszRootPath, I
     fndb.numDirs = numDirectories;
     fndb.numFiles = numFiles;
     fndb.depth = deepestLevel;
-    fndb.timeStamp = static_cast<FndbWord>(time(0)); // FIXME: 64-bit
+    fndb.timeStamp = static_cast<FndbWord>(time(nullptr)); // FIXME: 64-bit
     fndb.size = GetMemTop();
     if ((fndb.flags & FileNameDatabaseHeader::FndbFlags::Frozen) == 0)
     {

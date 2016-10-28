@@ -531,7 +531,7 @@ void SessionImpl::SaveRootDirectories(
 #endif
     }
   }
-  time_t now = time(0);
+  time_t now = time(nullptr);
   string nowStr = std::to_string(now);
   if (IsAdminMode())
   {

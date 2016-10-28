@@ -309,7 +309,7 @@ void FileNameDatabase::InsertFileName(FileNameDatabaseDirectory * pDir, FndbByte
   }
   pDir->numFiles += 1;
   pHeader->numFiles += 1;
-  pHeader->timeStamp = static_cast<FndbWord>(time(0)); // <sixtyfourbit/>
+  pHeader->timeStamp = static_cast<FndbWord>(time(nullptr)); // <sixtyfourbit/>
 }
 
 void FileNameDatabase::InsertDirectory(FileNameDatabaseDirectory * pDir, const FileNameDatabaseDirectory * pDirSub) const
@@ -431,7 +431,7 @@ FileNameDatabaseDirectory * FileNameDatabase::RemoveFileName(FileNameDatabaseDir
 
   pDir->numFiles -= 1;
   pHeader->numFiles -= 1;
-  pHeader->timeStamp = static_cast<FndbWord>(time(0)); // FIXME: 64-bit
+  pHeader->timeStamp = static_cast<FndbWord>(time(nullptr)); // FIXME: 64-bit
 
   return pDir;
 }

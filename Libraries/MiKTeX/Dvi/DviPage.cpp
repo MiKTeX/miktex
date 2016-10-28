@@ -156,7 +156,7 @@ DviPageImpl::DviPageImpl(DviImpl * pDviImpl, int pageIdx, DviPageMode pageMode, 
 
   tracePage->WriteFormattedLine("libdvi", T_("created page object '%s'"), pageName.c_str());
 
-  lastVisited = time(0) + 60 * 60;
+  lastVisited = time(nullptr) + 60 * 60;
 }
 
 DviPageImpl::~DviPageImpl()
@@ -580,7 +580,7 @@ const DviBitmap & DviPageImpl::GetDviBitmap(int shrinkFactor, int idx)
   MIKTEX_ASSERT(IsLocked());
   MIKTEX_ASSERT(IsFrozen());
   MIKTEX_ASSERT(idx >= 0 && (static_cast<unsigned>(idx) < shrinkedDviBitmaps[shrinkFactor].size()));
-  lastVisited = time(0);
+  lastVisited = time(nullptr);
   return shrinkedDviBitmaps[shrinkFactor][idx];
 }
 
@@ -589,7 +589,7 @@ shared_ptr<DibChunk> DviPageImpl::GetDibChunk(int shrinkFactor, int idx)
   MIKTEX_ASSERT(IsLocked());
   MIKTEX_ASSERT(IsFrozen());
   MIKTEX_ASSERT(idx >= 0 && (static_cast<unsigned>(idx) < shrinkedDibChunks[shrinkFactor].size()));
-  lastVisited = time(0);
+  lastVisited = time(nullptr);
   return shrinkedDibChunks[shrinkFactor][idx];
 }
 
@@ -1067,6 +1067,6 @@ shared_ptr<GraphicsInclusion> DviPageImpl::GetGraphicsInclusion(int shrinkFactor
   MIKTEX_ASSERT(IsLocked());
   MIKTEX_ASSERT(IsFrozen());
   MIKTEX_ASSERT(idx >= 0 && (static_cast<unsigned>(idx) < graphicsInclusions[shrinkFactor].size()));
-  lastVisited = time(0);
+  lastVisited = time(nullptr);
   return graphicsInclusions[shrinkFactor][idx];
 }
