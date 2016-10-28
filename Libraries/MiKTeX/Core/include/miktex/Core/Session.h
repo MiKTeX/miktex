@@ -192,7 +192,7 @@ struct MiKTeXUserInfo
   time_t expirationDate = static_cast<time_t>(-1);
   bool IsMember () const
   {
-    return level >= Individual && expirationDate != static_cast<time_t>(-1) && expirationDate >= time(0);
+    return level >= Individual && (expirationDate == static_cast<time_t>(-1) || expirationDate >= time(0));
   }
   bool IsDeveloper () const { return IsMember() && (role & Developer) != 0; }
   bool IsContributor () const { return IsMember() && (role & Contributor) != 0; }
