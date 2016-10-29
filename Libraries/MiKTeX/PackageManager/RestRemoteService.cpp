@@ -51,9 +51,9 @@ inline RepositoryReleaseState ToRepositoryReleaseState(int releaseState)
   switch (releaseState)
   {
   case 0:
-    return RepositoryReleaseState::Next;
-  case 1:
     return RepositoryReleaseState::Stable;
+  case 1:
+    return RepositoryReleaseState::Next;
   default:
     MIKTEX_UNEXPECTED();
   }
