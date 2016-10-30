@@ -5,6 +5,7 @@
     <TPM:Name>MiKTeX config</TPM:Name>
     <TPM:Title>MiKTeX configuration files</TPM:Title>
     <TPM:Copyright owner="Christian Schenk" year="@MIKTEX_YEAR_VERSION@"/>
+    <TPM:License type="cc0-1.0"/>
     <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
