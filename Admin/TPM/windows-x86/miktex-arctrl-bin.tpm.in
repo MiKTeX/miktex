@@ -2,7 +2,7 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
-    <TPM:Name>arctrl bin</TPM:Name>
+    <TPM:Name>arctrl win32</TPM:Name>
     <TPM:Title>MiKTeX AR Controller, Windows x86</TPM:Title>
     <TPM:License type="cc0-1.0"/>
     <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
