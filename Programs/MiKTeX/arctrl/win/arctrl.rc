@@ -22,6 +22,6 @@
 #define VER_INTERNALNAME_STR "arctrl"
 #define VER_ORIGINALFILENAME_STR "arctrl.exe"
 
-#define VER_FILEDESCRIPTION_STR "AR controller"
+#define VER_FILEDESCRIPTION_STR "Acrobat Reader (AR) controller"
 
 #include "miktex/win/version.rc"

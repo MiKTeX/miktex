@@ -3,12 +3,13 @@
          xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
     <TPM:Name>arctrl bin</TPM:Name>
-    <TPM:Title>arctrl binaries</TPM:Title>
+    <TPM:Title>MiKTeX AR Controller, Windows x86</TPM:Title>
+    <TPM:License type="cc0-1.0"/>
     <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
-      This package includes the arctrl executable.
+      This package includes the pdfopen/pdfclose executables.
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${arctrl_dll_name}.dll
