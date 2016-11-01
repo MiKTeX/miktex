@@ -2,9 +2,12 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	 xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/dvipdfmx/">
-    <TPM:Name>dvipdfmx bin</TPM:Name>
-    <TPM:Title>Dvipdfmx binaries</TPM:Title>
-    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:Name>Dvipdfmx win64</TPM:Name>
+    <TPM:Title>Dvipdfmx, Windows x64</TPM:Title>
+    <TPM:Copyright owner="Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata, the DVIPDFMx project team" year="2002-2016"/>
+    <TPM:Copyright owner="Mark Wicks" year="1998,1999"/>
+    <TPM:License type="gpl"/>
+    <TPM:Version>20160619</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
