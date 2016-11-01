@@ -2,13 +2,16 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	 xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/bibtex/">
-    <TPM:Name>BibTeX8 bin</TPM:Name>
-    <TPM:Title>BibTeX (8-bit) binaries</TPM:Title>
-    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:Name>BibTeX8bit win32</TPM:Name>
+    <TPM:Title>BibTeX8bit, Windows x86</TPM:Title>
+    <TPM:Copyright owner="Niel Kempson" year="1991-1995"/>
+    <TPM:Copyright owner="Alejandro Aguilar-Sierra" year="1995"/>
+    <TPM:License type="gpl"/>
+    <TPM:Version>3.71</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
-      This package includes the BibTeX (8-bit) executables.
+      This package includes the BibTeX (8-bit enhanced) executable.
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/bibtex8.exe
