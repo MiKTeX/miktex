@@ -2,14 +2,15 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
-    <TPM:Name>CJK font utilities</TPM:Name>
-    <TPM:Title>CJK font utilities</TPM:Title>
-    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:Name>CJKutils bin win64</TPM:Name>
+    <TPM:Title>CJK Font Utilities, Windows x64</TPM:Title>
+    <TPM:Copyright owner="Werner Lemberg" year="1994-2015"/>
+    <TPM:License type="gpl2"/>
+    <TPM:Version>4.8.4</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
-      This package includes various CJK related font conversion tools:
-      hbf2gf.
+      This package includes various CJK related font conversion utilities.
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${cjklatex_dll_name}.dll

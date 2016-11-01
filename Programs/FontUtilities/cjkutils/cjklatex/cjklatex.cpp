@@ -1,25 +1,17 @@
-/* cjklatex.cpp:
+/* cjklatex.cpp: call latex after preprocessing of the .tex file by
+   the cjk conversion tool
 
-   Copyright (C) 2004-2016 Christian Schenk
-   Copyright (C) 2001 Fabrice Popineau
+   Written in the years 2004-2016 by Christian Schenk.
 
-   This file is part of CJKLaTeX.
+   This file is based on public domain work (cjklatex.c, 2001) by
+   Fabrice Popineau.
 
-   CJKLaTeX is free software; you can redistribute it and/or modify it
-   under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-   
-   CJKLaTeX is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
-   
-   You should have received a copy of the GNU General Public License
-   along with CJKLaTeX; if not, write to the Free Software Foundation,
-   59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
-
-/* Based on cjklatex.c by F. Popineau. */
+   To the extent possible under law, the author(s) have dedicated all
+   copyright and related and neighboring rights to this file to the
+   public domain worldwide.  This file is distributed without any
+   warranty.  You should have received a copy of the CC0 Public Domain
+   Dedication along with this file.  If not, see
+   http://creativecommons.org/publicdomain/zero/1.0/. */
 
 #include <iomanip>
 #include <iostream>
@@ -201,10 +193,15 @@ CJKLaTeXApp::ShowVersion ()
   cout << Utils::MakeProgramVersionString(Utils::GetExeName().c_str(),
 					   MIKTEX_COMPONENT_VERSION_STR)
        << T_("\n\
-Copyright (C) 2004-2016 Christian Schenk\n\
-Copyright (C) 2001 Fabrice Popineau\n\
-This is free software; see the source for copying conditions.  There is NO\n\
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.")
+Written by Fabrice Popineau in 2001.  Further developed by\n\
+Christian Schenk in the years 2004-2016.\n\
+\n\
+To the extent possible under law, the author(s) have dedicated all\n\
+copyright and related and neighboring rights to this program to the\n\
+public domain worldwide.  This program is distributed without any\n\
+warranty.  You should have received a copy of the CC0 Public Domain\n\
+Dedication along with this file.  If not, see\n\
+http://creativecommons.org/publicdomain/zero/1.0/.")
        << endl;
 }
 

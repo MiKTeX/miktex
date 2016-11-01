@@ -1,6 +1,6 @@
 /* hbf2gf-version.h: version number			-*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1994-2016 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,7 +21,7 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "4.8.4"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1996-2015 Werner Lemberg"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1996-2015 Werner Lemberg"
+#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1994-2015 Werner Lemberg"
+#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1994-2015 Werner Lemberg"
 
 #include <miktex/Version>

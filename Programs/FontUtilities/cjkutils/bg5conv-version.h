@@ -21,7 +21,7 @@
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "4.8.4"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1996-2015 Werner Lemberg"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1996-2015 Werner Lemberg"
+#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1994-2015 Werner Lemberg"
+#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1994-2015 Werner Lemberg"
 
 #include <miktex/Version>
