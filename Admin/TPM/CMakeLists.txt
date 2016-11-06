@@ -55,15 +55,17 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-dvipng-bin.tpm.in
     windows-x86/miktex-dvips-bin.tpm.in
     windows-x86/miktex-dvisvgm-bin.tpm.in
+    windows-x86/miktex-epstopdf-bin.tpm.in
     windows-x86/miktex-findtexmf-bin.tpm.in
     windows-x86/miktex-fontconfig-bin.tpm.in
     windows-x86/miktex-fonts-bin.tpm.in
     windows-x86/miktex-freetype2-bin.tpm.in
-    windows-x86/miktex-graphics-bin.tpm.in
+    windows-x86/miktex-gd-bin.tpm.in
     windows-x86/miktex-graphite2-bin.tpm.in
     windows-x86/miktex-gsf2pk-bin.tpm.in
     windows-x86/miktex-hunspell-bin.tpm.in
     windows-x86/miktex-int-bin.tpm.in
+    windows-x86/miktex-jpeg-bin.tpm.in
     windows-x86/miktex-kpathsea-bin.tpm.in
     windows-x86/miktex-log4cxx-bin.tpm.in
     windows-x86/miktex-lua52-bin.tpm.in
@@ -81,6 +83,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-mtprint-bin.tpm.in
     windows-x86/miktex-omega-bin.tpm.in
     windows-x86/miktex-pdftex-bin.tpm.in
+    windows-x86/miktex-png-bin.tpm.in
     windows-x86/miktex-poppler-bin.tpm.in
     windows-x86/miktex-ps2pk-bin.tpm.in
     windows-x86/miktex-psutils-bin.tpm.in
@@ -121,15 +124,17 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-dvipng-bin-x64.tpm.in
     windows-x64/miktex-dvips-bin-x64.tpm.in
     windows-x64/miktex-dvisvgm-bin-x64.tpm.in
+    windows-x64/miktex-epstopdf-bin-x64.tpm.in
     windows-x64/miktex-findtexmf-bin-x64.tpm.in
     windows-x64/miktex-fontconfig-bin-x64.tpm.in
     windows-x64/miktex-fonts-bin-x64.tpm.in
     windows-x64/miktex-freetype2-bin-x64.tpm.in
-    windows-x64/miktex-graphics-bin-x64.tpm.in
+    windows-x64/miktex-gd-bin-x64.tpm.in
     windows-x64/miktex-graphite2-bin-x64.tpm.in
     windows-x64/miktex-gsf2pk-bin-x64.tpm.in
     windows-x64/miktex-hunspell-bin-x64.tpm.in
     windows-x64/miktex-int-bin-x64.tpm.in
+    windows-x64/miktex-jpeg-bin-x64.tpm.in
     windows-x64/miktex-kpathsea-bin-x64.tpm.in
     windows-x64/miktex-log4cxx-bin-x64.tpm.in
     windows-x64/miktex-lua52-bin-x64.tpm.in
@@ -147,6 +152,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-mtprint-bin-x64.tpm.in
     windows-x64/miktex-omega-bin-x64.tpm.in
     windows-x64/miktex-pdftex-bin-x64.tpm.in
+    windows-x64/miktex-png-bin-x64.tpm.in
     windows-x64/miktex-poppler-bin-x64.tpm.in
     windows-x64/miktex-ps2pk-bin-x64.tpm.in
     windows-x64/miktex-psutils-bin-x64.tpm.in
