@@ -2,9 +2,11 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	 xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/dvips/">
-    <TPM:Name>Dvips bin</TPM:Name>
-    <TPM:Title>Dvips binaries</TPM:Title>
-    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:Name>Dvips win32</TPM:Name>
+    <TPM:Title>Dvips, Windows x86</TPM:Title>
+    <TPM:Copyright owner="Tomas Rokicki" year="1986-2016"/>
+    <TPM:License type="gpl"/>    
+    <TPM:Version>5.996</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
