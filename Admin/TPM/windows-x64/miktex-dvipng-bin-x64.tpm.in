@@ -2,9 +2,11 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
-    <TPM:Name>Dvipng bin</TPM:Name>
-    <TPM:Title>DVI-to-PNG Converter (binary)</TPM:Title>
-    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:Name>Dvipng win64</TPM:Name>
+    <TPM:Title>DVI-to-PNG Converter, Windows x64</TPM:Title>
+    <TPM:Copyright owner="Jan-Åke Larsson" year="2002-2015"/>
+    <TPM:License type="lgpl"/>    
+    <TPM:Version>1.15</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
