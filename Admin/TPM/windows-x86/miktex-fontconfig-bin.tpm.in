@@ -2,9 +2,11 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
-    <TPM:Name>FontConfig bin</TPM:Name>
-    <TPM:Title>FontConfig binaries</TPM:Title>
-    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:Name>FontConfig win32</TPM:Name>
+    <TPM:Title>FontConfig, Windows x86</TPM:Title>
+    <TPM:Copyright owner="Keith Packard, et al." year="2000-2004,2006-2007"/>
+    <TPM:License type="mit"/>
+    <TPM:Version>2.12.0</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
