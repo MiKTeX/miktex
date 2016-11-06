@@ -2,9 +2,11 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
-    <TPM:Name>FreeType2 bin</TPM:Name>
-    <TPM:Title>FreeType2 binaries</TPM:Title>
-    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:Name>FreeType2 win32</TPM:Name>
+    <TPM:Title>FreeType2 library, Windows x86</TPM:Title>
+    <TPM:Copyright owner="David Turner, Robert Wilhelm, and Werner Lemberg" year="2006-2016"/>
+    <TPM:License type="gpl2"/>
+    <TPM:Version>2.6.5</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
