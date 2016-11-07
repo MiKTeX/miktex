@@ -2,9 +2,11 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	 xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/pdftex/">
-    <TPM:Name>pdfTeX bin</TPM:Name>
-    <TPM:Title>pdfTeX binaries</TPM:Title>
-    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:Name>pdfTeX win64</TPM:Name>
+    <TPM:Title>pdfTeX, Windows x64</TPM:Title>
+    <TPM:Copyright owner="Hàn Th? Thành" year="1996-2008"/>
+    <TPM:License type="gpl"/>
+    <TPM:Version>1.40.17</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
