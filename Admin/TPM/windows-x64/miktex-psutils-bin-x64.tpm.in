@@ -2,9 +2,12 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	 xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
-    <TPM:Name>PSutils bin</TPM:Name>
-    <TPM:Title>PSutils binaries</TPM:Title>
-    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:Name>PSutils win64</TPM:Name>
+    <TPM:Title>PSutils, Windows x64</TPM:Title>
+    <TPM:Copyright owner="Reuben Thomas" year="2012-2013"/>
+    <TPM:Copyright owner="Angus J. C. Duggan" year="1991-1997"/>
+    <TPM:License type="permissive"/>
+    <TPM:Version>1.23</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
