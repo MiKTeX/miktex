@@ -18,8 +18,10 @@
    along with MkFntMap; if not, write to the Free Software Foundation,
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
-/* This program is based on the updmap shell script written by Thomas
-   Esser. */
+/* This program is based on the updmap shell script:
+   (C) 2002 Thomas Esser
+   licensed under the following agreement:
+   Anyone may freely use, modify, and/or distribute this file... */
 
 #include "internal.h"
 
