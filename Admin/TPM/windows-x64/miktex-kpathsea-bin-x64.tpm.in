@@ -2,13 +2,15 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
-    <TPM:Name>Kpathsea</TPM:Name>
-    <TPM:Title>Kpathsea[rch] Utilities</TPM:Title>
-    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:Name>kpsewhich win64</TPM:Name>
+    <TPM:Title>kpsewhich, Windows x64</TPM:Title>
+    <TPM:Copyright owner="Karl Berry and Olaf Weber" year="1995-2010"/>
+    <TPM:License type="lgpl2.1"/>
+    <TPM:Version>1.12.14</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
-      This package includes Kpathsea[rch] utilities.
+      This package includes the kpsewhich utility.
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}kpsewhich.exe
