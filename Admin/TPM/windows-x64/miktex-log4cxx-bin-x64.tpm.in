@@ -2,9 +2,11 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
-    <TPM:Name>log4cxx bin</TPM:Name>
-    <TPM:Title>log4cxx binaries</TPM:Title>
-    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:Name>log4cxx lib win64</TPM:Name>
+    <TPM:Title>log4cxx runtime librart, Windows x64</TPM:Title>
+    <TPM:Copyright owner="The Apache Software Foundation" year="2000-2015"/>
+    <TPM:License type="apache"/>
+    <TPM:Version>0.10.0</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
