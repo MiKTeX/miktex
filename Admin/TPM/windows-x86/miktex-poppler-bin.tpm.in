@@ -2,9 +2,11 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
-    <TPM:Name>Poppler Qt bin</TPM:Name>
-    <TPM:Title>Poppler Qt binaries</TPM:Title>
-    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:Name>Poppler Qt lib win32</TPM:Name>
+    <TPM:Title>Poppler Qt runtine library, Windows x86</TPM:Title>
+    <TPM:Copyright owner="Jakub Kucharski" year="2016"/>
+    <TPM:License type="gpl2"/>
+    <TPM:Version>0.46.0</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
