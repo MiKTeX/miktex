@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/miktex/">
+    <TPM:Name>Posix lib win32</TPM:Name>
+    <TPM:Title>Poxix runtime libraries, Windows x86</TPM:Title>
+    <TPM:Copyright owner="Free Software Foundation, Inc." year="1989-1994,1996-1999,2001,2003,2004"/>
+    <TPM:License type="lgpl2.1"/>
+    <TPM:Version>2.3.6</TPM:Version>
+    <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      This package includes the getopt/regex DLLs.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${getopt_dll_name}.dll
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

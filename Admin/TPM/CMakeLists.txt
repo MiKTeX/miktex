@@ -45,9 +45,11 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-bibtex-bin.tpm.in
     windows-x86/miktex-bibtex8bit-bin.tpm.in
     windows-x86/miktex-bin.tpm.in
+    windows-x86/miktex-bzip2-bin.tpm.in
     windows-x86/miktex-cairo-bin.tpm.in
     windows-x86/miktex-chktex-bin.tpm.in
     windows-x86/miktex-cjkutils-bin.tpm.in
+    windows-x86/miktex-curl-bin.tpm.in
     windows-x86/miktex-cweb-bin.tpm.in
     windows-x86/miktex-devnag-bin.tpm.in
     windows-x86/miktex-dvicopy-bin.tpm.in
@@ -56,6 +58,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-dvips-bin.tpm.in
     windows-x86/miktex-dvisvgm-bin.tpm.in
     windows-x86/miktex-epstopdf-bin.tpm.in
+    windows-x86/miktex-expat-bin.tpm.in
     windows-x86/miktex-findtexmf-bin.tpm.in
     windows-x86/miktex-fontconfig-bin.tpm.in
     windows-x86/miktex-fonts-bin.tpm.in
@@ -67,10 +70,13 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-int-bin.tpm.in
     windows-x86/miktex-jpeg-bin.tpm.in
     windows-x86/miktex-kpathsea-bin.tpm.in
+    windows-x86/miktex-libressl-bin.tpm.in
     windows-x86/miktex-log4cxx-bin.tpm.in
     windows-x86/miktex-lua52-bin.tpm.in
     windows-x86/miktex-luatex-bin.tpm.in
+    windows-x86/miktex-lzma-bin.tpm.in
     windows-x86/miktex-makeindex-bin.tpm.in
+    windows-x86/miktex-md5-bin.tpm.in
     windows-x86/miktex-metafont-bin.tpm.in
     windows-x86/miktex-metapost-bin.tpm.in
     windows-x86/miktex-mfware-bin.tpm.in
@@ -79,12 +85,15 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-mo-bin.tpm.in
     windows-x86/miktex-mpm-bin.tpm.in
     windows-x86/miktex-mpmcli-bin.tpm.in
+    windows-x86/miktex-mspack-bin.tpm.in
     windows-x86/miktex-mthelp-bin.tpm.in
     windows-x86/miktex-mtprint-bin.tpm.in
     windows-x86/miktex-omega-bin.tpm.in
     windows-x86/miktex-pdftex-bin.tpm.in
     windows-x86/miktex-png-bin.tpm.in
     windows-x86/miktex-poppler-bin.tpm.in
+    windows-x86/miktex-popt-bin.tpm.in
+    windows-x86/miktex-posix-bin.tpm.in
     windows-x86/miktex-ps2pk-bin.tpm.in
     windows-x86/miktex-psutils-bin.tpm.in
     windows-x86/miktex-runtime-bin.tpm.in
@@ -97,10 +106,13 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-texware-bin.tpm.in
     windows-x86/miktex-texworks-bin.tpm.in
     windows-x86/miktex-ttf2pk2-bin.tpm.in
+    windows-x86/miktex-uriparser-bin.tpm.in
     windows-x86/miktex-web-bin.tpm.in
     windows-x86/miktex-xdvipdfmx-bin.tpm.in
     windows-x86/miktex-xetex-bin.tpm.in
     windows-x86/miktex-yap-bin.tpm.in
+    windows-x86/miktex-zlib-bin.tpm.in
+    windows-x86/miktex-zzip-bin.tpm.in
   )
   if(WITH_CONTEXT_SUPPORT)
     list(APPEND target_system_tpms
@@ -114,9 +126,11 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-bibtex-bin-x64.tpm.in
     windows-x64/miktex-bibtex8bit-bin-x64.tpm.in
     windows-x64/miktex-bin-x64.tpm.in
+    windows-x64/miktex-bzip2-bin-x64.tpm.in
     windows-x64/miktex-cairo-bin-x64.tpm.in
     windows-x64/miktex-chktex-bin-x64.tpm.in
     windows-x64/miktex-cjkutils-bin-x64.tpm.in
+    windows-x64/miktex-curl-bin-x64.tpm.in
     windows-x64/miktex-cweb-bin-x64.tpm.in
     windows-x64/miktex-devnag-bin-x64.tpm.in
     windows-x64/miktex-dvicopy-bin-x64.tpm.in
@@ -125,6 +139,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-dvips-bin-x64.tpm.in
     windows-x64/miktex-dvisvgm-bin-x64.tpm.in
     windows-x64/miktex-epstopdf-bin-x64.tpm.in
+    windows-x64/miktex-expat-bin-x64.tpm.in
     windows-x64/miktex-findtexmf-bin-x64.tpm.in
     windows-x64/miktex-fontconfig-bin-x64.tpm.in
     windows-x64/miktex-fonts-bin-x64.tpm.in
@@ -136,10 +151,13 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-int-bin-x64.tpm.in
     windows-x64/miktex-jpeg-bin-x64.tpm.in
     windows-x64/miktex-kpathsea-bin-x64.tpm.in
+    windows-x64/miktex-libressl-bin-x64.tpm.in
     windows-x64/miktex-log4cxx-bin-x64.tpm.in
     windows-x64/miktex-lua52-bin-x64.tpm.in
     windows-x64/miktex-luatex-bin-x64.tpm.in
+    windows-x64/miktex-lzma-bin-x64.tpm.in
     windows-x64/miktex-makeindex-bin-x64.tpm.in
+    windows-x64/miktex-md5-bin-x64.tpm.in
     windows-x64/miktex-metafont-bin-x64.tpm.in
     windows-x64/miktex-metapost-bin-x64.tpm.in
     windows-x64/miktex-mfware-bin-x64.tpm.in
@@ -148,12 +166,15 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-mo-bin-x64.tpm.in
     windows-x64/miktex-mpm-bin-x64.tpm.in
     windows-x64/miktex-mpmcli-bin-x64.tpm.in
+    windows-x64/miktex-mspack-bin-x64.tpm.in
     windows-x64/miktex-mthelp-bin-x64.tpm.in
     windows-x64/miktex-mtprint-bin-x64.tpm.in
     windows-x64/miktex-omega-bin-x64.tpm.in
     windows-x64/miktex-pdftex-bin-x64.tpm.in
     windows-x64/miktex-png-bin-x64.tpm.in
     windows-x64/miktex-poppler-bin-x64.tpm.in
+    windows-x64/miktex-popt-bin-x64.tpm.in
+    windows-x64/miktex-posix-bin-x64.tpm.in
     windows-x64/miktex-ps2pk-bin-x64.tpm.in
     windows-x64/miktex-psutils-bin-x64.tpm.in
     windows-x64/miktex-runtime-bin-x64.tpm.in
@@ -166,10 +187,13 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-texware-bin-x64.tpm.in
     windows-x64/miktex-texworks-bin-x64.tpm.in
     windows-x64/miktex-ttf2pk2-bin-x64.tpm.in
+    windows-x64/miktex-uriparser-bin-x64.tpm.in
     windows-x64/miktex-web-bin-x64.tpm.in
     windows-x64/miktex-xdvipdfmx-bin-x64.tpm.in
     windows-x64/miktex-xetex-bin-x64.tpm.in
     windows-x64/miktex-yap-bin-x64.tpm.in
+    windows-x64/miktex-zlib-bin-x64.tpm.in
+    windows-x64/miktex-zzip-bin-x64.tpm.in
   )
   if(WITH_CONTEXT_SUPPORT)
     list(APPEND target_system_tpms

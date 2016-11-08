@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/miktex/">
+    <TPM:Name>Expat lib win32</TPM:Name>
+    <TPM:Title>Expat runtime library, Windows x86</TPM:Title>
+    <TPM:Copyright owner="Expat maintainers" year="2001-2006"/>
+    <TPM:Copyright owner="Thai Open Source Software Center Ltd" year="1998-2000"/>
+    <TPM:License type="permissive"/>
+    <TPM:Version>2.1.0</TPM:Version>
+    <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      This package includes the Expat DLL.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${expat_dll_name}.dll
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>
