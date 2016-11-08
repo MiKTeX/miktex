@@ -2,9 +2,12 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	 xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
-    <TPM:Name>tex2xindy bin</TPM:Name>
-    <TPM:Title>tex2xindy binaries</TPM:Title>
-    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <TPM:Name>tex2xindy win64</TPM:Name>
+    <TPM:Title>tex2xindy, Windows x64</TPM:Title>
+    <TPM:Copyright owner="Joachim Schrod" year="2006"/>
+    <TPM:Copyright owner="Roger Kehr" year="1996,1997"/>
+    <TPM:License type="gpl2"/>
+    <TPM:Version>1.24</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
