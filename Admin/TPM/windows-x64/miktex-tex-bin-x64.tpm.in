@@ -2,9 +2,11 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
-    <TPM:Name>TeX bin</TPM:Name>
-    <TPM:Title>TeX binaries</TPM:Title>
-    <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
+    <<TPM:Name>TeX, win64</TPM:Name>
+    <TPM:Title>TeX, Windows x64</TPM:Title>
+    <TPM:Copyright owner="D. E. Knuth" year="1982"/>
+    <TPM:License type="knuth"/>
+    <TPM:Version>3.14159265</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
