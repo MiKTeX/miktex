@@ -16,6 +16,7 @@
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${dvipdfmx_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}dvipdfmx.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}xdvipdfmx.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/dvipdft.exe
     </TPM:RunFiles>
   </rdf:Description>

@@ -108,7 +108,6 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-ttf2pk2-bin.tpm.in
     windows-x86/miktex-uriparser-bin.tpm.in
     windows-x86/miktex-web-bin.tpm.in
-    windows-x86/miktex-xdvipdfmx-bin.tpm.in
     windows-x86/miktex-xetex-bin.tpm.in
     windows-x86/miktex-yap-bin.tpm.in
     windows-x86/miktex-zlib-bin.tpm.in
@@ -189,7 +188,6 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-ttf2pk2-bin-x64.tpm.in
     windows-x64/miktex-uriparser-bin-x64.tpm.in
     windows-x64/miktex-web-bin-x64.tpm.in
-    windows-x64/miktex-xdvipdfmx-bin-x64.tpm.in
     windows-x64/miktex-xetex-bin-x64.tpm.in
     windows-x64/miktex-yap-bin-x64.tpm.in
     windows-x64/miktex-zlib-bin-x64.tpm.in
