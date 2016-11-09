@@ -2,8 +2,8 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
-    <TPM:Name>mtprint win64TPM:Name>
-    <TPM:Title>mtprint, Windows x64TPM:Title>
+    <TPM:Name>mtprint win64</TPM:Name>
+    <TPM:Title>mtprint, Windows x64</TPM:Title>
     <TPM:Copyright owner="Christian Schenk" year="@MIKTEX_YEAR_VERSION@"/>
     <TPM:License type="gpl2"/>
     <TPM:Version>@MIKTEX_VERSION_STR@</TPM:Version>
