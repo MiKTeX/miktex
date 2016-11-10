@@ -323,6 +323,12 @@ end else
     kpse_init_prog('PDFTEX', fixed_pk_resolution, nil, nil);
 kpse_set_program_enabled (kpse_pk_format, 1, kpse_src_compile);
 @y
+if pdf_pk_mode <> null then begin
+    kpse_init_prog('PDFTEX', fixed_pk_resolution,
+                   make_cstring(tokens_to_string(pdf_pk_mode)), 0);
+    flush_string;
+end else
+    kpse_init_prog('PDFTEX', fixed_pk_resolution, 0, 0);
 @z
 
 % _____________________________________________________________________________
