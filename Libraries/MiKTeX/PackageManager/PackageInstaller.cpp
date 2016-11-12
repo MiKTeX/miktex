@@ -483,7 +483,8 @@ void PackageInstallerImpl::FindUpdates()
         && (targetSystem.empty() || targetSystem == MIKTEX_SYSTEM_TAG)
 #endif
         //&& pSession->IsAdminMode()
-        && CompareSerieses(dbLight.GetPackageVersion(deploymentName), MIKTEX_SERIES_STR) == 0)
+        //&& CompareSerieses(dbLight.GetPackageVersion(deploymentName), MIKTEX_SERIES_STR) == 0
+        )
       {
         trace_mpm->WriteFormattedLine("libmpm", T_("%s: new essential MiKTeX package"), deploymentName.c_str());
         updateInfo.action = UpdateInfo::ForceUpdate;
