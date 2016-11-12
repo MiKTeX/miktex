@@ -199,6 +199,12 @@ option(
 )
 
 option(
+  USE_SYSTEM_FRIBIDI
+  "Use the system GNU FriBiDi library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
   USE_SYSTEM_GD
   "Use the system GD graphics library."
   ${MIKTEX_UNIX_ALIKE}
@@ -682,6 +688,10 @@ endif()
 if(USE_SYSTEM_FREETYPE2)
   find_package(Freetype REQUIRED)
 endif()
+
+#if(USE_SYSTEM_FRIBIDI)
+#  find_package(FRIBIDI REQUIRED)
+#endif()
 
 if(USE_SYSTEM_GD)
   find_package(GD REQUIRED)
@@ -1222,6 +1232,12 @@ else()
   add_subdirectory(${MIKTEX_REL_FREETYPE2_DIR})
 endif()
 
+if(USE_SYSTEM_FRIBIDI)
+  # TODO
+else()
+  add_subdirectory(${MIKTEX_REL_FRIBIDI_DIR})
+endif()
+
 if(USE_SYSTEM_GD)
   get_filename_component(suffix ${GD_LIBRARY} EXT)
   if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
@@ -1576,6 +1592,7 @@ add_subdirectory(${MIKTEX_REL_EPSTOPDF_DIR})
 add_subdirectory(${MIKTEX_REL_EXTRACTOR_DIR})
 add_subdirectory(${MIKTEX_REL_FF_WOFF_DIR})
 add_subdirectory(${MIKTEX_REL_FINDTEXMF_DIR})
+add_subdirectory(${MIKTEX_REL_FRIBIDIXETEX_DIR})
 add_subdirectory(${MIKTEX_REL_GSF2PK_DIR})
 add_subdirectory(${MIKTEX_REL_INIPOOL_DIR})
 add_subdirectory(${MIKTEX_REL_INITEXMF_DIR})

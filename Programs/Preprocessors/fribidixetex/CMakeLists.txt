@@ -1,0 +1,51 @@
+## CMakeLists.txt                                       -*- CMake -*-
+##
+## Copyright (C) 2016 Christian Schenk
+## 
+## This file is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published
+## by the Free Software Foundation; either version 2, or (at your
+## option) any later version.
+## 
+## This file is distributed in the hope that it will be useful, but
+## WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+## General Public License for more details.
+## 
+## You should have received a copy of the GNU General Public License
+## along with this file; if not, write to the Free Software
+## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+## USA.
+
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_PREPROCESSORS_FOLDER}/fribidixetex")
+
+ignore_warnings()
+
+set(fribidixetex_sources
+  fribidixetex-version.h
+  source/src/fribidixetex-bidi.c
+  source/src/fribidixetex-dict.c
+  source/src/fribidixetex-ignore.c
+  source/src/fribidixetex-io.c
+  source/src/fribidixetex-util.c
+  source/src/fribidixetex.c
+)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND fribidixetex_sources
+    fribidixetex.rc
+  )
+endif()
+
+add_executable(fribidixetex ${fribidixetex_sources})
+
+set_property(TARGET fribidixetex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+merge_trustinfo_manifest(fribidixetex asInvoker)
+merge_compatibility_manifest(fribidixetex)
+
+target_link_libraries(fribidixetex
+  ${fribidi_lib_name}
+)
+
+install(TARGETS fribidixetex DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

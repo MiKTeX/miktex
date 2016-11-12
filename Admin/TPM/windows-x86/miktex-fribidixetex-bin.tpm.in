@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/fribidixetex/">
+    <TPM:Name>fribidixetex win32</TPM:Name>
+    <TPM:Title>fribidixetex, Windows x86</TPM:Title>
+    <TPM:Copyright owner="Vafa Khalighi" year="2016"/>
+    <TPM:License type="gpl2"/>
+    <TPM:Version>0.20</TPM:Version>
+    <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      This package includes the fribidixetex preprocessor.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/fribidixetex.exe
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

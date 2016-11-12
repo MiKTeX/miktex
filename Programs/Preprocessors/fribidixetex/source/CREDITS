@@ -1,0 +1,21 @@
+FriBidiXeTeX --- A pre-processor for XeTeX files to support unicode bidirectional algorithm
+================================================================
+Copyright (C) 2016  Vafa Khalighi
+
+
+BiDiTeX --- bidirectional support for LaTeX
+================================
+Copyright (C) 2015  Khaled Hosny
+Copyright (C) 2007  Artyom Tonkikh
+
+
+Some Notes:
+
+  * `BiDiTeX' project was initially started by Artyom Tonkikh to
+    support Hebrew for babel.
+  
+  * Khaled Hosny made few changes to the `BiDiTeX' project to
+    make it compatible with XeTeX.
+  
+  * I renamed the project to `FriBidiXeTeX', removed unused files, 
+    renamed filenames, and made few other changes.
