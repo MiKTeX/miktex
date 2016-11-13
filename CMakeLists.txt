@@ -349,6 +349,18 @@ option(
 )
 
 option(
+  WITH_TRAPMF
+  "Build trapmf."
+  FALSE
+)
+
+option(
+  WITH_TRIPTEX
+  "Build triptex."
+  FALSE
+)
+
+option(
   WITH_UI_QT
   "Build Qt components."
   TRUE
