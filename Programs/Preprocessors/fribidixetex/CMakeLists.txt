@@ -44,8 +44,10 @@ set_property(TARGET fribidixetex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 merge_trustinfo_manifest(fribidixetex asInvoker)
 merge_compatibility_manifest(fribidixetex)
 
-target_link_libraries(fribidixetex
-  ${fribidi_lib_name}
-)
-
+if(USE_SYSTEM_FRIBIDI)
+  target_link_libraries(fribidixetex MiKTeX::Imported::FRIBIDI)
+else()
+  target_link_libraries(fribidixetex ${fribidi_lib_name})
+endif()
+  
 install(TARGETS fribidixetex DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

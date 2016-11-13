@@ -701,9 +701,9 @@ if(USE_SYSTEM_FREETYPE2)
   find_package(Freetype REQUIRED)
 endif()
 
-#if(USE_SYSTEM_FRIBIDI)
-#  find_package(FRIBIDI REQUIRED)
-#endif()
+if(USE_SYSTEM_FRIBIDI)
+  find_package(FRIBIDI REQUIRED)
+endif()
 
 if(USE_SYSTEM_GD)
   find_package(GD REQUIRED)
@@ -1245,7 +1245,17 @@ else()
 endif()
 
 if(USE_SYSTEM_FRIBIDI)
-  # TODO
+  get_filename_component(suffix ${FRIBIDI_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::FRIBIDI SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::FRIBIDI STATIC IMPORTED)
+  endif()
+  set_target_properties(MiKTeX::Imported::FRIBIDI
+    PROPERTIES
+      IMPORTED_LOCATION "${FRIBIDI_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${FRIBIDI_INCLUDE_DIRS}"
+  )
 else()
   add_subdirectory(${MIKTEX_REL_FRIBIDI_DIR})
 endif()
