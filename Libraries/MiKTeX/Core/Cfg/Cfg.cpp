@@ -963,7 +963,7 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
       documentation = "";
       Tokenizer tok(line.c_str() + 1, " \t");
       const char * lpsz = tok.GetCurrent();
-      if (lpsz == 0)
+      if (lpsz == nullptr)
       {
         FATAL_CFG_ERROR(T_("invalid cfg directive"));
       }
