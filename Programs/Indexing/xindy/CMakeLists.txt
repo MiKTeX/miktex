@@ -75,7 +75,7 @@ endif()
 merge_trustinfo_manifest(${MIKTEX_PREFIX}tex2xindy asInvoker)
 merge_compatibility_manifest(${MIKTEX_PREFIX}tex2xindy)
 
-install(TARGETS ${MIKTEX_PREFIX}tex2xindy DESTINATION ${MIKTEX_INTERNAL_BINARY_DIR})
+install(TARGETS ${MIKTEX_PREFIX}tex2xindy DESTINATION ${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR})
 
 add_executable(tex2xindy ${tex2xindy_sources})
 
@@ -97,4 +97,4 @@ endif()
 merge_trustinfo_manifest(tex2xindy asInvoker)
 merge_compatibility_manifest(tex2xindy)
 
-install(TARGETS tex2xindy DESTINATION ${MIKTEX_INTERNAL_BINARY_DIR})
+install(TARGETS tex2xindy DESTINATION ${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR})

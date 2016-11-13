@@ -124,8 +124,13 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     path = GetBinDirectory();
     break;
   case SpecialPath::InternalBinDirectory:
+#if defined(MIKTEX_WINDOWS)
     path = GetBinDirectory();
     path /= "internal";
+#else
+    path = GetMyPrefix();
+    path /= MIKTEX_INTERNAL_BINARY_DESTINATION_DIR;
+#endif
     break;
   case SpecialPath::CommonInstallRoot:
     path = GetRootDirectory(GetCommonInstallRoot());

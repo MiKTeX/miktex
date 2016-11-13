@@ -61,5 +61,5 @@ merge_compatibility_manifest(${MIKTEX_PREFIX}taskbar-icon)
 
 install(
   TARGETS ${MIKTEX_PREFIX}taskbar-icon
-  DESTINATION "${MIKTEX_INTERNAL_BINARY_DIR}"
+  DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}"
 )

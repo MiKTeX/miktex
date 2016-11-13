@@ -785,7 +785,7 @@ target_link_libraries(runtexlua
 merge_trustinfo_manifest(runtexlua asInvoker)
 merge_compatibility_manifest(runtexlua)
 
-install(TARGETS runtexlua DESTINATION "${MIKTEX_INTERNAL_BINARY_DIR}")
+install(TARGETS runtexlua DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}")
 
 ###############################################################################
 ## runmtxrun
@@ -801,5 +801,5 @@ if(WITH_CONTEXT_SUPPORT)
   )
   merge_trustinfo_manifest(runmtxrun asInvoker)
   merge_compatibility_manifest(runmtxrun)
-  install(TARGETS runmtxrun DESTINATION "${MIKTEX_INTERNAL_BINARY_DIR}")
+  install(TARGETS runmtxrun DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}")
 endif()

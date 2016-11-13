@@ -47,7 +47,7 @@ merge_compatibility_manifest(copystart)
 
 install(
   TARGETS copystart
-  DESTINATION "${MIKTEX_INTERNAL_BINARY_DIR}"
+  DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}"
 )
 
 add_executable(copystart${MIKTEX_ADMIN_SUFFIX} WIN32 copystart.cpp)
@@ -61,5 +61,5 @@ merge_compatibility_manifest(copystart${MIKTEX_ADMIN_SUFFIX})
 
 install(
   TARGETS copystart${MIKTEX_ADMIN_SUFFIX}
-  DESTINATION "${MIKTEX_INTERNAL_BINARY_DIR}"
+  DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}"
 )
