@@ -106,7 +106,7 @@ You use the MiKTeX packagement utility to install some required packages:
 	sudo mpm --admin --install cm
 	sudo mpm --admin --install ltxbase
 	sudo mpm --admin --install miktex-misc
-	sudo mpm --admin --install miktex-pdftex-base-2.9
+	sudo mpm --admin --install miktex-pdftex
 	
 Run this, to create font/language configuration files used by the TeX engines:
 
