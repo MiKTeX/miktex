@@ -41,6 +41,8 @@
 
 #include <miktex/Core/FileType>
 
+#include "xetex-version.h"
+
 #if defined(MIKTEX_WINDOWS)
 #  include "xetex.rc"
 #endif
