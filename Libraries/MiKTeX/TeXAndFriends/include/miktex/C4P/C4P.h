@@ -72,6 +72,9 @@ protected:
   FILE * pFile = nullptr;
 
 protected:
+  enum { NotOwner = 0x00000001 };
+  
+protected:
   unsigned flags = 0;
 
 public:
@@ -89,15 +92,21 @@ public:
     AssertValid();
     FILE * pFile = this->pFile;
     this->pFile = nullptr;
-    std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
-    session->CloseFile(pFile);
+    if ((flags & NotOwner) != 0)
+    {
+      std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+      session->CloseFile(pFile);
+    }
   }
 
 public:
   void Attach(FILE * pFile, bool takeOwnership)
   {
-    MIKTEX_ASSERT(takeOwnership);
     flags = 0;
+    if (!takeOwnership)
+    {
+      flags |= NotOwner;
+    }
     this->pFile = pFile;
   }
 
