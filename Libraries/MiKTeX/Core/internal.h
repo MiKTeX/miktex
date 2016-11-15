@@ -175,7 +175,7 @@ const size_t MPM_ROOT_PATH_LEN_ = 14;
 
 #if defined(MIKTEX_DEBUG)
 #define MPM_ROOT_PATH_LEN                                               \
-  static_cast<size_t>(MIKTEX_ASSERT(MiKTeX::Core::StrLen(MPM_ROOT_PATH) \
+  static_cast<size_t>(MIKTEX_ASSERT(MiKTeX::Util::StrLen(MPM_ROOT_PATH) \
                              == MPM_ROOT_PATH_LEN_),                    \
                       MPM_ROOT_PATH_LEN_)
 #else

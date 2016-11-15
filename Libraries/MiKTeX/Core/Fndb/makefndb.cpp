@@ -220,7 +220,7 @@ FndbByteOffset FndbManager::PushBack(const char * data)
     }
   }
   FndbByteOffset ret = GetMemTop();
-  MIKTEX_ASSERT(lpsz != nullptr);
+  MIKTEX_ASSERT(data != nullptr);
   PushBack(data, strlen(data));
   FastPushBack(null_byte);
   if (enableStringPooling)

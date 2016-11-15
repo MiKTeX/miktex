@@ -280,7 +280,6 @@ string SessionImpl::MakeMakePkCommandLine(const char * lpszFontName, int dpi, in
 {
   MIKTEX_ASSERT_STRING(lpszFontName);
   MIKTEX_ASSERT_STRING_OR_NIL(lpszMfMode);
-  MIKTEX_ASSERT_CHAR_BUFFER(lpszArguments, maxArguments);
 
   MIKTEX_ASSERT(baseDpi != 0);
 

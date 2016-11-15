@@ -371,7 +371,7 @@ bool SessionImpl::FindFile(const char * lpszFileName, const char * lpszPathList,
 {
   MIKTEX_ASSERT_STRING(lpszFileName);
   MIKTEX_ASSERT_STRING(lpszPathList);
-  MIKTEX_ASSERT(!options[(size_t)FindFileOption::All]);
+  MIKTEX_ASSERT(!options[FindFileOption::All]);
 
   vector<PathName> paths;
 
@@ -392,7 +392,7 @@ bool SessionImpl::FindFile(const char * lpszFileName, FileType fileType, FindFil
 
 bool SessionImpl::FindFile(const char * lpszFileName, FileType fileType, FindFileOptionSet options, PathName & result)
 {
-  MIKTEX_ASSERT(!options[(size_t)FindFileOption::All]);
+  MIKTEX_ASSERT(!options[FindFileOption::All]);
   vector<PathName> paths;
   bool found = FindFile(lpszFileName, fileType, options, paths);
   if (found)
