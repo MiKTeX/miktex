@@ -125,6 +125,10 @@ void Application::Init(const Session::InitInfo & initInfo_)
     log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
     isLog4cxxConfigured = true;
   }
+  else
+  {
+    log4cxx::BasicConfigurator::configure();
+  }
   logger = log4cxx::Logger::getLogger(myName);
   beQuiet = false;
   if (enableInstaller == TriState::Undetermined)
