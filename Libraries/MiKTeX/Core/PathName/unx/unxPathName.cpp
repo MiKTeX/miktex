@@ -65,3 +65,8 @@ PathName & PathName::SetToTempFile()
   SessionImpl::GetSession()->trace_tempfile->WriteFormattedLine("core", T_("created temporary file %s"), Q_(Get()));
   return *this;
 }
+
+PathName PathName::GetMountPoint() const
+{
+  UNIMPLEMENTED();
+}

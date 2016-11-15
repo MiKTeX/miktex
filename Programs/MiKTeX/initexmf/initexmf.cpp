@@ -2655,7 +2655,7 @@ void IniTeXMFApp::ManageLinks(bool remove, bool force)
   PathName pathBinDir = session->GetSpecialPath(SpecialPath::BinDirectory);
   PathName internalBinDir = session->GetSpecialPath(SpecialPath::InternalBinDirectory);
 
-  MIKTEX_ASSERT(pathBinDir.GetMountPoint() == internalBinDir.GetMountPoint());
+  // TODO: MIKTEX_ASSERT(pathBinDir.GetMountPoint() == internalBinDir.GetMountPoint());
 
   bool supportsHardLinks = Utils::SupportsHardLinks(pathBinDir);
 
