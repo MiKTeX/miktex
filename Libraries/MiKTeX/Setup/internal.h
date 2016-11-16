@@ -119,7 +119,9 @@ inline void AssertValidBuf(void * lp, size_t n)
 {
 #if defined(MIKTEX_DEBUG)
   MIKTEX_ASSERT(lp != 0);
+#if defined(MIKTEX_WINDOWS)
   MIKTEX_ASSERT(!IsBadWritePtr(lp, n));
+#endif
 #else
   UNUSED(lp);
   UNUSED(n);
@@ -130,7 +132,9 @@ inline void AssertValidString(const char * lp, size_t n = 4096)
 {
 #if defined(MIKTEX_DEBUG)
   MIKTEX_ASSERT(lp != 0);
+#if defined(MIKTEX_WINDOWS)
   MIKTEX_ASSERT(!IsBadStringPtrA(lp, n));
+#endif
 #else
   UNUSED(lp);
   UNUSED(n);
