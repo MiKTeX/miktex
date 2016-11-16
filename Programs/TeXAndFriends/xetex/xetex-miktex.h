@@ -299,11 +299,6 @@ inline char * xmallocchararray(size_t size)
   return reinterpret_cast<char*>(xmalloc(size + 1));
 }
 
-inline void libcfree(void * ptr)
-{
-  free(ptr);
-}
-
 inline int uopenin(unicodefile & f, int mode, int encodingData)
 {
   return u_open_in(&f, mode, encodingData);
