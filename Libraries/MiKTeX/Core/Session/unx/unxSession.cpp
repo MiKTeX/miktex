@@ -49,7 +49,7 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
     }
     else if (!Utils::FindProgram(invocationName, myProgramFile))
     {
-      MIKTEX_FATAL_ERROR(T_("The invoked program could not be found in the PATH."));
+      MIKTEX_FATAL_ERROR_2(T_("The invoked program could not be found in the PATH."), "invocationName", invocationName);
     }
     myProgramFileCanon = myProgramFile;
     myProgramFileCanon.Canonicalize();
