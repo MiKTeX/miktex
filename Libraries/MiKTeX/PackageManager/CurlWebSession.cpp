@@ -115,6 +115,11 @@ void CurlWebSession::Initialize()
   SetOption(CURLOPT_MAXREDIRS, static_cast<long>(maxRedirects));
 #endif
 
+  // SF #2548
+#if LIBCURL_VERSION_NUM >= 0x72c00
+  SetOption(CURLOPT_SSL_OPTIONS, CURLSSLOPT_NO_REVOKE);
+#endif
+
   SetOption(CURLOPT_NOSIGNAL, static_cast<long>(true));
 
   ProxySettings proxySettings;
