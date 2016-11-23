@@ -546,13 +546,17 @@ void mp_png_stroke_out (MP mp,  mp_graphic_object *h,
     }
   }
   cairo_set_miter_limit(mp->png->cr,gr_miterlim_val((mp_stroked_object *)h)); 
+  mp_png_path_out(mp, gr_path_p((mp_stroked_object *)h));
   if (transformed) {
     cairo_matrix_t matrix = {0,0,0,0,0,0};
+    cairo_save(mp->png->cr);
     cairo_matrix_init(&matrix, pen->sx, pen->rx, pen->ry, pen->sy, pen->tx, pen->ty);
     cairo_transform (mp->png->cr, &matrix);
-  }
-  mp_png_path_out(mp, gr_path_p((mp_stroked_object *)h));
-  cairo_stroke (mp->png->cr);
+    cairo_stroke (mp->png->cr);
+    cairo_restore(mp->png->cr);
+  } else {
+    cairo_stroke (mp->png->cr);
+  } 
   cairo_restore(mp->png->cr);
 }
 
