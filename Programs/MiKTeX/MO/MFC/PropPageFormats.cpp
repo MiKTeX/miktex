@@ -136,6 +136,7 @@ void PropPageFormats::MakeAlias(const FormatInfo & formatInfo)
   if (compilerPath != pathAlias && !File::Exists(pathAlias))
   {
     Directory::Create(pathBinDir);
+    // TODO: create symbolic link
     File::Copy(compilerPath, pathAlias);
     if (!Fndb::FileExists(pathAlias))
     {
