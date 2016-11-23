@@ -54,9 +54,8 @@ SETUPSTATICFUNC(int) ComparePaths(const PathName & path1, const PathName & path2
   {
     return PathName::Compare(szShortPath1, szShortPath2);
   }
-#else
-  return PathName::Compare(path1, path2);
 #endif
+  return PathName::Compare(path1, path2);
 }
 
 BEGIN_INTERNAL_NAMESPACE;
