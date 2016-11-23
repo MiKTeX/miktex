@@ -303,6 +303,7 @@ extern quarterword *raster;
 extern integer hh, vv;
 extern Boolean noomega;
 extern Boolean noptex;
+extern Boolean lastpsizwins;
 extern const char *infont;
 #ifndef KPATHSEA
 extern char *tfmpath;

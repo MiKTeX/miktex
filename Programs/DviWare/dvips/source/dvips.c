@@ -139,6 +139,7 @@ quarterword *raster;         /* area for raster manipulations */
 integer hh, vv;              /* horizontal and vertical pixel positions */
 Boolean noomega = 0;         /* Omega extensions are enabled */
 Boolean noptex = 0;          /* pTeX extensions are enabled */
+Boolean lastpsizwins = 1;    /* if 1, last \special{papersize=w,h} wins */
 
 /*-----------------------------------------------------------------------*
  * The PATH definitions cannot be defined on the command line because so many
@@ -290,7 +291,7 @@ static const char *helparr[] = {
 "-i*  Separate file per section",
 "-j*  Download fonts partially",
 "-k*  Print crop marks                -K*  Pull comments from inclusions",
-"-l # Last page",
+"-l # Last page                       -L*  Last special papersize wins",
 "-m*  Manual feed                     -M*  Don't make fonts",
 "-mode s Metafont device name",
 "-n # Maximum number of pages         -N*  No structured comments",
@@ -1049,6 +1050,9 @@ case 'E' :
                break;
 case 'K' :
                removecomments = (*p != '0');
+               break;
+case 'L' :
+               lastpsizwins = (*p != '0');
                break;
 case 'U' :
                nosmallchars = (*p != '0');

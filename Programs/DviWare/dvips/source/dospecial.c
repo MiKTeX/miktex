@@ -440,7 +440,7 @@ case 'p':
       p += 9;
       while (*p == '=' || *p == ' ')
          p++;
-      if (hpapersize == 0 || vpapersize == 0) {
+      if (lastpsizwins || hpapersize == 0 || vpapersize == 0) {
          if (landscape) {
             error(
              "both landscape and papersize specified:  ignoring landscape");

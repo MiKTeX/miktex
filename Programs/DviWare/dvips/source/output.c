@@ -92,7 +92,7 @@ static time_t jobtime;
 #define strtoll _strtoi64
 #endif
 
-#define INVALID_EPOCH_VALUE 0x7fffffffffffffffULL
+#define INVALID_EPOCH_VALUE ((time_t) -1)
 
 static time_t
 get_unique_time_if_given(void)
@@ -1434,12 +1434,8 @@ initprinter(sectiontype *sect)
       jobtime = get_unique_time_if_given();
       if (jobtime == INVALID_EPOCH_VALUE) {
          jobtime = time(0);
-         fprintf(bitfile, "%%%%CreationDate: %s",
-                                    asctime(localtime(&jobtime)));
-      } else {
-         fprintf(bitfile, "%%%%CreationDate: %s",
-                                    asctime(gmtime(&jobtime)));
       }
+      fprintf(bitfile, "%%%%CreationDate: %s", asctime(gmtime(&jobtime)));
 #endif
       if (! isepsf) {
 /*
