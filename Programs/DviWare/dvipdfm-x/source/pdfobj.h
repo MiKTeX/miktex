@@ -199,6 +199,6 @@ extern int      pdfobj_escape_str (char *buffer, int size, const unsigned char *
 extern pdf_obj *pdf_new_indirect  (pdf_file *pf, unsigned label, unsigned short generation);
 
 extern time_t get_unique_time_if_given(void);
-#define INVALID_EPOCH_VALUE 0x7fffffffffffffffULL
+#define INVALID_EPOCH_VALUE ((time_t)-1)
 
 #endif  /* _PDFOBJ_H_ */
