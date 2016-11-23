@@ -615,6 +615,7 @@ void Application::InvokeEditor(const PathName & editFileName, int editLineNumber
   }
 
   // read information from yap.ini
+  // FIXME: use FindFile()
   PathName yapIni = session->GetSpecialPath(SpecialPath::UserConfigRoot);
   yapIni /= MIKTEX_PATH_MIKTEX_CONFIG_DIR;
   yapIni /= MIKTEX_YAP_INI_FILENAME;
