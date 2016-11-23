@@ -246,16 +246,16 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot & f, const char * lpszPath, F
     if (isAuxFile && !auxDirectory.Empty())
     {
       path.Set(auxDirectory, unmangled);
-      lpszPath = path.Get();
+      lpszPath = path.GetData();
     }
     else if (!outputDirectory.Empty())
     {
       path.Set(outputDirectory, unmangled);
-      lpszPath = path.Get();
+      lpszPath = path.GetData();
     }
     else
     {
-      lpszPath = unmangled.Get();
+      lpszPath = unmangled.GetData();
     }
     pfile = session->TryOpenFile(lpszPath, FileMode::Create, FileAccess::Write, text, share);
     if (pfile != nullptr)
@@ -292,7 +292,7 @@ bool WebAppInputLine::OpenInputFile(FILE ** ppFile, const char * lpszFileName)
   }
   else
   {
-    if (!session->FindFile(UnmangleNameOfFile(lpszFileName).Get(), GetInputFileType(), foundFile))
+    if (!session->FindFile(UnmangleNameOfFile(lpszFileName).GetData(), GetInputFileType(), foundFile))
     {
       return false;
     }
@@ -303,7 +303,7 @@ bool WebAppInputLine::OpenInputFile(FILE ** ppFile, const char * lpszFileName)
 #if 1 // 2015-01-15
     if (foundFile[0] == '.' && PathName::IsDirectoryDelimiter(foundFile[1]))
     {
-      PathName temp(foundFile.Get() + 2);
+      PathName temp(foundFile.GetData() + 2);
       foundFile = temp;
     }
 #endif
@@ -335,7 +335,7 @@ bool WebAppInputLine::OpenInputFile(FILE ** ppFile, const char * lpszFileName)
 #else
         FileShare share = FileShare::ReadWrite;
 #endif
-        *ppFile = session->OpenFile(foundFile.Get(), FileMode::Open, FileAccess::Read, false, share);
+        *ppFile = session->OpenFile(foundFile.GetData(), FileMode::Open, FileAccess::Read, false, share);
       }
     }
 #if defined(MIKTEX_WINDOWS)

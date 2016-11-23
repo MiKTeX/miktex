@@ -132,7 +132,7 @@ void SessionImpl::RecordFileInfo(const PathName & path, FileAccess access)
       {
 	vector<PathName> paths;
 	vector<string> packageNames;
-	if (fndb->Search(pathRelPath.Get(), MPM_ROOT_PATH, true, paths, packageNames))
+	if (fndb->Search(pathRelPath.GetData(), MPM_ROOT_PATH, true, paths, packageNames))
 	{
 	  fir.packageName = packageNames[0];
 	}
@@ -142,7 +142,7 @@ void SessionImpl::RecordFileInfo(const PathName & path, FileAccess access)
   fileInfoRecords.push_back(fir);
   if (fileNameRecorderStream.IsOpen())
   {
-    fileNameRecorderStream.WriteFormattedLine("%s %s", fir.access == FileAccess::Read ? "INPUT" : "OUTPUT", PathName(fir.fileName).ToUnix().Get());
+    fileNameRecorderStream.WriteFormattedLine("%s %s", fir.access == FileAccess::Read ? "INPUT" : "OUTPUT", PathName(fir.fileName).ToUnix().GetData());
     fileNameRecorderStream.Flush();
   }
 }
@@ -349,11 +349,11 @@ void SessionImpl::SetRecorderPath(const PathName & path)
   fileNameRecorderStream.Attach(File::Open(path, FileMode::Create, FileAccess::Write));
   PathName cwd;
   cwd.SetToCurrentDirectory();
-  fileNameRecorderStream.WriteFormattedLine("PWD %s", cwd.ToUnix().Get());
+  fileNameRecorderStream.WriteFormattedLine("PWD %s", cwd.ToUnix().GetData());
   vector<FileInfoRecord> fileInfoRecords = GetFileInfoRecords();
   for (vector<FileInfoRecord>::const_iterator it = fileInfoRecords.begin(); it != fileInfoRecords.end(); ++it)
   {
-    fileNameRecorderStream.WriteFormattedLine("%s %s", it->access == FileAccess::Read ? "INPUT" : "OUTPUT", PathName(it->fileName).ToUnix().Get());
+    fileNameRecorderStream.WriteFormattedLine("%s %s", it->access == FileAccess::Read ? "INPUT" : "OUTPUT", PathName(it->fileName).ToUnix().GetData());
   }
   fileNameRecorderStream.Flush();
 }

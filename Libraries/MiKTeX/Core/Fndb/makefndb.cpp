@@ -335,14 +335,14 @@ FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char * 
 
   if (pCallback != nullptr)
   {
-    if (!pCallback->OnProgress(currentLevel, path.Get()))
+    if (!pCallback->OnProgress(currentLevel, path.GetData()))
     {
       throw OperationCancelledException();
     }
     char * lpszSubDirNames = nullptr;
     char * lpszFileNames = nullptr;
     char * lpszFileNameInfos = nullptr;
-    done = pCallback->ReadDirectory(path.Get(), &lpszSubDirNames, &lpszFileNames, &lpszFileNameInfos);
+    done = pCallback->ReadDirectory(path.GetData(), &lpszSubDirNames, &lpszFileNames, &lpszFileNameInfos);
     if (done)
     {
       AutoMemoryPointer xxx(lpszSubDirNames);
@@ -373,7 +373,7 @@ FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char * 
 
   if (!done)
   {
-    ReadDirectory(path.Get(), subDirectoryNames, fileNames, true);
+    ReadDirectory(path.GetData(), subDirectoryNames, fileNames, true);
   }
 
   numDirectories += subDirectoryNames.size();
@@ -434,7 +434,7 @@ FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char * 
   for (it2 = subDirectoryNames.begin(); it2 != subDirectoryNames.end(); ++it2, ++i)
   {
     // RECURSION
-    vecfndboff[dirdata.numFiles + dirdata.numSubDirs + i] = ProcessFolder(foThis, pathFolder.Get(), it2->c_str(), vecfndboff[dirdata.numFiles + i]);
+    vecfndboff[dirdata.numFiles + dirdata.numSubDirs + i] = ProcessFolder(foThis, pathFolder.GetData(), it2->c_str(), vecfndboff[dirdata.numFiles + i]);
   }
   --currentLevel;
 
@@ -561,7 +561,7 @@ bool Fndb::Refresh(const PathName & path, ICreateFndbCallback * pCallback)
 {
   unsigned root = SessionImpl::GetSession()->DeriveTEXMFRoot(path);
   PathName pathFndbPath = SessionImpl::GetSession()->GetFilenameDatabasePathName(root);
-  return Fndb::Create(pathFndbPath.Get(), SessionImpl::GetSession()->GetRootDirectory(root).Get(), pCallback);
+  return Fndb::Create(pathFndbPath.GetData(), SessionImpl::GetSession()->GetRootDirectory(root).GetData(), pCallback);
 }
 
 bool Fndb::Refresh(ICreateFndbCallback * pCallback)

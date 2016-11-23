@@ -216,7 +216,7 @@ void SessionImpl::SplitFontPath(const char * lpszFontPath, char * lpszFontType, 
       if (SplitTEXMFPath(lpszFontPath, root, pathRel) != INVALID_ROOT_INDEX)
       {
 	const char *d1, *d2;
-	PathNameParser tok(pathRel.Get());
+	PathNameParser tok(pathRel.GetData());
 	if (((d1 = tok.GetCurrent()) != nullptr) && PathName::Compare(d1, "fonts") == 0 && ((d2 = ++tok) != nullptr))
 	{
 	  if (lpszFontType != nullptr)
@@ -321,7 +321,7 @@ bool SessionImpl::GetFontInfo(const char * lpszFontName, char * lpszSupplier, ch
   // parse the path, if the font was found
   if (bFound && IsTEXMFFile(pathFileName))
   {
-    SplitFontPath(pathFileName.Get(), nullptr, lpszSupplier, lpszTypeface, nullptr, nullptr);
+    SplitFontPath(pathFileName.GetData(), nullptr, lpszSupplier, lpszTypeface, nullptr, nullptr);
   }
   else
   {
@@ -400,7 +400,7 @@ string SessionImpl::GetLocalFontDirectories()
       {
 	localFontDirs += PathName::PathNameDelimiter;
       }
-      localFontDirs += winFontDir.Get();
+      localFontDirs += winFontDir.GetData();
     }
     PathName atmFontDir;
     if (GetATMFontDir(atmFontDir))
@@ -409,7 +409,7 @@ string SessionImpl::GetLocalFontDirectories()
       {
 	localFontDirs += PathName::PathNameDelimiter;
       }
-      localFontDirs += atmFontDir.Get();
+      localFontDirs += atmFontDir.GetData();
     }
     PathName acrobatFontDir;
     if (GetAcrobatFontDir(acrobatFontDir))
@@ -418,7 +418,7 @@ string SessionImpl::GetLocalFontDirectories()
       {
 	localFontDirs += PathName::PathNameDelimiter;
       }
-      localFontDirs += acrobatFontDir.Get();
+      localFontDirs += acrobatFontDir.GetData();
     }
 #endif
   }

@@ -186,7 +186,7 @@ void TpmParser::OnEndElement(void * pv, const XML_Char * lpszName)
     This->elementStack.pop();
     if (StrCmp(lpszName, X_("TPM:Creator")) == 0)
     {
-      This->packageInfo.creator = This->charBuffer.Get();
+      This->packageInfo.creator = This->charBuffer.GetData();
     }
     else if (StrCmp(lpszName, X_("TPM:Description")) == 0)
     {
@@ -214,7 +214,7 @@ void TpmParser::OnEndElement(void * pv, const XML_Char * lpszName)
     }
     else if (StrCmp(lpszName, X_("TPM:Name")) == 0)
     {
-      This->packageInfo.displayName = This->charBuffer.Get();
+      This->packageInfo.displayName = This->charBuffer.GetData();
     }
     else if (StrCmp(lpszName, X_("TPM:Title")) == 0)
     {
@@ -224,44 +224,44 @@ void TpmParser::OnEndElement(void * pv, const XML_Char * lpszName)
 	This->charBuffer[len - 1] = 0;
 	--len;
       }
-      if ((Utils::EqualsIgnoreCase(This->charBuffer.Get(), X_("no caption")))
-	|| (Utils::EqualsIgnoreCase(This->charBuffer.Get(), X_("no description available"))))
+      if ((Utils::EqualsIgnoreCase(This->charBuffer.GetData(), X_("no caption")))
+	|| (Utils::EqualsIgnoreCase(This->charBuffer.GetData(), X_("no description available"))))
       {
 	This->charBuffer.Clear();
 	len = 0;
       }
-      This->packageInfo.title = This->charBuffer.Get();
+      This->packageInfo.title = This->charBuffer.GetData();
     }
     else if (StrCmp(lpszName, X_("TPM:Version")) == 0)
     {
-      This->packageInfo.version = This->charBuffer.Get();
+      This->packageInfo.version = This->charBuffer.GetData();
     }
     else if (StrCmp(lpszName, X_("TPM:TargetSystem")) == 0)
     {
-      This->packageInfo.targetSystem = This->charBuffer.Get();
+      This->packageInfo.targetSystem = This->charBuffer.GetData();
     }
     else if (StrCmp(lpszName, X_("TPM:MD5")) == 0)
     {
-      This->packageInfo.digest = MD5::Parse(This->charBuffer.Get());
+      This->packageInfo.digest = MD5::Parse(This->charBuffer.GetData());
     }
     else if (StrCmp(lpszName, X_("TPM:TimePackaged")) == 0)
     {
-      This->packageInfo.timePackaged = atoi(This->charBuffer.Get());
+      This->packageInfo.timePackaged = atoi(This->charBuffer.GetData());
     }
     else if (StrCmp(lpszName, X_("TPM:RunFiles")) == 0)
     {
       This->packageInfo.runFiles.reserve(1000);
-      This->GetFiles(This->charBuffer.Get(), This->packageInfo.runFiles);
+      This->GetFiles(This->charBuffer.GetData(), This->packageInfo.runFiles);
     }
     else if (StrCmp(lpszName, X_("TPM:DocFiles")) == 0)
     {
       This->packageInfo.docFiles.reserve(100);
-      This->GetFiles(This->charBuffer.Get(), This->packageInfo.docFiles);
+      This->GetFiles(This->charBuffer.GetData(), This->packageInfo.docFiles);
     }
     else if (StrCmp(lpszName, X_("TPM:SourceFiles")) == 0)
     {
       This->packageInfo.sourceFiles.reserve(100);
-      This->GetFiles(This->charBuffer.Get(), This->packageInfo.sourceFiles);
+      This->GetFiles(This->charBuffer.GetData(), This->packageInfo.sourceFiles);
     }
   }
   catch (const exception &)

@@ -463,13 +463,13 @@ void SetupServiceImpl::LogHeader()
   if (options.Task != SetupTask::Download)
   {
     Log("UserRoots: %s\n", (options.Config.userRoots.empty() ? T_("<none specified>") : options.Config.userRoots.c_str()));
-    Log("UserData: %s\n", (options.Config.userDataRoot.Empty() ? T_("<none specified>") : options.Config.userDataRoot.Get()));
-    Log("UserConfig: %s\n", (options.Config.userConfigRoot.Empty() ? T_("<none specified>") : options.Config.userConfigRoot.Get()));
+    Log("UserData: %s\n", (options.Config.userDataRoot.Empty() ? T_("<none specified>") : options.Config.userDataRoot.GetData()));
+    Log("UserConfig: %s\n", (options.Config.userConfigRoot.Empty() ? T_("<none specified>") : options.Config.userConfigRoot.GetData()));
     Log("CommonRoots: %s\n", (options.Config.commonRoots.empty() ? T_("<none specified>") : options.Config.commonRoots.c_str()));
-    Log("CommonData: %s\n", (options.Config.commonDataRoot.Empty() ? T_("<none specified>") : options.Config.commonDataRoot.Get()));
-    Log("CommonConfig: %s\n", (options.Config.commonConfigRoot.Empty() ? T_("<none specified>") : options.Config.commonConfigRoot.Get()));
+    Log("CommonData: %s\n", (options.Config.commonDataRoot.Empty() ? T_("<none specified>") : options.Config.commonDataRoot.GetData()));
+    Log("CommonConfig: %s\n", (options.Config.commonConfigRoot.Empty() ? T_("<none specified>") : options.Config.commonConfigRoot.GetData()));
     PathName installRoot = GetInstallRoot();
-    Log("Installation: %s\n", installRoot.Empty() ? T_("<none specified>") : installRoot.Get());
+    Log("Installation: %s\n", installRoot.Empty() ? T_("<none specified>") : installRoot.GetData());
   }
 }
 
@@ -583,7 +583,7 @@ void SetupServiceImpl::ULogAddFile(const PathName & path)
 #if defined(MIKTEX_WINDOWS)
   absolutePath.ToDos();
 #endif
-  uninstStream.WriteLine(absolutePath.Get());
+  uninstStream.WriteLine(absolutePath.GetData());
 }
 
 void SetupServiceImpl::SetCallback(SetupServiceCallback * pCallback)
@@ -724,7 +724,7 @@ void SetupServiceImpl::Initialize()
   // initialize installer
   if (options.Task == SetupTask::InstallFromCD)
   {
-    pInstaller->SetRepository(options.MiKTeXDirectRoot.Get());
+    pInstaller->SetRepository(options.MiKTeXDirectRoot.GetData());
   }
   else if (options.Task == SetupTask::Download)
   {
@@ -733,7 +733,7 @@ void SetupServiceImpl::Initialize()
   }
   else if (options.Task == SetupTask::InstallFromLocalRepository)
   {
-    pInstaller->SetRepository(options.LocalPackageRepository.Get());
+    pInstaller->SetRepository(options.LocalPackageRepository.GetData());
     // remember local repository folder
     if (!options.IsPrefabricated)
     {
@@ -750,7 +750,7 @@ void SetupServiceImpl::DoTheDownload()
   shared_ptr<Session> session = Session::Get();
 
   // remember local repository folder
-  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LOCAL_REPOSITORY, options.LocalPackageRepository.Get());
+  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LOCAL_REPOSITORY, options.LocalPackageRepository.GetData());
 
   // create the local repository directory
   Directory::Create(options.LocalPackageRepository);
@@ -771,7 +771,7 @@ void SetupServiceImpl::DoTheDownload()
   if (FindFile(LICENSE_FILE, licenseFile))
   {
     PathName licenseFileDest(options.LocalPackageRepository, LICENSE_FILE);
-    if (ComparePaths(licenseFile.Get(), licenseFileDest.Get(), true) != 0)
+    if (ComparePaths(licenseFile.GetData(), licenseFileDest.GetData(), true) != 0)
     {
       File::Copy(licenseFile, licenseFileDest);
     }
@@ -789,7 +789,7 @@ void SetupServiceImpl::DoTheDownload()
   PathName::Split(
     WU_(szSetupPath), 0, 0, 0, 0, szFileName, BufferSizes::MaxPath, szExt, BufferSizes::MaxPath);
   PathName pathDest(options.LocalPackageRepository, szFileName, szExt);
-  if (ComparePaths(WU_(szSetupPath), pathDest.Get(), true) != 0)
+  if (ComparePaths(WU_(szSetupPath), pathDest.GetData(), true) != 0)
   {
     File::Copy(WU_(szSetupPath), pathDest);
   }
@@ -1388,7 +1388,7 @@ void SetupServiceImpl::RunMpm(const CommandLineBuilder & cmdLine1)
     Log("%s %s:\n", Q_(exePath), cmdLine.ToString().c_str());
     ULogClose(false);
     session->UnloadFilenameDatabase();
-    Process::Run(exePath.Get(), cmdLine.ToString(), this);
+    Process::Run(exePath.GetData(), cmdLine.ToString(), this);
     ULogOpen();
   }
 }
@@ -1430,7 +1430,7 @@ This folder contains the %s package set.\n\
 To install MiKTeX, run %s.\n\
 \n\
 For more information, visit the MiKTeX project page at\n\
-http://miktex.org.\n"), lpszPackageSet, setupExe.Get());
+http://miktex.org.\n"), lpszPackageSet, setupExe.GetData());
   stream.Close();
   RepositoryInfo repositoryInfo;
   if (pManager->TryGetRepositoryInfo(options.RemotePackageRepository, repositoryInfo))

@@ -95,14 +95,14 @@ unsigned SessionImpl::RegisterRootDirectory(const PathName & root, bool common)
       // already registered
       if (common && !rootDirectories[idx].IsCommon())
       {
-	trace_config->WriteFormattedLine("core", T_("now a common TEXMF root: %s"), root.Get());
+	trace_config->WriteFormattedLine("core", T_("now a common TEXMF root: %s"), root.GetData());
 	rootDirectories[idx].set_Common(common);
       }
       return idx;
     }
   }
-  trace_config->WriteFormattedLine("core", T_("registering %s TEXMF root: %s"), common ? "common" : "user", root.Get());
-  RootDirectory rootDirectory(root, ExpandEnvironmentVariables(root.Get()));
+  trace_config->WriteFormattedLine("core", T_("registering %s TEXMF root: %s"), common ? "common" : "user", root.GetData());
+  RootDirectory rootDirectory(root, ExpandEnvironmentVariables(root.GetData()));
   rootDirectory.set_Common(common);
   rootDirectories.reserve(10);
   rootDirectories.push_back(rootDirectory);
@@ -324,17 +324,17 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig & startupConfig)
 
   RegisterRootDirectory(MPM_ROOT_PATH, IsAdminMode());
 
-  trace_config->WriteFormattedLine("core", "UserData: %s", GetRootDirectory(userDataRootIndex).Get());
+  trace_config->WriteFormattedLine("core", "UserData: %s", GetRootDirectory(userDataRootIndex).GetData());
 
-  trace_config->WriteFormattedLine("core", "UserConfig: %s", GetRootDirectory(userConfigRootIndex).Get());
+  trace_config->WriteFormattedLine("core", "UserConfig: %s", GetRootDirectory(userConfigRootIndex).GetData());
 
-  trace_config->WriteFormattedLine("core", "UserInstall: %s", GetRootDirectory(userInstallRootIndex).Get());
+  trace_config->WriteFormattedLine("core", "UserInstall: %s", GetRootDirectory(userInstallRootIndex).GetData());
 
-  trace_config->WriteFormattedLine("core", "CommonData: %s", GetRootDirectory(commonDataRootIndex).Get());
+  trace_config->WriteFormattedLine("core", "CommonData: %s", GetRootDirectory(commonDataRootIndex).GetData());
 
-  trace_config->WriteFormattedLine("core", "CommonConfig: %s", GetRootDirectory(commonConfigRootIndex).Get());
+  trace_config->WriteFormattedLine("core", "CommonConfig: %s", GetRootDirectory(commonConfigRootIndex).GetData());
 
-  trace_config->WriteFormattedLine("core", "CommonInstall: %s", GetRootDirectory(commonInstallRootIndex).Get());
+  trace_config->WriteFormattedLine("core", "CommonInstall: %s", GetRootDirectory(commonInstallRootIndex).GetData());
 }
 
 unsigned SessionImpl::GetNumberOfTEXMFRoots()
@@ -454,7 +454,7 @@ void SessionImpl::SaveRootDirectories(
       {
 	startupConfig.commonRoots += PATH_DELIMITER;
       }
-      startupConfig.commonRoots += rootDirectory.get_UnexpandedPath().Get();
+      startupConfig.commonRoots += rootDirectory.get_UnexpandedPath().GetData();
     }
     else
     {
@@ -469,7 +469,7 @@ void SessionImpl::SaveRootDirectories(
       {
 	startupConfig.userRoots += PATH_DELIMITER;
       }
-      startupConfig.userRoots += rootDirectory.get_UnexpandedPath().Get();
+      startupConfig.userRoots += rootDirectory.get_UnexpandedPath().GetData();
     }
   }
   if (commonInstallRootIndex != INVALID_ROOT_INDEX)
@@ -778,7 +778,7 @@ PathName SessionImpl::GetRelativeFilenameDatabasePathName(unsigned r)
   PathName root(rootDirectories[r].get_Path());
   root.TransformForComparison();
   MD5Builder md5Builder;
-  md5Builder.Update(root.Get(), root.GetLength());
+  md5Builder.Update(root.GetData(), root.GetLength());
   md5Builder.Final();
   fndbFileName += md5Builder.GetMD5().ToString();
   fndbFileName += MIKTEX_FNDB_FILE_SUFFIX;
@@ -858,9 +858,9 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r, TriSta
     return nullptr;
   }
 
-  trace_fndb->WriteFormattedLine("core", T_("loading fndb%s: %s"), (readOnly ? T_(" read-only") : ""), fqFndbFileName.Get());
+  trace_fndb->WriteFormattedLine("core", T_("loading fndb%s: %s"), (readOnly ? T_(" read-only") : ""), fqFndbFileName.GetData());
 
-  shared_ptr<FileNameDatabase> pFndb = FileNameDatabase::Create(fqFndbFileName.Get(), root.get_Path().Get(), readOnly);
+  shared_ptr<FileNameDatabase> pFndb = FileNameDatabase::Create(fqFndbFileName.GetData(), root.get_Path().GetData(), readOnly);
 
   root.SetFndb(pFndb);
 
@@ -879,7 +879,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(const char * lpszP
 
 unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName & path)
 {
-  if (!Utils::IsAbsolutePath(path.Get()))
+  if (!Utils::IsAbsolutePath(path.GetData()))
   {
 #if FIND_FILE_PREFER_RELATIVE_PATH_NAMES
     return INVALID_ROOT_INDEX;
@@ -888,7 +888,7 @@ unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName & path)
 #endif
   }
 
-  if (IsMpmFile(path.Get()))
+  if (IsMpmFile(path.GetData()))
   {
     return MPM_ROOT;
   }
@@ -1009,7 +1009,7 @@ unsigned SessionImpl::SplitTEXMFPath(const PathName & path, PathName & root, Pat
     size_t rootDirLen = rootDir.GetLength();
     if (PathName::Compare(rootDir, path, rootDirLen) == 0 && (path[rootDirLen] == 0 || IsDirectoryDelimiter(path[rootDirLen])))
     {
-      CopyString2(root.GetData(), BufferSizes::MaxPath, rootDir.Get(), rootDirLen);
+      CopyString2(root.GetData(), BufferSizes::MaxPath, rootDir.GetData(), rootDirLen);
       const char * lpsz = &path[0] + rootDirLen;
       if (IsDirectoryDelimiter(*lpsz))
       {

@@ -340,7 +340,7 @@ void TarExtractor::Extract(Stream * pStreamIn_, const PathName & destDir, bool m
       if (PathName::Compare(prefix, dest, prefixLen) == 0)
       {
         PathName tmp(dest);
-        dest = tmp.Get() + prefixLen;
+        dest = tmp.GetData() + prefixLen;
       }
 
       // make the destination path name
@@ -377,7 +377,7 @@ void TarExtractor::Extract(Stream * pStreamIn_, const PathName & destDir, bool m
         {
           MIKTEX_UNEXPECTED();
         }
-        streamOut.Write(buffer.Get(), n);
+        streamOut.Write(buffer.GetData(), n);
         bytesRead += n;
       }
       streamOut.Close();

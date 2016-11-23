@@ -120,7 +120,7 @@ void Application::Init(const Session::InitInfo & initInfo_)
   if (session->FindFile((myName + "." + MIKTEX_LOG4CXX_CONFIG_FILENAME).c_str(), MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
     || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
   {
-    Utils::SetEnvironmentString("MIKTEX_LOG_DIR", PathName(session->GetSpecialPath(SpecialPath::DataRoot), MIKTEX_PATH_MIKTEX_LOG_DIR).Get());
+    Utils::SetEnvironmentString("MIKTEX_LOG_DIR", PathName(session->GetSpecialPath(SpecialPath::DataRoot), MIKTEX_PATH_MIKTEX_LOG_DIR).GetData());
     Utils::SetEnvironmentString("MIKTEX_LOG_NAME", myName.c_str());
     log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
     isLog4cxxConfigured = true;
@@ -329,7 +329,7 @@ bool Application::InstallPackage(const string & deploymentName, const PathName &
       initUiFrameworkDone = true;
     }
     bool doInstall = false;
-    unsigned int msgBoxRet = MiKTeX::UI::InstallPackageMessageBox(packageManager, deploymentName.c_str(), trigger.Get());
+    unsigned int msgBoxRet = MiKTeX::UI::InstallPackageMessageBox(packageManager, deploymentName.c_str(), trigger.GetData());
     doInstall = ((msgBoxRet & MiKTeX::UI::YES) != 0);
     if ((msgBoxRet & MiKTeX::UI::DONTASKAGAIN) != 0)
     {
@@ -548,7 +548,7 @@ void Application::Sorry(const string & name, const string & reason)
       << endl
       << "The log file hopefully contains the information to get MiKTeX going again:" << endl
       << endl
-      << "  " << PathName(appender->getFile()).ToUnix().Get() << endl;
+      << "  " << PathName(appender->getFile()).ToUnix().GetData() << endl;
   }
   cerr
     << endl
@@ -671,13 +671,13 @@ void Application::InvokeEditor(const PathName & editFileName, int editLineNumber
       case 'f':
       {
         PathName path;
-        if (session->FindFile(editFileName.Get(), editFileType, path))
+        if (session->FindFile(editFileName.GetData(), editFileType, path))
         {
-          arguments += path.Get();
+          arguments += path.GetData();
         }
         else
         {
-          arguments += editFileName.Get();
+          arguments += editFileName.GetData();
         }
         break;
       }
@@ -685,7 +685,7 @@ void Application::InvokeEditor(const PathName & editFileName, int editLineNumber
         // TODO
         break;
       case 't':
-        arguments += transcriptFileName.Get();
+        arguments += transcriptFileName.GetData();
         break;
       case 'l':
         arguments += std::to_string(editLineNumber);

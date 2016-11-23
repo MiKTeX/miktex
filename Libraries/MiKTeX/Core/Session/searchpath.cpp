@@ -73,7 +73,7 @@ vector<PathName> SessionImpl::ExpandRootDirectories(const char * lpszToBeExpande
 
 void SessionImpl::PushBackPath(vector<PathName> & vec, const PathName & path)
 {
-  vector<PathName> paths = ExpandBraces(path.Get());
+  vector<PathName> paths = ExpandBraces(path.GetData());
 
   for (const PathName & path : paths)
   {
@@ -81,7 +81,7 @@ void SessionImpl::PushBackPath(vector<PathName> & vec, const PathName & path)
     if (path[0] == '~' && (path[1] == 0 || IsDirectoryDelimiter(path[1])))
     {
       PathName pathFQ = GetHomeDirectory();
-      if (!Utils::IsAbsolutePath(pathFQ.Get()))
+      if (!Utils::IsAbsolutePath(pathFQ.GetData()))
       {
 	TraceError(T_("cannot expand ~: %s is not fully qualified"), Q_(pathFQ));
 	continue;
@@ -98,7 +98,7 @@ void SessionImpl::PushBackPath(vector<PathName> & vec, const PathName & path)
     }
 
     // fully qualified path?
-    if (Utils::IsAbsolutePath(path.Get()))
+    if (Utils::IsAbsolutePath(path.GetData()))
     {
       if (find(vec.begin(), vec.end(), path) == vec.end())
       {
@@ -111,14 +111,14 @@ void SessionImpl::PushBackPath(vector<PathName> & vec, const PathName & path)
     PathName pathFQ;
     for (unsigned idx = 0; GetWorkingDirectory(idx, pathFQ); ++idx)
     {
-      if (!Utils::IsAbsolutePath(pathFQ.Get()))
+      if (!Utils::IsAbsolutePath(pathFQ.GetData()))
       {
 	TraceError(T_("%s is not fully qualified"), Q_(pathFQ));
 	continue;
       }
       if (PathName::Compare(path, CURRENT_DIRECTORY) != 0)
       {
-	pathFQ /= path.Get();
+	pathFQ /= path.GetData();
       }
       else
       {
@@ -163,7 +163,7 @@ MIKTEXINTERNALFUNC(string) MakeSearchPath(const vector<PathName> & vec)
     {
       searchPath += PATH_DELIMITER;
     }
-    searchPath += path.Get();
+    searchPath += path.GetData();
   }
   return searchPath;
 }
@@ -188,7 +188,7 @@ void SessionImpl::TraceSearchVector(const char * lpszKey, const vector<PathName>
   unsigned nr = 0;
   for (vector<PathName>::const_iterator it = vec.begin(); it != vec.end(); ++it, ++nr)
   {
-    trace_filesearch->WriteFormattedLine("core", T_("  %2u: %s"), nr, it->Get());
+    trace_filesearch->WriteFormattedLine("core", T_("  %2u: %s"), nr, it->GetData());
   }
 }
 
@@ -253,7 +253,7 @@ void SessionImpl::DirectoryWalk(const PathName & directory, const PathName & pat
 void SessionImpl::ExpandPathPattern(const PathName & rootDirectory, const PathName & pathPattern, vector<PathName> & paths)
 {
   MIKTEX_ASSERT(!pathPattern.Empty());
-  const char * lpszRecursionIndicator = strstr(pathPattern.Get(), RECURSION_INDICATOR);
+  const char * lpszRecursionIndicator = strstr(pathPattern.GetData(), RECURSION_INDICATOR);
   if (lpszRecursionIndicator == nullptr)
   {
     // no recursion; check to see whether the path pattern specifies an
@@ -292,12 +292,12 @@ vector<PathName> SessionImpl::ExpandPathPatterns(const char * lpszToBeExpanded)
   {
     PathName comparablePathPattern(pattern);
     comparablePathPattern.TransformForComparison();
-    SearchPathDictionary::const_iterator it2 = expandedPathPatterns.find(comparablePathPattern.Get());
+    SearchPathDictionary::const_iterator it2 = expandedPathPatterns.find(comparablePathPattern.GetData());
     if (it2 == expandedPathPatterns.end())
     {
       vector<PathName> paths2;
       ExpandPathPattern("", pattern, paths2);
-      expandedPathPatterns[comparablePathPattern.Get()] = paths2;
+      expandedPathPatterns[comparablePathPattern.GetData()] = paths2;
       paths.insert(paths.end(), paths2.begin(), paths2.end());
     }
     else
@@ -326,7 +326,7 @@ inline void Combine(vector<PathName> & paths, const vector<PathName> & toBeAppen
     for (const PathName & p2 : toBeAppended)
     {
       PathName path(p1);
-      path.Append(p2.Get(), false);
+      path.Append(p2.GetData(), false);
       result.push_back(path);
     }
   }
@@ -412,7 +412,7 @@ vector<PathName> SessionImpl::ExpandBraces(const char * lpszToBeExpanded)
   vector<PathName> result;
   for (const PathName & path : paths)
   {
-    ExpandBraces(path.Get(), result);
+    ExpandBraces(path.GetData(), result);
   }
   return result;
 }

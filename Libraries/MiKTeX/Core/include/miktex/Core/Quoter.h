@@ -55,7 +55,7 @@ public:
 public:
   Quoter(const PathName & path)
   {
-    Quote(path.Get());
+    Quote(path.GetData());
   }
 
 private:

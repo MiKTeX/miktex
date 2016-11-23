@@ -47,7 +47,7 @@ void SiteWizLocal::initializePage()
     PathName path;
     if (pManager->TryGetLocalPackageRepository(path))
     {
-      leDirectory->setText(QString::fromUtf8(path.Get()));
+      leDirectory->setText(QString::fromUtf8(path.GetData()));
     }
   }
   catch (const MiKTeXException & e)
@@ -90,7 +90,7 @@ bool SiteWizLocal::validatePage()
 	return false;
       }
     }
-    pManager->SetDefaultPackageRepository(RepositoryType::Local, directory.Get());
+    pManager->SetDefaultPackageRepository(RepositoryType::Local, directory.GetData());
     return true;
   }
   catch (const MiKTeXException & e)

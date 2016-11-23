@@ -535,7 +535,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName & pathFolder, const She
     }
   }
 
-  ULogAddFile(pathLink.Get());
+  ULogAddFile(pathLink.GetData());
 }
 
 void winSetupServiceImpl::CreateInternetShortcut(const PathName & path, const char * lpszUrl)
@@ -616,11 +616,11 @@ void winSetupServiceImpl::RegisterUninstaller()
   if (options.Task != SetupTask::PrepareMiKTeXDirect)
   {
     PathName pathCopyStart(GetInstallRoot(), (options.IsCommonSetup ? MIKTEX_PATH_INTERNAL_COPYSTART_ADMIN_EXE : MIKTEX_PATH_INTERNAL_COPYSTART_EXE));
-    commandLine += Q_(pathCopyStart.Get());
+    commandLine += Q_(pathCopyStart.GetData());
     commandLine += " ";
   }
   PathName pathUninstallDat(GetInstallRoot(), (options.IsCommonSetup ? MIKTEX_PATH_INTERNAL_UNINSTALL_ADMIN_EXE : MIKTEX_PATH_INTERNAL_UNINSTALL_EXE));
-  commandLine += Q_(pathUninstallDat.Get());
+  commandLine += Q_(pathUninstallDat.GetData());
 
   // make icon path
   PathName iconPath(GetInstallRoot());
@@ -641,11 +641,11 @@ void winSetupServiceImpl::RegisterUninstaller()
   // set values
   PathName installRoot(GetInstallRoot());
   AddUninstallerRegValue(hkey, "Comment", UNINST_COMMENT);
-  AddUninstallerRegValue(hkey, "DisplayIcon", iconPath.Get());
+  AddUninstallerRegValue(hkey, "DisplayIcon", iconPath.GetData());
   AddUninstallerRegValue(hkey, "DisplayName", UNINST_DISPLAY_STRING);
   AddUninstallerRegValue(hkey, "DisplayVersion", UNINST_DISPLAY_VERSION);
   AddUninstallerRegValue(hkey, "HelpLink", UNINST_HELP_LINK);
-  AddUninstallerRegValue(hkey, "InstallLocation", installRoot.Get());
+  AddUninstallerRegValue(hkey, "InstallLocation", installRoot.GetData());
   AddUninstallerRegValue(hkey, "NoModify", 1);
   AddUninstallerRegValue(hkey, "NoRepair", 1);
   AddUninstallerRegValue(hkey, "Publisher", UNINST_PUBLISHER);
@@ -686,9 +686,9 @@ void winSetupServiceImpl::UnregisterShellFileTypes()
   }
   if (session->RunningAsAdministrator() || session->RunningAsPowerUser())
   {
-    Process::Run(initexmfExe.Get(), "--admin --unregister-shell-file-types");
+    Process::Run(initexmfExe.GetData(), "--admin --unregister-shell-file-types");
   }
-  Process::Run(initexmfExe.Get(), "--unregister-shell-file-types");
+  Process::Run(initexmfExe.GetData(), "--unregister-shell-file-types");
 }
 
 void winSetupServiceImpl::UnregisterPath(bool shared)
@@ -731,11 +731,11 @@ void winSetupServiceImpl::UnregisterPath(bool shared)
   }
   else
   {
-    string path = WU_(value.Get());
+    string path = WU_(value.GetData());
     if (RemoveBinDirFromPath(path))
     {
       CharBuffer<wchar_t> wpath(UW_(path.c_str()));
-      result = RegSetValueExW(hkey, L"Path", 0, type, reinterpret_cast<const BYTE *>(wpath.Get()), static_cast<DWORD>((StrLen(wpath.Get()) + 1) * sizeof(wpath.Get()[0])));
+      result = RegSetValueExW(hkey, L"Path", 0, type, reinterpret_cast<const BYTE *>(wpath.GetData()), static_cast<DWORD>((StrLen(wpath.GetData()) + 1) * sizeof(wpath.GetData()[0])));
 
       if (result != ERROR_SUCCESS)
       {

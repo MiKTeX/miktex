@@ -313,7 +313,7 @@ void CabExtractor::Extract(const PathName & cabinetPath, const PathName & destDi
 
   try
   {
-    pCabinet = pDecompressor->open(pDecompressor, const_cast<char *>(cabinetPath.Get()));
+    pCabinet = pDecompressor->open(pDecompressor, const_cast<char *>(cabinetPath.GetData()));
 
     if (pCabinet == nullptr)
     {
@@ -336,7 +336,7 @@ void CabExtractor::Extract(const PathName & cabinetPath, const PathName & destDi
       if (PathName::Compare(prefix, dest, prefixLen) == 0)
       {
         PathName tmp(dest);
-        dest = tmp.Get() + prefixLen;
+        dest = tmp.GetData() + prefixLen;
       }
 
       // make the destination path name

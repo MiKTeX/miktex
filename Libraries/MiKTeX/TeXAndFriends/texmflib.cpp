@@ -57,7 +57,7 @@ STATICFUNC(bool) OpenFontFile(bytefile * pByteFile, const char * lpszFontName, F
       MIKTEX_FATAL_ERROR_2(T_("The font file could not be found."), "fileName", lpszFontName);
     }
   }
-  pByteFile->Attach(session->OpenFile(pathFont.Get(), FileMode::Open, FileAccess::Read, false), true);
+  pByteFile->Attach(session->OpenFile(pathFont.GetData(), FileMode::Open, FileAccess::Read, false), true);
   pByteFile->Read();
   return true;
 }
@@ -256,11 +256,11 @@ STATICFUNC(bool) OpenAlphaFile(void * p, const char * lpszFileName, FileType fil
     fileName.SetExtension(lpszExtension);
   }
   PathName path;
-  if (!session->FindFile(fileName.Get(), fileType, path))
+  if (!session->FindFile(fileName.GetData(), fileType, path))
   {
     return false;
   }
-  FILE * pfile = session->TryOpenFile(path.Get(), FileMode::Open, FileAccess::Read, false);
+  FILE * pfile = session->TryOpenFile(path.GetData(), FileMode::Open, FileAccess::Read, false);
   if (pfile == nullptr)
   {
     return false;

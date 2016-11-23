@@ -251,19 +251,19 @@ void SearchPackageDialog::OnBnClickedFindNow()
 	{
 	  PathName path(it->c_str());
 	  path.RemoveDirectorySpec();
-	  found = PathName::Match(TU_(givenFile), path.Get());
+	  found = PathName::Match(TU_(givenFile), path.GetData());
 	}
 	for (it = packageInfo.docFiles.begin(); !found && it != packageInfo.docFiles.end(); ++it)
 	{
 	  PathName path(it->c_str());
 	  path.RemoveDirectorySpec();
-	  found = PathName::Match(TU_(givenFile), path.Get());
+	  found = PathName::Match(TU_(givenFile), path.GetData());
 	}
 	for (it = packageInfo.sourceFiles.begin(); !found && it != packageInfo.sourceFiles.end(); ++it)
 	{
 	  PathName path(it->c_str());
 	  path.RemoveDirectorySpec();
-	  found = PathName::Match(TU_(givenFile), path.Get());
+	  found = PathName::Match(TU_(givenFile), path.GetData());
 	}
 	haveMatch = found;
       }

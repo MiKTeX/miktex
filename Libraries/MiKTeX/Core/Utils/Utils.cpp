@@ -178,9 +178,9 @@ const char * Utils::GetRelativizedPath(const char * lpszPath, const char * lpszR
   MIKTEX_ASSERT(rootLen > 0);
 
 #if defined(MIKTEX_WINDOWS)
-  int cmp = StrNCmpI(pathNorm.Get(), pathRootNorm.Get(), rootLen);
+  int cmp = StrNCmpI(pathNorm.GetData(), pathRootNorm.GetData(), rootLen);
 #else
-  int cmp = strncmp(pathNorm.Get(), pathRootNorm.Get(), rootLen);
+  int cmp = strncmp(pathNorm.GetData(), pathRootNorm.GetData(), rootLen);
 #endif
   if (cmp != 0)
   {
@@ -650,7 +650,7 @@ bool Utils::GetEnvironmentString(const char * lpszName, char * lpszOut, size_t s
   {
     MIKTEX_FATAL_CRT_ERROR_2("_wgetenv_s", "name", lpszName);
   }
-  StringUtil::CopyString(lpszOut, sizeOut, buf.Get());
+  StringUtil::CopyString(lpszOut, sizeOut, buf.GetData());
   return true;
 #else
   const char * lpsz = getenv(lpszName);
@@ -760,7 +760,7 @@ bool Utils::ParseDvipsMapLine(const string & line, FontMapEntry & mapEntry)
       mapEntry.headerList += '<';
       if (haveEncoding || fileName.HasExtension(".enc"))
       {
-        mapEntry.encFile = fileName.Get();
+        mapEntry.encFile = fileName.GetData();
         if (haveEncoding)
         {
           mapEntry.headerList += '[';
@@ -769,13 +769,13 @@ bool Utils::ParseDvipsMapLine(const string & line, FontMapEntry & mapEntry)
       else if (fileName.HasExtension(".pfa")
         || fileName.HasExtension(".pfb"))
       {
-        mapEntry.fontFile = fileName.Get();
+        mapEntry.fontFile = fileName.GetData();
       }
       if (noPartial)
       {
         mapEntry.headerList += '<';
       }
-      mapEntry.headerList += fileName.Get();
+      mapEntry.headerList += fileName.GetData();
     }
     else
     {

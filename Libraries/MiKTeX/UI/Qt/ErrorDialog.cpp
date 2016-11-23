@@ -113,14 +113,14 @@ string ErrorDialogImpl::CreateReport()
       {
 	PathName absFileName;
 	PathName root = pSession->GetRootDirectory(idx);
-	s << "Root" << idx << ": " << root.Get() << endl;
+	s << "Root" << idx << ": " << root.GetData() << endl;
       }
-      s << "UserInstall: " << pSession->GetSpecialPath(SpecialPath::UserInstallRoot).Get() << endl;
-      s << "UserConfig: " << pSession->GetSpecialPath(SpecialPath::UserConfigRoot).Get() << endl;
-      s << "UserData: " << pSession->GetSpecialPath(SpecialPath::UserDataRoot).Get() << endl;
-      s << "CommonInstall: " << pSession->GetSpecialPath(SpecialPath::CommonInstallRoot).Get() << endl;
-      s << "CommonConfig: " << (pSession->GetSpecialPath(SpecialPath::CommonConfigRoot).Get()) << endl;
-      s << "CommonData: " << pSession->GetSpecialPath(SpecialPath::CommonDataRoot).Get() << endl;
+      s << "UserInstall: " << pSession->GetSpecialPath(SpecialPath::UserInstallRoot).GetData() << endl;
+      s << "UserConfig: " << pSession->GetSpecialPath(SpecialPath::UserConfigRoot).GetData() << endl;
+      s << "UserData: " << pSession->GetSpecialPath(SpecialPath::UserDataRoot).GetData() << endl;
+      s << "CommonInstall: " << pSession->GetSpecialPath(SpecialPath::CommonInstallRoot).GetData() << endl;
+      s << "CommonConfig: " << (pSession->GetSpecialPath(SpecialPath::CommonConfigRoot).GetData()) << endl;
+      s << "CommonData: " << pSession->GetSpecialPath(SpecialPath::CommonDataRoot).GetData() << endl;
     }
     catch (const exception &)
     {

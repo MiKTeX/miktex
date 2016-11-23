@@ -926,7 +926,7 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
 {
   MIKTEX_ASSERT(!(level > 0 && mustBeSigned));
   
-  traceStream->WriteFormattedLine("core", T_("parsing: %s..."), path.Get());
+  traceStream->WriteFormattedLine("core", T_("parsing: %s..."), path.GetData());
 
   if (mustBeSigned)
   {

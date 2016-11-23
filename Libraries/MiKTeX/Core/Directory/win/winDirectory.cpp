@@ -39,7 +39,7 @@ PathName Directory::GetCurrent()
 
 void Directory::SetCurrent(const PathName & path)
 {
-  if (_wchdir(UW_(path.Get())) != 0)
+  if (_wchdir(UW_(path.GetData())) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("_wchdir", "path", path.ToString());
   }
@@ -87,7 +87,7 @@ bool Directory::Exists(const PathName & path)
 void Directory::Delete(const PathName & path)
 {
   SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("deleting directory %s"), Q_(path));
-  if (!RemoveDirectoryW(UW_(path.Get())))
+  if (!RemoveDirectoryW(UW_(path.GetData())))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("RemoveDirectoryW", "path", path.ToString());
   }

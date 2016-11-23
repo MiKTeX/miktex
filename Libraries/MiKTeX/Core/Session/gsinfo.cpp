@@ -65,7 +65,7 @@ void SessionImpl::GetGhostscript(char * lpszPath, unsigned long * pVersionNumber
   {
     int exitCode;
     ProcessOutput<80> gsOut;
-    if (!Process::Run(pathGsExe.Get(), "--version", &gsOut, &exitCode, nullptr))
+    if (!Process::Run(pathGsExe.GetData(), "--version", &gsOut, &exitCode, nullptr))
     {
       MIKTEX_UNEXPECTED();
     }
@@ -77,7 +77,7 @@ void SessionImpl::GetGhostscript(char * lpszPath, unsigned long * pVersionNumber
     trace_config->WriteFormattedLine("core", T_("Ghostscript version: %s"), gsVersion.ToString().c_str());
   }
 
-  StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, pathGsExe.Get());
+  StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, pathGsExe.GetData());
 
   if (pVersionNumber != nullptr)
   {

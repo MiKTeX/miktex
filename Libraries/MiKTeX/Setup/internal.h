@@ -101,7 +101,7 @@ BEGIN_INTERNAL_NAMESPACE;
 
 #define T_(x) MIKTEXTEXT(x)
 
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #define TU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
 #define UT_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()

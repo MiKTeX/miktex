@@ -80,7 +80,7 @@ BEGIN_INTERNAL_NAMESPACE;
 
 #define T_(x) MIKTEXTEXT(x)
 
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #if 1 // 2015-01-17
 extern bool IsNameManglingEnabled;

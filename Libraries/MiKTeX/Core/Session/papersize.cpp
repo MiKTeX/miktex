@@ -459,7 +459,7 @@ bool SessionImpl::TryCreateFromTemplate(const PathName & path)
   {
     return false;
   }
-  const char * lpszRelPath = Utils::GetRelativizedPath(path.Get(), GetRootDirectory(r).Get());
+  const char * lpszRelPath = Utils::GetRelativizedPath(path.GetData(), GetRootDirectory(r).GetData());
   if (lpszRelPath == nullptr)
   {
     MIKTEX_UNEXPECTED();

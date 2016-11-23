@@ -82,7 +82,7 @@ bool SessionImpl::ConvertToBitmapFile(const char * lpszPath, char * lpszBmpFile,
   Utils::RemoveBlanksFromPathName(temp);
 #endif
 
-  StringUtil::CopyString(lpszBmpFile, BufferSizes::MaxPath, temp.Get());
+  StringUtil::CopyString(lpszBmpFile, BufferSizes::MaxPath, temp.GetData());
 
   string strCommandLine;
   strCommandLine.reserve(256);

@@ -139,13 +139,13 @@ private:
 public:
   const char * GetFoundFile() const
   {
-    return foundFile.Get();
+    return foundFile.GetData();
   }
 
 public:
   const char * GetFoundFileFq() const
   {
-    return foundFileFq.Get();
+    return foundFileFq.GetData();
   }
 
 public:

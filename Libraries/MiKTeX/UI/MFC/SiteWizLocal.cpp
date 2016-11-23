@@ -43,7 +43,7 @@ SiteWizLocal::SiteWizLocal(shared_ptr<PackageManager> pManager) :
 
   if (pManager->TryGetLocalPackageRepository(path))
   {
-    directory = path.Get();
+    directory = path.GetData();
   }
 }
 

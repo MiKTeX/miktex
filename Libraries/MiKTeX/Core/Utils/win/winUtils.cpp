@@ -106,7 +106,7 @@ void Utils::RemoveBlanksFromPathName(PathName & path)
   bool containsBlanks = false;
 
   // find the last slash
-  while (lpsz != temp.Get())
+  while (lpsz != temp.GetData())
   {
     --lpsz;
     if (IsDirectoryDelimiter(*lpsz) && lpsz + 1 != lpszEnd)
@@ -122,7 +122,7 @@ void Utils::RemoveBlanksFromPathName(PathName & path)
 
   // done, if we're at the beginning of the path and if there is no
   // blank
-  if (!containsBlanks && lpsz == temp.Get())
+  if (!containsBlanks && lpsz == temp.GetData())
   {
     return;
   }
@@ -136,7 +136,7 @@ void Utils::RemoveBlanksFromPathName(PathName & path)
   if (containsBlanks)
   {
     // get short file name (8.3 w/o blanks)
-    GetAlternate(temp.Get(), szAlternate);
+    GetAlternate(temp.GetData(), szAlternate);
   }
   else
   {
@@ -148,10 +148,10 @@ void Utils::RemoveBlanksFromPathName(PathName & path)
   // the new file name doesn't contain a space
   MIKTEX_ASSERT(StrChr(szAlternate, ' ') == nullptr);
 
-  if (lpszSlash == temp.Get()   // "/foo.bar"
-    || (lpszSlash == temp.Get() + 1 // "//foo.bar"
+  if (lpszSlash == temp.GetData()   // "/foo.bar"
+    || (lpszSlash == temp.GetData() + 1 // "//foo.bar"
       && PathName::IsDirectoryDelimiter(temp[0]))
-    || (lpszSlash == temp.Get() + 2   // "C:/foo.bar"
+    || (lpszSlash == temp.GetData() + 2   // "C:/foo.bar"
       && IsAlpha(temp[0])
       && PathName::IsVolumeDelimiter(temp[1])))
   {
@@ -778,7 +778,7 @@ bool Utils::GetDefPrinter(char * pPrinterName, size_t * pBufferSize)
       }
       else
       {
-	StringUtil::CopyString(pPrinterName, *pBufferSize, printerName.Get());
+	StringUtil::CopyString(pPrinterName, *pBufferSize, printerName.GetData());
 	*pBufferSize = dwBufferSize;
 	return true;
       }
@@ -1176,7 +1176,7 @@ MIKTEXSTATICFUNC(bool) CheckPath(const string & oldPath, const PathName & binDir
 	int exitCode;
         ProcessOutput<80> pdfTeXOutput;
 	bool isOtherPdfTeX = true;
-	if (Process::Run(otherPdfTeX.Get(), "--version", &pdfTeXOutput, &exitCode, nullptr) && exitCode == 0)
+	if (Process::Run(otherPdfTeX.GetData(), "--version", &pdfTeXOutput, &exitCode, nullptr) && exitCode == 0)
 	{
 	  if (pdfTeXOutput.StdoutToString().find("MiKTeX") != string::npos)
 	  {
@@ -1191,7 +1191,7 @@ MIKTEXSTATICFUNC(bool) CheckPath(const string & oldPath, const PathName & binDir
 	  {
 	    newPath += PathName::PathNameDelimiter;
 	  }
-	  newPath += binDir.Get();
+	  newPath += binDir.GetData();
 	  found = true;
 	  modified = true;
 	  competition = true;
@@ -1211,7 +1211,7 @@ MIKTEXSTATICFUNC(bool) CheckPath(const string & oldPath, const PathName & binDir
     {
       newPath += PathName::PathNameDelimiter;
     }
-    newPath += binDir.Get();
+    newPath += binDir.GetData();
     modified = true;
   }
   return !modified;
@@ -1351,12 +1351,12 @@ void Utils::RegisterShellFileAssoc(const char * lpszExtension, const char * lpsz
   bool haveOtherProgId = false;
   if (!session->IsAdminMode())
   {
-    haveOtherProgId = winRegistry::TryGetRegistryValue(HKEY_CURRENT_USER, regPath.Get(), "", otherProgId);
+    haveOtherProgId = winRegistry::TryGetRegistryValue(HKEY_CURRENT_USER, regPath.GetData(), "", otherProgId);
     haveOtherProgId = haveOtherProgId && StringCompare(lpszProgId, otherProgId.c_str(), true) != 0;
   }
   if (!haveOtherProgId)
   {
-    haveOtherProgId = winRegistry::TryGetRegistryValue(HKEY_LOCAL_MACHINE, regPath.Get(), "", otherProgId);
+    haveOtherProgId = winRegistry::TryGetRegistryValue(HKEY_LOCAL_MACHINE, regPath.GetData(), "", otherProgId);
     haveOtherProgId = haveOtherProgId && StringCompare(lpszProgId, otherProgId.c_str(), true) != 0;
   }
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
@@ -1364,16 +1364,16 @@ void Utils::RegisterShellFileAssoc(const char * lpszExtension, const char * lpsz
   openWithProgIds /= "OpenWithProgIds";
   if (haveOtherProgId)
   {
-    winRegistry::SetRegistryValue(hkeyRoot, openWithProgIds.Get(), otherProgId.c_str(), "");
-    winRegistry::SetRegistryValue(hkeyRoot, openWithProgIds.Get(), lpszProgId, "");
+    winRegistry::SetRegistryValue(hkeyRoot, openWithProgIds.GetData(), otherProgId.c_str(), "");
+    winRegistry::SetRegistryValue(hkeyRoot, openWithProgIds.GetData(), lpszProgId, "");
   }
   if (!haveOtherProgId || takeOwnership)
   {
     if (haveOtherProgId)
     {
-      winRegistry::SetRegistryValue(hkeyRoot, regPath.Get(), "MiKTeX." MIKTEX_SERIES_STR ".backup", otherProgId.c_str());
+      winRegistry::SetRegistryValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_SERIES_STR ".backup", otherProgId.c_str());
     }
-    winRegistry::SetRegistryValue(hkeyRoot, regPath.Get(), "", lpszProgId);
+    winRegistry::SetRegistryValue(hkeyRoot, regPath.GetData(), "", lpszProgId);
   }
 }
 
@@ -1385,26 +1385,26 @@ void Utils::UnregisterShellFileAssoc(const char * lpszExtension, const char * lp
   PathName regPath("Software\\Classes");
   regPath /= lpszExtension;
   string progId;
-  if (!winRegistry::TryGetRegistryValue(hkeyRoot, regPath.Get(), "", progId))
+  if (!winRegistry::TryGetRegistryValue(hkeyRoot, regPath.GetData(), "", progId))
   {
     return;
   }
   string backupProgId;
-  bool haveBackupProgId = winRegistry::TryGetRegistryValue(hkeyRoot, regPath.Get(), "MiKTeX." MIKTEX_SERIES_STR ".backup", backupProgId);
+  bool haveBackupProgId = winRegistry::TryGetRegistryValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_SERIES_STR ".backup", backupProgId);
   if (haveBackupProgId || StringCompare(progId.c_str(), lpszProgId, true) != 0)
   {
     if (haveBackupProgId)
     {
-      winRegistry::SetRegistryValue(hkeyRoot, regPath.Get(), "", backupProgId.c_str());
-      winRegistry::TryDeleteRegistryValue(hkeyRoot, regPath.Get(), "MiKTeX." MIKTEX_SERIES_STR ".backup");
+      winRegistry::SetRegistryValue(hkeyRoot, regPath.GetData(), "", backupProgId.c_str());
+      winRegistry::TryDeleteRegistryValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_SERIES_STR ".backup");
     }
     PathName openWithProgIds(regPath);
     openWithProgIds /= "OpenWithProgIds";
-    winRegistry::TryDeleteRegistryValue(hkeyRoot, openWithProgIds.Get(), lpszProgId);
+    winRegistry::TryDeleteRegistryValue(hkeyRoot, openWithProgIds.GetData(), lpszProgId);
   }
   else
   {
-    winRegistry::TryDeleteRegistryKey(hkeyRoot, regPath.Get());
+    winRegistry::TryDeleteRegistryKey(hkeyRoot, regPath.GetData());
   }
 }
 
@@ -1419,13 +1419,13 @@ void Utils::RegisterShellFileType(const char * lpszProgId, const char * lpszUser
   regPath /= lpszProgId;
   if (lpszUserFriendlyName != nullptr)
   {
-    winRegistry::SetRegistryValue(hkeyRoot, regPath.Get(), "", lpszUserFriendlyName);
+    winRegistry::SetRegistryValue(hkeyRoot, regPath.GetData(), "", lpszUserFriendlyName);
   }
   if (lpszIconPath != nullptr)
   {
     PathName defaultIcon(regPath);
     defaultIcon /= "DefaultIcon";
-    winRegistry::SetRegistryValue(hkeyRoot, defaultIcon.Get(), "", lpszIconPath);
+    winRegistry::SetRegistryValue(hkeyRoot, defaultIcon.GetData(), "", lpszIconPath);
   }
 }
 
@@ -1436,7 +1436,7 @@ void Utils::UnregisterShellFileType(const char * lpszProgId)
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName regPath("Software\\Classes");
   regPath /= lpszProgId;
-  winRegistry::TryDeleteRegistryKey(hkeyRoot, regPath.Get());
+  winRegistry::TryDeleteRegistryKey(hkeyRoot, regPath.GetData());
 }
 
 void Utils::RegisterShellVerb(const char * lpszProgId, const char * lpszVerb, const char * lpszCommand, const char * lpszDdeExec)
@@ -1455,7 +1455,7 @@ void Utils::RegisterShellVerb(const char * lpszProgId, const char * lpszVerb, co
     path /= "shell";
     path /= lpszVerb;
     path /= "command";
-    winRegistry::SetRegistryValue(hkeyRoot, path.Get(), "", lpszCommand);
+    winRegistry::SetRegistryValue(hkeyRoot, path.GetData(), "", lpszCommand);
   }
   if (lpszDdeExec != nullptr)
   {
@@ -1463,7 +1463,7 @@ void Utils::RegisterShellVerb(const char * lpszProgId, const char * lpszVerb, co
     path /= "shell";
     path /= lpszVerb;
     path /= "ddeexec";
-    winRegistry::SetRegistryValue(hkeyRoot, path.Get(), "", lpszDdeExec);
+    winRegistry::SetRegistryValue(hkeyRoot, path.GetData(), "", lpszDdeExec);
   }
 }
 

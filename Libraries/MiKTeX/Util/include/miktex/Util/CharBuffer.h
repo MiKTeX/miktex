@@ -248,7 +248,7 @@ public:
 
   // DEPRECATED
 public:
-  const CharType * Get() const
+  MIKTEXDEPRECATED const CharType * Get() const
   {
     return buffer;
   }

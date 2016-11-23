@@ -121,7 +121,7 @@ bool winDirectoryLister::GetNext(DirectoryEntry2 & direntry2)
         pathPattern /= pattern.c_str();
       }
       handle = FindFirstFileExW(
-        UW_(pathPattern.Get()),
+        UW_(pathPattern.GetData()),
         WindowsVersion::IsWindows7OrGreater() ? FindExInfoBasic : FindExInfoStandard,
         &ffdat,
         (options & (int)Options::DirectoriesOnly) != 0 ? FindExSearchLimitToDirectories : FindExSearchNameMatch,

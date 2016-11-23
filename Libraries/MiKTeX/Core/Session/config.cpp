@@ -214,11 +214,11 @@ void Absolutize(string & paths, const PathName & relativeFrom)
       PathName absPath2;
       MIKTEX_ASSERT(absPath2.GetCapacity() >= MAX_PATH);
       // FIXME: use wchar_t API
-      if (!PathCanonicalizeA(absPath2.GetData(), absPath.Get()))
+      if (!PathCanonicalizeA(absPath2.GetData(), absPath.GetData()))
       {
         absPath2 = absPath;
       }
-      result += absPath2.Get();
+      result += absPath2.GetData();
 #else
       UNIMPLEMENTED();
 #endif
@@ -321,7 +321,7 @@ StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName & p
   pcfg = nullptr;
 
   // inherit to child processes
-  Utils::SetEnvironmentString(common ? MIKTEX_ENV_COMMON_STARTUP_FILE : MIKTEX_ENV_USER_STARTUP_FILE, path.Get());
+  Utils::SetEnvironmentString(common ? MIKTEX_ENV_COMMON_STARTUP_FILE : MIKTEX_ENV_USER_STARTUP_FILE, path.GetData());
 
   return ret;
 }
@@ -445,7 +445,7 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig & star
     }
     if (!startupConfig.commonInstallRoot.Empty() && (startupConfig.commonInstallRoot != defaultConfig.commonInstallRoot || showAllValues))
     {
-      string val = startupConfig.commonInstallRoot.Get();
+      string val = startupConfig.commonInstallRoot.GetData();
       if (relativize)
       {
         Relativize(val, relativeFrom);
@@ -455,7 +455,7 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig & star
     if (!startupConfig.commonDataRoot.Empty()
       && (startupConfig.commonDataRoot != defaultConfig.commonDataRoot || showAllValues))
     {
-      string val = startupConfig.commonDataRoot.Get();
+      string val = startupConfig.commonDataRoot.GetData();
       if (relativize)
       {
         Relativize(val, relativeFrom);
@@ -464,7 +464,7 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig & star
     }
     if (!startupConfig.commonConfigRoot.Empty() && (startupConfig.commonConfigRoot != defaultConfig.commonConfigRoot || showAllValues))
     {
-      string val = startupConfig.commonConfigRoot.Get();
+      string val = startupConfig.commonConfigRoot.GetData();
       if (relativize)
       {
         Relativize(val, relativeFrom);
@@ -486,7 +486,7 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig & star
     }
     if (!startupConfig.userInstallRoot.Empty() && (startupConfig.userInstallRoot != defaultConfig.userInstallRoot || showAllValues))
     {
-      string val = startupConfig.userInstallRoot.Get();
+      string val = startupConfig.userInstallRoot.GetData();
       if (relativize)
       {
         Relativize(val, relativeFrom);
@@ -496,7 +496,7 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig & star
     if (!startupConfig.userDataRoot.Empty()
       && (startupConfig.userDataRoot != defaultConfig.userDataRoot || showAllValues))
     {
-      string val = startupConfig.userDataRoot.Get();
+      string val = startupConfig.userDataRoot.GetData();
       if (relativize)
       {
         Relativize(val, relativeFrom);
@@ -505,7 +505,7 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig & star
     }
     if (!startupConfig.userConfigRoot.Empty() && (startupConfig.userConfigRoot != defaultConfig.userConfigRoot || showAllValues))
     {
-      string val = startupConfig.userConfigRoot.Get();
+      string val = startupConfig.userConfigRoot.GetData();
       if (relativize)
       {
         Relativize(val, relativeFrom);
@@ -607,7 +607,7 @@ void SessionImpl::ReadAllConfigFiles(const string & baseName, Cfg & cfg)
 {
   PathName fileName(MIKTEX_PATH_MIKTEX_CONFIG_DIR, baseName, ".ini");
   vector<PathName> configFiles;
-  if (!FindFile(fileName.Get(), MIKTEX_PATH_TEXMF_PLACEHOLDER, { FindFileOption::All }, configFiles))
+  if (!FindFile(fileName.GetData(), MIKTEX_PATH_TEXMF_PLACEHOLDER, { FindFileOption::All }, configFiles))
   {
     return;
   }
@@ -1096,7 +1096,7 @@ void SessionImpl::ConfigureFile(const PathName & pathRel, HasNamedValues * callb
   PathName relPathIn = pathRel;
   relPathIn.AppendExtension(".in");
   PathName pathIn;
-  if (!FindFile(relPathIn.Get(), MIKTEX_PATH_TEXMF_PLACEHOLDER, pathIn))
+  if (!FindFile(relPathIn.GetData(), MIKTEX_PATH_TEXMF_PLACEHOLDER, pathIn))
   {
     MIKTEX_FATAL_ERROR_2(T_("The template file could not be found."), "templateFile", relPathIn.ToString());
   }

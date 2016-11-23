@@ -200,7 +200,7 @@ MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const char * lpszPath)
     PathName path(lpszPath);
     path.MakeAbsolute();
     // RECURSION
-    CreateDirectoryPath(path.Get());
+    CreateDirectoryPath(path.GetData());
   }
 
   // do nothing, if the directory already exists
@@ -217,7 +217,7 @@ MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const char * lpszPath)
   PathName pathParent(szDir, nullptr, nullptr);
   RemoveDirectoryDelimiter(pathParent.GetData());
   // RECURSION
-  CreateDirectoryPath(pathParent.Get());
+  CreateDirectoryPath(pathParent.GetData());
 
   // we're done, if szFname is empty (this happens when lpszPath ends
   // with a directory delimiter)

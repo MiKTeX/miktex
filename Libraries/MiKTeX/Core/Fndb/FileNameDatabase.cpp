@@ -510,7 +510,7 @@ bool FileNameDatabase::Search(const char * lpszFileName, const char * lpszPathPa
     }
     scratch1 = lpszPathPattern;
     scratch1 /= szDir;
-    lpszPathPattern = scratch1.Get();
+    lpszPathPattern = scratch1.GetData();
     lpszFileName += l + 1;
   }
 
@@ -528,7 +528,7 @@ bool FileNameDatabase::Search(const char * lpszFileName, const char * lpszPathPa
   // path pattern must be relative to root directory
   if (Utils::IsAbsolutePath(lpszPathPattern))
   {
-    const char * lpsz = Utils::GetRelativizedPath(lpszPathPattern, rootDirectory.Get());
+    const char * lpsz = Utils::GetRelativizedPath(lpszPathPattern, rootDirectory.GetData());
     if (lpsz == nullptr)
     {
       MIKTEX_FATAL_ERROR_2(T_("Path pattern is not covered by file name database."), "pattern", lpszPathPattern);
@@ -543,7 +543,7 @@ bool FileNameDatabase::Search(const char * lpszFileName, const char * lpszPathPa
   {
     PathName relPath;
     MakePathName(it->second, relPath);
-    if (Match(comparablePathPattern.Get(), PathName(relPath).TransformForComparison().Get()))
+    if (Match(comparablePathPattern.GetData(), PathName(relPath).TransformForComparison().GetData()))
     {
       PathName path;
       path = rootDirectory;
@@ -601,7 +601,7 @@ void FileNameDatabase::AddFile(const char * lpszPath, const char * lpszFileNameI
   // make sure that the path is relative to the texmf root directory
   if (Utils::IsAbsolutePath(lpszPath))
   {
-    const char * lpsz = Utils::GetRelativizedPath(lpszPath, rootDirectory.Get());
+    const char * lpsz = Utils::GetRelativizedPath(lpszPath, rootDirectory.GetData());
     if (lpsz == nullptr)
     {
       MIKTEX_FATAL_ERROR_2(T_("File name is not covered by file name database."), "path", lpszPath);
@@ -619,7 +619,7 @@ void FileNameDatabase::AddFile(const char * lpszPath, const char * lpszFileNameI
   FileNameDatabaseDirectory * pDir;
   if (pathDirectory.GetLength() > 0)
   {
-    pDir = CreateDirectoryPath(GetTopDirectory(), pathDirectory.Get());
+    pDir = CreateDirectoryPath(GetTopDirectory(), pathDirectory.GetData());
   }
   else
   {
@@ -652,7 +652,7 @@ void FileNameDatabase::AddFile(const char * lpszPath, const char * lpszFileNameI
   }
 
   // create a new table entry
-  InsertFileName(pDir, CreateString(pathFile.Get()), (lpszFileNameInfo ? CreateString(lpszFileNameInfo) : 0));
+  InsertFileName(pDir, CreateString(pathFile.GetData()), (lpszFileNameInfo ? CreateString(lpszFileNameInfo) : 0));
 
   // add the name to the hash table
   PathName comparableFileName(pathFile);
@@ -666,13 +666,13 @@ bool FileNameDatabase::Enumerate(const char * lpszPath, IEnumerateFndbCallback *
 
   if (lpszPath != nullptr && Utils::IsAbsolutePath(lpszPath))
   {
-    if (PathName::Compare(lpszPath, rootDirectory.Get()) == 0)
+    if (PathName::Compare(lpszPath, rootDirectory.GetData()) == 0)
     {
       lpszPath = nullptr;
     }
     else
     {
-      const char * lpsz = Utils::GetRelativizedPath(lpszPath, rootDirectory.Get());
+      const char * lpsz = Utils::GetRelativizedPath(lpszPath, rootDirectory.GetData());
       if (lpsz == nullptr)
       {
 	MIKTEX_FATAL_ERROR_2(T_("Path is not covered by file name database."), "path", lpszPath);
@@ -694,7 +694,7 @@ bool FileNameDatabase::Enumerate(const char * lpszPath, IEnumerateFndbCallback *
   {
     for (FndbWord i = 0; i < pDirIter->numSubDirs; ++i)
     {
-      if (!pCallback->OnFndbItem(path.Get(), GetString(pDirIter->GetSubDirName(i)), nullptr, true))
+      if (!pCallback->OnFndbItem(path.GetData(), GetString(pDirIter->GetSubDirName(i)), nullptr, true))
       {
 	return false;
       }
@@ -714,7 +714,7 @@ bool FileNameDatabase::Enumerate(const char * lpszPath, IEnumerateFndbCallback *
 	  lpszFileNameInfo = GetString(fo);
 	}
       }
-      if (!pCallback->OnFndbItem(path.Get(), GetString(pDirIter->GetFileName(i)), lpszFileNameInfo, false))
+      if (!pCallback->OnFndbItem(path.GetData(), GetString(pDirIter->GetFileName(i)), lpszFileNameInfo, false))
       {
 	return false;
       }
@@ -731,7 +731,7 @@ FileNameDatabaseDirectory * FileNameDatabase::TryGetParent(const char * lpszPath
   // make sure that the path is relative to the texmf root directory
   if (Utils::IsAbsolutePath(lpszPath))
   {
-    const char * lpsz = Utils::GetRelativizedPath(lpszPath, rootDirectory.Get());
+    const char * lpsz = Utils::GetRelativizedPath(lpszPath, rootDirectory.GetData());
     if (lpsz == nullptr)
     {
       MIKTEX_FATAL_ERROR_2(T_("The path name is not covered by the file name database."), "path", lpszPath);
@@ -747,7 +747,7 @@ FileNameDatabaseDirectory * FileNameDatabase::TryGetParent(const char * lpszPath
   FileNameDatabaseDirectory * pDir;
   if (pathDirectory.GetLength() > 0)
   {
-    pDir = FindSubDirectory(GetTopDirectory(), pathDirectory.Get());
+    pDir = FindSubDirectory(GetTopDirectory(), pathDirectory.GetData());
   }
   else
   {
@@ -779,7 +779,7 @@ void FileNameDatabase::RemoveFile(const char * lpszPath)
   }
 
   // remove the file name
-  pDir = RemoveFileName(pDir, pathFile.Get());
+  pDir = RemoveFileName(pDir, pathFile.GetData());
 
   // also from the hash table
   PathName comparableFileName(pathFile);
@@ -807,13 +807,13 @@ void FileNameDatabase::RemoveFile(const char * lpszPath)
 
 bool FileNameDatabase::FileExists(const PathName & path) const
 {
-  FileNameDatabaseDirectory * pDir = TryGetParent(path.Get());
+  FileNameDatabaseDirectory * pDir = TryGetParent(path.GetData());
   if (pDir != nullptr)
   {
     PathName fileName(path);
     fileName.RemoveDirectorySpec();
     FndbWord index;
-    pDir = SearchFileName(pDir, fileName.Get(), index);
+    pDir = SearchFileName(pDir, fileName.GetData(), index);
   }
   return pDir != nullptr;
 }

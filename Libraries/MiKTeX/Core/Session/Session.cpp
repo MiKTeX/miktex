@@ -98,14 +98,14 @@ void SessionImpl::Initialize(const Session::InitInfo & initInfo)
 
   PathName programInvocationName = initInfo.GetProgramInvocationName();
   programInvocationName = programInvocationName.GetFileNameWithoutExtension();
-  const char * lpsz = strstr(programInvocationName.Get(), MIKTEX_ADMIN_SUFFIX);
+  const char * lpsz = strstr(programInvocationName.GetData(), MIKTEX_ADMIN_SUFFIX);
   bool forceAdminMode = lpsz != nullptr && strlen(lpsz) == strlen(MIKTEX_ADMIN_SUFFIX);
 
 #if defined(MIKTEX_WINDOWS)
   if (!forceAdminMode)
   {
-    programInvocationName = GetMyProgramFile(false).TransformForComparison().GetFileNameWithoutExtension().Get();
-    lpsz = strstr(programInvocationName.Get(), MIKTEX_ADMIN_SUFFIX);
+    programInvocationName = GetMyProgramFile(false).TransformForComparison().GetFileNameWithoutExtension().GetData();
+    lpsz = strstr(programInvocationName.GetData(), MIKTEX_ADMIN_SUFFIX);
     forceAdminMode = lpsz != nullptr && strlen(lpsz) == strlen(MIKTEX_ADMIN_SUFFIX);
   }
 #endif
@@ -205,7 +205,7 @@ void SessionImpl::Initialize(const Session::InitInfo & initInfo)
 #endif
 
   trace_core->WriteFormattedLine("core", T_("operating system: %s"), Utils::GetOSVersionString().c_str());
-  trace_core->WriteFormattedLine("core", T_("program file: %s"), GetMyProgramFile(true).Get());
+  trace_core->WriteFormattedLine("core", T_("program file: %s"), GetMyProgramFile(true).GetData());
   trace_core->WriteFormattedLine("core", T_("current directory: %s"), Q_(PathName().SetToCurrentDirectory()));
 
   trace_config->WriteFormattedLine("core", T_("session locale: %s"), Q_(defaultLocale.name()));
@@ -271,22 +271,22 @@ void SessionImpl::SetEnvironmentVariables()
   PathName gsbase2 = root2;
   gsbase2 /= "ghostscript";
   gsbase2 /= "base";
-  str = gsbase1.Get();
+  str = gsbase1.GetData();
   if (gsbase1 != gsbase2)
   {
     str += PATH_DELIMITER;
-    str += gsbase2.Get();
+    str += gsbase2.GetData();
   }
   PathName fonts1 = root1;
   fonts1 /= "fonts";
   PathName fonts2 = root2;
   fonts2 /= "fonts";
   str += PATH_DELIMITER;
-  str += fonts1.Get();
+  str += fonts1.GetData();
   if (fonts1 != fonts2)
   {
     str += PATH_DELIMITER;
-    str += fonts2.Get();
+    str += fonts2.GetData();
   }
   Utils::SetEnvironmentString("MIKTEX_GS_LIB", str.c_str());
 #endif
@@ -295,27 +295,27 @@ void SessionImpl::SetEnvironmentVariables()
 
   if (!HaveEnvironmentString("TEMPDIR") || IsMiKTeXPortable())
   {
-    Utils::SetEnvironmentString("TEMPDIR", path.Get());
+    Utils::SetEnvironmentString("TEMPDIR", path.GetData());
   }
 
   if (!HaveEnvironmentString("TMPDIR") || IsMiKTeXPortable())
   {
-    Utils::SetEnvironmentString("TMPDIR", path.Get());
+    Utils::SetEnvironmentString("TMPDIR", path.GetData());
   }
 
   if (!HaveEnvironmentString("TEMP") || IsMiKTeXPortable())
   {
-    Utils::SetEnvironmentString("TEMP", path.Get());
+    Utils::SetEnvironmentString("TEMP", path.GetData());
   }
 
   if (!HaveEnvironmentString("TMP") || IsMiKTeXPortable())
   {
-    Utils::SetEnvironmentString("TMP", path.Get());
+    Utils::SetEnvironmentString("TMP", path.GetData());
   }
 
   if (!HaveEnvironmentString("HOME"))
   {
-    Utils::SetEnvironmentString("HOME", GetHomeDirectory().Get());
+    Utils::SetEnvironmentString("HOME", GetHomeDirectory().GetData());
   }
 
   SetCWDEnv();

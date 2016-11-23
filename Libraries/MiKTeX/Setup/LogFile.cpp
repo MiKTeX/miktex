@@ -42,10 +42,10 @@ void LogFile::AddFile(const PathName & path)
 {
   shared_ptr<Session> session = Session::Get();
   string fileName;
-  if (SkipPrefix(path.Get(), T_("texmf/"), fileName)
-    || SkipPrefix(path.Get(), T_("texmf\\"), fileName)
-    || SkipPrefix(path.Get(), T_("./texmf/"), fileName)
-    || SkipPrefix(path.Get(), T_(".\\texmf\\"), fileName))
+  if (SkipPrefix(path.GetData(), T_("texmf/"), fileName)
+    || SkipPrefix(path.GetData(), T_("texmf\\"), fileName)
+    || SkipPrefix(path.GetData(), T_("./texmf/"), fileName)
+    || SkipPrefix(path.GetData(), T_(".\\texmf\\"), fileName))
   {
     PathName absPath(session->GetSpecialPath(SpecialPath::InstallRoot));
     absPath /= fileName;

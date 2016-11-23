@@ -58,7 +58,7 @@ public:
 public:
   static void Add(const PathName & path)
   {
-    Add(path.Get());
+    Add(path.GetData());
   }
 
 public:
@@ -67,7 +67,7 @@ public:
 public:
   static void Add(const PathName & path, const char * lpszFileNameInfo)
   {
-    Add(path.Get(), lpszFileNameInfo);
+    Add(path.GetData(), lpszFileNameInfo);
   }
 
 public:
@@ -76,7 +76,7 @@ public:
 public:
   static bool Create(const PathName & fndbPath, const PathName & rootPath, ICreateFndbCallback * callback)
   {
-    return Create(fndbPath.Get(), rootPath.Get(), callback);
+    return Create(fndbPath.GetData(), rootPath.GetData(), callback);
   }
 
 public:
@@ -88,7 +88,7 @@ public:
 public:
   static bool Enumerate(const PathName & path, IEnumerateFndbCallback * callback)
   {
-    return Enumerate(path.Get(), callback);
+    return Enumerate(path.GetData(), callback);
   }
 
 public:
@@ -103,7 +103,7 @@ public:
 public:
   static void Remove(const PathName & path)
   {
-    Remove(path.Get());
+    Remove(path.GetData());
   }
 
 public:

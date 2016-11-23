@@ -144,7 +144,7 @@ void TeXMFApp::OnTeXMFFinishJob()
     {
       fileName = jobName;
     }
-    session->SetRecorderPath(PathName(outputDirectory.Empty() ? nullptr : outputDirectory.Get(), fileName.c_str(), ".fls"));
+    session->SetRecorderPath(PathName(outputDirectory.Empty() ? nullptr : outputDirectory.GetData(), fileName.c_str(), ".fls"));
   }
   if (timeStatistics)
   {
@@ -326,7 +326,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
         MIKTEX_FATAL_ERROR_2(T_("The specified auxiliary directory does not exist."), "directory", auxDirectory.ToString());
       }
     }
-    session->AddInputDirectory(auxDirectory.Get(), true);
+    session->AddInputDirectory(auxDirectory.GetData(), true);
     break;
 
   case OPT_BUF_SIZE:
@@ -402,7 +402,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     }
     else
     {
-      jobName = MangleNameOfFile(optArg.c_str()).Get();
+      jobName = MangleNameOfFile(optArg.c_str()).GetData();
     }
     break;
 
@@ -461,14 +461,14 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
       }
       else
       {
-        MIKTEX_FATAL_ERROR_2(T_("The specified output directory does not exist."), "directory", outputDirectory.Get());
+        MIKTEX_FATAL_ERROR_2(T_("The specified output directory does not exist."), "directory", outputDirectory.GetData());
       }
     }
     if (auxDirectory[0] == 0)
     {
       auxDirectory = outputDirectory;
     }
-    session->AddInputDirectory(outputDirectory.Get(), true);
+    session->AddInputDirectory(outputDirectory.GetData(), true);
     break;
 
   case OPT_PARAM_SIZE:
@@ -557,7 +557,7 @@ void TeXMFApp::ParseFirstLine(const PathName & fileName)
 
   PathName path;
 
-  if (!session->FindFile(fileName.Get(), GetInputFileType(), path))
+  if (!session->FindFile(fileName.GetData(), GetInputFileType(), path))
   {
     return;
   }
@@ -583,7 +583,7 @@ void TeXMFApp::ParseFirstLine(const PathName & fileName)
 	fileName.SetExtension(GetMemoryDumpFileExtension());
       }
       PathName path;
-      if (session->FindFile(fileName.Get(), GetMemoryDumpFileType(), path))
+      if (session->FindFile(fileName.GetData(), GetMemoryDumpFileType(), path))
       {
 	this->memoryDumpFileName = memoryDumpFileName;
       }
@@ -644,7 +644,7 @@ bool TeXMFApp::OpenMemoryDumpFile(const PathName & fileName_, FILE ** ppFile, vo
     findFileOptions += Session::FindFileOption::Renew;
   }
 
-  if (!session->FindFile(fileName.Get(), GetMemoryDumpFileType(), findFileOptions, path))
+  if (!session->FindFile(fileName.GetData(), GetMemoryDumpFileType(), findFileOptions, path))
   {
     MIKTEX_FATAL_ERROR_2(T_("The memory dump file could not be found."), "fileName", fileName.ToString());
   }
@@ -746,7 +746,7 @@ void TeXMFApp::GetDefaultMemoryDumpFileName(char * lpszPath) const
     }
   }
   name.SetExtension(GetMemoryDumpFileExtension());
-  StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, name.Get());
+  StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, name.GetData());
 }
 
 bool IsFileNameArgument(const char * lpszArg)
@@ -832,7 +832,7 @@ template<typename CharType> int InitializeBuffer_(CharType * pBuffer, FileType i
     const char * lpszOptArg;
     if (idx == fileNameArgIdx)
     {
-      lpszOptArg = fileName.Get();
+      lpszOptArg = fileName.GetData();
     }
     else
     {

@@ -18,7 +18,7 @@
    USA. */
 
 #define T_(x) MIKTEXTEXT(x)
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #define VA_START(arglist, lpszFormat   )        \
 va_start(arglist, lpszFormat);                  \

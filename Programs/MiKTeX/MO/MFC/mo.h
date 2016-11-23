@@ -55,6 +55,6 @@ void DoWhatsThisMenu(CWnd * pWnd, CPoint point, const DWORD * pHelpIDs, const ch
 #define UT_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 
 #if defined(MIKTEX_WINDOWS)
-#  define WU_(x) MiKTeX::Util::CharBuffer<char>(x).Get()
-#  define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).Get()
+#  define WU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
+#  define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 #endif

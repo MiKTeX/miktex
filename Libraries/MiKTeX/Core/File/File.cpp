@@ -85,7 +85,7 @@ void File::Delete(const PathName & path, FileDeleteOptionSet options)
     File::Move(path, old, { FileMoveOption::ReplaceExisting });
     if (session->RunningAsAdministrator())
     {
-      session->ScheduleFileRemoval(old.Get());
+      session->ScheduleFileRemoval(old.GetData());
     }
     else
     {

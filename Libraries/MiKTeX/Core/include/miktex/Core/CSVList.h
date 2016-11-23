@@ -55,7 +55,7 @@ public:
     {
       this->separator = separator;
       lpszCurrent = MiKTeX::Util::CharBuffer<CharType, BUFSIZE>::GetData();
-      lpszNext = const_cast<CharType*>(MiKTeX::Util::StrChr(MiKTeX::Util::CharBuffer<CharType, BUFSIZE>::Get(), separator));
+      lpszNext = const_cast<CharType*>(MiKTeX::Util::StrChr(MiKTeX::Util::CharBuffer<CharType, BUFSIZE>::GetData(), separator));
       if (lpszNext != nullptr)
       {
         *lpszNext++ = 0;

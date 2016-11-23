@@ -663,7 +663,7 @@ PackageInfo PackageManagerImpl::GetPackageInfo(const string & deploymentName)
 unsigned long PackageManagerImpl::GetFileRefCount(const PathName & path)
 {
   NeedInstalledFileInfoTable();
-  InstalledFileInfoTable::const_iterator it = installedFileInfoTable.find(path.Get());
+  InstalledFileInfoTable::const_iterator it = installedFileInfoTable.find(path.GetData());
   if (it == installedFileInfoTable.end())
   {
     return 0;
@@ -801,7 +801,7 @@ PathName PackageManager::GetLocalPackageRepository()
 
 void PackageManager::SetLocalPackageRepository(const PathName & path)
 {
-  Session::Get()->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LOCAL_REPOSITORY, path.Get());
+  Session::Get()->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LOCAL_REPOSITORY, path.GetData());
 }
 
 bool PackageManager::TryGetMiKTeXDirectRoot(PathName & path)
@@ -838,7 +838,7 @@ void PackageManager::SetMiKTeXDirectRoot(const PathName & path)
 {
   shared_ptr<Session> session = Session::Get();
   session
-    ->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_MIKTEXDIRECT_ROOT, path.Get());
+    ->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_MIKTEXDIRECT_ROOT, path.GetData());
 }
 
 bool PackageManager::TryGetDefaultPackageRepository(RepositoryType & repositoryType, RepositoryReleaseState & repositoryReleaseState, string & urlOrPath)
@@ -855,12 +855,12 @@ bool PackageManager::TryGetDefaultPackageRepository(RepositoryType & repositoryT
     }
     else if (str == "local")
     {
-      urlOrPath = GetLocalPackageRepository().Get();
+      urlOrPath = GetLocalPackageRepository().GetData();
       repositoryType = RepositoryType::Local;
     }
     else if (str == "direct")
     {
-      urlOrPath = GetMiKTeXDirectRoot().Get();
+      urlOrPath = GetMiKTeXDirectRoot().GetData();
       repositoryType = RepositoryType::MiKTeXDirect;
     }
     else
@@ -1014,7 +1014,7 @@ MPMSTATICFUNC(void) RememberFileNameInfo(const string & prefixedFileName, const 
 
   for (const char * lpsz2 = ++pathtok; lpsz2 != nullptr; lpsz2 = ++pathtok)
   {
-    directoryInfoTable[path.Get()].subDirectoryNames.insert(lpsz1);
+    directoryInfoTable[path.GetData()].subDirectoryNames.insert(lpsz1);
     lpszName = lpsz2;
 #if defined(MIKTEX_WINDOWS)
     // make sure the the rest of the path contains slashes (not
@@ -1027,7 +1027,7 @@ MPMSTATICFUNC(void) RememberFileNameInfo(const string & prefixedFileName, const 
     lpsz1 = lpsz2;
   }
 
-  DirectoryInfo & directoryInfo = directoryInfoTable[path.Get()];
+  DirectoryInfo & directoryInfo = directoryInfoTable[path.GetData()];
   directoryInfo.fileNames += lpszName;
   directoryInfo.fileNames += '\0';
   directoryInfo.packageNames += packageName;
@@ -1106,7 +1106,7 @@ void PackageManagerImpl::CreateMpmFndb()
   }
 
   // create the database
-  Fndb::Create(pSession->GetMpmDatabasePathName().Get(), pSession->GetMpmRootPath().Get(), this, true, true);
+  Fndb::Create(pSession->GetMpmDatabasePathName().GetData(), pSession->GetMpmRootPath().GetData(), this, true, true);
 
   // free memory
   directoryInfoTable.clear();
@@ -1413,7 +1413,7 @@ bool PackageManager::StripTeXMFPrefix(const string & str, string & result)
   }
   PathName prefix2(".");
   prefix2 /= TEXMF_PREFIX_DIRECTORY;
-  return StripPrefix(str, prefix2.Get(), result);
+  return StripPrefix(str, prefix2.GetData(), result);
 }
 
 void PackageManager::SetProxy(const ProxySettings & proxySettings)
@@ -1676,7 +1676,7 @@ bool PackageManagerImpl::TryVerifyInstalledPackage(const string & deploymentName
     PathName path(p.first);
     // we must dosify the path name for backward compatibility
     path.ToDos();
-    md5Builder.Update(path.Get(), path.GetLength());
+    md5Builder.Update(path.GetData(), path.GetLength());
     md5Builder.Update(p.second.data(), p.second.size());
   }
 

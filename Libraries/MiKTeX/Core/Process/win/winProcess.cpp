@@ -271,7 +271,7 @@ void winProcess::Create()
     // experimental
     SessionImpl::GetSession()->UnloadFilenameDatabase();
 #endif
-    if (!CreateProcessW(UW_(fileName.Get()), UW_(commandLine), nullptr, nullptr, TRUE, creationFlags, nullptr, startinfo.WorkingDirectory.empty() ? nullptr : UW_(startinfo.WorkingDirectory), &siStartInfo, &processInformation))
+    if (!CreateProcessW(UW_(fileName.GetData()), UW_(commandLine), nullptr, nullptr, TRUE, creationFlags, nullptr, startinfo.WorkingDirectory.empty() ? nullptr : UW_(startinfo.WorkingDirectory), &siStartInfo, &processInformation))
     {
       MIKTEX_FATAL_WINDOWS_ERROR_2("CreateProcess", "fileName", startinfo.FileName, "commandLine", commandLine);
     }
@@ -633,5 +633,5 @@ string winProcess::get_ProcessName()
     }
   }
   PathName exePath(processEntry.szExeFile);
-  return exePath.GetFileNameWithoutExtension().Get();
+  return exePath.GetFileNameWithoutExtension().GetData();
 }

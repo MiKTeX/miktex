@@ -418,7 +418,7 @@ void PackageInstallerImpl::LoadDbLight(bool download)
   dbLight.Read(pathMpmIni);
 
   // report digest
-  MD5 md5 = MD5::FromFile(pathMpmIni.Get());
+  MD5 md5 = MD5::FromFile(pathMpmIni.GetData());
   ReportLine(T_("lightweight database digest: %s"), dbLight.GetDigest().ToString().c_str());
 }
 
@@ -835,7 +835,7 @@ void PackageInstallerImpl::MyCopyFile(const PathName & source, const PathName & 
         << T_("The following file could not be written:")
         << LF
         << LF
-        << "  " << dest.Get()
+        << "  " << dest.GetData()
         << LF
         << LF
         << T_("The write operation failed for the following reason:")
@@ -946,7 +946,7 @@ void PackageInstallerImpl::AddToFileList(vector<string> & fileList, const PathNa
       return;
     }
   }
-  fileList.push_back(fileName.Get());
+  fileList.push_back(fileName.GetData());
 }
 
 void PackageInstallerImpl::RemoveFromFileList(vector<string> & fileList, const PathName & fileName) const
@@ -1075,7 +1075,7 @@ void PackageInstallerImpl::InstallPackage(const string & deploymentName)
       // take hold of the package
       temporaryFile = TemporaryFile::Create();
       pathArchiveFile = temporaryFile->GetPathName();
-      Download(MakeUrl(packageFileName.Get()), pathArchiveFile);
+      Download(MakeUrl(packageFileName.GetData()), pathArchiveFile);
     }
     else
     {
@@ -1337,7 +1337,7 @@ bool PackageInstallerImpl::CheckArchiveFile(const std::string & deploymentName, 
     MIKTEX_FATAL_ERROR_2(FatalError(ERROR_MISSING_PACKAGE), "package", deploymentName, "archiveFile", archiveFileName.ToString());
   }
   MD5 digest1 = dbLight.GetArchiveFileDigest(deploymentName);
-  MD5 digest2 = MD5::FromFile(archiveFileName.Get());
+  MD5 digest2 = MD5::FromFile(archiveFileName.GetData());
   bool ok = (digest1 == digest2);
   if (!ok && mustBeOk)
   {
@@ -1417,7 +1417,7 @@ void PackageInstallerImpl::ConnectToServer()
 void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName & path, bool mustSucceed)
 {
   MIKTEX_ASSERT(!pSession->IsMiKTeXPortable());
-  ReportLine("%s %s", (doRegister ? "registering" : "unregistering"), path.Get());
+  ReportLine("%s %s", (doRegister ? "registering" : "unregistering"), path.GetData());
 #if !USE_REGSVR32
   MIKTEX_ASSERT(path.HasExtension(MIKTEX_SHARED_LIB_FILE_SUFFIX));
   DllProc0<HRESULT> regsvr(path.Get(), doRegister ? "DllRegisterServer" : "DllUnregisterServer");
@@ -1515,12 +1515,12 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
           pathIn /= relPathIn;
           if (File::Exists(pathIn))
           {
-            ReportLine(T_("configuring %s"), relPath.Get());
+            ReportLine(T_("configuring %s"), relPath.GetData());
             pSession->ConfigureFile(relPath);
           }
           else
           {
-            ReportLine(T_("problem: %s does not exist"), pathIn.Get());
+            ReportLine(T_("problem: %s does not exist"), pathIn.GetData());
           }
         }
       }
@@ -1564,12 +1564,12 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
       pathIn.AppendExtension(".in");
       if (File::Exists(pathIn))
       {
-        ReportLine(T_("configuring %s"), relPath.Get());
+        ReportLine(T_("configuring %s"), relPath.GetData());
         pSession->ConfigureFile(relPath);
       }
       else
       {
-        ReportLine(T_("problem: %s does not exist"), pathIn.Get());
+        ReportLine(T_("problem: %s does not exist"), pathIn.GetData());
       }
     }
   }
@@ -1587,7 +1587,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
       }
       else
       {
-        ReportLine(T_("problem: %s does not exist"), path.Get());
+        ReportLine(T_("problem: %s does not exist"), path.GetData());
       }
     }
   }
@@ -1899,7 +1899,7 @@ void PackageInstallerImpl::InstallRemoveThread()
 
 void PackageInstallerImpl::Download(const PathName & fileName, size_t expectedSize)
 {
-  Download(MakeUrl(fileName.Get()).c_str(), PathName(downloadDirectory, fileName), expectedSize);
+  Download(MakeUrl(fileName.GetData()).c_str(), PathName(downloadDirectory, fileName), expectedSize);
 }
 
 void PackageInstallerImpl::Download()
@@ -1952,7 +1952,7 @@ void PackageInstallerImpl::Download()
       {
         // the archive file exists;  check to see if it is valid
         MD5 digest1 = dbLight.GetArchiveFileDigest(deploymentName);
-        MD5 digest2 = MD5::FromFile(pathLocalArchiveFile.Get());
+        MD5 digest2 = MD5::FromFile(pathLocalArchiveFile.GetData());
         if (digest1 == digest2)
         {
           // valid => don't download again
@@ -2104,7 +2104,7 @@ void PackageInstallerImpl::CleanUpUserDatabase()
     // compare files
     PathName userPackageDefinitionFile(userDir, name);
     if (File::GetSize(userPackageDefinitionFile) == File::GetSize(commonPackageDefinitionFile)
-      && MD5::FromFile(userPackageDefinitionFile.Get()) == MD5::FromFile(commonPackageDefinitionFile.Get()))
+      && MD5::FromFile(userPackageDefinitionFile.GetData()) == MD5::FromFile(commonPackageDefinitionFile.GetData()))
     {
       // files are identical; remove user file later
       toBeRemoved.push_back(userPackageDefinitionFile);

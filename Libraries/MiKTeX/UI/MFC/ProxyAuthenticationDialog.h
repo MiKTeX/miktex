@@ -47,13 +47,13 @@ public:
 public:
   std::string GetName() const
   {
-    return std::string(MiKTeX::Util::CharBuffer<char>(static_cast<LPCTSTR>(name)).Get());
+    return std::string(MiKTeX::Util::CharBuffer<char>(static_cast<LPCTSTR>(name)).GetData());
   }
 
 public:
   std::string GetPassword() const
   {
-    return std::string(MiKTeX::Util::CharBuffer<char>(static_cast<LPCTSTR>(password)).Get());
+    return std::string(MiKTeX::Util::CharBuffer<char>(static_cast<LPCTSTR>(password)).GetData());
   }
 
 private:

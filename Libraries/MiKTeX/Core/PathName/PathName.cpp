@@ -38,10 +38,10 @@ int PathName::Compare(const char * lpszPath1, const char * lpszPath2)
 #if defined(MIKTEX_WINDOWS)
   PathName path1(lpszPath1);
   path1.TransformForComparison();
-  lpszPath1 = path1.Get();
+  lpszPath1 = path1.GetData();
   PathName path2(lpszPath2);
   path2.TransformForComparison();
-  lpszPath2 = path2.Get();
+  lpszPath2 = path2.GetData();
 #endif
 
   int ret;
@@ -94,10 +94,10 @@ int PathName::Compare(const char * lpszPath1, const char * lpszPath2, size_t cou
 #if defined(MIKTEX_WINDOWS)
   PathName path1(lpszPath1);
   path1.TransformForComparison();
-  lpszPath1 = path1.Get();
+  lpszPath1 = path1.GetData();
   PathName path2(lpszPath2);
   path2.TransformForComparison();
-  lpszPath2 = path2.Get();
+  lpszPath2 = path2.GetData();
 #endif
 
   for (size_t i = 0; i < count; ++i, ++lpszPath1, ++lpszPath2)
@@ -132,7 +132,7 @@ PathName & PathName::Convert(ConvertPathNameOptions options)
 
   if (makeFQ)
   {
-    PathName temp = GetFullPath(Get());
+    PathName temp = GetFullPath(GetData());
     *this = temp;
   }
 
@@ -179,7 +179,7 @@ PathName & PathName::Convert(ConvertPathNameOptions options)
 
   if (toUpper || toLower)
   {
-    if (Utils::IsPureAscii(Get()))
+    if (Utils::IsPureAscii(GetData()))
     {
       for (char * lpsz = GetData(); *lpsz != 0; ++lpsz)
       {
@@ -193,7 +193,7 @@ PathName & PathName::Convert(ConvertPathNameOptions options)
       {
 	*lpsz = toUpper ? ToUpper(*lpsz) : ToLower(*lpsz);
       }
-      *this = wideCharBuffer.Get();
+      *this = wideCharBuffer.GetData();
     }
   }
 
@@ -225,7 +225,7 @@ bool PathName::Match(const char * lpszPattern, const char * lpszPath)
 {
   MIKTEX_ASSERT_STRING(lpszPath);
   MIKTEX_ASSERT_STRING(lpszPattern);
-  return InternalMatch(PathName(lpszPattern).TransformForComparison().Get(), PathName(lpszPath).TransformForComparison().Get());
+  return InternalMatch(PathName(lpszPattern).TransformForComparison().GetData(), PathName(lpszPath).TransformForComparison().GetData());
 }
 
 void PathName::Combine(char * lpszPath, size_t sizePath, const char * lpszAbsPath, const char * lpszRelPath, const char * lpszExtension)
@@ -331,7 +331,7 @@ void PathName::Split(const char * lpszPath, char * lpszDir, size_t sizeDir, char
 
 const char * PathName::GetExtension() const
 {
-  return GetFileNameExtension(Get());
+  return GetFileNameExtension(GetData());
 }
 
 PathName & PathName::SetExtension(const char * lpszExtension, bool override)
@@ -340,7 +340,7 @@ PathName & PathName::SetExtension(const char * lpszExtension, bool override)
   char szFileName[BufferSizes::MaxPath];
   char szExtOld[BufferSizes::MaxPath];
 
-  PathName::Split(Get(), szDir, BufferSizes::MaxPath, szFileName, BufferSizes::MaxPath, szExtOld, BufferSizes::MaxPath);
+  PathName::Split(GetData(), szDir, BufferSizes::MaxPath, szFileName, BufferSizes::MaxPath, szExtOld, BufferSizes::MaxPath);
 
   if (szExtOld[0] == 0 || override)
   {

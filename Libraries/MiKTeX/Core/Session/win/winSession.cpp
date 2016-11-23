@@ -488,17 +488,17 @@ void SessionImpl::WriteRegistry(bool common, const StartupConfig & startupConfig
     if (!startupConfig.commonInstallRoot.Empty()
       && startupConfig.commonInstallRoot != defaultConfig.commonInstallRoot)
     {
-      winRegistry::SetRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_COMMON_INSTALL, startupConfig.commonInstallRoot.Get());
+      winRegistry::SetRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_COMMON_INSTALL, startupConfig.commonInstallRoot.GetData());
     }
     if (!startupConfig.commonDataRoot.Empty()
       && startupConfig.commonDataRoot != defaultConfig.commonDataRoot)
     {
-      winRegistry::SetRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_COMMON_DATA, startupConfig.commonDataRoot.Get());
+      winRegistry::SetRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_COMMON_DATA, startupConfig.commonDataRoot.GetData());
     }
     if (!startupConfig.commonConfigRoot.Empty()
       && startupConfig.commonConfigRoot != defaultConfig.commonConfigRoot)
     {
-      winRegistry::SetRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_COMMON_CONFIG, startupConfig.commonConfigRoot.Get());
+      winRegistry::SetRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_COMMON_CONFIG, startupConfig.commonConfigRoot.GetData());
     }
   }
   if (!common || AdminControlsUserConfig())
@@ -512,17 +512,17 @@ void SessionImpl::WriteRegistry(bool common, const StartupConfig & startupConfig
     if (!startupConfig.userInstallRoot.Empty()
       && startupConfig.userInstallRoot != defaultConfig.userInstallRoot)
     {
-      winRegistry::SetRegistryValue(shared, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_INSTALL, startupConfig.userInstallRoot.Get());
+      winRegistry::SetRegistryValue(shared, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_INSTALL, startupConfig.userInstallRoot.GetData());
     }
     if (!startupConfig.userDataRoot.Empty()
       && startupConfig.userDataRoot != defaultConfig.userDataRoot)
     {
-      winRegistry::SetRegistryValue(shared, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_DATA, startupConfig.userDataRoot.Get());
+      winRegistry::SetRegistryValue(shared, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_DATA, startupConfig.userDataRoot.GetData());
     }
     if (!startupConfig.userConfigRoot.Empty()
       && startupConfig.userConfigRoot != defaultConfig.userConfigRoot)
     {
-      winRegistry::SetRegistryValue(shared, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_CONFIG, startupConfig.userConfigRoot.Get());
+      winRegistry::SetRegistryValue(shared, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_CONFIG, startupConfig.userConfigRoot.GetData());
     }
   }
 }
@@ -548,11 +548,11 @@ bool SessionImpl::GetAcrobatFontDir(PathName & path)
     PathName fontDir;
 
     // try Acrobat Reader 3.0
-    fontDir.Set(dir.Get(), "FONTS", nullptr);
+    fontDir.Set(dir.GetData(), "FONTS", nullptr);
     if (!Directory::Exists(fontDir))
     {
       // try Acrobat Reader 4.0
-      fontDir.Set(dir.Get(), "..\\Resource\\Font", nullptr);
+      fontDir.Set(dir.GetData(), "..\\Resource\\Font", nullptr);
       if (!Directory::Exists(fontDir))
       {
 	return false;
@@ -561,7 +561,7 @@ bool SessionImpl::GetAcrobatFontDir(PathName & path)
 
     RemoveDirectoryDelimiter(fontDir.GetData());
 
-    acrobatFontDir = GetFullPath(fontDir.Get());
+    acrobatFontDir = GetFullPath(fontDir.GetData());
   }
 
   if (acrobatFontDir.GetLength() == 0)
@@ -598,7 +598,7 @@ bool SessionImpl::GetATMFontDir(PathName & path)
 
     RemoveDirectoryDelimiter(fontDir.GetData());
 
-    atmFontDir = GetFullPath(fontDir.Get());
+    atmFontDir = GetFullPath(fontDir.GetData());
   }
 
   if (atmFontDir.GetLength() == 0)
@@ -622,7 +622,7 @@ MIKTEXSTATICFUNC(bool) GetPsFontDirectory(PathName & path)
 
   char szWinDrive[BufferSizes::MaxPath];
 
-  PathName::Split(PathName(szWinDir).Get(), szWinDrive, BufferSizes::MaxPath, nullptr, 0, nullptr, 0, nullptr, 0);
+  PathName::Split(PathName(szWinDir).GetData(), szWinDrive, BufferSizes::MaxPath, nullptr, 0, nullptr, 0, nullptr, 0);
 
   PathName path_(szWinDrive, "\\psfonts", nullptr, nullptr);
 
@@ -648,7 +648,7 @@ bool SessionImpl::GetPsFontDirs(string & psFontDirs)
       {
 	this->psFontDirs += PathName::PathNameDelimiter;
       }
-      this->psFontDirs += path.Get();
+      this->psFontDirs += path.GetData();
     }
     if (GetAcrobatFontDir(path))
     {
@@ -656,7 +656,7 @@ bool SessionImpl::GetPsFontDirs(string & psFontDirs)
       {
 	this->psFontDirs += PathName::PathNameDelimiter;
       }
-      this->psFontDirs += path.Get();
+      this->psFontDirs += path.GetData();
     }
   }
 
@@ -682,7 +682,7 @@ bool SessionImpl::GetTTFDirs(string & ttfDirs)
       {
 	this->ttfDirs += PathName::PathNameDelimiter;;
       }
-      this->ttfDirs += path.Get();
+      this->ttfDirs += path.GetData();
     }
   }
 
@@ -708,7 +708,7 @@ bool SessionImpl::GetOTFDirs(string & otfDirs)
       {
 	this->otfDirs += PathName::PathNameDelimiter;
       }
-      this->otfDirs += path.Get();
+      this->otfDirs += path.GetData();
     }
   }
 

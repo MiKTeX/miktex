@@ -33,7 +33,7 @@ using namespace std;
 
 #define T_(x) MIKTEXTEXT(x)
 
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 const char * const TheNameOfTheGame = T_("MiKTeX Configuration Utility");
 
@@ -1768,7 +1768,7 @@ void IniTeXMFApp::Init(const char * argv0)
   if (session->FindFile("initexmf." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
     || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
   {
-    Utils::SetEnvironmentString("MIKTEX_LOG_DIR", GetLogDir().Get());
+    Utils::SetEnvironmentString("MIKTEX_LOG_DIR", GetLogDir().GetData());
     Utils::SetEnvironmentString("MIKTEX_LOG_NAME", "initexmf");
     log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
   }
@@ -2268,7 +2268,7 @@ void IniTeXMFApp::ManageLink(const FileLink & fileLink, bool supportsHardLinks, 
       {
         PathName directory (linkName);
         directory.RemoveFileSpec();
-        const char * target = Utils::GetRelativizedPath(fileLink.target.c_str(), directory.Get());
+        const char * target = Utils::GetRelativizedPath(fileLink.target.c_str(), directory.GetData());
         if (target == nullptr)
         {
           target = fileLink.target.c_str();
@@ -2364,7 +2364,7 @@ void IniTeXMFApp::RegisterRoots(const vector<PathName> & roots, bool reg)
     {
       newRoots += PathName::PathNameDelimiter;
     }
-    newRoots += root.Get();
+    newRoots += root.GetData();
   }
 
   if (reg)
@@ -2431,14 +2431,14 @@ void IniTeXMFApp::RegisterShellFileTypes(bool reg)
       if (sft.lpszExecutable != nullptr && sft.lpszCommandArgs != nullptr)
       {
         command = '\"';
-        command += exe.Get();
+        command += exe.GetData();
         command += "\" ";
         command += sft.lpszCommandArgs;
       }
       string iconPath;
       if (sft.lpszExecutable != 0 && sft.iconIndex != INT_MAX)
       {
-        iconPath += exe.Get();
+        iconPath += exe.GetData();
         iconPath += ",";
         iconPath += std::to_string(sft.iconIndex);
       }
@@ -3021,7 +3021,7 @@ void IniTeXMFApp::ReportRoots()
       {
         xmlWriter.AddAttribute("commonconfig", "true");
       }
-      xmlWriter.Text(root.Get());
+      xmlWriter.Text(root.GetData());
       xmlWriter.EndElement();
     }
     xmlWriter.EndElement();
@@ -3053,7 +3053,7 @@ void IniTeXMFApp::ReportFndbFiles()
       {
         xmlWriter.StartElement("path");
         xmlWriter.AddAttribute("index", std::to_string(idx));
-        xmlWriter.Text(absFileName.Get());
+        xmlWriter.Text(absFileName.GetData());
         xmlWriter.EndElement();
       }
     }
@@ -3062,7 +3062,7 @@ void IniTeXMFApp::ReportFndbFiles()
     if (session->FindFilenameDatabase(r, path))
     {
       xmlWriter.StartElement("mpmpath");
-      xmlWriter.Text(path.Get());
+      xmlWriter.Text(path.GetData());
       xmlWriter.EndElement();
     }
     xmlWriter.EndElement();
@@ -3293,7 +3293,7 @@ bool IniTeXMFApp::OnFndbItem(const char * lpszPath, const char * lpszName, const
   {
     PathName path(lpszPath, lpszName);
     const char * lpszRel =
-      Utils::GetRelativizedPath(path.Get(), enumDir.Get());
+      Utils::GetRelativizedPath(path.Get(), enumDir.GetData());
     if (!isDirectory)
     {
       if (lpszInfo == nullptr)

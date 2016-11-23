@@ -204,7 +204,7 @@ bool WebApp::ProcessOption(int opt, const string & optArg)
     {
       PathName path(optArg);
       path.MakeAbsolute();
-      session->AddInputDirectory(path.Get(), true);
+      session->AddInputDirectory(path.GetData(), true);
     }
     break;
   case OPT_HELP:

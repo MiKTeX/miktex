@@ -93,7 +93,7 @@ PathName & PathName::SetToTempFile(const PathName & directory)
     MIKTEX_FATAL_WINDOWS_ERROR_2("GetTempFileNameW", "directory", directory.ToString());
   }
   *this = szTemp;
-  SessionImpl::GetSession()->trace_tempfile->WriteFormattedLine("core", T_("created temporary file %s"), Q_(Get()));
+  SessionImpl::GetSession()->trace_tempfile->WriteFormattedLine("core", T_("created temporary file %s"), Q_(GetData()));
   return *this;
 }
 

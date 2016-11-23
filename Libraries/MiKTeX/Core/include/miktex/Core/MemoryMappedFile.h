@@ -52,7 +52,7 @@ public:
 public:
   void * Open(const PathName & path, bool readWrite)
   {
-    return Open(path.Get(), readWrite);
+    return Open(path.GetData(), readWrite);
   }
 
   /// Closes a file mapping.

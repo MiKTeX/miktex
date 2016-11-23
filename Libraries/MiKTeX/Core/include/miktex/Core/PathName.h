@@ -253,7 +253,7 @@ public:
   {
     MIKTEX_ASSERT_CHAR_BUFFER(lpszFileName, BufferSizes::MaxPath);
     char szExtension[BufferSizes::MaxPath];
-    Split(Get(), nullptr, 0, lpszFileName, BufferSizes::MaxPath, szExtension, BufferSizes::MaxPath);
+    Split(GetData(), nullptr, 0, lpszFileName, BufferSizes::MaxPath, szExtension, BufferSizes::MaxPath);
     MiKTeX::Util::StringUtil::AppendString(lpszFileName, BufferSizes::MaxPath, szExtension);
     return lpszFileName;
   }
@@ -269,14 +269,14 @@ public:
   char * GetFileNameWithoutExtension(char * lpszFileName) const
   {
     MIKTEX_ASSERT_CHAR_BUFFER(lpszFileName, BufferSizes::MaxPath);
-    Split(Get(), nullptr, 0, lpszFileName, BufferSizes::MaxPath, nullptr, 0);
+    Split(GetData(), nullptr, 0, lpszFileName, BufferSizes::MaxPath, nullptr, 0);
     return lpszFileName;
   }
 
 public:
   PathName & GetFileNameWithoutExtension(PathName & fileName) const
   {
-    Split(Get(), nullptr, 0, fileName.GetData(), fileName.GetCapacity(), nullptr, 0);
+    Split(GetData(), nullptr, 0, fileName.GetData(), fileName.GetCapacity(), nullptr, 0);
     return fileName;
   }
 
@@ -334,7 +334,7 @@ public:
 public:
   PathName & Set(const PathName & absPath, const PathName & relPath)
   {
-    Combine(GetData(), GetCapacity(), absPath.Get(), relPath.Get(), nullptr);
+    Combine(GetData(), GetCapacity(), absPath.GetData(), relPath.GetData(), nullptr);
     return *this;
   }
 
@@ -347,7 +347,7 @@ public:
 public:
   PathName & Set(const PathName & absPath, const PathName & relPath, const PathName & extension)
   {
-    Combine(GetData(), GetCapacity(), absPath.Get(), relPath.Get(), extension.Get());
+    Combine(GetData(), GetCapacity(), absPath.GetData(), relPath.GetData(), extension.GetData());
     return *this;
   }
 
@@ -425,7 +425,7 @@ public:
 public:
   std::basic_string<wchar_t> ToWideCharString() const
   {
-    return MiKTeX::Util::StringUtil::UTF8ToWideChar(Get());
+    return MiKTeX::Util::StringUtil::UTF8ToWideChar(GetData());
   }
 
   /// Transform this path for comparison purposes.
@@ -444,7 +444,7 @@ public:
   bool IsComparable() const
   {
 #if defined(MIKTEX_WINDOWS)
-    for (const char * lpsz = Get(); *lpsz != 0; ++lpsz)
+    for (const char * lpsz = GetData(); *lpsz != 0; ++lpsz)
     {
       if (*lpsz == DosDirectoryDelimiter || (*lpsz >= 'A' && *lpsz <= 'Z'))
       {
@@ -489,7 +489,7 @@ public:
   char * GetExtension(char * lpszExtension) const
   {
     MIKTEX_ASSERT_CHAR_BUFFER(lpszExtension, BufferSizes::MaxPath);
-    Split(Get(), nullptr, 0, nullptr, 0, lpszExtension, BufferSizes::MaxPath);
+    Split(GetData(), nullptr, 0, nullptr, 0, lpszExtension, BufferSizes::MaxPath);
     return lpszExtension;
   }
 
@@ -594,7 +594,7 @@ public:
 public:
   PathName & operator/= (const PathName & component)
   {
-    return AppendComponent(component.Get());
+    return AppendComponent(component.GetData());
   }
 
   /// Appends a path name component to this path name.
@@ -655,7 +655,7 @@ public:
 public:
   static int Compare(const PathName & path1, const PathName & path2, std::size_t count)
   {
-    return Compare(path1.Get(), path2.Get(), count);
+    return Compare(path1.GetData(), path2.GetData(), count);
   }
 
   /// Compares two path names.
@@ -678,7 +678,7 @@ public:
 public:
   static int Compare(const PathName & path1, const PathName & path2)
   {
-    return Compare(path1.Get(), path2.Get());
+    return Compare(path1.GetData(), path2.GetData());
   }
 
 public:
@@ -697,7 +697,7 @@ public:
 public:
   static bool Match(const char * lpszPattern, const PathName & path)
   {
-    return Match(lpszPattern, path.Get());
+    return Match(lpszPattern, path.GetData());
   }
 };
 

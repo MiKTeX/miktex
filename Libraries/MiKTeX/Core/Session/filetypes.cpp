@@ -230,47 +230,47 @@ void SessionImpl::RegisterFileType(FileType fileType)
     PathName userBinDir = GetSpecialPath(SpecialPath::UserInstallRoot);
     userBinDir /= MIKTEX_PATH_BIN_DIR;
     userBinDir.Canonicalize();
-    if (!IsAdminMode() && !StringUtil::Contains(exePath.c_str(), userBinDir.Get(), PATH_DELIMITER_STRING))
+    if (!IsAdminMode() && !StringUtil::Contains(exePath.c_str(), userBinDir.GetData(), PATH_DELIMITER_STRING))
     {
       if (!exePath.empty())
       {
         exePath += PATH_DELIMITER;
       }
-      exePath += userBinDir.Get();
+      exePath += userBinDir.GetData();
     }
     PathName commonBinDir = GetSpecialPath(SpecialPath::CommonInstallRoot);
     commonBinDir /= MIKTEX_PATH_BIN_DIR;
     commonBinDir.Canonicalize();
-    if (!StringUtil::Contains(exePath.c_str(), commonBinDir.Get(), PATH_DELIMITER_STRING))
+    if (!StringUtil::Contains(exePath.c_str(), commonBinDir.GetData(), PATH_DELIMITER_STRING))
     {
       if (!exePath.empty())
       {
         exePath += PATH_DELIMITER;
       }
-      exePath += commonBinDir.Get();
+      exePath += commonBinDir.GetData();
     }
     string str;
     if (Utils::GetEnvironmentString(MIKTEX_ENV_BIN_DIR, str))
     {
       PathName binDir = str;
       binDir.Canonicalize();
-      if (!StringUtil::Contains(exePath.c_str(), binDir.Get(), PATH_DELIMITER_STRING))
+      if (!StringUtil::Contains(exePath.c_str(), binDir.GetData(), PATH_DELIMITER_STRING))
       {
         if (!exePath.empty())
         {
           exePath += PATH_DELIMITER;
         }
-        exePath += binDir.Get();
+        exePath += binDir.GetData();
       }
     }
     PathName myLocation = GetMyLocation(true);
-    if (!StringUtil::Contains(exePath.c_str(), myLocation.Get(), PATH_DELIMITER_STRING))
+    if (!StringUtil::Contains(exePath.c_str(), myLocation.GetData(), PATH_DELIMITER_STRING))
     {
       if (!exePath.empty())
       {
         exePath += PATH_DELIMITER;
       }
-      exePath += myLocation.Get();
+      exePath += myLocation.GetData();
     }
     if (fileType == FileType::EXE)
     {

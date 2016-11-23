@@ -59,7 +59,7 @@ void Fndb::Add(const char * lpszPath, const char * lpszFileNameInfo)
     // create the fndb file
     // FIXME: the file name info hasn't been added, if the file exists
     PathName pathFndbFile = session->GetFilenameDatabasePathName(root);
-    if (!Fndb::Create(pathFndbFile.Get(), session->GetRootDirectory(root).Get(), nullptr))
+    if (!Fndb::Create(pathFndbFile.GetData(), session->GetRootDirectory(root).GetData(), nullptr))
     {
       MIKTEX_UNEXPECTED();
     }

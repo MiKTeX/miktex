@@ -515,5 +515,5 @@ TeXApp::Write18Result TeXApp::Write18(const wchar_t * lpszCommand, int & exitCod
 {
   MIKTEX_ASSERT_STRING(lpszCommand);
   CharBuffer<char> buf(lpszCommand);
-  return Write18(buf.Get(), exitCode);
+  return Write18(buf.GetData(), exitCode);
 }

@@ -38,4 +38,4 @@
 
 #define T_(x) MIKTEXTEXT(x)
 
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()

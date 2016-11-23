@@ -65,7 +65,7 @@ PathName SessionImpl::GetTempDirectory()
   {
     PathName tempDirectory;
     tempDirectory.SetToTempDirectory();
-    if (IsGoodTempDirectory(tempDirectory.Get()))
+    if (IsGoodTempDirectory(tempDirectory.GetData()))
     {
       return tempDirectory;
     }
@@ -176,7 +176,7 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     }
 #if MIKTEX_WINDOWS
     // FIXME: ANSI
-    if (!GetVolumePathNameA(GetRootDirectory(GetInstallRoot()).Get(), path.GetData(), path.GetCapacity()))
+    if (!GetVolumePathNameA(GetRootDirectory(GetInstallRoot()).GetData(), path.GetData(), path.GetCapacity()))
     {
       MIKTEX_FATAL_WINDOWS_ERROR_2("GetVolumePathNameA", "path", GetRootDirectory(GetInstallRoot()).ToString());
     }

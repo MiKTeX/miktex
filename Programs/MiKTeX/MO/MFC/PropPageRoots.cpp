@@ -159,7 +159,7 @@ INT CALLBACK PropPageTeXMFRoots::BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM
     {
     case BFFM_INITIALIZED:
       char szDrive[BufferSizes::MaxPath];
-      PathName::Split(PathName().SetToCurrentDirectory().Get(), szDrive, BufferSizes::MaxPath, nullptr, 0, nullptr, 0, nullptr, 0);
+      PathName::Split(PathName().SetToCurrentDirectory().GetData(), szDrive, BufferSizes::MaxPath, nullptr, 0, nullptr, 0, nullptr, 0);
       if (szDrive[0] != 0)
       {
         PathName root(szDrive, "\\", nullptr, nullptr);
@@ -595,9 +595,9 @@ void PropPageTeXMFRoots::Refresh()
     lvitem.mask = LVIF_TEXT | LVIF_PARAM;
     lvitem.iSubItem = 0;
     CString compacted;
-    if (!PathCompactPathEx(compacted.GetBuffer(BufferSizes::MaxPath), UT_(root.Get()), 45, 0))
+    if (!PathCompactPathEx(compacted.GetBuffer(BufferSizes::MaxPath), UT_(root.GetData()), 45, 0))
     {
-      compacted = root.Get();
+      compacted = root.GetData();
     }
     lvitem.pszText = compacted.GetBuffer();
     lvitem.lParam = roots.size();
@@ -693,7 +693,7 @@ BOOL PropPageTeXMFRoots::OnApply()
         {
           str += ';';
         }
-        str += it->Get();
+        str += it->GetData();
       }
 
       session->RegisterRootDirectories(str);
@@ -771,7 +771,7 @@ void PropPageTeXMFRoots::OnGetInfoTip(NMHDR * pNMHDR, LRESULT * pResult)
     NMLVGETINFOTIP * pInfoTip = reinterpret_cast<NMLVGETINFOTIP*>(pNMHDR);
     MIKTEX_ASSERT(pInfoTip != nullptr);
     PathName path = roots[pInfoTip->iItem];
-    string info = path.Get();
+    string info = path.GetData();
     bool maintainedByMiKTeX =
       (path == userInstallRoot
         || path == commonInstallRoot
