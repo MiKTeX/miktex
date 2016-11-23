@@ -154,16 +154,12 @@ void SessionImpl::AddDvipsPaperSize(const DvipsPaperSizeInfo & dvipsPaperSizeInf
 
 void SessionImpl::ReadDvipsPaperSizes()
 {
-  for (unsigned r = GetNumberOfTEXMFRoots(); r > 0; --r)
+  vector<PathName> configFiles;
+  if (FindFile(MIKTEX_PATH_CONFIG_PS, MIKTEX_PATH_TEXMF_PLACEHOLDER, { FindFileOption::All }, configFiles))
   {
-    if (!IsManagedRoot(r - 1))
+    for (vector<PathName>::const_reverse_iterator it = configFiles.rbegin(); it != configFiles.rend(); ++it)
     {
-      continue;
-    }
-    PathName configPs(GetRootDirectory(r - 1), MIKTEX_PATH_CONFIG_PS);
-    if (File::Exists(configPs))
-    {
-      StreamReader reader(configPs);
+      StreamReader reader(*it);
       string line;
       bool inDefinition = false;
       DvipsPaperSizeInfo current;
@@ -468,13 +464,13 @@ bool SessionImpl::TryCreateFromTemplate(const PathName & path)
   {
     MIKTEX_UNEXPECTED();
   }
-  PathName configTemplate(GetSpecialPath(SpecialPath::InstallRoot));
-  configTemplate /= lpszRelPath;
-  configTemplate.Append(".template", false);
-  if (File::Exists(configTemplate))
+  string templ = lpszRelPath;
+  templ += ".template";
+  PathName configTemplatePath;
+  if (FindFile(templ.c_str(), MIKTEX_PATH_TEXMF_PLACEHOLDER, configTemplatePath))
   {
     Directory::Create(PathName(path).RemoveFileSpec());
-    File::Copy(configTemplate, path);
+    File::Copy(configTemplatePath, path);
     FileAttributeSet attr = File::GetAttributes(path);
     attr -= FileAttribute::ReadOnly;
     File::SetAttributes(path, attr);
