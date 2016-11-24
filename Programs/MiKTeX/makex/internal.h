@@ -91,7 +91,7 @@ using namespace MiKTeX::Util;
 using namespace std;
 
 #define T_(x) MIKTEXTEXT(x)
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #if !defined(UNUSED_ALWAYS)
 #  define UNUSED_ALWAYS(x) static_cast<void>(x)

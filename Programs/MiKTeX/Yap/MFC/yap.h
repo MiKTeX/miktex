@@ -47,7 +47,7 @@ const bool DEFAULT_bRenderGraphicsInBackground = true;
 #define OUT_OF_MEMORY(functionName) MIKTEX_INTERNAL_ERROR()
 
 #define T_(x) MIKTEXTEXT(x)
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #if !(defined(_UNICODE) && defined(UNICODE))
 #  error UNICODE compilation required

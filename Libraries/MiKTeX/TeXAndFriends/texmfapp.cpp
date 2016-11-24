@@ -649,7 +649,7 @@ bool TeXMFApp::OpenMemoryDumpFile(const PathName & fileName_, FILE ** ppFile, vo
     MIKTEX_FATAL_ERROR_2(T_("The memory dump file could not be found."), "fileName", fileName.ToString());
   }
 
-  FileStream stream(session->OpenFile(path.Get(), FileMode::Open, FileAccess::Read, false));
+  FileStream stream(session->OpenFile(path.GetData(), FileMode::Open, FileAccess::Read, false));
 
   if (pBuf != nullptr)
   {

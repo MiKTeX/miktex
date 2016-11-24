@@ -163,7 +163,7 @@ BOOL FinishPage::OnWizardFinish()
 	else
 	{
 	  PathName pathRelNotes(SetupApp::Instance->GetInstallRoot(), MIKTEX_PATH_RELNOTES_HTML);
-	  if (ShellExecuteW(nullptr, L"open", UW_(pathRelNotes.Get()), nullptr, nullptr, SW_SHOWNORMAL) <= reinterpret_cast<HINSTANCE>(32))
+	  if (ShellExecuteW(nullptr, L"open", UW_(pathRelNotes.GetData()), nullptr, nullptr, SW_SHOWNORMAL) <= reinterpret_cast<HINSTANCE>(32))
 	  {
 	    MIKTEX_FATAL_ERROR_2(T_("The file could not be opened."), "path", pathRelNotes.ToString());
 	  }

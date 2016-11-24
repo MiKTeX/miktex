@@ -272,7 +272,7 @@ bool RemoveFilesPage::OnProgress(MiKTeX::Setup::Notification nf)
 {
   CSingleLock singleLock(&criticalSectionMonitor, TRUE);
   SetupService::ProgressInfo progressInfo = pSetupService->GetProgressInfo();
-  currentFileName = UW_(progressInfo.fileName.Get());
+  currentFileName = UW_(progressInfo.fileName.GetData());
   this->progress = progressInfo.cFilesRemoveCompleted;
   this->total = progressInfo.cFilesRemoveTotal;
   return !(pSheet->GetErrorFlag() || pSheet->GetCancelFlag());

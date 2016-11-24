@@ -291,7 +291,7 @@ inline bool miktexopentfmfile(bytefile & f, const utf8code * lpszFileName_)
 {
   const char * lpszFileName = reinterpret_cast<const char *>(lpszFileName_);
   MiKTeX::Core::PathName fileName(MiKTeX::Util::StringUtil::UTF8ToWideChar(lpszFileName));
-  return MiKTeX::TeXAndFriends::OpenTFMFile(&f, fileName.Get());
+  return MiKTeX::TeXAndFriends::OpenTFMFile(&f, fileName.GetData());
 }
 
 inline char * xmallocchararray(size_t size)

@@ -165,7 +165,7 @@ public:
     {
       return false;
     }
-    FILE * pfile = session->TryOpenFile(fileName.Get(), FileMode::Open, FileAccess::Read, false);
+    FILE * pfile = session->TryOpenFile(fileName.GetData(), FileMode::Open, FileAccess::Read, false);
     if (pfile == nullptr)
     {
       return false;

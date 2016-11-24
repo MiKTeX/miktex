@@ -160,7 +160,7 @@ MIKTEXW2CCEEAPI(void) Web2C::SetOutputDirectory(const PathName & path)
     auxDirectory = outputDirectory;
   }
 #endif
-  session->AddInputDirectory(outputDirectory.Get(), true);
+  session->AddInputDirectory(outputDirectory.GetData(), true);
 }
 
 MIKTEXW2CCEEAPI(void) miktex_web2c_set_output_directory(const char * lpszPath)
@@ -175,7 +175,7 @@ MIKTEXW2CCEEAPI(PathName) Web2C::GetOutputDirectory()
 
 MIKTEXW2CCEEAPI(const char *) miktex_web2c_get_output_directory()
 {
-  return outputDirectory.Empty() ? nullptr : outputDirectory.Get();
+  return outputDirectory.Empty() ? nullptr : outputDirectory.GetData();
 }
 
 MIKTEXW2CDATA(char *) miktex_web2c_fullnameoffile = nullptr;

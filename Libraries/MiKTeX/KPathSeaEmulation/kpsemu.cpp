@@ -133,12 +133,12 @@ MIKTEXKPSCEEAPI(char *) miktex_kpathsea_find_glyph(kpathsea pKpseInstance, const
     }
     PathName pathMakePk;
     std::string arguments = session->MakeMakePkCommandLine(lpszFontName, dpi, kpse_baseResolution, (kpse_mode.empty() ? nullptr : kpse_mode.c_str()), pathMakePk, app->GetEnableInstaller());
-    if (!(Process::Run(pathMakePk.Get(), arguments.c_str(), nullptr, nullptr, nullptr) && session->FindPkFile(lpszFontName, (kpse_mode.empty() ? nullptr : kpse_mode.c_str()), dpi, path)))
+    if (!(Process::Run(pathMakePk.GetData(), arguments.c_str(), nullptr, nullptr, nullptr) && session->FindPkFile(lpszFontName, (kpse_mode.empty() ? nullptr : kpse_mode.c_str()), dpi, path)))
     {
       return nullptr;
     }
   }
-  char * lpsz = xstrdup(path.Get());
+  char * lpsz = xstrdup(path.GetData());
   if (glyph_file != nullptr)
   {
     glyph_file->name = const_cast<char*>(lpszFontName);
@@ -265,7 +265,7 @@ MIKTEXKPSCEEAPI(char *) miktex_kpathsea_find_file(kpathsea pKpseInstance, const 
     return nullptr;
   }
   result.ToUnix();
-  return xstrdup(result.Get());
+  return xstrdup(result.GetData());
 }
 
 MIKTEXKPSCEEAPI(char **) miktex_kpathsea_find_file_generic(kpathsea pKpseInstance, const char * lpszFileName, kpse_file_format_type format, boolean mustExist, boolean all)
@@ -296,7 +296,7 @@ MIKTEXKPSCEEAPI(char **) miktex_kpathsea_find_file_generic(kpathsea pKpseInstanc
   for (PathName & p : result)
   {
     p.ToUnix();
-    pStringList[idx++] = xstrdup(p.Get());
+    pStringList[idx++] = xstrdup(p.GetData());
   }
   pStringList[idx] = nullptr;
   return pStringList;
@@ -400,7 +400,7 @@ MIKTEXKPSCEEAPI(char *) miktex_concatn(const char * lpsz1, ...)
   {
     buf.Append(lpsz);
   }
-  char * lpszRet = xstrdup(buf.Get());
+  char * lpszRet = xstrdup(buf.GetData());
   va_end(marker);
   return lpszRet;
 }
@@ -421,7 +421,7 @@ MIKTEXKPSCEEAPI(const char *) miktex_xbasename(const char * lpszFileName)
 
 MIKTEXKPSCEEAPI(char *) miktex_xdirname(const char * lpszFileName)
 {
-  return xstrdup(PathName(lpszFileName).RemoveFileSpec().Get());
+  return xstrdup(PathName(lpszFileName).RemoveFileSpec().GetData());
 }
 
 MIKTEXKPSCEEAPI(int) miktex_strcasecmp(const char * lpsz1, const char * lpsz2)
@@ -545,7 +545,7 @@ MIKTEXKPSCEEAPI(char *) miktex_xgetcwd()
 {
   PathName path;
   path.SetToCurrentDirectory();
-  return xstrdup(path.Get());
+  return xstrdup(path.GetData());
 }
 
 // [KB] The tolerances change whether we base things on DPI1 or DPI2.
@@ -715,7 +715,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string & varName, std::string & varVa
   else if (varName == "SELFAUTOLOC")
   {
     path = session->GetMyLocation();
-    varValue = path.ToUnix().Get();
+    varValue = path.ToUnix().GetData();
     result = true;
   }
   else if (varName == "SELFAUTODIR")
@@ -735,7 +735,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string & varName, std::string & varVa
       {
         varValue += ',';
       }
-      varValue += session->GetRootDirectory(r).ToUnix().Get();
+      varValue += session->GetRootDirectory(r).ToUnix().GetData();
     }
     varValue += '}';
     result = true;
@@ -743,13 +743,13 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string & varName, std::string & varVa
   else if (varName == "TEXMFCONFIG")
   {
     path = session->GetSpecialPath(SpecialPath::UserConfigRoot);
-    varValue = path.ToUnix().Get();
+    varValue = path.ToUnix().GetData();
     result = true;
   }
   else if (varName == "TEXMFDIST" || varName == "TEXMFMAIN")
   {
     path = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
-    varValue = path.ToUnix().Get();
+    varValue = path.ToUnix().GetData();
     result = true;
   }
 #if 0
@@ -765,25 +765,25 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string & varName, std::string & varVa
   else if (varName == "TEXMFLOCAL")
   {
     path = session->GetSpecialPath(SpecialPath::UserInstallRoot);
-    varValue = path.ToUnix().Get();
+    varValue = path.ToUnix().GetData();
     result = true;
   }
   else if (varName == "TEXMFSYSCONFIG")
   {
     path = session->GetSpecialPath(SpecialPath::CommonConfigRoot);
-    varValue = path.ToUnix().Get();
+    varValue = path.ToUnix().GetData();
     result = true;
   }
   else if (varName == "TEXMFSYSVAR")
   {
     path = session->GetSpecialPath(SpecialPath::CommonDataRoot);
-    varValue = path.ToUnix().Get();
+    varValue = path.ToUnix().GetData();
     result = true;
   }
   else if (varName == "TEXMFVAR")
   {
     path = session->GetSpecialPath(SpecialPath::UserDataRoot);
-    varValue = path.ToUnix().Get();
+    varValue = path.ToUnix().GetData();
     result = true;
   }
   else if (varName == "TEXSYSTEM")
@@ -814,7 +814,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string & varName, std::string & varVa
     if (GetWindowsDirectoryA(path.GetData(), static_cast<UINT>(path.GetCapacity())) > 0)
     {
       path /= "Fonts";
-      varValue = path.ToUnix().Get();
+      varValue = path.ToUnix().GetData();
       result = true;
     }
   }
@@ -968,7 +968,7 @@ MIKTEXKPSCEEAPI(char *) miktex_kpathsea_path_search(kpathsea kpse, const char * 
     return nullptr;
   }
   result.ToUnix();
-  return xstrdup(result.Get());
+  return xstrdup(result.GetData());
 }
 
 MIKTEXKPSCEEAPI(char **) miktex_kpathsea_all_path_search(kpathsea kpse, const char * lpszPath, const char * lpszName)
@@ -987,7 +987,7 @@ MIKTEXKPSCEEAPI(char **) miktex_kpathsea_all_path_search(kpathsea kpse, const ch
   for (int idx = 0; idx < result.size(); ++idx)
   {
     result[idx].ToUnix();
-    pStringList[idx] = xstrdup(result[idx].Get());
+    pStringList[idx] = xstrdup(result[idx].GetData());
   }
   pStringList[result.size()] = nullptr;
   return pStringList;
@@ -1001,7 +1001,7 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_maketex_option(kpathsea kpse, const char *
 MIKTEXKPSCEEAPI(char *) miktex_kpathsea_selfdir(kpathsea kpse, const char * lpszArgv0)
 {
   shared_ptr<Session> session = Session::Get();
-  return xstrdup(session->GetMyLocation().Get());
+  return xstrdup(session->GetMyLocation().GetData());
 }
 
 MIKTEXKPSCEEAPI(char *) miktex_uppercasify(const char * lpsz)

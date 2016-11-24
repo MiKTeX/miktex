@@ -104,7 +104,7 @@ void PropPageFiles::AddFile(int idx, const char * lpszFileName)
   lvitem.iItem = idx;
   lvitem.mask = LVIF_TEXT;
   lvitem.iSubItem = 0;
-  CString fileNameString(fileName.Get());
+  CString fileNameString(fileName.GetData());
   lvitem.pszText = fileNameString.GetBuffer();
   if (listControl.InsertItem(&lvitem) < 0)
   {
@@ -112,7 +112,7 @@ void PropPageFiles::AddFile(int idx, const char * lpszFileName)
   }
   lvitem.iItem = idx;
   lvitem.iSubItem = 1;
-  CString pathString(path.Get());
+  CString pathString(path.GetData());
   lvitem.pszText = pathString.GetBuffer();
   if (!listControl.SetItem(&lvitem))
   {

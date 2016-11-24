@@ -136,7 +136,7 @@ bool DviView::Navigate(const char * lpszUrl, bool remember)
           return false;
         }
         MIKTEX_ASSERT(AfxGetApp() != 0);
-        CDocument * pDoc = AfxGetApp()->OpenDocumentFile(UT_(path.Get()));
+        CDocument * pDoc = AfxGetApp()->OpenDocumentFile(UT_(path.GetData()));
         if (pDoc == nullptr)
         {
           return false;

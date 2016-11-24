@@ -222,7 +222,7 @@ static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
           {
             newPath += ';';
           }
-          newPath += userBinDir.Get();
+          newPath += userBinDir.GetData();
         }
         if (commonBinDir != userBinDir || session->IsAdminMode())
         {
@@ -230,7 +230,7 @@ static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
           {
             newPath += ';';
           }
-          newPath += commonBinDir.Get();
+          newPath += commonBinDir.GetData();
         }
         string oldPath;
         bool haveOldPath = Utils::GetEnvironmentString("PATH", oldPath);
@@ -307,7 +307,7 @@ void InitInstance(HINSTANCE hInstance, int nCmdShow)
     if (session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
     {
       ProcessStartInfo startInfo;
-      startInfo.FileName = initexmf.Get();
+      startInfo.FileName = initexmf.GetData();
       startInfo.Arguments = "--mkmaps";
       AutoFILE nul(fopen("nul", "w"));
       startInfo.StandardOutput = nul.Get();

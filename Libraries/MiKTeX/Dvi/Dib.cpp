@@ -28,7 +28,7 @@ Dib::Dib()
 
 Dib::Dib(const PathName & path)
 {
-  AttachFile(path.Get());
+  AttachFile(path.GetData());
 }
 
 Dib::~Dib()

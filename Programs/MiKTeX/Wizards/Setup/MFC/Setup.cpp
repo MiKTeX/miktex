@@ -309,7 +309,7 @@ void CheckStartupConfig(StartupConfig & startupConfig)
     {
       commonRoots += ';';
     }
-    commonRoots += path.Get();
+    commonRoots += path.GetData();
   }
   startupConfig.commonRoots = commonRoots;
 
@@ -321,7 +321,7 @@ void CheckStartupConfig(StartupConfig & startupConfig)
     {
       continue;
     }
-    if (StringUtil::Contains(startupConfig.commonRoots.c_str(), path.Get(), ";", true))
+    if (StringUtil::Contains(startupConfig.commonRoots.c_str(), path.GetData(), ";", true))
     {
       MIKTEX_FATAL_ERROR_2(T_("Improper options: --user-roots value collides with --common-roots value."), "path", path.ToString());
     }
@@ -353,7 +353,7 @@ void CheckStartupConfig(StartupConfig & startupConfig)
     {
       userRoots += ';';
     }
-    userRoots += path.Get();
+    userRoots += path.GetData();
   }
   startupConfig.userRoots = userRoots;
 #endif
@@ -945,7 +945,7 @@ BOOL SetupApp::InitInstance()
       INT_PTR r = reinterpret_cast<INT_PTR>(ShellExecuteW(nullptr, L"open", pathLogFile.ToWideCharString().c_str(), nullptr, nullptr, SW_SHOWNORMAL));
       if (r <= 32)
       {
-        Process::Start("notepad.exe", pathLogFile.Get());
+        Process::Start("notepad.exe", pathLogFile.GetData());
       }
     }
     traceStream.reset();
@@ -1031,7 +1031,7 @@ void DDV_Path(CDataExchange * pDX, const CString & str)
     if (!Directory::Exists(uncRoot))
     {
       CString message;
-      message.Format(T_(_T("The specified path is invalid because the UNC root directory %s does not exist.")), uncRoot.Get());
+      message.Format(T_(_T("The specified path is invalid because the UNC root directory %s does not exist.")), uncRoot.GetData());
       AfxMessageBox(message, MB_ICONEXCLAMATION);
       message.Empty();
       pDX->Fail();

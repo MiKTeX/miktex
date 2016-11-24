@@ -83,7 +83,7 @@ GooString *getCurrentDir() {
 #elif defined(MIKTEX)
   MiKTeX::Core::PathName cwd;
   cwd.SetToCurrentDirectory ();
-  MiKTeX::Util::StringUtil::CopyString (buf, sizeof(buf) / sizeof(buf[0]), cwd.Get());
+  MiKTeX::Util::StringUtil::CopyString (buf, sizeof(buf) / sizeof(buf[0]), cwd.GetData());
   if (true)
 #elif defined(_WIN32)
   if (GetCurrentDirectory(sizeof(buf), buf))
@@ -153,7 +153,7 @@ GooString *appendToPath(GooString *path, const char *fileName) {
   absPath.MakeAbsolute ();
   delete tmp;
   path->clear();
-  path->append(absPath.Get());
+  path->append(absPath.GetData());
 #else
   GetFullPathName(tmp->getCString(), sizeof(buf), buf, &fp);
   delete tmp;

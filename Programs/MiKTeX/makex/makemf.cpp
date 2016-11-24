@@ -194,10 +194,10 @@ void MakeMf::CreateDestinationDirectory()
   if (!supplier.Empty())
   {
     templ += PathName::DirectoryDelimiter;
-    templ += supplier.Get();
+    templ += supplier.GetData();
   }
   templ += PathName::DirectoryDelimiter;
-  templ += typeface.Get();
+  templ += typeface.GetData();
   destinationDirectory = CreateDirectoryFromTemplate(templ);
 }
 

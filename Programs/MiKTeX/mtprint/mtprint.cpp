@@ -439,11 +439,11 @@ void PrintUtility::StartDvips(const char * lpszDviFileName, const DVIPSOPTS & dv
   // start Dvips
   if (dvipsOpts.runAsFilter)
   {
-    Process::Start(dvipsPath.Get(), commandLine.ToString(), nullptr, nullptr, ppfileDvipsOutRd, ppfileDvipsErrRd, nullptr);
+    Process::Start(dvipsPath.GetData(), commandLine.ToString(), nullptr, nullptr, ppfileDvipsOutRd, ppfileDvipsErrRd, nullptr);
   }
   else
   {
-    Process::Run(dvipsPath.Get(), commandLine.ToString());
+    Process::Run(dvipsPath.GetData(), commandLine.ToString());
   }
 }
 
@@ -478,7 +478,7 @@ void PrintUtility::StartGhostscript(const GSOPTS & gsOpts, unsigned resolution, 
   trace_mtprint->WriteLine("mtprint", commandLine.ToString().c_str());
 
   // start Ghostscript
-  Process::Start(gsPath.Get(), commandLine.ToString(), pfileGsIn, nullptr, ppfileGsOut, nullptr, nullptr);
+  Process::Start(gsPath.GetData(), commandLine.ToString(), pfileGsIn, nullptr, ppfileGsOut, nullptr, nullptr);
 }
 
 void PrintUtility::Spool(const char * lpszFileName, PrintMethod printMethod, const DVIPSOPTS & dvipsOpts, const GSOPTS & gsOpts, const string & printerName)

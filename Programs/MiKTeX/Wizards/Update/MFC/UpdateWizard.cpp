@@ -159,10 +159,10 @@ string UpdateWizard::GetRepository()
     }
     break;
   case RepositoryType::Local:
-    repository = UpdateWizardApplication::packageManager->GetLocalPackageRepository().Get();
+    repository = UpdateWizardApplication::packageManager->GetLocalPackageRepository().GetData();
     break;
   case RepositoryType::MiKTeXDirect:
-    repository = UpdateWizardApplication::packageManager->GetMiKTeXDirectRoot().Get();
+    repository = UpdateWizardApplication::packageManager->GetMiKTeXDirectRoot().GetData();
     break;
   };
   return repository;

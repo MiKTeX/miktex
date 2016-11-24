@@ -2642,7 +2642,7 @@ u_open_in(unicodefile* f, integer filefmt, const_string fopen_mode, integer mode
     (*f)->savedChar = -1;
     (*f)->skipNextLF = 0;
 #if defined(MIKTEX)
-    rval = THEAPP.OpenInputFile(&((*f)->f), THEAPP.GetNameOfFile().Get());
+    rval = THEAPP.OpenInputFile(&((*f)->f), THEAPP.GetNameOfFile().GetData());
 #else
     rval = open_input (&((*f)->f), filefmt, fopen_mode);
 #endif
@@ -2693,10 +2693,10 @@ boolean open_dvi_output(C4P::FileRoot & dviFile)
   if (nopdfoutput)
   {
     MiKTeX::Core::PathName outPath;
-    bool done = THEAPP.OpenOutputFile(dviFile, THEAPP.GetNameOfFile().Get(), MiKTeX::Core::FileShare::Read, false, outPath);
+    bool done = THEAPP.OpenOutputFile(dviFile, THEAPP.GetNameOfFile().GetData(), MiKTeX::Core::FileShare::Read, false, outPath);
     if (done)
     {
-      THEAPP.SetNameOfFile(THEAPP.MangleNameOfFile(outPath.Get()));
+      THEAPP.SetNameOfFile(THEAPP.MangleNameOfFile(outPath.GetData()));
     }
     return done;
   }
@@ -2723,7 +2723,7 @@ boolean open_dvi_output(C4P::FileRoot & dviFile)
     {
     }
     MiKTeX::Core::PathName outPath = THEAPP.GetOutputDirectory();
-    outPath /= MiKTeX::TeXAndFriends::WebAppInputLine::UnmangleNameOfFile(THEAPP.GetNameOfFile().Get());
+    outPath /= MiKTeX::TeXAndFriends::WebAppInputLine::UnmangleNameOfFile(THEAPP.GetNameOfFile().GetData());
     MiKTeX::Core::CommandLineBuilder args;
     switch (MiKTeX::App::Application::GetApplication()->GetEnableInstaller())
     {
@@ -2749,7 +2749,7 @@ boolean open_dvi_output(C4P::FileRoot & dviFile)
       return 0;
     }
     MiKTeX::Core::ProcessStartInfo processStartInfo;
-    processStartInfo.FileName = xdvipdfmx.Get();
+    processStartInfo.FileName = xdvipdfmx.GetData();
     processStartInfo.Arguments = lpsz;
     if (!processStartInfo.Arguments.empty())
     {
@@ -2759,7 +2759,7 @@ boolean open_dvi_output(C4P::FileRoot & dviFile)
     processStartInfo.RedirectStandardInput = true;
     outputdriverprocess = MiKTeX::Core::Process::Start(processStartInfo);
     dviFile.Attach(outputdriverprocess->get_StandardInput(), true);
-    THEAPP.SetNameOfFile(THEAPP.MangleNameOfFile(outPath.Get()));
+    THEAPP.SetNameOfFile(THEAPP.MangleNameOfFile(outPath.GetData()));
     return 1;
   }
 }

@@ -3293,7 +3293,7 @@ bool IniTeXMFApp::OnFndbItem(const char * lpszPath, const char * lpszName, const
   {
     PathName path(lpszPath, lpszName);
     const char * lpszRel =
-      Utils::GetRelativizedPath(path.Get(), enumDir.GetData());
+      Utils::GetRelativizedPath(path.GetData(), enumDir.GetData());
     if (!isDirectory)
     {
       if (lpszInfo == nullptr)

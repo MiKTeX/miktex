@@ -115,7 +115,7 @@ void dvipdft(int argc, const char * * argv)
   int exitCode = 0;
   if (!Process::Run(dvipdfmExe, arguments.ToString(), nullptr, &exitCode, nullptr))
   {
-    FatalError(MIKTEXTEXT("%s could not be started."), dvipdfmExe.Get());
+    FatalError(MIKTEXTEXT("%s could not be started."), dvipdfmExe.GetData());
   }
   if (exitCode != 0)
   {
@@ -145,10 +145,10 @@ void dvipdft(int argc, const char * * argv)
   arguments.AppendOption("-dt");
   arguments.AppendArguments(argc - 1, &argv[1]);
   printf("dvipdfm %s\n", arguments.ToString().c_str());
-  Utils::SetEnvironmentString("MIKTEX_TEMP", tempDir->GetPathName().Get());
-  if (!Process::Run(dvipdfmExe.Get(), arguments.ToString(), nullptr, &exitCode, nullptr))
+  Utils::SetEnvironmentString("MIKTEX_TEMP", tempDir->GetPathName().GetData());
+  if (!Process::Run(dvipdfmExe.GetData(), arguments.ToString(), nullptr, &exitCode, nullptr))
   {
-    FatalError(MIKTEXTEXT("%s could not be started."), dvipdfmExe.Get());
+    FatalError(MIKTEXTEXT("%s could not be started."), dvipdfmExe.GetData());
   }
   if (exitCode != 0)
   {

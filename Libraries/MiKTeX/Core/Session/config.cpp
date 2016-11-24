@@ -1161,8 +1161,8 @@ void SessionImpl::ConfigureFile(const PathName & pathIn, const PathName & pathOu
     attr -= FileAttribute::ReadOnly;
     File::SetAttributes(pathOut, attr);
   }
-  FileStream streamIn(OpenFile(pathIn.Get(), FileMode::Open, FileAccess::Read, false));
-  FileStream streamOut(OpenFile(pathOut.Get(), FileMode::Create, FileAccess::Write, false));
+  FileStream streamIn(OpenFile(pathIn.GetData(), FileMode::Open, FileAccess::Read, false));
+  FileStream streamOut(OpenFile(pathOut.GetData(), FileMode::Create, FileAccess::Write, false));
   char chr;
   bool readingName = false;
   string name;

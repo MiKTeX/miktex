@@ -168,11 +168,11 @@ public:
 {
 #if defined(MIKTEX_XETEX)
   MiKTeX::Util::StringUtil::CopyString (
-  reinterpret_cast<char *>(THEDATA(nameoffile)), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.Get());
+  reinterpret_cast<char *>(THEDATA(nameoffile)), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());
 THEDATA(namelength) = fileName.GetLength();
 #else
   MiKTeX::Util::StringUtil::CopyString(
-    THEDATA(nameoffile), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.Get());
+    THEDATA(nameoffile), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());
   THEDATA(namelength) = fileName.GetLength();
 #endif
 }

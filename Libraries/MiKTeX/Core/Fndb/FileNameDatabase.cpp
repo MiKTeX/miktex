@@ -822,7 +822,7 @@ void FileNameDatabase::ReadFileNames()
 {
   fileNames.clear();
   fileNames.rehash(pHeader->numFiles);
-  AutoTraceTime att("fndb read files", rootDirectory.Get());
+  AutoTraceTime att("fndb read files", rootDirectory.GetData());
   ReadFileNames(GetTopDirectory());
 }
 

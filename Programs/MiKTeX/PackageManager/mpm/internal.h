@@ -18,7 +18,7 @@
    along with MpmCon; if not, write to the Free Software Foundation,
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #define T_(x) MIKTEXTEXT(x)
 

@@ -55,7 +55,7 @@ template<class FileType> inline void miktexclosefile(FileType & f)
 
 template<class FileType> inline bool miktexopeninputfile(FileType & f)
 {
-  bool done = (THEAPP.OpenInputFile(*static_cast<C4P::FileRoot*>(&f), THEAPP.GetNameOfFile().Get()));
+  bool done = (THEAPP.OpenInputFile(*static_cast<C4P::FileRoot*>(&f), THEAPP.GetNameOfFile().GetData()));
   if (done)
   {
     THEAPP.SetNameOfFile(THEAPP.MangleNameOfFile(THEAPP.GetFoundFile()));
@@ -65,7 +65,7 @@ template<class FileType> inline bool miktexopeninputfile(FileType & f)
 
 inline bool miktexallownameoffile(C4P::C4P_boolean forInput)
 {
-  return THEAPP.AllowFileName(THEAPP.GetNameOfFile().Get(), forInput);
+  return THEAPP.AllowFileName(THEAPP.GetNameOfFile().GetData(), forInput);
 }
 
 template<class FileType> inline bool miktexopenoutputfile(FileType & f, C4P::C4P_boolean text)
@@ -74,10 +74,10 @@ template<class FileType> inline bool miktexopenoutputfile(FileType & f, C4P::C4P
   // cf. bug 2006511
   MiKTeX::Core::FileShare share = MiKTeX::Core::FileShare::ReadWrite;
   MiKTeX::Core::PathName outPath;
-  bool done = THEAPP.OpenOutputFile(*static_cast<C4P::FileRoot*>(&f), THEAPP.GetNameOfFile().Get(), share, text, outPath);
+  bool done = THEAPP.OpenOutputFile(*static_cast<C4P::FileRoot*>(&f), THEAPP.GetNameOfFile().GetData(), share, text, outPath);
   if (done)
   {
-    THEAPP.SetNameOfFile(THEAPP.MangleNameOfFile(outPath.Get()));
+    THEAPP.SetNameOfFile(THEAPP.MangleNameOfFile(outPath.GetData()));
   }
   return done;
 }

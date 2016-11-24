@@ -175,11 +175,11 @@ public:
       bstFileName.SetExtension(MIKTEXTEXT(".bst"));
     }
     PathName path;
-    if (!session->FindFile(bstFileName.Get(), FileType::BST, path))
+    if (!session->FindFile(bstFileName.GetData(), FileType::BST, path))
     {
       return false;
     }
-    FILE * pfile = session->OpenFile(path.Get(), FileMode::Open, FileAccess::Read, true);
+    FILE * pfile = session->OpenFile(path.GetData(), FileMode::Open, FileAccess::Read, true);
     f.Attach(pfile, true);
 #ifdef PASCAL_TEXT_IO
     get(f);

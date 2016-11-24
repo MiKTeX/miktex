@@ -260,12 +260,12 @@ void MakeFmt::CreateDestinationDirectory()
   defDestDir = MIKTEX_PATH_TEXMF_PLACEHOLDER;
   defDestDir /= MIKTEX_PATH_FMT_DIR;
   defDestDir /= GetEngineName();
-  destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_REGKEY_MAKEFMT, MIKTEX_REGVAL_DESTDIR, defDestDir.Get()));
+  destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_REGKEY_MAKEFMT, MIKTEX_REGVAL_DESTDIR, defDestDir.GetData()));
 }
 
 void MakeFmt::FindInputFile(const PathName & inputName, PathName & inputFile)
 {
-  if (!session->FindFile(inputName.Get(), FileType::TEX, inputFile))
+  if (!session->FindFile(inputName.GetData(), FileType::TEX, inputFile))
   {
     FatalError(T_("The input file could not be found."));
   }
@@ -341,7 +341,7 @@ void MakeFmt::Run(int argc, const char ** argv)
   {
     session->PushAppName(GetEngineName());
   }
-  session->PushAppName(destinationName.Get());
+  session->PushAppName(destinationName.GetData());
 
   // find the TeX input file
   PathName inputFile;

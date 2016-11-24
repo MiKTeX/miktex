@@ -106,7 +106,7 @@ using namespace std;
 #endif
 
 #define T_(x) MIKTEXTEXT(x)
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #define VA_START(arglist, lpszFormat   )        \
 va_start(arglist, lpszFormat);                  \
@@ -766,7 +766,7 @@ void Driver::Initialize(McdApp * pApplication, Options * pOptions, const char * 
   }
 
   // make fully qualified path to the given input file
-  if (Utils::IsAbsolutePath(givenFileName.Get()))
+  if (Utils::IsAbsolutePath(givenFileName.GetData()))
   {
     pathInputFile = givenFileName;
   }
@@ -949,10 +949,10 @@ void Driver::TexinfoUncomment(const PathName & pathFrom, const PathName & pathTo
 
 void Driver::SetIncludeDirectories()
 {
-  pSession->AddInputDirectory(pOptions->startDirectory.Get(), true);
+  pSession->AddInputDirectory(pOptions->startDirectory.GetData(), true);
   if (originalInputDirectory != pOptions->startDirectory)
   {
-    pSession->AddInputDirectory(originalInputDirectory.Get(), true);
+    pSession->AddInputDirectory(originalInputDirectory.GetData(), true);
   }
   for (const string & dir : pOptions->includeDirectories)
   {
@@ -1222,7 +1222,7 @@ void Driver::RunBibTeX()
 
       PathName subDir;
 
-      if (strchr(subAuxNameNoExt.Get(), PathName::UnixDirectoryDelimiter) != 0)
+      if (strchr(subAuxNameNoExt.GetData(), PathName::UnixDirectoryDelimiter) != 0)
       {
         // we have \@input{SubDir/SubAuxNameNoExt.aux}
         if (pOptions->clean)
@@ -1548,7 +1548,7 @@ void Driver::GetAuxFiles(const PathName & baseName, const char * lpszExtension, 
 
   pApplication->Trace(T_("collecting %s in %s..."), Q_(pattern), Q_(curDir));
 
-  unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(curDir, pattern.Get());
+  unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(curDir, pattern.GetData());
 
   DirectoryEntry2 entry;
 
@@ -1655,7 +1655,7 @@ void Driver::RunViewer()
     commandLine.AppendArguments(pOptions->viewerOptions);
     commandLine.AppendArgument(pathDest);
     pApplication->Verbose(T_("running %s %s..."), Q_(szExecutable), commandLine.ToString().c_str());
-    Process::Start(szExecutable, commandLine.ToString(), nullptr, nullptr, nullptr, nullptr, pOptions->startDirectory.Get());
+    Process::Start(szExecutable, commandLine.ToString(), nullptr, nullptr, nullptr, nullptr, pOptions->startDirectory.GetData());
   }
 }
 
@@ -1989,7 +1989,7 @@ void McdApp::Run(int argc, const char ** argv)
         path.Set(options.startDirectory, optArg);
       }
       path.ToUnix();
-      options.includeDirectories.push_back(path.Get());
+      options.includeDirectories.push_back(path.GetData());
       break;
     }
     case OPT_JOB_NAME:

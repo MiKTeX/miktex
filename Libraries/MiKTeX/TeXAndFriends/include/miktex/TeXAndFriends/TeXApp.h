@@ -421,9 +421,9 @@ public:
     const std::size_t BUFSIZE = MiKTeX::Core::BufferSizes::MaxPath + 100;
     char szBuf[BUFSIZE];
 #if _MSC_VER >= 1400
-    sprintf_s(szBuf, BUFSIZE, "src:%d%s%s", line, isdigit(fileName[0]) ? " " : "", fileName.Get());
+    sprintf_s(szBuf, BUFSIZE, "src:%d%s%s", line, isdigit(fileName[0]) ? " " : "", fileName.GetData());
 #else
-    sprintf(szBuf, "src:%d%s%s", line, isdigit(fileName[0]) ? " " : "", fileName.Get());
+    sprintf(szBuf, "src:%d%s%s", line, isdigit(fileName[0]) ? " " : "", fileName.GetData());
 #endif
     std::size_t len = MiKTeX::Util::StrLen(szBuf);
     CheckPoolPointer(THEDATA(poolptr), len);

@@ -188,7 +188,7 @@ PathName & PathName::Convert(ConvertPathNameOptions options)
     }
     else
     {
-      CharBuffer<wchar_t> wideCharBuffer(Get());
+      CharBuffer<wchar_t> wideCharBuffer(GetData());
       for (wchar_t * lpsz = wideCharBuffer.GetData(); *lpsz != 0; ++lpsz)
       {
 	*lpsz = toUpper ? ToUpper(*lpsz) : ToLower(*lpsz);

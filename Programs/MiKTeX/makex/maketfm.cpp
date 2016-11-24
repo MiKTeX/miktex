@@ -101,10 +101,10 @@ void MakeTfm::CreateDestinationDirectory()
         templ2 += "%R";
         break;
       case 's':
-        templ2 += supplier.Get();
+        templ2 += supplier.GetData();
         break;
       case 't':
-        templ2 += typeface.Get();
+        templ2 += typeface.GetData();
         break;
       }
       ++lpsz;

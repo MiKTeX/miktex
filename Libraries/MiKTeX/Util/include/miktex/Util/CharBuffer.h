@@ -246,13 +246,6 @@ public:
     return buffer;
   }
 
-  // DEPRECATED
-public:
-  MIKTEXDEPRECATED const CharType * Get() const
-  {
-    return buffer;
-  }
-
 public:
   std::size_t GetLength() const
   {

@@ -226,11 +226,11 @@ void DirectoryWalk(TASK task, const PathName & path, const string & stripPrefix,
         case List:
         {
           launch launchPolicy = optAsync ? launch::async : launch::deferred;
-          mapFnToMD5[Utils::GetRelativizedPath(path2.Get(), stripPrefix.c_str())] = async(launchPolicy, [](const PathName & path2) { return MD5::FromFile(path2.Get()); }, path2);
+          mapFnToMD5[Utils::GetRelativizedPath(path2.GetData(), stripPrefix.c_str())] = async(launchPolicy, [](const PathName & path2) { return MD5::FromFile(path2.GetData()); }, path2);
           break;
         }
         case FindDuplicates:
-          mapSizeToFn.insert(make_pair(dirEntry.size, path2.Get()));
+          mapSizeToFn.insert(make_pair(dirEntry.size, path2.GetData()));
           break;
         default:
           break;
@@ -420,7 +420,7 @@ void Main(int argc, const char ** argv)
       PathName path(p.first);
       // we must dosify the path name for backward compatibility
       path.ToDos();
-      md5Builder.Update(path.Get(), path.GetLength());
+      md5Builder.Update(path.GetData(), path.GetLength());
       md5Builder.Update(&p.second.get()[0], p.second.get().size());
     }
     MD5 md5 = md5Builder.Final();
@@ -468,7 +468,7 @@ void Main(int argc, const char ** argv)
   case List:
     for (auto & p : mapFnToMD5)
     {
-      cout << p.second.get().ToString() << " " << PathName(p.first).ToUnix().Get()<< endl;
+      cout << p.second.get().ToString() << " " << PathName(p.first).ToUnix().GetData()<< endl;
     }
   default:
     break;

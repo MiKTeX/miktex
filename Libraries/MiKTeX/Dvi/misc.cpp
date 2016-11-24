@@ -255,7 +255,7 @@ HENHMETAFILE GraphicsInclusionImpl::LoadEnhMetaFile(const PathName & fileName)
   const DWORD ALDUS_ID = 0x9AC6CDD7;
   const size_t APMSIZE = 22;
 
-  HANDLE hFile = CreateFileW(UW_(fileName.Get()), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, nullptr);
+  HANDLE hFile = CreateFileW(UW_(fileName.GetData()), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, nullptr);
 
   if (hFile == INVALID_HANDLE_VALUE)
   {
@@ -268,7 +268,7 @@ HENHMETAFILE GraphicsInclusionImpl::LoadEnhMetaFile(const PathName & fileName)
 
   if (hMapFile == nullptr)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileMappingW", "fileName", fileName.Get());
+    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileMappingW", "fileName", fileName.GetData());
   }
 
   AutoHANDLE autoCloseFileMapping(hMapFile);
@@ -286,7 +286,7 @@ HENHMETAFILE GraphicsInclusionImpl::LoadEnhMetaFile(const PathName & fileName)
 
   if (pEmh->dSignature == META32_SIGNATURE)
   {
-    hEmf = GetEnhMetaFileW(UW_(fileName.Get()));
+    hEmf = GetEnhMetaFileW(UW_(fileName.GetData()));
     if (hEmf == nullptr)
     {
       MIKTEX_FATAL_ERROR_2(T_("The metafile could not be loaded."), "path", fileName.ToString());
@@ -306,7 +306,7 @@ HENHMETAFILE GraphicsInclusionImpl::LoadEnhMetaFile(const PathName & fileName)
     return hEmf;
   }
 
-  HMETAFILE hMf = GetMetaFileW(UW_(fileName.Get()));
+  HMETAFILE hMf = GetMetaFileW(UW_(fileName.GetData()));
 
   if (hMf == nullptr)
   {

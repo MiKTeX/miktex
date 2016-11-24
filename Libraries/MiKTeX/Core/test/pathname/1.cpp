@@ -102,12 +102,12 @@ BEGIN_TEST_FUNCTION(5);
 #if defined(MIKTEX_WINDOWS)
   path = "C:/abc/def/../ghi.jkl";
   path.MakeAbsolute();
-  TEST(PathName::Compare(path.Get(), "C:/abc/ghi.jkl") == 0);
+  TEST(PathName::Compare(path.GetData(), "C:/abc/ghi.jkl") == 0);
 #endif
 
   path = "/abc/def/../ghi.jkl";
   path.MakeAbsolute();
-  TEST(PathName::Compare(path.Get(), "/abc/ghi.jkl") == 0);
+  TEST(PathName::Compare(path.GetData(), "/abc/ghi.jkl") == 0);
 
   PathName path2;
 
@@ -117,7 +117,7 @@ BEGIN_TEST_FUNCTION(5);
   path2.SetToCurrentDirectory();
   path2 /= "abc/ghi.jkl";
 
-  TEST(PathName::Compare(path.Get(), path2) == 0);
+  TEST(PathName::Compare(path.GetData(), path2) == 0);
 }
 END_TEST_FUNCTION();
 
@@ -146,7 +146,7 @@ BEGIN_TEST_FUNCTION(7)
   char szName[BufferSizes::MaxPath];
   TEST(PathName::Compare(path.GetFileNameWithoutExtension(szName), "mno.pqr") == 0);
   char szExt[BufferSizes::MaxPath];
-  PathName::Split(path.Get(), nullptr, 0, szName, BufferSizes::MaxPath, szExt, BufferSizes::MaxPath);
+  PathName::Split(path.GetData(), nullptr, 0, szName, BufferSizes::MaxPath, szExt, BufferSizes::MaxPath);
   TEST(PathName::Compare(szName, "mno.pqr") == 0);
   TEST(PathName::Compare(szExt, ".stu") == 0);
   path.SetExtension(".vwx");

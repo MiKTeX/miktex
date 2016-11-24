@@ -314,7 +314,7 @@ void MainFrame::OnUpdateSource(CCmdUI * pCmdUI)
     if (pDviView->GetSource(sourceFileName, line))
     {
       CString str;
-      str.Format(_T("%s L:%d"), static_cast<LPTSTR>(UT_(sourceFileName.Get())), line);
+      str.Format(_T("%s L:%d"), static_cast<LPTSTR>(UT_(sourceFileName.GetData())), line);
       pCmdUI->SetText(str);
     }
     else

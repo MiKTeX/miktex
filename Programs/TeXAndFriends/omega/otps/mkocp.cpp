@@ -89,9 +89,9 @@ int main(int argc, char ** argv)
       outputName.Set(PathName(), szFileName, szExt);
     }
     CommandLineBuilder commandLine;
-    commandLine.AppendArgument(outputName.Get());
-    Process::Run(otp2ocp.Get(), commandLine.ToString());
-    tcout << outputName.Get() << ".ocp" << endl;
+    commandLine.AppendArgument(outputName.GetData());
+    Process::Run(otp2ocp.GetData(), commandLine.ToString());
+    tcout << outputName.GetData() << ".ocp" << endl;
     return 0;
   }
   catch (const MiKTeXException & e)

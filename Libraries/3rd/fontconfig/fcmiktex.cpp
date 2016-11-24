@@ -100,7 +100,7 @@ extern "C" const char * miktex_fc_default_fonts()
       }
       path /= "Fonts";
     }
-    return (path.Get());
+    return (path.GetData());
   }
   catch (const MiKTeXException & e)
   {
@@ -132,7 +132,7 @@ extern "C" int miktex_get_fontconfig_config_dirs(char ** pPaths, int nPaths)
       {
         PathName path(session->GetRootDirectory(idx));
         path /= MIKTEX_PATH_FONTCONFIG_CONFIG_DIR;
-        pPaths[nPaths] = strdup(path.Get());
+        pPaths[nPaths] = strdup(path.GetData());
       }
     }
     return static_cast<int>(nConfigDirs);

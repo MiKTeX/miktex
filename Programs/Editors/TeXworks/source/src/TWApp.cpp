@@ -172,7 +172,7 @@ void TWApp::init()
 	  {
 	    setSettingsFormat (QSettings::IniFormat);
 	    MiKTeX::Core::PathName path = pSession->GetSpecialPath(MiKTeX::Core::SpecialPath::UserConfigRoot);
-	    QSettings::setPath (QSettings::IniFormat, QSettings::UserScope, path.Get());
+	    QSettings::setPath (QSettings::IniFormat, QSettings::UserScope, path.GetData());
 	  }
 	}
 #endif
@@ -690,7 +690,7 @@ QString TWApp::getOpenFileName(QString selectedFilter)
 #if defined(MIKTEX_WINDOWS)
 	if (lastOpenDir.isEmpty())
 	{
-	  lastOpenDir = MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).Get();
+	  lastOpenDir = MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).GetData();
 	}
 #endif
 	return QFileDialog::getOpenFileName(NULL, QString(tr("Open File")), lastOpenDir,
@@ -871,9 +871,9 @@ void TWApp::setDefaultPaths()
 	    MiKTeX::Core::PathName dir;
 	    dir = pSession->GetSpecialPath(MiKTeX::Core::SpecialPath::CommonInstallRoot);
 	    dir /= MIKTEX_PATH_BIN_DIR;
-	    if (! binaryPaths->contains(dir.Get()))
+	    if (! binaryPaths->contains(dir.GetData()))
 	    {
-	      binaryPaths->prepend(dir.Get());
+	      binaryPaths->prepend(dir.GetData());
 	    }
 	  }
 #else

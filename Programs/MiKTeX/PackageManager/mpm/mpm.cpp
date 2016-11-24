@@ -638,7 +638,7 @@ static void Sorry(string reason)
       << endl
       << "The log file hopefully contains the information to get MiKTeX going again:" << endl
       << endl
-      << "  " << PathName(appender->getFile()).ToUnix().Get() << endl;
+      << "  " << PathName(appender->getFile()).ToUnix().GetData() << endl;
   }
   cerr
     << endl
@@ -765,19 +765,19 @@ void Application::FindConflicts()
     {
       PathName file(fileName);
       file.TransformForComparison();
-      filesAndPackages[file.Get()].push_back(packageInfo.deploymentName);
+      filesAndPackages[file.GetData()].push_back(packageInfo.deploymentName);
     }
     for (const string & fileName : packageInfo.docFiles)
     {
       PathName file(fileName);
       file.TransformForComparison();
-      filesAndPackages[file.Get()].push_back(packageInfo.deploymentName);
+      filesAndPackages[file.GetData()].push_back(packageInfo.deploymentName);
     }
     for (const string & fileName : packageInfo.sourceFiles)
     {
       PathName file(fileName);
       file.TransformForComparison();
-      filesAndPackages[file.Get()].push_back(packageInfo.deploymentName);
+      filesAndPackages[file.GetData()].push_back(packageInfo.deploymentName);
     }
   }
   for (const auto & package : filesAndPackages)
@@ -1509,7 +1509,7 @@ void Application::Main(int argc, const char ** argv)
   if (pSession->FindFile("mpmcli." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
     || pSession->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
   {
-    Utils::SetEnvironmentString("MIKTEX_LOG_DIR", PathName(pSession->GetSpecialPath(SpecialPath::DataRoot)).AppendComponent(MIKTEX_PATH_MIKTEX_LOG_DIR).Get());
+    Utils::SetEnvironmentString("MIKTEX_LOG_DIR", PathName(pSession->GetSpecialPath(SpecialPath::DataRoot)).AppendComponent(MIKTEX_PATH_MIKTEX_LOG_DIR).GetData());
     Utils::SetEnvironmentString("MIKTEX_LOG_NAME", "mpmcli");
     log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
     isLog4cxxConfigured = true;

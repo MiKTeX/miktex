@@ -178,10 +178,10 @@ void MakePk::CreateDestinationDirectory()
         templ2 += modeless ? "modeless" : mfMode;
         break;
       case 's':
-        templ2 += supplier.Get();
+        templ2 += supplier.GetData();
         break;
       case 't':
-        templ2 += typeface.Get();
+        templ2 += typeface.GetData();
         break;
       }
       ++lpsz;
@@ -422,7 +422,7 @@ bool MakePk::IsHbf(const char * lpszName)
   }
   hbfcfg.SetExtension(".cfg", false);
   PathName path;
-  return session->FindFile(hbfcfg.Get(), "%R/HBF2GF//", path);
+  return session->FindFile(hbfcfg.GetData(), "%R/HBF2GF//", path);
 }
 
 void MakePk::Run(int argc, const char ** argv)
@@ -562,7 +562,7 @@ void MakePk::Run(int argc, const char ** argv)
   MakePKFilename(name.c_str(), bdpi, dpi, pkName);
 
   // make fully qualified destination file name
-  PathName pathDest(destinationDirectory.Get(), pkName.Get());
+  PathName pathDest(destinationDirectory.GetData(), pkName.GetData());
 
   // quit, if destination file already exists
   if (File::Exists(pathDest))
@@ -600,7 +600,7 @@ void MakePk::Run(int argc, const char ** argv)
       // run gsf2pk/ps2pk to make a PK font from the PFB file
       try
       {
-        RunGSF2PK(mapEntry, pkName.Get(), dpi, wrkDir->GetPathName());
+        RunGSF2PK(mapEntry, pkName.GetData(), dpi, wrkDir->GetPathName());
         done = true;
       }
       catch (int)
@@ -608,7 +608,7 @@ void MakePk::Run(int argc, const char ** argv)
       }
       if (!done)
       {
-        RunPS2PK(mapEntry, pkName.Get(), dpi, wrkDir->GetPathName());
+        RunPS2PK(mapEntry, pkName.GetData(), dpi, wrkDir->GetPathName());
       }
     }
   }

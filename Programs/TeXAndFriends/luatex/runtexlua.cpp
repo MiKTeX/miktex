@@ -107,7 +107,7 @@ int MAIN(int argc, const MAINCHAR ** argv)
       utf8args.reserve (argc + 3);
       utf8args.push_back (TU_(argv[0]));
       utf8args.push_back ("--luaonly");
-      utf8args.push_back (scriptPath.Get());
+      utf8args.push_back (scriptPath.GetData());
 #if MTXRUN
       if (! (isLuatools || isMtxrun || isTexmfstart))
       {

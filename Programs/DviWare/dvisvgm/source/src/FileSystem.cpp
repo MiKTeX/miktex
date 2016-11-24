@@ -357,7 +357,7 @@ int FileSystem::collect (const char *dirname, vector<string> &entries) {
         {
           MiKTeX::Core::PathName path(dirname);
           path /= entry.name;
-          string typechar = isFile(path.Get()) ? "f" : isDirectory(path.Get()) ? "d" : "?";
+          string typechar = isFile(path.GetData()) ? "f" : isDirectory(path.GetData()) ? "d" : "?";
           if (entry.name != "." && entry.name != "..")
           {
             entries.push_back(typechar + entry.name);

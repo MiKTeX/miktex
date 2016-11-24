@@ -74,7 +74,7 @@ catch(...)                                      \
 va_end(arglist);
 
 #define T_(x) MIKTEXTEXT(x)
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 const char * const TheNameOfTheGame = T_("MiKTeX Help Utility");
 const char * const PROGNAME = "mthelp";
@@ -296,9 +296,9 @@ void MiKTeXHelp::FindDocFilesByName(const string & name, vector<string> & files)
   {
     PathName fileName(PathName(), name, ext.GetCurrent());
     PathName path;
-    if (session->FindFile(fileName.Get(), searchSpec.c_str(), path))
+    if (session->FindFile(fileName.GetData(), searchSpec.c_str(), path))
     {
-      files.push_back(path.Get());
+      files.push_back(path.GetData());
     }
   }
 }
@@ -397,7 +397,7 @@ void MiKTeXHelp::ViewFile(const PathName & fileName)
 
   while ((pos = commandLine.find("%f", pos)) != string::npos)
   {
-    commandLine.replace(pos, 2, fileName.Get());
+    commandLine.replace(pos, 2, fileName.GetData());
     pos += fileName.GetLength();
   }
 

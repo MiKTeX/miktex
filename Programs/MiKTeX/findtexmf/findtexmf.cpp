@@ -47,12 +47,12 @@ using namespace MiKTeX::Wrappers;
 using namespace MiKTeX;
 using namespace std;
 
-#define WU_(x) MiKTeX::Util::CharBuffer<char>(x).Get()
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).Get()
+#define WU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 
 #define T_(x) MIKTEXTEXT(x)
 
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
 

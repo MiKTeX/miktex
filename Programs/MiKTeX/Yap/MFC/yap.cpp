@@ -199,12 +199,12 @@ void ParseYapCommandLine(const char * lpszCommandLine, YapCommandLineInfo & cmdI
 
       // locate the .dvi file
       PathName pathDvi;
-      if (!session->FindFile(pathFileName.Get(), FileType::DVI, pathDvi))
+      if (!session->FindFile(pathFileName.GetData(), FileType::DVI, pathDvi))
       {
         pathDvi = pathFileName;
       }
 
-      cmdInfo.m_strFileName = UT_(pathDvi.Get());
+      cmdInfo.m_strFileName = UT_(pathDvi.GetData());
 
       if (cmdInfo.m_nShellCommand != CCommandLineInfo::FilePrint)
       {
@@ -338,7 +338,7 @@ BOOL YapApplication::InitInstance()
     {
       MIKTEX_ASSERT(_CrtIsValidHeapPointer(m_pszHelpFilePath));
       free(reinterpret_cast<void*>(const_cast<LPTSTR>(m_pszHelpFilePath)));
-      m_pszHelpFilePath = _tcsdup(UT_(helpFileName.Get()));
+      m_pszHelpFilePath = _tcsdup(UT_(helpFileName.GetData()));
     }
 
     // change the registry key under which our settings are stored
@@ -406,7 +406,7 @@ BOOL YapApplication::InitInstance()
     vector<string> invokers = Process2::GetInvokerNames();
     for (vector<string>::const_iterator it = invokers.begin(); it != invokers.end(); ++it)
     {
-      if (StringUtil::Contains(COMMERCIAL_INVOKERS, PathName(*it).GetFileNameWithoutExtension().Get()))
+      if (StringUtil::Contains(COMMERCIAL_INVOKERS, PathName(*it).GetFileNameWithoutExtension().GetData()))
       {
         showSplashWindow = 5;
       }
@@ -611,7 +611,7 @@ bool YapApplication::ActivateFirstInstance(const YapCommandLineInfo & cmdInfo)
   path.MakeAbsolute();
 
   CStringA ddeCommand;
-  ddeCommand.Format("[open(\"%s\")]", path.Get());
+  ddeCommand.Format("[open(\"%s\")]", path.GetData());
   DdeExecute("yap", "system", ddeCommand);
 
   // delegate DVI search
@@ -878,7 +878,7 @@ void StartEditor(const char * lpszFileName, const char * lpszDocDir, int line)
     path.Set(lpszDocDir, lpszFileName);
   }
   PathName path2;
-  if (!session->FindFile(path.Get(), FileType::TEX, path2))
+  if (!session->FindFile(path.GetData(), FileType::TEX, path2))
   {
     MIKTEX_FATAL_ERROR_2(T_("The source file could not be found."), "fileName", lpszFileName);
   }
@@ -898,7 +898,7 @@ void StartEditor(const char * lpszFileName, const char * lpszDocDir, int line)
         commandLine += '%';
         break;
       case 'f':
-        commandLine += path2.Get();
+        commandLine += path2.GetData();
         haveName = true;
         break;
       case 'l':
@@ -986,7 +986,7 @@ CDocument * YapApplication::OpenDocumentFile(LPCTSTR lpszFileName)
 #if defined(REMOVE_BLANKS_FROM_DOCUMENT_FILENAMES)
     Utils::RemoveBlanksFromPathName(pathShort);
 #endif
-    return CWinApp::OpenDocumentFile(UT_(pathShort.Get()));
+    return CWinApp::OpenDocumentFile(UT_(pathShort.GetData()));
   }
   catch (const MiKTeXException & e)
   {

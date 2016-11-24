@@ -62,7 +62,7 @@ using namespace std;
 #endif
 
 #define T_(x) MIKTEXTEXT(x)
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #define VA_START(arglist, lpszFormat   )        \
 va_start(arglist, lpszFormat);                  \
@@ -871,7 +871,7 @@ void EpsToPdfApp::Run(int argc, const char ** argv)
     {
       FatalError(T_("The input file does not exist."));
     }
-    Trace(T_("Input filename: %s"), inputFile.Get());
+    Trace(T_("Input filename: %s"), inputFile.GetData());
   }
 
   if (runAsFilter && verbose)

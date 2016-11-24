@@ -187,13 +187,13 @@ public:
     }
 #if defined(MIKTEX_TEX_COMPILER) || defined(MIKTEX_META_COMPILER)
     MiKTeX::TeXAndFriends::InitializeCharTables(flags,
-      tcxFileName.Get(),
+      tcxFileName.GetData(),
       THEDATA(xchr),
       THEDATA(xord),
       THEDATA(xprn));
 #else
     MiKTeX::TeXAndFriends::InitializeCharTables(flags,
-      tcxFileName.Get(),
+      tcxFileName.GetData(),
       THEDATA(xchr),
       THEDATA(xord),
       0);

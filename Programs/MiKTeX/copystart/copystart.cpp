@@ -26,8 +26,8 @@
 
 #define UNUSED_ALWAYS(x) (x)
 
-#define WU_(x) MiKTeX::Util::CharBuffer<char>(x).Get()
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).Get()
+#define WU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 
 #define W(x) W_(x)
 #define W_(x) L#x
@@ -45,15 +45,15 @@ void CopyStart(const wchar_t * lpszFileName, const wchar_t * lpszArgs)
   MD5 digest = MD5::FromFile(StringUtil::WideCharToUTF8(lpszFileName).c_str());
 
   // set MIKTEX_BINDIR
-  Utils::SetEnvironmentString(MIKTEX_ENV_BIN_DIR, session->GetMyLocation().Get());
+  Utils::SetEnvironmentString(MIKTEX_ENV_BIN_DIR, session->GetMyLocation().GetData());
 
   // set MIKTEX_*STARTUPFILE
   if (session->IsMiKTeXPortable())
   {
     PathName startupConfig(session->GetSpecialPath(SpecialPath::InstallRoot));
     startupConfig /= MIKTEX_PATH_STARTUP_CONFIG_FILE;
-    Utils::SetEnvironmentString(MIKTEX_ENV_COMMON_STARTUP_FILE, startupConfig.Get());
-    Utils::SetEnvironmentString(MIKTEX_ENV_USER_STARTUP_FILE, startupConfig.Get());
+    Utils::SetEnvironmentString(MIKTEX_ENV_COMMON_STARTUP_FILE, startupConfig.GetData());
+    Utils::SetEnvironmentString(MIKTEX_ENV_USER_STARTUP_FILE, startupConfig.GetData());
   }
 
   PathName pathExe;
@@ -66,7 +66,7 @@ void CopyStart(const wchar_t * lpszFileName, const wchar_t * lpszArgs)
   pathExe.SetExtension(".tmp");
   if (File::Exists(pathExe))
   {
-    if (MD5::FromFile(pathExe.Get()) == digest)
+    if (MD5::FromFile(pathExe.GetData()) == digest)
     {
       alreadyCopied = true;
     }
@@ -83,12 +83,12 @@ void CopyStart(const wchar_t * lpszFileName, const wchar_t * lpszArgs)
     if (session->RunningAsAdministrator())
     {
       // schedule the removal of the destination file
-      session->ScheduleFileRemoval(pathExe.Get());
+      session->ScheduleFileRemoval(pathExe.GetData());
     }
   }
 
   // start the executable
-  Process::Start(pathExe.Get(), StringUtil::WideCharToUTF8(lpszArgs).c_str());
+  Process::Start(pathExe.GetData(), StringUtil::WideCharToUTF8(lpszArgs).c_str());
 }
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, wchar_t * lpCmdLine, int nCmdShow)

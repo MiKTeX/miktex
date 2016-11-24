@@ -56,7 +56,7 @@ void PostScript::ExecuteBatch(const char * lpszFileName)
   command = '(';
   PathName pathUnx(lpszFileName);
   pathUnx.Convert({ ConvertPathNameOption::ToUnix, ConvertPathNameOption::MakeAbsolute });
-  command += pathUnx.Get();
+  command += pathUnx.GetData();
   command += ") run\n";
   Execute("%s", command.c_str());
 }
@@ -182,7 +182,7 @@ void PostScript::SendHeader(const char * lpszHeaderName)
     MIKTEX_FATAL_ERROR_2(T_("Cannot find PostScript header file."), "path", lpszHeaderName);
   }
   tracePS->WriteFormattedLine("libdvi", T_("Sending %s..."), Q_(fileName));
-  ExecuteBatch(fileName.Get());
+  ExecuteBatch(fileName.GetData());
 }
 
 void PostScript::DoProlog()
@@ -292,7 +292,7 @@ void PostScript::DoSpecial(PsfileSpecial * ppsfilespecial)
   }
 
   Execute("@setspecial\n");
-  ExecuteEncapsulatedPostScript(pathFileName.Get());
+  ExecuteEncapsulatedPostScript(pathFileName.GetData());
   Execute("@endspecial\n");
 }
 
@@ -338,7 +338,7 @@ void PostScript::DoSpecial(DvipsSpecial * pdvipsspecial)
     {
       MIKTEX_FATAL_ERROR_2(T_("Cannot find graphics file."), "path", pdvipsspecial->GetFileName());
     }
-    ExecuteEncapsulatedPostScript(filename.Get());
+    ExecuteEncapsulatedPostScript(filename.GetData());
   }
   if (pdvipsspecial->GetProtection())
   {
@@ -414,7 +414,7 @@ void PostScript::Uncompress(const char * lpszFileName, PathName & result)
   {
     MIKTEX_FATAL_ERROR_2(T_("Cannot find graphics file."), "path", lpszFileName);
   }
-  Utils::UncompressFile(source.Get(), result);
+  Utils::UncompressFile(source.GetData(), result);
   pDviImpl->RememberTempFile(lpszFileName, result);
 }
 
@@ -451,7 +451,7 @@ bool PostScript::FindGraphicsFile(const char * lpszFileName, PathName & result)
     else
     {
       char szTempFileName[_MAX_PATH];
-      StringUtil::CopyString(szTempFileName, _MAX_PATH, PathName().SetToTempFile().Get());
+      StringUtil::CopyString(szTempFileName, _MAX_PATH, PathName().SetToTempFile().GetData());
       string command;
       command = lpszFileName + 1;
       command += " > ";
@@ -460,7 +460,7 @@ bool PostScript::FindGraphicsFile(const char * lpszFileName, PathName & result)
       PathName docDir = pDviImpl->GetDviFileName();
       docDir.RemoveFileSpec();
       StdoutReader reader;
-      bool done = Process::ExecuteSystemCommand(command.c_str(), nullptr, &reader, docDir.Get());
+      bool done = Process::ExecuteSystemCommand(command.c_str(), nullptr, &reader, docDir.GetData());
       if (!done)
       {
         // FIXME:hard-coded string

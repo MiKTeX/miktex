@@ -94,7 +94,7 @@ void miktex_set_aux_directory(const char * path)
       MIKTEX_FATAL_ERROR_2(T_("The specified auxiliary directory does not exist."), "directory", auxDirectory.ToString());
     }
   }
-  session->AddInputDirectory(auxDirectory.Get(), true);
+  session->AddInputDirectory(auxDirectory.GetData(), true);
 }
 
 const char * miktex_get_aux_directory()

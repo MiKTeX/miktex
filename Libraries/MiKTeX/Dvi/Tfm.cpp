@@ -114,9 +114,9 @@ void Tfm::Read()
 
   dviInfo.fileName = fileName.ToString();
 
-  trace_tfm->WriteFormattedLine("libdvi", T_("opening TFM file %s"), fileName.Get());
+  trace_tfm->WriteFormattedLine("libdvi", T_("opening TFM file %s"), fileName.GetData());
 
-  InputStream inputStream(fileName.Get());
+  InputStream inputStream(fileName.GetData());
 
   long lf = inputStream.ReadSignedPair();
 

@@ -204,9 +204,9 @@ void PkFont::Read()
 
   dviInfo.fileName = fileName.ToString();
 
-  trace_pkfont->WriteFormattedLine("libdvi", T_("opening pk file %s"), fileName.Get());
+  trace_pkfont->WriteFormattedLine("libdvi", T_("opening pk file %s"), fileName.GetData());
 
-  InputStream inputstream(fileName.Get());
+  InputStream inputstream(fileName.GetData());
   int b;
   while (inputstream.TryToReadByte(b))
   {

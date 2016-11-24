@@ -94,7 +94,7 @@ bool MakeNTEmacsCommandLine(string & program, string & arguments)
   {
     return false;
   }
-  program = pathEmacs.Get();
+  program = pathEmacs.GetData();
   arguments = "+%l \"%f\"";
   return true;
 }
@@ -112,7 +112,7 @@ bool MakeNTEmacsClientCommandLine(string & program, string & arguments)
     }
     pathEmacs = szEmacs;
   }
-  program = pathEmacs.Get();
+  program = pathEmacs.GetData();
   arguments = "-F +%l \"%f\"";
   return true;
 }

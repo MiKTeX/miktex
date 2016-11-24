@@ -346,7 +346,7 @@ static int fsyscp_remove(char *name);
 inline char * SYNCTEX_GET_JOB_NAME ()
 {
   char * lpsz = gettexstring(jobname);
-  strcpy (lpsz, MiKTeX::TeXAndFriends::WebAppInputLine::UnmangleNameOfFile(lpsz).Get());
+  strcpy (lpsz, MiKTeX::TeXAndFriends::WebAppInputLine::UnmangleNameOfFile(lpsz).GetData());
   return (lpsz);
 }
 #     else
@@ -358,7 +358,7 @@ inline char * SYNCTEX_GET_JOB_NAME ()
 inline char * SYNCTEX_GET_LOG_NAME ()
 {
   char * lpsz = gettexstring(texmflogname);
-  strcpy (lpsz, MiKTeX::TeXAndFriends::WebAppInputLine::UnmangleNameOfFile(lpsz).Get());
+  strcpy (lpsz, MiKTeX::TeXAndFriends::WebAppInputLine::UnmangleNameOfFile(lpsz).GetData());
   return (lpsz);
 }
 #     else
@@ -890,7 +890,7 @@ void synctexterminate(boolean log_opened)
         MiKTeX::Core::PathName path = THEAPP.GetOutputDirectory();
 	path /= MiKTeX::Core::PathName(tmp).RemoveDirectorySpec();
 	tmp = (char*)xrealloc(tmp, path.GetLength() + 1);
-	strcpy (tmp, path.Get());
+	strcpy (tmp, path.GetData());
 #endif
 #if defined(MIKTEX)
 	/* C++: typecast needed */
@@ -1551,7 +1551,7 @@ static inline int synctex_record_input(integer tag, char *name)
     printf("\nSynchronize DEBUG: synctex_record_input\n");
 #   endif
 #if defined(MIKTEX_PDFTEX) || defined(MIKTEX_XETEX)
-    len = SYNCTEX_fprintf(SYNCTEX_FILE,"Input:%i:%s\n",tag,MiKTeX::TeXAndFriends::WebAppInputLine::UnmangleNameOfFile(name).Get());
+    len = SYNCTEX_fprintf(SYNCTEX_FILE,"Input:%i:%s\n",tag,MiKTeX::TeXAndFriends::WebAppInputLine::UnmangleNameOfFile(name).GetData());
 #else
     len = SYNCTEX_fprintf(SYNCTEX_FILE, "Input:%i:%s\n", tag, name);
 #endif

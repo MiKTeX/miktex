@@ -416,7 +416,7 @@ MIKTEXNORETURN void MakeFontMapApp::MapError(const char * lpszFormat, ...)
   VA_START(arglist, lpszFormat);
   LOG4CXX_FATAL(logger, StringUtil::FormatString(lpszFormat, arglist));
   VA_END(arglist);
-  LOG4CXX_FATAL(logger, "map file: " << mapContext.path.Get());
+  LOG4CXX_FATAL(logger, "map file: " << mapContext.path.GetData());
   LOG4CXX_FATAL(logger, "line: " << mapContext.line);
   Sorry(PROGRAM_NAME);
   throw 1;
@@ -808,12 +808,12 @@ void MakeFontMapApp::WriteDvipdfmMap(StreamWriter & writer, const set<FontMapEnt
     string field2;
     if (!it->encFile.empty())
     {
-      field2 = PathName(it->encFile).GetFileNameWithoutExtension().Get();
+      field2 = PathName(it->encFile).GetFileNameWithoutExtension().GetData();
     }
     string field3;
     if (!it->fontFile.empty())
     {
-      field3 = PathName(it->fontFile).GetFileNameWithoutExtension().Get();
+      field3 = PathName(it->fontFile).GetFileNameWithoutExtension().GetData();
     }
     else if (it->texName != it->psName)
     {
@@ -1160,7 +1160,7 @@ void MakeFontMapApp::BuildFontconfigCache()
       path /= topDirs[idx];
       if (Directory::Exists(path))
       {
-        paths.push_back(path.Get());
+        paths.push_back(path.GetData());
       }
     }
   }

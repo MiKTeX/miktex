@@ -85,7 +85,7 @@ void MIKTEXTHISCALL ChunkDib::OnNewChunk(shared_ptr<DibChunk> chunk)
   bitmapFile.Write(chunk->GetColors(), nColors * sizeof(RGBQUAD));
   bitmapFile.Write(chunk->GetBits(), nBytesPerLine * pBitmapInfo->bmiHeader.biHeight);
   bitmapFile.Close();
-  cout << StringUtil::FormatString(T_("chunk %s written"), fileName.Get()) << endl;
+  cout << StringUtil::FormatString(T_("chunk %s written"), fileName.GetData()) << endl;
 }
 
 void ChunkDib::Run(int argc, const char ** argv)

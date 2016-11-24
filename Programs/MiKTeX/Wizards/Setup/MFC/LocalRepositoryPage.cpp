@@ -38,7 +38,7 @@ LocalRepositoryPage::LocalRepositoryPage() :
 BOOL LocalRepositoryPage::OnInitDialog()
 {
   pSheet = reinterpret_cast<SetupWizard *>(GetParent());
-  fileName = SetupApp::Instance->GetLocalPackageRepository().Get();
+  fileName = SetupApp::Instance->GetLocalPackageRepository().GetData();
   return CPropertyPage::OnInitDialog();
 }
 

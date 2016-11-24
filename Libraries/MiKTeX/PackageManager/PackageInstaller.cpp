@@ -1420,7 +1420,7 @@ void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName & p
   ReportLine("%s %s", (doRegister ? "registering" : "unregistering"), path.GetData());
 #if !USE_REGSVR32
   MIKTEX_ASSERT(path.HasExtension(MIKTEX_SHARED_LIB_FILE_SUFFIX));
-  DllProc0<HRESULT> regsvr(path.Get(), doRegister ? "DllRegisterServer" : "DllUnregisterServer");
+  DllProc0<HRESULT> regsvr(path.GetData(), doRegister ? "DllRegisterServer" : "DllUnregisterServer");
   HResult hr = regsvr();
   if (hr.Failed())
   {

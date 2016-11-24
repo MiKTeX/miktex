@@ -49,10 +49,10 @@ using namespace std;
 
 #define T_(x) MIKTEXTEXT(x)
 
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
-#define WU_(x) MiKTeX::Util::CharBuffer<char>(x).Get()
-#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).Get()
+#define WU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 
 #if !defined(UNUSED_ALWAYS)
 #  define UNUSED_ALWAYS(x) static_cast<void>(x)
@@ -276,7 +276,7 @@ void ArCtrl::StartAR()
   PathName dir = pdfFile;
   dir.RemoveFileSpec();
   char szExecutable[BufferSizes::MaxPath];
-  if (FindExecutableA("miktex.pdf", dir.Get(), szExecutable) <= reinterpret_cast<HINSTANCE>(32))
+  if (FindExecutableA("miktex.pdf", dir.GetData(), szExecutable) <= reinterpret_cast<HINSTANCE>(32))
   {
     FatalError(T_("The PDF viewer could not be located."));
   }
@@ -420,7 +420,7 @@ void ArCtrl::DocOpen(const PathName & path)
   }
   PathName fullPath(path);
   fullPath.MakeAbsolute();
-  ExecuteDdeCommand("[DocOpen(\"%s\")]", fullPath.Get());
+  ExecuteDdeCommand("[DocOpen(\"%s\")]", fullPath.GetData());
 }
 
 void ArCtrl::DocClose(const PathName & path)
@@ -431,7 +431,7 @@ void ArCtrl::DocClose(const PathName & path)
   }
   PathName fullPath(path);
   fullPath.MakeAbsolute();
-  ExecuteDdeCommand("[DocClose(\"%s\")]", fullPath.Get());
+  ExecuteDdeCommand("[DocClose(\"%s\")]", fullPath.GetData());
 }
 
 void ArCtrl::CloseAllDocs()
@@ -462,7 +462,7 @@ void ArCtrl::DocGoTo(const PathName & path, int pageNum)
   }
   PathName fullPath(path);
   fullPath.MakeAbsolute();
-  ExecuteDdeCommand("[DocGoTo(\"%s\",%d)]", fullPath.Get(), pageNum);
+  ExecuteDdeCommand("[DocGoTo(\"%s\",%d)]", fullPath.GetData(), pageNum);
 }
 
 void ArCtrl::DocGoToNameDest(const PathName & path, const string & nameDest)
@@ -473,7 +473,7 @@ void ArCtrl::DocGoToNameDest(const PathName & path, const string & nameDest)
   }
   PathName fullPath(path);
   fullPath.MakeAbsolute();
-  ExecuteDdeCommand("[DocGoToNameDest(\"%s\",\"%s\")]", fullPath.Get(), nameDest.c_str());
+  ExecuteDdeCommand("[DocGoToNameDest(\"%s\",\"%s\")]", fullPath.GetData(), nameDest.c_str());
 }
 
 void ArCtrl::FileOpen(const PathName & path)
@@ -484,7 +484,7 @@ void ArCtrl::FileOpen(const PathName & path)
   }
   PathName fullPath(path);
   fullPath.MakeAbsolute();
-  ExecuteDdeCommand("[FileOpen(\"%s\")]", fullPath.Get());
+  ExecuteDdeCommand("[FileOpen(\"%s\")]", fullPath.GetData());
 }
 
 bool ArCtrl::Execute(const string & command)

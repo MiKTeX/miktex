@@ -359,7 +359,7 @@ const int dvi_id = 2;
 
 void DviImpl::Scan()
 {
-  InputStream inputStream(dviFileName.Get());
+  InputStream inputStream(dviFileName.GetData());
 
   // reset this object
   FreeContents(false);
@@ -550,7 +550,7 @@ void DviImpl::DefineFont(InputStream & inputStream, int fontNum)
     || session->FindFile(fontName, FileType::OVF, fileName))
   {
     trace_dvifile->WriteFormattedLine("libdvi", T_("found VF file %s"), Q_(fileName));
-    pfont = new VFont(this, checkSum, scaledSize, designSize, areaName, fontName, fileName.Get(), tfmConv, conv, mag, metafontMode.c_str(), resolution);
+    pfont = new VFont(this, checkSum, scaledSize, designSize, areaName, fontName, fileName.GetData(), tfmConv, conv, mag, metafontMode.c_str(), resolution);
   }
   else if (pageMode == DviPageMode::Dvips)
   {
@@ -604,7 +604,7 @@ PageStatus DviImpl::GetPageStatus(int pageIdx)
 
     lastChecked = now;
 
-    if (session->IsFileAlreadyOpen(dviFileName.Get()))
+    if (session->IsFileAlreadyOpen(dviFileName.GetData()))
     {
       return PageStatus::Loaded;
     }
@@ -659,13 +659,13 @@ void DviImpl::DoPage(int pageIdx)
 
   try
   {
-    if (session->IsFileAlreadyOpen(dviFileName.Get()))
+    if (session->IsFileAlreadyOpen(dviFileName.GetData()))
     {
       trace_error->WriteLine("libdvi", T_("the DVI file is used by another process"));
       throw DviFileInUseException("", T_("The DVI file is used by another process."), MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION());
     }
 
-    InputStream inputStream(dviFileName.Get());
+    InputStream inputStream(dviFileName.GetData());
 
     inputStream.SetReadPosition(page.GetReadPosition(), SeekOrigin::Begin);
 

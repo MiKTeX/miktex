@@ -623,7 +623,7 @@ void TeXDocument::open()
 	QString lastOpenDir = settings.value("openDialogDir").toString();
 	if (lastOpenDir.isEmpty())
 #if defined(MIKTEX_WINDOWS)
-	    lastOpenDir = MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).Get();
+	    lastOpenDir = MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).GetData();
 #else
 		lastOpenDir = QDir::homePath();
 #endif
@@ -818,7 +818,7 @@ bool TeXDocument::saveAs()
 	QString lastSaveDir = settings.value("saveDialogDir").toString();
 	if (lastSaveDir.isEmpty() || !QDir(lastSaveDir).exists())
 #if defined(MIKTEX_WINDOWS)
-	    lastSaveDir = MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).Get();
+	    lastSaveDir = MiKTeX::Core::Utils::GetFolderPath(CSIDL_MYDOCUMENTS, CSIDL_MYDOCUMENTS, true).GetData();
 #else
 		lastSaveDir = QDir::homePath();
 #endif

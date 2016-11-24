@@ -94,7 +94,7 @@ void Ghostscript::Start()
   startinfo.RedirectStandardInput = true;
   startinfo.RedirectStandardOutput = true;
   startinfo.RedirectStandardError = true;
-  startinfo.WorkingDirectory = pDviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().Get();
+  startinfo.WorkingDirectory = pDviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().GetData();
 
   pProcess.reset(Process::Start(startinfo));
 

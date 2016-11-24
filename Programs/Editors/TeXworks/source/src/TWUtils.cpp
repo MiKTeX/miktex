@@ -114,7 +114,7 @@ const QString TWUtils::getLibraryPath(const QString& subdir, const bool updateOn
 		  subdir += ".";
 		  subdir += std::to_string(VER_MINOR);
 		  dir /= subdir;
-		  libRootPath = dir.Get();
+		  libRootPath = dir.GetData();
 		}
 #else
 		libRootPath = QDir::homePath() + "/" + TEXWORKS_NAME + "/";
@@ -297,7 +297,7 @@ void TWUtils::insertHelpMenuItems(QMenu* helpMenu)
 	path /= "doc/texworks/help";
 	if (MiKTeX::Core::Directory::Exists(path))
 	{
-	  helpDir = path.Get();
+	  helpDir = path.GetData();
 	}
 	else
 	{
@@ -305,7 +305,7 @@ void TWUtils::insertHelpMenuItems(QMenu* helpMenu)
 	  path /= "doc/texworks/help";
 	  if (MiKTeX::Core::Directory::Exists(path))
 	  {
-	    helpDir = path.Get();
+	    helpDir = path.GetData();
 	  }
 	  else
 	  {
@@ -461,7 +461,7 @@ QHash<QString, QString>* TWUtils::getDictionaryList(const bool forceReload /* = 
 	{
 	  MiKTeX::Core::PathName dicPath = pSession->GetRootDirectory(r);
 	  dicPath /= MIKTEX_PATH_HUNSPELL_DICT_DIR;
-	  QDir dicDir (dicPath.Get());
+	  QDir dicDir (dicPath.GetData());
 	  foreach (QFileInfo affFileInfo, dicDir.entryInfoList(QStringList("*.aff"),
 	    QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase))
 	  {

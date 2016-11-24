@@ -151,7 +151,7 @@ BOOL TypePage::OnInitDialog()
     if (haveLocalRepository)
     {
       CString text;
-      text.Format(T_(_T("%s (last used)")), static_cast<LPCTSTR>(UT_(localRepository.Get())));
+      text.Format(T_(_T("%s (last used)")), static_cast<LPCTSTR>(UT_(localRepository.GetData())));
       GetControl(IDC_LAST_USED_DIRECTORY)->SetWindowText(text);
     }
 

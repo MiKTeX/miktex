@@ -203,7 +203,7 @@ void VFont::ReadFontDef(InputStream & inputStream, short fntDefX)
   if (session->FindFile(szName, FileType::VF, fileName))
   {
     trace_vfont->WriteFormattedLine("libdvi", T_("found vf file %s"), Q_(fileName));
-    pFont = new VFont(pDviImpl, cs, ScaleFix(ss, scaledAt), static_cast<int>(ds * tfmConv), szArea, szName, fileName.Get(), tfmConv, conv, mag, metafontMode.c_str(), baseDpi);
+    pFont = new VFont(pDviImpl, cs, ScaleFix(ss, scaledAt), static_cast<int>(ds * tfmConv), szArea, szName, fileName.GetData(), tfmConv, conv, mag, metafontMode.c_str(), baseDpi);
   }
   else if (pDviImpl->GetPageMode() != DviPageMode::Dvips)
   {

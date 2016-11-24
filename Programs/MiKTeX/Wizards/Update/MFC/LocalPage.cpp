@@ -39,7 +39,7 @@ LocalPage::LocalPage() :
   PathName fileName;
   if (UpdateWizardApplication::packageManager->TryGetLocalPackageRepository(fileName))
   {
-    this->fileName = fileName.Get();
+    this->fileName = fileName.GetData();
   }
 }
 

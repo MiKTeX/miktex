@@ -269,7 +269,7 @@ void SessionImpl::ExpandPathPattern(const PathName & rootDirectory, const PathNa
   {
     // recursion; decompose the path pattern into two parts:
     // (1) sub directory (2) smaller (possibly empty) path pattern
-    string subDir(pathPattern.Get(), lpszRecursionIndicator - pathPattern.Get());
+    string subDir(pathPattern.GetData(), lpszRecursionIndicator - pathPattern.GetData());
     const char * lpszSmallerPathPattern = lpszRecursionIndicator + RECURSION_INDICATOR_LENGTH;
     for (; IsDirectoryDelimiter(*lpszSmallerPathPattern); ++lpszSmallerPathPattern)
     {

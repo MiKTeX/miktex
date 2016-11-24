@@ -81,7 +81,7 @@ void DviView::OnPageEditor()
     int line;
     if (GetSource(fileName, line))
     {
-      StartEditor(fileName.Get(), pDoc->GetDocDir().Get(), line);
+      StartEditor(fileName.GetData(), pDoc->GetDocDir().GetData(), line);
     }
     else
     {

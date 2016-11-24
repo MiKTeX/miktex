@@ -873,10 +873,10 @@ unique_ptr<Process> DviPageImpl::StartDvips()
   ProcessStartInfo processStartInfo;
 
   processStartInfo.Arguments = arguments.ToString();
-  processStartInfo.FileName = dvipsPath.Get();
+  processStartInfo.FileName = dvipsPath.GetData();
   processStartInfo.RedirectStandardError = true;
   processStartInfo.RedirectStandardOutput = true;
-  processStartInfo.WorkingDirectory = dir.Get();
+  processStartInfo.WorkingDirectory = dir.GetData();
 
   unique_ptr<Process> pDvips(Process::Start(processStartInfo));
 
@@ -920,11 +920,11 @@ unique_ptr<Process> DviPageImpl::StartGhostscript(int shrinkFactor)
   ProcessStartInfo processStartInfo;
 
   processStartInfo.Arguments = arguments.ToString();
-  processStartInfo.FileName = gsPath.Get();
+  processStartInfo.FileName = gsPath.GetData();
   processStartInfo.StandardInput = dvipsOut.Get();
   processStartInfo.RedirectStandardError = true;
   processStartInfo.RedirectStandardOutput = true;
-  processStartInfo.WorkingDirectory = pDviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().Get();
+  processStartInfo.WorkingDirectory = pDviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().GetData();
 
   unique_ptr<Process> pGhostscript(Process::Start(processStartInfo));
 
@@ -1034,13 +1034,13 @@ void DviPageImpl::DoGraphicsSpecials(int shrinkFactor)
       else
       {
         PathName tempFileName;
-        if (!pDviImpl->TryGetTempFile(fileName.Get(), tempFileName))
+        if (!pDviImpl->TryGetTempFile(fileName.GetData(), tempFileName))
         {
-          if (!session->ConvertToBitmapFile(fileName.Get(), tempFileName.GetData(), nullptr))
+          if (!session->ConvertToBitmapFile(fileName.GetData(), tempFileName.GetData(), nullptr))
           {
-            MIKTEX_FATAL_ERROR_2(T_("Could not convert to bitmap file."), "path", fileName.Get());
+            MIKTEX_FATAL_ERROR_2(T_("Could not convert to bitmap file."), "path", fileName.GetData());
           }
-          pDviImpl->RememberTempFile(fileName.Get(), tempFileName);
+          pDviImpl->RememberTempFile(fileName.GetData(), tempFileName);
         }
         imageType = ImageType::DIB;
         fileName = tempFileName;

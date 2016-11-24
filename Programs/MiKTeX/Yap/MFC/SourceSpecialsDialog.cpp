@@ -129,7 +129,7 @@ BOOL SourceSpecialsDialog::OnInitDialog()
         MIKTEX_UNEXPECTED();
       }
       lvitem.iSubItem = 1;
-      CString fileName(it->fileName.Get());
+      CString fileName(it->fileName.GetData());
       lvitem.pszText = fileName.GetBuffer();
       if (!listControl.SetItem(&lvitem))
       {
@@ -240,7 +240,7 @@ void SourceSpecialsDialog::OnEditSource()
     {
       MIKTEX_FATAL_WINDOWS_ERROR("CListCtrl::GetItem");
     }
-    StartEditor(TU_(szFileName), pDviDoc->GetDocDir().Get(), _ttoi(szLineNum));
+    StartEditor(TU_(szFileName), pDviDoc->GetDocDir().GetData(), _ttoi(szLineNum));
   }
   catch (const MiKTeXException & e)
   {

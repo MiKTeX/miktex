@@ -138,7 +138,7 @@ void InfoListPage::CreateReport()
     info += (T_(_T("Download ")) + packageSet + T_(_T(" from ")) + CRLF
       + TAB + UT_(SetupApp::Instance->GetRemotePackageRepository().c_str()) + CRLF
       + T_(_T(" to ")) + CRLF
-      + TAB + UT_(SetupApp::Instance->GetLocalPackageRepository().Get()));
+      + TAB + UT_(SetupApp::Instance->GetLocalPackageRepository().GetData()));
     break;
   case SetupTask::InstallFromCD:
     info += (T_(_T("Install ")) + packageSet + T_(_T(" from CD/DVD")));
@@ -147,25 +147,25 @@ void InfoListPage::CreateReport()
     if (SetupApp::Instance->Service->GetOptions().IsPrefabricated)
     {
       info += (T_(_T("Install ")) + packageSet + T_(_T(" to ")) + CRLF
-	+ TAB + UT_(SetupApp::Instance->GetInstallRoot().Get()));
+	+ TAB + UT_(SetupApp::Instance->GetInstallRoot().GetData()));
     }
     else
     {
       info += (T_(_T("Install ")) + packageSet + T_(_T(" from ")) + CRLF
-	+ TAB + UT_(SetupApp::Instance->GetLocalPackageRepository().Get()) + CRLF
+	+ TAB + UT_(SetupApp::Instance->GetLocalPackageRepository().GetData()) + CRLF
 	+ T_(_T(" to ")) + CRLF
-	+ TAB + UT_(SetupApp::Instance->GetInstallRoot().Get()));
+	+ TAB + UT_(SetupApp::Instance->GetInstallRoot().GetData()));
     }
     break;
   case SetupTask::InstallFromRemoteRepository:
     info += (T_(_T("Install ")) + packageSet + T_(_T(" from ")) + CRLF
       + TAB + UT_(SetupApp::Instance->GetRemotePackageRepository().c_str()) + CRLF
       + T_(_T(" to ")) + CRLF
-      + TAB + UT_(SetupApp::Instance->GetInstallRoot().Get()));
+      + TAB + UT_(SetupApp::Instance->GetInstallRoot().GetData()));
     break;
   case SetupTask::PrepareMiKTeXDirect:
     info += T_("Prepare to run MiKTeX from ");
-    info += PathName(SetupApp::Instance->Service->GetOptions().MiKTeXDirectRoot, "texmf").Get();
+    info += PathName(SetupApp::Instance->Service->GetOptions().MiKTeXDirectRoot, "texmf").GetData();
     break;
   default:
     MIKTEX_ASSERT(false);

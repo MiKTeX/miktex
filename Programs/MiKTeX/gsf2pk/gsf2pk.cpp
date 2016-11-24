@@ -67,7 +67,7 @@ using namespace std;
 
 #define T_(x) MIKTEXTEXT(x)
 
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).Get()
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 #define VA_START(arglist, lpszFormat   )        \
 va_start(arglist, lpszFormat);                  \
@@ -638,7 +638,7 @@ Process * Converter::StartGhostscript(const char * lpszFontFile, const char * lp
     Error(T_("The font file could not be found."));
   }
   loadString = "(";
-  loadString += pathFont.ToUnix().Get();
+  loadString += pathFont.ToUnix().GetData();
   loadString += ") ";
   int by = GetFirstByte(pathFont);
   if (by == 0)
@@ -661,7 +661,7 @@ Process * Converter::StartGhostscript(const char * lpszFontFile, const char * lp
       Error(T_("The encoding file could not be found."));
     }
     loadString += " (";
-    loadString += pathEnc.ToUnix().Get();
+    loadString += pathEnc.ToUnix().GetData();
     loadString += " ) run";
   }
   commandLine.AppendArgument(loadString.c_str());

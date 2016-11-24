@@ -45,7 +45,7 @@ bool SessionImpl::CheckCandidate(PathName & path, const char * lpszFileInfo)
   bool found = false;
   if (IsMpmFile(path.GetData()))
   {
-    PathName trigger(Utils::GetRelativizedPath(path.Get(), MPM_ROOT_PATH));
+    PathName trigger(Utils::GetRelativizedPath(path.GetData(), MPM_ROOT_PATH));
     PathName installRoot;
     if (lpszFileInfo != nullptr && findFileCallback != nullptr && findFileCallback->InstallPackage(lpszFileInfo, trigger, installRoot))
     {

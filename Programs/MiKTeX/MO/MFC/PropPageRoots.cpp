@@ -163,7 +163,7 @@ INT CALLBACK PropPageTeXMFRoots::BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM
       if (szDrive[0] != 0)
       {
         PathName root(szDrive, "\\", nullptr, nullptr);
-        CString rootStr(root.Get());
+        CString rootStr(root.GetData());
         ::SendMessage(hwnd, BFFM_SETSELECTION, TRUE, reinterpret_cast<LPARAM>(rootStr.GetString()));
       }
       return 0;

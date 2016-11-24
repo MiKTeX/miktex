@@ -163,7 +163,7 @@ inline char * GetTeXString(char * lpsz, std::size_t size, int stringStart, int s
 {
   MiKTeX::Util::CharBuffer<wchar_t, 200> buf(stringLength + 1);
   GetTeXString(buf.GetData(), buf.GetCapacity(), stringStart, stringLength);
-  MiKTeX::Util::StringUtil::CopyString(lpsz, size, buf.Get());
+  MiKTeX::Util::StringUtil::CopyString(lpsz, size, buf.GetData());
   return lpsz;
 }
 #endif
@@ -533,11 +533,11 @@ public:
     if (jobName.empty())
     {
       char szName[MiKTeX::Core::BufferSizes::MaxPath];
-      MiKTeX::Core::PathName::Split(lastInputFileName.Get(), nullptr, 0, szName, MiKTeX::Core::BufferSizes::MaxPath, nullptr, 0);
+      MiKTeX::Core::PathName::Split(lastInputFileName.GetData(), nullptr, 0, szName, MiKTeX::Core::BufferSizes::MaxPath, nullptr, 0);
 #if defined(MIKTEX_XETEX)
       jobName = szName;
 #else
-      jobName = MiKTeX::Core::Quoter<char>(szName).Get();
+      jobName = MiKTeX::Core::Quoter<char>(szName).GetData();
 #endif
     }
     // FIXME: conserve strpool space

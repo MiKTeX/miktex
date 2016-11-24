@@ -560,7 +560,7 @@ void PackageCreator::MD5WildCopy(const PathName & sourceTemplate, const PathName
 
   DirectoryEntry direntry;
 
-  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(sourceDir, pattern.Get());
+  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(sourceDir, pattern.GetData());
 
   bool haveSomething = false;
 
@@ -952,7 +952,7 @@ void PackageCreator::CollectPackages(const PathName & stagingRoot, map<string, M
     }
 
     // read package.ini and Description
-    MpcPackageInfo packageInfo = InitializePackageInfo(stagingDir.Get());
+    MpcPackageInfo packageInfo = InitializePackageInfo(stagingDir.GetData());
 
     if (IsToBeIgnored(packageInfo))
     {
@@ -1057,7 +1057,7 @@ void PackageCreator::ExecuteSystemCommand(const char * lpszCommand, const PathNa
   if (!Process::ExecuteSystemCommand(lpszCommand, &exitCode, this, workingDirectory.Empty() ? nullptr : workingDirectory.GetData()) || exitCode != 0)
   {
     cerr << lpszCommand << ':' << endl;
-    cerr << processOutput.Get() << endl;
+    cerr << processOutput.GetData() << endl;
     FatalError(T_("A system command failed."));
   }
 }
@@ -1242,13 +1242,13 @@ void PackageCreator::CleanUp(const PathName & repository)
       path2.SetExtension(".tar.bz2");
       if (File::Exists(path2))
       {
-        toBeDeleted.push_back(path.Get());
+        toBeDeleted.push_back(path.GetData());
       }
       path2 = path;
       path2.SetExtension(".tar.lzma");
       if (File::Exists(path2))
       {
-        toBeDeleted.push_back(path.Get());
+        toBeDeleted.push_back(path.GetData());
       }
     }
     else if (path.HasExtension(".bz2"))
@@ -1257,7 +1257,7 @@ void PackageCreator::CleanUp(const PathName & repository)
       path2.SetExtension(".lzma");
       if (File::Exists(path2))
       {
-        toBeDeleted.push_back(path.Get());
+        toBeDeleted.push_back(path.GetData());
       }
     }
   }
@@ -1607,7 +1607,7 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo & packageInfo, 
   packageInfo.archiveFileSize = File::GetSize(archiveFile);
 
   // get MD5 of archive file
-  packageInfo.archiveFileDigest = MD5::FromFile(archiveFile.Get());
+  packageInfo.archiveFileDigest = MD5::FromFile(archiveFile.GetData());
 
   // touch the new archive file
   File::SetTimes(archiveFile, reuseExisting ? static_cast<time_t>(-1) : programStartTime, static_cast<time_t>(-1), packageInfo.timePackaged);
@@ -1674,7 +1674,7 @@ map<string, MpcPackageInfo> PackageCreator::LoadDbHeavy(const PathName & reposit
   {
     PathName packageDefinitionFile(directory);
     packageDefinitionFile /= direntry.name;
-    PackageInfo packageInfo = PackageManager::ReadPackageDefinitionFile(packageDefinitionFile.Get(), texmfPrefix);
+    PackageInfo packageInfo = PackageManager::ReadPackageDefinitionFile(packageDefinitionFile.GetData(), texmfPrefix);
     char szDeploymentName[BufferSizes::MaxPath];
     packageDefinitionFile.GetFileNameWithoutExtension(szDeploymentName);
     packageInfo.deploymentName = szDeploymentName;
@@ -2032,8 +2032,8 @@ void PackageCreator::Run(int argc, const char ** argv)
     Verbose(T_("Loading database from %s..."), Q_(repository));
     unique_ptr<Cfg> dbLight(LoadDbLight(repository));
     map<string, MpcPackageInfo> packageTable = LoadDbHeavy(repository);
-    Verbose(T_("Reading staging directory %s..."), stagingDir.Get());
-    MpcPackageInfo packageInfo = InitializePackageInfo(stagingDir.Get());
+    Verbose(T_("Reading staging directory %s..."), stagingDir.GetData());
+    MpcPackageInfo packageInfo = InitializePackageInfo(stagingDir.GetData());
     CollectPackage(packageInfo);
     packageTable[packageInfo.deploymentName] = packageInfo;
     UpdateRepository(packageTable, repository, *dbLight);

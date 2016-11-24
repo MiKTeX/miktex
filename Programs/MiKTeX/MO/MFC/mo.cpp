@@ -149,7 +149,7 @@ BOOL OnHelpInfo(HELPINFO * pHelpInfo, const DWORD * pHelpIds, const char * lpszT
     {
       return FALSE;
     }
-    CString htmlHelpUrl(UT_(helpFile.Get()));
+    CString htmlHelpUrl(UT_(helpFile.GetData()));
     htmlHelpUrl += _T("::/");
     htmlHelpUrl += lpszTopicFile;
     HtmlHelp(reinterpret_cast<HWND>(pHelpInfo->hItemHandle), htmlHelpUrl, HH_TP_HELP_WM_HELP, reinterpret_cast<DWORD_PTR>(const_cast<DWORD*>(pHelpIds)));
