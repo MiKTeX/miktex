@@ -165,10 +165,10 @@ void MakeTfm::Run(int argc, const char ** argv)
   CreateDestinationDirectory();
 
   // make TFM file name
-  PathName pathTFMName(0, name, ".tfm");
+  PathName pathTFMName(name + ".tfm");
 
   // make fully qualified destination path name
-  PathName pathDest(destinationDirectory, pathTFMName, 0);
+  PathName pathDest(destinationDirectory, pathTFMName);
 
   // quit, if destination font file already exists
   if (File::Exists(pathDest))
