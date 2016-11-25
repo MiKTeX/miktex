@@ -105,7 +105,7 @@ MIKTEXUIQTEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::Qt::InstallPackageMessag
       }
       if (!dlg.GetAlwaysAsk())
       {
-	ret != DONTASKAGAIN;
+	ret |= DONTASKAGAIN;
 	if (dialogCode == QDialog::Accepted)
 	{
 	  pSession->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, "1");
