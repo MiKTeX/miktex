@@ -149,12 +149,6 @@ public:
   {
   }
 
-public:
-  PathName(int zero) :
-    CharBuffer<char, BufferSizes::MaxPath>(zero)
-  {
-  }
-
   /// Copies a character string into a new PathName object.
   /// @param rhs Null-terminated character string.
 public:
@@ -186,6 +180,9 @@ public:
     CharBuffer<char, BufferSizes::MaxPath>(rhs)
   {
   }
+
+public:
+  PathName(int n) = delete;
 
 #if defined(MIKTEX_WINDOWS)
 public:
