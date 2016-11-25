@@ -480,7 +480,7 @@ MIKTEXINTERNALFUNC(PathName) GetFullPath(const char * lpszPath)
     if (IsDriveLetter(lpszPath[0]) && lpszPath[1] == ':' && lpszPath[2] == 0)
     {
       path = lpszPath;
-      path /= PathName::DirectoryDelimiter;
+      path += PathName::DirectoryDelimiter;
       return path;
     }
 #endif
