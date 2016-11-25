@@ -800,7 +800,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string & varName, std::string & varVa
     result = session->TryGetConfigValue(nullptr, MIKTEX_REGVAL_ALLOWED_SHELL_COMMANDS, varValue);
     if (result)
     {
-      std::replace(varValue.begin(), varValue.end(), (char)PathName::PathNameDelimiter, ',');
+      std::replace(varValue.begin(), varValue.end(), PathName::PathNameDelimiter, ',');
     }
   }
   // configuration files and environment

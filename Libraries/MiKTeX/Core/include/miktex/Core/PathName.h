@@ -75,23 +75,40 @@ protected:
   typedef CharBuffer<char, BufferSizes::MaxPath> Base;
 
 public:
-  enum {
-    DosDirectoryDelimiter = '\\',
-    DosPathNameDelimiter = ';',
-    UnixDirectoryDelimiter = '/',
-    UnixPathNameDelimiter = ':',
+  static const char DosDirectoryDelimiter = '\\';
+
+public:
+  static const char UnixDirectoryDelimiter = '/';
+
+public:
+  static const char DosPathNameDelimiter = ';';
+
+public:
+  static const char UnixPathNameDelimiter = ':';
+
 #if defined(MIKTEX_WINDOWS)
-    AltDirectoryDelimiter = UnixDirectoryDelimiter,
-    DirectoryDelimiter = DosDirectoryDelimiter,
-    PathNameDelimiter = DosPathNameDelimiter,
-    VolumeDelimiter = ':',
-#elif defined(MIKTEX_UNIX)
-    DirectoryDelimiter = UnixDirectoryDelimiter,
-    PathNameDelimiter = UnixPathNameDelimiter,
-#else
-#  error Unimplemented: PathName::DirectoryDelimiter
+public:
+  static const char AltDirectoryDelimiter = UnixDirectoryDelimiter;
 #endif
-  };
+
+public:
+#if defined(MIKTEX_WINDOWS)
+  static const char DirectoryDelimiter = DosDirectoryDelimiter;
+#elif defined(MIKTEX_UNIX)
+  static const char DirectoryDelimiter = UnixDirectoryDelimiter;
+#endif
+
+public:
+#if defined(MIKTEX_WINDOWS)
+  static const char PathNameDelimiter = DosPathNameDelimiter;
+#elif defined(MIKTEX_UNIX)
+  static const char PathNameDelimiter = UnixPathNameDelimiter;
+#endif
+
+#if defined(MIKTEX_WINDOWS)
+public:
+  static const char VolumeDelimiter = ':';
+#endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
