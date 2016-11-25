@@ -210,7 +210,7 @@ void MiKTeXHelp::Warning(const char * lpszFormat, ...)
   }
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  cerr << StringUtil::FormatString(lpszFormat, arglist) << endl;
+  cerr << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
   VA_END(arglist);
 }
 

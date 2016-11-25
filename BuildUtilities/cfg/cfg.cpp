@@ -93,7 +93,7 @@ void FatalError(const char * lpszFormat, ...)
 {
   va_list arglist;
   va_start(arglist, lpszFormat);
-  cerr << Utils::GetExeName() << ": " << StringUtil::FormatString(lpszFormat, arglist) << endl;
+  cerr << Utils::GetExeName() << ": " << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
   va_end(arglist);
   throw (1);
 }

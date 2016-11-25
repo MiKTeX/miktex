@@ -2401,7 +2401,7 @@ void PackageInstallerImpl::ReportLine(const char * lpszFormat, ...)
   }
   va_list marker;
   va_start(marker, lpszFormat);
-  string str = StringUtil::FormatString(lpszFormat, marker);
+  string str = StringUtil::FormatStringVA(lpszFormat, marker);
   va_end(marker);
   pCallback->ReportLine(str);
 }

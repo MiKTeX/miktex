@@ -218,7 +218,7 @@ void TraceStreamImpl::LegacyLogger(const string & facility, const string & messa
 
 void TraceStreamImpl::FormatV(const string & facility, bool appendNewline, const string & format, va_list arglist)
 {
-  Logger(facility, StringUtil::FormatString(format.c_str(), arglist), appendNewline);
+  Logger(facility, StringUtil::FormatStringVA(format.c_str(), arglist), appendNewline);
 }
 
 void TraceStream::SetTraceFlags(const char * lpszFlags)

@@ -172,7 +172,7 @@ void MakeUtility::Verbose(const char * lpszFormat, ...)
   string s;
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  s = StringUtil::FormatString(lpszFormat, arglist);
+  s = StringUtil::FormatStringVA(lpszFormat, arglist);
   VA_END(arglist);
   LOG4CXX_INFO(logger, s);
   if (verbose && !quiet)
@@ -190,7 +190,7 @@ void MakeUtility::Message(const char * lpszFormat, ...)
   string s;
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  s = StringUtil::FormatString(lpszFormat, arglist);
+  s = StringUtil::FormatStringVA(lpszFormat, arglist);
   VA_END(arglist);
   LOG4CXX_INFO(logger, s);
   if (!quiet)
@@ -207,7 +207,7 @@ void MakeUtility::PrintOnly(const char * lpszFormat, ...)
   }
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  OUT__ << StringUtil::FormatString(lpszFormat, arglist) << endl;
+  OUT__ << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
   VA_END(arglist);
 }
 

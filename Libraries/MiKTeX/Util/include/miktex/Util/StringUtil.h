@@ -102,7 +102,7 @@ public:
   /// @param arglist Argument list.
   /// @return Returns a string object.
 public:
-  static MIKTEXUTILCEEAPI(std::string) FormatString(const char * lpszFormat, va_list arglist);
+  static MIKTEXUTILCEEAPI(std::string) FormatStringVA(const char * lpszFormat, va_list arglist);
 
 public:
   static MIKTEXUTILCEEAPI(std::string) FormatString(const char * lpszFormat, ...);

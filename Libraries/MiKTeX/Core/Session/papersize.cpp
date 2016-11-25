@@ -435,7 +435,7 @@ public:
   {
     va_list marker;
     va_start(marker, lpszFormat);
-    WriteLine(StringUtil::FormatString(lpszFormat, marker));
+    WriteLine(StringUtil::FormatStringVA(lpszFormat, marker));
     va_end(marker);
   }
 

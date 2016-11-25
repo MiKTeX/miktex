@@ -583,7 +583,7 @@ MIKTEXNORETURN void Application::FatalError(const char * lpszFormat, ...)
   string s;
   try
   {
-    s = StringUtil::FormatString(lpszFormat, arglist);
+    s = StringUtil::FormatStringVA(lpszFormat, arglist);
   }
   catch (...)
   {

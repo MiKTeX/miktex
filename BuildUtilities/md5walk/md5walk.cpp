@@ -127,7 +127,7 @@ void Verbose(const char * lpszFormat, ...)
   }
   va_list arglist;
   va_start(arglist, lpszFormat);
-  cout << StringUtil::FormatString(lpszFormat, arglist);
+  cout << StringUtil::FormatStringVA(lpszFormat, arglist);
   va_end(arglist);
 }
 
@@ -195,7 +195,7 @@ void FatalError(const char * lpszFormat, ...)
   va_start(arglist, lpszFormat);
   cerr
     << Utils::GetExeName() << ": "
-    << StringUtil::FormatString(lpszFormat, arglist)
+    << StringUtil::FormatStringVA(lpszFormat, arglist)
     << endl;
   va_end(arglist);
   throw FATAL_ERROR;

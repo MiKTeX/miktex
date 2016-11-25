@@ -367,7 +367,7 @@ MIKTEXNORETURN void Converter::Error(const char * lpszFormat, ...) const
 {
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  cerr << "gsf2pk" << ": " << StringUtil::FormatString(lpszFormat, arglist) << endl;
+  cerr << "gsf2pk" << ": " << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
   VA_END(arglist);
   ShowGhostscriptTranscript();
   throw 1;
@@ -381,7 +381,7 @@ void Converter::Verbose(const char * lpszFormat, ...)
   }
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  cout << StringUtil::FormatString(lpszFormat, arglist) << endl;
+  cout << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
   VA_END(arglist);
 }
 

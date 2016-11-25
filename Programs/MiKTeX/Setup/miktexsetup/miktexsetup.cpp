@@ -303,7 +303,7 @@ void Application::Message(const char *  lpszFormat, ...)
   }
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  cout << StringUtil::FormatString(lpszFormat, arglist) << endl;
+  cout << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
   VA_END(arglist);
 }
 
@@ -315,7 +315,7 @@ void Application::Verbose(const char * lpszFormat, ...)
   }
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  cout << StringUtil::FormatString(lpszFormat, arglist) << endl;
+  cout << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
   VA_END(arglist);
 }
 
@@ -323,7 +323,7 @@ MIKTEXNORETURN void Application::Error(const char * lpszFormat, ...)
 {
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  cerr << "miktexsetup: " << StringUtil::FormatString(lpszFormat, arglist) << endl;
+  cerr << "miktexsetup: " << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
   VA_END(arglist);
   throw 1;
 }

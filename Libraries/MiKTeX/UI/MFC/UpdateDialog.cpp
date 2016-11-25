@@ -529,7 +529,7 @@ void UpdateDialogImpl::Report(bool immediate, const char * lpszFmt, ...)
   MIKTEX_ASSERT(lpszFmt != nullptr);
   va_list args;
   va_start(args, lpszFmt);
-  CString str = UT_(StringUtil::FormatString(lpszFmt, args));
+  CString str = UT_(StringUtil::FormatStringVA(lpszFmt, args));
   va_end(args);
   int len = str.GetLength();
   CSingleLock singlelock(&criticalSectionMonitor, TRUE);
@@ -570,7 +570,7 @@ void UpdateDialogImpl::FormatControlText(UINT ctrlId, const char * lpszFormat, .
 {
   va_list marker;
   va_start(marker, lpszFormat);
-  string str = StringUtil::FormatString(lpszFormat, marker);
+  string str = StringUtil::FormatStringVA(lpszFormat, marker);
   va_end(marker);
   GetControl(ctrlId)->SetWindowText(UT_(str));
 }

@@ -397,7 +397,7 @@ void ArCtrl::ExecuteDdeCommand(const char * lpszCommand, ...)
   wstring data;
   try
   {
-    data = UW_(StringUtil::FormatString(lpszCommand, arglist));
+    data = UW_(StringUtil::FormatStringVA(lpszCommand, arglist));
   }
   catch (...)
   {

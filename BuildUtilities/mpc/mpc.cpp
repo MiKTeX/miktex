@@ -478,7 +478,7 @@ void PackageCreator::Verbose(const char * lpszFormat, ...)
   {
     va_list arglist;
     va_start(arglist, lpszFormat);
-    cout << StringUtil::FormatString(lpszFormat, arglist) << endl;
+    cout << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
     va_end(arglist);
   }
 }
@@ -489,7 +489,7 @@ void PackageCreator::FatalError(const char * lpszFormat, ...)
   va_start(arglist, lpszFormat);
   cerr
     << PROGNAME << ": "
-    << StringUtil::FormatString(lpszFormat, arglist)
+    << StringUtil::FormatStringVA(lpszFormat, arglist)
     << endl;
   va_end(arglist);
   throw 1;
@@ -501,7 +501,7 @@ void PackageCreator::Warning(const char * lpszFormat, ...)
   va_start(arglist, lpszFormat);
   cerr
     << PROGNAME << T_(": warning: ")
-    << StringUtil::FormatString(lpszFormat, arglist)
+    << StringUtil::FormatStringVA(lpszFormat, arglist)
     << endl;
   va_end(arglist);
 }

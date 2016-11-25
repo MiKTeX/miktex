@@ -1345,7 +1345,7 @@ void DviImpl::Progress(DviNotification nf, const char * lpszFormat, ...)
     lock_guard<mutex> lockGuard(statusTextMutex);
     va_list args;
     va_start(args, lpszFormat);
-    progressStatus = StringUtil::FormatString(lpszFormat, args);
+    progressStatus = StringUtil::FormatStringVA(lpszFormat, args);
   }
 
   if (pCallback != nullptr)

@@ -343,7 +343,7 @@ void PrintUtility::Report(const char * lpszFormat, ...)
   }
   va_list argList;
   VA_START(argList, lpszFormat);
-  cout << StringUtil::FormatString(lpszFormat, argList);
+  cout << StringUtil::FormatStringVA(lpszFormat, argList);
   VA_END(argList);
 }
 

@@ -94,7 +94,7 @@ void StreamWriter::WriteFormatted(const char * lpszFormat, ...)
 {
   va_list marker;
   va_start(marker, lpszFormat);
-  Write(StringUtil::FormatString(lpszFormat, marker));
+  Write(StringUtil::FormatStringVA(lpszFormat, marker));
   va_end(marker);
 }
 
@@ -102,6 +102,6 @@ void StreamWriter::WriteFormattedLine(const char * lpszFormat, ...)
 {
   va_list marker;
   va_start(marker, lpszFormat);
-  WriteLine(StringUtil::FormatString(lpszFormat, marker));
+  WriteLine(StringUtil::FormatStringVA(lpszFormat, marker));
   va_end(marker);
 }

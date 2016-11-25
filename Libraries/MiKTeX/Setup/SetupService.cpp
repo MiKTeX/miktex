@@ -490,7 +490,7 @@ void SetupServiceImpl::LogV(const char * lpszFormat, va_list argList)
     logging = true;
     LogHeader();
   }
-  string formatted = StringUtil::FormatString(lpszFormat, argList);
+  string formatted = StringUtil::FormatStringVA(lpszFormat, argList);
   static string currentLine;
   for (const char * lpsz = formatted.c_str(); *lpsz != 0; ++lpsz)
   {

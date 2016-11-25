@@ -211,7 +211,7 @@ void Ghostscript::Execute(const char * lpszFormat, ...)
   }
   va_list argptr;
   va_start(argptr, lpszFormat);
-  string str = StringUtil::FormatString(lpszFormat, argptr);
+  string str = StringUtil::FormatStringVA(lpszFormat, argptr);
   va_end(argptr);
   Write(str.c_str(), str.length());
 }

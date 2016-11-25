@@ -389,7 +389,7 @@ void MakeFontMapApp::Verbose(const char * lpszFormat, ...)
   string s;
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  s = StringUtil::FormatString(lpszFormat, arglist);
+  s = StringUtil::FormatStringVA(lpszFormat, arglist);
   VA_END(arglist);
   LOG4CXX_INFO(logger, s);
   if (verbose)
@@ -402,7 +402,7 @@ MIKTEXNORETURN void MakeFontMapApp::CfgError(const char * lpszFormat, ...)
 {
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  LOG4CXX_FATAL(logger, StringUtil::FormatString(lpszFormat, arglist));
+  LOG4CXX_FATAL(logger, StringUtil::FormatStringVA(lpszFormat, arglist));
   VA_END(arglist);
   LOG4CXX_FATAL(logger, "cfg file: " << cfgContext.path);
   LOG4CXX_FATAL(logger, "line: " << cfgContext.line);
@@ -414,7 +414,7 @@ MIKTEXNORETURN void MakeFontMapApp::MapError(const char * lpszFormat, ...)
 {
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  LOG4CXX_FATAL(logger, StringUtil::FormatString(lpszFormat, arglist));
+  LOG4CXX_FATAL(logger, StringUtil::FormatStringVA(lpszFormat, arglist));
   VA_END(arglist);
   LOG4CXX_FATAL(logger, "map file: " << mapContext.path.GetData());
   LOG4CXX_FATAL(logger, "line: " << mapContext.line);

@@ -190,5 +190,5 @@ void MiKTeX_TeXworks::Sorry(string reason)
 
 void miktex_texworks_log_synctex_error(const char * lpszFormat, va_list arglist)
 {
-  LOG4CXX_ERROR(synctexLogger, StringUtil::FormatString(lpszFormat, arglist));
+  LOG4CXX_ERROR(synctexLogger, StringUtil::FormatStringVA(lpszFormat, arglist));
 }

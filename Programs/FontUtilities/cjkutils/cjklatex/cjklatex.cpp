@@ -247,7 +247,7 @@ CJKLaTeXApp::Error (/*[in]*/ const char *	lpszFormat,
   va_list arglist;
   va_start (arglist, lpszFormat);
   cerr << Utils::GetExeName() << ": "
-       << StringUtil::FormatString(lpszFormat, arglist)
+       << StringUtil::FormatStringVA(lpszFormat, arglist)
        << endl;
   va_end (arglist);
   throw (1);
@@ -268,7 +268,7 @@ CJKLaTeXApp::PrintOnly (/*[in]*/ const char *	lpszFormat,
     }
   va_list arglist;
   va_start (arglist, lpszFormat);
-  cout << StringUtil::FormatString(lpszFormat, arglist) << endl;
+  cout << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
   va_end (arglist);
 }
 

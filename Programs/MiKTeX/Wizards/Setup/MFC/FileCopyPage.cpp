@@ -509,7 +509,7 @@ void FileCopyPage::Report(bool writeLog, const char * lpszFmt, ...)
   MIKTEX_ASSERT(lpszFmt != nullptr);
   va_list args;
   va_start(args, lpszFmt);
-  string str(StringUtil::FormatString(lpszFmt, args));
+  string str(StringUtil::FormatStringVA(lpszFmt, args));
   va_end(args);
   int len = str.length();
   CSingleLock singlelock(&criticalSectionMonitor, TRUE);

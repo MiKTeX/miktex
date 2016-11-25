@@ -119,7 +119,7 @@ MIKTEXNORETURN void TdsUtility::Error(const char * lpszFormat, ...)
 {
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  cerr << "tdsutil: " << StringUtil::FormatString(lpszFormat, arglist) << endl;
+  cerr << "tdsutil: " << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
   VA_END(arglist);
   throw 1;
 }

@@ -53,7 +53,7 @@ void InstallPackageDialog::FormatControlText(UINT ctrlId, const char * lpszForma
   }
   va_list marker;
   va_start(marker, lpszFormat);
-  string str = StringUtil::FormatString(lpszFormat, marker);
+  string str = StringUtil::FormatStringVA(lpszFormat, marker);
   va_end(marker);
   pWnd->SetWindowText(UT_(str.c_str()));
 }

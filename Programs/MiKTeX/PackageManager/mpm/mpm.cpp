@@ -590,7 +590,7 @@ void Application::Message(const char * lpszFormat, ...)
   va_list arglist;
   string s;
   VA_START(arglist, lpszFormat);
-  s = StringUtil::FormatString(lpszFormat, arglist);
+  s = StringUtil::FormatStringVA(lpszFormat, arglist);
   VA_END(arglist);
   LOG4CXX_INFO(logger, s);
   if (!quiet)
@@ -604,7 +604,7 @@ void Application::Verbose(const char * lpszFormat, ...)
   va_list arglist;
   string s;
   VA_START(arglist, lpszFormat);
-  s = StringUtil::FormatString(lpszFormat, arglist);
+  s = StringUtil::FormatStringVA(lpszFormat, arglist);
   VA_END(arglist);
   LOG4CXX_INFO(logger, s);
   if (verbose)
@@ -655,7 +655,7 @@ MIKTEXNORETURN void Application::Error(const char * lpszFormat, ...)
   va_list arglist;
   string s;
   VA_START(arglist, lpszFormat);
-  s = StringUtil::FormatString(lpszFormat, arglist);
+  s = StringUtil::FormatStringVA(lpszFormat, arglist);
   VA_END(arglist);
   LOG4CXX_FATAL(logger, s);
   Sorry(s);

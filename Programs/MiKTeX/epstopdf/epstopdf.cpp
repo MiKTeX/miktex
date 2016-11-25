@@ -419,7 +419,7 @@ void EpsToPdfApp::Trace(const char * lpszFormat, ...)
 {
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  traceStream->WriteLine(PROGRAM_NAME, StringUtil::FormatString(lpszFormat, arglist).c_str());
+  traceStream->WriteLine(PROGRAM_NAME, StringUtil::FormatStringVA(lpszFormat, arglist).c_str());
   VA_END(arglist);
 }
 
@@ -431,7 +431,7 @@ void EpsToPdfApp::Verbose(const char * lpszFormat, ...)
   }
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  cout << StringUtil::FormatString(lpszFormat, arglist) << endl;
+  cout << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
   VA_END(arglist);
 }
 
@@ -443,7 +443,7 @@ void EpsToPdfApp::PrintOnly(const char * lpszFormat, ...)
   }
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  cout << StringUtil::FormatString(lpszFormat, arglist) << endl;
+  cout << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
   VA_END(arglist);
 }
 
@@ -451,7 +451,7 @@ void EpsToPdfApp::Warning(const char * lpszFormat, ...)
 {
   va_list arglist;
   VA_START(arglist, lpszFormat);
-  cerr << T_("warning") << ": " << StringUtil::FormatString(lpszFormat, arglist) << endl;
+  cerr << T_("warning") << ": " << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
   VA_END(arglist);
 }
 

@@ -527,7 +527,7 @@ void McdApp::Verbose(const char * lpszFormat, ...)
   va_list arglist;
   string s;
   VA_START(arglist, lpszFormat);
-  s = StringUtil::FormatString(lpszFormat, arglist);
+  s = StringUtil::FormatStringVA(lpszFormat, arglist);
   VA_END(arglist);
   traceStream->WriteLine(PROGRAM_NAME, s.c_str());
   if (options.verbose)
@@ -540,7 +540,7 @@ void McdApp::Trace(const char * lpszFormat, ...)
 {
   va_list arglist;
   va_start(arglist, lpszFormat);
-  traceStream->WriteLine(PROGRAM_NAME, StringUtil::FormatString(lpszFormat, arglist).c_str());
+  traceStream->WriteLine(PROGRAM_NAME, StringUtil::FormatStringVA(lpszFormat, arglist).c_str());
   va_end(arglist);
 }
 

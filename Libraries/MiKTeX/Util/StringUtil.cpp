@@ -205,7 +205,7 @@ bool StringUtil::Contains(const char * lpszList, const char * lpszElement, const
   return false;
 }
 
-string StringUtil::FormatString(const char * lpszFormat, va_list arglist)
+string StringUtil::FormatStringVA(const char * lpszFormat, va_list arglist)
 {
   CharBuffer<char> autoBuffer;
   int n;
@@ -255,7 +255,7 @@ string StringUtil::FormatString(const char * lpszFormat, ...)
   string str;
   try
   {
-    str = FormatString(lpszFormat, arglist);
+    str = FormatStringVA(lpszFormat, arglist);
   }
   catch (...)
   {

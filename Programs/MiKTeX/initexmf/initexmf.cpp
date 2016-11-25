@@ -1830,7 +1830,7 @@ void IniTeXMFApp::Verbose(const char * lpszFormat, ...)
   string s;
   try
   {
-    s = StringUtil::FormatString(lpszFormat, arglist);
+    s = StringUtil::FormatStringVA(lpszFormat, arglist);
   }
   catch (...)
   {
@@ -1859,7 +1859,7 @@ void IniTeXMFApp::PrintOnly(const char * lpszFormat, ...)
   string s;
   try
   {
-    s = StringUtil::FormatString(lpszFormat, arglist);
+    s = StringUtil::FormatStringVA(lpszFormat, arglist);
   }
   catch (...)
   {
@@ -1877,7 +1877,7 @@ void IniTeXMFApp::Warning(const char * lpszFormat, ...)
   string s;
   try
   {
-    s = StringUtil::FormatString(lpszFormat, arglist);
+    s = StringUtil::FormatStringVA(lpszFormat, arglist);
   }
   catch (...)
   {
@@ -1932,7 +1932,7 @@ MIKTEXNORETURN void IniTeXMFApp::FatalError(const char * lpszFormat, ...)
 {
   va_list arglist;
   va_start(arglist, lpszFormat);
-  string s = StringUtil::FormatString(lpszFormat, arglist);
+  string s = StringUtil::FormatStringVA(lpszFormat, arglist);
   va_end(arglist);
   if (isLog4cxxConfigured)
   {
