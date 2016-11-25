@@ -38,15 +38,15 @@ protected:
   typedef CharBuffer<char, 512> Base;
 
 public:
-  MIKTEXUTILEXPORT MIKTEXTHISCALL Tokenizer(const char * lpsz, const char * lpszDelim);
+  MIKTEXUTILEXPORT MIKTEXTHISCALL Tokenizer(const char * lpsz, const char * delims);
 
 public:
-  MIKTEXUTILTHISAPI(void) SetDelim(const char * lpszDelim);
+  MIKTEXUTILTHISAPI(void) SetDelim(const char * delims);
 
 public:
   const char * GetCurrent() const
   {
-    return lpszCurrent == nullptr || *lpszCurrent == 0 ? nullptr : lpszCurrent;
+    return current == nullptr || *current == 0 ? nullptr : current;
   }
 
 public:
@@ -65,13 +65,13 @@ private:
   void FindToken();
 
 private:
-  const char * lpszCurrent;
+  const char * current;
 
 private:
-  char * lpszNext;
+  char * next;
 
 private:
-  void * pDelims;
+  void * delims;
 };
 
 MIKTEX_UTIL_END_NAMESPACE;

@@ -21,14 +21,15 @@
 
 #include "internal.h"
 
-MIKTEXSTATICFUNC(wchar_t *) AnsiToWideChar(const char * lpszAnsi, wchar_t * lpszWideChar, size_t size)
+MIKTEXSTATICFUNC(wchar_t *) AnsiToWideChar(const char * source, wchar_t * dest, size_t destSize)
 {
-  if (*lpszAnsi == 0)
+  if (*source == 0)
   {
-    *lpszWideChar = 0;
-    return lpszWideChar;
+    // TODO: MIKTEX_ASSERT(destSize > 0);
+    *dest = 0;
+    return dest;
   }
-  int n = MultiByteToWideChar(CP_ACP, 0, lpszAnsi, -1, lpszWideChar, size);
+  int n = MultiByteToWideChar(CP_ACP, 0, source, -1, dest, destSize);
   if (n == 0)
   {
     throw exception("Conversion from narrow string (ANSI) to wide character string did not succeed.");
@@ -37,11 +38,11 @@ MIKTEXSTATICFUNC(wchar_t *) AnsiToWideChar(const char * lpszAnsi, wchar_t * lpsz
   {
     FATAL_ERROR();
   }
-  return lpszWideChar;
+  return dest;
 }
 
-string StringUtil::AnsiToUTF8(const char * lpszAnsi)
+string StringUtil::AnsiToUTF8(const char * ansi)
 {
-  CharBuffer<wchar_t, 512> buf(strlen(lpszAnsi) + 1);
-  return StringUtil::WideCharToUTF8(AnsiToWideChar(lpszAnsi, buf.GetData(), buf.GetCapacity()));
+  CharBuffer<wchar_t, 512> buf(strlen(ansi) + 1);
+  return StringUtil::WideCharToUTF8(AnsiToWideChar(ansi, buf.GetData(), buf.GetCapacity()));
 }

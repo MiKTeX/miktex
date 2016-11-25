@@ -21,7 +21,7 @@
 
 #include "internal.h"
 
-size_t StringUtil::AppendString(char * lpszBuf, size_t bufSize, const char * lpszSource)
+size_t StringUtil::AppendString(char * dest, size_t destSize, const char * source)
 {
   // TODO: MIKTEX_ASSERT_STRING(lpszBuf);
   // TODO: MIKTEX_ASSERT_CHAR_BUFFER(lpszBuf, bufSize);
@@ -29,17 +29,17 @@ size_t StringUtil::AppendString(char * lpszBuf, size_t bufSize, const char * lps
 
   size_t length;
 
-  for (length = 0; length < bufSize && lpszBuf[length] != 0; ++length)
+  for (length = 0; length < destSize && dest[length] != 0; ++length)
   {
     ;
   }
 
-  if (length == bufSize)
+  if (length == destSize)
   {
     FATAL_ERROR();
   }
 
-  length += CopyString(&lpszBuf[length], bufSize - length, lpszSource);
+  length += CopyString(&dest[length], destSize - length, source);
 
   return length;
 }
@@ -75,12 +75,12 @@ MIKTEXSTATICFUNC(void) CopyString2(char * lpszBuf, size_t bufSize, const char * 
   }
 }
 
-void StringUtil::ReplaceString(char * lpszBuf, size_t & bufSize, const char * lpszSource, const char * lpszString1, const char * lpszString2)
+void StringUtil::ReplaceString(char * dest, size_t & destSize, const char * source, const char * lpsz1, const char * lpsz2)
 {
   // TODO: MIKTEX_ASSERT_STRING(lpszSource);
   // TODO: MIKTEX_ASSERT_STRING(lpszString1);
   // TODO: MIKTEX_ASSERT_STRING(lpszString2);
-  if (bufSize == 0)
+  if (destSize == 0)
   {
     // TODO: MIKTEX_ASSERT(lpszBuf == 0);
   }
@@ -88,71 +88,71 @@ void StringUtil::ReplaceString(char * lpszBuf, size_t & bufSize, const char * lp
   {
     // TODO: MIKTEX_ASSERT_CHAR_BUFFER(lpszBuf, bufSize);
   }
-  while (*lpszSource != 0)
+  while (*source != 0)
   {
     size_t n;
-    for (n = 0; lpszSource[n] != 0 && lpszString1[n] != 0 && lpszSource[n] == lpszString1[n]; ++n)
+    for (n = 0; source[n] != 0 && lpsz1[n] != 0 && source[n] == lpsz1[n]; ++n)
     {
       ;
     }
     if (n == 0)
     {
-      while (*lpszSource != 0 && *lpszSource != lpszString1[0])
+      while (*source != 0 && *source != lpsz1[0])
       {
-        if (lpszBuf == nullptr)
+        if (dest == nullptr)
         {
-          bufSize += 1;
+          destSize += 1;
         }
         else
         {
-          *lpszBuf = *lpszSource;
-          ++lpszBuf;
-          bufSize -= 1;
-          if (bufSize == 0)
+          *dest = *source;
+          ++dest;
+          destSize -= 1;
+          if (destSize == 0)
           {
             FATAL_ERROR();
           }
         }
-        ++lpszSource;
+        ++source;
       }
     }
-    else if (lpszString1[n] == 0)
+    else if (lpsz1[n] == 0)
     {
-      lpszSource += n;
-      n = strlen(lpszString2);
-      if (lpszBuf == nullptr)
+      source += n;
+      n = strlen(lpsz2);
+      if (dest == nullptr)
       {
-        bufSize += n;
+        destSize += n;
       }
       else
       {
-        StringUtil::CopyString(lpszBuf, bufSize, lpszString2);
-        lpszBuf += n;
-        bufSize -= n;
+        StringUtil::CopyString(dest, destSize, lpsz2);
+        dest += n;
+        destSize -= n;
       }
     }
     else
     {
-      if (lpszBuf == 0)
+      if (dest == nullptr)
       {
-        bufSize += n;
+        destSize += n;
       }
       else
       {
-        CopyString2(lpszBuf, bufSize, lpszSource, n);
-        lpszBuf += n;
-        bufSize -= n;
+        CopyString2(dest, destSize, source, n);
+        dest += n;
+        destSize -= n;
       }
-      lpszSource += n;
+      source += n;
     }
   }
-  if (lpszBuf == nullptr)
+  if (dest == nullptr)
   {
-    ++bufSize;
+    ++destSize;
   }
   else
   {
-    *lpszBuf = 0;
+    *dest = 0;
   }
 }
 
@@ -173,31 +173,31 @@ template<typename CharType> size_t GenericCopyString(CharType * lpszBuf, size_t 
   return length;
 }
 
-size_t StringUtil::CopyString(char * lpszBuf, size_t bufSize, const char * lpszSource)
+size_t StringUtil::CopyString(char * dest, size_t destSize, const char * source)
 {
-  return GenericCopyString(lpszBuf, bufSize, lpszSource);
+  return GenericCopyString(dest, destSize, source);
 }
 
-size_t StringUtil::CopyString(wchar_t * lpszBuf, size_t bufSize, const wchar_t * lpszSource)
+size_t StringUtil::CopyString(wchar_t * dest, size_t destSize, const wchar_t * source)
 {
-  return GenericCopyString(lpszBuf, bufSize, lpszSource);
+  return GenericCopyString(dest, destSize, source);
 }
 
-size_t StringUtil::CopyString(char * lpszBuf, size_t bufSize, const wchar_t * lpszSource)
+size_t StringUtil::CopyString(char * dest, size_t destSize, const wchar_t * source)
 {
-  return CopyString(lpszBuf, bufSize, WideCharToUTF8(lpszSource).c_str());
+  return CopyString(dest, destSize, WideCharToUTF8(source).c_str());
 }
 
-size_t StringUtil::CopyString(wchar_t * lpszBuf, size_t bufSize, const char * lpszSource)
+size_t StringUtil::CopyString(wchar_t * dest, size_t destSize, const char * source)
 {
-  return CopyString(lpszBuf, bufSize, UTF8ToWideChar(lpszSource).c_str());
+  return CopyString(dest, destSize, UTF8ToWideChar(source).c_str());
 }
 
-bool StringUtil::Contains(const char * lpszList, const char * lpszElement, const char * lpszDelims, bool ignoreCase)
+bool StringUtil::Contains(const char * list, const char * element, const char * delims, bool ignoreCase)
 {
-  for (Tokenizer tok(lpszList, lpszDelims); tok.GetCurrent() != nullptr; ++tok)
+  for (Tokenizer tok(list, delims); tok.GetCurrent() != nullptr; ++tok)
   {
-    if (StringCompare(tok.GetCurrent(), lpszElement, ignoreCase) == 0)
+    if (StringCompare(tok.GetCurrent(), element, ignoreCase) == 0)
     {
       return true;
     }
@@ -205,18 +205,18 @@ bool StringUtil::Contains(const char * lpszList, const char * lpszElement, const
   return false;
 }
 
-string StringUtil::FormatStringVA(const char * lpszFormat, va_list arglist)
+string StringUtil::FormatStringVA(const char * format, va_list arglist)
 {
   CharBuffer<char> autoBuffer;
   int n;
 #if defined(_MSC_VER)
-  n = _vscprintf(lpszFormat, arglist);
+  n = _vscprintf(format, arglist);
   if (n < 0)
   {
     FATAL_ERROR();
   }
   autoBuffer.Reserve(n + 1);
-  n = vsprintf_s(autoBuffer.GetData(), autoBuffer.GetCapacity(), lpszFormat, arglist);
+  n = vsprintf_s(autoBuffer.GetData(), autoBuffer.GetCapacity(), format, arglist);
   if (n < 0)
   {
     FATAL_ERROR();
@@ -226,7 +226,7 @@ string StringUtil::FormatStringVA(const char * lpszFormat, va_list arglist)
     FATAL_ERROR();
   }
 #else
-  n = vsnprintf(autoBuffer.GetData(), autoBuffer.GetCapacity(), lpszFormat, arglist);
+  n = vsnprintf(autoBuffer.GetData(), autoBuffer.GetCapacity(), format, arglist);
   if (n < 0)
   {
     FATAL_ERROR();
@@ -234,7 +234,7 @@ string StringUtil::FormatStringVA(const char * lpszFormat, va_list arglist)
   else if (static_cast<size_t>(n) >= autoBuffer.GetCapacity())
   {
     autoBuffer.Reserve(n + 1);
-    n = vsnprintf(autoBuffer.GetData(), autoBuffer.GetCapacity(), lpszFormat, arglist);
+    n = vsnprintf(autoBuffer.GetData(), autoBuffer.GetCapacity(), format, arglist);
     if (n < 0)
     {
       FATAL_ERROR();
@@ -248,14 +248,14 @@ string StringUtil::FormatStringVA(const char * lpszFormat, va_list arglist)
   return autoBuffer.GetData();
 }
 
-string StringUtil::FormatString(const char * lpszFormat, ...)
+string StringUtil::FormatString(const char * format, ...)
 {
   va_list arglist;
-  va_start(arglist, lpszFormat);
+  va_start(arglist, format);
   string str;
   try
   {
-    str = FormatStringVA(lpszFormat, arglist);
+    str = FormatStringVA(format, arglist);
   }
   catch (...)
   {
@@ -265,12 +265,12 @@ string StringUtil::FormatString(const char * lpszFormat, ...)
   return str;
 }
 
-wstring StringUtil::UTF8ToWideChar(const char * lpszUtf8)
+wstring StringUtil::UTF8ToWideChar(const char * utf8)
 {
   try
   {
     wstring_convert<codecvt_utf8<wchar_t>> conv;
-    return conv.from_bytes(lpszUtf8);
+    return conv.from_bytes(utf8);
   }
   catch (const range_error &)
   {
@@ -278,12 +278,12 @@ wstring StringUtil::UTF8ToWideChar(const char * lpszUtf8)
   }
 }
 
-string StringUtil::WideCharToUTF8(const wchar_t * lpszWideChar)
+string StringUtil::WideCharToUTF8(const wchar_t * wideChars)
 {
   try
   {
     wstring_convert<codecvt_utf8<wchar_t>> conv;
-    return conv.to_bytes(lpszWideChar);
+    return conv.to_bytes(wideChars);
   }
   catch (const range_error &)
   {

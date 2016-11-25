@@ -235,13 +235,13 @@ public:
   }
 
 public:
-  CharType * GetData()
+  const CharType * GetData() const
   {
     return buffer;
   }
 
 public:
-  const CharType * GetData() const
+  CharType * GetData()
   {
     return buffer;
   }
@@ -286,9 +286,9 @@ public:
   }
 
 public:
-  template<typename OtherCharType> CharBuffer & operator= (const OtherCharType * lpszRhs)
+  template<typename OtherCharType> CharBuffer & operator= (const OtherCharType * rhs)
   {
-    Set(lpszRhs);
+    Set(rhs);
     return *this;
   }
 
@@ -300,9 +300,9 @@ public:
   }
 
 public:
-  CharBuffer & operator+= (const CharType * lpszRhs)
+  CharBuffer & operator+= (const CharType * rhs)
   {
-    Append(lpszRhs);
+    Append(rhs);
     return *this;
   }
 

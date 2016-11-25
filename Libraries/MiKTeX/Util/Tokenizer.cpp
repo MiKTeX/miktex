@@ -21,29 +21,29 @@
 
 #include "internal.h"
 
-Tokenizer::Tokenizer(const char * lpsz, const char * lpszDelim) :
+Tokenizer::Tokenizer(const char * lpsz, const char * delims) :
   Base(lpsz)
 {
-  lpszNext = GetData();
-  lpszCurrent = nullptr;
-  pDelims = nullptr;
-  SetDelim(lpszDelim);
+  next = GetData();
+  current = nullptr;
+  this->delims = nullptr;
+  SetDelim(delims);
   FindToken();
 }
 
-void Tokenizer::SetDelim(const char * lpszDelim)
+void Tokenizer::SetDelim(const char * delims)
 {
-  bitset<256> * psetDelim = reinterpret_cast<bitset<256>*>(pDelims);
-  if (psetDelim == nullptr)
+  bitset<256> * setDelims = reinterpret_cast<bitset<256>*>(this->delims);
+  if (setDelims == nullptr)
   {
-    psetDelim = new bitset<256>;
-    pDelims = psetDelim;
+    setDelims = new bitset<256>;
+    this->delims = setDelims;
   }
-  psetDelim->reset();
+  setDelims->reset();
   // TODO: MIKTEX_ASSERT_STRING(lpszDelim);
-  for (; *lpszDelim != 0; ++lpszDelim)
+  for (; *delims != 0; ++delims)
   {
-    psetDelim->set(static_cast<unsigned char>(*lpszDelim));
+    setDelims->set(static_cast<unsigned char>(*delims));
   }
 }
 
@@ -57,14 +57,14 @@ Tokenizer::~Tokenizer()
 {
   try
   {
-    if (pDelims != nullptr)
+    if (delims != nullptr)
     {
-      bitset<256> * pDelims = reinterpret_cast<bitset<256>*>(this->pDelims);
-      this->pDelims = nullptr;
-      delete pDelims;
+      bitset<256> * setDelims = reinterpret_cast<bitset<256>*>(delims);
+      delims = nullptr;
+      delete setDelims;
     }
-    lpszCurrent = nullptr;
-    lpszNext = nullptr;
+    current = nullptr;
+    next = nullptr;
   }
   catch (const exception &)
   {
@@ -74,19 +74,19 @@ Tokenizer::~Tokenizer()
 void Tokenizer::FindToken()
 {
   // TODO: MIKTEX_ASSERT(lpszNext != nullptr);
-  lpszCurrent = lpszNext;
-  bitset<256> * pDelims = reinterpret_cast<bitset<256>*>(this->pDelims);
+  current = next;
+  bitset<256> * setDelims = reinterpret_cast<bitset<256>*>(delims);
   // TODO: MIKTEX_ASSERT(pDelims != nullptr);
-  while ((*pDelims)[static_cast<unsigned char>(*lpszCurrent)] && *lpszCurrent != 0)
+  while ((*setDelims)[static_cast<unsigned char>(*current)] && *current != 0)
   {
-    ++lpszCurrent;
+    ++current;
   }
-  for (lpszNext = const_cast<char*>(lpszCurrent); *lpszNext != 0; ++lpszNext)
+  for (next = const_cast<char*>(current); *next != 0; ++next)
   {
-    if ((*pDelims)[static_cast<unsigned char>(*lpszNext)])
+    if ((*setDelims)[static_cast<unsigned char>(*next)])
     {
-      *lpszNext = 0;
-      ++lpszNext;
+      *next = 0;
+      ++next;
       break;
     }
   }

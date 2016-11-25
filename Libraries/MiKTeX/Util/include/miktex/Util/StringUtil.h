@@ -44,7 +44,7 @@ public:
   /// string buffer.
   /// @param lpszSource The null-terminated string to be appended.
   /// @return Returns the length (in characters) of the result.
-  static MIKTEXUTILCEEAPI(std::size_t) AppendString(char * lpszBuf, std::size_t bufSize, const char * lpszSource);
+  static MIKTEXUTILCEEAPI(std::size_t) AppendString(char * dest, std::size_t destSize, const char * source);
 
   /// Replaces all occurences of a sub-string within a string.
   /// @param[out] lpszBuf The destination string buffer.
@@ -53,7 +53,7 @@ public:
   /// @param lpszString1 The sub-string to be replaced.
   /// @param lpszString2 The replacement sub-string.
 public:
-  static MIKTEXUTILCEEAPI(void) ReplaceString(char * lpszBuf, std::size_t & bufSize, const char * lpszSource, const char * lpszString1, const char * lpszString2);
+  static MIKTEXUTILCEEAPI(void) ReplaceString(char * dest, std::size_t & destSize, const char * source, const char * lpsz1, const char * lpsz2);
 
   /// Copies a string.
   /// @param[out] lpszBuf The destination string buffer.
@@ -61,7 +61,7 @@ public:
   /// @param lpszSource The null-terminated string to be copied.
   /// @return Returns the length (in characters) of the result.
 public:
-  static MIKTEXUTILCEEAPI(std::size_t) CopyString(char * lpszBuf, std::size_t bufSize, const char * lpszSource);
+  static MIKTEXUTILCEEAPI(std::size_t) CopyString(char * dest, std::size_t destSize, const char * source);
 
   /// Copies a wide string into another wide string.
   /// @param[out] lpszBuf The destination string buffer.
@@ -69,7 +69,7 @@ public:
   /// @param lpszSource The null-terminated string to be copied.
   /// @return Returns the length (in characters) of the result.
 public:
-  static MIKTEXUTILCEEAPI(std::size_t) CopyString(wchar_t * lpszBuf, std::size_t bufSize, const wchar_t * lpszSource);
+  static MIKTEXUTILCEEAPI(std::size_t) CopyString(wchar_t * dest, std::size_t destSize, const wchar_t * source);
 
   /// Copies a wide string into a single-byte string.
   /// @param[out] lpszBuf The destination string buffer.
@@ -77,24 +77,24 @@ public:
   /// @param lpszSource The null-terminated string to be copied.
   /// @return Returns the length (in characters) of the result.
 public:
-  static MIKTEXUTILCEEAPI(std::size_t) CopyString(char * lpszBuf, std::size_t bufSize, const wchar_t * lpszSource);
+  static MIKTEXUTILCEEAPI(std::size_t) CopyString(char * dest, std::size_t destSize, const wchar_t * source);
 
 public:
-  static MIKTEXUTILCEEAPI(std::size_t) CopyString(wchar_t * lpszBuf, std::size_t bufSize, const char * lpszSource);
+  static MIKTEXUTILCEEAPI(std::size_t) CopyString(wchar_t * dest, std::size_t destSize, const char * source);
 
 public:
-  static MIKTEXUTILCEEAPI(bool) Contains(const char * lpszList, const char * lpszElement, const char * lpszDelim, bool ignoreCase);
+  static MIKTEXUTILCEEAPI(bool) Contains(const char * list, const char * element, const char * delims, bool ignoreCase);
 
 public:
-  static bool Contains(const char * lpszList, const char * lpszElement, const char * lpszDelim)
+  static bool Contains(const char * list, const char * element , const char * delims)
   {
-    return Contains(lpszList, lpszElement, lpszDelim, true);
+    return Contains(list, element, delims, true);
   }
 
 public:
-  static bool Contains(const char * lpszList, const char * lpszElement)
+  static bool Contains(const char * list, const char * element)
   {
-    return Contains(lpszList, lpszElement, ",;:");
+    return Contains(list, element, ",;:");
   }
 
   /// Creates a formatted string object.
@@ -102,13 +102,13 @@ public:
   /// @param arglist Argument list.
   /// @return Returns a string object.
 public:
-  static MIKTEXUTILCEEAPI(std::string) FormatStringVA(const char * lpszFormat, va_list arglist);
+  static MIKTEXUTILCEEAPI(std::string) FormatStringVA(const char * format, va_list arglist);
 
 public:
-  static MIKTEXUTILCEEAPI(std::string) FormatString(const char * lpszFormat, ...);
+  static MIKTEXUTILCEEAPI(std::string) FormatString(const char * format, ...);
 
 public:
-  static MIKTEXUTILCEEAPI(std::wstring) UTF8ToWideChar(const char * lpszUtf8);
+  static MIKTEXUTILCEEAPI(std::wstring) UTF8ToWideChar(const char * utf8);
 
 public:
   static std::wstring UTF8ToWideChar(const std::string & str)
@@ -117,11 +117,11 @@ public:
   }
 
 public:
-  static MIKTEXUTILCEEAPI(std::string) WideCharToUTF8(const wchar_t * lpszWideChar);
+  static MIKTEXUTILCEEAPI(std::string) WideCharToUTF8(const wchar_t * wideChars);
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXUTILCEEAPI(std::string) AnsiToUTF8(const char * lpszAnsi);
+  static MIKTEXUTILCEEAPI(std::string) AnsiToUTF8(const char * ansi);
 #endif
 };
 
