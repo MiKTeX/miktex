@@ -1186,8 +1186,10 @@ void Driver::RunBibTeX()
     FatalUtilityError(pOptions->bibtexProgram);
   }
 
-  PathName logName(0, jobName, ".log");
-  PathName auxName(0, jobName, ".aux");
+  PathName logName(jobName);
+  logName.SetExtension(".log");
+  PathName auxName(jobName);
+  auxName.SetExtension(".aux");
 
   int exitCode;
 
@@ -1212,7 +1214,8 @@ void Driver::RunBibTeX()
       PathName subAuxNameNoExt(tmp);
 
       // append .aux extension
-      PathName subAuxName(0, subAuxNameNoExt, ".aux");
+      PathName subAuxName(subAuxNameNoExt);
+      subAuxName.SetExtension(".aux");
       if (!(File::Exists(subAuxName)
         && Contains(subAuxName, &pOptions->regex_bibdata)
         && Contains(subAuxName, &pOptions->regex_bibstyle)))
