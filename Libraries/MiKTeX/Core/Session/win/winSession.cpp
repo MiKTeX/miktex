@@ -620,11 +620,7 @@ MIKTEXSTATICFUNC(bool) GetPsFontDirectory(PathName & path)
     MIKTEX_FATAL_WINDOWS_ERROR("GetWindowsDirectoryW");
   }
 
-  char szWinDrive[BufferSizes::MaxPath];
-
-  PathName::Split(PathName(szWinDir).GetData(), szWinDrive, BufferSizes::MaxPath, nullptr, 0, nullptr, 0, nullptr, 0);
-
-  PathName path_(szWinDrive, "\\psfonts", nullptr, nullptr);
+  PathName path_ = PathName(szWinDir) / "psfonts";
 
   if (!Directory::Exists(path_))
   {

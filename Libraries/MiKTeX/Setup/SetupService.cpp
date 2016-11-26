@@ -785,8 +785,7 @@ void SetupServiceImpl::DoTheDownload()
   }
   char szFileName[BufferSizes::MaxPath];
   char szExt[BufferSizes::MaxPath];
-  PathName::Split(
-    WU_(szSetupPath), 0, 0, 0, 0, szFileName, BufferSizes::MaxPath, szExt, BufferSizes::MaxPath);
+  PathName::Split(WU_(szSetupPath), nullptr, 0, szFileName, BufferSizes::MaxPath, szExt, BufferSizes::MaxPath);
   PathName pathDest(options.LocalPackageRepository, szFileName, szExt);
   if (ComparePaths(WU_(szSetupPath), pathDest.GetData(), true) != 0)
   {

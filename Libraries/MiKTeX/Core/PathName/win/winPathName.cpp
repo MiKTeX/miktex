@@ -29,34 +29,6 @@
 
 using namespace MiKTeX::Core;
 
-void PathName::Combine(char * lpszPath, size_t sizePath, const char * lpszDrive, const char * lpszAbsPath, const char * lpszRelPath, const char * lpszExtension)
-{
-#if defined(_MSC_VER) || defined(__MINGW32__)
-  if (_makepath_s(lpszPath, sizePath, lpszDrive, lpszAbsPath, lpszRelPath, lpszExtension) != 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR("_makepath_s");
-  }
-#else  // not Microsoft C++
-#  error Unimplemented: PathName::Combine()
-#endif  // not Microsoft C++
-}
-
-void PathName::Split(const char * lpszPath, char * lpszDrive, size_t sizeDrive, char * lpszDir, size_t sizeDir, char * lpszName, size_t sizeName, char * lpszExtension, size_t sizeExtension)
-{
-  MIKTEX_ASSERT_CHAR_BUFFER_OR_NIL(lpszDrive, sizeDrive);
-  MIKTEX_ASSERT_CHAR_BUFFER_OR_NIL(lpszDir, sizeDir);
-  MIKTEX_ASSERT_CHAR_BUFFER_OR_NIL(lpszName, sizeName);
-  MIKTEX_ASSERT_CHAR_BUFFER_OR_NIL(lpszExtension, sizeExtension);
-#if defined(_MSC_VER) || defined(__MINGW32__)
-  if (_splitpath_s(lpszPath, lpszDrive, sizeDrive, lpszDir, sizeDir, lpszName, sizeName, lpszExtension, sizeExtension) != 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR("_tsplitpath_s");
-  }
-#else  // not Microsoft C++
-#  error Unimplemented: PathName::Split()
-#endif  // not Microsoft C++
-}
-
 PathName & PathName::SetToCurrentDirectory()
 {
   wchar_t buf[_MAX_PATH];

@@ -184,14 +184,6 @@ public:
 public:
   PathName(int n) = delete;
 
-#if defined(MIKTEX_WINDOWS)
-public:
-  PathName(const char * lpszDrive, const char * lpszAbsPath, const char * lpszRelPath, const char * lpszExtension)
-  {
-    Set(lpszDrive, lpszAbsPath, lpszRelPath, lpszExtension);
-  }
-#endif
-
   /// Combines path name components into a new PathName object.
   /// @param lpszAbsPath The first component (absolute directory path).
   /// @param lpszRelPath The second component (relative file name path).
@@ -249,16 +241,6 @@ public:
 public:
   MIKTEXCORETHISAPI(std::size_t) GetHash() const;
 
-#if defined(MIKTEX_WINDOWS)
-public:
-  static MIKTEXCORECEEAPI(void) Combine(char * lpszPath, std::size_t sizePath, const char * lpszDrive, const char * lpszAbsPath, const char * lpszRelPath, const char * lpszExtension);
-#endif
-
-#if defined(MIKTEX_WINDOWS)
-public:
-  static MIKTEXCORECEEAPI(void) Split(const char * lpszPath, char * lpszDrive, std::size_t sizeDrive, char * lpszDirectory, std::size_t sizeDirectory, char * lpszName, std::size_t sizeName, char * lpszExtension, std::size_t sizeExtension);
-#endif
-
 public:
   static MIKTEXCORECEEAPI(void) Split(const char * lpszPath, char * lpszDirectory, std::size_t sizeDirectory, char * lpszName, std::size_t sizeName, char * lpszExtension, std::size_t sizeExtension);
 
@@ -304,15 +286,6 @@ public:
 
 public:
   static MIKTEXCORECEEAPI(void) Combine(char * lpszPath, std::size_t sizePath, const char * lpszAbsPath, const char * lpszRelPath, const char * lpszExtension);
-
-#if defined(MIKTEX_WINDOWS)
-public:
-  PathName & Set(const char * lpszDrive, const char * lpszAbsPath, const char * lpszRelPath, const char * lpszExtension)
-  {
-    Combine(GetData(), GetCapacity(), lpszDrive, lpszAbsPath, lpszRelPath, lpszExtension);
-    return *this;
-  }
-#endif
 
   /// Sets this PathName object equal to the combination three path name
   /// components.

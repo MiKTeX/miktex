@@ -92,7 +92,7 @@ BOOL CdPage::OnKillActive()
   {
     try
     {
-      UpdateWizardApplication::packageManager->SetMiKTeXDirectRoot(PathName(drives[drive].c_str(), "\\", nullptr, nullptr));
+      UpdateWizardApplication::packageManager->SetMiKTeXDirectRoot(drives[drive] + PathName::DirectoryDelimiter);
     }
     catch (const MiKTeXException & e)
     {

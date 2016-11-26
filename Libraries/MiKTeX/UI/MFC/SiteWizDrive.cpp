@@ -174,8 +174,7 @@ BOOL SiteWizDrive::OnWizardFinish()
   try
   {
     UpdateData();
-    PathName path(drives[drive].c_str(), "\\", nullptr, nullptr);
-    pManager->SetDefaultPackageRepository(RepositoryType::MiKTeXDirect, path.GetData());
+    pManager->SetDefaultPackageRepository(RepositoryType::MiKTeXDirect, drives[drive] + PathName::DirectoryDelimiter);
     return CPropertyPage::OnWizardFinish();
   }
   catch (const MiKTeXException & e)
