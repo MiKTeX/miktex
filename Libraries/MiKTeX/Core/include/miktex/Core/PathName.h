@@ -522,12 +522,13 @@ public:
   MIKTEXCORETHISAPI(PathName &) SetExtension(const char * lpszExtension, bool override);
 
   /// Sets the file name extension.
-  /// @param lpszExtension The file name extension to set. Can be 0, /// if the extension is to be removed.
+  /// @param lpszExtension The file name extension to set. Can be 0,
+  /// if the extension is to be removed.
   /// @return Returns a reference to this object.
 public:
-  PathName & SetExtension(const char * lpszExtension)
+  PathName & SetExtension(const char * extension)
   {
-    return SetExtension(lpszExtension, true);
+    return SetExtension(extension, true);
   }
 
 public:
@@ -542,14 +543,14 @@ public:
   }
 
 public:
-  PathName & AppendExtension(const char * lpszExtension)
+  PathName & AppendExtension(const char * extension)
   {
-    MIKTEX_ASSERT_STRING(lpszExtension);
-    if (*lpszExtension != '.')
+    MIKTEX_ASSERT_STRING(extension);
+    if (*extension != '.')
     {
       Base::Append('.');
     }
-    Base::Append(lpszExtension);
+    Base::Append(extension);
     return *this;
   }
 
@@ -588,18 +589,18 @@ public:
   /// @param lpszComponent The null-terminated component to add.
   /// @return Returns a reference to this object.
 public:
-  PathName & AppendComponent(const char * lpszComponent)
+  PathName & AppendComponent(const char * component)
   {
-    return Append(lpszComponent, true);
+    return Append(component, true);
   }
 
   /// Appends a path name component to this path name.
   /// @param lpszComponent The null-terminated component to add.
   /// @return Returns a reference to this object.
 public:
-  PathName & operator/= (const char * lpszComponent)
+  PathName & operator/= (const char * component)
   {
-    return AppendComponent(lpszComponent);
+    return AppendComponent(component);
   }
 
   /// Appends a path name component to this path name.
