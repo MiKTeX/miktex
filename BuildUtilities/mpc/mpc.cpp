@@ -630,7 +630,7 @@ void PackageCreator::MD5CopyFiles(const vector<string> & files, const PathName &
 void PackageCreator::WriteDescriptionFile(const string & description, const PathName & stagingDir)
 {
   Directory::Create(stagingDir);
-  FileStream stream(File::Open(PathName(stagingDir, "Description", 0), FileMode::Create, FileAccess::Write));
+  FileStream stream(File::Open(PathName(stagingDir, "Description"), FileMode::Create, FileAccess::Write));
   fputs(description.c_str(), stream.Get());
   stream.Close();
 }
@@ -907,7 +907,7 @@ void PackageCreator::CollectFiles(const PathName & rootDir, const PathName & sub
 void PackageCreator::CollectSubTree(const PathName & path, const char * lpszSubDir, vector<string> & runFiles, size_t & sizeRunFiles, vector<string> & docFiles, size_t & sizeDocFiles, vector<string> & sourceFiles, size_t & sizeSourceFiles)
 {
   PathName sourceDir(path, lpszSubDir);
-  CollectFiles(sourceDir, 0, runFiles, sizeRunFiles, docFiles, sizeDocFiles, sourceFiles, sizeSourceFiles);
+  CollectFiles(sourceDir, PathName(), runFiles, sizeRunFiles, docFiles, sizeDocFiles, sourceFiles, sizeSourceFiles);
 }
 
 void PackageCreator::CollectPackage(MpcPackageInfo & packageInfo)
