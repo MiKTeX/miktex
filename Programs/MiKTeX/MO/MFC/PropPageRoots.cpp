@@ -158,15 +158,11 @@ INT CALLBACK PropPageTeXMFRoots::BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM
     switch (uMsg)
     {
     case BFFM_INITIALIZED:
-      char szDrive[BufferSizes::MaxPath];
-      PathName::Split(PathName().SetToCurrentDirectory().GetData(), szDrive, BufferSizes::MaxPath, nullptr, 0, nullptr, 0, nullptr, 0);
-      if (szDrive[0] != 0)
-      {
-        PathName root(szDrive, "\\", nullptr, nullptr);
-        CString rootStr(root.GetData());
-        ::SendMessage(hwnd, BFFM_SETSELECTION, TRUE, reinterpret_cast<LPARAM>(rootStr.GetString()));
-      }
+    {
+      wstring root = PathName().SetToCurrentDirectory().GetMountPoint().ToWideCharString();
+      ::SendMessageW(hwnd, BFFM_SETSELECTION, TRUE, (LPARAM)root.c_str());
       return 0;
+    }
     default:
       return 0;
     }
