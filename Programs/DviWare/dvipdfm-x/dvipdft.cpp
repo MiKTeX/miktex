@@ -123,14 +123,15 @@ void dvipdft(int argc, const char * * argv)
   }
 
   // run GhostScript to create thumbnails
-  PathName outFileTemplate(tempDir->GetPathName(), fileNoExt, ".%d");
+  PathName outFileTemplate = tempDir->GetPathName() / fileNoExt;
+  outFileTemplate.AppendExtension(".%d");
   arguments.Clear();
   arguments.AppendOption("-r", "10");
   arguments.AppendOption("-dNOPAUSE");
   arguments.AppendOption("-dBATCH");
   arguments.AppendOption("-sDEVICE:", "png256");
   arguments.AppendOption("-sOutputFile:", outFileTemplate);
-  arguments.AppendArgument(PathName(PathName(), fileNoExt, ".pdf"));
+  arguments.AppendArgument(PathName(fileNoExt).AppendExtension(".pdf"));
   if (!Process::Run(szGSExePath, arguments.ToString(), nullptr, &exitCode, nullptr))
   {
     FatalError(MIKTEXTEXT("%s could not be started."), szGSExePath);

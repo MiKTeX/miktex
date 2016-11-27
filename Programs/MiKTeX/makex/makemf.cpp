@@ -284,7 +284,7 @@ void MakeMf::Run(int argc, const char ** argv)
   else
   {
     // make fully qualified destination file name
-    pathDest.Set(destinationDirectory, szTeXFontname, ".mf");
+    pathDest = destinationDirectory / (string(szTeXFontname) + ".mf");
     Verbose(T_("Writing on %s..."), Q_(pathDest));
     if (!printOnly)
     {

@@ -98,7 +98,7 @@ void PackageManagerImpl::LoadVariablePackageTable()
 
   commonVariablePackageTable = Cfg::Create();
 
-  PathName pathCommonPackagesIni(pSession->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGES_INI, "");
+  PathName pathCommonPackagesIni(pSession->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGES_INI);
 
   if (File::Exists(pathCommonPackagesIni))
   {
@@ -108,7 +108,7 @@ void PackageManagerImpl::LoadVariablePackageTable()
 
   commonVariablePackageTable->SetModified(false);
 
-  PathName pathUserPackagesIni(pSession->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI, "");
+  PathName pathUserPackagesIni(pSession->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
 
   if (!pSession->IsAdminMode() && (pathCommonPackagesIni.Canonicalize() != pathUserPackagesIni.Canonicalize()))
   {
@@ -127,14 +127,14 @@ void PackageManagerImpl::FlushVariablePackageTable()
   if (commonVariablePackageTable != nullptr
     && commonVariablePackageTable->IsModified())
   {
-    PathName pathPackagesIni(pSession->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGES_INI, "");
+    PathName pathPackagesIni(pSession->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGES_INI);
     trace_mpm->WriteFormattedLine("libmpm", T_("flushing common variable package table (%s)"), Q_(pathPackagesIni));
     commonVariablePackageTable->Write(pathPackagesIni);
   }
   if (userVariablePackageTable != nullptr && userVariablePackageTable->IsModified())
   {
     PathName pathPackagesIni
-      (pSession->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI, "");
+      (pSession->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
     trace_mpm->WriteFormattedLine("libmpm", T_("flushing user variable package table (%s)"), Q_(pathPackagesIni));
     userVariablePackageTable->Write(pathPackagesIni);
   }
@@ -380,14 +380,13 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
     PathName name(direntry.name);
 
     // get deployment name
-    char szDeploymentName[BufferSizes::MaxPackageName];
-    name.GetFileNameWithoutExtension(szDeploymentName);
+    string deploymentName = name.GetFileNameWithoutExtension().ToString();
 
     // ignore redefinition
-    if (packageTable.find(szDeploymentName) != packageTable.end())
+    if (packageTable.find(deploymentName) != packageTable.end())
     {
 #if 0
-      trace_mpm->WriteFormattedLine("libmpm", T_("%s: ignoring redefinition"), szDeploymentName);
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: ignoring redefinition"), deploymentName.c_str());
 #endif
       continue;
     }
@@ -398,7 +397,7 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
       TpmParser tpmParser;
       tpmParser.Parse(path);
       return tpmParser.GetPackageInfo();
-    }, PathName(directory, name, "")));
+    }, PathName(directory, name)));
   }
   pLister->Close();
 
@@ -525,14 +524,14 @@ void PackageManagerImpl::ParseAllPackageDefinitionFiles()
   PathName commonInstallRoot = pSession->GetSpecialPath(SpecialPath::CommonInstallRoot);
   if (!pSession->IsAdminMode())
   {
-    ParseAllPackageDefinitionFilesInDirectory(PathName(userInstallRoot, MIKTEX_PATH_PACKAGE_DEFINITION_DIR, ""));
+    ParseAllPackageDefinitionFilesInDirectory(PathName(userInstallRoot, MIKTEX_PATH_PACKAGE_DEFINITION_DIR));
     if (userInstallRoot.Canonicalize() == commonInstallRoot.Canonicalize())
     {
       parsedAllPackageDefinitionFiles = true;
       return;
     }
   }
-  ParseAllPackageDefinitionFilesInDirectory(PathName(commonInstallRoot, MIKTEX_PATH_PACKAGE_DEFINITION_DIR, ""));
+  ParseAllPackageDefinitionFilesInDirectory(PathName(commonInstallRoot, MIKTEX_PATH_PACKAGE_DEFINITION_DIR));
   parsedAllPackageDefinitionFiles = true;
 }
 

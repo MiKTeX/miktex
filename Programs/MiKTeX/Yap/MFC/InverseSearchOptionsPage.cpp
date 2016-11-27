@@ -78,7 +78,7 @@ bool LocateNTEmacs(PathName & ntEmacs, const char * lpszName)
   }
   path /= "bin";
   path /= lpszName;
-  path.SetExtension(".exe");
+  path.AppendExtension(".exe");
   if (!File::Exists(path))
   {
     return false;

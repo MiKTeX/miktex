@@ -725,7 +725,7 @@ void Driver::Initialize(McdApp * pApplication, Options * pOptions, const char * 
 
   if (pOptions->jobName.empty())
   {
-    givenFileName.GetFileNameWithoutExtension(jobName);
+    jobName = givenFileName.GetFileNameWithoutExtension();
   }
   else
   {
@@ -772,7 +772,7 @@ void Driver::Initialize(McdApp * pApplication, Options * pOptions, const char * 
   }
   else
   {
-    pathInputFile.Set(pOptions->startDirectory, givenFileName);
+    pathInputFile = pOptions->startDirectory / givenFileName;
   }
 
   originalInputDirectory = pathInputFile;
@@ -1187,9 +1187,9 @@ void Driver::RunBibTeX()
   }
 
   PathName logName(jobName);
-  logName.SetExtension(".log");
+  logName.AppendExtension(".log");
   PathName auxName(jobName);
-  auxName.SetExtension(".aux");
+  auxName.AppendExtension(".aux");
 
   int exitCode;
 
@@ -1215,7 +1215,7 @@ void Driver::RunBibTeX()
 
       // append .aux extension
       PathName subAuxName(subAuxNameNoExt);
-      subAuxName.SetExtension(".aux");
+      subAuxName.AppendExtension(".aux");
       if (!(File::Exists(subAuxName)
         && Contains(subAuxName, &pOptions->regex_bibdata)
         && Contains(subAuxName, &pOptions->regex_bibstyle)))
@@ -1458,7 +1458,8 @@ void Driver::RunTeX()
   Process::Run(pathExe, commandLine.ToString(), nullptr, &exitCode, nullptr);
   if (exitCode != 0)
   {
-    PathName logName(PathName(), jobName, ".log");
+    PathName logName(jobName);
+    logName.AppendExtension(".log");
     if (pOptions->clean)
     {
       try
@@ -1489,7 +1490,8 @@ void Driver::RunTeX()
 
 bool Driver::Ready()
 {
-  PathName logName(PathName(), jobName, ".log");
+  PathName logName(jobName);
+  logName.AppendExtension(".log");
 
   if (Contains(logName, "Rerun to get"))
   {
@@ -1530,21 +1532,26 @@ void Driver::InstallOutputFile()
 {
   const char * lpszExt = pOptions->outputType == OutputType::PDF ? ".pdf" : ".dvi";
   pApplication->Verbose(T_("copying %s file from %s to %s..."), lpszExt, Q_(workingDirectory), Q_(pOptions->startDirectory));
-  PathName pathSource(workingDirectory, jobName, lpszExt);
-  PathName pathDest(pOptions->startDirectory, jobName, lpszExt);
+  PathName pathSource(workingDirectory, jobName);
+  pathSource.AppendExtension(lpszExt);
+  PathName pathDest(pOptions->startDirectory, jobName);
+  pathDest.AppendExtension(lpszExt);
   File::Copy(pathSource, pathDest);
   if (pOptions->synctex != SyncTeXOption::Disabled)
   {
     const char * lpszSyncTeXExt = pOptions->synctex == SyncTeXOption::Compressed ? ".synctex.gz" : ".synctex";
-    PathName pathSyncTeXSource(workingDirectory, jobName, lpszSyncTeXExt);
-    PathName pathSyncTeXDest(pOptions->startDirectory, jobName, lpszSyncTeXExt);
+    PathName pathSyncTeXSource(workingDirectory, jobName);
+    pathSyncTeXSource.AppendExtension(lpszSyncTeXExt);
+    PathName pathSyncTeXDest(pOptions->startDirectory, jobName);
+    pathSyncTeXDest.AppendExtension(lpszSyncTeXExt);
     File::Copy(pathSyncTeXSource, pathSyncTeXDest);
   }
 }
 
 void Driver::GetAuxFiles(const PathName & baseName, const char * lpszExtension, vector<string> & vec)
 {
-  PathName pattern(PathName(), baseName, lpszExtension);
+  PathName pattern(baseName);
+  pattern.AppendExtension(lpszExtension);
 
   PathName curDir;
   curDir.SetToCurrentDirectory();
@@ -1627,7 +1634,8 @@ void Driver::RunViewer()
 {
   const char * lpszExt = pOptions->outputType == OutputType::PDF ? ".pdf" : ".dvi";
 
-  PathName pathFileName(PathName(), jobName, lpszExt);
+  PathName pathFileName(jobName);
+  pathFileName.AppendExtension(lpszExt);
 
   PathName pathDest(pOptions->startDirectory, pathFileName);
 
@@ -1989,7 +1997,7 @@ void McdApp::Run(int argc, const char ** argv)
       }
       else
       {
-        path.Set(options.startDirectory, optArg);
+        path = options.startDirectory / optArg;
       }
       path.ToUnix();
       options.includeDirectories.push_back(path.GetData());

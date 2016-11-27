@@ -132,7 +132,8 @@ void PropPageFormats::MakeAlias(const FormatInfo & formatInfo)
     MIKTEX_FATAL_ERROR_2(T_("The compiler could not be found."), "compiler", formatInfo.compiler);
   }
   PathName pathBinDir = session->GetSpecialPath(SpecialPath::BinDirectory);
-  PathName pathAlias(pathBinDir, formatInfo.name, ".exe");
+  PathName pathAlias(pathBinDir, formatInfo.name);
+  pathAlias.AppendExtension(".exe");
   if (compilerPath != pathAlias && !File::Exists(pathAlias))
   {
     Directory::Create(pathBinDir);

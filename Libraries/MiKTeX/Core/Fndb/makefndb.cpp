@@ -241,7 +241,7 @@ void FndbManager::AlignMem(size_t align)
 
 void FndbManager::GetIgnorableFiles(const char * lpszPath, vector<string> & filesToBeIgnored)
 {
-  PathName ignoreFile(lpszPath, FN_MIKTEXIGNORE, nullptr);
+  PathName ignoreFile(lpszPath, FN_MIKTEXIGNORE);
   if (!File::Exists(ignoreFile))
   {
     return;
@@ -428,7 +428,7 @@ FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char * 
   FndbByteOffset foOffsetTable = ReserveMem(vecfndboff.size() * sizeof(FndbByteOffset));
 
   // recurse into sub-directories and remember offsets
-  PathName pathFolder(lpszParentPath, lpszFolderName, nullptr);
+  PathName pathFolder(lpszParentPath, lpszFolderName);
   size_t i = 0;
   ++currentLevel;
   for (it2 = subDirectoryNames.begin(); it2 != subDirectoryNames.end(); ++it2, ++i)

@@ -914,14 +914,14 @@ void EpsToPdfApp::Run(int argc, const char ** argv)
     if (runGhostscript)
     {
       outFile = inputFile;
-      outFile.SetExtension(".pdf");
+      outFile.AppendExtension(".pdf");
     }
     else
     {
       outFile = inputFile;
       outFile.SetExtension(0);
       outFile.Append("2", false);
-      outFile.SetExtension(".eps");
+      outFile.AppendExtension(".eps");
     }
   }
 

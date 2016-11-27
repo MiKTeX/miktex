@@ -144,7 +144,7 @@ void TeXMFApp::OnTeXMFFinishJob()
     {
       fileName = jobName;
     }
-    session->SetRecorderPath(PathName(outputDirectory.Empty() ? nullptr : outputDirectory.GetData(), fileName.c_str(), ".fls"));
+    session->SetRecorderPath(PathName(outputDirectory, fileName).AppendExtension(".fls"));
   }
   if (timeStatistics)
   {
@@ -629,8 +629,7 @@ bool TeXMFApp::OpenMemoryDumpFile(const PathName & fileName_, FILE ** ppFile, vo
 
   PathName path;
 
-  char szDumpName[BufferSizes::MaxPath];
-  fileName.GetFileNameWithoutExtension(szDumpName);
+  string dumpName = fileName.GetFileNameWithoutExtension().ToString();
 #if 0
   PathName::Convert(szDumpName, szDumpName, ConvertPathNameOption::MakeLower);
 #endif
@@ -659,7 +658,7 @@ bool TeXMFApp::OpenMemoryDumpFile(const PathName & fileName_, FILE ** ppFile, vo
     }
   }
 
-  session->PushAppName(szDumpName);
+  session->PushAppName(dumpName);
 
   *ppFile = stream.Detach();
 
@@ -745,7 +744,7 @@ void TeXMFApp::GetDefaultMemoryDumpFileName(char * lpszPath) const
       name = exeName;
     }
   }
-  name.SetExtension(GetMemoryDumpFileExtension());
+  name.AppendExtension(GetMemoryDumpFileExtension());
   StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, name.GetData());
 }
 

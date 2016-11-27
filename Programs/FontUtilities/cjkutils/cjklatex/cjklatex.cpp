@@ -475,7 +475,7 @@ CJKLaTeXApp::Run (/*[in]*/ int		argc,
       PathName pathInputFile (argv[i]);
       pathInputFile.MakeAbsolute ();
       PathName pathIntermediateFile (pathInputFile);
-      pathIntermediateFile.SetExtension (".cjk");
+      pathIntermediateFile.AppendExtension (".cjk");
       RunConverter (pathInputFile, pathIntermediateFile);
       RunEngine (pathIntermediateFile);
       if (cleanUp && ! printOnly)

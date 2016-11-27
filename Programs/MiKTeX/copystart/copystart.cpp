@@ -63,7 +63,7 @@ void CopyStart(const wchar_t * lpszFileName, const wchar_t * lpszArgs)
   // create the destination file name
   pathExe.SetToTempDirectory();
   pathExe /= PathName(lpszFileName).GetFileNameWithoutExtension();
-  pathExe.SetExtension(".tmp");
+  pathExe.AppendExtension(".tmp");
   if (File::Exists(pathExe))
   {
     if (MD5::FromFile(pathExe.GetData()) == digest)

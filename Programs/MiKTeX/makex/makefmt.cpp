@@ -352,12 +352,11 @@ void MakeFmt::Run(int argc, const char ** argv)
 
   // make the format file name
   PathName formatFile(destinationName);
-  formatFile.SetExtension(MIKTEX_FORMAT_FILE_SUFFIX);
+  formatFile.AppendExtension(MIKTEX_FORMAT_FILE_SUFFIX);
 
   // make fully qualified destination file name
-  PathName pathDest(destinationDirectory,
-    destinationName,
-    MIKTEX_FORMAT_FILE_SUFFIX);
+  PathName pathDest(destinationDirectory, destinationName);
+  pathDest.AppendExtension(MIKTEX_FORMAT_FILE_SUFFIX);
 
   Verbose(T_("Creating the %s format file..."), Q_(destinationName));
 

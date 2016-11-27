@@ -548,11 +548,11 @@ bool SessionImpl::GetAcrobatFontDir(PathName & path)
     PathName fontDir;
 
     // try Acrobat Reader 3.0
-    fontDir.Set(dir.GetData(), "FONTS", nullptr);
+    fontDir = dir / "FONTS";
     if (!Directory::Exists(fontDir))
     {
       // try Acrobat Reader 4.0
-      fontDir.Set(dir.GetData(), "..\\Resource\\Font", nullptr);
+      fontDir = dir / ".." / "Resource" / "Font";
       if (!Directory::Exists(fontDir))
       {
 	return false;

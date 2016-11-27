@@ -2554,7 +2554,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
 	linkPath /= linkName;
 	if (lpszExtension != nullptr)
 	{
-	  linkPath.SetExtension(lpszExtension);
+	  linkPath.AppendExtension(lpszExtension);
 	}
         linkNames.push_back(linkPath.ToString());
       }
@@ -2581,7 +2581,8 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
     PathName tmp;
     if (overwrite || !session->FindFile(formatInfo.name.c_str(), FileType::EXE, tmp))
     {
-      PathName exePath(pathBinDir, formatInfo.name, MIKTEX_EXE_FILE_SUFFIX);
+      PathName exePath(pathBinDir, formatInfo.name);
+      exePath.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
       if (!(compilerPath == exePath))
       {
         result.push_back(FileLink(compilerPath.ToString(), { exePath.ToString() }));
@@ -2609,7 +2610,8 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
     }
     for (const shared_ptr<Cfg::Value> & v : key->GetValues())
     {
-      PathName pathExe(pathBinDir, v->GetName(), MIKTEX_EXE_FILE_SUFFIX);
+      PathName pathExe(pathBinDir, v->GetName());
+      pathExe.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
       result.push_back(FileLink(wrapper.ToString(), { pathExe.ToString() }));
     }
   }
@@ -2625,8 +2627,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
     for (const PathName & starter : copystarters)
     {
       PathName pathExe(pathBinDir);
-      char szFileName[BufferSizes::MaxPath];
-      pathExe /= starter.GetFileName(szFileName);
+      pathExe /= starter.GetFileName();
       result.push_back(FileLink(copystart.ToString(), { pathExe.ToString() }));
     }
   }
@@ -2640,8 +2641,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
     for (const PathName & starter : copystarters_admin)
     {
       PathName pathExe(pathBinDir);
-      char szFileName[BufferSizes::MaxPath];
-      pathExe /= starter.GetFileName(szFileName);
+      pathExe /= starter.GetFileName();
       result.push_back(FileLink(copystart_admin.ToString(), { pathExe.ToString() }));
     }
   }

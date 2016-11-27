@@ -605,7 +605,8 @@ PathName SessionImpl::GetBinDirectory()
 
 void SessionImpl::ReadAllConfigFiles(const string & baseName, Cfg & cfg)
 {
-  PathName fileName(MIKTEX_PATH_MIKTEX_CONFIG_DIR, baseName, ".ini");
+  PathName fileName = MIKTEX_PATH_MIKTEX_CONFIG_DIR / baseName;
+  fileName.AppendExtension(".ini");
   vector<PathName> configFiles;
   if (!FindFile(fileName.GetData(), MIKTEX_PATH_TEXMF_PLACEHOLDER, { FindFileOption::All }, configFiles))
   {

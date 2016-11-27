@@ -137,8 +137,8 @@ bool MakeTfm::MakeFromHBF(const char * lpszName, const PathName & workingDirecto
 
   // run PLtoTF
   arguments.Clear();
-  arguments.AppendArgument(PathName(0, lpszName, ".pl"));
-  arguments.AppendArgument(PathName(0, lpszName, ".tfm"));
+  arguments.AppendArgument(PathName(lpszName).AppendExtension(".pl"));
+  arguments.AppendArgument(PathName(lpszName).AppendExtension(".tfm"));
   if (!RunProcess(MIKTEX_PLTOTF_EXE, arguments.ToString(), workingDirectory))
   {
     FatalError(T_("PLtoTF failed on %s."), Q_(lpszName));

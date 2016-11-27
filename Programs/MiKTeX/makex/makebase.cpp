@@ -120,10 +120,11 @@ void MakeBase::Run(int argc, const char ** argv)
 
   // make the base file name
   PathName baseFile(name);
-  baseFile.SetExtension(".base");
+  baseFile.AppendExtension(".base");
 
   // make fully qualified destination file name
-  PathName pathDest(destinationDirectory, destinationName, ".base");
+  PathName pathDest(destinationDirectory, destinationName);
+  pathDest.AppendExtension(".base");
 
   Verbose(T_("Creating the %s base file..."), Q_(destinationName));
 

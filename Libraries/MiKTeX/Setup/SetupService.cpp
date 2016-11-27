@@ -370,7 +370,7 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
     {
       if (Directory::Exists(GetInstallRoot()))
       {
-        pathLogDir.Set(GetInstallRoot(), MIKTEX_PATH_MIKTEX_CONFIG_DIR);
+        pathLogDir = GetInstallRoot() / MIKTEX_PATH_MIKTEX_CONFIG_DIR;
       }
       else
       {
@@ -416,7 +416,7 @@ PathName SetupServiceImpl::CloseLog(bool cancel)
   fileName += "-";
   fileName += dateTime;
   pathLogFile /= fileName.c_str();
-  pathLogFile.SetExtension(".log");
+  pathLogFile.AppendExtension(".log");
 
   // install the log file
   // <todo>add the log file to the uninstall script</todo>
@@ -786,7 +786,8 @@ void SetupServiceImpl::DoTheDownload()
   char szFileName[BufferSizes::MaxPath];
   char szExt[BufferSizes::MaxPath];
   PathName::Split(WU_(szSetupPath), nullptr, 0, szFileName, BufferSizes::MaxPath, szExt, BufferSizes::MaxPath);
-  PathName pathDest(options.LocalPackageRepository, szFileName, szExt);
+  PathName pathDest(options.LocalPackageRepository, szFileName);
+  pathDest.AppendExtension(szExt);
   if (ComparePaths(WU_(szSetupPath), pathDest.GetData(), true) != 0)
   {
     File::Copy(WU_(szSetupPath), pathDest);

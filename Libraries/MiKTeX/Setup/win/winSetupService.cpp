@@ -398,7 +398,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName & pathFolder, const She
   }
 
   pathLink /= ld.lpszName;
-  pathLink.SetExtension(ld.isUrl ? ".url" : ".lnk");
+  pathLink.AppendExtension(ld.isUrl ? ".url" : ".lnk");
 
   if (File::Exists(pathLink))
   {

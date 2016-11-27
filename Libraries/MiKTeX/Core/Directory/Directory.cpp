@@ -50,11 +50,11 @@ void Directory::Delete(const PathName & path, bool recursive)
     {
       if (entry.isDirectory)
       {
-        directoriesToBeDeleted.push_back(PathName(path.GetData(), entry.name.c_str(), nullptr));
+        directoriesToBeDeleted.push_back(PathName(path.GetData(), entry.name));
       }
       else
       {
-        filesToBeDeleted.push_back(PathName(path.GetData(), entry.name.c_str(), nullptr));
+        filesToBeDeleted.push_back(PathName(path.GetData(), entry.name));
       }
     }
     dirLister->Close();

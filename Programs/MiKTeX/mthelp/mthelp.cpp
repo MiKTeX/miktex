@@ -294,7 +294,8 @@ void MiKTeXHelp::FindDocFilesByName(const string & name, vector<string> & files)
   searchSpec += MIKTEX_PATH_RECURSION_INDICATOR;
   for (Tokenizer ext(extensions.c_str(), PATH_DELIMITER_STRING); ext.GetCurrent() != nullptr; ++ext)
   {
-    PathName fileName(PathName(), name, ext.GetCurrent());
+    PathName fileName(name);
+    fileName.AppendExtension(ext.GetCurrent());
     PathName path;
     if (session->FindFile(fileName.GetData(), searchSpec.c_str(), path))
     {
@@ -426,7 +427,7 @@ void MiKTeXHelp::CreateHtmlAndView(const char * lpszPackageName, const vector<st
   fileName /= MIKTEX_PATH_MIKTEX_MTHELP_DIR;
   Directory::Create(fileName);
   fileName /= lpszPackageName;
-  fileName.SetExtension(".html");
+  fileName.AppendExtension(".html");
   StreamWriter writer(fileName);
   int idx = 0;
   for (const char * lpsz = reinterpret_cast<const char *>(templateHtml); idx < sizeof(templateHtml); ++lpsz, ++idx)

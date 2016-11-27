@@ -619,8 +619,7 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_set_program_name(kpathsea kpse, const char
     MIKTEX_FREE(kpse->invocation_name);
   }
   PathName argv0(lpszArgv0);
-  char szInvocationName[BufferSizes::MaxPath];
-  kpse->invocation_name = xstrdup(argv0.GetFileName(szInvocationName));
+  kpse->invocation_name = xstrdup(argv0.GetFileName().GetData());
   std::string programName;
   if (lpszProgramName == nullptr)
   {
@@ -642,8 +641,7 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_set_program_name(kpathsea kpse, const char
 MIKTEXKPSCEEAPI(char *) miktex_kpathsea_program_basename(const char * lpszArgv0)
 {
   PathName argv0(lpszArgv0);
-  char szInvocationName[BufferSizes::MaxPath];
-  return xstrdup(argv0.GetFileNameWithoutExtension(szInvocationName));
+  return xstrdup(argv0.GetFileNameWithoutExtension().GetData());
 }
 
 MIKTEXKPSCEEAPI(void) miktex_kpathsea_set_program_enabled(kpathsea kpse, kpse_file_format_type fmt, boolean value, kpse_src_type level)

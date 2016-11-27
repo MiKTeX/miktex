@@ -141,10 +141,12 @@ END_TEST_FUNCTION();
 BEGIN_TEST_FUNCTION(7)
 {
   PathName path("/abc/def/ghi.jkl/mno.pqr.stu");
+  PathName path2("/abc/def/", "ghi.jkl/mno.pqr.stu");
+  TEST(PathName::Compare(path, path2) == 0);
   TEST(PathName::Compare(path.GetExtension(), ".stu") == 0);
   TEST(path.HasExtension(".stu"));
+  TEST(PathName::Compare(path.GetFileNameWithoutExtension(), "mno.pqr") == 0);
   char szName[BufferSizes::MaxPath];
-  TEST(PathName::Compare(path.GetFileNameWithoutExtension(szName), "mno.pqr") == 0);
   char szExt[BufferSizes::MaxPath];
   PathName::Split(path.GetData(), nullptr, 0, szName, BufferSizes::MaxPath, szExt, BufferSizes::MaxPath);
   TEST(PathName::Compare(szName, "mno.pqr") == 0);

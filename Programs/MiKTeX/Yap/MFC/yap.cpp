@@ -875,7 +875,8 @@ void StartEditor(const char * lpszFileName, const char * lpszDocDir, int line)
   }
   else
   {
-    path.Set(lpszDocDir, lpszFileName);
+    path = lpszDocDir;
+    path /= lpszFileName;
   }
   PathName path2;
   if (!session->FindFile(path.GetData(), FileType::TEX, path2))

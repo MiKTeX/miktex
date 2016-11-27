@@ -82,7 +82,8 @@ bool MakeUtility::RunMETAFONT(const char * lpszName, const char * lpszMode, cons
     return true;
   }
   Verbose(T_("METAFONT failed for some reason"));
-  PathName pathLogFile(nullptr, lpszName, ".log");
+  PathName pathLogFile = lpszName;
+  pathLogFile.AppendExtension(".log");
   AutoFILE pLogFile(File::Open(pathLogFile, FileMode::Open, FileAccess::Read));
   string line;
   bool noError = true;

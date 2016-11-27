@@ -228,53 +228,6 @@ bool PathName::Match(const char * lpszPattern, const char * lpszPath)
   return InternalMatch(PathName(lpszPattern).TransformForComparison().GetData(), PathName(lpszPath).TransformForComparison().GetData());
 }
 
-void PathName::Combine(char * lpszPath, size_t sizePath, const char * lpszAbsPath, const char * lpszRelPath, const char * lpszExtension)
-{
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszAbsPath);
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszRelPath);
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszExtension);
-
-  size_t n = 0;
-
-  if (lpszAbsPath != nullptr && *lpszAbsPath != 0)
-  {
-    n = StringUtil::CopyString(lpszPath, sizePath, lpszAbsPath);
-  }
-
-  if (((lpszRelPath != nullptr && *lpszRelPath != 0)
-    || (lpszExtension != nullptr && *lpszExtension != 0)) && (n > 0 && !IsDirectoryDelimiter(lpszPath[n - 1])))
-  {
-    if (n + 1 >= sizePath)
-    {
-      BUF_TOO_SMALL();
-    }
-    lpszPath[n] = DirectoryDelimiter;
-    ++n;
-    lpszPath[n] = 0;
-  }
-
-  if (lpszRelPath != nullptr && *lpszRelPath != 0)
-  {
-    n += StringUtil::CopyString(&lpszPath[n], sizePath - n, lpszRelPath);
-  }
-
-  if (lpszExtension != nullptr && *lpszExtension != 0)
-  {
-    if (*lpszExtension != '.')
-    {
-      if (n + 1 >= sizePath)
-      {
-	BUF_TOO_SMALL();
-      }
-      lpszPath[n] = '.';
-      ++n;
-    }
-    n += StringUtil::CopyString(&lpszPath[n], sizePath - n, lpszExtension);
-  }
-
-  MIKTEX_ASSERT(strlen(lpszPath) == n);
-}
-
 void PathName::Split(const char * lpszPath, char * lpszDir, size_t sizeDir, char * lpszName, size_t sizeName, char * lpszExtension, size_t sizeExtension)
 {
   MIKTEX_ASSERT_STRING(lpszPath);
@@ -334,7 +287,7 @@ const char * PathName::GetExtension() const
   return GetFileNameExtension(GetData());
 }
 
-PathName & PathName::SetExtension(const char * lpszExtension, bool override)
+PathName & PathName::SetExtension(const char * extension, bool override)
 {
   char szDir[BufferSizes::MaxPath];
   char szFileName[BufferSizes::MaxPath];
@@ -344,7 +297,22 @@ PathName & PathName::SetExtension(const char * lpszExtension, bool override)
 
   if (szExtOld[0] == 0 || override)
   {
-    Set(szDir, szFileName, lpszExtension);
+    *this = szDir;
+    AppendComponent(szFileName);
+    if (extension != nullptr && *extension != 0)
+    {
+      size_t n = GetLength();
+      if (*extension != '.')
+      {
+        if (n + 1 >= GetCapacity())
+        {
+          BUF_TOO_SMALL();
+        }
+        (*this)[n] = '.';
+        ++n;
+      }
+      n += StringUtil::CopyString(&(*this)[n], GetCapacity() - n, extension);
+    }
   }
 
   return *this;

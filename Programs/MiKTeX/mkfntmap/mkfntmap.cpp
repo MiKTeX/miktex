@@ -878,7 +878,7 @@ PathName MakeFontMapApp::CreateOutputDir(const char * lpszRelPath)
   }
   else
   {
-    path.Set(session->GetSpecialPath(SpecialPath::DataRoot), lpszRelPath);
+    path = session->GetSpecialPath(SpecialPath::DataRoot) / lpszRelPath;
   }
   if (!Directory::Exists(path))
   {
@@ -1109,16 +1109,19 @@ void MakeFontMapApp::CopyFiles()
 
   PathName pathSrc;
 
-  pathSrc.Set(dvipsOutputDir, (dvipsPreferOutline ? "psfonts_t1" : "psfonts_pk"), ".map");
+  pathSrc = dvipsOutputDir / (dvipsPreferOutline ? "psfonts_t1" : "psfonts_pk");
+  pathSrc.AppendExtension(".map");
   CopyFile(pathSrc, PathName(dvipsOutputDir, "psfonts.map"));
 
-  pathSrc.Set(dvipdfmOutputDir, (dvipdfmDownloadBase14 ? "dvipdfm_dl14" : "dvipdfm_ndl14"), ".map");
+  pathSrc = dvipdfmOutputDir / (dvipdfmDownloadBase14 ? "dvipdfm_dl14" : "dvipdfm_ndl14");
+  pathSrc.AppendExtension(".map");
   CopyFile(pathSrc, PathName(dvipdfmOutputDir, "dvipdfm.map"));
 #if CREATE_DEPRECATED_MAP_FILES
   CopyFile(pathSrc, PathName(dvipdfmOutputDir, "psfonts.map"));
 #endif
 
-  pathSrc.Set(pdftexOutputDir, (pdftexDownloadBase14 ? "pdftex_dl14" : "pdftex_ndl14"), ".map");
+  pathSrc = pdftexOutputDir / (pdftexDownloadBase14 ? "pdftex_dl14" : "pdftex_ndl14");
+  pathSrc.AppendExtension(".map");
   CopyFile(pathSrc, PathName(pdftexOutputDir, "pdftex.map"));
 #if CREATE_DEPRECATED_MAP_FILES
   CopyFile(pathSrc, PathName(pdftexOutputDir, "psfonts.map"));

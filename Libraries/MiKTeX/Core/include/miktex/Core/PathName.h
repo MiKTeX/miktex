@@ -185,41 +185,25 @@ public:
   PathName(int n) = delete;
 
   /// Combines path name components into a new PathName object.
-  /// @param lpszAbsPath The first component (absolute directory path).
-  /// @param lpszRelPath The second component (relative file name path).
+  /// @param component1 The first component (absolute directory path).
+  /// @param component2 The second component (relative file name path).
 public:
-  PathName(const char * lpszAbsPath, const char * lpszRelPath)
+  PathName(const char * component1, const char * component2) :
+    Base(component1)
   {
-    Set(lpszAbsPath, lpszRelPath);
+    if (component2 != nullptr)
+    {
+      AppendComponent(component2);
+    }
   }
 
   /// Combines path name components into a new PathName object.
-  /// @param lpszAbsPath The first component (absolute directory path).
-  /// @param lpszRelPath The second component (relative file name path).
-  /// @param lpszExtension The third component (file name extension).
+  /// @param component1 The first component (absolute directory path).
+  /// @param component2 The second component (relative file name path).
 public:
-  PathName(const char * lpszAbsPath, const char * lpszRelPath, const char * lpszExtension)
+  PathName(const PathName & component1, const PathName & component2) :
+    PathName(component1.GetData(), component2.GetData())
   {
-    Set(lpszAbsPath, lpszRelPath, lpszExtension);
-  }
-
-  /// Combines path name components into a new PathName object.
-  /// @param absPath The first component (absolute directory path).
-  /// @param relPath The second component (relative file name path).
-public:
-  PathName(const PathName & absPath, const PathName & relPath)
-  {
-    Set(absPath, relPath);
-  }
-
-  /// Combines path name components into a new PathName object.
-  /// @param absPath The first component (absolute directory path).
-  /// @param relPath The second component (relative file name path).
-  /// @param extension File name extension.
-public:
-  PathName(const PathName & absPath, const PathName & relPath, const PathName & extension)
-  {
-    Set(absPath, relPath, extension);
   }
 
 public:
@@ -245,97 +229,21 @@ public:
   static MIKTEXCORECEEAPI(void) Split(const char * lpszPath, char * lpszDirectory, std::size_t sizeDirectory, char * lpszName, std::size_t sizeName, char * lpszExtension, std::size_t sizeExtension);
 
 public:
-  char * GetFileName(char * lpszFileName) const
-  {
-    MIKTEX_ASSERT_CHAR_BUFFER(lpszFileName, BufferSizes::MaxPath);
-    char szExtension[BufferSizes::MaxPath];
-    Split(GetData(), nullptr, 0, lpszFileName, BufferSizes::MaxPath, szExtension, BufferSizes::MaxPath);
-    MiKTeX::Util::StringUtil::AppendString(lpszFileName, BufferSizes::MaxPath, szExtension);
-    return lpszFileName;
-  }
-
-public:
   PathName GetFileName() const
   {
-    char buf[BufferSizes::MaxPath];
-    return GetFileName(buf);
-  }
-
-public:
-  char * GetFileNameWithoutExtension(char * lpszFileName) const
-  {
-    MIKTEX_ASSERT_CHAR_BUFFER(lpszFileName, BufferSizes::MaxPath);
-    Split(GetData(), nullptr, 0, lpszFileName, BufferSizes::MaxPath, nullptr, 0);
-    return lpszFileName;
-  }
-
-public:
-  PathName & GetFileNameWithoutExtension(PathName & fileName) const
-  {
-    Split(GetData(), nullptr, 0, fileName.GetData(), fileName.GetCapacity(), nullptr, 0);
+    char fileName[BufferSizes::MaxPath];
+    char szExtension[BufferSizes::MaxPath];
+    Split(GetData(), nullptr, 0, fileName, BufferSizes::MaxPath, szExtension, BufferSizes::MaxPath);
+    MiKTeX::Util::StringUtil::AppendString(fileName, BufferSizes::MaxPath, szExtension);
     return fileName;
   }
 
 public:
   PathName GetFileNameWithoutExtension() const
   {
-    PathName result;
-    return GetFileNameWithoutExtension(result);
-    return result;
-  }
-
-public:
-  static MIKTEXCORECEEAPI(void) Combine(char * lpszPath, std::size_t sizePath, const char * lpszAbsPath, const char * lpszRelPath, const char * lpszExtension);
-
-  /// Sets this PathName object equal to the combination three path name
-  /// components.
-  /// @param lpszAbsPath The first component (absolute directory path).
-  /// @param lpszRelPath The second component (relative file name path).
-  /// @return Returns a reference to this object.
-public:
-  PathName & Set(const char * lpszAbsPath, const char * lpszRelPath)
-  {
-    Combine(GetData(), GetCapacity(), lpszAbsPath, lpszRelPath, nullptr);
-    return *this;
-  }
-
-  /// Sets this PathName object equal to the combination three path name
-  /// components.
-  /// @param lpszAbsPath The first component (absolute directory path).
-  /// @param lpszRelPath The second component (relative file name path).
-  /// @param lpszExtension The third component (file name extension).
-  /// @return Returns a reference to this object.
-public:
-  PathName & Set(const char * lpszAbsPath, const char * lpszRelPath, const char * lpszExtension)
-  {
-    Combine(GetData(), GetCapacity(), lpszAbsPath, lpszRelPath, lpszExtension);
-    return *this;
-  }
-
-  /// Sets this PathName object equal to the combination three path name
-  /// components.
-  /// @param absPath The first component (absolute directory path).
-  /// @param relPath The second component (relative file name path).
-  /// @param extension The third component (file name extension).
-  /// @return Returns a reference to this object.
-public:
-  PathName & Set(const PathName & absPath, const PathName & relPath)
-  {
-    Combine(GetData(), GetCapacity(), absPath.GetData(), relPath.GetData(), nullptr);
-    return *this;
-  }
-
-  /// Sets this PathName object equal to the combination three path name
-  /// components.
-  /// @param absPath The first component (absolute directory path).
-  /// @param relPath The second component (relative file name path).
-  /// @param extension The third component (file name extension).
-  /// @return Returns a reference to this object.
-public:
-  PathName & Set(const PathName & absPath, const PathName & relPath, const PathName & extension)
-  {
-    Combine(GetData(), GetCapacity(), absPath.GetData(), relPath.GetData(), extension.GetData());
-    return *this;
+    PathName fileName;
+    Split(GetData(), nullptr, 0, fileName.GetData(), fileName.GetCapacity(), nullptr, 0);
+    return fileName;
   }
 
   /// Removes the file name component from this path name.
@@ -351,9 +259,7 @@ public:
 public:
   PathName & RemoveDirectorySpec()
   {
-    char fileName[BufferSizes::MaxPath];
-    GetFileName(fileName);
-    Base::Set(fileName);
+    Base::Set(GetFileName());
     return *this;
   }
 
@@ -487,12 +393,12 @@ public:
   MIKTEXCORETHISAPI(const char *) GetExtension() const;
 
   /// Sets the file name extension.
-  /// @param lpszExtension The file name extension to set.
+  /// @param extension The file name extension to set.
   /// @param override Indicates whether an existing file name extension
   /// shall be overridden.
   /// @return Returns a reference to this object.
 public:
-  MIKTEXCORETHISAPI(PathName &) SetExtension(const char * lpszExtension, bool override);
+  MIKTEXCORETHISAPI(PathName &) SetExtension(const char * extension, bool override);
 
   /// Sets the file name extension.
   /// @param lpszExtension The file name extension to set. Can be 0,
@@ -502,6 +408,16 @@ public:
   PathName & SetExtension(const char * extension)
   {
     return SetExtension(extension, true);
+  }
+
+  /// Sets the file name extension.
+  /// @param lpszExtension The file name extension to set. Can be 0,
+  /// if the extension is to be removed.
+  /// @return Returns a reference to this object.
+public:
+  PathName & SetExtension(const std::string & extension)
+  {
+    return SetExtension(extension.c_str(), true);
   }
 
 public:

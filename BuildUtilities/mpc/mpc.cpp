@@ -575,10 +575,10 @@ void PackageCreator::MD5WildCopy(const PathName & sourceTemplate, const PathName
     }
 
     // path to source file
-    PathName sourcePath(sourceDir, direntry.name, PathName());
+    PathName sourcePath(sourceDir, direntry.name);
 
     // path to destination file
-    PathName destPath(destDir, direntry.name, PathName());
+    PathName destPath(destDir, direntry.name);
 
     // copy file and calculate its digest
     MD5 digest = MD5CopyFile(sourcePath, destPath);
@@ -643,7 +643,7 @@ void PackageCreator::InitializeStagingDirectory(const PathName & stagingDir, con
   FileStream stream;
 
   // write package.ini
-  stream.Attach(File::Open(PathName(stagingDir, "package.ini", PathName()), FileMode::Create, FileAccess::Write));
+  stream.Attach(File::Open(PathName(stagingDir, "package.ini"), FileMode::Create, FileAccess::Write));
   fprintf(stream.Get(), "externalname=%s\n", packageInfo.deploymentName.c_str());
   fprintf(stream.Get(), "name=%s\n", packageInfo.displayName.c_str());
   fprintf(stream.Get(), "creator=%s\n", packageInfo.creator.c_str());
@@ -674,7 +674,7 @@ void PackageCreator::InitializeStagingDirectory(const PathName & stagingDir, con
   stream.Close();
 
   // write md5sums.txt
-  stream.Attach(File::Open(PathName(stagingDir, "md5sums.txt", PathName()), FileMode::Create, FileAccess::Write));
+  stream.Attach(File::Open(PathName(stagingDir, "md5sums.txt"), FileMode::Create, FileAccess::Write));
   for (const pair<string, MD5> & p : fileDigests)
   {
     fprintf(stream.Get(), "%s %s\n", p.second.ToString().c_str(), PathName(p.first).ToUnix().GetData());
@@ -694,13 +694,13 @@ void PackageCreator::CopyPackage(const MpcPackageInfo & packageinfo, const PathN
 
   // path to package definition directory, e.g.:
   // /miktex/texmf/tpm/packages/
-  PathName packageDefinitionDirectory(destDir, PathName(texmfPrefix, MIKTEX_PATH_PACKAGE_DEFINITION_DIR, PathName()), PathName());
+  PathName packageDefinitionDirectory = destDir / texmfPrefix /MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
 
   // create package definition directory
   Directory::Create(packageDefinitionDirectory);
 
   // create the package definition file...
-  PackageManager::WritePackageDefinitionFile(PathName(packageDefinitionDirectory, packageinfo.deploymentName, MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX), packageinfo, programStartTime);
+  PackageManager::WritePackageDefinitionFile(PathName(packageDefinitionDirectory, packageinfo.deploymentName).AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX), packageinfo, programStartTime);
 
   // copy files and calculate digests
   FileDigestTable fileDigests;
@@ -739,7 +739,7 @@ MpcPackageInfo PackageCreator::InitializePackageInfo(const char * lpszStagingDir
   unique_ptr<Cfg> cfg(Cfg::Create());
 
   // read package.ini
-  cfg->Read(PathName(lpszStagingDir, "package.ini", PathName()));
+  cfg->Read(PathName(lpszStagingDir, "package.ini"));
 
   // get deployment name (mandatory value)
   if (!cfg->TryGetValue("", "externalname", packageInfo.deploymentName))
@@ -1021,7 +1021,8 @@ void PackageCreator::WritePackageDefinitionFiles(const map<string, MpcPackageInf
     }
 
     // path to package definition file
-    PathName packageDefinitionFile(destDir, p.second.deploymentName, MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
+    PathName packageDefinitionFile(destDir, p.second.deploymentName);
+    packageDefinitionFile.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
 
     // remove existing package definition file
     if (File::Exists(packageDefinitionFile))
@@ -1239,13 +1240,13 @@ void PackageCreator::CleanUp(const PathName & repository)
     if (path.HasExtension(".cab"))
     {
       path2 = path;
-      path2.SetExtension(".tar.bz2");
+      path2.AppendExtension(".tar.bz2");
       if (File::Exists(path2))
       {
         toBeDeleted.push_back(path.GetData());
       }
       path2 = path;
-      path2.SetExtension(".tar.lzma");
+      path2.AppendExtension(".tar.lzma");
       if (File::Exists(path2))
       {
         toBeDeleted.push_back(path.GetData());
@@ -1254,7 +1255,7 @@ void PackageCreator::CleanUp(const PathName & repository)
     else if (path.HasExtension(".bz2"))
     {
       path2 = path;
-      path2.SetExtension(".lzma");
+      path2.AppendExtension(".lzma");
       if (File::Exists(path2))
       {
         toBeDeleted.push_back(path.GetData());
@@ -1297,7 +1298,7 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo> & packageTa
   }
 
   // create temporary mpm.ini
-  unique_ptr<TemporaryFile> tempIni = TemporaryFile::Create(PathName(repository, MIKTEX_MPM_INI_FILENAME, PathName()));
+  unique_ptr<TemporaryFile> tempIni = TemporaryFile::Create(PathName(repository, MIKTEX_MPM_INI_FILENAME));
   dbLight.Write(tempIni->GetPathName());
 
   // create light-weight database
@@ -1308,7 +1309,7 @@ void PackageCreator::WriteDatabase(const map<string, MpcPackageInfo> & packageTa
   tempIni = nullptr;
 
   // create temporary package definition directory
-  unique_ptr<TemporaryDirectory> tempDir = TemporaryDirectory::Create(PathName(repository, texmfPrefix, PathName()));
+  unique_ptr<TemporaryDirectory> tempDir = TemporaryDirectory::Create(PathName(repository, texmfPrefix));
   PathName packageDefinitionDir = tempDir->GetPathName();
   packageDefinitionDir /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
   Directory::Create(packageDefinitionDir);
@@ -1424,7 +1425,8 @@ bool PackageCreator::HavePackageArchiveFile(const PathName & repository, const s
   archiveFileType = ArchiveFileType::None;
 
   // check to see whether a cabinet file exists
-  archiveFile2.Set(repository, deploymentName.c_str(), MIKTEX_CABINET_FILE_SUFFIX);
+  archiveFile2 = repository / deploymentName;
+  archiveFile2.AppendExtension(MIKTEX_CABINET_FILE_SUFFIX);
   if (File::Exists(archiveFile2))
   {
     archiveFile = archiveFile2;
@@ -1432,7 +1434,8 @@ bool PackageCreator::HavePackageArchiveFile(const PathName & repository, const s
   }
 
   // check to see whether a .tar.bz2 file exists
-  archiveFile2.Set(repository, deploymentName.c_str(), MIKTEX_TARBZIP2_FILE_SUFFIX);
+  archiveFile2 = repository / deploymentName;
+  archiveFile2.AppendExtension(MIKTEX_TARBZIP2_FILE_SUFFIX);
   if (File::Exists(archiveFile2))
   {
     archiveFile = archiveFile2;
@@ -1440,7 +1443,8 @@ bool PackageCreator::HavePackageArchiveFile(const PathName & repository, const s
   }
 
   // check to see whether a .tar.lzma file exists
-  archiveFile2.Set(repository, deploymentName.c_str(), MIKTEX_TARLZMA_FILE_SUFFIX);
+  archiveFile2 = repository / deploymentName;
+  archiveFile2.AppendExtension(MIKTEX_TARLZMA_FILE_SUFFIX);
   if (File::Exists(archiveFile2))
   {
     archiveFile = archiveFile2;
@@ -1537,8 +1541,8 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo & packageInfo, 
 
     // path to package definition file, e.g.:
     // /mypackages/a0poster/Files/texmf/tpm/packages/a0poster.tpm
-    PathName packageDefinitionFile
-    (packageDefinitionDir, packageInfo.deploymentName.c_str(), MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
+    PathName packageDefinitionFile(packageDefinitionDir, packageInfo.deploymentName);
+    packageDefinitionFile.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
 
 #if 1
     // keep the time-stamp, if possible
@@ -1562,11 +1566,12 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo & packageInfo, 
     string command;
 
     // path to .tar file
-    PathName tarFile(repository, packageInfo.deploymentName.c_str(), MIKTEX_TAR_FILE_SUFFIX);
+    PathName tarFile(repository, packageInfo.deploymentName);
+    tarFile.AppendExtension(MIKTEX_TAR_FILE_SUFFIX);
 
     // path to compressed .tar file
-    archiveFile.Set
-    (repository, packageInfo.deploymentName.c_str(), PackageCreator::GetFileNameExtension(archiveFileType));
+    archiveFile = repository / packageInfo.deploymentName;
+    archiveFile.AppendExtension(PackageCreator::GetFileNameExtension(archiveFileType));
 
 #if defined(MIKTEX_WINDOWS)
     tarFile.ToUnix();
@@ -1675,9 +1680,7 @@ map<string, MpcPackageInfo> PackageCreator::LoadDbHeavy(const PathName & reposit
     PathName packageDefinitionFile(directory);
     packageDefinitionFile /= direntry.name;
     PackageInfo packageInfo = PackageManager::ReadPackageDefinitionFile(packageDefinitionFile.GetData(), texmfPrefix);
-    char szDeploymentName[BufferSizes::MaxPath];
-    packageDefinitionFile.GetFileNameWithoutExtension(szDeploymentName);
-    packageInfo.deploymentName = szDeploymentName;
+    packageInfo.deploymentName = packageDefinitionFile.GetFileNameWithoutExtension().ToString();
     packageTable[packageInfo.deploymentName] = packageInfo;
   }
 
@@ -1869,9 +1872,7 @@ void PackageCreator::DisassemblePackage(const PathName & packageDefinitionFile, 
 
   // determine the deployment name, e.g.:
   // a0poster
-  char szDeploymentName[BufferSizes::MaxPath];
-  packageDefinitionFile.GetFileNameWithoutExtension(szDeploymentName);
-  packageInfo.deploymentName = szDeploymentName;
+  packageInfo.deploymentName = packageDefinitionFile.GetFileNameWithoutExtension().ToString();
 
   Verbose(" %s (%u files)...", Q_(packageInfo.deploymentName.c_str()), static_cast<unsigned>(packageInfo.GetNumFiles()));
 
@@ -1902,7 +1903,7 @@ void PackageCreator::DisassemblePackage(const PathName & packageDefinitionFile, 
   packageDefinitionDir /= texmfPrefix;
   packageDefinitionDir /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
   Directory::Create(packageDefinitionDir);
-  PackageManager::WritePackageDefinitionFile(PathName(packageDefinitionDir, packageInfo.deploymentName, MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX), mpcPackageInfo, 0);
+  PackageManager::WritePackageDefinitionFile(PathName(packageDefinitionDir, packageInfo.deploymentName).AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX), mpcPackageInfo, 0);
 }
 
 void PackageCreator::Run(int argc, const char ** argv)

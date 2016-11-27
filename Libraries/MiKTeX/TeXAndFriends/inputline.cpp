@@ -245,12 +245,12 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot & f, const char * lpszPath, F
     PathName path;
     if (isAuxFile && !auxDirectory.Empty())
     {
-      path.Set(auxDirectory, unmangled);
+      path = auxDirectory / unmangled;
       lpszPath = path.GetData();
     }
     else if (!outputDirectory.Empty())
     {
-      path.Set(outputDirectory, unmangled);
+      path = outputDirectory / unmangled;
       lpszPath = path.GetData();
     }
     else

@@ -86,7 +86,8 @@ int main(int argc, char ** argv)
     }
     else
     {
-      outputName.Set(PathName(), szFileName, szExt);
+      outputName = szFileName;
+      outputName.AppendExtension(szExt);
     }
     CommandLineBuilder commandLine;
     commandLine.AppendArgument(outputName.GetData());

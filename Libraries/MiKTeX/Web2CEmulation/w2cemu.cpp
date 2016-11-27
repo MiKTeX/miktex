@@ -125,7 +125,7 @@ MIKTEXW2CCEEAPI(void) Web2C::ChangeRecorderFileName(const char * lpszName)
 {
   shared_ptr<Session> session = Session::Get();
   PathName path(GetOutputDirectory(), lpszName);
-  path.SetExtension(".fls");
+  path.AppendExtension(".fls");
   session->SetRecorderPath(path);
 }
 

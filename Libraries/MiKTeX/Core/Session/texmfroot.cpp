@@ -749,12 +749,12 @@ vector<PathName> SessionImpl::GetFilenameDatabasePathNames(unsigned r)
     {
       MIKTEX_UNEXPECTED();
     }
-    path.Set(rootDirectories[GetInstallRoot()].get_Path(), MIKTEX_PATH_MPM_FNDB);
+    path = rootDirectories[GetInstallRoot()].get_Path() / MIKTEX_PATH_MPM_FNDB;
   }
   else
   {
     // ROOT\miktex\conig\texmf.fndb
-    path.Set(rootDirectories[r].get_Path(), MIKTEX_PATH_TEXMF_FNDB);
+    path = rootDirectories[r].get_Path() / MIKTEX_PATH_TEXMF_FNDB;
   }
   result.push_back(path);
 

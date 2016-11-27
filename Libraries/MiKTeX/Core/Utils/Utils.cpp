@@ -384,9 +384,7 @@ bool Utils::GetPathNamePrefix(const PathName & path, const PathName & suffix, Pa
 
   while (!suffix_.Empty())
   {
-    char p[BufferSizes::MaxPath];
-    char s[BufferSizes::MaxPath];
-    if (PathName::Compare(path_.GetFileName(p), suffix_.GetFileName(s)) != 0)
+    if (PathName::Compare(path_.GetFileName(), suffix_.GetFileName()) != 0)
     {
       return false;
     }
@@ -526,19 +524,19 @@ void Utils::PrintException(const MiKTeXException & e)
   try
   {
     string programInvocationName(e.GetProgramInvocationName());
-    char szName[BufferSizes::MaxPath];
+    string name;
     bool haveName = (programInvocationName.length() > 0);
     if (haveName)
     {
       PathName path(programInvocationName);
-      path.GetFileName(szName);
+      name = path.GetFileName().ToString();
     }
     int last = '\n';
     for (const char * lpsz = e.what(); *lpsz != 0; ++lpsz)
     {
       if (haveName && last == '\n')
       {
-        cerr << szName << ": ";
+        cerr << name << ": ";
       }
       cerr << *lpsz;
       last = *lpsz;
@@ -553,7 +551,7 @@ void Utils::PrintException(const MiKTeXException & e)
     {
       if (haveName && last == '\n')
       {
-        cerr << szName << ": ";
+        cerr << name << ": ";
       }
       if (last == '\n')
       {
@@ -575,9 +573,7 @@ void Utils::PrintException(const MiKTeXException & e)
 
 string Utils::GetExeName()
 {
-  char szName[BufferSizes::MaxPath];
-  SessionImpl::GetSession()->GetMyProgramFile(false).GetFileNameWithoutExtension(szName);
-  return szName;
+  return SessionImpl::GetSession()->GetMyProgramFile(false).GetFileNameWithoutExtension().ToString();
 }
 
 #if !HAVE_MIKTEX_USER_INFO

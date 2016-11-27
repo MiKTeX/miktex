@@ -344,7 +344,7 @@ void PackageInstallerImpl::InstallDbLight()
     else
     {
       MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
-      pathZzdb1.Set(repository, MIKTEX_MPM_DB_LIGHT_FILE_NAME);
+      pathZzdb1 = repository / MIKTEX_MPM_DB_LIGHT_FILE_NAME;
     }
 
     // unpack database
@@ -1068,7 +1068,8 @@ void PackageInstallerImpl::InstallPackage(const string & deploymentName)
   if (repositoryType == RepositoryType::Remote
     || repositoryType == RepositoryType::Local)
   {
-    PathName packageFileName("", deploymentName, MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
+    PathName packageFileName = deploymentName;
+    packageFileName.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
 
     if (repositoryType == RepositoryType::Remote)
     {
@@ -1080,7 +1081,8 @@ void PackageInstallerImpl::InstallPackage(const string & deploymentName)
     else
     {
       MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
-      pathArchiveFile.Set(repository, deploymentName, MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
+      pathArchiveFile = repository / deploymentName;
+      pathArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
     }
 
     // check to see whether the digest is good
@@ -1109,7 +1111,7 @@ void PackageInstallerImpl::InstallPackage(const string & deploymentName)
   if (repositoryType == RepositoryType::Remote || repositoryType == RepositoryType::Local)
   {
     // unpack the archive file
-    ReportLine(T_("extracting files from %s..."), Q_(PathName("", deploymentName, MiKTeX::Extractor::Extractor::GetFileNameExtension(aft).c_str())));
+    ReportLine(T_("extracting files from %s..."), Q_(deploymentName + MiKTeX::Extractor::Extractor::GetFileNameExtension(aft).c_str()));
     ExtractFiles(pathArchiveFile, aft);
   }
   else if (repositoryType == RepositoryType::MiKTeXDirect)
@@ -1132,7 +1134,8 @@ void PackageInstallerImpl::InstallPackage(const string & deploymentName)
   }
 
   // parse the new package definition file
-  PathName pathPackageFile(PathName(pSession->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_PACKAGE_DEFINITION_DIR), deploymentName, MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
+  PathName pathPackageFile = pSession->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_DEFINITION_DIR / deploymentName;
+  pathPackageFile.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
   TpmParser tpmparser;
   tpmparser.Parse(pathPackageFile);
 
@@ -1221,13 +1224,14 @@ void PackageInstallerImpl::DownloadPackage(const string & deploymentName)
 
   // make the archive file name
   ArchiveFileType aft = dbLight.GetArchiveFileType(deploymentName);
-  PathName pathArchiveFile("", deploymentName, MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
+  PathName pathArchiveFile = deploymentName;
+  pathArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
 
   // download the archive file
   Download(pathArchiveFile, expectedSize);
 
   // check to see whether the archive file is ok
-  CheckArchiveFile(deploymentName, PathName(downloadDirectory, pathArchiveFile), true);
+  CheckArchiveFile(deploymentName, downloadDirectory / pathArchiveFile, true);
 
   // notify client: end of package download
   Notify(Notification::DownloadPackageEnd);
@@ -1774,7 +1778,8 @@ void PackageInstallerImpl::InstallRemove()
 
         // check to see whether the archive file exists
         ArchiveFileType aft = dbLight.GetArchiveFileType(deploymentName);
-        PathName pathLocalArchiveFile(repository, deploymentName, MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
+        PathName pathLocalArchiveFile = repository / deploymentName;
+        pathLocalArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
         if (!File::Exists(pathLocalArchiveFile))
         {
           MIKTEX_FATAL_ERROR_2(FatalError(ERROR_MISSING_PACKAGE), "package", deploymentName, "archiveFile", pathLocalArchiveFile.ToString());
@@ -1899,7 +1904,7 @@ void PackageInstallerImpl::InstallRemoveThread()
 
 void PackageInstallerImpl::Download(const PathName & fileName, size_t expectedSize)
 {
-  Download(MakeUrl(fileName.GetData()).c_str(), PathName(downloadDirectory, fileName), expectedSize);
+  Download(MakeUrl(fileName.GetData()).c_str(), downloadDirectory / fileName, expectedSize);
 }
 
 void PackageInstallerImpl::Download()
@@ -1947,7 +1952,8 @@ void PackageInstallerImpl::Download()
 
       // check to see whether the file was downloaded previously
       ArchiveFileType aft = dbLight.GetArchiveFileType(deploymentName);
-      PathName pathLocalArchiveFile(downloadDirectory, deploymentName, MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
+      PathName pathLocalArchiveFile = downloadDirectory / deploymentName;
+      pathLocalArchiveFile.AppendExtension(MiKTeX::Extractor::Extractor::GetFileNameExtension(aft));
       if (File::Exists(pathLocalArchiveFile))
       {
         // the archive file exists;  check to see if it is valid
@@ -2049,13 +2055,13 @@ void PackageInstallerImpl::SetUpPackageDefinitionFiles(const PathName & director
   if (repositoryType == RepositoryType::Remote)
   {
     // download the database file
-    pathDatabase.Set(directory, MIKTEX_MPM_DB_FULL_FILE_NAME);
+    pathDatabase = directory / MIKTEX_MPM_DB_FULL_FILE_NAME;
     Download(MakeUrl(MIKTEX_MPM_DB_FULL_FILE_NAME), pathDatabase);
   }
   else
   {
     MIKTEX_ASSERT(repositoryType == RepositoryType::Local);
-    pathDatabase.Set(repository, MIKTEX_MPM_DB_FULL_FILE_NAME);
+    pathDatabase = repository / MIKTEX_MPM_DB_FULL_FILE_NAME;
   }
 
   // extract package defintion files
@@ -2142,30 +2148,29 @@ void PackageInstallerImpl::HandleObsoletePackageDefinitionFiles(const PathName &
 
     // it's not an obsolete package if the temporary directory
     // contains a corresponding package definition file
-    if (File::Exists(PathName(temporaryDirectory, name)))
+    if (File::Exists(temporaryDirectory / name))
     {
       continue;
     }
 
     // now we know that the package is obsolete
 
-    char szDeploymentName[BufferSizes::MaxPackageName];
     MIKTEX_ASSERT(PathName(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX) == (PathName(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX).GetExtension()));
-    name.GetFileNameWithoutExtension(szDeploymentName);
+    string deploymentName = name.GetFileNameWithoutExtension().ToString();
 
     // check to see whether the obsolete package is installed
-    if (pManager->GetTimeInstalled(szDeploymentName) == 0 || IsPureContainer(szDeploymentName))
+    if (pManager->GetTimeInstalled(deploymentName) == 0 || IsPureContainer(deploymentName))
     {
       // not installed: remove the package definition file
       trace_mpm->WriteFormattedLine("libmpm", T_("removing obsolete %s"), Q_(name));
-      File::Delete(PathName(pathPackageDir, name), { FileDeleteOption::TryHard });
+      File::Delete(pathPackageDir / name, { FileDeleteOption::TryHard });
     }
     else
     {
       // installed: declare the package as obsolete (we wont
       // uninstall obsolete packages)
-      trace_mpm->WriteFormattedLine("libmpm", T_("declaring %s obsolete"), Q_(szDeploymentName));
-      pManager->DeclarePackageObsolete(szDeploymentName, true);
+      trace_mpm->WriteFormattedLine("libmpm", T_("declaring %s obsolete"), Q_(deploymentName));
+      pManager->DeclarePackageObsolete(deploymentName, true);
     }
   }
 
@@ -2258,15 +2263,14 @@ void PackageInstallerImpl::UpdateDb()
     }
 
     // get external package name
-    char szDeploymentName[BufferSizes::MaxPackageName];
     MIKTEX_ASSERT(PathName(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX) == (PathName(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX).GetExtension()));
-    name.GetFileNameWithoutExtension(szDeploymentName);
+    string deploymentName = name.GetFileNameWithoutExtension().ToString();
 
     // build name of current package definition file
     PathName currentPackageDefinitionfile(packageDefinitionDir, name);
 
     // ignore package, if package is already installed
-    if (!IsPureContainer(szDeploymentName) && pManager->IsPackageInstalled(szDeploymentName))
+    if (!IsPureContainer(deploymentName) && pManager->IsPackageInstalled(deploymentName))
     {
 #if 0
       if (File::Exists(currentPackageDefinitionfile))
@@ -2300,7 +2304,7 @@ void PackageInstallerImpl::UpdateDb()
     File::Copy(newPackageDefinitionFile, currentPackageDefinitionfile);
 
     // update the database
-    pManager->DefinePackage(szDeploymentName, tpmparser.GetPackageInfo());
+    pManager->DefinePackage(deploymentName, tpmparser.GetPackageInfo());
 
     ++count;
   }

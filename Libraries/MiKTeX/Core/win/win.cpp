@@ -214,7 +214,7 @@ MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const char * lpszPath)
   char szFname[BufferSizes::MaxPath];
   char szExt[BufferSizes::MaxPath];
   PathName::Split(lpszPath, szDir, BufferSizes::MaxPath, szFname, BufferSizes::MaxPath, szExt, BufferSizes::MaxPath);
-  PathName pathParent(szDir, nullptr, nullptr);
+  PathName pathParent(szDir);
   RemoveDirectoryDelimiter(pathParent.GetData());
   // RECURSION
   CreateDirectoryPath(pathParent.GetData());
