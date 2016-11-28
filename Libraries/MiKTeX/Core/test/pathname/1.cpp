@@ -182,6 +182,22 @@ BEGIN_TEST_FUNCTION(9);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(10);
+{
+  PathName path("/abc/def/ghi.jkl");
+  TEST(path.HasExtension(".jkl"));
+  TEST(path.HasExtension("jkl"));
+  path.AppendExtension(".jkl");
+  TEST(PathName::Compare(path, "/abc/def/ghi.jkl") == 0);
+  path.SetExtension(nullptr);
+  TEST(PathName::Compare(path, "/abc/def/ghi") == 0);
+  path.AppendExtension(".jkl");
+  TEST(PathName::Compare(path, "/abc/def/ghi.jkl") == 0);
+  path.AppendExtension(".mno");
+  TEST(PathName::Compare(path, "/abc/def/ghi.jkl.mno") == 0);
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
@@ -193,6 +209,7 @@ BEGIN_TEST_PROGRAM();
   CALL_TEST_FUNCTION(7);
   CALL_TEST_FUNCTION(8);
   CALL_TEST_FUNCTION(9);
+  CALL_TEST_FUNCTION(10);
 }
 END_TEST_PROGRAM();
 
