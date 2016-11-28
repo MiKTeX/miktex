@@ -368,10 +368,21 @@ public:
   /// @param lpszExtension File name extension.
   /// @return Returns true, if this path name has the specified extension.
 public:
-  bool HasExtension(const char * lpszExtension) const
+  bool HasExtension(const char * extension) const
   {
-    const char * lpszExt = GetExtension();
-    return lpszExt != nullptr && PathName::Compare(lpszExt, lpszExtension) == 0;
+    MIKTEX_ASSERT_STRING(extension);
+    const char * currentExtension = GetExtension();
+    if (currentExtension == nullptr)
+    {
+      return false;
+    }
+    MIKTEX_ASSERT(currentExtension[0] == '.');
+    currentExtension += 1;
+    if (extension[0] == '.')
+    {
+      extension += 1;
+    }
+    return PathName::Compare(currentExtension, extension) == 0;
   }
 
   /// Gets the file name extension.
@@ -421,26 +432,24 @@ public:
   }
 
 public:
-  PathName & AppendExtension(const std::string & extension)
+  PathName & AppendExtension(const char * extension)
   {
-    if (extension.empty() || extension[0] != '.')
+    MIKTEX_ASSERT_STRING(extension);
+    if (!HasExtension(extension))
     {
-      Base::Append('.');
+      if (*extension != '.')
+      {
+        Base::Append('.');
+      }
+      Base::Append(extension);
     }
-    Base::Append(extension);
     return *this;
   }
 
 public:
-  PathName & AppendExtension(const char * extension)
+  PathName & AppendExtension(const std::string & extension)
   {
-    MIKTEX_ASSERT_STRING(extension);
-    if (*extension != '.')
-    {
-      Base::Append('.');
-    }
-    Base::Append(extension);
-    return *this;
+    return AppendExtension(extension.c_str());
   }
 
   /// Checks to see whether this path name ends with a directory delimiter.
