@@ -35,7 +35,7 @@ STATICFUNC(int) MyPathNameCompare(const PathName & path1, const PathName & path2
   const char * lpszExtension1 = path1.GetExtension();
   const char * lpszExtension2 = path2.GetExtension();
 
-  if ((lpszExtension1 == 0 && lpszExtension2 == 0) || (lpszExtension1 != 0 && lpszExtension2 != 0))
+  if ((lpszExtension1 == nullptr && lpszExtension2 == nullptr) || (lpszExtension1 != nullptr && lpszExtension2 != nullptr))
   {
     return ret;
   }
@@ -170,7 +170,7 @@ bool DviImpl::FindSource(const char * lpszFileName, int line, DviPosition & posi
 
         if (line >= pSourceSpecial->GetLineNum())
         {
-          if (pSourceSpecial1 == 0 || (pSourceSpecial->GetLineNum() > pSourceSpecial1->GetLineNum()))
+          if (pSourceSpecial1 == nullptr || (pSourceSpecial->GetLineNum() > pSourceSpecial1->GetLineNum()))
           {
             pSourceSpecial1 = pSourceSpecial;
           }
@@ -309,7 +309,7 @@ bool DviImpl::GetSource(const DviPosition & pos, PathName & fileName, int * pLin
       }
       else if (cursorOffset < srcOffset)
       {
-        if (pSourceSpecial2 == 0 || srcOffset < src2Offset)
+        if (pSourceSpecial2 == nullptr || srcOffset < src2Offset)
         {
           pSourceSpecial2 = pSourceSpecial;
           src2Offset = srcOffset;
@@ -358,7 +358,7 @@ bool DviImpl::GetSource(const DviPosition & pos, PathName & fileName, int * pLin
       pSourceSpecial = pSourceSpecial1;
     }
     fileName = pSourceSpecial->GetFileName();
-    if (pLineNum != 0)
+    if (pLineNum != nullptr)
     {
       *pLineNum = pSourceSpecial->GetLineNum() + lineDelta;
     }

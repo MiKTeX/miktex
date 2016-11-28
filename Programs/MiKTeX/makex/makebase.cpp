@@ -112,7 +112,7 @@ void MakeBase::Run(int argc, const char ** argv)
   if (destinationName.Empty())
   {
     destinationName = name;
-    destinationName.SetExtension(0);
+    destinationName.SetExtension(nullptr);
   }
 
   // create destination directory
