@@ -119,7 +119,7 @@ void MakeBase::Run(int argc, const char ** argv)
   CreateDestinationDirectory();
 
   // make the base file name
-  PathName baseFile(name);
+  PathName baseFile(destinationName);
   baseFile.AppendExtension(".base");
 
   // make fully qualified destination file name
