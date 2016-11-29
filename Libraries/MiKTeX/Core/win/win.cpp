@@ -191,37 +191,30 @@ MIKTEXSTATICFUNC(void) CreateDirectoryForEveryone(const char * lpszPath)
 }
 #endif
 
-MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const char * lpszPath)
+MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName & path)
 {
-  MIKTEX_ASSERT_STRING(lpszPath);
-
-  if (!Utils::IsAbsolutePath(lpszPath))
+  if (!Utils::IsAbsolutePath(path.GetData()))
   {
-    PathName path(lpszPath);
-    path.MakeAbsolute();
+    PathName absolutePath(path);
+    absolutePath.MakeAbsolute();
     // RECURSION
-    CreateDirectoryPath(path.GetData());
+    CreateDirectoryPath(absolutePath);
   }
 
   // do nothing, if the directory already exists
-  if (Directory::Exists(lpszPath))
+  if (Directory::Exists(path))
   {
     return;
   }
 
   // create the parent directory
-  char szDir[BufferSizes::MaxPath];
-  char szFname[BufferSizes::MaxPath];
-  char szExt[BufferSizes::MaxPath];
-  PathName::Split(lpszPath, szDir, BufferSizes::MaxPath, szFname, BufferSizes::MaxPath, szExt, BufferSizes::MaxPath);
-  PathName pathParent(szDir);
+  PathName pathParent = path.GetDirectoryName();
   RemoveDirectoryDelimiter(pathParent.GetData());
   // RECURSION
-  CreateDirectoryPath(pathParent.GetData());
+  CreateDirectoryPath(pathParent);
 
-  // we're done, if szFname is empty (this happens when lpszPath ends
-  // with a directory delimiter)
-  if (szFname[0] == 0 && szExt[0] == 0)
+  // we're done, if we have no file name
+  if (path.GetFileName().Empty())
   {
     return;
   }
@@ -230,25 +223,25 @@ MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const char * lpszPath)
 
   if (session != nullptr)
   {
-    session->trace_files->WriteFormattedLine("core", T_("creating directory %s"), Q_(lpszPath));
+    session->trace_files->WriteFormattedLine("core", T_("creating directory %s"), Q_(path));
   }
 
 #if SET_SECURITY
   // create the directory itself
   if (session != nullptr && session->IsAdminMode()
-    && (session->GetSpecialPath(SpecialPath::CommonConfigRoot) == lpszPath || session->GetSpecialPath(SpecialPath::CommonDataRoot) == lpszPath)
+    && (session->GetSpecialPath(SpecialPath::CommonConfigRoot) == path || session->GetSpecialPath(SpecialPath::CommonDataRoot) == path)
     && session->RunningAsAdministrator())
   {
-    CreateDirectoryForEveryone(lpszPath);
+    CreateDirectoryForEveryone(path.GetData());
   }
-  else if (!CreateDirectoryW(PathName(lpszPath).ToWideCharString().c_str(), nullptr))
+  else if (!CreateDirectoryW(path.ToWideCharString().c_str(), nullptr))
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateDirectoryW", "path", lpszPath);
+    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateDirectoryW", "path", path.ToString());
   }
 #else
-  if (!CreateDirectoryW(PathName(lpszPath).ToWideCharString().c_str(), nullptr))
+  if (!CreateDirectoryW(path.ToWideCharString().c_str(), nullptr))
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateDirectoryW", "path", lpszPath);
+    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateDirectoryW", "path", path.ToString());
   }
 #endif
 }

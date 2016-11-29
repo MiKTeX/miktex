@@ -578,7 +578,7 @@ void TeXMFApp::ParseFirstLine(const PathName & fileName)
     {
       string memoryDumpFileName = argv[1];
       PathName fileName(memoryDumpFileName);
-      if (fileName.GetExtension() == nullptr)
+      if (!fileName.HasExtension())
       {
 	fileName.SetExtension(GetMemoryDumpFileExtension());
       }
@@ -616,7 +616,7 @@ bool TeXMFApp::OpenMemoryDumpFile(const PathName & fileName_, FILE ** ppFile, vo
 
   PathName fileName(fileName_);
 
-  if (fileName.GetExtension() == nullptr)
+  if (!fileName.HasExtension())
   {
     fileName.SetExtension(GetMemoryDumpFileExtension());
   }

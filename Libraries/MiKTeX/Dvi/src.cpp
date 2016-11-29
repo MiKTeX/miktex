@@ -32,24 +32,26 @@ STATICFUNC(int) MyPathNameCompare(const PathName & path1, const PathName & path2
     return 0;
   }
 
-  const char * lpszExtension1 = path1.GetExtension();
-  const char * lpszExtension2 = path2.GetExtension();
+  string extension1 = path1.GetExtension();
+  string extension2 = path2.GetExtension();
 
-  if ((lpszExtension1 == nullptr && lpszExtension2 == nullptr) || (lpszExtension1 != nullptr && lpszExtension2 != nullptr))
+  if (extension1.empty() == extension2.empty())
   {
+    // both have no extenion or both have an extension
     return ret;
   }
 
   PathName path11(path1);
   PathName path22(path2);
 
-  if (lpszExtension1 == nullptr)
+  if (extension1.empty())
   {
-    path11.AppendExtension(lpszExtension2);
+    path11.AppendExtension(extension2);
   }
   else
   {
-    path22.AppendExtension(lpszExtension1);
+    MIKTEX_ASSERT(!path22.HasExtension());
+    path22.AppendExtension(extension1);
   }
 
   return PathName::Compare(path11, path22);

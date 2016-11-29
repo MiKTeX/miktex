@@ -31,7 +31,7 @@ using namespace std;
 
 void Directory::Create(const PathName & path)
 {
-  CreateDirectoryPath(path.GetData());
+  CreateDirectoryPath(path);
 }
 
 void Directory::Delete(const PathName & path, bool recursive)

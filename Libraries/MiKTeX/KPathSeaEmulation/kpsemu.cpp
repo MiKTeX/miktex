@@ -264,7 +264,7 @@ MIKTEXKPSCEEAPI(char *) miktex_kpathsea_find_file(kpathsea pKpseInstance, const 
   {
     return nullptr;
   }
-  result.ToUnix();
+  result.ConvertToUnix();
   return xstrdup(result.GetData());
 }
 
@@ -295,7 +295,7 @@ MIKTEXKPSCEEAPI(char **) miktex_kpathsea_find_file_generic(kpathsea pKpseInstanc
   size_t idx = 0;
   for (PathName & p : result)
   {
-    p.ToUnix();
+    p.ConvertToUnix();
     pStringList[idx++] = xstrdup(p.GetData());
   }
   pStringList[idx] = nullptr;
@@ -713,7 +713,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string & varName, std::string & varVa
   else if (varName == "SELFAUTOLOC")
   {
     path = session->GetMyLocation();
-    varValue = path.ToUnix().GetData();
+    varValue = path.ToUnix().ToString();
     result = true;
   }
   else if (varName == "SELFAUTODIR")
@@ -733,7 +733,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string & varName, std::string & varVa
       {
         varValue += ',';
       }
-      varValue += session->GetRootDirectory(r).ToUnix().GetData();
+      varValue += session->GetRootDirectory(r).ToUnix().ToString();
     }
     varValue += '}';
     result = true;
@@ -741,13 +741,13 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string & varName, std::string & varVa
   else if (varName == "TEXMFCONFIG")
   {
     path = session->GetSpecialPath(SpecialPath::UserConfigRoot);
-    varValue = path.ToUnix().GetData();
+    varValue = path.ToUnix().ToString();
     result = true;
   }
   else if (varName == "TEXMFDIST" || varName == "TEXMFMAIN")
   {
     path = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
-    varValue = path.ToUnix().GetData();
+    varValue = path.ToUnix().ToString();
     result = true;
   }
 #if 0
@@ -755,7 +755,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string & varName, std::string & varVa
   else if (varName == "TEXMFHOME")
   {
     path = session->GetSpecialPath(SpecialPath::UserHomeRoot);
-    varValue = path.ToUnix().Get();
+    varValue = path.ToUnix().ToString();
     result = true;
   }
 #endif
@@ -763,25 +763,25 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string & varName, std::string & varVa
   else if (varName == "TEXMFLOCAL")
   {
     path = session->GetSpecialPath(SpecialPath::UserInstallRoot);
-    varValue = path.ToUnix().GetData();
+    varValue = path.ToUnix().ToString();
     result = true;
   }
   else if (varName == "TEXMFSYSCONFIG")
   {
     path = session->GetSpecialPath(SpecialPath::CommonConfigRoot);
-    varValue = path.ToUnix().GetData();
+    varValue = path.ToUnix().ToString();
     result = true;
   }
   else if (varName == "TEXMFSYSVAR")
   {
     path = session->GetSpecialPath(SpecialPath::CommonDataRoot);
-    varValue = path.ToUnix().GetData();
+    varValue = path.ToUnix().ToString();
     result = true;
   }
   else if (varName == "TEXMFVAR")
   {
     path = session->GetSpecialPath(SpecialPath::UserDataRoot);
-    varValue = path.ToUnix().GetData();
+    varValue = path.ToUnix().ToString();
     result = true;
   }
   else if (varName == "TEXSYSTEM")
@@ -809,10 +809,11 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string & varName, std::string & varVa
 #if defined (MIKTEX_WINDOWS)
   else if (varName == "OSFONTDIR")
   {
+    // TODO: Unicode API
     if (GetWindowsDirectoryA(path.GetData(), static_cast<UINT>(path.GetCapacity())) > 0)
     {
       path /= "Fonts";
-      varValue = path.ToUnix().GetData();
+      varValue = path.ToUnix().ToString();
       result = true;
     }
   }
@@ -965,8 +966,7 @@ MIKTEXKPSCEEAPI(char *) miktex_kpathsea_path_search(kpathsea kpse, const char * 
   {
     return nullptr;
   }
-  result.ToUnix();
-  return xstrdup(result.GetData());
+  return xstrdup(result.ToUnix().GetData());
 }
 
 MIKTEXKPSCEEAPI(char **) miktex_kpathsea_all_path_search(kpathsea kpse, const char * lpszPath, const char * lpszName)
@@ -984,7 +984,7 @@ MIKTEXKPSCEEAPI(char **) miktex_kpathsea_all_path_search(kpathsea kpse, const ch
   char ** pStringList = XTALLOC(result.size() + 1, char *);
   for (int idx = 0; idx < result.size(); ++idx)
   {
-    result[idx].ToUnix();
+    result[idx].ConvertToUnix();
     pStringList[idx] = xstrdup(result[idx].GetData());
   }
   pStringList[result.size()] = nullptr;
@@ -1116,6 +1116,6 @@ MIKTEXKPSCEEAPI(char *) miktex_kpsemu_create_texmf_cnf()
       Fndb::Add(texmfcnf);
     }
   }
-  return xstrdup(texmfcnfdir.ToUnix().Get());
+  return xstrdup(texmfcnfdir.ToUnix().GetData());
 }
 #endif

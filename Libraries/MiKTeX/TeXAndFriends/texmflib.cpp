@@ -41,11 +41,10 @@ STATICFUNC(bool) OpenFontFile(bytefile * pByteFile, const char * lpszFontName, F
     {
       MIKTEX_UNEXPECTED();
     }
-    char szBaseName[BufferSizes::MaxPath];
-    PathName::Split(lpszFontName, nullptr, 0, szBaseName, BufferSizes::MaxPath, nullptr, 0);
+    PathName baseName = PathName(lpszFontName).GetFileNameWithoutExtension();
     string arguments;
     arguments = " -v \"";
-    arguments += szBaseName;
+    arguments += baseName.ToString();
     arguments += "\"";
     int exitCode;
     if (!(Process::Run(exe, arguments.c_str(), nullptr, &exitCode, nullptr) && exitCode == 0))
@@ -251,7 +250,7 @@ STATICFUNC(bool) OpenAlphaFile(void * p, const char * lpszFileName, FileType fil
   MIKTEX_ASSERT_STRING(lpszFileName);
   shared_ptr<Session> session = Session::Get();
   PathName fileName(lpszFileName);
-  if (fileName.GetExtension() == nullptr && lpszExtension != nullptr)
+  if (!fileName.HasExtension() && lpszExtension != nullptr)
   {
     fileName.SetExtension(lpszExtension);
   }

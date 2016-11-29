@@ -241,11 +241,10 @@ bool Tfm::Make(const string & name)
   {
     MIKTEX_UNEXPECTED();
   }
-  char szBasename[BufferSizes::MaxPath];
-  PathName::Split(name.c_str(), 0, 0, szBasename, BufferSizes::MaxPath, 0, 0);
+  PathName baseName = PathName(name).GetFileNameWithoutExtension();
   CommandLineBuilder commandLine;
   commandLine.AppendOption("-v");
-  commandLine.AppendArgument(szBasename);
+  commandLine.AppendArgument(baseName);
   dviInfo.transcript += commandLine.ToString();
   dviInfo.transcript += "\r\n";
   pDviImpl->Progress(DviNotification::BeginLoadFont, "%s...", dviInfo.name.c_str());

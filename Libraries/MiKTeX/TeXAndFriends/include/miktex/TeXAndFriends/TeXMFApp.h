@@ -532,12 +532,11 @@ public:
   {
     if (jobName.empty())
     {
-      char szName[MiKTeX::Core::BufferSizes::MaxPath];
-      MiKTeX::Core::PathName::Split(lastInputFileName.GetData(), nullptr, 0, szName, MiKTeX::Core::BufferSizes::MaxPath, nullptr, 0);
+      MiKTeX::Core::PathName name = lastInputFileName.GetFileNameWithoutExtension();
 #if defined(MIKTEX_XETEX)
-      jobName = szName;
+      jobName = name.ToString();
 #else
-      jobName = MiKTeX::Core::Quoter<char>(szName).GetData();
+      jobName = MiKTeX::Core::Quoter<char>(name).GetData();
 #endif
     }
     // FIXME: conserve strpool space

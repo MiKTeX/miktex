@@ -513,7 +513,7 @@ MD5 PackageCreator::GetTdsDigest(const FileDigestTable & fileDigests)
   {
     PathName path(p.first);
     // we must dosify the path name for backward compatibility
-    path.ToDos();
+    path.ConvertToDos();
     md5Builder.Update(path.GetData(), path.GetLength());
     md5Builder.Update(p.second.data(), p.second.size());
   }
@@ -1486,7 +1486,7 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo & packageInfo, 
       filter /= packageInfo.deploymentName.c_str();
       filter.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
 #if defined(MIKTEX_WINDOWS)
-      filter.ToUnix();
+      filter.ConvertToUnix();
 #endif
       unique_ptr<TemporaryFile> packageDefinitionFile = TemporaryFile::Create();
       ExtractFile(archiveFile, archiveFileType, filter, packageDefinitionFile->GetPathName());
@@ -1574,8 +1574,8 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo & packageInfo, 
     archiveFile.AppendExtension(PackageCreator::GetFileNameExtension(archiveFileType));
 
 #if defined(MIKTEX_WINDOWS)
-    tarFile.ToUnix();
-    archiveFile.ToUnix();
+    tarFile.ConvertToUnix();
+    archiveFile.ConvertToUnix();
 #endif
 
     // create the .tar file
@@ -1626,7 +1626,7 @@ unique_ptr<Cfg> PackageCreator::LoadDbLight(const PathName & repository)
   PathName pathDbLight = repository;
   pathDbLight /= GetDbLightFileName();
 #if defined(MIKTEX_WINDOWS)
-  pathDbLight.ToUnix();
+  pathDbLight.ConvertToUnix();
 #endif
 
   // check to see if the database file exists
@@ -1656,7 +1656,7 @@ map<string, MpcPackageInfo> PackageCreator::LoadDbHeavy(const PathName & reposit
   PathName pathDbHeavy = repository;
   pathDbHeavy /= GetDbHeavyFileName();
 #if defined(MIKTEX_WINDOWS)
-  pathDbHeavy.ToUnix();
+  pathDbHeavy.ConvertToUnix();
 #endif
 
   // check to see if the database file exists

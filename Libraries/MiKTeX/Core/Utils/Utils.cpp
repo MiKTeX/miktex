@@ -270,13 +270,13 @@ bool Utils::IsSafeFileName(const char * lpszPath, bool forInput)
     }
   }
 #if defined(MIKTEX_WINDOWS)
-  const char * lpszExtension = fileName.GetExtension();
+  string extension = fileName.GetExtension();
   string forbiddenExtensions;
-  if (lpszExtension != nullptr && ::GetEnvironmentString("PATHEXT", forbiddenExtensions))
+  if (!extension.empty() && ::GetEnvironmentString("PATHEXT", forbiddenExtensions))
   {
     for (CSVList ext(forbiddenExtensions, PATH_DELIMITER); ext.GetCurrent() != nullptr; ++ext)
     {
-      if (PathName::Compare(ext.GetCurrent(), lpszExtension) == 0)
+      if (PathName::Compare(ext.GetCurrent(), extension) == 0)
       {
         return false;
       }
@@ -369,7 +369,7 @@ bool Utils::GetUncRootFromPath(const char * lpszPath, PathName & uncRoot)
   *lpsz = 0;
 
 #if defined(MIKTEX_WINDOWS)
-  uncRoot.ToDos();
+  uncRoot.ConvertToDos();
 #endif
 
   return true;
@@ -906,7 +906,7 @@ bool Utils::FindProgram(const std::string & programName, PathName & path)
     PathName cand = entry.GetCurrent();
     cand /= programName;
 #if defined(MIKTEX_WINDOWS)
-    if (cand.GetExtension() == nullptr)
+    if (!cand.HasExtension())
     {
       for (const char * ext : pathext)
       {

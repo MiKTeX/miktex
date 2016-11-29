@@ -109,14 +109,14 @@ bool Fndb::FileExists(const PathName & path)
   return fndb->FileExists(path);
 }
 
-bool Fndb::Search(const char * lpszFileName, const char * lpszPathPattern, bool firstMatchOnly, vector<PathName> & result, vector<string> & fileNameInfo)
+bool Fndb::Search(const PathName & fileName, const char * pathPattern, bool firstMatchOnly, vector<PathName> & result, vector<string> & fileNameInfo)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
-  unsigned root = session->DeriveTEXMFRoot(lpszPathPattern);
+  unsigned root = session->DeriveTEXMFRoot(pathPattern);
   shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(root, TriState::True);
   if (fndb == nullptr)
   {
     return false;
   }
-  return fndb->Search(lpszFileName, lpszPathPattern, firstMatchOnly, result, fileNameInfo);
+  return fndb->Search(fileName, pathPattern, firstMatchOnly, result, fileNameInfo);
 }

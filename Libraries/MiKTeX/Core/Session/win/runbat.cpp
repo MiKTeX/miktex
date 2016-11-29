@@ -36,8 +36,7 @@ int SessionImpl::RunBatch(int argc, const char ** argv)
   MIKTEX_ASSERT(argc > 0);
 
   // determine batch name
-  char szName[BufferSizes::MaxPath];
-  PathName::Split(argv[0], nullptr, 0, szName, BufferSizes::MaxPath, nullptr, 0);
+  PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
 
   // get relative script path
   PathName scriptsIni = GetSpecialPath(SpecialPath::DistRoot);
@@ -45,9 +44,9 @@ int SessionImpl::RunBatch(int argc, const char ** argv)
   unique_ptr<Cfg> config(Cfg::Create());
   config->Read(scriptsIni, true);
   string relScriptPath;
-  if (!config->TryGetValue("bat", szName, relScriptPath))
+  if (!config->TryGetValue("bat", name.ToString(), relScriptPath))
   {
-    MIKTEX_FATAL_ERROR_2(T_("The Windows command script is not registered."), "script", szName);
+    MIKTEX_FATAL_ERROR_2(T_("The Windows command script is not registered."), "script", name.ToString());
   }
   config = nullptr;
 
@@ -55,7 +54,7 @@ int SessionImpl::RunBatch(int argc, const char ** argv)
   PathName scriptPath;
   if (!FindFile(relScriptPath.c_str(), MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
   {
-    MIKTEX_FATAL_ERROR_2(T_("The Windows command script file could not be found."), "name", szName, "path", relScriptPath);
+    MIKTEX_FATAL_ERROR_2(T_("The Windows command script file could not be found."), "name", name.ToString(), "path", relScriptPath);
   }
 
   // build command line

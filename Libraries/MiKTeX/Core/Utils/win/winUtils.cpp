@@ -1144,7 +1144,7 @@ MIKTEXSTATICFUNC(bool) CheckPath(const string & oldPath, const PathName & binDir
   PathName binDir = binDirArg;
   binDir.AppendDirectoryDelimiter();
 #if defined(MIKTEX_WINDOWS)
-  binDir.ToDos();
+  binDir.ConvertToDos();
 #endif
   for (CSVList entry(oldPath, PathName::PathNameDelimiter); entry.GetCurrent() != nullptr; ++entry)
   {

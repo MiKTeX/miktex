@@ -76,18 +76,15 @@ int main(int argc, char ** argv)
       tcerr << T_("mkocp: otp2ocp executable could not be found.") << endl;
       throw 1;
     }
-    char szFileName[BufferSizes::MaxPath];
-    char szExt[BufferSizes::MaxPath];
-    PathName::Split(argv[1], nullptr, 0, szFileName, BufferSizes::MaxPath, szExt, BufferSizes::MaxPath);
+    PathName argv1 = argv[1];
     PathName outputName;
-    if (PathName::Compare(szExt, ".ocp") == 0)
+    if (PathName::Compare(argv1.GetExtension(), ".ocp") == 0)
     {
-      outputName = szFileName;
+      outputName = argv1.GetFileNameWithoutExtension();
     }
     else
     {
-      outputName = szFileName;
-      outputName.AppendExtension(szExt);
+      outputName = argv1.GetFileName();
     }
     CommandLineBuilder commandLine;
     commandLine.AppendArgument(outputName.GetData());

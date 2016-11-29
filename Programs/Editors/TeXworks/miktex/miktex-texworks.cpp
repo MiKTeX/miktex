@@ -176,7 +176,7 @@ void MiKTeX_TeXworks::Sorry(string reason)
       << endl
       << "The log file hopefully contains the information to get MiKTeX TeXworks going again:" << endl
       << endl
-      << "  " << PathName(appender->getFile()).ToUnix().GetData() << endl;
+      << "  " << PathName(appender->getFile()).ToUnix() << endl;
   }
   serr
     << endl

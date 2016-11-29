@@ -242,13 +242,12 @@ void MiKTeXHelp::FindDocFilesByPackage(const string & packageName, map<string, v
   }
   for (const string & fileName : pi.docFiles)
   {
-    char szExt[BufferSizes::MaxPath];
-    PathName::Split(fileName.c_str(), nullptr, 0, nullptr, 0, szExt, BufferSizes::MaxPath);
+    string extension = PathName(fileName).GetExtension();
     string file;
     PathName path;
     if (SkipTeXMFPrefix(fileName, file) && session->FindFile(file.c_str(), MIKTEX_PATH_TEXMF_PLACEHOLDER_NO_MPM, path))
     {
-      vector<string> & files = filesByExtension[szExt];
+      vector<string> & files = filesByExtension[extension];
       files.push_back(path.ToString());
     }
   }
@@ -265,9 +264,8 @@ void MiKTeXHelp::FindDocFilesByPackage(const string & packageName, vector<string
     vector<string>::iterator it = vec.begin();
     while (it != vec.end())
     {
-      char szName[BufferSizes::MaxPath];
-      PathName::Split(it->c_str(), nullptr, 0, szName, BufferSizes::MaxPath, nullptr, 0);
-      if (PathName::Compare(szName, packageName.c_str()) == 0)
+      PathName name = PathName(*it).GetFileNameWithoutExtension();
+      if (PathName::Compare(name, packageName) == 0)
       {
         files.push_back(*it);
         it = vec.erase(it);
@@ -316,12 +314,12 @@ void MiKTeXHelp::ViewFile(const PathName & fileName)
 {
   string viewer;
 
-  const char * lpszExt = fileName.GetExtension();
+  string ext = fileName.GetExtension();
 
-  if (lpszExt != nullptr)
+  if (!ext.empty())
   {
     string env = "MIKTEX_VIEW_";
-    env += (lpszExt + 1);
+    env += ext.substr(1);
     if (!Utils::GetEnvironmentString(env.c_str(), viewer))
     {
       viewer = "";

@@ -329,7 +329,7 @@ void CabExtractor::Extract(const PathName & cabinetPath, const PathName & destDi
       PathName dest(pCabFile->filename);
 
 #if defined(MIKTEX_UNIX)
-      dest.ToUnix();
+      dest.ConvertToUnix();
 #endif
 
       // skip directory prefix

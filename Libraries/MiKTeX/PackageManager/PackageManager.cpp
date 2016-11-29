@@ -1674,7 +1674,7 @@ bool PackageManagerImpl::TryVerifyInstalledPackage(const string & deploymentName
   {
     PathName path(p.first);
     // we must dosify the path name for backward compatibility
-    path.ToDos();
+    path.ConvertToDos();
     md5Builder.Update(path.GetData(), path.GetLength());
     md5Builder.Update(p.second.data(), p.second.size());
   }

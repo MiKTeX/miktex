@@ -216,8 +216,8 @@ void DirectoryWalk(TASK task, const PathName & path, const string & stripPrefix,
     }
     else
     {
-      const char * lpszExt = path2.GetExtension();
-      if (lpszExt == nullptr || ignoreExtensions.find(lpszExt) == ignoreExtensions.end())
+      string ext = path2.GetExtension();
+      if (ext.empty() || ignoreExtensions.find(ext) == ignoreExtensions.end())
       {
         switch (task)
         {
@@ -419,7 +419,7 @@ void Main(int argc, const char ** argv)
     {
       PathName path(p.first);
       // we must dosify the path name for backward compatibility
-      path.ToDos();
+      path.ConvertToDos();
       md5Builder.Update(path.GetData(), path.GetLength());
       md5Builder.Update(&p.second.get()[0], p.second.get().size());
     }
@@ -468,7 +468,7 @@ void Main(int argc, const char ** argv)
   case List:
     for (auto & p : mapFnToMD5)
     {
-      cout << p.second.get().ToString() << " " << PathName(p.first).ToUnix().GetData()<< endl;
+      cout << p.second.get().ToString() << " " << PathName(p.first).ToUnix() << endl;
     }
   default:
     break;

@@ -34,15 +34,12 @@ BEGIN_TEST_FUNCTION(1);
 {
   TEST(PathName::Compare("//aBc/[e]/ghi.jkl", "//aBc/[e]/qwe.rty", 10) == 0);
   TEST(PathName::Compare("/abc/def/ghi.jkl", "/abc/def/qwe.rty", 10) != 0);
-  char szDir[BufferSizes::MaxPath];
-  char szName[BufferSizes::MaxPath];
-  char szExt[BufferSizes::MaxPath];
-  PathName::Split("/abc/def/ghi.jkl", szDir, BufferSizes::MaxPath, szName, BufferSizes::MaxPath, szExt, BufferSizes::MaxPath);
-  TEST(PathName::Compare(szDir, "/abc/def") == 0);
-  TEST(PathName::Compare(szDir, "/abc/def/") == 0);
-  TEST(PathName::Compare(szName, "ghi") == 0);
-  TEST(PathName::Compare(szExt, ".jkl") == 0);
-  TEST(PathName::Compare(szExt, "jkl") != 0);
+  PathName path("/abc/def/ghi.jkl");
+  TEST(PathName::Compare(path.GetDirectoryName(), "/abc/def") == 0);
+  TEST(PathName::Compare(path.GetDirectoryName(), "/abc/def/") == 0);
+  TEST(PathName::Compare(path.GetFileNameWithoutExtension(), "ghi") == 0);
+  TEST(PathName::Compare(path.GetExtension(), ".jkl") == 0);
+  TEST(PathName::Compare(path.GetExtension(), "jkl") != 0);
 }
 END_TEST_FUNCTION();
 
@@ -146,11 +143,7 @@ BEGIN_TEST_FUNCTION(7)
   TEST(PathName::Compare(path.GetExtension(), ".stu") == 0);
   TEST(path.HasExtension(".stu"));
   TEST(PathName::Compare(path.GetFileNameWithoutExtension(), "mno.pqr") == 0);
-  char szName[BufferSizes::MaxPath];
-  char szExt[BufferSizes::MaxPath];
-  PathName::Split(path.GetData(), nullptr, 0, szName, BufferSizes::MaxPath, szExt, BufferSizes::MaxPath);
-  TEST(PathName::Compare(szName, "mno.pqr") == 0);
-  TEST(PathName::Compare(szExt, ".stu") == 0);
+  TEST(PathName::Compare(path.GetExtension(), ".stu") == 0);
   path.SetExtension(".vwx");
   TEST(path.HasExtension(".vwx"));
 }

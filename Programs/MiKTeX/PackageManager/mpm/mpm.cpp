@@ -638,7 +638,7 @@ static void Sorry(string reason)
       << endl
       << "The log file hopefully contains the information to get MiKTeX going again:" << endl
       << endl
-      << "  " << PathName(appender->getFile()).ToUnix().GetData() << endl;
+      << "  " << PathName(appender->getFile()).ToUnix() << endl;
   }
   cerr
     << endl

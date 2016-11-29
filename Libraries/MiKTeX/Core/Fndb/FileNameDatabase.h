@@ -42,7 +42,7 @@ public:
   static std::shared_ptr<FileNameDatabase> Create(const char * lpszFndbPath, const char * lpszRoot, bool readOnly);
 
 public:
-  bool Search(const char * lpszFileName, const char * lpszPathPattern, bool firstMatchOnly, std::vector<MiKTeX::Core::PathName> & result, std::vector<std::string> & fileNameInfo) const;
+  bool Search(const MiKTeX::Core::PathName & relativePath, const char * lpszPathPattern, bool firstMatchOnly, std::vector<MiKTeX::Core::PathName> & result, std::vector<std::string> & fileNameInfo) const;
 
 public:
   void AddFile(const char * lpszPath, const char * lpszFileNameInfo);
@@ -179,10 +179,10 @@ private:
   void OpenFileNameDatabase(const char * lpszFndbPath, bool readWrite = false);
 
 private:
-  FileNameDatabaseDirectory * RemoveFileName(FileNameDatabaseDirectory * pDir, const char * lpszFileName) const;
+  FileNameDatabaseDirectory * RemoveFileName(FileNameDatabaseDirectory * pDir, const MiKTeX::Core::PathName & fileName) const;
 
 private:
-  FileNameDatabaseDirectory * SearchFileName(FileNameDatabaseDirectory * pDir, const char * lpszFileName, FndbWord & index) const;
+  FileNameDatabaseDirectory * SearchFileName(FileNameDatabaseDirectory * pDir, const MiKTeX::Core::PathName & fileName, FndbWord & index) const;
 
   // true, if the FNDB is read-only
 private:

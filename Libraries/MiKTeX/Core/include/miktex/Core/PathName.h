@@ -225,25 +225,37 @@ public:
 public:
   MIKTEXCORETHISAPI(std::size_t) GetHash() const;
 
+private:
+  static MIKTEXCORECEEAPI(void) Split(const PathName & path, std::string & directoryName, std::string & fileNameWithoutExtension, std::string & extension);
+
 public:
-  static MIKTEXCORECEEAPI(void) Split(const char * lpszPath, char * lpszDirectory, std::size_t sizeDirectory, char * lpszName, std::size_t sizeName, char * lpszExtension, std::size_t sizeExtension);
+  PathName GetDirectoryName() const
+  {
+    std::string directoryName;
+    std::string fileNameWithoutExtension;
+    std::string extension;
+    Split(*this, directoryName, fileNameWithoutExtension, extension);
+    return directoryName;
+  }
 
 public:
   PathName GetFileName() const
   {
-    char fileName[BufferSizes::MaxPath];
-    char szExtension[BufferSizes::MaxPath];
-    Split(GetData(), nullptr, 0, fileName, BufferSizes::MaxPath, szExtension, BufferSizes::MaxPath);
-    MiKTeX::Util::StringUtil::AppendString(fileName, BufferSizes::MaxPath, szExtension);
-    return fileName;
+    std::string directoryName;
+    std::string fileNameWithoutExtension;
+    std::string extension;
+    Split(*this, directoryName, fileNameWithoutExtension, extension);
+    return fileNameWithoutExtension + extension;
   }
 
 public:
   PathName GetFileNameWithoutExtension() const
   {
-    PathName fileName;
-    Split(GetData(), nullptr, 0, fileName.GetData(), fileName.GetCapacity(), nullptr, 0);
-    return fileName;
+    std::string directoryName;
+    std::string fileNameWithoutExtension;
+    std::string extension;
+    Split(*this, directoryName, fileNameWithoutExtension, extension);
+    return fileNameWithoutExtension;
   }
 
   /// Removes the file name component from this path name.
@@ -295,23 +307,41 @@ public:
   /// Replaces backslashes with normal slashes.
   /// @return Returns a reference to this object.
 public:
-  PathName & ToUnix()
+  PathName & ConvertToUnix()
   {
     return Convert({ ConvertPathNameOption::ToUnix });
+  }
+
+public:
+  PathName ToUnix() const
+  {
+    PathName result = *this;
+    result.Convert({ ConvertPathNameOption::ToUnix });
+    return result;
   }
 
   /// Replaces normal slashes with backslashes.
   /// @return Returns a reference to this object.
 public:
-  PathName & ToDos()
+  PathName & ConvertToDos()
   {
     return Convert({ ConvertPathNameOption::ToDos });
   }
 
-#if defined(MIKTEX_WINDOWS)
-  PathName & ToLongPathName()
+public:
+  PathName ToDos() const
   {
-    return Convert({ ConvertPathNameOption::ToLongPathName });
+    PathName result = *this;
+    result.Convert({ ConvertPathNameOption::ToDos });
+    return result;
+  }
+
+#if defined(MIKTEX_WINDOWS)
+  PathName ToLongPathName() const
+  {
+    PathName result = *this;
+    result.Convert({ ConvertPathNameOption::ToLongPathName });
+    return result;
   }
 #endif
 
@@ -364,6 +394,12 @@ public:
     return Convert({ ConvertPathNameOption::MakeAbsolute });
   }
 
+public:
+  bool HasExtension() const
+  {
+    return !GetExtension().empty();
+  }
+
   /// Checks to see whether this path name has the specified extension.
   /// @param lpszExtension File name extension.
   /// @return Returns true, if this path name has the specified extension.
@@ -371,37 +407,24 @@ public:
   bool HasExtension(const char * extension) const
   {
     MIKTEX_ASSERT_STRING(extension);
-    const char * currentExtension = GetExtension();
-    if (currentExtension == nullptr)
+    std::string currentExtension = GetExtension();
+    if (currentExtension.empty())
     {
       return false;
     }
-    MIKTEX_ASSERT(currentExtension[0] == '.');
-    currentExtension += 1;
     if (extension[0] == '.')
     {
       extension += 1;
     }
-    return PathName::Compare(currentExtension, extension) == 0;
-  }
-
-  /// Gets the file name extension.
-  /// @param[out] lpszExtension The string buffer to be filled with the
-  /// file name extension.
-  /// @return Returns the string buffer.
-public:
-  char * GetExtension(char * lpszExtension) const
-  {
-    MIKTEX_ASSERT_CHAR_BUFFER(lpszExtension, BufferSizes::MaxPath);
-    Split(GetData(), nullptr, 0, nullptr, 0, lpszExtension, BufferSizes::MaxPath);
-    return lpszExtension;
+    MIKTEX_ASSERT(currentExtension[0] == '.');
+    return PathName::Compare(currentExtension.substr(1), extension) == 0;
   }
 
   /// Gets the file name extension.
   /// @return Returns the file name extension. Returns 0, if the path name
   /// has no file name extension.
 public:
-  MIKTEXCORETHISAPI(const char *) GetExtension() const;
+  MIKTEXCORETHISAPI(std::string) GetExtension() const;
 
   /// Sets the file name extension.
   /// @param extension The file name extension to set.
@@ -653,7 +676,6 @@ inline bool IsDirectoryDelimiter(int ch)
 {
   return PathName::IsDirectoryDelimiter(ch);
 }
-
 
 MIKTEX_CORE_END_NAMESPACE;
 

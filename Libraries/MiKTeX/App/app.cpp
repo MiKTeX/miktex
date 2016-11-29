@@ -399,7 +399,7 @@ bool Application::InstallPackage(const string & deploymentName, const PathName &
     log4cxx::RollingFileAppenderPtr appender = log4cxx::Logger::getRootLogger()->getAppender(LOG4CXX_STR("RollingLogFile"));
     if (appender != nullptr)
     {
-      cerr << "Please check the log file:" << endl << PathName(appender->getFile()).ToUnix().ToString() << endl;
+      cerr << "Please check the log file:" << endl << PathName(appender->getFile()).ToUnix() << endl;
     }
   }
   if (switchToAdminMode)
@@ -548,7 +548,7 @@ void Application::Sorry(const string & name, const string & reason)
       << endl
       << "The log file hopefully contains the information to get MiKTeX going again:" << endl
       << endl
-      << "  " << PathName(appender->getFile()).ToUnix().GetData() << endl;
+      << "  " << PathName(appender->getFile()).ToUnix() << endl;
   }
   cerr
     << endl

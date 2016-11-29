@@ -638,7 +638,7 @@ Process * Converter::StartGhostscript(const char * lpszFontFile, const char * lp
     Error(T_("The font file could not be found."));
   }
   loadString = "(";
-  loadString += pathFont.ToUnix().GetData();
+  loadString += pathFont.ToUnix().ToString();
   loadString += ") ";
   int by = GetFirstByte(pathFont);
   if (by == 0)
@@ -661,10 +661,10 @@ Process * Converter::StartGhostscript(const char * lpszFontFile, const char * lp
       Error(T_("The encoding file could not be found."));
     }
     loadString += " (";
-    loadString += pathEnc.ToUnix().GetData();
+    loadString += pathEnc.ToUnix().ToString();
     loadString += " ) run";
   }
-  commandLine.AppendArgument(loadString.c_str());
+  commandLine.AppendArgument(loadString);
 
   // - special info
   commandLine.AppendArgument(lpszSpecInfo == 0 ? "" : lpszSpecInfo);

@@ -170,9 +170,9 @@ public:
     const char * lpszFileName = THEDATA(nameoffile);
     MIKTEX_ASSERT_STRING(lpszFileName);
     PathName bstFileName (lpszFileName);
-    if (bstFileName.GetExtension() == nullptr)
+    if (!bstFileName.HasExtension())
     {
-      bstFileName.SetExtension(MIKTEXTEXT(".bst"));
+      bstFileName.SetExtension(".bst");
     }
     PathName path;
     if (!session->FindFile(bstFileName.GetData(), FileType::BST, path))

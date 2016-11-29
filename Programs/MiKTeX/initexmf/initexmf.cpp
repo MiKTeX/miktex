@@ -2544,7 +2544,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
   {
     PathName targetPath = pathBinDir;
     targetPath /= fileLink.target;
-    const char * lpszExtension = targetPath.GetExtension();
+    string extension = targetPath.GetExtension();
     if (File::Exists(targetPath))
     {
       vector<string> linkNames;
@@ -2552,9 +2552,9 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
       {
 	PathName linkPath = pathBinDir;
 	linkPath /= linkName;
-	if (lpszExtension != nullptr)
+	if (!extension.empty())
 	{
-	  linkPath.AppendExtension(lpszExtension);
+	  linkPath.AppendExtension(extension);
 	}
         linkNames.push_back(linkPath.ToString());
       }

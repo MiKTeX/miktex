@@ -458,7 +458,7 @@ Options::Options()
 
   startDirectory.SetToCurrentDirectory();
 
-  startDirectory.ToUnix();
+  startDirectory.ConvertToUnix();
 
   bibtexProgram = SetProgramName("BIBTEX", MIKTEX_BIBTEX_EXE);
   latexProgram = SetProgramName("LATEX", "latex");
@@ -719,7 +719,7 @@ void Driver::Initialize(McdApp * pApplication, Options * pOptions, const char * 
   // path has no meaning.
   originalInputFile = givenFileName;
   originalInputFile.MakeAbsolute();
-  originalInputFile.ToUnix();
+  originalInputFile.ConvertToUnix();
 
   pApplication->Trace(T_("input file: %s"), Q_(originalInputFile));
 
@@ -741,19 +741,19 @@ void Driver::Initialize(McdApp * pApplication, Options * pOptions, const char * 
   // create scratch directory
   workingDirectory = tempDirectory->GetPathName() / "_src";
   Directory::Create(workingDirectory);
-  workingDirectory.ToUnix();
+  workingDirectory.ConvertToUnix();
   pApplication->Trace(T_("working directory: %s"), Q_(workingDirectory));
 
   // create extra directory
   extraDirectory = tempDirectory->GetPathName() / "_xtr";
   Directory::Create(extraDirectory);
-  extraDirectory.ToUnix();
+  extraDirectory.ConvertToUnix();
   pApplication->Trace(T_("extra directory: %s"), Q_(extraDirectory));
 
   // create aux directory
   auxDirectory = tempDirectory->GetPathName() / "_aux";
   Directory::Create(auxDirectory);
-  auxDirectory.ToUnix();
+  auxDirectory.ConvertToUnix();
   pApplication->Trace(T_("aux directory: %s"), Q_(auxDirectory));
 
   // If the user explicitly specified the language, use that.
@@ -777,7 +777,7 @@ void Driver::Initialize(McdApp * pApplication, Options * pOptions, const char * 
 
   originalInputDirectory = pathInputFile;
   originalInputDirectory.RemoveFileSpec();
-  originalInputDirectory.ToUnix();
+  originalInputDirectory.ConvertToUnix();
 }
 
 MacroLanguage Driver::GuessMacroLanguage(const PathName & fileName)
@@ -1111,7 +1111,7 @@ void Driver::ExpandMacros()
   if (expanded && File::Exists(path))
   {
     pathInputFile = path;
-    pathInputFile.ToUnix();
+    pathInputFile.ConvertToUnix();
   }
   else
   {
@@ -1153,7 +1153,7 @@ void Driver::InsertCommands()
   writer.Close();
   reader.Close();
   pathInputFile = path;
-  pathInputFile.ToUnix();
+  pathInputFile.ConvertToUnix();
 }
 
 /* _________________________________________________________________________
@@ -1999,7 +1999,7 @@ void McdApp::Run(int argc, const char ** argv)
       {
         path = options.startDirectory / optArg;
       }
-      path.ToUnix();
+      path.ConvertToUnix();
       options.includeDirectories.push_back(path.GetData());
       break;
     }

@@ -580,7 +580,7 @@ void SetupServiceImpl::ULogAddFile(const PathName & path)
   PathName absolutePath(path);
   absolutePath.MakeAbsolute();
 #if defined(MIKTEX_WINDOWS)
-  absolutePath.ToDos();
+  absolutePath.ConvertToDos();
 #endif
   uninstStream.WriteLine(absolutePath.GetData());
 }
@@ -779,16 +779,12 @@ void SetupServiceImpl::DoTheDownload()
   // now copy the setup program
 #if MIKTEX_WINDOWS
   wchar_t szSetupPath[BufferSizes::MaxPath];
-  if (GetModuleFileNameW(0, szSetupPath, BufferSizes::MaxPath) == 0)
+  if (GetModuleFileNameW(nullptr, szSetupPath, BufferSizes::MaxPath) == 0)
   {
     MIKTEX_FATAL_WINDOWS_ERROR("GetModuleFileNameW");
   }
-  char szFileName[BufferSizes::MaxPath];
-  char szExt[BufferSizes::MaxPath];
-  PathName::Split(WU_(szSetupPath), nullptr, 0, szFileName, BufferSizes::MaxPath, szExt, BufferSizes::MaxPath);
-  PathName pathDest(options.LocalPackageRepository, szFileName);
-  pathDest.AppendExtension(szExt);
-  if (ComparePaths(WU_(szSetupPath), pathDest.GetData(), true) != 0)
+  PathName pathDest(options.LocalPackageRepository, PathName(szSetupPath).GetFileName());
+  if (ComparePaths(WU_(szSetupPath), pathDest, true) != 0)
   {
     File::Copy(WU_(szSetupPath), pathDest);
   }

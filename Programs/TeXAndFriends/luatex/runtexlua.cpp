@@ -59,18 +59,14 @@ int MAIN(int argc, const MAINCHAR ** argv)
       MIKTEX_ASSERT (argc > 0);
 
       // determine script name
-      char szProgramName[BufferSizes::MaxPath];
-      PathName::Split (TU_(argv[0]),
-		       0, 0,
-		       szProgramName, BufferSizes::MaxPath,
-		       0, 0);
+      PathName programName = PathName(argv[0]).GetFileNameWithoutExtension();
 
       std::string scriptName;
 
 #if MTXRUN
-      bool isLuatools = (PathName::Compare(szProgramName, "luatools") == 0);
-      bool isMtxrun = (PathName::Compare(szProgramName, "mtxrun") == 0);
-      bool isTexmfstart = (PathName::Compare(szProgramName, "texmfstart") == 0);
+      bool isLuatools = (PathName::Compare(programName, "luatools") == 0);
+      bool isMtxrun = (PathName::Compare(programName, "mtxrun") == 0);
+      bool isTexmfstart = (PathName::Compare(programName, "texmfstart") == 0);
       if (isLuatools)
       {
 	scriptName = "luatools";
@@ -80,7 +76,7 @@ int MAIN(int argc, const MAINCHAR ** argv)
 	scriptName = "mtxrun";
       }
 #else
-      scriptName = szProgramName;
+      scriptName = programName.ToString();
 #endif
 
       // get relative script path
@@ -91,7 +87,7 @@ int MAIN(int argc, const MAINCHAR ** argv)
       std::string relScriptPath;
       if (! pConfig->TryGetValue(CFGKEY, scriptName.c_str(), relScriptPath))
       {
-	MIKTEX_FATAL_ERROR_2 (MIKTEXTEXT("The Lua script is not registered."), szProgramName);
+	MIKTEX_FATAL_ERROR_2 (MIKTEXTEXT("The Lua script is not registered."), "programName", programName.ToString());
       }
       pConfig = nullptr;
       
@@ -112,7 +108,7 @@ int MAIN(int argc, const MAINCHAR ** argv)
       if (! (isLuatools || isMtxrun || isTexmfstart))
       {
 	utf8args.push_back ("--script");
-	utf8args.push_back (szProgramName);
+	utf8args.push_back (programName);
       }
 #endif
       for (int idx = 1; idx < argc; ++ idx)

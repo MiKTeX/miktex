@@ -242,15 +242,14 @@ void SessionImpl::SplitFontPath(const char * lpszFontPath, char * lpszFontType, 
 
   if (lpszFontName != nullptr || lpszPointSize != nullptr)
   {
-    char szFileName[BufferSizes::MaxPath];
-    PathName::Split(lpszFontPath, 0, 0, szFileName, BufferSizes::MaxPath, 0, 0);
-    char * lpsz = szFileName + strlen(szFileName) - 1;
+    PathName fileName = PathName(lpszFontPath).GetFileNameWithoutExtension();
+    char * lpsz = fileName.GetData() + fileName.GetLength() - 1;
     while (IsDigit(*lpsz))
     {
       --lpsz;
     }
     ++lpsz;
-    if (lpsz != szFileName)
+    if (lpsz != fileName.GetData())
     {
       if (lpszPointSize != nullptr)
       {
@@ -264,7 +263,7 @@ void SessionImpl::SplitFontPath(const char * lpszFontPath, char * lpszFontType, 
     }
     if (lpszFontName != nullptr)
     {
-      StringUtil::CopyString(lpszFontName, BufferSizes::MaxPath, szFileName);
+      StringUtil::CopyString(lpszFontName, BufferSizes::MaxPath, fileName.GetData());
     }
   }
 }

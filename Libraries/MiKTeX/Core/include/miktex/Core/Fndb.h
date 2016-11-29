@@ -110,7 +110,7 @@ public:
   static MIKTEXCORECEEAPI(bool) FileExists(const PathName & path);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Search(const char * lpszFileName, const char * lpszPathPattern, bool firstMatchOnly, std::vector<PathName> & result, std::vector<std::string> & fileNameInfo);
+  static MIKTEXCORECEEAPI(bool) Search(const PathName & fileName, const char * pathPattern, bool firstMatchOnly, std::vector<PathName> & result, std::vector<std::string> & fileNameInfo);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

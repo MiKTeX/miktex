@@ -65,7 +65,7 @@ void TpmParser::GetFiles(const XML_Char * lpszFiles, vector<string> & files)
   {
     PathName path(tok.GetCurrent());
 #if defined(MIKTEX_UNIX)
-    path.ToUnix();
+    path.ConvertToUnix();
 #endif
     if (texMFPrefix.length() == 0 || (PathName::Compare(texMFPrefix, path, texMFPrefix.length()) == 0))
     {

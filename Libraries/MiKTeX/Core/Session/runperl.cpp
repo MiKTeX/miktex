@@ -47,8 +47,7 @@ int SessionImpl::RunScript(const string & scriptEngine, const string & scriptEng
   }
 
   // determine script name
-  char szName[BufferSizes::MaxPath];
-  PathName::Split(argv[0], nullptr, 0, szName, BufferSizes::MaxPath, nullptr, 0);
+  PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
 
   // get relative script path
   PathName scriptsIni = GetSpecialPath(SpecialPath::DistRoot);
@@ -56,9 +55,9 @@ int SessionImpl::RunScript(const string & scriptEngine, const string & scriptEng
   unique_ptr<Cfg> config(Cfg::Create());
   config->Read(scriptsIni, true);
   string relScriptPath;
-  if (!config->TryGetValue(scriptEngine, szName, relScriptPath))
+  if (!config->TryGetValue(scriptEngine, name.ToString(), relScriptPath))
   {
-    MIKTEX_FATAL_ERROR_2(T_("The script is not registered."), "scriptEngine", scriptEngine, "name", szName);
+    MIKTEX_FATAL_ERROR_2(T_("The script is not registered."), "scriptEngine", scriptEngine, "name", name.ToString());
   }
   config = nullptr;
 
@@ -66,7 +65,7 @@ int SessionImpl::RunScript(const string & scriptEngine, const string & scriptEng
   PathName scriptPath;
   if (!FindFile(relScriptPath.c_str(), MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
   {
-    MIKTEX_FATAL_ERROR_2(T_("The script could not be found."), "scriptEngine", scriptEngine, "name", szName, "path", relScriptPath);
+    MIKTEX_FATAL_ERROR_2(T_("The script could not be found."), "scriptEngine", scriptEngine, "name", name.ToString(), "path", relScriptPath);
   }
 
   // build command line

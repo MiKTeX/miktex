@@ -196,7 +196,7 @@ FileNameDatabaseDirectory * FileNameDatabase::FindSubDirectory(const FileNameDat
   return GetDirectoryAt(fo);
 }
 
-FileNameDatabaseDirectory * FileNameDatabase::SearchFileName(FileNameDatabaseDirectory * pDir, const char * lpszFileName, FndbWord & index) const
+FileNameDatabaseDirectory * FileNameDatabase::SearchFileName(FileNameDatabaseDirectory * pDir, const PathName & fileName, FndbWord & index) const
 {
   for (; pDir != nullptr; pDir = GetDirectoryAt(pDir->foExtension))
   {
@@ -206,7 +206,7 @@ FileNameDatabaseDirectory * FileNameDatabase::SearchFileName(FileNameDatabaseDir
     {
       index = lo + (hi - lo) / 2;
       const char * lpszCandidate = GetString(pDir->GetFileName(index));
-      int cmp = PathName::Compare(lpszCandidate, lpszFileName);
+      int cmp = PathName::Compare(lpszCandidate, fileName);
       if (cmp > 0)
       {
 	hi = index;
@@ -411,11 +411,11 @@ FileNameDatabaseDirectory * FileNameDatabase::CreateDirectoryPath(FileNameDataba
   return pDir;
 }
 
-FileNameDatabaseDirectory * FileNameDatabase::RemoveFileName(FileNameDatabaseDirectory * pDir, const char * lpszFileName) const
+FileNameDatabaseDirectory * FileNameDatabase::RemoveFileName(FileNameDatabaseDirectory * pDir, const PathName & fileName) const
 {
   FndbWord index;
 
-  pDir = SearchFileName(pDir, lpszFileName, index);
+  pDir = SearchFileName(pDir, fileName, index);
 
   if (pDir == nullptr)
   {
@@ -485,36 +485,34 @@ MIKTEXSTATICFUNC(bool) Match(const char * lpszPathPattern, const char * lpszPath
   return (*lpszPathPattern == 0 || strcmp(lpszPathPattern, RECURSION_INDICATOR) == 0) && *lpszPath == 0;
 }
 
-bool FileNameDatabase::Search(const char * lpszFileName, const char * lpszPathPattern, bool firstMatchOnly, vector<PathName> & result, vector<string> & fileNameInfo) const
+bool FileNameDatabase::Search(const PathName & relativePath, const char * lpszPathPattern, bool firstMatchOnly, vector<PathName> & result, vector<string> & fileNameInfo) const
 {
-  traceStream->WriteFormattedLine("core", T_("fndb search: rootDirectory=%s, filename=%s, pathpattern=%s"), Q_(rootDirectory), Q_(lpszFileName), Q_(lpszPathPattern));
+  traceStream->WriteFormattedLine("core", T_("fndb search: rootDirectory=%s, relativePath=%s, pathpattern=%s"), Q_(rootDirectory), Q_(relativePath), Q_(lpszPathPattern));
 
   MIKTEX_ASSERT(result.size() == 0);
   MIKTEX_ASSERT(fileNameInfo.size() == 0);
-  MIKTEX_ASSERT(!Utils::IsAbsolutePath(lpszFileName));
-  MIKTEX_ASSERT(!IsExplicitlyRelativePath(lpszFileName));
+  MIKTEX_ASSERT(!Utils::IsAbsolutePath(relativePath.GetData()));
+  MIKTEX_ASSERT(!IsExplicitlyRelativePath(relativePath.GetData()));
 
-  char szDir[BufferSizes::MaxPath];
+  PathName dir = relativePath.GetDirectoryName();
+  PathName fileName = relativePath.GetFileName();
 
   PathName scratch1;
 
-  PathName::Split(lpszFileName, szDir, BufferSizes::MaxPath, nullptr, 0, nullptr, 0);
-
-  if (szDir[0] != 0)
+  if (!dir.Empty())
   {
-    size_t l = strlen(szDir);
-    if (IsDirectoryDelimiter(szDir[l - 1]))
+    size_t l = dir.GetLength();
+    if (dir.EndsWithDirectoryDelimiter())
     {
-      szDir[l - 1] = 0;
+      dir[l - 1] = 0;
       --l;
     }
     scratch1 = lpszPathPattern;
-    scratch1 /= szDir;
+    scratch1 /= dir;
     lpszPathPattern = scratch1.GetData();
-    lpszFileName += l + 1;
   }
 
-  PathName comparableFileName(lpszFileName);
+  PathName comparableFileName = fileName;
   comparableFileName.TransformForComparison();
 
   // check to see whether we have this file name
@@ -541,19 +539,19 @@ bool FileNameDatabase::Search(const char * lpszFileName, const char * lpszPathPa
 
   for (FileNameHashTable::const_iterator it = range.first; it != range.second; ++it)
   {
-    PathName relPath;
-    MakePathName(it->second, relPath);
-    if (Match(comparablePathPattern.GetData(), PathName(relPath).TransformForComparison().GetData()))
+    PathName relativeDirectory;
+    MakePathName(it->second, relativeDirectory);
+    if (Match(comparablePathPattern.GetData(), PathName(relativeDirectory).TransformForComparison().GetData()))
     {
       PathName path;
       path = rootDirectory;
-      path /= relPath;
-      path /= lpszFileName;
+      path /= relativeDirectory;
+      path /= fileName;
       result.push_back(path);
       if (HasFileNameInfo())
       {
 	FndbWord idx;
-	const FileNameDatabaseDirectory * pDir = SearchFileName(it->second, lpszFileName, idx);
+	const FileNameDatabaseDirectory * pDir = SearchFileName(it->second, fileName, idx);
 	if (pDir == nullptr)
 	{
 	  MIKTEX_UNEXPECTED();
@@ -779,7 +777,7 @@ void FileNameDatabase::RemoveFile(const char * lpszPath)
   }
 
   // remove the file name
-  pDir = RemoveFileName(pDir, pathFile.GetData());
+  pDir = RemoveFileName(pDir, pathFile);
 
   // also from the hash table
   PathName comparableFileName(pathFile);
@@ -813,7 +811,7 @@ bool FileNameDatabase::FileExists(const PathName & path) const
     PathName fileName(path);
     fileName.RemoveDirectorySpec();
     FndbWord index;
-    pDir = SearchFileName(pDir, fileName.GetData(), index);
+    pDir = SearchFileName(pDir, fileName, index);
   }
   return pDir != nullptr;
 }

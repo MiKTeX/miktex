@@ -198,7 +198,7 @@ RSA_ptr LoadPublicKey_OpenSSL(const MiKTeX::Core::PathName & publicKeyFile);
 void AppendDirectoryDelimiter(std::string & path);
 void AppendDirectoryDelimiter(char * lpszPath, size_t size);
 void CopyString2(char * lpszBuf, size_t bufSize, const char * lpszSource, size_t count);
-void CreateDirectoryPath(const char * lpszPath);
+void CreateDirectoryPath(const MiKTeX::Core::PathName & path);
 bool FileIsOnROMedia(const char * lpszPath);
 bool GetCrtErrorMessage(int functionResult, std::string & errorMessage);
 MiKTeX::Core::PathName GetFullPath(const char * lpszPath);

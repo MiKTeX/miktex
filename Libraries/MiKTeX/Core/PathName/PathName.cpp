@@ -29,6 +29,7 @@
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
+using namespace std;
 
 int PathName::Compare(const char * lpszPath1, const char * lpszPath2)
 {
@@ -228,19 +229,14 @@ bool PathName::Match(const char * lpszPattern, const char * lpszPath)
   return InternalMatch(PathName(lpszPattern).TransformForComparison().GetData(), PathName(lpszPath).TransformForComparison().GetData());
 }
 
-void PathName::Split(const char * lpszPath, char * lpszDir, size_t sizeDir, char * lpszName, size_t sizeName, char * lpszExtension, size_t sizeExtension)
+void PathName::Split(const PathName & path, string & directory, string & fileNameWithoutExtension, string & extension)
 {
-  MIKTEX_ASSERT_STRING(lpszPath);
-  MIKTEX_ASSERT_CHAR_BUFFER_OR_NIL(lpszDir, sizeDir);
-  MIKTEX_ASSERT_CHAR_BUFFER_OR_NIL(lpszName, sizeName);
-  MIKTEX_ASSERT_CHAR_BUFFER_OR_NIL(lpszExtension, sizeExtension);
-
   const char * lpsz;
 
   const char * lpszName_ = nullptr;
 
   // find the beginning of the name
-  for (lpsz = lpszPath; *lpsz != 0; ++lpsz)
+  for (lpsz = path.GetData(); *lpsz != 0; ++lpsz)
   {
     if (IsDirectoryDelimiter(*lpsz))
     {
@@ -249,13 +245,10 @@ void PathName::Split(const char * lpszPath, char * lpszDir, size_t sizeDir, char
   }
   if (lpszName_ == nullptr)
   {
-    lpszName_ = lpszPath;
+    lpszName_ = path.GetData();
   }
 
-  if (lpszDir != nullptr)
-  {
-    CopyString2(lpszDir, sizeDir, lpszPath, lpszName_ - lpszPath);
-  }
+  directory.assign(path.GetData(), lpszName_ - path.GetData());
 
   // find the extension
   const char * lpszExtension_ = nullptr;
@@ -271,34 +264,29 @@ void PathName::Split(const char * lpszPath, char * lpszDir, size_t sizeDir, char
     lpszExtension_ = lpsz;
   }
 
-  if (lpszName != nullptr)
-  {
-    CopyString2(lpszName, sizeName, lpszName_, lpszExtension_ - lpszName_);
-  }
+  fileNameWithoutExtension.assign(lpszName_, lpszExtension_ - lpszName_);
 
-  if (lpszExtension != nullptr)
-  {
-    StringUtil::CopyString(lpszExtension, sizeExtension, lpszExtension_);
-  }
+  extension = lpszExtension_;
 }
 
-const char * PathName::GetExtension() const
+string PathName::GetExtension() const
 {
-  return GetFileNameExtension(GetData());
+  const char * e = GetFileNameExtension(GetData());
+  return e == nullptr ? string() : string(e);
 }
 
 PathName & PathName::SetExtension(const char * extension, bool override)
 {
-  char szDir[BufferSizes::MaxPath];
-  char szFileName[BufferSizes::MaxPath];
-  char szExtOld[BufferSizes::MaxPath];
+  string directory;
+  string fileNameWithoutExtension;
+  string oldExtension;
 
-  PathName::Split(GetData(), szDir, BufferSizes::MaxPath, szFileName, BufferSizes::MaxPath, szExtOld, BufferSizes::MaxPath);
+  Split(*this, directory, fileNameWithoutExtension, oldExtension);
 
-  if (szExtOld[0] == 0 || override)
+  if (oldExtension.empty() || override)
   {
-    *this = szDir;
-    AppendComponent(szFileName);
+    *this = directory;
+    AppendComponent(fileNameWithoutExtension.c_str());
     if (extension != nullptr && *extension != 0)
     {
       size_t n = GetLength();
