@@ -49,6 +49,8 @@ class BasicDVIReader : public StreamReader
 	protected:
 		typedef void (BasicDVIReader::*CommandHandler)(int);
 		enum DVIVersion {DVI_NONE=0, DVI_STANDARD=2, DVI_PTEX=3, DVI_XDV5=5, DVI_XDV6=6, DVI_XDV7=7};
+		const uint8_t OP_SETCHAR0=0, OP_SETCHAR127=127, OP_SET1=128, OP_EOP=140, OP_FNTNUM0=171, OP_FNTNUM63=234,
+			OP_PRE=247, OP_POST=248, OP_POSTPOST=249, OP_DIR=255, DVI_FILL=223;
 
 	public:
 		explicit BasicDVIReader (std::istream &is);

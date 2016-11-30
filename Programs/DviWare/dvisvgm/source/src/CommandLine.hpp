@@ -37,7 +37,7 @@ class CommandLine : public CL::CommandLine
 		Option commentsOpt {"comments", '\0', "add comments with additional information"};
 		Option epsOpt {"eps", 'E', "convert an EPS file to SVG"};
 		Option exactOpt {"exact", 'e', "compute exact glyph boxes"};
-		TypedOption<std::string, Option::ArgMode::REQUIRED> fontFormatOpt {"font-format", 'f', "format", "svg", "select file format of embed fonts"};
+		TypedOption<std::string, Option::ArgMode::REQUIRED> fontFormatOpt {"font-format", 'f', "format", "svg", "select file format of embedded fonts"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> fontmapOpt {"fontmap", 'm', "filenames", "evaluate (additional) font map files"};
 		Option gradOverlapOpt {"grad-overlap", '\0', "create overlapping color gradient segments"};
 		TypedOption<int, Option::ArgMode::REQUIRED> gradSegmentsOpt {"grad-segments", '\0', "number", 20, "number of color gradient segments per row"};
@@ -52,7 +52,7 @@ class CommandLine : public CL::CommandLine
 		Option noMergeOpt {"no-merge", '\0', "don't merge adjacent text elements"};
 		Option noMktexmfOpt {"no-mktexmf", '\0', "don't try to create missing fonts"};
 		TypedOption<std::string, Option::ArgMode::OPTIONAL> noSpecialsOpt {"no-specials", 'S', "prefixes", "don't process [selected] specials"};
-		Option noStylesOpt {"no-styles", '\0', "don't use styles to reference fonts"};
+		Option noStylesOpt {"no-styles", '\0', "don't use CSS styles to reference fonts"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> outputOpt {"output", 'o', "pattern", "set name pattern of output files"};
 		TypedOption<std::string, Option::ArgMode::REQUIRED> pageOpt {"page", 'p', "ranges", "1", "choose page(s) to convert"};
 		TypedOption<int, Option::ArgMode::REQUIRED> precisionOpt {"precision", 'd', "number", 0, "set number of decimal points (0-6)"};

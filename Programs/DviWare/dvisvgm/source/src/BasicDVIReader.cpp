@@ -87,27 +87,27 @@ int BasicDVIReader::evalCommand (CommandHandler &handler, int &param) {
 
 	int num_param_bytes = 0;
 	param = -1;
-	if (opcode >= 0 && opcode <= 127) {
+	if (opcode >= OP_SETCHAR0 && opcode <= OP_SETCHAR127) {
 		handler = &BasicDVIReader::cmdSetChar0;
 		param = opcode;
 	}
-	else if (opcode >= 171 && opcode <= 234) {
+	else if (opcode >= OP_FNTNUM0 && opcode <= OP_FNTNUM63) {
 		handler = &BasicDVIReader::cmdFontNum0;
-		param = opcode-171;
+		param = opcode-OP_FNTNUM0;
 	}
 	else if (evalXDVOpcode(opcode, handler))
 		num_param_bytes = 0;
-	else if (_dviVersion == DVI_PTEX && opcode == 255) {  // direction command set by pTeX?
+	else if (_dviVersion == DVI_PTEX && opcode == OP_DIR) {  // direction command set by pTeX?
 		handler = &BasicDVIReader::cmdDir;
 		num_param_bytes = 1;
 	}
-	else if (opcode >= 250) {
+	else if (opcode > OP_POSTPOST) {
 		ostringstream oss;
 		oss << "undefined DVI command (opcode " << opcode << ')';
 		throw DVIException(oss.str());
 	}
 	else {
-		const int offset = opcode <= 170 ? 128 : 235-(170-128+1);
+		const int offset = opcode < OP_FNTNUM0 ? OP_SET1 : (OP_FNTNUM63+1)-(OP_FNTNUM0-OP_SET1);
 		handler = commands[opcode-offset].handler;
 		num_param_bytes = commands[opcode-offset].length;
 	}
@@ -133,11 +133,11 @@ bool BasicDVIReader::evalXDVOpcode (int op, CommandHandler &handler) const {
 		return false;
 
 	static const CommandHandler handlers[] = {
-		&BasicDVIReader::cmdXPic,
-		&BasicDVIReader::cmdXFontDef,
-		&BasicDVIReader::cmdXGlyphArray,
-		&BasicDVIReader::cmdXTextAndGlyphs,
-		&BasicDVIReader::cmdXGlyphString
+		&BasicDVIReader::cmdXPic,             // 251 (XDV5 only)
+		&BasicDVIReader::cmdXFontDef,         // 252
+		&BasicDVIReader::cmdXGlyphArray,      // 253
+		&BasicDVIReader::cmdXTextAndGlyphs,   // 254 (XDV7 only)
+		&BasicDVIReader::cmdXGlyphString      // 254 (XDV5 only)
 	};
 	index = op-251;
 	if (_dviVersion == DVI_XDV5 && op == 254)
@@ -166,7 +166,7 @@ void BasicDVIReader::executePostPost () {
 
 	seek(-1, ios::end);       // stream pointer to last byte
 	int count=0;
-	while (peek() == 223) {   // count trailing fill bytes
+	while (peek() == DVI_FILL) {   // count trailing fill bytes
 		seek(-1, ios::cur);
 		count++;
 	}
@@ -179,9 +179,9 @@ void BasicDVIReader::executePostPost () {
 
 void BasicDVIReader::executeAllPages () {
 	if (_dviVersion == DVI_NONE)
-		executePostPost();             // get version ID from post_post
-	seek(0);                          // go to preamble
-	while (executeCommand() != 248);  // execute all commands until postamble is reached
+		executePostPost();   // get version ID from post_post
+	seek(0);                // go to preamble
+	while (executeCommand() != OP_POST);  // execute all commands until postamble is reached
 }
 
 
@@ -225,7 +225,7 @@ void BasicDVIReader::cmdPost (int) {
 void BasicDVIReader::cmdPostPost (int) {
 	seek(4, ios::cur);
 	setDVIVersion((DVIVersion)readUnsigned(1));  // identification byte
-	while (readUnsigned(1) == 223);  // skip fill bytes (223), eof bit should be set now
+	while (readUnsigned(1) == DVI_FILL);  // skip fill bytes (223), eof bit should be set now
 }
 
 

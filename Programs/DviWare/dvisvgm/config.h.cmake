@@ -136,7 +136,7 @@
 #cmakedefine PACKAGE_NAME
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "dvisvgm 1.15"
+#define PACKAGE_STRING "dvisvgm 2.0.4"
 
 /* Define to the one symbol short name of this package. */
 #cmakedefine PACKAGE_TARNAME
@@ -157,7 +157,7 @@
 #cmakedefine TM_IN_SYS_TIME 1
 
 /* Version number of package */
-#define VERSION "2.0.3"
+#define VERSION "2.0.4"
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #cmakedefine const

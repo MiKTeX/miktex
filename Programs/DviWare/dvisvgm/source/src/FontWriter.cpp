@@ -35,6 +35,7 @@ const array<FontWriter::FontFormatInfo, 4> FontWriter::_formatInfos = {{
 }};
 
 
+/** Returns the corresponding FontFormat for a given format name (e.g. "svg", "woff" etc.). */
 FontWriter::FontFormat FontWriter::toFontFormat (string formatstr) {
 	transform(formatstr.begin(), formatstr.end(), formatstr.begin(), ::tolower);
 	for (const FontFormatInfo &info : _formatInfos) {
@@ -45,6 +46,7 @@ FontWriter::FontFormat FontWriter::toFontFormat (string formatstr) {
 }
 
 
+/** Returns the corresponding FontFormatInfo for a given FontFormat. */
 const FontWriter::FontFormatInfo* FontWriter::fontFormatInfo (FontFormat format) {
 	for (const FontFormatInfo &info : _formatInfos) {
 		if (format == info.format)
@@ -54,6 +56,7 @@ const FontWriter::FontFormatInfo* FontWriter::fontFormatInfo (FontFormat format)
 }
 
 
+/** Returns the names of all supported font formats. */
 vector<string> FontWriter::supportedFormats () {
 	vector<string> formats;
 	for (const FontFormatInfo &info : _formatInfos)
@@ -63,6 +66,7 @@ vector<string> FontWriter::supportedFormats () {
 
 
 #ifdef DISABLE_WOFF
+// dummy functions used if WOFF support is disabled
 FontWriter::FontWriter (const PhysicalFont &font) : _font(font) {}
 std::string FontWriter::createFontFile (FontFormat format, const set<int> &charcodes, GFGlyphTracer::Callback *cb) const {return "";}
 bool FontWriter::writeCSSFontFace (FontFormat format, const set<int> &charcodes, ostream &os, GFGlyphTracer::Callback *cb) const {return false;}
@@ -175,6 +179,11 @@ static bool writeSFD (const string &sfdname, const PhysicalFont &font, const set
 }
 
 
+/** Creates a font file containing a given set of glyphs mapped to their Unicode points.
+ * @param[in] format target font format
+ * @param[in] charcodes character codes of the glyphs to be considered
+ * @param[in] cb callback object that allows to react to events triggered by the glyph tracer
+ * @return name of the created font file */
 string FontWriter::createFontFile (FontFormat format, const set<int> &charcodes, GFGlyphTracer::Callback *cb) const {
 	string sfdname = _font.name()+"-tmp.sfd";
 	string targetname;
@@ -238,17 +247,23 @@ static void base64_copy (InputIterator first, InputIterator last, OutputIterator
 			else
 				c2 = *first++;
 		}
-		unsigned n = (c0 << 16) | (c1 << 8) | c2;
+		uint32_t n = (c0 << 16) | (c1 << 8) | c2;
 		for (int i=0; i <= 3-padding; i++) {
-			*dest++ = base64_chars[(n & 0xfc0000) >> 18];
+			*dest++ = base64_chars[(n >> 18) & 0x3f];
 			n <<= 6;
 		}
-		for (int i=0; i < padding; i++)
+		while (padding--)
 			*dest++ = '=';
 	}
 }
 
 
+/** Writes a CSS font-face rule to an output stream that references or contains the WOFF/TTF font data.
+ * @param[in] format target font format
+ * @param[in] charcodes character codes of the glyphs to be considered
+ * @param[in] os stream the CSS data is written to
+ * @param[in] cb callback object that allows to react to events triggered by the glyph tracer
+ * @return true on success */
 bool FontWriter::writeCSSFontFace (FontFormat format, const set<int> &charcodes, ostream &os, GFGlyphTracer::Callback *cb) const {
 	if (const FontFormatInfo *info = fontFormatInfo(format)) {
 		string filename = createFontFile(format, charcodes, cb);

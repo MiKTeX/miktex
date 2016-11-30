@@ -57,7 +57,7 @@
 			</option>
 			<option long="font-format" short="f" if="!defined(DISABLE_WOFF)">
 				<arg type="string" name="format" default="svg"/>
-				<description>select file format of embed fonts</description>
+				<description>select file format of embedded fonts</description>
 			</option>
 			<option long="grad-overlap" if="!defined(DISABLE_GS)">
 				<description>create overlapping color gradient segments</description>
@@ -96,7 +96,7 @@
 				<description>don't merge adjacent text elements</description>
 			</option>
 			<option long="no-styles">
-				<description>don't use styles to reference fonts</description>
+				<description>don't use CSS styles to reference fonts</description>
 			</option>
 			<option long="zip" short="z">
 				<arg type="int" name="level" default="9" optional="yes"/>
