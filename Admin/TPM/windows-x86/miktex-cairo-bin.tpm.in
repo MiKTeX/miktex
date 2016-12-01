@@ -6,11 +6,30 @@
     <TPM:Title>Cairo Graphics Library, Windows x86</TPM:Title>
     <TPM:Copyright owner="University of Southern California et al." year="2002-2014"/>
     <TPM:License type="lgpl2.1"/>
-    <TPM:Version>1.12.14</TPM:Version>
+    <TPM:Version>1.14.6</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
-      This package includes the Cairo graphics library.
+      Cairo is a 2D graphics library with support for multiple output
+      devices. Currently supported output targets include the X Window
+      System (via both Xlib and XCB), Quartz, Win32, image buffers,
+      PostScript, PDF, and SVG file output. Experimental backends
+      include OpenGL, BeOS, OS/2, and DirectFB.
+      
+      Cairo is designed to produce consistent output on all output
+      media while taking advantage of display hardware acceleration
+      when available (eg. through the X Render Extension).
+      
+      The cairo API provides operations similar to the drawing
+      operators of PostScript and PDF. Operations in cairo including
+      stroking and filling cubic Bézier splines, transforming and
+      compositing translucent images, and antialiased text
+      rendering. All drawing operations can be transformed by any
+      affine transformation (scale, rotation, shear, etc.)
+      
+      Cairo is implemented as a library written in the C programming
+      language, but bindings are available for several different
+      programming languages.
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${cairo_dll_name}.dll
