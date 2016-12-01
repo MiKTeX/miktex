@@ -10,7 +10,18 @@
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
-      This package includes the Lua 5.2 DLL.
+      Lua is a powerful, efficient, lightweight, embeddable scripting
+      language. It supports procedural programming, object-oriented
+      programming, functional programming, data-driven programming,
+      and data description.
+      
+      Lua combines simple procedural syntax with powerful data
+      description constructs based on associative arrays and
+      extensible semantics. Lua is dynamically typed, runs by
+      interpreting bytecode with a register-based virtual machine, and
+      has automatic memory management with incremental garbage
+      collection, making it ideal for configuration, scripting, and
+      rapid prototyping.
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${lua_dll_name}.dll

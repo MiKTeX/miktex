@@ -3,13 +3,13 @@
          xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
     <TPM:Name>LZMA lib win32</TPM:Name>
-    <TPM:Title>LZMA runtime libraries, Windows x86</TPM:Title>
+    <TPM:Title>LZMA runtime library, Windows x86</TPM:Title>
     <TPM:License type="pd"/>
     <TPM:Version>5.2.2</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
-      This package includes the LZMA DLL.
+      liblzma is a compression library with an API similar to that of zlib.
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${lzma_dll_name}.dll
