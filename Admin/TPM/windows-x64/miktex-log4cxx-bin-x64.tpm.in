@@ -10,7 +10,7 @@
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
-      This package includes the log4cxx logging framework.
+      Apache log4cxx is a logging framework for C++ patterned after Apache log4j.
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${apr_dll_name}.dll
