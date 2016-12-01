@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
-Copyright (C) 2002-2014 SIL International. All rights reserved.
+Copyright (C) 2002-2016 SIL International. All rights reserved.
 
 Distributable under the terms of either the Common Public License or the
 GNU Lesser General Public License, as specified in the LICENSING.txt file.
@@ -102,7 +102,9 @@ READ(const UInt32 p)
 #endif
 }
 
+#ifndef __GNUC__
 #pragma mark --- class Stage ---
+#endif
 
 Stage::Stage()
 	: oBuffer(0)
@@ -125,7 +127,9 @@ Stage::lookaheadCount() const
 	return 0;
 }
 
+#ifndef __GNUC__
 #pragma mark --- class Normalizer ---
+#endif
 
 #include "NormalizationData.c"
 
@@ -396,7 +400,9 @@ Normalizer::getChar()
 	return c;
 }
 
+#ifndef __GNUC__
 #pragma mark --- class Pass ---
+#endif
 
 Pass::Pass(const TableHeader* inTable, Converter* cnv)
 	: converter(cnv)
@@ -1282,7 +1288,9 @@ if (traceLevel > 0)
 	return 0;
 }
 
+#ifndef __GNUC__
 #pragma mark --- class Converter ---
+#endif
 
 Converter::Converter(const Byte* inTable, UInt32 inTableSize, bool inForward,
 						UInt16 inForm, UInt16 outForm)
@@ -1934,7 +1942,9 @@ Converter::Validate(const Converter* cnv)
 	return true;
 }
 
+#ifndef __GNUC__
 #pragma mark --- Public "C" API functions ---
+#endif
 
 TECkit_Status
 WINAPI

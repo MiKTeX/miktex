@@ -19,10 +19,10 @@
 
 #define MIKTEX_COMP_J2000_VERSION 6100
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "2.5.3"
+#define MIKTEX_COMP_ORIG_VERSION_STR "2.5.6"
 
 #define MIKTEX_COMP_COMPANY_STR "SIL International"
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2002-2008 SIL International"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2002-2008 SIL International"
+#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2002-2016 SIL International"
+#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2002-2016 SIL International"
 
 #include <miktex/Version>
