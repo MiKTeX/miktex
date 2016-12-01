@@ -10,7 +10,10 @@
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
-      This package includes the libpopt DLLs.
+      Popt is a C library for parsing command line parameters. Popt
+      was heavily influenced by the getopt() and getopt_long()
+      functions, but it improves on them by allowing more powerful
+      argument expansion.
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${popt_dll_name}.dll
