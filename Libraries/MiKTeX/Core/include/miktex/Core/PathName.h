@@ -168,7 +168,7 @@ public:
   /// Copies a string object into a new PathName object.
   /// @param rhs String object.
 public:
-  PathName(const std::basic_string<char> & rhs) :
+  PathName(const std::string & rhs) :
     CharBuffer<char, BufferSizes::MaxPath>(rhs)
   {
   }
@@ -176,7 +176,7 @@ public:
   /// Copies a string object into a new PathName object.
   /// @param rhs String object.
 public:
-  PathName(const std::basic_string<wchar_t> & rhs) :
+  PathName(const std::wstring & rhs) :
     CharBuffer<char, BufferSizes::MaxPath>(rhs)
   {
   }
@@ -214,7 +214,7 @@ public:
   }
 
 public:
-  PathName & operator= (const std::basic_string<char> & rhs)
+  PathName & operator= (const std::string & rhs)
   {
     Base::operator= (rhs);
     return *this;
@@ -346,7 +346,7 @@ public:
 #endif
 
 public:
-  std::basic_string<wchar_t> ToWideCharString() const
+  std::wstring ToWideCharString() const
   {
     return MiKTeX::Util::StringUtil::UTF8ToWideChar(GetData());
   }
@@ -537,7 +537,7 @@ public:
   /// @param component The component to be appended.
   /// @return Returns a reference to this object.
 public:
-  PathName & operator/= (const std::basic_string<char> & component)
+  PathName & operator/= (const std::string & component)
   {
     return AppendComponent(component.c_str());
   }

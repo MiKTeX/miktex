@@ -249,21 +249,21 @@ void SearchPackageDialog::OnBnClickedFindNow()
 	vector<string>::const_iterator it;
 	for (it = packageInfo.runFiles.begin(); !found && it != packageInfo.runFiles.end(); ++it)
 	{
-	  PathName path(it->c_str());
+	  PathName path(*it);
 	  path.RemoveDirectorySpec();
-	  found = PathName::Match(TU_(givenFile), path.GetData());
+	  found = PathName::Match(TU_(givenFile), path);
 	}
 	for (it = packageInfo.docFiles.begin(); !found && it != packageInfo.docFiles.end(); ++it)
 	{
-	  PathName path(it->c_str());
+	  PathName path(*it);
 	  path.RemoveDirectorySpec();
-	  found = PathName::Match(TU_(givenFile), path.GetData());
+	  found = PathName::Match(TU_(givenFile), path);
 	}
 	for (it = packageInfo.sourceFiles.begin(); !found && it != packageInfo.sourceFiles.end(); ++it)
 	{
-	  PathName path(it->c_str());
+	  PathName path(*it);
 	  path.RemoveDirectorySpec();
-	  found = PathName::Match(TU_(givenFile), path.GetData());
+	  found = PathName::Match(TU_(givenFile), path);
 	}
 	haveMatch = found;
       }
