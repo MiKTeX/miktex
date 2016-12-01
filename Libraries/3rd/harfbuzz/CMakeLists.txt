@@ -1,4 +1,4 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
 ## Copyright (C) 2013-2016 Christian Schenk
 ## 
@@ -66,6 +66,7 @@ set(sources
   source/src/hb-ot-maxp-table.hh
   source/src/hb-ot-name-table.hh
   source/src/hb-ot-os2-table.hh
+  source/src/hb-ot-post-table.hh
   source/src/hb-ot-tag.cc
   source/src/hb-private.hh
   source/src/hb-set-private.hh
@@ -85,12 +86,14 @@ set(sources
   source/src/hb-ot-font.cc
   source/src/hb-ot-font.h
   source/src/hb-ot-layout.cc
+  source/src/hb-ot-layout.h
   source/src/hb-ot-layout-common-private.hh
   source/src/hb-ot-layout-gdef-table.hh
   source/src/hb-ot-layout-gpos-table.hh
   source/src/hb-ot-layout-gsubgpos-private.hh
   source/src/hb-ot-layout-gsub-table.hh
   source/src/hb-ot-layout-jstf-table.hh
+  source/src/hb-ot-layout-math-table.hh
   source/src/hb-ot-layout-private.hh
   source/src/hb-ot-map.cc
   source/src/hb-ot-map-private.hh

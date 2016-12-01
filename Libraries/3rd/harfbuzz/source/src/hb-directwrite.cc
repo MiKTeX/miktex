@@ -29,10 +29,6 @@
 
 #include "hb-directwrite.h"
 
-#include "hb-open-file-private.hh"
-#include "hb-ot-name-table.hh"
-#include "hb-ot-tag.h"
-
 
 #ifndef HB_DEBUG_DIRECTWRITE
 #define HB_DEBUG_DIRECTWRITE (HB_DEBUG+0)
@@ -586,7 +582,7 @@ _hb_directwrite_shape(hb_shape_plan_t    *shape_plan,
       textString[chars_len++] = 0xFFFDu;
     else {
       textString[chars_len++] = 0xD800u + ((c - 0x10000u) >> 10);
-      textString[chars_len++] = 0xDC00u + ((c - 0x10000u) & ((1 << 10) - 1));
+      textString[chars_len++] = 0xDC00u + ((c - 0x10000u) & ((1u << 10) - 1));
     }
   }
 
