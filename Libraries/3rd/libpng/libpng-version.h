@@ -19,7 +19,7 @@
 
 #define MIKTEX_COMP_J2000_VERSION 6100
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "1.6.24"
+#define MIKTEX_COMP_ORIG_VERSION_STR "1.6.26"
 
 #define MIKTEX_COMP_COPYRIGHT_STR "Copyright (c) 1998-2016 Glenn Randers-Pehrson"
 #define MIKTEX_COMP_COPYRIGHT_STR_1252 "Copyright © 1998-2016 Glenn Randers-Pehrson"
