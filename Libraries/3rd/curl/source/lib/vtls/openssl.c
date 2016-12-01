@@ -46,10 +46,9 @@
 #include "openssl.h"
 #include "connect.h"
 #include "slist.h"
-#include "strequal.h"
 #include "select.h"
 #include "vtls.h"
-#include "rawstr.h"
+#include "strcase.h"
 #include "hostcheck.h"
 #include "curl_printf.h"
 
@@ -111,6 +110,7 @@
 #define HAVE_OPAQUE_RSA_DSA_DH 1 /* since 1.1.0 -pre5 */
 #define CONST_EXTS const
 #define CONST_ASN1_BIT_STRING const
+#define HAVE_ERR_REMOVE_THREAD_STATE_DEPRECATED 1
 #else
 /* For OpenSSL before 1.1.0 */
 #define ASN1_STRING_get0_data(x) ASN1_STRING_data(x)
@@ -118,7 +118,14 @@
 #define X509_get0_notAfter(x) X509_get_notAfter(x)
 #define CONST_EXTS /* nope */
 #define CONST_ASN1_BIT_STRING /* nope */
+#ifdef LIBRESSL_VERSION_NUMBER
+static unsigned long OpenSSL_version_num(void)
+{
+  return LIBRESSL_VERSION_NUMBER;
+}
+#else
 #define OpenSSL_version_num() SSLeay()
+#endif
 #endif
 
 #if (OPENSSL_VERSION_NUMBER >= 0x1000200fL) && /* 1.0.2 or later */ \
@@ -282,13 +289,13 @@ static int do_file_type(const char *type)
 {
   if(!type || !type[0])
     return SSL_FILETYPE_PEM;
-  if(Curl_raw_equal(type, "PEM"))
+  if(strcasecompare(type, "PEM"))
     return SSL_FILETYPE_PEM;
-  if(Curl_raw_equal(type, "DER"))
+  if(strcasecompare(type, "DER"))
     return SSL_FILETYPE_ASN1;
-  if(Curl_raw_equal(type, "ENG"))
+  if(strcasecompare(type, "ENG"))
     return SSL_FILETYPE_ENGINE;
-  if(Curl_raw_equal(type, "P12"))
+  if(strcasecompare(type, "P12"))
     return SSL_FILETYPE_PKCS12;
   return -1;
 }
@@ -748,11 +755,6 @@ void Curl_ossl_cleanup(void)
   ENGINE_cleanup();
 #endif
 
-#ifdef HAVE_CRYPTO_CLEANUP_ALL_EX_DATA
-  /* Free OpenSSL ex_data table */
-  CRYPTO_cleanup_all_ex_data();
-#endif
-
   /* Free OpenSSL error strings */
   ERR_free_strings();
 
@@ -962,8 +964,8 @@ int Curl_ossl_shutdown(struct connectdata *conn, int sockindex)
   if(connssl->handle) {
     buffsize = (int)sizeof(buf);
     while(!done) {
-      int what = Curl_socket_ready(conn->sock[sockindex],
-                                   CURL_SOCKET_BAD, SSL_SHUTDOWN_TIMEOUT);
+      int what = SOCKET_READABLE(conn->sock[sockindex],
+                                 SSL_SHUTDOWN_TIMEOUT);
       if(what > 0) {
         ERR_clear_error();
 
@@ -1055,6 +1057,14 @@ void Curl_ossl_close_all(struct Curl_easy *data)
   }
 #else
   (void)data;
+#endif
+#if !defined(HAVE_ERR_REMOVE_THREAD_STATE_DEPRECATED) && \
+  defined(HAVE_ERR_REMOVE_THREAD_STATE)
+  /* OpenSSL 1.0.1 and 1.0.2 build an error queue that is stored per-thread
+     so we need to clean it here in case the thread will be killed. All OpenSSL
+     code should extract the error in association with the error so clearing
+     this queue here should be harmless at worst. */
+  ERR_remove_thread_state(NULL);
 #endif
 }
 
@@ -2956,7 +2966,8 @@ static CURLcode ossl_connect_common(struct connectdata *conn,
       curl_socket_t readfd = ssl_connect_2_reading==
         connssl->connecting_state?sockfd:CURL_SOCKET_BAD;
 
-      what = Curl_socket_ready(readfd, writefd, nonblocking?0:timeout_ms);
+      what = Curl_socket_check(readfd, CURL_SOCKET_BAD, writefd,
+                               nonblocking?0:timeout_ms);
       if(what < 0) {
         /* fatal error */
         failf(data, "select/poll on SSL socket, errno: %d", SOCKERRNO);

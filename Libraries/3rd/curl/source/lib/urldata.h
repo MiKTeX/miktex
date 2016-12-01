@@ -374,6 +374,7 @@ struct ssl_config_data {
 struct curl_ssl_session {
   char *name;       /* host name for which this ID was used */
   char *conn_to_host; /* host name for the connection (may be NULL) */
+  const char *scheme; /* protocol scheme used */
   void *sessionid;  /* as returned from the SSL layer */
   size_t idsize;    /* if known, otherwise 0 */
   long age;         /* just a number, the higher the more recent */
@@ -1104,6 +1105,7 @@ struct connectdata {
 
 /*
  * Struct to keep statistical and informational data.
+ * All variables in this struct must be reset in Curl_initinfo().
  */
 struct PureInfo {
   int httpcode;  /* Recent HTTP, FTP, RTSP or SMTP response code */
@@ -1610,6 +1612,7 @@ struct UserDefined {
   bool ftp_use_port;     /* use the FTP PORT command */
   bool hide_progress;    /* don't use the progress meter */
   bool http_fail_on_error;  /* fail on HTTP error codes >= 400 */
+  bool http_keep_sending_on_error; /* for HTTP status codes >= 300 */
   bool http_follow_location; /* follow HTTP redirects */
   bool http_transfer_encoding; /* request compressed HTTP transfer-encoding */
   bool http_disable_hostname_check_before_authentication;

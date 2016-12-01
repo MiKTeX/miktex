@@ -5,7 +5,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -53,7 +53,6 @@
 #include "progress.h"
 #include "curl_base64.h"
 #include "cookie.h"
-#include "strequal.h"
 #include "vauth/vauth.h"
 #include "vtls/vtls.h"
 #include "http_digest.h"
@@ -68,7 +67,7 @@
 #include "parsedate.h" /* for the week day and month names */
 #include "strtoofft.h"
 #include "multiif.h"
-#include "rawstr.h"
+#include "strcase.h"
 #include "content_encoding.h"
 #include "http_proxy.h"
 #include "warnless.h"
@@ -182,7 +181,7 @@ char *Curl_checkheaders(const struct connectdata *conn,
   struct Curl_easy *data = conn->data;
 
   for(head = data->set.headers;head; head=head->next) {
-    if(Curl_raw_nequal(head->data, thisheader, thislen))
+    if(strncasecompare(head->data, thisheader, thislen))
       return head->data;
   }
 
@@ -208,7 +207,7 @@ char *Curl_checkProxyheaders(const struct connectdata *conn,
   for(head = (conn->bits.proxy && data->set.sep_headers) ?
         data->set.proxyheaders : data->set.headers;
       head; head=head->next) {
-    if(Curl_raw_nequal(head->data, thisheader, thislen))
+    if(strncasecompare(head->data, thisheader, thislen))
       return head->data;
   }
 
@@ -726,7 +725,7 @@ Curl_http_output_auth(struct connectdata *conn,
      conn->bits.netrc ||
      !data->state.first_host ||
      data->set.http_disable_hostname_check_before_authentication ||
-     Curl_raw_equal(data->state.first_host, conn->host.name)) {
+     strcasecompare(data->state.first_host, conn->host.name)) {
     result = output_auth_headers(conn, authhost, request, path, FALSE);
   }
   else
@@ -1305,7 +1304,7 @@ Curl_compareheader(const char *headerline, /* line to check */
   const char *start;
   const char *end;
 
-  if(!Curl_raw_nequal(headerline, header, hlen))
+  if(!strncasecompare(headerline, header, hlen))
     return FALSE; /* doesn't start with header */
 
   /* pass the header */
@@ -1331,7 +1330,7 @@ Curl_compareheader(const char *headerline, /* line to check */
 
   /* find the content string in the rest of the line */
   for(;len>=clen;len--, start++) {
-    if(Curl_raw_nequal(start, content, clen))
+    if(strncasecompare(start, content, clen))
       return TRUE; /* match! */
   }
 
@@ -1648,6 +1647,10 @@ CURLcode Curl_add_custom_headers(struct connectdata *conn,
                      Connection: */
                   checkprefix("Connection", headers->data))
             ;
+          else if((conn->httpversion == 20) &&
+                  checkprefix("Transfer-Encoding:", headers->data))
+            /* HTTP/2 doesn't support chunked requests */
+            ;
           else {
             CURLcode result = Curl_add_bufferf(req_buffer, "%s\r\n",
                                                headers->data);
@@ -1934,47 +1937,42 @@ CURLcode Curl_http(struct connectdata *conn, bool *done)
   }
 #endif
 
-  if(conn->httpversion == 20)
-    /* In HTTP2 forbids Transfer-Encoding: chunked */
-    ptr = NULL;
+  ptr = Curl_checkheaders(conn, "Transfer-Encoding:");
+  if(ptr) {
+    /* Some kind of TE is requested, check if 'chunked' is chosen */
+    data->req.upload_chunky =
+      Curl_compareheader(ptr, "Transfer-Encoding:", "chunked");
+  }
   else {
-    ptr = Curl_checkheaders(conn, "Transfer-Encoding:");
-    if(ptr) {
-      /* Some kind of TE is requested, check if 'chunked' is chosen */
-      data->req.upload_chunky =
-        Curl_compareheader(ptr, "Transfer-Encoding:", "chunked");
-    }
-    else {
-      if((conn->handler->protocol&PROTO_FAMILY_HTTP) &&
-         data->set.upload &&
-         (data->state.infilesize == -1)) {
-        if(conn->bits.authneg)
-          /* don't enable chunked during auth neg */
-          ;
-        else if(use_http_1_1plus(data, conn)) {
-          /* HTTP, upload, unknown file size and not HTTP 1.0 */
-          data->req.upload_chunky = TRUE;
-        }
-        else {
-          failf(data, "Chunky upload is not supported by HTTP 1.0");
-          return CURLE_UPLOAD_FAILED;
-        }
+    if((conn->handler->protocol&PROTO_FAMILY_HTTP) &&
+       data->set.upload &&
+       (data->state.infilesize == -1)) {
+      if(conn->bits.authneg)
+        /* don't enable chunked during auth neg */
+        ;
+      else if(use_http_1_1plus(data, conn)) {
+        /* HTTP, upload, unknown file size and not HTTP 1.0 */
+        data->req.upload_chunky = TRUE;
       }
       else {
-        /* else, no chunky upload */
-        data->req.upload_chunky = FALSE;
+        failf(data, "Chunky upload is not supported by HTTP 1.0");
+        return CURLE_UPLOAD_FAILED;
       }
-
-      if(data->req.upload_chunky)
-        te = "Transfer-Encoding: chunked\r\n";
     }
+    else {
+      /* else, no chunky upload */
+      data->req.upload_chunky = FALSE;
+    }
+
+    if(data->req.upload_chunky)
+      te = "Transfer-Encoding: chunked\r\n";
   }
 
   Curl_safefree(conn->allocptr.host);
 
   ptr = Curl_checkheaders(conn, "Host:");
   if(ptr && (!data->state.this_is_a_follow ||
-             Curl_raw_equal(data->state.first_host, conn->host.name))) {
+             strcasecompare(data->state.first_host, conn->host.name))) {
 #if !defined(CURL_DISABLE_COOKIES)
     /* If we have a given custom Host: header, we extract the host name in
        order to possibly use it for cookie reasons later on. We only allow the
@@ -2385,7 +2383,7 @@ CURLcode Curl_http(struct connectdata *conn, bool *done)
         }
         co = co->next; /* next cookie please */
       }
-      Curl_cookie_freelist(store, FALSE); /* free the cookie list */
+      Curl_cookie_freelist(store);
     }
     if(addcookies && !result) {
       if(!count)
@@ -2761,6 +2759,11 @@ CURLcode Curl_http(struct connectdata *conn, bool *done)
     }
   }
 
+  if((conn->httpversion == 20) && data->req.upload_chunky)
+    /* upload_chunky was set above to set up the request in a chunky fashion,
+       but is disabled here again to avoid that the chunked encoded version is
+       actually used when sending the request body over h2 */
+    data->req.upload_chunky = FALSE;
   return result;
 }
 
@@ -3177,12 +3180,21 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy *data,
              * connection for closure after we've read the entire response.
              */
             if(!k->upload_done) {
-              infof(data, "HTTP error before end of send, stop sending\n");
-              streamclose(conn, "Stop sending data before everything sent");
-              k->upload_done = TRUE;
-              k->keepon &= ~KEEP_SEND; /* don't send */
-              if(data->state.expect100header)
-                k->exp100 = EXP100_FAILED;
+              if(data->set.http_keep_sending_on_error) {
+                infof(data, "HTTP error before end of send, keep sending\n");
+                if(k->exp100 > EXP100_SEND_DATA) {
+                  k->exp100 = EXP100_SEND_DATA;
+                  k->keepon |= KEEP_SEND;
+                }
+              }
+              else {
+                infof(data, "HTTP error before end of send, stop sending\n");
+                streamclose(conn, "Stop sending data before everything sent");
+                k->upload_done = TRUE;
+                k->keepon &= ~KEEP_SEND; /* don't send */
+                if(data->state.expect100header)
+                  k->exp100 = EXP100_FAILED;
+              }
             }
             break;
 

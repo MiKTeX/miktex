@@ -19,7 +19,7 @@
 
 #define MIKTEX_COMP_J2000_VERSION 6100
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "7.50.3"
+#define MIKTEX_COMP_ORIG_VERSION_STR "7.51.0"
 
 #define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1998 - 2016, Daniel Stenberg, et al."
 #define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1998 - 2016, Daniel Stenberg, et al."

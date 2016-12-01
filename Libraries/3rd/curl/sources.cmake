@@ -88,7 +88,6 @@ set(curl_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/pipeline.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/pop3.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/progress.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/rawstr.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/rtsp.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/security.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/select.c
@@ -103,8 +102,8 @@ set(curl_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/speedcheck.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/splay.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/ssh.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/strcase.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/strdup.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/strequal.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/strerror.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/strtok.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/strtoofft.c
@@ -208,7 +207,6 @@ set(curl_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/pipeline.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/pop3.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/progress.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/rawstr.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/rtsp.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/select.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/sendf.h
@@ -224,8 +222,8 @@ set(curl_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/speedcheck.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/splay.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/ssh.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/strcase.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/strdup.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/strequal.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/strerror.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/strtok.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/strtoofft.h

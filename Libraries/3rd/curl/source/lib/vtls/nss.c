@@ -34,7 +34,7 @@
 #include "formdata.h" /* for the boundary function */
 #include "url.h" /* for the ssl config check function */
 #include "connect.h"
-#include "strequal.h"
+#include "strcase.h"
 #include "select.h"
 #include "vtls.h"
 #include "llist.h"
@@ -64,7 +64,7 @@
 #include <ocsp.h>
 #endif
 
-#include "rawstr.h"
+#include "strcase.h"
 #include "warnless.h"
 #include "x509asn1.h"
 
@@ -149,7 +149,7 @@ static const cipher_s cipherlist[] = {
   {"ecdh_rsa_3des_sha",          TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA},
   {"ecdh_rsa_aes_128_sha",       TLS_ECDH_RSA_WITH_AES_128_CBC_SHA},
   {"ecdh_rsa_aes_256_sha",       TLS_ECDH_RSA_WITH_AES_256_CBC_SHA},
-  {"echde_rsa_null",             TLS_ECDHE_RSA_WITH_NULL_SHA},
+  {"ecdhe_rsa_null",             TLS_ECDHE_RSA_WITH_NULL_SHA},
   {"ecdhe_rsa_rc4_128_sha",      TLS_ECDHE_RSA_WITH_RC4_128_SHA},
   {"ecdhe_rsa_3des_sha",         TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA},
   {"ecdhe_rsa_aes_128_sha",      TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA},
@@ -178,6 +178,25 @@ static const cipher_s cipherlist[] = {
   {"ecdh_ecdsa_aes_128_gcm_sha_256",  TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256},
   {"ecdhe_rsa_aes_128_gcm_sha_256",   TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256},
   {"ecdh_rsa_aes_128_gcm_sha_256",    TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256},
+#endif
+#ifdef TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+  /* cipher suites using SHA384 */
+  {"rsa_aes_256_gcm_sha_384",         TLS_RSA_WITH_AES_256_GCM_SHA384},
+  {"dhe_rsa_aes_256_gcm_sha_384",     TLS_DHE_RSA_WITH_AES_256_GCM_SHA384},
+  {"dhe_dss_aes_256_gcm_sha_384",     TLS_DHE_DSS_WITH_AES_256_GCM_SHA384},
+  {"ecdhe_ecdsa_aes_256_sha_384",     TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384},
+  {"ecdhe_rsa_aes_256_sha_384",       TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384},
+  {"ecdhe_ecdsa_aes_256_gcm_sha_384", TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384},
+  {"ecdhe_rsa_aes_256_gcm_sha_384",   TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384},
+#endif
+#ifdef TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+  /* chacha20-poly1305 cipher suites */
+ {"ecdhe_rsa_chacha20_poly1305_sha_256",
+     TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256},
+ {"ecdhe_ecdsa_chacha20_poly1305_sha_256",
+     TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256},
+ {"dhe_rsa_chacha20_poly1305_sha_256",
+     TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256},
 #endif
 };
 
@@ -242,7 +261,7 @@ static SECStatus set_ciphers(struct Curl_easy *data, PRFileDesc * model,
     found = PR_FALSE;
 
     for(i=0; i<NUM_OF_CIPHERS; i++) {
-      if(Curl_raw_equal(cipher, cipherlist[i].name)) {
+      if(strcasecompare(cipher, cipherlist[i].name)) {
         cipher_state[i] = PR_TRUE;
         found = PR_TRUE;
         break;
@@ -1902,8 +1921,11 @@ static CURLcode nss_connect_common(struct connectdata *conn, int sockindex,
   const bool blocking = (done == NULL);
   CURLcode result;
 
-  if(connssl->state == ssl_connection_complete)
+  if(connssl->state == ssl_connection_complete) {
+    if(!blocking)
+      *done = TRUE;
     return CURLE_OK;
+  }
 
   if(connssl->connecting_state == ssl_connect_1) {
     result = nss_setup_connect(conn, sockindex);
