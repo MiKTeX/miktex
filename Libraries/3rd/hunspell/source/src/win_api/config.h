@@ -179,9 +179,6 @@
 /* Define to 1 if you have the `__argz_stringify' function. */
 #define HAVE___ARGZ_STRINGIFY 1
 
-/* "Define if you use exterimental functions" */
-#undef HUNSPELL_EXPERIMENTAL
-
 /* "Define if you need warning messages" */
 #define HUNSPELL_WARNING_ON
 
@@ -204,5 +201,5 @@
 #define PACKAGE_TARNAME
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.3.2"
-#define VERSION "1.3.2"
+#define PACKAGE_VERSION "1.5.4"
+#define VERSION "1.5.4"

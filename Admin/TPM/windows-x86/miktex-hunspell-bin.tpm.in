@@ -6,11 +6,14 @@
     <TPM:Title>Hunspell runtime library, Windows x86</TPM:Title>
     <TPM:Copyright owner="Kevin Hendricks and Németh László" year="2002-2005"/>
     <TPM:License type="lgpl2.1"/>
-    <TPM:Version>1.3.2</TPM:Version>
+    <TPM:Version>1.5.4</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
-      This package includes the Hunspell DLL.
+      Hunspell is the spell checker of LibreOffice, OpenOffice.org,
+      Mozilla Firefox 3 & Thunderbird, Google Chrome, and it is also
+      used by proprietary software packages, like Mac OS X, InDesign,
+      memoQ, Opera and SDL Trados.
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${hunspell_dll_name}.dll

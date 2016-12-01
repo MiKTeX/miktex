@@ -1,4 +1,4 @@
-/* hunspell-version.h: version number			-*- C++ -*-
+/* hunspell-version.h: version number                   -*- C++ -*-
 
    Copyright (C) 2009-2016 Christian Schenk
 
@@ -17,9 +17,9 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION 6050
+#define MIKTEX_COMP_J2000_VERSION 6100
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "1.3.2"
+#define MIKTEX_COMP_ORIG_VERSION_STR "1.5.4"
 
 #define MIKTEX_COMP_COPYRIGHT_STR ""
 #define MIKTEX_COMP_COPYRIGHT_STR_1252 ""

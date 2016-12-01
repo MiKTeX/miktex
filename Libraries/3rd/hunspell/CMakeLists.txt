@@ -43,8 +43,6 @@ set(sources
   source/src/hunspell/baseaffix.hxx
   source/src/hunspell/csutil.cxx
   source/src/hunspell/csutil.hxx
-  source/src/hunspell/dictmgr.cxx
-  source/src/hunspell/dictmgr.hxx
   source/src/hunspell/filemgr.cxx
   source/src/hunspell/filemgr.hxx
   source/src/hunspell/hashmgr.cxx
@@ -66,7 +64,10 @@ set(sources
   source/src/hunspell/w_char.hxx
 )
 
-set(${hunspell_dll_name}_sources ${sources})
+set(${hunspell_dll_name}_sources
+  ${sources}
+  hunspell-version.h
+)
 
 if(MIKTEX_NATIVE_WINDOWS)
   configure_file(
