@@ -19,6 +19,7 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/libressl")
 
+set(libressl_dir ${CMAKE_CURRENT_SOURCE_DIR})
 set(libressl_source_dir ${CMAKE_CURRENT_SOURCE_DIR}/source)
 
 set(public_include_directory

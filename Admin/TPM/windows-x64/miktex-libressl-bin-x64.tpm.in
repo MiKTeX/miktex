@@ -6,11 +6,14 @@
     <TPM:Title>LibreSSL runtime libraries, Windows x64</TPM:Title>
     <TPM:Copyright owner="The OpenSSL Project" year="1998-2001"/>
     <TPM:License type="permissive"/>
-    <TPM:Version>2.4.2</TPM:Version>
+    <TPM:Version>2.4.4</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
-      This package includes the LibreSSL DLLs.
+      LibreSSL is a version of the TLS/crypto stack forked from
+      OpenSSL in 2014, with goals of modernizing the codebase,
+      improving security, and applying best practice development
+      processes.
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${libressl_crypto_dll_name}.dll

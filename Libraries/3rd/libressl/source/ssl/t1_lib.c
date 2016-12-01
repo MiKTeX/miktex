@@ -1,4 +1,4 @@
-/* $OpenBSD: t1_lib.c,v 1.86 2016/03/10 23:21:46 mmcc Exp $ */
+/* $OpenBSD: t1_lib.c,v 1.91 2016/10/02 21:05:44 guenther Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -1438,10 +1438,28 @@ ssl_parse_clienthello_tlsext(SSL *s, unsigned char **p, unsigned char *d,
 				/* Read in responder_id_list */
 				n2s(data, dsize);
 				size -= 2;
-				if (dsize > size  ) {
+				if (dsize > size) {
 					*al = SSL_AD_DECODE_ERROR;
 					return 0;
 				}
+
+				/*
+				 * We remove any OCSP_RESPIDs from a
+				 * previous handshake to prevent
+				 * unbounded memory growth.
+				 */
+				sk_OCSP_RESPID_pop_free(s->tlsext_ocsp_ids,
+				    OCSP_RESPID_free);
+				s->tlsext_ocsp_ids = NULL;
+				if (dsize > 0) {
+					s->tlsext_ocsp_ids =
+					    sk_OCSP_RESPID_new_null();
+					if (s->tlsext_ocsp_ids == NULL) {
+						*al = SSL_AD_INTERNAL_ERROR;
+						return 0;
+					}
+				}
+
 				while (dsize > 0) {
 					OCSP_RESPID *id;
 					int idsize;
@@ -1467,13 +1485,6 @@ ssl_parse_clienthello_tlsext(SSL *s, unsigned char **p, unsigned char *d,
 					if (data != sdata) {
 						OCSP_RESPID_free(id);
 						*al = SSL_AD_DECODE_ERROR;
-						return 0;
-					}
-					if (!s->tlsext_ocsp_ids &&
-					    !(s->tlsext_ocsp_ids =
-					    sk_OCSP_RESPID_new_null())) {
-						OCSP_RESPID_free(id);
-						*al = SSL_AD_INTERNAL_ERROR;
 						return 0;
 					}
 					if (!sk_OCSP_RESPID_push(
@@ -2143,9 +2154,16 @@ tls_decrypt_ticket(SSL *s, const unsigned char *etick, int eticklen,
 	HMAC_CTX hctx;
 	EVP_CIPHER_CTX ctx;
 	SSL_CTX *tctx = s->initial_ctx;
-	/* Need at least keyname + iv + some encrypted data */
-	if (eticklen < 48)
+
+	/*
+	 * The API guarantees EVP_MAX_IV_LENGTH bytes of space for
+	 * the iv to tlsext_ticket_key_cb().  Since the total space
+	 * required for a session cookie is never less than this,
+	 * this check isn't too strict.  The exact check comes later.
+	 */
+	if (eticklen < 16 + EVP_MAX_IV_LENGTH)
 		return 2;
+
 	/* Initialize session ticket encryption and HMAC contexts */
 	HMAC_CTX_init(&hctx);
 	EVP_CIPHER_CTX_init(&ctx);
@@ -2154,10 +2172,12 @@ tls_decrypt_ticket(SSL *s, const unsigned char *etick, int eticklen,
 		int rv = tctx->tlsext_ticket_key_cb(s, nctick, nctick + 16,
 		    &ctx, &hctx, 0);
 		if (rv < 0) {
+			HMAC_CTX_cleanup(&hctx);
 			EVP_CIPHER_CTX_cleanup(&ctx);
 			return -1;
 		}
 		if (rv == 0) {
+			HMAC_CTX_cleanup(&hctx);
 			EVP_CIPHER_CTX_cleanup(&ctx);
 			return 2;
 		}
@@ -2172,33 +2192,51 @@ tls_decrypt_ticket(SSL *s, const unsigned char *etick, int eticklen,
 		EVP_DecryptInit_ex(&ctx, EVP_aes_128_cbc(), NULL,
 		    tctx->tlsext_tick_aes_key, etick + 16);
 	}
-	/* Attempt to process session ticket, first conduct sanity and
+
+	/*
+	 * Attempt to process session ticket, first conduct sanity and
 	 * integrity checks on ticket.
 	 */
 	mlen = HMAC_size(&hctx);
 	if (mlen < 0) {
+		HMAC_CTX_cleanup(&hctx);
 		EVP_CIPHER_CTX_cleanup(&ctx);
 		return -1;
 	}
+
+	/* Sanity check ticket length: must exceed keyname + IV + HMAC */
+	if (eticklen <= 16 + EVP_CIPHER_CTX_iv_length(&ctx) + mlen) {
+		HMAC_CTX_cleanup(&hctx);
+		EVP_CIPHER_CTX_cleanup(&ctx);
+		return 2;
+	}
 	eticklen -= mlen;
+
 	/* Check HMAC of encrypted ticket */
-	HMAC_Update(&hctx, etick, eticklen);
-	HMAC_Final(&hctx, tick_hmac, NULL);
+	if (HMAC_Update(&hctx, etick, eticklen) <= 0 ||
+	    HMAC_Final(&hctx, tick_hmac, NULL) <= 0) {
+		HMAC_CTX_cleanup(&hctx);
+		EVP_CIPHER_CTX_cleanup(&ctx);
+		return -1;
+	}
+
 	HMAC_CTX_cleanup(&hctx);
 	if (timingsafe_memcmp(tick_hmac, etick + eticklen, mlen)) {
 		EVP_CIPHER_CTX_cleanup(&ctx);
 		return 2;
 	}
+
 	/* Attempt to decrypt session data */
 	/* Move p after IV to start of encrypted ticket, update length */
 	p = etick + 16 + EVP_CIPHER_CTX_iv_length(&ctx);
 	eticklen -= 16 + EVP_CIPHER_CTX_iv_length(&ctx);
 	sdec = malloc(eticklen);
-	if (!sdec) {
+	if (sdec == NULL ||
+	    EVP_DecryptUpdate(&ctx, sdec, &slen, p, eticklen) <= 0) {
+		free(sdec);
 		EVP_CIPHER_CTX_cleanup(&ctx);
 		return -1;
 	}
-	EVP_DecryptUpdate(&ctx, sdec, &slen, p, eticklen);
 	if (EVP_DecryptFinal_ex(&ctx, sdec + slen, &mlen) <= 0) {
 		free(sdec);
 		EVP_CIPHER_CTX_cleanup(&ctx);

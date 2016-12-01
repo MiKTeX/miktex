@@ -575,6 +575,10 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/x509v3/v3err.c
 )
 
+list(APPEND crypto_sources
+  ${libressl_dir}/libressl-version.h
+)
+
 if(CMAKE_HOST_WIN32)
   list(APPEND crypto_sources
     ${crypto_source_dir}/bio/b_win.c
