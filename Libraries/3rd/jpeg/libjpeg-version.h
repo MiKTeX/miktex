@@ -1,4 +1,4 @@
-/* libjpeg-version.h: version number			-*- C++ -*-
+/* libjpeg-version.h: version number                    -*- C++ -*-
 
    Copyright (C) 1996-2016 Christian Schenk
 
@@ -18,9 +18,9 @@
    USA.  */
 
 #define MIKTEX_COMP_J2000_VERSION 6100
-#define MIKTEX_COMP_ORIG_VERSION_STR "8d"
+#define MIKTEX_COMP_ORIG_VERSION_STR "9b"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1991-1998, Thomas G. Lane"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1991-1998, Thomas G. Lane"
+#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1991-2016, Thomas G. Lane, Guido Vollbeding"
+#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1991-2016, Thomas G. Lane, Guido Vollbeding"
 
 #include <miktex/Version>
