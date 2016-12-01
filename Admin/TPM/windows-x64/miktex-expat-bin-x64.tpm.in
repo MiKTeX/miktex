@@ -7,11 +7,14 @@
     <TPM:Copyright owner="Expat maintainers" year="2001-2006"/>
     <TPM:Copyright owner="Thai Open Source Software Center Ltd" year="1998-2000"/>
     <TPM:License type="permissive"/>
-    <TPM:Version>2.1.0</TPM:Version>
+    <TPM:Version>2.2.0</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
-      This package includes the Expat DLL.
+      Expat is an XML parser library written in C. It is a
+      stream-oriented parser in which an application registers
+      handlers for things the parser might find in the XML document
+      (like start tags).
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${expat_dll_name}.dll
