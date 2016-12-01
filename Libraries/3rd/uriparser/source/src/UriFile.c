@@ -73,16 +73,26 @@ static URI_INLINE int URI_FUNC(FilenameToUriString)(const URI_CHAR * filename,
 	const URI_CHAR * lastSep = input - 1;
 	UriBool firstSegment = URI_TRUE;
 	URI_CHAR * output = uriString;
-	const UriBool absolute = (filename != NULL) && ((fromUnix && (filename[0] == _UT('/')))
-			|| (!fromUnix && (filename[0] != _UT('\0')) && (filename[1] == _UT(':'))));
+	UriBool absolute;
+	UriBool is_windows_network;
 
 	if ((filename == NULL) || (uriString == NULL)) {
 		return URI_ERROR_NULL;
 	}
 
+	is_windows_network = (filename[0] == _UT('\\')) && (filename[1] == _UT('\\'));
+	absolute = fromUnix
+			? (filename[0] == _UT('/'))
+			: ((filename[0] != _UT('\0')) && (filename[1] == _UT(':'))
+				|| is_windows_network);
+
 	if (absolute) {
-		const URI_CHAR * const prefix = fromUnix ? _UT("file://") : _UT("file:///");
-		const int prefixLen = fromUnix ? 7 : 8;
+		const URI_CHAR * const prefix = fromUnix
+				? _UT("file://")
+				: is_windows_network
+					? _UT("file:")
+					: _UT("file:///");
+		const int prefixLen = URI_STRLEN(prefix);
 
 		/* Copy prefix */
 		memcpy(uriString, prefix, prefixLen * sizeof(URI_CHAR));
@@ -133,19 +143,49 @@ static URI_INLINE int URI_FUNC(FilenameToUriString)(const URI_CHAR * filename,
 
 static URI_INLINE int URI_FUNC(UriStringToFilename)(const URI_CHAR * uriString,
 		URI_CHAR * filename, UriBool toUnix) {
-	const URI_CHAR * const prefix = toUnix ? _UT("file://") : _UT("file:///");
-	const int prefixLen = toUnix ? 7 : 8;
-	URI_CHAR * walker = filename;
-	size_t charsToCopy;
-	const UriBool absolute = (URI_STRNCMP(uriString, prefix, prefixLen) == 0);
-	const int charsToSkip = (absolute ? prefixLen : 0);
+	if ((uriString == NULL) || (filename == NULL)) {
+		return URI_ERROR_NULL;
+	}
 
-	charsToCopy = URI_STRLEN(uriString + charsToSkip) + 1;
-	memcpy(filename, uriString + charsToSkip, charsToCopy * sizeof(URI_CHAR));
-	URI_FUNC(UnescapeInPlaceEx)(filename, URI_FALSE, URI_BR_DONT_TOUCH);
+	{
+		const UriBool file_two_slashes =
+				URI_STRNCMP(uriString, _UT("file://"), URI_STRLEN(_UT("file://"))) == 0;
+		const UriBool file_three_slashes = file_two_slashes
+				&& (URI_STRNCMP(uriString, _UT("file:///"), URI_STRLEN(_UT("file:///"))) == 0);
+
+		const size_t charsToSkip = file_two_slashes
+				? file_three_slashes
+					? toUnix
+						/* file:///bin/bash */
+						? URI_STRLEN(_UT("file://"))
+						/* file:///E:/Documents%20and%20Settings */
+						: URI_STRLEN(_UT("file:///"))
+					/* file://Server01/Letter.txt */
+					: URI_STRLEN(_UT("file://"))
+				: 0;
+		const size_t charsToCopy = URI_STRLEN(uriString + charsToSkip) + 1;
+
+		const UriBool is_windows_network_with_authority =
+				(toUnix == URI_FALSE)
+				&& file_two_slashes
+				&& ! file_three_slashes;
+
+		URI_CHAR * const unescape_target = is_windows_network_with_authority
+				? (filename + 2)
+				: filename;
+
+		if (is_windows_network_with_authority) {
+			filename[0] = '\\';
+			filename[1] = '\\';
+		}
+
+		memcpy(unescape_target, uriString + charsToSkip, charsToCopy * sizeof(URI_CHAR));
+		URI_FUNC(UnescapeInPlaceEx)(filename, URI_FALSE, URI_BR_DONT_TOUCH);
+	}
 
 	/* Convert forward slashes to backslashes */
 	if (!toUnix) {
+		URI_CHAR * walker = filename;
 		while (walker[0] != _UT('\0')) {
 			if (walker[0] == _UT('/')) {
 				walker[0] = _UT('\\');

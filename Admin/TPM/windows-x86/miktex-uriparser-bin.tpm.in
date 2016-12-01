@@ -6,11 +6,13 @@
     <TPM:Title>Uriparser runtime library, Windows x86</TPM:Title>
     <TPM:Copyright owner="Weijia Song and Sebastian Pipping" year="2007"/>
     <TPM:License type="bsd3"/>
-    <TPM:Version>0.7.6</TPM:Version>
+    <TPM:Version>0.8.4</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
-      This package includes the Uriparser DLL.
+      Uriparser is a strictly RFC 3986 compliant URI parsing library
+      written in C. uriparser is cross-platform, fast, supports
+      Unicode and is licensed under the New BSD license.
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${uriparser_dll_name}.dll

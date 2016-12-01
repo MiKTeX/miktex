@@ -68,7 +68,7 @@
 
 
 
-/* Appends a relative URI to an absolute. The last path segement of
+/* Appends a relative URI to an absolute. The last path segment of
  * the absolute URI is replaced. */
 static URI_INLINE UriBool URI_FUNC(MergePath)(URI_TYPE(Uri) * absWork,
 		const URI_TYPE(Uri) * relAppend) {
@@ -121,10 +121,37 @@ static URI_INLINE UriBool URI_FUNC(MergePath)(URI_TYPE(Uri) * absWork,
 }
 
 
+static int URI_FUNC(ResolveAbsolutePathFlag)(URI_TYPE(Uri) * absWork) {
+	if (absWork == NULL) {
+		return URI_ERROR_NULL;
+	}
+
+	if (URI_FUNC(IsHostSet)(absWork) && absWork->absolutePath) {
+		/* Empty segment needed, instead? */
+		if (absWork->pathHead == NULL) {
+			URI_TYPE(PathSegment) * const segment = malloc(sizeof(URI_TYPE(PathSegment)));
+			if (segment == NULL) {
+				return URI_ERROR_MALLOC;
+			}
+			segment->text.first = URI_FUNC(SafeToPointTo);
+			segment->text.afterLast = URI_FUNC(SafeToPointTo);
+			segment->next = NULL;
+
+			absWork->pathHead = segment;
+			absWork->pathTail = segment;
+		}
+
+		absWork->absolutePath = URI_FALSE;
+	}
+
+	return URI_SUCCESS;
+}
+
 
 static int URI_FUNC(AddBaseUriImpl)(URI_TYPE(Uri) * absDest,
 		const URI_TYPE(Uri) * relSource,
-		const URI_TYPE(Uri) * absBase) {
+		const URI_TYPE(Uri) * absBase,
+		UriResolutionOptions options) {
 	if (absDest == NULL) {
 		return URI_ERROR_NULL;
 	}
@@ -139,8 +166,21 @@ static int URI_FUNC(AddBaseUriImpl)(URI_TYPE(Uri) * absDest,
 		return URI_ERROR_ADDBASE_REL_BASE;
 	}
 
+	/* [00/32] 	-- A non-strict parser may ignore a scheme in the reference */
+	/* [00/32] 	-- if it is identical to the base URI's scheme. */
+	/* [00/32] 	if ((not strict) and (R.scheme == Base.scheme)) then */
+	UriBool relSourceHasScheme = (relSource->scheme.first != NULL) ? URI_TRUE : URI_FALSE;
+	if ((options & URI_RESOLVE_IDENTICAL_SCHEME_COMPAT)
+			&& (absBase->scheme.first != NULL)
+			&& (relSource->scheme.first != NULL)
+			&& (0 == URI_FUNC(CompareRange)(&(absBase->scheme), &(relSource->scheme)))) {
+	/* [00/32] 		undefine(R.scheme); */
+		relSourceHasScheme = URI_FALSE;
+	/* [00/32] 	endif; */
+	}
+
 	/* [01/32]	if defined(R.scheme) then */
-				if (relSource->scheme.first != NULL) {
+				if (relSourceHasScheme) {
 	/* [02/32]		T.scheme = R.scheme; */
 					absDest->scheme = relSource->scheme;
 	/* [03/32]		T.authority = R.authority; */
@@ -180,7 +220,7 @@ static int URI_FUNC(AddBaseUriImpl)(URI_TYPE(Uri) * absDest,
 							return URI_ERROR_MALLOC;
 						}
 	/* [12/32]			if (R.path == "") then */
-						if (relSource->pathHead == NULL) {
+						if (relSource->pathHead == NULL && !relSource->absolutePath) {
 	/* [13/32]				T.path = Base.path; */
 							if (!URI_FUNC(CopyPath)(absDest, absBase)) {
 								return URI_ERROR_MALLOC;
@@ -199,9 +239,14 @@ static int URI_FUNC(AddBaseUriImpl)(URI_TYPE(Uri) * absDest,
 						} else {
 	/* [20/32]				if (R.path starts-with "/") then */
 							if (relSource->absolutePath) {
+								int res;
 	/* [21/32]					T.path = remove_dot_segments(R.path); */
 								if (!URI_FUNC(CopyPath)(absDest, relSource)) {
 									return URI_ERROR_MALLOC;
+								}
+								res = URI_FUNC(ResolveAbsolutePathFlag)(absDest);
+								if (res != URI_SUCCESS) {
+									return res;
 								}
 								if (!URI_FUNC(RemoveDotSegmentsAbsolute)(absDest)) {
 									return URI_ERROR_MALLOC;
@@ -247,7 +292,19 @@ static int URI_FUNC(AddBaseUriImpl)(URI_TYPE(Uri) * absDest,
 
 int URI_FUNC(AddBaseUri)(URI_TYPE(Uri) * absDest,
 		const URI_TYPE(Uri) * relSource, const URI_TYPE(Uri) * absBase) {
-	const int res = URI_FUNC(AddBaseUriImpl)(absDest, relSource, absBase);
+	const int res = URI_FUNC(AddBaseUriImpl)(absDest, relSource, absBase, URI_RESOLVE_STRICTLY);
+	if ((res != URI_SUCCESS) && (absDest != NULL)) {
+		URI_FUNC(FreeUriMembers)(absDest);
+	}
+	return res;
+}
+
+
+
+int URI_FUNC(AddBaseUriEx)(URI_TYPE(Uri) * absDest,
+		const URI_TYPE(Uri) * relSource, const URI_TYPE(Uri) * absBase,
+		UriResolutionOptions options) {
+	const int res = URI_FUNC(AddBaseUriImpl)(absDest, relSource, absBase, options);
 	if ((res != URI_SUCCESS) && (absDest != NULL)) {
 		URI_FUNC(FreeUriMembers)(absDest);
 	}

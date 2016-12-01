@@ -1,4 +1,4 @@
-/* uriparser-version.h: version number			-*- C++ -*-
+/* uriparser-version.h: version number                  -*- C++ -*-
 
    Copyright (C) 2008-2016 Christian Schenk
 
@@ -19,7 +19,7 @@
 
 #define MIKTEX_COMP_J2000_VERSION 6100
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "0.7.6"
+#define MIKTEX_COMP_ORIG_VERSION_STR "0.8.4"
 
 #define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2007, Weijia Song <songweijia@gmail.com>, Sebastian Pipping <webmaster@hartwork.org>"
 #define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2007, Weijia Song <songweijia@gmail.com>, Sebastian Pipping <webmaster@hartwork.org>"

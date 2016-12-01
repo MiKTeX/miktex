@@ -54,8 +54,8 @@
 
 /* Version */
 #define URI_VER_MAJOR           0
-#define URI_VER_MINOR           7
-#define URI_VER_RELEASE         6
+#define URI_VER_MINOR           8
+#define URI_VER_RELEASE         4
 #define URI_VER_SUFFIX_ANSI     ""
 #define URI_VER_SUFFIX_UNICODE  URI_ANSI_TO_UNICODE(URI_VER_SUFFIX_ANSI)
 
@@ -155,7 +155,7 @@ typedef struct UriIp6Struct {
 
 
 /**
- * Specifies a line break conversion mode
+ * Specifies a line break conversion mode.
  */
 typedef enum UriBreakConversionEnum {
 	URI_BR_TO_LF, /**< Convert to Unix line breaks ("\\x0a") */
@@ -184,5 +184,14 @@ typedef enum UriNormalizationMaskEnum {
 
 
 
-#endif /* URI_BASE_H */
+/**
+ * Specifies how to resolve %URI references.
+ */
+typedef enum UriResolutionOptionsEnum {
+	URI_RESOLVE_STRICTLY = 0, /**< Full RFC conformance */
+	URI_RESOLVE_IDENTICAL_SCHEME_COMPAT = 1 << 0 /**< Treat %URI to resolve with identical scheme as having no scheme */
+} UriResolutionOptions; /**< @copydoc UriResolutionOptionsEnum */
 
+
+
+#endif /* URI_BASE_H */

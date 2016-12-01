@@ -709,8 +709,20 @@ static const URI_CHAR * URI_FUNC(ParseIPv6address2)(URI_TYPE(ParserState) * stat
 					{
 						int setZipper = 0;
 
+						if (digitCount > 0) {
+							if (zipperEver) {
+								uriWriteQuadToDoubleByte(digitHistory, digitCount, quadsAfterZipper + 2 * quadsAfterZipperCount);
+								quadsAfterZipperCount++;
+							} else {
+								uriWriteQuadToDoubleByte(digitHistory, digitCount, state->uri->hostData.ip6->data + 2 * quadsDone);
+							}
+							quadsDone++;
+							digitCount = 0;
+						}
+						letterAmong = 0;
+
 						/* Too many quads? */
-						if (quadsDone > 8 - zipperEver) {
+						if (quadsDone >= 8 - zipperEver) {
 							URI_FUNC(StopSyntax)(state, first);
 							return NULL;
 						}
@@ -743,17 +755,6 @@ static const URI_CHAR * URI_FUNC(ParseIPv6address2)(URI_TYPE(ParserState) * stat
 								return NULL; /* ":::+ "*/
 							}
 						}
-						if (digitCount > 0) {
-							if (zipperEver) {
-								uriWriteQuadToDoubleByte(digitHistory, digitCount, quadsAfterZipper + 2 * quadsAfterZipperCount);
-								quadsAfterZipperCount++;
-							} else {
-								uriWriteQuadToDoubleByte(digitHistory, digitCount, state->uri->hostData.ip6->data + 2 * quadsDone);
-							}
-							quadsDone++;
-							digitCount = 0;
-						}
-						letterAmong = 0;
 
 						if (setZipper) {
 							zipperEver = 1;
@@ -2045,7 +2046,7 @@ static URI_INLINE UriBool URI_FUNC(PushPathSegment)(URI_TYPE(ParserState) * stat
 
 	/* First segment ever? */
 	if (state->uri->pathHead == NULL) {
-		/* First segement ever, set head and tail */
+		/* First segment ever, set head and tail */
 		state->uri->pathHead = segment;
 		state->uri->pathTail = segment;
 	} else {
@@ -2079,7 +2080,8 @@ int URI_FUNC(ParseUriEx)(URI_TYPE(ParserState) * state, const URI_CHAR * first, 
 		return state->errorCode;
 	}
 	if (afterUriReference != afterLast) {
-		return URI_ERROR_SYNTAX;
+		URI_FUNC(StopSyntax)(state, afterUriReference);
+		return state->errorCode;
 	}
 	return URI_SUCCESS;
 }
