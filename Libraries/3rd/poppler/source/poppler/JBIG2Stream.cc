@@ -892,6 +892,8 @@ void JBIG2Bitmap::combine(JBIG2Bitmap *bitmap, int x, int y,
   oneByte = x0 == ((x1 - 1) & ~7);
 
   for (yy = y0; yy < y1; ++yy) {
+    if (unlikely(y + yy) >= h)
+      continue;
 
     // one byte per line -- need to mask both left and right side
     if (oneByte) {

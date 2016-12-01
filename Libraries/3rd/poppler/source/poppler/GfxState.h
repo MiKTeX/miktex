@@ -17,7 +17,7 @@
 // Copyright (C) 2006, 2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2006 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Koji Otani <sho@bbr.jp>
-// Copyright (C) 2009-2011, 2013 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009-2011, 2013, 2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 // Copyright (C) 2011 Andrea Canciani <ranma42@gmail.com>
 // Copyright (C) 2011-2014, 2016 Thomas Freitag <Thomas.Freitag@alfa.de>
@@ -861,11 +861,11 @@ protected:
   GBool init(GfxResources *res, Dict *dict, OutputDev *out, GfxState *state);
 
   int type;
+  GBool hasBackground;
+  GBool hasBBox;
   GfxColorSpace *colorSpace;
   GfxColor background;
-  GBool hasBackground;
   double xMin, yMin, xMax, yMax;
-  GBool hasBBox;
 };
 
 //------------------------------------------------------------------------

@@ -171,7 +171,6 @@ FormWidgetButton::FormWidgetButton (PDFDoc *docA, Object *aobj, unsigned num, Re
 	FormWidget(docA, aobj, num, ref, p)
 {
   type = formButton;
-  parent = static_cast<FormFieldButton*>(field);
   onStr = NULL;
 
   Object obj1, obj2;
@@ -200,7 +199,7 @@ char *FormWidgetButton::getOnStr() {
 
   // 12.7.4.2.3 Check Boxes
   //  Yes should be used as the name for the on state
-  return parent->getButtonType() == formButtonCheck ? (char *)"Yes" : NULL;
+  return parent()->getButtonType() == formButtonCheck ? (char *)"Yes" : NULL;
 }
 
 FormWidgetButton::~FormWidgetButton ()
@@ -210,7 +209,7 @@ FormWidgetButton::~FormWidgetButton ()
 
 FormButtonType FormWidgetButton::getButtonType () const
 {
-  return parent->getButtonType ();
+  return parent()->getButtonType ();
 }
 
 void FormWidgetButton::setAppearanceState(const char *state) {
@@ -227,20 +226,25 @@ void FormWidgetButton::updateWidgetAppearance()
 void FormWidgetButton::setState (GBool astate)
 {
   //pushButtons don't have state
-  if (parent->getButtonType() == formButtonPush)
+  if (parent()->getButtonType() == formButtonPush)
     return;
 
   // Silently return if can't set ON state
   if (astate && !onStr)
     return;
 
-  parent->setState(astate ? onStr->getCString() : (char *)"Off");
+  parent()->setState(astate ? onStr->getCString() : (char *)"Off");
   // Parent will call setAppearanceState()
 }
 
 GBool FormWidgetButton::getState ()
 {
-  return onStr ? parent->getState(onStr->getCString()) : gFalse;
+  return onStr ? parent()->getState(onStr->getCString()) : gFalse;
+}
+
+FormFieldButton *FormWidgetButton::parent() const
+{
+  return static_cast<FormFieldButton*>(field);
 }
 
 
@@ -248,17 +252,16 @@ FormWidgetText::FormWidgetText (PDFDoc *docA, Object *aobj, unsigned num, Ref re
 	FormWidget(docA, aobj, num, ref, p)
 {
   type = formText;
-  parent = static_cast<FormFieldText*>(field);
 }
 
 GooString* FormWidgetText::getContent ()
 {
-  return parent->getContent(); 
+  return parent()->getContent();
 }
 
 GooString* FormWidgetText::getContentCopy ()
 {
-  return parent->getContentCopy();
+  return parent()->getContentCopy();
 }
 
 void FormWidgetText::updateWidgetAppearance()
@@ -269,42 +272,42 @@ void FormWidgetText::updateWidgetAppearance()
 
 bool FormWidgetText::isMultiline () const 
 { 
-  return parent->isMultiline(); 
+  return parent()->isMultiline();
 }
 
 bool FormWidgetText::isPassword () const 
 { 
-  return parent->isPassword(); 
+  return parent()->isPassword();
 }
 
 bool FormWidgetText::isFileSelect () const 
 { 
-  return parent->isFileSelect(); 
+  return parent()->isFileSelect();
 }
 
 bool FormWidgetText::noSpellCheck () const 
 { 
-  return parent->noSpellCheck(); 
+  return parent()->noSpellCheck();
 }
 
 bool FormWidgetText::noScroll () const 
 { 
-  return parent->noScroll(); 
+  return parent()->noScroll();
 }
 
 bool FormWidgetText::isComb () const 
 { 
-  return parent->isComb(); 
+  return parent()->isComb();
 }
 
 bool FormWidgetText::isRichText () const 
 { 
-  return parent->isRichText(); 
+  return parent()->isRichText();
 }
 
 int FormWidgetText::getMaxLen () const
 {
-  return parent->getMaxLen ();
+  return parent()->getMaxLen ();
 }
 
 void FormWidgetText::setContent(GooString* new_content)
@@ -314,14 +317,18 @@ void FormWidgetText::setContent(GooString* new_content)
     return;
   }
 
-  parent->setContentCopy(new_content);
+  parent()->setContentCopy(new_content);
+}
+
+FormFieldText *FormWidgetText::parent() const
+{
+  return static_cast<FormFieldText*>(field);
 }
 
 FormWidgetChoice::FormWidgetChoice(PDFDoc *docA, Object *aobj, unsigned num, Ref ref, FormField *p) :
 	FormWidget(docA, aobj, num, ref, p)
 {
   type = formChoice;
-  parent = static_cast<FormFieldChoice*>(field);
 }
 
 FormWidgetChoice::~FormWidgetChoice()
@@ -330,7 +337,7 @@ FormWidgetChoice::~FormWidgetChoice()
 
 bool FormWidgetChoice::_checkRange (int i)
 {
-  if (i < 0 || i >= parent->getNumChoices()) {
+  if (i < 0 || i >= parent()->getNumChoices()) {
     error(errInternal, -1, "FormWidgetChoice::_checkRange i out of range : {0:d}", i);
     return false;
   } 
@@ -344,7 +351,7 @@ void FormWidgetChoice::select (int i)
     return;
   }
   if (!_checkRange(i)) return;
-  parent->select(i);
+  parent()->select(i);
 }
 
 void FormWidgetChoice::toggle (int i)
@@ -354,7 +361,7 @@ void FormWidgetChoice::toggle (int i)
     return;
   }
   if (!_checkRange(i)) return;
-  parent->toggle(i);
+  parent()->toggle(i);
 }
 
 void FormWidgetChoice::deselectAll ()
@@ -363,7 +370,7 @@ void FormWidgetChoice::deselectAll ()
     error(errInternal, -1, "FormWidgetChoice::deselectAll called on a read only field\n");
     return;
   }
-  parent->deselectAll();
+  parent()->deselectAll();
 }
 
 GooString* FormWidgetChoice::getEditChoice ()
@@ -372,7 +379,7 @@ GooString* FormWidgetChoice::getEditChoice ()
     error(errInternal, -1, "FormFieldChoice::getEditChoice called on a non-editable choice\n");
     return NULL;
   }
-  return parent->getEditChoice();
+  return parent()->getEditChoice();
 }
 
 void FormWidgetChoice::updateWidgetAppearance()
@@ -384,7 +391,7 @@ void FormWidgetChoice::updateWidgetAppearance()
 bool FormWidgetChoice::isSelected (int i)
 {
   if (!_checkRange(i)) return false;
-  return parent->isSelected(i);
+  return parent()->isSelected(i);
 }
 
 void FormWidgetChoice::setEditChoice (GooString* new_content)
@@ -398,59 +405,63 @@ void FormWidgetChoice::setEditChoice (GooString* new_content)
     return;
   }
 
-  parent->setEditChoice(new_content);
+  parent()->setEditChoice(new_content);
 }
 
 int FormWidgetChoice::getNumChoices() 
 { 
-  return parent->getNumChoices(); 
+  return parent()->getNumChoices();
 }
 
 GooString* FormWidgetChoice::getChoice(int i) 
 { 
-  return parent->getChoice(i); 
+  return parent()->getChoice(i);
 }
 
 bool FormWidgetChoice::isCombo () const 
 { 
-  return parent->isCombo(); 
+  return parent()->isCombo();
 }
 
 bool FormWidgetChoice::hasEdit () const 
 { 
-  return parent->hasEdit(); 
+  return parent()->hasEdit();
 }
 
 bool FormWidgetChoice::isMultiSelect () const 
 { 
-  return parent->isMultiSelect(); 
+  return parent()->isMultiSelect();
 }
 
 bool FormWidgetChoice::noSpellCheck () const 
 { 
-  return parent->noSpellCheck(); 
+  return parent()->noSpellCheck();
 }
 
 bool FormWidgetChoice::commitOnSelChange () const 
 { 
-  return parent->commitOnSelChange(); 
+  return parent()->commitOnSelChange();
 }
 
 bool FormWidgetChoice::isListBox () const
 {
-  return parent->isListBox();
+  return parent()->isListBox();
+}
+
+FormFieldChoice *FormWidgetChoice::parent() const
+{
+  return static_cast<FormFieldChoice*>(field);
 }
 
 FormWidgetSignature::FormWidgetSignature(PDFDoc *docA, Object *aobj, unsigned num, Ref ref, FormField *p) :
 	FormWidget(docA, aobj, num, ref, p)
 {
   type = formSignature;
-  parent = static_cast<FormFieldSignature*>(field);
 }
 
 SignatureInfo *FormWidgetSignature::validateSignature(bool doVerifyCert, bool forceRevalidation)
 {
-  return parent->validateSignature(doVerifyCert, forceRevalidation);
+  return static_cast<FormFieldSignature*>(field)->validateSignature(doVerifyCert, forceRevalidation);
 }
 
 void FormWidgetSignature::updateWidgetAppearance()
@@ -518,6 +529,8 @@ FormField::FormField(PDFDoc *docA, Object *aobj, const Ref& aref, FormField *par
 
           if (terminal) {
             error(errSyntaxWarning, -1, "Field can't have both Widget AND Field as kids\n");
+            childObj.free();
+            childRef.free();
             continue;
           }
 
@@ -530,6 +543,8 @@ FormField::FormField(PDFDoc *docA, Object *aobj, const Ref& aref, FormField *par
             error(errSyntaxWarning, -1, "Field can't have both Widget AND Field as kids\n");
             obj2.free();
             obj3.free();
+            childObj.free();
+            childRef.free();
             continue;
           }
           _createWidget(&childObj, ref);

@@ -2,15 +2,16 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
-    <TPM:Name>Poppler Qt lib win32</TPM:Name>
-    <TPM:Title>Poppler Qt runtine library, Windows x86</TPM:Title>
+    <TPM:Name>Poppler lib win32</TPM:Name>
+    <TPM:Title>Poppler runtine library, Windows x86</TPM:Title>
     <TPM:Copyright owner="Jakub Kucharski" year="2016"/>
     <TPM:License type="gpl2"/>
-    <TPM:Version>0.46.0</TPM:Version>
+    <TPM:Version>0.49.0</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
-      This package includes the poppler Qt DLL and utilities.
+      Poppler is a PDF rendering library based on the xpdf-3.0 code
+      base.
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${poppler_qt_dll_name}.dll
@@ -19,6 +20,7 @@ texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdffonts.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdfimages.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdfinfo.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdfseparate.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdfsig.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdftohtml.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdftoppm.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pdftops.exe

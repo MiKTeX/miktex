@@ -5,7 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
-// Copyright 2010, 2013 Albert Astals Cid <aacid@kde.org>
+// Copyright 2010, 2013, 2016 Albert Astals Cid <aacid@kde.org>
 // Copyright 2013 Adrian Johnson <ajohnson@redneon.com>
 //
 //========================================================================
@@ -33,6 +33,8 @@ public:
   Hints(BaseStream *str, Linearization *linearization, XRef *xref, SecurityHandler *secHdlr);
   ~Hints();
 
+  GBool isOk() const;
+
   int getPageObjectNum(int page);
   Goffset getPageOffset(int page);
   std::vector<ByteRange>* getPageRanges(int page);
@@ -40,11 +42,8 @@ public:
 private:
 
   void readTables(BaseStream *str, Linearization *linearization, XRef *xref, SecurityHandler *secHdlr);
-  void readPageOffsetTable(Stream *str);
-  void readSharedObjectsTable(Stream *str);
-
-  Guint readBit(Stream *str);
-  Guint readBits(int n, Stream *str);
+  GBool readPageOffsetTable(Stream *str);
+  GBool readSharedObjectsTable(Stream *str);
 
   Guint hintsOffset;
   Guint hintsLength;
@@ -86,10 +85,7 @@ private:
   Guint *groupHasSignature;
   Guint *groupNumObjects;
   Guint *groupXRefOffset;
-
-  int inputBits;
-  char bitsBuffer;
-
+  GBool ok;
 };
 
 #endif

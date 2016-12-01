@@ -25,6 +25,7 @@
 // Copyright (C) 2013 Adrian Perez de Castro <aperez@igalia.com>
 // Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2013 José Aliste <jaliste@src.gnome.org>
+// Copyright (C) 2016 Masamichi Hosoda <trueroad@trueroad.jp>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -150,6 +151,24 @@ public:
 
   Object *getDests();
 
+  // Get the number of named destinations in name-dict
+  int numDests();
+
+  // Get the i'th named destination name in name-dict
+  char *getDestsName(int i);
+
+  // Get the i'th named destination link destination in name-dict
+  LinkDest *getDestsDest(int i);
+
+  // Get the number of named destinations in name-tree
+  int numDestNameTree() { return getDestNameTree()->numEntries(); }
+
+  // Get the i'th named destination name in name-tree
+  GooString *getDestNameTreeName(int i) { return getDestNameTree()->getName(i); }
+
+  // Get the i'th named destination link destination in name-tree
+  LinkDest *getDestNameTreeDest(int i);
+
   // Get the number of embedded files
   int numEmbeddedFiles() { return getEmbeddedFileNameTree()->numEntries(); }
 
@@ -263,6 +282,7 @@ private:
   NameTree *getDestNameTree();
   NameTree *getEmbeddedFileNameTree();
   NameTree *getJSNameTree();
+  LinkDest *createLinkDest(Object *obj);
 #if MULTITHREADED
   GooMutex mutex;
 #endif

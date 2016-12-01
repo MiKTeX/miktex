@@ -17,7 +17,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2005-2013 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2013, 2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Kjartan Maraas <kmaraas@gnome.org>
 // Copyright (C) 2008 Boris Toloknov <tlknv@yandex.ru>
 // Copyright (C) 2008 Haruyuki Kawabe <Haruyuki.Kawabe@unisys.co.jp>
@@ -1395,6 +1395,8 @@ void HtmlOutputDev::drawPngImage(GfxState *state, Stream *str, int width, int he
       p = imgStr->getLine();
       if (!p) {
         error(errIO, -1, "Failed to read PNG. '{0:t}' will be incorrect", fName);
+        delete fName;
+        gfree(row);
         delete writer;
         delete imgStr;
         fclose(f1);

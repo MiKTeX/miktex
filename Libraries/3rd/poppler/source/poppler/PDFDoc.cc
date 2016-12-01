@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005, 2006, 2008 Brad Hards <bradh@frogmouth.net>
-// Copyright (C) 2005, 2007-2009, 2011-2015 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2007-2009, 2011-2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008, 2010 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008, 2010, 2011 Carlos Garcia Campos <carlosgc@gnome.org>
@@ -34,7 +34,7 @@
 // Copyright (C) 2015 Li Junling <lijunling@sina.com>
 // Copyright (C) 2015 André Guerreiro <aguerreiro1985@gmail.com>
 // Copyright (C) 2015 André Esser <bepandre@hotmail.com>
-// Copyright (C) 2016 Jakub Kucharski <jakubkucharski97@gmail.com>
+// Copyright (C) 2016 Jakub Alba <jakubalba@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -581,6 +581,10 @@ GBool PDFDoc::checkLinearization() {
   if (!hints) {
     hints = new Hints(str, linearization, getXRef(), secHdlr);
   }
+  if (!hints->isOk()) {
+    linearizationState = 2;
+    return gFalse;
+  }
   for (int page = 1; page <= linearization->getNumPages(); page++) {
     Object obj;
     Ref pageRef;
@@ -632,7 +636,10 @@ void PDFDoc::setDocInfoModified(Object *infoObj)
 
 void PDFDoc::setDocInfoStringEntry(const char *key, GooString *value)
 {
-  GBool removeEntry = !value || value->getLength() == 0;
+  GBool removeEntry = !value || value->getLength() == 0 || value->hasJustUnicodeMarker();
+  if (removeEntry) {
+    delete value;
+  }
 
   Object infoObj;
   getDocInfo(&infoObj);
@@ -667,7 +674,7 @@ void PDFDoc::setDocInfoStringEntry(const char *key, GooString *value)
 GooString *PDFDoc::getDocInfoStringEntry(const char *key) {
   Object infoObj;
   getDocInfo(&infoObj);
-  if (infoObj.isNull()) {
+  if (!infoObj.isDict()) {
       return NULL;
   }
 

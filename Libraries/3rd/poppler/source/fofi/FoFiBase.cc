@@ -15,6 +15,7 @@
 //
 // Copyright (C) 2008 Ed Avis <eda@waniasset.com>
 // Copyright (C) 2011 Jim Meyering <jim@meyering.net>
+// Copyright (C) 2016 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -201,6 +202,8 @@ Guint FoFiBase::getUVarBE(int pos, int size, GBool *ok) {
 
 GBool FoFiBase::checkRegion(int pos, int size) {
   return pos >= 0 &&
+         pos < INT_MAX - size &&
+         size < INT_MAX - pos &&
          pos + size >= pos &&
          pos + size <= len;
 }

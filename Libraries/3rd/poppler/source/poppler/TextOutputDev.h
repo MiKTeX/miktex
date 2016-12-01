@@ -17,7 +17,7 @@
 // Copyright (C) 2006 Ed Catmur <ed@catmur.co.uk>
 // Copyright (C) 2007, 2008, 2011, 2013 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007 Adrian Johnson <ajohnson@redneon.com>
-// Copyright (C) 2008, 2010, 2015 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010, 2015, 2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Brian Ewins <brian.ewins@gmail.com>
 // Copyright (C) 2012, 2013, 2015, 2016 Jason Crain <jason@aquaticape.us>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
@@ -194,6 +194,7 @@ private:
 
   int rot;			// rotation, multiple of 90 degrees
 				//   (0, 1, 2, or 3)
+  int wMode;			// horizontal (0) or vertical (1) writing mode
   double xMin, xMax;		// bounding box x coordinates
   double yMin, yMax;		// bounding box y coordinates
   double base;			// baseline x or y coordinate
@@ -211,8 +212,8 @@ private:
   double fontSize;		// font size
   GBool spaceAfter;		// set if there is a space between this
 				//   word and the next word on the line
+  GBool underlined;
   TextWord *next;		// next word in line
-  int wMode;			// horizontal (0) or vertical (1) writing mode
 
 #if TEXTOUT_WORD_LIST
   double colorR,		// word color
@@ -220,7 +221,6 @@ private:
          colorB;
 #endif
 
-  GBool underlined;
   AnnotLink *link;
 
   friend class TextPool;

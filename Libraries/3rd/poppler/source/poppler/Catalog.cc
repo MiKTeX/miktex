@@ -32,6 +32,7 @@
 // Copyright (C) 2013 José Aliste <jaliste@src.gnome.org>
 // Copyright (C) 2014 Ed Porras <ed@moto-research.com>
 // Copyright (C) 2015 Even Rouault <even.rouault@spatialys.com>
+// Copyright (C) 2016 Masamichi Hosoda <trueroad@trueroad.jp>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -451,7 +452,7 @@ int Catalog::findPage(int num, int gen) {
 
 LinkDest *Catalog::findDest(GooString *name) {
   LinkDest *dest;
-  Object obj1, obj2;
+  Object obj1;
   GBool found;
 
   // try named destination dictionary then name tree
@@ -472,12 +473,22 @@ LinkDest *Catalog::findDest(GooString *name) {
   if (!found)
     return NULL;
 
-  // construct LinkDest
+  dest = createLinkDest(&obj1);
+  obj1.free();
+
+  return dest;
+}
+
+LinkDest *Catalog::createLinkDest(Object *obj)
+{
+  LinkDest *dest;
+  Object obj2;
+
   dest = NULL;
-  if (obj1.isArray()) {
-    dest = new LinkDest(obj1.getArray());
-  } else if (obj1.isDict()) {
-    if (obj1.dictLookup("D", &obj2)->isArray())
+  if (obj->isArray()) {
+    dest = new LinkDest(obj->getArray());
+  } else if (obj->isDict()) {
+    if (obj->dictLookup("D", &obj2)->isArray())
       dest = new LinkDest(obj2.getArray());
     else
       error(errSyntaxWarning, -1, "Bad named destination value");
@@ -485,11 +496,61 @@ LinkDest *Catalog::findDest(GooString *name) {
   } else {
     error(errSyntaxWarning, -1, "Bad named destination value");
   }
-  obj1.free();
   if (dest && !dest->isOk()) {
     delete dest;
     dest = NULL;
   }
+
+  return dest;
+}
+
+int Catalog::numDests()
+{
+  Object *obj;
+
+  obj= getDests();
+  if (!obj->isDict()) {
+    return 0;
+  }
+  return obj->dictGetLength();
+}
+
+char *Catalog::getDestsName(int i)
+{
+  Object *obj;
+
+  obj= getDests();
+  if (!obj->isDict()) {
+    return NULL;
+  }
+  return obj->dictGetKey(i);
+}
+
+LinkDest *Catalog::getDestsDest(int i)
+{
+  LinkDest *dest;
+  Object *obj, obj1;
+
+  obj= getDests();
+  if (!obj->isDict()) {
+    return NULL;
+  }
+  obj->dictGetVal(i, &obj1);
+  dest = createLinkDest(&obj1);
+  obj1.free();
+
+  return dest;
+}
+
+LinkDest *Catalog::getDestNameTreeDest(int i)
+{
+  LinkDest *dest;
+  Object obj;
+
+  catalogLocker();
+  getDestNameTree()->getValue(i).fetch(xref, &obj);
+  dest = createLinkDest(&obj);
+  obj.free();
 
   return dest;
 }

@@ -167,8 +167,8 @@ public:
   void updateWidgetAppearance();
 
 protected:
+  FormFieldButton *parent() const;
   GooString *onStr;
-  FormFieldButton *parent;
 };
 
 //------------------------------------------------------------------------
@@ -197,7 +197,7 @@ public:
   bool isRichText () const;
   int getMaxLen () const;
 protected:
-  FormFieldText *parent;
+  FormFieldText *parent() const;
 };
 
 //------------------------------------------------------------------------
@@ -238,7 +238,7 @@ public:
   bool isListBox () const;
 protected:
   bool _checkRange (int i);
-  FormFieldChoice *parent;
+  FormFieldChoice *parent() const;
 };
 
 //------------------------------------------------------------------------
@@ -251,9 +251,6 @@ public:
   void updateWidgetAppearance();
 
   SignatureInfo *validateSignature(bool doVerifyCert, bool forceRevalidation);
-
-protected:
-  FormFieldSignature *parent;
 };
 
 //------------------------------------------------------------------------

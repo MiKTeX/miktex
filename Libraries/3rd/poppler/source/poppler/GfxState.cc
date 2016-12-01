@@ -2013,6 +2013,12 @@ GfxColorSpace *GfxICCBasedColorSpace::parse(Array *arr, OutputDev *out, GfxState
     }
   }
   obj2.free();
+  if (altA->getNComps() != nCompsA) {
+      error(errSyntaxWarning, -1, "Bad ICCBased color space - N doesn't match alt color space");
+      delete altA;
+      obj1.free();
+      return NULL;
+  }
   cs = new GfxICCBasedColorSpace(nCompsA, altA, &iccProfileStreamA);
   if (dict->lookup("Range", &obj2)->isArray() &&
       obj2.arrayGetLength() == 2 * nCompsA) {

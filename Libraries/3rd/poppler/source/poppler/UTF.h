@@ -5,6 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright (C) 2012 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2016 Jason Crain <jason@aquaticape.us>
 //
 //========================================================================
 
@@ -35,5 +36,7 @@ int TextStringToUCS4(GooString *textStr, Unicode **ucs4);
 // check if UCS-4 character is valid
 bool UnicodeIsValid(Unicode ucs4);
 
+// is a unicode whitespace character
+bool UnicodeIsWhitespace(Unicode ucs4);
 
 #endif

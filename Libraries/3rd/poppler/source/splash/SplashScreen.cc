@@ -11,7 +11,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 //
 // To see a description of the changes please see the Changelog file that
@@ -30,6 +30,7 @@
 #include <algorithm>
 #include "goo/gmem.h"
 #include "goo/grandom.h"
+#include "goo/GooLikely.h"
 #include "SplashMath.h"
 #include "SplashScreen.h"
 
@@ -377,7 +378,9 @@ SplashScreen::SplashScreen(SplashScreen *screen) {
   sizeM1 = screen->sizeM1;
   log2Size = screen->log2Size;
   mat = (Guchar *)gmallocn(size * size, sizeof(Guchar));
-  memcpy(mat, screen->mat, size * size * sizeof(Guchar));
+  if (likely(mat != NULL)) {
+    memcpy(mat, screen->mat, size * size * sizeof(Guchar));
+  }
   minVal = screen->minVal;
   maxVal = screen->maxVal;
 }

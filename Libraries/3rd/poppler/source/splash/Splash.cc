@@ -1642,9 +1642,7 @@ Splash::~Splash() {
     restoreState();
   }
   delete state;
-  if (vectorAntialias) {
-    delete aaBuf;
-  }
+  delete aaBuf;
 }
 
 //------------------------------------------------------------------------
@@ -5747,24 +5745,26 @@ GBool Splash::gouraudTriangleShadedFill(SplashGouraudColor *shading)
         colorinterp = scanColorMap[0] * scanLimitL + scanColorMap[1];
 
         bitmapOff = scanLineOff + scanLimitL * colorComps;
-        for (int X = scanLimitL; X <= scanLimitR && bitmapOff + colorComps <= bitmapOffLimit; ++X, colorinterp += scanColorMap[0], bitmapOff += colorComps) {
-          // FIXME : standard rectangular clipping can be done for a
-          // complete scanline which is faster
-          // --> see SplashClip and its methods
-          if (!clip->test(X, Y))
-            continue;
+        if (likely(bitmapOff >= 0)) {
+	  for (int X = scanLimitL; X <= scanLimitR && bitmapOff + colorComps <= bitmapOffLimit; ++X, colorinterp += scanColorMap[0], bitmapOff += colorComps) {
+	    // FIXME : standard rectangular clipping can be done for a
+	    // complete scanline which is faster
+	    // --> see SplashClip and its methods
+	    if (!clip->test(X, Y))
+	      continue;
 
-          assert(fabs(colorinterp - (scanColorMap[0] * X + scanColorMap[1])) < 1e-10);
-          assert(bitmapOff == Y * rowSize + colorComps * X && scanLineOff == Y * rowSize);
+	    assert(fabs(colorinterp - (scanColorMap[0] * X + scanColorMap[1])) < 1e-10);
+	    assert(bitmapOff == Y * rowSize + colorComps * X && scanLineOff == Y * rowSize);
 
-          shading->getParameterizedColor(colorinterp, bitmapMode, &bitmapData[bitmapOff]);
+	    shading->getParameterizedColor(colorinterp, bitmapMode, &bitmapData[bitmapOff]);
 
-          // make the shading visible.
-          // Note that opacity is handled by the bDirectBlit stuff, see
-          // above for comments and below for implementation.
-          if (hasAlpha)
-            bitmapAlpha[Y * bitmapWidth + X] = 255;
-        }
+	    // make the shading visible.
+	    // Note that opacity is handled by the bDirectBlit stuff, see
+	    // above for comments and below for implementation.
+	    if (hasAlpha)
+	      bitmapAlpha[Y * bitmapWidth + X] = 255;
+	  }
+	}
       }
     }
   } else {

@@ -30,6 +30,7 @@
 // Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
 // Copyright (C) 2014 Till Kamppeter <till.kamppeter@gmail.com>
 // Copyright (C) 2015 Marek Kasik <mkasik@redhat.com>
+// Copyright (C) 2016 Caolán McNamara <caolanm@redhat.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -48,6 +49,7 @@
 #include <signal.h>
 #include <math.h>
 #include <limits.h>
+#include <algorithm>
 #include "goo/GooString.h"
 #include "goo/GooList.h"
 #include "goo/GooHash.h"
@@ -3354,6 +3356,10 @@ GBool PSOutputDev::checkPageSlice(Page *page, double /*hDPI*/, double /*vDPI*/,
   }
   nStripes = (int)ceil((double)(sliceW * sliceH) /
 		       (double)rasterizationSliceSize);
+  if (unlikely(nStripes == 0)) {
+      delete splashOut;
+      return gFalse;
+  }
   stripeH = (sliceH + nStripes - 1) / nStripes;
 
   // render the stripes

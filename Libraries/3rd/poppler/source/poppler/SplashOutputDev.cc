@@ -1328,6 +1328,10 @@ T3FontCache::~T3FontCache() {
 struct T3GlyphStack {
   Gushort code;			// character code
 
+  GBool haveDx;			// set after seeing a d0/d1 operator
+  GBool doNotCache;		// set if we see a gsave/grestore before
+				//   the d0/d1
+
   //----- cache info
   T3FontCache *cache;		// font cache for the current font
   T3FontCacheTag *cacheTag;	// pointer to cache tag for the glyph
@@ -1605,11 +1609,21 @@ void SplashOutputDev::endPage() {
 
 void SplashOutputDev::saveState(GfxState *state) {
   splash->saveState();
+  if (t3GlyphStack && !t3GlyphStack->haveDx) {
+    t3GlyphStack->doNotCache = gTrue;
+    error(errSyntaxWarning, -1,
+	  "Save (q) operator before d0/d1 in Type 3 glyph");
+  }
 }
 
 void SplashOutputDev::restoreState(GfxState *state) {
   splash->restoreState();
   needFontUpdate = gTrue;
+  if (t3GlyphStack && !t3GlyphStack->haveDx) {
+    t3GlyphStack->doNotCache = gTrue;
+    error(errSyntaxWarning, -1,
+	  "Restore (Q) operator before d0/d1 in Type 3 glyph");
+  }
 }
 
 void SplashOutputDev::updateAll(GfxState *state) {
@@ -2673,8 +2687,8 @@ GBool SplashOutputDev::beginType3Char(GfxState *state, double x, double y,
   t3GlyphStack->cache = t3Font;
   t3GlyphStack->cacheTag = NULL;
   t3GlyphStack->cacheData = NULL;
-
-  haveT3Dx = gFalse;
+  t3GlyphStack->haveDx = gFalse;
+  t3GlyphStack->doNotCache = gFalse;
 
   return gFalse;
 }
@@ -2704,7 +2718,7 @@ void SplashOutputDev::endType3Char(GfxState *state) {
 }
 
 void SplashOutputDev::type3D0(GfxState *state, double wx, double wy) {
-  haveT3Dx = gTrue;
+  t3GlyphStack->haveDx = gTrue;
 }
 
 void SplashOutputDev::type3D1(GfxState *state, double wx, double wy,
@@ -2716,10 +2730,14 @@ void SplashOutputDev::type3D1(GfxState *state, double wx, double wy,
   int i, j;
 
   // ignore multiple d0/d1 operators
-  if (haveT3Dx) {
+  if (t3GlyphStack->haveDx) {
     return;
   }
-  haveT3Dx = gTrue;
+  t3GlyphStack->haveDx = gTrue;
+  // don't cache if we got a gsave/grestore before the d1
+  if (t3GlyphStack->doNotCache) {
+    return;
+  }
 
   if (unlikely(t3GlyphStack == NULL)) {
     error(errSyntaxWarning, -1, "t3GlyphStack was null in SplashOutputDev::type3D1");
@@ -4767,17 +4785,17 @@ GBool SplashOutputDev::gouraudTriangleShadedFill(GfxState *state, GfxGouraudTria
     default:
     break;
   }
-  SplashGouraudColor *splashShading = new SplashGouraudPattern(bDirectColorTranslation, state, shading, colorMode);
   // restore vector antialias because we support it here
   if (shading->isParameterized()) {
+    SplashGouraudColor *splashShading = new SplashGouraudPattern(bDirectColorTranslation, state, shading, colorMode);
     GBool vaa = getVectorAntialias();
     GBool retVal = gFalse;
     setVectorAntialias(gTrue);
     retVal = splash->gouraudTriangleShadedFill(splashShading);
     setVectorAntialias(vaa);
+    delete splashShading;
     return retVal;
   }
-  delete splashShading;
   return gFalse;
 }
 

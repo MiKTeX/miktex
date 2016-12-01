@@ -651,9 +651,9 @@ protected:
   // Delete appearance streams and reset appearance state
   void invalidateAppearance();
 
-  int refCnt;
-
   Object annotObj;
+
+  int refCnt;
   
   // required data
   AnnotSubtype type;                // Annotation type
@@ -661,9 +661,9 @@ protected:
 
   // optional data
   GooString *contents;              // Contents
-  int       page;                   // P
   GooString *name;                  // NM
   GooString *modified;              // M
+  int       page;                   // P
   Guint flags;                      // F (must be a 32 bit unsigned int)
   AnnotAppearance *appearStreams;   // AP
   Object appearance;     // a reference to the Form XObject stream

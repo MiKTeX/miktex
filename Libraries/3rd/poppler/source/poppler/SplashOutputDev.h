@@ -459,7 +459,6 @@ private:
     t3FontCache[splashOutT3FontCacheSize];
   int nT3Fonts;			// number of valid entries in t3FontCache
   T3GlyphStack *t3GlyphStack;	// Type 3 glyph context stack
-  GBool haveT3Dx;		// set after seeing a d0/d1 operator
 
   SplashFont *font;		// current font
   GBool needFontUpdate;		// set when the font needs to be updated

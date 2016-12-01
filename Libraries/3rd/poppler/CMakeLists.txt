@@ -1,4 +1,4 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
 ## Copyright (C) 2009-2016 Christian Schenk
 ## 
@@ -22,7 +22,7 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/poppler")
 set(projdir ${CMAKE_CURRENT_SOURCE_DIR})
   
 set(POPPLER_MAJOR_VERSION "0")
-set(POPPLER_MINOR_VERSION "46")
+set(POPPLER_MINOR_VERSION "49")
 set(POPPLER_MICRO_VERSION "0")
 set(POPPLER_VERSION "${POPPLER_MAJOR_VERSION}.${POPPLER_MINOR_VERSION}.${POPPLER_MICRO_VERSION}")
 

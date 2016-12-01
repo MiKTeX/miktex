@@ -2615,9 +2615,13 @@ void TextPage::addChar(GfxState *state, double x, double y,
   }
 
   // break words at space character
-  if (uLen == 1 && u[0] == (Unicode)0x20) {
+  if (uLen == 1 && UnicodeIsWhitespace(u[0])) {
     charPos += nBytes;
     endWord();
+    return;
+  } else if (uLen == 1 && u[0] == (Unicode)0x0) {
+    // ignore null characters
+    charPos += nBytes;
     return;
   }
 

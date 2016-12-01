@@ -21,7 +21,7 @@
 // Copyright (C) 2012-2014 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Jason Crain <jason@aquaticape.us>
 // Copyright (C) 2015 Adam Reichold <adam.reichold@t-online.de>
-// Copyright (C) 2016 Jakub Kucharski <jakubkucharski97@gmail.com>
+// Copyright (C) 2016 Jakub Alba <jakubalba@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -160,7 +160,8 @@ public:
   // Return true if string ends with suffix
   GBool endsWith(const char *suffix) const;
 
-  GBool hasUnicodeMarker(void);
+  GBool hasUnicodeMarker(void) const;
+  GBool hasJustUnicodeMarker(void) const { return length == 2 && hasUnicodeMarker(); }
 
   // Sanitizes the string so that it does
   // not contain any ( ) < > [ ] { } / %
@@ -175,14 +176,8 @@ private:
   // You can tweak the final object size for different time/space tradeoffs.
   // In libc malloc(), rounding is 16 so it's best to choose a value that
   // is a multiple of 16.
-  class MemoryLayout {
-      char c[sizeof(char*)];
-      int i;
-      char* s;
-  };
-
   static const int STR_FINAL_SIZE = 32;
-  static const int STR_STATIC_SIZE = STR_FINAL_SIZE - sizeof(MemoryLayout) + sizeof(char*);
+  static const int STR_STATIC_SIZE = STR_FINAL_SIZE - sizeof(int) - sizeof(char*);
 
   int  roundedSize(int len);
 

@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2008 Julien Rebetez <julien@fhtagn.net>
-// Copyright (C) 2008, 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010, 2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Matthias Franz <matthias@ktug.or.kr>
 // Copyright (C) 2009 David Benjamin <davidben@mit.edu>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
@@ -349,6 +349,8 @@ BaseCryptStream::BaseCryptStream(Stream *strA, Guchar *fileKey, CryptAlgorithm a
   case cryptAES256:
     objKeyLength = keyLength;
     break;
+  case cryptNone:
+    break;
   }
 
   charactersRead = 0;
@@ -433,6 +435,8 @@ void EncryptStream::reset() {
     state.aes256.bufIdx = 0;
     state.aes256.paddingReached = gFalse;
     break;
+  case cryptNone:
+    break;
   }
 }
 
@@ -472,6 +476,8 @@ int EncryptStream::lookChar() {
     } else {
       c = state.aes256.buf[state.aes256.bufIdx++];
     }
+    break;
+  case cryptNone:
     break;
   }
   return (nextCharBuff = c);
@@ -513,6 +519,8 @@ void DecryptStream::reset() {
     }
     state.aes256.bufIdx = 16;
     break;
+  case cryptNone:
+    break;
   }
 }
 
@@ -553,6 +561,8 @@ int DecryptStream::lookChar() {
     } else {
       c = state.aes256.buf[state.aes256.bufIdx++];
     }
+    break;
+  case cryptNone:
     break;
   }
   return (nextCharBuff = c);

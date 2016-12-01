@@ -189,3 +189,16 @@ target_link_libraries(pdfunite
   ${poppler_lib_name}
 )
 install(TARGETS pdfunite DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+set(pdfsig_sources
+  ${MIKTEX_LIBRARY_WRAPPER}
+  ${common_sources}
+  ${projdir}/source/utils/pdfsig.cc
+)
+add_executable(pdfsig ${pdfsig_sources})
+set_property(TARGET pdfsig PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+target_link_libraries(pdfsig
+  ${app_dll_name}
+  ${poppler_lib_name}
+)
+install(TARGETS pdfsig DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
