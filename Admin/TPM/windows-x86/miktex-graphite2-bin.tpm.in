@@ -6,11 +6,20 @@
     <TPM:Title>Graphite2 runtime library, Windows x86</TPM:Title>
     <TPM:Copyright owner="SIL International" year="2010"/>
     <TPM:License type="lgpl2.1"/>
-    <TPM:Version>1.3.8</TPM:Version>
+    <TPM:Version>1.3.9</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
-      This package includes the graphite2 DLL.
+      Graphite is a system that can be used to create “smart fonts”
+      capable of displaying writing systems with various complex
+      behaviors. A smart font contains not only letter shapes but also
+      additional instructions indicating how to combine and position
+      the letters in complex ways.
+      
+      Graphite was primarily developed to provide the flexibility
+      needed for minority languages which often need to be written
+      according to slightly different rules than well-known languages
+      that use the same script.
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${graphite2_dll_name}.dll
