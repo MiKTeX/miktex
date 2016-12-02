@@ -433,7 +433,7 @@ void winProcess::WaitForExit()
 
 bool winProcess::WaitForExit(int milliseconds)
 {
-  return WaitForSingleObject(processInformation.hProcess, static_cast<DWORD>(milliseconds) == WAIT_OBJECT_0);
+  return WaitForSingleObject(processInformation.hProcess, static_cast<DWORD>(milliseconds)) == WAIT_OBJECT_0;
 }
 
 int winProcess::get_ExitCode() const

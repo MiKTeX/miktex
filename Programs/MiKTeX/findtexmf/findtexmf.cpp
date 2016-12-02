@@ -260,7 +260,7 @@ void FindTeXMF::Run(int argc, const char ** argv)
 
     case OPT_FILE_TYPE:
 
-      fileType = session->DeriveFileType(optArg.c_str());
+      fileType = session->DeriveFileType(optArg);
       if (fileType == FileType::None)
       {
         FatalError(T_("Unknown file type: %s."), optArg.c_str());
@@ -281,7 +281,7 @@ void FindTeXMF::Run(int argc, const char ** argv)
     case OPT_SHOW_PATH:
 
     {
-      FileType filetype = session->DeriveFileType(optArg.c_str());
+      FileType filetype = session->DeriveFileType(optArg);
       if (filetype == FileType::None)
       {
         FatalError(T_("Unknown file type: %s."), optArg.c_str());
@@ -342,7 +342,7 @@ void FindTeXMF::Run(int argc, const char ** argv)
     FileType filetype = fileType;
     if (filetype == FileType::None)
     {
-      filetype = session->DeriveFileType(fileName.c_str());
+      filetype = session->DeriveFileType(fileName);
       if (filetype == FileType::None)
       {
         filetype = FileType::TEX;

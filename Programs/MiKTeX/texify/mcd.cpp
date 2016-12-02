@@ -949,14 +949,14 @@ void Driver::TexinfoUncomment(const PathName & pathFrom, const PathName & pathTo
 
 void Driver::SetIncludeDirectories()
 {
-  pSession->AddInputDirectory(pOptions->startDirectory.GetData(), true);
+  pSession->AddInputDirectory(pOptions->startDirectory, true);
   if (originalInputDirectory != pOptions->startDirectory)
   {
-    pSession->AddInputDirectory(originalInputDirectory.GetData(), true);
+    pSession->AddInputDirectory(originalInputDirectory, true);
   }
   for (const string & dir : pOptions->includeDirectories)
   {
-    pSession->AddInputDirectory(dir.c_str(), true);
+    pSession->AddInputDirectory(dir, true);
   }
 }
 

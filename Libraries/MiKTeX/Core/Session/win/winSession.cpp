@@ -98,7 +98,7 @@ void SessionImpl::ConnectToServer()
       }
       if (hr.Failed())
       {
-	MIKTEX_FATAL_ERROR(MSG_CANNOT_START_SERVER, "hr", hr.GetText());
+	MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.GetText());
       }
     }
   }
@@ -783,13 +783,11 @@ bool SessionImpl::ShowManualPageAndWait(HWND hWnd, unsigned long topic)
 #endif
 }
 
-bool SessionImpl::IsFileAlreadyOpen(const char * lpszFileName)
+bool SessionImpl::IsFileAlreadyOpen(const PathName & fileName)
 {
-  MIKTEX_ASSERT_STRING(lpszFileName);
-
   unsigned long error = NO_ERROR;
 
-  HANDLE hFile = CreateFileW(PathName(lpszFileName).ToWideCharString().c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+  HANDLE hFile = CreateFileW(fileName.ToWideCharString().c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
   if (hFile == INVALID_HANDLE_VALUE)
   {
@@ -799,25 +797,24 @@ bool SessionImpl::IsFileAlreadyOpen(const char * lpszFileName)
   {
     if (!CloseHandle(hFile))
     {
-      MIKTEX_FATAL_WINDOWS_ERROR_2("CloseHandle", "filename", lpszFileName);
+      MIKTEX_FATAL_WINDOWS_ERROR_2("CloseHandle", "filename", fileName.ToString());
     }
   }
 
   return hFile == INVALID_HANDLE_VALUE && error == ERROR_SHARING_VIOLATION;
 }
 
-void SessionImpl::ScheduleFileRemoval(const char * lpszFileName)
+void SessionImpl::ScheduleFileRemoval(const PathName & fileName)
 {
-  MIKTEX_ASSERT_STRING(lpszFileName);
   if (IsMiKTeXPortable())
   {
     // todo
     return;
   }
-  trace_files->WriteFormattedLine("core", T_("scheduling removal of %s"), Q_(lpszFileName));
-  if (!MoveFileExW(PathName(lpszFileName).ToWideCharString().c_str(), 0, MOVEFILE_DELAY_UNTIL_REBOOT))
+  trace_files->WriteFormattedLine("core", T_("scheduling removal of %s"), Q_(fileName));
+  if (!MoveFileExW(fileName.ToWideCharString().c_str(), 0, MOVEFILE_DELAY_UNTIL_REBOOT))
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("MoveFileExW", "filename", lpszFileName);
+    MIKTEX_FATAL_WINDOWS_ERROR_2("MoveFileExW", "filename", fileName.ToString());
   }
 }
 

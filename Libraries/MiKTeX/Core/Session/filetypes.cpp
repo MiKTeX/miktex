@@ -519,19 +519,19 @@ FileTypeInfo SessionImpl::GetFileTypeInfo(FileType fileType)
   return *GetInternalFileTypeInfo(fileType);
 }
 
-FileType SessionImpl::DeriveFileType(const char * lpszPath)
+FileType SessionImpl::DeriveFileType(const PathName & fileName)
 {
   MIKTEX_ASSERT_STRING(lpszPath);
 
   RegisterFileTypes();
 
-  const char * lpszExt = GetFileNameExtension(lpszPath);
+  const char * lpszExt = GetFileNameExtension(fileName.GetData());
 
   for (int idx = 1; idx < fileTypes.size(); ++idx)
   {
     if (lpszExt == nullptr)
     {
-      if (Utils::Equals(fileTypes[idx].fileTypeString.c_str(), lpszPath))
+      if (Utils::Equals(fileTypes[idx].fileTypeString.c_str(), fileName.GetData()))
       {
         return fileTypes[idx].fileType;
       }

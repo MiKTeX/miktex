@@ -160,7 +160,7 @@ MIKTEXW2CCEEAPI(void) Web2C::SetOutputDirectory(const PathName & path)
     auxDirectory = outputDirectory;
   }
 #endif
-  session->AddInputDirectory(outputDirectory.GetData(), true);
+  session->AddInputDirectory(outputDirectory, true);
 }
 
 MIKTEXW2CCEEAPI(void) miktex_web2c_set_output_directory(const char * lpszPath)

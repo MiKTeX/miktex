@@ -642,13 +642,11 @@ void SessionImpl::SetCWDEnv()
   Utils::SetEnvironmentString(MIKTEX_ENV_CWD_LIST, str.c_str());
 }
 
-void SessionImpl::AddInputDirectory(const char * lpszPath, bool atEnd)
+void SessionImpl::AddInputDirectory(const PathName & path, bool atEnd)
 {
-  MIKTEX_ASSERT_STRING(lpszPath);
-
-  if (!Utils::IsAbsolutePath(lpszPath))
+  if (!Utils::IsAbsolutePath(path.GetData()))
   {
-    INVALID_ARGUMENT("path", lpszPath);
+    INVALID_ARGUMENT("path", path.ToString());
   }
 
   // clear the search path cache
@@ -656,11 +654,11 @@ void SessionImpl::AddInputDirectory(const char * lpszPath, bool atEnd)
 
   if (atEnd)
   {
-    inputDirectories.push_back(lpszPath);
+    inputDirectories.push_back(path);
   }
   else
   {
-    inputDirectories.push_front(lpszPath);
+    inputDirectories.push_front(path);
   }
 
 #if 1

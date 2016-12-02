@@ -459,7 +459,7 @@ public:
   virtual void MIKTEXTHISCALL PushBackAppName(const std::string & name) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL AddInputDirectory(const char * lpszPath, bool atEnd) = 0;
+  virtual void MIKTEXTHISCALL AddInputDirectory(const PathName & path, bool atEnd) = 0;
 
   /// Gets a special path.
   /// @param specialPath Specifies special path.
@@ -585,12 +585,12 @@ public:
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  virtual bool MIKTEXTHISCALL IsFileAlreadyOpen(const char * lpszFileName) = 0;
+  virtual bool MIKTEXTHISCALL IsFileAlreadyOpen(const PathName & fileName) = 0;
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  virtual void MIKTEXTHISCALL ScheduleFileRemoval(const char * lpszFileName) = 0;
+  virtual void MIKTEXTHISCALL ScheduleFileRemoval(const PathName & fileName) = 0;
 #endif
 
 public:
@@ -609,7 +609,7 @@ public:
   virtual std::vector<FileInfoRecord> MIKTEXTHISCALL GetFileInfoRecords() = 0;
 
 public:
-  virtual FileType MIKTEXTHISCALL DeriveFileType(const char * lpszPath) = 0;
+  virtual FileType MIKTEXTHISCALL DeriveFileType(const PathName & fileName) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL FindFile(const char * lpszFileName, const char * lpszPathList, FindFileOptionSet options, std::vector<PathName> & result) = 0;

@@ -326,7 +326,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
         MIKTEX_FATAL_ERROR_2(T_("The specified auxiliary directory does not exist."), "directory", auxDirectory.ToString());
       }
     }
-    session->AddInputDirectory(auxDirectory.GetData(), true);
+    session->AddInputDirectory(auxDirectory, true);
     break;
 
   case OPT_BUF_SIZE:
@@ -468,7 +468,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     {
       auxDirectory = outputDirectory;
     }
-    session->AddInputDirectory(outputDirectory.GetData(), true);
+    session->AddInputDirectory(outputDirectory, true);
     break;
 
   case OPT_PARAM_SIZE:

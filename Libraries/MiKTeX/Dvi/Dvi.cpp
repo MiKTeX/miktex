@@ -604,7 +604,7 @@ PageStatus DviImpl::GetPageStatus(int pageIdx)
 
     lastChecked = now;
 
-    if (session->IsFileAlreadyOpen(dviFileName.GetData()))
+    if (session->IsFileAlreadyOpen(dviFileName))
     {
       return PageStatus::Loaded;
     }
@@ -659,7 +659,7 @@ void DviImpl::DoPage(int pageIdx)
 
   try
   {
-    if (session->IsFileAlreadyOpen(dviFileName.GetData()))
+    if (session->IsFileAlreadyOpen(dviFileName))
     {
       trace_error->WriteLine("libdvi", T_("the DVI file is used by another process"));
       throw DviFileInUseException("", T_("The DVI file is used by another process."), MiKTeXException::KVMAP(), MIKTEX_SOURCE_LOCATION());

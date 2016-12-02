@@ -125,7 +125,7 @@ public:
   void PushBackAppName(const std::string & name) override;
 
 public:
-  void AddInputDirectory(const char * lpszPath, bool atEnd) override;
+  void AddInputDirectory(const MiKTeX::Core::PathName & path, bool atEnd) override;
 
 public:
   MiKTeX::Core::PathName GetSpecialPath(MiKTeX::Core::SpecialPath specialPath) override;
@@ -228,12 +228,12 @@ public:
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  bool IsFileAlreadyOpen(const char * lpszFileName) override;
+  bool IsFileAlreadyOpen(const MiKTeX::Core::PathName & fileName) override;
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  void ScheduleFileRemoval(const char * lpszFileName) override;
+  void ScheduleFileRemoval(const MiKTeX::Core::PathName & fileName) override;
 #endif
 
 public:
@@ -252,7 +252,7 @@ public:
   std::vector<MiKTeX::Core::FileInfoRecord> GetFileInfoRecords() override;
 
 public:
-  MiKTeX::Core::FileType DeriveFileType(const char * lpszPath) override;
+  MiKTeX::Core::FileType DeriveFileType(const MiKTeX::Core::PathName & fileName) override;
 
 public:
   bool FindFile(const char * lpszFileName, const char * lpszPathList, FindFileOptionSet options, std::vector<MiKTeX::Core::PathName> & result) override;
