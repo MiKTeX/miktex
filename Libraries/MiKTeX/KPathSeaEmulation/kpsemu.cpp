@@ -1030,7 +1030,7 @@ MIKTEXKPSCEEAPI(const char *) miktex_kpathsea_init_format(kpathsea pKpseInstance
     FileType ft = ToFileType(format);
     FileTypeInfo fti = pSession->GetFileTypeInfo(ft);
     VarExpand expander;
-    std::string searchPath = pSession->Expand(fti.searchPath.c_str(), { ExpandOption::Values, ExpandOption::Braces }, &expander);
+    std::string searchPath = pSession->Expand(fti.searchPath, { ExpandOption::Values, ExpandOption::Braces }, &expander);
     formatInfo.path = ToUnix(xstrdup(searchPath.c_str()));
     formatInfo.type = xstrdup(fti.fileTypeString.c_str());
     formatInfo.suffix = ToStringList(fti.fileNameExtensions);

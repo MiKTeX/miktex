@@ -236,11 +236,11 @@ void MakePk::MakeModeName(string & mode, int bdpi)
     FatalError(T_("Neither BDPI nor MODE were specified."));
   }
   MIKTEXMFMODE mfmode;
-  if (!session->DetermineMETAFONTMode(bdpi, &mfmode))
+  if (!session->DetermineMETAFONTMode(bdpi, mfmode))
   {
     FatalError(T_("The METAFONT mode could not be determined."));
   }
-  mode = mfmode.szMnemonic;
+  mode = mfmode.mnemonic;
 }
 
 bool GetInstructionParam(const string & str, const string & instruction, string & param)
@@ -336,9 +336,9 @@ void MakePk::CheckOptions(int * pBaseDPI, int dpi, const char * lpszMode)
 #endif
   int i = 0;
   bool found = false;
-  while (!found && session->GetMETAFONTMode(i, &mfmode))
+  while (!found && session->GetMETAFONTMode(i, mfmode))
   {
-    if (Utils::Equals(lpszMode, mfmode.szMnemonic))
+    if (mfmode.mnemonic == lpszMode)
     {
       found = true;
     }
@@ -355,11 +355,11 @@ void MakePk::CheckOptions(int * pBaseDPI, int dpi, const char * lpszMode)
   {
     if (*pBaseDPI == 0)
     {
-      *pBaseDPI = mfmode.iHorzRes;
+      *pBaseDPI = mfmode.horizontalResolution;
     }
-    if (mfmode.iHorzRes != *pBaseDPI)
+    if (mfmode.horizontalResolution != *pBaseDPI)
     {
-      FatalError(T_("Specified BDPI (%d) doesn't match %s resolution (%d)."), *pBaseDPI, Q_(lpszMode), mfmode.iHorzRes);
+      FatalError(T_("Specified BDPI (%d) doesn't match %s resolution (%d)."), *pBaseDPI, Q_(lpszMode), mfmode.horizontalResolution);
     }
   }
 }

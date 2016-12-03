@@ -831,7 +831,7 @@ bool SessionImpl::GetSessionValue(const char * lpszSectionName, const char * lps
   // expand the value
   if (haveValue)
   {
-    string expandedValue = Expand(value.c_str(), nullptr);
+    string expandedValue = Expand(value, nullptr);
     value = expandedValue;
   }
 #endif
@@ -1217,45 +1217,41 @@ void SessionImpl::ConfigureFile(const PathName & pathIn, const PathName & pathOu
   }
 }
 
-std::string SessionImpl::Expand(const char * lpszToBeExpanded)
+std::string SessionImpl::Expand(const string & toBeExpanded)
 {
-  return Expand(lpszToBeExpanded, { ExpandOption::Values }, nullptr);
+  return Expand(toBeExpanded, { ExpandOption::Values }, nullptr);
 }
 
-std::string SessionImpl::Expand(const char * lpszToBeExpanded, HasNamedValues * callback)
+std::string SessionImpl::Expand(const string & toBeExpanded, HasNamedValues * callback)
 {
-  return Expand(lpszToBeExpanded, { ExpandOption::Values }, callback);
+  return Expand(toBeExpanded, { ExpandOption::Values }, callback);
 }
 
-std::string SessionImpl::Expand(const char * lpszToBeExpanded, ExpandOptionSet options, HasNamedValues * callback)
+std::string SessionImpl::Expand(const string & toBeExpanded, ExpandOptionSet options, HasNamedValues * callback)
 {
-  string result;
+  string result = toBeExpanded;
   if (options[ExpandOption::Braces])
   {
-    result = MakeSearchPath(ExpandBraces(lpszToBeExpanded));
-    lpszToBeExpanded = result.c_str();
+    result = MakeSearchPath(ExpandBraces(result));
   }
   if (options[ExpandOption::Values])
   {
-    result = ExpandValues(lpszToBeExpanded, callback);
-    lpszToBeExpanded = result.c_str();
+    result = ExpandValues(result, callback);
   }
   if (options[ExpandOption::Braces])
   {
-    result = MakeSearchPath(ExpandBraces(lpszToBeExpanded));
-    lpszToBeExpanded = result.c_str();
+    result = MakeSearchPath(ExpandBraces(result));
   }
   if (options[ExpandOption::PathPatterns])
   {
-    result = MakeSearchPath(ExpandPathPatterns(lpszToBeExpanded));
-    lpszToBeExpanded = result.c_str();
+    result = MakeSearchPath(ExpandPathPatterns(result));
   }
   return result;
 }
 
-std::string SessionImpl::ExpandValues(const char * lpszToBeExpanded, HasNamedValues * callback)
+std::string SessionImpl::ExpandValues(const string & toBeExpanded, HasNamedValues * callback)
 {
-  const char * lpsz = lpszToBeExpanded;
+  const char * lpsz = toBeExpanded.c_str();
   string valueName;
   string expansion;
   expansion.reserve(strlen(lpsz));

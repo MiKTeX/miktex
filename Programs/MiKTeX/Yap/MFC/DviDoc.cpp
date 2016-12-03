@@ -140,13 +140,13 @@ void DviDoc::CreateDocument(const char * lpszPathName)
   fileStatus = DVIFILE_NOT_LOADED;
   modificationTime = File::GetLastWriteTime(lpszPathName);
   MIKTEXMFMODE mfmode;
-  if (!pSession->GetMETAFONTMode(GetMetafontMode(), &mfmode))
+  if (!pSession->GetMETAFONTMode(GetMetafontMode(), mfmode))
   {
     MIKTEX_UNEXPECTED();
   }
   MIKTEX_ASSERT(pDvi == nullptr);
   pDvi = Dvi::Create(lpszPathName,
-    mfmode.szMnemonic,
+    mfmode.mnemonic.c_str(),
     GetResolution(),
     GetShrinkFactor(),
     IsPrintContext() ? DviAccess::Sequential : DviAccess::Random,
@@ -184,22 +184,22 @@ const
 {
   MIKTEXMFMODE mfmode;
   MIKTEX_ASSERT(g_pYapConfig != nullptr);
-  if (!pSession->GetMETAFONTMode(g_pYapConfig->displayMetafontMode, &mfmode))
+  if (!pSession->GetMETAFONTMode(g_pYapConfig->displayMetafontMode, mfmode))
   {
     MIKTEX_UNEXPECTED();
   }
-  return mfmode.iHorzRes;
+  return mfmode.horizontalResolution;
 }
 
 int DviDoc::GetPrinterResolution() const
 {
   MIKTEXMFMODE mfmode;
   MIKTEX_ASSERT(g_pYapConfig != nullptr);
-  if (!pSession->GetMETAFONTMode(g_pYapConfig->printerMetafontMode, &mfmode))
+  if (!pSession->GetMETAFONTMode(g_pYapConfig->printerMetafontMode, mfmode))
   {
     MIKTEX_UNEXPECTED();
   }
-  return mfmode.iHorzRes;
+  return mfmode.horizontalResolution;
 }
 
 void DviDoc::Shrink(int d)

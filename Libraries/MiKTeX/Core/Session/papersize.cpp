@@ -280,11 +280,11 @@ PaperSizeInfo SessionImpl::GetPaperSizeInfo(const char * lpszDvipsName)
   MIKTEX_FATAL_ERROR_2(T_("Unknown paper size."), "name", lpszDvipsName);
 }
 
-PaperSizeInfo PaperSizeInfo::Parse(const char * lpszSpec)
+PaperSizeInfo PaperSizeInfo::Parse(const string & spec)
 {
   double texWidth;
 
-  CharBuffer<char> buf(lpszSpec);
+  CharBuffer<char> buf(spec);
 
   char * lpsz = buf.GetData();
 

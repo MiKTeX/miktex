@@ -31,11 +31,11 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-void SessionImpl::ExpandRootDirectories(const char * lpszToBeExpanded, vector<PathName> & paths)
+void SessionImpl::ExpandRootDirectories(const string & toBeExpanded, vector<PathName> & paths)
 {
-  if (lpszToBeExpanded[0] == '%' && (lpszToBeExpanded[1] == 'R' || lpszToBeExpanded[1] == 'r'))
+  if (toBeExpanded[0] == '%' && (toBeExpanded[1] == 'R' || toBeExpanded[1] == 'r'))
   {
-    const char * lpszSuffix = lpszToBeExpanded + 2;
+    const char * lpszSuffix = toBeExpanded.c_str() + 2;
     if (IsDirectoryDelimiter(*lpszSuffix))
     {
       ++lpszSuffix;
@@ -47,7 +47,7 @@ void SessionImpl::ExpandRootDirectories(const char * lpszToBeExpanded, vector<Pa
       path2.Append(lpszSuffix, false);
       paths.push_back(path2);
     }
-    if (lpszToBeExpanded[1] == 'R')
+    if (toBeExpanded[1] == 'R')
     {
       PathName path2 = MPM_ROOT_PATH;
       path2.AppendDirectoryDelimiter();
@@ -57,14 +57,14 @@ void SessionImpl::ExpandRootDirectories(const char * lpszToBeExpanded, vector<Pa
   }
   else
   {
-    paths.push_back(lpszToBeExpanded);
+    paths.push_back(toBeExpanded);
   }
 }
 
-vector<PathName> SessionImpl::ExpandRootDirectories(const char * lpszToBeExpanded)
+vector<PathName> SessionImpl::ExpandRootDirectories(const string & toBeExpanded)
 {
   vector<PathName> result;
-  for (CSVList path(lpszToBeExpanded, PATH_DELIMITER); path.GetCurrent() != nullptr; ++path)
+  for (CSVList path(toBeExpanded, PATH_DELIMITER); path.GetCurrent() != nullptr; ++path)
   {
     ExpandRootDirectories(path.GetCurrent(), result);
   }
@@ -139,18 +139,18 @@ void SessionImpl::PushBackPath(vector<PathName> & vec, const PathName & path)
   }
 }
 
-void SessionImpl::SplitSearchPath(vector<PathName> & vec, const char * lpszSearchPath)
+void SessionImpl::SplitSearchPath(vector<PathName> & vec, const string & searchPath)
 {
-  for (CSVList path(lpszSearchPath, PATH_DELIMITER); path.GetCurrent() != nullptr; ++path)
+  for (CSVList path(searchPath, PATH_DELIMITER); path.GetCurrent() != nullptr; ++path)
   {
     PushBackPath(vec, path.GetCurrent());
   }
 }
 
-vector<PathName> SessionImpl::SplitSearchPath(const char * lpszSearchPath)
+vector<PathName> SessionImpl::SplitSearchPath(const string & searchPath)
 {
   vector<PathName> vec;
-  SplitSearchPath(vec, lpszSearchPath);
+  SplitSearchPath(vec, searchPath);
   return vec;
 }
 
@@ -284,9 +284,9 @@ void SessionImpl::ExpandPathPattern(const PathName & rootDirectory, const PathNa
   }
 }
 
-vector<PathName> SessionImpl::ExpandPathPatterns(const char * lpszToBeExpanded)
+vector<PathName> SessionImpl::ExpandPathPatterns(const string & toBeExpanded)
 {
-  vector<PathName> pathPatterns = SplitSearchPath(lpszToBeExpanded);
+  vector<PathName> pathPatterns = SplitSearchPath(toBeExpanded);
   vector<PathName> paths;
   for (const PathName & pattern : pathPatterns)
   {
@@ -381,11 +381,11 @@ inline vector<PathName> ExpandBracesHelper(const char * & lpszToBeExpanded)
 // abcdghklmn
 // abefghijmn
 // abefghklmn
-void SessionImpl::ExpandBraces(const char * lpszToBeExpanded, vector<PathName> & paths)
+void SessionImpl::ExpandBraces(const string & toBeExpanded, vector<PathName> & paths)
 {
   string str;
   vector<PathName> result;
-  for (; *lpszToBeExpanded != 0; ++lpszToBeExpanded)
+  for (const char * lpszToBeExpanded = toBeExpanded.c_str(); *lpszToBeExpanded != 0; ++lpszToBeExpanded)
   {
     if (*lpszToBeExpanded == '{')
     {
@@ -406,9 +406,9 @@ void SessionImpl::ExpandBraces(const char * lpszToBeExpanded, vector<PathName> &
   paths.insert(paths.end(), result.begin(), result.end());
 }
 
-vector<PathName> SessionImpl::ExpandBraces(const char * lpszToBeExpanded)
+vector<PathName> SessionImpl::ExpandBraces(const string & toBeExpanded)
 {
-  vector<PathName> paths = ExpandRootDirectories(lpszToBeExpanded);
+  vector<PathName> paths = ExpandRootDirectories(toBeExpanded);
   vector<PathName> result;
   for (const PathName & path : paths)
   {

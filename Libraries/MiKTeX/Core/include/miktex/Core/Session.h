@@ -136,7 +136,7 @@ enum class SpecialPath
 class PaperSizeInfo
 {
 public:
-  static MIKTEXCORECEEAPI(PaperSizeInfo) Parse(const char * s);
+  static MIKTEXCORECEEAPI(PaperSizeInfo) Parse(const std::string & spec);
 
   /// Paper name (e.g., "A4")
 public:
@@ -156,10 +156,10 @@ public:
 
 struct MIKTEXMFMODE
 {
-  char szMnemonic[32];
-  char szDescription[128];
-  int iHorzRes;
-  int iVertRes;
+  std::string mnemonic;
+  std::string description;
+  int horizontalResolution;
+  int verticalResolution;
 };
 
 struct FileTypeInfo
@@ -530,10 +530,10 @@ public:
   virtual bool MIKTEXTHISCALL IsMiKTeXPortable() = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL GetMETAFONTMode(unsigned idx, MIKTEXMFMODE * pMode) = 0;
+  virtual bool MIKTEXTHISCALL GetMETAFONTMode(unsigned idx, MIKTEXMFMODE & mode) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL DetermineMETAFONTMode(unsigned dpi, MIKTEXMFMODE * pMode) = 0;
+  virtual bool MIKTEXTHISCALL DetermineMETAFONTMode(unsigned dpi, MIKTEXMFMODE & Mode) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL TryGetConfigValue(const char * lpszSectionName, const char * lpszValueName, std::string &  value) = 0;
@@ -794,13 +794,13 @@ public:
   virtual FileTypeInfo MIKTEXTHISCALL GetFileTypeInfo(FileType fileType) = 0;
 
 public:
-  virtual std::string Expand(const char * lpszToBeExpanded) = 0;
+  virtual std::string Expand(const std::string & toBeExpanded) = 0;
 
 public:
-  virtual std::string Expand(const char * lpszToBeExpanded, HasNamedValues * callback) = 0;
+  virtual std::string Expand(const std::string & toBeExpanded, HasNamedValues * callback) = 0;
 
 public:
-  virtual std::string Expand(const char * lpszToBeExpanded, ExpandOptionSet options, HasNamedValues * callback) = 0;
+  virtual std::string Expand(const std::string & toBeExpanded, ExpandOptionSet options, HasNamedValues * callback) = 0;
 
 public:
   virtual void MIKTEXTHISCALL SetLanguageInfo(const LanguageInfo & languageInfo) = 0;

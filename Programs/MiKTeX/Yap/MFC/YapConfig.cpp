@@ -92,9 +92,9 @@ bool SetMetafontMode(const char * lpszMnemonic, unsigned long & metafontModeIdx)
 {
   shared_ptr<Session> session = Session::Get();
   MIKTEXMFMODE metafontMode;
-  for (unsigned long idx = 0; session->GetMETAFONTMode(idx, &metafontMode); ++idx)
+  for (unsigned long idx = 0; session->GetMETAFONTMode(idx, metafontMode); ++idx)
   {
-    if (Utils::Equals(lpszMnemonic, metafontMode.szMnemonic))
+    if (metafontMode.mnemonic == lpszMnemonic)
     {
       metafontModeIdx = idx;
       return true;
@@ -272,9 +272,9 @@ void YapConfig::Save()
   UpdateValue("screen", "DoublePage", doublePage, false);
   UpdateValue("screen", "gamma" , gamma, 1.0);
   UpdateValue("screen", "gammavalues", gammaValues, string(DEFAULT_GAMMA_VALUES));
-  if (session->GetMETAFONTMode(displayMetafontMode, &mfmode))
+  if (session->GetMETAFONTMode(displayMetafontMode, mfmode))
   {
-    UpdateValue("screen", "mode", string(mfmode.szMnemonic), string("ljfour"));
+    UpdateValue("screen", "mode", mfmode.mnemonic, string("ljfour"));
   }
   UpdateValue("screen", "shrinkfactor", displayShrinkFactor,6);
   UpdateValue("screen", "graphicsinbackground", renderGraphicsInBackground, DEFAULT_bRenderGraphicsInBackground);
@@ -284,9 +284,9 @@ void YapConfig::Save()
   //
   // [printer]
   //
-  if (session->GetMETAFONTMode(printerMetafontMode, &mfmode))
+  if (session->GetMETAFONTMode(printerMetafontMode, mfmode))
   {
-    UpdateValue("printer", "mode", string(mfmode.szMnemonic), string("ljfour"));
+    UpdateValue("printer", "mode", mfmode.mnemonic, string("ljfour"));
   }
   UpdateValue("printer", "nPageXShift", pageXShift, 0);
   UpdateValue("printer", "nPageYShift", pageYShift, 0);

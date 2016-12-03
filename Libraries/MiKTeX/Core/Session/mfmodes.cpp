@@ -37,7 +37,7 @@ struct ModeComparer
 {
   bool operator() (const MIKTEXMFMODE & lhs, const MIKTEXMFMODE & rhs) const
   {
-    return StringCompare(lhs.szDescription, rhs.szDescription) < 0;
+    return StringCompare(lhs.description.c_str(), rhs.description.c_str()) < 0;
   }
 };
 
@@ -72,15 +72,15 @@ void SessionImpl::ReadMetafontModes()
 	metafontModes.push_back(mfmode);
 	readingModeDef = false;
       }
-      else if (mfmode.iHorzRes == 0 && ((lpsz = strstr(line.c_str(), "pixels_per_inch")) != nullptr))
+      else if (mfmode.horizontalResolution == 0 && ((lpsz = strstr(line.c_str(), "pixels_per_inch")) != nullptr))
       {
 	SkipNonDigit(lpsz);
-	mfmode.iHorzRes = mfmode.iVertRes = atoi(lpsz);
+	mfmode.horizontalResolution = mfmode.verticalResolution = atoi(lpsz);
       }
       else if ((lpsz = strstr(line.c_str(), "aspect_ratio")) != nullptr)
       {
 	SkipNonDigit(lpsz);
-	mfmode.iVertRes = atoi(lpsz);
+	mfmode.verticalResolution = atoi(lpsz);
       }
     }
     else if (strncmp(line.c_str(), "mode_def", 8) == 0)
@@ -118,19 +118,17 @@ void SessionImpl::ReadMetafontModes()
       }
       const char * printer_name = lpsz;
       readingModeDef = true;
-      StringUtil::CopyString(mfmode.szMnemonic, ARRAY_SIZE(mfmode.szMnemonic), lpszModeName);
-      StringUtil::CopyString(mfmode.szDescription, ARRAY_SIZE(mfmode.szDescription), printer_name);
-      mfmode.iHorzRes = 0;
+      mfmode.mnemonic = lpszModeName;
+      mfmode.description = printer_name;
+      mfmode.horizontalResolution = 0;
     }
   }
 
   sort(metafontModes.begin(), metafontModes.end(), ModeComparer());
 }
 
-bool SessionImpl::GetMETAFONTMode(unsigned idx, MIKTEXMFMODE * pMode)
+bool SessionImpl::GetMETAFONTMode(unsigned idx, MIKTEXMFMODE & mode)
 {
-  MIKTEX_ASSERT_BUFFER(pMode, sizeof(*pMode));
-
   if (metafontModes.size() == 0)
   {
     ReadMetafontModes();
@@ -145,7 +143,7 @@ bool SessionImpl::GetMETAFONTMode(unsigned idx, MIKTEXMFMODE * pMode)
     return false;
   }
 
-  *pMode = metafontModes[idx];
+  mode = metafontModes[idx];
 
   return true;
 }
@@ -154,9 +152,9 @@ bool SessionImpl::FindMETAFONTMode(const char * lpszMnemonic, MIKTEXMFMODE * pMo
 {
   MIKTEXMFMODE candidate;
 
-  for (unsigned long idx = 0; GetMETAFONTMode(idx, &candidate); ++idx)
+  for (unsigned long idx = 0; GetMETAFONTMode(idx, candidate); ++idx)
   {
-    if (Utils::Equals(lpszMnemonic, candidate.szMnemonic))
+    if (candidate.mnemonic == lpszMnemonic)
     {
       *pMode = candidate;
       return true;
@@ -166,10 +164,8 @@ bool SessionImpl::FindMETAFONTMode(const char * lpszMnemonic, MIKTEXMFMODE * pMo
   return false;
 }
 
-bool SessionImpl::DetermineMETAFONTMode(unsigned dpi, MIKTEXMFMODE * pMode)
+bool SessionImpl::DetermineMETAFONTMode(unsigned dpi, MIKTEXMFMODE & mode)
 {
-  MIKTEX_ASSERT_BUFFER(pMode, sizeof(*pMode));
-
   const char * lpszMode = nullptr;
 
   // favour well known modes
@@ -200,17 +196,17 @@ bool SessionImpl::DetermineMETAFONTMode(unsigned dpi, MIKTEXMFMODE * pMode)
 
   MIKTEXMFMODE candidate;
 
-  if (lpszMode != nullptr && FindMETAFONTMode(lpszMode, &candidate) && candidate.iHorzRes == static_cast<int>(dpi))
+  if (lpszMode != nullptr && FindMETAFONTMode(lpszMode, &candidate) && candidate.horizontalResolution == static_cast<int>(dpi))
   {
-    *pMode = candidate;
+    mode = candidate;
     return true;
   }
 
-  for (unsigned long i = 0; GetMETAFONTMode(i, &candidate); ++i)
+  for (unsigned long i = 0; GetMETAFONTMode(i, candidate); ++i)
   {
-    if (candidate.iHorzRes == static_cast<int>(dpi))
+    if (candidate.horizontalResolution == static_cast<int>(dpi))
     {
-      *pMode = candidate;
+      mode = candidate;
       return true;
     }
   }

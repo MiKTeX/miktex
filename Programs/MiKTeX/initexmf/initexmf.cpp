@@ -2045,9 +2045,9 @@ void IniTeXMFApp::ListFormats()
 void IniTeXMFApp::ListMetafontModes()
 {
   MIKTEXMFMODE mode;
-  for (unsigned i = 0; session->GetMETAFONTMode(i, &mode); ++i)
+  for (unsigned i = 0; session->GetMETAFONTMode(i, mode); ++i)
   {
-    cout << StringUtil::FormatString("%-8s  %5dx%-5d  %s", mode.szMnemonic, mode.iHorzRes, mode.iVertRes, mode.szDescription) << endl;
+    cout << StringUtil::FormatString("%-8s  %5dx%-5d  %s", mode.mnemonic.c_str(), mode.horizontalResolution, mode.verticalResolution, mode.description.c_str()) << endl;
   }
 }
 

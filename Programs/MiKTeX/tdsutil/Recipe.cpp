@@ -269,7 +269,7 @@ void Recipe::WriteFiles()
 
 void Recipe::DoAction(const string & action, const PathName & actionDir)
 {
-  vector<string> argv = Split(session->Expand(action.c_str(), this));
+  vector<string> argv = Split(session->Expand(action, this));
   if (argv.empty())
   {
     MIKTEX_UNEXPECTED();
@@ -449,7 +449,7 @@ void Recipe::RunDtxUnpacker()
   vector<PathName> insFiles;
   for (const string & pat : patterns)
   {
-    PathName pattern(session->Expand(pat.c_str(), this));
+    PathName pattern(session->Expand(pat, this));
     PathName dir(workDir);
     dir /= pattern;
     dir.RemoveFileSpec();
@@ -464,7 +464,7 @@ void Recipe::RunDtxUnpacker()
     }
     for (const string & pat : patterns)
     {
-      PathName pattern(session->Expand(pat.c_str(), this));
+      PathName pattern(session->Expand(pat, this));
       PathName dir(workDir);
       dir /= pattern;
       dir.RemoveFileSpec();
@@ -512,7 +512,7 @@ void Recipe::InstallFileSets()
     {
       MIKTEX_FATAL_ERROR(T_("missing file patterns"));
     }
-    Install(patterns, session->Expand(tdsdir.c_str(), this));
+    Install(patterns, session->Expand(tdsdir, this));
   }
 }
 
@@ -523,7 +523,7 @@ void Recipe::Install(const vector<string> & patterns, const PathName & tdsDir)
   bool madeDestDirectory = false;
   for (const string & pat : patterns)
   {
-    PathName pattern(session->Expand(pat.c_str(), this));
+    PathName pattern(session->Expand(pat, this));
     PathName dir(workDir);
     dir /= pattern;
     dir.RemoveFileSpec();

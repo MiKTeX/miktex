@@ -248,13 +248,13 @@ void FindTeXMF::Run(int argc, const char ** argv)
 
     case OPT_EXPAND_VAR:
 
-      cout << session->Expand(optArg.c_str(), { ExpandOption::Values }, nullptr) << endl;
+      cout << session->Expand(optArg, { ExpandOption::Values }, nullptr) << endl;
       needArg = false;
       break;
 
     case OPT_EXPAND_PATH:
 
-      cout << session->Expand(optArg.c_str(), { ExpandOption::Values, ExpandOption::Braces, ExpandOption::PathPatterns }, nullptr) << endl;
+      cout << session->Expand(optArg, { ExpandOption::Values, ExpandOption::Braces, ExpandOption::PathPatterns }, nullptr) << endl;
       needArg = false;
       break;
 

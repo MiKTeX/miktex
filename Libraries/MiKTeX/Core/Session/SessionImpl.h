@@ -176,10 +176,10 @@ public:
   bool IsMiKTeXPortable() override;
 
 public:
-  bool GetMETAFONTMode(unsigned idx, MiKTeX::Core::MIKTEXMFMODE * pMode) override;
+  bool GetMETAFONTMode(unsigned idx, MiKTeX::Core::MIKTEXMFMODE & mode) override;
 
 public:
-  bool DetermineMETAFONTMode(unsigned dpi, MiKTeX::Core::MIKTEXMFMODE * pMode) override;
+  bool DetermineMETAFONTMode(unsigned dpi, MiKTeX::Core::MIKTEXMFMODE & mode) override;
 
 public:
   bool TryGetConfigValue(const char * lpszSectionName, const char * lpszValueName, std::string & value) override;
@@ -428,13 +428,13 @@ public:
   MiKTeX::Core::FileTypeInfo GetFileTypeInfo(MiKTeX::Core::FileType fileType) override;
 
 public:
-  std::string Expand(const char * lpszToBeExpanded) override;
+  std::string Expand(const std::string & toBeExpanded) override;
 
 public:
-  std::string Expand(const char * lpszToBeExpanded, MiKTeX::Core::HasNamedValues * callback) override;
+  std::string Expand(const std::string & toBeExpanded, MiKTeX::Core::HasNamedValues * callback) override;
 
 public:
-  std::string Expand(const char * lpszToBeExpanded, MiKTeX::Core::ExpandOptionSet options, MiKTeX::Core::HasNamedValues * callback) override;
+  std::string Expand(const std::string & toBeExpanded, MiKTeX::Core::ExpandOptionSet options, MiKTeX::Core::HasNamedValues * callback) override;
 
 public:
   void SetLanguageInfo(const MiKTeX::Core::LanguageInfo & languageInfo) override;
@@ -816,10 +816,10 @@ private:
   void AppendToSearchPath(std::string & strSearchPath, const std::string & strSearchPath2);
 
 private:
-  void SplitSearchPath(std::vector<MiKTeX::Core::PathName> & pathvec, const char * lpszSearchPath);
+  void SplitSearchPath(std::vector<MiKTeX::Core::PathName> & pathvec, const std::string & searchPath);
 
 private:
-  std::vector<MiKTeX::Core::PathName> SplitSearchPath(const char * lpszSearchPath);
+  std::vector<MiKTeX::Core::PathName> SplitSearchPath(const std::string & searchPath);
 
 private:
   void PushBackPath(std::vector<MiKTeX::Core::PathName> & pathvec, const MiKTeX::Core::PathName & path);
@@ -861,28 +861,28 @@ private:
   void WritePackageHistory();
 
 private:
-  std::string ExpandValues(const char * lpszToBeExpanded, MiKTeX::Core::HasNamedValues * callback);
+  std::string ExpandValues(const std::string & toBeExpanded, MiKTeX::Core::HasNamedValues * callback);
 
 private:
   void DirectoryWalk(const MiKTeX::Core::PathName & directory, const MiKTeX::Core::PathName & pathPattern, std::vector<MiKTeX::Core::PathName> & paths);
 
 private:
-  void ExpandBraces(const char * lpszToBeExpanded, std::vector<MiKTeX::Core::PathName> & paths);
+  void ExpandBraces(const std::string & toBeExpanded, std::vector<MiKTeX::Core::PathName> & paths);
 
 private:
-  std::vector<MiKTeX::Core::PathName> ExpandBraces(const char * lpszToBeExpanded);
+  std::vector<MiKTeX::Core::PathName> ExpandBraces(const std::string & toBeExpanded);
 
 private:
-  void ExpandRootDirectories(const char * lpszToBeExpanded, std::vector<MiKTeX::Core::PathName> & paths);
+  void ExpandRootDirectories(const std::string & toBeExpanded, std::vector<MiKTeX::Core::PathName> & paths);
 
 private:
-  std::vector<MiKTeX::Core::PathName> ExpandRootDirectories(const char * lpszToBeExpanded);
+  std::vector<MiKTeX::Core::PathName> ExpandRootDirectories(const std::string & toBeExpanded);
 
 private:
   void ExpandPathPattern(const MiKTeX::Core::PathName & directory, const MiKTeX::Core::PathName & pathPattern, std::vector<MiKTeX::Core::PathName> & paths);
 
 private:
-  std::vector<MiKTeX::Core::PathName> ExpandPathPatterns(const char * lpszToBeExpanded);
+  std::vector<MiKTeX::Core::PathName> ExpandPathPatterns(const std::string & toBeExpanded);
 
 private:
   void RegisterFileType(MiKTeX::Core::FileType fileType, const char * lpszFileType, const char * lpszApplication, const char * lpszFileNameExtensions, const char * lpszAlternateExtensions, const char * lpszDefaultSearchPath, const char * lpszEnvVarNames);

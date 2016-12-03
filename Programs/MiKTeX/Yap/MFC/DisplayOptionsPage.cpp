@@ -45,11 +45,11 @@ BOOL DisplayOptionsPage::OnInitDialog()
   try
   {
     MIKTEXMFMODE mode;
-    for (int idx = 0; session->GetMETAFONTMode(idx, &mode); ++idx)
+    for (int idx = 0; session->GetMETAFONTMode(idx, mode); ++idx)
     {
-      string modeString = mode.szMnemonic;
+      string modeString = mode.mnemonic;
       modeString += " (";
-      modeString += mode.szDescription;
+      modeString += mode.description;
       modeString += ")";
       if (modeComboBox.AddString(UT_(modeString.c_str())) < 0)
       {
@@ -61,7 +61,7 @@ BOOL DisplayOptionsPage::OnInitDialog()
         {
           MIKTEX_FATAL_WINDOWS_ERROR("CComboBox::SetCurSel");
         }
-        resolution = mode.iHorzRes;
+        resolution = mode.horizontalResolution;
         resolutionControl.SetWindowText(UT_(std::to_string(resolution)));
       }
     }
@@ -198,9 +198,9 @@ void DisplayOptionsPage::OnChangeMode()
       MIKTEX_FATAL_WINDOWS_ERROR("CComboBox::GetCurSel");
     }
     MIKTEXMFMODE mode;
-    if (session->GetMETAFONTMode(idx, &mode))
+    if (session->GetMETAFONTMode(idx, mode))
     {
-      resolution = mode.iHorzRes;
+      resolution = mode.horizontalResolution;
       resolutionControl.SetWindowText(UT_(std::to_string(resolution)));
       metafontModeIdx = idx;
     }

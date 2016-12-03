@@ -46,11 +46,11 @@ BOOL PrintOptionsPage::OnInitDialog()
   try
   {
     MIKTEXMFMODE mode;
-    for (int idx = 0; session->GetMETAFONTMode(idx, &mode); ++idx)
+    for (int idx = 0; session->GetMETAFONTMode(idx, mode); ++idx)
     {
-      CString modeString = UT_(mode.szMnemonic);
+      CString modeString = UT_(mode.mnemonic);
       modeString += _T(" (");
-      modeString += UT_(mode.szDescription);
+      modeString += UT_(mode.description);
       modeString += _T(")");
       if (modeComboBox.AddString(modeString) < 0)
       {
@@ -62,7 +62,7 @@ BOOL PrintOptionsPage::OnInitDialog()
         {
           MIKTEX_UNEXPECTED();
         }
-        resolution = mode.iHorzRes;
+        resolution = mode.horizontalResolution;
         resolutionControl.SetWindowText(UT_(std::to_string(resolution)));
       }
     }
@@ -124,9 +124,9 @@ void PrintOptionsPage::OnChangeMode()
       MIKTEX_FATAL_WINDOWS_ERROR("CComboBox::GetCurSel");
     }
     MIKTEXMFMODE mode;
-    if (session->GetMETAFONTMode(idx, &mode))
+    if (session->GetMETAFONTMode(idx, mode))
     {
-      resolution = mode.iHorzRes;
+      resolution = mode.horizontalResolution;
       resolutionControl.SetWindowText(UT_(std::to_string(resolution)));
       metafontModeIdx = idx;
       SetModified(TRUE);
