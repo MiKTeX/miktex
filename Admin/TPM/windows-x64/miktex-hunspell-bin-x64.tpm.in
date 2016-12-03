@@ -11,7 +11,7 @@
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       Hunspell is the spell checker of LibreOffice, OpenOffice.org,
-      Mozilla Firefox 3 & Thunderbird, Google Chrome, and it is also
+      Mozilla Firefox 3 &amp; Thunderbird, Google Chrome, and it is also
       used by proprietary software packages, like Mac OS X, InDesign,
       memoQ, Opera and SDL Trados.
     </TPM:Description>
