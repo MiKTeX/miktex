@@ -76,10 +76,10 @@ public:
   /// @param[out] str The string object to be filled with the value.
   /// @return Returns true if the environment variable exists.
 public:
-  static MIKTEXCORECEEAPI(bool) GetEnvironmentString(const char * lpszName, std::string & str);
+  static MIKTEXCORECEEAPI(bool) GetEnvironmentString(const std::string & name, std::string & str);
 
 public:
-  static MIKTEXCORECEEAPI(bool) GetEnvironmentString(const char * lpszName, PathName & path);
+  static MIKTEXCORECEEAPI(bool) GetEnvironmentString(const std::string & name, PathName & path);
 
   /// Gets the value of an environment variable.
   /// @param lpszName The name of the environment variable.

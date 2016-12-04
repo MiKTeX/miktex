@@ -229,9 +229,8 @@ enum class CryptoLib
 };
 CryptoLib GetCryptoLib();
 bool HaveEnvironmentString(const char * lpszName);
-bool GetEnvironmentString(const char * lpszName, std::string & value);
+bool GetEnvironmentString(const std::string & name, std::string & value);
 bool IsExplicitlyRelativePath(const char * lpszPath);
-bool IsMpmFile(const char * lpszPath);
 std::string MakeSearchPath(const std::vector<MiKTeX::Core::PathName> & vec);
 void RemoveDirectoryDelimiter(char * lpszPath);
 
@@ -288,6 +287,44 @@ private:
 
 private:
   VALTYPE * pVal;
+};
+
+template<class VALTYPE> class Optional
+{
+public:
+  Optional() :
+    hasValue(false)
+  {
+  }
+public:
+  Optional(const VALTYPE & value) :
+    value(value),
+    hasValue(true)
+  {
+  }
+public:
+  bool HasValue() const
+  {
+    return hasValue;
+  }
+public:
+  const VALTYPE & GetValue () const
+  {
+    if (!hasValue)
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    return value;
+  }
+public:
+  const VALTYPE & operator * () const
+  {
+    return GetValue();
+  }
+private:
+  bool hasValue;
+private:
+  VALTYPE value;
 };
 
 struct StringComparerIgnoringCase :

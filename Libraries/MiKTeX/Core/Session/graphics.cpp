@@ -41,7 +41,7 @@ bool SessionImpl::FindGraphicsRule(const char * lpszFrom, const char * lpszTo, c
 
   string strRule;
 
-  bool b = GetSessionValue("Graphics", strKey.c_str(), strRule, nullptr);
+  bool b = GetSessionValue("Graphics", strKey, strRule);
 
   if (!b)
   {

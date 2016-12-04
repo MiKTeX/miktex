@@ -638,12 +638,12 @@ MIKTEXSTATICFUNC(void) AppendToEnvVarName(string & name, const string & part)
   }
 }
 
-bool SessionImpl::GetSessionValue(const char * lpszSectionName, const char * lpszValueName, string & value, const char * lpszDefaultValue)
+bool SessionImpl::GetSessionValue(const string & sectionName, const string & valueName, string & value, const Optional<string> & defaultValue)
 {
   bool haveValue = false;
 
   // try special values, part 1
-  if (!haveValue && Utils::EqualsIgnoreCase(lpszValueName, CFG_MACRO_NAME_ENGINE))
+  if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_ENGINE))
   {
     value = GetEngineName();
     haveValue = true;
@@ -671,17 +671,7 @@ bool SessionImpl::GetSessionValue(const char * lpszSectionName, const char * lps
     }
 
     // section name defaults to application name
-    string sectionName = lpszSectionName == nullptr ? app.GetCurrent() : lpszSectionName;
-
-#if 0
-    const ConfigMapping * pMapping = FindConfigMapping(lpszSectionName2, lpszValueName);
-
-    if (pMapping != nullptr && pMapping->lpszEnvVarName != nullptr && Utils::GetEnvironmentString(pMapping->lpszEnvVarName, value))
-    {
-      haveValue = true;
-      break;
-    }
-#endif
+    string defaultSectionName = sectionName.empty() ? app.GetCurrent() : sectionName;
 
     // try environment variable
     // MIKTEX_<APPLICATIONNAME>_<SECTIONNAME>_<VALUENAME>
@@ -692,10 +682,10 @@ bool SessionImpl::GetSessionValue(const char * lpszSectionName, const char * lps
       envVarName = MIKTEX_ENV_PREFIX_;
       AppendToEnvVarName(envVarName, app.GetCurrent());
       envVarName += '_';
-      AppendToEnvVarName(envVarName, sectionName);
+      AppendToEnvVarName(envVarName, defaultSectionName);
       envVarName += '_';
-      AppendToEnvVarName(envVarName, lpszValueName);
-      if (Utils::GetEnvironmentString(envVarName.c_str(), value))
+      AppendToEnvVarName(envVarName, valueName);
+      if (Utils::GetEnvironmentString(envVarName, value))
       {
         haveValue = true;
         break;
@@ -704,7 +694,7 @@ bool SessionImpl::GetSessionValue(const char * lpszSectionName, const char * lps
 
 #if defined(MIKTEX_WINDOWS)
     // try registry value
-    if (!IsMiKTeXPortable() && winRegistry::TryGetRegistryValue(TriState::Undetermined, sectionName, lpszValueName, value))
+    if (!IsMiKTeXPortable() && winRegistry::TryGetRegistryValue(TriState::Undetermined, defaultSectionName, valueName, value))
     {
       haveValue = true;
       break;
@@ -712,7 +702,7 @@ bool SessionImpl::GetSessionValue(const char * lpszSectionName, const char * lps
 #endif
 
     // try configuration file
-    if (cfg != nullptr && cfg->TryGetValue(sectionName, lpszValueName, value))
+    if (cfg != nullptr && cfg->TryGetValue(defaultSectionName, valueName, value))
     {
       haveValue = true;
       break;
@@ -721,13 +711,13 @@ bool SessionImpl::GetSessionValue(const char * lpszSectionName, const char * lps
 
   // try environment variable
   // MIKTEX_<SECTIONNAME>_<VALUENAME>
-  if (!haveValue && lpszSectionName != nullptr)
+  if (!haveValue && !sectionName.empty())
   {
     string envVarName(MIKTEX_ENV_PREFIX_);
-    AppendToEnvVarName(envVarName, lpszSectionName);
+    AppendToEnvVarName(envVarName, sectionName);
     envVarName += '_';
-    AppendToEnvVarName(envVarName, lpszValueName);
-    if (Utils::GetEnvironmentString(envVarName.c_str(), value))
+    AppendToEnvVarName(envVarName, valueName);
+    if (Utils::GetEnvironmentString(envVarName, value))
     {
       haveValue = true;
     }
@@ -738,8 +728,8 @@ bool SessionImpl::GetSessionValue(const char * lpszSectionName, const char * lps
   if (!haveValue)
   {
     string envVarName(MIKTEX_ENV_PREFIX_);
-    AppendToEnvVarName(envVarName, lpszValueName);
-    if (Utils::GetEnvironmentString(envVarName.c_str(), value))
+    AppendToEnvVarName(envVarName, valueName);
+    if (Utils::GetEnvironmentString(envVarName, value))
     {
       haveValue = true;
     }
@@ -747,9 +737,9 @@ bool SessionImpl::GetSessionValue(const char * lpszSectionName, const char * lps
 
   // try environment variable
   // <VALUENAME>
-  if (!haveValue && lpszSectionName == nullptr)
+  if (!haveValue && sectionName.empty())
   {
-    if (Utils::GetEnvironmentString(lpszValueName, value))
+    if (Utils::GetEnvironmentString(valueName, value))
     {
       haveValue = true;
     }
@@ -757,26 +747,26 @@ bool SessionImpl::GetSessionValue(const char * lpszSectionName, const char * lps
 
 #if defined(MIKTEX_WINDOWS)
   // try registry value
-  if (!haveValue && !IsMiKTeXPortable() && lpszSectionName != nullptr && winRegistry::TryGetRegistryValue(TriState::Undetermined, lpszSectionName, lpszValueName, value))
+  if (!haveValue && !IsMiKTeXPortable() && !sectionName.empty() && winRegistry::TryGetRegistryValue(TriState::Undetermined, sectionName, valueName, value))
   {
     haveValue = true;
   }
 #endif
 
   // try special values, part 2
-  if (!haveValue && Utils::EqualsIgnoreCase(lpszValueName, CFG_MACRO_NAME_BINDIR))
+  if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_BINDIR))
   {
     value = SessionImpl::GetSession()->GetSpecialPath(SpecialPath::BinDirectory).ToString();
     haveValue = true;
   }
-  else if (!haveValue && Utils::EqualsIgnoreCase(lpszValueName, CFG_MACRO_NAME_PROGNAME))
+  else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_PROGNAME))
   {
     MIKTEX_ASSERT(!applicationNames.empty());
     value = CSVList(applicationNames, PATH_DELIMITER).GetCurrent();
     haveValue = true;
   }
 #if defined(MIKTEX_WINDOWS)
-  else if (!haveValue && Utils::EqualsIgnoreCase(lpszValueName, CFG_MACRO_NAME_WINDIR))
+  else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_WINDIR))
   {
     wchar_t szPath[BufferSizes::MaxPath];
     if (GetWindowsDirectoryW(szPath, BufferSizes::MaxPath) == 0)
@@ -787,12 +777,12 @@ bool SessionImpl::GetSessionValue(const char * lpszSectionName, const char * lps
     haveValue = true;
   }
 #endif
-  else if (!haveValue && Utils::EqualsIgnoreCase(lpszValueName, CFG_MACRO_NAME_LOCALFONTDIRS))
+  else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_LOCALFONTDIRS))
   {
     value = SessionImpl::GetSession()->GetLocalFontDirectories();
     haveValue = true;
   }
-  else if (!haveValue && Utils::EqualsIgnoreCase(lpszValueName, CFG_MACRO_NAME_PSFONTDIRS))
+  else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_PSFONTDIRS))
   {
     string psFontDirs;
     if (SessionImpl::GetSession()->GetPsFontDirs(psFontDirs))
@@ -801,7 +791,7 @@ bool SessionImpl::GetSessionValue(const char * lpszSectionName, const char * lps
       haveValue = true;
     }
   }
-  else if (!haveValue && Utils::EqualsIgnoreCase(lpszValueName, CFG_MACRO_NAME_TTFDIRS))
+  else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_TTFDIRS))
   {
     string ttfDirs;
     if (SessionImpl::GetSession()->GetTTFDirs(ttfDirs))
@@ -810,7 +800,7 @@ bool SessionImpl::GetSessionValue(const char * lpszSectionName, const char * lps
       haveValue = true;
     }
   }
-  else if (!haveValue && Utils::EqualsIgnoreCase(lpszValueName, CFG_MACRO_NAME_OTFDIRS))
+  else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_OTFDIRS))
   {
     string otfDirs;
     if (SessionImpl::GetSession()->GetOTFDirs(otfDirs))
@@ -821,9 +811,9 @@ bool SessionImpl::GetSessionValue(const char * lpszSectionName, const char * lps
   }
 
   // if we have found nothing, then we return the default value
-  if (!haveValue && lpszDefaultValue != nullptr)
+  if (!haveValue && defaultValue.HasValue())
   {
-    value = lpszDefaultValue;
+    value = *defaultValue;
     haveValue = true;
   }
 
@@ -838,13 +828,13 @@ bool SessionImpl::GetSessionValue(const char * lpszSectionName, const char * lps
 
   if (trace_values->IsEnabled())
   {
-    if (lpszSectionName != nullptr)
+    if (!sectionName.empty())
     {
-      trace_values->WriteFormattedLine("core", "[%s]%s => %s", lpszSectionName, lpszValueName, haveValue ? value.c_str() : "null");
+      trace_values->WriteFormattedLine("core", "[%s]%s => %s", sectionName.c_str(), valueName.c_str(), haveValue ? value.c_str() : "null");
     }
     else
     {
-      trace_values->WriteFormattedLine("core", "%s => %s", lpszValueName, haveValue ? value.c_str() : "null");
+      trace_values->WriteFormattedLine("core", "%s => %s", valueName.c_str(), haveValue ? value.c_str() : "null");
     }
   }
 
@@ -856,7 +846,7 @@ bool SessionImpl::TryGetConfigValue(const char * lpszSectionName, const char * l
   MIKTEX_ASSERT_STRING_OR_NIL(lpszSectionName);
   MIKTEX_ASSERT_STRING(lpszValueName);
 
-  return GetSessionValue(lpszSectionName, lpszValueName, value, nullptr);
+  return GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName , lpszValueName, value);
 }
 
 string SessionImpl::GetConfigValue(const char * lpszSectionName, const char * lpszValueName, const char * lpszDefaultValue)
@@ -867,7 +857,7 @@ string SessionImpl::GetConfigValue(const char * lpszSectionName, const char * lp
 
   string value;
 
-  if (!GetSessionValue(lpszSectionName, lpszValueName, value, lpszDefaultValue))
+  if (!GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, lpszValueName, value, lpszDefaultValue == nullptr ? Optional<string>() : Optional<string>(lpszDefaultValue)))
   {
     INVALID_ARGUMENT("valueName", lpszValueName);
   }
@@ -885,7 +875,7 @@ char SessionImpl::GetConfigValue(const char * lpszSectionName, const char * lpsz
   string defaultValueString;
   defaultValueString = defaultValue;
 
-  if (!GetSessionValue(lpszSectionName, lpszValueName, value, defaultValueString.c_str()))
+  if (!GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, lpszValueName, value, defaultValueString))
   {
     INVALID_ARGUMENT("valueName", lpszValueName);
   }
@@ -905,7 +895,7 @@ int SessionImpl::GetConfigValue(const char * lpszSectionName, const char * lpszV
 
   string value;
 
-  if (!GetSessionValue(lpszSectionName, lpszValueName, value, nullptr))
+  if (!GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, lpszValueName, value))
   {
     return defaultValue;
   }
@@ -920,7 +910,7 @@ bool SessionImpl::GetConfigValue(const char * lpszSectionName, const char * lpsz
 
   string value;
 
-  if (!GetSessionValue(lpszSectionName, lpszValueName, value, nullptr))
+  if (!GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, lpszValueName, value))
   {
     return defaultValue;
   }
@@ -955,7 +945,7 @@ TriState SessionImpl::GetConfigValue(const char * lpszSectionName, const char * 
 
   string value;
 
-  if (!GetSessionValue(lpszSectionName, lpszValueName, value, nullptr))
+  if (!GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, lpszValueName, value))
   {
     return defaultValue;
   }
@@ -1014,7 +1004,7 @@ void SessionImpl::SetConfigValue(const char * lpszSectionName, const char * lpsz
   {
     winRegistry::SetRegistryValue(IsAdminMode() ? TriState::True : TriState::False, lpszSectionName, lpszValueName, lpszValue);
     string newValue;
-    if (GetSessionValue(lpszSectionName, lpszValueName, newValue, nullptr))
+    if (GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, lpszValueName, newValue))
     {
       if (newValue != lpszValue)
       {

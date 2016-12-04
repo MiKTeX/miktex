@@ -49,6 +49,7 @@
 
 #include <log4cxx/logger.h>
 #include <log4cxx/xml/domconfigurator.h>
+#include <log4cxx/basicconfigurator.h>
 
 #define MIKTEXTEST_BEGIN_NAMESPACE              \
   namespace MiKTeX {                            \
@@ -224,14 +225,18 @@ public:
       MiKTeX::Core::PathName xmlFileName;
       if (pSession->FindFile("log4cxx.xml", "%R/miktex/config", xmlFileName))
       {
-        logger = log4cxx::Logger::getLogger(scriptName);
 #if defined(MIKTEX_WINDOWS)
         log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
 #else
         log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToString());
 #endif
-        isLog4cxxConfigured = true;
       }
+      else
+      {
+        log4cxx::BasicConfigurator::configure();
+      }
+      logger = log4cxx::Logger::getLogger(scriptName);
+      isLog4cxxConfigured = true;
 
       LOG4CXX_INFO(logger, "starting tests");
       if (!traceFlags.empty())

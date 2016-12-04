@@ -700,7 +700,13 @@ private:
   bool CheckCandidate(MiKTeX::Core::PathName & path, const char * lpszFileInfo);
 
 private:
-  bool GetSessionValue(const char * lpszSectionName, const char * lpszValueName, std::string & value, const char * lpszDefaultValue);
+  bool GetSessionValue(const std::string & sectionName, const std::string & valueName, std::string & value, const Optional<std::string> & defaultValue);
+
+private:
+  bool GetSessionValue(const std::string & sectionName, const std::string & valueName, std::string & value)
+  {
+    return GetSessionValue(sectionName, valueName, value, Optional<std::string>());
+  }
 
 private:
   void ReadAllConfigFiles(const std::string & baseName, MiKTeX::Core::Cfg & cfg);

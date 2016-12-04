@@ -55,7 +55,7 @@ PathName SessionImpl::GetTempDirectory()
   // 1: try MiKTeX temp directory
   {
     string tempDirectory;
-    if (GetSessionValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_TEMPDIR, tempDirectory, nullptr) && IsGoodTempDirectory(tempDirectory.c_str()))
+    if (GetSessionValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_TEMPDIR, tempDirectory) && IsGoodTempDirectory(tempDirectory.c_str()))
     {
       return tempDirectory;
     }
@@ -508,10 +508,10 @@ MiKTeXUserInfo SessionImpl::RegisterMiKTeXUser(const MiKTeXUserInfo & info)
 }
 #endif
 
-MIKTEXINTERNALFUNC(bool) GetEnvironmentString(const char * lpszName, string & value)
+MIKTEXINTERNALFUNC(bool) GetEnvironmentString(const string & name, string & value)
 {
 #if defined(MIKTEX_WINDOWS)
-  wchar_t * lpszValue = _wgetenv(UW_(lpszName));
+  wchar_t * lpszValue = _wgetenv(UW_(name));
   if (lpszValue == nullptr)
   {
     return false;

@@ -531,7 +531,7 @@ FileType SessionImpl::DeriveFileType(const PathName & fileName)
   {
     if (lpszExt == nullptr)
     {
-      if (Utils::Equals(fileTypes[idx].fileTypeString.c_str(), fileName.GetData()))
+      if (fileTypes[idx].fileTypeString == fileName)
       {
         return fileTypes[idx].fileType;
       }

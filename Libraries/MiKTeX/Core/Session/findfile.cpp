@@ -402,7 +402,7 @@ bool SessionImpl::FindFile(const char * lpszFileName, FileType fileType, FindFil
   return found;
 }
 
-#define DEFAULT_PK_NAME_TEMPLATE "%f.pk"
+static const string DEFAULT_PK_NAME_TEMPLATE = "%f.pk";
 
 bool SessionImpl::MakePkFileName(PathName & pkFileName, const char * lpszFontName, int dpi)
 {
@@ -453,9 +453,9 @@ bool SessionImpl::MakePkFileName(PathName & pkFileName, const char * lpszFontNam
 }
 
 #if defined(MIKTEX_WINDOWS)
-#  define DEFAULT_PK_SEARCH_PATH ".;%R\\fonts\\pk\\%m//dpi%d"
+static const string DEFAULT_PK_SEARCH_PATH = ".;%R\\fonts\\pk\\%m//dpi%d";
 #else
-#  define DEFAULT_PK_SEARCH_PATH ".:%R/fonts/pk/%m//dpi%d"
+static const string DEFAULT_PK_SEARCH_PATH = ".:%R/fonts/pk/%m//dpi%d";
 #endif
 
 bool SessionImpl::FindPkFile(const char * lpszFontName, const char * lpszMode, int dpi, PathName & result)

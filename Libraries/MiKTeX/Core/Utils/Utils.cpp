@@ -612,21 +612,27 @@ string Utils::MakeProgramVersionString(const char * lpszProgramName, const Versi
   return str;
 }
 
-bool Utils::GetEnvironmentString(const char * lpszName, string & str)
+bool Utils::GetEnvironmentString(const string & name, string & str)
 {
-  bool haveValue = ::GetEnvironmentString(lpszName, str);
+  bool haveValue = ::GetEnvironmentString(name, str);
   if (SessionImpl::TryGetSession() != 0
     && SessionImpl::GetSession()->trace_env.get() != 0
     && SessionImpl::GetSession()->trace_env->IsEnabled())
   {
-    SessionImpl::GetSession()->trace_env->WriteFormattedLine("core", "%s => %s", lpszName, (haveValue ? str.c_str() : "null"));
+    SessionImpl::GetSession()->trace_env->WriteFormattedLine("core", "%s => %s", name.c_str(), (haveValue ? str.c_str() : "null"));
   }
   return haveValue;
 }
 
-bool Utils::GetEnvironmentString(const char * lpszName, PathName & path)
+bool Utils::GetEnvironmentString(const string & name, PathName & path)
 {
-  return Utils::GetEnvironmentString(lpszName, path.GetData(), path.GetCapacity());
+  string s;
+  bool result = GetEnvironmentString(name, s);
+  if (result)
+  {
+    path = s;
+  }
+  return result;
 }
 
 bool Utils::GetEnvironmentString(const char * lpszName, char * lpszOut, size_t sizeOut)
