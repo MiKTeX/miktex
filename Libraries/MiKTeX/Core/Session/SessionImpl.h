@@ -182,7 +182,7 @@ public:
   bool DetermineMETAFONTMode(unsigned dpi, MiKTeX::Core::MIKTEXMFMODE & mode) override;
 
 public:
-  bool TryGetConfigValue(const char * lpszSectionName, const char * lpszValueName, std::string & value) override;
+  bool TryGetConfigValue(const char * lpszSectionName, const std::string & valueName, std::string & value) override;
 
 public:
   std::string GetConfigValue(const char * lpszSectionName, const char * lpszValueName, const char * lpszDefaultValue) override;

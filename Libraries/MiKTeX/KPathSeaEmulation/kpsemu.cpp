@@ -802,7 +802,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string & varName, std::string & varVa
     }
   }
   // configuration files and environment
-  else if (session->TryGetConfigValue(nullptr, varName.c_str(), varValue))
+  else if (session->TryGetConfigValue(nullptr, varName, varValue))
   {
     result = true;
   }

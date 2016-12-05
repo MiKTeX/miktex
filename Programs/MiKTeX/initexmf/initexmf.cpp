@@ -2920,7 +2920,7 @@ void IniTeXMFApp::ShowConfigValue(const string & valueSpec)
   }
   string valueName = lpsz;
   string value;
-  if (session->TryGetConfigValue(haveSection ? section.c_str() : 0, valueName.c_str(), value))
+  if (session->TryGetConfigValue(haveSection ? section.c_str() : 0, valueName, value))
   {
     cout << value << endl;
   }

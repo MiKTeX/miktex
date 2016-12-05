@@ -536,7 +536,7 @@ public:
   virtual bool MIKTEXTHISCALL DetermineMETAFONTMode(unsigned dpi, MIKTEXMFMODE & Mode) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL TryGetConfigValue(const char * lpszSectionName, const char * lpszValueName, std::string &  value) = 0;
+  virtual bool MIKTEXTHISCALL TryGetConfigValue(const char * lpszSectionName, const std::string & valueName, std::string & value) = 0;
 
 public:
   virtual std::string MIKTEXTHISCALL GetConfigValue(const char * lpszSectionName, const char * lpszValueName, const char * lpszDefaultValue) = 0;

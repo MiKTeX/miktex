@@ -841,12 +841,12 @@ bool SessionImpl::GetSessionValue(const string & sectionName, const string & val
   return haveValue;
 }
 
-bool SessionImpl::TryGetConfigValue(const char * lpszSectionName, const char * lpszValueName, string & value)
+bool SessionImpl::TryGetConfigValue(const char * lpszSectionName, const string & valueName, string & value)
 {
   MIKTEX_ASSERT_STRING_OR_NIL(lpszSectionName);
   MIKTEX_ASSERT_STRING(lpszValueName);
 
-  return GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName , lpszValueName, value);
+  return GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName , valueName, value);
 }
 
 string SessionImpl::GetConfigValue(const char * lpszSectionName, const char * lpszValueName, const char * lpszDefaultValue)
@@ -1295,7 +1295,7 @@ std::string SessionImpl::ExpandValues(const string & toBeExpanded, HasNamedValue
         }
         if (!haveValue)
         {
-          haveValue = TryGetConfigValue(nullptr, valueName.c_str(), value);
+          haveValue = TryGetConfigValue(nullptr, valueName, value);
         }
         if (haveValue)
         {
