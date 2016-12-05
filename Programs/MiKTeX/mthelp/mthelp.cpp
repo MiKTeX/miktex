@@ -358,27 +358,27 @@ void MiKTeXHelp::ViewFile(const PathName & fileName)
     {
       pager = "more";
     }
-    if (lpszExt == 0)
+    if (ext.empty())
     {
       viewer = pager + " %f";
     }
-    else if (PathName::Compare(lpszExt, ".dvi") == 0)
+    else if (PathName::Compare(ext, ".dvi") == 0)
     {
       viewer = "xdvi %f &";
     }
-    else if (PathName::Compare(lpszExt, ".pdf") == 0)
+    else if (PathName::Compare(ext, ".pdf") == 0)
     {
       viewer = "xpdf %f &";
     }
-    else if (PathName::Compare(lpszExt, ".ps") == 0)
+    else if (PathName::Compare(ext, ".ps") == 0)
     {
       viewer = "gv %f &";
     }
-    else if (PathName::Compare(lpszExt, ".html") == 0)
+    else if (PathName::Compare(ext, ".html") == 0)
     {
       viewer = "firefox %f &";
     }
-    else if (PathName::Compare(lpszExt, ".txt") == 0)
+    else if (PathName::Compare(ext, ".txt") == 0)
     {
       viewer = pager + " %f";
     }

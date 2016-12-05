@@ -111,7 +111,7 @@ bool unxDirectoryLister::GetNext(DirectoryEntry2 & direntry2, bool simple)
 {
   if (pDir == nullptr)
   {
-    pDir = opendir(directory.Get());
+    pDir = opendir(directory.GetData());
     if (pDir == nullptr)
     {
       MIKTEX_FATAL_CRT_ERROR_2("opendir", "dir", directory.ToString());
@@ -155,8 +155,8 @@ bool unxDirectoryLister::GetNext(DirectoryEntry2 & direntry2, bool simple)
   if (mustStat || !simple)
   {
     struct stat statbuf;
-    PathName path(directory.Get(), pDirent->d_name, nullptr);
-    if (lstat(path.Get(), &statbuf) != 0)
+    PathName path = directory / pDirent->d_name;
+    if (lstat(path.GetData(), &statbuf) != 0)
     {
       MIKTEX_FATAL_CRT_ERROR_2("lstat", "path", path.ToString());
     }

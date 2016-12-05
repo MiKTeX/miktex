@@ -34,7 +34,7 @@ using namespace std;
 bool File::Exists(const PathName & path)
 {
   struct stat statbuf;
-  if (stat(path.Get(), &statbuf) == 0)
+  if (stat(path.GetData(), &statbuf) == 0)
   {
     if (S_ISDIR(statbuf.st_mode) != 0)
     {
@@ -78,7 +78,7 @@ unsigned long File::GetNativeAttributes(const PathName & path)
 {
   struct stat statbuf;
 
-  if (stat(path.Get(), &statbuf) != 0)
+  if (stat(path.GetData(), &statbuf) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("stat", "path", path.ToString());
   }
@@ -115,7 +115,7 @@ void File::SetNativeAttributes(const PathName & path, unsigned long nativeAttrib
 {
   SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("setting new attributes (%x) on %s"), static_cast<int>(nativeAttributes), Q_(path));
 
-  if (chmod(path.Get(), static_cast<mode_t>(nativeAttributes)) != 0)
+  if (chmod(path.GetData(), static_cast<mode_t>(nativeAttributes)) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("chmod", "path", path.ToString());
   }
@@ -124,7 +124,7 @@ void File::SetNativeAttributes(const PathName & path, unsigned long nativeAttrib
 size_t File::GetSize(const PathName & path)
 {
   struct stat statbuf;
-  if (stat(path.Get(), &statbuf) != 0)
+  if (stat(path.GetData(), &statbuf) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("stat", "path", path.ToString());
   }
@@ -164,7 +164,7 @@ void File::SetTimes(const PathName & path, time_t creationTime, time_t lastAcces
   }
   times.actime = lastAccessTime;
   times.modtime = lastWriteTime;
-  if (utime(path.Get(), &times) != 0)
+  if (utime(path.GetData(), &times) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("utimes", "path", path.ToString());
   }
@@ -173,7 +173,7 @@ void File::SetTimes(const PathName & path, time_t creationTime, time_t lastAcces
 void File::GetTimes(const PathName & path, time_t & creationTime, time_t & lastAccessTime, time_t & lastWriteTime)
 {
   struct stat stat_;
-  if (stat(path.Get(), &stat_) != 0)
+  if (stat(path.GetData(), &stat_) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("stat", "path", path.ToString());
   }
@@ -185,7 +185,7 @@ void File::GetTimes(const PathName & path, time_t & creationTime, time_t & lastA
 void File::Delete(const PathName & path)
 {
   SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("deleting %s"), Q_(path));
-  if (remove(path.Get()) != 0)
+  if (remove(path.GetData()) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("remove", "path", path.ToString());
   }
@@ -196,7 +196,7 @@ void File::Move(const PathName & source, const PathName & dest, FileMoveOptionSe
   shared_ptr<SessionImpl> session = SessionImpl::GetSession(); 
   session->trace_files->WriteFormattedLine("core", T_("renaming %s to %s"), Q_(source), Q_(dest));
   struct stat sourceStat;
-  if (stat(source.Get(), &sourceStat) != 0)
+  if (stat(source.GetData(), &sourceStat) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("stat", "path", source.ToString());
   }
@@ -204,7 +204,7 @@ void File::Move(const PathName & source, const PathName & dest, FileMoveOptionSe
   destDir.MakeAbsolute();
   destDir.RemoveFileSpec();
   struct stat destStat;
-  if (stat(destDir.Get(), &destStat) != 0)
+  if (stat(destDir.GetData(), &destStat) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("stat", "path", destDir.ToString());
   }
@@ -215,7 +215,7 @@ void File::Move(const PathName & source, const PathName & dest, FileMoveOptionSe
     {
       File::Delete(dest);
     }
-    if (rename(source.Get(), dest.Get()) != 0)
+    if (rename(source.GetData(), dest.GetData()) != 0)
     {
       MIKTEX_FATAL_CRT_ERROR_2("rename", "source", source.ToString(), "dest", dest.ToString());
     }
@@ -262,7 +262,7 @@ void File::Copy(const PathName & source, const PathName & dest, FileCopyOptionSe
   struct stat sourceStat;
   if (options[FileCopyOption::PreserveAttributes])
   {
-    if (stat(source.Get(), &sourceStat) != 0)
+    if (stat(source.GetData(), &sourceStat) != 0)
     {
       MIKTEX_FATAL_CRT_ERROR_2("stat", "path", source.ToString());
     }
@@ -283,12 +283,12 @@ void File::Copy(const PathName & source, const PathName & dest, FileCopyOptionSe
     {
       SetNativeAttributes(dest, static_cast<unsigned long>(sourceStat.st_mode));
 #if defined(HAVE_CHOWN)
-      if (chown(dest.Get(), sourceStat.st_uid, sourceStat.st_gid) != 0)
+      if (chown(dest.GetData(), sourceStat.st_uid, sourceStat.st_gid) != 0)
       {
         MIKTEX_FATAL_CRT_ERROR_2("chown", "path", dest.ToString());
       }
 #endif
-      SetTimes(dest.Get(), sourceStat.st_ctime, sourceStat.st_atime, sourceStat.st_mtime);
+      SetTimes(dest.GetData(), sourceStat.st_ctime, sourceStat.st_atime, sourceStat.st_mtime);
     }
   }
   catch (const MiKTeXException &)
@@ -326,14 +326,14 @@ void File::CreateLink(const PathName & oldName, const PathName & newName, Create
   session->trace_files->WriteFormattedLine("core", T_("creating %s link from %s to %s"), options[CreateLinkOption::Symbolic] ? "symbolic" : "hard",  Q_(newName), Q_(oldName));
   if (options[CreateLinkOption::Symbolic])
   {
-    if (symlink(oldName.Get(), newName.Get()) != 0)
+    if (symlink(oldName.GetData(), newName.GetData()) != 0)
     {
       MIKTEX_FATAL_CRT_ERROR_2("symlink", "oldName", oldName.ToString(), "newName", newName.ToString());
     }
   }
   else
   {
-    if (link(oldName.Get(), newName.Get()) != 0)
+    if (link(oldName.GetData(), newName.GetData()) != 0)
     {
       MIKTEX_FATAL_CRT_ERROR_2("link", "oldName", oldName.ToString(), "newName", newName.ToString());
     }
@@ -413,7 +413,7 @@ FILE * File::Open(const PathName & path, FileMode mode, FileAccess access, bool 
 
   int fd;
 
-  fd = open(path.Get(), flags, (((flags & O_CREAT) == 0) ? 0 : (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)));
+  fd = open(path.GetData(), flags, (((flags & O_CREAT) == 0) ? 0 : (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)));
 
   if (fd < 0)
   {

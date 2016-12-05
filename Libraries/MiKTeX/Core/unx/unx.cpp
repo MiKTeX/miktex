@@ -48,7 +48,7 @@ MIKTEXINTERNALFUNC(bool) FileIsOnROMedia(const char * lpszPath)
 
 MIKTEXSTATICFUNC(void) CreateDirectoryPathWithMode(const PathName & path, mode_t mode)
 {
-  if (!Utils::IsAbsolutePath(path.Get()))
+  if (!Utils::IsAbsolutePath(path.GetData()))
   {
     PathName absPath(path);
     absPath.MakeAbsolute();
@@ -63,18 +63,13 @@ MIKTEXSTATICFUNC(void) CreateDirectoryPathWithMode(const PathName & path, mode_t
   }
 
   // create the parent directory
-  char szDir[BufferSizes::MaxPath];
-  char szFname[BufferSizes::MaxPath];
-  char szExt[BufferSizes::MaxPath];
-  PathName::Split(path.Get(), szDir, BufferSizes::MaxPath, szFname, BufferSizes::MaxPath, szExt, BufferSizes::MaxPath);
-  PathName pathParent(szDir);
+  PathName pathParent = path.GetDirectoryName();
   RemoveDirectoryDelimiter(pathParent.GetData());
   // RECURSION
   CreateDirectoryPathWithMode(pathParent, mode);
 
-  // we're done, if szFname is empty (this happens when lpszPath ends
-  // with a directory delimiter)
-  if (szFname[0] == 0 && szExt[0] == 0)
+  // we're done, if we have no file name
+  if (path.GetFileName().Empty())
   {
     return;
   }
@@ -82,15 +77,15 @@ MIKTEXSTATICFUNC(void) CreateDirectoryPathWithMode(const PathName & path, mode_t
   SessionImpl::GetSession()->trace_config->WriteFormattedLine("core", T_("creating directory %s..."), Q_(path));
 
   // create the directory itself
-  if (mkdir(path.Get(), mode) != 0)
+  if (mkdir(path.GetData(), mode) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("mkdir", "path", path.ToString());
   }
 }
 
-MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const char * lpszPath)
+MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName & path)
 {
-  CreateDirectoryPathWithMode(lpszPath, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+  CreateDirectoryPathWithMode(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 }
 
 #if 0

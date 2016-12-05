@@ -62,7 +62,7 @@ PathName & PathName::SetToTempFile()
     MIKTEX_FATAL_CRT_ERROR("mkstemp");
   }
   close(fd);
-  SessionImpl::GetSession()->trace_tempfile->WriteFormattedLine("core", T_("created temporary file %s"), Q_(Get()));
+  SessionImpl::GetSession()->trace_tempfile->WriteFormattedLine("core", T_("created temporary file %s"), Q_(GetData()));
   return *this;
 }
 

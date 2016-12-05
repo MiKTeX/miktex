@@ -1071,7 +1071,7 @@ bool SessionImpl::IsSharedSetup()
 	isSharedSetup = TriState::False;
 #else
 	PathName myLoc = GetMyLocation(true);
-	isSharedSetup = Utils::IsParentDirectoryOf("/usr", myLoc.Get()) || Utils::IsParentDirectoryOf("/opt", myLoc.Get()) ? TriState::True : TriState::False;
+	isSharedSetup = Utils::IsParentDirectoryOf("/usr", myLoc.GetData()) || Utils::IsParentDirectoryOf("/opt", myLoc.GetData()) ? TriState::True : TriState::False;
 
 #endif
       }

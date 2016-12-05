@@ -522,7 +522,7 @@ MIKTEXINTERNALFUNC(bool) GetEnvironmentString(const string & name, string & valu
     return true;
   }
 #else
-  const char * lpszValue = getenv(lpszName);
+  const char * lpszValue = getenv(name.c_str());
   if (lpszValue == nullptr)
   {
     return false;

@@ -74,7 +74,7 @@ void Utils::CheckHeap()
 void Utils::CanonicalizePathName(PathName & path)
 {
   char resolved[PATH_MAX];
-  if (realpath(path.Get(), resolved) == nullptr)
+  if (realpath(path.GetData(), resolved) == nullptr)
   {
     if (errno == ENOENT)
     {

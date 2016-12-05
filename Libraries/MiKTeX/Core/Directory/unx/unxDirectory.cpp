@@ -38,7 +38,7 @@ PathName Directory::GetCurrent()
 
 void Directory::SetCurrent(const PathName & path)
 {
-  if (chdir(path.Get()) != 0)
+  if (chdir(path.GetData()) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("chdir", "path", path.ToString());
   }
@@ -47,7 +47,7 @@ void Directory::SetCurrent(const PathName & path)
 bool Directory::Exists(const PathName & path)
 {
   struct stat statbuf;
-  if (stat(path.Get(), &statbuf) == 0)
+  if (stat(path.GetData(), &statbuf) == 0)
   {
     if (S_ISDIR(statbuf.st_mode) == 0)
     {
@@ -67,7 +67,7 @@ bool Directory::Exists(const PathName & path)
 void Directory::Delete(const PathName & path)
 {
   SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("deleting directory %s"), Q_(path));
-  if (rmdir(path.Get()) != 0)
+  if (rmdir(path.GetData()) != 0)
   {
     MIKTEX_FATAL_CRT_ERROR_2("rmdir", "path", path.ToString());
   }

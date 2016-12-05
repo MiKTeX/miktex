@@ -292,7 +292,7 @@ void Utils::MakeTeXPathName(PathName & path)
   path.Convert({ ConvertPathNameOption::RemoveBlanks, ConvertPathNameOption::ToUnix });
 #else
   #  warning Unimplemented : Utils::MakeTeXPathName()
-    if (StrChr(path.Get(), ' ') != 0)
+    if (StrChr(path.GetData(), ' ') != 0)
     {
       MIKTEX_FATAL_ERROR_2(T_("Path name contains the space character."), "path", path.ToString());
     }

@@ -109,7 +109,7 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
   }
   else
   {
-    if (!PathName::Match("*miktex*", prefix.Get()))
+    if (!PathName::Match("*miktex*", prefix.GetData()))
     {
       // TODO: log funny installation prefix
     }
