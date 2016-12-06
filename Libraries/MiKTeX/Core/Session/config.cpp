@@ -811,7 +811,7 @@ bool SessionImpl::GetSessionValue(const string & sectionName, const string & val
   }
 
   // if we have found nothing, then we return the default value
-  if (!haveValue && defaultValue.HasValue())
+  if (!haveValue && defaultValue)
   {
     value = *defaultValue;
     haveValue = true;

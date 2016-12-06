@@ -308,6 +308,11 @@ public:
     return hasValue;
   }
 public:
+  operator bool() const
+  {
+    return HasValue();
+  }
+public:
   const VALTYPE & GetValue () const
   {
     if (!hasValue)
