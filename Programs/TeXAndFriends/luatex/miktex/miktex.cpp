@@ -85,7 +85,7 @@ void miktex_set_aux_directory(const char * path)
   shared_ptr<Session> session = Session::Get();
   if (!Directory::Exists(auxDirectory))
   {
-    if (session->GetConfigValue(nullptr, MIKTEX_REGVAL_CREATE_AUX_DIRECTORY, texmfapp::texmfapp::CreateAuxDirectory().c_str()) == "t")
+    if (session->GetConfigValue(nullptr, MIKTEX_REGVAL_CREATE_AUX_DIRECTORY, texmfapp::texmfapp::CreateAuxDirectory()).GetString() == "t")
     {
       Directory::Create(auxDirectory);
     }

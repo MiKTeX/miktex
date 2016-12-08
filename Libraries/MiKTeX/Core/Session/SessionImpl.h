@@ -185,19 +185,7 @@ public:
   bool TryGetConfigValue(const char * lpszSectionName, const std::string & valueName, std::string & value) override;
 
 public:
-  std::string GetConfigValue(const char * lpszSectionName, const char * lpszValueName, const char * lpszDefaultValue) override;
-
-public:
-  int GetConfigValue(const char * lpszSectionName, const char * lpszValueName, int defaultValue) override;
-
-public:
-  bool GetConfigValue(const char * lpszSectionName, const char * lpszValueName, bool defaultValue) override;
-
-public:
-  MiKTeX::Core::TriState GetConfigValue(const char * lpszSectionName, const char * lpszValueName, MiKTeX::Core::TriState defaultValue) override;
-
-public:
-  char GetConfigValue(const char * lpszSectionName, const char * lpszValueName, char defaultValue) override;
+  MiKTeX::Core::ConfigValue GetConfigValue(const char * lpszSectionName, const std::string & valueName, const MiKTeX::Core::ConfigValue & defaultValue) override;
 
 public:
   void SetConfigValue(const char * lpszSectionName, const char * lpszValueName, const char * lpszValue) override;

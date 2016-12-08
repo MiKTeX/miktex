@@ -96,7 +96,7 @@ BOOL UpdateWizard::OnInitDialog()
       title += T_(" (Admin)");
     }
     SetTitle(title);
-    if (!UpdateWizardApplication::upgrading && session->GetConfigValue("Update", "alwaysWelcome", false))
+    if (!UpdateWizardApplication::upgrading && session->GetConfigValue("Update", "alwaysWelcome", false).GetBool())
     {
       SetActivePage(&welcomePage);
     }

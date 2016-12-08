@@ -95,7 +95,7 @@ namespace
 
 void MakeBase::CreateDestinationDirectory()
 {
-  destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_REGKEY_MAKEBASE, MIKTEX_REGVAL_DESTDIR, "%R/" MIKTEX_PATH_BASE_DIR));
+  destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_REGKEY_MAKEBASE, MIKTEX_REGVAL_DESTDIR, "%R/" MIKTEX_PATH_BASE_DIR).GetString());
 }
 
 void MakeBase::Run(int argc, const char ** argv)

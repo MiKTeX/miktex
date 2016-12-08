@@ -48,7 +48,7 @@ BOOL PropPageGeneral::OnInitDialog()
   BOOL ret = TRUE;
   try
   {
-    switch (session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, TriState::Undetermined))
+    switch (session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, TriState::Undetermined).GetTriState())
     {
     case TriState::True:
       installOnTheFly = 0;

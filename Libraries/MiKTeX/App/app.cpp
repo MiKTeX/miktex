@@ -133,12 +133,12 @@ void Application::Init(const Session::InitInfo & initInfo_)
   beQuiet = false;
   if (enableInstaller == TriState::Undetermined)
   {
-    enableInstaller = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, TriState(TriState::Undetermined));
+    enableInstaller = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, TriState::Undetermined).GetTriState();
   }
-  autoAdmin = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_ADMIN, TriState(TriState::Undetermined));
+  autoAdmin = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_ADMIN, TriState::Undetermined).GetTriState();
   InstallSignalHandler(SIGINT);
   InstallSignalHandler(SIGTERM);
-  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0")));
+  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   PathName mpmDatabasePath(session->GetMpmDatabasePathName());
   bool mustRefreshFndb = !File::Exists(mpmDatabasePath) || (!session->IsAdminMode() && lastAdminMaintenance + 30 > File::GetLastWriteTime(mpmDatabasePath));
   PathName userLanguageDat = session->GetSpecialPath(SpecialPath::UserConfigRoot);
@@ -630,7 +630,7 @@ void Application::InvokeEditor(const PathName & editFileName, int editLineNumber
     }
   }
 
-  string templ = session->GetConfigValue(nullptr, MIKTEX_REGVAL_EDITOR, defaultEditor.c_str());
+  string templ = session->GetConfigValue(nullptr, MIKTEX_REGVAL_EDITOR, defaultEditor).GetString();
 
   const char * lpszCommandLineTemplate = templ.c_str();
 

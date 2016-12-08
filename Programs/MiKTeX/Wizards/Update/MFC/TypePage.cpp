@@ -61,7 +61,7 @@ TypePage::TypePage() :
   remoteChoice = -1;
   localChoice = -1;
 
-  sourceChoice = session->GetConfigValue("Update", "lastSource", -1);
+  sourceChoice = session->GetConfigValue("Update", "lastSource", -1).GetInt();
 
   if (sourceChoice < 0)
   {
@@ -93,12 +93,12 @@ TypePage::TypePage() :
 
   if (remoteChoice < 0)
   {
-    remoteChoice = session->GetConfigValue("Update", "lastRemote", REMOTE_CHOICE_NEAREST);
+    remoteChoice = session->GetConfigValue("Update", "lastRemote", REMOTE_CHOICE_NEAREST).GetInt();
   }
 
   if (localChoice < 0)
   {
-    localChoice = session->GetConfigValue("Update", "lastLocal", LOCAL_CHOICE_LAST_USED);
+    localChoice = session->GetConfigValue("Update", "lastLocal", LOCAL_CHOICE_LAST_USED).GetInt();
   }
 
   haveRemoteRepository = UpdateWizardApplication::packageManager->TryGetRemotePackageRepository(remoteRepository, repositoryReleaseState);
@@ -127,7 +127,7 @@ TypePage::TypePage() :
 
   isMiKTeXNextSelected = haveRemoteRepository && repositoryReleaseState == RepositoryReleaseState::Next ? TRUE : FALSE;
   isMiKTeXNextSelected = isMiKTeXNextSelected
-    || sourceChoice == SOURCE_CHOICE_REMOTE && remoteChoice == REMOTE_CHOICE_NEAREST && session->GetConfigValue("Update", "lastNearestState", "stable") == "next";
+    || sourceChoice == SOURCE_CHOICE_REMOTE && remoteChoice == REMOTE_CHOICE_NEAREST && session->GetConfigValue("Update", "lastNearestState", "stable").GetString() == "next";
 }
 
 BOOL TypePage::OnInitDialog()

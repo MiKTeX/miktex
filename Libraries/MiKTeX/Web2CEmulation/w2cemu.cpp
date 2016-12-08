@@ -145,7 +145,7 @@ MIKTEXW2CCEEAPI(void) Web2C::SetOutputDirectory(const PathName & path)
   outputDirectory.MakeAbsolute();
   if (!Directory::Exists(outputDirectory))
   {
-    if (session->GetConfigValue(nullptr, MIKTEX_REGVAL_CREATE_OUTPUT_DIRECTORY, texmfapp::CreateOutputDirectory().c_str()) == "t")
+    if (session->GetConfigValue(nullptr, MIKTEX_REGVAL_CREATE_OUTPUT_DIRECTORY, texmfapp::CreateOutputDirectory()).GetString() == "t")
     {
       Directory::Create(outputDirectory);
     }
@@ -254,7 +254,7 @@ MIKTEXW2CEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_uexit(int status)
 MIKTEXW2CCEEAPI(void) miktex_setupboundvariable(integer * pVar, const char * lpszVarName, integer dflt)
 {
   shared_ptr<Session> session = Session::Get();
-  int ret = session->GetConfigValue(nullptr, lpszVarName, dflt);
+  int ret = session->GetConfigValue(nullptr, lpszVarName, dflt).GetInt();
   if (ret >= 0)
   {
     *pVar = ret;

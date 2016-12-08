@@ -257,7 +257,7 @@ void MiKTeXHelp::FindDocFilesByPackage(const string & packageName, vector<string
 {
   map<string, vector<string> > filesByExtension;
   FindDocFilesByPackage(packageName, filesByExtension);
-  string extensions = session->GetConfigValue(0, MIKTEX_REGVAL_DOC_EXTENSIONS, DEFAULT_DOC_EXTENSIONS);
+  string extensions = session->GetConfigValue(nullptr, MIKTEX_REGVAL_DOC_EXTENSIONS, DEFAULT_DOC_EXTENSIONS).GetString();
   for (Tokenizer ext(extensions.c_str(), PATH_DELIMITER_STRING); ext.GetCurrent() != nullptr; ++ext)
   {
     vector<string> & vec = filesByExtension[ext.GetCurrent()];
@@ -285,7 +285,7 @@ void MiKTeXHelp::FindDocFilesByPackage(const string & packageName, vector<string
 
 void MiKTeXHelp::FindDocFilesByName(const string & name, vector<string> & files)
 {
-  string extensions = session->GetConfigValue(0, MIKTEX_REGVAL_DOC_EXTENSIONS, DEFAULT_DOC_EXTENSIONS);
+  string extensions = session->GetConfigValue(nullptr, MIKTEX_REGVAL_DOC_EXTENSIONS, DEFAULT_DOC_EXTENSIONS).GetString();
   string searchSpec = MIKTEX_PATH_TEXMF_PLACEHOLDER_NO_MPM;
   searchSpec += MIKTEX_PATH_DIRECTORY_DELIMITER_STRING;
   searchSpec += MIKTEX_PATH_DOC_DIR;

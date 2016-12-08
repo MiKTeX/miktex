@@ -85,7 +85,7 @@ void MakeTfm::CreateDestinationDirectory()
   }
 
   // get destination path template
-  string templ1 = session->GetConfigValue(MIKTEX_REGKEY_MAKETFM, MIKTEX_REGVAL_DESTDIR, "%R/fonts/tfm/%s/%t");
+  string templ1 = session->GetConfigValue(MIKTEX_REGKEY_MAKETFM, MIKTEX_REGVAL_DESTDIR, "%R/fonts/tfm/%s/%t").GetString();
 
   string templ2;
   for (const char * lpsz = templ1.c_str(); *lpsz != 0; ++lpsz)

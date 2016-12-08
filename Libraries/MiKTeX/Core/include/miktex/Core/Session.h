@@ -241,6 +241,114 @@ struct LanguageInfo
   bool custom = false;
 };
 
+class ConfigValue
+{
+private:
+  enum class Tag
+  {
+    None,
+    String,
+    Int,
+    Bool,
+    Tri,
+    Char
+  };
+private:
+  Tag tag;
+private:
+  union
+  {
+    std::string s;
+    int i;
+    bool b;
+    TriState t;
+    char c;
+  };
+public:
+  ConfigValue() :
+    tag(Tag::None)
+  {
+  }
+public:
+  ConfigValue(const ConfigValue & other)
+  {
+    switch (other.tag)
+    {
+    case Tag::String:
+      new (&this->s) std::string(other.s);
+      break;
+    case Tag::Int:
+      this->i = other.i;
+      break;
+    case Tag::Bool:
+      this->b = other.b;
+      break;
+    case Tag::Tri:
+      this->t = other.t;
+      break;
+    case Tag::Char:
+      this->c = other.c;
+      break;
+    }
+    this->tag = other.tag;
+  }
+public:
+  ConfigValue(const std::string & s)
+  {
+    new(&this->s) std::string(s);
+    tag = Tag::String;
+  }
+public:
+  ConfigValue(const char * s)
+  {
+    new(&this->s) std::string(s == nullptr ? "" : s);
+    tag = Tag::String;
+  }
+public:
+  ConfigValue(int i)
+  {
+    this->i = i;
+    tag = Tag::Int;
+  }
+public:
+  ConfigValue(bool b)
+  {
+    this->b = b;
+    tag = Tag::Bool;
+  }
+public:
+  ConfigValue(TriState t)
+  {
+    this->t = t;
+    tag = Tag::Tri;
+  }
+public:
+  ConfigValue(char c)
+  {
+    this->c = c;
+    tag = Tag::Char;
+  }
+public:
+  virtual ~ConfigValue()
+  {
+    if (tag == Tag::String)
+    {
+      this->s.~basic_string();
+    }
+    tag = Tag::None;
+  }
+public:
+  MIKTEXCORETHISAPI(std::string) GetString() const;
+public:
+  MIKTEXCORETHISAPI(int) GetInt() const;
+public:
+  MIKTEXCORETHISAPI(bool) GetBool() const;
+public:
+  MIKTEXCORETHISAPI(TriState) GetTriState() const;
+public:
+  MIKTEXCORETHISAPI(char) GetChar() const;
+};
+
 enum class ExpandOption
 {
   Values,
@@ -539,19 +647,7 @@ public:
   virtual bool MIKTEXTHISCALL TryGetConfigValue(const char * lpszSectionName, const std::string & valueName, std::string & value) = 0;
 
 public:
-  virtual std::string MIKTEXTHISCALL GetConfigValue(const char * lpszSectionName, const char * lpszValueName, const char * lpszDefaultValue) = 0;
-
-public:
-  virtual int MIKTEXTHISCALL GetConfigValue(const char * lpszSectionName, const char * lpszValueName, int defaultValue) = 0;
-
-public:
-  virtual bool MIKTEXTHISCALL GetConfigValue(const char * lpszSectionName, const char * lpszValueName, bool defaultValue) = 0;
-
-public:
-  virtual TriState MIKTEXTHISCALL GetConfigValue(const char * lpszSectionName, const char * lpszValueName, TriState defaultValue) = 0;
-
-public:
-  virtual char MIKTEXTHISCALL GetConfigValue(const char * lpszSectionName, const char * lpszValueName, char defaultValue) = 0;
+  virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const char * lpszSectionName, const std::string & valueName, const ConfigValue & defaultValue) = 0;
 
 public:
   virtual void MIKTEXTHISCALL SetConfigValue(const char * lpszSectionName, const char * lpszValueName, const char * lpszValue) = 0;

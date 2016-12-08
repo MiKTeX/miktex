@@ -64,7 +64,7 @@ void CurlWebSession::Initialize()
 
   SetOption(CURLOPT_USERAGENT, MPM_AGENT);
 
-  string ftpMode = session->GetConfigValue(nullptr, MIKTEX_REGVAL_FTP_MODE, "default");
+  string ftpMode = session->GetConfigValue(nullptr, MIKTEX_REGVAL_FTP_MODE, "default").GetString();
 
   if (ftpMode == "default")
   {
@@ -110,7 +110,7 @@ void CurlWebSession::Initialize()
 
   // SF 2855025
 #if ALLOW_REDIRECTS
-  int maxRedirects = session->GetConfigValue(nullptr, MIKTEX_REGVAL_MAX_REDIRECTS, DEFAULT_MAX_REDIRECTS);
+  int maxRedirects = session->GetConfigValue(nullptr, MIKTEX_REGVAL_MAX_REDIRECTS, DEFAULT_MAX_REDIRECTS).GetInt();
   SetOption(CURLOPT_FOLLOWLOCATION, static_cast<long>(true));
   SetOption(CURLOPT_MAXREDIRS, static_cast<long>(maxRedirects));
 #endif

@@ -34,7 +34,7 @@ WelcomePage::WelcomePage() :
   CPropertyPage(IDD)
 {
   m_psp.dwFlags |= PSP_HIDEHEADER;
-  alwaysShow = session->GetConfigValue("Update", "alwaysWelcome", false) ? TRUE : FALSE;
+  alwaysShow = session->GetConfigValue("Update", "alwaysWelcome", false).GetBool() ? TRUE : FALSE;
 }
 
 BOOL WelcomePage::OnInitDialog()

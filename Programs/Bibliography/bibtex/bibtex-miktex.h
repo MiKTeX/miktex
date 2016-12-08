@@ -77,7 +77,7 @@ public:
 #if defined(IMPLEMENT_TCX)
     EnableFeature (Feature::TCX);
 #endif
-    THEDATA(mincrossrefs) = session->GetConfigValue(MIKTEX_REGKEY_BIBTEX, "min_crossrefs", 2);
+    THEDATA(mincrossrefs) = session->GetConfigValue(MIKTEX_REGKEY_BIBTEX, "min_crossrefs", 2).GetInt();
     THEDATA(maxbibfiles) = 20;
     THEDATA(maxentints) = 3000;
     THEDATA(maxentstrs) = 3000;

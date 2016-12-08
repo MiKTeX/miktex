@@ -260,7 +260,7 @@ void MakeFmt::CreateDestinationDirectory()
   defDestDir = MIKTEX_PATH_TEXMF_PLACEHOLDER;
   defDestDir /= MIKTEX_PATH_FMT_DIR;
   defDestDir /= GetEngineName();
-  destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_REGKEY_MAKEFMT, MIKTEX_REGVAL_DESTDIR, defDestDir.GetData()));
+  destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_REGKEY_MAKEFMT, MIKTEX_REGVAL_DESTDIR, defDestDir.GetData()).GetString());
 }
 
 void MakeFmt::FindInputFile(const PathName & inputName, PathName & inputFile)

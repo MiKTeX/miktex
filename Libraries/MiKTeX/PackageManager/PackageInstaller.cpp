@@ -2453,7 +2453,7 @@ bool PackageInstallerImpl::UseLocalServer()
   }
 #if defined(MIKTEX_WINDOWS)
   bool elevationRequired = WindowsVersion::IsWindowsVistaOrGreater() && !pSession->RunningAsAdministrator();
-  bool forceLocalServer = pSession->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_FORCE_LOCAL_SERVER, false);
+  bool forceLocalServer = pSession->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_FORCE_LOCAL_SERVER, false).GetBool();
   return elevationRequired || forceLocalServer;
 #else
   return false;

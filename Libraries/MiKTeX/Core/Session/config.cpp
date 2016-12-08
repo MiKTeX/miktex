@@ -841,143 +841,245 @@ bool SessionImpl::GetSessionValue(const string & sectionName, const string & val
   return haveValue;
 }
 
+std::string ConfigValue::GetString() const
+{
+  switch (tag)
+  {
+  case Tag::String:
+    return this->s;
+  case Tag::Int:
+    return std::to_string(this->i);
+  case Tag::Bool:
+    return this->b ? "true" : "false";
+  case Tag::Tri:
+    return this->t == TriState::Undetermined ? "undetermined" : this->t == TriState::False ? "false" : "true";
+  case Tag::Char:
+    return std::string(1, this->c);
+  }
+  MIKTEX_UNEXPECTED();
+}
+
+int ConfigValue::GetInt() const
+{
+  switch (tag)
+  {
+  case Tag::String:
+    return std::stoi(this->s);
+  case Tag::Int:
+    return this->i;
+  case Tag::Bool:
+    return (int)this->b;
+  case Tag::Tri:
+    return (int)this->t;
+  case Tag::Char:
+    return (int)this->c;
+  }
+  MIKTEX_UNEXPECTED();
+}
+
+bool ConfigValue::GetBool() const
+{
+  switch (tag)
+  {
+  case Tag::String:
+    if (this->s == "0"
+      || this->s == "disable"
+      || this->s == "off"
+      || this->s == "f"
+      || this->s == "false"
+      || this->s == "n"
+      || this->s == "no")
+    {
+      return false;
+    }
+    else if (this->s == "1"
+      || this->s == "enable"
+      || this->s == "on"
+      || this->s == "t"
+      || this->s == "true"
+      || this->s == "y"
+      || this->s == "yes")
+    {
+      return true;
+    }
+    else
+    {
+      MIKTEX_UNEXPECTED();
+    }
+  case Tag::Int:
+    if (this->i == 0)
+    {
+      return false;
+    }
+    else if (this->i == 1)
+    {
+      return true;
+    }
+    else
+    {
+      MIKTEX_UNEXPECTED();
+    }
+  case Tag::Bool:
+    return this->b;
+  case Tag::Tri:
+    if (this->t == TriState::False)
+    {
+      return false;
+    }
+    else if (this->t == TriState::True)
+    {
+      return true;
+    }
+    else
+    {
+      MIKTEX_UNEXPECTED();
+    }
+  case Tag::Char:
+    if (this->c == '0'
+      || this->c == 'f'
+      || this->c == 'n')
+    {
+      return false;
+    }
+    else if (this->c == '1'
+      || this->c == 't'
+      || this->c == 'y')
+    {
+      return true;
+    }
+    else
+    {
+      MIKTEX_UNEXPECTED();
+    }
+
+  }
+  MIKTEX_UNEXPECTED();
+}
+
+TriState ConfigValue::GetTriState() const
+{
+  switch (tag)
+  {
+  case Tag::String:
+    if (this->s == "0"
+      || this->s == "disable"
+      || this->s == "off"
+      || this->s == "f"
+      || this->s == "false"
+      || this->s == "n"
+      || this->s == "no")
+    {
+      return TriState::False;
+    }
+    else if (this->s == "1"
+      || this->s == "enable"
+      || this->s == "on"
+      || this->s == "t"
+      || this->s == "true"
+      || this->s == "y"
+      || this->s == "yes")
+    {
+      return TriState::True;
+    }
+    else if (this->s == ""
+      || this->s == "2"
+      || this->s == "?"
+      || this->s == "undetermined")
+    {
+      return TriState::Undetermined;
+    }
+    else
+    {
+      MIKTEX_UNEXPECTED();
+    }
+  case Tag::Int:
+    if (this->i == 0)
+    {
+      return TriState::False;
+    }
+    else if (this->i == 1)
+    {
+      return TriState::True;
+    }
+    else if (this->i == 2)
+    {
+      return TriState::Undetermined;
+    }
+    else
+    {
+      MIKTEX_UNEXPECTED();
+    }
+  case Tag::Bool:
+    return this->b ? TriState::True : TriState::False;
+  case Tag::Tri:
+    return this->t;
+  case Tag::Char:
+    if (this->c == '0'
+      || this->c == 'f'
+      || this->c == 'n')
+    {
+      return TriState::False;
+    }
+    else if (this->c == '1'
+      || this->c == 't'
+      || this->c == 'y')
+    {
+      return TriState::True;
+    }
+    else if (this->c == '2'
+      || this->c == '?')
+    {
+      return TriState::Undetermined;
+    }
+    else
+    {
+      MIKTEX_UNEXPECTED();
+    }
+  }
+  MIKTEX_UNEXPECTED();
+}
+
+char ConfigValue::GetChar() const
+{
+  switch (tag)
+  {
+  case Tag::String:
+    if (this->s.length() != 1)
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    return this->s[0];
+  case Tag::Int:
+    return (char)this->i;
+  case Tag::Bool:
+    return this->b ? 't' : 'f';
+  case Tag::Tri:
+    return this->t == TriState::Undetermined ? '?' : this->t == TriState::False ? 'f' : 't';
+  case Tag::Char:
+    return this->c;
+  }
+  MIKTEX_UNEXPECTED();
+}
+
 bool SessionImpl::TryGetConfigValue(const char * lpszSectionName, const string & valueName, string & value)
 {
   MIKTEX_ASSERT_STRING_OR_NIL(lpszSectionName);
   MIKTEX_ASSERT_STRING(lpszValueName);
 
-  return GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName , valueName, value);
+  return GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, valueName, value);
 }
 
-string SessionImpl::GetConfigValue(const char * lpszSectionName, const char * lpszValueName, const char * lpszDefaultValue)
+ConfigValue SessionImpl::GetConfigValue(const char * lpszSectionName, const string & valueName, const ConfigValue & defaultValue)
 {
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszSectionName);
-  MIKTEX_ASSERT_STRING(lpszValueName);
-  MIKTEX_ASSERT_STRING(lpszDefaultValue);
-
   string value;
-
-  if (!GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, lpszValueName, value, lpszDefaultValue == nullptr ? Optional<string>() : Optional<string>(lpszDefaultValue)))
+  if (GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, valueName, value))
   {
-    INVALID_ARGUMENT("valueName", lpszValueName);
+    return value;
   }
-
-  return value;
-}
-
-char SessionImpl::GetConfigValue(const char * lpszSectionName, const char * lpszValueName, char defaultValue)
-{
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszSectionName);
-  MIKTEX_ASSERT_STRING(lpszValueName);
-
-  string value;
-
-  string defaultValueString;
-  defaultValueString = defaultValue;
-
-  if (!GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, lpszValueName, value, defaultValueString))
-  {
-    INVALID_ARGUMENT("valueName", lpszValueName);
-  }
-
-  if (value.length() != 1)
-  {
-    MIKTEX_UNEXPECTED();
-  }
-
-  return value[0];
-}
-
-int SessionImpl::GetConfigValue(const char * lpszSectionName, const char * lpszValueName, int defaultValue)
-{
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszSectionName);
-  MIKTEX_ASSERT_STRING(lpszValueName);
-
-  string value;
-
-  if (!GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, lpszValueName, value))
+  else
   {
     return defaultValue;
   }
-
-  return atoi(value.c_str());
-}
-
-bool SessionImpl::GetConfigValue(const char * lpszSectionName, const char * lpszValueName, bool defaultValue)
-{
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszSectionName);
-  MIKTEX_ASSERT_STRING(lpszValueName);
-
-  string value;
-
-  if (!GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, lpszValueName, value))
-  {
-    return defaultValue;
-  }
-
-  if (value == "0"
-    || value == "disable"
-    || value == "off"
-    || value == "f"
-    || value == "false"
-    || value == "n"
-    || value == "no")
-  {
-    return false;
-  }
-  else if (!(value == "1"
-    || value == "enable"
-    || value == "on"
-    || value == "t"
-    || value == "true"
-    || value == "y"
-    || value == "yes"))
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  return true;
-}
-
-TriState SessionImpl::GetConfigValue(const char * lpszSectionName, const char * lpszValueName, TriState defaultValue)
-{
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszSectionName);
-  MIKTEX_ASSERT_STRING(lpszValueName);
-
-  string value;
-
-  if (!GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, lpszValueName, value))
-  {
-    return defaultValue;
-  }
-
-  if (value == "0"
-    || value == "disable"
-    || value == "off"
-    || value == "f"
-    || value == "false"
-    || value == "n"
-    || value == "no")
-  {
-    return TriState::False;
-  }
-  else if (value == "1"
-    || value == "enable"
-    || value == "on"
-    || value == "t"
-    || value == "true"
-    || value == "y"
-    || value == "yes")
-  {
-    return TriState::True;
-  }
-  else if (!(value == ""
-    || value == "2"
-    || value == "?"
-    || value == "undetermined"))
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  return TriState::Undetermined;
 }
 
 void SessionImpl::SetConfigValue(const char * lpszSectionName, const char * lpszValueName, const char * lpszValue)
@@ -1000,7 +1102,7 @@ void SessionImpl::SetConfigValue(const char * lpszSectionName, const char * lpsz
 #if defined(MIKTEX_WINDOWS)
   if (!haveConfigFile
     && !IsMiKTeXPortable()
-    && !GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, NO_REGISTRY ? true : false))
+    && !GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, NO_REGISTRY ? true : false).GetBool())
   {
     winRegistry::SetRegistryValue(IsAdminMode() ? TriState::True : TriState::False, lpszSectionName, lpszValueName, lpszValue);
     string newValue;
@@ -1060,7 +1162,7 @@ bool SessionImpl::IsSharedSetup()
 {
   if (isSharedSetup == TriState::Undetermined)
   {
-    isSharedSetup = GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_SHARED_SETUP, TriState::Undetermined);
+    isSharedSetup = GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_SHARED_SETUP, TriState::Undetermined).GetTriState();
     if (isSharedSetup == TriState::Undetermined)
     {
       string value;

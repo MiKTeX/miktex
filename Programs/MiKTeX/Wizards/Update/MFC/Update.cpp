@@ -264,7 +264,7 @@ BOOL UpdateWizardApplication::InitInstance()
       }
       else
       {
-        if (pSession ->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_INSIST_ON_REPAIR, true))
+        if (pSession ->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_INSIST_ON_REPAIR, true).GetBool())
         {
           MIKTEX_FATAL_ERROR(T_("MiKTeX is not correctly configured: the environment variable PATH contains no MiKTeX references."));
         }

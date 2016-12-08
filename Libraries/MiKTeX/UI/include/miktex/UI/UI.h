@@ -84,7 +84,7 @@ inline int defaultFramework()
       defaultGUIFramework = (int)Framework::MFC;
     }
 #endif
-    cached = MiKTeX::Core::Session::Get()->GetConfigValue(nullptr, MIKTEX_REGVAL_GUI_FRAMEWORK, defaultGUIFramework);
+    cached = MiKTeX::Core::Session::Get()->GetConfigValue(nullptr, MIKTEX_REGVAL_GUI_FRAMEWORK, defaultGUIFramework).GetInt();
   }
   return cached;
 }

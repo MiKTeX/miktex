@@ -78,7 +78,7 @@ BOOL MiKTeXOptionsApplication::InitInstance()
       }
       else
       {
-        if (pSession ->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_INSIST_ON_REPAIR, false))
+        if (pSession->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_INSIST_ON_REPAIR, false).GetBool())
         {
           MIKTEX_FATAL_ERROR(T_("Broken MiKTeX configuration."));
         }

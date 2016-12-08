@@ -194,7 +194,7 @@ bool WebAppInputLine::AllowFileName(const char * lpszPath, bool forInput)
     static Core::TriState allowInput = TriState::Undetermined;
     if (allowInput == TriState::Undetermined)
     {
-      allow = session->GetConfigValue(nullptr, "AllowUnsafeInputFiles", true);
+      allow = session->GetConfigValue(nullptr, "AllowUnsafeInputFiles", true).GetBool();
       allowInput = allow ? TriState::True : TriState::False;
     }
     else
@@ -207,7 +207,7 @@ bool WebAppInputLine::AllowFileName(const char * lpszPath, bool forInput)
     static Core::TriState allowOutput = TriState::Undetermined;
     if (allowOutput == TriState::Undetermined)
     {
-      allow = session->GetConfigValue(nullptr, "AllowUnsafeOutputFiles", false);
+      allow = session->GetConfigValue(nullptr, "AllowUnsafeOutputFiles", false).GetBool();
       allowOutput = allow ? TriState::True : TriState::False;
     }
     else
