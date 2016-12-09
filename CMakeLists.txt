@@ -637,8 +637,8 @@ endif()
 
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
-#find_package(ImageMagick REQUIRED)
-find_package(PythonInterp REQUIRED)
+#not needed: find_package(ImageMagick REQUIRED)
+#not needed: find_package(PythonInterp REQUIRED)
 find_package(Threads REQUIRED)
 
 if(MIKTEX_UNIX_ALIKE)
