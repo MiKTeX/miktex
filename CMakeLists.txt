@@ -637,7 +637,7 @@ endif()
 
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
-find_package(ImageMagick REQUIRED)
+#find_package(ImageMagick REQUIRED)
 find_package(PythonInterp REQUIRED)
 find_package(Threads REQUIRED)
 
