@@ -1072,14 +1072,11 @@ bool SessionImpl::TryGetConfigValue(const char * lpszSectionName, const string &
 ConfigValue SessionImpl::GetConfigValue(const char * lpszSectionName, const string & valueName, const ConfigValue & defaultValue)
 {
   string value;
-  if (GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, valueName, value))
+  if (!GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, valueName, value, Optional<string>(defaultValue.GetString())))
   {
-    return value;
+    INVALID_ARGUMENT("valueName", valueName);
   }
-  else
-  {
-    return defaultValue;
-  }
+  return value;
 }
 
 void SessionImpl::SetConfigValue(const char * lpszSectionName, const char * lpszValueName, const char * lpszValue)
