@@ -109,8 +109,7 @@ BOOL DvipsDialog::OnInitDialog()
     }
 
     // trigger detection of Ghostscript
-    PathName path;
-    session->GetGhostscript(path.GetData(), 0);
+    PathName path = session->GetGhostscript(nullptr);
   }
 
   catch (const MiKTeXException & e)

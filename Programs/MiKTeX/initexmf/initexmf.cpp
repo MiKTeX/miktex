@@ -2142,7 +2142,7 @@ void IniTeXMFApp::MakeFormatFile(const string & formatKey)
   }
 
   FormatInfo formatInfo;
-  if (!session->TryGetFormatInfo(formatKey.c_str(), formatInfo))
+  if (!session->TryGetFormatInfo(formatKey, formatInfo))
   {
     FatalError(T_("Unknown format: %s"), Q_(formatKey));
   }
@@ -2897,7 +2897,7 @@ void IniTeXMFApp::SetConfigValue(const string & valueSpec)
   }
   ++lpsz;
   string value = lpsz;
-  session->SetConfigValue(haveSection ? section.c_str() : nullptr, valueName.c_str(), value.c_str());
+  session->SetConfigValue(haveSection ? section.c_str() : nullptr, valueName, value);
 }
 
 void IniTeXMFApp::ShowConfigValue(const string & valueSpec)

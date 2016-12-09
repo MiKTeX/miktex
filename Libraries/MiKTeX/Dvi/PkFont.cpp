@@ -173,14 +173,13 @@ void PkFont::Read()
 
   PathName fileName;
 
-  bool fontFileExists = session->FindPkFile(dviInfo.name.c_str(), metafontMode.c_str(), dpi, fileName);
+  bool fontFileExists = session->FindPkFile(dviInfo.name, metafontMode, dpi, fileName);
 
   if (!fontFileExists)
   {
     if (Make(dviInfo.name, dpi, baseDpi, metafontMode))
     {
-      fontFileExists =
-        session->FindPkFile(dviInfo.name.c_str(), metafontMode.c_str(), dpi, fileName);
+      fontFileExists = session->FindPkFile(dviInfo.name, metafontMode, dpi, fileName);
       if (!fontFileExists)
       {
         // this shouldn't happen; but it does (#521481)
@@ -191,9 +190,9 @@ void PkFont::Read()
       dviInfo.transcript += "\r\n";
       dviInfo.transcript += T_("Loading 'cmr10' instead.\r\n");
       trace_error->WriteFormattedLine("libdvi", T_("'%s' not loadable - loading 'cmr10' instead!"), dviInfo.name.c_str());
-      if (!(session->FindPkFile("cmr10", metafontMode.c_str(), dpi, fileName)
+      if (!(session->FindPkFile("cmr10", metafontMode, dpi, fileName)
         || (Make("cmr10", dpi, baseDpi, metafontMode)
-          && session->FindPkFile("cmr10", metafontMode.c_str(), dpi, fileName))))
+          && session->FindPkFile("cmr10", metafontMode, dpi, fileName))))
       {
         dviInfo.transcript += T_("'cmr10' not loadable either!");
         trace_error->WriteLine("libdvi", T_("'cmr10' not loadable - will display blank chars!"));
@@ -302,7 +301,7 @@ bool PkFont::Make(const string & name, int dpi, int baseDpi, const string & meta
   dviInfo.transcript += "\r\n";
   dviInfo.transcript += T_("Making PK font:\r\n");
   PathName pathMakePk;
-  string commandLine = session->MakeMakePkCommandLine(name.c_str(), dpi, baseDpi, metafontMode.c_str(), pathMakePk, TriState::Undetermined);
+  string commandLine = session->MakeMakePkCommandLine(name, dpi, baseDpi, metafontMode, pathMakePk, TriState::Undetermined);
   dviInfo.transcript += commandLine;
   dviInfo.transcript += "\r\n";
   pDviImpl->Progress(DviNotification::BeginLoadFont, "%s...", dviInfo.name.c_str());
@@ -342,13 +341,13 @@ void PkFont::ReadTFM()
 
   PathName fileName;
 
-  bool tfmFileExists = session->FindTfmFile(dviInfo.name.c_str(), fileName, false);
+  bool tfmFileExists = session->FindTfmFile(dviInfo.name, fileName, false);
 
   if (!tfmFileExists)
   {
     if (MakeTFM(dviInfo.name))
     {
-      tfmFileExists = session->FindTfmFile(dviInfo.name.c_str(), fileName, false);
+      tfmFileExists = session->FindTfmFile(dviInfo.name, fileName, false);
       if (!tfmFileExists)
       {
         // this shouldn't happen; but it does (#521481)

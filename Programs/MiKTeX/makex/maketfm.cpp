@@ -76,9 +76,9 @@ namespace {
 void MakeTfm::CreateDestinationDirectory()
 {
   // get basic font information (supplier & typeface)
-  PathName supplier;
-  PathName typeface;
-  if (!session->GetFontInfo(name.c_str(), supplier.GetData(), typeface.GetData(), nullptr))
+  string supplier;
+  string typeface;
+  if (!session->GetFontInfo(name, supplier, typeface, nullptr))
   {
     supplier = "public";
     typeface = "misc";
@@ -101,10 +101,10 @@ void MakeTfm::CreateDestinationDirectory()
         templ2 += "%R";
         break;
       case 's':
-        templ2 += supplier.GetData();
+        templ2 += supplier;
         break;
       case 't':
-        templ2 += typeface.GetData();
+        templ2 += typeface;
         break;
       }
       ++lpsz;

@@ -321,10 +321,9 @@ void SessionImpl::SetEnvironmentVariables()
   SetCWDEnv();
 }
 
-void SessionImpl::SetTheNameOfTheGame(const char * lpszTheNameOfTheGame)
+void SessionImpl::SetTheNameOfTheGame(const string & name)
 {
-  MIKTEX_ASSERT_STRING(lpszTheNameOfTheGame);
   fileTypes.clear();
-  theNameOfTheGame = lpszTheNameOfTheGame;
+  theNameOfTheGame = name;
 }
 

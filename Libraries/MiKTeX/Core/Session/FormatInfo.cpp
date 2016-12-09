@@ -43,22 +43,22 @@ vector<FormatInfo> SessionImpl::GetFormats()
   return result;
 }
 
-FormatInfo SessionImpl::GetFormatInfo(const char * lpszKey)
+FormatInfo SessionImpl::GetFormatInfo(const string & key)
 {
   FormatInfo formatInfo;
-  if (!TryGetFormatInfo(lpszKey, formatInfo))
+  if (!TryGetFormatInfo(key, formatInfo))
   {
-    INVALID_ARGUMENT("key", lpszKey);
+    INVALID_ARGUMENT("key", key);
   }
   return formatInfo;
 }
 
-bool SessionImpl::TryGetFormatInfo(const char * lpszKey, FormatInfo & formatInfo)
+bool SessionImpl::TryGetFormatInfo(const string & key, FormatInfo & formatInfo)
 {
   ReadFormatsIni();
   for (const FormatInfo & fmt : formats)
   {
-    if (PathName::Equals(fmt.key, lpszKey))
+    if (PathName::Equals(fmt.key, key))
     {
       formatInfo = fmt;
       return true;
@@ -238,12 +238,12 @@ void SessionImpl::WriteFormatsIni()
   }
 }
 
-void SessionImpl::DeleteFormatInfo(const char * lpszKey)
+void SessionImpl::DeleteFormatInfo(const string & key)
 {
   ReadFormatsIni();
   for (vector<FormatInfo_>::iterator it = formats.begin(); it != formats.end(); ++it)
   {
-    if (PathName::Equals(it->key, lpszKey))
+    if (PathName::Equals(it->key, key))
     {
       if (!it->custom)
       {
@@ -254,7 +254,7 @@ void SessionImpl::DeleteFormatInfo(const char * lpszKey)
       return;
     }
   }
-  MIKTEX_FATAL_ERROR_2(T_("The format could not be found."), "formatName", lpszKey);
+  MIKTEX_FATAL_ERROR_2(T_("The format could not be found."), "formatName", key);
 }
 
 void SessionImpl::SetFormatInfo(const FormatInfo & formatInfo)

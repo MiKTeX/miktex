@@ -151,7 +151,7 @@ void DviDoc::CreateDocument(const char * lpszPathName)
     GetShrinkFactor(),
     IsPrintContext() ? DviAccess::Sequential : DviAccess::Random,
     IsPrintContext() ? DviPageMode::Dvips : dviPageMode,
-    pSession->GetPaperSizeInfo(dvipsPaperName.c_str()),
+    pSession->GetPaperSizeInfo(dvipsPaperName),
     landscape,
     this);
   pDvi->Scan();

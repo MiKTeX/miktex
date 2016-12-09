@@ -188,13 +188,7 @@ public:
   MiKTeX::Core::ConfigValue GetConfigValue(const char * lpszSectionName, const std::string & valueName, const MiKTeX::Core::ConfigValue & defaultValue) override;
 
 public:
-  void SetConfigValue(const char * lpszSectionName, const char * lpszValueName, const char * lpszValue) override;
-
-public:
-  void SetConfigValue(const char * lpszSectionName, const char * lpszValueName, bool value) override;
-
-public:
-  void SetConfigValue(const char * lpszSectionName, const char * lpszValueName, int value) override;
+  void SetConfigValue(const char * lpszSectionName, const std::string & valueName, const MiKTeX::Core::ConfigValue & value) override;
 
 public:
   FILE * OpenFile(const MiKTeX::Core::PathName & path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile) override;
@@ -279,34 +273,34 @@ public:
   }
 
 public:
-  bool FindPkFile(const char * lpszFontName, const char * lpszMode, int dpi, MiKTeX::Core::PathName & result) override;
+  bool FindPkFile(const std::string & fontName, const std::string & mfMode, int dpi, MiKTeX::Core::PathName & result) override;
 
 public:
-  bool FindTfmFile(const char * lpszFontName, MiKTeX::Core::PathName & result, bool create) override
+  bool FindTfmFile(const std::string & fontName, MiKTeX::Core::PathName & result, bool create) override
   {
-    return FindFile(lpszFontName, MiKTeX::Core::FileType::TFM, (create ? FindFileOptionSet({ FindFileOption::Create }) : FindFileOptionSet()), result);
+    return FindFile(fontName.c_str(), MiKTeX::Core::FileType::TFM, (create ? FindFileOptionSet({ FindFileOption::Create }) : FindFileOptionSet()), result);
   }
 
 public:
   void SetFindFileCallback(MiKTeX::Core::IFindFileCallback * callback) override;
 
 public:
-  void SplitFontPath(const char * lpszFontPath, char * lpszFontType, char * lpszSupplier, char * lpszTypeface, char * lpszFontName, char * lpszPointSize) override;
+  void SplitFontPath(const MiKTeX::Core::PathName & fontPath, std::string * fontType, std::string * supplier, std::string * typeface, std::string * fontName, std::string * pointSize) override;
 
 public:
-  bool GetFontInfo(const char * lpszFontName, char * lpszSupplier, char * lpszTypeface, double * lpGenSize) override;
+  bool GetFontInfo(const std::string & fontName, std::string & supplier, std::string & typeface, double * genSize) override;
 
 public:
-  void GetGhostscript(char * lpszPath, unsigned long * pVersionNumber) override;
+  MiKTeX::Core::PathName GetGhostscript(unsigned long * versionNumber) override;
 
 public:
   std::string GetExpandedSearchPath(MiKTeX::Core::FileType fileType) override;
 
-public:
-  bool FindGraphicsRule(const char * lpszFrom, const char * lpszTo, char * lpszRule, size_t bufSize) override;
+private:
+  bool FindGraphicsRule(const std::string & fromExt, const std::string & toext, std::string & rule);
 
 public:
-  bool ConvertToBitmapFile(const char * lpszSourceFileName, char * lpszDestFileName, MiKTeX::Core::IRunProcessCallback * pCallback) override;
+  bool ConvertToBitmapFile(const MiKTeX::Core::PathName & sourceFileName, MiKTeX::Core::PathName & destFileName, MiKTeX::Core::IRunProcessCallback * callback) override;
 
 public:
   bool EnableFontMaker(bool enable) override;
@@ -315,7 +309,7 @@ public:
   bool GetMakeFontsFlag() override;
 
 public:
-  std::string MakeMakePkCommandLine(const char * lpszFontName, int dpi, int baseDpi, const char * lpszMfMode, MiKTeX::Core::PathName & fileName, MiKTeX::Core::TriState enableInstaller) override;
+  std::string MakeMakePkCommandLine(const std::string & fontName, int dpi, int baseDpi, const std::string & mfMode, MiKTeX::Core::PathName & fileName, MiKTeX::Core::TriState enableInstaller) override;
 
 #if defined(MIKTEX_WINDOWS)
 public:
@@ -343,13 +337,13 @@ public:
   std::vector<MiKTeX::Core::FormatInfo> GetFormats() override;
 
 public:
-  MiKTeX::Core::FormatInfo GetFormatInfo(const char * lpszKey) override;
+  MiKTeX::Core::FormatInfo GetFormatInfo(const std::string & key) override;
 
 public:
-  bool TryGetFormatInfo(const char * lpszKey, MiKTeX::Core::FormatInfo & formatInfo) override;
+  bool TryGetFormatInfo(const std::string & key, MiKTeX::Core::FormatInfo & formatInfo) override;
 
 public:
-  void DeleteFormatInfo(const char * lpszKey) override;
+  void DeleteFormatInfo(const std::string & key) override;
 
 public:
   void SetFormatInfo(const MiKTeX::Core::FormatInfo & formatInfo) override;
@@ -379,10 +373,10 @@ public:
   bool GetPaperSizeInfo(int idx, MiKTeX::Core::PaperSizeInfo & paperSize) override;
 
 public:
-  MiKTeX::Core::PaperSizeInfo GetPaperSizeInfo(const char * lpszName) override;
+  MiKTeX::Core::PaperSizeInfo GetPaperSizeInfo(const std::string & dvipsName) override;
 
 public:
-  void SetDefaultPaperSize(const char * lpszDvipsName) override;
+  void SetDefaultPaperSize(const std::string & dvipsName) override;
 
 public:
   bool TryCreateFromTemplate(const MiKTeX::Core::PathName & path) override;
@@ -407,7 +401,7 @@ public:
   void ConfigureFile(const MiKTeX::Core::PathName & pathRel, MiKTeX::Core::HasNamedValues * callback) override;
 
 public:
-  void SetTheNameOfTheGame(const char * lpszTheNameOfTheGame) override;
+  void SetTheNameOfTheGame(const std::string & name) override;
 
 public:
   std::string GetLocalFontDirectories() override;
@@ -660,16 +654,16 @@ private:
   void UnregisterLibraryTraceStreams();
 
 private:
-  bool FindInTypefaceMap(const char * lpszFontName, char * lpszTypeface);
+  bool FindInTypefaceMap(const std::string & fontName, std::string & typeface);
 
 private:
-  bool FindInSupplierMap(const char * lpszFontName, char * lpszSupplier, char * lpszTypeface);
+  bool FindInSupplierMap(const std::string & fontName, std::string & supplier, std::string & typeface);
 
 private:
-  bool FindInSpecialMap(const char * lpszFontName, char * lpszSupplier, char * lpszTypeface);
+  bool FindInSpecialMap(const std::string & fontName, std::string & supplier, std::string & typeface);
 
 private:
-  bool InternalGetFontInfo(const char * lpszFontName, char * lpszSupplier, char * lpszTypeface);
+  bool InternalGetFontInfo(const std::string & fontName, std::string & supplier, std::string & typeface);
 
 
 private:

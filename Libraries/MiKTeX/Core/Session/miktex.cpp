@@ -276,11 +276,8 @@ MIKTEXSTATICFUNC(int) magstep(int n, int bdpi)
   }
 }
 
-string SessionImpl::MakeMakePkCommandLine(const char * lpszFontName, int dpi, int baseDpi, const char * lpszMfMode, PathName & fileName, TriState enableInstaller)
+string SessionImpl::MakeMakePkCommandLine(const string & fontName, int dpi, int baseDpi, const string & mfMode, PathName & fileName, TriState enableInstaller)
 {
-  MIKTEX_ASSERT_STRING(lpszFontName);
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszMfMode);
-
   MIKTEX_ASSERT(baseDpi != 0);
 
   if (!FindFile(MIKTEX_MAKEPK_EXE, FileType::EXE, fileName))
@@ -372,14 +369,14 @@ string SessionImpl::MakeMakePkCommandLine(const char * lpszFontName, int dpi, in
   }
 
   cmdline += " --verbose";
-  cmdline += ' '; cmdline += lpszFontName;
+  cmdline += ' '; cmdline += fontName;
   cmdline += ' '; cmdline += std::to_string(dpi);
   cmdline += ' '; cmdline += std::to_string(baseDpi);
   cmdline += ' '; cmdline += strMagStep;
 
-  if (lpszMfMode != nullptr)
+  if (!mfMode.empty())
   {
-    cmdline += ' '; cmdline += lpszMfMode;
+    cmdline += ' '; cmdline += mfMode;
   }
 
   return cmdline;

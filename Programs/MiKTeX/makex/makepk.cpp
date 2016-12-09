@@ -133,19 +133,19 @@ namespace {
 void MakePk::CreateDestinationDirectory()
 {
   // get basic font information (supplier & typeface)
-  PathName supplier;
-  PathName typeface;
-  if (!session->GetFontInfo(name.c_str(), supplier.GetData(), typeface.GetData(), nullptr))
+  string supplier;
+  string typeface;
+  if (!session->GetFontInfo(name, supplier, typeface, nullptr))
   {
     Verbose(T_("No information available for font %s."), Q_(name));
     supplier = "unknown";
     typeface = "unknown";
   }
-  if (supplier.Empty())
+  if (supplier.empty())
   {
     supplier = "unknown";
   }
-  if (typeface.Empty())
+  if (typeface.empty())
   {
     typeface = "unknown";
   }
@@ -178,10 +178,10 @@ void MakePk::CreateDestinationDirectory()
         templ2 += modeless ? "modeless" : mfMode;
         break;
       case 's':
-        templ2 += supplier.GetData();
+        templ2 += supplier;
         break;
       case 't':
-        templ2 += typeface.GetData();
+        templ2 += typeface;
         break;
       }
       ++lpsz;

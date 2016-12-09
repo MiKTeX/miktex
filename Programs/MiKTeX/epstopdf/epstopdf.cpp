@@ -138,7 +138,7 @@ private:
   void PrepareInput(bool runAsFilter, const PathName & inputFile);
 
 private:
-  void PrepareOutput(bool runAsFilter, bool runGhostscript, const char * lpszGSExe, const CommandLineBuilder & gsOptions, const PathName & outFile);
+  void PrepareOutput(bool runAsFilter, bool runGhostscript, const PathName & gsExe, const CommandLineBuilder & gsOptions, const PathName & outFile);
 
 private:
   unique_ptr<Process> gsProcess;
@@ -673,7 +673,7 @@ void EpsToPdfApp::PrepareInput(bool runAsFilter, const PathName & inputFile)
   }
 }
 
-void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const char * lpszGSExe, const CommandLineBuilder & gsOptions, const PathName & outFile)
+void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const PathName & gsExe, const CommandLineBuilder & gsOptions, const PathName & outFile)
 {
   if (runGhostscript)
   {
@@ -699,11 +699,11 @@ void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const cha
     cmdLine.AppendOption("-");
     cmdLine.AppendOption("-c");
     cmdLine.AppendArgument("quit");
-    PrintOnly("%s %s\n", Q_(lpszGSExe), cmdLine.ToString().c_str());
+    PrintOnly("%s %s\n", Q_(gsExe), cmdLine.ToString().c_str());
     if (!printOnly)
     {
       ProcessStartInfo processStartInfo;
-      processStartInfo.FileName = lpszGSExe;
+      processStartInfo.FileName = gsExe.ToString();
       processStartInfo.Arguments = cmdLine.ToString();
       processStartInfo.StandardInput = nullptr;
       processStartInfo.RedirectStandardError = false;
@@ -930,15 +930,15 @@ void EpsToPdfApp::Run(int argc, const char ** argv)
     Verbose(T_("Making %s from %s..."), Q_(outFile), Q_(inputFile));
   }
 
-  char szGSExe[BufferSizes::MaxPath];
+  PathName gsExe;
 
   if (runGhostscript)
   {
-    session->GetGhostscript(szGSExe, 0);
+    gsExe = session->GetGhostscript(nullptr);
   }
 
   PrepareInput(runAsFilter, inputFile);
-  PrepareOutput(runAsFilter, runGhostscript, szGSExe, gsOptions, outFile);
+  PrepareOutput(runAsFilter, runGhostscript, gsExe, gsOptions, outFile);
 
   string line;
 

@@ -650,13 +650,7 @@ public:
   virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const char * lpszSectionName, const std::string & valueName, const ConfigValue & defaultValue) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL SetConfigValue(const char * lpszSectionName, const char * lpszValueName, const char * lpszValue) = 0;
-
-public:
-  virtual void MIKTEXTHISCALL SetConfigValue(const char * lpszSectionName, const char * lpszValueName, bool value) = 0;
-
-public:
-  virtual void MIKTEXTHISCALL SetConfigValue(const char * lpszSectionName, const char * lpszValueName, int value) = 0;
+  virtual void MIKTEXTHISCALL SetConfigValue(const char * lpszSectionName, const std::string & valueName, const ConfigValue & value) = 0;
 
 public:
   virtual std::string MIKTEXTHISCALL GetEngineName() = 0;
@@ -732,31 +726,28 @@ public:
   virtual bool MIKTEXTHISCALL FindFile(const char * lpszFileName, FileType fileType, PathName & result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindPkFile(const char * lpszFontName, const char * lpszMode, int dpi, PathName & result) = 0;
+  virtual bool MIKTEXTHISCALL FindPkFile(const std::string & fontName, const std::string & mfMode, int dpi, PathName & result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindTfmFile(const char * lpszFontName, PathName & result, bool create) = 0;
+  virtual bool MIKTEXTHISCALL FindTfmFile(const std::string & fontName, PathName & result, bool create) = 0;
 
 public:
   virtual void MIKTEXTHISCALL SetFindFileCallback(IFindFileCallback * pCallback) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL SplitFontPath(const char * lpszFontPath, char * lpszFontType, char * lpszSupplier, char * lpszTypeface, char * lpszFontName, char * lpszPointSize) = 0;
+  virtual void MIKTEXTHISCALL SplitFontPath(const PathName & fontPath, std::string * fontType, std::string * supplier, std::string * typeface, std::string * fontName, std::string * pointSize) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL GetFontInfo(const char * lpszFontName, char * lpszSupplier, char * lpszTypeface, double * lpGenSize) = 0;
+  virtual bool MIKTEXTHISCALL GetFontInfo(const std::string & fontName, std::string & supplier, std::string & typeface, double * genSize) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL GetGhostscript(char * lpszPath, unsigned long * pVersionNumber) = 0;
+  virtual PathName MIKTEXTHISCALL GetGhostscript(unsigned long * versionNumber) = 0;
 
 public:
   virtual std::string MIKTEXTHISCALL GetExpandedSearchPath(FileType fileType) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindGraphicsRule(const char * lpszFrom, const char * lpszTo, char * lpszRule, std::size_t bufSize) = 0;
-
-public:
-  virtual bool MIKTEXTHISCALL ConvertToBitmapFile(const char * lpszSourceFileName, char * lpszDestFileName, IRunProcessCallback * pCallback) = 0;
+  virtual bool MIKTEXTHISCALL ConvertToBitmapFile(const PathName & sourceFileName, PathName & destFileName, IRunProcessCallback * callback) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL EnableFontMaker(bool enable) = 0;
@@ -765,7 +756,7 @@ public:
   virtual bool MIKTEXTHISCALL GetMakeFontsFlag() = 0;
 
 public:
-  virtual std::string MIKTEXTHISCALL MakeMakePkCommandLine(const char * lpszFontName, int dpi, int baseDpi, const char * lpszMfMode, PathName & fileName, TriState enableInstaller) = 0;
+  virtual std::string MIKTEXTHISCALL MakeMakePkCommandLine(const std::string & fontName, int dpi, int baseDpi, const std::string & mfMode, PathName & fileName, TriState enableInstaller) = 0;
 
 #if defined(MIKTEX_WINDOWS)
 public:
@@ -793,13 +784,13 @@ public:
   virtual std::vector<FormatInfo> MIKTEXTHISCALL GetFormats() = 0;
 
 public:
-  virtual FormatInfo MIKTEXTHISCALL GetFormatInfo(const char * lpszKey) = 0;
+  virtual FormatInfo MIKTEXTHISCALL GetFormatInfo(const std::string & key) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL TryGetFormatInfo(const char * lpszKey, FormatInfo & formatInfo) = 0;
+  virtual bool MIKTEXTHISCALL TryGetFormatInfo(const std::string & key, FormatInfo & formatInfo) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL DeleteFormatInfo(const char * lpszKey) = 0;
+  virtual void MIKTEXTHISCALL DeleteFormatInfo(const std::string & key) = 0;
 
 public:
   virtual void MIKTEXTHISCALL SetFormatInfo(const FormatInfo & formatInfo) = 0;
@@ -811,25 +802,13 @@ public:
   virtual PathName MIKTEXTHISCALL GetMyLocation(bool canonicalized) = 0;
 
 public:
-  PathName GetMyLocation()
-  {
-    return GetMyLocation(false);
-  }
-
-public:
   virtual PathName MIKTEXTHISCALL GetMyPrefix() = 0;
 
 public:
   virtual bool MIKTEXTHISCALL RunningAsAdministrator() = 0;
 
 public:
-  virtual void MIKTEXTHISCALL SetAdminMode(bool adminMode, bool isSetup) = 0;
-
-public:
-  void SetAdminMode(bool adminMode)
-  {
-    SetAdminMode(adminMode, false);
-  }
+  virtual void MIKTEXTHISCALL SetAdminMode(bool adminMode, bool isSetup = false) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL IsAdminMode() = 0;
@@ -841,10 +820,10 @@ public:
   virtual bool MIKTEXTHISCALL GetPaperSizeInfo(int idx, PaperSizeInfo & paperSize) = 0;
 
 public:
-  virtual PaperSizeInfo MIKTEXTHISCALL GetPaperSizeInfo(const char * lpszDvipsName) = 0;
+  virtual PaperSizeInfo MIKTEXTHISCALL GetPaperSizeInfo(const std::string & dvipsName) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL SetDefaultPaperSize(const char * lpszDvipsName) = 0;
+  virtual void MIKTEXTHISCALL SetDefaultPaperSize(const std::string & dvipsName) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL TryCreateFromTemplate(const PathName & path) = 0;
@@ -863,25 +842,13 @@ public:
 #endif
 
 public:
-  virtual void MIKTEXTHISCALL ConfigureFile(const PathName & pathIn, const PathName & pathOut, HasNamedValues * callback) = 0;
+  virtual void MIKTEXTHISCALL ConfigureFile(const PathName & pathIn, const PathName & pathOut, HasNamedValues * callback = nullptr) = 0;
 
 public:
-  void ConfigureFile(const PathName & pathIn, const PathName & pathOut)
-  {
-    ConfigureFile(pathIn, pathOut, nullptr);
-  }
+  virtual void MIKTEXTHISCALL ConfigureFile(const PathName & pathRel, HasNamedValues * callback = nullptr) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL ConfigureFile(const PathName & pathRel, HasNamedValues * callback) = 0;
-
-public:
-  void ConfigureFile(const PathName & pathRel)
-  {
-    ConfigureFile(pathRel, nullptr);
-  }
-  
-public:
-  virtual void MIKTEXTHISCALL SetTheNameOfTheGame(const char * lpszTheNameOfTheGame) = 0;
+  virtual void MIKTEXTHISCALL SetTheNameOfTheGame(const std::string & name) = 0;
 
 public:
   virtual std::string MIKTEXTHISCALL GetLocalFontDirectories() = 0;

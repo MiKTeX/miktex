@@ -73,8 +73,7 @@ void dvipdft(int argc, const char * * argv)
     BadUsage();
   }
 
-  char szGSExePath[BufferSizes::MaxPath];
-  session->GetGhostscript(szGSExePath, nullptr);
+  PathName gsExe = session->GetGhostscript(nullptr);
 
   PathName dvipdfmExe;
   if (!session->FindFile("dvipdfm", FileType::EXE, dvipdfmExe))
@@ -132,9 +131,9 @@ void dvipdft(int argc, const char * * argv)
   arguments.AppendOption("-sDEVICE:", "png256");
   arguments.AppendOption("-sOutputFile:", outFileTemplate);
   arguments.AppendArgument(PathName(fileNoExt).AppendExtension(".pdf"));
-  if (!Process::Run(szGSExePath, arguments.ToString(), nullptr, &exitCode, nullptr))
+  if (!Process::Run(gsExe, arguments.ToString(), nullptr, &exitCode, nullptr))
   {
-    FatalError(MIKTEXTEXT("%s could not be started."), szGSExePath);
+    FatalError(MIKTEXTEXT("%s could not be started."), gsExe.GetData());
   }
   if (exitCode != 0)
   {

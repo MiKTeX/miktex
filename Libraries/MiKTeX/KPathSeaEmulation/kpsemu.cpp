@@ -124,7 +124,7 @@ MIKTEXKPSCEEAPI(char *) miktex_kpathsea_find_glyph(kpathsea pKpseInstance, const
   }
   PathName path;
   shared_ptr<Session> session = Session::Get();
-  if (!session->FindPkFile(lpszFontName, (kpse_mode.empty() ? nullptr : kpse_mode.c_str()), dpi, path))
+  if (!session->FindPkFile(lpszFontName, kpse_mode, dpi, path))
   {
     Application * app = Application::GetApplication();
     if (app == nullptr)
@@ -132,8 +132,8 @@ MIKTEXKPSCEEAPI(char *) miktex_kpathsea_find_glyph(kpathsea pKpseInstance, const
       MIKTEX_UNEXPECTED();
     }
     PathName pathMakePk;
-    std::string arguments = session->MakeMakePkCommandLine(lpszFontName, dpi, kpse_baseResolution, (kpse_mode.empty() ? nullptr : kpse_mode.c_str()), pathMakePk, app->GetEnableInstaller());
-    if (!(Process::Run(pathMakePk.GetData(), arguments.c_str(), nullptr, nullptr, nullptr) && session->FindPkFile(lpszFontName, (kpse_mode.empty() ? nullptr : kpse_mode.c_str()), dpi, path)))
+    std::string arguments = session->MakeMakePkCommandLine(lpszFontName, dpi, kpse_baseResolution, kpse_mode.c_str(), pathMakePk, app->GetEnableInstaller());
+    if (!(Process::Run(pathMakePk.GetData(), arguments.c_str(), nullptr, nullptr, nullptr) && session->FindPkFile(lpszFontName, kpse_mode.c_str(), dpi, path)))
     {
       return nullptr;
     }
@@ -712,7 +712,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string & varName, std::string & varVa
   }
   else if (varName == "SELFAUTOLOC")
   {
-    path = session->GetMyLocation();
+    path = session->GetMyLocation(false);
     varValue = path.ToUnix().ToString();
     result = true;
   }
@@ -999,7 +999,7 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_maketex_option(kpathsea kpse, const char *
 MIKTEXKPSCEEAPI(char *) miktex_kpathsea_selfdir(kpathsea kpse, const char * lpszArgv0)
 {
   shared_ptr<Session> session = Session::Get();
-  return xstrdup(session->GetMyLocation().GetData());
+  return xstrdup(session->GetMyLocation(false).GetData());
 }
 
 MIKTEXKPSCEEAPI(char *) miktex_uppercasify(const char * lpsz)

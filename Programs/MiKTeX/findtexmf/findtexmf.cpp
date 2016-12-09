@@ -302,7 +302,7 @@ void FindTeXMF::Run(int argc, const char ** argv)
 
     case OPT_THE_NAME_OF_THE_GAME:
 
-      session->SetTheNameOfTheGame(optArg.c_str());
+      session->SetTheNameOfTheGame(optArg);
       break;
 
     case OPT_VERSION:

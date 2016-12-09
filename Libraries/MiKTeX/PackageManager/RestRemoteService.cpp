@@ -322,7 +322,7 @@ void RestRemoteService::SayHello()
   }
   else
   {
-    session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, "AuthToken", token.c_str());
+    session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, "AuthToken", token);
     session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, "AuthTokenNotValidAfter", (int)system_clock::to_time_t(tokenNotValidAfter));
   }
   SetAuthHeader(token);

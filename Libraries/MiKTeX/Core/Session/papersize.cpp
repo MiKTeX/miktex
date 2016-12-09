@@ -143,7 +143,7 @@ void SessionImpl::AddDvipsPaperSize(const DvipsPaperSizeInfo & dvipsPaperSizeInf
 {
   for (DvipsPaperSizeInfo & siz : dvipsPaperSizes)
   {
-    if (Utils::EqualsIgnoreCase(siz.dvipsName.c_str(), dvipsPaperSizeInfo.dvipsName.c_str()))
+    if (Utils::EqualsIgnoreCase(siz.dvipsName, dvipsPaperSizeInfo.dvipsName))
     {
       siz = dvipsPaperSizeInfo;
       return;
@@ -267,17 +267,17 @@ bool SessionImpl::GetPaperSizeInfo(int idx, PaperSizeInfo & paperSizeInfo)
   return true;
 }
 
-PaperSizeInfo SessionImpl::GetPaperSizeInfo(const char * lpszDvipsName)
+PaperSizeInfo SessionImpl::GetPaperSizeInfo(const string & dvipsName)
 {
   PaperSizeInfo paperSizeInfo;
   for (int idx = 0; GetPaperSizeInfo(idx, paperSizeInfo); ++idx)
   {
-    if (Utils::EqualsIgnoreCase(paperSizeInfo.dvipsName.c_str(), lpszDvipsName))
+    if (Utils::EqualsIgnoreCase(paperSizeInfo.dvipsName, dvipsName))
     {
       return paperSizeInfo;
     }
   }
-  MIKTEX_FATAL_ERROR_2(T_("Unknown paper size."), "name", lpszDvipsName);
+  MIKTEX_FATAL_ERROR_2(T_("Unknown paper size."), "dvipsName", dvipsName);
 }
 
 PaperSizeInfo PaperSizeInfo::Parse(const string & spec)
@@ -342,10 +342,8 @@ PaperSizeInfo PaperSizeInfo::Parse(const string & spec)
   return paperSizeInfo;
 }
 
-void SessionImpl::SetDefaultPaperSize(const char * lpszDvipsName)
+void SessionImpl::SetDefaultPaperSize(const string & dvipsName)
 {
-  UNUSED_ALWAYS(lpszDvipsName);
-
   if (dvipsPaperSizes.empty())
   {
     ReadDvipsPaperSizes();
@@ -357,7 +355,7 @@ void SessionImpl::SetDefaultPaperSize(const char * lpszDvipsName)
 
   for (it = dvipsPaperSizes.begin(); it != dvipsPaperSizes.end(); ++it)
   {
-    if (Utils::EqualsIgnoreCase(it->dvipsName, lpszDvipsName))
+    if (Utils::EqualsIgnoreCase(it->dvipsName, dvipsName))
     {
       break;
     }
@@ -365,7 +363,7 @@ void SessionImpl::SetDefaultPaperSize(const char * lpszDvipsName)
 
   if (it == dvipsPaperSizes.end())
   {
-    MIKTEX_FATAL_ERROR_2(T_("Unknown paper size."), "name", lpszDvipsName);
+    MIKTEX_FATAL_ERROR_2(T_("Unknown paper size."), "dvipsName", dvipsName);
   }
 
   if (it == dvipsPaperSizes.begin())

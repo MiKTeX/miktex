@@ -174,7 +174,7 @@ PackageLevel SetupService::SearchLocalRepository(PathName & localRepository, Pac
 
   // try my directory
   shared_ptr<Session> session = Session::Get();
-  localRepository = session->GetMyLocation();
+  localRepository = session->GetMyLocation(false);
   packageLevel_ = SetupService::TestLocalRepository(localRepository, requestedPackageLevel);
   if (packageLevel_ != PackageLevel::None)
   {
@@ -183,7 +183,7 @@ PackageLevel SetupService::SearchLocalRepository(PathName & localRepository, Pac
   }
 
   // try ..\tm\packages
-  localRepository = session->GetMyLocation();
+  localRepository = session->GetMyLocation(false);
   localRepository /= "..";
   localRepository /= "tm";
   localRepository /= "packages";
@@ -255,7 +255,7 @@ bool SetupService::IsMiKTeXDirect(PathName & root)
 {
   // check ..\texmf\miktex\config\miktexstartup.ini
   shared_ptr<Session> session = Session::Get();
-  root = session->GetMyLocation();
+  root = session->GetMyLocation(false);
   root /= "..";
   root.MakeAbsolute();
   PathName pathStartupConfig = root;
@@ -749,7 +749,7 @@ void SetupServiceImpl::DoTheDownload()
   shared_ptr<Session> session = Session::Get();
 
   // remember local repository folder
-  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LOCAL_REPOSITORY, options.LocalPackageRepository.GetData());
+  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LOCAL_REPOSITORY, options.LocalPackageRepository.ToString());
 
   // create the local repository directory
   Directory::Create(options.LocalPackageRepository);
@@ -1564,7 +1564,7 @@ bool SetupServiceImpl::FindFile(const PathName & fileName, PathName & result)
   shared_ptr<Session> session = Session::Get();
 
   // try my directory
-  result = session->GetMyLocation();
+  result = session->GetMyLocation(false);
   result /= fileName;
   if (File::Exists(result))
   {

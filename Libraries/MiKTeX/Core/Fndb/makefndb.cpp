@@ -516,11 +516,11 @@ bool FndbManager::Create(const char * lpszFndbPath, const char * lpszRootPath, I
     string nowStr = std::to_string(now);
     if (SessionImpl::GetSession()->IsAdminMode())
     {
-      SessionImpl::GetSession()->SetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, nowStr.c_str());
+      SessionImpl::GetSession()->SetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, nowStr);
     }
     else
     {
-      SessionImpl::GetSession()->SetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, nowStr.c_str());
+      SessionImpl::GetSession()->SetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, nowStr);
     }
     return true;
   }

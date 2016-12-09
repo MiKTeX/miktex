@@ -1079,7 +1079,7 @@ ConfigValue SessionImpl::GetConfigValue(const char * lpszSectionName, const stri
   return value;
 }
 
-void SessionImpl::SetConfigValue(const char * lpszSectionName, const char * lpszValueName, const char * lpszValue)
+void SessionImpl::SetConfigValue(const char * lpszSectionName, const string & valueName, const ConfigValue & value)
 {
   MIKTEX_ASSERT_STRING(lpszSectionName);
 
@@ -1101,32 +1101,22 @@ void SessionImpl::SetConfigValue(const char * lpszSectionName, const char * lpsz
     && !IsMiKTeXPortable()
     && !GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, NO_REGISTRY ? true : false).GetBool())
   {
-    winRegistry::SetRegistryValue(IsAdminMode() ? TriState::True : TriState::False, lpszSectionName, lpszValueName, lpszValue);
+    winRegistry::SetRegistryValue(IsAdminMode() ? TriState::True : TriState::False, lpszSectionName, valueName, value.GetString());
     string newValue;
-    if (GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, lpszValueName, newValue))
+    if (GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, valueName, newValue))
     {
-      if (newValue != lpszValue)
+      if (newValue != value.GetString())
       {
-        MIKTEX_FATAL_ERROR_2(T_("The configuration value could not be changed. Possible reason: an environment variable definition is in the way."), "valueName", lpszValueName);
+        MIKTEX_FATAL_ERROR_2(T_("The configuration value could not be changed. Possible reason: an environment variable definition is in the way."), "valueName", valueName);
       }
     }
     return;
   }
 #endif
 
-  pCfg->PutValue(lpszSectionName, lpszValueName, lpszValue);
+  pCfg->PutValue(lpszSectionName, valueName, value.GetString());
   pCfg->Write(pathConfigFile);
   configurationSettings.clear();
-}
-
-void SessionImpl::SetConfigValue(const char * lpszSectionName, const char * lpszValueName, bool value)
-{
-  SetConfigValue(lpszSectionName, lpszValueName, value ? "t" : "f");
-}
-
-void SessionImpl::SetConfigValue(const char * lpszSectionName, const char * lpszValueName, int value)
-{
-  SetConfigValue(lpszSectionName, lpszValueName, std::to_string(value).c_str());
 }
 
 void SessionImpl::SetAdminMode(bool adminMode, bool isSetup)

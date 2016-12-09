@@ -764,7 +764,7 @@ RepositoryType PackageManagerImpl::DetermineRepositoryType(const string & reposi
 void PackageManager::SetRemotePackageRepository(const string & url, RepositoryReleaseState repositoryReleaseState)
 {
   shared_ptr<Session> session = Session::Get();
-  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REMOTE_REPOSITORY, url.c_str());
+  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REMOTE_REPOSITORY, url);
   session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REPOSITORY_RELEASE_STATE, repositoryReleaseState == RepositoryReleaseState::Stable ? "stable" : (repositoryReleaseState == RepositoryReleaseState::Next ? "next" : "unknown"));
 }
 
@@ -800,7 +800,7 @@ PathName PackageManager::GetLocalPackageRepository()
 
 void PackageManager::SetLocalPackageRepository(const PathName & path)
 {
-  Session::Get()->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LOCAL_REPOSITORY, path.GetData());
+  Session::Get()->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LOCAL_REPOSITORY, path.ToString());
 }
 
 bool PackageManager::TryGetMiKTeXDirectRoot(PathName & path)
@@ -836,8 +836,7 @@ PathName PackageManager::GetMiKTeXDirectRoot()
 void PackageManager::SetMiKTeXDirectRoot(const PathName & path)
 {
   shared_ptr<Session> session = Session::Get();
-  session
-    ->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_MIKTEXDIRECT_ROOT, path.GetData());
+  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_MIKTEXDIRECT_ROOT, path.ToString());
 }
 
 bool PackageManager::TryGetDefaultPackageRepository(RepositoryType & repositoryType, RepositoryReleaseState & repositoryReleaseState, string & urlOrPath)
@@ -914,7 +913,7 @@ void PackageManager::SetDefaultPackageRepository(RepositoryType repositoryType, 
   default:
     MIKTEX_UNEXPECTED();
   }
-  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REPOSITORY_TYPE, repositoryTypeStr.c_str());
+  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REPOSITORY_TYPE, repositoryTypeStr);
 }
 
 const char * DEFAULT_REMOTE_SERVICE = "https://api2.miktex.org/";
@@ -1419,7 +1418,7 @@ void PackageManager::SetProxy(const ProxySettings & proxySettings)
 {
   shared_ptr<Session> session = Session::Get();
   session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_USE_PROXY, proxySettings.useProxy);
-  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_HOST, proxySettings.proxy.c_str());
+  session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_HOST, proxySettings.proxy);
   session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_PORT, proxySettings.port);
   session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_AUTH_REQ, proxySettings.authenticationRequired);
   PackageManagerImpl::proxyUser = proxySettings.user;

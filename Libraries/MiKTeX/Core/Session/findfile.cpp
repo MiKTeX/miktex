@@ -458,14 +458,11 @@ static const string DEFAULT_PK_SEARCH_PATH = ".;%R\\fonts\\pk\\%m//dpi%d";
 static const string DEFAULT_PK_SEARCH_PATH = ".:%R/fonts/pk/%m//dpi%d";
 #endif
 
-bool SessionImpl::FindPkFile(const char * lpszFontName, const char * lpszMode, int dpi, PathName & result)
+bool SessionImpl::FindPkFile(const string & fontName, const string & mfMode, int dpi, PathName & result)
 {
-  MIKTEX_ASSERT_STRING(lpszFontName);
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszMode);
-
   PathName pkFileName;
 
-  if (!MakePkFileName(pkFileName, lpszFontName, dpi))
+  if (!MakePkFileName(pkFileName, fontName.c_str(), dpi))
   {
     return false;
   }
@@ -498,10 +495,10 @@ bool SessionImpl::FindPkFile(const char * lpszFontName, const char * lpszMode, i
 	searchPath += '%';
 	break;
       case 'm':
-	if (lpszMode != nullptr)
-	{
-	  searchPath += lpszMode;
-	}
+        if (!mfMode.empty())
+        {
+          searchPath += mfMode;
+        }
 	else
 	{
 	  // FIXME: hardcoded METAFONT mode
@@ -523,10 +520,10 @@ bool SessionImpl::FindPkFile(const char * lpszFontName, const char * lpszMode, i
 
   bool found = FindFile(pkFileName.GetData(), searchPath.c_str(), result);
 
-  if (!found && (lpszMode == nullptr || StringCompare(lpszMode, "modeless", true) != 0))
+  if (!found && (mfMode.empty() || StringCompare(mfMode.c_str(), "modeless", true) != 0))
   {
     // RECURSION
-    found = FindPkFile(lpszFontName, "modeless", dpi, result);
+    found = FindPkFile(fontName, "modeless", dpi, result);
   }
 
   return found;

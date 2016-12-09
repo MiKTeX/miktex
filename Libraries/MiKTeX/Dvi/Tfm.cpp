@@ -83,13 +83,13 @@ void Tfm::Read()
 
   PathName fileName;
 
-  bool tfmFileExists = session->FindTfmFile(dviInfo.name.c_str(), fileName, false);
+  bool tfmFileExists = session->FindTfmFile(dviInfo.name, fileName, false);
 
   if (!tfmFileExists)
   {
     if (Make(dviInfo.name))
     {
-      tfmFileExists = session->FindTfmFile(dviInfo.name.c_str(), fileName, false);
+      tfmFileExists = session->FindTfmFile(dviInfo.name, fileName, false);
       if (!tfmFileExists)
       {
         // this shouldn't happen; but it does (#521481)

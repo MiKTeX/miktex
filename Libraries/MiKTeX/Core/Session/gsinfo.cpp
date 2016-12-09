@@ -46,11 +46,9 @@ inline bool ScanString(const char * lpszString, const char * lpszFormat, unsigne
   return n == 2;
 }
 
-// TODO: fix arguments
-void SessionImpl::GetGhostscript(char * lpszPath, unsigned long * pVersionNumber)
+PathName SessionImpl::GetGhostscript(unsigned long * versionNumber)
 {
-  MIKTEX_ASSERT_PATH_BUFFER(lpszPath);
-  MIKTEX_ASSERT_BUFFER_OR_NIL(pVersionNumber, sizeof(*pVersionNumber));
+  MIKTEX_ASSERT_BUFFER_OR_NIL(versionNumber, sizeof(*versionNumber));
 
   if (pathGsExe.Empty())
   {
@@ -61,11 +59,11 @@ void SessionImpl::GetGhostscript(char * lpszPath, unsigned long * pVersionNumber
     }
   }
 
-  if (pVersionNumber != nullptr && gsVersion.n1 == 0)
+  if (versionNumber != nullptr && gsVersion.n1 == 0)
   {
     int exitCode;
     ProcessOutput<80> gsOut;
-    if (!Process::Run(pathGsExe.GetData(), "--version", &gsOut, &exitCode, nullptr))
+    if (!Process::Run(pathGsExe, "--version", &gsOut, &exitCode, nullptr))
     {
       MIKTEX_UNEXPECTED();
     }
@@ -77,10 +75,10 @@ void SessionImpl::GetGhostscript(char * lpszPath, unsigned long * pVersionNumber
     trace_config->WriteFormattedLine("core", T_("Ghostscript version: %s"), gsVersion.ToString().c_str());
   }
 
-  StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, pathGsExe.GetData());
-
-  if (pVersionNumber != nullptr)
+  if (versionNumber != nullptr)
   {
-    *pVersionNumber = static_cast<unsigned long>(gsVersion.GetHighWord());
+    *versionNumber = static_cast<unsigned long>(gsVersion.GetHighWord());
   }
+
+  return pathGsExe;
 }

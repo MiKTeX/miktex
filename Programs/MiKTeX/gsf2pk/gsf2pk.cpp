@@ -594,9 +594,7 @@ void Converter::ReadTFMFile(const char * lpszTeXFontName)
 
 Process * Converter::StartGhostscript(const char * lpszFontFile, const char * lpszEncFile, const char * lpszFontName, const char * lpszSpecInfo, const char * lpszDPI, FILE ** ppGsOut, FILE ** ppGsErr)
 {
-  PathName pathGs;
-
-  session->GetGhostscript(pathGs.GetData(), nullptr);
+  PathName pathGs = session->GetGhostscript(nullptr);
 
   //
   // build the command-line

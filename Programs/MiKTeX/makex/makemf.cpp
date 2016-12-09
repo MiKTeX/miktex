@@ -114,11 +114,11 @@ const char * const cbpref[] = {
   nullptr
 };
 
-bool HasPrefix(const char * lpsz, const char * const lpszPrefixes[])
+bool HasPrefix(const string & s, const char * const prefixes[])
 {
-  for (size_t i = 0; lpszPrefixes[i] != 0; ++i)
+  for (size_t i = 0; prefixes[i] != 0; ++i)
   {
-    if (HasPrefix(lpsz, lpszPrefixes[i]))
+    if (HasPrefix(s, prefixes[i]))
     {
       return true;
     }
@@ -147,10 +147,10 @@ private:
   bool toStdout = false;
 
 private:
-  PathName supplier;
+  string supplier;
 
 private:
-  PathName typeface;
+  string typeface;
 };
 
 void MakeMf::Usage()
@@ -191,13 +191,13 @@ void MakeMf::CreateDestinationDirectory()
   templ += T_("fonts");
   templ += PathName::DirectoryDelimiter;
   templ += T_("source");
-  if (!supplier.Empty())
+  if (!supplier.empty())
   {
     templ += PathName::DirectoryDelimiter;
-    templ += supplier.GetData();
+    templ += supplier;
   }
   templ += PathName::DirectoryDelimiter;
-  templ += typeface.GetData();
+  templ += typeface;
   destinationDirectory = CreateDirectoryFromTemplate(templ);
 }
 
@@ -214,59 +214,59 @@ void MakeMf::Run(int argc, const char ** argv)
 
   // derive TeX font name from name (e.g., "ecbi3583.mf" =>
   // "ecbi3583")
-  PathName texFontname = PathName(name).GetFileNameWithoutExtension();
+  string texFontname = PathName(name).GetFileNameWithoutExtension().ToString();
 
   // derive driver name from the TeX font name (e.g., "ecbi3583" =>
   // "ecbi"
-  char szDriverName[BufferSizes::MaxPath];
-  session->SplitFontPath(texFontname.GetData(), nullptr, nullptr, nullptr, szDriverName, nullptr);
+  string driverName;
+  session->SplitFontPath(texFontname, nullptr, nullptr, nullptr, &driverName, nullptr);
 
   // find the driver file
   {
     // try a sauterized driver first
     string strSauterDriverName = "b-";
-    strSauterDriverName += szDriverName;
+    strSauterDriverName += driverName;
     PathName driverPath;
     if (!session->FindFile(strSauterDriverName.c_str(), FileType::MF, driverPath))
     {
       // lh fonts get special treatment
-      if (HasPrefix(szDriverName, lhpref))
+      if (HasPrefix(driverName, lhpref))
       {
         string strLHDriverName;
-        strLHDriverName += szDriverName[0];
-        strLHDriverName += szDriverName[1];
+        strLHDriverName += driverName[0];
+        strLHDriverName += driverName[1];
         strLHDriverName += "codes";
         if (!session->FindFile(strLHDriverName.c_str(), FileType::MF, driverPath))
         {
           FatalError(T_("The %s source file could not be found."), strLHDriverName.c_str());
         }
       }
-      else if (HasPrefix(szDriverName, cspref))
+      else if (HasPrefix(driverName, cspref))
       {
         if (!session->FindFile("cscode", FileType::MF, driverPath))
         {
           FatalError(T_("The cscode source file could not be found."));
         }
       }
-      else if (HasPrefix(szDriverName, cbpref))
+      else if (HasPrefix(driverName, cbpref))
       {
         if (!session->FindFile("cbgreek", FileType::MF, driverPath))
         {
           FatalError(T_("The cbgreek source file could not be found."));
         }
       }
-      else if (!session->FindFile(szDriverName, FileType::MF, driverPath))
+      else if (!session->FindFile(driverName.c_str(), FileType::MF, driverPath))
       {
-        FatalError(T_("The %s source file could not be found."), szDriverName);
+        FatalError(T_("The %s source file could not be found."), driverName.c_str());
       }
     }
   }
 
   // get information about the font
   double true_pt_size;
-  if (!session->GetFontInfo(texFontname.GetData(), supplier.GetData(), typeface.GetData(), &true_pt_size))
+  if (!session->GetFontInfo(texFontname, supplier, typeface, &true_pt_size))
   {
-    FatalError(T_("No info available for %s."), texFontname.GetData());
+    FatalError(T_("No info available for %s."), texFontname.c_str());
   }
 
   // create destination directory
@@ -295,34 +295,34 @@ void MakeMf::Run(int argc, const char ** argv)
 
   PrintOnly("cat <<__END__ > %s", Q_(pathDest));
 
-  if (HasPrefix(texFontname.GetData(), "ec") || HasPrefix(texFontname.GetData(), "tc"))
+  if (HasPrefix(texFontname, "ec") || HasPrefix(texFontname, "tc"))
   {
     fprintf(stream, "if unknown exbase: input exbase fi;\n");
     fprintf(stream, "gensize:=%0.2f;\n", true_pt_size);
-    fprintf(stream, "generate %s;\n", szDriverName);
+    fprintf(stream, "generate %s;\n", driverName.c_str());
   }
-  else if (HasPrefix(texFontname.GetData(), "dc"))
+  else if (HasPrefix(texFontname, "dc"))
   {
     fprintf(stream, "if unknown dxbase: input dxbase fi;\n");
     fprintf(stream, "gensize:=%f;\n", true_pt_size);
-    fprintf(stream, "generate %s;\n", szDriverName);
+    fprintf(stream, "generate %s;\n", driverName.c_str());
   }
-  else if (HasPrefix(texFontname.GetData(), lhpref))
+  else if (HasPrefix(texFontname, lhpref))
   {
     fprintf(stream, "input fikparm;\n");
   }
-  else if (HasPrefix(texFontname.GetData(), cspref))
+  else if (HasPrefix(texFontname, cspref))
   {
     fprintf(stream, "input cscode\nuse_driver;\n");
   }
-  else if (HasPrefix(texFontname.GetData(), cbpref))
+  else if (HasPrefix(texFontname, cbpref))
   {
     fprintf(stream, "input cbgreek;\n");
   }
   else
   {
     fprintf(stream, "design_size:=%f;\n", true_pt_size);
-    fprintf(stream, "input b-%s;\n", szDriverName);
+    fprintf(stream, "input b-%s;\n", driverName.c_str());
   }
 
   PrintOnly("__END__");

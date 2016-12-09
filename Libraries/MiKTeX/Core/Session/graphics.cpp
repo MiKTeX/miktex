@@ -29,65 +29,35 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-bool SessionImpl::FindGraphicsRule(const char * lpszFrom, const char * lpszTo, char * lpszRule, size_t bufSize)
+bool SessionImpl::FindGraphicsRule(const string & fromExt, const string & toExt, string & rule)
 {
-  MIKTEX_ASSERT_STRING(lpszFrom);
-  MIKTEX_ASSERT_STRING(lpszTo);
-
-  MIKTEX_ASSERT_CHAR_BUFFER_OR_NIL(lpszRule, bufSize);
-
-  string strKey = lpszFrom;
-  strKey += lpszTo;
-
-  string strRule;
-
-  bool b = GetSessionValue("Graphics", strKey, strRule);
-
-  if (!b)
-  {
-    return false;
-  }
-
-  if (lpszRule != nullptr)
-  {
-    StringUtil::CopyString(lpszRule, bufSize, strRule.c_str());
-  }
-
-  return true;
+  return GetSessionValue("Graphics", fromExt + toExt, rule);
 }
 
-bool SessionImpl::ConvertToBitmapFile(const char * lpszPath, char * lpszBmpFile, IRunProcessCallback * pCallback)
+bool SessionImpl::ConvertToBitmapFile(const PathName & sourceFileName, PathName & destFileName, IRunProcessCallback * callback)
 {
-  MIKTEX_ASSERT_STRING(lpszPath);
-  MIKTEX_ASSERT_PATH_BUFFER(lpszBmpFile);
+  string ext = sourceFileName.GetExtension();
 
-  const char * lpszExt = GetFileNameExtension(lpszPath);
-
-  if (lpszExt == nullptr)
+  if (ext.empty())
   {
-    MIKTEX_FATAL_ERROR_2(T_("No file name extension in graphics rule."), "path", lpszPath);
+    MIKTEX_FATAL_ERROR_2(T_("No file name extension in graphics rule."), "path", ext);
   }
 
-  const size_t MAXRULE = 1024;
-  char szRule[MAXRULE];
+  string rule;
 
-  if (!FindGraphicsRule(lpszExt, ".bmp", szRule, MAXRULE))
+  if (!FindGraphicsRule(ext, ".bmp", rule))
   {
-    MIKTEX_FATAL_ERROR_2(T_("No conversion rule found."), "path", lpszPath);
+    MIKTEX_FATAL_ERROR_2(T_("No conversion rule found."), "path", sourceFileName.ToString());
   }
 
-  PathName temp;
-  temp.SetToTempFile();
+  destFileName.SetToTempFile();
 #if defined(MIKTEX_WINDOWS)
-  Utils::RemoveBlanksFromPathName(temp);
+  Utils::RemoveBlanksFromPathName(destFileName);
 #endif
 
-  StringUtil::CopyString(lpszBmpFile, BufferSizes::MaxPath, temp.GetData());
+  string commandLine;
 
-  string strCommandLine;
-  strCommandLine.reserve(256);
-
-  for (const char * lpsz = szRule; *lpsz != 0; ++lpsz)
+  for (const char * lpsz = rule.c_str(); *lpsz != 0; ++lpsz)
   {
     if (*lpsz == '%')
     {
@@ -95,25 +65,25 @@ bool SessionImpl::ConvertToBitmapFile(const char * lpszPath, char * lpszBmpFile,
       switch (*lpsz)
       {
       case 'i':
-	strCommandLine += lpszPath;
+        commandLine += sourceFileName.GetData();
 	break;
       case 'o':
-	strCommandLine += lpszBmpFile;
+        commandLine += destFileName.GetData();
 	break;
       }
     }
     else
     {
-      strCommandLine += *lpsz;
+      commandLine += *lpsz;
     }
   }
 
-  bool bDone = Process::ExecuteSystemCommand(strCommandLine.c_str(), 0, pCallback, 0);
+  bool done = Process::ExecuteSystemCommand(commandLine, nullptr, callback, nullptr);
 
-  if (!bDone)
+  if (!done)
   {
-    File::Delete(lpszBmpFile, { FileDeleteOption::TryHard });
+    File::Delete(destFileName, { FileDeleteOption::TryHard });
   }
 
-  return bDone;
+  return done;
 }

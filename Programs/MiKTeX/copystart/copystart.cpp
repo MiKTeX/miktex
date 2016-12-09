@@ -45,7 +45,7 @@ void CopyStart(const wchar_t * lpszFileName, const wchar_t * lpszArgs)
   MD5 digest = MD5::FromFile(StringUtil::WideCharToUTF8(lpszFileName).c_str());
 
   // set MIKTEX_BINDIR
-  Utils::SetEnvironmentString(MIKTEX_ENV_BIN_DIR, session->GetMyLocation().GetData());
+  Utils::SetEnvironmentString(MIKTEX_ENV_BIN_DIR, session->GetMyLocation(false).GetData());
 
   // set MIKTEX_*STARTUPFILE
   if (session->IsMiKTeXPortable())

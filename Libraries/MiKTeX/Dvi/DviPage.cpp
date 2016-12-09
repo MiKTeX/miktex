@@ -888,8 +888,7 @@ unique_ptr<Process> DviPageImpl::StartDvips()
 
 unique_ptr<Process> DviPageImpl::StartGhostscript(int shrinkFactor)
 {
-  PathName gsPath;
-  session->GetGhostscript(gsPath.GetData(), nullptr);
+  PathName gsPath = session->GetGhostscript(nullptr);
 
   // make Ghostscript command line
   CommandLineBuilder arguments;
@@ -1036,7 +1035,7 @@ void DviPageImpl::DoGraphicsSpecials(int shrinkFactor)
         PathName tempFileName;
         if (!pDviImpl->TryGetTempFile(fileName.GetData(), tempFileName))
         {
-          if (!session->ConvertToBitmapFile(fileName.GetData(), tempFileName.GetData(), nullptr))
+          if (!session->ConvertToBitmapFile(fileName, tempFileName, nullptr))
           {
             MIKTEX_FATAL_ERROR_2(T_("Could not convert to bitmap file."), "path", fileName.GetData());
           }

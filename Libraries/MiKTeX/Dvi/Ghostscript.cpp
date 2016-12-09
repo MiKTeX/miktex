@@ -44,9 +44,8 @@ void Ghostscript::Start()
   shared_ptr<Session> session = Session::Get();
 
   // find Ghostscript
-  char szGsExe[BufferSizes::MaxPath];
   unsigned long version;
-  session->GetGhostscript(szGsExe, &version);
+  PathName gsExe = session->GetGhostscript(&version);
 
   // check to see whether the version number is ok
   if (((version >> 16) & 0xffff) < 8)
@@ -89,7 +88,7 @@ void Ghostscript::Start()
   ProcessStartInfo startinfo;
 
   startinfo.Arguments = arguments.ToString();
-  startinfo.FileName = szGsExe;
+  startinfo.FileName = gsExe.ToString();
   startinfo.StandardInput = 0;
   startinfo.RedirectStandardInput = true;
   startinfo.RedirectStandardOutput = true;

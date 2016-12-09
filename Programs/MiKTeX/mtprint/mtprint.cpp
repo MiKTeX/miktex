@@ -451,8 +451,7 @@ void PrintUtility::StartGhostscript(const GSOPTS & gsOpts, unsigned resolution, 
 {
   gsOpts;
 
-  PathName gsPath;
-  session->GetGhostscript(gsPath.GetData(), nullptr);
+  PathName gsPath = session->GetGhostscript(nullptr);
 
   // make GS command line
   CommandLineBuilder commandLine;

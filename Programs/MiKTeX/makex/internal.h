@@ -97,9 +97,9 @@ using namespace std;
 #  define UNUSED_ALWAYS(x) static_cast<void>(x)
 #endif
 
-inline bool HasPrefix(const char * lpsz1, const char * lpsz2)
+inline bool HasPrefix(const string & s1, const string & s2)
 {
-  return PathName::Compare(lpsz1, lpsz2, strlen(lpsz2)) == 0;
+  return PathName::Compare(s1, s2, s2.length()) == 0;
 }
 
 class MakeUtility :

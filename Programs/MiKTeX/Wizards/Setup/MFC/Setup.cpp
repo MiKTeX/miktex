@@ -561,7 +561,7 @@ bool FindFile(const PathName & fileName, PathName & result)
   std::shared_ptr<Session> session = Session::Get();
 
   // try my directory
-  result = session->GetMyLocation();
+  result = session->GetMyLocation(false);
   result /= fileName;
   if (File::Exists(result))
   {

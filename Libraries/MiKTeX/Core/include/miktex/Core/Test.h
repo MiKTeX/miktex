@@ -306,7 +306,7 @@ protected:
 protected:
   bool RunTestCommand(const char * lpszProgramName)
   {
-  std::string commandLine = MiKTeX::Core::PathName(pSession->GetMyLocation(), lpszProgramName).ToString();
+  std::string commandLine = MiKTeX::Core::PathName(pSession->GetMyLocation(false), lpszProgramName).ToString();
     for (std::vector<std::string>::const_iterator it = argv.begin(); it != argv.end(); ++it)
     {
       if (it != argv.begin())
