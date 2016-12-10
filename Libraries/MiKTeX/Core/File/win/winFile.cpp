@@ -153,7 +153,7 @@ void File::SetNativeAttributes(const PathName & path, unsigned long nativeAttrib
 
 size_t File::GetSize(const PathName & path)
 {
-  HANDLE h = CreateFileW(path.ToWideCharString().c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+  HANDLE h = CreateFileW(path.ToWideCharString().c_str(), FILE_READ_ATTRIBUTES, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
   if (h == INVALID_HANDLE_VALUE)
   {
