@@ -62,7 +62,7 @@ void TeXApp::Init(const char * lpszProgramInvocationName)
 void TeXApp::OnTeXMFStartJob()
 {
   TeXMFApp::OnTeXMFStartJob();
-  string enableWrite18 = session->GetConfigValue(nullptr, MIKTEX_REGVAL_ENABLE_WRITE18, texapp::texapp::EnableWrite18()).GetString();
+  string enableWrite18 = session->GetConfigValue("", MIKTEX_REGVAL_ENABLE_WRITE18, texapp::texapp::EnableWrite18()).GetString();
   if (enableWrite18 == "t")
   {
     write18Mode = Write18Mode::Enabled;
@@ -489,7 +489,7 @@ TeXApp::Write18Result TeXApp::Write18(const char * lpszCommand, int & exitCode) 
     }
     else
     {
-      bool allowed = StringUtil::Contains(session->GetConfigValue(nullptr, MIKTEX_REGVAL_ALLOWED_SHELL_COMMANDS, texapp::texapp::AllowedShellCommands()).GetString().c_str(), executable.c_str(), ",;:",
+      bool allowed = StringUtil::Contains(session->GetConfigValue("", MIKTEX_REGVAL_ALLOWED_SHELL_COMMANDS, texapp::texapp::AllowedShellCommands()).GetString().c_str(), executable.c_str(), ",;:",
 #if defined(MIKTEX_WINDOWS)
 	true
 #else

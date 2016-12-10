@@ -125,9 +125,9 @@ void TeXMFApp::OnTeXMFStartJob()
     }
   }
   session->PushBackAppName(appName);
-  parseFirstLine = session->GetConfigValue(nullptr, MIKTEX_REGVAL_PARSE_FIRST_LINE, isTeXProgram).GetBool();
-  showFileLineErrorMessages = session->GetConfigValue(nullptr, MIKTEX_REGVAL_C_STYLE_ERRORS, false).GetBool();
-  EnablePipes(session->GetConfigValue(nullptr, MIKTEX_REGVAL_ENABLE_PIPES, false).GetBool());
+  parseFirstLine = session->GetConfigValue("", MIKTEX_REGVAL_PARSE_FIRST_LINE, isTeXProgram).GetBool();
+  showFileLineErrorMessages = session->GetConfigValue("", MIKTEX_REGVAL_C_STYLE_ERRORS, false).GetBool();
+  EnablePipes(session->GetConfigValue("", MIKTEX_REGVAL_ENABLE_PIPES, false).GetBool());
   clockStart = clock();
 }
 
@@ -317,7 +317,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     auxDirectory.MakeAbsolute();
     if (!Directory::Exists(auxDirectory))
     {
-      if (session->GetConfigValue(nullptr, MIKTEX_REGVAL_CREATE_AUX_DIRECTORY, texmfapp::texmfapp::CreateAuxDirectory()).GetString() == "t")
+      if (session->GetConfigValue("", MIKTEX_REGVAL_CREATE_AUX_DIRECTORY, texmfapp::texmfapp::CreateAuxDirectory()).GetString() == "t")
       {
         Directory::Create(auxDirectory);
       }
@@ -455,7 +455,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     outputDirectory.MakeAbsolute();
     if (!Directory::Exists(outputDirectory))
     {
-      if (session->GetConfigValue(nullptr, MIKTEX_REGVAL_CREATE_OUTPUT_DIRECTORY, texmfapp::texmfapp::CreateOutputDirectory()).GetString() == "t")
+      if (session->GetConfigValue("", MIKTEX_REGVAL_CREATE_OUTPUT_DIRECTORY, texmfapp::texmfapp::CreateOutputDirectory()).GetString() == "t")
       {
         Directory::Create(outputDirectory);
       }
@@ -557,7 +557,7 @@ void TeXMFApp::ParseFirstLine(const PathName & fileName)
 
   PathName path;
 
-  if (!session->FindFile(fileName.GetData(), GetInputFileType(), path))
+  if (!session->FindFile(fileName.ToString(), GetInputFileType(), path))
   {
     return;
   }
@@ -583,7 +583,7 @@ void TeXMFApp::ParseFirstLine(const PathName & fileName)
 	fileName.SetExtension(GetMemoryDumpFileExtension());
       }
       PathName path;
-      if (session->FindFile(fileName.GetData(), GetMemoryDumpFileType(), path))
+      if (session->FindFile(fileName.ToString(), GetMemoryDumpFileType(), path))
       {
 	this->memoryDumpFileName = memoryDumpFileName;
       }
@@ -643,7 +643,7 @@ bool TeXMFApp::OpenMemoryDumpFile(const PathName & fileName_, FILE ** ppFile, vo
     findFileOptions += Session::FindFileOption::Renew;
   }
 
-  if (!session->FindFile(fileName.GetData(), GetMemoryDumpFileType(), findFileOptions, path))
+  if (!session->FindFile(fileName.ToString(), GetMemoryDumpFileType(), findFileOptions, path))
   {
     MIKTEX_FATAL_ERROR_2(T_("The memory dump file could not be found."), "fileName", fileName.ToString());
   }

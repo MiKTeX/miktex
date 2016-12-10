@@ -182,13 +182,13 @@ public:
   bool DetermineMETAFONTMode(unsigned dpi, MiKTeX::Core::MIKTEXMFMODE & mode) override;
 
 public:
-  bool TryGetConfigValue(const char * lpszSectionName, const std::string & valueName, std::string & value) override;
+  bool TryGetConfigValue(const std::string & sectionName, const std::string & valueName, std::string & value) override;
 
 public:
-  MiKTeX::Core::ConfigValue GetConfigValue(const char * lpszSectionName, const std::string & valueName, const MiKTeX::Core::ConfigValue & defaultValue) override;
+  MiKTeX::Core::ConfigValue GetConfigValue(const std::string & sectionName, const std::string & valueName, const MiKTeX::Core::ConfigValue & defaultValue) override;
 
 public:
-  void SetConfigValue(const char * lpszSectionName, const std::string & valueName, const MiKTeX::Core::ConfigValue & value) override;
+  void SetConfigValue(const std::string & sectionName, const std::string & valueName, const MiKTeX::Core::ConfigValue & value) override;
 
 public:
   FILE * OpenFile(const MiKTeX::Core::PathName & path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile) override;
@@ -237,39 +237,39 @@ public:
   MiKTeX::Core::FileType DeriveFileType(const MiKTeX::Core::PathName & fileName) override;
 
 public:
-  bool FindFile(const char * lpszFileName, const char * lpszPathList, FindFileOptionSet options, std::vector<MiKTeX::Core::PathName> & result) override;
+  bool FindFile(const std::string & fileName, const std::string & pathList, FindFileOptionSet options, std::vector<MiKTeX::Core::PathName> & result) override;
 
 public:
-  bool FindFile(const char * lpszFileName, const char * lpszPathList, std::vector<MiKTeX::Core::PathName> & result) override
+  bool FindFile(const std::string & fileName, const std::string & pathList, std::vector<MiKTeX::Core::PathName> & result) override
   {
-    return FindFile(lpszFileName, lpszPathList, { FindFileOption::All }, result);
+    return FindFile(fileName, pathList, { FindFileOption::All }, result);
   }
 
 public:
-  bool FindFile(const char * lpszFileName, const char * lpszPathList, FindFileOptionSet options, MiKTeX::Core::PathName & result) override;
+  bool FindFile(const std::string & fileName, const std::string & pathList, FindFileOptionSet options, MiKTeX::Core::PathName & result) override;
 
 public:
-  bool FindFile(const char * lpszFileName, const char * lpszPathList, MiKTeX::Core::PathName & result) override
+  bool FindFile(const std::string & fileName, const std::string & pathList, MiKTeX::Core::PathName & result) override
   {
-    return FindFile(lpszFileName, lpszPathList, {}, result);
+    return FindFile(fileName, pathList, {}, result);
   }
 
 public:
-  bool FindFile(const char * lpszFileName, MiKTeX::Core::FileType fileType, FindFileOptionSet options, std::vector<MiKTeX::Core::PathName> & result) override;
+  bool FindFile(const std::string & fileName, MiKTeX::Core::FileType fileType, FindFileOptionSet options, std::vector<MiKTeX::Core::PathName> & result) override;
 
 public:
-  bool FindFile(const char * lpszFileName, MiKTeX::Core::FileType fileType, std::vector<MiKTeX::Core::PathName> & result) override
+  bool FindFile(const std::string & fileName, MiKTeX::Core::FileType fileType, std::vector<MiKTeX::Core::PathName> & result) override
   {
-    return FindFile(lpszFileName, fileType, { FindFileOption::All }, result);
+    return FindFile(fileName, fileType, { FindFileOption::All }, result);
   }
 
 public:
-  bool FindFile(const char * lpszFileName, MiKTeX::Core::FileType fileType, FindFileOptionSet options, MiKTeX::Core::PathName & result) override;
+  bool FindFile(const std::string & fileName, MiKTeX::Core::FileType fileType, FindFileOptionSet options, MiKTeX::Core::PathName & result) override;
 
 public:
-  bool FindFile(const char * lpszFileName, MiKTeX::Core::FileType fileType, MiKTeX::Core::PathName & result) override
+  bool FindFile(const std::string & fileName, MiKTeX::Core::FileType fileType, MiKTeX::Core::PathName & result) override
   {
-    return FindFile(lpszFileName, fileType, {}, result);
+    return FindFile(fileName, fileType, {}, result);
   }
 
 public:
@@ -278,7 +278,7 @@ public:
 public:
   bool FindTfmFile(const std::string & fontName, MiKTeX::Core::PathName & result, bool create) override
   {
-    return FindFile(fontName.c_str(), MiKTeX::Core::FileType::TFM, (create ? FindFileOptionSet({ FindFileOption::Create }) : FindFileOptionSet()), result);
+    return FindFile(fontName, MiKTeX::Core::FileType::TFM, (create ? FindFileOptionSet({ FindFileOption::Create }) : FindFileOptionSet()), result);
   }
 
 public:
@@ -670,13 +670,13 @@ private:
   bool MakePkFileName(MiKTeX::Core::PathName & pkFileName, const char * lpszFontName, int dpi);
 
 private:
-  bool FindFileInternal(const char * lpszFileName, const std::vector<MiKTeX::Core::PathName> & vec, bool firstMatchOnly, bool useFndb, bool searchFileSystem, std::vector<MiKTeX::Core::PathName> & result);
+  bool FindFileInternal(const std::string & fileName, const std::vector<MiKTeX::Core::PathName> & vec, bool firstMatchOnly, bool useFndb, bool searchFileSystem, std::vector<MiKTeX::Core::PathName> & result);
 
 private:
-  bool FindFileInternal(const char * lpszFileName, MiKTeX::Core::FileType fileType, bool firstMatchOnly, bool tryHard, bool create, bool renew, std::vector<MiKTeX::Core::PathName> & result);
+  bool FindFileInternal(const std::string & fileName, MiKTeX::Core::FileType fileType, bool firstMatchOnly, bool tryHard, bool create, bool renew, std::vector<MiKTeX::Core::PathName> & result);
 
 private:
-  bool SearchFileSystem(const char * lpszRelPath, const char * lpszDirPath, bool firstMatchOnly, std::vector<MiKTeX::Core::PathName> & result);
+  bool SearchFileSystem(const std::string & fileName, const char * lpszDirPath, bool firstMatchOnly, std::vector<MiKTeX::Core::PathName> & result);
 
 private:
   bool CheckCandidate(MiKTeX::Core::PathName & path, const char * lpszFileInfo);

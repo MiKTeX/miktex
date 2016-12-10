@@ -1172,7 +1172,7 @@ void Application::RestartWindowed()
   PathName mpmgui;
 
   // locate mpm_mfc
-  if (!pSession->FindFile(mpmGuiName.c_str(), FileType::EXE, mpmgui))
+  if (!pSession->FindFile(mpmGuiName, FileType::EXE, mpmgui))
   {
     Error(T_("Could not restart in windowed mode."));
   }

@@ -465,7 +465,7 @@ bool SessionImpl::TryCreateFromTemplate(const PathName & path)
   string templ = lpszRelPath;
   templ += ".template";
   PathName configTemplatePath;
-  if (FindFile(templ.c_str(), MIKTEX_PATH_TEXMF_PLACEHOLDER, configTemplatePath))
+  if (FindFile(templ, MIKTEX_PATH_TEXMF_PLACEHOLDER, configTemplatePath))
   {
     Directory::Create(PathName(path).RemoveFileSpec());
     File::Copy(configTemplatePath, path);

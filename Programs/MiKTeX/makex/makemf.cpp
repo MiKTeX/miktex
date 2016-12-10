@@ -227,7 +227,7 @@ void MakeMf::Run(int argc, const char ** argv)
     string strSauterDriverName = "b-";
     strSauterDriverName += driverName;
     PathName driverPath;
-    if (!session->FindFile(strSauterDriverName.c_str(), FileType::MF, driverPath))
+    if (!session->FindFile(strSauterDriverName, FileType::MF, driverPath))
     {
       // lh fonts get special treatment
       if (HasPrefix(driverName, lhpref))
@@ -236,7 +236,7 @@ void MakeMf::Run(int argc, const char ** argv)
         strLHDriverName += driverName[0];
         strLHDriverName += driverName[1];
         strLHDriverName += "codes";
-        if (!session->FindFile(strLHDriverName.c_str(), FileType::MF, driverPath))
+        if (!session->FindFile(strLHDriverName, FileType::MF, driverPath))
         {
           FatalError(T_("The %s source file could not be found."), strLHDriverName.c_str());
         }
@@ -255,7 +255,7 @@ void MakeMf::Run(int argc, const char ** argv)
           FatalError(T_("The cbgreek source file could not be found."));
         }
       }
-      else if (!session->FindFile(driverName.c_str(), FileType::MF, driverPath))
+      else if (!session->FindFile(driverName, FileType::MF, driverPath))
       {
         FatalError(T_("The %s source file could not be found."), driverName.c_str());
       }

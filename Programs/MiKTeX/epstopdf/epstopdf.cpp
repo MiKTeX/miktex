@@ -867,7 +867,7 @@ void EpsToPdfApp::Run(int argc, const char ** argv)
     {
       FatalError(T_("Too many input files."));
     }
-    if (!session->FindFile(leftovers[0].c_str(), ".", inputFile))
+    if (!session->FindFile(leftovers[0], ".", inputFile))
     {
       FatalError(T_("The input file does not exist."));
     }

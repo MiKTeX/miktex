@@ -433,7 +433,7 @@ PathName PackageCreator::FindLzma()
   {
     FatalError("The lzma utility could not be found.");
   }
-  if (!(session->FindFile("lzma_alone" MIKTEX_EXE_FILE_SUFFIX, path.c_str(), lzmaExe) || session->FindFile("lzma" MIKTEX_EXE_FILE_SUFFIX, path.c_str(), lzmaExe)))
+  if (!(session->FindFile("lzma_alone" MIKTEX_EXE_FILE_SUFFIX, path, lzmaExe) || session->FindFile("lzma" MIKTEX_EXE_FILE_SUFFIX, path, lzmaExe)))
   {
     FatalError("The lzma utility could not be found.");
   }

@@ -63,7 +63,7 @@ int SessionImpl::RunScript(const string & scriptEngine, const string & scriptEng
 
   // find script
   PathName scriptPath;
-  if (!FindFile(relScriptPath.c_str(), MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
+  if (!FindFile(relScriptPath, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
   {
     MIKTEX_FATAL_ERROR_2(T_("The script could not be found."), "scriptEngine", scriptEngine, "name", name.ToString(), "path", relScriptPath);
   }

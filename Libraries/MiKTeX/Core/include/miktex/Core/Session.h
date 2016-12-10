@@ -644,13 +644,13 @@ public:
   virtual bool MIKTEXTHISCALL DetermineMETAFONTMode(unsigned dpi, MIKTEXMFMODE & Mode) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL TryGetConfigValue(const char * lpszSectionName, const std::string & valueName, std::string & value) = 0;
+  virtual bool MIKTEXTHISCALL TryGetConfigValue(const std::string & sectionName, const std::string & valueName, std::string & value) = 0;
 
 public:
-  virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const char * lpszSectionName, const std::string & valueName, const ConfigValue & defaultValue) = 0;
+  virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const std::string & sectionName, const std::string & valueName, const ConfigValue & defaultValue) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL SetConfigValue(const char * lpszSectionName, const std::string & valueName, const ConfigValue & value) = 0;
+  virtual void MIKTEXTHISCALL SetConfigValue(const std::string & sectionName, const std::string & valueName, const ConfigValue & value) = 0;
 
 public:
   virtual std::string MIKTEXTHISCALL GetEngineName() = 0;
@@ -702,28 +702,28 @@ public:
   virtual FileType MIKTEXTHISCALL DeriveFileType(const PathName & fileName) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const char * lpszFileName, const char * lpszPathList, FindFileOptionSet options, std::vector<PathName> & result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string & fileName, const std::string & pathList, FindFileOptionSet options, std::vector<PathName> & result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const char * lpszFileName, const char * lpszPathList, std::vector<PathName> & result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string & fileName, const std::string & pathList, std::vector<PathName> & result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const char * lpszFileName, const char * lpszPathList, FindFileOptionSet options, PathName & result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string & fileName, const std::string & pathList, FindFileOptionSet options, PathName & result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const char * lpszFileName, const char * lpszPathList, PathName & result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string & fileName, const std::string & pathList, PathName & result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const char * lpszFileName, FileType fileType, FindFileOptionSet options, std::vector<PathName> & result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string & fileName, FileType fileType, FindFileOptionSet options, std::vector<PathName> & result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const char * lpszFileName, FileType fileType, std::vector<PathName> & result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string & fileName, FileType fileType, std::vector<PathName> & result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const char * lpszFileName, FileType fileType, FindFileOptionSet options, PathName & result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string & fileName, FileType fileType, FindFileOptionSet options, PathName & result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const char * lpszFileName, FileType fileType, PathName & result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string & fileName, FileType fileType, PathName & result) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL FindPkFile(const std::string & fontName, const std::string & mfMode, int dpi, PathName & result) = 0;

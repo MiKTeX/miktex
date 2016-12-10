@@ -2091,7 +2091,7 @@ void IniTeXMFApp::RunMakeTeX(const string & makeProg, const CommandLineBuilder &
 {
   PathName exe;
 
-  if (!session->FindFile(makeProg.c_str(), FileType::EXE, exe))
+  if (!session->FindFile(makeProg, FileType::EXE, exe))
   {
     FatalError(T_("The %s executable could not be found."), Q_(makeProg));
   }
@@ -2573,13 +2573,13 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
       continue;
     }
     PathName compilerPath;
-    if (!session->FindFile((string(MIKTEX_PREFIX) + formatInfo.compiler).c_str(), FileType::EXE, compilerPath))
+    if (!session->FindFile(string(MIKTEX_PREFIX) + formatInfo.compiler, FileType::EXE, compilerPath))
     {
       Warning(T_("The %s executable could not be found."), formatInfo.compiler.c_str());
       continue;
     }
     PathName tmp;
-    if (overwrite || !session->FindFile(formatInfo.name.c_str(), FileType::EXE, tmp))
+    if (overwrite || !session->FindFile(formatInfo.name, FileType::EXE, tmp))
     {
       PathName exePath(pathBinDir, formatInfo.name);
       exePath.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
@@ -2718,7 +2718,7 @@ void IniTeXMFApp::MakeLanguageDat(bool force)
     }
 
     PathName loaderPath;
-    if (!session->FindFile(languageInfo.loader.c_str(), "%r/tex//", loaderPath))
+    if (!session->FindFile(languageInfo.loader, "%r/tex//", loaderPath))
     {
       continue;
     }
@@ -2897,7 +2897,7 @@ void IniTeXMFApp::SetConfigValue(const string & valueSpec)
   }
   ++lpsz;
   string value = lpsz;
-  session->SetConfigValue(haveSection ? section.c_str() : nullptr, valueName, value);
+  session->SetConfigValue(section, valueName, value);
 }
 
 void IniTeXMFApp::ShowConfigValue(const string & valueSpec)
@@ -2920,7 +2920,7 @@ void IniTeXMFApp::ShowConfigValue(const string & valueSpec)
   }
   string valueName = lpsz;
   string value;
-  if (session->TryGetConfigValue(haveSection ? section.c_str() : 0, valueName, value))
+  if (session->TryGetConfigValue(section, valueName, value))
   {
     cout << value << endl;
   }

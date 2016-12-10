@@ -52,7 +52,7 @@ int SessionImpl::RunBatch(int argc, const char ** argv)
 
   // find batch file
   PathName scriptPath;
-  if (!FindFile(relScriptPath.c_str(), MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
+  if (!FindFile(relScriptPath, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
   {
     MIKTEX_FATAL_ERROR_2(T_("The Windows command script file could not be found."), "name", name.ToString(), "path", relScriptPath);
   }

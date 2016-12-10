@@ -680,8 +680,7 @@ bool PackageManager::TryGetRemotePackageRepository(
 {
   shared_ptr<Session> session = Session::Get();
   repositoryReleaseState = RepositoryReleaseState::Unknown;
-  if (session->TryGetConfigValue(
-    MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REMOTE_REPOSITORY, url))
+  if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REMOTE_REPOSITORY, url))
   {
     string str;
     if (session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REPOSITORY_RELEASE_STATE, str))

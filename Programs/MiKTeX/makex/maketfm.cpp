@@ -180,7 +180,7 @@ void MakeTfm::Run(int argc, const char ** argv)
   // try to create the METAFONT if it does not exist
   PathName mfPath;
   bool done = false;
-  if (!session->FindFile(name.c_str(), FileType::MF, mfPath))
+  if (!session->FindFile(name, FileType::MF, mfPath))
   {
     CommandLineBuilder arguments;
     if (debug)

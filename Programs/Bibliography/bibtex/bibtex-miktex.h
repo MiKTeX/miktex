@@ -175,7 +175,7 @@ public:
       bstFileName.SetExtension(".bst");
     }
     PathName path;
-    if (!session->FindFile(bstFileName.GetData(), FileType::BST, path))
+    if (!session->FindFile(bstFileName.ToString(), FileType::BST, path))
     {
       return false;
     }

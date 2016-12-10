@@ -2744,7 +2744,7 @@ boolean open_dvi_output(C4P::FileRoot & dviFile)
       args.AppendOption("-p ", papersize);
     }
     MiKTeX::Core::PathName xdvipdfmx;
-    if (!session->FindFile(outputDriverExe.c_str(), MiKTeX::Core::FileType::EXE, xdvipdfmx))
+    if (!session->FindFile(outputDriverExe, MiKTeX::Core::FileType::EXE, xdvipdfmx))
     {
       return 0;
     }

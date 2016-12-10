@@ -265,7 +265,7 @@ void MakeFmt::CreateDestinationDirectory()
 
 void MakeFmt::FindInputFile(const PathName & inputName, PathName & inputFile)
 {
-  if (!session->FindFile(inputName.GetData(), FileType::TEX, inputFile))
+  if (!session->FindFile(inputName.ToString(), FileType::TEX, inputFile))
   {
     FatalError(T_("The input file could not be found."));
   }

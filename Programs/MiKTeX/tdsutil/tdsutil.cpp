@@ -197,7 +197,7 @@ void TdsUtility::Run(int argc, const char ** argv)
     {
       string packageRecipeFile = package + MIKTEX_TDSUTIL_RECIPE_FILE_SUFFIX;
       session->FindFile(MIKTEX_PATH_TDSUTIL_DEFAULT_RECIPE, MIKTEX_PATH_TEXMF_PLACEHOLDER, { Session::FindFileOption::All }, recipeFiles);
-      session->FindFile(packageRecipeFile.c_str(), MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_TDSUTIL_RECIPES_DIR, { Session::FindFileOption::All }, recipeFiles);
+      session->FindFile(packageRecipeFile, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_TDSUTIL_RECIPES_DIR, { Session::FindFileOption::All }, recipeFiles);
     }
     recipeFiles.insert(recipeFiles.end(), optionRecipeFiles.begin(), optionRecipeFiles.end());
     for (const PathName & recipeFile : recipeFiles)

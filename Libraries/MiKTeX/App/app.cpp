@@ -117,7 +117,7 @@ void Application::Init(const Session::InitInfo & initInfo_)
   session->SetFindFileCallback(this);
   string myName = Utils::GetExeName();
   PathName xmlFileName;
-  if (session->FindFile((myName + "." + MIKTEX_LOG4CXX_CONFIG_FILENAME).c_str(), MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
+  if (session->FindFile(myName + "." + MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
     || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
   {
     Utils::SetEnvironmentString("MIKTEX_LOG_DIR", PathName(session->GetSpecialPath(SpecialPath::DataRoot), MIKTEX_PATH_MIKTEX_LOG_DIR).GetData());
@@ -630,7 +630,7 @@ void Application::InvokeEditor(const PathName & editFileName, int editLineNumber
     }
   }
 
-  string templ = session->GetConfigValue(nullptr, MIKTEX_REGVAL_EDITOR, defaultEditor).GetString();
+  string templ = session->GetConfigValue("", MIKTEX_REGVAL_EDITOR, defaultEditor).GetString();
 
   const char * lpszCommandLineTemplate = templ.c_str();
 
@@ -671,7 +671,7 @@ void Application::InvokeEditor(const PathName & editFileName, int editLineNumber
       case 'f':
       {
         PathName path;
-        if (session->FindFile(editFileName.GetData(), editFileType, path))
+        if (session->FindFile(editFileName.ToString(), editFileType, path))
         {
           arguments += path.GetData();
         }

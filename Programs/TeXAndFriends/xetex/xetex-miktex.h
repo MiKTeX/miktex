@@ -408,7 +408,7 @@ inline void getmd5sum(strnumber s, boolean isFile)
   if (isFile)
   {
     PathName file;
-    if (!Session::Get()->FindFile(str.c_str(), FileType::TEX, file))
+    if (!Session::Get()->FindFile(str, FileType::TEX, file))
     {
       return;
     }

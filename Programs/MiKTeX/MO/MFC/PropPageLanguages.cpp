@@ -250,7 +250,7 @@ void PropPageLanguages::ReadLanguageDat()
   for (const LanguageInfo & languageInfo : session->GetLanguages())
   {
     MyLanguageInfo myLanguageInfo(languageInfo);
-    myLanguageInfo.loaderExists = session->FindFile(languageInfo.loader.c_str(), ".;%r/tex//", myLanguageInfo.loaderPath);
+    myLanguageInfo.loaderExists = session->FindFile(languageInfo.loader, ".;%r/tex//", myLanguageInfo.loaderPath);
     myLanguageInfo.active = !myLanguageInfo.exclude && myLanguageInfo.loaderExists;
     myLanguageInfo.newActive = myLanguageInfo.active;
     myLanguageInfo.packageNames = WhichPackage(myLanguageInfo.loader.c_str());

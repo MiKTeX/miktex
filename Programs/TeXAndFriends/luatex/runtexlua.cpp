@@ -93,7 +93,7 @@ int MAIN(int argc, const MAINCHAR ** argv)
       
       // find script
       PathName scriptPath;
-      if (! app.GetSession()->FindFile(relScriptPath.c_str(), MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
+      if (! app.GetSession()->FindFile(relScriptPath, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
       {
         MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("The Lua script could not be found."), relScriptPath);
       }

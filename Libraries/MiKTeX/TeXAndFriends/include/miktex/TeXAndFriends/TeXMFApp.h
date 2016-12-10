@@ -318,7 +318,7 @@ public:
 protected:
   template<typename ValueType> ValueType GetParameter(const char * lpszParameterName, const ValueType & defaultValue) const
   {
-    ValueType value = session->GetConfigValue(nullptr, lpszParameterName, -1).GetInt();
+    ValueType value = session->GetConfigValue("", lpszParameterName, -1).GetInt();
     if (value < 0)
     {
       value = session->GetConfigValue(GetProgramName(), lpszParameterName, defaultValue).GetInt();
@@ -837,7 +837,7 @@ private:
 
 template<> inline std::string TeXMFApp::GetParameter(const char * lpszParameterName, const std::string & defaultValue) const
 {
-  std::string value = session->GetConfigValue(nullptr, lpszParameterName, "").GetString();
+  std::string value = session->GetConfigValue("", lpszParameterName, "").GetString();
   if (value.empty())
   {
     value = session->GetConfigValue(GetProgramName(), lpszParameterName, defaultValue).GetString();

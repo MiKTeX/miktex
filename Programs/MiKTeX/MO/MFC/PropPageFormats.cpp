@@ -127,7 +127,7 @@ void PropPageFormats::MakeAlias(const FormatInfo & formatInfo)
     MIKTEX_FATAL_ERROR(T_("Operation not supported."));
   }
   PathName compilerPath;
-  if (!session->FindFile(formatInfo.compiler.c_str(), FileType::EXE, compilerPath))
+  if (!session->FindFile(formatInfo.compiler, FileType::EXE, compilerPath))
   {
     MIKTEX_FATAL_ERROR_2(T_("The compiler could not be found."), "compiler", formatInfo.compiler);
   }

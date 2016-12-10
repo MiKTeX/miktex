@@ -199,7 +199,7 @@ void ParseYapCommandLine(const char * lpszCommandLine, YapCommandLineInfo & cmdI
 
       // locate the .dvi file
       PathName pathDvi;
-      if (!session->FindFile(pathFileName.GetData(), FileType::DVI, pathDvi))
+      if (!session->FindFile(pathFileName.ToString(), FileType::DVI, pathDvi))
       {
         pathDvi = pathFileName;
       }
@@ -879,7 +879,7 @@ void StartEditor(const char * lpszFileName, const char * lpszDocDir, int line)
     path /= lpszFileName;
   }
   PathName path2;
-  if (!session->FindFile(path.GetData(), FileType::TEX, path2))
+  if (!session->FindFile(path.ToString(), FileType::TEX, path2))
   {
     MIKTEX_FATAL_ERROR_2(T_("The source file could not be found."), "fileName", lpszFileName);
   }

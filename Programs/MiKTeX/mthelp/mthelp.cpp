@@ -245,7 +245,7 @@ void MiKTeXHelp::FindDocFilesByPackage(const string & packageName, map<string, v
     string extension = PathName(fileName).GetExtension();
     string file;
     PathName path;
-    if (SkipTeXMFPrefix(fileName, file) && session->FindFile(file.c_str(), MIKTEX_PATH_TEXMF_PLACEHOLDER_NO_MPM, path))
+    if (SkipTeXMFPrefix(fileName, file) && session->FindFile(file, MIKTEX_PATH_TEXMF_PLACEHOLDER_NO_MPM, path))
     {
       vector<string> & files = filesByExtension[extension];
       files.push_back(path.ToString());
@@ -257,7 +257,7 @@ void MiKTeXHelp::FindDocFilesByPackage(const string & packageName, vector<string
 {
   map<string, vector<string> > filesByExtension;
   FindDocFilesByPackage(packageName, filesByExtension);
-  string extensions = session->GetConfigValue(nullptr, MIKTEX_REGVAL_DOC_EXTENSIONS, DEFAULT_DOC_EXTENSIONS).GetString();
+  string extensions = session->GetConfigValue("", MIKTEX_REGVAL_DOC_EXTENSIONS, DEFAULT_DOC_EXTENSIONS).GetString();
   for (Tokenizer ext(extensions.c_str(), PATH_DELIMITER_STRING); ext.GetCurrent() != nullptr; ++ext)
   {
     vector<string> & vec = filesByExtension[ext.GetCurrent()];
@@ -285,7 +285,7 @@ void MiKTeXHelp::FindDocFilesByPackage(const string & packageName, vector<string
 
 void MiKTeXHelp::FindDocFilesByName(const string & name, vector<string> & files)
 {
-  string extensions = session->GetConfigValue(nullptr, MIKTEX_REGVAL_DOC_EXTENSIONS, DEFAULT_DOC_EXTENSIONS).GetString();
+  string extensions = session->GetConfigValue("", MIKTEX_REGVAL_DOC_EXTENSIONS, DEFAULT_DOC_EXTENSIONS).GetString();
   string searchSpec = MIKTEX_PATH_TEXMF_PLACEHOLDER_NO_MPM;
   searchSpec += MIKTEX_PATH_DIRECTORY_DELIMITER_STRING;
   searchSpec += MIKTEX_PATH_DOC_DIR;
@@ -295,7 +295,7 @@ void MiKTeXHelp::FindDocFilesByName(const string & name, vector<string> & files)
     PathName fileName(name);
     fileName.AppendExtension(ext.GetCurrent());
     PathName path;
-    if (session->FindFile(fileName.GetData(), searchSpec.c_str(), path))
+    if (session->FindFile(fileName.GetData(), searchSpec, path))
     {
       files.push_back(path.GetData());
     }

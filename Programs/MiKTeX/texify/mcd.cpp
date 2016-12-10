@@ -974,7 +974,7 @@ bool Driver::RunMakeinfo(const PathName & pathFrom, const PathName & pathTo)
 {
   PathName pathExe;
 
-  if (!pSession->FindFile(pOptions->makeinfoProgram.c_str(), FileType::EXE, pathExe))
+  if (!pSession->FindFile(pOptions->makeinfoProgram, FileType::EXE, pathExe))
   {
     FatalUtilityError(pOptions->makeinfoProgram);
   }
@@ -1022,7 +1022,7 @@ bool Driver::Check_texinfo_tex()
 {
   PathName pathExe;
 
-  if (!pSession->FindFile(pOptions->texProgram.c_str(), FileType::EXE, pathExe))
+  if (!pSession->FindFile(pOptions->texProgram, FileType::EXE, pathExe))
   {
     FatalUtilityError(pOptions->texProgram);
   }
@@ -1181,7 +1181,7 @@ void Driver::RunBibTeX()
 {
   PathName pathExe;
 
-  if (!pSession->FindFile(pOptions->bibtexProgram.c_str(), FileType::EXE, pathExe))
+  if (!pSession->FindFile(pOptions->bibtexProgram, FileType::EXE, pathExe))
   {
     FatalUtilityError(pOptions->bibtexProgram);
   }
@@ -1393,10 +1393,10 @@ PathName Driver::GetTeXEnginePath(string & exeName)
     }
   }
   PathName pathExe;
-  if (!pSession->FindFile(exeName.c_str(), FileType::EXE, pathExe))
+  if (!pSession->FindFile(exeName, FileType::EXE, pathExe))
   {
     InstallProgram(exeName.c_str());
-    if (!pSession->FindFile(exeName.c_str(), FileType::EXE, pathExe))
+    if (!pSession->FindFile(exeName, FileType::EXE, pathExe))
     {
       MIKTEX_FATAL_ERROR(T_("The TeX engine could not be found."));
     }

@@ -219,7 +219,7 @@ MIKTEXCORECEEAPI(int) miktex_find_input_file(const char * lpszApplicationName, c
     searchPath += MIKTEX_PATH_DIRECTORY_DELIMITER_STRING;
     searchPath += lpszApplicationName;
     searchPath += RECURSION_INDICATOR;
-    if (!SessionImpl::GetSession()->FindFile(lpszFileName, searchPath.c_str(), temp))
+    if (!SessionImpl::GetSession()->FindFile(lpszFileName, searchPath, temp))
     {
       return 0;
     }

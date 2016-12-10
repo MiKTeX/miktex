@@ -268,12 +268,12 @@ bool SessionImpl::GetFontInfo(const string & fontName, string & supplier, string
   PathName pathFileName;
 
   // test TFM first
-  bool found = FindFile(fontName.c_str(), FileType::OFM, pathFileName);
+  bool found = FindFile(fontName, FileType::OFM, pathFileName);
 
   // then MF
   if (!found)
   {
-    found = FindFile(fontName.c_str(), FileType::MF, pathFileName);
+    found = FindFile(fontName, FileType::MF, pathFileName);
   }
 
   // then possible sauterized MF
@@ -281,7 +281,7 @@ bool SessionImpl::GetFontInfo(const string & fontName, string & supplier, string
   {
     string fontNameSauter("b-");
     fontNameSauter += fontName;
-    found = FindFile(fontNameSauter.c_str(), FileType::MF, pathFileName);
+    found = FindFile(fontNameSauter, FileType::MF, pathFileName);
   }
 
   // LH fonts get special treatment
@@ -298,7 +298,7 @@ bool SessionImpl::GetFontInfo(const string & fontName, string & supplier, string
     fontNameLH = fontName[0];
     fontNameLH += fontName[1];
     fontNameLH += "codes";
-    found = FindFile(fontNameLH.c_str(), FileType::MF, pathFileName);
+    found = FindFile(fontNameLH, FileType::MF, pathFileName);
   }
 
   // parse the path, if the font was found

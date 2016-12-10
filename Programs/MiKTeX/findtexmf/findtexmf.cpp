@@ -348,7 +348,7 @@ void FindTeXMF::Run(int argc, const char ** argv)
         filetype = FileType::TEX;
       }
     }
-    bool found = session->FindFile(fileName.c_str(), filetype, path);
+    bool found = session->FindFile(fileName, filetype, path);
     if (found)
     {
       cout << path << endl;

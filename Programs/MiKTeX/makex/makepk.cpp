@@ -422,7 +422,7 @@ bool MakePk::IsHbf(const char * lpszName)
   }
   hbfcfg.SetExtension(".cfg", false);
   PathName path;
-  return session->FindFile(hbfcfg.GetData(), "%R/HBF2GF//", path);
+  return session->FindFile(hbfcfg.ToString(), "%R/HBF2GF//", path);
 }
 
 void MakePk::Run(int argc, const char ** argv)
@@ -471,7 +471,7 @@ void MakePk::Run(int argc, const char ** argv)
   PathName path;
 
   // try to convert a METAFONT file
-  if (session->FindFile(name.c_str(), FileType::MF, path))
+  if (session->FindFile(name, FileType::MF, path))
   {
     haveSource = true;
   }

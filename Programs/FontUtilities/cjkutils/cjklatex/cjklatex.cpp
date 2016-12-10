@@ -282,9 +282,7 @@ CJKLaTeXApp::RunConverter (/*[in]*/ const PathName &	inputFile,
 			   /*[in]*/ const PathName &	intermediateFile)
 {
   PathName converter;
-  if (! session->FindFile(converterProgram.c_str(),
-			   FileType::EXE,
-			   converter))
+  if (! session->FindFile(converterProgram, FileType::EXE, converter))
     {
       Error (T_("Converter %s not found."), converterProgram.c_str());
     }
@@ -313,7 +311,7 @@ void
 CJKLaTeXApp::RunEngine (/*[in]*/ const PathName &	inputFile)
 {
   PathName engineExe;
-  if (! session->FindFile(engine.c_str(), FileType::EXE, engineExe))
+  if (! session->FindFile(engine, FileType::EXE, engineExe))
     {
       Error (T_("Engine %s not found."), engine.c_str());
     }

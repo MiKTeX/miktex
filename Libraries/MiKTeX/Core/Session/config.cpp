@@ -608,7 +608,7 @@ void SessionImpl::ReadAllConfigFiles(const string & baseName, Cfg & cfg)
   PathName fileName = MIKTEX_PATH_MIKTEX_CONFIG_DIR / baseName;
   fileName.AppendExtension(".ini");
   vector<PathName> configFiles;
-  if (!FindFile(fileName.GetData(), MIKTEX_PATH_TEXMF_PLACEHOLDER, { FindFileOption::All }, configFiles))
+  if (!FindFile(fileName.ToString(), MIKTEX_PATH_TEXMF_PLACEHOLDER, { FindFileOption::All }, configFiles))
   {
     return;
   }
@@ -1061,28 +1061,23 @@ char ConfigValue::GetChar() const
   MIKTEX_UNEXPECTED();
 }
 
-bool SessionImpl::TryGetConfigValue(const char * lpszSectionName, const string & valueName, string & value)
+bool SessionImpl::TryGetConfigValue(const std::string & sectionName, const string & valueName, string & value)
 {
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszSectionName);
-  MIKTEX_ASSERT_STRING(lpszValueName);
-
-  return GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, valueName, value);
+  return GetSessionValue(sectionName, valueName, value);
 }
 
-ConfigValue SessionImpl::GetConfigValue(const char * lpszSectionName, const string & valueName, const ConfigValue & defaultValue)
+ConfigValue SessionImpl::GetConfigValue(const std::string & sectionName, const string & valueName, const ConfigValue & defaultValue)
 {
   string value;
-  if (!GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, valueName, value, Optional<string>(defaultValue.GetString())))
+  if (!GetSessionValue(sectionName, valueName, value, Optional<string>(defaultValue.GetString())))
   {
     INVALID_ARGUMENT("valueName", valueName);
   }
   return value;
 }
 
-void SessionImpl::SetConfigValue(const char * lpszSectionName, const string & valueName, const ConfigValue & value)
+void SessionImpl::SetConfigValue(const std::string & sectionName, const string & valueName, const ConfigValue & value)
 {
-  MIKTEX_ASSERT_STRING(lpszSectionName);
-
   PathName pathConfigFile = GetSpecialPath(SpecialPath::ConfigRoot);
   pathConfigFile /= MIKTEX_PATH_MIKTEX_CONFIG_DIR;
   pathConfigFile /= MIKTEX_INI_FILE;
@@ -1101,9 +1096,9 @@ void SessionImpl::SetConfigValue(const char * lpszSectionName, const string & va
     && !IsMiKTeXPortable()
     && !GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_NO_REGISTRY, NO_REGISTRY ? true : false).GetBool())
   {
-    winRegistry::SetRegistryValue(IsAdminMode() ? TriState::True : TriState::False, lpszSectionName, valueName, value.GetString());
+    winRegistry::SetRegistryValue(IsAdminMode() ? TriState::True : TriState::False, sectionName, valueName, value.GetString());
     string newValue;
-    if (GetSessionValue(lpszSectionName == nullptr ? "" : lpszSectionName, valueName, newValue))
+    if (GetSessionValue(sectionName, valueName, newValue))
     {
       if (newValue != value.GetString())
       {
@@ -1114,7 +1109,7 @@ void SessionImpl::SetConfigValue(const char * lpszSectionName, const string & va
   }
 #endif
 
-  pCfg->PutValue(lpszSectionName, valueName, value.GetString());
+  pCfg->PutValue(sectionName, valueName, value.GetString());
   pCfg->Write(pathConfigFile);
   configurationSettings.clear();
 }
@@ -1176,7 +1171,7 @@ void SessionImpl::ConfigureFile(const PathName & pathRel, HasNamedValues * callb
   PathName relPathIn = pathRel;
   relPathIn.AppendExtension(".in");
   PathName pathIn;
-  if (!FindFile(relPathIn.GetData(), MIKTEX_PATH_TEXMF_PLACEHOLDER, pathIn))
+  if (!FindFile(relPathIn.ToString(), MIKTEX_PATH_TEXMF_PLACEHOLDER, pathIn))
   {
     MIKTEX_FATAL_ERROR_2(T_("The template file could not be found."), "templateFile", relPathIn.ToString());
   }
@@ -1384,7 +1379,7 @@ std::string SessionImpl::ExpandValues(const string & toBeExpanded, HasNamedValue
         }
         if (!haveValue)
         {
-          haveValue = TryGetConfigValue(nullptr, valueName, value);
+          haveValue = TryGetConfigValue("", valueName, value);
         }
         if (haveValue)
         {

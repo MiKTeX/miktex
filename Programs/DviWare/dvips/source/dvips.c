@@ -732,7 +732,7 @@ Primary author of Dvips: T. Rokicki.");
      std::vector<PathName> configFiles;
      PathName relPath ("dvips/config");
      relPath /= CONFIGFILE;
-     if (session->FindFile(relPath.GetData(), MIKTEX_PATH_TEXMF_PLACEHOLDER, { Session::FindFileOption::All }, configFiles))
+     if (session->FindFile(relPath.ToString(), MIKTEX_PATH_TEXMF_PLACEHOLDER, { Session::FindFileOption::All }, configFiles))
      {
        for (std::vector<PathName>::const_reverse_iterator it = configFiles.rbegin(); it != configFiles.rend(); ++it)
        {

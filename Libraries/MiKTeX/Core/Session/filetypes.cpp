@@ -136,10 +136,10 @@ void SessionImpl::RegisterFileType(FileType fileType, const char * lpszFileType,
   }
   string section = "ft.";
   section += lpszFileType;
-  fti.fileNameExtensions = GetConfigValue(section.c_str(), "extensions", lpszFileNameExtensions == nullptr ? "" : lpszFileNameExtensions).GetString();
-  fti.alternateExtensions = GetConfigValue(section.c_str(), "alternate_extensions", lpszAlternateExtensions == nullptr ? "" : lpszAlternateExtensions).GetString();
-  fti.searchPath = GetConfigValue(section.c_str(), "path", lpszDefaultSearchPath == nullptr ? "" : lpszDefaultSearchPath).GetString();
-  fti.envVarNames = GetConfigValue(section.c_str(), "env", lpszEnvVarNames == nullptr ? "" : lpszEnvVarNames).GetString();
+  fti.fileNameExtensions = GetConfigValue(section, "extensions", lpszFileNameExtensions == nullptr ? "" : lpszFileNameExtensions).GetString();
+  fti.alternateExtensions = GetConfigValue(section, "alternate_extensions", lpszAlternateExtensions == nullptr ? "" : lpszAlternateExtensions).GetString();
+  fti.searchPath = GetConfigValue(section, "path", lpszDefaultSearchPath == nullptr ? "" : lpszDefaultSearchPath).GetString();
+  fti.envVarNames = GetConfigValue(section, "env", lpszEnvVarNames == nullptr ? "" : lpszEnvVarNames).GetString();
   fileTypes.resize((size_t)FileType::E_N_D);
   fileTypes[(size_t)fileType] = fti;
 }

@@ -255,7 +255,7 @@ STATICFUNC(bool) OpenAlphaFile(void * p, const char * lpszFileName, FileType fil
     fileName.SetExtension(lpszExtension);
   }
   PathName path;
-  if (!session->FindFile(fileName.GetData(), fileType, path))
+  if (!session->FindFile(fileName.ToString(), fileType, path))
   {
     return false;
   }

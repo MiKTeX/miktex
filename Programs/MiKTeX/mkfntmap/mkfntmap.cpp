@@ -582,7 +582,7 @@ void MakeFontMapApp::Init(int argc, const char ** argv)
   for (const string & cfgFile : configFiles)
   {
     vector<PathName> cfgFiles;
-    if (session->FindFile(cfgFile.c_str(), MIKTEX_PATH_TEXMF_PLACEHOLDER, { Session::FindFileOption::All }, cfgFiles))
+    if (session->FindFile(cfgFile, MIKTEX_PATH_TEXMF_PLACEHOLDER, { Session::FindFileOption::All }, cfgFiles))
     {
       for (vector<PathName>::const_reverse_iterator it = cfgFiles.rbegin(); it != cfgFiles.rend(); ++it)
       {
