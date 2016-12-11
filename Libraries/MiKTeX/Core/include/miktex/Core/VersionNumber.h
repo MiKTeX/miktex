@@ -128,16 +128,6 @@ struct VersionNumber
     }
   }
 
-  /// Compares this version number to another.
-  /// @param otherVersionString The other version number (as a string).
-  /// @return Returns -1, if this version number is less than the other.
-  /// Returns 0, if both version numbers compare equal.
-  /// Otherwise returns 1.
-  int CompareTo(const std::string & otherVersionString) const
-  {
-    return CompareTo(Parse(otherVersionString));
-  }
-
   /// Converts this version number into a string object.
   /// @return Returns the string object.
   MIKTEXCORETHISAPI(std::string) ToString() const;
