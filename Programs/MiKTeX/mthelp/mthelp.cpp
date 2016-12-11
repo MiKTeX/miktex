@@ -320,7 +320,7 @@ void MiKTeXHelp::ViewFile(const PathName & fileName)
   {
     string env = "MIKTEX_VIEW_";
     env += ext.substr(1);
-    if (!Utils::GetEnvironmentString(env.c_str(), viewer))
+    if (!Utils::GetEnvironmentString(env, viewer))
     {
       viewer = "";
     }

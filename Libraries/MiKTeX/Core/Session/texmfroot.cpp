@@ -71,7 +71,7 @@ static string ExpandEnvironmentVariables(const char * lpszToBeExpanded)
 	MIKTEX_UNEXPECTED();
       }
       string value;
-      if (!Utils::GetEnvironmentString(valueName.c_str(), value))
+      if (!Utils::GetEnvironmentString(valueName, value))
       {
 	MIKTEX_FATAL_ERROR_2(T_("Environment variable not defined."), "name", valueName);
       }
@@ -879,7 +879,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(const char * lpszP
 
 unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName & path)
 {
-  if (!Utils::IsAbsolutePath(path.GetData()))
+  if (!Utils::IsAbsolutePath(path))
   {
 #if FIND_FILE_PREFER_RELATIVE_PATH_NAMES
     return INVALID_ROOT_INDEX;

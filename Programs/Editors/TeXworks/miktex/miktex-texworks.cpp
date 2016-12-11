@@ -72,7 +72,7 @@ int MiKTeX_TeXworks::Run(int(*Main)(int argc, char *argv[]), int argc, char *arg
     if (session->FindFile("texworks." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
       || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
     {
-      Utils::SetEnvironmentString("MIKTEX_LOG_DIR", PathName(session->GetSpecialPath(SpecialPath::DataRoot)).AppendComponent(MIKTEX_PATH_MIKTEX_LOG_DIR).GetData());
+      Utils::SetEnvironmentString("MIKTEX_LOG_DIR", PathName(session->GetSpecialPath(SpecialPath::DataRoot)).AppendComponent(MIKTEX_PATH_MIKTEX_LOG_DIR).ToString());
       Utils::SetEnvironmentString("MIKTEX_LOG_NAME", "texworks");
       log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
       LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("MiKTeX TeXworks", MIKTEX_COMP_ORIG_VERSION_STR));

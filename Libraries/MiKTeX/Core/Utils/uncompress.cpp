@@ -32,10 +32,8 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-void Utils::UncompressFile(const char * lpszPathIn, PathName & pathOut)
+void Utils::UncompressFile(const PathName & pathIn, PathName & pathOut)
 {
-  MIKTEX_ASSERT_STRING(lpszPathIn);
-  PathName pathIn(lpszPathIn);
   SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("uncompressing %s..."), Q_(pathIn));
   if (!File::Exists(pathIn))
   {

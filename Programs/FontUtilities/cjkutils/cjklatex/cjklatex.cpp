@@ -190,8 +190,7 @@ CJKLaTeXApp::CJKLaTeXApp ()
 void
 CJKLaTeXApp::ShowVersion ()
 {
-  cout << Utils::MakeProgramVersionString(Utils::GetExeName().c_str(),
-					   MIKTEX_COMPONENT_VERSION_STR)
+  cout << Utils::MakeProgramVersionString(Utils::GetExeName(), MIKTEX_COMPONENT_VERSION_STR)
        << T_("\n\
 Written by Fabrice Popineau in 2001.  Further developed by\n\
 Christian Schenk in the years 2004-2016.\n\

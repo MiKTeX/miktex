@@ -81,21 +81,12 @@ public:
 public:
   static MIKTEXCORECEEAPI(bool) GetEnvironmentString(const std::string & name, PathName & path);
 
-  /// Gets the value of an environment variable.
-  /// @param lpszName The name of the environment variable.
-  /// @param[out] lpszOut The destination string buffer.
-  /// @param sizeOut The size (in characters) of the destination string
-  /// buffer.
-  /// @return Returns true if the environment variable exists.
-public:
-  static MIKTEXCORECEEAPI(bool) GetEnvironmentString(const char * lpszName, char * lpszOut, std::size_t sizeOut);
-
 public:
   static MIKTEXCORECEEAPI(bool) FindProgram(const std::string & programName, PathName & path);
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCORECEEAPI(bool) GetDefPrinter(char * lpszPrinterName, std::size_t * pBufferSize);
+  static MIKTEXCORECEEAPI(bool) GetDefPrinter(std::string & printerName);
 #endif
 
 public:
@@ -112,7 +103,7 @@ public:
   static MIKTEXCORECEEAPI(std::string) GetMiKTeXBannerString();
 
 public:
-  static MIKTEXCORECEEAPI(std::string) MakeProgramVersionString(const char * lpszProgramName, const VersionNumber & versionNumber);
+  static MIKTEXCORECEEAPI(std::string) MakeProgramVersionString(const std::string & programName, const VersionNumber & versionNumber);
 
 public:
   static MIKTEXCORECEEAPI(std::string) GetOSVersionString();
@@ -121,22 +112,23 @@ public:
   static MIKTEXCORECEEAPI(bool) RunningOnAServer();
 
 public:
-  static MIKTEXCORECEEAPI(void) UncompressFile(const char * lpszPathIn, PathName & pathOut);
+  static MIKTEXCORECEEAPI(void) UncompressFile(const PathName & pathIn, PathName & pathOut);
 
 public:
+  // FIXME: bad interface
   static MIKTEXCORECEEAPI(const char *) GetRelativizedPath(const char * lpszPath, const char * lpszRoot);
 
 public:
-  static MIKTEXCORECEEAPI(bool) GetUncRootFromPath(const char * lpszPath, PathName & uncRoot);
+  static MIKTEXCORECEEAPI(bool) GetUncRootFromPath(const PathName & path, PathName & uncRoot);
 
 public:
-  static MIKTEXCORECEEAPI(bool) IsAbsolutePath(const char * lpszPath);
+  static MIKTEXCORECEEAPI(bool) IsAbsolutePath(const PathName & path);
 
 public:
-  static MIKTEXCORECEEAPI(bool) IsSafeFileName(const char * lpszPath, bool forInput);
+  static MIKTEXCORECEEAPI(bool) IsSafeFileName(const PathName & path, bool forInput);
 
 public:
-  static MIKTEXCORECEEAPI(bool) IsParentDirectoryOf(const char * lpszParentDir, const char * lpszFileName);
+  static MIKTEXCORECEEAPI(bool) IsParentDirectoryOf(const PathName & parentDir, const PathName & fileName);
 
 public:
   static MIKTEXCORECEEAPI(bool) SupportsHardLinks(const PathName & path);
@@ -145,7 +137,7 @@ public:
   static MIKTEXCORECEEAPI(void) MakeTeXPathName(PathName & path);
 
 public:
-  static MIKTEXCORECEEAPI(void) SetEnvironmentString(const char * lpszValueName, const char * lpszValue);
+  static MIKTEXCORECEEAPI(void) SetEnvironmentString(const std::string & valueName, const std::string & value);
 
 #if defined(MIKTEX_WINDOWS)
 public:
@@ -189,7 +181,7 @@ public:
 #endif
 
 public:
-  static MIKTEXCORECEEAPI(void) ShowWebPage(const char * lpszUrl);
+  static MIKTEXCORECEEAPI(void) ShowWebPage(const std::string & url);
   
 public:
 #if defined(MIKTEX_WINDOWS)
@@ -273,32 +265,32 @@ public:
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCORECEEAPI(void) RegisterShellFileAssoc(const char * lpszExtension, const char * lpszProgId, bool takeOwnership);
+  static MIKTEXCORECEEAPI(void) RegisterShellFileAssoc(const std::string & extension, const std::string & progId, bool takeOwnership);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCORECEEAPI(void) UnregisterShellFileAssoc(const char * lpszExtension, const char * lpszProgId);
+  static MIKTEXCORECEEAPI(void) UnregisterShellFileAssoc(const std::string & extension, const std::string & progId);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCORECEEAPI(void) RegisterShellFileType(const char * lpszProgId, const char * lpszUserFriendlyName, const char * lpszIconPath);
+  static MIKTEXCORECEEAPI(void) RegisterShellFileType(const std::string & progId, const std::string & userFriendlyName, const std::string & iconPath);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCORECEEAPI(void) UnregisterShellFileType(const char * lpszProgId);
+  static MIKTEXCORECEEAPI(void) UnregisterShellFileType(const std::string & progId);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCORECEEAPI(void) RegisterShellVerb(const char * lpszProgId, const char * lpszVerb, const char * lpszCommand, const char * lpszDdeExec);
+  static MIKTEXCORECEEAPI(void) RegisterShellVerb(const std::string & progId, const std::string & verb, const std::string & command, const std::string & ddeExec);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCORECEEAPI(std::string) MakeProgId(const char * lpszComponent);
+  static MIKTEXCORECEEAPI(std::string) MakeProgId(const std::string & progId);
 #endif
 };
 

@@ -193,7 +193,7 @@ MIKTEXSTATICFUNC(void) CreateDirectoryForEveryone(const char * lpszPath)
 
 MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName & path)
 {
-  if (!Utils::IsAbsolutePath(path.GetData()))
+  if (!Utils::IsAbsolutePath(path))
   {
     PathName absolutePath(path);
     absolutePath.MakeAbsolute();

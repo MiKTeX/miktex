@@ -491,7 +491,7 @@ bool FileNameDatabase::Search(const PathName & relativePath, const char * lpszPa
 
   MIKTEX_ASSERT(result.size() == 0);
   MIKTEX_ASSERT(fileNameInfo.size() == 0);
-  MIKTEX_ASSERT(!Utils::IsAbsolutePath(relativePath.GetData()));
+  MIKTEX_ASSERT(!Utils::IsAbsolutePath(relativePath));
   MIKTEX_ASSERT(!IsExplicitlyRelativePath(relativePath.GetData()));
 
   PathName dir = relativePath.GetDirectoryName();

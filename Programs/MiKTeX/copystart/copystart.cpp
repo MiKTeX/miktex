@@ -45,15 +45,15 @@ void CopyStart(const wchar_t * lpszFileName, const wchar_t * lpszArgs)
   MD5 digest = MD5::FromFile(StringUtil::WideCharToUTF8(lpszFileName).c_str());
 
   // set MIKTEX_BINDIR
-  Utils::SetEnvironmentString(MIKTEX_ENV_BIN_DIR, session->GetMyLocation(false).GetData());
+  Utils::SetEnvironmentString(MIKTEX_ENV_BIN_DIR, session->GetMyLocation(false).ToString());
 
   // set MIKTEX_*STARTUPFILE
   if (session->IsMiKTeXPortable())
   {
     PathName startupConfig(session->GetSpecialPath(SpecialPath::InstallRoot));
     startupConfig /= MIKTEX_PATH_STARTUP_CONFIG_FILE;
-    Utils::SetEnvironmentString(MIKTEX_ENV_COMMON_STARTUP_FILE, startupConfig.GetData());
-    Utils::SetEnvironmentString(MIKTEX_ENV_USER_STARTUP_FILE, startupConfig.GetData());
+    Utils::SetEnvironmentString(MIKTEX_ENV_COMMON_STARTUP_FILE, startupConfig.ToString());
+    Utils::SetEnvironmentString(MIKTEX_ENV_USER_STARTUP_FILE, startupConfig.ToString());
   }
 
   PathName pathExe;

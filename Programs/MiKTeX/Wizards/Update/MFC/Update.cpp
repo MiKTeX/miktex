@@ -249,7 +249,7 @@ BOOL UpdateWizardApplication::InitInstance()
     if (pSession->FindFile("updatewiz." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
       || pSession->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
     {
-      Utils::SetEnvironmentString("MIKTEX_LOG_DIR", pSession->GetSpecialPath(SpecialPath::DataRoot).AppendComponent(MIKTEX_PATH_MIKTEX_LOG_DIR).GetData());
+      Utils::SetEnvironmentString("MIKTEX_LOG_DIR", pSession->GetSpecialPath(SpecialPath::DataRoot).AppendComponent(MIKTEX_PATH_MIKTEX_LOG_DIR).ToString());
       Utils::SetEnvironmentString("MIKTEX_LOG_NAME", "update");
       log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
       isLog4cxxConfigured = true;

@@ -145,7 +145,7 @@ void dvipdft(int argc, const char * * argv)
   arguments.AppendOption("-dt");
   arguments.AppendArguments(argc - 1, &argv[1]);
   printf("dvipdfm %s\n", arguments.ToString().c_str());
-  Utils::SetEnvironmentString("MIKTEX_TEMP", tempDir->GetPathName().GetData());
+  Utils::SetEnvironmentString("MIKTEX_TEMP", tempDir->GetPathName().ToString());
   if (!Process::Run(dvipdfmExe.GetData(), arguments.ToString(), nullptr, &exitCode, nullptr))
   {
     FatalError(MIKTEXTEXT("%s could not be started."), dvipdfmExe.GetData());

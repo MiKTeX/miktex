@@ -735,7 +735,7 @@ RepositoryType PackageManagerImpl::DetermineRepositoryType(const string & reposi
     return RepositoryType::Remote;
   }
 
-  if (!Utils::IsAbsolutePath(repository.c_str()))
+  if (!Utils::IsAbsolutePath(repository))
   {
     MIKTEX_UNEXPECTED();
   }
@@ -1473,7 +1473,7 @@ bool PackageManager::TryGetProxy(const string & url, ProxySettings & proxySettin
     {
       MIKTEX_UNEXPECTED();
     }
-    Utils::GetEnvironmentString(envName.c_str(), proxyEnv);
+    Utils::GetEnvironmentString(envName, proxyEnv);
   }
   if (proxyEnv.empty())
   {

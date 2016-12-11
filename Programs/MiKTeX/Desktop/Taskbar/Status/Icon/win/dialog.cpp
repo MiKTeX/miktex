@@ -239,7 +239,7 @@ static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
           newPath += ';';
           newPath += oldPath;
         }
-        Utils::SetEnvironmentString("PATH", newPath.c_str());
+        Utils::SetEnvironmentString("PATH", newPath);
         string cmd;
         if (!Utils::GetEnvironmentString("COMSPEC", cmd))
         {
@@ -249,7 +249,7 @@ static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
         Process::Start(cmd);
         if (haveOldPath)
         {
-          Utils::SetEnvironmentString("PATH", oldPath.c_str());
+          Utils::SetEnvironmentString("PATH", oldPath);
         }
         break;
       }

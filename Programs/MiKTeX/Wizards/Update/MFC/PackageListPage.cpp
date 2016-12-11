@@ -407,7 +407,7 @@ void PackageListPage::OnItemActivate(NMHDR * pNMHDR, LRESULT * pResult)
   string::size_type pos = url.find("%s");
   MIKTEX_ASSERT(pos != string::npos);
   url.replace(pos, strlen("%s"), updates[pInfo->iItem].deploymentName);
-  Utils::ShowWebPage(url.c_str());
+  Utils::ShowWebPage(url);
 }
 
 inline int GetStateImageIndex(UINT state)

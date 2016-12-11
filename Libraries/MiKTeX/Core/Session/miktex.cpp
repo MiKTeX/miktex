@@ -636,12 +636,12 @@ void SessionImpl::SetCWDEnv()
     }
     str += dir.ToString();
   }
-  Utils::SetEnvironmentString(MIKTEX_ENV_CWD_LIST, str.c_str());
+  Utils::SetEnvironmentString(MIKTEX_ENV_CWD_LIST, str);
 }
 
 void SessionImpl::AddInputDirectory(const PathName & path, bool atEnd)
 {
-  if (!Utils::IsAbsolutePath(path.GetData()))
+  if (!Utils::IsAbsolutePath(path))
   {
     INVALID_ARGUMENT("path", path.ToString());
   }

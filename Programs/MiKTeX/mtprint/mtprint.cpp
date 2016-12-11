@@ -532,11 +532,9 @@ void PrintUtility::ShowVersion()
 void PrintUtility::Run(int argc, const char ** argv)
 {
   // initialize printerName with the default printer
-  char szPrinterName[300];
-  size_t size = 300;
-  if (Utils::GetDefPrinter(szPrinterName, &size))
+  if (!Utils::GetDefPrinter(printerName))
   {
-    printerName = szPrinterName;
+    // TODO
   }
 
   PrintMethod printMethod = PrintMethodPostScriptBMP;

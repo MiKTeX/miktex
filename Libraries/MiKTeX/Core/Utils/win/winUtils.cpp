@@ -715,7 +715,7 @@ bool Utils::RunningOnAServer()
 }
 
 // see Q246772
-bool Utils::GetDefPrinter(char * pPrinterName, size_t * pBufferSize)
+bool Utils::GetDefPrinter(string & printerName)
 {
   OSVERSIONINFOW osv;
   osv.dwOSVersionInfoSize = sizeof(OSVERSIONINFOW);
@@ -762,9 +762,9 @@ bool Utils::GetDefPrinter(char * pPrinterName, size_t * pBufferSize)
     if (osv.dwMajorVersion >= 5)
     {
       DllProc2<BOOL, wchar_t *, LPDWORD> getDefaultPrinterW("winspool.drv", "GetDefaultPrinterW");
-      DWORD dwBufferSize = static_cast<DWORD>(*pBufferSize);
-      CharBuffer<wchar_t> printerName(*pBufferSize);
-      BOOL bDone = getDefaultPrinterW(printerName.GetData(), &dwBufferSize);
+      CharBuffer<wchar_t> printerNameBuf;
+      DWORD dwBufferSize = printerNameBuf.GetCapacity();
+      BOOL bDone = getDefaultPrinterW(printerNameBuf.GetData(), &dwBufferSize);
       if (!bDone)
       {
 	if (::GetLastError() == ERROR_FILE_NOT_FOUND)
@@ -778,8 +778,7 @@ bool Utils::GetDefPrinter(char * pPrinterName, size_t * pBufferSize)
       }
       else
       {
-	StringUtil::CopyString(pPrinterName, *pBufferSize, printerName.GetData());
-	*pBufferSize = dwBufferSize;
+        printerName = WU_(printerNameBuf.GetData());
 	return true;
       }
     }
@@ -812,23 +811,23 @@ bool Utils::GetDefPrinter(char * pPrinterName, size_t * pBufferSize)
   }
 }
 
-void Utils::SetEnvironmentString(const char * lpszValueName, const char * lpszValue)
+void Utils::SetEnvironmentString(const string & valueName, const string & value)
 {
   string oldValue;
-  if (::GetEnvironmentString(lpszValueName, oldValue) && oldValue == lpszValue)
+  if (::GetEnvironmentString(valueName, oldValue) && oldValue == value)
   {
     return;
   }
-  SessionImpl::GetSession()->trace_config->WriteFormattedLine("core", T_("setting env %s=%s"), lpszValueName, lpszValue);
+  SessionImpl::GetSession()->trace_config->WriteFormattedLine("core", T_("setting env %s=%s"), valueName.c_str(), value.c_str());
 #if defined(_MSC_VER) || defined(__MINGW32__)
-  if (_wputenv_s(UW_(lpszValueName), UW_(lpszValue)) != 0)
+  if (_wputenv_s(UW_(valueName), UW_(value)) != 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("_wputenv_s", "value", lpszValueName);
+    MIKTEX_FATAL_CRT_ERROR_2("_wputenv_s", "value", valueName);
   }
 #else
-  string str = lpszValueName;
+  string str = valueName;
   str += '=';
-  str += lpszValue;
+  str += value;
   if (putenv(str.c_str()) != 0)
   {
     FATAL_CRT_ERROR("putenv", str.c_str());
@@ -992,9 +991,9 @@ HINSTANCE ShellExecuteURL(HWND hwnd, const wchar_t * lpOperation, const wchar_t 
 // like InternetCrackUrl because it's much more forgiving, and we only
 // need to extract the scheme anyway
 
-void Utils::ShowWebPage(const char * lpszUrl)
+void Utils::ShowWebPage(const string & url)
 {
-  HINSTANCE hInst = ShellExecuteURL(nullptr, nullptr, StringUtil::UTF8ToWideChar(lpszUrl).c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+  HINSTANCE hInst = ShellExecuteURL(nullptr, nullptr, StringUtil::UTF8ToWideChar(url).c_str(), nullptr, nullptr, SW_SHOWNORMAL);
   if (reinterpret_cast<size_t>(hInst) <= 32)
   {
     MIKTEX_FATAL_ERROR_2(T_("The web browser could not be started."), "hInst", std::to_string(reinterpret_cast<size_t>(hInst)));
@@ -1340,58 +1339,56 @@ void Utils::CanonicalizePathName(PathName & path)
   path = szFullPath;
 }
 
-void Utils::RegisterShellFileAssoc(const char * lpszExtension, const char * lpszProgId, bool takeOwnership)
+void Utils::RegisterShellFileAssoc(const string & extension, const string & progId, bool takeOwnership)
 {
-  MIKTEX_ASSERT_STRING(lpszExtension);
-  MIKTEX_ASSERT_STRING(lpszProgId);
   shared_ptr<Session> session = Session::Get();
   PathName regPath("Software\\Classes");
-  regPath /= lpszExtension;
+  regPath /= extension;
   string otherProgId;
   bool haveOtherProgId = false;
   if (!session->IsAdminMode())
   {
     haveOtherProgId = winRegistry::TryGetRegistryValue(HKEY_CURRENT_USER, regPath.GetData(), "", otherProgId);
-    haveOtherProgId = haveOtherProgId && StringCompare(lpszProgId, otherProgId.c_str(), true) != 0;
+    haveOtherProgId = haveOtherProgId && StringCompare(progId.c_str(), otherProgId.c_str(), true) != 0;
   }
   if (!haveOtherProgId)
   {
     haveOtherProgId = winRegistry::TryGetRegistryValue(HKEY_LOCAL_MACHINE, regPath.GetData(), "", otherProgId);
-    haveOtherProgId = haveOtherProgId && StringCompare(lpszProgId, otherProgId.c_str(), true) != 0;
+    haveOtherProgId = haveOtherProgId && StringCompare(progId.c_str(), otherProgId.c_str(), true) != 0;
   }
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName openWithProgIds(regPath);
   openWithProgIds /= "OpenWithProgIds";
   if (haveOtherProgId)
   {
-    winRegistry::SetRegistryValue(hkeyRoot, openWithProgIds.GetData(), otherProgId.c_str(), "");
-    winRegistry::SetRegistryValue(hkeyRoot, openWithProgIds.GetData(), lpszProgId, "");
+    winRegistry::SetRegistryValue(hkeyRoot, openWithProgIds.ToString(), otherProgId, "");
+    winRegistry::SetRegistryValue(hkeyRoot, openWithProgIds.ToString(), progId, "");
   }
   if (!haveOtherProgId || takeOwnership)
   {
     if (haveOtherProgId)
     {
-      winRegistry::SetRegistryValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_SERIES_STR ".backup", otherProgId.c_str());
+      winRegistry::SetRegistryValue(hkeyRoot, regPath.ToString(), "MiKTeX." MIKTEX_SERIES_STR ".backup", otherProgId);
     }
-    winRegistry::SetRegistryValue(hkeyRoot, regPath.GetData(), "", lpszProgId);
+    winRegistry::SetRegistryValue(hkeyRoot, regPath.ToString(), "", progId);
   }
 }
 
-void Utils::UnregisterShellFileAssoc(const char * lpszExtension, const char * lpszProgId)
+void Utils::UnregisterShellFileAssoc(const string & extension, const string & progId)
 {
   MIKTEX_ASSERT_STRING(lpszExtension);
   shared_ptr<Session> session = Session::Get();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName regPath("Software\\Classes");
-  regPath /= lpszExtension;
-  string progId;
-  if (!winRegistry::TryGetRegistryValue(hkeyRoot, regPath.GetData(), "", progId))
+  regPath /= extension;
+  string existingProgId;
+  if (!winRegistry::TryGetRegistryValue(hkeyRoot, regPath.ToString(), "", existingProgId))
   {
     return;
   }
   string backupProgId;
   bool haveBackupProgId = winRegistry::TryGetRegistryValue(hkeyRoot, regPath.GetData(), "MiKTeX." MIKTEX_SERIES_STR ".backup", backupProgId);
-  if (haveBackupProgId || StringCompare(progId.c_str(), lpszProgId, true) != 0)
+  if (haveBackupProgId || StringCompare(existingProgId.c_str(), progId.c_str(), true) != 0)
   {
     if (haveBackupProgId)
     {
@@ -1400,76 +1397,68 @@ void Utils::UnregisterShellFileAssoc(const char * lpszExtension, const char * lp
     }
     PathName openWithProgIds(regPath);
     openWithProgIds /= "OpenWithProgIds";
-    winRegistry::TryDeleteRegistryValue(hkeyRoot, openWithProgIds.GetData(), lpszProgId);
+    winRegistry::TryDeleteRegistryValue(hkeyRoot, openWithProgIds.ToString(), progId);
   }
   else
   {
-    winRegistry::TryDeleteRegistryKey(hkeyRoot, regPath.GetData());
+    winRegistry::TryDeleteRegistryKey(hkeyRoot, regPath.ToString());
   }
 }
 
-void Utils::RegisterShellFileType(const char * lpszProgId, const char * lpszUserFriendlyName, const char * lpszIconPath)
+void Utils::RegisterShellFileType(const string & progId, const string & userFriendlyName, const string & iconPath)
 {
-  MIKTEX_ASSERT_STRING(lpszProgId);
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszUserFriendlyName);
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszIconPath);
   shared_ptr<Session> session = Session::Get();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName regPath("Software\\Classes");
-  regPath /= lpszProgId;
-  if (lpszUserFriendlyName != nullptr)
+  regPath /= progId;
+  if (!userFriendlyName.empty())
   {
-    winRegistry::SetRegistryValue(hkeyRoot, regPath.GetData(), "", lpszUserFriendlyName);
+    winRegistry::SetRegistryValue(hkeyRoot, regPath.ToString(), "", userFriendlyName);
   }
-  if (lpszIconPath != nullptr)
+  if (!iconPath.empty())
   {
     PathName defaultIcon(regPath);
     defaultIcon /= "DefaultIcon";
-    winRegistry::SetRegistryValue(hkeyRoot, defaultIcon.GetData(), "", lpszIconPath);
+    winRegistry::SetRegistryValue(hkeyRoot, defaultIcon.GetData(), "", iconPath);
   }
 }
 
-void Utils::UnregisterShellFileType(const char * lpszProgId)
+void Utils::UnregisterShellFileType(const string & progId)
 {
-  MIKTEX_ASSERT_STRING(lpszProgId);
   shared_ptr<Session> session = Session::Get();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName regPath("Software\\Classes");
-  regPath /= lpszProgId;
-  winRegistry::TryDeleteRegistryKey(hkeyRoot, regPath.GetData());
+  regPath /= progId;
+  winRegistry::TryDeleteRegistryKey(hkeyRoot, regPath.ToString());
 }
 
-void Utils::RegisterShellVerb(const char * lpszProgId, const char * lpszVerb, const char * lpszCommand, const char * lpszDdeExec)
+void Utils::RegisterShellVerb(const string & progId, const string & verb, const string & command, const string & ddeExec)
 {
-  MIKTEX_ASSERT_STRING(lpszProgId);
-  MIKTEX_ASSERT_STRING(lpszVerb);
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszCommand);
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszDdeExec);
   shared_ptr<Session> session = Session::Get();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName regPath("Software\\Classes");
-  regPath /= lpszProgId;
-  if (lpszCommand != nullptr)
+  regPath /= progId;
+  if (!command.empty())
   {
     PathName path(regPath);
     path /= "shell";
-    path /= lpszVerb;
+    path /= verb;
     path /= "command";
-    winRegistry::SetRegistryValue(hkeyRoot, path.GetData(), "", lpszCommand);
+    winRegistry::SetRegistryValue(hkeyRoot, path.ToString(), "", command);
   }
-  if (lpszDdeExec != nullptr)
+  if (!ddeExec.empty())
   {
     PathName path(regPath);
     path /= "shell";
-    path /= lpszVerb;
+    path /= verb;
     path /= "ddeexec";
-    winRegistry::SetRegistryValue(hkeyRoot, path.GetData(), "", lpszDdeExec);
+    winRegistry::SetRegistryValue(hkeyRoot, path.ToString(), "", ddeExec);
   }
 }
 
-string Utils::MakeProgId(const char * lpszComponent)
+string Utils::MakeProgId(const string & progId)
 {
-  return string("MiKTeX") + "." + lpszComponent + "." + MIKTEX_SERIES_STR;
+  return string("MiKTeX") + "." + progId + "." + MIKTEX_SERIES_STR;
 }
 
 bool Utils::SupportsHardLinks(const PathName & path)

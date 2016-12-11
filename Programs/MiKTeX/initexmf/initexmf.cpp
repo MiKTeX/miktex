@@ -1768,7 +1768,7 @@ void IniTeXMFApp::Init(const char * argv0)
   if (session->FindFile("initexmf." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
     || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
   {
-    Utils::SetEnvironmentString("MIKTEX_LOG_DIR", GetLogDir().GetData());
+    Utils::SetEnvironmentString("MIKTEX_LOG_DIR", GetLogDir().ToString());
     Utils::SetEnvironmentString("MIKTEX_LOG_NAME", "initexmf");
     log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
   }
@@ -2444,23 +2444,23 @@ void IniTeXMFApp::RegisterShellFileTypes(bool reg)
       }
       if (sft.lpszUserFriendlyName != 0 || !iconPath.empty())
       {
-        Utils::RegisterShellFileType(progId.c_str(), sft.lpszUserFriendlyName, (iconPath.empty() ? nullptr : iconPath.c_str()));
+        Utils::RegisterShellFileType(progId.c_str(), sft.lpszUserFriendlyName, iconPath);
       }
       if (sft.lpszVerb != nullptr && (!command.empty() || sft.lpszDdeArgs != nullptr))
       {
-        Utils::RegisterShellVerb(progId.c_str(), sft.lpszVerb, (command.empty() ? nullptr : command.c_str()), sft.lpszDdeArgs);
+        Utils::RegisterShellVerb(progId, sft.lpszVerb, command, sft.lpszDdeArgs == nullptr ? "" : sft.lpszDdeArgs);
       }
       if (sft.lpszExtension != nullptr)
       {
-        Utils::RegisterShellFileAssoc(sft.lpszExtension, progId.c_str(), sft.takeOwnership);
+        Utils::RegisterShellFileAssoc(sft.lpszExtension, progId, sft.takeOwnership);
       }
     }
     else
     {
-      Utils::UnregisterShellFileType(progId.c_str());
+      Utils::UnregisterShellFileType(progId);
       if (sft.lpszExtension != nullptr)
       {
-        Utils::UnregisterShellFileAssoc(sft.lpszExtension, progId.c_str());
+        Utils::UnregisterShellFileAssoc(sft.lpszExtension, progId);
       }
     }
   }

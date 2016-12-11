@@ -414,7 +414,7 @@ void PostScript::Uncompress(const char * lpszFileName, PathName & result)
   {
     MIKTEX_FATAL_ERROR_2(T_("Cannot find graphics file."), "path", lpszFileName);
   }
-  Utils::UncompressFile(source.GetData(), result);
+  Utils::UncompressFile(source, result);
   pDviImpl->RememberTempFile(lpszFileName, result);
 }
 

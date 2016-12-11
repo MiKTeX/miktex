@@ -98,11 +98,10 @@ BOOL DvipsDialog::OnInitDialog()
 
     delete[] lpBuf;
 
-    char szDefaultPrinter[300];
-    size_t size = 300;
-    if (Utils::GetDefPrinter(szDefaultPrinter, &size))
+    string defaultPrinter;
+    if (Utils::GetDefPrinter(defaultPrinter))
     {
-      if (m_comboPrinterName.SelectString(-1, UT_(szDefaultPrinter)) < 0)
+      if (m_comboPrinterName.SelectString(-1, UT_(defaultPrinter)) < 0)
       {
         MIKTEX_UNEXPECTED();
       }

@@ -241,7 +241,7 @@ void Main(int argc, const char ** argv)
       break;
     case OPT_VERSION:
       cout
-        << Utils::MakeProgramVersionString(Utils::GetExeName().c_str(), VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
+        << Utils::MakeProgramVersionString(Utils::GetExeName(), VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
         << T_("Copyright (C) 2006-2016 Christian Schenk") << endl
         << T_("This is free software; see the source for copying conditions.  There is NO") << endl
         << T_("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.") << endl;

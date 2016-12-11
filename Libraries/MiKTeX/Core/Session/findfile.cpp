@@ -120,7 +120,7 @@ bool SessionImpl::FindFileInternal(const string & fileName, const vector<PathNam
 
   // if a fully qualified path name is given, then don't look out any
   // further
-  if (Utils::IsAbsolutePath(fileName.c_str()))
+  if (Utils::IsAbsolutePath(fileName))
   {
     PathName path(fileName);
     found = CheckCandidate(path, nullptr);

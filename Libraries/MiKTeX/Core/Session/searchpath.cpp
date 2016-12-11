@@ -81,7 +81,7 @@ void SessionImpl::PushBackPath(vector<PathName> & vec, const PathName & path)
     if (path[0] == '~' && (path[1] == 0 || IsDirectoryDelimiter(path[1])))
     {
       PathName pathFQ = GetHomeDirectory();
-      if (!Utils::IsAbsolutePath(pathFQ.GetData()))
+      if (!Utils::IsAbsolutePath(pathFQ))
       {
 	TraceError(T_("cannot expand ~: %s is not fully qualified"), Q_(pathFQ));
 	continue;
@@ -98,7 +98,7 @@ void SessionImpl::PushBackPath(vector<PathName> & vec, const PathName & path)
     }
 
     // fully qualified path?
-    if (Utils::IsAbsolutePath(path.GetData()))
+    if (Utils::IsAbsolutePath(path))
     {
       if (find(vec.begin(), vec.end(), path) == vec.end())
       {
@@ -111,7 +111,7 @@ void SessionImpl::PushBackPath(vector<PathName> & vec, const PathName & path)
     PathName pathFQ;
     for (unsigned idx = 0; GetWorkingDirectory(idx, pathFQ); ++idx)
     {
-      if (!Utils::IsAbsolutePath(pathFQ.GetData()))
+      if (!Utils::IsAbsolutePath(pathFQ))
       {
 	TraceError(T_("%s is not fully qualified"), Q_(pathFQ));
 	continue;

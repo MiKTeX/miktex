@@ -212,19 +212,17 @@ const char * Utils::GetRelativizedPath(const char * lpszPath, const char * lpszR
   return lpszPath + rootLen + 1;
 }
 
-bool Utils::IsAbsolutePath(const char * lpszPath)
+bool Utils::IsAbsolutePath(const PathName & path)
 {
-  MIKTEX_ASSERT_STRING(lpszPath);
-
   // "\xyz\foo.txt", "\\server\xyz\foo.txt"
-  if (IsDirectoryDelimiter(lpszPath[0]))
+  if (IsDirectoryDelimiter(path[0]))
   {
     return true;
   }
 #if defined(MIKTEX_WINDOWS)
-  else if (IsDriveLetter(lpszPath[0]) // "C:\xyz\foo.txt"
-    && lpszPath[1] == ':'
-    && IsDirectoryDelimiter(lpszPath[2]))
+  else if (IsDriveLetter(path[0]) // "C:\xyz\foo.txt"
+    && path[1] == ':'
+    && IsDirectoryDelimiter(path[2]))
   {
     return true;
   }
@@ -242,18 +240,18 @@ static const char * const forbiddenFileNames[] = {
   nullptr,
 };
 
-bool Utils::IsSafeFileName(const char * lpszPath, bool forInput)
+bool Utils::IsSafeFileName(const PathName & path, bool forInput)
 {
   if (forInput)
   {
     return true;
   }
-  if (IsAbsolutePath(lpszPath))
+  if (IsAbsolutePath(path))
   {
     return false;
   }
   PathName fileName;
-  for (PathNameParser parser(lpszPath); parser.GetCurrent() != nullptr; ++parser)
+  for (PathNameParser parser(path.GetData()); parser.GetCurrent() != nullptr; ++parser)
   {
     if (PathName::Compare(parser.GetCurrent(), PARENT_DIRECTORY) == 0)
     {
@@ -299,14 +297,14 @@ void Utils::MakeTeXPathName(PathName & path)
 #endif
 }
 
-bool Utils::IsParentDirectoryOf(const char * lpszParentDir, const char * lpszFileName)
+bool Utils::IsParentDirectoryOf(const PathName & parentDir, const PathName & fileName)
 {
-  size_t len1 = strlen(lpszParentDir);
-  if (PathName::Compare(lpszParentDir, lpszFileName, len1) != 0)
+  size_t len1 = parentDir.GetLength();
+  if (PathName::Compare(parentDir, fileName, len1) != 0)
   {
     return false;
   }
-  size_t len2 = strlen(lpszFileName);
+  size_t len2 = fileName.GetLength();
   if (len1 >= len2)
   {
     return false;
@@ -317,18 +315,18 @@ bool Utils::IsParentDirectoryOf(const char * lpszParentDir, const char * lpszFil
     return true;
   }
 #endif
-  return IsDirectoryDelimiter(lpszFileName[len1]);
+  return IsDirectoryDelimiter(fileName[len1]);
 }
 
-bool Utils::GetUncRootFromPath(const char * lpszPath, PathName & uncRoot)
+bool Utils::GetUncRootFromPath(const PathName & path, PathName & uncRoot)
 {
   // must start with "\\"
-  if (!(IsDirectoryDelimiter(lpszPath[0]) && IsDirectoryDelimiter(lpszPath[1])))
+  if (!(IsDirectoryDelimiter(path[0]) && IsDirectoryDelimiter(path[1])))
   {
     return false;
   }
 
-  uncRoot = lpszPath;
+  uncRoot = path;
 
   char * lpsz = uncRoot.GetData() + 2;
 
@@ -377,7 +375,7 @@ bool Utils::GetUncRootFromPath(const char * lpszPath, PathName & uncRoot)
 
 bool Utils::GetPathNamePrefix(const PathName & path, const PathName & suffix, PathName & prefix)
 {
-  MIKTEX_ASSERT(!Utils::IsAbsolutePath(suffix.Get()));
+  MIKTEX_ASSERT(!Utils::IsAbsolutePath(suffix));
 
   PathName path_(path);
   PathName suffix_(suffix);
@@ -600,9 +598,9 @@ string Utils::GetMiKTeXBannerString()
   return MIKTEX_BANNER_STR;
 }
 
-string Utils::MakeProgramVersionString(const char * lpszProgramName, const VersionNumber & programVersionNumber)
+string Utils::MakeProgramVersionString(const string & programName, const VersionNumber & programVersionNumber)
 {
-  string str = lpszProgramName;
+  string str = programName;
   if (string(MIKTEX_BANNER_STR).find(programVersionNumber.ToString()) == string::npos)
   {
     str += ' ';
@@ -633,36 +631,6 @@ bool Utils::GetEnvironmentString(const string & name, PathName & path)
     path = s;
   }
   return result;
-}
-
-bool Utils::GetEnvironmentString(const char * lpszName, char * lpszOut, size_t sizeOut)
-{
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-  size_t bufSize;
-  if (_wgetenv_s(&bufSize, 0, 0, UW_(lpszName)) != 0)
-  {
-    return false;
-  }
-  if (bufSize == 0)
-  {
-    return false;
-  }
-  CharBuffer<wchar_t> buf(bufSize);
-  if (_wgetenv_s(&bufSize, buf.GetData(), bufSize, UW_(lpszName)) != 0)
-  {
-    MIKTEX_FATAL_CRT_ERROR_2("_wgetenv_s", "name", lpszName);
-  }
-  StringUtil::CopyString(lpszOut, sizeOut, buf.GetData());
-  return true;
-#else
-  const char * lpsz = getenv(lpszName);
-  if (lpsz == 0)
-  {
-    return false;
-  }
-  StringUtil::CopyString(lpszOut, sizeOut, lpsz);
-  return true;
-#endif
 }
 
 bool Utils::ParseDvipsMapLine(const string & line, FontMapEntry & mapEntry)

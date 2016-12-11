@@ -288,34 +288,34 @@ void SessionImpl::SetEnvironmentVariables()
     str += PATH_DELIMITER;
     str += fonts2.GetData();
   }
-  Utils::SetEnvironmentString("MIKTEX_GS_LIB", str.c_str());
+  Utils::SetEnvironmentString("MIKTEX_GS_LIB", str);
 #endif
 
   PathName path = GetTempDirectory();
 
   if (!HaveEnvironmentString("TEMPDIR") || IsMiKTeXPortable())
   {
-    Utils::SetEnvironmentString("TEMPDIR", path.GetData());
+    Utils::SetEnvironmentString("TEMPDIR", path.ToString());
   }
 
   if (!HaveEnvironmentString("TMPDIR") || IsMiKTeXPortable())
   {
-    Utils::SetEnvironmentString("TMPDIR", path.GetData());
+    Utils::SetEnvironmentString("TMPDIR", path.ToString());
   }
 
   if (!HaveEnvironmentString("TEMP") || IsMiKTeXPortable())
   {
-    Utils::SetEnvironmentString("TEMP", path.GetData());
+    Utils::SetEnvironmentString("TEMP", path.ToString());
   }
 
   if (!HaveEnvironmentString("TMP") || IsMiKTeXPortable())
   {
-    Utils::SetEnvironmentString("TMP", path.GetData());
+    Utils::SetEnvironmentString("TMP", path.ToString());
   }
 
   if (!HaveEnvironmentString("HOME"))
   {
-    Utils::SetEnvironmentString("HOME", GetHomeDirectory().GetData());
+    Utils::SetEnvironmentString("HOME", GetHomeDirectory().ToString());
   }
 
   SetCWDEnv();

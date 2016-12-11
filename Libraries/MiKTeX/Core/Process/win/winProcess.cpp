@@ -55,7 +55,7 @@ void winProcess::Create()
 
   PathName fileName;
 
-  if (Utils::IsAbsolutePath(startinfo.FileName.c_str()))
+  if (Utils::IsAbsolutePath(startinfo.FileName))
   {
     fileName = startinfo.FileName;
   }
@@ -456,7 +456,7 @@ MIKTEXSTATICFUNC(PathName) FindSystemShell()
     string path;
     if (Utils::GetEnvironmentString("COMSPEC", path))
     {
-      if (!Utils::IsAbsolutePath(path.c_str()))
+      if (!Utils::IsAbsolutePath(path))
       {
         wchar_t * lpsz = nullptr;
         if (SearchPathW(nullptr, PathName(path).ToWideCharString().c_str(), nullptr, ARRAY_SIZE(szCmd), szCmd, &lpsz) == 0)

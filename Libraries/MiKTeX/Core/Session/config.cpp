@@ -208,7 +208,7 @@ void Absolutize(string & paths, const PathName & relativeFrom)
     else
     {
 #if MIKTEX_WINDOWS
-      MIKTEX_ASSERT(Utils::IsAbsolutePath(relativeFrom.Get()));
+      MIKTEX_ASSERT(Utils::IsAbsolutePath(relativeFrom));
       PathName absPath(relativeFrom);
       absPath /= path.GetCurrent();
       PathName absPath2;
@@ -321,7 +321,7 @@ StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName & p
   pcfg = nullptr;
 
   // inherit to child processes
-  Utils::SetEnvironmentString(common ? MIKTEX_ENV_COMMON_STARTUP_FILE : MIKTEX_ENV_USER_STARTUP_FILE, path.GetData());
+  Utils::SetEnvironmentString(common ? MIKTEX_ENV_COMMON_STARTUP_FILE : MIKTEX_ENV_USER_STARTUP_FILE, path.ToString());
 
   return ret;
 }
@@ -1155,7 +1155,7 @@ bool SessionImpl::IsSharedSetup()
 	isSharedSetup = TriState::False;
 #else
 	PathName myLoc = GetMyLocation(true);
-	isSharedSetup = Utils::IsParentDirectoryOf("/usr", myLoc.GetData()) || Utils::IsParentDirectoryOf("/opt", myLoc.GetData()) ? TriState::True : TriState::False;
+	isSharedSetup = Utils::IsParentDirectoryOf("/usr", myLoc) || Utils::IsParentDirectoryOf("/opt", myLoc) ? TriState::True : TriState::False;
 
 #endif
       }

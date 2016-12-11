@@ -381,7 +381,7 @@ private:
   string SetProgramName(const string & envName, const string & defaultProgram)
   {
     string programName;
-    if (!Utils::GetEnvironmentString(envName.c_str(), programName))
+    if (!Utils::GetEnvironmentString(envName, programName))
     {
       programName = defaultProgram;
     }
@@ -766,7 +766,7 @@ void Driver::Initialize(McdApp * pApplication, Options * pOptions, const char * 
   }
 
   // make fully qualified path to the given input file
-  if (Utils::IsAbsolutePath(givenFileName.GetData()))
+  if (Utils::IsAbsolutePath(givenFileName))
   {
     pathInputFile = givenFileName;
   }
@@ -1991,7 +1991,7 @@ void McdApp::Run(int argc, const char ** argv)
     case OPT_INCLUDE:
     {
       PathName path;
-      if (Utils::IsAbsolutePath(optArg.c_str()))
+      if (Utils::IsAbsolutePath(optArg))
       {
         path = optArg;
       }
