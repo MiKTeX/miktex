@@ -62,8 +62,15 @@ struct VersionNumber
   }
 
   /// Initializes an instance of the struct.
-  /// @param lpszVersion The version number as a string.
+  /// @param versionString The version number as a string.
   VersionNumber(const std::string & versionString)
+  {
+    *this = Parse(versionString);
+  }
+
+  /// Initializes an instance of the struct.
+  /// @param versionString The version number as a string.
+  VersionNumber(const char * versionString)
   {
     *this = Parse(versionString);
   }
