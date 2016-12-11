@@ -521,8 +521,6 @@ FileTypeInfo SessionImpl::GetFileTypeInfo(FileType fileType)
 
 FileType SessionImpl::DeriveFileType(const PathName & fileName)
 {
-  MIKTEX_ASSERT_STRING(lpszPath);
-
   RegisterFileTypes();
 
   const char * lpszExt = GetFileNameExtension(fileName.GetData());

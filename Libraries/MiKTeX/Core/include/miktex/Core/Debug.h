@@ -218,11 +218,9 @@ MIKTEX_DEBUG_BEGIN_NAMESPACE;
 
 inline void AssertValidBuf(void * lp, size_t n)
 {
-  (void)lp;
-  (void)n;
   MIKTEX_ASSERT(lp != nullptr);
-#if defined(MIKTEX_WINDOWS)
-  MIKTEX_ASSERT(!IsBadWritePtr(lp, n));
+#if defined(MIKTEX_DEBUG)
+  // TODO: check write
 #endif
 }
 
@@ -234,21 +232,17 @@ MIKTEX_DEBUG_BEGIN_NAMESPACE;
 
 inline void AssertValidString(const char * lp, size_t n = 4096)
 {
-  (void)lp;
-  (void)n;
   MIKTEX_ASSERT(lp != nullptr);
-#if defined(MIKTEX_WINDOWS)
-  MIKTEX_ASSERT(!IsBadStringPtrA(lp, n));
+#if defined(MIKTEX_DEBUG)
+  // TODO: check null terminated string
 #endif
 }
 
 inline void AssertValidString(const wchar_t * lp, size_t n = 4096)
 {
-  (void)lp;
-  (void)n;
   MIKTEX_ASSERT(lp != nullptr);
-#if defined(MIKTEX_WINDOWS)
-  MIKTEX_ASSERT(!IsBadStringPtrW(lp, n));
+#if defined(MIKTEX_DEBUG)
+  // TODO: check null terminated string
 #endif
 }
 

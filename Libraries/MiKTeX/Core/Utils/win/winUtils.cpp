@@ -170,7 +170,7 @@ void Utils::RemoveBlanksFromPathName(PathName & path)
     RemoveBlanksFromPathName(temp);
     // </recursivecall>
     // path now hasn't any blanks; combine path with new file name
-    MIKTEX_ASSERT(StrChr(temp.Get(), ' ') == nullptr);
+    MIKTEX_ASSERT(StrChr(temp.GetData(), ' ') == nullptr);
     path = temp;
     path /= szAlternate;
   }
@@ -1376,7 +1376,6 @@ void Utils::RegisterShellFileAssoc(const string & extension, const string & prog
 
 void Utils::UnregisterShellFileAssoc(const string & extension, const string & progId)
 {
-  MIKTEX_ASSERT_STRING(lpszExtension);
   shared_ptr<Session> session = Session::Get();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   PathName regPath("Software\\Classes");
