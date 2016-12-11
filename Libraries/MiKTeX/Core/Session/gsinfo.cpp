@@ -71,7 +71,7 @@ PathName SessionImpl::GetGhostscript(unsigned long * versionNumber)
     {
       MIKTEX_FATAL_ERROR_2(T_("Ghostscript is not working correctly."), "gsOut", gsOut.StdoutToString());
     }
-    gsVersion = VersionNumber::Parse(gsOut.StdoutToString().c_str());
+    gsVersion = VersionNumber::Parse(gsOut.StdoutToString());
     trace_config->WriteFormattedLine("core", T_("Ghostscript version: %s"), gsVersion.ToString().c_str());
   }
 

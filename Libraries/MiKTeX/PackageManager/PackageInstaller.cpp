@@ -430,7 +430,7 @@ int CompareSerieses(const string & ver1, const string & ver2)
   }
   VersionNumber verNum1;
   VersionNumber verNum2;
-  if (VersionNumber::TryParse(ver1.c_str(), verNum1) && VersionNumber::TryParse(ver2.c_str(), verNum2))
+  if (VersionNumber::TryParse(ver1, verNum1) && VersionNumber::TryParse(ver2, verNum2))
   {
     verNum1.n3 = 0;
     verNum1.n4 = 0;

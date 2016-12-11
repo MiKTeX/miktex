@@ -46,23 +46,23 @@ string VersionNumber::ToString() const
   return str;
 }
 
-bool VersionNumber::TryParse(const char * lpszVersion, VersionNumber & versionNumber)
+bool VersionNumber::TryParse(const string & versionString, VersionNumber & versionNumber)
 {
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)
 #  define SScanF sscanf_s
 #else
 #  define SScanF sscanf
 #endif
-  if (SScanF(lpszVersion, "%u.%u.%u.%u", &versionNumber.n1, &versionNumber.n2, &versionNumber.n3, &versionNumber.n4) == 4)
+  if (SScanF(versionString.c_str(), "%u.%u.%u.%u", &versionNumber.n1, &versionNumber.n2, &versionNumber.n3, &versionNumber.n4) == 4)
   {
     return true;
   }
-  else if (SScanF(lpszVersion, "%u.%u.%u", &versionNumber.n1, &versionNumber.n2, &versionNumber.n3) == 3)
+  else if (SScanF(versionString.c_str(), "%u.%u.%u", &versionNumber.n1, &versionNumber.n2, &versionNumber.n3) == 3)
   {
     versionNumber.n4 = 0;
     return true;
   }
-  else if (SScanF(lpszVersion, "%u.%u", &versionNumber.n1, &versionNumber.n2) == 2)
+  else if (SScanF(versionString.c_str(), "%u.%u", &versionNumber.n1, &versionNumber.n2) == 2)
   {
     versionNumber.n3 = 0;
     versionNumber.n4 = 0;
@@ -75,10 +75,10 @@ bool VersionNumber::TryParse(const char * lpszVersion, VersionNumber & versionNu
 #undef SScanF
 }
 
-VersionNumber VersionNumber::Parse(const char * lpsz)
+VersionNumber VersionNumber::Parse(const string & versionString)
 {
   VersionNumber versionNumber;
-  if (!TryParse(lpsz, versionNumber))
+  if (!TryParse(versionString, versionNumber))
   {
     MIKTEX_UNEXPECTED();
   }

@@ -63,9 +63,9 @@ struct VersionNumber
 
   /// Initializes an instance of the struct.
   /// @param lpszVersion The version number as a string.
-  VersionNumber(const char * lpszVersion)
+  VersionNumber(const std::string & versionString)
   {
-    *this = Parse(lpszVersion);
+    *this = Parse(versionString);
   }
 
   /// The first part of the version number. Usually the major version.
@@ -122,13 +122,13 @@ struct VersionNumber
   }
 
   /// Compares this version number to another.
-  /// @param other The other version number (as a string).
+  /// @param otherVersionString The other version number (as a string).
   /// @return Returns -1, if this version number is less than the other.
   /// Returns 0, if both version numbers compare equal.
   /// Otherwise returns 1.
-  int CompareTo(const char * lpszOther) const
+  int CompareTo(const std::string & otherVersionString) const
   {
-    return CompareTo(Parse(lpszOther));
+    return CompareTo(Parse(otherVersionString));
   }
 
   /// Converts this version number into a string object.
@@ -136,15 +136,15 @@ struct VersionNumber
   MIKTEXCORETHISAPI(std::string) ToString() const;
 
   /// Parses the string representation of a version number.
-  /// @param lpsz The string to parse.
+  /// @param versionString The string to parse.
   /// @param[out] The version number object to fill.
   /// @returns Returns true if the string could be parsed.
-  static MIKTEXCORECEEAPI(bool) TryParse(const char * lpsz, VersionNumber & versionNumber);
+  static MIKTEXCORECEEAPI(bool) TryParse(const std::string & versionString, VersionNumber & versionNumber);
 
   /// Parses the string representation of a version number.
-  /// @param lpsz The string to parse.
+  /// @param versionString The string to parse.
   /// @returns Returns the parsed version number.
-  static MIKTEXCORECEEAPI(VersionNumber) Parse(const char * lpsz);
+  static MIKTEXCORECEEAPI(VersionNumber) Parse(const std::string & versionString);
 };
 
 /// Compares two version numbers.
