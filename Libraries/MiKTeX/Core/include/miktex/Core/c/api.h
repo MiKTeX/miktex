@@ -70,8 +70,6 @@ MIKTEXCORECEEAPI(char *) miktex_get_root_directory(unsigned r, char * lpszPath);
 
 MIKTEXCORECEEAPI(int) miktex_pathcmp(const char * lpszPath1, const char * lpszPath2);
 
-MIKTEXCORECEEAPI(void) miktex_replace_string(char * lpszBuf, size_t * lpSzeDest, const char * lpszSource, const char * lpszString1, const char * lpszString2);
-
 MIKTEXCORECEEAPI(void) miktex_start_process(const char * lpszFileName, const char * lpszArguments, FILE * pFileStandardInput, FILE ** ppFileStandardInput, FILE ** ppFileStandardOutput, FILE ** ppFileStandardError, const char * lpszWorkingDirectory);
 
 MIKTEXCORECEEAPI(void) miktex_uncompress_file(const char * lpszPathIn, char * lpszPathOut);

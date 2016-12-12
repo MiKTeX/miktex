@@ -52,14 +52,6 @@ MIKTEXCORECEEAPI(void) miktex_uncompress_file(const char * lpszPathIn, char * lp
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(void) miktex_replace_string(char * lpszBuf, size_t * lpSizeDest, const char * lpszSource, const char * lpszString1, const char * lpszString2)
-{
-  C_FUNC_BEGIN();
-  MIKTEX_ASSERT(lpSizeDest != 0);
-  StringUtil::ReplaceString(lpszBuf, *lpSizeDest, lpszSource, lpszString1, lpszString2);
-  C_FUNC_END();
-}
-
 MIKTEXCORECEEAPI(void *) miktex_core_malloc(size_t size, const char * lpszFileName, int line)
 {
   C_FUNC_BEGIN();

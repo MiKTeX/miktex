@@ -46,15 +46,6 @@ public:
   /// @return Returns the length (in characters) of the result.
   static MIKTEXUTILCEEAPI(std::size_t) AppendString(char * dest, std::size_t destSize, const char * source);
 
-  /// Replaces all occurences of a sub-string within a string.
-  /// @param[out] lpszBuf The destination string buffer.
-  /// @param bufSize The size (in characters) of the destination buffer.
-  /// @param lpszSource The string to be searched.
-  /// @param lpszString1 The sub-string to be replaced.
-  /// @param lpszString2 The replacement sub-string.
-public:
-  static MIKTEXUTILCEEAPI(void) ReplaceString(char * dest, std::size_t & destSize, const char * source, const char * lpsz1, const char * lpsz2);
-
   /// Copies a string.
   /// @param[out] lpszBuf The destination string buffer.
   /// @param bufSize Size (in characters) of the destination string buffer.
