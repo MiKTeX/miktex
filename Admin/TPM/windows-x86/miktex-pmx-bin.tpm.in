@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/pmx/">
+    <TPM:Name>pmxab/scor2prt win32</TPM:Name>
+    <TPM:Title>pmxab and scor2prt, Windows x86</TPM:Title>
+    <TPM:Copyright owner="Don Simmons"/>
+    <TPM:License type="gpl3"/>
+    <TPM:Version>2.7.6</TPM:Version>
+    <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      PMX provides a preprocessor for MusiXTeX.
+      
+      pmxab builds a TeX input file based on a .pmx input file in a
+      much simpler language, making most of the layout decisions by
+      itself. It has most of MusiXTeX's functionality, but it also
+      permits in-line TeX to give access to virtually all of MusiXTeX.
+      For proof-listening, pmxab will make a MIDI file of your score.
+
+      scor2prt is an auxiliary program that makes parts from a score.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pmxab.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/scor2prt.exe
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>
