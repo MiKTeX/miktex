@@ -23,7 +23,7 @@
 
 #include "internal.h"
 
-#include "miktex/Core/CSVList.h"
+#include "miktex/Core/CsvList.h"
 #include "miktex/Core/PathName.h"
 #include "miktex/Core/PathNameParser.h"
 
@@ -272,9 +272,9 @@ bool Utils::IsSafeFileName(const PathName & path, bool forInput)
   string forbiddenExtensions;
   if (!extension.empty() && ::GetEnvironmentString("PATHEXT", forbiddenExtensions))
   {
-    for (CSVList ext(forbiddenExtensions, PATH_DELIMITER); ext.GetCurrent() != nullptr; ++ext)
+    for (CsvList ext(forbiddenExtensions, PATH_DELIMITER); ext; ++ext)
     {
-      if (PathName::Compare(ext.GetCurrent(), extension) == 0)
+      if (PathName::Compare(*ext, extension) == 0)
       {
         return false;
       }
@@ -875,9 +875,9 @@ bool Utils::FindProgram(const std::string & programName, PathName & path)
   {
     return false;
   }
-  for (CSVList entry(envPath, PathName::PathNameDelimiter); entry.GetCurrent() != nullptr; ++entry)
+  for (CsvList entry(envPath, PathName::PathNameDelimiter); entry; ++entry)
   {
-    PathName cand = entry.GetCurrent();
+    PathName cand = *entry;
     cand /= programName;
 #if defined(MIKTEX_WINDOWS)
     if (!cand.HasExtension())

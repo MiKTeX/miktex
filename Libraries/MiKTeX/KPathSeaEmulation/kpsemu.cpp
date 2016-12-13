@@ -170,9 +170,9 @@ const char PATH_DELIMITER = ':';
 MIKTEXSTATICFUNC(const char **) ToStringList(const std::string & str)
 {
   vector<std::string> vec;
-  for (CSVList s(str, PATH_DELIMITER); s.GetCurrent() != nullptr; ++s)
+  for (CsvList s(str, PATH_DELIMITER); s; ++s)
   {
-    vec.push_back(s.GetCurrent());
+    vec.push_back(*s);
   }
   return ToStringList(vec);
 }

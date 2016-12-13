@@ -1151,9 +1151,9 @@ void MakeFontMapApp::BuildFontconfigCache()
   writer.WriteLine("<fontconfig>");
   writer.WriteFormattedLine("<include>%s</include>", MIKTEX_LOCALFONTS2_CONF);
   vector<string> paths;
-  for (CSVList path(session->GetLocalFontDirectories(), PathName::PathNameDelimiter); path.GetCurrent() != 0; ++path)
+  for (CsvList path(session->GetLocalFontDirectories(), PathName::PathNameDelimiter); path; ++path)
   {
-    paths.push_back(path.GetCurrent());
+    paths.push_back(*path);
   }
   for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
   {

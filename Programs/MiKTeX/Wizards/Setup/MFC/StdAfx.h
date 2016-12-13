@@ -77,7 +77,7 @@
 #include "Setup-version.h"
 
 #include <miktex/Core/BufferSizes>
-#include <miktex/Core/CSVList>
+#include <miktex/Core/CsvList>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/Debug>
 #include <miktex/Core/Directory>

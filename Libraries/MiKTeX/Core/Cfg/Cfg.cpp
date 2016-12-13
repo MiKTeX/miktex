@@ -23,7 +23,7 @@
 
 #include "internal.h"
 
-#include "miktex/Core/CSVList.h"
+#include "miktex/Core/CsvList.h"
 #include "miktex/Core/Cfg.h"
 #include "miktex/Core/Registry.h"
 #include "miktex/Core/StreamReader.h"
@@ -299,12 +299,12 @@ void CfgKey::WriteValues(StreamWriter & writer) const
       writer.WriteFormattedLine("%s%s=",
         v.commentedOut ? COMMENT_CHAR_STR : "",
         v.name.c_str());
-      for (CSVList root(v.value.front(), PATH_DELIMITER); root.GetCurrent() != nullptr; ++root)
+      for (CsvList root(v.value.front(), PATH_DELIMITER); root; ++root)
       {
         writer.WriteFormattedLine("%s%s;=%s",
           v.commentedOut ? COMMENT_CHAR_STR : "",
           v.name.c_str(),
-          root.GetCurrent());
+          (*root).c_str());
       }
     }
     else

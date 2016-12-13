@@ -89,8 +89,8 @@ set(public_headers_core
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/BZip2Stream.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/BufferSizes
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/BufferSizes.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CSVList
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CSVList.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CsvList
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CsvList.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Cfg
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Cfg.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CommandLineBuilder
@@ -203,6 +203,10 @@ set(cfg_sources
 
 set(commandlinebuilder_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/CommandLineBuilder/CommandLineBuilder.cpp
+)
+
+set(CsvList_sources
+  ${CMAKE_CURRENT_SOURCE_DIR}/CsvList/CsvList.cpp
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -432,6 +436,7 @@ set(core_sources
   ${c_api_sources}
   ${cfg_sources}
   ${commandlinebuilder_sources}
+  ${CsvList_sources}
   ${directory_sources}
   ${directorylister_sources}
   ${file_sources}

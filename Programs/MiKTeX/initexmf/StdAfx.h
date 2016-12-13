@@ -37,7 +37,7 @@
 #include "initexmf-version.h"
 
 #include <miktex/Core/BufferSizes>
-#include <miktex/Core/CSVList>
+#include <miktex/Core/CsvList>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Directory>

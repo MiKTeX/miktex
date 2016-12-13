@@ -23,7 +23,7 @@
 
 #include "internal.h"
 
-#include "miktex/Core/CSVList.h"
+#include "miktex/Core/CsvList.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/Registry.h"
 
@@ -272,16 +272,16 @@ bool SessionImpl::FindFileInternal(const string & fileName, FileType fileType, b
   bool hasRegisteredExtension = false;
   if (lpszExtension != nullptr)
   {
-    for (CSVList ext(fileTypeInfo->fileNameExtensions, PATH_DELIMITER); ext.GetCurrent() != nullptr && !hasRegisteredExtension; ++ext)
+    for (CsvList ext(fileTypeInfo->fileNameExtensions, PATH_DELIMITER); ext && !hasRegisteredExtension; ++ext)
     {
-      if (PathName::Compare(lpszExtension, ext.GetCurrent()) == 0)
+      if (PathName::Compare(lpszExtension, *ext) == 0)
       {
 	hasRegisteredExtension = true;
       }
     }
-    for (CSVList ext(fileTypeInfo->alternateExtensions, PATH_DELIMITER); ext.GetCurrent() != nullptr && !hasRegisteredExtension; ++ext)
+    for (CsvList ext(fileTypeInfo->alternateExtensions, PATH_DELIMITER); ext && !hasRegisteredExtension; ++ext)
     {
-      if (PathName::Compare(lpszExtension, ext.GetCurrent()) == 0)
+      if (PathName::Compare(lpszExtension, *ext) == 0)
       {
 	hasRegisteredExtension = true;
       }
@@ -293,10 +293,10 @@ bool SessionImpl::FindFileInternal(const string & fileName, FileType fileType, b
   // try each registered file name extension, if none was specified
   if (!hasRegisteredExtension)
   {
-    for (CSVList ext(fileTypeInfo->fileNameExtensions, PATH_DELIMITER); ext.GetCurrent() != nullptr; ++ext)
+    for (CsvList ext(fileTypeInfo->fileNameExtensions, PATH_DELIMITER); ext; ++ext)
     {
       PathName fileName(fileName);
-      fileName.AppendExtension(ext.GetCurrent());
+      fileName.AppendExtension(*ext);
       fileNamesToTry.push_back(fileName);
     }
   }

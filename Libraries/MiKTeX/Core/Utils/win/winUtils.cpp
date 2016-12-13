@@ -23,7 +23,7 @@
 
 #include "internal.h"
 
-#include "miktex/Core/CSVList.h"
+#include "miktex/Core/CsvList.h"
 #include "miktex/Core/Directory.h"
 #include "miktex/Core/PathName.h"
 #include "miktex/Core/Paths.h"
@@ -1145,10 +1145,10 @@ MIKTEXSTATICFUNC(bool) CheckPath(const string & oldPath, const PathName & binDir
 #if defined(MIKTEX_WINDOWS)
   binDir.ConvertToDos();
 #endif
-  for (CSVList entry(oldPath, PathName::PathNameDelimiter); entry.GetCurrent() != nullptr; ++entry)
+  for (CsvList entry(oldPath, PathName::PathNameDelimiter); entry; ++entry)
   {
     string str2;
-    for (const char & ch : string(entry.GetCurrent()))
+    for (const char & ch : *entry)
     {
       if (ch != '"' && ch != '<' && ch != '>' && ch != '|')
       {
@@ -1201,7 +1201,7 @@ MIKTEXSTATICFUNC(bool) CheckPath(const string & oldPath, const PathName & binDir
     {
       newPath += PathName::PathNameDelimiter;
     }
-    newPath += entry.GetCurrent();
+    newPath += *entry;
   }
   if (!found)
   {

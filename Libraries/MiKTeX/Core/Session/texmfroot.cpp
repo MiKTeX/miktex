@@ -23,7 +23,7 @@
 
 #include "internal.h"
 
-#include "miktex/Core/CSVList.h"
+#include "miktex/Core/CsvList.h"
 #include "miktex/Core/Environment.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/Registry.h"
@@ -246,11 +246,11 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig & startupConfig)
   }
 
   // UserRoots
-  for (CSVList root(startupConfig.userRoots, PATH_DELIMITER); root.GetCurrent() != nullptr; ++root)
+  for (CsvList root(startupConfig.userRoots, PATH_DELIMITER); root; ++root)
   {
-    if (*root.GetCurrent() != 0)
+    if (!(*root).empty())
     {
-      RegisterRootDirectory(root.GetCurrent(), false);
+      RegisterRootDirectory(*root, false);
     }
   }
 
@@ -273,11 +273,11 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig & startupConfig)
   }
 
   // CommonRoots
-  for (CSVList root(startupConfig.commonRoots, PATH_DELIMITER); root.GetCurrent() != nullptr; ++root)
+  for (CsvList root(startupConfig.commonRoots, PATH_DELIMITER); root; ++root)
   {
-    if (*root.GetCurrent() != 0)
+    if (!(*root).empty())
     {
-      RegisterRootDirectory(root.GetCurrent(), true);
+      RegisterRootDirectory(*root, true);
     }
   }
 

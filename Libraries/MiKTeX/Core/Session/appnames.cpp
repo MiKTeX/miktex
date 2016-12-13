@@ -23,7 +23,7 @@
 
 #include "internal.h"
 
-#include "miktex/Core/CSVList.h"
+#include "miktex/Core/CsvList.h"
 
 #include "Session/SessionImpl.h"
 
@@ -43,10 +43,10 @@ void SessionImpl::PushAppName(const string & name)
 {
   MIKTEX_ASSERT(name.find(PATH_DELIMITER) == string::npos);
   string newApplicationNames = name;
-  for (CSVList tag(applicationNames, PATH_DELIMITER); tag.GetCurrent() != nullptr; ++tag)
+  for (CsvList tag(applicationNames, PATH_DELIMITER); tag; ++tag)
   {
     // stop at the miktex application tag; this is always the last tag
-    if (Utils::EqualsIgnoreCase(tag.GetCurrent(), "miktex"))
+    if (Utils::EqualsIgnoreCase(*tag, "miktex"))
     {
 #if defined(MIKTEX_DEBUG)
       ++tag;
@@ -54,11 +54,11 @@ void SessionImpl::PushAppName(const string & name)
 #endif
       break;
     }
-    if (Utils::EqualsIgnoreCase(tag.GetCurrent(), name))
+    if (Utils::EqualsIgnoreCase(*tag, name))
     {
       continue;
     }
-    AppendTag(newApplicationNames, tag.GetCurrent());
+    AppendTag(newApplicationNames, *tag);
   }
   AppendTag(newApplicationNames, "miktex");
   if (Utils::EqualsIgnoreCase(newApplicationNames, applicationNames))
@@ -75,10 +75,10 @@ void SessionImpl::PushBackAppName(const string & name)
   MIKTEX_ASSERT(name.find(PATH_DELIMITER) == string::npos);
   fileTypes.clear();
   string newApplicationNames;
-  for (CSVList tag(applicationNames, PATH_DELIMITER); tag.GetCurrent() != nullptr; ++tag)
+  for (CsvList tag(applicationNames, PATH_DELIMITER); tag; ++tag)
   {
     // stop at the miktex application tag; this is always the last tag
-    if (Utils::EqualsIgnoreCase(tag.GetCurrent(), "miktex"))
+    if (Utils::EqualsIgnoreCase(*tag, "miktex"))
     {
 #if defined(MIKTEX_DEBUG)
       ++tag;
@@ -86,11 +86,11 @@ void SessionImpl::PushBackAppName(const string & name)
 #endif
       break;
     }
-    if (Utils::EqualsIgnoreCase(tag.GetCurrent(), name))
+    if (Utils::EqualsIgnoreCase(*tag, name))
     {
       continue;
     }
-    AppendTag(newApplicationNames, tag.GetCurrent());
+    AppendTag(newApplicationNames, *tag);
   }
   AppendTag(newApplicationNames, name);
   AppendTag(newApplicationNames, "miktex");

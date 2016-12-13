@@ -24,7 +24,7 @@
 #include "internal.h"
 
 #include "miktex/Core/Directory.h"
-#include "miktex/Core/CSVList.h"
+#include "miktex/Core/CsvList.h"
 #include "miktex/Core/Paths.h"
 
 #include "Session/SessionImpl.h"
@@ -120,13 +120,13 @@ void SessionImpl::ReadFormatsIni(const PathName & cfgFile)
     {
       formatInfo.exclude = false;
       formatInfo.noExecutable = false;
-      for (CSVList flag(val, ','); flag.GetCurrent() != nullptr; ++flag)
+      for (CsvList flag(val, ','); flag; ++flag)
       {
-        if (Utils::Equals(flag.GetCurrent(), "exclude"))
+        if (*flag == "exclude")
         {
           formatInfo.exclude = true;
         }
-        else if (Utils::Equals(flag.GetCurrent(), "noexe"))
+        else if (*flag == "noexe")
         {
           formatInfo.noExecutable = true;
         }

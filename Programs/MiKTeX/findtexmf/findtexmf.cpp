@@ -33,7 +33,7 @@
 #include "findtexmf-version.h"
 
 #include <miktex/App/Application>
-#include <miktex/Core/CSVList>
+#include <miktex/Core/CsvList>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/FileType>
 #include <miktex/Core/Paths>
@@ -207,9 +207,9 @@ void FindTeXMF::PrintSearchPath(const char * lpszSearchPath)
   bool first = true;
   PathName mpmRootPath = session->GetMpmRootPath();
   size_t mpmRootPathLen = mpmRootPath.GetLength();
-  for (CSVList p(lpszSearchPath, ';'); p.GetCurrent() != nullptr; ++p)
+  for (CsvList path(lpszSearchPath, ';'); path; ++path)
   {
-    const char * lpszPath = p.GetCurrent();
+    const char * lpszPath = (*path).c_str();
     if ((PathName::Compare(lpszPath, mpmRootPath, mpmRootPathLen) == 0)
       && (lpszPath[mpmRootPathLen] == 0 || IsDirectoryDelimiter(lpszPath[mpmRootPathLen])))
     {

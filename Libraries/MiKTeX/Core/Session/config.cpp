@@ -23,7 +23,7 @@
 
 #include "internal.h"
 
-#include "miktex/Core/CSVList.h"
+#include "miktex/Core/CsvList.h"
 #include "miktex/Core/Directory.h"
 #include "miktex/Core/Environment.h"
 #include "miktex/Core/PathName.h"
@@ -195,22 +195,22 @@ bool SessionImpl::FindStartupConfigFile(bool common, PathName & path)
 void Absolutize(string & paths, const PathName & relativeFrom)
 {
   string result;
-  for (CSVList path(paths, PATH_DELIMITER); path.GetCurrent() != nullptr; ++path)
+  for (CsvList path(paths, PATH_DELIMITER); path; ++path)
   {
     if (!result.empty())
     {
       result += PATH_DELIMITER;
     }
-    if (Utils::IsAbsolutePath(path.GetCurrent()))
+    if (Utils::IsAbsolutePath(*path))
     {
-      result += path.GetCurrent();
+      result += *path;
     }
     else
     {
 #if MIKTEX_WINDOWS
       MIKTEX_ASSERT(Utils::IsAbsolutePath(relativeFrom));
       PathName absPath(relativeFrom);
-      absPath /= path.GetCurrent();
+      absPath /= *path;
       PathName absPath2;
       MIKTEX_ASSERT(absPath2.GetCapacity() >= MAX_PATH);
       // FIXME: use wchar_t API
@@ -330,20 +330,20 @@ void Relativize(string & paths, const PathName & relativeFrom)
 {
 #if MIKTEX_WINDOWS
   string result;
-  for (CSVList path(paths, PATH_DELIMITER); path.GetCurrent() != nullptr; ++path)
+  for (CsvList path(paths, PATH_DELIMITER); path; ++path)
   {
     if (!result.empty())
     {
       result += PATH_DELIMITER;
     }
     wchar_t szRelPath[MAX_PATH];
-    if (PathRelativePathToW(szRelPath, relativeFrom.ToWideCharString().c_str(), FILE_ATTRIBUTE_DIRECTORY, UW_(path.GetCurrent()), FILE_ATTRIBUTE_DIRECTORY))
+    if (PathRelativePathToW(szRelPath, relativeFrom.ToWideCharString().c_str(), FILE_ATTRIBUTE_DIRECTORY, UW_(*path), FILE_ATTRIBUTE_DIRECTORY))
     {
       result += WU_(szRelPath);
     }
     else
     {
-      result += path.GetCurrent();
+      result += *path;
     }
   }
   paths = result;
@@ -650,28 +650,28 @@ bool SessionImpl::GetSessionValue(const string & sectionName, const string & val
   }
 
   // iterate over application tags, e.g.: latex;tex;miktex
-  for (CSVList app(applicationNames, PATH_DELIMITER); !haveValue && app.GetCurrent() != nullptr; ++app)
+  for (CsvList app(applicationNames, PATH_DELIMITER); !haveValue && app; ++app)
   {
     Cfg * cfg = nullptr;
 
     // read configuration files
     if (!initInfo.GetOptions()[InitOption::NoConfigFiles])
     {
-      ConfigurationSettings::iterator it = configurationSettings.find(app.GetCurrent());
+      ConfigurationSettings::iterator it = configurationSettings.find(*app);
       if (it != configurationSettings.end())
       {
         cfg = it->second.get();
       }
       else
       {
-        pair<ConfigurationSettings::iterator, bool> p = configurationSettings.insert(ConfigurationSettings::value_type(app.GetCurrent(), Cfg::Create()));
+        pair<ConfigurationSettings::iterator, bool> p = configurationSettings.insert(ConfigurationSettings::value_type(*app, Cfg::Create()));
         cfg = p.first->second.get();
-        ReadAllConfigFiles(app.GetCurrent(), *cfg);
+        ReadAllConfigFiles(*app, *cfg);
       }
     }
 
     // section name defaults to application name
-    string defaultSectionName = sectionName.empty() ? app.GetCurrent() : sectionName;
+    string defaultSectionName = sectionName.empty() ? *app : sectionName;
 
     // try environment variable
     // MIKTEX_<APPLICATIONNAME>_<SECTIONNAME>_<VALUENAME>
@@ -680,7 +680,7 @@ bool SessionImpl::GetSessionValue(const string & sectionName, const string & val
       envVarName.reserve(100);
 
       envVarName = MIKTEX_ENV_PREFIX_;
-      AppendToEnvVarName(envVarName, app.GetCurrent());
+      AppendToEnvVarName(envVarName, *app);
       envVarName += '_';
       AppendToEnvVarName(envVarName, defaultSectionName);
       envVarName += '_';
@@ -762,7 +762,7 @@ bool SessionImpl::GetSessionValue(const string & sectionName, const string & val
   else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_PROGNAME))
   {
     MIKTEX_ASSERT(!applicationNames.empty());
-    value = CSVList(applicationNames, PATH_DELIMITER).GetCurrent();
+    value = CsvList(applicationNames, PATH_DELIMITER);
     haveValue = true;
   }
 #if defined(MIKTEX_WINDOWS)

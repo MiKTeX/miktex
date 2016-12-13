@@ -274,9 +274,9 @@ void CheckStartupConfig(StartupConfig & startupConfig)
 {
 #if 1
   string commonRoots;
-  for (CSVList tok(startupConfig.commonRoots, ';'); tok.GetCurrent() != nullptr; ++tok)
+  for (CsvList tok(startupConfig.commonRoots, ';'); tok; ++tok)
   {
-    PathName path(tok.GetCurrent());
+    PathName path(*tok);
     if (path.Empty())
     {
       continue;
@@ -314,9 +314,9 @@ void CheckStartupConfig(StartupConfig & startupConfig)
   startupConfig.commonRoots = commonRoots;
 
   string userRoots;
-  for (CSVList tok(startupConfig.userRoots, ';'); tok.GetCurrent() != nullptr; ++tok)
+  for (CsvList tok(startupConfig.userRoots, ';'); tok; ++tok)
   {
-    PathName path(tok.GetCurrent());
+    PathName path(*tok);
     if (path.Empty())
     {
       continue;
@@ -617,7 +617,7 @@ SetupApp::SetupApp()
 #if ENABLE_ADDTEXMF
 void CheckAddTEXMFDirs(vector<PathName> & vec)
 {
-  CSVList path(directories, ';');
+  CsvList path(directories, ';');
   vec.clear();
   directories = "";
   for (; path.GetCurrent() != nullptr; ++path)

@@ -2725,9 +2725,9 @@ void IniTeXMFApp::MakeLanguageDat(bool force)
 
     // language.dat
     languageDat.WriteFormattedLine("%s %s", languageInfo.key.c_str(), languageInfo.loader.c_str());
-    for (CSVList synonym(languageInfo.synonyms, ','); synonym.GetCurrent() != nullptr; ++synonym)
+    for (CsvList synonym(languageInfo.synonyms, ','); synonym; ++synonym)
     {
-      languageDat.WriteFormattedLine("=%s", synonym.GetCurrent());
+      languageDat.WriteFormattedLine("=%s", (*synonym).c_str());
     }
 
     // language.def
@@ -2740,9 +2740,9 @@ void IniTeXMFApp::MakeLanguageDat(bool force)
     languageDatLua.WriteFormattedLine("\t\trighthyphenmin=%d,", languageInfo.righthyphenmin);
     languageDatLua.Write("\t\tsynonyms={ ");
     int nSyn = 0;
-    for (CSVList synonym(languageInfo.synonyms, ','); synonym.GetCurrent() != 0; ++synonym)
+    for (CsvList synonym(languageInfo.synonyms, ','); synonym; ++synonym)
     {
-      languageDatLua.WriteFormatted("%s'%s'", nSyn > 0 ? "," : "", synonym.GetCurrent());
+      languageDatLua.WriteFormatted("%s'%s'", nSyn > 0 ? "," : "", (*synonym).c_str());
       nSyn++;
     }
     languageDatLua.WriteLine(" },");

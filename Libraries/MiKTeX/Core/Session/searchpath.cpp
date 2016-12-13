@@ -24,7 +24,7 @@
 #include "internal.h"
 
 #include "miktex/Core/Directory.h"
-#include "miktex/Core/CSVList.h"
+#include "miktex/Core/CsvList.h"
 
 #include "Session/SessionImpl.h"
 
@@ -64,9 +64,9 @@ void SessionImpl::ExpandRootDirectories(const string & toBeExpanded, vector<Path
 vector<PathName> SessionImpl::ExpandRootDirectories(const string & toBeExpanded)
 {
   vector<PathName> result;
-  for (CSVList path(toBeExpanded, PATH_DELIMITER); path.GetCurrent() != nullptr; ++path)
+  for (CsvList path(toBeExpanded, PATH_DELIMITER); path; ++path)
   {
-    ExpandRootDirectories(path.GetCurrent(), result);
+    ExpandRootDirectories(*path, result);
   }
   return result;
 }
@@ -141,9 +141,9 @@ void SessionImpl::PushBackPath(vector<PathName> & vec, const PathName & path)
 
 void SessionImpl::SplitSearchPath(vector<PathName> & vec, const string & searchPath)
 {
-  for (CSVList path(searchPath, PATH_DELIMITER); path.GetCurrent() != nullptr; ++path)
+  for (CsvList path(searchPath, PATH_DELIMITER); path; ++path)
   {
-    PushBackPath(vec, path.GetCurrent());
+    PushBackPath(vec, *path);
   }
 }
 
@@ -171,9 +171,9 @@ MIKTEXINTERNALFUNC(string) MakeSearchPath(const vector<PathName> & vec)
 void SessionImpl::AppendToSearchPath(string & searchPath, const string & searchPath2)
 {
   vector<PathName> vec = SplitSearchPath(searchPath.c_str());
-  for (CSVList path(searchPath2, PATH_DELIMITER); path.GetCurrent() != nullptr; ++path)
+  for (CsvList path(searchPath2, PATH_DELIMITER); path; ++path)
   {
-    PushBackPath(vec, path.GetCurrent());
+    PushBackPath(vec, *path);
   }
   searchPath = MakeSearchPath(vec);
 }
@@ -197,10 +197,10 @@ vector<PathName> SessionImpl::ConstructSearchVector(FileType fileType)
   InternalFileTypeInfo * pfti = GetInternalFileTypeInfo(fileType);
   if (pfti->searchVec.empty())
   {
-    for (CSVList env(pfti->envVarNames, PATH_DELIMITER); env.GetCurrent() != nullptr; ++env)
+    for (CsvList env(pfti->envVarNames, PATH_DELIMITER); env; ++env)
     {
       string searchPath;
-      if (Utils::GetEnvironmentString(env.GetCurrent(), searchPath))
+      if (Utils::GetEnvironmentString(*env, searchPath))
       {
 	SplitSearchPath(pfti->searchVec, searchPath.c_str());
       }

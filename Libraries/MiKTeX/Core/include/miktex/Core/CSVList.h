@@ -1,4 +1,4 @@
-/* miktex/Core/CSVList.h:                               -*- C++ -*-
+/* miktex/Core/CsvList.h:                               -*- C++ -*-
 
    Copyright (C) 1996-2016 Christian Schenk
 
@@ -28,89 +28,38 @@
 
 #include <miktex/Core/config.h>
 
+#include <memory>
 #include <string>
-
-#include <miktex/Util/CharBuffer>
-#include <miktex/Util/inliners.h>
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
-template<typename CharType, int BUFSIZE> class BasicCsvList :
-  protected MiKTeX::Util::CharBuffer<CharType, BUFSIZE>
+class CsvList
 {
 public:
-  BasicCsvList()
-  {
-  }
+  MIKTEXCOREEXPORT MIKTEXTHISCALL CsvList(const std::string & s, char separator);
 
 public:
-  BasicCsvList(const CharType * lpszValueList, CharType separator) :
-    MiKTeX::Util::CharBuffer<CharType, BUFSIZE>(lpszValueList)
-  {
-    if (lpszValueList == nullptr || *lpszValueList == 0)
-    {
-      lpszNext = lpszCurrent = nullptr;
-    }
-    else
-    {
-      this->separator = separator;
-      lpszCurrent = MiKTeX::Util::CharBuffer<CharType, BUFSIZE>::GetData();
-      lpszNext = const_cast<CharType*>(MiKTeX::Util::StrChr(MiKTeX::Util::CharBuffer<CharType, BUFSIZE>::GetData(), separator));
-      if (lpszNext != nullptr)
-      {
-        *lpszNext++ = 0;
-      }
-    }
-  }
+  MIKTEXCOREEXPORT MIKTEXTHISCALL operator bool() const;
 
 public:
-  BasicCsvList(const std::basic_string<CharType> & valueList, CharType separator) :
-    BasicCsvList(valueList.c_str(), separator)
-  {
-  }
+  MIKTEXCORETHISAPI(std::string) operator* () const;
 
 public:
-  BasicCsvList(const BasicCsvList & rhs) = delete;
+  MIKTEXCORETHISAPI(CsvList &) operator++ ();
 
 public:
-  BasicCsvList & operator= (const BasicCsvList & rhs) = delete;
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~CsvList();
 
 public:
-  const CharType * operator ++ ()
-  {
-    if (lpszNext != nullptr && *lpszNext != 0)
-    {
-      lpszCurrent = lpszNext;
-      lpszNext = const_cast<CharType*>(MiKTeX::Util::StrChr(lpszNext, separator));
-      if (lpszNext != nullptr)
-      {
-        *lpszNext++ = 0;
-      }
-    }
-    else
-    {
-      lpszCurrent = nullptr;
-    }
-    return GetCurrent();
-  }
+  CsvList(const CsvList & rhs) = delete;
 
 public:
-  const CharType * GetCurrent() const
-  {
-    return lpszCurrent;
-  }
+  CsvList & operator= (const CsvList & rhs) = delete;
 
 private:
-  CharType separator;
-
-private:
-  CharType * lpszNext = nullptr;
-
-private:
-  CharType * lpszCurrent = nullptr;
+  class impl;
+  std::unique_ptr<impl> pimpl;
 };
-
-typedef BasicCsvList<char, 512> CSVList;
 
 MIKTEX_CORE_END_NAMESPACE;
 

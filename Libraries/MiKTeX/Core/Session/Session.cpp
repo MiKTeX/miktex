@@ -25,7 +25,7 @@
 
 #include "core-version.h"
 
-#include "miktex/Core/CSVList.h"
+#include "miktex/Core/CsvList.h"
 #include "miktex/Core/Environment.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/Registry.h"
@@ -187,9 +187,9 @@ void SessionImpl::Initialize(const Session::InitInfo & initInfo)
   string miktexCwd;
   if (Utils::GetEnvironmentString(MIKTEX_ENV_CWD_LIST, miktexCwd))
   {
-    for (CSVList cwd(miktexCwd, PATH_DELIMITER); cwd.GetCurrent() != nullptr; ++cwd)
+    for (CsvList cwd(miktexCwd, PATH_DELIMITER); cwd; ++cwd)
     {
-      AddInputDirectory(cwd.GetCurrent(), true);
+      AddInputDirectory(*cwd, true);
     }
   }
 

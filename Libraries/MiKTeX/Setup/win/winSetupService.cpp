@@ -766,9 +766,9 @@ bool winSetupServiceImpl::RemoveBinDirFromPath(string & path)
   PathName commonBinDir = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
   commonBinDir /= MIKTEX_PATH_BIN_DIR;
   commonBinDir.AppendDirectoryDelimiter();
-  for (CSVList entry(path, PathName::PathNameDelimiter); entry.GetCurrent() != 0; ++entry)
+  for (CsvList entry(path, PathName::PathNameDelimiter); entry; ++entry)
   {
-    PathName dir(entry.GetCurrent());
+    PathName dir(*entry);
     dir.AppendDirectoryDelimiter();
     if (userBinDir == dir || commonBinDir == dir)
     {
@@ -780,7 +780,7 @@ bool winSetupServiceImpl::RemoveBinDirFromPath(string & path)
       {
         newPath += PathName::PathNameDelimiter;
       }
-      newPath += entry.GetCurrent();
+      newPath += *entry;
     }
   }
   if (removed)

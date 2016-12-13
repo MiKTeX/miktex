@@ -23,7 +23,7 @@
 
 #include "internal.h"
 
-#include "miktex/Core/CSVList.h"
+#include "miktex/Core/CsvList.h"
 #include "miktex/Core/Environment.h"
 #include "miktex/Core/Paths.h"
 
@@ -536,9 +536,9 @@ FileType SessionImpl::DeriveFileType(const PathName & fileName)
     }
     else
     {
-      for (CSVList ext(fileTypes[idx].fileNameExtensions, PATH_DELIMITER); ext.GetCurrent() != nullptr; ++ext)
+      for (CsvList ext(fileTypes[idx].fileNameExtensions, PATH_DELIMITER); ext; ++ext)
       {
-        if (PathName::Compare(ext.GetCurrent(), lpszExt) == 0)
+        if (PathName::Compare(*ext, lpszExt) == 0)
         {
           return fileTypes[idx].fileType;
         }

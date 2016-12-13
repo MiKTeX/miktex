@@ -1995,10 +1995,10 @@ void DviView::OnUpdateDarkerText(CCmdUI * pCmdUI)
 void DviView::InitializeGammaTable()
 {
   gammaTable.clear();
-  CSVList gammas(g_pYapConfig->gammaValues, _T(' '));
-  while (gammas.GetCurrent() != 0)
+  CsvList gammas(g_pYapConfig->gammaValues, _T(' '));
+  while (gammas)
   {
-    gammaTable.push_back(atof(gammas.GetCurrent()));
+    gammaTable.push_back(std::stod(*gammas));
     ++gammas;
   }
   if (gammaTable.size() == 0)
