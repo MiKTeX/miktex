@@ -28,29 +28,27 @@
 
 #include "config.h"
 
-#include "CharBuffer.h"
+#include <memory>
+#include <string>
 
 MIKTEX_UTIL_BEGIN_NAMESPACE;
 
-class Tokenizer : protected CharBuffer<char, 512>
+class Tokenizer
 {
-protected:
-  typedef CharBuffer<char, 512> Base;
+public:
+  MIKTEXUTILEXPORT MIKTEXTHISCALL Tokenizer(const std::string & s, const std::string & delims);
 
 public:
-  MIKTEXUTILEXPORT MIKTEXTHISCALL Tokenizer(const char * lpsz, const char * delims);
+  MIKTEXUTILTHISAPI(void) SetDelimiters(const std::string & delims);
 
 public:
-  MIKTEXUTILTHISAPI(void) SetDelim(const char * delims);
+  MIKTEXUTILEXPORT MIKTEXTHISCALL operator bool() const;
 
 public:
-  const char * GetCurrent() const
-  {
-    return current == nullptr || *current == 0 ? nullptr : current;
-  }
+  MIKTEXUTILTHISAPI(std::string) operator* () const;
 
 public:
-  MIKTEXUTILTHISAPI(const char *) operator++ ();
+  MIKTEXUTILTHISAPI(Tokenizer &) operator++ ();
 
 public:
   virtual MIKTEXUTILEXPORT MIKTEXTHISCALL ~Tokenizer();
@@ -62,16 +60,8 @@ public:
   Tokenizer & operator= (const Tokenizer & rhs) = delete;
 
 private:
-  void FindToken();
-
-private:
-  const char * current;
-
-private:
-  char * next;
-
-private:
-  void * delims;
+  class impl;
+  std::unique_ptr<impl> pimpl;
 };
 
 MIKTEX_UTIL_END_NAMESPACE;

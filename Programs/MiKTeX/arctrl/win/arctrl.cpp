@@ -487,87 +487,88 @@ void ArCtrl::FileOpen(const PathName & path)
   ExecuteDdeCommand("[FileOpen(\"%s\")]", fullPath.GetData());
 }
 
-bool ArCtrl::Execute(const string & command)
+bool ArCtrl::Execute(const string & commandLine)
 {
-  Tokenizer tok(command.c_str(), " \t\r\n");
-  const char * lpszCommand = tok.GetCurrent();
-  if (lpszCommand == nullptr)
+  Tokenizer tok(commandLine, " \t\r\n");
+  if (!tok)
   {
     return true;
   }
+  string command = *tok;
   ++tok;
-  const char * lpszArgument = tok.GetCurrent();
-  if (Utils::EqualsIgnoreCase(lpszCommand, "open"))
+  if (Utils::EqualsIgnoreCase(command, "open"))
   {
-    if (lpszArgument == nullptr)
+    if (!tok)
     {
       cerr << T_("Error: missing file name argument.") << endl;
       return true;
     }
-    DocOpen(lpszArgument);
+    DocOpen(*tok);
   }
-  else if (Utils::EqualsIgnoreCase(lpszCommand, "close"))
+  else if (Utils::EqualsIgnoreCase(command, "close"))
   {
-    if (lpszArgument == nullptr)
+    if (!tok)
     {
       cerr << T_("Error: missing file name argument.") << endl;
       return true;
     }
-    DocClose(lpszArgument);
+    DocClose(*tok);
   }
-  else if (Utils::EqualsIgnoreCase(lpszCommand, "closeall"))
+  else if (Utils::EqualsIgnoreCase(command, "closeall"))
   {
-    if (lpszArgument != nullptr)
+    if (tok)
     {
       cerr << T_("Error: too many arguments.") << endl;
       return true;
     }
     CloseAllDocs();
   }
-  else if (Utils::EqualsIgnoreCase(lpszCommand, "goto"))
+  else if (Utils::EqualsIgnoreCase(command, "goto"))
   {
-    if (lpszArgument == nullptr)
+    if (!tok)
     {
       cerr << T_("Error: missing file name argument.") << endl;
       return true;
     }
+    string fileName = *tok;
     ++tok;
-    if (tok.GetCurrent() == nullptr)
+    if (!tok)
     {
       cerr << T_("Error: missing page number argument.") << endl;
       return true;
     }
-    DocGoTo(lpszArgument, atoi(tok.GetCurrent()) - 1);
+    DocGoTo(fileName, std::stoi(*tok) - 1);
   }
-  else if (Utils::EqualsIgnoreCase(lpszCommand, "gotoname"))
+  else if (Utils::EqualsIgnoreCase(command, "gotoname"))
   {
-    if (lpszArgument == nullptr)
+    if (!tok)
     {
       cerr << T_("Error: missing file name argument.") << endl;
       return true;
     }
+    string fileName = *tok;
     ++tok;
-    if (tok.GetCurrent() == nullptr)
+    if (!tok)
     {
       cerr << T_("Error: missing name dest argument.") << endl;
       return true;
     }
-    DocGoToNameDest(lpszArgument, tok.GetCurrent());
+    DocGoToNameDest(fileName, *tok);
   }
-  else if (Utils::EqualsIgnoreCase(lpszCommand, "show"))
+  else if (Utils::EqualsIgnoreCase(command, "show"))
   {
     AppShow();
   }
-  else if (Utils::EqualsIgnoreCase(lpszCommand, "hide"))
+  else if (Utils::EqualsIgnoreCase(command, "hide"))
   {
     AppHide();
   }
-  else if (Utils::EqualsIgnoreCase(lpszCommand, "exit"))
+  else if (Utils::EqualsIgnoreCase(command, "exit"))
   {
     AppExit();
     return false;
   }
-  else if (Utils::EqualsIgnoreCase(lpszCommand, "help"))
+  else if (Utils::EqualsIgnoreCase(command, "help"))
   {
     cout
       << "close FILE" << endl

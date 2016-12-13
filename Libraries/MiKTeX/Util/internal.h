@@ -26,6 +26,7 @@
 #endif
 
 #define A7C88F5FBE5C45EB970B3796F331CD89
+#include "miktex/Util/CharBuffer.h"
 #include "miktex/Util/StringUtil.h"
 #include "miktex/Util/Tokenizer.h"
 

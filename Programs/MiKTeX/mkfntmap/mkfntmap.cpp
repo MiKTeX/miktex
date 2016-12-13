@@ -448,20 +448,20 @@ bool MakeFontMapApp::ScanConfigLine(const string & line, string & directive, str
   {
     return false;
   }
-  Tokenizer tok(line.c_str(), " \t\n");
-  if (tok.GetCurrent() == nullptr)
+  Tokenizer tok(line, " \t\n");
+  if (!tok)
   {
     return false;
   }
-  directive = tok.GetCurrent();
+  directive = *tok;
   ++tok;
-  if (tok.GetCurrent() == nullptr)
+  if (!tok)
   {
     param = "";
   }
   else
   {
-    param = tok.GetCurrent();
+    param = *tok;
   }
   return true;
 }
@@ -778,9 +778,9 @@ void MakeFontMapApp::WriteMap(StreamWriter & writer, const set<FontMapEntry> & s
     {
       writer.WriteFormatted(" \" %s \"", it->specialInstructions.c_str());
     }
-    for (Tokenizer tok(it->headerList.c_str(), ";"); tok.GetCurrent() != 0; ++tok)
+    for (Tokenizer tok(it->headerList, ";"); tok; ++tok)
     {
-      writer.WriteFormatted(" %s", tok.GetCurrent());
+      writer.WriteFormatted(" %s", (*tok).c_str());
     }
     writer.WriteLine();
   }
@@ -789,13 +789,13 @@ void MakeFontMapApp::WriteMap(StreamWriter & writer, const set<FontMapEntry> & s
 bool MakeFontMapApp::GetInstructionParam(const string & str, const string & instruction, string & param)
 {
   param = "";
-  for (Tokenizer tok(str.c_str(), " \t"); tok.GetCurrent() != nullptr; ++tok)
+  for (Tokenizer tok(str, " \t"); tok; ++tok)
   {
-    if (instruction == tok.GetCurrent())
+    if (instruction == *tok)
     {
       return true;
     }
-    param = tok.GetCurrent();
+    param = *tok;
   }
   return false;
 }
@@ -1029,16 +1029,17 @@ void MakeFontMapApp::TranslateFontFile(const map<string, string> & transMap, Fon
   {
     fontMapEntry.fontFile = it->second;
   }
-  Tokenizer header(fontMapEntry.headerList.c_str(), ";");
+  Tokenizer header(fontMapEntry.headerList, ";");
   fontMapEntry.headerList = "";
-  for (; header.GetCurrent() != 0; ++header)
+  for (; header; ++header)
   {
     if (!fontMapEntry.headerList.empty())
     {
       fontMapEntry.headerList += ';';
     }
+    string s = *header;
     const char * lpsz;
-    for (lpsz = header.GetCurrent(); *lpsz == '<' || *lpsz == '['; ++lpsz)
+    for (lpsz = s.c_str(); *lpsz == '<' || *lpsz == '['; ++lpsz)
     {
       fontMapEntry.headerList += *lpsz;
     }

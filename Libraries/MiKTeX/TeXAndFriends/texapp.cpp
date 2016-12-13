@@ -285,48 +285,41 @@ bool TeXApp::ProcessOption(int optchar, const string & optArg)
     }
     else
     {
-      Tokenizer tok(optArg.c_str(), ", ");
-      while (tok.GetCurrent() != nullptr)
+      Tokenizer tok(optArg, ", ");
+      while (tok)
       {
-	if (Utils::Equals(tok.GetCurrent(), "everypar")
-	  || Utils::Equals(tok.GetCurrent(), "par"))
+	if (*tok == "everypar" || *tok == "par")
 	{
 	  sourceSpecials[(size_t)SourceSpecial::Auto] = true;
 	  sourceSpecials[(size_t)SourceSpecial::Paragraph] = true;
 	}
-	else if (Utils::Equals(tok.GetCurrent(), "everyparend")
-	  || Utils::Equals(tok.GetCurrent(), "parend"))
+	else if (*tok == "everyparend" || *tok == "parend")
 	{
 	  sourceSpecials[(size_t)SourceSpecial::ParagraphEnd] = true;
 	}
-	else if (Utils::Equals(tok.GetCurrent(), "everycr")
-	  || Utils::Equals(tok.GetCurrent(), "cr"))
+	else if (*tok == "everycr" || *tok == "cr")
 	{
 	  sourceSpecials[(size_t)SourceSpecial::CarriageReturn] = true;
 	}
-	else if (Utils::Equals(tok.GetCurrent(), "everymath")
-	  || Utils::Equals(tok.GetCurrent(), "math"))
+	else if (*tok == "everymath" || *tok == "math")
 	{
 	  sourceSpecials[(size_t)SourceSpecial::Math] = true;
 	}
-	else if (Utils::Equals(tok.GetCurrent(), "everyhbox")
-	  || Utils::Equals(tok.GetCurrent(), "hbox"))
+	else if (*tok == "everyhbox" || *tok == "hbox")
 	{
 	  sourceSpecials[(size_t)SourceSpecial::HorizontalBox] = true;
 	}
-	else if (Utils::Equals(tok.GetCurrent(), "everyvbox")
-	  || Utils::Equals(tok.GetCurrent(), "vbox"))
+	else if (*tok == "everyvbox" || *tok == "vbox")
 	{
 	  sourceSpecials[(size_t)SourceSpecial::VerticalBox] = true;
 	}
-	else if (Utils::Equals(tok.GetCurrent(), "everydisplay")
-	  || Utils::Equals(tok.GetCurrent(), "display"))
+	else if (*tok == "everydisplay" || *tok == "display")
 	{
 	  sourceSpecials[(size_t)SourceSpecial::Display] = true;
 	}
 	else
 	{
-	  MIKTEX_FATAL_ERROR_2(T_("Unknown source special."), "special", tok.GetCurrent());
+	  MIKTEX_FATAL_ERROR_2(T_("Unknown source special."), "special", *tok);
 	}
 	++tok;
 	}

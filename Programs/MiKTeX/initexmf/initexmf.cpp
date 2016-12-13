@@ -3107,17 +3107,17 @@ void IniTeXMFApp::ReportEnvironmentVariables()
   xmlWriter.StartElement("environment");
   for (wchar_t * p = lpszEnv; *p != 0; p += wcslen(p) + 1)
   {
-    Tokenizer tok(StringUtil::WideCharToUTF8(p).c_str(), "=");
-    if (tok.GetCurrent() == nullptr)
+    Tokenizer tok(StringUtil::WideCharToUTF8(p), "=");
+    if (!tok)
     {
       continue;
     }
     xmlWriter.StartElement("env");
-    xmlWriter.AddAttribute("name", tok.GetCurrent());
+    xmlWriter.AddAttribute("name", *tok);
     ++tok;
-    if (tok.GetCurrent() != nullptr)
+    if (tok)
     {
-      xmlWriter.Text(tok.GetCurrent());
+      xmlWriter.Text(*tok);
     }
     xmlWriter.EndElement();
   }

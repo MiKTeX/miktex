@@ -1186,10 +1186,10 @@ void Application::ReadFileList(const PathName & path, vector<string> & files)
   string line;
   while (reader.ReadLine(line))
   {
-    Tokenizer tok(line.c_str(), " \t\n\r");
-    if (tok.GetCurrent() != nullptr)
+    Tokenizer tok(line, " \t\n\r");
+    if (tok)
     {
-      files.push_back(tok.GetCurrent());
+      files.push_back(*tok);
     }
   }
   reader.Close();
@@ -1309,12 +1309,12 @@ void Application::Main(int argc, const char ** argv)
     case OPT_PROXY:
     {
       changeProxy = true;
-      Tokenizer tok(optArg.c_str(), ":");
-      optProxy = tok.GetCurrent();
+      Tokenizer tok(optArg, ":");
+      optProxy = *tok;
       ++tok;
-      if (tok.GetCurrent() != nullptr)
+      if (tok)
       {
-        optProxyPort = atoi(tok.GetCurrent());
+        optProxyPort = std::stoi(*tok);
       }
     }
     break;

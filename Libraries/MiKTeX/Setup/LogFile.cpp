@@ -140,20 +140,20 @@ void LogFile::ReadLogFile()
     case HKLM:
     {
 #if defined(MIKTEX_WINDOWS)
-      Tokenizer tok(line.c_str(), ";");
-      if (tok.GetCurrent() == nullptr)
+      Tokenizer tok(line, ";");
+      if (!tok)
       {
         continue;
       }
       RegValue regvalue;
       regvalue.hkey = (section == HKCU ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE);
-      regvalue.strSubKey = tok.GetCurrent();
+      regvalue.strSubKey = *tok;
       ++tok;
-      if (tok.GetCurrent() == nullptr)
+      if (!tok)
       {
         continue;
       }
-      regvalue.strValueName = tok.GetCurrent();
+      regvalue.strValueName = *tok;
       regValues.push_back(regvalue);
 #endif
       break;

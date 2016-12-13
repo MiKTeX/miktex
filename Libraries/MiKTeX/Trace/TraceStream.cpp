@@ -239,9 +239,9 @@ void TraceStream::SetTraceFlags(const char * lpszFlags)
     it->second->isEnabled = false;
   }
 
-  for (Tokenizer tok(lpszFlags, ",; \n\t"); tok.GetCurrent() != nullptr; ++tok)
+  for (Tokenizer tok(lpszFlags, ",; \n\t"); tok; ++tok)
   {
-    string name(tok.GetCurrent());
+    string name(*tok);
     TraceStreamImpl::TraceStreamTable::iterator it = TraceStreamImpl::traceStreams.equal_range(name).first;
     if (it != TraceStreamImpl::traceStreams.end() && it->second != nullptr)
     {

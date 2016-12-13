@@ -1124,9 +1124,9 @@ bool AllowShellCommand(const char * lpszCommand)
   case YapConfig::SEC_SECURE_COMMANDS:
   {
     string name = trim(lpszCommand);
-    for (Tokenizer tok(g_pYapConfig->secureCommands.c_str(), " ,;"); tok.GetCurrent() != 0; ++tok)
+    for (Tokenizer tok(g_pYapConfig->secureCommands, " ,;"); tok; ++tok)
     {
-      if (PathName::Compare(tok.GetCurrent(), name) == 0)
+      if (PathName::Compare(*tok, name) == 0)
       {
         return true;
       }

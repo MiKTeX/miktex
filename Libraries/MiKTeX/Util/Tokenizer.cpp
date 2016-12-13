@@ -21,73 +21,72 @@
 
 #include "internal.h"
 
-Tokenizer::Tokenizer(const char * lpsz, const char * delims) :
-  Base(lpsz)
+#include "miktex/Util/CharBuffer.h"
+
+class Tokenizer::impl
 {
-  next = GetData();
-  current = nullptr;
-  this->delims = nullptr;
-  SetDelim(delims);
-  FindToken();
+public:
+  CharBuffer<char> buf;
+public:
+  const char * current = nullptr;
+public:
+  char * next = nullptr;
+public:
+  bitset<256> delims;
+};
+
+Tokenizer::Tokenizer(const string & s, const string & delims) :
+  pimpl(new impl{})
+{
+  pimpl->buf = s;
+  pimpl->next = pimpl->buf.GetData();
+  SetDelimiters(delims);
+  this->operator++();
 }
 
-void Tokenizer::SetDelim(const char * delims)
+void Tokenizer::SetDelimiters(const string & delims)
 {
-  bitset<256> * setDelims = reinterpret_cast<bitset<256>*>(this->delims);
-  if (setDelims == nullptr)
+  pimpl->delims.reset();
+  for (const char & ch : delims)
   {
-    setDelims = new bitset<256>;
-    this->delims = setDelims;
-  }
-  setDelims->reset();
-  // TODO: MIKTEX_ASSERT_STRING(lpszDelim);
-  for (; *delims != 0; ++delims)
-  {
-    setDelims->set(static_cast<unsigned char>(*delims));
+    pimpl->delims.set(static_cast<unsigned char>(ch));
   }
 }
 
-const char * Tokenizer::operator++ ()
+Tokenizer::operator bool() const
 {
-  FindToken();
-  return GetCurrent();
+  return pimpl->current != nullptr && pimpl->current[0] != 0;
+}
+
+string Tokenizer::operator*() const
+{
+  if (pimpl->current == nullptr)
+  {
+    // TODO: throw
+  }
+  return pimpl->current;
+}
+
+Tokenizer & Tokenizer::operator++ ()
+{
+  // TODO: MIKTEX_ASSERT(pimpl->next != nullptr);
+  pimpl->current = pimpl->next;
+  while (pimpl->delims[static_cast<unsigned char>(*pimpl->current)] && *pimpl->current != 0)
+  {
+    ++pimpl->current;
+  }
+  for (pimpl->next = const_cast<char*>(pimpl->current); *pimpl->next != 0; ++pimpl->next)
+  {
+    if (pimpl->delims[static_cast<unsigned char>(*pimpl->next)])
+    {
+      *pimpl->next = 0;
+      ++pimpl->next;
+      break;
+    }
+  }
+  return *this;
 }
 
 Tokenizer::~Tokenizer()
 {
-  try
-  {
-    if (delims != nullptr)
-    {
-      bitset<256> * setDelims = reinterpret_cast<bitset<256>*>(delims);
-      delims = nullptr;
-      delete setDelims;
-    }
-    current = nullptr;
-    next = nullptr;
-  }
-  catch (const exception &)
-  {
-  }
-}
-
-void Tokenizer::FindToken()
-{
-  // TODO: MIKTEX_ASSERT(lpszNext != nullptr);
-  current = next;
-  bitset<256> * setDelims = reinterpret_cast<bitset<256>*>(delims);
-  // TODO: MIKTEX_ASSERT(pDelims != nullptr);
-  while ((*setDelims)[static_cast<unsigned char>(*current)] && *current != 0)
-  {
-    ++current;
-  }
-  for (next = const_cast<char*>(current); *next != 0; ++next)
-  {
-    if ((*setDelims)[static_cast<unsigned char>(*next)])
-    {
-      *next = 0;
-      ++next;
-      break;
-    }
-  }
 }

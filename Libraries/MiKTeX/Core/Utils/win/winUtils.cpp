@@ -790,7 +790,7 @@ bool Utils::GetDefPrinter(string & printerName)
       {
 	return false;
       }
-      Tokenizer tok(StringUtil::WideCharToUTF8(cBuffer).c_str(), ",");
+      Tokenizer tok(StringUtil::WideCharToUTF8(cBuffer), ",");
       if (tok.GetCurrent() == nullptr)
       {
 	return false;

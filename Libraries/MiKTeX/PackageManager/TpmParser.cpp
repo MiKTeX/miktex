@@ -61,9 +61,9 @@ TpmParser::~TpmParser()
 void TpmParser::GetFiles(const XML_Char * lpszFiles, vector<string> & files)
 {
   MIKTEX_ASSERT(Utils::IsPureAscii(lpszFiles));
-  for (Tokenizer tok(lpszFiles, X_(";\n\r \t")); tok.GetCurrent() != nullptr; ++tok)
+  for (Tokenizer tok(lpszFiles, X_(";\n\r \t")); tok; ++tok)
   {
-    PathName path(tok.GetCurrent());
+    PathName path(*tok);
 #if defined(MIKTEX_UNIX)
     path.ConvertToUnix();
 #endif

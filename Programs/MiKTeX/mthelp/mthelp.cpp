@@ -258,9 +258,9 @@ void MiKTeXHelp::FindDocFilesByPackage(const string & packageName, vector<string
   map<string, vector<string> > filesByExtension;
   FindDocFilesByPackage(packageName, filesByExtension);
   string extensions = session->GetConfigValue("", MIKTEX_REGVAL_DOC_EXTENSIONS, DEFAULT_DOC_EXTENSIONS).GetString();
-  for (Tokenizer ext(extensions.c_str(), PATH_DELIMITER_STRING); ext.GetCurrent() != nullptr; ++ext)
+  for (Tokenizer ext(extensions, PATH_DELIMITER_STRING); ext; ++ext)
   {
-    vector<string> & vec = filesByExtension[ext.GetCurrent()];
+    vector<string> & vec = filesByExtension[*ext];
     vector<string>::iterator it = vec.begin();
     while (it != vec.end())
     {
@@ -276,9 +276,9 @@ void MiKTeXHelp::FindDocFilesByPackage(const string & packageName, vector<string
       }
     }
   }
-  for (Tokenizer ext(extensions.c_str(), PATH_DELIMITER_STRING); ext.GetCurrent() != nullptr; ++ext)
+  for (Tokenizer ext(extensions, PATH_DELIMITER_STRING); ext; ++ext)
   {
-    vector<string> & vec = filesByExtension[ext.GetCurrent()];
+    vector<string> & vec = filesByExtension[*ext];
     files.insert(files.end(), vec.begin(), vec.end());
   }
 }
@@ -290,10 +290,10 @@ void MiKTeXHelp::FindDocFilesByName(const string & name, vector<string> & files)
   searchSpec += MIKTEX_PATH_DIRECTORY_DELIMITER_STRING;
   searchSpec += MIKTEX_PATH_DOC_DIR;
   searchSpec += MIKTEX_PATH_RECURSION_INDICATOR;
-  for (Tokenizer ext(extensions.c_str(), PATH_DELIMITER_STRING); ext.GetCurrent() != nullptr; ++ext)
+  for (Tokenizer ext(extensions, PATH_DELIMITER_STRING); ext; ++ext)
   {
     PathName fileName(name);
-    fileName.AppendExtension(ext.GetCurrent());
+    fileName.AppendExtension(*ext);
     PathName path;
     if (session->FindFile(fileName.GetData(), searchSpec, path))
     {

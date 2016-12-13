@@ -961,35 +961,32 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
     else if (line[0] == '!')
     {
       documentation = "";
-      Tokenizer tok(line.c_str() + 1, " \t");
-      const char * lpsz = tok.GetCurrent();
-      if (lpsz == nullptr)
+      Tokenizer tok(line.substr(1), " \t");
+      if (!tok)
       {
         FATAL_CFG_ERROR(T_("invalid cfg directive"));
       }
-      if (StringCompare(lpsz, "include") == 0)
+      if (*tok == "include")
       {
         ++tok;
-        lpsz = tok.GetCurrent();
-        if (lpsz == nullptr)
+        if (!tok)
         {
           FATAL_CFG_ERROR(T_("missing file name argument"));
         }
         PathName path2(path);
         path2.MakeAbsolute();
         path2.RemoveFileSpec();
-        path2 /= lpsz;
+        path2 /= *tok;
         Read(path2, keyName, level + 1, false, PathName());
       }
-      else if (StringCompare(lpsz, "clear") == 0)
+      else if (*tok == "clear")
       {
         ++tok;
-        lpsz = tok.GetCurrent();
-        if (lpsz == nullptr)
+        if (!tok)
         {
           FATAL_CFG_ERROR(T_("missing value name argument"));
         }
-        ClearValue(keyName, lpsz);
+        ClearValue(keyName, *tok);
       }
       else
       {
@@ -999,13 +996,12 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
     else if (line[0] == '[')
     {
       documentation = "";
-      Tokenizer tok(line.c_str() + 1, "]");
-      const char * lpsz = tok.GetCurrent();
-      if (lpsz == nullptr)
+      Tokenizer tok(line.substr(1), "]");
+      if (!tok)
       {
         FATAL_CFG_ERROR(T_("incomplete secion name"));
       }
-      keyName = lpsz;
+      keyName = *tok;
     }
     else if (line.length() >= 3 && line[0] == COMMENT_CHAR && line[1] == COMMENT_CHAR && line[2] == ' ')
     {
@@ -1029,17 +1025,15 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
     else if (line.length() >= 4 && line[0] == COMMENT_CHAR && line[1] == COMMENT_CHAR && line[2] == COMMENT_CHAR && line[3] == COMMENT_CHAR)
     {
       documentation = "";
-      Tokenizer tok(line.c_str() + 4, " \t");
-      const char * lpsz = tok.GetCurrent();
-      if (lpsz != nullptr)
+      Tokenizer tok(line.substr(4), " \t");
+      if (tok)
       {
-        if (StringCompare(lpsz, "signature/miktex:") == 0)
+        if (*tok == "signature/miktex:")
         {
           ++tok;
-          lpsz = tok.GetCurrent();
-          if (lpsz != nullptr && wasEmpty && level == 0)
+          if (tok && wasEmpty && level == 0)
           {
-            signature = lpsz;
+            signature = *tok;
           }
         }
       }

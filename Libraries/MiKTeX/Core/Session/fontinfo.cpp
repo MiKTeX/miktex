@@ -69,17 +69,17 @@ MIKTEXSTATICFUNC(bool) SessionImpl::FindInTypefaceMap(const string & fontName, s
   string line;
   while (reader.ReadLine(line))
   {
-    Tokenizer tok(line.c_str(), WHITESPACE);
-    if (tok.GetCurrent() == nullptr || fontAbbrev != tok.GetCurrent())
+    Tokenizer tok(line, WHITESPACE);
+    if (!tok || fontAbbrev != *tok)
     {
       continue;
     }
     ++tok;
-    if (tok.GetCurrent() == nullptr)
+    if (!tok)
     {
       continue;
     }
-    typeface = tok.GetCurrent();
+    typeface = *tok;
     trace_fonts->WriteFormattedLine("core", T_("found %s in typeface.map"), Q_(typeface));
     return true;
   }
@@ -111,17 +111,17 @@ bool SessionImpl::FindInSupplierMap(const string & fontName, string & supplier, 
   bool found = false;
   while (!found && reader.ReadLine(line))
   {
-    Tokenizer tok(line.c_str(), WHITESPACE);
-    if (tok.GetCurrent() == nullptr ||  supplierAbbrev != tok.GetCurrent())
+    Tokenizer tok(line, WHITESPACE);
+    if (!tok || supplierAbbrev != *tok)
     {
       continue;
     }
     ++tok;
-    if (tok.GetCurrent() == nullptr)
+    if (!tok)
     {
       continue;
     }
-    supplier = tok.GetCurrent();
+    supplier = *tok;
     trace_fonts->WriteFormattedLine("core", T_("found %s in supplier.map"), Q_(supplier));
     found = true;
   }
@@ -149,27 +149,27 @@ bool SessionImpl::FindInSpecialMap(const string & fontName, string & supplier, s
   bool found = false;
   while (!found && reader.ReadLine(line))
   {
-    Tokenizer tok(line.c_str(), WHITESPACE);
-    if (tok.GetCurrent() == nullptr
-      || !(fontName == tok.GetCurrent()
-        || (IsPrefixOf(tok.GetCurrent(), fontName)
+    Tokenizer tok(line, WHITESPACE);
+    if (!tok
+      || !(fontName == *tok
+        || (IsPrefixOf(*tok, fontName)
           && (IsDigit(GetLastChar(fontName)))
-          && (!IsDigit(GetLastChar(tok.GetCurrent()))))))
+          && (!IsDigit(GetLastChar(*tok))))))
     {
       continue;
     }
     ++tok;
-    if (tok.GetCurrent() == nullptr)
+    if (!tok)
     {
       continue;
     }
-    supplier = tok.GetCurrent();
+    supplier = *tok;
     ++tok;
-    if (tok.GetCurrent() == nullptr)
+    if (!tok)
     {
       continue;
     }
-    typeface = tok.GetCurrent();
+    typeface = *tok;
     trace_fonts->WriteFormattedLine("core", T_("found %s/%s in special.map"), Q_(supplier), Q_(typeface));
     return true;
   }

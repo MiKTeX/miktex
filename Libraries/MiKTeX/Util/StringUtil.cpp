@@ -114,9 +114,9 @@ size_t StringUtil::CopyString(wchar_t * dest, size_t destSize, const char * sour
 
 bool StringUtil::Contains(const char * list, const char * element, const char * delims, bool ignoreCase)
 {
-  for (Tokenizer tok(list, delims); tok.GetCurrent() != nullptr; ++tok)
+  for (Tokenizer tok(list, delims); tok; ++tok)
   {
-    if (StringCompare(tok.GetCurrent(), element, ignoreCase) == 0)
+    if (StringCompare((*tok).c_str(), element, ignoreCase) == 0)
     {
       return true;
     }

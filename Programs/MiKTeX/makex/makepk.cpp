@@ -246,13 +246,13 @@ void MakePk::MakeModeName(string & mode, int bdpi)
 bool GetInstructionParam(const string & str, const string & instruction, string & param)
 {
   param = "";
-  for (Tokenizer tok(str.c_str(), " \t"); tok.GetCurrent() != 0; ++tok)
+  for (Tokenizer tok(str, " \t"); tok; ++tok)
   {
-    if (instruction == tok.GetCurrent())
+    if (instruction == *tok)
     {
       return true;
     }
-    param = tok.GetCurrent();
+    param = *tok;
   }
   return false;
 }

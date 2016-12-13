@@ -296,19 +296,19 @@ void MakeFmt::ParsePdfConfigFile(const PathName & cfgFile, PdfConfigValues & val
   string line;
   while (Utils::ReadUntilDelim(line, '\n', pFile.Get()))
   {
-    Tokenizer tok(line.c_str(), " \t\r\n");
-    if (tok.GetCurrent() == nullptr)
+    Tokenizer tok(line, " \t\r\n");
+    if (!tok)
     {
       continue;
     }
-    string valueName = tok.GetCurrent();
-    tok.SetDelim("\r\n");
+    string valueName = *tok;
+    tok.SetDelimiters("\r\n");
     ++tok;
-    if (tok.GetCurrent() == nullptr)
+    if (!tok)
     {
       continue;
     }
-    string value = tok.GetCurrent();
+    string value = *tok;
     values[valueName] = value;
   }
 }

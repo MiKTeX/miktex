@@ -670,13 +670,13 @@ bool Utils::ParseDvipsMapLine(const string & line, FontMapEntry & mapEntry)
       {
         temp += *it;
       }
-      for (Tokenizer tok(temp.c_str(), " \t"); tok.GetCurrent() != 0; ++tok)
+      for (Tokenizer tok(temp, " \t"); tok; ++tok)
       {
         if (mapEntry.specialInstructions.length() > 0)
         {
           mapEntry.specialInstructions += ' ';
         }
-        mapEntry.specialInstructions += tok.GetCurrent();
+        mapEntry.specialInstructions += *tok;
       }
       if (it == line.end())
       {

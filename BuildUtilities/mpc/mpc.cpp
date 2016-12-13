@@ -1792,21 +1792,21 @@ void PackageCreator::ReadList(const PathName & path, map<string, PackageSpec> & 
     }
     Tokenizer tok(lpsz, ";");
     PackageSpec pkgspec;
-    pkgspec.deploymentName = tok.GetCurrent();
+    pkgspec.deploymentName = *tok;
     pkgspec.level = ch;
     ArchiveFileType archiveFileType = defaultArchiveFileType;
     ++tok;
-    if (tok.GetCurrent() != nullptr)
+    if (tok)
     {
-      if (strcmp(tok.GetCurrent(), "MSCab") == 0)
+      if (*tok == "MSCab")
       {
         archiveFileType = ArchiveFileType::MSCab;
       }
-      else if (strcmp(tok.GetCurrent(), "TarBzip2") == 0)
+      else if (*tok == "TarBzip2")
       {
         archiveFileType = ArchiveFileType::TarBzip2;
       }
-      else if (strcmp(tok.GetCurrent(), "TarLzma") == 0)
+      else if (*tok == "TarLzma")
       {
         archiveFileType = ArchiveFileType::TarLzma;
       }
