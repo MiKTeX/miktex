@@ -205,7 +205,7 @@ set(commandlinebuilder_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/CommandLineBuilder/CommandLineBuilder.cpp
 )
 
-set(CsvList_sources
+set(csvlist_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/CsvList/CsvList.cpp
 )
 
