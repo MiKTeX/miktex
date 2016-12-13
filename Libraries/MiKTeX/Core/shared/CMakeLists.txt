@@ -153,7 +153,7 @@ install(TARGETS ${core_dll_name}
 source_group("C API" FILES ${c_api_sources})
 source_group(Cfg FILES ${cfg_sources})
 source_group(CommandLineBuilder FILES ${commandlinebuilder_sources})
-source_group(CsvList FILES ${CsvList_sources})
+source_group(CsvList FILES ${csvlist_sources})
 source_group(Directory FILES ${directory_sources})
 source_group(DirectoryLister FILES ${directorylister_sources})
 source_group(File FILES ${file_sources})

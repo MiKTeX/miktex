@@ -436,7 +436,7 @@ set(core_sources
   ${c_api_sources}
   ${cfg_sources}
   ${commandlinebuilder_sources}
-  ${CsvList_sources}
+  ${csvlist_sources}
   ${directory_sources}
   ${directorylister_sources}
   ${file_sources}
