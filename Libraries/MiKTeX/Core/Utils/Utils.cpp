@@ -251,13 +251,13 @@ bool Utils::IsSafeFileName(const PathName & path, bool forInput)
     return false;
   }
   PathName fileName;
-  for (PathNameParser parser(path.GetData()); parser.GetCurrent() != nullptr; ++parser)
+  for (PathNameParser parser(path); parser; ++parser)
   {
-    if (PathName::Compare(parser.GetCurrent(), PARENT_DIRECTORY) == 0)
+    if (PathName::Compare(*parser, PARENT_DIRECTORY) == 0)
     {
       return false;
     }
-    fileName = parser.GetCurrent();
+    fileName = *parser;
   }
   MIKTEX_ASSERT(!fileName.Empty());
   for (int idx = 0; forbiddenFileNames[idx] != nullptr; ++idx)
@@ -483,15 +483,15 @@ MIKTEXINTERNALFUNC(PathName) GetFullPath(const char * lpszPath)
     path.SetToCurrentDirectory();
   }
 
-  for (PathNameParser parser(lpszPath); parser.GetCurrent() != 0; ++parser)
+  for (PathNameParser parser(lpszPath); parser; ++parser)
   {
-    if (PathName::Compare(parser.GetCurrent(), PARENT_DIRECTORY) == 0)
+    if (PathName::Compare(*parser, PARENT_DIRECTORY) == 0)
     {
       path.CutOffLastComponent();
     }
-    else if (PathName::Compare(parser.GetCurrent(), CURRENT_DIRECTORY) != 0)
+    else if (PathName::Compare(*parser, CURRENT_DIRECTORY) != 0)
     {
-      path.AppendComponent(parser.GetCurrent());
+      path.AppendComponent((*parser).c_str());
     }
   }
 

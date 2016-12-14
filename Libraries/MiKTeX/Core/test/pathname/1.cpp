@@ -47,48 +47,48 @@ BEGIN_TEST_FUNCTION(2);
 {
 #if defined(MIKTEX_WINDOWS)
   PathNameParser component("C:/abc/def/ghi.jkl");
-  TEST(PathName::Compare(component.GetCurrent(), "C:/abc") == 0);
+  TEST(PathName::Compare(*component, "C:/abc") == 0);
   ++component;
-  TEST(PathName::Compare(component.GetCurrent(), "def") == 0);
+  TEST(PathName::Compare(*component, "def") == 0);
   ++component;
-  TEST(PathName::Compare(component.GetCurrent(), "ghi.jkl") == 0);
+  TEST(PathName::Compare(*component, "ghi.jkl") == 0);
   ++component;
-  TEST(component.GetCurrent() == 0);
+  TEST(!component);
 #endif
   PathNameParser component2("/abc/def/ghi.jkl");
-  TEST(PathName::Compare(component2.GetCurrent(), "/abc") == 0);
+  TEST(PathName::Compare(*component2, "/abc") == 0);
   ++component2;
-  TEST(PathName::Compare(component2.GetCurrent(), "def") == 0);
+  TEST(PathName::Compare(*component2, "def") == 0);
   ++component2;
-  TEST(PathName::Compare(component2.GetCurrent(), "ghi.jkl") == 0);
+  TEST(PathName::Compare(*component2, "ghi.jkl") == 0);
   ++component2;
-  TEST(component2.GetCurrent() == 0);
+  TEST(!component2);
 }
 END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(3);
 {
   PathNameParser component("//abc/def/ghi.jkl");
-  TEST(PathName::Compare(component.GetCurrent(), "//abc") == 0);
+  TEST(PathName::Compare(*component, "//abc") == 0);
   ++component;
-  TEST(PathName::Compare(component.GetCurrent(), "def") == 0);
+  TEST(PathName::Compare(*component, "def") == 0);
   ++component;
-  TEST(PathName::Compare(component.GetCurrent(), "ghi.jkl") == 0);
+  TEST(PathName::Compare(*component, "ghi.jkl") == 0);
   ++component;
-  TEST(component.GetCurrent() == 0);
+  TEST(!component);
 }
 END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(4);
 {
   PathNameParser component("/abc///def/ghi.jkl");
-  TEST(PathName::Compare(component.GetCurrent(), "/abc") == 0);
+  TEST(PathName::Compare(*component, "/abc") == 0);
   ++component;
-  TEST(PathName::Compare(component.GetCurrent(), "def") == 0);
+  TEST(PathName::Compare(*component, "def") == 0);
   ++component;
-  TEST(PathName::Compare(component.GetCurrent(), "ghi.jkl") == 0);
+  TEST(PathName::Compare(*component, "ghi.jkl") == 0);
   ++component;
-  TEST(component.GetCurrent() == 0);
+  TEST(!component);
 }
 END_TEST_FUNCTION();
 

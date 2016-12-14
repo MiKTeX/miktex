@@ -204,24 +204,36 @@ void SessionImpl::SplitFontPath(const PathName & fontPath, string * fontType, st
       PathName pathRel;
       if (SplitTEXMFPath(fontPath, root, pathRel) != INVALID_ROOT_INDEX)
       {
-        const char * d1, * d2;
-        PathNameParser tok(pathRel.GetData());
-        if (((d1 = tok.GetCurrent()) != nullptr) && PathName::Compare(d1, "fonts") == 0 && ((d2 = ++tok) != nullptr))
+        PathNameParser tok(pathRel);
+        if (tok)
         {
-          if (fontType != nullptr)
+          string d1 = *tok;
+          ++tok;
+          if (PathName::Compare(d1, "fonts") == 0 && tok)
           {
-            *fontType = d2;
-          }
-          const char * d3, * d4;
-          if (((d3 = ++tok) != nullptr) && ((d4 = ++tok) != nullptr))
-          {
-            if (supplier != nullptr)
+            string d2 = *tok;
+            ++tok;
+            if (fontType != nullptr)
             {
-              *supplier = d3;
+              *fontType = d2;
             }
-            if (typeface != nullptr)
+            if (tok)
             {
-              *typeface = d4;
+              string d3 = *tok;
+              ++tok;
+              if (tok)
+              {
+                string d4 = *tok;
+                ++tok;
+                if (supplier != nullptr)
+                {
+                  *supplier = d3;
+                }
+                if (typeface != nullptr)
+                {
+                  *typeface = d4;
+                }
+              }
             }
           }
         }

@@ -23,65 +23,95 @@
 
 #include "internal.h"
 
-#include "miktex/Core/BufferSizes.h"
 #include "miktex/Core/PathNameParser.h"
 
 #include "Utils/inliners.h"
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
+using namespace std;
 
-PathNameParser::PathNameParser(const char * lpszPath)
+class PathNameParser::impl
 {
-  StringUtil::CopyString(buffer, BufferSizes::MaxPath, lpszPath);
-  lpszNext = buffer;
-  lpszCurrent = nullptr;
+public:
+  PathName path;
+public:
+  char * current = nullptr;
+public:
+  char * next = nullptr;
+};
+
+PathNameParser::PathNameParser(const PathName & path) :
+  pimpl(new impl{})
+{
+  pimpl->path = path;
+  pimpl->next = pimpl->path.GetData();
+  pimpl->current = nullptr;
   ++(*this);
 }
 
-const char * PathNameParser::operator++ ()
+PathNameParser::operator bool() const
 {
-  lpszCurrent = lpszNext;
+  return pimpl->current != nullptr && pimpl->current[0] != 0;
+}
+
+string PathNameParser::operator*() const
+{
+  if (pimpl->current == nullptr)
+  {
+    // TODO: throw
+  }
+  return pimpl->current;
+}
+
+PathNameParser & PathNameParser::operator++ ()
+{
+  pimpl->current = pimpl->next;
 
   char * lpsz;
 
-  if (lpszCurrent == buffer && IsDirectoryDelimiter(buffer[0]))
+  if (pimpl->current == pimpl->path.GetData() && IsDirectoryDelimiter(pimpl->path[0]))
   {
-    if (IsDirectoryDelimiter(buffer[1]))
+    if (IsDirectoryDelimiter(pimpl->path[1]))
     {
-      lpsz = &buffer[2];
+      lpsz = &pimpl->path[2];
     }
     else
     {
-      lpsz = &buffer[1];
+      lpsz = &pimpl->path[1];
     }
   }
 #if defined(MIKTEX_WINDOWS)
-  else if (lpszCurrent == buffer && IsDriveLetter(buffer[0]) && buffer[1] == ':' && IsDirectoryDelimiter(buffer[2]))
+  else if (pimpl->current == pimpl->path.GetData() && IsDriveLetter(pimpl->path[0]) && pimpl->path[1] == ':' && IsDirectoryDelimiter(pimpl->path[2]))
   {
-    lpsz = &buffer[3];
+    lpsz = &pimpl->path[3];
   }
 #endif
   else
   {
     // skip extra directory delimiters
-    for (; PathName::IsDirectoryDelimiter(*lpszCurrent); ++lpszCurrent)
+    for (; PathName::IsDirectoryDelimiter(*pimpl->current); ++pimpl->current)
     {
       ;
     }
-    lpsz = lpszCurrent;
+    lpsz = pimpl->current;
   }
 
   // cut out the next component
-  for (lpszNext = lpsz; *lpszNext != 0; ++lpszNext)
+  for (pimpl->next = lpsz; *pimpl->next != 0; ++pimpl->next)
   {
-    if (PathName::IsDirectoryDelimiter(*lpszNext))
+    if (PathName::IsDirectoryDelimiter(*pimpl->next))
     {
-      *lpszNext = 0;
-      ++lpszNext;
+      *pimpl->next = 0;
+      ++pimpl->next;
       break;
     }
   }
 
-  return GetCurrent();
+  return *this;
+}
+
+
+PathNameParser::~PathNameParser()
+{
 }

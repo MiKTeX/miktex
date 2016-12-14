@@ -28,14 +28,29 @@
 
 #include <miktex/Core/config.h>
 
-#include "BufferSizes.h"
+#include <memory>
+#include <string>
+
+#include "PathName.h"
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
 
 class PathNameParser
 {
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL PathNameParser(const char * lpszPath);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL PathNameParser(const PathName & path);
+
+public:
+  MIKTEXCOREEXPORT MIKTEXTHISCALL operator bool() const;
+
+public:
+  MIKTEXCORETHISAPI(std::string) operator* () const;
+
+public:
+  MIKTEXCORETHISAPI(PathNameParser &) operator++ ();
+
+public:
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~PathNameParser();
 
 public:
   PathNameParser(const PathNameParser & rhs) = delete;
@@ -43,23 +58,9 @@ public:
 public:
   PathNameParser & operator= (const PathNameParser & rhs) = delete;
 
-public:
-  const char * GetCurrent() const
-  {
-    return *lpszCurrent == 0 ? nullptr : lpszCurrent;
-  }
-
-public:
-  MIKTEXCORETHISAPI(const char *) operator++ ();
-
 private:
-  char * lpszCurrent = nullptr;
-
-private:
-  char * lpszNext = nullptr;
-
-private:
-  char buffer[BufferSizes::MaxPath];
+  class impl;
+  std::unique_ptr<impl> pimpl;
 };
 
 MIKTEX_CORE_END_NAMESPACE;

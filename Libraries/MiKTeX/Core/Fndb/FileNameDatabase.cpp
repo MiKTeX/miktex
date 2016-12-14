@@ -148,9 +148,9 @@ FileNameDatabaseDirectory * FileNameDatabase::FindSubDirectory(const FileNameDat
 {
   MIKTEX_ASSERT(pDir != nullptr);
   FndbByteOffset fo = 0;
-  for (PathNameParser dirName(lpszRelPath); dirName.GetCurrent() != nullptr; ++dirName)
+  for (PathNameParser dirName(lpszRelPath); dirName; ++dirName)
   {
-    if (PathName::Compare(dirName.GetCurrent(), CURRENT_DIRECTORY) == 0)
+    if (PathName::Compare(*dirName, CURRENT_DIRECTORY) == 0)
     {
       fo = GetByteOffset(pDir);
       continue;
@@ -166,7 +166,7 @@ FileNameDatabaseDirectory * FileNameDatabase::FindSubDirectory(const FileNameDat
 	subidx = lo + (hi - lo) / 2;
 	FndbByteOffset foSubDirName = pDir->GetSubDirName(subidx);
 	const char * lpszSubdirName = GetString(foSubDirName);
-	int cmp = PathName::Compare(lpszSubdirName, dirName.GetCurrent());
+	int cmp = PathName::Compare(lpszSubdirName, *dirName);
 	if (cmp > 0)
 	{
 	  hi = subidx;
@@ -381,12 +381,12 @@ FileNameDatabaseDirectory * FileNameDatabase::CreateDirectoryPath(FileNameDataba
 {
   bool create = false;
   FndbWord level = 0;
-  for (PathNameParser dirName(lpszRelPath); dirName.GetCurrent() != nullptr; ++dirName)
+  for (PathNameParser dirName(lpszRelPath); dirName; ++dirName)
   {
     FileNameDatabaseDirectory * pDirSub = nullptr;
     if (!create)
     {
-      pDirSub = FindSubDirectory(pDir, dirName.GetCurrent());
+      pDirSub = FindSubDirectory(pDir, (*dirName).c_str());
       if (pDirSub == nullptr)
       {
 	create = true;
@@ -394,7 +394,7 @@ FileNameDatabaseDirectory * FileNameDatabase::CreateDirectoryPath(FileNameDataba
     }
     if (create)
     {
-      pDirSub = CreateFndbDirectory(pDir, dirName.GetCurrent());
+      pDirSub = CreateFndbDirectory(pDir, (*dirName).c_str());
       if (pDirSub == nullptr)
       {
 	MIKTEX_UNEXPECTED();

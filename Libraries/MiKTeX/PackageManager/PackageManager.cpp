@@ -992,9 +992,9 @@ MPMSTATICFUNC(void) RememberFileNameInfo(const string & prefixedFileName, const 
     return;
   }
 
-  PathNameParser pathtok(fileName.c_str());
+  PathNameParser pathtok(fileName);
 
-  if (pathtok.GetCurrent() == nullptr)
+  if (!pathtok)
   {
     return;
   }
@@ -1003,16 +1003,19 @@ MPMSTATICFUNC(void) RememberFileNameInfo(const string & prefixedFileName, const 
   PathName path = session->GetMpmRootPath();
   //  path += CURRENT_DIRECTORY;
 
-  // lpsz1: current path name component
-  const char * lpsz1 = pathtok.GetCurrent();
+  // s1: current path name component
+  string s1 = *pathtok;
+  ++pathtok;
 
-  // lpszName: file name component
-  const char * lpszName = lpsz1;
+  // name: file name component
+  string name = s1;
 
-  for (const char * lpsz2 = ++pathtok; lpsz2 != nullptr; lpsz2 = ++pathtok)
+  while (pathtok)
   {
-    directoryInfoTable[path.GetData()].subDirectoryNames.insert(lpsz1);
-    lpszName = lpsz2;
+    string s2 = *pathtok;
+    ++pathtok;
+    directoryInfoTable[path.GetData()].subDirectoryNames.insert(s1);
+    name = s2;
 #if defined(MIKTEX_WINDOWS)
     // make sure the the rest of the path contains slashes (not
     // backslashes)
@@ -1020,12 +1023,12 @@ MPMSTATICFUNC(void) RememberFileNameInfo(const string & prefixedFileName, const 
 #else
     path.AppendDirectoryDelimiter();
 #endif
-    path /= lpsz1;
-    lpsz1 = lpsz2;
+    path /= s1;
+    s1 = s2;
   }
 
   DirectoryInfo & directoryInfo = directoryInfoTable[path.GetData()];
-  directoryInfo.fileNames += lpszName;
+  directoryInfo.fileNames += name;
   directoryInfo.fileNames += '\0';
   directoryInfo.packageNames += packageName;
   directoryInfo.packageNames += '\0';
