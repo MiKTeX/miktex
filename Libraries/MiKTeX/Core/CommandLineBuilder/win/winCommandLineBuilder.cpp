@@ -25,18 +25,20 @@
 
 #include "miktex/Core/CommandLineBuilder.h"
 
+#include "../ArgvImpl.h"
+
 using namespace MiKTeX::Core;
 using namespace std;
 
 // mimic the behaviour of CommandLineToArgvW().
 void Argv::Append(const string & arguments)
 {
-  MIKTEX_ASSERT(!argv.empty());
-  MIKTEX_ASSERT(argv.back() == nullptr);
-  argv.pop_back();
-  if (argv.empty())
+  MIKTEX_ASSERT(!pimpl->argv.empty());
+  MIKTEX_ASSERT(pimpl->argv.back() == nullptr);
+  pimpl->argv.pop_back();
+  if (pimpl->argv.empty())
   {
-    argv.push_back(MIKTEX_STRDUP("foo"));
+    pimpl->argv.push_back(MIKTEX_STRDUP("foo"));
   }
   for (const char * lpsz = arguments.c_str(); *lpsz != 0; )
   {
@@ -79,7 +81,7 @@ void Argv::Append(const string & arguments)
       }
       if (*lpsz == 0 || ((*lpsz == ' ' || *lpsz == '\t') && !inQuotation))
       {
-        argv.push_back(MIKTEX_STRDUP(arg.c_str()));
+        pimpl->argv.push_back(MIKTEX_STRDUP(arg.c_str()));
         break;
       }
       else if (!quoteOrUnquote)
@@ -88,5 +90,5 @@ void Argv::Append(const string & arguments)
       }
     }
   }
-  argv.push_back(nullptr);
+  pimpl->argv.push_back(nullptr);
 }

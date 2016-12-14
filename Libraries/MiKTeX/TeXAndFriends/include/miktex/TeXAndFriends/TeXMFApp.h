@@ -717,10 +717,10 @@ public:
 #endif
 
 public:
-  static MIKTEXMFCEEAPI(bool) ParseFirstLine(const MiKTeX::Core::PathName & path, MiKTeX::Core::Argv & argv);
+  static MIKTEXMFCEEAPI(MiKTeX::Core::Argv) ParseFirstLine(const MiKTeX::Core::PathName & path);
 
 private:
-  MIKTEXMFTHISAPI(void) ParseFirstLine(const MiKTeX::Core::PathName & fileName);
+  MIKTEXMFTHISAPI(void) CheckFirstLine(const MiKTeX::Core::PathName & fileName);
 
 #if defined(THEDATA)
 public:

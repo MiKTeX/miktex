@@ -202,6 +202,7 @@ set(cfg_sources
 )
 
 set(commandlinebuilder_sources
+  ${CMAKE_CURRENT_SOURCE_DIR}/CommandLineBuilder/ArgvImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CommandLineBuilder/CommandLineBuilder.cpp
 )
 

@@ -525,7 +525,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
   return done;
 }
 
-bool TeXMFApp::ParseFirstLine(const PathName & path, MiKTeX::Core::Argv & argv)
+Argv TeXMFApp::ParseFirstLine(const PathName & path)
 {
   StreamReader reader(path);
 
@@ -533,24 +533,22 @@ bool TeXMFApp::ParseFirstLine(const PathName & path, MiKTeX::Core::Argv & argv)
 
   if (!reader.ReadLine(firstLine))
   {
-    return false;
+    return Argv();
   }
 
   reader.Close();
 
   if (!(firstLine.substr(0, 2) == "%&"))
   {
-    return false;
+    return Argv();
   }
 
-  argv.Build("foo", firstLine.c_str() + 2);
-
-  return argv.GetArgc() > 1;
+  return Argv("foo", firstLine.c_str() + 2);
 }
 
 bool inParseFirstLine = false;
 
-void TeXMFApp::ParseFirstLine(const PathName & fileName)
+void TeXMFApp::CheckFirstLine(const PathName & fileName)
 {
   AutoRestore<bool> autoRestoreInParseFirstLine(inParseFirstLine);
   inParseFirstLine = true;
@@ -562,9 +560,9 @@ void TeXMFApp::ParseFirstLine(const PathName & fileName)
     return;
   }
 
-  Argv argv;
+  Argv argv = ParseFirstLine(path);
 
-  if (!ParseFirstLine(path, argv))
+  if (argv.GetArgc() <= 1)
   {
     return;
   }
@@ -692,7 +690,7 @@ void TeXMFApp::ProcessCommandLineOptions()
     && GetArgV()[1][0] != '\\'
     && (memoryDumpFileName.empty() || GetTcxFileName().Empty()))
   {
-    ParseFirstLine(GetArgV()[1]);
+    CheckFirstLine(GetArgV()[1]);
   }
 }
 

@@ -25,21 +25,31 @@
 
 #include "miktex/Core/CommandLineBuilder.h"
 
+#include "ArgvImpl.h"
+
 using namespace MiKTeX::Core;
 using namespace std;
 
-Argv::Argv()
+Argv::Argv() :
+  pimpl(new impl{ {nullptr} })
 {
-  argv.push_back(nullptr);
+}
+
+Argv::Argv(Argv && rhs) :
+  pimpl(std::move(rhs.pimpl))
+{
 }
 
 Argv::~Argv()
 {
   try
   {
-    for (vector<char*>::iterator it = argv.begin(); it != argv.end() && *it != nullptr; ++it)
+    if (pimpl != nullptr)
     {
-      MIKTEX_FREE(*it);
+      for (vector<char*>::iterator it = pimpl->argv.begin(); it != pimpl->argv.end() && *it != nullptr; ++it)
+      {
+        MIKTEX_FREE(*it);
+      }
     }
   }
   catch (const exception &)
@@ -47,27 +57,43 @@ Argv::~Argv()
   }
 }
 
-void Argv::Build(const string & fileName, const string & arguments)
+Argv::Argv(const string & fileName, const string & arguments) :
+  pimpl(new impl{ { MIKTEX_STRDUP(fileName.c_str()), nullptr } })
 {
-  MIKTEX_ASSERT(argv.size() == 1);
-  argv.clear();
-  argv.push_back(MIKTEX_STRDUP(fileName.c_str()));
-  argv.push_back(nullptr);
   Append(arguments);
 }
 
-struct Data
+const char * const * Argv::GetArgv() const
 {
+  return &pimpl->argv[0];
+}
+
+int Argv::GetArgc() const
+{
+  MIKTEX_ASSERT(pimpl->argv.size() > 0);
+  return static_cast<int>(pimpl->argv.size() - 1);
+}
+
+const char * Argv::operator[] (size_t idx) const
+{
+  MIKTEX_ASSERT(idx < pimpl->argv.size());
+  return pimpl->argv[idx];
+}
+
+class CommandLineBuilder::impl
+{
+public:
   string str;
+public:
   string optionIndicator;
+public:
   string valueIndicator;
+public:
   string needsQuoting;
 };
 
-#define pData reinterpret_cast<Data*>(this->p)
-
 CommandLineBuilder::CommandLineBuilder() :
-  p(new Data)
+  pimpl(new impl{})
 {
   SetOptionConvention(OptionConvention::None);
   SetQuotingConvention(QuotingConvention::Whitespace);
@@ -76,12 +102,12 @@ CommandLineBuilder::CommandLineBuilder() :
 CommandLineBuilder::CommandLineBuilder(const CommandLineBuilder & other) :
   CommandLineBuilder()
 {
-  this->operator= (other);
+  *pimpl = *other.pimpl;
 }
 
 CommandLineBuilder & CommandLineBuilder::operator= (const CommandLineBuilder & other)
 {
-  *pData = *reinterpret_cast<const Data *>(other.p);
+  *pimpl = *other.pimpl;
   return *this;
 }
 
@@ -89,6 +115,10 @@ CommandLineBuilder::CommandLineBuilder(const string & argument) :
   CommandLineBuilder()
 {
   AppendArgument(argument);
+}
+
+CommandLineBuilder::~CommandLineBuilder()
+{
 }
 
 CommandLineBuilder::CommandLineBuilder(const string & argument1, const string & argument2) :
@@ -106,37 +136,25 @@ CommandLineBuilder::CommandLineBuilder(const string & argument1, const string & 
   AppendArgument(argument3);
 }
 
-CommandLineBuilder::~CommandLineBuilder()
-{
-  try
-  {
-    delete pData;
-  }
-  catch (const exception &)
-  {
-  }
-  p = nullptr;
-}
-
 void CommandLineBuilder::SetOptionConvention(OptionConvention optionConvention)
 {
   switch (optionConvention)
   {
   case OptionConvention::None:
-    pData->optionIndicator = "";
-    pData->valueIndicator = "";
+    pimpl->optionIndicator = "";
+    pimpl->valueIndicator = "";
     break;
   case OptionConvention::Xt:
-    pData->optionIndicator = "-";
-    pData->valueIndicator = "=";
+    pimpl->optionIndicator = "-";
+    pimpl->valueIndicator = "=";
     break;
   case OptionConvention::GNU:
-    pData->optionIndicator = "--";
-    pData->valueIndicator = "=";
+    pimpl->optionIndicator = "--";
+    pimpl->valueIndicator = "=";
     break;
   case OptionConvention::DOS:
-    pData->optionIndicator = "/";
-    pData->valueIndicator = ":";
+    pimpl->optionIndicator = "/";
+    pimpl->valueIndicator = ":";
     break;
   }
 }
@@ -146,46 +164,46 @@ void CommandLineBuilder::SetQuotingConvention(QuotingConvention quotingConventio
   switch (quotingConvention)
   {
   case QuotingConvention::None:
-    pData->needsQuoting = "";
+    pimpl->needsQuoting = "";
     break;
   case QuotingConvention::Whitespace:
-    pData->needsQuoting = " \t";
+    pimpl->needsQuoting = " \t";
     break;
   case QuotingConvention::Bat:
-    pData->needsQuoting = " \t,;=";
+    pimpl->needsQuoting = " \t,;=";
     break;
   }
 }
 
 void CommandLineBuilder::Clear()
 {
-  pData->str = "";
+  pimpl->str = "";
 }
 
 void CommandLineBuilder::AppendUnquoted(const string & text)
 {
-  if (!pData->str.empty())
+  if (!pimpl->str.empty())
   {
-    pData->str += ' ';
+    pimpl->str += ' ';
   }
-  pData->str += text;
+  pimpl->str += text;
 }
 
 void CommandLineBuilder::AppendArgument(const string & argument)
 {
-  if (!pData->str.empty())
+  if (!pimpl->str.empty())
   {
-    pData->str += ' ';
+    pimpl->str += ' ';
   }
-  bool needsQuoting = argument.empty() || argument.find_first_of(pData->needsQuoting) != string::npos;
+  bool needsQuoting = argument.empty() || argument.find_first_of(pimpl->needsQuoting) != string::npos;
   if (needsQuoting)
   {
-    pData->str += '"';
+    pimpl->str += '"';
   }
-  pData->str += argument;
+  pimpl->str += argument;
   if (needsQuoting)
   {
-    pData->str += '"';
+    pimpl->str += '"';
   }
 }
 
@@ -215,24 +233,24 @@ void CommandLineBuilder::AppendArguments(const Argv & argv)
 
 void CommandLineBuilder::AppendOption(const string & name, const string & value)
 {
-  if (!pData->str.empty())
+  if (!pimpl->str.empty())
   {
-    pData->str += ' ';
+    pimpl->str += ' ';
   }
-  pData->str += pData->optionIndicator;
-  pData->str += name;
+  pimpl->str += pimpl->optionIndicator;
+  pimpl->str += name;
   if (!value.empty())
   {
-    pData->str += pData->valueIndicator;
-    bool needsQuoting = value.find_first_of(pData->needsQuoting) != string::npos;
+    pimpl->str += pimpl->valueIndicator;
+    bool needsQuoting = value.find_first_of(pimpl->needsQuoting) != string::npos;
     if (needsQuoting)
     {
-      pData->str += '"';
+      pimpl->str += '"';
     }
-    pData->str += value;
+    pimpl->str += value;
     if (needsQuoting)
     {
-      pData->str += '"';
+      pimpl->str += '"';
     }
   }
 }
@@ -244,20 +262,20 @@ void CommandLineBuilder::AppendRedirection(const PathName & path_, string direct
 #else
   string path = path_.ToString();
 #endif
-  pData->str += direction;
-  bool needsQuoting = path.find_first_of(pData->needsQuoting) != string::npos;
+  pimpl->str += direction;
+  bool needsQuoting = path.find_first_of(pimpl->needsQuoting) != string::npos;
   if (needsQuoting)
   {
-    pData->str += '"';
+    pimpl->str += '"';
   }
-  pData->str += path;
+  pimpl->str += path;
   if (needsQuoting)
   {
-    pData->str += '"';
+    pimpl->str += '"';
   }
 }
 
 string CommandLineBuilder::ToString() const
 {
-  return pData->str;
+  return pimpl->str;
 }

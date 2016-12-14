@@ -107,9 +107,7 @@ void ParseYapCommandLine(const char * lpszCommandLine, YapCommandLineInfo & cmdI
 
   int option;
 
-  Argv argv;
-
-  argv.Build("yap", lpszCommandLine);
+  Argv argv("yap", lpszCommandLine);
 
   PoptWrapper popt(argv.GetArgc(), const_cast<const char **>(argv.GetArgv()), aoption);
 

@@ -30,6 +30,7 @@
 
 #include <cstddef>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -44,36 +45,38 @@ public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL Argv();
 
 public:
+  Argv(const Argv & other) = delete;
+
+public:
+  Argv & operator= (const Argv & other) = delete;
+
+public:
+  MIKTEXCOREEXPORT MIKTEXTHISCALL Argv(Argv && other);
+
+public:
+  Argv & operator= (Argv && other) = delete;
+
+public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~Argv();
 
 public:
-  MIKTEXCORETHISAPI(void) Build(const std::string & fileName, const std::string & arguments);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL Argv(const std::string & fileName, const std::string & arguments);
 
 public:
   MIKTEXCORETHISAPI(void) Append(const std::string & arguments);
 
 public:
-  const char * const * GetArgv() const
-  {
-    return &argv[0];
-  }
+  MIKTEXCORETHISAPI(const char * const *) GetArgv() const;
 
 public:
-  int GetArgc() const
-  {
-    MIKTEX_ASSERT(argv.size() > 0);
-    return static_cast<int>(argv.size() - 1);
-  }
+  MIKTEXCORETHISAPI(int) GetArgc() const;
 
 public:
-  const char * operator[] (std::size_t idx) const
-  {
-    MIKTEX_ASSERT(idx < argv.size());
-    return argv[idx];
-  }
+  MIKTEXCORETHISAPI(const char *) operator[] (std::size_t idx) const;
 
 private:
-  std::vector<char *> argv;
+  class impl;
+  std::unique_ptr<impl> pimpl;
 };
 
 enum class OptionConvention
@@ -97,13 +100,19 @@ public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder();
 
 public:
-  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~CommandLineBuilder();
-
-public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const CommandLineBuilder & other);
 
 public:
   MIKTEXCORETHISAPI(CommandLineBuilder &) operator= (const CommandLineBuilder & other);
+
+public:
+  CommandLineBuilder(CommandLineBuilder && other) = delete;
+
+public:
+  CommandLineBuilder & operator= (CommandLineBuilder && other) = delete;
+
+public:
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~CommandLineBuilder();
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::string & argument);
@@ -198,7 +207,8 @@ public:
   MIKTEXCORETHISAPI(std::string) ToString() const;
 
 private:
-  void * p = nullptr;
+  class impl;
+  std::unique_ptr<impl> pimpl;
 };
 
 MIKTEX_CORE_END_NAMESPACE;
