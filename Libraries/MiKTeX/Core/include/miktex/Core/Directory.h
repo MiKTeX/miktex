@@ -49,6 +49,24 @@ typedef OptionSet<DirectoryCopyOption> DirectoryCopyOptionSet;
 /// Directory class.
 class MIKTEXNOVTABLE Directory
 {
+public:
+  Directory() = delete;
+
+public:
+  Directory(const Directory & other) = delete;
+
+public:
+  Directory & operator= (const Directory & other) = delete;
+
+public:
+  Directory(Directory && other) = delete;
+
+public:
+  Directory & operator= (Directory && other) = delete;
+
+public:
+  ~Directory() = delete;
+
   /// Creates a new directory.
 public:
   static MIKTEXCORECEEAPI(void) Create(const PathName & path);
