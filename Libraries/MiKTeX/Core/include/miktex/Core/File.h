@@ -132,6 +132,24 @@ typedef OptionSet<CreateLinkOption> CreateLinkOptionSet;
 /// File class.
 class MIKTEXNOVTABLE File
 {
+public:
+  File() = delete;
+
+public:
+  File(const File & other) = delete;
+
+public:
+  File & operator= (const File & other) = delete;
+
+public:
+  File(File && other) = delete;
+
+public:
+  File & operator= (File && other) = delete;
+
+public:
+  ~File() = delete;
+
   /// Deletes a file.
 public:
   static MIKTEXCORECEEAPI(void) Delete(const PathName & path, FileDeleteOptionSet options);
