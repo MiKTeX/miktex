@@ -36,6 +36,24 @@ MIKTEX_UTIL_BEGIN_NAMESPACE;
 class Tokenizer
 {
 public:
+  Tokenizer() = delete;
+
+public:
+  Tokenizer(const Tokenizer & other) = delete;
+
+public:
+  Tokenizer & operator= (const Tokenizer & other) = delete;
+
+public:
+  Tokenizer(Tokenizer && other) = delete;
+
+public:
+  Tokenizer & operator= (Tokenizer && other) = delete;
+
+public:
+  virtual MIKTEXUTILEXPORT MIKTEXTHISCALL ~Tokenizer();
+
+public:
   MIKTEXUTILEXPORT MIKTEXTHISCALL Tokenizer(const std::string & s, const std::string & delims);
 
 public:
@@ -49,15 +67,6 @@ public:
 
 public:
   MIKTEXUTILTHISAPI(Tokenizer &) operator++ ();
-
-public:
-  virtual MIKTEXUTILEXPORT MIKTEXTHISCALL ~Tokenizer();
-
-public:
-  Tokenizer(const Tokenizer & rhs) = delete;
-
-public:
-  Tokenizer & operator= (const Tokenizer & rhs) = delete;
 
 private:
   class impl;
