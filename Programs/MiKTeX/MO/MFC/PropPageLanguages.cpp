@@ -99,7 +99,7 @@ vector<string> PropPageLanguages::WhichPackage(const char * lpszTeXInputFile)
   directoryPattern /= "tex//";
   vector<PathName> paths;
   vector<string> result;
-  if (!Fndb::Search(lpszTeXInputFile, directoryPattern.GetData(), false, paths, result))
+  if (!Fndb::Search(lpszTeXInputFile, directoryPattern.ToString(), false, paths, result))
   {
     result.clear();
   }

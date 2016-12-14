@@ -531,21 +531,16 @@ bool FndbManager::Create(const char * lpszFndbPath, const char * lpszRootPath, I
   }
 }
 
-bool Fndb::Create(const char * lpszFndbPath, const char * lpszRootPath, ICreateFndbCallback * pCallback)
+bool Fndb::Create(const PathName & fndbPath, const PathName & rootPath, ICreateFndbCallback * callback)
 {
-  MIKTEX_ASSERT_STRING(lpszFndbPath);
-  MIKTEX_ASSERT_STRING(lpszRootPath);
-  return Fndb::Create(lpszFndbPath, lpszRootPath, pCallback, false, false);
+  return Fndb::Create(fndbPath, rootPath, callback, false, false);
 }
 
-bool Fndb::Create(const char * lpszFndbPath, const char * lpszRootPath, ICreateFndbCallback * pCallback, bool enableStringPooling, bool storeFileNameInfo)
+bool Fndb::Create(const PathName & fndbPath, const PathName & rootPath, ICreateFndbCallback * callback, bool enableStringPooling, bool storeFileNameInfo)
 {
-  MIKTEX_ASSERT_STRING(lpszFndbPath);
-  MIKTEX_ASSERT_STRING(lpszRootPath);
-
   FndbManager fndbmngr;
 
-  if (!fndbmngr.Create(lpszFndbPath, lpszRootPath, pCallback, enableStringPooling, storeFileNameInfo))
+  if (!fndbmngr.Create(fndbPath.GetData(), rootPath.GetData(), callback, enableStringPooling, storeFileNameInfo))
   {
     return false;
   }

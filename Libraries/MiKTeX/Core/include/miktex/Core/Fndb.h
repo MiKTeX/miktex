@@ -53,43 +53,37 @@ public:
 class MIKTEXNOVTABLE Fndb
 {
 public:
-  static MIKTEXCORECEEAPI(void) Add(const char * lpszPath);
+  Fndb() = delete;
 
 public:
-  static void Add(const PathName & path)
-  {
-    Add(path.GetData());
-  }
+  Fndb(const Fndb & other) = delete;
 
 public:
-  static MIKTEXCORECEEAPI(void) Add(const char * lpszPath, const char * lpszFileNameInfo);
+  Fndb & operator= (const Fndb & other) = delete;
 
 public:
-  static void Add(const PathName & path, const char * lpszFileNameInfo)
-  {
-    Add(path.GetData(), lpszFileNameInfo);
-  }
+  Fndb(Fndb && other) = delete;
 
 public:
-  static MIKTEXCORECEEAPI(bool) Create(const char * lpszFndbPath, const char * lpszRootPath, ICreateFndbCallback * callback);
+  Fndb & operator= (Fndb && other) = delete;
 
 public:
-  static bool Create(const PathName & fndbPath, const PathName & rootPath, ICreateFndbCallback * callback)
-  {
-    return Create(fndbPath.GetData(), rootPath.GetData(), callback);
-  }
+  ~Fndb() = delete;
 
 public:
-  static MIKTEXCORECEEAPI(bool) Create(const char * lpszFndbPath, const char * lpszRootPath, ICreateFndbCallback * callback, bool enableStringPooling, bool storeFileNameInfo);
+  static MIKTEXCORECEEAPI(void) Add(const PathName & path);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Enumerate(const char * lpszPath, IEnumerateFndbCallback * callback);
+  static MIKTEXCORECEEAPI(void) Add(const PathName & path, const std::string & fileNameInfo);
 
 public:
-  static bool Enumerate(const PathName & path, IEnumerateFndbCallback * callback)
-  {
-    return Enumerate(path.GetData(), callback);
-  }
+  static MIKTEXCORECEEAPI(bool) Create(const PathName & fndbPath, const PathName & rootPath, ICreateFndbCallback * callback);
+
+public:
+  static MIKTEXCORECEEAPI(bool) Create(const PathName & fndbPath, const PathName & rootPath, ICreateFndbCallback * callback, bool enableStringPooling, bool storeFileNameInfo);
+
+public:
+  static MIKTEXCORECEEAPI(bool) Enumerate(const PathName & fndbPath, IEnumerateFndbCallback * callback);
 
 public:
   static MIKTEXCORECEEAPI(bool) Refresh(const PathName & path, ICreateFndbCallback * callback);
@@ -98,19 +92,13 @@ public:
   static MIKTEXCORECEEAPI(bool) Refresh(ICreateFndbCallback * callback);
 
 public:
-  static MIKTEXCORECEEAPI(void) Remove(const char * lpszPath);
-
-public:
-  static void Remove(const PathName & path)
-  {
-    Remove(path.GetData());
-  }
+  static MIKTEXCORECEEAPI(void) Remove(const PathName & path);
 
 public:
   static MIKTEXCORECEEAPI(bool) FileExists(const PathName & path);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Search(const PathName & fileName, const char * pathPattern, bool firstMatchOnly, std::vector<PathName> & result, std::vector<std::string> & fileNameInfo);
+  static MIKTEXCORECEEAPI(bool) Search(const PathName & fileName, const std::string & pathPattern, bool firstMatchOnly, std::vector<PathName> & result, std::vector<std::string> & fileNameInfo);
 };
 
 MIKTEX_CORE_END_NAMESPACE;

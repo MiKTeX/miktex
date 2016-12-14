@@ -29,21 +29,19 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-void Fndb::Add(const char * lpszPath)
+void Fndb::Add(const PathName & path)
 {
-  Fndb::Add(lpszPath, nullptr);
+  Fndb::Add(path, "");
 }
 
-void Fndb::Add(const char * lpszPath, const char * lpszFileNameInfo)
+void Fndb::Add(const PathName & path, const string & fileNameInfo)
 {
-  MIKTEX_ASSERT_STRING(lpszPath);
-
 #if 0
-  MIKTEX_ASSERT(File::Exists(lpszPath));
+  MIKTEX_ASSERT(File::Exists(path));
 #endif
 
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
-  unsigned root = session->DeriveTEXMFRoot(lpszPath);
+  unsigned root = session->DeriveTEXMFRoot(path);
   PathName pathFqFndbFileName;
   if (session->FindFilenameDatabase(root, pathFqFndbFileName))
   {
@@ -52,7 +50,7 @@ void Fndb::Add(const char * lpszPath, const char * lpszFileNameInfo)
     {
       MIKTEX_UNEXPECTED();
     }
-    fndb->AddFile(lpszPath, lpszFileNameInfo);
+    fndb->AddFile(path.GetData(), fileNameInfo.c_str());
   }
   else
   {
@@ -63,38 +61,36 @@ void Fndb::Add(const char * lpszPath, const char * lpszFileNameInfo)
     {
       MIKTEX_UNEXPECTED();
     }
-    if (!File::Exists(lpszPath))
+    if (!File::Exists(path))
     {
       // the file hasn't been added yet
       // RECURSION
-      Add(lpszPath, lpszFileNameInfo);
+      Add(path, fileNameInfo);
     }
   }
 }
 
-bool Fndb::Enumerate(const char * lpszPath, IEnumerateFndbCallback * pCallback)
+bool Fndb::Enumerate(const PathName & fndbPath, IEnumerateFndbCallback * callback)
 {
-  MIKTEX_ASSERT_STRING(lpszPath);
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
-  shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(lpszPath);
+  shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(fndbPath.GetData());
   if (fndb == nullptr)
   {
-    MIKTEX_FATAL_ERROR_2(T_("The path is not covered by the file name database."), "path", lpszPath);
+    MIKTEX_FATAL_ERROR_2(T_("The path is not covered by the file name database."), "path", fndbPath.ToString());
   }
-  return fndb->Enumerate(lpszPath, pCallback);
+  return fndb->Enumerate(fndbPath.GetData(), callback);
 }
 
-void Fndb::Remove(const char * lpszPath)
+void Fndb::Remove(const PathName & path)
 {
-  MIKTEX_ASSERT_STRING(lpszPath);
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
-  unsigned root = session->DeriveTEXMFRoot(lpszPath);
+  unsigned root = session->DeriveTEXMFRoot(path.GetData());
   shared_ptr<FileNameDatabase> fndb = session->GetFileNameDatabase(root, TriState::False);
   if (fndb == nullptr)
   {
     MIKTEX_UNEXPECTED();
   }
-  fndb->RemoveFile(lpszPath);
+  fndb->RemoveFile(path.GetData());
 }
 
 bool Fndb::FileExists(const PathName & path)
@@ -109,7 +105,7 @@ bool Fndb::FileExists(const PathName & path)
   return fndb->FileExists(path);
 }
 
-bool Fndb::Search(const PathName & fileName, const char * pathPattern, bool firstMatchOnly, vector<PathName> & result, vector<string> & fileNameInfo)
+bool Fndb::Search(const PathName & fileName, const string & pathPattern, bool firstMatchOnly, vector<PathName> & result, vector<string> & fileNameInfo)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
   unsigned root = session->DeriveTEXMFRoot(pathPattern);
@@ -118,5 +114,5 @@ bool Fndb::Search(const PathName & fileName, const char * pathPattern, bool firs
   {
     return false;
   }
-  return fndb->Search(fileName, pathPattern, firstMatchOnly, result, fileNameInfo);
+  return fndb->Search(fileName, pathPattern.c_str(), firstMatchOnly, result, fileNameInfo);
 }
