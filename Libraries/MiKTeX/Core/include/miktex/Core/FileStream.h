@@ -39,18 +39,28 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 class MIKTEXCORETYPEAPI(FileStream) : public Stream
 {
 public:
-  FileStream()
-  {
-  }
+  FileStream() = default;
+
+public:
+  FileStream(const FileStream & other) = delete;
+
+public:
+  FileStream & operator= (const FileStream & other) = delete;
+
+public:
+  FileStream(FileStream && other) = delete;
+
+public:
+  FileStream & operator= (FileStream && other) = delete;
+
+public:
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~FileStream();
 
 public:
   FileStream(FILE * pFile) :
     pFile(pFile)
   {
   }
-
-public:
-  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~FileStream();
 
 public:
   MIKTEXCORETHISAPI(void) Attach(FILE * pFile);
