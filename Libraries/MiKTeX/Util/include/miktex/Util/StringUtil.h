@@ -38,35 +38,32 @@ MIKTEX_UTIL_BEGIN_NAMESPACE;
 class MIKTEXNOVTABLE StringUtil
 {
 public:
-  /// Concatenates a string to the end of another string.
-  /// @param lpszBuf The null-terminated destination string buffer.
-  /// @param bufSize Size (in characters) of the destination
-  /// string buffer.
-  /// @param lpszSource The null-terminated string to be appended.
-  /// @return Returns the length (in characters) of the result.
+  StringUtil() = delete;
+
+public:
+  StringUtil(const StringUtil & other) = delete;
+
+public:
+  StringUtil & operator= (const StringUtil & other) = delete;
+
+public:
+  StringUtil(StringUtil && other) = delete;
+
+public:
+  StringUtil & operator= (StringUtil && other) = delete;
+
+public:
+  ~StringUtil() = delete;
+
+public:
   static MIKTEXUTILCEEAPI(std::size_t) AppendString(char * dest, std::size_t destSize, const char * source);
 
-  /// Copies a string.
-  /// @param[out] lpszBuf The destination string buffer.
-  /// @param bufSize Size (in characters) of the destination string buffer.
-  /// @param lpszSource The null-terminated string to be copied.
-  /// @return Returns the length (in characters) of the result.
 public:
   static MIKTEXUTILCEEAPI(std::size_t) CopyString(char * dest, std::size_t destSize, const char * source);
 
-  /// Copies a wide string into another wide string.
-  /// @param[out] lpszBuf The destination string buffer.
-  /// @param bufSize Size (in characters) of the destination string buffer.
-  /// @param lpszSource The null-terminated string to be copied.
-  /// @return Returns the length (in characters) of the result.
 public:
   static MIKTEXUTILCEEAPI(std::size_t) CopyString(wchar_t * dest, std::size_t destSize, const wchar_t * source);
 
-  /// Copies a wide string into a single-byte string.
-  /// @param[out] lpszBuf The destination string buffer.
-  /// @param bufSize Size (in characters) of the destination string buffer.
-  /// @param lpszSource The null-terminated string to be copied.
-  /// @return Returns the length (in characters) of the result.
 public:
   static MIKTEXUTILCEEAPI(std::size_t) CopyString(char * dest, std::size_t destSize, const wchar_t * source);
 
@@ -88,10 +85,6 @@ public:
     return Contains(list, element, ",;:");
   }
 
-  /// Creates a formatted string object.
-  /// @param lpszFormat The format of the string (printf() syntax).
-  /// @param arglist Argument list.
-  /// @return Returns a string object.
 public:
   static MIKTEXUTILCEEAPI(std::string) FormatStringVA(const char * format, va_list arglist);
 
