@@ -28,10 +28,6 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-DllProcBase::DllProcBase()
-{
-}
-
 DllProcBase::DllProcBase(const char * lpszDllName, const char * lpszProcName) :
   dllName(lpszDllName),
   procName(lpszProcName)

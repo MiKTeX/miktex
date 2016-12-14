@@ -32,13 +32,25 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 class DllProcBase
 {
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL DllProcBase();
+  DllProcBase() = default;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL DllProcBase(const char * lpszDllName, const char * lpszProcName);
+  DllProcBase(const DllProcBase & other) = delete;
+
+public:
+  DllProcBase & operator= (const DllProcBase & other) = delete;
+
+public:
+  DllProcBase(DllProcBase && other) = delete;
+
+public:
+  DllProcBase & operator= (DllProcBase && other) = delete;
 
 protected:
   MIKTEXCOREEXPORT virtual MIKTEXTHISCALL ~DllProcBase();
+
+public:
+  MIKTEXCOREEXPORT MIKTEXTHISCALL DllProcBase(const char * lpszDllName, const char * lpszProcName);
 
 protected:
   MIKTEXCOREEXPORT FARPROC MIKTEXTHISCALL GetProc();
