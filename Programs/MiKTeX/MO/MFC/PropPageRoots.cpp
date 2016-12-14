@@ -742,20 +742,19 @@ void PropPageTeXMFRoots::OnContextMenu(CWnd * pWnd, CPoint point)
   }
 }
 
-bool PropPageTeXMFRoots::ReadDirectory(const char * lpszPath, char ** ppSubDirNames, char ** ppFileNames, char ** ppFileNameInfos)
-
+bool PropPageTeXMFRoots::ReadDirectory(const PathName & path, vector<string> & subDirNames, vector<string> & fileNames, vector<string> & fileNameInfos)
 {
-  UNUSED_ALWAYS(lpszPath);
-  UNUSED_ALWAYS(ppSubDirNames);
-  UNUSED_ALWAYS(ppFileNames);
-  UNUSED_ALWAYS(ppFileNameInfos);
+  UNUSED_ALWAYS(path);
+  UNUSED_ALWAYS(subDirNames);
+  UNUSED_ALWAYS(fileNames);
+  UNUSED_ALWAYS(fileNameInfos);
   return false;
 }
 
-bool PropPageTeXMFRoots::OnProgress(unsigned level, const char * lpszDirectory)
+bool PropPageTeXMFRoots::OnProgress(unsigned level, const PathName & directory)
 {
   UNUSED_ALWAYS(level);
-  pProgressDialog->SetLine(2, lpszDirectory);
+  pProgressDialog->SetLine(2, directory.GetData());
   return !pProgressDialog->HasUserCancelled();
 }
 

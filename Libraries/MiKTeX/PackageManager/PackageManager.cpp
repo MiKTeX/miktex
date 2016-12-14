@@ -966,8 +966,8 @@ namespace {
   struct DirectoryInfo
   {
     SubDirectoryTable subDirectoryNames;
-    string fileNames;
-    string packageNames;
+    vector<string> fileNames;
+    vector<string> packageNames;
   };
 
 
@@ -1027,58 +1027,27 @@ MPMSTATICFUNC(void) RememberFileNameInfo(const string & prefixedFileName, const 
     s1 = s2;
   }
 
-  DirectoryInfo & directoryInfo = directoryInfoTable[path.GetData()];
-  directoryInfo.fileNames += name;
-  directoryInfo.fileNames += '\0';
-  directoryInfo.packageNames += packageName;
-  directoryInfo.packageNames += '\0';
+  DirectoryInfo & directoryInfo = directoryInfoTable[path.ToString()];
+  directoryInfo.fileNames.push_back(name);
+  directoryInfo.packageNames.push_back(packageName);
 }
 
-bool PackageManagerImpl::ReadDirectory(const char * lpszPath, char ** ppSubDirectoryNames, char ** ppFileNames, char ** ppFileNameInfos)
+bool PackageManagerImpl::ReadDirectory(const PathName & path, vector<string> & subDirNames, vector<string> & fileNames, vector<string> & fileNameInfos)
 {
-  MIKTEX_ASSERT_STRING(lpszPath);
-
-  // get the directory info for the given path
-  DirectoryInfo & directoryInfo = directoryInfoTable[lpszPath];
-
-  string subDirectoryNames;
-  for (SubDirectoryTable::const_iterator it = directoryInfo.subDirectoryNames.begin(); it != directoryInfo.subDirectoryNames.end(); ++it)
+  const DirectoryInfo & directoryInfo = directoryInfoTable[path.ToString()];
+  for (const string & name : directoryInfo.subDirectoryNames)
   {
-    subDirectoryNames += *it;
-    subDirectoryNames += '\0';
+    subDirNames.push_back(name);
   }
-  subDirectoryNames += '\0';
-  MIKTEX_ASSERT(ppSubDirectoryNames != nullptr);
-  *ppSubDirectoryNames = static_cast<char *>(malloc(subDirectoryNames.length()));
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-  subDirectoryNames._Copy_s(*ppSubDirectoryNames, subDirectoryNames.length(), subDirectoryNames.length());
-#else
-  subDirectoryNames.copy(*ppSubDirectoryNames, subDirectoryNames.length());
-#endif
-  MIKTEX_ASSERT(ppFileNames != nullptr);
-  directoryInfo.fileNames += '\0';
-  *ppFileNames =
-    static_cast<char *>(malloc(directoryInfo.fileNames.length()));
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-  directoryInfo.fileNames._Copy_s(*ppFileNames, directoryInfo.fileNames.length(), directoryInfo.fileNames.length());
-#else
-  directoryInfo.fileNames.copy(*ppFileNames, directoryInfo.fileNames.length());
-#endif
-  MIKTEX_ASSERT(ppFileNameInfos != nullptr);
-  directoryInfo.packageNames += '\0';
-  *ppFileNameInfos = static_cast<char *>(malloc(directoryInfo.packageNames.length()));
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-  directoryInfo.packageNames._Copy_s(*ppFileNameInfos, directoryInfo.packageNames.length(), directoryInfo.packageNames.length());
-#else
-  directoryInfo.packageNames.copy(*ppFileNameInfos, directoryInfo.packageNames.length());
-#endif
+  fileNames = directoryInfo.fileNames;
+  fileNameInfos = directoryInfo.packageNames;
   return true;
 }
 
-bool PackageManagerImpl::OnProgress(unsigned level, const char * lpszDirectory)
+bool PackageManagerImpl::OnProgress(unsigned level, const PathName & directory)
 {
   UNUSED_ALWAYS(level);
-  UNUSED_ALWAYS(lpszDirectory);
+  UNUSED_ALWAYS(directory);
   return true;
 }
 

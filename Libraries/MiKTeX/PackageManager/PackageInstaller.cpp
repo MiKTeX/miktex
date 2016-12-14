@@ -1309,20 +1309,19 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
   progressInfo = packageInfo;
 }
 
-bool PackageInstallerImpl::ReadDirectory(const char * lpszPath, char ** ppSubDirNames, char ** ppFileNames, char ** ppFileNameInfos)
-
+bool PackageInstallerImpl::ReadDirectory(const PathName & path, vector<string> & subDirNames, vector<string> & fileNames, vector<string> & fileNameInfos)
 {
-  UNUSED_ALWAYS(lpszPath);
-  UNUSED_ALWAYS(ppSubDirNames);
-  UNUSED_ALWAYS(ppFileNames);
-  UNUSED_ALWAYS(ppFileNameInfos);
+  UNUSED_ALWAYS(path);
+  UNUSED_ALWAYS(subDirNames);
+  UNUSED_ALWAYS(fileNames);
+  UNUSED_ALWAYS(fileNameInfos);
   return false;
 }
 
-bool PackageInstallerImpl::OnProgress(unsigned level, const char * lpszDirectory)
+bool PackageInstallerImpl::OnProgress(unsigned level, const PathName & directory)
 {
   UNUSED_ALWAYS(level);
-  UNUSED_ALWAYS(lpszDirectory);
+  UNUSED_ALWAYS(directory);
   try
   {
     Notify();

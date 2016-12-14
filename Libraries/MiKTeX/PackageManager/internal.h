@@ -253,10 +253,10 @@ public:
   bool MIKTEXTHISCALL TryGetPackageInfo(const std::string & deploymentName, MiKTeX::Packages::PackageInfo & packageInfo) override;
 
 private:
-  bool MIKTEXTHISCALL ReadDirectory(const char * lpszPath, char * * ppSubDirNames, char * * ppFileNames, char * * ppFileNameInfos) override;
+  bool MIKTEXTHISCALL ReadDirectory(const MiKTeX::Core::PathName & path, std::vector<std::string> & subDirNames, std::vector<std::string> & fileNames, std::vector<std::string> & fileNameInfos) override;
 
 private:
-  bool MIKTEXTHISCALL OnProgress(unsigned level, const char * lpszDirectory) override;
+  bool MIKTEXTHISCALL OnProgress(unsigned level, const MiKTeX::Core::PathName & directory) override;
 
 public:
   void OnProgress() override;
@@ -942,10 +942,10 @@ private:
   void CopyPackage(const MiKTeX::Core::PathName & pathSourceRoot, const std::string & deploymentName);
 
 private:
-  bool MIKTEXTHISCALL ReadDirectory(const char * lpszPath, char * * ppSubDirNames, char * * ppFileNames, char * * ppFileNameInfos) override;
+  bool MIKTEXTHISCALL ReadDirectory(const MiKTeX::Core::PathName & path, std::vector<std::string> & subDirNames, std::vector<std::string> & fileNames, std::vector<std::string> & fileNameInfos) override;
 
 private:
-  bool MIKTEXTHISCALL OnProgress(unsigned level, const char * lpszDirectory) override;
+  bool MIKTEXTHISCALL OnProgress(unsigned level, const MiKTeX::Core::PathName & directory) override;
 
 private:
   void RemovePackage(const std::string & deploymentName);

@@ -335,38 +335,24 @@ FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char * 
 
   if (pCallback != nullptr)
   {
-    if (!pCallback->OnProgress(currentLevel, path.GetData()))
+    if (!pCallback->OnProgress(currentLevel, path))
     {
       throw OperationCancelledException();
     }
-    char * lpszSubDirNames = nullptr;
-    char * lpszFileNames = nullptr;
-    char * lpszFileNameInfos = nullptr;
-    done = pCallback->ReadDirectory(path.GetData(), &lpszSubDirNames, &lpszFileNames, &lpszFileNameInfos);
+    vector<string> subDirs;
+    vector<string> files;
+    vector<string> infos;
+    done = pCallback->ReadDirectory(path, subDirs, files, infos);
     if (done)
     {
-      AutoMemoryPointer xxx(lpszSubDirNames);
-      AutoMemoryPointer xxy(lpszFileNames);
-      AutoMemoryPointer xxz(lpszFileNameInfos);
-      const char * lpsz = lpszSubDirNames;
-      while (*lpsz != 0)
+      subDirectoryNames = subDirs;
+      MIKTEX_ASSERT(files.size() == infos.size());
+      for (int i = 0; i < files.size(); ++i)
       {
-	subDirectoryNames.push_back(lpsz);
-	lpsz += strlen(lpsz) + 1;
-      }
-      lpsz = lpszFileNames;
-      const char * lpsz2 = lpszFileNameInfos;
-      while (*lpsz != 0)
-      {
-	FILENAMEINFO filenameinfo;
-	filenameinfo.FileName = lpsz;
-	lpsz += strlen(lpsz) + 1;
-	if (lpsz2 != nullptr)
-	{
-	  filenameinfo.Info = lpsz2;
-	  lpsz2 += strlen(lpsz2) + 1;
-	}
-	fileNames.push_back(filenameinfo);
+        FILENAMEINFO filenameinfo;
+        filenameinfo.FileName = files[i];
+        filenameinfo.Info = infos[i];
+        fileNames.push_back(filenameinfo);
       }
     }
   }

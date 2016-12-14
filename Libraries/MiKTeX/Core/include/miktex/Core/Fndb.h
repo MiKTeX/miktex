@@ -38,10 +38,10 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 class MIKTEXNOVTABLE ICreateFndbCallback
 {
 public:
-  virtual bool MIKTEXTHISCALL ReadDirectory(const char * lpszPath, char * * ppSubDirNames, char * * ppFileNames, char * * ppFileNameInfos) = 0;
+  virtual bool MIKTEXTHISCALL ReadDirectory(const PathName & path, std::vector<std::string> & subDirNames, std::vector<std::string> & fileNames, std::vector<std::string> & fileNameInfos) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL OnProgress(unsigned level, const char * lpszDirectory) = 0;
+  virtual bool MIKTEXTHISCALL OnProgress(unsigned level, const PathName & directory) = 0;
 };
 
 class MIKTEXNOVTABLE IEnumerateFndbCallback

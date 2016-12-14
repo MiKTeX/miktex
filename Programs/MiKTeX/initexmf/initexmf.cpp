@@ -360,10 +360,10 @@ private:
   bool TryCreateFile(const MiKTeX::Core::PathName & fileName, MiKTeX::Core::FileType fileType) override;
 
 private:
-  bool ReadDirectory(const char * lpszPath, char * * ppSubDirNames, char * * ppFileNames, char * * ppFileNameInfos) override;
+  bool ReadDirectory(const PathName & path, vector<string> & subDirNames, vector<string> & fileNames, vector<string> & fileNameInfos) override;
 
 private:
-  bool OnProgress(unsigned level, const char * lpszDirectory) override;
+  bool OnProgress(unsigned level, const PathName & directory) override;
 
 private:
   bool OnFndbItem(const char * lpszPath, const char * lpszName, const char * lpszInfo, bool isDirectory) override;
@@ -1967,21 +1967,21 @@ bool IniTeXMFApp::TryCreateFile(const MiKTeX::Core::PathName & fileName, MiKTeX:
   return false;
 }
 
-bool IniTeXMFApp::ReadDirectory(const char * lpszPath, char * * ppSubDirNames, char * * ppFileNames, char * * ppFileNameInfos)
+bool IniTeXMFApp::ReadDirectory(const PathName & path, vector<string> & subDirNames, vector<string> & fileNames, vector<string> & fileNameInfos)
 {
-  UNUSED_ALWAYS(lpszPath);
-  UNUSED_ALWAYS(ppSubDirNames);
-  UNUSED_ALWAYS(ppFileNames);
-  UNUSED_ALWAYS(ppFileNameInfos);
+  UNUSED_ALWAYS(path);
+  UNUSED_ALWAYS(subDirNames);
+  UNUSED_ALWAYS(fileNames);
+  UNUSED_ALWAYS(fileNameInfos);
   return false;
 }
 
-bool IniTeXMFApp::OnProgress(unsigned level, const char * lpszDirectory)
+bool IniTeXMFApp::OnProgress(unsigned level, const PathName & directory)
 {
 #if 0
   if (verbose && level == 1)
   {
-    Verbose(T_("Scanning %s"), Q_(lpszDirectory));
+    Verbose(T_("Scanning %s"), Q_(directory));
   }
   else if (level == 1)
   {

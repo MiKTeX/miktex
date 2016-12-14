@@ -76,10 +76,10 @@ protected:
   afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 
 private:
-  virtual bool MIKTEXTHISCALL ReadDirectory(const char * lpszPath, char ** ppSubDirNames, char ** ppFileNames, char ** ppFileNameInfos);
+  virtual bool MIKTEXTHISCALL ReadDirectory(const MiKTeX::Core::PathName & path, std::vector<std::string> & subDirNames, std::vector<std::string> & fileNames, std::vector<std::string> & fileNameInfos);
 
 private:
-  virtual bool MIKTEXTHISCALL OnProgress(unsigned level, const char * lpszDirectory);
+  virtual bool MIKTEXTHISCALL OnProgress(unsigned level, const MiKTeX::Core::PathName & directory);
 
 private:
   bool isModified = false;
