@@ -36,6 +36,24 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 class CsvList
 {
 public:
+  CsvList() = delete;
+
+public:
+  CsvList(const CsvList & other) = delete;
+
+public:
+  CsvList & operator= (const CsvList & other) = delete;
+
+public:
+  CsvList(CsvList && other) = delete;
+
+public:
+  CsvList & operator= (CsvList && other) = delete;
+
+public:
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~CsvList();
+
+public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL CsvList(const std::string & s, char separator);
 
 public:
@@ -46,15 +64,6 @@ public:
 
 public:
   MIKTEXCORETHISAPI(CsvList &) operator++ ();
-
-public:
-  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~CsvList();
-
-public:
-  CsvList(const CsvList & rhs) = delete;
-
-public:
-  CsvList & operator= (const CsvList & rhs) = delete;
 
 private:
   class impl;
