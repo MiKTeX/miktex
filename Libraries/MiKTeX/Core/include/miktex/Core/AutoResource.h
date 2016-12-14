@@ -45,10 +45,19 @@ template<class HandleType> HandleType InvalidHandleValue()
 template<class HandleType, class Destroyer> class AutoResource
 {
 public:
-  AutoResource(HandleType handle = InvalidHandleValue<HandleType>()) :
-    handle(handle)
-  {
-  }
+  AutoResource() = default;
+
+public:
+  AutoResource(const AutoResource & other) = delete;
+
+public:
+  AutoResource & operator= (const AutoResource & other) = delete;
+
+public:
+  AutoResource(AutoResource && other) = delete;
+
+public:
+  AutoResource & operator= (AutoResource && other) = delete;
 
 public:
   virtual ~AutoResource()
@@ -60,6 +69,12 @@ public:
     catch (const std::exception &)
     {
     }
+  }
+
+public:
+  AutoResource(HandleType handle) :
+    handle(handle)
+  {
   }
 
 public:
@@ -105,17 +120,25 @@ public:
   }
 
 private:
-  HandleType handle;
+  HandleType handle = InvalidHandleValue<HandleType>();
 };
 
 template<class HandleType1, class HandleType2, class Destroyer> class AutoResource2
 {
 public:
-  AutoResource2(HandleType1 handle1 = InvalidHandleValue<HandleType1>(), HandleType2 handle2 = InvalidHandleValue<HandleType2>()) :
-    handle1(handle1),
-    handle2(handle2)
-  {
-  }
+  AutoResource2() = default;
+
+public:
+  AutoResource2(const AutoResource2 & other) = delete;
+
+public:
+  AutoResource2 & operator= (const AutoResource2 & other) = delete;
+
+public:
+  AutoResource2(AutoResource2 && other) = delete;
+
+public:
+  AutoResource2 & operator= (AutoResource2 && other) = delete;
 
 public:
   virtual ~AutoResource2()
@@ -127,6 +150,13 @@ public:
     catch (const std::exception &)
     {
     }
+  }
+
+public:
+  AutoResource2(HandleType1 handle1, HandleType2 handle2 = InvalidHandleValue<HandleType2>()) :
+    handle1(handle1),
+    handle2(handle2)
+  {
   }
 
 public:
@@ -170,10 +200,10 @@ public:
   }
 
 private:
-  HandleType1 handle1;
+  HandleType1 handle1 = InvalidHandleValue<HandleType1>();
 
 private:
-  HandleType2 handle2;
+  HandleType2 handle2 = InvalidHandleValue<HandleType2>();
 };
 
 struct fclose_
