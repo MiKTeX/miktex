@@ -41,26 +41,38 @@ MIKTEX_UTIL_BEGIN_NAMESPACE;
 /// Instances of this class store characters.
 template<typename CharType, int BUFSIZE = 512> class CharBuffer
 {
-private:
-  CharType smallBuffer[BUFSIZE];
-
-private:
-  CharType * buffer = smallBuffer;
-
-private:
-  std::size_t capacity = BUFSIZE;
-
 public:
-  CharBuffer()
-  {
-    Clear();
-  }
+  CharBuffer() = default;
 
-  /// Copies another CharBuffer object into a new CharBuffer object.
 public:
   CharBuffer(const CharBuffer & other)
   {
     Set(other);
+  }
+
+public:
+  CharBuffer(CharBuffer && other) = delete;
+
+public:
+  CharBuffer & operator= (const CharBuffer & other)
+  {
+    Set(other);
+    return *this;
+  }
+
+public:
+  CharBuffer & operator= (CharBuffer && other) = delete;
+
+public:
+  virtual ~CharBuffer()
+  {
+    try
+    {
+      Reset();
+    }
+    catch (const std::exception &)
+    {
+    }
   }
 
 public:
@@ -97,24 +109,12 @@ public:
   }
 
 public:
-  virtual ~CharBuffer()
+  void Set(const CharBuffer & other)
   {
-    try
+    if (this != &other)
     {
-      Reset();
-    }
-    catch (const std::exception &)
-    {
-    }
-  }
-
-public:
-  void Set(const CharBuffer & rhs)
-  {
-    if (this != &rhs)
-    {
-      Reserve(rhs.capacity);
-      memcpy(this->buffer, rhs.buffer, rhs.capacity * sizeof(CharType));
+      Reserve(other.capacity);
+      memcpy(this->buffer, other.buffer, other.capacity * sizeof(CharType));
     }
   }
 
@@ -143,16 +143,16 @@ public:
   }
 
 public:
-  template<typename OtherCharType> void Set(const std::basic_string<OtherCharType> & rhs)
+  template<typename OtherCharType> void Set(const std::basic_string<OtherCharType> & s)
   {
-    Set(rhs.c_str());
+    Set(s.c_str());
   }
 
 public:
-  void Append(const std::basic_string<CharType> & str)
+  void Append(const std::basic_string<CharType> & s)
   {
-     Reserve(GetLength() + str.length() + 1);
-     StringUtil::AppendString(buffer, GetCapacity(), str.c_str());
+     Reserve(GetLength() + s.length() + 1);
+     StringUtil::AppendString(buffer, GetCapacity(), s.c_str());
   }
 
 public:
@@ -279,30 +279,23 @@ public:
   }
 
 public:
-  CharBuffer & operator= (const CharBuffer & rhs)
+  template<typename OtherCharType> CharBuffer & operator= (const OtherCharType * lpsz)
   {
-    Set(rhs);
+    Set(lpsz);
     return *this;
   }
 
 public:
-  template<typename OtherCharType> CharBuffer & operator= (const OtherCharType * rhs)
+  template<typename OtherCharType> CharBuffer & operator= (const std::basic_string<OtherCharType> & s)
   {
-    Set(rhs);
+    Set(s);
     return *this;
   }
 
 public:
-  template<typename OtherCharType> CharBuffer & operator= (const std::basic_string<OtherCharType> & rhs)
+  CharBuffer & operator+= (const CharType * rlpszhs)
   {
-    Set(rhs);
-    return *this;
-  }
-
-public:
-  CharBuffer & operator+= (const CharType * rhs)
-  {
-    Append(rhs);
+    Append(lpsz);
     return *this;
   }
 
@@ -312,6 +305,15 @@ public:
     Append(ch);
     return *this;
   }
+
+private:
+  CharType smallBuffer[BUFSIZE] = { 0 };
+
+private:
+  CharType * buffer = smallBuffer;
+
+private:
+  std::size_t capacity = BUFSIZE;
 };
 
 MIKTEX_UTIL_END_NAMESPACE;
