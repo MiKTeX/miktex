@@ -37,9 +37,12 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 
 struct SourceLocation
 {
-  SourceLocation()
-  {
-  }
+  SourceLocation() = default;
+  SourceLocation(const SourceLocation & other) = default;
+  SourceLocation & operator= (const SourceLocation & other) = default;
+  SourceLocation(SourceLocation && other) = default;
+  SourceLocation & operator= (SourceLocation && other) = default;
+  ~SourceLocation() = default;
   MIKTEXCOREEXPORT MIKTEXTHISCALL SourceLocation(const std::string & functionName, const std::string & fileName, int lineNo);
   std::string functionName;
   std::string fileName;
@@ -57,9 +60,17 @@ public:
   class KVMAP : public std::unordered_map<std::string, std::string>
   {
   public:
-    KVMAP()
-    {
-    }
+    KVMAP() = default;
+  public:
+    KVMAP(const KVMAP & other) = default;
+  public:
+    KVMAP & operator= (const KVMAP & other) = default;
+  public:
+    KVMAP(KVMAP && other) = default;
+  public:
+    KVMAP & operator= (KVMAP && other) = default;
+  public:
+    ~KVMAP() = default;
   public:
     KVMAP(const std::string & key1, const std::string & value1)
     {
@@ -110,6 +121,21 @@ public:
   /// Initializes a new MiKTeX exception.
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL MiKTeXException();
+
+public:
+  MiKTeXException(const MiKTeXException & other) = default;
+
+public:
+  MiKTeXException & operator= (const MiKTeXException & other) = default;
+
+public:
+  MiKTeXException(MiKTeXException && other) = default;
+
+public:
+  MiKTeXException & operator= (MiKTeXException && other) = default;
+
+public:
+  virtual ~MiKTeXException() = default;
 
   /// Initializes a new MiKTeXException object.
   /// @param lpszProgramInvocationName Name of the program where the
@@ -206,6 +232,21 @@ class IOException : public MiKTeXException
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL IOException();
 
+public:
+  IOException(const IOException & other) = default;
+
+public:
+  IOException & operator= (const IOException & other) = default;
+
+public:
+  IOException(IOException && other) = default;
+
+public:
+  IOException & operator= (IOException && other) = default;
+
+public:
+  virtual ~IOException() = default;
+
   /// Initializes a new IOException object.
   /// @param lpszProgramInvocationName Name of the program where the
   /// exception was thrown.
@@ -223,6 +264,21 @@ class BrokenPipeException : public IOException
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL BrokenPipeException();
 
+public:
+  BrokenPipeException(const BrokenPipeException & other) = default;
+
+public:
+  BrokenPipeException & operator= (const BrokenPipeException & other) = default;
+
+public:
+  BrokenPipeException(BrokenPipeException && other) = default;
+
+public:
+  BrokenPipeException & operator= (BrokenPipeException && other) = default;
+
+public:
+  virtual ~BrokenPipeException() = default;
+
   /// Initializes a new BrokenPipeException object.
   /// @param lpszProgramInvocationName Name of the program where the
   /// exception was thrown.
@@ -239,6 +295,21 @@ class FileNotFoundException : public IOException
 {
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL FileNotFoundException();
+
+public:
+  FileNotFoundException(const FileNotFoundException & other) = default;
+
+public:
+  FileNotFoundException & operator= (const FileNotFoundException & other) = default;
+
+public:
+  FileNotFoundException(FileNotFoundException && other) = default;
+
+public:
+  FileNotFoundException & operator= (FileNotFoundException && other) = default;
+
+public:
+  virtual ~FileNotFoundException() = default;
 
   /// Initializes a new FileNotFoundException object.
   /// @param lpszProgramInvocationName Name of the program where the
@@ -258,6 +329,21 @@ class UnauthorizedAccessException : public MiKTeXException
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL UnauthorizedAccessException();
 
+public:
+  UnauthorizedAccessException(const UnauthorizedAccessException & other) = default;
+
+public:
+  UnauthorizedAccessException & operator= (const UnauthorizedAccessException & other) = default;
+
+public:
+  UnauthorizedAccessException(UnauthorizedAccessException && other) = default;
+
+public:
+  UnauthorizedAccessException & operator= (UnauthorizedAccessException && other) = default;
+
+public:
+  virtual ~UnauthorizedAccessException() = default;
+
   /// Initializes a new UnauthorizedAccessException object.
   /// @param lpszProgramInvocationName Name of the program where the
   /// exception was thrown.
@@ -274,6 +360,21 @@ class SharingViolationException : public IOException
 {
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL SharingViolationException();
+
+public:
+  SharingViolationException(const SharingViolationException & other) = default;
+
+public:
+  SharingViolationException & operator= (const SharingViolationException & other) = default;
+
+public:
+  SharingViolationException(SharingViolationException && other) = default;
+
+public:
+  SharingViolationException & operator= (SharingViolationException && other) = default;
+
+public:
+  virtual ~SharingViolationException() = default;
 
   /// Initializes a new SharingViolationException object.
   /// @param lpszProgramInvocationName Name of the program where the
