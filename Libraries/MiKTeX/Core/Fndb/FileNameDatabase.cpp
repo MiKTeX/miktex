@@ -692,7 +692,7 @@ bool FileNameDatabase::Enumerate(const char * lpszPath, IEnumerateFndbCallback *
   {
     for (FndbWord i = 0; i < pDirIter->numSubDirs; ++i)
     {
-      if (!pCallback->OnFndbItem(path.GetData(), GetString(pDirIter->GetSubDirName(i)), nullptr, true))
+      if (!pCallback->OnFndbItem(path, GetString(pDirIter->GetSubDirName(i)), "", true))
       {
 	return false;
       }
@@ -712,7 +712,7 @@ bool FileNameDatabase::Enumerate(const char * lpszPath, IEnumerateFndbCallback *
 	  lpszFileNameInfo = GetString(fo);
 	}
       }
-      if (!pCallback->OnFndbItem(path.GetData(), GetString(pDirIter->GetFileName(i)), lpszFileNameInfo, false))
+      if (!pCallback->OnFndbItem(path, GetString(pDirIter->GetFileName(i)), lpszFileNameInfo == nullptr ? "" : lpszFileNameInfo, false))
       {
 	return false;
       }
@@ -904,7 +904,7 @@ unique_ptr<DirectoryLister> FileNameDatabase::OpenDirectory(const char * lpszPat
   {
     for (FndbWord i = 0; i < pDirIter->numSubDirs; ++i)
     {
-      if (!pCallback->OnFndbItem(path.Get(), GetString(pDirIter->GetSubDirName(i)), 0, true))
+      if (!pCallback->OnFndbItem(path, GetString(pDirIter->GetSubDirName(i)), "", true))
       {
 	return false;
       }
@@ -926,7 +926,7 @@ unique_ptr<DirectoryLister> FileNameDatabase::OpenDirectory(const char * lpszPat
 	  lpszFileNameInfo = GetString(fo);
 	}
       }
-      if (!pCallback->OnFndbItem(path.Get(), GetString(pDirIter->GetFileName(i)), lpszFileNameInfo, false))
+      if (!pCallback->OnFndbItem(path, GetString(pDirIter->GetFileName(i)), lpszFileNameInfo == nullptr ? "" : lpszFileNameInfo, false))
       {
 	return false;
       }

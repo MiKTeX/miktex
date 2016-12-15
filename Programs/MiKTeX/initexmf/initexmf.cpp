@@ -366,7 +366,7 @@ private:
   bool OnProgress(unsigned level, const PathName & directory) override;
 
 private:
-  bool OnFndbItem(const char * lpszPath, const char * lpszName, const char * lpszInfo, bool isDirectory) override;
+  bool OnFndbItem(const PathName & path, const string & name, const string & info, bool isDirectory) override;
 
 public:
   void ReportLine(const string & str) override;
@@ -3287,16 +3287,15 @@ void IniTeXMFApp::WriteReport()
   }
 }
 
-bool IniTeXMFApp::OnFndbItem(const char * lpszPath, const char * lpszName, const char * lpszInfo, bool isDirectory)
+bool IniTeXMFApp::OnFndbItem(const PathName & path, const string & name, const string & info, bool isDirectory)
 {
   if (recursive)
   {
-    PathName path(lpszPath, lpszName);
-    const char * lpszRel =
-      Utils::GetRelativizedPath(path.GetData(), enumDir.GetData());
+    PathName path(path, name);
+    const char * lpszRel = Utils::GetRelativizedPath(path.GetData(), enumDir.GetData());
     if (!isDirectory)
     {
-      if (lpszInfo == nullptr)
+      if (info.empty())
       {
         cout << lpszRel << endl;
       }
@@ -3304,11 +3303,11 @@ bool IniTeXMFApp::OnFndbItem(const char * lpszPath, const char * lpszName, const
       {
         if (csv)
         {
-          cout << lpszRel << ";" << lpszInfo << endl;
+          cout << lpszRel << ";" << info << endl;
         }
         else
         {
-          cout << lpszRel << " (\"" << lpszInfo << "\")" << endl;
+          cout << lpszRel << " (\"" << info << "\")" << endl;
         }
       }
     }
@@ -3319,13 +3318,13 @@ bool IniTeXMFApp::OnFndbItem(const char * lpszPath, const char * lpszName, const
   }
   else
   {
-    if (lpszInfo == nullptr)
+    if (info.empty())
     {
-      cout << (isDirectory ? "D" : " ") << " " << lpszName << endl;
+      cout << (isDirectory ? "D" : " ") << " " << name << endl;
     }
     else
     {
-      cout << (isDirectory ? "D" : " ") << " " << lpszName << " (\"" << lpszInfo << "\")" << endl;
+      cout << (isDirectory ? "D" : " ") << " " << name << " (\"" << info << "\")" << endl;
     }
   }
   return true;

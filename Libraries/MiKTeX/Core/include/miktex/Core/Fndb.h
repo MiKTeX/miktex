@@ -47,7 +47,7 @@ public:
 class MIKTEXNOVTABLE IEnumerateFndbCallback
 {
 public:
-  virtual bool MIKTEXTHISCALL OnFndbItem(const char * lpszPath, const char * lpszName, const char * lpszInfo, bool isDirectory) = 0;
+  virtual bool MIKTEXTHISCALL OnFndbItem(const PathName & path, const std::string & name, const std::string & info, bool isDirectory) = 0;
 };
 
 class MIKTEXNOVTABLE Fndb
