@@ -38,9 +38,22 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 class StreamReader
 {
 public:
-  StreamReader()
-  {
-  }
+  StreamReader() = default;
+
+public:
+  StreamReader(const StreamReader & other) = delete;
+
+public:
+  StreamReader & operator=(const StreamReader & other) = delete;
+
+public:
+  StreamReader(StreamReader && other) = delete;
+
+public:
+  StreamReader & operator=(StreamReader && other) = delete;
+
+public:
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~StreamReader();
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL StreamReader(const PathName & path);
@@ -56,9 +69,6 @@ public:
   {
     stream.Attach(pFile);
   }
-
-public:
-  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~StreamReader();
 
 public:
   MIKTEXCORETHISAPI(bool) ReadLine(std::string & line);
