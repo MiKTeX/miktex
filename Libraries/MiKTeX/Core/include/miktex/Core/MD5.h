@@ -71,7 +71,7 @@ public:
 };
 
 /// Instances of this struct can be used to calculate MD5 values.
-struct MD5Builder
+class MD5Builder
 {
   /// Initializes a new MD5Builder object.
 public:
@@ -79,6 +79,21 @@ public:
   {
     Init();
   }
+
+public:
+  MD5Builder(const MD5Builder & other) = delete;
+
+public:
+  MD5Builder & operator= (const MD5Builder & other) = delete;
+
+public:
+  MD5Builder(MD5Builder && other) = delete;
+
+public:
+  MD5Builder & operator= (MD5Builder && other) = delete;
+
+public:
+  ~MD5Builder() = default;
 
   /// Resets the state of this MD5Builder object.
 public:
