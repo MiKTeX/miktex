@@ -441,11 +441,23 @@ public:
 public:
   class InitInfo
   {
-    /// Initializes a new init info struct.
   public:
-    InitInfo()
-    {
-    }
+    InitInfo() = default;
+
+  public:
+    InitInfo(const InitInfo & other) = default;
+
+  public:
+    InitInfo & operator=(const InitInfo & other) = default;
+
+  public:
+    InitInfo(InitInfo && other) = default;
+
+  public:
+    InitInfo & operator=(InitInfo && other) = default;
+
+  public:
+    ~InitInfo() = default;
 
     /// Initializes a new init info struct.
     /// @param lpszProgramInvocationName Name of the invoked program.
