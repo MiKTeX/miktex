@@ -38,9 +38,22 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 template<typename EnumClass_, int Size_ = 32> class OptionSet
 {
 public:
-  OptionSet()
-  {
-  }
+  OptionSet() = default;
+
+public:
+  OptionSet(const OptionSet & other) = default;
+
+public:
+  OptionSet & operator=(const OptionSet & other) = default;
+
+public:
+  OptionSet(OptionSet && other) = default;
+
+public:
+  OptionSet & operator=(OptionSet && other) = default;
+
+public:
+  ~OptionSet() = default;
 
 public:
   OptionSet(const std::initializer_list<EnumClass_> & options)
@@ -52,23 +65,23 @@ public:
   }
 
 public:
-  OptionSet & operator += (EnumClass_ rhs)
+  OptionSet & operator+=(EnumClass_ opt)
   {
-    bits[(std::size_t)rhs] = true;
+    bits[(std::size_t)opt] = true;
     return *this;
   }
 
 public:
-  OptionSet & operator += (const OptionSet<EnumClass_> & rhs)
+  OptionSet & operator+=(const OptionSet<EnumClass_> & other)
   {
-    this->bits |= rhs.bits;
+    this->bits |= other.bits;
     return *this;
   }
 
 public:
-  OptionSet & operator -= (EnumClass_ rhs)
+  OptionSet & operator-=(EnumClass_ opt)
   {
-    bits[(std::size_t)rhs] = false;
+    bits[(std::size_t)opt] = false;
     return *this;
   }
 
@@ -79,15 +92,15 @@ public:
   }
 
 public:
-  bool operator==(const OptionSet<EnumClass_> & rhs) const
+  bool operator==(const OptionSet<EnumClass_> & other) const
   {
-    return bits == rhs.bits;
+    return bits == other.bits;
   }
 
 public:
-  bool operator!=(const OptionSet<EnumClass_> & rhs) const
+  bool operator!=(const OptionSet<EnumClass_> & other) const
   {
-    return bits != rhs.bits;
+    return bits != other.bits;
   }
 
 public:
