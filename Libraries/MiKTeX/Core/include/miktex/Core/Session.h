@@ -243,32 +243,9 @@ struct LanguageInfo
 
 class ConfigValue
 {
-private:
-  enum class Tag
-  {
-    None,
-    String,
-    Int,
-    Bool,
-    Tri,
-    Char
-  };
-private:
-  Tag tag;
-private:
-  union
-  {
-    std::string s;
-    int i;
-    bool b;
-    TriState t;
-    char c;
-  };
 public:
-  ConfigValue() :
-    tag(Tag::None)
-  {
-  }
+  ConfigValue() = delete;
+
 public:
   ConfigValue(const ConfigValue & other)
   {
@@ -292,42 +269,16 @@ public:
     }
     this->tag = other.tag;
   }
+
 public:
-  ConfigValue(const std::string & s)
-  {
-    new(&this->s) std::string(s);
-    tag = Tag::String;
-  }
+  ConfigValue & operator= (const ConfigValue & other) = delete;
+
 public:
-  ConfigValue(const char * s)
-  {
-    new(&this->s) std::string(s == nullptr ? "" : s);
-    tag = Tag::String;
-  }
+  ConfigValue(ConfigValue && other) = delete;
+
 public:
-  ConfigValue(int i)
-  {
-    this->i = i;
-    tag = Tag::Int;
-  }
-public:
-  ConfigValue(bool b)
-  {
-    this->b = b;
-    tag = Tag::Bool;
-  }
-public:
-  ConfigValue(TriState t)
-  {
-    this->t = t;
-    tag = Tag::Tri;
-  }
-public:
-  ConfigValue(char c)
-  {
-    this->c = c;
-    tag = Tag::Char;
-  }
+  ConfigValue & operator= (ConfigValue && other) = delete;
+
 public:
   virtual ~ConfigValue()
   {
@@ -337,16 +288,87 @@ public:
     }
     tag = Tag::None;
   }
+
+public:
+  ConfigValue(const std::string & s)
+  {
+    new(&this->s) std::string(s);
+    tag = Tag::String;
+  }
+
+public:
+  ConfigValue(const char * lpsz)
+  {
+    new(&this->s) std::string(lpsz == nullptr ? "" : lpsz);
+    tag = Tag::String;
+  }
+
+public:
+  ConfigValue(int i)
+  {
+    this->i = i;
+    tag = Tag::Int;
+  }
+
+public:
+  ConfigValue(bool b)
+  {
+    this->b = b;
+    tag = Tag::Bool;
+  }
+
+public:
+  ConfigValue(TriState t)
+  {
+    this->t = t;
+    tag = Tag::Tri;
+  }
+
+public:
+  ConfigValue(char c)
+  {
+    this->c = c;
+    tag = Tag::Char;
+  }
+
 public:
   MIKTEXCORETHISAPI(std::string) GetString() const;
+
 public:
   MIKTEXCORETHISAPI(int) GetInt() const;
+
 public:
   MIKTEXCORETHISAPI(bool) GetBool() const;
+
 public:
   MIKTEXCORETHISAPI(TriState) GetTriState() const;
+
 public:
   MIKTEXCORETHISAPI(char) GetChar() const;
+
+private:
+  enum class Tag
+  {
+    None,
+    String,
+    Int,
+    Bool,
+    Tri,
+    Char
+  };
+
+private:
+  Tag tag = Tag::None;
+
+private:
+  union
+  {
+    std::string s;
+    int i;
+    bool b;
+    TriState t;
+    char c;
+  };
 };
 
 enum class ExpandOption
