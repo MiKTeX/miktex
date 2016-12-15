@@ -113,14 +113,12 @@ public:
 public:
   CharBuffer(const char * lpsz)
   {
-    // TODO: MIKTEX_ASSERT_STRING_OR_NIL(lpsz);
     Set(lpsz);
   }
 
 public:
   CharBuffer(const wchar_t * lpsz)
   {
-    // TODO: MIKTEX_ASSERT_STRING_OR_NIL(lpsz);
     Set(lpsz);
   }
 
@@ -199,13 +197,13 @@ public:
   }
 
 public:
-  void Append(const CharType * lpsz, std::size_t len)
+  void Append(const CharType * s, std::size_t len)
   {
     std::size_t idx = GetLength();
     Reserve(idx + len + 1);
-    for (; len > 0; --len, ++idx, ++lpsz)
+    for (; len > 0; --len, ++idx, ++s)
     {
-      buffer[idx] = *lpsz;
+      buffer[idx] = *s;
     }
     buffer[idx] = 0;
   }
@@ -289,7 +287,6 @@ public:
     {
       ;
     }
-    // TODO: MIKTEX_ASSERT(idx < capacity);
     return idx;
   }
 
@@ -300,42 +297,42 @@ public:
   }
 
 public:
-  const CharType & operator[] (std::size_t idx) const
+  const CharType & operator[](std::size_t idx) const
   {
     // TODO: MIKTEX_ASSERT(idx < GetCapacity());
     return buffer[idx];
   }
 
 public:
-  CharType & operator[] (std::size_t idx)
+  CharType & operator[](std::size_t idx)
   {
     // TODO: MIKTEX_ASSERT(idx < GetCapacity());
     return buffer[idx];
   }
 
 public:
-  template<typename OtherCharType> CharBuffer & operator= (const OtherCharType * lpsz)
+  template<typename OtherCharType> CharBuffer & operator=(const OtherCharType * lpsz)
   {
     Set(lpsz);
     return *this;
   }
 
 public:
-  template<typename OtherCharType> CharBuffer & operator= (const std::basic_string<OtherCharType> & s)
+  template<typename OtherCharType> CharBuffer & operator=(const std::basic_string<OtherCharType> & s)
   {
     Set(s);
     return *this;
   }
 
 public:
-  CharBuffer & operator+= (const CharType * rlpszhs)
+  CharBuffer & operator+=(const CharType * lpsz)
   {
     Append(lpsz);
     return *this;
   }
 
 public:
-  CharBuffer & operator+= (CharType ch)
+  CharBuffer & operator+=(CharType ch)
   {
     Append(ch);
     return *this;
