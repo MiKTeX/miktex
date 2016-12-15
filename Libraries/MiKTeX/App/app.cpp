@@ -68,10 +68,28 @@ Application * Application::GetApplication()
   return instance;
 }
 
+class Application::impl
+{
+public:
+  set<string> ignoredPackages;
+public:
+  TriState autoAdmin = TriState::Undetermined;
+public:
+  shared_ptr<PackageManager> packageManager;
+public:
+  shared_ptr<PackageInstaller> installer;
+public:
+  bool initialized = false;
+public:
+  vector<TraceCallback::TraceMessage> pendingTraceMessages;
+public:
+  TriState enableInstaller = TriState::Undetermined;
+public:
+  bool beQuiet;
+};
+
 Application::Application() :
-  enableInstaller(TriState::Undetermined),
-  autoAdmin(TriState::Undetermined),
-  initialized(false)
+  pimpl(make_unique<impl>())
 {
 }
 
@@ -79,7 +97,7 @@ Application::~Application()
 {
   try
   {
-    if (initialized)
+    if (pimpl->initialized)
     {
       Finalize();
     }
@@ -110,7 +128,7 @@ void InstallSignalHandler(int sig)
 void Application::Init(const Session::InitInfo & initInfo_)
 {
   instance = this;
-  initialized = true;
+  pimpl->initialized = true;
   Session::InitInfo initInfo(initInfo_);
   initInfo.SetTraceCallback(this);
   session = Session::Create(initInfo);
@@ -130,12 +148,12 @@ void Application::Init(const Session::InitInfo & initInfo_)
     log4cxx::BasicConfigurator::configure();
   }
   logger = log4cxx::Logger::getLogger(myName);
-  beQuiet = false;
-  if (enableInstaller == TriState::Undetermined)
+  pimpl->beQuiet = false;
+  if (pimpl->enableInstaller == TriState::Undetermined)
   {
-    enableInstaller = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, TriState::Undetermined).GetTriState();
+    pimpl->enableInstaller = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, TriState::Undetermined).GetTriState();
   }
-  autoAdmin = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_ADMIN, TriState::Undetermined).GetTriState();
+  pimpl->autoAdmin = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_ADMIN, TriState::Undetermined).GetTriState();
   InstallSignalHandler(SIGINT);
   InstallSignalHandler(SIGTERM);
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
@@ -148,7 +166,7 @@ void Application::Init(const Session::InitInfo & initInfo_)
   if ((mustRefreshFndb || mustRefreshUserLanguageDat) && session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
   {
     CommandLineBuilder commandLine;
-    switch (enableInstaller)
+    switch (pimpl->enableInstaller)
     {
     case TriState::False:
       commandLine.AppendOption("--disable-installer");
@@ -196,11 +214,11 @@ void Application::Init(vector<char *> & args)
     }
     else if (strcmp(*it, "--miktex-disable-installer") == 0)
     {
-      enableInstaller = TriState::False;
+      pimpl->enableInstaller = TriState::False;
     }
     else if (strcmp(*it, "--miktex-enable-installer") == 0)
     {
-      enableInstaller = TriState::True;
+      pimpl->enableInstaller = TriState::True;
     }
     else
     {
@@ -238,24 +256,24 @@ void Application::Init(const string & programInvocationName)
 
 void Application::Finalize()
 {
-  if (installer != nullptr)
+  if (pimpl->installer != nullptr)
   {
-    installer->Dispose();
-    installer = nullptr;
+    pimpl->installer->Dispose();
+    pimpl->installer = nullptr;
   }
-  if (packageManager != nullptr)
+  if (pimpl->packageManager != nullptr)
   {
-    packageManager = nullptr;
+    pimpl->packageManager = nullptr;
   }
   session = nullptr;
-  ignoredPackages.clear();
+  pimpl->ignoredPackages.clear();
   if (initUiFrameworkDone)
   {
     MiKTeX::UI::FinalizeFramework();
     initUiFrameworkDone = false;
   }
   logger = nullptr;
-  initialized = false;
+  pimpl->initialized = false;
 }
 
 void Application::ReportLine(const string & str)
@@ -309,19 +327,19 @@ const char * const SEP = "======================================================
 
 bool Application::InstallPackage(const string & deploymentName, const PathName & trigger, PathName & installRoot)
 {
-  if (ignoredPackages.find(deploymentName) != ignoredPackages.end())
+  if (pimpl->ignoredPackages.find(deploymentName) != pimpl->ignoredPackages.end())
   {
     return false;
   }
-  if (enableInstaller == TriState::False)
+  if (pimpl->enableInstaller == TriState::False)
   {
     return false;
   }
-  if (packageManager == nullptr)
+  if (pimpl->packageManager == nullptr)
   {
-    packageManager = PackageManager::Create();
+    pimpl->packageManager = PackageManager::Create();
   }
-  if (enableInstaller == TriState::Undetermined)
+  if (pimpl->enableInstaller == TriState::Undetermined)
   {
     if (!initUiFrameworkDone)
     {
@@ -329,18 +347,18 @@ bool Application::InstallPackage(const string & deploymentName, const PathName &
       initUiFrameworkDone = true;
     }
     bool doInstall = false;
-    unsigned int msgBoxRet = MiKTeX::UI::InstallPackageMessageBox(packageManager, deploymentName.c_str(), trigger.GetData());
+    unsigned int msgBoxRet = MiKTeX::UI::InstallPackageMessageBox(pimpl->packageManager, deploymentName.c_str(), trigger.GetData());
     doInstall = ((msgBoxRet & MiKTeX::UI::YES) != 0);
     if ((msgBoxRet & MiKTeX::UI::DONTASKAGAIN) != 0)
     {
-      enableInstaller = (doInstall ? TriState::True : TriState::False);
+      pimpl->enableInstaller = (doInstall ? TriState::True : TriState::False);
     }
     if (!doInstall)
     {
-      ignoredPackages.insert(deploymentName);
+      pimpl->ignoredPackages.insert(deploymentName);
       return false;
     }
-    autoAdmin = (((msgBoxRet & MiKTeX::UI::ADMIN) != 0) ? TriState::True : TriState::False);
+    pimpl->autoAdmin = (((msgBoxRet & MiKTeX::UI::ADMIN) != 0) ? TriState::True : TriState::False);
   }
   string url;
   RepositoryType repositoryType(RepositoryType::Unknown);
@@ -362,35 +380,35 @@ bool Application::InstallPackage(const string & deploymentName, const PathName &
       return false;
     }
   }
-  if (installer == nullptr)
+  if (pimpl->installer == nullptr)
   {
-    installer = packageManager->CreateInstaller();
+    pimpl->installer = pimpl->packageManager->CreateInstaller();
   }
-  installer->SetCallback(this);
+  pimpl->installer->SetCallback(this);
   vector<string> fileList;
   fileList.push_back(deploymentName);
-  installer->SetFileLists(fileList, vector<string>());
+  pimpl->installer->SetFileLists(fileList, vector<string>());
   LOG4CXX_INFO(logger, "installing package " << deploymentName << " triggered by " << trigger.ToString())
   if (!GetQuietFlag())
   {
     cout << endl << SEP << endl;
   }
   bool done = false;
-  bool switchToAdminMode = (autoAdmin == TriState::True && !session->IsAdminMode());
+  bool switchToAdminMode = (pimpl->autoAdmin == TriState::True && !session->IsAdminMode());
   if (switchToAdminMode)
   {
     session->SetAdminMode(true);
   }
   try
   {
-    installer->InstallRemove();
+    pimpl->installer->InstallRemove();
     installRoot = session->GetSpecialPath(SpecialPath::InstallRoot);
     done = true;
   }
   catch (const MiKTeXException & ex)
   {
-    enableInstaller = TriState::False;
-    ignoredPackages.insert(deploymentName);
+    pimpl->enableInstaller = TriState::False;
+    pimpl->ignoredPackages.insert(deploymentName);
     LOG4CXX_FATAL(logger, ex.what());
     LOG4CXX_FATAL(logger, "Info: " << ex.GetInfo());
     LOG4CXX_FATAL(logger, "Source: " << ex.GetSourceFile());
@@ -416,7 +434,7 @@ bool Application::InstallPackage(const string & deploymentName, const PathName &
 bool Application::TryCreateFile(const PathName & fileName, FileType fileType)
 {
   CommandLineBuilder commandLine;
-  switch (enableInstaller)
+  switch (pimpl->enableInstaller)
   {
   case TriState::False:
     commandLine.AppendOption("--disable-installer");
@@ -477,18 +495,23 @@ bool Application::TryCreateFile(const PathName & fileName, FileType fileType)
 
 void Application::EnableInstaller(TriState tri)
 {
-  enableInstaller = tri;
+  pimpl->enableInstaller = tri;
+}
+
+TriState Application::GetEnableInstaller() const
+{
+  return pimpl->enableInstaller;
 }
 
 void Application::Trace(const TraceCallback::TraceMessage & traceMessage)
 {
   if (!isLog4cxxConfigured)
   {
-    if (pendingTraceMessages.size() > 100)
+    if (pimpl->pendingTraceMessages.size() > 100)
     {
-      pendingTraceMessages.clear();
+      pimpl->pendingTraceMessages.clear();
     }
-    pendingTraceMessages.push_back(traceMessage);
+    pimpl->pendingTraceMessages.push_back(traceMessage);
     return;
   }
   FlushPendingTraceMessages();
@@ -497,11 +520,11 @@ void Application::Trace(const TraceCallback::TraceMessage & traceMessage)
 
 void Application::FlushPendingTraceMessages()
 {
-  for (const TraceCallback::TraceMessage & m : pendingTraceMessages)
+  for (const TraceCallback::TraceMessage & m : pimpl->pendingTraceMessages)
   {
     TraceInternal(m);
   }
-  pendingTraceMessages.clear();
+  pimpl->pendingTraceMessages.clear();
 }
 
 void Application::TraceInternal(const TraceCallback::TraceMessage & traceMessage)
@@ -704,4 +727,14 @@ void Application::InvokeEditor(const PathName & editFileName, int editLineNumber
   }
 
   Process::Start(fileName, arguments);
+}
+
+bool Application::GetQuietFlag() const
+{
+  return pimpl->beQuiet;
+}
+
+void Application::SetQuietFlag(bool b)
+{
+  pimpl->beQuiet = b;
 }

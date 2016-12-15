@@ -35,6 +35,7 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <set>
 
 #include <miktex/Core/Cfg>
 #include <miktex/Core/CommandLineBuilder>

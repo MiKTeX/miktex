@@ -31,7 +31,6 @@
 #include <miktex/Trace/TraceCallback>
 
 #include <memory>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -73,7 +72,19 @@ public:
   MIKTEXAPPEXPORT MIKTEXTHISCALL Application();
 
 public:
-  virtual MIKTEXAPPEXPORT MIKTEXTHISCALL ~Application();
+  virtual MIKTEXAPPEXPORT MIKTEXTHISCALL ~Application() noexcept;
+
+public:
+  Application(const Application & other) = delete;
+
+public:
+  Application & operator=(const Application & other) = delete;
+
+public:
+  Application(Application && other) = delete;
+
+public:
+  Application & operator=(Application && other) = delete;
 
 public:
   virtual MIKTEXAPPTHISAPI(void) Init(const MiKTeX::Core::Session::InitInfo & initInfo);
@@ -159,16 +170,10 @@ public:
   }
 
 public:
-  bool GetQuietFlag() const
-  {
-    return beQuiet;
-  }
+  MIKTEXAPPTHISAPI(bool) GetQuietFlag() const;
 
 public:
-  void SetQuietFlag(bool b)
-  {
-    beQuiet = b;
-  }
+  MIKTEXAPPTHISAPI(void) SetQuietFlag(bool b);
 
 public:
   std::shared_ptr<MiKTeX::Core::Session> GetSession() const
@@ -177,10 +182,7 @@ public:
   }
 
 public:
-  MiKTeX::Core::TriState GetEnableInstaller() const
-  {
-    return enableInstaller;
-  }
+  MIKTEXAPPTHISAPI(MiKTeX::Core::TriState) GetEnableInstaller() const;
 
 public:
   static MIKTEXAPPCEEAPI(Application*) GetApplication();
@@ -191,29 +193,8 @@ protected:
 public:
   static MIKTEXAPPCEEAPI(void) CheckCancel();
 
-private:
-  bool beQuiet;
-
-private:
-  MiKTeX::Core::TriState enableInstaller = MiKTeX::Core::TriState::Undetermined;
-
-private:
-  MiKTeX::Core::TriState autoAdmin = MiKTeX::Core::TriState::Undetermined;
-
-private:
-  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
-
-private:
-  std::shared_ptr<MiKTeX::Packages::PackageInstaller> installer;
-
-private:
-  std::set<std::string> ignoredPackages;
-
 protected:
   std::shared_ptr<MiKTeX::Core::Session> session;
-
-private:
-  bool initialized = false;
 
 protected:
   bool isLog4cxxConfigured = false;
@@ -225,13 +206,14 @@ public:
   }
 
 private:
-  std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
-
-private:
   void FlushPendingTraceMessages();
 
 private:
   void TraceInternal(const MiKTeX::Trace::TraceCallback::TraceMessage & traceMessage);
+
+private:
+  class impl;
+  std::unique_ptr<impl> pimpl;
 };
 
 MIKTEX_APP_END_NAMESPACE;
