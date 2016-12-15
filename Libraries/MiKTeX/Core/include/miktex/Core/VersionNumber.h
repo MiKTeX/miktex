@@ -36,15 +36,30 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 /// An instance of this struct represents a version number.
 struct VersionNumber
 {
-  VersionNumber()
-  {
-  }
+public:
+  VersionNumber() = default;
+
+public:
+  VersionNumber(const VersionNumber & other) = default;
+
+public:
+  VersionNumber & operator=(const VersionNumber & other) = default;
+
+public:
+  VersionNumber(VersionNumber && other) = default;
+
+public:
+  VersionNumber & operator=(VersionNumber && other) = default;
+
+public:
+  ~VersionNumber() = default;
 
   /// Initializes an instance of the struct.
   /// @param n1 The first part of the version number.
   /// @param n2 The second part of the version number.
   /// @param n3 The third part of the version number.
   /// @param n4 The fourth part of the version number.
+public:
   VersionNumber(unsigned n1, unsigned n2, unsigned n3, unsigned n4) :
     n1(n1),
     n2(n2),
@@ -53,6 +68,7 @@ struct VersionNumber
   {
   }
 
+public:
   VersionNumber(long highWord, long lowWord) :
     n1((static_cast<unsigned long>(highWord) >> 16) & 0xffff),
     n2(static_cast<unsigned long>(highWord) & 0xffff),
@@ -63,6 +79,7 @@ struct VersionNumber
 
   /// Initializes an instance of the struct.
   /// @param versionString The version number as a string.
+public:
   VersionNumber(const std::string & versionString)
   {
     *this = Parse(versionString);
@@ -70,25 +87,31 @@ struct VersionNumber
 
   /// Initializes an instance of the struct.
   /// @param versionString The version number as a string.
+public:
   VersionNumber(const char * versionString)
   {
     *this = Parse(versionString);
   }
 
   /// The first part of the version number. Usually the major version.
+public:
   unsigned n1 = 0;
 
   /// The second part of the version number. Usually the minor version.
+public:
   unsigned n2 = 0;
 
   /// The third part of the version number. Usually the j2000 number.
+public:
   unsigned n3 = 0;
 
   /// The fourth part of the version nimber. Usually 0.
+public:
   unsigned n4 = 0;
 
   /// Combines the first two parts of the version number.
   /// @return Returns a 32-bit integer.
+public:
   long GetHighWord() const
   {
     unsigned long w = (n2 & 0xffff);
@@ -98,6 +121,7 @@ struct VersionNumber
 
   /// Combines the last two parts of the version number.
   /// @return Returns a 32-bit integer.
+public:
   long GetLowWord() const
   {
     unsigned long w = (n4 & 0xffff);
@@ -110,6 +134,7 @@ struct VersionNumber
   /// @return Returns -1, if this version number is less than the other.
   /// Returns 0, if both version numbers compare equal.
   /// Otherwise returns 1.
+public:
   int CompareTo(const VersionNumber & other) const
   {
     long cmp1 = GetHighWord() - other.GetHighWord();
@@ -130,17 +155,20 @@ struct VersionNumber
 
   /// Converts this version number into a string object.
   /// @return Returns the string object.
+public:
   MIKTEXCORETHISAPI(std::string) ToString() const;
 
   /// Parses the string representation of a version number.
   /// @param versionString The string to parse.
   /// @param[out] The version number object to fill.
   /// @returns Returns true if the string could be parsed.
+public:
   static MIKTEXCORECEEAPI(bool) TryParse(const std::string & versionString, VersionNumber & versionNumber);
 
   /// Parses the string representation of a version number.
   /// @param versionString The string to parse.
   /// @returns Returns the parsed version number.
+public:
   static MIKTEXCORECEEAPI(VersionNumber) Parse(const std::string & versionString);
 };
 
