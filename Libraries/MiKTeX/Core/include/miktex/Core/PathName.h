@@ -75,6 +75,24 @@ protected:
   typedef CharBuffer<char, BufferSizes::MaxPath> Base;
 
 public:
+  PathName() = default;
+
+public:
+  PathName(const PathName & other) = default;
+
+public:
+  PathName & operator=(const PathName & other) = default;
+
+public:
+  PathName(PathName && other) = default;
+
+public:
+  PathName & operator=(PathName && other) = default;
+
+public:
+  ~PathName() = default;
+
+public:
   static const char DosDirectoryDelimiter = '\\';
 
 public:
@@ -135,49 +153,36 @@ public:
 #endif
   }
 
-  /// Initializes a new PathName object.
-public:
-  PathName()
-  {
-  }
-
-  /// Copies another PathName object into a new PathName object.
-  /// @param rhs The other PathName object.
-public:
-  PathName(const PathName & rhs) :
-    CharBuffer<char, BufferSizes::MaxPath>(rhs)
-  {
-  }
 
   /// Copies a character string into a new PathName object.
   /// @param rhs Null-terminated character string.
 public:
-  PathName(const char * rhs) :
-    CharBuffer<char, BufferSizes::MaxPath>(rhs)
+  PathName(const char * path) :
+    Base(path)
   {
   }
 
   /// Copies a wide character string into a new PathName object.
   /// @param rhs Null-terminated character string.
 public:
-  PathName(const wchar_t * rhs) :
-    CharBuffer<char, BufferSizes::MaxPath>(rhs)
+  PathName(const wchar_t * path) :
+    Base(path)
   {
   }
 
   /// Copies a string object into a new PathName object.
   /// @param rhs String object.
 public:
-  PathName(const std::string & rhs) :
-    CharBuffer<char, BufferSizes::MaxPath>(rhs)
+  PathName(const std::string & path) :
+    Base(path)
   {
   }
 
   /// Copies a string object into a new PathName object.
   /// @param rhs String object.
 public:
-  PathName(const std::wstring & rhs) :
-    CharBuffer<char, BufferSizes::MaxPath>(rhs)
+  PathName(const std::wstring & path) :
+    Base(path)
   {
   }
 
@@ -207,16 +212,16 @@ public:
   }
 
 public:
-  PathName & operator= (const char * rhs)
+  PathName & operator= (const char * path)
   {
-    Base::operator= (rhs);
+    Base::operator= (path);
     return *this;
   }
 
 public:
-  PathName & operator= (const std::string & rhs)
+  PathName & operator= (const std::string & path)
   {
-    Base::operator= (rhs);
+    Base::operator= (path);
     return *this;
   }
 

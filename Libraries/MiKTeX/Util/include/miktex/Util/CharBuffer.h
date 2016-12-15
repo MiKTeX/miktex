@@ -51,7 +51,22 @@ public:
   }
 
 public:
-  CharBuffer(CharBuffer && other) = delete;
+  CharBuffer(CharBuffer && other)
+  {
+    if (other.buffer == other.smallBuffer)
+    {
+      memcpy(this->smallBuffer, other.smallBuffer, BUFSIZE);
+      this->buffer = this->smallBuffer;
+    }
+    else
+    {
+      this->buffer = other.buffer;
+    }
+    this->capacity = other.capacity;
+    other.buffer = other.smallBuffer;
+    other.capacity = BUFSIZE;
+    other.Clear();
+  }
 
 public:
   CharBuffer & operator= (const CharBuffer & other)
@@ -61,7 +76,27 @@ public:
   }
 
 public:
-  CharBuffer & operator= (CharBuffer && other) = delete;
+  CharBuffer & operator=(CharBuffer && other)
+  {
+    if (this != &other)
+    {
+      Reset();
+      if (other.buffer == other.smallBuffer)
+      {
+        memcpy(this->smallBuffer, other.smallBuffer, BUFSIZE);
+        this->buffer = this->smallBuffer;
+      }
+      else
+      {
+        this->buffer = other.buffer;
+      }
+      this->capacity = other.capacity;
+      other.buffer = other.smallBuffer;
+      other.capacity = BUFSIZE;
+      other.Clear();
+    }
+    return *this;
+  }
 
 public:
   virtual ~CharBuffer()

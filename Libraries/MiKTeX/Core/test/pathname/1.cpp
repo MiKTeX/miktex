@@ -191,6 +191,21 @@ BEGIN_TEST_FUNCTION(10);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(11);
+{
+  PathName path("/abc/def/ghi.jkl");
+  for (int i = 0; i < 100; ++i)
+  {
+    path /= "abrakadabra";
+  }
+  PathName path2 = std::move(path);
+  TEST(path.Empty());
+  PathName path3;
+  path3 = std::move(path2);
+  TEST(path2.Empty());
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
@@ -203,6 +218,7 @@ BEGIN_TEST_PROGRAM();
   CALL_TEST_FUNCTION(8);
   CALL_TEST_FUNCTION(9);
   CALL_TEST_FUNCTION(10);
+  CALL_TEST_FUNCTION(11);
 }
 END_TEST_PROGRAM();
 
