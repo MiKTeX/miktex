@@ -39,7 +39,7 @@ string ToString(const UriTextRangeA & textRange)
   return ret;
 }
 
-class MyUriData
+class Uri::impl
 {
 public:
   UriParserStateA state;
@@ -48,76 +48,46 @@ public:
   UriUriA uri;
 
 public:
-  virtual ~MyUriData()
+  virtual ~impl()
   {
     uriFreeUriMembersA(&uri);
   }
 };
 
-#define pData static_cast<MyUriData*>(this->p)
-
-Uri::Uri() :
-  p(nullptr)
+Uri::Uri(const std::string & uri) :
+  pimpl(make_unique<impl>())
 {
-}
-
-Uri::Uri(const Uri & other)
-{
-  this->operator= (other);
-}
-
-Uri::Uri(const char * lpszUri) :
-  p(new MyUriData())
-{
-  pData->state.uri = &pData->uri;
-  int result = uriParseUriA(&pData->state, lpszUri);
+  pimpl->state.uri = &pimpl->uri;
+  int result = uriParseUriA(&pimpl->state, uri.c_str());
   if (result == URI_ERROR_SYNTAX)
   {
-    string uri = "http://";
-    uri += lpszUri;
-    result = uriParseUriA(&pData->state, uri.c_str());
+    string http = "http://";
+    http += uri;
+    result = uriParseUriA(&pimpl->state, http.c_str());
   }
   if (result != URI_SUCCESS)
   {
-    delete pData;
-    p = nullptr;
-    MIKTEX_FATAL_ERROR_2(T_("Bad URI."), "uri", lpszUri);
+    MIKTEX_FATAL_ERROR_2(T_("Bad URI."), "uri", uri);
   }
 }
 
 Uri::~Uri()
 {
-  try
-  {
-    if (pData != nullptr)
-    {
-      delete pData;
-    }
-  }
-  catch (const exception &)
-  {
-  }
-  p = nullptr;
-}
-
-Uri & Uri::operator= (const Uri & other)
-{
-  UNIMPLEMENTED();
 }
 
 string Uri::GetScheme() const
 {
-  return ToString(pData->uri.scheme);
+  return ToString(pimpl->uri.scheme);
 }
 
 string Uri::GetHost() const
 {
-  return ToString(pData->uri.hostText);
+  return ToString(pimpl->uri.hostText);
 }
 
 int Uri::GetPort() const
 {
-  string portText = ToString(pData->uri.portText);
+  string portText = ToString(pimpl->uri.portText);
   if (!portText.empty())
   {
     return std::stoi(portText);
@@ -136,5 +106,5 @@ int Uri::GetPort() const
 
 string Uri::GetUserInfo() const
 {
-  return ToString(pData->uri.userInfo);
+  return ToString(pimpl->uri.userInfo);
 }

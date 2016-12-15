@@ -28,6 +28,7 @@
 
 #include <miktex/Core/config.h>
 
+#include <memory>
 #include <string>
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
@@ -35,19 +36,25 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 class Uri
 {
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL Uri();
+  Uri() = default;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL Uri(const Uri & other);
+  Uri(const Uri & other) = delete;
+
+public:
+  Uri & operator=(const Uri & other) = delete;
+
+public:
+  Uri(Uri && other) = delete;
+
+public:
+  Uri & operator=(Uri && other) = delete;
 
 public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~Uri();
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL Uri(const char * lpszUri);
-
-public:
-  MIKTEXCORETHISAPI(Uri &) operator= (const Uri & other);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL Uri(const std::string & uri);
 
 public:
   MIKTEXCORETHISAPI(std::string) GetHost() const;
@@ -62,7 +69,8 @@ public:
   MIKTEXCORETHISAPI(std::string) GetScheme() const;
 
 private:
-  void * p = nullptr;
+  class impl;
+  std::unique_ptr<impl> pimpl;
 };
 
 MIKTEX_CORE_END_NAMESPACE;
