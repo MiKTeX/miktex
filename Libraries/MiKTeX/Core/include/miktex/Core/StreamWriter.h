@@ -40,9 +40,22 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 class StreamWriter
 {
 public:
-  StreamWriter()
-  {
-  }
+  StreamWriter() = default;
+
+public:
+  StreamWriter(const StreamWriter & other) = delete;
+
+public:
+  StreamWriter operator=(const StreamWriter & other) = delete;
+
+public:
+  StreamWriter(StreamWriter && other) = delete;
+
+public:
+  StreamWriter operator=(StreamWriter && other) = delete;
+
+public:
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~StreamWriter();
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL StreamWriter(const PathName & path);
@@ -70,9 +83,6 @@ public:
   {
     fflush(stream.Get());
   }
-
-public:
-  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~StreamWriter();
 
 public:
   MIKTEXCORETHISAPI(void) Write(char ch);
