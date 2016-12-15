@@ -38,6 +38,24 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 class PathNameParser
 {
 public:
+  PathNameParser() = delete;
+
+public:
+  PathNameParser(const PathNameParser & other) = delete;
+
+public:
+  PathNameParser & operator=(const PathNameParser & other) = delete;
+
+public:
+  PathNameParser(PathNameParser && other) = delete;
+
+public:
+  PathNameParser & operator=(PathNameParser && other) = delete;
+
+public:
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~PathNameParser();
+
+public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL PathNameParser(const PathName & path);
 
 public:
@@ -48,15 +66,6 @@ public:
 
 public:
   MIKTEXCORETHISAPI(PathNameParser &) operator++ ();
-
-public:
-  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~PathNameParser();
-
-public:
-  PathNameParser(const PathNameParser & rhs) = delete;
-
-public:
-  PathNameParser & operator= (const PathNameParser & rhs) = delete;
 
 private:
   class impl;
