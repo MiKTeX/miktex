@@ -71,6 +71,24 @@ inline bool operator< (const FontMapEntry & lhs, const FontMapEntry & rhs)
 class MIKTEXNOVTABLE Utils
 {
 public:
+  Utils() = delete;
+
+public:
+  Utils(const Utils & other) = delete;
+
+public:
+  Utils & operator=(const Utils & other) = delete;
+
+public:
+  Utils(Utils && other) = delete;
+
+public:
+  Utils & operator=(Utils && other) = delete;
+
+public:
+  ~Utils() = delete;
+
+public:
   /// Gets the value of an environment variable.
   /// @param lpszName The name of the environment variable.
   /// @param[out] str The string object to be filled with the value.
