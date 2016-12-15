@@ -37,18 +37,28 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 class HResult
 {
 public:
-  HResult()
-  {
-  }
+  HResult() = default;
+
+public:
+  HResult(const HResult & other) = default;
+
+public:
+  HResult & operator= (const HResult & other) = default;
+
+public:
+  HResult(HResult && other) = default;
+
+public:
+  HResult & operator= (HResult && other) = default;
+
+public:
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~HResult();
 
 public:
   HResult(HRESULT hr) :
     hr(hr)
   {
   }
-
-public:
-  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~HResult();
 
 public:
   MIKTEXCORETHISAPI(std::string) ToString() const;
