@@ -41,15 +41,30 @@ template<typename CharType> class Quoter :
   public MiKTeX::Util::CharBuffer<CharType>
 {
 public:
+  Quoter() = delete;
+
+public:
+  Quoter(const Quoter & other) = delete;
+
+public:
+  Quoter & operator= (const Quoter & other) = delete;
+
+public:
+  Quoter(Quoter && other) = delete;
+
+public:
+  Quoter & operator= (Quoter && other) = delete;
+
+public:
   Quoter(const CharType * lpsz)
   {
     Quote(lpsz);
   }
 
 public:
-  Quoter(const std::basic_string<CharType> & str)
+  Quoter(const std::basic_string<CharType> & s)
   {
-    Quote(str.c_str());
+    Quote(s.c_str());
   }
 
 public:
