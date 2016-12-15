@@ -26,6 +26,24 @@
 class MIKTEXNOVTABLE WindowsVersion
 {
 public:
+  WindowsVersion() = delete;
+
+public:
+  WindowsVersion(const WindowsVersion & other) = delete;
+
+public:
+  WindowsVersion & operator=(const WindowsVersion & other) = delete;
+
+public:
+  WindowsVersion(WindowsVersion && other) = delete;
+
+public:
+  WindowsVersion & operator=(WindowsVersion && other) = delete;
+
+public:
+  ~WindowsVersion() = delete;
+
+public:
   static MIKTEXCORECEEAPI(bool) IsWindows8OrGreater();
 
 public:
