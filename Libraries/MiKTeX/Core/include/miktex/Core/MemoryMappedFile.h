@@ -42,18 +42,12 @@ public:
   virtual MIKTEXTHISCALL ~MemoryMappedFile() = 0;
 
   /// Maps a file into memory.
-  /// @param lpszPath The file to be mapped.
+  /// @param path The file to be mapped.
   /// @param readWrite Indicates whether the file should
   /// be open for reading and writing.
   /// @return Returns a pointer to the block of memory.
 public:
-  virtual void * MIKTEXTHISCALL Open(const char * lpszPath, bool readWrite) = 0;
-
-public:
-  void * Open(const PathName & path, bool readWrite)
-  {
-    return Open(path.GetData(), readWrite);
-  }
+  virtual void * MIKTEXTHISCALL Open(const PathName & path, bool readWrite) = 0;
 
   /// Closes a file mapping.
 public:
@@ -71,7 +65,7 @@ public:
   virtual void * MIKTEXTHISCALL GetPtr() const = 0;
 
 public:
-  virtual const char * MIKTEXTHISCALL GetName() const = 0;
+  virtual std::string MIKTEXTHISCALL GetName() const = 0;
 
   /// Gets the size of the memory-mapped file.
   /// @return Returns the size (in bytes).

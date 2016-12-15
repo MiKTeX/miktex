@@ -39,7 +39,7 @@ public:
   ~winMemoryMappedFile() override;
 
 public:
-  void * MIKTEXTHISCALL Open(const char * lpszPath, bool readWrite) override;
+  void * MIKTEXTHISCALL Open(const MiKTeX::Core::PathName & path, bool readWrite) override;
 
 public:
   void MIKTEXTHISCALL Close() override;
@@ -54,9 +54,9 @@ public:
   }
 
 public:
-  const char * GetName() const override
+  std::string GetName() const override
   {
-    return name.c_str();
+    return name;
   }
 
 public:
@@ -87,7 +87,7 @@ private:
   bool readWrite = false;
 
 private:
-  std::string path;
+  MiKTeX::Core::PathName path;
 
 private:
   std::string name;

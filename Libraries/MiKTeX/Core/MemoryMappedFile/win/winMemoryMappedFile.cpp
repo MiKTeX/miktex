@@ -52,21 +52,21 @@ winMemoryMappedFile::~winMemoryMappedFile()
   }
 }
 
-void * winMemoryMappedFile::Open(const char * lpszPath, bool readWrite)
+void * winMemoryMappedFile::Open(const PathName & pathArg, bool readWrite)
 {
-  path = lpszPath;
+  path = pathArg;
   this->readWrite = readWrite;
 
   // create a unique object name
   name = "";
   name.reserve(BufferSizes::MaxPath);
-  for (size_t i = 0; lpszPath[i] != 0; ++i)
+  for (size_t i = 0; path[i] != 0; ++i)
   {
-    if (IsDirectoryDelimiter(lpszPath[i]) || lpszPath[i] == ':')
+    if (IsDirectoryDelimiter(path[i]) || path[i] == ':')
     {
       continue;
     }
-    name += ToLower(lpszPath[i]);
+    name += ToLower(path[i]);
   }
 
   // try to open an existing file mapping
@@ -80,15 +80,15 @@ void * winMemoryMappedFile::Open(const char * lpszPath, bool readWrite)
     ptr = MapViewOfFile(hMapping, (readWrite ? FILE_MAP_WRITE : FILE_MAP_READ), 0, 0, 0);
     if (ptr == nullptr)
     {
-      MIKTEX_FATAL_WINDOWS_ERROR_2("MapViewOfFile", "path", lpszPath);
+      MIKTEX_FATAL_WINDOWS_ERROR_2("MapViewOfFile", "path", path.ToString());
     }
 
     // get the size
 #if defined(_MSC_VER) || defined(__MINGW32__)
     struct _stat statbuf;
-    if (_wstat(UW_(lpszPath), &statbuf) != 0)
+    if (_wstat(UW_(path.GetData()), &statbuf) != 0)
     {
-      MIKTEX_FATAL_CRT_ERROR_2("_wstat", "path", lpszPath);
+      MIKTEX_FATAL_CRT_ERROR_2("_wstat", "path", path.ToString());
     }
     size = statbuf.st_size;
 #else
@@ -133,11 +133,11 @@ void winMemoryMappedFile::OpenFile()
 
   traceStream->WriteFormattedLine("core", T_("opening memory-mapped file %s for %s"), Q_(path), (readWrite ? T_("reading/writing") : T_("reading")));
 
-  hFile = CreateFileW(UW_(path), desiredAccess, shareMode, nullptr, OPEN_EXISTING, FILE_FLAG_RANDOM_ACCESS, nullptr);
+  hFile = CreateFileW(UW_(path.GetData()), desiredAccess, shareMode, nullptr, OPEN_EXISTING, FILE_FLAG_RANDOM_ACCESS, nullptr);
 
   if (hFile == INVALID_HANDLE_VALUE)
   {
-    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileW", "path", path);
+    MIKTEX_FATAL_WINDOWS_ERROR_2("CreateFileW", "path", path.ToString());
   }
 }
 
@@ -149,7 +149,7 @@ void winMemoryMappedFile::CreateMapping(size_t maximumFileSize)
     maximumFileSize = GetFileSize(hFile, &fileSizeHigh);
     if (maximumFileSize == INVALID_FILE_SIZE)
     {
-      MIKTEX_FATAL_WINDOWS_ERROR_2("GetFileSize", "path", path);
+      MIKTEX_FATAL_WINDOWS_ERROR_2("GetFileSize", "path", path.ToString());
     }
     if (fileSizeHigh != 0)
     {
