@@ -57,7 +57,7 @@ public:
   Argv & operator= (Argv && other) = delete;
 
 public:
-  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~Argv();
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~Argv() noexcept;
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL Argv(const std::string & fileName, const std::string & arguments);
@@ -112,7 +112,7 @@ public:
   CommandLineBuilder & operator= (CommandLineBuilder && other) = delete;
 
 public:
-  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~CommandLineBuilder();
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~CommandLineBuilder() noexcept;
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::string & argument);

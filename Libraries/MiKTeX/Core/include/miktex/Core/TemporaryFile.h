@@ -37,7 +37,7 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 class MIKTEXNOVTABLE TemporaryFile
 {
 public:
-  virtual MIKTEXTHISCALL ~TemporaryFile() = 0;
+  virtual MIKTEXTHISCALL ~TemporaryFile() noexcept = 0;
 
 public:
   virtual void MIKTEXTHISCALL Delete() = 0;

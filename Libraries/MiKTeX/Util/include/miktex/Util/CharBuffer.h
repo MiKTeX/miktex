@@ -99,7 +99,7 @@ public:
   }
 
 public:
-  virtual ~CharBuffer()
+  virtual ~CharBuffer() noexcept
   {
     try
     {

@@ -157,7 +157,7 @@ struct ProcessStartInfo
 class MIKTEXNOVTABLE Process
 {
 public:
-  virtual MIKTEXTHISCALL ~Process() = 0;
+  virtual MIKTEXTHISCALL ~Process() noexcept = 0;
 
 public:
   virtual FILE * MIKTEXTHISCALL get_StandardInput() = 0;

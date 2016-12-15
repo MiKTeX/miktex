@@ -51,7 +51,7 @@ public:
   CsvList & operator= (CsvList && other) = delete;
 
 public:
-  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~CsvList();
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~CsvList() noexcept;
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL CsvList(const std::string & s, char separator);

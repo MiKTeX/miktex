@@ -51,7 +51,7 @@ public:
   Uri & operator=(Uri && other) = delete;
 
 public:
-  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~Uri();
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~Uri() noexcept;
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL Uri(const std::string & uri);

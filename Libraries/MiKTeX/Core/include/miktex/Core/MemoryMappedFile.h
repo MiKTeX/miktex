@@ -39,7 +39,7 @@ class MIKTEXNOVTABLE MemoryMappedFile
 {
   /// Destructor.
 public:
-  virtual MIKTEXTHISCALL ~MemoryMappedFile() = 0;
+  virtual MIKTEXTHISCALL ~MemoryMappedFile() noexcept = 0;
 
   /// Maps a file into memory.
   /// @param path The file to be mapped.

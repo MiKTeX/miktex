@@ -55,7 +55,7 @@ public:
   StreamWriter operator=(StreamWriter && other) = delete;
 
 public:
-  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~StreamWriter();
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~StreamWriter() noexcept;
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL StreamWriter(const PathName & path);

@@ -69,7 +69,7 @@ public:
 
   /// Destructor.
 public:
-  virtual MIKTEXTHISCALL ~DirectoryLister() = 0;
+  virtual MIKTEXTHISCALL ~DirectoryLister() noexcept = 0;
 
   /// Closes this DirectoryLister.
 public:

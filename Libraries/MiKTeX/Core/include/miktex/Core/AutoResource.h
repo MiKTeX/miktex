@@ -60,7 +60,7 @@ public:
   AutoResource & operator= (AutoResource && other) = delete;
 
 public:
-  virtual ~AutoResource()
+  virtual ~AutoResource() noexcept
   {
     try
     {

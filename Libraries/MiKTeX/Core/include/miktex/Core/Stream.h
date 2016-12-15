@@ -42,7 +42,7 @@ enum class SeekOrigin
 class MIKTEXNOVTABLE Stream
 {
 public:
-  virtual MIKTEXTHISCALL ~Stream() = 0;
+  virtual MIKTEXTHISCALL ~Stream() noexcept = 0;
 
 public:
   virtual std::size_t MIKTEXTHISCALL Read(void * pBytes, std::size_t count) = 0;

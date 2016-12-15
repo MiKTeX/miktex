@@ -47,7 +47,7 @@ public:
   DllProcBase & operator= (DllProcBase && other) = delete;
 
 protected:
-  MIKTEXCOREEXPORT virtual MIKTEXTHISCALL ~DllProcBase();
+  MIKTEXCOREEXPORT virtual MIKTEXTHISCALL ~DllProcBase() noexcept;
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL DllProcBase(const char * lpszDllName, const char * lpszProcName);

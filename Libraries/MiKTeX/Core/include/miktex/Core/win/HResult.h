@@ -52,7 +52,7 @@ public:
   HResult & operator= (HResult && other) = default;
 
 public:
-  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~HResult();
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~HResult() noexcept;
 
 public:
   HResult(HRESULT hr) :

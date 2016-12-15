@@ -53,7 +53,7 @@ public:
   PathNameParser & operator=(PathNameParser && other) = delete;
 
 public:
-  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~PathNameParser();
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~PathNameParser() noexcept;
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL PathNameParser(const PathName & path);

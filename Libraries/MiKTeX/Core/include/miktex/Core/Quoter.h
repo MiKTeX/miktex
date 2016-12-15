@@ -56,6 +56,9 @@ public:
   Quoter & operator= (Quoter && other) = delete;
 
 public:
+  ~Quoter() = default;
+
+public:
   Quoter(const CharType * lpsz)
   {
     Quote(lpsz);

@@ -280,7 +280,7 @@ public:
   ConfigValue & operator= (ConfigValue && other) = delete;
 
 public:
-  virtual ~ConfigValue()
+  virtual ~ConfigValue() noexcept
   {
     if (tag == Tag::String)
     {
@@ -592,7 +592,7 @@ public:
   static MIKTEXCORECEEAPI(std::shared_ptr<Session>) Create(const InitInfo & initInfo);
 
 public:
-  virtual MIKTEXTHISCALL ~Session() = 0;
+  virtual MIKTEXTHISCALL ~Session() noexcept = 0;
 
 public:
   virtual void MIKTEXTHISCALL PushAppName(const std::string & name) = 0;

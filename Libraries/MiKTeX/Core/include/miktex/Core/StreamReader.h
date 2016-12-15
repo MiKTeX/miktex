@@ -53,7 +53,7 @@ public:
   StreamReader & operator=(StreamReader && other) = delete;
 
 public:
-  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~StreamReader();
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~StreamReader() noexcept;
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL StreamReader(const PathName & path);

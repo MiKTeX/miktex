@@ -83,7 +83,7 @@ public:
   static MIKTEXCORECEEAPI(std::unique_ptr<Cfg>) Create();
 
 public:
-  virtual MIKTEXTHISCALL ~Cfg() = 0;
+  virtual MIKTEXTHISCALL ~Cfg() noexcept = 0;
 
   /// Tests whether the Cfg object is empty.
 public:

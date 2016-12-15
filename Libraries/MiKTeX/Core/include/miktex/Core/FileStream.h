@@ -54,7 +54,7 @@ public:
   FileStream & operator= (FileStream && other) = delete;
 
 public:
-  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~FileStream();
+  virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~FileStream() noexcept;
 
 public:
   FileStream(FILE * pFile) :

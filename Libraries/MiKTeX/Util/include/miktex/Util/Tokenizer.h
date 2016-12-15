@@ -51,7 +51,7 @@ public:
   Tokenizer & operator= (Tokenizer && other) = delete;
 
 public:
-  virtual MIKTEXUTILEXPORT MIKTEXTHISCALL ~Tokenizer();
+  virtual MIKTEXUTILEXPORT MIKTEXTHISCALL ~Tokenizer() noexcept;
 
 public:
   MIKTEXUTILEXPORT MIKTEXTHISCALL Tokenizer(const std::string & s, const std::string & delims);
