@@ -137,7 +137,7 @@ public:
   }
 
 public:
-  CharBuffer(std::size_t n)
+  explicit CharBuffer(std::size_t n)
   {
     Clear();
     Reserve(n);
