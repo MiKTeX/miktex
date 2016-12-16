@@ -196,7 +196,7 @@ public:
 class MIKTEXNOVTABLE SetupService
 {
 public:
-  virtual MIKTEXTHISCALL ~SetupService() = 0;
+  virtual MIKTEXTHISCALL ~SetupService() noexcept = 0;
 
 public:
   virtual void MIKTEXTHISCALL Initialize() = 0;
