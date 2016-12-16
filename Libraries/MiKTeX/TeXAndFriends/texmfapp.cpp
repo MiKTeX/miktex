@@ -62,9 +62,9 @@ STATICFUNC(void) TraceExecutionTime(TraceStream * trace_time, clock_t clockStart
 #endif // MIKTEX_WINDOWS
 }
 
-void TeXMFApp::Init(const char * lpszProgramInvocationName)
+void TeXMFApp::Init(const string & programInvocationName)
 {
-  WebAppInputLine::Init(lpszProgramInvocationName);
+  WebAppInputLine::Init(programInvocationName);
 
   trace_time = TraceStream::Open(MIKTEX_TRACE_TIME);
   trace_mem = TraceStream::Open(MIKTEX_TRACE_MEM);

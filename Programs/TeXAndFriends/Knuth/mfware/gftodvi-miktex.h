@@ -65,9 +65,9 @@ public:
   }
 
 public:
-  void Init(const char * lpszProgramInvocationName) override
+  void Init(const std::string & programInvocationName) override
   {
-    WebApp::Init(lpszProgramInvocationName);
+    WebApp::Init(programInvocationName);
     THEDATA(overlabeloffset) = 10000000;
     titleFont = "cmr8";
     labelFont = "cmtt10";

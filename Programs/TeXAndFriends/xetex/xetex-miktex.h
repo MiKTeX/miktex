@@ -133,9 +133,9 @@ public:
   }
 
 public:
-  void Init(const char * lpszProgramInvocationName) override
+  void Init(const std::string & programInvocationName) override
   {
-    ETeXApp::Init(lpszProgramInvocationName);
+    ETeXApp::Init(programInvocationName);
     EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
   }
 

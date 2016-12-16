@@ -30,9 +30,9 @@ TeXApp::TeXApp()
 {
 }
 
-void TeXApp::Init(const char * lpszProgramInvocationName)
+void TeXApp::Init(const string & programInvocationName)
 {
-  TeXMFApp::Init(lpszProgramInvocationName);
+  TeXMFApp::Init(programInvocationName);
 
   SetTeX();
 

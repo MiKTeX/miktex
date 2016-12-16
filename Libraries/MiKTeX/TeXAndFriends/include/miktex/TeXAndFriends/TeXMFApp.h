@@ -217,7 +217,7 @@ template<typename CharType> inline CharType * GetTeXString(CharType * lpsz, int 
 class MIKTEXMFTYPEAPI(TeXMFApp) : public WebAppInputLine
 {
 public:
-  MIKTEXMFTHISAPI(void) Init(const char * lpszProgramInvocationName) override;
+  MIKTEXMFTHISAPI(void) Init(const std::string & programInvocationName) override;
 
 public:
   MIKTEXMFTHISAPI(void) Finalize() override;

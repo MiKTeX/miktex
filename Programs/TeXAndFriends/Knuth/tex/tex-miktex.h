@@ -67,9 +67,9 @@ class TEXCLASS
 
 {
 public:
-  void Init(const char * lpszProgramInvocationName) override
+  void Init(const std::string & programInvocationName) override
   {
-    TeXApp::Init(lpszProgramInvocationName);
+    TeXApp::Init(programInvocationName);
 #if defined(IMPLEMENT_TCX)
     EnableFeature(Feature::EightBitChars);
     EnableFeature(Feature::TCX);

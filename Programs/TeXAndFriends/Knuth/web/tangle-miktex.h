@@ -39,9 +39,9 @@ class TANGLECLASS :
   public MiKTeX::TeXAndFriends::WebApp
 {
 public:
-  void Init(const char * lpszProgramInvocationName) override
+  void Init(const std::string & programInvocationName) override
   {
-    MiKTeX::TeXAndFriends::WebApp::Init(lpszProgramInvocationName);
+    MiKTeX::TeXAndFriends::WebApp::Init(programInvocationName);
     THEDATA(maxchar) = 255;
   }
 

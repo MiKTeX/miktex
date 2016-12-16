@@ -27,9 +27,9 @@ ETeXApp::ETeXApp()
 {
 }
 
-void ETeXApp::Init(const char * lpszProgramInvocationName)
+void ETeXApp::Init(const string & programInvocationName)
 {
-  TeXApp::Init(lpszProgramInvocationName);
+  TeXApp::Init(programInvocationName);
   enableETeX = false;
 }
 

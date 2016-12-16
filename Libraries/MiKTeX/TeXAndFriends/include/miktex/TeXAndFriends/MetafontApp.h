@@ -41,7 +41,7 @@ MIKTEXMF_BEGIN_NAMESPACE;
 class MIKTEXMFTYPEAPI(MetafontApp) : public TeXMFApp
 {
 protected:
-  MIKTEXMFTHISAPI(void) Init(const char * lpszProgramInvocationName) override;
+  MIKTEXMFTHISAPI(void) Init(const std::string & programInvocationName) override;
 
 public:
   MIKTEXMFTHISAPI(void) Finalize() override;

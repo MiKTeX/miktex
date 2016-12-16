@@ -60,35 +60,36 @@ enum class Feature
   TCX
 };
 
-template<class FileType> inline bool miktexopentfmfile(FileType & f, const char * lpszFileName)
+template<class FileType> inline bool miktexopentfmfile(FileType& f, const char * lpszFileName)
 {
   return OpenTFMFile(&f, lpszFileName);
 }
 
-template<class FileType> inline bool miktexopenvffile(FileType & f, const char * lpszFileName)
+template<class FileType> inline bool miktexopenvffile(FileType& f, const char * lpszFileName)
 {
   return OpenVFFile(&f, lpszFileName);
 }
 
-template<class FileType> inline int miktexopenxfmfile(FileType & f, const char * lpszFileName)
+template<class FileType> inline int miktexopenxfmfile(FileType& f, const char * lpszFileName)
 {
   return OpenXFMFile(&f, lpszFileName);
 }
 
-template<class FileType> inline bool miktexopenxvffile(FileType & f, const char * lpszFileName)
+template<class FileType> inline bool miktexopenxvffile(FileType& f, const char * lpszFileName)
 {
   return OpenXVFFile(&f, lpszFileName);
 }
 
-template<class FileType> inline void miktexprintmiktexbanner(FileType & f)
+template<class FileType> inline void miktexprintmiktexbanner(FileType& f)
 {
   fprintf(f, " (%s)", MiKTeX::Core::Utils::GetMiKTeXBannerString().c_str());
 }
 
-class MIKTEXMFTYPEAPI(WebApp) : public MiKTeX::App::Application
+class MIKTEXMFTYPEAPI(WebApp) :
+  public MiKTeX::App::Application
 {
 public:
-  virtual MIKTEXMFTHISAPI(void) Init(const char * lpszProgramInvocationName);
+  virtual MIKTEXMFTHISAPI(void) Init(const std::string & programInvocationName);
 
 public:
   MIKTEXMFTHISAPI(void) Finalize() override;
@@ -100,8 +101,7 @@ public:
   virtual MiKTeX::Core::FileType GetInputFileType() const
   {
     // must be implemented in sub-classes
-    MIKTEX_ASSERT(false);
-    return MiKTeX::Core::FileType::None;
+    MIKTEX_UNEXPECTED();
   }
 
 public:
@@ -114,8 +114,7 @@ protected:
   virtual const char * GetUsage() const
   {
     // must be implemented in sub-classes
-    MIKTEX_ASSERT(false);
-    return 0;
+    MIKTEX_UNEXPECTED();
   }
 
 public:

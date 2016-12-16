@@ -35,7 +35,7 @@ public:
   MIKTEXMFEXPORT MIKTEXTHISCALL ETeXApp();
 
 protected:
-  MIKTEXMFTHISAPI(void) Init(const char * lpszProgramInvocationName) override;
+  MIKTEXMFTHISAPI(void) Init(const std::string & programInvocationName) override;
 
 public:
   MIKTEXMFTHISAPI(void) Finalize() override;

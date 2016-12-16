@@ -74,9 +74,9 @@ private:
   std::shared_ptr<MiKTeX::Core::Session> session;
   
 public:
-  void Init(const char * lpszProgramInvocationName) override
+  void Init(const std::string & programInvocationName) override
   {
-    WebAppInputLine::Init(lpszProgramInvocationName);
+    WebAppInputLine::Init(programInvocationName);
     session = GetSession();
 #if defined(IMPLEMENT_TCX)
     EnableFeature (Feature::TCX);

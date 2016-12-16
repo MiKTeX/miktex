@@ -34,9 +34,9 @@ WebAppInputLine::WebAppInputLine() :
 {
 }
 
-void WebAppInputLine::Init(const char * lpszProgramInvocationName)
+void WebAppInputLine::Init(const string & programInvocationName)
 {
-  WebApp::Init(lpszProgramInvocationName);
+  WebApp::Init(programInvocationName);
   enablePipes = false;
 }
 

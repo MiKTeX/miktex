@@ -23,9 +23,9 @@
 
 #include "internal.h"
 
-void MetafontApp::Init(const char * lpszProgramInvocationName)
+void MetafontApp::Init(const string & programInvocationName)
 {
-  TeXMFApp::Init(lpszProgramInvocationName);
+  TeXMFApp::Init(programInvocationName);
   param_bistack_size = -1;
   param_lig_table_size = -1;
   param_path_size = -1;

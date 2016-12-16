@@ -188,10 +188,10 @@ public:
   }
 
 public:
-  void Init(const char * lpszProgramInvocationName) override
+  void Init(const std::string & programInvocationName) override
   {
-    ETeXApp::Init(lpszProgramInvocationName);
-    kpse_set_program_name(lpszProgramInvocationName, nullptr);
+    ETeXApp::Init(programInvocationName);
+    kpse_set_program_name(programInvocationName.c_str(), nullptr);
 #if defined(IMPLEMENT_TCX)
     EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
     EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);

@@ -25,9 +25,9 @@
 
 #include <miktex/Version>
 
-void WebApp::Init(const char * lpszProgramInvocationName)
+void WebApp::Init(const string & programInvocationName)
 {
-  Application::Init(lpszProgramInvocationName, TheNameOfTheGame());
+  Application::Init(programInvocationName, TheNameOfTheGame());
   theNameOfTheGame = Utils::GetExeName();
   enable8BitChars = false;
 }

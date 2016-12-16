@@ -81,9 +81,9 @@ public:
   }
 
 public:
-  void Init(const char * lpszProgramInvocationName) override
+  void Init(const std::string & programInvocationName) override
   {
-    MetafontApp::Init(lpszProgramInvocationName);
+    MetafontApp::Init(programInvocationName);
     SetProgramInfo ("mf", 0, 0, 0);
 #ifdef IMPLEMENT_TCX
     EnableFeature(Feature::TCX);

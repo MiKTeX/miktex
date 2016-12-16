@@ -55,7 +55,7 @@ public:
   MIKTEXMFEXPORT MIKTEXTHISCALL WebAppInputLine();
 
 public:
-  MIKTEXMFTHISAPI(void) Init(const char * lpszProgramInvocationName) override;
+  MIKTEXMFTHISAPI(void) Init(const std::string & programInvocationName) override;
 
 public:
   MIKTEXMFTHISAPI(void) Finalize() override;
