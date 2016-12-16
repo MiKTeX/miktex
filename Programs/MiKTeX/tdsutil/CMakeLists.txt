@@ -19,7 +19,7 @@
 
 include(MergeCompatibilityManifest)
 
-set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_SETTINGS_FOLDER}/tdsutil")
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/tdsutil")
 
 if(LINK_EVERYTHING_STATICALLY)
   use_static_crt()

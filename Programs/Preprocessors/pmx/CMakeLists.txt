@@ -272,6 +272,8 @@ list(APPEND libf2c_a_extra
 
 add_library(f2c STATIC ${libf2c_a_sources})
 
+set_property(TARGET f2c PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
 set(programs
   pmxab
   scor2prt
