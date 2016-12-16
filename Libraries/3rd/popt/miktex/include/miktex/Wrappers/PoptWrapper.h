@@ -41,36 +41,47 @@ MIKTEX_POPT_BEGIN_NAMESPACE;
 class PoptWrapper
 {
 public:
-  PoptWrapper()
-  {
-  }
+  PoptWrapper() = default;
 
 public:
-  PoptWrapper(const char * lpszName, int argc, const char ** argv, const struct poptOption * options, int flags = 0)
-  {
-    Construct(lpszName, argc, argv, options, flags);
-  }
+  PoptWrapper(const PoptWrapper& other) = delete;
 
 public:
-  PoptWrapper(int argc, const char ** argv, const struct poptOption * options, int flags = 0)
-  {
-    Construct(argc, argv, options, flags);
-  }
+  PoptWrapper& operator=(const PoptWrapper& other) = delete;
 
 public:
-  virtual ~PoptWrapper()
+  PoptWrapper(PoptWrapper&& other) = delete;
+
+public:
+  PoptWrapper& operator=(PoptWrapper&& other) = delete;
+
+public:
+  virtual ~PoptWrapper() noexcept
   {
     Dispose();
   }
 
 public:
-  void Construct(const char * lpszName, int argc, const char ** argv, const struct poptOption * options, int flags = 0)
+  PoptWrapper(const char * lpszName, int argc, const char ** argv, const struct poptOption* options, int flags = 0)
+  {
+    Construct(lpszName, argc, argv, options, flags);
+  }
+
+public:
+  PoptWrapper(int argc, const char ** argv, const struct poptOption* options, int flags = 0)
+  {
+    Construct(argc, argv, options, flags);
+  }
+
+
+public:
+  void Construct(const char * lpszName, int argc, const char** argv, const struct poptOption* options, int flags = 0)
   {
     ctx = poptGetContext(lpszName, argc, argv, options, flags);
   }
 
 public:
-  void Construct(int argc, const char ** argv, const struct poptOption * options, int flags = 0)
+  void Construct(int argc, const char** argv, const struct poptOption* options, int flags = 0)
   {
     Construct(nullptr, argc, argv, options, flags);
   }
@@ -86,31 +97,31 @@ public:
   }
 
 public:
-  operator poptContext () const
+  operator poptContext() const
   {
     return ctx;
   }
 
 public:
-  operator poptContext ()
+  operator poptContext()
   {
     return ctx;
   }
 
 public:
-  void SetOtherOptionHelp(const char * lpsz)
+  void SetOtherOptionHelp(const std::string& usage)
   {
-    poptSetOtherOptionHelp(ctx, lpsz);
+    poptSetOtherOptionHelp(ctx, usage.c_str());
   }
 
 public:
-  void PrintUsage(FILE * stream = stdout, int flags = 0) const
+  void PrintUsage(FILE* stream = stdout, int flags = 0) const
   {
     poptPrintUsage(ctx, stream, flags);
   }
 
 public:
-  void PrintHelp(FILE * stream = stdout, int flags = 0) const
+  void PrintHelp(FILE* stream = stdout, int flags = 0) const
   {
     poptPrintHelp(ctx, stream, flags);
   }
@@ -138,7 +149,7 @@ public:
   std::vector<std::string> GetLeftovers()
   {
     std::vector<std::string> result;
-    const char ** args = poptGetArgs(ctx);
+    const char** args = poptGetArgs(ctx);
     if (args != nullptr)
     {
       for (const char ** a = args; *a != nullptr; ++a)
