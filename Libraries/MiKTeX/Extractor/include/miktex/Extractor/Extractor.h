@@ -80,7 +80,7 @@ public:
 class MIKTEXNOVTABLE Extractor
 {
 public:
-  virtual MIKTEXTHISCALL ~Extractor() = 0;
+  virtual MIKTEXTHISCALL ~Extractor() noexcept = 0;
 
 public:
   virtual void MIKTEXTHISCALL Extract(const MiKTeX::Core::PathName & path, const MiKTeX::Core::PathName & destDir, bool makeDirectories, IExtractCallback * callback, const std::string & prefix) = 0;
@@ -98,18 +98,18 @@ public:
   }
 
 public:
-  virtual void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream * pStream, const MiKTeX::Core::PathName & destDir, bool makeDirectories, IExtractCallback * callback, const std::string & prefix) = 0;
+  virtual void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream * stream, const MiKTeX::Core::PathName & destDir, bool makeDirectories, IExtractCallback * callback, const std::string & prefix) = 0;
 
 public:
-  void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream * pStream, const MiKTeX::Core::PathName & destDir, bool makeDirectories)
+  void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream * stream, const MiKTeX::Core::PathName & destDir, bool makeDirectories)
   {
-    return Extract(pStream, destDir, makeDirectories, nullptr, "");
+    return Extract(stream, destDir, makeDirectories, nullptr, "");
   }
 
 public:
-  void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream * pStream, const MiKTeX::Core::PathName & destDir)
+  void MIKTEXTHISCALL Extract(MiKTeX::Core::Stream * stream, const MiKTeX::Core::PathName & destDir)
   {
-    return Extract(pStream, destDir, false, nullptr, "");
+    return Extract(stream, destDir, false, nullptr, "");
   }
 
 public:
