@@ -92,7 +92,14 @@ C4PCEEAPI(time_t) C4P::GetStartUpTime()
   MIKTEX_API_END("C4P::GetStartUpTime");
 }
 
-C4P::Program::Program(const char * lpszProgramName, int argc, const char ** argv)
+class C4P::Program::impl
+{
+public:
+  bool isRunning = false;
+};
+
+C4P::Program::Program(const char * lpszProgramName, int argc, const char ** argv) :
+  pimpl(make_unique<impl>())
 {
   MIKTEX_API_BEGIN("C4P::StartUp");
   MIKTEX_ASSERT_STRING(lpszProgramName);
@@ -113,8 +120,22 @@ C4P::Program::Program(const char * lpszProgramName, int argc, const char ** argv
   *input = '\n';
   *output = '\0';
   *c4perroroutput = '\0';
-  running = true;
+  pimpl->isRunning = true;
   MIKTEX_API_END("C4P::StartUp");
+}
+
+C4P::Program::~Program()
+{
+  try
+  {
+    if (pimpl->isRunning)
+    {
+      Finish();
+    }
+  }
+  catch (const std::exception &)
+  {
+  }
 }
 
 C4PTHISAPI(void) C4P::Program::Finish()

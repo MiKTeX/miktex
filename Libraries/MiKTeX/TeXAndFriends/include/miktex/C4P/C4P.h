@@ -69,7 +69,7 @@ typedef bool C4P_boolean;
 struct FileRoot
 {
 protected:
-  FILE * pFile = nullptr;
+  FILE* file = nullptr;
 
 protected:
   enum { NotOwner = 0x00000001 };
@@ -80,53 +80,53 @@ protected:
 public:
   void AssertValid() const
   {
-    MIKTEX_ASSERT(pFile != nullptr);
+    MIKTEX_ASSERT(file != nullptr);
   }
 
 public:
-  C4PTHISAPI(bool) Open(const char * lpszName, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, MiKTeX::Core::FileShare share, bool text, bool mustExist);
+  C4PTHISAPI(bool) Open(const MiKTeX::Core::PathName & path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, MiKTeX::Core::FileShare share, bool text, bool mustExist);
 
 public:
   void Close()
   {
     AssertValid();
-    FILE * pFile = this->pFile;
-    this->pFile = nullptr;
+    FILE* file = this->file;
+    this->file = nullptr;
     if ((flags & NotOwner) != 0)
     {
       std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
-      session->CloseFile(pFile);
+      session->CloseFile(file);
     }
   }
 
 public:
-  void Attach(FILE * pFile, bool takeOwnership)
+  void Attach(FILE* file, bool takeOwnership)
   {
     flags = 0;
     if (!takeOwnership)
     {
       flags |= NotOwner;
     }
-    this->pFile = pFile;
+    this->file = file;
   }
 
 public:
-  operator FILE * ()
+  operator FILE*()
   {
-    return pFile;
+    return file;
   }
 
 public:
-  FILE * & fileref()
+  FILE*& fileref()
   {
     flags = 0;
-    return pFile;
+    return file;
   }
 
 public:
-  FILE * operator -> ()
+  FILE* operator->()
   {
-    return pFile;
+    return file;
   }
 };
 
@@ -162,27 +162,27 @@ protected:
   ElementType currentElement;
 
 public:
-  const ElementType & bufref() const
+  const ElementType& bufref() const
   {
     MIKTEX_ASSERT(IsPascalFileIO());
     return currentElement;
   }
 
 public:
-  ElementType & bufref()
+  ElementType& bufref()
   {
     PascalFileIO(true);
     return currentElement;
   }
 
 public:
-  const ElementType & operator * () const
+  const ElementType& operator*() const
   {
     return bufref();
   }
 
 public:
-  ElementType & operator * ()
+  ElementType& operator*()
   {
     return bufref();
   }
@@ -190,7 +190,7 @@ public:
 public:
   bool Eof()
   {
-    if (feof(pFile) != 0)
+    if (feof(file) != 0)
     {
       return true;
     }
@@ -200,18 +200,18 @@ public:
       return false;
     }
 
-    int lookAhead = getc(pFile);
+    int lookAhead = getc(file);
 
     if (lookAhead == EOF)
     {
-      if (ferror(pFile) != 0)
+      if (ferror(file) != 0)
       {
         MIKTEX_FATAL_CRT_ERROR("getc");
       }
       return true;
     }
 
-    if (ungetc(lookAhead, pFile) != lookAhead)
+    if (ungetc(lookAhead, file) != lookAhead)
     {
       MIKTEX_FATAL_CRT_ERROR("ungetc");
     }
@@ -220,15 +220,15 @@ public:
   }
 
 protected:
-  void ReadInternal(ElementType * pBuf, std::size_t n)
+  void ReadInternal(ElementType * buf, std::size_t n)
   {
     AssertValid();
-    MIKTEX_ASSERT_BUFFER(pBuf, n);
+    MIKTEX_ASSERT_BUFFER(buf, n);
     if (feof(*this) != 0)
     {
       MIKTEX_FATAL_ERROR(MIKTEXTEXT("Read operation failed."));
     }
-    if (fread(pBuf, sizeof(ElementType), n, *this) != n)
+    if (fread(buf, sizeof(ElementType), n, *this) != n)
     {
       MIKTEX_FATAL_ERROR(MIKTEXTEXT("Read operation failed."));
     }
@@ -239,12 +239,12 @@ protected:
   }
 
 public:
-  void Read(ElementType * pBuf, std::size_t n)
+  void Read(ElementType * buf, std::size_t n)
   {
-    ReadInternal(pBuf, n);
+    ReadInternal(buf, n);
     if (IsPascalFileIO())
     {
-      currentElement = pBuf[n - 1];
+      currentElement = buf[n - 1];
     }
   }
 
@@ -331,28 +331,32 @@ C4PCEEAPI(C4P_text *) GetStdFilePtr(unsigned idx);
 class Program
 {
 public:
-  C4PEXPORT MIKTEXTHISCALL Program(const char * lpszName, int argc, const char ** argv);
+  Program() = delete;
 
 public:
-  virtual ~Program()
-  {
-    try
-    {
-      if (running)
-      {
-        Finish();
-      }
-    }
-    catch (const std::exception &)
-    {
-    }
-  }
+  Program(const Program & other) = delete;
+
+public:
+  Program & operator=(const Program & other) = delete;
+
+public:
+  Program(Program && other) = delete;
+
+public:
+  Program & operator=(Program && other) = delete;
+
+public:
+  virtual C4PEXPORT MIKTEXTHISCALL ~Program() noexcept;
+
+public:
+  C4PEXPORT MIKTEXTHISCALL Program(const char * lpszName, int argc, const char ** argv);
 
 public:
   C4PTHISAPI(void) Finish();
 
 private:
-  bool running;
+  class impl;
+  std::unique_ptr<impl> pimpl;
 };
 
 #define C4P_BEGIN_PROGRAM(lpszName, argc, argv)         \
@@ -360,7 +364,7 @@ private:
     int c4p_retcode = 0;                                \
     try                                                 \
     {                                                   \
-      C4P::Program c4p_program (lpszName, argc, argv);
+      C4P::Program c4p_program(lpszName, argc, argv);
 
 #define C4P_END_PROGRAM()                       \
       c4p_program.Finish();                     \
