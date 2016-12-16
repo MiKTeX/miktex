@@ -26,6 +26,7 @@
 
 #include <miktex/TeXAndFriends/config.h>
 
+#include <memory>
 #include <string>
 #include <iostream>
 
@@ -55,7 +56,22 @@ public:
   MIKTEXMFEXPORT MIKTEXTHISCALL WebAppInputLine();
 
 public:
-  MIKTEXMFTHISAPI(void) Init(const std::string & programInvocationName) override;
+  WebAppInputLine(const WebAppInputLine& other) = delete;
+
+public:
+  WebAppInputLine& operator=(const WebAppInputLine& other) = delete;
+
+public:
+  WebAppInputLine(WebAppInputLine&& other) = delete;
+
+public:
+  WebAppInputLine& operator=(WebAppInputLine&& other) = delete;
+
+public:
+  virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~WebAppInputLine() noexcept;
+
+public:
+  MIKTEXMFTHISAPI(void) Init(const std::string& programInvocationName) override;
 
 public:
   MIKTEXMFTHISAPI(void) Finalize() override;
@@ -64,18 +80,16 @@ protected:
   MIKTEXMFTHISAPI(void) AddOptions() override;
 
 protected:
-  MIKTEXMFTHISAPI(bool) ProcessOption(int opt, const std::string & optArg) override;
+  MIKTEXMFTHISAPI(bool) ProcessOption(int opt, const std::string& optArg) override;
 
 public:
   virtual int GetFormatIdent() const
   {
-    // must be implemented in sub-classes
-    MIKTEX_ASSERT(false);
-    return 0;
+    MIKTEX_UNEXPECTED();
   }
 
 protected:
-  virtual MIKTEXMFTHISAPI(void) TouchJobOutputFile(FILE *) const;
+  virtual MIKTEXMFTHISAPI(void) TouchJobOutputFile(FILE*) const;
 
 #ifdef THEDATA
 private:
@@ -106,7 +120,7 @@ private:
 #endif // ifdef THEDATA
 
 public:
-  template<class FileType> void CloseFile(FileType & f)
+  template<class FileType> void CloseFile(FileType& f)
   {
     f.AssertValid();
     TouchJobOutputFile(f);
@@ -114,13 +128,13 @@ public:
   }
 
 private:
-  int GetCharacter(FILE * pFile) const
+  int GetCharacter(FILE* file) const
   {
-    MIKTEX_ASSERT(pFile != nullptr);
-    int ch = getc(pFile);
+    MIKTEX_ASSERT(file != nullptr);
+    int ch = getc(file);
     if (ch == EOF)
     {
-      if (ferror(pFile) != 0)
+      if (ferror(file) != 0)
       {
         MIKTEX_FATAL_CRT_ERROR("getc");
       }
@@ -130,31 +144,25 @@ private:
     if (ch == e_o_f)
     {
       ch = EOF;               // -1
-      HandleEof(pFile);
+      HandleEof(file);
     }
 #endif
     return ch;
   }
 
 public:
-  const char * GetFoundFile() const
-  {
-    return foundFile.GetData();
-  }
+  MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetFoundFile() const;
 
 public:
-  const char * GetFoundFileFq() const
-  {
-    return foundFileFq.GetData();
-  }
+  MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetFoundFileFq() const;
 
-public:
 #if defined(THEDATA)
+public:
   MiKTeX::Core::PathName GetNameOfFile() const
   {
 #if defined(MIKTEX_XETEX)
     MIKTEX_ASSERT (sizeof(THEDATA(nameoffile)[0]) == sizeof(char));
-    const char * lpsz = reinterpret_cast<const char *>(THEDATA(nameoffile));
+    const char* lpsz = reinterpret_cast<const char*>(THEDATA(nameoffile));
     return MiKTeX::Util::StringUtil::UTF8ToWideChar(lpsz);
 #else
     return THEDATA(nameoffile);
@@ -162,36 +170,39 @@ public:
   }
 #endif
 
-public:
 #if defined(THEDATA)
-  void SetNameOfFile (const MiKTeX::Core::PathName & fileName)
-{
+public:
+  void SetNameOfFile(const MiKTeX::Core::PathName& fileName)
+  {
 #if defined(MIKTEX_XETEX)
-  MiKTeX::Util::StringUtil::CopyString (
-  reinterpret_cast<char *>(THEDATA(nameoffile)), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());
-THEDATA(namelength) = fileName.GetLength();
+    MiKTeX::Util::StringUtil::CopyString(reinterpret_cast<char*>(THEDATA(nameoffile)), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());
 #else
-  MiKTeX::Util::StringUtil::CopyString(
-    THEDATA(nameoffile), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());
-  THEDATA(namelength) = fileName.GetLength();
+    MiKTeX::Util::StringUtil::CopyString(THEDATA(nameoffile), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());
 #endif
-}
+    THEDATA(namelength) = fileName.GetLength();
+  }
 #endif
 
 public:
-  MiKTeX::Core::PathName GetOutputDirectory() const
-  {
-    return outputDirectory;
-  }
+  MIKTEXMFTHISAPI(void) SetOutputDirectory(const MiKTeX::Core::PathName & path);
+
+public:
+  MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetOutputDirectory() const;
+
+public:
+  MIKTEXMFTHISAPI(void) SetAuxDirectory(const MiKTeX::Core::PathName & path);
+
+public:
+  MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetAuxDirectory() const;
 
 #if 0  
 private:
-  MIKTEXMFTHISAPI(void) HandleEof(FILE * pFile) const;
+  MIKTEXMFTHISAPI(void) HandleEof(FILE* file) const;
 #endif
 
 #if defined(THEDATA) && !defined(MIKTEX_XETEX)
 public:
-  bool InputLine(C4P::C4P_text & f, C4P::C4P_boolean bypassEndOfLine)
+  bool InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLine)
   {
     f.AssertValid();
 
@@ -314,59 +325,38 @@ public:
 
     return true;
   }
-
 #endif
 
 public:
-  MIKTEXMFTHISAPI(bool) OpenInputFile(FILE * * ppFile, const char * lpszFileName);
+  MIKTEXMFTHISAPI(bool) OpenInputFile(FILE** ppFile, const MiKTeX::Core::PathName& fileName);
 
 public:
-  MIKTEXMFTHISAPI(bool) OpenInputFile(C4P::FileRoot & f, const char * lpszFileName);
+  MIKTEXMFTHISAPI(bool) OpenInputFile(C4P::FileRoot& f, const MiKTeX::Core::PathName& fileName);
 
 public:
-  MIKTEXMFTHISAPI(bool) OpenOutputFile(C4P::FileRoot & f, const char * lpszPath, MiKTeX::Core::FileShare share, bool text, MiKTeX::Core::PathName & outPath);
+  MIKTEXMFTHISAPI(bool) OpenOutputFile(C4P::FileRoot& f, const MiKTeX::Core::PathName& fileName, MiKTeX::Core::FileShare share, bool text, MiKTeX::Core::PathName& outPath);
 
 public:
-  MIKTEXMFTHISAPI(bool) AllowFileName(const char * lpszPath, bool forInput);
+  MIKTEXMFTHISAPI(bool) AllowFileName(const MiKTeX::Core::PathName& fileName, bool forInput);
 
 protected:
-  void EnablePipes(bool f)
-  {
-    enablePipes = f;
-  }
-
-public:
-  static MIKTEXMFCEEAPI(MiKTeX::Core::PathName) MangleNameOfFile(const char * lpszFileName);
-
-public:
-  static MIKTEXMFCEEAPI(MiKTeX::Core::PathName) UnmangleNameOfFile(const char * lpszFileName);
-
-public:
-  static MIKTEXMFCEEAPI(MiKTeX::Core::PathName) UnmangleNameOfFile(const wchar_t * lpszFileName);
+  MIKTEXMFTHISAPI(void) EnablePipes(bool f);
 
 protected:
-  MiKTeX::Core::PathName auxDirectory;
+  MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetLastInputFileName() const;
+
+public:
+  static MIKTEXMFCEEAPI(MiKTeX::Core::PathName) MangleNameOfFile(const char* fileName);
+
+public:
+  static MIKTEXMFCEEAPI(MiKTeX::Core::PathName) UnmangleNameOfFile(const char* fileName);
+
+public:
+  static MIKTEXMFCEEAPI(MiKTeX::Core::PathName) UnmangleNameOfFile(const wchar_t* fileName);
 
 private:
-  MiKTeX::Core::PathName foundFile;
-
-private:
-  MiKTeX::Core::PathName foundFileFq;
-
-protected:
-  MiKTeX::Core::PathName lastInputFileName;
-
-protected:
-  MiKTeX::Core::PathName outputDirectory;
-
-protected:
-  MiKTeX::Core::FileType inputFileType;
-
-protected:
-  bool enablePipes;
-
-private:
-  int optBase;
+  class impl;
+  std::unique_ptr<impl> pimpl;
 };
 
 MIKTEXMF_END_NAMESPACE;

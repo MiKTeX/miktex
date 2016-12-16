@@ -29,24 +29,46 @@ bool IsNameManglingEnabled = false;
 
 END_INTERNAL_NAMESPACE;
 
+class WebAppInputLine::impl
+{
+public:
+  PathName outputDirectory;
+public:
+  PathName auxDirectory;
+public:
+  int optBase;
+public:
+  PathName foundFile;
+public:
+  PathName foundFileFq;
+public:
+  bool enablePipes;
+public:
+  PathName lastInputFileName;
+};
+
 WebAppInputLine::WebAppInputLine() :
-  inputFileType(FileType::PROGRAMTEXTFILE)
+  pimpl(make_unique<impl>())
+{
+}
+
+WebAppInputLine::~WebAppInputLine()
 {
 }
 
 void WebAppInputLine::Init(const string & programInvocationName)
 {
   WebApp::Init(programInvocationName);
-  enablePipes = false;
+  pimpl->enablePipes = false;
 }
 
 void WebAppInputLine::Finalize()
 {
-  auxDirectory.Clear();
-  foundFile.Clear();
-  foundFileFq.Clear();
-  lastInputFileName.Clear();
-  outputDirectory.Clear();
+  pimpl->foundFile.Clear();
+  pimpl->foundFileFq.Clear();
+  pimpl->lastInputFileName.Clear();
+  pimpl->outputDirectory.Clear();
+  pimpl->auxDirectory.Clear();
   WebApp::Finalize();
 }
 
@@ -58,24 +80,24 @@ enum {
 void WebAppInputLine::AddOptions()
 {
   WebApp::AddOptions();
-  optBase = static_cast<int>(GetOptions().size());
-  AddOption(T_("enable-pipes\0Enable input (output) from (to) processes."), FIRST_OPTION_VAL + optBase + OPT_ENABLE_PIPES);
-  AddOption(T_("disable-pipes\0Disable input (output) from (to) processes."), FIRST_OPTION_VAL + optBase + OPT_DISABLE_PIPES);
+  pimpl->optBase = static_cast<int>(GetOptions().size());
+  AddOption(T_("enable-pipes\0Enable input (output) from (to) processes."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_PIPES);
+  AddOption(T_("disable-pipes\0Disable input (output) from (to) processes."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_PIPES);
 }
 
 bool WebAppInputLine::ProcessOption(int opt, const string & optArg)
 {
   bool done = true;
 
-  switch (opt - FIRST_OPTION_VAL - optBase)
+  switch (opt - FIRST_OPTION_VAL - pimpl->optBase)
   {
 
   case OPT_DISABLE_PIPES:
-    enablePipes = false;
+    pimpl->enablePipes = false;
     break;
 
   case OPT_ENABLE_PIPES:
-    enablePipes = true;
+    pimpl->enablePipes = true;
     break;
 
   default:
@@ -186,7 +208,7 @@ static bool IsOutputFile(const PathName & path)
     || path_.HasExtension(".synctex");
 }
 
-bool WebAppInputLine::AllowFileName(const char * lpszPath, bool forInput)
+bool WebAppInputLine::AllowFileName(const MiKTeX::Core::PathName& fileName, bool forInput)
 {
   shared_ptr<Session> session = GetSession();
   bool allow;
@@ -220,12 +242,12 @@ bool WebAppInputLine::AllowFileName(const char * lpszPath, bool forInput)
   {
     return true;
   }
-  return Core::Utils::IsSafeFileName(lpszPath, forInput);
+  return Core::Utils::IsSafeFileName(fileName, forInput);
 }
 
-bool WebAppInputLine::OpenOutputFile(C4P::FileRoot & f, const char * lpszPath, FileShare share, bool text, PathName & outPath)
+bool WebAppInputLine::OpenOutputFile(C4P::FileRoot & f, const PathName& fileName, FileShare share, bool text, PathName & outPath)
 {
-  MIKTEX_ASSERT_STRING(lpszPath);
+  const char* lpszPath = fileName.GetData();
 #if defined(MIKTEX_WINDOWS)
   string utf8Path;
   if (!Utils::IsUTF8(lpszPath))
@@ -236,7 +258,7 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot & f, const char * lpszPath, F
 #endif
   shared_ptr<Session> session = GetSession();
   FILE * pfile = nullptr;
-  if (enablePipes && lpszPath[0] == '|')
+  if (pimpl->enablePipes && lpszPath[0] == '|')
   {
     pfile = session->OpenFile(lpszPath + 1, FileMode::Command, FileAccess::Write, false);
   }
@@ -245,14 +267,14 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot & f, const char * lpszPath, F
     PathName unmangled = UnmangleNameOfFile(lpszPath);
     bool isAuxFile = !IsOutputFile(unmangled);
     PathName path;
-    if (isAuxFile && !auxDirectory.Empty())
+    if (isAuxFile && !pimpl->auxDirectory.Empty())
     {
-      path = auxDirectory / unmangled;
+      path = pimpl->auxDirectory / unmangled;
       lpszPath = path.GetData();
     }
-    else if (!outputDirectory.Empty())
+    else if (!pimpl->outputDirectory.Empty())
     {
-      path = outputDirectory / unmangled;
+      path = pimpl->outputDirectory / unmangled;
       lpszPath = path.GetData();
     }
     else
@@ -273,9 +295,9 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot & f, const char * lpszPath, F
   return true;
 }
 
-bool WebAppInputLine::OpenInputFile(FILE ** ppFile, const char * lpszFileName)
+bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
 {
-  MIKTEX_ASSERT_STRING(lpszFileName);
+  const char* lpszFileName = fileName.GetData();
 
 #if defined(MIKTEX_WINDOWS)
   string utf8FileName;
@@ -288,48 +310,48 @@ bool WebAppInputLine::OpenInputFile(FILE ** ppFile, const char * lpszFileName)
 
   shared_ptr<Session> session = GetSession();
 
-  if (enablePipes && lpszFileName[0] == '|')
+  if (pimpl->enablePipes && lpszFileName[0] == '|')
   {
     *ppFile = session->OpenFile(lpszFileName + 1, FileMode::Command, FileAccess::Read, false);
-    foundFile.Clear();
-    foundFileFq.Clear();
+    pimpl->foundFile.Clear();
+    pimpl->foundFileFq.Clear();
   }
   else
   {
-    if (!session->FindFile(UnmangleNameOfFile(lpszFileName).ToString(), GetInputFileType(), foundFile))
+    if (!session->FindFile(UnmangleNameOfFile(lpszFileName).ToString(), GetInputFileType(), pimpl->foundFile))
     {
       return false;
     }
 
-    foundFileFq = foundFile;
-    foundFileFq.MakeAbsolute();
+    pimpl->foundFileFq = pimpl->foundFile;
+    pimpl->foundFileFq.MakeAbsolute();
 
 #if 1 // 2015-01-15
-    if (foundFile[0] == '.' && PathName::IsDirectoryDelimiter(foundFile[1]))
+    if (pimpl->foundFile[0] == '.' && PathName::IsDirectoryDelimiter(pimpl->foundFile[1]))
     {
-      PathName temp(foundFile.GetData() + 2);
-      foundFile = temp;
+      PathName temp(pimpl->foundFile.GetData() + 2);
+      pimpl->foundFile = temp;
     }
 #endif
 
     try
     {
-      if (foundFile.HasExtension(".gz"))
+      if (pimpl->foundFile.HasExtension(".gz"))
       {
         CommandLineBuilder cmd("zcat");
-        cmd.AppendArgument(foundFile);
+        cmd.AppendArgument(pimpl->foundFile);
         *ppFile = session->OpenFile(cmd.ToString(), FileMode::Command, FileAccess::Read, false);
       }
-      else if (foundFile.HasExtension(".bz2"))
+      else if (pimpl->foundFile.HasExtension(".bz2"))
       {
         CommandLineBuilder cmd("bzcat");
-        cmd.AppendArgument(foundFile);
+        cmd.AppendArgument(pimpl->foundFile);
         *ppFile = session->OpenFile(cmd.ToString(), FileMode::Command, FileAccess::Read, false);
       }
-      else if (foundFile.HasExtension(".xz") || foundFile.HasExtension(".lzma"))
+      else if (pimpl->foundFile.HasExtension(".xz") || pimpl->foundFile.HasExtension(".lzma"))
       {
         CommandLineBuilder cmd("xzcat");
-        cmd.AppendArgument(foundFile);
+        cmd.AppendArgument(pimpl->foundFile);
         *ppFile = session->OpenFile(cmd.ToString(), FileMode::Command, FileAccess::Read, false);
       }
       else
@@ -339,7 +361,7 @@ bool WebAppInputLine::OpenInputFile(FILE ** ppFile, const char * lpszFileName)
 #else
         FileShare share = FileShare::ReadWrite;
 #endif
-        *ppFile = session->OpenFile(foundFile.GetData(), FileMode::Open, FileAccess::Read, false, share);
+        *ppFile = session->OpenFile(pimpl->foundFile.GetData(), FileMode::Open, FileAccess::Read, false, share);
       }
     }
 #if defined(MIKTEX_WINDOWS)
@@ -360,16 +382,16 @@ bool WebAppInputLine::OpenInputFile(FILE ** ppFile, const char * lpszFileName)
     return false;
   }
 
-  lastInputFileName = lpszFileName;
+  pimpl->lastInputFileName = lpszFileName;
 
   return true;
 }
 
-bool WebAppInputLine::OpenInputFile(C4P::FileRoot & f, const char * lpszFileName)
+bool WebAppInputLine::OpenInputFile(C4P::FileRoot & f, const PathName& fileName)
 {
   FILE * pFile = nullptr;
 
-  if (!OpenInputFile(&pFile, lpszFileName))
+  if (!OpenInputFile(&pFile, fileName))
   {
     return false;
   }
@@ -381,7 +403,7 @@ bool WebAppInputLine::OpenInputFile(C4P::FileRoot & f, const char * lpszFileName
   get(f);
 #endif
 
-  lastInputFileName = lpszFileName;
+  pimpl->lastInputFileName = fileName;
 
   return true;
 }
@@ -403,4 +425,45 @@ void WebAppInputLine::HandleEof(FILE * pfile) const
 
 void WebAppInputLine::TouchJobOutputFile(FILE *) const
 {
+}
+
+void WebAppInputLine::SetOutputDirectory(const PathName & path)
+{
+  pimpl->outputDirectory = path;
+}
+
+PathName WebAppInputLine::GetOutputDirectory() const
+{
+  return pimpl->outputDirectory;
+}
+
+void WebAppInputLine::SetAuxDirectory(const PathName & path)
+{
+  pimpl->auxDirectory = path;
+}
+
+PathName WebAppInputLine::GetAuxDirectory() const
+{
+  return pimpl->auxDirectory;
+}
+
+PathName WebAppInputLine::GetFoundFile() const
+{
+  return pimpl->foundFile;
+}
+
+PathName WebAppInputLine::GetFoundFileFq() const
+{
+  return pimpl->foundFileFq;
+}
+
+void WebAppInputLine::EnablePipes(bool f)
+{
+  pimpl->enablePipes = f;
+}
+
+PathName WebAppInputLine::GetLastInputFileName() const
+{
+  return pimpl->lastInputFileName;
+
 }

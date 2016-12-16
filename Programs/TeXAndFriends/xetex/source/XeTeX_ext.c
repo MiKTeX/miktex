@@ -2642,7 +2642,7 @@ u_open_in(unicodefile* f, integer filefmt, const_string fopen_mode, integer mode
     (*f)->savedChar = -1;
     (*f)->skipNextLF = 0;
 #if defined(MIKTEX)
-    rval = THEAPP.OpenInputFile(&((*f)->f), THEAPP.GetNameOfFile().GetData());
+    rval = THEAPP.OpenInputFile(&((*f)->f), THEAPP.GetNameOfFile());
 #else
     rval = open_input (&((*f)->f), filefmt, fopen_mode);
 #endif
@@ -2693,7 +2693,7 @@ boolean open_dvi_output(C4P::FileRoot & dviFile)
   if (nopdfoutput)
   {
     MiKTeX::Core::PathName outPath;
-    bool done = THEAPP.OpenOutputFile(dviFile, THEAPP.GetNameOfFile().GetData(), MiKTeX::Core::FileShare::Read, false, outPath);
+    bool done = THEAPP.OpenOutputFile(dviFile, THEAPP.GetNameOfFile(), MiKTeX::Core::FileShare::Read, false, outPath);
     if (done)
     {
       THEAPP.SetNameOfFile(THEAPP.MangleNameOfFile(outPath.GetData()));

@@ -77,7 +77,6 @@ public:
   MFCLASS()
 #endif
   {
-    inputFileType = FileType::MF;
   }
 
 public:

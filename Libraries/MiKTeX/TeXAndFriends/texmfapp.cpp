@@ -146,7 +146,7 @@ void TeXMFApp::OnTeXMFFinishJob()
       fileName = jobName;
     }
     shared_ptr<Session> session = GetSession();
-    session->SetRecorderPath(PathName(outputDirectory, fileName).AppendExtension(".fls"));
+    session->SetRecorderPath(PathName(GetOutputDirectory(), fileName).AppendExtension(".fls"));
   }
   if (timeStatistics)
   {
@@ -317,8 +317,10 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     break;
 
   case OPT_AUX_DIRECTORY:
-    auxDirectory = optArg;
+  {
+    PathName auxDirectory = optArg;
     auxDirectory.MakeAbsolute();
+    SetOutputDirectory(auxDirectory);
     if (!Directory::Exists(auxDirectory))
     {
       if (session->GetConfigValue("", MIKTEX_REGVAL_CREATE_AUX_DIRECTORY, texmfapp::texmfapp::CreateAuxDirectory()).GetString() == "t")
@@ -332,6 +334,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     }
     session->AddInputDirectory(auxDirectory, true);
     break;
+  }
 
   case OPT_BUF_SIZE:
     param_buf_size = std::stoi(optArg);
@@ -455,8 +458,10 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     break;
 
   case OPT_OUTPUT_DIRECTORY:
-    outputDirectory = optArg;
+  {
+    PathName outputDirectory = optArg;
     outputDirectory.MakeAbsolute();
+    SetOutputDirectory(outputDirectory);
     if (!Directory::Exists(outputDirectory))
     {
       if (session->GetConfigValue("", MIKTEX_REGVAL_CREATE_OUTPUT_DIRECTORY, texmfapp::texmfapp::CreateOutputDirectory()).GetString() == "t")
@@ -468,12 +473,13 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
         MIKTEX_FATAL_ERROR_2(T_("The specified output directory does not exist."), "directory", outputDirectory.GetData());
       }
     }
-    if (auxDirectory[0] == 0)
+    if (GetAuxDirectory().Empty())
     {
-      auxDirectory = outputDirectory;
+      SetAuxDirectory(outputDirectory);
     }
     session->AddInputDirectory(outputDirectory, true);
     break;
+  }
 
   case OPT_PARAM_SIZE:
     param_param_size = std::stoi(optArg);

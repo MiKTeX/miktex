@@ -73,7 +73,7 @@
 
 #if defined(THEAPP)
 #  define generic_synctex_get_current_name() \
-  xstrdup(THEAPP.GetFoundFileFq())
+  xstrdup(THEAPP.GetFoundFileFq().GetData())
 #endif
 
 /* _________________________________________________________________________

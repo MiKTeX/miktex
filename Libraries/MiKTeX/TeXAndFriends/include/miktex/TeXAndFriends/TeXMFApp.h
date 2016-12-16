@@ -533,7 +533,7 @@ public:
   {
     if (jobName.empty())
     {
-      MiKTeX::Core::PathName name = lastInputFileName.GetFileNameWithoutExtension();
+      MiKTeX::Core::PathName name = GetLastInputFileName().GetFileNameWithoutExtension();
 #if defined(MIKTEX_XETEX)
       jobName = name.ToString();
 #else
@@ -600,7 +600,7 @@ public:
 #if defined(THEDATA)
   int MakeFullNameString()
   {
-    return MakeTeXString(GetFoundFile());
+    return MakeTeXString(GetFoundFile().GetData());
   }
 #endif
 

@@ -42,39 +42,39 @@
 MIKTEXMF_BEGIN_NAMESPACE;
 
 #if !defined(MIKTEX_XETEX)
-template<class FileType> inline bool inputln(FileType & f, C4P::C4P_boolean bypassEndOfLine = true)
+template<class FileType> inline bool inputln(FileType& f, C4P::C4P_boolean bypassEndOfLine = true)
 {
   return THEAPP.InputLine(f, bypassEndOfLine);
 }
 #endif
 
-template<class FileType> inline void miktexclosefile(FileType & f)
+template<class FileType> inline void miktexclosefile(FileType& f)
 {
   THEAPP.CloseFile(f);
 }
 
-template<class FileType> inline bool miktexopeninputfile(FileType & f)
+template<class FileType> inline bool miktexopeninputfile(FileType& f)
 {
-  bool done = (THEAPP.OpenInputFile(*static_cast<C4P::FileRoot*>(&f), THEAPP.GetNameOfFile().GetData()));
+  bool done = (THEAPP.OpenInputFile(*static_cast<C4P::FileRoot*>(&f), THEAPP.GetNameOfFile()));
   if (done)
   {
-    THEAPP.SetNameOfFile(THEAPP.MangleNameOfFile(THEAPP.GetFoundFile()));
+    THEAPP.SetNameOfFile(THEAPP.MangleNameOfFile(THEAPP.GetFoundFile().GetData()));
   }
   return done;
 }
 
 inline bool miktexallownameoffile(C4P::C4P_boolean forInput)
 {
-  return THEAPP.AllowFileName(THEAPP.GetNameOfFile().GetData(), forInput);
+  return THEAPP.AllowFileName(THEAPP.GetNameOfFile(), forInput);
 }
 
-template<class FileType> inline bool miktexopenoutputfile(FileType & f, C4P::C4P_boolean text)
+template<class FileType> inline bool miktexopenoutputfile(FileType& f, C4P::C4P_boolean text)
 {
   // must open with read/write sharing flags
   // cf. bug 2006511
   MiKTeX::Core::FileShare share = MiKTeX::Core::FileShare::ReadWrite;
   MiKTeX::Core::PathName outPath;
-  bool done = THEAPP.OpenOutputFile(*static_cast<C4P::FileRoot*>(&f), THEAPP.GetNameOfFile().GetData(), share, text, outPath);
+  bool done = THEAPP.OpenOutputFile(*static_cast<C4P::FileRoot*>(&f), THEAPP.GetNameOfFile(), share, text, outPath);
   if (done)
   {
     THEAPP.SetNameOfFile(THEAPP.MangleNameOfFile(outPath.GetData()));
