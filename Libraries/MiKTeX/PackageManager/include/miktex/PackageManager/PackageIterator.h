@@ -39,8 +39,6 @@ enum class PackageFilter
 {
   /// Top-level package filter.
   Top,
-  /// Dependency package filter.
-  RequiredBy,
   /// Obsolete packages.
   Obsolete,
 };
@@ -52,7 +50,7 @@ class MIKTEXNOVTABLE PackageIterator
 {
   /// Destructor.
 public:
-  virtual MIKTEXTHISCALL ~PackageIterator() = 0;
+  virtual MIKTEXTHISCALL ~PackageIterator() noexcept = 0;
 
   /// Releases all resources used by this object.
 public:
@@ -62,7 +60,7 @@ public:
   /// @param filter Filter flags to be added.
   /// @param lpsz Optional filter argument.
 public:
-  virtual void MIKTEXTHISCALL AddFilter(PackageFilterSet filter, const char * lpszFilter = nullptr) = 0;
+  virtual void MIKTEXTHISCALL AddFilter(PackageFilterSet filter) = 0;
 
   /// Gets the next entry in the package database.
   /// @param[out] The package info struct to be filled.

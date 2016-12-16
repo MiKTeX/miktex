@@ -42,11 +42,6 @@ bool PackageIteratorImpl::GetNext(PackageInfo & packageInfo)
     {
       continue;
     }
-    if (filter[PackageFilter::RequiredBy]
-      && (find(iter->requiredBy.begin(), iter->requiredBy.end(), requiredBy) == iter->requiredBy.end()))
-    {
-      continue;
-    }
     if (filter[PackageFilter::Obsolete] && !pManager->IsPackageObsolete(iter->deploymentName))
     {
       continue;

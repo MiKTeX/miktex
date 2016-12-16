@@ -95,7 +95,7 @@ class MIKTEXNOVTABLE PackageInstaller
 {
   /// Destructor.
 public:
-  virtual MIKTEXTHISCALL ~PackageInstaller() = 0;
+  virtual MIKTEXTHISCALL ~PackageInstaller() noexcept = 0;
 
   /// Releases all resources used by this package installer object.
 public:

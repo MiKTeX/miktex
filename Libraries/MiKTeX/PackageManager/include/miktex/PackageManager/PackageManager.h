@@ -65,7 +65,7 @@ struct ProxySettings
 class MIKTEXNOVTABLE PackageManager
 {
 public:
-  virtual MIKTEXTHISCALL ~PackageManager() = 0;
+  virtual MIKTEXTHISCALL ~PackageManager() noexcept = 0;
 
   /// Creates a new package installer object. The caller is responsible
   /// for deleting the object.
@@ -134,9 +134,12 @@ public:
 public:
   struct InitInfo
   {
-    InitInfo()
-    {
-    }
+    InitInfo() = default;
+    InitInfo(const InitInfo & other) = default;
+    InitInfo & operator=(const InitInfo & other) = default;
+    InitInfo(InitInfo && other) = default;
+    InitInfo & operator=(InitInfo && other) = default;
+    ~InitInfo() = default;
     InitInfo(MiKTeX::Trace::TraceCallback * traceCallback) :
       traceCallback(traceCallback)
     {

@@ -1024,13 +1024,8 @@ public:
   void MIKTEXTHISCALL Dispose() override;
 
 public:
-  void MIKTEXTHISCALL AddFilter(PackageFilterSet filter, const char * lpsz = nullptr) override
+  void MIKTEXTHISCALL AddFilter(PackageFilterSet filter) override
   {
-    if (filter[PackageFilter::RequiredBy])
-    {
-      MIKTEX_ASSERT(lpsz != nullptr);
-      requiredBy = lpsz;
-    }
     this->filter += filter;
   }
 
