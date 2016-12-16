@@ -84,6 +84,9 @@ private:
   FileType fileType = FileType::None;
 
 private:
+  shared_ptr<Session> session;
+
+private:
   static const struct poptOption aoption[];
 };
 
@@ -230,6 +233,8 @@ void FindTeXMF::PrintSearchPath(const char * lpszSearchPath)
 
 void FindTeXMF::Run(int argc, const char ** argv)
 {
+  session = GetSession();
+
   bool needArg = true;
 
   PoptWrapper popt(argc, argv, aoption);

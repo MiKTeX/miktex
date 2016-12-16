@@ -318,6 +318,7 @@ public:
 protected:
   template<typename ValueType> ValueType GetParameter(const char * lpszParameterName, const ValueType & defaultValue) const
   {
+    std::shared_ptr<MiKTeX::Core::Session> session;
     ValueType value = session->GetConfigValue("", lpszParameterName, -1).GetInt();
     if (value < 0)
     {
@@ -837,6 +838,7 @@ private:
 
 template<> inline std::string TeXMFApp::GetParameter(const char * lpszParameterName, const std::string & defaultValue) const
 {
+  std::shared_ptr<MiKTeX::Core::Session> session = GetSession();
   std::string value = session->GetConfigValue("", lpszParameterName, "").GetString();
   if (value.empty())
   {

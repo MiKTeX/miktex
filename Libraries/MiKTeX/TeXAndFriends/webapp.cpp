@@ -34,6 +34,7 @@ void WebApp::Init(const char * lpszProgramInvocationName)
 
 void WebApp::Finalize()
 {
+  shared_ptr<Session> session = GetSession();
   if (!packageListFileName.Empty())
   {
     FileStream stream(File::Open(packageListFileName, FileMode::Create, FileAccess::Write));
@@ -179,6 +180,7 @@ void WebApp::AddOptions()
 
 bool WebApp::ProcessOption(int opt, const string & optArg)
 {
+  shared_ptr<Session> session = GetSession();
   if (opt == OPT_UNSUPPORTED)
   {
     MIKTEX_UNEXPECTED();

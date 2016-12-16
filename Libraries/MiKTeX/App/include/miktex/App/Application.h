@@ -72,9 +72,6 @@ public:
   MIKTEXAPPEXPORT MIKTEXTHISCALL Application();
 
 public:
-  virtual MIKTEXAPPEXPORT MIKTEXTHISCALL ~Application() noexcept;
-
-public:
   Application(const Application & other) = delete;
 
 public:
@@ -85,6 +82,9 @@ public:
 
 public:
   Application & operator=(Application && other) = delete;
+
+public:
+  virtual MIKTEXAPPEXPORT MIKTEXTHISCALL ~Application() noexcept;
 
 public:
   virtual MIKTEXAPPTHISAPI(void) Init(const MiKTeX::Core::Session::InitInfo & initInfo);
@@ -176,10 +176,7 @@ public:
   MIKTEXAPPTHISAPI(void) SetQuietFlag(bool b);
 
 public:
-  std::shared_ptr<MiKTeX::Core::Session> GetSession() const
-  {
-    return session;
-  }
+  MIKTEXAPPTHISAPI(std::shared_ptr<MiKTeX::Core::Session>) GetSession() const;
 
 public:
   MIKTEXAPPTHISAPI(MiKTeX::Core::TriState) GetEnableInstaller() const;
@@ -193,17 +190,8 @@ protected:
 public:
   static MIKTEXAPPCEEAPI(void) CheckCancel();
 
-protected:
-  std::shared_ptr<MiKTeX::Core::Session> session;
-
-protected:
-  bool isLog4cxxConfigured = false;
-
 public:
-  bool IsLog4cxxConfigured() const
-  {
-    return isLog4cxxConfigured;
-  }
+  MIKTEXAPPTHISAPI(bool) IsLog4cxxConfigured() const;
 
 private:
   void FlushPendingTraceMessages();

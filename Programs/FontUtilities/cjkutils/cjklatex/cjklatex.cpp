@@ -169,6 +169,9 @@ private:
 
 private:
   bool printOnly;
+
+private:
+  shared_ptr<Session> session;
 };
 
 /* _________________________________________________________________________
@@ -466,6 +469,7 @@ void
 CJKLaTeXApp::Run (/*[in]*/ int		argc,
 		  /*[in]*/ char **	argv)
 {
+  session = GetSession();
   ProcessOptions (argc, argv);
   for (int i = optind; i != argc; ++ i)
     {

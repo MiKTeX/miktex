@@ -142,6 +142,9 @@ private:
   bool quiet = false;
 
 private:
+  shared_ptr<Session> session;
+
+private:
   shared_ptr<PackageManager> pManager;
 
 private:
@@ -191,6 +194,7 @@ const struct poptOption MiKTeXHelp::aoption[] = {
 void MiKTeXHelp::Init(const Session::InitInfo & initInfo)
 {
   Application::Init(initInfo);
+  session = GetSession();
   pManager = PackageManager::Create();
 }
 

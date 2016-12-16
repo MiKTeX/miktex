@@ -47,6 +47,9 @@ private:
   bool printOnly = false;
 
 private:
+  shared_ptr<Session> session;
+
+private:
   static struct poptOption aoption[];
 };
 
@@ -167,6 +170,7 @@ void TdsUtility::Run(int argc, const char ** argv)
   }
   
   Init(initInfo);
+  session = GetSession();
 
   vector<string> leftovers = popt.GetLeftovers();
 

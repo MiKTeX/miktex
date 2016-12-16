@@ -186,6 +186,9 @@ private:
   string pdfVersion;
 
 private:
+  shared_ptr<Session> session;
+
+private:
   static struct poptOption aoption[];
 };
 
@@ -844,6 +847,7 @@ void EpsToPdfApp::Run(int argc, const char ** argv)
   }
 
   Init(initInfo);
+  session = GetSession();
 
   PathName inputFile;
 

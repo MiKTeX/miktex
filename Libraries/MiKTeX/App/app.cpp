@@ -86,6 +86,10 @@ public:
   TriState enableInstaller = TriState::Undetermined;
 public:
   bool beQuiet;
+public:
+  shared_ptr<Session> session;
+public:
+  bool isLog4cxxConfigured = false;
 };
 
 Application::Application() :
@@ -131,17 +135,17 @@ void Application::Init(const Session::InitInfo & initInfo_)
   pimpl->initialized = true;
   Session::InitInfo initInfo(initInfo_);
   initInfo.SetTraceCallback(this);
-  session = Session::Create(initInfo);
-  session->SetFindFileCallback(this);
+  pimpl->session = Session::Create(initInfo);
+  pimpl->session->SetFindFileCallback(this);
   string myName = Utils::GetExeName();
   PathName xmlFileName;
-  if (session->FindFile(myName + "." + MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
-    || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
+  if (pimpl->session->FindFile(myName + "." + MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
+    || pimpl->session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
   {
-    Utils::SetEnvironmentString("MIKTEX_LOG_DIR", PathName(session->GetSpecialPath(SpecialPath::DataRoot), MIKTEX_PATH_MIKTEX_LOG_DIR).ToString());
+    Utils::SetEnvironmentString("MIKTEX_LOG_DIR", PathName(pimpl->session->GetSpecialPath(SpecialPath::DataRoot), MIKTEX_PATH_MIKTEX_LOG_DIR).ToString());
     Utils::SetEnvironmentString("MIKTEX_LOG_NAME", myName);
     log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
-    isLog4cxxConfigured = true;
+    pimpl->isLog4cxxConfigured = true;
   }
   else
   {
@@ -151,19 +155,19 @@ void Application::Init(const Session::InitInfo & initInfo_)
   pimpl->beQuiet = false;
   if (pimpl->enableInstaller == TriState::Undetermined)
   {
-    pimpl->enableInstaller = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, TriState::Undetermined).GetTriState();
+    pimpl->enableInstaller = pimpl->session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, TriState::Undetermined).GetTriState();
   }
-  pimpl->autoAdmin = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_ADMIN, TriState::Undetermined).GetTriState();
+  pimpl->autoAdmin = pimpl->session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_ADMIN, TriState::Undetermined).GetTriState();
   InstallSignalHandler(SIGINT);
   InstallSignalHandler(SIGTERM);
-  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
-  PathName mpmDatabasePath(session->GetMpmDatabasePathName());
-  bool mustRefreshFndb = !File::Exists(mpmDatabasePath) || (!session->IsAdminMode() && lastAdminMaintenance + 30 > File::GetLastWriteTime(mpmDatabasePath));
-  PathName userLanguageDat = session->GetSpecialPath(SpecialPath::UserConfigRoot);
+  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(pimpl->session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
+  PathName mpmDatabasePath(pimpl->session->GetMpmDatabasePathName());
+  bool mustRefreshFndb = !File::Exists(mpmDatabasePath) || (!pimpl->session->IsAdminMode() && lastAdminMaintenance + 30 > File::GetLastWriteTime(mpmDatabasePath));
+  PathName userLanguageDat = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot);
   userLanguageDat /= MIKTEX_PATH_LANGUAGE_DAT;
-  bool mustRefreshUserLanguageDat = !session->IsAdminMode() && File::Exists(userLanguageDat) && lastAdminMaintenance + 30 > File::GetLastWriteTime(userLanguageDat);
+  bool mustRefreshUserLanguageDat = !pimpl->session->IsAdminMode() && File::Exists(userLanguageDat) && lastAdminMaintenance + 30 > File::GetLastWriteTime(userLanguageDat);
   PathName initexmf;
-  if ((mustRefreshFndb || mustRefreshUserLanguageDat) && session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
+  if ((mustRefreshFndb || mustRefreshUserLanguageDat) && pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
   {
     CommandLineBuilder commandLine;
     switch (pimpl->enableInstaller)
@@ -177,14 +181,14 @@ void Application::Init(const Session::InitInfo & initInfo_)
     case TriState::Undetermined:
       break;
     }
-    if (session->IsAdminMode())
+    if (pimpl->session->IsAdminMode())
     {
       commandLine.AppendOption("--admin");
     }
     commandLine.AppendArgument("--quiet");
     if (mustRefreshFndb)
     {
-      session->UnloadFilenameDatabase();
+      pimpl->session->UnloadFilenameDatabase();
       CommandLineBuilder xCommandLine(commandLine);
       xCommandLine.AppendOption("--update-fndb");
       LOG4CXX_INFO(logger, "running 'initexmf " << xCommandLine.ToString() << "' to refresh the file name database");
@@ -192,7 +196,7 @@ void Application::Init(const Session::InitInfo & initInfo_)
     }
     if (mustRefreshUserLanguageDat)
     {
-      MIKTEX_ASSERT(!session->IsAdminMode());
+      MIKTEX_ASSERT(!pimpl->session->IsAdminMode());
       CommandLineBuilder xCommandLine(commandLine);
       xCommandLine.AppendOption("--mklangs");
       LOG4CXX_INFO(logger, "running 'initexmf " << xCommandLine.ToString() << "' to refresh language.dat");
@@ -265,7 +269,7 @@ void Application::Finalize()
   {
     pimpl->packageManager = nullptr;
   }
-  session = nullptr;
+  pimpl->session = nullptr;
   pimpl->ignoredPackages.clear();
   if (initUiFrameworkDone)
   {
@@ -394,15 +398,15 @@ bool Application::InstallPackage(const string & deploymentName, const PathName &
     cout << endl << SEP << endl;
   }
   bool done = false;
-  bool switchToAdminMode = (pimpl->autoAdmin == TriState::True && !session->IsAdminMode());
+  bool switchToAdminMode = (pimpl->autoAdmin == TriState::True && !pimpl->session->IsAdminMode());
   if (switchToAdminMode)
   {
-    session->SetAdminMode(true);
+    pimpl->session->SetAdminMode(true);
   }
   try
   {
     pimpl->installer->InstallRemove();
-    installRoot = session->GetSpecialPath(SpecialPath::InstallRoot);
+    installRoot = pimpl->session->GetSpecialPath(SpecialPath::InstallRoot);
     done = true;
   }
   catch (const MiKTeXException & ex)
@@ -422,7 +426,7 @@ bool Application::InstallPackage(const string & deploymentName, const PathName &
   }
   if (switchToAdminMode)
   {
-    session->SetAdminMode(false);
+    pimpl->session->SetAdminMode(false);
   }
   if (!GetQuietFlag())
   {
@@ -445,7 +449,7 @@ bool Application::TryCreateFile(const PathName & fileName, FileType fileType)
   case TriState::Undetermined:
     break;
   }
-  if (session->IsAdminMode())
+  if (pimpl->session->IsAdminMode())
   {
     commandLine.AppendOption("--admin");
   }
@@ -455,18 +459,18 @@ bool Application::TryCreateFile(const PathName & fileName, FileType fileType)
   {
   case FileType::BASE:
   case FileType::FMT:
-    if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, makeUtility))
+    if (!pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, makeUtility))
     {
       MIKTEX_UNEXPECTED();
     }
     commandLine.AppendOption("--dump-by-name=", baseName);
     if (fileType == FileType::FMT)
     {
-      commandLine.AppendOption("--engine=", session->GetEngineName());
+      commandLine.AppendOption("--engine=", pimpl->session->GetEngineName());
     }
     break;
   case FileType::TFM:
-    if (!session->FindFile(MIKTEX_MAKETFM_EXE, FileType::EXE, makeUtility))
+    if (!pimpl->session->FindFile(MIKTEX_MAKETFM_EXE, FileType::EXE, makeUtility))
     {
       MIKTEX_UNEXPECTED();
     }
@@ -505,7 +509,7 @@ TriState Application::GetEnableInstaller() const
 
 void Application::Trace(const TraceCallback::TraceMessage & traceMessage)
 {
-  if (!isLog4cxxConfigured)
+  if (!pimpl->isLog4cxxConfigured)
   {
     if (pimpl->pendingTraceMessages.size() > 100)
     {
@@ -529,7 +533,7 @@ void Application::FlushPendingTraceMessages()
 
 void Application::TraceInternal(const TraceCallback::TraceMessage & traceMessage)
 {
-  if (isLog4cxxConfigured)
+  if (pimpl->isLog4cxxConfigured)
   {
     log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.") + Utils::GetExeName() + "." + traceMessage.facility);
     if (traceMessage.streamName == MIKTEX_TRACE_ERROR)
@@ -627,7 +631,7 @@ void Application::InvokeEditor(const PathName & editFileName, int editLineNumber
   string defaultEditor;
 
   PathName texworks;
-  if (session->FindFile(MIKTEX_TEXWORKS_EXE, FileType::EXE, texworks))
+  if (pimpl->session->FindFile(MIKTEX_TEXWORKS_EXE, FileType::EXE, texworks))
   {
     defaultEditor = Q_(texworks);
     defaultEditor += " -p=%l \"%f\"";
@@ -639,7 +643,7 @@ void Application::InvokeEditor(const PathName & editFileName, int editLineNumber
 
   // read information from yap.ini
   // FIXME: use FindFile()
-  PathName yapIni = session->GetSpecialPath(SpecialPath::UserConfigRoot);
+  PathName yapIni = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot);
   yapIni /= MIKTEX_PATH_MIKTEX_CONFIG_DIR;
   yapIni /= MIKTEX_YAP_INI_FILENAME;
   if (File::Exists(yapIni))
@@ -653,7 +657,7 @@ void Application::InvokeEditor(const PathName & editFileName, int editLineNumber
     }
   }
 
-  string templ = session->GetConfigValue("", MIKTEX_REGVAL_EDITOR, defaultEditor).GetString();
+  string templ = pimpl->session->GetConfigValue("", MIKTEX_REGVAL_EDITOR, defaultEditor).GetString();
 
   const char * lpszCommandLineTemplate = templ.c_str();
 
@@ -694,7 +698,7 @@ void Application::InvokeEditor(const PathName & editFileName, int editLineNumber
       case 'f':
       {
         PathName path;
-        if (session->FindFile(editFileName.ToString(), editFileType, path))
+        if (pimpl->session->FindFile(editFileName.ToString(), editFileType, path))
         {
           arguments += path.GetData();
         }
@@ -737,4 +741,18 @@ bool Application::GetQuietFlag() const
 void Application::SetQuietFlag(bool b)
 {
   pimpl->beQuiet = b;
+}
+
+shared_ptr<Session> Application::GetSession() const
+{
+  if (!pimpl->session)
+  {
+    MIKTEX_FATAL_ERROR("not yet initialized");
+  }
+  return pimpl->session;
+}
+
+bool Application::IsLog4cxxConfigured() const
+{
+  return pimpl->isLog4cxxConfigured;
 }

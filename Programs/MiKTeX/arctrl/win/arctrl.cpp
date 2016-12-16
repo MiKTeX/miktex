@@ -136,6 +136,9 @@ private:
   HCONV hConv = nullptr;
 
 private:
+  shared_ptr<Session> session;
+
+private:
   bool ARstarted = false;
 
 private:
@@ -599,6 +602,8 @@ void ArCtrl::ReadAndExecute()
 
 void ArCtrl::Run(int argc, const char ** argv)
 {
+  session = GetSession();
+
   string program = Utils::GetExeName();
 
   const poptOption * pOption = &aoption[0];

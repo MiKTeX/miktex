@@ -110,7 +110,7 @@ public:
   {
     f.AssertValid();
     TouchJobOutputFile(f);
-    session->CloseFile(f);
+    GetSession()->CloseFile(f);
   }
 
 private:

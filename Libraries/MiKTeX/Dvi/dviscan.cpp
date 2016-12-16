@@ -61,6 +61,9 @@ public:
 
 private:
   DviPageMode pageMode = DviPageMode::Pk;
+
+private:
+  shared_ptr<Session> session;
 };
 
 void DviScanner::Run(int argc, const char ** argv)
@@ -116,6 +119,7 @@ void DviScanner::Run(int argc, const char ** argv)
   }
 
   Init(initInfo);
+  session = GetSession();
 
   for (const string & dviFileName : leftovers)
   {

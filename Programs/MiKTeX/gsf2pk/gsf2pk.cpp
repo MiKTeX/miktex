@@ -318,6 +318,9 @@ private:
   static Byte masks[];
 
 private:
+  shared_ptr<Session> session;
+
+private:
   static const struct poptOption aoption[];
 };
 
@@ -1474,6 +1477,7 @@ void Converter::Main(int argc, const char * * argv)
   }
 
   Init(argv[0]);
+  session = GetSession();
 
   Convert(leftovers[0].c_str(),  // "utmr8r"
     leftovers[1].c_str(),        // "NimbusRomNo9L-Regu"

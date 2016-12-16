@@ -69,11 +69,15 @@ private:
   {
     return Reallocate(p, 0);
   }
+
+private:
+  std::shared_ptr<MiKTeX::Core::Session> session;
   
 public:
   void Init(const char * lpszProgramInvocationName) override
   {
     WebAppInputLine::Init(lpszProgramInvocationName);
+    session = GetSession();
 #if defined(IMPLEMENT_TCX)
     EnableFeature (Feature::TCX);
 #endif

@@ -188,6 +188,7 @@ static bool IsOutputFile(const PathName & path)
 
 bool WebAppInputLine::AllowFileName(const char * lpszPath, bool forInput)
 {
+  shared_ptr<Session> session = GetSession();
   bool allow;
   if (forInput)
   {
@@ -233,6 +234,7 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot & f, const char * lpszPath, F
     lpszPath = utf8Path.c_str();
   }
 #endif
+  shared_ptr<Session> session = GetSession();
   FILE * pfile = nullptr;
   if (enablePipes && lpszPath[0] == '|')
   {
@@ -283,6 +285,8 @@ bool WebAppInputLine::OpenInputFile(FILE ** ppFile, const char * lpszFileName)
     lpszFileName = utf8FileName.c_str();
   }
 #endif
+
+  shared_ptr<Session> session = GetSession();
 
   if (enablePipes && lpszFileName[0] == '|')
   {

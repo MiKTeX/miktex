@@ -153,6 +153,7 @@ void MakeUtility::Init(const Session::InitInfo & initInfoArg)
     initInfo.SetOptions({ Session::InitOption::AdminMode });
   }
   Application::Init(initInfo);
+  session = GetSession();
 }
 
 void MakeUtility::ShowVersion()

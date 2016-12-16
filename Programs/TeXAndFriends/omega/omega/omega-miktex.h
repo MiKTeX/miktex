@@ -112,10 +112,14 @@ public:
     Free(THEDATA(trieoplang));
   }
 
+private:
+  std::shared_ptr<MiKTeX::Core::Session> session;
+
 public:
   void Init(const char * lpszProgramInvocationName) override
   {
     TeXApp::Init(lpszProgramInvocationName);
+    session = GetSession();
 #if defined(IMPLEMENT_TCX)
     EnableFeature(Feature::TCX);
 #endif

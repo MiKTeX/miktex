@@ -116,6 +116,7 @@ void TeXMFApp::Finalize()
 void TeXMFApp::OnTeXMFStartJob()
 {
   MIKTEX_ASSERT_STRING(TheNameOfTheGame());
+  shared_ptr<Session> session = GetSession();
   string appName;
   for (const char * lpsz = TheNameOfTheGame(); *lpsz != 0; ++lpsz)
   {
@@ -144,6 +145,7 @@ void TeXMFApp::OnTeXMFFinishJob()
     {
       fileName = jobName;
     }
+    shared_ptr<Session> session = GetSession();
     session->SetRecorderPath(PathName(outputDirectory, fileName).AppendExtension(".fls"));
   }
   if (timeStatistics)
@@ -300,6 +302,8 @@ void TeXMFApp::AddOptions()
 bool TeXMFApp::ProcessOption(int opt, const string & optArg)
 {
   bool done = true;
+
+  shared_ptr<Session> session = GetSession();
 
   switch (opt - FIRST_OPTION_VAL - optBase)
   {
@@ -555,6 +559,8 @@ void TeXMFApp::CheckFirstLine(const PathName & fileName)
 
   PathName path;
 
+  shared_ptr<Session> session = GetSession();
+
   if (!session->FindFile(fileName.ToString(), GetInputFileType(), path))
   {
     return;
@@ -611,6 +617,8 @@ bool TeXMFApp::OpenMemoryDumpFile(const PathName & fileName_, FILE ** ppFile, vo
   {
     MIKTEX_ASSERT_BUFFER(pBuf, size);
   }
+
+  shared_ptr<Session> session = GetSession();
 
   PathName fileName(fileName_);
 
@@ -882,6 +890,7 @@ unsigned long TeXMFApp::InitializeBuffer(C4P_signed32 * pBuffer)
 void TeXMFApp::TouchJobOutputFile(FILE * pfile) const
 {
   MIKTEX_ASSERT(pfile != nullptr);
+  shared_ptr<Session> session = GetSession();
   if (setJobTime && session->IsOutputFile(pfile))
   {
     time_t time = GetStartUpTime();

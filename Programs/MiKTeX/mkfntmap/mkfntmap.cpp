@@ -319,6 +319,9 @@ private:
 
 private:
   string currentProcessOutputLine;
+
+private:
+  shared_ptr<Session> session;
 };
 
 map<string, string> MakeFontMapApp::fileURW;
@@ -558,6 +561,7 @@ void MakeFontMapApp::Init(int argc, const char ** argv)
     initInfo.AddOption(Session::InitOption::AdminMode);
   }
   Application::Init(initInfo);
+  session = GetSession();
   if (optAdminMode)
   {
     Verbose(T_("Entering administrative mode..."));

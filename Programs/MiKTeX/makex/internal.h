@@ -170,6 +170,9 @@ protected:
 
 protected:
   bool adminMode = false;
+
+protected:
+  std::shared_ptr<MiKTeX::Core::Session> session;
 };
 
 #define COMMON_OPTIONS                                          \

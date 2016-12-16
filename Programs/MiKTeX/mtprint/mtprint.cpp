@@ -129,6 +129,9 @@ private:
   bool dryRun = false;
 
 private:
+  shared_ptr<Session> session;
+
+private:
   unique_ptr<TraceStream> trace_mtprint;
 
 private:
@@ -531,6 +534,8 @@ void PrintUtility::ShowVersion()
 
 void PrintUtility::Run(int argc, const char ** argv)
 {
+  session = GetSession();
+
   // initialize printerName with the default printer
   if (!Utils::GetDefPrinter(printerName))
   {
