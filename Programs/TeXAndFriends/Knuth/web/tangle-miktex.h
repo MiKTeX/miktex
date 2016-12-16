@@ -53,7 +53,7 @@ public:
   }
 
 public:
-  const char * GetUsage() const override
+  std::string GetUsage() const override
   {
     return (MIKTEXTEXT("[OPTION...] INPUTFILE CHANGEFILE OUTPUTFILE POOLFILE"));
   }

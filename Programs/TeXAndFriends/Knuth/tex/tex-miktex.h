@@ -95,7 +95,7 @@ public:
   }
 
 public:
-  const char * TheNameOfTheGame() const override
+  std::string TheNameOfTheGame() const override
   {
     return "TeX";
   }

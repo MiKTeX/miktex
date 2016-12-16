@@ -132,7 +132,7 @@ public:
   }
 
 public:
-  const char * MIKTEXTHISCALL GetUsage() const override
+  std::string MIKTEXTHISCALL GetUsage() const override
   {
     return MIKTEXTEXT("[OPTION...] AUXFILE");
   }
@@ -157,7 +157,7 @@ public:
   }
   
 public:
-  const char * MIKTEXTHISCALL TheNameOfTheGame() const override
+  std::string MIKTEXTHISCALL TheNameOfTheGame() const override
   {
     return "BibTeX";
   }

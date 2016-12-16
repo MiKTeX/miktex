@@ -115,14 +115,14 @@ void TeXMFApp::Finalize()
 
 void TeXMFApp::OnTeXMFStartJob()
 {
-  MIKTEX_ASSERT_STRING(TheNameOfTheGame());
+  MIKTEX_ASSERT(!TheNameOfTheGame().empty());
   shared_ptr<Session> session = GetSession();
   string appName;
-  for (const char * lpsz = TheNameOfTheGame(); *lpsz != 0; ++lpsz)
+  for (const char & ch : TheNameOfTheGame())
   {
-    if (*lpsz != '-')         // pdf-e-tex => pdfetex
+    if (ch != '-')         // pdf-e-tex => pdfetex
     {
-      appName += *lpsz;
+      appName += ch;
     }
   }
   session->PushBackAppName(appName);
@@ -514,7 +514,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     break;
 
   case OPT_TCX:
-    SetTcxFileName(optArg.c_str());
+    SetTcxFileName(optArg);
     break;
 
   case OPT_UNDUMP:
@@ -705,7 +705,7 @@ void TeXMFApp::ProcessCommandLineOptions()
 bool TeXMFApp::IsVirgin() const
 {
   string exeName = Utils::GetExeName();
-  if (StringUtil::Contains(GetProgramName(), exeName.c_str())
+  if (StringUtil::Contains(GetProgramName().c_str(), exeName.c_str())
     || StringUtil::Contains(GetVirginProgramName(), exeName.c_str()))
   {
     return true;
@@ -715,7 +715,7 @@ bool TeXMFApp::IsVirgin() const
   if (exeName.compare(0, prefixLen, MIKTEX_PREFIX) == 0)
   {
     exeName = exeName.substr(prefixLen);
-    if (StringUtil::Contains(GetProgramName(), exeName.c_str())
+    if (StringUtil::Contains(GetProgramName().c_str(), exeName.c_str())
       || StringUtil::Contains(GetVirginProgramName(), exeName.c_str()))
     {
       return true;

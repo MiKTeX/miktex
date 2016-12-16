@@ -226,7 +226,7 @@ protected:
   MIKTEXMFTHISAPI(void) AddOptions() override;
 
 protected:
-  const char * GetUsage() const override
+  std::string GetUsage() const override
   {
     return MIKTEXTEXT("[OPTION...] [COMMAND...]");
   }

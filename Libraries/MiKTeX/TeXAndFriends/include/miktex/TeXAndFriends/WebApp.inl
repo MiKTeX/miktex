@@ -45,7 +45,7 @@ inline void miktexinitializechartables()
 #if defined(THEAPP) && defined(IMPLEMENT_TCX)
 inline bool miktexhavetcxfilename()
 {
-  return THEAPP.GetTcxFileName().GetLength() > 0;
+  return !THEAPP.GetTcxFileName().Empty();
 }
 #endif
 
