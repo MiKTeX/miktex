@@ -59,7 +59,7 @@ public:
   }
 
 public:
-  const char * GetMemoryDumpFileExtension() const override
+  std::string GetMemoryDumpFileExtension() const override
   {
     return ".base";
   }

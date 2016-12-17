@@ -140,19 +140,19 @@ public:
   }
 
 public:
-  const char * GetMemoryDumpFileName() const override
+  MiKTeX::Core::PathName GetMemoryDumpFileName() const override
   {
     return "xetex.fmt";
   }
 
 public:
-  const char * GetInitProgramName() const override
+  std::string GetInitProgramName() const override
   {
     return "inixetex";
   }
   
 public:
-  const char * GetVirginProgramName() const override
+  std::string GetVirginProgramName() const override
   {
     return "virxetex";
   }

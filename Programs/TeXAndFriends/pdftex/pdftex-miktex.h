@@ -199,19 +199,19 @@ public:
   }
 
 public:
-  const char * MIKTEXTHISCALL GetMemoryDumpFileName() const override
+  MiKTeX::Core::PathName GetMemoryDumpFileName() const override
   {
     return "pdftex.fmt";
   }
 
 public:
-  const char * GetInitProgramName() const override
+  std::string GetInitProgramName() const override
   {
     return "pdfinitex";
   }
   
 public:
-  const char * GetVirginProgramName() const override
+  std::string GetVirginProgramName() const override
   {
     return "pdfvirtex";
   }

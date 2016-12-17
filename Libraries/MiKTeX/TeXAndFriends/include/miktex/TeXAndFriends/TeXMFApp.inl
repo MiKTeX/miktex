@@ -28,6 +28,9 @@
 
 #include <cstddef>
 
+#include <miktex/Core/PathName>
+#include <miktex/Util/StringUtil>
+
 #include "WebAppInputLine.inl"
 
 #if !defined(THEAPP)
@@ -45,9 +48,9 @@ inline bool miktexcstyleerrormessagesp()
   return THEAPP.CStyleErrorMessagesP();
 }
 
-inline void miktexgetdefaultdumpfilename(char * lpszPath)
+inline void miktexgetdefaultdumpfilename(char* dest)
 {
-  THEAPP.GetDefaultMemoryDumpFileName(lpszPath);
+  MiKTeX::Util::StringUtil::CopyString(dest, MiKTeX::Core::BufferSizes::MaxPath, THEAPP.GetDefaultMemoryDumpFileName().GetData());
 }
 
 inline int miktexgetinteraction()
@@ -60,10 +63,10 @@ inline int miktexgetjobname()
   return THEAPP.GetJobName();
 }
 
-inline const TEXMFCHAR * miktexgetstringat(int idx)
+inline const TEXMFCHAR* miktexgetstringat(int idx)
 {
   MIKTEX_ASSERT(sizeof(TEXMFCHAR) == sizeof(THEDATA(strpool)[idx]));
-  return reinterpret_cast<TEXMFCHAR *>(&(THEDATA(strpool)[idx]));
+  return reinterpret_cast<TEXMFCHAR*>(&(THEDATA(strpool)[idx]));
 }
 
 inline bool miktexhaltonerrorp()
@@ -112,44 +115,44 @@ inline void miktexontexmfstartjob()
 }
 
 #define miktexreallocate(p, n) \
-  THEAPP.Reallocate(#p, p, n, __FILE__, __LINE__)
+  THEAPP.Reallocate(#p, p, n, MIKTEX_SOURCE_LOCATION())
 
-template<typename FileType, typename EleType> inline void miktexdump(FileType & f, const EleType & e, std::size_t n)
+template<typename FileType, typename EleType> inline void miktexdump(FileType& f, const EleType& e, std::size_t n)
 {
   THEAPP.Dump(f, e, n);
 }
 
-template<typename FileType, typename EleType> inline void miktexdump(FileType & f, const EleType & e)
+template<typename FileType, typename EleType> inline void miktexdump(FileType& f, const EleType& e)
 {
   THEAPP.Dump(f, e);
 }
 
-template<typename FileType> inline void miktexdumpint(FileType & f, int val)
+template<typename FileType> inline void miktexdumpint(FileType& f, int val)
 {
   miktexdump(f, val);
 }
 
-template<typename FileType, typename EleType> inline void miktexundump(FileType & f, EleType & e, std::size_t n)
+template<typename FileType, typename EleType> inline void miktexundump(FileType& f, EleType& e, std::size_t n)
 {
   THEAPP.Undump(f, e, n);
 }
 
-template<typename FileType, typename EleType> inline void miktexundump(FileType & f, EleType & e)
+template<typename FileType, typename EleType> inline void miktexundump(FileType& f, EleType& e)
 {
   THEAPP.Undump(f, e);
 }
 
-template<typename FileType, typename LowType, typename HighType, typename EleType> inline void miktexundump(FileType & f, LowType low, HighType high, EleType & e, std::size_t n)
+template<typename FileType, typename LowType, typename HighType, typename EleType> inline void miktexundump(FileType& f, LowType low, HighType high, EleType& e, std::size_t n)
 {
   THEAPP.Undump(f, static_cast<EleType>(low), static_cast<EleType>(high), e, n);
 }
 
-template<typename FileType, typename HighType, typename EleType> inline void miktexundump(FileType & f, HighType high, EleType & e, std::size_t n)
+template<typename FileType, typename HighType, typename EleType> inline void miktexundump(FileType& f, HighType high, EleType& e, std::size_t n)
 {
   THEAPP.Undump(f, static_cast<EleType>(high), e, n);
 }
 
-template<typename FileType> inline void miktexundumpint(FileType & f, int & val)
+template<typename FileType> inline void miktexundumpint(FileType& f, int& val)
 {
   miktexundump(f, val);
 }

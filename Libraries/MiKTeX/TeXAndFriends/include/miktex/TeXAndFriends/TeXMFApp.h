@@ -142,29 +142,29 @@ typedef int TEXMFCHARINT;
 }
 
 #if defined(THEDATA)
-inline TEXMFCHAR * GetTeXString(TEXMFCHAR * lpsz, std::size_t size, int stringStart, int stringLength)
+inline TEXMFCHAR* GetTeXString(TEXMFCHAR* dest, std::size_t destSize, int stringStart, int stringLength)
 {
-  MIKTEX_ASSERT(sizeof(THEDATA(strpool)[0]) == sizeof(lpsz[0]));
-  if (stringLength < 0 || stringLength >= size)
+  MIKTEX_ASSERT(sizeof(THEDATA(strpool)[0]) == sizeof(dest[0]));
+  if (stringLength < 0 || stringLength >= destSize)
   {
     MIKTEX_FATAL_ERROR(MIKTEXTEXT("Bad string size."));
   }
   for (int idx = 0; idx < stringLength; ++idx)
   {
-    lpsz[idx] = THEDATA(strpool)[stringStart + idx];
+    dest[idx] = THEDATA(strpool)[stringStart + idx];
   }
-  lpsz[stringLength] = 0;
-  return lpsz;
+  dest[stringLength] = 0;
+  return dest;
 }
 #endif
 
 #if defined(THEDATA) && defined(MIKTEX_TEXMF_UNICODE)
-inline char * GetTeXString(char * lpsz, std::size_t size, int stringStart, int stringLength)
+inline char* GetTeXString(char* dest, std::size_t destSize, int stringStart, int stringLength)
 {
   MiKTeX::Util::CharBuffer<wchar_t, 200> buf(stringLength + 1);
   GetTeXString(buf.GetData(), buf.GetCapacity(), stringStart, stringLength);
-  MiKTeX::Util::StringUtil::CopyString(lpsz, size, buf.GetData());
-  return lpsz;
+  MiKTeX::Util::StringUtil::CopyString(dest, destSize, buf.GetData());
+  return dest;
 }
 #endif
 
@@ -194,36 +194,58 @@ inline int GetTeXStringLength(int stringNumber)
 #endif
   MIKTEX_ASSERT(stringNumber >= 0 && stringNumber < THEDATA(strptr));
 #if defined(MIKTEX_OMEGA)
-  int stringLength =
-    (THEDATA(strstartar)[stringNumber + 1]
-      - THEDATA(strstartar)[stringNumber]);
+  int stringLength = THEDATA(strstartar)[stringNumber + 1] - THEDATA(strstartar)[stringNumber];
 #else
-  int stringLength =
-    (THEDATA(strstart)[stringNumber + 1] - THEDATA(strstart)[stringNumber]);
+  int stringLength = THEDATA(strstart)[stringNumber + 1] - THEDATA(strstart)[stringNumber];
 #endif
   return stringLength;
 }
 #endif
 
 #if defined(THEDATA)
-template<typename CharType> inline CharType * GetTeXString(CharType * lpsz, int stringNumber, std::size_t size = 0xffff)
+template<typename CharType> inline CharType * GetTeXString(CharType* dest, int stringNumber, std::size_t destSize = 0xffff)
 {
   int stringStart = GetTeXStringStart(stringNumber);
   int stringLength = GetTeXStringLength(stringNumber);
-  return GetTeXString(lpsz, size, stringStart, stringLength);
+  return GetTeXString(dest, destSize, stringStart, stringLength);
 }
 #endif
 
-class MIKTEXMFTYPEAPI(TeXMFApp) : public WebAppInputLine
+class MIKTEXMFTYPEAPI(TeXMFApp) :
+  public WebAppInputLine
 {
 public:
-  MIKTEXMFTHISAPI(void) Init(const std::string & programInvocationName) override;
+  MIKTEXMFEXPORT MIKTEXTHISCALL TeXMFApp();
+
+public:
+  TeXMFApp(const TeXMFApp& other) = delete;
+
+public:
+  TeXMFApp& operator=(const TeXMFApp& other) = delete;
+
+public:
+  TeXMFApp(TeXMFApp&& other) = delete;
+
+public:
+  TeXMFApp& operator=(TeXMFApp&& other) = delete;
+
+public:
+  virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~TeXMFApp() noexcept;
+
+public:
+  MIKTEXMFTHISAPI(void) Init(const std::string& programInvocationName) override;
 
 public:
   MIKTEXMFTHISAPI(void) Finalize() override;
 
 protected:
   MIKTEXMFTHISAPI(void) AddOptions() override;
+
+public:
+  MIKTEXMFTHISAPI(void) ProcessCommandLineOptions() override;
+
+protected:
+  MIKTEXMFTHISAPI(bool) ProcessOption(int opt, const std::string& optArg) override;
 
 protected:
   std::string GetUsage() const override
@@ -232,52 +254,41 @@ protected:
   }
 
 public:
-  MIKTEXMFTHISAPI(void) ProcessCommandLineOptions() override;
-
-protected:
-  MIKTEXMFTHISAPI(bool) ProcessOption(int opt, const std::string & optArg) override;
+  MIKTEXMFTHISAPI(void) TouchJobOutputFile(FILE* file) const override;
 
 public:
-  MIKTEXMFTHISAPI(void) TouchJobOutputFile(FILE * pFile) const override;
-
-public:
-  virtual const char * GetMemoryDumpFileExtension() const
+  virtual std::string GetMemoryDumpFileExtension() const
   {
     // must be implemented in sub-classes
-    MIKTEX_ASSERT(false);
-    return nullptr;
+    MIKTEX_UNEXPECTED();
   }
 
 public:
   virtual MiKTeX::Core::FileType GetMemoryDumpFileType() const
   {
     // must be implemented in sub-classes
-    MIKTEX_ASSERT(false);
-    return MiKTeX::Core::FileType::None;
+    MIKTEX_UNEXPECTED();
   }
 
 protected:
-  virtual const char * GetMemoryDumpFileName() const
+  virtual MiKTeX::Core::PathName GetMemoryDumpFileName() const
   {
     // must be implemented in sub-classes
-    MIKTEX_ASSERT(false);
-    return nullptr;
+    MIKTEX_UNEXPECTED();
   }
 
 protected:
-  virtual const char * GetInitProgramName() const
+  virtual std::string GetInitProgramName() const
   {
     // must be implemented in sub-classes
-    MIKTEX_ASSERT(false);
-    return nullptr;
+    MIKTEX_UNEXPECTED();
   }
 
 protected:
-  virtual const char * GetVirginProgramName() const
+  virtual std::string GetVirginProgramName() const
   {
     // must be implemented in sub-classes
-    MIKTEX_ASSERT(false);
-    return nullptr;
+    MIKTEX_UNEXPECTED();
   }
 
 public:
@@ -302,9 +313,9 @@ public:
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(buffer));
 #  if defined(MIKTEX_TEX_COMPILER)
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(yzmem));
-#else
+#  else
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(mem));
-#endif
+#  endif
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(paramstack));
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(strpool));
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(trickbuf));
@@ -316,19 +327,19 @@ public:
 #endif
 
 protected:
-  template<typename ValueType> ValueType GetParameter(const char * lpszParameterName, const ValueType & defaultValue) const
+  template<typename ValueType> ValueType GetParameter(const std::string& parameterName, const ValueType& defaultValue) const
   {
-    std::shared_ptr<MiKTeX::Core::Session> session;
-    ValueType value = session->GetConfigValue("", lpszParameterName, -1).GetInt();
+    std::shared_ptr<MiKTeX::Core::Session> session = GetSession();
+    ValueType value = session->GetConfigValue("", parameterName, -1).GetInt();
     if (value < 0)
     {
-      value = session->GetConfigValue(GetProgramName(), lpszParameterName, defaultValue).GetInt();
+      value = session->GetConfigValue(GetProgramName(), parameterName, defaultValue).GetInt();
     }
     return value;
   }
 
 public:
-  template<typename T> T * Reallocate(const char * lpszArrayName, T * & p, std::size_t n, const char * lpszFileName, int line)
+  template<typename T> T* Reallocate(const std::string& arrayName, T*& p, std::size_t n, const MiKTeX::Core::SourceLocation& sourceLocation)
   {
     std::size_t amount;
     if (n == 0)
@@ -337,14 +348,14 @@ public:
     }
     else
     {
-      // one extra element becaus Pascal arrays are 1-based
+      // one extra element because Pascal arrays are 1-based
       amount = (n + 1) * sizeof(T);
     }
     if (trace_mem->IsEnabled())
     {
-      trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Reallocate %s: p == %p, elementSize == %u, nElements == %u, bytes == %u"), (lpszArrayName == nullptr ? "array" : lpszArrayName), p, (unsigned)sizeof(T), (unsigned)n, (unsigned)amount);
+      trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Reallocate %s: p == %p, elementSize == %u, nElements == %u, bytes == %u"), arrayName.empty() ? "array" : arrayName, p, (unsigned)sizeof(T), (unsigned)n, (unsigned)amount);
     }
-    p = reinterpret_cast<T*>(MiKTeX::Debug::Realloc(p, amount, lpszFileName, line));
+    p = reinterpret_cast<T*>(MiKTeX::Debug::Realloc(p, amount, sourceLocation));
     if (trace_mem->IsEnabled())
     {
       trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Reallocate: return %p"), p);
@@ -353,28 +364,28 @@ public:
   }
 
 protected:
-  template<typename T> T * Allocate(const char * lpszArrayName, T * & p, std::size_t n)
+  template<typename T> T* Allocate(const std::string& arrayName, T*& p, std::size_t n)
   {
     p = nullptr;
-    return Reallocate(lpszArrayName, p, n, __FILE__, __LINE__);
+    return Reallocate(arrayName, p, n, MIKTEX_SOURCE_LOCATION());
   }
 
 protected:
-  template<typename T> T * Allocate(T * & p, std::size_t n)
+  template<typename T> T* Allocate(T*& p, std::size_t n)
   {
-    return Allocate(nullptr, p, n);
+    return Allocate("", p, n);
   }
 
 protected:
-  template<typename T> T * Free(const char * lpszArrayName, T * & p)
+  template<typename T> T* Free(const std::string& arrayName, T*& p)
   {
-    return Reallocate(lpszArrayName, p, 0, __FILE__, __LINE__);
+    return Reallocate(arrayName, p, 0, MIKTEX_SOURCE_LOCATION());
   }
 
 protected:
-  template<typename T> T * Free(T * & p)
+  template<typename T> T* Free(T*& p)
   {
-    return Free(nullptr, p);
+    return Free("", p);
   }
 
 #if defined(THEDATA)
@@ -512,23 +523,16 @@ protected:
 #endif
 
 public:
-  bool CStyleErrorMessagesP() const
-  {
-    return showFileLineErrorMessages;
-  }
+  MIKTEXMFTHISAPI(bool) CStyleErrorMessagesP() const;
 
 public:
-  MIKTEXMFTHISAPI(void) GetDefaultMemoryDumpFileName(char * lpszPath) const;
+  MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetDefaultMemoryDumpFileName() const;
 
 public:
-  int GetInteraction() const
-  {
-    return interactionMode;
-  }
-
-public:
+  MIKTEXMFTHISAPI(int) GetInteraction() const;
 
 #if defined(THEDATA)
+public:
   int GetJobName()
   {
     if (jobName.empty())
@@ -546,68 +550,59 @@ public:
 #endif
 
 public:
-  bool HaltOnErrorP() const
-  {
-    return haltOnError;
-  }
+  MIKTEXMFTHISAPI(bool) HaltOnErrorP() const;
 
 public:
-  MIKTEXMFTHISAPI(unsigned long) InitializeBuffer(unsigned char * pBuffer);
+  MIKTEXMFTHISAPI(unsigned long) InitializeBuffer(unsigned char* buffer);
 
 public:
-  MIKTEXMFTHISAPI(unsigned long) InitializeBuffer(unsigned short * pBuffer);
+  MIKTEXMFTHISAPI(unsigned long) InitializeBuffer(unsigned short* buffer);
 
 public:
-  MIKTEXMFTHISAPI(unsigned long) InitializeBuffer(C4P::C4P_signed32 * pBuffer);
+  MIKTEXMFTHISAPI(unsigned long) InitializeBuffer(C4P::C4P_signed32* buffer);
 
 public:
-  void InvokeEditor(const MiKTeX::Core::PathName & editFileName, int editLineNumber, const MiKTeX::Core::PathName & transcriptFileName) const
+  void InvokeEditor(const MiKTeX::Core::PathName& editFileName, int editLineNumber, const MiKTeX::Core::PathName& transcriptFileName) const
   {
     Application::InvokeEditor(editFileName, editLineNumber, GetInputFileType(), transcriptFileName);
   }
 
-public:
-
 #if defined(THEDATA)
+public:
   void InvokeEditor(int editFileName_, int editFileNameLength, int editLineNumber, int transcriptFileName_, int transcriptFileNameLength) const
   {
-    TEXMFCHAR szEditFileName[Core::BufferSizes::MaxPath];
-    GetTeXString(szEditFileName, Core::BufferSizes::MaxPath, editFileName_, editFileNameLength);
-    TEXMFCHAR szTranscriptFileName[Core::BufferSizes::MaxPath];
+    TEXMFCHAR editFileName[Core::BufferSizes::MaxPath];
+    GetTeXString(editFileName, Core::BufferSizes::MaxPath, editFileName_, editFileNameLength);
+    TEXMFCHAR transcriptFileName[Core::BufferSizes::MaxPath];
     if (transcriptFileName_ != 0)
     {
-      GetTeXString(szTranscriptFileName, Core::BufferSizes::MaxPath, transcriptFileName_, transcriptFileNameLength);
+      GetTeXString(transcriptFileName, Core::BufferSizes::MaxPath, transcriptFileName_, transcriptFileNameLength);
     }
     else
     {
-      szTranscriptFileName[0] = 0;
+      transcriptFileName[0] = 0;
     }
-    InvokeEditor(szEditFileName, editLineNumber, szTranscriptFileName);
+    InvokeEditor(editFileName, editLineNumber, transcriptFileName);
   }
 #endif
 
 public:
-  bool IsInitProgram() const
-  {
-    return isInitProgram;
-  }
+  MIKTEXMFTHISAPI(bool) IsInitProgram() const;
 
 protected:
   MIKTEXMFTHISAPI(bool) IsVirgin() const;
 
-public:
-
 #if defined(THEDATA)
+public:
   int MakeFullNameString()
   {
     return MakeTeXString(GetFoundFile().GetData());
   }
 #endif
 
-public:
-
 #if defined(THEDATA)
-  template<typename CharType> int MakeTeXString(const CharType * lpsz)
+public:
+  template<typename CharType> int MakeTeXString(const CharType* lpsz)
   {
     MIKTEX_ASSERT_STRING(lpsz);
 #if defined(MIKTEX_TEXMF_UNICODE)
@@ -631,26 +626,26 @@ public:
 #endif
 
 public:
-  MIKTEXMFTHISAPI(bool) OpenMemoryDumpFile(const MiKTeX::Core::PathName & fileName, FILE ** ppFile, void * pBuf, std::size_t size, bool renew) const;
+  MIKTEXMFTHISAPI(bool) OpenMemoryDumpFile(const MiKTeX::Core::PathName& fileName, FILE** file, void* buf, std::size_t size, bool renew) const;
 
 #if defined(THEDATA)  
 public:
-  template<class T> bool OpenMemoryDumpFile(T & f, bool renew = false) const
+  template<class T> bool OpenMemoryDumpFile(T& f, bool renew = false) const
   {
-    FILE * pfile;
-    if (!OpenMemoryDumpFile(GetNameOfFile(), &pfile, nullptr, sizeof(*f), renew))
+    FILE* file;
+    if (!OpenMemoryDumpFile(GetNameOfFile(), &file, nullptr, sizeof(*f), renew))
     {
       return false;
     }
-    f.Attach(pfile, true);
+    f.Attach(file, true);
     f.PascalFileIO(false);
     return true;
   }
 #endif
 
-public:
 #if defined(THEDATA)  
-  template<typename FILE_, typename ELETYPE_> void Dump(FILE_ & f, const ELETYPE_ & e, std::size_t n)
+public:
+  template<typename FILE_, typename ELETYPE_> void Dump(FILE_& f, const ELETYPE_& e, std::size_t n)
   {
     if (fwrite(&e, sizeof(e), n, static_cast<FILE*>(f)) != n)
     {
@@ -659,9 +654,9 @@ public:
   }
 #endif
 
-public:
 #if defined(THEDATA)  
-  template<typename FILE_, typename ELETYPE_> void Dump(FILE_ & f, const ELETYPE_ & e)
+public:
+  template<typename FILE_, typename ELETYPE_> void Dump(FILE_& f, const ELETYPE_& e)
   {
     Dump(f, e, 1);
   }
@@ -669,7 +664,7 @@ public:
 
 #if defined(THEDATA)  
 public:
-  template<typename FILE_, typename ELETYPE_> void Undump(FILE_ & f, ELETYPE_ & e, std::size_t n)
+  template<typename FILE_, typename ELETYPE_> void Undump(FILE_& f, ELETYPE_& e, std::size_t n)
   {
     f.PascalFileIO(false);
     if (fread(&e, sizeof(e), n, static_cast<FILE*>(f)) != n)
@@ -681,7 +676,7 @@ public:
 
 #if defined(THEDATA)  
 public:
-  template<typename FILE_, typename ELETYPE_> void Undump(FILE_ & f, ELETYPE_ & e)
+  template<typename FILE_, typename ELETYPE_> void Undump(FILE_& f, ELETYPE_& e)
   {
     Undump(f, e, 1);
   }
@@ -689,7 +684,7 @@ public:
 
 #if defined(THEDATA)  
 public:
-  template<typename FILE_, typename ELETYPE_> void Undump(FILE_ & f, ELETYPE_ low, ELETYPE_ high, ELETYPE_ & e, std::size_t n)
+  template<typename FILE_, typename ELETYPE_> void Undump(FILE_& f, ELETYPE_ low, ELETYPE_ high, ELETYPE_& e, std::size_t n)
   {
     Undump(f, e, n);
     for (std::size_t idx = 0; idx < n; ++idx)
@@ -704,7 +699,7 @@ public:
 
 #if defined(THEDATA)  
 public:
-  template<typename FILE_, typename ELETYPE_> void Undump(FILE_ & f, ELETYPE_ high, ELETYPE_ & e, std::size_t n)
+  template<typename FILE_, typename ELETYPE_> void Undump(FILE_ &f, ELETYPE_ high, ELETYPE_& e, std::size_t n)
   {
     Undump(f, e, n);
     for (std::size_t idx = 0; idx < n; ++idx)
@@ -718,10 +713,10 @@ public:
 #endif
 
 public:
-  static MIKTEXMFCEEAPI(MiKTeX::Core::Argv) ParseFirstLine(const MiKTeX::Core::PathName & path);
+  static MIKTEXMFCEEAPI(MiKTeX::Core::Argv) ParseFirstLine(const MiKTeX::Core::PathName& path);
 
 private:
-  MIKTEXMFTHISAPI(void) CheckFirstLine(const MiKTeX::Core::PathName & fileName);
+  MIKTEXMFTHISAPI(void) CheckFirstLine(const MiKTeX::Core::PathName& fileName);
 
 #if defined(THEDATA)
 public:
@@ -734,61 +729,16 @@ public:
 #endif
 
 protected:
-  void SetTeX()
-  {
-    isTeXProgram = true;
-  }
+  MIKTEXMFTHISAPI(void) SetTeX();
 
 protected:
-  bool AmITeXCompiler() const
-  {
-    return isTeXProgram;
-  }
-
-private:
-  std::unique_ptr<MiKTeX::Trace::TraceStream> trace_time;
+  MIKTEXMFTHISAPI(bool) AmITeXCompiler() const;
 
 protected:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_mem;
 
 private:
-  std::string memoryDumpFileName;
-
-private:
   std::string jobName;
-
-private:
-  clock_t clockStart;
-
-private:
-  bool timeStatistics;
-
-private:
-  bool parseFirstLine;
-
-private:
-  bool showFileLineErrorMessages;
-
-private:
-  bool haltOnError;
-
-private:
-  bool isInitProgram;
-
-private:
-  bool setJobTime;
-
-private:
-  bool recordFileNames;
-
-private:
-  bool disableExtensions;
-
-private:
-  bool isTeXProgram;
-
-private:
-  int interactionMode;
 
 private:
   int param_buf_size;
@@ -833,16 +783,17 @@ private:
   int param_string_vacancies;
 
 private:
-  int optBase;
+  class impl;
+  std::unique_ptr<impl> pimpl;
 };
 
-template<> inline std::string TeXMFApp::GetParameter(const char * lpszParameterName, const std::string & defaultValue) const
+template<> inline std::string TeXMFApp::GetParameter(const std::string& parameterName, const std::string& defaultValue) const
 {
   std::shared_ptr<MiKTeX::Core::Session> session = GetSession();
-  std::string value = session->GetConfigValue("", lpszParameterName, "").GetString();
+  std::string value = session->GetConfigValue("", parameterName, "").GetString();
   if (value.empty())
   {
-    value = session->GetConfigValue(GetProgramName(), lpszParameterName, defaultValue).GetString();
+    value = session->GetConfigValue(GetProgramName(), parameterName, defaultValue).GetString();
   }
   return value;
 }

@@ -23,6 +23,47 @@
 
 #include "internal.h"
 
+class TeXMFApp::impl
+{
+public:
+  int optBase;
+public:
+  string memoryDumpFileName;
+public:
+  unique_ptr<TraceStream> trace_time;
+public:
+  clock_t clockStart;
+public:
+  bool timeStatistics;
+public:
+  bool parseFirstLine;
+public:
+  bool showFileLineErrorMessages;
+public:
+  bool haltOnError;
+public:
+  bool isInitProgram;
+public:
+  bool recordFileNames;
+public:
+  bool disableExtensions;
+public:
+  bool setJobTime;
+public:
+  bool isTeXProgram;
+public:
+  int interactionMode;
+};
+
+TeXMFApp::TeXMFApp() :
+  pimpl(make_unique<impl>())
+{
+}
+
+TeXMFApp::~TeXMFApp()
+{
+}
+
 STATICFUNC(void) TraceExecutionTime(TraceStream * trace_time, clock_t clockStart)
 {
   clock_t clockSinceStart = clock() - clockStart;
@@ -66,15 +107,15 @@ void TeXMFApp::Init(const string & programInvocationName)
 {
   WebAppInputLine::Init(programInvocationName);
 
-  trace_time = TraceStream::Open(MIKTEX_TRACE_TIME);
+  pimpl->trace_time = TraceStream::Open(MIKTEX_TRACE_TIME);
   trace_mem = TraceStream::Open(MIKTEX_TRACE_MEM);
 
-  clockStart = clock();
-  disableExtensions = false;
-  haltOnError = false;
-  interactionMode = -1;
-  isInitProgram = false;
-  isTeXProgram = false;
+  pimpl->clockStart = clock();
+  pimpl->disableExtensions = false;
+  pimpl->haltOnError = false;
+  pimpl->interactionMode = -1;
+  pimpl->isInitProgram = false;
+  pimpl->isTeXProgram = false;
   param_buf_size = -1;
   param_error_line = -1;
   param_extra_mem_bot = -1;
@@ -89,26 +130,26 @@ void TeXMFApp::Init(const string & programInvocationName)
   param_stack_size = -1;
   param_strings_free = -1;
   param_string_vacancies = -1;
-  parseFirstLine = false;
-  recordFileNames = false;
-  setJobTime = false;
-  showFileLineErrorMessages = false;
-  timeStatistics = false;
+  pimpl->parseFirstLine = false;
+  pimpl->recordFileNames = false;
+  pimpl->setJobTime = false;
+  pimpl->showFileLineErrorMessages = false;
+  pimpl->timeStatistics = false;
 }
 
 void TeXMFApp::Finalize()
 {
-  if (trace_time != nullptr)
+  if (pimpl->trace_time != nullptr)
   {
-    trace_time->Close();
-    trace_time = nullptr;
+    pimpl->trace_time->Close();
+    pimpl->trace_time = nullptr;
   }
   if (trace_mem != nullptr)
   {
     trace_mem->Close();
     trace_mem = nullptr;
   }
-  memoryDumpFileName = "";
+  pimpl->memoryDumpFileName = "";
   jobName = "";
   WebAppInputLine::Finalize();
 }
@@ -126,15 +167,15 @@ void TeXMFApp::OnTeXMFStartJob()
     }
   }
   session->PushBackAppName(appName);
-  parseFirstLine = session->GetConfigValue("", MIKTEX_REGVAL_PARSE_FIRST_LINE, isTeXProgram).GetBool();
-  showFileLineErrorMessages = session->GetConfigValue("", MIKTEX_REGVAL_C_STYLE_ERRORS, false).GetBool();
+  pimpl->parseFirstLine = session->GetConfigValue("", MIKTEX_REGVAL_PARSE_FIRST_LINE, pimpl->isTeXProgram).GetBool();
+  pimpl->showFileLineErrorMessages = session->GetConfigValue("", MIKTEX_REGVAL_C_STYLE_ERRORS, false).GetBool();
   EnablePipes(session->GetConfigValue("", MIKTEX_REGVAL_ENABLE_PIPES, false).GetBool());
-  clockStart = clock();
+  pimpl->clockStart = clock();
 }
 
 void TeXMFApp::OnTeXMFFinishJob()
 {
-  if (recordFileNames)
+  if (pimpl->recordFileNames)
   {
     string fileName;
     if (jobName.length() > 2 && jobName.front() == '"' && jobName.back() == '"')
@@ -148,9 +189,9 @@ void TeXMFApp::OnTeXMFFinishJob()
     shared_ptr<Session> session = GetSession();
     session->SetRecorderPath(PathName(GetOutputDirectory(), fileName).AppendExtension(".fls"));
   }
-  if (timeStatistics)
+  if (pimpl->timeStatistics)
   {
-    TraceExecutionTime(trace_time.get(), clockStart);
+    TraceExecutionTime(pimpl->trace_time.get(), pimpl->clockStart);
   }
 }
 
@@ -195,77 +236,77 @@ void TeXMFApp::AddOptions()
   WebAppInputLine::AddOptions();
 
   bool invokedAsInitProgram = false;
-  if (StringUtil::Contains(GetInitProgramName(), Utils::GetExeName().c_str()))
+  if (StringUtil::Contains(GetInitProgramName().c_str(), Utils::GetExeName().c_str()))
   {
     invokedAsInitProgram = true;
   }
 
-  optBase = static_cast<int>(GetOptions().size());
+  pimpl->optBase = static_cast<int>(GetOptions().size());
 
   if (IsFeatureEnabled(Feature::EightBitChars))
   {
-    AddOption(T_("enable-8bit-chars\0Make all characters printable by default."), FIRST_OPTION_VAL + optBase + OPT_ENABLE_8BIT_CHARS);
-    AddOption(T_("disable-8bit-chars\0Make only 7-bit characters printable by."), FIRST_OPTION_VAL + optBase + OPT_DISABLE_8BIT_CHARS);
+    AddOption(T_("enable-8bit-chars\0Make all characters printable by default."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_8BIT_CHARS);
+    AddOption(T_("disable-8bit-chars\0Make only 7-bit characters printable by."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_8BIT_CHARS);
   }
 
-  AddOption(T_("aux-directory\0Use DIR as the directory to write auxiliary files to."), FIRST_OPTION_VAL + optBase + OPT_AUX_DIRECTORY, POPT_ARG_STRING, "DIR");
-  AddOption(T_("buf-size\0Set buf_size to N."), FIRST_OPTION_VAL + optBase + OPT_BUF_SIZE, POPT_ARG_STRING, "N");
-  AddOption(T_("c-style-errors\0Enable file:line:error style messages."), FIRST_OPTION_VAL + optBase + OPT_C_STYLE_ERRORS);
-  AddOption(T_("dont-parse-first-line\0Do not parse the first line of the input line to look for a dump name and/or extra command-line options."), FIRST_OPTION_VAL + optBase + OPT_DONT_PARSE_FIRST_LINE);
-  AddOption(T_("error-line\0Set error_line to N."), FIRST_OPTION_VAL + optBase + OPT_ERROR_LINE, POPT_ARG_STRING, "N");
+  AddOption(T_("aux-directory\0Use DIR as the directory to write auxiliary files to."), FIRST_OPTION_VAL + pimpl->optBase + OPT_AUX_DIRECTORY, POPT_ARG_STRING, "DIR");
+  AddOption(T_("buf-size\0Set buf_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_BUF_SIZE, POPT_ARG_STRING, "N");
+  AddOption(T_("c-style-errors\0Enable file:line:error style messages."), FIRST_OPTION_VAL + pimpl->optBase + OPT_C_STYLE_ERRORS);
+  AddOption(T_("dont-parse-first-line\0Do not parse the first line of the input line to look for a dump name and/or extra command-line options."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DONT_PARSE_FIRST_LINE);
+  AddOption(T_("error-line\0Set error_line to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ERROR_LINE, POPT_ARG_STRING, "N");
 
-  if (isTeXProgram)
+  if (pimpl->isTeXProgram)
   {
-    AddOption(T_("extra-mem-bot\0Set extra_mem_bot to N."), FIRST_OPTION_VAL + optBase + OPT_EXTRA_MEM_BOT, POPT_ARG_STRING, "N");
+    AddOption(T_("extra-mem-bot\0Set extra_mem_bot to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_EXTRA_MEM_BOT, POPT_ARG_STRING, "N");
   }
 
-  if (isTeXProgram)
+  if (pimpl->isTeXProgram)
   {
-    AddOption(T_("extra-mem-top\0Set extra_mem_top to N."), FIRST_OPTION_VAL + optBase + OPT_EXTRA_MEM_TOP, POPT_ARG_STRING, "N");
+    AddOption(T_("extra-mem-top\0Set extra_mem_top to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_EXTRA_MEM_TOP, POPT_ARG_STRING, "N");
   }
 
-  AddOption(T_("half-error-line\0Set half_error_line to N."), FIRST_OPTION_VAL + optBase + OPT_HALF_ERROR_LINE, POPT_ARG_STRING, "N");
-  AddOption(T_("halt-on-error\0Stop after the first error."), FIRST_OPTION_VAL + optBase + OPT_HALT_ON_ERROR);
+  AddOption(T_("half-error-line\0Set half_error_line to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_HALF_ERROR_LINE, POPT_ARG_STRING, "N");
+  AddOption(T_("halt-on-error\0Stop after the first error."), FIRST_OPTION_VAL + pimpl->optBase + OPT_HALT_ON_ERROR);
 
   if (!invokedAsInitProgram)
   {
-    AddOption(T_("initialize\0Be the INI variant of the program."), FIRST_OPTION_VAL + optBase + OPT_INITIALIZE);
+    AddOption(T_("initialize\0Be the INI variant of the program."), FIRST_OPTION_VAL + pimpl->optBase + OPT_INITIALIZE);
   }
 
-  AddOption(T_("interaction\0Set the interaction mode; MODE must be one of: batchmode, nonstopmode, scrollmode, errorstopmode."), FIRST_OPTION_VAL + optBase + OPT_INTERACTION, POPT_ARG_STRING, "MODE");
-  AddOption(T_("job-name\0Set the job name and hence the name(s) of the output file(s)."), FIRST_OPTION_VAL + optBase + OPT_JOB_NAME, POPT_ARG_STRING, "NAME");
-  AddOption(T_("job-time\0Set the job time.  Take FILE's timestamp as the reference."), FIRST_OPTION_VAL + optBase + OPT_JOB_TIME, POPT_ARG_STRING, "FILE");
-  AddOption(T_("main-memory\0Set main_memory to N."), FIRST_OPTION_VAL + optBase + OPT_MAIN_MEMORY, POPT_ARG_STRING, "N");
-  AddOption(T_("max-print-line\0Set max_print_line to N."), FIRST_OPTION_VAL + optBase + OPT_MAX_PRINT_LINE, POPT_ARG_STRING, "N");
-  AddOption(T_("max-strings\0Set max_strings to N."), FIRST_OPTION_VAL + optBase + OPT_MAX_STRINGS, POPT_ARG_STRING, "N");
-  AddOption(T_("no-c-style-errors\0Disable file:line:error style messages."), FIRST_OPTION_VAL + optBase + OPT_NO_C_STYLE_ERRORS);
-  AddOption(T_("output-directory\0Use DIR as the directory to write output files to."), FIRST_OPTION_VAL + optBase + OPT_OUTPUT_DIRECTORY, POPT_ARG_STRING, "DIR");
-  AddOption(T_("param-size\0Set param_size to N."), FIRST_OPTION_VAL + optBase + OPT_PARAM_SIZE, POPT_ARG_STRING, "N");
-  AddOption(T_("parse-first-line\0Parse the first line of the input line to look for a dump name and/or extra command-line options."), FIRST_OPTION_VAL + optBase + OPT_PARSE_FIRST_LINE, POPT_ARG_NONE);
+  AddOption(T_("interaction\0Set the interaction mode; MODE must be one of: batchmode, nonstopmode, scrollmode, errorstopmode."), FIRST_OPTION_VAL + pimpl->optBase + OPT_INTERACTION, POPT_ARG_STRING, "MODE");
+  AddOption(T_("job-name\0Set the job name and hence the name(s) of the output file(s)."), FIRST_OPTION_VAL + pimpl->optBase + OPT_JOB_NAME, POPT_ARG_STRING, "NAME");
+  AddOption(T_("job-time\0Set the job time.  Take FILE's timestamp as the reference."), FIRST_OPTION_VAL + pimpl->optBase + OPT_JOB_TIME, POPT_ARG_STRING, "FILE");
+  AddOption(T_("main-memory\0Set main_memory to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_MAIN_MEMORY, POPT_ARG_STRING, "N");
+  AddOption(T_("max-print-line\0Set max_print_line to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_MAX_PRINT_LINE, POPT_ARG_STRING, "N");
+  AddOption(T_("max-strings\0Set max_strings to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_MAX_STRINGS, POPT_ARG_STRING, "N");
+  AddOption(T_("no-c-style-errors\0Disable file:line:error style messages."), FIRST_OPTION_VAL + pimpl->optBase + OPT_NO_C_STYLE_ERRORS);
+  AddOption(T_("output-directory\0Use DIR as the directory to write output files to."), FIRST_OPTION_VAL + pimpl->optBase + OPT_OUTPUT_DIRECTORY, POPT_ARG_STRING, "DIR");
+  AddOption(T_("param-size\0Set param_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_PARAM_SIZE, POPT_ARG_STRING, "N");
+  AddOption(T_("parse-first-line\0Parse the first line of the input line to look for a dump name and/or extra command-line options."), FIRST_OPTION_VAL + pimpl->optBase + OPT_PARSE_FIRST_LINE, POPT_ARG_NONE);
 
-  if (isTeXProgram)
+  if (pimpl->isTeXProgram)
   {
-    AddOption(T_("pool-free\0Set pool_free to N."), FIRST_OPTION_VAL + optBase + OPT_POOL_FREE, POPT_ARG_STRING, "N");
+    AddOption(T_("pool-free\0Set pool_free to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_POOL_FREE, POPT_ARG_STRING, "N");
   }
 
-  AddOption(T_("pool-size\0Set pool_size to N."), FIRST_OPTION_VAL + optBase + OPT_POOL_SIZE, POPT_ARG_STRING, "N");
-  AddOption(T_("quiet\0Suppress all output (except errors)."), FIRST_OPTION_VAL + optBase + OPT_QUIET);
-  AddOption(T_("recorder\0Turn on the file name recorder to leave a trace of the files opened for input and output in a file with extension .fls."), FIRST_OPTION_VAL + optBase + OPT_RECORDER);
-  AddOption(T_("stack-size\0Set stack_size to N."), FIRST_OPTION_VAL + optBase + OPT_STACK_SIZE, POPT_ARG_STRING, "N");
-  AddOption(T_("strict\0Disable MiKTeX extensions."), FIRST_OPTION_VAL + optBase + OPT_STRICT, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN);
+  AddOption(T_("pool-size\0Set pool_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_POOL_SIZE, POPT_ARG_STRING, "N");
+  AddOption(T_("quiet\0Suppress all output (except errors)."), FIRST_OPTION_VAL +pimpl-> optBase + OPT_QUIET);
+  AddOption(T_("recorder\0Turn on the file name recorder to leave a trace of the files opened for input and output in a file with extension .fls."), FIRST_OPTION_VAL + pimpl->optBase + OPT_RECORDER);
+  AddOption(T_("stack-size\0Set stack_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_STACK_SIZE, POPT_ARG_STRING, "N");
+  AddOption(T_("strict\0Disable MiKTeX extensions."), FIRST_OPTION_VAL + pimpl->optBase + OPT_STRICT, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN);
 
-  if (isTeXProgram)
+  if (pimpl->isTeXProgram)
   {
-    AddOption(T_("strings-free\0Set strings_free to N."), FIRST_OPTION_VAL + optBase + OPT_STRINGS_FREE, POPT_ARG_STRING, "N");
+    AddOption(T_("strings-free\0Set strings_free to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_STRINGS_FREE, POPT_ARG_STRING, "N");
   }
 
-  AddOption(T_("string-vacancies\0Set string_vacancies to N."), FIRST_OPTION_VAL + optBase + OPT_STRING_VACANCIES, POPT_ARG_STRING, "N");
-  AddOption(T_("time-statistics\0Show processing time statistics."), FIRST_OPTION_VAL + optBase + OPT_TIME_STATISTICS);
-  AddOption(T_("undump\0Use NAME instead of program name when loading internal tables."), FIRST_OPTION_VAL + optBase + OPT_UNDUMP, POPT_ARG_STRING, "NAME");
+  AddOption(T_("string-vacancies\0Set string_vacancies to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_STRING_VACANCIES, POPT_ARG_STRING, "N");
+  AddOption(T_("time-statistics\0Show processing time statistics."), FIRST_OPTION_VAL + pimpl->optBase + OPT_TIME_STATISTICS);
+  AddOption(T_("undump\0Use NAME instead of program name when loading internal tables."), FIRST_OPTION_VAL + pimpl->optBase + OPT_UNDUMP, POPT_ARG_STRING, "NAME");
 
   if (IsFeatureEnabled(Feature::TCX))
   {
-    AddOption(T_("tcx\0Use the TCXNAME translation table to set the mapping of inputcharacters and re-mapping of output characters."), FIRST_OPTION_VAL + optBase + OPT_TCX, POPT_ARG_STRING, "TCXNAME");
+    AddOption(T_("tcx\0Use the TCXNAME translation table to set the mapping of inputcharacters and re-mapping of output characters."), FIRST_OPTION_VAL + pimpl->optBase + OPT_TCX, POPT_ARG_STRING, "TCXNAME");
   }
 
   // old option names
@@ -292,7 +333,7 @@ void TeXMFApp::AddOptions()
   AddOption("progname", "alias");
 
   // unsupported Web2C options
-  AddOption("default-translate-file", OPT_UNSUPPORTED, POPT_ARG_STRING);
+  AddOption("default-translate-file\0", OPT_UNSUPPORTED, POPT_ARG_STRING);
   AddOption("maketex\0", OPT_UNSUPPORTED, POPT_ARG_STRING);
   AddOption("mktex\0", OPT_UNSUPPORTED, POPT_ARG_STRING);
   AddOption("no-maketex\0", OPT_UNSUPPORTED, POPT_ARG_STRING);
@@ -305,7 +346,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
 
   shared_ptr<Session> session = GetSession();
 
-  switch (opt - FIRST_OPTION_VAL - optBase)
+  switch (opt - FIRST_OPTION_VAL - pimpl->optBase)
   {
 
   case OPT_ENABLE_8BIT_CHARS:
@@ -341,11 +382,11 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     break;
 
   case OPT_C_STYLE_ERRORS:
-    showFileLineErrorMessages = true;
+    pimpl->showFileLineErrorMessages = true;
     break;
 
   case OPT_DONT_PARSE_FIRST_LINE:
-    parseFirstLine = false;
+    pimpl->parseFirstLine = false;
     break;
 
   case OPT_ERROR_LINE:
@@ -365,29 +406,29 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     break;
 
   case OPT_HALT_ON_ERROR:
-    haltOnError = true;
+    pimpl->haltOnError = true;
     break;
 
   case OPT_INITIALIZE:
-    isInitProgram = true;
+    pimpl->isInitProgram = true;
     break;
 
   case OPT_INTERACTION:
     if (optArg == "batchmode")
     {
-      interactionMode = 0;
+      pimpl->interactionMode = 0;
     }
     else if (optArg == "nonstopmode")
     {
-      interactionMode = 1;
+      pimpl->interactionMode = 1;
     }
     else if (optArg == "scrollmode")
     {
-      interactionMode = 2;
+      pimpl->interactionMode = 2;
     }
     else if (optArg == "errorstopmode")
     {
-      interactionMode = 3;
+      pimpl->interactionMode = 3;
     }
     else
     {
@@ -433,7 +474,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
       jobTime = lastWriteTime;
     }
     SetStartUpTime(jobTime);
-    setJobTime = true;
+    pimpl->setJobTime = true;
   }
   break;
 
@@ -450,11 +491,11 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     break;
 
   case OPT_TIME_STATISTICS:
-    timeStatistics = true;
+    pimpl->timeStatistics = true;
     break;
 
   case OPT_NO_C_STYLE_ERRORS:
-    showFileLineErrorMessages = false;
+    pimpl->showFileLineErrorMessages = false;
     break;
 
   case OPT_OUTPUT_DIRECTORY:
@@ -486,7 +527,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     break;
 
   case OPT_PARSE_FIRST_LINE:
-    parseFirstLine = true;
+    pimpl->parseFirstLine = true;
     break;
 
   case OPT_POOL_FREE:
@@ -503,7 +544,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
 
   case OPT_RECORDER:
     session->StartFileInfoRecorder(false);
-    recordFileNames = true;
+    pimpl->recordFileNames = true;
     break;
 
   case OPT_STACK_SIZE:
@@ -511,7 +552,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     break;
 
   case OPT_STRICT:
-    disableExtensions = true;
+    pimpl->disableExtensions = true;
     session->EnableFontMaker(false);
     break;
 
@@ -524,7 +565,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     break;
 
   case OPT_UNDUMP:
-    memoryDumpFileName = optArg;
+    pimpl->memoryDumpFileName = optArg;
     break;
 
   default:
@@ -584,7 +625,7 @@ void TeXMFApp::CheckFirstLine(const PathName & fileName)
   if (argv.GetArgc() > 1 && argv[1][0] != '-')
   {
     optidx = 2;
-    if (memoryDumpFileName.empty())
+    if (pimpl->memoryDumpFileName.empty())
     {
       string memoryDumpFileName = argv[1];
       PathName fileName(memoryDumpFileName);
@@ -595,7 +636,7 @@ void TeXMFApp::CheckFirstLine(const PathName & fileName)
       PathName path;
       if (session->FindFile(fileName.ToString(), GetMemoryDumpFileType(), path))
       {
-	this->memoryDumpFileName = memoryDumpFileName;
+	pimpl->memoryDumpFileName = memoryDumpFileName;
       }
     }
   }
@@ -679,30 +720,30 @@ bool TeXMFApp::OpenMemoryDumpFile(const PathName & fileName_, FILE ** ppFile, vo
 
 void TeXMFApp::ProcessCommandLineOptions()
 {
-  if (StringUtil::Contains(GetInitProgramName(), Utils::GetExeName().c_str()))
+  if (StringUtil::Contains(GetInitProgramName().c_str(), Utils::GetExeName().c_str()))
   {
-    isInitProgram = true;
+    pimpl->isInitProgram = true;
   }
 
   WebAppInputLine::ProcessCommandLineOptions();
 
   if (GetQuietFlag())
   {
-    showFileLineErrorMessages = true;
-    interactionMode = 0;      // batch_mode
+    pimpl->showFileLineErrorMessages = true;
+    pimpl->interactionMode = 0;      // batch_mode
   }
 
-  if (showFileLineErrorMessages && interactionMode < 0)
+  if (pimpl->showFileLineErrorMessages && pimpl->interactionMode < 0)
   {
-    interactionMode = 2;      // scrollmode
+    pimpl->interactionMode = 2;      // scrollmode
   }
 
-  if (parseFirstLine
+  if (pimpl->parseFirstLine
     && GetArgC() > 1
     && GetArgV()[1][0] != '&'
     && GetArgV()[1][0] != '*' // <fixme/>
     && GetArgV()[1][0] != '\\'
-    && (memoryDumpFileName.empty() || GetTcxFileName().Empty()))
+    && (pimpl->memoryDumpFileName.empty() || GetTcxFileName().Empty()))
   {
     CheckFirstLine(GetArgV()[1]);
   }
@@ -712,7 +753,7 @@ bool TeXMFApp::IsVirgin() const
 {
   string exeName = Utils::GetExeName();
   if (StringUtil::Contains(GetProgramName().c_str(), exeName.c_str())
-    || StringUtil::Contains(GetVirginProgramName(), exeName.c_str()))
+    || StringUtil::Contains(GetVirginProgramName().c_str(), exeName.c_str()))
   {
     return true;
   }
@@ -722,7 +763,7 @@ bool TeXMFApp::IsVirgin() const
   {
     exeName = exeName.substr(prefixLen);
     if (StringUtil::Contains(GetProgramName().c_str(), exeName.c_str())
-      || StringUtil::Contains(GetVirginProgramName(), exeName.c_str()))
+      || StringUtil::Contains(GetVirginProgramName().c_str(), exeName.c_str()))
     {
       return true;
     }
@@ -731,13 +772,12 @@ bool TeXMFApp::IsVirgin() const
   return false;
 }
 
-void TeXMFApp::GetDefaultMemoryDumpFileName(char * lpszPath) const
+PathName TeXMFApp::GetDefaultMemoryDumpFileName() const
 {
-  MIKTEX_ASSERT_PATH_BUFFER(lpszPath);
   PathName name;
-  if (!memoryDumpFileName.empty())
+  if (!pimpl->memoryDumpFileName.empty())
   {
-    name = memoryDumpFileName;
+    name = pimpl->memoryDumpFileName;
   }
   else if (IsVirgin())
   {
@@ -757,7 +797,7 @@ void TeXMFApp::GetDefaultMemoryDumpFileName(char * lpszPath) const
     }
   }
   name.AppendExtension(GetMemoryDumpFileExtension());
-  StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, name.GetData());
+  return name;
 }
 
 bool IsFileNameArgument(const char * lpszArg)
@@ -878,28 +918,58 @@ template<typename CharType> int InitializeBuffer_(CharType * pBuffer, FileType i
 unsigned long TeXMFApp::InitializeBuffer(unsigned char * pBuffer)
 {
   MIKTEX_ASSERT(pBuffer != nullptr);
-  return InitializeBuffer_<unsigned char>(pBuffer, GetInputFileType(), isTeXProgram);
+  return InitializeBuffer_<unsigned char>(pBuffer, GetInputFileType(), pimpl->isTeXProgram);
 }
 
 unsigned long TeXMFApp::InitializeBuffer(unsigned short * pBuffer)
 {
   MIKTEX_ASSERT(pBuffer != nullptr);
-  return InitializeBuffer_<unsigned short>(pBuffer, GetInputFileType(), isTeXProgram);
+  return InitializeBuffer_<unsigned short>(pBuffer, GetInputFileType(), pimpl->isTeXProgram);
 }
 
 unsigned long TeXMFApp::InitializeBuffer(C4P_signed32 * pBuffer)
 {
   MIKTEX_ASSERT(pBuffer != nullptr);
-  return InitializeBuffer_<C4P_signed32>(pBuffer, GetInputFileType(), isTeXProgram);
+  return InitializeBuffer_<C4P_signed32>(pBuffer, GetInputFileType(), pimpl->isTeXProgram);
 }
 
 void TeXMFApp::TouchJobOutputFile(FILE * pfile) const
 {
   MIKTEX_ASSERT(pfile != nullptr);
   shared_ptr<Session> session = GetSession();
-  if (setJobTime && session->IsOutputFile(pfile))
+  if (pimpl->setJobTime && session->IsOutputFile(pfile))
   {
     time_t time = GetStartUpTime();
     File::SetTimes(pfile, time, time, time);
   }
+}
+
+bool TeXMFApp::CStyleErrorMessagesP() const
+{
+  return pimpl->showFileLineErrorMessages;
+}
+
+bool TeXMFApp::HaltOnErrorP() const
+{
+  return pimpl->haltOnError;
+}
+
+bool TeXMFApp::IsInitProgram() const
+{
+  return pimpl->isInitProgram;
+}
+
+void TeXMFApp::SetTeX()
+{
+  pimpl->isTeXProgram = true;
+}
+
+bool TeXMFApp::AmITeXCompiler() const
+{
+  return pimpl->isTeXProgram;
+}
+
+int TeXMFApp::GetInteraction() const
+{
+  return pimpl->interactionMode;
 }
