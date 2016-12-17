@@ -52,38 +52,38 @@ MIKTEXCORECEEAPI(void) miktex_uncompress_file(const char * lpszPathIn, char * lp
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(void *) miktex_core_malloc(size_t size, const char * lpszFileName, int line)
+MIKTEXCORECEEAPI(void*) miktex_core_malloc(size_t size, const char* lpszFileName, int line)
 {
   C_FUNC_BEGIN();
-  return MiKTeX::Debug::Malloc(size, lpszFileName, line);
+  return MiKTeX::Debug::Malloc(size, SourceLocation("", lpszFileName == nullptr ? "" : lpszFileName, line))
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(void) miktex_core_free(void * ptr, const char * lpszFileName, int line)
+MIKTEXCORECEEAPI(void) miktex_core_free(void* ptr, const char* lpszFileName, int line)
 {
   C_FUNC_BEGIN();
-  MiKTeX::Debug::Free(ptr, lpszFileName, line);
+  MiKTeX::Debug::Free(ptr, SourceLocation("", lpszFileName == nullptr ? "" : lpszFileName, line));
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(void *) miktex_core_calloc(size_t num, size_t size, const char * lpszFileName, int line)
+MIKTEXCORECEEAPI(void*) miktex_core_calloc(size_t num, size_t size, const char* lpszFileName, int line)
 {
   C_FUNC_BEGIN();
-  return MiKTeX::Debug::Calloc(num, size, lpszFileName, line);
+  return MiKTeX::Debug::Calloc(num, size, SourceLocation("", lpszFileName == nullptr ? "" : lpszFileName, line));
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(void *) miktex_core_realloc(void * ptr, size_t size, const char * lpszFileName, int line)
+MIKTEXCORECEEAPI(void*) miktex_core_realloc(void* ptr, size_t size, const char* lpszFileName, int line)
 {
   C_FUNC_BEGIN();
-  return MiKTeX::Debug::Realloc(ptr, size, lpszFileName, line);
+  return MiKTeX::Debug::Realloc(ptr, size, SourceLocation("", lpszFileName == nullptr ? "" : lpszFileName, line));
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(char *) miktex_core_strdup(const char * lpsz, const char * lpszFileName, int line)
+MIKTEXCORECEEAPI(char*) miktex_core_strdup(const char* lpsz, const char* lpszFileName, int line)
 {
   C_FUNC_BEGIN();
-  return MiKTeX::Debug::StrDup(lpsz, lpszFileName, line);
+  return MiKTeX::Debug::StrDup(lpsz, SourceLocation("", lpszFileName == nullptr ? "" : lpszFileName, line));
   C_FUNC_END();
 }
 

@@ -59,52 +59,52 @@
 #if defined(__cplusplus)
 MIKTEX_DEBUG_BEGIN_NAMESPACE;
 
-MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL FatalMiKTeXError(const std::string & message, const MiKTeX::Core::MiKTeXException::KVMAP & info, const MiKTeX::Core::SourceLocation & sourceLocation);
-MIKTEXCORECEEAPI(void *) Malloc(size_t size, const char * lpszFileName, int line);
-MIKTEXCORECEEAPI(void *) Realloc(void * ptr, size_t size, const char * lpszFileName, int line);
-MIKTEXCORECEEAPI(void *) Calloc(size_t num, size_t size, const char * lpszFileName, int line);
+MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL FatalMiKTeXError(const std::string& message, const MiKTeX::Core::MiKTeXException::KVMAP& info, const MiKTeX::Core::SourceLocation& sourceLocation);
+MIKTEXCORECEEAPI(void*) Malloc(std::size_t size, const MiKTeX::Core::SourceLocation& sourceLocation);
+MIKTEXCORECEEAPI(void*) Realloc(void* ptr, std::size_t size, const MiKTeX::Core::SourceLocation& sourceLocation);
+MIKTEXCORECEEAPI(void*) Calloc(std::size_t num, std::size_t size, const MiKTeX::Core::SourceLocation& sourceLocation);
 
 #if defined(_MSC_VER)
 #  pragma push_macro("StrDup")
 #  undef StrDup
 #endif
 
-MIKTEXCORECEEAPI(char *) StrDup(const char * lpsz, const char * lpszFileName, int line);
+MIKTEXCORECEEAPI(char *) StrDup(const char* lpsz, const MiKTeX::Core::SourceLocation& sourceLocation);
 
 #if defined(_MSC_VER)
 #  pragma pop_macro("StrDup")
 #endif
 
-MIKTEXCORECEEAPI(void) Free(void * ptr, const char * lpszFileName, int line);
+MIKTEXCORECEEAPI(void) Free(void* ptr, const MiKTeX::Core::SourceLocation& sourceLocation);
 
 MIKTEX_DEBUG_END_NAMESPACE;
 #endif /* C++ */
 
 MIKTEX_BEGIN_EXTERN_C_BLOCK;
 
-MIKTEXCORECEEAPI(void *) miktex_core_malloc(size_t size, const char * lpszFileName, int line);
-MIKTEXCORECEEAPI(void *) miktex_core_realloc(void * ptr, size_t size, const char * lpszFileName, int line);
-MIKTEXCORECEEAPI(void *) miktex_core_calloc(size_t num, size_t size, const char * lpszFileName, int line);
-MIKTEXCORECEEAPI(char *) miktex_core_strdup(const char * s, const char * lpszFileName, int line);
-MIKTEXCORECEEAPI(void) miktex_core_free(void * ptr, const char * lpszFileName, int line);
-MIKTEXCOREEXPORT void MIKTEXNORETURN MIKTEXCEECALL miktex_core_fatal_error(const char * lpszMiktexFunction, const char * lpszMessage, const char * lpszInfo, const char * lpszSourceFile, int lpszSourceLine);
+MIKTEXCORECEEAPI(void *) miktex_core_malloc(std::size_t size, const char* lpszFileName, int line);
+MIKTEXCORECEEAPI(void *) miktex_core_realloc(void* ptr, std::size_t size, const char* lpszFileName, int line);
+MIKTEXCORECEEAPI(void *) miktex_core_calloc(std::size_t num, std::size_t size, const char* lpszFileName, int line);
+MIKTEXCORECEEAPI(char *) miktex_core_strdup(const char* lpsz, const char* lpszFileName, int line);
+MIKTEXCORECEEAPI(void) miktex_core_free(void* ptr, const char* lpszFileName, int line);
+MIKTEXCOREEXPORT void MIKTEXNORETURN MIKTEXCEECALL miktex_core_fatal_error(const char* lpszMiktexFunction, const char* lpszMessage, const char* lpszInfo, const char* lpszSourceFile, int lpszSourceLine);
 
 MIKTEX_END_EXTERN_C_BLOCK;
 
 #define MIKTEX_MALLOC(size)                             \
-  MiKTeX::Debug::Malloc((size), __FILE__, __LINE__)
+  MiKTeX::Debug::Malloc((size), MIKTEX_SOURCE_LOCATION())
 
 #define MIKTEX_REALLOC(ptr, size)                               \
-  MiKTeX::Debug::Realloc((ptr), (size), __FILE__, __LINE__)
+  MiKTeX::Debug::Realloc((ptr), (size), MIKTEX_SOURCE_LOCATION())
 
 #define MIKTEX_CALLOC(num, size)                        \
-  MiKTeX::Debug::Calloc(num, size, __FILE__, __LINE__)
+  MiKTeX::Debug::Calloc(num, size, MIKTEX_SOURCE_LOCATION())
 
 #  define MIKTEX_STRDUP(str)                            \
-  MiKTeX::Debug::StrDup((str), __FILE__, __LINE__)
+  MiKTeX::Debug::StrDup((str), MIKTEX_SOURCE_LOCATION())
 
 #define MIKTEX_FREE(ptr)                                \
-  MiKTeX::Debug::Free((ptr), __FILE__, __LINE__)
+  MiKTeX::Debug::Free((ptr), MIKTEX_SOURCE_LOCATION())
 
 #if defined(MIKTEX_DEBUG)
 #  define MIKTEX_ASSERT(expr)                                           \
@@ -156,69 +156,69 @@ MIKTEX_END_EXTERN_C_BLOCK;
 #endif
 
 #if defined(MIKTEX_DEBUG)
-#  define MIKTEX_ASSERT_BUFFER(buf, n) MiKTeX::Debug::AssertValidBuf(buf, n)
+#  define MIKTEX_ASSERT_BUFFER(ptr, n) MiKTeX::Debug::AssertValidBuf(ptr, n)
 #else
-#  define MIKTEX_ASSERT_BUFFER(buf, n)
+#  define MIKTEX_ASSERT_BUFFER(ptr, n)
 #endif
 
 #if defined(MIKTEX_DEBUG)
-#  define MIKTEX_ASSERT_BUFFER_OR_NIL(buf, n)   \
-  if (buf != nullptr)                           \
+#  define MIKTEX_ASSERT_BUFFER_OR_NIL(ptr, n)   \
+  if (ptr != nullptr)                           \
   {                                             \
-    MiKTeX::Debug::AssertValidBuf(buf, n);     \
+    MiKTeX::Debug::AssertValidBuf(ptr, n);     \
   }
 #else
-#  define MIKTEX_ASSERT_BUFFER_OR_NIL(buf, n)
+#  define MIKTEX_ASSERT_BUFFER_OR_NIL(ptr, n)
 #endif
 
 #if defined(MIKTEX_DEBUG)
-#  define MIKTEX_ASSERT_CHAR_BUFFER(buf, n)                     \
-  MiKTeX::Debug::AssertValidBuf(buf, sizeof(buf[0]) * (n))
+#  define MIKTEX_ASSERT_CHAR_BUFFER(ptr, n)                     \
+  MiKTeX::Debug::AssertValidBuf(ptr, sizeof(ptr[0]) * (n))
 #else
-#  define MIKTEX_ASSERT_CHAR_BUFFER(buf, n)
+#  define MIKTEX_ASSERT_CHAR_BUFFER(ptr, n)
 #endif
 
 #if defined(MIKTEX_DEBUG)
-#  define MIKTEX_ASSERT_CHAR_BUFFER_OR_NIL(buf, n)              \
-  if (buf != nullptr)                                           \
+#  define MIKTEX_ASSERT_CHAR_BUFFER_OR_NIL(ptr, n)              \
+  if (ptr != nullptr)                                           \
   {                                                             \
-    MiKTeX::Debug::AssertValidBuf(buf, sizeof(buf[0]) * (n));  \
+    MiKTeX::Debug::AssertValidBuf(ptr, sizeof(ptr[0]) * (n));   \
   }
 #else
-#  define MIKTEX_ASSERT_CHAR_BUFFER_OR_NIL(buf, n)
+#  define MIKTEX_ASSERT_CHAR_BUFFER_OR_NIL(ptr, n)
 #endif
 
 #if defined(MIKTEX_DEBUG)
-#  define MIKTEX_ASSERT_STRING(str) MiKTeX::Debug::AssertValidString(str)
+#  define MIKTEX_ASSERT_STRING(ptr) MiKTeX::Debug::AssertValidString(ptr)
 #else
-#  define MIKTEX_ASSERT_STRING(str)
+#  define MIKTEX_ASSERT_STRING(ptr)
 #endif
 
 #if defined(MIKTEX_DEBUG)
-#  define MIKTEX_ASSERT_STRING_OR_NIL(str)      \
-  if (str != nullptr)                           \
+#  define MIKTEX_ASSERT_STRING_OR_NIL(ptr)      \
+  if (ptr != nullptr)                           \
   {                                             \
-    MiKTeX::Debug::AssertValidString(str);      \
+    MiKTeX::Debug::AssertValidString(ptr);      \
   }
 #else
-#  define MIKTEX_ASSERT_STRING_OR_NIL(str)
+#  define MIKTEX_ASSERT_STRING_OR_NIL(ptr)
 #endif
 
-#  define MIKTEX_ASSERT_PATH_BUFFER(buf) \
-  MIKTEX_ASSERT_CHAR_BUFFER (buf, MiKTeX::Core::BufferSizes::MaxPath)
+#  define MIKTEX_ASSERT_PATH_BUFFER(ptr) \
+  MIKTEX_ASSERT_CHAR_BUFFER (ptr, MiKTeX::Core::BufferSizes::MaxPath)
 
-#  define MIKTEX_ASSERT_PATH_BUFFER_OR_NIL(buf) \
-  MIKTEX_ASSERT_CHAR_BUFFER_OR_NIL (buf, MiKTeX::Core::BufferSizes::MaxPath)
+#  define MIKTEX_ASSERT_PATH_BUFFER_OR_NIL(ptr) \
+  MIKTEX_ASSERT_CHAR_BUFFER_OR_NIL (ptr, MiKTeX::Core::BufferSizes::MaxPath)
 
-#  define MIKTEX_ASSERT_FNAME_BUFFER(buf) \
-  MIKTEX_ASSERT_CHAR_BUFFER (buf, MiKTeX::Core::BufferSizes::MaxPath)
+#  define MIKTEX_ASSERT_FNAME_BUFFER(ptr) \
+  MIKTEX_ASSERT_CHAR_BUFFER (ptr, MiKTeX::Core::BufferSizes::MaxPath)
 
 #if defined(__cplusplus)
 MIKTEX_DEBUG_BEGIN_NAMESPACE;
 
-inline void AssertValidBuf(void * lp, size_t n)
+inline void AssertValidBuf(void* ptr, std::size_t n)
 {
-  MIKTEX_ASSERT(lp != nullptr);
+  MIKTEX_ASSERT(ptr != nullptr);
 #if defined(MIKTEX_DEBUG)
   // TODO: check write
 #endif
@@ -230,17 +230,17 @@ MIKTEX_DEBUG_END_NAMESPACE;
 #if defined(__cplusplus)
 MIKTEX_DEBUG_BEGIN_NAMESPACE;
 
-inline void AssertValidString(const char * lp, size_t n = 4096)
+inline void AssertValidString(const char* ptr, std::size_t n = 4096)
 {
-  MIKTEX_ASSERT(lp != nullptr);
+  MIKTEX_ASSERT(ptr != nullptr);
 #if defined(MIKTEX_DEBUG)
   // TODO: check null terminated string
 #endif
 }
 
-inline void AssertValidString(const wchar_t * lp, size_t n = 4096)
+inline void AssertValidString(const wchar_t* ptr, std::size_t n = 4096)
 {
-  MIKTEX_ASSERT(lp != nullptr);
+  MIKTEX_ASSERT(ptr != nullptr);
 #if defined(MIKTEX_DEBUG)
   // TODO: check null terminated string
 #endif
@@ -270,7 +270,7 @@ MIKTEX_DEBUG_END_NAMESPACE;
 #if defined(__cplusplus)
 MIKTEX_DEBUG_BEGIN_NAMESPACE;
 
-inline void AssertValidHeapPointer(const void * ptr)
+inline void AssertValidHeapPointer(const void* ptr)
 {
 #if defined(_MSC_VER)
 #  if defined(_DEBUG)

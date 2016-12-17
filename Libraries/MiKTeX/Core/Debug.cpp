@@ -28,7 +28,7 @@
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 
-void * MIKTEXCEECALL MiKTeX::Debug::Malloc(size_t size, const char * lpszFileName, int line)
+void* MIKTEXCEECALL MiKTeX::Debug::Malloc(size_t size, const SourceLocation& sourceLocation)
 {
 #if 0 // too costly
 #if defined(MIKTEX_DEBUG)
@@ -36,9 +36,9 @@ void * MIKTEXCEECALL MiKTeX::Debug::Malloc(size_t size, const char * lpszFileNam
 #endif
 #endif
 #if defined(_MSC_VER) && defined(_DEBUG)
-  void * ptr = _malloc_dbg(size, _NORMAL_BLOCK, lpszFileName, line);
+  void* ptr = _malloc_dbg(size, _NORMAL_BLOCK, sourceLocation.fileName.c_str(), sourceLocation.lineNo);
 #else
-  void * ptr = malloc(size);
+  void* ptr = malloc(size);
 #endif
   if (ptr == nullptr)
   {
@@ -47,7 +47,7 @@ void * MIKTEXCEECALL MiKTeX::Debug::Malloc(size_t size, const char * lpszFileNam
   return ptr;
 }
 
-void * MIKTEXCEECALL MiKTeX::Debug::Calloc(size_t num, size_t size, const char * lpszFileName, int line)
+void* MIKTEXCEECALL MiKTeX::Debug::Calloc(size_t num, size_t size, const SourceLocation& sourceLocation)
 {
 #if 0 // too costly
 #if defined(MIKTEX_DEBUG)
@@ -55,9 +55,9 @@ void * MIKTEXCEECALL MiKTeX::Debug::Calloc(size_t num, size_t size, const char *
 #endif
 #endif
 #if defined(_MSC_VER) && defined(_DEBUG)
-  void * ptr = _calloc_dbg(num, size, _NORMAL_BLOCK, lpszFileName, line);
+  void* ptr = _calloc_dbg(num, size, _NORMAL_BLOCK, sourceLocation.fileName.c_str(), sourceLocation.lineNo);
 #else
-  void * ptr = calloc(num, size);
+  void* ptr = calloc(num, size);
 #endif
   if (ptr == nullptr)
   {
@@ -66,7 +66,7 @@ void * MIKTEXCEECALL MiKTeX::Debug::Calloc(size_t num, size_t size, const char *
   return ptr;
 }
 
-void * MIKTEXCEECALL MiKTeX::Debug::Realloc(void * ptr, size_t size, const char * lpszFileName, int line)
+void* MIKTEXCEECALL MiKTeX::Debug::Realloc(void* ptr, size_t size, const SourceLocation& sourceLocation)
 {
 #if 0 // too costly
 #if defined(MIKTEX_DEBUG)
@@ -74,7 +74,7 @@ void * MIKTEXCEECALL MiKTeX::Debug::Realloc(void * ptr, size_t size, const char 
 #endif
 #endif
 #if defined(_MSC_VER) && defined(_DEBUG)
-  ptr = _realloc_dbg(ptr, size, _NORMAL_BLOCK, lpszFileName, line);
+  ptr = _realloc_dbg(ptr, size, _NORMAL_BLOCK, sourceLocation.fileName.c_str(), sourceLocation.lineNo);
 #else
   ptr = realloc(ptr, size);
 #endif
@@ -85,15 +85,15 @@ void * MIKTEXCEECALL MiKTeX::Debug::Realloc(void * ptr, size_t size, const char 
   return ptr;
 }
 
-char * MIKTEXCEECALL MiKTeX::Debug::StrDup(const char * lpsz, const char * lpszFileName, int line)
+char* MIKTEXCEECALL MiKTeX::Debug::StrDup(const char* lpsz, const SourceLocation& sourceLocation)
 {
   size_t len = StrLen(lpsz);
-  char * lpsz2 = reinterpret_cast<char *>(Malloc(sizeof(*lpsz) * (len + 1), lpszFileName, line));
+  char* lpsz2 = reinterpret_cast<char *>(Malloc(sizeof(*lpsz) * (len + 1), sourceLocation));
   StringUtil::CopyString(lpsz2, len + 1, lpsz);
   return lpsz2;
 }
 
-void MIKTEXCEECALL MiKTeX::Debug::Free(void * ptr, const char * lpszFileName, int line)
+void MIKTEXCEECALL MiKTeX::Debug::Free(void* ptr, const SourceLocation& sourceLocation)
 {
   int oldErrno = errno;
 #if defined(_MSC_VER) && defined(_DEBUG)
@@ -132,7 +132,7 @@ void __declspec(dllexport) __cdecl MiKTeX::Debug::OnThrowStdException()
 }
 #endif
 
-MIKTEXNORETURN void MIKTEXCEECALL MiKTeX::Debug::FatalMiKTeXError(const std::string & message, const MiKTeXException::KVMAP & info, const SourceLocation & sourceLocation)
+MIKTEXNORETURN void MIKTEXCEECALL MiKTeX::Debug::FatalMiKTeXError(const std::string& message, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
 {
   Session::FatalMiKTeXError(message, info, sourceLocation);
 }
