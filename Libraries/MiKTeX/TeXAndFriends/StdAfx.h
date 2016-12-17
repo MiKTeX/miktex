@@ -26,6 +26,7 @@
 #include <cstdlib>
 #include <ctime>
 
+#include <bitset>
 #include <iomanip>
 #include <iostream>
 #include <set>

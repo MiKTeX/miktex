@@ -28,7 +28,7 @@
 
 #include <cstddef>
 
-#include <bitset>
+#include <memory>
 #include <string>
 
 #include <miktex/Core/BufferSizes>
@@ -57,13 +57,29 @@ enum class SourceSpecial
   VerticalBox,
 };
 
-class MIKTEXMFTYPEAPI(TeXApp) : public TeXMFApp
+class MIKTEXMFTYPEAPI(TeXApp) :
+  public TeXMFApp
 {
 public:
   MIKTEXMFEXPORT MIKTEXTHISCALL TeXApp();
 
+public:
+  TeXApp(const TeXApp& other) = delete;
+
+public:
+  TeXApp& operator=(const TeXApp& other) = delete;
+
+public:
+  TeXApp(TeXApp&& other) = delete;
+
+public:
+  TeXApp& operator=(TeXApp&& other) = delete;
+
+public:
+  virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~TeXApp() noexcept;
+
 protected:
-  MIKTEXMFTHISAPI(void) Init(const std::string & programInvocationName) override;
+  MIKTEXMFTHISAPI(void) Init(const std::string& programInvocationName) override;
 
 public:
   MIKTEXMFTHISAPI(void) Finalize() override;
@@ -78,7 +94,7 @@ public:
   }
 
 protected:
-  MIKTEXMFTHISAPI(bool) ProcessOption(int c, const std::string & optArg) override;
+  MIKTEXMFTHISAPI(bool) ProcessOption(int c, const std::string& optArg) override;
 
 public:
   int GetFormatIdent() const override
@@ -86,8 +102,7 @@ public:
 #if defined(THEDATA)
     return THEDATA(formatident);
 #else
-    MIKTEX_ASSERT(false);
-    return 0;
+    MIKTEX_UNEXPECTED();
 #endif
   }
 
@@ -179,8 +194,8 @@ public:
   }
 #endif
 
-public:
 #if defined(THEDATA)
+public:
   void AllocateMemory()
   {
     GETPARAM(param_mem_bot, membot, mem_bot, 0);
@@ -282,8 +297,8 @@ public:
   }
 #endif // THEDATA
 
-public:
 #if defined(THEDATA)
+public:
   void FreeMemory()
   {
     TeXMFApp::FreeMemory();
@@ -354,22 +369,13 @@ public:
 #endif // THEDATA
 
 public:
-  bool MLTeXP() const
-  {
-    return enableMLTeX;
-  }
+  MIKTEXMFTHISAPI(bool) MLTeXP() const;
 
 public:
-  int GetSynchronizationOptions() const
-  {
-    return synchronizationOptions;
-  }
+  MIKTEXMFTHISAPI(int) GetSynchronizationOptions() const;
 
 public:
-  bool EncTeXP() const
-  {
-    return enableEncTeX;
-  }
+  MIKTEXMFTHISAPI(bool) EncTeXP() const;
 
 public:
   enum class Write18Mode
@@ -381,37 +387,26 @@ public:
   };
 
 public:
-  Write18Mode GetWrite18Mode() const
-  {
-    return write18Mode;
-  }
+  MIKTEXMFTHISAPI(Write18Mode) GetWrite18Mode() const;
 
 public:
-  bool Write18P() const
-  {
-    return write18Mode == Write18Mode::Enabled
-      || write18Mode == Write18Mode::PartiallyEnabled
-      || write18Mode == Write18Mode::Query;
-  }
+  MIKTEXMFTHISAPI(bool) Write18P() const;
 
 public:
-  bool IsSourceSpecialOn(SourceSpecial s) const
-  {
-    return sourceSpecials[(std::size_t)s];
-  }
+  MIKTEXMFTHISAPI(bool) IsSourceSpecialOn(SourceSpecial s) const;
 
 #if defined(THEDATA)
 public:
   bool IsNewSource(int sourceFileName, int line) const
   {
-    TEXMFCHAR szFileName[MiKTeX::Core::BufferSizes::MaxPath];
-    GetTeXString(szFileName, sourceFileName, MiKTeX::Core::BufferSizes::MaxPath);
-    return lastSourceFilename != szFileName || lastLineNum != line;
+    TEXMFCHAR fileName[MiKTeX::Core::BufferSizes::MaxPath];
+    GetTeXString(fileName, sourceFileName, MiKTeX::Core::BufferSizes::MaxPath);
+    return lastSourceFilename != fileName || lastLineNum != line;
   }
 #endif
 
-public:
 #if defined(THEDATA)
+public:
   int MakeSrcSpecial(int sourceFileName, int line)
   {
     poolpointer oldpoolptr = THEDATA(poolptr);
@@ -457,31 +452,16 @@ public:
   };
 
 public:
-  MIKTEXMFTHISAPI(Write18Result) Write18(const char * lpszCommand, int & exitCode) const;
+  MIKTEXMFTHISAPI(Write18Result) Write18(const std::string& command, int& exitCode) const;
 
 public:
-  MIKTEXMFTHISAPI(Write18Result) Write18(const wchar_t * lpszCommand, int & exitCode) const;
-
-private:
-  Write18Mode write18Mode;
-
-private:
-  bool enableMLTeX;
-
-private:
-  bool enableEncTeX;
-
-private:
-  int synchronizationOptions;
+  MIKTEXMFTHISAPI(Write18Result) Write18(const std::wstring& command, int& exitCode) const;
 
 private:
   int lastLineNum;
 
 private:
   MiKTeX::Core::PathName lastSourceFilename;
-
-private:
-  std::bitset<32> sourceSpecials;
 
 private:
   int param_hyph_size;
@@ -515,6 +495,10 @@ private:
 
 private:
   int optBase;
+
+private:
+  class impl;
+  std::unique_ptr<impl> pimpl;
 };
 
 MIKTEXMF_END_NAMESPACE;

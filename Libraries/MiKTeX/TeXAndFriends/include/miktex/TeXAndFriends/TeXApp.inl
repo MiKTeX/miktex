@@ -46,12 +46,12 @@ inline void miktexallocatememory()
   THEAPP.AllocateMemory();
 }
 
-inline void miktexclosedvifile(bytefile & f)
+inline void miktexclosedvifile(bytefile& f)
 {
   THEAPP.CloseFile(f);
 }
 
-inline void miktexclosepdffile(bytefile & f)
+inline void miktexclosepdffile(bytefile& f)
 {
   THEAPP.CloseFile(f);
 }
@@ -122,7 +122,7 @@ template<class FileType> inline bool miktexopendvifile(FileType & f)
   return done;
 }
 
-template<class FileType> inline bool miktexopenpdffile(FileType & f)
+template<class FileType> inline bool miktexopenpdffile(FileType& f)
 {
   MiKTeX::Core::PathName outPath;
   bool done = THEAPP.OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), THEAPP.GetNameOfFile(), MiKTeX::Core::FileShare::Read, false, outPath);
@@ -133,7 +133,7 @@ template<class FileType> inline bool miktexopenpdffile(FileType & f)
   return done;
 }
 
-template<class FileType> inline bool miktexopenformatfile(FileType & f, bool renew = false)
+template<class FileType> inline bool miktexopenformatfile(FileType& f, bool renew = false)
 {
   return THEAPP.OpenMemoryDumpFile(f, renew);
 }
@@ -143,7 +143,7 @@ inline void miktexremembersourceinfo(int fileName, int lineNo)
   THEAPP.RememberSourceInfo(fileName, lineNo);
 }
 
-inline int miktexwrite18(const TEXMFCHAR * lpszCommand)
+inline int miktexwrite18(const TEXMFCHAR* lpszCommand)
 {
   int exitCode;
   return (int)THEAPP.Write18(lpszCommand, exitCode);
@@ -173,8 +173,7 @@ inline int miktexgetsynchronizationoptions()
 
 inline bool restrictedshell()
 {
-  return (THEAPP.GetWrite18Mode() == TeXApp::Write18Mode::PartiallyEnabled
-    || THEAPP.GetWrite18Mode() == TeXApp::Write18Mode::Query);
+  return THEAPP.GetWrite18Mode() == TeXApp::Write18Mode::PartiallyEnabled || THEAPP.GetWrite18Mode() == TeXApp::Write18Mode::Query;
 }
 
 inline bool shellenabledp()
@@ -182,14 +181,14 @@ inline bool shellenabledp()
   return miktexwrite18p();
 }
 
-template<class CharType> int runsystem(const CharType * lpszCommand)
+template<class CharType> int runsystem(const CharType* lpszCommand)
 {
-  return miktexwrite18(reinterpret_cast<const TEXMFCHAR *>(lpszCommand));
+  return miktexwrite18(reinterpret_cast<const TEXMFCHAR*>(lpszCommand));
 }
 
-template<class CharType> const CharType * conststringcast(CharType * lpsz)
+template<class CharType> const CharType* conststringcast(CharType* lpsz)
 {
-  return const_cast<const CharType *>(lpsz);
+  return const_cast<const CharType*>(lpsz);
 }
 
 #endif

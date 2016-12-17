@@ -25,8 +25,26 @@
 
 #define EXPERT_SRC_SPECIALS 0
 
-TeXApp::TeXApp()
-  : write18Mode(Write18Mode::Disabled)
+class TeXApp::impl
+{
+public:
+  Write18Mode write18Mode = Write18Mode::Disabled;
+public:
+  bool enableMLTeX;
+public:
+  bool enableEncTeX;
+public:
+  int synchronizationOptions;
+public:
+  bitset<32> sourceSpecials;
+};
+
+TeXApp::TeXApp() :
+  pimpl(make_unique<impl>())
+{
+}
+
+TeXApp::~TeXApp()
 {
 }
 
@@ -36,9 +54,9 @@ void TeXApp::Init(const string & programInvocationName)
 
   SetTeX();
 
-  enableEncTeX = false;
-  enableMLTeX = false;
-  write18Mode = Write18Mode::Disabled;
+  pimpl->enableEncTeX = false;
+  pimpl->enableMLTeX = false;
+  pimpl->write18Mode = Write18Mode::Disabled;
   lastLineNum = -1;
   param_font_max = -1;
   param_font_mem_size = -1;
@@ -51,7 +69,7 @@ void TeXApp::Init(const string & programInvocationName)
   param_trie_size = -1;
   param_hash_extra = -1;
 # define SYNCTEX_NO_OPTION INT_MAX
-  synchronizationOptions = SYNCTEX_NO_OPTION;
+  pimpl->synchronizationOptions = SYNCTEX_NO_OPTION;
 
   if (AmI("omega"))
   {
@@ -66,19 +84,19 @@ void TeXApp::OnTeXMFStartJob()
   string enableWrite18 = session->GetConfigValue("", MIKTEX_REGVAL_ENABLE_WRITE18, texapp::texapp::EnableWrite18()).GetString();
   if (enableWrite18 == "t")
   {
-    write18Mode = Write18Mode::Enabled;
+    pimpl->write18Mode = Write18Mode::Enabled;
   }
   else if (enableWrite18 == "f")
   {
-    write18Mode = Write18Mode::Disabled;
+    pimpl->write18Mode = Write18Mode::Disabled;
   }
   else if (enableWrite18 == "p")
   {
-    write18Mode = Write18Mode::PartiallyEnabled;
+    pimpl->write18Mode = Write18Mode::PartiallyEnabled;
   }
   else if (enableWrite18 == "q")
   {
-    write18Mode = Write18Mode::Query;
+    pimpl->write18Mode = Write18Mode::Query;
   }
   else
   {
@@ -89,7 +107,7 @@ void TeXApp::OnTeXMFStartJob()
 void TeXApp::Finalize()
 {
   lastSourceFilename = "";
-  sourceSpecials.reset();
+  pimpl->sourceSpecials.reset();
   TeXMFApp::Finalize();
 }
 
@@ -236,16 +254,16 @@ bool TeXApp::ProcessOption(int optchar, const string & optArg)
   switch (optchar - FIRST_OPTION_VAL - optBase)
   {
   case OPT_DISABLE_WRITE18:
-    write18Mode = Write18Mode::Disabled;
+    pimpl->write18Mode = Write18Mode::Disabled;
     break;
   case OPT_ENABLE_WRITE18:
     if (!inParseFirstLine)
     {
-      write18Mode = Write18Mode::Enabled;
+      pimpl->write18Mode = Write18Mode::Enabled;
     }
     break;
   case OPT_RESTRICT_WRITE18:
-    write18Mode = Write18Mode::PartiallyEnabled;
+    pimpl->write18Mode = Write18Mode::PartiallyEnabled;
     break;
   case OPT_FONT_MAX:
     param_font_max = std::stoi(optArg);
@@ -263,10 +281,10 @@ bool TeXApp::ProcessOption(int optchar, const string & optArg)
     param_mem_bot = std::stoi(optArg);
     break;
   case OPT_ENABLE_ENCTEX:
-    enableEncTeX = true;
+    pimpl->enableEncTeX = true;
     break;
   case OPT_ENABLE_MLTEX:
-    enableMLTeX = true;
+    pimpl->enableMLTeX = true;
     break;
   case OPT_NEST_SIZE:
     param_nest_size = std::stoi(optArg);
@@ -276,13 +294,13 @@ bool TeXApp::ProcessOption(int optchar, const string & optArg)
     break;
   case OPT_SRC_SPECIALS:
 #if EXPERT_SRC_SPECIALS
-    sourceSpecials[SourceSpecial::Auto] = true;
-    sourceSpecials[SourceSpecial::Paragraph] = true;
+    pimpl->sourceSpecials[SourceSpecial::Auto] = true;
+    pimpl->sourceSpecials[SourceSpecial::Paragraph] = true;
 #else
     if (optArg.empty())
     {
-      sourceSpecials[(size_t)SourceSpecial::Auto] = true;
-      sourceSpecials[(size_t)SourceSpecial::Paragraph] = true;
+      pimpl->sourceSpecials[(size_t)SourceSpecial::Auto] = true;
+      pimpl->sourceSpecials[(size_t)SourceSpecial::Paragraph] = true;
     }
     else
     {
@@ -291,32 +309,32 @@ bool TeXApp::ProcessOption(int optchar, const string & optArg)
       {
 	if (*tok == "everypar" || *tok == "par")
 	{
-	  sourceSpecials[(size_t)SourceSpecial::Auto] = true;
-	  sourceSpecials[(size_t)SourceSpecial::Paragraph] = true;
+	  pimpl->sourceSpecials[(size_t)SourceSpecial::Auto] = true;
+	  pimpl->sourceSpecials[(size_t)SourceSpecial::Paragraph] = true;
 	}
 	else if (*tok == "everyparend" || *tok == "parend")
 	{
-	  sourceSpecials[(size_t)SourceSpecial::ParagraphEnd] = true;
+	  pimpl->sourceSpecials[(size_t)SourceSpecial::ParagraphEnd] = true;
 	}
 	else if (*tok == "everycr" || *tok == "cr")
 	{
-	  sourceSpecials[(size_t)SourceSpecial::CarriageReturn] = true;
+	  pimpl->sourceSpecials[(size_t)SourceSpecial::CarriageReturn] = true;
 	}
 	else if (*tok == "everymath" || *tok == "math")
 	{
-	  sourceSpecials[(size_t)SourceSpecial::Math] = true;
+	  pimpl->sourceSpecials[(size_t)SourceSpecial::Math] = true;
 	}
 	else if (*tok == "everyhbox" || *tok == "hbox")
 	{
-	  sourceSpecials[(size_t)SourceSpecial::HorizontalBox] = true;
+	  pimpl->sourceSpecials[(size_t)SourceSpecial::HorizontalBox] = true;
 	}
 	else if (*tok == "everyvbox" || *tok == "vbox")
 	{
-	  sourceSpecials[(size_t)SourceSpecial::VerticalBox] = true;
+	  pimpl->sourceSpecials[(size_t)SourceSpecial::VerticalBox] = true;
 	}
 	else if (*tok == "everydisplay" || *tok == "display")
 	{
-	  sourceSpecials[(size_t)SourceSpecial::Display] = true;
+	  pimpl->sourceSpecials[(size_t)SourceSpecial::Display] = true;
 	}
 	else
 	{
@@ -328,7 +346,7 @@ bool TeXApp::ProcessOption(int optchar, const string & optArg)
 #endif // EXPERT_SRC_SPECIALS
     break;
   case OPT_SYNCTEX:
-    synchronizationOptions = std::stoi(optArg);
+    pimpl->synchronizationOptions = std::stoi(optArg);
     break;
 
   case OPT_TRIE_SIZE:
@@ -455,12 +473,11 @@ bool ParseCommand(const string & command, string & quotedCommand, string & execu
   return true;
 }
 
-TeXApp::Write18Result TeXApp::Write18(const char * lpszCommand, int & exitCode) const
+TeXApp::Write18Result TeXApp::Write18(const string& command_, int &exitCode) const
 {
-  MIKTEX_ASSERT_STRING(lpszCommand);
   Write18Result result = Write18Result::Executed;
-  string command = lpszCommand;
-  switch (write18Mode)
+  string command = command_;
+  switch (pimpl->write18Mode)
   {
   case Write18Mode::Enabled:
     break;
@@ -476,7 +493,7 @@ TeXApp::Write18Result TeXApp::Write18(const char * lpszCommand, int & exitCode) 
       return Write18Result::QuotationError;
     }
     command = quotedCommand;
-    if (write18Mode == Write18Mode::Query)
+    if (pimpl->write18Mode == Write18Mode::Query)
     {
       // todo
       return Write18Result::Disallowed;
@@ -506,9 +523,40 @@ TeXApp::Write18Result TeXApp::Write18(const char * lpszCommand, int & exitCode) 
   return result;
 }
 
-TeXApp::Write18Result TeXApp::Write18(const wchar_t * lpszCommand, int & exitCode) const
+TeXApp::Write18Result TeXApp::Write18(const wstring& command, int &exitCode) const
 {
-  MIKTEX_ASSERT_STRING(lpszCommand);
-  CharBuffer<char> buf(lpszCommand);
-  return Write18(buf.GetData(), exitCode);
+  CharBuffer<char> utf8(command);
+  return Write18(utf8.GetData(), exitCode);
+}
+
+TeXApp::Write18Mode TeXApp::GetWrite18Mode() const
+{
+  return pimpl->write18Mode;
+}
+
+bool TeXApp::Write18P() const
+{
+  return pimpl->write18Mode == Write18Mode::Enabled
+    || pimpl->write18Mode == Write18Mode::PartiallyEnabled
+    || pimpl->write18Mode == Write18Mode::Query;
+}
+
+bool TeXApp::MLTeXP() const
+{
+  return pimpl->enableMLTeX;
+}
+
+int TeXApp::GetSynchronizationOptions() const
+{
+  return pimpl->synchronizationOptions;
+}
+
+bool TeXApp::EncTeXP() const
+{
+  return pimpl->enableEncTeX;
+}
+
+bool TeXApp::IsSourceSpecialOn(SourceSpecial s) const
+{
+  return pimpl->sourceSpecials[(std::size_t)s];
 }
