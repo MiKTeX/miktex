@@ -50,7 +50,7 @@ void SessionImpl::PushAppName(const string & name)
     {
 #if defined(MIKTEX_DEBUG)
       ++tag;
-      MIKTEX_ASSERT(tag.GetCurrent() == nullptr);
+      MIKTEX_ASSERT(!tag);
 #endif
       break;
     }
@@ -82,7 +82,7 @@ void SessionImpl::PushBackAppName(const string & name)
     {
 #if defined(MIKTEX_DEBUG)
       ++tag;
-      MIKTEX_ASSERT(tag.GetCurrent() == nullptr);
+      MIKTEX_ASSERT(!tag);
 #endif
       break;
     }
