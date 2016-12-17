@@ -2119,7 +2119,7 @@ void McdApp::Run(int argc, const char ** argv)
 
   if (options.traceStreams.length() > 0)
   {
-    initInfo.SetTraceFlags(options.traceStreams.c_str());
+    initInfo.SetTraceFlags(options.traceStreams);
   }
 
   for (const string & fileName : leftovers)

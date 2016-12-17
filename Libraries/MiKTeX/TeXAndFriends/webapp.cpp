@@ -282,7 +282,7 @@ bool WebApp::ProcessOption(int opt, const string & optArg)
     pimpl->packageListFileName = optArg;
     break;
   case OPT_TRACE:
-    MiKTeX::Trace::TraceStream::SetTraceFlags(optArg.c_str());
+    MiKTeX::Trace::TraceStream::SetTraceFlags(optArg);
     break;
   case OPT_VERSION:
     ShowProgramVersion();

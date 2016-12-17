@@ -241,7 +241,7 @@ public:
       LOG4CXX_INFO(logger, "starting tests");
       if (!traceFlags.empty())
       {
-        MiKTeX::Trace::TraceStream::SetTraceFlags(traceFlags.c_str());
+        MiKTeX::Trace::TraceStream::SetTraceFlags(traceFlags);
       }
       Run();
       pSession = nullptr;

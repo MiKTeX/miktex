@@ -313,7 +313,7 @@ BOOL YapApplication::InitInstance()
     {
       tracing = true;
       traceFlags = cmdInfo.traceFlags;
-      TraceStream::SetTraceFlags(cmdInfo.traceFlags.c_str());
+      TraceStream::SetTraceFlags(cmdInfo.traceFlags);
     }
 
     YapLog(T_("Yap arguments: %s"), TU_(m_lpCmdLine));
@@ -1052,7 +1052,7 @@ void YapApplication::OnViewTrace()
         traceFlags = YAP_TRACE_FLAGS_LVL_3;
       }
     }
-    TraceStream::SetTraceFlags(tracing ? traceFlags.c_str() : nullptr);
+    TraceStream::SetTraceFlags(tracing ? traceFlags : "");
   }
   catch (const MiKTeXException & e)
   {

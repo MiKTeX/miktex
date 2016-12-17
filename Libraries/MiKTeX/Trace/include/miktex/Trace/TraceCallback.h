@@ -37,7 +37,7 @@ class MIKTEXNOVTABLE TraceCallback
 public:
   struct TraceMessage
   {
-    TraceMessage(const std::string & streamName, const std::string & facility, const std::string & message) :
+    TraceMessage(const std::string& streamName, const std::string& facility, const std::string& message) :
       streamName(streamName),
       facility(facility),
       message(message)
@@ -49,7 +49,7 @@ public:
   };
 
 public:
-  virtual void MIKTEXTHISCALL Trace(const TraceMessage & traceMessage) = 0;
+  virtual void MIKTEXTHISCALL Trace(const TraceMessage& traceMessage) = 0;
 };
 
 MIKTEX_TRACE_END_NAMESPACE;

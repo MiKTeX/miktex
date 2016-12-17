@@ -38,7 +38,7 @@ MIKTEX_TRACE_BEGIN_NAMESPACE;
 class MIKTEXNOVTABLE TraceStream
 {
 public:
-  virtual MIKTEXTHISCALL ~TraceStream() = 0;
+  virtual MIKTEXTHISCALL ~TraceStream() noexcept = 0;
 
 public:
   virtual void MIKTEXTHISCALL Close() = 0;
@@ -50,34 +50,28 @@ public:
   virtual bool MIKTEXTHISCALL IsEnabled() = 0;
 
 public:
-  static MIKTEXTRACECEEAPI(std::unique_ptr<TraceStream>) Open(const std::string & name, TraceCallback * callback);
+  static MIKTEXTRACECEEAPI(std::unique_ptr<TraceStream>) Open(const std::string& name, TraceCallback* callback);
 
 public:
-  static std::unique_ptr<TraceStream> Open(const std::string & name)
+  static std::unique_ptr<TraceStream> Open(const std::string& name)
   {
     return Open(name, nullptr);
   }
 
 public:
-  static MIKTEXTRACECEEAPI(void) SetTraceFlags(const char * lpszOptions);
+  static MIKTEXTRACECEEAPI(void) SetTraceFlags(const std::string& flags);
 
 public:
-  virtual void MIKTEXTHISCALL Write(const char *  lpszFacility, const char * lpszText) = 0;
+  virtual void MIKTEXTHISCALL Write(const std::string& facility, const std::string& text) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL WriteLine(const char * lpszFacility, const char * lpszText) = 0;
+  virtual void MIKTEXTHISCALL WriteLine(const std::string& facility, const std::string& text) = 0;
 
 public:
-  void WriteLine(const std::string & facility, const std::string & text)
-  {
-    WriteLine(facility.c_str(), text.c_str());
-  }
+  virtual void MIKTEXCEECALL WriteFormattedLine(const std::string& facility, const char* format, ...) = 0;
 
 public:
-  virtual void MIKTEXCEECALL WriteFormattedLine(const char * lpszFacility, const char * lpszFormat, ...) = 0;
-
-public:
-  virtual void MIKTEXTHISCALL VTrace(const char * lpszFacility, const char * lpszFormat, va_list arglist) = 0;
+  virtual void MIKTEXTHISCALL VTrace(const std::string& facility, const std::string& format, va_list arglist) = 0;
 };
 
 MIKTEX_TRACE_END_NAMESPACE;

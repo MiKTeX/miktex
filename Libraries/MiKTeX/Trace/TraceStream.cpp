@@ -68,25 +68,25 @@ class TraceStreamImpl :
   public TraceStream
 {
 public:
-  virtual void MIKTEXTHISCALL Close();
+  void MIKTEXTHISCALL Close() override;
 
 public:
-  virtual void MIKTEXTHISCALL Enable(bool enable);
+  void MIKTEXTHISCALL Enable(bool enable) override;
 
 public:
-  virtual bool MIKTEXTHISCALL IsEnabled();
+  bool MIKTEXTHISCALL IsEnabled() override;
 
 public:
-  virtual void MIKTEXCEECALL WriteFormattedLine(const char * lpszFacility, const char * lpszFormat, ...);
+  void MIKTEXCEECALL WriteFormattedLine(const std::string& facility, const char* format, ...) override;
 
 public:
-  virtual void MIKTEXTHISCALL Write(const char * lpszFacility, const char * lpszText);
+  void MIKTEXTHISCALL Write(const std::string& facility, const std::string& text) override;
 
 public:
-  virtual void MIKTEXTHISCALL WriteLine(const char * lpszFacility, const char * lpszText);
+  void MIKTEXTHISCALL WriteLine(const std::string& facility, const std::string& text) override;
 
 public:
-  virtual void MIKTEXTHISCALL VTrace(const char * lpszFacility, const char * lpszFormat, va_list arglist);
+  void MIKTEXTHISCALL VTrace(const std::string& facility, const std::string& format, va_list arglist) override;
 
 public:
   TraceStreamImpl(shared_ptr<TraceStreamInfo> info, TraceCallback * callback) :
@@ -221,25 +221,25 @@ void TraceStreamImpl::FormatV(const string & facility, bool appendNewline, const
   Logger(facility, StringUtil::FormatStringVA(format.c_str(), arglist), appendNewline);
 }
 
-void TraceStream::SetTraceFlags(const char * lpszFlags)
+void TraceStream::SetTraceFlags(const string& flags)
 {
-  // TODO: MIKTEX_ASSERT_STRING_OR_NIL(lpszFlags);
-
-  if (lpszFlags == nullptr)
-  {
-    lpszFlags = "error";
-  }
-
   lock_guard<mutex> lockGuard(TraceStreamImpl::traceStreamsMutex);
 
-  TraceStreamImpl::traceFlags = lpszFlags;
+  if (flags.empty())
+  {
+    TraceStreamImpl::traceFlags = "error";
+  }
+  else
+  {
+    TraceStreamImpl::traceFlags = flags;
+  }
 
   for (TraceStreamImpl::TraceStreamTable::iterator it = TraceStreamImpl::traceStreams.begin(); it != TraceStreamImpl::traceStreams.end(); ++it)
   {
     it->second->isEnabled = false;
   }
 
-  for (Tokenizer tok(lpszFlags, ",; \n\t"); tok; ++tok)
+  for (Tokenizer tok(TraceStreamImpl::traceFlags, ",; \n\t"); tok; ++tok)
   {
     string name(*tok);
     TraceStreamImpl::TraceStreamTable::iterator it = TraceStreamImpl::traceStreams.equal_range(name).first;
@@ -255,51 +255,43 @@ void TraceStreamImpl::Enable(bool enable)
   info->isEnabled = enable;
 }
 
-void TraceStreamImpl::WriteFormattedLine(const char * lpszFacility, const char * lpszFormat, ...)
+void TraceStreamImpl::WriteFormattedLine(const string& facility, const char* format, ...)
 {
-  // TODO: MIKTEX_ASSERT_STRING_OR_NIL(lpszFacility);
-  // TODO: MIKTEX_ASSERT_STRING(lpszFormat);
   if (!IsEnabled())
   {
     return;
   }
   va_list marker;
-  va_start(marker, lpszFormat);
-  FormatV(lpszFacility == nullptr ? "" : lpszFacility, true, lpszFormat, marker);
+  va_start(marker, format);
+  FormatV(facility, true, format, marker);
   va_end(marker);
 }
 
-void TraceStreamImpl::WriteLine(const char * lpszFacility, const char * lpszText)
+void TraceStreamImpl::WriteLine(const string& facility, const string& text)
 {
-  // TODO: MIKTEX_ASSERT_STRING_OR_NIL(lpszFacility);
-  // TODO: MIKTEX_ASSERT_STRING(lpszText);
   if (!IsEnabled())
   {
     return;
   }
-  Logger(lpszFacility == nullptr ? "" : lpszFacility, lpszText, true);
+  Logger(facility, text, true);
 }
 
-void TraceStreamImpl::Write(const char * lpszFacility, const char * lpszText)
+void TraceStreamImpl::Write(const string& facility, const string& text)
 {
-  // TODO: MIKTEX_ASSERT_STRING_OR_NIL(lpszFacility);
-  // TODO: MIKTEX_ASSERT_STRING(lpszText);
   if (!IsEnabled())
   {
     return;
   }
-  Logger(lpszFacility == nullptr ? "" : lpszFacility, lpszText, false);
+  Logger(facility, text, false);
 }
 
-void TraceStreamImpl::VTrace(const char * lpszFacility, const char * lpszFormat, va_list arglist)
+void TraceStreamImpl::VTrace(const string& facility, const string& format, va_list arglist)
 {
-  // TODO: MIKTEX_ASSERT_STRING_OR_NIL(lpszFacility);
-  // TODO: MIKTEX_ASSERT_STRING(lpszFormat);
   if (!IsEnabled())
   {
     return;
   }
-  FormatV(lpszFacility == nullptr ? "" : lpszFacility, true, lpszFormat, arglist);
+  FormatV(facility, true, format, arglist);
 }
 
 unique_ptr<TraceStream> TraceStream::Open(const string & name, TraceCallback * callback)

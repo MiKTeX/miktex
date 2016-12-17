@@ -165,7 +165,7 @@ void SessionImpl::Initialize(const Session::InitInfo & initInfo)
 #endif
   if (!traceOptions.empty())
   {
-    TraceStream::SetTraceFlags(traceOptions.c_str());
+    TraceStream::SetTraceFlags(traceOptions);
   }
 
   if (!forceAdminMode)
