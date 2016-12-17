@@ -82,10 +82,10 @@ MIKTEX_DEBUG_END_NAMESPACE;
 
 MIKTEX_BEGIN_EXTERN_C_BLOCK;
 
-MIKTEXCORECEEAPI(void *) miktex_core_malloc(std::size_t size, const char* lpszFileName, int line);
-MIKTEXCORECEEAPI(void *) miktex_core_realloc(void* ptr, std::size_t size, const char* lpszFileName, int line);
-MIKTEXCORECEEAPI(void *) miktex_core_calloc(std::size_t num, std::size_t size, const char* lpszFileName, int line);
-MIKTEXCORECEEAPI(char *) miktex_core_strdup(const char* lpsz, const char* lpszFileName, int line);
+MIKTEXCORECEEAPI(void*) miktex_core_malloc(size_t size, const char* lpszFileName, int line);
+MIKTEXCORECEEAPI(void*) miktex_core_realloc(void* ptr, size_t size, const char* lpszFileName, int line);
+MIKTEXCORECEEAPI(void*) miktex_core_calloc(size_t num, size_t size, const char* lpszFileName, int line);
+MIKTEXCORECEEAPI(char*) miktex_core_strdup(const char* lpsz, const char* lpszFileName, int line);
 MIKTEXCORECEEAPI(void) miktex_core_free(void* ptr, const char* lpszFileName, int line);
 MIKTEXCOREEXPORT void MIKTEXNORETURN MIKTEXCEECALL miktex_core_fatal_error(const char* lpszMiktexFunction, const char* lpszMessage, const char* lpszInfo, const char* lpszSourceFile, int lpszSourceLine);
 
