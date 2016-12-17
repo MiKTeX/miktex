@@ -23,6 +23,21 @@
 
 #include "internal.h"
 
+class MetafontApp::impl
+{
+public:
+  int optBase;
+};
+
+MetafontApp::MetafontApp() :
+  pimpl(make_unique<impl>())
+{
+}
+
+MetafontApp::~MetafontApp()
+{
+}
+
 void MetafontApp::Init(const string & programInvocationName)
 {
   TeXMFApp::Init(programInvocationName);
@@ -45,16 +60,16 @@ enum {
 void MetafontApp::AddOptions()
 {
   TeXMFApp::AddOptions();
-  optBase = static_cast<int>(GetOptions().size());
-  AddOption(T_("bistack-size\0Set bistack_size to N."), FIRST_OPTION_VAL + optBase + OPT_BISTACK_SIZE, POPT_ARG_STRING, "N");
-  AddOption(T_("lig-table-size\0Set lig_table_size to N."), FIRST_OPTION_VAL + optBase + OPT_LIG_TABLE_SIZE, POPT_ARG_STRING, "N");
-  AddOption(T_("path-size\0Set path_size to N."), FIRST_OPTION_VAL + optBase + OPT_PATH_SIZE, POPT_ARG_STRING, "N");
+  pimpl->optBase = static_cast<int>(GetOptions().size());
+  AddOption(T_("bistack-size\0Set bistack_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_BISTACK_SIZE, POPT_ARG_STRING, "N");
+  AddOption(T_("lig-table-size\0Set lig_table_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_LIG_TABLE_SIZE, POPT_ARG_STRING, "N");
+  AddOption(T_("path-size\0Set path_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_PATH_SIZE, POPT_ARG_STRING, "N");
 }
 
 bool MetafontApp::ProcessOption(int opt, const string & optArg)
 {
   bool done = true;
-  switch (opt - FIRST_OPTION_VAL - optBase)
+  switch (opt - FIRST_OPTION_VAL - pimpl->optBase)
   {
   case OPT_BISTACK_SIZE:
     param_bistack_size = std::stoi(optArg);

@@ -26,6 +26,7 @@
 
 #include <miktex/TeXAndFriends/config.h>
 
+#include <memory>
 #include <string>
 
 #include <miktex/Core/FileType>
@@ -38,10 +39,29 @@ namespace mfapp {
 
 MIKTEXMF_BEGIN_NAMESPACE;
 
-class MIKTEXMFTYPEAPI(MetafontApp) : public TeXMFApp
+class MIKTEXMFTYPEAPI(MetafontApp) :
+  public TeXMFApp
 {
+public:
+  MIKTEXMFEXPORT MIKTEXTHISCALL MetafontApp();
+
+public:
+  MetafontApp(const MetafontApp& other) = delete;
+
+public:
+  MetafontApp& operator=(const MetafontApp& other) = delete;
+
+public:
+  MetafontApp(MetafontApp&& other) = delete;
+
+public:
+  MetafontApp& operator=(MetafontApp&& other) = delete;
+
+public:
+  virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~MetafontApp() noexcept;
+
 protected:
-  MIKTEXMFTHISAPI(void) Init(const std::string & programInvocationName) override;
+  MIKTEXMFTHISAPI(void) Init(const std::string& programInvocationName) override;
 
 public:
   MIKTEXMFTHISAPI(void) Finalize() override;
@@ -50,7 +70,7 @@ protected:
   MIKTEXMFTHISAPI(void) AddOptions() override;
 
 protected:
-  MIKTEXMFTHISAPI(bool) ProcessOption(int opt, const std::string & optArg) override;
+  MIKTEXMFTHISAPI(bool) ProcessOption(int opt, const std::string& optArg) override;
 
 public:
   MiKTeX::Core::FileType GetInputFileType() const override
@@ -107,7 +127,6 @@ public:
   void FreeMemory()
   {
     TeXMFApp::FreeMemory();
-
     Free(THEDATA(bisectstack));
     Free(THEDATA(delta));
     Free(THEDATA(deltax));
@@ -119,7 +138,6 @@ public:
     Free(THEDATA(uu));
     Free(THEDATA(vv));
     Free(THEDATA(ww));
-
 #if defined(TRAPMF)
     Free(THEDATA(c4p_free));
     Free(THEDATA(wasfree));
@@ -137,7 +155,8 @@ private:
   int param_path_size;
 
 private:
-  int optBase;
+  class impl;
+  std::unique_ptr<impl> pimpl;
 };
 
 MIKTEXMF_END_NAMESPACE;
