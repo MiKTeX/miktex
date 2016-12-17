@@ -23,14 +23,27 @@
 
 #include "internal.h"
 
-ETeXApp::ETeXApp()
+class ETeXApp::impl
+{
+public:
+  bool enableETeX;
+public:
+  int optBase;
+};
+
+ETeXApp::ETeXApp() :
+  pimpl(make_unique<impl>())
+{
+}
+
+ETeXApp::~ETeXApp()
 {
 }
 
 void ETeXApp::Init(const string & programInvocationName)
 {
   TeXApp::Init(programInvocationName);
-  enableETeX = false;
+  pimpl->enableETeX = false;
 }
 
 void ETeXApp::OnTeXMFStartJob()
@@ -50,8 +63,8 @@ enum {
 void ETeXApp::AddOptions()
 {
   TeXApp::AddOptions();
-  optBase = static_cast<int>(GetOptions().size());
-  AddOption(T_("enable-etex\0Enable e-TeX extensions."), FIRST_OPTION_VAL + optBase + OPT_ENABLE_ETEX);
+  pimpl->optBase = static_cast<int>(GetOptions().size());
+  AddOption(T_("enable-etex\0Enable e-TeX extensions."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_ETEX);
   // supported Web2C options
   AddOption("etex", "enable-etex");
 }
@@ -59,14 +72,19 @@ void ETeXApp::AddOptions()
 bool ETeXApp::ProcessOption(int optchar, const string & optArg)
 {
   bool done = true;
-  switch (optchar - FIRST_OPTION_VAL - optBase)
+  switch (optchar - FIRST_OPTION_VAL - pimpl->optBase)
   {
   case OPT_ENABLE_ETEX:
-    enableETeX = true;
+    pimpl->enableETeX = true;
     break;
   default:
     done = TeXApp::ProcessOption(optchar, optArg);
     break;
   }
   return done;
+}
+
+bool ETeXApp::ETeXP() const
+{
+  return pimpl->enableETeX;
 }

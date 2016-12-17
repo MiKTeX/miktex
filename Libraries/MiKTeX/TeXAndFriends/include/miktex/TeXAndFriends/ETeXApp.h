@@ -23,19 +23,36 @@
 
 #include <miktex/TeXAndFriends/config.h>
 
+#include <memory>
 #include <string>
 
 #include "TeXApp.h"
 
 MIKTEXMF_BEGIN_NAMESPACE;
 
-class MIKTEXMFTYPEAPI(ETeXApp) : public TeXApp
+class MIKTEXMFTYPEAPI(ETeXApp) :
+  public TeXApp
 {
 public:
   MIKTEXMFEXPORT MIKTEXTHISCALL ETeXApp();
 
+public:
+  ETeXApp(const ETeXApp& other) = delete;
+
+public:
+  ETeXApp& operator=(const ETeXApp& other) = delete;
+
+public:
+  ETeXApp(ETeXApp&& other) = delete;
+
+public:
+  ETeXApp& operator=(ETeXApp&& other) = delete;
+
+public:
+  virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~ETeXApp() noexcept;
+
 protected:
-  MIKTEXMFTHISAPI(void) Init(const std::string & programInvocationName) override;
+  MIKTEXMFTHISAPI(void) Init(const std::string& programInvocationName) override;
 
 public:
   MIKTEXMFTHISAPI(void) Finalize() override;
@@ -44,7 +61,7 @@ protected:
   MIKTEXMFTHISAPI(void) AddOptions() override;
 
 protected:
-  MIKTEXMFTHISAPI(bool) ProcessOption(int c, const std::string & optArg) override;
+  MIKTEXMFTHISAPI(bool) ProcessOption(int c, const std::string& optArg) override;
 
 public:
   MIKTEXMFTHISAPI(void) OnTeXMFStartJob() override;
@@ -67,7 +84,6 @@ public:
   void AllocateMemory()
   {
     TeXApp::AllocateMemory();
-
     Allocate("eofseen", THEDATA(eofseen), THEDATA(maxinopen));
     Allocate("grpstack", THEDATA(grpstack), THEDATA(maxinopen));
     Allocate("ifstack", THEDATA(ifstack), THEDATA(maxinopen));
@@ -79,7 +95,6 @@ public:
   void FreeMemory()
   {
     TeXApp::FreeMemory();
-
     Free("eofseen", THEDATA(eofseen));
     Free("grpstack", THEDATA(grpstack));
     Free("ifstack", THEDATA(ifstack));
@@ -87,16 +102,11 @@ public:
 #endif
 
 public:
-  bool ETeXP() const
-  {
-    return enableETeX;
-  }
+  MIKTEXMFTHISAPI(bool) ETeXP() const;
 
 private:
-  bool enableETeX;
-
-private:
-  int optBase;
+  class impl;
+  std::unique_ptr<impl> pimpl;
 };
 
 MIKTEXMF_END_NAMESPACE;
