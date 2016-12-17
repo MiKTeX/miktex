@@ -28,45 +28,41 @@
 
 #include <miktex/TeXAndFriends/config.h>
 
+#include <miktex/Core/PathName>
+
 MIKTEXMF_BEGIN_NAMESPACE;
 
 const unsigned long ICT_TCX = 1;
 const unsigned long ICT_8BIT = 2;
 
-MIKTEXMFCEEAPI(bool) InitializeCharTables(unsigned long flags, const char * lpszFileName, void * pChar, void * pOrd, void * pPrintable);
+MIKTEXMFCEEAPI(bool) InitializeCharTables(unsigned long flags, const MiKTeX::Core::PathName& fileName, void* chr, void* ord, void* printable);
 
-MIKTEXMFCEEAPI(bool) OpenMAPFile(void * p, const char * lpszName);
+MIKTEXMFCEEAPI(bool) OpenTFMFile(void* ptr, const MiKTeX::Core::PathName& fileName);
 
-MIKTEXMFCEEAPI(bool) OpenMETAFONTFile(void * p, const char * lpszName);
+MIKTEXMFCEEAPI(bool) OpenVFFile(void* ptr, const MiKTeX::Core::PathName& fileName);
 
-MIKTEXMFCEEAPI(bool) OpenTFMFile(void * p, const char * lpszName);
+MIKTEXMFCEEAPI(int) OpenXFMFile(void* ptr, const MiKTeX::Core::PathName& fileName);
 
-MIKTEXMFCEEAPI(bool) OpenVFFile(void * p, const char * lpszName);
-
-MIKTEXMFCEEAPI(int) OpenXFMFile(void * p, const char * lpszName);
-
-MIKTEXMFCEEAPI(int) OpenXVFFile(void * p, const char * lpszName);
-
-MIKTEXMFCEEAPI(bool) Write18(const char * lpszCommand, unsigned long * lpExitCode = 0);
+MIKTEXMFCEEAPI(int) OpenXVFFile(void* ptr, const MiKTeX::Core::PathName& fileName);
 
 #if defined(MIKTEX_WINDOWS_32)
 #  define MIKTEXMFAPI_USE_ASM 1
 #endif
 
 #if defined(MIKTEXMFAPI_USE_ASM)
-MIKTEXMFAPI_(int, __stdcall) TakeFraction(int p, int q, bool & arithError);
+MIKTEXMFAPI_(int, __stdcall) TakeFraction(int p, int q, bool& arithError);
 #endif
 
 #if defined(MIKTEXMFAPI_USE_ASM)
-MIKTEXMFAPI_(int, __stdcall) TakeScaled(int p, int q, bool & arithError);
+MIKTEXMFAPI_(int, __stdcall) TakeScaled(int p, int q, bool& arithError);
 #endif
 
 #if defined(MIKTEXMFAPI_USE_ASM)
-MIKTEXMFAPI_(int, __stdcall) MakeFraction(int p, int q, bool & arithError);
+MIKTEXMFAPI_(int, __stdcall) MakeFraction(int p, int q, bool& arithError);
 #endif
 
 #if defined(MIKTEXMFAPI_USE_ASM)
-MIKTEXMFAPI_(int, __stdcall) MakeScaled(int p, int q, bool & arithError);
+MIKTEXMFAPI_(int, __stdcall) MakeScaled(int p, int q, bool& arithError);
 #endif
 
 MIKTEXMF_END_NAMESPACE;

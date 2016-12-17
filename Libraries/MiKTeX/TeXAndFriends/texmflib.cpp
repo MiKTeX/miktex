@@ -61,25 +61,23 @@ STATICFUNC(bool) OpenFontFile(bytefile * pByteFile, const char * lpszFontName, F
   return true;
 }
 
-bool MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenTFMFile(void * p, const char * lpszFontName)
+bool MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenTFMFile(void* p, const PathName& fileName)
 {
   MIKTEX_API_BEGIN("OpenTFMFile");
   MIKTEX_ASSERT_BUFFER(p, sizeof(bytefile));
-  MIKTEX_ASSERT_STRING(lpszFontName);
-  return (OpenFontFile(reinterpret_cast<bytefile*>(p), lpszFontName, FileType::TFM, MIKTEX_MAKETFM_EXE));
+  return (OpenFontFile(reinterpret_cast<bytefile*>(p), fileName.GetData(), FileType::TFM, MIKTEX_MAKETFM_EXE));
   MIKTEX_API_END("OpenTFMFile");
 }
 
-int MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenXFMFile(void * p, const char * lpszFontName)
+int MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenXFMFile(void* ptr, const PathName& fileName)
 {
   MIKTEX_API_BEGIN("OpenXFMFile");
-  MIKTEX_ASSERT_BUFFER(p, sizeof(bytefile));
-  MIKTEX_ASSERT_STRING(lpszFontName);
-  if (OpenFontFile(reinterpret_cast<bytefile*>(p), lpszFontName, FileType::TFM, MIKTEX_MAKETFM_EXE))
+  MIKTEX_ASSERT_BUFFER(ptr, sizeof(bytefile));
+  if (OpenFontFile(reinterpret_cast<bytefile*>(ptr), fileName.GetData(), FileType::TFM, MIKTEX_MAKETFM_EXE))
   {
     return 1;
   }
-  if (OpenFontFile(reinterpret_cast<bytefile*>(p), lpszFontName, FileType::OFM, MIKTEX_MAKETFM_EXE))
+  if (OpenFontFile(reinterpret_cast<bytefile*>(ptr), fileName.GetData(), FileType::OFM, MIKTEX_MAKETFM_EXE))
   {
     return 2;
   }
@@ -87,22 +85,20 @@ int MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenXFMFile(void * p, const char * lpsz
   MIKTEX_API_END("OpenXFMFile");
 }
 
-bool MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenVFFile(void * p, const char * lpszFontName)
+bool MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenVFFile(void* ptr, const PathName& fileName)
 {
   MIKTEX_API_BEGIN("OpenVFFile");
-  MIKTEX_ASSERT_BUFFER(p, sizeof(bytefile));
-  MIKTEX_ASSERT_STRING(lpszFontName);
-  return OpenFontFile(reinterpret_cast<bytefile*>(p), lpszFontName, FileType::VF, nullptr);
+  MIKTEX_ASSERT_BUFFER(ptr, sizeof(bytefile));
+  return OpenFontFile(reinterpret_cast<bytefile*>(ptr), fileName.GetData(), FileType::VF, nullptr);
   MIKTEX_API_END("OpenVFFile");
 }
 
-int MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenXVFFile(void * p, const char * lpszFontName)
+int MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenXVFFile(void* ptr, const PathName& fileName)
 {
   MIKTEX_API_BEGIN("OpenXVFFile");
-  MIKTEX_ASSERT_BUFFER(p, sizeof(bytefile));
-  MIKTEX_ASSERT_STRING(lpszFontName);
-  return OpenFontFile(reinterpret_cast<bytefile*>(p), lpszFontName, FileType::VF, nullptr)
-    || OpenFontFile(reinterpret_cast<bytefile*>(p), lpszFontName, FileType::OVF, nullptr);
+  MIKTEX_ASSERT_BUFFER(ptr, sizeof(bytefile));
+  return OpenFontFile(reinterpret_cast<bytefile*>(ptr), fileName.GetData(), FileType::VF, nullptr)
+    || OpenFontFile(reinterpret_cast<bytefile*>(ptr), fileName.GetData(), FileType::OVF, nullptr);
   MIKTEX_API_END("OpenXVFFile");
 }
 
@@ -203,7 +199,7 @@ STATICFUNC(bool) ProcessTCXFile(const char * lpszFileName, unsigned char * pChr,
   return true;
 }
 
-bool MIKTEXCEECALL MiKTeX::TeXAndFriends::InitializeCharTables(unsigned long flags, const char * lpszFileName, void * pChr, void * pOrd, void * pPrn)
+bool MIKTEXCEECALL MiKTeX::TeXAndFriends::InitializeCharTables(unsigned long flags, const PathName& fileName, void * pChr, void * pOrd, void * pPrn)
 {
   MIKTEX_API_BEGIN("InitializeCharTables");
   MIKTEX_ASSERT_BUFFER(pChr, 256);
@@ -237,7 +233,7 @@ bool MIKTEXCEECALL MiKTeX::TeXAndFriends::InitializeCharTables(unsigned long fla
   }
   if ((flags & ICT_TCX) != 0)
   {
-    ProcessTCXFile(lpszFileName, pxchr, pxord, pxprn);
+    ProcessTCXFile(fileName.GetData(), pxchr, pxord, pxprn);
   }
   return true;
   MIKTEX_API_END("InitializeCharTables");
@@ -269,6 +265,7 @@ STATICFUNC(bool) OpenAlphaFile(void * p, const char * lpszFileName, FileType fil
   return true;
 }
 
+#if 0
 bool MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenMAPFile(void * p, const char * lpszFileName)
 {
   MIKTEX_API_BEGIN("OpenMAPFile");
@@ -282,3 +279,4 @@ bool MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenMETAFONTFile(void * p, const char 
   return OpenAlphaFile(p, lpszFileName, FileType::MF, ".mf");
   MIKTEX_API_END("OpenMETAFONTFile");
 }
+#endif
