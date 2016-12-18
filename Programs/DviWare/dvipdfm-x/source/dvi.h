@@ -67,7 +67,7 @@ extern void dvi_y     (int32_t ch);
 extern void dvi_y0    (void);
 extern void dvi_z     (int32_t ch);
 extern void dvi_z0    (void);
-extern void dvi_dir   (unsigned char dir);
+extern void dvi_dirchg(unsigned char dir);
 
 extern void  dvi_do_page  (double paper_height, double x_offset, double y_offset);
 extern void  dvi_scan_specials (int page_no,

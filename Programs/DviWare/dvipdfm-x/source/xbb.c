@@ -403,3 +403,179 @@ int extractbb (int argc, char *argv[])
 
   return 0;
 }
+
+#if defined(LIBDPX)
+static void do_aptex_bmp (FILE *fp, char *filename, pdf_rect * box)
+{
+  int    width, height;
+  double xdensity, ydensity;
+
+  if (bmp_get_bbox(fp, &width, &height, &xdensity, &ydensity) < 0) {
+    WARN("%s does not look like a BMP file...\n", filename);
+    return;
+  }
+
+  box->llx = 0.0;
+  box->lly = 0.0;
+  box->urx = xdensity*width;
+  box->ury = ydensity*height;
+  return;
+}
+
+static void do_aptex_jpeg (FILE *fp, char *filename, pdf_rect * box)
+{
+  int    width, height;
+  double xdensity, ydensity;
+
+  if (jpeg_get_bbox(fp, &width, &height, &xdensity, &ydensity) < 0) {
+    WARN("%s does not look like a JPEG file...\n", filename);
+    return;
+  }
+
+  box->llx = 0.0;
+  box->lly = 0.0;
+  box->urx = xdensity*width;
+  box->ury = ydensity*height;
+  return;
+}
+
+static void do_aptex_jp2 (FILE *fp, char *filename, pdf_rect * box)
+{
+  int    width, height;
+  double xdensity, ydensity;
+
+  if (jp2_get_bbox(fp, &width, &height, &xdensity, &ydensity) < 0) {
+    WARN("%s does not look like a JP2/JPX file...\n", filename);
+    return;
+  }
+
+  box->llx = 0.0;
+  box->lly = 0.0;
+  box->urx = xdensity*width;
+  box->ury = ydensity*height;
+  return;
+}
+
+#ifdef HAVE_LIBPNG
+static void do_aptex_png (FILE *fp, char *filename, pdf_rect * box)
+{
+  uint32_t width, height;
+  double xdensity, ydensity;
+
+  if (png_get_bbox(fp, &width, &height, &xdensity, &ydensity) < 0) {
+    WARN("%s does not look like a PNG file...\n", filename);
+    return;
+  }
+
+  box->llx = 0.0;
+  box->lly = 0.0;
+  box->urx = xdensity*width;
+  box->ury = ydensity*height;
+  return;
+}
+#endif /* HAVE_LIBPNG */
+
+static void do_aptex_pdf (FILE *fp, char *filename, pdf_rect * box)
+{
+  pdf_obj *page;
+  pdf_file *pf;
+  int page_no = Include_Page;
+  int count;
+  pdf_rect bbox;
+
+  pf = pdf_open(filename, fp);
+  if (!pf) {
+    WARN("%s does not look like a PDF file...\n", filename);
+    return;
+  }
+  count = pdf_doc_get_page_count(pf);
+  page  = pdf_doc_get_page(pf, page_no, PageBox, &bbox, NULL);
+
+  pdf_close(pf);
+
+  if (!page)
+    return;
+
+  pdf_release_obj(page);
+
+  box->llx = bbox.llx;
+  box->lly = bbox.lly;
+  box->urx = bbox.urx;
+  box->ury = bbox.ury;
+}
+
+void aptex_extractbb (char * pict, uint32_t page, uint32_t rect, pdf_rect * bbox)
+{
+  FILE *infile = NULL;
+  char *kpse_file_name = NULL;
+  int    pictwd, pictht;
+  double xdensity, ydensity;
+
+  if (page == 0)
+    Include_Page = 1;
+  else
+    Include_Page = page;
+
+  PageBox = rect;
+
+  if (kpse_in_name_ok(pict))
+  {
+    infile = MFOPEN(pict, FOPEN_RBIN_MODE);
+    if (infile)
+    {
+      kpse_file_name = xstrdup(pict);
+    }
+    else
+    {
+      kpse_file_name = kpse_find_pict(pict);
+      if (kpse_file_name && kpse_in_name_ok(kpse_file_name))
+        infile = MFOPEN(kpse_file_name, FOPEN_RBIN_MODE);
+    }
+  }
+  if (infile == NULL)
+  {
+    WARN("Can't find file (%s), or it is forbidden to read ...skipping\n", pict);
+    goto cont;
+  }
+  if (check_for_bmp(infile))
+  {
+    do_aptex_bmp(infile, kpse_file_name, bbox);
+    goto cont;
+  }
+  if (check_for_jpeg(infile))
+  {
+    do_aptex_jpeg(infile, kpse_file_name, bbox);
+    goto cont;
+  }
+  if (check_for_jp2(infile))
+  {
+    do_aptex_jp2(infile, kpse_file_name, bbox);
+    goto cont;
+  }
+  if (check_for_pdf(infile))
+  {
+    pdf_files_init();
+    pdf_set_version(PDF_VERSION_MAX);
+    do_aptex_pdf(infile, kpse_file_name, bbox);
+    pdf_files_close();
+    goto cont;
+  }
+#ifdef HAVE_LIBPNG
+  if (check_for_png(infile))
+  {
+    do_aptex_png(infile, kpse_file_name, bbox);
+    goto cont;
+  }
+#endif /* HAVE_LIBPNG */
+  WARN("Can't handle file type for file named %s\n", pict);
+  bbox->llx = 0.0;
+  bbox->lly = 0.0;
+  bbox->urx = 0.0;
+  bbox->ury = 0.0;
+cont:
+  if (kpse_file_name)
+    RELEASE(kpse_file_name);
+  if (infile)
+    MFCLOSE(infile);
+}
+#endif /* LIBDPX */

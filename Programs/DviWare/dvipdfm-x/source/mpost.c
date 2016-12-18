@@ -263,7 +263,7 @@ mps_scan_bbox (const char **pp, const char *endptr, pdf_rect *bbox)
         return 0;
       }
     }
-    skip_line (pp, endptr);
+    pdfparse_skip_line (pp, endptr);
     while (*pp < endptr && isspace((unsigned char)**pp))
       (*pp)++;
   }
@@ -285,13 +285,13 @@ skip_prolog (const char **start, const char *end)
       break;
     if (!strncmp(*start, "%%EndProlog", 11)) {
       found_prolog = 1;
-      skip_line(start, end);
+      pdfparse_skip_line(start, end);
       break;
     } else if (!strncmp(*start, "%%Page:", 7)) {
-      skip_line(start, end);
+      pdfparse_skip_line(start, end);
       break;
     }
-    skip_line(start, end);
+    pdfparse_skip_line(start, end);
   }
   if (!found_prolog) {
     *start = save;

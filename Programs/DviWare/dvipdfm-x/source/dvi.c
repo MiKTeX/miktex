@@ -946,7 +946,11 @@ dvi_locate_font (const char *tfm_name, spt_t ptsize)
   return  cur_id;
 }
 
+#if defined(LIBDPX)
+int
+#else
 static int
+#endif /* LIBDPX */
 dvi_locate_native_font (const char *filename, uint32_t index,
                         spt_t ptsize, int layout_dir, int extend, int slant, int embolden)
 {
@@ -1306,10 +1310,10 @@ dvi_rule (int32_t width, int32_t height)
 }
 
 void
-dvi_dir (unsigned char dir)
+dvi_dirchg (unsigned char dir)
 {
   if (verbose)
-    fprintf(stderr, "  > dvi_dir %d\n", dir);
+    fprintf(stderr, "  > dvi_dirchg %d\n", dir);
   dvi_state.d = dir;
   pdf_dev_set_dirmode(dvi_state.d); /* 0: horizontal, 1,3: vertical */
 }
@@ -2532,3 +2536,6 @@ dvi_scan_specials (int page_no,
 
   return;
 }
+#if defined(LIBDPX)
+#include "dvi_ng.c"
+#endif /* LIBDPX */

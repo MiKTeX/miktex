@@ -29,7 +29,7 @@
 /* Please remove this */
 extern void dump (const char *start, const char *end);
 
-extern void skip_line  (const char **start, const char *end);
+extern void pdfparse_skip_line (const char **start, const char *end);
 extern void skip_white (const char **start, const char *end);
 
 extern char *parse_number   (const char **start, const char *end);

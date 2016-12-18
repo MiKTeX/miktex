@@ -72,7 +72,11 @@
 int is_xdv = 0;
 int translate_origin = 0;
 
+#if defined(LIBDPX)
+const char *my_name = "ApTeX";
+#else
 const char *my_name;
+#endif /* LIBDPX */
 
 int compat_mode = 0;     /* 0 = dvipdfmx, 1 = dvipdfm */
 
@@ -934,6 +938,7 @@ do_mps_pages (void)
   }
 }
 
+#if !defined(LIBDPX)
 /* Support to make DLL in W32TeX */
 #define DLLPROC dlldvipdfmxmain
 
@@ -942,6 +947,7 @@ extern __declspec(dllexport) int DLLPROC (int argc, char *argv[]);
 #else
 #undef DLLPROC
 #endif
+#endif /* !LIBDPX */
 
 #if defined(MIKTEX)
 #  define main MIKTEXDLLEXPORT Main
@@ -951,7 +957,11 @@ int
 #if defined(DLLPROC)
 DLLPROC (int argc, char *argv[])
 #else
+#if defined(LIBDPX)
+dvipdfmx_main (int argc, char *argv[])
+#else
 main (int argc, char *argv[])
+#endif /* LIBDPX */
 #endif
 {
   double dvi2pts;

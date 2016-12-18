@@ -504,7 +504,7 @@ void vf_set_char(int32_t ch, int vf_font)
 	  }
 	  break;
 	case PTEXDIR:
-	  dvi_dir (unsigned_byte (&start, end));
+	  dvi_dirchg (unsigned_byte (&start, end));
 	  break;
 	default:
 	  if (opcode <= SET_CHAR_127) {
@@ -557,3 +557,6 @@ void vf_close_all_fonts(void)
     RELEASE (vf_fonts);
   return;
 }
+#if defined(LIBDPX)
+#include "vf_ng.c"
+#endif /* LIBDPX */

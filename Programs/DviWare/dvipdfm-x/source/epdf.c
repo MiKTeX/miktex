@@ -79,17 +79,17 @@ static int  concat_stream    (pdf_obj *dst, pdf_obj *src);
  * intended use; it merely imposes clipping on the page contents. However,
  * in the absence of additional information (such as imposition instructions
  * specified in a JDF or PJTF job ticket), the crop box will determine how
- * the pageâ€™s contents are to be positioned on the output medium. The default
- * value is the pageâ€™s media box. 
+ * the page's contents are to be positioned on the output medium. The default
+ * value is the page's media box.
  *
  * BleedBox rectangle (Optional; PDF 1.3)
  *
  * The bleed box (PDF 1.3) defines the region to which the contents of the
  * page should be clipped when output in a production environment. This may
- * include any extra â€œbleed areaâ€ needed to accommodate the physical
+ * include any extra bleed area needed to accommodate the physical
  * limitations of cutting, folding, and trimming equipment. The actual printed
  * page may include printing marks that fall outside the bleed box.
- * The default value is the pageâ€™s crop box. 
+ * The default value is the page's crop box. 
  *
  * TrimBox rectangle (Optional; PDF 1.3)
  *
@@ -100,9 +100,9 @@ static int  concat_stream    (pdf_obj *dst, pdf_obj *src);
  *
  * ArtBox rectangle (Optional; PDF 1.3)
  *
- * The art box (PDF 1.3) defines the extent of the pageâ€™s meaningful content
- * (including potential white space) as intended by the pageâ€™s creator.
- * The default value is the pageâ€™s crop box.
+ * The art box (PDF 1.3) defines the extent of the page's meaningful content
+ * (including potential white space) as intended by the page's creator.
+ * The default value is the page's crop box.
  *
  * Rotate integer (Optional; inheritable)
  *

@@ -95,7 +95,7 @@ dump (const char *start, const char *end)
  } while (0)
 
 void
-skip_line (const char **start, const char *end)
+pdfparse_skip_line (const char **start, const char *end)
 {
   while (*start < end && **start != '\n' && **start != '\r')
     (*start)++;
@@ -121,7 +121,7 @@ skip_white (const char **start, const char *end)
    */
   while (*start < end && (is_space(**start) || **start == '%')) {
     if (**start == '%')
-      skip_line(start, end);
+      pdfparse_skip_line(start, end);
     else
       (*start)++;
   }

@@ -318,7 +318,7 @@ load_encoding_file (const char *filename)
    * Skip comment lines.
    */
   while (p < endptr && p[0] == '%') {
-    skip_line (&p, endptr);
+    pdfparse_skip_line (&p, endptr);
     skip_white(&p, endptr);
   }
   if (p[0] == '/')
