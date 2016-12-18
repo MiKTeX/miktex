@@ -58,6 +58,7 @@ static char *job_area = NULL;
 static int dvitomp_only = 0;
 static int ini_version_test = false;
 string output_directory;     /* Defaults to NULL.  */
+static boolean restricted_mode = false;
 
 @<getopt structures@>;
 @<Declarations@>;
@@ -124,6 +125,9 @@ static void mpost_run_editor (MP mp, char *fname, int fline) {
   int cnt = 0;
   int dontchange = 0;
 #endif
+
+  if (restricted_mode)
+    return;
 
   sdone = ddone = false;
   edit_value = kpse_var_value ("MPEDIT");
@@ -354,6 +358,10 @@ void recorder_start(char *jobname) {
 static int mpost_run_make_mpx (MP mp, char *mpname, char *mpxname) {
   int ret;
   char *cnf_cmd = kpse_var_value ("MPXCOMMAND");
+  if (restricted_mode) {
+    /* In the restricted mode, just return success */
+    return 0;
+  }
   if (cnf_cmd != NULL && (strcmp (cnf_cmd, "0")==0)) {
     /* If they turned off this feature, just return success.  */
     ret = 0;
@@ -842,6 +850,7 @@ static struct option mpost_options[]
       { "progname",                  1, 0, 0 },
       { "version",                   0, 0, 0 },
       { "recorder",                  0, &recorder_enabled, 1 },
+      { "restricted",                0, 0, 0 },
 #if defined(MIKTEX)
       { "c-style-errors",            0, 0, 0 },
       { "no-c-style-errors",         0, 0, 0 },
@@ -938,11 +947,15 @@ static struct option mpost_options[]
       } else {
         fprintf(stdout,"Ignoring unknown argument `%s' to --numbersystem\n", optarg);
       }
+    } else if (ARGUMENT_IS ("restricted")) {
+      restricted_mode = true;
+      mpost_tex_program = NULL;
     } else if (ARGUMENT_IS("troff") || 
                ARGUMENT_IS("T")) {
       options->troff_mode = (int)true;
     } else if (ARGUMENT_IS ("tex")) {
-      mpost_tex_program = optarg;
+      if (!restricted_mode)
+        mpost_tex_program = optarg;
     } else if (ARGUMENT_IS("file-line-error") || 
 #if defined(MIKTEX)
 	       ARGUMENT_IS("c-style-errors") ||
@@ -1068,6 +1081,7 @@ fprintf(stdout,
 "                            the bits of NUMBER\n"
 "  -mem=MEMNAME or &MEMNAME  use MEMNAME instead of program name or a %%& line\n"
 "  -recorder                 enable filename recorder\n"
+"  -restricted               be secure: disable tex, makempx and editor commands\n"
 "  -troff                    set prologues:=1 and assume TEXPROGRAM is really troff\n"
 "  -s INTERNAL=\"STRING\"      set internal INTERNAL to the string value STRING\n"
 "  -s INTERNAL=NUMBER        set internal INTERNAL to the integer value NUMBER\n"
@@ -1426,6 +1440,10 @@ main (int argc, char **argv)
   options->print_found_names = (int)true;
   {
     const char *base = cleaned_invocation_name(argv[0]);
+    if (FILESTRCASEEQ(base, "rmpost")){
+      base++;
+      restricted_mode = true;
+    }
     if (FILESTRCASEEQ(base, "dvitomp"))
       dvitomp_only=1;
   }
@@ -1458,7 +1476,9 @@ main (int argc, char **argv)
   if (!nokpse) {
     kpse_set_program_enabled (kpse_mem_format, MAKE_TEX_FMT_BY_DEFAULT,
                               kpse_src_compile);
-    kpse_set_program_name(argv[0], user_progname);  
+    kpse_set_program_name(argv[0], user_progname);
+    if (FILESTRCASEEQ(kpse_program_name, "rmpost"))
+      kpse_program_name++;
   }
   @= /*@@=nullpass@@*/ @> 
   if(putenv(xstrdup("engine=metapost")))

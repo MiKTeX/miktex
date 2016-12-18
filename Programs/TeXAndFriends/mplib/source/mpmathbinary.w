@@ -920,7 +920,7 @@ void mp_wrapup_numeric_token(MP mp, unsigned char *start, unsigned char *stop) {
                "with that value; but it might be dangerous.",
                "(Set warningcheck:=0 to suppress this message.)",
                NULL };
-        mp_snprintf (msg, 256, "Number is too precise (%d vs. numberprecision = %f, required precision=%d bits vs internal precision=%f bits)", (unsigned int)lp,mpfr_get_d(internal_value (mp_number_precision).data.num, ROUNDING),lpbit,precision_bits);
+        mp_snprintf (msg, 256, "Number is too precise (%d vs. numberprecision = %f, required precision=%d bits vs internal precision=%f bits)", (unsigned int)lp,mpfr_get_d(internal_value (mp_number_precision).data.num, ROUNDING),(int)lpbit,precision_bits);
 @.Number is too large@>;
         mp_error (mp, msg, hlp, true);
       }

@@ -1,4 +1,4 @@
-% $Id: mp.w 2100 2016-11-18 17:22:55Z luigi $
+% $Id: mp.w 2107 2016-12-15 11:40:15Z luigi $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -639,12 +639,20 @@ if (mp->start_sym != NULL) {    /* insert the `\&{everyjob}' symbol */
 extern MP_options *mp_options (void);
 extern MP mp_initialize (MP_options * opt);
 extern int mp_status (MP mp);
+extern boolean mp_finished (MP mp);
 extern void *mp_userdata (MP mp);
 
 @ @c
 int mp_status (MP mp) {
   return mp->history;
 }
+
+
+@ @c
+boolean mp_finished (MP mp) {
+  return mp->finished;
+}
+
 
 
 @ @c
@@ -14818,6 +14826,8 @@ static mp_knot mp_make_envelope (MP mp, mp_knot c, mp_knot h, quarterword ljoin,
         set_number_from_addition (xtot, qx, w->x_coord);
         set_number_from_addition (ytot, qy, w->y_coord);
         q = mp_insert_knot (mp, q, xtot, ytot);
+ 	free_number (xtot);
+	free_number (ytot);
       }
     }
     if (q != mp_next_knot (p)) {
@@ -15083,7 +15093,7 @@ problems, so we just set |r:=NULL| in that case.
   take_fraction (ysub, tmp, dyout);
   set_number_from_addition(xtot, q->x_coord, xsub);
   set_number_from_addition(ytot, q->y_coord, ysub);
-  r = mp_insert_knot (mp, p, xtot, ytot);
+  r = mp_insert_knot (mp, r, xtot, ytot);
   free_number (xsub);
   free_number (ysub);
   free_number (xtot);
@@ -23465,7 +23475,7 @@ RESTART:
 
       q = mp_get_value_node (mp);
       mp_name_type (q) = mp_capsule;
-      if (cur_cmd() == mp_comma) {
+      if (cur_cmd() == mp_comma) { 
         mp_init_color_node (mp, q);
         r = value_node (q);
         mp_stash_in (mp, y_part (r));
@@ -23491,7 +23501,7 @@ RESTART:
         }
         mp_stash_in (mp, blue_part (r));
 
-        if (cur_cmd() == mp_comma) {
+        if (cur_cmd() == mp_comma) { 
           mp_node t;      /* a token */
           mp_init_cmykcolor_node (mp, q);
           t = value_node (q);
@@ -23541,7 +23551,6 @@ RESTART:
             mp_flush_cur_exp (mp, new_expr);
           }
           mp_stash_in (mp, black_part (r));
-	  if (cur_cmd() == mp_comma) { fprintf(stderr,"Seen another commma!\n");}
         }
       } else {
         mp_init_pair_node (mp, q);
