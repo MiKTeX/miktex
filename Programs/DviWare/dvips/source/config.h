@@ -11,7 +11,7 @@
 #endif
 #endif
 
-   /* The stuff from the path searching library.  */
+/* The stuff from the path searching library.  */
 #include <kpathsea/config.h>
 
 /* How to open files with fopen.  */

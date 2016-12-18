@@ -276,7 +276,7 @@ char *emp;
 	   int i;
 	   for (emp = emp+5; *emp && isspace((unsigned char)*emp); emp++); /* skip blanks */
 	   for (i=0; *emp && !isspace((unsigned char)*emp) && !(*emp==','); emp++) {
-	      if (strlen(emstr) - 2 >= sizeof(emstr)) {
+	      if (i > (int)sizeof(emstr) - 2) {
                 fprintf(stderr, "em:graph: special too long, truncating\n");
                 break;
 	      }
@@ -1383,7 +1383,7 @@ emgraph(char *filename, float emwidth, float emheight)
 
 	/* find the file */
 	f = search(figpath, fname, READBIN);
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 	if (f == (FILE *)NULL) {
    	    if ( (env = getenv("DVIDRVGRAPH")) != NULL )
 #ifdef KPATHSEA
@@ -1400,7 +1400,7 @@ emgraph(char *filename, float emwidth, float emheight)
 		strcpy(fname, filename);
 		strcat(fname, extarr[i]);
 		f = search(figpath, fname, READBIN);
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 		if (f == (FILE *)NULL) {
 	    	    if ( (env = getenv("DVIDRVGRAPH")) != NULL )
 #ifdef KPATHSEA
