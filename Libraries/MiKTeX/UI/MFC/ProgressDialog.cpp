@@ -177,22 +177,22 @@ HWND ProgressUIThread::GetProgressWindow()
 class ProgressDialogImpl : public ProgressDialog
 {
 public:
-  virtual ~ProgressDialogImpl();
+  ~ProgressDialogImpl() noexcept;
 
 public:
-  virtual bool HasUserCancelled();
+  bool HasUserCancelled() override;
 
 public:
-  virtual bool SetLine(unsigned lineNum, const char * lpszText);
+  bool SetLine(unsigned lineNum, const string& text) override;
 
 public:
-  virtual bool SetTitle(const char * lpszTitle);
+  bool SetTitle(const string& text) override;
 
 public:
-  virtual bool StartProgressDialog(HWND hwndParent);
+  bool StartProgressDialog(HWND hwndParent) override;
 
 public:
-  virtual bool StopProgressDialog();
+  bool StopProgressDialog() override;
 
 private:
   ProgressUIThread * pThread = nullptr;
@@ -242,12 +242,12 @@ bool ProgressDialogImpl::HasUserCancelled()
   return res ? true : false;
 }
 
-bool ProgressDialogImpl::SetLine(unsigned lineNum, const char * lpszText)
+bool ProgressDialogImpl::SetLine(unsigned lineNum, const string& text)
 {
   MIKTEX_ASSERT(lineNum > 0 && lineNum <= 2);
   if (pThread == nullptr)
   {
-    lines[lineNum - 1] = lpszText;
+    lines[lineNum - 1] = text;
     return true;
   }
   HWND hwndLine = ::GetDlgItem(hWindow, lineNum == 1 ? IDC_LINE1 : IDC_LINE2);
@@ -255,21 +255,21 @@ bool ProgressDialogImpl::SetLine(unsigned lineNum, const char * lpszText)
   {
     MIKTEX_FATAL_WINDOWS_ERROR("GetDlgItem");
   }
-  if (!SetWindowText(hwndLine, UT_(lpszText)))
+  if (!SetWindowText(hwndLine, UT_(text)))
   {
     MIKTEX_FATAL_WINDOWS_ERROR("SetWindowText");
   }
   return true;
 }
 
-bool ProgressDialogImpl::SetTitle(const char * lpszTitle)
+bool ProgressDialogImpl::SetTitle(const string& text)
 {
   if (pThread == nullptr)
   {
-    title = lpszTitle;
+    title = text;
     return true;
   }
-  if (!SetWindowText(hWindow, UT_(lpszTitle)))
+  if (!SetWindowText(hWindow, UT_(text)))
   {
     MIKTEX_FATAL_WINDOWS_ERROR("SetWindowText");
   }
@@ -331,8 +331,8 @@ bool ProgressDialogImpl::StartProgressDialog(HWND hwndParent)
 
   // set the window texts
   SetTitle(title.c_str());
-  SetLine(1, lines[0].c_str());
-  SetLine(2, lines[1].c_str());
+  SetLine(1, lines[0]);
+  SetLine(2, lines[1]);
 
   // make the progress window visible
   ShowWindow(hWindow, SW_SHOW);

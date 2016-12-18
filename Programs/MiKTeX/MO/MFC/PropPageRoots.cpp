@@ -754,7 +754,7 @@ bool PropPageTeXMFRoots::ReadDirectory(const PathName & path, vector<string> & s
 bool PropPageTeXMFRoots::OnProgress(unsigned level, const PathName & directory)
 {
   UNUSED_ALWAYS(level);
-  pProgressDialog->SetLine(2, directory.GetData());
+  pProgressDialog->SetLine(2, directory.ToString());
   return !pProgressDialog->HasUserCancelled();
 }
 

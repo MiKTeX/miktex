@@ -43,7 +43,7 @@ public:
   afx_msg void OnChangeRepository();
 
 public:
-  InstallPackageDialog(CWnd * pParent, std::shared_ptr<MiKTeX::Packages::PackageManager> pManager, const char * lpszPackageName, const char * lpszTrigger);
+  InstallPackageDialog(CWnd* parent, std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, const std::string& packageName, const std::string& trigger);
 
 private:
   void FormatControlText(UINT ctrlId, const char * lpszFormat, ...);

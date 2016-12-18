@@ -62,7 +62,7 @@ MIKTEXUIEXPORT void MIKTEXCEECALL MiKTeX::UI::MFC::InitializeFramework()
   }
 }
 
-MIKTEXUIEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::MFC::InstallPackageMessageBox(CWnd * pParent, std::shared_ptr<MiKTeX::Packages::PackageManager> pManager, const char * lpszPackageName, const char * lpszTrigger)
+MIKTEXUIEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::MFC::InstallPackageMessageBox(CWnd* parent, shared_ptr<PackageManager> packageManager, const string& packageName, const string& trigger)
 {
   shared_ptr<Session> pSession = Session::Get();
   TriState enableInstaller = pSession->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, TriState::Undetermined).GetTriState();
@@ -74,7 +74,7 @@ MIKTEXUIEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::MFC::InstallPackageMessage
   }
   else
   {
-    InstallPackageDialog dlg(pParent, pManager, lpszPackageName, lpszTrigger);
+    InstallPackageDialog dlg(parent, packageManager, packageName, trigger);
     dlg.alwaysAsk = (enableInstaller == TriState::True ? false : true);
     INT_PTR dlgRet = dlg.DoModal();
     if (dlgRet != IDOK && dlgRet != IDCANCEL)

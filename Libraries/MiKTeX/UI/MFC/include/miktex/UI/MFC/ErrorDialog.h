@@ -36,10 +36,28 @@ MIKUI_MFC_BEGIN_NAMESPACE;
 class MIKTEXNOVTABLE ErrorDialog
 {
 public:
-  AFX_EXT_CLASS static INT_PTR MIKTEXCEECALL DoModal(CWnd * pParent, const MiKTeX::Core::MiKTeXException & e);
+  ErrorDialog() = delete;
 
 public:
-  AFX_EXT_CLASS static INT_PTR MIKTEXCEECALL DoModal(CWnd * pParent, const std::exception & e);
+  ErrorDialog(const ErrorDialog& other) = delete;
+
+public:
+  ErrorDialog& operator=(const ErrorDialog& other) = delete;
+
+public:
+  ErrorDialog(ErrorDialog&& other) = delete;
+
+public:
+  ErrorDialog& operator=(ErrorDialog&& other) = delete;
+
+public:
+  ~ErrorDialog() = delete;
+
+public:
+  AFX_EXT_CLASS static INT_PTR MIKTEXCEECALL DoModal(CWnd* parent, const MiKTeX::Core::MiKTeXException& e);
+
+public:
+  AFX_EXT_CLASS static INT_PTR MIKTEXCEECALL DoModal(CWnd* parent, const std::exception& e);
 };
 
 MIKUI_MFC_END_NAMESPACE;

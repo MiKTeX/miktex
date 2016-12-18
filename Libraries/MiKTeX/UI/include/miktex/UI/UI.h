@@ -126,19 +126,19 @@ inline void FinalizeFramework()
 #endif
 }
 
-inline unsigned int InstallPackageMessageBox(std::shared_ptr<MiKTeX::Packages::PackageManager> pManager, const char * lpszPackageName, const char * lpszTrigger)
+inline unsigned int InstallPackageMessageBox(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, const std::string& packageName, const std::string& trigger)
 {
   unsigned ret = NO | DONTASKAGAIN;
 #if defined(MIKTEX_UI_QT)
   if (defaultFramework() == (int)Framework::Qt)
   {
-    ret = Qt::InstallPackageMessageBox(pManager, lpszPackageName, lpszTrigger);
+    ret = Qt::InstallPackageMessageBox(packageManager, packageName, trigger);
   }
 #endif
 #if defined(MIKTEX_UI_MFC)
   if (defaultFramework() == (int)Framework::MFC)
   {
-    ret = MFC::InstallPackageMessageBox(pManager, lpszPackageName, lpszTrigger);
+    ret = MFC::InstallPackageMessageBox(packageManager, packageName, trigger);
   }
 #endif
   return ret;

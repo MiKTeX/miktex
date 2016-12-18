@@ -28,11 +28,12 @@
 #include "resource.h"
 
 using namespace MiKTeX::UI::MFC;
+using namespace std;
 
 class TextViewerDlgImpl : public CDialog
 {
 public:
-  TextViewerDlgImpl(CWnd * pParent, const char * lpszTitle, const char * lpszText);
+  TextViewerDlgImpl(CWnd* parent, const string& title, const string& text);
 
 private:
   BOOL OnInitDialog() override;
@@ -53,17 +54,11 @@ protected:
   CString text;
 };
 
-TextViewerDlgImpl::TextViewerDlgImpl(CWnd * pParent, const char * lpszTitle, const char * lpszText) :
-  CDialog(IDD_TEXT_VIEWER, pParent)
+TextViewerDlgImpl::TextViewerDlgImpl(CWnd* parent, const string& title, const string& text) :
+  CDialog(IDD_TEXT_VIEWER, parent),
+  title(UT_(title)),
+  text(UT_(text))
 {
-  if (lpszTitle != nullptr)
-  {
-    title = lpszTitle;
-  }
-  if (lpszText != nullptr)
-  {
-    text = lpszText;
-  }
 }
 
 void TextViewerDlgImpl::DoDataExchange(CDataExchange * pDX)
@@ -84,8 +79,8 @@ BOOL TextViewerDlgImpl::OnInitDialog()
   return ret;
 }
 
-INT_PTR TextViewerDialog::DoModal(CWnd * pParent, const char * lpszTitle, const char * lpszText)
+INT_PTR TextViewerDialog::DoModal(CWnd* parent, const string& title, const string& text)
 {
-  TextViewerDlgImpl dlg(pParent, lpszTitle, lpszText);
+  TextViewerDlgImpl dlg(parent, title, text);
   return dlg.DoModal();
 }

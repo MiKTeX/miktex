@@ -23,6 +23,8 @@
 #  pragma once
 #endif
 
+#include <string>
+
 #include "Prototypes.h"
 
 class CWnd;
@@ -32,7 +34,25 @@ MIKUI_MFC_BEGIN_NAMESPACE;
 class MIKTEXNOVTABLE TextViewerDialog
 {
 public:
-  AFX_EXT_CLASS static INT_PTR MIKTEXCEECALL DoModal(CWnd * pParent, const char * lpszTitle, const char * lpszText);
+  TextViewerDialog() = delete;
+
+public:
+  TextViewerDialog(const TextViewerDialog& other) = delete;
+
+public:
+  TextViewerDialog& operator=(const TextViewerDialog& other) = delete;
+
+public:
+  TextViewerDialog(TextViewerDialog&& other) = delete;
+
+public:
+  TextViewerDialog& operator=(TextViewerDialog&& other) = delete;
+
+public:
+  ~TextViewerDialog() = delete;
+
+public:
+  AFX_EXT_CLASS static INT_PTR MIKTEXCEECALL DoModal(CWnd* parent, const std::string& title, const std::string& text);
 };
 
 MIKUI_MFC_END_NAMESPACE;

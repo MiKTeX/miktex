@@ -27,21 +27,23 @@
 
 #include <Windows.h>
 
+#include <string>
+
 MIKUI_MFC_BEGIN_NAMESPACE;
 
 class MIKTEXNOVTABLE ProgressDialog
 {
 public:
-  virtual MIKTEXTHISCALL ~ProgressDialog() = 0;
+  virtual MIKTEXTHISCALL ~ProgressDialog() noexcept = 0;
 
 public:
   virtual bool MIKTEXTHISCALL HasUserCancelled() = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL SetLine(unsigned lineNum, const char * lpszText) = 0;
+  virtual bool MIKTEXTHISCALL SetLine(unsigned lineNum, const std::string& text) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL SetTitle(const char * lpszTitle) = 0;
+  virtual bool MIKTEXTHISCALL SetTitle(const std::string& text) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL StartProgressDialog(HWND hwndParent) = 0;
@@ -50,7 +52,7 @@ public:
   virtual bool MIKTEXTHISCALL StopProgressDialog() = 0;
 
 public:
-  AFX_EXT_CLASS static ProgressDialog * MIKTEXCEECALL Create();
+  AFX_EXT_CLASS static ProgressDialog* MIKTEXCEECALL Create();
 };
 
 MIKUI_MFC_END_NAMESPACE;

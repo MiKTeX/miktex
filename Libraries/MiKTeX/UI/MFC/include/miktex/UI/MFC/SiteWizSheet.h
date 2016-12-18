@@ -32,7 +32,25 @@ MIKUI_MFC_BEGIN_NAMESPACE;
 class MIKTEXNOVTABLE SiteWizSheet
 {
 public:
-  AFX_EXT_CLASS static INT_PTR MIKTEXCEECALL DoModal(CWnd * pParent = nullptr);
+  SiteWizSheet() = delete;
+
+public:
+  SiteWizSheet(const SiteWizSheet& other) = delete;
+
+public:
+  SiteWizSheet& operator=(const SiteWizSheet& other) = delete;
+
+public:
+  SiteWizSheet(SiteWizSheet&& other) = delete;
+
+public:
+  SiteWizSheet& operator=(SiteWizSheet&& other) = delete;
+
+public:
+  ~SiteWizSheet() = delete;
+
+public:
+  AFX_EXT_CLASS static INT_PTR MIKTEXCEECALL DoModal(CWnd* parent = nullptr);
 };
 
 MIKUI_MFC_END_NAMESPACE;

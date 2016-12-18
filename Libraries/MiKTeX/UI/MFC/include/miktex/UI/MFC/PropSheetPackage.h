@@ -34,7 +34,25 @@ MIKUI_MFC_BEGIN_NAMESPACE;
 class MIKTEXNOVTABLE PropSheetPackage
 {
 public:
-  AFX_EXT_CLASS static INT_PTR MIKTEXCEECALL DoModal(const MiKTeX::Packages::PackageInfo & packageInfo, CWnd * pParentWnd = nullptr);
+  PropSheetPackage() = delete;
+
+public:
+  PropSheetPackage(const PropSheetPackage& other) = delete;
+
+public:
+  PropSheetPackage& operator=(const PropSheetPackage& other) = delete;
+
+public:
+  PropSheetPackage(PropSheetPackage&& other) = delete;
+
+public:
+  PropSheetPackage& operator=(PropSheetPackage&& other) = delete;
+
+public:
+  ~PropSheetPackage() = delete;
+
+public:
+  AFX_EXT_CLASS static INT_PTR MIKTEXCEECALL DoModal(const MiKTeX::Packages::PackageInfo& packageInfo, CWnd* parentWindow = nullptr);
 };
 
 MIKUI_MFC_END_NAMESPACE;

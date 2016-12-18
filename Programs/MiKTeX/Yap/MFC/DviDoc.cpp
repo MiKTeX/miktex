@@ -388,7 +388,7 @@ void DviDoc::OnProgress(DviNotification nf)
       pProgressDialog->SetTitle("Yap");
       pProgressDialog->SetLine(1, T_("Yap is creating font bitmaps:"));
     }
-    pProgressDialog->SetLine(2, statusText.c_str());
+    pProgressDialog->SetLine(2, statusText);
   }
 }
 

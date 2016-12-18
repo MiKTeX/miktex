@@ -38,7 +38,25 @@ MIKUI_MFC_BEGIN_NAMESPACE;
 class MIKTEXNOVTABLE UpdateDialog
 {
 public:
-  AFX_EXT_CLASS static INT_PTR MIKTEXCEECALL DoModal(CWnd * pParent, std::shared_ptr<MiKTeX::Packages::PackageManager> pManager, const std::vector<std::string> & toBeInstalled, const std::vector<std::string> & toBeRemoved);
+  UpdateDialog() = delete;
+
+public:
+  UpdateDialog(const UpdateDialog& other) = delete;
+
+public:
+  UpdateDialog& operator=(const UpdateDialog& other) = delete;
+
+public:
+  UpdateDialog(UpdateDialog&& other) = delete;
+
+public:
+  UpdateDialog& operator=(UpdateDialog&& other) = delete;
+
+public:
+  ~UpdateDialog() = delete;
+
+public:
+  AFX_EXT_CLASS static INT_PTR MIKTEXCEECALL DoModal(CWnd* parent, std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, const std::vector<std::string>& toBeInstalled, const std::vector<std::string>& toBeRemoved);
 };
 
 MIKUI_MFC_END_NAMESPACE;

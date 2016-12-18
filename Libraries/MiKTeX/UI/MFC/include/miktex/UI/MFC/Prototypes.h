@@ -45,6 +45,7 @@
   }
 
 #include <memory>
+#include <string>
 
 #include <miktex/PackageManager/PackageManager>
 
@@ -58,25 +59,25 @@ const unsigned int YES = 1;
 const unsigned int NO = 2;
 const unsigned int DONTASKAGAIN = 4;
 
-MIKTEXUIEXPORT unsigned int MIKTEXCEECALL InstallPackageMessageBox(CWnd * pWnd, std::shared_ptr<MiKTeX::Packages::PackageManager> pManager, const char * lpszPackageName, const char * lpszTrigger);
+MIKTEXUIEXPORT unsigned int MIKTEXCEECALL InstallPackageMessageBox(CWnd* parent, std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, const std::string& packageName, const std::string& trigger);
 
-inline unsigned int InstallPackageMessageBox(std::shared_ptr<MiKTeX::Packages::PackageManager> pManager, const char * lpszPackageName, const char * lpszTrigger)
+inline unsigned int InstallPackageMessageBox(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, const std::string& packageName, const std::string& trigger)
 {
-  return InstallPackageMessageBox(nullptr, pManager, lpszPackageName, lpszTrigger);
+  return InstallPackageMessageBox(nullptr, packageManager, packageName, trigger);
 }
 
-MIKTEXUIEXPORT bool MIKTEXCEECALL ProxyAuthenticationDialog(CWnd * pWnd);
+MIKTEXUIEXPORT bool MIKTEXCEECALL ProxyAuthenticationDialog(CWnd* parent);
 
 inline bool ProxyAuthenticationDialog()
 {
   return ProxyAuthenticationDialog(nullptr);
 }
 
-MIKTEXUIEXPORT bool MIKTEXCEECALL GiveBackDialog(CWnd * pWnd, bool force);
+MIKTEXUIEXPORT bool MIKTEXCEECALL GiveBackDialog(CWnd* parent, bool force);
 
-inline bool GiveBackDialog(CWnd * pWnd)
+inline bool GiveBackDialog(CWnd* parent)
 {
-  return GiveBackDialog(pWnd, false);
+  return GiveBackDialog(parent, false);
 }
 
 MIKUI_MFC_END_NAMESPACE;

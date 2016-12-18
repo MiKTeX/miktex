@@ -351,7 +351,7 @@ bool Application::InstallPackage(const string & deploymentName, const PathName &
       initUiFrameworkDone = true;
     }
     bool doInstall = false;
-    unsigned int msgBoxRet = MiKTeX::UI::InstallPackageMessageBox(pimpl->packageManager, deploymentName.c_str(), trigger.GetData());
+    unsigned int msgBoxRet = MiKTeX::UI::InstallPackageMessageBox(pimpl->packageManager, deploymentName, trigger.ToString());
     doInstall = ((msgBoxRet & MiKTeX::UI::YES) != 0);
     if ((msgBoxRet & MiKTeX::UI::DONTASKAGAIN) != 0)
     {

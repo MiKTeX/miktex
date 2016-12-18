@@ -34,14 +34,14 @@ using namespace MiKTeX::UI::MFC;
 using namespace MiKTeX::Util;
 using namespace std;
 
-InstallPackageDialog::InstallPackageDialog(CWnd * pParent, shared_ptr<PackageManager> pManager, const char * lpszPackageName, const char * lpszTrigger) :
-  CDialog(InstallPackageDialog::IDD, pParent),
-  pManager(pManager),
-  trigger(lpszTrigger == nullptr ? "" : lpszTrigger)
+InstallPackageDialog::InstallPackageDialog(CWnd* parent, shared_ptr<PackageManager> packageManager, const string& packageName, const string& trigger) :
+  CDialog(InstallPackageDialog::IDD, parent),
+  pManager(packageManager),
+  trigger(UT_(trigger))
 {
-  PackageInfo packageInfo = pManager->GetPackageInfo(lpszPackageName);
-  packageName = packageInfo.deploymentName.c_str();
-  packageTitle = packageInfo.title.c_str();
+  PackageInfo packageInfo = pManager->GetPackageInfo(packageName);
+  this->packageName = UT_(packageInfo.deploymentName);
+  packageTitle = UT_(packageInfo.title);
 }
 
 void InstallPackageDialog::FormatControlText(UINT ctrlId, const char * lpszFormat, ...)

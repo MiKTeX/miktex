@@ -41,19 +41,19 @@ public:
   enum { WM_ONTOGGLE = WM_APP + 22 };
 
 public:
-  AFX_EXT_CLASS static PackageTreeCtrl * MIKTEXCEECALL Create(std::shared_ptr<MiKTeX::Packages::PackageManager> pManager);
+  AFX_EXT_CLASS static PackageTreeCtrl* MIKTEXCEECALL Create(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager);
 
 public:
-  AFX_EXT_CLASS static void MIKTEXCEECALL Destroy(PackageTreeCtrl * pCtrl);
+  AFX_EXT_CLASS static void MIKTEXCEECALL Destroy(PackageTreeCtrl* packageTreeCtrl);
 
 public:
   virtual void Refresh() = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL GetPackageInfo(HTREEITEM hItem, MiKTeX::Packages::PackageInfo & pi) = 0;
+  virtual bool MIKTEXTHISCALL GetPackageInfo(HTREEITEM hItem, MiKTeX::Packages::PackageInfo& packageInfo) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL GetDelta(std::vector<std::string> & toBeInstalled, std::vector<std::string> & toBeRemoved) = 0;
+  virtual void MIKTEXTHISCALL GetDelta(std::vector<std::string>& toBeInstalled, std::vector<std::string>& toBeRemoved) = 0;
 };
 
 MIKUI_MFC_END_NAMESPACE;
