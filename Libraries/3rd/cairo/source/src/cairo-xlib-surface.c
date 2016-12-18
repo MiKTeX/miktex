@@ -807,6 +807,7 @@ _get_image_surface (cairo_xlib_surface_t    *surface,
 	    }
 
 	    cairo_surface_destroy (&image->base);
+	    image = NULL;
 	}
     }
 
@@ -1011,7 +1012,8 @@ _get_image_surface (cairo_xlib_surface_t    *surface,
     cairo_device_release (&display->base);
 
     if (unlikely (status)) {
-	cairo_surface_destroy (&image->base);
+	if (image)
+	    cairo_surface_destroy (&image->base);
 	return _cairo_surface_create_in_error (status);
     }
 

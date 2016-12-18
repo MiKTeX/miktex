@@ -441,7 +441,7 @@ static void send_event(cairo_xlib_display_t *display,
 
     ev.type = display->shm->event;
     ev.send_event = 1; /* XXX or lie? */
-    ev.serial = NextRequest (display->display);
+    ev.serial = XNextRequest (display->display);
     ev.drawable = display->shm->window;
     ev.major_code = display->shm->opcode;
     ev.minor_code = X_ShmPutImage;
@@ -599,7 +599,7 @@ _cairo_xlib_shm_pool_create(cairo_xlib_display_t *display,
 	goto cleanup;
     }
 
-    pool->attached = NextRequest (dpy);
+    pool->attached = XNextRequest (dpy);
     success = XShmAttach (dpy, &pool->shm);
 #if !IPC_RMID_DEFERRED_RELEASE
     XSync (dpy, FALSE);
@@ -1199,7 +1199,7 @@ _cairo_xlib_shm_surface_mark_active (cairo_surface_t *_shm)
     cairo_xlib_shm_surface_t *shm = (cairo_xlib_shm_surface_t *) _shm;
     cairo_xlib_display_t *display = (cairo_xlib_display_t *) _shm->device;
 
-    shm->active = NextRequest (display->display);
+    shm->active = XNextRequest (display->display);
 }
 
 void
@@ -1241,7 +1241,7 @@ _cairo_xlib_shm_surface_get_obdata (cairo_surface_t *surface)
     cairo_xlib_display_t *display = (cairo_xlib_display_t *) surface->device;
     cairo_xlib_shm_surface_t *shm = (cairo_xlib_shm_surface_t *) surface;
 
-    display->shm->last_event = shm->active = NextRequest (display->display);
+    display->shm->last_event = shm->active = XNextRequest (display->display);
     return &shm->info->pool->shm;
 }
 

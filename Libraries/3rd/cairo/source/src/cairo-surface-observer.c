@@ -1218,8 +1218,6 @@ _cairo_surface_observer_mark_dirty (void *abstract_surface,
     cairo_surface_observer_t *surface = abstract_surface;
     cairo_status_t status;
 
-    printf ("mark-dirty (%d, %d) x (%d, %d)\n", x, y, width, height);
-
     status = CAIRO_STATUS_SUCCESS;
     if (surface->target->backend->mark_dirty_rectangle)
 	status = surface->target->backend->mark_dirty_rectangle (surface->target,

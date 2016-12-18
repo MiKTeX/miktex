@@ -818,23 +818,35 @@ _cairo_scaled_font_thaw_cache (cairo_scaled_font_t *scaled_font)
 void
 _cairo_scaled_font_reset_cache (cairo_scaled_font_t *scaled_font)
 {
+    cairo_scaled_glyph_page_t *page;
+
     CAIRO_MUTEX_LOCK (scaled_font->mutex);
     assert (! scaled_font->cache_frozen);
     assert (! scaled_font->global_cache_frozen);
     CAIRO_MUTEX_LOCK (_cairo_scaled_glyph_page_cache_mutex);
-    while (! cairo_list_is_empty (&scaled_font->glyph_pages)) {
-	cairo_scaled_glyph_page_t *page =
-	    cairo_list_first_entry (&scaled_font->glyph_pages,
-				    cairo_scaled_glyph_page_t,
-				    link);
 
+    cairo_list_foreach_entry (page,
+			      cairo_scaled_glyph_page_t,
+			      &scaled_font->glyph_pages,
+			      link) {
 	cairo_scaled_glyph_page_cache.size -= page->cache_entry.size;
 	_cairo_hash_table_remove (cairo_scaled_glyph_page_cache.hash_table,
 				  (cairo_hash_entry_t *) &page->cache_entry);
+    }
 
+    CAIRO_MUTEX_UNLOCK (_cairo_scaled_glyph_page_cache_mutex);
+
+    /* Destroy scaled_font's pages while holding its lock only, and not the
+     * global page cache lock. The destructor can cause us to recurse and
+     * end up back here for a different scaled_font. */
+
+    while (! cairo_list_is_empty (&scaled_font->glyph_pages)) {
+	page = cairo_list_first_entry (&scaled_font->glyph_pages,
+				       cairo_scaled_glyph_page_t,
+				       link);
 	_cairo_scaled_glyph_page_destroy (scaled_font, page);
     }
-    CAIRO_MUTEX_UNLOCK (_cairo_scaled_glyph_page_cache_mutex);
+
     CAIRO_MUTEX_UNLOCK (scaled_font->mutex);
 }
 

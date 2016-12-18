@@ -6,7 +6,7 @@
     <TPM:Title>Cairo Graphics Library, Windows x86</TPM:Title>
     <TPM:Copyright owner="University of Southern California et al." year="2002-2014"/>
     <TPM:License type="lgpl2.1"/>
-    <TPM:Version>1.14.6</TPM:Version>
+    <TPM:Version>1.14.8</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

@@ -262,7 +262,7 @@ _cairo_debug_print_path (FILE *stream, cairo_path_fixed_t *path)
 		 box.p1.x, box.p1.y, box.p2.x, box.p2.y);
     }
 
-    printf ("\n");
+    fprintf (stream, "\n");
 }
 
 void
