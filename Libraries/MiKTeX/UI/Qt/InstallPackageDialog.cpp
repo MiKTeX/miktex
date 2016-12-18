@@ -33,9 +33,9 @@ using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
 using namespace std;
 
-InstallPackageDialog::InstallPackageDialog(QWidget * pParent, shared_ptr<PackageManager> pManager, const char * lpszPackageName, const char * lpszTrigger) :
-  QDialog(pParent),
-  pManager(pManager)
+InstallPackageDialog::InstallPackageDialog(QWidget* parent, shared_ptr<PackageManager> packageManager, const string& packageName, const string& trigger) :
+  QDialog(parent),
+  pManager(packageManager)
 {
   setupUi(this);
   try
@@ -47,9 +47,9 @@ InstallPackageDialog::InstallPackageDialog(QWidget * pParent, shared_ptr<Package
       MIKTEX_UNEXPECTED();
     }
     pOKButton->setText(T_("Install"));
-    lblPackageName->setText(QString::fromLocal8Bit(lpszPackageName));
-    lblMissingFile->setText(QString::fromLocal8Bit(lpszTrigger));
-    PackageInfo packageInfo = pManager->GetPackageInfo(lpszPackageName);
+    lblPackageName->setText(QString::fromLocal8Bit(packageName.c_str()));
+    lblMissingFile->setText(QString::fromLocal8Bit(trigger.c_str()));
+    PackageInfo packageInfo = pManager->GetPackageInfo(packageName);
     string repository;
     RepositoryType repositoryType(RepositoryType::Unknown);
     if (pManager->TryGetDefaultPackageRepository(repositoryType, repository))

@@ -68,7 +68,7 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::FinalizeFramework()
   pApplication = nullptr;
 }
 
-MIKTEXUIQTEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::Qt::InstallPackageMessageBox(QWidget * pParent, std::shared_ptr<MiKTeX::Packages::PackageManager> pManager, const char * lpszPackageName, const char * lpszTrigger)
+MIKTEXUIQTEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::Qt::InstallPackageMessageBox(QWidget* parent, shared_ptr<PackageManager> packageManager, const string& packageName, const string& trigger)
 {
   shared_ptr<Session> pSession = Session::Get();
   TriState enableInstaller = pSession->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, TriState::Undetermined).GetTriState();
@@ -85,7 +85,7 @@ MIKTEXUIQTEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::Qt::InstallPackageMessag
   }
   else
   {
-    InstallPackageDialog dlg(pParent, pManager, lpszPackageName, lpszTrigger);
+    InstallPackageDialog dlg(parent, packageManager, packageName, trigger);
     dlg.SetAlwaysAsk(enableInstaller == TriState::True ? false : true);
     int dialogCode = dlg.exec();
     if (dialogCode != QDialog::Accepted && dialogCode != QDialog::Rejected)

@@ -38,7 +38,7 @@ private:
   Q_OBJECT;
 
 public:
-  InstallPackageDialog(QWidget * pParent, std::shared_ptr<MiKTeX::Packages::PackageManager> pManager, const char * lpszPackageName, const char * lpszTrigger);
+  InstallPackageDialog(QWidget* parent, std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, const std::string& packageName, const std::string& trigger);
 
 public:
   void SetAlwaysAsk(bool alwaysAsk)

@@ -32,7 +32,25 @@ MIKUI_QT_BEGIN_NAMESPACE;
 class MIKTEXNOVTABLE SiteWizSheet
 {
 public:
-  static MIKTEXUIQTCEEAPI(int) DoModal(QWidget * pParent);
+  SiteWizSheet() = delete;
+
+public:
+  SiteWizSheet(const SiteWizSheet& other) = delete;
+
+public:
+  SiteWizSheet& operator=(const SiteWizSheet& other) = delete;
+
+public:
+  SiteWizSheet(SiteWizSheet&& other) = delete;
+
+public:
+  SiteWizSheet& operator=(SiteWizSheet&& other) = delete;
+
+public:
+  ~SiteWizSheet() = delete;
+
+public:
+  static MIKTEXUIQTCEEAPI(int) DoModal(QWidget* parent);
 };
 
 MIKUI_QT_END_NAMESPACE;

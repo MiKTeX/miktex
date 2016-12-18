@@ -49,6 +49,7 @@
   }
 
 #include <memory>
+#include <string>
 
 #include <miktex/PackageManager/PackageManager>
 
@@ -60,14 +61,14 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL InitializeFramework();
 
 MIKTEXUIQTEXPORT void MIKTEXCEECALL FinalizeFramework();
 
-MIKTEXUIQTEXPORT unsigned int MIKTEXCEECALL InstallPackageMessageBox(QWidget * pParent, std::shared_ptr<MiKTeX::Packages::PackageManager> pManager, const char * lpszPackageName, const char * lpszTrigger);
+MIKTEXUIQTEXPORT unsigned int MIKTEXCEECALL InstallPackageMessageBox(QWidget* parent, std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, const std::string& packageName, const std::string& trigger);
 
-inline unsigned int InstallPackageMessageBox(std::shared_ptr<MiKTeX::Packages::PackageManager> pManager, const char * lpszPackageName, const char * lpszTrigger)
+inline unsigned int InstallPackageMessageBox(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, const std::string& packageName, const std::string& trigger)
 {
-  return InstallPackageMessageBox(nullptr, pManager, lpszPackageName, lpszTrigger);
+  return InstallPackageMessageBox(nullptr, packageManager, packageName, trigger);
 }
 
-MIKTEXUIQTEXPORT bool MIKTEXCEECALL ProxyAuthenticationDialog(QWidget * pParent);
+MIKTEXUIQTEXPORT bool MIKTEXCEECALL ProxyAuthenticationDialog(QWidget* parent);
 
 inline bool ProxyAuthenticationDialog()
 {

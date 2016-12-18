@@ -38,7 +38,25 @@ MIKUI_QT_BEGIN_NAMESPACE;
 class MIKTEXNOVTABLE UpdateDialog
 {
 public:
-  static MIKTEXUIQTCEEAPI(int) DoModal(QWidget * pParent, std::shared_ptr<MiKTeX::Packages::PackageManager> pManager, const std::vector<std::string> & toBeInstalled, const std::vector<std::string> & toBeRemoved);
+  UpdateDialog() = delete;
+
+public:
+  UpdateDialog(const UpdateDialog& other) = delete;
+
+public:
+  UpdateDialog& operator=(const UpdateDialog& other) = delete;
+
+public:
+  UpdateDialog(UpdateDialog&& other) = delete;
+
+public:
+  UpdateDialog& operator=(UpdateDialog&& other) = delete;
+
+public:
+  ~UpdateDialog() = delete;
+
+public:
+  static MIKTEXUIQTCEEAPI(int) DoModal(QWidget* parent, std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, const std::vector<std::string>& toBeInstalled, const std::vector<std::string>& toBeRemoved);
 };
 
 MIKUI_QT_END_NAMESPACE;

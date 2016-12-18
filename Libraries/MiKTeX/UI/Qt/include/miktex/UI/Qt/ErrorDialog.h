@@ -39,10 +39,28 @@ MIKUI_QT_BEGIN_NAMESPACE;
 class MIKTEXNOVTABLE ErrorDialog
 {
 public:
-  static MIKTEXUIQTCEEAPI(int) DoModal(QWidget * pParent, const MiKTeX::Core::MiKTeXException & e);
+  ErrorDialog() = delete;
 
 public:
-  static MIKTEXUIQTCEEAPI(int) DoModal(QWidget * pParent, const std::exception & e);
+  ErrorDialog(const ErrorDialog& other) = delete;
+
+public:
+  ErrorDialog& operator=(const ErrorDialog& other) = delete;
+
+public:
+  ErrorDialog(ErrorDialog&& other) = delete;
+
+public:
+  ErrorDialog& operator=(ErrorDialog&& other) = delete;
+
+public:
+  ~ErrorDialog() = delete;
+
+public:
+  static MIKTEXUIQTCEEAPI(int) DoModal(QWidget* parent, const MiKTeX::Core::MiKTeXException& e);
+
+public:
+  static MIKTEXUIQTCEEAPI(int) DoModal(QWidget* parent, const std::exception& e);
 };
 
 MIKUI_QT_END_NAMESPACE;
