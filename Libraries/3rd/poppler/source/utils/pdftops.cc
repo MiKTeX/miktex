@@ -19,7 +19,7 @@
 // Copyright (C) 2007-2008, 2010, 2015 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 // Copyright (C) 2009 Sanjoy Mahajan <sanjoy@mit.edu>
-// Copyright (C) 2009, 2011, 2012, 2014, 2015 William Bader <williambader@hotmail.com>
+// Copyright (C) 2009, 2011, 2012, 2014-2016 William Bader <williambader@hotmail.com>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2012 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2013 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
@@ -96,6 +96,7 @@ static GBool noEmbedCIDPSFonts = gFalse;
 static GBool noEmbedCIDTTFonts = gFalse;
 static GBool fontPassthrough = gFalse;
 static GBool optimizeColorSpace = gFalse;
+static GBool passLevel1CustomColor = gFalse;
 static char rasterAntialiasStr[16] = "";
 static GBool preload = gFalse;
 static char paperSize[15] = "";
@@ -160,6 +161,8 @@ static const ArgDesc argDesc[] = {
    "enable anti-aliasing on rasterization: yes, no"},
   {"-optimizecolorspace",  argFlag,        &optimizeColorSpace,0,
    "convert gray RGB images to gray color space"},
+  {"-passlevel1customcolor", argFlag,      &passLevel1CustomColor, 0,
+   "pass custom color in level1sep"},
   {"-preload",    argFlag,     &preload,        0,
    "preload images and forms"},
   {"-paper",      argString,   paperSize,       sizeof(paperSize),
@@ -411,6 +414,7 @@ int main(int argc, char *argv[]) {
   psOut->setFontPassthrough(fontPassthrough);
   psOut->setPreloadImagesForms(preload);
   psOut->setOptimizeColorSpace(optimizeColorSpace);
+  psOut->setPassLevel1CustomColor(passLevel1CustomColor);
 #if OPI_SUPPORT
   psOut->setGenerateOPI(doOPI);
 #endif

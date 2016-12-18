@@ -17,6 +17,7 @@
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2011, 2012 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2012 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
+// Copyright (C) 2016 William Bader <williambader@hotmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -144,6 +145,7 @@ public:
   // <nCIDs> entries.  (Not useful for OpenType CFF fonts.)
   void convertToType0(char *psName, int *cidMap, int nCIDs,
 		      GBool needVerticalMetrics,
+		      int *maxValidGlyph,
 		      FoFiOutputFunc outputFunc, void *outputStream);
 
   // Convert to a Type 0 (but non-CID) composite font, suitable for

@@ -22,7 +22,7 @@
 // Copyright (C) 2012 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2014 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2015 Aleksei Volkov <Aleksei Volkov>
-// Copyright (C) 2015 William Bader <williambader@hotmail.com>
+// Copyright (C) 2015, 2016 William Bader <williambader@hotmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -727,11 +727,14 @@ void FoFiTrueType::convertToCIDType0(char *psName, int *cidMap, int nCIDs,
 
 void FoFiTrueType::convertToType0(char *psName, int *cidMap, int nCIDs,
 				  GBool needVerticalMetrics,
+				  int *maxValidGlyph,
 				  FoFiOutputFunc outputFunc,
 				  void *outputStream) {
   GooString *buf;
   GooString *sfntsName;
   int maxUsedGlyph, n, i, j;
+
+  *maxValidGlyph = -1;
 
   if (openTypeCFF) {
     return;
@@ -754,6 +757,13 @@ void FoFiTrueType::convertToType0(char *psName, int *cidMap, int nCIDs,
   // that refers to one of the unused glyphs -- this results in PS
   // errors if we simply use maxUsedGlyph+1 for the Type 0 font.  So
   // we compromise by always defining at least 256 glyphs.)
+  // Some fonts have a large nGlyphs but maxUsedGlyph of 0.
+  // These fonts might reference any glyph.
+  // Return the last written glyph number in maxValidGlyph.
+  // PSOutputDev::drawString() can use maxValidGlyph to avoid
+  // referencing zero-length glyphs that we trimmed.
+  // This allows pdftops to avoid writing huge files while still
+  // handling the rare PDF that uses a zero-length glyph.
   if (cidMap) {
     n = nCIDs;
   } else if (nGlyphs > maxUsedGlyph + 256) {
@@ -765,6 +775,7 @@ void FoFiTrueType::convertToType0(char *psName, int *cidMap, int nCIDs,
   } else {
     n = nGlyphs;
   }
+  *maxValidGlyph = n-1;
   for (i = 0; i < n; i += 256) {
     (*outputFunc)(outputStream, "10 dict begin\n", 14);
     (*outputFunc)(outputStream, "/FontName /", 11);

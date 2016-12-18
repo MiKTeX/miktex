@@ -1049,7 +1049,9 @@ void PDFDoc::saveIncrementalUpdate (OutStream* outStr)
     }
   }
   xref->unlock();
-  if (uxref->getNumObjects() == 0) { //we have nothing to update
+  // because of "uxref->add(0, 65535, 0, gFalse);" uxref->getNumObjects() will
+  // always be >= 1; if it is 1, it means there is nothing to update
+  if (uxref->getNumObjects() == 1) {
     delete uxref;
     return;
   }

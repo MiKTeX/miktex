@@ -57,6 +57,7 @@ set(${poppler_qt_dll_name}_sources
   ${projdir}/source/qt5/src/poppler-export.h
   ${projdir}/source/qt5/src/poppler-form.h
   ${projdir}/source/qt5/src/poppler-link-extractor-private.h
+  ${projdir}/source/qt5/src/poppler-link-private.h
   ${projdir}/source/qt5/src/poppler-link.h
   ${projdir}/source/qt5/src/poppler-media.h
   ${projdir}/source/qt5/src/poppler-optcontent-private.h

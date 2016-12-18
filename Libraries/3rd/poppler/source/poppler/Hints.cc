@@ -9,6 +9,7 @@
 // Copyright 2010, 2013 Pino Toscano <pino@kde.org>
 // Copyright 2013 Adrian Johnson <ajohnson@redneon.com>
 // Copyright 2014 Fabio D'Urso <fabiodurso@hotmail.it>
+// Copyright 2016 Jeffrey Morlan <jmmorlan@sonic.net>
 //
 //========================================================================
 
@@ -140,7 +141,6 @@ Hints::Hints(BaseStream *str, Linearization *linearization, XRef *xref, Security
   memset(numSharedObject, 0, nPages * sizeof(Guint));
   memset(pageObjectNum, 0, nPages * sizeof(int));
 
-  nSharedGroups = 0;
   groupLength = NULL;
   groupOffset = NULL;
   groupHasSignature = NULL;
@@ -350,29 +350,30 @@ GBool Hints::readSharedObjectsTable(Stream *str)
 {
   StreamBitReader sbr(str);
 
-  Guint firstSharedObjectNumber = sbr.readBits(32);
+  const Guint firstSharedObjectNumber = sbr.readBits(32);
 
-  Guint firstSharedObjectOffset = sbr.readBits(32);
-  firstSharedObjectOffset += hintsLength;
+  const Guint firstSharedObjectOffset = sbr.readBits(32) + hintsLength;
 
-  Guint nSharedGroupsFirst = sbr.readBits(32);
+  const Guint nSharedGroupsFirst = sbr.readBits(32);
 
-  Guint nSharedGroups = sbr.readBits(32);
+  const Guint nSharedGroups = sbr.readBits(32);
 
-  Guint nBitsNumObjects = sbr.readBits(16);
+  const Guint nBitsNumObjects = sbr.readBits(16);
 
-  Guint groupLengthLeast = sbr.readBits(32);
+  const Guint groupLengthLeast = sbr.readBits(32);
 
-  Guint nBitsDiffGroupLength = sbr.readBits(16);
+  const Guint nBitsDiffGroupLength = sbr.readBits(16);
 
   if ((!nSharedGroups) || (nSharedGroups >= INT_MAX / (int)sizeof(Guint))) {
      error(errSyntaxWarning, -1, "Invalid number of shared object groups");
-     nSharedGroups = 0;
      return gFalse;
   }
   if ((!nSharedGroupsFirst) || (nSharedGroupsFirst > nSharedGroups)) {
      error(errSyntaxWarning, -1, "Invalid number of first page shared object groups");
-     nSharedGroups = 0;
+     return gFalse;
+  }
+  if (nBitsNumObjects > 32 || nBitsDiffGroupLength > 32) {
+     error(errSyntaxWarning, -1, "Invalid shared object groups bit length");
      return gFalse;
   }
 
@@ -384,7 +385,6 @@ GBool Hints::readSharedObjectsTable(Stream *str)
   if (!groupLength || !groupOffset || !groupHasSignature ||
       !groupNumObjects || !groupXRefOffset) {
      error(errSyntaxWarning, -1, "Failed to allocate memory for shared object groups");
-     nSharedGroups = 0;
      return gFalse;
   }
 

@@ -21,6 +21,7 @@
 // Copyright (C) 2010 William Bader <williambader@hotmail.com>
 // Copyright (C) 2012 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2015 Adam Reichold <adamreichold@myopera.com>
+// Copyright (C) 2016 Kenji Uno <ku@digitaldolphins.jp>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -74,7 +75,7 @@ public:
   
   SplashError writeImgFile(SplashImageFileFormat format, char *fileName, int hDPI, int vDPI, const char *compressionString = "");
   SplashError writeImgFile(SplashImageFileFormat format, FILE *f, int hDPI, int vDPI, const char *compressionString = "");
-  SplashError writeImgFile(ImgWriter *writer, FILE *f, int hDPI, int vDPI);
+  SplashError writeImgFile(ImgWriter *writer, FILE *f, int hDPI, int vDPI, SplashColorMode imageWriterFormat);
 
   enum ConversionMode
   {

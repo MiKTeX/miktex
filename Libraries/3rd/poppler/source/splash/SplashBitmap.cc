@@ -22,6 +22,7 @@
 // Copyright (C) 2011-2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2012 Anthony Wesley <awesley@smartnetworks.com.au>
 // Copyright (C) 2015 Adam Reichold <adamreichold@myopera.com>
+// Copyright (C) 2016 Kenji Uno <ku@digitaldolphins.jp>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -359,6 +360,8 @@ SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f, in
   ImgWriter *writer;
 	SplashError e;
   
+  SplashColorMode imageWriterFormat = splashModeRGB8;
+
   switch (format) {
     #ifdef ENABLE_LIBPNG
     case splashFormatPng:
@@ -382,9 +385,11 @@ SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f, in
       switch (mode) {
       case splashModeMono1:
         writer = new TiffWriter(TiffWriter::MONOCHROME);
+        imageWriterFormat = splashModeMono1;
         break;
       case splashModeMono8:
         writer = new TiffWriter(TiffWriter::GRAY);
+        imageWriterFormat = splashModeMono8;
         break;
       case splashModeRGB8:
       case splashModeBGR8:
@@ -413,7 +418,7 @@ SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f, in
       return splashErrGeneric;
   }
 
-	e = writeImgFile(writer, f, hDPI, vDPI);
+	e = writeImgFile(writer, f, hDPI, vDPI, imageWriterFormat);
 	delete writer;
 	return e;
 }
@@ -622,7 +627,7 @@ void SplashBitmap::getCMYKLine(int yl, SplashColorPtr line) {
 }
 #endif
 
-SplashError SplashBitmap::writeImgFile(ImgWriter *writer, FILE *f, int hDPI, int vDPI) {
+SplashError SplashBitmap::writeImgFile(ImgWriter *writer, FILE *f, int hDPI, int vDPI, SplashColorMode imageWriterFormat) {
   if (mode != splashModeRGB8 && mode != splashModeMono8 && mode != splashModeMono1 && mode != splashModeXBGR8 && mode != splashModeBGR8
 #if SPLASH_CMYK
       && mode != splashModeCMYK8 && mode != splashModeDeviceN8
@@ -749,41 +754,81 @@ SplashError SplashBitmap::writeImgFile(ImgWriter *writer, FILE *f, int hDPI, int
     
     case splashModeMono8:
     {
-      unsigned char *row = new unsigned char[3 * width];
-      for (int y = 0; y < height; y++) {
-        // Convert into a PNG row
-        for (int x = 0; x < width; x++) {
-          row[3*x] = data[y * rowSize + x];
-          row[3*x+1] = data[y * rowSize + x];
-          row[3*x+2] = data[y * rowSize + x];
-        }
+      if (imageWriterFormat == splashModeMono8) {
+        SplashColorPtr row;
+        unsigned char **row_pointers = new unsigned char*[height];
+        row = data;
 
-        if (!writer->writeRow(&row)) {
-          delete[] row;
+        for (int y = 0; y < height; ++y) {
+          row_pointers[y] = row;
+          row += rowSize;
+        }
+        if (!writer->writePointers(row_pointers, height)) {
+          delete[] row_pointers;
           return splashErrGeneric;
         }
+        delete[] row_pointers;
+      } else if (imageWriterFormat == splashModeRGB8) {
+        unsigned char *row = new unsigned char[3 * width];
+        for (int y = 0; y < height; y++) {
+          // Convert into a PNG row
+          for (int x = 0; x < width; x++) {
+            row[3*x] = data[y * rowSize + x];
+            row[3*x+1] = data[y * rowSize + x];
+            row[3*x+2] = data[y * rowSize + x];
+          }
+
+          if (!writer->writeRow(&row)) {
+            delete[] row;
+            return splashErrGeneric;
+          }
+        }
+        delete[] row;
       }
-      delete[] row;
+      else {
+        // only splashModeMono8 or splashModeRGB8
+        return splashErrGeneric;
+      }
     }
     break;
     
     case splashModeMono1:
     {
-      unsigned char *row = new unsigned char[3 * width];
-      for (int y = 0; y < height; y++) {
-        // Convert into a PNG row
-        for (int x = 0; x < width; x++) {
-          getPixel(x, y, &row[3*x]);
-          row[3*x+1] = row[3*x];
-          row[3*x+2] = row[3*x];
-        }
+      if (imageWriterFormat == splashModeMono1) {
+        SplashColorPtr row;
+        unsigned char **row_pointers = new unsigned char*[height];
+        row = data;
 
-        if (!writer->writeRow(&row)) {
-          delete[] row;
+        for (int y = 0; y < height; ++y) {
+          row_pointers[y] = row;
+          row += rowSize;
+        }
+        if (!writer->writePointers(row_pointers, height)) {
+          delete[] row_pointers;
           return splashErrGeneric;
         }
+        delete[] row_pointers;
+      } else if (imageWriterFormat == splashModeRGB8) {
+        unsigned char *row = new unsigned char[3 * width];
+        for (int y = 0; y < height; y++) {
+          // Convert into a PNG row
+          for (int x = 0; x < width; x++) {
+            getPixel(x, y, &row[3*x]);
+            row[3*x+1] = row[3*x];
+            row[3*x+2] = row[3*x];
+          }
+
+          if (!writer->writeRow(&row)) {
+            delete[] row;
+            return splashErrGeneric;
+          }
+        }
+        delete[] row;
       }
-      delete[] row;
+      else {
+        // only splashModeMono1 or splashModeRGB8
+        return splashErrGeneric;
+      }
     }
     break;
     

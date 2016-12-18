@@ -4020,6 +4020,16 @@ void SplashOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref,
 
   //----- set up the soft mask
 
+  if (maskColorMap->getMatteColor() != NULL) {
+    Guchar *data = (Guchar *) gmalloc(maskWidth * maskHeight);
+    maskStr->reset();
+    maskStr->doGetChars(maskWidth * maskHeight, data);
+    maskStr->close();
+    Object *maskDict = new Object();
+    maskDict->initDict(maskStr->getDict());
+    maskStr = new MemStream((char *)data, 0, maskWidth * maskHeight, maskDict);
+    ((MemStream *) maskStr)->setNeedFree(gTrue);
+  }
   imgMaskData.imgStr = new ImageStream(maskStr, maskWidth,
 				       maskColorMap->getNumPixelComps(),
 				       maskColorMap->getBits());
@@ -4047,6 +4057,9 @@ void SplashOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref,
   maskSplash->drawImage(&imageSrc, NULL, &imgMaskData, splashModeMono8, gFalse,
 			maskWidth, maskHeight, mat, maskInterpolate);
   delete imgMaskData.imgStr;
+  if (maskColorMap->getMatteColor() == NULL) {
+    maskStr->close();
+  }
   gfree(imgMaskData.lookup);
   delete maskSplash;
   splash->setSoftMask(maskBitmap);
@@ -4146,7 +4159,10 @@ void SplashOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref,
   gfree(imgData.lookup);
   delete imgData.maskStr;
   delete imgData.imgStr;
-  maskStr->close();
+  if (maskColorMap->getMatteColor() != NULL) {
+    maskStr->close();
+    delete maskStr;
+  }
   str->close();
 }
 

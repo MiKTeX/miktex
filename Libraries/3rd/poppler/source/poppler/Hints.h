@@ -79,7 +79,6 @@ private:
   Guint *numSharedObject;
   Guint **sharedObjectId;
 
-  Guint nSharedGroups;
   Guint *groupLength;
   Guint *groupOffset;
   Guint *groupHasSignature;

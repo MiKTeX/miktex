@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Marco Pesenti Gritti <mpg@redhat.com>
-// Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Nick Jones <nick.jones@network-box.com>
 // Copyright (C) 2016 Jason Crain <jason@aquaticape.us>
 //
@@ -47,9 +47,7 @@ Outline::Outline(Object *outlineObj, XRef *xref) {
   if (!outlineObj->isDict()) {
     return;
   }
-  items = OutlineItem::readItemList(outlineObj->dictLookupNF("First", &first),
-				    outlineObj->dictLookupNF("Last", &last),
-				    xref);
+  items = OutlineItem::readItemList(outlineObj->dictLookupNF("First", &first), xref);
   first.free();
   last.free();
 }
@@ -115,16 +113,12 @@ OutlineItem::~OutlineItem() {
   nextRef.free();
 }
 
-GooList *OutlineItem::readItemList(Object *firstItemRef, Object *lastItemRef,
-				 XRef *xrefA) {
+GooList *OutlineItem::readItemList(Object *firstItemRef, XRef *xrefA) {
   GooList *items;
   char* alreadyRead;
   OutlineItem *item;
   Object obj;
   Object *p;
-
-  if (!lastItemRef->isRef())
-    return NULL;
 
   items = new GooList();
 
@@ -144,10 +138,6 @@ GooList *OutlineItem::readItemList(Object *firstItemRef, Object *lastItemRef,
     item = new OutlineItem(obj.getDict(), xrefA);
     obj.free();
     items->append(item);
-    if (p->getRef().num == lastItemRef->getRef().num &&
-	p->getRef().gen == lastItemRef->getRef().gen) {
-      break;
-    }
     p = &item->nextRef;
   }
 
@@ -163,7 +153,7 @@ GooList *OutlineItem::readItemList(Object *firstItemRef, Object *lastItemRef,
 
 void OutlineItem::open() {
   if (!kids) {
-    kids = readItemList(&firstRef, &lastRef, xref);
+    kids = readItemList(&firstRef, xref);
   }
 }
 

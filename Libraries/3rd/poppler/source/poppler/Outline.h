@@ -14,6 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Marco Pesenti Gritti <mpg@redhat.com>
+// Copyright (C) 2016 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -59,8 +60,7 @@ public:
   OutlineItem(Dict *dict, XRef *xrefA);
   ~OutlineItem();
 
-  static GooList *readItemList(Object *firstItemRef, Object *lastItemRef,
-			     XRef *xrefA);
+  static GooList *readItemList(Object *firstItemRef, XRef *xrefA);
 
   void open();
   void close();
