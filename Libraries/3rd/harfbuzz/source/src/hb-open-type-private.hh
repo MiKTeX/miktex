@@ -650,6 +650,7 @@ struct IntType
   DEFINE_SIZE_STATIC (Size);
 };
 
+typedef	IntType<int8_t	, 1> CHAR;	/* 8-bit signed integer. */
 typedef	IntType<uint8_t	, 1> BYTE;	/* 8-bit unsigned integer. */
 typedef IntType<uint16_t, 2> USHORT;	/* 16-bit unsigned integer. */
 typedef IntType<int16_t,  2> SHORT;	/* 16-bit signed integer. */
@@ -805,6 +806,7 @@ struct OffsetTo : Offset<OffsetType>
     if (unlikely (!c->check_struct (this))) return_trace (false);
     unsigned int offset = *this;
     if (unlikely (!offset)) return_trace (true);
+    if (unlikely (!c->check_range (base, offset))) return_trace (false);
     const Type &obj = StructAtOffset<Type> (base, offset);
     return_trace (likely (obj.sanitize (c)) || neuter (c));
   }
@@ -815,6 +817,7 @@ struct OffsetTo : Offset<OffsetType>
     if (unlikely (!c->check_struct (this))) return_trace (false);
     unsigned int offset = *this;
     if (unlikely (!offset)) return_trace (true);
+    if (unlikely (!c->check_range (base, offset))) return_trace (false);
     const Type &obj = StructAtOffset<Type> (base, offset);
     return_trace (likely (obj.sanitize (c, user_data)) || neuter (c));
   }
