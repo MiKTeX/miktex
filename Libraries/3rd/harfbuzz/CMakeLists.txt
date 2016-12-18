@@ -42,103 +42,87 @@ configure_file(
 )
 
 set(sources
-  source/src/hb-blob.h
-  source/src/hb-buffer.h
-  source/src/hb-common.h
-  source/src/hb-coretext.h
-  source/src/hb-deprecated.h
-  source/src/hb-directwrite.h
-  source/src/hb-face.h
-  source/src/hb-font.h
-  source/src/hb-ft.h
-  source/src/hb-glib.h
-  source/src/hb-gobject-structs.h
-  source/src/hb-gobject.h
-  source/src/hb-graphite2.h
-  source/src/hb-icu.h
-  source/src/hb-ot-font.h
-  source/src/hb-ot-layout.h
-  source/src/hb-ot-math.h
-  source/src/hb-ot-shape.h
-  source/src/hb-ot-tag.h
-  source/src/hb-ot.h
-  source/src/hb-set.h
-  source/src/hb-shape-plan.h
-  source/src/hb-shape.h
-  source/src/hb-unicode.h
-  source/src/hb-uniscribe.h
-  source/src/hb-version.h
-  source/src/hb.h
-
   source/src/hb-atomic-private.hh
+  source/src/hb-blob.cc
   source/src/hb-buffer-deserialize-json.hh
   source/src/hb-buffer-deserialize-text.hh
   source/src/hb-buffer-private.hh
+  source/src/hb-buffer-serialize.cc
+  source/src/hb-buffer.cc
   source/src/hb-cache-private.hh
+  source/src/hb-common.cc
   source/src/hb-face-private.hh
+  source/src/hb-face.cc
+  source/src/hb-fallback-shape.cc
   source/src/hb-font-private.hh
+  source/src/hb-font.cc
   source/src/hb-mutex-private.hh
   source/src/hb-object-private.hh
   source/src/hb-open-file-private.hh
   source/src/hb-open-type-private.hh
-  source/src/hb-ot-cbdt-table.hh
-  source/src/hb-ot-cmap-table.hh
-  source/src/hb-ot-glyf-table.hh
   source/src/hb-ot-head-table.hh
   source/src/hb-ot-hhea-table.hh
   source/src/hb-ot-hmtx-table.hh
-  source/src/hb-ot-layout-common-private.hh
-  source/src/hb-ot-layout-gdef-table.hh
-  source/src/hb-ot-layout-gpos-table.hh
-  source/src/hb-ot-layout-gsub-table.hh
-  source/src/hb-ot-layout-gsubgpos-private.hh
-  source/src/hb-ot-layout-jstf-table.hh
-  source/src/hb-ot-layout-math-table.hh
-  source/src/hb-ot-layout-private.hh
-  source/src/hb-ot-map-private.hh
   source/src/hb-ot-maxp-table.hh
   source/src/hb-ot-name-table.hh
   source/src/hb-ot-os2-table.hh
   source/src/hb-ot-post-table.hh
-  source/src/hb-ot-shape-complex-arabic-fallback.hh
-  source/src/hb-ot-shape-complex-arabic-private.hh
-  source/src/hb-ot-shape-complex-arabic-table.hh
-  source/src/hb-ot-shape-complex-arabic-win1256.hh
-  source/src/hb-ot-shape-complex-indic-machine.hh
-  source/src/hb-ot-shape-complex-indic-private.hh
-  source/src/hb-ot-shape-complex-myanmar-machine.hh
-  source/src/hb-ot-shape-complex-private.hh
-  source/src/hb-ot-shape-complex-use-machine.hh
-  source/src/hb-ot-shape-complex-use-private.hh
-  source/src/hb-ot-shape-fallback-private.hh
-  source/src/hb-ot-shape-normalize-private.hh
-  source/src/hb-ot-shape-private.hh
+  source/src/hb-ot-tag.cc
   source/src/hb-private.hh
   source/src/hb-set-private.hh
+  source/src/hb-set.cc
+  source/src/hb-shape.cc
   source/src/hb-shape-plan-private.hh
-  source/src/hb-shaper-impl-private.hh
+  source/src/hb-shape-plan.cc
   source/src/hb-shaper-list.hh
+  source/src/hb-shaper-impl-private.hh
   source/src/hb-shaper-private.hh
+  source/src/hb-shaper.cc
   source/src/hb-unicode-private.hh
+  source/src/hb-unicode.cc
   source/src/hb-utf-private.hh
-  
+  source/src/hb-warning.cc
+
   source/src/hb-ot-font.cc
+  source/src/hb-ot-font.h
   source/src/hb-ot-layout.cc
+  source/src/hb-ot-layout.h
+  source/src/hb-ot-layout-common-private.hh
+  source/src/hb-ot-layout-gdef-table.hh
+  source/src/hb-ot-layout-gpos-table.hh
+  source/src/hb-ot-layout-gsubgpos-private.hh
+  source/src/hb-ot-layout-gsub-table.hh
+  source/src/hb-ot-layout-jstf-table.hh
+  source/src/hb-ot-layout-math-table.hh
+  source/src/hb-ot-layout-private.hh
   source/src/hb-ot-map.cc
+  source/src/hb-ot-map-private.hh
   source/src/hb-ot-shape.cc
   source/src/hb-ot-shape-complex-arabic.cc
+  source/src/hb-ot-shape-complex-arabic-fallback.hh
+  source/src/hb-ot-shape-complex-arabic-table.hh
+  source/src/hb-ot-shape-complex-arabic-private.hh
   source/src/hb-ot-shape-complex-default.cc
   source/src/hb-ot-shape-complex-hangul.cc
   source/src/hb-ot-shape-complex-hebrew.cc
   source/src/hb-ot-shape-complex-indic.cc
+  source/src/hb-ot-shape-complex-indic-machine.hh
+  source/src/hb-ot-shape-complex-indic-private.hh
   source/src/hb-ot-shape-complex-indic-table.cc
   source/src/hb-ot-shape-complex-myanmar.cc
+  source/src/hb-ot-shape-complex-myanmar-machine.hh
+  source/src/hb-ot-shape-complex-private.hh
   source/src/hb-ot-shape-complex-thai.cc
   source/src/hb-ot-shape-complex-tibetan.cc
   source/src/hb-ot-shape-complex-use.cc
+  source/src/hb-ot-shape-complex-use-machine.hh
+  source/src/hb-ot-shape-complex-use-private.hh
   source/src/hb-ot-shape-complex-use-table.cc
   source/src/hb-ot-shape-fallback.cc
+  source/src/hb-ot-shape-fallback-private.hh
   source/src/hb-ot-shape-normalize.cc
+  source/src/hb-ot-shape-normalize-private.hh
+  source/src/hb-ot-shape-private.hh
 
   source/src/hb-icu.cc
 
