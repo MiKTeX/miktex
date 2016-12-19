@@ -13,7 +13,7 @@ You can find more information here:
 This readme file is located in the top-level directory of the the
 MiKTeX source code tree.  You use the source code to build and install
 a minimal TeX system.  MiKTeX provides an integrated package manager,
-i.e., this mininal TeX system can serve as a starting point for a much
+i.e., this minimal TeX system can serve as a starting point for a much
 larger (complete) TeX system.
 
 ## Prerequisites
@@ -42,7 +42,7 @@ larger (complete) TeX system.
 ## Running CMake
 
 It is recommended that you build outside the source code
-directory. For a server (non-UI) build, run this:
+directory.  For a server (non-UI) build, run this:
 
     cmake -DWITH_UI_QT=OFF ../source
 
@@ -50,7 +50,7 @@ If you are doing an out-of-source build, then you have to specify the
 path to the MiKTeX source code directory (`../source` in the example
 above).
 
-CMake for Windows may require a generator specification. If you want
+CMake for Windows may require a generator specification.  If you want
 to generate Makefiles for `nmake`, run this:
 
     cmake -G "NMake Makefiles" ../source
@@ -68,18 +68,18 @@ or, if you build on Windows:
 ## Installing
 
 CMake creates a standard `install` target which you can use to install
-everything in the standard location. On Linux, you run
+everything in the standard location.  On Linux, you run
 
     sudo make install
 
 This will install MiKTeX in the `/usr/local`-prefixed directory
-tree (Unix-alike platforms).
+tree.
 
 ## First steps
 
 ### Initialize the package database
 
-MiKTeX has the ability to install missing packages "on-the-fly". The
+MiKTeX has the ability to install missing packages "on-the-fly".  The
 package database must be initialized for this to work:
 
     sudo mpm --admin --update-db
@@ -91,9 +91,9 @@ In order to enable the automatic package installer, run:
 ### Symbolic links
 
 Some MiKTeX binaries are prefixed with `miktex-` in order to allow a
-peaceful coexistence with another popular TeX distribution. For
-example, the pdfTeX binary is named `miktex-pdftex`. You can create
-symbolic links targetting the `miktex-` prefixed binaries:
+peaceful coexistence with another TeX distribution.  For example, the
+pdfTeX binary is named `miktex-pdftex`.  You can create symbolic links
+targetting the `miktex-` prefixed binaries:
 
     sudo initexmf --admin --force --mklinks
 
