@@ -105,14 +105,12 @@ input=latex.ini
 
 [lualatex]
 
-attributes=exclude
 compiler=luatex
 description=LuaLaTeX
 input=lualatex.ini
 
 [luatex]
 
-attributes=exclude
 compiler=luatex
 description=LuaTeX
 input=luatex.ini
@@ -224,14 +222,12 @@ preloaded=pdflatex
 
 [xetex]
 
-attributes=exclude
 compiler=xetex
 description=xetex
 input=xetex.ini
 
 [xelatex]
 
-attributes=exclude
 compiler=xetex
 description=xelatex
 input=xelatex.ini
