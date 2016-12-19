@@ -179,8 +179,7 @@ void unxProcess::Create()
     MIKTEX_UNEXPECTED();
   }
 
-  Argv argv;
-  argv.Build(startinfo.FileName.c_str(), startinfo.Arguments.c_str());
+  Argv argv(startinfo.FileName, startinfo.Arguments);
 
   Pipe pipeStdout;
   Pipe pipeStderr;
@@ -527,12 +526,12 @@ Process2 * unxProcess::get_Parent()
   string line;
   while (reader.ReadLine(line))
   {
-    Tokenizer tok(line.c_str(), " ");
+    Tokenizer tok(line, " ");
     ++tok;
     ++tok;
     ++tok;
     unxProcess * pParentProcess = new unxProcess();
-    pParentProcess->pid = std::stoi(tok.GetCurrent());
+    pParentProcess->pid = std::stoi(*tok);
     return pParentProcess;
   }
 #endif

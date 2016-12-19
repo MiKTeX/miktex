@@ -27,19 +27,21 @@
 
 #include "Utils/inliners.h"
 
+#include "../ArgvImpl.h"
+
 using namespace MiKTeX::Core;
 using namespace std;
 
 // borrowed from the popt library
 void Argv::Append(const string & arguments)
 {
-  MIKTEX_ASSERT(!argv.empty());
+  MIKTEX_ASSERT(!pimpl->argv.empty());
 
-  argv.pop_back();
+  pimpl->argv.pop_back();
 
-  if (argv.empty())
+  if (pimpl->argv.empty())
   {
-    argv.push_back(MIKTEX_STRDUP("foo"));
+    pimpl->argv.push_back(MIKTEX_STRDUP("foo"));
   }
 
   string arg;
@@ -70,7 +72,7 @@ void Argv::Append(const string & arguments)
     {
       if (arg.length() > 0)
       {
-        argv.push_back(MIKTEX_STRDUP(arg.c_str()));
+        pimpl->argv.push_back(MIKTEX_STRDUP(arg.c_str()));
         arg = "";
       }
     }
@@ -98,7 +100,7 @@ void Argv::Append(const string & arguments)
   }
   if (!arg.empty())
   {
-    argv.push_back(MIKTEX_STRDUP(arg.c_str()));
+    pimpl->argv.push_back(MIKTEX_STRDUP(arg.c_str()));
   }
-  argv.push_back(nullptr);
+  pimpl->argv.push_back(nullptr);
 }

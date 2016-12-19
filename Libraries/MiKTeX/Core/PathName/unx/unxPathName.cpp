@@ -29,6 +29,7 @@
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
+using namespace std;
 
 PathName & PathName::SetToCurrentDirectory()
 {
@@ -41,12 +42,17 @@ PathName & PathName::SetToCurrentDirectory()
 
 PathName & PathName::SetToTempDirectory()
 {
-  if (!Utils::GetEnvironmentString("TMPDIR", GetData(), GetCapacity()))
+  string tmpdir;
+  if (Utils::GetEnvironmentString("TMPDIR", tmpdir))
+  {
+    *this = tmpdir;
+  }
+  else
   {
 #if defined(P_tmpdir)
-    StringUtil::CopyString(GetData(), GetCapacity(), P_tmpdir);
+    *this = P_tmpdir;
 #else
-    StringUtil::CopyString(GetData(), GetCapacity(), "/tmp");
+    *this = "/tmp";
 #endif
   }
   return *this;
