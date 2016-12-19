@@ -17,7 +17,7 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION 6100
+#define MIKTEX_COMP_J2000_VERSION 6200
 
 #define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1999, 2000, 2002 Aladdin Enterprises.  All rights reserved."
 #define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1999, 2000, 2002 Aladdin Enterprises.  All rights reserved."
