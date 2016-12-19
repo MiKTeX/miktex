@@ -254,8 +254,12 @@ add_ToUnicode (Type0Font *font)
     pdf_add_dict(font->fontdict,
                  pdf_new_name("ToUnicode"), tounicode);
   } else {
+#if defined(LIBDPX)
     if (__verbose)
       WARN("Failed to load ToUnicode CMap for font \"%s\"", fontname);
+#else
+    WARN("Failed to load ToUnicode CMap for font \"%s\"", fontname);
+#endif /* LIBDPX */
   }
 
   return;
