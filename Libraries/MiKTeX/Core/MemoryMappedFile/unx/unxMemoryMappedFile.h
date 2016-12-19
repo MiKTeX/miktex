@@ -23,6 +23,7 @@
 #define D3F1FF54CD2C40CC99A6E4E4DB457FB4
 
 #include "miktex/Core/MemoryMappedFile.h"
+#include "miktex/Core/PathName.h"
 
 BEGIN_INTERNAL_NAMESPACE;
 
@@ -33,24 +34,24 @@ public:
   ~unxMemoryMappedFile() override;
 
 public:
-  void * Open(const char * lpszPath, bool readWrite) override;
+  void* Open(const MiKTeX::Core::PathName& path, bool readWrite) override;
 
 public:
   void Close() override;
 
 public:
-  void * Resize(size_t newSize) override;
+  void* Resize(size_t newSize) override;
 
 public:
-  void * GetPtr() const override
+  void* GetPtr() const override
   {
     return ptr;
   }
 
 public:
-  const char * GetName() const override
+  std::string GetName() const override
   {
-    return name.c_str();
+    return name;
   }
 
 public:
@@ -75,13 +76,13 @@ private:
   void DestroyMapping();
 
 private:
-  void * ptr = nullptr;
+  void* ptr = nullptr;
 
 private:
   bool readWrite = false;
 
 private:
-  std::string path;
+  MiKTeX::Core::PathName path;
 
 private:
   std::string name;

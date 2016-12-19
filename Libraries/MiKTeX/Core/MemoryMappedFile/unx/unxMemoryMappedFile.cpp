@@ -36,7 +36,7 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-MemoryMappedFile * MemoryMappedFile::Create()
+MemoryMappedFile* MemoryMappedFile::Create()
 {
   return new unxMemoryMappedFile;
 }
@@ -48,14 +48,14 @@ unxMemoryMappedFile::~unxMemoryMappedFile()
     DestroyMapping();
     CloseFile();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
 
-void * unxMemoryMappedFile::Open(const char * lpszPath, bool readWrite)
+void* unxMemoryMappedFile::Open(const PathName& pathArg, bool readWrite)
 {
-  path = lpszPath;
+  path = pathArg;
   this->readWrite = readWrite;
   OpenFile();
   CreateMapping(0);
@@ -68,12 +68,12 @@ void unxMemoryMappedFile::Close()
   CloseFile();
 }
 
-void * unxMemoryMappedFile::Resize(size_t newSize)
+void* unxMemoryMappedFile::Resize(size_t newSize)
 {
   DestroyMapping();
   if (ftruncate(filedes, newSize) != 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("ftruncate", "path", path);
+    MIKTEX_FATAL_CRT_ERROR_2("ftruncate", "path", path.ToString());
   }
   CreateMapping(newSize);
   return ptr;
@@ -82,10 +82,10 @@ void * unxMemoryMappedFile::Resize(size_t newSize)
 void unxMemoryMappedFile::OpenFile()
 {
   int oflag(readWrite ? O_RDWR : O_RDONLY);
-  filedes = open(path.c_str(), oflag);
+  filedes = open(path.GetData(), oflag);
   if (filedes < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("open", "path", path);
+    MIKTEX_FATAL_CRT_ERROR_2("open", "path", path.ToString());
   }
 }
 
@@ -95,7 +95,7 @@ void unxMemoryMappedFile::CreateMapping(size_t maximumFileSize)
 
   if (fstat(filedes, &statbuf) != 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("fstat", "path", path);
+    MIKTEX_FATAL_CRT_ERROR_2("fstat", "path", path.ToString());
   }
 
   if (maximumFileSize == 0)
@@ -109,7 +109,7 @@ void unxMemoryMappedFile::CreateMapping(size_t maximumFileSize)
 
   if (ptr == MAP_FAILED)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("mmap", "path", path);
+    MIKTEX_FATAL_CRT_ERROR_2("mmap", "path", path.ToString());
   }
 }
 
@@ -123,7 +123,7 @@ void unxMemoryMappedFile::CloseFile()
   this->filedes = -1;
   if (close(filedes) < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("close", "path", path);
+    MIKTEX_FATAL_CRT_ERROR_2("close", "path", path.ToString());
   }
 }
 
@@ -133,11 +133,11 @@ void unxMemoryMappedFile::DestroyMapping()
   {
     return;
   }
-  void * ptr = this->ptr;
+  void* ptr = this->ptr;
   this->ptr = nullptr;
   if (munmap(ptr, size) != 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("munmap", "path", path);
+    MIKTEX_FATAL_CRT_ERROR_2("munmap", "path", path.ToString());
   }
 }
 
@@ -145,6 +145,6 @@ void unxMemoryMappedFile::Flush()
 {
   if (msync(ptr, size, MS_SYNC) != 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("msync", "path", path);
+    MIKTEX_FATAL_CRT_ERROR_2("msync", "path", path.ToString());
   }
 }

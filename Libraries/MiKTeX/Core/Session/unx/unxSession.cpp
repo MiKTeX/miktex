@@ -77,7 +77,7 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
  *             or /usr/local/share/miktex-texmf
  *             or /opt/miktex/texmfs/install
  */
-StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathName & commonPrefixArg, const PathName & userPrefixArg)
+StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathName& commonPrefixArg, const PathName& userPrefixArg)
 {
   StartupConfig ret;
   if (config == MiKTeXConfiguration::None)
@@ -120,19 +120,19 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
   return ret;
 }
 
-bool SessionImpl::GetPsFontDirs(string & psFontDirs)
+bool SessionImpl::GetPsFontDirs(string& psFontDirs)
 {
 #warning Unimplemented : SessionImpl::GetPsFontDirs
   return false;
 }
 
-bool SessionImpl::GetTTFDirs(string & ttfDirs)
+bool SessionImpl::GetTTFDirs(string& ttfDirs)
 {
 #warning Unimplemented : SessionImpl::GetTTFDirs
   return false;
 }
 
-bool SessionImpl::GetOTFDirs(string & otfDirs)
+bool SessionImpl::GetOTFDirs(string& otfDirs)
 {
 #warning Unimplemented : SessionImpl::GetOTFDirs
   return false;

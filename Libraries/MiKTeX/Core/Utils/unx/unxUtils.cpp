@@ -53,17 +53,17 @@ string Utils::GetOSVersionString()
   return version;
 }
 
-void Utils::SetEnvironmentString(const char * lpszValueName, const char * lpszValue)
+void Utils::SetEnvironmentString(const string& valueName, const string& value)
 {
   string oldValue;
-  if (::GetEnvironmentString(lpszValueName, oldValue)  && oldValue == lpszValue)
+  if (::GetEnvironmentString(valueName, oldValue) && oldValue == value)
   {
     return;
   }
-  SessionImpl::GetSession()->trace_config->WriteFormattedLine("core", T_("setting env %s=%s"), lpszValueName, lpszValue);
-  if (setenv(lpszValueName, lpszValue, 1) != 0)
+  SessionImpl::GetSession()->trace_config->WriteFormattedLine("core", T_("setting env %s=%s"), valueName.c_str(), value.c_str());
+  if (setenv(valueName.c_str(), value.c_str(), 1) != 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("setenv", "name", lpszValueName);
+    MIKTEX_FATAL_CRT_ERROR_2("setenv", "name", valueName);
   }
 }
 
@@ -71,9 +71,9 @@ void Utils::CheckHeap()
 {
 }
 
-void Utils::CanonicalizePathName(PathName & path)
+void Utils::CanonicalizePathName(PathName& path)
 {
-  char resolved[PATH_MAX];
+  char resolved[PATH_MAX + 1];
   if (realpath(path.GetData(), resolved) == nullptr)
   {
     if (errno == ENOENT)
@@ -85,7 +85,7 @@ void Utils::CanonicalizePathName(PathName & path)
   path = resolved;
 }
 
-void Utils::ShowWebPage(const char * lpszUrl)
+void Utils::ShowWebPage(const string& url)
 {
   UNIMPLEMENTED();
 }

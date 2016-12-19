@@ -274,7 +274,28 @@ public:
   ConfigValue & operator= (const ConfigValue & other) = delete;
 
 public:
-  ConfigValue(ConfigValue && other) = delete;
+  ConfigValue(ConfigValue&& other)
+  {
+    switch (other.tag)
+    {
+    case Tag::String:
+      this->s = std::move(other.s);
+      break;
+    case Tag::Int:
+      this->i = other.i;
+      break;
+    case Tag::Bool:
+      this->b = other.b;
+      break;
+    case Tag::Tri:
+      this->t = other.t;
+      break;
+    case Tag::Char:
+      this->c = other.c;
+      break;
+    }
+    this->tag = other.tag;
+  }
 
 public:
   ConfigValue & operator= (ConfigValue && other) = delete;

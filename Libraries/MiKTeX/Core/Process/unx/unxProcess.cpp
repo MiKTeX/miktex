@@ -80,13 +80,13 @@ MIKTEXSTATICFUNC(void) Close_(int fd)
 class Pipe
 {
 public:
-  ~Pipe()
+  ~Pipe() noexcept
   {
     try
     {
       Dispose();
     }
-    catch (const exception &)
+    catch (const exception&)
     {
     }
   }
@@ -161,7 +161,7 @@ private:
   int twofd[2] = { -1, -1 };
 };
 
-Process * Process::Start(const ProcessStartInfo & startinfo)
+Process* Process::Start(const ProcessStartInfo& startinfo)
 {
   return new unxProcess(startinfo);
 }
@@ -179,8 +179,7 @@ void unxProcess::Create()
     MIKTEX_UNEXPECTED();
   }
 
-  Argv argv;
-  argv.Build(startinfo.FileName.c_str(), startinfo.Arguments.c_str());
+  Argv argv(startinfo.FileName, startinfo.Arguments);
 
   Pipe pipeStdout;
   Pipe pipeStderr;
@@ -277,16 +276,16 @@ void unxProcess::Create()
       SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("execv: %s"), startinfo.FileName.c_str());
       for (int idx = 0; argv[idx] != nullptr; ++idx)
       {
-	SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_(" argv[%d]: %s"), idx, argv[idx]);
+        SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_(" argv[%d]: %s"), idx, argv[idx]);
       }
       if (!startinfo.WorkingDirectory.empty())
       {
-	Directory::SetCurrent(startinfo.WorkingDirectory);
+        Directory::SetCurrent(startinfo.WorkingDirectory);
       }
-      execv(startinfo.FileName.c_str(), const_cast<char * const *>(argv.GetArgv()));
+      execv(startinfo.FileName.c_str(), const_cast<char*const*>(argv.GetArgv()));
       perror("execv failed");
     }
-    catch (const exception &)
+    catch (const exception&)
     {
     }
     _exit(127);
@@ -319,7 +318,7 @@ void unxProcess::Create()
   pipeStdin.Dispose();
 }
 
-unxProcess::unxProcess(const ProcessStartInfo & startinfo) :
+unxProcess::unxProcess(const ProcessStartInfo& startinfo) :
   startinfo(startinfo)
 {
   Create();
@@ -331,7 +330,7 @@ unxProcess::~unxProcess()
   {
     Close();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -356,7 +355,7 @@ void unxProcess::Close()
   this->pid = -1;
 }
 
-FILE * unxProcess::get_StandardInput()
+FILE* unxProcess::get_StandardInput()
 {
   if (pFileStandardInput != nullptr)
   {
@@ -371,7 +370,7 @@ FILE * unxProcess::get_StandardInput()
   return pFileStandardInput;
 }
 
-FILE * unxProcess::get_StandardOutput()
+FILE* unxProcess::get_StandardOutput()
 {
   if (pFileStandardOutput != nullptr)
   {
@@ -386,7 +385,7 @@ FILE * unxProcess::get_StandardOutput()
   return pFileStandardOutput;
 }
 
-FILE * unxProcess::get_StandardError()
+FILE* unxProcess::get_StandardError()
 {
   if (pFileStandardError != nullptr)
   {
@@ -455,7 +454,7 @@ int unxProcess::get_ExitCode() const
 MIKTEXSTATICFUNC(PathName) FindSystemShell()
 {
   PathName ret;
-  const char * lpszPathList;
+  const char* lpszPathList;
 #if defined(HAVE_CONFSTR)
   size_t n = confstr(_CS_PATH, nullptr, 0);
   if (n == 0)
@@ -483,7 +482,7 @@ MIKTEXSTATICFUNC(PathName) FindSystemShell()
   return ret;
 }
 
-void Process::StartSystemCommand(const string & commandLine)
+void Process::StartSystemCommand(const string& commandLine)
 {
   string arguments = "-c '";
   arguments += commandLine;
@@ -504,22 +503,22 @@ void Process::StartSystemCommand(const string & commandLine)
  *
  *   /bin/sh -c 'tifftopnm "%i" | ppmtobmp -windows > "%o"'
  */
-bool Process::ExecuteSystemCommand(const string & commandLine, int * pExitCode, IRunProcessCallback * pCallback, const char * lpszDirectory)
+bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* directory)
 {
   string arguments = "-c '";
   arguments += commandLine;
   arguments += '\'';
-  return Process::Run(FindSystemShell(), arguments.c_str(), pCallback, pExitCode, lpszDirectory);
+  return Process::Run(FindSystemShell(), arguments.c_str(), callback, exitCode, directory);
 }
 
-Process2 * Process2::GetCurrentProcess()
+Process2* Process2::GetCurrentProcess()
 {
-  unxProcess * pCurrentProcess = new unxProcess();
-  pCurrentProcess->pid = getpid();
-  return pCurrentProcess;
+  unxProcess* currentProcess = new unxProcess();
+  currentProcess->pid = getpid();
+  return currentProcess;
 }
 
-Process2 * unxProcess::get_Parent()
+Process2* unxProcess::get_Parent()
 {
 #if defined(__linux__)
   string path = "/proc/" + std::to_string(pid) + "/stat";
@@ -527,13 +526,13 @@ Process2 * unxProcess::get_Parent()
   string line;
   while (reader.ReadLine(line))
   {
-    Tokenizer tok(line.c_str(), " ");
+    Tokenizer tok(line, " ");
     ++tok;
     ++tok;
     ++tok;
-    unxProcess * pParentProcess = new unxProcess();
-    pParentProcess->pid = std::stoi(tok.GetCurrent());
-    return pParentProcess;
+    unxProcess* parentProcess = new unxProcess();
+    parentProcess->pid = std::stoi(*tok);
+    return parentProcess;
   }
 #endif
   return nullptr;

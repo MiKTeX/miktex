@@ -31,7 +31,7 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-bool File::Exists(const PathName & path)
+bool File::Exists(const PathName& path)
 {
   struct stat statbuf;
   if (stat(path.GetData(), &statbuf) == 0)
@@ -53,7 +53,7 @@ bool File::Exists(const PathName & path)
   return false;
 }
 
-FileAttributeSet File::GetAttributes(const PathName & path)
+FileAttributeSet File::GetAttributes(const PathName& path)
 {
   mode_t attributes = static_cast<mode_t>(GetNativeAttributes(path));
 
@@ -74,7 +74,7 @@ FileAttributeSet File::GetAttributes(const PathName & path)
   return result;
 }
 
-unsigned long File::GetNativeAttributes(const PathName & path)
+unsigned long File::GetNativeAttributes(const PathName& path)
 {
   struct stat statbuf;
 
@@ -86,7 +86,7 @@ unsigned long File::GetNativeAttributes(const PathName & path)
   return static_cast<unsigned long>(statbuf.st_mode);
 }
 
-void File::SetAttributes(const PathName & path, FileAttributeSet attributes)
+void File::SetAttributes(const PathName& path, FileAttributeSet attributes)
 {
   mode_t oldAttributes = static_cast<mode_t>(GetNativeAttributes(path));
 
@@ -111,7 +111,7 @@ void File::SetAttributes(const PathName & path, FileAttributeSet attributes)
   SetNativeAttributes(path, static_cast<unsigned long>(newAttributes));
 }
 
-void File::SetNativeAttributes(const PathName & path, unsigned long nativeAttributes)
+void File::SetNativeAttributes(const PathName& path, unsigned long nativeAttributes)
 {
   SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("setting new attributes (%x) on %s"), static_cast<int>(nativeAttributes), Q_(path));
 
@@ -121,7 +121,7 @@ void File::SetNativeAttributes(const PathName & path, unsigned long nativeAttrib
   }
 }
 
-size_t File::GetSize(const PathName & path)
+size_t File::GetSize(const PathName& path)
 {
   struct stat statbuf;
   if (stat(path.GetData(), &statbuf) != 0)
@@ -149,7 +149,7 @@ void File::SetTimes(FILE * stream, time_t creationTime, time_t lastAccessTime, t
   UNIMPLEMENTED();
 }
 
-void File::SetTimes(const PathName & path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
+void File::SetTimes(const PathName& path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
 {
   UNUSED_ALWAYS(creationTime);
   utimbuf times;
@@ -170,7 +170,7 @@ void File::SetTimes(const PathName & path, time_t creationTime, time_t lastAcces
   }
 }
 
-void File::GetTimes(const PathName & path, time_t & creationTime, time_t & lastAccessTime, time_t & lastWriteTime)
+void File::GetTimes(const PathName& path, time_t & creationTime, time_t & lastAccessTime, time_t & lastWriteTime)
 {
   struct stat stat_;
   if (stat(path.GetData(), &stat_) != 0)
@@ -182,7 +182,7 @@ void File::GetTimes(const PathName & path, time_t & creationTime, time_t & lastA
   lastWriteTime = stat_.st_mtime;
 }
 
-void File::Delete(const PathName & path)
+void File::Delete(const PathName& path)
 {
   SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("deleting %s"), Q_(path));
   if (remove(path.GetData()) != 0)
@@ -191,7 +191,7 @@ void File::Delete(const PathName & path)
   }
 }
 
-void File::Move(const PathName & source, const PathName & dest, FileMoveOptionSet options)
+void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet options)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession(); 
   session->trace_files->WriteFormattedLine("core", T_("renaming %s to %s"), Q_(source), Q_(dest));
@@ -255,7 +255,7 @@ void File::Move(const PathName & source, const PathName & dest, FileMoveOptionSe
   }
 }
 
-void File::Copy(const PathName & source, const PathName & dest, FileCopyOptionSet options)
+void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet options)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession(); 
   session->trace_files->WriteFormattedLine("core", T_("copying %s to %s"), Q_(source), Q_(dest));
@@ -311,7 +311,7 @@ void File::Copy(const PathName & source, const PathName & dest, FileCopyOptionSe
   }
 }
 
-void File::CreateLink(const PathName & oldName, const PathName & newName, CreateLinkOptionSet options)
+void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLinkOptionSet options)
 {
   if (options[CreateLinkOption::ReplaceExisting] && File::Exists(newName) )
   {
@@ -350,7 +350,7 @@ size_t File::SetMaxOpen(size_t newMax)
   return FOPEN_MAX;
 }
 
-FILE * File::Open(const PathName & path, FileMode mode, FileAccess access, bool isTextFile, FileShare share)
+FILE * File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share)
 {
   UNUSED_ALWAYS(isTextFile);
   UNUSED_ALWAYS(share);

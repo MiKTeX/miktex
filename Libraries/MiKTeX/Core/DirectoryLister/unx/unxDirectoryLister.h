@@ -35,25 +35,25 @@ class unxDirectoryLister :
   public MiKTeX::Core::DirectoryLister
 {
 public:
+  ~unxDirectoryLister() noexcept override;
+
+public:
+  unxDirectoryLister(const MiKTeX::Core::PathName& directory, const char* pattern, int options);
+
+public:
   void Close() override;
 
 public:
-  bool GetNext(MiKTeX::Core::DirectoryEntry & direntry) override;
+  bool GetNext(MiKTeX::Core::DirectoryEntry& direntry) override;
 
 public:
-  bool GetNext(MiKTeX::Core::DirectoryEntry2 & direntry2) override;
-
-public:
-  unxDirectoryLister(const MiKTeX::Core::PathName & directory, const char * lpszPattern, int options);
-
-public:
-  ~unxDirectoryLister() override;
+  bool GetNext(MiKTeX::Core::DirectoryEntry2& direntry2) override;
 
 private:
-  bool GetNext(MiKTeX::Core::DirectoryEntry2 & direntry2, bool simple);
+  bool GetNext(MiKTeX::Core::DirectoryEntry2& direntry2, bool simple);
 
 private:
-  DIR * pDir = nullptr;
+  DIR * dir = nullptr;
 
 private:
   MiKTeX::Core::PathName directory;

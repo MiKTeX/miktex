@@ -21,8 +21,13 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_PREPROCESSORS_FOLDER}/pmx")
 
 add_definitions(
   -DNON_UNIX_STDIO
-  -DMSDOS
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+  add_definitions(
+    -DMSDOS
+  )
+endif()
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -271,6 +276,13 @@ list(APPEND libf2c_a_extra
 )
 
 add_library(f2c STATIC ${libf2c_a_sources})
+
+if(MIKTEX_UNIX_ALIKE)
+  target_link_libraries(f2c
+    PUBLIC
+      ${MATH_LIBRARY}
+  )
+endif()
 
 set_property(TARGET f2c PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
