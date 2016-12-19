@@ -34,16 +34,16 @@ public:
   ~unxMemoryMappedFile() override;
 
 public:
-  void * Open(const MiKTeX::Core::PathName& path, bool readWrite) override;
+  void* Open(const MiKTeX::Core::PathName& path, bool readWrite) override;
 
 public:
   void Close() override;
 
 public:
-  void * Resize(size_t newSize) override;
+  void* Resize(size_t newSize) override;
 
 public:
-  void * GetPtr() const override
+  void* GetPtr() const override
   {
     return ptr;
   }
@@ -76,7 +76,7 @@ private:
   void DestroyMapping();
 
 private:
-  void * ptr = nullptr;
+  void* ptr = nullptr;
 
 private:
   bool readWrite = false;

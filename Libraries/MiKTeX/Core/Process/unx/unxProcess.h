@@ -34,13 +34,13 @@ class unxProcess :
   public MiKTeX::Core::Process2
 {
 public:
-  FILE * get_StandardInput() override;
+  FILE* get_StandardInput() override;
 
 public:
-  FILE * get_StandardOutput() override;
+  FILE* get_StandardOutput() override;
 
 public:
-  FILE * get_StandardError() override;
+  FILE* get_StandardError() override;
 
 public:
   void WaitForExit() override;
@@ -55,7 +55,7 @@ public:
   void Close() override;
 
 public:
-  MiKTeX::Core::Process2 * get_Parent() override;
+  MiKTeX::Core::Process2* get_Parent() override;
 
 public:
   std::string get_ProcessName() override;
@@ -66,7 +66,7 @@ private:
   }
   
 private:
-  unxProcess(const MiKTeX::Core::ProcessStartInfo & startinfo);
+  unxProcess(const MiKTeX::Core::ProcessStartInfo& startinfo);
 
 private:
   ~unxProcess() override;
@@ -89,9 +89,9 @@ private:
   int fdStandardError = -1;
 
 private:
-  FILE * pFileStandardInput = nullptr;
-  FILE * pFileStandardOutput = nullptr;
-  FILE * pFileStandardError = nullptr;
+  FILE* pFileStandardInput = nullptr;
+  FILE* pFileStandardOutput = nullptr;
+  FILE* pFileStandardError = nullptr;
 
 private:
   friend class MiKTeX::Core::Process;

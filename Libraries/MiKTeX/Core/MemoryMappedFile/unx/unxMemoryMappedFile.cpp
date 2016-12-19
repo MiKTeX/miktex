@@ -36,7 +36,7 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-MemoryMappedFile * MemoryMappedFile::Create()
+MemoryMappedFile* MemoryMappedFile::Create()
 {
   return new unxMemoryMappedFile;
 }
@@ -48,12 +48,12 @@ unxMemoryMappedFile::~unxMemoryMappedFile()
     DestroyMapping();
     CloseFile();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
 
-void * unxMemoryMappedFile::Open(const PathName& pathArg, bool readWrite)
+void* unxMemoryMappedFile::Open(const PathName& pathArg, bool readWrite)
 {
   path = pathArg;
   this->readWrite = readWrite;
@@ -68,7 +68,7 @@ void unxMemoryMappedFile::Close()
   CloseFile();
 }
 
-void * unxMemoryMappedFile::Resize(size_t newSize)
+void* unxMemoryMappedFile::Resize(size_t newSize)
 {
   DestroyMapping();
   if (ftruncate(filedes, newSize) != 0)
@@ -133,7 +133,7 @@ void unxMemoryMappedFile::DestroyMapping()
   {
     return;
   }
-  void * ptr = this->ptr;
+  void* ptr = this->ptr;
   this->ptr = nullptr;
   if (munmap(ptr, size) != 0)
   {

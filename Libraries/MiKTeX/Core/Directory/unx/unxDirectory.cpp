@@ -36,7 +36,7 @@ PathName Directory::GetCurrent()
   return cd;
 }
 
-void Directory::SetCurrent(const PathName & path)
+void Directory::SetCurrent(const PathName& path)
 {
   if (chdir(path.GetData()) != 0)
   {
@@ -44,7 +44,7 @@ void Directory::SetCurrent(const PathName & path)
   }
 }
 
-bool Directory::Exists(const PathName & path)
+bool Directory::Exists(const PathName& path)
 {
   struct stat statbuf;
   if (stat(path.GetData(), &statbuf) == 0)
@@ -64,7 +64,7 @@ bool Directory::Exists(const PathName & path)
   return false;
 }
 
-void Directory::Delete(const PathName & path)
+void Directory::Delete(const PathName& path)
 {
   SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("deleting directory %s"), Q_(path));
   if (rmdir(path.GetData()) != 0)
@@ -73,12 +73,12 @@ void Directory::Delete(const PathName & path)
   }
 }
 
-void Directory::SetTimes(const PathName & path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
+void Directory::SetTimes(const PathName& path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
 {
   File::SetTimes(path, creationTime, lastAccessTime, lastWriteTime);
 }
 
-void Directory::Move(const PathName & source, const PathName & dest)
+void Directory::Move(const PathName& source, const PathName& dest)
 {
   File::Move(source, dest);
 }

@@ -31,7 +31,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-PathName & PathName::SetToCurrentDirectory()
+PathName& PathName::SetToCurrentDirectory()
 {
   if (getcwd(GetData(), GetCapacity()) == 0)
   {
@@ -40,7 +40,7 @@ PathName & PathName::SetToCurrentDirectory()
   return *this;
 }
 
-PathName & PathName::SetToTempDirectory()
+PathName& PathName::SetToTempDirectory()
 {
   string tmpdir;
   if (Utils::GetEnvironmentString("TMPDIR", tmpdir))
@@ -58,7 +58,7 @@ PathName & PathName::SetToTempDirectory()
   return *this;
 }
 
-PathName & PathName::SetToTempFile()
+PathName& PathName::SetToTempFile()
 {
   *this = SessionImpl::GetSession()->GetTempDirectory();
   AppendComponent("mikXXXXXX");

@@ -33,7 +33,7 @@ using namespace MiKTeX::Core;
 using namespace std;
 
 // borrowed from the popt library
-void Argv::Append(const string & arguments)
+void Argv::Append(const string& arguments)
 {
   MIKTEX_ASSERT(!pimpl->argv.empty());
 
@@ -46,7 +46,7 @@ void Argv::Append(const string & arguments)
 
   string arg;
   char quote = 0;
-  for (const char * lpsz = arguments.c_str(); *lpsz != 0; ++lpsz)
+  for (const char* lpsz = arguments.c_str(); *lpsz != 0; ++lpsz)
   {
     if (*lpsz == quote)
     {

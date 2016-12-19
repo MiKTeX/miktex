@@ -30,7 +30,7 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-MIKTEXINTERNALFUNC(bool) FileIsOnROMedia(const char * lpszPath)
+MIKTEXINTERNALFUNC(bool) FileIsOnROMedia(const char* lpszPath)
 {
 #if defined(HAVE_STATVFS)
   struct statvfs buf;
@@ -46,7 +46,7 @@ MIKTEXINTERNALFUNC(bool) FileIsOnROMedia(const char * lpszPath)
 #endif
 }
 
-MIKTEXSTATICFUNC(void) CreateDirectoryPathWithMode(const PathName & path, mode_t mode)
+MIKTEXSTATICFUNC(void) CreateDirectoryPathWithMode(const PathName& path, mode_t mode)
 {
   if (!Utils::IsAbsolutePath(path.GetData()))
   {
@@ -83,13 +83,13 @@ MIKTEXSTATICFUNC(void) CreateDirectoryPathWithMode(const PathName & path, mode_t
   }
 }
 
-MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName & path)
+MIKTEXINTERNALFUNC(void) CreateDirectoryPath(const PathName& path)
 {
   CreateDirectoryPathWithMode(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 }
 
 #if 0
-MIKTEXINTERNALFUNC(void) CreateDirectoryPathForEveryone(const char * lpszPath)
+MIKTEXINTERNALFUNC(void) CreateDirectoryPathForEveryone(const char* lpszPath)
 {
   CreateDirectoryPathWithMode(lpszPath, S_IRWXU | S_IRWXG | S_IRWXO);
 }
