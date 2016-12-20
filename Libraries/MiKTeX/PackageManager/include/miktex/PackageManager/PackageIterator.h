@@ -67,7 +67,7 @@ public:
   /// @return Returns true, if the information could be retrieved.
   /// Returns false, if there are no more entries in the database.
 public:
-  virtual bool MIKTEXTHISCALL GetNext(PackageInfo & packageInfo) = 0;
+  virtual bool MIKTEXTHISCALL GetNext(PackageInfo& packageInfo) = 0;
 };
 
 MPM_END_NAMESPACE;

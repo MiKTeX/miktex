@@ -85,16 +85,16 @@ public:
   /// @param path Path name of the file.
   /// @returns Returns the number of packages this file is a member of.
 public:
-  virtual unsigned long MIKTEXTHISCALL GetFileRefCount(const MiKTeX::Core::PathName & path) = 0;
+  virtual unsigned long MIKTEXTHISCALL GetFileRefCount(const MiKTeX::Core::PathName& path) = 0;
 
   /// Gets information about a specified package.
   /// @param lpszDeploymentName Package key.
   /// @param packageInfo Package info struct to be filled..
 public:
-  virtual PackageInfo MIKTEXTHISCALL GetPackageInfo(const std::string & deploymentName) = 0;
+  virtual PackageInfo MIKTEXTHISCALL GetPackageInfo(const std::string& deploymentName) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL LoadDatabase(const MiKTeX::Core::PathName & path) = 0;
+  virtual void MIKTEXTHISCALL LoadDatabase(const MiKTeX::Core::PathName& path) = 0;
 
 public:
   virtual void MIKTEXTHISCALL UnloadDatabase() = 0;
@@ -117,38 +117,38 @@ public:
   virtual std::string MIKTEXTHISCALL PickRepositoryUrl() = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL TryGetPackageInfo(const std::string & deploymentName, PackageInfo & packageInfo) = 0;
+  virtual bool MIKTEXTHISCALL TryGetPackageInfo(const std::string& deploymentName, PackageInfo& packageInfo) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL TryGetRepositoryInfo(const std::string & url, RepositoryInfo & repositoryInfo) = 0;
+  virtual bool MIKTEXTHISCALL TryGetRepositoryInfo(const std::string& url, RepositoryInfo& repositoryInfo) = 0;
 
 public:
-  virtual RepositoryInfo MIKTEXTHISCALL VerifyPackageRepository(const std::string & url) = 0;
+  virtual RepositoryInfo MIKTEXTHISCALL VerifyPackageRepository(const std::string& url) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL TryVerifyInstalledPackage(const std::string & deploymentName) = 0;
+  virtual bool MIKTEXTHISCALL TryVerifyInstalledPackage(const std::string& deploymentName) = 0;
 
 public:
-  virtual std::string MIKTEXTHISCALL GetContainerPath(const std::string & deploymentName, bool useDisplayNames) = 0;
+  virtual std::string MIKTEXTHISCALL GetContainerPath(const std::string& deploymentName, bool useDisplayNames) = 0;
 
 public:
   struct InitInfo
   {
     InitInfo() = default;
-    InitInfo(const InitInfo & other) = default;
-    InitInfo & operator=(const InitInfo & other) = default;
-    InitInfo(InitInfo && other) = default;
-    InitInfo & operator=(InitInfo && other) = default;
+    InitInfo(const InitInfo& other) = default;
+    InitInfo& operator=(const InitInfo& other) = default;
+    InitInfo(InitInfo&& other) = default;
+    InitInfo& operator=(InitInfo&& other) = default;
     ~InitInfo() = default;
-    InitInfo(MiKTeX::Trace::TraceCallback * traceCallback) :
+    InitInfo(MiKTeX::Trace::TraceCallback* traceCallback) :
       traceCallback(traceCallback)
     {
     }
-    MiKTeX::Trace::TraceCallback * traceCallback = nullptr;
+    MiKTeX::Trace::TraceCallback* traceCallback = nullptr;
   };
 
 public:
-  static MIKTEXMPMCEEAPI(std::shared_ptr<PackageManager>) Create(const InitInfo & initInfo);
+  static MIKTEXMPMCEEAPI(std::shared_ptr<PackageManager>) Create(const InitInfo& initInfo);
 
 public:
   static std::shared_ptr<PackageManager> Create()
@@ -157,7 +157,7 @@ public:
   }
 
 public:
-  static MIKTEXMPMCEEAPI(std::string) GetRemotePackageRepository(RepositoryReleaseState & repositoryReleaseState);
+  static MIKTEXMPMCEEAPI(std::string) GetRemotePackageRepository(RepositoryReleaseState& repositoryReleaseState);
 
 public:
   static std::string GetRemotePackageRepository()
@@ -167,10 +167,10 @@ public:
   }
 
 public:
-  static MIKTEXMPMCEEAPI(bool) TryGetRemotePackageRepository(std::string & url, RepositoryReleaseState & repositoryReleaseState);
+  static MIKTEXMPMCEEAPI(bool) TryGetRemotePackageRepository(std::string& url, RepositoryReleaseState& repositoryReleaseState);
 
 public:
-  static bool TryGetRemotePackageRepository(std::string & url)
+  static bool TryGetRemotePackageRepository(std::string& url)
   {
     RepositoryReleaseState unusedRepositoryReleaseState;
     return TryGetRemotePackageRepository(url, unusedRepositoryReleaseState);
@@ -180,88 +180,88 @@ public:
   static MIKTEXMPMCEEAPI(MiKTeX::Core::PathName) GetLocalPackageRepository();
 
 public:
-  static MIKTEXMPMCEEAPI(bool) TryGetLocalPackageRepository(MiKTeX::Core::PathName & path);
+  static MIKTEXMPMCEEAPI(bool) TryGetLocalPackageRepository(MiKTeX::Core::PathName& path);
 
 public:
   static MIKTEXMPMCEEAPI(MiKTeX::Core::PathName) GetMiKTeXDirectRoot();
 
 public:
-  static MIKTEXMPMCEEAPI(bool) TryGetMiKTeXDirectRoot(MiKTeX::Core::PathName & path);
+  static MIKTEXMPMCEEAPI(bool) TryGetMiKTeXDirectRoot(MiKTeX::Core::PathName& path);
 
 public:
-  static MIKTEXMPMCEEAPI(RepositoryType) GetDefaultPackageRepository(RepositoryReleaseState & repositoryReleaseState, std::string & urlOrPath);
+  static MIKTEXMPMCEEAPI(RepositoryType) GetDefaultPackageRepository(RepositoryReleaseState& repositoryReleaseState, std::string& urlOrPath);
 
 public:
-  static RepositoryType GetDefaultPackageRepository(std::string & urlOrPath)
+  static RepositoryType GetDefaultPackageRepository(std::string& urlOrPath)
   {
     RepositoryReleaseState unusedRepositoryReleaseState;
     return GetDefaultPackageRepository(unusedRepositoryReleaseState, urlOrPath);
   }
 
 public:
-  static MIKTEXMPMCEEAPI(bool) TryGetDefaultPackageRepository(RepositoryType & repositoryType, RepositoryReleaseState & repositoryReleaseState, std::string & urlOrPath);
+  static MIKTEXMPMCEEAPI(bool) TryGetDefaultPackageRepository(RepositoryType& repositoryType, RepositoryReleaseState& repositoryReleaseState, std::string& urlOrPath);
 
 public:
-  static bool TryGetDefaultPackageRepository(RepositoryType & repositoryType, std::string & urlOrPath)
+  static bool TryGetDefaultPackageRepository(RepositoryType& repositoryType, std::string& urlOrPath)
   {
     RepositoryReleaseState unusedRepositoryReleaseState;
     return TryGetDefaultPackageRepository(repositoryType, unusedRepositoryReleaseState, urlOrPath);
   }
 
 public:
-  static MIKTEXMPMCEEAPI(void) SetDefaultPackageRepository(RepositoryType repositoryType, RepositoryReleaseState repositoryReleaseState, const std::string & urlOrPath);
+  static MIKTEXMPMCEEAPI(void) SetDefaultPackageRepository(RepositoryType repositoryType, RepositoryReleaseState repositoryReleaseState, const std::string& urlOrPath);
 
 public:
-  static void SetDefaultPackageRepository(RepositoryType repositoryType, const std::string & urlOrPath)
+  static void SetDefaultPackageRepository(RepositoryType repositoryType, const std::string& urlOrPath)
   {
     SetDefaultPackageRepository(repositoryType, RepositoryReleaseState::Unknown, urlOrPath);
   }
 
 public:
-  static MIKTEXMPMCEEAPI(bool) IsLocalPackageRepository(const MiKTeX::Core::PathName & path);
+  static MIKTEXMPMCEEAPI(bool) IsLocalPackageRepository(const MiKTeX::Core::PathName& path);
 
 public:
-  static MIKTEXMPMCEEAPI(void) SetRemotePackageRepository(const std::string & url, RepositoryReleaseState repositoryReleaseState);
+  static MIKTEXMPMCEEAPI(void) SetRemotePackageRepository(const std::string& url, RepositoryReleaseState repositoryReleaseState);
 
 public:
-  static void SetRemotePackageRepository(const std::string & url)
+  static void SetRemotePackageRepository(const std::string& url)
   {
     SetRemotePackageRepository(url, RepositoryReleaseState::Unknown);
   }
 
 public:
-  static MIKTEXMPMCEEAPI(void) SetLocalPackageRepository(const MiKTeX::Core::PathName & path);
+  static MIKTEXMPMCEEAPI(void) SetLocalPackageRepository(const MiKTeX::Core::PathName& path);
 
 public:
-  static MIKTEXMPMCEEAPI(void) SetMiKTeXDirectRoot(const MiKTeX::Core::PathName & path);
+  static MIKTEXMPMCEEAPI(void) SetMiKTeXDirectRoot(const MiKTeX::Core::PathName& path);
 
 public:
-  static MIKTEXMPMCEEAPI(PackageInfo) ReadPackageDefinitionFile(const MiKTeX::Core::PathName & path, const std::string & texmfPrefix);
+  static MIKTEXMPMCEEAPI(PackageInfo) ReadPackageDefinitionFile(const MiKTeX::Core::PathName& path, const std::string& texmfPrefix);
 
 public:
-  static MIKTEXMPMCEEAPI(void) WritePackageDefinitionFile(const MiKTeX::Core::PathName & path, const PackageInfo & packageInfo, time_t timePackaged);
+  static MIKTEXMPMCEEAPI(void) WritePackageDefinitionFile(const MiKTeX::Core::PathName& path, const PackageInfo& packageInfo, time_t timePackaged);
 
   /// Strips the TEXMF prefix from a string.
   /// @param str The string to strip.
   /// @param[out] result The result to be filled with the stripped string.
   /// @return Returns true, if the prefix was stripped.
 public:
-  static MIKTEXMPMCEEAPI(bool) StripTeXMFPrefix(const std::string & str, std::string & result);
+  static MIKTEXMPMCEEAPI(bool) StripTeXMFPrefix(const std::string& str, std::string& result);
 
 public:
-  static MIKTEXMPMCEEAPI(bool) TryGetProxy(const std::string & url, ProxySettings & proxySettings);
+  static MIKTEXMPMCEEAPI(bool) TryGetProxy(const std::string& url, ProxySettings& proxySettings);
 
 public:
-  static MIKTEXMPMCEEAPI(bool) TryGetProxy(ProxySettings & proxySettings);
+  static MIKTEXMPMCEEAPI(bool) TryGetProxy(ProxySettings& proxySettings);
 
 public:
-  static MIKTEXMPMCEEAPI(ProxySettings) GetProxy(const std::string & url);
+  static MIKTEXMPMCEEAPI(ProxySettings) GetProxy(const std::string& url);
 
 public:
   static MIKTEXMPMCEEAPI(ProxySettings) GetProxy();
 
 public:
-  static MIKTEXMPMCEEAPI(void) SetProxy(const ProxySettings & proxySettings);
+  static MIKTEXMPMCEEAPI(void) SetProxy(const ProxySettings& proxySettings);
 };
 
 MPM_END_NAMESPACE;

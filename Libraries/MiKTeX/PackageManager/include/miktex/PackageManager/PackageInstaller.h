@@ -73,14 +73,14 @@ class MIKTEXNOVTABLE PackageInstallerCallback
   /// is available.
   /// @param str One-line message.
 public:
-  virtual void MIKTEXTHISCALL ReportLine(const std::string & str) = 0;
+  virtual void MIKTEXTHISCALL ReportLine(const std::string& str) = 0;
 
   /// Error handling. This method is called by the installer if a
   /// problem was detected which can be remedied by the user.
   /// @param message Message to be presented to the user.
   /// @returns Returns true, if the user has fixed the problem.
 public:
-  virtual bool MIKTEXTHISCALL OnRetryableError(const std::string & message) = 0;
+  virtual bool MIKTEXTHISCALL OnRetryableError(const std::string& message) = 0;
 
   /// Progress. This method is called by the installer if new
   /// progress information is available. Also gives the opportunity
@@ -105,11 +105,11 @@ public:
   /// @param The location of the package repository. Either an URL or
   /// an absolute path name.
 public:
-  virtual void MIKTEXTHISCALL SetRepository(const std::string & repository) = 0;
+  virtual void MIKTEXTHISCALL SetRepository(const std::string& repository) = 0;
 
   /// Sets the download directory for this package installer.
 public:
-  virtual void MIKTEXTHISCALL SetDownloadDirectory(const MiKTeX::Core::PathName & directory) = 0;
+  virtual void MIKTEXTHISCALL SetDownloadDirectory(const MiKTeX::Core::PathName& directory) = 0;
 
 public:
   virtual void MIKTEXTHISCALL UpdateDb() = 0;
@@ -260,13 +260,13 @@ public:
   /// Sets the callback interface.
   /// @param callback Pointer to an interface.
 public:
-  virtual void MIKTEXTHISCALL SetCallback(PackageInstallerCallback * callback) = 0;
+  virtual void MIKTEXTHISCALL SetCallback(PackageInstallerCallback* callback) = 0;
 
   /// Sets the package lists.
   /// @param toBeInstalled Packages to be installed.
   /// @param toBeRemoved Packages to be removed.
 public:
-  virtual void MIKTEXTHISCALL SetFileLists(const std::vector<std::string> & toBeInstalled, const std::vector<std::string> & toBeRemoved) = 0;
+  virtual void MIKTEXTHISCALL SetFileLists(const std::vector<std::string>& toBeInstalled, const std::vector<std::string>& toBeRemoved) = 0;
 
   /// Sets the package level.
 public:
@@ -275,7 +275,7 @@ public:
   /// Sets the file lists.
   /// @param toBeInstalled Packages to be installed.
 public:
-  virtual void MIKTEXTHISCALL SetFileList(const std::vector<std::string> & toBeInstalled) = 0;
+  virtual void MIKTEXTHISCALL SetFileList(const std::vector<std::string>& toBeInstalled) = 0;
 
   /// Tests if the installer is running.
 public:

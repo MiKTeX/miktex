@@ -15,8 +15,9 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with MiKTeX Package Manager; if not, write to the Free Software
-   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
+   along with MiKTeX Package Manager; if not, write to the Free
+   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+   02111-1307, USA. */
 
 #include "StdAfx.h"
 
@@ -43,7 +44,7 @@ PackageManager::~PackageManager()
 {
 }
 
-PackageManagerImpl::PackageManagerImpl(const PackageManager::InitInfo & initInfo) :
+PackageManagerImpl::PackageManagerImpl(const PackageManager::InitInfo& initInfo) :
   trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR, initInfo.traceCallback)),
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM, initInfo.traceCallback)),
   pSession(Session::Get()),
@@ -63,7 +64,7 @@ PackageManagerImpl::~PackageManagerImpl()
   }
 }
 
-shared_ptr<PackageManager> PackageManager::Create(const PackageManager::InitInfo & initInfo)
+shared_ptr<PackageManager> PackageManager::Create(const PackageManager::InitInfo& initInfo)
 {
   return make_shared<PackageManagerImpl>(initInfo);
 }
@@ -133,14 +134,13 @@ void PackageManagerImpl::FlushVariablePackageTable()
   }
   if (userVariablePackageTable != nullptr && userVariablePackageTable->IsModified())
   {
-    PathName pathPackagesIni
-      (pSession->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
+    PathName pathPackagesIni(pSession->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
     trace_mpm->WriteFormattedLine("libmpm", T_("flushing user variable package table (%s)"), Q_(pathPackagesIni));
     userVariablePackageTable->Write(pathPackagesIni);
   }
 }
 
-bool PackageManagerImpl::IsRemovable(const string & deploymentName)
+bool PackageManagerImpl::IsRemovable(const string& deploymentName)
 {
   bool ret;
   LoadVariablePackageTable();
@@ -165,7 +165,7 @@ bool PackageManagerImpl::IsRemovable(const string & deploymentName)
   return ret;
 }
 
-time_t PackageManagerImpl::GetUserTimeInstalled(const string & deploymentName)
+time_t PackageManagerImpl::GetUserTimeInstalled(const string& deploymentName)
 {
   if (pSession->IsAdminMode())
   {
@@ -183,7 +183,7 @@ time_t PackageManagerImpl::GetUserTimeInstalled(const string & deploymentName)
   }
 }
 
-time_t PackageManagerImpl::GetCommonTimeInstalled(const string & deploymentName)
+time_t PackageManagerImpl::GetCommonTimeInstalled(const string& deploymentName)
 {
   LoadVariablePackageTable();
   string str;
@@ -197,7 +197,7 @@ time_t PackageManagerImpl::GetCommonTimeInstalled(const string & deploymentName)
   }
 }
 
-time_t PackageManagerImpl::GetTimeInstalled(const string & deploymentName)
+time_t PackageManagerImpl::GetTimeInstalled(const string& deploymentName)
 {
   LoadVariablePackageTable();
   string str;
@@ -212,12 +212,12 @@ time_t PackageManagerImpl::GetTimeInstalled(const string & deploymentName)
   }
 }
 
-bool PackageManagerImpl::IsPackageInstalled(const string & deploymentName)
+bool PackageManagerImpl::IsPackageInstalled(const string& deploymentName)
 {
   return GetTimeInstalled(deploymentName) > 0;
 }
 
-bool PackageManagerImpl::IsPackageObsolete(const string & deploymentName)
+bool PackageManagerImpl::IsPackageObsolete(const string& deploymentName)
 {
   LoadVariablePackageTable();
   string str;
@@ -234,7 +234,7 @@ bool PackageManagerImpl::IsPackageObsolete(const string & deploymentName)
   }
 }
 
-void PackageManagerImpl::DeclarePackageObsolete(const string & deploymentName, bool obsolete)
+void PackageManagerImpl::DeclarePackageObsolete(const string& deploymentName, bool obsolete)
 {
   LoadVariablePackageTable();
   if (pSession->IsAdminMode() || userVariablePackageTable == nullptr)
@@ -247,7 +247,7 @@ void PackageManagerImpl::DeclarePackageObsolete(const string & deploymentName, b
   }
 }
 
-void PackageManagerImpl::SetTimeInstalled(const string & deploymentName, time_t timeInstalled)
+void PackageManagerImpl::SetTimeInstalled(const string& deploymentName, time_t timeInstalled)
 {
   LoadVariablePackageTable();
   if (pSession->IsAdminMode() || userVariablePackageTable == nullptr)
@@ -274,7 +274,7 @@ void PackageManagerImpl::SetTimeInstalled(const string & deploymentName, time_t 
   }
 }
 
-void PackageManagerImpl::SetReleaseState(const string & deploymentName, RepositoryReleaseState releaseState)
+void PackageManagerImpl::SetReleaseState(const string& deploymentName, RepositoryReleaseState releaseState)
 {
   LoadVariablePackageTable();
   if (pSession->IsAdminMode() || userVariablePackageTable == nullptr)
@@ -287,7 +287,7 @@ void PackageManagerImpl::SetReleaseState(const string & deploymentName, Reposito
   }
 }
 
-RepositoryReleaseState PackageManagerImpl::GetReleaseState(const string & deploymentName)
+RepositoryReleaseState PackageManagerImpl::GetReleaseState(const string& deploymentName)
 {
   LoadVariablePackageTable();
   string str;
@@ -306,7 +306,7 @@ RepositoryReleaseState PackageManagerImpl::GetReleaseState(const string & deploy
   return RepositoryReleaseState::Unknown;
 }
 
-void PackageManagerImpl::IncrementFileRefCounts(const vector<string> & files)
+void PackageManagerImpl::IncrementFileRefCounts(const vector<string>& files)
 {
   for (vector<string>::const_iterator it = files.begin(); it != files.end(); ++it)
   {
@@ -320,16 +320,16 @@ void PackageManagerImpl::IncrementFileRefCounts(const vector<string> & files)
   }
 }
 
-void PackageManagerImpl::IncrementFileRefCounts(const string & deploymentName)
+void PackageManagerImpl::IncrementFileRefCounts(const string& deploymentName)
 {
   NeedInstalledFileInfoTable();
-  const PackageInfo & pi = packageTable[deploymentName];
+  const PackageInfo& pi = packageTable[deploymentName];
   IncrementFileRefCounts(pi.runFiles);
   IncrementFileRefCounts(pi.docFiles);
   IncrementFileRefCounts(pi.sourceFiles);
 }
 
-PackageInfo * PackageManagerImpl::DefinePackage(const string & deploymentName, const PackageInfo & packageInfo)
+PackageInfo* PackageManagerImpl::DefinePackage(const string& deploymentName, const PackageInfo& packageInfo)
 {
   pair<PackageDefinitionTable::iterator, bool> p = packageTable.insert(make_pair(deploymentName, packageInfo));
   p.first->second.deploymentName = deploymentName;
@@ -353,7 +353,7 @@ PackageInfo * PackageManagerImpl::DefinePackage(const string & deploymentName, c
   return &(p.first->second);
 }
 
-void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathName & directory)
+void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathName& directory)
 {
   trace_mpm->WriteFormattedLine("libmpm", T_("searching %s for package definition files"), Q_(directory));
 
@@ -392,7 +392,7 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
     }
 
     // parse package definition file
-    futurePackageInfoTable.push_back(async(ASYNC_LAUNCH_POLICY, [](const PathName & path)
+    futurePackageInfoTable.push_back(async(ASYNC_LAUNCH_POLICY, [](const PathName& path)
     {
       TpmParser tpmParser;
       tpmParser.Parse(path);
@@ -401,7 +401,7 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
   }
   pLister->Close();
 
-  for (future<PackageInfo> & fpi : futurePackageInfoTable)
+  for (future<PackageInfo>& fpi : futurePackageInfoTable)
   {
     PackageInfo packageInfo = fpi.get();
 
@@ -421,7 +421,7 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
     count += 1;
 
     // insert into database
-    PackageInfo * pPi = DefinePackage(packageInfo.deploymentName, packageInfo);
+    PackageInfo* pPi = DefinePackage(packageInfo.deploymentName, packageInfo);
 
     // increment file ref counts, if package is installed
     if (pPi->timeInstalled > 0)
@@ -445,26 +445,26 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
       PackageDefinitionTable::iterator it3 = packageTable.find(*it2);
       if (it3 == packageTable.end())
       {
-	trace_mpm->WriteFormattedLine("libmpm", T_("dependancy problem: %s is required by %s"), it2->c_str(), it->second.deploymentName.c_str());
+        trace_mpm->WriteFormattedLine("libmpm", T_("dependancy problem: %s is required by %s"), it2->c_str(), it->second.deploymentName.c_str());
       }
       else
       {
-	it3->second.requiredBy.push_back(it->second.deploymentName);
-	if (it3->second.timeInstalled < timeInstalledMin)
-	{
-	  timeInstalledMin = it3->second.timeInstalled;
-	}
-	if (it3->second.timeInstalled > timeInstalledMax)
-	{
-	  timeInstalledMax = it3->second.timeInstalled;
-	}
+        it3->second.requiredBy.push_back(it->second.deploymentName);
+        if (it3->second.timeInstalled < timeInstalledMin)
+        {
+          timeInstalledMin = it3->second.timeInstalled;
+        }
+        if (it3->second.timeInstalled > timeInstalledMax)
+        {
+          timeInstalledMax = it3->second.timeInstalled;
+        }
       }
     }
     if (timeInstalledMin > 0)
     {
       if (it->second.IsPureContainer() || (it->second.IsInstalled() && it->second.timeInstalled < timeInstalledMax))
       {
-	it->second.timeInstalled = timeInstalledMax;
+        it->second.timeInstalled = timeInstalledMax;
       }
     }
   }
@@ -535,7 +535,7 @@ void PackageManagerImpl::ParseAllPackageDefinitionFiles()
   parsedAllPackageDefinitionFiles = true;
 }
 
-void PackageManagerImpl::LoadDatabase(const PathName & path)
+void PackageManagerImpl::LoadDatabase(const PathName& path)
 {
   // get the full path name
   PathName absPath(path);
@@ -590,7 +590,7 @@ void PackageManagerImpl::UnloadDatabase()
   ClearAll();
 }
 
-PackageInfo * PackageManagerImpl::TryGetPackageInfo(const string & deploymentName)
+PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& deploymentName)
 {
   PackageDefinitionTable::iterator it = packageTable.find(deploymentName);
   if (it != packageTable.end())
@@ -635,9 +635,9 @@ PackageInfo * PackageManagerImpl::TryGetPackageInfo(const string & deploymentNam
   return DefinePackage(deploymentName, tpmParser.GetPackageInfo());
 }
 
-bool PackageManagerImpl::TryGetPackageInfo(const string & deploymentName, PackageInfo & packageInfo)
+bool PackageManagerImpl::TryGetPackageInfo(const string& deploymentName, PackageInfo& packageInfo)
 {
-  PackageInfo * pPackageInfo = TryGetPackageInfo(deploymentName);
+  PackageInfo* pPackageInfo = TryGetPackageInfo(deploymentName);
   if (pPackageInfo == nullptr)
   {
     return false;
@@ -649,9 +649,9 @@ bool PackageManagerImpl::TryGetPackageInfo(const string & deploymentName, Packag
   }
 }
 
-PackageInfo PackageManagerImpl::GetPackageInfo(const string & deploymentName)
+PackageInfo PackageManagerImpl::GetPackageInfo(const string& deploymentName)
 {
-  const PackageInfo * pPackageInfo = TryGetPackageInfo(deploymentName);
+  const PackageInfo* pPackageInfo = TryGetPackageInfo(deploymentName);
   if (pPackageInfo == nullptr)
   {
     MIKTEX_UNEXPECTED();
@@ -659,7 +659,7 @@ PackageInfo PackageManagerImpl::GetPackageInfo(const string & deploymentName)
   return *pPackageInfo;
 }
 
-unsigned long PackageManagerImpl::GetFileRefCount(const PathName & path)
+unsigned long PackageManagerImpl::GetFileRefCount(const PathName& path)
 {
   NeedInstalledFileInfoTable();
   InstalledFileInfoTable::const_iterator it = installedFileInfoTable.find(path.GetData());
@@ -676,7 +676,7 @@ void PackageManagerImpl::NeedInstalledFileInfoTable()
 }
 
 bool PackageManager::TryGetRemotePackageRepository(
-  string & url, RepositoryReleaseState & repositoryReleaseState)
+  string& url, RepositoryReleaseState& repositoryReleaseState)
 {
   shared_ptr<Session> session = Session::Get();
   repositoryReleaseState = RepositoryReleaseState::Unknown;
@@ -687,11 +687,11 @@ bool PackageManager::TryGetRemotePackageRepository(
     {
       if (str == "stable")
       {
-	repositoryReleaseState = RepositoryReleaseState::Stable;
+        repositoryReleaseState = RepositoryReleaseState::Stable;
       }
       else if (str == "next")
       {
-	repositoryReleaseState = RepositoryReleaseState::Next;
+        repositoryReleaseState = RepositoryReleaseState::Next;
       }
     }
     return true;
@@ -700,7 +700,7 @@ bool PackageManager::TryGetRemotePackageRepository(
     && (PackageManagerImpl::DetermineRepositoryType(url) == RepositoryType::Remote);
 }
 
-string PackageManager::GetRemotePackageRepository(RepositoryReleaseState & repositoryReleaseState)
+string PackageManager::GetRemotePackageRepository(RepositoryReleaseState& repositoryReleaseState)
 {
   string url;
   if (!TryGetRemotePackageRepository(url, repositoryReleaseState))
@@ -710,7 +710,7 @@ string PackageManager::GetRemotePackageRepository(RepositoryReleaseState & repos
   return url;
 }
 
-MPMSTATICFUNC(bool) IsUrl(const string & url)
+MPMSTATICFUNC(bool) IsUrl(const string& url)
 {
   string::size_type pos = url.find("://");
   if (pos == string::npos)
@@ -728,7 +728,7 @@ MPMSTATICFUNC(bool) IsUrl(const string & url)
   return true;
 }
 
-RepositoryType PackageManagerImpl::DetermineRepositoryType(const string & repository)
+RepositoryType PackageManagerImpl::DetermineRepositoryType(const string& repository)
 {
   if (IsUrl(repository))
   {
@@ -760,14 +760,14 @@ RepositoryType PackageManagerImpl::DetermineRepositoryType(const string & reposi
   MIKTEX_FATAL_ERROR_2(T_("Not a package repository."), "repository", repository);
 }
 
-void PackageManager::SetRemotePackageRepository(const string & url, RepositoryReleaseState repositoryReleaseState)
+void PackageManager::SetRemotePackageRepository(const string& url, RepositoryReleaseState repositoryReleaseState)
 {
   shared_ptr<Session> session = Session::Get();
   session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REMOTE_REPOSITORY, url);
   session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REPOSITORY_RELEASE_STATE, repositoryReleaseState == RepositoryReleaseState::Stable ? "stable" : (repositoryReleaseState == RepositoryReleaseState::Next ? "next" : "unknown"));
 }
 
-bool PackageManager::TryGetLocalPackageRepository(PathName & path)
+bool PackageManager::TryGetLocalPackageRepository(PathName& path)
 {
   shared_ptr<Session> session = Session::Get();
   string str;
@@ -797,12 +797,12 @@ PathName PackageManager::GetLocalPackageRepository()
   return path;
 }
 
-void PackageManager::SetLocalPackageRepository(const PathName & path)
+void PackageManager::SetLocalPackageRepository(const PathName& path)
 {
   Session::Get()->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_LOCAL_REPOSITORY, path.ToString());
 }
 
-bool PackageManager::TryGetMiKTeXDirectRoot(PathName & path)
+bool PackageManager::TryGetMiKTeXDirectRoot(PathName& path)
 {
   shared_ptr<Session> session = Session::Get();
   string str;
@@ -832,13 +832,13 @@ PathName PackageManager::GetMiKTeXDirectRoot()
   return path;
 }
 
-void PackageManager::SetMiKTeXDirectRoot(const PathName & path)
+void PackageManager::SetMiKTeXDirectRoot(const PathName& path)
 {
   shared_ptr<Session> session = Session::Get();
   session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_MIKTEXDIRECT_ROOT, path.ToString());
 }
 
-bool PackageManager::TryGetDefaultPackageRepository(RepositoryType & repositoryType, RepositoryReleaseState & repositoryReleaseState, string & urlOrPath)
+bool PackageManager::TryGetDefaultPackageRepository(RepositoryType& repositoryType, RepositoryReleaseState& repositoryReleaseState, string& urlOrPath)
 {
   shared_ptr<Session> session = Session::Get();
   repositoryReleaseState = RepositoryReleaseState::Unknown;
@@ -877,7 +877,7 @@ bool PackageManager::TryGetDefaultPackageRepository(RepositoryType & repositoryT
   }
 }
 
-RepositoryType PackageManager::GetDefaultPackageRepository(RepositoryReleaseState & repositoryReleaseState, string & urlOrPath)
+RepositoryType PackageManager::GetDefaultPackageRepository(RepositoryReleaseState& repositoryReleaseState, string& urlOrPath)
 {
   RepositoryType repositoryType(RepositoryType::Unknown);
   if (!TryGetDefaultPackageRepository(repositoryType, repositoryReleaseState, urlOrPath))
@@ -887,7 +887,7 @@ RepositoryType PackageManager::GetDefaultPackageRepository(RepositoryReleaseStat
   return repositoryType;
 }
 
-void PackageManager::SetDefaultPackageRepository(RepositoryType repositoryType, RepositoryReleaseState repositoryReleaseState, const string & urlOrPath)
+void PackageManager::SetDefaultPackageRepository(RepositoryType repositoryType, RepositoryReleaseState repositoryReleaseState, const string& urlOrPath)
 {
   shared_ptr<Session> session = Session::Get();
   if (repositoryType == RepositoryType::Unknown)
@@ -915,7 +915,7 @@ void PackageManager::SetDefaultPackageRepository(RepositoryType repositoryType, 
   session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REPOSITORY_TYPE, repositoryTypeStr);
 }
 
-const char * DEFAULT_REMOTE_SERVICE = "https://api2.miktex.org/";
+const char* DEFAULT_REMOTE_SERVICE = "https://api2.miktex.org/";
 
 string PackageManagerImpl::GetRemoteServiceBaseUrl()
 {
@@ -949,7 +949,7 @@ string PackageManagerImpl::PickRepositoryUrl()
   return remoteService->PickRepositoryUrl(repositoryReleaseState);
 }
 
-void PackageManagerImpl::TraceError(const char * lpszFormat, ...)
+void PackageManagerImpl::TraceError(const char* lpszFormat, ...)
 {
   va_list marker;
   va_start(marker, lpszFormat);
@@ -978,7 +978,7 @@ namespace {
 
 }
 
-MPMSTATICFUNC(void) RememberFileNameInfo(const string & prefixedFileName, const string & packageName)
+MPMSTATICFUNC(void) RememberFileNameInfo(const string& prefixedFileName, const string& packageName)
 {
   shared_ptr<Session> session = Session::Get();
 
@@ -1025,15 +1025,15 @@ MPMSTATICFUNC(void) RememberFileNameInfo(const string & prefixedFileName, const 
     s1 = s2;
   }
 
-  DirectoryInfo & directoryInfo = directoryInfoTable[path.ToString()];
+  DirectoryInfo& directoryInfo = directoryInfoTable[path.ToString()];
   directoryInfo.fileNames.push_back(name);
   directoryInfo.packageNames.push_back(packageName);
 }
 
-bool PackageManagerImpl::ReadDirectory(const PathName & path, vector<string> & subDirNames, vector<string> & fileNames, vector<string> & fileNameInfos)
+bool PackageManagerImpl::ReadDirectory(const PathName& path, vector<string>& subDirNames, vector<string>& fileNames, vector<string>& fileNameInfos)
 {
-  const DirectoryInfo & directoryInfo = directoryInfoTable[path.ToString()];
-  for (const string & name : directoryInfo.subDirectoryNames)
+  const DirectoryInfo& directoryInfo = directoryInfoTable[path.ToString()];
+  for (const string& name : directoryInfo.subDirectoryNames)
   {
     subDirNames.push_back(name);
   }
@@ -1042,7 +1042,7 @@ bool PackageManagerImpl::ReadDirectory(const PathName & path, vector<string> & s
   return true;
 }
 
-bool PackageManagerImpl::OnProgress(unsigned level, const PathName & directory)
+bool PackageManagerImpl::OnProgress(unsigned level, const PathName& directory)
 {
   UNUSED_ALWAYS(level);
   UNUSED_ALWAYS(directory);
@@ -1056,7 +1056,7 @@ void PackageManagerImpl::CreateMpmFndb()
   // collect the file names
   for (PackageDefinitionTable::const_iterator it = packageTable.begin(); it != packageTable.end(); ++it)
   {
-    const PackageInfo & pi = it->second;
+    const PackageInfo& pi = it->second;
     vector<string>::const_iterator it2;
     for (it2 = pi.runFiles.begin(); it2 != pi.runFiles.end(); ++it2)
     {
@@ -1079,7 +1079,7 @@ void PackageManagerImpl::CreateMpmFndb()
   directoryInfoTable.clear();
 }
 
-void PackageManagerImpl::GetAllPackageDefinitions(vector<PackageInfo> & packages)
+void PackageManagerImpl::GetAllPackageDefinitions(vector<PackageInfo>& packages)
 {
   ParseAllPackageDefinitionFiles();
   for (PackageDefinitionTable::const_iterator it = packageTable.begin(); it != packageTable.end(); ++it)
@@ -1088,7 +1088,7 @@ void PackageManagerImpl::GetAllPackageDefinitions(vector<PackageInfo> & packages
   }
 }
 
-InstalledFileInfo * PackageManagerImpl::GetInstalledFileInfo(const char * lpszPath)
+InstalledFileInfo* PackageManagerImpl::GetInstalledFileInfo(const char* lpszPath)
 {
   ParseAllPackageDefinitionFiles();
   InstalledFileInfoTable::iterator it = installedFileInfoTable.find(lpszPath);
@@ -1099,7 +1099,7 @@ InstalledFileInfo * PackageManagerImpl::GetInstalledFileInfo(const char * lpszPa
   return &it->second;
 }
 
-bool PackageManager::IsLocalPackageRepository(const PathName & path)
+bool PackageManager::IsLocalPackageRepository(const PathName& path)
 {
   if (!Directory::Exists(path))
   {
@@ -1116,7 +1116,7 @@ bool PackageManager::IsLocalPackageRepository(const PathName & path)
   return false;
 }
 
-PackageInfo PackageManager::ReadPackageDefinitionFile(const PathName & path, const string & texmfPrefix)
+PackageInfo PackageManager::ReadPackageDefinitionFile(const PathName& path, const string& texmfPrefix)
 {
   TpmParser tpmParser;
   tpmParser.Parse(path, texmfPrefix);
@@ -1126,14 +1126,14 @@ PackageInfo PackageManager::ReadPackageDefinitionFile(const PathName & path, con
 class XmlWriter
 {
 public:
-  XmlWriter(FILE * stream)
+  XmlWriter(FILE* stream)
     : stream(stream)
   {
     FPutS("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n", stream);
   }
 
 public:
-  void StartElement(const char * lpszName)
+  void StartElement(const char* lpszName)
   {
     if (freshElement)
     {
@@ -1146,7 +1146,7 @@ public:
   }
 
 public:
-  void AddAttribute(const char * lpszAttributeName, const char * lpszAttributeValue)
+  void AddAttribute(const char* lpszAttributeName, const char* lpszAttributeValue)
   {
     FPutC(' ', stream);
     FPutS(lpszAttributeName, stream);
@@ -1186,35 +1186,35 @@ public:
   }
 
 public:
-  void Text(const string & text)
+  void Text(const string& text)
   {
     if (freshElement)
     {
       FPutC('>', stream);
       freshElement = false;
     }
-    for (const char * lpszText = text.c_str(); *lpszText != 0; ++lpszText)
+    for (const char* lpszText = text.c_str(); *lpszText != 0; ++lpszText)
     {
       switch (*lpszText)
       {
       case '&':
-	FPutS("&amp;", stream);
-	break;
+        FPutS("&amp;", stream);
+        break;
       case '<':
-	FPutS("&lt;", stream);
-	break;
+        FPutS("&lt;", stream);
+        break;
       case '>':
-	FPutS("&gt;", stream);
-	break;
+        FPutS("&gt;", stream);
+        break;
       default:
-	FPutC(*lpszText, stream);
-	break;
+        FPutC(*lpszText, stream);
+        break;
       }
     }
   }
 
 private:
-  FILE * stream;
+  FILE* stream;
 
 private:
   stack<string> elements;
@@ -1223,7 +1223,7 @@ private:
   bool freshElement = false;
 };
 
-void PackageManager::WritePackageDefinitionFile(const PathName & path, const PackageInfo & packageInfo, time_t timePackaged)
+void PackageManager::WritePackageDefinitionFile(const PathName& path, const PackageInfo& packageInfo, time_t timePackaged)
 {
   FileStream stream(File::Open(path, FileMode::Create, FileAccess::Write, false));
 
@@ -1278,7 +1278,7 @@ void PackageManager::WritePackageDefinitionFile(const PathName & path, const Pac
     {
       if (it != packageInfo.runFiles.begin())
       {
-	xml.Text(" ");
+        xml.Text(" ");
       }
       xml.Text(*it);
     }
@@ -1294,7 +1294,7 @@ void PackageManager::WritePackageDefinitionFile(const PathName & path, const Pac
     {
       if (it != packageInfo.docFiles.begin())
       {
-	xml.Text(" ");
+        xml.Text(" ");
       }
       xml.Text(*it);
     }
@@ -1310,7 +1310,7 @@ void PackageManager::WritePackageDefinitionFile(const PathName & path, const Pac
     {
       if (it != packageInfo.sourceFiles.begin())
       {
-	xml.Text(" ");
+        xml.Text(" ");
       }
       xml.Text(*it);
     }
@@ -1372,7 +1372,7 @@ void PackageManager::WritePackageDefinitionFile(const PathName & path, const Pac
   stream.Close();
 }
 
-bool PackageManager::StripTeXMFPrefix(const string & str, string & result)
+bool PackageManager::StripTeXMFPrefix(const string& str, string& result)
 {
   if (StripPrefix(str, TEXMF_PREFIX_DIRECTORY, result))
   {
@@ -1383,7 +1383,7 @@ bool PackageManager::StripTeXMFPrefix(const string & str, string & result)
   return StripPrefix(str, prefix2.GetData(), result);
 }
 
-void PackageManager::SetProxy(const ProxySettings & proxySettings)
+void PackageManager::SetProxy(const ProxySettings& proxySettings)
 {
   shared_ptr<Session> session = Session::Get();
   session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_USE_PROXY, proxySettings.useProxy);
@@ -1394,7 +1394,7 @@ void PackageManager::SetProxy(const ProxySettings & proxySettings)
   PackageManagerImpl::proxyPassword = proxySettings.password;
 }
 
-bool PackageManager::TryGetProxy(const string & url, ProxySettings & proxySettings)
+bool PackageManager::TryGetProxy(const string& url, ProxySettings& proxySettings)
 {
   shared_ptr<Session> pSession = Session::Get();
   string useProxy;
@@ -1481,12 +1481,12 @@ bool PackageManager::TryGetProxy(const string & url, ProxySettings & proxySettin
   return true;
 }
 
-bool PackageManager::TryGetProxy(ProxySettings & proxySettings)
+bool PackageManager::TryGetProxy(ProxySettings& proxySettings)
 {
   return TryGetProxy("", proxySettings);
 }
 
-ProxySettings PackageManager::GetProxy(const string & url)
+ProxySettings PackageManager::GetProxy(const string& url)
 {
   ProxySettings proxySettings;
   if (!TryGetProxy(url, proxySettings))
@@ -1505,7 +1505,7 @@ void PackageManagerImpl::OnProgress()
 {
 }
 
-bool PackageManagerImpl::TryGetRepositoryInfo(const string & url, RepositoryInfo & repositoryInfo)
+bool PackageManagerImpl::TryGetRepositoryInfo(const string& url, RepositoryInfo& repositoryInfo)
 {
   RepositoryType repositoryType = PackageManagerImpl::DetermineRepositoryType(url);
   if (repositoryType == RepositoryType::Remote)
@@ -1513,7 +1513,7 @@ bool PackageManagerImpl::TryGetRepositoryInfo(const string & url, RepositoryInfo
     ProxySettings proxySettings;
     if (!IsUrl(GetRemoteServiceBaseUrl()) || !TryGetProxy(GetRemoteServiceBaseUrl(), proxySettings))
       {
-	proxySettings.useProxy = false;
+        proxySettings.useProxy = false;
       }
     unique_ptr<RemoteService> remoteService = RemoteService::Create(GetRemoteServiceBaseUrl(), proxySettings);
     pair<bool, RepositoryInfo> result = remoteService->TryGetRepositoryInfo(url);
@@ -1539,7 +1539,7 @@ bool PackageManagerImpl::TryGetRepositoryInfo(const string & url, RepositoryInfo
   }
 }
 
-RepositoryInfo PackageManagerImpl::VerifyPackageRepository(const string & url)
+RepositoryInfo PackageManagerImpl::VerifyPackageRepository(const string& url)
 {
 #if defined(_DEBUG)
   if (url == "http://ctan.miktex.org/systems/win32/miktex/tm/packages/")
@@ -1567,7 +1567,7 @@ RepositoryInfo PackageManagerImpl::VerifyPackageRepository(const string & url)
   return repositoryInfo;
 }
 
-bool PackageManagerImpl::TryGetFileDigest(const PathName & prefix, const string & fileName, bool & haveDigest, MD5 & digest)
+bool PackageManagerImpl::TryGetFileDigest(const PathName& prefix, const string& fileName, bool& haveDigest, MD5& digest)
 {
   string unprefixed;
   if (!StripTeXMFPrefix(fileName, unprefixed))
@@ -1593,9 +1593,9 @@ bool PackageManagerImpl::TryGetFileDigest(const PathName & prefix, const string 
   return true;
 }
 
-bool PackageManagerImpl::TryCollectFileDigests(const PathName & prefix, const vector<string> & files, FileDigestTable & fileDigests)
+bool PackageManagerImpl::TryCollectFileDigests(const PathName& prefix, const vector<string>& files, FileDigestTable& fileDigests)
 {
-  for (const string & fileName : files)
+  for (const string& fileName : files)
   {
     bool haveDigest;
     MD5 digest;
@@ -1611,7 +1611,7 @@ bool PackageManagerImpl::TryCollectFileDigests(const PathName & prefix, const ve
   return true;
 }
 
-bool PackageManagerImpl::TryVerifyInstalledPackage(const string & deploymentName)
+bool PackageManagerImpl::TryVerifyInstalledPackage(const string& deploymentName)
 {
   PackageInfo packageInfo = GetPackageInfo(deploymentName);
 
@@ -1659,7 +1659,7 @@ bool PackageManagerImpl::TryVerifyInstalledPackage(const string & deploymentName
   return ok;
 }
 
-string PackageManagerImpl::GetContainerPath(const string & deploymentName, bool useDisplayNames)
+string PackageManagerImpl::GetContainerPath(const string& deploymentName, bool useDisplayNames)
 {
   string path;
   PackageInfo packageInfo = GetPackageInfo(deploymentName);
@@ -1673,11 +1673,11 @@ string PackageManagerImpl::GetContainerPath(const string & deploymentName, bool 
       path += PathName::DirectoryDelimiter;
       if (useDisplayNames)
       {
-	path += packageInfo2.displayName;
+        path += packageInfo2.displayName;
       }
       else
       {
-	path += packageInfo2.deploymentName;
+        path += packageInfo2.deploymentName;
       }
       break;
     }
