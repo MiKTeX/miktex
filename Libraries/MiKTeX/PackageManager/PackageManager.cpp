@@ -922,9 +922,7 @@ string PackageManagerImpl::GetRemoteServiceBaseUrl()
   if (remoteServiceBaseUrl.empty())
   {
     shared_ptr<Session> session = Session::Get();
-    // TODO: use MIKTEX_REGVAL_REMOTE_SERVICE
-    string valueName = "RemoteService" + string("_") + std::to_string(MIKTEX_COMP_J2000_VERSION);
-    remoteServiceBaseUrl = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, valueName, DEFAULT_REMOTE_SERVICE).GetString();
+    remoteServiceBaseUrl = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_REMOTE_SERVICE, DEFAULT_REMOTE_SERVICE).GetString();
   }
   return remoteServiceBaseUrl;
 }
