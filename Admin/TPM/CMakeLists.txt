@@ -76,6 +76,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-lua52-bin.tpm.in
     windows-x86/miktex-luatex-bin.tpm.in
     windows-x86/miktex-lzma-bin.tpm.in
+    windows-x86/miktex-m-tx-bin.tpm.in
     windows-x86/miktex-makeindex-bin.tpm.in
     windows-x86/miktex-md5-bin.tpm.in
     windows-x86/miktex-metafont-bin.tpm.in
@@ -158,6 +159,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-lua52-bin-x64.tpm.in
     windows-x64/miktex-luatex-bin-x64.tpm.in
     windows-x64/miktex-lzma-bin-x64.tpm.in
+    windows-x64/miktex-m-tx-bin-x64.tpm.in
     windows-x64/miktex-makeindex-bin-x64.tpm.in
     windows-x64/miktex-md5-bin-x64.tpm.in
     windows-x64/miktex-metafont-bin-x64.tpm.in
