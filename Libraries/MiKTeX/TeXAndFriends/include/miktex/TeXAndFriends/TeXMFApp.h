@@ -353,7 +353,7 @@ public:
     }
     if (trace_mem->IsEnabled())
     {
-      trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Reallocate %s: p == %p, elementSize == %u, nElements == %u, bytes == %u"), arrayName.empty() ? "array" : arrayName, p, (unsigned)sizeof(T), (unsigned)n, (unsigned)amount);
+      trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Reallocate %s: p == %p, elementSize == %u, nElements == %u, bytes == %u"), arrayName.empty() ? "array" : arrayName.c_str(), p, (unsigned)sizeof(T), (unsigned)n, (unsigned)amount);
     }
     p = reinterpret_cast<T*>(MiKTeX::Debug::Realloc(p, amount, sourceLocation));
     if (trace_mem->IsEnabled())
