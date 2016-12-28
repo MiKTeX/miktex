@@ -651,7 +651,7 @@ private:
   friend class Cfg;
 };
 
-Cfg::~Cfg()
+Cfg::~Cfg() noexcept
 {
 }
 

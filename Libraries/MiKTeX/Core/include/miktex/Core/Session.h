@@ -266,6 +266,8 @@ public:
     case Tag::Char:
       this->c = other.c;
       break;
+    case Tag::None:
+      break;
     }
     this->tag = other.tag;
   }
@@ -292,6 +294,8 @@ public:
       break;
     case Tag::Char:
       this->c = other.c;
+      break;
+    case Tag::None:
       break;
     }
     this->tag = other.tag;

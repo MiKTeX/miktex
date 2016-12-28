@@ -71,7 +71,7 @@ Uri::Uri(const std::string & uri) :
   }
 }
 
-Uri::~Uri()
+Uri::~Uri() noexcept
 {
 }
 

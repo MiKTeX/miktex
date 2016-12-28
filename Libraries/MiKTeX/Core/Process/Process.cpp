@@ -30,7 +30,7 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-Process::~Process()
+Process::~Process() noexcept
 {
 }
 

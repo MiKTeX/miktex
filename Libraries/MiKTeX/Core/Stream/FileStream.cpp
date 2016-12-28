@@ -28,7 +28,7 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-FileStream::~FileStream()
+FileStream::~FileStream() noexcept
 {
   try
   {

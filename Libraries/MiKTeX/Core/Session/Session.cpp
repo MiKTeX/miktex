@@ -54,7 +54,7 @@ shared_ptr<Session> Session::Create(const Session::InitInfo & initInfo)
   return session;
 }
 
-Session::~Session()
+Session::~Session() noexcept
 {
 }
 

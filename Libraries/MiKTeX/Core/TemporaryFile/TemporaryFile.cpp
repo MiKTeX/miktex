@@ -29,7 +29,7 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-TemporaryFile::~TemporaryFile()
+TemporaryFile::~TemporaryFile() noexcept
 {
 }
 

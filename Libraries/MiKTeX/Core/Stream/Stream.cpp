@@ -27,6 +27,6 @@
 
 using namespace MiKTeX::Core;
 
-Stream::~Stream()
+Stream::~Stream() noexcept
 {
 }

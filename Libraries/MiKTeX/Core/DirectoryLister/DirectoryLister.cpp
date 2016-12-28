@@ -27,6 +27,6 @@
 
 using namespace MiKTeX::Core;
 
-DirectoryLister::~DirectoryLister()
+DirectoryLister::~DirectoryLister() noexcept
 {
 }

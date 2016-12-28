@@ -94,6 +94,6 @@ CsvList & CsvList::operator++ ()
   return *this;
 }
 
-CsvList::~CsvList()
+CsvList::~CsvList() noexcept
 {
 }

@@ -33,7 +33,7 @@ StreamReader::StreamReader(const PathName & path) :
 {
 }
 
-StreamReader::~StreamReader()
+StreamReader::~StreamReader() noexcept
 {
   try
   {

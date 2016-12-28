@@ -855,6 +855,8 @@ std::string ConfigValue::GetString() const
     return this->t == TriState::Undetermined ? "undetermined" : this->t == TriState::False ? "false" : "true";
   case Tag::Char:
     return std::string(1, this->c);
+  case Tag::None:
+    break;
   }
   MIKTEX_UNEXPECTED();
 }
@@ -873,6 +875,8 @@ int ConfigValue::GetInt() const
     return (int)this->t;
   case Tag::Char:
     return (int)this->c;
+  case Tag::None:
+    break;
   }
   MIKTEX_UNEXPECTED();
 }
@@ -951,7 +955,8 @@ bool ConfigValue::GetBool() const
     {
       MIKTEX_UNEXPECTED();
     }
-
+  case Tag::None:
+    break;
   }
   MIKTEX_UNEXPECTED();
 }
@@ -1035,6 +1040,8 @@ TriState ConfigValue::GetTriState() const
     {
       MIKTEX_UNEXPECTED();
     }
+  case Tag::None:
+    break;
   }
   MIKTEX_UNEXPECTED();
 }
@@ -1057,6 +1064,8 @@ char ConfigValue::GetChar() const
     return this->t == TriState::Undetermined ? '?' : this->t == TriState::False ? 'f' : 't';
   case Tag::Char:
     return this->c;
+  case Tag::None:
+    break;
   }
   MIKTEX_UNEXPECTED();
 }

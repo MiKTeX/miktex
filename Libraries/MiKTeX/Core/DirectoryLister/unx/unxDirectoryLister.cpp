@@ -52,7 +52,7 @@ unxDirectoryLister::unxDirectoryLister(const PathName& directory, const char* pa
 {
 }
 
-unxDirectoryLister::~unxDirectoryLister()
+unxDirectoryLister::~unxDirectoryLister() noexcept
 {
   try
   {

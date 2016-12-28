@@ -34,7 +34,7 @@ StreamWriter::StreamWriter(const PathName & path)
 {
 }
 
-StreamWriter::~StreamWriter()
+StreamWriter::~StreamWriter() noexcept
 {
   try
   {

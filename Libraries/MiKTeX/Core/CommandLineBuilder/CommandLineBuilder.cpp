@@ -40,7 +40,7 @@ Argv::Argv(Argv && rhs) :
 {
 }
 
-Argv::~Argv()
+Argv::~Argv() noexcept
 {
   try
   {
@@ -117,7 +117,7 @@ CommandLineBuilder::CommandLineBuilder(const string & argument) :
   AppendArgument(argument);
 }
 
-CommandLineBuilder::~CommandLineBuilder()
+CommandLineBuilder::~CommandLineBuilder() noexcept
 {
 }
 

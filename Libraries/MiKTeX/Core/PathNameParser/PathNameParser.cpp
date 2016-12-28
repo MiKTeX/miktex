@@ -112,6 +112,6 @@ PathNameParser & PathNameParser::operator++ ()
 }
 
 
-PathNameParser::~PathNameParser()
+PathNameParser::~PathNameParser() noexcept
 {
 }

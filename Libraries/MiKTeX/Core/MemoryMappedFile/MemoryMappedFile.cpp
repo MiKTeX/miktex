@@ -27,6 +27,6 @@
 
 using namespace MiKTeX::Core;
 
-MemoryMappedFile::~MemoryMappedFile()
+MemoryMappedFile::~MemoryMappedFile() noexcept
 {
 }

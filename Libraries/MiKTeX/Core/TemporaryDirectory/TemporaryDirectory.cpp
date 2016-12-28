@@ -31,7 +31,7 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-TemporaryDirectory::~TemporaryDirectory()
+TemporaryDirectory::~TemporaryDirectory() noexcept
 {
 }
 
