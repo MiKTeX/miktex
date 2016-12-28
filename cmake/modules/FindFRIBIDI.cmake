@@ -19,9 +19,7 @@
 
 find_path(FRIBIDI_INCLUDE_DIR
   NAMES
-    fribidi.h
-  PATH_SUFFIXES
-    fribidi
+    fribidi/fribidi.h
 )
 
 find_library(FRIBIDI_LIBRARY
