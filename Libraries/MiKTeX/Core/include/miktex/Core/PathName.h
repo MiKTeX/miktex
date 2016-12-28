@@ -93,39 +93,39 @@ public:
   ~PathName() = default;
 
 public:
-  static const char DosDirectoryDelimiter = '\\';
+  static constexpr char DosDirectoryDelimiter = '\\';
 
 public:
-  static const char UnixDirectoryDelimiter = '/';
+  static constexpr char UnixDirectoryDelimiter = '/';
 
 public:
-  static const char DosPathNameDelimiter = ';';
+  static constexpr char DosPathNameDelimiter = ';';
 
 public:
-  static const char UnixPathNameDelimiter = ':';
+  static constexpr char UnixPathNameDelimiter = ':';
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static const char AltDirectoryDelimiter = UnixDirectoryDelimiter;
+  static constexpr char AltDirectoryDelimiter = UnixDirectoryDelimiter;
 #endif
 
 public:
 #if defined(MIKTEX_WINDOWS)
-  static const char DirectoryDelimiter = DosDirectoryDelimiter;
+  static constexpr char DirectoryDelimiter = DosDirectoryDelimiter;
 #elif defined(MIKTEX_UNIX)
-  static const char DirectoryDelimiter = UnixDirectoryDelimiter;
+  static constexpr char DirectoryDelimiter = UnixDirectoryDelimiter;
 #endif
 
 public:
 #if defined(MIKTEX_WINDOWS)
-  static const char PathNameDelimiter = DosPathNameDelimiter;
+  static constexpr char PathNameDelimiter = DosPathNameDelimiter;
 #elif defined(MIKTEX_UNIX)
-  static const char PathNameDelimiter = UnixPathNameDelimiter;
+  static constexpr char PathNameDelimiter = UnixPathNameDelimiter;
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static const char VolumeDelimiter = ':';
+  static constexpr char VolumeDelimiter = ':';
 #endif
 
 #if defined(MIKTEX_WINDOWS)
