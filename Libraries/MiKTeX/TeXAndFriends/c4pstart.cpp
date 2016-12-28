@@ -124,7 +124,7 @@ C4P::Program::Program(const char * lpszProgramName, int argc, const char ** argv
   MIKTEX_API_END("C4P::StartUp");
 }
 
-C4P::Program::~Program()
+C4P::Program::~Program() noexcept
 {
   try
   {

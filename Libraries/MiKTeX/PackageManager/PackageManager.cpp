@@ -40,7 +40,7 @@ string PackageManagerImpl::proxyPassword;
 bool PackageManagerImpl::localServer = false;
 #endif
 
-PackageManager::~PackageManager()
+PackageManager::~PackageManager() noexcept
 {
 }
 

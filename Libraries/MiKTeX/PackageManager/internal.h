@@ -217,7 +217,7 @@ public:
   unsigned long MIKTEXTHISCALL GetFileRefCount(const MiKTeX::Core::PathName & path) override;
 
 public:
-  MiKTeX::Packages::PackageInfo MIKTEXTHISCALL GetPackageInfo(const std::string & deploymentName);
+  MiKTeX::Packages::PackageInfo MIKTEXTHISCALL GetPackageInfo(const std::string & deploymentName) override;
 
 public:
   void MIKTEXTHISCALL LoadDatabase(const MiKTeX::Core::PathName & path) override;

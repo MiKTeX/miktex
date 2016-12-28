@@ -53,7 +53,7 @@ using namespace std;
 
 #define ENABLE_LEGACY_TRACING 1
 
-TraceStream::~TraceStream()
+TraceStream::~TraceStream() noexcept
 {
 }
 

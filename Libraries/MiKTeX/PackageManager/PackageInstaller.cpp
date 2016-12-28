@@ -59,7 +59,7 @@ string PackageInstallerImpl::MakeUrl(const char * lpszRel)
   return MakeUrl(repository.c_str(), lpszRel);
 }
 
-PackageInstaller::~PackageInstaller()
+PackageInstaller::~PackageInstaller() noexcept
 {
 }
 

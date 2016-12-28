@@ -100,7 +100,7 @@ bool Contains(const vector<PathName> & vec, const PathName & pathName)
 
 END_INTERNAL_NAMESPACE;
 
-SetupService::~SetupService()
+SetupService::~SetupService() noexcept
 {
 }
 

@@ -60,7 +60,7 @@ TeXMFApp::TeXMFApp() :
 {
 }
 
-TeXMFApp::~TeXMFApp()
+TeXMFApp::~TeXMFApp() noexcept
 {
 }
 

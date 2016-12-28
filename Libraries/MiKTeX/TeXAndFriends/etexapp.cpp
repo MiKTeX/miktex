@@ -36,7 +36,7 @@ ETeXApp::ETeXApp() :
 {
 }
 
-ETeXApp::~ETeXApp()
+ETeXApp::~ETeXApp() noexcept
 {
 }
 

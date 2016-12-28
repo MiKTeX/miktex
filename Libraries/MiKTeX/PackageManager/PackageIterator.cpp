@@ -67,6 +67,6 @@ void PackageIteratorImpl::Dispose()
 {
 }
 
-PackageIterator::~PackageIterator()
+PackageIterator::~PackageIterator() noexcept
 {
 }

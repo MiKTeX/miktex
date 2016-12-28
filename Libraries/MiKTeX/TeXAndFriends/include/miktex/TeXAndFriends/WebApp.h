@@ -108,7 +108,7 @@ public:
   virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~WebApp() noexcept;
 
 public:
-  virtual MIKTEXMFTHISAPI(void) Init(const std::string& programInvocationName);
+  MIKTEXMFTHISAPI(void) Init(const std::string& programInvocationName) override;
 
 public:
   MIKTEXMFTHISAPI(void) Finalize() override;

@@ -34,7 +34,7 @@
 using namespace MiKTeX::Extractor;
 using namespace std;
 
-Extractor::~Extractor()
+Extractor::~Extractor() noexcept
 {
 }
 

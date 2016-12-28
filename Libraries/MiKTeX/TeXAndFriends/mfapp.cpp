@@ -34,7 +34,7 @@ MetafontApp::MetafontApp() :
 {
 }
 
-MetafontApp::~MetafontApp()
+MetafontApp::~MetafontApp() noexcept
 {
 }
 

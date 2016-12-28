@@ -87,6 +87,6 @@ Tokenizer & Tokenizer::operator++ ()
   return *this;
 }
 
-Tokenizer::~Tokenizer()
+Tokenizer::~Tokenizer() noexcept
 {
 }

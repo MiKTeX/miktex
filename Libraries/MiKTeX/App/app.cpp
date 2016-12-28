@@ -97,7 +97,7 @@ Application::Application() :
 {
 }
 
-Application::~Application()
+Application::~Application() noexcept
 {
   try
   {

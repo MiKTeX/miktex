@@ -52,7 +52,7 @@ WebAppInputLine::WebAppInputLine() :
 {
 }
 
-WebAppInputLine::~WebAppInputLine()
+WebAppInputLine::~WebAppInputLine() noexcept
 {
 }
 
