@@ -30,7 +30,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace std;
 
-MemoryMappedFile * MemoryMappedFile::Create()
+MemoryMappedFile* MemoryMappedFile::Create()
 {
   return new winMemoryMappedFile;
 }
@@ -47,12 +47,12 @@ winMemoryMappedFile::~winMemoryMappedFile()
     DestroyMapping();
     CloseFile();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
 
-void * winMemoryMappedFile::Open(const PathName & pathArg, bool readWrite)
+void* winMemoryMappedFile::Open(const PathName& pathArg, bool readWrite)
 {
   path = pathArg;
   this->readWrite = readWrite;
@@ -113,7 +113,7 @@ void winMemoryMappedFile::Close()
   CloseFile();
 }
 
-void * winMemoryMappedFile::Resize(size_t dwNewSize)
+void* winMemoryMappedFile::Resize(size_t dwNewSize)
 {
   DestroyMapping();
   CreateMapping(dwNewSize);
@@ -123,12 +123,11 @@ void * winMemoryMappedFile::Resize(size_t dwNewSize)
 void winMemoryMappedFile::OpenFile()
 {
   unsigned long desiredAccess = GENERIC_READ;
-  unsigned long shareMode = FILE_SHARE_READ;
+  unsigned long shareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
 
   if (readWrite)
   {
     desiredAccess |= GENERIC_WRITE;
-    shareMode |= FILE_SHARE_WRITE;
   }
 
   traceStream->WriteFormattedLine("core", T_("opening memory-mapped file %s for %s"), Q_(path), (readWrite ? T_("reading/writing") : T_("reading")));
@@ -197,7 +196,7 @@ void winMemoryMappedFile::DestroyMapping()
 {
   if (ptr != nullptr)
   {
-    void * ptr = this->ptr;
+    void* ptr = this->ptr;
     this->ptr = nullptr;
     if (!UnmapViewOfFile(ptr))
     {
