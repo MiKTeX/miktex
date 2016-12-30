@@ -28,7 +28,7 @@
 
 C4P_BEGIN_NAMESPACE;
 
-C4PCEEAPI(void) DiscardLine(C4P_text & textfile)
+C4PCEEAPI(void) DiscardLine(C4P_text& textfile)
 {
   MIKTEX_API_BEGIN("DiscardLine");
   textfile.AssertValid();
@@ -40,7 +40,7 @@ C4PCEEAPI(void) DiscardLine(C4P_text & textfile)
   MIKTEX_API_END("DiscardLine");
 }
 
-C4PCEEAPI(char) GetChar(C4P_text & textfile)
+C4PCEEAPI(char) GetChar(C4P_text& textfile)
 {
   MIKTEX_API_BEGIN("GetChar");
   textfile.AssertValid();
@@ -54,7 +54,7 @@ C4PCEEAPI(char) GetChar(C4P_text & textfile)
   MIKTEX_API_END("GetChar");
 }
 
-C4PCEEAPI(C4P_integer) GetInteger(C4P_text & textfile)
+C4PCEEAPI(C4P_integer) GetInteger(C4P_text& textfile)
 {
   MIKTEX_API_BEGIN("GetInteger");
   textfile.AssertValid();
@@ -75,17 +75,17 @@ C4PCEEAPI(C4P_integer) GetInteger(C4P_text & textfile)
   MIKTEX_API_END("GetInteger");
 }
 
-C4PCEEAPI(C4P_real) GetReal(C4P_text & /*textfile*/)
+C4PCEEAPI(C4P_real) GetReal(C4P_text& /*textfile*/)
 {
   MIKTEX_API_BEGIN("GetReal");
   MIKTEX_UNEXPECTED();
   MIKTEX_API_END("GetReal");
 }
 
-bool FileRoot::Open(const PathName & path, FileMode mode, FileAccess access, FileShare share, bool text, bool mustExist)
+bool FileRoot::Open(const PathName& path, FileMode mode, FileAccess access, FileShare share, bool text, bool mustExist)
 {
   MIKTEX_API_BEGIN("FileRoot::open");
-  FILE * pFile;
+  FILE* pFile;
   shared_ptr<Session> session = Session::Get();
   if (mustExist)
   {

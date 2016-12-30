@@ -59,7 +59,7 @@ void SessionImpl::MyCoUninitialize()
 #if USE_LOCAL_SERVER
 void SessionImpl::ConnectToServer()
 {
-  const char * MSG_CANNOT_START_SERVER = T_("Cannot start MiKTeX session.");
+  const char* MSG_CANNOT_START_SERVER = T_("Cannot start MiKTeX session.");
   if (localServer.pSession == nullptr)
   {
     if (WindowsVersion::IsWindowsVistaOrGreater())
@@ -253,7 +253,7 @@ PathName SessionImpl::GetDllPathName(bool canonicalized)
    CommonData:    C:\ProgramData\MiKTeX\X.Y\
    _________________________________________________________________________ */
 
-StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathName & commonPrefixArg, const PathName & userPrefixArg)
+StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathName& commonPrefixArg, const PathName& userPrefixArg)
 {
   StartupConfig ret;
   if (config == MiKTeXConfiguration::None)
@@ -447,7 +447,7 @@ StartupConfig SessionImpl::ReadRegistry(bool common)
   return ret;
 }
 
-void SessionImpl::WriteRegistry(bool common, const StartupConfig & startupConfig)
+void SessionImpl::WriteRegistry(bool common, const StartupConfig& startupConfig)
 {
   MIKTEX_ASSERT(!IsMiKTeXDirect());
 
@@ -527,13 +527,13 @@ void SessionImpl::WriteRegistry(bool common, const StartupConfig & startupConfig
   }
 }
 
-bool SessionImpl::GetAcrobatFontDir(PathName & path)
+bool SessionImpl::GetAcrobatFontDir(PathName& path)
 {
   if (!flags.test((size_t)InternalFlag::CachedAcrobatFontDir))
   {
     flags.set((size_t)InternalFlag::CachedAcrobatFontDir);
 
-    const wchar_t * const ACRORD32 = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\AcroRd32.exe";
+    const wchar_t* const ACRORD32 = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\AcroRd32.exe";
 
     wstring pathExe;
 
@@ -574,13 +574,13 @@ bool SessionImpl::GetAcrobatFontDir(PathName & path)
   return true;
 }
 
-bool SessionImpl::GetATMFontDir(PathName & path)
+bool SessionImpl::GetATMFontDir(PathName& path)
 {
   if (!flags.test((size_t)InternalFlag::CachedAtmFontDir))
   {
     flags.set((size_t)InternalFlag::CachedAtmFontDir);
 
-    const wchar_t * const ATMSETUP = L"SOFTWARE\\Adobe\\Adobe Type Manager\\Setup";
+    const wchar_t* const ATMSETUP = L"SOFTWARE\\Adobe\\Adobe Type Manager\\Setup";
 
     wstring pfbDir;
 
@@ -611,7 +611,7 @@ bool SessionImpl::GetATMFontDir(PathName & path)
   return true;
 }
 
-MIKTEXSTATICFUNC(bool) GetPsFontDirectory(PathName & path)
+MIKTEXSTATICFUNC(bool) GetPsFontDirectory(PathName& path)
 {
   wchar_t szWinDir[BufferSizes::MaxPath];
 
@@ -632,7 +632,7 @@ MIKTEXSTATICFUNC(bool) GetPsFontDirectory(PathName & path)
   return true;
 }
 
-bool SessionImpl::GetPsFontDirs(string & psFontDirs)
+bool SessionImpl::GetPsFontDirs(string& psFontDirs)
 {
   if (!flags.test((size_t)InternalFlag::CachedPsFontDirs))
   {
@@ -666,7 +666,7 @@ bool SessionImpl::GetPsFontDirs(string & psFontDirs)
   return true;
 }
 
-bool SessionImpl::GetTTFDirs(string & ttfDirs)
+bool SessionImpl::GetTTFDirs(string& ttfDirs)
 {
   if (!flags.test((size_t)InternalFlag::CachedTtfDirs))
   {
@@ -692,7 +692,7 @@ bool SessionImpl::GetTTFDirs(string & ttfDirs)
   return true;
 }
 
-bool SessionImpl::GetOTFDirs(string & otfDirs)
+bool SessionImpl::GetOTFDirs(string& otfDirs)
 {
   if (!flags.test((size_t)InternalFlag::CachedOtfDirs))
   {
@@ -718,7 +718,7 @@ bool SessionImpl::GetOTFDirs(string & otfDirs)
   return true;
 }
 
-void Session::FatalWindowsError(const string & functionName, unsigned long errorCode, const MiKTeXException::KVMAP & info, const SourceLocation & sourceLocation)
+void Session::FatalWindowsError(const string& functionName, unsigned long errorCode, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation)
 {
   string programInvocationName;
   shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
@@ -783,7 +783,7 @@ bool SessionImpl::ShowManualPageAndWait(HWND hWnd, unsigned long topic)
 #endif
 }
 
-bool SessionImpl::IsFileAlreadyOpen(const PathName & fileName)
+bool SessionImpl::IsFileAlreadyOpen(const PathName& fileName)
 {
   unsigned long error = NO_ERROR;
 
@@ -804,7 +804,7 @@ bool SessionImpl::IsFileAlreadyOpen(const PathName & fileName)
   return hFile == INVALID_HANDLE_VALUE && error == ERROR_SHARING_VIOLATION;
 }
 
-void SessionImpl::ScheduleFileRemoval(const PathName & fileName)
+void SessionImpl::ScheduleFileRemoval(const PathName& fileName)
 {
   if (IsMiKTeXPortable())
   {
@@ -851,7 +851,7 @@ bool SessionImpl::IsUserMemberOfGroup(DWORD localGroup)
     return false;
   }
 
-  TOKEN_GROUPS * ptg = reinterpret_cast<TOKEN_GROUPS *>(_alloca(cbTokenGroups));
+  TOKEN_GROUPS* ptg = reinterpret_cast<TOKEN_GROUPS*>(_alloca(cbTokenGroups));
 
   if (ptg == nullptr)
   {

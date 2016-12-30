@@ -47,9 +47,9 @@ MIKTEXSTATICFUNC(int) Close(int fd)
 #endif
 }
 
-MIKTEXSTATICFUNC(FILE *) POpen(const char * lpszCommand, const char * lpszMode)
+MIKTEXSTATICFUNC(FILE*) POpen(const char* lpszCommand, const char* lpszMode)
 {
-  FILE * pFile;
+  FILE* pFile;
 #if defined(_MSC_VER) || defined(__MINGW32__)
   pFile = _popen(lpszCommand, lpszMode);
 #else
@@ -62,7 +62,7 @@ MIKTEXSTATICFUNC(FILE *) POpen(const char * lpszCommand, const char * lpszMode)
   return pFile;
 }
 
-MIKTEXSTATICFUNC(int) PClose(FILE * pFile)
+MIKTEXSTATICFUNC(int) PClose(FILE* pFile)
 {
   int exitCode;
 #if defined(_MSC_VER) || defined(__MINGW32__)
@@ -112,7 +112,7 @@ static array<unique_ptr<FileStream>, 2> CreatePipe(size_t pipeSize)
   return files;
 }
 
-void SessionImpl::RecordFileInfo(const PathName & path, FileAccess access)
+void SessionImpl::RecordFileInfo(const PathName& path, FileAccess access)
 {
   if (!(recordingFileNames || recordingPackageNames || packageHistoryFile.length() > 0))
   {
@@ -147,7 +147,7 @@ void SessionImpl::RecordFileInfo(const PathName & path, FileAccess access)
   }
 }
 
-FILE * SessionImpl::TryOpenFile(const PathName & path, FileMode mode, FileAccess access, bool text)
+FILE* SessionImpl::TryOpenFile(const PathName& path, FileMode mode, FileAccess access, bool text)
 {
   try
   {
@@ -169,12 +169,12 @@ FILE * SessionImpl::TryOpenFile(const PathName & path, FileMode mode, FileAccess
   }
 }
 
-FILE * SessionImpl::OpenFile(const PathName & path, FileMode mode, FileAccess access, bool text)
+FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess access, bool text)
 {
   return OpenFile(path, mode, access, text, FileShare::ReadWrite);
 }
 
-FILE * SessionImpl::TryOpenFile(const PathName & path, FileMode mode, FileAccess access, bool text, FileShare share)
+FILE* SessionImpl::TryOpenFile(const PathName& path, FileMode mode, FileAccess access, bool text, FileShare share)
 {
   try
   {
@@ -196,11 +196,11 @@ FILE * SessionImpl::TryOpenFile(const PathName & path, FileMode mode, FileAccess
   }
 }
 
-FILE * SessionImpl::OpenFile(const PathName & path, FileMode mode, FileAccess access, bool text, FileShare share)
+FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess access, bool text, FileShare share)
 {
   trace_files->WriteFormattedLine("core", "OpenFile(\"%s\", %d, 0x%x, %d, %d)", path.ToString().c_str(), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(text), static_cast<int>(share));
 
-  FILE * pFile = nullptr;
+  FILE* pFile = nullptr;
 
   if (mode == FileMode::Command)
   {
@@ -220,7 +220,7 @@ FILE * SessionImpl::OpenFile(const PathName & path, FileMode mode, FileAccess ac
     info.fileName = path.ToString();
     info.mode = mode;
     info.access = access;
-    openFilesMap.insert(pair<FILE *, OpenFileInfo>(pFile, info));
+    openFilesMap.insert(pair<FILE*, OpenFileInfo>(pFile, info));
     if (setvbuf(pFile, 0, _IOFBF, 1024 * 4) != 0)
     {
       trace_error->WriteFormattedLine("core", T_("setvbuf() failed for some reason"));
@@ -236,7 +236,7 @@ FILE * SessionImpl::OpenFile(const PathName & path, FileMode mode, FileAccess ac
   }
 }
 
-FILE * SessionImpl::InitiateProcessPipe(const string & command, FileAccess access, FileMode & mode)
+FILE* SessionImpl::InitiateProcessPipe(const string& command, FileAccess access, FileMode& mode)
 {
   Argv argv("", command);
   int argc = argv.GetArgc();
@@ -282,7 +282,7 @@ MIKTEXSTATICFUNC(void) ReaderThread(unique_ptr<Stream> inStream, unique_ptr<Stre
   }
 }
 
-FILE * SessionImpl::OpenFileOnStream(std::unique_ptr<Stream> stream)
+FILE* SessionImpl::OpenFileOnStream(std::unique_ptr<Stream> stream)
 {
   array<unique_ptr<FileStream>, 2> files = CreatePipe(PIPE_SIZE);
   thread readerThread(&ReaderThread, move(stream), move(files[1]));
@@ -290,11 +290,11 @@ FILE * SessionImpl::OpenFileOnStream(std::unique_ptr<Stream> stream)
   return files[0]->Detach();
 }
 
-void SessionImpl::CloseFile(FILE * pFile)
+void SessionImpl::CloseFile(FILE* pFile)
 {
   MIKTEX_ASSERT_BUFFER(pFile, sizeof(*pFile));
   trace_files->WriteFormattedLine("core", "CloseFile(%p)", pFile);
-  map<const FILE *, OpenFileInfo>::iterator it = openFilesMap.find(pFile);
+  map<const FILE*, OpenFileInfo>::iterator it = openFilesMap.find(pFile);
   bool isCommand = false;
   if (it != openFilesMap.end())
   {
@@ -311,10 +311,10 @@ void SessionImpl::CloseFile(FILE * pFile)
   }
 }
 
-bool SessionImpl::IsOutputFile(const FILE * pFile)
+bool SessionImpl::IsOutputFile(const FILE* pFile)
 {
   MIKTEX_ASSERT(pFile != nullptr);
-  map<const FILE *, OpenFileInfo>::const_iterator it = openFilesMap.find(pFile);
+  map<const FILE*, OpenFileInfo>::const_iterator it = openFilesMap.find(pFile);
   if (it == openFilesMap.end())
   {
     return false;
@@ -335,7 +335,7 @@ bool SessionImpl::StartFileInfoRecorder(bool recordPackageNames)
   return true;
 }
 
-void SessionImpl::SetRecorderPath(const PathName & path)
+void SessionImpl::SetRecorderPath(const PathName& path)
 {
   if (!(recordingFileNames || recordingPackageNames))
   {
@@ -364,7 +364,7 @@ vector<FileInfoRecord> SessionImpl::GetFileInfoRecords()
 
 void SessionImpl::CheckOpenFiles()
 {
-  for (map<const FILE *, OpenFileInfo>::const_iterator it = openFilesMap.begin(); it != openFilesMap.end(); ++it)
+  for (map<const FILE*, OpenFileInfo>::const_iterator it = openFilesMap.begin(); it != openFilesMap.end(); ++it)
   {
     trace_error->WriteFormattedLine("core", T_("still open: %s"), Q_(it->second.fileName));
   }

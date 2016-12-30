@@ -56,7 +56,7 @@ WebAppInputLine::~WebAppInputLine() noexcept
 {
 }
 
-void WebAppInputLine::Init(const string & programInvocationName)
+void WebAppInputLine::Init(const string& programInvocationName)
 {
   WebApp::Init(programInvocationName);
   pimpl->enablePipes = false;
@@ -85,7 +85,7 @@ void WebAppInputLine::AddOptions()
   AddOption(T_("disable-pipes\0Disable input (output) from (to) processes."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_PIPES);
 }
 
-bool WebAppInputLine::ProcessOption(int opt, const string & optArg)
+bool WebAppInputLine::ProcessOption(int opt, const string& optArg)
 {
   bool done = true;
 
@@ -108,7 +108,7 @@ bool WebAppInputLine::ProcessOption(int opt, const string & optArg)
   return done;
 }
 
-PathName WebAppInputLine::MangleNameOfFile(const char * lpszFrom)
+PathName WebAppInputLine::MangleNameOfFile(const char* lpszFrom)
 {
   if (!IsNameManglingEnabled)
   {
@@ -117,7 +117,7 @@ PathName WebAppInputLine::MangleNameOfFile(const char * lpszFrom)
   else
   {
     PathName ret;
-    char * lpszTo = ret.GetData();
+    char* lpszTo = ret.GetData();
     MIKTEX_ASSERT_STRING(lpszFrom);
     size_t len = StrLen(lpszFrom);
     if (len >= ret.GetCapacity())
@@ -149,7 +149,7 @@ PathName WebAppInputLine::MangleNameOfFile(const char * lpszFrom)
   }
 }
 
-template<typename CharType> static PathName UnmangleNameOfFile_(const CharType * lpszFrom)
+template<typename CharType> static PathName UnmangleNameOfFile_(const CharType* lpszFrom)
 {
   if (!IsNameManglingEnabled)
   {
@@ -158,7 +158,7 @@ template<typename CharType> static PathName UnmangleNameOfFile_(const CharType *
   else
   {
     PathName ret;
-    char * lpszTo = ret.GetData();
+    char* lpszTo = ret.GetData();
     MIKTEX_ASSERT_STRING(lpszFrom);
     size_t len = StrLen(lpszFrom);
     if (len >= ret.GetCapacity())
@@ -186,17 +186,17 @@ template<typename CharType> static PathName UnmangleNameOfFile_(const CharType *
   }
 }
 
-PathName WebAppInputLine::UnmangleNameOfFile(const char * lpszFrom)
+PathName WebAppInputLine::UnmangleNameOfFile(const char* lpszFrom)
 {
   return UnmangleNameOfFile_(lpszFrom);
 }
 
-PathName WebAppInputLine::UnmangleNameOfFile(const wchar_t * lpszFrom)
+PathName WebAppInputLine::UnmangleNameOfFile(const wchar_t* lpszFrom)
 {
   return UnmangleNameOfFile_(lpszFrom);
 }
 
-static bool IsOutputFile(const PathName & path)
+static bool IsOutputFile(const PathName& path)
 {
   PathName path_(path);
   if (path_.HasExtension(".gz"))
@@ -245,7 +245,7 @@ bool WebAppInputLine::AllowFileName(const MiKTeX::Core::PathName& fileName, bool
   return Core::Utils::IsSafeFileName(fileName, forInput);
 }
 
-bool WebAppInputLine::OpenOutputFile(C4P::FileRoot & f, const PathName& fileName, FileShare share, bool text, PathName & outPath)
+bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName, FileShare share, bool text, PathName& outPath)
 {
   const char* lpszPath = fileName.GetData();
 #if defined(MIKTEX_WINDOWS)
@@ -257,7 +257,7 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot & f, const PathName& fileName
   }
 #endif
   shared_ptr<Session> session = GetSession();
-  FILE * pfile = nullptr;
+  FILE* pfile = nullptr;
   if (pimpl->enablePipes && lpszPath[0] == '|')
   {
     pfile = session->OpenFile(lpszPath + 1, FileMode::Command, FileAccess::Write, false);
@@ -383,9 +383,9 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
   return true;
 }
 
-bool WebAppInputLine::OpenInputFile(C4P::FileRoot & f, const PathName& fileName)
+bool WebAppInputLine::OpenInputFile(C4P::FileRoot& f, const PathName& fileName)
 {
-  FILE * pFile = nullptr;
+  FILE* pFile = nullptr;
 
   if (!OpenInputFile(&pFile, fileName))
   {
@@ -405,7 +405,7 @@ bool WebAppInputLine::OpenInputFile(C4P::FileRoot & f, const PathName& fileName)
 }
 
 #if 0
-void WebAppInputLine::HandleEof(FILE * pfile) const
+void WebAppInputLine::HandleEof(FILE* pfile) const
 {
   MIKTEX_ASSERT(pfile != nullptr);
 #if 1
@@ -423,7 +423,7 @@ void WebAppInputLine::TouchJobOutputFile(FILE *) const
 {
 }
 
-void WebAppInputLine::SetOutputDirectory(const PathName & path)
+void WebAppInputLine::SetOutputDirectory(const PathName& path)
 {
   pimpl->outputDirectory = path;
 }
@@ -433,7 +433,7 @@ PathName WebAppInputLine::GetOutputDirectory() const
   return pimpl->outputDirectory;
 }
 
-void WebAppInputLine::SetAuxDirectory(const PathName & path)
+void WebAppInputLine::SetAuxDirectory(const PathName& path)
 {
   pimpl->auxDirectory = path;
 }

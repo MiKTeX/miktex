@@ -31,7 +31,7 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-void File::Delete(const PathName & path, FileDeleteOptionSet options)
+void File::Delete(const PathName& path, FileDeleteOptionSet options)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();
 
@@ -95,7 +95,7 @@ void File::Delete(const PathName & path, FileDeleteOptionSet options)
 #endif
 }
 
-vector<unsigned char> File::ReadAllBytes(const PathName & path)
+vector<unsigned char> File::ReadAllBytes(const PathName& path)
 {
   size_t size = GetSize(path);
   vector<unsigned char> arr;
@@ -105,17 +105,17 @@ vector<unsigned char> File::ReadAllBytes(const PathName & path)
   return arr;
 }
 
-FILE * File::Open(const PathName & path, FileMode mode, FileAccess access)
+FILE* File::Open(const PathName& path, FileMode mode, FileAccess access)
 {
   return Open(path, mode, access, true, FileShare::ReadWrite);
 }
 
-FILE * File::Open(const PathName & path, FileMode mode, FileAccess access, bool isTextFile)
+FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile)
 {
   return Open(path, mode, access, isTextFile, FileShare::ReadWrite);
 }
 
-bool File::Equals(const PathName & path1, const PathName & path2)
+bool File::Equals(const PathName& path1, const PathName& path2)
 {
   size_t size = GetSize(path1);
   if (GetSize(path2) != size)
@@ -127,9 +127,9 @@ bool File::Equals(const PathName & path1, const PathName & path2)
     return true;
   }
   unique_ptr<MemoryMappedFile> pFile1(MemoryMappedFile::Create());
-  const void * ptr1 = pFile1->Open(path1, false);
+  const void* ptr1 = pFile1->Open(path1, false);
   unique_ptr<MemoryMappedFile> pFile2(MemoryMappedFile::Create());
-  const void * ptr2 = pFile2->Open(path2, false);
+  const void* ptr2 = pFile2->Open(path2, false);
   bool ret = memcmp(ptr1, ptr2, size) == 0;
   pFile1->Close();
   pFile2->Close();

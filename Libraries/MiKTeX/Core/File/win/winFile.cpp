@@ -42,7 +42,7 @@ static unsigned long GetFileAttributes_harmlessErrors[] = {
   ERROR_BAD_PATHNAME, // 161
 };
 
-bool File::Exists(const PathName & path)
+bool File::Exists(const PathName& path)
 {
   unsigned long attributes = GetFileAttributesW(path.ToWideCharString().c_str());
   if (attributes != INVALID_FILE_ATTRIBUTES)
@@ -73,7 +73,7 @@ bool File::Exists(const PathName & path)
   return false;
 }
 
-FileAttributeSet File::GetAttributes(const PathName & path)
+FileAttributeSet File::GetAttributes(const PathName& path)
 {
   unsigned long attributes = GetNativeAttributes(path);
 
@@ -97,7 +97,7 @@ FileAttributeSet File::GetAttributes(const PathName & path)
   return result;
 }
 
-unsigned long File::GetNativeAttributes(const PathName & path)
+unsigned long File::GetNativeAttributes(const PathName& path)
 {
   unsigned long attributes = GetFileAttributesW(path.ToWideCharString().c_str());
 
@@ -109,7 +109,7 @@ unsigned long File::GetNativeAttributes(const PathName & path)
   return attributes;
 }
 
-void File::SetAttributes(const PathName & path, FileAttributeSet attributes)
+void File::SetAttributes(const PathName& path, FileAttributeSet attributes)
 {
   unsigned long attributesOld = GetNativeAttributes(path);
 
@@ -141,7 +141,7 @@ void File::SetAttributes(const PathName & path, FileAttributeSet attributes)
   SetNativeAttributes(path, attributesNew);
 }
 
-void File::SetNativeAttributes(const PathName & path, unsigned long nativeAttributes)
+void File::SetNativeAttributes(const PathName& path, unsigned long nativeAttributes)
 {
   SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("setting new attributes (%x) on %s"), static_cast<int>(nativeAttributes), Q_(path));
 
@@ -151,7 +151,7 @@ void File::SetNativeAttributes(const PathName & path, unsigned long nativeAttrib
   }
 }
 
-size_t File::GetSize(const PathName & path)
+size_t File::GetSize(const PathName& path)
 {
   HANDLE h = CreateFileW(path.ToWideCharString().c_str(), FILE_READ_ATTRIBUTES, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
@@ -249,19 +249,19 @@ void File::SetTimes(int fd, time_t creationTime, time_t lastAccessTime, time_t l
   SetTimesInternal(GET_OSFHANDLE(fd), creationTime, lastAccessTime, lastWriteTime);
 }
 
-void File::SetTimes(FILE * stream, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
+void File::SetTimes(FILE* stream, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
 {
   SetTimes(_fileno(stream), creationTime, lastAccessTime, lastWriteTime);
 }
 
-void File::SetTimes(const PathName & path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
+void File::SetTimes(const PathName& path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
 {
   FileStream stream(File::Open(path, FileMode::Open, FileAccess::ReadWrite, false));
   SetTimes(stream.Get(), creationTime, lastAccessTime, lastWriteTime);
   stream.Close();
 }
 
-void File::GetTimes(const PathName & path, time_t & creationTime, time_t & lastAccessTime, time_t & lastWriteTime)
+void File::GetTimes(const PathName& path, time_t& creationTime, time_t& lastAccessTime, time_t& lastWriteTime)
 {
   WIN32_FIND_DATAW findData;
   HANDLE findHandle = FindFirstFileW(path.ToWideCharString().c_str(), &findData);
@@ -278,7 +278,7 @@ void File::GetTimes(const PathName & path, time_t & creationTime, time_t & lastA
   lastWriteTime = FileTimeToUniversalCrtTime(findData.ftLastWriteTime);
 }
 
-void File::Delete(const PathName & path)
+void File::Delete(const PathName& path)
 {
   SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("deleting %s"), Q_(path));
   if (!DeleteFileW(path.ToWideCharString().c_str()))
@@ -287,7 +287,7 @@ void File::Delete(const PathName & path)
   }
 }
 
-void File::Move(const PathName & source, const PathName & dest, FileMoveOptionSet options)
+void File::Move(const PathName& source, const PathName& dest, FileMoveOptionSet options)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession(); 
   session->trace_files->WriteFormattedLine("core", T_("renaming %s to %s"), Q_(source), Q_(dest));
@@ -313,7 +313,7 @@ void File::Move(const PathName & source, const PathName & dest, FileMoveOptionSe
   }
 }
 
-void File::Copy(const PathName & source, const PathName & dest, FileCopyOptionSet options)
+void File::Copy(const PathName& source, const PathName& dest, FileCopyOptionSet options)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession(); 
   session->trace_files->WriteFormattedLine("core", T_("copying %s to %s"), Q_(source), Q_(dest));
@@ -338,7 +338,7 @@ void File::Copy(const PathName & source, const PathName & dest, FileCopyOptionSe
   }
 }
 
-void File::CreateLink(const PathName & oldName, const PathName & newName, CreateLinkOptionSet options)
+void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLinkOptionSet options)
 {
   if (options[CreateLinkOption::ReplaceExisting] && File::Exists(newName) )
   {
@@ -384,7 +384,7 @@ size_t File::SetMaxOpen(size_t newMax)
   return newMax;
 }
 
-FILE * File::Open(const PathName & path, FileMode mode, FileAccess access, bool isTextFile, FileShare share)
+FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share)
 {
   SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("opening file %s (%d 0x%x %d %d)"), Q_(path), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(share), static_cast<int>(isTextFile));
 
