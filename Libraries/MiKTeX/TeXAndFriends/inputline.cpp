@@ -356,11 +356,7 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
       }
       else
       {
-#if 0
-        FileShare share = FileShare::Read;
-#else
         FileShare share = FileShare::ReadWrite;
-#endif
         *ppFile = session->OpenFile(pimpl->foundFile.GetData(), FileMode::Open, FileAccess::Read, false, share);
       }
     }

@@ -107,12 +107,12 @@ vector<unsigned char> File::ReadAllBytes(const PathName & path)
 
 FILE * File::Open(const PathName & path, FileMode mode, FileAccess access)
 {
-  return Open(path, mode, access, true, FileShare::Read);
+  return Open(path, mode, access, true, FileShare::ReadWrite);
 }
 
 FILE * File::Open(const PathName & path, FileMode mode, FileAccess access, bool isTextFile)
 {
-  return Open(path, mode, access, isTextFile, FileShare::Read);
+  return Open(path, mode, access, isTextFile, FileShare::ReadWrite);
 }
 
 bool File::Equals(const PathName & path1, const PathName & path2)

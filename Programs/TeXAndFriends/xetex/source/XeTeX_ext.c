@@ -2693,7 +2693,7 @@ boolean open_dvi_output(C4P::FileRoot & dviFile)
   if (nopdfoutput)
   {
     MiKTeX::Core::PathName outPath;
-    bool done = THEAPP.OpenOutputFile(dviFile, THEAPP.GetNameOfFile(), MiKTeX::Core::FileShare::Read, false, outPath);
+    bool done = THEAPP.OpenOutputFile(dviFile, THEAPP.GetNameOfFile(), MiKTeX::Core::FileShare::ReadWrite, false, outPath);
     if (done)
     {
       THEAPP.SetNameOfFile(THEAPP.MangleNameOfFile(outPath.GetData()));

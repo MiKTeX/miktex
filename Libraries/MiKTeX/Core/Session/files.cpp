@@ -151,7 +151,7 @@ FILE * SessionImpl::TryOpenFile(const PathName & path, FileMode mode, FileAccess
 {
   try
   {
-    return OpenFile(path, mode, access, text, FileShare::Read);
+    return OpenFile(path, mode, access, text, FileShare::ReadWrite);
   }
 #if defined(MIKTEX_WINDOWS)
   catch (const SharingViolationException &)
@@ -171,7 +171,7 @@ FILE * SessionImpl::TryOpenFile(const PathName & path, FileMode mode, FileAccess
 
 FILE * SessionImpl::OpenFile(const PathName & path, FileMode mode, FileAccess access, bool text)
 {
-  return OpenFile(path, mode, access, text, FileShare::Read);
+  return OpenFile(path, mode, access, text, FileShare::ReadWrite);
 }
 
 FILE * SessionImpl::TryOpenFile(const PathName & path, FileMode mode, FileAccess access, bool text, FileShare share)

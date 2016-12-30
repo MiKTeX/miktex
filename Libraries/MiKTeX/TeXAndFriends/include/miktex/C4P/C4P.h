@@ -643,13 +643,13 @@ template<class T> inline bool c4pfopen(T & f, const char * lpszName, const char 
       || MiKTeX::Core::Utils::Equals(lpszMode, "wb"));
   bool reading = (lpszMode[0] == 'r');
   bool text = (lpszMode[1] == 0);
-  return (f.Open(lpszName, (reading
-    ? MiKTeX::Core::FileMode::Open
-    : MiKTeX::Core::FileMode::Create), (reading
-      ? MiKTeX::Core::FileAccess::Read
-      : MiKTeX::Core::FileAccess::Write), (reading
-        ? MiKTeX::Core::FileShare::Read
-        : MiKTeX::Core::FileShare::None), text, mustExist));
+  return f.Open(
+    lpszName,
+    (reading ? MiKTeX::Core::FileMode::Open : MiKTeX::Core::FileMode::Create),
+    (reading ? MiKTeX::Core::FileAccess::Read : MiKTeX::Core::FileAccess::Write),
+    MiKTeX::Core::FileShare::ReadWrite,
+    text,
+    mustExist);
 }
 
 template<class T> inline bool c4ptryfopen(T & f, const char * lpszName, const char * lpszMode)

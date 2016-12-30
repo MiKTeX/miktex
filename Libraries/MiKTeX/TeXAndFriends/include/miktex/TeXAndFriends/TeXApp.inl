@@ -114,7 +114,7 @@ inline int miktexmakesrcspecial(int fileName, int lineNo)
 template<class FileType> inline bool miktexopendvifile(FileType & f)
 {
   MiKTeX::Core::PathName outPath;
-  bool done = THEAPP.OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), THEAPP.GetNameOfFile(), MiKTeX::Core::FileShare::Read, false, outPath);
+  bool done = THEAPP.OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), THEAPP.GetNameOfFile(), MiKTeX::Core::FileShare::ReadWrite, false, outPath);
   if (done)
   {
     THEAPP.SetNameOfFile(THEAPP.MangleNameOfFile(outPath.GetData()));
@@ -125,7 +125,7 @@ template<class FileType> inline bool miktexopendvifile(FileType & f)
 template<class FileType> inline bool miktexopenpdffile(FileType& f)
 {
   MiKTeX::Core::PathName outPath;
-  bool done = THEAPP.OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), THEAPP.GetNameOfFile(), MiKTeX::Core::FileShare::Read, false, outPath);
+  bool done = THEAPP.OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), THEAPP.GetNameOfFile(), MiKTeX::Core::FileShare::ReadWrite, false, outPath);
   if (done)
   {
     THEAPP.SetNameOfFile(THEAPP.MangleNameOfFile(outPath.GetData()));
