@@ -30,7 +30,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace std;
 
-MemoryMappedFile * MemoryMappedFile::Create()
+MemoryMappedFile* MemoryMappedFile::Create()
 {
   return new winMemoryMappedFile;
 }
@@ -47,12 +47,12 @@ winMemoryMappedFile::~winMemoryMappedFile()
     DestroyMapping();
     CloseFile();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
 
-void * winMemoryMappedFile::Open(const PathName & pathArg, bool readWrite)
+void* winMemoryMappedFile::Open(const PathName& pathArg, bool readWrite)
 {
   path = pathArg;
   this->readWrite = readWrite;
@@ -113,7 +113,7 @@ void winMemoryMappedFile::Close()
   CloseFile();
 }
 
-void * winMemoryMappedFile::Resize(size_t dwNewSize)
+void* winMemoryMappedFile::Resize(size_t dwNewSize)
 {
   DestroyMapping();
   CreateMapping(dwNewSize);
@@ -196,7 +196,7 @@ void winMemoryMappedFile::DestroyMapping()
 {
   if (ptr != nullptr)
   {
-    void * ptr = this->ptr;
+    void* ptr = this->ptr;
     this->ptr = nullptr;
     if (!UnmapViewOfFile(ptr))
     {
