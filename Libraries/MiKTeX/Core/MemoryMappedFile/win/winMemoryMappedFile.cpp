@@ -123,12 +123,11 @@ void * winMemoryMappedFile::Resize(size_t dwNewSize)
 void winMemoryMappedFile::OpenFile()
 {
   unsigned long desiredAccess = GENERIC_READ;
-  unsigned long shareMode = FILE_SHARE_READ;
+  unsigned long shareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
 
   if (readWrite)
   {
     desiredAccess |= GENERIC_WRITE;
-    shareMode |= FILE_SHARE_WRITE;
   }
 
   traceStream->WriteFormattedLine("core", T_("opening memory-mapped file %s for %s"), Q_(path), (readWrite ? T_("reading/writing") : T_("reading")));
