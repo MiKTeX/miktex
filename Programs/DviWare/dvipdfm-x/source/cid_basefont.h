@@ -124,7 +124,7 @@ const struct {
 >>",
     "<< \
 /Ascent 752 /CapHeight 737 /Descent -271 /StemV 58 \
-/FontBBox [-160 -259 1015 888] \
+/FontBBox [-160 -249 1015 888] \
 /ItalicAngle 0 /Flags 6 /XHeight 553 \
 /Style << /Panose <000000000400000000000000> >> \
 >>"
@@ -143,10 +143,30 @@ const struct {
 ]\
 >>",
     "<< \
-/Ascent 857 /CapHeight 857 /Descent -143 /StemV 91 \
-/FontBBox [-250 -143 600 857] \
+/Ascent 752 /CapHeight 737 /Descent -271 /StemV 58 \
+/FontBBox [-25 -254 1000 880] \
 /ItalicAngle 0 /Flags 6 /XHeight 599 \
 /Style << /Panose <000000000400000000000000> >> \
+>>"
+  },
+  {
+    "STHeiti-Regular-Acro",
+    "<< \
+/Subtype /CIDFontType0 \
+/CIDSystemInfo << /Registry (Adobe) /Ordering (GB1) /Supplement 1 >> \
+/DW 1000 \
+/W [\
+  814 939 500 \
+ 7716 [500] \
+22355 [500 500] \
+22357 [500] \
+]\
+>>",
+    "<< \
+/Ascent 752 /CapHeight 737 /Descent -271 /StemV 58 \
+/FontBBox [-34 -250 1000 882] \
+/ItalicAngle 0 /Flags 4 /XHeight 599 \
+/Style << /Panose <000001000600000000000000> >> \
 >>"
   },
   {
@@ -164,7 +184,7 @@ const struct {
 /Ascent 752 /CapHeight 737 /Descent -221 /StemV 114 \
 /FontBBox [-92 -250 1010 922] \
 /ItalicAngle 0 /Flags 4 /XHeight 553 \
-/Style << /Panose <000001000500000000000000> >> \
+/Style << /Panose <0801020b0600000000000000> >> \
 >>"
   },
   {
@@ -182,7 +202,7 @@ const struct {
 /Ascent 723 /CapHeight 709 /Descent -241 /StemV 69 \
 /FontBBox [-123 -257 1001 910] \
 /ItalicAngle 0 /Flags 6 /XHeight 450 \
-/Style << /Panose <000002020500000000000000> >> \
+/Style << /Panose <010502020400000000000000> >> \
 >>"
   },
   {
