@@ -115,7 +115,7 @@ MIKTEXSTATICFUNC(int) magstep(int n, int bdpi)
   }
 }
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_find_glyph(kpathsea pKpseInstance, const char* lpszFontName, unsigned dpi, kpse_file_format_type format, kpse_glyph_file_type* glyph_file)
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_find_glyph(kpathsea pKpseInstance, const char* lpszFontName, unsigned dpi, kpse_file_format_type format, kpse_glyph_file_type* glyph_file)
 {
   if (format != kpse_pk_format)
   {
@@ -132,8 +132,8 @@ MIKTEXKPSCEEAPI(char *) miktex_kpathsea_find_glyph(kpathsea pKpseInstance, const
       MIKTEX_UNEXPECTED();
     }
     PathName pathMakePk;
-    std::string arguments = session->MakeMakePkCommandLine(lpszFontName, dpi, kpse_baseResolution, kpse_mode.c_str(), pathMakePk, app->GetEnableInstaller());
-    if (!(Process::Run(pathMakePk.GetData(), arguments.c_str(), nullptr, nullptr, nullptr) && session->FindPkFile(lpszFontName, kpse_mode.c_str(), dpi, path)))
+    std::string arguments = session->MakeMakePkCommandLine(lpszFontName, dpi, kpse_baseResolution, kpse_mode, pathMakePk, app->GetEnableInstaller());
+    if (!(Process::Run(pathMakePk, arguments, nullptr, nullptr, nullptr) && session->FindPkFile(lpszFontName, kpse_mode, dpi, path)))
     {
       return nullptr;
     }
@@ -149,9 +149,9 @@ MIKTEXKPSCEEAPI(char *) miktex_kpathsea_find_glyph(kpathsea pKpseInstance, const
   return lpsz;
 }
 
-MIKTEXSTATICFUNC(const char **) ToStringList(const vector<std::string>& vec)
+MIKTEXSTATICFUNC(const char**) ToStringList(const vector<std::string>& vec)
 {
-  const char ** pStringList = XTALLOC(vec.size() + 1, const char *);
+  const char** pStringList = XTALLOC(vec.size() + 1, const char*);
   size_t idx = 0;
   for (const std::string& s : vec)
   {
@@ -167,7 +167,7 @@ const char PATH_DELIMITER = ';';
 const char PATH_DELIMITER = ':';
 #endif
 
-MIKTEXSTATICFUNC(const char **) ToStringList(const std::string& str)
+MIKTEXSTATICFUNC(const char**) ToStringList(const std::string& str)
 {
   vector<std::string> vec;
   for (CsvList s(str, PATH_DELIMITER); s; ++s)
@@ -245,7 +245,7 @@ MIKTEXSTATICFUNC(FileType) ToFileType(kpse_file_format_type format)
   return ft;
 }
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_find_file(kpathsea pKpseInstance, const char* lpszFileName, kpse_file_format_type format, int mustExist)
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_find_file(kpathsea pKpseInstance, const char* lpszFileName, kpse_file_format_type format, int mustExist)
 {
   MIKTEX_ASSERT(pKpseInstance != nullptr);
   MIKTEX_ASSERT(lpszFileName != nullptr);
@@ -268,13 +268,12 @@ MIKTEXKPSCEEAPI(char *) miktex_kpathsea_find_file(kpathsea pKpseInstance, const 
   return xstrdup(result.GetData());
 }
 
-MIKTEXKPSCEEAPI(char **) miktex_kpathsea_find_file_generic(kpathsea pKpseInstance, const char* lpszFileName, kpse_file_format_type format, boolean mustExist, boolean all)
+MIKTEXKPSCEEAPI(char**) miktex_kpathsea_find_file_generic(kpathsea pKpseInstance, const char* lpszFileName, kpse_file_format_type format, boolean mustExist, boolean all)
 {
   MIKTEX_ASSERT(pKpseInstance != nullptr);
   MIKTEX_ASSERT(lpszFileName != nullptr);
   bool found = false;
   vector<PathName> result;
-  shared_ptr<Session> pSession = Session::Get();
   FileType fileType = ToFileType(format);
   Session::FindFileOptionSet options;
   if (all)
@@ -286,12 +285,13 @@ MIKTEXKPSCEEAPI(char **) miktex_kpathsea_find_file_generic(kpathsea pKpseInstanc
     options += Session::FindFileOption::Create;
     options += Session::FindFileOption::TryHard;
   }
-  found = pSession->FindFile(lpszFileName, fileType, options, result);
+  shared_ptr<Session> session = Session::Get();
+  found = session->FindFile(lpszFileName, fileType, options, result);
   if (!found)
   {
     return nullptr;
   }
-  char ** pStringList = XTALLOC(result.size() + 1, char *);
+  char** pStringList = XTALLOC(result.size() + 1, char*);
   size_t idx = 0;
   for (PathName& p : result)
   {
@@ -391,12 +391,12 @@ MIKTEXKPSCEEAPI(FILE *) miktex_kpathsea_open_file(kpathsea pKpathseaInstance, co
   return pfile;
 }
 
-MIKTEXKPSCEEAPI(char *) miktex_concatn(const char* lpsz1, ...)
+MIKTEXKPSCEEAPI(char*) miktex_concatn(const char* lpsz1, ...)
 {
   va_list marker;
   va_start(marker, lpsz1);
   CharBuffer<char> buf;
-  for (const char* lpsz = lpsz1; lpsz != nullptr; lpsz = va_arg(marker, const char *))
+  for (const char* lpsz = lpsz1; lpsz != nullptr; lpsz = va_arg(marker, const char*))
   {
     buf.Append(lpsz);
   }
@@ -405,7 +405,7 @@ MIKTEXKPSCEEAPI(char *) miktex_concatn(const char* lpsz1, ...)
   return lpszRet;
 }
 
-MIKTEXKPSCEEAPI(const char *) miktex_xbasename(const char* lpszFileName)
+MIKTEXKPSCEEAPI(const char*) miktex_xbasename(const char* lpszFileName)
 {
   const char* lpsz = lpszFileName + StrLen(lpszFileName);
   while (lpsz != lpszFileName)
@@ -419,7 +419,7 @@ MIKTEXKPSCEEAPI(const char *) miktex_xbasename(const char* lpszFileName)
   return lpszFileName;
 }
 
-MIKTEXKPSCEEAPI(char *) miktex_xdirname(const char* lpszFileName)
+MIKTEXKPSCEEAPI(char*) miktex_xdirname(const char* lpszFileName)
 {
   return xstrdup(PathName(lpszFileName).RemoveFileSpec().GetData());
 }
@@ -541,7 +541,7 @@ MIKTEXKPSCEEAPI(FILE *) miktex_xfopen(const char* lpszFileName, const char* lpsz
   return session->OpenFile(lpszFileName, mode, access, isTextFile, FileShare::ReadWrite);
 }
 
-MIKTEXKPSCEEAPI(char *) miktex_xgetcwd()
+MIKTEXKPSCEEAPI(char*) miktex_xgetcwd()
 {
   PathName path;
   path.SetToCurrentDirectory();
@@ -638,7 +638,7 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_set_program_name(kpathsea kpse, const char
   Utils::SetEnvironmentString("progname", lpszProgramName);
 }
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_program_basename(const char* lpszArgv0)
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_program_basename(const char* lpszArgv0)
 {
   PathName argv0(lpszArgv0);
   return xstrdup(argv0.GetFileNameWithoutExtension().GetData());
@@ -648,7 +648,7 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_set_program_enabled(kpathsea kpse, kpse_fi
 {
 }
 
-MIKTEXKPSCEEAPI(char *) miktex_find_suffix(const char* lpszPath)
+MIKTEXKPSCEEAPI(char*) miktex_find_suffix(const char* lpszPath)
 {
   const char* lpszExt = nullptr;
   for (; *lpszPath != 0; ++lpszPath)
@@ -668,10 +668,10 @@ MIKTEXKPSCEEAPI(char *) miktex_find_suffix(const char* lpszPath)
       lpszExt = lpszPath + 1;
     }
   }
-  return lpszExt == nullptr ? nullptr : const_cast<char *>(lpszExt);
+  return lpszExt == nullptr ? nullptr : const_cast<char*>(lpszExt);
 }
 
-MIKTEXKPSCEEAPI(char *) miktex_remove_suffix(const char* lpszPath)
+MIKTEXKPSCEEAPI(char*) miktex_remove_suffix(const char* lpszPath)
 {
   char* lpszRet;
   char* lpszExt = find_suffix(lpszPath);
@@ -821,7 +821,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValu
   return result;
 }
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_var_value(kpathsea kpse, const char* lpszVarName)
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_var_value(kpathsea kpse, const char* lpszVarName)
 {
   std::string varValue;
   return VarValue(lpszVarName, varValue) ? xstrdup(varValue.c_str()) : nullptr;
@@ -840,7 +840,7 @@ public:
   }
 };
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_var_expand(kpathsea kpse, const char* lpszSource)
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_var_expand(kpathsea kpse, const char* lpszSource)
 {
   VarExpand varExpand;
   return xstrdup(Session::Get()->Expand(lpszSource, &varExpand).c_str());
@@ -851,12 +851,12 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_xputenv(kpathsea pKpseInstance, const char
   Utils::SetEnvironmentString(lpszVarName, lpszValue);
 }
 
-MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea pKpseInstance, const char *lpszFileName)
+MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea pKpseInstance, const char* lpszFileName)
 {
   return Utils::IsSafeFileName(lpszFileName, true) ? 1 : 0;
 }
 
-MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea pKpseInstance, const char *lpszFileName)
+MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea pKpseInstance, const char* lpszFileName)
 {
   return Utils::IsSafeFileName(lpszFileName, false) ? 1 : 0;
 }
@@ -887,11 +887,11 @@ MIKTEXKPSCEEAPI(kpathsea) miktex_kpathsea_new()
 #  define DOIT(x) (x)
 #endif
 
-MIKTEXSTATICFUNC(void) Free(char ** pStringList)
+MIKTEXSTATICFUNC(void) Free(char** pStringList)
 {
   if (pStringList != nullptr)
   {
-    for (char ** p = pStringList; *p != nullptr; ++p)
+    for (char** p = pStringList; *p != nullptr; ++p)
     {
       MIKTEX_FREE(p);
     }
@@ -906,8 +906,8 @@ MIKTEXSTATICFUNC(void) Reset(kpse_format_info_type* pFormatInfoTable, size_t siz
     kpse_format_info_type& formatInfo = pFormatInfoTable[idx];
     MIKTEX_FREE(const_cast<char*>(formatInfo.path));
     MIKTEX_FREE(const_cast<char*>(formatInfo.type));
-    Free(const_cast<char **>(formatInfo.suffix));
-    Free(const_cast<char **>(formatInfo.alt_suffix));
+    Free(const_cast<char**>(formatInfo.suffix));
+    Free(const_cast<char**>(formatInfo.alt_suffix));
     memset(&formatInfo, 0, sizeof(FormatInfo));
   }
 }
@@ -924,7 +924,7 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_finish(kpathsea pKpseInstance)
   }
 }
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_brace_expand(kpathsea kpse, const char* lpszPath)
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_brace_expand(kpathsea kpse, const char* lpszPath)
 {
   shared_ptr<Session> pSession = Session::Get();
   VarExpand expander;
@@ -932,7 +932,7 @@ MIKTEXKPSCEEAPI(char *) miktex_kpathsea_brace_expand(kpathsea kpse, const char* 
   return xstrdup(result.c_str());
 }
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_path_expand(kpathsea kpse, const char* lpszPath)
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_path_expand(kpathsea kpse, const char* lpszPath)
 {
   shared_ptr<Session> pSession = Session::Get();
   VarExpand expander;
@@ -940,7 +940,7 @@ MIKTEXKPSCEEAPI(char *) miktex_kpathsea_path_expand(kpathsea kpse, const char* l
   return xstrdup(result.c_str());
 }
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_readable_file(kpathsea kpse, const char* lpszName)
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_readable_file(kpathsea kpse, const char* lpszName)
 {
   if (File::Exists(lpszName))
   {
@@ -952,7 +952,7 @@ MIKTEXKPSCEEAPI(char *) miktex_kpathsea_readable_file(kpathsea kpse, const char*
   }
 }
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_path_search(kpathsea kpse, const char* lpszPath, const char* lpszName, boolean mustExist)
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_path_search(kpathsea kpse, const char* lpszPath, const char* lpszName, boolean mustExist)
 {
   shared_ptr<Session> pSession = Session::Get();
   PathName result;
@@ -969,7 +969,7 @@ MIKTEXKPSCEEAPI(char *) miktex_kpathsea_path_search(kpathsea kpse, const char* l
   return xstrdup(result.ToUnix().GetData());
 }
 
-MIKTEXKPSCEEAPI(char **) miktex_kpathsea_all_path_search(kpathsea kpse, const char* lpszPath, const char* lpszName)
+MIKTEXKPSCEEAPI(char**) miktex_kpathsea_all_path_search(kpathsea kpse, const char* lpszPath, const char* lpszName)
 {
   shared_ptr<Session> pSession = Session::Get();
   vector<PathName> result;
@@ -981,7 +981,7 @@ MIKTEXKPSCEEAPI(char **) miktex_kpathsea_all_path_search(kpathsea kpse, const ch
   {
     return nullptr;
   }
-  char ** pStringList = XTALLOC(result.size() + 1, char *);
+  char** pStringList = XTALLOC(result.size() + 1, char*);
   for (int idx = 0; idx < result.size(); ++idx)
   {
     result[idx].ConvertToUnix();
@@ -996,15 +996,15 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_maketex_option(kpathsea kpse, const char* 
   // TODO
 }
 
-MIKTEXKPSCEEAPI(char *) miktex_kpathsea_selfdir(kpathsea kpse, const char* lpszArgv0)
+MIKTEXKPSCEEAPI(char*) miktex_kpathsea_selfdir(kpathsea kpse, const char* lpszArgv0)
 {
   shared_ptr<Session> session = Session::Get();
   return xstrdup(session->GetMyLocation(false).GetData());
 }
 
-MIKTEXKPSCEEAPI(char *) miktex_uppercasify(const char* lpsz)
+MIKTEXKPSCEEAPI(char*) miktex_uppercasify(const char* lpsz)
 {
-  char *lpszResult = xstrdup(lpsz);
+  char* lpszResult = xstrdup(lpsz);
   for (char* lpsz2 = lpszResult; *lpsz2 != 0; ++lpsz2)
   {
     *lpsz2 = toupper(*lpsz2);
@@ -1012,14 +1012,14 @@ MIKTEXKPSCEEAPI(char *) miktex_uppercasify(const char* lpsz)
   return lpszResult;
 }
 
-MIKTEXKPSCEEAPI(char *) miktex_read_line(FILE* pFile)
+MIKTEXKPSCEEAPI(char*) miktex_read_line(FILE* pFile)
 {
   std::string line;
   Utils::ReadLine(line, pFile, false);
   return xstrdup(line.c_str());
 }
 
-MIKTEXKPSCEEAPI(const char *) miktex_kpathsea_init_format(kpathsea pKpseInstance, kpse_file_format_type format)
+MIKTEXKPSCEEAPI(const char*) miktex_kpathsea_init_format(kpathsea pKpseInstance, kpse_file_format_type format)
 {
   MIKTEX_ASSERT(pKpseInstance != nullptr);
   MIKTEX_ASSERT(format < kpse_last_format);
@@ -1039,7 +1039,7 @@ MIKTEXKPSCEEAPI(const char *) miktex_kpathsea_init_format(kpathsea pKpseInstance
 }
 
 #if WITH_CONTEXT_SUPPORT
-MIKTEXKPSCEEAPI(char *) miktex_kpsemu_create_texmf_cnf()
+MIKTEXKPSCEEAPI(char*) miktex_kpsemu_create_texmf_cnf()
 {
   shared_ptr<Session> session = Session::Get();
   PathName texmfcnfdir = session->GetSpecialPath(SpecialPath::UserConfigRoot);
