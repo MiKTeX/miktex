@@ -1,6 +1,6 @@
 /* pdftex-miktex.h:                                     -*- C++ -*-
    
-   Copyright (C) 1998-2016 Christian Schenk
+   Copyright (C) 1998-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -223,7 +223,7 @@ public:
   }
 
 public:
-  void GetLibraryVersions(std::vector<LibraryVersion> & versions) const override;
+  void GetLibraryVersions(std::vector<MiKTeX::Core::LibraryVersion> & versions) const override;
 
 #if defined(MIKTEX_WINDOWS)
 public:

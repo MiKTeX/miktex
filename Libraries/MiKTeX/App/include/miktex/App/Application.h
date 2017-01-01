@@ -1,6 +1,6 @@
 /* miktex/App/Application.h:                            -*- C++ -*-
 
-   Copyright (C) 2005-2016 Christian Schenk
+   Copyright (C) 2005-2017 Christian Schenk
 
    This file is part of the MiKTeX App Library.
 
@@ -26,6 +26,7 @@
 #if !defined(F4C0E5199356C44CBA46523020038822)
 #define F4C0E5199356C44CBA46523020038822
 
+#include <miktex/Core/LibraryVersion>
 #include <miktex/Core/Session>
 #include <miktex/PackageManager/PackageManager>
 #include <miktex/Trace/TraceCallback>
@@ -72,99 +73,79 @@ public:
   MIKTEXAPPEXPORT MIKTEXTHISCALL Application();
 
 public:
-  Application(const Application & other) = delete;
+  Application(const Application& other) = delete;
 
 public:
-  Application & operator=(const Application & other) = delete;
+  Application& operator=(const Application& other) = delete;
 
 public:
   Application(Application && other) = delete;
 
 public:
-  Application & operator=(Application && other) = delete;
+  Application& operator=(Application && other) = delete;
 
 public:
   virtual MIKTEXAPPEXPORT MIKTEXTHISCALL ~Application() noexcept;
 
 public:
-  virtual MIKTEXAPPTHISAPI(void) Init(const MiKTeX::Core::Session::InitInfo & initInfo);
+  virtual MIKTEXAPPTHISAPI(void) Init(const MiKTeX::Core::Session::InitInfo& initInfo);
 
 public:
-  virtual MIKTEXAPPTHISAPI(void) Init(std::vector<char *> & args);
+  virtual MIKTEXAPPTHISAPI(void) Init(std::vector<char*>& args);
 
 public:
-  virtual MIKTEXAPPTHISAPI(void) Init(const std::string & programInvocationName);
+  virtual MIKTEXAPPTHISAPI(void) Init(const std::string& programInvocationName);
 
 public:
-  virtual MIKTEXAPPTHISAPI(void) Init(const std::string & programInvocationName, const std::string & theNameOfTheGame);
+  virtual MIKTEXAPPTHISAPI(void) Init(const std::string& programInvocationName, const std::string& theNameOfTheGame);
 
 public:
   virtual MIKTEXAPPTHISAPI(void) Finalize();
 
 public:
-  struct LibraryVersion
-  {
-    LibraryVersion(const std::string & name, const std::string & fromHeader, const std::string & fromRuntime) :
-      name(name),
-      fromHeader(fromHeader),
-      fromRuntime(fromRuntime)
-    {
-    }
-    LibraryVersion(const std::string & name, const MiKTeX::Core::VersionNumber * fromHeader, const MiKTeX::Core::VersionNumber * fromRuntime) :
-      name(name),
-      fromHeader(fromHeader == nullptr ? std::string() : fromHeader->ToString()),
-      fromRuntime(fromRuntime == nullptr ? std::string() : fromRuntime->ToString())
-    {
-    }
-    std::string name;
-    std::string fromHeader;
-    std::string fromRuntime;
-  };
-
-public:
-  virtual MIKTEXAPPTHISAPI(void) GetLibraryVersions(std::vector<LibraryVersion> & versions) const;
+  virtual MIKTEXAPPTHISAPI(void) GetLibraryVersions(std::vector<MiKTeX::Core::LibraryVersion>& versions) const;
 
 public:
   virtual MIKTEXAPPTHISAPI(void) ShowLibraryVersions() const;
 
 public:
-  MIKTEXAPPTHISAPI(bool) InstallPackage(const std::string & deploymentName, const MiKTeX::Core::PathName & trigger, MiKTeX::Core::PathName & installRoot) override;
+  MIKTEXAPPTHISAPI(bool) InstallPackage(const std::string& deploymentName, const MiKTeX::Core::PathName& trigger, MiKTeX::Core::PathName& installRoot) override;
 
 public:
-  MIKTEXAPPTHISAPI(bool) TryCreateFile(const MiKTeX::Core::PathName & fileName, MiKTeX::Core::FileType fileType) override;
+  MIKTEXAPPTHISAPI(bool) TryCreateFile(const MiKTeX::Core::PathName& fileName, MiKTeX::Core::FileType fileType) override;
 
 public:
-  MIKTEXAPPTHISAPI(void) ReportLine(const std::string & str) override;
+  MIKTEXAPPTHISAPI(void) ReportLine(const std::string& str) override;
 
 public:
-  MIKTEXAPPTHISAPI(bool) OnRetryableError(const std::string & message) override;
+  MIKTEXAPPTHISAPI(bool) OnRetryableError(const std::string& message) override;
 
 public:
   MIKTEXAPPTHISAPI(bool) OnProgress(MiKTeX::Packages::Notification nf) override;
 
 public:
-  MIKTEXAPPTHISAPI(void) Trace(const TraceCallback::TraceMessage & traceMessage) override;
+  MIKTEXAPPTHISAPI(void) Trace(const TraceCallback::TraceMessage& traceMessage) override;
 
 public:
   MIKTEXAPPTHISAPI(void) EnableInstaller(MiKTeX::Core::TriState tri);
 
 public:
-  MIKTEXNORETURN MIKTEXAPPCEEAPI(void) FatalError(const char * lpszFormat, ...);
+  MIKTEXNORETURN MIKTEXAPPCEEAPI(void) FatalError(const char* lpszFormat, ...);
 
 public:
-  MIKTEXAPPTHISAPI(void) InvokeEditor(const MiKTeX::Core::PathName & editFileName, int editLineNumber, MiKTeX::Core::FileType editFileType, const MiKTeX::Core::PathName & transcriptFileName) const;
+  MIKTEXAPPTHISAPI(void) InvokeEditor(const MiKTeX::Core::PathName& editFileName, int editLineNumber, MiKTeX::Core::FileType editFileType, const MiKTeX::Core::PathName& transcriptFileName) const;
 
 public:
-  static MIKTEXAPPCEEAPI(void) Sorry(const std::string & name, const MiKTeX::Core::MiKTeXException & ex);
+  static MIKTEXAPPCEEAPI(void) Sorry(const std::string& name, const MiKTeX::Core::MiKTeXException& ex);
 
 public:
-  static MIKTEXAPPCEEAPI(void) Sorry(const std::string & name, const std::exception & ex);
+  static MIKTEXAPPCEEAPI(void) Sorry(const std::string& name, const std::exception& ex);
 
 public:
-  static MIKTEXAPPCEEAPI(void) Sorry(const std::string & name, const std::string & reason);
+  static MIKTEXAPPCEEAPI(void) Sorry(const std::string& name, const std::string& reason);
 
 public:
-  static void Sorry(const std::string & name)
+  static void Sorry(const std::string& name)
   {
     Sorry(name, "");
   }
@@ -197,7 +178,7 @@ private:
   void FlushPendingTraceMessages();
 
 private:
-  void TraceInternal(const MiKTeX::Trace::TraceCallback::TraceMessage & traceMessage);
+  void TraceInternal(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage);
 
 private:
   class impl;

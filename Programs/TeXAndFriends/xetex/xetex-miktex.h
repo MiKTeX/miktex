@@ -1,6 +1,6 @@
 /* xetex-miktex.h:                                      -*- C++ -*-
    
-   Copyright (C) 2007-2016 Christian Schenk
+   Copyright (C) 2007-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -170,7 +170,7 @@ public:
   }
 
 public:
-  virtual void GetLibraryVersions(std::vector<LibraryVersion> & versions) const override;
+  virtual void GetLibraryVersions(std::vector<MiKTeX::Core::LibraryVersion> & versions) const override;
 };
 
 extern XETEXCLASS XETEXAPP;
