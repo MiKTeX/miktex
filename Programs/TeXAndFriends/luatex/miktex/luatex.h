@@ -30,6 +30,7 @@ int miktex_is_output_file(const char* path);
 void miktex_set_aux_directory(const char* path);
 const char* miktex_get_aux_directory();
 void miktex_invoke_editor(const char* filename, int lineno);
+void miktex_show_library_versions();
 
 #if defined(__cplusplus)
 }

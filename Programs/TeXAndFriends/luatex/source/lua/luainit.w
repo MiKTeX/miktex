@@ -512,6 +512,9 @@ static void parse_options(int ac, char **av)
                  "luajit    : Mike Pall (used in LuajitTeX)\n");
             /* *INDENT-ON* */
             puts(versions);
+#if defined(MIKTEX)
+            miktex_show_library_versions();
+#endif
             uexit(0);
         }
     }

@@ -113,3 +113,8 @@ void miktex_invoke_editor(const char* filename, int lineno)
 {
   Application::GetApplication()->InvokeEditor(filename, lineno, FileType::TEX, PathName());
 }
+
+void miktex_show_library_versions()
+{
+  Application::GetApplication()->ShowLibraryVersions();
+}
