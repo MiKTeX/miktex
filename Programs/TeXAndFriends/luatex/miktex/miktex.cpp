@@ -1,6 +1,6 @@
 /* luatex/miktex/miktex.cpp:
 
-   Copyright (C) 2016 Christian Schenk
+   Copyright (C) 2016-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -45,14 +45,14 @@ void miktex_enable_installer(int onOff)
   Application::GetApplication()->EnableInstaller(onOff ? TriState::True : TriState::False);
 }
 
-int miktex_luatex_renew_format_file(const char * name)
+int miktex_luatex_renew_format_file(const char* name)
 {
   shared_ptr<Session> session = Session::Get();
   PathName path;
   return session->FindFile(name, FileType::FMT, { Session::FindFileOption::Renew }, path) ? 1 : 0;
 }
 
-char * miktex_program_basename(const char * lpszArgv0)
+char* miktex_program_basename(const char* lpszArgv0)
 {
   PathName argv0(lpszArgv0);
   std::string baseName = argv0.GetFileNameWithoutExtension().ToString();
@@ -64,7 +64,7 @@ char * miktex_program_basename(const char * lpszArgv0)
   return xstrdup(baseName.c_str());
 }
 
-int miktex_is_output_file(const char * path)
+int miktex_is_output_file(const char* path)
 {
   PathName path_(path);
   if (path_.HasExtension(".gz"))
@@ -78,7 +78,7 @@ int miktex_is_output_file(const char * path)
 
 PathName auxDirectory;
 
-void miktex_set_aux_directory(const char * path)
+void miktex_set_aux_directory(const char* path)
 {
   auxDirectory = path;
   auxDirectory.MakeAbsolute();
@@ -97,7 +97,7 @@ void miktex_set_aux_directory(const char * path)
   session->AddInputDirectory(auxDirectory, true);
 }
 
-const char * miktex_get_aux_directory()
+const char* miktex_get_aux_directory()
 {
   if (auxDirectory.Empty())
   {
@@ -109,7 +109,7 @@ const char * miktex_get_aux_directory()
   }
 }
 
-void miktex_invoke_editor(const char * filename, int lineno)
+void miktex_invoke_editor(const char* filename, int lineno)
 {
   Application::GetApplication()->InvokeEditor(filename, lineno, FileType::TEX, PathName());
 }
