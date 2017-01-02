@@ -32,15 +32,11 @@ set(public_include_directories
 )
 
 set(public_headers
-  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/App/config.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/App/vi/Version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/App/Application
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/App/Application.h
-)
-
-configure_file(
-  include/miktex/App/config.h.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/App/config.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/App/config.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/App/vi/Version
 )
 
 configure_file(

@@ -26,7 +26,7 @@
 #if !defined(F4C0E5199356C44CBA46523020038822)
 #define F4C0E5199356C44CBA46523020038822
 
-#include <miktex/App/config.h>
+#include "config.h"
 
 #include <miktex/App/vi/Version>
 #include <miktex/Core/LibraryVersion>

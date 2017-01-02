@@ -1,6 +1,6 @@
 /* miktex/Extractor/Extractor.h:                        -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2017 Christian Schenk
 
    This file is part of MiKTeX Extractor.
 
@@ -29,25 +29,7 @@
 #include <miktex/First>
 #include <miktex/Definitions>
 
-// DLL import/export switch
-#if !defined(DAA6476494C144C8BED9A9E8810BAABA)
-#  if defined(MIKTEX_EXTRACTOR_SHARED)
-#    define MIKTEXEXTRACTOREXPORT MIKTEXDLLIMPORT
-#  else
-#    define MIKTEXEXTRACTOREXPORT
-#  endif
-#endif
-
-// API decoration for exported member functions
-#define MIKTEXEXTRACTORCEEAPI(type) MIKTEXEXTRACTOREXPORT type MIKTEXCEECALL
-
-#define EXTRACTOR_BEGIN_NAMESPACE               \
-  namespace MiKTeX {                            \
-    namespace Extractor {
-
-#define EXTRACTOR_END_NAMESPACE                 \
-    }                                           \
-  }
+#include "config.h"
 
 #include <cstddef>
 
@@ -58,7 +40,7 @@
 #include <miktex/Core/Session>
 #include <miktex/Core/Stream>
 
-EXTRACTOR_BEGIN_NAMESPACE;
+MIKTEX_EXTRACTOR_BEGIN_NAMESPACE;
 
 enum class ArchiveFileType
 {
@@ -138,9 +120,6 @@ public:
   }
 };
 
-EXTRACTOR_END_NAMESPACE;
-
-#undef EXTRACTOR_BEGIN_NAMESPACE
-#undef EXTRACTOR_END_NAMESPACE
+MIKTEX_EXTRACTOR_END_NAMESPACE;
 
 #endif

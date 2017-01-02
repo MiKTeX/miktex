@@ -49,12 +49,6 @@ target_include_directories(${extractor_dll_name}
     ${public_include_directories}
 )
 
-if(USE_SYSTEM_BZIP2)
-  target_link_libraries(${extractor_dll_name} PRIVATE MiKTeX::Imported::BZIP2)
-else()
-  target_link_libraries(${extractor_dll_name} PRIVATE ${bzip2_dll_name})
-endif()
-
 if(USE_SYSTEM_MSPACK)
   target_link_libraries(${extractor_dll_name} PRIVATE MiKTeX::Imported::MSPACK)
 else()

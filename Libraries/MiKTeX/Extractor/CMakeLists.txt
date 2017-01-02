@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2007-2016 Christian Schenk
+## Copyright (C) 2007-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -27,12 +27,16 @@ include_directories(BEFORE
 )
 
 set(public_include_directories
+  ${CMAKE_CURRENT_BINARY_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 set(public_headers
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Extractor/vi/Version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Extractor/Extractor
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Extractor/Extractor.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Extractor/config.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Extractor/vi/Version
 )
 
 configure_file(
@@ -40,8 +44,12 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/extractor-version.h
 )
 
+configure_file(
+  include/miktex/Extractor/vi/Version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Extractor/vi/Version.h
+)
+
 set(extractor_sources
-  ${public_headers}
   ${CMAKE_CURRENT_BINARY_DIR}/extractor-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CabExtractor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CabExtractor.h
@@ -54,6 +62,8 @@ set(extractor_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/TarLzmaExtractor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/TarLzmaExtractor.h
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/vi/Runtime.cpp
+  ${public_headers}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

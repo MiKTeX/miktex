@@ -307,19 +307,19 @@ MIKTEXAPPTHISAPI(void) Application::ShowLibraryVersions() const
 {
   vector<LibraryVersion> versions;
   GetLibraryVersions(versions);
-  for (vector<LibraryVersion>::const_iterator it = versions.begin(); it != versions.end(); ++it)
+  for (auto & ver : set<LibraryVersion>(versions.begin(), versions.end()))
   {
-    if (!it->fromHeader.empty() && !it->fromRuntime.empty())
+    if (!ver.fromHeader.empty() && !ver.fromRuntime.empty())
     {
-      cout << "compiled with " << it->name << " version " << it->fromHeader << "; using " << it->fromRuntime << endl;
+      cout << "compiled with " << ver.name << " version " << ver.fromHeader << "; using " << ver.fromRuntime << endl;
     }
-    else if (!it->fromHeader.empty())
+    else if (!ver.fromHeader.empty())
     {
-      cout << "compiled with " << it->name << " version " << it->fromHeader << endl;
+      cout << "compiled with " << ver.name << " version " << ver.fromHeader << endl;
     }
-    else if (!it->fromRuntime.empty())
+    else if (!ver.fromRuntime.empty())
     {
-      cout << "using " << it->name << " version " << it->fromRuntime << endl;
+      cout << "using " << ver.name << " version " << ver.fromRuntime << endl;
     }
   }
 }

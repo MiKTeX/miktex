@@ -95,12 +95,12 @@ set(public_headers_core
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/BZip2Stream.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/BufferSizes
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/BufferSizes.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CsvList
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CsvList.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Cfg
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Cfg.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CommandLineBuilder
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CommandLineBuilder.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CsvList
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CsvList.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Debug
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Debug.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Directory
@@ -180,6 +180,7 @@ set(public_headers_core
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/hash_icase.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/less_icase_dos
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/less_icase_dos.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/vi/Version
 )
 
 set(public_headers_c

@@ -24,6 +24,7 @@
 #include "internal.h"
 
 #include <miktex/Core/vi/Version>
+#include <miktex/Extractor/vi/Version>
 
 #include "miktex/PackageManager/vi/Version.h"
 
@@ -58,6 +59,9 @@ vector<LibraryVersion> Runtime::GetDependencies()
   result.push_back(LibraryVersion("expat", VersionNumber(XML_MAJOR_VERSION, XML_MINOR_VERSION, XML_MICRO_VERSION, 0).ToString(), XML_ExpatVersion()));
   result.push_back(MiKTeX::Core::vi::Version::GetLibraryVersion());
   auto deps = MiKTeX::Core::vi::Runtime::GetDependencies();
+  std::move(deps.begin(), deps.end(), result.end());
+  result.push_back(MiKTeX::Extractor::vi::Version::GetLibraryVersion());
+  deps = MiKTeX::Extractor::vi::Runtime::GetDependencies();
   std::move(deps.begin(), deps.end(), result.end());
   return result;
 }

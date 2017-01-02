@@ -64,6 +64,11 @@ struct LibraryVersion
   std::string fromRuntime;
 };
 
+inline bool operator<(const LibraryVersion& lhs, const LibraryVersion& rhs)
+{
+  return lhs.name < rhs.name;
+}
+
 MIKTEX_CORE_END_NAMESPACE;
 
 #endif
