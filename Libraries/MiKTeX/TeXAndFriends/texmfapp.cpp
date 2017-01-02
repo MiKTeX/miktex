@@ -1,6 +1,6 @@
 /* texmfapp.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -361,7 +361,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
   {
     PathName auxDirectory = optArg;
     auxDirectory.MakeAbsolute();
-    SetOutputDirectory(auxDirectory);
+    SetAuxDirectory(auxDirectory);
     if (!Directory::Exists(auxDirectory))
     {
       if (session->GetConfigValue("", MIKTEX_REGVAL_CREATE_AUX_DIRECTORY, texmfapp::texmfapp::CreateAuxDirectory()).GetString() == "t")
