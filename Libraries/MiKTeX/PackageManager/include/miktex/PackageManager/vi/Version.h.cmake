@@ -1,21 +1,21 @@
-/* miktex/App/vi/Version.h: app library version         -*- C++ -*-
+/* miktex/PackageManager/vi/Version.h: library version  -*- C++ -*-
 
    Copyright (C) 1996-2017 Christian Schenk
 
-   This file is part of the MiKTeX App Library.
+   This file is part of MiKTeX Package Manager.
 
-   The MiKTeX App Library is free software; you can redistribute it
+   MiKTeX Package Manager is free software; you can redistribute it
    and/or modify it under the terms of the GNU General Public License
    as published by the Free Software Foundation; either version 2, or
    (at your option) any later version.
-   
-   The MiKTeX App Library is distributed in the hope that it will be
+
+   MiKTeX Package Manager is distributed in the hope that it will be
    useful, but WITHOUT ANY WARRANTY; without even the implied warranty
    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
-   along with the MiKTeX App Library; if not, write to the Free
+   along with MiKTeX Package Manager; if not, write to the Free
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
@@ -23,25 +23,25 @@
 #  pragma once
 #endif
 
-#if !defined(BC10CB5E408F47049169C389845723A3)
-#define BC10CB5E408F47049169C389845723A3
+#if !defined(A0AAFFDD84D34452A5909319E490029B)
+#define A0AAFFDD84D34452A5909319E490029B
 
-#include <miktex/App/config.h>
+#include <miktex/PackageManager/config.h>
 
 #include <string>
 #include <vector>
 
 #include <miktex/Core/LibraryVersion>
 
-#define MIKTEX_APP_VI_BEGIN_NAMESPACE          \
-  MIKTEX_APP_BEGIN_NAMESPACE                   \
+#define MIKTEX_MPM_VI_BEGIN_NAMESPACE          \
+  MPM_BEGIN_NAMESPACE                          \
   namespace vi {
 
-#define MIKTEX_APP_VI_END_NAMESPACE            \
+#define MIKTEX_MPM_VI_END_NAMESPACE            \
   }                                            \
-  MIKTEX_APP_END_NAMESPACE
+  MPM_END_NAMESPACE
 
-MIKTEX_APP_VI_BEGIN_NAMESPACE;
+MIKTEX_MPM_VI_BEGIN_NAMESPACE;
 
 class MIKTEXNOVTABLE Runtime
 {
@@ -64,19 +64,19 @@ public:
   ~Runtime() = delete;
 
 public:
-  static MIKTEXAPPCEEAPI(std::string) GetName();
+  static MIKTEXMPMCEEAPI(std::string) GetName();
 
 public:
-  static MIKTEXAPPCEEAPI(std::string) GetDescription();
+  static MIKTEXMPMCEEAPI(std::string) GetDescription();
 
 public:
-  static MIKTEXAPPCEEAPI(int) GetInterfaceVersion();
+  static MIKTEXMPMCEEAPI(int) GetInterfaceVersion();
 
 public:
-  static MIKTEXAPPCEEAPI(MiKTeX::Core::VersionNumber) GetVersion();
+  static MIKTEXMPMCEEAPI(MiKTeX::Core::VersionNumber) GetVersion();
 
 public:
-  static MIKTEXAPPCEEAPI(std::vector<MiKTeX::Core::LibraryVersion>) GetDependencies();
+  static MIKTEXMPMCEEAPI(std::vector<MiKTeX::Core::LibraryVersion>) GetDependencies();
 };
 
 class MIKTEXNOVTABLE Header
@@ -147,10 +147,10 @@ public:
 public:
   static MiKTeX::Core::LibraryVersion GetLibraryVersion()
   {
-    return MiKTeX::Core::LibraryVersion("miktex-app", Header::GetName(), Header::GetVersion().ToString(), Runtime::GetVersion().ToString());
+    return MiKTeX::Core::LibraryVersion("miktex-mpm", Header::GetName(), Header::GetVersion().ToString(), Runtime::GetVersion().ToString());
   }
 };
 
-MIKTEX_APP_VI_END_NAMESPACE;
+MIKTEX_MPM_VI_END_NAMESPACE;
 
 #endif

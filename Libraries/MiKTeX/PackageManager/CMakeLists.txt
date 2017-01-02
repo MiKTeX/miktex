@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -59,7 +59,13 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/mpm-version.h
 )
 
+configure_file(
+  include/miktex/PackageManager/vi/Version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/PackageManager/vi/Version.h
+)
+
 set(public_headers
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/PackageManager/vi/Version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/PackageManager/PackageInfo.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/PackageManager/PackageInstaller.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/PackageManager/PackageIterator.h
@@ -77,10 +83,10 @@ set(mpm_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebFile.h
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebSession.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/CurlWebSession.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/NoRemoteService.h
   ${CMAKE_CURRENT_SOURCE_DIR}/PackageInstaller.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/PackageIterator.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/PackageManager.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/NoRemoteService.h
   ${CMAKE_CURRENT_SOURCE_DIR}/RemoteService.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/RemoteService.h
   ${CMAKE_CURRENT_SOURCE_DIR}/RestRemoteService.cpp
@@ -91,6 +97,7 @@ set(mpm_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/WebSession.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/WebSession.h
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/vi/Runtime.cpp
 )
 
 if(WITH_SOAP_CLIENT)
