@@ -57,9 +57,9 @@ vector<LibraryVersion> Runtime::GetDependencies()
   vector<LibraryVersion> result;
   result.push_back(MiKTeX::Core::vi::Version::GetLibraryVersion());
   auto deps = MiKTeX::Core::vi::Runtime::GetDependencies();
-  std::move(deps.begin(), deps.end(), result.end());
-  result.push_back(MiKTeX::Core::vi::Version::GetLibraryVersion());
+  result.insert(std::end(result), std::begin(deps), std::end(deps));
+  result.push_back(MiKTeX::Packages::vi::Version::GetLibraryVersion());
   deps = MiKTeX::Packages::vi::Runtime::GetDependencies();
-  std::move(deps.begin(), deps.end(), result.end());
+  result.insert(std::end(result), std::begin(deps), std::end(deps));
   return result;
 }

@@ -66,7 +66,7 @@ struct LibraryVersion
 
 inline bool operator<(const LibraryVersion& lhs, const LibraryVersion& rhs)
 {
-  return lhs.name < rhs.name;
+  return lhs.key < rhs.key;
 }
 
 MIKTEX_CORE_END_NAMESPACE;

@@ -102,7 +102,7 @@ public:
 public:
   static std::string GetName()
   {
-    return "MiKTeX App";
+    return "MiKTeX Package Manager";
   }
 
 public:

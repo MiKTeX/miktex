@@ -83,7 +83,7 @@ public:
   {
     versions.push_back(MiKTeX::App::vi::Version::GetLibraryVersion());
     auto deps = MiKTeX::App::vi::Runtime::GetDependencies();
-    std::move(deps.begin(), deps.end(), versions.end());
+    versions.insert(std::end(versions), std::begin(deps), std::end(deps));
   }
 
 public:
