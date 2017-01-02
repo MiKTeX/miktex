@@ -26,6 +26,9 @@
 #if !defined(F4C0E5199356C44CBA46523020038822)
 #define F4C0E5199356C44CBA46523020038822
 
+#include <miktex/App/config.h>
+
+#include <miktex/App/vi/Version>
 #include <miktex/Core/LibraryVersion>
 #include <miktex/Core/Session>
 #include <miktex/PackageManager/PackageManager>
@@ -34,33 +37,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
-// DLL import/export switch
-#if !defined(BDF6E2537F116547846406B5B2B65949)
-#  if defined(MIKTEX_APP_SHARED)
-#    define MIKTEXAPPEXPORT MIKTEXDLLIMPORT
-#  else
-#    define MIKTEXAPPEXPORT
-#  endif
-#endif
-
-// API decoration for exported member functions
-#define MIKTEXAPPTHISAPI(type) MIKTEXAPPEXPORT type MIKTEXTHISCALL
-#define MIKTEXAPPCEEAPI(type) MIKTEXAPPEXPORT type MIKTEXCEECALL
-
-#if defined(__GNUC__)
-#  define MIKTEXAPPTYPEAPI(type) MIKTEXAPPEXPORT type
-#else
-#  define MIKTEXAPPTYPEAPI(type) type
-#endif
-
-#define MIKTEX_APP_BEGIN_NAMESPACE              \
-  namespace MiKTeX {                            \
-    namespace App {
-
-#define MIKTEX_APP_END_NAMESPACE                \
-    }                                           \
-  }
 
 MIKTEX_APP_BEGIN_NAMESPACE;
 
@@ -103,7 +79,12 @@ public:
   virtual MIKTEXAPPTHISAPI(void) Finalize();
 
 public:
-  virtual MIKTEXAPPTHISAPI(void) GetLibraryVersions(std::vector<MiKTeX::Core::LibraryVersion>& versions) const;
+  virtual void GetLibraryVersions(std::vector<MiKTeX::Core::LibraryVersion>& versions) const
+  {
+    versions.push_back(MiKTeX::App::vi::Version::GetLibraryVersion());
+    auto deps = MiKTeX::App::vi::Runtime::GetDependencies();
+    std::move(deps.begin(), deps.end(), versions.end());
+  }
 
 public:
   virtual MIKTEXAPPTHISAPI(void) ShowLibraryVersions() const;
@@ -186,8 +167,5 @@ private:
 };
 
 MIKTEX_APP_END_NAMESPACE;
-
-#undef MIKTEX_APP_BEGIN_NAMESPACE
-#undef MIKTEX_APP_END_NAMESPACE
 
 #endif

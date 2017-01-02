@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -27,12 +27,20 @@ include_directories(BEFORE
 )
 
 set(public_include_directories
+  ${CMAKE_CURRENT_BINARY_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 set(public_headers
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/App/config.h
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/App/vi/Version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/App/Application
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/App/Application.h
+)
+
+configure_file(
+  include/miktex/App/config.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/App/config.h
 )
 
 configure_file(
@@ -40,11 +48,17 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/app-version.h
 )
 
+configure_file(
+  include/miktex/App/vi/Version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/App/vi/Version.h
+)
+
 set(app_sources
   ${CMAKE_CURRENT_BINARY_DIR}/app-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h
   ${CMAKE_CURRENT_SOURCE_DIR}/app.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/vi/Runtime.cpp
   ${public_headers}
 )
 

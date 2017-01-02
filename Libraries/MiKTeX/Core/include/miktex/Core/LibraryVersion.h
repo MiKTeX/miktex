@@ -36,19 +36,30 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 
 struct LibraryVersion
 {
-  LibraryVersion(const std::string& name, const std::string& fromHeader, const std::string& fromRuntime) :
+  LibraryVersion(const std::string& key, const std::string& fromHeader, const std::string& fromRuntime) :
+    key(key),
+    name(key),
+    fromHeader(fromHeader),
+    fromRuntime(fromRuntime)
+  {
+  }
+  LibraryVersion(const std::string& key, const std::string& name, const std::string& fromHeader, const std::string& fromRuntime) :
+    key(key),
     name(name),
     fromHeader(fromHeader),
     fromRuntime(fromRuntime)
   {
   }
-  LibraryVersion(const std::string& name, const MiKTeX::Core::VersionNumber* fromHeader, const MiKTeX::Core::VersionNumber* fromRuntime) :
-    name(name),
+  LibraryVersion(const std::string& key, const MiKTeX::Core::VersionNumber* fromHeader, const MiKTeX::Core::VersionNumber* fromRuntime) :
+    key(key),
+    name(key),
     fromHeader(fromHeader == nullptr ? std::string() : fromHeader->ToString()),
     fromRuntime(fromRuntime == nullptr ? std::string() : fromRuntime->ToString())
   {
   }
+  std::string key;
   std::string name;
+  std::string description;
   std::string fromHeader;
   std::string fromRuntime;
 };

@@ -1,6 +1,6 @@
 /* app-version.h: version number                        -*- C++ -*-
 
-   Copyright (C) 2005-2016 Christian Schenk
+   Copyright (C) 2005-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -18,5 +18,6 @@
    USA.  */
 
 #define MIKTEX_COMP_J2000_VERSION ${MIKTEX_COMP_J2000_VERSION}
+#define MIKTEX_COMP_DESCRIPTION "${MIKTEX_COMP_DESCRIPTION}"
 
 #include <miktex/Version>

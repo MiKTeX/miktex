@@ -53,29 +53,29 @@ void XETEXCLASS::GetLibraryVersions(std::vector<LibraryVersion> & versions) cons
   FT_Int ftMajor, ftMinor, ftPatch;
   if (gFreeTypeLibrary == nullptr && FT_Init_FreeType(&gFreeTypeLibrary) != 0)
   {
-    fprintf(stderr, "FreeType initialization failed!\n");
+    fprintf(stderr, "FreeType2 initialization failed!\n");
     throw 9;
   }
   FT_Library_Version(gFreeTypeLibrary, &ftMajor, &ftMinor, &ftPatch);
   VersionNumber ftVersion(FREETYPE_MAJOR, FREETYPE_MINOR, FREETYPE_PATCH, 0);
   VersionNumber ftRunVersion(ftMajor, ftMinor, ftPatch, 0);
-  versions.push_back(LibraryVersion("FreeType2", &ftVersion, &ftRunVersion));
+  versions.push_back(LibraryVersion("freetype2", &ftVersion, &ftRunVersion));
 
   int grMajor, grMinor, grBugfix;
   gr_engine_version(&grMajor, &grMinor, &grBugfix);
   VersionNumber grVersion(GR2_VERSION_MAJOR, GR2_VERSION_MINOR, GR2_VERSION_BUGFIX, 0);
   VersionNumber grRunVersion(grMajor, grMinor, grBugfix, 0);
-  versions.push_back(LibraryVersion("Graphite2", &grVersion, &grRunVersion));
+  versions.push_back(LibraryVersion("graphite2", &grVersion, &grRunVersion));
 
   UVersionInfo icuVersion;
   char icu_version[U_MAX_VERSION_STRING_LENGTH] = "";
   u_getVersion(icuVersion);
   u_versionToString(icuVersion, icu_version);
-  versions.push_back(LibraryVersion("ICU", U_ICU_VERSION, icu_version));
+  versions.push_back(LibraryVersion("icu", U_ICU_VERSION, icu_version));
 
-  versions.push_back(LibraryVersion("HarfBuzz", HB_VERSION_STRING, hb_version_string()));
+  versions.push_back(LibraryVersion("harfbuzz", HB_VERSION_STRING, hb_version_string()));
 
   unsigned tkver = TECkit_GetVersion();
   VersionNumber tkVersion((tkver & 0xffff0000) >> 16, tkver & 0x0000ffff, 0, 0);
-  versions.push_back(LibraryVersion("TECkit", nullptr, &tkVersion));
+  versions.push_back(LibraryVersion("teckit", nullptr, &tkVersion));
 }

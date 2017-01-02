@@ -76,6 +76,11 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/core-version.h
 )
 
+configure_file(
+  include/miktex/Core/vi/Version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/vi/Version.h
+)
+
 set(miktex_der_h ${CMAKE_CURRENT_BINARY_DIR}/miktex.der.h)
 
 set(public_headers_core
@@ -83,6 +88,7 @@ set(public_headers_core
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/Paths.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/Urls.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/config.h
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/vi/Version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/AutoResource
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/AutoResource.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/BZip2Stream
@@ -300,6 +306,7 @@ set(misc_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Debug.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Exceptions.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/vi/Runtime.cpp
   ${miktex_der_h}
 )
 

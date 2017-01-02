@@ -1,6 +1,6 @@
 /* app.cpp:
 
-   Copyright (C) 2005-2016 Christian Schenk
+   Copyright (C) 2005-2017 Christian Schenk
  
    This file is part of the MiKTeX App Library.
 
@@ -22,6 +22,7 @@
 #include "StdAfx.h"
 
 #include "internal.h"
+#include "app-version.h"
 
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
@@ -300,10 +301,6 @@ bool Application::OnProgress(Notification nf)
 {
   UNUSED_ALWAYS(nf);
   return true;
-}
-
-MIKTEXAPPTHISAPI(void) Application::GetLibraryVersions(std::vector<LibraryVersion>& versions) const
-{
 }
 
 MIKTEXAPPTHISAPI(void) Application::ShowLibraryVersions() const
