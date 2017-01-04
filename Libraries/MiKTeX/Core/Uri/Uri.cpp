@@ -29,7 +29,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-string ToString(const UriTextRangeA & textRange)
+string ToString(const UriTextRangeA& textRange)
 {
   string ret;
   if (textRange.first != nullptr)
@@ -58,7 +58,7 @@ public:
   CharBuffer<char> buf;
 };
 
-Uri::Uri(const std::string & uri) :
+Uri::Uri(const std::string& uri) :
   pimpl(make_unique<impl>())
 {
   pimpl->buf = uri.c_str();
