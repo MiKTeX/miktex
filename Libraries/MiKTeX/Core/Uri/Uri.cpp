@@ -1,6 +1,6 @@
 /* Uri.cpp: Uri operations
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -26,6 +26,7 @@
 #include "miktex/Core/Uri.h"
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 using namespace std;
 
 string ToString(const UriTextRangeA & textRange)
@@ -52,18 +53,22 @@ public:
   {
     uriFreeUriMembersA(&uri);
   }
+
+public:
+  CharBuffer<char> buf;
 };
 
 Uri::Uri(const std::string & uri) :
   pimpl(make_unique<impl>())
 {
+  pimpl->buf = uri.c_str();
   pimpl->state.uri = &pimpl->uri;
-  int result = uriParseUriA(&pimpl->state, uri.c_str());
+  int result = uriParseUriA(&pimpl->state, pimpl->buf.GetData());
   if (result == URI_ERROR_SYNTAX)
   {
-    string http = "http://";
-    http += uri;
-    result = uriParseUriA(&pimpl->state, http.c_str());
+    pimpl->buf = "http://";
+    pimpl->buf += uri.c_str();
+    result = uriParseUriA(&pimpl->state, pimpl->buf.GetData());
   }
   if (result != URI_SUCCESS)
   {
