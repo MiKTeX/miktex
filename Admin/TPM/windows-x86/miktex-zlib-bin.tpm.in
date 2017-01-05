@@ -6,7 +6,7 @@
     <TPM:Title>Zlib runtime library, Windows x86</TPM:Title>
     <TPM:Copyright owner="Jean-loup Gailly and Mark Adler" year="1995-2012"/>
     <TPM:License type="permissive"/>
-    <TPM:Version>1.2.8</TPM:Version>
+    <TPM:Version>1.2.10</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
