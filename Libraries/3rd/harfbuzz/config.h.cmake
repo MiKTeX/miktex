@@ -33,6 +33,9 @@
 /* Have FreeType 2 library */
 #cmakedefine HAVE_FREETYPE 1
 
+/* Define to 1 if you have the `FT_Get_Var_Blend_Coordinates' function. */
+#cmakedefine HAVE_FT_GET_VAR_BLEND_COORDINATES 1
+
 /* Define to 1 if you have the `getpagesize' function. */
 #cmakedefine HAVE_GETPAGESIZE 1
 
