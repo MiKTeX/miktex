@@ -1,6 +1,6 @@
 /* Recipe.cpp:                                          -*- C++ -*-
 
-   Copyright (C) 2016 Christian Schenk
+   Copyright (C) 2016-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -32,13 +32,13 @@ class ProcessOutputTrash :
   public IRunProcessCallback
 {
 public:
-  bool MIKTEXTHISCALL OnProcessOutput(const void * pOutput, size_t n) override
+  bool MIKTEXTHISCALL OnProcessOutput(const void* pOutput, size_t n) override
   {
     return true;
   }
 };
 
-void CollectPathNames(vector<PathName> & pathNames, const PathName & dir, const string & pattern)
+void CollectPathNames(vector<PathName>& pathNames, const PathName& dir, const string& pattern)
 {
   unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dir, pattern.c_str());
   DirectoryEntry2 entry;
@@ -48,7 +48,7 @@ void CollectPathNames(vector<PathName> & pathNames, const PathName & dir, const 
   }
 }
 
-void GetSnapshot(unordered_set<PathName> & pathNames, const PathName & dir, const string & pattern)
+void GetSnapshot(unordered_set<PathName>& pathNames, const PathName& dir, const string& pattern)
 {
   unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dir, pattern.c_str());
   vector<PathName> subDirectories;
@@ -64,28 +64,28 @@ void GetSnapshot(unordered_set<PathName> & pathNames, const PathName & dir, cons
       pathNames.insert(dir / entry.name);
     }
   }
-  for (const PathName & subDir : subDirectories)
+  for (const PathName& subDir : subDirectories)
   {
     GetSnapshot(pathNames, subDir, pattern);
   }
 }
 
-void GetSnapshot(unordered_set<PathName> & pathNames, const PathName & dir)
+void GetSnapshot(unordered_set<PathName>& pathNames, const PathName& dir)
 {
   GetSnapshot(pathNames, dir, "*");
 }
 
-PathName PrettyPath(const PathName & path, const PathName & root)
+PathName PrettyPath(const PathName& path, const PathName& root)
 {
   PathName pretty(Utils::GetRelativizedPath(path.GetData(), root.GetData()));
   return pretty.ToUnix();
 }
 
-vector<string> Split(const string & s)
+vector<string> Split(const string& s)
 {
   vector<string> argv;
   string current;
-  for (const char & ch : s)
+  for (const char& ch : s)
   {
     if (ch == ' ' || ch == '\t')
     {
@@ -107,7 +107,7 @@ vector<string> Split(const string & s)
   return argv;
 }
 
-void Recipe::Verbose(const string & message)
+void Recipe::Verbose(const string& message)
 {
   if (verbose)
   {
@@ -115,7 +115,7 @@ void Recipe::Verbose(const string & message)
   }
 }
 
-bool Recipe::PrintOnly(const string & message)
+bool Recipe::PrintOnly(const string& message)
 {
   if (printOnly)
   {
@@ -124,7 +124,7 @@ bool Recipe::PrintOnly(const string & message)
   return printOnly;
 }
 
-void Recipe::CreateDirectory(const PathName & path)
+void Recipe::CreateDirectory(const PathName& path)
 {
   if (!printOnly)
   {
@@ -208,14 +208,14 @@ void Recipe::CleanupWorkingDirectory()
   unordered_set<PathName> currentWorkDirSnapshot;
   GetSnapshot(currentWorkDirSnapshot, workDir);
   vector<PathName> toBeDeleted;
-  for (const PathName & path : currentWorkDirSnapshot)
+  for (const PathName& path : currentWorkDirSnapshot)
   {
     if (initialWorkDirSnapshot.find(path) == initialWorkDirSnapshot.end())
     {
       toBeDeleted.push_back(path);
     }
   }
-  for (const PathName & path : toBeDeleted)
+  for (const PathName& path : toBeDeleted)
   {
     File::Delete(path);
   }
@@ -227,7 +227,7 @@ void Recipe::Prepare()
   vector<string> actions;
   if (recipe->TryGetValue("prepare", "actions[]", actions))
   {
-    for (const string & action : actions)
+    for (const string& action : actions)
     {
       DoAction(action, workDir);
     }
@@ -240,7 +240,7 @@ void Recipe::Finalize()
   vector<string> actions;
   if (recipe->TryGetValue("finalize", "actions[]", actions))
   {
-    for (const string & action : actions)
+    for (const string& action : actions)
     {
       DoAction(action, destDir);
     }
@@ -259,7 +259,7 @@ void Recipe::WriteFiles()
       MIKTEX_FATAL_ERROR(T_("missing lines"));
     }
     StreamWriter writer(workDir / fileName);
-    for (const string & line : lines)
+    for (const string& line : lines)
     {
       writer.WriteLine(line);
     }
@@ -267,7 +267,7 @@ void Recipe::WriteFiles()
   }
 }
 
-void Recipe::DoAction(const string & action, const PathName & actionDir)
+void Recipe::DoAction(const string& action, const PathName& actionDir)
 {
   vector<string> argv = Split(session->Expand(action, this));
   if (argv.empty())
@@ -367,7 +367,7 @@ void Recipe::DoAction(const string & action, const PathName & actionDir)
   }
 }
 
-void Recipe::Unpack(const PathName & path)
+void Recipe::Unpack(const PathName& path)
 {
   string fileName = path.GetFileName().ToString();
   size_t extPos = fileName.find('.');
@@ -407,7 +407,7 @@ void Recipe::Unpack(const PathName & path)
   }
 }
 
-void Recipe::RunInsEngine(const string & engine, const vector<string> & options, const PathName & insFile, const PathName & outDir )
+void Recipe::RunInsEngine(const string& engine, const vector<string>& options, const PathName& insFile, const PathName& outDir )
 {
   unique_ptr<TemporaryFile> alwaysYes = TemporaryFile::Create();
   StreamWriter writer(alwaysYes->GetPathName());
@@ -447,7 +447,7 @@ void Recipe::RunDtxUnpacker()
     patterns = standardInsPatterns;
   }
   vector<PathName> insFiles;
-  for (const string & pat : patterns)
+  for (const string& pat : patterns)
   {
     PathName pattern(session->Expand(pat, this));
     PathName dir(workDir);
@@ -462,7 +462,7 @@ void Recipe::RunDtxUnpacker()
     {
       patterns = standardDtxPatterns;
     }
-    for (const string & pat : patterns)
+    for (const string& pat : patterns)
     {
       PathName pattern(session->Expand(pat, this));
       PathName dir(workDir);
@@ -476,7 +476,7 @@ void Recipe::RunDtxUnpacker()
   packageInsFile /= package + ".ins";
   bool packageInsFileExists = File::Exists(packageInsFile);
   unique_ptr<TemporaryDirectory> outDir = TemporaryDirectory::Create();
-  for (const PathName & insFile : insFiles)
+  for (const PathName& insFile : insFiles)
   {
     RunInsEngine(engine, options, insFile, outDir->GetPathName());
     if (!packageInsFileExists)
@@ -491,7 +491,7 @@ void Recipe::RunDtxUnpacker()
   }
 }
 
-void Recipe::InstallFiles(const string & patternName, const vector<string> & defaultPatterns, const PathName & tdsDir)
+void Recipe::InstallFiles(const string& patternName, const vector<string>& defaultPatterns, const PathName& tdsDir)
 {
   vector<string> patterns;
   if (!recipe->TryGetValue("patterns", patternName + "[]", patterns))
@@ -516,12 +516,12 @@ void Recipe::InstallFileSets()
   }
 }
 
-void Recipe::Install(const vector<string> & patterns, const PathName & tdsDir)
+void Recipe::Install(const vector<string>& patterns, const PathName& tdsDir)
 {
   PathName destPath(destDir);
   destPath /= tdsDir;
   bool madeDestDirectory = false;
-  for (const string & pat : patterns)
+  for (const string& pat : patterns)
   {
     PathName pattern(session->Expand(pat, this));
     PathName dir(workDir);
@@ -539,7 +539,7 @@ void Recipe::Install(const vector<string> & patterns, const PathName & tdsDir)
       }
       Verbose("installing '" + pat + "': " + std::to_string(files.size()) + " file(s)");
     }
-    for (const PathName & file : files)
+    for (const PathName& file : files)
     {
       PathName toPath(destPath / file.GetFileName());
       if (PrintOnly(StringUtil::FormatString("install <SRCDIR>/%s <DSTDIR>/%s", Q_(PrettyPath(file, workDir)), Q_(PrettyPath(toPath, destDir)))))
