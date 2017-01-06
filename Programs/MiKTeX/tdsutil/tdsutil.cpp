@@ -1,6 +1,6 @@
 /* tdsutil.cpp: MiKTeX TDS Utility
 
-   Copyright (C) 2016 Christian Schenk
+   Copyright (C) 2016-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -162,7 +162,7 @@ void TdsUtility::Run(int argc, const char ** argv)
     case OPT_VERSION:
       cout
         << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-        << "Copyright (C) 2016 Christian Schenk" << endl
+        << "Copyright (C) 2016-2017 Christian Schenk" << endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
       return;

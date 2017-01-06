@@ -1,6 +1,6 @@
 /* Recipe.h:                                            -*- C++ -*-
 
-   Copyright (C) 2016 Christian Schenk
+   Copyright (C) 2016-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -25,7 +25,7 @@ class Recipe :
   public MiKTeX::Core::HasNamedValues
 {
 public:
-  Recipe(const std::string & package, const MiKTeX::Core::PathName & source, const MiKTeX::Core::PathName & destDir, bool verbose) :
+  Recipe(const std::string& package, const MiKTeX::Core::PathName& source, const MiKTeX::Core::PathName& destDir, bool verbose) :
     package(package),
     source(source),
     destDir(destDir),
@@ -35,20 +35,20 @@ public:
   }
 
 public:
-  void Read(const MiKTeX::Core::PathName & path)
+  void Read(const MiKTeX::Core::PathName& path)
   {
     recipe->Read(path);
   }
 
 public:
-  void SetFormat(const std::string & format)
+  void SetFormat(const std::string& format)
   {
     this->format = format;
     tds.SetFormat(format);
   }
 
 public:
-  void SetFoundry(const std::string & foundry)
+  void SetFoundry(const std::string& foundry)
   {
     this->foundry = foundry;
     tds.SetFoundry(foundry);
@@ -58,16 +58,16 @@ public:
   void Execute(bool printOnly);
 
 private:
-  void Verbose(const std::string & message);
+  void Verbose(const std::string& message);
 
 private:
-  bool PrintOnly(const std::string & message);
+  bool PrintOnly(const std::string& message);
 
 private:
 #if defined(CreateDirectory)
 #undef CreateDirectory
 #endif
-  void CreateDirectory(const MiKTeX::Core::PathName & path);
+  void CreateDirectory(const MiKTeX::Core::PathName& path);
 
 private:
   void SetupWorkingDirectory();
@@ -82,31 +82,31 @@ private:
   void Finalize();
 
 private:
-  void RunInsEngine(const std::string & engine, const std::vector<std::string> & options, const MiKTeX::Core::PathName & insFile, const MiKTeX::Core::PathName & outDir );
+  void RunInsEngine(const std::string& engine, const std::vector<std::string>& options, const MiKTeX::Core::PathName& insFile, const MiKTeX::Core::PathName& outDir );
 
 private:
   void RunDtxUnpacker();
 
 private:
-  void DoAction(const std::string & action, const MiKTeX::Core::PathName & actionDir);
+  void DoAction(const std::string& action, const MiKTeX::Core::PathName& actionDir);
 
 private:
-  void Unpack(const MiKTeX::Core::PathName & path);
+  void Unpack(const MiKTeX::Core::PathName& path);
 
 private:
   void WriteFiles();
   
 private:
-  void InstallFiles(const std::string & patternName, const std::vector<std::string> & defaultPatterns, const MiKTeX::Core::PathName & tdsDir);
+  void InstallFiles(const std::string& patternName, const std::vector<std::string>& defaultPatterns, const MiKTeX::Core::PathName& tdsDir);
 
 private:
   void InstallFileSets();
 
 private:
-  void Install(const std::vector<std::string> & patterns, const MiKTeX::Core::PathName & tdsDir);
+  void Install(const std::vector<std::string>& patterns, const MiKTeX::Core::PathName& tdsDir);
 
 private:
-  bool MIKTEXTHISCALL TryGetValue(const std::string & valueName, std::string & value) override
+  bool MIKTEXTHISCALL TryGetValue(const std::string& valueName, std::string& value) override
   {
     if (valueName == "package")
     {
@@ -127,7 +127,7 @@ private:
   }
 
 private:
-  std::string MIKTEXTHISCALL GetValue(const std::string & valueName) override
+  std::string MIKTEXTHISCALL GetValue(const std::string& valueName) override
   {
     MIKTEX_UNEXPECTED();
   }
@@ -227,6 +227,9 @@ private:
 
 private:
   const std::vector<std::string> standardOtfPatterns = { "*.otf" };
+
+private:
+  const std::vector<std::string> standardTtfPatterns = { "*.ttf" };
 
 private:
   const std::vector<std::string> standardPfbPatterns = { "*.pfb" };
