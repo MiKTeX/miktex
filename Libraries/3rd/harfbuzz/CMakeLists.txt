@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2013-2016 Christian Schenk
+## Copyright (C) 2013-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -24,7 +24,11 @@ include_directories(BEFORE
   ${CMAKE_SOURCE_DIR}/source/src
 )
 
-add_definitions(-DHAVE_CONFIG_H -DHB_NO_MT -DHB_NO_UNICODE_FUNCS)
+add_definitions(
+  -DHAVE_CONFIG_H
+  -DHB_NO_MT
+  -DHB_NO_UNICODE_FUNCS
+)
 
 ignore_warnings()
 
@@ -42,6 +46,11 @@ configure_file(
 )
 
 set(sources
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
+## common
+list(APPEND sources
   source/src/hb-atomic-private.hh
   source/src/hb-blob.cc
   source/src/hb-buffer-deserialize-json.hh
@@ -60,6 +69,7 @@ set(sources
   source/src/hb-object-private.hh
   source/src/hb-open-file-private.hh
   source/src/hb-open-type-private.hh
+  source/src/hb-ot-cbdt-table.hh
   source/src/hb-ot-head-table.hh
   source/src/hb-ot-hhea-table.hh
   source/src/hb-ot-hmtx-table.hh
@@ -82,11 +92,13 @@ set(sources
   source/src/hb-unicode.cc
   source/src/hb-utf-private.hh
   source/src/hb-warning.cc
+)
 
+## OpenType
+list(APPEND sources
   source/src/hb-ot-font.cc
   source/src/hb-ot-font.h
   source/src/hb-ot-layout.cc
-  source/src/hb-ot-layout.h
   source/src/hb-ot-layout-common-private.hh
   source/src/hb-ot-layout-gdef-table.hh
   source/src/hb-ot-layout-gpos-table.hh
@@ -96,7 +108,9 @@ set(sources
   source/src/hb-ot-layout-math-table.hh
   source/src/hb-ot-layout-private.hh
   source/src/hb-ot-map.cc
+  source/src/hb-ot-math.cc
   source/src/hb-ot-map-private.hh
+  source/src/hb-ot-math.h
   source/src/hb-ot-shape.cc
   source/src/hb-ot-shape-complex-arabic.cc
   source/src/hb-ot-shape-complex-arabic-fallback.hh
@@ -123,9 +137,15 @@ set(sources
   source/src/hb-ot-shape-normalize.cc
   source/src/hb-ot-shape-normalize-private.hh
   source/src/hb-ot-shape-private.hh
+)
 
+## ICU
+list(APPEND sources
   source/src/hb-icu.cc
+)
 
+## Graphite2
+list(APPEND sources
   source/src/hb-graphite2.cc
 )
 
