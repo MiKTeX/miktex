@@ -171,6 +171,7 @@ void Recipe::Execute(bool printOnly)
   InstallFiles("mf", standardMfPatterns, tds.GetMfDir());
   InstallFiles("tfm", standardTfmPatterns, tds.GetTfmDir());
   InstallFiles("otf", standardOtfPatterns, tds.GetOtfDir());
+  InstallFiles("ttf", standardTtfPatterns, tds.GetTtfDir());
   InstallFiles("pfb", standardPfbPatterns, tds.GetPfbDir());
   InstallFiles("afm", standardAfmPatterns, tds.GetAfmDir());
   InstallFiles("vf", standardVfPatterns, tds.GetVfDir());

@@ -229,6 +229,9 @@ private:
   const std::vector<std::string> standardOtfPatterns = { "*.otf" };
 
 private:
+  const std::vector<std::string> standardTtfPatterns = { "*.ttf" };
+
+private:
   const std::vector<std::string> standardPfbPatterns = { "*.pfb" };
 
 private:
