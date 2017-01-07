@@ -6,7 +6,7 @@
     <TPM:Title>Hunspell runtime library, Windows x64</TPM:Title>
     <TPM:Copyright owner="Kevin Hendricks and Németh László" year="2002-2005"/>
     <TPM:License type="lgpl2.1"/>
-    <TPM:Version>1.5.4</TPM:Version>
+    <TPM:Version>1.6.0</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

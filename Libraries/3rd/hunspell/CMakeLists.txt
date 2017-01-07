@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2009-2016 Christian Schenk
+## Copyright (C) 2009-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -23,12 +23,6 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hunspell
 )
-
-if(MIKTEX_NATIVE_WINDOWS)
-  include_directories(BEFORE
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/src/win_api
-  )
-endif()
 
 add_definitions(-DBUILDING_LIBHUNSPELL)
 
