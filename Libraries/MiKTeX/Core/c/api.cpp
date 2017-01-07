@@ -1,6 +1,6 @@
 /* api.cpp: C API
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -35,7 +35,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-MIKTEXCORECEEAPI(void) miktex_create_temp_file_name(char * lpszFileName)
+MIKTEXCORECEEAPI(void) miktex_create_temp_file_name(char* lpszFileName)
 {
   C_FUNC_BEGIN();
   MIKTEX_ASSERT_PATH_BUFFER(lpszFileName);
@@ -43,7 +43,7 @@ MIKTEXCORECEEAPI(void) miktex_create_temp_file_name(char * lpszFileName)
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(void) miktex_uncompress_file(const char * lpszPathIn, char * lpszPathOut)
+MIKTEXCORECEEAPI(void) miktex_uncompress_file(const char* lpszPathIn, char* lpszPathOut)
 {
   C_FUNC_BEGIN();
   PathName temp;
@@ -87,7 +87,7 @@ MIKTEXCORECEEAPI(char*) miktex_core_strdup(const char* lpsz, const char* lpszFil
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_pathcmp(const char * lpszPath1, const char * lpszPath2)
+MIKTEXCORECEEAPI(int) miktex_pathcmp(const char* lpszPath1, const char* lpszPath2)
 {
   C_FUNC_BEGIN();
   return PathName::Compare(lpszPath1, lpszPath2);
@@ -100,14 +100,14 @@ MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_exit(int status)
   throw status;
 }
 
-MIKTEXCORECEEAPI(void) miktex_core_fatal_error(const char * lpszMiktexFunction, const char * lpszMessage, const char * lpszInfo, const char * lpszSourceFile, int sourceLine)
+MIKTEXCORECEEAPI(void) miktex_core_fatal_error(const char* lpszMiktexFunction, const char* lpszMessage, const char* lpszInfo, const char* lpszSourceFile, int sourceLine)
 {
   C_FUNC_BEGIN();
   Session::FatalMiKTeXError(lpszMessage, MiKTeXException::KVMAP("", lpszInfo == nullptr ? "" : lpszInfo), SourceLocation(lpszMiktexFunction == nullptr ? "" : lpszMiktexFunction, lpszSourceFile == nullptr ? "" : lpszSourceFile, sourceLine));
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_get_miktex_version_string_ex(char * lpszVersion, size_t bufSize)
+MIKTEXCORECEEAPI(int) miktex_get_miktex_version_string_ex(char* lpszVersion, size_t bufSize)
 {
   C_FUNC_BEGIN();
   string version = Utils::GetMiKTeXVersionString();
@@ -116,7 +116,7 @@ MIKTEXCORECEEAPI(int) miktex_get_miktex_version_string_ex(char * lpszVersion, si
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_find_file(const char * lpszFileName, const char * lpszPathList, char * lpszPath)
+MIKTEXCORECEEAPI(int) miktex_find_file(const char* lpszFileName, const char* lpszPathList, char* lpszPath)
 {
   C_FUNC_BEGIN();
   MIKTEX_ASSERT_STRING(lpszFileName);
@@ -132,7 +132,7 @@ MIKTEXCORECEEAPI(int) miktex_find_file(const char * lpszFileName, const char * l
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_find_tfm_file(const char * lpszFontName, char * lpszPath)
+MIKTEXCORECEEAPI(int) miktex_find_tfm_file(const char* lpszFontName, char* lpszPath)
 {
   C_FUNC_BEGIN();
   MIKTEX_ASSERT_STRING(lpszFontName);
@@ -147,7 +147,7 @@ MIKTEXCORECEEAPI(int) miktex_find_tfm_file(const char * lpszFontName, char * lps
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_find_ttf_file(const char * lpszFontName, char * lpszPath)
+MIKTEXCORECEEAPI(int) miktex_find_ttf_file(const char* lpszFontName, char* lpszPath)
 {
   C_FUNC_BEGIN();
   MIKTEX_ASSERT_STRING(lpszFontName);
@@ -162,7 +162,7 @@ MIKTEXCORECEEAPI(int) miktex_find_ttf_file(const char * lpszFontName, char * lps
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_find_enc_file(const char * lpszFontName, char * lpszPath)
+MIKTEXCORECEEAPI(int) miktex_find_enc_file(const char* lpszFontName, char* lpszPath)
 {
   C_FUNC_BEGIN();
   MIKTEX_ASSERT_STRING(lpszFontName);
@@ -177,7 +177,7 @@ MIKTEXCORECEEAPI(int) miktex_find_enc_file(const char * lpszFontName, char * lps
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_find_psheader_file(const char * lpszHeaderName, char * lpszPath)
+MIKTEXCORECEEAPI(int) miktex_find_psheader_file(const char* lpszHeaderName, char* lpszPath)
 {
   C_FUNC_BEGIN();
   MIKTEX_ASSERT_STRING(lpszHeaderName);
@@ -192,7 +192,7 @@ MIKTEXCORECEEAPI(int) miktex_find_psheader_file(const char * lpszHeaderName, cha
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_find_input_file(const char * lpszApplicationName, const char * lpszFileName, char * lpszPath)
+MIKTEXCORECEEAPI(int) miktex_find_input_file(const char* lpszApplicationName, const char* lpszFileName, char* lpszPath)
 {
   C_FUNC_BEGIN();
   MIKTEX_ASSERT_STRING_OR_NIL(lpszApplicationName);
@@ -221,7 +221,7 @@ MIKTEXCORECEEAPI(int) miktex_find_input_file(const char * lpszApplicationName, c
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_find_hbf_file(const char * lpszFontName, char * lpszPath)
+MIKTEXCORECEEAPI(int) miktex_find_hbf_file(const char* lpszFontName, char* lpszPath)
 {
   C_FUNC_BEGIN();
   MIKTEX_ASSERT_STRING(lpszFontName);
@@ -236,7 +236,7 @@ MIKTEXCORECEEAPI(int) miktex_find_hbf_file(const char * lpszFontName, char * lps
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_find_miktex_executable(const char * lpszExeName, char * lpszExePath)
+MIKTEXCORECEEAPI(int) miktex_find_miktex_executable(const char* lpszExeName, char* lpszExePath)
 {
   C_FUNC_BEGIN();
   MIKTEX_ASSERT_STRING(lpszExeName);
@@ -258,7 +258,7 @@ MIKTEXCORECEEAPI(unsigned) miktex_get_number_of_texmf_roots()
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(char *) miktex_get_root_directory(unsigned r, char * lpszPath)
+MIKTEXCORECEEAPI(char*) miktex_get_root_directory(unsigned r, char* lpszPath)
 {
   C_FUNC_BEGIN();
   MIKTEX_ASSERT_PATH_BUFFER(lpszPath);
@@ -267,7 +267,7 @@ MIKTEXCORECEEAPI(char *) miktex_get_root_directory(unsigned r, char * lpszPath)
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(wchar_t*) miktex_utf8_to_wide_char(const char * lpszUtf8, size_t sizeWideChar, wchar_t * lpszWideChar)
+MIKTEXCORECEEAPI(wchar_t*) miktex_utf8_to_wide_char(const char* lpszUtf8, size_t sizeWideChar, wchar_t* lpszWideChar)
 {
   C_FUNC_BEGIN();
   StringUtil::CopyString(lpszWideChar, sizeWideChar, lpszUtf8);
@@ -275,7 +275,7 @@ MIKTEXCORECEEAPI(wchar_t*) miktex_utf8_to_wide_char(const char * lpszUtf8, size_
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(char*) miktex_wide_char_to_utf8(const wchar_t * lpszWideChar, size_t sizeUtf8, char * lpszUtf8)
+MIKTEXCORECEEAPI(char*) miktex_wide_char_to_utf8(const wchar_t* lpszWideChar, size_t sizeUtf8, char* lpszUtf8)
 {
   C_FUNC_BEGIN();
   StringUtil::CopyString(lpszUtf8, sizeUtf8, lpszWideChar);
@@ -283,7 +283,7 @@ MIKTEXCORECEEAPI(char*) miktex_wide_char_to_utf8(const wchar_t * lpszWideChar, s
   C_FUNC_END();
 }
 
-MIKTEXCORECEEAPI(int) miktex_execute_system_command(const char * command, int * exitCode)
+MIKTEXCORECEEAPI(int) miktex_execute_system_command(const char* command, int* exitCode)
 {
   C_FUNC_BEGIN();
   return Process::ExecuteSystemCommand(command, exitCode) ? 1 : 0;
@@ -291,7 +291,7 @@ MIKTEXCORECEEAPI(int) miktex_execute_system_command(const char * command, int * 
 }
 
 
-MIKTEXCORECEEAPI(void) miktex_start_process(const char * lpszFileName, const char * lpszArguments, FILE * pFileStandardInput, FILE ** ppFileStandardInput, FILE ** ppFileStandardOutput, FILE ** ppFileStandardError, const char * lpszWorkingDirectory)
+MIKTEXCORECEEAPI(void) miktex_start_process(const char* lpszFileName, const char* lpszArguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory)
 {
   C_FUNC_BEGIN();
   Process::Start(lpszFileName, lpszArguments == nullptr ? "" : lpszArguments, pFileStandardInput, ppFileStandardInput, ppFileStandardOutput, ppFileStandardError, lpszWorkingDirectory);
