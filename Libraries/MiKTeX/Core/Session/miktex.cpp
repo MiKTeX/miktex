@@ -416,11 +416,11 @@ bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo & info)
     cfg->Read(userInfoFile, true);
     if (!cfg->TryGetValue("user", "id", result.userid))
     {
-      return false;
+      result.userid = "";
     }
     if (!cfg->TryGetValue("user", "name", result.name))
     {
-      return false;
+      result.name = "";
     }
     if (!cfg->TryGetValue("user", "organization", result.organization))
     {
@@ -431,58 +431,65 @@ bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo & info)
       result.email = "";
     }
     string str;
-    if (cfg->TryGetValue("membership", "expirationdate", str))
+    int year, month, day;
+    if (cfg->TryGetValue("membership", "expirationdate", str) && sscanf(str.c_str(), "%d-%d-%d", &year, &month, &day) == 3 && year >= 1970 && month >= 1 && month <= 12 && day >= 1 && day <= 31)
     {
-      int year, month, day;
-      if (sscanf(str.c_str(), "%d-%d-%d", &year, &month, &day) == 3
-        && year >= 1970
-        && month >= 1 && month <= 12
-        && day >= 1 && day <= 31)
-      {
-        struct tm date;
-        memset(&date, 0, sizeof(date));
-        date.tm_year = year - 1900;
-        date.tm_mon = month - 1;
-        date.tm_mday = day;
-        date.tm_hour = 23;
-        date.tm_min = 59;
-        date.tm_sec = 59;
-        date.tm_isdst = -1;
-        result.expirationDate = mktime(&date);
-      }
+      struct tm date;
+      memset(&date, 0, sizeof(date));
+      date.tm_year = year - 1900;
+      date.tm_mon = month - 1;
+      date.tm_mday = day;
+      date.tm_hour = 23;
+      date.tm_min = 59;
+      date.tm_sec = 59;
+      date.tm_isdst = -1;
+      result.expirationDate = mktime(&date);
+    }
+    else
+    {
+      result.expirationDate = static_cast<time_t>(-1);
     }
     if (cfg->TryGetValue("membership", "level", str))
     {
-      if (Utils::EqualsIgnoreCase(str.c_str(), "individual"))
+      if (Utils::EqualsIgnoreCase(str, "individual"))
       {
         result.level = MiKTeXUserInfo::Individual;
       }
       else
       {
-        result.level = atoi(str.c_str());
+        result.level = std::stoi(str);
       }
     }
-    if (cfg->TryGetValue("membership", "role", str))
+    else
     {
-      if (Utils::EqualsIgnoreCase(str.c_str(), "developer"))
+      result.level = 0;
+    }
+    result.role = 0;
+    vector<string> roles;
+    if (cfg->TryGetValue("membership", "roles[]", roles))
+    {
+      for (const auto& r : roles)
       {
-        result.role = MiKTeXUserInfo::Developer;
-      }
-      else if (Utils::EqualsIgnoreCase(str.c_str(), "contributor"))
-      {
-        result.role = MiKTeXUserInfo::Contributor;
-      }
-      else if (Utils::EqualsIgnoreCase(str.c_str(), "sponsor"))
-      {
-        result.role = MiKTeXUserInfo::Sponsor;
-      }
-      else if (Utils::EqualsIgnoreCase(str.c_str(), "knownuser"))
-      {
-        result.role = MiKTeXUserInfo::KnownUser;
-      }
-      else
-      {
-        result.role = atoi(str.c_str());
+        if (Utils::EqualsIgnoreCase(r, "developer"))
+        {
+          result.role |= MiKTeXUserInfo::Developer;
+        }
+        else if (Utils::EqualsIgnoreCase(r, "contributor"))
+        {
+          result.role |= MiKTeXUserInfo::Contributor;
+        }
+        else if (Utils::EqualsIgnoreCase(r, "sponsor"))
+        {
+          result.role |= MiKTeXUserInfo::Sponsor;
+        }
+        else if (Utils::EqualsIgnoreCase(r, "knownuser"))
+        {
+          result.role |= MiKTeXUserInfo::KnownUser;
+        }
+        else
+        {
+          result.role |= std::stoi(r);
+        }
       }
     }
     haveResult = TriState::True;
