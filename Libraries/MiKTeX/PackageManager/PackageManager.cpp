@@ -1,6 +1,6 @@
 /* PackageManager.cpp: MiKTeX Package Manager
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -1396,27 +1396,16 @@ void PackageManager::SetProxy(const ProxySettings& proxySettings)
 
 bool PackageManager::TryGetProxy(const string& url, ProxySettings& proxySettings)
 {
-  shared_ptr<Session> pSession = Session::Get();
-  string useProxy;
-  if (pSession->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_USE_PROXY, useProxy))
+  shared_ptr<Session> session = Session::Get(); 
+  proxySettings.useProxy = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_USE_PROXY, false).GetBool();
+  if (proxySettings.useProxy)
   {
-    proxySettings.useProxy = (useProxy == "t");
-    if (!pSession->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_HOST, proxySettings.proxy))
+    if (!session->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_HOST, proxySettings.proxy))
     {
       return false;
     }
-    string port;
-    if (!pSession->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_PORT, port))
-    {
-      return false;
-    }
-    proxySettings.port = std::stoi(port);
-    string authenticationRequired;
-    if (!pSession->TryGetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_AUTH_REQ, authenticationRequired))
-    {
-      return false;
-    }
-    proxySettings.authenticationRequired = (authenticationRequired == "t");
+    proxySettings.port = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_PORT, 8080).GetInt();
+    proxySettings.authenticationRequired = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_PROXY_AUTH_REQ, false).GetBool();
     proxySettings.user = PackageManagerImpl::proxyUser;
     proxySettings.password = PackageManagerImpl::proxyPassword;
     return true;
@@ -1453,7 +1442,7 @@ bool PackageManager::TryGetProxy(const string& url, ProxySettings& proxySettings
   {
     return false;
   }
-  Uri uri(proxyEnv.c_str());
+  Uri uri(proxyEnv);
   proxySettings.useProxy = true;
   proxySettings.proxy = uri.GetHost();
   proxySettings.port = uri.GetPort();
