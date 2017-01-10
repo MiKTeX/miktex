@@ -1,4 +1,4 @@
-% $Id: mp.w 2107 2016-12-15 11:40:15Z luigi $
+% $Id: mp.w 2112 2017-01-09 18:44:19Z luigi $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -2881,7 +2881,7 @@ void *do_alloc_node (MP mp, size_t size) {
 
 @c
 void mp_xfree (void *x) {
-  if (x != NULL)
+  if (x != NULL) 
     free (x);
 }
 void *mp_xrealloc (MP mp, void *p, size_t nmem, size_t size) {
@@ -3667,6 +3667,7 @@ mp_pen_offset_of, /* operation code for \.{penoffset} */
 mp_arc_time_of, /* operation code for \.{arctime} */
 mp_version, /* operation code for \.{mpversion} */
 mp_envelope_of, /* operation code for \.{envelope} */
+mp_boundingpath_of, /* operation code for \.{boundingpath} */
 mp_glyph_infont, /* operation code for \.{glyph} */
 mp_kern_flag /* operation code for \.{kern} */
 
@@ -3978,6 +3979,9 @@ static void mp_print_op (MP mp, quarterword c) {
       break;
     case mp_envelope_of:
       mp_print (mp, "envelope");
+      break;
+    case mp_boundingpath_of:
+      mp_print (mp, "boundingpath");
       break;
     case mp_glyph_infont:
       mp_print (mp, "glyph");
@@ -25271,8 +25275,10 @@ mp_primitive (mp, "intersectiontimes", mp_tertiary_binary, mp_intersect);
 @:intersection_times_}{\&{intersectiontimes} primitive@>;
 mp_primitive (mp, "envelope", mp_primary_binary, mp_envelope_of);
 @:envelope_}{\&{envelope} primitive@>;
+mp_primitive (mp, "boundingpath", mp_primary_binary, mp_boundingpath_of);
+@:boundingpath_}{\&{boundingpath} primitive@>;
 mp_primitive (mp, "glyph", mp_primary_binary, mp_glyph_infont);
-@:glyph_infont_}{\&{envelope} primitive@>
+@:glyph_infont_}{\&{glyph} primitive@>
 
 
 @ @<Cases of |print_cmd...@>=
@@ -27654,6 +27660,12 @@ static void mp_do_binary (MP mp, mp_node p, integer c) {
     else
       mp_set_up_envelope (mp, p);
     break;
+  case mp_boundingpath_of:
+    if ((mp_type (p) != mp_pen_type) || (mp->cur_exp.type != mp_path_type))
+      mp_bad_binary (mp, p, mp_boundingpath_of);
+    else
+      mp_set_up_boundingpath (mp, p);
+    break;
   case mp_glyph_infont:
     if ((mp_type (p) != mp_string_type &&
          mp_type (p) != mp_known) || (mp->cur_exp.type != mp_string_type))
@@ -29153,6 +29165,97 @@ static void mp_set_up_envelope (MP mp, mp_node p) {
                     (mp, q, value_knot (p), ljoin, lcap, miterlim));
   mp->cur_exp.type = mp_path_type;
 }
+static void mp_set_up_boundingpath (MP mp, mp_node p) {
+  unsigned char ljoin, lcap;
+  mp_number miterlim;
+  mp_knot q = mp_copy_path (mp, cur_exp_knot ());       /* the original path */
+  mp_knot qq;
+  new_number(miterlim);
+  /* TODO: accept elliptical pens for straight paths */
+  if (pen_is_elliptical (value_knot (p))) {
+    mp_bad_envelope_pen (mp);
+    set_cur_exp_knot (q);
+    mp->cur_exp.type = mp_path_type;
+    return;
+  }
+  if (number_greater (internal_value (mp_linejoin), unity_t))
+    ljoin = 2;
+  else if (number_positive (internal_value (mp_linejoin)))
+    ljoin = 1;
+  else
+    ljoin = 0;
+  if (number_greater (internal_value (mp_linecap), unity_t))
+    lcap = 2;
+  else if (number_positive (internal_value (mp_linecap)))
+    lcap = 1;
+  else
+    lcap = 0;
+  if (number_less (internal_value (mp_miterlimit), unity_t))
+    set_number_to_unity(miterlim);
+  else
+    number_clone(miterlim, internal_value (mp_miterlimit));
+  qq = mp_make_envelope(mp, q, value_knot (p), ljoin, lcap, miterlim);
+  set_cur_exp_knot (qq);
+  mp->cur_exp.type = mp_path_type;
+  if (!mp_get_cur_bbox (mp)) {
+      mp_bad_binary (mp, p, mp_boundingpath_of);
+      set_cur_exp_knot (q);
+      mp->cur_exp.type = mp_path_type;
+      mp_free_path(mp,qq);
+      return;
+  }
+  else {
+      mp_knot ll,lr,ur,ul;
+      ll = mp_new_knot (mp);
+      lr = mp_new_knot (mp);
+      ur = mp_new_knot (mp);
+      ul = mp_new_knot (mp);
+      if (ll==NULL || lr==NULL || ur==NULL || ul==NULL){
+        mp_bad_binary (mp, p, mp_boundingpath_of);
+        set_cur_exp_knot (q);
+        mp->cur_exp.type = mp_path_type;
+        mp_free_path(mp,qq);
+        return;
+      }
+      mp_left_type (ll) = mp_endpoint;
+      mp_right_type (ll) = mp_endpoint;
+      mp_originator (ll) = mp_program_code;
+      number_clone(ll->x_coord,mp_minx);
+      number_clone(ll->y_coord,mp_miny);
+
+      mp_originator (lr) = mp_program_code;
+      number_clone(lr->x_coord,mp_maxx);
+      number_clone(lr->y_coord,mp_miny);
+
+      mp_originator (ur) = mp_program_code;
+      number_clone(ur->x_coord,mp_maxx);
+      number_clone(ur->y_coord,mp_maxy);
+
+      mp_originator (ul) = mp_program_code;
+      number_clone(ul->x_coord,mp_minx);
+      number_clone(ul->y_coord,mp_maxy);
+
+      mp_next_knot (ll) = lr;
+      mp_next_knot (lr) = ur;
+      mp_next_knot (ur) = ul;
+
+/*
+      ll = mp_create_knot(mp);
+      mp_set_knot(mp,ll,number_to_double(mp_minx), number_to_double(mp_miny));
+      lr = mp_append_knot(mp,ll,number_to_double(mp_maxx), number_to_double(mp_miny));      
+      ur = mp_append_knot(mp,lr,number_to_double(mp_maxx), number_to_double(mp_maxy));
+      ul = mp_append_knot(mp,ur,number_to_double(mp_minx), number_to_double(mp_maxy));
+*/
+      mp_close_path_cycle (mp, ul, ll);
+      mp_make_path(mp,ll);
+      mp->cur_exp.type = mp_path_type;
+      set_cur_exp_knot(ll);
+      mp_free_path(mp,qq);
+
+  }
+}
+
+
 
 
 @ This is pretty straightfoward. The one silly thing is that
