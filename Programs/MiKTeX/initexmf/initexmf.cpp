@@ -1,6 +1,6 @@
 /* initexmf.cpp: MiKTeX configuration utility
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of IniTeXMF.
 
@@ -2053,6 +2053,7 @@ void IniTeXMFApp::ListMetafontModes()
 
 void IniTeXMFApp::RemoveFndb()
 {
+  session->UnloadFilenameDatabase();
   size_t nRoots = session->GetNumberOfTEXMFRoots();
   for (unsigned r = 0; r < nRoots; ++r)
   {
