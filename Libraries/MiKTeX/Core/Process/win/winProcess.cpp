@@ -1,6 +1,6 @@
 /* winProcess.cpp: executing secondary processes
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -222,19 +222,13 @@ void winProcess::Create()
     STARTUPINFOW siStartInfo;
     ZeroMemory(&siStartInfo, sizeof(siStartInfo));
     siStartInfo.cb = sizeof(siStartInfo);
-    siStartInfo.dwFlags = STARTF_USESTDHANDLES;
-    siStartInfo.hStdInput =
-      (hChildStdin != INVALID_HANDLE_VALUE
-        ? hChildStdin
-        : GetStdHandle(STD_INPUT_HANDLE));
-    siStartInfo.hStdOutput =
-      (hChildStdout != INVALID_HANDLE_VALUE
-        ? hChildStdout
-        : GetStdHandle(STD_OUTPUT_HANDLE));
-    siStartInfo.hStdError =
-      (hChildStderr != INVALID_HANDLE_VALUE
-        ? hChildStderr
-        : GetStdHandle(STD_ERROR_HANDLE));
+    if (hChildStdin != INVALID_HANDLE_VALUE || hChildStdout != INVALID_HANDLE_VALUE || hChildStderr != INVALID_HANDLE_VALUE)
+    {
+      siStartInfo.dwFlags = STARTF_USESTDHANDLES;
+      siStartInfo.hStdInput = hChildStdin != INVALID_HANDLE_VALUE ? hChildStdin : GetStdHandle(STD_INPUT_HANDLE);
+      siStartInfo.hStdOutput = hChildStdout != INVALID_HANDLE_VALUE ? hChildStdout : GetStdHandle(STD_OUTPUT_HANDLE);
+      siStartInfo.hStdError = hChildStderr != INVALID_HANDLE_VALUE ? hChildStderr : GetStdHandle(STD_ERROR_HANDLE);
+    }
 
     DWORD creationFlags = 0;
 
