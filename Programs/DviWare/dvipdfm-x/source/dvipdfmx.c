@@ -950,7 +950,7 @@ extern __declspec(dllexport) int DLLPROC (int argc, char *argv[]);
 #endif /* !LIBDPX */
 
 #if defined(MIKTEX)
-#  define main MIKTEXDLLEXPORT Main
+#  define main MIKTEXCEECALL Main
 #endif
 
 int

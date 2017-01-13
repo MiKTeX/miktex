@@ -194,8 +194,7 @@
 #cmakedefine TM_IN_SYS_TIME
 
 /* Version number of package */
-#include "dvipdfm-x-version.h"
-#define VERSION MIKTEX_COMP_ORIG_VERSION_STR
+#define VERSION "${MIKTEX_COMP_ORIG_VERSION_STR}"
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */

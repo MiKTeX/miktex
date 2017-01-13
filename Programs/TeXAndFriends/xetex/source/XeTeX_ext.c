@@ -165,7 +165,7 @@ const uint32_t byteMark             = 0x00000080UL;
 /* if the user specifies a paper size or output driver program */
 const char *papersize;
 #if defined(MIKTEX)
-const char *outputdriver = MIKTEX_XDVIPDFMX_EXE;
+const char *outputdriver = MIKTEX_DVIPDFMX_EXE;
 const char *outputdriverargs[] = {
   // "-q",
   "-E"

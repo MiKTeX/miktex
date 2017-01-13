@@ -1,6 +1,6 @@
-/* dvipdfmx.rc: version number				-*- C++ -*-
+/* dvipdfm-x.rc: version number                         -*- C++ -*-
 
-   Copyright (C) 1998-2016 Christian Schenk
+   Copyright (C) 1998-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,8 +19,8 @@
 
 #include "dvipdfm-x-version.h"
 
-#define VER_FILEDESCRIPTION_STR "DVI-to-PDF Converter"
-#define VER_INTERNALNAME_STR "dvipdfmx"
-#define VER_ORIGINALFILENAME_STR "dvipdfmx.exe"
+#define VER_FILEDESCRIPTION_STR "${MIKTEX_COMP_DESCRIPTION}"
+#define VER_INTERNALNAME_STR "dvipdfm-x"
+#define VER_ORIGINALFILENAME_STR "${MIKTEX_DVIPDFMX_EXE}"
 
 #include "miktex/win/version.rc"

@@ -2487,7 +2487,7 @@ vector<FileLink> explicitFileLinks =
   { "mthelp" MIKTEX_EXE_FILE_SUFFIX, { "texdoc" } },
   { MIKTEX_BIBTEX_EXE, { "bibtex" } },
   { MIKTEX_DVICOPY_EXE, { "dvicopy" } },
-  { MIKTEX_DVIPDFMX_EXE, { "dvipdfm", "dvipdfmx", "ebb", "extractbb", "xbb" } },
+  { MIKTEX_DVIPDFMX_EXE, { "dvipdfm", "dvipdfmx", "ebb", "extractbb", "xbb", "xdvipdfmx", MIKTEX_XDVIPDFMX_EXE } },
   { MIKTEX_DVITYPE_EXE, { "dvitype" } },
   { MIKTEX_GFTODVI_EXE, { "gftodvi" } },
   { MIKTEX_GFTOPK_EXE, { "gftopk" } },
@@ -2517,7 +2517,6 @@ vector<FileLink> explicitFileLinks =
   { MIKTEX_VFTOVP_EXE, { "vftovp" } },
   { MIKTEX_VPTOVF_EXE, { "vptovf" } },
   { MIKTEX_WEAVE_EXE, { "weave" } },
-  { MIKTEX_XDVIPDFMX_EXE, { "xdvipdfmx" } },
   { MIKTEX_XETEX_EXE, { "xetex", MIKTEX_XELATEX_EXE } },
 #if !defined(MIKTEX_WINDOWS)
   { MIKTEX_MPM_QT_EXE, { MIKTEX_MPM_QT_ADMIN_EXE } },

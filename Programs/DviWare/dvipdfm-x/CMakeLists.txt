@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,12 +17,24 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_DVIWARE_FOLDER}/dvipdfm-x")
 
 configure_file(
   config.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
 )
+
+configure_file(
+  dvipdfm-x-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/dvipdfm-x-version.h
+)
+
+configure_file(
+  dvipdfm-x.rc.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/dvipdfm-x.rc
+  )
 
 add_definitions(
   -DHAVE_CONFIG_H
@@ -52,21 +64,30 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}/source
 )  
 
-set(libutil_sources
-  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+set(dvipdfm_x_sources
   source/agl.c
   source/agl.h
   source/bmpimage.c
   source/bmpimage.h
+  source/cff.c
+  source/cff.h
+  source/cff_dict.c
   source/cff_dict.h
   source/cff_limits.h
   source/cff_stdstr.h
   source/cff_types.h
+  source/cid.c
+  source/cid.h
   source/cid_basefont.h
+  source/cid_p.h
+  source/cidtype0.c
   source/cidtype0.h
+  source/cidtype2.c
   source/cidtype2.h
+  source/cmap.c
   source/cmap.h
   source/cmap_p.h
+  source/cmap_read.c
   source/cmap_read.h
   source/cmap_write.c
   source/cmap_write.h
@@ -80,13 +101,17 @@ set(libutil_sources
   source/dpxfile.h
   source/dpxutil.c
   source/dpxutil.h
+  source/dvi.c
   source/dvi.h
   source/dvicodes.h
+  source/dvipdfmx.c
   source/dvipdfmx.h
   source/epdf.c
   source/epdf.h
   source/error.c
   source/error.h
+  source/fontmap.c
+  source/fontmap.h
   source/jp2image.c
   source/jp2image.h
   source/jpegimage.c
@@ -95,6 +120,7 @@ set(libutil_sources
   source/mem.h
   source/mfileio.c
   source/mfileio.h
+  source/mpost.c
   source/mpost.h
   source/numbers.c
   source/numbers.h
@@ -104,7 +130,9 @@ set(libutil_sources
   source/otl_opt.h
   source/pdfcolor.c
   source/pdfcolor.h
+  source/pdfdev.c
   source/pdfdev.h
+  source/pdfdoc.c
   source/pdfdoc.h
   source/pdfdraw.c
   source/pdfdraw.h
@@ -112,7 +140,10 @@ set(libutil_sources
   source/pdfencoding.h
   source/pdfencrypt.c
   source/pdfencrypt.h
+  source/pdffont.c
+  source/pdffont.h
   source/pdflimits.h
+  source/pdfnames.c
   source/pdfnames.h
   source/pdfobj.c
   source/pdfobj.h
@@ -122,6 +153,7 @@ set(libutil_sources
   source/pdfresource.h
   source/pdfximage.c
   source/pdfximage.h
+  source/pkfont.c
   source/pkfont.h
   source/pngimage.c
   source/pngimage.h
@@ -129,6 +161,8 @@ set(libutil_sources
   source/pst.h
   source/pst_obj.c
   source/pst_obj.h
+  source/sfnt.c
+  source/sfnt.h
   source/spc_color.c
   source/spc_color.h
   source/spc_dvipdfmx.c
@@ -139,28 +173,42 @@ set(libutil_sources
   source/spc_html.h
   source/spc_misc.c
   source/spc_misc.h
+  source/spc_pdfm.c
   source/spc_pdfm.h
   source/spc_tpic.c
   source/spc_tpic.h
   source/spc_util.c
   source/spc_util.h
+  source/spc_xtx.c
   source/spc_xtx.h
   source/specials.c
   source/specials.h
   source/subfont.c
   source/subfont.h
   source/system.h
+  source/t1_char.c
   source/t1_char.h
+  source/t1_load.c
   source/t1_load.h
   source/tfm.c
   source/tfm.h
+  source/truetype.c
   source/truetype.h
+  source/tt_aux.c
   source/tt_aux.h
+  source/tt_cmap.c
+  source/tt_cmap.h
+  source/tt_glyf.c
   source/tt_glyf.h
+  source/tt_gsub.c
   source/tt_gsub.h
+  source/tt_post.c
   source/tt_post.h
+  source/tt_table.c
   source/tt_table.h
+  source/type0.c
   source/type0.h
+  source/type1.c
   source/type1.h
   source/type1c.c
   source/type1c.h
@@ -171,114 +219,44 @@ set(libutil_sources
   source/xbb.c
 )
 
-set(common_program_sources
-  source/cff.c
-  source/cff.h
-  source/cff_dict.c
-  source/cid.c
-  source/cid.h
-  source/cid_p.h
-  source/cidtype0.c
-  source/cidtype2.c
-  source/cmap.c
-  source/cmap_read.c
-  source/dvi.c
-  source/dvipdfmx.c
-  source/fontmap.c
-  source/fontmap.h
-  source/mpost.c
-  source/pdfdev.c
-  source/pdfdoc.c
-  source/pdffont.c
-  source/pdffont.h
-  source/pdfnames.c
-  source/pkfont.c
-  source/sfnt.c
-  source/sfnt.h
-  source/spc_pdfm.c
-  source/spc_xtx.c
-  source/t1_char.c
-  source/t1_load.c
-  source/truetype.c
-  source/tt_aux.c
-  source/tt_cmap.c
-  source/tt_cmap.h
-  source/tt_glyf.c
-  source/tt_gsub.c
-  source/tt_post.c
-  source/tt_table.c
-  source/type0.c
-  source/type1.c
-)
-
-set(miktex_sources
+list(APPEND dvipdfm_x_sources
   miktex/dvipdfm-x.h
   miktex/miktex.cpp
 )
 
-set(dvipdfmx_dll_sources ${libutil_sources} ${common_program_sources} ${miktex_sources} dvipdfm-x-version.h)
+list(APPEND dvipdfm_x_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+  ${CMAKE_CURRENT_BINARY_DIR}/dvipdfm-x-version.h
+)
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND dvipdfmx_dll_sources
-    dvipdfmx.rc
+  list(APPEND dvipdfm_x_sources
+    ${CMAKE_CURRENT_BINARY_DIR}/dvipdfm-x.rc
   )
 endif()
 
-add_library(
-  ${dvipdfmx_dll_name}
-  SHARED
-  ${dvipdfmx_dll_sources}
-)
-
-set_property(TARGET ${dvipdfmx_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-install(
-  TARGETS ${dvipdfmx_dll_name}
-  RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
-  LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
-  ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
-)
-
-if(USE_SYSTEM_PNG)
-  target_link_libraries(${dvipdfmx_dll_name} PRIVATE MiKTeX::Imported::PNG)
-else()
-  target_link_libraries(${dvipdfmx_dll_name} PRIVATE ${png_dll_name})
-endif()
-
-if(USE_SYSTEM_ZLIB)
-  target_link_libraries(${dvipdfmx_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
-else()
-  target_link_libraries(${dvipdfmx_dll_name} PRIVATE ${zlib_dll_name})
-endif()
-
-target_link_libraries(${dvipdfmx_dll_name}
-  PRIVATE
-    ${app_dll_name}
-    ${core_dll_name}
-    ${kpsemu_dll_name}
-    ${texmf_dll_name}
-)
-
-if (MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(${dvipdfmx_dll_name}
-    PRIVATE
-      ${getopt_dll_name}
-      ${unxemu_dll_name}
-      ${utf8wrap_dll_name}
-  )
-endif()
-
-add_executable (${MIKTEX_PREFIX}dvipdfmx ${MIKTEX_LIBRARY_WRAPPER})
+add_executable(${MIKTEX_PREFIX}dvipdfmx ${dvipdfm_x_sources} ${MIKTEX_LIBRARY_WRAPPER})
 
 set_property(TARGET ${MIKTEX_PREFIX}dvipdfmx PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_link_libraries(${MIKTEX_PREFIX}dvipdfmx
   ${app_dll_name}
-  ${core_dll_name}
-  ${dvipdfmx_dll_name}
+  ${kpsemu_dll_name}
 )
 
-if (MIKTEX_NATIVE_WINDOWS)
+if(USE_SYSTEM_PNG)
+  target_link_libraries(${MIKTEX_PREFIX}dvipdfmx MiKTeX::Imported::PNG)
+else()
+  target_link_libraries(${MIKTEX_PREFIX}dvipdfmx ${png_dll_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${MIKTEX_PREFIX}dvipdfmx MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${MIKTEX_PREFIX}dvipdfmx ${zlib_dll_name})
+endif()
+
+if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${MIKTEX_PREFIX}dvipdfmx
     ${utf8wrap_dll_name}
   )
@@ -288,79 +266,6 @@ merge_trustinfo_manifest(${MIKTEX_PREFIX}dvipdfmx asInvoker)
 merge_compatibility_manifest(${MIKTEX_PREFIX}dvipdfmx)
 
 install(TARGETS ${MIKTEX_PREFIX}dvipdfmx DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
-
-set(xdvipdfmx_sources
-  ${common_program_sources}
-  ${libutil_sources}
-  ${miktex_sources}
-  ${MIKTEX_LIBRARY_WRAPPER}
-  dvipdfm-x-version.h
-)
-
-if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND xdvipdfmx_sources
-    xdvipdfmx.rc
-  )
-endif()
-
-add_executable(${MIKTEX_PREFIX}xdvipdfmx ${xdvipdfmx_sources})
-
-set_property(TARGET ${MIKTEX_PREFIX}xdvipdfmx PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-set_property(
-  TARGET ${MIKTEX_PREFIX}xdvipdfmx
-  APPEND PROPERTY COMPILE_DEFINITIONS "XETEX")
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}xdvipdfmx asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}xdvipdfmx)
-
-if(USE_SYSTEM_FONTCONFIG)
-  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx PRIVATE MiKTeX::Imported::FONTCONFIG)
-else()
-  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx PRIVATE ${fontconfig_dll_name})
-endif()
-
-if(USE_SYSTEM_FREETYPE2)
-  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx PRIVATE MiKTeX::Imported::FREETYPE2)
-else()
-  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx PRIVATE ${freetype2_dll_name})
-endif()
-
-if(USE_SYSTEM_PNG)
-  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx PRIVATE MiKTeX::Imported::PNG)
-else()
-  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx PRIVATE ${png_dll_name})
-endif()
-
-if(USE_SYSTEM_ZLIB)
-  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx PRIVATE MiKTeX::Imported::ZLIB)
-else()
-  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx PRIVATE ${zlib_dll_name})
-endif()
-
-target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx
-  PRIVATE
-    ${app_dll_name}
-    ${core_dll_name}
-    ${kpsemu_dll_name}
-)
-
-if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(${MIKTEX_PREFIX}xdvipdfmx
-    PRIVATE
-      ${unxemu_dll_name}
-      ${utf8wrap_dll_name}
-  )
-endif()
-
-delay_load(${MIKTEX_PREFIX}xdvipdfmx
-  ${fontconfig_dll_name}
-  ${freetype2_dll_name}
-  ${png_dll_name}
-  ${zlib_dll_name}
-)
-
-install(TARGETS ${MIKTEX_PREFIX}xdvipdfmx DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(dvipdft_sources
   dvipdft.cpp
@@ -383,8 +288,6 @@ merge_compatibility_manifest(dvipdft)
 target_link_libraries(dvipdft
   ${app_dll_name}
   ${core_dll_name}
-  ${kpsemu_dll_name}
-  ${texmf_dll_name}
 )
 
 install(TARGETS dvipdft DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
