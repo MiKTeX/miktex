@@ -40,6 +40,8 @@ endif()
 
 add_executable(findtexmf ${findtexmf_sources})
 
+set_property(TARGET findtexmf PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
 target_link_libraries(findtexmf
   ${app_dll_name}
   ${core_dll_name}
