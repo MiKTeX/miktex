@@ -47,6 +47,8 @@ endif()
 
 add_executable(texify ${mcd_sources})
 
+set_property(TARGET texify PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
 target_link_libraries(texify
     ${app_dll_name}
     ${core_dll_name}
