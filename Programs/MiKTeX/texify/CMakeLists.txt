@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -31,7 +31,7 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-set(${mcd_dll_name}_sources
+set(mcd_sources
   mcd-version.h
   mcd.cpp
 )
@@ -41,22 +41,13 @@ if(MIKTEX_NATIVE_WINDOWS)
     mcd.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/mcd.rc
   )
-  list(APPEND ${mcd_dll_name}_sources
+  list(APPEND mcd_sources
     ${CMAKE_CURRENT_BINARY_DIR}/mcd.rc)
 endif()
 
-add_library(${mcd_dll_name} SHARED ${${mcd_dll_name}_sources})
+add_executable(texify ${mcd_sources})
 
-set_property(TARGET ${mcd_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-set_target_properties(${mcd_dll_name}
-  PROPERTIES
-    VERSION "${MIKTEX_SERIES_STR}"
-    SOVERSION "1"
-)
-
-target_link_libraries(${mcd_dll_name}
-  PRIVATE
+target_link_libraries(texify
     ${app_dll_name}
     ${core_dll_name}
     ${texmf_dll_name}
@@ -64,17 +55,12 @@ target_link_libraries(${mcd_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(${mcd_dll_name}
-    PRIVATE
-      ${regex_dll_name}
+  target_link_libraries(texify
+    ${regex_dll_name}
   )
 endif()
 
-rebase(${mcd_dll_name})
-  
-create_dll_wrapper(texify ${mcd_dll_name} mcdmain2)
-
-install(TARGETS ${mcd_dll_name} texify
+install(TARGETS texify
       RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
       LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
       ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}")

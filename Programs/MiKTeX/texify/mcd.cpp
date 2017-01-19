@@ -1,6 +1,6 @@
 /* mcd.cpp: MiKTeX compiler driver
 
-   Copyright (C) 1998-2016 Christian Schenk
+   Copyright (C) 1998-2017 Christian Schenk
 
    Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2001,
    2002, 2003, 2004, 2005 Free Software Foundation, Inc.
@@ -548,7 +548,7 @@ void McdApp::Version()
 {
   cout
     << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-    << "Copyright (C) 1998-2016 Christian Schenk" << endl
+    << "Copyright (C) 1998-2017 Christian Schenk" << endl
     << "Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2001," << endl
     << "2002, 2003, 2004, 2005 Free Software Foundation, Inc." << endl
     << "This is free software; see the source for copying conditions.  There is NO" << endl
@@ -2144,24 +2144,51 @@ void McdApp::Run(int argc, const char ** argv)
   }
 }
 
-extern "C" MIKTEXDLLEXPORT int MIKTEXCEECALL mcdmain2(int argc, const char ** argv)
+#if defined(_UNICODE)
+#  define MAIN wmain
+#  define MAINCHAR wchar_t
+#else
+#  define MAIN main
+#  define MAINCHAR char
+#endif
+
+int MAIN(int argc, MAINCHAR** argv)
 {
   try
   {
+    vector<string> utf8args;
+    utf8args.reserve(argc);
+    vector<const char*> newargv;
+    newargv.reserve(argc + 1);
+    for (int idx = 0; idx < argc; ++idx)
+    {
+#if defined(_UNICODE)
+      utf8args.push_back(StringUtil::WideCharToUTF8(argv[idx]));
+#elif defined(MIKTEX_WINDOWS)
+      utf8args.push_back(StringUtil::AnsiToUTF8(argv[idx]));
+#else
+      utf8args.push_back(argv[idx]);
+#endif
+      newargv.push_back(utf8args[idx].c_str());
+    }
+    newargv.push_back(nullptr);
     McdApp app;
-    app.Run(argc, argv);
+    app.Run(argc, &newargv[0]);
     return 0;
   }
-  catch (const MiKTeXException & ex)
+
+  catch (const MiKTeXException& ex)
   {
-    Application::Sorry(argv[0], ex);
+    Application::Sorry(THE_NAME_OF_THE_GAME, ex);
     return 1;
   }
-  catch (const exception & ex)
+
+  catch (const exception& ex)
   {
-    Application::Sorry(argv[0], ex);
+    Application::Sorry(THE_NAME_OF_THE_GAME, ex);
     return 1;
   }
+
   catch (int exitCode)
   {
     return exitCode;

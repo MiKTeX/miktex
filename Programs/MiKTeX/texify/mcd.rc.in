@@ -1,6 +1,6 @@
 /* mcd.rc: version number                               -*- C++ -*-
 
-   Copyright (C) 1998-2016 Christian Schenk
+   Copyright (C) 1998-2017 Christian Schenk
 
    This file is part of the MiKTeX Compiler Driver.
 
@@ -21,10 +21,10 @@
 
 #include "mcd-version.h"
 
-#define VER_INTERNALNAME_STR "${mcd_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${mcd_dll_name}.dll"
+#define VER_INTERNALNAME_STR "texify"
+#define VER_ORIGINALFILENAME_STR "mcd.exe"
 
-#define VER_FILEDESCRIPTION_STR "MiKTeX Compiler Driver DLL"
+#define VER_FILEDESCRIPTION_STR "MiKTeX Compiler Driver"
 
 #define VER_FILETYPE VFT_DLL
 

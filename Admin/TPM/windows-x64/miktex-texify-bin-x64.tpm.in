@@ -12,7 +12,6 @@
       This package includes the TeXify executable.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${mcd_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/texify.exe
     </TPM:RunFiles>
   </rdf:Description>
