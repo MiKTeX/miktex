@@ -1,6 +1,6 @@
 /* mkfntmap.rc: mkfntmap resources                      -*- C++ -*-
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2017 Christian Schenk
 
    This file is part of MkFntMap.
 
@@ -20,11 +20,9 @@
 
 #include "mkfntmap-version.h"
 
-#define VER_INTERNALNAME_STR "${mkfntmap_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${mkfntmap_dll_name}.dll"
+#define VER_INTERNALNAME_STR "mkfntmap"
+#define VER_ORIGINALFILENAME_STR "mkfntmap.exe"
 
 #define VER_FILEDESCRIPTION_STR "MiKTeX Fontmap Maintenance Utility"
-
-#define VER_FILETYPE VFT_DLL
 
 #include "miktex/win/version.rc"

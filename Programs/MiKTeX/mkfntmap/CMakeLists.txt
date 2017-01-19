@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -24,13 +24,14 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-if(MSVC)
+if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(
-    -D_UNICODE -DUNICODE
+    -DUNICODE
+    -D_UNICODE
   )
 endif()
 
-set(${mkfntmap_dll_name}_sources
+set(mkfntmap_sources
   internal.h
   mkfntmap-version.h
   mkfntmap.cpp
@@ -41,40 +42,28 @@ if(MIKTEX_NATIVE_WINDOWS)
     mkfntmap.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/mkfntmap.rc
   )
-  list(APPEND ${mkfntmap_dll_name}_sources
+  list(APPEND mkfntmap_sources
     ${CMAKE_CURRENT_BINARY_DIR}/mkfntmap.rc)
 endif()
 
-add_library(${mkfntmap_dll_name} SHARED ${${mkfntmap_dll_name}_sources})
+add_executable(mkfntmap ${mkfntmap_sources})
 
-set_property(TARGET ${mkfntmap_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-set_target_properties(${mkfntmap_dll_name}
-  PROPERTIES
-    VERSION "${MIKTEX_SERIES_STR}"
-    SOVERSION "1"
-)
+set_property(TARGET mkfntmap PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 if(USE_SYSTEM_LOG4CXX)
-  target_link_libraries(${mkfntmap_dll_name} PRIVATE MiKTeX::Imported::LOG4CXX)
+  target_link_libraries(mkfntmap MiKTeX::Imported::LOG4CXX)
 else()
-  target_link_libraries(${mkfntmap_dll_name} PRIVATE ${log4cxx_dll_name})
+  target_link_libraries(mkfntmap ${log4cxx_dll_name})
 endif()
 
-target_link_libraries(${mkfntmap_dll_name}
-  PRIVATE
-    ${app_dll_name}
-    ${core_dll_name}
-    miktex-popt-wrapper
+target_link_libraries(mkfntmap
+  ${app_dll_name}
+  ${core_dll_name}
+  miktex-popt-wrapper
 )
 
-rebase(${mkfntmap_dll_name})
-
-install(TARGETS ${mkfntmap_dll_name}
+install(TARGETS mkfntmap
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
   ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
 )
-
-create_dll_wrapper(mkfntmap ${mkfntmap_dll_name} mkfntmap)
-
