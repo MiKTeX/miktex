@@ -1,6 +1,6 @@
 /* mthelp.cpp:
 
-   Copyright (C) 2004-2016 Christian Schenk
+   Copyright (C) 2004-2017 Christian Schenk
 
    This file is a part of MTHelp.
 
@@ -582,25 +582,49 @@ void MiKTeXHelp::Run(int argc, const char ** argv)
   }
 }
 
-extern "C" MIKTEXDLLEXPORT int MIKTEXCEECALL mthelp(int argc, const char ** argv)
+#if defined(_UNICODE)
+#  define MAIN wmain
+#  define MAINCHAR wchar_t
+#else
+#  define MAIN main
+#  define MAINCHAR char
+#endif
+
+int MAIN(int argc, MAINCHAR** argv)
 {
   try
   {
+    vector<string> utf8args;
+    utf8args.reserve(argc);
+    vector<const char*> newargv;
+    newargv.reserve(argc + 1);
+    for (int idx = 0; idx < argc; ++idx)
+    {
+#if defined(_UNICODE)
+      utf8args.push_back(StringUtil::WideCharToUTF8(argv[idx]));
+#elif defined(MIKTEX_WINDOWS)
+      utf8args.push_back(StringUtil::AnsiToUTF8(argv[idx]));
+#else
+      utf8args.push_back(argv[idx]);
+#endif
+      newargv.push_back(utf8args[idx].c_str());
+    }
+    newargv.push_back(nullptr);
     MiKTeXHelp app;
-    app.Init(Session::InitInfo(argv[0]));
+    app.Init(Session::InitInfo(newargv[0]));
     app.EnableInstaller(TriState::False);
-    app.Run(argc, argv);
+    app.Run(argc, &newargv[0]);
     app.Finalize();
     return 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& ex)
   {
-    Application::Sorry(TheNameOfTheGame, e);
+    Application::Sorry(TheNameOfTheGame, ex);
     return 1;
   }
-  catch (const exception & e)
+  catch (const exception& ex)
   {
-    Application::Sorry(TheNameOfTheGame, e);
+    Application::Sorry(TheNameOfTheGame, ex);
     return 1;
   }
   catch (int exitCode)

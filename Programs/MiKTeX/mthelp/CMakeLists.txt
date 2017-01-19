@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -27,20 +27,16 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-if(MSVC)
+if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(
-    -D_UNICODE -DUNICODE
+    -DUNICODE
+    -D_UNICODE
   )
 endif()
 
-if(LINK_EVERYTHING_STATICALLY)
-  set(mthelp_target_name ${mthelp_lib_name})
-else()
-  set(mthelp_target_name ${mthelp_dll_name})
-endif()
-
-set(${mthelp_target_name}_sources
+set(mthelp_sources
   ${CMAKE_CURRENT_BINARY_DIR}/template.html.h
+  mthelp-version.h
   mthelp.cpp
 )
 
@@ -59,32 +55,25 @@ add_custom_command(
   VERBATIM
 )
 
-if(LINK_EVERYTHING_STATICALLY)
-  add_library(${mthelp_target_name} STATIC ${${mthelp_target_name}_sources})
-  set_property(TARGET ${mthelp_target_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-else()
-  if(MIKTEX_NATIVE_WINDOWS)
-    list(APPEND ${mthelp_target_name}_sources
-      mthelp.rc)
-  endif()
-  add_library(${mthelp_target_name} SHARED ${${mthelp_target_name}_sources})
-  set_property(TARGET ${mthelp_target_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_link_libraries(${mthelp_target_name}
-    PRIVATE
-      ${app_dll_name}
-      ${core_dll_name}
-      ${mpm_dll_name}
-      miktex-popt-wrapper
-  )
-  rebase(${mthelp_target_name})
-endif()
-
-if(NOT LINK_EVERYTHING_STATICALLY)
-  install(TARGETS ${mthelp_dll_name}
-    RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
-    LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
-    ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND mthelp_sources
+    mthelp.rc
   )
 endif()
 
-create_dll_wrapper(mthelp ${mthelp_target_name} mthelp)
+add_executable(mthelp ${mthelp_sources})
+
+set_property(TARGET mthelp PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_link_libraries(mthelp
+  ${app_dll_name}
+  ${core_dll_name}
+  ${mpm_dll_name}
+  miktex-popt-wrapper
+)
+
+install(TARGETS mthelp
+  RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
+  LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+  ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+)
