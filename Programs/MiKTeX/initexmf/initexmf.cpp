@@ -2483,6 +2483,7 @@ vector<FileLink> explicitFileLinks =
 #if defined(MIKTEX_WINDOWS)
   { "arctrl" MIKTEX_EXE_FILE_SUFFIX, { "pdfclose", "pdfdde", "pdfopen" } },
 #endif
+  { "cjklatex" MIKTEX_EXE_FILE_SUFFIX, { "bg5pluslatex", "bg5pluspdflatex", "bg5latex", "bg5pdflatex", "bg5platex", "bg5ppdflatex", "cef5latex", "cef5pdflatex", "ceflatex", "cefpdflatex", "cefslatex", "cefspdflatex", "gbklatex", "gbkpdflatex", "sjislatex", "sjispdflatex" } },
   { "mkfntmap" MIKTEX_EXE_FILE_SUFFIX, { "updmap" } },
   { "mthelp" MIKTEX_EXE_FILE_SUFFIX, { "texdoc" } },
   { MIKTEX_BIBTEX_EXE, { "bibtex" } },

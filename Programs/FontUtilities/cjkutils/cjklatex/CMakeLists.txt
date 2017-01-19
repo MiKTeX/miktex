@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -24,7 +24,14 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-set(${cjklatex_dll_name}_sources
+if(MIKTEX_NATIVE_WINDOWS)
+  add_definitions(
+    -DUNICODE
+    -D_UNICODE
+  )
+endif()
+
+set(cjklatex_sources
   cjklatex-version.h
   cjklatex.cpp
 )
@@ -34,62 +41,30 @@ if(MIKTEX_NATIVE_WINDOWS)
     cjklatex.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/cjklatex.rc
   )
-  list(APPEND ${cjklatex_dll_name}_sources
+  list(APPEND cjklatex_sources
     ${CMAKE_CURRENT_BINARY_DIR}/cjklatex.rc
   )
 endif()
 
-add_library(${cjklatex_dll_name} SHARED ${${cjklatex_dll_name}_sources})
+add_executable(cjklatex ${cjklatex_sources})
 
-set_property(TARGET ${cjklatex_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET cjklatex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_link_libraries(${cjklatex_dll_name}
-  PRIVATE
-    ${app_dll_name}
-    ${core_dll_name}
-    ${mpm_dll_name}
-    ${texmf_dll_name}
+target_link_libraries(cjklatex
+  ${app_dll_name}
+  ${core_dll_name}
+  ${mpm_dll_name}
+  ${texmf_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(${cjklatex_dll_name}
-    PRIVATE
-      ${getopt_dll_name}
+  target_link_libraries(cjklatex
+    ${getopt_dll_name}
   )
 endif()
 
-install(TARGETS ${cjklatex_dll_name}
+install(TARGETS cjklatex
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
   ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
 )
-
-set(exes
-  bg5pluslatex
-  bg5pluspdflatex
-  bg5latex
-  bg5pdflatex
-  bg5platex
-  bg5ppdflatex
-  cef5latex
-  cef5pdflatex
-  ceflatex
-  cefpdflatex
-  cefslatex
-  cefspdflatex
-  cjklatex
-  gbklatex
-  gbkpdflatex
-  sjislatex
-  sjispdflatex
-)
-
-foreach(t ${exes})
-  create_dll_wrapper(${t} ${cjklatex_dll_name} cjklatexmain)
-  install(TARGETS ${t}
-    RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
-    LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
-    ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
-  )
-  set_property(TARGET ${t} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-endforeach()

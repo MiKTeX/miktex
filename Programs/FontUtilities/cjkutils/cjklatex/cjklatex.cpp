@@ -1,7 +1,7 @@
 /* cjklatex.cpp: call latex after preprocessing of the .tex file by
    the cjk conversion tool
 
-   Written in the years 2004-2016 by Christian Schenk.
+   Written in the years 2004-2017 by Christian Schenk.
 
    This file is based on public domain work (cjklatex.c, 2001) by
    Fabrice Popineau.
@@ -69,14 +69,14 @@ enum Option
 
 const struct option aoption[] =
 {
-  T_("conv"),		required_argument,	0,	OPT_CONV,
-  T_("latex"),		required_argument,	0,	OPT_LATEX,
-  T_("help"),		no_argument,		0,	OPT_HELP,
-  T_("nocleanup"),	no_argument,		0,	OPT_NOCLEANUP,
-  T_("print-only"),	no_argument,		0,	OPT_PRINT_ONLY,
-  T_("verbose"),	no_argument,		0,	OPT_VERBOSE,
-  T_("version"),	no_argument,		0,	OPT_VERSION,
-  0,			no_argument,		0,	0,
+  T_("conv"),           required_argument,      0,      OPT_CONV,
+  T_("latex"),          required_argument,      0,      OPT_LATEX,
+  T_("help"),           no_argument,            0,      OPT_HELP,
+  T_("nocleanup"),      no_argument,            0,      OPT_NOCLEANUP,
+  T_("print-only"),     no_argument,            0,      OPT_PRINT_ONLY,
+  T_("verbose"),        no_argument,            0,      OPT_VERBOSE,
+  T_("version"),        no_argument,            0,      OPT_VERSION,
+  0,                    no_argument,            0,      0,
 };
 
 /* _________________________________________________________________________
@@ -85,21 +85,21 @@ const struct option aoption[] =
    _________________________________________________________________________ */
 
 struct CONVERTER {
-  const char *	lpszName;
-  const char *	lpszProgram;
+  const char *  lpszName;
+  const char *  lpszProgram;
 };
 
 const CONVERTER Converters [] =
 {
-  "bg5",	T_("bg5conv"),
-  "bg5+",	T_("extconv"),
-  "bg5p",	T_("extconv"),
-  T_("cef"),	T_("cefconv"),
-  T_("cef5"),	T_("cef5conv"),
-  T_("cefs"),	T_("cefsconv"),
-  "cjk",	0,
-  "gbk",	T_("extconv"),
-  T_("sjis"),	T_("sjisconv"),
+  "bg5",        T_("bg5conv"),
+  "bg5+",       T_("extconv"),
+  "bg5p",       T_("extconv"),
+  T_("cef"),    T_("cefconv"),
+  T_("cef5"),   T_("cef5conv"),
+  T_("cefs"),   T_("cefsconv"),
+  "cjk",        0,
+  "gbk",        T_("extconv"),
+  T_("sjis"),   T_("sjisconv"),
 };
 
 /* _________________________________________________________________________
@@ -114,31 +114,31 @@ public:
   
 private:
   void
-  Error (/*[in]*/ const char *	lpszFormat,
-	 /*[in]*/		...);
+  Error (/*[in]*/ const char *  lpszFormat,
+         /*[in]*/               ...);
 
 private:
   void
-  PrintOnly (/*[in]*/ const char *	lpszFormat,
-	     /*[in]*/			...);
+  PrintOnly (/*[in]*/ const char *      lpszFormat,
+             /*[in]*/                   ...);
 
 private:
   const char *
-  GetConverterProgram (/*[in]*/ const char *	lpszName);
+  GetConverterProgram (/*[in]*/ const char *    lpszName);
 
 private:
   void
-  ParseInvocationName (/*[out]*/ string &	converterProgram,
-		       /*[out]*/ string &	engine);
+  ParseInvocationName (/*[out]*/ string &       converterProgram,
+                       /*[out]*/ string &       engine);
     
 private:
   void
-  RunConverter (/*[in]*/ const PathName &	inputFile,
-		/*[in]*/ const PathName &	intermediateFile);
+  RunConverter (/*[in]*/ const PathName &       inputFile,
+                /*[in]*/ const PathName &       intermediateFile);
 
 private:
   void
-  RunEngine (/*[in]*/ const PathName &	inputFile);
+  RunEngine (/*[in]*/ const PathName &  inputFile);
 
 private:
   void
@@ -150,13 +150,13 @@ private:
   
 private:
   void
-  ProcessOptions (/*[in]*/ int		argc,
-		  /*[in]*/ char **	argv);
+  ProcessOptions (/*[in]*/ int          argc,
+                  /*[in]*/ const char **      argv);
 
 public:
   void
-  Run (/*[in]*/ int		argc,
-       /*[in]*/ char **	argv);
+  Run (/*[in]*/ int             argc,
+       /*[in]*/ const char ** argv);
 
 private:
   string engine;
@@ -243,8 +243,8 @@ Options:\n\
    _________________________________________________________________________ */
 
 void
-CJKLaTeXApp::Error (/*[in]*/ const char *	lpszFormat,
-		    /*[in]*/			...)
+CJKLaTeXApp::Error (/*[in]*/ const char *       lpszFormat,
+                    /*[in]*/                    ...)
 {
   va_list arglist;
   va_start (arglist, lpszFormat);
@@ -261,8 +261,8 @@ CJKLaTeXApp::Error (/*[in]*/ const char *	lpszFormat,
    _________________________________________________________________________ */
 
 void
-CJKLaTeXApp::PrintOnly (/*[in]*/ const char *	lpszFormat,
-			/*[in]*/		...)
+CJKLaTeXApp::PrintOnly (/*[in]*/ const char *   lpszFormat,
+                        /*[in]*/                ...)
 {
   if (! printOnly)
     {
@@ -280,8 +280,8 @@ CJKLaTeXApp::PrintOnly (/*[in]*/ const char *	lpszFormat,
    _________________________________________________________________________ */
 
 void
-CJKLaTeXApp::RunConverter (/*[in]*/ const PathName &	inputFile,
-			   /*[in]*/ const PathName &	intermediateFile)
+CJKLaTeXApp::RunConverter (/*[in]*/ const PathName &    inputFile,
+                           /*[in]*/ const PathName &    intermediateFile)
 {
   PathName converter;
   if (! session->FindFile(converterProgram, FileType::EXE, converter))
@@ -299,8 +299,8 @@ CJKLaTeXApp::RunConverter (/*[in]*/ const PathName &	inputFile,
   if (! printOnly && ! Process::ExecuteSystemCommand(cmdLine.ToString()))
     {
       Error (T_("Converter %s failed on %s."),
-	     converterProgram.c_str(),
-	     Q_(inputFile));
+             converterProgram.c_str(),
+             Q_(inputFile));
     }
 }
 
@@ -310,7 +310,7 @@ CJKLaTeXApp::RunConverter (/*[in]*/ const PathName &	inputFile,
    _________________________________________________________________________ */
 
 void
-CJKLaTeXApp::RunEngine (/*[in]*/ const PathName &	inputFile)
+CJKLaTeXApp::RunEngine (/*[in]*/ const PathName &       inputFile)
 {
   PathName engineExe;
   if (! session->FindFile(engine, FileType::EXE, engineExe))
@@ -332,14 +332,14 @@ CJKLaTeXApp::RunEngine (/*[in]*/ const PathName &	inputFile)
    _________________________________________________________________________ */
 
 const char *
-CJKLaTeXApp::GetConverterProgram (/*[in]*/ const char *	lpszName)
+CJKLaTeXApp::GetConverterProgram (/*[in]*/ const char * lpszName)
 {
   for (size_t i = 0; i < sizeof(Converters) / sizeof(Converters[0]); ++ i)
     {
       if (PathName::Compare(lpszName, Converters[i].lpszName) == 0)
-	{
-	  return (Converters[i].lpszProgram);
-	}
+        {
+          return (Converters[i].lpszProgram);
+        }
     }
   return (0);
 }
@@ -351,8 +351,8 @@ CJKLaTeXApp::GetConverterProgram (/*[in]*/ const char *	lpszName)
 
 void
 CJKLaTeXApp::ParseInvocationName
-(/*[out]*/ string &		converterProgram,
- /*[out]*/ string &		engine)
+(/*[out]*/ string &             converterProgram,
+ /*[out]*/ string &             engine)
 {
   string invocationName = Utils::GetExeName();
   const char * lpszInvocationName = invocationName.c_str();
@@ -366,11 +366,11 @@ CJKLaTeXApp::ParseInvocationName
 #else
       if (strncmp(lpszInvocationName, Converters[i].lpszName, l) == 0
 #endif
-	  && l > len)
-	{
-	  j = i;
-	  len = l;
-	}
+          && l > len)
+        {
+          j = i;
+          len = l;
+        }
     }
   if (j == UINT_MAX)
     {
@@ -389,8 +389,8 @@ CJKLaTeXApp::ParseInvocationName
    _________________________________________________________________________ */
 
 void
-CJKLaTeXApp::ProcessOptions (/*[in]*/ int	argc,
-			     /*[in]*/ char **	argv)
+CJKLaTeXApp::ProcessOptions (/*[in]*/ int       argc,
+                             /*[in]*/ const char **   argv)
 {
   ParseInvocationName (converterProgram, engine);
   
@@ -399,62 +399,62 @@ CJKLaTeXApp::ProcessOptions (/*[in]*/ int	argc,
   int optionIndex;
   
   while ((optionChar = getopt_long_only(argc,
-				      argv,
-				      "",
-				      aoption,
-				      &optionIndex))
-	 != EOF)
+					(char**)argv,
+                                      "",
+                                      aoption,
+                                      &optionIndex))
+         != EOF)
     {
       switch (static_cast<Option>(optionChar))
-	{
+        {
 
-	case OPT_CONV:
+        case OPT_CONV:
 
-	  {
-	    const char * lpszConverterProgram =
-	      GetConverterProgram(optarg);
-	    if (lpszConverterProgram == 0)
-	      {
-		Error (T_("The converter %s is unknown."), optarg);
-	      }
-	    converterProgram = lpszConverterProgram;
-	    break;
-	  }
-	    
-	case OPT_HELP:
-	  
-	  Help ();
-	  throw (0);
+          {
+            const char * lpszConverterProgram =
+              GetConverterProgram(optarg);
+            if (lpszConverterProgram == 0)
+              {
+                Error (T_("The converter %s is unknown."), optarg);
+              }
+            converterProgram = lpszConverterProgram;
+            break;
+          }
+            
+        case OPT_HELP:
+          
+          Help ();
+          throw (0);
 
-	case OPT_LATEX:
+        case OPT_LATEX:
 
-	  engine = optarg;
-	  break;
+          engine = optarg;
+          break;
 
-	case OPT_PRINT_ONLY:
-	  
-	  printOnly = true;
-	  break;
+        case OPT_PRINT_ONLY:
+          
+          printOnly = true;
+          break;
 
-	case OPT_NOCLEANUP:
+        case OPT_NOCLEANUP:
 
-	  cleanUp = false;
-	  break;
+          cleanUp = false;
+          break;
 
-	case OPT_VERBOSE:
-	  
-	  break;
-	  
-	case OPT_VERSION:
-	  
-	  ShowVersion ();
-	  throw (0);
-	  
-	default:
+        case OPT_VERBOSE:
+          
+          break;
+          
+        case OPT_VERSION:
+          
+          ShowVersion ();
+          throw (0);
+          
+        default:
 
-	  Error (T_("Invalid command-line."));
-	  break;
-	}
+          Error (T_("Invalid command-line."));
+          break;
+        }
     }
 
   EnableInstaller (TriState::True);
@@ -466,8 +466,8 @@ CJKLaTeXApp::ProcessOptions (/*[in]*/ int	argc,
    _________________________________________________________________________ */
 
 void
-CJKLaTeXApp::Run (/*[in]*/ int		argc,
-		  /*[in]*/ char **	argv)
+CJKLaTeXApp::Run (/*[in]*/ int          argc,
+                  /*[in]*/ const char **      argv)
 {
   session = GetSession();
   ProcessOptions (argc, argv);
@@ -480,9 +480,9 @@ CJKLaTeXApp::Run (/*[in]*/ int		argc,
       RunConverter (pathInputFile, pathIntermediateFile);
       RunEngine (pathIntermediateFile);
       if (cleanUp && ! printOnly)
-	{
-	  File::Delete (pathIntermediateFile);
-	}
+        {
+          File::Delete (pathIntermediateFile);
+        }
     }
 }
 
@@ -491,28 +491,52 @@ CJKLaTeXApp::Run (/*[in]*/ int		argc,
    cjklatexmain
    _________________________________________________________________________ */
 
-extern "C" MIKTEXDLLEXPORT int MIKTEXCEECALL cjklatexmain(int argc, char * argv[])
+#if defined(_UNICODE)
+#  define MAIN wmain
+#  define MAINCHAR wchar_t
+#else
+#  define MAIN main
+#  define MAINCHAR char
+#endif
+
+int MAIN(int argc, MAINCHAR** argv)
 {
   try
+  {
+    vector<string> utf8args;
+    utf8args.reserve(argc);
+    vector<const char*> newargv;
+    newargv.reserve(argc + 1);
+    for (int idx = 0; idx < argc; ++idx)
     {
-      CJKLaTeXApp app;
-      app.Init (argv[0]);
-      app.Run(argc, argv);
-      app.Finalize ();
-      return (0);
+#if defined(_UNICODE)
+      utf8args.push_back(StringUtil::WideCharToUTF8(argv[idx]));
+#elif defined(MIKTEX_WINDOWS)
+      utf8args.push_back(StringUtil::AnsiToUTF8(argv[idx]));
+#else
+      utf8args.push_back(argv[idx]);
+#endif
+      newargv.push_back(utf8args[idx].c_str());
     }
-  catch (const MiKTeXException & e)
-    {
-      Utils::PrintException (e);
-      return (1);
+    newargv.push_back(nullptr);
+    CJKLaTeXApp app;
+    app.Init(newargv[0]);
+    app.Run(argc, &newargv[0]);
+    app.Finalize();
+    return 0;
     }
-  catch (const exception & e)
-    {
-      Utils::PrintException (e);
-      return (1);
-    }
+  catch (const MiKTeXException& ex)
+  {
+    Utils::PrintException(ex);
+    return 1;
+  }
+  catch (const exception& ex)
+  {
+    Utils::PrintException(ex);
+    return 1;
+  }
   catch (int exitCode)
-    {
-      return (exitCode);
-    }
+  {
+    return exitCode;
+  }
 }
