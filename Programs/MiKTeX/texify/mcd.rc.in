@@ -26,6 +26,4 @@
 
 #define VER_FILEDESCRIPTION_STR "MiKTeX Compiler Driver"
 
-#define VER_FILETYPE VFT_DLL
-
 #include "miktex/win/version.rc"
