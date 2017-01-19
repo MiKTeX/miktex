@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -24,7 +24,7 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-set(${findtexmf_dll_name}_sources
+set(findtexmf_sources
   findtexmf-version.h
   findtexmf.cpp
 )
@@ -34,37 +34,21 @@ if(MIKTEX_NATIVE_WINDOWS)
     findtexmf.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/findtexmf.rc
   )
-  list(APPEND ${findtexmf_dll_name}_sources
+  list(APPEND findtexmf_sources
     ${CMAKE_CURRENT_BINARY_DIR}/findtexmf.rc)
 endif()
 
-add_library(${findtexmf_dll_name} SHARED ${${findtexmf_dll_name}_sources})
+add_executable(findtexmf ${findtexmf_sources})
 
-set_property(TARGET ${findtexmf_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-target_link_libraries(${findtexmf_dll_name}
-  PRIVATE
-    ${app_dll_name}
-    ${core_dll_name}
-    ${mpm_dll_name}
-    miktex-popt-wrapper
+target_link_libraries(findtexmf
+  ${app_dll_name}
+  ${core_dll_name}
+  ${mpm_dll_name}
+  miktex-popt-wrapper
 )
 
-rebase(${findtexmf_dll_name})
-
-install(TARGETS ${findtexmf_dll_name}
+install(TARGETS findtexmf
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
   LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
   ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
 )
-
-set(exes findtexmf)
-
-foreach(t ${exes})
-  create_dll_wrapper(${t} ${findtexmf_dll_name} findtexmf)
-  install(TARGETS ${t}
-    RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
-    LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
-    ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
-  )
-endforeach()

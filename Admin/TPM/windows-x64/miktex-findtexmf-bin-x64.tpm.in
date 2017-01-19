@@ -13,7 +13,6 @@
       This package includes the FindTeXMF executable.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${findtexmf_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/findtexmf.exe
     </TPM:RunFiles>
   </rdf:Description>

@@ -1,6 +1,6 @@
 /* findtexmf.cpp: finding TeXMF related files
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2017 Christian Schenk
 
    This file is part of FindTeXMF.
 
@@ -44,7 +44,7 @@
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Wrappers;
-using namespace MiKTeX;
+using namespace MiKTeX::Util;
 using namespace std;
 
 #define WU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
@@ -367,32 +367,56 @@ void FindTeXMF::Run(int argc, const char ** argv)
           FatalError(T_("%s could not be started."), Q_(fileName));
         }
 #else
-	// TODO: start program
-	UNIMPLEMENTED();
+        // TODO: start program
+        UNIMPLEMENTED();
 #endif
       }
     }
   }
 }
 
-extern "C" MIKTEXDLLEXPORT int MIKTEXCEECALL findtexmf(int argc, const char ** argv)
+#if defined(_UNICODE)
+#  define MAIN wmain
+#  define MAINCHAR wchar_t
+#else
+#  define MAIN main
+#  define MAINCHAR char
+#endif
+
+int MAIN(int argc, MAINCHAR** argv)
 {
   try
   {
+    vector<string> utf8args;
+    utf8args.reserve(argc);
+    vector<const char*> newargv;
+    newargv.reserve(argc + 1);
+    for (int idx = 0; idx < argc; ++idx)
+    {
+#if defined(_UNICODE)
+      utf8args.push_back(StringUtil::WideCharToUTF8(argv[idx]));
+#elif defined(MIKTEX_WINDOWS)
+      utf8args.push_back(StringUtil::AnsiToUTF8(argv[idx]));
+#else
+      utf8args.push_back(argv[idx]);
+#endif
+      newargv.push_back(utf8args[idx].c_str());
+    }
+    newargv.push_back(nullptr);
     FindTeXMF app;
-    app.Init(argv[0]);
-    app.Run(argc, argv);
+    app.Init(newargv[0]);
+    app.Run(argc, &newargv[0]);
     app.Finalize();
     return 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& ex)
   {
-    Application::Sorry(TheNameOfTheGame, e);
+    Application::Sorry(TheNameOfTheGame, ex);
     return 1;
   }
-  catch (const exception & e)
+  catch (const exception& ex)
   {
-    Application::Sorry(TheNameOfTheGame, e);
+    Application::Sorry(TheNameOfTheGame, ex);
     return 1;
   }
   catch (int exitCode)
