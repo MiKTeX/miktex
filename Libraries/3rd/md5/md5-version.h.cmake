@@ -1,6 +1,6 @@
-/* md5-version.h: version number			-*- C++ -*-
+/* md5-version.h: version number                        -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -17,9 +17,9 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION 6200
+#define MIKTEX_COMP_J2000_VERSION ${MIKTEX_COMP_J2000_VERSION}
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1999, 2000, 2002 Aladdin Enterprises.  All rights reserved."
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1999, 2000, 2002 Aladdin Enterprises.  All rights reserved."
+#define MIKTEX_COMP_COPYRIGHT_STR "${MIKTEX_COMP_COPYRIGHT_STR}"
+#define MIKTEX_COMP_COPYRIGHT_STR_1252 "${MIKTEX_COMP_COPYRIGHT_STR_1252}"
 
 #include <miktex/Version>

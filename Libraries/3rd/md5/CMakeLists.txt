@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,9 +17,12 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/md5")
 
 include_directories(BEFORE
+  ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -30,7 +33,7 @@ set(public_include_directories
 ignore_warnings()
 
 set(md5_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/md5-version.h
+  ${CMAKE_CURRENT_BINARY_DIR}/md5-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/md5.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/md5.h
 )
@@ -43,6 +46,11 @@ if(INSTALL_MIKTEX_HEADERS)
       ${MIKTEX_HEADER_DESTINATION_DIR}
   )
 endif()
+
+configure_file(
+  md5-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/md5-version.h
+)
 
 configure_file(
   source/md5.h
