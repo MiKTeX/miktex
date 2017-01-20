@@ -1,0 +1,29 @@
+/* makefmt.rc:                                          -*- C++ -*-
+
+   Copyright (C) 1998-2017 Christian Schenk
+
+   This file is part of MiKTeX MakeFMT.
+
+   MiKTeX MakeFMT is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2, or (at
+   your option) any later version.
+
+   MiKTeX MakeFMT is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with MiKTeX MakeFMT; if not, write to the Free Software
+   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+   USA. */
+
+#include "makefmt-version.h"
+
+#define VER_INTERNALNAME_STR "MiKTeX MakeFMT"
+#define VER_ORIGINALFILENAME_STR "miktex-makefmt.exe"
+
+#define VER_FILEDESCRIPTION_STR "Makes a TeX .fmt file"
+
+#include "miktex/win/version.rc"

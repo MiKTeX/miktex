@@ -1,29 +1,32 @@
 /* makemf.cpp:
 
-   Copyright (C) 1998-2016 Christian Schenk
+   Copyright (C) 1998-2017 Christian Schenk
 
-   This file is part of the MiKTeX Maker Library.
+   This file is part of MiKTeX MakeMF.
 
-   The MiKTeX Maker Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
+   MiKTeX MakeMF is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2, or (at
+   your option) any later version.
 
-   The MiKTeX Maker Library is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   MiKTeX MakeMF is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with the MiKTeX Maker Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+   along with MiKTeX MakeMF; if not, write to the Free Software
+   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+   USA. */
 
-   /* Some algorithms are borrowed from the web2c mktex* shell scripts. */
+/* Some algorithms are borrowed from the web2c mktex* shell scripts. */
 
-#include "internal.h"
+#include "makemf-version.h"
+#include "MakeUtility.h"
 
-const char * const lhpref[] = {
+log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("makemf"));
+
+const char* const lhpref[] = {
   "la",
   "lb",
   "lc",
@@ -34,14 +37,14 @@ const char * const lhpref[] = {
   nullptr,
 };
 
-const char * const cspref[] = {
+const char* const cspref[] = {
   "cs",
   "ics",
   "lcs",
   nullptr,
 };
 
-const char * const cbpref[] = {
+const char* const cbpref[] = {
   "glic",
   "glii",
   "glin",
@@ -114,7 +117,7 @@ const char * const cbpref[] = {
   nullptr
 };
 
-bool HasPrefix(const string & s, const char * const prefixes[])
+bool HasPrefix(const string& s, const char* const prefixes[])
 {
   for (size_t i = 0; prefixes[i] != 0; ++i)
   {
@@ -130,7 +133,7 @@ class MakeMf :
   public MakeUtility
 {
 public:
-  virtual void Run(int argc, const char ** argv);
+  virtual void Run(int argc, const char** argv);
 
 private:
   virtual void CreateDestinationDirectory();
@@ -201,7 +204,7 @@ void MakeMf::CreateDestinationDirectory()
   destinationDirectory = CreateDirectoryFromTemplate(templ);
 }
 
-void MakeMf::Run(int argc, const char ** argv)
+void MakeMf::Run(int argc, const char** argv)
 {
   // get options and file name
   int optionIndex = 0;
@@ -273,7 +276,7 @@ void MakeMf::Run(int argc, const char ** argv)
   CreateDestinationDirectory();
 
   // open the output stream
-  FILE * stream = nullptr;
+  FILE* stream = nullptr;
   PathName pathDest;
   AutoFILE autoClose;
   if (toStdout || printOnly)
@@ -340,24 +343,48 @@ void MakeMf::Run(int argc, const char ** argv)
   }
 }
 
-MKTEXAPI(makemf) (int argc, const char ** argv)
+#if defined(_UNICODE)
+#  define MAIN wmain
+#  define MAINCHAR wchar_t
+#else
+#  define MAIN main
+#  define MAINCHAR char
+#endif
+
+int MAIN(int argc, MAINCHAR** argv)
 {
   try
   {
+    vector<string> utf8args;
+    utf8args.reserve(argc);
+    vector<const char*> newargv;
+    newargv.reserve(argc + 1);
+    for (int idx = 0; idx < argc; ++idx)
+    {
+#if defined(_UNICODE)
+      utf8args.push_back(StringUtil::WideCharToUTF8(argv[idx]));
+#elif defined(MIKTEX_WINDOWS)
+      utf8args.push_back(StringUtil::AnsiToUTF8(argv[idx]));
+#else
+      utf8args.push_back(argv[idx]);
+#endif
+      newargv.push_back(utf8args[idx].c_str());
+    }
+    newargv.push_back(nullptr);
     MakeMf app;
-    app.Init(Session::InitInfo(argv[0]));
-    app.Run(argc, argv);
+    app.Init(Session::InitInfo(newargv[0]));
+    app.Run(argc, &newargv[0]);
     app.Finalize();
     return 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& ex)
   {
-    Application::Sorry("makemf", e);
+    Application::Sorry("makemf", ex);
     return 1;
   }
-  catch (const exception & e)
+  catch (const exception& ex)
   {
-    Application::Sorry("makemf", e);
+    Application::Sorry("makemf", ex);
     return 1;
   }
   catch (int exitCode)

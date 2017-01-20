@@ -1,25 +1,28 @@
 /* makefmt.cpp: make TeX format files
 
-   Copyright (C) 1998-2016 Christian Schenk
+   Copyright (C) 1998-2017 Christian Schenk
 
-   This file is part of the MiKTeX Maker Library.
+   This file is part of MiKTeX MakeFMT.
 
-   The MiKTeX Maker Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
+   MiKTeX MakeFMT is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2, or (at
+   your option) any later version.
 
-   The MiKTeX Maker Library is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   MiKTeX MakeFMT is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with the MiKTeX Maker Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+   along with MiKTeX MakeFMT; if not, write to the Free Software
+   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+   USA. */
 
-#include "internal.h"
+#include "makefmt-version.h"
+#include "MakeUtility.h"
+
+log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("makefmt"));
 
 enum {
   OPT_AAA = 1,
@@ -44,7 +47,7 @@ class PdfConfigValues :
   public HasNamedValues
 {
 public:
-  bool TryGetValue(const string & valueName, string & value) override
+  bool TryGetValue(const string& valueName, string& value) override
   {
     unordered_map<string, string>::const_iterator it = values.find(valueName);
     if (it == values.end())
@@ -55,7 +58,7 @@ public:
     return true;
   }
 public:
-  string GetValue(const string & valueName) override
+  string GetValue(const string& valueName) override
   {
     string value;
     if (!TryGetValue(valueName, value))
@@ -65,7 +68,7 @@ public:
     return value;
   }
 public:
-  string & operator[] (const string & valueName)
+  string& operator[] (const string& valueName)
   {
     return values[valueName];
   }
@@ -76,7 +79,7 @@ private:
 class MakeFmt : public MakeUtility
 {
 public:
-  virtual void Run(int argc, const char ** argv);
+  virtual void Run(int argc, const char** argv);
 
 private:
   virtual void Usage();
@@ -95,7 +98,7 @@ private:
   END_OPTION_MAP();
 
 private:
-  void SetEngine(const char * lpszEngine)
+  void SetEngine(const char* lpszEngine)
   {
     if (Utils::EqualsIgnoreCase(lpszEngine, "luatex"))
     {
@@ -124,13 +127,13 @@ private:
   }
 
 private:
-  void AppendEngineOption(const char * lpszOption)
+  void AppendEngineOption(const char* lpszOption)
   {
     engineOptions.Append(lpszOption);
   }
 
 private:
-  const char * GetEngineName()
+  const char* GetEngineName()
   {
     switch (engine)
     {
@@ -149,7 +152,7 @@ private:
   }
 
 private:
-  const char * GetEngineExeName()
+  const char* GetEngineExeName()
   {
     switch (engine)
     {
@@ -168,7 +171,7 @@ private:
   }
 
 private:
-  void FindInputFile(const PathName & inputName, PathName & inputFile);
+  void FindInputFile(const PathName& inputName, PathName& inputFile);
 
 private:
   bool IsPdf() const
@@ -186,7 +189,7 @@ private:
   PdfConfigValues ParsePdfConfigFiles() const;
 
 private:
-  void ParsePdfConfigFile(const PathName & cfgFile, PdfConfigValues & values) const;
+  void ParsePdfConfigFile(const PathName& cfgFile, PdfConfigValues& values) const;
 
 private:
   void InstallPdftexConfigTeX() const;
@@ -263,7 +266,7 @@ void MakeFmt::CreateDestinationDirectory()
   destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_REGKEY_MAKEFMT, MIKTEX_REGVAL_DESTDIR, defDestDir.GetData()).GetString());
 }
 
-void MakeFmt::FindInputFile(const PathName & inputName, PathName & inputFile)
+void MakeFmt::FindInputFile(const PathName& inputName, PathName& inputFile)
 {
   if (!session->FindFile(inputName.ToString(), FileType::TEX, inputFile))
   {
@@ -290,7 +293,7 @@ PdfConfigValues MakeFmt::ParsePdfConfigFiles() const
   return values;
 }
 
-void MakeFmt::ParsePdfConfigFile(const PathName & cfgFile, PdfConfigValues & values) const
+void MakeFmt::ParsePdfConfigFile(const PathName& cfgFile, PdfConfigValues& values) const
 {
   AutoFILE pFile(File::Open(cfgFile, FileMode::Open, FileAccess::Read));
   string line;
@@ -319,7 +322,7 @@ void MakeFmt::InstallPdftexConfigTeX() const
   session->ConfigureFile(MIKTEX_PATH_PDFTEXCONFIG_TEX, &pdfConfigValues);
 }
 
-void MakeFmt::Run(int argc, const char ** argv)
+void MakeFmt::Run(int argc, const char** argv)
 {
   // get options and file name
   int optionIndex = 0;
@@ -419,24 +422,48 @@ void MakeFmt::Run(int argc, const char ** argv)
   Install(wrkDir->GetPathName() / formatFile, pathDest);
 }
 
-MKTEXAPI(makefmt) (int argc, const char ** argv)
+#if defined(_UNICODE)
+#  define MAIN wmain
+#  define MAINCHAR wchar_t
+#else
+#  define MAIN main
+#  define MAINCHAR char
+#endif
+
+int MAIN(int argc, MAINCHAR** argv)
 {
   try
   {
+    vector<string> utf8args;
+    utf8args.reserve(argc);
+    vector<const char*> newargv;
+    newargv.reserve(argc + 1);
+    for (int idx = 0; idx < argc; ++idx)
+    {
+#if defined(_UNICODE)
+      utf8args.push_back(StringUtil::WideCharToUTF8(argv[idx]));
+#elif defined(MIKTEX_WINDOWS)
+      utf8args.push_back(StringUtil::AnsiToUTF8(argv[idx]));
+#else
+      utf8args.push_back(argv[idx]);
+#endif
+      newargv.push_back(utf8args[idx].c_str());
+    }
+    newargv.push_back(nullptr);
     MakeFmt app;
-    app.Init(Session::InitInfo(argv[0]));
-    app.Run(argc, argv);
+    app.Init(Session::InitInfo(newargv[0]));
+    app.Run(argc, &newargv[0]);
     app.Finalize();
     return 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& ex)
   {
-    Application::Sorry("makefmt", e);
+    Application::Sorry("makefmt", ex);
     return 1;
   }
-  catch (const exception & e)
+  catch (const exception& ex)
   {
-    Application::Sorry("makefmt", e);
+    Application::Sorry("makefmt", ex);
     return 1;
   }
   catch (int exitCode)

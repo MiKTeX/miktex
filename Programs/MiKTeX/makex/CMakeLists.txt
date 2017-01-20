@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -19,13 +19,10 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/Maker")
 
-if(LINK_EVERYTHING_STATICALLY)
-  use_static_crt()
-endif()
-
-if(MSVC)
+if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(
-    -D_UNICODE -DUNICODE
+    -DUNICODE
+    -D_UNICODE
   )
 endif()  
 
@@ -34,59 +31,9 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-if(LINK_EVERYTHING_STATICALLY)
-  set(makex_target_name ${makex_lib_name})
-else()
-  set(makex_target_name ${makex_dll_name})
-endif()
-
-set(${makex_target_name}_sources
-  common.cpp
-  internal.h
-  makebase.cpp
-  makefmt.cpp
-  makemf.cpp
-  makepk.cpp
-  maketfm.cpp
-  makex-version.h
-  makex.h
+set(common_sources
+  MakeUtility.h
 )
-
-if(MIKTEX_NATIVE_WINDOWS)
-  configure_file(
-    makex.rc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/makex.rc
-  )
-  list(APPEND ${makex_target_name}_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/makex.rc
-  )
-endif()
-
-if(LINK_EVERYTHING_STATICALLY)
-  add_library(${makex_target_name} STATIC ${${makex_target_name}_sources})
-  set_property(TARGET ${makex_target_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-else()
-  add_library(${makex_target_name} SHARED ${${makex_target_name}_sources})
-  set_property(TARGET ${makex_target_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  if(USE_SYSTEM_LOG4CXX)
-    target_link_libraries(${makex_target_name} PRIVATE MiKTeX::Imported::LOG4CXX)
-  else()
-    target_link_libraries(${makex_target_name} PRIVATE ${log4cxx_dll_name})
-  endif()
-  target_link_libraries(${makex_target_name}
-    PRIVATE
-      ${app_dll_name}
-      ${core_dll_name}
-      ${texmf_dll_name}
-  )
-  if(MIKTEX_NATIVE_WINDOWS)
-    target_link_libraries(${makex_target_name}
-      PRIVATE
-        ${getopt_dll_name}
-    )
-  endif()
-  rebase(${makex_target_name})
-endif()
 
 set(exes
   makebase
@@ -96,16 +43,30 @@ set(exes
   maketfm
 )
 
-if(NOT LINK_EVERYTHING_STATICALLY OR INSTALL_STATIC_LIBRARIES)
-  install(TARGETS ${makex_target_name}
-    RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
-    LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
-    ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
-  )
-endif()
-
 foreach(t ${exes})
-  create_dll_wrapper(${MIKTEX_PREFIX}${t} ${makex_target_name} ${t})
+  set(${t}_sources ${t}.cpp ${t}-version.h ${common_sources})
+  if(MIKTEX_NATIVE_WINDOWS)
+    list(APPEND ${t}_sources
+      ${t}.rc
+    )
+  endif()
+  add_executable(${MIKTEX_PREFIX}${t} ${${t}_sources})
+  set_property(TARGET ${MIKTEX_PREFIX}${t} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  if(USE_SYSTEM_LOG4CXX)
+    target_link_libraries(${MIKTEX_PREFIX}${t} MiKTeX::Imported::LOG4CXX)
+  else()
+    target_link_libraries(${MIKTEX_PREFIX}${t} ${log4cxx_dll_name})
+  endif()
+  target_link_libraries(${MIKTEX_PREFIX}${t}
+    ${app_dll_name}
+    ${core_dll_name}
+    ${texmf_dll_name}
+  )
+  if(MIKTEX_NATIVE_WINDOWS)
+    target_link_libraries(${MIKTEX_PREFIX}${t}
+      ${getopt_dll_name}
+    )
+  endif()
   install(TARGETS ${MIKTEX_PREFIX}${t}
     RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
     LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

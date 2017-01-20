@@ -1,25 +1,28 @@
 /* makepk.c:
 
-   Copyright (C) 1998-2016 Christian Schenk
+   Copyright (C) 1998-2017 Christian Schenk
 
-   This file is part of the MiKTeX Maker Library.
+   This file is part of MiKTeX MakePK.
 
-   The MiKTeX Maker Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
+   The MiKTeX MakePK is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2, or (at
+   your option) any later version.
 
-   The MiKTeX Maker Library is distributed in the hope that it will be
+   The MiKTeX MakePK is distributed in the hope that it will be
    useful, but WITHOUT ANY WARRANTY; without even the implied warranty
    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with the MiKTeX Maker Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+   along with the MiKTeX MakePK; if not, write to the Free Software
+   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+   USA. */
 
-#include "internal.h"
+#include "makepk-version.h"
+#include "MakeUtility.h"
+
+log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("makepk"));
 
 #define OPT_MAP_FILE 1
 #define OPT_FORCE 2
@@ -28,7 +31,7 @@ class MakePk :
   public MakeUtility
 {
 public:
-  virtual void Run(int argc, const char ** argv);
+  virtual void Run(int argc, const char** argv);
 
 private:
   virtual void Usage();
@@ -43,31 +46,31 @@ private:
   END_OPTION_MAP();
 
 private:
-  void MakeModeName(string & mode, int bdpi);
+  void MakeModeName(string& mode, int bdpi);
 
 private:
-  void MakePKFilename(const char * lpszName, int bdpi, int dpi, PathName & result);
+  void MakePKFilename(const char* lpszName, int bdpi, int dpi, PathName& result);
 
 private:
-  void CheckOptions(int * pBaseDPI, int dpi, const char * lpszMode);
+  void CheckOptions(int* pBaseDPI, int dpi, const char* lpszMode);
 
 private:
-  void ExtraPS2PKOptions(const FontMapEntry & mapEntry, CommandLineBuilder & arguments);
+  void ExtraPS2PKOptions(const FontMapEntry& mapEntry, CommandLineBuilder& arguments);
 
 private:
-  void RunGSF2PK(const FontMapEntry & mapEntry, const char * lpszPkName, int dpi, const PathName & workingDirectory);
+  void RunGSF2PK(const FontMapEntry& mapEntry, const char* lpszPkName, int dpi, const PathName& workingDirectory);
 
 private:
-  void RunPS2PK(const FontMapEntry & mapEntry, const char * lpszPkName, int dpi, const PathName & workingDirectory);
+  void RunPS2PK(const FontMapEntry& mapEntry, const char* lpszPkName, int dpi, const PathName& workingDirectory);
 
 private:
-  bool FindFontMapping(const char * lpszTeXFontName, const char * lpszMapFileName, FontMapEntry & mapEntry);
+  bool FindFontMapping(const char* lpszTeXFontName, const char* lpszMapFileName, FontMapEntry& mapEntry);
 
 private:
-  bool SearchPostScriptFont(const char * lpszTeXFontName, FontMapEntry & mapEntry);
+  bool SearchPostScriptFont(const char* lpszTeXFontName, FontMapEntry& mapEntry);
 
 private:
-  bool IsHbf(const char * lpszName);
+  bool IsHbf(const char* lpszName);
 
 private:
   bool overwriteExisting = false;
@@ -154,7 +157,7 @@ void MakePk::CreateDestinationDirectory()
   string templ1 = session->GetConfigValue(MIKTEX_REGKEY_MAKEPK, MIKTEX_REGVAL_DESTDIR, "%R/fonts/pk/%m/%s/%t/dpi%d").GetString();
 
   string templ2;
-  for (const char * lpsz = templ1.c_str(); *lpsz != 0; ++lpsz)
+  for (const char* lpsz = templ1.c_str(); *lpsz != 0; ++lpsz)
   {
     if (lpsz[0] == '%')
     {
@@ -196,11 +199,11 @@ void MakePk::CreateDestinationDirectory()
   destinationDirectory = CreateDirectoryFromTemplate(templ2);
 }
 
-void MakePk::MakePKFilename(const char * lpszName, int bdpi, int dpi, PathName & result)
+void MakePk::MakePKFilename(const char* lpszName, int bdpi, int dpi, PathName& result)
 {
   string templ = session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_PK_FN_TEMPLATE, "%f.pk").GetString();
   string temp;
-  for (const char * lpsz = templ.c_str(); *lpsz != 0; ++lpsz)
+  for (const char* lpsz = templ.c_str(); *lpsz != 0; ++lpsz)
   {
     if (lpsz[0] == '%')
     {
@@ -229,7 +232,7 @@ void MakePk::MakePKFilename(const char * lpszName, int bdpi, int dpi, PathName &
   result = temp;
 }
 
-void MakePk::MakeModeName(string & mode, int bdpi)
+void MakePk::MakeModeName(string& mode, int bdpi)
 {
   if (bdpi == 0)
   {
@@ -243,7 +246,7 @@ void MakePk::MakeModeName(string & mode, int bdpi)
   mode = mfmode.mnemonic;
 }
 
-bool GetInstructionParam(const string & str, const string & instruction, string & param)
+bool GetInstructionParam(const string& str, const string& instruction, string& param)
 {
   param = "";
   for (Tokenizer tok(str, " \t"); tok; ++tok)
@@ -257,7 +260,7 @@ bool GetInstructionParam(const string & str, const string & instruction, string 
   return false;
 }
 
-void MakePk::ExtraPS2PKOptions(const FontMapEntry & mapEntry, CommandLineBuilder & arguments)
+void MakePk::ExtraPS2PKOptions(const FontMapEntry& mapEntry, CommandLineBuilder& arguments)
 {
   if (!mapEntry.encFile.empty())
   {
@@ -280,7 +283,7 @@ void MakePk::ExtraPS2PKOptions(const FontMapEntry & mapEntry, CommandLineBuilder
   }
 }
 
-void MakePk::RunGSF2PK(const FontMapEntry & mapEntry, const char * lpszPkName, int dpi, const PathName & workingDirectory)
+void MakePk::RunGSF2PK(const FontMapEntry& mapEntry, const char* lpszPkName, int dpi, const PathName& workingDirectory)
 {
   CommandLineBuilder arguments;
   arguments.AppendArgument(mapEntry.texName);
@@ -296,7 +299,7 @@ void MakePk::RunGSF2PK(const FontMapEntry & mapEntry, const char * lpszPkName, i
   }
 }
 
-void MakePk::RunPS2PK(const FontMapEntry & mapEntry, const char * lpszPkName, int dpi, const PathName & workingDirectory)
+void MakePk::RunPS2PK(const FontMapEntry& mapEntry, const char* lpszPkName, int dpi, const PathName& workingDirectory)
 {
   bool oldFonts = false;        // FIXME
 
@@ -326,7 +329,7 @@ void MakePk::RunPS2PK(const FontMapEntry & mapEntry, const char * lpszPkName, in
   }
 }
 
-void MakePk::CheckOptions(int * pBaseDPI, int dpi, const char * lpszMode)
+void MakePk::CheckOptions(int* pBaseDPI, int dpi, const char* lpszMode)
 {
   UNUSED_ALWAYS(dpi);
   MIKTEXMFMODE mfmode;
@@ -364,7 +367,7 @@ void MakePk::CheckOptions(int * pBaseDPI, int dpi, const char * lpszMode)
   }
 }
 
-bool MakePk::FindFontMapping(const char * lpszTeXFontName, const char * lpszMapFileName, FontMapEntry & mapEntry)
+bool MakePk::FindFontMapping(const char* lpszTeXFontName, const char* lpszMapFileName, FontMapEntry& mapEntry)
 {
   // locate the map file
   PathName mapFile;
@@ -392,7 +395,7 @@ bool MakePk::FindFontMapping(const char * lpszTeXFontName, const char * lpszMapF
   return found;
 }
 
-bool MakePk::SearchPostScriptFont(const char * lpszTeXFontName, FontMapEntry & mapEntry)
+bool MakePk::SearchPostScriptFont(const char* lpszTeXFontName, FontMapEntry& mapEntry)
 {
   // search via "ps2pk.map" (also used for gsf2pk)
   if (FindFontMapping(lpszTeXFontName, "ps2pk.map", mapEntry))
@@ -401,7 +404,7 @@ bool MakePk::SearchPostScriptFont(const char * lpszTeXFontName, FontMapEntry & m
   }
 
   // search via user supplied map files
-  for (const string & mapFile : mapFiles)
+  for (const string& mapFile : mapFiles)
   {
     if (FindFontMapping(lpszTeXFontName, mapFile.c_str(), mapEntry))
     {
@@ -412,7 +415,7 @@ bool MakePk::SearchPostScriptFont(const char * lpszTeXFontName, FontMapEntry & m
   return false;
 }
 
-bool MakePk::IsHbf(const char * lpszName)
+bool MakePk::IsHbf(const char* lpszName)
 {
   PathName hbfcfg(lpszName);
   size_t l = hbfcfg.GetLength();
@@ -425,7 +428,7 @@ bool MakePk::IsHbf(const char * lpszName)
   return session->FindFile(hbfcfg.ToString(), "%R/HBF2GF//", path);
 }
 
-void MakePk::Run(int argc, const char ** argv)
+void MakePk::Run(int argc, const char** argv)
 {
   // get command line options and arguments
   int optionIndex = 0;
@@ -632,24 +635,48 @@ void MakePk::Run(int argc, const char ** argv)
   Install(wrkDir->GetPathName() / pkName, pathDest);
 }
 
-MKTEXAPI(makepk) (int argc, const char ** argv)
+#if defined(_UNICODE)
+#  define MAIN wmain
+#  define MAINCHAR wchar_t
+#else
+#  define MAIN main
+#  define MAINCHAR char
+#endif
+
+int MAIN(int argc, MAINCHAR** argv)
 {
   try
   {
+    vector<string> utf8args;
+    utf8args.reserve(argc);
+    vector<const char*> newargv;
+    newargv.reserve(argc + 1);
+    for (int idx = 0; idx < argc; ++idx)
+    {
+#if defined(_UNICODE)
+      utf8args.push_back(StringUtil::WideCharToUTF8(argv[idx]));
+#elif defined(MIKTEX_WINDOWS)
+      utf8args.push_back(StringUtil::AnsiToUTF8(argv[idx]));
+#else
+      utf8args.push_back(argv[idx]);
+#endif
+      newargv.push_back(utf8args[idx].c_str());
+    }
+    newargv.push_back(nullptr);
     MakePk app;
-    app.Init(Session::InitInfo(argv[0]));
-    app.Run(argc, argv);
+    app.Init(Session::InitInfo(newargv[0]));
+    app.Run(argc, &newargv[0]);
     app.Finalize();
     return 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& ex)
   {
-    Application::Sorry("makepk", e);
+    Application::Sorry("makepk", ex);
     return 1;
   }
-  catch (const exception & e)
+  catch (const exception& ex)
   {
-    Application::Sorry("makepk", e);
+    Application::Sorry("makepk", ex);
     return 1;
   }
   catch (int exitCode)

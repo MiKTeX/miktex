@@ -1,30 +1,33 @@
 /* maketfm.cpp:
 
-   Copyright (C) 1998-2016 Christian Schenk
+   Copyright (C) 1998-2017 Christian Schenk
 
-   This file is part of the MiKTeX Maker Library.
+   This file is part of MiKTeX MakeTFM.
 
-   The MiKTeX Maker Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
+   MiKTeX MakeTFM is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2, or (at
+   your option) any later version.
 
-   The MiKTeX Maker Library is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   MiKTeX MakeTFM is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with the MiKTeX Maker Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+   along with MiKTeX MakeTFM; if not, write to the Free Software
+   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+   USA. */
 
-#include "internal.h"
+#include "maketfm-version.h"
+#include "MakeUtility.h"
+
+log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("maketfm"));
 
 class MakeTfm : public MakeUtility
 {
 public:
-  virtual void Run(int argc, const char ** argv);
+  virtual void Run(int argc, const char** argv);
 
 private:
   virtual void CreateDestinationDirectory();
@@ -43,7 +46,7 @@ private:
 #endif
 
 private:
-  bool MakeFromHBF(const char * lpszName, const PathName & workingDirectory);
+  bool MakeFromHBF(const char* lpszName, const PathName& workingDirectory);
 };
 
 void MakeTfm::Usage()
@@ -88,7 +91,7 @@ void MakeTfm::CreateDestinationDirectory()
   string templ1 = session->GetConfigValue(MIKTEX_REGKEY_MAKETFM, MIKTEX_REGVAL_DESTDIR, "%R/fonts/tfm/%s/%t").GetString();
 
   string templ2;
-  for (const char * lpsz = templ1.c_str(); *lpsz != 0; ++lpsz)
+  for (const char* lpsz = templ1.c_str(); *lpsz != 0; ++lpsz)
   {
     if (lpsz[0] == '%')
     {
@@ -119,7 +122,7 @@ void MakeTfm::CreateDestinationDirectory()
   destinationDirectory = CreateDirectoryFromTemplate(templ2);
 }
 
-bool MakeTfm::MakeFromHBF(const char * lpszName, const PathName & workingDirectory)
+bool MakeTfm::MakeFromHBF(const char* lpszName, const PathName& workingDirectory)
 {
   // run hbf2gf to make a .pl file
   CommandLineBuilder arguments;
@@ -147,7 +150,7 @@ bool MakeTfm::MakeFromHBF(const char * lpszName, const PathName & workingDirecto
   return true;
 }
 
-void MakeTfm::Run(int argc, const char ** argv)
+void MakeTfm::Run(int argc, const char** argv)
 {
   // get command line options and name
   int optionIndex = 0;
@@ -222,24 +225,48 @@ void MakeTfm::Run(int argc, const char ** argv)
   Install(wrkDir->GetPathName() / pathTFMName, pathDest);
 }
 
-MKTEXAPI(maketfm) (int argc, const char ** argv)
+#if defined(_UNICODE)
+#  define MAIN wmain
+#  define MAINCHAR wchar_t
+#else
+#  define MAIN main
+#  define MAINCHAR char
+#endif
+
+int MAIN(int argc, MAINCHAR** argv)
 {
   try
   {
+    vector<string> utf8args;
+    utf8args.reserve(argc);
+    vector<const char*> newargv;
+    newargv.reserve(argc + 1);
+    for (int idx = 0; idx < argc; ++idx)
+    {
+#if defined(_UNICODE)
+      utf8args.push_back(StringUtil::WideCharToUTF8(argv[idx]));
+#elif defined(MIKTEX_WINDOWS)
+      utf8args.push_back(StringUtil::AnsiToUTF8(argv[idx]));
+#else
+      utf8args.push_back(argv[idx]);
+#endif
+      newargv.push_back(utf8args[idx].c_str());
+    }
+    newargv.push_back(nullptr);
     MakeTfm app;
-    app.Init(Session::InitInfo(argv[0]));
-    app.Run(argc, argv);
+    app.Init(Session::InitInfo(newargv[0]));
+    app.Run(argc, &newargv[0]);
     app.Finalize();
     return 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& ex)
   {
-    Application::Sorry("maketfm", e);
+    Application::Sorry("maketfm", ex);
     return 1;
   }
-  catch (const exception & e)
+  catch (const exception& ex)
   {
-    Application::Sorry("maketfm", e);
+    Application::Sorry("maketfm", ex);
     return 1;
   }
   catch (int exitCode)

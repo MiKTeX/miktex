@@ -1,25 +1,28 @@
 /* makebase.cpp:
 
-   Copyright (C) 1998-2016 Christian Schenk
+   Copyright (C) 1998-2017 Christian Schenk
 
-   This file is part of the MiKTeX Maker Library.
+   This file is part of MiKTeX MakeBase.
 
-   The MiKTeX Maker Library is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
+   MiKTeX MakeBase is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2, or (at
+   your option) any later version.
 
-   The MiKTeX Maker Library is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   MiKTeX MakeBase is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with the MiKTeX Maker Library; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+   along with MiKTeX MakeBase; if not, write to the Free Software
+   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+   USA. */
 
-#include "internal.h"
+#include "makebase-version.h"
+#include "MakeUtility.h"
+
+log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("makebase"));
 
 enum {
   OPT_AAA = 1, OPT_DESTNAME, OPT_ENGINE_OPTION, OPT_NO_DUMP
@@ -28,7 +31,7 @@ enum {
 class MakeBase : public MakeUtility
 {
 public:
-  virtual void Run(int argc, const char ** argv);
+  virtual void Run(int argc, const char** argv);
 
 private:
   virtual void Usage();
@@ -44,7 +47,7 @@ private:
   END_OPTION_MAP();
 
 private:
-  void AppendEngineOption(const char * lpszOption)
+  void AppendEngineOption(const char* lpszOption)
   {
     engineOptions.Append(lpszOption);
   }
@@ -98,7 +101,7 @@ void MakeBase::CreateDestinationDirectory()
   destinationDirectory = CreateDirectoryFromTemplate(session->GetConfigValue(MIKTEX_REGKEY_MAKEBASE, MIKTEX_REGVAL_DESTDIR, "%R/" MIKTEX_PATH_BASE_DIR).GetString());
 }
 
-void MakeBase::Run(int argc, const char ** argv)
+void MakeBase::Run(int argc, const char** argv)
 {
   // get options and file name
   int optionIndex = 0;
@@ -165,24 +168,48 @@ void MakeBase::Run(int argc, const char ** argv)
   Install(wrkDir->GetPathName() / baseFile, pathDest);
 }
 
-MKTEXAPI(makebase) (int argc, const char ** argv)
+#if defined(_UNICODE)
+#  define MAIN wmain
+#  define MAINCHAR wchar_t
+#else
+#  define MAIN main
+#  define MAINCHAR char
+#endif
+
+int MAIN(int argc, MAINCHAR** argv)
 {
   try
   {
+    vector<string> utf8args;
+    utf8args.reserve(argc);
+    vector<const char*> newargv;
+    newargv.reserve(argc + 1);
+    for (int idx = 0; idx < argc; ++idx)
+    {
+#if defined(_UNICODE)
+      utf8args.push_back(StringUtil::WideCharToUTF8(argv[idx]));
+#elif defined(MIKTEX_WINDOWS)
+      utf8args.push_back(StringUtil::AnsiToUTF8(argv[idx]));
+#else
+      utf8args.push_back(argv[idx]);
+#endif
+      newargv.push_back(utf8args[idx].c_str());
+    }
+    newargv.push_back(nullptr);
     MakeBase app;
-    app.Init(Session::InitInfo(argv[0]));
-    app.Run(argc, argv);
+    app.Init(Session::InitInfo(newargv[0]));
+    app.Run(argc, &newargv[0]);
     app.Finalize();
     return 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& ex)
   {
-    Application::Sorry("makebase", e);
+    Application::Sorry("makebase", ex);
     return 1;
   }
-  catch (const exception & e)
+  catch (const exception& ex)
   {
-    Application::Sorry("makebase", e);
+    Application::Sorry("makebase", ex);
     return 1;
   }
   catch (int exitCode)

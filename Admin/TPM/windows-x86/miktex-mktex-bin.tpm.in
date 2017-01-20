@@ -11,10 +11,9 @@
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       This package includes file creation utilities: MakeBase,
-      MakeFMT, MakeMF, MakePK, and MakeTFM.
+      MakeFMT, MakeMF, MakePK and MakeTFM.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${makex_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}makebase.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}makefmt.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}makemf.exe
