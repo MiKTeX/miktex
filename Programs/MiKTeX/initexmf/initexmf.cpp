@@ -3676,7 +3676,7 @@ void IniTeXMFApp::Run(int argc, const char * argv[])
     cout
       << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR) << endl
       << endl
-      << "Copyright (C) 1996-2016 Christian Schenk" << endl
+      << "Copyright (C) 1996-2017 Christian Schenk" << endl
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
     return;
