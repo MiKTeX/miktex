@@ -1,6 +1,6 @@
 /* CurlWebSession.cpp:
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -118,6 +118,7 @@ void CurlWebSession::Initialize()
   // SF #2548
 #if LIBCURL_VERSION_NUM >= 0x72c00
   SetOption(CURLOPT_SSL_OPTIONS, CURLSSLOPT_NO_REVOKE);
+  SetOption(CURLOPT_PROXY_SSL_OPTIONS, CURLSSLOPT_NO_REVOKE);
 #endif
 
   SetOption(CURLOPT_NOSIGNAL, static_cast<long>(true));
