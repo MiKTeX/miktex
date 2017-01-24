@@ -1,6 +1,6 @@
 /* winDirectory.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -65,6 +65,7 @@ bool Directory::Exists(const PathName & path)
       SessionImpl::GetSession()->trace_access->WriteFormattedLine("core", T_("%s is not a directory"), Q_(path));
       return false;
     }
+    SessionImpl::GetSession()->trace_access->WriteFormattedLine("core", T_("accessing directory %s: OK"), Q_(path));
     return true;
   }
   unsigned long error = ::GetLastError();
@@ -81,6 +82,7 @@ bool Directory::Exists(const PathName & path)
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("GetFileAttributesW", "path", path.ToString());
   }
+  SessionImpl::GetSession()->trace_access->WriteFormattedLine("core", T_("accessing directory %s: NOK"), Q_(path));
   return false;
 }
 
