@@ -692,6 +692,27 @@ MIKTEXKPSCEEAPI(char*) miktex_remove_suffix(const char* lpszPath)
   return lpszRet;
 }
 
+MIKTEXSTATICFUNC(std::string) HideMpmRoot(const std::string& searchPath)
+{
+  shared_ptr<Session> session = Session::Get();
+  PathName mpmRootPath = session->GetMpmRootPath();
+  size_t mpmRootPathLen = mpmRootPath.GetLength();
+  std::string result;
+  for (CsvList path(searchPath, PathName::PathNameDelimiter); path; ++path)
+  {
+    if ((PathName::Compare(*path, mpmRootPath, mpmRootPathLen) == 0) && ((*path).length() == mpmRootPathLen || IsDirectoryDelimiter((*path)[mpmRootPathLen])))
+    {
+      continue;
+    }
+    if (!result.empty())
+    {
+      result += PathName::PathNameDelimiter;
+    }
+    result += *path;
+  }
+  return result;
+}
+
 MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValue)
 {
   shared_ptr<Session> session = Session::Get();
@@ -1029,22 +1050,8 @@ MIKTEXKPSCEEAPI(const char*) miktex_kpathsea_init_format(kpathsea pKpseInstance,
     shared_ptr<Session> session = Session::Get();
     FileType ft = ToFileType(format);
     FileTypeInfo fti = session->GetFileTypeInfo(ft);
-    PathName mpmRootPath = session->GetMpmRootPath();
-    size_t mpmRootPathLen = mpmRootPath.GetLength();
-    std::string searchPath;
     VarExpand expander;
-    for (CsvList path(session->Expand(fti.searchPath, { ExpandOption::Values, ExpandOption::Braces }, &expander), PathName::PathNameDelimiter); path; ++path)
-    {
-      if ((PathName::Compare(*path, mpmRootPath, mpmRootPathLen) == 0) && ((*path).length() == mpmRootPathLen || IsDirectoryDelimiter((*path)[mpmRootPathLen])))
-      {
-        continue;
-      }
-      if (!searchPath.empty())
-      {
-        searchPath += PathName::PathNameDelimiter;
-      }
-      searchPath += *path;
-    }
+    std::string searchPath = HideMpmRoot(session->Expand(fti.searchPath, { ExpandOption::Values, ExpandOption::Braces }, &expander));
     formatInfo.path = ToUnix(xstrdup(searchPath.c_str()));
     formatInfo.type = xstrdup(fti.fileTypeString.c_str());
     formatInfo.suffix = ToStringList(fti.fileNameExtensions);
