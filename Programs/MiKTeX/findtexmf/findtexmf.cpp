@@ -210,10 +210,10 @@ void FindTeXMF::PrintSearchPath(const char * lpszSearchPath)
   bool first = true;
   PathName mpmRootPath = session->GetMpmRootPath();
   size_t mpmRootPathLen = mpmRootPath.GetLength();
-  for (CsvList path(lpszSearchPath, ';'); path; ++path)
+  for (CsvList path(lpszSearchPath, PathName::PathNameDelimiter); path; ++path)
   {
-    if ((PathName::Compare((*path), mpmRootPath, mpmRootPathLen) == 0)
-      && ((*path)[mpmRootPathLen] == 0 || IsDirectoryDelimiter((*path)[mpmRootPathLen])))
+    if ((PathName::Compare(*path, mpmRootPath, mpmRootPathLen) == 0)
+      && ((*path).length() == mpmRootPathLen || IsDirectoryDelimiter((*path)[mpmRootPathLen])))
     {
       continue;
     }
