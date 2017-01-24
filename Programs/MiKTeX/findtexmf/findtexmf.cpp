@@ -212,9 +212,8 @@ void FindTeXMF::PrintSearchPath(const char * lpszSearchPath)
   size_t mpmRootPathLen = mpmRootPath.GetLength();
   for (CsvList path(lpszSearchPath, ';'); path; ++path)
   {
-    const char * lpszPath = (*path).c_str();
-    if ((PathName::Compare(lpszPath, mpmRootPath, mpmRootPathLen) == 0)
-      && (lpszPath[mpmRootPathLen] == 0 || IsDirectoryDelimiter(lpszPath[mpmRootPathLen])))
+    if ((PathName::Compare((*path), mpmRootPath, mpmRootPathLen) == 0)
+      && ((*path)[mpmRootPathLen] == 0 || IsDirectoryDelimiter((*path)[mpmRootPathLen])))
     {
       continue;
     }
@@ -226,7 +225,7 @@ void FindTeXMF::PrintSearchPath(const char * lpszSearchPath)
     {
       cout << ";";
     }
-    cout << session->Expand(lpszPath, { ExpandOption::Braces }, nullptr);
+    cout << session->Expand((*path), { ExpandOption::Braces }, nullptr);
   }
   cout << endl;
 }
