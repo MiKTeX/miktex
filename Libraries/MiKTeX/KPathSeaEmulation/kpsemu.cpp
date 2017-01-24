@@ -1,7 +1,7 @@
 /* kpsemu.cpp: kpathsea emulation
 
    Copyright (C) 1994, 95 Karl Berry
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is part of the MiKTeX KPSEMU Library.
 
@@ -1026,11 +1026,25 @@ MIKTEXKPSCEEAPI(const char*) miktex_kpathsea_init_format(kpathsea pKpseInstance,
   kpse_format_info_type& formatInfo = pKpseInstance->format_info[format];
   if (formatInfo.path == nullptr)
   {
-    shared_ptr<Session> pSession = Session::Get();
+    shared_ptr<Session> session = Session::Get();
     FileType ft = ToFileType(format);
-    FileTypeInfo fti = pSession->GetFileTypeInfo(ft);
+    FileTypeInfo fti = session->GetFileTypeInfo(ft);
+    PathName mpmRootPath = session->GetMpmRootPath();
+    size_t mpmRootPathLen = mpmRootPath.GetLength();
+    std::string searchPath;
     VarExpand expander;
-    std::string searchPath = pSession->Expand(fti.searchPath, { ExpandOption::Values, ExpandOption::Braces }, &expander);
+    for (CsvList path(session->Expand(fti.searchPath, { ExpandOption::Values, ExpandOption::Braces }, &expander), PathName::PathNameDelimiter); path; ++path)
+    {
+      if ((PathName::Compare(*path, mpmRootPath, mpmRootPathLen) == 0) && ((*path).length() == mpmRootPathLen || IsDirectoryDelimiter((*path)[mpmRootPathLen])))
+      {
+        continue;
+      }
+      if (!searchPath.empty())
+      {
+        searchPath += PathName::PathNameDelimiter;
+      }
+      searchPath += *path;
+    }
     formatInfo.path = ToUnix(xstrdup(searchPath.c_str()));
     formatInfo.type = xstrdup(fti.fileTypeString.c_str());
     formatInfo.suffix = ToStringList(fti.fileNameExtensions);
