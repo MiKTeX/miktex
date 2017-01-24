@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -113,18 +113,11 @@ foreach(i ${main_ini_files} ${inc_ini_files})
   add_custom_command(
     OUTPUT
       ${i}
-      ${i}.dos
-    COMMAND
-      ${CMAKE_COMMAND}
-      -E copy
-      ${CMAKE_CURRENT_SOURCE_DIR}/header.txt
-      ${i}.dos
     COMMAND
       ${CAT_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/header.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/${ininame}.body
-      >> ${i}.dos
-    COMMAND
-      ${DOS2UNIX_EXECUTABLE} < ${i}.dos > ${i}
+      > ${i}
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS
@@ -138,17 +131,11 @@ foreach(i texmfapp texapp)
   add_custom_command(
     OUTPUT
       ${i}.ini
-      ${i}.ini.dos
     COMMAND
       ${CAT_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/header.txt
-      > ${i}.ini.dos
-    COMMAND
-      ${CAT_EXECUTABLE}
       ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/${i}.defaults
-      >> ${i}.ini.dos
-    COMMAND
-      ${DOS2UNIX_EXECUTABLE} < ${i}.ini.dos > ${i}.ini
+      > ${i}.ini
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS

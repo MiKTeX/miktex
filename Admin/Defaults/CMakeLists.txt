@@ -1,6 +1,6 @@
 ## CMakeLists.txt:                                      -*- CMake -*-
 ##
-## Copyright (C) 2015-2016 Christian Schenk
+## Copyright (C) 2015-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -36,6 +36,7 @@ foreach(d ${all_defaults_cmake})
   configure_file(
     ${d}
     ${CMAKE_CURRENT_BINARY_DIR}/${fn}.defaults
+    NEWLINE_STYLE LF
   )
   add_custom_command(
     OUTPUT
