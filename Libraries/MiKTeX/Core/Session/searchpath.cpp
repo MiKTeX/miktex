@@ -1,6 +1,6 @@
 /* searchpath.cpp: managing search paths
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -83,16 +83,16 @@ void SessionImpl::PushBackPath(vector<PathName> & vec, const PathName & path)
       PathName pathFQ = GetHomeDirectory();
       if (!Utils::IsAbsolutePath(pathFQ))
       {
-	TraceError(T_("cannot expand ~: %s is not fully qualified"), Q_(pathFQ));
-	continue;
+        TraceError(T_("cannot expand ~: %s is not fully qualified"), Q_(pathFQ));
+        continue;
       }
       if (path[1] != 0 && IsDirectoryDelimiter(path[1]) && path[2] != 0)
       {
-	pathFQ /= &path[2];
+        pathFQ /= &path[2];
       }
       if (find(vec.begin(), vec.end(), pathFQ) == vec.end())
       {
-	vec.push_back(pathFQ);
+        vec.push_back(pathFQ);
       }
       continue;
     }
@@ -102,7 +102,7 @@ void SessionImpl::PushBackPath(vector<PathName> & vec, const PathName & path)
     {
       if (find(vec.begin(), vec.end(), path) == vec.end())
       {
-	vec.push_back(path);
+        vec.push_back(path);
       }
       continue;
     }
@@ -113,27 +113,27 @@ void SessionImpl::PushBackPath(vector<PathName> & vec, const PathName & path)
     {
       if (!Utils::IsAbsolutePath(pathFQ))
       {
-	TraceError(T_("%s is not fully qualified"), Q_(pathFQ));
-	continue;
+        TraceError(T_("%s is not fully qualified"), Q_(pathFQ));
+        continue;
       }
       if (PathName::Compare(path, CURRENT_DIRECTORY) != 0)
       {
-	pathFQ /= path.GetData();
+        pathFQ /= path.GetData();
       }
       else
       {
 #if FIND_FILE_PREFER_RELATIVE_PATH_NAMES
-	// 2015-01-15
-	if (idx == 0)
-	{
-	  MIKTEX_ASSERT(PathName::Compare(pathFQ, PathName().SetToCurrentDirectory()) == 0);
-	  pathFQ = CURRENT_DIRECTORY;
-	}
+        // 2015-01-15
+        if (idx == 0)
+        {
+          MIKTEX_ASSERT(PathName::Compare(pathFQ, PathName().SetToCurrentDirectory()) == 0);
+          pathFQ = CURRENT_DIRECTORY;
+        }
 #endif
       }
       if (find(vec.begin(), vec.end(), pathFQ) == vec.end())
       {
-	vec.push_back(pathFQ);
+        vec.push_back(pathFQ);
       }
     }
   }
@@ -202,7 +202,7 @@ vector<PathName> SessionImpl::ConstructSearchVector(FileType fileType)
       string searchPath;
       if (Utils::GetEnvironmentString(*env, searchPath))
       {
-	SplitSearchPath(pfti->searchVec, searchPath.c_str());
+        SplitSearchPath(pfti->searchVec, searchPath.c_str());
       }
     }
     SplitSearchPath(pfti->searchVec, pfti->searchPath.c_str());
@@ -260,7 +260,7 @@ void SessionImpl::ExpandPathPattern(const PathName & rootDirectory, const PathNa
     // existing sub directory
     PathName directory(rootDirectory);
     directory /= pathPattern;
-    if (Directory::Exists(directory))
+    if (!IsMpmFile(directory.GetData()) && Directory::Exists(directory))
     {
       paths.push_back(directory);
     }
@@ -277,7 +277,7 @@ void SessionImpl::ExpandPathPattern(const PathName & rootDirectory, const PathNa
     PathName directory(rootDirectory);
     directory /= subDir;
     // check to see whether the sub directory exists
-    if (Directory::Exists(directory))
+    if (!IsMpmFile(directory.GetData()) && Directory::Exists(directory))
     {
       DirectoryWalk(directory, lpszSmallerPathPattern, paths);
     }
@@ -356,7 +356,7 @@ inline vector<PathName> ExpandBracesHelper(const char * & lpszToBeExpanded)
       Combine(subtotal, ExpandBracesHelper(lpszToBeExpanded));
       if (*lpszToBeExpanded != '}')
       {
-	// todo
+        // todo
       }
     }
     else if (*lpszToBeExpanded == ',')
@@ -394,7 +394,7 @@ void SessionImpl::ExpandBraces(const string & toBeExpanded, vector<PathName> & p
       Combine(result, ExpandBracesHelper(lpszToBeExpanded));
       if (*lpszToBeExpanded != '}')
       {
-	// todo
+        // todo
       }
     }
     else
