@@ -2514,7 +2514,6 @@ vector<FileLink> explicitFileLinks =
   { MIKTEX_TEXWORKS_EXE, { "texworks" } },
   { MIKTEX_TEX_EXE, { "tex", "initex", "virtex", MIKTEX_LATEX_EXE } },
   { MIKTEX_TFTOPL_EXE, { "tftopl" } },
-  { MIKTEX_TIE_EXE, { "tie" } },
   { MIKTEX_VFTOVP_EXE, { "vftovp" } },
   { MIKTEX_VPTOVF_EXE, { "vptovf" } },
   { MIKTEX_WEAVE_EXE, { "weave" } },
