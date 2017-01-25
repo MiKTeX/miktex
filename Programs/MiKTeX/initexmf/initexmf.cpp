@@ -35,7 +35,7 @@ using namespace std;
 
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
-const char * const TheNameOfTheGame = T_("MiKTeX Configuration Utility");
+const char* const TheNameOfTheGame = T_("MiKTeX Configuration Utility");
 
 #define PROGNAME "initexmf"
 
@@ -50,12 +50,12 @@ enum class LinkType
 
 struct FileLink
 {
-  FileLink(const string & target, const vector<string> & linkNames) :
+  FileLink(const string& target, const vector<string>& linkNames) :
     target(target),
     linkNames(linkNames)
   {
   }
-  FileLink(const string & target, const vector<string> & linkNames, LinkType linkType) :
+  FileLink(const string& target, const vector<string>& linkNames, LinkType linkType) :
     target(target),
     linkNames(linkNames),
     linkType(linkType)
@@ -97,9 +97,9 @@ public:
     output = "";
   }
 public:
-  bool OnProcessOutput(const void * pOutput, size_t n) override
+  bool OnProcessOutput(const void* pOutput, size_t n) override
   {
-    output.append(reinterpret_cast<const char *>(pOutput), n);
+    output.append(reinterpret_cast<const char*>(pOutput), n);
     return true;
   }
 private:
@@ -115,7 +115,7 @@ public:
   }
 
 public:
-  void StartElement(const string & name)
+  void StartElement(const string& name)
   {
     if (freshElement)
     {
@@ -127,7 +127,7 @@ public:
   }
 
 public:
-  void AddAttribute(const string & attributeName, const string & attributeValue)
+  void AddAttribute(const string& attributeName, const string& attributeValue)
   {
     cout << " " << attributeName << "=\"" << attributeValue << "\"";
   }
@@ -161,7 +161,7 @@ public:
   }
 
 public:
-  void Text(const string & text)
+  void Text(const string& text)
   {
     if (freshElement)
     {
@@ -197,8 +197,8 @@ private:
 
 static struct
 {
-  const char * lpszShortcut;
-  const char * lpszFile;
+  const char* lpszShortcut;
+  const char* lpszFile;
 }
 configShortcuts[] = {
   "pdftex", MIKTEX_PATH_PDFTEX_CFG,
@@ -230,25 +230,25 @@ public:
   }
 
 public:
-  void Init(const char * argv0);
+  void Init(const char* argv0);
 
 public:
   void Finalize();
 
 private:
-  void Verbose(const char * lpszFormat, ...);
+  void Verbose(const char* lpszFormat, ...);
 
 private:
-  void PrintOnly(const char * lpszFormat, ...);
+  void PrintOnly(const char* lpszFormat, ...);
 
 private:
-  void Warning(const char * lpszFormat, ...);
+  void Warning(const char* lpszFormat, ...);
 
 private:
-  MIKTEXNORETURN void FatalError(const char * lpszFormat, ...);
+  MIKTEXNORETURN void FatalError(const char* lpszFormat, ...);
 
 private:
-  void UpdateFilenameDatabase(const PathName & root);
+  void UpdateFilenameDatabase(const PathName& root);
 
 private:
   void UpdateFilenameDatabase(unsigned root);
@@ -270,28 +270,28 @@ private:
 #endif
 
 private:
-  void RunMakeTeX(const string & makeProg, const CommandLineBuilder & arguments);
+  void RunMakeTeX(const string& makeProg, const CommandLineBuilder& arguments);
 
 private:
-  void MakeFormatFile(const string & formatKey);
+  void MakeFormatFile(const string& formatKey);
 
 private:
-  void MakeFormatFiles(const vector<string> & formats);
+  void MakeFormatFiles(const vector<string>& formats);
 
 private:
-  void MakeFormatFilesByName(const vector<string> & formatsByName, const string & engine);
+  void MakeFormatFilesByName(const vector<string>& formatsByName, const string& engine);
 
 private:
   void MakeMaps(bool force);
 
 private:
-  void CreateConfigFile(const string & relPath, bool edit);
+  void CreateConfigFile(const string& relPath, bool edit);
 
 private:
-  void SetConfigValue(const string & valueSpec);
+  void SetConfigValue(const string& valueSpec);
 
 private:
-  void ShowConfigValue(const string & valueSpec);
+  void ShowConfigValue(const string& valueSpec);
 
 private:
   vector<FileLink> CollectLinks(bool overwrite);
@@ -303,7 +303,7 @@ private:
   void MakeLanguageDat(bool force);
 
 private:
-  void RegisterRoots(const vector<PathName> & roots, bool reg);
+  void RegisterRoots(const vector<PathName>& roots, bool reg);
 
 #if defined(MIKTEX_WINDOWS)
 private:
@@ -314,7 +314,7 @@ private:
   void ModifyPath();
 
 private:
-  void ManageLink(const FileLink & fileLink, bool supportsHardLinks, bool remove, bool overwrite);
+  void ManageLink(const FileLink& fileLink, bool supportsHardLinks, bool remove, bool overwrite);
 
 private:
   void ReportMiKTeXVersion();
@@ -345,34 +345,34 @@ private:
 #endif
 
 private:
-  void CreatePortableSetup(const PathName & portableRoot);
+  void CreatePortableSetup(const PathName& portableRoot);
 
 public:
-  void Run(int argc, const char * argv[]);
+  void Run(int argc, const char* argv[]);
 
 private:
   void FindWizards();
 
 private:
-  bool InstallPackage(const string & deploymentName, const PathName & trigger, PathName & installRoot) override;
+  bool InstallPackage(const string& deploymentName, const PathName& trigger, PathName& installRoot) override;
 
 private:
-  bool TryCreateFile(const MiKTeX::Core::PathName & fileName, MiKTeX::Core::FileType fileType) override;
+  bool TryCreateFile(const MiKTeX::Core::PathName& fileName, MiKTeX::Core::FileType fileType) override;
 
 private:
-  bool ReadDirectory(const PathName & path, vector<string> & subDirNames, vector<string> & fileNames, vector<string> & fileNameInfos) override;
+  bool ReadDirectory(const PathName& path, vector<string>& subDirNames, vector<string>& fileNames, vector<string>& fileNameInfos) override;
 
 private:
-  bool OnProgress(unsigned level, const PathName & directory) override;
+  bool OnProgress(unsigned level, const PathName& directory) override;
 
 private:
-  bool OnFndbItem(const PathName & path, const string & name, const string & info, bool isDirectory) override;
+  bool OnFndbItem(const PathName& path, const string& name, const string& info, bool isDirectory) override;
 
 public:
-  void ReportLine(const string & str) override;
+  void ReportLine(const string& str) override;
   
 public:
-  bool OnRetryableError(const string & message) override;
+  bool OnRetryableError(const string& message) override;
   
 public:
   bool OnProgress(Notification nf) override;
@@ -384,7 +384,7 @@ private:
   vector<TraceCallback::TraceMessage> pendingTraceMessages;
 
 public:
-  void Trace(const TraceCallback::TraceMessage & traceMessage) override
+  void Trace(const TraceCallback::TraceMessage& traceMessage) override
   {
     if (!isLog4cxxConfigured)
     {
@@ -402,7 +402,7 @@ public:
 private:
   void FlushPendingTraceMessages()
   {
-    for (const TraceCallback::TraceMessage & msg : pendingTraceMessages)
+    for (const TraceCallback::TraceMessage& msg : pendingTraceMessages)
     {
       TraceInternal(msg);
     }
@@ -410,7 +410,7 @@ private:
   }
 
 private:
-  void TraceInternal(const TraceCallback::TraceMessage & traceMessage)
+  void TraceInternal(const TraceCallback::TraceMessage& traceMessage)
   {
     log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.initexmf.") + traceMessage.facility);
 
@@ -1755,7 +1755,7 @@ IniTeXMFApp::~IniTeXMFApp()
   }
 }
 
-void IniTeXMFApp::Init(const char * argv0)
+void IniTeXMFApp::Init(const char* argv0)
 {
   Session::InitInfo initInfo(argv0);
 #if defined(MIKTEX_WINDOWS)
@@ -1803,7 +1803,7 @@ void IniTeXMFApp::FindWizards()
   setupWizardRunning = false;
   updateWizardRunning = false;
   vector<string> invokerNames = Process2::GetInvokerNames();
-  for (const string & name : invokerNames)
+  for (const string& name : invokerNames)
   {
     if (PathName::Compare(name, MIKTEX_PREFIX "update") == 0
       || PathName::Compare(name, MIKTEX_PREFIX "update" MIKTEX_ADMIN_SUFFIX) == 0)
@@ -1823,7 +1823,7 @@ void IniTeXMFApp::FindWizards()
   }
 }
 
-void IniTeXMFApp::Verbose(const char * lpszFormat, ...)
+void IniTeXMFApp::Verbose(const char* lpszFormat, ...)
 {
   va_list arglist;
   va_start(arglist, lpszFormat);
@@ -1848,7 +1848,7 @@ void IniTeXMFApp::Verbose(const char * lpszFormat, ...)
   }
 }
 
-void IniTeXMFApp::PrintOnly(const char * lpszFormat, ...)
+void IniTeXMFApp::PrintOnly(const char* lpszFormat, ...)
 {
   if (!printOnly)
   {
@@ -1870,7 +1870,7 @@ void IniTeXMFApp::PrintOnly(const char * lpszFormat, ...)
   cout << s << endl;
 }
 
-void IniTeXMFApp::Warning(const char * lpszFormat, ...)
+void IniTeXMFApp::Warning(const char* lpszFormat, ...)
 {
   va_list arglist;
   va_start(arglist, lpszFormat);
@@ -1928,7 +1928,7 @@ static void Sorry()
   Sorry("");
 }
 
-MIKTEXNORETURN void IniTeXMFApp::FatalError(const char * lpszFormat, ...)
+MIKTEXNORETURN void IniTeXMFApp::FatalError(const char* lpszFormat, ...)
 {
   va_list arglist;
   va_start(arglist, lpszFormat);
@@ -1942,7 +1942,7 @@ MIKTEXNORETURN void IniTeXMFApp::FatalError(const char * lpszFormat, ...)
   throw (1);
 }
 
-bool IniTeXMFApp::InstallPackage(const string & deploymentName, const PathName & trigger, PathName & installRoot)
+bool IniTeXMFApp::InstallPackage(const string& deploymentName, const PathName& trigger, PathName& installRoot)
 {
   if (enableInstaller != TriState::True)
   {
@@ -1962,12 +1962,12 @@ bool IniTeXMFApp::InstallPackage(const string & deploymentName, const PathName &
   return true;
 }
 
-bool IniTeXMFApp::TryCreateFile(const MiKTeX::Core::PathName & fileName, MiKTeX::Core::FileType fileType)
+bool IniTeXMFApp::TryCreateFile(const MiKTeX::Core::PathName& fileName, MiKTeX::Core::FileType fileType)
 {
   return false;
 }
 
-bool IniTeXMFApp::ReadDirectory(const PathName & path, vector<string> & subDirNames, vector<string> & fileNames, vector<string> & fileNameInfos)
+bool IniTeXMFApp::ReadDirectory(const PathName& path, vector<string>& subDirNames, vector<string>& fileNames, vector<string>& fileNameInfos)
 {
   UNUSED_ALWAYS(path);
   UNUSED_ALWAYS(subDirNames);
@@ -1976,7 +1976,7 @@ bool IniTeXMFApp::ReadDirectory(const PathName & path, vector<string> & subDirNa
   return false;
 }
 
-bool IniTeXMFApp::OnProgress(unsigned level, const PathName & directory)
+bool IniTeXMFApp::OnProgress(unsigned level, const PathName& directory)
 {
 #if 0
   if (verbose && level == 1)
@@ -1991,7 +1991,7 @@ bool IniTeXMFApp::OnProgress(unsigned level, const PathName & directory)
   return true;
 }
 
-void IniTeXMFApp::UpdateFilenameDatabase(const PathName & root)
+void IniTeXMFApp::UpdateFilenameDatabase(const PathName& root)
 {
   // unload the file name database
   if (!printOnly && !session->UnloadFilenameDatabase())
@@ -2036,7 +2036,7 @@ void IniTeXMFApp::UpdateFilenameDatabase(unsigned root)
 
 void IniTeXMFApp::ListFormats()
 {
-  for (const FormatInfo & formatInfo : session->GetFormats())
+  for (const FormatInfo& formatInfo : session->GetFormats())
   {
     cout << formatInfo.key << " (" << formatInfo.description << ")" << endl;
   }
@@ -2088,7 +2088,7 @@ void IniTeXMFApp::SetTeXMFRootDirectories(
   }
 }
 
-void IniTeXMFApp::RunMakeTeX(const string & makeProg, const CommandLineBuilder & arguments)
+void IniTeXMFApp::RunMakeTeX(const string& makeProg, const CommandLineBuilder& arguments)
 {
   PathName exe;
 
@@ -2135,7 +2135,7 @@ void IniTeXMFApp::RunMakeTeX(const string & makeProg, const CommandLineBuilder &
   Process::Run(exe, xArguments.ToString());
 }
 
-void IniTeXMFApp::MakeFormatFile(const string & formatKey)
+void IniTeXMFApp::MakeFormatFile(const string& formatKey)
 {
   if (find(formatsMade.begin(), formatsMade.end(), formatKey) != formatsMade.end())
   {
@@ -2193,11 +2193,11 @@ void IniTeXMFApp::MakeFormatFile(const string & formatKey)
   formatsMade.push_back(formatKey);
 }
 
-void IniTeXMFApp::MakeFormatFiles(const vector<string> & formats)
+void IniTeXMFApp::MakeFormatFiles(const vector<string>& formats)
 {
   if (formats.size() == 0)
   {
-    for (const FormatInfo & formatInfo : session->GetFormats())
+    for (const FormatInfo& formatInfo : session->GetFormats())
     {
       if (!formatInfo.exclude)
       {
@@ -2207,19 +2207,19 @@ void IniTeXMFApp::MakeFormatFiles(const vector<string> & formats)
   }
   else
   {
-    for (const string & fmt : formats)
+    for (const string& fmt : formats)
     {
       MakeFormatFile(fmt);
     }
   }
 }
 
-void IniTeXMFApp::MakeFormatFilesByName(const vector<string> & formatsByName, const string & engine)
+void IniTeXMFApp::MakeFormatFilesByName(const vector<string>& formatsByName, const string& engine)
 {
-  for (const string & name : formatsByName)
+  for (const string& name : formatsByName)
   {
     bool done = false;
-    for (const FormatInfo & formatInfo : session->GetFormats())
+    for (const FormatInfo& formatInfo : session->GetFormats())
     {
       if (PathName::Compare(formatInfo.name, name) == 0 && (engine.empty()
         || (Utils::EqualsIgnoreCase(formatInfo.compiler, engine))))
@@ -2242,14 +2242,14 @@ void IniTeXMFApp::MakeFormatFilesByName(const vector<string> & formatsByName, co
   }
 }
 
-void IniTeXMFApp::ManageLink(const FileLink & fileLink, bool supportsHardLinks, bool remove, bool overwrite)
+void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, bool remove, bool overwrite)
 {
   LinkType linkType = fileLink.linkType;
   if (linkType == LinkType::Hard && !supportsHardLinks)
   {
     linkType = LinkType::Copy;
   }
-  for (const string & linkName : fileLink.linkNames)
+  for (const string& linkName : fileLink.linkNames)
   {
     if (File::Exists(linkName))
     {
@@ -2269,7 +2269,7 @@ void IniTeXMFApp::ManageLink(const FileLink & fileLink, bool supportsHardLinks, 
       {
         PathName directory (linkName);
         directory.RemoveFileSpec();
-        const char * target = Utils::GetRelativizedPath(fileLink.target.c_str(), directory.GetData());
+        const char* target = Utils::GetRelativizedPath(fileLink.target.c_str(), directory.GetData());
         if (target == nullptr)
         {
           target = fileLink.target.c_str();
@@ -2305,7 +2305,7 @@ void IniTeXMFApp::ManageLink(const FileLink & fileLink, bool supportsHardLinks, 
   }
 }
 
-void IniTeXMFApp::RegisterRoots(const vector<PathName> & roots, bool reg)
+void IniTeXMFApp::RegisterRoots(const vector<PathName>& roots, bool reg)
 {
   string newRoots;
 
@@ -2384,7 +2384,7 @@ void IniTeXMFApp::RegisterRoots(const vector<PathName> & roots, bool reg)
 
   if (reg)
   {
-    for (const PathName & r : roots)
+    for (const PathName& r : roots)
     {
       UpdateFilenameDatabase(r);
     }
@@ -2394,15 +2394,15 @@ void IniTeXMFApp::RegisterRoots(const vector<PathName> & roots, bool reg)
 #if defined(MIKTEX_WINDOWS)
 
 struct ShellFileType {
-  const char * lpszComponent;
-  const char * lpszExtension;
-  const char * lpszUserFriendlyName;
-  const char * lpszExecutable;
+  const char* lpszComponent;
+  const char* lpszExtension;
+  const char* lpszUserFriendlyName;
+  const char* lpszExecutable;
   int iconIndex;
   bool takeOwnership;
-  const char * lpszVerb;
-  const char * lpszCommandArgs;
-  const char * lpszDdeArgs;
+  const char* lpszVerb;
+  const char* lpszCommandArgs;
+  const char* lpszDdeArgs;
 } const shellFileTypes[] = {
   "bib", ".bib", "BibTeX Database", MIKTEX_TEXWORKS_EXE, -2, false, "open", "\"%1\"", nullptr,
   "cls", ".cls", "LaTeX Class", MIKTEX_TEXWORKS_EXE, -2, false, "open", "\"%1\"", nullptr,
@@ -2418,7 +2418,7 @@ struct ShellFileType {
 
 void IniTeXMFApp::RegisterShellFileTypes(bool reg)
 {
-  for (const ShellFileType & sft : shellFileTypes)
+  for (const ShellFileType& sft : shellFileTypes)
   {
     string progId = Utils::MakeProgId(sft.lpszComponent);
     if (reg)
@@ -2514,7 +2514,6 @@ vector<FileLink> explicitFileLinks =
   { MIKTEX_TEXWORKS_EXE, { "texworks" } },
   { MIKTEX_TEX_EXE, { "tex", "initex", "virtex", MIKTEX_LATEX_EXE } },
   { MIKTEX_TFTOPL_EXE, { "tftopl" } },
-  { MIKTEX_TIE_EXE, { "tie" } },
   { MIKTEX_VFTOVP_EXE, { "vftovp" } },
   { MIKTEX_VPTOVF_EXE, { "vptovf" } },
   { MIKTEX_WEAVE_EXE, { "weave" } },
@@ -2541,7 +2540,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
   vector<FileLink> result;
   PathName pathBinDir = session->GetSpecialPath(SpecialPath::BinDirectory);
   PathName internalBinDir = session->GetSpecialPath(SpecialPath::InternalBinDirectory);
-  for (const FileLink & fileLink : explicitFileLinks)
+  for (const FileLink& fileLink : explicitFileLinks)
   {
     PathName targetPath = pathBinDir;
     targetPath /= fileLink.target;
@@ -2549,14 +2548,14 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
     if (File::Exists(targetPath))
     {
       vector<string> linkNames;
-      for (const string & linkName : fileLink.linkNames)
+      for (const string& linkName : fileLink.linkNames)
       {
-	PathName linkPath = pathBinDir;
-	linkPath /= linkName;
-	if (!extension.empty())
-	{
-	  linkPath.AppendExtension(extension);
-	}
+        PathName linkPath = pathBinDir;
+        linkPath /= linkName;
+        if (!extension.empty())
+        {
+          linkPath.AppendExtension(extension);
+        }
         linkNames.push_back(linkPath.ToString());
       }
       result.push_back(FileLink(targetPath.ToString(), linkNames, fileLink.linkType));
@@ -2567,7 +2566,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
     }
   }
 
-  for (const FormatInfo & formatInfo : session->GetFormats())
+  for (const FormatInfo& formatInfo : session->GetFormats())
   {
     if (formatInfo.noExecutable)
     {
@@ -2598,7 +2597,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
   }
   unique_ptr<Cfg> config(Cfg::Create());
   config->Read(scriptsIni, true);
-  for (const shared_ptr<Cfg::Key> & key : config->GetKeys())
+  for (const shared_ptr<Cfg::Key>& key : config->GetKeys())
   {
     PathName wrapper = session->GetSpecialPath(SpecialPath::InternalBinDirectory);
     wrapper.AppendDirectoryDelimiter();
@@ -2609,7 +2608,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
     {
       continue;
     }
-    for (const shared_ptr<Cfg::Value> & v : key->GetValues())
+    for (const shared_ptr<Cfg::Value>& v : key->GetValues())
     {
       PathName pathExe(pathBinDir, v->GetName());
       pathExe.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
@@ -2625,7 +2624,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
   PathName copystart;
   if (session->FindFile(MIKTEX_PATH_INTERNAL_COPYSTART_EXE, MIKTEX_PATH_TEXMF_PLACEHOLDER, copystart))
   {
-    for (const PathName & starter : copystarters)
+    for (const PathName& starter : copystarters)
     {
       PathName pathExe(pathBinDir);
       pathExe /= starter.GetFileName();
@@ -2639,7 +2638,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
   PathName copystart_admin;
   if (session->FindFile(MIKTEX_PATH_INTERNAL_COPYSTART_ADMIN_EXE, MIKTEX_PATH_TEXMF_PLACEHOLDER, copystart_admin))
   {
-    for (const PathName & starter : copystarters_admin)
+    for (const PathName& starter : copystarters_admin)
     {
       PathName pathExe(pathBinDir);
       pathExe /= starter.GetFileName();
@@ -2670,7 +2669,7 @@ void IniTeXMFApp::ManageLinks(bool remove, bool force)
     logStream.WriteLine("[files]");
   }
 
-  for (const FileLink & fileLink : CollectLinks(force))
+  for (const FileLink& fileLink : CollectLinks(force))
   {
     ManageLink(fileLink, supportsHardLinks, remove, force);
   }
@@ -2711,7 +2710,7 @@ void IniTeXMFApp::MakeLanguageDat(bool force)
   languageDatLua.WriteLine("return {");
   languageDef.WriteLine("%% e-TeX V2.2");
 
-  for (const LanguageInfo & languageInfo : session->GetLanguages())
+  for (const LanguageInfo& languageInfo : session->GetLanguages())
   {
     if (languageInfo.exclude)
     {
@@ -2810,11 +2809,11 @@ void IniTeXMFApp::MakeMaps(bool force)
   }
 }
 
-void IniTeXMFApp::CreateConfigFile(const string & relPath, bool edit)
+void IniTeXMFApp::CreateConfigFile(const string& relPath, bool edit)
 {
   PathName configFile(session->GetSpecialPath(SpecialPath::ConfigRoot));
   bool haveConfigFile = false;
-  for (const auto & shortCut : configShortcuts)
+  for (const auto& shortCut : configShortcuts)
   {
     if (PathName::Compare(relPath, shortCut.lpszShortcut) == 0)
     {
@@ -2850,7 +2849,7 @@ void IniTeXMFApp::CreateConfigFile(const string & relPath, bool edit)
     CommandLineBuilder commandLine;
     commandLine.AppendArgument(configFile);
     string editor;
-    const char * lpszEditor = getenv("EDITOR");
+    const char* lpszEditor = getenv("EDITOR");
     if (lpszEditor != nullptr)
     {
       editor = lpszEditor;
@@ -2867,9 +2866,9 @@ void IniTeXMFApp::CreateConfigFile(const string & relPath, bool edit)
   }
 }
 
-void IniTeXMFApp::SetConfigValue(const string & valueSpec)
+void IniTeXMFApp::SetConfigValue(const string& valueSpec)
 {
-  const char * lpsz = valueSpec.c_str();
+  const char* lpsz = valueSpec.c_str();
   string section;
   bool haveSection = (*lpsz == '[');
   if (haveSection)
@@ -2901,9 +2900,9 @@ void IniTeXMFApp::SetConfigValue(const string & valueSpec)
   session->SetConfigValue(section, valueName, value);
 }
 
-void IniTeXMFApp::ShowConfigValue(const string & valueSpec)
+void IniTeXMFApp::ShowConfigValue(const string& valueSpec)
 {
-  const char * lpsz = valueSpec.c_str();
+  const char* lpsz = valueSpec.c_str();
   string section;
   bool haveSection = (*lpsz == '[');
   if (haveSection)
@@ -2954,7 +2953,7 @@ void IniTeXMFApp::ReportMiKTeXVersion()
     cout << "MiKTeX: " << Utils::GetMiKTeXVersionString() << endl;
     cout << T_("Invokers:") << " ";
     bool first = true;
-    for (const string & name : invokerNames)
+    for (const string& name : invokerNames)
     {
       if (!first)
       {
@@ -3100,13 +3099,13 @@ void IniTeXMFApp::ReportFndbFiles()
 #if defined(MIKTEX_WINDOWS)
 void IniTeXMFApp::ReportEnvironmentVariables()
 {
-  wchar_t * lpszEnv = reinterpret_cast<wchar_t*>(GetEnvironmentStringsW());
+  wchar_t* lpszEnv = reinterpret_cast<wchar_t*>(GetEnvironmentStringsW());
   if (lpszEnv == nullptr)
   {
     return;
   }
   xmlWriter.StartElement("environment");
-  for (wchar_t * p = lpszEnv; *p != 0; p += wcslen(p) + 1)
+  for (wchar_t* p = lpszEnv; *p != 0; p += wcslen(p) + 1)
   {
     Tokenizer tok(StringUtil::WideCharToUTF8(p), "=");
     if (!tok)
@@ -3150,7 +3149,7 @@ void IniTeXMFApp::ReportBrokenPackages()
     if (xml)
     {
       xmlWriter.StartElement("packages");
-      for (const string & name : broken)
+      for (const string& name : broken)
       {
         xmlWriter.StartElement("package");
         xmlWriter.AddAttribute("name", name);
@@ -3161,7 +3160,7 @@ void IniTeXMFApp::ReportBrokenPackages()
     }
     else
     {
-      for (const string & name : broken)
+      for (const string& name : broken)
       {
         cout << name << ": " << T_("needs to be reinstalled") << endl;
       }
@@ -3169,12 +3168,12 @@ void IniTeXMFApp::ReportBrokenPackages()
   }
 }
 
-void IniTeXMFApp::ReportLine(const string & str)
+void IniTeXMFApp::ReportLine(const string& str)
 {
   Verbose("%s", str.c_str());
 }
 
-bool IniTeXMFApp::OnRetryableError(const string & message)
+bool IniTeXMFApp::OnRetryableError(const string& message)
 {
   return false;
 }
@@ -3243,7 +3242,7 @@ void IniTeXMFApp::Configure()
 }
 #endif
 
-void IniTeXMFApp::CreatePortableSetup(const PathName & portableRoot)
+void IniTeXMFApp::CreatePortableSetup(const PathName& portableRoot)
 {
   unique_ptr<Cfg> config(Cfg::Create());
   config->PutValue("Auto", "Config", "Portable");
@@ -3288,12 +3287,12 @@ void IniTeXMFApp::WriteReport()
   }
 }
 
-bool IniTeXMFApp::OnFndbItem(const PathName & path, const string & name, const string & info, bool isDirectory)
+bool IniTeXMFApp::OnFndbItem(const PathName& path, const string& name, const string& info, bool isDirectory)
 {
   if (recursive)
   {
     PathName path(path, name);
-    const char * lpszRel = Utils::GetRelativizedPath(path.GetData(), enumDir.GetData());
+    const char* lpszRel = Utils::GetRelativizedPath(path.GetData(), enumDir.GetData());
     if (!isDirectory)
     {
       if (info.empty())
@@ -3331,7 +3330,7 @@ bool IniTeXMFApp::OnFndbItem(const PathName & path, const string & name, const s
   return true;
 }
 
-void IniTeXMFApp::Run(int argc, const char * argv[])
+void IniTeXMFApp::Run(int argc, const char* argv[])
 {
   vector<string> addFiles;
   vector<string> showConfigValue;
@@ -3374,7 +3373,7 @@ void IniTeXMFApp::Run(int argc, const char * argv[])
   bool optUpdateFilenameDatabase = isMktexlsrMode;
   bool optVersion = false;
 
-  const struct poptOption * aoptions;
+  const struct poptOption* aoptions;
 
   if (setupWizardRunning)
   {
@@ -3785,7 +3784,7 @@ void IniTeXMFApp::Run(int argc, const char * argv[])
     MakeMaps(optForce);
   }
 
-  for (const string & fileName : addFiles)
+  for (const string& fileName : addFiles)
   {
     Verbose(T_("Adding %s to the file name database..."), Q_(fileName));
     PrintOnly("fndbadd %s", Q_(fileName));
@@ -3802,7 +3801,7 @@ void IniTeXMFApp::Run(int argc, const char * argv[])
     }
   }
 
-  for (const string & fileName : removeFiles)
+  for (const string& fileName : removeFiles)
   {
     Verbose(T_("Removing %s from the file name database..."), Q_(fileName));
     PrintOnly("fndbremove %s", Q_(fileName));
@@ -3868,35 +3867,35 @@ void IniTeXMFApp::Run(int argc, const char * argv[])
     }
     else
     {
-      for (const string & r : updateRoots)
+      for (const string& r : updateRoots)
       {
         UpdateFilenameDatabase(r.c_str());
       }
     }
   }
 
-  for (const string & dir : listDirectories)
+  for (const string& dir : listDirectories)
   {
     enumDir = dir;
     Fndb::Enumerate(dir, this);
   }
 
-  for (const string & fileName : createConfigFiles)
+  for (const string& fileName : createConfigFiles)
   {
     CreateConfigFile(fileName, false);
   }
 
-  for (const string & v : setConfigValues)
+  for (const string& v : setConfigValues)
   {
     SetConfigValue(v);
   }
 
-  for (const string & v : showConfigValue)
+  for (const string& v : showConfigValue)
   {
     ShowConfigValue(v);
   }
 
-  for (const string & fileName : editConfigFiles)
+  for (const string& fileName : editConfigFiles)
   {
     CreateConfigFile(fileName, true);
   }
@@ -3932,13 +3931,13 @@ void IniTeXMFApp::Run(int argc, const char * argv[])
 #  define MAINCHAR char
 #endif
 
-int MAIN(int argc, MAINCHAR * argv[])
+int MAIN(int argc, MAINCHAR* argv[])
 {
   try
   {
     vector<string> utf8args;
     utf8args.reserve(argc);
-    vector<const char *> newargv;
+    vector<const char*> newargv;
     newargv.reserve(argc + 1);
     for (int idx = 0; idx < argc; ++idx)
     {
@@ -3958,7 +3957,7 @@ int MAIN(int argc, MAINCHAR * argv[])
     app.Finalize();
     return 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     if (logger != nullptr)
     {
@@ -3970,7 +3969,7 @@ int MAIN(int argc, MAINCHAR * argv[])
     Sorry();
     return 1;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     if (logger != nullptr)
     {
