@@ -482,6 +482,9 @@ public:
 public:
   bool GetTTFDirs(std::string& ttfDirs);
 
+public:
+  void RecordMaintenance();
+
 private:
   void ReadDvipsPaperSizes();
 

@@ -531,6 +531,11 @@ void SessionImpl::SaveRootDirectories(
 #endif
     }
   }
+  RecordMaintenance();
+}
+
+void SessionImpl::RecordMaintenance()
+{
   time_t now = time(nullptr);
   string nowStr = std::to_string(now);
   if (IsAdminMode())
