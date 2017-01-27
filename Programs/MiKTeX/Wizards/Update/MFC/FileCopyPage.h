@@ -100,7 +100,7 @@ private:
   void Report(bool withLog, const char* lpszFormat, ...);
 
 private:
-  void CollectFiles(vector<string>& vec, const PathName& dir, const char* lpszExt);
+  void CollectFiles(vector<PathName>& vec, const PathName& dir, const char* lpszExt);
 
 private:
   void RemoveFormatFiles();

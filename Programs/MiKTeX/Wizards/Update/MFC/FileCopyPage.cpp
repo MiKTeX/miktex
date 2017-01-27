@@ -605,31 +605,53 @@ void FileCopyPage::EnableControl(UINT controlId, bool enable)
   GetControl(controlId)->EnableWindow(enable ? TRUE : FALSE);
 }
 
-void FileCopyPage::CollectFiles(vector<string>& vec, const PathName& dir, const char* lpszExt)
+void FileCopyPage::CollectFiles(vector<PathName>& vec, const PathName& dir, const char* lpszExt)
 {
-  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dir, lpszExt);
+  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dir);
   DirectoryEntry entry;
+  vector<string> subDirs;
   while (lister->GetNext(entry))
   {
-    vec.push_back(entry.name);
+    if (entry.isDirectory)
+    {
+      subDirs.push_back(entry.name);
+    }
+    else
+    {
+      PathName path(dir, entry.name);
+      if (path.HasExtension(lpszExt))
+      {
+        vec.push_back(path);
+      }
+    }
   }
   lister->Close();
+  for(const string& s : subDirs)
+  {
+    // RECURSION
+    CollectFiles(vec, PathName(dir, s), lpszExt);
+  }
 }
 
 #if REMOVE_FORMAT_FILES
 void FileCopyPage::RemoveFormatFiles()
 {
+  vector<PathName> toBeDeleted;
   PathName pathFmt (session->GetSpecialPath(SpecialPath::DataRoot));
   pathFmt /= MIKTEX_PATH_FMT_DIR;
-  if (!Directory::Exists(pathFmt))
+  if (Directory::Exists(pathFmt))
   {
-    return;
+    CollectFiles(toBeDeleted, pathFmt, MIKTEX_FORMAT_FILE_SUFFIX);
   }
-  vector<string> toBeDeleted;
-  CollectFiles(toBeDeleted, pathFmt, MIKTEX_FORMAT_FILE_SUFFIX);
-  for (const string& f : toBeDeleted)
+  PathName pathFmt2 (session->GetSpecialPath(SpecialPath::UserDataRoot));
+  pathFmt2 /= MIKTEX_PATH_FMT_DIR;
+  if (pathFmt != pathFmt2 && Directory::Exists(pathFmt2))
   {
-    File::Delete(PathName(pathFmt, f));
+    CollectFiles(toBeDeleted, pathFmt2, MIKTEX_FORMAT_FILE_SUFFIX);
+  }
+  for (const PathName& f : toBeDeleted)
+  {
+    File::Delete(f);
   }
 }
 #endif
