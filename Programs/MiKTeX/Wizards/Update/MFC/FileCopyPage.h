@@ -1,6 +1,6 @@
 /* FileCopyPage.h:                                      -*- C++ -*-
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2017 Christian Schenk
 
    This file is part of the MiKTeX Update Wizard.
 
@@ -52,7 +52,7 @@ protected:
   virtual BOOL OnSetActive();
 
 protected:
-  virtual void DoDataExchange(CDataExchange * pDX);
+  virtual void DoDataExchange(CDataExchange* pDX);
 
 protected:
   virtual LRESULT OnWizardNext();
@@ -70,19 +70,19 @@ protected:
   afx_msg LRESULT OnProgress(WPARAM wParam, LPARAM lParam);
 
 private:
-  virtual bool MIKTEXTHISCALL OnProcessOutput(const void * pOutput, size_t n);
+  virtual bool MIKTEXTHISCALL OnProcessOutput(const void* pOutput, size_t n);
 
 public:
-  virtual void MIKTEXTHISCALL ReportLine(const std::string & str);
+  virtual void MIKTEXTHISCALL ReportLine(const std::string& str);
 
 public:
-  virtual bool MIKTEXTHISCALL OnRetryableError(const std::string & message);
+  virtual bool MIKTEXTHISCALL OnRetryableError(const std::string& message);
 
 public:
   virtual bool MIKTEXTHISCALL OnProgress(Notification nf);
 
 private:
-  static UINT WorkerThread(void * pParam);
+  static UINT WorkerThread(void* pParam);
 
 private:
   void DoTheUpdate();
@@ -91,16 +91,16 @@ private:
   void ConfigureMiKTeX();
 
 private:
-  void RunMpm(const CommandLineBuilder & cmdLine1);
+  void RunMpm(const CommandLineBuilder& cmdLine1);
 
 private:
-  void RunIniTeXMF(const CommandLineBuilder & cmdLine1);
+  void RunIniTeXMF(const CommandLineBuilder& cmdLine1);
 
 private:
-  void Report(bool withLog, const char * lpszFormat, ...);
+  void Report(bool withLog, const char* lpszFormat, ...);
 
 private:
-  void CollectFiles(vector<string> & vec, const PathName & dir, const char * lpszExt);
+  void CollectFiles(vector<string>& vec, const PathName& dir, const char* lpszExt);
 
 private:
   void RemoveFormatFiles();
@@ -112,16 +112,16 @@ private:
   void RemoveOldRegistrySettings();
 
 private:
-  CWnd * GetControl(UINT controlId);
+  CWnd* GetControl(UINT controlId);
 
 private:
   void EnableControl(UINT controlId, bool enable);
 
 private:
-  void ReportError(const exception & e);
+  void ReportError(const exception& e);
 
 private:
-  void ReportError(const MiKTeXException & e);
+  void ReportError(const MiKTeXException& e);
 
 private:
   CCriticalSection criticalSectionMonitor;
@@ -149,7 +149,7 @@ private:
   shared_ptr<PackageInstaller> pInstaller;
 
 private:
-  class UpdateWizard * pSheet = nullptr;
+  class UpdateWizard* pSheet = nullptr;
 
 private:
   HANDLE hWorkerThread = nullptr;
