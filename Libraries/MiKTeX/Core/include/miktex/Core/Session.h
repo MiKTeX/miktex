@@ -1,6 +1,6 @@
 /* miktex/Core/Session.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -136,7 +136,7 @@ enum class SpecialPath
 class PaperSizeInfo
 {
 public:
-  static MIKTEXCORECEEAPI(PaperSizeInfo) Parse(const std::string & spec);
+  static MIKTEXCORECEEAPI(PaperSizeInfo) Parse(const std::string& spec);
 
   /// Paper name (e.g., "A4")
 public:
@@ -247,7 +247,7 @@ public:
   ConfigValue() = delete;
 
 public:
-  ConfigValue(const ConfigValue & other)
+  ConfigValue(const ConfigValue& other)
   {
     switch (other.tag)
     {
@@ -273,7 +273,7 @@ public:
   }
 
 public:
-  ConfigValue & operator= (const ConfigValue & other) = delete;
+  ConfigValue& operator= (const ConfigValue& other) = delete;
 
 public:
   ConfigValue(ConfigValue&& other)
@@ -302,7 +302,7 @@ public:
   }
 
 public:
-  ConfigValue & operator= (ConfigValue && other) = delete;
+  ConfigValue& operator= (ConfigValue&& other) = delete;
 
 public:
   virtual ~ConfigValue() noexcept
@@ -315,14 +315,14 @@ public:
   }
 
 public:
-  ConfigValue(const std::string & s)
+  ConfigValue(const std::string& s)
   {
     new(&this->s) std::string(s);
     tag = Tag::String;
   }
 
 public:
-  ConfigValue(const char * lpsz)
+  ConfigValue(const char* lpsz)
   {
     new(&this->s) std::string(lpsz == nullptr ? "" : lpsz);
     tag = Tag::String;
@@ -419,15 +419,15 @@ typedef OptionSet<RegisterRootDirectoriesOption> RegisterRootDirectoriesOptionSe
 class MIKTEXNOVTABLE IFindFileCallback
 {
   /// Request to install package. Called by the FindFile machinery.
-  /// @param lpszPackageName Package to be installed.
-  /// @param lpszTrigger File name that triggered the auto-installer.
+  /// @param deploymentName Package to be installed.
+  /// @param trigger File name that triggered the auto-installer.
   /// @param[out] installRoot Installation root directory.
   /// @return Returns true, if the package has been installed.
 public:
-  virtual bool MIKTEXTHISCALL InstallPackage(const std::string & deploymentName, const PathName & trigger, PathName & installRoot) = 0;
+  virtual bool MIKTEXTHISCALL InstallPackage(const std::string& deploymentName, const PathName& trigger, PathName& installRoot) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL TryCreateFile(const PathName & fileName, FileType fileType) = 0;
+  virtual bool MIKTEXTHISCALL TryCreateFile(const PathName& fileName, FileType fileType) = 0;
 };
 
 /// The MiKTeX session interface.
@@ -470,33 +470,33 @@ public:
     InitInfo() = default;
 
   public:
-    InitInfo(const InitInfo & other) = default;
+    InitInfo(const InitInfo& other) = default;
 
   public:
-    InitInfo & operator=(const InitInfo & other) = default;
+    InitInfo& operator=(const InitInfo& other) = default;
 
   public:
-    InitInfo(InitInfo && other) = default;
+    InitInfo(InitInfo&& other) = default;
 
   public:
-    InitInfo & operator=(InitInfo && other) = default;
+    InitInfo& operator=(InitInfo&& other) = default;
 
   public:
     ~InitInfo() = default;
 
     /// Initializes a new init info struct.
-    /// @param lpszProgramInvocationName Name of the invoked program.
+    /// @param programInvocationName Name of the invoked program.
   public:
-    InitInfo(const std::string & programInvocationName) :
+    InitInfo(const std::string& programInvocationName) :
       programInvocationName(programInvocationName)
     {
     }
 
     /// Initializes a new init info struct.
-    /// @param lpszProgramInvocationName Name of the invoked program.
+    /// @param programInvocationName Name of the invoked program.
     /// @param flags Init flags.
   public:
-    InitInfo(const std::string & programInvocationName, InitOptionSet options) :
+    InitInfo(const std::string& programInvocationName, InitOptionSet options) :
       options(options),
       programInvocationName(programInvocationName)
     {
@@ -524,7 +524,7 @@ public:
 
     /// Sets the name of the invoked program.
   public:
-    void SetProgramInvocationName(const std::string & programInvocationName)
+    void SetProgramInvocationName(const std::string& programInvocationName)
     {
       this->programInvocationName = programInvocationName;
     }
@@ -538,7 +538,7 @@ public:
 
     /// Sets the name of the game.
   public:
-    void SetTheNameOfTheGame(const std::string & theNameOfTheGame)
+    void SetTheNameOfTheGame(const std::string& theNameOfTheGame)
     {
       this->theNameOfTheGame = theNameOfTheGame;
     }
@@ -551,7 +551,7 @@ public:
     }
 
   public:
-    void SetStartupConfig(const StartupConfig & startupConfig)
+    void SetStartupConfig(const StartupConfig& startupConfig)
     {
       this->startupConfig = startupConfig;
     }
@@ -564,7 +564,7 @@ public:
 
     /// Enables trace streams.
   public:
-    void SetTraceFlags(const std::string & traceFlags)
+    void SetTraceFlags(const std::string& traceFlags)
     {
       this->traceFlags = traceFlags;
     }
@@ -577,13 +577,13 @@ public:
     }
 
   public:
-    void SetTraceCallback(MiKTeX::Trace::TraceCallback * callback)
+    void SetTraceCallback(MiKTeX::Trace::TraceCallback* callback)
     {
       traceCallback = callback;
     }
 
   public:
-    MiKTeX::Trace::TraceCallback * GetTraceCallback()
+    MiKTeX::Trace::TraceCallback* GetTraceCallback()
     {
       return traceCallback;
     }
@@ -604,7 +604,7 @@ public:
     std::string traceFlags;
 
   private:
-    MiKTeX::Trace::TraceCallback * traceCallback = nullptr;
+    MiKTeX::Trace::TraceCallback* traceCallback = nullptr;
   };
 
 public:
@@ -614,19 +614,19 @@ public:
   static MIKTEXCORECEEAPI(std::shared_ptr<Session>) TryGet();
 
 public:
-  static MIKTEXCORECEEAPI(std::shared_ptr<Session>) Create(const InitInfo & initInfo);
+  static MIKTEXCORECEEAPI(std::shared_ptr<Session>) Create(const InitInfo& initInfo);
 
 public:
   virtual MIKTEXTHISCALL ~Session() noexcept = 0;
 
 public:
-  virtual void MIKTEXTHISCALL PushAppName(const std::string & name) = 0;
+  virtual void MIKTEXTHISCALL PushAppName(const std::string& name) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL PushBackAppName(const std::string & name) = 0;
+  virtual void MIKTEXTHISCALL PushBackAppName(const std::string& name) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL AddInputDirectory(const PathName & path, bool atEnd) = 0;
+  virtual void MIKTEXTHISCALL AddInputDirectory(const PathName& path, bool atEnd) = 0;
 
   /// Gets a special path.
   /// @param specialPath Specifies special path.
@@ -653,16 +653,16 @@ public:
   virtual PathName MIKTEXTHISCALL GetMpmDatabasePathName() = 0;
 
 public:
-  virtual unsigned MIKTEXTHISCALL TryDeriveTEXMFRoot(const PathName & path) = 0;
+  virtual unsigned MIKTEXTHISCALL TryDeriveTEXMFRoot(const PathName& path) = 0;
 
 public:
-  virtual unsigned MIKTEXTHISCALL DeriveTEXMFRoot(const PathName & path) = 0;
+  virtual unsigned MIKTEXTHISCALL DeriveTEXMFRoot(const PathName& path) = 0;
 
   /// Finds a file name database file.
   /// @param r File name database ID.
   /// @param path Path name object buffer to be filled.
 public:
-  virtual bool MIKTEXTHISCALL FindFilenameDatabase(unsigned r, PathName & path) = 0;
+  virtual bool MIKTEXTHISCALL FindFilenameDatabase(unsigned r, PathName& path) = 0;
 
   /// Gets the path name of a file name database file.
   /// @param r File name database ID.
@@ -677,18 +677,18 @@ public:
   virtual bool MIKTEXTHISCALL UnloadFilenameDatabase() = 0;
 
   /// Splits a TEXMF path name.
-  /// @param lpszPath Path name to split.
-  /// @param lpszRoot String buffer to be filled with the root directory.
-  /// @param lpszRelativ String buffer to be filled with the relative path.
+  /// @param path Path name to split.
+  /// @param root String buffer to be filled with the root directory.
+  /// @param relative String buffer to be filled with the relative path.
   /// @return Returns the TEXMF ID.
 public:
-  virtual unsigned MIKTEXTHISCALL SplitTEXMFPath(const PathName & path, PathName & root, PathName & relative) = 0;
+  virtual unsigned MIKTEXTHISCALL SplitTEXMFPath(const PathName& path, PathName& root, PathName& relative) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL RegisterRootDirectories(const std::string & roots) = 0;
+  virtual void MIKTEXTHISCALL RegisterRootDirectories(const std::string& roots) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL RegisterRootDirectories(const StartupConfig & startupConfig, RegisterRootDirectoriesOptionSet options) = 0;
+  virtual void MIKTEXTHISCALL RegisterRootDirectories(const StartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL IsMiKTeXDirect() = 0;
@@ -697,49 +697,49 @@ public:
   virtual bool MIKTEXTHISCALL IsMiKTeXPortable() = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL GetMETAFONTMode(unsigned idx, MIKTEXMFMODE & mode) = 0;
+  virtual bool MIKTEXTHISCALL GetMETAFONTMode(unsigned idx, MIKTEXMFMODE& mode) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL DetermineMETAFONTMode(unsigned dpi, MIKTEXMFMODE & Mode) = 0;
+  virtual bool MIKTEXTHISCALL DetermineMETAFONTMode(unsigned dpi, MIKTEXMFMODE& Mode) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL TryGetConfigValue(const std::string & sectionName, const std::string & valueName, std::string & value) = 0;
+  virtual bool MIKTEXTHISCALL TryGetConfigValue(const std::string& sectionName, const std::string& valueName, std::string& value) = 0;
 
 public:
-  virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const std::string & sectionName, const std::string & valueName, const ConfigValue & defaultValue) = 0;
+  virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const std::string& sectionName, const std::string& valueName, const ConfigValue& defaultValue) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL SetConfigValue(const std::string & sectionName, const std::string & valueName, const ConfigValue & value) = 0;
+  virtual void MIKTEXTHISCALL SetConfigValue(const std::string& sectionName, const std::string& valueName, const ConfigValue& value) = 0;
 
 public:
   virtual std::string MIKTEXTHISCALL GetEngineName() = 0;
 
 public:
-  virtual FILE * MIKTEXTHISCALL OpenFile(const PathName & path, FileMode mode, FileAccess access, bool isTextFile) = 0;
+  virtual FILE* MIKTEXTHISCALL OpenFile(const PathName& path, FileMode mode, FileAccess access, bool isTextFile) = 0;
 
 public:
-  virtual FILE * MIKTEXTHISCALL TryOpenFile(const PathName & path, FileMode mode, FileAccess access, bool isTextFile) = 0;
+  virtual FILE* MIKTEXTHISCALL TryOpenFile(const PathName& path, FileMode mode, FileAccess access, bool isTextFile) = 0;
 
 public:
-  virtual FILE * MIKTEXTHISCALL OpenFile(const PathName & path, FileMode mode, FileAccess access, bool isTextFile, FileShare share) = 0;
+  virtual FILE* MIKTEXTHISCALL OpenFile(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share) = 0;
 
 public:
-  virtual FILE * MIKTEXTHISCALL TryOpenFile(const PathName & path, FileMode mode, FileAccess access, bool isTextFile, FileShare share) = 0;
+  virtual FILE* MIKTEXTHISCALL TryOpenFile(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL CloseFile(FILE * pFile) = 0;
+  virtual void MIKTEXTHISCALL CloseFile(FILE* file) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL IsOutputFile(const FILE * pFile) = 0;
+  virtual bool MIKTEXTHISCALL IsOutputFile(const FILE* file) = 0;
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  virtual bool MIKTEXTHISCALL IsFileAlreadyOpen(const PathName & fileName) = 0;
+  virtual bool MIKTEXTHISCALL IsFileAlreadyOpen(const PathName& fileName) = 0;
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  virtual void MIKTEXTHISCALL ScheduleFileRemoval(const PathName & fileName) = 0;
+  virtual void MIKTEXTHISCALL ScheduleFileRemoval(const PathName& fileName) = 0;
 #endif
 
 public:
@@ -749,64 +749,64 @@ public:
   virtual bool MIKTEXTHISCALL StartFileInfoRecorder(bool recordPackageNames) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL SetRecorderPath(const PathName & path) = 0;
+  virtual void MIKTEXTHISCALL SetRecorderPath(const PathName& path) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL RecordFileInfo(const PathName & path, FileAccess access) = 0;
+  virtual void MIKTEXTHISCALL RecordFileInfo(const PathName& path, FileAccess access) = 0;
 
 public:
   virtual std::vector<FileInfoRecord> MIKTEXTHISCALL GetFileInfoRecords() = 0;
 
 public:
-  virtual FileType MIKTEXTHISCALL DeriveFileType(const PathName & fileName) = 0;
+  virtual FileType MIKTEXTHISCALL DeriveFileType(const PathName& fileName) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const std::string & fileName, const std::string & pathList, FindFileOptionSet options, std::vector<PathName> & result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& pathList, FindFileOptionSet options, std::vector<PathName>& result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const std::string & fileName, const std::string & pathList, std::vector<PathName> & result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& pathList, std::vector<PathName>& result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const std::string & fileName, const std::string & pathList, FindFileOptionSet options, PathName & result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& pathList, FindFileOptionSet options, PathName& result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const std::string & fileName, const std::string & pathList, PathName & result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, const std::string& pathList, PathName& result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const std::string & fileName, FileType fileType, FindFileOptionSet options, std::vector<PathName> & result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, FileType fileType, FindFileOptionSet options, std::vector<PathName>& result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const std::string & fileName, FileType fileType, std::vector<PathName> & result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, FileType fileType, std::vector<PathName>& result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const std::string & fileName, FileType fileType, FindFileOptionSet options, PathName & result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, FileType fileType, FindFileOptionSet options, PathName& result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindFile(const std::string & fileName, FileType fileType, PathName & result) = 0;
+  virtual bool MIKTEXTHISCALL FindFile(const std::string& fileName, FileType fileType, PathName& result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindPkFile(const std::string & fontName, const std::string & mfMode, int dpi, PathName & result) = 0;
+  virtual bool MIKTEXTHISCALL FindPkFile(const std::string& fontName, const std::string& mfMode, int dpi, PathName& result) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL FindTfmFile(const std::string & fontName, PathName & result, bool create) = 0;
+  virtual bool MIKTEXTHISCALL FindTfmFile(const std::string& fontName, PathName& result, bool create) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL SetFindFileCallback(IFindFileCallback * pCallback) = 0;
+  virtual void MIKTEXTHISCALL SetFindFileCallback(IFindFileCallback* pCallback) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL SplitFontPath(const PathName & fontPath, std::string * fontType, std::string * supplier, std::string * typeface, std::string * fontName, std::string * pointSize) = 0;
+  virtual void MIKTEXTHISCALL SplitFontPath(const PathName& fontPath, std::string* fontType, std::string* supplier, std::string* typeface, std::string* fontName, std::string* pointSize) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL GetFontInfo(const std::string & fontName, std::string & supplier, std::string & typeface, double * genSize) = 0;
+  virtual bool MIKTEXTHISCALL GetFontInfo(const std::string& fontName, std::string& supplier, std::string& typeface, double* genSize) = 0;
 
 public:
-  virtual PathName MIKTEXTHISCALL GetGhostscript(unsigned long * versionNumber) = 0;
+  virtual PathName MIKTEXTHISCALL GetGhostscript(unsigned long* versionNumber) = 0;
 
 public:
   virtual std::string MIKTEXTHISCALL GetExpandedSearchPath(FileType fileType) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL ConvertToBitmapFile(const PathName & sourceFileName, PathName & destFileName, IRunProcessCallback * callback) = 0;
+  virtual bool MIKTEXTHISCALL ConvertToBitmapFile(const PathName& sourceFileName, PathName& destFileName, IRunProcessCallback* callback) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL EnableFontMaker(bool enable) = 0;
@@ -815,21 +815,21 @@ public:
   virtual bool MIKTEXTHISCALL GetMakeFontsFlag() = 0;
 
 public:
-  virtual std::string MIKTEXTHISCALL MakeMakePkCommandLine(const std::string & fontName, int dpi, int baseDpi, const std::string & mfMode, PathName & fileName, TriState enableInstaller) = 0;
+  virtual std::string MIKTEXTHISCALL MakeMakePkCommandLine(const std::string& fontName, int dpi, int baseDpi, const std::string& mfMode, PathName& fileName, TriState enableInstaller) = 0;
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  virtual int MIKTEXTHISCALL RunBatch(int argc, const char ** argv) = 0;
+  virtual int MIKTEXTHISCALL RunBatch(int argc, const char** argv) = 0;
 #endif
 
 public:
-  virtual int MIKTEXTHISCALL RunPerl(int argc, const char ** argv) = 0;
+  virtual int MIKTEXTHISCALL RunPerl(int argc, const char** argv) = 0;
 
 public:
-  virtual int MIKTEXTHISCALL RunPython(int argc, const char ** argv) = 0;
+  virtual int MIKTEXTHISCALL RunPython(int argc, const char** argv) = 0;
 
 public:
-  virtual int MIKTEXTHISCALL RunJava(int argc, const char ** argv) = 0;
+  virtual int MIKTEXTHISCALL RunJava(int argc, const char** argv) = 0;
 
 #if defined(MIKTEX_WINDOWS)
 public:
@@ -843,16 +843,16 @@ public:
   virtual std::vector<FormatInfo> MIKTEXTHISCALL GetFormats() = 0;
 
 public:
-  virtual FormatInfo MIKTEXTHISCALL GetFormatInfo(const std::string & key) = 0;
+  virtual FormatInfo MIKTEXTHISCALL GetFormatInfo(const std::string& key) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL TryGetFormatInfo(const std::string & key, FormatInfo & formatInfo) = 0;
+  virtual bool MIKTEXTHISCALL TryGetFormatInfo(const std::string& key, FormatInfo& formatInfo) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL DeleteFormatInfo(const std::string & key) = 0;
+  virtual void MIKTEXTHISCALL DeleteFormatInfo(const std::string& key) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL SetFormatInfo(const FormatInfo & formatInfo) = 0;
+  virtual void MIKTEXTHISCALL SetFormatInfo(const FormatInfo& formatInfo) = 0;
 
 public:
   virtual std::vector<LanguageInfo> MIKTEXTHISCALL GetLanguages() = 0;
@@ -876,16 +876,16 @@ public:
   virtual bool MIKTEXTHISCALL IsSharedSetup() = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL GetPaperSizeInfo(int idx, PaperSizeInfo & paperSize) = 0;
+  virtual bool MIKTEXTHISCALL GetPaperSizeInfo(int idx, PaperSizeInfo& paperSize) = 0;
 
 public:
-  virtual PaperSizeInfo MIKTEXTHISCALL GetPaperSizeInfo(const std::string & dvipsName) = 0;
+  virtual PaperSizeInfo MIKTEXTHISCALL GetPaperSizeInfo(const std::string& dvipsName) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL SetDefaultPaperSize(const std::string & dvipsName) = 0;
+  virtual void MIKTEXTHISCALL SetDefaultPaperSize(const std::string& dvipsName) = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL TryCreateFromTemplate(const PathName & path) = 0;
+  virtual bool MIKTEXTHISCALL TryCreateFromTemplate(const PathName& path) = 0;
 
 #if defined(MIKTEX_WINDOWS)
 public:
@@ -901,13 +901,13 @@ public:
 #endif
 
 public:
-  virtual void MIKTEXTHISCALL ConfigureFile(const PathName & pathIn, const PathName & pathOut, HasNamedValues * callback = nullptr) = 0;
+  virtual void MIKTEXTHISCALL ConfigureFile(const PathName& pathIn, const PathName& pathOut, HasNamedValues* callback = nullptr) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL ConfigureFile(const PathName & pathRel, HasNamedValues * callback = nullptr) = 0;
+  virtual void MIKTEXTHISCALL ConfigureFile(const PathName& pathRel, HasNamedValues* callback = nullptr) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL SetTheNameOfTheGame(const std::string & name) = 0;
+  virtual void MIKTEXTHISCALL SetTheNameOfTheGame(const std::string& name) = 0;
 
 public:
   virtual std::string MIKTEXTHISCALL GetLocalFontDirectories() = 0;
@@ -916,36 +916,36 @@ public:
   virtual FileTypeInfo MIKTEXTHISCALL GetFileTypeInfo(FileType fileType) = 0;
 
 public:
-  virtual std::string Expand(const std::string & toBeExpanded) = 0;
+  virtual std::string Expand(const std::string& toBeExpanded) = 0;
 
 public:
-  virtual std::string Expand(const std::string & toBeExpanded, HasNamedValues * callback) = 0;
+  virtual std::string Expand(const std::string& toBeExpanded, HasNamedValues* callback) = 0;
 
 public:
-  virtual std::string Expand(const std::string & toBeExpanded, ExpandOptionSet options, HasNamedValues * callback) = 0;
+  virtual std::string Expand(const std::string& toBeExpanded, ExpandOptionSet options, HasNamedValues* callback) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL SetLanguageInfo(const LanguageInfo & languageInfo) = 0;
+  virtual void MIKTEXTHISCALL SetLanguageInfo(const LanguageInfo& languageInfo) = 0;
 
 #if HAVE_MIKTEX_USER_INFO
 public:
-  virtual MiKTeXUserInfo RegisterMiKTeXUser(const MiKTeXUserInfo & info) = 0;
+  virtual MiKTeXUserInfo RegisterMiKTeXUser(const MiKTeXUserInfo& info) = 0;
 #endif
 
 #if HAVE_MIKTEX_USER_INFO
 public:
-  virtual bool TryGetMiKTeXUserInfo(MiKTeXUserInfo & info) = 0;
+  virtual bool TryGetMiKTeXUserInfo(MiKTeXUserInfo& info) = 0;
 #endif
 
 public:
-  static MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL FatalCrtError(const std::string & functionName, int errorCode, const MiKTeXException::KVMAP & info, const SourceLocation & sourceLocation);
+  static MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL FatalCrtError(const std::string& functionName, int errorCode, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation);
 
 public:
-  static MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL FatalMiKTeXError(const std::string & message, const MiKTeXException::KVMAP & info, const SourceLocation & sourceLocation);
+  static MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL FatalMiKTeXError(const std::string& message, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation);
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL FatalWindowsError(const std::string & functionName, unsigned long errorCode, const MiKTeXException::KVMAP & info, const SourceLocation & sourceLocation);
+  static MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL FatalWindowsError(const std::string& functionName, unsigned long errorCode, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation);
 #endif
 };
 
