@@ -1,6 +1,6 @@
 /* FileCopyPage.cpp: the actual update process
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2017 Christian Schenk
 
    This file is part of MiKTeX Update Wizard.
 
@@ -57,7 +57,7 @@ FileCopyPage::~FileCopyPage()
       pInstaller = nullptr;
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -72,11 +72,11 @@ BOOL FileCopyPage::OnInitDialog()
     pInstaller->SetNoPostProcessing(true);
     reportEditBox.LimitText(100000);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
   }
@@ -103,12 +103,12 @@ BOOL FileCopyPage::OnSetActive()
         MIKTEX_FATAL_WINDOWS_ERROR("CWnd::PostMessage");
       }
     }
-    catch (const MiKTeXException & e)
+    catch (const MiKTeXException& e)
     {
       ReportError(e);
       ret = FALSE;
     }
-    catch (const exception & e)
+    catch (const exception& e)
     {
       ReportError(e);
       ret = FALSE;
@@ -118,7 +118,7 @@ BOOL FileCopyPage::OnSetActive()
   return ret;
 }
 
-void FileCopyPage::DoDataExchange(CDataExchange * pDX)
+void FileCopyPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Control(pDX, IDC_ANI, animationControl);
@@ -163,11 +163,11 @@ BOOL FileCopyPage::OnQueryCancel()
       LOG4CXX_INFO(logger, "  No!");
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
   }
@@ -198,7 +198,7 @@ LRESULT FileCopyPage::OnStartFileCopy(WPARAM wParam, LPARAM lParam)
     progressControl2.SetPos(0);
 
     // create the worker thread
-    CWinThread * pThread = AfxBeginThread(WorkerThread, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+    CWinThread* pThread = AfxBeginThread(WorkerThread, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
     MIKTEX_ASSERT(pThread != nullptr);
     MIKTEX_ASSERT(pThread->m_hThread != nullptr);
     if (!DuplicateHandle(GetCurrentProcess(), pThread->m_hThread, GetCurrentProcess(), &hWorkerThread, 0, FALSE, DUPLICATE_SAME_ACCESS))
@@ -207,11 +207,11 @@ LRESULT FileCopyPage::OnStartFileCopy(WPARAM wParam, LPARAM lParam)
     }
     pThread->ResumeThread();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
   }
@@ -316,13 +316,13 @@ LRESULT FileCopyPage::OnProgress(WPARAM wParam, LPARAM lParam)
 #endif
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
     pSheet->SetWizardButtons(PSWIZB_NEXT);
     sharedData.waitingForClickOnNext = true;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
     pSheet->SetWizardButtons(PSWIZB_NEXT);
@@ -331,18 +331,18 @@ LRESULT FileCopyPage::OnProgress(WPARAM wParam, LPARAM lParam)
   return 0;
 }
 
-bool FileCopyPage::OnProcessOutput(const void * pOutput, size_t n)
+bool FileCopyPage::OnProcessOutput(const void* pOutput, size_t n)
 {
-  Report(true, "%.*s", static_cast<int>(n), reinterpret_cast<const char *>(pOutput));
+  Report(true, "%.*s", static_cast<int>(n), reinterpret_cast<const char*>(pOutput));
   return !(pSheet->GetErrorFlag() || pSheet->GetCancelFlag());
 }
 
-void FileCopyPage::ReportLine(const string & str)
+void FileCopyPage::ReportLine(const string& str)
 {
   Report(true, "%s\n", str.c_str());
 }
 
-bool FileCopyPage::OnRetryableError(const string & message)
+bool FileCopyPage::OnRetryableError(const string& message)
 {
   UINT uType = MB_ICONSTOP;
   uType |= MB_RETRYCANCEL;
@@ -394,9 +394,9 @@ bool FileCopyPage::OnProgress(Notification nf)
   return !(pSheet->GetErrorFlag() || pSheet->GetCancelFlag());
 }
 
-UINT FileCopyPage::WorkerThread(void * pParam)
+UINT FileCopyPage::WorkerThread(void* pParam)
 {
-  FileCopyPage * This = reinterpret_cast<FileCopyPage*>(pParam);
+  FileCopyPage* This = reinterpret_cast<FileCopyPage*>(pParam);
 
   This->timeOfLastProgressRefresh = 0;
 
@@ -404,11 +404,11 @@ UINT FileCopyPage::WorkerThread(void * pParam)
   {
     This->DoTheUpdate();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     This->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     This->ReportError(e);
   }
@@ -422,11 +422,11 @@ UINT FileCopyPage::WorkerThread(void * pParam)
       MIKTEX_FATAL_WINDOWS_ERROR("CWnd::PostMessage");
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     This->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     This->ReportError(e);
   }
@@ -497,7 +497,7 @@ void FileCopyPage::ConfigureMiKTeX()
   RunIniTeXMF(cmdLine);
 }
 
-void FileCopyPage::RunMpm(const CommandLineBuilder & cmdLine1)
+void FileCopyPage::RunMpm(const CommandLineBuilder& cmdLine1)
 {
   PathName exePath;
 
@@ -520,7 +520,7 @@ void FileCopyPage::RunMpm(const CommandLineBuilder & cmdLine1)
   Process::Run(exePath, cmdLine.ToString(), this);
 }
 
-void FileCopyPage::RunIniTeXMF(const CommandLineBuilder & cmdLine1)
+void FileCopyPage::RunIniTeXMF(const CommandLineBuilder& cmdLine1)
 {
   PathName exePath;
 
@@ -545,7 +545,7 @@ void FileCopyPage::RunIniTeXMF(const CommandLineBuilder & cmdLine1)
   Process::Run(exePath, cmdLine.ToString(), this);
 }
 
-void FileCopyPage::Report(bool withLog, const char * lpszFmt, ...)
+void FileCopyPage::Report(bool withLog, const char* lpszFmt, ...)
 {
   MIKTEX_ASSERT(lpszFmt != nullptr);
   va_list args;
@@ -590,9 +590,9 @@ void FileCopyPage::Report(bool withLog, const char * lpszFmt, ...)
   }
 }
 
-CWnd * FileCopyPage::GetControl(UINT controlId)
+CWnd* FileCopyPage::GetControl(UINT controlId)
 {
-  CWnd * pWnd = GetDlgItem(controlId);
+  CWnd* pWnd = GetDlgItem(controlId);
   if (pWnd == nullptr)
   {
     MIKTEX_UNEXPECTED();
@@ -605,42 +605,64 @@ void FileCopyPage::EnableControl(UINT controlId, bool enable)
   GetControl(controlId)->EnableWindow(enable ? TRUE : FALSE);
 }
 
-void FileCopyPage::CollectFiles(vector<string> & vec, const PathName & dir, const char * lpszExt)
+void FileCopyPage::CollectFiles(vector<PathName>& vec, const PathName& dir, const char* lpszExt)
 {
-  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dir, lpszExt);
+  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dir);
   DirectoryEntry entry;
+  vector<string> subDirs;
   while (lister->GetNext(entry))
   {
-    vec.push_back(entry.name);
+    if (entry.isDirectory)
+    {
+      subDirs.push_back(entry.name);
+    }
+    else
+    {
+      PathName path(dir, entry.name);
+      if (path.HasExtension(lpszExt))
+      {
+        vec.push_back(path);
+      }
+    }
   }
   lister->Close();
+  for(const string& s : subDirs)
+  {
+    // RECURSION
+    CollectFiles(vec, PathName(dir, s), lpszExt);
+  }
 }
 
 #if REMOVE_FORMAT_FILES
 void FileCopyPage::RemoveFormatFiles()
 {
+  vector<PathName> toBeDeleted;
   PathName pathFmt (session->GetSpecialPath(SpecialPath::DataRoot));
   pathFmt /= MIKTEX_PATH_FMT_DIR;
-  if (!Directory::Exists(pathFmt))
+  if (Directory::Exists(pathFmt))
   {
-    return;
+    CollectFiles(toBeDeleted, pathFmt, MIKTEX_FORMAT_FILE_SUFFIX);
   }
-  vector<string> toBeDeleted;
-  CollectFiles(toBeDeleted, pathFmt, MIKTEX_FORMAT_FILE_SUFFIX);
-  for (const string & f : toBeDeleted)
+  PathName pathFmt2 (session->GetSpecialPath(SpecialPath::UserDataRoot));
+  pathFmt2 /= MIKTEX_PATH_FMT_DIR;
+  if (pathFmt != pathFmt2 && Directory::Exists(pathFmt2))
   {
-    File::Delete(PathName(pathFmt, f));
+    CollectFiles(toBeDeleted, pathFmt2, MIKTEX_FORMAT_FILE_SUFFIX);
+  }
+  for (const PathName& f : toBeDeleted)
+  {
+    File::Delete(f);
   }
 }
 #endif
 
-static const char * const configFiles[] = {
+static const char* const configFiles[] = {
   MIKTEX_PATH_PDFTEXCONFIG_TEX,
   T_("tex\\generic\\config\\language.dat"),
   T_("web2c\\updmap.cfg"),
 };
 
-static const char * const configDirs[] = {
+static const char* const configDirs[] = {
   MIKTEX_PATH_DVIPDFMX_CONFIG_DIR,
   MIKTEX_PATH_DVIPDFM_CONFIG_DIR,
   MIKTEX_PATH_DVIPS_CONFIG_DIR,
@@ -746,13 +768,13 @@ void FileCopyPage::RemoveOldRegistrySettings()
 #endif
 }
 
-void FileCopyPage::ReportError(const MiKTeXException & e)
+void FileCopyPage::ReportError(const MiKTeXException& e)
 {
   Report(true, T_("\nError: %s\n"), e.what());
   pSheet->ReportError(e);
 }
 
-void FileCopyPage::ReportError(const exception & e)
+void FileCopyPage::ReportError(const exception& e)
 {
   Report(true, T_("\nError: %s\n"), e.what());
   pSheet->ReportError(e);
