@@ -1,6 +1,6 @@
 /* texmfroot.cpp: managing TEXMF root directories
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -46,9 +46,9 @@ namespace {
   mutex fndbMutex;
 }
 
-static string ExpandEnvironmentVariables(const char * lpszToBeExpanded)
+static string ExpandEnvironmentVariables(const char* toBeExpanded)
 {
-  const char * lpsz = lpszToBeExpanded;
+  const char* lpsz = toBeExpanded;
   string valueName;
   string expansion;
   expansion.reserve(strlen(lpsz));
@@ -60,20 +60,20 @@ static string ExpandEnvironmentVariables(const char * lpszToBeExpanded)
       valueName = "";
       for (lpsz += 1; *lpsz != 0 && *lpsz != endChar; ++lpsz)
       {
-	valueName += *lpsz;
+        valueName += *lpsz;
       }
       if (*lpsz != endChar)
       {
-	MIKTEX_UNEXPECTED();
+        MIKTEX_UNEXPECTED();
       }
       if (valueName.empty())
       {
-	MIKTEX_UNEXPECTED();
+        MIKTEX_UNEXPECTED();
       }
       string value;
       if (!Utils::GetEnvironmentString(valueName, value))
       {
-	MIKTEX_FATAL_ERROR_2(T_("Environment variable not defined."), "name", valueName);
+        MIKTEX_FATAL_ERROR_2(T_("Environment variable not defined."), "name", valueName);
       }
       expansion += value;
     }
@@ -85,7 +85,7 @@ static string ExpandEnvironmentVariables(const char * lpszToBeExpanded)
   return expansion;
 }
 
-unsigned SessionImpl::RegisterRootDirectory(const PathName & root, bool common)
+unsigned SessionImpl::RegisterRootDirectory(const PathName& root, bool common)
 {
   unsigned idx;
   for (idx = 0; idx < rootDirectories.size(); ++idx)
@@ -95,8 +95,8 @@ unsigned SessionImpl::RegisterRootDirectory(const PathName & root, bool common)
       // already registered
       if (common && !rootDirectories[idx].IsCommon())
       {
-	trace_config->WriteFormattedLine("core", T_("now a common TEXMF root: %s"), root.GetData());
-	rootDirectories[idx].set_Common(common);
+        trace_config->WriteFormattedLine("core", T_("now a common TEXMF root: %s"), root.GetData());
+        rootDirectories[idx].set_Common(common);
       }
       return idx;
     }
@@ -109,7 +109,7 @@ unsigned SessionImpl::RegisterRootDirectory(const PathName & root, bool common)
   return idx;
 }
 
-MIKTEXSTATICFUNC(void) MergeStartupConfig(StartupConfig & startupConfig, const StartupConfig & defaults)
+MIKTEXSTATICFUNC(void) MergeStartupConfig(StartupConfig& startupConfig, const StartupConfig& defaults)
 {
   if (startupConfig.config == MiKTeXConfiguration::None)
   {
@@ -222,7 +222,7 @@ void SessionImpl::InitializeRootDirectories()
   InitializeRootDirectories(startupConfig);
 }
 
-void SessionImpl::InitializeRootDirectories(const StartupConfig & startupConfig)
+void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
 {
   rootDirectories.clear();
 
@@ -444,30 +444,30 @@ void SessionImpl::SaveRootDirectories(
     if (rootDirectory.IsCommon())
     {
       if (idx == commonDataRootIndex
-	|| idx == commonConfigRootIndex
-	|| idx == commonInstallRootIndex)
+        || idx == commonConfigRootIndex
+        || idx == commonInstallRootIndex)
       {
-	// implicitly defined
-	continue;
+        // implicitly defined
+        continue;
       }
       if (!startupConfig.commonRoots.empty())
       {
-	startupConfig.commonRoots += PATH_DELIMITER;
+        startupConfig.commonRoots += PATH_DELIMITER;
       }
       startupConfig.commonRoots += rootDirectory.get_UnexpandedPath().GetData();
     }
     else
     {
       if (idx == userDataRootIndex
-	|| idx == userConfigRootIndex
-	|| idx == userInstallRootIndex)
+        || idx == userConfigRootIndex
+        || idx == userInstallRootIndex)
       {
-	// implicitly defined
-	continue;
+        // implicitly defined
+        continue;
       }
       if (!startupConfig.userRoots.empty())
       {
-	startupConfig.userRoots += PATH_DELIMITER;
+        startupConfig.userRoots += PATH_DELIMITER;
       }
       startupConfig.userRoots += rootDirectory.get_UnexpandedPath().GetData();
     }
@@ -543,7 +543,7 @@ void SessionImpl::SaveRootDirectories(
   }
 }
 
-void SessionImpl::RegisterRootDirectories(const string & roots)
+void SessionImpl::RegisterRootDirectories(const string& roots)
 {
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
   if (UseLocalServer())
@@ -556,7 +556,7 @@ void SessionImpl::RegisterRootDirectories(const string & roots)
       HResult hr2 = localServer.pSession->GetErrorInfo(&errorInfo);
       if (hr2.Failed())
       {
-	MIKTEX_FATAL_ERROR_2(T_("sessionsvc failed for some reason."), "hr", hr.GetText());
+        MIKTEX_FATAL_ERROR_2(T_("sessionsvc failed for some reason."), "hr", hr.GetText());
       }
       AutoSysString a(errorInfo.message);
       AutoSysString b(errorInfo.info);
@@ -587,7 +587,7 @@ void SessionImpl::RegisterRootDirectories(const string & roots)
   RegisterRootDirectories(startupConfig, options);
 }
 
-void SessionImpl::RegisterRootDirectories(const StartupConfig & startupConfig, RegisterRootDirectoriesOptionSet options)
+void SessionImpl::RegisterRootDirectories(const StartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options)
 {
   if (IsMiKTeXDirect())
   {
@@ -693,7 +693,7 @@ bool SessionImpl::IsTeXMFReadOnly(unsigned r)
   return !IsMiKTeXPortable() && ((IsMiKTeXDirect() && r == GetInstallRoot()) || (rootDirectories[r].IsCommon() && !IsAdminMode()));
 }
 
-bool SessionImpl::FindFilenameDatabase(unsigned r, PathName & path)
+bool SessionImpl::FindFilenameDatabase(unsigned r, PathName& path)
 {
   if (!(r < GetNumberOfTEXMFRoots() || r == MPM_ROOT))
   {
@@ -702,7 +702,7 @@ bool SessionImpl::FindFilenameDatabase(unsigned r, PathName & path)
 
   vector<PathName> fndbFiles = GetFilenameDatabasePathNames(r);
 
-  for (const PathName & p : GetFilenameDatabasePathNames(r))
+  for (const PathName& p : GetFilenameDatabasePathNames(r))
   {
     if (File::Exists(p))
     {
@@ -814,7 +814,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r, TriSta
 
   lock_guard<mutex> lockGuard(fndbMutex);
 
-  RootDirectory & root = rootDirectories[r];
+  RootDirectory& root = rootDirectories[r];
 
   shared_ptr<FileNameDatabase> fndb = root.GetFndb();
   if (fndb != nullptr)
@@ -867,9 +867,9 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r, TriSta
   return pFndb;
 }
 
-shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(const char * lpszPath)
+shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(const char* path)
 {
-  unsigned root = TryDeriveTEXMFRoot(lpszPath);
+  unsigned root = TryDeriveTEXMFRoot(path);
   if (root == INVALID_ROOT_INDEX)
   {
     return nullptr;
@@ -877,7 +877,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(const char * lpszP
   return GetFileNameDatabase(root, TriState::Undetermined);
 }
 
-unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName & path)
+unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName& path)
 {
   if (!Utils::IsAbsolutePath(path))
   {
@@ -905,11 +905,11 @@ unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName & path)
     {
       if (rootDirectoryIndex == INVALID_ROOT_INDEX)
       {
-	rootDirectoryIndex = idx;
+        rootDirectoryIndex = idx;
       }
       else if (GetRootDirectory(rootDirectoryIndex).GetLength() < rootlen)
       {
-	rootDirectoryIndex = idx;
+        rootDirectoryIndex = idx;
       }
     }
   }
@@ -917,7 +917,7 @@ unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName & path)
   return rootDirectoryIndex;
 }
 
-unsigned SessionImpl::DeriveTEXMFRoot(const PathName & path)
+unsigned SessionImpl::DeriveTEXMFRoot(const PathName& path)
 {
   unsigned root = TryDeriveTEXMFRoot(path);
   if (root == INVALID_ROOT_INDEX)
@@ -980,7 +980,7 @@ bool SessionImpl::UnloadFilenameDatabase()
   return done;
 }
 
-bool SessionImpl::IsTEXMFFile(const PathName & path, PathName & relPath, unsigned & rootIndex)
+bool SessionImpl::IsTEXMFFile(const PathName& path, PathName& relPath, unsigned& rootIndex)
 {
   for (unsigned r = 0; r < GetNumberOfTEXMFRoots(); ++r)
   {
@@ -988,7 +988,7 @@ bool SessionImpl::IsTEXMFFile(const PathName & path, PathName & relPath, unsigne
     size_t cchRoot = pathRoot.GetLength();
     if (PathName::Compare(pathRoot, path, cchRoot) == 0 && (path[cchRoot] == 0 || IsDirectoryDelimiter(path[cchRoot])))
     {
-      const char * lpsz = &path[cchRoot];
+      const char* lpsz = &path[cchRoot];
       if (IsDirectoryDelimiter(*lpsz))
       {
         ++lpsz;
@@ -1001,7 +1001,7 @@ bool SessionImpl::IsTEXMFFile(const PathName & path, PathName & relPath, unsigne
   return false;
 }
 
-unsigned SessionImpl::SplitTEXMFPath(const PathName & path, PathName & root, PathName & relative)
+unsigned SessionImpl::SplitTEXMFPath(const PathName& path, PathName& root, PathName& relative)
 {
   for (unsigned r = 0; r < GetNumberOfTEXMFRoots(); ++r)
   {
@@ -1010,10 +1010,10 @@ unsigned SessionImpl::SplitTEXMFPath(const PathName & path, PathName & root, Pat
     if (PathName::Compare(rootDir, path, rootDirLen) == 0 && (path[rootDirLen] == 0 || IsDirectoryDelimiter(path[rootDirLen])))
     {
       CopyString2(root.GetData(), BufferSizes::MaxPath, rootDir.GetData(), rootDirLen);
-      const char * lpsz = &path[0] + rootDirLen;
+      const char* lpsz = &path[0] + rootDirLen;
       if (IsDirectoryDelimiter(*lpsz))
       {
-	++lpsz;
+        ++lpsz;
       }
       relative = lpsz;
       return r;
@@ -1034,13 +1034,13 @@ bool SessionImpl::IsManagedRoot(unsigned root)
     root == GetCommonDataRoot();
 }
 
-bool SessionImpl::IsMpmFile(const char * lpszPath)
+bool SessionImpl::IsMpmFile(const char* lpszPath)
 {
   return (PathName::Compare(MPM_ROOT_PATH, lpszPath, static_cast<unsigned long>(MPM_ROOT_PATH_LEN)) == 0
     && (lpszPath[MPM_ROOT_PATH_LEN] == 0 || IsDirectoryDelimiter(lpszPath[MPM_ROOT_PATH_LEN])));
 }
 
-bool Utils::IsMiKTeXDirectRoot(const PathName & root)
+bool Utils::IsMiKTeXDirectRoot(const PathName& root)
 {
   PathName path(root);
   path /= MIKTEXDIRECT_PREFIX_DIR;
@@ -1054,8 +1054,8 @@ bool Utils::IsMiKTeXDirectRoot(const PathName & root)
   {
     return false;
   }
-  unique_ptr<Cfg> pcfg(Cfg::Create());
-  pcfg->Read(path);
+  unique_ptr<Cfg> cfg(Cfg::Create());
+  cfg->Read(path);
   string str;
-  return pcfg->TryGetValue("Auto", "Config", str) && str == "Direct";
+  return cfg->TryGetValue("Auto", "Config", str) && str == "Direct";
 }

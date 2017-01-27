@@ -1,6 +1,6 @@
 /* makefndb.cpp: creating the file name database
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -48,7 +48,7 @@ struct FILENAMEINFO
 
 struct COMPAREFILENAMEINFO
 {
-  bool operator() (const FILENAMEINFO & lhs, const FILENAMEINFO & rhs) const
+  bool operator()(const FILENAMEINFO& lhs, const FILENAMEINFO& rhs) const
   {
     return PathName::Compare(lhs.FileName.c_str(), rhs.FileName.c_str()) < 0;
   }
@@ -64,10 +64,10 @@ public:
   }
 
 public:
-  bool Create(const char * lpszFndbPath, const char * lpszRootPath, ICreateFndbCallback * pCallback, bool enableStringPooling, bool storeFileNameInfo);
+  bool Create(const char* lpszFndbPath, const char* lpszRootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo);
 
 private:
-  void * GetMemPointer()
+  void* GetMemPointer()
   {
     return byteArray.data();
   }
@@ -79,11 +79,11 @@ private:
   }
 
 private:
-  void SetMem(FndbByteOffset fo, const void * data, size_t size)
+  void SetMem(FndbByteOffset fo, const void* data, size_t size)
   {
     MIKTEX_ASSERT(fo + size <= GetMemTop());
-    const uint8_t * begin = reinterpret_cast<const uint8_t *>(data);
-    const uint8_t * end = begin + size;
+    const uint8_t* begin = reinterpret_cast<const uint8_t*>(data);
+    const uint8_t* end = begin + size;
     std::copy(begin, end, byteArray.begin() + fo);
   }
 
@@ -114,22 +114,22 @@ private:
   FndbByteOffset PushBack(FndbWord data);
 
 private:
-  FndbByteOffset PushBack(const void * data, size_t size);
+  FndbByteOffset PushBack(const void* data, size_t size);
 
 private:
-  FndbByteOffset PushBack(const char * data);
+  FndbByteOffset PushBack(const char* data);
 
 private:
   void AlignMem(size_t align = 8);
 
 private:
-  static void GetIgnorableFiles(const char * lpszPath, vector<string> & filesToBeIgnored);
+  static void GetIgnorableFiles(const char* lpszPath, vector<string>& filesToBeIgnored);
 
 public:
-  void ReadDirectory(const char * lpszPath, vector<string> & subDirectoryNames, vector<FILENAMEINFO> & fileNames, bool doCleanUp);
+  void ReadDirectory(const char* lpszPath, vector<string>& subDirectoryNames, vector<FILENAMEINFO>& fileNames, bool doCleanUp);
 
 private:
-  FndbByteOffset ProcessFolder(FndbByteOffset foParent, const char * lpszParentPath, const char * lpszFolderName, FndbByteOffset foFolderName);
+  FndbByteOffset ProcessFolder(FndbByteOffset foParent, const char* lpszParentPath, const char* lpszFolderName, FndbByteOffset foFolderName);
 
 private:
   vector<uint8_t> byteArray;
@@ -147,7 +147,7 @@ private:
   size_t numFiles;
 
 private:
-  ICreateFndbCallback * pCallback;
+  ICreateFndbCallback* callback;
 
 private:
   typedef unordered_map<string, FndbByteOffset> StringMap;
@@ -182,7 +182,7 @@ FndbByteOffset FndbManager::ReserveMem(size_t size)
 FndbByteOffset FndbManager::PushBack(FndbWord data)
 {
   AlignMem(sizeof(FndbWord));
-  const uint8_t * byteArray = reinterpret_cast<const uint8_t *>(&data);
+  const uint8_t* byteArray = reinterpret_cast<const uint8_t *>(&data);
   if (sizeof(FndbWord) == 4)
   {
     FndbByteOffset ret = GetMemTop();
@@ -198,10 +198,10 @@ FndbByteOffset FndbManager::PushBack(FndbWord data)
   }
 }
 
-FndbByteOffset FndbManager::PushBack(const void * data, size_t size)
+FndbByteOffset FndbManager::PushBack(const void* data, size_t size)
 {
   FndbByteOffset ret = GetMemTop();
-  const uint8_t * byteArray = reinterpret_cast<const uint8_t *>(data);
+  const uint8_t* byteArray = reinterpret_cast<const uint8_t *>(data);
   for (size_t i = 0; i < size; ++i)
   {
     FastPushBack(byteArray[i]);
@@ -209,7 +209,7 @@ FndbByteOffset FndbManager::PushBack(const void * data, size_t size)
   return ret;
 }
 
-FndbByteOffset FndbManager::PushBack(const char * data)
+FndbByteOffset FndbManager::PushBack(const char* data)
 {
   if (enableStringPooling)
   {
@@ -239,7 +239,7 @@ void FndbManager::AlignMem(size_t align)
   }
 }
 
-void FndbManager::GetIgnorableFiles(const char * lpszPath, vector<string> & filesToBeIgnored)
+void FndbManager::GetIgnorableFiles(const char* lpszPath, vector<string>& filesToBeIgnored)
 {
   PathName ignoreFile(lpszPath, FN_MIKTEXIGNORE);
   if (!File::Exists(ignoreFile))
@@ -256,7 +256,7 @@ void FndbManager::GetIgnorableFiles(const char * lpszPath, vector<string> & file
   sort(filesToBeIgnored.begin(), filesToBeIgnored.end(), StringComparerIgnoringCase());
 }
 
-void FndbManager::ReadDirectory(const char * lpszPath, vector<string> & subDirectoryNames, vector<FILENAMEINFO> & fileNames, bool doCleanUp)
+void FndbManager::ReadDirectory(const char* lpszPath, vector<string>& subDirectoryNames, vector<FILENAMEINFO>& fileNames, bool doCleanUp)
 {
   if (!Directory::Exists(lpszPath))
   {
@@ -292,7 +292,7 @@ void FndbManager::ReadDirectory(const char * lpszPath, vector<string> & subDirec
   lister->Close();
 
   // silent clean-up
-  for (const DirectoryEntry & e : toBeDeleted)
+  for (const DirectoryEntry& e : toBeDeleted)
   {
     try
     {
@@ -306,13 +306,13 @@ void FndbManager::ReadDirectory(const char * lpszPath, vector<string> & subDirec
         File::Delete(path);
       }
     }
-    catch (const exception &)
+    catch (const exception&)
     {
     }
   }
 }
 
-FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char * lpszParentPath, const char * lpszFolderName, FndbByteOffset foFolderName)
+FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char* lpszParentPath, const char* lpszFolderName, FndbByteOffset foFolderName)
 {
   const size_t cReservedEntries = 0;
 
@@ -333,16 +333,16 @@ FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char * 
 
   path.MakeAbsolute();
 
-  if (pCallback != nullptr)
+  if (callback != nullptr)
   {
-    if (!pCallback->OnProgress(currentLevel, path))
+    if (!callback->OnProgress(currentLevel, path))
     {
       throw OperationCancelledException();
     }
     vector<string> subDirs;
     vector<string> files;
     vector<string> infos;
-    done = pCallback->ReadDirectory(path, subDirs, files, infos);
+    done = callback->ReadDirectory(path, subDirs, files, infos);
     if (done)
     {
       subDirectoryNames = subDirs;
@@ -430,7 +430,7 @@ FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char * 
   return foThis;
 }
 
-bool FndbManager::Create(const char * lpszFndbPath, const char * lpszRootPath, ICreateFndbCallback * pCallback, bool enableStringPooling, bool storeFileNameInfo)
+bool FndbManager::Create(const char* lpszFndbPath, const char* lpszRootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo)
 {
   traceStream->WriteFormattedLine("core", T_("creating fndb file %s..."), Q_(lpszFndbPath));
   unsigned rootIdx = SessionImpl::GetSession()->DeriveTEXMFRoot(lpszRootPath);
@@ -442,7 +442,7 @@ bool FndbManager::Create(const char * lpszFndbPath, const char * lpszRootPath, I
     ReserveMem(sizeof(FileNameDatabaseHeader));
     FileNameDatabaseHeader fndb;
     fndb.Init();
-    if (pCallback == nullptr && FileIsOnROMedia(lpszRootPath))
+    if (callback == nullptr && FileIsOnROMedia(lpszRootPath))
     {
       fndb.flags |= FileNameDatabaseHeader::FndbFlags::Frozen;
     }
@@ -456,7 +456,7 @@ bool FndbManager::Create(const char * lpszFndbPath, const char * lpszRootPath, I
     numFiles = 0;
     deepestLevel = 0;
     currentLevel = 0;
-    this->pCallback = pCallback;
+    this->callback = callback;
 #if 0                           // FIXME: this will break prev MiKTeX
     fndb.foTopDir = ProcessFolder(0, lpszRootPath, CURRENT_DIRECTORY, 0);
 #else
@@ -481,7 +481,7 @@ bool FndbManager::Create(const char * lpszFndbPath, const char * lpszRootPath, I
       unloaded = SessionImpl::GetSession()->UnloadFilenameDatabaseInternal(rootIdx, true);
       if (!unloaded)
       {
-	traceStream->WriteFormattedLine("core", "sleep 1");
+        traceStream->WriteFormattedLine("core", "sleep 1");
         this_thread::sleep_for(chrono::milliseconds(1));
       }
     }
@@ -517,12 +517,12 @@ bool FndbManager::Create(const char * lpszFndbPath, const char * lpszRootPath, I
   }
 }
 
-bool Fndb::Create(const PathName & fndbPath, const PathName & rootPath, ICreateFndbCallback * callback)
+bool Fndb::Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback)
 {
   return Fndb::Create(fndbPath, rootPath, callback, false, false);
 }
 
-bool Fndb::Create(const PathName & fndbPath, const PathName & rootPath, ICreateFndbCallback * callback, bool enableStringPooling, bool storeFileNameInfo)
+bool Fndb::Create(const PathName& fndbPath, const PathName& rootPath, ICreateFndbCallback* callback, bool enableStringPooling, bool storeFileNameInfo)
 {
   FndbManager fndbmngr;
 
@@ -538,14 +538,14 @@ bool Fndb::Create(const PathName & fndbPath, const PathName & rootPath, ICreateF
   return true;
 }
 
-bool Fndb::Refresh(const PathName & path, ICreateFndbCallback * pCallback)
+bool Fndb::Refresh(const PathName& path, ICreateFndbCallback* callback)
 {
   unsigned root = SessionImpl::GetSession()->DeriveTEXMFRoot(path);
   PathName pathFndbPath = SessionImpl::GetSession()->GetFilenameDatabasePathName(root);
-  return Fndb::Create(pathFndbPath.GetData(), SessionImpl::GetSession()->GetRootDirectory(root).GetData(), pCallback);
+  return Fndb::Create(pathFndbPath.GetData(), SessionImpl::GetSession()->GetRootDirectory(root).GetData(), callback);
 }
 
-bool Fndb::Refresh(ICreateFndbCallback * pCallback)
+bool Fndb::Refresh(ICreateFndbCallback* callback)
 {
   unsigned n = SessionImpl::GetSession()->GetNumberOfTEXMFRoots();
   for (unsigned ord = 0; ord < n; ++ord)
@@ -557,7 +557,7 @@ bool Fndb::Refresh(ICreateFndbCallback * pCallback)
     }
     PathName rootDirectory = SessionImpl::GetSession()->GetRootDirectory(ord);
     PathName pathFndbPath = SessionImpl::GetSession()->GetFilenameDatabasePathName(ord);
-    if (!Fndb::Create(pathFndbPath, rootDirectory, pCallback))
+    if (!Fndb::Create(pathFndbPath, rootDirectory, callback))
     {
       return false;
     }

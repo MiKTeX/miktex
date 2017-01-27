@@ -1,6 +1,6 @@
 /* SessionImpl.h: Session impl class                    -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -51,7 +51,7 @@ public:
   }
 
 public:
-  FormatInfo_(const MiKTeX::Core::FormatInfo & other) :
+  FormatInfo_(const MiKTeX::Core::FormatInfo& other) :
     MiKTeX::Core::FormatInfo(other)
   {
   }
@@ -68,7 +68,7 @@ public:
   }
 
 public:
-  LanguageInfo_(const MiKTeX::Core::LanguageInfo & other) :
+  LanguageInfo_(const MiKTeX::Core::LanguageInfo& other) :
     MiKTeX::Core::LanguageInfo(other)
   {
   }
@@ -77,7 +77,7 @@ public:
   MiKTeX::Core::PathName cfgFile;
 };
 
-inline bool operator< (const LanguageInfo_ & lhs, const LanguageInfo_ & rhs)
+inline bool operator<(const LanguageInfo_& lhs, const LanguageInfo_& rhs)
 {
   if (lhs.key == "english")
   {
@@ -113,19 +113,19 @@ public:
   virtual ~SessionImpl();
 
 private:
-  void Initialize(const InitInfo & initInfo);
+  void Initialize(const InitInfo& initInfo);
 
 private:
   void Uninitialize();
 
 public:
-  void PushAppName(const std::string & name) override;
+  void PushAppName(const std::string& name) override;
 
 public:
-  void PushBackAppName(const std::string & name) override;
+  void PushBackAppName(const std::string& name) override;
 
 public:
-  void AddInputDirectory(const MiKTeX::Core::PathName & path, bool atEnd) override;
+  void AddInputDirectory(const MiKTeX::Core::PathName& path, bool atEnd) override;
 
 public:
   MiKTeX::Core::PathName GetSpecialPath(MiKTeX::Core::SpecialPath specialPath) override;
@@ -146,13 +146,13 @@ public:
   MiKTeX::Core::PathName GetMpmDatabasePathName() override;
 
 public:
-  unsigned TryDeriveTEXMFRoot(const MiKTeX::Core::PathName & path) override;
+  unsigned TryDeriveTEXMFRoot(const MiKTeX::Core::PathName& path) override;
 
 public:
-  unsigned DeriveTEXMFRoot(const MiKTeX::Core::PathName & path) override;
+  unsigned DeriveTEXMFRoot(const MiKTeX::Core::PathName& path) override;
 
 public:
-  bool FindFilenameDatabase(unsigned r, MiKTeX::Core::PathName & path) override;
+  bool FindFilenameDatabase(unsigned r, MiKTeX::Core::PathName& path) override;
 
 public:
   MiKTeX::Core::PathName GetFilenameDatabasePathName(unsigned r) override;
@@ -161,13 +161,13 @@ public:
   bool UnloadFilenameDatabase() override;
 
 public:
-  unsigned SplitTEXMFPath(const MiKTeX::Core::PathName & path, MiKTeX::Core::PathName & root, MiKTeX::Core::PathName & relative) override;
+  unsigned SplitTEXMFPath(const MiKTeX::Core::PathName& path, MiKTeX::Core::PathName& root, MiKTeX::Core::PathName& relative) override;
 
 public:
-  void RegisterRootDirectories(const std::string & roots) override;
+  void RegisterRootDirectories(const std::string& roots) override;
 
 public:
-  void RegisterRootDirectories(const MiKTeX::Core::StartupConfig & startupConfig, MiKTeX::Core::RegisterRootDirectoriesOptionSet options) override;
+  void RegisterRootDirectories(const MiKTeX::Core::StartupConfig& startupConfig, MiKTeX::Core::RegisterRootDirectoriesOptionSet options) override;
 
 public:
   bool IsMiKTeXDirect() override;
@@ -176,131 +176,131 @@ public:
   bool IsMiKTeXPortable() override;
 
 public:
-  bool GetMETAFONTMode(unsigned idx, MiKTeX::Core::MIKTEXMFMODE & mode) override;
+  bool GetMETAFONTMode(unsigned idx, MiKTeX::Core::MIKTEXMFMODE& mode) override;
 
 public:
-  bool DetermineMETAFONTMode(unsigned dpi, MiKTeX::Core::MIKTEXMFMODE & mode) override;
+  bool DetermineMETAFONTMode(unsigned dpi, MiKTeX::Core::MIKTEXMFMODE& mode) override;
 
 public:
-  bool TryGetConfigValue(const std::string & sectionName, const std::string & valueName, std::string & value) override;
+  bool TryGetConfigValue(const std::string& sectionName, const std::string& valueName, std::string& value) override;
 
 public:
-  MiKTeX::Core::ConfigValue GetConfigValue(const std::string & sectionName, const std::string & valueName, const MiKTeX::Core::ConfigValue & defaultValue) override;
+  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& defaultValue) override;
 
 public:
-  void SetConfigValue(const std::string & sectionName, const std::string & valueName, const MiKTeX::Core::ConfigValue & value) override;
+  void SetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& value) override;
 
 public:
-  FILE * OpenFile(const MiKTeX::Core::PathName & path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile) override;
+  FILE* OpenFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile) override;
 
 public:
-  FILE * TryOpenFile(const MiKTeX::Core::PathName & path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile) override;
+  FILE* TryOpenFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile) override;
 
 public:
-  FILE * OpenFile(const MiKTeX::Core::PathName & path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile, MiKTeX::Core::FileShare share) override;
+  FILE* OpenFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile, MiKTeX::Core::FileShare share) override;
 
 public:
-  FILE * TryOpenFile(const MiKTeX::Core::PathName & path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile, MiKTeX::Core::FileShare share) override;
+  FILE* TryOpenFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile, MiKTeX::Core::FileShare share) override;
 
 public:
-  void CloseFile(FILE * pFile) override;
+  void CloseFile(FILE* file) override;
 
 public:
-  bool IsOutputFile(const FILE * pFile) override;
+  bool IsOutputFile(const FILE* file) override;
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  bool IsFileAlreadyOpen(const MiKTeX::Core::PathName & fileName) override;
+  bool IsFileAlreadyOpen(const MiKTeX::Core::PathName& fileName) override;
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  void ScheduleFileRemoval(const MiKTeX::Core::PathName & fileName) override;
+  void ScheduleFileRemoval(const MiKTeX::Core::PathName& fileName) override;
 #endif
 
 public:
   bool StartFileInfoRecorder() override;
 
 public:
-  bool StartFileInfoRecorder(bool RecordPackageNames) override;
+  bool StartFileInfoRecorder(bool recordPackageNames) override;
 
 public:
-  void SetRecorderPath(const MiKTeX::Core::PathName & path) override;
+  void SetRecorderPath(const MiKTeX::Core::PathName& path) override;
 
 public:
-  void RecordFileInfo(const MiKTeX::Core::PathName & path, MiKTeX::Core::FileAccess access) override;
+  void RecordFileInfo(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileAccess access) override;
 
 public:
   std::vector<MiKTeX::Core::FileInfoRecord> GetFileInfoRecords() override;
 
 public:
-  MiKTeX::Core::FileType DeriveFileType(const MiKTeX::Core::PathName & fileName) override;
+  MiKTeX::Core::FileType DeriveFileType(const MiKTeX::Core::PathName& fileName) override;
 
 public:
-  bool FindFile(const std::string & fileName, const std::string & pathList, FindFileOptionSet options, std::vector<MiKTeX::Core::PathName> & result) override;
+  bool FindFile(const std::string& fileName, const std::string& pathList, FindFileOptionSet options, std::vector<MiKTeX::Core::PathName>& result) override;
 
 public:
-  bool FindFile(const std::string & fileName, const std::string & pathList, std::vector<MiKTeX::Core::PathName> & result) override
+  bool FindFile(const std::string& fileName, const std::string& pathList, std::vector<MiKTeX::Core::PathName>& result) override
   {
     return FindFile(fileName, pathList, { FindFileOption::All }, result);
   }
 
 public:
-  bool FindFile(const std::string & fileName, const std::string & pathList, FindFileOptionSet options, MiKTeX::Core::PathName & result) override;
+  bool FindFile(const std::string& fileName, const std::string& pathList, FindFileOptionSet options, MiKTeX::Core::PathName& result) override;
 
 public:
-  bool FindFile(const std::string & fileName, const std::string & pathList, MiKTeX::Core::PathName & result) override
+  bool FindFile(const std::string& fileName, const std::string& pathList, MiKTeX::Core::PathName& result) override
   {
     return FindFile(fileName, pathList, {}, result);
   }
 
 public:
-  bool FindFile(const std::string & fileName, MiKTeX::Core::FileType fileType, FindFileOptionSet options, std::vector<MiKTeX::Core::PathName> & result) override;
+  bool FindFile(const std::string& fileName, MiKTeX::Core::FileType fileType, FindFileOptionSet options, std::vector<MiKTeX::Core::PathName>& result) override;
 
 public:
-  bool FindFile(const std::string & fileName, MiKTeX::Core::FileType fileType, std::vector<MiKTeX::Core::PathName> & result) override
+  bool FindFile(const std::string& fileName, MiKTeX::Core::FileType fileType, std::vector<MiKTeX::Core::PathName>& result) override
   {
     return FindFile(fileName, fileType, { FindFileOption::All }, result);
   }
 
 public:
-  bool FindFile(const std::string & fileName, MiKTeX::Core::FileType fileType, FindFileOptionSet options, MiKTeX::Core::PathName & result) override;
+  bool FindFile(const std::string& fileName, MiKTeX::Core::FileType fileType, FindFileOptionSet options, MiKTeX::Core::PathName& result) override;
 
 public:
-  bool FindFile(const std::string & fileName, MiKTeX::Core::FileType fileType, MiKTeX::Core::PathName & result) override
+  bool FindFile(const std::string& fileName, MiKTeX::Core::FileType fileType, MiKTeX::Core::PathName& result) override
   {
     return FindFile(fileName, fileType, {}, result);
   }
 
 public:
-  bool FindPkFile(const std::string & fontName, const std::string & mfMode, int dpi, MiKTeX::Core::PathName & result) override;
+  bool FindPkFile(const std::string& fontName, const std::string& mfMode, int dpi, MiKTeX::Core::PathName& result) override;
 
 public:
-  bool FindTfmFile(const std::string & fontName, MiKTeX::Core::PathName & result, bool create) override
+  bool FindTfmFile(const std::string& fontName, MiKTeX::Core::PathName& result, bool create) override
   {
     return FindFile(fontName, MiKTeX::Core::FileType::TFM, (create ? FindFileOptionSet({ FindFileOption::Create }) : FindFileOptionSet()), result);
   }
 
 public:
-  void SetFindFileCallback(MiKTeX::Core::IFindFileCallback * callback) override;
+  void SetFindFileCallback(MiKTeX::Core::IFindFileCallback* callback) override;
 
 public:
-  void SplitFontPath(const MiKTeX::Core::PathName & fontPath, std::string * fontType, std::string * supplier, std::string * typeface, std::string * fontName, std::string * pointSize) override;
+  void SplitFontPath(const MiKTeX::Core::PathName& fontPath, std::string* fontType, std::string* supplier, std::string* typeface, std::string* fontName, std::string* pointSize) override;
 
 public:
-  bool GetFontInfo(const std::string & fontName, std::string & supplier, std::string & typeface, double * genSize) override;
+  bool GetFontInfo(const std::string& fontName, std::string& supplier, std::string& typeface, double* genSize) override;
 
 public:
-  MiKTeX::Core::PathName GetGhostscript(unsigned long * versionNumber) override;
+  MiKTeX::Core::PathName GetGhostscript(unsigned long* versionNumber) override;
 
 public:
   std::string GetExpandedSearchPath(MiKTeX::Core::FileType fileType) override;
 
 private:
-  bool FindGraphicsRule(const std::string & fromExt, const std::string & toext, std::string & rule);
+  bool FindGraphicsRule(const std::string& fromExt, const std::string& toext, std::string& rule);
 
 public:
-  bool ConvertToBitmapFile(const MiKTeX::Core::PathName & sourceFileName, MiKTeX::Core::PathName & destFileName, MiKTeX::Core::IRunProcessCallback * callback) override;
+  bool ConvertToBitmapFile(const MiKTeX::Core::PathName& sourceFileName, MiKTeX::Core::PathName& destFileName, MiKTeX::Core::IRunProcessCallback* callback) override;
 
 public:
   bool EnableFontMaker(bool enable) override;
@@ -309,21 +309,21 @@ public:
   bool GetMakeFontsFlag() override;
 
 public:
-  std::string MakeMakePkCommandLine(const std::string & fontName, int dpi, int baseDpi, const std::string & mfMode, MiKTeX::Core::PathName & fileName, MiKTeX::Core::TriState enableInstaller) override;
+  std::string MakeMakePkCommandLine(const std::string& fontName, int dpi, int baseDpi, const std::string& mfMode, MiKTeX::Core::PathName& fileName, MiKTeX::Core::TriState enableInstaller) override;
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  int RunBatch(int argc, const char ** argv) override;
+  int RunBatch(int argc, const char** argv) override;
 #endif
 
 public:
-  int RunPerl(int argc, const char ** argv) override;
+  int RunPerl(int argc, const char** argv) override;
 
 public:
-  int RunPython(int argc, const char ** argv) override;
+  int RunPython(int argc, const char** argv) override;
 
 public:
-  int RunJava(int argc, const char ** argv) override;
+  int RunJava(int argc, const char** argv) override;
 
 #if defined(MIKTEX_WINDOWS)
 public:
@@ -337,16 +337,16 @@ public:
   std::vector<MiKTeX::Core::FormatInfo> GetFormats() override;
 
 public:
-  MiKTeX::Core::FormatInfo GetFormatInfo(const std::string & key) override;
+  MiKTeX::Core::FormatInfo GetFormatInfo(const std::string& key) override;
 
 public:
-  bool TryGetFormatInfo(const std::string & key, MiKTeX::Core::FormatInfo & formatInfo) override;
+  bool TryGetFormatInfo(const std::string& key, MiKTeX::Core::FormatInfo& formatInfo) override;
 
 public:
-  void DeleteFormatInfo(const std::string & key) override;
+  void DeleteFormatInfo(const std::string& key) override;
 
 public:
-  void SetFormatInfo(const MiKTeX::Core::FormatInfo & formatInfo) override;
+  void SetFormatInfo(const MiKTeX::Core::FormatInfo& formatInfo) override;
 
 public:
   std::vector<MiKTeX::Core::LanguageInfo> GetLanguages() override;
@@ -361,7 +361,7 @@ public:
   bool RunningAsAdministrator() override;
 
 public:
-  void SetAdminMode(bool adminMode, bool isSetup) override;
+  void SetAdminMode(bool isAdminMode, bool isSetup) override;
 
 public:
   bool IsAdminMode() override;
@@ -370,16 +370,16 @@ public:
   bool IsSharedSetup() override;
 
 public:
-  bool GetPaperSizeInfo(int idx, MiKTeX::Core::PaperSizeInfo & paperSize) override;
+  bool GetPaperSizeInfo(int idx, MiKTeX::Core::PaperSizeInfo& paperSize) override;
 
 public:
-  MiKTeX::Core::PaperSizeInfo GetPaperSizeInfo(const std::string & dvipsName) override;
+  MiKTeX::Core::PaperSizeInfo GetPaperSizeInfo(const std::string& dvipsName) override;
 
 public:
-  void SetDefaultPaperSize(const std::string & dvipsName) override;
+  void SetDefaultPaperSize(const std::string& dvipsName) override;
 
 public:
-  bool TryCreateFromTemplate(const MiKTeX::Core::PathName & path) override;
+  bool TryCreateFromTemplate(const MiKTeX::Core::PathName& path) override;
 
 #if defined(MIKTEX_WINDOWS)
 public:
@@ -395,13 +395,13 @@ public:
 #endif
 
 public:
-  void ConfigureFile(const MiKTeX::Core::PathName & pathIn, const MiKTeX::Core::PathName & pathOut, MiKTeX::Core::HasNamedValues * callback) override;
+  void ConfigureFile(const MiKTeX::Core::PathName& pathIn, const MiKTeX::Core::PathName& pathOut, MiKTeX::Core::HasNamedValues* callback) override;
 
 public:
-  void ConfigureFile(const MiKTeX::Core::PathName & pathRel, MiKTeX::Core::HasNamedValues * callback) override;
+  void ConfigureFile(const MiKTeX::Core::PathName& pathRel, MiKTeX::Core::HasNamedValues* callback) override;
 
 public:
-  void SetTheNameOfTheGame(const std::string & name) override;
+  void SetTheNameOfTheGame(const std::string& name) override;
 
 public:
   std::string GetLocalFontDirectories() override;
@@ -410,39 +410,39 @@ public:
   MiKTeX::Core::FileTypeInfo GetFileTypeInfo(MiKTeX::Core::FileType fileType) override;
 
 public:
-  std::string Expand(const std::string & toBeExpanded) override;
+  std::string Expand(const std::string& toBeExpanded) override;
 
 public:
-  std::string Expand(const std::string & toBeExpanded, MiKTeX::Core::HasNamedValues * callback) override;
+  std::string Expand(const std::string& toBeExpanded, MiKTeX::Core::HasNamedValues* callback) override;
 
 public:
-  std::string Expand(const std::string & toBeExpanded, MiKTeX::Core::ExpandOptionSet options, MiKTeX::Core::HasNamedValues * callback) override;
+  std::string Expand(const std::string& toBeExpanded, MiKTeX::Core::ExpandOptionSet options, MiKTeX::Core::HasNamedValues* callback) override;
 
 public:
-  void SetLanguageInfo(const MiKTeX::Core::LanguageInfo & languageInfo) override;
+  void SetLanguageInfo(const MiKTeX::Core::LanguageInfo& languageInfo) override;
 
 #if HAVE_MIKTEX_USER_INFO
 public:
-  MiKTeX::Core::MiKTeXUserInfo RegisterMiKTeXUser(const MiKTeX::Core::MiKTeXUserInfo & info) override;
+  MiKTeX::Core::MiKTeXUserInfo RegisterMiKTeXUser(const MiKTeX::Core::MiKTeXUserInfo& info) override;
 #endif
 
 #if HAVE_MIKTEX_USER_INFO
 public:
-  bool TryGetMiKTeXUserInfo(MiKTeX::Core::MiKTeXUserInfo & info) override;
+  bool TryGetMiKTeXUserInfo(MiKTeX::Core::MiKTeXUserInfo& info) override;
 #endif
 
 public:
-  bool IsTEXMFFile(const MiKTeX::Core::PathName & path, MiKTeX::Core::PathName & relPath, unsigned & rootIndex);
+  bool IsTEXMFFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::PathName& relPath, unsigned& rootIndex);
 
 public:
-  bool IsTEXMFFile(const MiKTeX::Core::PathName & path, MiKTeX::Core::PathName & relPath)
+  bool IsTEXMFFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::PathName& relPath)
   {
     unsigned rootIndex;
     return IsTEXMFFile(path, relPath, rootIndex);
   }
 
 public:
-  bool IsTEXMFFile(const MiKTeX::Core::PathName & path)
+  bool IsTEXMFFile(const MiKTeX::Core::PathName& path)
   {
     MiKTeX::Core::PathName relPath;
     unsigned rootIndex;
@@ -450,16 +450,16 @@ public:
   }
 
 public:
-  bool UnloadFilenameDatabaseInternal(unsigned r, bool bRemove);
+  bool UnloadFilenameDatabaseInternal(unsigned r, bool remove);
 
 private:
-  bool UnloadFilenameDatabaseInternal_nolock(unsigned r, bool bRemove);
+  bool UnloadFilenameDatabaseInternal_nolock(unsigned r, bool remove);
 
 public:
   std::shared_ptr<FileNameDatabase> GetFileNameDatabase(unsigned r, MiKTeX::Core::TriState triReadOnly);
 
 public:
-  std::shared_ptr<FileNameDatabase> GetFileNameDatabase(const char * lpszPath);
+  std::shared_ptr<FileNameDatabase> GetFileNameDatabase(const char* path);
 
 public:
   MiKTeX::Core::PathName GetTempDirectory();
@@ -474,13 +474,13 @@ public:
 #endif
 
 public:
-  bool GetPsFontDirs(std::string & psFontDirs);
+  bool GetPsFontDirs(std::string& psFontDirs);
 
 public:
-  bool GetOTFDirs(std::string & otfDirs);
+  bool GetOTFDirs(std::string& otfDirs);
 
 public:
-  bool GetTTFDirs(std::string & ttfDirs);
+  bool GetTTFDirs(std::string& ttfDirs);
 
 private:
   void ReadDvipsPaperSizes();
@@ -498,16 +498,16 @@ private:
   void WritePdfTeXPaperSize();
 
 private:
-  void AddDvipsPaperSize(const DvipsPaperSizeInfo & dvipsPaperSizeInfo);
+  void AddDvipsPaperSize(const DvipsPaperSizeInfo& dvipsPaperSizeInfo);
 
 #if defined(MIKTEX_WINDOWS)
 private:
-  bool GetAcrobatFontDir(MiKTeX::Core::PathName & path);
+  bool GetAcrobatFontDir(MiKTeX::Core::PathName& path);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 private:
-  bool GetATMFontDir(MiKTeX::Core::PathName & path);
+  bool GetATMFontDir(MiKTeX::Core::PathName& path);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
@@ -521,7 +521,7 @@ private:
 #endif
 
 private:
-  int RunScript(const std::string & scriptEngine, const std::string & scriptEngineArgument, int argc, const char ** argv);
+  int RunScript(const std::string& scriptEngine, const std::string& scriptEngineArgument, int argc, const char** argv);
 
 public:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_access;
@@ -582,7 +582,7 @@ public:
   }
 
 public:
-  static std::locale & GetDefaultLocale()
+  static std::locale& GetDefaultLocale()
   {
     return GetSession()->defaultLocale;
   }
@@ -639,13 +639,13 @@ private:
   void SetCWDEnv();
 
 private:
-  bool GetWorkingDirectory(unsigned n, MiKTeX::Core::PathName & path);
+  bool GetWorkingDirectory(unsigned n, MiKTeX::Core::PathName& path);
 
 private:
   std::vector<MiKTeX::Core::PathName> ConstructSearchVector(MiKTeX::Core::FileType fileType);
 
 private:
-  void TraceSearchVector(const char * lpszKey, const std::vector<MiKTeX::Core::PathName> & pathvec);
+  void TraceSearchVector(const char* key, const std::vector<MiKTeX::Core::PathName>& pathvec);
 
 private:
   void RegisterLibraryTraceStreams();
@@ -654,44 +654,44 @@ private:
   void UnregisterLibraryTraceStreams();
 
 private:
-  bool FindInTypefaceMap(const std::string & fontName, std::string & typeface);
+  bool FindInTypefaceMap(const std::string& fontName, std::string& typeface);
 
 private:
-  bool FindInSupplierMap(const std::string & fontName, std::string & supplier, std::string & typeface);
+  bool FindInSupplierMap(const std::string& fontName, std::string& supplier, std::string& typeface);
 
 private:
-  bool FindInSpecialMap(const std::string & fontName, std::string & supplier, std::string & typeface);
+  bool FindInSpecialMap(const std::string& fontName, std::string& supplier, std::string& typeface);
 
 private:
-  bool InternalGetFontInfo(const std::string & fontName, std::string & supplier, std::string & typeface);
+  bool InternalGetFontInfo(const std::string& fontName, std::string& supplier, std::string& typeface);
 
 
 private:
-  bool MakePkFileName(MiKTeX::Core::PathName & pkFileName, const char * lpszFontName, int dpi);
+  bool MakePkFileName(MiKTeX::Core::PathName& pkFileName, const char* fontName, int dpi);
 
 private:
-  bool FindFileInternal(const std::string & fileName, const std::vector<MiKTeX::Core::PathName> & vec, bool firstMatchOnly, bool useFndb, bool searchFileSystem, std::vector<MiKTeX::Core::PathName> & result);
+  bool FindFileInternal(const std::string& fileName, const std::vector<MiKTeX::Core::PathName>& vec, bool firstMatchOnly, bool useFndb, bool searchFileSystem, std::vector<MiKTeX::Core::PathName>& result);
 
 private:
-  bool FindFileInternal(const std::string & fileName, MiKTeX::Core::FileType fileType, bool firstMatchOnly, bool tryHard, bool create, bool renew, std::vector<MiKTeX::Core::PathName> & result);
+  bool FindFileInternal(const std::string& fileName, MiKTeX::Core::FileType fileType, bool firstMatchOnly, bool tryHard, bool create, bool renew, std::vector<MiKTeX::Core::PathName>& result);
 
 private:
-  bool SearchFileSystem(const std::string & fileName, const char * lpszDirPath, bool firstMatchOnly, std::vector<MiKTeX::Core::PathName> & result);
+  bool SearchFileSystem(const std::string& fileName, const char* dirPath, bool firstMatchOnly, std::vector<MiKTeX::Core::PathName>& result);
 
 private:
-  bool CheckCandidate(MiKTeX::Core::PathName & path, const char * lpszFileInfo);
+  bool CheckCandidate(MiKTeX::Core::PathName& path, const char* fileInfo);
 
 private:
-  bool GetSessionValue(const std::string & sectionName, const std::string & valueName, std::string & value, const Optional<std::string> & defaultValue);
+  bool GetSessionValue(const std::string& sectionName, const std::string& valueName, std::string& value, const Optional<std::string>& defaultValue);
 
 private:
-  bool GetSessionValue(const std::string & sectionName, const std::string & valueName, std::string & value)
+  bool GetSessionValue(const std::string& sectionName, const std::string& valueName, std::string& value)
   {
     return GetSessionValue(sectionName, valueName, value, Optional<std::string>());
   }
 
 private:
-  void ReadAllConfigFiles(const std::string & baseName, MiKTeX::Core::Cfg & cfg);
+  void ReadAllConfigFiles(const std::string& baseName, MiKTeX::Core::Cfg& cfg);
 
 private:
   std::deque<MiKTeX::Core::PathName> inputDirectories;
@@ -706,7 +706,7 @@ private:
   unsigned GetMpmRoot();
 
 private:
-  bool IsMpmFile(const char * lpszPath);
+  bool IsMpmFile(const char* path);
 
 public:
   unsigned GetDataRoot();
@@ -742,16 +742,16 @@ private:
   bool IsManagedRoot(unsigned root);
 
 private:
-  unsigned RegisterRootDirectory(const MiKTeX::Core::PathName & root, bool common);
+  unsigned RegisterRootDirectory(const MiKTeX::Core::PathName& root, bool common);
 
 private:
-  bool FindStartupConfigFile(bool common, MiKTeX::Core::PathName & path);
+  bool FindStartupConfigFile(bool common, MiKTeX::Core::PathName& path);
 
 private:
-  MiKTeX::Core::StartupConfig ReadStartupConfigFile(bool common, const MiKTeX::Core::PathName & path);
+  MiKTeX::Core::StartupConfig ReadStartupConfigFile(bool common, const MiKTeX::Core::PathName& path);
 
 private:
-  void WriteStartupConfigFile(bool common, const MiKTeX::Core::StartupConfig & startupConfig);
+  void WriteStartupConfigFile(bool common, const MiKTeX::Core::StartupConfig& startupConfig);
 
 private:
   MiKTeX::Core::StartupConfig ReadEnvironment(bool common);
@@ -763,11 +763,11 @@ private:
 
 #if defined(MIKTEX_WINDOWS)
 private:
-  void WriteRegistry(bool common, const MiKTeX::Core::StartupConfig & startupConfig);
+  void WriteRegistry(bool common, const MiKTeX::Core::StartupConfig& startupConfig);
 #endif
 
 private:
-  MiKTeX::Core::StartupConfig DefaultConfig(MiKTeX::Core::MiKTeXConfiguration config, const MiKTeX::Core::PathName & commonPrefix, const MiKTeX::Core::PathName & userPrefix);
+  MiKTeX::Core::StartupConfig DefaultConfig(MiKTeX::Core::MiKTeXConfiguration config, const MiKTeX::Core::PathName& commonPrefix, const MiKTeX::Core::PathName& userPrefix);
 
 private:
   MiKTeX::Core::StartupConfig DefaultConfig()
@@ -779,7 +779,7 @@ private:
   void DoStartupConfig();
 
 private:
-  void InitializeRootDirectories(const MiKTeX::Core::StartupConfig & startupConfig);
+  void InitializeRootDirectories(const MiKTeX::Core::StartupConfig& startupConfig);
 
 private:
   void InitializeRootDirectories();
@@ -801,28 +801,28 @@ private:
   MiKTeX::Core::PathName GetBinDirectory();
 
 private:
-  void AppendToSearchPath(std::string & strSearchPath, const std::string & strSearchPath2);
+  void AppendToSearchPath(std::string& strSearchPath, const std::string& strSearchPath2);
 
 private:
-  void SplitSearchPath(std::vector<MiKTeX::Core::PathName> & pathvec, const std::string & searchPath);
+  void SplitSearchPath(std::vector<MiKTeX::Core::PathName>& pathvec, const std::string& searchPath);
 
 private:
-  std::vector<MiKTeX::Core::PathName> SplitSearchPath(const std::string & searchPath);
+  std::vector<MiKTeX::Core::PathName> SplitSearchPath(const std::string& searchPath);
 
 private:
-  void PushBackPath(std::vector<MiKTeX::Core::PathName> & pathvec, const MiKTeX::Core::PathName & path);
+  void PushBackPath(std::vector<MiKTeX::Core::PathName>& pathvec, const MiKTeX::Core::PathName& path);
 
 private:
   void ReadFormatsIni();
 
 private:
-  void ReadFormatsIni(const MiKTeX::Core::PathName & cfgFile);
+  void ReadFormatsIni(const MiKTeX::Core::PathName& cfgFile);
 
 private:
   void ReadLanguagesIni();
 
 private:
-  void ReadLanguagesIni(const MiKTeX::Core::PathName & cfgFile);
+  void ReadLanguagesIni(const MiKTeX::Core::PathName& cfgFile);
 
 private:
   void WriteLanguagesIni();
@@ -834,13 +834,13 @@ private:
   void ReadMetafontModes();
 
 private:
-  bool FindMETAFONTMode(const char * lpszMnemonic, MiKTeX::Core::MIKTEXMFMODE * pMode);
+  bool FindMETAFONTMode(const char* mnemonic, MiKTeX::Core::MIKTEXMFMODE* mfMode);
 
 private:
-  FILE * InitiateProcessPipe(const std::string & command, MiKTeX::Core::FileAccess access, MiKTeX::Core::FileMode & mode);
+  FILE* InitiateProcessPipe(const std::string& command, MiKTeX::Core::FileAccess access, MiKTeX::Core::FileMode& mode);
 
 private:
-  FILE * OpenFileOnStream(std::unique_ptr<MiKTeX::Core::Stream> stream);
+  FILE* OpenFileOnStream(std::unique_ptr<MiKTeX::Core::Stream> stream);
 
 private:
   void CheckOpenFiles();
@@ -849,36 +849,36 @@ private:
   void WritePackageHistory();
 
 private:
-  std::string ExpandValues(const std::string & toBeExpanded, MiKTeX::Core::HasNamedValues * callback);
+  std::string ExpandValues(const std::string& toBeExpanded, MiKTeX::Core::HasNamedValues* callback);
 
 private:
-  void DirectoryWalk(const MiKTeX::Core::PathName & directory, const MiKTeX::Core::PathName & pathPattern, std::vector<MiKTeX::Core::PathName> & paths);
+  void DirectoryWalk(const MiKTeX::Core::PathName& directory, const MiKTeX::Core::PathName& pathPattern, std::vector<MiKTeX::Core::PathName>& paths);
 
 private:
-  void ExpandBraces(const std::string & toBeExpanded, std::vector<MiKTeX::Core::PathName> & paths);
+  void ExpandBraces(const std::string& toBeExpanded, std::vector<MiKTeX::Core::PathName>& paths);
 
 private:
-  std::vector<MiKTeX::Core::PathName> ExpandBraces(const std::string & toBeExpanded);
+  std::vector<MiKTeX::Core::PathName> ExpandBraces(const std::string& toBeExpanded);
 
 private:
-  void ExpandRootDirectories(const std::string & toBeExpanded, std::vector<MiKTeX::Core::PathName> & paths);
+  void ExpandRootDirectories(const std::string& toBeExpanded, std::vector<MiKTeX::Core::PathName>& paths);
 
 private:
-  std::vector<MiKTeX::Core::PathName> ExpandRootDirectories(const std::string & toBeExpanded);
+  std::vector<MiKTeX::Core::PathName> ExpandRootDirectories(const std::string& toBeExpanded);
 
 private:
-  void ExpandPathPattern(const MiKTeX::Core::PathName & directory, const MiKTeX::Core::PathName & pathPattern, std::vector<MiKTeX::Core::PathName> & paths);
+  void ExpandPathPattern(const MiKTeX::Core::PathName& directory, const MiKTeX::Core::PathName& pathPattern, std::vector<MiKTeX::Core::PathName>& paths);
 
 private:
-  std::vector<MiKTeX::Core::PathName> ExpandPathPatterns(const std::string & toBeExpanded);
+  std::vector<MiKTeX::Core::PathName> ExpandPathPatterns(const std::string& toBeExpanded);
 
 private:
-  void RegisterFileType(MiKTeX::Core::FileType fileType, const char * lpszFileType, const char * lpszApplication, const char * lpszFileNameExtensions, const char * lpszAlternateExtensions, const char * lpszDefaultSearchPath, const char * lpszEnvVarNames);
+  void RegisterFileType(MiKTeX::Core::FileType fileType, const char* fileTypeString, const char* application, const char* fileNameExtensions, const char* alternateExtensions, const char* defaultSearchPath, const char* envVarNames);
 
 private:
-  void RegisterFileType(MiKTeX::Core::FileType fileType, const char * lpszFileType, const char * lpszApplication, const char * lpszFileNameExtensions, const char * lpszDefaultSearchPath, const char * lpszEnvVarNames)
+  void RegisterFileType(MiKTeX::Core::FileType fileType, const char* fileTypeString, const char* application, const char* fileNameExtensions, const char* defaultSearchPath, const char* envVarNames)
   {
-    RegisterFileType(fileType, lpszFileType, lpszApplication, lpszFileNameExtensions, nullptr, lpszDefaultSearchPath, lpszEnvVarNames);
+    RegisterFileType(fileType, fileTypeString, application, fileNameExtensions, nullptr, defaultSearchPath, envVarNames);
   }
 
 private:
@@ -888,7 +888,7 @@ private:
   void RegisterFileTypes();
 
 private:
-  InternalFileTypeInfo * GetInternalFileTypeInfo(MiKTeX::Core::FileType fileType);
+  InternalFileTypeInfo* GetInternalFileTypeInfo(MiKTeX::Core::FileType fileType);
 
 private:
   void ClearSearchVectors();
@@ -900,7 +900,7 @@ private:
   MiKTeX::Core::VersionNumber gsVersion;
 
 private:
-  MiKTeX::Core::IFindFileCallback * findFileCallback = nullptr;
+  MiKTeX::Core::IFindFileCallback* findFileCallback = nullptr;
 
 private:
   std::vector<InternalFileTypeInfo> fileTypes;
@@ -912,7 +912,7 @@ private:
 private:
   struct OpenFileInfo
   {
-    const FILE * pFile = nullptr;
+    const FILE* pFile = nullptr;
     std::string fileName;
     MiKTeX::Core::FileMode mode = MiKTeX::Core::FileMode::Open;
     MiKTeX::Core::FileAccess access = MiKTeX::Core::FileAccess::None;
@@ -920,7 +920,7 @@ private:
 
   // caching open files
 private:
-  std::map<const FILE *, OpenFileInfo> openFilesMap;
+  std::map<const FILE*, OpenFileInfo> openFilesMap;
 
   // caching path patterns
 private:
@@ -995,7 +995,7 @@ private:
   std::string applicationNames;
 
 private:
-  const std::string & get_ApplicationNames() const
+  const std::string& get_ApplicationNames() const
   {
     return applicationNames;
   }
@@ -1014,7 +1014,7 @@ public:
         engine = "engine-not-set";
       }
     }
-    for(char & ch : engine)
+    for(char& ch : engine)
     {
       if (ch >= 'A' && ch <= 'Z')
       {
@@ -1029,7 +1029,7 @@ private:
   std::vector<RootDirectory> rootDirectories;
 
 private:
-  std::vector<RootDirectory> & get_RootDirectories()
+  std::vector<RootDirectory>& get_RootDirectories()
   {
     return rootDirectories;
   }
