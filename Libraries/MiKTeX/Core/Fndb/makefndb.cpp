@@ -50,7 +50,7 @@ struct COMPAREFILENAMEINFO
 {
   bool operator()(const FILENAMEINFO& lhs, const FILENAMEINFO& rhs) const
   {
-    return PathName::Compare(lhs.FileName.c_str(), rhs.FileName.c_str()) < 0;
+    return PathName::Compare(lhs.FileName, rhs.FileName) < 0;
   }
 };
 
@@ -270,7 +270,7 @@ void FndbManager::ReadDirectory(const char* lpszPath, vector<string>& subDirecto
   vector<DirectoryEntry> toBeDeleted;
   while (lister->GetNext(entry))
   {
-    if (binary_search(filesToBeIgnored.begin(), filesToBeIgnored.end(), entry.name.c_str(), StringComparerIgnoringCase()))
+    if (binary_search(filesToBeIgnored.begin(), filesToBeIgnored.end(), entry.name, StringComparerIgnoringCase()))
     {
       continue;
     }
@@ -280,7 +280,7 @@ void FndbManager::ReadDirectory(const char* lpszPath, vector<string>& subDirecto
     }
     else if (entry.isDirectory)
     {
-      subDirectoryNames.push_back(entry.name.c_str());
+      subDirectoryNames.push_back(entry.name);
     }
     else
     {
@@ -371,25 +371,23 @@ FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char* l
   // store all names; build offset table
   vector<FndbByteOffset> vecfndboff;
   vecfndboff.reserve((storeFileNameInfo ? 2 : 1) * fileNames.size() + 2 * subDirectoryNames.size() + cReservedEntries);
-  vector<FILENAMEINFO>::iterator it;
-  vector<string>::iterator it2;
-  for (it = fileNames.begin(); it != fileNames.end(); ++it)
+  for (const FILENAMEINFO& fi : fileNames)
   {
-    vecfndboff.push_back(PushBack((*it).FileName.c_str()));
+    vecfndboff.push_back(PushBack(fi.FileName.c_str()));
   }
-  for (it2 = subDirectoryNames.begin(); it2 != subDirectoryNames.end(); ++it2)
+  for (const string& s : subDirectoryNames)
   {
-    vecfndboff.push_back(PushBack((*it2).c_str()));
+    vecfndboff.push_back(PushBack(s.c_str()));
   }
-  for (it2 = subDirectoryNames.begin(); it2 != subDirectoryNames.end(); ++it2)
+  for (int n = 0; n < subDirectoryNames.size(); ++n)
   {
     vecfndboff.push_back(null_byte);
   }
   if (storeFileNameInfo)
   {
-    for (it = fileNames.begin(); it != fileNames.end(); ++it)
+    for (const FILENAMEINFO& fi : fileNames)
     {
-      vecfndboff.push_back(PushBack((*it).Info.c_str()));
+      vecfndboff.push_back(PushBack(fi.Info.c_str()));
     }
   }
   vecfndboff.insert(vecfndboff.end(), cReservedEntries, 0);
@@ -417,10 +415,11 @@ FndbByteOffset FndbManager::ProcessFolder(FndbByteOffset foParent, const char* l
   PathName pathFolder(lpszParentPath, lpszFolderName);
   size_t i = 0;
   ++currentLevel;
-  for (it2 = subDirectoryNames.begin(); it2 != subDirectoryNames.end(); ++it2, ++i)
+  for (const string& s : subDirectoryNames)
   {
     // RECURSION
-    vecfndboff[dirdata.numFiles + dirdata.numSubDirs + i] = ProcessFolder(foThis, pathFolder.GetData(), it2->c_str(), vecfndboff[dirdata.numFiles + i]);
+    vecfndboff[dirdata.numFiles + dirdata.numSubDirs + i] = ProcessFolder(foThis, pathFolder.GetData(), s.c_str(), vecfndboff[dirdata.numFiles + i]);
+    ++i;
   }
   --currentLevel;
 
