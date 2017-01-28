@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -32,16 +32,20 @@ BEGIN_TEST_SCRIPT("file-1");
 
 BEGIN_TEST_FUNCTION(1);
 {
+#if defined(MIKTEX_WINDOWS)
   Touch("xxx.zzz");
   // FIXME: use unique_ptr<FileStream>
   vector<FileStream*> files;
-  File::SetMaxOpen(2048);
+  size_t maxRounds = File::SetMaxOpen(2048);
+  TEST(maxRounds > 100);
+  maxRounds -= 100;
   TESTX(
-    for (int i = 0; i < 2000; ++i)
+    for (int i = 0; i < maxRounds; ++i)
     {
       files.push_back(new FileStream(File::Open("xxx.zzz", FileMode::Open, FileAccess::Read, false)));
     }
   );
+#endif
 }
 END_TEST_FUNCTION();
 
