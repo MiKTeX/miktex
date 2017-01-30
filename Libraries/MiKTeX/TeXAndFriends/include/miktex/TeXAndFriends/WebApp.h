@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/WebApp.h:                       -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -54,6 +54,39 @@ namespace C4P {
 }
 
 MIKTEXMF_BEGIN_NAMESPACE;
+
+class IWebAppProgram
+{
+public:
+  virtual void* xchr() = 0;
+  virtual void* xord() = 0;
+  virtual void* xprn() = 0;
+};
+
+#if defined(THEDATA)
+class WebAppProgramImpl : public IWebAppProgram
+{
+public:
+  void* xchr() override
+  {
+    return THEDATA(xchr);
+  }
+public:
+  void* xord() override
+  {
+    return THEDATA(xord);
+  }
+public:
+  void* xprn() override
+  {
+#if defined(MIKTEX_TEX_COMPILER) || defined(MIKTEX_META_COMPILER)
+    return THEDATA(xprn);
+#else
+    return nullptr;
+#endif
+  }
+};
+#endif
 
 enum class Feature
 {
@@ -203,13 +236,12 @@ protected:
 public:
   MIKTEXMFTHISAPI(bool) Enable8BitCharsP() const;
 
-#if defined(THEDATA) && defined(IMPLEMENT_TCX)
 public:
   void InitializeCharTables()
   {
     unsigned long flags = 0;
     MiKTeX::Core::PathName tcxFileName = GetTcxFileName();
-    if (tcxFileName.GetLength() > 0)
+    if (!tcxFileName.Empty())
     {
       flags |= ICT_TCX;
     }
@@ -217,20 +249,14 @@ public:
     {
       flags |= ICT_8BIT;
     }
-#if defined(MIKTEX_TEX_COMPILER) || defined(MIKTEX_META_COMPILER)
-    MiKTeX::TeXAndFriends::InitializeCharTables(flags,
-      tcxFileName,
-      THEDATA(xchr),
-      THEDATA(xord),
-      THEDATA(xprn));
-#else
-    MiKTeX::TeXAndFriends::InitializeCharTables(flags,
-      tcxFileName,
-      THEDATA(xchr),
-      THEDATA(xord),
-      nullptr);
-#endif
+    MiKTeX::TeXAndFriends::InitializeCharTables(flags, tcxFileName, webAppProgram->xchr(), webAppProgram->xord(), webAppProgram->xprn());
   }
+
+private:
+#if defined(THEDATA)
+  std::unique_ptr<IWebAppProgram> webAppProgram = std::make_unique<WebAppProgramImpl>();
+#else
+  std::unique_ptr<IWebAppProgram> webAppProgram;
 #endif
 
 private:
@@ -241,16 +267,16 @@ private:
 #if defined(MIKTEX_COMPONENT_VERSION_STR)
 #  if defined(MIKTEX_COMP_TM_STR)
 #    define SET_PROGRAM_INFO__423C8217_4CFC_41B7_9F89_EA3C4F729FD1(app) \
-      app.SetProgramInfo (app.TheNameOfTheGame(),                       \
-                          MIKTEX_COMPONENT_VERSION_STR,                 \
-                          MIKTEX_COMP_COPYRIGHT_STR,                    \
-                          MIKTEX_COMP_TM_STR)
+      app.SetProgramInfo(app.TheNameOfTheGame(),                        \
+                         MIKTEX_COMPONENT_VERSION_STR,                  \
+                         MIKTEX_COMP_COPYRIGHT_STR,                     \
+                         MIKTEX_COMP_TM_STR)
 #  else
 #    define SET_PROGRAM_INFO__423C8217_4CFC_41B7_9F89_EA3C4F729FD1(app) \
-      app.SetProgramInfo (app.TheNameOfTheGame(),                       \
-                          MIKTEX_COMPONENT_VERSION_STR,                 \
-                          MIKTEX_COMP_COPYRIGHT_STR,                    \
-                          "")
+      app.SetProgramInfo(app.TheNameOfTheGame(),                        \
+                         MIKTEX_COMPONENT_VERSION_STR,                  \
+                         MIKTEX_COMP_COPYRIGHT_STR,                     \
+                         "")
 #  endif
 #else
 #  define SET_PROGRAM_INFO__423C8217_4CFC_41B7_9F89_EA3C4F729FD1(app)
@@ -268,12 +294,12 @@ extern "C" MIKTEXDLLEXPORT int MIKTEXCEECALL dllentry(int argc, const char** arg
     app.Finalize();                                                     \
     return exitCode;                                                    \
   }                                                                     \
-  catch (const MiKTeX::Core::MiKTeXException & ex)                      \
+  catch (const MiKTeX::Core::MiKTeXException& ex)                       \
   {                                                                     \
     MiKTeX::App::Application::Sorry(argv[0], ex);                       \
     return 1;                                                           \
   }                                                                     \
-  catch (const std::exception & ex)                                     \
+  catch (const std::exception& ex)                                      \
   {                                                                     \
     MiKTeX::App::Application::Sorry(argv[0], ex);                       \
     return 1;                                                           \
