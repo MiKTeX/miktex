@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -37,7 +37,7 @@ set_property(TARGET ${kpsemu_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 set_target_properties(${kpsemu_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_COMP_INTERFACE_VERSION}.${MIKTEX_COMP_J2000_VERSION}"
+    VERSION "${MIKTEX_COMP_J2000_VERSION}"
     SOVERSION "${MIKTEX_COMP_INTERFACE_VERSION}"
 )
 

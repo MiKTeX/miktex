@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -16,6 +16,8 @@
 ## along with this file; if not, write to the Free Software
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
+
+include(component.cmake)
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/mspack")
 
@@ -37,6 +39,11 @@ ignore_warnings()
 configure_file(
   config.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
+configure_file(
+  mspack-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/mspack-version.h
 )
 
 set(mspack_sources
@@ -81,7 +88,7 @@ set(mspack_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/mspack/szddc.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/mspack/szddd.c
 
-  ${CMAKE_CURRENT_SOURCE_DIR}/mspack-version.h
+  ${CMAKE_CURRENT_BINARY_DIR}/mspack-version.h
 
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
 )
