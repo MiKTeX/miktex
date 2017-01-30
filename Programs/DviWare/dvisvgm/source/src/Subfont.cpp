@@ -2,7 +2,7 @@
 ** Subfont.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2016 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -46,7 +46,7 @@ static bool scan_line (const char *line, int lineno, uint16_t *mapping, const st
 SubfontDefinition::SubfontDefinition (const string &name, const char *fpath) : _sfname(name) {
 	// read all subfont IDs from the .sfd file but skip the mapping data
 #if defined(MIKTEX_WINDOWS)
-  ifstream is(UW_(fpath));
+        ifstream is(UW_(fpath));
 #else
 	ifstream is(fpath);
 #endif
@@ -141,7 +141,7 @@ bool Subfont::read () {
 		return true;
 	if (const char *p = _sfd.path()) {
 #if defined(MIKTEX_WINDOWS)
-          ifstream is(UW_(p));
+                ifstream is(UW_(p));
 #else
 		ifstream is(p);
 #endif

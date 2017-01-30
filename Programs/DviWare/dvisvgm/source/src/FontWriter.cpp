@@ -2,7 +2,7 @@
 ** FontWriter.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2016 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <array>
 #include "FontWriter.hpp"
+#include "utility.hpp"
 
 using namespace std;
 
@@ -37,7 +38,7 @@ const array<FontWriter::FontFormatInfo, 4> FontWriter::_formatInfos = {{
 
 /** Returns the corresponding FontFormat for a given format name (e.g. "svg", "woff" etc.). */
 FontWriter::FontFormat FontWriter::toFontFormat (string formatstr) {
-	transform(formatstr.begin(), formatstr.end(), formatstr.begin(), ::tolower);
+	util::tolower(formatstr);
 	for (const FontFormatInfo &info : _formatInfos) {
 		if (formatstr == info.formatstr_short)
 			return info.format;
@@ -82,6 +83,7 @@ bool FontWriter::writeCSSFontFace (FontFormat format, const set<int> &charcodes,
 #include "FileSystem.hpp"
 #include "Font.hpp"
 #include "Glyph.hpp"
+#include "utility.hpp"
 
 
 FontWriter::FontWriter (const PhysicalFont &font) : _font(font) {
@@ -127,10 +129,11 @@ struct SFDActions : Glyph::Actions {
 
 /** Creates a Spline Font Database (SFD) file describing the font and its glyphs.
  *  https://fontforge.github.io/sfdformat.html */
-static bool writeSFD (const string &sfdname, const PhysicalFont &font, const set<int> &charcodes, GFGlyphTracer::Callback *cb) {
+static void writeSFD (const string &sfdname, const PhysicalFont &font, const set<int> &charcodes, GFGlyphTracer::Callback *cb) {
 	ofstream sfd(sfdname);
 	if (!sfd)
-		return false;
+		throw FontWriterException("failed writing SFD file "+sfdname);
+
 	sfd <<
 		"SplineFontDB: 3.0\n"
 		"FontName: " << font.name() << '\n';
@@ -175,7 +178,8 @@ static bool writeSFD (const string &sfdname, const PhysicalFont &font, const set
 	}
 	sfd.flush();
 	sfd.close();
-	return !sfd.fail();
+	if (sfd.fail())
+		throw FontWriterException("failed writing SFD file "+sfdname);
 }
 
 
@@ -185,76 +189,44 @@ static bool writeSFD (const string &sfdname, const PhysicalFont &font, const set
  * @param[in] cb callback object that allows to react to events triggered by the glyph tracer
  * @return name of the created font file */
 string FontWriter::createFontFile (FontFormat format, const set<int> &charcodes, GFGlyphTracer::Callback *cb) const {
-	string sfdname = _font.name()+"-tmp.sfd";
-	string targetname;
-	if (writeSFD(sfdname, _font, charcodes, cb)) {
-		bool ok = false;
-		targetname = _font.name()+"-tmp."+fontFormatInfo(format)->formatstr_short;
-		switch (format) {
-			case FontFormat::TTF:
-				ok = ff_sfd_to_ttf(sfdname.c_str(), targetname.c_str(), AUTOHINT_FONTS);
-				break;
-			case FontFormat::WOFF:
-				ok = ff_sfd_to_woff(sfdname.c_str(), targetname.c_str(), AUTOHINT_FONTS);
-				break;
-			case FontFormat::WOFF2: {
-				string ttfname = _font.name()+".ttf";
-				if (ff_sfd_to_ttf(sfdname.c_str(), ttfname.c_str(), AUTOHINT_FONTS)) {
-					string input = woff2::GetFileContent(ttfname);
-					const uint8_t* input_data = reinterpret_cast<const uint8_t*>(input.data());
-					size_t output_size = woff2::MaxWOFF2CompressedSize(input_data, input.size());
-					string output(output_size, 0);
-					uint8_t* output_data = reinterpret_cast<uint8_t*>(&output[0]);
-					woff2::WOFF2Params params;
-					if (woff2::ConvertTTFToWOFF2(input_data, input.size(), output_data, &output_size, params)) {
-						output.resize(output_size);
-						woff2::SetFileContents(targetname, output.begin(), output.end());
-						ok = true;
-					}
-					if (!PhysicalFont::KEEP_TEMP_FILES)
-						FileSystem::remove(ttfname);
+	string tmpdir = FileSystem::tmpdir();
+	string sfdname = tmpdir+_font.name()+"-tmp.sfd";
+	writeSFD(sfdname, _font, charcodes, cb);
+	bool ok = false;
+	string targetname = tmpdir+_font.name()+"-tmp."+fontFormatInfo(format)->formatstr_short;
+	switch (format) {
+		case FontFormat::TTF:
+			ok = ff_sfd_to_ttf(sfdname.c_str(), targetname.c_str(), AUTOHINT_FONTS);
+			break;
+		case FontFormat::WOFF:
+			ok = ff_sfd_to_woff(sfdname.c_str(), targetname.c_str(), AUTOHINT_FONTS);
+			break;
+		case FontFormat::WOFF2: {
+			string ttfname = tmpdir+_font.name()+".ttf";
+			if (ff_sfd_to_ttf(sfdname.c_str(), ttfname.c_str(), AUTOHINT_FONTS)) {
+				string input = woff2::GetFileContent(ttfname);
+				const uint8_t* input_data = reinterpret_cast<const uint8_t*>(input.data());
+				size_t output_size = woff2::MaxWOFF2CompressedSize(input_data, input.size());
+				string output(output_size, 0);
+				uint8_t* output_data = reinterpret_cast<uint8_t*>(&output[0]);
+				woff2::WOFF2Params params;
+				if (woff2::ConvertTTFToWOFF2(input_data, input.size(), output_data, &output_size, params)) {
+					output.resize(output_size);
+					woff2::SetFileContents(targetname, output.begin(), output.end());
+					ok = true;
 				}
-				break;
+				if (!PhysicalFont::KEEP_TEMP_FILES)
+					FileSystem::remove(ttfname);
 			}
-			default:;
+			break;
 		}
-		if (!PhysicalFont::KEEP_TEMP_FILES)
-			FileSystem::remove(sfdname);
-		if (!ok)
-			targetname.clear();
+		default:;
 	}
+	if (!PhysicalFont::KEEP_TEMP_FILES)
+		FileSystem::remove(sfdname);
+	if (!ok)
+		throw FontWriterException("failed writing "+string(fontFormatInfo(format)->formatstr_short)+ " file " + targetname);
 	return targetname;
-}
-
-
-/** Encodes the bytes in the half-open range [first,last) to Base64 and writes
- *  the result to the range starting at 'dest'.
- *  @param[in] first initial position of the range to be encoded
- *  @param[in] last final position of the range to be encoded
- *  @param[in] dest first position of the destination range */
-template <typename InputIterator, typename OutputIterator>
-static void base64_copy (InputIterator first, InputIterator last, OutputIterator dest) {
-	static const char *base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-	while (first != last) {
-		int padding = 0;
-		unsigned char c0 = *first++, c1=0, c2=0;
-		if (first == last)
-			padding = 2;
-		else {
-			c1 = *first++;
-			if (first == last)
-				padding = 1;
-			else
-				c2 = *first++;
-		}
-		uint32_t n = (c0 << 16) | (c1 << 8) | c2;
-		for (int i=0; i <= 3-padding; i++) {
-			*dest++ = base64_chars[(n >> 18) & 0x3f];
-			n <<= 6;
-		}
-		while (padding--)
-			*dest++ = '=';
-	}
 }
 
 
@@ -272,7 +244,7 @@ bool FontWriter::writeCSSFontFace (FontFormat format, const set<int> &charcodes,
 			os << "@font-face{"
 				<< "font-family:" << _font.name() << ';'
 				<< "src:url(data:" << info->mimetype << ";base64,";
-			base64_copy(istreambuf_iterator<char>(ifs), istreambuf_iterator<char>(), ostreambuf_iterator<char>(os));
+			util::base64_copy(istreambuf_iterator<char>(ifs), istreambuf_iterator<char>(), ostreambuf_iterator<char>(os));
 			os << ") format('" << info->formatstr_long << "');}\n";
 			ifs.close();
 			if (!PhysicalFont::KEEP_TEMP_FILES)

@@ -2,7 +2,7 @@
 ** Font.cpp                                                             **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2016 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -373,8 +373,8 @@ bool PhysicalFont::getGlyph (int c, GraphicsPath<int32_t> &glyph, GFGlyphTracer:
  *  @return true on success */
 bool PhysicalFont::createGF (string &gfname) const {
 	SignalHandler::instance().check();
-	gfname = name()+".gf";
-	MetafontWrapper mf(name());
+	gfname = FileSystem::tmpdir()+name()+".gf";
+	MetafontWrapper mf(name(), FileSystem::tmpdir());
 	bool ok = mf.make("ljfour", METAFONT_MAG); // call Metafont if necessary
 	return ok && mf.success() && getMetrics();
 }
@@ -545,9 +545,10 @@ uint32_t PhysicalFontImpl::unicode (uint32_t c) const {
 void PhysicalFontImpl::tidy () const {
 	if (type() == Type::MF) {
 		const char *ext[] = {"gf", "tfm", "log", 0};
+		string fname = FileSystem::tmpdir()+name();
 		for (const char **p=ext; *p; ++p) {
-			if (FileSystem::exists(name()+"."+(*p)))
-				FileSystem::remove(name()+"."+(*p));
+			if (FileSystem::exists(fname+"."+(*p)))
+				FileSystem::remove(fname+"."+(*p));
 		}
 	}
 }

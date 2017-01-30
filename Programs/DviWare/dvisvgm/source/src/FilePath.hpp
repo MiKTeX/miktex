@@ -2,7 +2,7 @@
 ** FilePath.hpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2016 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -22,11 +22,24 @@
 #define FILEPATH_HPP
 
 #include <string>
+#include <utility>
 #include <vector>
 
 class FilePath
 {
-	typedef std::vector<std::string> Directories;
+	class Directory {
+		public:
+			Directory (const std::string &dir) : _dirstr(dir) {}
+			Directory (std::string &&dir) : _dirstr(std::move(dir)) {}
+			bool operator == (const Directory &dir) const;
+			bool operator != (const Directory &dir) const {return !(*this == dir);}
+			explicit operator std::string () const {return _dirstr;}
+
+		private:
+			std::string _dirstr;
+	};
+
+	typedef std::vector<Directory> Directories;
 	public:
 		FilePath (const std::string &path);
 		FilePath (const std::string &path, bool isfile) : FilePath(path, isfile, "") {}
@@ -53,6 +66,5 @@ class FilePath
 		char _drive;
 #endif
 };
-
 
 #endif

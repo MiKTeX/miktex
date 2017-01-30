@@ -2,7 +2,7 @@
 ** SVGOutput.hpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2016 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -31,6 +31,7 @@ struct SVGOutputBase {
 	virtual ~SVGOutputBase () =default;
 	virtual std::ostream& getPageStream (int page, int numPages) const =0;
 	virtual std::string filename (int page, int numPages) const =0;
+//	virtual std::string outpath (int page, int numPages) const =0;
 };
 
 
@@ -43,9 +44,10 @@ class SVGOutput : public SVGOutputBase
 		SVGOutput (const char *base, const std::string &pattern, int zipLevel);
 		std::ostream& getPageStream (int page, int numPages) const override;
 		std::string filename (int page, int numPages) const override;
+//		std::string outpath (int page, int numPages) const override;
 
 	protected:
-		void expandFormatString (std::string &str, int page, int numPages) const;
+		std::string expandFormatString (std::string str, int page, int numPages) const;
 
 	private:
 		FilePath _path;

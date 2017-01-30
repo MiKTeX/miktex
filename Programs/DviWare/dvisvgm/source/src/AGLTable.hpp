@@ -2,7 +2,7 @@
 ** AGLTable.hpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2016 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -18,6 +18,7 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
+
 /* The following table provides a compact mapping from PostScript character names
  * to Unicode points. Instead of using the character names directly it maps the
  * hash values (xxhash32) of the names to the corresponding code points.
@@ -32,7 +33,7 @@ struct HashCodepointPair {
 	uint32_t codepoint;
 };
 
-std::array<HashCodepointPair, 4410> hash2unicode = {{
+std::array<HashCodepointPair, 4048> hash2unicode = {{
 	{0x001cf4a9, 0x0118}, // Eogonek
 	{0x003b11fb, 0x055f}, // abbreviationmarkarmenian
 	{0x0050a316, 0x0444}, // afii10086
@@ -56,17 +57,13 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x012d44bc, 0x05d6}, // afii57670
 	{0x013044fb, 0x2205}, // emptyset
 	{0x01422ce1, 0x0486}, // psilipneumatacyrilliccmb
-	{0x01532d0f, 0x002f}, // slashBig
 	{0x01571757, 0xfe6b}, // atsmall
 	{0x01678eeb, 0x066b}, // decimalseparatorpersian
 	{0x018643fe, 0x091a}, // cadeva
 	{0x019e6772, 0x3148}, // cieuckorean
 	{0x019fa822, 0x05de}, // mem
-	{0x01a69c0c, 0x221a}, // radicalbigg
 	{0x01cfa7b3, 0x0a3e}, // aamatragurmukhi
 	{0x01d7c979, 0x3007}, // ideographiczero
-	{0x02057d9e, 0x05e8}, // reshhatafsegol
-	{0x0209914d, 0xf7fe}, // Thornsmall
 	{0x020d70ad, 0x278b}, // twocircleinversesansserif
 	{0x0239eab1, 0x3131}, // kiyeokkorean
 	{0x023b0c79, 0xff87}, // nukatakanahalfwidth
@@ -89,15 +86,12 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x02dab625, 0x310c}, // lbopomofo
 	{0x02df8edf, 0x30e7}, // yosmallkatakana
 	{0x02e3dfc8, 0x3062}, // dihiragana
-	{0x02f13fd7, 0x0029}, // parenrightbig
-	{0x02f32b9b, 0x002f}, // slashbigg
 	{0x0306380d, 0xff35}, // Umonospace
 	{0x03170204, 0x0495}, // ghemiddlehookcyrillic
 	{0x03182c9f, 0x25b4}, // blackuppointingsmalltriangle
 	{0x0319d343, 0x329e}, // ideographicprintcircle
 	{0x031ad266, 0x331e}, // kooposquare
 	{0x03274b72, 0x0018}, // controlCAN
-	{0x032ef9aa, 0xf7f6}, // Odieresissmall
 	{0x0334c4d5, 0x0aa7}, // dhagujarati
 	{0x03396436, 0x1ed0}, // Ocircumflexacute
 	{0x033b64c4, 0x047f}, // otcyrillic
@@ -110,7 +104,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x03c2a8d8, 0x1eb3}, // abrevehookabove
 	{0x03d234c7, 0xfea7}, // khahinitialarabic
 	{0x03f4da1a, 0x05b8}, // qamatsnarrowhebrew
-	{0x040b8001, 0x230a}, // floorleftBig
 	{0x0410b525, 0x0138}, // kgreenlandic
 	{0x0433eb22, 0x014e}, // Obreve
 	{0x043f3fc5, 0x040a}, // afii10059
@@ -126,7 +119,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x04c8ee7d, 0x042d}, // Ereversedcyrillic
 	{0x04de1db0, 0x0950}, // omdeva
 	{0x04f4d676, 0x0027}, // quotesingle
-	{0x04fb1584, 0xf6c4}, // afii10063
 	{0x0500f909, 0x0407}, // Yicyrillic
 	{0x0503fcb5, 0x00b1}, // plusminus
 	{0x05116c6a, 0x30fc}, // prolongedkana
@@ -141,7 +133,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x05a47299, 0x320d}, // hieuhparenkorean
 	{0x05a53e96, 0x0282}, // shook
 	{0x05b0f8c3, 0x02b5}, // rhookturnedsuperior
-	{0x05c5a128, 0xf76b}, // Ksmall
 	{0x05cee53c, 0x201d}, // quotedblright
 	{0x05de47fd, 0x1e7f}, // vdotbelow
 	{0x05e340f3, 0x1e70}, // Tcircumflexbelow
@@ -149,10 +140,7 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x05ec5d36, 0x2471}, // eighteencircle
 	{0x05f03fff, 0x0ae0}, // rrvocalicgujarati
 	{0x060beb03, 0x0175}, // wcircumflex
-	{0x0618af48, 0x005c}, // backslashBig
 	{0x061ad8fc, 0x24ca}, // Ucircle
-	{0x061f0bd8, 0x2a00}, // circledotdisplay
-	{0x062d146d, 0xf88b}, // maieklowrightthai
 	{0x0642035b, 0x0010}, // controlDLE
 	{0x0646584a, 0x003d}, // equal
 	{0x064874b1, 0x05d3}, // afii57667
@@ -163,7 +151,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x06b00ffc, 0x0101}, // amacron
 	{0x06b72f51, 0x27e8}, // angbracketleftbig
 	{0x06be8647, 0x0442}, // afii10084
-	{0x06e56a17, 0x05dc}, // lamedholamdagesh
 	{0x06ec3366, 0xfe42}, // cornerbracketrightvertical
 	{0x0700a693, 0x0475}, // izhitsacyrillic
 	{0x07019244, 0xfb02}, // fl
@@ -183,7 +170,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x0793d50d, 0x30bb}, // sekatakana
 	{0x07a1ce35, 0x0906}, // aadeva
 	{0x07ab20a8, 0x0ab3}, // llagujarati
-	{0x07b2b22c, 0x02c6}, // hatwidest
 	{0x07e20c30, 0x017b}, // Zdot
 	{0x07e38c67, 0x33bb}, // nwsquare
 	{0x081dd122, 0x0a38}, // sagurmukhi
@@ -194,8 +180,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x085499c4, 0x0925}, // thadeva
 	{0x086a99d9, 0x01af}, // Uhorn
 	{0x087038eb, 0xfb20}, // ayinaltonehebrew
-	{0x08729ac0, 0xed18}, // bracehtipdownright
-	{0x08905fd6, 0x230b}, // floorrightbigg
 	{0x089d739a, 0x005a}, // Z
 	{0x08a131c8, 0x096d}, // sevendeva
 	{0x08a6b099, 0x02a6}, // ts
@@ -210,16 +194,13 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x09751504, 0x038c}, // Omicrontonos
 	{0x09790f28, 0x33be}, // kwsquare
 	{0x09853aa3, 0x01c1}, // clicklateral
-	{0x099430b2, 0xf7f5}, // Otildesmall
 	{0x09a03740, 0xfe5b}, // braceleftsmall
 	{0x09a4b050, 0x0ae8}, // twogujarati
-	{0x09adf253, 0xf721}, // exclamsmall
 	{0x09d4b5eb, 0x3388}, // calsquare
 	{0x09f2217d, 0x00a9}, // copyright
 	{0x09f9df24, 0x1e0c}, // Ddotbelow
 	{0x0a040d76, 0x098a}, // uubengali
 	{0x0a1d800c, 0x0291}, // zcurl
-	{0x0a3a2809, 0xf767}, // Gsmall
 	{0x0a3b8eb5, 0x044b}, // yericyrillic
 	{0x0a46f2f1, 0x0284}, // dotlessjstrokehook
 	{0x0a5cb3b1, 0x30d6}, // bukatakana
@@ -230,12 +211,9 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x0a9b47dd, 0x306f}, // hahiragana
 	{0x0aa2156d, 0xfc0c}, // tehhahisolatedarabic
 	{0x0abb4ec1, 0x0441}, // afii10083
-	{0x0ac66fc0, 0x005b}, // bracketleftBigg
 	{0x0adbba15, 0x21c0}, // harpoonrightbarbup
 	{0x0ae79191, 0x01e1}, // adotmacron
-	{0x0aecd30e, 0x05e8}, // reshpatahhebrew
 	{0x0af77d49, 0x09ea}, // fourbengali
-	{0x0b1d2d0d, 0xf6f3}, // tsuperior
 	{0x0b367d7a, 0x0421}, // Escyrillic
 	{0x0b4b7082, 0xff62}, // cornerbracketlefthalfwidth
 	{0x0b6abf22, 0x20aa}, // sheqel
@@ -268,7 +246,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x0cf04968, 0x02be}, // ringhalfright
 	{0x0d0eb2f0, 0x315d}, // weokorean
 	{0x0d21bb72, 0x2550}, // SF430000
-	{0x0d3a66b8, 0x2309}, // ceilingrightbigg
 	{0x0d47308f, 0x05d4}, // he
 	{0x0d747cfe, 0x04c3}, // Kahookcyrillic
 	{0x0d932b5b, 0x30d2}, // hikatakana
@@ -299,7 +276,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x0efc1459, 0x09b6}, // shabengali
 	{0x0f02712c, 0x00ea}, // ecircumflex
 	{0x0f066e82, 0x33b3}, // mssquare
-	{0x0f13ed93, 0xf7f8}, // Oslashsmall
 	{0x0f1a6991, 0x24c4}, // Ocircle
 	{0x0f2768b1, 0x05b1}, // hatafsegolwidehebrew
 	{0x0f332d5e, 0x002e}, // period
@@ -364,26 +340,20 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x12bdd9c7, 0x21a6}, // mapsto
 	{0x12d3e8f7, 0x30c0}, // dakatakana
 	{0x12def4bb, 0xfeba}, // sadfinalarabic
-	{0x12e14144, 0xf726}, // ampersandsmall
 	{0x12e22bb8, 0x33c2}, // amsquare
 	{0x1329e467, 0x0311}, // breveinvertedcmb
 	{0x132b7bd0, 0x2a04}, // unionmultitext
 	{0x132e0697, 0x01b3}, // Yhook
-	{0x13402162, 0xf6be}, // dotlessj
 	{0x134d9c31, 0x304c}, // gahiragana
 	{0x13597fb3, 0x04d9}, // afii10846
 	{0x135d6341, 0x33c8}, // dbsquare
 	{0x13635045, 0x0300}, // gravecmb
-	{0x1367bcdf, 0xf88a}, // maiekupperleftthai
 	{0x1369554a, 0x207f}, // nsuperior
-	{0x136e8d95, 0xf885}, // saraileftthai
 	{0x1376f153, 0x0403}, // afii10052
 	{0x1384d3da, 0x05b4}, // hiriqnarrowhebrew
 	{0x13868087, 0x0636}, // afii57430
-	{0x138b1601, 0x0621}, // hamzafathatanarabic
 	{0x138fca68, 0x0a30}, // ragurmukhi
 	{0x13a69297, 0x0917}, // gadeva
-	{0x13bc5cc6, 0xf88d}, // maithoupperleftthai
 	{0x13bcc567, 0x25d1}, // circlewithrighthalfblack
 	{0x13ccaf5f, 0x3061}, // tihiragana
 	{0x13dc1f9e, 0x05b1}, // hatafsegol
@@ -392,7 +362,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x14117f5a, 0x1e77}, // ucircumflexbelow
 	{0x141d63ad, 0x1eda}, // Ohornacute
 	{0x142c024d, 0x013a}, // lacute
-	{0x142c46b3, 0x2a06}, // unionsqdisplay
 	{0x143d707c, 0x05a6}, // merkhakefulalefthebrew
 	{0x146c75cf, 0x3275}, // ieungacirclekorean
 	{0x146f18bb, 0xfb36}, // zayindagesh
@@ -403,12 +372,10 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x14c795cf, 0x0051}, // Q
 	{0x14d1cd4b, 0x2284}, // notsubset
 	{0x14d2cd8a, 0x012f}, // iogonek
-	{0x14eb6d31, 0x02dc}, // tildewider
 	{0x14f2bc91, 0x1eab}, // acircumflextilde
 	{0x15045632, 0x05d1}, // bet
 	{0x1505dc02, 0x3083}, // yasmallhiragana
 	{0x152785c0, 0x30a1}, // asmallkatakana
-	{0x1532a7b6, 0x05e7}, // qofsegolhebrew
 	{0x15642935, 0x23a9}, // braceleftbt
 	{0x1564e3f1, 0x05b9}, // holam26
 	{0x15771621, 0x042c}, // Softsigncyrillic
@@ -420,10 +387,8 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x15f8ec13, 0x037e}, // questiongreek
 	{0x1602acd3, 0xff38}, // Xmonospace
 	{0x1610c2ad, 0x3181}, // yesieungkorean
-	{0x161db4d0, 0xf76c}, // Lsmall
 	{0x16393f6d, 0xfef6}, // lamalefmaddaabovefinalarabic
 	{0x164a5cd1, 0x0058}, // X
-	{0x164b6531, 0xf7eb}, // Edieresissmall
 	{0x165341dd, 0x02e0}, // gammasuperior
 	{0x167b1fac, 0xfebc}, // sadmedialarabic
 	{0x168b9d05, 0x04d5}, // aiecyrillic
@@ -437,7 +402,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x170fc75c, 0x306c}, // nuhiragana
 	{0x171b516a, 0x0a39}, // hagurmukhi
 	{0x17301afd, 0x3023}, // threehangzhou
-	{0x17314b3c, 0xf7a8}, // Dieresissmall
 	{0x173c8456, 0x338b}, // nfsquare
 	{0x178d45ae, 0x337e}, // meizierasquare
 	{0x17a9e49b, 0x322a}, // ideographicmoonparen
@@ -458,10 +422,7 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x185b816d, 0x0146}, // ncommaaccent
 	{0x187ab455, 0x0e42}, // saraothai
 	{0x1885706c, 0x3157}, // okorean
-	{0x18905b85, 0x05e8}, // reshsegol
 	{0x18923bff, 0x2135}, // aleph
-	{0x1892a13e, 0x005d}, // bracketrightbigg
-	{0x18a1a8e1, 0x02c2}, // a40
 	{0x18a5c10a, 0x2584}, // dnblock
 	{0x18a72a69, 0xfb3a}, // finalkafdageshhebrew
 	{0x18b82c53, 0x045c}, // afii10109
@@ -472,10 +433,8 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x18ea53c7, 0x0663}, // afii57395
 	{0x18ec3f78, 0x05e8}, // afii57688
 	{0x18f0d507, 0xfe9f}, // jeeminitialarabic
-	{0x18fb8128, 0x25c1}, // a1
 	{0x190a56aa, 0xfe5a}, // parenrightsmall
 	{0x1920c2c2, 0xff65}, // middledotkatakanahalfwidth
-	{0x1925bd4b, 0xf6f9}, // Lslashsmall
 	{0x192c8826, 0x2283}, // superset
 	{0x1940b4fd, 0x2251}, // geometricallyequal
 	{0x19427103, 0x2a01}, // circleplustext
@@ -483,7 +442,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x194ec3dd, 0xfb38}, // tetdageshhebrew
 	{0x195fdeed, 0x3013}, // getamark
 	{0x197f461f, 0x1e03}, // bdotaccent
-	{0x1991ce27, 0x007b}, // braceleftBigg
 	{0x1994a487, 0x0481}, // koppacyrillic
 	{0x19985117, 0x339a}, // nmsquare
 	{0x19a1a98b, 0x00ad}, // sfthyphen
@@ -498,7 +456,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x1a00d3da, 0x032b}, // dblarchinvertedbelowcmb
 	{0x1a260946, 0x0447}, // checyrillic
 	{0x1a287ed9, 0x0922}, // ddhadeva
-	{0x1a28dcc1, 0x005b}, // bracketleftBig
 	{0x1a3b33cb, 0xfed7}, // qafinitialarabic
 	{0x1a3bf649, 0x05b2}, // hatafpatahhebrew
 	{0x1a4f3484, 0x0913}, // odeva
@@ -522,7 +479,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x1c16ebae, 0x0126}, // Hbar
 	{0x1c2631dd, 0x3385}, // KBsquare
 	{0x1c56e166, 0xfd3f}, // parenrightaltonearabic
-	{0x1c70f0f3, 0xf7e7}, // Ccedillasmall
 	{0x1c94529b, 0x21b5}, // carriagereturn
 	{0x1cb10674, 0x0a27}, // dhagurmukhi
 	{0x1cb5367a, 0x0532}, // Benarmenian
@@ -534,7 +490,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x1d2559c8, 0x03b9}, // iota
 	{0x1d25e3ef, 0x043c}, // emcyrillic
 	{0x1d420ccb, 0x0430}, // afii10065
-	{0x1d91efe5, 0xf6d8}, // dieresisgrave
 	{0x1d954d85, 0x09a4}, // tabengali
 	{0x1da7ae8c, 0x00d7}, // multiply
 	{0x1db92094, 0x053d}, // Xeharmenian
@@ -546,7 +501,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x1df7638a, 0x00e4}, // adieresis
 	{0x1dfc2837, 0x217a}, // elevenroman
 	{0x1e0312fa, 0x0290}, // zretroflexhook
-	{0x1e065c3a, 0xf7f1}, // Ntildesmall
 	{0x1e1332fd, 0x0287}, // tturned
 	{0x1e25355a, 0x0461}, // omegacyrillic
 	{0x1e38c8d8, 0x012a}, // Imacron
@@ -563,12 +517,9 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x1edf9913, 0x1e16}, // Emacronacute
 	{0x1ef123d5, 0x0413}, // Gecyrillic
 	{0x1f06ae25, 0xfb31}, // betdageshhebrew
-	{0x1f0c6a2a, 0x0651}, // shaddafathatanarabic
 	{0x1f1df6d1, 0x3381}, // nasquare
 	{0x1f2383d4, 0x0004}, // controlEOT
 	{0x1f2a4214, 0xfdfa}, // sallallahoualayhewasallamarabic
-	{0x1f5314ee, 0xf6fc}, // Ringsmall
-	{0x1f5dc79d, 0xf7b4}, // Acutesmall
 	{0x1f60dad4, 0x05e8}, // reshhebrew
 	{0x1f686fbe, 0xff2c}, // Lmonospace
 	{0x1f90aeb4, 0xff7b}, // sakatakanahalfwidth
@@ -582,16 +533,13 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x1feea4ab, 0x0623}, // afii57411
 	{0x20061138, 0x1e02}, // Bdotaccent
 	{0x200e9513, 0x030f}, // dblgravecmb
-	{0x2012c16a, 0xf6d4}, // cyrbreve
 	{0x201a6676, 0x2310}, // logicalnotreversed
 	{0x201e3ee9, 0x0310}, // candrabinducmb
 	{0x2024cfd1, 0x0475}, // afii10196
 	{0x2038e6d5, 0x307a}, // pehiragana
 	{0x205d0ec7, 0x03a0}, // Pi
-	{0x206a255a, 0xf775}, // Usmall
 	{0x207bf81e, 0xff84}, // tokatakanahalfwidth
 	{0x2086c569, 0x00d2}, // Ograve
-	{0x2086fb87, 0xf772}, // Rsmall
 	{0x208b3b40, 0xfed0}, // ghainmedialarabic
 	{0x209bfca6, 0x24d5}, // fcircle
 	{0x20a31ebd, 0x2489}, // twoperiod
@@ -629,13 +577,11 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x2274db8f, 0xff08}, // parenleftmonospace
 	{0x2282e86d, 0x00fa}, // uacute
 	{0x22a883d2, 0x25c7}, // whitediamond
-	{0x22b082b8, 0x005c}, // backslashBigg
 	{0x22c93a2b, 0x338d}, // mugsquare
 	{0x22e3ac9e, 0xff4c}, // lmonospace
 	{0x2320c842, 0x0277}, // omegalatinclosed
 	{0x2324e69c, 0x2665}, // heart
 	{0x2351e945, 0x0a8a}, // uugujarati
-	{0x2352b38c, 0xf6d7}, // dieresisacute
 	{0x2356706f, 0x0541}, // Jaarmenian
 	{0x23679572, 0x1ef1}, // uhorndotbelow
 	{0x236d79e4, 0x301e}, // quotedblprime
@@ -653,7 +599,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x2415f58f, 0x3069}, // dohiragana
 	{0x2419b09a, 0x038f}, // Omegatonos
 	{0x241b0583, 0x0a9e}, // nyagujarati
-	{0x241cc39b, 0x007b}, // braceleftbigg
 	{0x241f6494, 0x3105}, // bbopomofo
 	{0x2459d6f7, 0x0aea}, // fourgujarati
 	{0x24688db0, 0x02c1}, // glottalstopreversedmod
@@ -669,11 +614,9 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x24f5be18, 0x0308}, // dieresiscmb
 	{0x2527d2da, 0x300c}, // cornerbracketleft
 	{0x252ef6ac, 0x01de}, // Adieresismacron
-	{0x2533ec5c, 0x05e8}, // reshtsere
 	{0x253f33be, 0x006e}, // n
 	{0x2543ce81, 0x05c1}, // shindothebrew
 	{0x254b8857, 0x0929}, // nnnadeva
-	{0x2556a01a, 0x005c}, // backslashbigg
 	{0x25725d01, 0x0496}, // Zhedescendercyrillic
 	{0x2592eb8c, 0x1e39}, // ldotbelowmacron
 	{0x25a29a9e, 0x000a}, // controlLF
@@ -702,11 +645,10 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x26b9c1d9, 0x0e30}, // saraathai
 	{0x26c43ea8, 0x0911}, // ocandradeva
 	{0x26caa803, 0x21d4}, // arrowdblboth
-	{0x26cb382e, 0xf8fc}, // bracerighttp
+	{0x26cb382e, 0x23ab}, // bracerighttp
 	{0x26f6f992, 0x04e4}, // Idieresiscyrillic
 	{0x26fb496b, 0x3351}, // rittorusquare
 	{0x27075678, 0x012e}, // Iogonek
-	{0x271cd3fa, 0x27e8}, // angbracketleftBig
 	{0x2731451f, 0x0408}, // afii10057
 	{0x273977ae, 0x0435}, // afii10070
 	{0x27487450, 0x007e}, // asciitilde
@@ -724,25 +666,20 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x283f3216, 0x2075}, // fivesuperior
 	{0x28898020, 0x0281}, // Rsmallinverted
 	{0x288edd59, 0x24cc}, // Wcircle
-	{0x2892f3ea, 0x2a02}, // circlemultiplydisplay
 	{0x28d9fe2f, 0x0e41}, // saraaethai
 	{0x28dd4931, 0x3234}, // ideographicnameparen
 	{0x28e31924, 0x0a6c}, // sixgurmukhi
 	{0x28e4057d, 0xfc58}, // yehmeemisolatedarabic
 	{0x28f71acd, 0x0633}, // afii57427
 	{0x290ed42e, 0x1e18}, // Ecircumflexbelow
-	{0x2916bf1f, 0xf7ef}, // Idieresissmall
 	{0x29287ce1, 0x03d2}, // Upsilon1
 	{0x29346ac3, 0x2021}, // daggerdbl
 	{0x29371ded, 0x1e8f}, // ydotaccent
-	{0x2951ba53, 0xf6e2}, // commasuperior
 	{0x29734fd7, 0x092d}, // bhadeva
 	{0x298e1b46, 0x01ea}, // Oogonek
 	{0x29958ce9, 0x0005}, // controlENQ
 	{0x29a8f130, 0x04d4}, // Aiecyrillic
 	{0x29ab0eda, 0x0146}, // ncedilla
-	{0x29b0158e, 0x05e7}, // qofshevahebrew
-	{0x29be1625, 0x0028}, // parenleftbig
 	{0x29c07bd0, 0x305e}, // zohiragana
 	{0x29d0597d, 0x262f}, // yinyang
 	{0x29d51dd2, 0x06d1}, // yehthreedotsbelowarabic
@@ -761,14 +698,11 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x2a8e7779, 0x0ad0}, // omgujarati
 	{0x2ac0e180, 0x33a6}, // kmcubedsquare
 	{0x2ac17d0f, 0x00f3}, // oacute
-	{0x2acd450a, 0x002f}, // slashbig
-	{0x2ad04347, 0xed12}, // arrowvertexdbl
 	{0x2ae749c7, 0x00e1}, // aacute
 	{0x2ae8215f, 0x001d}, // controlGS
 	{0x2ae8c5a6, 0x21c4}, // arrowrightoverleft
 	{0x2aedcd2c, 0x09fa}, // issharbengali
 	{0x2afb134c, 0xfb03}, // ffi
-	{0x2b2385f1, 0xf760}, // Gravesmall
 	{0x2b27655e, 0x261c}, // pointingindexleftwhite
 	{0x2b3ff353, 0x2557}, // SF250000
 	{0x2b42ad49, 0xfe55}, // colonsmall
@@ -779,7 +713,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x2b9750e3, 0x2200}, // universal
 	{0x2b9c968a, 0x0315}, // commaaboverightcmb
 	{0x2bb5189c, 0x25e3}, // blacklowerlefttriangle
-	{0x2bb9b9bf, 0x0621}, // hamzafathaarabic
 	{0x2bd253b1, 0x09bf}, // ivowelsignbengali
 	{0x2be6415c, 0x05b3}, // hatafqamatshebrew
 	{0x2beb7c62, 0x013c}, // lcommaaccent
@@ -794,7 +727,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x2cdfcd2a, 0x30cb}, // nikatakana
 	{0x2cf9daf5, 0x3228}, // nineideographicparen
 	{0x2d2e3883, 0x2190}, // arrowleft
-	{0x2d317780, 0xf778}, // Xsmall
 	{0x2d329c65, 0xfb3c}, // lameddageshhebrew
 	{0x2d39ea69, 0x019e}, // nlegrightlong
 	{0x2d3b565d, 0x05ea}, // afii57690
@@ -808,11 +740,9 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x2d9b14ff, 0xfb6d}, // vehmedialarabic
 	{0x2da2ea79, 0x313d}, // rieulsioskorean
 	{0x2daa1b6f, 0x090a}, // uudeva
-	{0x2db9bc28, 0xf7e3}, // Atildesmall
 	{0x2e04353d, 0x1ea9}, // acircumflexhookabove
 	{0x2e043b05, 0xff0a}, // asteriskmonospace
 	{0x2e10a2b1, 0x0374}, // numeralsigngreek
-	{0x2e1b300e, 0x05e8}, // reshpatah
 	{0x2e1eaa7d, 0xfb49}, // shindagesh
 	{0x2e2c25c0, 0x0392}, // Beta
 	{0x2e356485, 0x09c2}, // uuvowelsignbengali
@@ -821,7 +751,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x2e647759, 0x33d6}, // molsquare
 	{0x2e7c6436, 0x3048}, // ehiragana
 	{0x2e915a9d, 0xfe3b}, // blacklenticularbracketleftvertical
-	{0x2e9d6cac, 0xf7f0}, // Ethsmall
 	{0x2e9e14a6, 0x0454}, // ecyrillic
 	{0x2e9ef541, 0x0192}, // florin
 	{0x2ea8b970, 0x327a}, // phieuphacirclekorean
@@ -835,7 +764,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x2f06c380, 0x0a91}, // ocandragujarati
 	{0x2f0e722f, 0x0021}, // exclam
 	{0x2f14e4ad, 0x0183}, // btopbar
-	{0x2f1fd59c, 0xf6d1}, // cyrBreve
 	{0x2f22b335, 0x305f}, // tahiragana
 	{0x2f247a45, 0x00b5}, // mu
 	{0x2f42e9c9, 0x0405}, // afii10054
@@ -868,7 +796,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x30c9bc6e, 0x0a1e}, // nyagurmukhi
 	{0x30cd38cb, 0x33d8}, // pmsquare
 	{0x30d25d42, 0x2089}, // nineinferior
-	{0x30e6287a, 0x05e7}, // qofhatafpatah
 	{0x30eada85, 0x2219}, // bulletoperator
 	{0x30f64fef, 0x20aa}, // sheqelhebrew
 	{0x310a4774, 0x337f}, // corporationsquare
@@ -882,7 +809,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x31f928de, 0x05df}, // finalnun
 	{0x31fab77d, 0x1eea}, // Uhorngrave
 	{0x3207407e, 0x046b}, // yusbigcyrillic
-	{0x3225e9b9, 0x05dc}, // lamedholamhebrew
 	{0x3238fa28, 0x3004}, // jis
 	{0x323ea229, 0x33ac}, // gpasquare
 	{0x324496b3, 0x33bf}, // mwmegasquare
@@ -890,7 +816,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x324bc39e, 0x22da}, // lessequalorgreater
 	{0x3266451e, 0x30f2}, // wokatakana
 	{0x326ca1fd, 0x013f}, // Ldot
-	{0x328fa9de, 0x230b}, // floorrightBigg
 	{0x32930f95, 0x046f}, // ksicyrillic
 	{0x329a975f, 0x0a0a}, // uugurmukhi
 	{0x329ed55c, 0x04e1}, // dzeabkhasiancyrillic
@@ -901,8 +826,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x330263f2, 0x3136}, // nieunhieuhkorean
 	{0x3303dbcb, 0x04b2}, // Hadescendercyrillic
 	{0x33042de7, 0x1e90}, // Zcircumflex
-	{0x33231bf5, 0x27e8}, // angbracketleftbigg
-	{0x335a816e, 0xf739}, // nineoldstyle
 	{0x335e3259, 0x3022}, // twohangzhou
 	{0x336106b8, 0x05d7}, // afii57671
 	{0x33821f87, 0x05e2}, // ayinhebrew
@@ -914,7 +837,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x33ea63c8, 0x24df}, // pcircle
 	{0x33f59002, 0x0285}, // eshsquatreversed
 	{0x340746a2, 0xff4a}, // jmonospace
-	{0x340dcbd1, 0x21d1}, // arrowdbltp
 	{0x3425ba3a, 0x056d}, // xeharmenian
 	{0x342d52b5, 0x25cb}, // whitecircle
 	{0x34399add, 0x0034}, // four
@@ -925,7 +847,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x345791f2, 0x027c}, // rlongleg
 	{0x346086da, 0x2286}, // reflexsubset
 	{0x3463147c, 0x1e69}, // sdotbelowdotaccent
-	{0x3471790f, 0xf6f7}, // Dotaccentsmall
 	{0x3490ad97, 0x047a}, // Omegaroundcyrillic
 	{0x34a7b989, 0x006f}, // o
 	{0x34a88183, 0x2640}, // female
@@ -933,7 +854,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x34bab99c, 0x24e0}, // qcircle
 	{0x34c88fb4, 0x2312}, // arc
 	{0x34c908a5, 0x1eb4}, // Abrevetilde
-	{0x34d1f962, 0x05e8}, // reshholamhebrew
 	{0x34df3d1c, 0x00a1}, // exclamdown
 	{0x34e969fb, 0x05a0}, // telishagedolahebrew
 	{0x34f9cd37, 0x010b}, // cdot
@@ -945,7 +865,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x35440d94, 0x040c}, // Kjecyrillic
 	{0x354dad21, 0x0129}, // itilde
 	{0x35514624, 0x00d6}, // Odieresis
-	{0x357c478e, 0xf736}, // sixoldstyle
 	{0x3596098d, 0xfb9f}, // noonghunnafinalarabic
 	{0x359e9c03, 0x0418}, // Iicyrillic
 	{0x359f6846, 0x1ebc}, // Etilde
@@ -958,10 +877,8 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x361cb4c9, 0xfb6b}, // vehfinalarabic
 	{0x361e70b8, 0x0043}, // C
 	{0x362459fb, 0xfe97}, // tehinitialarabic
-	{0x362bfa3a, 0xf732}, // twooldstyle
 	{0x362c9d3a, 0x02b0}, // hsuperior
 	{0x36678fdf, 0x2326}, // deleteright
-	{0x3673a47b, 0x05e7}, // qofqamatshebrew
 	{0x3676afc0, 0x0ac9}, // ocandravowelsigngujarati
 	{0x368bf72e, 0x0038}, // eight
 	{0x36aaad0e, 0x307b}, // hohiragana
@@ -970,8 +887,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x37117bac, 0x059b}, // tevirlefthebrew
 	{0x372986de, 0x05f3}, // gereshhebrew
 	{0x373e5e3f, 0xff27}, // Gmonospace
-	{0x37497fde, 0x25b7}, // a3
-	{0x3781d925, 0xf6ed}, // isuperior
 	{0x37866f5c, 0x00df}, // germandbls
 	{0x37a73b5a, 0xfee0}, // lammedialarabic
 	{0x37a77cc1, 0x030b}, // hungarumlautcmb
@@ -983,7 +898,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x37e460db, 0x308d}, // rohiragana
 	{0x37e5061e, 0x04a3}, // endescendercyrillic
 	{0x37f67ca7, 0x029a}, // eopenclosed
-	{0x380974a8, 0xf735}, // fiveoldstyle
 	{0x381040c4, 0x310d}, // gbopomofo
 	{0x381640e0, 0xffe3}, // macronmonospace
 	{0x381c7e4d, 0x1ece}, // Ohookabove
@@ -995,7 +909,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x38746563, 0x01b0}, // uhorn
 	{0x38880d1d, 0x0198}, // Khook
 	{0x38885f68, 0x091d}, // jhadeva
-	{0x3889a61f, 0x005b}, // bracketleftbigg
 	{0x388ccfdd, 0x30e3}, // yasmallkatakana
 	{0x3896be1c, 0x0025}, // percent
 	{0x38a80af1, 0x306d}, // nehiragana
@@ -1007,7 +920,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x38de4662, 0x1e7c}, // Vtilde
 	{0x38e73ed2, 0x01c0}, // clickdental
 	{0x38efc9e4, 0x04a6}, // Pemiddlehookcyrillic
-	{0x391bc4d9, 0xf6d3}, // dblGrave
 	{0x391e728b, 0x099a}, // cabengali
 	{0x392c00af, 0x3305}, // intisquare
 	{0x3934b5de, 0x0e43}, // saraaimaimuanthai
@@ -1061,7 +973,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x3c89c6b7, 0x2192}, // arrowright
 	{0x3c9425ca, 0x0666}, // sixhackarabic
 	{0x3c9b6897, 0xff0e}, // periodmonospace
-	{0x3c9bce6c, 0xf7ee}, // Icircumflexsmall
 	{0x3ca31461, 0x01d1}, // Ocaron
 	{0x3ca4227b, 0x0120}, // Gdot
 	{0x3ca9c5ab, 0x0345}, // ypogegrammenigreekcmb
@@ -1081,7 +992,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x3d4a2f11, 0x0187}, // Chook
 	{0x3d50ceda, 0x21a8}, // arrowupdnbse
 	{0x3d59a63c, 0x30e2}, // mokatakana
-	{0x3d64f67d, 0xf6cd}, // DieresisGrave
 	{0x3d6d45f8, 0x0688}, // ddalarabic
 	{0x3d794ead, 0x04c8}, // enhookcyrillic
 	{0x3d888246, 0x300d}, // cornerbracketright
@@ -1092,13 +1002,10 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x3da45134, 0xff3d}, // bracketrightmonospace
 	{0x3dac6cb7, 0x212e}, // estimated
 	{0x3db24f7f, 0x04eb}, // obarreddieresiscyrillic
-	{0x3dc500c0, 0xf6ca}, // Caron
 	{0x3ddbfa17, 0xfe64}, // lesssmall
-	{0x3de34107, 0xf6d2}, // cyrFlex
 	{0x3de84dee, 0x3387}, // GBsquare
 	{0x3de8cd4d, 0x02c9}, // firsttonechinese
 	{0x3deb36dc, 0x0570}, // hoarmenian
-	{0x3dee4810, 0xf7a2}, // centoldstyle
 	{0x3e08b864, 0x1e1c}, // Ecedillabreve
 	{0x3e2966c3, 0x25a7}, // squareupperlefttolowerrightfill
 	{0x3e2ad069, 0x0125}, // hcircumflex
@@ -1110,27 +1017,20 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x3e7bef16, 0x063a}, // ghainarabic
 	{0x3e9c0cab, 0x0e0d}, // yoyingthai
 	{0x3ea9e6c5, 0x044e}, // afii10096
-	{0x3eb04aa9, 0xf7f2}, // Ogravesmall
 	{0x3ec30c4d, 0x0168}, // Utilde
-	{0x3ed009a2, 0x05e8}, // reshhiriq
 	{0x3ed6d505, 0x3108}, // fbopomofo
 	{0x3edc9801, 0x031e}, // downtackbelowcmb
 	{0x3edf2653, 0x04ba}, // Shhacyrillic
 	{0x3edfbd48, 0x0959}, // khhadeva
 	{0x3ee5a28f, 0x0342}, // perispomenigreekcmb
-	{0x3ef03dd0, 0xf7e5}, // Aringsmall
 	{0x3ef2c5ca, 0x05df}, // finalnunhebrew
-	{0x3efcba10, 0x05d3}, // daletpatahhebrew
 	{0x3efcef55, 0x09a7}, // dhabengali
 	{0x3f19d4d4, 0x30e5}, // yusmallkatakana
 	{0x3f35ecb4, 0x0a0f}, // eegurmukhi
 	{0x3f36dce9, 0x061b}, // afii57403
-	{0x3f3b739c, 0x05e7}, // qofpatahhebrew
-	{0x3f4e4960, 0xf76a}, // Jsmall
 	{0x3f5ead94, 0x0456}, // icyrillic
 	{0x3f61f37a, 0x1ea3}, // ahookabove
 	{0x3f76f3d1, 0x0214}, // Udblgrave
-	{0x3f77d74f, 0x05e8}, // reshqubuts
 	{0x3f817391, 0x314b}, // khieukhkorean
 	{0x3f8b0c34, 0x30c7}, // dekatakana
 	{0x3fa4349b, 0x0e1d}, // fofathai
@@ -1141,7 +1041,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x3fe534eb, 0x0e12}, // thophuthaothai
 	{0x4016947c, 0x246b}, // twelvecircle
 	{0x401a74d3, 0x06f3}, // threepersian
-	{0x402ddc95, 0xed1a}, // bracehtipupright
 	{0x40663d0c, 0xfeb2}, // seenfinalarabic
 	{0x4069b3b1, 0x24ab}, // pparen
 	{0x407a7b83, 0x0531}, // Aybarmenian
@@ -1232,7 +1131,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x44a78c72, 0x1eef}, // uhorntilde
 	{0x44b414b4, 0xff0c}, // commamonospace
 	{0x44d687fa, 0x1e06}, // Blinebelow
-	{0x450fad6c, 0xf6fd}, // Scaronsmall
 	{0x45116064, 0x2592}, // shade
 	{0x453aa0af, 0x09f0}, // ramiddlediagonalbengali
 	{0x4546a724, 0x05d0}, // afii57664
@@ -1256,10 +1154,8 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x4611c6d0, 0x000b}, // controlVT
 	{0x461bc854, 0x0194}, // Gammaafrican
 	{0x46271982, 0x23ac}, // bracerightmid
-	{0x46375ba2, 0x23d0}, // arrowvertex
 	{0x4652be4f, 0x1e6d}, // tdotbelow
 	{0x46541398, 0x0111}, // dmacron
-	{0x46577172, 0x22c3}, // uniondisplay
 	{0x465ea2f8, 0x3202}, // tikeutparenkorean
 	{0x46611d40, 0x05bb}, // qubuts31
 	{0x466452b7, 0x321b}, // hieuhaparenkorean
@@ -1278,15 +1174,12 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x470d662e, 0x042e}, // IUcyrillic
 	{0x470da4b8, 0x0453}, // gjecyrillic
 	{0x471d219d, 0x00f4}, // ocircumflex
-	{0x47246853, 0xf890}, // maitriupperleftthai
 	{0x472c971d, 0x1e4d}, // otildeacute
 	{0x47542f2d, 0x0107}, // cacute
 	{0x47849b51, 0x05e5}, // finaltsadi
 	{0x478eb915, 0x014f}, // obreve
-	{0x47a8409c, 0x05e8}, // reshqubutshebrew
 	{0x47b12f1d, 0x3009}, // anglebracketright
 	{0x47b78334, 0x09a5}, // thabengali
-	{0x47dfd2f2, 0xf7a1}, // exclamdownsmall
 	{0x47ee62a0, 0x04f1}, // udieresiscyrillic
 	{0x480265ce, 0x06f2}, // twopersian
 	{0x48175191, 0x0130}, // Idotaccent
@@ -1303,7 +1196,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x48b11825, 0x1e3f}, // macute
 	{0x48b31eb3, 0x02a3}, // dzaltone
 	{0x48bbab6b, 0x1e68}, // Sdotbelowdotaccent
-	{0x48cf810a, 0x27e8}, // angbracketleftBigg
 	{0x48d0cd97, 0x0460}, // Omegacyrillic
 	{0x48ed1289, 0x3180}, // ssangieungkorean
 	{0x48f1ea86, 0x007c}, // verticalbar
@@ -1321,27 +1213,22 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x49c941c8, 0x0630}, // thalarabic
 	{0x49cf949f, 0x0011}, // controlDC1
 	{0x49d53679, 0x053e}, // Caarmenian
-	{0x49de9093, 0x0029}, // parenrightBig
 	{0x49e41b40, 0x0117}, // edotaccent
 	{0x4a059748, 0x2329}, // angleleft
 	{0x4a0a939e, 0x02dc}, // ilde
 	{0x4a0dc7cd, 0x0273}, // nhookretroflex
 	{0x4a1b8688, 0x0a8f}, // egujarati
-	{0x4a26a1e2, 0xf88c}, // maieklowleftthai
 	{0x4a67a4cd, 0x33c6}, // coverkgsquare
 	{0x4a6dc3e0, 0x017c}, // zdotaccent
 	{0x4a8f25d9, 0x0134}, // Jcircumflex
 	{0x4a911686, 0x042a}, // Hardsigncyrillic
 	{0x4aa9a643, 0x220c}, // notcontains
-	{0x4ab184ff, 0x221a}, // radicalbt
 	{0x4ab871b2, 0x05a9}, // telishaqetanahebrew
 	{0x4ad4b644, 0x066c}, // thousandsseparatorpersian
-	{0x4ad593e8, 0x05e7}, // qofpatah
 	{0x4adaae02, 0x30bc}, // zekatakana
 	{0x4b13bfc7, 0x261f}, // pointingindexdownwhite
 	{0x4b146e46, 0x0076}, // v
 	{0x4b1cfc1b, 0x0052}, // R
-	{0x4b214add, 0x05e8}, // reshhatafsegolhebrew
 	{0x4b69c8eb, 0x3200}, // kiyeokparenkorean
 	{0x4b7a4380, 0x326b}, // thieuthcirclekorean
 	{0x4b8cb1d3, 0x315a}, // oekorean
@@ -1360,7 +1247,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x4ca2293a, 0x0549}, // Chaarmenian
 	{0x4ca721bb, 0x24d9}, // jcircle
 	{0x4cbb6976, 0x054c}, // Raarmenian
-	{0x4cbfbcf5, 0xf6cb}, // Dieresis
 	{0x4cc2766b, 0x0474}, // Izhitsacyrillic
 	{0x4ccaa98f, 0x0292}, // ezh
 	{0x4cda32dd, 0x2592}, // shademedium
@@ -1372,12 +1258,10 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x4d66ad61, 0x0259}, // schwa
 	{0x4d6f0f44, 0x03b6}, // zeta
 	{0x4d76cbca, 0x0939}, // hadeva
-	{0x4d773822, 0x007d}, // bracerightbig
 	{0x4da2ea17, 0x30f7}, // vakatakana
 	{0x4dad3b1f, 0xff47}, // gmonospace
 	{0x4db4092d, 0x05b2}, // hatafpatahquarterhebrew
 	{0x4dc635ef, 0x03c2}, // sigmafinal
-	{0x4dccadbd, 0xf6ea}, // bsuperior
 	{0x4dd49001, 0x04ae}, // Ustraightcyrillic
 	{0x4dd4e51e, 0x05e3}, // finalpe
 	{0x4ddb0ff8, 0x3014}, // tortoiseshellbracketleft
@@ -1412,15 +1296,12 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x4fb92256, 0x216b}, // Twelveroman
 	{0x4fdd1a2b, 0x300a}, // dblanglebracketleft
 	{0x4feaecfe, 0x22c3}, // uniontext
-	{0x4fef28fa, 0xf6c3}, // commaaccent
 	{0x5004c9ab, 0x09ed}, // sevenbengali
 	{0x50166be8, 0x049a}, // Kadescendercyrillic
 	{0x501dd48e, 0x2229}, // intersection
 	{0x5024fa7b, 0x260f}, // whitetelephone
-	{0x5026482c, 0x228f}, // a60
 	{0x502bdceb, 0x3290}, // ideographsuncircle
 	{0x503133b5, 0x0009}, // controlHT
-	{0x50604a35, 0x05e7}, // qofqubuts
 	{0x507713d7, 0x2a02}, // circlemultiplytext
 	{0x50794cf3, 0x255d}, // SF260000
 	{0x508090a0, 0xff82}, // tukatakanahalfwidth
@@ -1439,7 +1320,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x51439af3, 0x064e}, // afii57454
 	{0x5147986a, 0xff5b}, // braceleftmonospace
 	{0x514d7298, 0x3238}, // ideographiclaborparen
-	{0x5153d63f, 0xf895}, // maichattawalowleftthai
 	{0x515692ea, 0x0414}, // Decyrillic
 	{0x51616742, 0x328c}, // ideographwatercircle
 	{0x51817d65, 0xfca1}, // tehjeeminitialarabic
@@ -1447,7 +1327,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x51ca7ab6, 0x00f6}, // odieresis
 	{0x51cbc424, 0x014d}, // omacron
 	{0x51d34569, 0x00e9}, // eacute
-	{0x51e4f41a, 0xf6db}, // trademarkserif
 	{0x51e6847c, 0x05b2}, // hatafpatah16
 	{0x51ed3cb2, 0x00af}, // macron
 	{0x51f006ea, 0x24af}, // tparen
@@ -1470,16 +1349,12 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x532f469f, 0x093d}, // avagrahadeva
 	{0x533e9388, 0x02bc}, // afii57929
 	{0x537b0d36, 0x0466}, // Yuslittlecyrillic
-	{0x5382e913, 0x002f}, // slashBigg
-	{0x5396a4ab, 0x2a04}, // unionmultidisplay
 	{0x53b3b784, 0xfb4a}, // tavdagesh
 	{0x53ca8524, 0x099d}, // jhabengali
-	{0x53d60270, 0x05d3}, // dalethiriqhebrew
 	{0x53d8dfb9, 0x3115}, // shbopomofo
 	{0x53e66e1a, 0x0476}, // Izhitsadblgravecyrillic
 	{0x53f49c2a, 0x066c}, // thousandsseparatorarabic
 	{0x53f951b5, 0x056f}, // kenarmenian
-	{0x53febc17, 0x05e8}, // reshqamatshebrew
 	{0x540493c8, 0x03b1}, // alpha
 	{0x540c5f40, 0x0552}, // Yiwnarmenian
 	{0x542576f9, 0x0a07}, // igurmukhi
@@ -1489,17 +1364,13 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x548a6dde, 0x0451}, // iocyrillic
 	{0x5494ff15, 0x053c}, // Liwnarmenian
 	{0x54cc0e6b, 0x0212}, // Rinvertedbreve
-	{0x54d729fd, 0xf6bf}, // LL
 	{0x54dfda54, 0xfe44}, // whitecornerbracketrightvertical
 	{0x54f8c0f2, 0x1e78}, // Utildeacute
 	{0x55003750, 0x05b0}, // shevanarrowhebrew
 	{0x55021a5a, 0x0644}, // lamarabic
-	{0x5509dd21, 0xf7bf}, // questiondownsmall
 	{0x550a9f23, 0x0452}, // djecyrillic
 	{0x550d7456, 0x0061}, // a
 	{0x5512ec97, 0x0067}, // g
-	{0x55164cbd, 0xf7fb}, // Ucircumflexsmall
-	{0x552705b9, 0xf7e1}, // Aacutesmall
 	{0x552e72ea, 0x1e8d}, // xdieresis
 	{0x5532b75e, 0x3044}, // ihiragana
 	{0x554f67fa, 0x1e4e}, // Otildedieresis
@@ -1509,9 +1380,8 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x558d2385, 0x0318}, // lefttackbelowcmb
 	{0x55aa99d5, 0xfe3f}, // anglebracketleftvertical
 	{0x55b44317, 0x1ef2}, // Ygrave
-	{0x55b8ceec, 0xed6b}, // radicalvertex
 	{0x55c6e8cd, 0x0aac}, // bagujarati
-	{0x55e74cbe, 0xf8fb}, // bracketrightbt
+	{0x55e74cbe, 0x23a6}, // bracketrightbt
 	{0x55e81ebb, 0x3124}, // angbopomofo
 	{0x56000715, 0x33b0}, // pssquare
 	{0x560f90ad, 0x25e4}, // blackupperlefttriangle
@@ -1520,24 +1390,19 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x56362764, 0x24d0}, // acircle
 	{0x565aa859, 0x30a8}, // ekatakana
 	{0x565d95fc, 0x3109}, // dbopomofo
-	{0x566af414, 0xed6a}, // radicaltp
-	{0x567e8709, 0xf6f4}, // Brevesmall
-	{0x569f0bdc, 0x05e7}, // qofqamats
 	{0x56a0101f, 0x04ac}, // Tedescendercyrillic
 	{0x56d036b9, 0x000f}, // controlSI
 	{0x56deae12, 0x0102}, // Abreve
 	{0x57050efe, 0x0145}, // Ncommaaccent
 	{0x5708e98e, 0x3154}, // ekorean
-	{0x570da3d3, 0xf8e9}, // copyrightsans
 	{0x5713d355, 0x2790}, // sevencircleinversesansserif
-	{0x575226bc, 0xf8f7}, // parenrightex
+	{0x575226bc, 0x239f}, // parenrightex
 	{0x57687403, 0x0e08}, // chochanthai
 	{0x576959da, 0x04b7}, // chedescendercyrillic
 	{0x577fdcc5, 0x033a}, // bridgeinvertedbelowcmb
 	{0x578594f4, 0x0e47}, // maitaikhuthai
 	{0x579e8de2, 0x2074}, // foursuperior
 	{0x57a10bfe, 0x0435}, // iecyrillic
-	{0x57a26403, 0xf6eb}, // dsuperior
 	{0x57c4d153, 0xfb1f}, // yodyodpatahhebrew
 	{0x57c8c90f, 0x313b}, // rieulmieumkorean
 	{0x57cea503, 0xff17}, // sevenmonospace
@@ -1555,14 +1420,12 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x587d22eb, 0x208d}, // parenleftinferior
 	{0x58a61c85, 0x1e9a}, // arighthalfring
 	{0x58ab0a67, 0x0544}, // Menarmenian
-	{0x58ae8d36, 0x05e8}, // reshhatafpatah
 	{0x58ba15a9, 0x24c9}, // Tcircle
 	{0x58c52193, 0x221a}, // radical
 	{0x58df0572, 0x0301}, // acutecmb
 	{0x58dfd388, 0x3187}, // yoyakorean
 	{0x58e61a1f, 0x05e8}, // resh
 	{0x58ea1dd9, 0x0650}, // afii57456
-	{0x59322213, 0xf7e8}, // Egravesmall
 	{0x593b3f38, 0x0aa1}, // ddagujarati
 	{0x5951351c, 0x0109}, // ccircumflex
 	{0x59664498, 0xff21}, // Amonospace
@@ -1586,7 +1449,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x5a8d2a4a, 0x09c3}, // rvocalicvowelsignbengali
 	{0x5a963c7c, 0x0e02}, // khokhaithai
 	{0x5acd345c, 0x339c}, // squaremm
-	{0x5ad6e1c9, 0x05e7}, // qofsegol
 	{0x5af634c5, 0x059e}, // gershayimaccenthebrew
 	{0x5b041347, 0x0581}, // coarmenian
 	{0x5b0fd985, 0x0360}, // tildedoublecmb
@@ -1598,7 +1460,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x5b46f9e7, 0x2080}, // zeroinferior
 	{0x5b54a5c3, 0x05e1}, // afii57681
 	{0x5b5f52e7, 0x0421}, // afii10035
-	{0x5b68b5ed, 0xf892}, // maitrilowleftthai
 	{0x5b6ab184, 0x25ef}, // largecircle
 	{0x5b6f6c30, 0x0003}, // controlETX
 	{0x5b720455, 0x014c}, // Omacron
@@ -1621,11 +1482,9 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x5c4a060e, 0x0e29}, // sorusithai
 	{0x5c6b0ced, 0x05b8}, // qamats33
 	{0x5c71c76c, 0x24b8}, // Ccircle
-	{0x5c738b36, 0xf776}, // Vsmall
 	{0x5c7f4966, 0x01b8}, // Ezhreversed
 	{0x5c97be88, 0x0a2a}, // pagurmukhi
 	{0x5c9a7487, 0x30ec}, // rekatakana
-	{0x5c9f86aa, 0x05e8}, // reshshevahebrew
 	{0x5ca0edc2, 0x01e7}, // gcaron
 	{0x5cad2e17, 0x0679}, // tteharabic
 	{0x5cb64e9e, 0x0150}, // Ohungarumlaut
@@ -1644,7 +1503,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x5d32256c, 0x25c6}, // blackdiamond
 	{0x5d333915, 0x2234}, // therefore
 	{0x5d42ce05, 0x30c2}, // dikatakana
-	{0x5d4fa82e, 0xf724}, // dollaroldstyle
 	{0x5d590cb1, 0x05bb}, // qubutsnarrowhebrew
 	{0x5d71a05b, 0x0017}, // controlETB
 	{0x5d85b369, 0x05b8}, // qamats29
@@ -1653,7 +1511,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x5dba07ed, 0x22a5}, // perpendicular
 	{0x5dbeec87, 0x01cd}, // Acaron
 	{0x5de3b63c, 0x09cb}, // ovowelsignbengali
-	{0x5df717ca, 0x05e8}, // reshtserehebrew
 	{0x5e0aac56, 0x0200}, // Adblgrave
 	{0x5e1c8dfa, 0x05b0}, // sheva2e
 	{0x5e27fa57, 0xff6d}, // yusmallkatakanahalfwidth
@@ -1671,7 +1528,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x5f4a5f07, 0x0abe}, // aavowelsigngujarati
 	{0x5f5c5d5f, 0x041b}, // Elcyrillic
 	{0x5f63748c, 0x03e6}, // Kheicoptic
-	{0x5f6ca553, 0x230a}, // floorleftbigg
 	{0x5f7dc76d, 0x033b}, // squarebelowcmb
 	{0x5f881d5c, 0x3160}, // yukorean
 	{0x5f8f63e2, 0x24a0}, // eparen
@@ -1679,7 +1535,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x5fa5f5cc, 0xfefa}, // lamalefhamzabelowfinalarabic
 	{0x5fb56903, 0x095d}, // rhadeva
 	{0x5fbeac33, 0x028b}, // vhook
-	{0x5fd46519, 0xf6ef}, // msuperior
 	{0x5fe9065e, 0x042e}, // afii10048
 	{0x6037ae88, 0x1ef3}, // ygrave
 	{0x603b5882, 0x2287}, // reflexsuperset
@@ -1704,7 +1559,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x61503571, 0x027b}, // rhookturned
 	{0x6154bc05, 0x043b}, // afii10077
 	{0x617c687c, 0x01a2}, // Oi
-	{0x618467d6, 0xf7f3}, // Oacutesmall
 	{0x6198a771, 0xfef3}, // alefmaksurainitialarabic
 	{0x61a21109, 0x01c9}, // lj
 	{0x61a2d0df, 0x258c}, // lfblock
@@ -1719,14 +1573,12 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x61f36361, 0x06f8}, // eightpersian
 	{0x61fe712f, 0x20a4}, // afii08941
 	{0x621057dd, 0x1ef5}, // ydotbelow
-	{0x62106755, 0xf6e5}, // hypheninferior
 	{0x62127977, 0x266a}, // musicalnote
 	{0x62161c15, 0x05da}, // finalkafhebrew
 	{0x6229838d, 0x05d0}, // alef
 	{0x62447ae3, 0x0314}, // commareversedabovecmb
 	{0x6248b5e6, 0x33dd}, // wbsquare
 	{0x625320aa, 0x30b2}, // gekatakana
-	{0x6259e0bf, 0xf6f1}, // rsuperior
 	{0x6260c6fc, 0x0589}, // periodarmenian
 	{0x6265e881, 0x2266}, // lessoverequal
 	{0x626cbaa4, 0x01bf}, // wynn
@@ -1734,7 +1586,7 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x62896f4a, 0x05f2}, // yodyodhebrew
 	{0x628a5951, 0xff56}, // vmonospace
 	{0x62a11b25, 0x1e87}, // wdotaccent
-	{0x62accaf5, 0xf8ed}, // parenleftbt
+	{0x62accaf5, 0x239d}, // parenleftbt
 	{0x62b2cd2d, 0x00c2}, // Acircumflex
 	{0x62b6e7ac, 0x01a5}, // phook
 	{0x62c361d5, 0x05e2}, // afii57682
@@ -1755,7 +1607,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x637d3539, 0x00bc}, // onequarter
 	{0x6389d9bb, 0x0641}, // afii57441
 	{0x63a82931, 0x0297}, // cstretched
-	{0x63ab7e3b, 0xf6dd}, // rupiah
 	{0x63d84bb6, 0x2281}, // notsucceeds
 	{0x63dfed74, 0x311f}, // eibopomofo
 	{0x63e274d2, 0xfc0b}, // tehjeemisolatedarabic
@@ -1767,12 +1618,9 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x64468e36, 0x0e18}, // thothongthai
 	{0x64517fe8, 0x004b}, // K
 	{0x6453c78e, 0x064e}, // fathalowarabic
-	{0x6454154f, 0xf6ec}, // esuperior
 	{0x6460d798, 0x3025}, // fivehangzhou
-	{0x64699e37, 0x2309}, // ceilingrightBigg
 	{0x646b157e, 0x3242}, // ideographicselfparen
 	{0x646c5c19, 0x0ab5}, // vagujarati
-	{0x64755597, 0x05e7}, // qofholamhebrew
 	{0x647eca4f, 0x09ae}, // mabengali
 	{0x64a1b76b, 0x30fa}, // vokatakana
 	{0x64d00b32, 0x0114}, // Ebreve
@@ -1789,13 +1637,12 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x6543f12c, 0x01d5}, // Udieresismacron
 	{0x654d08a0, 0x0e3a}, // phinthuthai
 	{0x657ffabd, 0x22ee}, // ellipsisvertical
-	{0x6594aba1, 0x02c3}, // a41
 	{0x6598fbfe, 0x3112}, // xbopomofo
 	{0x65a5bd1b, 0x24e1}, // rcircle
 	{0x65be15d1, 0x0a08}, // iigurmukhi
 	{0x65c095c5, 0x200e}, // afii299
 	{0x65cc1f56, 0x0545}, // Yiarmenian
-	{0x662a6586, 0xf8f8}, // parenrightbt
+	{0x662a6586, 0x23a0}, // parenrightbt
 	{0x662a831c, 0x1eeb}, // uhorngrave
 	{0x663a2c1a, 0x3300}, // apaatosquare
 	{0x6642f834, 0x0361}, // breveinverteddoublecmb
@@ -1806,11 +1653,8 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x666faf51, 0xfba5}, // hehhamzaabovefinalarabic
 	{0x6689dbc7, 0x33cb}, // HPsquare
 	{0x668e9764, 0x30a2}, // akatakana
-	{0x669881eb, 0xf8e5}, // radicalex
-	{0x66b92e17, 0x05e8}, // reshholam
 	{0x66bb979c, 0x246c}, // thirteencircle
 	{0x66c590a5, 0x2236}, // ratio
-	{0x66e750ef, 0xf7ec}, // Igravesmall
 	{0x66e9c5c7, 0x3084}, // yahiragana
 	{0x66ef8fdf, 0x040f}, // afii10145
 	{0x66fb9b49, 0x33c9}, // gysquare
@@ -1824,7 +1668,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x6776a85a, 0x0ac7}, // evowelsigngujarati
 	{0x6779be95, 0x3113}, // zhbopomofo
 	{0x6785194b, 0x221f}, // rightangle
-	{0x67949ab4, 0xf891}, // maitrilowrightthai
 	{0x679d9205, 0x02c5}, // arrowheaddownmod
 	{0x679dcadd, 0x0e54}, // fourthai
 	{0x679ffc49, 0x2024}, // onedotenleader
@@ -1839,13 +1682,10 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x6811e3e1, 0x0404}, // Ecyrillic
 	{0x6814026d, 0x02c8}, // verticallinemod
 	{0x682b08dd, 0x01ac}, // Thook
-	{0x683090d6, 0xf6f0}, // osuperior
 	{0x6853e235, 0x0652}, // sukunarabic
 	{0x685932be, 0xfe36}, // parenrightvertical
-	{0x68744fba, 0x220f}, // producttext
 	{0x68a76955, 0x00c7}, // Ccedilla
 	{0x68b3215e, 0x0339}, // ringhalfrightbelowcmb
-	{0x68b3ae0f, 0x222e}, // contintegraldisplay
 	{0x68b98a65, 0x0679}, // afii57511
 	{0x68ccd1d8, 0x3212}, // mieumaparenkorean
 	{0x68eb418e, 0x3011}, // blacklenticularbracketright
@@ -1882,14 +1722,11 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x6b83db74, 0x2295}, // circleplus
 	{0x6b85cd6e, 0x00a4}, // currency
 	{0x6b8b924f, 0x30d8}, // hekatakana
-	{0x6b8f0a54, 0xf6df}, // centinferior
 	{0x6b908b1b, 0x09e7}, // onebengali
 	{0x6b98f18c, 0x212b}, // angstrom
 	{0x6b9adcc4, 0x25cf}, // blackcircle
 	{0x6b9f4fbe, 0x0940}, // iivowelsigndeva
-	{0x6ba8c1e2, 0xf6ce}, // Grave
 	{0x6baa5ba4, 0x03ce}, // omegatonos
-	{0x6bb62dc9, 0xf77a}, // Zsmall
 	{0x6bbd76c8, 0x0936}, // shadeva
 	{0x6bca6ff5, 0xfe4a}, // overlinecenterline
 	{0x6bd59d12, 0x0915}, // kadeva
@@ -1897,10 +1734,8 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x6be13af7, 0x2199}, // arrowdownleft
 	{0x6bf10a81, 0x2015}, // horizontalbar
 	{0x6c0e37b1, 0x30ce}, // nokatakana
-	{0x6c0f6861, 0x05e7}, // qofhatafsegolhebrew
 	{0x6c11086e, 0x0a1c}, // jagurmukhi
 	{0x6c180b9f, 0x0462}, // Yatcyrillic
-	{0x6c23928a, 0x222e}, // contintegraltext
 	{0x6c429460, 0xfb40}, // nundageshhebrew
 	{0x6c5c9da6, 0x0457}, // yicyrillic
 	{0x6c781e8a, 0x25bd}, // whitedownpointingtriangle
@@ -1913,7 +1748,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x6d02864a, 0x049c}, // Kaverticalstrokecyrillic
 	{0x6d1b554b, 0x0982}, // anusvarabengali
 	{0x6d3fc0d7, 0x040f}, // Dzhecyrillic
-	{0x6d4379b8, 0x220f}, // productdisplay
 	{0x6d519305, 0x2169}, // Tenroman
 	{0x6d63a915, 0x02bc}, // apostrophemod
 	{0x6d6c6ece, 0x307f}, // mihiragana
@@ -1960,10 +1794,7 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x6fae2151, 0x0aef}, // ninegujarati
 	{0x6fbeef2a, 0x044d}, // ereversedcyrillic
 	{0x6fc01d9f, 0x00f8}, // oslash
-	{0x6fdfa2dc, 0xf6e7}, // periodinferior
-	{0x70068cb8, 0xf7ea}, // Ecircumflexsmall
 	{0x702ecc19, 0x3054}, // gohiragana
-	{0x70300d95, 0xf761}, // Asmall
 	{0x70534c83, 0x05a4}, // mahapakhlefthebrew
 	{0x7061d5ad, 0x255a}, // SF380000
 	{0x707057b4, 0xfb2e}, // alefpatahhebrew
@@ -1971,7 +1802,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x7077f8df, 0x0163}, // tcommaaccent
 	{0x708cf64a, 0x0944}, // rrvocalicvowelsigndeva
 	{0x709b2bbe, 0x0056}, // V
-	{0x709b801f, 0x05da}, // finalkafshevahebrew
 	{0x70a0d365, 0xfeee}, // wawfinalarabic
 	{0x70a7b34b, 0x05b5}, // tsere12
 	{0x70c1bcae, 0x1ede}, // Ohornhookabove
@@ -2006,7 +1836,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x7278753d, 0x04d7}, // iebrevecyrillic
 	{0x728cf068, 0x020f}, // oinvertedbreve
 	{0x728f761b, 0x3111}, // qbopomofo
-	{0x72ad941b, 0xf733}, // threeoldstyle
 	{0x72b3c6a8, 0x00b4}, // acute
 	{0x72ba7ff6, 0x3093}, // nhiragana
 	{0x72c6f1c4, 0xff5c}, // barmonospace
@@ -2016,8 +1845,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x72fc7974, 0x2111}, // Ifraktur
 	{0x72fd959a, 0x002a}, // asterisk
 	{0x73032cb1, 0x3268}, // cieuccirclekorean
-	{0x731486cf, 0xf6e1}, // commainferior
-	{0x731a7d35, 0xf6fb}, // Ogoneksmall
 	{0x731be3b3, 0x3140}, // rieulhieuhkorean
 	{0x73200dbd, 0x0e20}, // phosamphaothai
 	{0x7322d42e, 0x24b9}, // Dcircle
@@ -2033,10 +1860,7 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x73b2bbd4, 0xfe63}, // hyphensmall
 	{0x73b70a88, 0x05d8}, // afii57672
 	{0x73b7c451, 0x095a}, // ghhadeva
-	{0x73c3073f, 0xf6ee}, // lsuperior
 	{0x73c5e60b, 0x004e}, // N
-	{0x73e1033a, 0x22b4}, // a2
-	{0x73e5498e, 0xf7fd}, // Yacutesmall
 	{0x73ee6902, 0x0965}, // dbldanda
 	{0x73f5578c, 0x093f}, // ivowelsigndeva
 	{0x74030714, 0x311c}, // ebopomofo
@@ -2060,12 +1884,10 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x74f1fca9, 0x01db}, // Udieresisgrave
 	{0x7506e8c8, 0x24d1}, // bcircle
 	{0x751253a5, 0x2168}, // Nineroman
-	{0x7542c0c4, 0xf8e8}, // registersans
 	{0x7544678b, 0x307d}, // pohiragana
 	{0x754982de, 0x06a4}, // veharabic
 	{0x755a250b, 0x09dd}, // rhabengali
 	{0x755f707c, 0x1ebf}, // ecircumflexacute
-	{0x75811646, 0xf6e9}, // asuperior
 	{0x75841530, 0x2002}, // enspace
 	{0x75907eb0, 0x322c}, // ideographicwaterparen
 	{0x759ddc3d, 0x3068}, // tohiragana
@@ -2093,7 +1915,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x76af2566, 0x05c1}, // afii57804
 	{0x76b279b9, 0x1e76}, // Ucircumflexbelow
 	{0x76be5e67, 0x0389}, // Etatonos
-	{0x76e8986c, 0x27e9}, // angbracketrightBigg
 	{0x76ec167e, 0x3128}, // ubopomofo
 	{0x76ee8ef9, 0x326a}, // khieukhcirclekorean
 	{0x76fa92ba, 0x2225}, // parallel
@@ -2101,9 +1922,8 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x772d6b37, 0x3294}, // ideographnamecircle
 	{0x774eb078, 0x0328}, // ogonekcmb
 	{0x774fe771, 0x064d}, // kasratanarabic
-	{0x7752bcc4, 0xf8f6}, // parenrighttp
+	{0x7752bcc4, 0x239e}, // parenrighttp
 	{0x775a46a9, 0xffe0}, // centmonospace
-	{0x77617e4f, 0xf762}, // Bsmall
 	{0x77651620, 0x007b}, // braceleft
 	{0x776629fd, 0x044a}, // hardsigncyrillic
 	{0x7766a0eb, 0x041e}, // Ocyrillic
@@ -2120,7 +1940,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x77ee824a, 0xfba7}, // hehfinalaltonearabic
 	{0x77f415ae, 0x03eb}, // gangiacoptic
 	{0x77f608a5, 0x00ec}, // igrave
-	{0x78075c57, 0x007d}, // bracerightBig
 	{0x78151b28, 0x04f8}, // Yerudieresiscyrillic
 	{0x781b1710, 0x3175}, // pieupsiostikeutkorean
 	{0x782f5323, 0x2297}, // circlemultiply
@@ -2133,7 +1952,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x7878b2f0, 0x323c}, // ideographicsuperviseparen
 	{0x788e7d3e, 0x05b3}, // hatafqamats
 	{0x78965447, 0x0593}, // shalshelethebrew
-	{0x78a67a97, 0xf8ea}, // trademarksans
 	{0x78d4db12, 0x032e}, // brevebelowcmb
 	{0x78da6d23, 0x046e}, // Ksicyrillic
 	{0x78f4df25, 0x04d9}, // schwacyrillic
@@ -2173,11 +1991,9 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x7ad78099, 0x05b5}, // afii57794
 	{0x7b074f4f, 0x062c}, // jeemarabic
 	{0x7b0aca00, 0x3315}, // kiroguramusquare
-	{0x7b3db32a, 0x221a}, // radicalBig
 	{0x7b443626, 0x3331}, // birusquare
 	{0x7b5e0418, 0xff10}, // zeromonospace
 	{0x7b7b9d4d, 0x0424}, // afii10038
-	{0x7b7fbb65, 0xf7b8}, // Cedillasmall
 	{0x7b80aee5, 0x05bb}, // qubutsquarterhebrew
 	{0x7b8c3862, 0x02b8}, // ysuperior
 	{0x7bac8f33, 0x0016}, // controlSYN
@@ -2185,8 +2001,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x7bd5ca88, 0x33ca}, // hasquare
 	{0x7bd8b82b, 0x3005}, // ideographiciterationmark
 	{0x7c301325, 0x0472}, // Fitacyrillic
-	{0x7c35d223, 0x05dc}, // lamedholam
-	{0x7c3e1570, 0x0028}, // parenleftbigg
 	{0x7c3f4566, 0x00e7}, // ccedilla
 	{0x7c4777ca, 0xfcc9}, // lamjeeminitialarabic
 	{0x7c4f7ece, 0x0ab2}, // lagujarati
@@ -2200,7 +2014,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x7cf2e5f4, 0x0029}, // parenright
 	{0x7cf2ebbd, 0xff96}, // yokatakanahalfwidth
 	{0x7cf8ce2e, 0x3394}, // thzsquare
-	{0x7d1ff070, 0xf896}, // thanthakhatupperleftthai
 	{0x7d32ca29, 0x0127}, // hbar
 	{0x7d44a576, 0x24b1}, // vparen
 	{0x7d4ddd33, 0x2554}, // SF390000
@@ -2218,15 +2031,10 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x7e46df3d, 0x30d7}, // pukatakana
 	{0x7e4f805e, 0x3067}, // dehiragana
 	{0x7e5c9fda, 0x042f}, // IAcyrillic
-	{0x7e60a480, 0x0029}, // parenrightbigg
 	{0x7e701b6d, 0xff0d}, // hyphenmonospace
 	{0x7e739224, 0x3046}, // uhiragana
-	{0x7e7d09ba, 0xf6e4}, // dollarsuperior
-	{0x7e947543, 0xf773}, // Ssmall
 	{0x7ebf5260, 0x0031}, // one
 	{0x7eddac19, 0x09f4}, // onenumeratorbengali
-	{0x7eefb1cf, 0x05d3}, // daletshevahebrew
-	{0x7f0a4f83, 0x0631}, // rehyehaleflamarabic
 	{0x7f43cdd7, 0x0ab0}, // ragujarati
 	{0x7f56c599, 0x0141}, // Lslash
 	{0x7f5b3579, 0x1e74}, // Utildebelow
@@ -2237,7 +2045,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x7f92fe37, 0x066d}, // asteriskarabic
 	{0x7f97f320, 0x301c}, // wavedash
 	{0x7f99701f, 0xfb2a}, // shinshindothebrew
-	{0x7fad7e30, 0xf737}, // sevenoldstyle
 	{0x7fbd4335, 0x2309}, // ceilingrightbig
 	{0x7ff2087d, 0x01df}, // adieresismacron
 	{0x7ffdad4c, 0x326e}, // kiyeokacirclekorean
@@ -2247,12 +2054,10 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x8029e67d, 0x049b}, // kadescendercyrillic
 	{0x803a882f, 0x0a8b}, // rvocalicgujarati
 	{0x80417827, 0x33a9}, // pasquare
-	{0x80461d8b, 0xf6c7}, // afii10831
 	{0x8048e51c, 0x24e6}, // wcircle
 	{0x80690312, 0x0155}, // racute
 	{0x8076b638, 0xfedf}, // laminitialarabic
 	{0x80792dfa, 0x0478}, // Ukcyrillic
-	{0x807bd424, 0xf886}, // saraiileftthai
 	{0x8082c40e, 0x251c}, // SF080000
 	{0x8086d5c5, 0x0490}, // afii10050
 	{0x80890e42, 0x0316}, // gravebelowcmb
@@ -2269,12 +2074,10 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x8140027d, 0x24d3}, // dcircle
 	{0x815134d6, 0x00cd}, // Iacute
 	{0x81589a47, 0x2220}, // angle
-	{0x816211ee, 0x05dc}, // lamedholamdageshhebrew
 	{0x81658581, 0x0207}, // einvertedbreve
 	{0x816871c9, 0x1ec2}, // Ecircumflexhookabove
 	{0x8169da43, 0x0483}, // titlocyrilliccmb
 	{0x8170d563, 0x256b}, // SF530000
-	{0x81796466, 0xf6f2}, // ssuperior
 	{0x817f112a, 0x1e37}, // ldotbelow
 	{0x817f9471, 0x1e92}, // Zdotbelow
 	{0x81806da2, 0x328d}, // ideographwoodcircle
@@ -2311,8 +2114,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x832d9a03, 0x263b}, // invsmileface
 	{0x83393d74, 0xfef7}, // lamalefhamzaaboveisolatedarabic
 	{0x83589346, 0x1eb0}, // Abrevegrave
-	{0x836fd101, 0x25c7}, // a51
-	{0x83736e7a, 0x2308}, // ceilingleftBig
 	{0x837601e2, 0x0ae7}, // onegujarati
 	{0x8377c3f2, 0x026b}, // lmiddletilde
 	{0x837a2830, 0x2113}, // lsquare
@@ -2349,17 +2150,14 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x84e0b580, 0x04ef}, // umacroncyrillic
 	{0x8501599a, 0x30f6}, // kesmallkatakana
 	{0x85103d59, 0xfb39}, // yoddagesh
-	{0x851a3968, 0xf6da}, // registerserif
 	{0x853a4f53, 0x217b}, // twelveroman
 	{0x855c805d, 0xff1a}, // colonmonospace
 	{0x856013c8, 0x248a}, // threeperiod
 	{0x8567c154, 0x01bc}, // Tonefive
-	{0x856bfeb5, 0x0029}, // parenrightBigg
 	{0x85a6c8bc, 0x310a}, // tbopomofo
 	{0x85b41716, 0x201a}, // quotesinglbase
 	{0x85b6b018, 0x2228}, // logicalor
 	{0x85c83eb6, 0xff77}, // kikatakanahalfwidth
-	{0x85cde6eb, 0xf8e7}, // arrowhorizex
 	{0x85ce16f4, 0x05da}, // afii57674
 	{0x85e92466, 0x2282}, // propersubset
 	{0x85ee23d7, 0x311b}, // obopomofo
@@ -2369,7 +2167,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x86129c18, 0x2209}, // notelementof
 	{0x861e8048, 0xff54}, // tmonospace
 	{0x861ef200, 0x1e75}, // utildebelow
-	{0x864008ae, 0x05d3}, // daletqubutshebrew
 	{0x8654695b, 0x0020}, // spacehackarabic
 	{0x865c7659, 0x0312}, // commaturnedabovecmb
 	{0x8665f7ab, 0x201b}, // quotereversed
@@ -2421,12 +2218,10 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x88e4df33, 0x1e1b}, // etildebelow
 	{0x88e6eee8, 0x3119}, // sbopomofo
 	{0x88ea0124, 0x0949}, // ocandravowelsigndeva
-	{0x88ea9631, 0xf7af}, // Macronsmall
 	{0x88f38eed, 0x21d0}, // arrowdblleft
 	{0x88f62270, 0x314f}, // akorean
 	{0x88fdc1bb, 0x308e}, // wasmallhiragana
 	{0x88fdcf2e, 0x039e}, // Xi
-	{0x89098ea4, 0x2211}, // summationdisplay
 	{0x893a8f13, 0x09b9}, // habengali
 	{0x89468742, 0x0e1f}, // fofanthai
 	{0x897340ea, 0x3207}, // ieungparenkorean
@@ -2450,7 +2245,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x8ab11ede, 0x0907}, // ideva
 	{0x8ab50af4, 0xfedb}, // kafinitialarabic
 	{0x8ac9c3df, 0x00cb}, // Edieresis
-	{0x8ad52e55, 0x05d3}, // dalethatafsegolhebrew
 	{0x8ae82e18, 0x05c2}, // sindothebrew
 	{0x8aebef01, 0x064f}, // afii57455
 	{0x8af00e69, 0x3396}, // mlsquare
@@ -2479,23 +2273,18 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x8c169f16, 0x0a4c}, // aumatragurmukhi
 	{0x8c1a91ec, 0x1ed2}, // Ocircumflexgrave
 	{0x8c21575a, 0x2175}, // sixroman
-	{0x8c31d770, 0x007d}, // bracerightBigg
-	{0x8c382c45, 0xf6c5}, // afii10064
 	{0x8c3dc32f, 0x0632}, // afii57426
 	{0x8c5fd3c7, 0x05dd}, // afii57677
-	{0x8c6ceb51, 0xeb61}, // suppress
 	{0x8c7614fd, 0x0046}, // F
 	{0x8c789c98, 0x0255}, // ccurl
 	{0x8c7eba77, 0x3114}, // chbopomofo
 	{0x8c941f03, 0x0639}, // afii57433
 	{0x8c9c3f66, 0x0e37}, // saraueethai
-	{0x8c9d6579, 0x2308}, // ceilingleftBigg
 	{0x8cb6cb59, 0xfb6c}, // vehinitialarabic
 	{0x8cbe2a76, 0x0951}, // udattadeva
 	{0x8cc838c1, 0x099f}, // ttabengali
 	{0x8ccab94e, 0x311d}, // ehbopomofo
 	{0x8cd2ceac, 0x322f}, // ideographicearthparen
-	{0x8cd87862, 0x2a01}, // circleplusdisplay
 	{0x8cdd7a5e, 0xfefb}, // lamalefisolatedarabic
 	{0x8cfeaaad, 0x04b4}, // Tetsecyrillic
 	{0x8d0e3bcc, 0x0162}, // Tcommaaccent
@@ -2511,7 +2300,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x8d5ae6d4, 0x0440}, // ercyrillic
 	{0x8d62c566, 0x21e0}, // arrowdashleft
 	{0x8d7f2614, 0x2164}, // Fiveroman
-	{0x8d983a6e, 0x22b5}, // a4
 	{0x8db3e76c, 0x1e97}, // tdieresis
 	{0x8dbd6f57, 0xffe1}, // sterlingmonospace
 	{0x8dc41abc, 0x1e33}, // kdotbelow
@@ -2522,7 +2310,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x8e325301, 0x0133}, // ij
 	{0x8e3386c6, 0x0439}, // iishortcyrillic
 	{0x8e360b54, 0x027d}, // rhook
-	{0x8e38f2c0, 0x005d}, // bracketrightbig
 	{0x8e40b292, 0x01fb}, // aringacute
 	{0x8e467ab5, 0x1ecc}, // Odotbelow
 	{0x8e474342, 0x1e2a}, // Hbrevebelow
@@ -2534,7 +2321,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x8e7aa1b5, 0x207c}, // equalsuperior
 	{0x8e8e0711, 0x042f}, // afii10049
 	{0x8e91af6c, 0x3000}, // ideographicspace
-	{0x8ec625f1, 0x2304}, // a43
 	{0x8ec9ea4f, 0xfb40}, // nundagesh
 	{0x8eca9ee8, 0x045c}, // kjecyrillic
 	{0x8ed1765d, 0xff36}, // Vmonospace
@@ -2543,7 +2329,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x8f19bc84, 0x0e4a}, // maitrithai
 	{0x8f289d06, 0x0444}, // efcyrillic
 	{0x8f28eae1, 0x013f}, // Ldotaccent
-	{0x8f3d926c, 0xf7e2}, // Acircumflexsmall
 	{0x8f4b9c51, 0x0404}, // afii10053
 	{0x8f505863, 0x04f2}, // Uhungarumlautcyrillic
 	{0x8f52df2f, 0x0256}, // dtail
@@ -2551,7 +2336,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x8f760fbe, 0x25e5}, // blackupperrighttriangle
 	{0x8f7f3f67, 0x0645}, // afii57445
 	{0x8f89b56f, 0x05b8}, // qamatsqatanhebrew
-	{0x8f9b61ad, 0x22c0}, // logicalanddisplay
 	{0x8fa69b6c, 0x0331}, // macronbelowcmb
 	{0x8fbba331, 0x0205}, // edblgrave
 	{0x8fc968d8, 0x01b9}, // ezhreversed
@@ -2576,22 +2360,17 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x90b86ad8, 0x30dd}, // pokatakana
 	{0x90b9c076, 0xff0f}, // slashmonospace
 	{0x90c2be85, 0x0268}, // istroke
-	{0x90d8e15f, 0xf6e8}, // periodsuperior
-	{0x91032be8, 0x02c6}, // hatwide
 	{0x910a1b16, 0x03f1}, // rhosymbolgreek
-	{0x91306ea5, 0x2127}, // a48
 	{0x9132f814, 0xff22}, // Bmonospace
 	{0x9134ebbc, 0x01cb}, // Nj
 	{0x913ff5ff, 0x3125}, // engbopomofo
 	{0x9141d43c, 0x2126}, // Ohm
-	{0x914548fb, 0xf7f9}, // Ugravesmall
 	{0x914ce494, 0x05e6}, // afii57686
 	{0x9166eec8, 0x33ba}, // pwsquare
 	{0x916cdeb8, 0xfed2}, // fehfinalarabic
 	{0x917f2f3f, 0x0438}, // afii10074
 	{0x9181b388, 0x01eb}, // oogonek
 	{0x9184e24f, 0x30ab}, // kakatakana
-	{0x919c9ad4, 0xf898}, // thanthakhatlowleftthai
 	{0x919f5679, 0x00ca}, // Ecircumflex
 	{0x91acc220, 0xff91}, // mukatakanahalfwidth
 	{0x91accd4b, 0x0937}, // ssadeva
@@ -2599,9 +2378,7 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x91d99037, 0x1eb9}, // edotbelow
 	{0x91de3939, 0x064f}, // dammalowarabic
 	{0x91e65480, 0x0abf}, // ivowelsigngujarati
-	{0x91ea8b93, 0x2303}, // a42
 	{0x91eaac20, 0x3214}, // siosaparenkorean
-	{0x920233a7, 0xf6de}, // threequartersemdash
 	{0x920dae79, 0x039f}, // Omicron
 	{0x9215b042, 0x3147}, // ieungkorean
 	{0x9220d7f0, 0xff69}, // usmallkatakanahalfwidth
@@ -2611,7 +2388,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x926b691e, 0x0100}, // Amacron
 	{0x92aa52d3, 0x30fb}, // dotkatakana
 	{0x92e2ffd9, 0x21e8}, // arrowrightwhite
-	{0x92e50e35, 0xf88e}, // maitholowrightthai
 	{0x92f283dc, 0x25d8}, // bulletinverse
 	{0x92f96dbe, 0x1e56}, // Pdotaccent
 	{0x930724f6, 0x06ba}, // noonghunnaarabic
@@ -2639,9 +2415,7 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x94b7f6ea, 0x0463}, // yatcyrillic
 	{0x94c36e74, 0x3261}, // nieuncirclekorean
 	{0x94c9571f, 0x25ac}, // blackrectangle
-	{0x94ca16e5, 0xf893}, // maichattawaupperleftthai
 	{0x94d13d1c, 0xfe39}, // tortoiseshellbracketleftvertical
-	{0x94d44c33, 0x007b}, // braceleftbig
 	{0x94d74b96, 0x1e64}, // Sacutedotaccent
 	{0x94e6f584, 0x3058}, // zihiragana
 	{0x94ee5ae7, 0x2792}, // ninecircleinversesansserif
@@ -2651,9 +2425,7 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x951ae869, 0x09dc}, // rrabengali
 	{0x952cce64, 0x04ee}, // Umacroncyrillic
 	{0x952ec009, 0x0988}, // iibengali
-	{0x95394a64, 0x05da}, // finalkafsheva
 	{0x953a0a51, 0x2211}, // summation
-	{0x954920d5, 0xf769}, // Ismall
 	{0x954a8776, 0x03d1}, // thetasymbolgreek
 	{0x95526ac8, 0x2500}, // SF100000
 	{0x9559e176, 0x05b7}, // patah2a
@@ -2676,7 +2448,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x9638605a, 0x0669}, // ninearabic
 	{0x967b01ac, 0x05b9}, // holamhebrew
 	{0x967d0326, 0x3134}, // nieunkorean
-	{0x968e4cb7, 0xf899}, // nikhahitleftthai
 	{0x96a5e022, 0x25d9}, // invcircle
 	{0x96b677d5, 0x0153}, // oe
 	{0x96c05d98, 0x01f2}, // Dz
@@ -2709,14 +2480,11 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x987e6d13, 0x0411}, // Becyrillic
 	{0x9896e370, 0x0402}, // afii10051
 	{0x98b02dc0, 0x0a48}, // aimatragurmukhi
-	{0x98bf4a1b, 0xf6d0}, // Macron
-	{0x98c60f17, 0xf6d9}, // copyrightserif
 	{0x98d74b1c, 0x01c8}, // Lj
 	{0x98d9aba5, 0x03ae}, // etatonos
 	{0x98eba766, 0x018b}, // Dtopbar
 	{0x98f4783f, 0x24ac}, // qparen
 	{0x98f4b751, 0x0651}, // afii57457
-	{0x98ffb065, 0x02c6}, // hatwider
 	{0x99104281, 0x02e5}, // tonebarextrahighmod
 	{0x99235205, 0x05dc}, // lamedhebrew
 	{0x994ebac3, 0x05c0}, // afii57842
@@ -2739,10 +2507,8 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x9a50ec2e, 0x05b6}, // segolquarterhebrew
 	{0x9a7aab21, 0x05c3}, // sofpasuqhebrew
 	{0x9ac6c137, 0x0e0f}, // topatakthai
-	{0x9ae2a69d, 0xf6c0}, // ll
 	{0x9aea680b, 0x3029}, // ninehangzhou
 	{0x9af6d63b, 0x054a}, // Peharmenian
-	{0x9b064cf1, 0xfedf}, // lammeemjeeminitialarabic
 	{0x9b09b61d, 0x0a10}, // aigurmukhi
 	{0x9b0db21d, 0x0402}, // Djecyrillic
 	{0x9b100042, 0x0e21}, // momathai
@@ -2760,7 +2526,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x9bcccde6, 0x0e4e}, // yamakkanthai
 	{0x9bd59a36, 0x300e}, // whitecornerbracketleft
 	{0x9bdb98a4, 0x1e5e}, // Rlinebelow
-	{0x9bdfdedf, 0x05d3}, // daletsheva
 	{0x9be54046, 0x0e0a}, // chochangthai
 	{0x9bfe067d, 0x0405}, // Dzecyrillic
 	{0x9c14c866, 0x0484}, // palatalizationcyrilliccmb
@@ -2798,8 +2563,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x9e1247f8, 0x0033}, // three
 	{0x9e248728, 0x3053}, // kohiragana
 	{0x9e2d5a68, 0x053f}, // Kenarmenian
-	{0x9e37413a, 0x22c2}, // intersectiondisplay
-	{0x9e4de0cc, 0x221a}, // radicalBigg
 	{0x9e5de325, 0x222e}, // contourintegral
 	{0x9e65e800, 0x248b}, // fourperiod
 	{0x9e98d52c, 0x2483}, // sixteenparen
@@ -2809,9 +2572,7 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x9eb5aea3, 0x3142}, // pieupkorean
 	{0x9ebea1a0, 0x3150}, // aekorean
 	{0x9ee7bbd1, 0x094b}, // ovowelsigndeva
-	{0x9eeac84b, 0xfee7}, // noonhehinitialarabic
 	{0x9eedaba9, 0x0113}, // emacron
-	{0x9ef0c911, 0xf765}, // Esmall
 	{0x9f023815, 0x20ac}, // euro
 	{0x9f30fc87, 0xfec2}, // tahfinalarabic
 	{0x9f37894c, 0x040e}, // afii10062
@@ -2821,11 +2582,9 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0x9f6f9105, 0x0433}, // gecyrillic
 	{0x9f739695, 0x04f9}, // yerudieresiscyrillic
 	{0x9f79f6eb, 0xfb33}, // daletdageshhebrew
-	{0x9f7f5e1f, 0xf897}, // thanthakhatlowrightthai
 	{0x9f8cff14, 0x003e}, // greater
 	{0x9f94b2e4, 0x04a1}, // kabashkircyrillic
 	{0x9fa5f7ad, 0x0e49}, // maithothai
-	{0x9fa872ec, 0x02dc}, // tildewidest
 	{0x9fc7ffac, 0x05b4}, // hiriqhebrew
 	{0x9fd406b1, 0xfed8}, // qafmedialarabic
 	{0x9fd7c50e, 0x05bb}, // afii57796
@@ -2839,9 +2598,7 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xa05ccf71, 0x05e1}, // samekhhebrew
 	{0xa069fd2d, 0x012b}, // imacron
 	{0xa08ca5a7, 0x2491}, // tenperiod
-	{0xa09c7d02, 0x05e8}, // reshhatafpatahhebrew
 	{0xa0a317f9, 0x0574}, // menarmenian
-	{0xa0adde45, 0xf884}, // maihanakatleftthai
 	{0xa0c2ffe3, 0x247a}, // sevenparen
 	{0xa0e40fac, 0x337b}, // heiseierasquare
 	{0xa0e487b8, 0x33cd}, // KKsquare
@@ -2853,7 +2610,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xa12d2230, 0x05b5}, // tsere2b
 	{0xa134a191, 0xff11}, // onemonospace
 	{0xa14f5367, 0x05b0}, // sheva15
-	{0xa14fd78e, 0x2193}, // arrowbt
 	{0xa157c7c6, 0x0643}, // kafarabic
 	{0xa15811a3, 0x061f}, // questionarabic
 	{0xa1697005, 0x0015}, // controlNAK
@@ -2865,7 +2621,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xa20cadbf, 0x0062}, // b
 	{0xa20ea9da, 0x24aa}, // oparen
 	{0xa212ed2d, 0x0e38}, // sarauthai
-	{0xa23bb3ad, 0x222b}, // integraltext
 	{0xa2448aa1, 0x01e6}, // Gcaron
 	{0xa2543878, 0x326f}, // nieunacirclekorean
 	{0xa254ebdd, 0xfb3e}, // memdagesh
@@ -2899,7 +2654,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xa3fe88d1, 0x0104}, // Aogonek
 	{0xa40369ed, 0x32a9}, // ideographicmedicinecircle
 	{0xa4259ac9, 0xff76}, // kakatakanahalfwidth
-	{0xa43a91b7, 0x005b}, // bracketleftbig
 	{0xa43cdc2e, 0xfb44}, // pedageshhebrew
 	{0xa446d45f, 0x3224}, // fiveideographicparen
 	{0xa450f946, 0x0454}, // afii10101
@@ -2915,7 +2669,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xa4aa8935, 0xff58}, // xmonospace
 	{0xa4af8f73, 0x2282}, // subset
 	{0xa4decb10, 0x0a72}, // irigurmukhi
-	{0xa4ebd5d8, 0x05e7}, // qofhiriqhebrew
 	{0xa50a3a99, 0x0630}, // afii57424
 	{0xa50cf621, 0xff7e}, // sekatakanahalfwidth
 	{0xa512e58d, 0xff83}, // tekatakanahalfwidth
@@ -2932,7 +2685,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xa60745ee, 0x2250}, // approaches
 	{0xa6281f81, 0x0142}, // lslash
 	{0xa62afc92, 0x0534}, // Daarmenian
-	{0xa63a8cce, 0xf7f4}, // Ocircumflexsmall
 	{0xa6454b66, 0x2498}, // seventeenperiod
 	{0xa64723d6, 0x30af}, // kukatakana
 	{0xa6522894, 0x24da}, // kcircle
@@ -2952,7 +2704,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xa6e68e9f, 0x0966}, // zerodeva
 	{0xa6f16c03, 0x03c2}, // sigma1
 	{0xa6f2df0d, 0x0a32}, // lagurmukhi
-	{0xa6f3cb6a, 0x21d3}, // arrowdblbt
 	{0xa716a470, 0x2464}, // fivecircle
 	{0xa71dfe13, 0x1ea2}, // Ahookabove
 	{0xa73026ce, 0x007a}, // z
@@ -2983,7 +2734,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xa8547bdd, 0x0455}, // afii10102
 	{0xa8665e8d, 0x05b1}, // afii57801
 	{0xa877e561, 0x2642}, // male
-	{0xa87899cd, 0xf6e6}, // hyphensuperior
 	{0xa8982f3b, 0x09b2}, // labengali
 	{0xa8a24959, 0x00d0}, // Eth
 	{0xa8b6c7f5, 0x0a2e}, // magurmukhi
@@ -3005,10 +2755,7 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xa9a0932f, 0x2077}, // sevensuperior
 	{0xa9af18f2, 0x30b4}, // gokatakana
 	{0xa9c0b182, 0x2264}, // lessequal
-	{0xa9dc390a, 0x05da}, // finalkafqamatshebrew
-	{0xa9e88297, 0x2053}, // a58
 	{0xaa13efde, 0x007d}, // braceright
-	{0xaa245bb8, 0x0028}, // parenleftBig
 	{0xaa4e278b, 0x0967}, // onedeva
 	{0xaa51d75f, 0x2476}, // threeparen
 	{0xaa69d0f1, 0x256c}, // SF440000
@@ -3029,7 +2776,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xab24577f, 0x0667}, // sevenarabic
 	{0xab2b4200, 0x2105}, // careof
 	{0xab3b4b27, 0x24e2}, // scircle
-	{0xab52e61f, 0x05d3}, // dalethatafpatah
 	{0xab808d1e, 0x2087}, // seveninferior
 	{0xab8a6656, 0x01d0}, // icaron
 	{0xaba55a59, 0xfb32}, // gimeldageshhebrew
@@ -3044,7 +2790,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xac50a082, 0x33a3}, // mmcubedsquare
 	{0xac5faca7, 0x230b}, // floorrightbig
 	{0xac67aca2, 0x045b}, // tshecyrillic
-	{0xacac7818, 0x219d}, // a59
 	{0xacb92bab, 0x0691}, // rreharabic
 	{0xacd00f05, 0x21c6}, // arrowleftoverright
 	{0xacd11e18, 0x2010}, // hyphentwo
@@ -3056,7 +2801,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xad33f4b3, 0x04c1}, // Zhebrevecyrillic
 	{0xad37f8e0, 0x0a24}, // tagurmukhi
 	{0xad38bc31, 0x2194}, // arrowboth
-	{0xad45a65c, 0xf6cc}, // DieresisAcute
 	{0xad5fe438, 0x0924}, // tadeva
 	{0xad781e89, 0x200c}, // afii61664
 	{0xad8ff38a, 0x0a21}, // ddagurmukhi
@@ -3067,27 +2811,22 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xadf402a9, 0x0989}, // ubengali
 	{0xadf4d422, 0x0625}, // alefhamzabelowarabic
 	{0xae04e5ad, 0x0a15}, // kagurmukhi
-	{0xae06976c, 0xf6d5}, // cyrflex
 	{0xae1f7b0a, 0x2076}, // sixsuperior
 	{0xae23dd7b, 0x1eaf}, // abreveacute
 	{0xae30147f, 0x0908}, // iideva
-	{0xae346d0d, 0x05e8}, // reshsheva
 	{0xae56317c, 0x24ae}, // sparen
 	{0xae6f7e74, 0x031b}, // horncmb
 	{0xae7c975f, 0x249a}, // nineteenperiod
 	{0xae8f4e4c, 0x0406}, // afii10055
-	{0xaeac4f55, 0xf7e9}, // Eacutesmall
 	{0xaeb06274, 0x0423}, // Ucyrillic
 	{0xaec173e8, 0x03b8}, // theta
 	{0xaee16fb6, 0xfe4f}, // underscorewavy
 	{0xaef4b475, 0x1edf}, // ohornhookabove
 	{0xaef8393d, 0x0664}, // fourarabic
 	{0xaf01f370, 0x278e}, // fivecircleinversesansserif
-	{0xaf0ebb84, 0xf6d6}, // dblgrave
 	{0xaf2073fd, 0x2103}, // centigrade
 	{0xaf3552ce, 0x3072}, // hihiragana
 	{0xaf36c6b1, 0x30cd}, // nekatakana
-	{0xaf499180, 0x2309}, // ceilingrightBig
 	{0xaf4df0df, 0xfc0e}, // tehmeemisolatedarabic
 	{0xaf5710c9, 0x00c0}, // Agrave
 	{0xaf5b123d, 0x032d}, // circumflexbelowcmb
@@ -3102,7 +2841,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xafbbfcac, 0xff71}, // akatakanahalfwidth
 	{0xafbd0738, 0x305d}, // sohiragana
 	{0xafc9b657, 0x0e17}, // thothahanthai
-	{0xaff892ca, 0x05d3}, // dalettserehebrew
 	{0xb000150a, 0xfe96}, // tehfinalarabic
 	{0xb01f8020, 0x0666}, // sixarabic
 	{0xb026a3ef, 0x30b3}, // kokatakana
@@ -3144,12 +2882,8 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xb2d7f27b, 0x0652}, // afii57458
 	{0xb2d95c63, 0x2518}, // SF040000
 	{0xb2f3aff0, 0x0946}, // eshortvowelsigndeva
-	{0xb311c284, 0x05e7}, // qoftsere
 	{0xb3178333, 0x00da}, // Uacute
 	{0xb321fe9c, 0x21e3}, // arrowdashdown
-	{0xb327a481, 0x2290}, // a61
-	{0xb32daf91, 0xf6c6}, // afii10192
-	{0xb32e268f, 0xf6fe}, // Tildesmall
 	{0xb3329e90, 0x313e}, // rieulthieuthkorean
 	{0xb33c41bc, 0x018c}, // dtopbar
 	{0xb340e2fe, 0x04a5}, // enghecyrillic
@@ -3165,7 +2899,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xb3ed41be, 0x328f}, // ideographearthcircle
 	{0xb40169ac, 0x05b0}, // sheva22
 	{0xb405e3e3, 0x0439}, // afii10075
-	{0xb40aff3d, 0xf730}, // zerooldstyle
 	{0xb41baecc, 0x2487}, // twentyparen
 	{0xb427632e, 0x05b3}, // hatafqamats1b
 	{0xb4344c30, 0x090f}, // edeva
@@ -3173,7 +2906,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xb448d464, 0x0391}, // Alpha
 	{0xb45a5763, 0x201b}, // quoteleftreversed
 	{0xb45ef9b7, 0x03c0}, // pi
-	{0xb47a6410, 0x230a}, // floorleftBigg
 	{0xb497903a, 0x01dd}, // eturned
 	{0xb4a55071, 0x1e7d}, // vtilde
 	{0xb4a6b289, 0x2235}, // because
@@ -3184,13 +2916,11 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xb4c667bc, 0xff61}, // periodhalfwidth
 	{0xb4c72b2a, 0x0215}, // udblgrave
 	{0xb4e21f31, 0x2198}, // arrowdownright
-	{0xb4fef2ed, 0x05d3}, // dalettsere
 	{0xb500deca, 0x1e41}, // mdotaccent
 	{0xb510d684, 0x1e80}, // Wgrave
 	{0xb526b685, 0x22bf}, // righttriangle
 	{0xb52e7c1d, 0x091e}, // nyadeva
 	{0xb53ca7e2, 0x326c}, // phieuphcirclekorean
-	{0xb5866d85, 0x005c}, // backslashbig
 	{0xb58e59d7, 0x24ad}, // rparen
 	{0xb5af274f, 0x064a}, // afii57450
 	{0xb5b94593, 0x010d}, // ccaron
@@ -3207,7 +2937,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xb66bf9b9, 0x33dc}, // svsquare
 	{0xb673fbb5, 0x038e}, // Upsilontonos
 	{0xb67e35c8, 0x0121}, // gdotaccent
-	{0xb6951f83, 0x2210}, // coproductdisplay
 	{0xb6bb2a6b, 0x0116}, // Edot
 	{0xb6d45c54, 0xff7a}, // kokatakanahalfwidth
 	{0xb6f322b3, 0x05e5}, // afii57685
@@ -3216,7 +2945,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xb6fea9e7, 0xff3f}, // underscoremonospace
 	{0xb70f3f60, 0xff4e}, // nmonospace
 	{0xb711b601, 0x039d}, // Nu
-	{0xb7124c93, 0xf770}, // Psmall
 	{0xb719922a, 0x067e}, // afii57506
 	{0xb71d84e2, 0x3167}, // nieunsioskorean
 	{0xb726c42e, 0xfb49}, // shindageshhebrew
@@ -3260,13 +2988,11 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xb9dbedd2, 0x317b}, // siosnieunkorean
 	{0xb9e5ea71, 0x314c}, // thieuthkorean
 	{0xb9e8b13e, 0x25a0}, // filledbox
-	{0xb9ebf396, 0xf764}, // Dsmall
 	{0xb9f42560, 0x0964}, // danda
 	{0xb9f5b462, 0x0990}, // aibengali
 	{0xba1bcecd, 0x0176}, // Ycircumflex
 	{0xba1f80d6, 0x21e1}, // arrowdashup
 	{0xba21ad27, 0xfb3a}, // finalkafdagesh
-	{0xba3aaf1e, 0x27e9}, // angbracketrightBig
 	{0xba4eb5f9, 0x0055}, // U
 	{0xba544632, 0x05db}, // afii57675
 	{0xba5871eb, 0x033e}, // tildeverticalcmb
@@ -3275,31 +3001,24 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xba8d69d2, 0x232a}, // angleright
 	{0xbaa24d97, 0x05e0}, // afii57680
 	{0xbaa7aa4c, 0xfedc}, // kafmedialarabic
-	{0xbab8d5ec, 0xf771}, // Qsmall
-	{0xbabbf0c0, 0x05e8}, // reshhiriqhebrew
 	{0xbac7de75, 0x1ed3}, // ocircumflexgrave
 	{0xbad44ddc, 0x004f}, // O
 	{0xbad7d685, 0x04b8}, // Cheverticalstrokecyrillic
 	{0xbad97612, 0x03af}, // iotatonos
 	{0xbadf80e2, 0x06f5}, // fivepersian
-	{0xbae37657, 0x0621}, // hamzalowkasratanarabic
 	{0xbafeb301, 0x0422}, // Tecyrillic
 	{0xbb28e2ea, 0x1eb2}, // Abrevehookabove
 	{0xbb30f37e, 0x0218}, // Scommaaccent
 	{0xbb6353b2, 0x0332}, // lowlinecmb
-	{0xbb66e953, 0x22c8}, // a49
 	{0xbb72d76e, 0x0139}, // Lacute
-	{0xbb89235d, 0xf6e0}, // centsuperior
 	{0xbb906e01, 0x3266}, // sioscirclekorean
 	{0xbb970588, 0x266f}, // musicsharpsign
 	{0xbba252f7, 0x0106}, // Cacute
-	{0xbba2c6f4, 0x27e9}, // angbracketrightbigg
 	{0xbbae7b40, 0x3172}, // pieupkiyeokkorean
 	{0xbbb9d0f4, 0x0934}, // llladeva
 	{0xbbd8677b, 0x330d}, // karoriisquare
 	{0xbbdbcb55, 0x0a6f}, // ninegurmukhi
 	{0xbbdc86be, 0xfb2b}, // shinsindot
-	{0xbc041d93, 0x05da}, // finalkafqamats
 	{0xbc0d2781, 0x0a1f}, // ttagurmukhi
 	{0xbc1b1166, 0x2558}, // SF500000
 	{0xbc280da2, 0x1e79}, // utildeacute
@@ -3308,7 +3027,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xbc75336c, 0x21a9}, // arrowhookright
 	{0xbc78e14f, 0x24b0}, // uparen
 	{0xbcd2c61b, 0x064c}, // dammatanarabic
-	{0xbcf16b16, 0x0621}, // hamzadammatanarabic
 	{0xbd0f6f71, 0x004c}, // L
 	{0xbd1a9441, 0x3235}, // ideographicspecialparen
 	{0xbd1abdb6, 0x0184}, // Tonesix
@@ -3326,14 +3044,12 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xbdc1280a, 0x24be}, // Icircle
 	{0xbdd372da, 0x318b}, // yuyekorean
 	{0xbde8281d, 0x3276}, // cieucacirclekorean
-	{0xbe1bc796, 0xfb7c}, // tchehmeeminitialarabic
 	{0xbe3e45cf, 0xfb58}, // pehinitialarabic
 	{0xbe663ca6, 0x2470}, // seventeencircle
 	{0xbe7a58ae, 0x3203}, // rieulparenkorean
 	{0xbea937fd, 0x25bc}, // blackdownpointingtriangle
 	{0xbec6916e, 0x011c}, // Gcircumflex
 	{0xbedd6640, 0x00d9}, // Ugrave
-	{0xbee1ad99, 0xed79}, // vextenddouble
 	{0xbf12496a, 0x0985}, // abengali
 	{0xbf156070, 0x04e2}, // Imacroncyrillic
 	{0xbf26dc61, 0x041d}, // Encyrillic
@@ -3350,7 +3066,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xbf9c1926, 0x0627}, // alefarabic
 	{0xbfc69ab7, 0xff18}, // eightmonospace
 	{0xbfd3ede4, 0x0396}, // Zeta
-	{0xbfe44580, 0x05d3}, // dalethiriq
 	{0xbffa52a3, 0x33c7}, // cosquare
 	{0xc006a810, 0x062a}, // teharabic
 	{0xc008508a, 0xff1c}, // lessmonospace
@@ -3364,7 +3079,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xc092fb91, 0x1e95}, // zlinebelow
 	{0xc09823db, 0x016f}, // uring
 	{0xc09889a1, 0x1e11}, // dcedilla
-	{0xc09e394d, 0x2211}, // summationtext
 	{0xc0a2bc69, 0x2564}, // SF470000
 	{0xc0a93f4f, 0x0e2c}, // lochulathai
 	{0xc0bd9f90, 0x094a}, // oshortvowelsigndeva
@@ -3374,7 +3088,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xc0d444a4, 0x3220}, // oneideographicparen
 	{0xc0dcb90f, 0x062e}, // khaharabic
 	{0xc0efe98c, 0x2191}, // arrowup
-	{0xc0f7b81d, 0xf888}, // saraueeleftthai
 	{0xc0fb3832, 0x25ab}, // H18551
 	{0xc131664b, 0x30e4}, // yakatakana
 	{0xc1425417, 0x317a}, // sioskiyeokkorean
@@ -3387,7 +3100,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xc1e02cdd, 0x0594}, // zaqefqatanhebrew
 	{0xc1e3fd2d, 0x05d5}, // vav
 	{0xc1e4c743, 0x3057}, // sihiragana
-	{0xc1e7aebd, 0xf779}, // Ysmall
 	{0xc1ec1451, 0x03c3}, // sigma
 	{0xc1f9ede7, 0x05a3}, // munahhebrew
 	{0xc2089a04, 0x05b7}, // patah1d
@@ -3404,15 +3116,13 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xc2c391b3, 0x25b2}, // triagup
 	{0xc2d0d165, 0x0137}, // kcommaaccent
 	{0xc2db7e0f, 0x04a0}, // Kabashkircyrillic
-	{0xc327f9ff, 0xf8eb}, // parenlefttp
+	{0xc327f9ff, 0x239b}, // parenlefttp
 	{0xc32ea721, 0x061f}, // afii57407
-	{0xc347a5d5, 0x22c1}, // logicalordisplay
 	{0xc36634d0, 0x09f9}, // sixteencurrencydenominatorbengali
 	{0xc3722d19, 0x23ad}, // bracerightbt
 	{0xc3751bae, 0x25ab}, // whitesmallsquare
 	{0xc375a046, 0x05b0}, // shevahebrew
 	{0xc391e9a8, 0xfe50}, // commasmall
-	{0xc3a63833, 0x0621}, // hamzasukunarabic
 	{0xc3c94bba, 0x306a}, // nahiragana
 	{0xc3d9dd70, 0xfe43}, // whitecornerbracketleftvertical
 	{0xc3df4586, 0x0903}, // visargadeva
@@ -3459,17 +3169,15 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xc6649ea6, 0x263b}, // blacksmilingface
 	{0xc6730a47, 0x3230}, // ideographicsunparen
 	{0xc6a18663, 0x2173}, // fourroman
-	{0xc6a33bcf, 0xf8f9}, // bracketrighttp
+	{0xc6a33bcf, 0x23a4}, // bracketrighttp
 	{0xc6bb9cde, 0x03c1}, // rho
 	{0xc6c2ca67, 0x0537}, // Eharmenian
 	{0xc6db1db1, 0x0a94}, // augujarati
 	{0xc6ddc5a6, 0x0334}, // tildeoverlaycmb
 	{0xc6e9fa39, 0x064a}, // yeharabic
 	{0xc6fbfdac, 0x025a}, // schwahook
-	{0xc6fedf58, 0xf731}, // oneoldstyle
 	{0xc703d8e7, 0x33b8}, // kvsquare
-	{0xc7199c26, 0xf763}, // Csmall
-	{0xc71e49b3, 0xf8fa}, // bracketrightex
+	{0xc71e49b3, 0x23a5}, // bracketrightex
 	{0xc74688aa, 0x24dc}, // mcircle
 	{0xc74a8cc7, 0x05b5}, // tserequarterhebrew
 	{0xc74f4c99, 0x0298}, // bilabialclick
@@ -3481,7 +3189,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xc76c439e, 0x0115}, // ebreve
 	{0xc76ec8b2, 0x0e1c}, // phophungthai
 	{0xc77c2828, 0x2206}, // Delta
-	{0xc7855795, 0xf894}, // maichattawalowrightthai
 	{0xc786ef31, 0x095b}, // zadeva
 	{0xc78887c7, 0x1e08}, // Ccedillaacute
 	{0xc78fe323, 0x0698}, // afii57508
@@ -3493,7 +3200,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xc7f07bcf, 0x248f}, // eightperiod
 	{0xc7f0b4c8, 0x0406}, // Icyrillic
 	{0xc7fb5fe5, 0x05b2}, // afii57800
-	{0xc808d8ed, 0xf8f5}, // integralex
 	{0xc812d1b7, 0x041b}, // afii10029
 	{0xc82c0a32, 0x026f}, // mturned
 	{0xc834804d, 0x2475}, // twoparen
@@ -3511,8 +3217,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xc8cf912e, 0xfe59}, // parenleftsmall
 	{0xc8fcce82, 0x0424}, // Efcyrillic
 	{0xc8fdfe4b, 0x0914}, // audeva
-	{0xc9033cb3, 0x05e7}, // qofhatafpatahhebrew
-	{0xc905dac2, 0xf7e0}, // Agravesmall
 	{0xc9315b90, 0x0338}, // soliduslongoverlaycmb
 	{0xc93304ec, 0x2176}, // sevenroman
 	{0xc9366418, 0x1e7e}, // Vdotbelow
@@ -3531,7 +3235,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xc9eb1227, 0x321c}, // cieucuparenkorean
 	{0xca07e9ca, 0x02dd}, // hungarumlaut
 	{0xca0b3331, 0x1e5f}, // rlinebelow
-	{0xca0f9f38, 0xf887}, // saraueleftthai
 	{0xca2dd9fa, 0x2590}, // rtblock
 	{0xca5ed753, 0x0269}, // iotalatin
 	{0xca65e972, 0x0646}, // noonarabic
@@ -3559,9 +3262,7 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xcbada403, 0x0429}, // Shchacyrillic
 	{0xcc11d7b0, 0x000c}, // controlFF
 	{0xcc261604, 0x04a2}, // Endescendercyrillic
-	{0xcc2b60a5, 0x05e7}, // qofhiriq
 	{0xcc3139de, 0x33d1}, // squareln
-	{0xcc334bff, 0xf766}, // Fsmall
 	{0xcc3accb9, 0x05d8}, // tethebrew
 	{0xcc3b7b5c, 0x0649}, // alefmaksuraarabic
 	{0xcc447b1d, 0x0296}, // glottalstopinverted
@@ -3586,7 +3287,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xcd9d27ad, 0x24c7}, // Rcircle
 	{0xcd9f5a2c, 0x0028}, // parenleft
 	{0xcda0c667, 0x2018}, // quoteleft
-	{0xcdab3631, 0xf7ff}, // Ydieresissmall
 	{0xcdae6ea2, 0xff59}, // ymonospace
 	{0xcdbb64f4, 0x2105}, // afii61248
 	{0xcdd2cfab, 0x24b4}, // yparen
@@ -3597,14 +3297,12 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xcdfd40ec, 0x0180}, // bstroke
 	{0xce074882, 0x0668}, // afii57400
 	{0xce4d2d1e, 0x2563}, // SF230000
-	{0xce63250d, 0x005d}, // bracketrightBigg
 	{0xce6d06c6, 0x0aab}, // phagujarati
 	{0xce6f0d59, 0x3272}, // mieumacirclekorean
 	{0xce79a056, 0x3339}, // herutusquare
 	{0xce8dac39, 0x25a8}, // squareupperrighttolowerleftfill
 	{0xce942ad9, 0x09a6}, // dabengali
 	{0xcea39f20, 0x02d5}, // downtackmod
-	{0xced82ba6, 0xed19}, // bracehtipupleft
 	{0xcedf2a68, 0x0157}, // rcedilla
 	{0xcee9759d, 0x043a}, // afii10076
 	{0xcef01870, 0x0171}, // udblacute
@@ -3625,7 +3323,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xcfe519cb, 0x309b}, // voicedmarkkana
 	{0xcfe64e44, 0x0668}, // eighthackarabic
 	{0xcff88b7d, 0x05b8}, // qamatsqatannarrowhebrew
-	{0xd009507e, 0x05d3}, // daletqamatshebrew
 	{0xd0096386, 0x25b3}, // whiteuppointingtriangle
 	{0xd0227bd1, 0x0199}, // khook
 	{0xd02a9cfe, 0x0105}, // aogonek
@@ -3639,7 +3336,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xd056aca3, 0xff9a}, // rekatakanahalfwidth
 	{0xd06b6bb7, 0x096a}, // fourdeva
 	{0xd07a803b, 0x09aa}, // pabengali
-	{0xd07f3aad, 0xf768}, // Hsmall
 	{0xd0847e20, 0x05c4}, // upperdothebrew
 	{0xd087e60f, 0x0158}, // Rcaron
 	{0xd0897bb6, 0x0579}, // chaarmenian
@@ -3653,9 +3349,7 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xd13faec5, 0x05e1}, // samekh
 	{0xd14fc185, 0x045b}, // afii10108
 	{0xd17987dd, 0x0543}, // Cheharmenian
-	{0xd180d934, 0x0621}, // hamzalowkasraarabic
 	{0xd18447d8, 0x0663}, // threearabic
-	{0xd18961af, 0xf7fa}, // Uacutesmall
 	{0xd18966b1, 0x0a82}, // anusvaragujarati
 	{0xd18d83de, 0x0aa3}, // nnagujarati
 	{0xd190d310, 0x0a35}, // vagurmukhi
@@ -3664,7 +3358,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xd1d7231f, 0x04bc}, // Cheabkhasiancyrillic
 	{0xd1d9da71, 0x30ea}, // rikatakana
 	{0xd2337241, 0x05b6}, // segol1f
-	{0xd24297bf, 0xf889}, // maitaikhuleftthai
 	{0xd247ef8b, 0x3243}, // ideographicreachparen
 	{0xd254c368, 0x0443}, // ucyrillic
 	{0xd2658bcb, 0x05b9}, // holamquarterhebrew
@@ -3681,7 +3374,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xd2f3cdf3, 0x1e0e}, // Dlinebelow
 	{0xd304784a, 0x05d3}, // dalet
 	{0xd308b167, 0x1e5b}, // rdotbelow
-	{0xd310b973, 0x25a1}, // a50
 	{0xd310fcc1, 0x04e9}, // obarredcyrillic
 	{0xd3145153, 0xfeec}, // hehmedialarabic
 	{0xd326ec6d, 0x2237}, // proportion
@@ -3689,7 +3381,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xd33cb244, 0x02cd}, // macronlowmod
 	{0xd35ba6fb, 0x04be}, // Chedescenderabkhasiancyrillic
 	{0xd3730282, 0xff64}, // ideographiccommaleft
-	{0xd3777d75, 0x05d3}, // daletsegolhebrew
 	{0xd3797e0f, 0x24db}, // lcircle
 	{0xd37b4bcb, 0x041c}, // afii10030
 	{0xd3a5ba29, 0x062e}, // afii57422
@@ -3702,11 +3393,9 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xd44f2d4c, 0xff9b}, // rokatakanahalfwidth
 	{0xd45c6c89, 0x3079}, // behiragana
 	{0xd467b0a3, 0x0131}, // dotlessi
-	{0xd46989dc, 0x05e7}, // qofholam
 	{0xd48c064b, 0x0599}, // pashtahebrew
 	{0xd48dad4d, 0x01e2}, // AEmacron
 	{0xd4b2bb68, 0x0145}, // Ncedilla
-	{0xd4ce7b9e, 0x0621}, // hamzadammaarabic
 	{0xd4d3eb56, 0x255e}, // SF360000
 	{0xd4e86e58, 0x1ef7}, // yhookabove
 	{0xd4e92fa8, 0x0623}, // alefhamzaabovearabic
@@ -3720,7 +3409,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xd5b6f4bf, 0x3163}, // ikorean
 	{0xd5b7a706, 0x1e13}, // dcircumflexbelow
 	{0xd5da03ab, 0x0123}, // gcommaaccent
-	{0xd5da183e, 0xf76e}, // Nsmall
 	{0xd5dc1f0e, 0x24a5}, // jparen
 	{0xd5e6a2b4, 0x200f}, // afii300
 	{0xd6067104, 0x05bd}, // siluqlefthebrew
@@ -3741,17 +3429,14 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xd6df6252, 0xfef4}, // yehmedialarabic
 	{0xd6e234de, 0x044d}, // afii10095
 	{0xd7151c8a, 0x040b}, // afii10060
-	{0xd71970f6, 0x05d3}, // daletsegol
 	{0xd71af0cf, 0x00af}, // overscore
 	{0xd72c6112, 0x0036}, // six
-	{0xd7363d15, 0x05d3}, // daletholamhebrew
 	{0xd73b3901, 0x02da}, // ring
 	{0xd7425de1, 0x0a1d}, // jhagurmukhi
 	{0xd771b953, 0x3107}, // mbopomofo
 	{0xd7a40cc3, 0x315c}, // ukorean
 	{0xd7b7f8a3, 0x3094}, // vuhiragana
 	{0xd7b8c7af, 0x05b8}, // qamatsquarterhebrew
-	{0xd7bc737d, 0x230b}, // floorrightBig
 	{0xd7bf0d2a, 0x308b}, // ruhiragana
 	{0xd7cebade, 0x01b1}, // Upsilonafrican
 	{0xd7d268b5, 0x314e}, // hieuhkorean
@@ -3761,7 +3446,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xd8171429, 0x013e}, // lcaron
 	{0xd817c39d, 0x0664}, // fourhackarabic
 	{0xd824acfb, 0x05de}, // memhebrew
-	{0xd82c0976, 0x05e8}, // reshsegolhebrew
 	{0xd849e14d, 0x3052}, // gehiragana
 	{0xd84afb0a, 0x00d1}, // Ntilde
 	{0xd85534fc, 0x02ca}, // secondtonechinese
@@ -3785,7 +3469,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xd95c2f59, 0x04bd}, // cheabkhasiancyrillic
 	{0xd9697a13, 0x328b}, // ideographfirecircle
 	{0xd98cc91f, 0x0307}, // dotaccentcmb
-	{0xd98dcef9, 0xf8ff}, // apple
 	{0xd991004f, 0x0e4f}, // fongmanthai
 	{0xd99e3976, 0x249f}, // dparen
 	{0xd9ba695c, 0xff70}, // katahiraprolongmarkhalfwidth
@@ -3795,7 +3478,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xda15411c, 0x0304}, // macroncmb
 	{0xda2037e1, 0x1e01}, // aringbelow
 	{0xda3670ae, 0x3347}, // mansyonsquare
-	{0xda38804a, 0xf738}, // eightoldstyle
 	{0xda39b9df, 0x013d}, // Lcaron
 	{0xda48ff7e, 0x00bb}, // guillemotright
 	{0xda4e1891, 0x228b}, // supersetnotequal
@@ -3806,11 +3488,9 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xda94576a, 0x0999}, // ngabengali
 	{0xda94a677, 0x0634}, // afii57428
 	{0xda99b3d7, 0x30d1}, // pakatakana
-	{0xda9d5f69, 0xf6c8}, // afii10832
 	{0xdab46527, 0x21e9}, // arrowdownwhite
 	{0xdac4a95a, 0x002f}, // slash
 	{0xdac8670b, 0x011e}, // Gbreve
-	{0xdace8a4c, 0xed17}, // bracehtipdownleft
 	{0xdad5813e, 0x24bf}, // Jcircle
 	{0xdaf9ae21, 0x03e7}, // kheicoptic
 	{0xdb00acb2, 0x04dc}, // Zhedieresiscyrillic
@@ -3818,15 +3498,12 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xdb15243d, 0xfb38}, // tetdagesh
 	{0xdb180684, 0x059d}, // gereshmuqdamhebrew
 	{0xdb19f222, 0x1e30}, // Kacute
-	{0xdb215045, 0xf76f}, // Osmall
 	{0xdb36c0cb, 0x00c1}, // Aacute
 	{0xdb46a061, 0x044f}, // afii10097
 	{0xdb4843d8, 0x0140}, // ldotaccent
 	{0xdb491e12, 0x3201}, // nieunparenkorean
 	{0xdb4ecb82, 0x06a4}, // afii57505
 	{0xdb5fdfb2, 0x09cd}, // viramabengali
-	{0xdb7c2cdb, 0xf88f}, // maitholowleftthai
-	{0xdb8ff30c, 0xf6f5}, // Caronsmall
 	{0xdb9c2f74, 0x3063}, // tusmallhiragana
 	{0xdb9dda85, 0xfb3b}, // kafdageshhebrew
 	{0xdba170e8, 0x0998}, // ghabengali
@@ -3838,7 +3515,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xdbf12380, 0x2460}, // onecircle
 	{0xdc0071a3, 0xfb46}, // tsadidageshhebrew
 	{0xdc05ec50, 0x30f5}, // kasmallkatakana
-	{0xdc0ac9c6, 0x0028}, // parenleftBigg
 	{0xdc0ad3ae, 0x012d}, // ibreve
 	{0xdc0c240d, 0xff9e}, // voicedmarkkanahalfwidth
 	{0xdc0c9e85, 0xff9f}, // semivoicedmarkkanahalfwidth
@@ -3846,7 +3522,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xdc41d3b3, 0x05ab}, // olehebrew
 	{0xdc54447c, 0x307c}, // bohiragana
 	{0xdc6ca9b3, 0x0584}, // keharmenian
-	{0xdc7650d9, 0xf73f}, // questionsmall
 	{0xdc7756d1, 0x0077}, // w
 	{0xdc7d1de8, 0xfba9}, // hehmedialaltonearabic
 	{0xdc7f6ca5, 0x0624}, // wawhamzaabovearabic
@@ -3893,33 +3568,25 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xdf1ee74b, 0xff81}, // tikatakanahalfwidth
 	{0xdf243dad, 0x044c}, // softsigncyrillic
 	{0xdf46fba9, 0x01a4}, // Phook
-	{0xdf5e1052, 0x221a}, // radicalbig
 	{0xdf80589a, 0x3217}, // chieuchaparenkorean
 	{0xdf8c6402, 0x0e45}, // lakkhangyaothai
-	{0xdf8fbdeb, 0x05e7}, // qofsheva
 	{0xdf9eaf7a, 0x33bc}, // muwsquare
 	{0xdfad5d93, 0x22c0}, // logicalandtext
 	{0xdfaf476d, 0x0167}, // tbar
 	{0xdfb9632c, 0x3144}, // pieupsioskorean
-	{0xdfe8c3dc, 0xf7fc}, // Udieresissmall
 	{0xdff819d0, 0xfe8c}, // yehhamzaabovemedialarabic
 	{0xdffe3761, 0x1e14}, // Emacrongrave
-	{0xe0061dae, 0x05d3}, // daletpatah
 	{0xe0130535, 0x316c}, // rieulpansioskorean
 	{0xe019189f, 0x0994}, // aubengali
 	{0xe0197d92, 0x0a4b}, // oomatragurmukhi
-	{0xe02aebf6, 0xf6e3}, // dollarinferior
 	{0xe0343a59, 0x0323}, // dotbelowcomb
 	{0xe03a2368, 0x019f}, // Ocenteredtilde
 	{0xe0489c79, 0x017f}, // longs
-	{0xe0513bea, 0xf6ff}, // Zcaronsmall
 	{0xe0560cdf, 0x1e19}, // ecircumflexbelow
 	{0xe065671a, 0x1e0a}, // Ddotaccent
 	{0xe07dfee5, 0x04f4}, // Chedieresiscyrillic
 	{0xe0800244, 0xfb69}, // ttehmedialarabic
-	{0xe0831234, 0x007b}, // braceleftBig
 	{0xe0987417, 0x24dd}, // ncircle
-	{0xe0ab68f9, 0xf6dc}, // onefitted
 	{0xe0ac4869, 0x3225}, // sixideographicparen
 	{0xe0c42e1f, 0x3357}, // wattosquare
 	{0xe0cf3aca, 0x1e1d}, // ecedillabreve
@@ -3938,9 +3605,7 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xe20234a2, 0x012c}, // Ibreve
 	{0xe20c937f, 0x041a}, // Kacyrillic
 	{0xe20deadd, 0x047c}, // Omegatitlocyrillic
-	{0xe222a727, 0x02dc}, // tildewide
 	{0xe2234dec, 0xff52}, // rmonospace
-	{0xe2256c16, 0x05d3}, // daletqamats
 	{0xe22682ea, 0x3260}, // kiyeokcirclekorean
 	{0xe22a6510, 0x1e8e}, // Ydotaccent
 	{0xe23968a4, 0x04b3}, // hadescendercyrillic
@@ -3951,7 +3616,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xe28a564c, 0x044f}, // iacyrillic
 	{0xe28eea2e, 0x1e51}, // omacrongrave
 	{0xe2924f7e, 0x0a67}, // onegurmukhi
-	{0xe2948e05, 0xf6f6}, // Circumflexsmall
 	{0xe2a7b092, 0x3213}, // pieupaparenkorean
 	{0xe2b99909, 0x0e14}, // dodekthai
 	{0xe2cfeeb5, 0x0301}, // acutecomb
@@ -3971,7 +3635,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xe3a00fb0, 0x0aa2}, // ddhagujarati
 	{0xe3a0394c, 0x05b3}, // afii57802
 	{0xe3bf40b5, 0x21c5}, // arrowupleftofdown
-	{0xe3c68591, 0x005d}, // bracketrightBig
 	{0xe3cbb73f, 0x0459}, // afii10106
 	{0xe3cddac1, 0x0621}, // hamzalowarabic
 	{0xe3d5ad06, 0x1ec0}, // Ecircumflexgrave
@@ -3994,7 +3657,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xe4a8920f, 0x0014}, // controlDC4
 	{0xe4c6b94a, 0x0550}, // Reharmenian
 	{0xe4c91eec, 0x1ea7}, // acircumflexgrave
-	{0xe4ce70c5, 0xfedf}, // lammeemkhahinitialarabic
 	{0xe4d0a5c5, 0x2171}, // tworoman
 	{0xe4de0824, 0x090b}, // rvocalicdeva
 	{0xe4e78bbf, 0x0e33}, // saraamthai
@@ -4027,7 +3689,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xe61a323e, 0x21d2}, // arrowdblright
 	{0xe61dad29, 0x017b}, // Zdotaccent
 	{0xe62fb889, 0x2524}, // SF090000
-	{0xe65602bc, 0x05d3}, // daletqubuts
 	{0xe6699f03, 0x025d}, // eopenreversedhook
 	{0xe6743f55, 0x011a}, // Ecaron
 	{0xe6861695, 0x018a}, // Dhook
@@ -4046,7 +3707,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xe72762a6, 0x3127}, // ibopomofo
 	{0xe74e8d5b, 0x02d0}, // colontriangularmod
 	{0xe75de72d, 0x0a4d}, // halantgurmukhi
-	{0xe79030f9, 0xf6cf}, // Hungarumlaut
 	{0xe796e6c1, 0x032f}, // breveinvertedbelowcmb
 	{0xe7a9201c, 0x24e5}, // vcircle
 	{0xe7abb869, 0x05b0}, // sheva115
@@ -4078,7 +3738,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xe927829f, 0x0953}, // gravedeva
 	{0xe92a9522, 0x0060}, // grave
 	{0xe93b2c93, 0x09c8}, // aivowelsignbengali
-	{0xe9544ae6, 0x2308}, // ceilingleftbigg
 	{0xe9598c36, 0x018e}, // Ereversed
 	{0xe96c43a5, 0x00d4}, // Ocircumflex
 	{0xe977a63b, 0x0591}, // etnahtalefthebrew
@@ -4113,7 +3772,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xeb4a0523, 0x056a}, // zhearmenian
 	{0xeb4fdea3, 0xfc08}, // behmeemisolatedarabic
 	{0xeb576d94, 0x21de}, // pageup
-	{0xeb6b92be, 0x2191}, // arrowtp
 	{0xeb701704, 0x2014}, // emdash
 	{0xeb71d801, 0x30f3}, // nkatakana
 	{0xebeccb02, 0x00dd}, // Yacute
@@ -4136,7 +3794,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xed1afc7c, 0x05b2}, // hatafpatah2f
 	{0xed2b4a43, 0x00aa}, // ordfeminine
 	{0xed4bb321, 0x313f}, // rieulphieuphkorean
-	{0xed65d1e6, 0x05e7}, // qofqubutshebrew
 	{0xed65e3bb, 0x057a}, // peharmenian
 	{0xed729d82, 0x049e}, // Kastrokecyrillic
 	{0xed796a9e, 0x0407}, // afii10056
@@ -4164,7 +3821,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xef33d78e, 0x25a1}, // H22073
 	{0xef3a179c, 0x020a}, // Iinvertedbreve
 	{0xef636ee0, 0x05da}, // finalkaf
-	{0xef7afe15, 0x007d}, // bracerightbigg
 	{0xefa03eab, 0x00c6}, // AE
 	{0xefc57067, 0x0260}, // ghook
 	{0xefd65ddd, 0x2033}, // second
@@ -4186,7 +3842,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xf064a013, 0x047e}, // Otcyrillic
 	{0xf0673e49, 0x096f}, // ninedeva
 	{0xf0757f39, 0x030a}, // ringcmb
-	{0xf08334d5, 0x05d3}, // dalethatafpatahhebrew
 	{0xf08a28a9, 0xfe4e}, // lowlinecenterline
 	{0xf09092b0, 0x3185}, // ssanghieuhkorean
 	{0xf091911a, 0x223d}, // reversedtilde
@@ -4215,7 +3870,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xf1ddaa7d, 0x0995}, // kabengali
 	{0xf1e94d64, 0x064e}, // fathaarabic
 	{0xf1eb4f66, 0x0116}, // Edotaccent
-	{0xf1f2ec50, 0x05e7}, // qofhatafsegol
 	{0xf1f78ce7, 0x226a}, // muchless
 	{0xf2118c6c, 0x0635}, // sadarabic
 	{0xf232181a, 0x2640}, // venus
@@ -4232,19 +3886,15 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xf2dd8deb, 0x248d}, // sixperiod
 	{0xf2e23a0c, 0xfb57}, // pehfinalarabic
 	{0xf2e7f536, 0x0329}, // verticallinebelowcmb
-	{0xf2efdad2, 0x05e8}, // reshqamats
 	{0xf2f52e6c, 0x00ce}, // Icircumflex
 	{0xf2f6e905, 0x24cd}, // Xcircle
 	{0xf3086f4b, 0x2030}, // perthousand
 	{0xf311fe21, 0xfece}, // ghainfinalarabic
 	{0xf315dbae, 0xfe3c}, // blacklenticularbracketrightvertical
-	{0xf31fc2c2, 0xf76d}, // Msmall
 	{0xf336d994, 0xfef3}, // yehinitialarabic
 	{0xf3527249, 0xfb67}, // ttehfinalarabic
-	{0xf365ee1e, 0xf6f8}, // Hungarumlautsmall
 	{0xf3935843, 0xff26}, // Fmonospace
 	{0xf399cd14, 0x0074}, // t
-	{0xf3ab1b0a, 0x05d3}, // dalethatafsegol
 	{0xf3c08521, 0x0431}, // afii10066
 	{0xf3ce4ef0, 0x014a}, // Eng
 	{0xf3cfe996, 0x05b8}, // qamatsde
@@ -4257,9 +3907,7 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xf4728f62, 0x06f9}, // ninepersian
 	{0xf47778a3, 0x0958}, // qadeva
 	{0xf47c7f06, 0x05a5}, // merkhalefthebrew
-	{0xf4970a5b, 0x222b}, // integraldisplay
 	{0xf498c20b, 0xfb2c}, // shindageshshindothebrew
-	{0xf4a0d900, 0xf7e6}, // AEsmall
 	{0xf4a2e6c9, 0xff8e}, // hokatakanahalfwidth
 	{0xf4c721dd, 0x0415}, // afii10022
 	{0xf4d1afd1, 0x015b}, // sacute
@@ -4269,7 +3917,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xf4f5b85f, 0x05bd}, // afii57839
 	{0xf4fec4c5, 0x2026}, // ellipsis
 	{0xf4fecbee, 0x3152}, // yaekorean
-	{0xf521dc0d, 0xf777}, // Wsmall
 	{0xf526b2bc, 0x09f5}, // twonumeratorbengali
 	{0xf53d898f, 0x0122}, // Gcedilla
 	{0xf54df907, 0x02e8}, // tonebarlowmod
@@ -4292,7 +3939,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xf6228c58, 0x20a3}, // franc
 	{0xf6271ec7, 0x0429}, // afii10043
 	{0xf630815e, 0x0577}, // shaarmenian
-	{0xf643d64b, 0xf774}, // Tsmall
 	{0xf64f0a5d, 0x30f9}, // vekatakana
 	{0xf64f6666, 0xff44}, // dmonospace
 	{0xf6545660, 0x3333}, // huiitosquare
@@ -4303,10 +3949,8 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xf68c8679, 0x3043}, // ismallhiragana
 	{0xf68fb68d, 0x215b}, // oneeighth
 	{0xf6909b76, 0x24a1}, // fparen
-	{0xf69fb673, 0xf7e4}, // Adieresissmall
 	{0xf6b386e5, 0x1e3c}, // Lcircumflexbelow
 	{0xf6c0ec85, 0x1e5c}, // Rdotbelowmacron
-	{0xf6ea45f8, 0xf6fa}, // OEsmall
 	{0xf6f2a8b6, 0x0289}, // ubar
 	{0xf7114d7b, 0x2502}, // SF110000
 	{0xf7440454, 0x045e}, // afii10110
@@ -4328,7 +3972,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xf885c738, 0x30d3}, // bikatakana
 	{0xf8868f94, 0xff8c}, // hukatakanahalfwidth
 	{0xf8892150, 0x04a8}, // Haabkhasiancyrillic
-	{0xf89a4fca, 0x05d3}, // daletholam
 	{0xf89be814, 0x0abc}, // nuktagujarati
 	{0xf8e483f7, 0x1eb5}, // abrevetilde
 	{0xf8ef289b, 0x21df}, // pagedown
@@ -4377,7 +4020,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xfb4678bc, 0xfe90}, // behfinalarabic
 	{0xfb5bf4b4, 0x02cf}, // acutelowmod
 	{0xfb5cfdc8, 0x095c}, // dddhadeva
-	{0xfb6edad4, 0xf6c9}, // Acute
 	{0xfb764dd2, 0x21d3}, // arrowdbldown
 	{0xfb7c1fd7, 0x0485}, // dasiapneumatacyrilliccmb
 	{0xfbcf44c4, 0x018d}, // deltaturned
@@ -4396,7 +4038,6 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xfc8020b6, 0xfb39}, // yoddageshhebrew
 	{0xfc828b2d, 0x1ee4}, // Udotbelow
 	{0xfc9cf271, 0x020d}, // odblgrave
-	{0xfcd52169, 0xf7ed}, // Iacutesmall
 	{0xfce47bc6, 0x05b7}, // patah
 	{0xfce8ddc1, 0x1e0f}, // dlinebelow
 	{0xfce9ddb5, 0x05aa}, // yerahbenyomohebrew
@@ -4412,7 +4053,7 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xfd891a4c, 0x0948}, // aivowelsigndeva
 	{0xfd8944f5, 0x0309}, // hookabovecomb
 	{0xfd89977d, 0x0e50}, // zerothai
-	{0xfd93a170, 0xf8ec}, // parenleftex
+	{0xfd93a170, 0x239c}, // parenleftex
 	{0xfd99bb06, 0xfb3c}, // lameddagesh
 	{0xfdb6c57c, 0x2215}, // divisionslash
 	{0xfdbbbec8, 0x090d}, // ecandradeva
@@ -4434,13 +4075,11 @@ std::array<HashCodepointPair, 4410> hash2unicode = {{
 	{0xfee9d86c, 0x2295}, // pluscircle
 	{0xfef651f8, 0x0688}, // afii57512
 	{0xff5dadf4, 0x0193}, // Ghook
-	{0xff7d5e86, 0x05e7}, // qoftserehebrew
 	{0xff81c116, 0x21cd}, // arrowleftdblstroke
 	{0xff8c00d8, 0x3386}, // MBsquare
 	{0xff8f2931, 0x30ae}, // gikatakana
 	{0xff90fc92, 0x0923}, // nnadeva
 	{0xff94689d, 0x04c0}, // palochkacyrillic
-	{0xffce1162, 0xf734}, // fouroldstyle
 	{0xffe38169, 0x043f}, // pecyrillic
 	{0xfffadc30, 0x2568}, // SF460000
 }};

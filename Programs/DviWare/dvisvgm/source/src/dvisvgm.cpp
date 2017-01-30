@@ -2,7 +2,7 @@
 ** dvisvgm.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2016 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -126,9 +126,22 @@ static bool set_cache_dir (const CommandLine &args) {
 			FontCache::fontinfo(PhysicalFont::CACHE_PATH, cout, true);
 		}
 		catch (StreamReaderException &e) {
-			Message::wstream(true) << "failed reading cache data";
+			Message::wstream(true) << "failed reading cache data\n";
 		}
 		return false;
+	}
+	return true;
+}
+
+
+static bool set_temp_dir (const CommandLine &args) {
+	if (args.tmpdirOpt.given()) {
+		if (!args.tmpdirOpt.value().empty())
+			FileSystem::TMPDIR = args.tmpdirOpt.value().c_str();
+		else {
+			cout << "temporary folder: " << FileSystem::tmpdir() << '\n';
+			return false;
+		}
 	}
 	return true;
 }
@@ -204,7 +217,7 @@ static void init_fontmap (const CommandLine &cmdline) {
 		for (const char **p=mapfiles; *p && !found; p++)
 			found = FontMap::instance().read(*p);
 		if (!found)
-			Message::wstream(true) << "none of the default map files could be found";
+			Message::wstream(true) << "none of the default map files could be found\n";
 	}
 	if (mapseq)
 		FontMap::instance().read(mapseq);
@@ -269,7 +282,7 @@ int main (int argc, char *argv[]) {
 			SpecialManager::instance().writeHandlerInfo(cout);
 			return 0;
 		}
-		if (!set_cache_dir(cmdline))
+		if (!set_cache_dir(cmdline) || !set_temp_dir(cmdline))
 			return 0;
 		if (cmdline.stdoutOpt.given() && cmdline.zipOpt.given()) {
 			Message::estream(true) << "writing SVGZ files to stdout is not supported\n";

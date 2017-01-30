@@ -2,7 +2,7 @@
 ** DVIReader.cpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2016 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -499,7 +499,7 @@ const Font* DVIReader::defineFont (uint32_t fontnum, const string &name, uint32_
 			// read vf file, register its font and character definitions
 			fm.enterVF(vf);
 #if defined(MIKTEX_WINDOWS)
-            ifstream ifs(UW_(vf->path()), ios::binary);
+                        ifstream ifs(UW_(vf->path()), ios::binary);
 #else
 			ifstream ifs(vf->path(), ios::binary);
 #endif

@@ -2,7 +2,7 @@
 ** PsSpecialHandler.cpp                                                 **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2016 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -80,7 +80,7 @@ void PsSpecialHandler::initialize () {
 		for (const char **p=headers; *p; ++p)
 			processHeaderFile(*p);
 		// disable bop/eop operators to prevent side-effects by
-		// unexpected bobs/eops present in PS specials
+		// unexpected bops/eops present in PS specials
 		_psi.execute("\nTeXDict begin /bop{pop pop}def /eop{}def end ");
 		_psSection = PS_HEADERS;  // allow to process header specials now
 	}
@@ -107,7 +107,7 @@ void PsSpecialHandler::initgraphics () {
 void PsSpecialHandler::processHeaderFile (const char *name) {
 	if (const char *path = FileFinder::instance().lookup(name, false)) {
 #if defined(MIKTEX_WINDOWS)
-          ifstream ifs(UW_(path));
+                ifstream ifs(UW_(path));
 #else
 		ifstream ifs(path);
 #endif

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2016 Christian Schenk
+## Copyright (C) 2015-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -408,6 +408,8 @@ set(libdvisvgm_sources
   source/src/ZLibOutputStream.hpp
   source/src/macros.hpp
   source/src/psdefs.cpp
+  source/src/utility.cpp
+  source/src/utility.hpp
   source/src/version.hpp
 )
 

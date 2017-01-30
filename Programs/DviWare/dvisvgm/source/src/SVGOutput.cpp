@@ -2,7 +2,7 @@
 ** SVGOutput.cpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2016 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -28,6 +28,7 @@
 #include "FileSystem.hpp"
 #include "Message.hpp"
 #include "SVGOutput.hpp"
+#include "utility.hpp"
 #include "ZLibOutputStream.hpp"
 
 #if defined(MIKTEX_WINDOWS)
@@ -61,7 +62,7 @@ ostream& SVGOutput::getPageStream (int page, int numPages) const {
 		_osptr.reset(new ZLibOutputStream(fname, _zipLevel));
 	else
 #if defined(MIKTEX_WINDOWS)
-        _osptr.reset(new ofstream(UW_(fname.c_str())));
+                _osptr.reset(new ofstream(UW_(fname.c_str())));
 #else
 		_osptr.reset(new ofstream(fname.c_str()));
 #endif
@@ -77,20 +78,12 @@ ostream& SVGOutput::getPageStream (int page, int numPages) const {
 string SVGOutput::filename (int page, int numPages) const {
 	if (_stdout)
 		return "";
-	string pattern = _pattern;
-	expandFormatString(pattern, page, numPages);
-	// remove leading and trailing whitespace
-	stringstream trim;
-	trim << pattern;
-	pattern.clear();
-	trim >> pattern;
+	string expanded_pattern = util::trim(expandFormatString(_pattern, page, numPages));
 	// set and expand default pattern if necessary
-	if (pattern.empty()) {
-		pattern = numPages > 1 ? "%f-%p" : "%f";
-		expandFormatString(pattern, page, numPages);
-	}
+	if (expanded_pattern.empty())
+		expanded_pattern = expandFormatString(numPages > 1 ? "%f-%p" : "%f", page, numPages);
 	// append suffix if necessary
-	FilePath outpath(pattern, true);
+	FilePath outpath(expanded_pattern, true);
 	if (outpath.suffix().empty())
 		outpath.suffix(_zipLevel > 0 ? "svgz" : "svg");
 	string abspath = outpath.absolute();
@@ -99,23 +92,28 @@ string SVGOutput::filename (int page, int numPages) const {
 }
 
 
-static int ilog10 (int n) {
-	int result = 0;
-	while (n >= 10) {
-		result++;
-		n /= 10;
-	}
-	return result;
+#if 0
+string SVGOutput::outpath (int page, int numPages) const {
+	string path = filename(page, numPages);
+	if (path.empty())
+		return "";
+	size_t pos = path.rfind('/');
+	if (pos == string::npos)
+		return ".";
+	if (pos == 0)
+		return "/";
+	return path.substr(0, pos);
 }
+#endif
 
 
-/** Replace expressions in a given string by the corresponing values.
+/** Replaces expressions in a given string by the corresponding values and returns the result.
  *  Supported constructs:
  *  %f: basename of the current file (filename without suffix)
  *  %[0-9]?p: current page number
  *  %[0-9]?P: number of pages in DVI file
  *  %[0-9]?(expr): arithmetic expression */
-void SVGOutput::expandFormatString (string &str, int page, int numPages) const {
+string SVGOutput::expandFormatString (string str, int page, int numPages) const {
 	string result;
 	while (!str.empty()) {
 		size_t pos = str.find('%');
@@ -133,7 +131,7 @@ void SVGOutput::expandFormatString (string &str, int page, int numPages) const {
 				pos++;
 			}
 			else {
-				oss << setw(ilog10(numPages)+1) << setfill('0');
+				oss << setw(util::ilog10(numPages)+1) << setfill('0');
 			}
 			switch (str[pos]) {
 				case 'f':
@@ -169,5 +167,5 @@ void SVGOutput::expandFormatString (string &str, int page, int numPages) const {
 			str = str.substr(pos+1);
 		}
 	}
-	str = result;
+	return result;
 }

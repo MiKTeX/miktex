@@ -2,7 +2,7 @@
 ** EncFile.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2016 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -54,7 +54,7 @@ const char* EncFile::path () const {
 void EncFile::read () {
 	if (const char *p = path()) {
 #if defined(MIKTEX_WINDOWS)
-          ifstream ifs(UW_(p));
+                ifstream ifs(UW_(p));
 #else
 		ifstream ifs(p);
 #endif

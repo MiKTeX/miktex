@@ -2,7 +2,7 @@
 ** FontMap.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2016 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -53,7 +53,7 @@ FontMap& FontMap::instance() {
  *  @return true if file could be opened */
 bool FontMap::read (const string &fname, FontMap::Mode mode) {
 #if defined(MIKTEX_WINDOWS)
-  ifstream ifs(UW_(fname.c_str()));
+        ifstream ifs(UW_(fname.c_str()));
 #else
 	ifstream ifs(fname.c_str());
 #endif

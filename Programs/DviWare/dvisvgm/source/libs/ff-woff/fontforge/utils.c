@@ -37,8 +37,11 @@
 
 FILE* tmpfile2() {
 	FILE *fp = 0;
-	char fname[MAX_PATH + 1];
-	if (GetTempFileName(".", "tmp", 0, fname)) {
+	char tmpdir[MAX_PATH];
+	char fname[MAX_PATH-14];
+	if (!GetTempPath(MAX_PATH, tmpdir))
+		strcpy(tmpdir, ".");
+	if (GetTempFileName(tmpdir, "tmp", 0, fname)) {
 		int fd = _open(fname, _O_CREAT | _O_TEMPORARY | _O_RDWR | _O_BINARY, _S_IREAD | _S_IWRITE);
 		if (fd >= 0) {
 			fp = _fdopen(fd, "w+b");
