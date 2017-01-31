@@ -69,20 +69,28 @@ class WebAppProgramImpl : public IWebAppProgram
 public:
   void* xchr() override
   {
-    return THEDATA(xchr);
+#if defined(MIKTEX_TEXMF_UNICODE)
+    return nullptr;
+#else
+    return g_xchr;
+#endif
   }
 public:
   void* xord() override
   {
-    return THEDATA(xord);
+#if defined(MIKTEX_TEXMF_UNICODE)
+    return nullptr;
+#else
+    return g_xord;
+#endif
   }
 public:
   void* xprn() override
   {
-#if defined(MIKTEX_TEX_COMPILER) || defined(MIKTEX_META_COMPILER)
-    return THEDATA(xprn);
-#else
+#if defined(MIKTEX_TEXMF_UNICODE) || !defined(MIKTEX_TEX_COMPILER) && !defined(MIKTEX_META_COMPILER)
     return nullptr;
+#else
+    return g_xprn;
 #endif
   }
 };
@@ -252,58 +260,62 @@ public:
     MiKTeX::TeXAndFriends::InitializeCharTables(flags, tcxFileName, webAppProgram->xchr(), webAppProgram->xord(), webAppProgram->xprn());
   }
 
+public:
+  void SetProgramInterface(IWebAppProgram* webAppProgram)
+  {
+    this->webAppProgram = webAppProgram;
+  }
+
 private:
-#if defined(THEDATA)
-  std::unique_ptr<IWebAppProgram> webAppProgram = std::make_unique<WebAppProgramImpl>();
-#else
-  std::unique_ptr<IWebAppProgram> webAppProgram;
-#endif
+  IWebAppProgram* webAppProgram = nullptr;
 
 private:
   class impl;
   std::unique_ptr<impl> pimpl;
 };
 
+template<typename APPCLASS> class ProgramRunner
+{
+public:
+  int Run(APPCLASS& app, int (C4PCEECALL* program)(int argc, const char** argv), int argc, const char** argv)
+  {
 #if defined(MIKTEX_COMPONENT_VERSION_STR)
 #  if defined(MIKTEX_COMP_TM_STR)
-#    define SET_PROGRAM_INFO__423C8217_4CFC_41B7_9F89_EA3C4F729FD1(app) \
-      app.SetProgramInfo(app.TheNameOfTheGame(),                        \
-                         MIKTEX_COMPONENT_VERSION_STR,                  \
-                         MIKTEX_COMP_COPYRIGHT_STR,                     \
-                         MIKTEX_COMP_TM_STR)
+    app.SetProgramInfo(app.TheNameOfTheGame(), MIKTEX_COMPONENT_VERSION_STR, MIKTEX_COMP_COPYRIGHT_STR, MIKTEX_COMP_TM_STR);
 #  else
-#    define SET_PROGRAM_INFO__423C8217_4CFC_41B7_9F89_EA3C4F729FD1(app) \
-      app.SetProgramInfo(app.TheNameOfTheGame(),                        \
-                         MIKTEX_COMPONENT_VERSION_STR,                  \
-                         MIKTEX_COMP_COPYRIGHT_STR,                     \
-                         "")
+    app.SetProgramInfo(app.TheNameOfTheGame(), MIKTEX_COMPONENT_VERSION_STR, MIKTEX_COMP_COPYRIGHT_STR, "");
 #  endif
-#else
-#  define SET_PROGRAM_INFO__423C8217_4CFC_41B7_9F89_EA3C4F729FD1(app)
 #endif
+    try
+    {
+#if defined(THEDATA)
+      WebAppProgramImpl webAppProgram;
+      app.SetProgramInterface(&webAppProgram);
+#endif
+      app.Init(argv[0]);
+      int exitCode = program(argc, argv);
+      app.Finalize();
+      return exitCode;
+    }
+    catch (const MiKTeX::Core::MiKTeXException& ex)
+    {
+      MiKTeX::App::Application::Sorry(argv[0], ex);
+      return 1;
+    }
+    catch (const std::exception& ex)
+    {
+      MiKTeX::App::Application::Sorry(argv[0], ex);
+      return 1;
+    }
+  }
+};
 
-#define MIKTEX_DEFINE_WEBAPP(dllentry, appclass, app, program)          \
-appclass app;                                                           \
-extern "C" MIKTEXDLLEXPORT int MIKTEXCEECALL dllentry(int argc, const char** argv) \
-{                                                                       \
-  SET_PROGRAM_INFO__423C8217_4CFC_41B7_9F89_EA3C4F729FD1(app);          \
-  try                                                                   \
-  {                                                                     \
-    app.Init(argv[0]);                                                  \
-    int exitCode = program(argc, argv);                                 \
-    app.Finalize();                                                     \
-    return exitCode;                                                    \
-  }                                                                     \
-  catch (const MiKTeX::Core::MiKTeXException& ex)                       \
-  {                                                                     \
-    MiKTeX::App::Application::Sorry(argv[0], ex);                       \
-    return 1;                                                           \
-  }                                                                     \
-  catch (const std::exception& ex)                                      \
-  {                                                                     \
-    MiKTeX::App::Application::Sorry(argv[0], ex);                       \
-    return 1;                                                           \
-  }                                                                     \
+#define MIKTEX_DEFINE_WEBAPP(dllentry, webappclass, webappinstance, program)          \
+webappclass webappinstance;                                                           \
+extern "C" MIKTEXDLLEXPORT int MIKTEXCEECALL dllentry(int argc, const char** argv)    \
+{                                                                                     \
+  MiKTeX::TeXAndFriends::ProgramRunner<webappclass> p;                                \
+  return p.Run(webappinstance, program, argc, argv);                                  \
 }
 
 MIKTEXMF_END_NAMESPACE;
