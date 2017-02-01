@@ -86,6 +86,10 @@ public:
   string theNameOfTheGame;
 public:
   int optBase;
+public:
+  ICharacterConverter* characterConverter = nullptr;
+public:
+  IInitFinalize* initFinalize = nullptr;
 };
 
 WebApp::WebApp() :
@@ -399,7 +403,42 @@ void WebApp::SetTcxFileName(const PathName& tcxFileName)
   pimpl->tcxFileName = tcxFileName;
 }
 
-vector<poptOption>  WebApp::GetOptions() const
+void WebApp::InitializeCharTables() const
+{
+  unsigned long flags = 0;
+  PathName tcxFileName = GetTcxFileName();
+  if (!tcxFileName.Empty())
+  {
+    flags |= ICT_TCX;
+  }
+  if (Enable8BitCharsP())
+  {
+    flags |= ICT_8BIT;
+  }
+  MiKTeX::TeXAndFriends::InitializeCharTables(flags, tcxFileName, pimpl->characterConverter->xchr(), pimpl->characterConverter->xord(), pimpl->characterConverter->xprn());
+}
+
+void WebApp::SetCharacterConverter(ICharacterConverter* characterConverter)
+{
+  pimpl->characterConverter = characterConverter;
+}
+
+ICharacterConverter* WebApp::GetCharacterConverter() const
+{
+  return pimpl->characterConverter;
+}
+
+void WebApp::SetInitFinalize(IInitFinalize* initFinalize)
+{
+  pimpl->initFinalize = initFinalize;
+}
+
+IInitFinalize* WebApp::GetInitFinalize() const
+{
+  return pimpl->initFinalize;
+}
+
+vector<poptOption> WebApp::GetOptions() const
 {
   return pimpl->options;
 }

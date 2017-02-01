@@ -55,46 +55,75 @@ namespace C4P {
 
 MIKTEXMF_BEGIN_NAMESPACE;
 
-class IWebAppProgram
+class ICharacterConverter
 {
 public:
-  virtual void* xchr() = 0;
-  virtual void* xord() = 0;
-  virtual void* xprn() = 0;
+  virtual char* xchr() = 0;
+  virtual C4P::C4P_unsigned8* xord() = 0;
+  virtual C4P::C4P_unsigned8* xprn() = 0;
 };
 
-#if defined(THEDATA)
-class WebAppProgramImpl : public IWebAppProgram
+template<class PROGRAM_CLASS> class CharacterConverterImpl :
+  public ICharacterConverter
 {
 public:
-  void* xchr() override
+  CharacterConverterImpl(PROGRAM_CLASS& program) :
+    program(program)
+  {
+  }
+private:
+  PROGRAM_CLASS& program;
+public:
+  char* xchr() override
   {
 #if defined(MIKTEX_TEXMF_UNICODE)
     return nullptr;
 #else
-    return g_xchr;
+    return &program.xchr[0];
 #endif
   }
 public:
-  void* xord() override
+  C4P::C4P_unsigned8* xord() override
   {
 #if defined(MIKTEX_TEXMF_UNICODE)
     return nullptr;
 #else
-    return g_xord;
+    return &program.xord[0];
 #endif
   }
 public:
-  void* xprn() override
+  C4P::C4P_unsigned8* xprn() override
   {
 #if defined(MIKTEX_TEXMF_UNICODE) || !defined(MIKTEX_TEX_COMPILER) && !defined(MIKTEX_META_COMPILER)
     return nullptr;
 #else
-    return g_xprn;
+    return &program.xprn[0];
 #endif
   }
 };
-#endif
+
+class IInitFinalize
+{
+public:
+  virtual C4P::C4P_signed8& history() = 0;
+};
+
+template<class PROGRAM_CLASS> class InitFinalizeImpl :
+  public IInitFinalize
+{
+public:
+  InitFinalizeImpl(PROGRAM_CLASS& program) :
+    program(program)
+  {
+  }
+private:
+  PROGRAM_CLASS& program;
+public:
+  C4P::C4P_signed8& history() override
+  {
+    return program.history;
+  }
+};
 
 enum class Feature
 {
@@ -245,39 +274,29 @@ public:
   MIKTEXMFTHISAPI(bool) Enable8BitCharsP() const;
 
 public:
-  void InitializeCharTables()
-  {
-    unsigned long flags = 0;
-    MiKTeX::Core::PathName tcxFileName = GetTcxFileName();
-    if (!tcxFileName.Empty())
-    {
-      flags |= ICT_TCX;
-    }
-    if (Enable8BitCharsP())
-    {
-      flags |= ICT_8BIT;
-    }
-    MiKTeX::TeXAndFriends::InitializeCharTables(flags, tcxFileName, webAppProgram->xchr(), webAppProgram->xord(), webAppProgram->xprn());
-  }
+  MIKTEXMFTHISAPI(void) InitializeCharTables() const;
 
 public:
-  void SetProgramInterface(IWebAppProgram* webAppProgram)
-  {
-    this->webAppProgram = webAppProgram;
-  }
+  MIKTEXMFTHISAPI(void) SetCharacterConverter(ICharacterConverter* characterConverter);
 
-private:
-  IWebAppProgram* webAppProgram = nullptr;
+public:
+  MIKTEXMFTHISAPI(ICharacterConverter*) GetCharacterConverter() const;
+
+public:
+  MIKTEXMFTHISAPI(void) SetInitFinalize(IInitFinalize* initFinalize);
+
+public:
+  MIKTEXMFTHISAPI(IInitFinalize*) GetInitFinalize() const;
 
 private:
   class impl;
   std::unique_ptr<impl> pimpl;
 };
 
-template<typename APPCLASS> class ProgramRunner
+template<class PROGRAM_CLASS, class WEBAPP_CLASS> class ProgramRunner
 {
 public:
-  int Run(APPCLASS& app, int (C4PCEECALL* program)(int argc, const char** argv), int argc, const char** argv)
+  int Run(PROGRAM_CLASS& prog, WEBAPP_CLASS& app, int argc, const char** argv)
   {
 #if defined(MIKTEX_COMPONENT_VERSION_STR)
 #  if defined(MIKTEX_COMP_TM_STR)
@@ -288,12 +307,8 @@ public:
 #endif
     try
     {
-#if defined(THEDATA)
-      WebAppProgramImpl webAppProgram;
-      app.SetProgramInterface(&webAppProgram);
-#endif
       app.Init(argv[0]);
-      int exitCode = program(argc, argv);
+      int exitCode = prog.Run(argc, argv);
       app.Finalize();
       return exitCode;
     }
@@ -310,12 +325,13 @@ public:
   }
 };
 
-#define MIKTEX_DEFINE_WEBAPP(dllentry, webappclass, webappinstance, program)          \
-webappclass webappinstance;                                                           \
-extern "C" MIKTEXDLLEXPORT int MIKTEXCEECALL dllentry(int argc, const char** argv)    \
-{                                                                                     \
-  MiKTeX::TeXAndFriends::ProgramRunner<webappclass> p;                                \
-  return p.Run(webappinstance, program, argc, argv);                                  \
+#define MIKTEX_DEFINE_WEBAPP(functionname, webappclass, webappinstance, programclass, programinstance) \
+programclass programinstance;                                                                          \
+webappclass webappinstance;                                                                            \
+extern "C" MIKTEXDLLEXPORT int MIKTEXCEECALL functionname(int argc, const char** argv)                 \
+{                                                                                                      \
+  MiKTeX::TeXAndFriends::ProgramRunner<programclass, webappclass> p;                                   \
+  return p.Run(programinstance, webappinstance, argc, argv);                                           \
 }
 
 MIKTEXMF_END_NAMESPACE;

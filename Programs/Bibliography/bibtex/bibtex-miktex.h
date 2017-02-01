@@ -1,6 +1,6 @@
 /* bibtex-miktex.h:                                     -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -23,10 +23,6 @@
 
 #include <miktex/TeXAndFriends/config.h>
 
-#if !defined(THEDATA)
-#  define THEDATA(x) C4P_VAR(x)
-#endif
-
 #define IMPLEMENT_TCX 1
 
 #include "bibtexdefs.h"
@@ -35,21 +31,23 @@
 #include <miktex/Core/Registry>
 #include <miktex/TeXAndFriends/WebAppInputLine>
 
-using namespace MiKTeX::TeXAndFriends;
 using namespace MiKTeX::Core;
+using namespace MiKTeX::TeXAndFriends;
 
 #if !defined(MIKTEXHELP_BIBTEX)
 #  include <miktex/Core/Help>
 #endif
 
-class BIBTEXCLASS :
+extern BIBTEXPROGCLASS BIBTEXPROG;
+
+class BIBTEXAPPCLASS :
   public WebAppInputLine
 {
 public:
-  template<typename T> T * Reallocate(T * & p, size_t n)
+  template<typename T> T* Reallocate(T*& p, size_t n)
   {
     size_t amount = n * sizeof(T);
-    p = reinterpret_cast<T *>(realloc(p, amount));
+    p = reinterpret_cast<T*>(realloc(p, amount));
     if (p == nullptr && amount > 0)
     {
       FatalError(MIKTEXTEXT("Virtual memory exhausted."));
@@ -58,14 +56,14 @@ public:
   }
   
 private:
-  template<typename T> T * Allocate(T * &  p, size_t n)
+  template<typename T> T* Allocate(T*&  p, size_t n)
   {
     p = nullptr;
     return Reallocate(p, n);
   }
 
 private:
-  template<typename T> T * Free(T * & p)
+  template<typename T> T* Free(T*& p)
   {
     return Reallocate(p, 0);
   }
@@ -73,42 +71,54 @@ private:
 private:
   std::shared_ptr<MiKTeX::Core::Session> session;
   
+private:
+  MiKTeX::TeXAndFriends::CharacterConverterImpl<BIBTEXPROGCLASS> charConv{ BIBTEXPROG };
+
+private:
+  MiKTeX::TeXAndFriends::InitFinalizeImpl<BIBTEXPROGCLASS> initFinalize{ BIBTEXPROG };
+
+private:
+  MiKTeX::TeXAndFriends::InputOutputImpl<BIBTEXPROGCLASS> inputOutput{ BIBTEXPROG };
+
 public:
   void Init(const std::string & programInvocationName) override
   {
+    SetCharacterConverter(&charConv);
+    SetInitFinalize(&initFinalize);
+    SetInputOutput(&inputOutput);
     WebAppInputLine::Init(programInvocationName);
     session = GetSession();
 #if defined(IMPLEMENT_TCX)
-    EnableFeature (Feature::TCX);
+    EnableFeature(Feature::TCX);
 #endif
-    THEDATA(mincrossrefs) = session->GetConfigValue(MIKTEX_REGKEY_BIBTEX, "min_crossrefs", 2).GetInt();
-    THEDATA(maxbibfiles) = 20;
-    THEDATA(maxentints) = 3000;
-    THEDATA(maxentstrs) = 3000;
-    THEDATA(maxfields) = 100000; //5000;
-    THEDATA(poolsize) = 65000;
-    THEDATA(wizfnspace) = 3000;
-    Allocate(THEDATA(bibfile), THEDATA(maxbibfiles));
-    Allocate(THEDATA(biblist), THEDATA(maxbibfiles));
-    Allocate(THEDATA(entryints), THEDATA(maxentints));
-    Allocate(THEDATA(entrystrs), THEDATA(maxentstrs));
-    Allocate(THEDATA(fieldinfo), THEDATA(maxfields));
-    Allocate(THEDATA(spreamble), THEDATA(maxbibfiles));
-    Allocate(THEDATA(strpool), THEDATA(poolsize));
-    Allocate(THEDATA(wizfunctions), THEDATA(wizfnspace));
+    BIBTEXPROG.mincrossrefs = session->GetConfigValue(MIKTEX_REGKEY_BIBTEX, "min_crossrefs", 2).GetInt();
+    BIBTEXPROG.maxbibfiles = 20;
+    BIBTEXPROG.maxentints = 3000;
+    BIBTEXPROG.maxentstrs = 3000;
+    BIBTEXPROG.maxfields = 100000; //5000;
+    BIBTEXPROG.poolsize = 65000;
+    BIBTEXPROG.wizfnspace = 3000;
+    Allocate(BIBTEXPROG.bibfile, BIBTEXPROG.maxbibfiles);
+    Allocate(BIBTEXPROG.biblist, BIBTEXPROG.maxbibfiles);
+    Allocate(BIBTEXPROG.entryints, BIBTEXPROG.maxentints);
+    Allocate(BIBTEXPROG.entrystrs, BIBTEXPROG.maxentstrs);
+    Allocate(BIBTEXPROG.fieldinfo, BIBTEXPROG.maxfields);
+    Allocate(BIBTEXPROG.spreamble, BIBTEXPROG.maxbibfiles);
+    Allocate(BIBTEXPROG.strpool, BIBTEXPROG.poolsize);
+    Allocate(BIBTEXPROG.wizfunctions, BIBTEXPROG.wizfnspace);
   }
   
 public:
   void Finalize() override
   {
-    Free(THEDATA(bibfile));
-    Free(THEDATA(biblist));
-    Free(THEDATA(entryints));
-    Free(THEDATA(entrystrs));
-    Free(THEDATA(fieldinfo));
-    Free(THEDATA(spreamble));
-    Free(THEDATA(strpool));
-    Free(THEDATA(wizfunctions));
+    Free(BIBTEXPROG.bibfile);
+    Free(BIBTEXPROG.biblist);
+    Free(BIBTEXPROG.entryints);
+    Free(BIBTEXPROG.entrystrs);
+    Free(BIBTEXPROG.fieldinfo);
+    Free(BIBTEXPROG.spreamble);
+    Free(BIBTEXPROG.strpool);
+    Free(BIBTEXPROG.wizfunctions);
     WebAppInputLine::Finalize();
   }
 
@@ -119,7 +129,7 @@ public:
   void AddOptions() override
   {
     WebAppInputLine::AddOptions();
-    AddOption(MIKTEXTEXT("min-crossrefs\0Include item after N cross-refs; default 2."), OPT_MIN_CROSSREFS,  POPT_ARG_STRING, "N");
+    AddOption(MIKTEXTEXT("min-crossrefs\0Include item after N cross-refs; default 2."), OPT_MIN_CROSSREFS, POPT_ARG_STRING, "N");
     AddOption(MIKTEXTEXT("quiet\0Suppress all output (except errors)."), OPT_QUIET, POPT_ARG_NONE);
     AddOption("silent", "quiet");
     AddOption("terse", "quiet");
@@ -144,7 +154,7 @@ public:
     switch (opt)
       {
       case OPT_MIN_CROSSREFS:
-        THEDATA(mincrossrefs) = std::stoi(optArg);
+        BIBTEXPROG.mincrossrefs = std::stoi(optArg);
         break;
       case OPT_QUIET:
         SetQuietFlag(true);
@@ -169,11 +179,11 @@ public:
   }
 
 public:
-  template<class T> bool OpenBstFile(T & f) const
+  template<class T> bool OpenBstFile(T& f) const
   {
-    const char * lpszFileName = THEDATA(nameoffile);
+    const char* lpszFileName = GetInputOutput()->nameoffile();
     MIKTEX_ASSERT_STRING(lpszFileName);
-    PathName bstFileName (lpszFileName);
+    PathName bstFileName(lpszFileName);
     if (!bstFileName.HasExtension())
     {
       bstFileName.SetExtension(".bst");
@@ -183,8 +193,8 @@ public:
     {
       return false;
     }
-    FILE * pfile = session->OpenFile(path.GetData(), FileMode::Open, FileAccess::Read, true);
-    f.Attach(pfile, true);
+    FILE* file = session->OpenFile(path.GetData(), FileMode::Open, FileAccess::Read, true);
+    f.Attach(file, true);
 #ifdef PASCAL_TEXT_IO
     get(f);
 #endif
@@ -192,22 +202,21 @@ public:
   }
 };
 
-extern BIBTEXCLASS BIBTEXAPP;
+template<class T> inline void miktexbibtexrealloc(const char* varName, T*& p, size_t n)
+{
+  p = BIBTEXAPP.Reallocate(p, n + 1);
+}
+
+template<class T> inline bool miktexopenbstfile(T& f)
+{
+  return BIBTEXAPP.OpenBstFile(f);
+}
+
+inline bool miktexhasextension(const char* fileName, const char* extension)
+{
+  return PathName(fileName).HasExtension(extension);
+}
+
+extern BIBTEXAPPCLASS BIBTEXAPP;
 #define THEAPP BIBTEXAPP
-
-template<class T> inline void miktexbibtexrealloc(const char * lpszVar, T * & p, size_t n)
-{
-  p = THEAPP.Reallocate(p, n + 1);
-}
-
-template<class T> inline bool miktexopenbstfile(T & f)
-{
-  return THEAPP.OpenBstFile(f);
-}
-
-inline bool miktexhasextension (const char * lpszFileName, const char * lpszExtension)
-{
-  return PathName(lpszFileName).HasExtension(lpszExtension);
-}
-
 #include <miktex/TeXAndFriends/WebAppInputLine.inl>

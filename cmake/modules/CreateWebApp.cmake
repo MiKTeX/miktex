@@ -1,6 +1,6 @@
 ## CreateWebApp.cmake
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -41,9 +41,11 @@ macro(create_web_app _name)
     set(_folder ${_name})
   endif()
 
+  set(${_short_name_l}_prog g_${_name}Prog)
+  set(${_short_name_l}_progclass ${_name}Program)
+
   set(${_short_name_l}_app g_${_name_u}App)
-  set(${_short_name_l}_class ${_name_u})
-  set(${_short_name_l}_entry Run${_name_u})
+  set(${_short_name_l}_appclass ${_name_u})
 
   if(NOT ${_short_name_l}_web_file)
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}.web)
@@ -83,7 +85,7 @@ macro(create_web_app _name)
         file(WRITE ${${_short_name_l}_include_file}
           "#include <miktex/TeXAndFriends/WebApp>
 using namespace MiKTeX::TeXAndFriends;
-class ${${_short_name_l}_class} : public WebApp {};"
+class ${${_short_name_l}_appclass} : public WebApp {};"
         )
       endif()
     endif()
@@ -95,9 +97,10 @@ class ${${_short_name_l}_class} : public WebApp {};"
 #include \"${${_short_name_l}_header_file}\"
 #include \"${${_short_name_l}_include_file}\"
 MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
-                     ${${_short_name_l}_class},
+                     ${${_short_name_l}_appclass},
                      ${${_short_name_l}_app},
-                     ${${_short_name_l}_entry})
+                     ${${_short_name_l}_progclass},
+                     ${${_short_name_l}_prog})
 "
     )
   endif()
@@ -150,7 +153,7 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
     ${${_short_name_l}_header_file}
     ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}main.cpp
     PROPERTIES COMPILE_FLAGS
-      "-DMIKTEX_${_name_u} -DMIKTEX_${_short_name_u} -D${_short_name_u}APP=${${_short_name_l}_app} -D${_short_name_u}CLASS=${${_short_name_l}_class}"
+      "-DMIKTEX_${_name_u} -DMIKTEX_${_short_name_u} -D${_short_name_u}PROG=${${_short_name_l}_prog} -D${_short_name_u}PROGCLASS=${${_short_name_l}_progclass} -D${_short_name_u}APP=${${_short_name_l}_app} -D${_short_name_u}APPCLASS=${${_short_name_l}_appclass}"
   )
 
   if(MSVC)
@@ -184,13 +187,12 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
       c4p
       --def-filename=${_short_name_l}defs.h
       --dll
-      --entry-name=${${_short_name_l}_entry}
       --include-filename=${${_short_name_l}_include_file}
       --header-file=${${_short_name_l}_header_file}
       --one=${_short_name_l}
       --using-namespace=MiKTeX::TeXAndFriends
-      --var-name-prefix=${C4P_VAR_NAME_PREFIX}
       -C
+      --class=${_name}Program
       ${C4P_FLAGS}
       ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}.p
     COMMAND

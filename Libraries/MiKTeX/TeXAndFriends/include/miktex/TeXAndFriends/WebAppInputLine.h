@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/WebAppInputLine.h:              -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -49,6 +49,116 @@
 
 MIKTEXMF_BEGIN_NAMESPACE;
 
+class IInputOutput
+{
+public:
+  virtual C4P::C4P_signed32& loc() = 0;
+public:
+  virtual C4P::C4P_signed32& limit() = 0;
+public:
+  virtual C4P::C4P_signed32 first() = 0;
+public:
+  virtual C4P::C4P_signed32& last() = 0;
+public:
+  virtual C4P::C4P_signed32 bufsize_get() = 0;
+public:
+  virtual char* nameoffile() = 0;
+public:
+  virtual C4P::C4P_signed16& namelength() = 0;
+public:
+  virtual char* buffer() = 0;
+public:
+  virtual C4P::C4P_signed32& maxbufstack() = 0;
+public:
+  virtual void overflow(C4P::C4P_signed32 s, C4P::C4P_integer n) = 0;
+};
+
+template<class PROGRAM_CLASS> class InputOutputImpl :
+  public IInputOutput
+{
+public:
+  InputOutputImpl(PROGRAM_CLASS& program) :
+    program(program)
+  {
+  }
+private:
+  PROGRAM_CLASS& program;
+public:
+  C4P::C4P_signed32& loc() override
+  {
+#if defined(MIKTEX_BIBTEX)
+    MIKTEX_UNEXPECTED();
+#else
+    return program.curinput.locfield;
+#endif
+  }
+public:
+  C4P::C4P_signed32& limit()
+  {
+#if defined(MIKTEX_BIBTEX)
+    MIKTEX_UNEXPECTED();
+#else
+    return program.curinput.limitfield;
+#endif
+  }
+public:
+  C4P::C4P_signed32 first() override
+  {
+#if defined(MIKTEX_BIBTEX)
+    return 0;
+#else
+    return program.first;
+#endif
+  }
+public:
+  C4P::C4P_signed32& last() override
+  {
+    return program.last;
+  }
+public:
+  C4P::C4P_signed32 bufsize_get() override
+  {
+#if defined(bufsize)
+    return bufsize;
+#else
+    return program.bufsize;
+#endif
+  }
+public:
+  char* nameoffile() override
+  {
+    return program.nameoffile;
+  }
+public:
+  C4P::C4P_signed16& namelength() override
+  {
+    return program.namelength;
+  }
+public:
+  char* buffer() override
+  {
+    return (char*)program.buffer;
+  }
+public:
+  C4P::C4P_signed32& maxbufstack() override
+  {
+#if defined(MIKTEX_BIBTEX)
+    MIKTEX_UNEXPECTED();
+#else
+    return program.maxbufstack;
+#endif
+  }
+public:
+  void overflow(C4P::C4P_signed32 s, C4P::C4P_integer n) override
+  {
+#if defined(MIKTEX_BIBTEX)
+    MIKTEX_UNEXPECTED();
+#else
+    program.overflow(s, n);
+#endif
+  }
+};
+
 class MIKTEXMFTYPEAPI(WebAppInputLine) :
   public WebApp
 {
@@ -91,33 +201,28 @@ public:
 protected:
   virtual MIKTEXMFTHISAPI(void) TouchJobOutputFile(FILE*) const;
 
-#ifdef THEDATA
 private:
   void BufferSizeExceeded()
   {
 #if defined(MIKTEX_BIBTEX)
     std::cout << "Sorry---you've exceeded BibTeX's buffer size";
-    THEDATA(history) = 3;
+    GetInitFinalize()->history() = 3;
     c4pthrow(9998);
 #else
     if (GetFormatIdent() == 0)
     {
-      fputs("Buffer size exceeded!", THEDATA(termout));
-      throw (new C4P::Exception9999);
+      fputs("Buffer size exceeded!", stdout);
+      throw new C4P::Exception9999;
     }
     else
     {
-      THEDATA(curinput).locfield = THEDATA(first);
-      THEDATA(curinput).limitfield = THEDATA(last) - 1;
-#if defined(bufsize)
-      overflow (256, bufsize);
-#else
-      overflow(256, THEDATA(bufsize));
-#endif
+      IInputOutput* inputOutput = GetInputOutput();
+      inputOutput->loc() = inputOutput->first();
+      inputOutput->limit() = inputOutput->last() - 1;
+      inputOutput->overflow(256, inputOutput->bufsize_get());
     }
-#endif // ifndef MIKTEX_BIBTEX
+#endif
   }
-#endif // ifdef THEDATA
 
 public:
   template<class FileType> void CloseFile(FileType& f)
@@ -156,32 +261,24 @@ public:
 public:
   MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetFoundFileFq() const;
 
-#if defined(THEDATA)
 public:
   MiKTeX::Core::PathName GetNameOfFile() const
   {
+    IInputOutput* inputOutput = GetInputOutput();
 #if defined(MIKTEX_XETEX)
-    MIKTEX_ASSERT (sizeof(THEDATA(nameoffile)[0]) == sizeof(char));
-    const char* lpsz = reinterpret_cast<const char*>(THEDATA(nameoffile));
-    return MiKTeX::Util::StringUtil::UTF8ToWideChar(lpsz);
+    return MiKTeX::Util::StringUtil::UTF8ToWideChar(inputOutput->nameoffile());
 #else
-    return THEDATA(nameoffile);
+    return inputOutput->nameoffile();
 #endif
   }
-#endif
 
-#if defined(THEDATA)
 public:
   void SetNameOfFile(const MiKTeX::Core::PathName& fileName)
   {
-#if defined(MIKTEX_XETEX)
-    MiKTeX::Util::StringUtil::CopyString(reinterpret_cast<char*>(THEDATA(nameoffile)), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());
-#else
-    MiKTeX::Util::StringUtil::CopyString(THEDATA(nameoffile), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());
-#endif
-    THEDATA(namelength) = fileName.GetLength();
+    IInputOutput* inputOutput = GetInputOutput();
+    MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());
+    inputOutput->namelength() = fileName.GetLength();
   }
-#endif
 
 public:
   MIKTEXMFTHISAPI(void) SetOutputDirectory(const MiKTeX::Core::PathName & path);
@@ -200,44 +297,26 @@ private:
   MIKTEXMFTHISAPI(void) HandleEof(FILE* file) const;
 #endif
 
-#if defined(THEDATA) && !defined(MIKTEX_XETEX)
+#if !defined(MIKTEX_XETEX)
 public:
   bool InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLine)
   {
     f.AssertValid();
 
 #if defined(PASCAL_TEXT_IO)
-    not_implemented ();
-    if (bypassEndOfLine && feof(f) == 0)
-    {
-      MIKTEX_ASSERT((*f)() == '\n');
-      c4pgetc(f);
-    }
+    MIKTEX_UNEXPECTED();
 #endif
 
-#if defined(MIKTEX_BIBTEX)
-    const unsigned long first = 0;
-#else
-    const unsigned long first = THEDATA(first);
-#ifndef bufsize
-    const unsigned long bufsize = THEDATA(bufsize);
-#endif
-#endif
+    IInputOutput* inputOutput = GetInputOutput();
 
-    THEDATA(last) = first;
+    inputOutput->last() = inputOutput->first();
 
     if (feof(f) != 0)
     {
       return false;
     }
 
-    int ch;
-
-#if defined(PASCAL_TEXT_IO)
-    not_implemented ();
-    ch = (*f)();
-#else
-    ch = GetCharacter(f);
+    int ch = GetCharacter(f);
     if (ch == EOF)
     {
       return false;
@@ -255,7 +334,6 @@ public:
         ch = '\n';
       }
     }
-#endif // not Pascal Text I/O
 
     if (ch == '\n')
     {
@@ -263,12 +341,13 @@ public:
     }
 
 #if defined(MIKTEX_OMEGA)
-    THEDATA(buffer)[ THEDATA(last)++ ] = ch;
+    inputOutput->buffer()[inputOutput->last()] = ch;
 #else
-    THEDATA(buffer)[THEDATA(last)++] = THEDATA(xord)[ch & 0xff];
+    inputOutput->buffer()[inputOutput->last()] = GetCharacterConverter()->xord()[ch & 0xff];
 #endif
+    inputOutput->last() += 1;
 
-    while ((ch = GetCharacter(f)) != EOF && THEDATA(last) < bufsize)
+    while ((ch = GetCharacter(f)) != EOF && inputOutput->last() < inputOutput->bufsize_get())
     {
       if (ch == '\r')
       {
@@ -288,10 +367,11 @@ public:
         break;
       }
 #if defined(MIKTEX_OMEGA)
-      THEDATA(buffer)[ THEDATA(last)++ ] = ch;
+      inputOutput->buffer()[inputOutput->last()] = ch;
 #else
-      THEDATA(buffer)[THEDATA(last)++] = THEDATA(xord)[ch & 0xff];
+      inputOutput->buffer()[inputOutput->last()] = GetCharacterConverter()->xord()[ch & 0xff];
 #endif
+      inputOutput->last() += 1;
     }
 
     if (ch != '\n' && ch != EOF)
@@ -300,28 +380,23 @@ public:
     }
 
 #if !defined(MIKTEX_BIBTEX)
-    if (THEDATA(last) >= THEDATA(maxbufstack))
+    if (inputOutput->last() >= inputOutput->maxbufstack())
     {
-      THEDATA(maxbufstack) = THEDATA(last) + 1;
-      if (THEDATA(maxbufstack) >= bufsize)
+      inputOutput->maxbufstack() = inputOutput->last() + 1;
+      if (inputOutput->maxbufstack() >= inputOutput->bufsize_get())
       {
         BufferSizeExceeded();
       }
     }
-#endif // ifndef MIKTEX_BIBTEX
-
-    while (THEDATA(last) > first
-      && (THEDATA(buffer)[THEDATA(last) - 1] == ' '
-        || THEDATA(buffer)[THEDATA(last) - 1] == '\t'
-        || THEDATA(buffer)[THEDATA(last) - 1] == '\r'))
-    {
-      THEDATA(last)--;
-    }
-
-#if defined(PASCAL_TEXT_IO)
-    not_implemented ();
-    f() = '\n';
 #endif
+
+    while (inputOutput->last() > inputOutput->first()
+      && (inputOutput->buffer()[inputOutput->last() - 1] == ' '
+        || inputOutput->buffer()[inputOutput->last() - 1] == '\t'
+        || inputOutput->buffer()[inputOutput->last() - 1] == '\r'))
+    {
+      inputOutput->last() -= 1;
+    }
 
     return true;
   }
@@ -353,6 +428,12 @@ public:
 
 public:
   static MIKTEXMFCEEAPI(MiKTeX::Core::PathName) UnmangleNameOfFile(const wchar_t* fileName);
+
+public:
+  MIKTEXMFTHISAPI(void) SetInputOutput(IInputOutput* inputOutput);
+
+public:
+  MIKTEXMFTHISAPI(IInputOutput*) GetInputOutput() const;
 
 private:
   class impl;

@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/WebApp.inl:                     -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -28,40 +28,36 @@
 
 MIKTEXMF_BEGIN_NAMESPACE;
 
-#if defined(THEDATA)
 inline bool miktexgetquietflag()
 {
   return THEAPP.GetQuietFlag();
 }
-#endif
 
-#if defined(THEAPP) && defined(IMPLEMENT_TCX)
+#if defined(IMPLEMENT_TCX)
 inline void miktexinitializechartables()
 {
   THEAPP.InitializeCharTables();
 }
 #endif
 
-#if defined(THEAPP) && defined(IMPLEMENT_TCX)
+#if defined(IMPLEMENT_TCX)
 inline bool miktexhavetcxfilename()
 {
   return !THEAPP.GetTcxFileName().Empty();
 }
 #endif
 
-#if defined(THEAPP) && defined(IMPLEMENT_TCX)
+#if defined(IMPLEMENT_TCX)
 inline bool miktexenableeightbitcharsp()
 {
   return THEAPP.Enable8BitCharsP();
 }
 #endif
 
-#if defined(THEDATA)
 inline void miktexprocesscommandlineoptions()
 {
   THEAPP.ProcessCommandLineOptions();
 }
-#endif
 
 MIKTEXMF_END_NAMESPACE;
 

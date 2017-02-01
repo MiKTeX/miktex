@@ -1,6 +1,6 @@
 /* inputline.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -45,6 +45,8 @@ public:
   bool enablePipes;
 public:
   PathName lastInputFileName;
+public:
+  IInputOutput* inputOutput = nullptr;
 };
 
 WebAppInputLine::WebAppInputLine() :
@@ -462,4 +464,14 @@ PathName WebAppInputLine::GetLastInputFileName() const
 {
   return pimpl->lastInputFileName;
 
+}
+
+void WebAppInputLine::SetInputOutput(IInputOutput* inputOutput)
+{
+  pimpl->inputOutput = inputOutput;
+}
+
+IInputOutput* WebAppInputLine::GetInputOutput() const
+{
+  return pimpl->inputOutput;
 }

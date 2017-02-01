@@ -1,6 +1,6 @@
 /* tangle-miktex.h:                                     -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -23,10 +23,6 @@
 
 #include <miktex/TeXAndFriends/config.h>
 
-#if !defined(THEDATA)
-#  define THEDATA(x) C4P_VAR(x)
-#endif
-
 #include "tangle-version.h"
 #include <miktex/TeXAndFriends/WebApp>
 
@@ -35,14 +31,24 @@ using namespace MiKTeX::TeXAndFriends;
 
 #define OPT_OMEGA 1000
 
-class TANGLECLASS :
+extern TANGLEPROGCLASS TANGLEPROG;
+
+class TANGLEAPPCLASS :
   public MiKTeX::TeXAndFriends::WebApp
 {
+private:
+  MiKTeX::TeXAndFriends::CharacterConverterImpl<TANGLEPROGCLASS> charConv{ TANGLEPROG };
+
+private:
+  MiKTeX::TeXAndFriends::InitFinalizeImpl<TANGLEPROGCLASS> initFinalize{ TANGLEPROG };
+
 public:
-  void Init(const std::string & programInvocationName) override
+  void Init(const std::string& programInvocationName) override
   {
+    SetCharacterConverter(&charConv);
+    SetInitFinalize(&initFinalize);
     MiKTeX::TeXAndFriends::WebApp::Init(programInvocationName);
-    THEDATA(maxchar) = 255;
+    TANGLEPROG.maxchar = 255;
   }
 
 public:
@@ -55,17 +61,17 @@ public:
 public:
   std::string GetUsage() const override
   {
-    return (MIKTEXTEXT("[OPTION...] INPUTFILE CHANGEFILE OUTPUTFILE POOLFILE"));
+    return MIKTEXTEXT("[OPTION...] INPUTFILE CHANGEFILE OUTPUTFILE POOLFILE");
   }
 
 public:
-  bool ProcessOption(int opt, const std::string & optArg) override
+  bool ProcessOption(int opt, const std::string& optArg) override
   {
     bool done = true;
     switch (opt)
     {
     case OPT_OMEGA:
-      THEDATA(maxchar) = 0xffff;
+      TANGLEPROG.maxchar = 0xffff;
       break;
     default:
       done = WebApp::ProcessOption(opt, optArg);
@@ -85,7 +91,6 @@ public:
   }
 };
 
-extern TANGLECLASS TANGLEAPP;
+extern TANGLEAPPCLASS TANGLEAPP;
 #define THEAPP TANGLEAPP
-
 #include <miktex/TeXAndFriends/WebApp.inl>
