@@ -56,11 +56,11 @@ public:
 public:
   virtual C4P::C4P_signed32& limit() = 0;
 public:
-  virtual C4P::C4P_signed32 get_first() = 0;
+  virtual C4P::C4P_signed32 first() = 0;
 public:
   virtual C4P::C4P_signed32& last() = 0;
 public:
-  virtual C4P::C4P_signed32 get_bufsize() = 0;
+  virtual C4P::C4P_signed32 bufsize() = 0;
 public:
   virtual char* nameoffile() = 0;
 public:
@@ -102,7 +102,7 @@ public:
 #endif
   }
 public:
-  C4P::C4P_signed32 get_first() override
+  C4P::C4P_signed32 first() override
   {
 #if defined(MIKTEX_TEX_COMPILER) || defined(MIKTEX_TEX_COMPILER)
     return program.first;
@@ -116,13 +116,9 @@ public:
     return program.last;
   }
 public:
-  C4P::C4P_signed32 get_bufsize() override
+  C4P::C4P_signed32 bufsize() override
   {
-#if defined(bufsize)
-    return bufsize;
-#else
     return program.bufsize;
-#endif
   }
 public:
   char* nameoffile() override
@@ -218,9 +214,9 @@ private:
     else
     {
       IInputOutput* inputOutput = GetInputOutput();
-      inputOutput->loc() = inputOutput->get_first();
+      inputOutput->loc() = inputOutput->first();
       inputOutput->limit() = inputOutput->last() - 1;
-      inputOutput->overflow(256, inputOutput->get_bufsize());
+      inputOutput->overflow(256, inputOutput->bufsize());
     }
 #endif
   }
@@ -306,7 +302,7 @@ public:
 
     IInputOutput* inputOutput = GetInputOutput();
 
-    inputOutput->last() = inputOutput->get_first();
+    inputOutput->last() = inputOutput->first();
 
     if (feof(f) != 0)
     {
@@ -344,7 +340,7 @@ public:
 #endif
     inputOutput->last() += 1;
 
-    while ((ch = GetCharacter(f)) != EOF && inputOutput->last() < inputOutput->get_bufsize())
+    while ((ch = GetCharacter(f)) != EOF && inputOutput->last() < inputOutput->bufsize())
     {
       if (ch == '\r')
       {
@@ -380,14 +376,14 @@ public:
     if (inputOutput->last() >= inputOutput->maxbufstack())
     {
       inputOutput->maxbufstack() = inputOutput->last() + 1;
-      if (inputOutput->maxbufstack() >= inputOutput->get_bufsize())
+      if (inputOutput->maxbufstack() >= inputOutput->bufsize())
       {
         BufferSizeExceeded();
       }
     }
 #endif
 
-    while (inputOutput->last() > inputOutput->get_first()
+    while (inputOutput->last() > inputOutput->first()
       && (inputOutput->buffer()[inputOutput->last() - 1] == ' '
         || inputOutput->buffer()[inputOutput->last() - 1] == '\t'
         || inputOutput->buffer()[inputOutput->last() - 1] == '\r'))

@@ -124,12 +124,12 @@ public:
 public:
   bool GetInputFileName()
   {
-    if (inputFile.empty() || inputFile.length() > terminallinelength)
+    if (inputFile.empty() || inputFile.length() > GFTODVIPROG.terminallinelength)
     {
       return false;
     }
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)
-    strcpy_s(reinterpret_cast<char*>(GFTODVIPROG.buffer), terminallinelength, inputFile.c_str());
+    strcpy_s(reinterpret_cast<char*>(GFTODVIPROG.buffer), GFTODVIPROG.terminallinelength, inputFile.c_str());
 #else
     strcpy(reinterpret_cast<char*>(GFTODVIPROG.buffer), inputFile.c_str());
 #endif

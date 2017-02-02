@@ -119,6 +119,7 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
 
   list(APPEND ${_target_name}_sources
     ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}.cc
+    ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}defs.h
     ${${_short_name_l}_header_file}
     ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}main.cpp
   )

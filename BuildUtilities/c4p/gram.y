@@ -149,14 +149,14 @@ program_block:
                 }
           label_declaration_part
                 {
-                  if (!def_filename.empty())
+                  if (false && !def_filename.empty())
                   {
                     cppout.redir_file(DEF_FILE_NUM);
                   }
                 }
           constant_definition_part
                 {
-                  if (!def_filename.empty())
+                  if (false && !def_filename.empty())
                   {
                     cppout.redir_file(H_FILE_NUM);
                   }
@@ -488,12 +488,34 @@ constant_definitions:
 constant_definition:
           IDENTIFIER '='
                 {
-                  cppout.out_s("#define " + std::string($1->s_repr) + " ");
+                  cppout.out_s("static constexpr ");
+		  $<buf_mark>$ = cppout.get_buf_mark();
+		  cppout.out_s("                    " + std::string($1->s_repr) + " { ");
                 }
           constant ';'
                 {
+		  if (last_type == REAL_TYPE)
+		  {
+		    cppout.out_buf_over($<buf_mark>3, "C4P_real            ", 20);
+		  }
+		  else if (last_type == LONG_REAL_TYPE)
+		  {
+		    cppout.out_buf_over($<buf_mark>3, "C4P_longreal        ", 20);
+		  }
+		  else if (last_type == INTEGER_TYPE)
+		  {
+		    cppout.out_buf_over($<buf_mark>3, "C4P_integer         ", 20);
+		  }
+		  else if (last_type == STRING_TYPE)
+		  {
+		    cppout.out_buf_over($<buf_mark>3, "const char*         ", 20);
+		  }
+		  else if (last_type == CHARACTER_TYPE)
+		  {
+		    cppout.out_buf_over($<buf_mark>3, "char                ", 20);
+		  }
+                  cppout.out_s(" };\n");
                   define_symbol($1, CONSTANT_IDENTIFIER, block_level, last_type, nullptr, &last_value);
-                  cppout.out_s("\n");
                 }
         ;
 

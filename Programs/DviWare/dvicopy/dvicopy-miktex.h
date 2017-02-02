@@ -1,22 +1,21 @@
 /* dvicopy-miktex.h:                                    -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
-   This file is part of DVIcopy.
+   This file is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published
+   by the Free Software Foundation; either version 2, or (at your
+   option) any later version.
 
-   DVIcopy is free software; you can redistribute it and/or modify it
-   under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
-   DVIcopy is distributed in the hope that it will be useful, but
+   This file is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with DVIcopy; if not, write to the Free Software Foundation,
-   59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
+   along with this file; if not, write to the Free Software
+   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+   USA. */
 
 #if !defined(_MSC_VER)
 #  pragma once
@@ -24,21 +23,18 @@
 
 #include <miktex/TeXAndFriends/config.h>
 
-#if !defined(THEDATA)
-#  define THEDATA(x) C4P_VAR(x)
-#endif
-
-#include "dvicopydefs.h"
 #include <miktex/TeXAndFriends/WebApp>
 
 #if !defined(MIKTEXHELP_DVICOPY)
 #  include <miktex/Core/Help>
 #endif
 
-using namespace MiKTeX::TeXAndFriends;
 using namespace MiKTeX::Core;
+using namespace MiKTeX::TeXAndFriends;
 
-class DVICOPYCLASS :
+extern DVICOPYPROGCLASS DVICOPYPROG;
+
+class DVICOPYAPPCLASS :
   public WebApp
 {
 #define OPT_MAG 1000
@@ -66,11 +62,11 @@ public:
       {
         FatalError(MIKTEXTEXT("-select was specified together with -max-pages and/or -page-start."));
       }
-      if (maxPages.length() == 0)
+      if (maxPages.empty())
       {
         maxPages = "1000000";
       }
-      if (pageStart.length() == 0)
+      if (pageStart.empty())
       {
         pageStart = "*";
       }
@@ -80,34 +76,34 @@ public:
       selections.push_back(str);
     }
         
-    if (selections.size() > maxselections)
+    if (selections.size() > DVICOPYPROG.maxselections)
     {
       FatalError(MIKTEXTEXT("Too mant page selections."));
     }
         
-    for (std::vector<std::string>::const_iterator it = selections.begin(); it != selections.end(); ++ it)
+    for (const std::string& s : selections)
     {
-      if (it->length() + 8 >= sizeof(THEDATA(options)[0]))
+      if (s.length() + 8 >= sizeof(DVICOPYPROG.options[0]))
       {
         FatalError(MIKTEXTEXT("Invalid page selection."));
       }
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-      sprintf_s(THEDATA(options)[THEDATA(nopt)++], (sizeof(THEDATA(options)[0]) / sizeof(THEDATA(options)[0][0])), MIKTEXTEXT("select %s"), it->c_str());
+      sprintf_s(DVICOPYPROG.options[DVICOPYPROG.nopt++], (sizeof(DVICOPYPROG.options[0]) / sizeof(DVICOPYPROG.options[0][0])), MIKTEXTEXT("select %s"), s.c_str());
 #else
-      sprintf(THEDATA(options)[THEDATA(nopt)++], MIKTEXTEXT("select %s"), it->c_str());
+      sprintf(DVICOPYPROG.options[DVICOPYPROG.nopt++], MIKTEXTEXT("select %s"), s.c_str());
 #endif
     }
 
     if (mag.length() > 0)
     {
-      if (mag.length() + 5 >= sizeof(THEDATA(options)[0]))
+      if (mag.length() + 5 >= sizeof(DVICOPYPROG.options[0]))
       {
         FatalError(MIKTEXTEXT("Invalid magnification."));
       }
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-      sprintf_s(THEDATA(options)[THEDATA(nopt)++], (sizeof(THEDATA(options)[0]) / sizeof(THEDATA(options)[0][0])), MIKTEXTEXT("mag %s"), mag.c_str());
+      sprintf_s(DVICOPYPROG.options[DVICOPYPROG.nopt++], (sizeof(DVICOPYPROG.options[0]) / sizeof(DVICOPYPROG.options[0][0])), MIKTEXTEXT("mag %s"), mag.c_str());
 #else
-      sprintf(THEDATA(options)[THEDATA(nopt)++], MIKTEXTEXT("mag %s"), mag.c_str());
+      sprintf(DVICOPYPROG.options[DVICOPYPROG.nopt++], MIKTEXTEXT("mag %s"), mag.c_str());
 #endif
     }
   }
@@ -119,7 +115,7 @@ public:
   }
 
 public:
-  bool ProcessOption(int opt, const std::string & optArg) override
+  bool ProcessOption(int opt, const std::string& optArg) override
   {
     bool done = true;
     switch (opt)
@@ -174,12 +170,12 @@ public:
   }
 };
 
-extern DVICOPYCLASS DVICOPYAPP;
-#define THEAPP DVICOPYAPP
+extern DVICOPYAPPCLASS DVICOPYAPP;
 
 inline void setupoptions()
 {
-  THEAPP.SetupOptions();
+  DVICOPYAPP.SetupOptions();
 }
 
+#define THEAPP DVICOPYAPP
 #include <miktex/TeXAndFriends/WebApp.inl>
