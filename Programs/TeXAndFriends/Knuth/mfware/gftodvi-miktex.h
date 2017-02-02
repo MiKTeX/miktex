@@ -62,13 +62,9 @@ public:
     return MIKTEXTEXT("[OPTION...] [INPUTFILE]");
   }
 
-private:
-  MiKTeX::TeXAndFriends::CharacterConverterImpl<GFTODVIPROGCLASS> charConv{ GFTODVIPROG };
-
 public:
   void Init(const std::string& programInvocationName) override
   {
-    SetCharacterConverter(&charConv);
     WebApp::Init(programInvocationName);
     GFTODVIPROG.overlabeloffset = 10000000;
     titleFont = "cmr8";

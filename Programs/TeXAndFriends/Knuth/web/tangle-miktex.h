@@ -36,17 +36,9 @@ extern TANGLEPROGCLASS TANGLEPROG;
 class TANGLEAPPCLASS :
   public MiKTeX::TeXAndFriends::WebApp
 {
-private:
-  MiKTeX::TeXAndFriends::CharacterConverterImpl<TANGLEPROGCLASS> charConv{ TANGLEPROG };
-
-private:
-  MiKTeX::TeXAndFriends::InitFinalizeImpl<TANGLEPROGCLASS> initFinalize{ TANGLEPROG };
-
 public:
   void Init(const std::string& programInvocationName) override
   {
-    SetCharacterConverter(&charConv);
-    SetInitFinalize(&initFinalize);
     MiKTeX::TeXAndFriends::WebApp::Init(programInvocationName);
     TANGLEPROG.maxchar = 255;
   }

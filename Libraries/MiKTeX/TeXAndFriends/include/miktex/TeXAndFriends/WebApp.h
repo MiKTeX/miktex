@@ -63,69 +63,10 @@ public:
   virtual char* xprn() = 0;
 };
 
-template<class PROGRAM_CLASS> class CharacterConverterImpl :
-  public ICharacterConverter
-{
-public:
-  CharacterConverterImpl(PROGRAM_CLASS& program) :
-    program(program)
-  {
-  }
-private:
-  PROGRAM_CLASS& program;
-public:
-  char* xchr() override
-  {
-#if defined(MIKTEX_TEXMF_UNICODE)
-    MIKTEX_UNEXPECTED();
-#else
-    MIKTEX_ASSERT(sizeof(program.xchr[0]) == sizeof(char));
-    return (char*)&program.xchr[0];
-#endif
-  }
-public:
-  char* xord() override
-  {
-#if defined(MIKTEX_TEXMF_UNICODE)
-    MIKTEX_UNEXPECTED();
-#else
-    MIKTEX_ASSERT(sizeof(program.xord[0]) == sizeof(char));
-    return (char*)&program.xord[0];
-#endif
-  }
-public:
-  char* xprn() override
-  {
-#if defined(MIKTEX_TEXMF_UNICODE) || !defined(MIKTEX_TEX_COMPILER) && !defined(MIKTEX_META_COMPILER)
-    MIKTEX_UNEXPECTED();
-#else
-    MIKTEX_ASSERT(sizeof(program.xprn[0]) == sizeof(char));
-    return (char*)&program.xprn[0];
-#endif
-  }
-};
-
 class IInitFinalize
 {
 public:
   virtual C4P::C4P_signed8& history() = 0;
-};
-
-template<class PROGRAM_CLASS> class InitFinalizeImpl :
-  public IInitFinalize
-{
-public:
-  InitFinalizeImpl(PROGRAM_CLASS& program) :
-    program(program)
-  {
-  }
-private:
-  PROGRAM_CLASS& program;
-public:
-  C4P::C4P_signed8& history() override
-  {
-    return program.history;
-  }
 };
 
 enum class Feature

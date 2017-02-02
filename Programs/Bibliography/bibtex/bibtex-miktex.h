@@ -29,6 +29,9 @@
 
 #include <miktex/Core/FileType>
 #include <miktex/Core/Registry>
+#include <miktex/TeXAndFriends/CharacterConverterImpl>
+#include <miktex/TeXAndFriends/InitFinalizeImpl>
+#include <miktex/TeXAndFriends/InputOutputImpl>
 #include <miktex/TeXAndFriends/WebAppInputLine>
 
 using namespace MiKTeX::Core;

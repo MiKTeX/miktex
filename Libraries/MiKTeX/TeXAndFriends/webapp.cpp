@@ -415,6 +415,10 @@ void WebApp::InitializeCharTables() const
   {
     flags |= ICT_8BIT;
   }
+  if (pimpl->characterConverter == nullptr)
+  {
+    MIKTEX_UNEXPECTED();
+  }
   MiKTeX::TeXAndFriends::InitializeCharTables(flags, tcxFileName, pimpl->characterConverter->xchr(), pimpl->characterConverter->xord(), pimpl->characterConverter->xprn());
 }
 

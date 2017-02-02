@@ -60,13 +60,9 @@ public:
     return MIKTEXTEXT("[OPTION...] INPUTFILE");
   }
 
-private:
-  MiKTeX::TeXAndFriends::CharacterConverterImpl<DVITYPEPROGCLASS> charConv{ DVITYPEPROG };
-
 public:
   void Init(const std::string& programInvocationName) override
   {
-    SetCharacterConverter(&charConv);
     WebApp::Init(programInvocationName);
     DVITYPEPROG.outmode = 4;
     DVITYPEPROG.startvals = 0;
