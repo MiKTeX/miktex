@@ -1,6 +1,6 @@
 /* gftodvi-miktex.h:                                    -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -23,10 +23,6 @@
 
 #include <miktex/TeXAndFriends/config.h>
 
-#if !defined(THEDATA)
-#  define THEDATA(x) C4P_VAR(x)
-#endif
-
 #include <miktex/TeXAndFriends/WebApp>
 
 #define OPT_OVERFLOW_LABEL_OFFSET 1000
@@ -43,7 +39,9 @@
 using namespace MiKTeX::Core;
 using namespace MiKTeX::TeXAndFriends;
 
-class GFTODVICLASS :
+extern GFTODVIPROGCLASS GFTODVIPROG;
+
+class GFTODVIAPPCLASS :
   public WebApp
 {
 public:
@@ -64,11 +62,15 @@ public:
     return MIKTEXTEXT("[OPTION...] [INPUTFILE]");
   }
 
+private:
+  MiKTeX::TeXAndFriends::CharacterConverterImpl<GFTODVIPROGCLASS> charConv{ GFTODVIPROG };
+
 public:
-  void Init(const std::string & programInvocationName) override
+  void Init(const std::string& programInvocationName) override
   {
+    SetCharacterConverter(&charConv);
     WebApp::Init(programInvocationName);
-    THEDATA(overlabeloffset) = 10000000;
+    GFTODVIPROG.overlabeloffset = 10000000;
     titleFont = "cmr8";
     labelFont = "cmtt10";
     grayFont = "gray";
@@ -77,13 +79,13 @@ public:
   }
 
 public:
-  bool ProcessOption(int opt, const std::string & optArg) override
+  bool ProcessOption(int opt, const std::string& optArg) override
   {
     bool done = true;
     switch (opt)
     {
     case OPT_OVERFLOW_LABEL_OFFSET:
-      THEDATA(overlabeloffset) = C4P::Round(std::stof(optArg) * 65536.0);
+      GFTODVIPROG.overlabeloffset = C4P::Round(std::stof(optArg) * 65536.0);
       break;
     case OPT_TITLEFONT:
       titleFont = optArg;
@@ -112,7 +114,7 @@ public:
   {
     WebApp::ProcessCommandLineOptions();
     int argc = C4P::GetArgC();
-    const char ** argv = C4P::GetArgV();
+    const char** argv = C4P::GetArgV();
     if (argc > 1)
     {
       inputFile = argv[1];
@@ -127,56 +129,56 @@ public:
       return false;
     }
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)
-    strcpy_s(reinterpret_cast<char*>(THEDATA(buffer)), terminallinelength, inputFile.c_str());
+    strcpy_s(reinterpret_cast<char*>(GFTODVIPROG.buffer), terminallinelength, inputFile.c_str());
 #else
-    strcpy(reinterpret_cast<char*>(THEDATA(buffer)), inputFile.c_str());
+    strcpy(reinterpret_cast<char*>(GFTODVIPROG.buffer), inputFile.c_str());
 #endif
-    THEDATA(linelength) = static_cast<C4P_unsigned8>(inputFile.length());
+    GFTODVIPROG.linelength = static_cast<C4P_unsigned8>(inputFile.length());
     inputFile = "";
     return true;
   }
 
 private:
-  strnumber MakeString(const char * lpsz)
+  GFTODVIPROGCLASS::strnumber MakeString(const char* lpsz)
   {
     size_t l = strlen(lpsz);
     if (l == 0)
     {
       return 0;
     }
-    memcpy(THEDATA(strpool) + THEDATA(poolptr), lpsz, l);
-    THEDATA(poolptr) += static_cast<poolpointer>(l);
-    THEDATA(strptr) += 1;
-    THEDATA(strstart)[THEDATA(strptr)] = THEDATA(poolptr);
-    return THEDATA(strptr) - 1;
+    memcpy(GFTODVIPROG.strpool + GFTODVIPROG.poolptr, lpsz, l);
+    GFTODVIPROG.poolptr += static_cast<GFTODVIPROGCLASS::poolpointer>(l);
+    GFTODVIPROG.strptr += 1;
+    GFTODVIPROG.strstart[GFTODVIPROG.strptr] = GFTODVIPROG.poolptr;
+    return GFTODVIPROG.strptr - 1;
   }
 
 public:
-  strnumber GetTitleFont()
+  GFTODVIPROGCLASS::strnumber GetTitleFont()
   {
     return MakeString(titleFont.c_str());
   }
 
 public:
-  strnumber GetLabelFont()
+  GFTODVIPROGCLASS::strnumber GetLabelFont()
   {
     return MakeString(labelFont.c_str());
   }
 
 public:
-  strnumber GetGrayFont()
+  GFTODVIPROGCLASS::strnumber GetGrayFont()
   {
     return MakeString(grayFont.c_str());
   }
 
 public:
-  strnumber GetSlantFont()
+  GFTODVIPROGCLASS::strnumber GetSlantFont()
   {
     return MakeString(slantFont.c_str());
   }
 
 public:
-  strnumber GetLogoFont()
+  GFTODVIPROGCLASS::strnumber GetLogoFont()
   {
     return MakeString(logoFont.c_str());
   }
@@ -206,37 +208,37 @@ public:
   }
 };
 
-extern GFTODVICLASS GFTODVIAPP;
-#define THEAPP GFTODVIAPP
+extern GFTODVIAPPCLASS GFTODVIAPP;
 
 inline bool miktexgetinputfilename()
 {
-  return THEAPP.GetInputFileName();
+  return GFTODVIAPP.GetInputFileName();
 }
 
-inline strnumber miktexgettitlefont()
+inline GFTODVIPROGCLASS::strnumber miktexgettitlefont()
 {
-  return THEAPP.GetTitleFont();
+  return GFTODVIAPP.GetTitleFont();
 }
 
-inline strnumber miktexgetlabelfont()
+inline GFTODVIPROGCLASS::strnumber miktexgetlabelfont()
 {
-  return THEAPP.GetLabelFont();
+  return GFTODVIAPP.GetLabelFont();
 }
 
-inline strnumber miktexgetgrayfont()
+inline GFTODVIPROGCLASS::strnumber miktexgetgrayfont()
 {
-  return THEAPP.GetGrayFont();
+  return GFTODVIAPP.GetGrayFont();
 }
 
-inline strnumber miktexgetslantfont()
+inline GFTODVIPROGCLASS::strnumber miktexgetslantfont()
 {
-  return THEAPP.GetSlantFont();
+  return GFTODVIAPP.GetSlantFont();
 }
 
-inline strnumber miktexgetlogofont()
+inline GFTODVIPROGCLASS::strnumber miktexgetlogofont()
 {
-  return THEAPP.GetLogoFont();
+  return GFTODVIAPP.GetLogoFont();
 }
 
+#define THEAPP GFTODVIAPP
 #include <miktex/TeXAndFriends/WebApp.inl>

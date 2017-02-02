@@ -56,11 +56,11 @@ public:
 public:
   virtual C4P::C4P_signed32& limit() = 0;
 public:
-  virtual C4P::C4P_signed32 first() = 0;
+  virtual C4P::C4P_signed32 get_first() = 0;
 public:
   virtual C4P::C4P_signed32& last() = 0;
 public:
-  virtual C4P::C4P_signed32 bufsize_get() = 0;
+  virtual C4P::C4P_signed32 get_bufsize() = 0;
 public:
   virtual char* nameoffile() = 0;
 public:
@@ -86,28 +86,28 @@ private:
 public:
   C4P::C4P_signed32& loc() override
   {
-#if defined(MIKTEX_BIBTEX)
-    MIKTEX_UNEXPECTED();
-#else
+#if defined(MIKTEX_TEX_COMPILER) || defined(MIKTEX_TEX_COMPILER)
     return program.curinput.locfield;
+#else
+    MIKTEX_UNEXPECTED();
 #endif
   }
 public:
   C4P::C4P_signed32& limit()
   {
-#if defined(MIKTEX_BIBTEX)
-    MIKTEX_UNEXPECTED();
-#else
+#if defined(MIKTEX_TEX_COMPILER) || defined(MIKTEX_TEX_COMPILER)
     return program.curinput.limitfield;
+#else
+    MIKTEX_UNEXPECTED();
 #endif
   }
 public:
-  C4P::C4P_signed32 first() override
+  C4P::C4P_signed32 get_first() override
   {
-#if defined(MIKTEX_BIBTEX)
-    return 0;
-#else
+#if defined(MIKTEX_TEX_COMPILER) || defined(MIKTEX_TEX_COMPILER)
     return program.first;
+#else
+    return 0;
 #endif
   }
 public:
@@ -116,7 +116,7 @@ public:
     return program.last;
   }
 public:
-  C4P::C4P_signed32 bufsize_get() override
+  C4P::C4P_signed32 get_bufsize() override
   {
 #if defined(bufsize)
     return bufsize;
@@ -137,24 +137,25 @@ public:
 public:
   char* buffer() override
   {
+    MIKTEX_ASSERT(sizeof(program.buffer[0]) == sizeof(char));
     return (char*)program.buffer;
   }
 public:
   C4P::C4P_signed32& maxbufstack() override
   {
-#if defined(MIKTEX_BIBTEX)
-    MIKTEX_UNEXPECTED();
-#else
+#if defined(MIKTEX_TEX_COMPILER) || defined(MIKTEX_TEX_COMPILER)
     return program.maxbufstack;
+#else
+    MIKTEX_UNEXPECTED();
 #endif
   }
 public:
   void overflow(C4P::C4P_signed32 s, C4P::C4P_integer n) override
   {
-#if defined(MIKTEX_BIBTEX)
-    MIKTEX_UNEXPECTED();
-#else
+#if defined(MIKTEX_TEX_COMPILER) || defined(MIKTEX_TEX_COMPILER)
     program.overflow(s, n);
+#else
+    MIKTEX_UNEXPECTED();
 #endif
   }
 };
@@ -217,9 +218,9 @@ private:
     else
     {
       IInputOutput* inputOutput = GetInputOutput();
-      inputOutput->loc() = inputOutput->first();
+      inputOutput->loc() = inputOutput->get_first();
       inputOutput->limit() = inputOutput->last() - 1;
-      inputOutput->overflow(256, inputOutput->bufsize_get());
+      inputOutput->overflow(256, inputOutput->get_bufsize());
     }
 #endif
   }
@@ -265,11 +266,7 @@ public:
   MiKTeX::Core::PathName GetNameOfFile() const
   {
     IInputOutput* inputOutput = GetInputOutput();
-#if defined(MIKTEX_XETEX)
-    return MiKTeX::Util::StringUtil::UTF8ToWideChar(inputOutput->nameoffile());
-#else
     return inputOutput->nameoffile();
-#endif
   }
 
 public:
@@ -309,7 +306,7 @@ public:
 
     IInputOutput* inputOutput = GetInputOutput();
 
-    inputOutput->last() = inputOutput->first();
+    inputOutput->last() = inputOutput->get_first();
 
     if (feof(f) != 0)
     {
@@ -347,7 +344,7 @@ public:
 #endif
     inputOutput->last() += 1;
 
-    while ((ch = GetCharacter(f)) != EOF && inputOutput->last() < inputOutput->bufsize_get())
+    while ((ch = GetCharacter(f)) != EOF && inputOutput->last() < inputOutput->get_bufsize())
     {
       if (ch == '\r')
       {
@@ -383,14 +380,14 @@ public:
     if (inputOutput->last() >= inputOutput->maxbufstack())
     {
       inputOutput->maxbufstack() = inputOutput->last() + 1;
-      if (inputOutput->maxbufstack() >= inputOutput->bufsize_get())
+      if (inputOutput->maxbufstack() >= inputOutput->get_bufsize())
       {
         BufferSizeExceeded();
       }
     }
 #endif
 
-    while (inputOutput->last() > inputOutput->first()
+    while (inputOutput->last() > inputOutput->get_first()
       && (inputOutput->buffer()[inputOutput->last() - 1] == ' '
         || inputOutput->buffer()[inputOutput->last() - 1] == '\t'
         || inputOutput->buffer()[inputOutput->last() - 1] == '\r'))

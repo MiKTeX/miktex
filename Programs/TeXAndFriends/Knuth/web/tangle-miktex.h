@@ -92,5 +92,6 @@ public:
 };
 
 extern TANGLEAPPCLASS TANGLEAPP;
+
 #define THEAPP TANGLEAPP
 #include <miktex/TeXAndFriends/WebApp.inl>

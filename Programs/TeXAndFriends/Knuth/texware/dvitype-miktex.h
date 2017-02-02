@@ -1,6 +1,6 @@
 /* dvitype-miktex.h:                                    -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -23,10 +23,6 @@
 
 #include <miktex/TeXAndFriends/config.h>
 
-#if !defined(THEDATA)
-#  define THEDATA(x) C4P_VAR(x)
-#endif
-
 #if defined(MIKTEX_WINDOWS)
 #  include "dvitype.rc"
 #endif
@@ -39,10 +35,12 @@
 #define OPT_RESOLUTION 1003
 #define OPT_NEW_MAG 1004
 
-using namespace MiKTeX::TeXAndFriends;
 using namespace MiKTeX::Core;
+using namespace MiKTeX::TeXAndFriends;
 
-class DVITYPECLASS :
+extern DVITYPEPROGCLASS DVITYPEPROG;
+
+class DVITYPEAPPCLASS :
   public WebApp
 {
 public:
@@ -62,20 +60,24 @@ public:
     return MIKTEXTEXT("[OPTION...] INPUTFILE");
   }
 
+private:
+  MiKTeX::TeXAndFriends::CharacterConverterImpl<DVITYPEPROGCLASS> charConv{ DVITYPEPROG };
+
 public:
-  void Init(const std::string & programInvocationName) override
+  void Init(const std::string& programInvocationName) override
   {
+    SetCharacterConverter(&charConv);
     WebApp::Init(programInvocationName);
-    THEDATA(outmode) = 4;
-    THEDATA(startvals) = 0;
-    THEDATA(startthere)[0] = false;
-    THEDATA(maxpages) = 1000000;
-    THEDATA(resolution) = 300.0;
-    THEDATA(newmag) = 0;
+    DVITYPEPROG.outmode = 4;
+    DVITYPEPROG.startvals = 0;
+    DVITYPEPROG.startthere[0] = false;
+    DVITYPEPROG.maxpages = 1000000;
+    DVITYPEPROG.resolution = 300.0;
+    DVITYPEPROG.newmag = 0;
   }
 
 public:
-  bool ProcessOption(int opt, const std::string & optArg) override
+  bool ProcessOption(int opt, const std::string& optArg) override
   {
     bool done = true;
     switch (opt)
@@ -85,17 +87,17 @@ public:
       {
         BadUsage();
       }
-      THEDATA(outmode) = std::stoi(optArg);
+      DVITYPEPROG.outmode = std::stoi(optArg);
       break;
     case OPT_START_THERE:
     {
-      const char * lpsz = optArg.c_str();
+      const char* lpsz = optArg.c_str();
       size_t k = 0;
       do
       {
         if (*lpsz == MIKTEXTEXT('*'))
         {
-          THEDATA(startthere)[k] = false;
+          DVITYPEPROG.startthere[k] = false;
           ++lpsz;
         }
         else if (!(isdigit(*lpsz) || (*lpsz == MIKTEXTEXT('-') && isdigit(lpsz[1]))))
@@ -104,10 +106,10 @@ public:
         }
         else
         {
-          THEDATA(startthere)[k] = true;
-          char * lpsz2 = 0;
-          THEDATA(startcount)[k] = strtol(lpsz, &lpsz2, 10);
-          lpsz = const_cast<const char *>(lpsz2);
+          DVITYPEPROG.startthere[k] = true;
+          char* lpsz2 = 0;
+          DVITYPEPROG.startcount[k] = strtol(lpsz, &lpsz2, 10);
+          lpsz = const_cast<const char*>(lpsz2);
         }
         if (k < 9 && *lpsz == '.')
         {
@@ -116,13 +118,13 @@ public:
         }
         else if (*lpsz == 0)
         {
-          THEDATA(startvals) = static_cast<C4P_signed8>(k);
+          DVITYPEPROG.startvals = static_cast<C4P_signed8>(k);
         }
         else
         {
           BadUsage();
         }
-      } while (THEDATA(startvals) != static_cast<C4P_signed8>(k));
+      } while (DVITYPEPROG.startvals != static_cast<C4P_signed8>(k));
     }
     break;
     case OPT_MAX_PAGES:
@@ -130,7 +132,7 @@ public:
       {
         BadUsage();
       }
-      THEDATA(maxpages) = std::stoi(optArg);
+      DVITYPEPROG.maxpages = std::stoi(optArg);
       break;
     case OPT_RESOLUTION:
     {
@@ -146,7 +148,7 @@ public:
         BadUsage();
       }
 #endif
-      THEDATA(resolution) = static_cast<float>(num) / den;
+      DVITYPEPROG.resolution = static_cast<float>(num) / den;
     }
     break;
     case OPT_NEW_MAG:
@@ -154,7 +156,7 @@ public:
       {
         BadUsage();
       }
-      THEDATA(newmag) = std::stoi(optArg);
+      DVITYPEPROG.newmag = std::stoi(optArg);
       break;
     default:
       done = WebApp::ProcessOption(opt, optArg);
@@ -174,7 +176,7 @@ public:
   }
 };
 
-extern DVITYPECLASS DVITYPEAPP;
-#define THEAPP DVITYPEAPP
+extern DVITYPEAPPCLASS DVITYPEAPP;
 
+#define THEAPP DVITYPEAPP
 #include <miktex/TeXAndFriends/WebApp.inl>

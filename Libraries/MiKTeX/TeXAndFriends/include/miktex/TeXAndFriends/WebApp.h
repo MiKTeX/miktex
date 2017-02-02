@@ -59,8 +59,8 @@ class ICharacterConverter
 {
 public:
   virtual char* xchr() = 0;
-  virtual C4P::C4P_unsigned8* xord() = 0;
-  virtual C4P::C4P_unsigned8* xprn() = 0;
+  virtual char* xord() = 0;
+  virtual char* xprn() = 0;
 };
 
 template<class PROGRAM_CLASS> class CharacterConverterImpl :
@@ -77,27 +77,30 @@ public:
   char* xchr() override
   {
 #if defined(MIKTEX_TEXMF_UNICODE)
-    return nullptr;
+    MIKTEX_UNEXPECTED();
 #else
-    return &program.xchr[0];
+    MIKTEX_ASSERT(sizeof(program.xchr[0]) == sizeof(char));
+    return (char*)&program.xchr[0];
 #endif
   }
 public:
-  C4P::C4P_unsigned8* xord() override
+  char* xord() override
   {
 #if defined(MIKTEX_TEXMF_UNICODE)
-    return nullptr;
+    MIKTEX_UNEXPECTED();
 #else
-    return &program.xord[0];
+    MIKTEX_ASSERT(sizeof(program.xord[0]) == sizeof(char));
+    return (char*)&program.xord[0];
 #endif
   }
 public:
-  C4P::C4P_unsigned8* xprn() override
+  char* xprn() override
   {
 #if defined(MIKTEX_TEXMF_UNICODE) || !defined(MIKTEX_TEX_COMPILER) && !defined(MIKTEX_META_COMPILER)
-    return nullptr;
+    MIKTEX_UNEXPECTED();
 #else
-    return &program.xprn[0];
+    MIKTEX_ASSERT(sizeof(program.xprn[0]) == sizeof(char));
+    return (char*)&program.xprn[0];
 #endif
   }
 };

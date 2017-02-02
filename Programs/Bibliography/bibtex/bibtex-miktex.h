@@ -202,6 +202,8 @@ public:
   }
 };
 
+extern BIBTEXAPPCLASS BIBTEXAPP;
+
 template<class T> inline void miktexbibtexrealloc(const char* varName, T*& p, size_t n)
 {
   p = BIBTEXAPP.Reallocate(p, n + 1);
@@ -217,6 +219,5 @@ inline bool miktexhasextension(const char* fileName, const char* extension)
   return PathName(fileName).HasExtension(extension);
 }
 
-extern BIBTEXAPPCLASS BIBTEXAPP;
 #define THEAPP BIBTEXAPP
 #include <miktex/TeXAndFriends/WebAppInputLine.inl>
