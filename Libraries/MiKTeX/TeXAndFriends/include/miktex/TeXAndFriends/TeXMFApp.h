@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/TeXMFApp.h:                     -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -97,118 +97,46 @@ namespace texmfapp {
 
 MIKTEXMF_BEGIN_NAMESPACE;
 
+class IStringHandler
+{
+public:
+  virtual char* strpool() = 0;
+public:
+  virtual wchar_t* wstrpool() = 0;
+public:
+  virtual C4P::C4P_signed32& strptr() = 0;
+public:
+  virtual C4P::C4P_signed32* strstart() = 0;
+public:
+  virtual C4P::C4P_signed32& poolsize() = 0;
+public:
+  virtual C4P::C4P_signed32& poolptr() = 0;
+public:
+  virtual C4P::C4P_signed32 makestring() = 0;
+};
+
+class IErrorHandler
+{
+public:
+  virtual C4P::C4P_integer& interrupt() = 0;
+};
+
+class ITeXMFMemoryHandler
+{
+public:
+  virtual void Allocate() = 0;
+public:
+  virtual void Free() = 0;
+public:
+  virtual void Check() = 0;
+};
+
 #if defined(MIKTEX_TEXMF_UNICODE)
 typedef wchar_t TEXMFCHAR;
 typedef wint_t TEXMFCHARINT;
 #else
 typedef char TEXMFCHAR;
 typedef int TEXMFCHARINT;
-#endif
-
-#define GETPARAM(param, varname, cfgname, defcfgval)                    \
-{                                                                       \
-  if (param < 0)                                                        \
-  {                                                                     \
-    THEDATA(varname) = GetParameter(#cfgname, defcfgval);               \
-  }                                                                     \
-  else                                                                  \
-  {                                                                     \
-    THEDATA(varname) = param;                                           \
-  }                                                                     \
-  if (trace_mem->IsEnabled())                                           \
-  {                                                                     \
-    trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Parameter %s: %d"), #cfgname, (int)THEDATA(varname)); \
-  }                                                                     \
-}
-
-#define GETPARAMCHECK(param, varname, cfgname, defcfgval)               \
-{                                                                       \
-  if (param < 0)                                                        \
-  {                                                                     \
-    THEDATA(varname) = GetParameter(#cfgname, defcfgval);               \
-  }                                                                     \
-  else                                                                  \
-  {                                                                     \
-    THEDATA(varname) = param;                                           \
-  }                                                                     \
-  if (THEDATA(varname) < inf##varname || THEDATA(varname) > sup##varname) \
-  {                                                                     \
-    MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("Bad parameter value."), "cfgname", #cfgname); \
-    }                                                                   \
-  if (trace_mem->IsEnabled())                                           \
-  {                                                                     \
-    trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Parameter %s: %d"), #cfgname, (int)THEDATA(varname)); \
-  }                                                                     \
-}
-
-#if defined(THEDATA)
-inline TEXMFCHAR* GetTeXString(TEXMFCHAR* dest, std::size_t destSize, int stringStart, int stringLength)
-{
-  MIKTEX_ASSERT(sizeof(THEDATA(strpool)[0]) == sizeof(dest[0]));
-  if (stringLength < 0 || stringLength >= destSize)
-  {
-    MIKTEX_FATAL_ERROR(MIKTEXTEXT("Bad string size."));
-  }
-  for (int idx = 0; idx < stringLength; ++idx)
-  {
-    dest[idx] = THEDATA(strpool)[stringStart + idx];
-  }
-  dest[stringLength] = 0;
-  return dest;
-}
-#endif
-
-#if defined(THEDATA) && defined(MIKTEX_TEXMF_UNICODE)
-inline char* GetTeXString(char* dest, std::size_t destSize, int stringStart, int stringLength)
-{
-  MiKTeX::Util::CharBuffer<wchar_t, 200> buf(stringLength + 1);
-  GetTeXString(buf.GetData(), buf.GetCapacity(), stringStart, stringLength);
-  MiKTeX::Util::StringUtil::CopyString(dest, destSize, buf.GetData());
-  return dest;
-}
-#endif
-
-#if defined(THEDATA)
-inline int GetTeXStringStart(int stringNumber)
-{
-#if defined(MIKTEX_OMEGA) || defined(MIKTEX_XETEX)
-  MIKTEX_ASSERT(stringNumber >= 65536);
-  stringNumber -= 65536;
-#endif
-  MIKTEX_ASSERT(stringNumber >= 0 && stringNumber < THEDATA(strptr));
-#if defined(MIKTEX_OMEGA)
-  int stringStart = THEDATA(strstartar)[stringNumber];
-#else
-  int stringStart = THEDATA(strstart)[stringNumber];
-#endif
-  return stringStart;
-}
-#endif
-
-#if defined(THEDATA)
-inline int GetTeXStringLength(int stringNumber)
-{
-#if defined(MIKTEX_OMEGA) || defined(MIKTEX_XETEX)
-  MIKTEX_ASSERT(stringNumber >= 65536);
-  stringNumber -= 65536;
-#endif
-  MIKTEX_ASSERT(stringNumber >= 0 && stringNumber < THEDATA(strptr));
-#if defined(MIKTEX_OMEGA)
-  int stringLength = THEDATA(strstartar)[stringNumber + 1] - THEDATA(strstartar)[stringNumber];
-#else
-  int stringLength = THEDATA(strstart)[stringNumber + 1] - THEDATA(strstart)[stringNumber];
-#endif
-  return stringLength;
-}
-#endif
-
-#if defined(THEDATA)
-template<typename CharType> inline CharType * GetTeXString(CharType* dest, int stringNumber, std::size_t destSize = 0xffff)
-{
-  int stringStart = GetTeXStringStart(stringNumber);
-  int stringLength = GetTeXStringLength(stringNumber);
-  return GetTeXString(dest, destSize, stringStart, stringLength);
-}
 #endif
 
 class MIKTEXMFTYPEAPI(TeXMFApp) :
@@ -294,9 +222,7 @@ protected:
 public:
   virtual void OnTeXMFInitialize() const
   {
-#if defined(THEDATA)
     signal(SIGINT, OnKeybordInterrupt);
-#endif
   }
 
 public:
@@ -309,218 +235,83 @@ public:
 public:
   virtual void CheckMemory()
   {
-#if defined(THEDATA)
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(buffer));
-#  if defined(MIKTEX_TEX_COMPILER)
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(yzmem));
-#  else
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(mem));
-#  endif
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(paramstack));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(strpool));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(trickbuf));
-#  if !defined(MIKTEX_OMEGA)
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(strstart));
-#  endif
-#endif
+    GetTeXMFMemoryHandler()->Check();
   }
 #endif
 
 protected:
-  template<typename ValueType> ValueType GetParameter(const std::string& parameterName, const ValueType& defaultValue) const
+  template<typename ValueType> ValueType GetConfigValue(const std::string& valueName, const ValueType& defaultValue) const
   {
     std::shared_ptr<MiKTeX::Core::Session> session = GetSession();
-    ValueType value = session->GetConfigValue("", parameterName, -1).GetInt();
+    ValueType value = session->GetConfigValue("", valueName, -1).GetInt();
     if (value < 0)
     {
-      value = session->GetConfigValue(GetProgramName(), parameterName, defaultValue).GetInt();
+      value = session->GetConfigValue(GetProgramName(), valueName, defaultValue).GetInt();
     }
     return value;
   }
 
-public:
-  template<typename T> T* Reallocate(const std::string& arrayName, T*& p, std::size_t n, const MiKTeX::Core::SourceLocation& sourceLocation)
+protected:
+  template<typename ValueType> ValueType GetParameter(const std::string& parameterName, const ValueType& defaultValue, const ValueType& defaultValue2)
   {
-    std::size_t amount;
-    if (n == 0)
+    ValueType result;
+    if (defaultValue < 0)
     {
-      amount = 0;
+      result = GetConfigValue(parameterName, defaultValue2);
     }
     else
     {
-      // one extra element because Pascal arrays are 1-based
-      amount = (n + 1) * sizeof(T);
+      result = defaultValue;
     }
     if (trace_mem->IsEnabled())
     {
-      trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Reallocate %s: p == %p, elementSize == %u, nElements == %u, bytes == %u"), arrayName.empty() ? "array" : arrayName.c_str(), p, (unsigned)sizeof(T), (unsigned)n, (unsigned)amount);
+      trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Parameter %s: %d"), parameterName.c_str(), (int)result);
     }
-    p = reinterpret_cast<T*>(MiKTeX::Debug::Realloc(p, amount, sourceLocation));
+    return result;
+  }
+
+protected:
+  template<typename ValueType> ValueType GetCheckedParameter(const std::string& parameterName, const ValueType& minValue, const ValueType& maxValue, const ValueType& defaultValue, const ValueType& defaultValue2)
+  {
+    ValueType result;
+    if (defaultValue < 0)
+    {
+      result = GetConfigValue(parameterName, defaultValue2);
+    }
+    else
+    {
+      result = defaultValue;
+    }
+    if (result < minValue || result > maxValue)
+    {
+      MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("Bad parameter value."), "parameterName", parameterName);
+    }
     if (trace_mem->IsEnabled())
     {
-      trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Reallocate: return %p"), p);
+      trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Parameter %s: %d"), parameterName.c_str(), (int)result);
     }
-    return p;
   }
 
-protected:
-  template<typename T> T* Allocate(const std::string& arrayName, T*& p, std::size_t n)
-  {
-    p = nullptr;
-    return Reallocate(arrayName, p, n, MIKTEX_SOURCE_LOCATION());
-  }
-
-protected:
-  template<typename T> T* Allocate(T*& p, std::size_t n)
-  {
-    return Allocate("", p, n);
-  }
-
-protected:
-  template<typename T> T* Free(const std::string& arrayName, T*& p)
-  {
-    return Reallocate(arrayName, p, 0, MIKTEX_SOURCE_LOCATION());
-  }
-
-protected:
-  template<typename T> T* Free(T*& p)
-  {
-    return Free("", p);
-  }
-
-#if defined(THEDATA)
 public:
   void AllocateMemory()
   {
-    GETPARAMCHECK(param_buf_size, bufsize, buf_size, texmfapp::texmfapp::buf_size());
-    GETPARAMCHECK(param_error_line, errorline, error_line, texmfapp::texmfapp::error_line());
-#if defined(HAVE_EXTRA_MEM_BOT)
-    GETPARAM(param_extra_mem_bot, extramembot, extra_mem_bot, texmfapp::texmfapp::extra_mem_bot());
-#endif
-#if defined(HAVE_EXTRA_MEM_TOP)
-    GETPARAM(param_extra_mem_top, extramemtop, extra_mem_top, texmfapp::texmfapp::extra_mem_top());
-#endif
-    GETPARAMCHECK(param_half_error_line, halferrorline, half_error_line, texmfapp::texmfapp::half_error_line());
-#if defined(HAVE_MAIN_MEMORY)
-#  if !defined(infmainmemory)
-    const int infmainmemory = 3000;
-    const int supmainmemory = 256000000;
-#  endif
-    GETPARAMCHECK(param_main_memory, mainmemory, main_memory, texmfapp::texmfapp::main_memory());
-#endif
-    GETPARAMCHECK(param_max_print_line, maxprintline, max_print_line, texmfapp::texmfapp::max_print_line());
-    GETPARAMCHECK(param_max_strings, maxstrings, max_strings, texmfapp::texmfapp::max_strings());
-#if !defined(infparamsize)
-    const int infparamsize = 60;
-    const int supparamsize = 600000;
-#endif
-    GETPARAMCHECK(param_param_size, paramsize, param_size, texmfapp::texmfapp::param_size());
-#if defined(HAVE_POOL_FREE)
-    GETPARAMCHECK(param_pool_free, poolfree, pool_free, texmfapp::texmfapp::pool_free());
-#endif
-    GETPARAMCHECK(param_pool_size, poolsize, pool_size, texmfapp::texmfapp::pool_size());
-    GETPARAMCHECK(param_stack_size, stacksize, stack_size, texmfapp::texmfapp::stack_size());
-#if defined(HAVE_STRINGS_FREE)
-    GETPARAMCHECK(param_strings_free, stringsfree, strings_free, texmfapp::texmfapp::strings_free());
-#endif
-    GETPARAMCHECK(param_string_vacancies, stringvacancies, string_vacancies, texmfapp::texmfapp::string_vacancies());
-
-    THEDATA(maxstrings) += 0x100;
-
-#if defined(HAVE_EXTRA_MEM_BOT)
-    if (IsInitProgram())
-    {
-      THEDATA(extramembot) = 0;
-    }
-    if (THEDATA(extramembot) > supmainmemory)
-    {
-      THEDATA(extramembot) = supmainmemory;
-    }
-#endif
-
-#if defined(HAVE_EXTRA_MEM_TOP)
-    if (IsInitProgram())
-    {
-      THEDATA(extramemtop) = 0;
-    }
-    if (THEDATA(extramemtop) > supmainmemory)
-    {
-      THEDATA(extramemtop) = supmainmemory;
-    }
-#endif
-
-#if defined(MIKTEX_TEX_COMPILER)
-    MIKTEX_ASSERT(THEDATA(membot) == 0);
-    THEDATA(memtop) = THEDATA(membot) + THEDATA(mainmemory) - 1;
-    THEDATA(memmin) = THEDATA(membot);
-    THEDATA(memmax) = THEDATA(memtop);
-#elif defined(MIKTEX_META_COMPILER)
-    THEDATA(memtop) = 0/*memmin*/ + THEDATA(mainmemory) - 1;
-    THEDATA(memmax) = THEDATA(memtop);
-#endif
-
-    Allocate("buffer", THEDATA(buffer), THEDATA(bufsize));
-    Allocate("inputstack", THEDATA(inputstack), THEDATA(stacksize));
-    Allocate("paramstack", THEDATA(paramstack), THEDATA(paramsize));
-    Allocate("trickbuf", THEDATA(trickbuf), THEDATA(errorline));
-
-    if (IsInitProgram() || AmI("mf"))
-    {
-      Allocate(THEDATA(strpool), THEDATA(poolsize));
-    }
-
-    if (IsInitProgram())
-    {
-#  if defined(MIKTEX_TEX_COMPILER)
-      Allocate("mem", THEDATA(yzmem), THEDATA(memtop) - THEDATA(membot) + 2);
-      MIKTEX_ASSERT(THEDATA(membot) == 0);
-      THEDATA(zmem) = THEDATA(yzmem) - THEDATA(membot);
-      THEDATA(mem) = THEDATA(zmem);
-#  else
-      Allocate("mem", THEDATA(mem), THEDATA(memtop) - 0/*memmin*/ + 2);
-#  endif
-    }
-
-#if !defined(MIKTEX_OMEGA)
-    Allocate("strstart", THEDATA(strstart), THEDATA(maxstrings));
-#endif
+    GetTeXMFMemoryHandler()->Allocate();
   }
-#endif
 
-#if defined(THEDATA)
 public:
   void FreeMemory()
   {
-    Free(THEDATA(buffer));
-#  if defined(MIKTEX_TEX_COMPILER)
-    Free(THEDATA(yzmem));
-#else
-    Free(THEDATA(mem));
-#endif
-    Free(THEDATA(paramstack));
-    Free(THEDATA(strpool));
-    Free(THEDATA(trickbuf));
-#if !defined(MIKTEX_OMEGA)
-    Free(THEDATA(strstart));
-#endif
+    GetTeXMFMemoryHandler()->Free();
   }
-#endif
 
-#if defined(poolsize) || defined(THEDATA)
 protected:
-  void CheckPoolPointer(int poolPtr, std::size_t len) const
+  void CheckPoolPointer(int poolptr, std::size_t len) const
   {
-#if defined(poolsize)
-    const std::size_t poolSize = poolsize;
-#else
-    const std::size_t poolSize = THEDATA(poolsize);
-#endif
-    if (poolPtr + len >= poolSize)
+    if (poolptr + len >= GetStringHandler()->poolsize())
     {
       MIKTEX_FATAL_ERROR(MIKTEXTEXT("String pool overflow."));
     }
   }
-#endif
 
 public:
   MIKTEXMFTHISAPI(bool) CStyleErrorMessagesP() const;
@@ -531,7 +322,6 @@ public:
 public:
   MIKTEXMFTHISAPI(int) GetInteraction() const;
 
-#if defined(THEDATA)
 public:
   int GetJobName()
   {
@@ -547,7 +337,6 @@ public:
     // FIXME: conserve strpool space
     return MakeTeXString(jobName.c_str());
   }
-#endif
 
 public:
   MIKTEXMFTHISAPI(bool) HaltOnErrorP() const;
@@ -562,12 +351,75 @@ public:
   MIKTEXMFTHISAPI(unsigned long) InitializeBuffer(C4P::C4P_signed32* buffer);
 
 public:
+  TEXMFCHAR* GetTeXString(TEXMFCHAR* dest, std::size_t destSize, int stringStart, int stringLength) const
+  {
+    if (stringLength < 0 || stringLength >= destSize)
+    {
+      MIKTEX_FATAL_ERROR(MIKTEXTEXT("Bad string size."));
+    }
+    IStringHandler* stringHandler = GetStringHandler();
+#if defined(MIKTEX_TEXMF_UNICODE)
+    wchar_t* strpool = stringHandler->strpoolw();
+#else
+    char* strpool = stringHandler->strpool();
+#endif
+    for (int idx = 0; idx < stringLength; ++idx)
+    {
+      dest[idx] = strpool[stringStart + idx];
+    }
+    dest[stringLength] = 0;
+    return dest;
+  }
+
+#if defined(MIKTEX_TEXMF_UNICODE)
+public:
+  char* GetTeXString(char* dest, std::size_t destSize, int stringStart, int stringLength) const
+  {
+    MiKTeX::Util::CharBuffer<wchar_t, 200> buf(stringLength + 1);
+    GetTeXString(buf.GetData(), buf.GetCapacity(), stringStart, stringLength);
+    MiKTeX::Util::StringUtil::CopyString(dest, destSize, buf.GetData());
+    return dest;
+  }
+#endif
+
+public:
+  int GetTeXStringStart(int stringNumber) const
+  {
+#if defined(MIKTEX_OMEGA) || defined(MIKTEX_XETEX)
+    MIKTEX_ASSERT(stringNumber >= 65536);
+    stringNumber -= 65536;
+#endif
+    IStringHandler* stringHandler = GetStringHandler();
+    MIKTEX_ASSERT(stringNumber >= 0 && stringNumber < stringHandler->strptr());
+    return stringHandler->strstart()[stringNumber];
+  }
+
+public:
+  int GetTeXStringLength(int stringNumber) const
+  {
+#if defined(MIKTEX_OMEGA) || defined(MIKTEX_XETEX)
+    MIKTEX_ASSERT(stringNumber >= 65536);
+    stringNumber -= 65536;
+#endif
+    IStringHandler* stringHandler = GetStringHandler();
+    MIKTEX_ASSERT(stringNumber >= 0 && stringNumber < stringHandler->strptr());
+    return stringHandler->strstart()[stringNumber + 1] - stringHandler->strstart()[stringNumber];
+  }
+
+public:
+  template<typename CharType> CharType* GetTeXString(CharType* dest, int stringNumber, std::size_t destSize = 0xffff) const
+  {
+    int stringStart = GetTeXStringStart(stringNumber);
+    int stringLength = GetTeXStringLength(stringNumber);
+    return GetTeXString(dest, destSize, stringStart, stringLength);
+  }
+
+public:
   void InvokeEditor(const MiKTeX::Core::PathName& editFileName, int editLineNumber, const MiKTeX::Core::PathName& transcriptFileName) const
   {
     Application::InvokeEditor(editFileName, editLineNumber, GetInputFileType(), transcriptFileName);
   }
 
-#if defined(THEDATA)
 public:
   void InvokeEditor(int editFileName_, int editFileNameLength, int editLineNumber, int transcriptFileName_, int transcriptFileNameLength) const
   {
@@ -584,7 +436,6 @@ public:
     }
     InvokeEditor(editFileName, editLineNumber, transcriptFileName);
   }
-#endif
 
 public:
   MIKTEXMFTHISAPI(bool) IsInitProgram() const;
@@ -592,43 +443,41 @@ public:
 protected:
   MIKTEXMFTHISAPI(bool) IsVirgin() const;
 
-#if defined(THEDATA)
 public:
   int MakeFullNameString()
   {
     return MakeTeXString(GetFoundFile().GetData());
   }
-#endif
 
-#if defined(THEDATA)
 public:
   template<typename CharType> int MakeTeXString(const CharType* lpsz)
   {
     MIKTEX_ASSERT_STRING(lpsz);
+    IStringHandler* stringHandler = GetStringHandler();
 #if defined(MIKTEX_TEXMF_UNICODE)
     MiKTeX::Util::CharBuffer<wchar_t, 200> buf(lpsz);
     std::size_t len = buf.GetLength();
-    CheckPoolPointer(THEDATA(poolptr), len);
+    CheckPoolPointer(stringHandler->poolptr(), len);
     for (size_t idx = 0; idx < len; ++idx)
     {
-      THEDATA(strpool)[THEDATA(poolptr)++] = buf[idx];
+      stringHandler->strpool()[stringHandler->poolptr()] = buf[idx];
+      stringHandler->poolptr() += 1;
     }
 #else
     std::size_t len = MiKTeX::Util::StrLen(lpsz);
-    CheckPoolPointer(THEDATA(poolptr), len);
+    CheckPoolPointer(stringHandler->poolptr(), len);
     while (len-- > 0)
     {
-      THEDATA(strpool)[THEDATA(poolptr)++] = *lpsz++;
+      stringHandler->strpool()[stringHandler->poolptr()] = *lpsz++;
+      stringHandler->poolptr() += 1;
     }
 #endif
-    return makestring();
+    return stringHandler->makestring();
   }
-#endif
 
 public:
   MIKTEXMFTHISAPI(bool) OpenMemoryDumpFile(const MiKTeX::Core::PathName& fileName, FILE** file, void* buf, std::size_t size, bool renew) const;
 
-#if defined(THEDATA)  
 public:
   template<class T> bool OpenMemoryDumpFile(T& f, bool renew = false) const
   {
@@ -641,9 +490,7 @@ public:
     f.PascalFileIO(false);
     return true;
   }
-#endif
 
-#if defined(THEDATA)  
 public:
   template<typename FILE_, typename ELETYPE_> void Dump(FILE_& f, const ELETYPE_& e, std::size_t n)
   {
@@ -652,17 +499,13 @@ public:
       MIKTEX_FATAL_CRT_ERROR("fwrite");
     }
   }
-#endif
 
-#if defined(THEDATA)  
 public:
   template<typename FILE_, typename ELETYPE_> void Dump(FILE_& f, const ELETYPE_& e)
   {
     Dump(f, e, 1);
   }
-#endif
 
-#if defined(THEDATA)  
 public:
   template<typename FILE_, typename ELETYPE_> void Undump(FILE_& f, ELETYPE_& e, std::size_t n)
   {
@@ -672,17 +515,13 @@ public:
       MIKTEX_FATAL_CRT_ERROR("fread");
     }
   }
-#endif
 
-#if defined(THEDATA)  
 public:
   template<typename FILE_, typename ELETYPE_> void Undump(FILE_& f, ELETYPE_& e)
   {
     Undump(f, e, 1);
   }
-#endif
 
-#if defined(THEDATA)  
 public:
   template<typename FILE_, typename ELETYPE_> void Undump(FILE_& f, ELETYPE_ low, ELETYPE_ high, ELETYPE_& e, std::size_t n)
   {
@@ -695,9 +534,7 @@ public:
       }
     }
   }
-#endif
 
-#if defined(THEDATA)  
 public:
   template<typename FILE_, typename ELETYPE_> void Undump(FILE_ &f, ELETYPE_ high, ELETYPE_& e, std::size_t n)
   {
@@ -710,7 +547,6 @@ public:
       }
     }
   }
-#endif
 
 public:
   static MIKTEXMFCEEAPI(MiKTeX::Core::Argv) ParseFirstLine(const MiKTeX::Core::PathName& path);
@@ -718,15 +554,13 @@ public:
 private:
   MIKTEXMFTHISAPI(void) CheckFirstLine(const MiKTeX::Core::PathName& fileName);
 
-#if defined(THEDATA)
 public:
   static void MIKTEXCEECALL OnKeybordInterrupt(int)
   {
     signal(SIGINT, SIG_IGN);
-    THEDATA(interrupt) = 1;
+    ((TeXMFApp*)GetApplication())->GetErrorHandler()->interrupt() = 1;
     signal(SIGINT, OnKeybordInterrupt);
   }
-#endif
 
 protected:
   MIKTEXMFTHISAPI(void) SetTeX();
@@ -782,18 +616,36 @@ private:
 private:
   int param_string_vacancies;
 
+public:
+  MIKTEXMFTHISAPI(void) SetStringHandler(IStringHandler* stringHandler);
+
+public:
+  MIKTEXMFTHISAPI(IStringHandler*) GetStringHandler() const;
+
+public:
+  MIKTEXMFTHISAPI(void) SetErrorHandler(IErrorHandler* errorHandler);
+
+public:
+  MIKTEXMFTHISAPI(IErrorHandler*) GetErrorHandler() const;
+
+public:
+  MIKTEXMFTHISAPI(void) SetTeXMFMemoryHandler(ITeXMFMemoryHandler* memoryHandler);
+
+public:
+  MIKTEXMFTHISAPI(ITeXMFMemoryHandler*) GetTeXMFMemoryHandler() const;
+
 private:
   class impl;
   std::unique_ptr<impl> pimpl;
 };
 
-template<> inline std::string TeXMFApp::GetParameter(const std::string& parameterName, const std::string& defaultValue) const
+template<> inline std::string TeXMFApp::GetConfigValue(const std::string& valueName, const std::string& defaultValue) const
 {
   std::shared_ptr<MiKTeX::Core::Session> session = GetSession();
-  std::string value = session->GetConfigValue("", parameterName, "").GetString();
+  std::string value = session->GetConfigValue("", valueName, "").GetString();
   if (value.empty())
   {
-    value = session->GetConfigValue(GetProgramName(), parameterName, defaultValue).GetString();
+    value = session->GetConfigValue(GetProgramName(), valueName, defaultValue).GetString();
   }
   return value;
 }

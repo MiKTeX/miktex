@@ -53,6 +53,12 @@ public:
   bool isTeXProgram;
 public:
   int interactionMode;
+public:
+  IStringHandler* stringHandler = nullptr;
+public:
+  IErrorHandler* errorHandler = nullptr;
+public:
+  ITeXMFMemoryHandler* memoryHandler = nullptr;
 };
 
 TeXMFApp::TeXMFApp() :
@@ -972,4 +978,34 @@ bool TeXMFApp::AmITeXCompiler() const
 int TeXMFApp::GetInteraction() const
 {
   return pimpl->interactionMode;
+}
+
+void TeXMFApp::SetStringHandler(IStringHandler* stringHandler)
+{
+  pimpl->stringHandler = stringHandler;
+}
+
+IStringHandler* TeXMFApp::GetStringHandler() const
+{
+  return pimpl->stringHandler;
+}
+
+void TeXMFApp::SetErrorHandler(IErrorHandler* errorHandler)
+{
+  pimpl->errorHandler = errorHandler;
+}
+
+IErrorHandler* TeXMFApp::GetErrorHandler() const
+{
+  return pimpl->errorHandler;
+}
+
+void TeXMFApp::SetTeXMFMemoryHandler(ITeXMFMemoryHandler* memoryHandler)
+{
+  pimpl->memoryHandler = memoryHandler;
+}
+
+ITeXMFMemoryHandler* TeXMFApp::GetTeXMFMemoryHandler() const
+{
+  return pimpl->memoryHandler;
 }
