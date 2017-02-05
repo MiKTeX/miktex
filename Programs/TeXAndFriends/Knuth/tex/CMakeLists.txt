@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -66,21 +66,6 @@ add_custom_command(
 
 set(tex_change_file ${CMAKE_CURRENT_BINARY_DIR}/tex-miktex.ch)
 
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/tex_pool.cpp
-  COMMAND
-    inipool
-    ${CMAKE_CURRENT_BINARY_DIR}/tex.pool
-    tex-miktex.h
-    > ${CMAKE_CURRENT_BINARY_DIR}/tex_pool.cpp
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    inipool
-    ${CMAKE_CURRENT_BINARY_DIR}/tex.pool
-)
-
 if(LINK_EVERYTHING_STATICALLY)
   set(tex_target_name ${tex_lib_name})
 else()
@@ -92,6 +77,23 @@ list(APPEND ${tex_target_name}_sources
 )
 
 create_web_app(TeX)
+
+add_custom_command(
+  OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/tex_pool.cpp
+  COMMAND
+    inipool
+    ${CMAKE_CURRENT_BINARY_DIR}/tex.pool
+    tex-miktex.h
+    ${tex_progclass}
+    ${tex_prog}
+    > ${CMAKE_CURRENT_BINARY_DIR}/tex_pool.cpp
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_BINARY_DIR}
+  DEPENDS
+    inipool
+    ${CMAKE_CURRENT_BINARY_DIR}/tex.pool
+)
 
 if(LINK_EVERYTHING_STATICALLY)
   target_link_libraries(${tex_target_name}
@@ -146,6 +148,12 @@ add_custom_command(
     source/tex.web
     ${tex_change_file}
   VERBATIM
+)
+
+set_source_files_properties(
+  ${CMAKE_CURRENT_BINARY_DIR}/tex_pool.cpp
+  PROPERTIES COMPILE_FLAGS
+    "-DMIKTEX_TEX -DTEXPROGCLASS=${tex_progclass} -DTEXPROG=${tex_prog} -DTEXAPPCLASS=${tex_appclass} -DTEXAPP=${tex_app}"
 )
 
 add_custom_target(tex-dev ALL

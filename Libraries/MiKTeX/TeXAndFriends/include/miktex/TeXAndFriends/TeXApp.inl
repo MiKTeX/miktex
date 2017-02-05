@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/TeXApp.inl:                     -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -31,14 +31,6 @@
 
 #include "TeXMFApp.inl"
 
-#if !defined(THEAPP)
-#  error THEAPP not defined
-#endif
-
-#if !defined(THEDATA)
-#  error THEDATA not defined
-#endif
-
 MIKTEXMF_BEGIN_NAMESPACE;
 
 inline void miktexallocatememory()
@@ -46,12 +38,12 @@ inline void miktexallocatememory()
   THEAPP.AllocateMemory();
 }
 
-inline void miktexclosedvifile(bytefile& f)
+template<class FileType> void miktexclosedvifile(FileType& f)
 {
   THEAPP.CloseFile(f);
 }
 
-inline void miktexclosepdffile(bytefile& f)
+template<class FileType> void miktexclosepdffile(FileType& f)
 {
   THEAPP.CloseFile(f);
 }
@@ -111,7 +103,7 @@ inline int miktexmakesrcspecial(int fileName, int lineNo)
   return THEAPP.MakeSrcSpecial(fileName, lineNo);
 }
 
-template<class FileType> inline bool miktexopendvifile(FileType & f)
+template<class FileType> inline bool miktexopendvifile(FileType& f)
 {
   MiKTeX::Core::PathName outPath;
   bool done = THEAPP.OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), THEAPP.GetNameOfFile(), MiKTeX::Core::FileShare::ReadWrite, false, outPath);

@@ -21,16 +21,17 @@
 #  pragma once
 #endif
 
-#include <miktex/TeXAndFriends/config.h>
+#include <miktex/TeXAndFriends/CharacterConverterImpl>
+#include <miktex/TeXAndFriends/InitFinalizeImpl>
+#include <miktex/TeXAndFriends/InputOutputImpl>
+#include <miktex/TeXAndFriends/TeXApp>
+#include <miktex/TeXAndFriends/TeXMemoryHandlerImpl>
+#include <miktex/W2C/Emulation>
 
 #if defined(MIKTEX_TRIPTEX)
 #  include "triptexdefs.h"
 #else
 #  include "texdefs.h"
-#endif
-
-#if ! defined(C4PEXTERN)
-#  define C4PEXTERN extern
 #endif
 
 #if defined(MIKTEX_TRIPTEX)
@@ -39,40 +40,48 @@
 #  include "tex.h"
 #endif
 
-#if !defined(THEDATA)
-#  define THEDATA(x) C4P_VAR(x)
-#endif
-
 #if defined(MIKTEX_WINDOWS)
 #  include "tex.rc"
 #endif
-
-#include <miktex/TeXAndFriends/TeXApp>
 
 #if !defined(MIKTEXHELP_TEX)
 #  include <miktex/Core/Help>
 #endif
 
-#include <miktex/W2C/Emulation>
-
-using namespace MiKTeX::TeXAndFriends;
+extern TEXPROGCLASS TEXPROG;
 
 #if defined(MIKTEX_TRIPTEX)
-class TRIPTEXCLASS
+class TRIPTEXAPPCLASS
 #else
-class TEXCLASS
+class TEXAPPCLASS
 #endif
 
-  : public TeXApp
+  : public MiKTeX::TeXAndFriends::TeXApp
 
 {
+private:
+  MiKTeX::TeXAndFriends::CharacterConverterImpl<TeXProgram> charConv{ TEXPROG };
+
+private:
+  MiKTeX::TeXAndFriends::InitFinalizeImpl<TeXProgram> initFinalize{ TEXPROG };
+
+private:
+  MiKTeX::TeXAndFriends::InputOutputImpl<TeXProgram> inputOutput{ TEXPROG };
+
+private:
+  MiKTeX::TeXAndFriends::TeXMemoryHandlerImpl<TeXProgram> memoryHandler { TEXPROG, *this };
+
 public:
-  void Init(const std::string & programInvocationName) override
+  void Init(const std::string& programInvocationName) override
   {
+    SetCharacterConverter(&charConv);
+    SetInitFinalize(&initFinalize);
+    SetInputOutput(&inputOutput);
+    SetTeXMFMemoryHandler(&memoryHandler);
     TeXApp::Init(programInvocationName);
 #if defined(IMPLEMENT_TCX)
-    EnableFeature(Feature::EightBitChars);
-    EnableFeature(Feature::TCX);
+    EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
+    EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
 #endif
   }
 
@@ -108,13 +117,12 @@ public:
 };
 
 #if defined(MIKTEX_TRIPTEX)
-extern TRIPTEXCLASS TRIPTEXAPP;
+extern TRIPTEXAPPCLASS TRIPTEXAPP;
 #define THEAPP TRIPTEXAPP
 #else
-extern TEXCLASS TEXAPP;
+extern TEXAPPCLASS TEXAPP;
 #define THEAPP TEXAPP
 #endif
-
 #include <miktex/TeXAndFriends/TeXApp.inl>
 
 int miktexloadpoolstrings(int size);

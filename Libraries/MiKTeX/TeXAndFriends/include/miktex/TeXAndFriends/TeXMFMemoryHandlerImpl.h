@@ -127,14 +127,14 @@ public:
     program.bufsize = GetCheckedParameter("buf_size", program.infbufsize, program.supbufsize, userParams, texmfapp::texmfapp::buf_size());
     program.errorline = GetCheckedParameter("error_line", program.inferrorline, program.superrorline, userParams, texmfapp::texmfapp::error_line());
 #if defined(HAVE_EXTRA_MEM_BOT)
-    program.extramembot = GetCheckedParameter("extra_mem_bot", program.infextramembot, program.supextramembot, userParams, texmfapp::texmfapp::extra_mem_bot());
+    program.extramembot = GetParameter("extra_mem_bot", userParams, texmfapp::texmfapp::extra_mem_bot());
 #endif
 #if defined(HAVE_EXTRA_MEM_TOP)
-    program.extramemtop = GetCheckedParameter("extra_mem_top", program.infextramemtop, program.supextramemtop, userParams, texmfapp::texmfapp::extra_mem_top());
+    program.extramemtop = GetParameter("extra_mem_top", userParams, texmfapp::texmfapp::extra_mem_top());
 #endif
     program.halferrorline = GetCheckedParameter("half_error_line", program.infhalferrorline, program.suphalferrorline, userParams, texmfapp::texmfapp::half_error_line());
 #if defined(HAVE_MAIN_MEMORY)
-#  if defined(MIKTEX_METAFONT)
+#  if defined(MIKTEX_METAFONT) || defined(MIKTEX_TEX)
     const int infmainmemory = 3000;
     const int supmainmemory = 256000000;
 #  else

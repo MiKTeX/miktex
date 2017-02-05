@@ -515,7 +515,7 @@ public:
 protected:
   MIKTEXMFTHISAPI(void) SetTeX();
 
-protected:
+public:
   MIKTEXMFTHISAPI(bool) AmITeXCompiler() const;
 
 private:

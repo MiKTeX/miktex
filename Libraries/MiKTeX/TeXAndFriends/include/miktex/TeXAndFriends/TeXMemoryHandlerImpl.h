@@ -42,172 +42,169 @@ public:
 public:
   void Allocate(const std::unordered_map<std::string, int>& userParams) override
   {
-    TeXMFMemoryHandlerImpl::Allocate(userParams);
-    GETPARAM(param_mem_bot, membot, mem_bot, 0);
+    program.membot = GetParameter("mem_bot", userParams, 0);
 
-    if (THEDATA(membot) < 0 || THEDATA(membot) > 1)
+    if (program.membot < 0 || program.membot > 1)
     {
       MIKTEX_FATAL_ERROR(MIKTEXTEXT("mem_bot must be 0 or 1."));
     }
 
-    TeXMFApp::AllocateMemory();
+    TeXMFMemoryHandlerImpl::Allocate(userParams);
 
-    GETPARAMCHECK(param_max_in_open, maxinopen, max_in_open, texapp::texapp::max_in_open());
-    GETPARAMCHECK(param_nest_size, nestsize, nest_size, texapp::texapp::nest_size());
-    GETPARAMCHECK(param_save_size, savesize, save_size, texapp::texapp::save_size());
-    GETPARAM(param_trie_size, triesize, trie_size, texapp::texapp::trie_size());
+    program.maxinopen = GetCheckedParameter("max_in_open", program.infmaxinopen, program.supmaxinopen, userParams, texapp::texapp::max_in_open());
+    program.nestsize = GetCheckedParameter("nest_size", program.infnestsize, program.supnestsize, userParams, texapp::texapp::nest_size());
+    program.savesize = GetCheckedParameter("save_size", program.infsavesize, program.supsavesize, userParams, texapp::texapp::save_size());
+    program.triesize = GetCheckedParameter("trie_size", program.inftriesize, program.suptriesize, userParams, texapp::texapp::trie_size());
 
-#if ! defined(MIKTEX_OMEGA)
-    GETPARAM(param_hash_extra, hashextra, hash_extra, texapp::texapp::hash_extra());
+#if !defined(MIKTEX_OMEGA)
+    program.hashextra = GetParameter("hash_extra", userParams, texapp::texapp::hash_extra());
 #endif
 
-    Allocate("sourcefilenamestack", THEDATA(sourcefilenamestack), THEDATA(maxinopen));
-    Allocate("linestack", THEDATA(linestack), THEDATA(maxinopen));
-    Allocate("fullsourcefilenamestack", THEDATA(fullsourcefilenamestack), THEDATA(maxinopen));
-    Allocate("inputfile", THEDATA(inputfile), THEDATA(maxinopen));
-    Allocate("nest", THEDATA(nest), THEDATA(nestsize) + 1);
-    Allocate("savestack", THEDATA(savestack), THEDATA(savesize) + 1);
-    Allocate("triehash", THEDATA(triehash), THEDATA(triesize) + 1);
-    Allocate("triel", THEDATA(triel), THEDATA(triesize) + 1);
-    Allocate("trieo", THEDATA(trieo), THEDATA(triesize) + 1);
-    Allocate("trier", THEDATA(trier), THEDATA(triesize) + 1);
-    Allocate("trietaken", THEDATA(trietaken), THEDATA(triesize));
+    AllocateArray("sourcefilenamestack", program.sourcefilenamestack, program.maxinopen);
+    AllocateArray("linestack", program.linestack, program.maxinopen);
+    AllocateArray("fullsourcefilenamestack", program.fullsourcefilenamestack, program.maxinopen);
+    AllocateArray("inputfile", program.inputfile, program.maxinopen);
+    AllocateArray("nest", program.nest, program.nestsize + 1);
+    AllocateArray("savestack", program.savestack, program.savesize + 1);
+    AllocateArray("triehash", program.triehash, program.triesize + 1);
+    AllocateArray("triel", program.triel, program.triesize + 1);
+    AllocateArray("trieo", program.trieo, program.triesize + 1);
+    AllocateArray("trier", program.trier, program.triesize + 1);
+    AllocateArray("trietaken", program.trietaken, program.triesize);
 
-    Allocate("nameoffile", THEDATA(nameoffile), MiKTeX::Core::BufferSizes::MaxPath + 1);
+    AllocateArray("nameoffile", program.nameoffile, MiKTeX::Core::BufferSizes::MaxPath + 1);
 
-#if ! defined(MIKTEX_OMEGA)
-    GETPARAMCHECK(param_hyph_size, hyphsize, hyph_size, texapp::texapp::hyph_size());
-    GETPARAM(param_font_max, fontmax, font_max, texapp::texapp::font_max());
-    GETPARAMCHECK(param_font_mem_size, fontmemsize, font_mem_size, texapp::texapp::font_mem_size());
+#if !defined(MIKTEX_OMEGA)
+    program.hyphsize = GetCheckedParameter("hyph_size", program.infhyphsize, program.suphyphsize, userParams, texapp::texapp::hyph_size());
+    program.fontmax = GetParameter("font_max", userParams, texapp::texapp::font_max());
+    program.fontmemsize = GetCheckedParameter("font_mem_size", program.inffontmemsize, program.supfontmemsize, userParams, texapp::texapp::font_mem_size());
 
-    Allocate("trietrl", THEDATA(trietrl), THEDATA(triesize));
-    Allocate("trietro", THEDATA(trietro), THEDATA(triesize));
-    Allocate("trietrc", THEDATA(trietrc), THEDATA(triesize));
+    AllocateArray("trietrl", program.trietrl, program.triesize);
+    AllocateArray("trietro", program.trietro, program.triesize);
+    AllocateArray("trietrc", program.trietrc, program.triesize);
 
-    Allocate("hyphword", THEDATA(hyphword), THEDATA(hyphsize));
-    Allocate("hyphlist", THEDATA(hyphlist), THEDATA(hyphsize));
-    Allocate("hyphlink", THEDATA(hyphlink), THEDATA(hyphsize));
+    AllocateArray("hyphword", program.hyphword, program.hyphsize);
+    AllocateArray("hyphlist", program.hyphlist, program.hyphsize);
+    AllocateArray("hyphlink", program.hyphlink, program.hyphsize);
 
-    Allocate("bcharlabel", THEDATA(bcharlabel), THEDATA(fontmax) - constfontbase);
-    Allocate("charbase", THEDATA(charbase), THEDATA(fontmax) - constfontbase);
-    Allocate("depthbase", THEDATA(depthbase), THEDATA(fontmax) - constfontbase);
-    Allocate("extenbase", THEDATA(extenbase), THEDATA(fontmax) - constfontbase);
-    Allocate("fontarea", THEDATA(fontarea), THEDATA(fontmax) - constfontbase);
-    Allocate("fontbc", THEDATA(fontbc), THEDATA(fontmax) - constfontbase);
-    Allocate("fontbchar", THEDATA(fontbchar), THEDATA(fontmax) - constfontbase);
-    Allocate("fontcheck", THEDATA(fontcheck), THEDATA(fontmax) - constfontbase);
-    Allocate("fontdsize", THEDATA(fontdsize), THEDATA(fontmax) - constfontbase);
-    Allocate("fontec", THEDATA(fontec), THEDATA(fontmax) - constfontbase);
-    Allocate("fontfalsebchar", THEDATA(fontfalsebchar), THEDATA(fontmax) - constfontbase);
-    Allocate("fontglue", THEDATA(fontglue), THEDATA(fontmax) - constfontbase);
-    Allocate("fontname", THEDATA(fontname), THEDATA(fontmax) - constfontbase);
-    Allocate("fontparams", THEDATA(fontparams), THEDATA(fontmax) - constfontbase);
-    Allocate("fontsize", THEDATA(fontsize), THEDATA(fontmax) - constfontbase);
-    Allocate("fontused", THEDATA(fontused), THEDATA(fontmax) - constfontbase);
-    Allocate("heightbase", THEDATA(heightbase), THEDATA(fontmax) - constfontbase);
-    Allocate("hyphenchar", THEDATA(hyphenchar), THEDATA(fontmax) - constfontbase);
-    Allocate("italicbase", THEDATA(italicbase), THEDATA(fontmax) - constfontbase);
-    Allocate("kernbase", THEDATA(kernbase), THEDATA(fontmax) - constfontbase);
-    Allocate("ligkernbase", THEDATA(ligkernbase), THEDATA(fontmax) - constfontbase);
-    Allocate("parambase", THEDATA(parambase), THEDATA(fontmax) - constfontbase);
-    Allocate("skewchar", THEDATA(skewchar), THEDATA(fontmax) - constfontbase);
-    Allocate("triec", THEDATA(triec), THEDATA(triesize));
-    Allocate("widthbase", THEDATA(widthbase), THEDATA(fontmax) - constfontbase);
+    AllocateArray("bcharlabel", program.bcharlabel, program.fontmax - program.constfontbase);
+    AllocateArray("charbase", program.charbase, program.fontmax - program.constfontbase);
+    AllocateArray("depthbase", program.depthbase, program.fontmax - program.constfontbase);
+    AllocateArray("extenbase", program.extenbase, program.fontmax - program.constfontbase);
+    AllocateArray("fontarea", program.fontarea, program.fontmax - program.constfontbase);
+    AllocateArray("fontbc", program.fontbc, program.fontmax - program.constfontbase);
+    AllocateArray("fontbchar", program.fontbchar, program.fontmax - program.constfontbase);
+    AllocateArray("fontcheck", program.fontcheck, program.fontmax - program.constfontbase);
+    AllocateArray("fontdsize", program.fontdsize, program.fontmax - program.constfontbase);
+    AllocateArray("fontec", program.fontec, program.fontmax - program.constfontbase);
+    AllocateArray("fontfalsebchar", program.fontfalsebchar, program.fontmax - program.constfontbase);
+    AllocateArray("fontglue", program.fontglue, program.fontmax - program.constfontbase);
+    AllocateArray("fontname", program.fontname, program.fontmax - program.constfontbase);
+    AllocateArray("fontparams", program.fontparams, program.fontmax - program.constfontbase);
+    AllocateArray("fontsize", program.fontsize, program.fontmax - program.constfontbase);
+    AllocateArray("fontused", program.fontused, program.fontmax - program.constfontbase);
+    AllocateArray("heightbase", program.heightbase, program.fontmax - program.constfontbase);
+    AllocateArray("hyphenchar", program.hyphenchar, program.fontmax - program.constfontbase);
+    AllocateArray("italicbase", program.italicbase, program.fontmax - program.constfontbase);
+    AllocateArray("kernbase", program.kernbase, program.fontmax - program.constfontbase);
+    AllocateArray("ligkernbase", program.ligkernbase, program.fontmax - program.constfontbase);
+    AllocateArray("parambase", program.parambase, program.fontmax - program.constfontbase);
+    AllocateArray("skewchar", program.skewchar, program.fontmax - program.constfontbase);
+    AllocateArray("triec", program.triec, program.triesize);
+    AllocateArray("widthbase", program.widthbase, program.fontmax - program.constfontbase);
 
-    if (IsInitProgram())
+    if (texmfapp.IsInitProgram())
     {
       // memory allocated in tex-miktex-hash.ch
-      THEDATA(yhash) = 0;
-      THEDATA(zeqtb) = 0;
+      program.yhash = 0;
+      program.zeqtb = 0;
     }
 
-    if (IsInitProgram() || !AmITeXCompiler() || AmI("omega"))
+    if (texmfapp.IsInitProgram() || !texmfapp.AmITeXCompiler() || texmfapp.AmI("omega"))
     {
-      Allocate("fontinfo", THEDATA(fontinfo), THEDATA(fontmemsize));
+      AllocateArray("fontinfo", program.fontinfo, program.fontmemsize);
     }
 #endif // not Omega
 
 #if defined(MIKTEX_OMEGA)
-    GETPARAM(param_trie_op_size, trieopsize, trie_op_size, omega::omega::trie_op_size());
+    program.trieopsize = GetParameter("trie_op_size", userParams, omega::omega::trie_op_size());
 
-    Allocate("hyfdistance", THEDATA(hyfdistance), THEDATA(trieopsize));
-    Allocate("hyfnext", THEDATA(hyfnext), THEDATA(trieopsize));
-    Allocate("hyfnum", THEDATA(hyfnum), THEDATA(trieopsize));
-    Allocate("trie", THEDATA(trie), THEDATA(triesize));
-    Allocate("trieophash", THEDATA(trieophash), 2 * THEDATA(trieopsize));
-    Allocate("trieoplang", THEDATA(trieoplang), THEDATA(trieopsize));
-    Allocate("trieopval", THEDATA(trieopval), THEDATA(trieopsize));
+    AllocateArray("hyfdistance", program.hyfdistance, program.trieopsize);
+    AllocateArray("hyfnext", program.hyfnext, program.trieopsize);
+    AllocateArray("hyfnum", program.hyfnum, program.trieopsize);
+    AllocateArray("trie", program.trie, program.triesize);
+    AllocateArray("trieophash", program.trieophash, 2 * program.trieopsize);
+    AllocateArray("trieoplang", program.trieoplang, program.trieopsize);
+    AllocateArray("trieopval", program.trieopval, program.trieopsize);
 #endif // Omega
-
   }
 
 public:
   void Free() override
   {
     TeXMFMemoryHandlerImpl::Free();
-    TeXMFApp::FreeMemory();
 
-    Free("linestack", THEDATA(linestack));
-    Free("inputstack", THEDATA(inputstack));
-    Free("inputfile", THEDATA(inputfile));
-    Free("fullsourcefilenamestack", THEDATA(fullsourcefilenamestack));
-    Free("sourcefilenamestack", THEDATA(sourcefilenamestack));
-    Free("nest", THEDATA(nest));
-    Free("savestack", THEDATA(savestack));
-    Free("triec", THEDATA(triec));
-    Free("triehash", THEDATA(triehash));
-    Free("triel", THEDATA(triel));
-    Free("trieo", THEDATA(trieo));
-    Free("trier", THEDATA(trier));
-    Free("trietaken", THEDATA(trietaken));
+    FreeArray("linestack", program.linestack);
+    FreeArray("inputstack", program.inputstack);
+    FreeArray("inputfile", program.inputfile);
+    FreeArray("fullsourcefilenamestack", program.fullsourcefilenamestack);
+    FreeArray("sourcefilenamestack", program.sourcefilenamestack);
+    FreeArray("nest", program.nest);
+    FreeArray("savestack", program.savestack);
+    FreeArray("triec", program.triec);
+    FreeArray("triehash", program.triehash);
+    FreeArray("triel", program.triel);
+    FreeArray("trieo", program.trieo);
+    FreeArray("trier", program.trier);
+    FreeArray("trietaken", program.trietaken);
 
-    Free("nameoffile", THEDATA(nameoffile));
+    FreeArray("nameoffile", program.nameoffile);
 
-#if ! defined(MIKTEX_OMEGA)
-    Free("hyphword", THEDATA(hyphword));
-    Free("hyphlist", THEDATA(hyphlist));
-    Free("hyphlink", THEDATA(hyphlink));
+#if !defined(MIKTEX_OMEGA)
+    FreeArray("hyphword", program.hyphword);
+    FreeArray("hyphlist", program.hyphlist);
+    FreeArray("hyphlink", program.hyphlink);
 
-    Free("trietrl", THEDATA(trietrl));
-    Free("trietro", THEDATA(trietro));
-    Free("trietrc", THEDATA(trietrc));
+    FreeArray("trietrl", program.trietrl);
+    FreeArray("trietro", program.trietro);
+    FreeArray("trietrc", program.trietrc);
 
-    Free("bcharlabel", THEDATA(bcharlabel));
-    Free("charbase", THEDATA(charbase));
-    Free("depthbase", THEDATA(depthbase));
-    Free("extenbase", THEDATA(extenbase));
-    Free("fontarea", THEDATA(fontarea));
-    Free("fontbc", THEDATA(fontbc));
-    Free("fontbchar", THEDATA(fontbchar));
-    Free("fontcheck", THEDATA(fontcheck));
-    Free("fontdsize", THEDATA(fontdsize));
-    Free("fontec", THEDATA(fontec));
-    Free("fontfalsebchar", THEDATA(fontfalsebchar));
-    Free("fontglue", THEDATA(fontglue));
-    Free("fontinfo", THEDATA(fontinfo));
-    Free("fontname", THEDATA(fontname));
-    Free("fontparams", THEDATA(fontparams));
-    Free("fontsize", THEDATA(fontsize));
-    Free("fontused", THEDATA(fontused));
-    Free("heightbase", THEDATA(heightbase));
-    Free("hyphenchar", THEDATA(hyphenchar));
-    Free("italicbase", THEDATA(italicbase));
-    Free("kernbase", THEDATA(kernbase));
-    Free("ligkernbase", THEDATA(ligkernbase));
-    Free("parambase", THEDATA(parambase));
-    Free("skewchar", THEDATA(skewchar));
-    Free("widthbase", THEDATA(widthbase));
+    FreeArray("bcharlabel", program.bcharlabel);
+    FreeArray("charbase", program.charbase);
+    FreeArray("depthbase", program.depthbase);
+    FreeArray("extenbase", program.extenbase);
+    FreeArray("fontarea", program.fontarea);
+    FreeArray("fontbc", program.fontbc);
+    FreeArray("fontbchar", program.fontbchar);
+    FreeArray("fontcheck", program.fontcheck);
+    FreeArray("fontdsize", program.fontdsize);
+    FreeArray("fontec", program.fontec);
+    FreeArray("fontfalsebchar", program.fontfalsebchar);
+    FreeArray("fontglue", program.fontglue);
+    FreeArray("fontinfo", program.fontinfo);
+    FreeArray("fontname", program.fontname);
+    FreeArray("fontparams", program.fontparams);
+    FreeArray("fontsize", program.fontsize);
+    FreeArray("fontused", program.fontused);
+    FreeArray("heightbase", program.heightbase);
+    FreeArray("hyphenchar", program.hyphenchar);
+    FreeArray("italicbase", program.italicbase);
+    FreeArray("kernbase", program.kernbase);
+    FreeArray("ligkernbase", program.ligkernbase);
+    FreeArray("parambase", program.parambase);
+    FreeArray("skewchar", program.skewchar);
+    FreeArray("widthbase", program.widthbase);
 #endif // not Omega
 
 #if defined(MIKTEX_OMEGA)
-    Free("hyfdistance", THEDATA(hyfdistance));
-    Free("hyfnext", THEDATA(hyfnext));
-    Free("hyfnum", THEDATA(hyfnum));
-    Free("trie", THEDATA(trie));
+    FreeArray("hyfdistance", program.hyfdistance);
+    FreeArray("hyfnext", program.hyfnext);
+    FreeArray("hyfnum", program.hyfnum);
+    FreeArray("trie", program.trie);
 
-    Free("trieophash", THEDATA(trieophash));
-    Free("trieoplang", THEDATA(trieoplang));
-    Free("trieopval", THEDATA(trieopval));
+    FreeArray("trieophash", program.trieophash);
+    FreeArray("trieoplang", program.trieoplang);
+    FreeArray("trieopval", program.trieopval);
 #endif
   }
 
@@ -216,67 +213,67 @@ public:
   {
     TeXMFMemoryHandlerImpl::Check();
 #if defined(THEDATA)
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(linestack));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(inputstack));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(inputfile));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(fullsourcefilenamestack));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(sourcefilenamestack));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(nest));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(savestack));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(triec));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(triehash));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(triel));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(trieo));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(trier));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(trietaken));
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.linestack);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.inputstack);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.inputfile);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fullsourcefilenamestack);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.sourcefilenamestack);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.nest);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.savestack);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.triec);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.triehash);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.triel);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trieo);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trier);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trietaken);
 
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(nameoffile));
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.nameoffile);
 
-#if ! defined(MIKTEX_OMEGA)
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(hyphword));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(hyphlist));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(hyphlink));
+#if !defined(MIKTEX_OMEGA)
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.hyphword);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.hyphlist);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.hyphlink);
 
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(trietrl));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(trietro));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(trietrc));
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trietrl);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trietro);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trietrc);
 
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(bcharlabel));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(charbase));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(depthbase));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(extenbase));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(fontarea));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(fontbc));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(fontbchar));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(fontcheck));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(fontdsize));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(fontec));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(fontfalsebchar));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(fontglue));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(fontinfo));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(fontname));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(fontparams));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(fontsize));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(fontused));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(heightbase));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(hyphenchar));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(italicbase));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(kernbase));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(ligkernbase));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(parambase));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(skewchar));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(widthbase));
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.bcharlabel);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.charbase);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.depthbase);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.extenbase);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontarea);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontbc);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontbchar);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontcheck);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontdsize);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontec);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontfalsebchar);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontglue);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontinfo);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontname);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontparams);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontsize);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontused);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.heightbase);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.hyphenchar);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.italicbase);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.kernbase);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.ligkernbase);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.parambase);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.skewchar);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.widthbase);
 #endif // not Omega
 
 #if defined(MIKTEX_OMEGA)
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(hyfdistance));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(hyfnext));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(hyfnum));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(trie));
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.hyfdistance);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.hyfnext);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.hyfnum);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trie);
 
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(trieophash));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(trieoplang));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(trieopval));
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trieophash);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trieoplang);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trieopval);
 #endif
 #endif // THEDATA
   }
