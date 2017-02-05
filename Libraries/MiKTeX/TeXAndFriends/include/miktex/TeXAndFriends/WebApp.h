@@ -35,6 +35,8 @@
 
 #include <miktex/App/Application>
 
+#include <miktex/C4P/C4P>
+
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/FileType>
 #include <miktex/Core/OptionSet>
@@ -136,7 +138,7 @@ public:
 public:
   MIKTEXMFTHISAPI(std::string) GetProgramName() const;
 
-protected:
+public:
   MIKTEXMFTHISAPI(bool) AmI(const std::string & name) const;
 
 protected:

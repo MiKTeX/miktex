@@ -1,6 +1,6 @@
 /* screen.h: METAFONT online displays
 
-   Copyright (C) 1998-2016 Christian Schenk
+   Copyright (C) 1998-2017 Christian Schenk
    Copyright (C) 1998 Wolfgang Kleinschmidt
 
    This file is free software; you can redistribute it and/or modify
@@ -25,18 +25,18 @@
 #if defined(MIKTEX_WINDOWS)
 bool miktexinitscreen(int w, int h);
 
-void miktexblankrectangle(screencol left_col, screencol right_col, screenrow top_row, screenrow bot_row);
+void miktexblankrectangle(METAFONTProgram::screencol left_col, METAFONTProgram::screencol right_col, METAFONTProgram::screenrow top_row, METAFONTProgram::screenrow bot_row);
 
 void miktexupdatescreen();
 
-void miktexpaintrow(screenrow r, pixelcolor b, transspec a, screencol n);
+void miktexpaintrow(METAFONTProgram::screenrow r, METAFONTProgram::pixelcolor b, METAFONTProgram::transspec a, METAFONTProgram::screencol n);
 #else
 inline bool miktexinitscreen(int w, int h)
 {
   return false;
 }
 
-inline void miktexblankrectangle(screencol left_col, screencol right_col, screenrow top_row, screenrow bot_row)
+inline void miktexblankrectangle(METAFONTProgram::screencol left_col, METAFONTProgram::screencol right_col, METAFONTProgram::screenrow top_row, METAFONTProgram::screenrow bot_row)
 {
 }
 
@@ -44,7 +44,7 @@ inline void miktexupdatescreen()
 {
 }
 
-inline void miktexpaintrow(screenrow r, pixelcolor b, transspec a, screencol n)
+inline void miktexpaintrow(METAFONTProgram::screenrow r, METAFONTProgram::pixelcolor b, METAFONTProgram::transspec a, METAFONTProgram::screencol n)
 {
 }
 #endif

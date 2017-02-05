@@ -114,7 +114,6 @@ void TeXMFApp::Init(const string & programInvocationName)
   WebAppInputLine::Init(programInvocationName);
 
   pimpl->trace_time = TraceStream::Open(MIKTEX_TRACE_TIME);
-  trace_mem = TraceStream::Open(MIKTEX_TRACE_MEM);
 
   pimpl->clockStart = clock();
   pimpl->disableExtensions = false;
@@ -149,11 +148,6 @@ void TeXMFApp::Finalize()
   {
     pimpl->trace_time->Close();
     pimpl->trace_time = nullptr;
-  }
-  if (trace_mem != nullptr)
-  {
-    trace_mem->Close();
-    trace_mem = nullptr;
   }
   pimpl->memoryDumpFileName = "";
   jobName = "";
@@ -921,16 +915,16 @@ template<typename CharType> int InitializeBuffer_(CharType * pBuffer, FileType i
   return last;
 }
 
-unsigned long TeXMFApp::InitializeBuffer(unsigned char * pBuffer)
+unsigned long TeXMFApp::InitializeBuffer(char * pBuffer)
 {
   MIKTEX_ASSERT(pBuffer != nullptr);
-  return InitializeBuffer_<unsigned char>(pBuffer, GetInputFileType(), pimpl->isTeXProgram);
+  return InitializeBuffer_<char>(pBuffer, GetInputFileType(), pimpl->isTeXProgram);
 }
 
-unsigned long TeXMFApp::InitializeBuffer(unsigned short * pBuffer)
+unsigned long TeXMFApp::InitializeBuffer(C4P_signed16 * pBuffer)
 {
   MIKTEX_ASSERT(pBuffer != nullptr);
-  return InitializeBuffer_<unsigned short>(pBuffer, GetInputFileType(), pimpl->isTeXProgram);
+  return InitializeBuffer_<C4P::C4P_signed16>(pBuffer, GetInputFileType(), pimpl->isTeXProgram);
 }
 
 unsigned long TeXMFApp::InitializeBuffer(C4P_signed32 * pBuffer)

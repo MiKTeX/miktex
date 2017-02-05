@@ -1,6 +1,6 @@
 /* mf-miktex.h:                                         -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -24,6 +24,8 @@
 #include <miktex/Core/FileType>
 
 #include <miktex/TeXAndFriends/config.h>
+#include <miktex/TeXAndFriends/MetafontApp>
+#include <miktex/TeXAndFriends/MetafontMemoryHandlerImpl>
 
 #if defined(MIKTEX_TRAPMF)
 #  include "trapmfdefs.h"
@@ -31,21 +33,11 @@
 #  include "mfdefs.h"
 #endif
 
-#if !defined(C4PEXTERN)
-#  define C4PEXTERN extern
-#endif
-
 #if defined(MIKTEX_TRAPMF)
 #  include "trapmf.h"
 #else
 #  include "mf.h"
 #endif
-
-#if !defined(THEDATA)
-#  define THEDATA(x) C4P_VAR(x)
-#endif
-
-#include <miktex/TeXAndFriends/MetafontApp>
 
 namespace mf {
 #include <miktex/mf.defaults.h>
@@ -57,14 +49,56 @@ namespace mf {
 #  include <miktex/Core/Help>
 #endif
 
+class MemoryHandlerImpl : public MiKTeX::TeXAndFriends::MetafontMemoryHandlerImpl<METAFONTProgram>
+{
+public:
+  MemoryHandlerImpl(METAFONTProgram& program, MiKTeX::TeXAndFriends::TeXMFApp& mfapp) :
+    MetafontMemoryHandlerImpl(program, mfapp)
+  {
+  }
+public:
+  void Allocate(const std::unordered_map<std::string, int>& userParams) override
+  {
+    MetafontMemoryHandlerImpl::Allocate(userParams);
+#if 1
+    MIKTEX_UNEXPECTED();
+#else
+
+    GETPARAMCHECK(m_max_wiggle, maxwiggle, max_wiggle, mf::mf::max_wiggle());
+    GETPARAMCHECK(m_move_size, movesize, move_size, mf::mf::move_size());
+    Allocate("after", THEDATA(after), THEDATA(maxwiggle));
+    Allocate("before", THEDATA(before), THEDATA(maxwiggle));
+    Allocate("envmove", THEDATA(envmove), THEDATA(movesize));
+    Allocate("move", THEDATA(move), THEDATA(movesize));
+    Allocate("nodetoround", THEDATA(nodetoround), THEDATA(maxwiggle));
+#endif
+  }
+public:
+  void Free() override
+  {
+    MetafontMemoryHandlerImpl::Free();
+#if 0
+        GetTeXMFMemoryHandler()->Free();
+    MetafontApp::FreeMemory();
+    Free(THEDATA(after));
+    Free(THEDATA(before));
+    Free(THEDATA(envmove));
+    Free(THEDATA(move));
+    Free(THEDATA(nodetoround));
+#endif
+  }
+};
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::TeXAndFriends;
 using namespace std;
 
+extern MFPROGCLASS MFPROG;
+
 #if defined(MIKTEX_TRAPMF)
-class TRAPMFCLASS
+class TRAPMFAPPCLASS
 #else
-class MFCLASS
+class MFAPPCLASS
 #endif
 
   : public MetafontApp
@@ -72,16 +106,20 @@ class MFCLASS
 {
 public:
 #if defined(MIKTEX_TRAPMF)
-  TRAPMFCLASS()
+  TRAPMFAPPCLASS()
 #else
-  MFCLASS()
+  MFAPPCLASS()
 #endif
   {
   }
 
+private:
+  MemoryHandlerImpl memoryHandler { MFPROG, *this };
+
 public:
   void Init(const std::string& programInvocationName) override
   {
+    SetTeXMFMemoryHandler(&memoryHandler);
     MetafontApp::Init(programInvocationName);
     SetProgramInfo("mf", "", "", "");
 #ifdef IMPLEMENT_TCX
@@ -131,33 +169,9 @@ public:
   }
 
 public:
-  void FreeMemory()
-  {
-    MetafontApp::FreeMemory();
-    Free(THEDATA(after));
-    Free(THEDATA(before));
-    Free(THEDATA(envmove));
-    Free(THEDATA(move));
-    Free(THEDATA(nodetoround));
-  }
-
-public:
-  void AllocateMemory()
-  {
-    MetafontApp::AllocateMemory();
-
-    GETPARAMCHECK(m_max_wiggle, maxwiggle, max_wiggle, mf::mf::max_wiggle()); GETPARAMCHECK(m_move_size, movesize, move_size, mf::mf::move_size());
-    Allocate("after", THEDATA(after), THEDATA(maxwiggle));
-    Allocate("before", THEDATA(before), THEDATA(maxwiggle));
-    Allocate("envmove", THEDATA(envmove), THEDATA(movesize));
-    Allocate("move", THEDATA(move), THEDATA(movesize));
-    Allocate("nodetoround", THEDATA(nodetoround), THEDATA(maxwiggle));
-  }
-
-public:
   int GetFormatIdent() const override
   {
-    return THEDATA(baseident);
+    return MFPROG.baseident;
   }
 
 public:
@@ -207,19 +221,18 @@ public:
 };
 
 #if defined(MIKTEX_TRAPMF)
-extern TRAPMFCLASS TRAPMFAPP;
+extern TRAPMFAPPCLASS TRAPMFAPP;
 #define THEAPP TRAPMFAPP
 #else
-extern MFCLASS MFAPP;
+extern MFAPPCLASS MFAPP;
 #define THEAPP MFAPP
 #endif
-
-inline bool miktexopenbasefile (wordfile & f, bool renew = false)
-{
-  return THEAPP.OpenMemoryDumpFile(f, renew);
-}
-
 #include <miktex/TeXAndFriends/MetafontApp.inl>
+
+inline bool miktexopenbasefile (METAFONTProgram::wordfile& f, bool renew = false)
+{
+  return MFAPP.OpenMemoryDumpFile(f, renew);
+}
 
 int miktexloadpoolstrings(int size);
 
@@ -227,3 +240,4 @@ inline int loadpoolstrings(int size)
 {
   return miktexloadpoolstrings(size);
 }
+

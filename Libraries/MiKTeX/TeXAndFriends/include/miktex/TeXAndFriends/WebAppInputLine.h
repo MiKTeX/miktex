@@ -68,6 +68,10 @@ public:
 public:
   virtual char* buffer() = 0;
 public:
+  virtual C4P::C4P_signed16* buffer16() = 0;
+public:
+  virtual C4P::C4P_signed32* buffer32() = 0;
+public:
   virtual C4P::C4P_signed32& maxbufstack() = 0;
 public:
   virtual void overflow(C4P::C4P_signed32 s, C4P::C4P_integer n) = 0;

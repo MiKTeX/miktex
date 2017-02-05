@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -53,7 +53,7 @@ add_custom_command(
     ${MIKTEX_PREFIX}tie
     -c ${CMAKE_CURRENT_BINARY_DIR}/mf-miktex_2.ch
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mf.web
-    ${mf_changefiles}	
+    ${mf_changefiles}   
   DEPENDS
     ${MIKTEX_PREFIX}tie
     ${CMAKE_CURRENT_SOURCE_DIR}/source/mf.web
@@ -62,21 +62,6 @@ add_custom_command(
 )
 
 set(mf_change_file ${CMAKE_CURRENT_BINARY_DIR}/mf-miktex_2.ch)
-
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/mf_pool.cpp
-  COMMAND
-    inipool
-    ${CMAKE_CURRENT_BINARY_DIR}/mf.pool
-    mf-miktex.h
-    > ${CMAKE_CURRENT_BINARY_DIR}/mf_pool.cpp
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    inipool
-    ${CMAKE_CURRENT_BINARY_DIR}/mf.pool
-)
 
 list(APPEND ${mf_target_name}_sources
   ${CMAKE_CURRENT_BINARY_DIR}/mf_pool.cpp
@@ -88,10 +73,28 @@ set(C4P_FLAGS
 
 create_web_app(METAFONT mf)
 
+add_custom_command(
+  OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/mf_pool.cpp
+  COMMAND
+    inipool
+    ${CMAKE_CURRENT_BINARY_DIR}/mf.pool
+    mf-miktex.h
+    ${mf_progclass}
+    ${mf_prog}
+    > ${CMAKE_CURRENT_BINARY_DIR}/mf_pool.cpp
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_BINARY_DIR}
+  DEPENDS
+    inipool
+    ${CMAKE_CURRENT_BINARY_DIR}/mf.pool
+)
+
 set_source_files_properties(
   ${CMAKE_CURRENT_SOURCE_DIR}/screen.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/mf_pool.cpp
   PROPERTIES COMPILE_FLAGS
-    "-DMIKTEX_METAFONT -DMIKTEX_MF -DMFCLASS=${mf_class} -DMFAPP=${mf_app}"
+    "-DMIKTEX_METAFONT -DMIKTEX_MF -DMFPROGCLASS=${mf_progclass} -DMFPROG=${mf_prog} -DMFAPPCLASS=${mf_appclass} -DMFAPP=${mf_app}"
 )
 
 add_dependencies(${mf_target_name} gen-defaults)

@@ -94,6 +94,18 @@ public:
     return (char*)program.buffer;
   }
 public:
+  C4P::C4P_signed16* buffer16() override
+  {
+    MIKTEX_ASSERT(sizeof(program.buffer[0]) == sizeof(C4P::C4P_signed16));
+    return (C4P::C4P_signed16*)program.buffer;
+  }
+public:
+  C4P::C4P_signed32* buffer32() override
+  {
+    MIKTEX_ASSERT(sizeof(program.buffer[0]) == sizeof(C4P::C4P_signed32));
+    return (C4P::C4P_signed32*)program.buffer;
+  }
+public:
   C4P::C4P_signed32& maxbufstack() override
   {
 #if defined(MIKTEX_TEX_COMPILER) || defined(MIKTEX_TEX_COMPILER)

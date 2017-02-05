@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/TeXMFApp.inl:                   -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -33,14 +33,6 @@
 
 #include "WebAppInputLine.inl"
 
-#if !defined(THEAPP)
-#  error THEAPP not defined
-#endif
-
-#if !defined(THEDATA)
-#  error THEDATA not defined
-#endif
-
 MIKTEXMF_BEGIN_NAMESPACE;
 
 inline bool miktexcstyleerrormessagesp()
@@ -63,11 +55,13 @@ inline int miktexgetjobname()
   return THEAPP.GetJobName();
 }
 
+#if 0
 inline const TEXMFCHAR* miktexgetstringat(int idx)
 {
   MIKTEX_ASSERT(sizeof(TEXMFCHAR) == sizeof(THEDATA(strpool)[idx]));
   return reinterpret_cast<TEXMFCHAR*>(&(THEDATA(strpool)[idx]));
 }
+#endif
 
 inline bool miktexhaltonerrorp()
 {
@@ -76,7 +70,7 @@ inline bool miktexhaltonerrorp()
 
 inline void miktexinitializebuffer()
 {
-  THEDATA(last) = THEAPP.InitializeBuffer(THEDATA(buffer));
+  THEAPP.InitializeBuffer();
 }
 
 inline void miktexinvokeeditor(int editFileName, int editFileNameLength, int editLineNumber, int transcriptFileName, int transcriptFileNameLength)
@@ -114,8 +108,12 @@ inline void miktexontexmfstartjob()
   THEAPP.OnTeXMFStartJob();
 }
 
-#define miktexreallocate(p, n) \
-  THEAPP.Reallocate(#p, p, n, MIKTEX_SOURCE_LOCATION())
+#define miktexreallocate(p, n) miktexreallocate_(#p, p, n, MIKTEX_SOURCE_LOCATION())
+
+template<typename T> T* miktexreallocate_(const std::string& arrayName, T* p, size_t n, const MiKTeX::Core::SourceLocation& sourceLocation)
+{
+  return (T*)THEAPP.GetTeXMFMemoryHandler()->ReallocateArray(arrayName, p, sizeof(*p), n, sourceLocation);
+}
 
 template<typename FileType, typename EleType> inline void miktexdump(FileType& f, const EleType& e, std::size_t n)
 {

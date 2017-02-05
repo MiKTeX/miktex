@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/MetafontApp.h:                  -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -89,61 +89,6 @@ public:
   {
     return MiKTeX::Core::FileType::BASE;
   }
-
-public:
-#if defined(THEDATA)
-  void AllocateMemory()
-  {
-    TeXMFApp::AllocateMemory();
-
-    GETPARAMCHECK(param_bistack_size, bistacksize, bistack_size, mfapp::mfapp::bistack_size());
-    GETPARAMCHECK(param_lig_table_size, ligtablesize, lig_table_size, mfapp::mfapp::lig_table_size());
-    GETPARAMCHECK(param_path_size, pathsize, path_size, mfapp::mfapp::path_size());
-
-    Allocate("bisectstack", THEDATA(bisectstack), THEDATA(bistacksize));
-    Allocate("delta", THEDATA(delta), THEDATA(pathsize));
-    Allocate("deltax", THEDATA(deltax), THEDATA(pathsize));
-    Allocate("deltay", THEDATA(deltay), THEDATA(pathsize));
-    Allocate("ligkern", THEDATA(ligkern), THEDATA(ligtablesize));
-    Allocate("psi", THEDATA(psi), THEDATA(pathsize));
-    if (IsInitProgram() || AmI("mf"))
-    {
-      Allocate("strref", THEDATA(strref), THEDATA(maxstrings));
-    }
-    Allocate("theta", THEDATA(theta), THEDATA(pathsize));
-    Allocate("uu", THEDATA(uu), THEDATA(pathsize));
-    Allocate("vv", THEDATA(vv), THEDATA(pathsize));
-    Allocate("ww", THEDATA(ww), THEDATA(pathsize));
-
-#if defined(TRAPMF)
-    Allocate("free", THEDATA(c4p_free), THEDATA(memmax));
-    Allocate("wasfree", THEDATA(wasfree), THEDATA(memmax));
-#endif
-  }
-#endif // THEDATA
-
-public:
-#if defined(THEDATA)
-  void FreeMemory()
-  {
-    TeXMFApp::FreeMemory();
-    Free(THEDATA(bisectstack));
-    Free(THEDATA(delta));
-    Free(THEDATA(deltax));
-    Free(THEDATA(deltay));
-    Free(THEDATA(ligkern));
-    Free(THEDATA(psi));
-    Free(THEDATA(strref));
-    Free(THEDATA(theta));
-    Free(THEDATA(uu));
-    Free(THEDATA(vv));
-    Free(THEDATA(ww));
-#if defined(TRAPMF)
-    Free(THEDATA(c4p_free));
-    Free(THEDATA(wasfree));
-#endif
-  }
-#endif // THEDATA
 
 private:
   int param_bistack_size;

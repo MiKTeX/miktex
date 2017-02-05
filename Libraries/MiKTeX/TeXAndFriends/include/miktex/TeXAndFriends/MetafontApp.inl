@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/MetafontApp.inl:                -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -28,14 +28,6 @@
 
 #include "TeXMFApp.inl"
 
-#if !defined(THEAPP)
-#  error THEAPP not defined
-#endif
-
-#if !defined(THEDATA)
-#  error THEDATA not defined
-#endif
-
 MIKTEXMF_BEGIN_NAMESPACE;
 
 inline void miktexallocatememory()
@@ -48,30 +40,30 @@ inline void miktexfreememory()
   THEAPP.FreeMemory();
 }
 
-inline C4P_integer makefraction(C4P_integer p, C4P_integer q)
+inline C4P::C4P_integer makefraction(C4P::C4P_integer p, C4P::C4P_integer q)
 {
 #if defined(MIKTEXMFAPI_USE_ASM)
   return MakeFraction(p, q, THEDATA(aritherror));
 #else
-  return makefractionorig(p, q);
+  return MFPROG.makefractionorig(p, q);
 #endif
 }
 
-inline C4P_integer makescaled(C4P_integer p, C4P_integer q)
+inline C4P_integer makescaled(C4P::C4P_integer p, C4P::C4P_integer q)
 {
 #if 0 && defined(MIKTEXMFAPI_USE_ASM)
   return MakeScaled(p, q, THEDATA(aritherror));
 #else
-  return makescaledorig(p, q);
+  return MFPROG.makescaledorig(p, q);
 #endif
 }
 
-inline C4P_integer takefraction(C4P_integer p, C4P_integer q)
+inline C4P_integer takefraction(C4P::C4P_integer p, C4P::C4P_integer q)
 {
 #if defined(MIKTEXMFAPI_USE_ASM)
   return TakeFraction(p, q, THEDATA(aritherror));
 #else
-  return takefractionorig(p, q);
+  return MFPROG.takefractionorig(p, q);
 #endif
 }
 
@@ -80,7 +72,7 @@ inline C4P_integer takescaled(C4P_integer p, C4P_integer q)
 #if defined(MIKTEXMFAPI_USE_ASM)
   return TakeScaled(p, q, THEDATA(aritherror));
 #else
-  return takescaledorig(p, q);
+  return MFPROG.takescaledorig(p, q);
 #endif
 }
 

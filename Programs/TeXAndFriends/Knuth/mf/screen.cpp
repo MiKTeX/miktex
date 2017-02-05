@@ -1,6 +1,6 @@
 /* screen.cpp: METAFONT online displays
 
-   Copyright (C) 1998-2016 Christian Schenk
+   Copyright (C) 1998-2017 Christian Schenk
    Copyright (C) 1998 Wolfgang Kleinschmidt
 
    This file is free software; you can redistribute it and/or modify
@@ -185,7 +185,7 @@ C4P_boolean miktexinitscreen(int w, int h)
   return true;
 }
 
-void miktexblankrectangle(screencol left_col, screencol right_col, screenrow top_row, screenrow bot_row)
+void miktexblankrectangle(METAFONTProgram::screencol left_col, METAFONTProgram::screencol right_col, METAFONTProgram::screenrow top_row, METAFONTProgram::screenrow bot_row)
 {
 #if defined(MIKTEX_TRAPMF)
   return;
@@ -208,14 +208,14 @@ void miktexupdatescreen()
   InvalidateRect(g_hwnd, nullptr, FALSE);
 }
 
-void miktexpaintrow(screenrow r, pixelcolor b, transspec a, screencol n)
+void miktexpaintrow(METAFONTProgram::screenrow r, METAFONTProgram::pixelcolor b, METAFONTProgram::transspec a, METAFONTProgram::screencol n)
 {
 #if defined(MIKTEX_TRAPMF)
   return;
 #endif
   lock_guard<mutex> lockGuard(screenMutex);
   HGDIOBJ hgdiobj = SelectObject(g_hdc, GetStockObject(BLACK_PEN));
-  screencol k = n;
+  METAFONTProgram::screencol k = n;
   MoveToEx(g_hdc, a[k], r, nullptr);
   do
   {

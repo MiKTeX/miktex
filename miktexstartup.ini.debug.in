@@ -4,4 +4,4 @@
 [Paths]
 
 ;; common TEXMF root directories
-CommonInstall=C:\Program Files (x86)\MiKTeX 2.9
+CommonInstall=C:\Program Files\MiKTeX 2.9

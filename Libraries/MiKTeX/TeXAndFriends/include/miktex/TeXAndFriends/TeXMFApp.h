@@ -124,11 +124,13 @@ public:
 class ITeXMFMemoryHandler
 {
 public:
-  virtual void Allocate() = 0;
+  virtual void Allocate(const std::unordered_map<std::string, int>& userParams) = 0;
 public:
   virtual void Free() = 0;
 public:
   virtual void Check() = 0;
+public:
+  virtual void* ReallocateArray(const std::string& arrayName, void* ptr, std::size_t elemSize, std::size_t numElem, const MiKTeX::Core::SourceLocation& sourceLocation) = 0;
 };
 
 #if defined(MIKTEX_TEXMF_UNICODE)
@@ -239,67 +241,15 @@ public:
   }
 #endif
 
-protected:
-  template<typename ValueType> ValueType GetConfigValue(const std::string& valueName, const ValueType& defaultValue) const
+public:
+  virtual void AllocateMemory()
   {
-    std::shared_ptr<MiKTeX::Core::Session> session = GetSession();
-    ValueType value = session->GetConfigValue("", valueName, -1).GetInt();
-    if (value < 0)
-    {
-      value = session->GetConfigValue(GetProgramName(), valueName, defaultValue).GetInt();
-    }
-    return value;
-  }
-
-protected:
-  template<typename ValueType> ValueType GetParameter(const std::string& parameterName, const ValueType& defaultValue, const ValueType& defaultValue2)
-  {
-    ValueType result;
-    if (defaultValue < 0)
-    {
-      result = GetConfigValue(parameterName, defaultValue2);
-    }
-    else
-    {
-      result = defaultValue;
-    }
-    if (trace_mem->IsEnabled())
-    {
-      trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Parameter %s: %d"), parameterName.c_str(), (int)result);
-    }
-    return result;
-  }
-
-protected:
-  template<typename ValueType> ValueType GetCheckedParameter(const std::string& parameterName, const ValueType& minValue, const ValueType& maxValue, const ValueType& defaultValue, const ValueType& defaultValue2)
-  {
-    ValueType result;
-    if (defaultValue < 0)
-    {
-      result = GetConfigValue(parameterName, defaultValue2);
-    }
-    else
-    {
-      result = defaultValue;
-    }
-    if (result < minValue || result > maxValue)
-    {
-      MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("Bad parameter value."), "parameterName", parameterName);
-    }
-    if (trace_mem->IsEnabled())
-    {
-      trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Parameter %s: %d"), parameterName.c_str(), (int)result);
-    }
+    std::unordered_map<std::string, int> params;
+    GetTeXMFMemoryHandler()->Allocate(params);
   }
 
 public:
-  void AllocateMemory()
-  {
-    GetTeXMFMemoryHandler()->Allocate();
-  }
-
-public:
-  void FreeMemory()
+  virtual void FreeMemory()
   {
     GetTeXMFMemoryHandler()->Free();
   }
@@ -342,13 +292,20 @@ public:
   MIKTEXMFTHISAPI(bool) HaltOnErrorP() const;
 
 public:
-  MIKTEXMFTHISAPI(unsigned long) InitializeBuffer(unsigned char* buffer);
+  MIKTEXMFTHISAPI(unsigned long) InitializeBuffer(char* buffer);
 
 public:
-  MIKTEXMFTHISAPI(unsigned long) InitializeBuffer(unsigned short* buffer);
+  MIKTEXMFTHISAPI(unsigned long) InitializeBuffer(C4P::C4P_signed16* buffer);
 
 public:
   MIKTEXMFTHISAPI(unsigned long) InitializeBuffer(C4P::C4P_signed32* buffer);
+
+public:
+  void InitializeBuffer()
+  {
+    IInputOutput* inout = GetInputOutput();
+    inout->last() = InitializeBuffer(inout->buffer());
+  }
 
 public:
   TEXMFCHAR* GetTeXString(TEXMFCHAR* dest, std::size_t destSize, int stringStart, int stringLength) const
@@ -568,9 +525,6 @@ protected:
 protected:
   MIKTEXMFTHISAPI(bool) AmITeXCompiler() const;
 
-protected:
-  std::unique_ptr<MiKTeX::Trace::TraceStream> trace_mem;
-
 private:
   std::string jobName;
 
@@ -638,17 +592,6 @@ private:
   class impl;
   std::unique_ptr<impl> pimpl;
 };
-
-template<> inline std::string TeXMFApp::GetConfigValue(const std::string& valueName, const std::string& defaultValue) const
-{
-  std::shared_ptr<MiKTeX::Core::Session> session = GetSession();
-  std::string value = session->GetConfigValue("", valueName, "").GetString();
-  if (value.empty())
-  {
-    value = session->GetConfigValue(GetProgramName(), valueName, defaultValue).GetString();
-  }
-  return value;
-}
 
 MIKTEXMF_END_NAMESPACE;
 
