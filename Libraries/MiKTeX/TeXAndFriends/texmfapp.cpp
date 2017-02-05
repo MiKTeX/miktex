@@ -59,6 +59,8 @@ public:
   IErrorHandler* errorHandler = nullptr;
 public:
   ITeXMFMemoryHandler* memoryHandler = nullptr;
+public:
+  UserParams userParams;
 };
 
 TeXMFApp::TeXMFApp() :
@@ -115,26 +117,14 @@ void TeXMFApp::Init(const string & programInvocationName)
 
   pimpl->trace_time = TraceStream::Open(MIKTEX_TRACE_TIME);
 
+  pimpl->userParams.clear();
+
   pimpl->clockStart = clock();
   pimpl->disableExtensions = false;
   pimpl->haltOnError = false;
   pimpl->interactionMode = -1;
   pimpl->isInitProgram = false;
   pimpl->isTeXProgram = false;
-  param_buf_size = -1;
-  param_error_line = -1;
-  param_extra_mem_bot = -1;
-  param_extra_mem_top = -1;
-  param_half_error_line = -1;
-  param_max_print_line = -1;
-  param_max_strings = -1;
-  param_main_memory = -1;
-  param_param_size = -1;
-  param_pool_free = -1;
-  param_pool_size = -1;
-  param_stack_size = -1;
-  param_strings_free = -1;
-  param_string_vacancies = -1;
   pimpl->parseFirstLine = false;
   pimpl->recordFileNames = false;
   pimpl->setJobTime = false;
@@ -378,7 +368,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
   }
 
   case OPT_BUF_SIZE:
-    param_buf_size = std::stoi(optArg);
+    pimpl->userParams["buf_size"] = std::stoi(optArg);
     break;
 
   case OPT_C_STYLE_ERRORS:
@@ -390,19 +380,19 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     break;
 
   case OPT_ERROR_LINE:
-    param_error_line = std::stoi(optArg);
+    pimpl->userParams["error_line"] = std::stoi(optArg);
     break;
 
   case OPT_EXTRA_MEM_BOT:
-    param_extra_mem_bot = std::stoi(optArg);
+    pimpl->userParams["extra_mem_bot"] = std::stoi(optArg);
     break;
 
   case OPT_EXTRA_MEM_TOP:
-    param_extra_mem_top = std::stoi(optArg);
+    pimpl->userParams["extra_mem_top"] = std::stoi(optArg);
     break;
 
   case OPT_HALF_ERROR_LINE:
-    param_half_error_line = std::stoi(optArg);
+    pimpl->userParams["half_error_line"] = std::stoi(optArg);
     break;
 
   case OPT_HALT_ON_ERROR:
@@ -479,15 +469,15 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
   break;
 
   case OPT_MAIN_MEMORY:
-    param_main_memory = std::stoi(optArg);
+    pimpl->userParams["main_memory"] = std::stoi(optArg);
     break;
 
   case OPT_MAX_PRINT_LINE:
-    param_max_print_line = std::stoi(optArg);
+    pimpl->userParams["max_print_line"] = std::stoi(optArg);
     break;
 
   case OPT_MAX_STRINGS:
-    param_max_strings = std::stoi(optArg);
+    pimpl->userParams["max_strings"] = std::stoi(optArg);
     break;
 
   case OPT_TIME_STATISTICS:
@@ -523,7 +513,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
   }
 
   case OPT_PARAM_SIZE:
-    param_param_size = std::stoi(optArg);
+    pimpl->userParams["param_size"] = std::stoi(optArg);
     break;
 
   case OPT_PARSE_FIRST_LINE:
@@ -531,11 +521,11 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     break;
 
   case OPT_POOL_FREE:
-    param_pool_free = std::stoi(optArg);
+    pimpl->userParams["pool_free"] = std::stoi(optArg);
     break;
 
   case OPT_POOL_SIZE:
-    param_pool_size = std::stoi(optArg);
+    pimpl->userParams["pool_size"] = std::stoi(optArg);
     break;
 
   case OPT_QUIET:
@@ -548,7 +538,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     break;
 
   case OPT_STACK_SIZE:
-    param_stack_size = std::stoi(optArg);
+    pimpl->userParams["stack_size"] = std::stoi(optArg);
     break;
 
   case OPT_STRICT:
@@ -557,7 +547,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     break;
 
   case OPT_STRING_VACANCIES:
-    param_string_vacancies = std::stoi(optArg);
+    pimpl->userParams["string_vacancies"] = std::stoi(optArg);
     break;
 
   case OPT_TCX:
@@ -1002,4 +992,16 @@ void TeXMFApp::SetTeXMFMemoryHandler(ITeXMFMemoryHandler* memoryHandler)
 ITeXMFMemoryHandler* TeXMFApp::GetTeXMFMemoryHandler() const
 {
   return pimpl->memoryHandler;
+}
+
+TeXMFApp::UserParams& TeXMFApp::GetUserParams() const
+{
+  return pimpl->userParams;
+}
+
+void TeXMFApp::OnKeybordInterrupt(int)
+{
+  signal(SIGINT, SIG_IGN);
+  ((TeXMFApp*)GetApplication())->GetErrorHandler()->interrupt() = 1;
+  signal(SIGINT, OnKeybordInterrupt);
 }

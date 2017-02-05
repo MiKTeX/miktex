@@ -91,15 +91,6 @@ public:
   }
 
 private:
-  int param_bistack_size;
-
-private:
-  int param_lig_table_size;
-
-private:
-  int param_path_size;
-
-private:
   class impl;
   std::unique_ptr<impl> pimpl;
 };

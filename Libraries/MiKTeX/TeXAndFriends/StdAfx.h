@@ -23,6 +23,7 @@
 #  pragma once
 #endif
 
+#include <csignal>
 #include <cstdlib>
 #include <ctime>
 

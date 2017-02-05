@@ -1,6 +1,6 @@
-/* texapp.cpp:
+/* mfapp.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -41,9 +41,6 @@ MetafontApp::~MetafontApp() noexcept
 void MetafontApp::Init(const string & programInvocationName)
 {
   TeXMFApp::Init(programInvocationName);
-  param_bistack_size = -1;
-  param_lig_table_size = -1;
-  param_path_size = -1;
 }
 
 void MetafontApp::Finalize()
@@ -66,19 +63,19 @@ void MetafontApp::AddOptions()
   AddOption(T_("path-size\0Set path_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_PATH_SIZE, POPT_ARG_STRING, "N");
 }
 
-bool MetafontApp::ProcessOption(int opt, const string & optArg)
+bool MetafontApp::ProcessOption(int opt, const string& optArg)
 {
   bool done = true;
   switch (opt - FIRST_OPTION_VAL - pimpl->optBase)
   {
   case OPT_BISTACK_SIZE:
-    param_bistack_size = std::stoi(optArg);
+    GetUserParams()["bistack_size"] = std::stoi(optArg);
     break;
   case OPT_LIG_TABLE_SIZE:
-    param_lig_table_size = std::stoi(optArg);
+    GetUserParams()["lig_table_size"] = std::stoi(optArg);
     break;
   case OPT_PATH_SIZE:
-    param_path_size = std::stoi(optArg);
+    GetUserParams()["path_size"] = std::stoi(optArg);
     break;
   default:
     done = TeXMFApp::ProcessOption(opt, optArg);

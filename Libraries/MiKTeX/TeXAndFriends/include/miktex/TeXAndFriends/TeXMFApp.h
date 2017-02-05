@@ -29,7 +29,6 @@
 #include <memory>
 #include <string>
 
-#include <csignal>
 #include <cstddef>
 
 #include <miktex/Core/BufferSizes>
@@ -244,8 +243,7 @@ public:
 public:
   virtual void AllocateMemory()
   {
-    std::unordered_map<std::string, int> params;
-    GetTeXMFMemoryHandler()->Allocate(params);
+    GetTeXMFMemoryHandler()->Allocate(GetUserParams());
   }
 
 public:
@@ -316,7 +314,7 @@ public:
     }
     IStringHandler* stringHandler = GetStringHandler();
 #if defined(MIKTEX_TEXMF_UNICODE)
-    wchar_t* strpool = stringHandler->strpoolw();
+    wchar_t* strpool = stringHandler->wstrpool();
 #else
     char* strpool = stringHandler->strpool();
 #endif
@@ -512,12 +510,7 @@ private:
   MIKTEXMFTHISAPI(void) CheckFirstLine(const MiKTeX::Core::PathName& fileName);
 
 public:
-  static void MIKTEXCEECALL OnKeybordInterrupt(int)
-  {
-    signal(SIGINT, SIG_IGN);
-    ((TeXMFApp*)GetApplication())->GetErrorHandler()->interrupt() = 1;
-    signal(SIGINT, OnKeybordInterrupt);
-  }
+  static MIKTEXMFCEEAPI(void) OnKeybordInterrupt(int);
 
 protected:
   MIKTEXMFTHISAPI(void) SetTeX();
@@ -528,47 +521,11 @@ protected:
 private:
   std::string jobName;
 
-private:
-  int param_buf_size;
+public:
+  typedef std::unordered_map<std::string, int> UserParams;
 
-private:
-  int param_error_line;
-
-private:
-  int param_extra_mem_bot;
-
-private:
-  int param_extra_mem_top;
-
-private:
-  int param_half_error_line;
-
-private:
-  int param_main_memory;
-
-private:
-  int param_max_print_line;
-
-private:
-  int param_max_strings;
-
-private:
-  int param_param_size;
-
-private:
-  int param_pool_free;
-
-private:
-  int param_pool_size;
-
-private:
-  int param_stack_size;
-
-private:
-  int param_strings_free;
-
-private:
-  int param_string_vacancies;
+public:
+  MIKTEXMFTHISAPI(UserParams&) GetUserParams() const;
 
 public:
   MIKTEXMFTHISAPI(void) SetStringHandler(IStringHandler* stringHandler);

@@ -1,7 +1,7 @@
 /* inipool.cpp: WEB pool to C (based on makecpool)
 
-   Copyright (C) 2007, 2008 Taco Hoekwater.
    Copyright (C) 2008-2017 Christian Schenk
+   Copyright (C) 2007, 2008 Taco Hoekwater.
 
    You may freely use, modify and/or distribute this file. */
 
@@ -53,6 +53,7 @@ int main(int argc, char* argv[])
 \n\
 extern %s %s;\n\
 #define PROG %s\n\
+\n\
 static const char* poolfilearr[] = {\n",
 argv[0],
 filename,
@@ -100,13 +101,15 @@ progname);
   }
   fclose(fh);
   printf("\
-  0 };\n\
+  nullptr\n\
+};\n\
+\n\
 int miktexloadpoolstrings(int poolSize)\n\
 {\n\
   const char* lpsz;\n\
   int g = 0;\n\
   int size = 0;\n\
-  for (int idx = 0; (lpsz = poolfilearr[idx]) != nullptr; ++ idx)\n\
+  for (int idx = 0; (lpsz = poolfilearr[idx]) != nullptr; ++idx)\n\
   {\n\
     int len = strlen(lpsz);\n\
     size += len;\n\

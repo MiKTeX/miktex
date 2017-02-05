@@ -1,6 +1,6 @@
 /* texapp.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -28,6 +28,8 @@
 class TeXApp::impl
 {
 public:
+  int optBase;
+public:
   Write18Mode write18Mode = Write18Mode::Disabled;
 public:
   bool enableMLTeX;
@@ -37,6 +39,8 @@ public:
   int synchronizationOptions;
 public:
   bitset<32> sourceSpecials;
+public:
+  IFormatHandler* formatHandler;
 };
 
 TeXApp::TeXApp() :
@@ -58,16 +62,6 @@ void TeXApp::Init(const string & programInvocationName)
   pimpl->enableMLTeX = false;
   pimpl->write18Mode = Write18Mode::Disabled;
   lastLineNum = -1;
-  param_font_max = -1;
-  param_font_mem_size = -1;
-  param_hyph_size = -1;
-  param_max_in_open = -1;
-  param_mem_bot = -1;
-  param_nest_size = -1;
-  param_save_size = -1;
-  param_trie_op_size = -1;
-  param_trie_size = -1;
-  param_hash_extra = -1;
 # define SYNCTEX_NO_OPTION INT_MAX
   pimpl->synchronizationOptions = SYNCTEX_NO_OPTION;
 
@@ -134,45 +128,45 @@ void TeXApp::AddOptions()
 {
   TeXMFApp::AddOptions();
 
-  optBase = static_cast<int>(GetOptions().size());
+  pimpl->optBase = static_cast<int>(GetOptions().size());
 
   AddOption(T_("disable-write18\0Disable the \\write18{COMMAND} construct."),
-    FIRST_OPTION_VAL + optBase + OPT_DISABLE_WRITE18);
+    FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_WRITE18);
 
   AddOption(T_("enable-enctex\0Enable EncTeX extensions such as \\mubyte."),
-    FIRST_OPTION_VAL + optBase + OPT_ENABLE_ENCTEX);
+    FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_ENCTEX);
 
   AddOption(T_("enable-mltex\0Enable MLTeX extensions such as \\charsubdef."),
-    FIRST_OPTION_VAL + optBase + OPT_ENABLE_MLTEX);
+    FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_MLTEX);
 
   AddOption(T_("enable-write18\0Enable the \\write18{COMMAND} construct."),
-    FIRST_OPTION_VAL + optBase + OPT_ENABLE_WRITE18);
+    FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_WRITE18);
 
   AddOption(T_("hash-extra\0Set hash_extra to N."),
-    FIRST_OPTION_VAL + optBase + OPT_HASH_EXTRA,
+    FIRST_OPTION_VAL + pimpl->optBase + OPT_HASH_EXTRA,
     POPT_ARG_STRING,
     "N");
 
   AddOption(T_("max-in-open\0Set max_in_open to N."),
-    FIRST_OPTION_VAL + optBase + OPT_MAX_IN_OPEN,
+    FIRST_OPTION_VAL + pimpl->optBase + OPT_MAX_IN_OPEN,
     POPT_ARG_STRING,
     "N");
 
   AddOption(T_("mem-bot\0Set mem_bot to 0 or 1."),
-    FIRST_OPTION_VAL + optBase + OPT_MEM_BOT,
+    FIRST_OPTION_VAL + pimpl->optBase + OPT_MEM_BOT,
     POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN,
     "N");
 
   AddOption(T_("nest-size\0Set nest_size to N."),
-    FIRST_OPTION_VAL + optBase + OPT_NEST_SIZE,
+    FIRST_OPTION_VAL + pimpl->optBase + OPT_NEST_SIZE,
     POPT_ARG_STRING,
     "N");
 
   AddOption(T_("restrict-write18\0Partially enable the \\write18{COMMAND} construct."),
-    FIRST_OPTION_VAL + optBase + OPT_RESTRICT_WRITE18);
+    FIRST_OPTION_VAL + pimpl->optBase + OPT_RESTRICT_WRITE18);
 
   AddOption(T_("save-size\0Set save_size to N."),
-    FIRST_OPTION_VAL + optBase + OPT_SAVE_SIZE,
+    FIRST_OPTION_VAL + pimpl->optBase + OPT_SAVE_SIZE,
     POPT_ARG_STRING,
     "N");
 
@@ -180,7 +174,7 @@ void TeXApp::AddOptions()
   if (AmI("xetex") || AmI("pdftex"))
   {
     AddOption(T_("synctex\0Generate SyncTeX data for previewers if nonzero."),
-      FIRST_OPTION_VAL + optBase + OPT_SYNCTEX,
+      FIRST_OPTION_VAL + pimpl->optBase + OPT_SYNCTEX,
       POPT_ARG_STRING,
       "N");
 
@@ -188,18 +182,18 @@ void TeXApp::AddOptions()
 #endif
 
   AddOption(T_("trie-size\0Set trie_size to N."),
-    FIRST_OPTION_VAL + optBase + OPT_TRIE_SIZE,
+    FIRST_OPTION_VAL + pimpl->optBase + OPT_TRIE_SIZE,
     POPT_ARG_STRING,
     "N");
 
   if (!AmI("omega"))
   {
     AddOption(T_("font-max\0Set font_max to N."),
-      FIRST_OPTION_VAL + optBase + OPT_FONT_MAX,
+      FIRST_OPTION_VAL + pimpl->optBase + OPT_FONT_MAX,
       POPT_ARG_STRING,
       "N");
     AddOption(T_("font-mem-size\0Set font_mem_size to N."),
-      FIRST_OPTION_VAL + optBase + OPT_FONT_MEM_SIZE,
+      FIRST_OPTION_VAL + pimpl->optBase + OPT_FONT_MEM_SIZE,
       POPT_ARG_STRING,
       "N");
   }
@@ -208,19 +202,19 @@ void TeXApp::AddOptions()
   if (AmI("omega"))
   {
     AddOption(T_("trie-op-size\0Set trie_op_size to N."),
-      FIRST_OPTION_VAL + optBase + OPT_TRIE_OP_SIZE,
+      FIRST_OPTION_VAL + pimpl->optBase + OPT_TRIE_OP_SIZE,
       POPT_ARG_STRING,
       "N");
   }
 
 #if EXPERT_SRC_SPECIALS
   AddOption((T_("src-specials\0Insert source specials in certain places of the DVI file.  WHERE is a comma-separated value list of: cr display hbox math par parend vbox.")),
-    FIRST_OPTION_VAL + optBase + OPT_SRC_SPECIALS,
+    FIRST_OPTION_VAL + pimpl->optBase + OPT_SRC_SPECIALS,
     POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL,
     "WHERE");
 #else
   AddOption((T_("src-specials\0Insert source specials in certain places of the DVI file.")),
-    FIRST_OPTION_VAL + optBase + OPT_SRC_SPECIALS);
+    FIRST_OPTION_VAL + pimpl->optBase + OPT_SRC_SPECIALS);
 #endif
 
   // obsolete options
@@ -248,10 +242,10 @@ void TeXApp::AddOptions()
 
 extern bool inParseFirstLine;
 
-bool TeXApp::ProcessOption(int optchar, const string & optArg)
+bool TeXApp::ProcessOption(int optchar, const string& optArg)
 {
   bool done = true;
-  switch (optchar - FIRST_OPTION_VAL - optBase)
+  switch (optchar - FIRST_OPTION_VAL - pimpl->optBase)
   {
   case OPT_DISABLE_WRITE18:
     pimpl->write18Mode = Write18Mode::Disabled;
@@ -266,19 +260,19 @@ bool TeXApp::ProcessOption(int optchar, const string & optArg)
     pimpl->write18Mode = Write18Mode::PartiallyEnabled;
     break;
   case OPT_FONT_MAX:
-    param_font_max = std::stoi(optArg);
+    GetUserParams()["font_max"] = std::stoi(optArg);
     break;
   case OPT_FONT_MEM_SIZE:
-    param_font_mem_size = std::stoi(optArg);
+    GetUserParams()["font_mem_size"] = std::stoi(optArg);
     break;
   case OPT_HASH_EXTRA:
-    param_hash_extra = std::stoi(optArg);
+    GetUserParams()["hash_extra"] = std::stoi(optArg);
     break;
   case OPT_MAX_IN_OPEN:
-    param_max_in_open = std::stoi(optArg);
+    GetUserParams()["max_in_open"] = std::stoi(optArg);
     break;
   case OPT_MEM_BOT:
-    param_mem_bot = std::stoi(optArg);
+    GetUserParams()["mem_bot"] = std::stoi(optArg);
     break;
   case OPT_ENABLE_ENCTEX:
     pimpl->enableEncTeX = true;
@@ -287,10 +281,10 @@ bool TeXApp::ProcessOption(int optchar, const string & optArg)
     pimpl->enableMLTeX = true;
     break;
   case OPT_NEST_SIZE:
-    param_nest_size = std::stoi(optArg);
+    GetUserParams()["nest_size"] = std::stoi(optArg);
     break;
   case OPT_SAVE_SIZE:
-    param_save_size = std::stoi(optArg);
+    GetUserParams()["save_size"] = std::stoi(optArg);
     break;
   case OPT_SRC_SPECIALS:
 #if EXPERT_SRC_SPECIALS
@@ -307,41 +301,41 @@ bool TeXApp::ProcessOption(int optchar, const string & optArg)
       Tokenizer tok(optArg, ", ");
       while (tok)
       {
-	if (*tok == "everypar" || *tok == "par")
-	{
-	  pimpl->sourceSpecials[(size_t)SourceSpecial::Auto] = true;
-	  pimpl->sourceSpecials[(size_t)SourceSpecial::Paragraph] = true;
-	}
-	else if (*tok == "everyparend" || *tok == "parend")
-	{
-	  pimpl->sourceSpecials[(size_t)SourceSpecial::ParagraphEnd] = true;
-	}
-	else if (*tok == "everycr" || *tok == "cr")
-	{
-	  pimpl->sourceSpecials[(size_t)SourceSpecial::CarriageReturn] = true;
-	}
-	else if (*tok == "everymath" || *tok == "math")
-	{
-	  pimpl->sourceSpecials[(size_t)SourceSpecial::Math] = true;
-	}
-	else if (*tok == "everyhbox" || *tok == "hbox")
-	{
-	  pimpl->sourceSpecials[(size_t)SourceSpecial::HorizontalBox] = true;
-	}
-	else if (*tok == "everyvbox" || *tok == "vbox")
-	{
-	  pimpl->sourceSpecials[(size_t)SourceSpecial::VerticalBox] = true;
-	}
-	else if (*tok == "everydisplay" || *tok == "display")
-	{
-	  pimpl->sourceSpecials[(size_t)SourceSpecial::Display] = true;
-	}
-	else
-	{
-	  MIKTEX_FATAL_ERROR_2(T_("Unknown source special."), "special", *tok);
-	}
-	++tok;
-	}
+        if (*tok == "everypar" || *tok == "par")
+        {
+          pimpl->sourceSpecials[(size_t)SourceSpecial::Auto] = true;
+          pimpl->sourceSpecials[(size_t)SourceSpecial::Paragraph] = true;
+        }
+        else if (*tok == "everyparend" || *tok == "parend")
+        {
+          pimpl->sourceSpecials[(size_t)SourceSpecial::ParagraphEnd] = true;
+        }
+        else if (*tok == "everycr" || *tok == "cr")
+        {
+          pimpl->sourceSpecials[(size_t)SourceSpecial::CarriageReturn] = true;
+        }
+        else if (*tok == "everymath" || *tok == "math")
+        {
+          pimpl->sourceSpecials[(size_t)SourceSpecial::Math] = true;
+        }
+        else if (*tok == "everyhbox" || *tok == "hbox")
+        {
+          pimpl->sourceSpecials[(size_t)SourceSpecial::HorizontalBox] = true;
+        }
+        else if (*tok == "everyvbox" || *tok == "vbox")
+        {
+          pimpl->sourceSpecials[(size_t)SourceSpecial::VerticalBox] = true;
+        }
+        else if (*tok == "everydisplay" || *tok == "display")
+        {
+          pimpl->sourceSpecials[(size_t)SourceSpecial::Display] = true;
+        }
+        else
+        {
+          MIKTEX_FATAL_ERROR_2(T_("Unknown source special."), "special", *tok);
+        }
+        ++tok;
+        }
       }
 #endif // EXPERT_SRC_SPECIALS
     break;
@@ -350,10 +344,10 @@ bool TeXApp::ProcessOption(int optchar, const string & optArg)
     break;
 
   case OPT_TRIE_SIZE:
-    param_trie_size = std::stoi(optArg);
+    GetUserParams()["trie_size"] = std::stoi(optArg);
     break;
   case OPT_TRIE_OP_SIZE:
-    param_trie_op_size = std::stoi(optArg);
+    GetUserParams()["trie_op_size"] = std::stoi(optArg);
     break;
   default:
     done = TeXMFApp::ProcessOption(optchar, optArg);
@@ -412,7 +406,7 @@ bool ParseCommand(const string & command, string & quotedCommand, string & execu
     {
       if (!startOfArg)
       {
-	quotedCommand += QUOTE;
+        quotedCommand += QUOTE;
       }
       startOfArg = false;
       quotedCommand += QUOTE;
@@ -420,21 +414,21 @@ bool ParseCommand(const string & command, string & quotedCommand, string & execu
       while (it != command.end() && *it != '"')
       {
 #if defined(MIKTEX_WINDOWS)
-	if (NeedsEscape(*it))
-	{
-	  quotedCommand += '^';
-	}
+        if (NeedsEscape(*it))
+        {
+          quotedCommand += '^';
+        }
 #endif
-	quotedCommand += *it++;
+        quotedCommand += *it++;
       }
       if (it == command.end())
       {
-	return false;
+        return false;
       }
       ++it;
       if (it != command.end() && !(*it == ' ' || *it == '\t'))
       {
-	return false;
+        return false;
       }
   }
     else if (startOfArg && !(*it == ' ' || *it == '\t'))
@@ -444,7 +438,7 @@ bool ParseCommand(const string & command, string & quotedCommand, string & execu
 #if defined(MIKTEX_WINDOWS)
       if (NeedsEscape(*it))
       {
-	quotedCommand += '^';
+        quotedCommand += '^';
       }
 #endif
       quotedCommand += *it++;
@@ -460,7 +454,7 @@ bool ParseCommand(const string & command, string & quotedCommand, string & execu
 #if defined(MIKTEX_WINDOWS)
       if (NeedsEscape(*it))
       {
-	quotedCommand += '^';
+        quotedCommand += '^';
       }
 #endif
       quotedCommand += *it++;
@@ -503,14 +497,14 @@ TeXApp::Write18Result TeXApp::Write18(const string& command_, int &exitCode) con
       shared_ptr<Session> session = GetSession();
       bool allowed = StringUtil::Contains(session->GetConfigValue("", MIKTEX_REGVAL_ALLOWED_SHELL_COMMANDS, texapp::texapp::AllowedShellCommands()).GetString().c_str(), executable.c_str(), ",;:",
 #if defined(MIKTEX_WINDOWS)
-	true
+        true
 #else
-	false
+        false
 #endif
-	);
+        );
       if (!allowed)
       {
-	return Write18Result::Disallowed;
+        return Write18Result::Disallowed;
       }
     }
     result = Write18Result::ExecutedAllowed;
@@ -560,3 +554,14 @@ bool TeXApp::IsSourceSpecialOn(SourceSpecial s) const
 {
   return pimpl->sourceSpecials[(std::size_t)s];
 }
+
+void TeXApp::SetFormatHandler(IFormatHandler* formatHandler)
+{
+  pimpl->formatHandler = formatHandler;
+}
+
+IFormatHandler* TeXApp::GetFormatHandler() const
+{
+  return pimpl->formatHandler;
+}
+

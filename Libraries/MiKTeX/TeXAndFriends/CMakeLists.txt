@@ -62,6 +62,8 @@ set(public_headers_texmf
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ETeXApp.inl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ErrorHandlerImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ErrorHandlerImpl.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/FormatHandlerImpl
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/FormatHandlerImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/InitFinalizeImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/InitFinalizeImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/InputOutputImpl
@@ -83,6 +85,8 @@ set(public_headers_texmf
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMFApp.inl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMFMemoryHandlerImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMFMemoryHandlerImpl.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMemoryHandlerImpl
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMemoryHandlerImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/WebApp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/WebApp.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/WebApp.inl

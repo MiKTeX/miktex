@@ -22,8 +22,9 @@
 #endif
 
 #include <miktex/Core/FileType>
-
-#include <miktex/TeXAndFriends/config.h>
+#include <miktex/TeXAndFriends/CharacterConverterImpl>
+#include <miktex/TeXAndFriends/InitFinalizeImpl>
+#include <miktex/TeXAndFriends/InputOutputImpl>
 #include <miktex/TeXAndFriends/MetafontApp>
 #include <miktex/TeXAndFriends/MetafontMemoryHandlerImpl>
 
@@ -49,51 +50,41 @@ namespace mf {
 #  include <miktex/Core/Help>
 #endif
 
-class MemoryHandlerImpl : public MiKTeX::TeXAndFriends::MetafontMemoryHandlerImpl<METAFONTProgram>
+extern MFPROGCLASS MFPROG;
+
+class MemoryHandlerImpl :
+  public MiKTeX::TeXAndFriends::MetafontMemoryHandlerImpl<MFPROGCLASS>
 {
 public:
-  MemoryHandlerImpl(METAFONTProgram& program, MiKTeX::TeXAndFriends::TeXMFApp& mfapp) :
+  MemoryHandlerImpl(MFPROGCLASS& program, MiKTeX::TeXAndFriends::TeXMFApp& mfapp) :
     MetafontMemoryHandlerImpl(program, mfapp)
   {
   }
+
 public:
   void Allocate(const std::unordered_map<std::string, int>& userParams) override
   {
     MetafontMemoryHandlerImpl::Allocate(userParams);
-#if 1
-    MIKTEX_UNEXPECTED();
-#else
-
-    GETPARAMCHECK(m_max_wiggle, maxwiggle, max_wiggle, mf::mf::max_wiggle());
-    GETPARAMCHECK(m_move_size, movesize, move_size, mf::mf::move_size());
-    Allocate("after", THEDATA(after), THEDATA(maxwiggle));
-    Allocate("before", THEDATA(before), THEDATA(maxwiggle));
-    Allocate("envmove", THEDATA(envmove), THEDATA(movesize));
-    Allocate("move", THEDATA(move), THEDATA(movesize));
-    Allocate("nodetoround", THEDATA(nodetoround), THEDATA(maxwiggle));
-#endif
+    program.maxwiggle = GetCheckedParameter("max_wiggle", program.infmaxwiggle, program.supmaxwiggle, userParams, mf::mf::max_wiggle());
+    program.movesize = GetCheckedParameter("move_size", program.infmovesize, program.supmovesize, userParams, mf::mf::move_size());
+    AllocateArray("after", program.after, program.maxwiggle);
+    AllocateArray("before", program.before, program.maxwiggle);
+    AllocateArray("envmove", program.envmove, program.movesize);
+    AllocateArray("move", program.move, program.movesize);
+    AllocateArray("nodetoround", program.nodetoround, program.maxwiggle);
   }
+
 public:
   void Free() override
   {
     MetafontMemoryHandlerImpl::Free();
-#if 0
-        GetTeXMFMemoryHandler()->Free();
-    MetafontApp::FreeMemory();
-    Free(THEDATA(after));
-    Free(THEDATA(before));
-    Free(THEDATA(envmove));
-    Free(THEDATA(move));
-    Free(THEDATA(nodetoround));
-#endif
+    FreeArray("", program.after);
+    FreeArray("", program.before);
+    FreeArray("", program.envmove);
+    FreeArray("", program.move);
+    FreeArray("", program.nodetoround);
   }
 };
-
-using namespace MiKTeX::Core;
-using namespace MiKTeX::TeXAndFriends;
-using namespace std;
-
-extern MFPROGCLASS MFPROG;
 
 #if defined(MIKTEX_TRAPMF)
 class TRAPMFAPPCLASS
@@ -101,17 +92,17 @@ class TRAPMFAPPCLASS
 class MFAPPCLASS
 #endif
 
-  : public MetafontApp
+  : public MiKTeX::TeXAndFriends::MetafontApp
 
 {
-public:
-#if defined(MIKTEX_TRAPMF)
-  TRAPMFAPPCLASS()
-#else
-  MFAPPCLASS()
-#endif
-  {
-  }
+private:
+  MiKTeX::TeXAndFriends::CharacterConverterImpl<METAFONTProgram> charConv{ MFPROG };
+
+private:
+  MiKTeX::TeXAndFriends::InitFinalizeImpl<METAFONTProgram> initFinalize{ MFPROG };
+
+private:
+  MiKTeX::TeXAndFriends::InputOutputImpl<METAFONTProgram> inputOutput{ MFPROG };
 
 private:
   MemoryHandlerImpl memoryHandler { MFPROG, *this };
@@ -119,15 +110,16 @@ private:
 public:
   void Init(const std::string& programInvocationName) override
   {
+    SetCharacterConverter(&charConv);
+    SetInitFinalize(&initFinalize);
+    SetInputOutput(&inputOutput);
     SetTeXMFMemoryHandler(&memoryHandler);
     MetafontApp::Init(programInvocationName);
     SetProgramInfo("mf", "", "", "");
 #ifdef IMPLEMENT_TCX
-    EnableFeature(Feature::TCX);
+    EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
 #endif
-    m_bScreen = false;
-    m_max_wiggle = -1;
-    m_move_size = -1;
+    screenEnabled = false;
   }
 
   enum {
@@ -140,26 +132,26 @@ public:
   void AddOptions() override
   {
     MetafontApp::AddOptions();
-    AddOption ("base", "undump");
-    AddOption (MIKTEXTEXT("max-wiggle\0Set max_wiggle to N."), OPT_MAX_WIGGLE, POPT_ARG_STRING, "N");
-    AddOption (MIKTEXTEXT("move-size\0Set move_size to N."), OPT_MOVE_SIZE, POPT_ARG_STRING, "N");
-    AddOption (MIKTEXTEXT("screen\0Enable screen output."), OPT_SCREEN);
+    AddOption("base", "undump");
+    AddOption(MIKTEXTEXT("max-wiggle\0Set max_wiggle to N."), OPT_MAX_WIGGLE, POPT_ARG_STRING, "N");
+    AddOption(MIKTEXTEXT("move-size\0Set move_size to N."), OPT_MOVE_SIZE, POPT_ARG_STRING, "N");
+    AddOption(MIKTEXTEXT("screen\0Enable screen output."), OPT_SCREEN);
   }
 
 public:
-  bool ProcessOption(int opt, const std::string & optArg) override
+  bool ProcessOption(int opt, const std::string& optArg) override
   {
     bool done = true;
     switch (opt)
       {
       case OPT_MAX_WIGGLE:
-        m_max_wiggle = std::stoi(optArg);
+        GetUserParams()["max_wiggle"] = std::stoi(optArg);
         break;
       case OPT_MOVE_SIZE:
-        m_move_size = std::stoi(optArg);
+        GetUserParams()["move_size"] = std::stoi(optArg);
         break;
       case OPT_SCREEN:
-        m_bScreen = true;
+        screenEnabled = true;
         break;
       default:
         done = MetafontApp::ProcessOption(opt, optArg);
@@ -201,17 +193,11 @@ public:
 public:
   bool ScreenEnabled() const
   {
-    return m_bScreen;
+    return screenEnabled;
   }
 
 private:
-  bool m_bScreen;
-
-private:
-  int m_max_wiggle;
-
-private:
-  int m_move_size;
+  bool screenEnabled;
 
 public:
   unsigned long GetHelpId() const override
@@ -231,7 +217,7 @@ extern MFAPPCLASS MFAPP;
 
 inline bool miktexopenbasefile (METAFONTProgram::wordfile& f, bool renew = false)
 {
-  return MFAPP.OpenMemoryDumpFile(f, renew);
+  return THEAPP.OpenMemoryDumpFile(f, renew);
 }
 
 int miktexloadpoolstrings(int size);
