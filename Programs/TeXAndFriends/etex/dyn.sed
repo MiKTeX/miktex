@@ -1,6 +1,6 @@
 ## dyn.sed:
 ## 
-## Copyright (C) 1998-2016 Christian Schenk
+## Copyright (C) 1998-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -16,6 +16,6 @@
 ## along with this file; if not, write to the Free Software
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
-s/^C4PEXTERN \([_A-Za-z0-9]*\) \([gm]_eofseen\)\[ [A-Za-z0-9]* \];$/C4PEXTERN \1 *\2;/
-s/^C4PEXTERN \([_A-Za-z0-9]*\) \([gm]_grpstack\)\[ [A-Za-z0-9]* \];$/C4PEXTERN \1 *\2;/
-s/^C4PEXTERN \([_A-Za-z0-9]*\) \([gm]_ifstack\)\[ [A-Za-z0-9]* \];$/C4PEXTERN \1 *\2;/
+s/^\([_A-Za-z0-9]*\) \(eofseen\)\[ [A-Za-z0-9]* \];$/\1 *\2;/
+s/^\([_A-Za-z0-9]*\) \(grpstack\)\[ [A-Za-z0-9]* \];$/\1 *\2;/
+s/^\([_A-Za-z0-9]*\) \(ifstack\)\[ [A-Za-z0-9]* \];$/\1 *\2;/

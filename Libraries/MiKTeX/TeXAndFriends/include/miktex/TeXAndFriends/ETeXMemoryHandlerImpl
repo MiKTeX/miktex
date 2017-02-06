@@ -1,6 +1,6 @@
-/* miktex/TeXAndFriends/ETeXApp.inl:                    -*- C++ -*-
+/* miktex/TeXAndFriends/ETeXMemoryHandlerImpl:          -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,15 +21,4 @@
 #  pragma once
 #endif
 
-#include <miktex/TeXAndFriends/config.h>
-
-#include "TeXApp.inl"
-
-MIKTEXMF_BEGIN_NAMESPACE;
-
-inline bool miktexetexp()
-{
-  return THEAPP.ETeXP();
-}
-
-MIKTEXMF_END_NAMESPACE;
+#include "ETeXMemoryHandlerImpl.h"

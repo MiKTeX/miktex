@@ -202,21 +202,6 @@ add_custom_command(
     ${CMAKE_CURRENT_SOURCE_DIR}/pdftex-miktex.ch
 )
 
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/pdftex_pool.cpp
-  COMMAND
-    inipool
-    ${CMAKE_CURRENT_BINARY_DIR}/pdftex.pool
-    pdftex-miktex.h
-    > ${CMAKE_CURRENT_BINARY_DIR}/pdftex_pool.cpp
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    inipool
-    ${CMAKE_CURRENT_BINARY_DIR}/pdftex.pool
-)
-
 file(READ ${MIKTEX_DYN_TEX_SCRIPT} tex_dyn_sed_contents)
 file(READ ${MIKTEX_DYN_ETEX_SCRIPT} etex_dyn_sed_contents)
 
@@ -319,6 +304,28 @@ set_source_files_properties(
 )
 
 create_web_app(pdfTeX)
+
+add_custom_command(
+  OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/pdftex_pool.cpp
+  COMMAND
+    inipool
+    ${CMAKE_CURRENT_BINARY_DIR}/pdftex.pool
+    pdftex-miktex.h
+    ${pdftex_progclass}
+    ${pdftex_prog}
+    > ${CMAKE_CURRENT_BINARY_DIR}/pdftex_pool.cpp
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_BINARY_DIR}
+  DEPENDS
+    inipool
+    ${CMAKE_CURRENT_BINARY_DIR}/pdftex.pool
+)
+
+configure_file(
+  pdftex-miktex-config.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/pdftex-miktex-config.h
+)
 
 add_dependencies(${pdftex_target_name} gen-defaults)
 

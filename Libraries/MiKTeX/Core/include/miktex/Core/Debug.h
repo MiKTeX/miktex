@@ -1,6 +1,6 @@
 /* miktex/Core/Debug.h: MiKTeX debug macros             -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -152,7 +152,7 @@ MIKTEX_END_EXTERN_C_BLOCK;
     MiKTeX::Debug::AssertValidHeapPointer (ptr);        \
   }
 #else
-#  define MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL()
+#  define MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(ptr)
 #endif
 
 #if defined(MIKTEX_DEBUG)

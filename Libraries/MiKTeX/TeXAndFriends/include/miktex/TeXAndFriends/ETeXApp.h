@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/ETeXApp.h:                      -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -65,41 +65,6 @@ protected:
 
 public:
   MIKTEXMFTHISAPI(void) OnTeXMFStartJob() override;
-
-#if defined(MIKTEX_DEBUG)
-public:
-  void CheckMemory() override
-  {
-#if defined(THEDATA)
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(eofseen));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(grpstack));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(ifstack));
-#endif
-    TeXMFApp::CheckMemory();
-  }
-#endif
-
-#if defined(THEDATA)
-public:
-  void AllocateMemory()
-  {
-    TeXApp::AllocateMemory();
-    Allocate("eofseen", THEDATA(eofseen), THEDATA(maxinopen));
-    Allocate("grpstack", THEDATA(grpstack), THEDATA(maxinopen));
-    Allocate("ifstack", THEDATA(ifstack), THEDATA(maxinopen));
-  }
-#endif
-
-#if defined(THEDATA)
-public:
-  void FreeMemory()
-  {
-    TeXApp::FreeMemory();
-    Free("eofseen", THEDATA(eofseen));
-    Free("grpstack", THEDATA(grpstack));
-    Free("ifstack", THEDATA(ifstack));
-  }
-#endif
 
 public:
   MIKTEXMFTHISAPI(bool) ETeXP() const;

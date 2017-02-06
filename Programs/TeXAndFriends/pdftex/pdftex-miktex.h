@@ -24,25 +24,25 @@
 #if !defined(B9AE601D55FC414A8D93C81CF3517D1A)
 #define B9AE601D55FC414A8D93C81CF3517D1A
 
-#include <miktex/TeXAndFriends/config.h>
+#define MIKTEX_UTF8_WRAP_ALL 1
+#include <miktex/utf8wrap.h>
+
+#include <miktex/Core/Paths>
+#include <miktex/KPSE/Emulation>
+#include <miktex/TeXAndFriends/CharacterConverterImpl>
+#include <miktex/TeXAndFriends/InitFinalizeImpl>
+#include <miktex/TeXAndFriends/InputOutputImpl>
+#include <miktex/TeXAndFriends/ETeXApp>
+#include <miktex/TeXAndFriends/ETeXMemoryHandlerImpl>
 
 #include "pdftexdefs.h"
 
-#if !defined(C4PEXTERN)
-#  define C4PEXTERN extern
-#endif
-
+//#if defined(C4P_HEADER_GUARD_pdftex)
+//#  error pdftex-miktex.h must be included before pdftexd.h
+//#endif
 #include "pdftexd.h"
 
-#if !defined(THEDATA)
-#  define THEDATA(x) C4P_VAR(x)
-#endif
-
 #include "pdftex-version.h"
-
-#include <miktex/Core/Paths>
-#include <miktex/TeXAndFriends/ETeXApp>
-#include <miktex/KPSE/Emulation>
 
 namespace pdftex {
 #include <miktex/pdftex.defaults.h>
@@ -52,7 +52,148 @@ namespace pdftex {
 #  include <miktex/Core/Help>
 #endif
 
-class PDFTEXCLASS :
+#include "pdftex-miktex-config.h"
+
+extern PDFTEXPROGCLASS PDFTEXPROG;
+
+class MemoryHandlerImpl :
+  public MiKTeX::TeXAndFriends::ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>
+{
+public:
+  MemoryHandlerImpl(PDFTEXPROGCLASS& program, MiKTeX::TeXAndFriends::TeXMFApp& mfapp) :
+    ETeXMemoryHandlerImpl(program, mfapp)
+  {
+  }
+
+public:
+  void Allocate(const std::unordered_map<std::string, int>& userParams) override
+  {
+    ETeXMemoryHandlerImpl::Allocate(userParams);
+    program.pdfmemsize = GetCheckedParameter("pdf_mem_size", program.infpdfmemsize, program.suppdfmemsize, userParams, pdftex::pdftex::pdf_mem_size());
+    program.objtabsize = GetCheckedParameter("obj_tab_size", program.infobjtabsize, program.supobjtabsize, userParams, pdftex::pdftex::obj_tab_size());
+    program.destnamessize = GetCheckedParameter("dest_names_size", program.infdestnamessize, program.supdestnamessize, userParams, pdftex::pdftex::dest_names_size());
+    program.pdfosbufsize = GetCheckedParameter("pdf_os_buf_size", program.infpdfosbufsize, program.suppdfosbufsize, userParams, pdftex::pdftex::pdf_os_buf_size());
+    MIKTEX_ASSERT(program.constfontbase == 0);
+    size_t nFonts = program.fontmax - program.constfontbase;
+    AllocateArray("destnames", program.destnames, program.destnamessize);
+    AllocateArray("objtabsize", program.objtab, program.objtabsize);
+    AllocateArray("pdfcharused", program.pdfcharused, nFonts);
+    AllocateArray("pdffontautoexpand", program.pdffontattr, nFonts);
+    AllocateArray("pdffontautoexpand", program.pdffontautoexpand, nFonts);
+    AllocateArray("pdffontblink", program.pdffontblink, nFonts);
+    AllocateArray("pdffontefbase", program.pdffontefbase, nFonts);
+    AllocateArray("pdffontelink", program.pdffontelink, nFonts);
+    AllocateArray("pdffontexpandratio", program.pdffontexpandratio, nFonts);
+    AllocateArray("pdffontknacbase", program.pdffontknacbase, nFonts);
+    AllocateArray("pdffontknbcbase", program.pdffontknbcbase, nFonts);
+    AllocateArray("pdffontknbsbase", program.pdffontknbsbase, nFonts);
+    AllocateArray("pdffontlpbase", program.pdffontlpbase, nFonts);
+    AllocateArray("pdffontmap", program.pdffontmap, nFonts);
+    AllocateArray("pdffontnobuiltintounicode", program.pdffontnobuiltintounicode, nFonts);
+    AllocateArray("pdffontnum", program.pdffontnum, nFonts);
+    AllocateArray("pdffontrpbase", program.pdffontrpbase, nFonts);
+    AllocateArray("pdffontshbsbase", program.pdffontshbsbase, nFonts);
+    AllocateArray("pdffontshrink", program.pdffontshrink, nFonts);
+    AllocateArray("pdffontsize", program.pdffontsize, nFonts);
+    AllocateArray("pdffontstbsbase", program.pdffontstbsbase, nFonts);
+    AllocateArray("pdffontstep", program.pdffontstep, nFonts);
+    AllocateArray("pdffontstretch", program.pdffontstretch, nFonts);
+    AllocateArray("pdffonttype", program.pdffonttype, nFonts);
+    AllocateArray("pdfmem", program.pdfmem, program.pdfmemsize);
+    AllocateArray("pdfopbuf", program.pdfopbuf, program.pdfopbufsize);
+    AllocateArray("pdfosbuf", program.pdfosbuf, program.pdfosbufsize);
+    AllocateArray("pdfosobjnum", program.pdfosobjnum, program.pdfosmaxobjs);
+    AllocateArray("pdfosobjoff", program.pdfosobjoff, program.pdfosmaxobjs);
+    AllocateArray("vfdefaultfont", program.vfdefaultfont, nFonts);
+    AllocateArray("vfefnts", program.vfefnts, nFonts);
+    AllocateArray("vfifnts", program.vfifnts, nFonts);
+    AllocateArray("vflocalfontnum", program.vflocalfontnum, nFonts);
+    AllocateArray("vfpacketbase", program.vfpacketbase, nFonts);
+  }
+
+public:
+  void Free() override
+  {
+    ETeXMemoryHandlerImpl::Free();
+    FreeArray("destnames", program.destnames);
+    FreeArray("objtab", program.objtab);
+    FreeArray("pdfcharused", program.pdfcharused);
+    FreeArray("pdffontattr", program.pdffontattr);
+    FreeArray("pdffontautoexpand", program.pdffontautoexpand);
+    FreeArray("pdffontblink", program.pdffontblink);
+    FreeArray("pdffontefbase", program.pdffontefbase);
+    FreeArray("pdffontelink", program.pdffontelink);
+    FreeArray("pdffontexpandratio", program.pdffontexpandratio);
+    FreeArray("pdffontknacbase", program.pdffontknacbase);
+    FreeArray("pdffontknbcbase", program.pdffontknbcbase);
+    FreeArray("pdffontknbsbase", program.pdffontknbsbase);
+    FreeArray("pdffontlpbase", program.pdffontlpbase);
+    FreeArray("pdffontmap", program.pdffontmap);
+    FreeArray("pdffontnum", program.pdffontnum);
+    FreeArray("pdffontnobuiltintounicode", program.pdffontnobuiltintounicode);
+    FreeArray("pdffontrpbase", program.pdffontrpbase);
+    FreeArray("pdffontshbsbase", program.pdffontshbsbase);
+    FreeArray("pdffontshrink", program.pdffontshrink);
+    FreeArray("pdffontsize", program.pdffontsize);
+    FreeArray("pdffontstbsbase", program.pdffontstbsbase);
+    FreeArray("pdffontstep", program.pdffontstep);
+    FreeArray("pdffontstretch", program.pdffontstretch);
+    FreeArray("pdffonttype", program.pdffonttype);
+    FreeArray("pdfmem", program.pdfmem);
+    FreeArray("pdfopbuf", program.pdfopbuf);
+    FreeArray("pdfosbuf", program.pdfosbuf);
+    FreeArray("pdfosobjnum", program.pdfosobjnum);
+    FreeArray("pdfosobjoff", program.pdfosobjoff);
+    FreeArray("vfdefaultfont", program.vfdefaultfont);
+    FreeArray("vfefnts", program.vfefnts);
+    FreeArray("vfifnts", program.vfifnts);
+    FreeArray("vflocalfontnum", program.vflocalfontnum);
+    FreeArray("vfpacketbase", program.vfpacketbase);
+  }
+
+public:
+  void Check() override
+  {
+    ETeXMemoryHandlerImpl::Check();
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.destnames);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.objtab);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfcharused);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontattr);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontautoexpand);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontblink);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontefbase);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontelink);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontexpandratio);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontknacbase);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontknbcbase);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontknbsbase);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontlpbase);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontmap);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontnobuiltintounicode);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontnum);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontrpbase);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontshbsbase);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontshrink);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontsize);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontstbsbase);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontstep);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffontstretch);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdffonttype);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfmem);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfopbuf);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfosbuf);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfosobjnum);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfosobjoff);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vfdefaultfont);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vfefnts);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vfifnts);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vflocalfontnum);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vfpacketbase);
+  }
+
+};
+
+class PDFTEXAPPCLASS :
   public MiKTeX::TeXAndFriends::ETeXApp
 {
 public:
@@ -62,7 +203,7 @@ public:
   };
 
 public:
-  void AddOptions () override
+  void AddOptions() override
   {
     ETeXApp::AddOptions();
     AddOption(MIKTEXTEXT("draftmode\0Switch on draft mode (generates no output)."), OPT_DRAFTMODE);
@@ -70,24 +211,24 @@ public:
   }
 
 public:
-  bool ProcessOption(int opt, const std::string & optArg) override
+  bool ProcessOption(int opt, const std::string& optArg) override
   {
     bool done = true;
     switch (opt)
     {
     case OPT_DRAFTMODE:
-      THEDATA(pdfdraftmodeoption) = 1;
-      THEDATA(pdfdraftmodevalue) = 1;
+      PDFTEXPROG.pdfdraftmodeoption = 1;
+      PDFTEXPROG.pdfdraftmodevalue = 1;
       break;
     case OPT_OUTPUT_FORMAT:
-      THEDATA(pdfoutputoption) = 1;
+      PDFTEXPROG.pdfoutputoption = 1;
       if (optArg == "dvi")
       {
-        THEDATA(pdfoutputvalue) = 0;
+        PDFTEXPROG.pdfoutputvalue = 0;
       }
       else if (optArg == "pdf")
       {
-        THEDATA(pdfoutputvalue) = 2;
+        PDFTEXPROG.pdfoutputvalue = 2;
       }
       else
       {
@@ -101,95 +242,25 @@ public:
     return (done);
   }
 
-public:
-  void AllocateMemory()
-  {
-    ETeXApp::AllocateMemory();
-    GETPARAMCHECK(-1, pdfmemsize, pdf_mem_size, pdftex::pdftex::pdf_mem_size());
-    GETPARAMCHECK(-1, objtabsize, obj_tab_size, pdftex::pdftex::obj_tab_size());
-    GETPARAMCHECK(-1, destnamessize, dest_names_size, pdftex::pdftex::dest_names_size());
-    GETPARAMCHECK(-1, pdfosbufsize, pdf_os_buf_size, pdftex::pdftex::pdf_os_buf_size());
-    MIKTEX_ASSERT(constfontbase == 0);
-    size_t nFonts = THEDATA(fontmax) - constfontbase;
-    Allocate("destnames", THEDATA(destnames), THEDATA(destnamessize));
-    Allocate("objtabsize", THEDATA(objtab), THEDATA(objtabsize));
-    Allocate("pdfcharused", THEDATA(pdfcharused), nFonts);
-    Allocate("pdffontautoexpand", THEDATA(pdffontattr), nFonts);
-    Allocate("pdffontautoexpand", THEDATA(pdffontautoexpand), nFonts);
-    Allocate("pdffontblink", THEDATA(pdffontblink), nFonts);
-    Allocate("pdffontefbase", THEDATA(pdffontefbase), nFonts);
-    Allocate("pdffontelink", THEDATA(pdffontelink), nFonts);
-    Allocate("pdffontexpandratio", THEDATA(pdffontexpandratio), nFonts);
-    Allocate("pdffontknacbase", THEDATA(pdffontknacbase), nFonts);
-    Allocate("pdffontknbcbase", THEDATA(pdffontknbcbase), nFonts);
-    Allocate("pdffontknbsbase", THEDATA(pdffontknbsbase), nFonts);
-    Allocate("pdffontlpbase", THEDATA(pdffontlpbase), nFonts);
-    Allocate("pdffontmap", THEDATA(pdffontmap), nFonts);
-    Allocate("pdffontnobuiltintounicode", THEDATA(pdffontnobuiltintounicode), nFonts);
-    Allocate("pdffontnum", THEDATA(pdffontnum), nFonts);
-    Allocate("pdffontrpbase", THEDATA(pdffontrpbase), nFonts);
-    Allocate("pdffontshbsbase", THEDATA(pdffontshbsbase), nFonts);
-    Allocate("pdffontshrink", THEDATA(pdffontshrink), nFonts);
-    Allocate("pdffontsize", THEDATA(pdffontsize), nFonts);
-    Allocate("pdffontstbsbase", THEDATA(pdffontstbsbase), nFonts);
-    Allocate("pdffontstep", THEDATA(pdffontstep), nFonts);
-    Allocate("pdffontstretch", THEDATA(pdffontstretch), nFonts);
-    Allocate("pdffonttype", THEDATA(pdffonttype), nFonts);
-    Allocate("pdfmem", THEDATA(pdfmem), THEDATA(pdfmemsize));
-    Allocate("pdfopbuf", THEDATA(pdfopbuf), pdfopbufsize);
-    Allocate("pdfosbuf", THEDATA(pdfosbuf), THEDATA(pdfosbufsize));
-    Allocate("pdfosobjnum", THEDATA(pdfosobjnum), pdfosmaxobjs);
-    Allocate("pdfosobjoff", THEDATA(pdfosobjoff), pdfosmaxobjs);
-    Allocate("vfdefaultfont", THEDATA(vfdefaultfont), nFonts);
-    Allocate("vfefnts", THEDATA(vfefnts), nFonts);
-    Allocate("vfifnts", THEDATA(vfifnts), nFonts);
-    Allocate("vflocalfontnum", THEDATA(vflocalfontnum), nFonts);
-    Allocate("vfpacketbase", THEDATA(vfpacketbase), nFonts);
-  }
+private:
+  MiKTeX::TeXAndFriends::CharacterConverterImpl<pdfTeXProgram> charConv{ PDFTEXPROG };
+
+private:
+  MiKTeX::TeXAndFriends::InitFinalizeImpl<pdfTeXProgram> initFinalize{ PDFTEXPROG };
+
+private:
+  MiKTeX::TeXAndFriends::InputOutputImpl<pdfTeXProgram> inputOutput{ PDFTEXPROG };
+
+private:
+  MemoryHandlerImpl memoryHandler{ PDFTEXPROG, *this };
 
 public:
-  void FreeMemory()
+  void Init(const std::string& programInvocationName) override
   {
-    ETeXApp::FreeMemory();
-    Free("destnames", THEDATA(destnames));
-    Free("objtab", THEDATA(objtab));
-    Free("pdfcharused", THEDATA(pdfcharused));
-    Free("pdffontattr", THEDATA(pdffontattr));
-    Free("pdffontautoexpand", THEDATA(pdffontautoexpand));
-    Free("pdffontblink", THEDATA(pdffontblink));
-    Free("pdffontefbase", THEDATA(pdffontefbase));
-    Free("pdffontelink", THEDATA(pdffontelink));
-    Free("pdffontexpandratio", THEDATA(pdffontexpandratio));
-    Free("pdffontknacbase", THEDATA(pdffontknacbase));
-    Free("pdffontknbcbase", THEDATA(pdffontknbcbase));
-    Free("pdffontknbsbase", THEDATA(pdffontknbsbase));
-    Free("pdffontlpbase", THEDATA(pdffontlpbase));
-    Free("pdffontmap", THEDATA(pdffontmap));
-    Free("pdffontnum", THEDATA(pdffontnum));
-    Free("pdffontnobuiltintounicode", THEDATA(pdffontnobuiltintounicode));
-    Free("pdffontrpbase", THEDATA(pdffontrpbase));
-    Free("pdffontshbsbase", THEDATA(pdffontshbsbase));
-    Free("pdffontshrink", THEDATA(pdffontshrink));
-    Free("pdffontsize", THEDATA(pdffontsize));
-    Free("pdffontstbsbase", THEDATA(pdffontstbsbase));
-    Free("pdffontstep", THEDATA(pdffontstep));
-    Free("pdffontstretch", THEDATA(pdffontstretch));
-    Free("pdffonttype", THEDATA(pdffonttype));
-    Free("pdfmem", THEDATA(pdfmem));
-    Free("pdfopbuf", THEDATA(pdfopbuf));
-    Free("pdfosbuf", THEDATA(pdfosbuf));
-    Free("pdfosobjnum", THEDATA(pdfosobjnum));
-    Free("pdfosobjoff", THEDATA(pdfosobjoff));
-    Free("vfdefaultfont", THEDATA(vfdefaultfont));
-    Free("vfefnts", THEDATA(vfefnts));
-    Free("vfifnts", THEDATA(vfifnts));
-    Free("vflocalfontnum", THEDATA(vflocalfontnum));
-    Free("vfpacketbase", THEDATA(vfpacketbase));
-  }
-
-public:
-  void Init(const std::string & programInvocationName) override
-  {
+    SetCharacterConverter(&charConv);
+    SetInitFinalize(&initFinalize);
+    SetInputOutput(&inputOutput);
+    SetTeXMFMemoryHandler(&memoryHandler);
     ETeXApp::Init(programInvocationName);
     kpse_set_program_name(programInvocationName.c_str(), nullptr);
 #if defined(IMPLEMENT_TCX)
@@ -209,13 +280,13 @@ public:
   {
     return "pdfinitex";
   }
-  
+
 public:
   std::string GetVirginProgramName() const override
   {
     return "pdfvirtex";
   }
-  
+
 public:
   std::string TheNameOfTheGame() const override
   {
@@ -223,7 +294,7 @@ public:
   }
 
 public:
-  void GetLibraryVersions(std::vector<MiKTeX::Core::LibraryVersion> & versions) const override;
+  void GetLibraryVersions(std::vector<MiKTeX::Core::LibraryVersion>& versions) const override;
 
 #if defined(MIKTEX_WINDOWS)
 public:
@@ -232,60 +303,150 @@ public:
     return MIKTEXHELP_PDFTEX;
   }
 #endif
-
-#if defined(MIKTEX_DEBUG)
-public:
-  void CheckMemory() override
-  {
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(destnames));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(objtab));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdfcharused));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontattr));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontautoexpand));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontblink));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontefbase));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontelink));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontexpandratio));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontknacbase));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontknbcbase));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontknbsbase));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontlpbase));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontmap));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontnobuiltintounicode));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontnum));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontrpbase));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontshbsbase));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontshrink));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontsize));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontstbsbase));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontstep));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffontstretch));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdffonttype));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdfmem));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdfopbuf));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdfosbuf));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdfosobjnum));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(pdfosobjoff));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(vfdefaultfont));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(vfefnts));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(vfifnts));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(vflocalfontnum));
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(THEDATA(vfpacketbase));
-    ETeXApp::CheckMemory();
-  }
-#endif
 };
 
-extern PDFTEXCLASS PDFTEXAPP;
+extern PDFTEXAPPCLASS PDFTEXAPP;
 #define THEAPP PDFTEXAPP
 #include <miktex/TeXAndFriends/ETeXApp.inl>
 
-inline bool miktexptrequal(const void * ptr1, const void * ptr2)
+inline bool miktexptrequal(const void* ptr1, const void* ptr2)
 {
   return ptr1 == ptr2;
 }
 
-#include <miktex/KPSE/Emulation>
+using eightbits = PDFTEXPROGCLASS::eightbits;
+using fmentryptr = PDFTEXPROGCLASS::fmentryptr;
+using halfword = PDFTEXPROGCLASS::halfword;
+using internalfontnumber = PDFTEXPROGCLASS::internalfontnumber;
+using poolpointer = PDFTEXPROGCLASS::poolpointer;
+using scaled = PDFTEXPROGCLASS::scaled;
+using strnumber = PDFTEXPROGCLASS::strnumber;
+
+constexpr auto pdfobjtypemax = PDFTEXPROGCLASS::pdfobjtypemax;
+
+auto& curh = PDFTEXPROG.curh;
+auto& curv = PDFTEXPROG.curv;
+auto& curinput = PDFTEXPROG.curinput;
+auto& eqtb = PDFTEXPROG.eqtb;
+auto& fixedgentounicode = PDFTEXPROG.fixedgentounicode;
+auto& fixedinclusioncopyfont = PDFTEXPROG.fixedinclusioncopyfont;
+auto& fixedpdfdraftmode = PDFTEXPROG.fixedpdfdraftmode;
+auto& fontmax = PDFTEXPROG.fontmax;
+auto& fontname = PDFTEXPROG.fontname;
+auto& formatident = PDFTEXPROG.formatident;
+auto& jobname = PDFTEXPROG.jobname;
+auto& lasttokensstring = PDFTEXPROG.lasttokensstring;
+auto& objtab = PDFTEXPROG.objtab;
+auto& outputfilename = PDFTEXPROG.outputfilename;
+auto& pdfboxspecart = PDFTEXPROG.pdfboxspecart;
+auto& pdfboxspecbleed = PDFTEXPROG.pdfboxspecbleed;
+auto& pdfboxspeccrop = PDFTEXPROG.pdfboxspeccrop;
+auto& pdfboxspecmedia = PDFTEXPROG.pdfboxspecmedia;
+auto& pdfboxspectrim = PDFTEXPROG.pdfboxspectrim;
+auto& pdfbuf = PDFTEXPROG.pdfbuf;
+auto& pdfbufsize = PDFTEXPROG.pdfbufsize;
+auto& pdffile = PDFTEXPROG.pdffile;
+auto& pdffontmap = PDFTEXPROG.pdffontmap;
+auto& pdfgone = PDFTEXPROG.pdfgone;
+auto& pdflastbyte = PDFTEXPROG.pdflastbyte;
+auto& pdfosmode = PDFTEXPROG.pdfosmode;
+auto& pdfoutputvalue = PDFTEXPROG.pdfoutputvalue;
+auto& pdfpagegroupval = PDFTEXPROG.pdfpagegroupval;
+auto& pdfptr = PDFTEXPROG.pdfptr;
+auto& pdftexbanner = PDFTEXPROG.pdftexbanner;
+auto& poolptr = PDFTEXPROG.poolptr;
+auto& poolsize = PDFTEXPROG.poolsize;
+auto& ruledp = PDFTEXPROG.ruledp;
+auto& ruleht = PDFTEXPROG.ruleht;
+auto& rulewd = PDFTEXPROG.rulewd;
+auto& strpool = PDFTEXPROG.strpool;
+auto& strstart = PDFTEXPROG.strstart;
+auto& texmflogname = PDFTEXPROG.logname;
+auto& totalpages = PDFTEXPROG.totalpages;
+auto& vfefnts = PDFTEXPROG.vfefnts;
+auto& vfifnts = PDFTEXPROG.vfifnts;
+auto& zmem = PDFTEXPROG.zmem;
+
+auto flushstr(PDFTEXPROGCLASS::strnumber s)
+{
+  PDFTEXPROG.flushstr(s);
+}
+
+auto getnullstr()
+{
+  return PDFTEXPROG.getnullstr();
+}
+
+auto getpdfsuppresswarningdupmap()
+{
+  return PDFTEXPROG.getpdfsuppresswarningdupmap();
+}
+
+auto makestring()
+{
+  return PDFTEXPROG.makestring();
+}
+
+auto packfilename(PDFTEXPROGCLASS::strnumber n, PDFTEXPROGCLASS::strnumber a, PDFTEXPROGCLASS::strnumber e)
+{
+  return PDFTEXPROG.packfilename(n, a, e);
+}
+
+auto pdfbegindict(C4P::C4P_integer i, C4P::C4P_integer pdfoslevel)
+{
+  PDFTEXPROG.pdfbegindict(i, pdfoslevel);
+}
+
+auto pdfbeginobj(C4P::C4P_integer i, C4P::C4P_integer pdfoslevel)
+{
+  PDFTEXPROG.pdfbeginobj(i, pdfoslevel);
+}
+
+auto pdfbeginstream()
+{
+  PDFTEXPROG.pdfbeginstream();
+}
+
+auto pdfendobj()
+{
+  PDFTEXPROG.pdfendobj();
+}
+
+auto pdfendstream()
+{
+  PDFTEXPROG.pdfendstream();
+}
+auto pdfflush()
+{
+  PDFTEXPROG.pdfflush();
+}
+
+auto pdfnewobjnum()
+{
+  return PDFTEXPROG.pdfnewobjnum();
+}
+
+auto pdfosgetosbuf(C4P::C4P_integer s)
+{
+  PDFTEXPROG.pdfosgetosbuf(s);
+}
+
+auto print(C4P::C4P_integer s)
+{
+  PDFTEXPROG.print(s);
+}
+
+auto println()
+{
+  PDFTEXPROG.println();
+}
+
+auto tokenstostring(PDFTEXPROGCLASS::halfword p)
+{
+  return PDFTEXPROG.tokenstostring(p);
+}
+
+
 #include "pdftex.h"
 #if WITH_SYNCTEX
 #include "synctex.h"
@@ -294,9 +455,9 @@ inline bool miktexptrequal(const void * ptr1, const void * ptr2)
 #define printid printID
 #define printidalt printIDalt
 
-inline int getbyte(bytefile & f)
+template<typename FileType> int getbyte(FileType& f)
 {
-  eightbits ret = *f;
+  unsigned char ret = *f;
   if (!feof(f))
   {
     get(f);
@@ -304,8 +465,8 @@ inline int getbyte(bytefile & f)
   return ret & 0xff;
 }
 
-#define zpdfosgetosbuf pdfosgetosbuf
-#define zpdfbeginobj pdfbeginobj
+// REMOVE: #define zpdfosgetosbuf pdfosgetosbuf
+// REMOVE: #define zpdfbeginobj pdfbeginobj
 
 #if defined(texbopenin)
 #  undef texbopenin
@@ -323,13 +484,13 @@ inline int getbyte(bytefile & f)
 #  define __attribute__(x)
 #endif
 
-inline char * GetNameOfFileForMiKTeX()
+inline char* GetNameOfFileForMiKTeX()
 {
-  return &((THEDATA(nameoffile))[0]);
+  return &((PDFTEXPROG.nameoffile)[0]);
 }
 
 // special case: Web2C likes to add 1 to the nameoffile base address
-inline char * GetNameOfFileForWeb2C()
+inline char* GetNameOfFileForWeb2C()
 {
   return GetNameOfFileForMiKTeX() - 1;
 }
@@ -337,110 +498,114 @@ inline char * GetNameOfFileForWeb2C()
 #define nameoffile (GetNameOfFileForWeb2C())
 
 #if WITH_SYNCTEX
-#define synctexoption THEDATA(synctexoption)
-#define synctexoffset THEDATA(synctexoffset)
+#define synctexoption PDFTEXPROG.synctexoption
+#define synctexoffset PDFTEXPROG.synctexoffset
 #endif
 
-C4PEXTERN C4P_integer k;
+#if 0
+extern C4P_integer k;
+#endif
 
-#define curh THEDATA(curh)
-#define curinput THEDATA(curinput)
-#define curv THEDATA(curv)
+#if 0
+#define curh program.curh
+#define curinput program.curinput
+#define curv program.curv
 #define dim100bp THEDATA(dim100bp)
 #define dim100in THEDATA(dim100in)
 #define dim1bp THEDATA(dim1bp)
 #define dim1in THEDATA(dim1in)
 #define dim1inoverpkres THEDATA(dim1inoverpkres)
-#define eqtb THEDATA(eqtb)
-#define f THEDATA(f)
-#define fixedcompresslevel THEDATA(fixedcompresslevel)
-#define fixeddecimaldigits THEDATA(fixeddecimaldigits)
-#define fixedgamma THEDATA(fixedgamma)
-#define fixedgentounicode THEDATA(fixedgentounicode)
-#define fixedimageapplygamma THEDATA(fixedimageapplygamma)
-#define fixedimagegamma THEDATA(fixedimagegamma)
-#define fixedimagehicolor THEDATA(fixedimagehicolor)
-#define fixedinclusioncopyfont THEDATA(fixedinclusioncopyfont)
-#define fixedmovechars THEDATA(fixedmovechars)
-#define fixedpdfdraftmode THEDATA(fixedpdfdraftmode)
-#define fixedpdfminorversion THEDATA(fixedpdfminorversion)
-#define fixedpkresolution THEDATA(fixedpkresolution)
-#define fontbc THEDATA(fontbc)
-#define fontdsize THEDATA(fontdsize)
-#define fontec THEDATA(fontec)
-#define fontmax THEDATA(fontmax)
-#define fontname THEDATA(fontname)
-#define fontptr THEDATA(fontptr)
-#define fontsize THEDATA(fontsize)
-#define fontused THEDATA(fontused)
-#define formatident THEDATA(formatident)
-#define jobname THEDATA(jobname)
-#define lasttokensstring THEDATA(lasttokensstring)
-#define objptr THEDATA(objptr)
-#define objtab THEDATA(objtab)
-#define onehundredbp THEDATA(onehundredbp)
-#define outputfilename THEDATA(outputfilename)
-#define pdfboxspecart THEDATA(pdfboxspecart)
-#define pdfboxspecbleed THEDATA(pdfboxspecbleed)
-#define pdfboxspeccrop THEDATA(pdfboxspeccrop)
-#define pdfboxspecmedia THEDATA(pdfboxspecmedia)
-#define pdfboxspectrim THEDATA(pdfboxspectrim)
-#define pdfbuf THEDATA(pdfbuf)
-#define pdfbufsize THEDATA(pdfbufsize)
-#define pdfcharmap THEDATA(pdfcharmap)
-#define pdfcharused THEDATA(pdfcharused)
-#define pdfcryptdate THEDATA(pdfcryptdate)
+#define eqtb program.eqtb
+#define f program.f
+#define fixedcompresslevel program.fixedcompresslevel
+#define fixeddecimaldigits program.fixeddecimaldigits
+#define fixedgamma program.fixedgamma
+#define fixedgentounicode program.fixedgentounicode
+#define fixedimageapplygamma program.fixedimageapplygamma
+#define fixedimagegamma program.fixedimagegamma
+#define fixedimagehicolor program.fixedimagehicolor
+#define fixedinclusioncopyfont program.fixedinclusioncopyfont
+#define fixedmovechars program.fixedmovechars
+#define fixedpdfdraftmode program.fixedpdfdraftmode
+#define fixedpdfminorversion program.fixedpdfminorversion
+#define fixedpkresolution program.fixedpkresolution
+#define fontbc program.fontbc
+#define fontdsize program.fontdsize
+#define fontec program.fontec
+#define fontmax program.fontmax
+#define fontname program.fontname
+#define fontptr program.fontptr
+#define fontsize program.fontsize
+#define fontused program.fontused
+#define formatident program.formatident
+#define jobname program.jobname
+#define lasttokensstring program.lasttokensstring
+#define objptr program.objptr
+#define objtab program.objtab
+#define onehundredbp program.onehundredbp
+#define outputfilename program.outputfilename
+#define pdfboxspecart program.pdfboxspecart
+#define pdfboxspecbleed program.pdfboxspecbleed
+#define pdfboxspeccrop program.pdfboxspeccrop
+#define pdfboxspecmedia program.pdfboxspecmedia
+#define pdfboxspectrim program.pdfboxspectrim
+#define pdfbuf program.pdfbuf
+#define pdfbufsize program.pdfbufsize
+#define pdfcharmap program.pdfcharmap
+#define pdfcharused program.pdfcharused
+#define pdfcryptdate program.pdfcryptdate
 #define pdfcryptid1 THEDATA(pdfcryptid1)
 #define pdfcryptid2 THEDATA(pdfcryptid2)
-#define pdfcrypting THEDATA(pdfcrypting)
-#define pdfcryptobjnum THEDATA(pdfcryptobjnum)
-#define pdfcryptovalue THEDATA(pdfcryptovalue)
-#define pdfcryptpermit THEDATA(pdfcryptpermit)
-#define pdfcryptuvalue THEDATA(pdfcryptuvalue)
-#define pdfcryptversion THEDATA(pdfcryptversion)
-#define pdffile THEDATA(pdffile)
-#define pdffontattr THEDATA(pdffontattr)
-#define pdffontnobuiltintounicode THEDATA(pdffontnobuiltintounicode)
-#define pdffontefbase THEDATA(pdffontefbase)
-#define pdffontexpandfont THEDATA(pdffontexpandfont)
-#define pdffontexpandratio THEDATA(pdffontexpandratio)
-#define pdffontknacbase THEDATA(pdffontknacbase)
-#define pdffontknbcbase THEDATA(pdffontknbcbase)
-#define pdffontknbsbase THEDATA(pdffontknbsbase)
-#define pdffontlpbase THEDATA(pdffontlpbase)
-#define pdffontmap THEDATA(pdffontmap)
-#define pdffontrpbase THEDATA(pdffontrpbase)
-#define pdffontshbsbase THEDATA(pdffontshbsbase)
-#define pdffontsize THEDATA(pdffontsize)
-#define pdffontstbsbase THEDATA(pdffontstbsbase)
-#define pdfgone THEDATA(pdfgone)
-#define pdfimageprocset THEDATA(pdfimageprocset)
-#define pdflastbyte THEDATA(pdflastbyte)
-#define pdflastpdfboxspec THEDATA(pdflastpdfboxspec)
-#define pdfmem THEDATA(pdfmem)
-#define pdfosmode THEDATA(pdfosmode)
-#define pdfoutputvalue THEDATA(pdfoutputvalue)
-#define pdfpagegroupval THEDATA(pdfpagegroupval)
-#define pdfptr THEDATA(pdfptr)
-#define pdfsaveoffset THEDATA(pdfsaveoffset)
-#define pdfstreamlength THEDATA(pdfstreamlength)
-#define pdftexbanner THEDATA(pdftexbanner)
-#define pkscalefactor THEDATA(pkscalefactor)
-#define poolptr THEDATA(poolptr)
-#define poolsize THEDATA(poolsize)
-#define ruledp THEDATA(ruledp)
-#define ruleht THEDATA(ruleht)
-#define rulewd THEDATA(rulewd)
-#define strpool THEDATA(strpool)
-#define strstart THEDATA(strstart)
-#define texmflogname THEDATA(logname)
-#define tmpf THEDATA(tmpf)
-#define totalpages THEDATA(totalpages)
-#define vfefnts THEDATA(vfefnts)
-#define vfifnts THEDATA(vfifnts)
-#define vfpacketbase THEDATA(vfpacketbase)
-#define vfpacketlength THEDATA(vfpacketlength)
-#define zmem THEDATA(zmem)
+#define pdfcrypting program.pdfcrypting
+#define pdfcryptobjnum program.pdfcryptobjnum
+#define pdfcryptovalue program.pdfcryptovalue
+#define pdfcryptpermit program.pdfcryptpermit
+#define pdfcryptuvalue program.pdfcryptuvalue
+#define pdfcryptversion program.pdfcryptversion
+#define pdffile program.pdffile
+#define pdffontattr program.pdffontattr
+#define pdffontnobuiltintounicode program.pdffontnobuiltintounicode
+#define pdffontefbase program.pdffontefbase
+#define pdffontexpandfont program.pdffontexpandfont
+#define pdffontexpandratio program.pdffontexpandratio
+#define pdffontknacbase program.pdffontknacbase
+#define pdffontknbcbase program.pdffontknbcbase
+#define pdffontknbsbase program.pdffontknbsbase
+#define pdffontlpbase program.pdffontlpbase
+#define pdffontmap program.pdffontmap
+#define pdffontrpbase program.pdffontrpbase
+#define pdffontshbsbase program.pdffontshbsbase
+#define pdffontsize program.pdffontsize
+#define pdffontstbsbase program.pdffontstbsbase
+#define pdfgone program.pdfgone
+#define pdfimageprocset program.pdfimageprocset
+#define pdflastbyte program.pdflastbyte
+#define pdflastpdfboxspec program.pdflastpdfboxspec
+#define pdfmem program.pdfmem
+#define pdfosmode program.pdfosmode
+#define pdfoutputvalue program.pdfoutputvalue
+#define pdfpagegroupval program.pdfpagegroupval
+#define pdfptr program.pdfptr
+#define pdfsaveoffset program.pdfsaveoffset
+#define pdfstreamlength program.pdfstreamlength
+#define pdftexbanner program.pdftexbanner
+#define pkscalefactor program.pkscalefactor
+#define poolptr program.poolptr
+#define poolsize program.poolsize
+#define ruledp program.ruledp
+#define ruleht program.ruleht
+#define rulewd program.rulewd
+#define strpool program.strpool
+#define strstart program.strstart
+#define texmflogname program.logname
+#define tmpf program.tmpf
+#define totalpages program.totalpages
+#define vfefnts program.vfefnts
+#define vfifnts program.vfifnts
+#define vfpacketbase program.vfpacketbase
+#define vfpacketlength program.vfpacketlength
+#define zmem program.zmem
+#endif
 
 int miktexloadpoolstrings(int size);
 
@@ -449,12 +614,12 @@ inline int loadpoolstrings(int size)
   return miktexloadpoolstrings(size);
 }
 
-inline char * gettexstring(strnumber stringNumber)
+inline char* gettexstring(PDFTEXPROGCLASS::strnumber stringNumber)
 {
-  int stringStart = MiKTeX::TeXAndFriends::GetTeXStringStart(stringNumber);
-  int stringLength = MiKTeX::TeXAndFriends::GetTeXStringLength(stringNumber);
-  char * lpsz = reinterpret_cast<char*>(xmalloc(stringLength + 1));
-  return MiKTeX::TeXAndFriends::GetTeXString(lpsz, stringLength + 1, stringStart, stringLength);
+  int stringStart = PDFTEXAPP.GetTeXStringStart(stringNumber);
+  int stringLength = PDFTEXAPP.GetTeXStringLength(stringNumber);
+  char* lpsz = (char*)xmalloc(stringLength + 1);
+  return PDFTEXAPP.GetTeXString(lpsz, stringLength + 1, stringStart, stringLength);
 }
 
 #endif

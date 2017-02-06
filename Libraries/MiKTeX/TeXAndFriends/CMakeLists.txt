@@ -60,6 +60,8 @@ set(public_headers_texmf
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ETeXApp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ETeXApp.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ETeXApp.inl
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ETeXMemoryHandlerImpl
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ETeXMemoryHandlerImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ErrorHandlerImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ErrorHandlerImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/FormatHandlerImpl

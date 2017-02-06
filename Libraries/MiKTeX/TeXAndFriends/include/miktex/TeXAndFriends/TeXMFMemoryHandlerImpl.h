@@ -134,7 +134,7 @@ public:
 #endif
     program.halferrorline = GetCheckedParameter("half_error_line", program.infhalferrorline, program.suphalferrorline, userParams, texmfapp::texmfapp::half_error_line());
 #if defined(HAVE_MAIN_MEMORY)
-#  if defined(MIKTEX_METAFONT) || defined(MIKTEX_TEX)
+#  if defined(MIKTEX_METAFONT) || defined(MIKTEX_TEX) || defined(MIKTEX_PDFTEX)
     const int infmainmemory = 3000;
     const int supmainmemory = 256000000;
 #  else
