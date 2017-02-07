@@ -43,7 +43,7 @@ add_definitions(
   -DHAVE_GETPDFMAJORVERSION
   -DMIKTEX_PDFTEX
   -DPDFTEXAPP=g_PDFTEXApp
-  -DPDFTEXCLASS=PDFTEX
+  -DPDFTEXAPPCLASS=PDFTEX
   -DPDF_PARSER_ONLY
   -DSYNCTEX_ENGINE_H="synctex-pdftex.h"
   -DUSE_GZIP
@@ -320,11 +320,6 @@ add_custom_command(
   DEPENDS
     inipool
     ${CMAKE_CURRENT_BINARY_DIR}/pdftex.pool
-)
-
-configure_file(
-  pdftex-miktex-config.h.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/pdftex-miktex-config.h
 )
 
 add_dependencies(${pdftex_target_name} gen-defaults)

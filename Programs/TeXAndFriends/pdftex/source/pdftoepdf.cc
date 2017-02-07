@@ -93,9 +93,11 @@ extern "C" {
 // These functions from pdftex.web gets declared in pdftexcoerce.h in the
 // usual web2c way, but we cannot include that file here because C++
 // does not allow it.
+#if !defined(MIKTEX)
 extern int getpdfsuppresswarningpagegroup(void);
 extern integer getpdfsuppressptexinfo(void);
 extern integer zround(double);
+#endif
 #if ! defined(MIKTEX)
 }
 #endif

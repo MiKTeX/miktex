@@ -105,6 +105,19 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
     )
   endif()
 
+  if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}-miktex-config.h)
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}-miktex-config.h
+      "#pragma once
+#define MIKTEX_${_name_u}
+#define MIKTEX_${_short_name_u}
+#define ${_short_name_u}PROG ${${_short_name_l}_prog}
+#define ${_short_name_u}PROGCLASS ${${_short_name_l}_progclass}
+#define ${_short_name_u}APP ${${_short_name_l}_app}
+#define ${_short_name_u}APPCLASS ${${_short_name_l}_appclass}
+"
+    )
+  endif()
+
   configure_file(
     ${MIKTEX_ALIAS_WRAPPER}
     ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}wrapper.cpp
@@ -118,9 +131,10 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
   endif()
 
   list(APPEND ${_target_name}_sources
+    ${${_short_name_l}_header_file}
+    ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}-miktex-config.h
     ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}.cc
     ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}defs.h
-    ${${_short_name_l}_header_file}
     ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}main.cpp
   )
 

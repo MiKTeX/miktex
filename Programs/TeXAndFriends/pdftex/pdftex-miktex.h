@@ -324,136 +324,256 @@ using strnumber = PDFTEXPROGCLASS::strnumber;
 
 constexpr auto pdfobjtypemax = PDFTEXPROGCLASS::pdfobjtypemax;
 
-auto& curh = PDFTEXPROG.curh;
-auto& curv = PDFTEXPROG.curv;
-auto& curinput = PDFTEXPROG.curinput;
-auto& eqtb = PDFTEXPROG.eqtb;
-auto& fixedgentounicode = PDFTEXPROG.fixedgentounicode;
-auto& fixedinclusioncopyfont = PDFTEXPROG.fixedinclusioncopyfont;
-auto& fixedpdfdraftmode = PDFTEXPROG.fixedpdfdraftmode;
-auto& fontmax = PDFTEXPROG.fontmax;
-auto& fontname = PDFTEXPROG.fontname;
-auto& formatident = PDFTEXPROG.formatident;
-auto& jobname = PDFTEXPROG.jobname;
-auto& lasttokensstring = PDFTEXPROG.lasttokensstring;
-auto& objtab = PDFTEXPROG.objtab;
-auto& outputfilename = PDFTEXPROG.outputfilename;
-auto& pdfboxspecart = PDFTEXPROG.pdfboxspecart;
-auto& pdfboxspecbleed = PDFTEXPROG.pdfboxspecbleed;
-auto& pdfboxspeccrop = PDFTEXPROG.pdfboxspeccrop;
-auto& pdfboxspecmedia = PDFTEXPROG.pdfboxspecmedia;
-auto& pdfboxspectrim = PDFTEXPROG.pdfboxspectrim;
-auto& pdfbuf = PDFTEXPROG.pdfbuf;
-auto& pdfbufsize = PDFTEXPROG.pdfbufsize;
-auto& pdffile = PDFTEXPROG.pdffile;
-auto& pdffontmap = PDFTEXPROG.pdffontmap;
-auto& pdfgone = PDFTEXPROG.pdfgone;
-auto& pdflastbyte = PDFTEXPROG.pdflastbyte;
-auto& pdfosmode = PDFTEXPROG.pdfosmode;
-auto& pdfoutputvalue = PDFTEXPROG.pdfoutputvalue;
-auto& pdfpagegroupval = PDFTEXPROG.pdfpagegroupval;
-auto& pdfptr = PDFTEXPROG.pdfptr;
-auto& pdftexbanner = PDFTEXPROG.pdftexbanner;
-auto& poolptr = PDFTEXPROG.poolptr;
-auto& poolsize = PDFTEXPROG.poolsize;
-auto& ruledp = PDFTEXPROG.ruledp;
-auto& ruleht = PDFTEXPROG.ruleht;
-auto& rulewd = PDFTEXPROG.rulewd;
-auto& strpool = PDFTEXPROG.strpool;
-auto& strstart = PDFTEXPROG.strstart;
-auto& texmflogname = PDFTEXPROG.logname;
-auto& totalpages = PDFTEXPROG.totalpages;
-auto& vfefnts = PDFTEXPROG.vfefnts;
-auto& vfifnts = PDFTEXPROG.vfifnts;
-auto& zmem = PDFTEXPROG.zmem;
+extern PDFTEXPROGCLASS::scaled& curh;
+extern PDFTEXPROGCLASS::instaterecord& curinput;
+extern PDFTEXPROGCLASS::scaled& curv;
+extern PDFTEXPROGCLASS::memoryword*& eqtb;
+extern C4P::C4P_integer& fixeddecimaldigits;
+extern C4P::C4P_integer& fixedgamma;
+extern C4P::C4P_integer& fixedgentounicode;
+extern C4P::C4P_integer& fixedimageapplygamma;
+extern C4P::C4P_integer& fixedimagegamma;
+extern C4P::C4P_boolean& fixedimagehicolor;
+extern C4P::C4P_integer& fixedinclusioncopyfont;
+extern C4P::C4P_integer& fixedpdfdraftmode;
+extern C4P::C4P_integer& fixedpdfminorversion;
+extern C4P::C4P_integer& fixedpkresolution;
+extern PDFTEXPROGCLASS::eightbits*& fontbc;
+extern PDFTEXPROGCLASS::scaled*& fontdsize;
+extern PDFTEXPROGCLASS::eightbits*& fontec;
+extern C4P::C4P_integer& fontmax;
+extern PDFTEXPROGCLASS::strnumber*& fontname;
+extern PDFTEXPROGCLASS::strnumber& formatident;
+extern PDFTEXPROGCLASS::strnumber& jobname;
+extern PDFTEXPROGCLASS::strnumber& lasttokensstring;
+extern C4P::C4P_integer& objptr;
+extern PDFTEXPROGCLASS::objentry*& objtab;
+extern PDFTEXPROGCLASS::scaled& onehundredbp;
+extern PDFTEXPROGCLASS::strnumber& outputfilename;
+extern C4P::C4P_integer& pdfboxspecart;
+extern C4P::C4P_integer& pdfboxspecbleed;
+extern C4P::C4P_integer& pdfboxspeccrop;
+extern C4P::C4P_integer& pdfboxspecmedia;
+extern C4P::C4P_integer& pdfboxspectrim;
+extern PDFTEXPROGCLASS::eightbits*& pdfbuf;
+extern C4P::C4P_integer& pdfbufsize;
+extern PDFTEXPROGCLASS::charusedarray*& pdfcharused;
+extern PDFTEXPROGCLASS::bytefile& pdffile;
+extern PDFTEXPROGCLASS::strnumber*& pdffontattr;
+extern PDFTEXPROGCLASS::fmentryptr*& pdffontmap;
+extern C4P::C4P_boolean*& pdffontnobuiltintounicode;
+extern PDFTEXPROGCLASS::scaled*& pdffontsize;
+extern C4P::C4P_longinteger& pdfgone;
+extern C4P::C4P_integer& pdfimageprocset;
+extern PDFTEXPROGCLASS::eightbits& pdflastbyte;
+extern C4P::C4P_boolean& pdfosmode;
+extern C4P::C4P_integer& pdfoutputvalue;
+extern C4P::C4P_integer& pdfpagegroupval;
+extern C4P::C4P_integer& pdfptr;
+extern C4P::C4P_longinteger& pdfsaveoffset;
+extern C4P::C4P_longinteger& pdfstreamlength;
+extern PDFTEXPROGCLASS::strnumber& pdftexbanner;
+extern C4P::C4P_integer& pkscalefactor;
+extern PDFTEXPROGCLASS::poolpointer& poolptr;
+extern C4P::C4P_integer& poolsize;
+extern PDFTEXPROGCLASS::scaled& ruledp;
+extern PDFTEXPROGCLASS::scaled& ruleht;
+extern PDFTEXPROGCLASS::scaled& rulewd;
+extern PDFTEXPROGCLASS::packedasciicode*& strpool;
+extern PDFTEXPROGCLASS::poolpointer*& strstart;
+extern PDFTEXPROGCLASS::strnumber& texmflogname;
+extern C4P::C4P_integer& totalpages;
+extern C4P::C4P_integer*& vfefnts;
+extern PDFTEXPROGCLASS::internalfontnumber*& vfifnts;
+extern C4P::C4P_integer*& vfpacketbase;
+extern C4P::C4P_integer& vfpacketlength;
+extern PDFTEXPROGCLASS::memoryword*& zmem;
 
-auto flushstr(PDFTEXPROGCLASS::strnumber s)
+extern char* nameoffile;
+
+#if WITH_SYNCTEX
+extern C4P::C4P_integer& synctexoption;
+extern C4P::C4P_integer& synctexoffset;
+#endif
+
+extern C4P::C4P_integer k;
+
+inline auto dividescaled(PDFTEXPROGCLASS::scaled s, PDFTEXPROGCLASS::scaled m, C4P::C4P_integer dd)
+{
+  return PDFTEXPROG.dividescaled(s, m, dd);
+}
+
+inline auto flushstr(PDFTEXPROGCLASS::strnumber s)
 {
   PDFTEXPROG.flushstr(s);
 }
 
-auto getnullstr()
+inline auto getchardepth(PDFTEXPROGCLASS::internalfontnumber f, PDFTEXPROGCLASS::eightbits c)
+{
+  return PDFTEXPROG.getchardepth(f, c);
+}
+
+inline auto getcharheight(PDFTEXPROGCLASS::internalfontnumber f, PDFTEXPROGCLASS::eightbits c)
+{
+  return PDFTEXPROG.getcharheight(f, c);
+}
+
+inline auto getcharwidth(PDFTEXPROGCLASS::internalfontnumber f, PDFTEXPROGCLASS::eightbits c)
+{
+  return PDFTEXPROG.getcharwidth(f, c);
+}
+
+inline auto getpdfcompresslevel()
+{
+  return PDFTEXPROG.getpdfcompresslevel();
+}
+
+inline auto getquad(PDFTEXPROGCLASS::internalfontnumber f)
+{
+  return PDFTEXPROG.getquad(f);
+}
+
+inline auto getxheight(PDFTEXPROGCLASS::internalfontnumber f)
+{
+  return PDFTEXPROG.getxheight(f);
+}
+
+inline auto getnullstr()
 {
   return PDFTEXPROG.getnullstr();
 }
 
-auto getpdfsuppresswarningdupmap()
+inline auto getpdfsuppresswarningdupmap()
 {
   return PDFTEXPROG.getpdfsuppresswarningdupmap();
 }
 
-auto makestring()
+inline auto getslant(PDFTEXPROGCLASS::internalfontnumber f)
+{
+  return PDFTEXPROG.getslant(f);
+}
+
+inline auto makenamestring()
+{
+  return PDFTEXPROG.makenamestring();
+}
+
+inline auto makestring()
 {
   return PDFTEXPROG.makestring();
 }
 
-auto packfilename(PDFTEXPROGCLASS::strnumber n, PDFTEXPROGCLASS::strnumber a, PDFTEXPROGCLASS::strnumber e)
+inline auto packfilename(PDFTEXPROGCLASS::strnumber n, PDFTEXPROGCLASS::strnumber a, PDFTEXPROGCLASS::strnumber e)
 {
   return PDFTEXPROG.packfilename(n, a, e);
 }
 
-auto pdfbegindict(C4P::C4P_integer i, C4P::C4P_integer pdfoslevel)
+inline auto pdfbegindict(C4P::C4P_integer i, C4P::C4P_integer pdfoslevel)
 {
   PDFTEXPROG.pdfbegindict(i, pdfoslevel);
 }
 
-auto pdfbeginobj(C4P::C4P_integer i, C4P::C4P_integer pdfoslevel)
+inline auto pdfbeginobj(C4P::C4P_integer i, C4P::C4P_integer pdfoslevel)
 {
   PDFTEXPROG.pdfbeginobj(i, pdfoslevel);
 }
 
-auto pdfbeginstream()
+inline auto pdfbeginstream()
 {
   PDFTEXPROG.pdfbeginstream();
 }
 
-auto pdfendobj()
+inline auto pdfcreateobj(C4P::C4P_integer t, C4P::C4P_integer i)
+{
+  PDFTEXPROG.pdfcreateobj(t, i);
+}
+
+inline auto pdfenddict()
+{
+  PDFTEXPROG.pdfenddict();
+}
+
+inline auto pdfendobj()
 {
   PDFTEXPROG.pdfendobj();
 }
 
-auto pdfendstream()
+inline auto pdfendstream()
 {
   PDFTEXPROG.pdfendstream();
 }
-auto pdfflush()
+inline auto pdfflush()
 {
   PDFTEXPROG.pdfflush();
 }
 
-auto pdfnewobjnum()
+inline auto pdfnewdict(C4P::C4P_integer t, C4P::C4P_integer i, C4P::C4P_integer pdfos)
+{
+  PDFTEXPROG.pdfnewdict(t, i, pdfos);
+}
+
+inline auto pdfnewobjnum()
 {
   return PDFTEXPROG.pdfnewobjnum();
 }
 
-auto pdfosgetosbuf(C4P::C4P_integer s)
+inline auto pdfosgetosbuf(C4P::C4P_integer s)
 {
   PDFTEXPROG.pdfosgetosbuf(s);
 }
 
-auto print(C4P::C4P_integer s)
+inline auto pdfprint(PDFTEXPROGCLASS::strnumber s)
+{
+  PDFTEXPROG.pdfprint(s);
+}
+
+inline auto pdfprintreal(C4P::C4P_integer m, C4P::C4P_integer d)
+{
+  PDFTEXPROG.pdfprintreal(m, d);
+}
+
+inline auto getpdfsuppressptexinfo()
+{
+  return PDFTEXPROG.getpdfsuppressptexinfo();
+}
+
+inline auto getpdfsuppresswarningpagegroup()
+{
+  return PDFTEXPROG.getpdfsuppresswarningpagegroup();
+}
+
+inline auto print(C4P::C4P_integer s)
 {
   PDFTEXPROG.print(s);
 }
 
-auto println()
+inline auto println()
 {
   PDFTEXPROG.println();
 }
 
-auto tokenstostring(PDFTEXPROGCLASS::halfword p)
+inline auto tokenstostring(PDFTEXPROGCLASS::halfword p)
 {
   return PDFTEXPROG.tokenstostring(p);
 }
 
-
 #include "pdftex.h"
+
 #if WITH_SYNCTEX
 #include "synctex.h"
 #endif
 
-#define printid printID
-#define printidalt printIDalt
+inline void printid(PDFTEXPROGCLASS::strnumber filename)
+{
+  extern void printID(strnumber filename);
+  printID(filename);
+}
+
+inline void printidalt(integer toks)
+{
+  extern void printIDalt(integer toks);
+  printIDalt(toks);
+}
 
 template<typename FileType> int getbyte(FileType& f)
 {
@@ -464,25 +584,6 @@ template<typename FileType> int getbyte(FileType& f)
   }
   return ret & 0xff;
 }
-
-// REMOVE: #define zpdfosgetosbuf pdfosgetosbuf
-// REMOVE: #define zpdfbeginobj pdfbeginobj
-
-#if defined(texbopenin)
-#  undef texbopenin
-#  define texbopenin(f) \
-    open_input(&f.fileref(), kpse_tex_format, FOPEN_RBIN_MODE)
-#endif
-
-#if defined(vfbopenin)
-#  undef vfbopenin
-#  define vfbopenin(f) \
-  miktexopenvffile(f, GetNameOfFileForMiKTeX())
-#endif
-
-#if !defined(__GNUC__)
-#  define __attribute__(x)
-#endif
 
 inline char* GetNameOfFileForMiKTeX()
 {
@@ -495,116 +596,24 @@ inline char* GetNameOfFileForWeb2C()
   return GetNameOfFileForMiKTeX() - 1;
 }
 
-#define nameoffile (GetNameOfFileForWeb2C())
-
-#if WITH_SYNCTEX
-#define synctexoption PDFTEXPROG.synctexoption
-#define synctexoffset PDFTEXPROG.synctexoffset
+#if defined(texbopenin)
+#  undef texbopenin
 #endif
+template<typename FileType> bool texbopenin(FileType& f)
+{
+  return open_input(&f.fileref(), kpse_tex_format, FOPEN_RBIN_MODE);
+};
 
-#if 0
-extern C4P_integer k;
+#if defined(vfbopenin)
+#  undef vfbopenin
 #endif
+template<typename FileType> bool vfbopenin(FileType &f)
+{
+  return miktexopenvffile(f, GetNameOfFileForMiKTeX());
+}
 
-#if 0
-#define curh program.curh
-#define curinput program.curinput
-#define curv program.curv
-#define dim100bp THEDATA(dim100bp)
-#define dim100in THEDATA(dim100in)
-#define dim1bp THEDATA(dim1bp)
-#define dim1in THEDATA(dim1in)
-#define dim1inoverpkres THEDATA(dim1inoverpkres)
-#define eqtb program.eqtb
-#define f program.f
-#define fixedcompresslevel program.fixedcompresslevel
-#define fixeddecimaldigits program.fixeddecimaldigits
-#define fixedgamma program.fixedgamma
-#define fixedgentounicode program.fixedgentounicode
-#define fixedimageapplygamma program.fixedimageapplygamma
-#define fixedimagegamma program.fixedimagegamma
-#define fixedimagehicolor program.fixedimagehicolor
-#define fixedinclusioncopyfont program.fixedinclusioncopyfont
-#define fixedmovechars program.fixedmovechars
-#define fixedpdfdraftmode program.fixedpdfdraftmode
-#define fixedpdfminorversion program.fixedpdfminorversion
-#define fixedpkresolution program.fixedpkresolution
-#define fontbc program.fontbc
-#define fontdsize program.fontdsize
-#define fontec program.fontec
-#define fontmax program.fontmax
-#define fontname program.fontname
-#define fontptr program.fontptr
-#define fontsize program.fontsize
-#define fontused program.fontused
-#define formatident program.formatident
-#define jobname program.jobname
-#define lasttokensstring program.lasttokensstring
-#define objptr program.objptr
-#define objtab program.objtab
-#define onehundredbp program.onehundredbp
-#define outputfilename program.outputfilename
-#define pdfboxspecart program.pdfboxspecart
-#define pdfboxspecbleed program.pdfboxspecbleed
-#define pdfboxspeccrop program.pdfboxspeccrop
-#define pdfboxspecmedia program.pdfboxspecmedia
-#define pdfboxspectrim program.pdfboxspectrim
-#define pdfbuf program.pdfbuf
-#define pdfbufsize program.pdfbufsize
-#define pdfcharmap program.pdfcharmap
-#define pdfcharused program.pdfcharused
-#define pdfcryptdate program.pdfcryptdate
-#define pdfcryptid1 THEDATA(pdfcryptid1)
-#define pdfcryptid2 THEDATA(pdfcryptid2)
-#define pdfcrypting program.pdfcrypting
-#define pdfcryptobjnum program.pdfcryptobjnum
-#define pdfcryptovalue program.pdfcryptovalue
-#define pdfcryptpermit program.pdfcryptpermit
-#define pdfcryptuvalue program.pdfcryptuvalue
-#define pdfcryptversion program.pdfcryptversion
-#define pdffile program.pdffile
-#define pdffontattr program.pdffontattr
-#define pdffontnobuiltintounicode program.pdffontnobuiltintounicode
-#define pdffontefbase program.pdffontefbase
-#define pdffontexpandfont program.pdffontexpandfont
-#define pdffontexpandratio program.pdffontexpandratio
-#define pdffontknacbase program.pdffontknacbase
-#define pdffontknbcbase program.pdffontknbcbase
-#define pdffontknbsbase program.pdffontknbsbase
-#define pdffontlpbase program.pdffontlpbase
-#define pdffontmap program.pdffontmap
-#define pdffontrpbase program.pdffontrpbase
-#define pdffontshbsbase program.pdffontshbsbase
-#define pdffontsize program.pdffontsize
-#define pdffontstbsbase program.pdffontstbsbase
-#define pdfgone program.pdfgone
-#define pdfimageprocset program.pdfimageprocset
-#define pdflastbyte program.pdflastbyte
-#define pdflastpdfboxspec program.pdflastpdfboxspec
-#define pdfmem program.pdfmem
-#define pdfosmode program.pdfosmode
-#define pdfoutputvalue program.pdfoutputvalue
-#define pdfpagegroupval program.pdfpagegroupval
-#define pdfptr program.pdfptr
-#define pdfsaveoffset program.pdfsaveoffset
-#define pdfstreamlength program.pdfstreamlength
-#define pdftexbanner program.pdftexbanner
-#define pkscalefactor program.pkscalefactor
-#define poolptr program.poolptr
-#define poolsize program.poolsize
-#define ruledp program.ruledp
-#define ruleht program.ruleht
-#define rulewd program.rulewd
-#define strpool program.strpool
-#define strstart program.strstart
-#define texmflogname program.logname
-#define tmpf program.tmpf
-#define totalpages program.totalpages
-#define vfefnts program.vfefnts
-#define vfifnts program.vfifnts
-#define vfpacketbase program.vfpacketbase
-#define vfpacketlength program.vfpacketlength
-#define zmem program.zmem
+#if !defined(__GNUC__)
+#  define __attribute__(x)
 #endif
 
 int miktexloadpoolstrings(int size);
