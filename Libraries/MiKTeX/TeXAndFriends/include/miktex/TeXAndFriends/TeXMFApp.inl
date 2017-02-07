@@ -55,13 +55,10 @@ inline int miktexgetjobname()
   return THEAPP.GetJobName();
 }
 
-#if 0
 inline const TEXMFCHAR* miktexgetstringat(int idx)
 {
-  MIKTEX_ASSERT(sizeof(TEXMFCHAR) == sizeof(THEDATA(strpool)[idx]));
-  return reinterpret_cast<TEXMFCHAR*>(&(THEDATA(strpool)[idx]));
+  return THEAPP.GetTeXStringAt(idx);
 }
-#endif
 
 inline bool miktexhaltonerrorp()
 {

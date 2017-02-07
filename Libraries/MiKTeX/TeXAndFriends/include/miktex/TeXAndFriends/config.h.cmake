@@ -73,4 +73,47 @@
 
 #define C4P_VAR(name) ${C4P_VAR_NAME_PREFIX}##name
 
+#if defined(MIKTEX_TEX) || defined(MIKTEX_TRIPTEX)
+#  define MIKTEX_TEX_COMPILER 1
+#endif
+
+#if defined(MIKTEX_PDFTEX)
+#  define MIKTEX_TEX_COMPILER 1
+#endif
+
+#if defined(MIKTEX_XETEX)
+#  define MIKTEX_TEX_COMPILER 1
+#  define MIKTEX_TEXMF_UNICODE 1
+#endif
+
+#if defined(MIKTEX_OMEGA)
+#  define MIKTEX_TEX_COMPILER 1
+#  define MIKTEX_TEXMF_UNICODE 1
+#endif
+
+#if defined(MIKTEX_METAFONT)
+#  define MIKTEX_META_COMPILER 1
+#  define ENABLE_8BIT_CHARS 1
+#  define HAVE_MAIN_MEMORY 1
+#  define IMPLEMENT_TCX 1
+#endif
+
+#if defined(MIKTEX_TEX_COMPILER)
+#    define HAVE_EXTRA_MEM_BOT 1
+#    define HAVE_EXTRA_MEM_TOP 1
+#    define HAVE_MAIN_MEMORY 1
+#    define HAVE_POOL_FREE 1
+#    define HAVE_STRINGS_FREE 1
+#  if !(defined(MIKTEX_XETEX) || defined(MIKTEX_OMEGA))
+#    define IMPLEMENT_TCX 1
+#  endif
+#  if !defined(MIKTEX_OMEGA)
+#    define ENABLE_8BIT_CHARS 1
+#  endif
+#endif
+
+#if defined(MIKTEX_BIBTEX)
+#  define IMPLEMENT_TCX 1
+#endif
+
 #endif

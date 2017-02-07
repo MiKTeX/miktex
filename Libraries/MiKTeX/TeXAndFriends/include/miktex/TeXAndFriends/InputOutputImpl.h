@@ -80,7 +80,7 @@ public:
 public:
   char* nameoffile() override
   {
-    return program.nameoffile;
+    return (char*)program.nameoffile;
   }
 public:
   C4P::C4P_signed16& namelength() override

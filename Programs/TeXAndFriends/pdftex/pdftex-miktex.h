@@ -24,8 +24,10 @@
 #if !defined(B9AE601D55FC414A8D93C81CF3517D1A)
 #define B9AE601D55FC414A8D93C81CF3517D1A
 
-#define MIKTEX_UTF8_WRAP_ALL 1
-#include <miktex/utf8wrap.h>
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_UTF8_WRAP_ALL 1
+#  include <miktex/utf8wrap.h>
+#endif
 
 #include <miktex/Core/Paths>
 #include <miktex/KPSE/Emulation>
@@ -36,10 +38,6 @@
 #include <miktex/TeXAndFriends/ETeXMemoryHandlerImpl>
 
 #include "pdftexdefs.h"
-
-//#if defined(C4P_HEADER_GUARD_pdftex)
-//#  error pdftex-miktex.h must be included before pdftexd.h
-//#endif
 #include "pdftexd.h"
 
 #include "pdftex-version.h"
@@ -60,8 +58,8 @@ class MemoryHandlerImpl :
   public MiKTeX::TeXAndFriends::ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>
 {
 public:
-  MemoryHandlerImpl(PDFTEXPROGCLASS& program, MiKTeX::TeXAndFriends::TeXMFApp& mfapp) :
-    ETeXMemoryHandlerImpl(program, mfapp)
+  MemoryHandlerImpl(PDFTEXPROGCLASS& program, MiKTeX::TeXAndFriends::TeXMFApp& texmfapp) :
+    ETeXMemoryHandlerImpl(program, texmfapp)
   {
   }
 
@@ -190,7 +188,6 @@ public:
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vflocalfontnum);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.vfpacketbase);
   }
-
 };
 
 class PDFTEXAPPCLASS :
@@ -585,17 +582,6 @@ template<typename FileType> int getbyte(FileType& f)
   return ret & 0xff;
 }
 
-inline char* GetNameOfFileForMiKTeX()
-{
-  return &((PDFTEXPROG.nameoffile)[0]);
-}
-
-// special case: Web2C likes to add 1 to the nameoffile base address
-inline char* GetNameOfFileForWeb2C()
-{
-  return GetNameOfFileForMiKTeX() - 1;
-}
-
 #if defined(texbopenin)
 #  undef texbopenin
 #endif
@@ -609,7 +595,7 @@ template<typename FileType> bool texbopenin(FileType& f)
 #endif
 template<typename FileType> bool vfbopenin(FileType &f)
 {
-  return miktexopenvffile(f, GetNameOfFileForMiKTeX());
+  return miktexopenvffile(f, PDFTEXPROG.nameoffile);
 }
 
 #if !defined(__GNUC__)

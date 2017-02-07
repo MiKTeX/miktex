@@ -45,49 +45,6 @@
 #include <miktex/Util/StringUtil>
 #include <miktex/Util/inliners.h>
 
-#if defined(MIKTEX_TEX) || defined(MIKTEX_TRIPTEX)
-#  define MIKTEX_TEX_COMPILER 1
-#endif
-
-#if defined(MIKTEX_PDFTEX)
-#  define MIKTEX_TEX_COMPILER 1
-#endif
-
-#if defined(MIKTEX_XETEX)
-#  define MIKTEX_TEX_COMPILER 1
-#  define MIKTEX_TEXMF_UNICODE 1
-#endif
-
-#if defined(MIKTEX_OMEGA)
-#  define MIKTEX_TEX_COMPILER 1
-#  define MIKTEX_TEXMF_UNICODE 1
-#endif
-
-#if defined(MIKTEX_METAFONT)
-#  define MIKTEX_META_COMPILER 1
-#  define ENABLE_8BIT_CHARS 1
-#  define HAVE_MAIN_MEMORY 1
-#  define IMPLEMENT_TCX 1
-#endif
-
-#if defined(MIKTEX_TEX_COMPILER)
-#    define HAVE_EXTRA_MEM_BOT 1
-#    define HAVE_EXTRA_MEM_TOP 1
-#    define HAVE_MAIN_MEMORY 1
-#    define HAVE_POOL_FREE 1
-#    define HAVE_STRINGS_FREE 1
-#  if !(defined(MIKTEX_XETEX) || defined(MIKTEX_OMEGA))
-#    define IMPLEMENT_TCX 1
-#  endif
-#  if !defined(MIKTEX_OMEGA)
-#    define ENABLE_8BIT_CHARS 1
-#  endif
-#endif
-
-#if defined(MIKTEX_BIBTEX)
-#  define IMPLEMENT_TCX 1
-#endif
-
 #include "WebAppInputLine.h"
 
 namespace texmfapp {
@@ -101,7 +58,7 @@ class IStringHandler
 public:
   virtual char* strpool() = 0;
 public:
-  virtual wchar_t* wstrpool() = 0;
+  virtual C4P::C4P_signed16* strpool16() = 0;
 public:
   virtual C4P::C4P_signed32& strptr() = 0;
 public:
@@ -314,7 +271,7 @@ public:
     }
     IStringHandler* stringHandler = GetStringHandler();
 #if defined(MIKTEX_TEXMF_UNICODE)
-    wchar_t* strpool = stringHandler->wstrpool();
+    auto strpool = stringHandler->strpool16();
 #else
     char* strpool = stringHandler->strpool();
 #endif
@@ -325,6 +282,20 @@ public:
     dest[stringLength] = 0;
     return dest;
   }
+
+public:
+  TEXMFCHAR* GetTeXStringAt(int idx) const
+  {
+    IStringHandler* stringHandler = GetStringHandler();
+#if defined(MIKTEX_TEXMF_UNICODE)
+    auto strpool = stringHandler->strpool16();
+#else
+    char* strpool = stringHandler->strpool();
+#endif
+    MIKTEX_ASSERT(sizeof(TEXMFCHAR) == sizeof(THEDATA(strpool)[idx]));
+    return reinterpret_cast<TEXMFCHAR*>(&(strpool[idx]));
+  }
+
 
 #if defined(MIKTEX_TEXMF_UNICODE)
 public:
@@ -415,7 +386,7 @@ public:
     CheckPoolPointer(stringHandler->poolptr(), len);
     for (size_t idx = 0; idx < len; ++idx)
     {
-      stringHandler->strpool()[stringHandler->poolptr()] = buf[idx];
+      stringHandler->strpool16()[stringHandler->poolptr()] = buf[idx];
       stringHandler->poolptr() += 1;
     }
 #else

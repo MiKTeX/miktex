@@ -1,4 +1,4 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
 ## Copyright (C) 2008-2016 Christian Schenk
 ## 
@@ -34,7 +34,7 @@ add_definitions(
   -DMIKTEX_XETEX
   -DSYNCTEX_ENGINE_H="synctex-xetex.h"
   -DXETEXAPP=g_XETEXApp
-  -DXETEXCLASS=XETEX
+  -DXETEXAPPCLASS=XETEX
   -DXETEX_OTHER
   -DXeTeX
   -D__SyncTeX__
@@ -153,21 +153,6 @@ add_custom_command(
   VERBATIM
 )
 
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/xetex_pool.cpp
-  COMMAND
-    inipool
-    ${CMAKE_CURRENT_BINARY_DIR}/xetex.pool
-    xetex-miktex.h
-    > ${CMAKE_CURRENT_BINARY_DIR}/xetex_pool.cpp
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    inipool
-    ${CMAKE_CURRENT_BINARY_DIR}/xetex.pool
-)
-
 file(READ ${MIKTEX_DYN_TEX_SCRIPT} tex_dyn_sed_contents)
 file(READ ${MIKTEX_DYN_ETEX_SCRIPT} etex_dyn_sed_contents)
 
@@ -237,6 +222,23 @@ set_source_files_properties(
 set(TANGLE_FLAGS -omega)
 
 create_web_app(XeTeX)
+
+add_custom_command(
+  OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/xetex_pool.cpp
+  COMMAND
+    inipool
+    ${CMAKE_CURRENT_BINARY_DIR}/xetex.pool
+    xetex-miktex.h
+    ${xetex_progclass}
+    ${xetex_prog}
+    > ${CMAKE_CURRENT_BINARY_DIR}/xetex_pool.cpp
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_BINARY_DIR}
+  DEPENDS
+    inipool
+    ${CMAKE_CURRENT_BINARY_DIR}/xetex.pool
+)
 
 set_source_files_properties(
   ${CMAKE_CURRENT_BINARY_DIR}/xetex.cc

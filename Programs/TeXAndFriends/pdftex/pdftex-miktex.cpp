@@ -26,6 +26,12 @@
 
 using namespace MiKTeX::Core;
 
+// special case: Web2C likes to add 1 to the nameoffile base address
+char* GetNameOfFileForWeb2C()
+{
+  return &PDFTEXPROG.nameoffile[-1];
+}
+
 PDFTEXPROGCLASS::scaled& curh = PDFTEXPROG.curh;
 PDFTEXPROGCLASS::instaterecord& curinput = PDFTEXPROG.curinput;
 PDFTEXPROGCLASS::scaled& curv = PDFTEXPROG.curv;

@@ -24,32 +24,23 @@
 #  include <miktex/utf8wrap.h>
 #endif
 
-#include "xetexdefs.h"
-
-#if ! defined(C4PEXTERN)
-#  define C4PEXTERN extern
-#endif
-
-#include <miktex/TeXAndFriends/config.h>
-
-#include "xetexd.h"
-//#include "XeTeXOTMath.h"
-
-#if ! defined(THEDATA)
-#  define THEDATA(x) C4P_VAR(x)
-#endif
+#include "xetex-miktex-config.h"
 
 #include <miktex/Core/FileType>
-
-#include "xetex-version.h"
-
-#if defined(MIKTEX_WINDOWS)
-#  include "xetex.rc"
-#endif
-
 #include <miktex/Core/MD5>
 #include <miktex/Core/Paths>
+#include <miktex/KPSE/Emulation>
+#include <miktex/TeXAndFriends/CharacterConverterImpl>
+#include <miktex/TeXAndFriends/InitFinalizeImpl>
+#include <miktex/TeXAndFriends/InputOutputImpl>
 #include <miktex/TeXAndFriends/ETeXApp>
+#include <miktex/TeXAndFriends/ETeXMemoryHandlerImpl>
+#include <miktex/W2C/Emulation>
+
+#include "xetexdefs.h"
+#include "xetexd.h"
+
+#include "xetex-version.h"
 
 #if 0
 namespace xetex {
@@ -57,14 +48,63 @@ namespace xetex {
 }
 #endif
 
+#if defined(MIKTEX_WINDOWS)
+#  include "xetex.rc"
+#endif
+
 #if !defined(MIKTEXHELP_XETEX)
 #  include <miktex/Core/Help>
 #endif
 
-extern const char * papersize;
-extern const char * outputdriver;
+extern XETEXPROGCLASS XETEXPROG;
 
-class XETEXCLASS :
+class MemoryHandlerImpl :
+  public MiKTeX::TeXAndFriends::ETeXMemoryHandlerImpl<XETEXPROGCLASS>
+{
+public:
+  MemoryHandlerImpl(XETEXPROGCLASS& program, MiKTeX::TeXAndFriends::TeXMFApp& texmfapp) :
+    ETeXMemoryHandlerImpl(program, texmfapp)
+  {
+  }
+
+public:
+  void Allocate(const std::unordered_map<std::string, int>& userParams) override
+  {
+    ETeXMemoryHandlerImpl::Allocate(userParams);
+    size_t nFonts = program.fontmax - program.constfontbase;
+    AllocateArray("fontmapping", program.fontmapping, nFonts);
+#if 1
+    for (int idx = 0; idx < nFonts; ++idx)
+    {
+      program.fontmapping[idx] = 0;
+    }
+#endif
+    AllocateArray("fontlayoutengine", program.fontlayoutengine, nFonts);
+    AllocateArray("fontflags", program.fontflags, nFonts);
+    AllocateArray("fontletterspace", program.fontletterspace, nFonts);
+  }
+
+public:
+  void Free() override
+  {
+    ETeXMemoryHandlerImpl::Free();
+    FreeArray("", program.fontmapping);
+    FreeArray("", program.fontlayoutengine);
+    FreeArray("", program.fontflags);
+    FreeArray("", program.fontletterspace);
+  }
+
+public:
+  void Check() override
+  {
+    ETeXMemoryHandlerImpl::Check();
+  }
+};
+
+// REMOVE: extern const char * papersize;
+// REMOVE: extern const char * outputdriver;
+
+class XETEXAPPCLASS :
   public MiKTeX::TeXAndFriends::ETeXApp
 {
 public:
@@ -84,18 +124,20 @@ public:
   }
 
 public:
-  bool ProcessOption(int opt, const std::string & optArg) override
+  bool ProcessOption(int opt, const std::string& optArg) override
   {
     bool done = true;
     switch (opt)
     {
     case OPT_NO_PDF:
-      THEDATA(nopdfoutput) = true;
+      XETEXPROG.nopdfoutput = true;
       break;
     case OPT_OUTPUT_DRIVER:
+      extern const char* outputdriver;
       outputdriver = strdup(optArg.c_str());
       break;
     case OPT_PAPERSIZE:
+      extern const char* papersize;
       papersize = strdup(optArg.c_str());
       break;
     default:
@@ -105,36 +147,25 @@ public:
     return done;
   }
 
-public:
-  void AllocateMemory()
-  {
-    ETeXApp::AllocateMemory();
-    size_t nFonts = THEDATA(fontmax) - constfontbase;
-    Allocate("fontmapping", THEDATA(fontmapping), nFonts);
-#if 1
-    for (int idx = 0; idx < nFonts; ++ idx)
-    {
-      THEDATA(fontmapping)[idx] = 0;
-    }
-#endif
-    Allocate ("fontlayoutengine", THEDATA(fontlayoutengine), nFonts);
-    Allocate ("fontflags", THEDATA(fontflags), nFonts);
-    Allocate ("fontletterspace", THEDATA(fontletterspace), nFonts);
-  }
+private:
+  MiKTeX::TeXAndFriends::CharacterConverterImpl<XeTeXProgram> charConv{ XETEXPROG };
+
+private:
+  MiKTeX::TeXAndFriends::InitFinalizeImpl<XeTeXProgram> initFinalize{ XETEXPROG };
+
+private:
+  MiKTeX::TeXAndFriends::InputOutputImpl<XeTeXProgram> inputOutput{ XETEXPROG };
+
+private:
+  MemoryHandlerImpl memoryHandler{ XETEXPROG, *this };
 
 public:
-  void FreeMemory()
+  void Init(const std::string& programInvocationName) override
   {
-    ETeXApp::FreeMemory();
-    Free(THEDATA(fontmapping));
-    Free(THEDATA(fontlayoutengine));
-    Free(THEDATA(fontflags));
-    Free(THEDATA(fontletterspace));
-  }
-
-public:
-  void Init(const std::string & programInvocationName) override
-  {
+    SetCharacterConverter(&charConv);
+    SetInitFinalize(&initFinalize);
+    SetInputOutput(&inputOutput);
+    SetTeXMFMemoryHandler(&memoryHandler);
     ETeXApp::Init(programInvocationName);
     EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
   }
@@ -170,93 +201,64 @@ public:
   }
 
 public:
-  virtual void GetLibraryVersions(std::vector<MiKTeX::Core::LibraryVersion> & versions) const override;
+  void GetLibraryVersions(std::vector<MiKTeX::Core::LibraryVersion>& versions) const override;
 };
 
-extern XETEXCLASS XETEXAPP;
+extern XETEXAPPCLASS XETEXAPP;
 #define THEAPP XETEXAPP
 #include <miktex/TeXAndFriends/ETeXApp.inl>
 
-#include <miktex/KPSE/Emulation>
-#include <miktex/W2C/Emulation>
+using halfword = XETEXPROGCLASS::halfword;
+
+extern XETEXPROGCLASS::unicodescalar*& buffer;
+extern C4P::C4P_integer& bufsize;
+extern XETEXPROGCLASS::scaled& curh;
+extern XETEXPROGCLASS::instaterecord& curinput;
+extern XETEXPROGCLASS::scaled& curv;
+extern XETEXPROGCLASS::memoryword*& eqtb;
+extern C4P::C4P_signed32& first;
+extern XETEXPROGCLASS::strnumber& jobname;
+extern C4P::C4P_signed32& last;
+extern C4P::C4P_signed32& maxbufstack;
+extern C4P::C4P_boolean& nopdfoutput;
+extern XETEXPROGCLASS::scaled& ruledp;
+extern XETEXPROGCLASS::scaled& ruleht;
+extern XETEXPROGCLASS::scaled& rulewd;
+extern C4P::C4P_integer& synctexoffset;
+extern C4P::C4P_integer& synctexoption;
+extern XETEXPROGCLASS::strnumber& texmflogname;
+extern C4P::C4P_integer& totalpages;
+extern XETEXPROGCLASS::memoryword*& zmem;
+
+extern XETEXPROGCLASS::utf8code* nameoffile;
+
+inline auto begindiagnostic()
+{
+  XETEXPROG.begindiagnostic();
+}
+
+inline auto enddiagnostic(C4P::C4P_boolean blankline)
+{
+  XETEXPROG.enddiagnostic(blankline);
+}
+
+inline auto getinputnormalizationstate()
+{
+  return XETEXPROG.getinputnormalizationstate();
+}
+
+inline auto printint(C4P::C4P_integer n)
+{
+  XETEXPROG.printint(n);
+}
+
+inline auto printnl(XETEXPROGCLASS::strnumber s)
+{
+  return XETEXPROG.printnl(s);
+}
 
 #include "xetex.h"
 #include "synctex.h"
-
-// special case: Web2C likes to add 1 to the nameoffile base address
-inline utf8code * GetNameOfFileForWeb2C()
-{
-  return &((THEDATA(nameoffile))[-1]);
-}
-
-#define nameoffile (GetNameOfFileForWeb2C())
-
-#define eqtb THEDATA(eqtb)
-#define nopdfoutput THEDATA(nopdfoutput)
-#define depthbase THEDATA(depthbase)
-#define heightbase THEDATA(heightbase)
-#define parambase THEDATA(parambase)
-#define bufsize THEDATA(bufsize)
-#define nativefonttypeflag THEDATA(nativefonttypeflag)
-#define namelength THEDATA(namelength)
-#define namelength16 THEDATA(namelength16)
-#define first THEDATA(first)
-#define last THEDATA(last)
-#define maxbufstack THEDATA(maxbufstack)
-#define fontflags THEDATA(fontflags)
-#define xdvbuffer THEDATA(xdvbuffer)
-#define loadedfontflags THEDATA(loadedfontflags)
-#define fontinfo THEDATA(fontinfo)
-#define fontletterspace THEDATA(fontletterspace)
-#define fontsize THEDATA(fontsize)
-#define loadedfontletterspace THEDATA(loadedfontletterspace)
-#define fontarea THEDATA(fontarea)
-#define buffer THEDATA(buffer)
-#define mappedtext THEDATA(mappedtext)
-#define nameoffile16 THEDATA(nameoffile16)
-#define fontlayoutengine THEDATA(fontlayoutengine)
-#define loadedfontmapping THEDATA(loadedfontmapping)
-#define loadedfontdesignsize THEDATA(loadedfontdesignsize)
-#define zmem THEDATA(zmem)
-#define mem THEDATA(mem)
-#define eq THEDATA(eq)
-#define jobname THEDATA(jobname)
-#define texmflogname THEDATA(logname)
-#define synctexoption THEDATA(synctexoption)
-#define synctexoffset THEDATA(synctexoffset)
-#define curinput THEDATA(curinput)
-#define totalpages THEDATA(totalpages)
-#define curh THEDATA(curh)
-#define curv THEDATA(curv)
-#define rulewd THEDATA(rulewd)
-#define ruleht THEDATA(ruleht)
-#define ruledp THEDATA(ruledp)
-
-#define c4p_sizeof(x) sizeof(x)
-#define c4p_nullptr() nullptr
-#define isnullptr(p) ((p) == nullptr)
-
-#define afield aField
-#define bfield bField
-#define cfield cField
-#define dfield dField
-#define fix2d Fix2D
-#define htfield htField
-#define setpoint setPoint
-#define txfield txField
-#define tyfield tyField
-#define wdfield wdField
-#define d2fix D2Fix
-#define xcoord xCoord
-#define xfield xField
-#define ycoord yCoord
-#define yfield yField
-#define zxnoverd xnoverd
-#define zenddiagnostic enddiagnostic
-#define zprintnl printnl
-#define zprintchar printchar
-#define zprintint printint
-#define zprintscaled printscaled
 
 int miktexloadpoolstrings(int size);
 
@@ -265,41 +267,39 @@ inline int loadpoolstrings(int size)
   return miktexloadpoolstrings(size);
 }
 
-inline char * gettexstring(strnumber stringNumber)
+inline char* gettexstring(XETEXPROGCLASS::strnumber stringNumber)
 {
-  int stringStart = MiKTeX::TeXAndFriends::GetTeXStringStart(stringNumber);
-  int stringLength = MiKTeX::TeXAndFriends::GetTeXStringLength(stringNumber);
+  int stringStart = XETEXAPP.GetTeXStringStart(stringNumber);
+  int stringLength = XETEXAPP.GetTeXStringLength(stringNumber);
   size_t sizeUtf8 = stringLength * 4 + 1;
-  char * lpsz = reinterpret_cast<char*>(xmalloc(sizeUtf8));
-  return MiKTeX::TeXAndFriends::GetTeXString(lpsz, sizeUtf8, stringStart, stringLength);
+  char* lpsz = (char*)xmalloc(sizeUtf8);
+  return XETEXAPP.GetTeXString(lpsz, sizeUtf8, stringStart, stringLength);
 }
 
-inline strnumber maketexstring(const char * lpsz)
+inline XETEXPROGCLASS::strnumber maketexstring(const char* lpsz)
 {
   std::wstring str = MiKTeX::Util::StringUtil::UTF8ToWideChar(lpsz);
-  return THEAPP.MakeTeXString(str.c_str());
+  return XETEXAPP.MakeTeXString(str.c_str());
 }
 
 inline bool eightbitp()
 {
-  return THEAPP.Enable8BitCharsP();
+  return XETEXAPP.Enable8BitCharsP();
 }
 
-#define insertsrcspecialauto miktexinsertsrcspecialauto
-
-inline bool miktexopentfmfile(bytefile & f, const utf8code * lpszFileName_)
+inline bool miktexopentfmfile(XETEXPROGCLASS::bytefile& f, const XETEXPROGCLASS::utf8code* lpszFileName_)
 {
-  const char * lpszFileName = reinterpret_cast<const char *>(lpszFileName_);
+  const char* lpszFileName = (const char*)lpszFileName_;
   MiKTeX::Core::PathName fileName(MiKTeX::Util::StringUtil::UTF8ToWideChar(lpszFileName));
   return MiKTeX::TeXAndFriends::OpenTFMFile(&f, fileName);
 }
 
-inline char * xmallocchararray(size_t size)
+inline char* xmallocchararray(size_t size)
 {
-  return reinterpret_cast<char*>(xmalloc(size + 1));
+  return (char*)xmalloc(size + 1);
 }
 
-inline int uopenin(unicodefile & f, int mode, int encodingData)
+inline int uopenin(unicodefile& f, int mode, int encodingData)
 {
   return u_open_in(&f, mode, encodingData);
 }
@@ -311,43 +311,43 @@ inline int otpartcount(const voidpointer a)
 
 inline void printutf8str(const voidpointer str, int len)
 {
-  printutf8str((const unsigned char*) str, len);
+  printutf8str((const unsigned char*)str, len);
 }
 
 inline int otpartisextender(const voidpointer a, int i)
 {
-  return otpartisextender((const GlyphAssembly*) a, i);
+  return otpartisextender((const GlyphAssembly*)a, i);
 }
 
 inline int otpartstartconnector(int f, const voidpointer a, int i)
 {
-  return otpartstartconnector(f, (const GlyphAssembly*) a, i);
+  return otpartstartconnector(f, (const GlyphAssembly*)a, i);
 }
 
 inline int otpartfulladvance(int f, const voidpointer a, int i)
 {
-  return otpartfulladvance(f, (const GlyphAssembly*) a, i);
+  return otpartfulladvance(f, (const GlyphAssembly*)a, i);
 }
 
 inline int otpartendconnector(int f, const voidpointer a, int i)
 {
-  return otpartendconnector(f, (const GlyphAssembly*) a, i);
+  return otpartendconnector(f, (const GlyphAssembly*)a, i);
 }
 
 inline int otpartglyph(const voidpointer a, int i)
 {
-  return otpartglyph((GlyphAssembly*) a, i);
+  return otpartglyph((GlyphAssembly*)a, i);
 }
 
-inline void c4p_break(unicodefile & f)
+inline void c4p_break(unicodefile& f)
 {
   if (fflush(f->f) == EOF)
   {
-      MIKTEX_FATAL_CRT_ERROR("flush");
+    MIKTEX_FATAL_CRT_ERROR("fflush");
   }
 }
 
-inline bool inputln(unicodefile & f, C4P::C4P_boolean bypassEndOfLine = true)
+inline bool inputln(unicodefile& f, C4P::C4P_boolean bypassEndOfLine = true)
 {
   bypassEndOfLine;
   return input_line(f);
@@ -356,52 +356,50 @@ inline bool inputln(unicodefile & f, C4P::C4P_boolean bypassEndOfLine = true)
 inline void miktexopenin()
 {
   static UFILE termin_file;
-  if (THEDATA(termin) == nullptr)
-    {
-      THEDATA(termin) = &termin_file;
-      THEDATA(termin)->f = stdin;
-      THEDATA(termin)->savedChar = -1;
-      THEDATA(termin)->skipNextLF = 0;
-      THEDATA(termin)->encodingMode = UTF8;
-      THEDATA(termin)->conversionData = nullptr;
-      THEDATA(inputfile)[0] = THEDATA(termin);
-    }
+  if (XETEXPROG.termin == nullptr)
+  {
+    XETEXPROG.termin = &termin_file;
+    XETEXPROG.termin->f = stdin;
+    XETEXPROG.termin->savedChar = -1;
+    XETEXPROG.termin->skipNextLF = 0;
+    XETEXPROG.termin->encodingMode = UTF8;
+    XETEXPROG.termin->conversionData = nullptr;
+    XETEXPROG.inputfile[0] = XETEXPROG.termin;
+  }
 }
 
 inline boolean usinggraphite(const voidpointer p)
 {
-  return usingGraphite(reinterpret_cast<XeTeXLayoutEngine>(p));
+  return usingGraphite((XeTeXLayoutEngine)p);
 }
 
 inline boolean usingopentype(const voidpointer p)
 {
-  return usingOpenType(reinterpret_cast<XeTeXLayoutEngine>(p));
+  return usingOpenType((XeTeXLayoutEngine)p);
 }
 
-inline void initgraphitebreaking(const voidpointer p, const utf16code * pUtf16Code, int len)
+inline void initgraphitebreaking(const voidpointer p, const XETEXPROGCLASS::utf16code* pUtf16Code, int len)
 {
-  initGraphiteBreaking(reinterpret_cast<XeTeXLayoutEngine>(p), reinterpret_cast<const UniChar *>(pUtf16Code), len);
+  initGraphiteBreaking((XeTeXLayoutEngine)p, (const UniChar*)pUtf16Code, len);
 }
 
-inline int isopentypemathfont(const voidpointer  p)
+inline int isopentypemathfont(const voidpointer p)
 {
-  return isOpenTypeMathFont(reinterpret_cast<XeTeXLayoutEngine>(p));
+  return isOpenTypeMathFont((XeTeXLayoutEngine)p);
 }
 
-#define findnextgraphitebreak findNextGraphiteBreak
-
-template<class CharType> void printcstring(const CharType * lpsz)
+template<class CharType> void printcstring(const CharType* lpsz)
 {
   for (; *lpsz != 0; ++ lpsz)
   {
-    printchar(*lpsz);
+    XETEXPROG.printchar(*lpsz);
   }
 }
 
-inline void getmd5sum(strnumber s, boolean isFile)
+inline void getmd5sum(XETEXPROGCLASS::strnumber s, boolean isFile)
 {
   using namespace MiKTeX::Core;
-  char * lpsz = gettexstring(s);
+  char* lpsz = gettexstring(s);
   std::string str = lpsz;
   free(lpsz);
   MD5 md5;
@@ -421,9 +419,94 @@ inline void getmd5sum(strnumber s, boolean isFile)
     md5Builder.Update(str.c_str(), str.length());
     md5 = md5Builder.Final();
   }
-  for (const char & ch : Utils::Hexify(&md5[0], md5.size(), false))
+  for (const char& ch : Utils::Hexify(&md5[0], md5.size(), false))
   {
-    THEDATA(strpool)[THEDATA(poolptr)] = (packedutf16code)ch;
-    THEDATA(poolptr) = THEDATA(poolptr) + 1;
+    XETEXPROG.strpool[XETEXPROG.poolptr] = (XETEXPROGCLASS::packedutf16code)ch;
+    XETEXPROG.poolptr += 1;
   }
+}
+
+inline auto c4p_nullptr()
+{
+  return nullptr;
+}
+
+template<typename T> std::size_t c4p_sizeof(const T& x)
+{
+  return sizeof(x);
+}
+
+inline bool isnullptr(void* ptr)
+{
+  return ptr == nullptr;
+}
+
+template<typename T> auto xfield(const T& t)
+{
+  return xField(t);
+}
+
+template<typename T> auto yfield(const T& t)
+{
+  return yField(t);
+}
+
+template<typename P, typename X, typename Y> void setpoint(P& p, const X& x, const Y& y)
+{
+  setPoint(p, x, y);
+}
+
+template<typename R> auto htfield(const R& r)
+{
+  return htField(r);
+}
+
+template<typename R> auto wdfield(const R& r)
+{
+  return wdField(r);
+}
+
+template<typename F> auto fix2d(const F& f)
+{
+  return Fix2D(f);
+}
+
+template<typename P> auto xcoord(const P& p)
+{
+  return xCoord(p);
+}
+
+template<typename P> auto ycoord(const P& p)
+{
+  return yCoord(p);
+}
+
+template<typename D> auto d2fix(const D& d)
+{
+  return D2Fix(d);
+}
+
+template<typename T> auto afield(const T& t)
+{
+  return aField(t);
+}
+
+template<typename T> auto bfield(const T& t)
+{
+  return bField(t);
+}
+
+template<typename T> auto cfield(const T& t)
+{
+  return cField(t);
+}
+
+template<typename T> auto dfield(const T& t)
+{
+  return dField(t);
+}
+
+inline bool insertsrcspecialauto()
+{
+  return MiKTeX::TeXAndFriends::miktexinsertsrcspecialauto();
 }

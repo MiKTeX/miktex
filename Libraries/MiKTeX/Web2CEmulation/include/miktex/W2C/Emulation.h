@@ -71,7 +71,8 @@
 #define secondsandmicros(s, m) \
   MiKTeX::Web2C::GetSecondsAndMicros(&(s), &(m))
 
-#if defined(THEAPP)
+// TODO
+#if 0
 #  define generic_synctex_get_current_name() \
   xstrdup(THEAPP.GetFoundFileFq().GetData())
 #endif

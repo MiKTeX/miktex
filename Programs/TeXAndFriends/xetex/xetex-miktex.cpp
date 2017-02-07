@@ -1,6 +1,6 @@
 /* xetex-miktex.cpp:
    
-   Copyright (C) 2007-2016 Christian Schenk
+   Copyright (C) 2007-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -31,7 +31,15 @@
 
 using namespace MiKTeX::Core;
 
-void XETEXCLASS::GetLibraryVersions(std::vector<LibraryVersion> & versions) const
+// special case: Web2C likes to add 1 to the nameoffile base address
+inline XETEXPROGCLASS::utf8code* GetNameOfFileForWeb2C()
+{
+  return &XETEXPROG.nameoffile[-1];
+}
+
+XETEXPROGCLASS::utf8code* nameoffile = GetNameOfFileForWeb2C();
+
+void XETEXAPPCLASS::GetLibraryVersions(std::vector<LibraryVersion>& versions) const
 {
   ETeXApp::GetLibraryVersions(versions);
 

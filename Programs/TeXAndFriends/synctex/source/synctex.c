@@ -340,6 +340,11 @@ static int fsyscp_remove(char *name);
 #define remove fsyscp_remove
 #endif
 
+#if defined(MIKTEX)
+#  define generic_synctex_get_current_name() \
+  xstrdup(THEAPP.GetFoundFileFq().GetData())
+#endif
+
 /*  This macro layer was added to take luatex into account as suggested by T. Hoekwater. */
 #   if !defined(SYNCTEX_GET_JOB_NAME)
 #     if defined(MIKTEX)
@@ -355,11 +360,11 @@ inline char * SYNCTEX_GET_JOB_NAME ()
 #   endif
 #   if !defined(SYNCTEX_GET_LOG_NAME)
 #     if defined(MIKTEX)
-inline char * SYNCTEX_GET_LOG_NAME ()
+inline char* SYNCTEX_GET_LOG_NAME()
 {
-  char * lpsz = gettexstring(texmflogname);
-  strcpy (lpsz, MiKTeX::TeXAndFriends::WebAppInputLine::UnmangleNameOfFile(lpsz).GetData());
-  return (lpsz);
+  char* lpsz = gettexstring(texmflogname);
+  strcpy(lpsz, MiKTeX::TeXAndFriends::WebAppInputLine::UnmangleNameOfFile(lpsz).GetData());
+  return lpsz;
 }
 #     else
 #       define SYNCTEX_GET_LOG_NAME() (gettexstring(texmflogname))
