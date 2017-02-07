@@ -217,8 +217,11 @@ extern XETEXPROGCLASS::instaterecord& curinput;
 extern XETEXPROGCLASS::scaled& curv;
 extern XETEXPROGCLASS::memoryword*& eqtb;
 extern C4P::C4P_signed32& first;
+extern XETEXPROGCLASS::strnumber*& fontarea;
+extern voidpointer*& fontlayoutengine;
 extern XETEXPROGCLASS::strnumber& jobname;
 extern C4P::C4P_signed32& last;
+extern char& loadedfontflags;
 extern C4P::C4P_signed32& maxbufstack;
 extern C4P::C4P_boolean& nopdfoutput;
 extern XETEXPROGCLASS::scaled& ruledp;
@@ -237,9 +240,14 @@ inline auto begindiagnostic()
   XETEXPROG.begindiagnostic();
 }
 
-inline auto enddiagnostic(C4P::C4P_boolean blankline)
+inline void enddiagnostic(C4P::C4P_boolean blankline)
 {
   XETEXPROG.enddiagnostic(blankline);
+}
+
+inline void fontmappingwarning(voidpointer mappingnamep, C4P::C4P_integer mappingnamelen, C4P::C4P_integer warningtype)
+{
+  XETEXPROG.fontmappingwarning(mappingnamep, mappingnamelen, warningtype);
 }
 
 inline auto getinputnormalizationstate()
@@ -247,7 +255,17 @@ inline auto getinputnormalizationstate()
   return XETEXPROG.getinputnormalizationstate();
 }
 
-inline auto printint(C4P::C4P_integer n)
+inline auto gettracingfontsstate()
+{
+  return XETEXPROG.gettracingfontsstate();
+}
+
+inline void printchar(C4P::C4P_integer s)
+{
+  XETEXPROG.printchar(s);
+}
+
+inline void printint(C4P::C4P_integer n)
 {
   XETEXPROG.printint(n);
 }
@@ -255,6 +273,16 @@ inline auto printint(C4P::C4P_integer n)
 inline auto printnl(XETEXPROGCLASS::strnumber s)
 {
   return XETEXPROG.printnl(s);
+}
+
+inline void printrawchar(XETEXPROGCLASS::utf16code s, C4P::C4P_boolean incroffset)
+{
+  XETEXPROG.printrawchar(s, incroffset);
+}
+
+inline auto zxnoverd(XETEXPROGCLASS::scaled x, C4P::C4P_integer n, C4P::C4P_integer d)
+{
+  return XETEXPROG.xnoverd(x, n, d);
 }
 
 #include "xetex.h"

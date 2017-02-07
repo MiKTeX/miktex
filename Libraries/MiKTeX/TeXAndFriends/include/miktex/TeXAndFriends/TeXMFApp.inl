@@ -31,6 +31,7 @@
 #include <miktex/Core/PathName>
 #include <miktex/Util/StringUtil>
 
+#include "TeXMFApp.h"
 #include "WebAppInputLine.inl"
 
 MIKTEXMF_BEGIN_NAMESPACE;
@@ -55,9 +56,9 @@ inline int miktexgetjobname()
   return THEAPP.GetJobName();
 }
 
-inline const TEXMFCHAR* miktexgetstringat(int idx)
+inline auto miktexgetstringat(int idx)
 {
-  return THEAPP.GetTeXStringAt(idx);
+  return MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->GetTeXStringAt(idx);
 }
 
 inline bool miktexhaltonerrorp()

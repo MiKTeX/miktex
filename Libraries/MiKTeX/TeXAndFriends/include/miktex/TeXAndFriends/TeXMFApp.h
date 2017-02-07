@@ -119,6 +119,13 @@ public:
   virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~TeXMFApp() noexcept;
 
 public:
+  static TeXMFApp* GetTeXMFApp()
+  {
+    MIKTEX_ASSERT(dynamic_cast<TeXMFApp*>(Application::GetApplication()) != nullptr);
+    return (TeXMFApp*)Application::GetApplication();
+  }
+
+public:
   MIKTEXMFTHISAPI(void) Init(const std::string& programInvocationName) override;
 
 public:
@@ -284,18 +291,16 @@ public:
   }
 
 public:
-  TEXMFCHAR* GetTeXStringAt(int idx) const
+  auto GetTeXStringAt(int idx) const
   {
     IStringHandler* stringHandler = GetStringHandler();
 #if defined(MIKTEX_TEXMF_UNICODE)
     auto strpool = stringHandler->strpool16();
 #else
-    char* strpool = stringHandler->strpool();
+    auto strpool = stringHandler->strpool();
 #endif
-    MIKTEX_ASSERT(sizeof(TEXMFCHAR) == sizeof(THEDATA(strpool)[idx]));
-    return reinterpret_cast<TEXMFCHAR*>(&(strpool[idx]));
+    return &strpool[idx];
   }
-
 
 #if defined(MIKTEX_TEXMF_UNICODE)
 public:
