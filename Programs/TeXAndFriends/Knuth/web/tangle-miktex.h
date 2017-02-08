@@ -21,13 +21,9 @@
 #  pragma once
 #endif
 
-#include <miktex/TeXAndFriends/config.h>
+#include "tangle-miktex-config.h"
 
-#include "tangle-version.h"
 #include <miktex/TeXAndFriends/WebApp>
-
-using namespace MiKTeX::Core;
-using namespace MiKTeX::TeXAndFriends;
 
 #define OPT_OMEGA 1000
 
@@ -82,8 +78,3 @@ public:
     }
   }
 };
-
-extern TANGLEAPPCLASS TANGLEAPP;
-
-#define THEAPP TANGLEAPP
-#include <miktex/TeXAndFriends/WebApp.inl>

@@ -25,18 +25,18 @@
 #if defined(MIKTEX_WINDOWS)
 bool miktexinitscreen(int w, int h);
 
-void miktexblankrectangle(METAFONTProgram::screencol left_col, METAFONTProgram::screencol right_col, METAFONTProgram::screenrow top_row, METAFONTProgram::screenrow bot_row);
+void miktexblankrectangle(MFPROGCLASS::screencol left_col, MFPROGCLASS::screencol right_col, MFPROGCLASS::screenrow top_row, MFPROGCLASS::screenrow bot_row);
 
 void miktexupdatescreen();
 
-void miktexpaintrow(METAFONTProgram::screenrow r, METAFONTProgram::pixelcolor b, METAFONTProgram::transspec a, METAFONTProgram::screencol n);
+void miktexpaintrow(MFPROGCLASS::screenrow r, MFPROGCLASS::pixelcolor b, MFPROGCLASS::transspec a, MFPROGCLASS::screencol n);
 #else
 inline bool miktexinitscreen(int w, int h)
 {
   return false;
 }
 
-inline void miktexblankrectangle(METAFONTProgram::screencol left_col, METAFONTProgram::screencol right_col, METAFONTProgram::screenrow top_row, METAFONTProgram::screenrow bot_row)
+inline void miktexblankrectangle(MFPROGCLASS::screencol left_col, MFPROGCLASS::screencol right_col, MFPROGCLASS::screenrow top_row, MFPROGCLASS::screenrow bot_row)
 {
 }
 
@@ -44,7 +44,7 @@ inline void miktexupdatescreen()
 {
 }
 
-inline void miktexpaintrow(METAFONTProgram::screenrow r, METAFONTProgram::pixelcolor b, METAFONTProgram::transspec a, METAFONTProgram::screencol n)
+inline void miktexpaintrow(MFPROGCLASS::screenrow r, MFPROGCLASS::pixelcolor b, MFPROGCLASS::transspec a, MFPROGCLASS::screencol n)
 {
 }
 #endif

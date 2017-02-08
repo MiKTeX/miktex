@@ -526,6 +526,130 @@ private:
   std::unique_ptr<impl> pimpl;
 };
 
+inline bool miktexcstyleerrormessagesp()
+{
+  return TeXMFApp::GetTeXMFApp()->CStyleErrorMessagesP();
+}
+
+inline void miktexgetdefaultdumpfilename(char* dest)
+{
+  MiKTeX::Util::StringUtil::CopyString(dest, MiKTeX::Core::BufferSizes::MaxPath, TeXMFApp::GetTeXMFApp()->GetDefaultMemoryDumpFileName().GetData());
+}
+
+inline int miktexgetinteraction()
+{
+  return TeXMFApp::GetTeXMFApp()->GetInteraction();
+}
+
+inline int miktexgetjobname()
+{
+  return TeXMFApp::GetTeXMFApp()->GetJobName();
+}
+
+inline auto miktexgetstringat(int idx)
+{
+  return MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->GetTeXStringAt(idx);
+}
+
+inline bool miktexhaltonerrorp()
+{
+  return TeXMFApp::GetTeXMFApp()->HaltOnErrorP();
+}
+
+inline void miktexinitializebuffer()
+{
+  TeXMFApp::GetTeXMFApp()->InitializeBuffer();
+}
+
+inline void miktexinvokeeditor(int editFileName, int editFileNameLength, int editLineNumber, int transcriptFileName, int transcriptFileNameLength)
+{
+  TeXMFApp::GetTeXMFApp()->InvokeEditor(editFileName, editFileNameLength, editLineNumber, transcriptFileName, transcriptFileNameLength);
+}
+
+inline void miktexinvokeeditor(int editFileName, int editFileNameLength, int editLineNumber)
+{
+  TeXMFApp::GetTeXMFApp()->InvokeEditor(editFileName, editFileNameLength, editLineNumber, 0, 0);
+}
+
+inline bool miktexisinitprogram()
+{
+  return TeXMFApp::GetTeXMFApp()->IsInitProgram();
+}
+
+inline int miktexmakefullnamestring()
+{
+  return TeXMFApp::GetTeXMFApp()->MakeFullNameString();
+}
+
+inline void miktexontexmffinishjob()
+{
+  TeXMFApp::GetTeXMFApp()->OnTeXMFFinishJob();
+}
+
+inline void miktexontexmfinitialize()
+{
+  TeXMFApp::GetTeXMFApp()->OnTeXMFInitialize();
+}
+
+inline void miktexontexmfstartjob()
+{
+  TeXMFApp::GetTeXMFApp()->OnTeXMFStartJob();
+}
+
+#define miktexreallocate(p, n) miktexreallocate_(#p, p, n, MIKTEX_SOURCE_LOCATION())
+
+template<typename T> T* miktexreallocate_(const std::string& arrayName, T* p, size_t n, const MiKTeX::Core::SourceLocation& sourceLocation)
+{
+  return (T*)TeXMFApp::GetTeXMFApp()->GetTeXMFMemoryHandler()->ReallocateArray(arrayName, p, sizeof(*p), n, sourceLocation);
+}
+
+template<typename FileType, typename EleType> inline void miktexdump(FileType& f, const EleType& e, std::size_t n)
+{
+  TeXMFApp::GetTeXMFApp()->Dump(f, e, n);
+}
+
+template<typename FileType, typename EleType> inline void miktexdump(FileType& f, const EleType& e)
+{
+  TeXMFApp::GetTeXMFApp()->Dump(f, e);
+}
+
+template<typename FileType> inline void miktexdumpint(FileType& f, int val)
+{
+  miktexdump(f, val);
+}
+
+template<typename FileType, typename EleType> inline void miktexundump(FileType& f, EleType& e, std::size_t n)
+{
+  TeXMFApp::GetTeXMFApp()->Undump(f, e, n);
+}
+
+template<typename FileType, typename EleType> inline void miktexundump(FileType& f, EleType& e)
+{
+  TeXMFApp::GetTeXMFApp()->Undump(f, e);
+}
+
+template<typename FileType, typename LowType, typename HighType, typename EleType> inline void miktexundump(FileType& f, LowType low, HighType high, EleType& e, std::size_t n)
+{
+  TeXMFApp::GetTeXMFApp()->Undump(f, static_cast<EleType>(low), static_cast<EleType>(high), e, n);
+}
+
+template<typename FileType, typename HighType, typename EleType> inline void miktexundump(FileType& f, HighType high, EleType& e, std::size_t n)
+{
+  TeXMFApp::GetTeXMFApp()->Undump(f, static_cast<EleType>(high), e, n);
+}
+
+template<typename FileType> inline void miktexundumpint(FileType& f, int& val)
+{
+  miktexundump(f, val);
+}
+
+inline void miktexcheckmemoryifdebug()
+{
+#if defined(MIKTEX_DEBUG)
+  TeXMFApp::GetTeXMFApp()->CheckMemory();
+#endif
+}
+
 MIKTEXMF_END_NAMESPACE;
 
 #endif

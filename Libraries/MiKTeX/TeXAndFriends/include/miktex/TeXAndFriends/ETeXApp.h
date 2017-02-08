@@ -51,6 +51,13 @@ public:
 public:
   virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~ETeXApp() noexcept;
 
+public:
+  static ETeXApp* GetETeXApp()
+  {
+    MIKTEX_ASSERT(dynamic_cast<ETeXApp*>(Application::GetApplication()) != nullptr);
+    return (ETeXApp*)Application::GetApplication();
+  }
+
 protected:
   MIKTEXMFTHISAPI(void) Init(const std::string& programInvocationName) override;
 
@@ -73,5 +80,10 @@ private:
   class impl;
   std::unique_ptr<impl> pimpl;
 };
+
+inline bool miktexetexp()
+{
+  return ETeXApp::GetETeXApp()->ETeXP();
+}
 
 MIKTEXMF_END_NAMESPACE;

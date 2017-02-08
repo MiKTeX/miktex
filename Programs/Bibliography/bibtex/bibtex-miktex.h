@@ -21,11 +21,9 @@
 #  pragma once
 #endif
 
-#include <miktex/TeXAndFriends/config.h>
+#include "bibtex-miktex-config.h"
 
 #define IMPLEMENT_TCX 1
-
-#include "bibtexdefs.h"
 
 #include <miktex/Core/FileType>
 #include <miktex/Core/Registry>
@@ -34,17 +32,16 @@
 #include <miktex/TeXAndFriends/InputOutputImpl>
 #include <miktex/TeXAndFriends/WebAppInputLine>
 
-using namespace MiKTeX::Core;
-using namespace MiKTeX::TeXAndFriends;
-
 #if !defined(MIKTEXHELP_BIBTEX)
 #  include <miktex/Core/Help>
 #endif
 
+#include "bibtex.h"
+
 extern BIBTEXPROGCLASS BIBTEXPROG;
 
 class BIBTEXAPPCLASS :
-  public WebAppInputLine
+  public MiKTeX::TeXAndFriends::WebAppInputLine
 {
 public:
   template<typename T> T* Reallocate(T*& p, size_t n)
@@ -92,7 +89,7 @@ public:
     WebAppInputLine::Init(programInvocationName);
     session = GetSession();
 #if defined(IMPLEMENT_TCX)
-    EnableFeature(Feature::TCX);
+    EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
 #endif
     BIBTEXPROG.mincrossrefs = session->GetConfigValue(MIKTEX_REGKEY_BIBTEX, "min_crossrefs", 2).GetInt();
     BIBTEXPROG.maxbibfiles = 20;
@@ -151,7 +148,7 @@ public:
   }
 
 public:
-  bool ProcessOption(int opt, const std::string & optArg) override
+  bool ProcessOption(int opt, const std::string& optArg) override
   {
     bool done = true;
     switch (opt)
@@ -186,17 +183,17 @@ public:
   {
     const char* lpszFileName = GetInputOutput()->nameoffile();
     MIKTEX_ASSERT_STRING(lpszFileName);
-    PathName bstFileName(lpszFileName);
+    MiKTeX::Core::PathName bstFileName(lpszFileName);
     if (!bstFileName.HasExtension())
     {
       bstFileName.SetExtension(".bst");
     }
-    PathName path;
-    if (!session->FindFile(bstFileName.ToString(), FileType::BST, path))
+    MiKTeX::Core::PathName path;
+    if (!session->FindFile(bstFileName.ToString(), MiKTeX::Core::FileType::BST, path))
     {
       return false;
     }
-    FILE* file = session->OpenFile(path.GetData(), FileMode::Open, FileAccess::Read, true);
+    FILE* file = session->OpenFile(path.GetData(), MiKTeX::Core::FileMode::Open, MiKTeX::Core::FileAccess::Read, true);
     f.Attach(file, true);
 #ifdef PASCAL_TEXT_IO
     get(f);
@@ -219,8 +216,5 @@ template<class T> inline bool miktexopenbstfile(T& f)
 
 inline bool miktexhasextension(const char* fileName, const char* extension)
 {
-  return PathName(fileName).HasExtension(extension);
+  return MiKTeX::Core::PathName(fileName).HasExtension(extension);
 }
-
-#define THEAPP BIBTEXAPP
-#include <miktex/TeXAndFriends/WebAppInputLine.inl>

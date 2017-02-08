@@ -124,6 +124,13 @@ public:
   virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~WebApp() noexcept;
 
 public:
+  static WebApp* GetWebApp()
+  {
+    MIKTEX_ASSERT(dynamic_cast<WebApp*>(Application::GetApplication()) != nullptr);
+    return (WebApp*)Application::GetApplication();
+  }
+
+public:
   MIKTEXMFTHISAPI(void) Init(const std::string& programInvocationName) override;
 
 public:
@@ -238,6 +245,31 @@ private:
   class impl;
   std::unique_ptr<impl> pimpl;
 };
+
+inline bool miktexgetquietflag()
+{
+  return WebApp::GetWebApp()->GetQuietFlag();
+}
+
+inline void miktexinitializechartables()
+{
+  WebApp::GetWebApp()->InitializeCharTables();
+}
+
+inline bool miktexhavetcxfilename()
+{
+  return !WebApp::GetWebApp()->GetTcxFileName().Empty();
+}
+
+inline bool miktexenableeightbitcharsp()
+{
+  return WebApp::GetWebApp()->Enable8BitCharsP();
+}
+
+inline void miktexprocesscommandlineoptions()
+{
+  WebApp::GetWebApp()->ProcessCommandLineOptions();
+}
 
 template<class PROGRAM_CLASS, class WEBAPP_CLASS> class ProgramRunner
 {

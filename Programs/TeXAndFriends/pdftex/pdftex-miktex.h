@@ -24,6 +24,8 @@
 #if !defined(B9AE601D55FC414A8D93C81CF3517D1A)
 #define B9AE601D55FC414A8D93C81CF3517D1A
 
+#include "pdftex-miktex-config.h"
+
 #if defined(MIKTEX_WINDOWS)
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>
@@ -37,7 +39,6 @@
 #include <miktex/TeXAndFriends/ETeXApp>
 #include <miktex/TeXAndFriends/ETeXMemoryHandlerImpl>
 
-#include "pdftexdefs.h"
 #include "pdftexd.h"
 
 #include "pdftex-version.h"
@@ -49,8 +50,6 @@ namespace pdftex {
 #if defined(MIKTEX_WINDOWS) && !defined(MIKTEXHELP_PDFTEX)
 #  include <miktex/Core/Help>
 #endif
-
-#include "pdftex-miktex-config.h"
 
 extern PDFTEXPROGCLASS PDFTEXPROG;
 
@@ -240,13 +239,13 @@ public:
   }
 
 private:
-  MiKTeX::TeXAndFriends::CharacterConverterImpl<pdfTeXProgram> charConv{ PDFTEXPROG };
+  MiKTeX::TeXAndFriends::CharacterConverterImpl<PDFTEXPROGCLASS> charConv{ PDFTEXPROG };
 
 private:
-  MiKTeX::TeXAndFriends::InitFinalizeImpl<pdfTeXProgram> initFinalize{ PDFTEXPROG };
+  MiKTeX::TeXAndFriends::InitFinalizeImpl<PDFTEXPROGCLASS> initFinalize{ PDFTEXPROG };
 
 private:
-  MiKTeX::TeXAndFriends::InputOutputImpl<pdfTeXProgram> inputOutput{ PDFTEXPROG };
+  MiKTeX::TeXAndFriends::InputOutputImpl<PDFTEXPROGCLASS> inputOutput{ PDFTEXPROG };
 
 private:
   MemoryHandlerImpl memoryHandler{ PDFTEXPROG, *this };
@@ -301,10 +300,6 @@ public:
   }
 #endif
 };
-
-extern PDFTEXAPPCLASS PDFTEXAPP;
-#define THEAPP PDFTEXAPP
-#include <miktex/TeXAndFriends/ETeXApp.inl>
 
 inline bool miktexptrequal(const void* ptr1, const void* ptr2)
 {
@@ -608,6 +603,8 @@ inline int loadpoolstrings(int size)
 {
   return miktexloadpoolstrings(size);
 }
+
+extern PDFTEXAPPCLASS PDFTEXAPP;
 
 inline char* gettexstring(PDFTEXPROGCLASS::strnumber stringNumber)
 {

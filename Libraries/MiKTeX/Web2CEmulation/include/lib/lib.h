@@ -66,10 +66,11 @@
 
 #define recorder_enabled miktex_web2c_recorder_enabled
 
-#if defined(THEAPP)
-#  define output_directory (THEAPP.GetOutputDirectory().Empty() ? 0 : THEAPP.GetOutputDirectory().GetData())
+#if 0
+// TODO
+#  define output_directory (MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory().Empty() ? 0 : MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory().GetData())
 #elif defined(__cplusplus)
-#  define output_directory (MiKTeX::Web2C::GetOutputDirectory().Empty() ? 0 : MiKTeX::Web2C::GetOutputDirectory().GetData())
+#  define output_directory (MiKTeX::Web2C::GetOutputDirectory().Empty() ? nullptr : MiKTeX::Web2C::GetOutputDirectory().GetData())
 #else
 #  define output_directory miktex_web2c_get_output_directory()
 #endif

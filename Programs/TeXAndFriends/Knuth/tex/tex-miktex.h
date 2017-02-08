@@ -1,6 +1,6 @@
 /* tex-miktex.h:                                        -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,6 +21,8 @@
 #  pragma once
 #endif
 
+#include "tex-miktex-config.h"
+
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
 #include <miktex/TeXAndFriends/InitFinalizeImpl>
 #include <miktex/TeXAndFriends/InputOutputImpl>
@@ -28,17 +30,7 @@
 #include <miktex/TeXAndFriends/TeXMemoryHandlerImpl>
 #include <miktex/W2C/Emulation>
 
-#if defined(MIKTEX_TRIPTEX)
-#  include "triptexdefs.h"
-#else
-#  include "texdefs.h"
-#endif
-
-#if defined(MIKTEX_TRIPTEX)
-#  include "triptex.h"
-#else
-#  include "tex.h"
-#endif
+#include "tex.h"
 
 #if defined(MIKTEX_WINDOWS)
 #  include "tex.rc"
@@ -50,26 +42,22 @@
 
 extern TEXPROGCLASS TEXPROG;
 
-#if defined(MIKTEX_TRIPTEX)
-class TRIPTEXAPPCLASS
-#else
 class TEXAPPCLASS
-#endif
 
   : public MiKTeX::TeXAndFriends::TeXApp
 
 {
 private:
-  MiKTeX::TeXAndFriends::CharacterConverterImpl<TeXProgram> charConv{ TEXPROG };
+  MiKTeX::TeXAndFriends::CharacterConverterImpl<TEXPROGCLASS> charConv{ TEXPROG };
 
 private:
-  MiKTeX::TeXAndFriends::InitFinalizeImpl<TeXProgram> initFinalize{ TEXPROG };
+  MiKTeX::TeXAndFriends::InitFinalizeImpl<TEXPROGCLASS> initFinalize{ TEXPROG };
 
 private:
-  MiKTeX::TeXAndFriends::InputOutputImpl<TeXProgram> inputOutput{ TEXPROG };
+  MiKTeX::TeXAndFriends::InputOutputImpl<TEXPROGCLASS> inputOutput{ TEXPROG };
 
 private:
-  MiKTeX::TeXAndFriends::TeXMemoryHandlerImpl<TeXProgram> memoryHandler { TEXPROG, *this };
+  MiKTeX::TeXAndFriends::TeXMemoryHandlerImpl<TEXPROGCLASS> memoryHandler { TEXPROG, *this };
 
 public:
   void Init(const std::string& programInvocationName) override
@@ -115,15 +103,6 @@ public:
     return MIKTEXHELP_TEX;
   }
 };
-
-#if defined(MIKTEX_TRIPTEX)
-extern TRIPTEXAPPCLASS TRIPTEXAPP;
-#define THEAPP TRIPTEXAPP
-#else
-extern TEXAPPCLASS TEXAPP;
-#define THEAPP TEXAPP
-#endif
-#include <miktex/TeXAndFriends/TeXApp.inl>
 
 int miktexloadpoolstrings(int size);
 

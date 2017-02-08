@@ -21,24 +21,17 @@
 #  pragma once
 #endif
 
+#include "mf-miktex-config.h"
+
 #include <miktex/Core/FileType>
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
 #include <miktex/TeXAndFriends/InitFinalizeImpl>
 #include <miktex/TeXAndFriends/InputOutputImpl>
 #include <miktex/TeXAndFriends/MetafontApp>
 #include <miktex/TeXAndFriends/MetafontMemoryHandlerImpl>
+#include <miktex/TeXAndFriends/Prototypes>
 
-#if defined(MIKTEX_TRAPMF)
-#  include "trapmfdefs.h"
-#else
-#  include "mfdefs.h"
-#endif
-
-#if defined(MIKTEX_TRAPMF)
-#  include "trapmf.h"
-#else
-#  include "mf.h"
-#endif
+#include "mf.h"
 
 namespace mf {
 #include <miktex/mf.defaults.h>
@@ -86,23 +79,19 @@ public:
   }
 };
 
-#if defined(MIKTEX_TRAPMF)
-class TRAPMFAPPCLASS
-#else
 class MFAPPCLASS
-#endif
 
   : public MiKTeX::TeXAndFriends::MetafontApp
 
 {
 private:
-  MiKTeX::TeXAndFriends::CharacterConverterImpl<METAFONTProgram> charConv{ MFPROG };
+  MiKTeX::TeXAndFriends::CharacterConverterImpl<MFPROGCLASS> charConv{ MFPROG };
 
 private:
-  MiKTeX::TeXAndFriends::InitFinalizeImpl<METAFONTProgram> initFinalize{ MFPROG };
+  MiKTeX::TeXAndFriends::InitFinalizeImpl<MFPROGCLASS> initFinalize{ MFPROG };
 
 private:
-  MiKTeX::TeXAndFriends::InputOutputImpl<METAFONTProgram> inputOutput{ MFPROG };
+  MiKTeX::TeXAndFriends::InputOutputImpl<MFPROGCLASS> inputOutput{ MFPROG };
 
 private:
   MemoryHandlerImpl memoryHandler { MFPROG, *this };
@@ -206,20 +195,6 @@ public:
   }
 };
 
-#if defined(MIKTEX_TRAPMF)
-extern TRAPMFAPPCLASS TRAPMFAPP;
-#define THEAPP TRAPMFAPP
-#else
-extern MFAPPCLASS MFAPP;
-#define THEAPP MFAPP
-#endif
-#include <miktex/TeXAndFriends/MetafontApp.inl>
-
-inline bool miktexopenbasefile (METAFONTProgram::wordfile& f, bool renew = false)
-{
-  return THEAPP.OpenMemoryDumpFile(f, renew);
-}
-
 int miktexloadpoolstrings(int size);
 
 inline int loadpoolstrings(int size)
@@ -227,3 +202,55 @@ inline int loadpoolstrings(int size)
   return miktexloadpoolstrings(size);
 }
 
+extern MFAPPCLASS MFAPP;
+
+inline bool miktexopenbasefile(MFPROGCLASS::wordfile& f, bool renew = false)
+{
+  return MFAPP.OpenMemoryDumpFile(f, renew);
+}
+
+inline void miktexallocatememory()
+{
+  MFAPP.AllocateMemory();
+}
+
+inline void miktexfreememory()
+{
+  MFAPP.FreeMemory();
+}
+
+inline C4P::C4P_integer makefraction(C4P::C4P_integer p, C4P::C4P_integer q)
+{
+#if defined(MIKTEXMFAPI_USE_ASM)
+  return MiKTeX::TeXAndFriends::MakeFraction(p, q, MFPROG.aritherror);
+#else
+  return MFPROG.makefractionorig(p, q);
+#endif
+}
+
+inline C4P::C4P_integer makescaled(C4P::C4P_integer p, C4P::C4P_integer q)
+{
+#if 0 && defined(MIKTEXMFAPI_USE_ASM)
+  return MiKTeX::TeXAndFriends::MakeScaled(p, q, MFPROG.aritherror);
+#else
+  return MFPROG.makescaledorig(p, q);
+#endif
+}
+
+inline C4P::C4P_integer takefraction(C4P::C4P_integer p, C4P::C4P_integer q)
+{
+#if defined(MIKTEXMFAPI_USE_ASM)
+  return MiKTeX::TeXAndFriends::TakeFraction(p, q, MFPROG.aritherror);
+#else
+  return MFPROG.takefractionorig(p, q);
+#endif
+}
+
+inline C4P::C4P_integer takescaled(C4P::C4P_integer p, C4P::C4P_integer q)
+{
+#if defined(MIKTEXMFAPI_USE_ASM)
+  return MiKTeX::TeXAndFriends::TakeScaled(p, q, MFPROG.aritherror);
+#else
+  return MFPROG.takescaledorig(p, q);
+#endif
+}

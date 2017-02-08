@@ -99,6 +99,13 @@ public:
   virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~WebAppInputLine() noexcept;
 
 public:
+  static WebAppInputLine* GetWebAppInputLine()
+  {
+    MIKTEX_ASSERT(dynamic_cast<WebAppInputLine*>(Application::GetApplication()) != nullptr);
+    return (WebAppInputLine*)Application::GetApplication();
+  }
+
+public:
   MIKTEXMFTHISAPI(void) Init(const std::string& programInvocationName) override;
 
 public:
@@ -353,6 +360,45 @@ private:
   class impl;
   std::unique_ptr<impl> pimpl;
 };
+
+template<class FileType> inline bool inputln(FileType& f, C4P::C4P_boolean bypassEndOfLine = true)
+{
+  return WebAppInputLine::GetWebAppInputLine()->InputLine(f, bypassEndOfLine);
+}
+
+template<class FileType> inline void miktexclosefile(FileType& f)
+{
+  WebAppInputLine::GetWebAppInputLine()->CloseFile(f);
+}
+
+template<class FileType> inline bool miktexopeninputfile(FileType& f)
+{
+  bool done = WebAppInputLine::GetWebAppInputLine()->OpenInputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile());
+  if (done)
+  {
+    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->MangleNameOfFile(WebAppInputLine::GetWebAppInputLine()->GetFoundFile().GetData()));
+  }
+  return done;
+}
+
+inline bool miktexallownameoffile(C4P::C4P_boolean forInput)
+{
+  return WebAppInputLine::GetWebAppInputLine()->AllowFileName(WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), forInput);
+}
+
+template<class FileType> inline bool miktexopenoutputfile(FileType& f, C4P::C4P_boolean text)
+{
+  // must open with read/write sharing flags
+  // cf. bug 2006511
+  MiKTeX::Core::FileShare share = MiKTeX::Core::FileShare::ReadWrite;
+  MiKTeX::Core::PathName outPath;
+  bool done = WebAppInputLine::GetWebAppInputLine()->OpenOutputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), share, text, outPath);
+  if (done)
+  {
+    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->MangleNameOfFile(outPath.GetData()));
+  }
+  return done;
+}
 
 MIKTEXMF_END_NAMESPACE;
 

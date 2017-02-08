@@ -19,12 +19,12 @@
 
 #pragma once
 
+#include "xetex-miktex-config.h"
+
 #if defined(MIKTEX_WINDOWS)
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>
 #endif
-
-#include "xetex-miktex-config.h"
 
 #include <miktex/Core/FileType>
 #include <miktex/Core/MD5>
@@ -37,7 +37,6 @@
 #include <miktex/TeXAndFriends/ETeXMemoryHandlerImpl>
 #include <miktex/W2C/Emulation>
 
-#include "xetexdefs.h"
 #include "xetexd.h"
 
 #include "xetex-version.h"
@@ -101,9 +100,6 @@ public:
   }
 };
 
-// REMOVE: extern const char * papersize;
-// REMOVE: extern const char * outputdriver;
-
 class XETEXAPPCLASS :
   public MiKTeX::TeXAndFriends::ETeXApp
 {
@@ -148,13 +144,13 @@ public:
   }
 
 private:
-  MiKTeX::TeXAndFriends::CharacterConverterImpl<XeTeXProgram> charConv{ XETEXPROG };
+  MiKTeX::TeXAndFriends::CharacterConverterImpl<XETEXPROGCLASS> charConv{ XETEXPROG };
 
 private:
-  MiKTeX::TeXAndFriends::InitFinalizeImpl<XeTeXProgram> initFinalize{ XETEXPROG };
+  MiKTeX::TeXAndFriends::InitFinalizeImpl<XETEXPROGCLASS> initFinalize{ XETEXPROG };
 
 private:
-  MiKTeX::TeXAndFriends::InputOutputImpl<XeTeXProgram> inputOutput{ XETEXPROG };
+  MiKTeX::TeXAndFriends::InputOutputImpl<XETEXPROGCLASS> inputOutput{ XETEXPROG };
 
 private:
   MemoryHandlerImpl memoryHandler{ XETEXPROG, *this };
@@ -204,25 +200,38 @@ public:
   void GetLibraryVersions(std::vector<MiKTeX::Core::LibraryVersion>& versions) const override;
 };
 
-extern XETEXAPPCLASS XETEXAPP;
-#define THEAPP XETEXAPP
-#include <miktex/TeXAndFriends/ETeXApp.inl>
-
 using halfword = XETEXPROGCLASS::halfword;
+using memoryword = XETEXPROGCLASS::memoryword;
+using scaled = XETEXPROGCLASS::scaled;
+
+constexpr auto filenamesize = XETEXPROGCLASS::filenamesize;
 
 extern XETEXPROGCLASS::unicodescalar*& buffer;
 extern C4P::C4P_integer& bufsize;
 extern XETEXPROGCLASS::scaled& curh;
 extern XETEXPROGCLASS::instaterecord& curinput;
 extern XETEXPROGCLASS::scaled& curv;
+extern C4P::C4P_integer*& depthbase;
 extern XETEXPROGCLASS::memoryword*& eqtb;
 extern C4P::C4P_signed32& first;
 extern XETEXPROGCLASS::strnumber*& fontarea;
+extern char*& fontflags;
 extern voidpointer*& fontlayoutengine;
+extern XETEXPROGCLASS::scaled*& fontletterspace;
+extern XETEXPROGCLASS::scaled*& fontsize;
+extern C4P::C4P_integer*& heightbase;
 extern XETEXPROGCLASS::strnumber& jobname;
 extern C4P::C4P_signed32& last;
+extern XETEXPROGCLASS::scaled& loadedfontdesignsize;
 extern char& loadedfontflags;
+extern XETEXPROGCLASS::scaled& loadedfontletterspace;
+extern voidpointer& loadedfontmapping;
+extern XETEXPROGCLASS::utf16code*& mappedtext;
 extern C4P::C4P_signed32& maxbufstack;
+extern C4P::C4P_signed16& namelength;
+extern C4P::C4P_signed16& namelength16;
+extern XETEXPROGCLASS::utf16code*& nameoffile16;
+extern C4P::C4P_integer& nativefonttypeflag;
 extern C4P::C4P_boolean& nopdfoutput;
 extern XETEXPROGCLASS::scaled& ruledp;
 extern XETEXPROGCLASS::scaled& ruleht;
@@ -231,9 +240,15 @@ extern C4P::C4P_integer& synctexoffset;
 extern C4P::C4P_integer& synctexoption;
 extern XETEXPROGCLASS::strnumber& texmflogname;
 extern C4P::C4P_integer& totalpages;
+extern char*& xdvbuffer;
 extern XETEXPROGCLASS::memoryword*& zmem;
 
 extern XETEXPROGCLASS::utf8code* nameoffile;
+
+inline void badutf8warning()
+{
+  XETEXPROG.badutf8warning();
+}
 
 inline auto begindiagnostic()
 {
@@ -243,6 +258,11 @@ inline auto begindiagnostic()
 inline void enddiagnostic(C4P::C4P_boolean blankline)
 {
   XETEXPROG.enddiagnostic(blankline);
+}
+
+inline void fontfeaturewarning(voidpointer featurenamep, C4P::C4P_integer featlen, voidpointer settingnamep, C4P::C4P_integer setlen)
+{
+  XETEXPROG.fontfeaturewarning(featurenamep, featlen, settingnamep, setlen);
 }
 
 inline void fontmappingwarning(voidpointer mappingnamep, C4P::C4P_integer mappingnamelen, C4P::C4P_integer warningtype)
@@ -280,6 +300,21 @@ inline void printrawchar(XETEXPROGCLASS::utf16code s, C4P::C4P_boolean incroffse
   XETEXPROG.printrawchar(s, incroffset);
 }
 
+inline void zenddiagnostic(C4P::C4P_boolean blankline)
+{
+  XETEXPROG.enddiagnostic(blankline);
+}
+
+inline void zprintchar(C4P::C4P_integer s)
+{
+  XETEXPROG.printchar(s);
+}
+
+inline void zprintnl(XETEXPROGCLASS::strnumber s)
+{
+  XETEXPROG.printnl(s);
+}
+
 inline auto zxnoverd(XETEXPROGCLASS::scaled x, C4P::C4P_integer n, C4P::C4P_integer d)
 {
   return XETEXPROG.xnoverd(x, n, d);
@@ -294,6 +329,8 @@ inline int loadpoolstrings(int size)
 {
   return miktexloadpoolstrings(size);
 }
+
+extern XETEXAPPCLASS XETEXAPP;
 
 inline char* gettexstring(XETEXPROGCLASS::strnumber stringNumber)
 {

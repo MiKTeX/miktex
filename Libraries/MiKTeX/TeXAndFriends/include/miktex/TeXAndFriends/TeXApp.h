@@ -84,6 +84,13 @@ public:
 public:
   virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~TeXApp() noexcept;
 
+public:
+  static TeXApp* GetTeXApp()
+  {
+    MIKTEX_ASSERT(dynamic_cast<TeXApp*>(Application::GetApplication()) != nullptr);
+    return (TeXApp*)Application::GetApplication();
+  }
+
 protected:
   MIKTEXMFTHISAPI(void) Init(const std::string& programInvocationName) override;
 
@@ -224,6 +231,154 @@ private:
   class impl;
   std::unique_ptr<impl> pimpl;
 };
+
+inline void miktexallocatememory()
+{
+  TeXApp::GetTeXApp()->AllocateMemory();
+}
+
+template<class FileType> void miktexclosedvifile(FileType& f)
+{
+  TeXApp::GetTeXApp()->CloseFile(f);
+}
+
+template<class FileType> void miktexclosepdffile(FileType& f)
+{
+  TeXApp::GetTeXApp()->CloseFile(f);
+}
+
+inline void miktexfreememory()
+{
+  TeXApp::GetTeXApp()->FreeMemory();
+}
+
+inline bool miktexinsertsrcspecialauto()
+{
+  return TeXApp::GetTeXApp()->IsSourceSpecialOn(SourceSpecial::Auto);
+}
+
+inline bool miktexinsertsrcspecialeverycr()
+{
+  return TeXApp::GetTeXApp()->IsSourceSpecialOn(SourceSpecial::CarriageReturn);
+}
+
+inline bool miktexinsertsrcspecialeverydisplay()
+{
+  return TeXApp::GetTeXApp()->IsSourceSpecialOn(SourceSpecial::Display);
+}
+
+inline bool miktexinsertsrcspecialeveryhbox()
+{
+  return TeXApp::GetTeXApp()->IsSourceSpecialOn(SourceSpecial::HorizontalBox);
+}
+
+inline bool miktexinsertsrcspecialeverymath()
+{
+  return TeXApp::GetTeXApp()->IsSourceSpecialOn(SourceSpecial::Math);
+}
+
+inline bool miktexinsertsrcspecialeverypar()
+{
+  return TeXApp::GetTeXApp()->IsSourceSpecialOn(SourceSpecial::Paragraph);
+}
+
+inline bool miktexinsertsrcspecialeveryparend()
+{
+  return TeXApp::GetTeXApp()->IsSourceSpecialOn(SourceSpecial::ParagraphEnd);
+}
+
+inline bool miktexinsertsrcspecialeveryvbox()
+{
+  return TeXApp::GetTeXApp()->IsSourceSpecialOn(SourceSpecial::VerticalBox);
+}
+
+inline bool miktexisnewsource(int fileName, int lineNo)
+{
+  return TeXApp::GetTeXApp()->IsNewSource(fileName, lineNo);
+}
+
+inline int miktexmakesrcspecial(int fileName, int lineNo)
+{
+  return TeXApp::GetTeXApp()->MakeSrcSpecial(fileName, lineNo);
+}
+
+template<class FileType> inline bool miktexopendvifile(FileType& f)
+{
+  MiKTeX::Core::PathName outPath;
+  bool done = TeXApp::GetTeXApp()->OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), TeXApp::GetTeXApp()->GetNameOfFile(), MiKTeX::Core::FileShare::ReadWrite, false, outPath);
+  if (done)
+  {
+    TeXApp::GetTeXApp()->SetNameOfFile(TeXApp::GetTeXApp()->MangleNameOfFile(outPath.GetData()));
+  }
+  return done;
+}
+
+template<class FileType> inline bool miktexopenpdffile(FileType& f)
+{
+  MiKTeX::Core::PathName outPath;
+  bool done = TeXApp::GetTeXApp()->OpenOutputFile(*reinterpret_cast<C4P::FileRoot*>(&f), TeXApp::GetTeXApp()->GetNameOfFile(), MiKTeX::Core::FileShare::ReadWrite, false, outPath);
+  if (done)
+  {
+    TeXApp::GetTeXApp()->SetNameOfFile(TeXApp::GetTeXApp()->MangleNameOfFile(outPath.GetData()));
+  }
+  return done;
+}
+
+template<class FileType> inline bool miktexopenformatfile(FileType& f, bool renew = false)
+{
+  return TeXApp::GetTeXApp()->OpenMemoryDumpFile(f, renew);
+}
+
+inline void miktexremembersourceinfo(int fileName, int lineNo)
+{
+  TeXApp::GetTeXApp()->RememberSourceInfo(fileName, lineNo);
+}
+
+inline int miktexwrite18(const TEXMFCHAR* lpszCommand)
+{
+  int exitCode;
+  return (int)TeXApp::GetTeXApp()->Write18(lpszCommand, exitCode);
+}
+
+inline bool miktexwrite18p()
+{
+  return TeXApp::GetTeXApp()->Write18P();
+}
+
+inline bool miktexenctexp()
+{
+  return TeXApp::GetTeXApp()->EncTeXP();
+}
+
+inline bool miktexmltexp()
+{
+  return TeXApp::GetTeXApp()->MLTeXP();
+}
+
+inline int miktexgetsynchronizationoptions()
+{
+  return TeXApp::GetTeXApp()->GetSynchronizationOptions();
+}
+
+inline bool restrictedshell()
+{
+  return TeXApp::GetTeXApp()->GetWrite18Mode() == TeXApp::Write18Mode::PartiallyEnabled || TeXApp::GetTeXApp()->GetWrite18Mode() == TeXApp::Write18Mode::Query;
+}
+
+inline bool shellenabledp()
+{
+  return miktexwrite18p();
+}
+
+template<class CharType> int runsystem(const CharType* lpszCommand)
+{
+  return miktexwrite18(reinterpret_cast<const TEXMFCHAR*>(lpszCommand));
+}
+
+template<class CharType> const CharType* conststringcast(CharType* lpsz)
+{
+  return const_cast<const CharType*>(lpsz);
+}
 
 MIKTEXMF_END_NAMESPACE;
 

@@ -1,4 +1,4 @@
-/* omega-miktex.cc: this is omega.c in the web2c world
+/* omega-ext.cpp: this is omega.c in the web2c world
 
 This file is part of the Omega project, which
 is based on the web2c distribution of TeX.

@@ -21,7 +21,7 @@
 #  pragma once
 #endif
 
-#include <miktex/TeXAndFriends/config.h>
+#include "dvitype-miktex-config.h"
 
 #if defined(MIKTEX_WINDOWS)
 #  include "dvitype.rc"
@@ -41,7 +41,7 @@ using namespace MiKTeX::TeXAndFriends;
 extern DVITYPEPROGCLASS DVITYPEPROG;
 
 class DVITYPEAPPCLASS :
-  public WebApp
+  public MiKTeX::TeXAndFriends::WebApp
 {
 public:
   void AddOptions() override
@@ -114,13 +114,13 @@ public:
         }
         else if (*lpsz == 0)
         {
-          DVITYPEPROG.startvals = static_cast<C4P_signed8>(k);
+          DVITYPEPROG.startvals = static_cast<C4P::C4P_signed8>(k);
         }
         else
         {
           BadUsage();
         }
-      } while (DVITYPEPROG.startvals != static_cast<C4P_signed8>(k));
+      } while (DVITYPEPROG.startvals != static_cast<C4P::C4P_signed8>(k));
     }
     break;
     case OPT_MAX_PAGES:
@@ -171,8 +171,3 @@ public:
     }
   }
 };
-
-extern DVITYPEAPPCLASS DVITYPEAPP;
-
-#define THEAPP DVITYPEAPP
-#include <miktex/TeXAndFriends/WebApp.inl>

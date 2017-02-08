@@ -37,6 +37,43 @@ inline XETEXPROGCLASS::utf8code* GetNameOfFileForWeb2C()
   return &XETEXPROG.nameoffile[-1];
 }
 
+XETEXPROGCLASS::unicodescalar*& buffer = XETEXPROG.buffer;
+C4P::C4P_integer& bufsize = XETEXPROG.bufsize;
+XETEXPROGCLASS::scaled& curh = XETEXPROG.curh;
+XETEXPROGCLASS::instaterecord& curinput = XETEXPROG.curinput;
+XETEXPROGCLASS::scaled& curv = XETEXPROG.curv;
+C4P::C4P_integer*& depthbase = XETEXPROG.depthbase;
+XETEXPROGCLASS::memoryword*& eqtb = XETEXPROG.eqtb;
+C4P::C4P_signed32& first = XETEXPROG.first;
+XETEXPROGCLASS::strnumber*& fontarea = XETEXPROG.fontarea;
+char*& fontflags = XETEXPROG.fontflags;
+voidpointer*& fontlayoutengine = XETEXPROG.fontlayoutengine;
+XETEXPROGCLASS::scaled*& fontletterspace = XETEXPROG.fontletterspace;
+XETEXPROGCLASS::scaled*& fontsize = XETEXPROG.fontsize;
+C4P::C4P_integer*& heightbase = XETEXPROG.heightbase;
+XETEXPROGCLASS::strnumber& jobname = XETEXPROG.jobname;
+C4P::C4P_signed32& last = XETEXPROG.last;
+XETEXPROGCLASS::scaled& loadedfontdesignsize = XETEXPROG.loadedfontdesignsize;
+char& loadedfontflags = XETEXPROG.loadedfontflags;
+XETEXPROGCLASS::scaled& loadedfontletterspace = XETEXPROG.loadedfontletterspace;
+voidpointer& loadedfontmapping = XETEXPROG.loadedfontmapping;
+XETEXPROGCLASS::utf16code*& mappedtext = XETEXPROG.mappedtext;
+C4P::C4P_signed32& maxbufstack = XETEXPROG.maxbufstack;
+C4P::C4P_signed16& namelength = XETEXPROG.namelength;
+C4P::C4P_signed16& namelength16 = XETEXPROG.namelength16;
+XETEXPROGCLASS::utf16code*& nameoffile16 = XETEXPROG.nameoffile16;
+C4P::C4P_integer& nativefonttypeflag = XETEXPROG.nativefonttypeflag;
+C4P::C4P_boolean& nopdfoutput = XETEXPROG.nopdfoutput;
+XETEXPROGCLASS::scaled& ruledp = XETEXPROG.ruledp;
+XETEXPROGCLASS::scaled& ruleht = XETEXPROG.ruleht;
+XETEXPROGCLASS::scaled& rulewd = XETEXPROG.rulewd;
+C4P::C4P_integer& synctexoffset = XETEXPROG.synctexoffset;
+C4P::C4P_integer& synctexoption = XETEXPROG.synctexoption;
+XETEXPROGCLASS::strnumber& texmflogname = XETEXPROG.logname;
+C4P::C4P_integer& totalpages = XETEXPROG.totalpages;
+char*& xdvbuffer = XETEXPROG.xdvbuffer;
+XETEXPROGCLASS::memoryword*& zmem = XETEXPROG.zmem;
+
 XETEXPROGCLASS::utf8code* nameoffile = GetNameOfFileForWeb2C();
 
 void XETEXAPPCLASS::GetLibraryVersions(std::vector<LibraryVersion>& versions) const

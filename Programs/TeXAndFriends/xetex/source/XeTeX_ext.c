@@ -1786,7 +1786,7 @@ applymapping(void* pCnv, uint16_t* txtPtr, int txtLen)
             free(mappedtext);
         outLength = txtLen * sizeof(UniChar) + 32;
 #if defined(MIKTEX)
-        mappedtext = (utf16code*)xmalloc(outLength);
+        mappedtext = (XETEXPROGCLASS::utf16code*)xmalloc(outLength);
 #else
         mappedtext = xmalloc(outLength);
 #endif
@@ -1807,7 +1807,7 @@ retry:
             outLength += (txtLen * sizeof(UniChar)) + 32;
             free(mappedtext);
 #if defined(MIKTEX)
-            mappedtext = (utf16code*)xmalloc(outLength);
+            mappedtext = (XETEXPROGCLASS::utf16code*)xmalloc(outLength);
 #else
             mappedtext = xmalloc(outLength);
 #endif
@@ -1830,9 +1830,9 @@ void
 getnativecharheightdepth(integer font, integer ch, scaled* height, scaled* depth)
 {
 #if defined(MIKTEX)
-#define QUAD(f)         fontinfo[6+parambase[f]].c4p_P2.c4p_int
-#define X_HEIGHT(f)     fontinfo[5+parambase[f]].c4p_P2.c4p_int
-#define CAP_HEIGHT(f)   fontinfo[8+parambase[f]].c4p_P2.c4p_int
+#define QUAD(f)         XETEXPROG.fontinfo[6+XETEXPROG.parambase[f]].c4p_P2.c4p_int
+#define X_HEIGHT(f)     XETEXPROG.fontinfo[5+XETEXPROG.parambase[f]].c4p_P2.c4p_int
+#define CAP_HEIGHT(f)   XETEXPROG.fontinfo[8+XETEXPROG.parambase[f]].c4p_P2.c4p_int
 #else
 #define QUAD(f)         fontinfo[6+parambase[f]].cint
 #define X_HEIGHT(f)     fontinfo[5+parambase[f]].cint
@@ -2642,7 +2642,7 @@ u_open_in(unicodefile* f, integer filefmt, const_string fopen_mode, integer mode
     (*f)->savedChar = -1;
     (*f)->skipNextLF = 0;
 #if defined(MIKTEX)
-    rval = THEAPP.OpenInputFile(&((*f)->f), THEAPP.GetNameOfFile());
+    rval = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->OpenInputFile(&((*f)->f), MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetNameOfFile());
 #else
     rval = open_input (&((*f)->f), filefmt, fopen_mode);
 #endif
@@ -2693,10 +2693,10 @@ boolean open_dvi_output(C4P::FileRoot & dviFile)
   if (nopdfoutput)
   {
     MiKTeX::Core::PathName outPath;
-    bool done = THEAPP.OpenOutputFile(dviFile, THEAPP.GetNameOfFile(), MiKTeX::Core::FileShare::ReadWrite, false, outPath);
+    bool done = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->OpenOutputFile(dviFile, MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), MiKTeX::Core::FileShare::ReadWrite, false, outPath);
     if (done)
     {
-      THEAPP.SetNameOfFile(THEAPP.MangleNameOfFile(outPath.GetData()));
+      MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->MangleNameOfFile(outPath.GetData()));
     }
     return done;
   }
@@ -2722,8 +2722,8 @@ boolean open_dvi_output(C4P::FileRoot & dviFile)
     for (; *lpsz == ' ' || *lpsz == '\t'; ++lpsz)
     {
     }
-    MiKTeX::Core::PathName outPath = THEAPP.GetOutputDirectory();
-    outPath /= MiKTeX::TeXAndFriends::WebAppInputLine::UnmangleNameOfFile(THEAPP.GetNameOfFile().GetData());
+    MiKTeX::Core::PathName outPath = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory();
+    outPath /= MiKTeX::TeXAndFriends::WebAppInputLine::UnmangleNameOfFile(MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetNameOfFile().GetData());
     MiKTeX::Core::CommandLineBuilder args;
     switch (MiKTeX::App::Application::GetApplication()->GetEnableInstaller())
     {
@@ -2759,7 +2759,7 @@ boolean open_dvi_output(C4P::FileRoot & dviFile)
     processStartInfo.RedirectStandardInput = true;
     outputdriverprocess = MiKTeX::Core::Process::Start(processStartInfo);
     dviFile.Attach(outputdriverprocess->get_StandardInput(), true);
-    THEAPP.SetNameOfFile(THEAPP.MangleNameOfFile(outPath.GetData()));
+    MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->MangleNameOfFile(outPath.GetData()));
     return 1;
   }
 }
@@ -2870,7 +2870,7 @@ dviclose(/*[in,out]*/ C4P::FileRoot & dviFile)
 {
   if (nopdfoutput)
     {
-      THEAPP.CloseFile (dviFile);
+    MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->CloseFile (dviFile);
       return (0);
     }
   else

@@ -59,7 +59,6 @@ set(public_headers_texmf
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/CharacterConverterImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ETeXApp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ETeXApp.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ETeXApp.inl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ETeXMemoryHandlerImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ETeXMemoryHandlerImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/ErrorHandlerImpl
@@ -72,7 +71,6 @@ set(public_headers_texmf
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/InputOutputImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/MetafontApp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/MetafontApp.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/MetafontApp.inl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/MetafontMemoryHandlerImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/MetafontMemoryHandlerImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/Prototypes
@@ -81,20 +79,16 @@ set(public_headers_texmf
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/StringHandlerImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXApp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXApp.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXApp.inl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMFApp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMFApp.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMFApp.inl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMFMemoryHandlerImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMFMemoryHandlerImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMemoryHandlerImpl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/TeXMemoryHandlerImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/WebApp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/WebApp.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/WebApp.inl
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/WebAppInputLine
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/WebAppInputLine.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/TeXAndFriends/WebAppInputLine.inl
 )
 
 set(public_headers
@@ -135,24 +129,18 @@ if(INSTALL_MIKTEX_HEADERS)
     FILES
       include/miktex/TeXAndFriends/ETeXApp
       include/miktex/TeXAndFriends/ETeXApp.h
-      include/miktex/TeXAndFriends/ETeXApp.inl
       include/miktex/TeXAndFriends/MetafontApp
       include/miktex/TeXAndFriends/MetafontApp.h
-      include/miktex/TeXAndFriends/MetafontApp.inl
       include/miktex/TeXAndFriends/Prototypes
       include/miktex/TeXAndFriends/Prototypes.h
       include/miktex/TeXAndFriends/TeXApp
       include/miktex/TeXAndFriends/TeXApp.h
-      include/miktex/TeXAndFriends/TeXApp.inl
       include/miktex/TeXAndFriends/TeXMFApp
       include/miktex/TeXAndFriends/TeXMFApp.h
-      include/miktex/TeXAndFriends/TeXMFApp.inl
       include/miktex/TeXAndFriends/WebApp
       include/miktex/TeXAndFriends/WebApp.h
-      include/miktex/TeXAndFriends/WebApp.inl
       include/miktex/TeXAndFriends/WebAppInputLine
       include/miktex/TeXAndFriends/WebAppInputLine.h
-      include/miktex/TeXAndFriends/WebAppInputLine.inl
     DESTINATION
       ${MIKTEX_HEADER_DESTINATION_DIR}/miktex/TeXAndFriends
   )

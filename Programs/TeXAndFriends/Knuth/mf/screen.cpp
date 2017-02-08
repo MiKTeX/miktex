@@ -24,13 +24,6 @@
 #include <conio.h>
 #endif
 
-#define C4PEXTERN extern
-#if defined(MIKTEX_TRAPMF)
-#include "trapmf.h"
-#else
-#include "mf.h"
-#endif
-
 #include "mf-miktex.h"
 
 #include "mf.rc"
@@ -141,7 +134,7 @@ C4P_boolean miktexinitscreen(int w, int h)
   return true;
 #endif
 
-  if (!THEAPP.ScreenEnabled())
+  if (!MFAPP.ScreenEnabled())
   {
     return false;
   }
@@ -187,7 +180,7 @@ C4P_boolean miktexinitscreen(int w, int h)
   return true;
 }
 
-void miktexblankrectangle(METAFONTProgram::screencol left_col, METAFONTProgram::screencol right_col, METAFONTProgram::screenrow top_row, METAFONTProgram::screenrow bot_row)
+void miktexblankrectangle(MFPROGCLASS::screencol left_col, MFPROGCLASS::screencol right_col, MFPROGCLASS::screenrow top_row, MFPROGCLASS::screenrow bot_row)
 {
 #if defined(MIKTEX_TRAPMF)
   return;
@@ -210,7 +203,7 @@ void miktexupdatescreen()
   InvalidateRect(g_hwnd, nullptr, FALSE);
 }
 
-void miktexpaintrow(METAFONTProgram::screenrow r, METAFONTProgram::pixelcolor b, METAFONTProgram::transspec a, METAFONTProgram::screencol n)
+void miktexpaintrow(MFPROGCLASS::screenrow r, MFPROGCLASS::pixelcolor b, MFPROGCLASS::transspec a, MFPROGCLASS::screencol n)
 {
 #if defined(MIKTEX_TRAPMF)
   return;

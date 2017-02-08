@@ -395,7 +395,7 @@ void writeimage(integer img)
 void deleteimage(integer img)
 {
 #if defined(MIKTEX)
-    if (THEAPP.IsInitProgram())
+    if (MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->IsInitProgram())
 #else
     if (iniversion)
 #endif
@@ -447,10 +447,10 @@ void img_free(void)
  */
 
 #if defined(MIKTEX)
-#  define generic_dump(x) THEAPP.Dump(PDFTEXPROG.fmtfile, (x))
-#  define dumpthings(a, n) THEAPP.Dump(PDFTEXPROG.fmtfile, (a), (n))
-#  define generic_undump(x) THEAPP.Undump(PDFTEXPROG.fmtfile, (x))
-#  define undumpthings(a, n) THEAPP.Undump(PDFTEXPROG.fmtfile, (a), (n))
+#  define generic_dump(x) MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->Dump(PDFTEXPROG.fmtfile, (x))
+#  define dumpthings(a, n) MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->Dump(PDFTEXPROG.fmtfile, (a), (n))
+#  define generic_undump(x) MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->Undump(PDFTEXPROG.fmtfile, (x))
+#  define undumpthings(a, n) MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->Undump(PDFTEXPROG.fmtfile, (a), (n))
 #endif
 /* #define dumpsizet   generic_dump */
 #define dumpinteger generic_dump

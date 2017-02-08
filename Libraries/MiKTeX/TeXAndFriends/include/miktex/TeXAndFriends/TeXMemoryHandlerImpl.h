@@ -54,7 +54,11 @@ public:
     program.maxinopen = GetCheckedParameter("max_in_open", program.infmaxinopen, program.supmaxinopen, userParams, texapp::texapp::max_in_open());
     program.nestsize = GetCheckedParameter("nest_size", program.infnestsize, program.supnestsize, userParams, texapp::texapp::nest_size());
     program.savesize = GetCheckedParameter("save_size", program.infsavesize, program.supsavesize, userParams, texapp::texapp::save_size());
+#if defined(MIKTEX_OMEGA)
+    program.triesize = GetParameter("trie_size", userParams, texapp::texapp::trie_size());
+#else
     program.triesize = GetCheckedParameter("trie_size", program.inftriesize, program.suptriesize, userParams, texapp::texapp::trie_size());
+#endif
 
 #if !defined(MIKTEX_OMEGA)
     program.hashextra = GetParameter("hash_extra", userParams, texapp::texapp::hash_extra());
@@ -212,7 +216,6 @@ public:
   void Check() override
   {
     TeXMFMemoryHandlerImpl::Check();
-#if defined(THEDATA)
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.linestack);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.inputstack);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.inputfile);
@@ -275,7 +278,6 @@ public:
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trieoplang);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trieopval);
 #endif
-#endif // THEDATA
   }
 };
 

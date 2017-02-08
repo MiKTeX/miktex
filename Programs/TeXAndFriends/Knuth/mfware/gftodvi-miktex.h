@@ -21,9 +21,11 @@
 #  pragma once
 #endif
 
-#include <miktex/TeXAndFriends/config.h>
+#include "gftodvi-miktex-config.h"
 
 #include <miktex/TeXAndFriends/WebApp>
+
+#include "gftodvi.h"
 
 #define OPT_OVERFLOW_LABEL_OFFSET 1000
 #define OPT_TITLEFONT 1001
@@ -36,13 +38,10 @@
 #  include <miktex/Core/Help>
 #endif
 
-using namespace MiKTeX::Core;
-using namespace MiKTeX::TeXAndFriends;
-
 extern GFTODVIPROGCLASS GFTODVIPROG;
 
 class GFTODVIAPPCLASS :
-  public WebApp
+  public MiKTeX::TeXAndFriends::WebApp
 {
 public:
   void MIKTEXTHISCALL AddOptions() override
@@ -235,6 +234,3 @@ inline GFTODVIPROGCLASS::strnumber miktexgetlogofont()
 {
   return GFTODVIAPP.GetLogoFont();
 }
-
-#define THEAPP GFTODVIAPP
-#include <miktex/TeXAndFriends/WebApp.inl>

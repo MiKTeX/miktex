@@ -21,7 +21,7 @@
 #  pragma once
 #endif
 
-#include <miktex/TeXAndFriends/config.h>
+#include "dvicopy-miktex-config.h"
 
 #include <miktex/TeXAndFriends/WebApp>
 
@@ -29,13 +29,12 @@
 #  include <miktex/Core/Help>
 #endif
 
-using namespace MiKTeX::Core;
-using namespace MiKTeX::TeXAndFriends;
+#include "dvicopy.h"
 
 extern DVICOPYPROGCLASS DVICOPYPROG;
 
 class DVICOPYAPPCLASS :
-  public WebApp
+  public MiKTeX::TeXAndFriends::WebApp
 {
 #define OPT_MAG 1000
 #define OPT_SELECT 1001
@@ -46,7 +45,7 @@ public:
   void AddOptions() override
   {
     WebApp::AddOptions();
-    AddOption(MIKTEXTEXT("mag\0Override existing magnification with MAG."), OPT_MAG,  POPT_ARG_STRING, "MAG");
+    AddOption(MIKTEXTEXT("mag\0Override existing magnification with MAG."), OPT_MAG, POPT_ARG_STRING, "MAG");
     AddOption("magnification", "mag");
     AddOption(MIKTEXTEXT("select\0Select a page range (start page and page count), for example `2 12' or `5.*.-2 4'. This option can be used up to 10 times.  This option cannot be used together with -max-pages or -page-start."), OPT_SELECT,  POPT_ARG_STRING, "SEL");
     AddOption(MIKTEXTEXT("max-pages\0Process N pages; default one million. This option cannot be used together with -select."), OPT_MAX_PAGES, POPT_ARG_STRING, "N");
@@ -56,9 +55,9 @@ public:
 public:
   void SetupOptions()
   {
-    if (maxPages.length() > 0 || pageStart.length() > 0)
+    if (!(maxPages.empty() && pageStart.empty()))
     {
-      if (selections.size() > 0)
+      if (!selections.empty())
       {
         FatalError(MIKTEXTEXT("-select was specified together with -max-pages and/or -page-start."));
       }
@@ -94,7 +93,7 @@ public:
 #endif
     }
 
-    if (mag.length() > 0)
+    if (!mag.empty())
     {
       if (mag.length() + 5 >= sizeof(DVICOPYPROG.options[0]))
       {
@@ -176,6 +175,3 @@ inline void setupoptions()
 {
   DVICOPYAPP.SetupOptions();
 }
-
-#define THEAPP DVICOPYAPP
-#include <miktex/TeXAndFriends/WebApp.inl>

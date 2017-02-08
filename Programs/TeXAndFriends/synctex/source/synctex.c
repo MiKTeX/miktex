@@ -340,11 +340,6 @@ static int fsyscp_remove(char *name);
 #define remove fsyscp_remove
 #endif
 
-#if defined(MIKTEX)
-#  define generic_synctex_get_current_name() \
-  xstrdup(THEAPP.GetFoundFileFq().GetData())
-#endif
-
 /*  This macro layer was added to take luatex into account as suggested by T. Hoekwater. */
 #   if !defined(SYNCTEX_GET_JOB_NAME)
 #     if defined(MIKTEX)
@@ -643,15 +638,6 @@ static void *synctex_dot_open(void)
      definitely disabled. */
     {
         char *tmp = SYNCTEX_GET_JOB_NAME();
-#if defined(MIKTEX) && 0 /* OBSOLETE */
-	MiKTeX::Core::PathName path = THEAPP.GetOutputDirectory();
-	if (! path.Empty())
-	  {
-	    path += tmp;
-	    tmp = (char*)xrealloc(tmp, path.GetLength() + 1);
-	    strcpy (tmp, path.Get());
-	  }
-#endif
         size_t len = strlen(tmp);
         if (len>0) {
             /*  jobname was set by the \jobname command on the *TeX side  */
@@ -891,14 +877,14 @@ void synctexterminate(boolean log_opened)
 #   endif
     if (log_opened && (tmp = SYNCTEX_GET_LOG_NAME())) {
         /* In version 1, the jobname was used but it caused problems regarding spaces in file names. */
-#if defined(MIKTEX) && defined(THEAPP)
-        MiKTeX::Core::PathName path = THEAPP.GetOutputDirectory();
-	path /= MiKTeX::Core::PathName(tmp).RemoveDirectorySpec();
-	tmp = (char*)xrealloc(tmp, path.GetLength() + 1);
-	strcpy (tmp, path.GetData());
-#endif
 #if defined(MIKTEX)
-	/* C++: typecast needed */
+      MiKTeX::Core::PathName path = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory();
+      path /= MiKTeX::Core::PathName(tmp).RemoveDirectorySpec();
+      tmp = (char*)xrealloc(tmp, path.GetLength() + 1);
+      strcpy(tmp, path.GetData());
+#endif
+#if defined(MIKTEX) && defined(__cplusplus)
+        /* C++: typecast needed */
         the_real_syncname = (char*)xmalloc((unsigned)
                                     (strlen(tmp) + strlen(synctex_suffix) +
                                      strlen(synctex_suffix_gz) + 1));

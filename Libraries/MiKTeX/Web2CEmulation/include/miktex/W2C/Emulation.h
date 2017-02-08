@@ -1,6 +1,6 @@
 /* miktex/W2C/Emulation.h: Web2C emulation              -*- C++ -*-
 
-   Copyright (C) 2010-2016 Christian Schenk
+   Copyright (C) 2010-2017 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -71,11 +71,9 @@
 #define secondsandmicros(s, m) \
   MiKTeX::Web2C::GetSecondsAndMicros(&(s), &(m))
 
-// TODO
-#if 0
+/* FIXME: required #include <miktex/TeXAndFriends/WebAppInputLine> */
 #  define generic_synctex_get_current_name() \
-  xstrdup(THEAPP.GetFoundFileFq().GetData())
-#endif
+  xstrdup(MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetFoundFileFq().GetData())
 
 /* _________________________________________________________________________
  *

@@ -1,6 +1,6 @@
 /* omega-miktex.h:                                      -*- C++ -*-
 
-   Copyright (C) 1998-2016 Christian Schenk
+   Copyright (C) 1998-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,7 +21,15 @@
 #  pragma once
 #endif
 
-#include <miktex/TeXAndFriends/config.h>
+#include "omega-miktex-config.h"
+
+#include <miktex/KPSE/Emulation>
+#include <miktex/TeXAndFriends/CharacterConverterImpl>
+#include <miktex/TeXAndFriends/InitFinalizeImpl>
+#include <miktex/TeXAndFriends/InputOutputImpl>
+#include <miktex/TeXAndFriends/TeXApp>
+#include <miktex/TeXAndFriends/TeXMemoryHandlerImpl>
+#include <miktex/W2C/Emulation>
 
 #if defined(MIKTEX)
 #define P1H(x1) (x1)
@@ -30,23 +38,9 @@
 #define P4C(t1, v1, t2, v2, t3, v3, t4, v4) (t1 v1, t2 v2, t3 v3, t4 v4)
 #endif
 
-#if defined(MIKTEX_OMEGA)
-#  include "omegadefs.h"
-#endif
+#include "omega.h"
 
-#if ! defined(C4PEXTERN)
-#  define C4PEXTERN extern
-#endif
-
-#if defined(MIKTEX_OMEGA)
-#  include "omega.h"
-#endif
-
-#if !defined(THEDATA)
-#  define THEDATA(x) C4P_VAR(x)
-#endif
-
-#if defined(MIKTEX_OMEGA) && defined(MIKTEX_WINDOWS)
+#if defined(MIKTEX_WINDOWS)
 #  include "omega.rc"
 #endif
 
@@ -54,23 +48,63 @@ namespace omega {
 #include <miktex/omega.defaults.h>
 }
 
-#include <miktex/TeXAndFriends/TeXApp>
-
-#if !defined(MIKTEX_VIRTUAL_TEXAPP)
-#  define MIKTEX_VIRTUAL_TEXAPP
-#endif
-
 #if !defined(MIKTEXHELP_OMEGA)
 #  include <miktex/Core/Help>
 #endif
 
-using namespace MiKTeX::TeXAndFriends;
-using namespace MiKTeX::Core;
+extern OMEGAPROGCLASS OMEGAPROG;
 
-#define uexit(exitCode) throw(exitCode)
+class MemoryHandlerImpl :
+  public MiKTeX::TeXAndFriends::TeXMemoryHandlerImpl<OMEGAPROGCLASS>
+{
+public:
+  MemoryHandlerImpl(OMEGAPROGCLASS& program, MiKTeX::TeXAndFriends::TeXMFApp& texmfapp) :
+    TeXMemoryHandlerImpl(program, texmfapp)
+  {
+  }
 
-class OMEGACLASS :
-  MIKTEX_VIRTUAL_TEXAPP public TeXApp
+public:
+  void Allocate(const std::unordered_map<std::string, int>& userParams) override
+  {
+    TeXMemoryHandlerImpl::Allocate(userParams);
+    program.ocpbufsize = GetParameter("ocp_buf_size", userParams, omega::omega::ocp_buf_size());
+    program.ocplistinfosize = GetParameter("ocp_listinfo_size", userParams, omega::omega::ocp_listinfo_size());
+    program.ocplistlistsize = GetParameter("ocp_list_list_size", userParams, omega::omega::ocp_list_list_size());
+    program.ocplstacksize = GetParameter("ocp_lstack_size", userParams, omega::omega::ocp_lstack_size());
+    program.ocpstacksize = GetParameter("ocp_stack_size", userParams, omega::omega::ocp_stack_size());
+    AllocateArray("inputfilemode", program.inputfilemode, program.maxinopen);
+    AllocateArray("inputfiletranslation", program.inputfiletranslation, program.maxinopen);
+    AllocateArray("ocplistinfo", program.ocplistinfo, program.ocplistinfosize);
+    AllocateArray("ocplistlist", program.ocplistlist, program.ocplistlistsize);
+    AllocateArray("ocplstackinfo", program.ocplstackinfo, program.ocplstacksize);
+    AllocateArray("strstartar", program.strstartar, program.maxstrings);
+    AllocateArray("triec", program.triec, program.triesize);
+    AllocateArray("trieoplang", program.trieoplang, program.trieopsize);
+  }
+
+public:
+  void Free() override
+  {
+    TeXMemoryHandlerImpl::Free();
+    FreeArray("inputfilemode", program.inputfilemode);
+    FreeArray("inputfiletranslation", program.inputfiletranslation);
+    FreeArray("ocplistinfo", program.ocplistinfo);
+    FreeArray("ocplistlist", program.ocplistlist);
+    FreeArray("ocplstackinfo", program.ocplstackinfo);
+    FreeArray("strstartar", program.strstartar);
+    FreeArray("triec", program.triec);
+    FreeArray("trieoplang", program.trieoplang);
+  }
+
+public:
+  void Check() override
+  {
+    TeXMemoryHandlerImpl::Check();
+  }
+};
+
+class OMEGAAPPCLASS :
+  public MiKTeX::TeXAndFriends::TeXApp
 {
 protected:
   void AddOptions() override
@@ -79,45 +113,28 @@ protected:
     AddOption("oft", "undump");
   }
 
-public:
-  void AllocateMemory()
-  {
-    TeXApp::AllocateMemory();
-    GETPARAM(-1, ocpbufsize, ocp_buf_size, omega::omega::ocp_buf_size());
-    GETPARAM(-1, ocplistinfosize, ocp_listinfo_size, omega::omega::ocp_listinfo_size());
-    GETPARAM(-1, ocplistlistsize, ocp_list_list_size, omega::omega::ocp_list_list_size());
-    GETPARAM(-1, ocplstacksize, ocp_lstack_size, omega::omega::ocp_lstack_size());
-    GETPARAM(-1, ocpstacksize, ocp_stack_size, omega::omega::ocp_stack_size());
-    Allocate("inputfilemode", THEDATA(inputfilemode), THEDATA(maxinopen));
-    Allocate("inputfiletranslation", THEDATA(inputfiletranslation), THEDATA(maxinopen));
-    Allocate("ocplistinfo", THEDATA(ocplistinfo), THEDATA(ocplistinfosize));
-    Allocate("ocplistlist", THEDATA(ocplistlist), THEDATA(ocplistlistsize));
-    Allocate("ocplstackinfo", THEDATA(ocplstackinfo), THEDATA(ocplstacksize));
-    Allocate("strstartar", THEDATA(strstartar), THEDATA(maxstrings));
-    Allocate("triec", THEDATA(triec), THEDATA(triesize));
-    Allocate("trieoplang", THEDATA(trieoplang), THEDATA(trieopsize));
-  }
+private:
+  MiKTeX::TeXAndFriends::CharacterConverterImpl<OmegaProgram> charConv{ OMEGAPROG };
 
-public:
-  void FreeMemory()
-  {
-    TeXApp::FreeMemory();
-    Free(THEDATA(inputfilemode));
-    Free(THEDATA(inputfiletranslation));
-    Free(THEDATA(ocplistinfo));
-    Free(THEDATA(ocplistlist));
-    Free(THEDATA(ocplstackinfo));
-    Free(THEDATA(strstartar));
-    Free(THEDATA(triec));
-    Free(THEDATA(trieoplang));
-  }
+private:
+  MiKTeX::TeXAndFriends::InitFinalizeImpl<OmegaProgram> initFinalize{ OMEGAPROG };
+
+private:
+  MiKTeX::TeXAndFriends::InputOutputImpl<OmegaProgram> inputOutput{ OMEGAPROG };
+
+private:
+  MemoryHandlerImpl memoryHandler{ OMEGAPROG, *this };
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session;
 
 public:
-  void Init(const std::string & programInvocationName) override
+  void Init(const std::string& programInvocationName) override
   {
+    SetCharacterConverter(&charConv);
+    SetInitFinalize(&initFinalize);
+    SetInputOutput(&inputOutput);
+    SetTeXMFMemoryHandler(&memoryHandler);
     TeXApp::Init(programInvocationName);
     session = GetSession();
 #if defined(IMPLEMENT_TCX)
@@ -162,40 +179,40 @@ public:
   }
 
 public:
-  bool OpenOCPFile(bytefile & f, char * lpszFileName)
+  bool OpenOCPFile(OMEGAPROGCLASS::bytefile& f, char* lpszFileName)
   {
-    PathName fileName;
-    if (!session->FindFile(lpszFileName, FileType::OCP, fileName))
+    MiKTeX::Core::PathName fileName;
+    if (!session->FindFile(lpszFileName, MiKTeX::Core::FileType::OCP, fileName))
     {
       return false;
     }
-    FILE * pfile = session->TryOpenFile(fileName.GetData(), FileMode::Open, FileAccess::Read, false);
-    if (pfile == nullptr)
+    FILE* file = session->TryOpenFile(fileName.GetData(), MiKTeX::Core::FileMode::Open, MiKTeX::Core::FileAccess::Read, false);
+    if (file == nullptr)
     {
       return false;
     }
-    f.Attach(pfile, true);
+    f.Attach(file, true);
     get(f);
     return true;
   }
   
 public:
-  bool OpenONMFile(alphafile & f, char * lpszFileName)
+  bool OpenONMFile(OMEGAPROGCLASS::alphafile& f, char* lpszFileName)
   {
 #if 1
     return false;
 #else
-    PathName fileName;
-    if (!session->FindFile(lpszFileName, FileType::ONM, fileName))
+    MiKTeX::Core::PathName fileName;
+    if (!session->FindFile(lpszFileName, MiKTeX::Core::FileType::ONM, fileName))
     {
       return false;
     }
-    FILE * pfile = sessionOpenFile(fileName.Get(), FileMode::Open, FileAccess::Read, false);
-    if (pfile == nullptr)
+    FILE* file = session->OpenFile(fileName.Get(), MiKTeX::Core::FileMode::Open, MiKTeX::Core::FileAccess::Read, false);
+    if (file == nullptr)
     {
       return false;
     }
-    f.Attach(pfile, true);
+    f.Attach(file, true);
 #if defined(PASCAL_TEXT_IO)
     get(f);
 #endif
@@ -204,54 +221,91 @@ public:
   }
 };
 
-#if defined(MIKTEX_OMEGA)
-extern OMEGACLASS OMEGAAPP;
-#define THEAPP OMEGAAPP
-#include <miktex/TeXAndFriends/TeXApp.inl>
 int miktexloadpoolstrings(int size);
 
 inline int loadpoolstrings(int size)
 {
   return miktexloadpoolstrings(size);
 }
-#endif
 
-inline bool miktexopenocpfile(bytefile & f, char * n)
+extern OMEGAAPPCLASS OMEGAAPP;
+
+#define uexit(exitCode) throw exitCode
+
+inline bool miktexopenocpfile(OMEGAPROGCLASS::bytefile& f, char* n)
 {
-  return THEAPP.OpenOCPFile(f, n);
+  return OMEGAAPP.OpenOCPFile(f, n);
 }
 
-inline bool miktexopenonmfile(alphafile & f, char * n)
+inline bool miktexopenonmfile(OMEGAPROGCLASS::alphafile& f, char* n)
 {
-  return THEAPP.OpenONMFile(f, n);
+  return OMEGAAPP.OpenONMFile(f, n);
 }
 
-#define first THEDATA(first)
-#define fmtfile THEDATA(fmtfile)
-#define fontsorttables THEDATA(fontsorttables)
-#define fonttables THEDATA(fonttables)
-#define last THEDATA(last)
-#define namelength THEDATA(namelength)
-#define nameoffile (&(THEDATA(nameoffile)[-1]))
-#define ocpbufsize THEDATA(ocpbufsize)
-#define ocptables THEDATA(ocptables)
-#define otpinputbuf THEDATA(otpinputbuf)
-#define otpinputend THEDATA(otpinputend)
-#define otpoutputbuf THEDATA(otpoutputbuf)
-#define otpoutputend THEDATA(otpoutputend)
+inline void dumpwd(OMEGAPROGCLASS::memoryword wd)
+{
+  *OMEGAPROG.fmtfile = wd;
+  put(OMEGAPROG.fmtfile);
+}
 
-#include <miktex/KPSE/Emulation>
-#include <miktex/W2C/Emulation>
+inline void dumpint(C4P::C4P_integer i)
+{
+  (*OMEGAPROG.fmtfile).c4p_P2.c4p_int = i;
+  put(OMEGAPROG.fmtfile);
+}
+
+inline void undumpwd(OMEGAPROGCLASS::memoryword& wd)
+{
+  get(OMEGAPROG.fmtfile);
+  wd = *OMEGAPROG.fmtfile;
+}
+
+inline void undumpint(C4P::C4P_integer& i)
+{
+  get(OMEGAPROG.fmtfile);
+  i = (*OMEGAPROG.fmtfile).c4p_P2.c4p_int;
+}
+
+template<typename T> int dumpthings(const T& first_item, std::size_t n)
+{
+  return fwrite(&first_item, sizeof(first_item), n, OMEGAPROG.fmtfile);
+}
+
+template<typename T> int undumpthings(T& first_item, std::size_t n)
+{
+  return fread(&first_item, sizeof(first_item), n, OMEGAPROG.fmtfile);
+}
 
 #define cint c4p_P2.c4p_int
 #define cint1 c4p_P2.hh.c4p_P1.lh
-#define dumpwd(wd) *fmtfile=wd; put(fmtfile)
-#define dumpint(i) (*fmtfile).cint=i; put(fmtfile)
-#define undumpwd(wd) get(fmtfile); wd=*fmtfile
-#define undumpint(i) get(fmtfile); i=(*fmtfile).cint
-#define dumpthings(first_item, n) fwrite(&first_item, sizeof (first_item), n, fmtfile)
-#define undumpthings(first_item, n) fread(&first_item, sizeof (first_item), n, fmtfile)
-#define ziniteqtbentry initeqtbentry
+
+using alphafile = OMEGAPROGCLASS::alphafile;
+using halfword = OMEGAPROGCLASS::halfword;
+using memoryword = OMEGAPROGCLASS::memoryword;
+
+extern C4P::C4P_signed32& first;
+extern OMEGAPROGCLASS::memoryword**& fonttables;
+extern OMEGAPROGCLASS::memoryword**& fontsorttables;
+extern C4P::C4P_signed32& last;
+extern C4P::C4P_signed16& namelength;
+extern C4P::C4P_integer& ocpbufsize;
+extern C4P::C4P_integer**& ocptables;
+extern OMEGAPROGCLASS::quarterword* otpinputbuf;
+extern OMEGAPROGCLASS::halfword& otpinputend;
+extern OMEGAPROGCLASS::quarterword* otpoutputbuf;
+extern OMEGAPROGCLASS::halfword& otpoutputend;
+
+extern char* nameoffile;
+
+inline auto ziniteqtbentry(OMEGAPROGCLASS::halfword p)
+{
+  return OMEGAPROG.initeqtbentry(p);
+}
+
+inline auto pnewinputln(OMEGAPROGCLASS::alphafile f, OMEGAPROGCLASS::halfword themode, OMEGAPROGCLASS::halfword translation, C4P::C4P_boolean bypasseoln)
+{
+  return OMEGAPROG.pnewinputln(f, themode, translation, bypasseoln);
+}
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    the rest is omegamem.h in the web2c world; non-obvious MiKTeX

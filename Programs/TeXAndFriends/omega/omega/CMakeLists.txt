@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -84,22 +84,8 @@ set(omega_change_file ${CMAKE_CURRENT_BINARY_DIR}/omega-miktex-all.ch)
 set(${omega_dll_name}_sources
   ${CMAKE_BINARY_DIR}/include/miktex/omega.defaults.h
   source/omegabis.c
-  omega-miktex.cc
-)
-
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/omega_pool.cpp
-  COMMAND
-    inipool
-    ${CMAKE_CURRENT_BINARY_DIR}/omega.pool
-    omega-miktex.h
-    > ${CMAKE_CURRENT_BINARY_DIR}/omega_pool.cpp
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    inipool
-    ${CMAKE_CURRENT_BINARY_DIR}/omega.pool
+  omega-ext.cpp
+  omega-miktex.cpp
 )
 
 list(APPEND ${omega_dll_name}_sources
@@ -129,6 +115,23 @@ endif()
 set(TANGLE_FLAGS -omega)
 
 create_web_app(Omega)
+
+add_custom_command(
+  OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/omega_pool.cpp
+  COMMAND
+    inipool
+    ${CMAKE_CURRENT_BINARY_DIR}/omega.pool
+    omega-miktex.h
+    ${omega_progclass}
+    ${omega_prog}
+    > ${CMAKE_CURRENT_BINARY_DIR}/omega_pool.cpp
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_BINARY_DIR}
+  DEPENDS
+    inipool
+    ${CMAKE_CURRENT_BINARY_DIR}/omega.pool
+)
 
 add_dependencies(${omega_dll_name} gen-defaults)
 
