@@ -50,14 +50,14 @@ class MemoryHandlerImpl :
 {
 public:
   MemoryHandlerImpl(MFPROGCLASS& program, MiKTeX::TeXAndFriends::TeXMFApp& mfapp) :
-    MetafontMemoryHandlerImpl(program, mfapp)
+    MetafontMemoryHandlerImpl<MFPROGCLASS>(program, mfapp)
   {
   }
 
 public:
   void Allocate(const std::unordered_map<std::string, int>& userParams) override
   {
-    MetafontMemoryHandlerImpl::Allocate(userParams);
+    MetafontMemoryHandlerImpl<MFPROGCLASS>::Allocate(userParams);
     program.maxwiggle = GetCheckedParameter("max_wiggle", program.infmaxwiggle, program.supmaxwiggle, userParams, mf::mf::max_wiggle());
     program.movesize = GetCheckedParameter("move_size", program.infmovesize, program.supmovesize, userParams, mf::mf::move_size());
     AllocateArray("after", program.after, program.maxwiggle);
@@ -70,7 +70,7 @@ public:
 public:
   void Free() override
   {
-    MetafontMemoryHandlerImpl::Free();
+    MetafontMemoryHandlerImpl<MFPROGCLASS>::Free();
     FreeArray("", program.after);
     FreeArray("", program.before);
     FreeArray("", program.envmove);

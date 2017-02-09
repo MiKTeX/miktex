@@ -59,14 +59,14 @@ class MemoryHandlerImpl :
 {
 public:
   MemoryHandlerImpl(OMEGAPROGCLASS& program, MiKTeX::TeXAndFriends::TeXMFApp& texmfapp) :
-    TeXMemoryHandlerImpl(program, texmfapp)
+    TeXMemoryHandlerImpl<OMEGAPROGCLASS>(program, texmfapp)
   {
   }
 
 public:
   void Allocate(const std::unordered_map<std::string, int>& userParams) override
   {
-    TeXMemoryHandlerImpl::Allocate(userParams);
+    TeXMemoryHandlerImpl<OMEGAPROGCLASS>::Allocate(userParams);
     program.ocpbufsize = GetParameter("ocp_buf_size", userParams, omega::omega::ocp_buf_size());
     program.ocplistinfosize = GetParameter("ocp_listinfo_size", userParams, omega::omega::ocp_listinfo_size());
     program.ocplistlistsize = GetParameter("ocp_list_list_size", userParams, omega::omega::ocp_list_list_size());
@@ -85,7 +85,7 @@ public:
 public:
   void Free() override
   {
-    TeXMemoryHandlerImpl::Free();
+    TeXMemoryHandlerImpl<OMEGAPROGCLASS>::Free();
     FreeArray("inputfilemode", program.inputfilemode);
     FreeArray("inputfiletranslation", program.inputfiletranslation);
     FreeArray("ocplistinfo", program.ocplistinfo);
@@ -99,7 +99,7 @@ public:
 public:
   void Check() override
   {
-    TeXMemoryHandlerImpl::Check();
+    TeXMemoryHandlerImpl<OMEGAPROGCLASS>::Check();
   }
 };
 

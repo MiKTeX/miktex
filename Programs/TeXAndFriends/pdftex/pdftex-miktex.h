@@ -58,14 +58,14 @@ class MemoryHandlerImpl :
 {
 public:
   MemoryHandlerImpl(PDFTEXPROGCLASS& program, MiKTeX::TeXAndFriends::TeXMFApp& texmfapp) :
-    ETeXMemoryHandlerImpl(program, texmfapp)
+    ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>(program, texmfapp)
   {
   }
 
 public:
   void Allocate(const std::unordered_map<std::string, int>& userParams) override
   {
-    ETeXMemoryHandlerImpl::Allocate(userParams);
+    ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>::Allocate(userParams);
     program.pdfmemsize = GetCheckedParameter("pdf_mem_size", program.infpdfmemsize, program.suppdfmemsize, userParams, pdftex::pdftex::pdf_mem_size());
     program.objtabsize = GetCheckedParameter("obj_tab_size", program.infobjtabsize, program.supobjtabsize, userParams, pdftex::pdftex::obj_tab_size());
     program.destnamessize = GetCheckedParameter("dest_names_size", program.infdestnamessize, program.supdestnamessize, userParams, pdftex::pdftex::dest_names_size());
@@ -111,7 +111,7 @@ public:
 public:
   void Free() override
   {
-    ETeXMemoryHandlerImpl::Free();
+    ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>::Free();
     FreeArray("destnames", program.destnames);
     FreeArray("objtab", program.objtab);
     FreeArray("pdfcharused", program.pdfcharused);
@@ -151,7 +151,7 @@ public:
 public:
   void Check() override
   {
-    ETeXMemoryHandlerImpl::Check();
+    ETeXMemoryHandlerImpl<PDFTEXPROGCLASS>::Check();
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.destnames);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.objtab);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.pdfcharused);

@@ -62,14 +62,14 @@ class MemoryHandlerImpl :
 {
 public:
   MemoryHandlerImpl(XETEXPROGCLASS& program, MiKTeX::TeXAndFriends::TeXMFApp& texmfapp) :
-    ETeXMemoryHandlerImpl(program, texmfapp)
+    ETeXMemoryHandlerImpl<XETEXPROGCLASS>(program, texmfapp)
   {
   }
 
 public:
   void Allocate(const std::unordered_map<std::string, int>& userParams) override
   {
-    ETeXMemoryHandlerImpl::Allocate(userParams);
+    ETeXMemoryHandlerImpl<XETEXPROGCLASS>::Allocate(userParams);
     size_t nFonts = program.fontmax - program.constfontbase;
     AllocateArray("fontmapping", program.fontmapping, nFonts);
 #if 1
@@ -86,7 +86,7 @@ public:
 public:
   void Free() override
   {
-    ETeXMemoryHandlerImpl::Free();
+    ETeXMemoryHandlerImpl<XETEXPROGCLASS>::Free();
     FreeArray("", program.fontmapping);
     FreeArray("", program.fontlayoutengine);
     FreeArray("", program.fontflags);
@@ -96,7 +96,7 @@ public:
 public:
   void Check() override
   {
-    ETeXMemoryHandlerImpl::Check();
+    ETeXMemoryHandlerImpl<XETEXPROGCLASS>::Check();
   }
 };
 
