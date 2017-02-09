@@ -31,6 +31,8 @@
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Registry>
+#include <miktex/TeXAndFriends/TeXApp>
+#include <miktex/TeXAndFriends/WebAppInputLine>
 #include <miktex/Util/StringUtil>
 #include <miktex/Version>
 

@@ -1,6 +1,6 @@
 /* w2cemu.cpp: web2c compatibility functions
 
-   Copyright (C) 2010-2016 Christian Schenk
+   Copyright (C) 2010-2017 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -28,6 +28,7 @@
 using namespace std;
 using namespace MiKTeX;
 using namespace MiKTeX::Core;
+using namespace MiKTeX::TeXAndFriends;
 using namespace MiKTeX::Util;
 
 namespace {
@@ -180,17 +181,17 @@ MIKTEXW2CCEEAPI(const char *) miktex_web2c_get_output_directory()
 
 MIKTEXW2CDATA(char *) miktex_web2c_fullnameoffile = nullptr;
 
-MIKTEXW2CCEEAPI(void) Web2C::GetSecondsAndMicros(integer * pSeconds, integer * pMicros)
+MIKTEXW2CCEEAPI(void) Web2C::GetSecondsAndMicros(int* seconds, int* micros)
 {
 #if defined(MIKTEX_WINDOWS)
   unsigned long clock = GetTickCount();
-  *pSeconds = clock / 1000;
-  *pMicros = clock % 1000;
+  *seconds = clock / 1000;
+  *micros = clock % 1000;
 #else
   struct timeval tv;
   gettimeofday(&tv, 0);
-  *pSeconds = tv.tv_sec;
-  *pMicros = tv.tv_usec;
+  *seconds = tv.tv_sec;
+  *micros = tv.tv_usec;
 #endif
 }
 
@@ -276,4 +277,15 @@ MIKTEXW2CEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_usagehelp(const char **
     cout << endl << StringUtil::FormatString("Email bug reports to %s.", lpszBugEmail) << endl;
   }
   throw 0;
+}
+
+MIKTEXW2CCEEAPI(char*) Web2C::GetCurrentFileName()
+{
+  return xstrdup(WebAppInputLine::GetWebAppInputLine()->GetFoundFileFq().GetData());
+}
+
+MIKTEXW2CCEEAPI(int) Web2C::RunSystemCommand(const char* cmd)
+{
+  int exitCode;
+  return (int)TeXApp::GetTeXApp()->Write18(cmd, exitCode);
 }

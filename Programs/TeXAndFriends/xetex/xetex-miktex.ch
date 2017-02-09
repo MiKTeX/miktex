@@ -1,6 +1,6 @@
 %% xetex-miktex.ch:
 %% 
-%% Copyright (C) 2007-2016 Christian Schenk
+%% Copyright (C) 2007-2017 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -502,7 +502,7 @@ procedure flush_str(s: str_number); {flush a string if possible}
       name_of_file[k+1] := 0;
       runsystem_ret := runsystem(conststringcast(name_of_file+1));
 @y
-      runsystem_ret := runsystem(miktex_get_string_at(str_start_macro(str_ptr)));
+      runsystem_ret := miktex_write18(str_ptr);
 @z
 
 % _____________________________________________________________________________

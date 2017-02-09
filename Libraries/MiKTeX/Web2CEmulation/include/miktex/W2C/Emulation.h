@@ -38,6 +38,17 @@
 
 #include "pre.h"
 
+#if defined(__cplusplus)
+MIKTEXWEB2C_BEGIN_NAMESPACE;
+
+MIKTEXW2CCEEAPI(char*) GetCurrentFileName();
+MIKTEXW2CCEEAPI(void) GetSecondsAndMicros(int* seconds, int* micros);
+MIKTEXW2CCEEAPI(int) RunSystemCommand(const char* cmd);
+
+MIKTEXWEB2C_END_NAMESPACE;
+#endif
+
+
 /* _________________________________________________________________________
  *
  *  c-auto.h
@@ -68,12 +79,26 @@
  *
  */
 
-#define secondsandmicros(s, m) \
-  MiKTeX::Web2C::GetSecondsAndMicros(&(s), &(m))
+#if defined(__cplusplus) 
+inline char* generic_synctex_get_current_name()
+{
+  return MiKTeX::Web2C::GetCurrentFileName();
+}
+#endif
 
-/* FIXME: required #include <miktex/TeXAndFriends/WebAppInputLine> */
-#  define generic_synctex_get_current_name() \
-  xstrdup(MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetFoundFileFq().GetData())
+#if defined(__cplusplus)
+inline int runsystem(const char* cmd)
+{
+  return MiKTeX::Web2C::RunSystemCommand(cmd);
+}
+#endif
+
+#if defined(__cplusplus)
+inline void secondsandmicros(integer& s, integer& m)
+{
+  MiKTeX::Web2C::GetSecondsAndMicros(&s, &m);
+}
+#endif
 
 /* _________________________________________________________________________
  *
@@ -82,9 +107,20 @@
  */
 
 #if defined(__cplusplus)
-template<class T> T * addressof(T & x) { return &x; }
+template<class T> T* addressof(T& x)
+{
+  return &x;
+}
 #else
 #define addressof(x) (&(x))
+#endif
+
+#if defined(__cplusplus)
+template<class T> const char* conststringcast(T* s)
+{
+  MIKTEX_ASSERT(sizeof(s[0]) == sizeof(char));
+  return (const char*)s;
+}
 #endif
 
 #define decr(x) --(x)
@@ -140,14 +176,6 @@ typedef double real;
 #endif
 
 /* _________________________________________________________________________ */
-
-#if defined(__cplusplus)
-MIKTEXWEB2C_BEGIN_NAMESPACE;
-
-MIKTEXW2CCEEAPI(void) GetSecondsAndMicros(int * pSeconds, int * pMicros);
-
-MIKTEXWEB2C_END_NAMESPACE;
-#endif
 
 #if defined(__cplusplus)
 MIKTEX_BEGIN_EXTERN_C_BLOCK

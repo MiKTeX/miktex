@@ -50,7 +50,7 @@ public:
 #endif
   }
 public:
-  C4P::C4P_signed16* strpool16() override
+  char16_t* strpool16() override
   {
 #if defined(MIKTEX_TEXMF_UNICODE)
     return program.strpool;

@@ -519,12 +519,6 @@ TeXApp::Write18Result TeXApp::Write18(const string& command_, int &exitCode) con
   return result;
 }
 
-TeXApp::Write18Result TeXApp::Write18(const wstring& command, int &exitCode) const
-{
-  CharBuffer<char> utf8(command);
-  return Write18(utf8.GetData(), exitCode);
-}
-
 TeXApp::Write18Mode TeXApp::GetWrite18Mode() const
 {
   return pimpl->write18Mode;

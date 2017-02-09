@@ -35,6 +35,7 @@
 #include <miktex/Core/FileType>
 #include <miktex/Core/PathName>
 
+#include <miktex/Util/CharBuffer>
 #include <miktex/Util/inliners.h>
 
 #include "TeXMFApp.h"
@@ -208,9 +209,6 @@ public:
 public:
   MIKTEXMFTHISAPI(Write18Result) Write18(const std::string& command, int& exitCode) const;
 
-public:
-  MIKTEXMFTHISAPI(Write18Result) Write18(const std::wstring& command, int& exitCode) const;
-
 private:
   int lastLineNum;
 
@@ -330,12 +328,6 @@ inline void miktexremembersourceinfo(int fileName, int lineNo)
   TeXApp::GetTeXApp()->RememberSourceInfo(fileName, lineNo);
 }
 
-inline int miktexwrite18(const TEXMFCHAR* lpszCommand)
-{
-  int exitCode;
-  return (int)TeXApp::GetTeXApp()->Write18(lpszCommand, exitCode);
-}
-
 inline bool miktexwrite18p()
 {
   return TeXApp::GetTeXApp()->Write18P();
@@ -364,16 +356,6 @@ inline bool restrictedshell()
 inline bool shellenabledp()
 {
   return miktexwrite18p();
-}
-
-template<class CharType> int runsystem(const CharType* lpszCommand)
-{
-  return miktexwrite18(reinterpret_cast<const TEXMFCHAR*>(lpszCommand));
-}
-
-template<class CharType> const CharType* conststringcast(CharType* lpsz)
-{
-  return const_cast<const CharType*>(lpsz);
 }
 
 MIKTEXMF_END_NAMESPACE;

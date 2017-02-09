@@ -54,7 +54,7 @@ class IStringHandler
 public:
   virtual char* strpool() = 0;
 public:
-  virtual C4P::C4P_signed16* strpool16() = 0;
+  virtual char16_t* strpool16() = 0;
 public:
   virtual C4P::C4P_signed32& strptr() = 0;
 public:
@@ -274,7 +274,7 @@ public:
     }
     IStringHandler* stringHandler = GetStringHandler();
 #if defined(MIKTEX_TEXMF_UNICODE)
-    auto strpool = stringHandler->strpool16();
+    char16_t* strpool = stringHandler->strpool16();
 #else
     char* strpool = stringHandler->strpool();
 #endif
@@ -284,18 +284,6 @@ public:
     }
     dest[stringLength] = 0;
     return dest;
-  }
-
-public:
-  auto GetTeXStringAt(int idx) const
-  {
-    IStringHandler* stringHandler = GetStringHandler();
-#if defined(MIKTEX_TEXMF_UNICODE)
-    auto strpool = stringHandler->strpool16();
-#else
-    auto strpool = stringHandler->strpool();
-#endif
-    return &strpool[idx];
   }
 
 #if defined(MIKTEX_TEXMF_UNICODE)
@@ -308,6 +296,14 @@ public:
     return dest;
   }
 #endif
+
+public:
+  template<typename CharType> CharType* GetTeXString(CharType* dest, int stringNumber, std::size_t destSize = 0xffff) const
+  {
+    int stringStart = GetTeXStringStart(stringNumber);
+    int stringLength = GetTeXStringLength(stringNumber);
+    return GetTeXString(dest, destSize, stringStart, stringLength);
+  }
 
 public:
   int GetTeXStringStart(int stringNumber) const
@@ -331,14 +327,6 @@ public:
     IStringHandler* stringHandler = GetStringHandler();
     MIKTEX_ASSERT(stringNumber >= 0 && stringNumber < stringHandler->strptr());
     return stringHandler->strstart()[stringNumber + 1] - stringHandler->strstart()[stringNumber];
-  }
-
-public:
-  template<typename CharType> CharType* GetTeXString(CharType* dest, int stringNumber, std::size_t destSize = 0xffff) const
-  {
-    int stringStart = GetTeXStringStart(stringNumber);
-    int stringLength = GetTeXStringLength(stringNumber);
-    return GetTeXString(dest, destSize, stringStart, stringLength);
   }
 
 public:
@@ -542,10 +530,12 @@ inline int miktexgetjobname()
   return TeXMFApp::GetTeXMFApp()->GetJobName();
 }
 
+#if 0
 inline auto miktexgetstringat(int idx)
 {
   return MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->GetTeXStringAt(idx);
 }
+#endif
 
 inline bool miktexhaltonerrorp()
 {

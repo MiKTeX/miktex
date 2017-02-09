@@ -78,7 +78,7 @@ else()
 endif()
 
 target_link_libraries(${texmf_dll_name}
-  PRIVATE
+  PUBLIC
     ${app_dll_name}
     ${core_dll_name}
     miktex-popt-wrapper

@@ -68,9 +68,9 @@ public:
 public:
   virtual char* buffer() = 0;
 public:
-  virtual C4P::C4P_signed16* buffer16() = 0;
+  virtual char16_t* buffer16() = 0;
 public:
-  virtual C4P::C4P_signed32* buffer32() = 0;
+  virtual char32_t* buffer32() = 0;
 public:
   virtual C4P::C4P_signed32& maxbufstack() = 0;
 public:

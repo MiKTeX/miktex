@@ -336,6 +336,13 @@ inline int loadpoolstrings(int size)
 
 extern XETEXAPPCLASS XETEXAPP;
 
+inline int miktexwrite18(XETEXPROGCLASS::strnumber stringNumber)
+{
+  // TODO
+  MIKTEX_UNEXPECTED();
+}
+
+
 inline char* gettexstring(XETEXPROGCLASS::strnumber stringNumber)
 {
   int stringStart = XETEXAPP.GetTeXStringStart(stringNumber);

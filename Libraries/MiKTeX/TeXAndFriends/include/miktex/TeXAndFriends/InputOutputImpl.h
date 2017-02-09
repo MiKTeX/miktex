@@ -94,16 +94,16 @@ public:
     return (char*)program.buffer;
   }
 public:
-  C4P::C4P_signed16* buffer16() override
+  char16_t* buffer16() override
   {
-    MIKTEX_ASSERT(sizeof(program.buffer[0]) == sizeof(C4P::C4P_signed16));
-    return (C4P::C4P_signed16*)program.buffer;
+    MIKTEX_ASSERT(sizeof(program.buffer[0]) == sizeof(char16_t));
+    return (char16_t*)program.buffer;
   }
 public:
-  C4P::C4P_signed32* buffer32() override
+  char32_t* buffer32() override
   {
-    MIKTEX_ASSERT(sizeof(program.buffer[0]) == sizeof(C4P::C4P_signed32));
-    return (C4P::C4P_signed32*)program.buffer;
+    MIKTEX_ASSERT(sizeof(program.buffer[0]) == sizeof(char32_t));
+    return (char32_t*)program.buffer;
   }
 public:
   C4P::C4P_signed32& maxbufstack() override

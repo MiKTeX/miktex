@@ -101,6 +101,7 @@ if(NOT LINK_EVERYTHING_STATICALLY)
     PUBLIC
       ${core_dll_name}
       ${kpsemu_dll_name}
+      ${texmf_dll_name}
   )
 
   if(MIKTEX_NATIVE_WINDOWS)

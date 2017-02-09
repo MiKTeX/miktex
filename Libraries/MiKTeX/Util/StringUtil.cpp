@@ -1,6 +1,6 @@
 /* StringUtil.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -207,5 +207,35 @@ string StringUtil::WideCharToUTF8(const wchar_t * wideChars)
   catch (const range_error &)
   {
     throw UtilException("Conversion from wide character string to UTF-8 byte sequence did not succeed.");
+  }
+}
+
+template<typename CharType> size_t StringLength(const CharType* lpsz)
+{
+  const CharType* start = lpsz;
+  for (; *lpsz != 0; ++lpsz)
+  {
+  }
+  return lpsz - start;
+}
+
+string StringUtil::UTF16ToUTF8(const char16_t* utf16Chars)
+{
+  try
+  {
+#if _MSC_VER == 1900
+    // workround for VS2015 bug: 
+    // http://stackoverflow.com/questions/32055357/visual-studio-c-2015-stdcodecvt-with-char16-t-or-char32-t
+    wstring_convert<codecvt_utf8_utf16<int16_t>, int16_t> conv;
+    const int16_t* p = (const int16_t*)utf16Chars;
+    return conv.to_bytes(p, p + StringLength(utf16Chars));
+#else
+    wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t> conv;
+    return conv.to_bytes(utf16Chars);
+#endif
+  }
+  catch (const range_error &)
+  {
+    throw UtilException("Conversion from UFT-16 string to UTF-8 byte sequence did not succeed.");
   }
 }
