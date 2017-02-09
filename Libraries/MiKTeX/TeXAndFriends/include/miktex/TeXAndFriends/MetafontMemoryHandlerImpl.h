@@ -44,28 +44,28 @@ public:
   {
     TeXMFMemoryHandlerImpl<PROGRAM_CLASS>::Allocate(userParams);
 
-    program.bistacksize = GetCheckedParameter("bistack_size", program.infbistacksize, program.supbistacksize, userParams, mfapp::mfapp::bistack_size());
-    program.ligtablesize = GetCheckedParameter("lig_table_size", program.infligtablesize, program.supligtablesize, userParams, mfapp::mfapp::lig_table_size());
-    program.pathsize = GetCheckedParameter("path_size", program.infpathsize, program.suppathsize, userParams, mfapp::mfapp::path_size());
+    this->program.bistacksize = this->GetCheckedParameter("bistack_size", this->program.infbistacksize, this->program.supbistacksize, userParams, mfapp::mfapp::bistack_size());
+    this->program.ligtablesize = this->GetCheckedParameter("lig_table_size", this->program.infligtablesize, this->program.supligtablesize, userParams, mfapp::mfapp::lig_table_size());
+    this->program.pathsize = this->GetCheckedParameter("path_size", this->program.infpathsize, this->program.suppathsize, userParams, mfapp::mfapp::path_size());
 
-    AllocateArray("bisectstack", program.bisectstack, program.bistacksize);
-    AllocateArray("delta", program.delta, program.pathsize);
-    AllocateArray("deltax", program.deltax, program.pathsize);
-    AllocateArray("deltay", program.deltay, program.pathsize);
-    AllocateArray("ligkern", program.ligkern, program.ligtablesize);
-    AllocateArray("psi", program.psi, program.pathsize);
-    if (texmfapp.IsInitProgram() || texmfapp.AmI("mf"))
+    this->AllocateArray("bisectstack", this->program.bisectstack, this->program.bistacksize);
+    this->AllocateArray("delta", this->program.delta, this->program.pathsize);
+    this->AllocateArray("deltax", this->program.deltax, this->program.pathsize);
+    this->AllocateArray("deltay", this->program.deltay, this->program.pathsize);
+    this->AllocateArray("ligkern", this->program.ligkern, this->program.ligtablesize);
+    this->AllocateArray("psi", this->program.psi, this->program.pathsize);
+    if (this->texmfapp.IsInitProgram() || this->texmfapp.AmI("mf"))
     {
-      AllocateArray("strref", program.strref, program.maxstrings);
+      this->AllocateArray("strref", this->program.strref, this->program.maxstrings);
     }
-    AllocateArray("theta", program.theta, program.pathsize);
-    AllocateArray("uu", program.uu, program.pathsize);
-    AllocateArray("vv", program.vv, program.pathsize);
-    AllocateArray("ww", program.ww, program.pathsize);
+    this->AllocateArray("theta", this->program.theta, this->program.pathsize);
+    this->AllocateArray("uu", this->program.uu, this->program.pathsize);
+    this->AllocateArray("vv", this->program.vv, this->program.pathsize);
+    this->AllocateArray("ww", this->program.ww, this->program.pathsize);
 
 #if defined(TRAPMF)
-    AllocateArray("free", program.c4p_free, program.memmax);
-    AllocateArray("wasfree", program.wasfree, program.memmax);
+    this->AllocateArray("free", this->program.c4p_free, this->program.memmax);
+    this->AllocateArray("wasfree", this->program.wasfree, this->program.memmax);
 #endif
   }
 
@@ -73,20 +73,20 @@ public:
   void Free() override
   {
     TeXMFMemoryHandlerImpl<PROGRAM_CLASS>::Free();
-    FreeArray("", program.bisectstack);
-    FreeArray("", program.delta);
-    FreeArray("", program.deltax);
-    FreeArray("", program.deltay);
-    FreeArray("", program.ligkern);
-    FreeArray("", program.psi);
-    FreeArray("", program.strref);
-    FreeArray("", program.theta);
-    FreeArray("", program.uu);
-    FreeArray("", program.vv);
-    FreeArray("", program.ww);
+    this->FreeArray("bisectstack", this->program.bisectstack);
+    this->FreeArray("delta", this->program.delta);
+    this->FreeArray("deltax", this->program.deltax);
+    this->FreeArray("deltay", this->program.deltay);
+    this->FreeArray("ligkern", this->program.ligkern);
+    this->FreeArray("psi", this->program.psi);
+    this->FreeArray("strref", this->program.strref);
+    this->FreeArray("theta", this->program.theta);
+    this->FreeArray("uu", this->program.uu);
+    this->FreeArray("vv", this->program.vv);
+    this->FreeArray("ww", this->program.ww);
 #if defined(TRAPMF)
-    FreeArray("", program.c4p_free);
-    FreeArray("", program.wasfree);
+    this->FreeArray("c4p_free", this->program.c4p_free);
+    this->FreeArray("wasfree", this->program.wasfree);
 #endif
   }
 };
