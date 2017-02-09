@@ -121,14 +121,14 @@ public:
     this->AllocateArray("triec", this->program.triec, this->program.triesize);
     this->AllocateArray("widthbase", this->program.widthbase, this->program.fontmax - this->program.constfontbase);
 
-    if (texmfapp.IsInitProgram())
+    if (this->texmfapp.IsInitProgram())
     {
       // memory allocated in tex-miktex-hash.ch
       this->program.yhash = nullptr;
       this->program.zeqtb = nullptr;
     }
 
-    if (texmfapp.IsInitProgram() || !texmfapp.AmITeXCompiler() || texmfapp.AmI("omega"))
+    if (this->texmfapp.IsInitProgram() || !this->texmfapp.AmITeXCompiler() || this->texmfapp.AmI("omega"))
     {
       this->AllocateArray("fontinfo", this->program.fontinfo, this->program.fontmemsize);
     }
