@@ -149,7 +149,7 @@ MIKTEX_END_EXTERN_C_BLOCK;
 #  define MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(ptr)  \
   if (ptr != nullptr)                                   \
   {                                                     \
-    MiKTeX::Debug::AssertValidHeapPointer (ptr);        \
+    MiKTeX::Debug::AssertValidHeapPointer(ptr);         \
   }
 #else
 #  define MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(ptr)
@@ -165,7 +165,7 @@ MIKTEX_END_EXTERN_C_BLOCK;
 #  define MIKTEX_ASSERT_BUFFER_OR_NIL(ptr, n)   \
   if (ptr != nullptr)                           \
   {                                             \
-    MiKTeX::Debug::AssertValidBuf(ptr, n);     \
+    MiKTeX::Debug::AssertValidBuf(ptr, n);      \
   }
 #else
 #  define MIKTEX_ASSERT_BUFFER_OR_NIL(ptr, n)

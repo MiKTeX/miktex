@@ -47,10 +47,6 @@
 
 #include "WebAppInputLine.h"
 
-namespace texmfapp {
-#include <miktex/texmfapp.defaults.h>
-}
-
 MIKTEXMF_BEGIN_NAMESPACE;
 
 class IStringHandler

@@ -25,12 +25,17 @@
 #define FEFFF218B53147ED8CDE64F68A13D234
 
 #include <miktex/TeXAndFriends/config.h>
+
 #include <miktex/Trace/TraceStream>
 #include <miktex/Trace/Trace>
 
 #include "TeXMFApp.h"
 
 MIKTEXMF_BEGIN_NAMESPACE;
+
+namespace texmfapp {
+#include <miktex/texmfapp.defaults.h>
+}
 
 template<class PROGRAM_CLASS> class TeXMFMemoryHandlerImpl :
   public ITeXMFMemoryHandler
@@ -204,7 +209,7 @@ public:
 
     if (texmfapp.IsInitProgram() || texmfapp.AmI("mf"))
     {
-      AllocateArray("", program.strpool, program.poolsize);
+      AllocateArray("strpool", program.strpool, program.poolsize);
     }
 
     if (texmfapp.IsInitProgram())
@@ -227,18 +232,18 @@ public:
 public:
   void Free() override
   {
-    FreeArray("", program.buffer);
-    FreeArray("", program.inputstack);
-    FreeArray("", program.paramstack);
-    FreeArray("", program.trickbuf);
-    FreeArray("", program.strpool);
+    FreeArray("buffer", program.buffer);
+    FreeArray("inputstack", program.inputstack);
+    FreeArray("paramstack", program.paramstack);
+    FreeArray("trickbuf", program.trickbuf);
+    FreeArray("strpool", program.strpool);
 #if defined(MIKTEX_TEX_COMPILER)
-    FreeArray("", program.yzmem);
+    FreeArray("yzmem", program.yzmem);
 #else
-    FreeArray("", program.mem);
+    FreeArray("mem", program.mem);
 #endif
 #if !defined(MIKTEX_OMEGA)
-    FreeArray("", program.strstart);
+    FreeArray("strstart", program.strstart);
 #endif
   }
 

@@ -43,27 +43,27 @@ public:
   void Allocate(const std::unordered_map<std::string, int>& userParams) override
   {
     TeXMemoryHandlerImpl<PROGRAM_CLASS>::Allocate(userParams);
-    AllocateArray("eofseen", program.eofseen, program.maxinopen);
-    AllocateArray("grpstack", program.grpstack, program.maxinopen);
-    AllocateArray("ifstack", program.ifstack, program.maxinopen);
+    this->AllocateArray("eofseen", this->program.eofseen, this->program.maxinopen);
+    this->AllocateArray("grpstack", this->program.grpstack, this->program.maxinopen);
+    this->AllocateArray("ifstack", this->program.ifstack, this->program.maxinopen);
   }
 
 public:
   void Free() override
   {
     TeXMemoryHandlerImpl<PROGRAM_CLASS>::Free();
-    FreeArray("eofseen", program.eofseen);
-    FreeArray("grpstack", program.grpstack);
-    FreeArray("ifstack", program.ifstack);
+    this->FreeArray("eofseen", this->program.eofseen);
+    this->FreeArray("grpstack", this->program.grpstack);
+    this->FreeArray("ifstack", this->program.ifstack);
   }
 
 public:
   void Check() override
   {
     TeXMemoryHandlerImpl<PROGRAM_CLASS>::Check();
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.eofseen);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.grpstack);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.ifstack);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.eofseen);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.grpstack);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.ifstack);
   }
 };
 

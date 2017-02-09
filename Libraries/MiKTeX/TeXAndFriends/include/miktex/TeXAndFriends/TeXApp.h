@@ -39,10 +39,6 @@
 
 #include "TeXMFApp.h"
 
-namespace texapp {
-#include <miktex/texapp.defaults.h>
-}
-
 MIKTEXMF_BEGIN_NAMESPACE;
 
 class IFormatHandler

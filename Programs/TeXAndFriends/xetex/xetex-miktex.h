@@ -87,16 +87,20 @@ public:
   void Free() override
   {
     ETeXMemoryHandlerImpl<XETEXPROGCLASS>::Free();
-    FreeArray("", program.fontmapping);
-    FreeArray("", program.fontlayoutengine);
-    FreeArray("", program.fontflags);
-    FreeArray("", program.fontletterspace);
+    FreeArray("fontmapping", program.fontmapping);
+    FreeArray("fontlayoutengine", program.fontlayoutengine);
+    FreeArray("fontflags", program.fontflags);
+    FreeArray("fontletterspace", program.fontletterspace);
   }
 
 public:
   void Check() override
   {
     ETeXMemoryHandlerImpl<XETEXPROGCLASS>::Check();
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontmapping);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontlayoutengine);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontflags);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.fontletterspace);
   }
 };
 

@@ -25,6 +25,8 @@
 
 #define EXPERT_SRC_SPECIALS 0
 
+#include "miktex/texapp.defaults.h"
+
 class TeXApp::impl
 {
 public:

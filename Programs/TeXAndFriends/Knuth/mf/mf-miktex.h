@@ -71,11 +71,22 @@ public:
   void Free() override
   {
     MetafontMemoryHandlerImpl<MFPROGCLASS>::Free();
-    FreeArray("", program.after);
-    FreeArray("", program.before);
-    FreeArray("", program.envmove);
-    FreeArray("", program.move);
-    FreeArray("", program.nodetoround);
+    FreeArray("after", program.after);
+    FreeArray("before", program.before);
+    FreeArray("envmove", program.envmove);
+    FreeArray("move", program.move);
+    FreeArray("nodetoround", program.nodetoround);
+  }
+
+public:
+  void Check() override
+  {
+    MetafontMemoryHandlerImpl<MFPROGCLASS>::Check();
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.after);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.before);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.envmove);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.move);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.nodetoround);
   }
 };
 

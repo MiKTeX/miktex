@@ -33,10 +33,6 @@
 
 #include "TeXMFApp.h"
 
-namespace mfapp {
-#include <miktex/mfapp.defaults.h>
-}
-
 MIKTEXMF_BEGIN_NAMESPACE;
 
 class MIKTEXMFTYPEAPI(MetafontApp) :

@@ -23,6 +23,8 @@
 
 #include "internal.h"
 
+#include "miktex/texmfapp.defaults.h"
+
 class TeXMFApp::impl
 {
 public:

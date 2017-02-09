@@ -100,6 +100,14 @@ public:
   void Check() override
   {
     TeXMemoryHandlerImpl<OMEGAPROGCLASS>::Check();
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.inputfilemode);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.inputfiletranslation);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.ocplistinfo);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.ocplistlist);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.ocplstackinfo);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.strstartar);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.triec);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trieoplang);
   }
 };
 
