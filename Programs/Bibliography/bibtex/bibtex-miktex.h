@@ -81,7 +81,7 @@ private:
   MiKTeX::TeXAndFriends::InputOutputImpl<BIBTEXPROGCLASS> inputOutput{ BIBTEXPROG };
 
 public:
-  void Init(const std::string & programInvocationName) override
+  void Init(const std::string& programInvocationName) override
   {
     SetCharacterConverter(&charConv);
     SetInitFinalize(&initFinalize);

@@ -110,6 +110,7 @@ protected:
     {
       trace_mem->WriteFormattedLine("libtexmf", MIKTEXTEXT("Parameter %s: %d"), parameterName.c_str(), result);
     }
+    return result;
   }
 
 protected:

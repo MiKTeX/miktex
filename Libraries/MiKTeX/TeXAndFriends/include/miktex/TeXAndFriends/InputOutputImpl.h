@@ -50,7 +50,7 @@ public:
 #endif
   }
 public:
-  C4P::C4P_signed32& limit()
+  C4P::C4P_signed32& limit() override
   {
 #if defined(MIKTEX_TEX_COMPILER) || defined(MIKTEX_TEX_COMPILER)
     return program.curinput.limitfield;
