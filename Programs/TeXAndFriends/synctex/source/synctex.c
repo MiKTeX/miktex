@@ -342,28 +342,10 @@ static int fsyscp_remove(char *name);
 
 /*  This macro layer was added to take luatex into account as suggested by T. Hoekwater. */
 #   if !defined(SYNCTEX_GET_JOB_NAME)
-#     if defined(MIKTEX)
-inline char * SYNCTEX_GET_JOB_NAME ()
-{
-  char * lpsz = gettexstring(jobname);
-  strcpy (lpsz, MiKTeX::TeXAndFriends::WebAppInputLine::UnmangleNameOfFile(lpsz).GetData());
-  return (lpsz);
-}
-#     else
 #       define SYNCTEX_GET_JOB_NAME() (gettexstring(jobname))
-#     endif
 #   endif
 #   if !defined(SYNCTEX_GET_LOG_NAME)
-#     if defined(MIKTEX)
-inline char* SYNCTEX_GET_LOG_NAME()
-{
-  char* lpsz = gettexstring(texmflogname);
-  strcpy(lpsz, MiKTeX::TeXAndFriends::WebAppInputLine::UnmangleNameOfFile(lpsz).GetData());
-  return lpsz;
-}
-#     else
 #       define SYNCTEX_GET_LOG_NAME() (gettexstring(texmflogname))
-#     endif
 #   endif
 #   if !defined(SYNCTEX_CURRENT_TAG)
 #       define SYNCTEX_CURRENT_TAG (curinput.synctextagfield)
@@ -877,7 +859,7 @@ void synctexterminate(boolean log_opened)
 #   endif
     if (log_opened && (tmp = SYNCTEX_GET_LOG_NAME())) {
         /* In version 1, the jobname was used but it caused problems regarding spaces in file names. */
-#if defined(MIKTEX)
+#if defined(MIKTEX) && (defined(MIKTEX_PDFTEX) || defined(MIKTEX_XETEX))
       MiKTeX::Core::PathName path = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory();
       path /= MiKTeX::Core::PathName(tmp).RemoveDirectorySpec();
       tmp = (char*)xrealloc(tmp, path.GetLength() + 1);
@@ -1541,11 +1523,7 @@ static inline int synctex_record_input(integer tag, char *name)
 #   if SYNCTEX_DEBUG > 999
     printf("\nSynchronize DEBUG: synctex_record_input\n");
 #   endif
-#if defined(MIKTEX_PDFTEX) || defined(MIKTEX_XETEX)
-    len = SYNCTEX_fprintf(SYNCTEX_FILE,"Input:%i:%s\n",tag,MiKTeX::TeXAndFriends::WebAppInputLine::UnmangleNameOfFile(name).GetData());
-#else
     len = SYNCTEX_fprintf(SYNCTEX_FILE, "Input:%i:%s\n", tag, name);
-#endif
     if (len > 0) {
         synctex_ctxt.total_length += len;
         return SYNCTEX_NOERR;
