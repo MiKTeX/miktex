@@ -274,7 +274,7 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
         SOVERSION "1"
       )
     target_link_libraries(${_target_name}
-      PRIVATE
+      PUBLIC
         ${app_dll_name}
         ${core_dll_name}
         ${texmf_dll_name}
