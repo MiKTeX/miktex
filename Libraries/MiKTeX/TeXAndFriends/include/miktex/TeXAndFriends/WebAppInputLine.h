@@ -218,7 +218,6 @@ private:
   MIKTEXMFTHISAPI(void) HandleEof(FILE* file) const;
 #endif
 
-#if !defined(MIKTEX_XETEX)
 public:
   bool InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLine)
   {
@@ -321,7 +320,6 @@ public:
 
     return true;
   }
-#endif
 
 public:
   MIKTEXMFTHISAPI(bool) OpenInputFile(FILE** ppFile, const MiKTeX::Core::PathName& fileName);
