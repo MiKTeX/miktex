@@ -35,14 +35,14 @@ template<class PROGRAM_CLASS> class ETeXMemoryHandlerImpl :
 {
 public:
   ETeXMemoryHandlerImpl(PROGRAM_CLASS& program, TeXMFApp& texmfapp) :
-    TeXMemoryHandlerImpl(program, texmfapp)
+    TeXMemoryHandlerImpl<PROGRAM_CLASS>(program, texmfapp)
   {
   }
 
 public:
   void Allocate(const std::unordered_map<std::string, int>& userParams) override
   {
-    TeXMemoryHandlerImpl::Allocate(userParams);
+    TeXMemoryHandlerImpl<PROGRAM_CLASS>::Allocate(userParams);
     AllocateArray("eofseen", program.eofseen, program.maxinopen);
     AllocateArray("grpstack", program.grpstack, program.maxinopen);
     AllocateArray("ifstack", program.ifstack, program.maxinopen);
@@ -51,7 +51,7 @@ public:
 public:
   void Free() override
   {
-    TeXMemoryHandlerImpl::Free();
+    TeXMemoryHandlerImpl<PROGRAM_CLASS>::Free();
     FreeArray("eofseen", program.eofseen);
     FreeArray("grpstack", program.grpstack);
     FreeArray("ifstack", program.ifstack);
@@ -60,7 +60,7 @@ public:
 public:
   void Check() override
   {
-    TeXMemoryHandlerImpl::Check();
+    TeXMemoryHandlerImpl<PROGRAM_CLASS>::Check();
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.eofseen);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.grpstack);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.ifstack);

@@ -35,14 +35,14 @@ template<class PROGRAM_CLASS> class MetafontMemoryHandlerImpl :
 {
 public:
   MetafontMemoryHandlerImpl(PROGRAM_CLASS& program, TeXMFApp& texmfapp) :
-    TeXMFMemoryHandlerImpl(program, texmfapp)
+    TeXMFMemoryHandlerImpl<PROGRAM_CLASS>(program, texmfapp)
   {
   }
 
 public:
   void Allocate(const std::unordered_map<std::string, int>& userParams) override
   {
-    TeXMFMemoryHandlerImpl::Allocate(userParams);
+    TeXMFMemoryHandlerImpl<PROGRAM_CLASS>::Allocate(userParams);
 
     program.bistacksize = GetCheckedParameter("bistack_size", program.infbistacksize, program.supbistacksize, userParams, mfapp::mfapp::bistack_size());
     program.ligtablesize = GetCheckedParameter("lig_table_size", program.infligtablesize, program.supligtablesize, userParams, mfapp::mfapp::lig_table_size());
@@ -72,7 +72,7 @@ public:
 public:
   void Free() override
   {
-    TeXMFMemoryHandlerImpl::Free();
+    TeXMFMemoryHandlerImpl<PROGRAM_CLASS>::Free();
     FreeArray("", program.bisectstack);
     FreeArray("", program.delta);
     FreeArray("", program.deltax);

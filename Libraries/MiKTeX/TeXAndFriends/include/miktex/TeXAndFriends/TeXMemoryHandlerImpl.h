@@ -35,7 +35,7 @@ template<class PROGRAM_CLASS> class TeXMemoryHandlerImpl :
 {
 public:
   TeXMemoryHandlerImpl(PROGRAM_CLASS& program, TeXMFApp& texmfapp) :
-    TeXMFMemoryHandlerImpl(program, texmfapp)
+    TeXMFMemoryHandlerImpl<PROGRAM_CLASS>(program, texmfapp)
   {
   }
 
@@ -49,7 +49,7 @@ public:
       MIKTEX_FATAL_ERROR(MIKTEXTEXT("mem_bot must be 0 or 1."));
     }
 
-    TeXMFMemoryHandlerImpl::Allocate(userParams);
+    TeXMFMemoryHandlerImpl<PROGRAM_CLASS>::Allocate(userParams);
 
     program.maxinopen = GetCheckedParameter("max_in_open", program.infmaxinopen, program.supmaxinopen, userParams, texapp::texapp::max_in_open());
     program.nestsize = GetCheckedParameter("nest_size", program.infnestsize, program.supnestsize, userParams, texapp::texapp::nest_size());
@@ -146,7 +146,7 @@ public:
 public:
   void Free() override
   {
-    TeXMFMemoryHandlerImpl::Free();
+    TeXMFMemoryHandlerImpl<PROGRAM_CLASS>::Free();
 
     FreeArray("linestack", program.linestack);
     FreeArray("inputstack", program.inputstack);
@@ -215,7 +215,7 @@ public:
 public:
   void Check() override
   {
-    TeXMFMemoryHandlerImpl::Check();
+    TeXMFMemoryHandlerImpl<PROGRAM_CLASS>::Check();
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.linestack);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.inputstack);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.inputfile);
