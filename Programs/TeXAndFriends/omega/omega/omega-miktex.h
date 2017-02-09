@@ -67,6 +67,17 @@ public:
   void Allocate(const std::unordered_map<std::string, int>& userParams) override
   {
     TeXMemoryHandlerImpl<OMEGAPROGCLASS>::Allocate(userParams);
+
+    program.trieopsize = GetParameter("trie_op_size", userParams, omega::omega::trie_op_size());
+
+    AllocateArray("hyfdistance", program.hyfdistance, program.trieopsize);
+    AllocateArray("hyfnext", program.hyfnext, program.trieopsize);
+    AllocateArray("hyfnum", program.hyfnum, program.trieopsize);
+    AllocateArray("trie", program.trie, program.triesize);
+    AllocateArray("trieophash", program.trieophash, 2 * program.trieopsize);
+    AllocateArray("trieoplang", program.trieoplang, program.trieopsize);
+    AllocateArray("trieopval", program.trieopval, program.trieopsize);
+
     program.ocpbufsize = GetParameter("ocp_buf_size", userParams, omega::omega::ocp_buf_size());
     program.ocplistinfosize = GetParameter("ocp_listinfo_size", userParams, omega::omega::ocp_listinfo_size());
     program.ocplistlistsize = GetParameter("ocp_list_list_size", userParams, omega::omega::ocp_list_list_size());
@@ -86,6 +97,16 @@ public:
   void Free() override
   {
     TeXMemoryHandlerImpl<OMEGAPROGCLASS>::Free();
+
+    FreeArray("hyfdistance", program.hyfdistance);
+    FreeArray("hyfnext", program.hyfnext);
+    FreeArray("hyfnum", program.hyfnum);
+    FreeArray("trie", program.trie);
+
+    FreeArray("trieophash", program.trieophash);
+    FreeArray("trieoplang", program.trieoplang);
+    FreeArray("trieopval", program.trieopval);
+
     FreeArray("inputfilemode", program.inputfilemode);
     FreeArray("inputfiletranslation", program.inputfiletranslation);
     FreeArray("ocplistinfo", program.ocplistinfo);
@@ -100,6 +121,16 @@ public:
   void Check() override
   {
     TeXMemoryHandlerImpl<OMEGAPROGCLASS>::Check();
+
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.hyfdistance);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.hyfnext);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.hyfnum);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trie);
+
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trieophash);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trieoplang);
+    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.trieopval);
+
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.inputfilemode);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.inputfiletranslation);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(program.ocplistinfo);

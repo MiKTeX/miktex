@@ -133,18 +133,6 @@ public:
       this->AllocateArray("fontinfo", this->program.fontinfo, this->program.fontmemsize);
     }
 #endif // not Omega
-
-#if defined(MIKTEX_OMEGA)
-    this->program.trieopsize = this->GetParameter("trie_op_size", userParams, omega::omega::trie_op_size());
-
-    this->AllocateArray("hyfdistance", this->program.hyfdistance, this->program.trieopsize);
-    this->AllocateArray("hyfnext", this->program.hyfnext, this->program.trieopsize);
-    this->AllocateArray("hyfnum", this->program.hyfnum, this->program.trieopsize);
-    this->AllocateArray("trie", this->program.trie, this->program.triesize);
-    this->AllocateArray("trieophash", this->program.trieophash, 2 * this->program.trieopsize);
-    this->AllocateArray("trieoplang", this->program.trieoplang, this->program.trieopsize);
-    this->AllocateArray("trieopval", this->program.trieopval, this->program.trieopsize);
-#endif // Omega
   }
 
 public:
@@ -203,17 +191,6 @@ public:
     this->FreeArray("skewchar", this->program.skewchar);
     this->FreeArray("widthbase", this->program.widthbase);
 #endif // not Omega
-
-#if defined(MIKTEX_OMEGA)
-    this->FreeArray("hyfdistance", this->program.hyfdistance);
-    this->FreeArray("hyfnext", this->program.hyfnext);
-    this->FreeArray("hyfnum", this->program.hyfnum);
-    this->FreeArray("trie", this->program.trie);
-
-    this->FreeArray("trieophash", this->program.trieophash);
-    this->FreeArray("trieoplang", this->program.trieoplang);
-    this->FreeArray("trieopval", this->program.trieopval);
-#endif
   }
 
 public:
@@ -272,17 +249,6 @@ public:
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.skewchar);
     MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.widthbase);
 #endif // not Omega
-
-#if defined(MIKTEX_OMEGA)
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.hyfdistance);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.hyfnext);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.hyfnum);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.trie);
-
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.trieophash);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.trieoplang);
-    MIKTEX_ASSERT_VALID_HEAP_POINTER_OR_NIL(this->program.trieopval);
-#endif
   }
 };
 
