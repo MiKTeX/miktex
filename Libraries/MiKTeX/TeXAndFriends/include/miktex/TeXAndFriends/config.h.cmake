@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/config.h:                       -*- C++ -*-
 
-   Copyright (C) 2009-2016 Christian Schenk
+   Copyright (C) 2009-2017 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -19,7 +19,8 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-/* This file was generated from miktex/TeXAndFriends/config.h.cmake. */
+/* This file was generated from
+   miktex/TeXAndFriends/config.h.cmake. */
 
 #if defined(_MSC_VER)
 #  pragma once
@@ -68,10 +69,7 @@
 
 #cmakedefine WITH_PDFTEX 1
 #cmakedefine WITH_SYNCTEX 1
-
-#cmakedefine C4P_VAR_NAME_PREFIX ${C4P_VAR_NAME_PREFIX}
-
-#define C4P_VAR(name) ${C4P_VAR_NAME_PREFIX}##name
+#cmakedefine WITH_OMEGA 1
 
 #if defined(MIKTEX_TEX) || defined(MIKTEX_TRIPTEX)
 #  define MIKTEX_TEX_COMPILER 1
@@ -99,11 +97,11 @@
 #endif
 
 #if defined(MIKTEX_TEX_COMPILER)
-#    define HAVE_EXTRA_MEM_BOT 1
-#    define HAVE_EXTRA_MEM_TOP 1
-#    define HAVE_MAIN_MEMORY 1
-#    define HAVE_POOL_FREE 1
-#    define HAVE_STRINGS_FREE 1
+#  define HAVE_EXTRA_MEM_BOT 1
+#  define HAVE_EXTRA_MEM_TOP 1
+#  define HAVE_MAIN_MEMORY 1
+#  define HAVE_POOL_FREE 1
+#  define HAVE_STRINGS_FREE 1
 #  if !(defined(MIKTEX_XETEX) || defined(MIKTEX_OMEGA))
 #    define IMPLEMENT_TCX 1
 #  endif

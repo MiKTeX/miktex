@@ -345,17 +345,12 @@ inline int miktexwrite18(XETEXPROGCLASS::strnumber stringNumber)
 
 inline char* gettexstring(XETEXPROGCLASS::strnumber stringNumber)
 {
-  int stringStart = XETEXAPP.GetTeXStringStart(stringNumber);
-  int stringLength = XETEXAPP.GetTeXStringLength(stringNumber);
-  size_t sizeUtf8 = stringLength * 4 + 1;
-  char* lpsz = (char*)xmalloc(sizeUtf8);
-  return XETEXAPP.GetTeXString(lpsz, sizeUtf8, stringStart, stringLength);
+  return xstrdup(XETEXAPP.GetTeXString(stringNumber).c_str());
 }
 
 inline XETEXPROGCLASS::strnumber maketexstring(const char* lpsz)
 {
-  std::wstring str = MiKTeX::Util::StringUtil::UTF8ToWideChar(lpsz);
-  return XETEXAPP.MakeTeXString(str.c_str());
+  return XETEXAPP.MakeTeXString(lpsz);
 }
 
 inline bool eightbitp()

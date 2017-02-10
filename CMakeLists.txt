@@ -414,6 +414,12 @@ option(
   FALSE
 )
 
+option(
+  WITH_OMEGA
+  "Build Omega 1.15."
+  TRUE
+)
+
 ###############################################################################
 ## fixed values
 
@@ -1634,8 +1640,6 @@ add_subdirectory(${MIKTEX_REL_MPM_DIR})
 add_subdirectory(${MIKTEX_REL_MP_DIR})
 add_subdirectory(${MIKTEX_REL_MTHELP_DIR})
 add_subdirectory(${MIKTEX_REL_NLOHMANN_JSON_DIR})
-add_subdirectory(${MIKTEX_REL_OMEGAWARE_DIR})
-add_subdirectory(${MIKTEX_REL_OMEGA_DIR})
 add_subdirectory(${MIKTEX_REL_OTPS_DIR})
 add_subdirectory(${MIKTEX_REL_PADOUT_DIR})
 add_subdirectory(${MIKTEX_REL_PDFTEX_DIR})
@@ -1663,6 +1667,11 @@ add_subdirectory(${MIKTEX_REL_W2CEMU_DIR})
 add_subdirectory(${MIKTEX_REL_WEB_DIR})
 add_subdirectory(${MIKTEX_REL_XETEX_DIR})
 add_subdirectory(${MIKTEX_REL_XINDY_DIR})
+
+if(WITH_OMEGA)
+  add_subdirectory(${MIKTEX_REL_OMEGAWARE_DIR})
+  add_subdirectory(${MIKTEX_REL_OMEGA_DIR})
+endif()
 
 if(WITH_SOAP_CLIENT)
   add_subdirectory(${MIKTEX_REL_MTREP_DIR} EXCLUDE_FROM_ALL)

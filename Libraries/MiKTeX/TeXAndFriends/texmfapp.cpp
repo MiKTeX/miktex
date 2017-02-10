@@ -46,6 +46,8 @@ public:
 public:
   bool isInitProgram;
 public:
+  bool isUnicodeApp;
+public:
   bool recordFileNames;
 public:
   bool disableExtensions;
@@ -55,6 +57,8 @@ public:
   bool isTeXProgram;
 public:
   int interactionMode;
+public:
+  string jobName;
 public:
   IStringHandler* stringHandler = nullptr;
 public:
@@ -113,7 +117,7 @@ STATICFUNC(void) TraceExecutionTime(TraceStream * trace_time, clock_t clockStart
 #endif // MIKTEX_WINDOWS
 }
 
-void TeXMFApp::Init(const string & programInvocationName)
+void TeXMFApp::Init(const string& programInvocationName)
 {
   WebAppInputLine::Init(programInvocationName);
 
@@ -126,6 +130,8 @@ void TeXMFApp::Init(const string & programInvocationName)
   pimpl->haltOnError = false;
   pimpl->interactionMode = -1;
   pimpl->isInitProgram = false;
+  pimpl->isUnicodeApp = AmI("xetex");
+  pimpl->isUnicodeApp = pimpl->isUnicodeApp || AmI("omega");
   pimpl->isTeXProgram = false;
   pimpl->parseFirstLine = false;
   pimpl->recordFileNames = false;
@@ -142,7 +148,7 @@ void TeXMFApp::Finalize()
     pimpl->trace_time = nullptr;
   }
   pimpl->memoryDumpFileName = "";
-  jobName = "";
+  pimpl->jobName = "";
   WebAppInputLine::Finalize();
 }
 
@@ -170,13 +176,13 @@ void TeXMFApp::OnTeXMFFinishJob()
   if (pimpl->recordFileNames)
   {
     string fileName;
-    if (jobName.length() > 2 && jobName.front() == '"' && jobName.back() == '"')
+    if (pimpl->jobName.length() > 2 && pimpl->jobName.front() == '"' && pimpl->jobName.back() == '"')
     {
-      fileName = jobName.substr(1, jobName.length() - 2);
+      fileName = pimpl->jobName.substr(1, pimpl->jobName.length() - 2);
     }
     else
     {
-      fileName = jobName;
+      fileName = pimpl->jobName;
     }
     shared_ptr<Session> session = GetSession();
     session->SetRecorderPath(PathName(GetOutputDirectory(), fileName).AppendExtension(".fls"));
@@ -429,20 +435,19 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
     break;
 
   case OPT_JOB_NAME:
-    if (!IsNameManglingEnabled)
+    if (AmI("xetex"))
     {
-      if (!AmI("xetex"))
-      {
-	jobName = Q_(optArg);
-      }
-      else
-      {
-	jobName = optArg;
-      }
+      pimpl->jobName = optArg;
     }
+#if defined(WITH_OMEGA)
+    else if (AmI("omega"))
+    {
+      pimpl->jobName = MangleNameOfFile(optArg.c_str()).GetData();
+    }
+#endif
     else
     {
-      jobName = MangleNameOfFile(optArg.c_str()).GetData();
+      pimpl->jobName = Q_(optArg);
     }
     break;
 
@@ -814,53 +819,54 @@ bool IsFileNameArgument(const char * lpszArg)
   return true;
 }
 
-template<typename CharType> int InitializeBuffer_(CharType * pBuffer, FileType inputFileType, bool isTeXProgram)
+void TeXMFApp::InitializeBuffer() const
 {
+  IInputOutput* inout = GetInputOutput();
+ 
   int fileNameArgIdx = -1;
   PathName fileName;
-  bool mangleFileName = isTeXProgram;
 
   shared_ptr<Session> session = Session::Get();
 
-  if (mangleFileName)
+  if (pimpl->isTeXProgram)
   {
     /* test command-line for one of:
-       (a) tex FILENAME
-       (b) tex &FORMAT FILENAME
-       (c) initex FILENAME \dump
-       (d) initex &FORMAT FILENAME \dump
+    (a) tex FILENAME
+    (b) tex &FORMAT FILENAME
+    (c) initex FILENAME \dump
+    (d) initex &FORMAT FILENAME \dump
     */
     PathName path;
-    if (c4pargc == 2 && IsFileNameArgument(c4pargv[1]) && session->FindFile(c4pargv[1], inputFileType, path))
+    if (c4pargc == 2 && IsFileNameArgument(c4pargv[1]) && session->FindFile(c4pargv[1], GetInputFileType(), path))
     {
       fileNameArgIdx = 1;
     }
-    else if (c4pargc == 3 && c4pargv[1][0] == '&' && IsFileNameArgument(c4pargv[2]) && session->FindFile(c4pargv[2], inputFileType, path))
+    else if (c4pargc == 3 && c4pargv[1][0] == '&' && IsFileNameArgument(c4pargv[2]) && session->FindFile(c4pargv[2], GetInputFileType(), path))
     {
       fileNameArgIdx = 2;
     }
-    else if (c4pargc == 3 && strcmp(c4pargv[2], "\\dump") == 0 && IsFileNameArgument(c4pargv[1]) && session->FindFile(c4pargv[1], inputFileType, path))
+    else if (c4pargc == 3 && strcmp(c4pargv[2], "\\dump") == 0 && IsFileNameArgument(c4pargv[1]) && session->FindFile(c4pargv[1], GetInputFileType(), path))
     {
       fileNameArgIdx = 1;
     }
-    else if (c4pargc == 4 && c4pargv[1][0] == '&' && strcmp(c4pargv[3], "\\dump") == 0 && IsFileNameArgument(c4pargv[2]) && session->FindFile(c4pargv[2], inputFileType, path))
+    else if (c4pargc == 4 && c4pargv[1][0] == '&' && strcmp(c4pargv[3], "\\dump") == 0 && IsFileNameArgument(c4pargv[2]) && session->FindFile(c4pargv[2], GetInputFileType(), path))
     {
       fileNameArgIdx = 2;
     }
     if (fileNameArgIdx >= 0)
     {
-      if (!IsNameManglingEnabled)
+#if defined(WITH_OMEGA)
+      if (AmI("omega"))
       {
-#if defined(MIKTEX_WINDOWS)
-	fileName = Q_(path.ToLongPathName().ToUnix());
-#else
-	fileName = Q_(path);
-#endif
+        fileName = WebAppInputLine::MangleNameOfFile(c4pargv[fileNameArgIdx]);
       }
       else
-      {
-	fileName = WebAppInputLine::MangleNameOfFile(c4pargv[fileNameArgIdx]);
-      }
+#endif
+#if defined(MIKTEX_WINDOWS)
+        fileName = Q_(path.ToLongPathName().ToUnix());
+#else
+        fileName = Q_(path);
+#endif
     }
   }
 
@@ -870,9 +876,20 @@ template<typename CharType> int InitializeBuffer_(CharType * pBuffer, FileType i
   {
     if (idx > 1)
     {
-      pBuffer[last++] = ' ';
+      if (AmI("xetex"))
+      {
+        inout->buffer32()[last++] = U' ';
+      }
+      else if (AmI("omega"))
+      {
+        inout->buffer16()[last++] = u' ';
+      }
+      else
+      {
+        inout->buffer()[last++] = ' ';
+      }
     }
-    const char * lpszOptArg;
+    const char* lpszOptArg;
     if (idx == fileNameArgIdx)
     {
       lpszOptArg = fileName.GetData();
@@ -881,48 +898,38 @@ template<typename CharType> int InitializeBuffer_(CharType * pBuffer, FileType i
     {
       lpszOptArg = c4pargv[idx];
     }
-    if (sizeof(CharType) == sizeof(char))
+    if (AmI("xetex"))
     {
-      size_t len = StrLen(lpszOptArg);
+      u32string optarg = StringUtil::UTF8ToUTF32(lpszOptArg);
+      size_t len = optarg.length();
       for (size_t j = 0; j < len; ++j)
       {
-	pBuffer[last++] = lpszOptArg[j];
+        inout->buffer32()[last++] = optarg[j];
+      }
+    }
+    else if (AmI("omega"))
+    {
+      u16string optarg = StringUtil::UTF8ToUTF16(lpszOptArg);
+      size_t len = optarg.length();
+      for (size_t j = 0; j < len; ++j)
+      {
+        inout->buffer16()[last++] = optarg[j];
       }
     }
     else
     {
-      wstring optarg = StringUtil::UTF8ToWideChar(lpszOptArg);
-      size_t len = optarg.length();
+      size_t len = StrLen(lpszOptArg);
       for (size_t j = 0; j < len; ++j)
       {
-	pBuffer[last++] = optarg[j];
+        inout->buffer()[last++] = lpszOptArg[j];
       }
-
     }
   }
 
   // clear the command-line
   MakeCommandLine(vector<string>());
 
-  return last;
-}
-
-unsigned long TeXMFApp::InitializeBuffer(char * pBuffer)
-{
-  MIKTEX_ASSERT(pBuffer != nullptr);
-  return InitializeBuffer_<char>(pBuffer, GetInputFileType(), pimpl->isTeXProgram);
-}
-
-unsigned long TeXMFApp::InitializeBuffer(C4P_signed16 * pBuffer)
-{
-  MIKTEX_ASSERT(pBuffer != nullptr);
-  return InitializeBuffer_<C4P::C4P_signed16>(pBuffer, GetInputFileType(), pimpl->isTeXProgram);
-}
-
-unsigned long TeXMFApp::InitializeBuffer(C4P_signed32 * pBuffer)
-{
-  MIKTEX_ASSERT(pBuffer != nullptr);
-  return InitializeBuffer_<C4P_signed32>(pBuffer, GetInputFileType(), pimpl->isTeXProgram);
+  inout->last() = last;
 }
 
 void TeXMFApp::TouchJobOutputFile(FILE * pfile) const
@@ -949,6 +956,11 @@ bool TeXMFApp::HaltOnErrorP() const
 bool TeXMFApp::IsInitProgram() const
 {
   return pimpl->isInitProgram;
+}
+
+bool TeXMFApp::IsUnicodeApp() const
+{
+  return pimpl->isUnicodeApp;
 }
 
 void TeXMFApp::SetTeX()
@@ -1006,4 +1018,112 @@ void TeXMFApp::OnKeybordInterrupt(int)
   signal(SIGINT, SIG_IGN);
   ((TeXMFApp*)GetApplication())->GetErrorHandler()->interrupt() = 1;
   signal(SIGINT, OnKeybordInterrupt);
+}
+
+string TeXMFApp::GetTeXString(int stringStart, int stringLength) const
+{
+  string result;
+  IStringHandler* stringHandler = GetStringHandler();
+  if (IsUnicodeApp())
+  {
+    char16_t* strpool = stringHandler->strpool16();
+    CharBuffer<char16_t> buf(stringLength + 1);
+    for (int idx = 0; idx < stringLength; ++idx)
+    {
+      buf += strpool[stringStart + idx];
+    }
+    return StringUtil::UTF16ToUTF8(buf.GetData());
+  }
+  else
+  {
+    char* strpool = stringHandler->strpool();
+    for (int idx = 0; idx < stringLength; ++idx)
+    {
+      result += strpool[stringStart + idx];
+    }
+  }
+  return result;
+}
+
+int TeXMFApp::MakeTeXString(const char* lpsz) const
+{
+  MIKTEX_ASSERT_STRING(lpsz);
+  IStringHandler* stringHandler = GetStringHandler();
+  if (IsUnicodeApp())
+  {
+    CharBuffer<char16_t, 200> buf(lpsz);
+    std::size_t len = buf.GetLength();
+    CheckPoolPointer(stringHandler->poolptr(), len);
+    for (size_t idx = 0; idx < len; ++idx)
+    {
+      stringHandler->strpool16()[stringHandler->poolptr()] = buf[idx];
+      stringHandler->poolptr() += 1;
+    }
+  }
+  else
+  {
+    std::size_t len = StrLen(lpsz);
+    CheckPoolPointer(stringHandler->poolptr(), len);
+    while (len-- > 0)
+    {
+      stringHandler->strpool()[stringHandler->poolptr()] = *lpsz++;
+      stringHandler->poolptr() += 1;
+    }
+  }
+  return stringHandler->makestring();
+}
+
+int TeXMFApp::GetJobName() const
+{
+  if (pimpl->jobName.empty())
+  {
+    PathName name = GetLastInputFileName().GetFileNameWithoutExtension();
+    if (AmI("xetex"))
+    {
+      pimpl->jobName = name.ToString();
+    }
+    else
+    {
+      pimpl->jobName = Quoter<char>(name).GetData();
+    }
+  }
+  // FIXME: conserve strpool space
+  return MakeTeXString(pimpl->jobName.c_str());
+}
+
+int TeXMFApp::GetTeXStringStart(int stringNumber) const
+{
+  if (IsUnicodeApp())
+  {
+    MIKTEX_ASSERT(stringNumber >= 65536);
+    stringNumber -= 65536;
+  }
+  IStringHandler* stringHandler = GetStringHandler();
+  MIKTEX_ASSERT(stringNumber >= 0 && stringNumber < stringHandler->strptr());
+  return stringHandler->strstart()[stringNumber];
+}
+
+int TeXMFApp::GetTeXStringLength(int stringNumber) const
+{
+  if (IsUnicodeApp())
+  {
+    MIKTEX_ASSERT(stringNumber >= 65536);
+    stringNumber -= 65536;
+  }
+  IStringHandler* stringHandler = GetStringHandler();
+  MIKTEX_ASSERT(stringNumber >= 0 && stringNumber < stringHandler->strptr());
+  return stringHandler->strstart()[stringNumber + 1] - stringHandler->strstart()[stringNumber];
+}
+
+void TeXMFApp::InvokeEditor(int editFileName, int editFileNameLength, int editLineNumber, int transcriptFileName, int transcriptFileNameLength) const
+{
+  Application::InvokeEditor(PathName(GetTeXString(editFileName)), editLineNumber, GetInputFileType(), transcriptFileName == 0 ? PathName() : PathName(GetTeXString(transcriptFileName)));
+}
+
+void TeXMFApp::CheckPoolPointer(int poolptr, std::size_t len) const
+{
+  if (poolptr + len >= GetStringHandler()->poolsize())
+  {
+    MIKTEX_FATAL_ERROR(MIKTEXTEXT("String pool overflow."));
+  }
 }

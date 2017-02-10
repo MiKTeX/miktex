@@ -127,7 +127,7 @@ protected:
   virtual MIKTEXMFTHISAPI(void) TouchJobOutputFile(FILE*) const;
 
 private:
-  void BufferSizeExceeded()
+  void BufferSizeExceeded() const
   {
 #if defined(MIKTEX_BIBTEX)
     std::cout << "Sorry---you've exceeded BibTeX's buffer size";
@@ -194,7 +194,7 @@ public:
   }
 
 public:
-  void SetNameOfFile(const MiKTeX::Core::PathName& fileName)
+  void SetNameOfFile(const MiKTeX::Core::PathName& fileName) const
   {
     IInputOutput* inputOutput = GetInputOutput();
     MiKTeX::Util::StringUtil::CopyString(inputOutput->nameoffile(), MiKTeX::Core::BufferSizes::MaxPath + 1, fileName.GetData());
@@ -219,9 +219,13 @@ private:
 #endif
 
 public:
-  bool InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLine)
+  bool InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLine) const
   {
     f.AssertValid();
+
+#if defined(MIKTEX_XETEX)
+    MIKTEX_UNEXPECTED();
+#endif
 
 #if defined(PASCAL_TEXT_IO)
     MIKTEX_UNEXPECTED();
@@ -260,8 +264,8 @@ public:
       return true;
     }
 
-#if defined(MIKTEX_OMEGA)
-    inputOutput->buffer()[inputOutput->last()] = ch;
+#if defined(WITH_OMEGA) && defined(MIKTEX_OMEGA)
+    inputOutput->buffer16()[inputOutput->last()] = ch;
 #else
     inputOutput->buffer()[inputOutput->last()] = GetCharacterConverter()->xord()[ch & 0xff];
 #endif
@@ -286,7 +290,7 @@ public:
       {
         break;
       }
-#if defined(MIKTEX_OMEGA)
+#if defined(WITH_OMEGA) && defined(MIKTEX_OMEGA)
       inputOutput->buffer()[inputOutput->last()] = ch;
 #else
       inputOutput->buffer()[inputOutput->last()] = GetCharacterConverter()->xord()[ch & 0xff];
@@ -339,14 +343,15 @@ protected:
 protected:
   MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetLastInputFileName() const;
 
+#if defined(WITH_OMEGA)
 public:
   static MIKTEXMFCEEAPI(MiKTeX::Core::PathName) MangleNameOfFile(const char* fileName);
+#endif
 
+#if defined(WITH_OMEGA)
 public:
   static MIKTEXMFCEEAPI(MiKTeX::Core::PathName) UnmangleNameOfFile(const char* fileName);
-
-public:
-  static MIKTEXMFCEEAPI(MiKTeX::Core::PathName) UnmangleNameOfFile(const wchar_t* fileName);
+#endif
 
 public:
   MIKTEXMFTHISAPI(void) SetInputOutput(IInputOutput* inputOutput);

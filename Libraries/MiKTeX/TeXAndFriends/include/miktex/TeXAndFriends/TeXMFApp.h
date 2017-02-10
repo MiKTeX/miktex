@@ -85,14 +85,6 @@ public:
   virtual void* ReallocateArray(const std::string& arrayName, void* ptr, std::size_t elemSize, std::size_t numElem, const MiKTeX::Core::SourceLocation& sourceLocation) = 0;
 };
 
-#if defined(MIKTEX_TEXMF_UNICODE)
-typedef wchar_t TEXMFCHAR;
-typedef wint_t TEXMFCHARINT;
-#else
-typedef char TEXMFCHAR;
-typedef int TEXMFCHARINT;
-#endif
-
 class MIKTEXMFTYPEAPI(TeXMFApp) :
   public WebAppInputLine
 {
@@ -213,13 +205,7 @@ public:
   }
 
 protected:
-  void CheckPoolPointer(int poolptr, std::size_t len) const
-  {
-    if (poolptr + len >= GetStringHandler()->poolsize())
-    {
-      MIKTEX_FATAL_ERROR(MIKTEXTEXT("String pool overflow."));
-    }
-  }
+  MIKTEXMFTHISAPI(void) CheckPoolPointer(int poolptr, std::size_t len) const;
 
 public:
   MIKTEXMFTHISAPI(bool) CStyleErrorMessagesP() const;
@@ -231,103 +217,31 @@ public:
   MIKTEXMFTHISAPI(int) GetInteraction() const;
 
 public:
-  int GetJobName()
-  {
-    if (jobName.empty())
-    {
-      MiKTeX::Core::PathName name = GetLastInputFileName().GetFileNameWithoutExtension();
-#if defined(MIKTEX_XETEX)
-      jobName = name.ToString();
-#else
-      jobName = MiKTeX::Core::Quoter<char>(name).GetData();
-#endif
-    }
-    // FIXME: conserve strpool space
-    return MakeTeXString(jobName.c_str());
-  }
+  MIKTEXMFTHISAPI(int) GetJobName() const;
 
 public:
   MIKTEXMFTHISAPI(bool) HaltOnErrorP() const;
 
 public:
-  MIKTEXMFTHISAPI(unsigned long) InitializeBuffer(char* buffer);
+  MIKTEXMFTHISAPI(void) InitializeBuffer() const;
 
 public:
-  MIKTEXMFTHISAPI(unsigned long) InitializeBuffer(C4P::C4P_signed16* buffer);
+  MIKTEXMFTHISAPI(std::string) GetTeXString(int stringStart, int stringLength) const;
 
 public:
-  MIKTEXMFTHISAPI(unsigned long) InitializeBuffer(C4P::C4P_signed32* buffer);
-
-public:
-  void InitializeBuffer()
+  std::string GetTeXString(int stringNumber) const
   {
-    IInputOutput* inout = GetInputOutput();
-    inout->last() = InitializeBuffer(inout->buffer());
+    return GetTeXString(GetTeXStringStart(stringNumber), GetTeXStringLength(stringNumber));
   }
 
 public:
-  TEXMFCHAR* GetTeXString(TEXMFCHAR* dest, std::size_t destSize, int stringStart, int stringLength) const
-  {
-    if (stringLength < 0 || stringLength >= destSize)
-    {
-      MIKTEX_FATAL_ERROR(MIKTEXTEXT("Bad string size."));
-    }
-    IStringHandler* stringHandler = GetStringHandler();
-#if defined(MIKTEX_TEXMF_UNICODE)
-    char16_t* strpool = stringHandler->strpool16();
-#else
-    char* strpool = stringHandler->strpool();
-#endif
-    for (int idx = 0; idx < stringLength; ++idx)
-    {
-      dest[idx] = strpool[stringStart + idx];
-    }
-    dest[stringLength] = 0;
-    return dest;
-  }
-
-#if defined(MIKTEX_TEXMF_UNICODE)
-public:
-  char* GetTeXString(char* dest, std::size_t destSize, int stringStart, int stringLength) const
-  {
-    MiKTeX::Util::CharBuffer<wchar_t, 200> buf(stringLength + 1);
-    GetTeXString(buf.GetData(), buf.GetCapacity(), stringStart, stringLength);
-    MiKTeX::Util::StringUtil::CopyString(dest, destSize, buf.GetData());
-    return dest;
-  }
-#endif
+  MIKTEXMFTHISAPI(int) GetTeXStringStart(int stringNumber) const;
 
 public:
-  template<typename CharType> CharType* GetTeXString(CharType* dest, int stringNumber, std::size_t destSize = 0xffff) const
-  {
-    int stringStart = GetTeXStringStart(stringNumber);
-    int stringLength = GetTeXStringLength(stringNumber);
-    return GetTeXString(dest, destSize, stringStart, stringLength);
-  }
+  MIKTEXMFTHISAPI(int) GetTeXStringLength(int stringNumber) const;
 
 public:
-  int GetTeXStringStart(int stringNumber) const
-  {
-#if defined(MIKTEX_OMEGA) || defined(MIKTEX_XETEX)
-    MIKTEX_ASSERT(stringNumber >= 65536);
-    stringNumber -= 65536;
-#endif
-    IStringHandler* stringHandler = GetStringHandler();
-    MIKTEX_ASSERT(stringNumber >= 0 && stringNumber < stringHandler->strptr());
-    return stringHandler->strstart()[stringNumber];
-  }
-
-public:
-  int GetTeXStringLength(int stringNumber) const
-  {
-#if defined(MIKTEX_OMEGA) || defined(MIKTEX_XETEX)
-    MIKTEX_ASSERT(stringNumber >= 65536);
-    stringNumber -= 65536;
-#endif
-    IStringHandler* stringHandler = GetStringHandler();
-    MIKTEX_ASSERT(stringNumber >= 0 && stringNumber < stringHandler->strptr());
-    return stringHandler->strstart()[stringNumber + 1] - stringHandler->strstart()[stringNumber];
-  }
+  MIKTEXMFTHISAPI(void) InvokeEditor(int editFileName_, int editFileNameLength, int editLineNumber, int transcriptFileName, int transcriptFileNameLength) const;
 
 public:
   void InvokeEditor(const MiKTeX::Core::PathName& editFileName, int editLineNumber, const MiKTeX::Core::PathName& transcriptFileName) const
@@ -336,24 +250,10 @@ public:
   }
 
 public:
-  void InvokeEditor(int editFileName_, int editFileNameLength, int editLineNumber, int transcriptFileName_, int transcriptFileNameLength) const
-  {
-    TEXMFCHAR editFileName[Core::BufferSizes::MaxPath];
-    GetTeXString(editFileName, Core::BufferSizes::MaxPath, editFileName_, editFileNameLength);
-    TEXMFCHAR transcriptFileName[Core::BufferSizes::MaxPath];
-    if (transcriptFileName_ != 0)
-    {
-      GetTeXString(transcriptFileName, Core::BufferSizes::MaxPath, transcriptFileName_, transcriptFileNameLength);
-    }
-    else
-    {
-      transcriptFileName[0] = 0;
-    }
-    InvokeEditor(editFileName, editLineNumber, transcriptFileName);
-  }
+  MIKTEXMFTHISAPI(bool) IsInitProgram() const;
 
 public:
-  MIKTEXMFTHISAPI(bool) IsInitProgram() const;
+  MIKTEXMFTHISAPI(bool) IsUnicodeApp() const;
 
 protected:
   MIKTEXMFTHISAPI(bool) IsVirgin() const;
@@ -365,30 +265,7 @@ public:
   }
 
 public:
-  template<typename CharType> int MakeTeXString(const CharType* lpsz)
-  {
-    MIKTEX_ASSERT_STRING(lpsz);
-    IStringHandler* stringHandler = GetStringHandler();
-#if defined(MIKTEX_TEXMF_UNICODE)
-    MiKTeX::Util::CharBuffer<wchar_t, 200> buf(lpsz);
-    std::size_t len = buf.GetLength();
-    CheckPoolPointer(stringHandler->poolptr(), len);
-    for (size_t idx = 0; idx < len; ++idx)
-    {
-      stringHandler->strpool16()[stringHandler->poolptr()] = buf[idx];
-      stringHandler->poolptr() += 1;
-    }
-#else
-    std::size_t len = MiKTeX::Util::StrLen(lpsz);
-    CheckPoolPointer(stringHandler->poolptr(), len);
-    while (len-- > 0)
-    {
-      stringHandler->strpool()[stringHandler->poolptr()] = *lpsz++;
-      stringHandler->poolptr() += 1;
-    }
-#endif
-    return stringHandler->makestring();
-  }
+  MIKTEXMFTHISAPI(int) MakeTeXString(const char* lpsz) const;
 
 public:
   MIKTEXMFTHISAPI(bool) OpenMemoryDumpFile(const MiKTeX::Core::PathName& fileName, FILE** file, void* buf, std::size_t size, bool renew) const;
@@ -477,9 +354,6 @@ protected:
 
 public:
   MIKTEXMFTHISAPI(bool) AmITeXCompiler() const;
-
-private:
-  std::string jobName;
 
 public:
   typedef std::unordered_map<std::string, int> UserParams;

@@ -23,12 +23,6 @@
 
 #include "internal.h"
 
-BEGIN_INTERNAL_NAMESPACE;
-
-bool IsNameManglingEnabled = false;
-
-END_INTERNAL_NAMESPACE;
-
 class WebAppInputLine::impl
 {
 public:
@@ -110,93 +104,80 @@ bool WebAppInputLine::ProcessOption(int opt, const string& optArg)
   return done;
 }
 
+#if defined(WITH_OMEGA)
 PathName WebAppInputLine::MangleNameOfFile(const char* lpszFrom)
 {
-  if (!IsNameManglingEnabled)
+  PathName ret;
+  char* lpszTo = ret.GetData();
+  MIKTEX_ASSERT_STRING(lpszFrom);
+  size_t len = StrLen(lpszFrom);
+  if (len >= ret.GetCapacity())
   {
-    return PathName(lpszFrom).ToUnix();
+    MIKTEX_UNEXPECTED();
   }
-  else
+  size_t idx;
+  for (idx = 0; idx < len; ++idx)
   {
-    PathName ret;
-    char* lpszTo = ret.GetData();
-    MIKTEX_ASSERT_STRING(lpszFrom);
-    size_t len = StrLen(lpszFrom);
-    if (len >= ret.GetCapacity())
+    if (lpszFrom[idx] == ' ')
     {
-      MIKTEX_UNEXPECTED();
+      lpszTo[idx] = '*';
     }
-    size_t idx;
-    for (idx = 0; idx < len; ++idx)
+    else if (lpszFrom[idx] == '~')
     {
-      if (lpszFrom[idx] == ' ')
-      {
-        lpszTo[idx] = '*';
-      }
-      else if (lpszFrom[idx] == '~')
-      {
-        lpszTo[idx] = '?';
-      }
-      else if (lpszFrom[idx] == '\\')
-      {
-        lpszTo[idx] = '/';
-      }
-      else
-      {
-        lpszTo[idx] = lpszFrom[idx];
-      }
+      lpszTo[idx] = '?';
     }
-    lpszTo[idx] = 0;
-    return ret;
+    else if (lpszFrom[idx] == '\\')
+    {
+      lpszTo[idx] = '/';
+    }
+    else
+    {
+      lpszTo[idx] = lpszFrom[idx];
+    }
   }
+  lpszTo[idx] = 0;
+  return ret;
 }
+#endif
 
+#if defined(WITH_OMEGA)
 template<typename CharType> static PathName UnmangleNameOfFile_(const CharType* lpszFrom)
 {
-  if (!IsNameManglingEnabled)
+  PathName ret;
+  char* lpszTo = ret.GetData();
+  MIKTEX_ASSERT_STRING(lpszFrom);
+  size_t len = StrLen(lpszFrom);
+  if (len >= ret.GetCapacity())
   {
-    return PathName(lpszFrom);
+    MIKTEX_UNEXPECTED();
   }
-  else
+  size_t idx;
+  for (idx = 0; idx < len; ++idx)
   {
-    PathName ret;
-    char* lpszTo = ret.GetData();
-    MIKTEX_ASSERT_STRING(lpszFrom);
-    size_t len = StrLen(lpszFrom);
-    if (len >= ret.GetCapacity())
+    if (lpszFrom[idx] == '*')
     {
-      MIKTEX_UNEXPECTED();
+      lpszTo[idx] = ' ';
     }
-    size_t idx;
-    for (idx = 0; idx < len; ++idx)
+    else if (lpszFrom[idx] == '?')
     {
-      if (lpszFrom[idx] == '*')
-      {
-        lpszTo[idx] = ' ';
-      }
-      else if (lpszFrom[idx] == '?')
-      {
-        lpszTo[idx] = '~';
-      }
-      else
-      {
-        lpszTo[idx] = lpszFrom[idx];
-      }
+      lpszTo[idx] = '~';
     }
-    lpszTo[idx] = 0;
-    return ret;
+    else
+    {
+      lpszTo[idx] = lpszFrom[idx];
+    }
   }
+  lpszTo[idx] = 0;
+  return ret;
 }
+#endif
 
+#if defined(WITH_OMEGA)
 PathName WebAppInputLine::UnmangleNameOfFile(const char* lpszFrom)
 {
   return UnmangleNameOfFile_(lpszFrom);
 }
-
-PathName WebAppInputLine::UnmangleNameOfFile(const wchar_t* lpszFrom)
-{
-  return UnmangleNameOfFile_(lpszFrom);
-}
+#endif
 
 static bool IsOutputFile(const PathName& path)
 {

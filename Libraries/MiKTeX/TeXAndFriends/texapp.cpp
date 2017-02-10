@@ -43,6 +43,10 @@ public:
   bitset<32> sourceSpecials;
 public:
   IFormatHandler* formatHandler;
+public:
+  int lastLineNum;
+public:
+  MiKTeX::Core::PathName lastSourceFilename;
 };
 
 TeXApp::TeXApp() :
@@ -63,14 +67,9 @@ void TeXApp::Init(const string & programInvocationName)
   pimpl->enableEncTeX = false;
   pimpl->enableMLTeX = false;
   pimpl->write18Mode = Write18Mode::Disabled;
-  lastLineNum = -1;
+  pimpl->lastLineNum = -1;
 # define SYNCTEX_NO_OPTION INT_MAX
   pimpl->synchronizationOptions = SYNCTEX_NO_OPTION;
-
-  if (AmI("omega"))
-  {
-    IsNameManglingEnabled = true;
-  }
 }
 
 void TeXApp::OnTeXMFStartJob()
@@ -102,7 +101,7 @@ void TeXApp::OnTeXMFStartJob()
 
 void TeXApp::Finalize()
 {
-  lastSourceFilename = "";
+  pimpl->lastSourceFilename = "";
   pimpl->sourceSpecials.reset();
   TeXMFApp::Finalize();
 }
@@ -561,3 +560,36 @@ IFormatHandler* TeXApp::GetFormatHandler() const
   return pimpl->formatHandler;
 }
 
+int TeXApp::MakeSrcSpecial(int sourceFileName, int line) const
+{
+  IStringHandler* stringHandler = GetStringHandler();
+  C4P::C4P_integer oldpoolptr = stringHandler->poolptr();
+  MiKTeX::Core::PathName fileName(GetTeXString(sourceFileName));
+  const std::size_t BUFSIZE = MiKTeX::Core::BufferSizes::MaxPath + 100;
+  char szBuf[BUFSIZE];
+#if _MSC_VER >= 1400
+  sprintf_s(szBuf, BUFSIZE, "src:%d%s%s", line, isdigit(fileName[0]) ? " " : "", fileName.GetData());
+#else
+  sprintf(szBuf, "src:%d%s%s", line, isdigit(fileName[0]) ? " " : "", fileName.GetData());
+#endif
+  std::size_t len = MiKTeX::Util::StrLen(szBuf);
+  CheckPoolPointer(stringHandler->poolptr(), len);
+  char* lpsz = szBuf;
+  while (*lpsz != 0)
+  {
+    stringHandler->strpool()[stringHandler->poolptr()] = *lpsz++;
+    stringHandler->poolptr() += 1;
+  }
+  return oldpoolptr;
+}
+
+bool TeXApp::IsNewSource(int sourceFileName, int line) const
+{
+  return pimpl->lastSourceFilename != GetTeXString(sourceFileName) || pimpl->lastLineNum != line;
+}
+
+void TeXApp::RememberSourceInfo(int sourceFileName, int line) const
+{
+  pimpl->lastSourceFilename = GetTeXString(sourceFileName);
+  pimpl->lastLineNum = line;
+}

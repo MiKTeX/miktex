@@ -82,10 +82,6 @@ BEGIN_INTERNAL_NAMESPACE;
 
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
-#if 1 // 2015-01-17
-extern bool IsNameManglingEnabled;
-#endif
-
 inline int GetC(FILE * stream)
 {
   int ch = getc(stream);

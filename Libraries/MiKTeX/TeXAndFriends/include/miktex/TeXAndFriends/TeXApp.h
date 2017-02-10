@@ -155,47 +155,13 @@ public:
   MIKTEXMFTHISAPI(bool) IsSourceSpecialOn(SourceSpecial s) const;
 
 public:
-  bool IsNewSource(int sourceFileName, int line) const
-  {
-    TEXMFCHAR fileName[MiKTeX::Core::BufferSizes::MaxPath];
-    GetTeXString(fileName, sourceFileName, MiKTeX::Core::BufferSizes::MaxPath);
-    return lastSourceFilename != fileName || lastLineNum != line;
-  }
+  MIKTEXMFTHISAPI(bool) IsNewSource(int sourceFileName, int line) const;
 
 public:
-  int MakeSrcSpecial(int sourceFileName, int line)
-  {
-    IStringHandler* stringHandler = GetStringHandler();
-    C4P::C4P_integer oldpoolptr = stringHandler->poolptr();
-    TEXMFCHAR szFileName[MiKTeX::Core::BufferSizes::MaxPath];
-    GetTeXString(szFileName, sourceFileName, MiKTeX::Core::BufferSizes::MaxPath);
-    MiKTeX::Core::PathName fileName = UnmangleNameOfFile(szFileName);
-    const std::size_t BUFSIZE = MiKTeX::Core::BufferSizes::MaxPath + 100;
-    char szBuf[BUFSIZE];
-#if _MSC_VER >= 1400
-    sprintf_s(szBuf, BUFSIZE, "src:%d%s%s", line, isdigit(fileName[0]) ? " " : "", fileName.GetData());
-#else
-    sprintf(szBuf, "src:%d%s%s", line, isdigit(fileName[0]) ? " " : "", fileName.GetData());
-#endif
-    std::size_t len = MiKTeX::Util::StrLen(szBuf);
-    CheckPoolPointer(stringHandler->poolptr(), len);
-    char* lpsz = szBuf;
-    while (*lpsz != 0)
-    {
-      stringHandler->strpool()[stringHandler->poolptr()] = *lpsz++;
-      stringHandler->poolptr() += 1;
-    }
-    return oldpoolptr;
-  }
+  MIKTEXMFTHISAPI(int) MakeSrcSpecial(int sourceFileName, int line) const;
 
 public:
-  void RememberSourceInfo(int sourceFileName, int line)
-  {
-    TEXMFCHAR szFileName[MiKTeX::Core::BufferSizes::MaxPath];
-    GetTeXString(szFileName, sourceFileName, MiKTeX::Core::BufferSizes::MaxPath);
-    lastSourceFilename = szFileName;
-    lastLineNum = line;
-  }
+  MIKTEXMFTHISAPI(void) RememberSourceInfo(int sourceFileName, int line) const;
 
 public:
   enum class Write18Result
@@ -208,12 +174,6 @@ public:
 
 public:
   MIKTEXMFTHISAPI(Write18Result) Write18(const std::string& command, int& exitCode) const;
-
-private:
-  int lastLineNum;
-
-private:
-  MiKTeX::Core::PathName lastSourceFilename;
 
 public:
   MIKTEXMFTHISAPI(void) SetFormatHandler(IFormatHandler* formatHandler);

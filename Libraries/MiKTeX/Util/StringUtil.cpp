@@ -21,7 +21,7 @@
 
 #include "internal.h"
 
-size_t StringUtil::AppendString(char * dest, size_t destSize, const char * source)
+size_t StringUtil::AppendString(char* dest, size_t destSize, const char* source)
 {
   // TODO: MIKTEX_ASSERT_STRING(lpszBuf);
   // TODO: MIKTEX_ASSERT_CHAR_BUFFER(lpszBuf, bufSize);
@@ -44,7 +44,7 @@ size_t StringUtil::AppendString(char * dest, size_t destSize, const char * sourc
   return length;
 }
 
-MIKTEXSTATICFUNC(void) CopyString2(char * lpszBuf, size_t bufSize, const char * lpszSource, size_t count)
+MIKTEXSTATICFUNC(void) CopyString2(char* lpszBuf, size_t bufSize, const char* lpszSource, size_t count)
 {
   // TODO: MIKTEX_ASSERT_CHAR_BUFFER(lpszBuf, bufSize);
   // TODO: MIKTEX_ASSERT_STRING(lpszSource);
@@ -56,7 +56,7 @@ MIKTEXSTATICFUNC(void) CopyString2(char * lpszBuf, size_t bufSize, const char * 
     return;
   }
 
-  char * lpsz = lpszBuf;
+  char* lpsz = lpszBuf;
 
   while (bufSize > 0 && count > 0 && (*lpsz++ = *lpszSource++) != 0)
   {
@@ -75,7 +75,7 @@ MIKTEXSTATICFUNC(void) CopyString2(char * lpszBuf, size_t bufSize, const char * 
   }
 }
 
-template<typename CharType> size_t GenericCopyString(CharType * lpszBuf, size_t bufSize, const CharType * lpszSource)
+template<typename CharType> size_t GenericCopyString(CharType* lpszBuf, size_t bufSize, const CharType* lpszSource)
 {
   // TODO: MIKTEX_ASSERT_CHAR_BUFFER(lpszBuf, bufSize);
   // TODO: MIKTEX_ASSERT_STRING(lpszSource);
@@ -92,27 +92,32 @@ template<typename CharType> size_t GenericCopyString(CharType * lpszBuf, size_t 
   return length;
 }
 
-size_t StringUtil::CopyString(char * dest, size_t destSize, const char * source)
+size_t StringUtil::CopyString(char* dest, size_t destSize, const char* source)
 {
   return GenericCopyString(dest, destSize, source);
 }
 
-size_t StringUtil::CopyString(wchar_t * dest, size_t destSize, const wchar_t * source)
+size_t StringUtil::CopyString(wchar_t* dest, size_t destSize, const wchar_t* source)
 {
   return GenericCopyString(dest, destSize, source);
 }
 
-size_t StringUtil::CopyString(char * dest, size_t destSize, const wchar_t * source)
+size_t StringUtil::CopyString(char* dest, size_t destSize, const wchar_t* source)
 {
   return CopyString(dest, destSize, WideCharToUTF8(source).c_str());
 }
 
-size_t StringUtil::CopyString(wchar_t * dest, size_t destSize, const char * source)
+size_t StringUtil::CopyString(char16_t* dest, size_t destSize, const char* source)
+{
+  return GenericCopyString(dest, destSize, UTF8ToUTF16(source).c_str());
+}
+
+size_t StringUtil::CopyString(wchar_t* dest, size_t destSize, const char* source)
 {
   return CopyString(dest, destSize, UTF8ToWideChar(source).c_str());
 }
 
-bool StringUtil::Contains(const char * list, const char * element, const char * delims, bool ignoreCase)
+bool StringUtil::Contains(const char* list, const char* element, const char* delims, bool ignoreCase)
 {
   for (Tokenizer tok(list, delims); tok; ++tok)
   {
@@ -124,7 +129,7 @@ bool StringUtil::Contains(const char * list, const char * element, const char * 
   return false;
 }
 
-string StringUtil::FormatStringVA(const char * format, va_list arglist)
+string StringUtil::FormatStringVA(const char* format, va_list arglist)
 {
   CharBuffer<char> autoBuffer;
   int n;
@@ -167,7 +172,7 @@ string StringUtil::FormatStringVA(const char * format, va_list arglist)
   return autoBuffer.GetData();
 }
 
-string StringUtil::FormatString(const char * format, ...)
+string StringUtil::FormatString(const char* format, ...)
 {
   va_list arglist;
   va_start(arglist, format);
@@ -184,39 +189,27 @@ string StringUtil::FormatString(const char * format, ...)
   return str;
 }
 
-wstring StringUtil::UTF8ToWideChar(const char * utf8)
+u16string StringUtil::UTF8ToUTF16(const char* utf8Chars)
 {
   try
   {
-    wstring_convert<codecvt_utf8<wchar_t>> conv;
-    return conv.from_bytes(utf8);
+#if _MSC_VER == 1900
+    wstring_convert<codecvt_utf8_utf16<int16_t>, int16_t> conv;
+    u16string result;
+    for (auto& ch : conv.from_bytes(utf8Chars))
+    {
+      result += (char16_t)ch;
+    }
+    return result;
+#else
+    wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t> conv;
+    return conv.from_bytes(utf8Chars);
+#endif
   }
   catch (const range_error &)
   {
-    throw UtilException("Conversion from UTF-8 byte sequence to wide character string did not succeed.");
+    throw UtilException("Conversion from UTF-8 byte sequence to UTF-16 string did not succeed.");
   }
-}
-
-string StringUtil::WideCharToUTF8(const wchar_t * wideChars)
-{
-  try
-  {
-    wstring_convert<codecvt_utf8<wchar_t>> conv;
-    return conv.to_bytes(wideChars);
-  }
-  catch (const range_error &)
-  {
-    throw UtilException("Conversion from wide character string to UTF-8 byte sequence did not succeed.");
-  }
-}
-
-template<typename CharType> size_t StringLength(const CharType* lpsz)
-{
-  const CharType* start = lpsz;
-  for (; *lpsz != 0; ++lpsz)
-  {
-  }
-  return lpsz - start;
 }
 
 string StringUtil::UTF16ToUTF8(const char16_t* utf16Chars)
@@ -228,7 +221,7 @@ string StringUtil::UTF16ToUTF8(const char16_t* utf16Chars)
     // http://stackoverflow.com/questions/32055357/visual-studio-c-2015-stdcodecvt-with-char16-t-or-char32-t
     wstring_convert<codecvt_utf8_utf16<int16_t>, int16_t> conv;
     const int16_t* p = (const int16_t*)utf16Chars;
-    return conv.to_bytes(p, p + StringLength(utf16Chars));
+    return conv.to_bytes(p, p + StrLen(utf16Chars));
 #else
     wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t> conv;
     return conv.to_bytes(utf16Chars);
@@ -237,5 +230,68 @@ string StringUtil::UTF16ToUTF8(const char16_t* utf16Chars)
   catch (const range_error &)
   {
     throw UtilException("Conversion from UFT-16 string to UTF-8 byte sequence did not succeed.");
+  }
+}
+
+u32string StringUtil::UTF8ToUTF32(const char* utf8Chars)
+{
+  try
+  {
+#if _MSC_VER == 1900
+    wstring_convert<codecvt_utf8<int32_t>, int32_t> conv;
+    u32string result;
+    for (auto& ch : conv.from_bytes(utf8Chars))
+    {
+      result += (char32_t)ch;
+    }
+    return result;
+#else
+    wstring_convert<codecvt_utf8<char32_t>, char32_t> conv;
+    return conv.from_bytes(utf8Chars);
+#endif
+  }
+  catch (const range_error &)
+  {
+    throw UtilException("Conversion from UTF-8 byte sequence to UTF-32 string did not succeed.");
+  }
+}
+
+string StringUtil::UTF32ToUTF8(const char32_t* utf32Chars)
+{
+  try
+  {
+    return "TODO";
+    //wstring_convert<codecvt_utf8<char32_t>, char32_t> conv;
+    //return conv.to_bytes(utf32Chars);
+  }
+  catch (const range_error &)
+  {
+    throw UtilException("Conversion from UFT-32 string to UTF-8 byte sequence did not succeed.");
+  }
+}
+
+wstring StringUtil::UTF8ToWideChar(const char* utf8Chars)
+{
+  try
+  {
+    wstring_convert<codecvt_utf8<wchar_t>> conv;
+    return conv.from_bytes(utf8Chars);
+  }
+  catch (const range_error &)
+  {
+    throw UtilException("Conversion from UTF-8 byte sequence to wide character string did not succeed.");
+  }
+}
+
+string StringUtil::WideCharToUTF8(const wchar_t* wideChars)
+{
+  try
+  {
+    wstring_convert<codecvt_utf8<wchar_t>> conv;
+    return conv.to_bytes(wideChars);
+  }
+  catch (const range_error &)
+  {
+    throw UtilException("Conversion from wide character string to UTF-8 byte sequence did not succeed.");
   }
 }

@@ -33,27 +33,36 @@
 
 MIKTEX_UTIL_BEGIN_NAMESPACE;
 
-inline const char * StrChr(const char * lpsz, int ch)
+inline const char* StrChr(const char* lpsz, int ch)
 {
   return strchr(lpsz, ch);
 }
 
-inline const wchar_t * StrChr(const wchar_t * lpsz, wint_t ch)
+inline const wchar_t* StrChr(const wchar_t* lpsz, wint_t ch)
 {
   return wcschr(lpsz, ch);
 }
 
-inline size_t StrLen(const char * lpsz)
+template<typename CharType> size_t StrLen(const CharType* lpsz)
+{
+  const CharType* start = lpsz;
+  for (; *lpsz != 0; ++lpsz)
+  {
+  }
+  return lpsz - start;
+}
+
+template<> inline size_t StrLen<char>(const char* lpsz)
 {
   return strlen(lpsz);
 }
 
-inline size_t StrLen(const wchar_t * lpsz)
+template<> inline size_t StrLen<wchar_t>(const wchar_t* lpsz)
 {
   return wcslen(lpsz);
 }
 
-inline int StringCompare(const char * lpsz1, const char * lpsz2, bool ignoreCase)
+inline int StringCompare(const char* lpsz1, const char* lpsz2, bool ignoreCase)
 {
 #if defined(_MSC_VER)
   return ignoreCase ? _stricmp(lpsz1, lpsz2) : strcmp(lpsz1, lpsz2);
@@ -62,7 +71,7 @@ inline int StringCompare(const char * lpsz1, const char * lpsz2, bool ignoreCase
 #endif
 }
 
-inline int StringCompare(const char *  lpsz1, const char * lpsz2, size_t n, bool ignoreCase)
+inline int StringCompare(const char*  lpsz1, const char* lpsz2, size_t n, bool ignoreCase)
 {
   // TODO: MIKTEX_ASSERT(!ignoreCase || MiKTeX::Util::Utils::IsPureAscii(lpsz1) && MiKTeX::Util::Utils::IsPureAscii(lpsz2));
 #if defined(_MSC_VER)
@@ -72,7 +81,7 @@ inline int StringCompare(const char *  lpsz1, const char * lpsz2, size_t n, bool
 #endif
 }
 
-inline int StringCompare(const char * lpsz1, const char * lpsz2)
+inline int StringCompare(const char* lpsz1, const char* lpsz2)
 {
   return StringCompare(lpsz1, lpsz2, false);
 }

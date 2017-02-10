@@ -1,6 +1,6 @@
 /* miktex/Util/StringUtil.h:                            -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Util Library.
 
@@ -41,74 +41,86 @@ public:
   StringUtil() = delete;
 
 public:
-  StringUtil(const StringUtil & other) = delete;
+  StringUtil(const StringUtil& other) = delete;
 
 public:
-  StringUtil & operator= (const StringUtil & other) = delete;
+  StringUtil& operator= (const StringUtil& other) = delete;
 
 public:
   StringUtil(StringUtil && other) = delete;
 
 public:
-  StringUtil & operator= (StringUtil && other) = delete;
+  StringUtil& operator= (StringUtil && other) = delete;
 
 public:
   ~StringUtil() = delete;
 
 public:
-  static MIKTEXUTILCEEAPI(std::size_t) AppendString(char * dest, std::size_t destSize, const char * source);
+  static MIKTEXUTILCEEAPI(std::size_t) AppendString(char* dest, std::size_t destSize, const char* source);
 
 public:
-  static MIKTEXUTILCEEAPI(std::size_t) CopyString(char * dest, std::size_t destSize, const char * source);
+  static MIKTEXUTILCEEAPI(std::size_t) CopyString(char* dest, std::size_t destSize, const char* source);
 
 public:
-  static MIKTEXUTILCEEAPI(std::size_t) CopyString(wchar_t * dest, std::size_t destSize, const wchar_t * source);
+  static MIKTEXUTILCEEAPI(std::size_t) CopyString(wchar_t* dest, std::size_t destSize, const wchar_t* source);
 
 public:
-  static MIKTEXUTILCEEAPI(std::size_t) CopyString(char * dest, std::size_t destSize, const wchar_t * source);
+  static MIKTEXUTILCEEAPI(std::size_t) CopyString(char* dest, std::size_t destSize, const wchar_t* source);
 
 public:
-  static MIKTEXUTILCEEAPI(std::size_t) CopyString(wchar_t * dest, std::size_t destSize, const char * source);
+  static MIKTEXUTILCEEAPI(std::size_t) CopyString(char16_t* dest, std::size_t destSize, const char* source);
 
 public:
-  static MIKTEXUTILCEEAPI(bool) Contains(const char * list, const char * element, const char * delims, bool ignoreCase);
+  static MIKTEXUTILCEEAPI(std::size_t) CopyString(wchar_t* dest, std::size_t destSize, const char* source);
 
 public:
-  static bool Contains(const char * list, const char * element , const char * delims)
+  static MIKTEXUTILCEEAPI(bool) Contains(const char* list, const char* element, const char* delims, bool ignoreCase);
+
+public:
+  static bool Contains(const char* list, const char* element , const char* delims)
   {
     return Contains(list, element, delims, true);
   }
 
 public:
-  static bool Contains(const char * list, const char * element)
+  static bool Contains(const char* list, const char* element)
   {
     return Contains(list, element, ",;:");
   }
 
 public:
-  static MIKTEXUTILCEEAPI(std::string) FormatStringVA(const char * format, va_list arglist);
+  static MIKTEXUTILCEEAPI(std::string) FormatStringVA(const char* format, va_list arglist);
 
 public:
-  static MIKTEXUTILCEEAPI(std::string) FormatString(const char * format, ...);
+  static MIKTEXUTILCEEAPI(std::string) FormatString(const char* format, ...);
 
 public:
-  static MIKTEXUTILCEEAPI(std::wstring) UTF8ToWideChar(const char * utf8);
+  static MIKTEXUTILCEEAPI(std::u16string) UTF8ToUTF16(const char* utf8Chars);
 
 public:
-  static std::wstring UTF8ToWideChar(const std::string & str)
+  static MIKTEXUTILCEEAPI(std::string) UTF16ToUTF8(const char16_t* utf16Chars);
+
+public:
+  static MIKTEXUTILCEEAPI(std::u32string) UTF8ToUTF32(const char* utf8Chars);
+
+public:
+  static MIKTEXUTILCEEAPI(std::string) UTF32ToUTF8(const char32_t* utf32Chars);
+
+public:
+  static MIKTEXUTILCEEAPI(std::wstring) UTF8ToWideChar(const char* utf8);
+
+public:
+  static std::wstring UTF8ToWideChar(const std::string& str)
   {
     return UTF8ToWideChar(str.c_str());
   }
 
 public:
-  static MIKTEXUTILCEEAPI(std::string) WideCharToUTF8(const wchar_t * wideChars);
-
-public:
-  static MIKTEXUTILCEEAPI(std::string) UTF16ToUTF8(const char16_t* utf16Chars);
+  static MIKTEXUTILCEEAPI(std::string) WideCharToUTF8(const wchar_t* wideChars);
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXUTILCEEAPI(std::string) AnsiToUTF8(const char * ansi);
+  static MIKTEXUTILCEEAPI(std::string) AnsiToUTF8(const char* ansi);
 #endif
 };
 

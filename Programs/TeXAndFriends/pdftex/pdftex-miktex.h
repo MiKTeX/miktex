@@ -608,10 +608,7 @@ extern PDFTEXAPPCLASS PDFTEXAPP;
 
 inline char* gettexstring(PDFTEXPROGCLASS::strnumber stringNumber)
 {
-  int stringStart = PDFTEXAPP.GetTeXStringStart(stringNumber);
-  int stringLength = PDFTEXAPP.GetTeXStringLength(stringNumber);
-  char* lpsz = (char*)xmalloc(stringLength + 1);
-  return PDFTEXAPP.GetTeXString(lpsz, stringLength + 1, stringStart, stringLength);
+  return xstrdup(PDFTEXAPP.GetTeXString(stringNumber).c_str());
 }
 
 #endif
