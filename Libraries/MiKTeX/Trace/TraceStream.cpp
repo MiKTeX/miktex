@@ -1,6 +1,6 @@
 /* TaceStream.cpp: tracing
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Trace Library.
 
@@ -199,7 +199,7 @@ void TraceStreamImpl::LegacyLogger(const string & facility, const string & messa
   wstring debstr;
   try
   {
-    debstr = StringUtil::UTF8ToWideChar(str.c_str());
+    debstr = StringUtil::UTF8ToWideChar(str);
   }
   catch (const exception &)
   {

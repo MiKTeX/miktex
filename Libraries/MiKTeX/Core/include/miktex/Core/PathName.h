@@ -1,6 +1,6 @@
 /* miktex/Core/PathName.h:                              -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -78,16 +78,16 @@ public:
   PathName() = default;
 
 public:
-  PathName(const PathName & other) = default;
+  PathName(const PathName& other) = default;
 
 public:
-  PathName & operator=(const PathName & other) = default;
+  PathName& operator=(const PathName& other) = default;
 
 public:
-  PathName(PathName && other) = default;
+  PathName(PathName&& other) = default;
 
 public:
-  PathName & operator=(PathName && other) = default;
+  PathName& operator=(PathName&& other) = default;
 
 public:
   ~PathName() = default;
@@ -153,11 +153,10 @@ public:
 #endif
   }
 
-
   /// Copies a character string into a new PathName object.
   /// @param rhs Null-terminated character string.
 public:
-  PathName(const char * path) :
+  PathName(const char* path) :
     Base(path)
   {
   }
@@ -165,7 +164,7 @@ public:
   /// Copies a wide character string into a new PathName object.
   /// @param rhs Null-terminated character string.
 public:
-  PathName(const wchar_t * path) :
+  PathName(const wchar_t* path) :
     Base(path)
   {
   }
@@ -173,7 +172,7 @@ public:
   /// Copies a string object into a new PathName object.
   /// @param rhs String object.
 public:
-  PathName(const std::string & path) :
+  PathName(const std::string& path) :
     Base(path)
   {
   }
@@ -181,7 +180,7 @@ public:
   /// Copies a string object into a new PathName object.
   /// @param rhs String object.
 public:
-  PathName(const std::wstring & path) :
+  PathName(const std::wstring& path) :
     Base(path)
   {
   }
@@ -193,7 +192,7 @@ public:
   /// @param component1 The first component (absolute directory path).
   /// @param component2 The second component (relative file name path).
 public:
-  PathName(const char * component1, const char * component2) :
+  PathName(const char* component1, const char* component2) :
     Base(component1)
   {
     if (component2 != nullptr)
@@ -206,20 +205,20 @@ public:
   /// @param component1 The first component (absolute directory path).
   /// @param component2 The second component (relative file name path).
 public:
-  PathName(const PathName & component1, const PathName & component2) :
+  PathName(const PathName& component1, const PathName& component2) :
     PathName(component1.GetData(), component2.GetData())
   {
   }
 
 public:
-  PathName & operator= (const char * path)
+  PathName& operator=(const char* path)
   {
     Base::operator= (path);
     return *this;
   }
 
 public:
-  PathName & operator= (const std::string & path)
+  PathName& operator=(const std::string& path)
   {
     Base::operator= (path);
     return *this;
@@ -231,7 +230,7 @@ public:
   MIKTEXCORETHISAPI(std::size_t) GetHash() const;
 
 private:
-  static MIKTEXCORECEEAPI(void) Split(const PathName & path, std::string & directoryName, std::string & fileNameWithoutExtension, std::string & extension);
+  static MIKTEXCORECEEAPI(void) Split(const PathName& path, std::string& directoryName, std::string& fileNameWithoutExtension, std::string& extension);
 
 public:
   PathName GetDirectoryName() const
@@ -266,7 +265,7 @@ public:
   /// Removes the file name component from this path name.
   /// @return Returns a reference to this object.
 public:
-  PathName & RemoveFileSpec()
+  PathName& RemoveFileSpec()
   {
     return CutOffLastComponent();
   }
@@ -274,7 +273,7 @@ public:
   /// Removes the directory component from this path name.
   /// @return Returns a reference to this object.
 public:
-  PathName & RemoveDirectorySpec()
+  PathName& RemoveDirectorySpec()
   {
     Base::Set(GetFileName());
     return *this;
@@ -283,23 +282,23 @@ public:
   /// Sets this PathName object equal to the current (working) directory.
   /// @return Returns a reference to this object.
 public:
-  MIKTEXCORETHISAPI(PathName &) SetToCurrentDirectory();
+  MIKTEXCORETHISAPI(PathName&) SetToCurrentDirectory();
 
   /// Sets this PathName object equal to the temporary directory.
   /// @return Returns a reference to this object.
 public:
-  MIKTEXCORETHISAPI(PathName &) SetToTempDirectory();
+  MIKTEXCORETHISAPI(PathName&) SetToTempDirectory();
 
   /// Sets this PathName object equal to the name of a temporary file.
   /// @return Returns a reference to this object.
 public:
-  MIKTEXCORETHISAPI(PathName &) SetToTempFile();
+  MIKTEXCORETHISAPI(PathName&) SetToTempFile();
 
   /// Sets this PathName object equal to the name of a temporary file in the
   /// specified directory.
   /// @return Returns a reference to this object.
 public:
-  MIKTEXCORETHISAPI(PathName &) SetToTempFile(const PathName & directory);
+  MIKTEXCORETHISAPI(PathName&) SetToTempFile(const PathName& directory);
 
   /// Get the mount point of this PathName.
   /// @return Returns the mount point as a new PathName.
@@ -307,12 +306,12 @@ public:
   MIKTEXCORETHISAPI(PathName) GetMountPoint() const;
 
 public:
-  MIKTEXCORETHISAPI(PathName &) Convert(ConvertPathNameOptions options);
+  MIKTEXCORETHISAPI(PathName&) Convert(ConvertPathNameOptions options);
 
   /// Replaces backslashes with normal slashes.
   /// @return Returns a reference to this object.
 public:
-  PathName & ConvertToUnix()
+  PathName& ConvertToUnix()
   {
     return Convert({ ConvertPathNameOption::ToUnix });
   }
@@ -328,7 +327,7 @@ public:
   /// Replaces normal slashes with backslashes.
   /// @return Returns a reference to this object.
 public:
-  PathName & ConvertToDos()
+  PathName& ConvertToDos()
   {
     return Convert({ ConvertPathNameOption::ToDos });
   }
@@ -359,7 +358,7 @@ public:
   /// Transform this path for comparison purposes.
   /// @return Returns a reference to this object.
 public:
-  PathName & TransformForComparison()
+  PathName& TransformForComparison()
   {
 #if defined(MIKTEX_WINDOWS)
     return Convert({ ConvertPathNameOption::ToUnix, ConvertPathNameOption::MakeLower });
@@ -372,7 +371,7 @@ public:
   bool IsComparable() const
   {
 #if defined(MIKTEX_WINDOWS)
-    for (const char * lpsz = GetData(); *lpsz != 0; ++lpsz)
+    for (const char* lpsz = GetData(); *lpsz != 0; ++lpsz)
     {
       if (*lpsz == DosDirectoryDelimiter || (*lpsz >= 'A' && *lpsz <= 'Z'))
       {
@@ -386,7 +385,7 @@ public:
   }
 
 public:
-  PathName & Canonicalize()
+  PathName& Canonicalize()
   {
     return Convert({ ConvertPathNameOption::Canonicalize });
   }
@@ -394,7 +393,7 @@ public:
   /// Converts this path name into an absolute path name.
   /// @return Returns a reference to this object.
 public:
-  PathName & MakeAbsolute()
+  PathName& MakeAbsolute()
   {
     return Convert({ ConvertPathNameOption::MakeAbsolute });
   }
@@ -409,7 +408,7 @@ public:
   /// @param lpszExtension File name extension.
   /// @return Returns true, if this path name has the specified extension.
 public:
-  bool HasExtension(const char * extension) const
+  bool HasExtension(const char* extension) const
   {
     MIKTEX_ASSERT_STRING(extension);
     std::string currentExtension = GetExtension();
@@ -437,14 +436,14 @@ public:
   /// shall be overridden.
   /// @return Returns a reference to this object.
 public:
-  MIKTEXCORETHISAPI(PathName &) SetExtension(const char * extension, bool override);
+  MIKTEXCORETHISAPI(PathName&) SetExtension(const char* extension, bool override);
 
   /// Sets the file name extension.
   /// @param lpszExtension The file name extension to set. Can be 0,
   /// if the extension is to be removed.
   /// @return Returns a reference to this object.
 public:
-  PathName & SetExtension(const char * extension)
+  PathName& SetExtension(const char* extension)
   {
     return SetExtension(extension, true);
   }
@@ -454,13 +453,13 @@ public:
   /// if the extension is to be removed.
   /// @return Returns a reference to this object.
 public:
-  PathName & SetExtension(const std::string & extension)
+  PathName& SetExtension(const std::string& extension)
   {
     return SetExtension(extension.c_str(), true);
   }
 
 public:
-  PathName & AppendExtension(const char * extension)
+  PathName& AppendExtension(const char* extension)
   {
     MIKTEX_ASSERT_STRING(extension);
     if (!HasExtension(extension))
@@ -475,7 +474,7 @@ public:
   }
 
 public:
-  PathName & AppendExtension(const std::string & extension)
+  PathName& AppendExtension(const std::string& extension)
   {
     return AppendExtension(extension.c_str());
   }
@@ -495,7 +494,7 @@ public:
   /// shall be appended before the string.
   /// @return Returns a reference to this object.
 public:
-  PathName & Append(const char * lpsz, bool appendDirectoryDelimiter)
+  PathName& Append(const char* lpsz, bool appendDirectoryDelimiter)
   {
     if (appendDirectoryDelimiter && !Empty())
     {
@@ -506,7 +505,7 @@ public:
   }
 
 public:
-  PathName & Append(const std::string & str, bool appendDirectoryDelimiter)
+  PathName& Append(const std::string& str, bool appendDirectoryDelimiter)
   {
     return Append(str.c_str(), appendDirectoryDelimiter);
   }
@@ -515,7 +514,7 @@ public:
   /// @param lpszComponent The null-terminated component to add.
   /// @return Returns a reference to this object.
 public:
-  PathName & AppendComponent(const char * component)
+  PathName& AppendComponent(const char* component)
   {
     return Append(component, true);
   }
@@ -524,7 +523,7 @@ public:
   /// @param lpszComponent The null-terminated component to add.
   /// @return Returns a reference to this object.
 public:
-  PathName & operator/= (const char * component)
+  PathName& operator/=(const char* component)
   {
     return AppendComponent(component);
   }
@@ -533,7 +532,7 @@ public:
   /// @param component The component to be appended.
   /// @return Returns a reference to this object.
 public:
-  PathName & operator/= (const PathName & component)
+  PathName& operator/=(const PathName& component)
   {
     return AppendComponent(component.GetData());
   }
@@ -542,7 +541,7 @@ public:
   /// @param component The component to be appended.
   /// @return Returns a reference to this object.
 public:
-  PathName & operator/= (const std::string & component)
+  PathName& operator/=(const std::string& component)
   {
     return AppendComponent(component.c_str());
   }
@@ -550,12 +549,12 @@ public:
   /// Cuts off the last component from the path name.
   /// @return Returns a reference to this object.
 public:
-  MIKTEXCORETHISAPI(PathName &) CutOffLastComponent(bool allowSelfCutting);
+  MIKTEXCORETHISAPI(PathName&) CutOffLastComponent(bool allowSelfCutting);
 
   /// Cuts off the last component from the path name.
   /// @return Returns a reference to this object.
 public:
-  PathName & CutOffLastComponent()
+  PathName& CutOffLastComponent()
   {
     return CutOffLastComponent(false);
   }
@@ -563,11 +562,11 @@ public:
   /// Makes sure that this path name ends with a directory delimiter.
   /// @return Returns a reference to this object.
 public:
-  MIKTEXCORETHISAPI(PathName &) AppendDirectoryDelimiter();
+  MIKTEXCORETHISAPI(PathName&) AppendDirectoryDelimiter();
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  MIKTEXCORETHISAPI(PathName &) AppendAltDirectoryDelimiter();
+  MIKTEXCORETHISAPI(PathName&) AppendAltDirectoryDelimiter();
 #endif
 
 public:
@@ -591,10 +590,10 @@ public:
   /// @return Returns -1, if the first prefix compares lesser than the second.
   /// Returns 0, if both prefixes compare equal.
   /// Returns 1, if the first prefix compares greater than the second.
-  static MIKTEXCORECEEAPI(int) Compare(const char * lpszPath1, const char * lpszPath2, std::size_t count);
+  static MIKTEXCORECEEAPI(int) Compare(const char* lpszPath1, const char* lpszPath2, std::size_t count);
 
 public:
-  static int Compare(const PathName & path1, const PathName & path2, std::size_t count)
+  static int Compare(const PathName& path1, const PathName& path2, std::size_t count)
   {
     return Compare(path1.GetData(), path2.GetData(), count);
   }
@@ -607,7 +606,7 @@ public:
   /// Returns 0, if both path names compare equal.
   /// Returns 1, if the first path name compares greater than the second.
 public:
-  static MIKTEXCORECEEAPI(int) Compare(const char * lpszPath1, const char * lpszPath2);
+  static MIKTEXCORECEEAPI(int) Compare(const char* lpszPath1, const char* lpszPath2);
 
   /// Compares two path names.
   /// @param path1 The first path name.
@@ -617,13 +616,13 @@ public:
   /// Returns 0, if both path names compare equal.
   /// Returns 1, if the first path name compares greater than the second.
 public:
-  static int Compare(const PathName & path1, const PathName & path2)
+  static int Compare(const PathName& path1, const PathName& path2)
   {
     return Compare(path1.GetData(), path2.GetData());
   }
 
 public:
-  static bool Equals(const PathName & path1, const PathName & path2)
+  static bool Equals(const PathName& path1, const PathName& path2)
   {
     return Compare(path1, path2) == 0;
   }
@@ -633,16 +632,16 @@ public:
   /// @param lpszPath The path name to test.
   /// @return Returns true, if the pattern matches.
 public:
-  static MIKTEXCORECEEAPI(bool) Match(const char * lpszPattern, const char * lpszPath);
+  static MIKTEXCORECEEAPI(bool) Match(const char* lpszPattern, const char* lpszPath);
 
 public:
-  static bool Match(const char * lpszPattern, const PathName & path)
+  static bool Match(const char* lpszPattern, const PathName& path)
   {
     return Match(lpszPattern, path.GetData());
   }
 };
 
-inline bool operator< (const PathName & lhs, const PathName & rhs)
+inline bool operator<(const PathName& lhs, const PathName& rhs)
 {
   return PathName::Compare(lhs, rhs) < 0;
 }
@@ -651,7 +650,7 @@ inline bool operator< (const PathName & lhs, const PathName & rhs)
 /// @param lhs The first path name.
 /// @param rhs The second path name.
 /// @return Returns true, if both path names compare equal.
-inline bool operator== (const PathName & lhs, const PathName & rhs)
+inline bool operator==(const PathName& lhs, const PathName& rhs)
 {
   return PathName::Compare(lhs, rhs) == 0;
 }
@@ -660,19 +659,19 @@ inline bool operator== (const PathName & lhs, const PathName & rhs)
 /// @param lhs The first path name.
 /// @param rhs The second path name.
 /// @return Returns true, if both path names compare unequal.
-inline bool operator!= (const PathName & lhs, const PathName & rhs)
+inline bool operator!=(const PathName& lhs, const PathName& rhs)
 {
   return PathName::Compare(lhs, rhs) != 0;
 }
 
-inline PathName operator/ (const PathName & lhs, const PathName & rhs)
+inline PathName operator/(const PathName& lhs, const PathName& rhs)
 {
   PathName result = lhs;
   result /= rhs;
   return result;
 }
 
-inline std::ostream & operator<<(std::ostream & os, const PathName & path)
+inline std::ostream& operator<<(std::ostream& os, const PathName& path)
 {
   return os << path.ToString();
 }
@@ -686,9 +685,9 @@ MIKTEX_CORE_END_NAMESPACE;
 
 namespace std
 {
-  template <> struct hash<MiKTeX::Core::PathName>
+  template<> struct hash<MiKTeX::Core::PathName>
   {
-    std::size_t operator ()(const MiKTeX::Core::PathName & path) const
+    std::size_t operator()(const MiKTeX::Core::PathName& path) const
     {
       return path.GetHash();
     }

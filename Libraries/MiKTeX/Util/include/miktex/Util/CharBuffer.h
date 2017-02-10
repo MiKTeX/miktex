@@ -69,7 +69,7 @@ public:
   }
 
 public:
-  CharBuffer& operator= (const CharBuffer& other)
+  CharBuffer& operator=(const CharBuffer& other)
   {
     Set(other);
     return *this;

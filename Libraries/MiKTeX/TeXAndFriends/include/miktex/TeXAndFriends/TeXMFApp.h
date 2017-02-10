@@ -404,13 +404,6 @@ inline int miktexgetjobname()
   return TeXMFApp::GetTeXMFApp()->GetJobName();
 }
 
-#if 0
-inline auto miktexgetstringat(int idx)
-{
-  return MiKTeX::TeXAndFriends::TeXMFApp::GetTeXMFApp()->GetTeXStringAt(idx);
-}
-#endif
-
 inline bool miktexhaltonerrorp()
 {
   return TeXMFApp::GetTeXMFApp()->HaltOnErrorP();
