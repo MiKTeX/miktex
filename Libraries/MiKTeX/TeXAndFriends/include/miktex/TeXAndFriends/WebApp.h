@@ -146,7 +146,7 @@ public:
   MIKTEXMFTHISAPI(std::string) GetProgramName() const;
 
 public:
-  MIKTEXMFTHISAPI(bool) AmI(const std::string & name) const;
+  MIKTEXMFTHISAPI(bool) AmI(const std::string& name) const;
 
 protected:
   virtual MIKTEXMFTHISAPI(void) AddOptions();

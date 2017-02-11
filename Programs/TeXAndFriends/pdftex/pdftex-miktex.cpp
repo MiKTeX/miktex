@@ -26,12 +26,6 @@
 
 using namespace MiKTeX::Core;
 
-// special case: Web2C likes to add 1 to the nameoffile base address
-char* GetNameOfFileForWeb2C()
-{
-  return &PDFTEXPROG.nameoffile[-1];
-}
-
 PDFTEXPROGCLASS::scaled& curh = PDFTEXPROG.curh;
 PDFTEXPROGCLASS::instaterecord& curinput = PDFTEXPROG.curinput;
 PDFTEXPROGCLASS::scaled& curv = PDFTEXPROG.curv;
@@ -97,7 +91,7 @@ C4P::C4P_integer*& vfpacketbase = PDFTEXPROG.vfpacketbase;
 C4P::C4P_integer& vfpacketlength = PDFTEXPROG.vfpacketlength;
 PDFTEXPROGCLASS::memoryword*& zmem = PDFTEXPROG.zmem;
 
-char* nameoffile = GetNameOfFileForWeb2C();
+char* nameoffile = nullptr;
 
 #if WITH_SYNCTEX
 C4P::C4P_integer& synctexoption = PDFTEXPROG.synctexoption;

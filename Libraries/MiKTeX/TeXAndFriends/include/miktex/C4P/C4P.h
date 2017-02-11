@@ -1,6 +1,6 @@
 /* miktex/C4P/C4P.h: Pascalish run-time support         -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -84,7 +84,7 @@ public:
   }
 
 public:
-  C4PTHISAPI(bool) Open(const MiKTeX::Core::PathName & path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, MiKTeX::Core::FileShare share, bool text, bool mustExist);
+  C4PTHISAPI(bool) Open(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, MiKTeX::Core::FileShare share, bool text, bool mustExist);
 
 public:
   void Close()
@@ -334,16 +334,16 @@ public:
   Program() = delete;
 
 public:
-  Program(const Program & other) = delete;
+  Program(const Program& other) = delete;
 
 public:
-  Program & operator=(const Program & other) = delete;
+  Program& operator=(const Program& other) = delete;
 
 public:
   Program(Program && other) = delete;
 
 public:
-  Program & operator=(Program && other) = delete;
+  Program& operator=(Program && other) = delete;
 
 public:
   virtual C4PEXPORT MIKTEXTHISCALL ~Program() noexcept;
@@ -405,13 +405,13 @@ private:
 
 const C4P_integer maxint = INT_MAX;
 
-C4PCEEAPI(void) DiscardLine(C4P_text & textfile);
+C4PCEEAPI(void) DiscardLine(C4P_text& textfile);
 
-C4PCEEAPI(char) GetChar(C4P_text & textfile);
+C4PCEEAPI(char) GetChar(C4P_text& textfile);
 
-C4PCEEAPI(int) GetInteger(C4P_text & textfile);
+C4PCEEAPI(int) GetInteger(C4P_text& textfile);
 
-C4PCEEAPI(C4P_real) GetReal(C4P_text & textfile);
+C4PCEEAPI(C4P_real) GetReal(C4P_text& textfile);
 
 #define C4P_READ_BEGIN() {
 #define C4P_READLN_BEGIN() C4P_READ_BEGIN()
@@ -420,26 +420,26 @@ template<class Ft> inline void c4p_read_f(Ft &, Ft &)
 {
 }
 
-template<class Vt, class Ft> inline void c4p_read_v(Vt & v, Ft & f)
+template<class Vt, class Ft> inline void c4p_read_v(Vt& v, Ft& f)
 {
   f.AssertValid();
   v = *f;
   get(f);
 }
 
-template<class Vt, class Ft> inline void c4p_read_c(Vt & v, Ft & f)
+template<class Vt, class Ft> inline void c4p_read_c(Vt& v, Ft& f)
 {
   f.AssertValid();
   v = GetChar(f);
 }
 
-template<class Vt, class Ft> inline void c4p_read_i(Vt & v, Ft & f)
+template<class Vt, class Ft> inline void c4p_read_i(Vt& v, Ft& f)
 {
   f.AssertValid();
   v = GetInteger(f);
 }
 
-template<class Vt, class Ft> inline void c4p_read_r(Vt & v, Ft & f)
+template<class Vt, class Ft> inline void c4p_read_r(Vt& v, Ft& f)
 {
   f.AssertValid();
   v = GetReal(f);
@@ -461,14 +461,14 @@ template<class Ft> inline void c4p_write_f(Ft &, Ft &)
 {
 }
 
-template<class Vt, class Ft> inline void c4p_write_v(Vt v, Ft & f)
+template<class Vt, class Ft> inline void c4p_write_v(Vt v, Ft& f)
 {
   f.AssertValid();
   *f = v;
   put(f);
 }
 
-template<class Vt, class Ft> inline void c4p_write_c(Vt v, Ft & f)
+template<class Vt, class Ft> inline void c4p_write_c(Vt v, Ft& f)
 {
   f.AssertValid();
   int ch = putc(v, f);
@@ -478,12 +478,12 @@ template<class Vt, class Ft> inline void c4p_write_c(Vt v, Ft & f)
   }
 }
 
-template<class Vt, class Ft> inline void c4p_write_c1(Vt v, Ft & f)
+template<class Vt, class Ft> inline void c4p_write_c1(Vt v, Ft& f)
 {
   return c4p_write_c(v, f);
 }
 
-template<class Vt, class Ft> inline void c4p_write_i(Vt v, Ft & f)
+template<class Vt, class Ft> inline void c4p_write_i(Vt v, Ft& f)
 {
   f.AssertValid();
   if (fprintf(f, "%ld", static_cast<long>(v)) < 0)
@@ -492,7 +492,7 @@ template<class Vt, class Ft> inline void c4p_write_i(Vt v, Ft & f)
   }
 }
 
-template<class Vt, class Ft> inline void c4p_write_i1(Vt v, int w1, Ft & f)
+template<class Vt, class Ft> inline void c4p_write_i1(Vt v, int w1, Ft& f)
 {
   f.AssertValid();
   if (fprintf(f, "%*ld", static_cast<int>(w1), static_cast<long>(v)) < 0)
@@ -502,7 +502,7 @@ template<class Vt, class Ft> inline void c4p_write_i1(Vt v, int w1, Ft & f)
 
 }
 
-template<class Vt, class Ft> inline void c4p_write_i2(Vt v, int w1, int w2, Ft & f)
+template<class Vt, class Ft> inline void c4p_write_i2(Vt v, int w1, int w2, Ft& f)
 {
   f.AssertValid();
   if (fprintf(f, "%*.*ld", static_cast<int>(w1), static_cast<int>(w2), static_cast<long>(v)) < 0)
@@ -511,7 +511,7 @@ template<class Vt, class Ft> inline void c4p_write_i2(Vt v, int w1, int w2, Ft &
   }
 }
 
-template<class Vt, class Ft> inline void c4p_write_r(Vt v, Ft & f)
+template<class Vt, class Ft> inline void c4p_write_r(Vt v, Ft& f)
 {
   f.AssertValid();
   if (fprintf(f, "%f", static_cast<float>(v)) < 0)
@@ -520,7 +520,7 @@ template<class Vt, class Ft> inline void c4p_write_r(Vt v, Ft & f)
   }
 }
 
-template<class Vt, class Ft> inline void c4p_write_r2(Vt v, int w1, int w2, Ft & f)
+template<class Vt, class Ft> inline void c4p_write_r2(Vt v, int w1, int w2, Ft& f)
 {
   f.AssertValid();
   if (fprintf(f, "%*.*f", static_cast<int>(w1), static_cast<int>(w2), static_cast<float>(v)) < 0)
@@ -529,7 +529,7 @@ template<class Vt, class Ft> inline void c4p_write_r2(Vt v, int w1, int w2, Ft &
   }
 }
 
-template<class Vt, class Ft> inline void c4p_write_s(Vt v, Ft & f)
+template<class Vt, class Ft> inline void c4p_write_s(Vt v, Ft& f)
 {
   f.AssertValid();
   if (fputs(v, f) == EOF)
@@ -550,19 +550,19 @@ inline void c4p_writeln()
   }
 }
 
-template<class T> inline void c4pmget(T & f, typename T::ElementType * buf, std::size_t n)
+template<class T> inline void c4pmget(T& f, typename T::ElementType * buf, std::size_t n)
 {
   f.AssertValid();
   f.Read(buf, n);
 }
 
-template<class T> inline char c4pgetc(T & f)
+template<class T> inline char c4pgetc(T& f)
 {
   f.AssertValid();
   return GetChar(f);
 }
 
-template<class T> inline void c4pputc(T & f)
+template<class T> inline void c4pputc(T& f)
 {
   f.AssertValid();
   if (putc(*f, f) == EOF)
@@ -571,7 +571,7 @@ template<class T> inline void c4pputc(T & f)
   }
 }
 
-template<class T> inline void c4p_break(T & f)
+template<class T> inline void c4p_break(T& f)
 {
   f.AssertValid();
   if (fflush(f) == EOF)
@@ -580,13 +580,13 @@ template<class T> inline void c4p_break(T & f)
   }
 }
 
-template<class Ft> inline void c4pfseek(Ft & f, int offs, int orig)
+template<class Ft> inline void c4pfseek(Ft& f, int offs, int orig)
 {
   f.AssertValid();
   f.Seek(offs, orig);
 }
 
-template<class Ft> inline long c4pftell(Ft & f)
+template<class Ft> inline long c4pftell(Ft& f)
 {
   f.AssertValid();
   long n = ftell(f);
@@ -597,7 +597,7 @@ template<class Ft> inline long c4pftell(Ft & f)
   return n;
 }
 
-template<class Ft> inline void c4pbufwrite(Ft & f, const void * buf, std::size_t buf_size)
+template<class Ft> inline void c4pbufwrite(Ft& f, const void * buf, std::size_t buf_size)
 {
   f.AssertValid();
   //MIKTEX_ASSERT_BUFFER (buf, buf_size);
@@ -632,7 +632,7 @@ inline std::size_t c4pstrlen(const char * lpsz)
   return MiKTeX::Util::StrLen(lpsz);
 }
 
-template<class T> inline bool c4pfopen(T & f, const char * lpszName, const char * lpszMode, bool mustExist)
+template<class T> inline bool c4pfopen(T& f, const char * lpszName, const char * lpszMode, bool mustExist)
 {
   MIKTEX_ASSERT_STRING(lpszName);
   MIKTEX_ASSERT_STRING(lpszMode);
@@ -652,12 +652,12 @@ template<class T> inline bool c4pfopen(T & f, const char * lpszName, const char 
     mustExist);
 }
 
-template<class T> inline bool c4ptryfopen(T & f, const char * lpszName, const char * lpszMode)
+template<class T> inline bool c4ptryfopen(T& f, const char * lpszName, const char * lpszMode)
 {
   return c4pfopen(f, lpszName, lpszMode, false);
 }
 
-template<class T> inline void c4pfclose(T & f)
+template<class T> inline void c4pfclose(T& f)
 {
   f.close();
 }
@@ -670,17 +670,17 @@ inline void c4pexit(int n)
 #define c4preturn() goto C4P_LABEL_PROC_EXIT
 #define c4pbreakloop() break
 
-template<class T> T * c4pptr(T & obj)
+template<class T> T * c4pptr(T& obj)
 {
   return &obj;
 };
 
-template<class T> inline void c4pincr(T & lvalue)
+template<class T> inline void c4pincr(T& lvalue)
 {
   ++lvalue;
 }
 
-template<class T> inline void c4pdecr(T & lvalue)
+template<class T> inline void c4pdecr(T& lvalue)
 {
   --lvalue;
 }
@@ -728,7 +728,7 @@ C4PCEEAPI(void) SetStartUpTime(time_t time);
 
 C4PCEEAPI(time_t) GetStartUpTime();
 
-C4PCEEAPI(int) MakeCommandLine(const std::vector<std::string> & args);
+C4PCEEAPI(int) MakeCommandLine(const std::vector<std::string>& args);
 
 C4PCEEAPI(C4P_integer) Round(double r);
 
@@ -742,7 +742,7 @@ template<class T> inline int chr(T i)
   return i;
 }
 
-template<class T> inline C4P_boolean eof(T & f)
+template<class T> inline C4P_boolean eof(T& f)
 {
 #if 0
   return feof(f) != 0;
@@ -751,18 +751,18 @@ template<class T> inline C4P_boolean eof(T & f)
 #endif
 }
 
-template<class T> inline C4P_boolean eoln(T & f)
+template<class T> inline C4P_boolean eoln(T& f)
 {
   return *f == '\n';
 };
 
-template<class T> inline void get(T & f)
+template<class T> inline void get(T& f)
 {
   f.Read();
 }
 
 #if 1 // optimization?
-template<> inline void get<BufferedFile<C4P_unsigned8> >(BufferedFile<C4P_unsigned8> & f)
+template<> inline void get<BufferedFile<C4P_unsigned8> >(BufferedFile<C4P_unsigned8>& f)
 {
   *f = getc(f);
   if (static_cast<int>(*f) == EOF)
@@ -796,17 +796,17 @@ template<class T> inline T pred(T x)
   return x - 1;
 }
 
-template<class T> inline void put(T & f)
+template<class T> inline void put(T& f)
 {
   f.Write();
 }
 
-template<class T> inline void reset(T & f)
+template<class T> inline void reset(T& f)
 {
   f.Reset();
 }
 
-template<class T> inline void rewrite(T & f)
+template<class T> inline void rewrite(T& f)
 {
   f.Rewrite();
 }

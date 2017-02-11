@@ -41,6 +41,10 @@ public:
   PathName lastInputFileName;
 public:
   IInputOutput* inputOutput = nullptr;
+public:
+  TriState allowInput = TriState::Undetermined;
+public:
+  TriState allowOutput = TriState::Undetermined;
 };
 
 WebAppInputLine::WebAppInputLine() :
@@ -76,7 +80,7 @@ enum {
 void WebAppInputLine::AddOptions()
 {
   WebApp::AddOptions();
-  pimpl->optBase = static_cast<int>(GetOptions().size());
+  pimpl->optBase = (int)GetOptions().size();
   AddOption(T_("enable-pipes\0Enable input (output) from (to) processes."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_PIPES);
   AddOption(T_("disable-pipes\0Disable input (output) from (to) processes."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_PIPES);
 }
@@ -191,41 +195,39 @@ static bool IsOutputFile(const PathName& path)
     || path_.HasExtension(".synctex");
 }
 
-bool WebAppInputLine::AllowFileName(const MiKTeX::Core::PathName& fileName, bool forInput)
+bool WebAppInputLine::AllowFileName(const PathName& fileName, bool forInput)
 {
   shared_ptr<Session> session = GetSession();
   bool allow;
   if (forInput)
   {
-    static Core::TriState allowInput = TriState::Undetermined;
-    if (allowInput == TriState::Undetermined)
+    if (pimpl->allowInput == TriState::Undetermined)
     {
       allow = session->GetConfigValue("", "AllowUnsafeInputFiles", true).GetBool();
-      allowInput = allow ? TriState::True : TriState::False;
+      pimpl->allowInput = allow ? TriState::True : TriState::False;
     }
     else
     {
-      allow = allowInput == TriState::True ? true : false;
+      allow = pimpl->allowInput == TriState::True ? true : false;
     }
   }
   else
   {
-    static Core::TriState allowOutput = TriState::Undetermined;
-    if (allowOutput == TriState::Undetermined)
+    if (pimpl->allowOutput == TriState::Undetermined)
     {
       allow = session->GetConfigValue("", "AllowUnsafeOutputFiles", false).GetBool();
-      allowOutput = allow ? TriState::True : TriState::False;
+      pimpl->allowOutput = allow ? TriState::True : TriState::False;
     }
     else
     {
-      allow = allowOutput == TriState::True ? true : false;
+      allow = pimpl->allowOutput == TriState::True ? true : false;
     }
   }
   if (allow)
   {
     return true;
   }
-  return Core::Utils::IsSafeFileName(fileName, forInput);
+  return Utils::IsSafeFileName(fileName, forInput);
 }
 
 bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName, FileShare share, bool text, PathName& outPath)
@@ -240,41 +242,44 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
   }
 #endif
   shared_ptr<Session> session = GetSession();
-  FILE* pfile = nullptr;
+  FILE* file = nullptr;
   if (pimpl->enablePipes && lpszPath[0] == '|')
   {
-    pfile = session->OpenFile(lpszPath + 1, FileMode::Command, FileAccess::Write, false);
+    file = session->OpenFile(lpszPath + 1, FileMode::Command, FileAccess::Write, false);
   }
   else
   {
-    PathName unmangled = UnmangleNameOfFile(lpszPath);
-    bool isAuxFile = !IsOutputFile(unmangled);
+#if defined(WITH_OMEGA)
+    PathName unmangled;
+    if (AmI("omega"))
+    {
+      unmangled = UnmangleNameOfFile(lpszPath);
+      lpszPath = unmangled.GetData();
+    }
+#endif
+    bool isAuxFile = !IsOutputFile(lpszPath);
     PathName path;
     if (isAuxFile && !pimpl->auxDirectory.Empty())
     {
-      path = pimpl->auxDirectory / unmangled;
+      path = pimpl->auxDirectory / lpszPath;
       lpszPath = path.GetData();
     }
     else if (!pimpl->outputDirectory.Empty())
     {
-      path = pimpl->outputDirectory / unmangled;
+      path = pimpl->outputDirectory / lpszPath;
       lpszPath = path.GetData();
     }
-    else
-    {
-      lpszPath = unmangled.GetData();
-    }
-    pfile = session->TryOpenFile(lpszPath, FileMode::Create, FileAccess::Write, text, share);
-    if (pfile != nullptr)
+    file = session->TryOpenFile(lpszPath, FileMode::Create, FileAccess::Write, text, share);
+    if (file != nullptr)
     {
       outPath = lpszPath;
     }
   }
-  if (pfile == nullptr)
+  if (file == nullptr)
   {
     return false;
   }
-  f.Attach(pfile, true);
+  f.Attach(file, true);
   return true;
 }
 
@@ -301,7 +306,16 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
   }
   else
   {
-    if (!session->FindFile(UnmangleNameOfFile(lpszFileName).ToString(), GetInputFileType(), pimpl->foundFile))
+#if defined(WITH_OMEGA)
+    PathName unmangled;
+    if (AmI("omega"))
+    {
+      unmangled = UnmangleNameOfFile(lpszFileName);
+      lpszFileName = unmangled.GetData();
+    }
+#endif
+
+    if (!session->FindFile(lpszFileName, GetInputFileType(), pimpl->foundFile))
     {
       return false;
     }
@@ -444,7 +458,6 @@ void WebAppInputLine::EnablePipes(bool f)
 PathName WebAppInputLine::GetLastInputFileName() const
 {
   return pimpl->lastInputFileName;
-
 }
 
 void WebAppInputLine::SetInputOutput(IInputOutput* inputOutput)

@@ -46,14 +46,16 @@ public:
 #if defined(MIKTEX_TEXMF_UNICODE)
     MIKTEX_UNEXPECTED();
 #else
-    return program.strpool;
+    MIKTEX_ASSERT(sizeof(program.strpool[0]) == sizeof(char));
+    return (char*)program.strpool;
 #endif
   }
 public:
   char16_t* strpool16() override
   {
 #if defined(MIKTEX_TEXMF_UNICODE)
-    return program.strpool;
+    MIKTEX_ASSERT(sizeof(program.strpool[0]) == sizeof(char16_t));
+    return (char16_t*)program.strpool;
 #else
     MIKTEX_UNEXPECTED();
 #endif

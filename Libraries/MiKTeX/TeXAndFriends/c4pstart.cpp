@@ -1,6 +1,6 @@
 /* c4pstart.cpp: C4P statup code
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -31,7 +31,7 @@ struct ProgramData
   }
   void ClearCommandLine()
   {
-    for (char * lpsz : argumentVector)
+    for (char* lpsz : argumentVector)
     {
       free(lpsz);
     }
@@ -41,7 +41,7 @@ struct ProgramData
   time_t startUpTime = static_cast<time_t>(-1);
   struct tm startUpTimeStruct;
   C4P_text standardTextFiles[3];
-  vector<char *> argumentVector;
+  vector<char*> argumentVector;
   string commandLine;
   string programName;
 };
@@ -50,12 +50,12 @@ namespace {
   ProgramData programData;
 }
 
-C4PCEEAPI(int) C4P::MakeCommandLine(const vector<string> & args)
+C4PCEEAPI(int) C4P::MakeCommandLine(const vector<string>& args)
 {
   MIKTEX_API_BEGIN("C4P::MakeCommandLine");
   programData.ClearCommandLine();
   programData.argumentVector.push_back(strdup(Utils::GetExeName().c_str()));
-  for (const string & arg : args)
+  for (const string& arg : args)
   {
     programData.argumentVector.push_back(strdup(arg.c_str()));
     programData.commandLine += ' ';
@@ -75,7 +75,7 @@ C4PCEEAPI(void) C4P::SetStartUpTime(time_t time)
     MIKTEX_FATAL_CRT_ERROR("_localtime_s");
   }
 #else
-  struct tm * p = localtime(&programData.startUpTime);
+  struct tm* p = localtime(&programData.startUpTime);
   if (p == nullptr)
   {
     MIKTEX_FATAL_CRT_ERROR("localtime");
@@ -98,7 +98,7 @@ public:
   bool isRunning = false;
 };
 
-C4P::Program::Program(const char * lpszProgramName, int argc, const char ** argv) :
+C4P::Program::Program(const char* lpszProgramName, int argc, const char** argv) :
   pimpl(make_unique<impl>())
 {
   MIKTEX_API_BEGIN("C4P::StartUp");
@@ -201,21 +201,21 @@ C4PCEEAPI(int) C4P::GetArgC()
   MIKTEX_API_END("C4P::GetArgC");
 }
 
-C4PCEEAPI(const char **) C4P::GetArgV()
+C4PCEEAPI(const char**) C4P::GetArgV()
 {
   MIKTEX_API_BEGIN("C4P::GetArgV");
-  return const_cast<const char **>(&programData.argumentVector[0]);
+  return const_cast<const char**>(&programData.argumentVector[0]);
   MIKTEX_API_END("C4P::GetArgV");
 }
 
-C4PCEEAPI(const char *) C4P::GetCmdLine()
+C4PCEEAPI(const char*) C4P::GetCmdLine()
 {
   MIKTEX_API_BEGIN("C4P::GetCmdLine");
   return programData.commandLine.c_str();
   MIKTEX_API_END("C4P::GetCmdLine");
 }
 
-C4PCEEAPI(char *) C4P::GetProgName(char * lpszProgName)
+C4PCEEAPI(char*) C4P::GetProgName(char* lpszProgName)
 {
   MIKTEX_API_BEGIN("C4P::GetProgName");
   StringUtil::CopyString(lpszProgName, BufferSizes::MaxPath, programData.programName.c_str());

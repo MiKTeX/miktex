@@ -260,9 +260,14 @@ string StringUtil::UTF32ToUTF8(const char32_t* utf32Chars)
 {
   try
   {
-    return "TODO";
-    //wstring_convert<codecvt_utf8<char32_t>, char32_t> conv;
-    //return conv.to_bytes(utf32Chars);
+#if _MSC_VER == 1900
+    wstring_convert<codecvt_utf8<int32_t>, int32_t> conv;
+    const int32_t* p = (const int32_t*)utf32Chars;
+    return conv.to_bytes(p, p + StrLen(utf32Chars));
+#else
+    wstring_convert<codecvt_utf8<char32_t>, char32_t> conv;
+    return conv.to_bytes(utf32Chars);
+#endif
   }
   catch (const range_error &)
   {

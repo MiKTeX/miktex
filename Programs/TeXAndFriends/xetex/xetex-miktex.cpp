@@ -31,12 +31,6 @@
 
 using namespace MiKTeX::Core;
 
-// special case: Web2C likes to add 1 to the nameoffile base address
-inline XETEXPROGCLASS::utf8code* GetNameOfFileForWeb2C()
-{
-  return &XETEXPROG.nameoffile[-1];
-}
-
 XETEXPROGCLASS::unicodescalar*& buffer = XETEXPROG.buffer;
 C4P::C4P_integer& bufsize = XETEXPROG.bufsize;
 XETEXPROGCLASS::scaled& curh = XETEXPROG.curh;
@@ -74,7 +68,7 @@ C4P::C4P_integer& totalpages = XETEXPROG.totalpages;
 char*& xdvbuffer = XETEXPROG.xdvbuffer;
 XETEXPROGCLASS::memoryword*& zmem = XETEXPROG.zmem;
 
-XETEXPROGCLASS::utf8code* nameoffile = GetNameOfFileForWeb2C();
+XETEXPROGCLASS::utf8code* nameoffile = nullptr;
 
 void XETEXAPPCLASS::GetLibraryVersions(std::vector<LibraryVersion>& versions) const
 {

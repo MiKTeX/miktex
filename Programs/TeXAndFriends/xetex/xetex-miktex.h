@@ -31,8 +31,11 @@
 #include <miktex/Core/Paths>
 #include <miktex/KPSE/Emulation>
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
+#include <miktex/TeXAndFriends/ErrorHandlerImpl>
+#include <miktex/TeXAndFriends/FormatHandlerImpl>
 #include <miktex/TeXAndFriends/InitFinalizeImpl>
 #include <miktex/TeXAndFriends/InputOutputImpl>
+#include <miktex/TeXAndFriends/StringHandlerImpl>
 #include <miktex/TeXAndFriends/ETeXApp>
 #include <miktex/TeXAndFriends/ETeXMemoryHandlerImpl>
 #include <miktex/W2C/Emulation>
@@ -151,10 +154,19 @@ private:
   MiKTeX::TeXAndFriends::CharacterConverterImpl<XETEXPROGCLASS> charConv{ XETEXPROG };
 
 private:
+  MiKTeX::TeXAndFriends::ErrorHandlerImpl<XETEXPROGCLASS> errorHandler{ XETEXPROG };
+
+private:
+  MiKTeX::TeXAndFriends::FormatHandlerImpl<XETEXPROGCLASS> formatHandler{ XETEXPROG };
+
+private:
   MiKTeX::TeXAndFriends::InitFinalizeImpl<XETEXPROGCLASS> initFinalize{ XETEXPROG };
 
 private:
   MiKTeX::TeXAndFriends::InputOutputImpl<XETEXPROGCLASS> inputOutput{ XETEXPROG };
+
+private:
+  MiKTeX::TeXAndFriends::StringHandlerImpl<XETEXPROGCLASS> stringHandler{ XETEXPROG };
 
 private:
   MemoryHandlerImpl memoryHandler{ XETEXPROG, *this };
@@ -163,11 +175,31 @@ public:
   void Init(const std::string& programInvocationName) override
   {
     SetCharacterConverter(&charConv);
+    SetErrorHandler(&errorHandler);
+    SetFormatHandler(&formatHandler);
     SetInitFinalize(&initFinalize);
     SetInputOutput(&inputOutput);
+    SetStringHandler(&stringHandler);
     SetTeXMFMemoryHandler(&memoryHandler);
     ETeXApp::Init(programInvocationName);
     EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
+  }
+
+public:
+  void AllocateMemory() override
+  {
+    ETeXApp::AllocateMemory();
+    // special case: Web2C likes to add 1 to the nameoffile base address
+    extern XETEXPROGCLASS::utf8code* nameoffile;
+    nameoffile = &XETEXPROG.nameoffile[-1];
+  }
+
+public:
+  void FreeMemory() override
+  {
+    ETeXApp::FreeMemory();
+    extern char* nameoffile;
+    nameoffile = nullptr;
   }
 
 public:

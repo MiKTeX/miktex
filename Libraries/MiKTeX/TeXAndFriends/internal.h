@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -33,9 +33,9 @@
 
 #define B8C7815676699B4EA2DE96F0BD727276
 #define C1F0C63F01D5114A90DDF8FC10FF410B
-#include "miktex/C4P/C4P"
-#include "miktex/TeXAndFriends/MetafontApp"
-#include "miktex/TeXAndFriends/ETeXApp"
+#include "miktex/C4P/C4P.h"
+#include "miktex/TeXAndFriends/MetafontApp.h"
+#include "miktex/TeXAndFriends/ETeXApp.h"
 
 using namespace C4P;
 using namespace MiKTeX::Packages;
@@ -82,7 +82,7 @@ BEGIN_INTERNAL_NAMESPACE;
 
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
-inline int GetC(FILE * stream)
+inline int GetC(FILE* stream)
 {
   int ch = getc(stream);
   if (ch == EOF && ferror(stream) != 0)
@@ -95,23 +95,23 @@ inline int GetC(FILE * stream)
 template<class VALTYPE> class AutoRestore
 {
 public:
-  AutoRestore(VALTYPE & val) :
+  AutoRestore(VALTYPE& val) :
     oldVal(val),
-    pVal(&val)
+    val(val)
   {
   }
 
 public:
   ~AutoRestore()
   {
-    *pVal = oldVal;
+    val = oldVal;
   }
 
 private:
   VALTYPE oldVal;
 
 private:
-  VALTYPE * pVal;
+  VALTYPE& val;
 };
 
 END_INTERNAL_NAMESPACE

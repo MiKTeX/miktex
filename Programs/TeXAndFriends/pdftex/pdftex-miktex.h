@@ -34,8 +34,11 @@
 #include <miktex/Core/Paths>
 #include <miktex/KPSE/Emulation>
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
+#include <miktex/TeXAndFriends/ErrorHandlerImpl>
+#include <miktex/TeXAndFriends/FormatHandlerImpl>
 #include <miktex/TeXAndFriends/InitFinalizeImpl>
 #include <miktex/TeXAndFriends/InputOutputImpl>
+#include <miktex/TeXAndFriends/StringHandlerImpl>
 #include <miktex/TeXAndFriends/ETeXApp>
 #include <miktex/TeXAndFriends/ETeXMemoryHandlerImpl>
 
@@ -242,10 +245,19 @@ private:
   MiKTeX::TeXAndFriends::CharacterConverterImpl<PDFTEXPROGCLASS> charConv{ PDFTEXPROG };
 
 private:
+  MiKTeX::TeXAndFriends::ErrorHandlerImpl<PDFTEXPROGCLASS> errorHandler{ PDFTEXPROG };
+
+private:
+  MiKTeX::TeXAndFriends::FormatHandlerImpl<PDFTEXPROGCLASS> formatHandler{ PDFTEXPROG };
+
+private:
   MiKTeX::TeXAndFriends::InitFinalizeImpl<PDFTEXPROGCLASS> initFinalize{ PDFTEXPROG };
 
 private:
   MiKTeX::TeXAndFriends::InputOutputImpl<PDFTEXPROGCLASS> inputOutput{ PDFTEXPROG };
+
+private:
+  MiKTeX::TeXAndFriends::StringHandlerImpl<PDFTEXPROGCLASS> stringHandler{ PDFTEXPROG };
 
 private:
   MemoryHandlerImpl memoryHandler{ PDFTEXPROG, *this };
@@ -254,8 +266,11 @@ public:
   void Init(const std::string& programInvocationName) override
   {
     SetCharacterConverter(&charConv);
+    SetErrorHandler(&errorHandler);
+    SetFormatHandler(&formatHandler);
     SetInitFinalize(&initFinalize);
     SetInputOutput(&inputOutput);
+    SetStringHandler(&stringHandler);
     SetTeXMFMemoryHandler(&memoryHandler);
     ETeXApp::Init(programInvocationName);
     kpse_set_program_name(programInvocationName.c_str(), nullptr);
@@ -263,6 +278,23 @@ public:
     EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
     EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
 #endif
+  }
+
+public:
+  void AllocateMemory() override
+  {
+    ETeXApp::AllocateMemory();
+    // special case: Web2C likes to add 1 to the nameoffile base address
+    extern char* nameoffile;
+    nameoffile = &PDFTEXPROG.nameoffile[-1];
+  }
+
+public:
+  void FreeMemory() override
+  {
+    ETeXApp::FreeMemory();
+    extern char* nameoffile;
+    nameoffile = nullptr;
   }
 
 public:

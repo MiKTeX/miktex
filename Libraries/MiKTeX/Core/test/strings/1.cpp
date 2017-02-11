@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -29,6 +29,7 @@
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
+using namespace MiKTeX::Util;
 using namespace std;
 
 BEGIN_TEST_SCRIPT("strings-1");
@@ -46,9 +47,19 @@ BEGIN_TEST_FUNCTION(1);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(2);
+{
+  TEST(StringUtil::UTF16ToUTF8(u"\u263A") == u8"\u263A");
+  TEST(StringUtil::UTF8ToUTF16(u8"\u263A") == u"\u263A");
+  TEST(StringUtil::UTF32ToUTF8(U"\u263A") == u8"\u263A");
+  TEST(StringUtil::UTF8ToUTF32(u8"\u263A") == U"\u263A");
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
+  CALL_TEST_FUNCTION(2);
 }
 END_TEST_PROGRAM();
 

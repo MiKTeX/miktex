@@ -1,6 +1,6 @@
 /* miktex/TeXAndFriends/Prototypes.h:                   -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -35,7 +35,7 @@ MIKTEXMF_BEGIN_NAMESPACE;
 const unsigned long ICT_TCX = 1;
 const unsigned long ICT_8BIT = 2;
 
-MIKTEXMFCEEAPI(bool) InitializeCharTables(unsigned long flags, const MiKTeX::Core::PathName& fileName, void* chr, void* ord, void* printable);
+MIKTEXMFCEEAPI(bool) InitializeCharTables(unsigned long flags, const MiKTeX::Core::PathName& fileName, char* chr, char* ord, char* printable);
 
 MIKTEXMFCEEAPI(bool) OpenTFMFile(void* ptr, const MiKTeX::Core::PathName& fileName);
 

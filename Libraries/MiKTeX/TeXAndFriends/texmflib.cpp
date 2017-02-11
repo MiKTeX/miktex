@@ -1,6 +1,6 @@
 /* texmflib.cpp: TeX'n'Friends helpers
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -26,7 +26,7 @@
 typedef C4P_FILE_STRUCT(unsigned char) bytefile;
 typedef C4P_text alphafile;
 
-STATICFUNC(bool) OpenFontFile(bytefile * pByteFile, const char * lpszFontName, FileType filetype, const char * lpszMakeFontCommand)
+STATICFUNC(bool) OpenFontFile(bytefile* pByteFile, const char* lpszFontName, FileType filetype, const char* lpszMakeFontCommand)
 {
   shared_ptr<Session> session = Session::Get();
   PathName pathFont;
@@ -102,7 +102,7 @@ int MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenXVFFile(void* ptr, const PathName& 
   MIKTEX_API_END("OpenXVFFile");
 }
 
-STATICFUNC(bool) ProcessTCXFile(const char * lpszFileName, unsigned char * pChr, unsigned char * pOrd, unsigned char * pPrn)
+STATICFUNC(bool) ProcessTCXFile(const char* lpszFileName, unsigned char* pChr, unsigned char* pOrd, unsigned char* pPrn)
 {
   PathName tcxPath;
 
@@ -122,8 +122,8 @@ STATICFUNC(bool) ProcessTCXFile(const char * lpszFileName, unsigned char * pChr,
   {
     ++lineNumber;
 
-    const char * start;
-    char * end;
+    const char* start;
+    char* end;
 
     if (line.empty() || line[0] == '%')
     {
@@ -199,15 +199,15 @@ STATICFUNC(bool) ProcessTCXFile(const char * lpszFileName, unsigned char * pChr,
   return true;
 }
 
-bool MIKTEXCEECALL MiKTeX::TeXAndFriends::InitializeCharTables(unsigned long flags, const PathName& fileName, void * pChr, void * pOrd, void * pPrn)
+bool MIKTEXCEECALL MiKTeX::TeXAndFriends::InitializeCharTables(unsigned long flags, const PathName& fileName, char* pChr, char* pOrd, char* pPrn)
 {
   MIKTEX_API_BEGIN("InitializeCharTables");
   MIKTEX_ASSERT_BUFFER(pChr, 256);
   MIKTEX_ASSERT_BUFFER(pOrd, 256);
   MIKTEX_ASSERT_BUFFER_OR_NIL(pPrn, 256);
-  unsigned char * pxchr = reinterpret_cast<unsigned char*>(pChr);
-  unsigned char * pxord = reinterpret_cast<unsigned char*>(pOrd);
-  unsigned char * pxprn = reinterpret_cast<unsigned char*>(pPrn);
+  unsigned char* pxchr = reinterpret_cast<unsigned char*>(pChr);
+  unsigned char* pxord = reinterpret_cast<unsigned char*>(pOrd);
+  unsigned char* pxprn = reinterpret_cast<unsigned char*>(pPrn);
   for (unsigned idx = 0; idx < 256; ++idx)
   {
     pxchr[idx] = static_cast<unsigned char>(idx);
@@ -239,7 +239,7 @@ bool MIKTEXCEECALL MiKTeX::TeXAndFriends::InitializeCharTables(unsigned long fla
   MIKTEX_API_END("InitializeCharTables");
 }
 
-STATICFUNC(bool) OpenAlphaFile(void * p, const char * lpszFileName, FileType fileType, const char * lpszExtension)
+STATICFUNC(bool) OpenAlphaFile(void* p, const char* lpszFileName, FileType fileType, const char* lpszExtension)
 {
   MIKTEX_ASSERT(p != nullptr);
   MIKTEX_ASSERT_BUFFER(p, sizeof(alphafile));
@@ -255,7 +255,7 @@ STATICFUNC(bool) OpenAlphaFile(void * p, const char * lpszFileName, FileType fil
   {
     return false;
   }
-  FILE * pfile = session->TryOpenFile(path.GetData(), FileMode::Open, FileAccess::Read, false);
+  FILE* pfile = session->TryOpenFile(path.GetData(), FileMode::Open, FileAccess::Read, false);
   if (pfile == nullptr)
   {
     return false;
@@ -266,14 +266,14 @@ STATICFUNC(bool) OpenAlphaFile(void * p, const char * lpszFileName, FileType fil
 }
 
 #if 0
-bool MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenMAPFile(void * p, const char * lpszFileName)
+bool MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenMAPFile(void* p, const char* lpszFileName)
 {
   MIKTEX_API_BEGIN("OpenMAPFile");
   return OpenAlphaFile(p, lpszFileName, FileType::MAP, ".map");
   MIKTEX_API_END("OpenMAPFile");
 }
 
-bool MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenMETAFONTFile(void * p, const char * lpszFileName)
+bool MIKTEXCEECALL MiKTeX::TeXAndFriends::OpenMETAFONTFile(void* p, const char* lpszFileName)
 {
   MIKTEX_API_BEGIN("OpenMETAFONTFile");
   return OpenAlphaFile(p, lpszFileName, FileType::MF, ".mf");

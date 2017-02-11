@@ -1,6 +1,6 @@
 /* etexapp.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -40,7 +40,7 @@ ETeXApp::~ETeXApp() noexcept
 {
 }
 
-void ETeXApp::Init(const string & programInvocationName)
+void ETeXApp::Init(const string& programInvocationName)
 {
   TeXApp::Init(programInvocationName);
   pimpl->enableETeX = false;
@@ -63,13 +63,13 @@ enum {
 void ETeXApp::AddOptions()
 {
   TeXApp::AddOptions();
-  pimpl->optBase = static_cast<int>(GetOptions().size());
+  pimpl->optBase = (int)GetOptions().size();
   AddOption(T_("enable-etex\0Enable e-TeX extensions."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_ETEX);
   // supported Web2C options
   AddOption("etex", "enable-etex");
 }
 
-bool ETeXApp::ProcessOption(int optchar, const string & optArg)
+bool ETeXApp::ProcessOption(int optchar, const string& optArg)
 {
   bool done = true;
   switch (optchar - FIRST_OPTION_VAL - pimpl->optBase)

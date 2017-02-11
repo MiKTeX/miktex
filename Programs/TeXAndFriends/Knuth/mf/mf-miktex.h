@@ -25,10 +25,12 @@
 
 #include <miktex/Core/FileType>
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
+#include <miktex/TeXAndFriends/ErrorHandlerImpl>
 #include <miktex/TeXAndFriends/InitFinalizeImpl>
 #include <miktex/TeXAndFriends/InputOutputImpl>
 #include <miktex/TeXAndFriends/MetafontApp>
 #include <miktex/TeXAndFriends/MetafontMemoryHandlerImpl>
+#include <miktex/TeXAndFriends/StringHandlerImpl>
 #include <miktex/TeXAndFriends/Prototypes>
 
 #include "mf.h"
@@ -99,10 +101,16 @@ private:
   MiKTeX::TeXAndFriends::CharacterConverterImpl<MFPROGCLASS> charConv{ MFPROG };
 
 private:
+  MiKTeX::TeXAndFriends::ErrorHandlerImpl<MFPROGCLASS> errorHandler{ MFPROG };
+
+private:
   MiKTeX::TeXAndFriends::InitFinalizeImpl<MFPROGCLASS> initFinalize{ MFPROG };
 
 private:
   MiKTeX::TeXAndFriends::InputOutputImpl<MFPROGCLASS> inputOutput{ MFPROG };
+
+private:
+  MiKTeX::TeXAndFriends::StringHandlerImpl<MFPROGCLASS> stringHandler{ MFPROG };
 
 private:
   MemoryHandlerImpl memoryHandler { MFPROG, *this };
@@ -111,8 +119,10 @@ public:
   void Init(const std::string& programInvocationName) override
   {
     SetCharacterConverter(&charConv);
+    SetErrorHandler(&errorHandler);
     SetInitFinalize(&initFinalize);
     SetInputOutput(&inputOutput);
+    SetStringHandler(&stringHandler);
     SetTeXMFMemoryHandler(&memoryHandler);
     MetafontApp::Init(programInvocationName);
     SetProgramInfo("mf", "", "", "");

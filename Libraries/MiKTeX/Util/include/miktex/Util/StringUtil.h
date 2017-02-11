@@ -101,6 +101,12 @@ public:
   static MIKTEXUTILCEEAPI(std::string) UTF16ToUTF8(const char16_t* utf16Chars);
 
 public:
+  static std::string UTF16ToUTF8(const std::u16string& str)
+  {
+    return UTF16ToUTF8(str.c_str());
+  }
+
+public:
   static MIKTEXUTILCEEAPI(std::u32string) UTF8ToUTF32(const char* utf8Chars);
 
 public:

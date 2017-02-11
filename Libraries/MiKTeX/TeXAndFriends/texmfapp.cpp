@@ -78,21 +78,21 @@ TeXMFApp::~TeXMFApp() noexcept
 {
 }
 
-STATICFUNC(void) TraceExecutionTime(TraceStream * trace_time, clock_t clockStart)
+STATICFUNC(void) TraceExecutionTime(TraceStream* trace_time, clock_t clockStart)
 {
   clock_t clockSinceStart = clock() - clockStart;
   trace_time->WriteFormattedLine("libtexmf", T_("gross execution time: %u ms"), static_cast<unsigned>(clockSinceStart));
   cerr << StringUtil::FormatString(T_("gross execution time: %u ms\n"), static_cast<unsigned>(clockSinceStart)) << endl;
 #if defined(MIKTEX_WINDOWS)
   HINSTANCE hinstKernel;
-  hinstKernel = LoadLibraryA("kernel32.dll");
-  if (hinstKernel == 0)
+  hinstKernel = LoadLibraryW(L"kernel32.dll");
+  if (hinstKernel == nullptr)
   {
     return;
   }
   FARPROC pfGetProcessTimes;
   pfGetProcessTimes = GetProcAddress(hinstKernel, "GetProcessTimes");
-  if (pfGetProcessTimes == 0)
+  if (pfGetProcessTimes == nullptr)
   {
     return;
   }
@@ -131,7 +131,9 @@ void TeXMFApp::Init(const string& programInvocationName)
   pimpl->interactionMode = -1;
   pimpl->isInitProgram = false;
   pimpl->isUnicodeApp = AmI("xetex");
+#if defined(WITH_OMEGA)
   pimpl->isUnicodeApp = pimpl->isUnicodeApp || AmI("omega");
+#endif
   pimpl->isTeXProgram = false;
   pimpl->parseFirstLine = false;
   pimpl->recordFileNames = false;
@@ -157,7 +159,7 @@ void TeXMFApp::OnTeXMFStartJob()
   MIKTEX_ASSERT(!TheNameOfTheGame().empty());
   shared_ptr<Session> session = GetSession();
   string appName;
-  for (const char & ch : TheNameOfTheGame())
+  for (const char& ch : TheNameOfTheGame())
   {
     if (ch != '-')         // pdf-e-tex => pdfetex
     {
@@ -239,7 +241,7 @@ void TeXMFApp::AddOptions()
     invokedAsInitProgram = true;
   }
 
-  pimpl->optBase = static_cast<int>(GetOptions().size());
+  pimpl->optBase = (int)GetOptions().size();
 
   if (IsFeatureEnabled(Feature::EightBitChars))
   {
@@ -338,7 +340,7 @@ void TeXMFApp::AddOptions()
   AddOption("no-mktex\0", OPT_UNSUPPORTED, POPT_ARG_STRING);
 }
 
-bool TeXMFApp::ProcessOption(int opt, const string & optArg)
+bool TeXMFApp::ProcessOption(int opt, const string& optArg)
 {
   bool done = true;
 
@@ -573,7 +575,7 @@ bool TeXMFApp::ProcessOption(int opt, const string & optArg)
   return done;
 }
 
-Argv TeXMFApp::ParseFirstLine(const PathName & path)
+Argv TeXMFApp::ParseFirstLine(const PathName& path)
 {
   StreamReader reader(path);
 
@@ -596,7 +598,7 @@ Argv TeXMFApp::ParseFirstLine(const PathName & path)
 
 bool inParseFirstLine = false;
 
-void TeXMFApp::CheckFirstLine(const PathName & fileName)
+void TeXMFApp::CheckFirstLine(const PathName& fileName)
 {
   AutoRestore<bool> autoRestoreInParseFirstLine(inParseFirstLine);
   inParseFirstLine = true;
@@ -653,9 +655,9 @@ void TeXMFApp::CheckFirstLine(const PathName & fileName)
   }
 }
 
-bool TeXMFApp::OpenMemoryDumpFile(const PathName & fileName_, FILE ** ppFile, void * pBuf, size_t size, bool renew) const
+bool TeXMFApp::OpenMemoryDumpFile(const PathName& fileName_, FILE** ppFile, void* pBuf, size_t size, bool renew) const
 {
-  MIKTEX_ASSERT(ppFile);
+  MIKTEX_ASSERT(ppFile != nullptr);
 
   if (pBuf != nullptr)
   {
@@ -797,7 +799,7 @@ PathName TeXMFApp::GetDefaultMemoryDumpFileName() const
   return name;
 }
 
-bool IsFileNameArgument(const char * lpszArg)
+bool IsFileNameArgument(const char* lpszArg)
 {
   for (size_t l = 0; lpszArg[l] != 0; ++l)
   {
@@ -880,10 +882,12 @@ void TeXMFApp::InitializeBuffer() const
       {
         inout->buffer32()[last++] = U' ';
       }
+#if defined(WITH_OMEGA)
       else if (AmI("omega"))
       {
         inout->buffer16()[last++] = u' ';
       }
+#endif
       else
       {
         inout->buffer()[last++] = ' ';
@@ -900,28 +904,25 @@ void TeXMFApp::InitializeBuffer() const
     }
     if (AmI("xetex"))
     {
-      u32string optarg = StringUtil::UTF8ToUTF32(lpszOptArg);
-      size_t len = optarg.length();
-      for (size_t j = 0; j < len; ++j)
+      for (const char32_t& ch : StringUtil::UTF8ToUTF32(lpszOptArg))
       {
-        inout->buffer32()[last++] = optarg[j];
+        inout->buffer32()[last++] = ch;
       }
     }
+#if defined(WITH_OMEGA)
     else if (AmI("omega"))
     {
-      u16string optarg = StringUtil::UTF8ToUTF16(lpszOptArg);
-      size_t len = optarg.length();
-      for (size_t j = 0; j < len; ++j)
+      for (const char16_t& ch : StringUtil::UTF8ToUTF16(lpszOptArg))
       {
-        inout->buffer16()[last++] = optarg[j];
+        inout->buffer16()[last++] = ch;
       }
     }
+#endif
     else
     {
-      size_t len = StrLen(lpszOptArg);
-      for (size_t j = 0; j < len; ++j)
+      for (const char* lpsz = lpszOptArg; *lpsz != 0; ++lpsz)
       {
-        inout->buffer()[last++] = lpszOptArg[j];
+        inout->buffer()[last++] = *lpsz;
       }
     }
   }
@@ -932,14 +933,14 @@ void TeXMFApp::InitializeBuffer() const
   inout->last() = last;
 }
 
-void TeXMFApp::TouchJobOutputFile(FILE * pfile) const
+void TeXMFApp::TouchJobOutputFile(FILE* file) const
 {
-  MIKTEX_ASSERT(pfile != nullptr);
+  MIKTEX_ASSERT(file != nullptr);
   shared_ptr<Session> session = GetSession();
-  if (pimpl->setJobTime && session->IsOutputFile(pfile))
+  if (pimpl->setJobTime && session->IsOutputFile(file))
   {
     time_t time = GetStartUpTime();
-    File::SetTimes(pfile, time, time, time);
+    File::SetTimes(file, time, time, time);
   }
 }
 
@@ -1022,54 +1023,31 @@ void TeXMFApp::OnKeybordInterrupt(int)
 
 string TeXMFApp::GetTeXString(int stringStart, int stringLength) const
 {
-  string result;
-  IStringHandler* stringHandler = GetStringHandler();
   if (IsUnicodeApp())
   {
-    char16_t* strpool = stringHandler->strpool16();
-    CharBuffer<char16_t> buf(stringLength + 1);
-    for (int idx = 0; idx < stringLength; ++idx)
-    {
-      buf += strpool[stringStart + idx];
-    }
-    return StringUtil::UTF16ToUTF8(buf.GetData());
+    return StringUtil::UTF16ToUTF8(u16string(GetStringHandler()->strpool16() + stringStart, stringLength));
   }
   else
-  {
-    char* strpool = stringHandler->strpool();
-    for (int idx = 0; idx < stringLength; ++idx)
-    {
-      result += strpool[stringStart + idx];
-    }
+  {    
+    return string(GetStringHandler()->strpool() + stringStart, stringLength);
   }
-  return result;
 }
 
 int TeXMFApp::MakeTeXString(const char* lpsz) const
 {
   MIKTEX_ASSERT_STRING(lpsz);
   IStringHandler* stringHandler = GetStringHandler();
+  std::size_t len = StrLen(lpsz);
+  CheckPoolPointer(stringHandler->poolptr(), len);
   if (IsUnicodeApp())
   {
-    CharBuffer<char16_t, 200> buf(lpsz);
-    std::size_t len = buf.GetLength();
-    CheckPoolPointer(stringHandler->poolptr(), len);
-    for (size_t idx = 0; idx < len; ++idx)
-    {
-      stringHandler->strpool16()[stringHandler->poolptr()] = buf[idx];
-      stringHandler->poolptr() += 1;
-    }
+    memcpy(stringHandler->strpool16() + stringHandler->poolptr(), CharBuffer<char16_t>(lpsz).GetData(), len * sizeof(char16_t));
   }
   else
   {
-    std::size_t len = StrLen(lpsz);
-    CheckPoolPointer(stringHandler->poolptr(), len);
-    while (len-- > 0)
-    {
-      stringHandler->strpool()[stringHandler->poolptr()] = *lpsz++;
-      stringHandler->poolptr() += 1;
-    }
+    memcpy(stringHandler->strpool() + stringHandler->poolptr(), lpsz, len * sizeof(char));
   }
+  stringHandler->poolptr() += len;
   return stringHandler->makestring();
 }
 

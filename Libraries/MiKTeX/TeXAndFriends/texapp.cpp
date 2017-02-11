@@ -46,7 +46,7 @@ public:
 public:
   int lastLineNum;
 public:
-  MiKTeX::Core::PathName lastSourceFilename;
+  PathName lastSourceFilename;
 };
 
 TeXApp::TeXApp() :
@@ -58,7 +58,7 @@ TeXApp::~TeXApp()
 {
 }
 
-void TeXApp::Init(const string & programInvocationName)
+void TeXApp::Init(const string& programInvocationName)
 {
   TeXMFApp::Init(programInvocationName);
 
@@ -129,7 +129,7 @@ void TeXApp::AddOptions()
 {
   TeXMFApp::AddOptions();
 
-  pimpl->optBase = static_cast<int>(GetOptions().size());
+  pimpl->optBase = (int)GetOptions().size();
 
   AddOption(T_("disable-write18\0Disable the \\write18{COMMAND} construct."),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_WRITE18);
@@ -199,7 +199,7 @@ void TeXApp::AddOptions()
       "N");
   }
 
-
+#if WITH_OMEGA
   if (AmI("omega"))
   {
     AddOption(T_("trie-op-size\0Set trie_op_size to N."),
@@ -207,6 +207,7 @@ void TeXApp::AddOptions()
       POPT_ARG_STRING,
       "N");
   }
+#endif
 
 #if EXPERT_SRC_SPECIALS
   AddOption((T_("src-specials\0Insert source specials in certain places of the DVI file.  WHERE is a comma-separated value list of: cr display hbox math par parend vbox.")),
@@ -373,7 +374,7 @@ inline bool NeedsEscape(char ch)
 }
 #endif
 
-bool ParseCommand(const string & command, string & quotedCommand, string & executable)
+bool ParseCommand(const string& command, string& quotedCommand, string& executable)
 {
 #if defined(MIKTEX_WINDOWS)
   const char QUOTE = '"';

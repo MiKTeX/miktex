@@ -1,6 +1,6 @@
 /* webapp.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -47,7 +47,7 @@ public:
         delete[] cstr;
       }
     }
-    catch (const exception &)
+    catch (const exception&)
     {
     }
   }
@@ -101,7 +101,7 @@ WebApp::~WebApp()
 {
 }
 
-void WebApp::Init(const string & programInvocationName)
+void WebApp::Init(const string& programInvocationName)
 {
   Application::Init(programInvocationName, TheNameOfTheGame());
   pimpl->theNameOfTheGame = Utils::GetExeName();
@@ -163,7 +163,7 @@ void WebApp::BadUsage() const
   throw 1;
 }
 
-void WebApp::AddOption(const string& name, const string& help, int val, int argInfo, const string& argDescription, void * arg, char shortName)
+void WebApp::AddOption(const string& name, const string& help, int val, int argInfo, const string& argDescription, void* arg, char shortName)
 {
   poptOption opt{};
   opt.longName = pimpl->AddString(name);
@@ -222,7 +222,7 @@ enum {
 void WebApp::AddOptions()
 {
   pimpl->options.reserve(50);
-  pimpl->optBase = static_cast<int>(GetOptions().size());
+  pimpl->optBase = (int)GetOptions().size();
   AddOption(T_("alias\0Pretend to be APP.  This affects both the format used and the search path."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ALIAS, POPT_ARG_STRING, T_("APP"));
   AddOption(T_("disable-installer\0Disable the package installer.  Missing files will not be installed."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_INSTALLER);
   AddOption(T_("enable-installer\0Enable the package installer.  Missing files will be installed."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_INSTALLER);
@@ -241,7 +241,7 @@ void WebApp::AddOptions()
 #endif
 }
 
-bool WebApp::ProcessOption(int opt, const string & optArg)
+bool WebApp::ProcessOption(int opt, const string& optArg)
 {
   shared_ptr<Session> session = GetSession();
   if (opt == OPT_UNSUPPORTED)
@@ -298,7 +298,7 @@ bool WebApp::ProcessOption(int opt, const string & optArg)
   return done;
 }
 
-inline bool operator< (const poptOption & opt1, const poptOption & opt2)
+inline bool operator< (const poptOption& opt1, const poptOption& opt2)
 {
   MIKTEX_ASSERT(opt1.longName != nullptr);
   MIKTEX_ASSERT(opt2.longName != nullptr);
@@ -308,7 +308,7 @@ inline bool operator< (const poptOption & opt1, const poptOption & opt2)
 void WebApp::ProcessCommandLineOptions()
 {
   int argc = C4P::GetArgC();
-  const char ** argv = C4P::GetArgV();
+  const char** argv = C4P::GetArgV();
 
   if (pimpl->options.empty())
   {
@@ -373,7 +373,7 @@ string WebApp::GetProgramName() const
   return pimpl->programName;
 }
 
-bool WebApp::AmI(const std::string & name) const
+bool WebApp::AmI(const std::string& name) const
 {
   return StringUtil::Contains(GetProgramName().c_str(), name.c_str());
 }

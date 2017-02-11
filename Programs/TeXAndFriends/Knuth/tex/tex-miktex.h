@@ -24,8 +24,11 @@
 #include "tex-miktex-config.h"
 
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
+#include <miktex/TeXAndFriends/ErrorHandlerImpl>
+#include <miktex/TeXAndFriends/FormatHandlerImpl>
 #include <miktex/TeXAndFriends/InitFinalizeImpl>
 #include <miktex/TeXAndFriends/InputOutputImpl>
+#include <miktex/TeXAndFriends/StringHandlerImpl>
 #include <miktex/TeXAndFriends/TeXApp>
 #include <miktex/TeXAndFriends/TeXMemoryHandlerImpl>
 #include <miktex/W2C/Emulation>
@@ -51,10 +54,19 @@ private:
   MiKTeX::TeXAndFriends::CharacterConverterImpl<TEXPROGCLASS> charConv{ TEXPROG };
 
 private:
+  MiKTeX::TeXAndFriends::ErrorHandlerImpl<TEXPROGCLASS> errorHandler{ TEXPROG };
+
+private:
+  MiKTeX::TeXAndFriends::FormatHandlerImpl<TEXPROGCLASS> formatHandler{ TEXPROG };
+
+private:
   MiKTeX::TeXAndFriends::InitFinalizeImpl<TEXPROGCLASS> initFinalize{ TEXPROG };
 
 private:
   MiKTeX::TeXAndFriends::InputOutputImpl<TEXPROGCLASS> inputOutput{ TEXPROG };
+
+private:
+  MiKTeX::TeXAndFriends::StringHandlerImpl<TEXPROGCLASS> stringHandler{ TEXPROG };
 
 private:
   MiKTeX::TeXAndFriends::TeXMemoryHandlerImpl<TEXPROGCLASS> memoryHandler { TEXPROG, *this };
@@ -63,8 +75,11 @@ public:
   void Init(const std::string& programInvocationName) override
   {
     SetCharacterConverter(&charConv);
+    SetErrorHandler(&errorHandler);
+    SetFormatHandler(&formatHandler);
     SetInitFinalize(&initFinalize);
     SetInputOutput(&inputOutput);
+    SetStringHandler(&stringHandler);
     SetTeXMFMemoryHandler(&memoryHandler);
     TeXApp::Init(programInvocationName);
 #if defined(IMPLEMENT_TCX)

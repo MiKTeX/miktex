@@ -25,8 +25,11 @@
 
 #include <miktex/KPSE/Emulation>
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
+#include <miktex/TeXAndFriends/ErrorHandlerImpl>
+#include <miktex/TeXAndFriends/FormatHandlerImpl>
 #include <miktex/TeXAndFriends/InitFinalizeImpl>
 #include <miktex/TeXAndFriends/InputOutputImpl>
+#include <miktex/TeXAndFriends/StringHandlerImpl>
 #include <miktex/TeXAndFriends/TeXApp>
 #include <miktex/TeXAndFriends/TeXMemoryHandlerImpl>
 #include <miktex/W2C/Emulation>
@@ -153,13 +156,22 @@ protected:
   }
 
 private:
-  MiKTeX::TeXAndFriends::CharacterConverterImpl<OmegaProgram> charConv{ OMEGAPROG };
+  MiKTeX::TeXAndFriends::CharacterConverterImpl<OMEGAPROGCLASS> charConv{ OMEGAPROG };
 
 private:
-  MiKTeX::TeXAndFriends::InitFinalizeImpl<OmegaProgram> initFinalize{ OMEGAPROG };
+  MiKTeX::TeXAndFriends::ErrorHandlerImpl<OMEGAPROGCLASS> errorHandler{ OMEGAPROG };
 
 private:
-  MiKTeX::TeXAndFriends::InputOutputImpl<OmegaProgram> inputOutput{ OMEGAPROG };
+  MiKTeX::TeXAndFriends::FormatHandlerImpl<OMEGAPROGCLASS> formatHandler{ OMEGAPROG };
+
+private:
+  MiKTeX::TeXAndFriends::InitFinalizeImpl<OMEGAPROGCLASS> initFinalize{ OMEGAPROG };
+
+private:
+  MiKTeX::TeXAndFriends::InputOutputImpl<OMEGAPROGCLASS> inputOutput{ OMEGAPROG };
+
+private:
+  MiKTeX::TeXAndFriends::StringHandlerImpl<OMEGAPROGCLASS> stringHandler{ OMEGAPROG };
 
 private:
   MemoryHandlerImpl memoryHandler{ OMEGAPROG, *this };
@@ -171,14 +183,34 @@ public:
   void Init(const std::string& programInvocationName) override
   {
     SetCharacterConverter(&charConv);
+    SetErrorHandler(&errorHandler);
+    SetFormatHandler(&formatHandler);
     SetInitFinalize(&initFinalize);
     SetInputOutput(&inputOutput);
+    SetStringHandler(&stringHandler);
     SetTeXMFMemoryHandler(&memoryHandler);
     TeXApp::Init(programInvocationName);
     session = GetSession();
 #if defined(IMPLEMENT_TCX)
     EnableFeature(Feature::TCX);
 #endif
+  }
+
+public:
+  void AllocateMemory() override
+  {
+    TeXApp::AllocateMemory();
+    // special case: Web2C likes to add 1 to the nameoffile base address
+    extern char* nameoffile;
+    nameoffile = &OMEGAPROG.nameoffile[-1];
+  }
+
+public:
+  void FreeMemory() override
+  {
+    TeXApp::FreeMemory();
+    extern char* nameoffile;
+    nameoffile = nullptr;
   }
 
 public:

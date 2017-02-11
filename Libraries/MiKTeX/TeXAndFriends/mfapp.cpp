@@ -38,7 +38,7 @@ MetafontApp::~MetafontApp() noexcept
 {
 }
 
-void MetafontApp::Init(const string & programInvocationName)
+void MetafontApp::Init(const string& programInvocationName)
 {
   TeXMFApp::Init(programInvocationName);
 }
@@ -57,7 +57,7 @@ enum {
 void MetafontApp::AddOptions()
 {
   TeXMFApp::AddOptions();
-  pimpl->optBase = static_cast<int>(GetOptions().size());
+  pimpl->optBase = (int)GetOptions().size();
   AddOption(T_("bistack-size\0Set bistack_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_BISTACK_SIZE, POPT_ARG_STRING, "N");
   AddOption(T_("lig-table-size\0Set lig_table_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_LIG_TABLE_SIZE, POPT_ARG_STRING, "N");
   AddOption(T_("path-size\0Set path_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_PATH_SIZE, POPT_ARG_STRING, "N");

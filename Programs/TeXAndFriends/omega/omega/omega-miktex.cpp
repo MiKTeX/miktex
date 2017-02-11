@@ -21,12 +21,6 @@
 
 using namespace MiKTeX::Core;
 
-// special case: Web2C likes to add 1 to the nameoffile base address
-inline char* GetNameOfFileForWeb2C()
-{
-  return &OMEGAPROG.nameoffile[-1];
-}
-
 C4P::C4P_signed32& first = OMEGAPROG.first;
 OMEGAPROGCLASS::memoryword**& fonttables = OMEGAPROG.fonttables;
 OMEGAPROGCLASS::memoryword**& fontsorttables = OMEGAPROG.fontsorttables;
@@ -39,4 +33,4 @@ OMEGAPROGCLASS::halfword& otpinputend = OMEGAPROG.otpinputend;
 OMEGAPROGCLASS::quarterword* otpoutputbuf = OMEGAPROG.otpoutputbuf;
 OMEGAPROGCLASS::halfword& otpoutputend = OMEGAPROG.otpoutputend;
 
-char* nameoffile = GetNameOfFileForWeb2C();
+char* nameoffile = nullptr;
