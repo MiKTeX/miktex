@@ -25,10 +25,3 @@
 #include "miktex/W2C/Emulation.h"
 
 #define T_(x) MIKTEXTEXT(x)
-
-#define MIKTEXSTATICFUNC(type) static type
-#define MIKTEXINTERNALFUNC(type) type
-#define MIKTEXINTERNALVAR(type) type
-
-#define C_FUNC_BEGIN()
-#define C_FUNC_END()

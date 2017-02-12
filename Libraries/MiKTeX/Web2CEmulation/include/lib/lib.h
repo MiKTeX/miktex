@@ -46,11 +46,11 @@ MIKTEXW2CCEEAPI(void) miktex_web2c_change_recorder_file_name(const char* lpszPat
 MIKTEXW2CCEEAPI(void) miktex_web2c_record_file_name(const char* lpszPath, int reading);
 MIKTEXW2CCEEAPI(integer) miktex_zround(double r);
 MIKTEXW2CCEEAPI(void) miktex_setupboundvariable(integer* pVar, const char* lpszVarName, integer dflt);
-extern MIKTEXW2CDATA(string) miktex_web2c_fullnameoffile;
 MIKTEXW2CCEEAPI(const char *) miktex_web2c_get_output_directory();
 MIKTEXW2CCEEAPI(void) miktex_web2c_set_output_directory(const char* lpszPath);
 extern MIKTEXW2CDATA(boolean) miktex_web2c_recorder_enabled;
 extern MIKTEXW2CDATA(const_string) miktex_web2c_version_string;
+extern MIKTEXW2CDATA(string) miktex_web2c_fullnameoffile;
 
 MIKTEX_END_EXTERN_C_BLOCK
 
@@ -68,8 +68,6 @@ static inline void close_file(FILE* f)
     fclose(f);
   }
 }
-
-#define versionstring miktex_web2c_version_string
 
 #if defined(__cplusplus)
 inline void recorder_change_filename(const char* new_name)
@@ -107,20 +105,22 @@ static inline void recorder_record_output(const char* fname)
 }
 #endif
 
-#define recorder_enabled miktex_web2c_recorder_enabled
-
-#if 0
-// TODO
-#  define output_directory (MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory().Empty() ? 0 : MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory().GetData())
-#elif defined(__cplusplus)
+#if defined(__cplusplus)
 #  define output_directory (MiKTeX::Web2C::GetOutputDirectory().Empty() ? nullptr : MiKTeX::Web2C::GetOutputDirectory().GetData())
 #else
 #  define output_directory miktex_web2c_get_output_directory()
 #endif
 
-#define fullnameoffile miktex_web2c_fullnameoffile
+#if defined(__cplusplus)
+#else
+static inline void setupboundvariable(integer* var, const char* var_name, integer dflt)
+{
+  miktex_setupboundvariable(var, var_name, dflt);
+}
+#endif
 
-#define setupboundvariable(var, var_name, dflt) \
-  miktex_setupboundvariable(var, var_name, dflt)
+#define recorder_enabled miktex_web2c_recorder_enabled
+#define fullnameoffile miktex_web2c_fullnameoffile
+#define versionstring miktex_web2c_version_string
 
 #endif

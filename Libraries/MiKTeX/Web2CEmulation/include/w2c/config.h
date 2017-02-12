@@ -1,6 +1,6 @@
 /* w2c/config.h: Web2C emulation                        -*- C++ -*-
 
-   Copyright (C) 2010-2016 Christian Schenk
+   Copyright (C) 2010-2017 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -35,20 +35,37 @@
 MIKTEX_BEGIN_EXTERN_C_BLOCK
 
 typedef int integer;
-
 typedef MIKTEX_INT64 longinteger;
-
-#define LONGINTEGER_TYPE long long
+typedef long long LONGINTEGER_TYPE;
 #define LONGINTEGER_PRI "ll"
 
 MIKTEXW2CEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_uexit(int status);
-
-#define uexit miktex_uexit
-
-MIKTEXW2CEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_usagehelp(const char ** lpszLines, const char * lpszBugEmail);
-
-#define usagehelp miktex_usagehelp
+MIKTEXW2CEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_usagehelp(const char** lines, const char* bugEmail);
 
 MIKTEX_END_EXTERN_C_BLOCK
+
+#if defined(__cplusplus)
+inline void uexit(int status)
+{
+  miktex_uexit(status);
+}
+#else
+static inline void uexit(int status)
+{
+  miktex_uexit(status);
+}
+#endif
+
+#if defined(__cplusplus)
+inline void usagehelp(const char** lpszLines, const char* lpszBugEmail)
+{
+  miktex_usagehelp(lpszLines, lpszBugEmail);
+}
+#else
+static inline void usagehelp(const char** lpszLines, const char* lpszBugEmail)
+{
+  miktex_usagehelp(lpszLines, lpszBugEmail);
+}
+#endif
 
 #endif

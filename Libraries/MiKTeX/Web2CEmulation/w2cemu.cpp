@@ -25,17 +25,17 @@
 
 #include <miktex/texmfapp.defaults.h>
 
-using namespace std;
 using namespace MiKTeX;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::TeXAndFriends;
 using namespace MiKTeX::Util;
+using namespace std;
 
 namespace {
   PathName outputDirectory;
 }
 
-MIKTEXSTATICFUNC(void) TranslateModeString(const char * lpszMode, FileMode & mode, FileAccess & access, bool & isTextFile)
+static void TranslateModeString(const char* lpszMode, FileMode& mode, FileAccess& access, bool& isTextFile)
 {
   if (Utils::Equals(lpszMode, "r"))
   {
@@ -73,7 +73,7 @@ MIKTEXSTATICFUNC(void) TranslateModeString(const char * lpszMode, FileMode & mod
   }
 }
 
-MIKTEXSTATICFUNC(FILE *) TryFOpen(const char * lpszFileName, const char * lpszMode)
+static FILE* TryFOpen(const char* lpszFileName, const char* lpszMode)
 {
   shared_ptr<Session> session = Session::Get();
   FileMode mode(FileMode::Open);
@@ -83,7 +83,7 @@ MIKTEXSTATICFUNC(FILE *) TryFOpen(const char * lpszFileName, const char * lpszMo
   return session->TryOpenFile(lpszFileName, mode, access, isTextFile);
 }
 
-MIKTEXW2CCEEAPI(int) Web2C::OpenInput(FILE** ppfile, kpse_file_format_type format, const char* fopenMode)
+int Web2C::OpenInput(FILE** ppfile, kpse_file_format_type format, const char* fopenMode)
 {
   PathName fileName(WebAppInputLine::GetWebAppInputLine()->GetNameOfFile());
   char* lpszPath = miktex_kpathsea_find_file(kpse_def, fileName.GetData(), format, 0);
@@ -108,7 +108,7 @@ MIKTEXW2CCEEAPI(int) Web2C::OpenInput(FILE** ppfile, kpse_file_format_type forma
   return *ppfile == nullptr ? 0 : 1;
 }
 
-MIKTEXW2CCEEAPI(void) Web2C::RecordFileName(const char * lpszPath, FileAccess access)
+void Web2C::RecordFileName(const char* lpszPath, FileAccess access)
 {
   shared_ptr<Session> session = Session::Get();
   if (miktex_web2c_recorder_enabled)
@@ -118,12 +118,12 @@ MIKTEXW2CCEEAPI(void) Web2C::RecordFileName(const char * lpszPath, FileAccess ac
   session->RecordFileInfo(lpszPath, access);
 }
 
-MIKTEXW2CCEEAPI(void) miktex_web2c_record_file_name(const char * lpszPath, int reading)
+void miktex_web2c_record_file_name(const char* lpszPath, int reading)
 {
   Web2C::RecordFileName(lpszPath, reading ? FileAccess::Read : FileAccess::Write);
 }
 
-MIKTEXW2CCEEAPI(void) Web2C::ChangeRecorderFileName(const char * lpszName)
+void Web2C::ChangeRecorderFileName(const char* lpszName)
 {
   shared_ptr<Session> session = Session::Get();
   PathName path(GetOutputDirectory(), lpszName);
@@ -131,16 +131,12 @@ MIKTEXW2CCEEAPI(void) Web2C::ChangeRecorderFileName(const char * lpszName)
   session->SetRecorderPath(path);
 }
 
-MIKTEXW2CCEEAPI(void) miktex_web2c_change_recorder_file_name(const char * lpszPath)
+void miktex_web2c_change_recorder_file_name(const char* lpszPath)
 {
   Web2C::ChangeRecorderFileName(lpszPath);
 }
 
-MIKTEXW2CDATA(const char *) miktex_web2c_version_string = WEB2CVERSION;
-
-MIKTEXW2CDATA(boolean) miktex_web2c_recorder_enabled = 0;
-
-MIKTEXW2CCEEAPI(void) Web2C::SetOutputDirectory(const PathName & path)
+void Web2C::SetOutputDirectory(const PathName& path)
 {
   shared_ptr<Session> session = Session::Get();
   outputDirectory = path;
@@ -165,24 +161,22 @@ MIKTEXW2CCEEAPI(void) Web2C::SetOutputDirectory(const PathName & path)
   session->AddInputDirectory(outputDirectory, true);
 }
 
-MIKTEXW2CCEEAPI(void) miktex_web2c_set_output_directory(const char * lpszPath)
+void miktex_web2c_set_output_directory(const char* lpszPath)
 {
   Web2C::SetOutputDirectory(lpszPath);
 }
 
-MIKTEXW2CCEEAPI(PathName) Web2C::GetOutputDirectory()
+PathName Web2C::GetOutputDirectory()
 {
   return outputDirectory;
 }
 
-MIKTEXW2CCEEAPI(const char *) miktex_web2c_get_output_directory()
+const char* miktex_web2c_get_output_directory()
 {
   return outputDirectory.Empty() ? nullptr : outputDirectory.GetData();
 }
 
-MIKTEXW2CDATA(char *) miktex_web2c_fullnameoffile = nullptr;
-
-MIKTEXW2CCEEAPI(void) Web2C::GetSecondsAndMicros(int* seconds, int* micros)
+void Web2C::GetSecondsAndMicros(int* seconds, int* micros)
 {
 #if defined(MIKTEX_WINDOWS)
   unsigned long clock = GetTickCount();
@@ -199,7 +193,7 @@ MIKTEXW2CCEEAPI(void) Web2C::GetSecondsAndMicros(int* seconds, int* micros)
 /* Implementation found in texk/web2c/lib/zround.c
    zround.c: round R to the nearest whole number.  This is supposed to
    implement the predefined Pascal round function.  Public domain. */
-MIKTEXW2CCEEAPI(integer) miktex_zround(double r)
+integer miktex_zround(double r)
 {
   integer i;
 
@@ -235,7 +229,7 @@ MIKTEXW2CCEEAPI(integer) miktex_zround(double r)
   return i;
 }
 
-MIKTEXW2CEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_uexit(int status)
+void miktex_uexit(int status)
 {
   int final_code;
   if (status == 0)
@@ -253,40 +247,44 @@ MIKTEXW2CEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_uexit(int status)
   throw final_code;
 }
 
-MIKTEXW2CCEEAPI(void) miktex_setupboundvariable(integer * pVar, const char * lpszVarName, integer dflt)
+void miktex_setupboundvariable(integer* var, const char* varName, integer dflt)
 {
   shared_ptr<Session> session = Session::Get();
-  int ret = session->GetConfigValue("", lpszVarName, dflt).GetInt();
+  int ret = session->GetConfigValue("", varName, dflt).GetInt();
   if (ret >= 0)
   {
-    *pVar = ret;
+    *var = ret;
   }
 }
 
-MIKTEXW2CEXPORT MIKTEXNORETURN void MIKTEXCEECALL miktex_usagehelp(const char ** lpszLines, const char * lpszBugEmail)
+void miktex_usagehelp(const char** lines, const char* bugEmail)
 {
-  for (; *lpszLines != nullptr; ++lpszLines)
+  for (; *lines != nullptr; ++lines)
   {
-    cout << *lpszLines << endl;
+    cout << *lines << endl;
   }
-  if (lpszBugEmail == nullptr)
+  if (bugEmail == nullptr)
   {
     cout << endl << "Visit miktex.org for bug reports." << endl;
   }
   else
   {
-    cout << endl << StringUtil::FormatString("Email bug reports to %s.", lpszBugEmail) << endl;
+    cout << endl << StringUtil::FormatString("Email bug reports to %s.", bugEmail) << endl;
   }
   throw 0;
 }
 
-MIKTEXW2CCEEAPI(char*) Web2C::GetCurrentFileName()
+char* Web2C::GetCurrentFileName()
 {
   return xstrdup(WebAppInputLine::GetWebAppInputLine()->GetFoundFileFq().GetData());
 }
 
-MIKTEXW2CCEEAPI(int) Web2C::RunSystemCommand(const char* cmd)
+int Web2C::RunSystemCommand(const char* cmd)
 {
   int exitCode;
   return (int)TeXApp::GetTeXApp()->Write18(cmd, exitCode);
 }
+
+const char* miktex_web2c_version_string = WEB2CVERSION;
+boolean miktex_web2c_recorder_enabled = 0;
+char* miktex_web2c_fullnameoffile = nullptr;
