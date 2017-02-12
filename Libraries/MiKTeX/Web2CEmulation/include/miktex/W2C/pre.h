@@ -1,6 +1,6 @@
 /* miktex/W2C/pre.h:                                    -*- C++ -*-
 
-   Copyright (C) 2013-2016 Christian Schenk
+   Copyright (C) 2013-2017 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -31,11 +31,11 @@
 #else
 #include <miktex/Core/c/api.h>
 #endif
-#include <miktex/Definitions>
 #include <miktex/Core/Debug>
 #include <miktex/Core/IntegerTypes>
-#include <miktex/Version>
+#include <miktex/Definitions>
 #include <miktex/KPSE/Emulation>
+#include <miktex/Version>
 
 // DLL import/export switch
 #if !defined(B96BCD894353492A9CF685C84B9AB5E0)

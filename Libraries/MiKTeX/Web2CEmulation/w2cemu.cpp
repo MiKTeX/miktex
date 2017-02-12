@@ -83,25 +83,26 @@ MIKTEXSTATICFUNC(FILE *) TryFOpen(const char * lpszFileName, const char * lpszMo
   return session->TryOpenFile(lpszFileName, mode, access, isTextFile);
 }
 
-MIKTEXW2CCEEAPI(int) Web2C::OpenInput(char * lpszFileName, FILE ** ppfile, kpse_file_format_type format, const char * lpszMode)
+MIKTEXW2CCEEAPI(int) Web2C::OpenInput(FILE** ppfile, kpse_file_format_type format, const char* fopenMode)
 {
-  char * lpszPath = miktex_kpathsea_find_file(kpse_def, lpszFileName, format, 0);
+  PathName fileName(WebAppInputLine::GetWebAppInputLine()->GetNameOfFile());
+  char* lpszPath = miktex_kpathsea_find_file(kpse_def, fileName.GetData(), format, 0);
   if (lpszPath == nullptr)
   {
     return 0;
   }
   try
   {
-    *ppfile = TryFOpen(lpszPath, lpszMode);
+    *ppfile = TryFOpen(lpszPath, fopenMode);
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     MIKTEX_FREE(lpszPath);
     throw;
   }
   if (*ppfile != nullptr)
   {
-    StringUtil::CopyString(lpszFileName, BufferSizes::MaxPath, lpszPath);
+    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(lpszPath);
   }
   MIKTEX_FREE(lpszPath);
   return *ppfile == nullptr ? 0 : 1;

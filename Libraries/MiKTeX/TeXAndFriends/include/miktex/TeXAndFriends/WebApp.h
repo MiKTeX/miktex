@@ -276,13 +276,19 @@ template<class PROGRAM_CLASS, class WEBAPP_CLASS> class ProgramRunner
 public:
   int Run(PROGRAM_CLASS& prog, WEBAPP_CLASS& app, int argc, const char** argv)
   {
+    std::string componentVersion;
 #if defined(MIKTEX_COMPONENT_VERSION_STR)
-#  if defined(MIKTEX_COMP_TM_STR)
-    app.SetProgramInfo(app.TheNameOfTheGame(), MIKTEX_COMPONENT_VERSION_STR, MIKTEX_COMP_COPYRIGHT_STR, MIKTEX_COMP_TM_STR);
-#  else
-    app.SetProgramInfo(app.TheNameOfTheGame(), MIKTEX_COMPONENT_VERSION_STR, MIKTEX_COMP_COPYRIGHT_STR, "");
-#  endif
+    componentVersion = MIKTEX_COMPONENT_VERSION_STR;
 #endif
+    std::string componentCopyright;
+#if defined(MIKTEX_COMP_COPYRIGHT_STR)
+    componentCopyright = MIKTEX_COMP_COPYRIGHT_STR;
+#endif
+    std::string componentTrademark;
+#if defined(MIKTEX_COMP_TM_STR)
+    componentTrademark = MIKTEX_COMP_TM_STR;
+#endif
+    app.SetProgramInfo(app.TheNameOfTheGame(), componentVersion, componentVersion, componentTrademark);
     try
     {
       app.Init(argv[0]);

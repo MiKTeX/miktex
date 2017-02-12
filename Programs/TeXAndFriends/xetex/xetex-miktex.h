@@ -198,7 +198,7 @@ public:
   void FreeMemory() override
   {
     ETeXApp::FreeMemory();
-    extern char* nameoffile;
+    extern XETEXPROGCLASS::utf8code* nameoffile;
     nameoffile = nullptr;
   }
 
