@@ -81,14 +81,16 @@ add_custom_command(
 
 set(omega_change_file ${CMAKE_CURRENT_BINARY_DIR}/omega-miktex-all.ch)
 
-set(${omega_dll_name}_sources
+set(omega_target_name omega)
+
+set(${omega_target_name}_sources
   ${CMAKE_BINARY_DIR}/include/miktex/omega.defaults.h
   source/omegabis.c
   omega-ext.cpp
   omega-miktex.cpp
 )
 
-list(APPEND ${omega_dll_name}_sources
+list(APPEND ${omega_target_name}_sources
   ${CMAKE_CURRENT_BINARY_DIR}/omega_pool.cpp
 )
 
@@ -98,7 +100,7 @@ set_source_files_properties(
 )
 
 set_source_files_properties(
-  ${${omega_dll_name}_sources}
+  ${${omega_target_name}_sources}
   PROPERTIES COMPILE_FLAGS
     "-DC4PEXTERN=extern -DMIKTEX_OMEGA"
 
@@ -133,7 +135,7 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/omega.pool
 )
 
-add_dependencies(${omega_dll_name} gen-defaults)
+add_dependencies(${omega_target_name} gen-defaults)
 
 set_source_files_properties(
   ${CMAKE_BINARY_DIR}/include/miktex/omega.defaults.h
@@ -141,14 +143,14 @@ set_source_files_properties(
     GENERATED TRUE
 )
 
-target_link_libraries(${omega_dll_name}
+target_link_libraries(${omega_target_name}
   PRIVATE
     ${kpsemu_dll_name}
     ${w2cemu_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(${omega_dll_name}
+  target_link_libraries(${omega_target_name}
     PRIVATE
       ${getopt_dll_name}
       ${unxemu_dll_name}

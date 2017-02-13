@@ -541,7 +541,7 @@ static void myInvalidParameterHandler(const wchar_t * expression,
    happen in `topenin', then call the main body.  */
 
 #if defined(MIKTEX)
-MIKTEXDLLEXPORT int MIKTEXCEECALL Main (int ac, string * av)
+int MIKTEXCEECALL Main (int ac, string * av)
 #else
 int
 #if defined(DLLPROC)

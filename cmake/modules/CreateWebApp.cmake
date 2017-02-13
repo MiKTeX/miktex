@@ -124,13 +124,9 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
     COPYONLY
   )
 
-  if(LINK_EVERYTHING_STATICALLY)
-    set(_target_name ${${_short_name_l}_lib_name})
-  else()
-    set(_target_name ${${_short_name_l}_dll_name})
-  endif()
+  set(_lib_name ${_short_name_l})
 
-  list(APPEND ${_target_name}_sources
+  list(APPEND ${_lib_name}_sources
     ${${_short_name_l}_header_file}
     ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}-miktex-config.h
     ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}.cc
@@ -139,13 +135,13 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
   )
 
   if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}-miktex.h)
-    list(APPEND ${_target_name}_sources
+    list(APPEND ${_lib_name}_sources
       ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}-miktex.h
     )
   endif() 
 
   if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}-version.h)
-    list(APPEND ${_target_name}_sources
+    list(APPEND ${_lib_name}_sources
       ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}-version.h
     )
   endif() 
@@ -175,13 +171,13 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
     set_source_files_properties(
       ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}wrapper.cpp
       PROPERTIES COMPILE_FLAGS
-      "-DDLLMAIN=MiKTeX_${_name_u} -DMIKTEX_${_name_u} -D_UNICODE"
+      "-DFUNC=MiKTeX_${_name_u} -DMIKTEX_${_name_u} -D_UNICODE"
     )
   else()
     set_source_files_properties(
       ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}wrapper.cpp
       PROPERTIES COMPILE_FLAGS
-      "-DDLLMAIN=MiKTeX_${_name_u} -DMIKTEX_${_name_u}"
+      "-DFUNC=MiKTeX_${_name_u} -DMIKTEX_${_name_u}"
     )
   endif()
 
@@ -249,7 +245,7 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
 
   if(MIKTEX_NATIVE_WINDOWS)
     if(EXISTS ${_short_name_l}.rc)
-      list(APPEND ${_target_name}_sources
+      list(APPEND ${_lib_name}_sources
         ${_short_name_l}.rc)
     endif()
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}.rc.in)
@@ -257,62 +253,26 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
         ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}.rc.in
         ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}.rc
       )
-      list(APPEND ${_target_name}_sources
+      list(APPEND ${_lib_name}_sources
         ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}.rc)
     endif()
   endif()
 
-  if(LINK_EVERYTHING_STATICALLY)
-    add_library(${_target_name}
-      STATIC ${${_target_name}_sources})
-  else()
-    add_library(${_target_name}
-      SHARED ${${_target_name}_sources})
-    set_target_properties(${_target_name}
-      PROPERTIES
-        VERSION "1.${MIKTEX_J2000_VERSION}"
-        SOVERSION "1"
-      )
-    target_link_libraries(${_target_name}
-      PUBLIC
-        ${app_dll_name}
-        ${core_dll_name}
-        ${texmf_dll_name}
-        miktex-popt-wrapper
-    )
-    rebase(${_target_name})
-  endif()
+  add_library(${_lib_name} STATIC ${${_lib_name}_sources})
+  target_link_libraries(${_lib_name}
+    PUBLIC
+      ${app_dll_name}
+      ${core_dll_name}
+      ${texmf_dll_name}
+      miktex-popt-wrapper
+  )
 
-  set_property(TARGET ${_target_name} PROPERTY FOLDER ${_folder})
-
-  if(NOT LINK_EVERYTHING_STATICALLY OR INSTALL_STATIC_LIBRARIES)
-    install(
-      TARGETS ${_target_name}
-      RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
-      LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
-      ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
-    )
-  endif()
+  set_property(TARGET ${_lib_name} PROPERTY FOLDER ${_folder})
 
   add_executable(${_invocation_name} ${_short_name_l}wrapper.cpp)
   set_property(TARGET ${_invocation_name} PROPERTY FOLDER ${_folder})
-#  set_target_properties(${_invocation_name}
-#    PROPERTIES
-#      VERSION "${MIKTEX_SERIES_STR}"
-#  )
-  add_dependencies(${_invocation_name} ${_target_name})
 
-  if(LINK_EVERYTHING_STATICALLY)
-    target_link_libraries(${_invocation_name}
-      ${core_lib_name}
-      ${_target_name}
-    )
-  else()
-    target_link_libraries(${_invocation_name}
-      ${core_dll_name}
-      ${_target_name}
-    )
-  endif()
+  target_link_libraries(${_invocation_name} ${_lib_name})
 
   merge_manifests(${_invocation_name} asInvoker)
 

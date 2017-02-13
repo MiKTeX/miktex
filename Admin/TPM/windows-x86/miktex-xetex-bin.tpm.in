@@ -18,7 +18,6 @@
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}xetex.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${xetex_dll_name}.dll
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

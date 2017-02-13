@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -23,29 +23,25 @@ add_definitions(
   -D_UNICODE -DUNICODE
 )
 
-set(${arctrl_dll_name}_sources
+set(arctrl_sources
   arctrl-version.h
   arctrl.cpp
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND ${arctrl_dll_name}_sources
+  list(APPEND arctrl_sources
     arctrl.rc)
 endif()
 
-add_library(${arctrl_dll_name} SHARED ${${arctrl_dll_name}_sources})
+add_library(_arctrl STATIC ${arctrl_sources})
 
-set_property(TARGET ${arctrl_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET _arctrl PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_link_libraries(${arctrl_dll_name}
+target_link_libraries(_arctrl
   PRIVATE
     ${app_dll_name}
     ${core_dll_name}
     miktex-popt-wrapper
 )
 
-rebase(${arctrl_dll_name})
-
-install(TARGETS ${arctrl_dll_name} ${exes} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
-
-create_dll_wrapper(arctrl ${arctrl_dll_name} arctrlmain)
+create_dll_wrapper(arctrl _arctrl arctrlmain)

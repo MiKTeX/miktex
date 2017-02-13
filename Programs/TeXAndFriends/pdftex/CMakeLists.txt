@@ -248,11 +248,7 @@ set_source_files_properties(
   PROPERTIES LANGUAGE CXX
 )
 
-if(LINK_EVERYTHING_STATICALLY)
-  set(pdftex_target_name ${pdftex_lib_name})
-else()
-  set(pdftex_target_name ${pdftex_dll_name})
-endif()
+set(pdftex_target_name pdftex)
 
 set(${pdftex_target_name}_sources
   ${CMAKE_BINARY_DIR}/include/miktex/pdftex.defaults.h
@@ -364,28 +360,28 @@ if(LINK_EVERYTHING_STATICALLY)
   endif()
 else()
   if(USE_SYSTEM_JPEG)
-    target_link_libraries(${pdftex_dll_name} PRIVATE MiKTeX::Imported::JPEG)
+    target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::JPEG)
   else()
-    target_link_libraries(${pdftex_dll_name} PRIVATE ${jpeg_dll_name})
+    target_link_libraries(${pdftex_target_name} PRIVATE ${jpeg_dll_name})
   endif()
   if(USE_SYSTEM_PNG)
-    target_link_libraries(${pdftex_dll_name} PRIVATE MiKTeX::Imported::PNG)
+    target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::PNG)
   else()
-    target_link_libraries(${pdftex_dll_name} PRIVATE ${png_dll_name})
+    target_link_libraries(${pdftex_target_name} PRIVATE ${png_dll_name})
   endif()
   if(USE_SYSTEM_POPPLER)
-    target_link_libraries(${pdftex_dll_name} PRIVATE MiKTeX::Imported::POPPLER)
+    target_link_libraries(${pdftex_target_name} PRIVATE MiKTeX::Imported::POPPLER)
   else()
-    target_link_libraries(${pdftex_dll_name} PRIVATE ${poppler_lib_name})
+    target_link_libraries(${pdftex_target_name} PRIVATE ${poppler_lib_name})
   endif()
-  target_link_libraries(${pdftex_dll_name}
+  target_link_libraries(${pdftex_target_name}
     PRIVATE
       ${kpsemu_dll_name}
       ${md5_dll_name}
       ${w2cemu_dll_name}
   )
   if(MIKTEX_NATIVE_WINDOWS)
-    target_link_libraries(${pdftex_dll_name}
+    target_link_libraries(${pdftex_target_name}
       PRIVATE
         ${unxemu_dll_name}
         ${utf8wrap_dll_name}

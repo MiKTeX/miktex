@@ -172,7 +172,9 @@ set_source_files_properties(
   PROPERTIES LANGUAGE CXX
 )
 
-set(${xetex_dll_name}_sources
+set(xetex_target_name xetex)
+
+set(${xetex_target_name}_sources
   ${CMAKE_CURRENT_BINARY_DIR}/xetex_pool.cpp
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-common.h
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex-xetex.h
@@ -215,7 +217,7 @@ set(${xetex_dll_name}_sources
 )
 
 set_source_files_properties(
-  ${${xetex_dll_name}_sources}
+  ${${xetex_target_name}_sources}
   PROPERTIES COMPILE_FLAGS "-DC4PEXTERN=extern"
 )
 
@@ -251,54 +253,54 @@ set_source_files_properties(
 )
 
 if(USE_SYSTEM_FONTCONFIG)
-  target_link_libraries(${xetex_dll_name} PRIVATE MiKTeX::Imported::FONTCONFIG)
+  target_link_libraries(${xetex_target_name} PRIVATE MiKTeX::Imported::FONTCONFIG)
 else()
-  target_link_libraries(${xetex_dll_name} PRIVATE ${fontconfig_dll_name})
+  target_link_libraries(${xetex_target_name} PRIVATE ${fontconfig_dll_name})
 endif()
 
 if(USE_SYSTEM_FREETYPE2)
-  target_link_libraries(${xetex_dll_name} PRIVATE MiKTeX::Imported::FREETYPE2)
+  target_link_libraries(${xetex_target_name} PRIVATE MiKTeX::Imported::FREETYPE2)
 else()
-  target_link_libraries(${xetex_dll_name} PRIVATE ${freetype2_dll_name})
+  target_link_libraries(${xetex_target_name} PRIVATE ${freetype2_dll_name})
 endif()
 
 if(USE_SYSTEM_GRAPHITE2)
-  target_link_libraries(${xetex_dll_name} PRIVATE MiKTeX::Imported::GRAPHITE2)
+  target_link_libraries(${xetex_target_name} PRIVATE MiKTeX::Imported::GRAPHITE2)
 else()
-  target_link_libraries(${xetex_dll_name} PRIVATE ${graphite2_dll_name})
+  target_link_libraries(${xetex_target_name} PRIVATE ${graphite2_dll_name})
 endif()
 
 if(USE_SYSTEM_HARFBUZZ_ICU)
-  target_link_libraries(${xetex_dll_name} PRIVATE MiKTeX::Imported::HARFBUZZ_ICU)
+  target_link_libraries(${xetex_target_name} PRIVATE MiKTeX::Imported::HARFBUZZ_ICU)
 else()
-  target_link_libraries(${xetex_dll_name} PRIVATE ${harfbuzz_lib_name})
+  target_link_libraries(${xetex_target_name} PRIVATE ${harfbuzz_lib_name})
 endif()
 
 if(USE_SYSTEM_JPEG)
-  target_link_libraries(${xetex_dll_name} PRIVATE MiKTeX::Imported::JPEG)
+  target_link_libraries(${xetex_target_name} PRIVATE MiKTeX::Imported::JPEG)
 else()
-  target_link_libraries(${xetex_dll_name} PRIVATE ${jpeg_dll_name})
+  target_link_libraries(${xetex_target_name} PRIVATE ${jpeg_dll_name})
 endif()
 
 if(USE_SYSTEM_PNG)
-  target_link_libraries(${xetex_dll_name} PRIVATE MiKTeX::Imported::PNG)
+  target_link_libraries(${xetex_target_name} PRIVATE MiKTeX::Imported::PNG)
 else()
-  target_link_libraries(${xetex_dll_name} PRIVATE ${png_dll_name})
+  target_link_libraries(${xetex_target_name} PRIVATE ${png_dll_name})
 endif()
 
 if(USE_SYSTEM_POPPLER)
-  target_link_libraries(${xetex_dll_name} PRIVATE MiKTeX::Imported::POPPLER)
+  target_link_libraries(${xetex_target_name} PRIVATE MiKTeX::Imported::POPPLER)
 else()
-  target_link_libraries(${xetex_dll_name} PRIVATE ${poppler_lib_name})
+  target_link_libraries(${xetex_target_name} PRIVATE ${poppler_lib_name})
 endif()
 
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(${xetex_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
+  target_link_libraries(${xetex_target_name} PRIVATE MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(${xetex_dll_name} PRIVATE ${zlib_dll_name})
+  target_link_libraries(${xetex_target_name} PRIVATE ${zlib_dll_name})
 endif()
 
-target_link_libraries(${xetex_dll_name}
+target_link_libraries(${xetex_target_name}
   PRIVATE
     ${kpsemu_dll_name}
     ${teckit_dll_name}
@@ -306,14 +308,14 @@ target_link_libraries(${xetex_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(${xetex_dll_name}
+  target_link_libraries(${xetex_target_name}
     PRIVATE
       ${unxemu_dll_name}
       ${utf8wrap_dll_name}
   )
 endif()
 
-delay_load(${xetex_dll_name}
+delay_load(${xetex_target_name}
   ${fontconfig_dll_name}
   ${freetype2_dll_name}
   ${graphite2_dll_name}

@@ -16,10 +16,6 @@ texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}gftodvi.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}gftopk.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}gftype.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}mft.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${gftodvi_dll_name}.dll
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${gftopk_dll_name}.dll
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${gftype_dll_name}.dll
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${mft_dll_name}.dll
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

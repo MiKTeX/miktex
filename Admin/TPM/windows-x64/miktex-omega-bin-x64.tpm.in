@@ -18,12 +18,6 @@ texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}omega.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}opl2ofm.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}ovf2ovp.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}ovp2ovf.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${odvicopy_dll_name}.dll
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${ofm2opl_dll_name}.dll
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${omega_dll_name}.dll
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${opl2ofm_dll_name}.dll
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${ovf2ovp_dll_name}.dll
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${ovp2ovf_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/mkocp.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/otp2ocp.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/outocp.exe

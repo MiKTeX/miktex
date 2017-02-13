@@ -66,11 +66,7 @@ add_custom_command(
 
 set(tex_change_file ${CMAKE_CURRENT_BINARY_DIR}/tex-miktex.ch)
 
-if(LINK_EVERYTHING_STATICALLY)
-  set(tex_target_name ${tex_lib_name})
-else()
-  set(tex_target_name ${tex_dll_name})
-endif()
+set(tex_target_name tex)
 
 list(APPEND ${tex_target_name}_sources
   ${CMAKE_CURRENT_BINARY_DIR}/tex_pool.cpp

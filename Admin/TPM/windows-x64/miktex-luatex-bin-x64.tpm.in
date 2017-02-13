@@ -19,7 +19,6 @@
     should assume that it is unstable.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${luatex_program_dll_name}.dll
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}luatex.exe
 texmf/${MIKTEX_REL_MIKTEX_INTERNAL_BIN_DIR}/runtexlua.exe
     </TPM:RunFiles>

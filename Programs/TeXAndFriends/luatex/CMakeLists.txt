@@ -655,14 +655,9 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${CMAKE_CURRENT_SOURCE_DIR}/luatex.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/luatex.rc
     )
-  list(APPEND ${luatex_program_sources}_sources
+  list(APPEND ${luatex_program_sources}
     ${CMAKE_CURRENT_BINARY_DIR}/luatex.rc
   )
-endif()
-
-if(MIKTEX_NATIVE_WINDOWS)
-  add_library(${luatex_program_dll_name} SHARED ${luatex_program_sources})
-  set_property(TARGET ${luatex_program_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 endif()
 
 set(libs
@@ -736,24 +731,13 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(${luatex_program_dll_name} ${libs})
-  rebase(${luatex_program_dll_name})
-  install(TARGETS ${luatex_program_dll_name} DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}")
-  set(program_libs ${luatex_program_dll_name})
-else()
-  set(program_libs ${libs})
-endif()
+set(program_libs ${libs})
 
 ###############################################################################
 ## luatex
 ###############################################################################
 
-if(MIKTEX_NATIVE_WINDOWS)
-  add_executable(${MIKTEX_PREFIX}luatex ${MIKTEX_LIBRARY_WRAPPER})
-else()
-  add_executable(${MIKTEX_PREFIX}luatex ${luatex_program_sources} ${MIKTEX_LIBRARY_WRAPPER})
-endif()
+add_executable(${MIKTEX_PREFIX}luatex ${luatex_program_sources} ${MIKTEX_LIBRARY_WRAPPER})
 
 set_property(TARGET ${MIKTEX_PREFIX}luatex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 

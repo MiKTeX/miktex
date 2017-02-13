@@ -24,19 +24,15 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-if(LINK_EVERYTHING_STATICALLY)
-  set(mf_target_name ${mf_lib_name})
-else()
-  set(mf_target_name ${mf_dll_name})
-endif()
+set(mf_target_name mf)
 
-set(${mf_dll_name}_sources
+set(${mf_target_name}_sources
   ${CMAKE_BINARY_DIR}/include/miktex/mf.defaults.h
   screen.h
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND ${mf_dll_name}_sources
+  list(APPEND ${mf_target_name}_sources
     screen.cpp
   )
 endif()
@@ -71,7 +67,7 @@ set(C4P_FLAGS
   --rename conditional
 )
 
-create_web_app(METAFONT mf)
+create_web_app(METAFONT ${mf_target_name})
 
 add_custom_command(
   OUTPUT

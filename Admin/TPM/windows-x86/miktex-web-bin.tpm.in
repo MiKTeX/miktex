@@ -13,8 +13,6 @@
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}tangle.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}weave.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${tangle_dll_name}.dll
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${weave_dll_name}.dll
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

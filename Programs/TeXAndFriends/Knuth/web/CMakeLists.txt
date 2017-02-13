@@ -67,8 +67,6 @@ set_property(TARGET tangle_bootstrap PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 create_web_app(Tangle)
 create_web_app(Weave)
 
-if(LINK_EVERYTHING_STATICALLY)
-  add_dependencies(${tangle_lib_name} tangle_bootstrap)
-else()
-  add_dependencies(${tangle_dll_name} tangle_bootstrap)
-endif()
+set(tangle_target_name tangle)
+
+add_dependencies(${tangle_target_name} tangle_bootstrap)

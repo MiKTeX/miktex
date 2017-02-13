@@ -1,6 +1,6 @@
 ## CreateDllWrapper.cmake
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,11 +17,11 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-macro(create_dll_wrapper _name _dll)
+macro(create_dll_wrapper _name _libname)
   if(${ARGC} GREATER 2)
-    set(_dllmain ${ARGV2})
+    set(_funcname ${ARGV2})
   else()
-    string(TOLOWER "${_name}" _dllmain)
+    string(TOLOWER "${_name}" _funcname)
   endif()
   configure_file(
     ${MIKTEX_ALIAS_WRAPPER}
@@ -35,15 +35,15 @@ macro(create_dll_wrapper _name _dll)
   if(MSVC)
     set_source_files_properties(
       ${CMAKE_CURRENT_BINARY_DIR}/${_name}wrapper.cpp
-      COMPILE_FLAGS "-DDLLMAIN=${_dllmain} -D_UNICODE"
+      COMPILE_FLAGS "-DFUNC=${_funcname} -D_UNICODE"
     )
   else()
     set_source_files_properties(
       ${CMAKE_CURRENT_BINARY_DIR}/${_name}wrapper.cpp
-      COMPILE_FLAGS "-DDLLMAIN=${_dllmain}"
+      COMPILE_FLAGS "-DFUNC=${_funcname}"
     )
   endif()
-  target_link_libraries(${_name} ${core_dll_name} ${_dll})
+  target_link_libraries(${_name} ${core_dll_name} ${_libname})
   merge_trustinfo_manifest(${_name} asInvoker)
   install(TARGETS ${_name} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 endmacro()
