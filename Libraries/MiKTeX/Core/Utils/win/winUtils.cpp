@@ -1,6 +1,6 @@
 /* winUtil.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -38,7 +38,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-MIKTEXSTATICFUNC(void) GetAlternate(const char * lpszPath, char * lpszAlternate)
+MIKTEXSTATICFUNC(void) GetAlternate(const char* lpszPath, char* lpszAlternate)
 {
   MIKTEX_ASSERT_STRING(lpszPath);
   MIKTEX_ASSERT_PATH_BUFFER(lpszAlternate);
@@ -93,13 +93,13 @@ void Utils::RemoveBlanksFromPathName(PathName & path)
   PathName temp(path);
 
   // points to the null char
-  char * lpszEnd = temp.GetData() + temp.GetLength();
+  char* lpszEnd = temp.GetData() + temp.GetLength();
 
   // back iterator
-  char * lpsz = lpszEnd;
+  char* lpsz = lpszEnd;
 
   // points to the last '/' found (if any)
-  char * lpszSlash = nullptr;
+  char* lpszSlash = nullptr;
 
   // true, if lpsz points to a char sequence that includes a blank
   // char
@@ -202,38 +202,38 @@ string GetOperatingSystem(const OSVERSIONINFOEXW & osvi, const SYSTEM_INFO & si)
     {
       if (osvi.dwMinorVersion == 0)
       {
-	str += "Vista";
+        str += "Vista";
       }
       else if (osvi.dwMinorVersion == 1)
       {
-	str += "7";
+        str += "7";
       }
       else if (osvi.dwMinorVersion == 2)
       {
-	str += "8";
+        str += "8";
       }
       else if (osvi.dwMinorVersion == 3)
       {
-	str += "8.1";
+        str += "8.1";
       }
     }
     else
     {
       if (osvi.dwMinorVersion == 0)
       {
-	str += "Server 2008";
+        str += "Server 2008";
       }
       else if (osvi.dwMinorVersion == 1)
       {
-	str += "Server 2008 R2";
+        str += "Server 2008 R2";
       }
       else if (osvi.dwMinorVersion == 2)
       {
-	str += "Server 2012";
+        str += "Server 2012";
       }
       else if (osvi.dwMinorVersion == 3)
       {
-	str += "Server 2012 R2";
+        str += "Server 2012 R2";
       }
     }
   }
@@ -271,8 +271,8 @@ string GetOperatingSystem(const OSVERSIONINFOEXW & osvi, const SYSTEM_INFO & si)
   return str;
 }
 
-typedef void (WINAPI * PGNSI) (LPSYSTEM_INFO);
-typedef BOOL(WINAPI * PGPI) (DWORD, DWORD, DWORD, DWORD, DWORD *);
+typedef void (WINAPI* PGNSI) (LPSYSTEM_INFO);
+typedef BOOL(WINAPI* PGPI) (DWORD, DWORD, DWORD, DWORD, DWORD *);
 
 inline HMODULE GetKernel32Module()
 {
@@ -606,49 +606,49 @@ string GetWindowsProductType(const OSVERSIONINFOEXW & osvi, const SYSTEM_INFO & 
     {
       if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64)
       {
-	if ((osvi.wSuiteMask & VER_SUITE_DATACENTER) != 0)
-	{
-	  str = "Datacenter Edition for Itanium-based Systems";
-	}
-	else if ((osvi.wSuiteMask & VER_SUITE_ENTERPRISE) != 0)
-	{
-	  str = "Enterprise Edition for Itanium-based Systems";
-	}
+        if ((osvi.wSuiteMask & VER_SUITE_DATACENTER) != 0)
+        {
+          str = "Datacenter Edition for Itanium-based Systems";
+        }
+        else if ((osvi.wSuiteMask & VER_SUITE_ENTERPRISE) != 0)
+        {
+          str = "Enterprise Edition for Itanium-based Systems";
+        }
       }
       else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
       {
-	if ((osvi.wSuiteMask & VER_SUITE_DATACENTER) != 0)
-	{
-	  str = "Datacenter x64 Edition";
-	}
-	else if ((osvi.wSuiteMask & VER_SUITE_ENTERPRISE) != 0)
-	{
-	  str = "Enterprise x64 Edition";
-	}
-	else
-	{
-	  str = "Standard x64 Edition";
-	}
+        if ((osvi.wSuiteMask & VER_SUITE_DATACENTER) != 0)
+        {
+          str = "Datacenter x64 Edition";
+        }
+        else if ((osvi.wSuiteMask & VER_SUITE_ENTERPRISE) != 0)
+        {
+          str = "Enterprise x64 Edition";
+        }
+        else
+        {
+          str = "Standard x64 Edition";
+        }
       }
       else if ((osvi.wSuiteMask & VER_SUITE_COMPUTE_SERVER) != 0)
       {
-	str = "Compute Cluster Edition";
+        str = "Compute Cluster Edition";
       }
       else if ((osvi.wSuiteMask & VER_SUITE_DATACENTER) != 0)
       {
-	str = "Datacenter Edition";
+        str = "Datacenter Edition";
       }
       else if ((osvi.wSuiteMask & VER_SUITE_ENTERPRISE) != 0)
       {
-	str = "Enterprise Edition";
+        str = "Enterprise Edition";
       }
       else if ((osvi.wSuiteMask & VER_SUITE_BLADE) != 0)
       {
-	str = "Web Edition";
+        str = "Web Edition";
       }
       else
       {
-	str = "Standard Edition";
+        str = "Standard Edition";
       }
     }
   }
@@ -734,7 +734,7 @@ bool Utils::GetDefPrinter(string & printerName)
     {
       OUT_OF_MEMORY("GlobalAlloc");
     }
-    PRINTER_INFO_2W * ppi2 =
+    PRINTER_INFO_2W* ppi2 =
       reinterpret_cast<PRINTER_INFO_2W *>(hMem.Get());
     if (!EnumPrintersW(PRINTER_ENUM_DEFAULT, 0, 2, reinterpret_cast<LPBYTE>(ppi2), dwNeeded, &dwNeeded, &dwReturned))
     {
@@ -767,19 +767,19 @@ bool Utils::GetDefPrinter(string & printerName)
       BOOL bDone = getDefaultPrinterW(printerNameBuf.GetData(), &dwBufferSize);
       if (!bDone)
       {
-	if (::GetLastError() == ERROR_FILE_NOT_FOUND)
-	{
-	  return false;
-	}
-	else
-	{
-	  MIKTEX_FATAL_WINDOWS_ERROR("GetDefaultPrinterW");
-	}
+        if (::GetLastError() == ERROR_FILE_NOT_FOUND)
+        {
+          return false;
+        }
+        else
+        {
+          MIKTEX_FATAL_WINDOWS_ERROR("GetDefaultPrinterW");
+        }
       }
       else
       {
         printerName = WU_(printerNameBuf.GetData());
-	return true;
+        return true;
       }
     }
     else
@@ -788,18 +788,18 @@ bool Utils::GetDefPrinter(string & printerName)
       wchar_t cBuffer[4096];
       if (GetProfileStringW(L"windows", L"device", L",,,", cBuffer, 4096) <= 0)
       {
-	return false;
+        return false;
       }
       Tokenizer tok(StringUtil::WideCharToUTF8(cBuffer), ",");
       if (tok.GetCurrent() == nullptr)
       {
-	return false;
+        return false;
       }
       unsigned long l = static_cast<unsigned long>(StrLen(tok.GetCurrent()));
       if (l >= *pBufferSize)
       {
-	*pBufferSize = l + 1;
-	return false;
+        *pBufferSize = l + 1;
+        return false;
       }
       StringUtil::CopyString(pPrinterName, *pBufferSize, tok.GetCurrent());
       *pBufferSize = l + 1;
@@ -881,56 +881,56 @@ BOOL ShellExecuteURLExInternal(LPSHELLEXECUTEINFOW lpExecInfo)
     /* Is the URL really, unambiguously an URL? */
     if
       (
-	colonpos != wstring::npos
-	)
+        colonpos != wstring::npos
+        )
     {
       wstring scheme = file.substr(0, colonpos);
       /* We need the scheme name NUL-terminated, so we copy it */
       hr = StringCbCopyNW
-	(
-	  szSchemeBuffer, sizeof(szSchemeBuffer), scheme.c_str(), scheme.length() * sizeof(wchar_t)
-	  );
+      (
+        szSchemeBuffer, sizeof(szSchemeBuffer), scheme.c_str(), scheme.length() * sizeof(wchar_t)
+      );
 
       if (SUCCEEDED(hr))
       {
-	/* Is the URL scheme a registered ProgId? */
-	hr = AssocQueryKeyW
-	  (
-	    ASSOCF_INIT_IGNOREUNKNOWN, ASSOCKEY_CLASS, szSchemeBuffer, NULL, &hkeyClass
-	    );
+        /* Is the URL scheme a registered ProgId? */
+        hr = AssocQueryKeyW
+        (
+          ASSOCF_INIT_IGNOREUNKNOWN, ASSOCKEY_CLASS, szSchemeBuffer, NULL, &hkeyClass
+        );
 
-	if (SUCCEEDED(hr))
-	{
-	  /* Is the ProgId really an URL scheme? */
-	  if (WindowsVersion::IsWindows8OrGreater())
-	  {
-	    dwErr = NO_ERROR;
-	  }
-	  else
-	  {
-	    dwErr = RegQueryValueExW
-	      (
-		hkeyClass, L"URL Protocol", NULL, NULL, NULL, NULL
-		);
-	  }
+        if (SUCCEEDED(hr))
+        {
+          /* Is the ProgId really an URL scheme? */
+          if (WindowsVersion::IsWindows8OrGreater())
+          {
+            dwErr = NO_ERROR;
+          }
+          else
+          {
+            dwErr = RegQueryValueExW
+            (
+              hkeyClass, L"URL Protocol", NULL, NULL, NULL, NULL
+            );
+          }
 
-	  /* All clear! */
-	  if (dwErr == NO_ERROR || dwErr == ERROR_MORE_DATA)
-	  {
-	    /* Don't let ShellExecuteEx guess */
-	    lpExecInfo->fMask |= SEE_MASK_CLASSKEY;
-	    lpExecInfo->lpClass = NULL;
-	    lpExecInfo->hkeyClass = hkeyClass;
+          /* All clear! */
+          if (dwErr == NO_ERROR || dwErr == ERROR_MORE_DATA)
+          {
+            /* Don't let ShellExecuteEx guess */
+            lpExecInfo->fMask |= SEE_MASK_CLASSKEY;
+            lpExecInfo->lpClass = NULL;
+            lpExecInfo->hkeyClass = hkeyClass;
 
-	    /* Finally, execute the damn URL */
-	    bRet = ShellExecuteExW(lpExecInfo);
+            /* Finally, execute the damn URL */
+            bRet = ShellExecuteExW(lpExecInfo);
 
-	    /* To preserve ShellExecuteEx's last error */
-	    dwErr = NO_ERROR;
-	  }
+            /* To preserve ShellExecuteEx's last error */
+            dwErr = NO_ERROR;
+          }
 
-	  RegCloseKey(hkeyClass);
-	}
+          RegCloseKey(hkeyClass);
+        }
       }
     }
   }
@@ -969,7 +969,7 @@ BOOL ShellExecuteURLEx(LPSHELLEXECUTEINFOW lpExecInfo)
   return bRet;
 }
 
-HINSTANCE ShellExecuteURL(HWND hwnd, const wchar_t * lpOperation, const wchar_t * lpFile, const wchar_t * lpParameters, const wchar_t * lpDirectory, INT nShowCmd)
+HINSTANCE ShellExecuteURL(HWND hwnd, const wchar_t* lpOperation, const wchar_t* lpFile, const wchar_t* lpParameters, const wchar_t* lpDirectory, INT nShowCmd)
 {
   SHELLEXECUTEINFOW ExecuteInfo;
 
@@ -1001,7 +1001,7 @@ void Utils::ShowWebPage(const string & url)
 }
 
 #if !USE_CODECVT_UTF8
-MIKTEXSTATICFUNC(wchar_t*) UTF8ToWideChar(const char * lpszUtf8, size_t & sizeWideChar, wchar_t * lpszWideChar)
+MIKTEXSTATICFUNC(wchar_t*) UTF8ToWideChar(const char* lpszUtf8, size_t & sizeWideChar, wchar_t* lpszWideChar)
 {
   MIKTEX_ASSERT(Utils::IsUTF8(lpszUtf8));
   MIKTEX_ASSERT(sizeWideChar == 0 || lpszWideChar != nullptr);
@@ -1025,8 +1025,8 @@ MIKTEXSTATICFUNC(wchar_t*) UTF8ToWideChar(const char * lpszUtf8, size_t & sizeWi
 #if 0
       if (winError == ERROR_NO_UNICODE_TRANSLATION)
       {
-	OutputDebugStringA("Bad UTF8ToWideChar() input:");
-	OutputDebugStringA(lpszUtf8);
+        OutputDebugStringA("Bad UTF8ToWideChar() input:");
+        OutputDebugStringA(lpszUtf8);
       }
 #endif
       MIKTEX_FATAL_WINDOWS_RESULT("MultiByteToWideChar", winError);
@@ -1048,7 +1048,7 @@ MIKTEXSTATICFUNC(wchar_t*) UTF8ToWideChar(const char * lpszUtf8, size_t & sizeWi
 #endif
 
 #if !USE_CODECVT_UTF8
-MIKTEXSTATICFUNC(char *) WideCharToUTF8(const wchar_t * lpszWideChar, size_t & sizeUtf8, char * lpszUtf8)
+MIKTEXSTATICFUNC(char *) WideCharToUTF8(const wchar_t* lpszWideChar, size_t & sizeUtf8, char* lpszUtf8)
 {
   MIKTEX_ASSERT(sizeUtf8 == 0 || lpszUtf8 != nullptr);
   MIKTEX_ASSERT(sizeUtf8 != 0 || lpszUtf8 == nullptr);
@@ -1086,7 +1086,7 @@ MIKTEXSTATICFUNC(char *) WideCharToUTF8(const wchar_t * lpszWideChar, size_t & s
 #endif
 
 #if !USE_CODECVT_UTF8
-wstring Utils::UTF8ToWideChar(const char * lpszUtf8)
+wstring Utils::UTF8ToWideChar(const char* lpszUtf8)
 {
   size_t len = 0;
   ::UTF8ToWideChar(lpszUtf8, len, 0);
@@ -1097,7 +1097,7 @@ wstring Utils::UTF8ToWideChar(const char * lpszUtf8)
 #endif
 
 #if !USE_CODECVT_UTF8
-string Utils::WideCharToUTF8(const wchar_t * lpszWideChar)
+string Utils::WideCharToUTF8(const wchar_t* lpszWideChar)
 {
   size_t len = 0;
   ::WideCharToUTF8(lpszWideChar, len, 0);
@@ -1152,7 +1152,7 @@ MIKTEXSTATICFUNC(bool) CheckPath(const string & oldPath, const PathName & binDir
     {
       if (ch != '"' && ch != '<' && ch != '>' && ch != '|')
       {
-	str2 += ch;
+        str2 += ch;
       }
     }
     PathName dir(str2);
@@ -1161,8 +1161,8 @@ MIKTEXSTATICFUNC(bool) CheckPath(const string & oldPath, const PathName & binDir
     {
       if (found)
       {
-	// prevent duplicates
-	continue;
+        // prevent duplicates
+        continue;
       }
       found = true;
     }
@@ -1172,29 +1172,29 @@ MIKTEXSTATICFUNC(bool) CheckPath(const string & oldPath, const PathName & binDir
       otherPdfTeX /= "pdftex.exe";
       if (!found && File::Exists(otherPdfTeX))
       {
-	int exitCode;
+        int exitCode;
         ProcessOutput<80> pdfTeXOutput;
-	bool isOtherPdfTeX = true;
-	if (Process::Run(otherPdfTeX.GetData(), "--version", &pdfTeXOutput, &exitCode, nullptr) && exitCode == 0)
-	{
-	  if (pdfTeXOutput.StdoutToString().find("MiKTeX") != string::npos)
-	  {
-	    isOtherPdfTeX = false;
-	  }
-	}
-	if (isOtherPdfTeX)
-	{
-	  // another TeX system is in our way; push it out
-	  // from this place
-	  if (!newPath.empty())
-	  {
-	    newPath += PathName::PathNameDelimiter;
-	  }
-	  newPath += binDir.GetData();
-	  found = true;
-	  modified = true;
-	  competition = true;
-	}
+        bool isOtherPdfTeX = true;
+        if (Process::Run(otherPdfTeX.GetData(), "--version", &pdfTeXOutput, &exitCode, nullptr) && exitCode == 0)
+        {
+          if (pdfTeXOutput.StdoutToString().find("MiKTeX") != string::npos)
+          {
+            isOtherPdfTeX = false;
+          }
+        }
+        if (isOtherPdfTeX)
+        {
+          // another TeX system is in our way; push it out
+          // from this place
+          if (!newPath.empty())
+          {
+            newPath += PathName::PathNameDelimiter;
+          }
+          newPath += binDir.GetData();
+          found = true;
+          modified = true;
+          competition = true;
+        }
       }
     }
     if (!newPath.empty())
@@ -1285,12 +1285,12 @@ bool Utils::CheckPath(bool repair)
       systemPathOkay = ::CheckPath(WU_(userPath), commonBinDir, repairedUserPath, userPathCompetition);
       if (!systemPathOkay && repair)
       {
-	SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new user PATH:"));
-	SessionImpl::GetSession()->trace_error->WriteLine("core", repairedUserPath.c_str());
-	userPath = UW_(repairedUserPath);
-	winRegistry::SetRegistryValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
-	systemPathOkay = true;
-	repaired = true;
+        SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new user PATH:"));
+        SessionImpl::GetSession()->trace_error->WriteLine("core", repairedUserPath.c_str());
+        userPath = UW_(repairedUserPath);
+        winRegistry::SetRegistryValue(HKEY_CURRENT_USER, REGSTR_KEY_ENVIRONMENT_USER, L"Path", userPath, userPathType);
+        systemPathOkay = true;
+        repaired = true;
       }
     }
     PathName userBinDir = session->GetSpecialPath(SpecialPath::UserInstallRoot);
@@ -1316,7 +1316,7 @@ bool Utils::CheckPath(bool repair)
     {
       if (::GetLastError() != ERROR_SUCCESS)
       {
-	MIKTEX_FATAL_WINDOWS_ERROR("SendMessageTimeoutW");
+        MIKTEX_FATAL_WINDOWS_ERROR("SendMessageTimeoutW");
       }
     }
   }

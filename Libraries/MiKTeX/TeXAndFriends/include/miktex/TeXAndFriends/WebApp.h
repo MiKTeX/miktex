@@ -274,7 +274,7 @@ inline void miktexprocesscommandlineoptions()
 template<class PROGRAM_CLASS, class WEBAPP_CLASS> class ProgramRunner
 {
 public:
-  int Run(PROGRAM_CLASS& prog, WEBAPP_CLASS& app, int argc, const char** argv)
+  int Run(PROGRAM_CLASS& prog, WEBAPP_CLASS& app, int argc, char* argv[])
   {
     std::string componentVersion;
 #if defined(MIKTEX_COMPONENT_VERSION_STR)
@@ -312,7 +312,7 @@ public:
 #define MIKTEX_DEFINE_WEBAPP(functionname, webappclass, webappinstance, programclass, programinstance) \
 programclass programinstance;                                                                          \
 webappclass webappinstance;                                                                            \
-extern "C" MIKTEXDLLEXPORT int MIKTEXCEECALL functionname(int argc, const char** argv)                 \
+extern "C" int MIKTEXCEECALL functionname(int argc, char* argv[])                                      \
 {                                                                                                      \
   MiKTeX::TeXAndFriends::ProgramRunner<programclass, webappclass> p;                                   \
   return p.Run(programinstance, webappinstance, argc, argv);                                           \

@@ -188,21 +188,21 @@ program_block:
                     if (dll_flag)
                     {
                       cppout.redir_file(H_FILE_NUM);
-                      cppout.out_s("\n#ifdef __cplusplus\nextern \"C++\" int C4PCEECALL " + entry_name + " (int argc, const char ** argv);\n#endif\n");
+                      cppout.out_s("\n#ifdef __cplusplus\nextern \"C++\" int C4PCEECALL " + entry_name + "(int argc, char* argv[]);\n#endif\n");
                       cppout.redir_file(C_FILE_NUM);
-                      cppout.out_s("\nextern \"C++\" int C4PCEECALL " + entry_name + " (int argc, const char ** argv)\n\n");
+                      cppout.out_s("\nextern \"C++\" int C4PCEECALL " + entry_name + "(int argc, char* argv[])\n\n");
                     }
                     else
                     {
-                      cppout.out_s("\nvoid C4PCEECALL int main (int argc, const char * * argv)\n\n");
+                      cppout.out_s("\nvoid C4PCEECALL int main(int argc, const char* argv[])\n\n");
                     }
                   }
                   else
                   {
                     cppout.redir_file(H_FILE_NUM);
-                    cppout.out_s("int Run (int argc, const char ** argv);\n");
+                    cppout.out_s("int Run(int argc, char* argv[]);\n");
                     cppout.redir_file(C_FILE_NUM);
-                    cppout.out_s("\nint " + class_name + "::Run (int argc, const char ** argv)\n\n");
+                    cppout.out_s("\nint " + class_name + "::Run(int argc, char* argv[])\n\n");
                   }
                 }
           statement_part

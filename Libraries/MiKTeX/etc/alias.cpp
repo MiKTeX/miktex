@@ -29,7 +29,7 @@
 #  define FUNC c4pmain
 #endif
 
-extern "C" int MIKTEXCEECALL FUNC(int argc, char** argv);
+extern "C" int MIKTEXCEECALL FUNC(int argc, char* argv[]);
 
 #if defined(_UNICODE)
 #  define WRAPPER_MAIN wmain
@@ -39,7 +39,7 @@ extern "C" int MIKTEXCEECALL FUNC(int argc, char** argv);
 #  define WRAPPER_CHAR char
 #endif
 
-int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR** argv)
+int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 {
 #if defined(MIKTEX_WINDOWS)
   std::vector<std::string> utf8args;

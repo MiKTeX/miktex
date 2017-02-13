@@ -98,12 +98,12 @@ public:
   bool isRunning = false;
 };
 
-C4P::Program::Program(const char* lpszProgramName, int argc, const char** argv) :
+C4P::Program::Program(const char* programName, int argc, char* argv[]) :
   pimpl(make_unique<impl>())
 {
   MIKTEX_API_BEGIN("C4P::StartUp");
   MIKTEX_ASSERT_STRING(lpszProgramName);
-  programData.programName = lpszProgramName;
+  programData.programName = programName;
   if (programData.startUpTime == static_cast<time_t>(-1))
   {
     SetStartUpTime(time(nullptr));

@@ -220,7 +220,7 @@ public:
   }
 
 protected:
-  void ReadInternal(ElementType * buf, std::size_t n)
+  void ReadInternal(ElementType* buf, std::size_t n)
   {
     AssertValid();
     MIKTEX_ASSERT_BUFFER(buf, n);
@@ -239,7 +239,7 @@ protected:
   }
 
 public:
-  void Read(ElementType * buf, std::size_t n)
+  void Read(ElementType* buf, std::size_t n)
   {
     ReadInternal(buf, n);
     if (IsPascalFileIO())
@@ -310,13 +310,13 @@ typedef double C4P_longreal;
 
 C4PCEEAPI(int) GetArgC();
 
-C4PCEEAPI(const char **) GetArgV();
+C4PCEEAPI(const char**) GetArgV();
 
-C4PCEEAPI(const char *) GetCmdLine();
+C4PCEEAPI(const char*) GetCmdLine();
 
-C4PCEEAPI(char *) GetProgName(char * lpsz);
+C4PCEEAPI(char*) GetProgName(char* lpsz);
 
-C4PCEEAPI(C4P_text *) GetStdFilePtr(unsigned idx);
+C4PCEEAPI(C4P_text*) GetStdFilePtr(unsigned idx);
 
 #define c4pargc C4P::GetArgC()
 #define c4pargv C4P::GetArgV()
@@ -340,16 +340,16 @@ public:
   Program& operator=(const Program& other) = delete;
 
 public:
-  Program(Program && other) = delete;
+  Program(Program&& other) = delete;
 
 public:
-  Program& operator=(Program && other) = delete;
+  Program& operator=(Program&& other) = delete;
 
 public:
   virtual C4PEXPORT MIKTEXTHISCALL ~Program() noexcept;
 
 public:
-  C4PEXPORT MIKTEXTHISCALL Program(const char * lpszName, int argc, const char ** argv);
+  C4PEXPORT MIKTEXTHISCALL Program(const char* programName, int argc, char* argv[]);
 
 public:
   C4PTHISAPI(void) Finish();
@@ -359,12 +359,12 @@ private:
   std::unique_ptr<impl> pimpl;
 };
 
-#define C4P_BEGIN_PROGRAM(lpszName, argc, argv)         \
+#define C4P_BEGIN_PROGRAM(programName, argc, argv)      \
   {                                                     \
     int c4p_retcode = 0;                                \
     try                                                 \
     {                                                   \
-      C4P::Program c4p_program(lpszName, argc, argv);
+      C4P::Program c4p_program(programName, argc, argv);
 
 #define C4P_END_PROGRAM()                       \
       c4p_program.Finish();                     \
@@ -457,7 +457,7 @@ inline void c4p_readln()
 #define C4P_WRITE_BEGIN() {
 #define C4P_WRITELN_BEGIN() C4P_WRITE_BEGIN()
 
-template<class Ft> inline void c4p_write_f(Ft &, Ft &)
+template<class Ft> inline void c4p_write_f(Ft&, Ft&)
 {
 }
 
@@ -550,7 +550,7 @@ inline void c4p_writeln()
   }
 }
 
-template<class T> inline void c4pmget(T& f, typename T::ElementType * buf, std::size_t n)
+template<class T> inline void c4pmget(T& f, typename T::ElementType* buf, std::size_t n)
 {
   f.AssertValid();
   f.Read(buf, n);
@@ -597,7 +597,7 @@ template<class Ft> inline long c4pftell(Ft& f)
   return n;
 }
 
-template<class Ft> inline void c4pbufwrite(Ft& f, const void * buf, std::size_t buf_size)
+template<class Ft> inline void c4pbufwrite(Ft& f, const void* buf, std::size_t buf_size)
 {
   f.AssertValid();
   //MIKTEX_ASSERT_BUFFER (buf, buf_size);
@@ -609,7 +609,7 @@ template<class Ft> inline void c4pbufwrite(Ft& f, const void * buf, std::size_t 
 
 #define c4parrcpy(dst, src) c4pmemcpy(dst, sizeof(dst), src, sizeof(dst))
 
-inline void c4pmemcpy(void * pdst, std::size_t size, const void * psrc, std::size_t count)
+inline void c4pmemcpy(void* pdst, std::size_t size, const void* psrc, std::size_t count)
 {
   MIKTEX_ASSERT(size >= count);
   MIKTEX_ASSERT_BUFFER(pdst, size);
@@ -621,18 +621,18 @@ inline void c4pmemcpy(void * pdst, std::size_t size, const void * psrc, std::siz
 #endif
 }
 
-inline void c4pstrcpy(char * dst, std::size_t size, const char * src)
+inline void c4pstrcpy(char* dst, std::size_t size, const char* src)
 {
   MiKTeX::Util::StringUtil::CopyString(dst, size, src);
 }
 
-inline std::size_t c4pstrlen(const char * lpsz)
+inline std::size_t c4pstrlen(const char* lpsz)
 {
   MIKTEX_ASSERT_STRING(lpsz);
   return MiKTeX::Util::StrLen(lpsz);
 }
 
-template<class T> inline bool c4pfopen(T& f, const char * lpszName, const char * lpszMode, bool mustExist)
+template<class T> inline bool c4pfopen(T& f, const char* lpszName, const char* lpszMode, bool mustExist)
 {
   MIKTEX_ASSERT_STRING(lpszName);
   MIKTEX_ASSERT_STRING(lpszMode);
@@ -652,7 +652,7 @@ template<class T> inline bool c4pfopen(T& f, const char * lpszName, const char *
     mustExist);
 }
 
-template<class T> inline bool c4ptryfopen(T& f, const char * lpszName, const char * lpszMode)
+template<class T> inline bool c4ptryfopen(T& f, const char* lpszName, const char* lpszMode)
 {
   return c4pfopen(f, lpszName, lpszMode, false);
 }
@@ -670,7 +670,7 @@ inline void c4pexit(int n)
 #define c4preturn() goto C4P_LABEL_PROC_EXIT
 #define c4pbreakloop() break
 
-template<class T> T * c4pptr(T& obj)
+template<class T> T* c4pptr(T& obj)
 {
   return &obj;
 };
@@ -689,10 +689,10 @@ const int c4pcur = SEEK_CUR;
 const int c4pend = SEEK_END;
 const int c4pset = SEEK_SET;
 
-const char * const c4prmode = "r";
-const char * const c4pwmode = "w";
-const char * const c4prbmode = "rb";
-const char * const c4pwbmode = "wb";
+const char* const c4prmode = "r";
+const char* const c4pwmode = "w";
+const char* const c4prbmode = "rb";
+const char* const c4pwbmode = "wb";
 
 C4PCEEAPI(unsigned) GetYear();
 
@@ -762,7 +762,7 @@ template<class T> inline void get(T& f)
 }
 
 #if 1 // optimization?
-template<> inline void get<BufferedFile<C4P_unsigned8> >(BufferedFile<C4P_unsigned8>& f)
+template<> inline void get<BufferedFile<C4P_unsigned8>>(BufferedFile<C4P_unsigned8>& f)
 {
   *f = getc(f);
   if (static_cast<int>(*f) == EOF)
