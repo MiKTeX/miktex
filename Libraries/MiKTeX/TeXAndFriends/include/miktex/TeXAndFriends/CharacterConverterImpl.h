@@ -63,11 +63,11 @@ public:
 public:
   char* xprn() override
   {
-#if defined(MIKTEX_TEXMF_UNICODE) || !defined(MIKTEX_TEX_COMPILER) && !defined(MIKTEX_META_COMPILER)
-    MIKTEX_UNEXPECTED();
-#else
+#if (defined(MIKTEX_META_COMPILER) || defined(MIKTEX_TEX_COMPILER)) && !defined(MIKTEX_TEXMF_UNICODE)
     MIKTEX_ASSERT(sizeof(program.xprn[0]) == sizeof(char));
     return (char*)&program.xprn[0];
+#else
+    MIKTEX_UNEXPECTED();
 #endif
   }
 };

@@ -135,7 +135,7 @@ public:
 public:
   C4P::C4P_signed32& maxbufstack() override
   {
-#if defined(MIKTEX_TEX_COMPILER) || defined(MIKTEX_TEX_COMPILER)
+#if defined(MIKTEX_META_COMPILER) || defined(MIKTEX_TEX_COMPILER)
     return program.maxbufstack;
 #else
     MIKTEX_UNEXPECTED();
