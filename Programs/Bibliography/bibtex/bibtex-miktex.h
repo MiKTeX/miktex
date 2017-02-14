@@ -179,6 +179,14 @@ public:
   }
 
 public:
+  void BufferSizeExceeded() const override
+  {
+    std::cout << "Sorry---you've exceeded BibTeX's buffer size";
+    GetInitFinalize()->history() = 3;
+    c4pthrow(9998);
+  }
+
+public:
   template<class T> bool OpenBstFile(T& f) const
   {
     const char* lpszFileName = GetInputOutput()->nameoffile();

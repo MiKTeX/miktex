@@ -401,21 +401,6 @@ bool WebAppInputLine::OpenInputFile(C4P::FileRoot& f, const PathName& fileName)
   return true;
 }
 
-#if 0
-void WebAppInputLine::HandleEof(FILE* pfile) const
-{
-  MIKTEX_ASSERT(pfile != nullptr);
-#if 1
-  while (GetC(pfile) != EOF)
-  {
-    ;
-  }
-#else
-  fseek(pfile, SEEK_END, 0);
-#endif
-}
-#endif
-
 void WebAppInputLine::TouchJobOutputFile(FILE *) const
 {
 }
@@ -468,4 +453,183 @@ void WebAppInputLine::SetInputOutput(IInputOutput* inputOutput)
 IInputOutput* WebAppInputLine::GetInputOutput() const
 {
   return pimpl->inputOutput;
+}
+
+void WebAppInputLine::BufferSizeExceeded() const
+{
+  if (GetFormatIdent() == 0)
+  {
+    fputs("Buffer size exceeded!", stdout);
+    throw new C4P::Exception9999;
+  }
+  else
+  {
+    IInputOutput* inputOutput = GetInputOutput();
+    inputOutput->loc() = inputOutput->first();
+    inputOutput->limit() = inputOutput->last() - 1;
+    inputOutput->overflow(256, inputOutput->bufsize());
+  }
+}
+
+
+inline int GetCharacter(FILE* file)
+{
+  MIKTEX_ASSERT(file != nullptr);
+  int ch = getc(file);
+  if (ch == EOF)
+  {
+    if (ferror(file) != 0)
+    {
+      MIKTEX_FATAL_CRT_ERROR("getc");
+    }
+  }
+  return ch;
+}
+
+bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
+{
+  f.AssertValid();
+
+  if (AmI("xetex"))
+  {
+    MIKTEX_UNEXPECTED();
+  }
+
+#if defined(PASCAL_TEXT_IO)
+  MIKTEX_UNEXPECTED();
+#endif
+
+  if (feof(f) != 0)
+  {
+    return false;
+  }
+
+  IInputOutput* inputOutput = GetInputOutput();
+
+  const C4P_signed32 first = inputOutput->first();
+  C4P_signed32& last = inputOutput->last();
+  const C4P_signed32 bufsize = inputOutput->bufsize();
+
+  const char* xord = nullptr;
+#if defined(WITH_OMEGA)
+  if (!AmI("omega"))
+#endif
+  {
+    xord = GetCharacterConverter()->xord();
+  }
+
+  char *buffer = nullptr;
+#if defined(WITH_OMEGA)
+  char16_t* buffer16 = nullptr;
+  if (AmI("omega"))
+  {
+    buffer16 = inputOutput->buffer16();
+  }
+  else
+#endif
+  {
+    buffer = inputOutput->buffer();
+  }
+
+  last = first;
+
+  int ch = GetCharacter(f);
+  if (ch == EOF)
+  {
+    return false;
+  }
+  if (ch == '\r')
+  {
+    ch = GetCharacter(f);
+    if (ch == EOF)
+    {
+      return false;
+    }
+    if (ch != '\n')
+    {
+      ungetc(ch, f);
+      ch = '\n';
+    }
+  }
+
+  if (ch == '\n')
+  {
+    return true;
+  }
+
+#if defined(WITH_OMEGA)
+  if (AmI("omega"))
+  {
+    buffer16[last] = ch;
+  }
+  else
+#endif
+  {
+    buffer[last] = xord[ch & 0xff];
+  }
+  last += 1;
+
+  while ((ch = GetCharacter(f)) != EOF && last < bufsize)
+  {
+    if (ch == '\r')
+    {
+      ch = GetCharacter(f);
+      if (ch == EOF)
+      {
+        break;
+      }
+      if (ch != '\n')
+      {
+        ungetc(ch, f);
+        ch = '\n';
+      }
+    }
+    if (ch == '\n')
+    {
+      break;
+    }
+#if defined(WITH_OMEGA)
+    if (AmI("omega"))
+    {
+      buffer16[last] = ch;
+    }
+#endif
+    {
+      buffer[last] = xord[ch & 0xff];
+    }
+    last += 1;
+  }
+
+  if (ch != '\n' && ch != EOF)
+  {
+    BufferSizeExceeded();
+  }
+
+  if (!AmI("bibtex") && last >= inputOutput->maxbufstack())
+  {
+    inputOutput->maxbufstack() = last + 1;
+    if (inputOutput->maxbufstack() >= bufsize)
+    {
+      BufferSizeExceeded();
+    }
+  }
+
+#if defined(WITH_OMEGA)
+  if (AmI("omega"))
+  {
+    while (last > first && (buffer16[last - 1] == ' ' || buffer16[last - 1] == '\t' || buffer16[last - 1] == '\r'))
+    {
+      last -= 1;
+    }
+  }
+  else
+#endif
+  {
+    while (last > first && (buffer[last - 1] == ' ' || buffer[last - 1] == '\t' || buffer[last - 1] == '\r'))
+    {
+      last -= 1;
+    }
+  }
+
+  return true;
 }

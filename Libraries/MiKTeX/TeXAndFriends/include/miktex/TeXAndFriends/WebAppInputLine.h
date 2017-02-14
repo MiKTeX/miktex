@@ -127,27 +127,7 @@ protected:
   virtual MIKTEXMFTHISAPI(void) TouchJobOutputFile(FILE*) const;
 
 private:
-  void BufferSizeExceeded() const
-  {
-#if defined(MIKTEX_BIBTEX)
-    std::cout << "Sorry---you've exceeded BibTeX's buffer size";
-    GetInitFinalize()->history() = 3;
-    c4pthrow(9998);
-#else
-    if (GetFormatIdent() == 0)
-    {
-      fputs("Buffer size exceeded!", stdout);
-      throw new C4P::Exception9999;
-    }
-    else
-    {
-      IInputOutput* inputOutput = GetInputOutput();
-      inputOutput->loc() = inputOutput->first();
-      inputOutput->limit() = inputOutput->last() - 1;
-      inputOutput->overflow(256, inputOutput->bufsize());
-    }
-#endif
-  }
+  virtual MIKTEXMFTHISAPI(void) BufferSizeExceeded() const;
 
 public:
   template<class FileType> void CloseFile(FileType& f)
@@ -155,29 +135,6 @@ public:
     f.AssertValid();
     TouchJobOutputFile(f);
     GetSession()->CloseFile(f);
-  }
-
-private:
-  int GetCharacter(FILE* file) const
-  {
-    MIKTEX_ASSERT(file != nullptr);
-    int ch = getc(file);
-    if (ch == EOF)
-    {
-      if (ferror(file) != 0)
-      {
-        MIKTEX_FATAL_CRT_ERROR("getc");
-      }
-    }
-#if 0
-    const int e_o_f = 0x1a; // ^Z
-    if (ch == e_o_f)
-    {
-      ch = EOF;               // -1
-      HandleEof(file);
-    }
-#endif
-    return ch;
   }
 
 public:
@@ -213,117 +170,8 @@ public:
 public:
   MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetAuxDirectory() const;
 
-#if 0  
-private:
-  MIKTEXMFTHISAPI(void) HandleEof(FILE* file) const;
-#endif
-
 public:
-  bool InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLine) const
-  {
-    f.AssertValid();
-
-#if defined(MIKTEX_XETEX)
-    MIKTEX_UNEXPECTED();
-#endif
-
-#if defined(PASCAL_TEXT_IO)
-    MIKTEX_UNEXPECTED();
-#endif
-
-    IInputOutput* inputOutput = GetInputOutput();
-
-    inputOutput->last() = inputOutput->first();
-
-    if (feof(f) != 0)
-    {
-      return false;
-    }
-
-    int ch = GetCharacter(f);
-    if (ch == EOF)
-    {
-      return false;
-    }
-    if (ch == '\r')
-    {
-      ch = GetCharacter(f);
-      if (ch == EOF)
-      {
-        return false;
-      }
-      if (ch != '\n')
-      {
-        ungetc(ch, f);
-        ch = '\n';
-      }
-    }
-
-    if (ch == '\n')
-    {
-      return true;
-    }
-
-#if defined(WITH_OMEGA) && defined(MIKTEX_OMEGA)
-    inputOutput->buffer16()[inputOutput->last()] = ch;
-#else
-    inputOutput->buffer()[inputOutput->last()] = GetCharacterConverter()->xord()[ch & 0xff];
-#endif
-    inputOutput->last() += 1;
-
-    while ((ch = GetCharacter(f)) != EOF && inputOutput->last() < inputOutput->bufsize())
-    {
-      if (ch == '\r')
-      {
-        ch = GetCharacter(f);
-        if (ch == EOF)
-        {
-          break;
-        }
-        if (ch != '\n')
-        {
-          ungetc(ch, f);
-          ch = '\n';
-        }
-      }
-      if (ch == '\n')
-      {
-        break;
-      }
-#if defined(WITH_OMEGA) && defined(MIKTEX_OMEGA)
-      inputOutput->buffer()[inputOutput->last()] = ch;
-#else
-      inputOutput->buffer()[inputOutput->last()] = GetCharacterConverter()->xord()[ch & 0xff];
-#endif
-      inputOutput->last() += 1;
-    }
-
-    if (ch != '\n' && ch != EOF)
-    {
-      BufferSizeExceeded();
-    }
-
-#if !defined(MIKTEX_BIBTEX)
-    if (inputOutput->last() >= inputOutput->maxbufstack())
-    {
-      inputOutput->maxbufstack() = inputOutput->last() + 1;
-      if (inputOutput->maxbufstack() >= inputOutput->bufsize())
-      {
-        BufferSizeExceeded();
-      }
-    }
-#endif
-
-    while (inputOutput->last() > inputOutput->first()
-      && (inputOutput->buffer()[inputOutput->last() - 1] == ' '
-        || inputOutput->buffer()[inputOutput->last() - 1] == '\t'
-        || inputOutput->buffer()[inputOutput->last() - 1] == '\r'))
-    {
-      inputOutput->last() -= 1;
-    }
-
-    return true;
-  }
+  MIKTEXMFTHISAPI(bool) InputLine(C4P::C4P_text& f, C4P::C4P_boolean bypassEndOfLine) const;
 
 public:
   MIKTEXMFTHISAPI(bool) OpenInputFile(FILE** ppFile, const MiKTeX::Core::PathName& fileName);
