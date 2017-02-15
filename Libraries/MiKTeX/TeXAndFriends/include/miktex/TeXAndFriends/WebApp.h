@@ -214,6 +214,15 @@ public:
 public:
   MIKTEXMFTHISAPI(bool) IsFeatureEnabled(Feature f) const;
 
+protected:
+  MIKTEXMFTHISAPI(void) SetTeX();
+
+public:
+  MIKTEXMFTHISAPI(bool) AmITeX() const;
+
+public:
+  MIKTEXMFTHISAPI(bool) AmIMETAFONT() const;
+
 public:
   MIKTEXMFTHISAPI(MiKTeX::Core::PathName) GetTcxFileName() const;
 

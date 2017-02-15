@@ -90,6 +90,10 @@ public:
   ICharacterConverter* characterConverter = nullptr;
 public:
   IInitFinalize* initFinalize = nullptr;
+public:
+  bool isTeXProgram;
+public:
+  bool isMETAFONTProgram;
 };
 
 WebApp::WebApp() :
@@ -106,6 +110,8 @@ void WebApp::Init(const string& programInvocationName)
   Application::Init(programInvocationName, TheNameOfTheGame());
   pimpl->theNameOfTheGame = Utils::GetExeName();
   pimpl->enable8BitChars = false;
+  pimpl->isTeXProgram = pimpl->theNameOfTheGame == "TeX";
+  pimpl->isMETAFONTProgram = pimpl->theNameOfTheGame == "METAFONT";
 }
 
 void WebApp::Finalize()
@@ -419,7 +425,10 @@ void WebApp::InitializeCharTables() const
   {
     MIKTEX_UNEXPECTED();
   }
-  MiKTeX::TeXAndFriends::InitializeCharTables(flags, tcxFileName, pimpl->characterConverter->xchr(), pimpl->characterConverter->xord(), pimpl->characterConverter->xprn());
+  MiKTeX::TeXAndFriends::InitializeCharTables(flags, tcxFileName,
+    pimpl->characterConverter->xchr(),
+    pimpl->characterConverter->xord(),
+    pimpl->isMETAFONTProgram || pimpl->isTeXProgram ? pimpl->characterConverter->xprn() : nullptr);
 }
 
 void WebApp::SetCharacterConverter(ICharacterConverter* characterConverter)
@@ -445,4 +454,19 @@ IInitFinalize* WebApp::GetInitFinalize() const
 vector<poptOption> WebApp::GetOptions() const
 {
   return pimpl->options;
+}
+
+void WebApp::SetTeX()
+{
+  pimpl->isTeXProgram = true;
+}
+
+bool WebApp::AmITeX() const
+{
+  return pimpl->isTeXProgram;
+}
+
+bool WebApp::AmIMETAFONT() const
+{
+  return pimpl->isMETAFONTProgram;
 }

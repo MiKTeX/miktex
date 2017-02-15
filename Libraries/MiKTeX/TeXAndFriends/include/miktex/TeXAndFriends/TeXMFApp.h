@@ -349,12 +349,6 @@ private:
 public:
   static MIKTEXMFCEEAPI(void) OnKeybordInterrupt(int);
 
-protected:
-  MIKTEXMFTHISAPI(void) SetTeX();
-
-public:
-  MIKTEXMFTHISAPI(bool) AmITeXCompiler() const;
-
 public:
   typedef std::unordered_map<std::string, int> UserParams;
 

@@ -54,8 +54,6 @@ public:
 public:
   bool setJobTime;
 public:
-  bool isTeXProgram;
-public:
   int interactionMode;
 public:
   string jobName;
@@ -134,7 +132,6 @@ void TeXMFApp::Init(const string& programInvocationName)
 #if defined(WITH_OMEGA)
   pimpl->isUnicodeApp = pimpl->isUnicodeApp || AmI("omega");
 #endif
-  pimpl->isTeXProgram = false;
   pimpl->parseFirstLine = false;
   pimpl->recordFileNames = false;
   pimpl->setJobTime = false;
@@ -167,7 +164,7 @@ void TeXMFApp::OnTeXMFStartJob()
     }
   }
   session->PushBackAppName(appName);
-  pimpl->parseFirstLine = session->GetConfigValue("", MIKTEX_REGVAL_PARSE_FIRST_LINE, pimpl->isTeXProgram).GetBool();
+  pimpl->parseFirstLine = session->GetConfigValue("", MIKTEX_REGVAL_PARSE_FIRST_LINE, AmITeX()).GetBool();
   pimpl->showFileLineErrorMessages = session->GetConfigValue("", MIKTEX_REGVAL_C_STYLE_ERRORS, false).GetBool();
   EnablePipes(session->GetConfigValue("", MIKTEX_REGVAL_ENABLE_PIPES, false).GetBool());
   pimpl->clockStart = clock();
@@ -255,12 +252,12 @@ void TeXMFApp::AddOptions()
   AddOption(T_("dont-parse-first-line\0Do not parse the first line of the input line to look for a dump name and/or extra command-line options."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DONT_PARSE_FIRST_LINE);
   AddOption(T_("error-line\0Set error_line to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ERROR_LINE, POPT_ARG_STRING, "N");
 
-  if (pimpl->isTeXProgram)
+  if (AmITeX())
   {
     AddOption(T_("extra-mem-bot\0Set extra_mem_bot to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_EXTRA_MEM_BOT, POPT_ARG_STRING, "N");
   }
 
-  if (pimpl->isTeXProgram)
+  if (AmITeX())
   {
     AddOption(T_("extra-mem-top\0Set extra_mem_top to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_EXTRA_MEM_TOP, POPT_ARG_STRING, "N");
   }
@@ -284,7 +281,7 @@ void TeXMFApp::AddOptions()
   AddOption(T_("param-size\0Set param_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_PARAM_SIZE, POPT_ARG_STRING, "N");
   AddOption(T_("parse-first-line\0Parse the first line of the input line to look for a dump name and/or extra command-line options."), FIRST_OPTION_VAL + pimpl->optBase + OPT_PARSE_FIRST_LINE, POPT_ARG_NONE);
 
-  if (pimpl->isTeXProgram)
+  if (AmITeX())
   {
     AddOption(T_("pool-free\0Set pool_free to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_POOL_FREE, POPT_ARG_STRING, "N");
   }
@@ -295,7 +292,7 @@ void TeXMFApp::AddOptions()
   AddOption(T_("stack-size\0Set stack_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_STACK_SIZE, POPT_ARG_STRING, "N");
   AddOption(T_("strict\0Disable MiKTeX extensions."), FIRST_OPTION_VAL + pimpl->optBase + OPT_STRICT, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN);
 
-  if (pimpl->isTeXProgram)
+  if (AmITeX())
   {
     AddOption(T_("strings-free\0Set strings_free to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_STRINGS_FREE, POPT_ARG_STRING, "N");
   }
@@ -830,7 +827,7 @@ void TeXMFApp::InitializeBuffer() const
 
   shared_ptr<Session> session = Session::Get();
 
-  if (pimpl->isTeXProgram)
+  if (AmITeX())
   {
     /* test command-line for one of:
     (a) tex FILENAME
@@ -962,16 +959,6 @@ bool TeXMFApp::IsInitProgram() const
 bool TeXMFApp::IsUnicodeApp() const
 {
   return pimpl->isUnicodeApp;
-}
-
-void TeXMFApp::SetTeX()
-{
-  pimpl->isTeXProgram = true;
-}
-
-bool TeXMFApp::AmITeXCompiler() const
-{
-  return pimpl->isTeXProgram;
 }
 
 int TeXMFApp::GetInteraction() const

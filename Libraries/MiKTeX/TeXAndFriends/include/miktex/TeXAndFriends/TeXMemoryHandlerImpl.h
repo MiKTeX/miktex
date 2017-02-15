@@ -128,7 +128,7 @@ public:
       this->program.zeqtb = nullptr;
     }
 
-    if (this->texmfapp.IsInitProgram() || !this->texmfapp.AmITeXCompiler() || this->texmfapp.AmI("omega"))
+    if (this->texmfapp.IsInitProgram() || !this->texmfapp.AmITeX() || this->texmfapp.AmI("omega"))
     {
       this->AllocateArray("fontinfo", this->program.fontinfo, this->program.fontmemsize);
     }
