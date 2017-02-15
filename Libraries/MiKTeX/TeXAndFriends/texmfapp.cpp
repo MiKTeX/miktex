@@ -869,25 +869,31 @@ void TeXMFApp::InitializeBuffer() const
     }
   }
 
-  // first = 1;
-  unsigned last = 1;
+  //MIKTEX_ASSERT(inout->first() == 1);
+  C4P_signed32& last = inout->last();
+  last = 1;
+  char32_t* buffer32 = AmI("xetex") ? inout->buffer32() : nullptr;
+#if defined(WITH_OMEGA)
+  char16_t* buffer16 = AmI("omega") ? inout->buffer16() : nullptr;
+#endif
+  char*buffer = !IsUnicodeApp() ? inout->buffer() : nullptr;
   for (int idx = 1; idx < c4pargc; ++idx)
   {
     if (idx > 1)
     {
       if (AmI("xetex"))
       {
-        inout->buffer32()[last++] = U' ';
+        buffer32[last++] = U' ';
       }
 #if defined(WITH_OMEGA)
       else if (AmI("omega"))
       {
-        inout->buffer16()[last++] = u' ';
+        buffer16[last++] = u' ';
       }
 #endif
       else
       {
-        inout->buffer()[last++] = ' ';
+        buffer[last++] = ' ';
       }
     }
     const char* lpszOptArg;
@@ -903,7 +909,7 @@ void TeXMFApp::InitializeBuffer() const
     {
       for (const char32_t& ch : StringUtil::UTF8ToUTF32(lpszOptArg))
       {
-        inout->buffer32()[last++] = ch;
+        buffer32[last++] = ch;
       }
     }
 #if defined(WITH_OMEGA)
@@ -911,7 +917,7 @@ void TeXMFApp::InitializeBuffer() const
     {
       for (const char16_t& ch : StringUtil::UTF8ToUTF16(lpszOptArg))
       {
-        inout->buffer16()[last++] = ch;
+        buffer16[last++] = ch;
       }
     }
 #endif
@@ -919,15 +925,13 @@ void TeXMFApp::InitializeBuffer() const
     {
       for (const char* lpsz = lpszOptArg; *lpsz != 0; ++lpsz)
       {
-        inout->buffer()[last++] = *lpsz;
+        buffer[last++] = *lpsz;
       }
     }
   }
 
   // clear the command-line
   MakeCommandLine(vector<string>());
-
-  inout->last() = last;
 }
 
 void TeXMFApp::TouchJobOutputFile(FILE* file) const
