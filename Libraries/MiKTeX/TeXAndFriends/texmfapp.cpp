@@ -1028,14 +1028,18 @@ int TeXMFApp::MakeTeXString(const char* lpsz) const
 {
   MIKTEX_ASSERT_STRING(lpsz);
   IStringHandler* stringHandler = GetStringHandler();
-  std::size_t len = StrLen(lpsz);
-  CheckPoolPointer(stringHandler->poolptr(), len);
+  std::size_t len;
   if (IsUnicodeApp())
   {
-    memcpy(stringHandler->strpool16() + stringHandler->poolptr(), CharBuffer<char16_t>(lpsz).GetData(), len * sizeof(char16_t));
+    u16string s = StringUtil::UTF8ToUTF16(lpsz);
+    len = s.length();
+    CheckPoolPointer(stringHandler->poolptr(), len);
+    memcpy(stringHandler->strpool16() + stringHandler->poolptr(), s.c_str(), len * sizeof(char16_t));
   }
   else
   {
+    len = StrLen(lpsz);
+    CheckPoolPointer(stringHandler->poolptr(), len);
     memcpy(stringHandler->strpool() + stringHandler->poolptr(), lpsz, len * sizeof(char));
   }
   stringHandler->poolptr() += len;
