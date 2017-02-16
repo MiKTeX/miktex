@@ -471,7 +471,6 @@ void WebAppInputLine::BufferSizeExceeded() const
   }
 }
 
-
 inline int GetCharacter(FILE* file)
 {
   MIKTEX_ASSERT(file != nullptr);
@@ -617,7 +616,7 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
 #if defined(WITH_OMEGA)
   if (AmI("omega"))
   {
-    while (last > first && (buffer16[last - 1] == ' ' || buffer16[last - 1] == '\t' || buffer16[last - 1] == '\r'))
+    while (last > first && (buffer16[last - 1] == u' ' || buffer16[last - 1] == u'\t' || buffer16[last - 1] == u'\r'))
     {
       last -= 1;
     }
