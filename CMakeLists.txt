@@ -723,6 +723,7 @@ if(USE_SYSTEM_GRAPHITE2)
 endif()
 
 if(USE_SYSTEM_HARFBUZZ_ICU)
+  find_package(HARFBUZZ)
   find_package(HARFBUZZ_ICU)
 endif()
 
