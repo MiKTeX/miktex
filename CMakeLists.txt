@@ -223,6 +223,12 @@ option(
 )
 
 option(
+  USE_SYSTEM_HARFBUZZ
+  "Use the system Harfbuzz text shaping library."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
   USE_SYSTEM_HARFBUZZ_ICU
   "Use the system Harfbuzz (ICU) text shaping library."
   ${MIKTEX_UNIX_ALIKE}
@@ -232,6 +238,12 @@ option(
   USE_SYSTEM_HUNSPELL
   "Use the system Hunspell spell checker library."
   ${MIKTEX_UNIX_ALIKE}
+)
+
+# we always depend on the system ICU development files
+set(
+  USE_SYSTEM_ICU
+  TRUE
 )
 
 option(
@@ -722,8 +734,11 @@ if(USE_SYSTEM_GRAPHITE2)
   find_package(GRAPHITE2 REQUIRED)
 endif()
 
-if(USE_SYSTEM_HARFBUZZ_ICU)
+if(USE_SYSTEM_HARFBUZZ)
   find_package(HARFBUZZ)
+endif()
+
+if(USE_SYSTEM_HARFBUZZ_ICU)
   find_package(HARFBUZZ_ICU)
 endif()
 
@@ -731,7 +746,13 @@ if(USE_SYSTEM_HUNSPELL)
   find_package(HUNSPELL REQUIRED)
 endif()
 
-find_package(ICU REQUIRED COMPONENTS uc i18n)
+if(USE_SYSTEM_ICU)
+  if("${CMAKE_VERSION}" VERSION_GREATER 2.7.0)
+    find_package(ICU REQUIRED COMPONENTS i18n uc)
+  else()
+    find_package(ICU_ REQUIRED COMPONENTS i18n uc)
+  endif()
+endif()
 
 if(USE_SYSTEM_JPEG)
   find_package(JPEG REQUIRED)
@@ -1312,6 +1333,22 @@ if(USE_SYSTEM_GRAPHITE2)
   )
 else()
   add_subdirectory(${MIKTEX_REL_GRAPHITE2_DIR})
+endif()
+
+if(USE_SYSTEM_HARFBUZZ)
+  get_filename_component(suffix ${HARFBUZZ_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::HARFBUZZ SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::HARFBUZZ STATIC IMPORTED)
+  endif()
+  set_target_properties(MiKTeX::Imported::HARFBUZZ
+    PROPERTIES
+      IMPORTED_LOCATION "${HARFBUZZ_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${HARFBUZZ_INCLUDE_DIRS}"
+  )
+else()
+  add_subdirectory(${MIKTEX_REL_HARFBUZZ_DIR})
 endif()
 
 if(USE_SYSTEM_HARFBUZZ_ICU)

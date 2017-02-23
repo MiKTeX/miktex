@@ -156,7 +156,6 @@ set_property(TARGET ${harfbuzz_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER
 target_include_directories(${harfbuzz_lib_name}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/source/src
-    ${ICU_INCLUDE_DIRS}
 )
 
 if(USE_SYSTEM_GRAPHITE2)
@@ -167,5 +166,6 @@ endif()
 
 target_link_libraries(${harfbuzz_lib_name}
   PUBLIC
-    ${ICU_LIBRARIES}
+    ICU::i18n
+    ICU::uc
 )

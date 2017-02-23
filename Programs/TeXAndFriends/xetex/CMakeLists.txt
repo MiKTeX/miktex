@@ -29,7 +29,6 @@ include_directories(BEFORE
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_INCLUDE_DIR}
-  ${ICU_INCLUDE_DIRS}
 )
   
 add_definitions(
@@ -276,10 +275,16 @@ endif()
 
 if(USE_SYSTEM_HARFBUZZ_ICU)
   target_link_libraries(${xetex_target_name} PRIVATE MiKTeX::Imported::HARFBUZZ_ICU)
-  target_link_libraries(${xetex_target_name} PRIVATE ${ICU_LIBRARIES})
-  target_link_libraries(${xetex_target_name} PRIVATE ${HARFBUZZ_LIBRARY})
+  target_link_libraries(${xetex_target_name} PRIVATE MiKTeX::Imported::HARFBUZZ)
 else()
   target_link_libraries(${xetex_target_name} PRIVATE ${harfbuzz_lib_name})
+endif()
+
+if(USE_SYSTEM_ICU)
+  target_link_libraries(${xetex_target_name} PRIVATE ICU::i18n)
+  target_link_libraries(${xetex_target_name} PRIVATE ICU::uc)
+else()
+  # not an option
 endif()
 
 if(USE_SYSTEM_JPEG)
