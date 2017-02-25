@@ -67,26 +67,26 @@ BoundingBox::BoundingBox (const string &boxstr)
 }
 
 
-/** Extracts a sequence of length values from a given string.
+/** Extracts a sequence of length values from a string like "5cm, 2.4in, 0pt".
  *  @param[in] boxstr whitespace and/or comma separated string of lengths.
  *  @param[out] the extracted lengths */
 void BoundingBox::extractLengths (string boxstr, vector<Length> &lengths) {
-	const size_t len = boxstr.length();
-	size_t l=0;
 	boxstr = util::trim(boxstr);
+	const size_t len = boxstr.length();
+	size_t left=0;
 	string lenstr;
 	do {
-		while (l < len && isspace(boxstr[l]))
-			l++;
-		size_t r=l;
-		while (r < len && !isspace(boxstr[r]) && boxstr[r] != ',')
-			r++;
-		lenstr = boxstr.substr(l, r-l);
+		while (left < len && isspace(boxstr[left]))
+			left++;
+		size_t right=left;
+		while (right < len && !isspace(boxstr[right]) && boxstr[right] != ',')
+			right++;
+		lenstr = boxstr.substr(left, right-left);
 		if (!lenstr.empty()) {
 			lengths.emplace_back(Length(lenstr));
-			if (boxstr[r] == ',')
-				r++;
-			l = r;
+			if (boxstr[right] == ',')
+				right++;
+			left = right;
 		}
 	} while (!lenstr.empty() && lengths.size() < 4);
 }

@@ -46,7 +46,6 @@ class Color
 		Color (uint8_t r, uint8_t g, uint8_t b)  {setRGB(r,g,b);}
 		Color (double r, double g, double b)     {setRGB(r,g,b);}
 		Color (const std::valarray<double> &rgb) {setRGB(rgb);}
-		Color (const char *name);
 		Color (const std::string &name);
 		operator uint32_t () const                     {return _rgb;}
 		bool operator == (const Color &c) const        {return _rgb == c._rgb;}
@@ -75,7 +74,7 @@ class Color
 		void getXYZ (double &x, double &y, double &z) const;
 		void getLab (double &l, double &a, double &b) const;
 		void getLab (std::valarray<double> &lab) const;
-		void operator *= (double c);
+		Color operator *= (double c);
 		double deltaE (const Color &c) const;
 		std::string rgbString () const;
 		std::string svgColorString (bool rgbonly) const;

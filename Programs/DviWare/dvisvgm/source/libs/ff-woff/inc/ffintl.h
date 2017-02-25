@@ -25,50 +25,13 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INTL_H
-#define _INTL_H
+#ifndef FFINTL_H
+#define FFINTL_H
 
-#if !defined( HAVE_LIBINTL_H )
-
-# define _(str)			(str)
-# define P_(str1,str_non1,n)	((n)==1?str1:str_non1)
-# define U_(str)		(str)
-
-# ifdef bindtextdomain
-#  undef bindtextdomain
-# endif
-# ifdef bind_textdomain_codeset
-#  undef bind_textdomain_codeset
-# endif
-# ifdef textdomain
-#  undef textdomain
-# endif
-
-# define bindtextdomain(domain,dir)
-# define bind_textdomain_codeset(domain,enc)
-# define textdomain(domain)
-
-# define dgettext(domain,str)	(str)
-
-#else /* HAVE_LIBINTL_H */
-
-# include <libintl.h>
-# define _(str)			gettext(str)
-# define P_(str1,str_non1,n)	ngettext(str1,str_non1,n)
-/* For messages including utf8 characters. old xgettexts won't handle them */
-/*  so we must do something special. */
-# define U_(str)		gettext(str)
-
-#endif /* HAVE_LIBINTL_H */
+#define _(str)   (str)
 
 /* For messages including utf8 sequences that need gettext_noop treatment */
-#define NU_(str)	(str)
-#define N_(str)		(str)
-#define S_(str)		(str)
-/* For messages in the shortcuts domain */
-#define H_(str)		(str)
+#define NU_(str) (str)
+#define N_(str)  (str)
 
-extern void GResourceUseGetText(void);
-char *sgettext(const char *msgid);
-
-#endif	/* _INTL_H */
+#endif	/* FFINTL_H */

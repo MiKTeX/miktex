@@ -71,7 +71,7 @@ class Font {
 		virtual const char* path () const =0;
 		virtual const char* filename () const;
 		virtual const FontEncoding* encoding () const;
-		virtual bool getGlyph (int c, Glyph &glyph, GFGlyphTracer::Callback *cb=0) const =0;
+		virtual bool getGlyph (int c, Glyph &glyph, GFGlyphTracer::Callback *callback=0) const =0;
 		virtual void getGlyphMetrics (int c, bool vertical, GlyphMetrics &metrics) const;
 		virtual uint32_t unicode (uint32_t c) const;
 		virtual void tidy () const {}

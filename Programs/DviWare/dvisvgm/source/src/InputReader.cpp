@@ -137,7 +137,7 @@ bool InputReader::parseUInt (unsigned &val) {
 }
 
 
-bool InputReader::parseInt (int base, int &val) {
+bool InputReader::parseUInt (int base, unsigned &val) {
 	if (base < 2 || base > 32)
 		return false;
 
@@ -150,7 +150,7 @@ bool InputReader::parseInt (int base, int &val) {
 	val = 0;
 	while (isalnum(c = tolower(peek())) && c <= maxdigit) {
 		get();
-		int digit = c - (c <= '9' ? '0' : 'a'-10);
+		unsigned digit = c - (c <= '9' ? '0' : 'a'-10);
 		val = val*base + digit;
 	}
 	return true;

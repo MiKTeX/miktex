@@ -5925,7 +5925,7 @@ int _WriteTTFFont(FILE *ttf,SplineFont *sf,enum fontformat format,
 
     short_too_long_warned = 0; // This is a static variable defined for putshort.
     /* TrueType probably doesn't need this, but OpenType does for floats in dictionaries */
-    locale_t tmplocale; locale_t oldlocale; // Declare temporary locale storage.
+    ff_locale_t tmplocale, oldlocale; // Declare temporary locale storage.
     switch_to_c_locale(&tmplocale, &oldlocale); // Switch to the C locale temporarily and cache the old locale.
 
     if ( format==ff_otfcid || format== ff_cffcid ) {

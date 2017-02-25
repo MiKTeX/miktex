@@ -29,13 +29,24 @@
 using namespace std;
 
 
-/** Constructs a MapLine object by parsing a single mapline from the given stream. */
-MapLine::MapLine (istream &is)
-	: _sfd(0), _fontindex(0), _slant(0), _bold(0), _extend(1)
+MapLine::MapLine () : _sfd(0), _fontindex(0), _slant(0), _bold(0), _extend(1)
 {
+}
+
+
+/** Constructs a MapLine object by parsing a single map line from the given stream. */
+MapLine::MapLine (istream &is) : MapLine() {
 	char buf[256];
 	is.getline(buf, 256);
 	parse(buf);
+}
+
+
+MapLine::MapLine (string str) : MapLine() {
+	size_t pos = str.rfind('\n');
+	if (pos != string::npos)
+		str = str.substr(0, pos);
+	parse(str.c_str());
 }
 
 
@@ -87,17 +98,19 @@ static bool split_fontname (string &fontname, string &sfdname) {
  *  The line may either be given in dvips or dvipdfmx mapfile format.
  *  @param[in] line the mapline */
 void MapLine::parse (const char *line) {
-	CharInputBuffer ib(line, strlen(line));
-	BufferInputReader ir(ib);
-	_texname = ir.getString();
-	string sfdname;
-	split_fontname(_texname, sfdname);
-	if (!sfdname.empty())
-		_sfd = SubfontDefinition::lookup(sfdname);
-	if (isDVIPSFormat(line))
-		parseDVIPSLine(ir);
-	else
-		parseDVIPDFMLine(ir);
+	if (line) {
+		CharInputBuffer ib(line, strlen(line));
+		BufferInputReader ir(ib);
+		_texname = ir.getString();
+		string sfdname;
+		split_fontname(_texname, sfdname);
+		if (!sfdname.empty())
+			_sfd = SubfontDefinition::lookup(sfdname);
+		if (isDVIPSFormat(line))
+			parseDVIPSLine(ir);
+		else
+			parseDVIPDFMLine(ir);
+	}
 }
 
 

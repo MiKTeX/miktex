@@ -18,17 +18,17 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#define _USE_MATH_DEFINES
-#include <config.h>
 #include <algorithm>
-#include <cmath>
 #include <limits>
 #include <sstream>
 #include "Calculator.hpp"
 #include "Matrix.hpp"
+#include "utility.hpp"
 #include "XMLString.hpp"
 
 using namespace std;
+using math::deg2rad;
+
 
 /** Computes the determinant of a given matrix */
 double det (const Matrix &m) {
@@ -55,11 +55,6 @@ double det (const Matrix &m, int row, int col) {
 		swap(r1, r2);
 	return m._values[r1][c1] * m._values[r2][c2]
 		  - m._values[r1][c2] * m._values[r2][c1];
-}
-
-
-static inline double deg2rad (double deg) {
-	return M_PI*deg/180.0;
 }
 
 
@@ -276,7 +271,7 @@ DPair Matrix::operator * (const DPair &p) const {
 bool Matrix::operator == (const Matrix &m) const {
 	for (int i=0; i < 2; i++)
 		for (int j=0; j < 3; j++)
-			if (_values[i][j] != m._values[i][j])
+			if (std::abs(_values[i][j]-m._values[i][j]) >= numeric_limits<double>::epsilon())
 				return false;
 	return true;
 }
@@ -286,7 +281,7 @@ bool Matrix::operator == (const Matrix &m) const {
 bool Matrix::operator != (const Matrix &m) const {
 	for (int i=0; i < 2; i++)
 		for (int j=0; j < 3; j++)
-			if (_values[i][j] != m._values[i][j])
+			if (std::abs(_values[i][j]-m._values[i][j]) >= numeric_limits<double>::epsilon())
 				return true;
 	return false;
 }
@@ -390,7 +385,7 @@ Matrix& Matrix::parse (istream &is, Calculator &calc) {
 				if (c != 'X' && c != 'Y')
 					throw ParserException("transformation command 'K' must be followed by 'X' or 'Y'");
 				double a = getArgument(is, calc, 0, false, false);
-				if (fabs(cos(deg2rad(a))) <= numeric_limits<double>::epsilon()) {
+				if (std::abs(cos(deg2rad(a))) < numeric_limits<double>::epsilon()) {
 					ostringstream oss;
 					oss << "illegal skewing angle: " << a << " degrees";
 					throw ParserException(oss.str());

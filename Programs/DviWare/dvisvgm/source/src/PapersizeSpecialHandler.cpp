@@ -49,7 +49,7 @@ void PapersizeSpecialHandler::preprocess (const char*, std::istream &is, Special
 }
 
 
-bool PapersizeSpecialHandler::process (const char *, std::istream &, SpecialActions&) {
+bool PapersizeSpecialHandler::process (const char*, std::istream&, SpecialActions&) {
 	return true;
 }
 
@@ -58,7 +58,7 @@ void PapersizeSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actio
 	if (actions.getBBoxFormatString() != "papersize")
 		return;
 
-	// find number of page with size change not lower than the current one
+	// find page n >= pageno that contains a papersize special
 	typedef vector<PageSize>::iterator Iterator;
 	Iterator lb_it = lower_bound(_pageSizes.begin(), _pageSizes.end(), PageSize(pageno, DoublePair()),
 		[](const PageSize &ps1, const PageSize &ps2) {
@@ -67,14 +67,14 @@ void PapersizeSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actio
 		});
 	Iterator it = _pageSizes.end();
 	if (lb_it != _pageSizes.end() && lb_it->first == pageno)
-		it = lb_it;
-	else if (lb_it != _pageSizes.begin())
-		it = lb_it-1;
+		it = lb_it;                        // if current page contains a papersize special, use it
+	else if (lb_it != _pageSizes.begin()) // no papersize special on current page?
+		it = lb_it-1;                      // => use the one on the nearest preceding page
 	if (it == _pageSizes.end())
 		Message::wstream(true) << "no valid papersize special found\n";
 	else {
 		DoublePair size = it->second;
-		const double border = -72;
+		const double border = -72;  // DVI standard: coordinates of upper left paper corner are (-72bp, -72bp)
 		actions.bbox() = BoundingBox(border, border, size.first+border, size.second+border);
 	}
 }

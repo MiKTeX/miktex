@@ -149,6 +149,8 @@ set(libffwoff_sources
   source/libs/ff-woff/fontforge/edgelist.h
   source/libs/ff-woff/fontforge/edgelist2.h
   source/libs/ff-woff/fontforge/encoding.h
+  source/libs/ff-woff/fontforge/fflocale.c
+  source/libs/ff-woff/fontforge/fflocale.h
   source/libs/ff-woff/fontforge/fontforge-config.h
   source/libs/ff-woff/fontforge/fontforge.h
   source/libs/ff-woff/fontforge/fontforgevw.h
@@ -200,6 +202,7 @@ set(libffwoff_sources
   source/libs/ff-woff/fontforge/splineutil2.c
   source/libs/ff-woff/fontforge/start.c
   source/libs/ff-woff/fontforge/stemdb.c
+  source/libs/ff-woff/fontforge/tmpfile2.cpp
   source/libs/ff-woff/fontforge/tottf.c
   source/libs/ff-woff/fontforge/tottfaat.c
   source/libs/ff-woff/fontforge/tottfgpos.c
@@ -208,9 +211,18 @@ set(libffwoff_sources
   source/libs/ff-woff/fontforge/ttfspecial.c
   source/libs/ff-woff/fontforge/unialt.c
   source/libs/ff-woff/fontforge/ustring.c
-  source/libs/ff-woff/fontforge/utils.c
   source/libs/ff-woff/fontforge/utype.c
   source/libs/ff-woff/fontforge/woff.c
+  source/libs/ff-woff/inc/basics.h
+  source/libs/ff-woff/inc/chardata.h
+  source/libs/ff-woff/inc/charset.h
+  source/libs/ff-woff/inc/dlist.h
+  source/libs/ff-woff/inc/ffintl.h
+  source/libs/ff-woff/inc/gimage.h
+  source/libs/ff-woff/inc/gnetwork.h
+  source/libs/ff-woff/inc/gwwiconv.h
+  source/libs/ff-woff/inc/ustring.h
+  source/libs/ff-woff/inc/utype.h
 )
 
 set(libdvisvgm_sources

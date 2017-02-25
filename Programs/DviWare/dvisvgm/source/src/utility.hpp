@@ -23,6 +23,17 @@
 
 #include <string>
 
+namespace math {
+
+constexpr const double PI      = 3.141592653589793238462643383279502884;
+constexpr const double HALF_PI = 1.570796326794896619231321691639751442;
+constexpr const double TWO_PI  = 6.283185307179586476925286766559005768;
+
+
+inline double deg2rad (double deg) {return PI*deg/180.0;}
+
+} // namespace math
+
 namespace util {
 
 std::string trim (const std::string &str, const char *ws=" \t\n\r\f");

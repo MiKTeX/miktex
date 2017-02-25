@@ -355,7 +355,7 @@ int main (int argc, char *argv[]) {
 		Message::wstream().clearline();
 		Message::wstream(true) << "execution interrupted by user\n";
 	}
-	catch (MessageException &e) {
+	catch (exception &e) {
 		Message::estream(true) << e.what() << '\n';
 	}
 	return 0;

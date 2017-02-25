@@ -97,6 +97,7 @@ class VectorIterator
 		bool operator > (const VectorIterator &it) const  {return _pos > it._pos;}
 		bool valid () const {return _pos >= 0 && _pos < _vector.size();}
 		void invalidate ()  {_pos = _vector.size();}
+		void reset ()       {_pos = 0;}
 
 	protected:
 		VectorIterator (std::vector<T> &vec, size_t pos) : _vector(vec), _pos(pos) {}

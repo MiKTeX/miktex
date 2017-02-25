@@ -28,11 +28,24 @@ template <typename T>
 class VectorStreamBuffer : public std::streambuf
 {
 	public:
-		VectorStreamBuffer (const std::vector<T> &v) : _begin(&v[0]), _end(&v[0]+v.size()), _curr(&v[0]) {}
+		VectorStreamBuffer (const std::vector<T> &v) {
+			if (v.empty())
+				_begin = _end = _curr = nullptr;
+			else {
+				_begin = _curr = &v[0];
+				_end = &v[0]+v.size();
+			}
+		}
 
 	protected:
-		int_type underflow () override {return _curr == _end ? traits_type::eof() : traits_type::to_int_type(*_curr);}
-		int_type uflow() override {return _curr == _end ? traits_type::eof() : traits_type::to_int_type(*_curr++);}
+		int_type underflow () override {
+			return _curr == _end ? traits_type::eof() : traits_type::to_int_type(*_curr);
+		}
+
+		int_type uflow() override {
+			return _curr == _end ? traits_type::eof() : traits_type::to_int_type(*_curr++);
+		}
+
 		std::streamsize showmanyc () override {return _end-_curr;}
 
 		int_type pbackfail (int_type c) override {

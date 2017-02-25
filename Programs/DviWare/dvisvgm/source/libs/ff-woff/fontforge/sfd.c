@@ -4646,7 +4646,7 @@ static SplineFont *SFD_Read(char *filename,FILE *sfd, int fromdir) {
     }
     if ( sfd==NULL )
 return( NULL );
-    locale_t tmplocale; locale_t oldlocale; // Declare temporary locale storage.
+    ff_locale_t tmplocale, oldlocale; // Declare temporary locale storage.
     switch_to_c_locale(&tmplocale, &oldlocale); // Switch to the C locale temporarily and cache the old locale.
     ff_progress_change_stages(2);
     if ( (version = SFDStartsCorrectly(sfd,tok))!=-1 )

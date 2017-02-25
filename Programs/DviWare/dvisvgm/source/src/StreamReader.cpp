@@ -18,7 +18,8 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
+#include <algorithm>
+#include <vector>
 #include "CRC32.hpp"
 #include "StreamReader.hpp"
 
@@ -60,12 +61,12 @@ uint32_t StreamReader::readUnsigned (int bytes, CRC32 &crc32) {
  *  @param[in] bytes number of bytes to read (max. 4)
  *  @return read integer */
 int32_t StreamReader::readSigned (int bytes) {
-	int32_t ret = int32_t(_is->get());
+	uint32_t ret = uint32_t(_is->get());
 	if (ret & 128)        // negative value?
 		ret |= 0xffffff00;
 	for (bytes-=2; bytes >= 0 && !_is->eof(); bytes--)
 		ret = (ret << 8) | _is->get();
-	return ret;
+	return int32_t(ret);
 }
 
 
@@ -111,16 +112,10 @@ string StreamReader::readString (CRC32 &crc32, bool finalZero) {
 string StreamReader::readString (int length) {
 	if (!_is)
 		throw StreamReaderException("no stream assigned");
-	char *buf = new char[length+1];
-	if (length <= 0)
-		*buf = 0;
-	else {
-		_is->read(buf, length);  // reads 'length' bytes
-		buf[length] = 0;
-	}
-	string ret = buf;
-	delete [] buf;
-	return ret;
+	length = max(0, length);
+	string str(length, '\0');
+	_is->read(&str[0], length);  // reads 'length' bytes and appends \0
+	return str;
 }
 
 

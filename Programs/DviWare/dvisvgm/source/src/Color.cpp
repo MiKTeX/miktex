@@ -18,8 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#define _USE_MATH_DEFINES
-#include <config.h>
 #include <array>
 #include <algorithm>
 #include <cctype>
@@ -43,12 +41,6 @@ const Color Color::TRANSPARENT(uint32_t(0xff000000));
 static inline uint8_t double_to_byte (double v) {
 	v = max(0.0, min(1.0, v));
 	return uint8_t(floor(255*v+0.5));
-}
-
-
-Color::Color (const char *psname) {
-	if (!setPSName(psname, false))
-		setGray(uint8_t(0));
 }
 
 
@@ -217,13 +209,14 @@ void Color::set (ColorSpace colorSpace, VectorIterator<double> &it) {
 }
 
 
-void Color::operator *= (double c) {
+Color Color::operator *= (double c) {
 	uint32_t rgb=0;
 	for (int i=0; i < 3; i++) {
 		rgb |= uint32_t(floor((_rgb & 0xff)*c+0.5)) << (8*i);
 		_rgb >>= 8;
 	}
 	_rgb = rgb;
+	return *this;
 }
 
 
@@ -562,7 +555,6 @@ void Color::getLab (std::valarray<double> &lab) const {
 static inline double sqr (double x)  {return x*x;}
 static inline double cube (double x) {return x*x*x;}
 
-
 void Color::Lab2XYZ (const valarray<double> &lab, valarray<double> &xyz) {
 	xyz.resize(3);
 	double wx=0.95047, wy=1.00, wz=1.08883;  // reference white D65
@@ -618,44 +610,51 @@ void Color::RGB2Lab (const valarray<double> &rgb, valarray<double> &lab) {
 }
 
 
+#if 0
 /** Returns the Delta E difference (CIE 2000) between this and another color. */
 double Color::deltaE (const Color &c) const {
 	double l1, a1, b1;
 	double l2, a2, b2;
 	getLab(l1, a1, b1);
 	c.getLab(l2, a2, b2);
-	double dl = l2-l1;
-	double lm = (l1+l2)/2;
-	double c1 = sqrt(a1*a1 + b1*b1);
-	double c2 = sqrt(a2*a2 + b2*b2);
-	double cm = (c1+c2)/2;
-	double g  = (1-sqrt(pow(cm, 7)/(pow(cm, 7)+pow(25.0, 7))))/2;
-	double aa1 = a1*(1+g);
-	double aa2 = a2*(1+g);
-	double cc1 = sqrt(aa1*aa1 + b1*b1);
-	double cc2 = sqrt(aa2*aa2 + b2*b2);
-	double ccm = (cc1+cc2)/2;
-	double dcc = cc2-cc1;
-	double h1  = atan2(b1, aa1)*180/M_PI;
-	if (h1 < 0) h1 += 360;
-	double h2  = atan2(b2, aa2)*180/M_PI;
-	if (h2 < 0)	h2 += 360;
-	double hm = (abs(h1-h2) > 180 ? (h1+h2+360) : (h1+h2))/2;
-	double t  = 1 - 0.17*cos(hm-30) + 0.24*cos(2*hm) + 0.32*cos(3*hm+6) - 0.2*cos(4*hm-63);
-	double dh = h2-h1;
-	if (h2-h1 < -180)
-		dh += 360;
-	else if (h2-h1 > 180)
-		dh -= 360;
-	double dhh = 2*sqrt(cc1*cc2)*sin(dh/2);
-	double sl = 1 + 0.015*(lm-50.0)*(lm-50.0)/sqrt(20.0+(lm-50.0));
-	double sc = 1 + 0.045*ccm;
-	double sh = 1 + 0.015*ccm*t;
-	double dtheta = 30*exp(-sqr(hm-275)/25);
-	double rc = 2*sqrt(pow(ccm, 7)/(pow(ccm, 7)+pow(25.0, 7)));
-	double rt = -rc*sin(2*dtheta);
-	return sqrt(sqr(dl/sl) + sqr(dcc/sc) + sqr(dhh/sh) + rt*dcc/sc*dhh/sh);
+	const double deltaL = l2-l1;
+	const double lBar = (l1+l2)/2;
+	const double c1 = sqrt(a1*a1 + b1*b1);
+	const double c2 = sqrt(a2*a2 + b2*b2);
+	const double cBar = (c1+c2)/2.0;
+	const double g = (1.0-sqrt(pow(cBar, 7.0)/(pow(cBar, 7.0)+6103515625.0)))/2.0;
+	const double aa1 = a1*(1.0+g);
+	const double aa2 = a2*(1.0+g);
+	const double cc1 = sqrt(aa1*aa1 + b1*b1);
+	const double cc2 = sqrt(aa2*aa2 + b2*b2);
+	const double ccBar = (cc1+cc2)/2.0;
+	const double deltaCC = cc2-cc1;
+	double hh1 = atan2(b1, aa1);
+	if (hh1 < 0) hh1 += deg2rad(360);
+	double hh2 = atan2(b2, aa2);
+	if (hh2 < 0) hh2 += deg2rad(360);
+	const double hhBar = (std::abs(hh1-hh2) > deg2rad(180) ? (hh1+hh2+deg2rad(360)) : (hh1+hh2))/2.0;
+	const double t = 1.0
+		- 0.17*cos(hhBar-deg2rad(30.0))
+		+ 0.24*cos(2.0*hhBar)
+		+ 0.32*cos(3.0*hhBar+deg2rad(6.0))
+		- 0.20*cos(4.0*hhBar-deg2rad(63.0));
+	double deltaHH = hh2-hh1;
+	if (deltaHH < deg2rad(-180))
+		deltaHH += deg2rad(360);
+	else if (deltaHH > deg2rad(180))
+		deltaHH -= deg2rad(360);
+	const double deltaHHH = 2.0*sqrt(cc1*cc2)*sin(deltaHH/2.0);
+	const double sl = 1.0 + 0.015*sqr(lBar-50.0)/sqrt(20.0+sqr(lBar-50.0));
+	const double sc = 1.0 + 0.045*ccBar;
+	const double sh = 1.0 + 0.015*ccBar*t;
+	const double deltaTheta = deg2rad(30)*exp(-sqr((hhBar-deg2rad(275))/deg2rad(25)));
+	const double rc = 2.0*sqrt(pow(ccBar, 7)/(pow(ccBar, 7)+6103515625.0));
+	const double rt = -rc*sin(2.0*deltaTheta);
+	const double deltaE = sqrt(sqr(deltaL/sl) + sqr(deltaCC/sc) + sqr(deltaHHH/sh) + rt*deltaCC/sc*deltaHHH/sh);
+	return deltaE;
 }
+#endif
 
 
 int Color::numComponents (ColorSpace colorSpace) {

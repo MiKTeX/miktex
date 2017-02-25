@@ -100,8 +100,10 @@ void CommandLine::parseShortOption (istringstream &iss, int argc, char **argv, i
 		if (Option *option = lookupOption(shortname)) {
 			if (!combined || option->argMode() == Option::ArgMode::NONE) {
 				if (option->argMode() == Option::ArgMode::REQUIRED && strlen(argv[argn]) == 2) { // required argument separated by whitespace?
-					if (argn+1 < argc && argv[argn+1][0] != '-')
+					if (argn+1 < argc && argv[argn+1][0] != '-') {
+						iss.clear();            // reset error flags
 						iss.str(argv[++argn]);  // continue parsing with next command-line field
+					}
 				}
 				if (!option->parse(iss, false))
 					type_error(*option, true);

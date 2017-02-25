@@ -83,14 +83,14 @@ void XMLElementNode::prepend (XMLNode *child) {
 	if (!child)
 		return;
 	XMLTextNode *textNode1 = dynamic_cast<XMLTextNode*>(child);
-	if (!textNode1 || _children.empty())
-		_children.emplace_front(unique_ptr<XMLNode>(child));
-	else {
-		if (XMLTextNode *textNode2 = dynamic_cast<XMLTextNode*>(_children.front().get()))
+	unique_ptr<XMLNode> child_uptr(child);
+	if (textNode1 && !_children.empty()) {
+		if (XMLTextNode *textNode2 = dynamic_cast<XMLTextNode*>(_children.front().get())) {
 			textNode2->prepend(textNode1);  // merge two consecutive text nodes
-		else
-			_children.emplace_front(unique_ptr<XMLNode>(child));
+			return;
+		}
 	}
+	_children.emplace_front(std::move(child_uptr));
 }
 
 

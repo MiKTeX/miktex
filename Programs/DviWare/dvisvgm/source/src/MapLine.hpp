@@ -22,6 +22,7 @@
 #define MAPLINE_HPP
 
 #include <istream>
+#include <sstream>
 #include <string>
 #include "MessageException.hpp"
 
@@ -40,6 +41,7 @@ class MapLine
 {
 	public:
 		MapLine (std::istream &is);
+		MapLine (std::string str);
 		const std::string& texname () const   {return _texname;}
 		const std::string& psname () const    {return _psname;}
 		const std::string& fontfname () const {return _fontfname;}
@@ -51,6 +53,7 @@ class MapLine
 		SubfontDefinition* sfd () const       {return _sfd;}
 
 	protected:
+		MapLine ();
 		void init ();
 		bool isDVIPSFormat (const char *line) const;
 		void parse (const char *line);

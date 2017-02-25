@@ -18,11 +18,11 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <limits>
+#include <memory>
 #include "FileFinder.hpp"
 #include "Message.hpp"
 #include "Subfont.hpp"
@@ -81,17 +81,16 @@ SubfontDefinition::~SubfontDefinition () {
  *  @param[in] name name of subfont definition to lookup
  *  @return pointer to subfont definition object or 0 if it doesn't exist */
 SubfontDefinition* SubfontDefinition::lookup (const std::string &name) {
-	typedef map<string,SubfontDefinition*> SFDMap;
-	static SFDMap sfdMap;
-	SFDMap::iterator it = sfdMap.find(name);
+	static map<string,unique_ptr<SubfontDefinition>> sfdMap;
+	auto it = sfdMap.find(name);
 	if (it != sfdMap.end())
-		return it->second;
-	SubfontDefinition *sfd=0;
+		return it->second.get();
+	unique_ptr<SubfontDefinition> sfd;
 	if (const char *path = FileFinder::instance().lookup(name+".sfd", false)) {
-		sfd = new SubfontDefinition(name, path);
-		sfdMap[name] = sfd;
+		sfd.reset(new SubfontDefinition(name, path));
+		sfdMap[name] = std::move(sfd);
 	}
-	return sfd;
+	return sfd.get();
 }
 
 

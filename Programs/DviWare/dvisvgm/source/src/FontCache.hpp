@@ -42,8 +42,8 @@ class FontCache
 		};
 
 	public:
-		FontCache ();
-		~FontCache ();
+		FontCache () : _changed(false) {}
+		~FontCache () {clear();}
 		bool read (const char *fontname, const char *dir);
 		bool read (const char *fontname, std::istream &is);
 		bool write (const char *dir) const;

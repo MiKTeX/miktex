@@ -19,6 +19,9 @@
    */
 #cmakedefine HAVE_DIRENT_H 1
 
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#cmakedefine HAVE_DLFCN_H 1
+
 /* Define to 1 if you don't have `vprintf' but do have `_doprnt.' */
 #cmakedefine HAVE_DOPRNT 1
 
@@ -113,8 +116,14 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1
 
+/* Define to 1 if you have the `uselocale' function. */
+#cmakedefine HAVE_USELOCALE 1
+
 /* Define to 1 if you have the `vprintf' function. */
 #cmakedefine HAVE_VPRINTF 1
+
+/* Define to 1 if you have the <xlocale.h> header file. */
+#cmakedefine HAVE_XLOCALE_H 1
 
 /* Define to 1 if the system has the type `_Bool'. */
 #cmakedefine HAVE__BOOL 1
@@ -126,6 +135,9 @@
    slash. */
 #cmakedefine LSTAT_FOLLOWS_SLASHED_SYMLINK 1
 
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
+#cmakedefine LT_OBJDIR 1
+
 /* Name of package */
 #cmakedefine PACKAGE
 
@@ -136,7 +148,7 @@
 #cmakedefine PACKAGE_NAME
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "dvisvgm 2.1"
+#define PACKAGE_STRING "dvisvgm 2.1.3"
 
 /* Define to the one symbol short name of this package. */
 #cmakedefine PACKAGE_TARNAME

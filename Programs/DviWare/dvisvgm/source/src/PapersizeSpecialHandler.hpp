@@ -35,10 +35,10 @@ class PapersizeSpecialHandler : public SpecialHandler, public DVIEndPageListener
 		const char* info () const override {return "special to set the page size";}
 		const char* name () const override {return "papersize";}
 		const char**  prefixes () const override;
+		void reset () {_pageSizes.clear();}
 
 	protected:
 		void dviEndPage (unsigned pageno, SpecialActions &actions) override;
-		static bool isLess (const PageSize &ps1, const PageSize &ps2);
 
 	private:
 		std::vector<PageSize> _pageSizes;

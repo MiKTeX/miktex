@@ -50,16 +50,6 @@ static Pair32 read_pair (int bytes, StreamReader &sr) {
 }
 
 
-FontCache::FontCache () : _changed(false)
-{
-}
-
-
-FontCache::~FontCache () {
-	clear();
-}
-
-
 /** Removes all data from the cache. This does not affect the cache files. */
 void FontCache::clear () {
 	_glyphs.clear();
@@ -394,10 +384,12 @@ void FontCache::fontinfo (const char *dirname, ostream &os, bool purge) {
 					<< endl;
 			}
 		}
-		for (const string &str : invalid_files) {
-			string path=string(dirname)+"/"+str;
-			if (FileSystem::remove(path))
-				os << "invalid cache file " << str << " removed\n";
+		if (purge) {
+			for (const string &str : invalid_files) {
+				string path=string(dirname)+"/"+str;
+				if (FileSystem::remove(path))
+					os << "invalid cache file " << str << " removed\n";
+			}
 		}
 		os.flags(osflags);  // restore format flags
 	}

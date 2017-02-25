@@ -18,7 +18,7 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
+#include <algorithm>
 #include <sstream>
 #include "FixWord.hpp"
 #include "GFReader.hpp"
@@ -62,22 +62,20 @@ uint32_t GFReader::readUnsigned (int bytes) {
 
 
 int32_t GFReader::readSigned (int bytes) {
-	int32_t ret = _in.get();
+	uint32_t ret = _in.get();
 	if (ret & 128)        // negative value?
 		ret |= 0xffffff00;
 	for (int i=bytes-2; i >= 0 && !_in.eof(); i--)
 		ret = (ret << 8) | _in.get();
-	return ret;
+	return int32_t(ret);
 }
 
 
 string GFReader::readString (int bytes) {
-	vector<char> buf(bytes+1);
-	if (bytes > 0)
-		_in.get(&buf[0], bytes+1);  // reads 'bytes' bytes (pos. bytes+1 is set to 0)
-	else
-		buf[0] = 0;
-	return &buf[0];
+	bytes = max(0, bytes);
+	string str(bytes, '\0');
+	_in.read(&str[0], bytes);
+	return str;
 }
 
 

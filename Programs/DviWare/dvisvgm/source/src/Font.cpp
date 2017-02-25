@@ -21,6 +21,7 @@
 #include <config.h>
 #include <cstdlib>
 #include <fstream>
+#include <set>
 #include <sstream>
 #include "CMap.hpp"
 #include "FileFinder.hpp"
@@ -318,9 +319,9 @@ std::string PhysicalFont::styleName () const {
 /** Extracts the glyph outlines of a given character.
  *  @param[in]  c character code of requested glyph
  *  @param[out] glyph path segments of the glyph outline
- *  @param[in]  cb optional callback object for tracer class
+ *  @param[in]  callback optional callback object for tracer class
  *  @return true if outline could be computed */
-bool PhysicalFont::getGlyph (int c, GraphicsPath<int32_t> &glyph, GFGlyphTracer::Callback *cb) const {
+bool PhysicalFont::getGlyph (int c, GraphicsPath<int32_t> &glyph, GFGlyphTracer::Callback *callback) const {
 	if (type() == Type::MF) {
 		const Glyph *cached_glyph=0;
 		if (CACHE_PATH) {
@@ -337,7 +338,7 @@ bool PhysicalFont::getGlyph (int c, GraphicsPath<int32_t> &glyph, GFGlyphTracer:
 			if (createGF(gfname)) {
 				try {
 					double ds = getMetrics() ? getMetrics()->getDesignSize() : 1;
-					GFGlyphTracer tracer(gfname, unitsPerEm()/ds, cb);
+					GFGlyphTracer tracer(gfname, unitsPerEm()/ds, callback);
 					tracer.setGlyph(glyph);
 					tracer.executeChar(c);
 					glyph.closeOpenSubPaths();
@@ -348,9 +349,6 @@ bool PhysicalFont::getGlyph (int c, GraphicsPath<int32_t> &glyph, GFGlyphTracer:
 				catch (GFException &e) {
 					// @@ print error message
 				}
-			}
-			else {
-				Message::wstream(true) << "failed creating " << name() << ".gf\n";
 			}
 		}
 	}
@@ -369,14 +367,22 @@ bool PhysicalFont::getGlyph (int c, GraphicsPath<int32_t> &glyph, GFGlyphTracer:
 
 
 /** Creates a GF file for this font object.
- *  @param[out] gfname name of GF font file
+ *  @param[out] gfname name of the generated GF font file
  *  @return true on success */
 bool PhysicalFont::createGF (string &gfname) const {
-	SignalHandler::instance().check();
-	gfname = FileSystem::tmpdir()+name()+".gf";
-	MetafontWrapper mf(name(), FileSystem::tmpdir());
-	bool ok = mf.make("ljfour", METAFONT_MAG); // call Metafont if necessary
-	return ok && mf.success() && getMetrics();
+	static set<string> failed_fonts;
+	if (failed_fonts.find(name()) == failed_fonts.end()) {
+		SignalHandler::instance().check();
+		gfname = FileSystem::tmpdir()+name()+".gf";
+		MetafontWrapper mf(name(), FileSystem::tmpdir());
+		bool ok = mf.make("ljfour", METAFONT_MAG); // call Metafont if necessary
+		if (ok && mf.success() && getMetrics())
+			return true;
+		// report failure only once
+		failed_fonts.insert(name());
+		Message::wstream(true) << "failed to create " << name() << ".gf\n";
+	}
+	return false;
 }
 
 

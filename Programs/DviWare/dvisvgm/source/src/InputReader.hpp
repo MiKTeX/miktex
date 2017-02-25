@@ -44,7 +44,7 @@ class InputReader
 		virtual void skipSpace ();
 		virtual int getInt ();
 		virtual bool parseInt (int &val, bool accept_sign=true);
-		virtual bool parseInt (int base, int &val);
+		virtual bool parseUInt (int base, unsigned &val);
 		virtual bool parseUInt (unsigned &val);
 		virtual char parseDouble (double &val);
 		virtual double getDouble ();

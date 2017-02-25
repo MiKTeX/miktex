@@ -21,6 +21,7 @@
 #include <config.h>
 #include <cmath>
 #include <sstream>
+#include <stdexcept>
 #include "Calculator.hpp"
 
 using namespace std;
@@ -127,9 +128,9 @@ double Calculator::prim (istream &is, bool skip) { // prim:
  *  the same token will be read again next time. */
 char Calculator::lookAhead (istream &is) {
 	is >> ws;
+	int c = is.peek();
 	if (is.eof())
 		return END;
-	int c = is.peek();
 	if (isdigit(c) || c == '.')
 		return NUMBER;
 	if (isalpha(c))
@@ -147,9 +148,18 @@ char Calculator::lookAhead (istream &is) {
 char Calculator::lex (istream &is) {
 	int tokenType = lookAhead(is);
 	switch (tokenType) {
-		case NUMBER:
-			is >> _numValue;
+		case NUMBER: {
+			string str;
+			while (isdigit(is.peek()) || is.peek() == '.')
+				str += char(is.get());
+			try {
+				_numValue = stod(str);
+			}
+			catch (exception) {
+				throw CalculatorException("invalid number: "+str);
+			}
 			break;
+		}
 		case NAME: {
 			_strValue.clear();
 			while (isalpha(is.peek()))

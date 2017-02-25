@@ -147,8 +147,8 @@ static uint32_t parse_hexentry (InputReader &ir) {
 	ir.skipSpace();
 	if (ir.get() != '<')
 		throw CMapReaderException("invalid range entry ('<' expected)");
-	int val;
-	if (!ir.parseInt(16, val))
+	unsigned val;
+	if (!ir.parseUInt(16, val))
 		throw CMapReaderException("invalid range entry (hexadecimal value expected)");
 	if (ir.get() != '>')
 		throw CMapReaderException("invalid range entry ('>' expected)");

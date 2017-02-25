@@ -27,15 +27,18 @@
 #ifndef _SPLINEFONT_H
 #define _SPLINEFONT_H
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 #include <basics.h>
 #include <dlist.h>
 #include "configure-fontforge.h"
+#include "fflocale.h"
 #ifdef HAVE_ICONV
 # include <iconv.h>
 #else
 # include <gwwiconv.h>
 #endif
-#include "locale.h"
 #include <gnetwork.h>
 
 #ifdef FONTFORGE_CONFIG_USE_DOUBLE
@@ -2547,58 +2550,5 @@ extern bool equalWithTolerence( real a, real b, real tolerence );
 char * upper_case(const char * input);
 
 #include "ustring.h"
-
-#ifdef _WIN32
-#define BAD_LOCALE_HACK
-typedef char* locale_t;
-#define LC_GLOBAL_LOCALE ((locale_t)-1)
-#define LC_ALL_MASK LC_ALL
-#define LC_COLLATE_MASK LC_COLLATE
-#define LC_CTYPE_MASK LC_CTYPE
-#define LC_MONETARY_MASK LC_MONETARY
-#define LC_NUMERIC_MASK LC_NUMERIC
-#define LC_TIME_MASK LC_TIME
-#endif
-
-static inline void switch_to_c_locale(locale_t * tmplocale_p, locale_t * oldlocale_p) {
-#ifndef BAD_LOCALE_HACK
-  *tmplocale_p = newlocale(LC_NUMERIC_MASK, "C", NULL);
-  if (*tmplocale_p == NULL) fprintf(stderr, "Failed to create temporary locale.\n");
-  else if ((*oldlocale_p = uselocale(*tmplocale_p)) == NULL) {
-    fprintf(stderr, "Failed to change locale.\n");
-    freelocale(*tmplocale_p); *tmplocale_p = NULL;
-  }
-#else
-  // Yes, it is dirty. But so is an operating system that doesn't support threaded locales.
-  *oldlocale_p = (locale_t)copy(setlocale(LC_NUMERIC_MASK, "C"));
-  if (*oldlocale_p == NULL) fprintf(stderr, "Failed to change locale.\n");
-#endif
-}
-
-static inline void switch_to_old_locale(locale_t * tmplocale_p, locale_t * oldlocale_p) {
-#ifndef BAD_LOCALE_HACK
-  if (*oldlocale_p != NULL) { uselocale(*oldlocale_p); } else { uselocale(LC_GLOBAL_LOCALE); }
-  *oldlocale_p = NULL; // This ends the lifecycle of the temporary old locale storage.
-  if (*tmplocale_p != NULL) { freelocale(*tmplocale_p); *tmplocale_p = NULL; }
-#else
-  if (*oldlocale_p != NULL) {
-    setlocale(LC_NUMERIC_MASK, (char*)(*oldlocale_p));
-    free((char*)(*oldlocale_p));
-    *oldlocale_p = NULL;
-  }
-#endif
-}
-
-#if 0
-#define DECLARE_TEMP_LOCALE() char oldloc[25];
-#define SWITCH_TO_C_LOCALE() strncpy( oldloc,setlocale(LC_NUMERIC,NULL),24 ); oldloc[24]='\0'; setlocale(LC_NUMERIC,"C");
-#define SWITCH_TO_OLD_LOCALE() setlocale(LC_NUMERIC,oldloc);
-#else
-#define DECLARE_TEMP_LOCALE() locale_t tmplocale; locale_t oldlocale; // Declare temporary locale storage.
-#define SWITCH_TO_C_LOCALE() switch_to_c_locale(&tmplocale, &oldlocale); // Switch to the C locale temporarily and cache the old locale.
-#define SWITCH_TO_OLD_LOCALE() switch_to_old_locale(&tmplocale, &oldlocale); // Switch to the cached locale.
-#endif
-
-
 
 #endif
