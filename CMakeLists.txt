@@ -36,7 +36,12 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 set(CMAKE_LINK_DEPENDS_NO_SHARED 1)
 
-set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+set(CMAKE_MACOSX_RPATH TRUE)
+if(APPLE)
+  set(CMAKE_INSTALL_RPATH "@loader_path/../lib")
+else()
+  set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+endif()
 
 ###############################################################################
 ## the name of the game
