@@ -1,6 +1,6 @@
 /* PathNameParser.cpp: path name parser
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -36,12 +36,12 @@ class PathNameParser::impl
 public:
   PathName path;
 public:
-  char * current = nullptr;
+  char* current = nullptr;
 public:
-  char * next = nullptr;
+  char* next = nullptr;
 };
 
-PathNameParser::PathNameParser(const PathName & path) :
+PathNameParser::PathNameParser(const PathName& path) :
   pimpl(new impl{})
 {
   pimpl->path = path;
@@ -64,11 +64,11 @@ string PathNameParser::operator*() const
   return pimpl->current;
 }
 
-PathNameParser & PathNameParser::operator++ ()
+PathNameParser& PathNameParser::operator++()
 {
   pimpl->current = pimpl->next;
 
-  char * lpsz;
+  char* lpsz;
 
   if (pimpl->current == pimpl->path.GetData() && IsDirectoryDelimiter(pimpl->path[0]))
   {
