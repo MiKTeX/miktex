@@ -500,7 +500,7 @@ public:
 public:
   PathName& Append(const char* lpsz, bool appendDirectoryDelimiter)
   {
-    if (appendDirectoryDelimiter && !Empty())
+    if (appendDirectoryDelimiter && !Empty() && !IsDirectoryDelimiter(lpsz[0]))
     {
       AppendDirectoryDelimiter();
     }
