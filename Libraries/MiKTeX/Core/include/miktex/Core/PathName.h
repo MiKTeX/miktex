@@ -30,6 +30,7 @@
 
 #include <string>
 #include <ostream>
+#include <vector>
 
 #include <miktex/Util/CharBuffer>
 
