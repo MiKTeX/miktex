@@ -81,7 +81,7 @@ PathNameParser& PathNameParser::operator++()
       ++pimpl->pos;
       for (; pimpl->path[pimpl->pos] != 0 && !IsDirectoryDelimiter(pimpl->path[pimpl->pos]); ++pimpl->pos)
       {
-	pimpl->current += pimpl->path[pimpl->pos];
+        pimpl->current += pimpl->path[pimpl->pos];
       }
     }
     else
