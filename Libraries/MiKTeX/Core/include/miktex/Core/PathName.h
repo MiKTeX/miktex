@@ -229,6 +229,9 @@ public:
 public:
   MIKTEXCORETHISAPI(std::size_t) GetHash() const;
 
+public:
+  static MIKTEXCORECEEAPI(std::vector<std::string>) Split(const PathName& path);
+
 private:
   static MIKTEXCORECEEAPI(void) Split(const PathName& path, std::string& directoryName, std::string& fileNameWithoutExtension, std::string& extension);
 

@@ -216,6 +216,34 @@ BEGIN_TEST_FUNCTION(11);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(12);
+{
+  vector<string> vec;
+#if defined(MIKTEX_WINDOWS)
+  vec = PathName::Split("C:/abc/def/ghi.jkl");
+  TEST(vec.size() == 5);
+  TEST(PathName::Compare(vec[0], "C:") == 0);
+  TEST(PathName::Compare(vec[1], "/") == 0);
+  TEST(PathName::Compare(vec[2], "abc") == 0);
+  TEST(PathName::Compare(vec[3], "def") == 0);
+  TEST(PathName::Compare(vec[4], "ghi.jkl") == 0);
+#endif
+  vec = PathName::Split("//server/abc/def/ghi.jkl");
+  TEST(vec.size() == 5);
+  TEST(PathName::Compare(vec[0], "//server") == 0);
+  TEST(PathName::Compare(vec[1], "/") == 0);
+  TEST(PathName::Compare(vec[2], "abc") == 0);
+  TEST(PathName::Compare(vec[3], "def") == 0);
+  TEST(PathName::Compare(vec[4], "ghi.jkl") == 0);
+  vec = PathName::Split("/abc/def/ghi.jkl");
+  TEST(vec.size() == 4);
+  TEST(PathName::Compare(vec[0], "/") == 0);
+  TEST(PathName::Compare(vec[1], "abc") == 0);
+  TEST(PathName::Compare(vec[2], "def") == 0);
+  TEST(PathName::Compare(vec[3], "ghi.jkl") == 0);
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
@@ -229,6 +257,7 @@ BEGIN_TEST_PROGRAM();
   CALL_TEST_FUNCTION(9);
   CALL_TEST_FUNCTION(10);
   CALL_TEST_FUNCTION(11);
+  CALL_TEST_FUNCTION(12);
 }
 END_TEST_PROGRAM();
 

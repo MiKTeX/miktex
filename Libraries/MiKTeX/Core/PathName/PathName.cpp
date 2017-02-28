@@ -1,6 +1,6 @@
 /* PathName.cpp: path name utilities
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,6 +24,7 @@
 #include "internal.h"
 
 #include "miktex/Core/PathName.h"
+#include "miktex/Core/PathNameParser.h"
 
 #include "Utils/inliners.h"
 
@@ -227,6 +228,16 @@ bool PathName::Match(const char * lpszPattern, const char * lpszPath)
   MIKTEX_ASSERT_STRING(lpszPath);
   MIKTEX_ASSERT_STRING(lpszPattern);
   return InternalMatch(PathName(lpszPattern).TransformForComparison().GetData(), PathName(lpszPath).TransformForComparison().GetData());
+}
+
+vector<string> PathName::Split(const PathName& path)
+{
+  vector<string> result;
+  for (PathNameParser parser(path); parser; ++parser)
+  {
+    result.push_back(*parser);
+  }
+  return result;
 }
 
 void PathName::Split(const PathName & path, string & directory, string & fileNameWithoutExtension, string & extension)
