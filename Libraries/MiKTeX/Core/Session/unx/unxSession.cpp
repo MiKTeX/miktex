@@ -1,6 +1,6 @@
 /* unxSession.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -101,10 +101,27 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
   ret.userInstallRoot = home_miktex_texmfs;
   ret.userInstallRoot /= "install";
   PathName prefix = GetMyPrefix();
-  if (prefix == "/usr" || prefix == "/usr/local")
+  vector<string> splittedPrefix = PathName::Split(prefix);
+  size_t n = splittedPrefix.size();
+  MIKTEX_ASSERT(n > 0 && splittedPrefix[0] == "/");
+  size_t pos = n;
+  if (n > 1 && splittedPrefix[n - 1] == "usr")
   {
-    ret.commonConfigRoot = PathName("/var/lib") / MIKTEX_PREFIX "texmf";
-    ret.commonDataRoot = PathName("/var/cache") / MIKTEX_PREFIX "texmf";
+    pos = n - 1;
+  }
+  else if (n > 2 && splittedPrefix[n - 2] == "usr" && splittedPrefix[n - 1] == "local")
+  {
+    pos = n - 2;
+  }
+  if (pos < n)
+  {
+    PathName destdir;
+    for (size_t i = 0; i < pos; ++i)
+    {
+      destdir /= splittedPrefix[i];
+    }
+    ret.commonConfigRoot = destdir / PathName("/var/lib") / MIKTEX_PREFIX "texmf";
+    ret.commonDataRoot = destdir / PathName("/var/cache") / MIKTEX_PREFIX "texmf";
     ret.commonInstallRoot = prefix / MIKTEX_TEXMF_DIR;
   }
   else
