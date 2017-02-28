@@ -31,86 +31,93 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
+enum class PathNameParserState
+{
+  Start,
+  Root,
+  Path,
+  End
+};
+
 class PathNameParser::impl
 {
 public:
   PathName path;
 public:
-  char* current = nullptr;
+  string current;
 public:
-  char* next = nullptr;
+  size_t pos = 0;
+public:
+  PathNameParserState state = PathNameParserState::Start;
 };
 
 PathNameParser::PathNameParser(const PathName& path) :
   pimpl(new impl{})
 {
   pimpl->path = path;
-  pimpl->next = pimpl->path.GetData();
-  pimpl->current = nullptr;
   ++(*this);
 }
 
 PathNameParser::operator bool() const
 {
-  return pimpl->current != nullptr && pimpl->current[0] != 0;
+  return !pimpl->current.empty();
 }
 
 string PathNameParser::operator*() const
 {
-  if (pimpl->current == nullptr)
-  {
-    // TODO: throw
-  }
   return pimpl->current;
 }
 
 PathNameParser& PathNameParser::operator++()
 {
-  pimpl->current = pimpl->next;
-
-  char* lpsz;
-
-  if (pimpl->current == pimpl->path.GetData() && IsDirectoryDelimiter(pimpl->path[0]))
+  if (pimpl->state == PathNameParserState::Start && IsDirectoryDelimiter(pimpl->path[0]))
   {
+    pimpl->current = pimpl->path[0];
+    ++pimpl->pos;
     if (IsDirectoryDelimiter(pimpl->path[1]))
     {
-      lpsz = &pimpl->path[2];
+      pimpl->state = PathNameParserState::Root;
+      pimpl->current += pimpl->path[1];
+      ++pimpl->pos;
+      for (; pimpl->path[pimpl->pos] != 0 && !IsDirectoryDelimiter(pimpl->path[pimpl->pos]); ++pimpl->pos)
+      {
+	pimpl->current += pimpl->path[pimpl->pos];
+      }
     }
     else
     {
-      lpsz = &pimpl->path[1];
+      pimpl->state = PathNameParserState::Path;
     }
   }
 #if defined(MIKTEX_WINDOWS)
-  else if (pimpl->current == pimpl->path.GetData() && IsDriveLetter(pimpl->path[0]) && pimpl->path[1] == ':' && IsDirectoryDelimiter(pimpl->path[2]))
+  else if (pimpl->state == PathNameParserState::Start && IsDriveLetter(pimpl->path[0]) && pimpl->path[1] == ':')
   {
-    lpsz = &pimpl->path[3];
+    pimpl->state = PathNameParserState::Root;
+    pimpl->current = pimpl->path[0];
+    ++pimpl->pos;
+    pimpl->current += pimpl->path[1];
+    ++pimpl->pos;
   }
 #endif
+  else if (pimpl->state == PathNameParserState::Root)
+  {
+    MIKTEX_ASSERT(IsDirectoryDelimiter(pimpl->path[pimpl->pos]));
+    pimpl->current = pimpl->path[pimpl->pos];
+    pimpl->state = PathNameParserState::Path;
+  }
   else
   {
-    // skip extra directory delimiters
-    for (; PathName::IsDirectoryDelimiter(*pimpl->current); ++pimpl->current)
+    for (; pimpl->path[pimpl->pos] != 0 && PathName::IsDirectoryDelimiter(pimpl->path[pimpl->pos]); ++pimpl->pos)
     {
-      ;
     }
-    lpsz = pimpl->current;
-  }
-
-  // cut out the next component
-  for (pimpl->next = lpsz; *pimpl->next != 0; ++pimpl->next)
-  {
-    if (PathName::IsDirectoryDelimiter(*pimpl->next))
+    pimpl->current = "";
+    for (; pimpl->path[pimpl->pos] != 0 && !PathName::IsDirectoryDelimiter(pimpl->path[pimpl->pos]); ++pimpl->pos)
     {
-      *pimpl->next = 0;
-      ++pimpl->next;
-      break;
+      pimpl->current += pimpl->path[pimpl->pos];
     }
   }
-
   return *this;
 }
-
 
 PathNameParser::~PathNameParser() noexcept
 {

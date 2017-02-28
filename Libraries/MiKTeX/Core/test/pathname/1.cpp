@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -47,7 +47,11 @@ BEGIN_TEST_FUNCTION(2);
 {
 #if defined(MIKTEX_WINDOWS)
   PathNameParser component("C:/abc/def/ghi.jkl");
-  TEST(PathName::Compare(*component, "C:/abc") == 0);
+  TEST(PathName::Compare(*component, "C:") == 0);
+  ++component;
+  TEST(PathName::Compare(*component, "/") == 0);
+  ++component;
+  TEST(PathName::Compare(*component, "abc") == 0);
   ++component;
   TEST(PathName::Compare(*component, "def") == 0);
   ++component;
@@ -56,7 +60,9 @@ BEGIN_TEST_FUNCTION(2);
   TEST(!component);
 #endif
   PathNameParser component2("/abc/def/ghi.jkl");
-  TEST(PathName::Compare(*component2, "/abc") == 0);
+  TEST(PathName::Compare(*component2, "/") == 0);
+  ++component2;
+  TEST(PathName::Compare(*component2, "abc") == 0);
   ++component2;
   TEST(PathName::Compare(*component2, "def") == 0);
   ++component2;
@@ -71,6 +77,8 @@ BEGIN_TEST_FUNCTION(3);
   PathNameParser component("//abc/def/ghi.jkl");
   TEST(PathName::Compare(*component, "//abc") == 0);
   ++component;
+  TEST(PathName::Compare(*component, "/") == 0);
+  ++component;
   TEST(PathName::Compare(*component, "def") == 0);
   ++component;
   TEST(PathName::Compare(*component, "ghi.jkl") == 0);
@@ -82,7 +90,9 @@ END_TEST_FUNCTION();
 BEGIN_TEST_FUNCTION(4);
 {
   PathNameParser component("/abc///def/ghi.jkl");
-  TEST(PathName::Compare(*component, "/abc") == 0);
+  TEST(PathName::Compare(*component, "/") == 0);
+  ++component;
+  TEST(PathName::Compare(*component, "abc") == 0);
   ++component;
   TEST(PathName::Compare(*component, "def") == 0);
   ++component;
