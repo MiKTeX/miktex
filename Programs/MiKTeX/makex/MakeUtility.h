@@ -236,6 +236,7 @@ protected:
     }
 
     Message(T_("Running %s..."), Q_(lpszExeName));
+    LOG4CXX_INFO(logger, "running: " << Q_(lpszExeName) << " " << arguments);
     PrintOnly("%s %s", Q_(lpszExeName), arguments.c_str());
     
     // run the program
