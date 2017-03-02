@@ -37,9 +37,13 @@ BEGIN_TEST_FUNCTION(1);
   PathName path("/abc/def/ghi.jkl");
   TEST(PathName::Compare(path.GetDirectoryName(), "/abc/def") == 0);
   TEST(PathName::Compare(path.GetDirectoryName(), "/abc/def/") == 0);
+  TEST(PathName::Compare(path.GetFileName(), "ghi.jkl") == 0);
   TEST(PathName::Compare(path.GetFileNameWithoutExtension(), "ghi") == 0);
   TEST(PathName::Compare(path.GetExtension(), ".jkl") == 0);
   TEST(PathName::Compare(path.GetExtension(), "jkl") != 0);
+  PathName path2 = path;
+  path2.RemoveDirectorySpec();
+  TEST(path2 == "ghi.jkl");
 }
 END_TEST_FUNCTION();
 
