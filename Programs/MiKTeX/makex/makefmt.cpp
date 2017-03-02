@@ -273,6 +273,8 @@ void MakeFmt::FindInputFile(const PathName& inputName, PathName& inputFile)
     FatalError(T_("The input file could not be found."));
   }
 
+  LOG4CXX_INFO(logger, "found input file: " << inputFile);
+
   // remove the directory specification from the path; alternatevly,
   // we could convert backslashes into forward slashes
   inputFile.RemoveDirectorySpec();
