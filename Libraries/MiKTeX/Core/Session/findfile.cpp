@@ -1,6 +1,6 @@
 /* findfile.cpp: finding files
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -35,12 +35,12 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-void SessionImpl::SetFindFileCallback(IFindFileCallback * callback)
+void SessionImpl::SetFindFileCallback(IFindFileCallback* callback)
 {
   findFileCallback = callback;
 }
 
-bool SessionImpl::CheckCandidate(PathName & path, const char * lpszFileInfo)
+bool SessionImpl::CheckCandidate(PathName& path, const char* lpszFileInfo)
 {
   bool found = false;
   if (IsMpmFile(path.GetData()))
@@ -66,7 +66,7 @@ bool SessionImpl::CheckCandidate(PathName & path, const char * lpszFileInfo)
   return found;
 }
 
-bool SessionImpl::SearchFileSystem(const string & fileName, const char * lpszDirectoryPattern, bool firstMatchOnly, vector<PathName> & result)
+bool SessionImpl::SearchFileSystem(const string& fileName, const char* lpszDirectoryPattern, bool firstMatchOnly, vector<PathName>& result)
 {
   MIKTEX_ASSERT(result.empty());
 
@@ -109,7 +109,7 @@ bool SessionImpl::SearchFileSystem(const string & fileName, const char * lpszDir
   return found;
 }
 
-bool SessionImpl::FindFileInternal(const string & fileName, const vector<PathName> & directoryPatterns, bool firstMatchOnly, bool useFndb, bool searchFileSystem, vector<PathName> & result)
+bool SessionImpl::FindFileInternal(const string& fileName, const vector<PathName>& directoryPatterns, bool firstMatchOnly, bool useFndb, bool searchFileSystem, vector<PathName>& result)
 
 {
   AutoTraceTime att("find file", fileName.c_str());
@@ -143,16 +143,16 @@ bool SessionImpl::FindFileInternal(const string & fileName, const vector<PathNam
       path.MakeAbsolute();
       if (CheckCandidate(path, nullptr))
       {
-	found = true;
+        found = true;
 #if FIND_FILE_PREFER_RELATIVE_PATH_NAMES
-	// 2015-01-15
-	if (idx == 0)
-	{
-	  MIKTEX_ASSERT(PathName::Compare(pathWD, PathName().SetToCurrentDirectory()) == 0);
-	  path = fileName;
-	}
+        // 2015-01-15
+        if (idx == 0)
+        {
+          MIKTEX_ASSERT(PathName::Compare(pathWD, PathName().SetToCurrentDirectory()) == 0);
+          path = fileName;
+        }
 #endif
-	result.push_back(path);
+        result.push_back(path);
       }
     }
     return found;
@@ -166,40 +166,40 @@ bool SessionImpl::FindFileInternal(const string & fileName, const vector<PathNam
       trace_filesearch->WriteFormattedLine("core", T_("going to search in fndb: filename=%s, directory=%s"), Q_(fileName), Q_(it->ToString()));
       if (found && !firstMatchOnly && IsMpmFile(it->GetData()))
       {
-	// don't trigger the package installer
-	continue;
+        // don't trigger the package installer
+        continue;
       }
       shared_ptr<FileNameDatabase> fndb = GetFileNameDatabase(it->GetData());
       if (fndb != nullptr)
       {
-	// search fndb
-	vector<PathName> paths;
-	vector<string> fileNameInfo;
-	bool foundInFndb = fndb->Search(fileName, it->GetData(), firstMatchOnly, paths, fileNameInfo);
-	// we must release the FNDB handle since CheckCandidate() might request an unload of the FNDB
+        // search fndb
+        vector<PathName> paths;
+        vector<string> fileNameInfo;
+        bool foundInFndb = fndb->Search(fileName, it->GetData(), firstMatchOnly, paths, fileNameInfo);
+        // we must release the FNDB handle since CheckCandidate() might request an unload of the FNDB
         fndb = nullptr;
-	if (foundInFndb)
-	{
-	  for (int idx = 0; idx < paths.size(); ++idx)
-	  {
-	    if (CheckCandidate(paths[idx], fileNameInfo[idx].c_str()))
-	    {
-	      found = true;
-	      result.push_back(paths[idx]);
-	    }
-	  }
-	}
+        if (foundInFndb)
+        {
+          for (int idx = 0; idx < paths.size(); ++idx)
+          {
+            if (CheckCandidate(paths[idx], fileNameInfo[idx].c_str()))
+            {
+              found = true;
+              result.push_back(paths[idx]);
+            }
+          }
+        }
       }
       else
       {
-	trace_filesearch->WriteFormattedLine("core", T_("no fndb found, so going to continue on disk: filename=%s, directory=%s"), Q_(fileName), Q_(it->ToString()));
-	// search the file system because the file name database does not exist
-	vector<PathName> paths;
-	if (SearchFileSystem(fileName, it->GetData(), firstMatchOnly, paths))
-	{
-	  found = true;
-	  result.insert(result.end(), paths.begin(), paths.end());
-	}
+        trace_filesearch->WriteFormattedLine("core", T_("no fndb found, so going to continue on disk: filename=%s, directory=%s"), Q_(fileName), Q_(it->ToString()));
+        // search the file system because the file name database does not exist
+        vector<PathName> paths;
+        if (SearchFileSystem(fileName, it->GetData(), firstMatchOnly, paths))
+        {
+          found = true;
+          result.insert(result.end(), paths.begin(), paths.end());
+        }
       }
     }
   }
@@ -235,12 +235,12 @@ bool SessionImpl::FindFileInternal(const string & fileName, const vector<PathNam
   return found;
 }
 
-inline bool IsNewer(const PathName & path1, const PathName & path2)
+inline bool IsNewer(const PathName& path1, const PathName& path2)
 {
   return File::Exists(path1) && File::Exists(path2) && File::GetLastWriteTime(path1) > File::GetLastWriteTime(path2);
 }
 
-bool SessionImpl::FindFileInternal(const string & fileName, FileType fileType, bool firstMatchOnly, bool tryHard, bool create, bool renew, vector<PathName> & result)
+bool SessionImpl::FindFileInternal(const string& fileName, FileType fileType, bool firstMatchOnly, bool tryHard, bool create, bool renew, vector<PathName>& result)
 {
   MIKTEX_ASSERT(result.empty());
 
@@ -264,11 +264,11 @@ bool SessionImpl::FindFileInternal(const string & fileName, FileType fileType, b
   vector<PathName> vec = ConstructSearchVector(fileType);
 
   // get the file type information
-  const InternalFileTypeInfo * fileTypeInfo = GetInternalFileTypeInfo(fileType);
+  const InternalFileTypeInfo* fileTypeInfo = GetInternalFileTypeInfo(fileType);
   MIKTEX_ASSERT(fileTypeInfo != nullptr);
 
   // check to see whether the file name has a registered file name extension
-  const char * lpszExtension = GetFileNameExtension(fileName.c_str());
+  const char* lpszExtension = GetFileNameExtension(fileName.c_str());
   bool hasRegisteredExtension = false;
   if (lpszExtension != nullptr)
   {
@@ -276,14 +276,14 @@ bool SessionImpl::FindFileInternal(const string & fileName, FileType fileType, b
     {
       if (PathName::Compare(lpszExtension, *ext) == 0)
       {
-	hasRegisteredExtension = true;
+        hasRegisteredExtension = true;
       }
     }
     for (CsvList ext(fileTypeInfo->alternateExtensions, PATH_DELIMITER); ext && !hasRegisteredExtension; ++ext)
     {
       if (PathName::Compare(lpszExtension, *ext) == 0)
       {
-	hasRegisteredExtension = true;
+        hasRegisteredExtension = true;
       }
     }
   }
@@ -320,7 +320,7 @@ bool SessionImpl::FindFileInternal(const string & fileName, FileType fileType, b
     {
       if (FindFileInternal(it->GetData(), vec, firstMatchOnly, false, true, result) && firstMatchOnly)
       {
-	return true;
+        return true;
       }
     }
   }
@@ -331,7 +331,7 @@ bool SessionImpl::FindFileInternal(const string & fileName, FileType fileType, b
     {
       if (findFileCallback != nullptr && findFileCallback->TryCreateFile(fileName, fileType))
       {
-	FindFileInternal(fileName, vec, firstMatchOnly, true, false, result);
+        FindFileInternal(fileName, vec, firstMatchOnly, true, false, result);
       }
     }
     else if ((fileType == FileType::BASE || fileType == FileType::FMT || fileType == FileType::MEM) && GetConfigValue(MIKTEX_REGKEY_TEXMF, MIKTEX_REGVAL_RENEW_FORMATS_ON_UPDATE, true).GetBool())
@@ -340,11 +340,11 @@ bool SessionImpl::FindFileInternal(const string & fileName, FileType fileType, b
       PathName pathPackagesIniU(GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGES_INI);
       if (IsNewer(pathPackagesIniC, result[0]) || (pathPackagesIniU != pathPackagesIniC && IsNewer(pathPackagesIniU, result[0])))
       {
-	if (findFileCallback != nullptr && findFileCallback->TryCreateFile(fileName, fileType))
-	{
-	  result.clear();
-	  FindFileInternal(fileName, vec, firstMatchOnly, true, false, result);
-	}
+        if (findFileCallback != nullptr && findFileCallback->TryCreateFile(fileName, fileType))
+        {
+          result.clear();
+          FindFileInternal(fileName, vec, firstMatchOnly, true, false, result);
+        }
       }
     }
   }
@@ -352,7 +352,7 @@ bool SessionImpl::FindFileInternal(const string & fileName, FileType fileType, b
   return !result.empty();
 }
 
-bool SessionImpl::FindFile(const string & fileName, const string & pathList, FindFileOptionSet options, vector<PathName> & result)
+bool SessionImpl::FindFile(const string& fileName, const string& pathList, FindFileOptionSet options, vector<PathName>& result)
 {
   bool found = FindFileInternal(fileName, SplitSearchPath(pathList), !options[FindFileOption::All], true, false, result);
 
@@ -364,7 +364,7 @@ bool SessionImpl::FindFile(const string & fileName, const string & pathList, Fin
   return found;
 }
 
-bool SessionImpl::FindFile(const string & fileName, const string & pathList, FindFileOptionSet options, PathName & result)
+bool SessionImpl::FindFile(const string& fileName, const string& pathList, FindFileOptionSet options, PathName& result)
 {
   MIKTEX_ASSERT(!options[FindFileOption::All]);
 
@@ -380,12 +380,12 @@ bool SessionImpl::FindFile(const string & fileName, const string & pathList, Fin
   return found;
 }
 
-bool SessionImpl::FindFile(const string & fileName, FileType fileType, FindFileOptionSet options, vector<PathName> & result)
+bool SessionImpl::FindFile(const string& fileName, FileType fileType, FindFileOptionSet options, vector<PathName>& result)
 {
   return FindFileInternal(fileName, fileType, !options[FindFileOption::All], options[FindFileOption::TryHard], options[FindFileOption::Create], options[FindFileOption::Renew], result);
 }
 
-bool SessionImpl::FindFile(const string & fileName, FileType fileType, FindFileOptionSet options, PathName & result)
+bool SessionImpl::FindFile(const string& fileName, FileType fileType, FindFileOptionSet options, PathName& result)
 {
   MIKTEX_ASSERT(!options[FindFileOption::All]);
   vector<PathName> paths;
@@ -399,7 +399,7 @@ bool SessionImpl::FindFile(const string & fileName, FileType fileType, FindFileO
 
 static const string DEFAULT_PK_NAME_TEMPLATE = "%f.pk";
 
-bool SessionImpl::MakePkFileName(PathName & pkFileName, const char * lpszFontName, int dpi)
+bool SessionImpl::MakePkFileName(PathName& pkFileName, const char* lpszFontName, int dpi)
 {
   string nameTemplate;
 
@@ -412,28 +412,28 @@ bool SessionImpl::MakePkFileName(PathName & pkFileName, const char * lpszFontNam
 
   str.reserve(BufferSizes::MaxPath);
 
-  for (const char * p = nameTemplate.c_str(); *p != 0; ++p)
+  for (const char* p = nameTemplate.c_str(); *p != 0; ++p)
   {
     if (p[0] == '%')
     {
       ++p;
       if (*p == 0)
       {
-	MIKTEX_UNEXPECTED();
+        MIKTEX_UNEXPECTED();
       }
       switch (*p)
       {
       case '%':
-	str += '%';
-	break;
+        str += '%';
+        break;
       case 'd':
-	str += std::to_string(dpi);
-	break;
+        str += std::to_string(dpi);
+        break;
       case 'f':
-	str += lpszFontName;
-	break;
+        str += lpszFontName;
+        break;
       default:
-	MIKTEX_UNEXPECTED();
+        MIKTEX_UNEXPECTED();
       }
     }
     else
@@ -453,7 +453,7 @@ static const string DEFAULT_PK_SEARCH_PATH = ".;%R\\fonts\\pk\\%m//dpi%d";
 static const string DEFAULT_PK_SEARCH_PATH = ".:%R/fonts/pk/%m//dpi%d";
 #endif
 
-bool SessionImpl::FindPkFile(const string & fontName, const string & mfMode, int dpi, PathName & result)
+bool SessionImpl::FindPkFile(const string& fontName, const string& mfMode, int dpi, PathName& result)
 {
   PathName pkFileName;
 
@@ -471,40 +471,40 @@ bool SessionImpl::FindPkFile(const string & fontName, const string & mfMode, int
 
   string searchPath;
 
-  for (const char * q = searchPathTemplate.c_str(); *q != 0; ++q)
+  for (const char* q = searchPathTemplate.c_str(); *q != 0; ++q)
   {
     if (*q == '%')
     {
       ++q;
       if (*q == 0)
       {
-	MIKTEX_UNEXPECTED();
+        MIKTEX_UNEXPECTED();
       }
       switch (*q)
       {
       case 'R':
-	searchPath += '%';
-	searchPath += 'R';
-	break;
+        searchPath += '%';
+        searchPath += 'R';
+        break;
       case '%':
-	searchPath += '%';
-	break;
+        searchPath += '%';
+        break;
       case 'm':
         if (!mfMode.empty())
         {
           searchPath += mfMode;
         }
-	else
-	{
-	  // FIXME: hardcoded METAFONT mode
-	  searchPath += "ljfour";
-	}
-	break;
+        else
+        {
+          // FIXME: hardcoded METAFONT mode
+          searchPath += "ljfour";
+        }
+        break;
       case 'd':
-	searchPath += std::to_string(dpi);
-	break;
+        searchPath += std::to_string(dpi);
+        break;
       default:
-	MIKTEX_UNEXPECTED();
+        MIKTEX_UNEXPECTED();
       }
     }
     else
