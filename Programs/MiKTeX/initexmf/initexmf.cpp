@@ -2582,7 +2582,10 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
     if (overwrite || !session->FindFile(formatInfo.name, FileType::EXE, tmp))
     {
       PathName exePath(pathBinDir, formatInfo.name);
-      exePath.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
+      if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
+      {
+        exePath.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
+      }
       if (!(compilerPath == exePath))
       {
         result.push_back(FileLink(compilerPath.ToString(), { exePath.ToString() }));
@@ -2611,7 +2614,10 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
     for (const shared_ptr<Cfg::Value>& v : key->GetValues())
     {
       PathName pathExe(pathBinDir, v->GetName());
-      pathExe.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
+      if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
+      {
+        pathExe.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
+      }
       result.push_back(FileLink(wrapper.ToString(), { pathExe.ToString() }));
     }
   }
