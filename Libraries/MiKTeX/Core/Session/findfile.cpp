@@ -295,9 +295,7 @@ bool SessionImpl::FindFileInternal(const string& fileName, FileType fileType, bo
   {
     for (CsvList ext(fileTypeInfo->fileNameExtensions, PATH_DELIMITER); ext; ++ext)
     {
-      PathName fileName(fileName);
-      fileName.AppendExtension(*ext);
-      fileNamesToTry.push_back(fileName);
+      fileNamesToTry.push_back(PathName(fileName).AppendExtension(*ext));
     }
   }
 
