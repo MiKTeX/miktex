@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -80,7 +80,7 @@ BEGIN_INTERNAL_NAMESPACE;
 
 #define BUF_TOO_SMALL() MIKTEX_INTERNAL_ERROR()
 
-#define INVALID_ARGUMENT(argumentName, argumentValue) MIKTEX_INTERNAL_ERROR()
+#define INVALID_ARGUMENT(argumentName, argumentValue) MIKTEX_FATAL_ERROR_2(T_("MiKTeX encountered an internal error."), argumentName, argumentValue)
 
 #define OUT_OF_MEMORY(function) MIKTEX_INTERNAL_ERROR()
 
