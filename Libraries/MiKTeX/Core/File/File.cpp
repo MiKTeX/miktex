@@ -1,6 +1,6 @@
 /* File.cpp: file operations
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -113,6 +113,11 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access)
 FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile)
 {
   return Open(path, mode, access, isTextFile, FileShare::ReadWrite);
+}
+
+FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share)
+{
+  return File::Open(path, mode, access, isTextFile, share, {});
 }
 
 bool File::Equals(const PathName& path1, const PathName& path2)

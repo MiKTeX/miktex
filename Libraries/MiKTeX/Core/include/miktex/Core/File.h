@@ -95,6 +95,14 @@ enum class FileAttribute
 
 typedef OptionSet<FileAttribute> FileAttributeSet;
 
+enum class FileOpenOption
+{
+  None,
+  DeleteOnClose
+};
+
+typedef OptionSet<FileOpenOption> FileOpenOptionSet;
+
 enum class FileDeleteOption
 {
   UpdateFndb,
@@ -214,6 +222,10 @@ public:
   /// Opens a stream on a file.
 public:
   static MIKTEXCORECEEAPI(FILE *) Open(const PathName & path, FileMode mode, FileAccess access, bool isTextFile, FileShare share);
+
+  /// Opens a stream on a file.
+public:
+  static MIKTEXCORECEEAPI(FILE *) Open(const PathName & path, FileMode mode, FileAccess access, bool isTextFile, FileShare share, FileOpenOptionSet options);
 
   /// Sets file attributes.
 public:

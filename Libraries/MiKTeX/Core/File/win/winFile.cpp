@@ -1,6 +1,6 @@
 /* File.cpp: file operations
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -384,7 +384,7 @@ size_t File::SetMaxOpen(size_t newMax)
   return newMax;
 }
 
-FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share)
+FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share, FileOpenOptionSet options)
 {
   SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("opening file %s (%d 0x%x %d %d)"), Q_(path), static_cast<int>(mode), static_cast<int>(access), static_cast<int>(share), static_cast<int>(isTextFile));
 
@@ -429,6 +429,11 @@ FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool is
       flags |= O_TRUNC;
       strFlags += "w";
     }
+  }
+
+  if (options[FileOpenOption::DeleteOnClose])
+  {
+    flags |= O_TEMPORARY;
   }
 
 #if defined(O_SEQUENTIAL)
