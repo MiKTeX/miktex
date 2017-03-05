@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -41,6 +41,11 @@ endif()
 foreach(t ${executables})
   add_executable(${t} ${t}.cpp)
   set_property(TARGET ${t} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  if (APPLE)
+    set_target_properties(${t} PROPERTIES INSTALL_RPATH "@loader_path/..")
+  else()
+    set_target_properties(${t} PROPERTIES "$ORIGIN/..")
+  endif()
   target_link_libraries(${t}
     ${app_dll_name}
     ${core_dll_name}
