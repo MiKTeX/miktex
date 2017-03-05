@@ -34,15 +34,14 @@ BEGIN_TEST_FUNCTION(1);
 {
 #if defined(MIKTEX_WINDOWS)
   Touch("xxx.zzz");
-  // FIXME: use unique_ptr<FileStream>
-  vector<FileStream*> files;
+  vector<unique_ptr<FileStream>> files;
   size_t maxRounds = File::SetMaxOpen(2048);
   TEST(maxRounds > 100);
   maxRounds -= 100;
   TESTX(
     for (int i = 0; i < maxRounds; ++i)
     {
-      files.push_back(new FileStream(File::Open("xxx.zzz", FileMode::Open, FileAccess::Read, false)));
+      files.push_back(make_unique<FileStream>(File::Open("xxx.zzz", FileMode::Open, FileAccess::Read, false)));
     }
   );
 #endif
