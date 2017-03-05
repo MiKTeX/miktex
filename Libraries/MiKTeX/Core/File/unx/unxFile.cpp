@@ -140,7 +140,7 @@ void File::SetTimes(int fd, time_t creationTime, time_t lastAccessTime, time_t l
   UNIMPLEMENTED();
 }
 
-void File::SetTimes(FILE * stream, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
+void File::SetTimes(FILE* stream, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
 {
   UNUSED_ALWAYS(stream);
   UNUSED_ALWAYS(creationTime);
@@ -170,7 +170,7 @@ void File::SetTimes(const PathName& path, time_t creationTime, time_t lastAccess
   }
 }
 
-void File::GetTimes(const PathName& path, time_t & creationTime, time_t & lastAccessTime, time_t & lastWriteTime)
+void File::GetTimes(const PathName& path, time_t& creationTime, time_t& lastAccessTime, time_t& lastWriteTime)
 {
   struct stat stat_;
   if (stat(path.GetData(), &stat_) != 0)
@@ -350,7 +350,7 @@ size_t File::SetMaxOpen(size_t newMax)
   return FOPEN_MAX;
 }
 
-FILE * File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share, FileOpenOptionSet options)
+FILE* File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share, FileOpenOptionSet options)
 {
   UNUSED_ALWAYS(isTextFile);
   UNUSED_ALWAYS(share);
