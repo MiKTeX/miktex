@@ -1,6 +1,6 @@
 /* unxFile.cpp: file operations
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -350,7 +350,7 @@ size_t File::SetMaxOpen(size_t newMax)
   return FOPEN_MAX;
 }
 
-FILE * File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share)
+FILE * File::Open(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share, FileOpenOptionSet options)
 {
   UNUSED_ALWAYS(isTextFile);
   UNUSED_ALWAYS(share);
@@ -422,6 +422,10 @@ FILE * File::Open(const PathName& path, FileMode mode, FileAccess access, bool i
 
   try
   {
+    if (options[FileOpenOption::DeleteOnClose])
+    {
+      File::Delete(path);
+    }
     return FdOpen(fd, strFlags.c_str());
   }
   catch (const exception &)
