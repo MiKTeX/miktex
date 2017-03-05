@@ -1,6 +1,6 @@
 ## InstallPaths.cmake
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -53,6 +53,7 @@ if(MIKTEX_NATIVE_WINDOWS)
   set(MIKTEX_INTERNAL_BINARY_DESTINATION_DIR ${MIKTEX_INTERNAL_BINARY_DIR})
 else()
   set(MIKTEX_BINARY_DESTINATION_DIR "bin")
+  #OPTION: set(MIKTEX_INTERNAL_BINARY_DESTINATION_DIR "libexec/miktex")
   set(MIKTEX_INTERNAL_BINARY_DESTINATION_DIR "lib/miktex")
 endif()
 
