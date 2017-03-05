@@ -20,6 +20,11 @@
 #endif
 #endif
 
+#if defined(MIKTEX)
+#include <miktex/Core/File>
+#include <miktex/Core/TemporaryFile>
+#endif
+
 using namespace std;
 
 class TmpFileException : public exception {
@@ -49,10 +54,15 @@ static inline void tmpfile_error (const char *msg) {
 * If the temp file can't be created for some reason, the function calls
 * exit() or throws a TmpFileException (depending on OS and compiler). */
 extern "C" FILE* tmpfile2 () {
+#if defined(MIKTEX)
+  std::unique_ptr<MiKTeX::Core::TemporaryFile> tmpfile = MiKTeX::Core::TemporaryFile::Create();
+  FILE* result = MiKTeX::Core::File::Open(tmpfile->GetPathName(), MiKTeX::Core::FileMode::Create, MiKTeX::Core::FileAccess::ReadWrite);
+  tmpfile->Keep();
+  return result;
+#else
 #ifndef _WIN32
 	if (FILE *fp = std::tmpfile())
 		return fp;
-#else
 	char tmpdir[MAX_PATH+1];
 	DWORD len = GetTempPath(MAX_PATH+1, tmpdir);
 	if (len > 0) {
@@ -72,4 +82,5 @@ extern "C" FILE* tmpfile2 () {
 	}
 #endif
 	tmpfile_error("failed to create temporary file");
+#endif
 }

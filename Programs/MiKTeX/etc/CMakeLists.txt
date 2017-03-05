@@ -44,7 +44,7 @@ foreach(t ${executables})
   if (APPLE)
     set_target_properties(${t} PROPERTIES INSTALL_RPATH "@loader_path/..")
   else()
-    set_target_properties(${t} PROPERTIES "$ORIGIN/..")
+    set_target_properties(${t} PROPERTIES INSTALL_RPATH "$ORIGIN/..")
   endif()
   target_link_libraries(${t}
     ${app_dll_name}
