@@ -51,9 +51,8 @@ END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(2);
 {
-  // FIXME: use unique_ptr<FileStream>
-  FILE* file = File::Open("delete.me", FileMode::Create, FileAccess::ReadWrite, false, FileShare::ReadWrite, { FileOpenOption::DeleteOnClose });
-  fclose(file);
+  FileStream file(File::Open("delete.me", FileMode::Create, FileAccess::ReadWrite, false, FileShare::ReadWrite, { FileOpenOption::DeleteOnClose }));
+  file.Close();
   TEST(!File::Exists("delete.me"));
 }
 END_TEST_FUNCTION();
