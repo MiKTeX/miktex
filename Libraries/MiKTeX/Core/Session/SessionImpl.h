@@ -355,7 +355,7 @@ public:
   MiKTeX::Core::PathName GetMyLocation(bool canonicalized) override;
 
 public:
-  MiKTeX::Core::PathName GetMyPrefix() override;
+  MiKTeX::Core::PathName GetMyPrefix(bool canonicalized) override;
 
 public:
   bool RunningAsAdministrator() override;

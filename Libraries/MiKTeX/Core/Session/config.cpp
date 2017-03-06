@@ -1,6 +1,6 @@
 /* config.cpp: MiKTeX configuration settings
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -76,9 +76,9 @@ MIKTEXSTATICFUNC(const ConfigMapping *) FindConfigMapping(const char * lpszConfi
 }
 #endif
 
-PathName SessionImpl::GetMyPrefix()
+PathName SessionImpl::GetMyPrefix(bool canonicalized)
 {
-  PathName bindir = GetMyLocation(true);
+  PathName bindir = GetMyLocation(canonicalized);
 
   RemoveDirectoryDelimiter(bindir.GetData());
 
@@ -155,9 +155,9 @@ bool SessionImpl::FindStartupConfigFile(bool common, PathName & path)
     {
       return true;
     }
-#if MIKTEX_UNIX
+#if defined(MIKTEX_UNIX)
     // try /usr/share/miktex-texmf/miktex/config/miktexstartup.ini
-    prefix = GetMyPrefix();
+    prefix = GetMyPrefix(false);
     path = prefix;
     path /= MIKTEX_TEXMF_DIR;
     path /= MIKTEX_PATH_STARTUP_CONFIG_FILE;

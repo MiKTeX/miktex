@@ -1,6 +1,6 @@
 /* miktex.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -128,7 +128,7 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     path = GetBinDirectory();
     path /= "internal";
 #else
-    path = GetMyPrefix();
+    path = GetMyPrefix(false);
     path /= MIKTEX_INTERNAL_BINARY_DESTINATION_DIR;
 #endif
     break;

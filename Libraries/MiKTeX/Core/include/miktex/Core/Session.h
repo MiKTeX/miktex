@@ -861,7 +861,7 @@ public:
   virtual PathName MIKTEXTHISCALL GetMyLocation(bool canonicalized) = 0;
 
 public:
-  virtual PathName MIKTEXTHISCALL GetMyPrefix() = 0;
+  virtual PathName MIKTEXTHISCALL GetMyPrefix(bool canonicalized) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL RunningAsAdministrator() = 0;
