@@ -1,6 +1,6 @@
 /* runperl.cpp: running scripts
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -31,7 +31,7 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-int SessionImpl::RunScript(const string & scriptEngine, const string & scriptEngineArgument, int argc, const char ** argv)
+int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngineArgument, int argc, const char** argv)
 {
   MIKTEX_ASSERT(argc > 0);
 
@@ -89,21 +89,21 @@ int SessionImpl::RunScript(const string & scriptEngine, const string & scriptEng
 
 #define PERL "perl"
 
-int SessionImpl::RunPerl(int argc, const char ** argv)
+int SessionImpl::RunPerl(int argc, const char** argv)
 {
   return RunScript(PERL, "", argc, argv);
 }
 
 #define PYTHON "python"
 
-int SessionImpl::RunPython(int argc, const char ** argv)
+int SessionImpl::RunPython(int argc, const char** argv)
 {
   return RunScript(PYTHON, "", argc, argv);
 }
 
 #define JAVA "java"
 
-int SessionImpl::RunJava(int argc, const char ** argv)
+int SessionImpl::RunJava(int argc, const char** argv)
 {
   return RunScript(JAVA, "-jar", argc, argv);
 }
