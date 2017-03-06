@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2010-2016 Christian Schenk
+## Copyright (C) 2010-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -759,6 +759,12 @@ install(TARGETS ${MIKTEX_PREFIX}luatex DESTINATION "${MIKTEX_BINARY_DESTINATION_
 add_executable(runtexlua ${luatex_program_sources} runtexlua.cpp)
 
 set_property(TARGET runtexlua PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+if (APPLE)
+  set_target_properties(runtexlua PROPERTIES INSTALL_RPATH "@loader_path/..")
+else()
+  set_target_properties(runtexlua PROPERTIES "$ORIGIN/..")
+endif()
 
 target_link_libraries(runtexlua
   ${app_dll_name}
