@@ -592,6 +592,7 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
     {
       buffer16[last] = ch;
     }
+    else
 #endif
     {
       buffer[last] = xord[ch & 0xff];
