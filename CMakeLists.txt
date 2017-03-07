@@ -485,7 +485,7 @@ if(MIKTEX_RELEASE_STATE EQUAL 0)
   set(MIKTEX_FULL_VERSION_STR
     "${MIKTEX_SERIES_STR}.${MIKTEX_J2000_VERSION}"
     CACHE STRING
-    "The full MiKTeX version tag string."
+    "The full MiKTeX version string."
     FORCE
   )
   set(MIKTEX_VERSION_TAG_STR
@@ -504,7 +504,7 @@ elseif(MIKTEX_RELEASE_STATE EQUAL 1)
   set(MIKTEX_FULL_VERSION_STR
     "${MIKTEX_SERIES_STR}.${MIKTEX_J2000_VERSION} NEXT"
     CACHE STRING
-    "The full MiKTeX version tag string."
+    "The full MiKTeX version string."
     FORCE
   )
   set(MIKTEX_VERSION_TAG_STR
@@ -523,7 +523,7 @@ elseif(MIKTEX_RELEASE_STATE EQUAL 4)
   set(MIKTEX_FULL_VERSION_STR
     "${MIKTEX_SERIES_STR}.${MIKTEX_J2000_VERSION} debug"
     CACHE STRING
-    "The full MiKTeX version tag string."
+    "The full MiKTeX version string."
     FORCE
   )
   set(MIKTEX_VERSION_TAG_STR
@@ -561,7 +561,6 @@ include(CheckSymbolExists)
 include(CheckTypeSize)
 include(CheckVariableExists)
 include(CreateDllWrapper)
-# OBSOLETE: include(CreateExeAlias)
 include(CreateSymbolicLinks)
 include(CreateWebApp)
 include(DefaultCharTypeIsUnsigned)
