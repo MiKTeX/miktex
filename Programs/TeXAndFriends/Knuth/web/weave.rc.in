@@ -1,6 +1,6 @@
-/* weave.rc: version nymber				-*- C++ -*-
+/* weave.rc: version nymber                             -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -20,8 +20,7 @@
 #include "weave-version.h"
 
 #define VER_FILEDESCRIPTION_STR "Weave - convert a Web file to a TeX file"
-#define VER_FILETYPE VFT_DLL
-#define VER_INTERNALNAME_STR "${weave_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${weave_dll_name}.dll"
+#define VER_INTERNALNAME_STR "weave"
+#define VER_ORIGINALFILENAME_STR "miktex-weave.exe"
 
 #include "miktex/win/version.rc"

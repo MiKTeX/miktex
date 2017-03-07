@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2016 Christian Schenk
+## Copyright (C) 2010-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -655,7 +655,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${CMAKE_CURRENT_SOURCE_DIR}/luatex.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/luatex.rc
     )
-  list(APPEND ${luatex_program_sources}
+  list(APPEND luatex_program_sources
     ${CMAKE_CURRENT_BINARY_DIR}/luatex.rc
   )
 endif()

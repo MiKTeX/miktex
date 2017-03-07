@@ -1,6 +1,6 @@
-/* gftodvi.rc: version number				-*- C++ -*-
+/* gftodvi.rc: version number                           -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -20,8 +20,7 @@
 #include "gftodvi-version.h"
 
 #define VER_FILEDESCRIPTION_STR "GFtoDVI - a GF file to DVI file converter"
-#define VER_FILETYPE VFT_DLL
-#define VER_INTERNALNAME_STR "${gftodvi_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${gftodvi_dll_name}.dll"
+#define VER_INTERNALNAME_STR "gftodvi"
+#define VER_ORIGINALFILENAME_STR "miktex-gftodvi.exe"
 
 #include "miktex/win/version.rc"

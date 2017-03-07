@@ -1,6 +1,6 @@
-/* luajit.rc: version number					-*- C++ -*-
+/* luajit.rc: version number                            -*- C++ -*-
 
-   Copyright (C) 2015-2016 Christian Schenk
+   Copyright (C) 2015-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,8 +19,8 @@
 
 #include "luajit-version.h"
 
-#define VER_FILEDESCRIPTION_STR "LuaJIT Interpreter"
+#define VER_FILEDESCRIPTION_STR "LuaJIT interpreter"
 #define VER_INTERNALNAME_STR "luajit"
-#define VER_ORIGINALFILENAME_STR "luajit.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-luajit.exe"
 
 #include <miktex/win/version.rc>

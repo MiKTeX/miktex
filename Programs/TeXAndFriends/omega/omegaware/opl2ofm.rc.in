@@ -1,6 +1,6 @@
-/* opl2ofm.rc: version number				-*- C++ -*-
+/* opl2ofm.rc: version number                           -*- C++ -*-
 
-   Copyright (C) 1998-2016 Christian Schenk
+   Copyright (C) 1998-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -20,8 +20,7 @@
 #include "opl2ofm-version.h"
 
 #define VER_FILEDESCRIPTION_STR "OFM assembler"
-#define VER_FILETYPE VFT_DLL
-#define VER_INTERNALNAME_STR "${opl2ofm_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${opl2ofm_dll_name}.dll"
+#define VER_INTERNALNAME_STR "opl2ofm"
+#define VER_ORIGINALFILENAME_STR "miktex-opl2ofm.exe"
 
 #include "miktex/win/version.rc"

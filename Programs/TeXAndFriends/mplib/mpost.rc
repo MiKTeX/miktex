@@ -1,6 +1,6 @@
-/* mpost.rc: version number				-*- C++ -*-
+/* mpost.rc: version number                             -*- C++ -*-
 
-   Copyright (C) 2010-2016 Christian Schenk
+   Copyright (C) 2010-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,8 +19,8 @@
 
 #include "mpost-version.h"
 
-#define VER_FILEDESCRIPTION_STR "MetaPost"
+#define VER_FILEDESCRIPTION_STR "MetaPost - a graphics-language processor based on D. E. Knuth's METAFONT"
 #define VER_INTERNALNAME_STR "mpost"
-#define VER_ORIGINALFILENAME_STR "mpost.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-mpost.exe"
 
 #include <miktex/win/version.rc>

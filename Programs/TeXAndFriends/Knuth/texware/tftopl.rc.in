@@ -1,6 +1,6 @@
-/* tftopl.rc: version number				-*- C++ -*-
+/* tftopl.rc: version number                            -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -20,8 +20,7 @@
 #include "tftopl-version.h"
 
 #define VER_FILEDESCRIPTION_STR "TFtoPL - a TFM file disassembler"
-#define VER_FILETYPE VFT_DLL
-#define VER_INTERNALNAME_STR "${tftopl_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${tftopl_dll_name}.dll"
+#define VER_INTERNALNAME_STR "tftopl"
+#define VER_ORIGINALFILENAME_STR "miktex-tftopl.exe"
 
 #include "miktex/win/version.rc"

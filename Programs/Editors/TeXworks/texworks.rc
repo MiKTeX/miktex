@@ -1,6 +1,6 @@
 /* texworks.rc:
 
-   Copyright (C) 2009-2016 Christian Schenk
+   Copyright (C) 2009-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -25,10 +25,10 @@ IDI_ICON1 ICON DISCARDABLE "source/res/images/TeXworks.ico"
 #include "texworks-version.h"
 
 #define VER_INTERNALNAME_STR "texworks"
-#define VER_ORIGINALFILENAME_STR "texworks.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-texworks.exe"
 
 #define VER_COMPANYNAME_STR "TeX Users Group"
 
-#define VER_FILEDESCRIPTION_STR "TeXworks"
+#define VER_FILEDESCRIPTION_STR "TeXworks - a graphical user interface to the typesetting system TeX and its extensions"
 
 #include <miktex/win/version.rc>

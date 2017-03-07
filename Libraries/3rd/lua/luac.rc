@@ -1,8 +1,6 @@
-/* luac.rc: version number				-*- C++ -*-
+/* luac.rc: version number                              -*- C++ -*-
 
-   Copyright (C) 2010-2016 Christian Schenk
-
-   This file is part of bmeps.
+   Copyright (C) 2010-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -23,6 +21,6 @@
 
 #define VER_FILEDESCRIPTION_STR "Lua compiler"
 #define VER_INTERNALNAME_STR "luac"
-#define VER_ORIGINALFILENAME_STR "luac.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-luac.exe"
 
 #include <miktex/win/version.rc>

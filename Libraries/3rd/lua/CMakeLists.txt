@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2016 Christian Schenk
+## Copyright (C) 2010-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -19,7 +19,6 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/lua")
 
-set(botan_source_dir ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_LUA_DIR}
 )
@@ -73,14 +72,17 @@ include(sources.cmake)
 if(NOT LINK_EVERYTHING_STATICALLY)
   add_subdirectory(shared)
   if(MIKTEX_NATIVE_WINDOWS)
-    list(APPEND lua_sources ${lua_sources}
+    list(APPEND lua_sources
       lua.rc
+    )
+    list(APPEND luac_sources
+      luac.rc
     )
   endif()
   add_executable(${MIKTEX_PREFIX}lua ${lua_sources})
   set_property(TARGET ${MIKTEX_PREFIX}lua PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   merge_trustinfo_manifest(${MIKTEX_PREFIX}lua asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}lua)
+  merge_compatibility_manifest(${MIKTEX_PREFIX}lua)
   target_link_libraries(${MIKTEX_PREFIX}lua ${lua_dll_name})
   install(TARGETS ${MIKTEX_PREFIX}lua DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 endif()

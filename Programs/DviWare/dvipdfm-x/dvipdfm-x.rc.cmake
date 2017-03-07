@@ -21,6 +21,6 @@
 
 #define VER_FILEDESCRIPTION_STR "${MIKTEX_COMP_DESCRIPTION}"
 #define VER_INTERNALNAME_STR "dvipdfm-x"
-#define VER_ORIGINALFILENAME_STR "${MIKTEX_DVIPDFMX_EXE}"
+#define VER_ORIGINALFILENAME_STR "miktex-dvipdfmx.exe"
 
 #include "miktex/win/version.rc"

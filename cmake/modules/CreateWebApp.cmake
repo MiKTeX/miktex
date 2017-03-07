@@ -245,7 +245,7 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
 
   if(MIKTEX_NATIVE_WINDOWS)
     if(EXISTS ${_short_name_l}.rc)
-      list(APPEND ${_lib_name}_sources
+      list(APPEND ${_short_name_l}_program_sources
         ${_short_name_l}.rc)
     endif()
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}.rc.in)
@@ -253,7 +253,7 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
         ${CMAKE_CURRENT_SOURCE_DIR}/${_short_name_l}.rc.in
         ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}.rc
       )
-      list(APPEND ${_lib_name}_sources
+      list(APPEND ${_short_name_l}_program_sources
         ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}.rc)
     endif()
   endif()
@@ -269,7 +269,11 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
 
   set_property(TARGET ${_lib_name} PROPERTY FOLDER ${_folder})
 
-  add_executable(${_invocation_name} ${_short_name_l}wrapper.cpp)
+  list(APPEND ${_short_name_l}_program_sources
+    ${_short_name_l}wrapper.cpp
+  )
+
+  add_executable(${_invocation_name} ${${_short_name_l}_program_sources})
   set_property(TARGET ${_invocation_name} PROPERTY FOLDER ${_folder})
 
   target_link_libraries(${_invocation_name} ${_lib_name})

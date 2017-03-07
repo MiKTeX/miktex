@@ -1,6 +1,6 @@
-/* vftovp.rc: version number				-*- C++ -*-
+/* vftovp.rc: version number                            -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,9 +19,8 @@
 
 #include "vftovp-version.h"
 
-#define VER_FILEDESCRIPTION_STR "VFtoVP - VF file disassemble"
-#define VER_FILETYPE VFT_DLL
-#define VER_INTERNALNAME_STR "${vftovp_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${vftovp_dll_name}.dll"
+#define VER_FILEDESCRIPTION_STR "VFtoVP - a VF file disassembler"
+#define VER_INTERNALNAME_STR "vftovp"
+#define VER_ORIGINALFILENAME_STR "miktex-vftovp.exe"
 
 #include "miktex/win/version.rc"

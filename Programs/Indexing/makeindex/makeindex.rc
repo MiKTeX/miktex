@@ -1,6 +1,6 @@
-/* makeindex.rc: version number				-*- C++ -*-
+/* makeindex.rc: version number                         -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -22,6 +22,6 @@
 #define VER_FILEDESCRIPTION_STR "MakeIndex - a general purpose index processor"
 
 #define VER_INTERNALNAME_STR "makeindex"
-#define VER_ORIGINALFILENAME_STR "makeindex.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-makeindex.exe"
 
 #include "miktex/win/version.rc"

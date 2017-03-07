@@ -1,6 +1,6 @@
-/* luatex.rc: version number					-*- C++ -*-
+/* luatex.rc: version number                            -*- C++ -*-
 
-   Copyright (C) 2010-2016 Christian Schenk
+   Copyright (C) 2010-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,9 +19,8 @@
 
 #include "luatex-version.h"
 
-#define VER_FILEDESCRIPTION_STR "LuaTeX DLL"
-#define VER_FILETYPE VFT_DLL
-#define VER_INTERNALNAME_STR "${luatex_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${luatex_dll_name}.dll"
+#define VER_FILEDESCRIPTION_STR "LuaTeX - a document compiler intended to simplify high-quality typesetting for many of the world's languages"
+#define VER_INTERNALNAME_STR "luatex"
+#define VER_ORIGINALFILENAME_STR "miktex-luatex.exe"
 
 #include "miktex/win/version.rc"

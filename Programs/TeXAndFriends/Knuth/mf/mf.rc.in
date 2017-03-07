@@ -1,6 +1,6 @@
-/* mf.rc: version number				-*- C++ -*-
+/* mf.rc: version number                                -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -25,9 +25,8 @@ IDR_MFSCREEN ICON DISCARDABLE "${MIKTEX_ICON}"
 
 #include "mf-version.h"
 
-#define VER_FILEDESCRIPTION_STR "METAFONT DLL"
-#define VER_FILETYPE VFT_DLL
-#define VER_INTERNALNAME_STR "${mf_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${mf_dll_name}.dll"
+#define VER_FILEDESCRIPTION_STR "METAFONT - a font compiler intended to produce typefaces of high quality"
+#define VER_INTERNALNAME_STR "mf"
+#define VER_ORIGINALFILENAME_STR "miktex-mf.exe"
 
 #include "miktex/win/version.rc"

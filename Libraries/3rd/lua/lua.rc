@@ -1,6 +1,6 @@
-/* lua.rc: version number				-*- C++ -*-
+/* lua.rc: version number                               -*- C++ -*-
 
-   Copyright (C) 2015-2016 Christian Schenk
+   Copyright (C) 2015-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,6 +21,6 @@
 
 #define VER_FILEDESCRIPTION_STR "Lua interpreter"
 #define VER_INTERNALNAME_STR "lua"
-#define VER_ORIGINALFILENAME_STR "lua.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-lua.exe"
 
 #include <miktex/win/version.rc>

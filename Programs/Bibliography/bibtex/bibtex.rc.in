@@ -20,8 +20,7 @@
 #include "bibtex-version.h"
 
 #define VER_FILEDESCRIPTION_STR "BibTeX - process bibliographies for latex, etc"
-#define VER_FILETYPE VFT_DLL
-#define VER_INTERNALNAME_STR "${bibtex_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${bibtex_dll_name}.dll"
+#define VER_INTERNALNAME_STR "bibtex"
+#define VER_ORIGINALFILENAME_STR "miktex-bibtex.exe"
 
 #include "miktex/win/version.rc"

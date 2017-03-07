@@ -1,6 +1,6 @@
-/* kpsewhich.rc: version number				-*- C++ -*-
+/* kpsewhich.rc: version number                         -*- C++ -*-
 
-   Copyright (C) 2010-2016 Christian Schenk
+   Copyright (C) 2010-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,6 +21,6 @@
 
 #define VER_FILEDESCRIPTION_STR "Standalone path lookup and variable expansion for Kpathsea."
 #define VER_INTERNALNAME_STR "kpsewhich"
-#define VER_ORIGINALFILENAME_STR "kpsewhich.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-kpsewhich.exe"
 
 #include "miktex/win/version.rc"

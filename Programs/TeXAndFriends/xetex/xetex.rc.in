@@ -1,6 +1,6 @@
 /* xetex.rc: version number                             -*- C++ -*-
 
-   Copyright (C) 1998-2016 Christian Schenk
+   Copyright (C) 1998-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,9 +19,8 @@
 
 #include "xetex-version.h"
 
-#define VER_FILEDESCRIPTION_STR "XeTeX DLL"
-#define VER_FILETYPE VFT_DLL
-#define VER_INTERNALNAME_STR "${xetex_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${xetex_dll_name}.dll"
+#define VER_FILEDESCRIPTION_STR "XeTeX - a TeX typesetting engine using Unicode and supporting modern font technologies"
+#define VER_INTERNALNAME_STR "xetex"
+#define VER_ORIGINALFILENAME_STR "miktex-xetex.exe"
 
 #include "miktex/win/version.rc"

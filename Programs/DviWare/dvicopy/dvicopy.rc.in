@@ -20,8 +20,7 @@
 #include "dvicopy-version.h"
 
 #define VER_FILEDESCRIPTION_STR "DVIcopy - a DVI flattener"
-#define VER_FILETYPE VFT_DLL
-#define VER_INTERNALNAME_STR "${dvicopy_dll_name}"
-#define VER_ORIGINALFILENAME_STR "${dvicopy_dll_name}.dll"
+#define VER_INTERNALNAME_STR "dvicopy"
+#define VER_ORIGINALFILENAME_STR "miktex-dvicopy.exe"
 
 #include "miktex/win/version.rc"
