@@ -763,7 +763,7 @@ set_property(TARGET runtexlua PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 if (APPLE)
   set_target_properties(runtexlua PROPERTIES INSTALL_RPATH "@loader_path/..")
 else()
-  set_target_properties(runtexlua PROPERTIES "$ORIGIN/..")
+  set_target_properties(runtexlua PROPERTIES INSTALL_RPATH "$ORIGIN/..")
 endif()
 
 target_link_libraries(runtexlua
