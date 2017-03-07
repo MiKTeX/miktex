@@ -485,6 +485,77 @@ inline int GetCharacter(FILE* file)
   return ch;
 }
 
+struct Bom
+{
+public:
+  static constexpr int UTF8 = 0xbfbbef;
+public:
+  static constexpr int UTF8_length = 3;
+public:
+  static constexpr int UTF8_mask = 0xffffff;
+public:
+  static constexpr int UTF16le = 0xfeff;
+public:
+  static constexpr int UTF16be = 0xfffe;
+public:
+  static constexpr int UTF16_length = 2;
+public:
+  static constexpr int UTF16_mask = 0xffff;
+};
+
+void Seek(FILE* file, int pos)
+{
+  if (fseek(file, pos, SEEK_SET) < 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("fseek");
+  }
+}
+
+void CheckBom(FILE* file)
+{
+  long filePosition = ftell(file);
+  if (filePosition < 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("ftell");
+  }
+  if (filePosition > 0)
+  {
+    return;
+  }
+  int val = 0;
+  MIKTEX_ASSERT(Bom::UTF8_length >= Bom::UTF16_length);
+  int n = fread(&val, 1, Bom::UTF8_length, file);
+  if (n < 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("fread");
+  }
+  bool maybeUtf16bom = false;
+  if (n == Bom::UTF8_length)
+  {
+    int bom = val & Bom::UTF8_mask;
+    if (bom == Bom::UTF8)
+    {
+      // TODO: logging
+      return;
+    }
+    else
+    {
+      maybeUtf16bom = true;
+    }
+  }
+  if (n == Bom::UTF16_length || maybeUtf16bom)
+  {
+    int bom = val & Bom::UTF16_mask;
+    if (bom == Bom::UTF16be || bom == Bom::UTF16le)
+    {
+      // TODO: logging
+      Seek(file, Bom::UTF16_length);
+      return;
+    }
+  }
+  Seek(file, 0);
+}
+
 bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
 {
   f.AssertValid();
@@ -502,6 +573,8 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
   {
     return false;
   }
+
+  CheckBom(f);
 
   IInputOutput* inputOutput = GetInputOutput();
 
