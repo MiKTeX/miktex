@@ -402,6 +402,7 @@ unsigned SessionImpl::GetUserInstallRoot()
 
 unsigned SessionImpl::GetDistRoot()
 {
+#if defined(MIKTEX_WINDOWS)
   PathName myloc = GetMyLocation(true);
   RemoveDirectoryDelimiter(myloc.GetData());
   PathName internalBindir(MIKTEX_PATH_INTERNAL_BIN_DIR);
@@ -418,6 +419,9 @@ unsigned SessionImpl::GetDistRoot()
     return TryDeriveTEXMFRoot(prefix);
   }
   return INVALID_ROOT_INDEX;
+#else
+  return TryDeriveTEXMFRoot(GetMyPrefix(false) / MIKTEX_TEXMF_DIR);
+#endif
 }
 
 void SessionImpl::SaveRootDirectories(
