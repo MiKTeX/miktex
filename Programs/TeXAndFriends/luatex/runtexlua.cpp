@@ -1,6 +1,6 @@
 /* runtexlua.cpp: run a texlua script
 
-   Copyright (C) 2010-2016 Christian Schenk
+   Copyright (C) 2010-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -30,13 +30,13 @@ using namespace std;
 #define TU_(x) MiKTeX::Util::CharBuffer<char>(x).GetData()
 #define UT_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 
-extern "C" int MIKTEXCEECALL Main(int argc, char ** argv);
+extern "C" int MIKTEXCEECALL Main(int argc, char** argv);
 
 // Keep the application object in the global scope (C functions might
 // call exit())
 MiKTeX::App::Application app;
 
-#if MTXRUN
+#if defined(MTXRUN)
 #  define CFGKEY "mtxrun"
 #else
 #  define CFGKEY "texlua"
@@ -50,20 +50,20 @@ MiKTeX::App::Application app;
 #  define MAINCHAR char
 #endif
 
-int MAIN(int argc, const MAINCHAR ** argv)
+int MAIN(int argc, MAINCHAR** argv)
 {
   try
     {
-      app.Init (TU_(argv[0]));
+      app.Init(TU_(argv[0]));
 
-      MIKTEX_ASSERT (argc > 0);
+      MIKTEX_ASSERT(argc > 0);
 
       // determine script name
       PathName programName = PathName(argv[0]).GetFileNameWithoutExtension();
 
       std::string scriptName;
 
-#if MTXRUN
+#if defined(MTXRUN)
       bool isLuatools = (PathName::Compare(programName, "luatools") == 0);
       bool isMtxrun = (PathName::Compare(programName, "mtxrun") == 0);
       bool isTexmfstart = (PathName::Compare(programName, "texmfstart") == 0);
@@ -82,66 +82,66 @@ int MAIN(int argc, const MAINCHAR ** argv)
       // get relative script path
       PathName scriptsIni = app.GetSession()->GetSpecialPath(SpecialPath::DistRoot);
       scriptsIni /= MIKTEX_PATH_SCRIPTS_INI;
-      unique_ptr<Cfg> pConfig (Cfg::Create());
-      pConfig->Read (scriptsIni, true);
+      unique_ptr<Cfg> scriptConfig(Cfg::Create());
+      scriptConfig->Read(scriptsIni, true);
       std::string relScriptPath;
-      if (! pConfig->TryGetValue(CFGKEY, scriptName.c_str(), relScriptPath))
+      if (!scriptConfig->TryGetValue(CFGKEY, scriptName, relScriptPath))
       {
-	MIKTEX_FATAL_ERROR_2 (MIKTEXTEXT("The Lua script is not registered."), "programName", programName.ToString());
+	MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("The Lua script is not registered."), "programName", programName.ToString());
       }
-      pConfig = nullptr;
+      scriptConfig = nullptr;
       
       // find script
       PathName scriptPath;
-      if (! app.GetSession()->FindFile(relScriptPath, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
+      if (!app.GetSession()->FindFile(relScriptPath, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
       {
         MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("The Lua script could not be found."), relScriptPath);
       }
       
       // build new argv
       vector<string> utf8args;
-      utf8args.reserve (argc + 3);
-      utf8args.push_back (TU_(argv[0]));
-      utf8args.push_back ("--luaonly");
-      utf8args.push_back (scriptPath.GetData());
-#if MTXRUN
-      if (! (isLuatools || isMtxrun || isTexmfstart))
+      utf8args.reserve(argc + 3);
+      utf8args.push_back(TU_(argv[0]));
+      utf8args.push_back("--luaonly");
+      utf8args.push_back(scriptPath.GetData());
+#if defined(MTXRUN)
+      if (!(isLuatools || isMtxrun || isTexmfstart))
       {
-	utf8args.push_back ("--script");
-	utf8args.push_back (programName);
+	utf8args.push_back("--script");
+	utf8args.push_back(programName);
       }
 #endif
-      for (int idx = 1; idx < argc; ++ idx)
+      for (int idx = 1; idx < argc; ++idx)
       {
-	utf8args.push_back (TU_(argv[idx]));
+	utf8args.push_back(TU_(argv[idx]));
       }
-      vector<char *> newargv;
-      newargv.reserve (utf8args.size() + 1);
-      for (vector<string>::const_iterator it = utf8args.begin(); it != utf8args.end(); ++ it)
+      vector<char*> newargv;
+      newargv.reserve(utf8args.size() + 1);
+      for (const string& arg : utf8args)
       {
-	newargv.push_back (const_cast<char *>(it->c_str()));
+	newargv.push_back((char*)arg.c_str());
       }
-      newargv.push_back (0);
+      newargv.push_back(nullptr);
 
       // run texlua
       int exitCode = Main(newargv.size() - 1, &newargv[0]);
 
-      app.Finalize ();
+      app.Finalize();
 
-      return (exitCode);
+      return exitCode;
     }
-  catch (const MiKTeXException & e)
-    {
-      Utils::PrintException (e);
-      return (1);
-    }
-  catch (const std::exception & e)
-    {
-      Utils::PrintException (e);
-      return (1);
-    }
+  catch (const MiKTeXException& e)
+  {
+    Utils::PrintException(e);
+    return 1;
+  }
+  catch (const std::exception& e)
+  {
+    Utils::PrintException(e);
+    return 1;
+  }
   catch (int exitCode)
-    {
-      return (exitCode);
-    }
+  {
+    return exitCode;
+  }
 }
