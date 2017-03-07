@@ -44,6 +44,8 @@ BEGIN_TEST_FUNCTION(1);
       files.push_back(make_unique<FileStream>(File::Open("xxx.zzz", FileMode::Open, FileAccess::Read, false)));
     }
   );
+  files.clear();
+  File::Delete("xxx.zzz");
 #endif
 }
 END_TEST_FUNCTION();
