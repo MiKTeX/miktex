@@ -167,7 +167,7 @@ const char *papersize;
 #if defined(MIKTEX)
 const char *outputdriver = MIKTEX_DVIPDFMX_EXE;
 const char *outputdriverargs[] = {
-  // "-q",
+  "-q",
   "-E"
 };
 MiKTeX::Core::Process * outputdriverprocess;
