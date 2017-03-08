@@ -274,6 +274,7 @@ extern XETEXPROGCLASS::scaled& ruleht;
 extern XETEXPROGCLASS::scaled& rulewd;
 extern C4P::C4P_integer& synctexoffset;
 extern C4P::C4P_integer& synctexoption;
+extern C4P::C4P_unsigned16& termoffset;
 extern XETEXPROGCLASS::strnumber& texmflogname;
 extern C4P::C4P_integer& totalpages;
 extern char*& xdvbuffer;

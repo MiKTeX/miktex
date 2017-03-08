@@ -63,6 +63,7 @@ XETEXPROGCLASS::scaled& ruleht = XETEXPROG.ruleht;
 XETEXPROGCLASS::scaled& rulewd = XETEXPROG.rulewd;
 C4P::C4P_integer& synctexoffset = XETEXPROG.synctexoffset;
 C4P::C4P_integer& synctexoption = XETEXPROG.synctexoption;
+C4P::C4P_unsigned16& termoffset = XETEXPROG.termoffset;
 XETEXPROGCLASS::strnumber& texmflogname = XETEXPROG.logname;
 C4P::C4P_integer& totalpages = XETEXPROG.totalpages;
 char*& xdvbuffer = XETEXPROG.xdvbuffer;

@@ -405,6 +405,7 @@ extern PDFTEXPROGCLASS::scaled& ruleht;
 extern PDFTEXPROGCLASS::scaled& rulewd;
 extern PDFTEXPROGCLASS::packedasciicode*& strpool;
 extern PDFTEXPROGCLASS::poolpointer*& strstart;
+extern C4P::C4P_unsigned16& termoffset;
 extern PDFTEXPROGCLASS::strnumber& texmflogname;
 extern C4P::C4P_integer& totalpages;
 extern C4P::C4P_integer*& vfefnts;

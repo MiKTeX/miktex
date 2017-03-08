@@ -948,8 +948,18 @@ void synctexterminate(boolean log_opened)
                         free(stmp);
                         }
 #else
+#if defined(MIKTEX)
+                        if (termoffset > 0)
+                        {
+                          printf("\n");
+                        }
+                        printf((synctex_ctxt.flags.quoted ? "SyncTeX written on \"%s\"\n" : "SyncTeX written on %s.\n"),
+                          tmp);
+                        termoffset = 0;
+#else
                         printf((synctex_ctxt.flags.quoted ? "\nSyncTeX written on \"%s\"" : "\nSyncTeX written on %s."),
                                tmp);
+#endif
 #endif
                         tmp = NULL;
                     }

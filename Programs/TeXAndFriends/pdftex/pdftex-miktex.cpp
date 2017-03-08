@@ -83,6 +83,7 @@ PDFTEXPROGCLASS::scaled& ruleht = PDFTEXPROG.ruleht;
 PDFTEXPROGCLASS::scaled& rulewd = PDFTEXPROG.rulewd;
 PDFTEXPROGCLASS::packedasciicode*& strpool = PDFTEXPROG.strpool;
 PDFTEXPROGCLASS::poolpointer*& strstart = PDFTEXPROG.strstart;
+C4P::C4P_unsigned16& termoffset = PDFTEXPROG.termoffset;
 PDFTEXPROGCLASS::strnumber& texmflogname = PDFTEXPROG.logname;
 C4P::C4P_integer& totalpages = PDFTEXPROG.totalpages;
 C4P::C4P_integer*& vfefnts = PDFTEXPROG.vfefnts;
