@@ -1457,7 +1457,7 @@ TWApp::aboutMiKTeX ()
 {
   QIcon oldIcon = windowIcon();
   setWindowIcon (QIcon(":/MiKTeX/miktex32x32.png"));
-  QString aboutText = tr("<p>MiKTeX %1 is a free TeX distribution for Windows maintained by Christian Schenk.</p>").arg(MIKTEX_SERIES_STR);
+  QString aboutText = tr("<p>MiKTeX %1 is a free TeX distribution for Windows maintained by Christian Schenk.</p>").arg(MIKTEX_MAJOR_MINOR_STR);
   aboutText += tr("<p>Please visit the <a href=\"http://miktex.org/\">MiKTeX Project Page</a> to learn more about the MiKTeX project.</p>");
   QMessageBox::about (0, tr("About MiKTeX"), aboutText);
   setWindowIcon (oldIcon);

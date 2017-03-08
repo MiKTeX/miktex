@@ -1,6 +1,6 @@
 /* session.idl:						-*- IDL -*-
 
-   Copyright (C) 2006-2016 Christian Schenk
+   Copyright (C) 2006-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -34,8 +34,8 @@ typedef [uuid(A889D812-7E98-4E73-A453-30C9B69A32B1)] struct MiKTeXSetupInfo
   VARIANT_BOOL sharedSetup;
   /// @brief MiKTeX version number.
   BSTR version;
-  /// @brief MiKTeX series number.
-  /// The MiKTeX series denoted as an integer (e.g., @MIKTEX_SERIES_INT@).
+  /// @brief MiKTeX major/minor version number.
+  /// The MiKTeX major/minor version number denoted as an integer (e.g., @MIKTEX_MAJOR_MINOR_INT@).
   LONG series;
   /// @brief MiKTeX bin directory.
   BSTR binDirectory;
@@ -143,9 +143,9 @@ interface ISession2 : ISession
 [
   uuid(@guid_MiKTeX_Session_TLB_CURVER@),
   version(1.0),
-  helpstring("MiKTeX @MIKTEX_SERIES_STR@ Session")
+  helpstring("MiKTeX @MIKTEX_MAJOR_MINOR_STR@ Session")
 ]
-library MiKTeXSession@MIKTEX_SERIES_ID_STR@
+library MiKTeXSession@MIKTEX_MAJOR_MINOR_ID_STR@
 {
   importlib("stdole2.tlb");
 
@@ -158,9 +158,9 @@ library MiKTeXSession@MIKTEX_SERIES_ID_STR@
   /// interfaces.
   [
     uuid(@guid_MiKTeX_Session_CURVER@),
-    helpstring("MiKTeX @MIKTEX_SERIES_STR@ Session")
+    helpstring("MiKTeX @MIKTEX_MAJOR_MINOR_STR@ Session")
   ]
-  coclass MiKTeXSession@MIKTEX_SERIES_ID_STR@
+  coclass MiKTeXSession@MIKTEX_MAJOR_MINOR_ID_STR@
   {
     interface ISession;
     [default] interface ISession2;

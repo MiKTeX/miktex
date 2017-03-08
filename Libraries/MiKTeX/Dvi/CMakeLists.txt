@@ -115,7 +115,7 @@ set_property(TARGET ${dvi_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 set_target_properties(${dvi_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_SERIES_STR}"
+    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
     SOVERSION "1"
 )
 

@@ -7,20 +7,20 @@ HKCR
 			val AccessPermission = b '%ACCESS_SD%'
 		}
 	}
-	MiKTeX.Session.@MIKTEX_SERIES_STR@ = s 'MiKTeX @MIKTEX_SERIES_STR@ Session'
+	MiKTeX.Session.@MIKTEX_MAJOR_MINOR_STR@ = s 'MiKTeX @MIKTEX_MAJOR_MINOR_STR@ Session'
 	{
 		CLSID = s '{@guid_MiKTeX_Session_CURVER@}'
 	}
 	MiKTeX.Session = s 'MiKTeX Session'
 	{
 		CLSID = s '{@guid_MiKTeX_Session_CURVER@}'
-		CurVer = s 'MiKTeX.Session.@MIKTEX_SERIES_STR@'
+		CurVer = s 'MiKTeX.Session.@MIKTEX_MAJOR_MINOR_STR@'
 	}
 	NoRemove CLSID
 	{
-		ForceRemove {@guid_MiKTeX_Session_CURVER@} = s 'MiKTeX @MIKTEX_SERIES_STR@ Session'
+		ForceRemove {@guid_MiKTeX_Session_CURVER@} = s 'MiKTeX @MIKTEX_MAJOR_MINOR_STR@ Session'
 		{
-			ProgID = s 'MiKTeX.Session.@MIKTEX_SERIES_STR@'
+			ProgID = s 'MiKTeX.Session.@MIKTEX_MAJOR_MINOR_STR@'
 			VersionIndependentProgID = s 'MiKTeX.Session'
 			ForceRemove 'Programmable'
 			InprocServer32 = s '%MODULE%'

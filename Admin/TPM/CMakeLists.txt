@@ -34,9 +34,9 @@ foreach(tpm ${common_tpms})
   get_filename_component(fn ${tpm} NAME_WE)
   configure_file(
     ${tpm}
-    "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${fn}-${MIKTEX_SERIES_STR}.tpm"
+    "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${fn}-${MIKTEX_MAJOR_MINOR_STR}.tpm"
   )
-  list(APPEND tpms "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${fn}-${MIKTEX_SERIES_STR}.tpm")
+  list(APPEND tpms "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${fn}-${MIKTEX_MAJOR_MINOR_STR}.tpm")
 endforeach()
 
 if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
@@ -210,10 +210,10 @@ foreach(tpm ${target_system_tpms})
   get_filename_component(fn ${tpm} NAME_WE)
   configure_file(
     ${tpm}
-    "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${MIKTEX_TARGET_SYSTEM_TAG}/${fn}-${MIKTEX_SERIES_STR}.tpm"
+    "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${MIKTEX_TARGET_SYSTEM_TAG}/${fn}-${MIKTEX_MAJOR_MINOR_STR}.tpm"
   )
   list(APPEND tpms
-    "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${MIKTEX_TARGET_SYSTEM_TAG}/${fn}-${MIKTEX_SERIES_STR}.tpm")
+    "${CMAKE_BINARY_DIR}/${MIKTEX_REL_TPM_DIR}/${MIKTEX_TARGET_SYSTEM_TAG}/${fn}-${MIKTEX_MAJOR_MINOR_STR}.tpm")
 endforeach()
 
 install(

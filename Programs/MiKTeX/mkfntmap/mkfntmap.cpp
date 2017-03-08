@@ -37,7 +37,7 @@ using namespace std;
 #  define THE_NAME_OF_THE_GAME T_("MiKTeX Fontmap Maintenance Utility")
 #endif
 
-#if MIKTEX_SERIES_INT < 207
+#if MIKTEX_MAJOR_MINOR_INT < 207
 #  define CREATE_DEPRECATED_MAP_FILES 1
 #else
 #  define CREATE_DEPRECATED_MAP_FILES 0

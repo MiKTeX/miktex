@@ -1,6 +1,6 @@
 ## LibraryNames.cmake
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -18,20 +18,20 @@
 ## USA.
 
 ## shared library names; naming convention:
-##    MiKTeXSERIES-NAME[-REV]
+##    MiKTeXMN-NAME[-REV]
 ## where:
 ##    NAME is the component name
-##    SERIES is the MiKTeX series (as an integer)
-##    REV is the DLL revision (relative to the current series)
+##    MN is the MiKTeX major/minor version (as an integer)
+##    REV is the DLL revision (relative to the current major/minor version)
 
-set(miktex_dll_prefix MiKTeX${MIKTEX_SERIES_INT})
+set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_INT})
 
 if(MIKTEX_RELEASE_STATE EQUAL 0)
-  set(miktex_dll_prefix MiKTeX${MIKTEX_SERIES_INT})
+  set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_INT})
 elseif(MIKTEX_RELEASE_STATE EQUAL 1)
-  set(miktex_dll_prefix MiKTeX${MIKTEX_SERIES_INT}-next)
+  set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_INT}-next)
 elseif(MIKTEX_RELEASE_STATE EQUAL 4)
-  set(miktex_dll_prefix MiKTeX${MIKTEX_SERIES_INT}-debug)
+  set(miktex_dll_prefix MiKTeX${MIKTEX_MAJOR_MINOR_INT}-debug)
 endif()
 
 macro(define_library _name)

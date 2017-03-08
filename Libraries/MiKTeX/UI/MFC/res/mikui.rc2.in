@@ -40,7 +40,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", MIKTEX_COMP_COMPANY_STR
             VALUE "FileDescription", "MiKTeX UI DLL"
-            VALUE "FileVersion", MIKTEX_SERIES_STR "." MIKTEX_COMPONENT_VERSION_STR
+            VALUE "FileVersion", MIKTEX_MAJOR_MINOR_STR "." MIKTEX_COMPONENT_VERSION_STR
             VALUE "InternalName", "${ui_dll_name}"
             VALUE "LegalCopyright", MIKTEX_COMP_COPYRIGHT_STR
             VALUE "OriginalFilename", "${ui_dll_name}.dll"

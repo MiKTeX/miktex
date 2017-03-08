@@ -42,7 +42,7 @@ add_dependencies(${apr_dll_name} gen-apr-headers)
 
 set_target_properties(${apr_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_SERIES_STR}"
+    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
     SOVERSION "1"
 )
 

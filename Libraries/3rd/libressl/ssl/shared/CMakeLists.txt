@@ -37,7 +37,7 @@ set_property(TARGET ${libressl_ssl_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FO
 
 set_target_properties(${libressl_ssl_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_SERIES_STR}"
+    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
     SOVERSION "1"
 )
 

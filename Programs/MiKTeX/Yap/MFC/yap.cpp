@@ -342,7 +342,7 @@ BOOL YapApplication::InitInstance()
     // change the registry key under which our settings are stored
     if (!session->IsMiKTeXPortable())
     {
-      SetRegistryKey(UT_(MIKTEX_COMP_COMPANY_STR "\\" MIKTEX_PRODUCTNAME_STR "\\" MIKTEX_SERIES_STR));
+      SetRegistryKey(UT_(MIKTEX_COMP_COMPANY_STR "\\" MIKTEX_PRODUCTNAME_STR "\\" MIKTEX_MAJOR_MINOR_STR));
     }
 
     // load standard ini file options (including MRU)

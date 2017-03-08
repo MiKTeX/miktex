@@ -36,7 +36,7 @@ set_property(TARGET ${uriparser_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDE
 
 set_target_properties(${uriparser_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_SERIES_STR}"
+    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
     SOVERSION "1"
 )
 

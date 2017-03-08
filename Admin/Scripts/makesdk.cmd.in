@@ -2,10 +2,10 @@
 
 setlocal
 
-set series=@MIKTEX_SERIES_STR@
+set majmin=@MIKTEX_MAJOR_MINOR_STR@
 set tag=@MIKTEX_VERSION_TAG_STR@
 set sdkname=miktex-%tag%-sdk
-set destdir=C:\MiKTeX-SDKs\%series%
+set destdir=C:\MiKTeX-SDKs\%majmin%
 
 set excl=@CMAKE_BINARY_DIR_NATIVE@\excl
 
@@ -18,17 +18,17 @@ if not exist "@CMAKE_BINARY_DIR_NATIVE@\SDK\include" (
 )
 
 pushd "@CMAKE_BINARY_DIR_NATIVE@\Libraries\MiKTeX"
-copy Core\COM\MiKTeX${MIKTEX_SERIES_INT}-session.idl ^
+copy Core\COM\MiKTeX${MIKTEX_MAJOR_MINOR_INT}-session.idl ^
      "@CMAKE_BINARY_DIR_NATIVE@\SDK\include"
 copy Core\include\miktexidl.h "@CMAKE_BINARY_DIR_NATIVE@\SDK\include"
-copy Core\include\MiKTeX${MIKTEX_SERIES_INT}-sessionidl.h ^
+copy Core\include\MiKTeX${MIKTEX_MAJOR_MINOR_INT}-sessionidl.h ^
      "@CMAKE_BINARY_DIR_NATIVE@\SDK\include"
 pushd Core
 copy ${session_tlb_name}.tlb "@CMAKE_BINARY_DIR_NATIVE@\SDK\include"
 popd
-copy PackageManager\COM\MiKTeX${MIKTEX_SERIES_INT}-packagemanager.idl ^
+copy PackageManager\COM\MiKTeX${MIKTEX_MAJOR_MINOR_INT}-packagemanager.idl ^
      "@CMAKE_BINARY_DIR_NATIVE@\SDK\include"
-copy PackageManager\include\MiKTeX${MIKTEX_SERIES_INT}-packagemanageridl.h ^
+copy PackageManager\include\MiKTeX${MIKTEX_MAJOR_MINOR_INT}-packagemanageridl.h ^
      "@CMAKE_BINARY_DIR_NATIVE@\SDK\include"
 popd
 
@@ -64,10 +64,10 @@ del "%excl%"
 
 pushd "%destdir%"
 cd ..
-move %series% %sdkname%
+move %majmin% %sdkname%
 if exist %sdkname%.zip del %sdkname%.zip
 zip -9r %sdkname%.zip %sdkname%
-move %sdkname% %series%
+move %sdkname% %majmin%
 popd
 
 endlocal

@@ -445,9 +445,9 @@ int CompareSerieses(const string & ver1, const string & ver2)
 }
 
 #if defined(MIKTEX_WINDOWS_64)
-#define MAVERICK "miktex-bin" "-" "x64" "-" MIKTEX_SERIES_STR
+#define MAVERICK "miktex-bin" "-" "x64" "-" MIKTEX_MAJOR_MINOR_STR
 #else
-#define MAVERICK "miktex-bin" "-" MIKTEX_SERIES_STR
+#define MAVERICK "miktex-bin" "-" MIKTEX_MAJOR_MINOR_STR
 #endif
 
 void PackageInstallerImpl::FindUpdates()
@@ -483,7 +483,7 @@ void PackageInstallerImpl::FindUpdates()
         && (targetSystem.empty() || targetSystem == MIKTEX_SYSTEM_TAG)
 #endif
         //&& pSession->IsAdminMode()
-        //&& CompareSerieses(dbLight.GetPackageVersion(deploymentName), MIKTEX_SERIES_STR) == 0
+        //&& CompareSerieses(dbLight.GetPackageVersion(deploymentName), MIKTEX_MAJOR_MINOR_STR) == 0
         )
       {
         trace_mpm->WriteFormattedLine("libmpm", T_("%s: new essential MiKTeX package"), deploymentName.c_str());

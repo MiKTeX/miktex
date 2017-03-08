@@ -282,7 +282,7 @@ target_link_libraries(${freetype2_dll_name}
 
 set_target_properties(${freetype2_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_SERIES_STR}"
+    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
     SOVERSION "1"
 )
 

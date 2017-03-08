@@ -10,7 +10,7 @@
 <!ENTITY month "January 2016">
 <!ENTITY date "January 02, 2016">
 
-<!ENTITY rev "&MIKTEX_SERIES_STR;.&revj2000;">
+<!ENTITY rev "&MIKTEX_MAJOR_MINOR_STR;.&revj2000;">
 
 <!ENTITY mfappdefaults SYSTEM "mfapp.defaults">
 <!ENTITY mfdefaults SYSTEM "mf.defaults">

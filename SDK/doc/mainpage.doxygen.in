@@ -3,20 +3,20 @@
  *
  * @section intro Introduction
  *
- * MiKTeX @MIKTEX_SERIES_STR@ exports two COM objects
+ * MiKTeX @MIKTEX_MAJOR_MINOR_STR@ exports two COM objects
  * that make it possible to script MiKTeX:
  * @li The
  *  @link
- *   MiKTeXSession@MIKTEX_SERIES_ID_STR@::MiKTeXSession@MIKTEX_SERIES_ID_STR@
+ *   MiKTeXSession@MIKTEX_MAJOR_MINOR_ID_STR@::MiKTeXSession@MIKTEX_MAJOR_MINOR_ID_STR@
  *   MiKTeX session object
  *  @endlink
  *  provides an interface to MiKTeX core functionality.
  *  The interface can be used to search for files,
- *  gather information about the MiKTeX @MIKTEX_SERIES_STR@
- *  installation and to run MiKTeX @MIKTEX_SERIES_STR@ applications.
+ *  gather information about the MiKTeX @MIKTEX_MAJOR_MINOR_STR@
+ *  installation and to run MiKTeX @MIKTEX_MAJOR_MINOR_STR@ applications.
  * @li The
  *  @link
-     MiKTeXPackageManager@MIKTEX_SERIES_ID_STR@::PackageManager@MIKTEX_SERIES_ID_STR@
+     MiKTeXPackageManager@MIKTEX_MAJOR_MINOR_ID_STR@::PackageManager@MIKTEX_MAJOR_MINOR_ID_STR@
  *   MiKTeX package manager object
  *  @endlink
  *  provides an interface to the MiKTeX package manager.
@@ -27,13 +27,13 @@
  *
  * The MiKTeX @MIKTEX_VERSION_STR@ SDK can be downloaded from the SDK
  * home page:
- * <a href="http://miktex.org/@MIKTEX_SERIES_STR@/sdk.aspx">
- * http://miktex.org/@MIKTEX_SERIES_STR@/sdk.aspx</a>
+ * <a href="http://miktex.org/@MIKTEX_MAJOR_MINOR_STR@/sdk.aspx">
+ * http://miktex.org/@MIKTEX_MAJOR_MINOR_STR@/sdk.aspx</a>
  *
  * @section prerequisites What you need
  *
  * You need
- * @li a working MiKTeX @MIKTEX_SERIES_STR@ system
+ * @li a working MiKTeX @MIKTEX_MAJOR_MINOR_STR@ system
  * @li a COM-capable script interpreter (Perl, Ruby, Python, ...) and/or a
  *   COM-capable high language compiler (e.g., Microsoft Visual C++)
  *

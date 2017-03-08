@@ -461,73 +461,73 @@ endif()
 include(miktex-version.cmake)
 include(miktex-local-version.cmake OPTIONAL)
 
-set(MIKTEX_SERIES_STR
+set(MIKTEX_MAJOR_MINOR_STR
   "${MIKTEX_MAJOR_VERSION}.${MIKTEX_MINOR_VERSION}"
 )
 
-set(MIKTEX_SERIES_ID_STR
+set(MIKTEX_MAJOR_MINOR_ID_STR
   "${MIKTEX_MAJOR_VERSION}_${MIKTEX_MINOR_VERSION}"
 )
 
 math(
   EXPR
-  MIKTEX_SERIES_INT
+  MIKTEX_MAJOR_MINOR_INT
   "(100 * ${MIKTEX_MAJOR_VERSION}) + ${MIKTEX_MINOR_VERSION}"
 )
 
 if(MIKTEX_RELEASE_STATE EQUAL 0)
   set(MIKTEX_VERSION_STR
-    "${MIKTEX_SERIES_STR}"
+    "${MIKTEX_MAJOR_MINOR_STR}"
     CACHE STRING
     "The MiKTeX version string."
     FORCE
   )
   set(MIKTEX_FULL_VERSION_STR
-    "${MIKTEX_SERIES_STR}.${MIKTEX_J2000_VERSION}"
+    "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_J2000_VERSION}"
     CACHE STRING
     "The full MiKTeX version string."
     FORCE
   )
   set(MIKTEX_VERSION_TAG_STR
-    "${MIKTEX_SERIES_STR}.${MIKTEX_J2000_VERSION}"
+    "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_J2000_VERSION}"
     CACHE STRING
     "The MiKTeX version tag string."
     FORCE
   )
 elseif(MIKTEX_RELEASE_STATE EQUAL 1)
   set(MIKTEX_VERSION_STR
-    "${MIKTEX_SERIES_STR} NEXT"
+    "${MIKTEX_MAJOR_MINOR_STR} NEXT"
     CACHE STRING
     "The MiKTeX version string."
     FORCE
   )
   set(MIKTEX_FULL_VERSION_STR
-    "${MIKTEX_SERIES_STR}.${MIKTEX_J2000_VERSION} NEXT"
+    "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_J2000_VERSION} NEXT"
     CACHE STRING
     "The full MiKTeX version string."
     FORCE
   )
   set(MIKTEX_VERSION_TAG_STR
-    "${MIKTEX_SERIES_STR}.${MIKTEX_J2000_VERSION}-next"
+    "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_J2000_VERSION}-next"
     CACHE STRING
     "The MiKTeX version tag string."
     FORCE
   )
 elseif(MIKTEX_RELEASE_STATE EQUAL 4)
   set(MIKTEX_VERSION_STR
-    "${MIKTEX_SERIES_STR} debug"
+    "${MIKTEX_MAJOR_MINOR_STR} debug"
     CACHE STRING
     "The MiKTeX version string."
     FORCE
   )
   set(MIKTEX_FULL_VERSION_STR
-    "${MIKTEX_SERIES_STR}.${MIKTEX_J2000_VERSION} debug"
+    "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_J2000_VERSION} debug"
     CACHE STRING
     "The full MiKTeX version string."
     FORCE
   )
   set(MIKTEX_VERSION_TAG_STR
-    "${MIKTEX_SERIES_STR}.${MIKTEX_J2000_VERSION}-debug"
+    "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_J2000_VERSION}-debug"
     CACHE STRING
     "The MiKTeX version tag string."
     FORCE
@@ -1782,7 +1782,7 @@ if(INSTALL_PACKAGE_DATABASE)
 
   execute_process(
     COMMAND
-      ${WGET_EXECUTABLE} -q -O - ${remote_repository}/miktex-zzdb1-${MIKTEX_SERIES_STR}.tar.lzma
+      ${WGET_EXECUTABLE} -q -O - ${remote_repository}/miktex-zzdb1-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
     COMMAND
       ${TAR_EXECUTABLE} -xJf -
     WORKING_DIRECTORY
@@ -1791,7 +1791,7 @@ if(INSTALL_PACKAGE_DATABASE)
 
   execute_process(
     COMMAND
-      ${WGET_EXECUTABLE} -q -O - ${remote_repository}/miktex-zzdb2-${MIKTEX_SERIES_STR}.tar.lzma
+      ${WGET_EXECUTABLE} -q -O - ${remote_repository}/miktex-zzdb2-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
     COMMAND
       ${TAR_EXECUTABLE} -xJf -
     WORKING_DIRECTORY
@@ -1837,7 +1837,7 @@ set(CPACK_PACKAGE_DESCRIPTION_FILE
 )
 
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
-  "MiKTeX ${MIKTEX_SERIES_STR}: a TeX distribution"
+  "MiKTeX ${MIKTEX_MAJOR_MINOR_STR}: a TeX distribution"
 )
 
 set(CPACK_PACKAGE_CONTACT

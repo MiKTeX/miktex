@@ -42,7 +42,7 @@ namespace
 {
   const EnumAndString<DviPageMode> dviPageModes[] = {
     { DviPageMode::Pk, "pk" },
-#if MIKTEX_SERIES_INT <= 209
+#if MIKTEX_MAJOR_MINOR_INT <= 209
     { DviPageMode::Pk, "auto" },
 #endif
     { DviPageMode::Dvips, "dvips" },

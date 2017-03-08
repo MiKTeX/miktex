@@ -121,7 +121,7 @@ BOOL SetupWizard::OnInitDialog()
       unique_ptr<Cfg> pConfig(Cfg::Create());
       pConfig->Read(configFile);
       CString prefix;
-      CString version(UT_(MIKTEX_SERIES_STR));
+      CString version(UT_(MIKTEX_MAJOR_MINOR_STR));
       version += _T('.');
       version += UT_(pConfig->GetValue("repository", "version").c_str());
       switch (SetupApp::Instance->GetPackageLevel())

@@ -92,14 +92,14 @@
 #define MIKTEX_TDSUTIL_RECIPE_FILE_SUFFIX ".ini"
 
 #define MIKTEX_MPM_DB_LIGHT_FILE_NAME_NO_SUFFIX \
-  "miktex" "-" "zzdb" "1" "-" MIKTEX_SERIES_STR
+  "miktex" "-" "zzdb" "1" "-" MIKTEX_MAJOR_MINOR_STR
 
 #define MIKTEX_MPM_DB_LIGHT_FILE_NAME           \
   MIKTEX_MPM_DB_LIGHT_FILE_NAME_NO_SUFFIX       \
   MIKTEX_TARLZMA_FILE_SUFFIX
 
 #define MIKTEX_MPM_DB_FULL_FILE_NAME_NO_SUFFIX  \
-  "miktex" "-" "zzdb" "2" "-" MIKTEX_SERIES_STR
+  "miktex" "-" "zzdb" "2" "-" MIKTEX_MAJOR_MINOR_STR
 
 #define MIKTEX_MPM_DB_FULL_FILE_NAME            \
   MIKTEX_MPM_DB_FULL_FILE_NAME_NO_SUFFIX        \

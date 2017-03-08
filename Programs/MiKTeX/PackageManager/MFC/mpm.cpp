@@ -63,7 +63,7 @@ BOOL PackageManagerApplication::InitInstance()
     pSession = Session::Create(Session::InitInfo("mpm"));
     TraceStream::SetTraceFlags("error,mpm,config");
 
-    SetRegistryKey(UT_(MIKTEX_COMP_COMPANY_STR "\\" MIKTEX_PRODUCTNAME_STR "\\" MIKTEX_SERIES_STR));
+    SetRegistryKey(UT_(MIKTEX_COMP_COMPANY_STR "\\" MIKTEX_PRODUCTNAME_STR "\\" MIKTEX_MAJOR_MINOR_STR));
 
     LoadStdProfileSettings(0);
 

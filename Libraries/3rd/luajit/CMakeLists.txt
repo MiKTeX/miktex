@@ -359,7 +359,7 @@ target_include_directories(${luajit_dll_name}
 
 set_target_properties(${luajit_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_SERIES_STR}"
+    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
     SOVERSION "1"
 )
 

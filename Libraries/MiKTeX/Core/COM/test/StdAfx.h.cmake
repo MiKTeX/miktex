@@ -27,4 +27,4 @@
 
 #import "@session_tlb_name@.tlb"
 
-using namespace MiKTeXSession@MIKTEX_SERIES_ID_STR@;
+using namespace MiKTeXSession@MIKTEX_MAJOR_MINOR_ID_STR@;

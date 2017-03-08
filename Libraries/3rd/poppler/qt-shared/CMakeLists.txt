@@ -76,7 +76,7 @@ set_property(TARGET ${poppler_qt_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLD
 
 set_target_properties(${poppler_qt_dll_name}
   PROPERTIES
-   VERSION "${MIKTEX_SERIES_STR}"
+   VERSION "${MIKTEX_MAJOR_MINOR_STR}"
    SOVERSION 1
 )
 

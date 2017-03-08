@@ -225,7 +225,7 @@ bool winRegistry::TryGetRegistryValue(TriState shared, const wstring & keyName, 
     return TryGetRegistryValue(shared, keyName, valueName, value);
 #endif
   }
-  wstring registryPath = SessionImpl::GetSession()->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_SERIES_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES);
+  wstring registryPath = SessionImpl::GetSession()->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES);
   registryPath += L'\\';
   registryPath += keyName;
   return TryGetRegistryValue(shared == TriState::False ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE, registryPath, valueName, value);
@@ -266,7 +266,7 @@ bool winRegistry::TryDeleteRegistryValue(TriState shared, const wstring & keyNam
     bool done = TryDeleteRegistryValue(TriState::False, keyName, valueName);
     return TryDeleteRegistryValue(TriState::True, keyName, valueName) || done;
   }
-  wstring registryPath = SessionImpl::GetSession()->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_SERIES_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES);
+  wstring registryPath = SessionImpl::GetSession()->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES);
   registryPath += L'\\';
   registryPath += keyName;
   return TryDeleteRegistryValue((shared == TriState::False ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE), registryPath, valueName);
@@ -286,7 +286,7 @@ void winRegistry::SetRegistryValue(TriState shared, const wstring & keyName, con
     SetRegistryValue(shared, keyName, valueName, value);
     return;
   }
-  wstring registryPath = SessionImpl::GetSession()->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_SERIES_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES);
+  wstring registryPath = SessionImpl::GetSession()->IsMiKTeXDirect() ? UW_(MIKTEX_REGPATH_MAJOR_MINOR_MIKTEXDIRECT) : UW_(MIKTEX_REGPATH_SERIES);
   registryPath += L'\\';
   registryPath += keyName;
   HKEY hkeyParent = shared == TriState::False ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE;

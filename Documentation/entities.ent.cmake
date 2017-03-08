@@ -46,7 +46,7 @@
 <!ENTITY MiKTeXPortable "<application>&MiKTeX;&nbsp;Portable</application>">
 <!ENTITY MiKTeX25 "&MiKTeX;&nbsp;2.5">
 <!ENTITY MiKTeX26 "&MiKTeX;&nbsp;2.6">
-<!ENTITY MiKTeXCurrentSeries "&MiKTeX;&nbsp;&MIKTEX_SERIES_STR;">
+<!ENTITY MiKTeXCurrentSeries "&MiKTeX;&nbsp;&MIKTEX_MAJOR_MINOR_STR;">
 <!ENTITY MiKTeXSoftwareDevelopmentKit "&MiKTeX;&nbsp;Software Development Kit">
 <!ENTITY SDK "<acronym>SDK</acronym>">
 <!ENTITY MiKTeXSDK "&MiKTeX;&nbsp;&SDK;">
@@ -140,10 +140,10 @@
 <!ENTITY iniomega "<command>iniomega</command>">
 <!ENTITY initex "<command>initex</command>">
 <!ENTITY initexmf "<command>initexmf</command>">
-<!ENTITY commoninstalldir "C:\Program Files\MiKTeX &MIKTEX_SERIES_STR;">
-<!ENTITY userconfigdir "C:\Documents and Settings\User\Application Data\MiKTeX &MIKTEX_SERIES_STR;">
-<!ENTITY userdatadir "C:\Documents and Settings\User\Local SettingsApplication Data\MiKTeX &MIKTEX_SERIES_STR;">
-<!ENTITY commondatadir "C:\Documents and Settings\All Users\Application Data\MiKTeX &MIKTEX_SERIES_STR;">
+<!ENTITY commoninstalldir "C:\Program Files\MiKTeX &MIKTEX_MAJOR_MINOR_STR;">
+<!ENTITY userconfigdir "C:\Documents and Settings\User\Application Data\MiKTeX &MIKTEX_MAJOR_MINOR_STR;">
+<!ENTITY userdatadir "C:\Documents and Settings\User\Local SettingsApplication Data\MiKTeX &MIKTEX_MAJOR_MINOR_STR;">
+<!ENTITY commondatadir "C:\Documents and Settings\All Users\Application Data\MiKTeX &MIKTEX_MAJOR_MINOR_STR;">
 <!ENTITY latex "<command>latex</command>">
 <!ENTITY xelatex "<command>xelatex</command>">
 <!ENTITY makeinfo "<command>makeinfo</command>">
@@ -172,13 +172,13 @@
 <!ENTITY xetex "<command>xetex</command>">
 <!ENTITY pdfetex "<command>pdfetex</command>">
 <!ENTITY pdfvirtex "<command>pdfvirtex</command>">
-<!ENTITY progfldr "MiKTeX &MIKTEX_SERIES_STR;">
+<!ENTITY progfldr "MiKTeX &MIKTEX_MAJOR_MINOR_STR;">
 <!ENTITY prompt "C:\&gt; ">
-<!ENTITY basicmiktexexe "<command>basic-miktex-&MIKTEX_SERIES_STR;.<replaceable>xxxx</replaceable>.exe</command>">
-<!ENTITY basicmiktexexefile "<filename>basic-miktex-&MIKTEX_SERIES_STR;.<replaceable>xxxx</replaceable>.exe</filename>">
+<!ENTITY basicmiktexexe "<command>basic-miktex-&MIKTEX_MAJOR_MINOR_STR;.<replaceable>xxxx</replaceable>.exe</command>">
+<!ENTITY basicmiktexexefile "<filename>basic-miktex-&MIKTEX_MAJOR_MINOR_STR;.<replaceable>xxxx</replaceable>.exe</filename>">
 <!ENTITY miktexsetup "<command>miktexsetup</command>">
-<!ENTITY setupexe "<command>setup-&MIKTEX_SERIES_STR;.<replaceable>xxxx</replaceable>.exe</command>">
-<!ENTITY setupexefile "<filename>setup-&MIKTEX_SERIES_STR;.<replaceable>xxxx</replaceable>.exe</filename>">
+<!ENTITY setupexe "<command>setup-&MIKTEX_MAJOR_MINOR_STR;.<replaceable>xxxx</replaceable>.exe</command>">
+<!ENTITY setupexefile "<filename>setup-&MIKTEX_MAJOR_MINOR_STR;.<replaceable>xxxx</replaceable>.exe</filename>">
 <!ENTITY miktextex "<command>tex</command>">
 <!ENTITY tex "<command>tex</command>">
 <!ENTITY mthelp "<command>mthelp</command>">

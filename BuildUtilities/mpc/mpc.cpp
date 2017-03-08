@@ -1,6 +1,6 @@
 /* mpc.cpp: creating MiKTeX packages
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2017 Christian Schenk
 
    This file is part of MPC.
 
@@ -74,7 +74,7 @@ enum Option
   OPT_CREATE_PACKAGE,
   OPT_DEFAULT_LEVEL,
   OPT_DISASSEMBLE_PACKAGE,
-  OPT_MIKTEX_SERIES,
+  OPT_MIKTEX_MAJOR_MINOR,
   OPT_PACKAGE_LIST,
   OPT_RELEASE_STATE,
   OPT_REPOSITORY,
@@ -313,8 +313,8 @@ private:
   char defaultLevel = 'T';
 
 private:
-  // default MiKTeX series
-  VersionNumber miktexSeries = MIKTEX_SERIES_STR;
+  // default MiKTeX major/minor version
+  VersionNumber majorMinorVersion = MIKTEX_MAJOR_MINOR_STR;
 
 private:
   string releaseState = "stable";
@@ -353,7 +353,8 @@ const struct poptOption PackageCreator::options[] = {
   },
 
   {
-    "miktex-series", 0, POPT_ARG_STRING, 0, OPT_MIKTEX_SERIES, T_("Specify the MiKTeX series (one of: 2.9)."), T_("SERIES")
+    // TODO: "miktex-major-minor"
+    "miktex-series", 0, POPT_ARG_STRING, 0, OPT_MIKTEX_MAJOR_MINOR, T_("Specify the MiKTeX major/minor version (one of: 2.9)."), T_("MAJOR.MINOR")
   },
 
   {
@@ -442,7 +443,7 @@ PathName PackageCreator::FindLzma()
 
 ArchiveFileType PackageCreator::GetDbArchiveFileType()
 {
-  if (miktexSeries < "2.7")
+  if (majorMinorVersion < "2.7")
   {
     return ArchiveFileType::TarBzip2;
   }
@@ -464,12 +465,12 @@ PathName PackageCreator::GetDbFileName(int id, const VersionNumber & versionNumb
 
 PathName PackageCreator::GetDbLightFileName()
 {
-  return GetDbFileName(1, miktexSeries);
+  return GetDbFileName(1, majorMinorVersion);
 }
 
 PathName PackageCreator::GetDbHeavyFileName()
 {
-  return GetDbFileName(2, miktexSeries);
+  return GetDbFileName(2, majorMinorVersion);
 }
 
 void PackageCreator::Verbose(const char * lpszFormat, ...)
@@ -1950,11 +1951,11 @@ void PackageCreator::Run(int argc, const char ** argv)
     case OPT_DISASSEMBLE_PACKAGE:
       optDisassemblePackage = true;
       break;
-    case OPT_MIKTEX_SERIES:
-      miktexSeries = optArg.c_str();
-      if (miktexSeries.CompareTo(MIKTEX_SERIES_STR) > 0)
+    case OPT_MIKTEX_MAJOR_MINOR:
+      majorMinorVersion = optArg.c_str();
+      if (majorMinorVersion.CompareTo(MIKTEX_MAJOR_MINOR_STR) > 0)
       {
-        FatalError(T_("Unsupported MiKTeX series."));
+        FatalError(T_("Unsupported MiKTeX major/minor version."));
       }
       break;
     case OPT_PACKAGE_LIST:

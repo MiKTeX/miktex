@@ -504,7 +504,7 @@ set_property(TARGET ${fontconfig_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLD
 
 set_target_properties(${fontconfig_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_SERIES_STR}"
+    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
     SOVERSION "1"
 )
 

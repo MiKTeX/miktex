@@ -27,4 +27,4 @@
 
 #import "@mpm_tlb_name@.tlb"
 
-using namespace MiKTeXPackageManager@MIKTEX_SERIES_ID_STR@;
+using namespace MiKTeXPackageManager@MIKTEX_MAJOR_MINOR_ID_STR@;

@@ -462,9 +462,9 @@ WARN_LOGFILE           =
 # with spaces.
 
 INPUT += @CMAKE_BINARY_DIR@/SDK/doc/mainpage.doxygen
-INPUT += @CMAKE_BINARY_DIR@/SDK/include/MiKTeX@MIKTEX_SERIES_INT@-session.idl
+INPUT += @CMAKE_BINARY_DIR@/SDK/include/MiKTeX@MIKTEX_MAJOR_MINOR_INT@-session.idl
 INPUT += @CMAKE_BINARY_DIR@/SDK/include/miktexidl.idl
-INPUT += @CMAKE_BINARY_DIR@/SDK/include/MiKTeX@MIKTEX_SERIES_INT@-packagemanager.idl
+INPUT += @CMAKE_BINARY_DIR@/SDK/include/MiKTeX@MIKTEX_MAJOR_MINOR_INT@-packagemanager.idl
 
 # If the value of the INPUT tag contains directories, you can use the 
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
