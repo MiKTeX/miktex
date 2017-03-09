@@ -519,9 +519,9 @@ void EpsToPdfApp::CorrectBoundingBox(double llx, double lly, double urx, double 
   int yoffset = static_cast<int>(-lly);
   Trace(T_("New BoundingBox: 0 0 %d %d"), width, height);
   Trace(T_("Offset: %d %d"), xoffset, yoffset);
-  PutFormattedLine(T_("%%%%BoundingBox: 0 0 %d %d"), width, height);
-  PutFormattedLine(T_("<< /PageSize [%d %d] >> setpagedevice"), width, height);
-  PutFormattedLine(T_("gsave %d %d translate"), xoffset, yoffset);
+  PutFormattedLine("%%%%BoundingBox: 0 0 %d %d", width, height);
+  PutFormattedLine("<< /PageSize [%d %d] >> setpagedevice", width, height);
+  PutFormattedLine("gsave %d %d translate", xoffset, yoffset);
 }
 
 bool EpsToPdfApp::BoundingBoxWithValues(const string& line, double& llx, double& lly, double& urx, double& ury)
@@ -884,27 +884,27 @@ void EpsToPdfApp::Run(int argc, const char** argv)
 
   if (antiAliasing)
   {
-    gsOptions.AppendOption(T_("-dTextAlphaBits="), "4");
-    gsOptions.AppendOption(T_("-dGraphicsAlphaBits="), "4");
+    gsOptions.AppendOption("-dTextAlphaBits=", "4");
+    gsOptions.AppendOption("-dGraphicsAlphaBits=", "4");
   }
 
   if (!doCompress)
   {
-    gsOptions.AppendOption(T_("-dUseFlateCompression="), T_("false"));
+    gsOptions.AppendOption("-dUseFlateCompression=", "false");
   }
 
-  boundingBoxName = T_("%%BoundingBox:");
+  boundingBoxName = "%%BoundingBox:";
   if (hiResBoundingBox && exactBoundingBox)
   {
     FatalError(T_("Options --hires and --exact cannot be used together."));
   }
   if (hiResBoundingBox)
   {
-    boundingBoxName = T_("%%HiResBoundingBox:");
+    boundingBoxName = "%%HiResBoundingBox:";
   }
   if (exactBoundingBox)
   {
-    boundingBoxName = T_("%%ExactBoundingBox:");
+    boundingBoxName = "%%ExactBoundingBox:";
   }
 
   if (outFile.GetLength() > 0 && runAsFilter)
@@ -958,7 +958,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
 
   if (boundingBoxCorrected)
   {
-    PutLine(T_("\ngrestore"));
+    PutLine("\ngrestore");
   }
 
   outStream.Close();
