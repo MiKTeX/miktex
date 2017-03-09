@@ -116,6 +116,13 @@ static const char *luatexrevision(void)
     return (const char *) (strrchr(luatex_version_string, '.') + 1);
 }
 
+static const char *getenginename(void)
+{
+    return engine_name;
+}
+
+
+
 static lua_Number get_luatexhashchars(void)
 {
   return (lua_Number) LUAI_HASHLIMIT;
@@ -217,8 +224,6 @@ static lua_Number shell_escape_state(void)
     }
 }
 
-static int luastate_max = 1;    /* fixed value */
-
 /* temp, for backward compat */
 static int init_pool_ptr = 0;
 
@@ -250,9 +255,10 @@ static struct statistic stats[] = {
     {"log_name", 'S', (void *) &getlogname},
     {"banner", 'S', (void *) &getbanner},
     {"luatex_version", 'G', &get_luatexversion},
-    {"luatex_revision", 'S', (void *) &luatexrevision},
+    {"luatex_revision", 'S', (void *) &luatexrevision}, 
     {"luatex_hashtype", 'S', (void *) &get_luatexhashtype},
     {"luatex_hashchars", 'N',  &get_luatexhashchars},
+    {"luatex_engine", 'S', (void *) &getenginename},
 
     {"ini_version", 'b', &ini_version},
 
@@ -302,7 +308,6 @@ static struct statistic stats[] = {
     {"largest_used_mark", 'g', &biggest_used_mark},
     {"luabytecodes", 'g', &luabytecode_max},
     {"luabytecode_bytes", 'g', &luabytecode_bytes},
-    {"luastates", 'g', &luastate_max},
     {"luastate_bytes", 'g', &luastate_bytes},
     {"callbacks", 'g', &callback_count},
     {"indirect_callbacks", 'g', &saved_callback_count},

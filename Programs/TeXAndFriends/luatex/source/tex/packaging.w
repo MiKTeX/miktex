@@ -191,12 +191,10 @@ others are \.{\\vcenter}, \.{\\valign}, and \.{\\halign}).
 
 void scan_full_spec(group_code c, int spec_direction, int just_pack)
 {
-    int s;
-    int i;
-    int v;
-    int spec_code;
+    int s, i, v, spec_code;
     boolean done = false ;
     halfword attr_list;
+    boolean attr_done = false ;
     if (attr_list_cache == cache_disabled)
         update_attribute_cache();
     attr_list = attr_list_cache;
@@ -227,9 +225,9 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
         scan_optional_equals();
         scan_int();
         v = cur_val;
-        if ((attr_list != null) && (attr_list == attr_list_cache)) {
+        if (! attr_done) {
             attr_list = copy_attribute_list(attr_list_cache);
-            add_node_attr_ref(attr_list); /* will be used once */
+            attr_done = true;
         }
         attr_list = do_set_attribute(attr_list, i, v);
         goto CONTINUE;
@@ -238,9 +236,6 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
         scan_direction();
         spec_direction = cur_val;
         goto CONTINUE;
-    }
-    if (attr_list == attr_list_cache) {
-        add_node_attr_ref(attr_list);
     }
     if (scan_keyword("to")) {
         spec_code = exactly;
@@ -256,9 +251,9 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
   QUICK:
     spec_code = additional;
     cur_val = 0;
-    add_node_attr_ref(attr_list);
     done = true;
   FOUND:
+    add_node_attr_ref(attr_list);
     set_saved_record(0, saved_boxcontext, 0, s);
     set_saved_record(1, saved_boxspec, spec_code, cur_val);
     /* DIR: Adjust |text_dir_ptr| for |scan_spec| */
@@ -280,6 +275,7 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
     eq_word_define(int_base + par_direction_code, spec_direction);
     eq_word_define(int_base + text_direction_code, spec_direction);
 }
+
 
 @ To figure out the glue setting, |hpack| and |vpack| determine how much
 stretchability and shrinkability are present, considering all four orders of
@@ -605,6 +601,35 @@ expansion is being used.
 @c
 int font_expand_ratio = 0;  /* current expansion ratio, needed for recursive call */
 
+int ignore_math_skip(halfword p)
+{
+    if (math_skip_mode == 6) {
+        if (subtype(p) == after) {
+            if (math_skip_boundary(vlink(p))) {
+                return 0;
+            }
+        } else {
+            if (math_skip_boundary(alink(p))) {
+                return 0;
+            }
+        }
+    } else if (math_skip_mode == 7) {
+        if (subtype(p) == after) {
+            if (! math_skip_boundary(vlink(p))) {
+                return 0;
+            }
+        } else {
+            if (! math_skip_boundary(alink(p))) {
+                return 0;
+            }
+        }
+    } else {
+        return 0;
+    }
+    reset_glue_to_zero(p);
+    return 1;
+}
+
 halfword hpack(halfword p, scaled w, int m, int pack_direction)
 {
     halfword r;                 /* the box node that will be returned */
@@ -744,6 +769,15 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                         d = depth(p);
                     break;
                 /* */
+                case math_node:
+                    /* begin mathskip code */
+                    if (glue_is_zero(p) || ignore_math_skip(p)) {
+                        x += surround(p);
+                        break;
+                    } else {
+                        /* fall through */
+                    }
+                    /* end mathskip code */
                 case glue_node:
                     /* Incorporate glue into the horizontal totals */
                     x += width(p);
@@ -802,15 +836,6 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                             hpack_dir = dir_dir(dir_ptr1);
                     }
                     break;
-                case math_node:
-                    /* begin mathskip code */
-                    if (glue_is_zero(p)) {
-                        x += surround(p);
-                        break;
-                    } else {
-                        /* fall through: mathskip */
-                    }
-                    /* end mathskip code */
                 case margin_kern_node:
                     if (m == cal_expand_ratio) {
                         int f = font(margin_char(p));
@@ -1187,11 +1212,11 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
                 /* */
                 case math_node:
                     /* begin mathskip code */
-                    if (glue_is_zero(p)) {
+                    if (glue_is_zero(p) || ignore_math_skip(p)) {
                         siz.wd += surround(p);
                         break;
                     } else {
-                        /* fall through: mathskip */
+                        /* fall through */
                     }
                     /* end mathskip code */
                 case glue_node:

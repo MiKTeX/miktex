@@ -87,6 +87,10 @@ extern int luaopen_lpeg(lua_State * L);
 extern int luaopen_md5(lua_State * L);
 extern int luatex_md5_lua_open(lua_State * L);
 
+#ifndef LuajitTeX
+ extern int luaopen_ffi(lua_State * L);
+#endif
+
 extern int luaopen_zlib(lua_State * L);
 extern int luaopen_gzip(lua_State * L);
 extern int luaopen_ff(lua_State * L);
@@ -185,6 +189,7 @@ extern int callback_count;
 extern int saved_callback_count;
 
 extern const char *luatex_banner;
+extern const char *engine_name;
 
 /* luastuff.h */
 
@@ -607,6 +612,7 @@ make_lua_key(horiz_variants);\
 make_lua_key(hsize);\
 make_lua_key(hyphenchar);\
 make_lua_key(id);\
+make_lua_key(identity);\
 make_lua_key(image);\
 make_lua_key(imagetype);\
 make_lua_key(immediate);\
@@ -684,6 +690,7 @@ make_lua_key(objnum);\
 make_lua_key(oldmath);\
 make_lua_key(ordering);\
 make_lua_key(options);\
+make_lua_key(orientation);\
 make_lua_key(origin);\
 make_lua_key(output);\
 make_lua_key(overlay_accent);\
@@ -829,6 +836,7 @@ make_lua_key(xyz_zoom);\
 make_lua_key(yoffset); \
 make_lua_key(yres); \
 make_lua_key(ysize); \
+make_lua_key(writingmode); \
 make_lua_key(__index)
 
 #define set_init_keys \
@@ -974,6 +982,7 @@ init_lua_key(horiz_variants);\
 init_lua_key(hsize);\
 init_lua_key(hyphenchar);\
 init_lua_key(id);\
+init_lua_key(identity);\
 init_lua_key(image);\
 init_lua_key(imagetype);\
 init_lua_key(immediate);\
@@ -1046,6 +1055,7 @@ init_lua_key(objcompression);\
 init_lua_key(objnum);\
 init_lua_key(oldmath);\
 init_lua_key(options);\
+init_lua_key(orientation);\
 init_lua_key(origin);\
 init_lua_key(ordering);\
 init_lua_key(output);\
@@ -1186,6 +1196,7 @@ init_lua_key(xyz_zoom);\
 init_lua_key(yoffset);\
 init_lua_key(yres);\
 init_lua_key(ysize);\
+init_lua_key(writingmode);\
 init_lua_key(__index);\
 init_lua_key_alias(empty_string,"");\
 init_lua_key_alias(lua_bytecodes_indirect,"lua.bytecodes.indirect");\
@@ -1390,6 +1401,7 @@ use_lua_key(horiz_variants);
 use_lua_key(hsize);
 use_lua_key(hyphenchar);
 use_lua_key(id);
+use_lua_key(identity);
 use_lua_key(image);
 use_lua_key(imagetype);
 use_lua_key(immediate);
@@ -1466,6 +1478,7 @@ use_lua_key(objcompression);
 use_lua_key(objnum);
 use_lua_key(oldmath);
 use_lua_key(options);
+use_lua_key(orientation);
 use_lua_key(origin);
 use_lua_key(ordering);
 use_lua_key(output);
@@ -1612,4 +1625,5 @@ use_lua_key(xyz_zoom);
 use_lua_key(yoffset);
 use_lua_key(yres);
 use_lua_key(ysize);
+use_lua_key(writingmode);
 use_lua_key(__index);

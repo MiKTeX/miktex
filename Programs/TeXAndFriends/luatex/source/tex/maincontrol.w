@@ -3600,6 +3600,7 @@ void initialize(void)
         tolerance_par = 10000;
         hang_after_par = 1;
         max_dead_cycles_par = 25;
+        math_pre_display_gap_factor_par = 2000;
         escape_char_par = '\\';
         end_line_char_par = carriage_return;
         set_del_code('.', 0, 0, 0, 0, level_one); /* this null delimiter is used in error recovery */

@@ -1080,21 +1080,30 @@ void copy_node_wrapup_pdf(halfword p, halfword r)
 halfword copy_node(const halfword p)
 {
     halfword r;                 /* current node being fabricated for new list */
-    halfword w ;                /* whatsit subtype */
+    halfword w;                 /* whatsit subtype */
+    halfword t;                 /* type of node */
     register halfword s;        /* a helper variable for copying into variable mem  */
     register int i;
     if (copy_error(p)) {
         r = new_node(temp_node, 0);
         return r;
     }
-    i = get_node_size(type(p), subtype(p));
+    t = type(p);
+    i = get_node_size(t,subtype(p));
     r = get_node(i);
 
     (void) memcpy((void *) (varmem + r), (void *) (varmem + p), (sizeof(memory_word) * (unsigned) i));
 
+    /* possible speedup: */
+    /*
+        if t == glue_spec) {
+            return r;
+        }
+    */
+
     if (synctex_par) {
         /* handle synctex extension */
-        switch (type(p)) {
+        switch (t) {
             case math_node:
                 synctex_tag_math(r) = cur_input.synctex_tag_field;
                 synctex_line_math(r) = line;
@@ -1105,14 +1114,14 @@ halfword copy_node(const halfword p)
                 break;
         }
     }
-    if (nodetype_has_attributes(type(p))) {
+    if (nodetype_has_attributes(t)) {
         add_node_attr_ref(node_attr(p));
         alink(r) = null;
         lua_properties_copy(r,p);
     }
     vlink(r) = null;
 
-    switch (type(p)) {
+    switch (t) {
         case glyph_node:
             copy_sub_list(lig_ptr(r),lig_ptr(p)) ;
             break;
@@ -1791,16 +1800,42 @@ static void free_node_chain(halfword q, int s)
     free_chain[s] = q;
 }
 
-@ @c
+@ At the start of the node memory area we reserve some special nodes,
+for instance frequently used glue specifications. We could as well just
+use new_glue here but for the moment we stick to the traditional approach.
+
+@c
+#define initialize_glue(n,wi,st,sh,sto,sho) \
+    vlink(n) = null; \
+    type(n) = glue_spec_node; \
+    width(n) = wi; \
+    stretch(n) = st; \
+    shrink(n) = sh; \
+    stretch_order(n) = sto; \
+    shrink_order(n) = sho;
+
+#define initialize_whatever(n,t) \
+    vinfo(n) = 0; \
+    type(n) = t; \
+    vlink(n) = null; \
+    alink(n) = null;
+
+#define initialize_point(n) \
+    type(n) = glyph_node; \
+    subtype(n) = 0; \
+    vlink(n) = null; \
+    vinfo(n + 1) = null; \
+    alink(n) = null; \
+    font(n) = 0; \
+    character(n) = '.'; \
+    vinfo(n + 3) = 0; \
+    vlink(n + 3) = 0; \
+    vinfo(n + 4) = 0; \
+    vlink(n + 4) = 0;
+
 void init_node_mem(int t)
 {
     my_prealloc = var_mem_stat_max;
-
-    /*  message ?
-
-        assert(whatsit_node_data[user_defined_node].id == user_defined_node);
-        assert(node_data[passive_node].id == passive_node);
-    */
 
     varmem = (memory_word *) realloc((void *) varmem, sizeof(memory_word) * (unsigned) t);
     if (varmem == NULL) {
@@ -1819,112 +1854,32 @@ void init_node_mem(int t)
     vlink(rover) = rover;
     node_size(rover) = (t - rover);
     var_used = 0;
+
     /* initialize static glue specs */
-    width(zero_glue) = 0;
-    type(zero_glue) = glue_spec_node;
-    vlink(zero_glue) = null;
-    stretch(zero_glue) = 0;
-    stretch_order(zero_glue) = normal;
-    shrink(zero_glue) = 0;
-    shrink_order(zero_glue) = normal;
-    width(sfi_glue) = 0;
-    type(sfi_glue) = glue_spec_node;
-    vlink(sfi_glue) = null;
-    stretch(sfi_glue) = 0;
-    stretch_order(sfi_glue) = sfi;
-    shrink(sfi_glue) = 0;
-    shrink_order(sfi_glue) = normal;
-    width(fil_glue) = 0;
-    type(fil_glue) = glue_spec_node;
-    vlink(fil_glue) = null;
-    stretch(fil_glue) = unity;
-    stretch_order(fil_glue) = fil;
-    shrink(fil_glue) = 0;
-    shrink_order(fil_glue) = normal;
-    width(fill_glue) = 0;
-    type(fill_glue) = glue_spec_node;
-    vlink(fill_glue) = null;
-    stretch(fill_glue) = unity;
-    stretch_order(fill_glue) = fill;
-    shrink(fill_glue) = 0;
-    shrink_order(fill_glue) = normal;
-    width(ss_glue) = 0;
-    type(ss_glue) = glue_spec_node;
-    vlink(ss_glue) = null;
-    stretch(ss_glue) = unity;
-    stretch_order(ss_glue) = fil;
-    shrink(ss_glue) = unity;
-    shrink_order(ss_glue) = fil;
-    width(fil_neg_glue) = 0;
-    type(fil_neg_glue) = glue_spec_node;
-    vlink(fil_neg_glue) = null;
-    stretch(fil_neg_glue) = -unity;
-    stretch_order(fil_neg_glue) = fil;
-    shrink(fil_neg_glue) = 0;
-    shrink_order(fil_neg_glue) = normal;
+
+    initialize_glue(zero_glue,0,0,0,0,0);
+    initialize_glue(sfi_glue,0,0,0,sfi,0);
+    initialize_glue(fil_glue,0,unity,0,fil,0);
+    initialize_glue(fill_glue,0,unity,0,fill,0);
+    initialize_glue(ss_glue,0,unity,unity,fil,fil);
+    initialize_glue(fil_neg_glue,0,-unity,0,fil,0);
+
     /* initialize node list heads */
-    vinfo(page_ins_head) = 0;
-    type(page_ins_head) = temp_node;
-    vlink(page_ins_head) = null;
-    alink(page_ins_head) = null;
-    vinfo(contrib_head) = 0;
-    type(contrib_head) = temp_node;
-    vlink(contrib_head) = null;
-    alink(contrib_head) = null;
-    vinfo(page_head) = 0;
-    type(page_head) = temp_node;
-    vlink(page_head) = null;
-    alink(page_head) = null;
-    vinfo(temp_head) = 0;
-    type(temp_head) = temp_node;
-    vlink(temp_head) = null;
-    alink(temp_head) = null;
-    vinfo(hold_head) = 0;
-    type(hold_head) = temp_node;
-    vlink(hold_head) = null;
-    alink(hold_head) = null;
-    vinfo(adjust_head) = 0;
-    type(adjust_head) = temp_node;
-    vlink(adjust_head) = null;
-    alink(adjust_head) = null;
-    vinfo(pre_adjust_head) = 0;
-    type(pre_adjust_head) = temp_node;
-    vlink(pre_adjust_head) = null;
-    alink(pre_adjust_head) = null;
-    vinfo(active) = 0;
-    type(active) = unhyphenated_node;
-    vlink(active) = null;
-    alink(active) = null;
-    vinfo(align_head) = 0;
-    type(align_head) = temp_node;
-    vlink(align_head) = null;
-    alink(align_head) = null;
-    vinfo(end_span) = 0;
-    type(end_span) = span_node;
-    vlink(end_span) = null;
-    alink(end_span) = null;
-    type(begin_point) = glyph_node;
-    subtype(begin_point) = 0;
-    vlink(begin_point) = null;
-    vinfo(begin_point + 1) = null;
-    alink(begin_point) = null;
-    font(begin_point) = 0;
-    character(begin_point) = '.';
-    vinfo(begin_point + 3) = 0;
-    vlink(begin_point + 3) = 0;
-    vinfo(begin_point + 4) = 0;
-    vlink(begin_point + 4) = 0;
-    type(end_point) = glyph_node;
-    subtype(end_point) = 0;
-    vlink(end_point) = null;
-    vinfo(end_point + 1) = null;
-    alink(end_point) = null;
-    font(end_point) = 0;
-    character(end_point) = '.';
-    vinfo(end_point + 3) = 0;
-    vlink(end_point + 3) = 0;
-    vinfo(end_point + 4) = 0;
-    vlink(end_point + 4) = 0;
+
+    initialize_whatever(page_ins_head,temp_node);
+    initialize_whatever(contrib_head,temp_node);
+    initialize_whatever(page_head,temp_node);
+    initialize_whatever(temp_head,temp_node);
+    initialize_whatever(hold_head,temp_node);
+    initialize_whatever(adjust_head,temp_node);
+    initialize_whatever(pre_adjust_head,temp_node);
+    initialize_whatever(align_head,temp_node);
+
+    initialize_whatever(active,unhyphenated_node);
+    initialize_whatever(end_span,span_node);
+
+    initialize_point(begin_point);
+    initialize_point(end_point);
 }
 
 @ @c
@@ -3212,12 +3167,11 @@ void show_node_list(int p)
   that \TeX82 used for \.{\\predisplaywidth} */
 
 @c
-pointer actual_box_width(pointer r, scaled base_width)
+static pointer get_actual_box_width(pointer r,pointer p, scaled initial_width)
 {
-    scaled d;                                /* increment to |v| */
-    scaled w = -max_dimen;                   /* calculated |size| */
-    scaled v = shift_amount(r) + base_width; /* |w| plus possible glue amount */
-    pointer p = list_ptr(r);                 /* current node when calculating |pre_display_size| */
+    scaled d;                  /* increment to |v| */
+    scaled w = -max_dimen;     /* calculated |size| */
+    scaled v = initial_width;  /* |w| plus possible glue amount */
     while (p != null) {
         if (is_char_node(p)) {
             d = glyph_width(p);
@@ -3235,6 +3189,18 @@ pointer actual_box_width(pointer r, scaled base_width)
                 break;
             case kern_node:
                 d = width(p);
+                break;
+            case disc_node:
+                /* at the end of the line we should actually take the pre */
+                if (no_break(p) != null) {
+                    d = get_actual_box_width(r,vlink_no_break(p),0);
+                    if (d <= -max_dimen || d >= max_dimen) {
+                        d = 0;
+                    }
+                } else {
+                    d = 0;
+                }
+                goto FOUND;
                 break;
             case math_node:
                 /* begin mathskip code */
@@ -3282,6 +3248,15 @@ pointer actual_box_width(pointer r, scaled base_width)
         p = vlink(p);
     }
     return w;
+}
+
+pointer actual_box_width(pointer r, scaled base_width)
+{
+    /* often this is the same as:
+        return + shift_amount(r) + base_width +
+            natural_sizes(list_ptr(r),null,(glue_ratio) glue_set(r),glue_sign(r),glue_order(r),box_dir(r));
+    */
+    return get_actual_box_width(r,list_ptr(r),shift_amount(r) + base_width);
 }
 
 @ @c
@@ -3609,9 +3584,24 @@ The reference count in the copy is |null|, because there is assumed
 to be exactly one reference to the new specification.
 
 @c
-halfword new_spec(halfword p)
+halfword new_spec(halfword q) /* safeguard for copying a glue node */
 {
-    return copy_node(p == null ? zero_glue : p);
+    if (q == null) {
+        return copy_node(zero_glue);
+    } else if (type(q) == glue_spec_node) {
+        return copy_node(q);
+    } else if (type(q) == glue_node) {
+        halfword p = copy_node(zero_glue);
+        width(p) = width(q);
+        stretch(p) = stretch(q);
+        shrink(p) = shrink(q);
+        stretch_order(p) = stretch_order(q);
+        shrink_order(p) = shrink_order(q);
+        return p;
+    } else {
+        /* alternatively we can issue a warning */
+        return copy_node(zero_glue);
+    }
 }
 
 @ And here's a function that creates a glue node for a given parameter

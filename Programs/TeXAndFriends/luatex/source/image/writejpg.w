@@ -98,22 +98,6 @@ typedef enum {
 } JPEG_MARKER;
 
 @ @c
-static unsigned char myget_unsigned_byte (FILE *file)
-{
-    int ch;
-    ch = fgetc (file);
-    return (unsigned char) ch;
-}
-
-@ @c
-static unsigned short myget_unsigned_pair (FILE *file)
-{
-    unsigned short pair = myget_unsigned_byte(file);
-    pair = (pair << 8) | myget_unsigned_byte(file);
-    return pair;
-}
-
-@ @c
 static unsigned int read_exif_bytes(unsigned char **p, int n, int b)
 {
     unsigned int rval = 0;
@@ -144,8 +128,18 @@ static unsigned int read_exif_bytes(unsigned char **p, int n, int b)
     return rval;
 }
 
+@ The Exif block can contain the data on the resolution in two forms:
+XResolution, YResolution and ResolutionUnit (tag 282, 283 and 296)
+as well as PixelPerUnitX, PixelPerUnitY and PixelUnit (tag 0x5111,
+0x5112 and 0x5110). Tags 282, 293 and 296 have the priority,
+with ResolutionUnit set to inch by default, then 
+tag 0x5110, 0x5111 and 0x5112, where the only valid value for PixelUnit is 0.0254,
+and finally the given value xx and yy, 
+choosen if the Exif x and y resolution are not strictly positive.
+
+
 @ @c
-static void read_APP1_Exif (FILE *fp, unsigned short length, int *xx, int *yy)
+static void read_APP1_Exif (FILE *fp, unsigned short length, int *xx, int *yy, int *or)
 {
     /* this doesn't save the data, just reads the tags we need */
     /* based on info from http://www.exif.org/Exif2-2.PDF */
@@ -155,10 +149,24 @@ static void read_APP1_Exif (FILE *fp, unsigned short length, int *xx, int *yy)
     char bigendian;
     int i;
     int num_fields, tag, type;
-    int value = 0, num = 0, den = 0; /* silence uninitialized warnings */
-    double xres = 72.0;
-    double yres = 72.0;
+    int value = 0;/* silence uninitialized warnings */
+    unsigned int num = 0;
+    unsigned int den = 0;
+    boolean found_x = false;
+    boolean found_y = false;
+    int tempx = 0;
+    int tempy = 0;
+    double xres = 0;
+    double yres = 0;
     double res_unit = 1.0;
+    unsigned int xres_ms = 0;
+    unsigned int yres_ms = 0;
+    double res_unit_ms = 0;
+    boolean found_x_ms = false;
+    boolean found_y_ms = false;
+    boolean found_res= false;
+
+    int orientation = 1;
     size_t ret_len;
     ret_len = fread(buffer, length, 1, fp);
     if (ret_len != 1)
@@ -189,12 +197,13 @@ static void read_APP1_Exif (FILE *fp, unsigned short length, int *xx, int *yy)
                 value = *p++;
                 p += 3;
                 break;
-            case 3: /* short */
+            case 3: /* unsigned short */
+            case 8: /* signed short */
                 value = read_exif_bytes(&p, 2, bigendian);
                 p += 2;
                 break;
-            case 4: /* long */
-            case 9: /* slong */
+            case 4: /* unsigned long */
+            case 9: /* signed long */
                 value = read_exif_bytes(&p, 4, bigendian);
                 break;
             case 5: /* rational */
@@ -214,13 +223,20 @@ static void read_APP1_Exif (FILE *fp, unsigned short length, int *xx, int *yy)
                 break;
         }
         switch (tag) {
+            case 274: /* orientation */
+                orientation = value;
+                break;
             case 282: /* x res */
-                if (den != 0)
+                if (den != 0) {
                     xres = num / den;
+                    found_x = true;
+		}
                 break;
             case 283: /* y res */
-                if (den != 0)
+                if (den != 0) {
                     yres = num / den;
+                    found_y = true ;
+		}
                 break;
             case 296: /* res unit */
                 switch (value) {
@@ -230,12 +246,56 @@ static void read_APP1_Exif (FILE *fp, unsigned short length, int *xx, int *yy)
                     case 3:
                         res_unit = 2.54;
                         break;
+                    default:
+                        res_unit = 0;
+                        break;
                 }
-        }
+	   case 0x5110: /* PixelUnit */
+	        switch (value) {
+                    case 1:
+		        res_unit_ms = 0.0254; /* Unit is meter */
+			break;
+		    default:
+  		        res_unit_ms = 0; 
+		}
+	   case 0x5111: /* PixelPerUnitX */
+                found_x_ms = true ;
+	   	xres_ms = value;
+		break;
+	   case 0x5112: /* PixelPerUnitY */
+                found_y_ms = true ;
+		yres_ms = value ;
+		break;
+           }
+
+
+    }    
+    if (found_x && found_y && res_unit>0) {
+     found_res = true; 
+     tempx = (int)(xres * res_unit+0.5);
+     tempy = (int)(yres * res_unit+0.5);
+    } else if (found_x_ms && found_y_ms && res_unit_ms==0.0254) {
+     found_res = true; 
+     tempx = (int)(xres_ms * res_unit_ms+0.5);
+     tempy = (int)(yres_ms * res_unit_ms+0.5);
+    }
+    if (found_res) {
+      if (tempx>0 && tempy>0) {
+       if ((tempx!=(*xx) || tempy!=(*yy)) && (*xx!=0 && (*yy!=0) )  ) {
+        formatted_warning("readjpg","Exif resolution  %ddpi x %ddpi differs from the input resolution %ddpi x %ddpi",tempx,tempy,*xx,*yy);
+       }
+       if (tempx==1 || tempy==1) {
+        formatted_warning("readjpg","Exif resolution %ddpi x %ddpi looks weird", tempx, tempy);
+       }
+       *xx = tempx;
+       *yy = tempy;
+     }else {
+       formatted_warning("readjpg","Bad Exif resolution  %ddpi x %ddpi (zero or negative value of a signed integer)",tempx,tempy);
+     }
     }
 
-    *xx = (int)(xres * res_unit);
-    *yy = (int)(yres * res_unit);
+    *or = orientation;
+
 err:
     free(buffer);
     return;
@@ -268,97 +328,58 @@ void flush_jpg_info(image_dict * idict)
     close_and_cleanup_jpg(idict);
 }
 
+@ The jpeg images are scanned for resolution, colorspace, depth, dimensions and
+orientation. We need to look at the exif blob for that. The original version did
+a quick test for jfif and exif but there can be more blobs later on. The current
+approach is to run over the linked list of blobs which is somewhat less efficient
+but not noticeable.
+
 @ @c
 void read_jpg_info(image_dict * idict)
 {
-    int i, units = 0;
-    unsigned short appmk, length;
-    unsigned char jpg_id[] = "JFIF";
+    int i, position, units = 0;
+    unsigned short length;
+    int okay = 0 ;
+    FILE *fp = img_file(idict);
     if (img_type(idict) != IMG_TYPE_JPG) {
         normal_error("readjpg","conflicting image dictionary");
     }
-    if (img_file(idict) != NULL) {
+    if (fp != NULL) {
         normal_error("readjpg","image data already read");
     }
+    fp = xfopen(img_filepath(idict), FOPEN_RBIN_MODE);
     img_totalpages(idict) = 1;
     img_pagenum(idict) = 1;
     img_xres(idict) = img_yres(idict) = 0;
-    img_file(idict) = xfopen(img_filepath(idict), FOPEN_RBIN_MODE);
-    if (img_file(idict) == NULL) {
+    img_file(idict) = fp;
+    if (fp == NULL) {
         normal_error("readjpg","unable to read image file");
     }
     img_jpg_ptr(idict) = xtalloc(1, jpg_img_struct);
-    xfseek(img_file(idict), 0, SEEK_END, img_filepath(idict));
-    img_jpg_ptr(idict)->length = xftell(img_file(idict), img_filepath(idict));
-    xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
-    if ((unsigned int) read2bytes(img_file(idict)) != 0xFFD8) {
+    xfseek(fp, 0, SEEK_END, img_filepath(idict));
+    img_jpg_ptr(idict)->length = xftell(fp, img_filepath(idict));
+    xfseek(fp, 0, SEEK_SET, img_filepath(idict));
+    if ((unsigned int) read2bytes(fp) != 0xFFD8) {
         normal_error("readjpg","no header found");
     }
-    /* currently JFIF and Exif files allow extracting |img_xres| and |img_yres| */
-    appmk = read2bytes(img_file(idict));
-    if (appmk == 0xFFE0) {
-        /* check for JFIF */
-        (void) read2bytes(img_file(idict));
-        for (i = 0; i < 5; i++) {
-            if (xgetc(img_file(idict)) != jpg_id[i])
-                break;
-        }
-        if (i == 5) {
-            /* it's JFIF */
-            (void) read2bytes(img_file(idict));
-            units = xgetc(img_file(idict));
-            img_xres(idict) = (int) read2bytes(img_file(idict));
-            img_yres(idict) = (int) read2bytes(img_file(idict));
-            switch (units) {
-            case 1:
-                /* pixels per inch */
-                if ((img_xres(idict) == 1) || (img_yres(idict) == 1)) {
-                    formatted_warning("readjpg","unusual resolution of %ddpi by %ddpi", img_xres(idict), img_yres(idict));
-                }
-                break;
-            case 2:
-                /* pixels per cm */
-                img_xres(idict) = (int) ((double) img_xres(idict) * 2.54);
-                img_yres(idict) = (int) ((double) img_yres(idict) * 2.54);
-                break;
-            default:
-                img_xres(idict) = img_yres(idict) = 0;
-                break;
-            }
-        }
-        /* if either xres or yres is 0 but the other isn't, set it to the value of the other */
-        if ((img_xres(idict) == 0) && (img_yres(idict) != 0)) {
-            img_xres(idict) = img_yres(idict);
-        }
-        if ((img_yres(idict) == 0) && (img_xres(idict) != 0)) {
-            img_yres(idict) = img_xres(idict);
-        }
-    } else if (appmk == 0xFFE1) {
-        /* check for Exif */
-        FILE *fp = img_file(idict);
-        int xxres = 0;
-        int yyres = 0;
-        char app_sig[32];
-        length = myget_unsigned_pair(fp) - 2;
-        if (length > 5) {
-            if (fread(app_sig, sizeof(char), 5, fp) != 5)
-                return;
-            length -= 5;
-            if (!memcmp(app_sig, "Exif\000", 5)) {
-                read_APP1_Exif(fp, length, &xxres, &yyres);
-            }
-        }
-        img_xres(idict) = xxres;
-        img_yres(idict) = yyres;
-    }
-    xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
+    xfseek(fp, 0, SEEK_SET, img_filepath(idict));
     while (1) {
-        if (feof(img_file(idict))) {
-            normal_error("readjpg","premature file end");
-        } else if (fgetc(img_file(idict)) != 0xFF) {
-            normal_error("readjpg","no marker found");
+        if (feof(fp)) {
+            if (okay) {
+                break ;
+            } else {
+                normal_error("readjpg","premature file end");
+            }
+        } else if (fgetc(fp) != 0xFF) {
+            if (okay) {
+                break ;
+            } else {
+                normal_error("readjpg","no marker found");
+            }
         }
-        i = xgetc(img_file(idict));
+        i = xgetc(fp);
+        position = ftell(fp);
+        length = 0 ;
         switch (i) {
             case M_SOF3:  /* lossless */
             case M_SOF5:
@@ -378,12 +399,11 @@ void read_jpg_info(image_dict * idict)
                 }
             case M_SOF0:
             case M_SOF1:
-                (void) read2bytes(img_file(idict)); /* read segment length  */
-                img_colordepth(idict) = xgetc(img_file(idict));
-                img_ysize(idict) = (int) read2bytes(img_file(idict));
-                img_xsize(idict) = (int) read2bytes(img_file(idict));
-                img_jpg_color(idict) = xgetc(img_file(idict));
-                xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
+                length = (int) read2bytes(fp); /* read segment length  */
+                img_colordepth(idict) = xgetc(fp);
+                img_ysize(idict) = (int) read2bytes(fp);
+                img_xsize(idict) = (int) read2bytes(fp);
+                img_jpg_color(idict) = xgetc(fp);
                 switch (img_jpg_color(idict)) {
                     case JPG_GRAY:
                         img_procset(idict) |= PROCSET_IMAGE_B;
@@ -397,13 +417,60 @@ void read_jpg_info(image_dict * idict)
                     default:
                         formatted_error("readjpg","unsupported color space %i", (int) img_jpg_color(idict));
                 }
-                /*
-                    So we can optionally keep open a file in img.
-                */
-                if (! img_keepopen(idict)) {
-                    close_and_cleanup_jpg(idict);
+                okay = 1 ;
+                break ;
+            case M_APP0:
+                {
+                    char app_sig[32];
+                    length = (int) read2bytes(fp);
+                    if (length > 6) {
+                        if (fread(app_sig, sizeof(char), 5, fp) != 5)
+                            return;
+                        if (!memcmp(app_sig, "JFIF\000", 5)) {
+                            units = (int) read2bytes(fp);    /*skip two bytes, compiler is also happy*/
+                            units = xgetc(fp);
+                            img_xres(idict) = (int) read2bytes(fp);
+                            img_yres(idict) = (int) read2bytes(fp);
+                            switch (units) {
+                                case 1:
+                                    /* pixels per inch */
+                                    if ((img_xres(idict) == 1) || (img_yres(idict) == 1)) {
+                                        formatted_warning("readjpg","unusual resolution of %ddpi by %ddpi", img_xres(idict), img_yres(idict));
+                                    }
+                                    break;
+                                case 2:
+                                    /* pixels per cm */
+                                    img_xres(idict) = (int) ((double) img_xres(idict) * 2.54);
+                                    img_yres(idict) = (int) ((double) img_yres(idict) * 2.54);
+                                    break;
+                                default:
+                                    img_xres(idict) = img_yres(idict) = 0;
+                                    break;
+                                }
+                            }
+                        /* if either xres or yres is 0 but the other isn't, set it to the value of the other */
+                    }
                 }
-                return;
+                break;
+            case M_APP1:
+                {
+                    char app_sig[32];
+                    length = (int) read2bytes(fp);
+                    if (length > 7) {
+                        if (fread(app_sig, sizeof(char), 5, fp) != 5)
+                            return;
+                        if (!memcmp(app_sig, "Exif\000", 5)) {
+                            int xxres = img_xres(idict);
+                            int yyres = img_yres(idict);
+                            int orientation = img_orientation(idict);
+                            read_APP1_Exif(fp, length - 7, &xxres, &yyres, &orientation);
+                            img_xres(idict) = xxres;
+                            img_yres(idict) = yyres;
+                            img_orientation(idict) = orientation;
+                        }
+                    }
+                }
+                break;
             /* ignore markers without parameters */
             case M_SOI:
             case M_EOI:
@@ -419,11 +486,32 @@ void read_jpg_info(image_dict * idict)
                 break;
             default:
                 /* skip variable length markers */
-                xfseek(img_file(idict), (int) read2bytes(img_file(idict)) - 2, SEEK_CUR, img_filepath(idict));
+                length = (int) read2bytes(fp);
                 break;
         }
+        /*
+            printf("marker %X : %i %i\n",i,position,length);
+        */
+        if (length > 0) {
+            xfseek(fp, position + length, SEEK_SET, img_filepath(idict));
+        }
     }
-    normal_error("readjpg","unknown fatal error");
+    /* moved */
+    xfseek(fp, 0, SEEK_SET, img_filepath(idict));
+    if (! img_keepopen(idict)) {
+        close_and_cleanup_jpg(idict);
+    }
+    /* */
+    if (okay){
+        if ((img_xres(idict) == 0) && (img_yres(idict) != 0)) {
+            img_xres(idict) = img_yres(idict);
+        }
+        if ((img_yres(idict) == 0) && (img_xres(idict) != 0)) {
+            img_yres(idict) = img_xres(idict);
+        }
+    } else {
+        normal_error("readjpg","unknown fatal error");
+    }
 }
 
 @ @c

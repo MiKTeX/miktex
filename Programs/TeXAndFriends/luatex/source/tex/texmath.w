@@ -1015,7 +1015,7 @@ void enter_display_math(void)
         w = -max_dimen;
     } else {
         line_break(true, math_shift_group);
-        w = actual_box_width(just_box, (2 * quad(get_cur_font())));
+        w = actual_box_width(just_box, x_over_n(quad(get_cur_font()),1000) * math_pre_display_gap_factor_par);
     }
     /* now we are in vertical mode, working on the list that will contain the display */
     /* A displayed equation is considered to be three lines long, so we
@@ -1778,6 +1778,7 @@ void math_fraction(void)
     halfword c;                 /* the type of generalized fraction we are scanning */
     pointer q;
     halfword options = 0;
+    halfword temp_value;
     c = cur_chr;
     if (incompleat_noad_par != null) {
         const char *hlp[] = {
@@ -1795,7 +1796,8 @@ void math_fraction(void)
         tex_error("Ambiguous; you need another { and }", hlp);
     } else {
         incompleat_noad_par = new_node(fraction_noad, 0);
-        numerator(incompleat_noad_par) = new_node(sub_mlist_node, 0);
+        temp_value = new_node(sub_mlist_node, 0);
+        numerator(incompleat_noad_par) = temp_value;
         math_list(numerator(incompleat_noad_par)) = vlink(head);
         vlink(head) = null;
         tail = head;
@@ -2430,9 +2432,34 @@ void after_math(void)
         }
         tail_append(new_math(math_surround_par, before));
         /* begin mathskip code */
-        if (! glue_is_zero(math_skip_par)) {
-            copy_glue_values(tail,math_skip_par);
-            surround(tail) = 0;
+        switch (math_skip_mode) {
+            case 0 :
+                /* obey mathsurround when zero glue */
+                if (! glue_is_zero(math_skip_par)) {
+                    copy_glue_values(tail,math_skip_par);
+                    surround(tail) = 0;
+                }
+                break ;
+            case 1 :
+                /* always left */
+            case 3 :
+                /* always both */
+            case 6 :
+                /* only when skip */
+                copy_glue_values(tail,math_skip_par);
+                surround(tail) = 0;
+                break ;
+            case 2 :
+                /* only right */
+                surround(tail) = 0;
+                break ;
+            case 4 :
+                /* ignore, obey marthsurround */
+                break ;
+            case 5:
+                /* all spacing disabled */
+                surround(tail) = 0;
+                break ;
         }
         /* end mathskip code */
         if (dir_math_save) {
@@ -2449,9 +2476,34 @@ void after_math(void)
         dir_math_save = false;
         tail_append(new_math(math_surround_par, after));
         /* begin mathskip code */
-        if (! glue_is_zero(math_skip_par)) {
-            copy_glue_values(tail,math_skip_par);
-            surround(tail) = 0;
+        switch (math_skip_mode) {
+            case 0 :
+                /* obey mathsurround when zero glue */
+                if (! glue_is_zero(math_skip_par)) {
+                    copy_glue_values(tail,math_skip_par);
+                    surround(tail) = 0;
+                }
+                break ;
+            case 2 :
+                /* always right */
+            case 3 :
+                /* always both */
+            case 6 :
+                /* only when skip */
+                copy_glue_values(tail,math_skip_par);
+                surround(tail) = 0;
+                break ;
+            case 1 :
+                /* only left */
+                surround(tail) = 0;
+                break ;
+            case 4 :
+                /* ignore, obey marthsurround */
+                break ;
+            case 5:
+                /* all spacing disabled */
+                surround(tail) = 0;
+                break ;
         }
         /* end mathskip code */
         space_factor_par = 1000;

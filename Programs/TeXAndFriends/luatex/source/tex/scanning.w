@@ -140,9 +140,8 @@ we use scaled points so that the value doesn't actually change. And when a
 @c
 static void downgrade_cur_val(boolean delete_glue)
 {
-    halfword m;
     if (cur_val_level == glue_val_level) {
-        m = cur_val;
+        halfword m = cur_val;
         cur_val = width(m);
         if (delete_glue)
             flush_node(m);
@@ -152,19 +151,34 @@ static void downgrade_cur_val(boolean delete_glue)
     decr(cur_val_level);
 }
 
+/*
 void negate_cur_val(boolean delete_glue)
 {
-    halfword m;
     if (cur_val_level >= glue_val_level) {
-        m = cur_val;
+        halfword m = cur_val;
         cur_val = new_spec(m);
         if (delete_glue)
             flush_node(m);
-        /* Negate all three glue components of |cur_val| */
         negate(width(cur_val));
         negate(stretch(cur_val));
         negate(shrink(cur_val));
+    } else {
+        negate(cur_val);
+    }
+}
+*/
 
+void negate_cur_val(boolean modify_glue)
+{
+    if (cur_val_level >= glue_val_level) {
+        if (modify_glue) {
+            /* we modify in-place */
+        } else {
+            cur_val = new_spec(cur_val);
+        }
+        negate(width(cur_val));
+        negate(stretch(cur_val));
+        negate(shrink(cur_val));
     } else {
         negate(cur_val);
     }
@@ -296,7 +310,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
         save_cur_chr = cur_chr;
         cur_chr = chr;
         /* Fetch an item in the current node, if appropriate */
-        /* Here is where \.{\\lastpenalty}, \.{\\lastkern}, and \.{\\lastskip} are
+        /* Here is where \.{\\lastpenalty}, \.{\\lastkern}, and \.{\\   } are
            implemented. The reference count for \.{\\lastskip} will be updated later.
 
            We also handle \.{\\inputlineno} and \.{\\badness} here, because they are
@@ -325,13 +339,16 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                 }
                 /* This code for reducing |cur_val_level| and\slash or negating the
                    result is similar to the one for all the other cases of
-                   |scan_something_internal|, with the difference that |scan_expr| has
-                   already increased the reference count of a glue specification.
+                   |scan_something_internal|; we free a glue_spec when needed.
                  */
                 while (cur_val_level > level) {
                     downgrade_cur_val(true);
                 }
                 if (negative) {
+                    /*
+                        we get a new glue spec node with negated values and the old
+                        intermediate is deleted
+                    */
                     negate_cur_val(true);
                 }
                 return succeeded;
@@ -475,7 +492,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
             }
         } else {
             if (cur_chr == glue_val_level)
-                cur_val = zero_glue;
+                cur_val = zero_glue; /* a pointer */
             else
                 cur_val = 0;
             if (cur_chr == last_node_type_code) {
@@ -500,7 +517,8 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                     break;
                 case lastskip_code:
                     if (type(cur_list.tail_field) == glue_node)
-                        cur_val = new_glue(cur_list.tail_field);
+                     // cur_val = new_spec(cur_list.tail_field);
+                        cur_val = cur_list.tail_field;
                     if (subtype(cur_list.tail_field) == mu_glue)
                         cur_val_level = mu_val_level;
                     break;
@@ -519,7 +537,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                     break;
                 case lastskip_code:
                     if (last_glue != max_halfword)
-                        cur_val = last_glue; /* maybe new_glue */
+                        cur_val = last_glue;
                     break;
                 case last_node_type_code:
                     cur_val = last_node_type;
@@ -543,9 +561,10 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
            If |negative| is |true|, |cur_val_level| is known to be |<=mu_val|.
          */
         if (negative) {
+            /* we create a new (negated) glue spec and keep the old one */
             negate_cur_val(false);
         } else if ((cur_val_level >= glue_val_level) && (cur_val_level <= mu_val_level)) {
-			cur_val = new_glue(cur_val);
+			cur_val = new_spec(cur_val);
         }
     }
     return succeeded;
@@ -660,8 +679,7 @@ void scan_something_internal(int level, boolean negative)
             get_token();
             if (cur_cmd != math_style_cmd) {
                 print_err("Missing math style, treated as \\displaystyle");
-                help1
-                    ("A style should have been here; I inserted `\\displaystyle'.");
+                help1("A style should have been here; I inserted `\\displaystyle'.");
                 cur_val = display_style;
                 back_error();
             } else {
@@ -841,9 +859,10 @@ void scan_something_internal(int level, boolean negative)
            If |negative| is |true|, |cur_val_level| is known to be |<=mu_val|.
          */
         if (negative) {
+            /* we create a new (negated) glue spec and keep the old one */
             negate_cur_val(false);
         } else if ((cur_val_level >= glue_val_level) && (cur_val_level <= mu_val_level)) {
-			cur_val = new_glue(cur_val);
+			cur_val = new_spec(cur_val);
         }
     }
 }
@@ -2485,8 +2504,8 @@ static void scan_expr(void)
         t = f;
         if ((l >= glue_val_level) && (o != expr_none)) {
 	        /* do we really need to copy here ? */
-            t = new_spec(f);
-            flush_node(f);
+//            t = new_spec(f);
+//            flush_node(f);
             normalize_glue(t);
         } else {
             t = f;

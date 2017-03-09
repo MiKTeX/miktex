@@ -113,11 +113,13 @@ int new_font(void)
     font_tables[id]->_param_base = NULL;
     font_tables[id]->_math_param_base = NULL;
 
-    set_font_bc(id, 1);         /* ec = 0 */
+    set_font_bc(id, 1);          /* ec = 0 */
+    set_font_writingmode(id, 0);
+    set_font_identity(id, 0);
     set_hyphen_char(id, '-');
     set_skew_char(id, -1);
-    font_slant(id) = 0;         /* vertical */
-    font_extend(id) = 1000;     /* normal width */
+    font_slant(id) = 0;          /* vertical */
+    font_extend(id) = 1000;      /* normal width */
 
     /* allocate eight values including 0 */
     set_font_params(id, 7);
@@ -1537,6 +1539,8 @@ static void dump_font_entry(texfont * f)
     dump_int(f->_font_tounicode);
     dump_int(f->_font_type);
     dump_int(f->_font_format);
+    dump_int(f->_font_writingmode);
+    dump_int(f->_font_identity);
     dump_int(f->_font_embedding);
     dump_int(f->_font_bc);
     dump_int(f->_hyphen_char);
@@ -1714,6 +1718,8 @@ static void undump_font_entry(texfont * f)
     undump_int(x); f->_font_tounicode = (char)x;
     undump_int(x); f->_font_type = x;
     undump_int(x); f->_font_format = x;
+    undump_int(x); f->_font_writingmode = x;
+    undump_int(x); f->_font_identity = x;
     undump_int(x); f->_font_embedding = x;
     undump_int(x); f->_font_bc = x;
     undump_int(x); f->_hyphen_char = x;

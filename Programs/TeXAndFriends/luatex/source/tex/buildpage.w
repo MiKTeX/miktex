@@ -289,6 +289,7 @@ void build_page(void)
     int pi = 0;                 /* penalty to be added to the badness */
     int n;                      /* insertion box number */
     scaled delta, h, w;         /* sizes used for insertion calculations */
+    int id, sk, i;
     if ((vlink(contrib_head) == null) || output_active)
         return;
     do {
@@ -406,8 +407,11 @@ void build_page(void)
                 freeze_page_specs(inserts_only);
             n = subtype(p);
             r = page_ins_head;
-            while (n >= subtype(vlink(r)))
+            i = 1 ;
+            while (n >= subtype(vlink(r))) {
                 r = vlink(r);
+                i = i + 1 ;
+            }
             if (subtype(r) != n) {
                 /* Create a page insertion node with |subtype(r)=qi(n)|, and
                    include the glue correction for box |n| in the
@@ -417,7 +421,12 @@ void build_page(void)
                    encountered for a new page. A user who changes the contents of \.{\\box}~|n|
                    after that first \.{\\insert}~|n| had better be either extremely careful
                    or extremely lucky, or both. */
-
+id = callback_defined(build_page_insert_callback);
+if (id != 0) {
+    run_callback(id, "dd->d",n,i,&sk);
+} else {
+    sk = n;
+}
                 q = new_node(inserting_node, n);
                 try_couple_nodes(q, vlink(r));
                 couple_nodes(r, q);
@@ -428,18 +437,17 @@ void build_page(void)
                 else
                     height(r) = height(box(n)) + depth(box(n));
                 best_ins_ptr(r) = null;
-                q = skip(n);
+            /*  q = skip(n); */
+q = skip(sk);
                 if (count(n) == 1000)
                     h = height(r);
                 else
                     h = x_over_n(height(r), 1000) * count(n);
                 page_goal = page_goal - h - width(q);
                 if (stretch_order(q) > 1)
-                    page_so_far[1 + stretch_order(q)] =
-                        page_so_far[1 + stretch_order(q)] + stretch(q);
+                    page_so_far[1 + stretch_order(q)] = page_so_far[1 + stretch_order(q)] + stretch(q);
                 else
-                    page_so_far[2 + stretch_order(q)] =
-                        page_so_far[2 + stretch_order(q)] + stretch(q);
+                    page_so_far[2 + stretch_order(q)] = page_so_far[2 + stretch_order(q)] + stretch(q);
                 page_shrink = page_shrink + shrink(q);
                 if ((shrink_order(q) != normal) && (shrink(q) != 0)) {
                     print_err("Infinite glue shrinkage inserted from \\skip");

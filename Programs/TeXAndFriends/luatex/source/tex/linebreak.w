@@ -348,11 +348,11 @@ static boolean check_expand_pars(internal_font_number f)
                     l = pop_node(); /* don't visit this node again */
                     run = false;
                 }
-if ((vlink(l) != null) && (type(l) == boundary_node) && (subtype(l) == protrusion_boundary) &&
-        ((boundary_value(l) == 1) || (boundary_value(l) == 3))) {
-    /* skip next node */
-    l = vlink(l);
-}
+                if ((vlink(l) != null) && (type(l) == boundary_node) && (subtype(l) == protrusion_boundary) &&
+                        ((boundary_value(l) == 1) || (boundary_value(l) == 3))) {
+                    /* skip next node */
+                    l = vlink(l);
+                }
                 if (vlink(l) != null) {
                     l = vlink(l);
                 } else if (hlist_stack_level == 0) {
@@ -393,11 +393,11 @@ if ((vlink(l) != null) && (type(l) == boundary_node) && (subtype(l) == protrusio
                 l = pop_node();
             }
             if ((r != l) && (r != null)) {
-if ((alink(r) != null) && (type(r) == boundary_node) && (subtype(r) == protrusion_boundary) &&
-        ((boundary_value(r) == 2) || (boundary_value(r) == 3))) {
-    /* skip next node */
-    r = alink(r);
-}
+                if ((alink(r) != null) && (type(r) == boundary_node) && (subtype(r) == protrusion_boundary) &&
+                        ((boundary_value(r) == 2) || (boundary_value(r) == 3))) {
+                    /* skip next node */
+                    r = alink(r);
+                }
                 if (alink(r) != null) {
                     r = alink(r);
                 } else {        /* this is the input: \.{\\leavevmode\\penalty-10000\\penalty-10000} (bug \#268) */
@@ -898,7 +898,7 @@ static void compute_break_width(int break_type, int line_break_dir, int adjust_s
         switch (type(s)) {
             case math_node:
                 /* begin mathskip code */
-                if (glue_is_zero(math_skip_par)) {
+                if (glue_is_zero(s)) {
                     break_width[1] -= surround(s);
                     break;
                 } else {
@@ -1840,7 +1840,7 @@ void ext_do_line_break(int paragraph_dir,
                 case math_node:
                     auto_breaking = (subtype(cur_p) == after);
                     /* begin mathskip code */
-                    if (glue_is_zero(math_skip_par)) {
+                    if (glue_is_zero(cur_p) || ignore_math_skip(cur_p)) {
                         kern_break();
                         break;
                     } else {

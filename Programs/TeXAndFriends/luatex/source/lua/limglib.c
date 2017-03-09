@@ -394,6 +394,8 @@ static int m_img_get(lua_State * L)
         lua_pushinteger(L, img_yres(d));
     } else if (lua_key_eq(s,rotation)) {
         lua_pushinteger(L, img_rotation(d));
+    } else if (lua_key_eq(s,orientation)) {
+        lua_pushinteger(L, img_orientation(d));
     } else if (lua_key_eq(s,colorspace)) {
         if (img_colorspace(d) == 0) {
             lua_pushnil(L);

@@ -147,4 +147,9 @@ latter two are used denote \.{\\vbox} and \.{\\hbox}, respectively.
 
 extern void begin_box(int box_context);
 
+#define math_skip_boundary(n) \
+(n && type(n) == glue_node && (subtype(n) == space_skip_subtype || subtype(n) == xspace_skip_subtype))
+
+extern int ignore_math_skip(halfword p) ;
+
 #endif

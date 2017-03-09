@@ -29,6 +29,14 @@ const char *font_type_strings[] = {
     "unknown", "virtual", "real", NULL
 };
 
+const char *font_writingmode_strings[] = {
+    "unknown", "horizontal", "vertical", NULL
+};
+
+const char *font_identity_strings[] = {
+    "unknown", "horizontal", "vertical", NULL
+};
+
 const char *font_format_strings[] = {
     "unknown", "type1", "type3", "truetype", "opentype", NULL
 };
@@ -427,6 +435,8 @@ int font_to_lua(lua_State * L, int f)
     dump_booleanfield(L,used,(font_used(f) ? true : false));
     dump_stringfield(L,type,font_type_strings[font_type(f)]);
     dump_stringfield(L,format,font_format_strings[font_format(f)]);
+    dump_stringfield(L,writingmode,font_writingmode_strings[font_writingmode(f)]);
+    dump_stringfield(L,identity,font_identity_strings[font_identity(f)]);
     dump_stringfield(L,embedding,font_embedding_strings[font_embedding(f)]);
 
     dump_intfield(L,units_per_em,font_units_per_em(f));
@@ -1409,6 +1419,10 @@ int font_from_lua(lua_State * L, int f)
     set_font_type(f, i);
     i = n_enum_field(L, lua_key_index(format), unknown_format, font_format_strings);
     set_font_format(f, i);
+    i = n_enum_field(L, lua_key_index(writingmode), unknown_writingmode, font_writingmode_strings);
+    set_font_writingmode(f, i);
+    i = n_enum_field(L, lua_key_index(identity), unknown_identity, font_identity_strings);
+    set_font_identity(f, i);
     i = n_enum_field(L, lua_key_index(embedding), unknown_embedding, font_embedding_strings);
     set_font_embedding(f, i);
     if (font_encodingbytes(f) == 0 && (font_format(f) == opentype_format || font_format(f) == truetype_format)) {
@@ -1968,13 +1982,15 @@ static halfword handle_lig_word(halfword cur)
 @c
 halfword handle_ligaturing(halfword head, halfword tail)
 {
-    halfword save_tail1; /* trick to allow explicit |node==null| tests */
+    halfword save_tail1 = null; /* trick to allow explicit |node==null| tests */
     halfword cur, prev;
 
     if (vlink(head) == null)
         return tail;
-    save_tail1 = vlink(tail);
-    vlink(tail) = null;
+    if (tail != null) {
+        save_tail1 = vlink(tail);
+        vlink(tail) = null;
+    }
 
     /* |if (fix_node_lists)| */
     fix_node_list(head);
@@ -1989,10 +2005,12 @@ halfword handle_ligaturing(halfword head, halfword tail)
         prev = cur;
         cur = vlink(cur);
     }
-    if (prev == null)
+    if (prev == null) {
+        /* hh: looks bad to me */
         prev = tail;
+    }
 
-    if (valid_node(save_tail1)) {
+    if (tail != null) {
         try_couple_nodes(prev, save_tail1);
     }
     return prev;
@@ -2071,6 +2089,8 @@ static void do_handle_kerning(halfword root, halfword init_left, halfword init_r
             if (type(cur) == disc_node) {
                 halfword right = type(vlink(cur)) == glyph_node ? vlink(cur) : null;
                 do_handle_kerning(pre_break(cur), left, null);
+                if (vlink_pre_break(cur) != null)
+                    tlink_pre_break(cur) = tail_of_list(vlink_pre_break(cur));
                 do_handle_kerning(post_break(cur), null, right);
                 if (vlink_post_break(cur) != null)
                     tlink_post_break(cur) = tail_of_list(vlink_post_break(cur));
@@ -2109,6 +2129,7 @@ static void do_handle_kerning(halfword root, halfword init_left, halfword init_r
     }
 }
 
+/*
 halfword handle_kerning(halfword head, halfword tail)
 {
     halfword save_link;
@@ -2119,6 +2140,26 @@ halfword handle_kerning(halfword head, halfword tail)
     tail = tlink(head);
     if (valid_node(save_link)) {
         try_couple_nodes(tail, save_link);
+    }
+    return tail;
+}
+*/
+
+halfword handle_kerning(halfword head, halfword tail)
+{
+    halfword save_link = null;
+    if (tail == null) {
+        tlink(head) = null;
+        do_handle_kerning(head, null, null);
+    } else {
+        save_link = vlink(tail);
+        vlink(tail) = null;
+        tlink(head) = tail;
+        do_handle_kerning(head, null, null);
+        tail = tlink(head);
+        if (valid_node(save_link)) {
+            try_couple_nodes(tail, save_link);
+        }
     }
     return tail;
 }

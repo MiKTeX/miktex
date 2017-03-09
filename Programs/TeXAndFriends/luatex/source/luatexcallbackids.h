@@ -67,6 +67,7 @@ typedef enum {
     insert_local_par_callback,
     contribute_filter_callback,
     call_edit_callback,
+    build_page_insert_callback,
     total_callbacks
 } callback_callback_types;
 

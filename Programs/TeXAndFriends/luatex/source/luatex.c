@@ -29,9 +29,9 @@
 #define TeX
 
 int luatex_version = 100;        /* \.{\\luatexversion}  */
-int luatex_revision = '0';      /* \.{\\luatexrevision}  */
-int luatex_date_info = 2016092700;     /* the compile date is now hardwired */
-const char *luatex_version_string = "1.0.0";
+int luatex_revision = '3';      /* \.{\\luatexrevision}  */
+int luatex_date_info = 2017021514;     /* the compile date is now hardwired :YEAR MONTH DAY HOUR*/
+const char *luatex_version_string = "1.0.3";
 const char *engine_name = my_name;     /* the name of this engine */
 
 #include <kpathsea/c-ctype.h>
@@ -198,7 +198,7 @@ void init_start_time(void) {
         if (source_date_epoch && source_date_epoch != '\0' ) {
             errno = 0;
             epoch = strtoull(source_date_epoch, &endptr, 10);
-            if (epoch < 0 || *endptr != '\0' || errno != 0) {
+            if (*endptr != '\0' || errno != 0) {
                 epoch = 0;
             }
 #if defined(_MSC_VER)

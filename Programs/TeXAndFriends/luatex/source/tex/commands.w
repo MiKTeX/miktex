@@ -51,6 +51,7 @@ void initialize_commands(void)
     primitive_tex("medmuskip", assign_mu_glue_cmd, glue_base + med_mu_skip_code, glue_base + thin_mu_skip_code);
     primitive_tex("thickmuskip", assign_mu_glue_cmd, glue_base + thick_mu_skip_code, glue_base + thin_mu_skip_code);
     primitive_luatex("mathsurroundskip", assign_glue_cmd, glue_base + math_skip_code, glue_base);
+    primitive_luatex("mathsurroundmode", assign_int_cmd, int_base + math_skip_mode_code, int_base);
     primitive_tex("output", assign_toks_cmd, output_routine_loc, local_base);
     primitive_tex("everypar", assign_toks_cmd, every_par_loc, local_base);
     primitive_tex("everymath", assign_toks_cmd, every_math_loc, local_base);
@@ -155,6 +156,7 @@ void initialize_commands(void)
     primitive_luatex("pagewidth", assign_dimen_cmd, dimen_base + page_width_code, dimen_base);
     primitive_luatex("pageheight", assign_dimen_cmd, dimen_base + page_height_code, dimen_base);
     primitive_luatex("pxdimen", assign_dimen_cmd, dimen_base + px_dimen_code, dimen_base);
+    primitive_luatex("predisplaygapfactor", assign_int_cmd, int_base + math_pre_display_gap_factor_code, int_base);
 
     /* Many of \TeX's primitives need no |equiv|, since they are identifiable
        by their |eq_type| alone. These primitives are loaded into the hash table

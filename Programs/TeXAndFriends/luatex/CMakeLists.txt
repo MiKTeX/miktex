@@ -344,6 +344,41 @@ target_link_libraries(luatex-luafontforge-static
 )
 
 ###############################################################################
+## luatex-luaffi-static
+###############################################################################
+
+set(luaffi_sources
+  source/luaffi/call.c
+  source/luaffi/call_arm.h
+  source/luaffi/call_x64.h
+  source/luaffi/call_x64win.h
+  source/luaffi/call_x86.h
+  source/luaffi/ctype.c
+  source/luaffi/ffi.c
+  source/luaffi/ffi.h
+  source/luaffi/parser.c
+) 
+
+add_library(luatex-luaffi-static STATIC ${luaffi_sources})
+
+set_property(TARGET luatex-luaffi-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_include_directories(luatex-luaffi-static
+  PRIVATE
+    source/luaffi/dynasm
+)
+
+target_link_libraries(luatex-luaffi-static
+  PUBLIC
+    ${lua_lib_name}
+)
+
+target_link_libraries(luatex-luaffi-static
+  PUBLIC
+    ${zlib_dll_name}
+)
+
+###############################################################################
 ## luatex-static
 ###############################################################################
 
@@ -669,6 +704,7 @@ set(libs
   ${mp_lib_name}
   ${w2cemu_dll_name}
 
+  luatex-luaffi-static
   luatex-luafontforge-static
   luatex-luamisc-static
   luatex-luasocket-static

@@ -87,7 +87,7 @@ extern halfword find_protchar_right(halfword l, halfword r);
  || ((type((a)) == disc_node) && empty_disc(a)) \
  || ((type((a)) == kern_node) && ((width((a)) == 0) || (subtype((a)) == normal))) \
  || ((type((a)) == rule_node) && zero_dimensions(a)) \
- || ((type((a)) == math_node) && (surround((a)) == 0)) \
+ || ((type((a)) == math_node) && (surround((a)) == 0 || (glue_is_zero((a))))) \
  ||  (type((a)) == dir_node) \
  || ((type((a)) == hlist_node) && (list_ptr((a)) == null) && zero_dimensions(a)) \
  ||  (type((a)) == local_par_node) \

@@ -125,6 +125,7 @@ static const luaL_Reg lualibs[] = {
     {"zip", luaopen_zip},
     {"bit32", luaopen_bit32},
     {"md5", luaopen_md5},
+    {"ffi", luaopen_ffi},
     {"lfs", luaopen_lfs},
     {"profiler", luaopen_profiler},
     {"lpeg", luaopen_lpeg},
@@ -219,6 +220,7 @@ void luainterpreter(void)
 */
     open_strlibext(L);
     open_lfslibext(L);
+
 
     /* luasockets */
     /* socket and mime are a bit tricky to open because

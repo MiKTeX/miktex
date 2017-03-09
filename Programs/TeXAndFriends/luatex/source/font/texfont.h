@@ -150,6 +150,8 @@ typedef struct texfont {
     fm_entry *_font_map;
     int _font_type;
     int _font_format;
+    int _font_writingmode;
+    int _font_identity;
     int _font_embedding;
     int _font_bc;
     int _hyphen_char;
@@ -191,6 +193,18 @@ typedef enum {
 } font_formats;
 
 typedef enum {
+    unknown_writingmode = 0,
+    horizontal_writingmode,
+    vertical_writingmode,
+} writingmode_types;
+
+typedef enum {
+    unknown_identity = 0,
+    horizontal_identity,
+    vertical_identity,
+} identity_types;
+
+typedef enum {
     unknown_embedding = 0,
     no_embedding,
     subset_embedding,
@@ -199,6 +213,8 @@ typedef enum {
 
 extern const char *font_type_strings[];
 extern const char *font_format_strings[];
+extern const char *font_writingmodes_strings[];
+extern const char *font_identity_strings[];
 extern const char *font_embedding_strings[];
 
 #  define font_checksum(a)           font_tables[a]->_font_checksum
@@ -249,7 +265,6 @@ boolean cmp_font_area(int, str_number);
                                           strcmp(font_fullname(a),font_fullname(b))))
 #  define cmp_font_encodingname(a,b)     (!(font_encoding(a)!=NULL || font_encodingname(b)!=NULL || \
                                           strcmp(font_encodingname(a),font_encodingname(b))))
-
 #  define font_bc(a)                     font_tables[a]->_font_bc
 #  define set_font_bc(f,b)               font_bc(f) = b
 
@@ -268,6 +283,14 @@ boolean cmp_font_area(int, str_number);
 #  define font_format(a)                 font_tables[a]->_font_format
 #  define font_format_name(a)            font_format_strings[font_tables[a]->_font_format]
 #  define set_font_format(a,b)           font_format(a) = b
+
+#  define font_writingmode(a)            font_tables[a]->_font_writingmode
+#  define font_writingmode_name(a)       font_writingmode_strings[font_tables[a]->_font_writingmode]
+#  define set_font_writingmode(a,b)      font_writingmode(a) = b
+
+#  define font_identity(a)               font_tables[a]->_font_identity
+#  define font_identity_name(a)          font_identity_strings[font_tables[a]->_font_identity]
+#  define set_font_identity(a,b)         font_identity(a) = b
 
 #  define font_embedding(a)              font_tables[a]->_font_embedding
 #  define set_font_embedding(a,b)        font_embedding(a) = b

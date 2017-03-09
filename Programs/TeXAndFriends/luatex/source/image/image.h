@@ -105,6 +105,7 @@ typedef struct {
     int x_res;                  /* pixel resolution as in JPG/PNG/JBIG2 file */
     int y_res;
     int rotation;               /* rotation (multiples of 90 deg.) for PDF files */
+    int orientation;            /* jpeg orientation, 0=unset, 1=ul, 2=ur, 3=lr, 4=ll, 5-8 flipped */
     int colorspace;             /* number of /ColorSpace object */
     int group_ref;              /* if it's <=0, the page has no group */
     int total_pages;
@@ -149,6 +150,7 @@ typedef struct {
 #  define img_xres(N)             ((N)->x_res)
 #  define img_yres(N)             ((N)->y_res)
 #  define img_rotation(N)         ((N)->rotation)
+#  define img_orientation(N)      ((N)->orientation)
 #  define img_colorspace(N)       ((N)->colorspace)
 #  define img_group_ref(N)        ((N)->group_ref)
 #  define img_totalpages(N)       ((N)->total_pages)

@@ -66,13 +66,12 @@ already apply that shift.
 @ @c
 #define nDEBUG
 
-#define reset_attributes(p,newatt) do {                \
+#define reset_attributes(p,newatt) do { \
     delete_attribute_ref(node_attr(p)); \
-    node_attr(p) = newatt;                             \
-    if (newatt!=null) {                                \
-      assert(type(newatt)==attribute_list_node);       \
-      add_node_attr_ref(node_attr(p));                 \
-    }                                                  \
+    node_attr(p) = newatt;              \
+    if (newatt!=null) {                 \
+      add_node_attr_ref(node_attr(p));  \
+    }                                   \
   } while (0)
 
 #define DEFINE_MATH_PARAMETERS(A,B,C,D) do {                 \
@@ -88,11 +87,11 @@ already apply that shift.
     }                                                        \
   } while (0)
 
-#define DEFINE_DMATH_PARAMETERS(A,B,C,D) do {                \
-    if (B==text_size) {                                      \
-      def_math_param(A, display_style,(C),D);                \
-      def_math_param(A, cramped_display_style,(C),D);        \
-    }                                                        \
+#define DEFINE_DMATH_PARAMETERS(A,B,C,D) do {         \
+    if (B==text_size) {                               \
+      def_math_param(A, display_style,(C),D);         \
+      def_math_param(A, cramped_display_style,(C),D); \
+    }                                                 \
   } while (0)
 
 #define font_MATH_par(a,b) \
@@ -2662,7 +2661,6 @@ static scaled make_op(pointer q, int cur_style)
                     math_character(nucleus(q)) = c;
                 }
                 delta = char_italic(cur_f, cur_c);
-printf("delta %i\n",delta);
                 x = clean_box(nucleus(q), cur_style, cur_style);
                 if (delta != 0) {
                     if (do_new_math(cur_f)) {
@@ -3784,16 +3782,13 @@ static pointer math_spacing_glue(int l_type, int r_type, int mstyle, scaled mmu)
         confusion("mathspacing");
     }
     if (x != 0) {
-        pointer y;
         if (x <= thick_mu_skip_code) {
             /* trap thin/med/thick settings cf. old TeX */
-            y = math_glue(glue_par(x), mmu);
-            z = new_glue(y);
+            z = math_glue(glue_par(x), mmu); /* allocates a glue */
             /* store a symbolic subtype */
             subtype(z) = (quarterword) (x + 1);
         } else {
-            y = math_glue(x, mmu);
-            z = new_glue(y);
+            z = math_glue(x, mmu); /* allocates a glue */
         }
     }
     return z;
@@ -4046,14 +4041,18 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
                 math_glue_to_glue(q, cur_mu);
             } else if ((cur_size != text_size) && (subtype(q) == cond_math_glue)) {
                 p = vlink(q);
-                if (p != null)
-                    if ((type(p) == glue_node) || (type(p) == kern_node)) {
-                        couple_nodes(q,vlink(p));
-                        vlink(p) = null;
+         	if (p != null)
+                     if ((type(p) == glue_node) || (type(p) == kern_node)) {
+                       if (vlink(p) != null) {
+                            couple_nodes(q,vlink(p));
+                            vlink(p) = null;
+                        } else {
+                            vlink(q) = null;
+                        }
                         flush_node_list(p);
-                    }
+                     }
             }
-            goto DONE_WITH_NODE;
+	    goto DONE_WITH_NODE;
             break;
         case kern_node:
             math_kern(q, cur_mu);
@@ -4242,8 +4241,9 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
             A low-level |free_node| is easier than attempting to nullify such dependant
             fields for all possible node and noad types.
         */
-        if (nodetype_has_attributes(type(r)))
+        if (nodetype_has_attributes(type(r))) {
             delete_attribute_ref(node_attr(r));
+        }
         reset_node_properties(r);
         free_node(r, get_node_size(type(r), subtype(r)));
     }

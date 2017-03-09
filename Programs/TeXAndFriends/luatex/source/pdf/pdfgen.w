@@ -2271,6 +2271,7 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
                 }
             }
             pdf->gen_tounicode = pdf_gen_tounicode;
+            pdf->omit_cidset = pdf_omit_cidset;
             k = pdf->head_tab[obj_type_font];
             while (k != 0) {
                 int f = obj_info(pdf, k);

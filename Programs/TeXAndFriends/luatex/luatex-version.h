@@ -19,7 +19,7 @@
 
 #define MIKTEX_COMP_J2000_VERSION 6300
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "1.0.0"
+#define MIKTEX_COMP_ORIG_VERSION_STR "1.0.3"
 
 #define MIKTEX_COMP_COPYRIGHT_STR "(C) 2015 Taco Hoekwater, the LuaTeX Team"
 #define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2015 Taco Hoekwater, the LuaTeX Team"

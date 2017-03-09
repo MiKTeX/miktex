@@ -376,7 +376,7 @@ typedef enum {
     math_text_char_node,
     delim_node,                 /* shield fields */
     margin_kern_node,
-    glyph_node,
+    glyph_node,                 /* this and below have attributes */
     align_record_node,
     pseudo_file_node,
     pseudo_line_node,
@@ -947,6 +947,7 @@ typedef enum {
 #  define ss_glue          fill_glue+glue_spec_size
 #  define fil_neg_glue     ss_glue+glue_spec_size
 #  define page_ins_head    fil_neg_glue+glue_spec_size
+
 #  define contrib_head     page_ins_head+temp_node_size
 #  define page_head        contrib_head+temp_node_size
 #  define temp_head        page_head+temp_node_size

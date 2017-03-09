@@ -199,6 +199,17 @@ void pdf_place_glyph(PDF pdf, internal_font_number f, int c, int ex)
     scaledpos pos = pdf->posstruct->pos;
     if (!char_exists(f, c))
         return;
+    if (font_writingmode(f) == vertical_writingmode) {
+        if (p->wmode != WMODE_V) {
+            p->wmode = WMODE_V;
+            p->need_tm = true;
+        }
+    } else {
+        if (p->wmode != WMODE_H) {
+            p->wmode = WMODE_H;
+            p->need_tm = true;
+        }
+    }
     if (p->need_tf || f != pdf->f_cur || p->f_pdf != p->f_pdf_cur || p->fs.m != p->fs_cur.m || is_pagemode(p)) {
          pdf_goto_textmode(pdf);
          setup_fontparameters(pdf, f, ex);
@@ -210,7 +221,8 @@ void pdf_place_glyph(PDF pdf, internal_font_number f, int c, int ex)
     /* all movements */
     move = calc_pdfpos(p, pos); /* within text or chararray or char mode */
     if (move || p->need_tm) {
-        if (p->need_tm || (p->wmode == WMODE_H && (p->pdf_bt_pos.v.m + p->tm[5].m) != p->pdf.v.m)
+        if (p->need_tm
+        || (p->wmode == WMODE_H && (p->pdf_bt_pos.v.m + p->tm[5].m) != p->pdf.v.m)
         || (p->wmode == WMODE_V && (p->pdf_bt_pos.h.m + p->tm[4].m) != p->pdf.h.m)
         || abs(p->tj_delta.m) >= 1000000) {
             pdf_goto_textmode(pdf);

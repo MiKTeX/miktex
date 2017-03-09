@@ -2325,6 +2325,7 @@ static int do_variable_pdf(halfword c)
     else if (scan_keyword("gentounicode"))         { do_variable_backend_int(c_pdf_gen_tounicode); }
     else if (scan_keyword("pkfixeddpi"))           { do_variable_backend_int(c_pdf_pk_fixed_dpi); }
     else if (scan_keyword("suppressoptionalinfo")) { do_variable_backend_int(c_pdf_suppress_optional_info); }
+    else if (scan_keyword("omitcidset"))           { do_variable_backend_int(c_pdf_omit_cidset); }
 
     else if (scan_keyword("horigin"))              { do_variable_backend_dimen(d_pdf_h_origin); }
     else if (scan_keyword("vorigin"))              { do_variable_backend_dimen(d_pdf_v_origin); }
@@ -2705,7 +2706,6 @@ void conv_toks(void)
             pop_selector;
             break;
         case normal_deviate_code:
-            scan_int();
             push_selector;
             print_int(norm_rand());
             pop_selector;

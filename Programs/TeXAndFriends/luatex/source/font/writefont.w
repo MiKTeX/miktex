@@ -569,8 +569,9 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
                 assert(0);
         }
     }
-    if (cidset != 0)
+    if ((! pdf->omit_cidset) && (cidset != 0)) {
         pdf_dict_add_ref(pdf, "CIDSet", cidset);
+    }
     /* TODO: Other optional keys for CID fonts.
        The most interesting one is
        \.{/Style << /Panose <12-byte string>>>}
@@ -1006,7 +1007,11 @@ void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internal_font_number f)
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "Font");
     pdf_dict_add_name(pdf, "Subtype", "Type0");
-    pdf_dict_add_name(pdf, "Encoding", "Identity-H");
+    if (font_identity(f) == vertical_identity) {
+        pdf_dict_add_name(pdf, "Encoding", "Identity-V");
+    } else {
+        pdf_dict_add_name(pdf, "Encoding", "Identity-H");
+    }
     pdf_dict_add_fontname(pdf, "BaseFont", fo->fd);
     i = pdf_create_obj(pdf, obj_type_others, 0);
     pdf_add_name(pdf, "DescendantFonts");

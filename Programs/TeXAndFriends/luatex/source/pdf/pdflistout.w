@@ -437,6 +437,18 @@ cur.h += x_advance(p);
                         }
                     }
                     break;
+                case math_node:
+                    if (synctex) {
+                        synctexmath(p, this_box);
+                    }
+                    /* begin mathskip code */
+                    if (glue_is_zero(p)) {
+                        cur.h += surround(p);
+                        break;
+                    } else {
+                        /* fall through: mathskip */
+                    }
+                    /* end mathskip code */
                 case glue_node:
                     {
                         /* move right or output leaders, we use real multiplication */
@@ -646,18 +658,6 @@ cur.h += x_advance(p);
                             out_what(pdf, p);
                     }
                     break;
-                case math_node:
-                    if (synctex) {
-                        synctexmath(p, this_box);
-                    }
-                    /* begin mathskip code */
-                    if (glue_is_zero(p)) {
-                        cur.h += surround(p);
-                        break;
-                    } else {
-                        /* fall through: mathskip */
-                    }
-                    /* end mathskip code */
                 case margin_kern_node:
                     cur.h += width(p);
                     break;

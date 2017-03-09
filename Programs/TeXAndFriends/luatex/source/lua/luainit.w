@@ -1,6 +1,6 @@
 % luainit.w
 %
-% Copyright 2006-2016 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2017 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -1175,6 +1175,10 @@ void lua_initialize(int ac, char **av)
             init_kpse();
             fix_dumpname();
         }
+    }
+    /* Maybe we can extend this way to the others tables, using luac. */
+    if ( safer_option || ((shellenabledp == 0) || (shellenabledp == 1 && restrictedshell == 1)) ) {
+       (void)   luaL_dostring(Luas,"ffi=require[[ffi]]; for k,_ in pairs(ffi) do if k~='gc' then ffi[k]=nil end; end; ffi=nil;");
     }
 }
 

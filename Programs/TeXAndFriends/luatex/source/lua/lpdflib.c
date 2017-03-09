@@ -788,6 +788,36 @@ static int l_set_obj_compress_level(lua_State * L)
     return 0 ;
 }
 
+/* fonts */
+
+static int getpdfgentounicode(lua_State * L)
+{
+    lua_pushinteger(L, (pdf_gen_tounicode));
+    return 1 ;
+}
+
+static int getpdfomitcidset(lua_State * L)
+{
+    lua_pushinteger(L, (pdf_omit_cidset));
+    return 1 ;
+}
+
+static int setpdfgentounicode(lua_State * L)
+{
+    if (lua_type(L, 1) == LUA_TNUMBER) {
+        set_pdf_gen_tounicode(lua_tointeger(L, 1));
+    }
+    return 0 ;
+}
+
+static int setpdfomitcidset(lua_State * L)
+{
+    if (lua_type(L, 1) == LUA_TNUMBER) {
+        set_pdf_omit_cidset(lua_tointeger(L, 1));
+    }
+    return 0 ;
+}
+
 /* accuracy */
 
 static int l_get_decimal_digits(lua_State * L)
@@ -1186,8 +1216,12 @@ static const struct luaL_Reg pdflib[] = {
     { "getxformmargin", getpdfxformmargin },
     { "getinclusionerrorlevel", getpdfinclusionerrorlevel },
     { "getignoreunknownimages", getpdfignoreunknownimages },
+    { "getgentounicode", getpdfgentounicode },
+    { "getomitcidset", getpdfomitcidset },
     { "setinclusionerrorlevel", setpdfinclusionerrorlevel },
     { "setignoreunknownimages", setpdfignoreunknownimages },
+    { "setgentounicode", setpdfgentounicode },
+    { "setomitcidset", setpdfomitcidset },
     { "mapfile", l_mapfile },
     { "mapline", l_mapline },
     /* sentinel */

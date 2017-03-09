@@ -73,6 +73,7 @@ static const char *const callbacknames[] = {
     "insert_local_par",
     "contribute_filter",
     "call_edit",
+    "build_page_insert",
     NULL
 };
 
