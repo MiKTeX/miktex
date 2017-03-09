@@ -119,6 +119,11 @@ static inline void setupboundvariable(integer* var, const char* var_name, intege
 }
 #endif
 
+static inline integer zround(double r)
+{
+  return miktex_zround(r);
+}
+
 #define recorder_enabled miktex_web2c_recorder_enabled
 #define fullnameoffile miktex_web2c_fullnameoffile
 #define versionstring miktex_web2c_version_string

@@ -1,4 +1,4 @@
-% Copyright 1996-2016 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh,
+% Copyright 1996-2017 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh,
 % <thanh@@pdftex.org>
 
 % This file is part of pdfTeX.
@@ -18813,6 +18813,28 @@ begin
     end;
 end;
 
+@ |substr_of_str| is used in |pdf_ship_out| and |pdf_print_info|.
+@p function substr_of_str(s, t: str_number):boolean;
+label continue,exit;
+var j, k, kk: pool_pointer; {running indices}
+begin
+    k:=str_start[t];
+    while (k < str_start[t+1] - length(s)) do begin
+        j:=str_start[s];
+        kk:=k;
+        while (j < str_start[s+1]) do begin
+            if str_pool[j] <> str_pool[kk] then
+                goto continue;
+            incr(j);
+            incr(kk);
+        end;
+        substr_of_str:=true;
+        return;
+        continue: incr(k);
+    end;
+    substr_of_str:=false;
+end;
+
 @ |pdf_ship_out| is used instead of |ship_out| to shipout a box to PDF
 output. If |shipping_page| is not set then the output will be a Form object,
 otherwise it will be a Page object.
@@ -18820,6 +18842,8 @@ otherwise it will be a Page object.
 @p procedure pdf_ship_out(p: pointer; shipping_page: boolean); {output the box |p|}
 label done, done1;
 var i,j,k:integer; {general purpose accumulators}
+s: pool_pointer; {index into |str_pool|}
+mediabox_given: boolean;
 save_font_list: pointer; {to save |pdf_font_list| during flushing pending forms}
 save_obj_list: pointer; {to save |pdf_obj_list|}
 save_ximage_list: pointer; {to save |pdf_ximage_list|}
@@ -19092,10 +19116,18 @@ pdf_begin_dict(pdf_last_page, 1);
 pdf_print_ln("/Type /Page");
 pdf_indirect_ln("Contents", pdf_last_stream);
 pdf_indirect_ln("Resources", pdf_last_resources);
-pdf_print("/MediaBox [0 0 ");
-pdf_print_mag_bp(cur_page_width); pdf_out(" ");
-pdf_print_mag_bp(cur_page_height);
-pdf_print_ln("]");
+mediabox_given:=false;
+if pdf_page_attr <> null then begin
+    s:=tokens_to_string(pdf_page_attr);
+    mediabox_given:=substr_of_str("/MediaBox", s);
+    flush_str(s);
+end;
+if not mediabox_given then begin
+    pdf_print("/MediaBox [0 0 ");
+    pdf_print_mag_bp(cur_page_width); pdf_out(" ");
+    pdf_print_mag_bp(cur_page_height);
+    pdf_print_ln("]");
+end;
 if pdf_page_attr <> null then
     pdf_print_toks_ln(pdf_page_attr);
 @<Generate parent pages object@>;
@@ -19973,28 +20005,7 @@ defined which value is choosen by an application.  Therefore the keys
 |/Producer| and |/Creator| are only set if the token list
 |pdf_info_toks| converted to a string does not contain these key strings.
 
-@p function substr_of_str(s, t: str_number):boolean;
-label continue,exit;
-var j, k, kk: pool_pointer; {running indices}
-begin
-    k:=str_start[t];
-    while (k < str_start[t+1] - length(s)) do begin
-        j:=str_start[s];
-        kk:=k;
-        while (j < str_start[s+1]) do begin
-            if str_pool[j] <> str_pool[kk] then
-                goto continue;
-            incr(j);
-            incr(kk);
-        end;
-        substr_of_str:=true;
-        return;
-        continue: incr(k);
-    end;
-    substr_of_str:=false;
-end;
-
-procedure pdf_print_info; {print info object}
+@p procedure pdf_print_info; {print info object}
 var s: str_number;
     creator_given, producer_given, creationdate_given, moddate_given, trapped_given: boolean;
 begin
