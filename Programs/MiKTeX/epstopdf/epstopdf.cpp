@@ -498,8 +498,7 @@ void EpsToPdfApp::PutFormattedLine(const char* lpszFormat, ...)
   }
 }
 
-void
-EpsToPdfApp::PutLine(const string& line)
+void EpsToPdfApp::PutLine(const string& line)
 {
   if (!printOnly)
   {
