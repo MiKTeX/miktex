@@ -1,6 +1,6 @@
 /* miktex/Core/Paths.h: hard-coded path names           -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -713,6 +713,7 @@
 #define MIKTEX_DVIPDFMX_EXE MIKTEX_PREFIX "dvipdfmx" MIKTEX_EXE_FILE_SUFFIX
 #define MIKTEX_DVIPS_EXE "dvips" MIKTEX_EXE_FILE_SUFFIX
 #define MIKTEX_DVITYPE_EXE MIKTEX_PREFIX "dvitype" MIKTEX_EXE_FILE_SUFFIX
+#define MIKTEX_EPSTOPDF_EXE MIKTEX_PREFIX "epstopdf" MIKTEX_EXE_FILE_SUFFIX
 #define MIKTEX_GFTODVI_EXE MIKTEX_PREFIX "gftodvi" MIKTEX_EXE_FILE_SUFFIX
 #define MIKTEX_GFTOPK_EXE MIKTEX_PREFIX "gftopk" MIKTEX_EXE_FILE_SUFFIX
 #define MIKTEX_GFTYPE_EXE MIKTEX_PREFIX "gftype" MIKTEX_EXE_FILE_SUFFIX

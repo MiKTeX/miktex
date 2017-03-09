@@ -2490,6 +2490,7 @@ vector<FileLink> explicitFileLinks =
   { MIKTEX_DVICOPY_EXE, { "dvicopy" } },
   { MIKTEX_DVIPDFMX_EXE, { "dvipdfm", "dvipdfmx", "ebb", "extractbb", "xbb", "xdvipdfmx", MIKTEX_XDVIPDFMX_EXE } },
   { MIKTEX_DVITYPE_EXE, { "dvitype" } },
+  { MIKTEX_EPSTOPDF_EXE,{ "epstopdf" } },
   { MIKTEX_GFTODVI_EXE, { "gftodvi" } },
   { MIKTEX_GFTOPK_EXE, { "gftopk" } },
   { MIKTEX_GFTYPE_EXE, { "gftype" } },

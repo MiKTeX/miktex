@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -35,17 +35,17 @@ if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND epstopdf_sources epstopdf.rc)
 endif()
 
-add_executable(epstopdf ${epstopdf_sources})
+add_executable(${MIKTEX_PREFIX}epstopdf ${epstopdf_sources})
 
-set_property(TARGET epstopdf PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}epstopdf PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_link_libraries(epstopdf
+target_link_libraries(${MIKTEX_PREFIX}epstopdf
   ${app_dll_name}
   ${texmf_dll_name}
   miktex-popt-wrapper
 )
 
-merge_trustinfo_manifest(epstopdf asInvoker)
-merge_compatibility_manifest(epstopdf)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}epstopdf asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}epstopdf)
 
-install(TARGETS epstopdf DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}epstopdf DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

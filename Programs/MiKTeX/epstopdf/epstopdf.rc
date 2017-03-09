@@ -1,6 +1,6 @@
 /* epstopdf.rc: version number                          -*- C++ -*-
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is part of EPStoPDF.
 
@@ -21,7 +21,7 @@
 #include "epstopdf-version.h"
 
 #define VER_INTERNALNAME_STR "epstopdf"
-#define VER_ORIGINALFILENAME_STR "epstopdf.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-epstopdf.exe"
 
 #define VER_FILEDESCRIPTION_STR "EPS-to-PDF Converter"
 
