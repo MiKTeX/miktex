@@ -881,7 +881,7 @@ void mp_svg_print_glyph_defs (MP mp, mp_edge_object *h) {
                    mp_svg_open_starttag(mp,"path");
                    mp_svg_attribute(mp, "style", "fill-rule: evenodd;");
                    while (p!=NULL) {
-                     if (mp->svg->loc>0) mp->svg->loc--; /* drop a '\0' */
+                     if (mp->svg->loc>0) mp->svg->loc--; /* drop a '\\0' */
                      mp_svg_font_path_out(mp, gr_path_p((mp_fill_object *)p));
                      p=p->next;
                    }
@@ -922,7 +922,7 @@ void mp_svg_text_out (MP mp, mp_text_object *p, int prologues) {
   size_t l; /* string length */
   boolean transformed ;
   double ds; /* design size and scale factor for a text node */
-  /* clang: never read: fname = mp->font_ps_name[gr_font_n(p)]; */
+  /* clang: never read: |fname = mp->font_ps_name[gr_font_n(p)];| */
   s = (unsigned char *)gr_text_p(p);
   l = gr_text_l(p);
   transformed=(gr_txx_val(p)!=unity)||(gr_tyy_val(p)!=unity)||

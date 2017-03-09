@@ -1,4 +1,4 @@
-% $Id: mpmath.w 2070 2015-10-06 10:35:23Z luigi $
+% $Id: mpmath.w 2118 2017-02-15 17:49:54Z luigi $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -10,6 +10,8 @@
 \font\logos=logosl10
 \def\MF{{\tenlogo META}\-{\tenlogo FONT}}
 \def\MP{{\tenlogo META}\-{\tenlogo POST}}
+\def\pct!{{\char`\%}} % percent sign in ordinary text
+\def\psqrt#1{\sqrt{\mathstrut#1}}
 
 \def\title{Math support functions for 32-bit integer math}
 \pdfoutput=1
@@ -833,9 +835,9 @@ static int mp_round_decimals (MP mp, unsigned char *b, quarterword k) { /* retur
   return (int) halfp (a + 1);
 }
 
-@* Scanning numbers in the input
+@* Scanning numbers in the input.
 
-The definitions below are temporarily here
+The definitions below are temporarily here.
 
 @d set_cur_cmd(A) mp->cur_mod_->type=(A)
 @d set_cur_mod(A) mp->cur_mod_->data.n.data.val=(A)
@@ -962,7 +964,7 @@ void mp_velocity (MP mp, mp_number *ret, mp_number st, mp_number ct, mp_number s
   } else {
     ret->data.val = mp_make_fraction (mp, num, denom);
   }
-/*  printf ("num,denom=%f,%f -=> %f\n", num/65536.0, denom/65536.0, ret.data.val/65536.0);*/
+/*  |printf ("num,denom=%f,%f -=> %f\n", num/65536.0, denom/65536.0, ret.data.val/65536.0);|*/
 }
 
 
@@ -1861,11 +1863,11 @@ static void mp_m_unif_rand (MP mp, mp_number *ret, mp_number x_orig) {
   mp_number_clone (&abs_x, x);
   mp_number_abs (&abs_x);
   mp_next_random(mp, &u);
-  /*take_fraction (y, abs_x, u);*/
+  /*|take_fraction (y, abs_x, u);|*/
   mp_number_take_fraction (mp,&y, abs_x,u);
   free_number (u);
   if (mp_number_equal(y, abs_x)) {
-    /*set_number_to_zero(*ret);*/
+    /*|set_number_to_zero(*ret);|*/
     mp_number_clone (ret, ((math_data *)mp->math)->zero_t);
   } else if (mp_number_greater(x, ((math_data *)mp->math)->zero_t)) {
     mp_number_clone (ret, y);

@@ -234,7 +234,7 @@ by all \PASCAL\ compilers.
 @c
 static void mp_ps_print_int (MP mp,integer n) { /* prints an integer in decimal form */
   integer m; /* used to negate |n| in possibly dangerous cases */
-  char outbuf [24]; /* dig[23], plus terminating \0 */
+  char outbuf [24]; /* dig[23], plus terminating |\0| */
   unsigned char dig[23];  /* digits in a number, for rounding */
   int k = 0; /* index to current digit; we assume that $|n|<10^{23}$ */
   int l = 0; 
@@ -1397,7 +1397,7 @@ static int check_fm_entry (MP mp, fm_entry * fm, boolean warn) {
             mp->selector = save_selector;
             mp->ps->fm_file = NULL;
         }
-        /* mp_xfree(n); */
+        /* |mp_xfree(n);| */
         break;
     case MAPLINE:
         fm_scan_line (mp);
@@ -3515,7 +3515,7 @@ mp_ps_font *mp_ps_font_parse (MP mp, int tex_font) {
     t1_scan_param (mp, (font_number)tex_font, fm_cur);
   } while (mp->ps->t1_in_eexec == 0);
 
-  /* t1_start_eexec (mp,fm_cur); */
+  /* |t1_start_eexec (mp,fm_cur);| */
   cc_init ();
   cs_init (mp);
   /* the boolean is needed to make sure that |t1_read_subrs| 
@@ -3570,7 +3570,7 @@ void mp_ps_font_free (MP mp, mp_ps_font *f);
 
 @<Variables for the charstring parser@>=
 double flex_hint_data[14]; /* store temp. coordinates of flex hints */ 
-unsigned int  flex_hint_index ;  /* index for flex_hint_data */
+unsigned int  flex_hint_index ;  /* index for |flex_hint_data| */
 boolean ignore_flex_hint; /* skip hint for flex */
 double cur_x, cur_y; /* current point */
 double orig_x, orig_y; /* origin (for seac) */
@@ -3819,7 +3819,7 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr)
                         (int) (stack_ptr - cc_stack), (int) cc->nargs);
        }
       switch (cc - cc_tab) {
-      case CS_CLOSEPATH: /* - CLOSEPATH |- */
+      case CS_CLOSEPATH: /* |- CLOSEPATH |- */
         cs_debug(CS_CLOSEPATH);
         finish_subpath(mp, f);
         cc_clear ();
@@ -3889,7 +3889,7 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr)
         cc_clear ();
         break;
         /* hinting commands */
-      case CS_DOTSECTION: /* - DOTSECTION |- */
+      case CS_DOTSECTION: /* |- DOTSECTION |- */
         cs_debug(CS_DOTSECTION);
         cc_clear ();
         break;
@@ -3925,7 +3925,7 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr)
           (void)cs_parse(mp,f,standard_glyph_names[a2],0);
         }
         break;
-      case CS_ENDCHAR: /* - ENDCHAR |- */
+      case CS_ENDCHAR: /* |- ENDCHAR |- */
         cs_debug(CS_ENDCHAR);
         cc_clear ();
         return true;
@@ -3978,32 +3978,32 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr)
         if (a1==1) 
            f->ignore_flex_hint = 1; 
         if (a1==0) {
-           /* double first_x,first_y,first_r_x,first_r_y;  */
-           /* double join_x,join_y,join_l_x,join_l_y,join_r_x,join_r_y; */
-           /* double last_x,last_y,last_l_x,last_l_y; */
-           /* /\* a := glyph "q" of "cmti12"; *\/ */
-	   /* first_x = 206.0; first_y = -194.0; */
-           /* double ref_x,ref_y ; */
-	   /* ref_x = first_x+f->flex_hint_data[0]; */
-	   /* ref_y = first_y+f->flex_hint_data[1]; */
-           /* printf("1:(%f, %f) 2:(%f,%f) 3:(%f,%f) 4:(%f,%f) 5:(%f,%f) 6:(%f,%f) 7:(%f,%f)\n", */
-	   /* f->flex_hint_data[0],f->flex_hint_data[1], */
-	   /* f->flex_hint_data[2],f->flex_hint_data[3], */
-	   /* f->flex_hint_data[4],f->flex_hint_data[5], */
-	   /* f->flex_hint_data[6],f->flex_hint_data[7], */
-	   /* f->flex_hint_data[8],f->flex_hint_data[9], */
-	   /* f->flex_hint_data[10],f->flex_hint_data[11], */
-	   /* f->flex_hint_data[12],f->flex_hint_data[13]); */
- 	   /* printf("Reference=(%f,%f)\n",ref_x,ref_y); */
-	   /* first_r_x = ref_x + f->flex_hint_data[2]; first_r_y    = ref_y + f->flex_hint_data[3];  */
-	   /* join_l_x  = first_r_x + f->flex_hint_data[4]; join_l_y = first_r_y + f->flex_hint_data[5];  */
-	   /* join_x    = join_l_x + f->flex_hint_data[6]; join_y    = join_l_y + f->flex_hint_data[7]; */
-	   /* join_r_x  = join_x + f->flex_hint_data[8]; join_r_y    = join_y + f->flex_hint_data[9]; */
-	   /* last_l_x  = join_r_x + f->flex_hint_data[10]; last_l_y = join_r_y + f->flex_hint_data[11]; */
-	   /* last_x    = last_l_x + f->flex_hint_data[12]; last_y   = last_l_y + f->flex_hint_data[13]; */
-	   /* printf("(%f,%f) .. (%f,%f) and (%f,%f) .. (%f,%f) .. (%f,%f) and (%f,%f) .. (%f,%f)\n", */
-           /*   first_x,first_y,first_r_x,first_r_y, join_l_x,join_l_y, join_x,join_y, join_r_x,join_r_y, */
-	   /*   last_l_x,last_l_y,last_x,last_y); */
+           /*| double first_x,first_y,first_r_x,first_r_y;  |*/
+           /*| double join_x,join_y,join_l_x,join_l_y,join_r_x,join_r_y; |*/
+           /*| double last_x,last_y,last_l_x,last_l_y; |*/
+           /*| |// a := glyph "q" of "cmti12";|  |*/
+	   /*| first_x = 206.0; first_y = -194.0; |*/
+           /*| double ref_x,ref_y ; |*/
+	   /*| ref_x = first_x+f->flex_hint_data[0]; |*/
+	   /*| ref_y = first_y+f->flex_hint_data[1]; |*/
+           /*| printf("1:(%f, %f) 2:(%f,%f) 3:(%f,%f) 4:(%f,%f) 5:(%f,%f) 6:(%f,%f) 7:(%f,%f)\n", |*/
+	   /*| f->flex_hint_data[0],f->flex_hint_data[1], |*/
+	   /*| f->flex_hint_data[2],f->flex_hint_data[3], |*/
+	   /*| f->flex_hint_data[4],f->flex_hint_data[5], |*/
+	   /*| f->flex_hint_data[6],f->flex_hint_data[7], |*/
+	   /*| f->flex_hint_data[8],f->flex_hint_data[9], |*/
+	   /*| f->flex_hint_data[10],f->flex_hint_data[11], |*/
+	   /*| f->flex_hint_data[12],f->flex_hint_data[13]); |*/
+ 	   /*| printf("Reference=(%f,%f)\n",ref_x,ref_y); |*/
+	   /*| first_r_x = ref_x + f->flex_hint_data[2]; first_r_y    = ref_y + f->flex_hint_data[3];  |*/
+	   /*| join_l_x  = first_r_x + f->flex_hint_data[4]; join_l_y = first_r_y + f->flex_hint_data[5];  |*/
+	   /*| join_x    = join_l_x + f->flex_hint_data[6]; join_y    = join_l_y + f->flex_hint_data[7]; |*/
+	   /*| join_r_x  = join_x + f->flex_hint_data[8]; join_r_y    = join_y + f->flex_hint_data[9]; |*/
+	   /*| last_l_x  = join_r_x + f->flex_hint_data[10]; last_l_y = join_r_y + f->flex_hint_data[11]; |*/
+	   /*| last_x    = last_l_x + f->flex_hint_data[12]; last_y   = last_l_y + f->flex_hint_data[13]; |*/
+	   /*| printf("(%f,%f) .. (%f,%f) and (%f,%f) .. (%f,%f) .. (%f,%f) and (%f,%f) .. (%f,%f)\n", |*/
+           /*|   first_x,first_y,first_r_x,first_r_y, join_l_x,join_l_y, join_x,join_y, join_r_x,join_r_y, |*/
+	   /*|   last_l_x,last_l_y,last_x,last_y); |*/
 
            f->ignore_flex_hint = 0; 
 	   f->flex_hint_index = 0;

@@ -2,10 +2,18 @@
 % the MetaPost program is in the public domain.
 % See the <Show version...> code in mpost.w for more info.
 
+\font\tenlogo=logo10 % font used for the METAFONT logo
+\font\logos=logosl10
+\def\MF{{\tenlogo META}\-{\tenlogo FONT}}
+\def\MP{{\tenlogo META}\-{\tenlogo POST}}
+\def\pct!{{\char`\%}} % percent sign in ordinary text
+\def\psqrt#1{\sqrt{\mathstrut#1}}
+
+
 @* String handling.
 
 
-@ First, we will need some stuff from other files
+@ First, we will need some stuff from other files.
 @c
 #include <w2c/config.h>
 #include <stdio.h>
@@ -19,7 +27,7 @@
 #include <time.h>               /* for struct tm \& co */
 #include "mpstrings.h"          /* internal header */
 
-@ Then there is some stuff we need to prepare ourselves
+@ Then there is some stuff we need to prepare ourselves.
 
 @(mpstrings.h@>=
 #ifndef MPSTRINGS_H
@@ -173,7 +181,7 @@ void mp_dealloc_strings (MP mp) {
   mp->cur_string_size = 0;
 }
 
-@ Here are the definitions
+@ Here are the definitions:
 @<Definitions@>=
 extern void mp_initialize_strings (MP mp);
 extern void mp_dealloc_strings (MP mp);
@@ -254,7 +262,7 @@ in the |cur_string|.
 |make_string| has stored a new string in the avl tree, the
 |cur_string| variable has to be prepared so that it will be ready to
 start creating a new string. The initial size is fairly arbitrary, but
-setting it a little higher than expected helps prevent |reallocs|
+setting it a little higher than expected helps prevent |reallocs|.
 
 @<Definitions@>=
 void mp_reset_cur_string (MP mp);
@@ -388,7 +396,7 @@ mp_string mp_cat (MP mp, mp_string a, mp_string b) {
   size_t saved_cur_string_size = mp->cur_string_size;
   needed = a->len + b->len;
   mp->cur_length = 0;
-  /* mp->cur_string = NULL; */ /* needs malloc, spotted by clang */
+  /*| mp->cur_string = NULL;| */ /* needs malloc, spotted by clang */
   mp->cur_string = (unsigned char *) mp_xmalloc (mp, needed+1, sizeof (unsigned char)); 
   mp->cur_string_size = 0;
   str_room (needed+1);

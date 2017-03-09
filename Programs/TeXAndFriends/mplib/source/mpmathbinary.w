@@ -4,6 +4,16 @@
 % the MetaPost program is in the public domain.
 % See the <Show version...> code in mpost.w for more info.
 
+% Here is TeX material that gets inserted after \input webmac
+
+\font\tenlogo=logo10 % font used for the METAFONT logo
+\font\logos=logosl10
+\def\MF{{\tenlogo META}\-{\tenlogo FONT}}
+\def\MP{{\tenlogo META}\-{\tenlogo POST}}
+\def\pct!{{\char`\%}} % percent sign in ordinary text
+\def\psqrt#1{\sqrt{\mathstrut#1}}
+
+
 \def\title{Math support functions for MPFR based math}
 \pdfoutput=1
 
@@ -581,7 +591,7 @@ void mp_number_scaled_to_angle (mp_number *A) {
 }
 
 
-@* Query functions
+@* Query functions.
 
 @ Convert a number to a scaled value. |decNumberToInt32| is not
 able to make this conversion properly, so instead we are using
@@ -671,7 +681,7 @@ char * mp_binnumber_tostring (mpfr_t n) {
       *(str+strlen(str)-1) = '\0'; /* get rid of trailing zeroes */
     }
     buffer = malloc(strlen(str)+13+numprecdigits+1); 
-    /* the buffer should also fit at least strlen("E+%d", exp) or (numprecdigits-2) worth of zeroes, 
+    /* the buffer should also fit at least strlen("E+\%d", exp) or (numprecdigits-2) worth of zeroes, 
      * because with numprecdigits == 33, the str for "1E32" will be "1", and needing 32 extra zeroes,
      * and the decimal dot. To avoid miscalculations by myself, it is safer to add these
      * three together.
@@ -863,9 +873,9 @@ void mp_binary_number_make_scaled (MP mp, mp_number *ret, mp_number p_orig, mp_n
 @ 
 @d halfp(A) (integer)((unsigned)(A) >> 1)
 
-@* Scanning numbers in the input
+@* Scanning numbers in the input.
 
-The definitions below are temporarily here
+The definitions below are temporarily here.
 
 @d set_cur_cmd(A) mp->cur_mod_->type=(A)
 @d set_cur_mod(A) mpfr_set((mpfr_ptr)(mp->cur_mod_->data.n.data.num),A, ROUNDING)
@@ -876,10 +886,10 @@ static void mp_wrapup_numeric_token(MP mp, unsigned char *start, unsigned char *
 @ The check of the precision is based on the article "27 Bits are not enough for 8-Digit accuracy" 
 @ by Bennet Goldberg  which roughly says that
 @ given $p$ digits in base 10 and $q$ digits in base 2, 
-@ conversion from base 10 round-trip through base 2 if and only if $10^p < $2^{q-1}$.
+@ conversion from base 10 round-trip through base 2 if and only if $10^p < 2^{q-1}$.
 @ In our case  $p/\log_{10}2 + 1 < q$, or $q\geq a$
 @ where $q$ is the current precision in bits and $a=\left\lceil p/\log_{10}2 + 1\right\rceil$. 
-@ Therefore if $a>q$ the number could be  too precise and we emit a warning.
+@ Therefore if $a>q$ the required precision could be too high and we emit a warning.
 @d too_precise(a) (a>precision_bits)
 @c
 void mp_wrapup_numeric_token(MP mp, unsigned char *start, unsigned char *stop) {
@@ -887,14 +897,13 @@ void mp_wrapup_numeric_token(MP mp, unsigned char *start, unsigned char *stop) {
   mpfr_t result;
   size_t l = stop-start+1;
   unsigned long lp, lpbit;
-  /*size_t lp = l; */
   char *buf = mp_xmalloc(mp, l+1, 1);
   char *bufp = buf; 
   buf[l] = '\0';
   mpfr_init2(result, precision_bits);
   (void)strncpy(buf,(const char *)start, l);
   invalid = mpfr_set_str(result,buf, 10, ROUNDING);
-  //fprintf(stdout,"scan of [%s] produced %s, ", buf, mp_binnumber_tostring(result));
+  /*|fprintf(stdout,"scan of [%s] produced %s, ", buf, mp_binnumber_tostring(result));|*/
   lp = (unsigned long) l;
   /* strip leading - or + or 0 or .*/
   if ( (*bufp=='-') || (*bufp=='+') || (*bufp=='0') || (*bufp=='.') ) { lp--; bufp++;}
@@ -911,7 +920,7 @@ void mp_wrapup_numeric_token(MP mp, unsigned char *start, unsigned char *stop) {
   bufp = NULL;
   if (invalid == 0) {
     set_cur_mod(result);
-   // fprintf(stdout,"mod=%s\n", mp_binary_number_tostring(mp,mp->cur_mod_->data.n));
+   /* |fprintf(stdout,"mod=%s\n", mp_binary_number_tostring(mp,mp->cur_mod_->data.n));|*/
     if (too_precise(lpbit)) {
        if (mpfr_positive_p((mpfr_ptr)(internal_value (mp_warning_check).data.num)) &&
           (mp->scanner_status != tex_flushing)) {
@@ -920,7 +929,7 @@ void mp_wrapup_numeric_token(MP mp, unsigned char *start, unsigned char *stop) {
                "with that value; but it might be dangerous.",
                "(Set warningcheck:=0 to suppress this message.)",
                NULL };
-        mp_snprintf (msg, 256, "Number is too precise (%d vs. numberprecision = %f, required precision=%d bits vs internal precision=%f bits)", (unsigned int)lp,mpfr_get_d(internal_value (mp_number_precision).data.num, ROUNDING),(int)lpbit,precision_bits);
+        mp_snprintf (msg, 256, "Required precision is too high (%d vs. numberprecision = %f, required precision=%d bits vs internal precision=%f bits)", (unsigned int)lp,mpfr_get_d(internal_value (mp_number_precision).data.num, ROUNDING),(int)lpbit,precision_bits);
 @.Number is too large@>;
         mp_error (mp, msg, hlp, true);
       }
@@ -1566,7 +1575,7 @@ static void ran_array(long aa[],int n) /* put n new random numbers in aa */
 }
 /* */ 
 /* the following routines are from exercise 3.6--15 */
-/* after calling ran_start, get new randoms by, e.g., "x=ran_arr_next()" */
+/* after calling |ran_start|, get new randoms by, e.g., |x=ran_arr_next()| */
 /* */ 
 #define QUALITY 1009 /* recommended quality level for high-res use */
 static long ran_arr_buf[QUALITY];
@@ -1576,7 +1585,7 @@ static long *ran_arr_ptr=&ran_arr_dummy; /* the next random number, or -1 */
 #define TT  70   /* guaranteed separation between streams */
 #define is_odd(x)  ((x)&1)          /* units bit of x */
 /* */ 
-static void ran_start(long seed) /* do this before using ran_array */
+static void ran_start(long seed) /* do this before using |ran_array| */
   /* long seed             selector for different streams */
 {
   register int t,j;
@@ -1711,12 +1720,12 @@ static void mp_binary_m_unif_rand (MP mp, mp_number *ret, mp_number x_orig) {
     mp_number_clone (ret, y);
     mp_number_negate (ret);
   }
-  r = mpfr_get_str(NULL,    // char *str,           
-                  &e,       // mpfr_exp_t *expptr, 
-                  10,      // int b,              
-                  0,       // size_t n,                              
-                  ret->data.num, // mpfr_t op,           
-                  ROUNDING // mpfr_rnd_t rnd       
+  r = mpfr_get_str(NULL,    /* |char *str|,         */     
+                  &e,       /* |mpfr_exp_t *expptr|,*/
+                  10,       /* |int b|,             */
+                  0,        /* |size_t n|,          */
+                  ret->data.num, /* |mpfr_t op|,    */      
+                  ROUNDING       /* |mpfr_rnd_t rnd|*/
                   );
   mpfr_free_str(r);
   free_number (abs_x);
@@ -1761,7 +1770,6 @@ static void mp_binary_m_norm_rand (MP mp, mp_number *ret) {
     mp_binary_m_log (mp,&la, u);
     mp_set_binary_from_substraction(&la, ((math_data *)mp->math)->twelve_ln_2_k, la);
     mp_binary_ab_vs_cd (mp,&ab_vs_cd, ((math_data *)mp->math)->one_k, la, xa, xa);
-    /*mp_ab_vs_cd (mp,&ab_vs_cd, ((math_data *)mp->math)->one_k, la, xa, xa);*/
   } while (mp_number_less(ab_vs_cd,((math_data *)mp->math)->zero_t));
   mp_number_clone (ret, xa);
   free_number (ab_vs_cd);
@@ -1774,7 +1782,7 @@ static void mp_binary_m_norm_rand (MP mp, mp_number *ret) {
 
 
 
-@ The following subroutine is used only in norm_rand and tests  if $ab$ is
+@ The following subroutine is used only in |norm_rand| and tests  if $ab$ is
 greater than, equal to, or less than~$cd$.
 The result is $+1$, 0, or~$-1$ in the three respective cases.
 

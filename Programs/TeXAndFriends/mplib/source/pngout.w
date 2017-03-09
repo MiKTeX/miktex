@@ -468,13 +468,14 @@ void mp_png_text_out (MP mp, mp_text_object *p) {
          cairo_fill(mp->png->cr);
        }
       wd = mp_get_char_dimension (mp, mp->font_name[fn], k, 'w');
-      /* wd/100 is the size in PS point , ie wd =100*real_wd   */
-      /* but _without_ considering scaling.                    */ 
-      /* We have a scale factor of                             */
-      /* (ds/1000.0)*scf                                       */
-      /*  so to match the scale wd should be                   */
-      /*  1000*real_wd *scf /(ds *scf)                         */ 
-      /* i.e. 10*wd/ds                                         */
+/* $wd/100$ is the size in PS point , i.e, $wd =100\cdot real\_wd$   
+        but without considering scaling.
+       We have a scale factor of                             
+       $(ds/1000.0)\cdot scf$                                
+        so to match the scale wd should be                   
+        $1000\cdot real_wd\cdot scf /(ds\cdot scf)$          
+       i.e. $wd = 10\cdot wd/ds$.
+*/
       wd *= 10.0/ds;
       cairo_translate(mp->png->cr,wd,0);
   }
@@ -483,7 +484,7 @@ void mp_png_text_out (MP mp, mp_text_object *p) {
 
 @ When stroking a path with an elliptical pen, it is necessary to transform
 the coordinate system so that a unit circular pen will have the desired shape.
-To keep this transformation local, we enclose it in a $$\&{<g>}\ldots\&{</g>}$$
+To keep this transformation local, we enclose it in a $$\&{\<g>}\ldots\&{\</g>}$$
 block. Any translation component must be applied to the path being stroked
 while the rest of the transformation must apply only to the pen.
 If |fill_also=true|, the path is to be filled as well as stroked so we must

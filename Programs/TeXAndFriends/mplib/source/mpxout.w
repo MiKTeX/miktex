@@ -1821,7 +1821,7 @@ commands.  It is also capable of executing the typesetting commands for
 a character in a virtual font.
 
 @ The definition of \.{DVI} files refers to six registers,
-$(h,v,w,x,y,z)$, which hold web_integer values in \.{DVI} units.
+$(h,v,w,x,y,z)$, which hold |web_integer| values in \.{DVI} units.
 These units come directly from the input file except they need to be
 rescaled when typesetting characters from a virtual font.
 The stack of $(h,v,w,x,y,z)$ values is represented by six arrays
@@ -2689,7 +2689,7 @@ static int mpx_get_int(MPX mpx, char *s) {
 }
 
 @ GROFF font description files use octal character codes
-|groff_font(5)|: The code can be any web_integer.  If it starts with
+|groff_font(5)|: The code can be any |web_integer|.  If it starts with
 a 0 it will be interpreted as octal; if it starts with  0x
 or 0X it will be intepreted as hexadecimal.
 
@@ -2707,10 +2707,10 @@ BAD:
   return 0;
 }
 
-@ Troff output files contain few if any non-web_integers, but this program is
+@ Troff output files contain few if any non-|web_integers|, but this program is
 prepared to read floats whenever they seem reasonable; i.e., when the
 number is not being used for character positioning.  (For non-PostScript
-applications h and v are usually in pixels and should be web_integers.)
+applications h and v are usually in pixels and should be |web_integers|.)
 
 @c 
 static float mpx_get_float(MPX mpx, char *s) {
@@ -2749,7 +2749,7 @@ static float mpx_get_float(MPX mpx, char *s) {
 }
 
 @ GROFF font description files have metrics field
-of comma-separated web_integers. Traditional troff
+of comma-separated |web_integers|. Traditional troff
 have a float in this position. The value is not
 used anyway - thus just skip the value,
  eat all non-space chars.
@@ -2960,7 +2960,7 @@ in |groff_font(5)|.  In order to allow parsing of groff's font files,
 this function needs to be rewritten as follows:
 
 \item{1.}The `metrics' field parsed by |mpx_get_float(lin);| may include
-   a comma-separated list of up to six decimal web_integers rather
+   a comma-separated list of up to six decimal |web_integers| rather
    than just a single floating-point number.
 
 \item{2.}The `charcode' field parsed by |lastcode = mpx_get_int(arg_tail);|

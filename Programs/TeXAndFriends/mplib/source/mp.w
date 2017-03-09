@@ -1,4 +1,4 @@
-% $Id: mp.w 2114 2017-01-12 09:53:45Z luigi $
+% $Id: mp.w 2117 2017-02-13 18:31:00Z luigi $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -140,7 +140,7 @@ typedef struct MP_instance {
 #endif
 
 @ @c
-/*#define DEBUGENVELOPE */
+/*\#define DEBUGENVELOPE */
 #ifdef DEBUGENVELOPE 
 static int DEBUGENVELOPECOUNTER=0;
 #define dbg_str(A)	  printf("\n--[==[%03d DEBUGENVELOPE ]==] %s",		   DEBUGENVELOPECOUNTER++, #A)
@@ -215,7 +215,7 @@ most compilers understand the non-debug version.
 @^system dependencies@>
 
 @<MPlib internal header stuff@>=
-/*#define DEBUG 2*/
+/*\#define DEBUG 2*/
 #if DEBUG
 #define debug_number(A) printf("%d: %s=%.32f (%d)\n", __LINE__, #A, number_to_double(A), number_to_scaled(A))
 #else
@@ -13206,85 +13206,6 @@ for cubic curve |B(t)| given by |p|,|c1|,|c2|,|q|
 and it's used for |t| near 0 and |t| near 1. We use double mode, otherwise we have to
 take care of overflow.
 
-@<Declarations@>= 
-/* static void mp_dx_dy_approx(MP mp, mp_number *dx_ap, mp_number *dy_ap,mp_knot p, mp_knot q,mp_number t); */
-
- @ @c
-/* static void mp_dx_dy_approx(MP mp, mp_number *dx_ap, mp_number *dy_ap,mp_knot kp, mp_knot kq,mp_number t) { /\* find dx dy at |t| *\/ */
-
-/*   /\* 1/3 B'(t) = (-p + (3c1 + (-3c2 + q)))t^2 + (2p + (-4c1 + 2c2))t + (-p + c1) *\/    */
-/*   /\* 1/3  B'(u) = (p + (-3*c1 + (3c2 - q)))*u^2 + (2c1 + (-4c2 + 2q))u + (c2 - q) *\/ */
-
-/*   mp_number absval; */
-/*   mp_number max_coef;       /\* used while scaling *\/ */
-/*   mp_number small_nr, big_nr; */
-/*   mp_number abs_dx, abs_dy; */
-
-/*   double p,c1,c2,q,dt,s1; */
-/*   new_number (absval); */
-/*   new_number(max_coef); */
-/*   new_number(small_nr); */
-/*   new_number(big_nr); */
-/*   new_number(abs_dx); */
-/*   new_number(abs_dy); */
-  
-/*   set_number_from_double(small_nr,0.001); */
-/*   set_number_from_double(big_nr,1000); */
-
-/*   dt = number_to_double(t); */
-
-/*   p  = number_to_double(kp->x_coord); */
-/*   c1 = number_to_double(kp->right_x); */
-/*   c2 = number_to_double(kq->left_x); */
-/*   q  = number_to_double(kq->x_coord); */
-
-/*   s1 = (-p + (3*c1 + (-3*c2 + q)))*(dt*dt) + (2*p + (-4*c1 + 2*c2))*dt + (-p + c1); */
-/*   set_number_from_double(*dx_ap,s1); */
-
-
-/*   p  = number_to_double(kp->y_coord); */
-/*   c1 = number_to_double(kp->right_y); */
-/*   c2 = number_to_double(kq->left_y); */
-/*   q  = number_to_double(kq->y_coord); */
-
-/*   s1 = (-p + (3*c1 + (-3*c2 + q)))*(dt*dt) + (2*p + (-4*c1 + 2*c2))*dt + (-p + c1); */
-/*   set_number_from_double(*dy_ap,s1); */
-  
-
-/*   if (!number_zero(*dx_ap) || !number_zero(*dy_ap)) { */
-/*     number_clone(absval, *dx_ap); */
-/*     number_abs(absval); */
-/*     number_clone(max_coef, *dy_ap); */
-/*     number_abs (max_coef); */
-/*     if (number_greater(absval, max_coef)) { */
-/*       number_clone(max_coef, absval); */
-/*     } */
-/*     while (number_less(max_coef, fraction_half_t)) { */
-/*       number_double (max_coef); */
-/*       number_double (*dx_ap); */
-/*       number_double (*dy_ap); */
-/*     }  */
-/*     number_clone(abs_dx,*dx_ap); */
-/*     number_clone(abs_dy,*dy_ap); */
-/*     number_abs(abs_dx); */
-/*     number_abs(abs_dy); */
-/*     /\* This is an experimental approximation *\/ */
-/*     if (number_greaterequal(abs_dy,big_nr) && number_lessequal(abs_dx,small_nr)) { */
-/*       set_number_to_zero(*dx_ap); */
-/*     } */
-/*     if (number_greaterequal(abs_dx,big_nr) && number_lessequal(abs_dy,small_nr)) { */
-/*       set_number_to_zero(*dy_ap); */
-/*     } */
-/*   } */
-
-/*   free_number(absval); */
-/*   free_number(max_coef); */
-/*   free_number(small_nr); */
-/*   free_number(big_nr); */
-/*   free_number(abs_dx); */
-/*   free_number(abs_dy); */
-
-/* } */
 
 @ @c
 static mp_knot mp_offset_prep (MP mp, mp_knot c, mp_knot h) {
@@ -14000,7 +13921,6 @@ if (p == c) {
   number_clone(dy0, dy);
 }
 /* BEGIN PATCH */
-/* set_number_from_substraction(ueps_ap,unity_t,epsilon_t); /\* |1-eps| *\/ */
 #ifdef DEBUGENVELOPE
 dbg_nl;dbg_key(mp_dx_dy_approx_t_1);dbg_open_t;dbg_nl;
 dbg_n(ueps_ap);
@@ -14009,13 +13929,10 @@ dbg_n(p->right_x);dbg_n(p->right_y);
 dbg_n(q->left_x);dbg_n(q->left_y);
 dbg_n(q->x_coord);dbg_n(q->y_coord);
 #endif
-/* mp_dx_dy_approx(mp,&dxin_ap,&dyin_ap,p,q,ueps_ap); */
 #ifdef DEBUGENVELOPE
 dbg_n(dxin_ap);dbg_n(dyin_ap);
 dbg_close_t;dbg_comma;dbg_nl;
 #endif
-/**/
-/* number_clone(ueps_ap,epsilon_t);  */
 #ifdef DEBUGENVELOPE
 dbg_nl;dbg_key(mp_dx_dy_approx_t_0);dbg_open_t;dbg_nl;
 dbg_n(ueps_ap);
@@ -14024,51 +13941,17 @@ dbg_n(p->right_x);dbg_n(p->right_y);
 dbg_n(q->left_x);dbg_n(q->left_y);
 dbg_n(q->x_coord);dbg_n(q->y_coord);
 #endif
-/* mp_dx_dy_approx(mp,&dx_ap,&dy_ap,p,q,ueps_ap); /\*|eps|*\/ */
 #ifdef DEBUGENVELOPE
 dbg_close_t;dbg_comma;dbg_nl;
 dbg_key(derivatives);dbg_open_t;dbg_nl;
 dbg_n(dx_m);dbg_n(dy_m);
 dbg_n(dx);dbg_n(dy);dbg_n(dx_ap);dbg_n(dy_ap);dbg_close_t;dbg_comma;dbg_nl;
 #endif
-/* BEGIN PATCH */
-/* it should be done also for dy */
-/* TODO: if |p==c| we have also to set dx0 dy0 */
-/* if (number_zero(dx) && !(number_zero(dy)) && number_zero(x0) && number_zero(x2) && !number_zero(dxin) ){ */
-/*     number_clone(dx_m, epsilon_t); */
-/*     if (number_positive(x1)){       */
-/*      /\*set_number_from_addition (dx, dx, epsilon_t); *\/ */
-/*      /\*mp_warn(mp,"x component of the derivative at t=0 approximated to epsilon.");*\/ */
-/*     } else if (number_negative(x1)) { */
-/*     /\* set_number_from_substraction (dx, dx, epsilon_t);  *\/ */
-/*     /\* mp_warn(mp,"x component of the derivative at t=0 approximated to -epsilon.");*\/ */
-/*     } */
-/* }  */
 #ifdef DEBUGENVELOPE
 dbg_key(derivatives after first patch );dbg_open_t;dbg_nl;
 dbg_n(dx_m);dbg_n(dy_m);
 dbg_n(dx);dbg_n(dy);dbg_n(dx_ap);dbg_n(dy_ap);dbg_close_t;dbg_comma;dbg_nl;
 #endif
-/* this patch can conflict with the previous one */
-/* hm what about dx=dy=0 ? */
-/* if (number_zero(dx_ap) && !number_zero(dx) && number_zero(dx_m) ){ */
-/* /\*  set_number_to_zero(dx); */
-/*   set_number_from_substraction(dx_m, zero_t,epsilon_t); */
-/*   if (p == c) { */
-/*     set_number_to_zero(dx0); */
-/*     } */
-/* *\/ */
-/*   /\*mp_warn(mp,"x component of the derivative at t=0 approximated to zero.");*\/ */
-/*  }  */
-/* if (number_zero(dy_ap) && !number_zero(dy) && number_zero(dy_m)){ */
-/* /\*  set_number_to_zero(dy); */
-/*   set_number_from_substraction(dy_m, zero_t,epsilon_t); */
-/*   if (p == c) { */
-/*     set_number_to_zero(dy0); */
-/*     } */
-/* *\/ */
-/*   /\*mp_warn(mp,"y component of the derivative at t=0 approximated to zero.");*\/ */
-/*  }  */
 #ifdef DEBUGENVELOPE
 dbg_key(derivatives patched);dbg_open_t;dbg_nl;
 dbg_n(dx_m);dbg_n(dy_m);
@@ -14078,7 +13961,6 @@ dbg_n(dx);dbg_n(dy);dbg_n(dx_ap);dbg_n(dy_ap);dbg_close_t;dbg_comma;dbg_nl;
 
 
 @ @<Find the final direction |(dxin,dyin)|@>=
-/* number_clone(dxin_m, zero_t); */
 number_clone(dxin, x2);
 number_clone(dyin, y2);
 if (number_zero(dxin) && number_zero(dyin)) {
@@ -14094,48 +13976,12 @@ dbg_key(dxin dyin before);dbg_open_t;dbg_nl;
 dbg_n(dxin);dbg_n(dyin);
 dbg_close_t;dbg_comma; 
 #endif
-/* BEGIN PATCH */
-/* if (number_zero(dxin_ap) && !number_zero(dxin)){ */
-/*  /\* set_number_to_zero(dxin);*\/ */
-/*  /\* mp_warn(mp,"x component of the derivative at t=1 approximated to zero.");*\/ */
-/*  }  */
-/* if (number_zero(dyin_ap) && !number_zero(dyin)){ */
-/* /\*  set_number_to_zero(dyin);*\/ */
-/*  /\* mp_warn(mp,"y component of the derivative at t=1 approximated to zero.");*\/ */
-/*  }  */
-/* END PATCH */
 #ifdef DEBUGENVELOPE
 dbg_key(dxin dyin after);dbg_open_t;dbg_nl;
 dbg_n(dxin);dbg_n(dyin);
 dbg_close_t;dbg_comma; 
 #endif
-/* BEGIN PATCH \par
-$ 1/3 B'(t,X_0,X_1,X_2) = (1-t)^2X_0+2(1-t)tX_1+3t^2X_2 $ \par
-$ 1/3 B'(t,X_0,X_1,X_2) = (X_0 + (-2X_1 + X_2))t^2 + (-2X_0 + 2X_1)t + X_0 $ \par
-$ 1/3 B'(s,0,X_1,0)   =  (-2s^2 + 2s)X_1 \approx 2sX_1 $ for $s\rightarrow 0$ \par
-$ 1/3 B'(1-s,0,X_1,0) = (-2s^2 + 2s)X_1 \approx 2sX_1  $ for $s\rightarrow 0$ $\par
-*/
-/* Of course the same should be done for dy and dyin */
-/*
-if ( ((number_zero(dx) && number_positive(dx_m)) && number_positive(dy)) &&
-     (number_zero(dxin) && number_positive(dyin)) ){
-     number_clone(dx_m, epsilon_t);
-     number_clone(dxin_m, epsilon_t);
-     if (number_positive(x1)){      
-       set_number_from_addition (dxin, dxin, epsilon_t); 
-       set_number_from_addition (dx, dx, epsilon_t); 
-     } else if (number_negative(x1)) {
-       set_number_from_substraction (dxin, dxin, epsilon_t);  
-       set_number_from_substraction (dx, dx, epsilon_t);  
-     } else if (number_positive(x0)) { 
-       set_number_from_addition (dxin, dxin, epsilon_t); 
-       set_number_from_addition (dx, dx, epsilon_t); 
-     } else if (number_negative(x0)) {
-       set_number_from_substraction (dxin, dxin, epsilon_t);  
-       set_number_from_substraction (dx, dx, epsilon_t);  
-     }
-}
-*/
+/* BEGIN PATCH */
 #ifdef DEBUGENVELOPE
 dbg_key(dx dy dxin dyin after patch);dbg_open_t;dbg_nl;
 dbg_n(dx);dbg_n(dy);dbg_n(dx_ap);dbg_n(dy_ap);
@@ -14238,24 +14084,6 @@ integer mp_get_turn_amt (MP mp, mp_knot w, mp_number dx, mp_number dy, boolean c
      dbg_in(number_zero(dy) && number_zero(arg2) && number_positive(dx) && number_negative(arg1));
      dbg_nl;
 #endif
-      /* BEGIN PATCH */
-/*
-      if (number_zero(dx) && number_zero(arg1) && number_positive(dy) && number_positive(arg2) && is_dxdy) 
-        break; 
-      if (is_dxdy && number_zero(dx) && number_zero(arg1) && number_negative(dy) && number_negative(arg2)  && number_positive(dyin_ap)) 
-        break; 
-      if (is_dxindyin && number_zero(dx) && number_zero(arg1) && number_positive(dy) && number_positive(arg2) && number_negative(dyin_ap)) 
-        break; 
-      if (number_zero(dx) && number_zero(arg1) && number_negative(dy) && number_negative(arg2) && !(is_dxdy)) 
-        break;
-      if (number_zero(dy) && number_zero(arg2) && number_negative(dx) && number_negative(arg1)) 
-        break;
-      if (number_zero(dx) && number_zero(arg1) && number_negative(dy) && number_positive(arg2)) 
-        set_number_to_unity(t);
-      if (number_zero(dy) && number_zero(arg2) && number_positive(dx) && number_negative(arg1)) 
-        set_number_to_unity(t);
- */
-    /* END PATCH */
       if (number_negative(t)) 
         break;
       incr (s);
@@ -14276,13 +14104,6 @@ integer mp_get_turn_amt (MP mp, mp_knot w, mp_number dx, mp_number dy, boolean c
      dbg_close_t;dbg_comma;
      dbg_nl;
 #endif
-     /* BEGIN PATCH */
-   /*  if (number_negative(dy) && number_zero(arg1) && number_zero(dx) && number_negative(arg2)) {
-        set_number_to_unity(t);
-	number_negate(t);
-      }
-  */
-      /* END PATCH */ 
     while (number_negative(t)) {
       decr (s);
       w = ww;
@@ -14515,10 +14336,6 @@ dbg_key(Decide on the net change in pen offsets and set turn_amt);dbg_open_t;dbg
 dbg_n(ab_vs_cd);dbg_n(dx);dbg_n(dyin);dbg_n(dxin);dbg_n(dy);
 #endif
 /* BEGIN PATCH */
-/*
- if (number_negative(dy) && number_equal(dy,dyin) && number_equal(dx,epsilon_t))
-        set_number_to_unity(ab_vs_cd);
-*/
 #ifdef DEBUGENVELOPE
 dbg_key_nval(ab_vs_cd patched,ab_vs_cd);
 dbg_close_t;dbg_comma;dbg_nl;
@@ -14627,7 +14444,7 @@ dbg_open_t;dbg_dn(d_sign);dbg_close_t;dbg_comma;dbg_nl;
   set_number_from_addition (arg1, y0, y2);
   take_fraction (r1, x1, arg1);
   set_number_from_addition (arg1, x0, x2);
-  /*%take_fraction (r1, y1, arg1);*//* The old one, is it correct ?*/
+  /*|take_fraction (r1, y1, arg1);|*//* The old one, is it correct ?*/
   take_fraction (r2, y1, arg1);
   number_half (r1);
   number_half (r2);
@@ -14681,14 +14498,6 @@ if (number_positive(t0)) {
 dbg_key(patch ss before);dbg_open_t;
 dbg_n(ss);dbg_close_t;dbg_comma;
 #endif
-  /* new_number(abs_ss); */
-  /* new_number(eps_ss); */
-  /* set_number_from_double(eps_ss,1e-6); */
-  /* number_clone(abs_ss,ss); */
-  /* number_abs(abs_ss); */
-  /* if (number_greaterequal(eps_ss,abs_ss)) { */
-  /*   /\* set_number_to_zero(ss)*\/;/\* a warning here ? *\/ */
-  /* } */
 #ifdef DEBUGENVELOPE
 dbg_key(patch ss after);dbg_open_t;
 dbg_n(ss);dbg_close_t;dbg_comma;
@@ -15522,8 +15331,8 @@ if (number_nonzero(x3) || number_nonzero(y3)) {
   n_arg (phi, x3, y3);
 }
 /* Exit to |found| if the curve whose derivatives are specified by
-   |x1,x2,x3,y1,y2,y3| travels eastward at some time~|tt| */
-/* In this step we want to use the |crossing_point| routine to find the
+   |x1,x2,x3,y1,y2,y3| travels eastward at some time~|tt|.*/
+/*In this step we want to use the |crossing_point| routine to find the
 roots of the quadratic equation $B(y_1,y_2,y_3;t)=0$.
 Several complications arise: If the quadratic equation has a double root,
 the curve never crosses zero, and |crossing_point| will find nothing;
@@ -15531,8 +15340,8 @@ this case occurs iff $y_1y_3=y_2^2$ and $y_1y_2<0$. If the quadratic
 equation has simple roots, or only one root, we may have to negate it
 so that $B(y_1,y_2,y_3;t)$ crosses from positive to negative at its first root.
 And finally, we need to do special things if $B(y_1,y_2,y_3;t)$ is
-identically zero. */
-if (number_negative(x1))
+identically zero.*/
+ if (number_negative(x1))
   if (number_negative(x2))
     if (number_negative(x3))
       goto DONE;
@@ -29169,14 +28978,25 @@ static void mp_set_up_boundingpath (MP mp, mp_node p) {
   unsigned char ljoin, lcap;
   mp_number miterlim;
   mp_knot q = mp_copy_path (mp, cur_exp_knot ());       /* the original path */
+  mp_knot pen; 
   mp_knot qq;
+
   new_number(miterlim);
-  /* TODO: accept elliptical pens for straight paths */
+  pen = (value_knot (p));
+  /* accept elliptical pens for s paths */
+  /* using |mp_make_path| to convert an elliptical pen to a polygonal one. */
+  /* The approximation of 8 knots should be good enough. */
   if (pen_is_elliptical (value_knot (p))) {
-    mp_bad_envelope_pen (mp);
-    set_cur_exp_knot (q);
-    mp->cur_exp.type = mp_path_type;
-    return;
+    mp_knot kp,kq;
+    pen = copy_pen (value_knot (p));
+    mp_make_path(mp, pen);
+    kq=pen;
+    do {
+      kp = kq;
+      kq = mp_next_knot (kq);
+      mp_prev_knot (kq) = kp;
+    } while (kq != pen);
+    mp_close_path_cycle (mp, kp, pen);
   }
   if (number_greater (internal_value (mp_linejoin), unity_t))
     ljoin = 2;
@@ -29194,10 +29014,9 @@ static void mp_set_up_boundingpath (MP mp, mp_node p) {
     set_number_to_unity(miterlim);
   else
     number_clone(miterlim, internal_value (mp_miterlimit));
-  qq = mp_make_envelope(mp, q, value_knot (p), ljoin, lcap, miterlim);
+  qq = mp_make_envelope(mp, q, pen, ljoin, lcap, miterlim);
   set_cur_exp_knot (qq);
   mp->cur_exp.type = mp_path_type;
-
   if (!mp_get_cur_bbox (mp)) {
       mp_bad_binary (mp, p, mp_boundingpath_of);
       set_cur_exp_knot (q);
