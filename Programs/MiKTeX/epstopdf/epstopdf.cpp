@@ -1,6 +1,6 @@
 /* epstopdf.cpp: epstopdf
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
    Copyright (C) 1998-2001 by Sebastian Rahtz et al.
 
    This file is part of EPStoPDF.
@@ -78,7 +78,7 @@ catch(...)                                      \
 }                                               \
 va_end(arglist);
 
-const char * DEFAULT_TRACE_STREAMS =
+const char* DEFAULT_TRACE_STREAMS =
 MIKTEX_TRACE_ERROR ","
 MIKTEX_TRACE_PROCESS ","
 PROGRAM_NAME;
@@ -93,37 +93,37 @@ public:
   }
 
 public:
-  void Run(int argc, const char ** argv);
+  void Run(int argc, const char** argv);
 
 private:
-  void Trace(const char * lpszFormat, ...);
+  void Trace(const char* lpszFormat, ...);
 
 private:
-  void Verbose(const char * lpszFormat, ...);
+  void Verbose(const char* lpszFormat, ...);
 
 private:
-  void PrintOnly(const char * lpszFormat, ...);
+  void PrintOnly(const char* lpszFormat, ...);
 
 private:
-  void Warning(const char * lpszFormat, ...);
+  void Warning(const char* lpszFormat, ...);
 
 private:
-  bool GetLine(string & line);
+  bool GetLine(string& line);
 
 private:
-  void PutFormattedLine(const char * lpszFormat, ...);
+  void PutFormattedLine(const char* lpszFormat, ...);
 
 private:
-  void PutLine(const string & line);
+  void PutLine(const string& line);
 
 private:
   void CorrectBoundingBox(double llx, double lly, double urx, double ury);
 
 private:
-  bool BoundingBoxWithValues(const string & line, double & llx, double & lly, double & urx, double & ury);
+  bool BoundingBoxWithValues(const string& line, double& llx, double& lly, double& urx, double& ury);
 
 private:
-  bool BoundingBoxWithAtEnd(const string & line);
+  bool BoundingBoxWithAtEnd(const string& line);
 
 private:
   void ScanHeader();
@@ -132,13 +132,13 @@ private:
   int ReadDosBinary4();
 
 private:
-  void GetFirstLine(string & line);
+  void GetFirstLine(string& line);
 
 private:
-  void PrepareInput(bool runAsFilter, const PathName & inputFile);
+  void PrepareInput(bool runAsFilter, const PathName& inputFile);
 
 private:
-  void PrepareOutput(bool runAsFilter, bool runGhostscript, const PathName & gsExe, const CommandLineBuilder & gsOptions, const PathName & outFile);
+  void PrepareOutput(bool runAsFilter, bool runGhostscript, const PathName& gsExe, const CommandLineBuilder& gsOptions, const PathName& outFile);
 
 private:
   unique_ptr<Process> gsProcess;
@@ -418,7 +418,7 @@ struct poptOption EpsToPdfApp::aoption[] = {
   POPT_TABLEEND
 };
 
-void EpsToPdfApp::Trace(const char * lpszFormat, ...)
+void EpsToPdfApp::Trace(const char* lpszFormat, ...)
 {
   va_list arglist;
   VA_START(arglist, lpszFormat);
@@ -426,7 +426,7 @@ void EpsToPdfApp::Trace(const char * lpszFormat, ...)
   VA_END(arglist);
 }
 
-void EpsToPdfApp::Verbose(const char * lpszFormat, ...)
+void EpsToPdfApp::Verbose(const char* lpszFormat, ...)
 {
   if (!verbose || printOnly)
   {
@@ -438,7 +438,7 @@ void EpsToPdfApp::Verbose(const char * lpszFormat, ...)
   VA_END(arglist);
 }
 
-void EpsToPdfApp::PrintOnly(const char * lpszFormat, ...)
+void EpsToPdfApp::PrintOnly(const char* lpszFormat, ...)
 {
   if (!printOnly)
   {
@@ -450,7 +450,7 @@ void EpsToPdfApp::PrintOnly(const char * lpszFormat, ...)
   VA_END(arglist);
 }
 
-void EpsToPdfApp::Warning(const char * lpszFormat, ...)
+void EpsToPdfApp::Warning(const char* lpszFormat, ...)
 {
   va_list arglist;
   VA_START(arglist, lpszFormat);
@@ -458,7 +458,7 @@ void EpsToPdfApp::Warning(const char * lpszFormat, ...)
   VA_END(arglist);
 }
 
-bool EpsToPdfApp::GetLine(string & line)
+bool EpsToPdfApp::GetLine(string& line)
 {
   if (stopReadingAt > 0)
   {
@@ -486,7 +486,7 @@ bool EpsToPdfApp::GetLine(string & line)
 }
 
 
-void EpsToPdfApp::PutFormattedLine(const char * lpszFormat, ...)
+void EpsToPdfApp::PutFormattedLine(const char* lpszFormat, ...)
 {
   if (!printOnly)
   {
@@ -499,7 +499,7 @@ void EpsToPdfApp::PutFormattedLine(const char * lpszFormat, ...)
 }
 
 void
-EpsToPdfApp::PutLine(const string & line)
+EpsToPdfApp::PutLine(const string& line)
 {
   if (!printOnly)
   {
@@ -525,7 +525,7 @@ void EpsToPdfApp::CorrectBoundingBox(double llx, double lly, double urx, double 
   PutFormattedLine(T_("gsave %d %d translate"), xoffset, yoffset);
 }
 
-bool EpsToPdfApp::BoundingBoxWithValues(const string & line, double & llx, double & lly, double & urx, double & ury)
+bool EpsToPdfApp::BoundingBoxWithValues(const string& line, double& llx, double& lly, double& urx, double& ury)
 {
   if (line.compare(0, boundingBoxName.length(), boundingBoxName) != 0)
   {
@@ -541,13 +541,13 @@ bool EpsToPdfApp::BoundingBoxWithValues(const string & line, double & llx, doubl
   return true;
 }
 
-bool EpsToPdfApp::BoundingBoxWithAtEnd(const string & line)
+bool EpsToPdfApp::BoundingBoxWithAtEnd(const string& line)
 {
   if (line.compare(0, boundingBoxName.length(), boundingBoxName) != 0)
   {
     return false;
   }
-  const char * lpsz = line.c_str() + boundingBoxName.length();
+  const char* lpsz = line.c_str() + boundingBoxName.length();
   while (isspace(*lpsz))
   {
     ++lpsz;
@@ -626,7 +626,7 @@ int EpsToPdfApp::ReadDosBinary4()
     | ((static_cast<int>(buf[0]) & 0xff));
 }
 
-void EpsToPdfApp::GetFirstLine(string & line)
+void EpsToPdfApp::GetFirstLine(string& line)
 {
   unsigned char buf[4];
   if (inStream.Read(buf, 4) != 4)
@@ -660,7 +660,7 @@ void EpsToPdfApp::GetFirstLine(string & line)
   }
 }
 
-void EpsToPdfApp::PrepareInput(bool runAsFilter, const PathName & inputFile)
+void EpsToPdfApp::PrepareInput(bool runAsFilter, const PathName& inputFile)
 {
   if (runAsFilter)
   {
@@ -676,7 +676,7 @@ void EpsToPdfApp::PrepareInput(bool runAsFilter, const PathName & inputFile)
   }
 }
 
-void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const PathName & gsExe, const CommandLineBuilder & gsOptions, const PathName & outFile)
+void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const PathName& gsExe, const CommandLineBuilder& gsOptions, const PathName& outFile)
 {
   if (runGhostscript)
   {
@@ -734,7 +734,7 @@ void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const Pat
   }
 }
 
-void EpsToPdfApp::Run(int argc, const char ** argv)
+void EpsToPdfApp::Run(int argc, const char** argv)
 {
   PathName outFile;
 
@@ -830,7 +830,7 @@ void EpsToPdfApp::Run(int argc, const char ** argv)
     case OPT_VERSION:
       cout
         << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-        << "Copyright (C) 2000-2016 Christian Schenk" << endl
+        << "Copyright (C) 2000-2017 Christian Schenk" << endl
         << "Copyright (C) 1998-2001 by Sebastian Rahtz et al." << endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
@@ -986,13 +986,13 @@ void EpsToPdfApp::Run(int argc, const char ** argv)
 #  define MAINCHAR char
 #endif
 
-int MAIN(int argc, MAINCHAR ** argv)
+int MAIN(int argc, MAINCHAR** argv)
 {
   try
   {
     vector<string> utf8args;
     utf8args.reserve(argc);
-    vector<const char *> newargv;
+    vector<const char*> newargv;
     newargv.reserve(argc + 1);
     for (int idx = 0; idx < argc; ++idx)
     {
@@ -1010,12 +1010,12 @@ int MAIN(int argc, MAINCHAR ** argv)
     app.Run(argc, &newargv[0]);
     return 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Application::Sorry(THE_NAME_OF_THE_GAME, e);
     return 1;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     Application::Sorry(THE_NAME_OF_THE_GAME, e);
     return 1;
