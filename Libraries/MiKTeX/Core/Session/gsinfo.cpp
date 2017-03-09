@@ -1,6 +1,6 @@
 /* gsinfo.cpp: getting Ghostscript information
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -31,7 +31,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-inline bool ScanString(const char * lpszString, const char * lpszFormat, unsigned & u1, unsigned & u2)
+inline bool ScanString(const char* lpszString, const char* lpszFormat, unsigned& u1, unsigned& u2)
 {
   int n;
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)
@@ -46,7 +46,7 @@ inline bool ScanString(const char * lpszString, const char * lpszFormat, unsigne
   return n == 2;
 }
 
-PathName SessionImpl::GetGhostscript(unsigned long * versionNumber)
+PathName SessionImpl::GetGhostscript(unsigned long* versionNumber)
 {
   MIKTEX_ASSERT_BUFFER_OR_NIL(versionNumber, sizeof(*versionNumber));
 
