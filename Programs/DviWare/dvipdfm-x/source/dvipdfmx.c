@@ -2,7 +2,7 @@
 
     DVIPDFMx, an eXtended version of DVIPDFM by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
+    Copyright (C) 2002-2017 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
     the DVIPDFMx project team.
     
     Copyright (c) 2006 SIL. (xdvipdfmx extensions for XeTeX support)
@@ -125,6 +125,8 @@ double paper_height = 842.0;
 static double x_offset = 72.0;
 static double y_offset = 72.0;
 int    landscape_mode  = 0;
+static int psize_optionp = 0;
+static char *psize_optarg = NULL;
 
 int always_embed = 0; /* always embed fonts, regardless of licensing flags */
 
@@ -485,6 +487,12 @@ do_args (int argc, char *argv[], const char *source, int unsafe)
   const char *nnextptr;
 
   optind = 1;
+  /* clear psize_optionp and psize_optarg here, since do_args()
+     is called several times */
+  psize_optionp = 0;
+  if (psize_optarg)
+    RELEASE(psize_optarg);
+  psize_optarg = NULL;
 
   while ((c = getopt_long(argc, argv, optstrig, long_options, NULL)) != -1) {
     switch(c) {
@@ -547,6 +555,14 @@ do_args (int argc, char *argv[], const char *source, int unsafe)
 
     case 'p':
       select_paper(optarg);
+      /* save data for later use in order to overwrite papersize and
+         pagesize specials */
+      psize_optionp = 1;
+      /* there may be multiple -p options */
+      if (psize_optarg)
+        RELEASE(psize_optarg);
+      psize_optarg = NEW(strlen(optarg) + 1, char);
+      strcpy(psize_optarg, optarg);
       break;
 
     case 'c':
@@ -950,7 +966,11 @@ extern __declspec(dllexport) int DLLPROC (int argc, char *argv[]);
 #endif /* !LIBDPX */
 
 #if defined(MIKTEX)
+#if 1
 #  define main MIKTEXCEECALL Main
+#else
+#  define main Main
+#endif
 #endif
 
 int
@@ -1115,6 +1135,13 @@ main (int argc, char *argv[])
         do_encryption = 1;
         pdf_enc_set_passwd(key_bits, permission, owner_pw, user_pw);
       }
+    }
+    /* overwrite previous papersize by that given in -p option */
+    if (psize_optionp) {
+      select_paper(psize_optarg);
+      RELEASE(psize_optarg);
+      psize_optarg = NULL;
+      psize_optionp = 0;
     }
     if (landscape_mode) {
       SWAP(paper_width, paper_height);

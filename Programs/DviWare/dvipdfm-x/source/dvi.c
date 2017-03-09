@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2017 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
 
     Copyright (C) 2012-2015 by Khaled Hosny <khaledhosny@eglug.org>
@@ -2314,10 +2314,11 @@ scan_special (double *wd, double *ht, double *xo, double *yo, int *lm,
           p++; skip_white(&p, endptr);
         }
         error = read_length(&tmp1, 1.0, &p, endptr);
-        if (!error)
+        if (!error) {
           *wd = tmp;
           *ht = tmp1;
-        skip_white(&p, endptr);
+          skip_white(&p, endptr);
+        }
       }
       if (!error && qchr) { /* Check if properly quoted */
         if (p >= endptr || *p != qchr)

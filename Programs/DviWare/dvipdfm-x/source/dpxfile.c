@@ -174,8 +174,10 @@ static int exec_spawn (char *cmd)
   char *p, *pp;
   char buf[1024];
   int  i, ret = -1;
+#if !defined(MIKTEX)
 #ifdef WIN32
   wchar_t **cmdvw, **qvw;
+#endif
 #endif
 
   if (!cmd)
