@@ -921,6 +921,7 @@ case 'T' :
               "both landscape and papersize specified; ignoring landscape");
                   landscape = 0;
                }
+               lastpsizwins = 0;
                break;
 case 'p' :
 #if defined(MSDOS) || defined(OS2) || defined(ATARIST)
