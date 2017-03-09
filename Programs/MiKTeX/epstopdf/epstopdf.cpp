@@ -64,8 +64,8 @@ using namespace std;
 #define T_(x) MIKTEXTEXT(x)
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
-#define VA_START(arglist, lpszFormat   )        \
-va_start(arglist, lpszFormat);                  \
+#define VA_START(arglist, format   )            \
+va_start(arglist, format);                      \
 try                                             \
 {
 
@@ -96,22 +96,22 @@ public:
   void Run(int argc, const char** argv);
 
 private:
-  void Trace(const char* lpszFormat, ...);
+  void Trace(const char* format, ...);
 
 private:
-  void Verbose(const char* lpszFormat, ...);
+  void Verbose(const char* format, ...);
 
 private:
-  void PrintOnly(const char* lpszFormat, ...);
+  void PrintOnly(const char* format, ...);
 
 private:
-  void Warning(const char* lpszFormat, ...);
+  void Warning(const char* format, ...);
 
 private:
   bool GetLine(string& line);
 
 private:
-  void PutFormattedLine(const char* lpszFormat, ...);
+  void PutFormattedLine(const char* format, ...);
 
 private:
   void PutLine(const string& line);
@@ -418,43 +418,43 @@ struct poptOption EpsToPdfApp::aoption[] = {
   POPT_TABLEEND
 };
 
-void EpsToPdfApp::Trace(const char* lpszFormat, ...)
+void EpsToPdfApp::Trace(const char* format, ...)
 {
   va_list arglist;
-  VA_START(arglist, lpszFormat);
-  traceStream->WriteLine(PROGRAM_NAME, StringUtil::FormatStringVA(lpszFormat, arglist).c_str());
+  VA_START(arglist, format);
+  traceStream->WriteLine(PROGRAM_NAME, StringUtil::FormatStringVA(format, arglist).c_str());
   VA_END(arglist);
 }
 
-void EpsToPdfApp::Verbose(const char* lpszFormat, ...)
+void EpsToPdfApp::Verbose(const char* format, ...)
 {
   if (!verbose || printOnly)
   {
     return;
   }
   va_list arglist;
-  VA_START(arglist, lpszFormat);
-  cout << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
+  VA_START(arglist, format);
+  cout << StringUtil::FormatStringVA(format, arglist) << endl;
   VA_END(arglist);
 }
 
-void EpsToPdfApp::PrintOnly(const char* lpszFormat, ...)
+void EpsToPdfApp::PrintOnly(const char* format, ...)
 {
   if (!printOnly)
   {
     return;
   }
   va_list arglist;
-  VA_START(arglist, lpszFormat);
-  cout << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
+  VA_START(arglist, format);
+  cout << StringUtil::FormatStringVA(format, arglist) << endl;
   VA_END(arglist);
 }
 
-void EpsToPdfApp::Warning(const char* lpszFormat, ...)
+void EpsToPdfApp::Warning(const char* format, ...)
 {
   va_list arglist;
-  VA_START(arglist, lpszFormat);
-  cerr << T_("warning") << ": " << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
+  VA_START(arglist, format);
+  cerr << T_("warning") << ": " << StringUtil::FormatStringVA(format, arglist) << endl;
   VA_END(arglist);
 }
 
@@ -485,14 +485,13 @@ bool EpsToPdfApp::GetLine(string& line)
   return done;
 }
 
-
-void EpsToPdfApp::PutFormattedLine(const char* lpszFormat, ...)
+void EpsToPdfApp::PutFormattedLine(const char* format, ...)
 {
   if (!printOnly)
   {
     va_list marker;
-    VA_START(marker, lpszFormat);
-    vfprintf(outStream.Get(), lpszFormat, marker);
+    VA_START(marker, format);
+    vfprintf(outStream.Get(), format, marker);
     VA_END(marker);
     fputc('\n', outStream.Get());
   }
@@ -914,15 +913,14 @@ void EpsToPdfApp::Run(int argc, const char** argv)
 
   if (outFile.Empty())
   {
+    outFile = inputFile;
     if (runGhostscript)
     {
-      outFile = inputFile;
       outFile.SetExtension(".pdf");
     }
     else
     {
-      outFile = inputFile;
-      outFile.SetExtension(0);
+      outFile.SetExtension(nullptr);
       outFile.Append("2", false);
       outFile.AppendExtension(".eps");
     }
