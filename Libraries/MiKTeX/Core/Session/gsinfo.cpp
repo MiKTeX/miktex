@@ -52,8 +52,28 @@ PathName SessionImpl::GetGhostscript(unsigned long* versionNumber)
 
   if (pathGsExe.Empty())
   {
-    // try MiKTeX Ghostscript
-    if (!FindFile(MIKTEX_GS_EXE, FileType::EXE, pathGsExe))
+    bool found = false;
+#if defined(MIKTEX_WINDOWS)
+    found = FindFile(MIKTEX_GS_EXE, FileType::EXE, pathGsExe);
+#endif
+    if (!found)
+    {
+      static constexpr const char* gsNames[] = {
+#if defined(MIKTEX_WINDOWS)
+        "gswin32c",
+#endif
+        "gs"
+      };
+      for (const string& name : gsNames)
+      {
+        found = Utils::FindProgram(name, pathGsExe);
+        if (found)
+        {
+          break;
+        }
+      }
+    }
+    if (!found)
     {
       MIKTEX_FATAL_ERROR(T_("Ghostscript could not be not found."));
     }
