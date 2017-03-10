@@ -19,9 +19,9 @@
 
 #define MIKTEX_COMP_J2000_VERSION 6300
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "1.2.10"
+#define MIKTEX_COMP_ORIG_VERSION_STR "1.2.11"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1995-2016 Jean-loup Gailly and Mark Adler"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1995-2016 Jean-loup Gailly and Mark Adler"
+#define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 1995-2017 Jean-loup Gailly and Mark Adler"
+#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 1995-2017 Jean-loup Gailly and Mark Adler"
 
 #include <miktex/Version>
