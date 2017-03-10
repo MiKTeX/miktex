@@ -79,10 +79,24 @@ public:
   }
 
 public:
+  OptionSet operator+(const EnumClass_& other) const
+  {
+    OptionSet<EnumClass_> result(*this);
+    return result += other;
+  }
+
+public:
   OptionSet& operator-=(EnumClass_ opt)
   {
     bits[(std::size_t)opt] = false;
     return *this;
+  }
+
+public:
+  OptionSet operator-(const EnumClass_& other) const
+  {
+    OptionSet<EnumClass_> result(*this);
+    return result -= other;
   }
 
 public:
