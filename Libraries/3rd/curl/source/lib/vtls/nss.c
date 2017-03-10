@@ -5,7 +5,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -365,9 +365,9 @@ static char *dup_nickname(struct Curl_easy *data, const char *str)
 static PK11SlotInfo* nss_find_slot_by_name(const char *slot_name)
 {
   PK11SlotInfo *slot;
-  PR_Lock(nss_initlock);
+  PR_Lock(nss_findslot_lock);
   slot = PK11_FindSlotByName(slot_name);
-  PR_Unlock(nss_initlock);
+  PR_Unlock(nss_findslot_lock);
   return slot;
 }
 
@@ -1612,13 +1612,14 @@ static CURLcode nss_fail_connect(struct ssl_connect_data *connssl,
   return curlerr;
 }
 
-/* Switch the SSL socket into non-blocking mode. */
-static CURLcode nss_set_nonblock(struct ssl_connect_data *connssl,
-                                 struct Curl_easy *data)
+/* Switch the SSL socket into blocking or non-blocking mode. */
+static CURLcode nss_set_blocking(struct ssl_connect_data *connssl,
+                                 struct Curl_easy *data,
+                                 bool blocking)
 {
   static PRSocketOptionData sock_opt;
   sock_opt.option = PR_SockOpt_Nonblocking;
-  sock_opt.value.non_blocking = PR_TRUE;
+  sock_opt.value.non_blocking = !blocking;
 
   if(PR_SetSocketOption(connssl->handle, &sock_opt) != PR_SUCCESS)
     return nss_fail_connect(connssl, data, CURLE_SSL_CONNECT_ERROR);
@@ -2007,15 +2008,13 @@ static CURLcode nss_connect_common(struct connectdata *conn, int sockindex,
       /* we do not expect CURLE_AGAIN from nss_setup_connect() */
       return result;
 
-    if(!blocking) {
-      /* in non-blocking mode, set NSS non-blocking mode before handshake */
-      result = nss_set_nonblock(connssl, data);
-      if(result)
-        return result;
-    }
-
     connssl->connecting_state = ssl_connect_2;
   }
+
+  /* enable/disable blocking mode before handshake */
+  result = nss_set_blocking(connssl, data, blocking);
+  if(result)
+    return result;
 
   result = nss_do_connect(conn, sockindex);
   switch(result) {
@@ -2032,7 +2031,7 @@ static CURLcode nss_connect_common(struct connectdata *conn, int sockindex,
 
   if(blocking) {
     /* in blocking mode, set NSS non-blocking mode _after_ SSL handshake */
-    result = nss_set_nonblock(connssl, data);
+    result = nss_set_blocking(connssl, data, /* blocking */ FALSE);
     if(result)
       return result;
   }
@@ -2138,17 +2137,17 @@ int Curl_nss_seed(struct Curl_easy *data)
 }
 
 /* data might be NULL */
-int Curl_nss_random(struct Curl_easy *data,
-                    unsigned char *entropy,
-                    size_t length)
+CURLcode Curl_nss_random(struct Curl_easy *data,
+                         unsigned char *entropy,
+                         size_t length)
 {
   Curl_nss_seed(data);  /* Initiate the seed if not already done */
 
   if(SECSuccess != PK11_GenerateRandom(entropy, curlx_uztosi(length)))
     /* signal a failure */
-    return -1;
+    return CURLE_FAILED_INIT;
 
-  return 0;
+  return CURLE_OK;
 }
 
 void Curl_nss_md5sum(unsigned char *tmp, /* input */

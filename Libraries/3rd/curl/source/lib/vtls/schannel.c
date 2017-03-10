@@ -7,7 +7,7 @@
  *
  * Copyright (C) 2012 - 2016, Marc Hoersken, <info@marc-hoersken.de>
  * Copyright (C) 2012, Mark Salisbury, <mark.salisbury@hp.com>
- * Copyright (C) 2012 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 2012 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -130,6 +130,14 @@ schannel_connect_step1(struct connectdata *conn, int sockindex)
   infof(data, "schannel: SSL/TLS connection with %s port %hu (step 1/3)\n",
         hostname, conn->remote_port);
 
+  if(Curl_verify_windows_version(5, 1, PLATFORM_WINNT,
+                                 VERSION_LESS_THAN_EQUAL)) {
+     /* SChannel in Windows XP (OS version 5.1) uses legacy handshakes and
+        algorithms that may not be supported by all servers. */
+     infof(data, "schannel: WinSSL version is old and may not be able to "
+           "connect to some servers due to lack of SNI, algorithms, etc.\n");
+  }
+
 #ifdef HAS_ALPN
   /* ALPN is only supported on Windows 8.1 / Server 2012 R2 and above.
      Also it doesn't seem to be supported for Wine, see curl bug #983. */
@@ -197,7 +205,7 @@ schannel_connect_step1(struct connectdata *conn, int sockindex)
       schannel_cred.dwFlags |= SCH_CRED_NO_SERVERNAME_CHECK;
       infof(data, "schannel: verifyhost setting prevents Schannel from "
             "comparing the supplied target name with the subject "
-            "names in server certificates. Also disables SNI.\n");
+            "names in server certificates.\n");
     }
 
     switch(conn->ssl_config.version) {
@@ -1516,21 +1524,21 @@ size_t Curl_schannel_version(char *buffer, size_t size)
   return size;
 }
 
-int Curl_schannel_random(unsigned char *entropy, size_t length)
+CURLcode Curl_schannel_random(unsigned char *entropy, size_t length)
 {
   HCRYPTPROV hCryptProv = 0;
 
   if(!CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return 1;
+    return CURLE_FAILED_INIT;
 
   if(!CryptGenRandom(hCryptProv, (DWORD)length, entropy)) {
     CryptReleaseContext(hCryptProv, 0UL);
-    return 1;
+    return CURLE_FAILED_INIT;
   }
 
   CryptReleaseContext(hCryptProv, 0UL);
-  return 0;
+  return CURLE_OK;
 }
 
 #ifdef _WIN32_WCE

@@ -7,7 +7,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -136,8 +136,10 @@
 #undef realloc
 #endif /* USE_AXTLS */
 
-#ifdef USE_SCHANNEL
+#if defined(USE_SCHANNEL) || defined(USE_WINDOWS_SSPI)
 #include "curl_sspi.h"
+#endif
+#ifdef USE_SCHANNEL
 #include <schnlsp.h>
 #include <schannel.h>
 #endif
@@ -201,6 +203,9 @@
 /* Download buffer size, keep it fairly big for speed reasons */
 #undef BUFSIZE
 #define BUFSIZE CURL_MAX_WRITE_SIZE
+#undef MAX_BUFSIZE
+#define MAX_BUFSIZE CURL_MAX_READ_SIZE
+#define CURL_BUFSIZE(x) ((x)?(x):(BUFSIZE))
 
 /* Initial size of the buffer to store headers in, it'll be enlarged in case
    of need. */
@@ -405,6 +410,7 @@ struct digestdata {
 #if defined(USE_WINDOWS_SSPI)
   BYTE *input_token;
   size_t input_token_len;
+  CtxtHandle *http_context;
 #else
   char *nonce;
   char *cnonce;
@@ -842,6 +848,8 @@ struct Curl_handler {
                                           request instead of per connection */
 #define PROTOPT_ALPN_NPN (1<<8) /* set ALPN and/or NPN for this */
 #define PROTOPT_STREAM (1<<9) /* a protocol with individual logical streams */
+#define PROTOPT_URLOPTIONS (1<<10) /* allow options part in the userinfo field
+                                      of the URL */
 
 /* return the count of bytes sent, or -1 on error */
 typedef ssize_t (Curl_send)(struct connectdata *conn, /* connection data */
@@ -931,7 +939,6 @@ struct connectdata {
   char *secondaryhostname; /* secondary socket host name (ftp) */
   struct hostname conn_to_host; /* the host to connect to. valid only if
                                    bits.conn_to_host is set */
-  struct hostname proxy;
 
   struct proxy_info socks_proxy;
   struct proxy_info http_proxy;
@@ -1133,6 +1140,7 @@ struct connectdata {
 
 #ifdef USE_UNIX_SOCKETS
   char *unix_domain_socket;
+  bool abstract_unix_socket;
 #endif
 };
 
@@ -1303,7 +1311,7 @@ struct UrlState {
   char *headerbuff; /* allocated buffer to store headers in */
   size_t headersize;   /* size of the allocation */
 
-  char buffer[BUFSIZE+1]; /* download buffer */
+  char *buffer; /* download buffer */
   char uploadbuffer[BUFSIZE+1]; /* upload buffer */
   curl_off_t current_speed;  /* the ProgressShow() funcion sets this,
                                 bytes / second */
@@ -1638,7 +1646,6 @@ struct UserDefined {
   struct ssl_config_data proxy_ssl;  /* user defined SSL stuff for proxy */
   struct ssl_general_config general_ssl; /* general user defined SSL stuff */
   curl_proxytype proxytype; /* what kind of proxy that is in use */
-  curl_proxytype socks_proxytype; /* what kind of socks proxy that is in use */
   long dns_cache_timeout; /* DNS cache timeout */
   long buffer_size;      /* size of receive buffer to use */
   void *private_data; /* application-private data */
@@ -1754,6 +1761,8 @@ struct UserDefined {
   int stream_weight;
 
   struct Curl_http2_dep *stream_dependents;
+
+  bool abstract_unix_socket;
 };
 
 struct Names {

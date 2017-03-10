@@ -297,7 +297,8 @@ static CURLcode http_output_basic(struct connectdata *conn, bool proxy)
     pwd = conn->passwd;
   }
 
-  snprintf(data->state.buffer, sizeof(data->state.buffer), "%s:%s", user, pwd);
+  snprintf(data->state.buffer, CURL_BUFSIZE(data->set.buffer_size),
+           "%s:%s", user, pwd);
 
   result = Curl_base64_encode(data,
                               data->state.buffer, strlen(data->state.buffer),
@@ -1425,8 +1426,6 @@ CURLcode Curl_http_done(struct connectdata *conn,
   struct Curl_easy *data = conn->data;
   struct HTTP *http = data->req.protop;
 
-  infof(data, "Curl_http_done: called premature == %d\n", premature);
-
   Curl_unencode_cleanup(conn);
 
 #ifdef USE_SPNEGO
@@ -1509,6 +1508,20 @@ static bool use_http_1_1plus(const struct Curl_easy *data,
     return FALSE;
   return ((data->set.httpversion == CURL_HTTP_VERSION_NONE) ||
           (data->set.httpversion >= CURL_HTTP_VERSION_1_1));
+}
+
+static const char *get_http_string(const struct Curl_easy *data,
+                                   const struct connectdata *conn)
+{
+#ifdef USE_NGHTTP2
+  if(conn->proto.httpc.h2)
+    return "2";
+#endif
+
+  if(use_http_1_1plus(data, conn))
+    return "1.1";
+
+  return "1.0";
 }
 
 /* check and possibly add an Expect: header */
@@ -2225,9 +2238,7 @@ CURLcode Curl_http(struct connectdata *conn, bool *done)
     }
   }
 
-  /* Use 1.1 unless the user specifically asked for 1.0 or the server only
-     supports 1.0 */
-  httpstring= use_http_1_1plus(data, conn)?"1.1":"1.0";
+  httpstring = get_http_string(data, conn);
 
   /* initialize a dynamic send-buffer */
   req_buffer = Curl_add_buffer_init();
@@ -2501,7 +2512,7 @@ CURLcode Curl_http(struct connectdata *conn, bool *done)
       postsize = data->state.infilesize;
 
     if((postsize != -1) && !data->req.upload_chunky &&
-       !Curl_checkheaders(conn, "Content-Length:")) {
+       (conn->bits.authneg || !Curl_checkheaders(conn, "Content-Length:"))) {
       /* only add Content-Length if not uploading chunked */
       result = Curl_add_bufferf(req_buffer,
                                 "Content-Length: %" CURL_FORMAT_CURL_OFF_T
@@ -2553,7 +2564,7 @@ CURLcode Curl_http(struct connectdata *conn, bool *done)
        we don't upload data chunked, as RFC2616 forbids us to set both
        kinds of headers (Transfer-Encoding: chunked and Content-Length) */
     if((postsize != -1) && !data->req.upload_chunky &&
-       !Curl_checkheaders(conn, "Content-Length:")) {
+       (conn->bits.authneg || !Curl_checkheaders(conn, "Content-Length:"))) {
       /* we allow replacing this header if not during auth negotiation,
          although it isn't very wise to actually set your own */
       result = Curl_add_bufferf(req_buffer,

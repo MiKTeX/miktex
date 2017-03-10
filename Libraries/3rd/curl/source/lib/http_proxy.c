@@ -5,7 +5,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -98,16 +98,21 @@ CURLcode Curl_proxy_connect(struct connectdata *conn, int sockindex)
      * original pointer
      *
      * This function might be called several times in the multi interface case
-     * if the proxy's CONNTECT response is not instant.
+     * if the proxy's CONNECT response is not instant.
      */
     prot_save = conn->data->req.protop;
     memset(&http_proxy, 0, sizeof(http_proxy));
     conn->data->req.protop = &http_proxy;
     connkeep(conn, "HTTP proxy CONNECT");
-    if(sockindex == SECONDARYSOCKET)
-      hostname = conn->secondaryhostname;
-    else if(conn->bits.conn_to_host)
+
+    /* for the secondary socket (FTP), use the "connect to host"
+     * but ignore the "connect to port" (use the secondary port)
+     */
+
+    if(conn->bits.conn_to_host)
       hostname = conn->conn_to_host.name;
+    else if(sockindex == SECONDARYSOCKET)
+      hostname = conn->secondaryhostname;
     else
       hostname = conn->host.name;
 
@@ -199,7 +204,7 @@ CURLcode Curl_proxyCONNECT(struct connectdata *conn,
       free(host_port);
 
       if(!result) {
-        char *host=(char *)"";
+        char *host = NULL;
         const char *proxyconn="";
         const char *useragent="";
         const char *http = (conn->http_proxy.proxytype == CURLPROXY_HTTP_1_0) ?
@@ -242,13 +247,13 @@ CURLcode Curl_proxyCONNECT(struct connectdata *conn,
                            "%s", /* Proxy-Connection */
                            hostheader,
                            http,
-                           host,
+                           host?host:"",
                            conn->allocptr.proxyuserpwd?
                            conn->allocptr.proxyuserpwd:"",
                            useragent,
                            proxyconn);
 
-        if(host && *host)
+        if(host)
           free(host);
         free(hostheader);
 

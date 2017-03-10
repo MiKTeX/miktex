@@ -5,7 +5,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -92,11 +92,11 @@ static bool gtls_inited = FALSE;
 #    define GNUTLS_MAPS_WINSOCK_ERRORS 1
 #  endif
 
-#  if (GNUTLS_VERSION_NUMBER >= 0x030200)
+#  if HAVE_GNUTLS_ALPN_SET_PROTOCOLS
 #    define HAS_ALPN
 #  endif
 
-#  if (GNUTLS_VERSION_NUMBER >= 0x03020d)
+#  if HAVE_GNUTLS_OCSP_REQ_INIT
 #    define HAS_OCSP
 #  endif
 
@@ -380,6 +380,7 @@ gtls_connect_step1(struct connectdata *conn,
                    int sockindex)
 {
   struct Curl_easy *data = conn->data;
+  unsigned int init_flags;
   gnutls_session_t session;
   int rc;
   bool sni = TRUE; /* default is SNI enabled */
@@ -526,7 +527,14 @@ gtls_connect_step1(struct connectdata *conn,
   }
 
   /* Initialize TLS session as a client */
-  rc = gnutls_init(&conn->ssl[sockindex].session, GNUTLS_CLIENT);
+  init_flags = GNUTLS_CLIENT;
+
+#if defined(GNUTLS_NO_TICKETS)
+  /* Disable TLS session tickets */
+  init_flags |= GNUTLS_NO_TICKETS;
+#endif
+
+  rc = gnutls_init(&conn->ssl[sockindex].session, init_flags);
   if(rc != GNUTLS_E_SUCCESS) {
     failf(data, "gnutls_init() failed: %d", rc);
     return CURLE_SSL_CONNECT_ERROR;
@@ -1625,19 +1633,21 @@ static int Curl_gtls_seed(struct Curl_easy *data)
 #endif
 
 /* data might be NULL! */
-int Curl_gtls_random(struct Curl_easy *data,
-                     unsigned char *entropy,
-                     size_t length)
+CURLcode Curl_gtls_random(struct Curl_easy *data,
+                          unsigned char *entropy,
+                          size_t length)
 {
 #if defined(USE_GNUTLS_NETTLE)
+  int rc;
   (void)data;
-  gnutls_rnd(GNUTLS_RND_RANDOM, entropy, length);
+  rc = gnutls_rnd(GNUTLS_RND_RANDOM, entropy, length);
+  return rc?CURLE_FAILED_INIT:CURLE_OK;
 #elif defined(USE_GNUTLS)
   if(data)
     Curl_gtls_seed(data); /* Initiate the seed if not already done */
   gcry_randomize(entropy, length, GCRY_STRONG_RANDOM);
 #endif
-  return 0;
+  return CURLE_OK;
 }
 
 void Curl_gtls_md5sum(unsigned char *tmp, /* input */

@@ -5,7 +5,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -286,10 +286,10 @@ bool Curl_ssl_getsessionid(struct connectdata *conn,
 
   const bool isProxy = CONNECT_PROXY_SSL();
   struct ssl_primary_config * const ssl_config = isProxy ?
-                                                 &conn->proxy_ssl_config :
-                                                 &conn->ssl_config;
+    &conn->proxy_ssl_config :
+    &conn->ssl_config;
   const char * const name = isProxy ? conn->http_proxy.host.name :
-                                      conn->host.name;
+    conn->host.name;
   int port = isProxy ? (int)conn->port : conn->remote_port;
   *ssl_sessionid = NULL;
 
@@ -394,8 +394,8 @@ CURLcode Curl_ssl_addsessionid(struct connectdata *conn,
   long *general_age;
   const bool isProxy = CONNECT_PROXY_SSL();
   struct ssl_primary_config * const ssl_config = isProxy ?
-                                           &conn->proxy_ssl_config :
-                                           &conn->ssl_config;
+    &conn->proxy_ssl_config :
+    &conn->ssl_config;
 
   DEBUGASSERT(data->set.general_ssl.sessionid);
 
@@ -447,7 +447,7 @@ CURLcode Curl_ssl_addsessionid(struct connectdata *conn,
   store->sessionid = ssl_sessionid;
   store->idsize = idsize;
   store->age = *general_age;    /* set current age */
-    /* free it if there's one already present */
+  /* free it if there's one already present */
   free(store->name);
   free(store->conn_to_host);
   store->name = clone_host;               /* clone host name */
@@ -484,9 +484,9 @@ void Curl_ssl_close_all(struct Curl_easy *data)
   curlssl_close_all(data);
 }
 
-#if defined(USE_SSLEAY) || defined(USE_GNUTLS) || defined(USE_SCHANNEL) || \
-    defined(USE_DARWINSSL) || defined(USE_NSS)
-/* This function is for OpenSSL, GnuTLS, darwinssl, and schannel only. */
+#if defined(USE_OPENSSL) || defined(USE_GNUTLS) || defined(USE_SCHANNEL) || \
+  defined(USE_DARWINSSL) || defined(USE_POLARSSL) || defined(USE_NSS) || \
+  defined(USE_MBEDTLS)
 int Curl_ssl_getsock(struct connectdata *conn, curl_socket_t *socks,
                      int numsocks)
 {
@@ -510,15 +510,15 @@ int Curl_ssl_getsock(struct connectdata *conn, curl_socket_t *socks,
 }
 #else
 int Curl_ssl_getsock(struct connectdata *conn,
-                          curl_socket_t *socks,
-                          int numsocks)
+                     curl_socket_t *socks,
+                     int numsocks)
 {
   (void)conn;
   (void)socks;
   (void)numsocks;
   return GETSOCK_BLANK;
 }
-/* USE_SSLEAY || USE_GNUTLS || USE_SCHANNEL || USE_DARWINSSL || USE_NSS */
+/* USE_OPENSSL || USE_GNUTLS || USE_SCHANNEL || USE_DARWINSSL || USE_NSS */
 #endif
 
 void Curl_ssl_close(struct connectdata *conn, int sockindex)
@@ -703,12 +703,7 @@ CURLcode Curl_ssl_random(struct Curl_easy *data,
                          unsigned char *entropy,
                          size_t length)
 {
-  int rc = curlssl_random(data, entropy, length);
-  if(rc) {
-    failf(data, "PRNG seeding failed");
-    return CURLE_FAILED_INIT; /* possibly weird return code */
-  }
-  return CURLE_OK;
+  return curlssl_random(data, entropy, length);
 }
 
 /*
