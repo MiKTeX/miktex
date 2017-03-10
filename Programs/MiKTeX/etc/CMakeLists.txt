@@ -36,6 +36,10 @@ if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND executables
     runbat
   )
+else()
+  list(APPEND executables
+    runsh
+  )
 endif()
 
 foreach(t ${executables})

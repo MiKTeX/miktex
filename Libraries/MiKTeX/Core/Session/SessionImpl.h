@@ -316,6 +316,11 @@ public:
   int RunBatch(int argc, const char** argv) override;
 #endif
 
+#if !defined(MIKTEX_WINDOWS)
+public:
+  int RunSh(int argc, const char** argv) override;
+#endif
+
 public:
   int RunPerl(int argc, const char** argv) override;
 

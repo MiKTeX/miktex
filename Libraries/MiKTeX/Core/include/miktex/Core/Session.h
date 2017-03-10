@@ -822,6 +822,11 @@ public:
   virtual int MIKTEXTHISCALL RunBatch(int argc, const char** argv) = 0;
 #endif
 
+#if !defined(MIKTEX_WINDOWS)
+public:
+  virtual int MIKTEXTHISCALL RunSh(int argc, const char** argv) = 0;
+#endif
+
 public:
   virtual int MIKTEXTHISCALL RunPerl(int argc, const char** argv) = 0;
 

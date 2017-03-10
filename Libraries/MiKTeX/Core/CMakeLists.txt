@@ -397,6 +397,7 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 else()
   list(APPEND session_sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/Session/unx/runsh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Session/unx/unxSession.cpp
   )
 endif()
