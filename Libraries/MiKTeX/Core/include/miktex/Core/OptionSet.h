@@ -1,6 +1,6 @@
 /* miktex/Core/OptionSet.h:                             -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -41,45 +41,45 @@ public:
   OptionSet() = default;
 
 public:
-  OptionSet(const OptionSet & other) = default;
+  OptionSet(const OptionSet& other) = default;
 
 public:
-  OptionSet & operator=(const OptionSet & other) = default;
+  OptionSet& operator=(const OptionSet& other) = default;
 
 public:
   OptionSet(OptionSet && other) = default;
 
 public:
-  OptionSet & operator=(OptionSet && other) = default;
+  OptionSet& operator=(OptionSet && other) = default;
 
 public:
   ~OptionSet() = default;
 
 public:
-  OptionSet(const std::initializer_list<EnumClass_> & options)
+  OptionSet(const std::initializer_list<EnumClass_>& options)
   {
-    for (const EnumClass_ & opt : options)
+    for (const EnumClass_& opt : options)
     {
       bits[(std::size_t)opt] = true;
     }
   }
 
 public:
-  OptionSet & operator+=(EnumClass_ opt)
+  OptionSet& operator+=(EnumClass_ opt)
   {
     bits[(std::size_t)opt] = true;
     return *this;
   }
 
 public:
-  OptionSet & operator+=(const OptionSet<EnumClass_> & other)
+  OptionSet& operator+=(const OptionSet<EnumClass_>& other)
   {
     this->bits |= other.bits;
     return *this;
   }
 
 public:
-  OptionSet & operator-=(EnumClass_ opt)
+  OptionSet& operator-=(EnumClass_ opt)
   {
     bits[(std::size_t)opt] = false;
     return *this;
@@ -92,13 +92,13 @@ public:
   }
 
 public:
-  bool operator==(const OptionSet<EnumClass_> & other) const
+  bool operator==(const OptionSet<EnumClass_>& other) const
   {
     return bits == other.bits;
   }
 
 public:
-  bool operator!=(const OptionSet<EnumClass_> & other) const
+  bool operator!=(const OptionSet<EnumClass_>& other) const
   {
     return bits != other.bits;
   }
