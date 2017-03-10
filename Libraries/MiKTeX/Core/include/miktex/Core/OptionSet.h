@@ -47,10 +47,10 @@ public:
   OptionSet& operator=(const OptionSet& other) = default;
 
 public:
-  OptionSet(OptionSet && other) = default;
+  OptionSet(OptionSet&& other) = default;
 
 public:
-  OptionSet& operator=(OptionSet && other) = default;
+  OptionSet& operator=(OptionSet&& other) = default;
 
 public:
   ~OptionSet() = default;
