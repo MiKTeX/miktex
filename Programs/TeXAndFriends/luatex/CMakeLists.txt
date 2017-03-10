@@ -373,10 +373,11 @@ target_link_libraries(luatex-luaffi-static
     ${lua_lib_name}
 )
 
-target_link_libraries(luatex-luaffi-static
-  PUBLIC
-    ${zlib_dll_name}
-)
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(luatex-luaffi-static PUBLIC MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(luatex-luaffi-static PUBLIC ${zlib_dll_name})
+endif()
 
 ###############################################################################
 ## luatex-static
