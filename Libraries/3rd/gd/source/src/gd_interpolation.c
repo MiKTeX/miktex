@@ -829,8 +829,13 @@ static inline LineContribType * _gdContributionsAlloc(unsigned int line_length, 
 {
 	unsigned int u = 0;
 	LineContribType *res;
-	int overflow_error = 0;
+	size_t weights_size;
 
+	if (overflow2(windows_size, sizeof(double))) {
+		return NULL;
+	} else {
+		weights_size = windows_size * sizeof(double);
+	}
 	res = (LineContribType *) gdMalloc(sizeof(LineContribType));
 	if (!res) {
 		return NULL;
@@ -847,15 +852,11 @@ static inline LineContribType * _gdContributionsAlloc(unsigned int line_length, 
 		return NULL;
 	}
 	for (u = 0 ; u < line_length ; u++) {
-		if (overflow2(windows_size, sizeof(double))) {
-			overflow_error = 1;
-		} else {
-			res->ContribRow[u].Weights = (double *) gdMalloc(windows_size * sizeof(double));
-		}
-		if (overflow_error == 1 || res->ContribRow[u].Weights == NULL) {
+		res->ContribRow[u].Weights = (double *) gdMalloc(weights_size);
+		if (res->ContribRow[u].Weights == NULL) {
 			unsigned int i;
-			u--;
-			for (i=0;i<=u;i++) {
+
+			for (i=0;i<u;i++) {
 				gdFree(res->ContribRow[i].Weights);
 			}
 			gdFree(res->ContribRow);
@@ -1015,6 +1016,8 @@ gdImageScaleTwoPass(const gdImagePtr src, const unsigned int new_width,
 	gdImagePtr dst = NULL;
 	int scale_pass_res;
 
+	assert(src != NULL);
+
     /* First, handle the trivial case. */
     if (src_width == new_width && src_height == new_height) {
         return gdImageClone(src);
@@ -1055,7 +1058,7 @@ gdImageScaleTwoPass(const gdImagePtr src, const unsigned int new_width,
         scale_pass_res = _gdScalePass(tmp_im, src_height, dst, new_height, new_width, VERTICAL);
 		if (scale_pass_res != 1) {
 			gdImageDestroy(dst);
-			if (tmp_im != NULL && src != tmp_im) {
+			if (src != tmp_im) {
 				gdImageDestroy(tmp_im);
 			}
 			return NULL;
@@ -1063,7 +1066,7 @@ gdImageScaleTwoPass(const gdImagePtr src, const unsigned int new_width,
     }/* if */
 
 
-	if (tmp_im != NULL && src != tmp_im) {
+	if (src != tmp_im) {
         gdImageDestroy(tmp_im);
     }/* if */
 
@@ -1241,11 +1244,11 @@ static gdImagePtr gdImageScaleBilinearPalette(gdImagePtr im, const unsigned int 
 					f_b1, f_b2, f_b3, f_b4,
 					f_a1, f_a2, f_a3, f_a4;
 
-			/* zero for the background color, nothig gets outside anyway */
+			/* 0 for bgColor; (n,m) is supposed to be valid anyway */
 			pixel1 = getPixelOverflowPalette(im, n, m, 0);
-			pixel2 = getPixelOverflowPalette(im, n + 1, m, 0);
-			pixel3 = getPixelOverflowPalette(im, n, m + 1, 0);
-			pixel4 = getPixelOverflowPalette(im, n + 1, m + 1, 0);
+			pixel2 = getPixelOverflowPalette(im, n + 1, m, pixel1);
+			pixel3 = getPixelOverflowPalette(im, n, m + 1, pixel1);
+			pixel4 = getPixelOverflowPalette(im, n + 1, m + 1, pixel1);
 
 			f_r1 = gd_itofx(gdTrueColorGetRed(pixel1));
 			f_r2 = gd_itofx(gdTrueColorGetRed(pixel2));
@@ -1265,10 +1268,10 @@ static gdImagePtr gdImageScaleBilinearPalette(gdImagePtr im, const unsigned int 
 			f_a4 = gd_itofx(gdTrueColorGetAlpha(pixel4));
 
 			{
-				const char red = (char) gd_fxtoi(gd_mulfx(f_w1, f_r1) + gd_mulfx(f_w2, f_r2) + gd_mulfx(f_w3, f_r3) + gd_mulfx(f_w4, f_r4));
-				const char green = (char) gd_fxtoi(gd_mulfx(f_w1, f_g1) + gd_mulfx(f_w2, f_g2) + gd_mulfx(f_w3, f_g3) + gd_mulfx(f_w4, f_g4));
-				const char blue = (char) gd_fxtoi(gd_mulfx(f_w1, f_b1) + gd_mulfx(f_w2, f_b2) + gd_mulfx(f_w3, f_b3) + gd_mulfx(f_w4, f_b4));
-				const char alpha = (char) gd_fxtoi(gd_mulfx(f_w1, f_a1) + gd_mulfx(f_w2, f_a2) + gd_mulfx(f_w3, f_a3) + gd_mulfx(f_w4, f_a4));
+				const unsigned char red = (unsigned char) gd_fxtoi(gd_mulfx(f_w1, f_r1) + gd_mulfx(f_w2, f_r2) + gd_mulfx(f_w3, f_r3) + gd_mulfx(f_w4, f_r4));
+				const unsigned char green = (unsigned char) gd_fxtoi(gd_mulfx(f_w1, f_g1) + gd_mulfx(f_w2, f_g2) + gd_mulfx(f_w3, f_g3) + gd_mulfx(f_w4, f_g4));
+				const unsigned char blue = (unsigned char) gd_fxtoi(gd_mulfx(f_w1, f_b1) + gd_mulfx(f_w2, f_b2) + gd_mulfx(f_w3, f_b3) + gd_mulfx(f_w4, f_b4));
+				const unsigned char alpha = (unsigned char) gd_fxtoi(gd_mulfx(f_w1, f_a1) + gd_mulfx(f_w2, f_a2) + gd_mulfx(f_w3, f_a3) + gd_mulfx(f_w4, f_a4));
 
 				new_img->tpixels[dst_offset_v][dst_offset_h] = gdTrueColorAlpha(red, green, blue, alpha);
 			}
@@ -1327,11 +1330,11 @@ static gdImagePtr gdImageScaleBilinearTC(gdImagePtr im, const unsigned int new_w
 					f_g1, f_g2, f_g3, f_g4,
 					f_b1, f_b2, f_b3, f_b4,
 					f_a1, f_a2, f_a3, f_a4;
-			/* 0 for bgColor, nothing gets outside anyway */
+			/* 0 for bgColor; (n,m) is supposed to be valid anyway */
 			pixel1 = getPixelOverflowTC(im, n, m, 0);
-			pixel2 = getPixelOverflowTC(im, n + 1, m, 0);
-			pixel3 = getPixelOverflowTC(im, n, m + 1, 0);
-			pixel4 = getPixelOverflowTC(im, n + 1, m + 1, 0);
+			pixel2 = getPixelOverflowTC(im, n + 1, m, pixel1);
+			pixel3 = getPixelOverflowTC(im, n, m + 1, pixel1);
+			pixel4 = getPixelOverflowTC(im, n + 1, m + 1, pixel1);
 
 			f_r1 = gd_itofx(gdTrueColorGetRed(pixel1));
 			f_r2 = gd_itofx(gdTrueColorGetRed(pixel2));
@@ -1490,13 +1493,8 @@ gdImageScaleBicubicFixed(gdImagePtr src, const unsigned int width,
 				src_offset_y[8] = m;
 			}
 
-			if (m >= src_h - 1) {
-				src_offset_x[8] = n;
-				src_offset_y[8] = m;
-			} else {
-				src_offset_x[9] = n;
-				src_offset_y[9] = m;
-			}
+			src_offset_x[9] = n;
+			src_offset_y[9] = m;
 
 			if ((m >= src_h-1) || (n >= src_w-1)) {
 				src_offset_x[10] = n;
@@ -1607,9 +1605,28 @@ gdImageScaleBicubicFixed(gdImagePtr src, const unsigned int width,
 	return dst;
 }
 
-/*
-	Function: gdImageScale
-*/
+/**
+ * Function: gdImageScale
+ *
+ * Scale an image
+ *
+ * Creates a new image, scaled to the requested size using the current
+ * <gdInterpolationMethod>.
+ *
+ * Note that GD_WEIGHTED4 is not yet supported by this function.
+ *
+ * Parameters:
+ *   src        - The source image.
+ *   new_width  - The new width.
+ *   new_height - The new height.
+ *
+ * Returns:
+ *   The scaled image on success, NULL on failure.
+ *
+ * See also:
+ *   - <gdImageCopyResized>
+ *   - <gdImageCopyResampled>
+ */
 BGD_DECLARE(gdImagePtr) gdImageScale(const gdImagePtr src, const unsigned int new_width, const unsigned int new_height)
 {
 	gdImagePtr im_scaled = NULL;
@@ -1689,13 +1706,6 @@ gdImageRotateNearestNeighbour(gdImagePtr src, const float degrees,
 	gdRect bbox;
 	int new_height, new_width;
 
-	/* impact perf a bit, but not that much. Implementation for palette
-	   images can be done at a later point.
-	*/
-	if (src->trueColor == 0) {
-		gdImagePaletteToTrueColor(src);
-	}
-
     gdRotatedImageSize(src, degrees, &bbox);
     new_width = bbox.width;
     new_height = bbox.height;
@@ -1753,13 +1763,6 @@ gdImageRotateGeneric(gdImagePtr src, const float degrees, const int bgColor)
 		return NULL;
 	}
 
-	/* impact perf a bit, but not that much. Implementation for palette
-	   images can be done at a later point.
-	*/
-	if (src->trueColor == 0) {
-		gdImagePaletteToTrueColor(src);
-	}
-
 	if (src->interpolation == NULL) {
 		gdImageSetInterpolationMethod(src, GD_DEFAULT);
 	}
@@ -1796,9 +1799,26 @@ gdImageRotateGeneric(gdImagePtr src, const float degrees, const int bgColor)
 	return dst;
 }
 
-/*
-	Function: gdImageRotateInterpolated
-*/
+/** 
+ * Function: gdImageRotateInterpolated
+ *
+ * Rotate an image
+ *
+ * Creates a new image, counter-clockwise rotated by the requested angle
+ * using the current <gdInterpolationMethod>. Non-square angles will add a
+ * border with bgcolor.
+ *
+ * Parameters:
+ *   src     - The source image.
+ *   angle   - The angle in degrees.
+ *   bgcolor - The color to fill the added background with.
+ *
+ * Returns:
+ *   The rotated image on success, NULL on failure.
+ *
+ * See also:
+ *   - <gdImageCopyRotated>
+ */
 BGD_DECLARE(gdImagePtr) gdImageRotateInterpolated(const gdImagePtr src, const float angle, int bgcolor)
 {
 	/* round to two decimals and keep the 100x multiplication to use it in the common square angles 
@@ -1806,8 +1826,18 @@ BGD_DECLARE(gdImagePtr) gdImageRotateInterpolated(const gdImagePtr src, const fl
 	   slow animations, f.e. */
 	const int angle_rounded = fmod((int) floorf(angle * 100), 360 * 100);
 
-	if (bgcolor < 0) {
+	if (src == NULL || bgcolor < 0) {
 		return NULL;
+	}
+
+	/* impact perf a bit, but not that much. Implementation for palette
+	   images can be done at a later point.
+	*/
+	if (src->trueColor == 0) {
+		if (bgcolor < gdMaxColors) {
+			bgcolor =  gdTrueColorAlpha(src->red[bgcolor], src->green[bgcolor], src->blue[bgcolor], src->alpha[bgcolor]);
+		}
+		gdImagePaletteToTrueColor(src);
 	}
 
 	/* 0 && 90 degrees multiple rotation, 0 rotation simply clones the return image and convert it
@@ -1838,7 +1868,7 @@ BGD_DECLARE(gdImagePtr) gdImageRotateInterpolated(const gdImagePtr src, const fl
 			return gdImageRotate270(src, 0);
 	}
 
-	if (src == NULL || src->interpolation_id < 1 || src->interpolation_id > GD_METHOD_COUNT) {
+	if (src->interpolation_id < 1 || src->interpolation_id > GD_METHOD_COUNT) {
 		return NULL;
 	}
 
@@ -1856,11 +1886,7 @@ BGD_DECLARE(gdImagePtr) gdImageRotateInterpolated(const gdImagePtr src, const fl
 }
 
 /**
- * Title: Affine transformation
- **/
-
-/**
- * Group: Transform
+ * Group: Affine Transformation
  **/
 
  static void gdImageClipRectangle(gdImagePtr im, gdRectPtr r)
@@ -2117,9 +2143,26 @@ BGD_DECLARE(int) gdTransformAffineBoundingBox(gdRectPtr src, const double affine
 	return GD_TRUE;
 }
 
-/*
-	Function: gdImageSetInterpolationMethod
-*/
+/**
+ * Group: Interpolation Method
+ */
+
+/**
+ * Function: gdImageSetInterpolationMethod
+ *
+ * Set the interpolation method for subsequent operations
+ *
+ * Parameters:
+ *   im - The image.
+ *   id - The interpolation method.
+ *
+ * Returns:
+ *   Non-zero on success, zero on failure.
+ *
+ * See also:
+ *   - <gdInterpolationMethod>
+ *   - <gdImageGetInterpolationMethod>
+ */
 BGD_DECLARE(int) gdImageSetInterpolationMethod(gdImagePtr im, gdInterpolationMethod id)
 {
 	if (im == NULL || (uintmax_t)id > GD_METHOD_COUNT) {
@@ -2202,13 +2245,24 @@ BGD_DECLARE(int) gdImageSetInterpolationMethod(gdImagePtr im, gdInterpolationMet
 }
 
 
-/*
-	Function: gdImageGetInterpolationMethod
-
-	Return the interpolation mode set in 'im'.  This is here so that
-	the value can be read via a language or VM with an FFI but no
-	(portable) way to extract the value from the struct.
-*/
+/**
+ * Function: gdImageGetInterpolationMethod
+ *
+ * Get the current interpolation method
+ *
+ * This is here so that the value can be read via a language or VM with an FFI
+ * but no (portable) way to extract the value from the struct.
+ *
+ * Parameters:
+ *   im - The image.
+ *
+ * Returns:
+ *   The current interpolation method.
+ *
+ * See also:
+ *   - <gdInterpolationMethod>
+ *   - <gdImageSetInterpolationMethod>
+ */
 BGD_DECLARE(gdInterpolationMethod) gdImageGetInterpolationMethod(gdImagePtr im)
 {
     return im->interpolation_id;

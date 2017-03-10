@@ -71,6 +71,10 @@ static const unsigned char gd_toascii[256] = {
 extern const int gdCosT[];
 extern const int gdSinT[];
 
+/**
+ * Group: Error Handling
+ */
+
 void gd_stderr_error(int priority, const char *format, va_list args)
 {
 	switch (priority) {
@@ -139,11 +143,11 @@ BGD_DECLARE(void) gdClearErrorMethod(void)
 static void gdImageBrushApply (gdImagePtr im, int x, int y);
 static void gdImageTileApply (gdImagePtr im, int x, int y);
 
-/*
-	Function: gdImageGetTrueColorPixel
-*/
 BGD_DECLARE(int) gdImageGetTrueColorPixel (gdImagePtr im, int x, int y);
 
+/**
+ * Group: Creation and Destruction
+ */
 
 /*
     Function: gdImageCreate
@@ -162,11 +166,14 @@ BGD_DECLARE(int) gdImageGetTrueColorPixel (gdImagePtr im, int x, int y);
         A pointer to the new image or NULL if an error occurred.
 
     Example:
+      (start code)
 
-        >   gdImagePtr im;
-        >   im = gdImageCreate(64, 64);
-        >   // ... Use the image ...
-        >   gdImageDestroy(im);
+      gdImagePtr im;
+      im = gdImageCreate(64, 64);
+      // ... Use the image ...
+      gdImageDestroy(im);
+
+      (end code)
 
     See Also:
 
@@ -177,6 +184,10 @@ BGD_DECLARE(gdImagePtr) gdImageCreate (int sx, int sy)
 {
 	int i;
 	gdImagePtr im;
+
+	if (overflow2(sx, sy)) {
+		return NULL;
+	}
 
 	if (overflow2(sizeof (unsigned char *), sy)) {
 		return NULL;
@@ -263,11 +274,14 @@ BGD_DECLARE(gdImagePtr) gdImageCreate (int sx, int sy)
         A pointer to the new image or NULL if an error occurred.
 
     Example:
+      (start code)
 
-        > gdImagePtr im;
-        > im = gdImageCreateTrueColor(64, 64);
-        > // ... Use the image ...
-        > gdImageDestroy(im);
+      gdImagePtr im;
+      im = gdImageCreateTrueColor(64, 64);
+      // ... Use the image ...
+      gdImageDestroy(im);
+
+      (end code)
 
     See Also:
 
@@ -362,12 +376,15 @@ BGD_DECLARE(gdImagePtr) gdImageCreateTrueColor (int sx, int sy)
     Nothing.
 
   Example:
+    (start code)
 
-    > gdImagePtr im;
-    > im = gdImageCreate(10, 10);
-    > // ... Use the image ...
-    > // Now destroy it
-    > gdImageDestroy(im);
+    gdImagePtr im;
+    im = gdImageCreate(10, 10);
+    // ... Use the image ...
+    // Now destroy it
+    gdImageDestroy(im);
+
+	(end code)
 
 */
 
@@ -395,17 +412,55 @@ BGD_DECLARE(void) gdImageDestroy (gdImagePtr im)
 	gdFree (im);
 }
 
-/*
-	Function: gdImageColorClosest
-*/
+/**
+ * Group: Color
+ */
+
+/**
+ * Function: gdImageColorClosest
+ * 
+ * Gets the closest color of the image
+ *
+ * This is a simplified variant of <gdImageColorClosestAlpha> where the alpha
+ * channel is always opaque.
+ *
+ * Parameters:
+ *   im - The image.
+ *   r  - The value of the red component.
+ *   g  - The value of the green component.
+ *   b  - The value of the blue component.
+ *
+ * Returns:
+ *   The closest color already available in the palette for palette images;
+ *   the color value of the given components for truecolor images.
+ *
+ * See also:
+ *   - <gdImageColorExact>
+ */
 BGD_DECLARE(int) gdImageColorClosest (gdImagePtr im, int r, int g, int b)
 {
 	return gdImageColorClosestAlpha (im, r, g, b, gdAlphaOpaque);
 }
 
-/*
-	Function: gdImageColorClosestAlpha
-*/
+/**
+ * Function: gdImageColorClosestAlpha
+ *
+ * Gets the closest color of the image
+ *
+ * Parameters:
+ *   im - The image.
+ *   r  - The value of the red component.
+ *   g  - The value of the green component.
+ *   b  - The value of the blue component.
+ *   a  - The value of the alpha component.
+ *
+ * Returns:
+ *   The closest color already available in the palette for palette images;
+ *   the color value of the given components for truecolor images.
+ *
+ * See also:
+ *   - <gdImageColorExactAlpha>
+ */
 BGD_DECLARE(int) gdImageColorClosestAlpha (gdImagePtr im, int r, int g, int b, int a)
 {
 	int i;
@@ -601,17 +656,54 @@ BGD_DECLARE(int) gdImageColorClosestHWB (gdImagePtr im, int r, int g, int b)
 	return ct;
 }
 
-/*
-	Function: gdImageColorExact
-*/
+/**
+ * Function: gdImageColorExact
+ *
+ * Gets the exact color of the image
+ *
+ * This is a simplified variant of <gdImageColorExactAlpha> where the alpha
+ * channel is always opaque.
+ *
+ * Parameters:
+ *   im - The image.
+ *   r  - The value of the red component.
+ *   g  - The value of the green component.
+ *   b  - The value of the blue component.
+ *
+ * Returns:
+ *   The exact color already available in the palette for palette images; if
+ *   there is no exact color, -1 is returned.
+ *   For truecolor images the color value of the given components is returned.
+ *
+ * See also:
+ *   - <gdImageColorClosest>
+ */
 BGD_DECLARE(int) gdImageColorExact (gdImagePtr im, int r, int g, int b)
 {
 	return gdImageColorExactAlpha (im, r, g, b, gdAlphaOpaque);
 }
 
-/*
-	Function: gdImageColorExactAlpha
-*/
+/**
+ * Function: gdImageColorExactAlpha
+ *
+ * Gets the exact color of the image
+ *
+ * Parameters:
+ *   im - The image.
+ *   r  - The value of the red component.
+ *   g  - The value of the green component.
+ *   b  - The value of the blue component.
+ *   a  - The value of the alpha component.
+ *
+ * Returns:
+ *   The exact color already available in the palette for palette images; if
+ *   there is no exact color, -1 is returned.
+ *   For truecolor images the color value of the given components is returned.
+ *
+ * See also:
+ *   - <gdImageColorClosestAlpha>
+ *   - <gdTrueColorAlpha>
+ */
 BGD_DECLARE(int) gdImageColorExactAlpha (gdImagePtr im, int r, int g, int b, int a)
 {
 	int i;
@@ -630,17 +722,51 @@ BGD_DECLARE(int) gdImageColorExactAlpha (gdImagePtr im, int r, int g, int b, int
 	return -1;
 }
 
-/*
-	Function: gdImageColorAllocate
-*/
+/**
+ * Function: gdImageColorAllocate
+ *
+ * Allocates a color
+ *
+ * This is a simplified variant of <gdImageColorAllocateAlpha> where the alpha
+ * channel is always opaque.
+ *
+ * Parameters:
+ *   im - The image.
+ *   r  - The value of the red component.
+ *   g  - The value of the green component.
+ *   b  - The value of the blue component.
+ *
+ * Returns:
+ *   The color value.
+ *
+ * See also:
+ *   - <gdImageColorDeallocate>
+ */
 BGD_DECLARE(int) gdImageColorAllocate (gdImagePtr im, int r, int g, int b)
 {
 	return gdImageColorAllocateAlpha (im, r, g, b, gdAlphaOpaque);
 }
 
-/*
-	Function: gdImageColorAllocateAlpha
-*/
+/**
+ * Function: gdImageColorAllocateAlpha
+ *
+ * Allocates a color
+ *
+ * This is typically used for palette images, but can be used for truecolor
+ * images as well.
+ *
+ * Parameters:
+ *   im - The image.
+ *   r  - The value of the red component.
+ *   g  - The value of the green component.
+ *   b  - The value of the blue component.
+ *
+ * Returns:
+ *   The color value.
+ *
+ * See also:
+ *   - <gdImageColorDeallocate>
+ */
 BGD_DECLARE(int) gdImageColorAllocateAlpha (gdImagePtr im, int r, int g, int b, int a)
 {
 	int i;
@@ -673,9 +799,11 @@ BGD_DECLARE(int) gdImageColorAllocateAlpha (gdImagePtr im, int r, int g, int b, 
 	Function: gdImageColorResolve
 
 	gdImageColorResolve is an alternative for the code fragment
-	| if ((color=gdImageColorExact(im,R,G,B)) < 0)
-	|   if ((color=gdImageColorAllocate(im,R,G,B)) < 0)
-	|     color=gdImageColorClosest(im,R,G,B);
+	(start code)
+	if ((color=gdImageColorExact(im,R,G,B)) < 0)
+	  if ((color=gdImageColorAllocate(im,R,G,B)) < 0)
+	    color=gdImageColorClosest(im,R,G,B);
+	(end code)
 	in a single function.    Its advantage is that it is guaranteed to
 	return a color index in one search over the color table.
 */
@@ -739,9 +867,21 @@ BGD_DECLARE(int) gdImageColorResolveAlpha (gdImagePtr im, int r, int g, int b, i
 	return op;			/* Return newly allocated color */
 }
 
-/*
-	Function: gdImageColorDeallocate
-*/
+/**
+ * Function: gdImageColorDeallocate
+ *
+ * Removes a palette entry
+ *
+ * This is a no-op for truecolor images.
+ *
+ * Parameters:
+ *   im    - The image.
+ *   color - The palette index.
+ *
+ * See also:
+ *   - <gdImageColorAllocate>
+ *   - <gdImageColorAllocateAlpha>
+ */
 BGD_DECLARE(void) gdImageColorDeallocate (gdImagePtr im, int color)
 {
 	if (im->trueColor || (color >= gdMaxColors) || (color < 0)) {
@@ -751,9 +891,18 @@ BGD_DECLARE(void) gdImageColorDeallocate (gdImagePtr im, int color)
 	im->open[color] = 1;
 }
 
-/*
-	Function: gdImageColorTransparent
-*/
+/**
+ * Function: gdImageColorTransparent
+ *
+ * Sets the transparent color of the image
+ *
+ * Parameter:
+ *   im    - The image.
+ *   color - The color.
+ *
+ * See also:
+ *   - <gdImageGetTransparent>
+ */
 BGD_DECLARE(void) gdImageColorTransparent (gdImagePtr im, int color)
 {
 	if (color < 0) {
@@ -1084,6 +1233,10 @@ clip_1d (int *x0, int *y0, int *x1, int *y1, int mindim, int maxdim)
 
 /* end of line clipping code */
 
+/**
+ * Group: Pixels
+ */
+
 /*
 	Function: gdImageSetPixel
 */
@@ -1278,9 +1431,21 @@ gdImageTileApply (gdImagePtr im, int x, int y)
 	}
 }
 
-/*
-	Function: gdImageGetPixel
-*/
+/**
+ * Function: gdImageGetPixel
+ *
+ * Gets a pixel color as stored in the image.
+ *
+ * Parameters:
+ *   im - The image.
+ *   x  - The x-coordinate.
+ *   y  - The y-coordinate.
+ *
+ * See also:
+ *   - <gdImageGetTrueColorPixel>
+ *   - <gdImagePalettePixel>
+ *   - <gdImageTrueColorPixel>
+ */
 BGD_DECLARE(int) gdImageGetPixel (gdImagePtr im, int x, int y)
 {
 	if (gdImageBoundsSafeMacro (im, x, y)) {
@@ -1294,9 +1459,20 @@ BGD_DECLARE(int) gdImageGetPixel (gdImagePtr im, int x, int y)
 	}
 }
 
-/*
-	Function: gdImageGetTrueColorPixel
-*/
+/**
+ * Function: gdImageGetTrueColorPixel
+ *
+ * Gets a pixel color always as truecolor value.
+ *
+ * Parameters:
+ *   im - The image.
+ *   x  - The x-coordinate.
+ *   y  - The y-coordinate.
+ *
+ * See also:
+ *   - <gdImageGetPixel>
+ *   - <gdImageTrueColorPixel>
+ */
 BGD_DECLARE(int) gdImageGetTrueColorPixel (gdImagePtr im, int x, int y)
 {
 	int p = gdImageGetPixel (im, x, y);
@@ -1308,6 +1484,10 @@ BGD_DECLARE(int) gdImageGetTrueColorPixel (gdImagePtr im, int x, int y)
 		return p;
 	}
 }
+
+/**
+ * Group: Primitives
+ */
 
 /*
 	Function: gdImageAABlend
@@ -1686,9 +1866,25 @@ BGD_DECLARE(int) gdImageBoundsSafe (gdImagePtr im, int x, int y)
 	return gdImageBoundsSafeMacro (im, x, y);
 }
 
-/*
-	Function: gdImageChar
-*/
+/**
+ * Function: gdImageChar
+ *
+ * Draws a single character.
+ *
+ * Parameters:
+ *  im    - The image to draw onto.
+ *  f     - The raster font.
+ *  x     - The x coordinate of the upper left pixel.
+ *  y     - The y coordinate of the upper left pixel.
+ *  c     - The character.
+ *  color - The color.
+ *
+ * Variants:
+ *  - <gdImageCharUp>
+ *
+ * See also:
+ *  - <gdFontPtr>
+ */
 BGD_DECLARE(void) gdImageChar (gdImagePtr im, gdFontPtr f, int x, int y, int c, int color)
 {
 	int cx, cy;
@@ -1715,9 +1911,9 @@ BGD_DECLARE(void) gdImageChar (gdImagePtr im, gdFontPtr f, int x, int y, int c, 
 	}
 }
 
-/*
-	Function: gdImageCharUp
-*/
+/**
+ * Function: gdImageCharUp
+ */
 BGD_DECLARE(void) gdImageCharUp (gdImagePtr im, gdFontPtr f, int x, int y, int c, int color)
 {
 	int cx, cy;
@@ -1744,9 +1940,28 @@ BGD_DECLARE(void) gdImageCharUp (gdImagePtr im, gdFontPtr f, int x, int y, int c
 	}
 }
 
-/*
-	Function: gdImageString
-*/
+/**
+ * Function: gdImageString
+ * 
+ * Draws a character string.
+ *
+ * Parameters:
+ *  im    - The image to draw onto.
+ *  f     - The raster font.
+ *  x     - The x coordinate of the upper left pixel.
+ *  y     - The y coordinate of the upper left pixel.
+ *  c     - The character string.
+ *  color - The color.
+ *
+ * Variants:
+ *  - <gdImageStringUp>
+ *  - <gdImageString16>
+ *  - <gdImageStringUp16>
+ *
+ * See also:
+ *  - <gdFontPtr>
+ *  - <gdImageStringTTF>
+ */
 BGD_DECLARE(void) gdImageString (gdImagePtr im, gdFontPtr f,
 								 int x, int y, unsigned char *s, int color)
 {
@@ -1759,9 +1974,9 @@ BGD_DECLARE(void) gdImageString (gdImagePtr im, gdFontPtr f,
 	}
 }
 
-/*
-	Function: gdImageStringUp
-*/
+/**
+ * Function: gdImageStringUp
+ */
 BGD_DECLARE(void) gdImageStringUp (gdImagePtr im, gdFontPtr f,
 								   int x, int y, unsigned char *s, int color)
 {
@@ -1776,9 +1991,9 @@ BGD_DECLARE(void) gdImageStringUp (gdImagePtr im, gdFontPtr f,
 
 static int strlen16 (unsigned short *s);
 
-/*
-	Function: gdImageString16
-*/
+/**
+ * Function: gdImageString16
+ */
 BGD_DECLARE(void) gdImageString16 (gdImagePtr im, gdFontPtr f,
 								   int x, int y, unsigned short *s, int color)
 {
@@ -1791,9 +2006,9 @@ BGD_DECLARE(void) gdImageString16 (gdImagePtr im, gdFontPtr f,
 	}
 }
 
-/*
-	Function: gdImageStringUp16
-*/
+/**
+ * Function: gdImageStringUp16
+ */
 BGD_DECLARE(void) gdImageStringUp16 (gdImagePtr im, gdFontPtr f,
 									 int x, int y, unsigned short *s, int color)
 {
@@ -2394,25 +2609,32 @@ skip:
 	gdFree(stack);
 }
 
-/*
-	Function: gdImageRectangle
-*/
+/**
+ * Function: gdImageRectangle
+ *
+ * Draws a rectangle.
+ *
+ * Parameters:
+ *   im    - The image.
+ *   x1    - The x-coordinate of the upper left corner.
+ *   y1    - The y-coordinate of the upper left corner.
+ *   x2    - The x-coordinate of the lower right corner.
+ *   y2    - The y-coordinate of the lower right corner.
+ *   color - The color.
+ *
+ * Note that x1,y1 and x2,y2 may be swapped, i.e. the former may designate the
+ * lower right corner and the latter the upper left corner. The behavior for
+ * specifying other corners is undefined.
+ *
+ * See also:
+ *   - <gdImageFilledRectangle>
+ */
 BGD_DECLARE(void) gdImageRectangle (gdImagePtr im, int x1, int y1, int x2, int y2, int color)
 {
 	int thick = im->thick;
 
 	if (x1 == x2 && y1 == y2 && thick == 1) {
 		gdImageSetPixel(im, x1, y1, color);
-		return;
-	}
-
-	if (x1 == x2 && y1 == y2) {
-		gdImageSetPixel(im, x1, y1, color);
-		return;
-	}
-
-	if (x1 == x2 || y1 == y2) {
-		gdImageLine(im, x1, y1, x2, y2, color);
 		return;
 	}
 
@@ -2470,10 +2692,14 @@ BGD_DECLARE(void) gdImageRectangle (gdImagePtr im, int x1, int y1, int x2, int y
 
 		return;
 	} else {
-		gdImageLine(im, x1, y1, x2, y1, color);
-		gdImageLine(im, x1, y2, x2, y2, color);
-		gdImageLine(im, x1, y1 + 1, x1, y2 - 1, color);
-		gdImageLine(im, x2, y1 + 1, x2, y2 - 1, color);
+		if (x1 == x2 || y1 == y2) {
+			gdImageLine(im, x1, y1, x2, y2, color);
+		} else {
+			gdImageLine(im, x1, y1, x2, y1, color);
+			gdImageLine(im, x1, y2, x2, y2, color);
+			gdImageLine(im, x1, y1 + 1, x1, y2 - 1, color);
+			gdImageLine(im, x2, y1 + 1, x2, y2 - 1, color);
+		}
 	}
 }
 
@@ -2576,9 +2802,23 @@ BGD_DECLARE(void) gdImageFilledRectangle (gdImagePtr im, int x1, int y1, int x2,
 	_gdImageFilledVRectangle(im, x1, y1, x2, y2, color);
 }
 
-/*
-	Function: gdImageClone
-*/
+/**
+ * Group: Cloning and Copying
+ */
+
+/**
+ * Function: gdImageClone
+ *
+ * Clones an image
+ *
+ * Creates an exact duplicate of the given image.
+ *
+ * Parameters:
+ *   src - The source image.
+ *
+ * Returns:
+ *   The cloned image on success, NULL on failure.
+ */
 BGD_DECLARE(gdImagePtr) gdImageClone (gdImagePtr src) {
 	gdImagePtr dst;
 	register int i, x;
@@ -2637,7 +2877,7 @@ BGD_DECLARE(gdImagePtr) gdImageClone (gdImagePtr src) {
 	dst->cy2 = src->cy2;
 
 	dst->res_x = src->res_x;
-	dst->res_y = src->res_x;
+	dst->res_y = src->res_y;
 
 	dst->paletteQuantizationMethod     = src->paletteQuantizationMethod;
 	dst->paletteQuantizationSpeed      = src->paletteQuantizationSpeed;
@@ -2674,9 +2914,25 @@ BGD_DECLARE(gdImagePtr) gdImageClone (gdImagePtr src) {
 	return dst;
 }
 
-/*
-	Function: gdImageCopy
-*/
+/**
+ * Function: gdImageCopy
+ *
+ * Copy an area of an image to another image
+ *
+ * Parameters:
+ *   dst  - The destination image.
+ *   src  - The source image.
+ *   dstX - The x-coordinate of the upper left corner to copy to.
+ *   dstY - The y-coordinate of the upper left corner to copy to.
+ *   srcX - The x-coordinate of the upper left corner to copy from.
+ *   srcY - The y-coordinate of the upper left corner to copy from.
+ *   w    - The width of the area to copy.
+ *   h    - The height of the area to copy.
+ *
+ * See also:
+ *   - <gdImageCopyMerge>
+ *   - <gdImageCopyMergeGray>
+ */
 BGD_DECLARE(void) gdImageCopy (gdImagePtr dst, gdImagePtr src, int dstX, int dstY, int srcX,
 							   int srcY, int w, int h)
 {
@@ -2764,12 +3020,32 @@ BGD_DECLARE(void) gdImageCopy (gdImagePtr dst, gdImagePtr src, int dstX, int dst
 	}
 }
 
-/*
-	Function: gdImageCopyMerge
-
-	This function is a substitute for real alpha channel operations,
-	so it doesn't pay attention to the alpha channel.
-*/
+/**
+ * Function: gdImageCopyMerge
+ *
+ * Copy an area of an image to another image ignoring alpha
+ *
+ * The source area will be copied to the destination are by merging the pixels.
+ *
+ * Note:
+ *   This function is a substitute for real alpha channel operations,
+ *   so it doesn't pay attention to the alpha channel.
+ *
+ * Parameters:
+ *   dst  - The destination image.
+ *   src  - The source image.
+ *   dstX - The x-coordinate of the upper left corner to copy to.
+ *   dstY - The y-coordinate of the upper left corner to copy to.
+ *   srcX - The x-coordinate of the upper left corner to copy from.
+ *   srcY - The y-coordinate of the upper left corner to copy from.
+ *   w    - The width of the area to copy.
+ *   h    - The height of the area to copy.
+ *   pct  - The percentage in range 0..100.
+ *
+ * See also:
+ *   - <gdImageCopy>
+ *   - <gdImageCopyMergeGray>
+ */
 BGD_DECLARE(void) gdImageCopyMerge (gdImagePtr dst, gdImagePtr src, int dstX, int dstY,
 									int srcX, int srcY, int w, int h, int pct)
 {
@@ -2812,12 +3088,33 @@ BGD_DECLARE(void) gdImageCopyMerge (gdImagePtr dst, gdImagePtr src, int dstX, in
 	}
 }
 
-/*
-	Function: gdImageCopyMergeGray
-
-	This function is a substitute for real alpha channel operations,
-	so it doesn't pay attention to the alpha channel.
-*/
+/**
+ * Function: gdImageCopyMergeGray
+ *
+ * Copy an area of an image to another image ignoring alpha
+ *
+ * The source area will be copied to the grayscaled destination area by merging
+ * the pixels.
+ *
+ * Note:
+ *   This function is a substitute for real alpha channel operations,
+ *   so it doesn't pay attention to the alpha channel.
+ * 
+ * Parameters:
+ *   dst  - The destination image.
+ *   src  - The source image.
+ *   dstX - The x-coordinate of the upper left corner to copy to.
+ *   dstY - The y-coordinate of the upper left corner to copy to.
+ *   srcX - The x-coordinate of the upper left corner to copy from.
+ *   srcY - The y-coordinate of the upper left corner to copy from.
+ *   w    - The width of the area to copy.
+ *   h    - The height of the area to copy.
+ *   pct  - The percentage of the source color intensity in range 0..100.
+ *
+ * See also:
+ *   - <gdImageCopy>
+ *   - <gdImageCopyMerge>
+ */
 BGD_DECLARE(void) gdImageCopyMergeGray (gdImagePtr dst, gdImagePtr src, int dstX, int dstY,
 										int srcX, int srcY, int w, int h, int pct)
 {
@@ -2876,9 +3173,30 @@ BGD_DECLARE(void) gdImageCopyMergeGray (gdImagePtr dst, gdImagePtr src, int dstX
 	}
 }
 
-/*
-	Function: gdImageCopyResized
-*/
+/**
+ * Function: gdImageCopyResized
+ *
+ * Copy a resized area from an image to another image
+ *
+ * If the source and destination area differ in size, the area will be resized
+ * using nearest-neighbor interpolation.
+ * 
+ * Parameters:
+ *   dst  - The destination image.
+ *   src  - The source image.
+ *   dstX - The x-coordinate of the upper left corner to copy to.
+ *   dstY - The y-coordinate of the upper left corner to copy to.
+ *   srcX - The x-coordinate of the upper left corner to copy from.
+ *   srcY - The y-coordinate of the upper left corner to copy from.
+ *   dstW - The width of the area to copy to.
+ *   dstH - The height of the area to copy to.
+ *   srcW - The width of the area to copy from.
+ *   srcH - The height of the area to copy from.
+ *
+ * See also:
+ *   - <gdImageCopyResampled>
+ *   - <gdImageScale>
+ */
 BGD_DECLARE(void) gdImageCopyResized (gdImagePtr dst, gdImagePtr src, int dstX, int dstY,
 									  int srcX, int srcY, int dstW, int dstH, int srcW,
 									  int srcH)
@@ -3007,17 +3325,27 @@ BGD_DECLARE(void) gdImageCopyResized (gdImagePtr dst, gdImagePtr src, int dstX, 
 	gdFree (sty);
 }
 
-/* gd 2.0.8: gdImageCopyRotated is added. Source
-	is a rectangle, with its upper left corner at
-	srcX and srcY. Destination is the *center* of
-		the rotated copy. Angle is in degrees, same as
-		gdImageArc. Floating point destination center
-	coordinates allow accurate rotation of
-	objects of odd-numbered width or height. */
-
-/*
-	Function: gdImageCopyRotated
-*/
+/**
+ * Function: gdImageCopyRotated
+ *
+ * Copy a rotated area from an image to another image
+ *
+ * The area is counter-clockwise rotated using nearest-neighbor interpolation.
+ *
+ * Parameters:
+ *   dst   - The destination image.
+ *   src   - The source image.
+ *   dstX  - The x-coordinate of the center of the area to copy to.
+ *   dstY  - The y-coordinate of the center of the area to copy to.
+ *   srcX  - The x-coordinate of the upper left corner to copy from.
+ *   srcY  - The y-coordinate of the upper left corner to copy from.
+ *   srcW  - The width of the area to copy from.
+ *   srcH  - The height of the area to copy from.
+ *   angle - The angle in degrees.
+ *
+ * See also:
+ *   - <gdImageRotateInterpolated>
+ */
 BGD_DECLARE(void) gdImageCopyRotated (gdImagePtr dst,
 									  gdImagePtr src,
 									  double dstX, double dstY,
@@ -3101,9 +3429,31 @@ BGD_DECLARE(void) gdImageCopyRotated (gdImagePtr dst,
 #define floor2(exp) ((long) exp)
 /*#define floor2(exp) floor(exp)*/
 
-/*
-	Function: gdImageCopyResampled
-*/
+/**
+ * Function: gdImageCopyResampled
+ *
+ * Copy a resampled area from an image to another image
+ *
+ * If the source and destination area differ in size, the area will be resized
+ * using bilinear interpolation for truecolor images, and nearest-neighbor
+ * interpolation for palette images.
+ * 
+ * Parameters:
+ *   dst  - The destination image.
+ *   src  - The source image.
+ *   dstX - The x-coordinate of the upper left corner to copy to.
+ *   dstY - The y-coordinate of the upper left corner to copy to.
+ *   srcX - The x-coordinate of the upper left corner to copy from.
+ *   srcY - The y-coordinate of the upper left corner to copy from.
+ *   dstW - The width of the area to copy to.
+ *   dstH - The height of the area to copy to.
+ *   srcW - The width of the area to copy from.
+ *   srcH - The height of the area to copy from.
+ *
+ * See also:
+ *   - <gdImageCopyResized>
+ *   - <gdImageScale>
+ */
 BGD_DECLARE(void) gdImageCopyResampled (gdImagePtr dst,
 										gdImagePtr src,
 										int dstX, int dstY,
@@ -3206,9 +3556,25 @@ BGD_DECLARE(void) gdImageCopyResampled (gdImagePtr dst,
 	}
 }
 
-/*
-	Function: gdImagePolygon
-*/
+/**
+ * Group: Polygons
+ */
+
+/**
+ * Function: gdImagePolygon
+ *
+ * Draws a closed polygon
+ *
+ * Parameters:
+ *   im - The image.
+ *   p  - The vertices as array of <gdPoint>s.
+ *   n  - The number of vertices.
+ *   c  - The color.
+ *
+ * See also:
+ *   - <gdImageOpenPolygon>
+ *   - <gdImageFilledPolygon>
+ */
 BGD_DECLARE(void) gdImagePolygon (gdImagePtr im, gdPointPtr p, int n, int c)
 {
 	if (n <= 0) {
@@ -3220,9 +3586,20 @@ BGD_DECLARE(void) gdImagePolygon (gdImagePtr im, gdPointPtr p, int n, int c)
 	gdImageOpenPolygon (im, p, n, c);
 }
 
-/*
-	Function: gdImageOpenPolygon
-*/
+/**
+ * Function: gdImageOpenPolygon
+ *
+ * Draws an open polygon
+ *
+ * Parameters:
+ *   im - The image.
+ *   p  - The vertices as array of <gdPoint>s.
+ *   n  - The number of vertices.
+ *   c  - The color
+ *
+ * See also:
+ *   - <gdImagePolygon>
+ */
 BGD_DECLARE(void) gdImageOpenPolygon (gdImagePtr im, gdPointPtr p, int n, int c)
 {
 	int i;
@@ -3250,9 +3627,24 @@ BGD_DECLARE(void) gdImageOpenPolygon (gdImagePtr im, gdPointPtr p, int n, int c)
 /* That could help to adjust intersections  to produce a nice */
 /* interior_extrema. */
 
-/*
-	Function: gdImageFilledPolygon
-*/
+/**
+ * Function: gdImageFilledPolygon
+ *
+ * Draws a filled polygon
+ *
+ * The polygon is filled using the even-odd fillrule what can leave unfilled
+ * regions inside of self-intersecting polygons. This behavior might change in
+ * a future version.
+ *
+ * Parameters:
+ *   im - The image.
+ *   p  - The vertices as array of <gdPoint>s.
+ *   n  - The number of vertices.
+ *   c  - The color
+ *
+ * See also:
+ *   - <gdImagePolygon>
+ */
 BGD_DECLARE(void) gdImageFilledPolygon (gdImagePtr im, gdPointPtr p, int n, int c)
 {
 	int i;
@@ -3394,11 +3786,22 @@ BGD_DECLARE(void) gdImageFilledPolygon (gdImagePtr im, gdPointPtr p, int n, int 
 	}
 }
 
+/**
+ * Group: other
+ */
+
 static void gdImageSetAAPixelColor(gdImagePtr im, int x, int y, int color, int t);
 
-/*
-	Function: gdImageSetStyle
-*/
+/**
+ * Function: gdImageSetStyle
+ *
+ * Sets the style for following drawing operations
+ *
+ * Parameters:
+ *   im        - The image.
+ *   style     - An array of color values.
+ *   noOfPixel - The number of color values.
+ */
 BGD_DECLARE(void) gdImageSetStyle (gdImagePtr im, int *style, int noOfPixels)
 {
 	if (im->style) {
@@ -3416,17 +3819,29 @@ BGD_DECLARE(void) gdImageSetStyle (gdImagePtr im, int *style, int noOfPixels)
 	im->stylePos = 0;
 }
 
-/*
-	Function: gdImageSetThickness
-*/
+/**
+ * Function: gdImageSetThickness
+ *
+ * Sets the thickness for following drawing operations
+ *
+ * Parameters:
+ *   im        - The image.
+ *   thickness - The thickness in pixels.
+ */
 BGD_DECLARE(void) gdImageSetThickness (gdImagePtr im, int thickness)
 {
 	im->thick = thickness;
 }
 
-/*
-	Function: gdImageSetBrush
-*/
+/**
+ * Function: gdImageSetBrush
+ *
+ * Sets the brush for following drawing operations
+ *
+ * Parameters:
+ *   im    - The image.
+ *   brush - The brush image.
+ */
 BGD_DECLARE(void) gdImageSetBrush (gdImagePtr im, gdImagePtr brush)
 {
 	int i;
@@ -3464,9 +3879,26 @@ BGD_DECLARE(void) gdImageSetTile (gdImagePtr im, gdImagePtr tile)
 	}
 }
 
-/*
-	Function: gdImageSetAntiAliased
-*/
+/**
+ * Function: gdImageSetAntiAliased
+ *
+ * Set the color for subsequent anti-aliased drawing
+ *
+ * If <gdAntiAliased> is passed as color to drawing operations that support
+ * anti-aliased drawing (such as <gdImageLine> and <gdImagePolygon>), the actual
+ * color to be used can be set with this function.
+ *
+ * Example: draw an anti-aliased blue line:
+ * | gdImageSetAntiAliased(im, gdTrueColorAlpha(0, 0, gdBlueMax, gdAlphaOpaque));
+ * | gdImageLine(im, 10,10, 20,20, gdAntiAliased);
+ *
+ * Parameters:
+ *   im - The image.
+ *   c  - The color.
+ *
+ * See also:
+ *   - <gdImageSetAntiAliasedDontBlend>
+ */
 BGD_DECLARE(void) gdImageSetAntiAliased (gdImagePtr im, int c)
 {
 	im->AA = 1;
@@ -3474,9 +3906,20 @@ BGD_DECLARE(void) gdImageSetAntiAliased (gdImagePtr im, int c)
 	im->AA_dont_blend = -1;
 }
 
-/*
-	Function: gdImageSetAntiAliasedDontBlend
-*/
+/**
+ * Function: gdImageSetAntiAliasedDontBlend
+ *
+ * Set the color and "dont_blend" color for subsequent anti-aliased drawing
+ *
+ * This extended variant of <gdImageSetAntiAliased> allows to also specify a
+ * (background) color that will not be blended in anti-aliased drawing
+ * operations.
+ *
+ * Parameters:
+ *   im         - The image.
+ *   c          - The color.
+ *   dont_blend - Whether to blend.
+ */
 BGD_DECLARE(void) gdImageSetAntiAliasedDontBlend (gdImagePtr im, int c, int dont_blend)
 {
 	im->AA = 1;
@@ -3484,17 +3927,39 @@ BGD_DECLARE(void) gdImageSetAntiAliasedDontBlend (gdImagePtr im, int c, int dont
 	im->AA_dont_blend = dont_blend;
 }
 
-/*
-	Function: gdImageInterlace
+/**
+ * Function: gdImageInterlace
+ *
+ * Sets whether an image is interlaced
+ *
+ * This is relevant only when saving the image in a format that supports
+ * interlacing.
+ *
+ * Parameters:
+ *   im           - The image.
+ *   interlaceArg - Whether the image is interlaced.
+ *
+ * See also:
+ *   - <gdImageGetInterlaced>
 */
 BGD_DECLARE(void) gdImageInterlace (gdImagePtr im, int interlaceArg)
 {
 	im->interlace = interlaceArg;
 }
 
-/*
-	Function: gdImageCompare
-*/
+/**
+ * Function: gdImageCompare
+ *
+ * Compare two images
+ *
+ * Parameters:
+ *   im1 - An image.
+ *   im2 - Another image.
+ *
+ * Returns:
+ *   A bitmask of <Image Comparison> flags where each set flag signals
+ *   which attributes of the images are different.
+ */
 BGD_DECLARE(int) gdImageCompare (gdImagePtr im1, gdImagePtr im2)
 {
 	int x, y;
@@ -3577,9 +4042,20 @@ BGD_DECLARE(int) gdImageCompare (gdImagePtr im1, gdImagePtr im2)
 	of gdAlphaBlend(), which merges alpha in the
 	destination color much better. */
 
-/*
-	Function: gdAlphaBlend
-*/
+/**
+ * Function: gdAlphaBlend
+ *
+ * Blend two colors
+ *
+ * Parameters:
+ *   dst - The color to blend onto.
+ *   src - The color to blend.
+ *
+ * See also:
+ *   - <gdImageAlphaBlending>
+ *   - <gdLayerOverlay>
+ *   - <gdLayerMultiply>
+ */
 BGD_DECLARE(int) gdAlphaBlend (int dst, int src)
 {
 	int src_alpha = gdTrueColorGetAlpha(src);
@@ -3627,9 +4103,20 @@ BGD_DECLARE(int) gdAlphaBlend (int dst, int src)
 
 static int gdAlphaOverlayColor (int src, int dst, int max );
 
-/*
-	Function: gdLayerOverlay
-*/
+/**
+ * Function: gdLayerOverlay
+ *
+ * Overlay two colors
+ *
+ * Parameters:
+ *   dst - The color to overlay onto.
+ *   src - The color to overlay.
+ *
+ * See also:
+ *   - <gdImageAlphaBlending>
+ *   - <gdAlphaBlend>
+ *   - <gdLayerMultiply>
+ */
 BGD_DECLARE(int) gdLayerOverlay (int dst, int src)
 {
 	int a1, a2;
@@ -3655,11 +4142,20 @@ static int gdAlphaOverlayColor (int src, int dst, int max )
 	}
 }
 
-/*
-	Function: gdLayerMultiply
-
-	Apply 'multiply' effect.
-*/
+/**
+ * Function: gdLayerMultiply
+ *
+ * Overlay two colors with multiply effect
+ *
+ * Parameters:
+ *   dst - The color to overlay onto.
+ *   src - The color to overlay.
+ *
+ * See also:
+ *   - <gdImageAlphaBlending>
+ *   - <gdAlphaBlend>
+ *   - <gdLayerOverlay>
+ */
 BGD_DECLARE(int) gdLayerMultiply (int dst, int src)
 {
 	int a1, a2, r1, r2, g1, g2, b1, b2;
@@ -3682,25 +4178,57 @@ BGD_DECLARE(int) gdLayerMultiply (int dst, int src)
 		);
 }
 
-/*
-	Function: gdImageAlphaBlending
-*/
+/**
+ *	Function: gdImageAlphaBlending
+ *
+ *	Set the effect for subsequent drawing operations
+ *
+ *	Note that the effect is used for truecolor images only.
+ *
+ * Parameters:
+ *   im               - The image.
+ *   alphaBlendingArg - The effect.
+ *
+ * See also:
+ *   - <Effects>
+ */
 BGD_DECLARE(void) gdImageAlphaBlending (gdImagePtr im, int alphaBlendingArg)
 {
 	im->alphaBlendingFlag = alphaBlendingArg;
 }
 
-/*
-	Function: gdImageSaveAlpha
-*/
+/**
+ * Function: gdImageSaveAlpha
+ *
+ * Sets the save alpha flag
+ *
+ * The save alpha flag specifies whether the alpha channel of the pixels should
+ * be saved. This is supported only for image formats that support full alpha
+ * transparency, e.g. PNG.
+ */
 BGD_DECLARE(void) gdImageSaveAlpha (gdImagePtr im, int saveAlphaArg)
 {
 	im->saveAlphaFlag = saveAlphaArg;
 }
 
-/*
-	Function: gdImageSetClip
-*/
+/**
+ * Function: gdImageSetClip
+ *
+ * Sets the clipping rectangle
+ *
+ * The clipping rectangle restricts the drawing area for following drawing
+ * operations.
+ *
+ * Parameters:
+ *   im - The image.
+ *   x1 - The x-coordinate of the upper left corner.
+ *   y1 - The y-coordinate of the upper left corner.
+ *   x2 - The x-coordinate of the lower right corner.
+ *   y2 - The y-coordinate of the lower right corner.
+ *
+ * See also:
+ *   - <gdImageGetClip>
+ */
 BGD_DECLARE(void) gdImageSetClip (gdImagePtr im, int x1, int y1, int x2, int y2)
 {
 	if (x1 < 0) {
@@ -3733,9 +4261,21 @@ BGD_DECLARE(void) gdImageSetClip (gdImagePtr im, int x1, int y1, int x2, int y2)
 	im->cy2 = y2;
 }
 
-/*
-	Function: gdImageGetClip
-*/
+/**
+ * Function: gdImageGetClip
+ *
+ * Gets the current clipping rectangle
+ *
+ * Parameters:
+ *   im - The image.
+ *   x1P - (out) The x-coordinate of the upper left corner.
+ *   y1P - (out) The y-coordinate of the upper left corner.
+ *   x2P - (out) The x-coordinate of the lower right corner.
+ *   y2P - (out) The y-coordinate of the lower right corner.
+ *
+ * See also:
+ *   - <gdImageSetClip>
+ */
 BGD_DECLARE(void) gdImageGetClip (gdImagePtr im, int *x1P, int *y1P, int *x2P, int *y2P)
 {
 	*x1P = im->cx1;
@@ -3744,9 +4284,20 @@ BGD_DECLARE(void) gdImageGetClip (gdImagePtr im, int *x1P, int *y1P, int *x2P, i
 	*y2P = im->cy2;
 }
 
-/*
-	Function: gdImageSetResolution
-*/
+/**
+ * Function: gdImageSetResolution
+ *
+ * Sets the resolution of an image.
+ *
+ * Parameters:
+ *   im    - The image.
+ *   res_x - The horizontal resolution in DPI.
+ *   res_y - The vertical resolution in DPI.
+ *
+ * See also:
+ *   - <gdImageResolutionX>
+ *   - <gdImageResolutionY>
+ */
 BGD_DECLARE(void) gdImageSetResolution(gdImagePtr im, const unsigned int res_x, const unsigned int res_y)
 {
 	if (res_x > 0) im->res_x = res_x;
@@ -3904,11 +4455,20 @@ static void gdImageAALine (gdImagePtr im, int x1, int y1, int x2, int y2, int co
 }
 
 
-/*
-	Function: gdImagePaletteToTrueColor
-	
-	Convert a palette image to true color.
-*/
+/**
+ * Function: gdImagePaletteToTrueColor
+ *
+ * Convert a palette image to true color
+ *
+ * Parameters:
+ *   src - The image.
+ *
+ * Returns:
+ *   Non-zero if the conversion succeeded, zero otherwise.
+ *
+ * See also:
+ *   - <gdImageTrueColorToPalette>
+ */
 BGD_DECLARE(int) gdImagePaletteToTrueColor(gdImagePtr src)
 {
 	unsigned int y;
@@ -3961,6 +4521,12 @@ BGD_DECLARE(int) gdImagePaletteToTrueColor(gdImagePtr src)
 	src->pixels = NULL;
 	src->alphaBlendingFlag = 0;
 	src->saveAlphaFlag = 1;
+
+	if (src->transparent >= 0) {
+		const unsigned char c = src->transparent;
+		src->transparent =  gdTrueColorAlpha(src->red[c], src->green[c], src->blue[c], src->alpha[c]);
+	}
+
 	return 1;
 
 clean_on_error:

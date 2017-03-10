@@ -6,6 +6,10 @@
 /********************************************/
 
 
+/**
+ * File: FreeType font rendering
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +21,6 @@
 
 #include "gd.h"
 #include "gdhelpers.h"
-#include "entities.h"
 #include "gd_intern.h"
 
 /* 2.0.10: WIN32, not MSWIN32 */
@@ -46,7 +49,10 @@ static int fontConfigFlag = 0;
 static char *font_pattern(char **fontpath, char *fontpattern);
 #endif
 
+#ifdef HAVE_LIBFREETYPE
+#include "entities.h"
 static char *font_path(char **fontpath, char *name_list);
+#endif
 
 /* 2.0.30: move these up here so we can build correctly without freetype
 	but with fontconfig */
@@ -92,9 +98,11 @@ static char *font_path(char **fontpath, char *name_list);
 #define TRUE !FALSE
 #endif
 
-/*
-	Function: gdImageStringTTF
-*/
+/**
+ * Function: gdImageStringTTF
+ *
+ * Alias of <gdImageStringFT>.
+ */
 BGD_DECLARE(char *) gdImageStringTTF (gdImage * im, int *brect, int fg, char *fontlist,
                                       double ptsize, double angle, int x, int y, char *string)
 {
@@ -138,16 +146,6 @@ BGD_DECLARE(char *) gdImageStringFT (gdImage * im, int *brect, int fg, char *fon
 	return "libgd was not built with FreeType font support\n";
 }
 #else
-
-#ifndef HAVE_LIBFONTCONFIG
-static char * font_pattern(char **fontpath, char *fontpattern)
-{
-	(void)fontpath;
-	(void)fontpattern;
-
-	return "libgd was not built with FontConfig support\n";
-}
-#endif /* HAVE_LIBFONTCONFIG */
 
 #include "gdcache.h"
 /* 2.0.16 Christophe Thomas: starting with FreeType 2.1.6, this is
@@ -446,15 +444,15 @@ fontTest (void *element, void *key)
 	return (strcmp (a->fontlist, b->fontlist) == 0 && a->flags == b->flags);
 }
 
+#ifdef HAVE_LIBFONTCONFIG
 static int useFontConfig(int flag)
 {
-#ifdef HAVE_LIBFONTCONFIG
 	if (fontConfigFlag) {
 		return (!(flag & gdFTEX_FONTPATHNAME));
 	}
-#endif
 	return flag & gdFTEX_FONTCONFIG;
 }
+#endif
 
 static void *
 fontFetch (char **error, void *key)
@@ -768,17 +766,26 @@ gdft_draw_bitmap (gdCache_head_t * tc_cache, gdImage * im, int fg,
 	return (char *) NULL;
 }
 
-/*
-	Function: gdFreeFontCache
-*/
+/**
+ * Function: gdFreeFontCache
+ *
+ * Alias of <gdFontCacheShutdown>.
+ */
 BGD_DECLARE(void) gdFreeFontCache ()
 {
 	gdFontCacheShutdown ();
 }
 
-/*
-	Function: gdFontCacheShutdown
-*/
+/**
+ * Function: gdFontCacheShutdown
+ *
+ * Shut down the font cache and free the allocated resources.
+ *
+ * Important:
+ *  This function has to be called whenever FreeType operations have been
+ *  invoked, to avoid resource leaks. It doesn't harm to call this function
+ *  multiple times.
+ */
 BGD_DECLARE(void) gdFontCacheShutdown ()
 {
 	if (fontCache) {
@@ -792,11 +799,31 @@ BGD_DECLARE(void) gdFontCacheShutdown ()
 	}
 }
 
-/*
-	Function: gdImageStringFT
-
-	Render a utf8 string onto a gd image.
-*/
+/**
+ * Function: gdImageStringFT
+ *
+ * Render an UTF-8 string onto a gd image.
+ *
+ * Parameters:
+ *	im       - The image to draw onto.
+ *  brect    - The bounding rectangle as array of 8 integers where each pair
+ *             represents the x- and y-coordinate of a point. The points
+ *             specify the lower left, lower right, upper right and upper left
+ *             corner.
+ *	fg       - The font color.
+ *	fontlist - The semicolon delimited list of font filenames to look for.
+ *	ptsize   - The height of the font in typographical points (pt).
+ *	angle    - The angle in radian to rotate the font counter-clockwise.
+ *	x        - The x-coordinate of the basepoint (roughly the lower left corner) of the first letter.
+ *	y        - The y-coordinate of the basepoint (roughly the lower left corner) of the first letter.
+ *	string   - The string to render.
+ *
+ * Variant:
+ *  - <gdImageStringFTEx>
+ *
+ * See also:
+ *  - <gdImageString>
+ */
 BGD_DECLARE(char *) gdImageStringFT (gdImage * im, int *brect, int fg, char *fontlist,
                                      double ptsize, double angle, int x, int y, char *string)
 {
@@ -804,9 +831,15 @@ BGD_DECLARE(char *) gdImageStringFT (gdImage * im, int *brect, int fg, char *fon
 	                          ptsize, angle, x, y, string, 0);
 }
 
-/*
-	Function: gdFontCacheSetup
-*/
+/**
+ * Function: gdFontCacheSetup
+ *
+ * Set up the font cache.
+ *
+ * This is called automatically from the string rendering functions, if it
+ * has not already been called. So there's no need to call this function
+ * explicitly.
+ */
 BGD_DECLARE(int) gdFontCacheSetup (void)
 {
 	if (fontCache) {
@@ -834,23 +867,26 @@ BGD_DECLARE(int) gdFontCacheSetup (void)
   If the strex parameter is not null, it must point to a
   gdFTStringExtra structure. As of gd 2.0.5, this structure is defined
   as follows:
+  (start code)
 
-  > typedef struct {
-  >     // logical OR of gdFTEX_ values
-  >     int flags; 
-  > 
-  >     // fine tune line spacing for '\n'
-  >     double linespacing; 
-  > 
-  >     // Preferred character mapping
-  >     int charmap;
-  > 
-  >     // Rendering resolution
-  >     int hdpi;
-  >     int vdpi;
-  >     char *xshow;
-  >     char *fontpath;
-  > } gdFTStringExtra, *gdFTStringExtraPtr;
+  typedef struct {
+      // logical OR of gdFTEX_ values
+      int flags;
+   
+      // fine tune line spacing for '\n'
+      double linespacing;
+   
+      // Preferred character mapping
+      int charmap;
+   
+      // Rendering resolution
+      int hdpi;
+      int vdpi;
+      char *xshow;
+      char *fontpath;
+  } gdFTStringExtra, *gdFTStringExtraPtr;
+
+  (end code)
 
   To output multiline text with a specific line spacing, include
   gdFTEX_LINESPACE in the setting of flags:
@@ -919,14 +955,14 @@ BGD_DECLARE(int) gdFontCacheSetup (void)
   GD 2.0.29 and later can use fontconfig to resolve font names,
   including fontconfig patterns, if the gdFTEX_FONTCONFIG flag is
   set. As a convenience, this behavior can be made the default by
-  calling gdFTUseFontConfig with a nonzero value. In that situation it
+  calling <gdFTUseFontConfig> with a nonzero value. In that situation it
   is not necessary to set the gdFTEX_FONTCONFIG flag on every call;
   however explicit font path names can still be used if the
   gdFTEX_FONTPATHNAME flag is set:
 
     > flags | gdFTEX_FONTPATHNAME;
 
-  Unless gdFTUseFontConfig has been called with a nonzero value, GD
+  Unless <gdFTUseFontConfig> has been called with a nonzero value, GD
   2.0.29 and later will still expect the fontlist argument to the
   freetype text output functions to be a font file name or list
   thereof as in previous versions. If you do not wish to make
@@ -939,7 +975,7 @@ BGD_DECLARE(int) gdFontCacheSetup (void)
   GD 2.0.29 and above can use fontconfig to resolve font names,
   including fontconfig patterns, if the gdFTEX_FONTCONFIG flag is
   set. As a convenience, this behavior can be made the default by
-  calling gdFTUseFontConfig with a nonzero value. In that situation it
+  calling <gdFTUseFontConfig> with a nonzero value. In that situation it
   is not necessary to set the gdFTEX_FONTCONFIG flag on every call;
   however explicit font path names can still be used if the
   gdFTEX_FONTPATHNAME flag is set:
@@ -1630,6 +1666,7 @@ static char * font_pattern(char **fontpath, char *fontpattern)
 
 #endif /* HAVE_LIBFONTCONFIG */
 
+#ifdef HAVE_LIBFREETYPE
 /* Look up font using font names as file names. */
 static char * font_path(char **fontpath, char *name_list)
 {
@@ -1748,10 +1785,21 @@ static char * font_path(char **fontpath, char *name_list)
 	*fontpath = fullname;
 	return NULL;
 }
+#endif
 
-/*
-	Function: gdFTUseFontConfig
-*/
+/**
+ * Function: gdFTUseFontConfig
+ *
+ * Enable or disable fontconfig by default.
+ *
+ * If GD is built without libfontconfig support, this function is a NOP.
+ *
+ * Parameters:
+ *  flag - Zero to disable, nonzero to enable.
+ *
+ * See also:
+ *  - <gdImageStringFTEx>
+ */
 BGD_DECLARE(int) gdFTUseFontConfig(int flag)
 {
 #ifdef HAVE_LIBFONTCONFIG

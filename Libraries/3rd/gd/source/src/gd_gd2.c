@@ -10,6 +10,64 @@
    *
  */
 
+/**
+ * File: GD2 IO
+ *
+ * Read and write GD2 images.
+ *
+ * The GD2 image format is a proprietary image format of libgd. *It has to be*
+ * *regarded as being obsolete, and should only be used for development and*
+ * *testing purposes.*
+ *
+ * Structure of a GD2 image file:
+ *  - file header
+ *  - chunk headers (only for compressed data)
+ *  - color header (either truecolor or palette)
+ *  - chunks of image data (chunk-row-major, top to bottom, left to right)
+ *
+ * All numbers are stored in big-endian format.
+ *
+ * File header structure:
+ *  signature     - 4 bytes (always "gd2\0")
+ *  version       - 1 word (e.g. "\0\002")
+ *  width         - 1 word
+ *  height        - 1 word
+ *  chunk_size    - 1 word
+ *  format        - 1 word
+ *  x_chunk_count - 1 word
+ *  y_chunk_count - 1 word
+ *
+ * Recognized formats:
+ *  1 - raw palette image data
+ *  2 - compressed palette image data
+ *  3 - raw truecolor image data
+ *  4 - compressed truecolor image data
+ *
+ * Chunk header:
+ *  offset - 1 dword
+ *  size   - 1 dword
+ *
+ * There are x_chunk_count * y_chunk_count chunk headers. 
+ *
+ * Truecolor image color header:
+ *  truecolor   - 1 byte (always "\001")
+ *  transparent - 1 dword (ARGB color)
+ *
+ * Palette image color header:
+ *  truecolor   - 1 byte (always "\0")
+ *  count       - 1 word (the number of used palette colors)
+ *  transparent - 1 dword (ARGB color)
+ *  palette     - 256 dwords (RGBA colors)
+ *
+ * Chunk structure:
+ *  Sequential pixel data of a rectangular area (chunk_size x chunk_size),
+ *  row-major from top to bottom, left to right:
+ *  - 1 byte per pixel for palette images
+ *  - 1 dword (ARGB) per pixel for truecolor images
+ *
+ *  Depending on format, the chunk may be ZLIB compressed.
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -151,6 +209,10 @@ _gd2GetHeader (gdIOCtxPtr in, int *sx, int *sy,
 	GD2_DBG (printf ("%d Chunks vertically\n", *ncy));
 
 	if (gd2_compressed (*fmt)) {
+		if (*ncx <= 0 || *ncy <= 0 || *ncx > INT_MAX / *ncy) {
+			GD2_DBG(printf ("Illegal chunk counts: %d * %d\n", *ncx, *ncy));
+			goto fail1;
+		}
 		nc = (*ncx) * (*ncy);
 
 		GD2_DBG (printf ("Reading %d chunk index entries\n", nc));
@@ -445,18 +507,16 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFromGd2Ctx (gdIOCtxPtr in)
 
 						if (im->trueColor) {
 							if (!gdGetInt (&im->tpixels[y][x], in)) {
-								/*printf("EOF while reading\n"); */
-								/*gdImageDestroy(im); */
-								/*return 0; */
-								im->tpixels[y][x] = 0;
+								gd_error("gd2: EOF while reading\n");
+								gdImageDestroy(im);
+								return NULL;
 							}
 						} else {
 							int ch;
 							if (!gdGetByte (&ch, in)) {
-								/*printf("EOF while reading\n"); */
-								/*gdImageDestroy(im); */
-								/*return 0; */
-								ch = 0;
+								gd_error("gd2: EOF while reading\n");
+								gdImageDestroy(im);
+								return NULL;
 							}
 							im->pixels[y][x] = ch;
 						}
@@ -867,7 +927,7 @@ _gdImageGd2 (gdImagePtr im, gdIOCtx * out, int cs, int fmt)
 	/* Force fmt to a valid value since we don't return anything. */
 	/* */
 	if ((fmt != GD2_FMT_RAW) && (fmt != GD2_FMT_COMPRESSED)) {
-		fmt = im->trueColor ? GD2_FMT_TRUECOLOR_COMPRESSED : GD2_FMT_COMPRESSED;
+		fmt = GD2_FMT_COMPRESSED;
 	};
 	if (im->trueColor) {
 		fmt += 2;
@@ -887,8 +947,8 @@ _gdImageGd2 (gdImagePtr im, gdIOCtx * out, int cs, int fmt)
 	};
 
 	/* Work out number of chunks. */
-	ncx = im->sx / cs + 1;
-	ncy = im->sy / cs + 1;
+	ncx = (im->sx + cs - 1) / cs;
+	ncy = (im->sy + cs - 1) / cs;
 
 	/* Write the standard header. */
 	_gd2PutHeader (im, out, cs, fmt, ncx, ncy);
@@ -1119,5 +1179,6 @@ BGD_DECLARE(void) gdImageGd2 (gdImagePtr im, FILE * outFile, int cs, int fmt)
 BGD_DECLARE(void *) gdImageGd2Ptr (gdImagePtr im, int cs, int fmt, int *size)
 {
 	_noLibzError();
+	return NULL;
 }
 #endif /* HAVE_LIBZ */
