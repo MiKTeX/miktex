@@ -1,4 +1,4 @@
-/* $OpenBSD: ecs_ossl.c,v 1.5 2014/07/12 16:03:37 miod Exp $ */
+/* $OpenBSD: ecs_ossl.c,v 1.6 2015/02/08 13:35:07 jsing Exp $ */
 /*
  * Written by Nils Larsch for the OpenSSL project
  */
@@ -141,6 +141,8 @@ ecdsa_sign_setup(EC_KEY *eckey, BN_CTX *ctx_in, BIGNUM **kinvp, BIGNUM **rp)
 		if (BN_num_bits(k) <= BN_num_bits(order))
 			if (!BN_add(k, k, order))
 				goto err;
+
+		BN_set_flags(k, BN_FLG_CONSTTIME);
 
 		/* compute r the x-coordinate of generator * k */
 		if (!EC_POINT_mul(group, tmp_point, k, NULL, NULL, ctx)) {
