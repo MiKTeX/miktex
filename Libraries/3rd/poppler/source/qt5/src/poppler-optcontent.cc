@@ -4,6 +4,7 @@
  * Copyright (C) 2008, 2014, Pino Toscano <pino@kde.org>
  * Copyright (C) 2008, Carlos Garcia Campos <carlosgc@gnome.org>
  * Copyright (C) 2015, 2016, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2017, Hubert Figuière <hub@figuiere.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -194,6 +195,7 @@ namespace Poppler
   {
     qDeleteAll( m_optContentItems );
     qDeleteAll( m_rbgroups );
+    qDeleteAll( m_headerOptContentItems );
     delete m_rootNode;
   }
 
@@ -221,6 +223,7 @@ namespace Poppler
       } else if ( orderItem.isString() ) {
 	GooString *label = orderItem.getString();
 	OptContentItem *header = new OptContentItem ( UnicodeParsedString ( label ) );
+	m_headerOptContentItems.append( header );
 	addChild( parentNode, header );
 	parentNode = header;
 	lastItem = header;

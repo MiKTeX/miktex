@@ -3,6 +3,7 @@
  * Copyright (C) 2007, Brad Hards <bradh@kde.org>
  * Copyright (C) 2008, Pino Toscano <pino@kde.org>
  * Copyright (C) 2016, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2017, Hubert Figuière <hub@figuiere.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,6 +111,7 @@ namespace Poppler
     OptContentModel *q;
 
     QMap<QString, OptContentItem*> m_optContentItems;
+    QList<OptContentItem*> m_headerOptContentItems;
     QList<RadioButtonGroup*> m_rbgroups;
     OptContentItem *m_rootNode;
 

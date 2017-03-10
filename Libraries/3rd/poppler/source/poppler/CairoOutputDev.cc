@@ -150,6 +150,7 @@ CairoOutputDev::CairoOutputDev() {
   inType3Char = gFalse;
   t3_glyph_has_bbox = gFalse;
   text_matrix_valid = gTrue;
+  antialias = CAIRO_ANTIALIAS_DEFAULT;
 
   groupColorSpaceStack = NULL;
   maskStack = NULL;

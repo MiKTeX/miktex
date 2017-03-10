@@ -147,6 +147,11 @@ GooString *FormWidget::getPartialName() const {
   return field->getPartialName();
 }
 
+void FormWidget::setPartialName(const GooString &name)
+{
+  field->setPartialName(name);
+}
+
 GooString *FormWidget::getAlternateUiName() const {
   return field->getAlternateUiName();
 }
@@ -609,6 +614,17 @@ FormField::FormField(PDFDoc *docA, Object *aobj, const Ref& aref, FormField *par
     mappingName = NULL;
   }
   obj1.free();
+}
+
+void FormField::setPartialName(const GooString &name)
+{
+  delete partialName;
+  partialName = name.copy();
+
+  Object obj1;
+  obj1.initString(name.copy());
+  obj.getDict()->set("T", &obj1);
+  xref->setModifiedObject(&obj, ref);
 }
 
 FormField::~FormField()

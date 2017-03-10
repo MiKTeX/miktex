@@ -300,17 +300,19 @@ class LinkMoviePrivate : public LinkPrivate
 	LinkDestination::LinkDestination(const QString &description)
 		: d( new LinkDestinationPrivate )
 	{
-		QStringList tokens = description.split( ';' );
-		d->kind = static_cast<Kind>(tokens.at(0).toInt());
-		d->pageNum = tokens.at(1).toInt();
-		d->left = tokens.at(2).toDouble();
-		d->bottom = tokens.at(3).toDouble();
-		d->right = tokens.at(4).toDouble();
-		d->top = tokens.at(5).toDouble();
-		d->zoom = tokens.at(6).toDouble();
-		d->changeLeft = static_cast<bool>(tokens.at(7).toInt());
-		d->changeTop = static_cast<bool>(tokens.at(8).toInt());
-		d->changeZoom = static_cast<bool>(tokens.at(9).toInt());
+		const QStringList tokens = description.split( ';' );
+		if (tokens.size() >= 10) {
+			d->kind = static_cast<Kind>(tokens.at(0).toInt());
+			d->pageNum = tokens.at(1).toInt();
+			d->left = tokens.at(2).toDouble();
+			d->bottom = tokens.at(3).toDouble();
+			d->right = tokens.at(4).toDouble();
+			d->top = tokens.at(5).toDouble();
+			d->zoom = tokens.at(6).toDouble();
+			d->changeLeft = static_cast<bool>(tokens.at(7).toInt());
+			d->changeTop = static_cast<bool>(tokens.at(8).toInt());
+			d->changeZoom = static_cast<bool>(tokens.at(9).toInt());
+		}
 	}
 	
 	LinkDestination::LinkDestination(const LinkDestination &other)

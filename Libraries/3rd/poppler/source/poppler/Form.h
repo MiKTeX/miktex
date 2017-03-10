@@ -98,6 +98,7 @@ public:
   double getFontSize() const;
 
   GooString *getPartialName() const;
+  void setPartialName(const GooString &name);
   GooString *getAlternateUiName() const;
   GooString *getMappingName() const;
   GooString *getFullyQualifiedName();
@@ -279,6 +280,7 @@ public:
   VariableTextQuadding getTextQuadding() const { return quadding; }
 
   GooString *getPartialName() const { return partialName; }
+  void setPartialName(const GooString &name);
   GooString *getAlternateUiName() const { return alternateUiName; }
   GooString *getMappingName() const { return mappingName; }
   GooString *getFullyQualifiedName();

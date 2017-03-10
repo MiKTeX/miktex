@@ -5,7 +5,7 @@
 // Copyright 2007 Brad Hards <bradh@kde.org>
 // Copyright 2008 Pino Toscano <pino@kde.org>
 // Copyright 2008, 2010 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright 2008, 2010, 2011 Albert Astals Cid <aacid@kde.org>
+// Copyright 2008, 2010, 2011, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright 2008 Mark Kaplan <mkaplan@finjan.com>
 //
 // Released under the GPL (version 2, or later, at your option)
@@ -63,6 +63,10 @@ OCGs::OCGs(Object *ocgObject, XRef *xref) :
     OptionalContentGroup *thisOptionalContentGroup = new OptionalContentGroup(ocg.getDict());
     ocg.free();
     ocgList.arrayGetNF(i, &ocg);
+    if (!ocg.isRef()) {
+      ocg.free();
+      break;
+    }
     // TODO: we should create a lookup map from Ref to the OptionalContentGroup
     thisOptionalContentGroup->setRef( ocg.getRef() );
     ocg.free();

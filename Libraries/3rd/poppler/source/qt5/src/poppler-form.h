@@ -1,7 +1,8 @@
 /* poppler-form.h: qt interface to poppler
  * Copyright (C) 2007-2008, Pino Toscano <pino@kde.org>
- * Copyright (C) 2008, 2011, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2008, 2011, 2016, 2017, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2012, Adam Reichold <adamreichold@myopera.com>
+ * Copyright (C) 2016, Hanno Meyer-Thurow <h.mth@web.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +24,7 @@
 
 #include <QtCore/QRectF>
 #include <QtCore/QStringList>
+#include <QtCore/QSharedPointer>
 #include "poppler-export.h"
 
 class Page;
@@ -30,6 +32,7 @@ class FormWidget;
 class FormWidgetButton;
 class FormWidgetText;
 class FormWidgetChoice;
+class FormWidgetSignature;
 
 namespace Poppler {
 
@@ -74,9 +77,15 @@ namespace Poppler {
 	int id() const;
 
 	/**
-	  The internal name of the field.
+	  The internal name (T) of the field.
 	 */
 	QString name() const;
+
+        /**
+	  Sets the internal name (T) of the field.
+	  \since 0.51
+	 */
+	void setName(const QString &name) const;
 	
 	/**
 	  The internal fully qualified name of the field.
@@ -337,6 +346,109 @@ namespace Poppler {
     private:
 	Q_DISABLE_COPY(FormFieldChoice)
     };
+
+    /**
+      A signature validation info helper class.
+
+      \since 0.51
+     */
+    class SignatureValidationInfoPrivate;
+    class POPPLER_QT5_EXPORT SignatureValidationInfo {
+    public:
+
+	/**
+	   The verfication result of the signature.
+	*/
+	enum SignatureStatus {
+	    SignatureValid,          ///< The signature is cryptographically valid.
+	    SignatureInvalid,        ///< The signature is cryptographically invalid.
+	    SignatureDigestMismatch, ///< The document content was changed after the signature was applied.
+	    SignatureDecodingError,  ///< The signature CMS/PKCS7 structure is malformed.
+	    SignatureGenericError,   ///< The signature could not be verified.
+	    SignatureNotFound,       ///< The requested signature is not present in the document.
+	    SignatureNotVerified     ///< The signature is not yet verified.
+	};
+
+	/**
+	   The verification result of the certificate.
+	*/
+	enum CertificateStatus {
+	    CertificateTrusted,         ///< The certificate is considered trusted.
+	    CertificateUntrustedIssuer, ///< The issuer of this certificate has been marked as untrusted by the user.
+	    CertificateUnknownIssuer,   ///< The certificate trust chain has not finished in a trusted root certificate.
+	    CertificateRevoked,         ///< The certificate was revoked by the issuing certificate authority.
+	    CertificateExpired,         ///< The signing time is outside the validity bounds of this certificate.
+	    CertificateGenericError,    ///< The certificate could not be verified.
+	    CertificateNotVerified      ///< The certificate is not yet verified.
+	};
+
+	/// \cond PRIVATE
+	SignatureValidationInfo(SignatureValidationInfoPrivate *priv);
+	/// \endcond
+	~SignatureValidationInfo();
+
+	/**
+	  The signature status of the signature.
+	 */
+	SignatureStatus signatureStatus() const;
+
+	/**
+	  The certificate status of the signature.
+	 */
+	CertificateStatus certificateStatus() const;
+
+	/**
+	  The signer name associated with the signature.
+	 */
+	QString signerName() const;
+
+	/**
+	  The signing time associated with the signature.
+	 */
+	time_t signingTime() const;
+
+	SignatureValidationInfo(const SignatureValidationInfo &other);
+	SignatureValidationInfo &operator=(const SignatureValidationInfo &other);
+
+	private:
+	Q_DECLARE_PRIVATE(SignatureValidationInfo)
+
+	QSharedPointer<SignatureValidationInfoPrivate> d_ptr;
+    };
+
+    /**
+      A form field that represents a signature.
+
+      \since 0.51
+     */
+    class POPPLER_QT5_EXPORT FormFieldSignature : public FormField {
+    public:
+
+	/**
+	   The validation options of this signature.
+	*/
+	enum ValidateOptions {
+	    ValidateVerifyCertificate = 1, ///< Validate the certificate.
+	    ValidateForceRevalidation = 2, ///< Force revalidation of the certificate.
+	};
+
+	/// \cond PRIVATE
+	FormFieldSignature(DocumentData *doc, ::Page *p, ::FormWidgetSignature *w);
+	/// \endcond
+	virtual ~FormFieldSignature();
+
+	virtual FormType type() const;
+
+	/**
+	  Validate the signature.
+
+	  Reset signature validatation info of scoped instance.
+	 */
+	SignatureValidationInfo validate(ValidateOptions opt) const;
+
+	private:
+	Q_DISABLE_COPY(FormFieldSignature)
+	};
 
 }
 

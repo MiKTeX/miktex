@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
 // Copyright (C) 2007, 2008 Julien Rebetez <julienr@svn.gnome.org>
-// Copyright (C) 2007-2013, 2015, 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2013, 2015-2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007-2013 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007, 2008 Iñigo Martínez <inigomartinez@gmail.com>
 // Copyright (C) 2007 Jeff Muizelaar <jeff@infidigm.net>
@@ -6854,6 +6854,8 @@ AnnotRichMedia::Content::Content(Dict *dict) {
   }
   obj1.free();
 
+  nAssets = 0;
+  assets = NULL;
   if (dict->lookup("Assets", &obj1)->isDict()) {
     Object obj2;
 
@@ -6878,10 +6880,6 @@ AnnotRichMedia::Content::Content(Dict *dict) {
       }
     }
     obj2.free();
-
-  } else {
-    nAssets = 0;
-    assets = NULL;
   }
   obj1.free();
 }
@@ -7044,20 +7042,19 @@ AnnotRichMedia::Instance::Instance(Dict *dict)
 {
   Object obj1;
 
-  if (dict->lookup("Subtype", &obj1)->isName()) {
-    const char *name = obj1.getName();
+  dict->lookup("Subtype", &obj1);
+  const char *name = obj1.isName() ? obj1.getName() : "";
 
-    if (!strcmp(name, "3D")) {
-      type = type3D;
-    } else if (!strcmp(name, "Flash")) {
-      type = typeFlash;
-    } else if (!strcmp(name, "Sound")) {
-      type = typeSound;
-    } else if (!strcmp(name, "Video")) {
-      type = typeVideo;
-    } else {
-      type = typeFlash;
-    }
+  if (!strcmp(name, "3D")) {
+    type = type3D;
+  } else if (!strcmp(name, "Flash")) {
+    type = typeFlash;
+  } else if (!strcmp(name, "Sound")) {
+    type = typeSound;
+  } else if (!strcmp(name, "Video")) {
+    type = typeVideo;
+  } else {
+    type = typeFlash;
   }
   obj1.free();
 

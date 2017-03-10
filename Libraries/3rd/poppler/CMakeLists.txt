@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2009-2016 Christian Schenk
+## Copyright (C) 2009-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -22,7 +22,7 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/poppler")
 set(projdir ${CMAKE_CURRENT_SOURCE_DIR})
   
 set(POPPLER_MAJOR_VERSION "0")
-set(POPPLER_MINOR_VERSION "50")
+set(POPPLER_MINOR_VERSION "52")
 set(POPPLER_MICRO_VERSION "0")
 set(POPPLER_VERSION "${POPPLER_MAJOR_VERSION}.${POPPLER_MINOR_VERSION}.${POPPLER_MICRO_VERSION}")
 

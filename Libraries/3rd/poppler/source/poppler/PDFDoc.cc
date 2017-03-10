@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005, 2006, 2008 Brad Hards <bradh@frogmouth.net>
-// Copyright (C) 2005, 2007-2009, 2011-2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2007-2009, 2011-2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008, 2010 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008, 2010, 2011 Carlos Garcia Campos <carlosgc@gnome.org>
@@ -1756,9 +1756,9 @@ GBool PDFDoc::markAnnotations(Object *annotsObj, XRef *xRef, XRef *countRef, Gui
                 Object obj3;
                 array->getNF(i, &obj3);
                 if (obj3.isRef()) {
-                  Object *newRef = new Object();
-                  newRef->initRef(newPageNum, 0);
-                  dict->set("P", newRef);
+                  Object newRef;
+                  newRef.initRef(newPageNum, 0);
+                  dict->set("P", &newRef);
                   getXRef()->setModifiedObject(&obj1, obj3.getRef());
                 }
                 obj3.free();

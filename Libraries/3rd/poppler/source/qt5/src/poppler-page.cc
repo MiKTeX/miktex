@@ -16,6 +16,7 @@
  * Copyright (C) 2012, 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
  * Copyright (C) 2015 William Bader <williambader@hotmail.com>
  * Copyright (C) 2016 Arseniy Lartsev <arseniy@alumni.chalmers.se>
+ * Copyright (C) 2016, Hanno Meyer-Thurow <h.mth@web.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -768,6 +769,12 @@ QList<FormField*> Page::formFields() const
       case formChoice:
       {
         ff = new FormFieldChoice(m_page->parentDoc, p, static_cast<FormWidgetChoice*>(fm));
+      }
+      break;
+
+      case formSignature:
+      {
+        ff = new FormFieldSignature(m_page->parentDoc, p, static_cast<FormWidgetSignature*>(fm));
       }
       break;
 

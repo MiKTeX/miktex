@@ -4,7 +4,7 @@
 //
 // This file is licensed under the GPLv2 or later
 //
-// Copyright (C) 2011-2015 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2011-2015, 2017 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2012 Arseny Solokha <asolokha@gmx.com>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2012, 2014 Albert Astals Cid <aacid@kde.org>
@@ -168,6 +168,26 @@ void doMergeNameDict(PDFDoc *doc, XRef *srcXRef, XRef *countRef, int oldRefNum, 
     srcNameTree.free();
     mergeNameTree.free();
   }
+}
+
+void doMergeFormDict(Dict *srcFormDict, Dict *mergeFormDict, int numOffset) {
+  Object srcFields, mergeFields;
+
+  srcFormDict->lookup("Fields", &srcFields);
+  mergeFormDict->lookup("Fields", &mergeFields);
+  if (srcFields.isArray() && mergeFields.isArray()) {
+    for (int i = 0; i < mergeFields.arrayGetLength(); i++) {
+      Object value;
+      Object *newValue = new Object();
+      mergeFields.arrayGetNF(i, &value);
+      newValue->initRef(value.getRef().num + numOffset, value.getRef().gen);
+      srcFields.arrayAdd(newValue);
+      value.free();
+      delete newValue;
+    }
+  }
+  srcFields.free();
+  mergeFields.free();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -370,7 +390,7 @@ int main (int argc, char *argv[])
         annotsObj.free();
       }
     }
-    Object pageCatObj, pageNames;
+    Object pageCatObj, pageNames, pageForm;
     docs[i]->getXRef()->getCatalog(&pageCatObj);
     Dict *pageCatDict = pageCatObj.getDict();
     pageCatDict->lookup("Names", &pageNames);
@@ -381,6 +401,15 @@ int main (int argc, char *argv[])
       }
       doMergeNameDict(docs[i], yRef, countRef, 0, 0, names.getDict(), pageNames.getDict(), numOffset);
     }
+    pageCatDict->lookup("AcroForm", &pageForm);
+    if (i > 0 && !pageForm.isNull() && pageForm.isDict()) {
+      if (afObj.isNull()) {
+        pageCatDict->lookupNF("AcroForm", &afObj);
+      } else if (afObj.isDict()) {
+        doMergeFormDict(afObj.getDict(), pageForm.getDict(), numOffset);
+      }
+    }
+    pageForm.free();
     pageNames.free();
     pageCatObj.free();
     objectsCount += docs[i]->writePageObjects(outStr, yRef, numOffset, gTrue);

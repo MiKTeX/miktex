@@ -1,8 +1,9 @@
 /* poppler-form.h: qt interface to poppler
  * Copyright (C) 2007-2008, 2011, Pino Toscano <pino@kde.org>
- * Copyright (C) 2008, 2011, 2012, 2015 Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2008, 2011, 2012, 2015-2017 Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2011 Carlos Garcia Campos <carlosgc@gnome.org>
  * Copyright (C) 2012, Adam Reichold <adamreichold@myopera.com>
+ * Copyright (C) 2016, Hanno Meyer-Thurow <h.mth@web.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +31,7 @@
 #include <Form.h>
 #include <Object.h>
 #include <Link.h>
+#include <SignatureInfo.h>
 
 #include "poppler-form.h"
 #include "poppler-page-private.h"
@@ -113,6 +115,13 @@ QString FormField::name() const
     name = QString::fromLatin1(goo->getCString());
   }
   return name;
+}
+
+void FormField::setName(const QString &name) const
+{
+  GooString * goo = QStringToGooString( name );
+  m_formData->fm->setPartialName(*goo);
+  delete goo;
 }
 
 QString FormField::fullyQualifiedName() const
@@ -416,6 +425,135 @@ bool FormFieldChoice::canBeSpellChecked() const
 {
   FormWidgetChoice* fwc = static_cast<FormWidgetChoice*>(m_formData->fm);
   return !fwc->noSpellCheck();
+}
+
+
+struct SignatureValidationInfoPrivate {
+	SignatureValidationInfo::SignatureStatus signature_status;
+	SignatureValidationInfo::CertificateStatus certificate_status;
+
+	QString signer_name;
+	time_t signing_time;
+};
+
+
+SignatureValidationInfo::SignatureValidationInfo(SignatureValidationInfoPrivate* priv)
+  : d_ptr(priv)
+{
+}
+
+SignatureValidationInfo::SignatureValidationInfo(const SignatureValidationInfo &other)
+ : d_ptr( other.d_ptr )
+{
+}
+
+SignatureValidationInfo::~SignatureValidationInfo()
+{
+}
+
+SignatureValidationInfo::SignatureStatus SignatureValidationInfo::signatureStatus() const
+{
+  Q_D(const SignatureValidationInfo);
+  return d->signature_status;
+}
+
+SignatureValidationInfo::CertificateStatus SignatureValidationInfo::certificateStatus() const
+{
+  Q_D(const SignatureValidationInfo);
+  return d->certificate_status;
+}
+
+QString SignatureValidationInfo::signerName() const
+{
+  Q_D(const SignatureValidationInfo);
+  return d->signer_name;
+}
+
+time_t SignatureValidationInfo::signingTime() const
+{
+  Q_D(const SignatureValidationInfo);
+  return d->signing_time;
+}
+
+SignatureValidationInfo &SignatureValidationInfo::operator=(const SignatureValidationInfo &other)
+{
+  if ( this != &other )
+    d_ptr = other.d_ptr;
+
+  return *this;
+}
+
+FormFieldSignature::FormFieldSignature(DocumentData *doc, ::Page *p, ::FormWidgetSignature *w)
+  : FormField(*new FormFieldData(doc, p, w))
+{
+}
+
+FormFieldSignature::~FormFieldSignature()
+{
+}
+
+FormField::FormType FormFieldSignature::type() const
+{
+  return FormField::FormSignature;
+}
+
+SignatureValidationInfo FormFieldSignature::validate(ValidateOptions opt) const
+{
+  FormWidgetSignature* fws = static_cast<FormWidgetSignature*>(m_formData->fm);
+  SignatureInfo* si = fws->validateSignature(opt & ValidateVerifyCertificate, opt & ValidateForceRevalidation);
+  SignatureValidationInfoPrivate* priv = new SignatureValidationInfoPrivate;
+  switch (si->getSignatureValStatus()) {
+    case SIGNATURE_VALID:
+      priv->signature_status = SignatureValidationInfo::SignatureValid;
+      break;
+    case SIGNATURE_INVALID:
+      priv->signature_status = SignatureValidationInfo::SignatureInvalid;
+      break;
+    case SIGNATURE_DIGEST_MISMATCH:
+      priv->signature_status = SignatureValidationInfo::SignatureDigestMismatch;
+      break;
+    case SIGNATURE_DECODING_ERROR:
+      priv->signature_status = SignatureValidationInfo::SignatureDecodingError;
+      break;
+    default:
+    case SIGNATURE_GENERIC_ERROR:
+      priv->signature_status = SignatureValidationInfo::SignatureGenericError;
+      break;
+    case SIGNATURE_NOT_FOUND:
+      priv->signature_status = SignatureValidationInfo::SignatureNotFound;
+      break;
+    case SIGNATURE_NOT_VERIFIED:
+      priv->signature_status = SignatureValidationInfo::SignatureNotVerified;
+      break;
+  }
+  switch (si->getCertificateValStatus()) {
+    case CERTIFICATE_TRUSTED:
+      priv->certificate_status = SignatureValidationInfo::CertificateTrusted;
+      break;
+    case CERTIFICATE_UNTRUSTED_ISSUER:
+      priv->certificate_status = SignatureValidationInfo::CertificateUntrustedIssuer;
+      break;
+    case CERTIFICATE_UNKNOWN_ISSUER:
+      priv->certificate_status = SignatureValidationInfo::CertificateUnknownIssuer;
+      break;
+    case CERTIFICATE_REVOKED:
+      priv->certificate_status = SignatureValidationInfo::CertificateRevoked;
+      break;
+    case CERTIFICATE_EXPIRED:
+      priv->certificate_status = SignatureValidationInfo::CertificateExpired;
+      break;
+    default:
+    case CERTIFICATE_GENERIC_ERROR:
+      priv->certificate_status = SignatureValidationInfo::CertificateGenericError;
+      break;
+    case CERTIFICATE_NOT_VERIFIED:
+      priv->certificate_status = SignatureValidationInfo::CertificateNotVerified;
+      break;
+  }
+  priv->signer_name = si->getSignerName();
+  priv->signing_time = si->getSigningTime();
+
+  return SignatureValidationInfo(priv);
 }
 
 }
