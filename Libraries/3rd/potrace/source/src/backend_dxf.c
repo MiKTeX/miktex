@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -94,7 +94,7 @@ static int ship(FILE *fout, int gc, const char *fmt, ...) {
 }
 
 /* output the start of a polyline */
-static void ship_polyline(FILE *fout, char *layer, int closed) {
+static void ship_polyline(FILE *fout, const char *layer, int closed) {
   ship(fout, 0, "POLYLINE");
   ship(fout, 8, "%s", layer);
   ship(fout, 66, "%d", 1);
@@ -102,7 +102,7 @@ static void ship_polyline(FILE *fout, char *layer, int closed) {
 }
 
 /* output a vertex */
-static void ship_vertex(FILE *fout, char *layer, dpoint_t v, double bulge) {
+static void ship_vertex(FILE *fout, const char *layer, dpoint_t v, double bulge) {
   ship(fout, 0, "VERTEX");
   ship(fout, 8, "%s", layer);
   ship(fout, 10, "%f", v.x);
@@ -116,12 +116,12 @@ static void ship_seqend(FILE *fout) {
 }
 
 /* output a comment */
-static void ship_comment(FILE *fout, char *comment) {
+static void ship_comment(FILE *fout, const char *comment) {
   ship(fout, 999, "%s", comment);
 }
 
 /* output the start of a section */
-static void ship_section(FILE *fout, char *name) {
+static void ship_section(FILE *fout, const char *name) {
   ship(fout, 0, "SECTION");
   ship(fout, 2, "%s", name);
 }
@@ -141,7 +141,7 @@ static void ship_eof(FILE *fout) {
    circular arcs from A to B, tangent to AC at A and to CB at
    B. Segments are meant to be concatenated, so don't output the final
    vertex. */
-static void pseudo_quad(FILE *fout, char *layer, dpoint_t A, dpoint_t C, dpoint_t B) {
+static void pseudo_quad(FILE *fout, const char *layer, dpoint_t A, dpoint_t C, dpoint_t B) {
   dpoint_t v, w;
   double v2, w2, vw, vxw, nvw;
   double a, b, c, y;
@@ -185,7 +185,7 @@ static void pseudo_quad(FILE *fout, char *layer, dpoint_t A, dpoint_t C, dpoint_
    made up of up to 4 circular arcs. This is particularly intended for
    the case when AD and BC are parallel. Like arcs(), don't output the
    final vertex. */
-static void pseudo_bezier(FILE *fout, char *layer, dpoint_t A, dpoint_t B, dpoint_t C, dpoint_t D) {
+static void pseudo_bezier(FILE *fout, const char *layer, dpoint_t A, dpoint_t B, dpoint_t C, dpoint_t D) {
   dpoint_t E = interval(0.75, A, B);
   dpoint_t G = interval(0.75, D, C);
   dpoint_t F = interval(0.5, E, G);
@@ -199,7 +199,7 @@ static void pseudo_bezier(FILE *fout, char *layer, dpoint_t A, dpoint_t B, dpoin
 /* functions for converting a path to a DXF polyline */
 
 /* do one path. */
-static int dxf_path(FILE *fout, char *layer, potrace_curve_t *curve, trans_t t) {
+static int dxf_path(FILE *fout, const char *layer, potrace_curve_t *curve, trans_t t) {
   int i;
   dpoint_t *c, *c1;
   int n = curve->n;
@@ -230,7 +230,7 @@ static int dxf_path(FILE *fout, char *layer, potrace_curve_t *curve, trans_t t) 
 int page_dxf(FILE *fout, potrace_path_t *plist, imginfo_t *imginfo) {
   potrace_path_t *p;
   trans_t t;
-  char *layer = "0";
+  const char *layer = "0";
 
   /* set up the coordinate transform (rotation) */
   t.bb[0] = imginfo->trans.bb[0]+imginfo->lmar+imginfo->rmar;
@@ -242,7 +242,7 @@ int page_dxf(FILE *fout, potrace_path_t *plist, imginfo_t *imginfo) {
   t.y[0] = imginfo->trans.y[0];
   t.y[1] = imginfo->trans.y[1];
 
-  ship_comment(fout, "DXF data, created by "POTRACE" "VERSION", written by Peter Selinger 2001-2015");
+  ship_comment(fout, "DXF data, created by " POTRACE " " VERSION ", written by Peter Selinger 2001-2017");
 
   /* header section */
   ship_section(fout, "HEADER");

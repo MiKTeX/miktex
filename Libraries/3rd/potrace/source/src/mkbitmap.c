@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -29,19 +29,19 @@
 
 /* structure to hold command line options */
 struct info_s {
-  char *outfile;     /* output file */
-  char **infiles;    /* input files */
-  int infilecount;   /* how many input files? */
-  int invert;        /* invert input? */
-  int highpass;      /* use highpass filter? */
-  double lambda;     /* highpass filter radius */
-  int lowpass;       /* use lowpass filter? */
-  double lambda1;    /* lowpass filter radius */
-  int scale;         /* scaling factor */
-  int linear;        /* linear scaling? */
-  int bilevel;       /* convert to bilevel? */
-  double level;      /* cutoff grey level */
-  char *outext;      /* default output file extension */
+  char *outfile;      /* output file */
+  char **infiles;     /* input files */
+  int infilecount;    /* how many input files? */
+  int invert;         /* invert input? */
+  int highpass;       /* use highpass filter? */
+  double lambda;      /* highpass filter radius */
+  int lowpass;        /* use lowpass filter? */
+  double lambda1;     /* lowpass filter radius */
+  int scale;          /* scaling factor */
+  int linear;         /* linear scaling? */
+  int bilevel;        /* convert to bilevel? */
+  double level;       /* cutoff grey level */
+  const char *outext; /* default output file extension */
 };
 typedef struct info_s info_t;
 
@@ -56,6 +56,10 @@ static void lowpass(greymap_t *gm, double lambda) {
   double B;
   int x, y;
 
+  if (gm->h == 0 || gm->w == 0) {
+    return;
+  }
+  
   /* calculate filter coefficients from given lambda */
   B = 1+2/(lambda*lambda);
   c = B-sqrt(B*B-1);
@@ -124,6 +128,10 @@ static int highpass(greymap_t *gm, double lambda) {
   greymap_t *gm1;
   double f;
   int x, y;
+
+  if (gm->h == 0 || gm->w == 0) {
+    return 0;
+  }
 
   /* create a copy */
   gm1 = gm_dup(gm);
@@ -201,7 +209,6 @@ static void *interpolate_linear(greymap_t *gm, int s, int bilevel, double c) {
     if (!bm_out) {
       return NULL;
     }
-    bm_clear(bm_out, 0);
     c1 = c * 255;
   } else {
     gm_out = gm_new(w*s, h*s);
@@ -286,7 +293,6 @@ static void *interpolate_cubic(greymap_t *gm, int s, int bilevel, double c) {
     if (!bm_out) {
       goto calloc_error;
     }
-    bm_clear(bm_out, 0);
     c1 = c * 255;
   } else {
     gm_out = gm_new(w*s, h*s);
@@ -375,7 +381,7 @@ static void *interpolate_cubic(greymap_t *gm, int s, int bilevel, double c) {
    print error message to stderr and exit with code 2. On warning,
    print warning message to stderr. */
 
-static void process_file(FILE *fin, FILE *fout, char *infile, char *outfile) {
+static void process_file(FILE *fin, FILE *fout, const char *infile, const char *outfile) {
   int r;
   greymap_t *gm;
   potrace_bitmap_t *bm;
@@ -387,27 +393,27 @@ static void process_file(FILE *fin, FILE *fout, char *infile, char *outfile) {
     r = gm_read(fin, &gm);
     switch (r) {
     case -1:  /* system error */
-      fprintf(stderr, ""MKBITMAP": %s: %s\n", infile, strerror(errno));
+      fprintf(stderr, "" MKBITMAP ": %s: %s\n", infile, strerror(errno));
       exit(2);
     case -2:  /* corrupt file format */
-      fprintf(stderr, ""MKBITMAP": %s: file format error: %s\n", infile, gm_read_error);
+      fprintf(stderr, "" MKBITMAP ": %s: file format error: %s\n", infile, gm_read_error);
       exit(2);
     case -3:  /* empty file */
       if (count>0) {  /* end of file */
 	return;
       }
-      fprintf(stderr, ""MKBITMAP": %s: empty file\n", infile);
+      fprintf(stderr, "" MKBITMAP ": %s: empty file\n", infile);
       exit(2);
     case -4:  /* wrong magic */
       if (count>0) {
-	fprintf(stderr, ""MKBITMAP": %s: warning: junk at end of file\n", infile);
+	fprintf(stderr, "" MKBITMAP ": %s: warning: junk at end of file\n", infile);
 	return;
       }
-      fprintf(stderr, ""MKBITMAP": %s: file format not recognized\n", infile);
+      fprintf(stderr, "" MKBITMAP ": %s: file format not recognized\n", infile);
       fprintf(stderr, "Possible input file formats are: pnm (pbm, pgm, ppm), bmp.\n");
       exit(2);
     case 1:  /* unexpected end of file */
-      fprintf(stderr, ""MKBITMAP": %s: warning: premature end of file\n", infile);
+      fprintf(stderr, "" MKBITMAP ": %s: warning: premature end of file\n", infile);
       break;
     }
     
@@ -422,7 +428,7 @@ static void process_file(FILE *fin, FILE *fout, char *infile, char *outfile) {
     if (info.highpass) {
       r = highpass(gm, info.lambda);
       if (r) {
-	fprintf(stderr, ""MKBITMAP": %s: %s\n", infile, strerror(errno));
+	fprintf(stderr, "" MKBITMAP ": %s: %s\n", infile, strerror(errno));
 	exit(2);
       }
     }
@@ -444,7 +450,7 @@ static void process_file(FILE *fin, FILE *fout, char *infile, char *outfile) {
       gm_free(gm);
     }
     if (!sm) {
-      fprintf(stderr, ""MKBITMAP": %s: %s\n", infile, strerror(errno));
+      fprintf(stderr, "" MKBITMAP ": %s: %s\n", infile, strerror(errno));
       exit(2);
     }
     
@@ -483,7 +489,7 @@ static int license(FILE *f) {
 }
 
 static int usage(FILE *f) {
-  fprintf(f, "Usage: "MKBITMAP" [options] [file...]\n");
+  fprintf(f, "Usage: " MKBITMAP " [options] [file...]\n");
   fprintf(f, "Options:\n");
   fprintf(f, " -h, --help           - print this help message and exit\n");
   fprintf(f, " -v, --version        - print version info and exit\n");
@@ -529,7 +535,7 @@ static struct option longopts[] = {
   {0, 0, 0, 0}
 };
 
-static char *shortopts = "hvlo:xif:nb:s:13gt:";
+static const char *shortopts = "hvlo:xif:nb:s:13gt:";
 
 /* process options. On error, print error message to stderr and exit
    with code 1 */
@@ -555,16 +561,16 @@ static void dopts(int ac, char *av[]) {
   while ((c = getopt_long(ac, av, shortopts, longopts, NULL)) != -1) {
     switch (c) {
     case 'h':
-      fprintf(stdout, ""MKBITMAP" "VERSION". Transforms images into bitmaps with scaling and filtering.\n\n");
+      fprintf(stdout, "" MKBITMAP " " VERSION ". Transforms images into bitmaps with scaling and filtering.\n\n");
       usage(stdout);
       exit(0);
       break;
     case 'v':
-      fprintf(stdout, ""MKBITMAP" "VERSION". Copyright (C) 2001-2015 Peter Selinger.\n");
+      fprintf(stdout, "" MKBITMAP " " VERSION ". Copyright (C) 2001-2017 Peter Selinger.\n");
       exit(0);
       break;
     case 'l':
-      fprintf(stdout, ""MKBITMAP" "VERSION". Copyright (C) 2001-2015 Peter Selinger.\n\n");
+      fprintf(stdout, "" MKBITMAP " " VERSION ". Copyright (C) 2001-2017 Peter Selinger.\n\n");
       license(stdout);
       exit(0);
       break;
@@ -572,7 +578,7 @@ static void dopts(int ac, char *av[]) {
       free(info.outfile);
       info.outfile = strdup(optarg);
       if (!info.outfile) {
-        fprintf(stderr, ""MKBITMAP": %s\n", strerror(errno));
+        fprintf(stderr, "" MKBITMAP ": %s\n", strerror(errno));
         exit(2);
       }
       break;
@@ -590,7 +596,7 @@ static void dopts(int ac, char *av[]) {
       info.highpass = 1;
       info.lambda = strtod(optarg, &p);
       if (*p || info.lambda<0) {
-	fprintf(stderr, ""MKBITMAP": invalid filter radius -- %s\n", optarg);
+	fprintf(stderr, "" MKBITMAP ": invalid filter radius -- %s\n", optarg);
         exit(1);
       }
       break;
@@ -601,14 +607,14 @@ static void dopts(int ac, char *av[]) {
       info.lowpass = 1;
       info.lambda1 = strtod(optarg, &p);
       if (*p || info.lambda1<0) {
-	fprintf(stderr, ""MKBITMAP": invalid filter radius -- %s\n", optarg);
+	fprintf(stderr, "" MKBITMAP ": invalid filter radius -- %s\n", optarg);
         exit(1);
       }
       break;
     case 's':
       info.scale = strtol(optarg, &p, 0);
       if (*p || info.scale<=0) {
-	fprintf(stderr, ""MKBITMAP": invalid scaling factor -- %s\n", optarg);
+	fprintf(stderr, "" MKBITMAP ": invalid scaling factor -- %s\n", optarg);
         exit(1);
       }
       break;
@@ -627,7 +633,7 @@ static void dopts(int ac, char *av[]) {
       info.outext = ".pbm";
       info.level = strtod(optarg, &p);
       if (*p || info.level<0) {
-	fprintf(stderr, ""MKBITMAP": invalid threshold -- %s\n", optarg);
+	fprintf(stderr, "" MKBITMAP ": invalid threshold -- %s\n", optarg);
         exit(1);
       }
       break;
@@ -636,7 +642,7 @@ static void dopts(int ac, char *av[]) {
       exit(1);
       break;
     default:
-      fprintf(stderr, ""MKBITMAP": Unimplemented option -- %c\n", c);
+      fprintf(stderr, "" MKBITMAP ": Unimplemented option -- %c\n", c);
       exit(1);
     }
   }
@@ -649,7 +655,7 @@ static void dopts(int ac, char *av[]) {
 /* auxiliary functions for file handling */
 
 /* open a file for reading. Return stdin if filename is NULL or "-" */ 
-static FILE *my_fopen_read(char *filename) {
+static FILE *my_fopen_read(const char *filename) {
   if (filename == NULL || strcmp(filename, "-") == 0) {
     return stdin;
   }
@@ -657,7 +663,7 @@ static FILE *my_fopen_read(char *filename) {
 }
 
 /* open a file for writing. Return stdout if filename is NULL or "-" */ 
-static FILE *my_fopen_write(char *filename) {
+static FILE *my_fopen_write(const char *filename) {
   if (filename == NULL || strcmp(filename, "-") == 0) {
     return stdout;
   }
@@ -665,7 +671,7 @@ static FILE *my_fopen_write(char *filename) {
 }
 
 /* close a file, but do nothing is filename is NULL or "-" */
-static void my_fclose(FILE *f, char *filename) {
+static void my_fclose(FILE *f, const char *filename) {
   if (filename == NULL || strcmp(filename, "-") == 0) {
     return;
   }
@@ -673,7 +679,7 @@ static void my_fclose(FILE *f, char *filename) {
 }
 
 /* make output filename from input filename. Return an allocated value. */
-static char *make_outfilename(char *infile, char *ext) {
+static char *make_outfilename(const char *infile, const char *ext) {
   char *outfile;
   char *p;
 
@@ -731,7 +737,7 @@ int main(int ac, char *av[]) {
 
     fout = my_fopen_write(info.outfile);
     if (!fout) {
-      fprintf(stderr, ""MKBITMAP": %s: %s\n", info.outfile, strerror(errno));
+      fprintf(stderr, "" MKBITMAP ": %s: %s\n", info.outfile, strerror(errno));
       exit(2);
     }
     process_file(stdin, fout, "stdin", info.outfile);
@@ -744,17 +750,17 @@ int main(int ac, char *av[]) {
     for (i=0; i<info.infilecount; i++) {
       outfile = make_outfilename(info.infiles[i], info.outext);
       if (!outfile) {
-	fprintf(stderr, ""MKBITMAP": %s\n", strerror(errno));
+	fprintf(stderr, "" MKBITMAP ": %s\n", strerror(errno));
         exit(2);
       }
       fin = my_fopen_read(info.infiles[i]);
       if (!fin) {
-	fprintf(stderr, ""MKBITMAP": %s: %s\n", info.infiles[i], strerror(errno));
+	fprintf(stderr, "" MKBITMAP ": %s: %s\n", info.infiles[i], strerror(errno));
 	exit(2);
       }
       fout = my_fopen_write(outfile);
       if (!fout) {
-	fprintf(stderr, ""MKBITMAP": %s: %s\n", outfile, strerror(errno));
+	fprintf(stderr, "" MKBITMAP ": %s: %s\n", outfile, strerror(errno));
 	exit(2);
       }
       process_file(fin, fout, info.infiles[i], outfile);
@@ -768,13 +774,13 @@ int main(int ac, char *av[]) {
 
     fout = my_fopen_write(info.outfile);
     if (!fout) {
-      fprintf(stderr, ""MKBITMAP": %s: %s\n", info.outfile, strerror(errno));
+      fprintf(stderr, "" MKBITMAP ": %s: %s\n", info.outfile, strerror(errno));
       exit(2);
     }
     for (i=0; i<info.infilecount; i++) {
       fin = my_fopen_read(info.infiles[i]);
       if (!fin) {
-	fprintf(stderr, ""MKBITMAP": %s: %s\n", info.infiles[i], strerror(errno));
+	fprintf(stderr, "" MKBITMAP ": %s: %s\n", info.infiles[i], strerror(errno));
 	exit(2);
       }
       process_file(fin, fout, info.infiles[i], info.outfile);

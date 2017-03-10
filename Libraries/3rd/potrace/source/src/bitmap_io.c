@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -13,11 +13,16 @@
 
 #include "bitmap.h"
 #include "bitops.h"
+#include "bitmap_io.h"
 
 #define INTBITS (8*sizeof(int))
 
 static int bm_readbody_bmp(FILE *f, double threshold, potrace_bitmap_t **bmp);
 static int bm_readbody_pnm(FILE *f, double threshold, potrace_bitmap_t **bmp, int magic);
+
+#define TRY(x) if (x) goto try_error
+#define TRY_EOF(x) if (x) goto eof
+#define TRY_STD(x) if (x) goto std_error
 
 /* ---------------------------------------------------------------------- */
 /* routines for reading pnm streams */
@@ -111,7 +116,7 @@ static int readbit(FILE *f) {
    comments), -4 if wrong magic number. If the return value is >=0,
    *bmp is valid. */
 
-char *bm_read_error = NULL;
+const char *bm_read_error = NULL;
 
 int bm_read(FILE *f, double threshold, potrace_bitmap_t **bmp) {
   int magic[2];
@@ -144,7 +149,9 @@ static int bm_readbody_pnm(FILE *f, double threshold, potrace_bitmap_t **bmp, in
   int x, y, i, b, b1, sum;
   int bpr; /* bytes per row (as opposed to 4*bm->c) */
   int w, h, max;
-
+  int realheight;  /* in case of incomplete file, keeps track of how
+                      many scan lines actually contain data */
+  
   bm = NULL;
 
   w = readnum(f);
@@ -160,12 +167,11 @@ static int bm_readbody_pnm(FILE *f, double threshold, potrace_bitmap_t **bmp, in
   /* allocate bitmap */
   bm = bm_new(w, h);
   if (!bm) {
-    return -1;
+    goto std_error;
   }
 
-  /* zero it out */
-  bm_clear(bm, 0);
-
+  realheight = 0;
+  
   switch (magic) {
   default: 
     /* not reached */
@@ -174,7 +180,8 @@ static int bm_readbody_pnm(FILE *f, double threshold, potrace_bitmap_t **bmp, in
   case '1':
     /* read P1 format: PBM ascii */
     
-    for (y=h-1; y>=0; y--) {
+    for (y=0; y<h; y++) {
+      realheight = y+1;
       for (x=0; x<w; x++) {
 	b = readbit(f);
 	if (b<0) {
@@ -193,7 +200,8 @@ static int bm_readbody_pnm(FILE *f, double threshold, potrace_bitmap_t **bmp, in
       goto format_error;
     }
     
-    for (y=h-1; y>=0; y--) {
+    for (y=0; y<h; y++) {
+      realheight = y+1;
       for (x=0; x<w; x++) {
         b = readnum(f);
         if (b<0) {
@@ -212,7 +220,8 @@ static int bm_readbody_pnm(FILE *f, double threshold, potrace_bitmap_t **bmp, in
       goto format_error;
     }
     
-    for (y=h-1; y>=0; y--) {
+    for (y=0; y<h; y++) {
+      realheight = y+1;
       for (x=0; x<w; x++) {
 	sum = 0;
 	for (i=0; i<3; i++) {
@@ -237,7 +246,8 @@ static int bm_readbody_pnm(FILE *f, double threshold, potrace_bitmap_t **bmp, in
 
     bpr = (w+7)/8;
 
-    for (y=h-1; y>=0; y--) {
+    for (y=0; y<h; y++) {
+      realheight = y+1;
       for (i=0; i<bpr; i++) {
 	b = fgetc(f);
 	if (b==EOF) {
@@ -261,7 +271,8 @@ static int bm_readbody_pnm(FILE *f, double threshold, potrace_bitmap_t **bmp, in
       goto format_error;
     }
 
-    for (y=h-1; y>=0; y--) {
+    for (y=0; y<h; y++) {
+      realheight = y+1;
       for (x=0; x<w; x++) {
         b = fgetc(f);
         if (b==EOF)
@@ -291,7 +302,8 @@ static int bm_readbody_pnm(FILE *f, double threshold, potrace_bitmap_t **bmp, in
       goto format_error;
     }
 
-    for (y=h-1; y>=0; y--) {
+    for (y=0; y<h; y++) {
+      realheight = y+1;
       for (x=0; x<w; x++) {
         sum = 0;
         for (i=0; i<3; i++) {
@@ -314,10 +326,13 @@ static int bm_readbody_pnm(FILE *f, double threshold, potrace_bitmap_t **bmp, in
     break;
   }
 
+  bm_flip(bm);
   *bmp = bm;
   return 0;
 
  eof:
+  TRY_STD(bm_resize(bm, realheight));
+  bm_flip(bm);
   *bmp = bm;
   return 1;
 
@@ -331,6 +346,10 @@ static int bm_readbody_pnm(FILE *f, double threshold, potrace_bitmap_t **bmp, in
     bm_read_error = "invalid ppm file";
   }
   return -2;
+
+ std_error:
+  bm_free(bm);
+  return -1;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -377,7 +396,7 @@ static int bmp_readint(FILE *f, int n, unsigned int *p) {
     if (b==EOF) {
       return 1;
     }
-    sum += b << (8*i);
+    sum += (unsigned)b << (8*i);
   }
   bmp_count += n;
   bmp_pos += n;
@@ -422,12 +441,6 @@ static int bmp_forward(FILE *f, int pos) {
   return 0;
 }
 
-#define TRY(x) if (x) goto try_error
-#define TRY_EOF(x) if (x) goto eof
-
-/* correct y-coordinate for top-down format */
-#define ycorr(y) (bmpinfo.topdown ? bmpinfo.h-1-y : y)
-
 /* safe colortable access */
 #define COLTABLE(c) ((c) < bmpinfo.ncolors ? coltable[(c)] : 0)
 
@@ -451,7 +464,9 @@ static int bm_readbody_bmp(FILE *f, double threshold, potrace_bitmap_t **bmp) {
   unsigned int n;
   unsigned int redshift, greenshift, blueshift;
   int col1[2];
-
+  int realheight;  /* in case of incomplete file, keeps track of how
+                      many scan lines actually contain data */
+  
   bm_read_error = NULL;
   bm = NULL;
   coltable = NULL;
@@ -528,7 +543,7 @@ static int bm_readbody_bmp(FILE *f, double threshold, potrace_bitmap_t **bmp) {
     goto format_error;  /* can't handle planes */
   }
   
-  if (bmpinfo.ncolors == 0) {
+  if (bmpinfo.ncolors == 0 && bmpinfo.bits <= 8) {
     bmpinfo.ncolors = 1 << bmpinfo.bits;
   }
 
@@ -560,10 +575,9 @@ static int bm_readbody_bmp(FILE *f, double threshold, potrace_bitmap_t **bmp) {
   if (!bm) {
     goto std_error;
   }
-  
-  /* zero it out */
-  bm_clear(bm, 0);
 
+  realheight = 0;
+  
   switch (bmpinfo.bits + 0x100*bmpinfo.comp) {
     
   default:
@@ -579,11 +593,12 @@ static int bm_readbody_bmp(FILE *f, double threshold, potrace_bitmap_t **bmp) {
     
     /* raster data */
     for (y=0; y<bmpinfo.h; y++) {
+      realheight = y+1;
       bmp_pad_reset();
       for (i=0; 8*i<bmpinfo.w; i++) {
 	TRY_EOF(bmp_readint(f, 1, &b));
 	b ^= mask;
-	*bm_index(bm, i*8, ycorr(y)) |= ((potrace_word)b) << (8*(BM_WORDSIZE-1-(i % BM_WORDSIZE)));
+	*bm_index(bm, i*8, y) |= ((potrace_word)b) << (8*(BM_WORDSIZE-1-(i % BM_WORDSIZE)));
       }
       TRY(bmp_pad(f));
     }
@@ -597,6 +612,7 @@ static int bm_readbody_bmp(FILE *f, double threshold, potrace_bitmap_t **bmp) {
   case 0x007: 
   case 0x008:
     for (y=0; y<bmpinfo.h; y++) {
+      realheight = y+1;
       bmp_pad_reset();
       bitbuf = 0;  /* bit buffer: bits in buffer are high-aligned */
       n = 0;       /* number of bits currently in bitbuffer */
@@ -609,7 +625,7 @@ static int bm_readbody_bmp(FILE *f, double threshold, potrace_bitmap_t **bmp) {
 	b = bitbuf >> (INTBITS - bmpinfo.bits);
 	bitbuf <<= bmpinfo.bits;
 	n -= bmpinfo.bits;
-	BM_UPUT(bm, x, ycorr(y), COLTABLE(b));
+	BM_UPUT(bm, x, y, COLTABLE(b));
       }
       TRY(bmp_pad(f));
     }
@@ -625,27 +641,33 @@ static int bm_readbody_bmp(FILE *f, double threshold, potrace_bitmap_t **bmp) {
   case 0x018:  /* 24-bit encoding */
   case 0x020:  /* 32-bit encoding */
     for (y=0; y<bmpinfo.h; y++) {
+      realheight = y+1;
       bmp_pad_reset();
       for (x=0; x<bmpinfo.w; x++) {
         TRY_EOF(bmp_readint(f, bmpinfo.bits/8, &c));
 	c = ((c>>16) & 0xff) + ((c>>8) & 0xff) + (c & 0xff);
-        BM_UPUT(bm, x, ycorr(y), c > 3 * threshold * 255 ? 0 : 1);
+        BM_UPUT(bm, x, y, c > 3 * threshold * 255 ? 0 : 1);
       }
       TRY(bmp_pad(f));
     }
     break;
 
   case 0x320:  /* 32-bit encoding with bitfields */
+    if (bmpinfo.RedMask == 0 || bmpinfo.GreenMask == 0 || bmpinfo.BlueMask == 0) {
+      goto format_error;
+    }      
+
     redshift = lobit(bmpinfo.RedMask);
     greenshift = lobit(bmpinfo.GreenMask);
     blueshift = lobit(bmpinfo.BlueMask);
 
     for (y=0; y<bmpinfo.h; y++) {
+      realheight = y+1;
       bmp_pad_reset();
       for (x=0; x<bmpinfo.w; x++) {
         TRY_EOF(bmp_readint(f, bmpinfo.bits/8, &c));
 	c = ((c & bmpinfo.RedMask) >> redshift) + ((c & bmpinfo.GreenMask) >> greenshift) + ((c & bmpinfo.BlueMask) >> blueshift);
-        BM_UPUT(bm, x, ycorr(y), c > 3 * threshold * 255 ? 0 : 1);
+        BM_UPUT(bm, x, y, c > 3 * threshold * 255 ? 0 : 1);
       }
       TRY(bmp_pad(f));
     }
@@ -670,7 +692,8 @@ static int bm_readbody_bmp(FILE *f, double threshold, potrace_bitmap_t **bmp) {
 	  if (y>=bmpinfo.h) {
 	    break;
 	  }
-	  BM_UPUT(bm, x, ycorr(y), col[i&1]);
+          realheight = y+1;
+	  BM_UPUT(bm, x, y, col[i&1]);
 	  x++;
 	}
       } else if (c == 0) {
@@ -699,7 +722,8 @@ static int bm_readbody_bmp(FILE *f, double threshold, potrace_bitmap_t **bmp) {
 	  if (y>=bmpinfo.h) {
 	    break;
 	  }
-	  BM_PUT(bm, x, ycorr(y), COLTABLE((b>>(4-4*(i&1))) & 0xf));
+          realheight = y+1;
+	  BM_PUT(bm, x, y, COLTABLE((b>>(4-4*(i&1))) & 0xf));
 	  x++;
 	}
 	if ((c+1) & 2) {
@@ -726,7 +750,8 @@ static int bm_readbody_bmp(FILE *f, double threshold, potrace_bitmap_t **bmp) {
 	  if (y>=bmpinfo.h) {
 	    break;
 	  }
-	  BM_UPUT(bm, x, ycorr(y), COLTABLE(c));
+          realheight = y+1;
+	  BM_UPUT(bm, x, y, COLTABLE(c));
 	  x++;
 	}
       } else if (c == 0) {
@@ -753,7 +778,8 @@ static int bm_readbody_bmp(FILE *f, double threshold, potrace_bitmap_t **bmp) {
           if (y>=bmpinfo.h) {
             break;
           }
-	  BM_PUT(bm, x, ycorr(y), COLTABLE(b));
+          realheight = y+1;
+	  BM_PUT(bm, x, y, COLTABLE(b));
 	  x++;
 	}
 	if (c & 1) {
@@ -771,11 +797,18 @@ static int bm_readbody_bmp(FILE *f, double threshold, potrace_bitmap_t **bmp) {
   bmp_forward(f, bmpinfo.FileSize);
 
   free(coltable);
+  if (bmpinfo.topdown) {
+    bm_flip(bm);
+  }
   *bmp = bm;
   return 0;
 
  eof:
+  TRY_STD(bm_resize(bm, realheight));
   free(coltable);
+  if (bmpinfo.topdown) {
+    bm_flip(bm);
+  }
   *bmp = bm;
   return 1;
 

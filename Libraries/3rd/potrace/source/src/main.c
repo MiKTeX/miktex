@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -45,7 +45,7 @@ struct info_s info;
 /* some data structures for option processing */
 
 struct pageformat_s {
-  char *name;
+  const char *name;
   int w, h;
 };
 typedef struct pageformat_s pageformat_t;
@@ -68,7 +68,7 @@ static pageformat_t pageformat[] = {
 };
 
 struct turnpolicy_s {
-  char *name;
+  const char *name;
   int n;
 };
 typedef struct turnpolicy_s turnpolicy_t;
@@ -87,8 +87,8 @@ static turnpolicy_t turnpolicy[] = {
 
 /* backends and their characteristics */
 struct backend_s {
-  char *name;       /* name of this backend */
-  char *ext;        /* file extension */
+  const char *name;       /* name of this backend */
+  const char *ext;        /* file extension */
   int fixed;        /* fixed page size backend? */
   int pixel;        /* pixel-based backend? */
   int multi;        /* multi-page backend? */
@@ -118,7 +118,7 @@ static backend_t backend[] = {
 /* look up a backend by name. If found, return 0 and set *bp. If not
    found leave *bp unchanged and return 1, or 2 on ambiguous
    prefix. */
-static int backend_lookup(char *name, backend_t **bp) {
+static int backend_lookup(const char *name, backend_t **bp) {
   int i;
   int m=0;  /* prefix matches */
   backend_t *b = NULL;
@@ -185,14 +185,14 @@ static void license(FILE *f) {
 }
 
 static void show_defaults(FILE *f) {
-  fprintf(f, "Default unit: "DEFAULT_DIM_NAME"\n");
-  fprintf(f, "Default page size: "DEFAULT_PAPERFORMAT"\n");
+  fprintf(f, "Default unit: " DEFAULT_DIM_NAME "\n");
+  fprintf(f, "Default page size: " DEFAULT_PAPERFORMAT "\n");
 }
 
 static void usage(FILE *f) {
   int j;
 
-  fprintf(f, "Usage: "POTRACE" [options] [filename...]\n");
+  fprintf(f, "Usage: " POTRACE " [options] [filename...]\n");
   fprintf(f, "General options:\n");
   fprintf(f, " -h, --help                 - print this help message and exit\n");
   fprintf(f, " -v, --version              - print version info and exit\n");
@@ -222,7 +222,7 @@ static void usage(FILE *f) {
   fprintf(f, " -u, --unit <n>             - quantize output to 1/unit pixels (default 10)\n");
   fprintf(f, " -d, --debug <n>            - produce debugging output of type n (n=1,2,3)\n");
   fprintf(f, "Scaling and placement options:\n");
-  fprintf(f, " -P, --pagesize <format>    - page size (default is "DEFAULT_PAPERFORMAT")\n");
+  fprintf(f, " -P, --pagesize <format>    - page size (default is " DEFAULT_PAPERFORMAT ")\n");
   fprintf(f, " -W, --width <dim>          - width of output image\n");
   fprintf(f, " -H, --height <dim>         - height of output image\n");
   fprintf(f, " -r, --resolution <n>[x<n>] - resolution (in dpi) (dimension-based backends)\n");
@@ -259,7 +259,7 @@ static void usage(FILE *f) {
   fprintf(f, " --tty <mode>               - progress bar rendering: vt100 or dumb\n");
   fprintf(f, "\n");
   fprintf(f, "Dimensions can have optional units, e.g. 6.5in, 15cm, 100pt.\n");
-  fprintf(f, "Default is "DEFAULT_DIM_NAME" (or pixels for pgm, dxf, and gimppath backends).\n");
+  fprintf(f, "Default is " DEFAULT_DIM_NAME " (or pixels for pgm, dxf, and gimppath backends).\n");
   fprintf(f, "Possible input file formats are: pnm (pbm, pgm, ppm), bmp.\n");
   j = fprintf(f, "Backends are: ");
   backend_list(f, j, 78);
@@ -431,7 +431,7 @@ static struct option longopts[] = {
   {0, 0, 0, 0}
 };
 
-static char *shortopts = "hvVlW:H:r:x:S:M:L:R:T:B:A:P:t:u:c23epsgb:d:C:z:G:nqa:O:o:k:i";
+static const char *shortopts = "hvVlW:H:r:x:S:M:L:R:T:B:A:P:t:u:c23epsgb:d:C:z:G:nqa:O:o:k:i";
 
 static void dopts(int ac, char *av[]) {
   int c;
@@ -465,8 +465,8 @@ static void dopts(int ac, char *av[]) {
   info.gamma = 2.2;
   info.param = potrace_param_default();
   if (!info.param) {
-    fprintf(stderr, ""POTRACE": %s\n", strerror(errno));
-    exit(1);
+    fprintf(stderr, "" POTRACE ": %s\n", strerror(errno));
+    exit(2);
   }
   info.longcoding = 0;
   info.outfile = NULL;
@@ -481,33 +481,33 @@ static void dopts(int ac, char *av[]) {
   while ((c = getopt_long(ac, av, shortopts, longopts, NULL)) != -1) {
     switch (c) {
     case 'h':
-      fprintf(stdout, ""POTRACE" "VERSION". Transforms bitmaps into vector graphics.\n\n");
+      fprintf(stdout, "" POTRACE " " VERSION ". Transforms bitmaps into vector graphics.\n\n");
       usage(stdout);
       exit(0);
       break;
     case 'v':
     case 'V':
-      fprintf(stdout, ""POTRACE" "VERSION". Copyright (C) 2001-2015 Peter Selinger.\n");
+      fprintf(stdout, "" POTRACE " " VERSION ". Copyright (C) 2001-2017 Peter Selinger.\n");
       fprintf(stdout, "Library version: %s\n", potrace_version());
       show_defaults(stdout);
       exit(0);
       break;
     case 'l':
-      fprintf(stdout, ""POTRACE" "VERSION". Copyright (C) 2001-2015 Peter Selinger.\n\n");
+      fprintf(stdout, "" POTRACE " " VERSION ". Copyright (C) 2001-2017 Peter Selinger.\n\n");
       license(stdout);
       exit(0);
       break;
     case 'W':
       info.width_d = parse_dimension(optarg, &p);
       if (*p) {
-	fprintf(stderr, ""POTRACE": invalid dimension -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": invalid dimension -- %s\n", optarg);
 	exit(1);
       }
       break;
     case 'H':
       info.height_d = parse_dimension(optarg, &p);
       if (*p) {
-	fprintf(stderr, ""POTRACE": invalid dimension -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": invalid dimension -- %s\n", optarg);
 	exit(1);
       }
       break;
@@ -523,7 +523,7 @@ static void dopts(int ac, char *av[]) {
 	info.rx = info.ry = dim.x;
 	break;
       }
-      fprintf(stderr, ""POTRACE": invalid resolution -- %s\n", optarg);
+      fprintf(stderr, "" POTRACE ": invalid resolution -- %s\n", optarg);
       exit(1);
       break;
     case 'x':
@@ -538,7 +538,7 @@ static void dopts(int ac, char *av[]) {
 	info.sx = info.sy = dim.x;
 	break;
       }
-      fprintf(stderr, ""POTRACE": invalid scaling factor -- %s\n", optarg);
+      fprintf(stderr, "" POTRACE ": invalid scaling factor -- %s\n", optarg);
       exit(1);
       break;
     case 'S':
@@ -547,7 +547,7 @@ static void dopts(int ac, char *av[]) {
     case 'M':
       info.lmar_d = parse_dimension(optarg, &p);
       if (*p) {
-	fprintf(stderr, ""POTRACE": invalid dimension -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": invalid dimension -- %s\n", optarg);
 	exit(1);
       }
       info.rmar_d = info.tmar_d = info.bmar_d = info.lmar_d;
@@ -555,28 +555,28 @@ static void dopts(int ac, char *av[]) {
     case 'L':
       info.lmar_d = parse_dimension(optarg, &p);
       if (*p) {
-	fprintf(stderr, ""POTRACE": invalid dimension -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": invalid dimension -- %s\n", optarg);
 	exit(1);
       }
       break;
     case 'R':
       info.rmar_d = parse_dimension(optarg, &p);
       if (*p) {
-	fprintf(stderr, ""POTRACE": invalid dimension -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": invalid dimension -- %s\n", optarg);
 	exit(1);
       }
       break;
     case 'T':
       info.tmar_d = parse_dimension(optarg, &p);
       if (*p) {
-	fprintf(stderr, ""POTRACE": invalid dimension -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": invalid dimension -- %s\n", optarg);
 	exit(1);
       }
       break;
     case 'B':
       info.bmar_d = parse_dimension(optarg, &p);
       if (*p) {
-	fprintf(stderr, ""POTRACE": invalid dimension -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": invalid dimension -- %s\n", optarg);
 	exit(1);
       }
       break;
@@ -586,7 +586,7 @@ static void dopts(int ac, char *av[]) {
     case 'A':
       info.angle = strtod(optarg, &p);
       if (*p) {
-	fprintf(stderr, ""POTRACE": invalid angle -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": invalid angle -- %s\n", optarg);
 	exit(1);
       }
       break;
@@ -618,9 +618,9 @@ static void dopts(int ac, char *av[]) {
 	break;
       }
       if (matches == 0) {
-	fprintf(stderr, ""POTRACE": unrecognized page format -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": unrecognized page format -- %s\n", optarg);
       } else {
-	fprintf(stderr, ""POTRACE": ambiguous page format -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": ambiguous page format -- %s\n", optarg);
       }
       j = fprintf(stderr, "Use one of: ");
       for (i=0; pageformat[i].name!=NULL; i++) {
@@ -639,7 +639,7 @@ static void dopts(int ac, char *av[]) {
     case 'u':
       info.unit = strtod(optarg, &p);
       if (*p) {
-        fprintf(stderr, ""POTRACE": invalid unit -- %s\n", optarg);
+        fprintf(stderr, "" POTRACE ": invalid unit -- %s\n", optarg);
         exit(1);
       }
       break;
@@ -656,7 +656,7 @@ static void dopts(int ac, char *av[]) {
       info.pslevel = 3;
       info.compress = 1;
 #else
-      fprintf(stderr, ""POTRACE": option -3 not supported, using -2 instead.\n");
+      fprintf(stderr, "" POTRACE ": option -3 not supported, using -2 instead.\n");
       fflush(stderr);
       info.pslevel = 2;
       info.compress = 1;
@@ -678,9 +678,9 @@ static void dopts(int ac, char *av[]) {
       r = backend_lookup(optarg, &info.backend);
       if (r==1 || r==2) {
 	if (r==1) {
-	  fprintf(stderr, ""POTRACE": unrecognized backend -- %s\n", optarg);
+	  fprintf(stderr, "" POTRACE ": unrecognized backend -- %s\n", optarg);
 	} else {
-	  fprintf(stderr, ""POTRACE": ambiguous backend -- %s\n", optarg);
+	  fprintf(stderr, "" POTRACE ": ambiguous backend -- %s\n", optarg);
 	}
 	j = fprintf(stderr, "Use one of: ");
 	backend_list(stderr, j, 70);
@@ -694,14 +694,14 @@ static void dopts(int ac, char *av[]) {
     case 'C':
       info.color = parse_color(optarg);
       if (info.color == -1) {
-	fprintf(stderr, ""POTRACE": invalid color -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": invalid color -- %s\n", optarg);
 	exit(1);
       }
       break;
     case OPT_FILLCOLOR:
       info.fillcolor = parse_color(optarg);
       if (info.fillcolor == -1) {
-	fprintf(stderr, ""POTRACE": invalid color -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": invalid color -- %s\n", optarg);
 	exit(1);
       }
       info.opaque = 1;
@@ -724,9 +724,9 @@ static void dopts(int ac, char *av[]) {
 	break;
       }
       if (matches == 0) {
-	fprintf(stderr, ""POTRACE": unrecognized turnpolicy -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": unrecognized turnpolicy -- %s\n", optarg);
       } else {
-	fprintf(stderr, ""POTRACE": ambiguous turnpolicy -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": ambiguous turnpolicy -- %s\n", optarg);
       }
       j = fprintf(stderr, "Use one of: ");
       for (i=0; turnpolicy[i].name!=NULL; i++) {
@@ -751,14 +751,14 @@ static void dopts(int ac, char *av[]) {
     case 'a':
       info.param->alphamax = strtod(optarg, &p);
       if (*p) {
-	fprintf(stderr, ""POTRACE": invalid alphamax -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": invalid alphamax -- %s\n", optarg);
 	exit(1);
       }
       break;
     case 'O':
       info.param->opttolerance = strtod(optarg, &p);
       if (*p) {
-	fprintf(stderr, ""POTRACE": invalid opttolerance -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": invalid opttolerance -- %s\n", optarg);
 	exit(1);
       }
       break;
@@ -766,14 +766,14 @@ static void dopts(int ac, char *av[]) {
       free(info.outfile);
       info.outfile = strdup(optarg);
       if (!info.outfile) {
-	fprintf(stderr, ""POTRACE": %s\n", strerror(errno));
+	fprintf(stderr, "" POTRACE ": %s\n", strerror(errno));
         exit(2);
       }
       break;
     case 'k':
       info.blacklevel = strtod(optarg, &p);
       if (*p) {
-	fprintf(stderr, ""POTRACE": invalid blacklevel -- %s\n", optarg);
+	fprintf(stderr, "" POTRACE ": invalid blacklevel -- %s\n", optarg);
 	exit(1);
       }
       break;
@@ -798,7 +798,7 @@ static void dopts(int ac, char *av[]) {
       } else if (strcmp(optarg, "vt100") == 0) {
 	info.progress_bar = progress_bar_vt100;
       } else {
-	fprintf(stderr, ""POTRACE": invalid tty mode -- %s. Try --help for more info\n", optarg);
+	fprintf(stderr, "" POTRACE ": invalid tty mode -- %s. Try --help for more info\n", optarg);
 	exit(1);
       }
       break;
@@ -807,7 +807,7 @@ static void dopts(int ac, char *av[]) {
       exit(1);
       break;
     default:
-      fprintf(stderr, ""POTRACE": Unimplemented option -- %c\n", c);
+      fprintf(stderr, "" POTRACE ": Unimplemented option -- %c\n", c);
       exit(1);
     }
   }
@@ -987,7 +987,7 @@ static void calc_dimensions(imginfo_t *imginfo, potrace_path_t *plist) {
 /* auxiliary functions for file handling */
 
 /* open a file for reading. Return stdin if filename is NULL or "-" */ 
-static FILE *my_fopen_read(char *filename) {
+static FILE *my_fopen_read(const char *filename) {
   if (filename == NULL || strcmp(filename, "-") == 0) {
     return stdin;
   }
@@ -995,7 +995,7 @@ static FILE *my_fopen_read(char *filename) {
 }
 
 /* open a file for writing. Return stdout if filename is NULL or "-" */ 
-static FILE *my_fopen_write(char *filename) {
+static FILE *my_fopen_write(const char *filename) {
   if (filename == NULL || strcmp(filename, "-") == 0) {
     return stdout;
   }
@@ -1003,7 +1003,7 @@ static FILE *my_fopen_write(char *filename) {
 }
 
 /* close a file, but do nothing is filename is NULL or "-" */
-static void my_fclose(FILE *f, char *filename) {
+static void my_fclose(FILE *f, const char *filename) {
   if (filename == NULL || strcmp(filename, "-") == 0) {
     return;
   }
@@ -1011,7 +1011,7 @@ static void my_fclose(FILE *f, char *filename) {
 }
 
 /* make output filename from input filename. Return an allocated value. */
-static char *make_outfilename(char *infile, char *ext) {
+static char *make_outfilename(const char *infile, const char *ext) {
   char *outfile;
   char *p;
 
@@ -1058,27 +1058,27 @@ static void process_file(backend_t *b, const char *infile, const char *outfile, 
     r = bm_read(fin, info.blacklevel, &bm);
     switch (r) {
     case -1:  /* system error */
-      fprintf(stderr, ""POTRACE": %s: %s\n", infile, strerror(errno));
+      fprintf(stderr, "" POTRACE ": %s: %s\n", infile, strerror(errno));
       exit(2);
     case -2:  /* corrupt file format */
-      fprintf(stderr, ""POTRACE": %s: file format error: %s\n", infile, bm_read_error);
+      fprintf(stderr, "" POTRACE ": %s: file format error: %s\n", infile, bm_read_error);
       exit(2);
     case -3:  /* empty file */
       if (count>0) {  /* end of file */
 	return;
       }
-      fprintf(stderr, ""POTRACE": %s: empty file\n", infile);
+      fprintf(stderr, "" POTRACE ": %s: empty file\n", infile);
       exit(2);
     case -4:  /* wrong magic */
       if (count>0) { 
-	fprintf(stderr, ""POTRACE": %s: warning: junk at end of file\n", infile);
+	fprintf(stderr, "" POTRACE ": %s: warning: junk at end of file\n", infile);
 	return;
       }
-      fprintf(stderr, ""POTRACE": %s: file format not recognized\n", infile);
+      fprintf(stderr, "" POTRACE ": %s: file format not recognized\n", infile);
       fprintf(stderr, "Possible input file formats are: pnm (pbm, pgm, ppm), bmp.\n");
       exit(2);
     case 1:  /* unexpected end of file */
-      fprintf(stderr, ""POTRACE": warning: %s: premature end of file\n", infile);
+      fprintf(stderr, "" POTRACE ": warning: %s: premature end of file\n", infile);
       eof_flag = 1;
       break;
     }
@@ -1087,7 +1087,7 @@ static void process_file(backend_t *b, const char *infile, const char *outfile, 
     if (info.progress) {
       r = info.progress_bar->init(&info.param->progress, infile, count);
       if (r) {
-	fprintf(stderr, ""POTRACE": %s\n", strerror(errno));
+	fprintf(stderr, "" POTRACE ": %s\n", strerror(errno));
 	exit(2);
       }
     } else {
@@ -1101,7 +1101,7 @@ static void process_file(backend_t *b, const char *infile, const char *outfile, 
     /* process the image */
     st = potrace_trace(info.param, bm);
     if (!st || st->status != POTRACE_STATUS_OK) {
-      fprintf(stderr, ""POTRACE": %s: %s\n", infile, strerror(errno));
+      fprintf(stderr, "" POTRACE ": %s: %s\n", infile, strerror(errno));
       exit(2);
     }
 
@@ -1114,7 +1114,7 @@ static void process_file(backend_t *b, const char *infile, const char *outfile, 
 
     r = b->page_f(fout, st->plist, &imginfo);
     if (r) {
-      fprintf(stderr, ""POTRACE": %s: %s\n", outfile, strerror(errno));
+      fprintf(stderr, "" POTRACE ": %s: %s\n", outfile, strerror(errno));
       exit(2);
     }
 
@@ -1150,7 +1150,7 @@ int main(int ac, char *av[]) {
 
   b = info.backend;
   if (b==NULL) {
-    fprintf(stderr, ""POTRACE": internal error: selected backend not found\n");
+    fprintf(stderr, "" POTRACE ": internal error: selected backend not found\n");
     exit(1);
   }
 
@@ -1175,7 +1175,7 @@ int main(int ac, char *av[]) {
 
     fout = my_fopen_write(info.outfile);
     if (!fout) {
-      fprintf(stderr, ""POTRACE": %s: %s\n", info.outfile ? info.outfile : "stdout", strerror(errno));
+      fprintf(stderr, "" POTRACE ": %s: %s\n", info.outfile ? info.outfile : "stdout", strerror(errno));
       exit(2); 
     }
     if (b->init_f) {
@@ -1195,17 +1195,17 @@ int main(int ac, char *av[]) {
     for (i=0; i<info.infilecount; i++) {
       outfile = make_outfilename(info.infiles[i], b->ext);
       if (!outfile) {
-	fprintf(stderr, ""POTRACE": %s\n", strerror(errno));
+	fprintf(stderr, "" POTRACE ": %s\n", strerror(errno));
 	exit(2);
       }
       fin = my_fopen_read(info.infiles[i]);
       if (!fin) {
-	fprintf(stderr, ""POTRACE": %s: %s\n", info.infiles[i], strerror(errno));
+	fprintf(stderr, "" POTRACE ": %s: %s\n", info.infiles[i], strerror(errno));
 	exit(2);
       }
       fout = my_fopen_write(outfile);
       if (!fout) {
-	fprintf(stderr, ""POTRACE": %s: %s\n", outfile, strerror(errno));
+	fprintf(stderr, "" POTRACE ": %s: %s\n", outfile, strerror(errno));
 	exit(2);
       }
       if (b->init_f) {
@@ -1225,17 +1225,17 @@ int main(int ac, char *av[]) {
   } else {                                   /* infiles to single outfile */
 
     if (!b->multi && info.infilecount >= 2) {
-      fprintf(stderr, ""POTRACE": cannot use multiple input files with -o in %s mode\n", b->name);
+      fprintf(stderr, "" POTRACE ": cannot use multiple input files with -o in %s mode\n", b->name);
       exit(1);
     }
     if (info.infilecount == 0) {
-      fprintf(stderr, ""POTRACE": cannot use empty list of input files with -o\n");
+      fprintf(stderr, "" POTRACE ": cannot use empty list of input files with -o\n");
       exit(1);
     }
     
     fout = my_fopen_write(info.outfile);
     if (!fout) {
-      fprintf(stderr, ""POTRACE": %s: %s\n", info.outfile, strerror(errno));
+      fprintf(stderr, "" POTRACE ": %s: %s\n", info.outfile, strerror(errno));
       exit(2);
     }
     if (b->init_f) {
@@ -1244,7 +1244,7 @@ int main(int ac, char *av[]) {
     for (i=0; i<info.infilecount; i++) {
       fin = my_fopen_read(info.infiles[i]);
       if (!fin) {
-	fprintf(stderr, ""POTRACE": %s: %s\n", info.infiles[i], strerror(errno));
+	fprintf(stderr, "" POTRACE ": %s: %s\n", info.infiles[i], strerror(errno));
 	exit(2);
       }
       process_file(b, info.infiles[i], info.outfile, fin, fout);
@@ -1263,6 +1263,6 @@ int main(int ac, char *av[]) {
   /* not reached */
 
  try_error:
-  fprintf(stderr, ""POTRACE": %s\n", strerror(errno));
+  fprintf(stderr, "" POTRACE ": %s\n", strerror(errno));
   exit(2);
 }

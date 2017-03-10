@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -42,14 +42,14 @@
 
 static int a85init(FILE *f);
 static int a85finish(FILE *f);
-static int a85write(FILE *f, char *buf, int n);
+static int a85write(FILE *f, const char *buf, int n);
 static int a85out(FILE *f, int n);
 static int a85spool(FILE *f, char c);
 
 /* ---------------------------------------------------------------------- */
 /* dummy interface: no encoding */
 
-int dummy_xship(FILE *f, int filter, char *s, int len) {
+int dummy_xship(FILE *f, int filter, const char *s, int len) {
   fwrite(s, 1, len, f);
   return len;
 }
@@ -59,7 +59,7 @@ int dummy_xship(FILE *f, int filter, char *s, int len) {
 
 #ifdef HAVE_ZLIB
 
-int pdf_xship(FILE *f, int filter, char *s, int len) {
+int pdf_xship(FILE *f, int filter, const char *s, int len) {
 	static int fstate = 0;
 	static z_stream c_stream;
 	char outbuf[OUTSIZE];
@@ -74,7 +74,7 @@ int pdf_xship(FILE *f, int filter, char *s, int len) {
     err = deflateInit(&c_stream, 9);
     if (err != Z_OK) {
       fprintf(stderr, "deflateInit: %s (%d)\n", c_stream.msg, err);
-      exit(1);
+      exit(2);
     }
     c_stream.avail_in = 0;
     fstate = 1;
@@ -88,7 +88,7 @@ int pdf_xship(FILE *f, int filter, char *s, int len) {
       err = deflate(&c_stream, Z_FINISH);
       if (err != Z_OK && err != Z_STREAM_END) {
 	fprintf(stderr, "deflate: %s (%d)\n", c_stream.msg, err);
-	exit(1);
+	exit(2);
       }
       n += fwrite(outbuf, 1, OUTSIZE-c_stream.avail_out, f);
     } while (err != Z_STREAM_END);
@@ -111,7 +111,7 @@ int pdf_xship(FILE *f, int filter, char *s, int len) {
     err = deflate(&c_stream, Z_NO_FLUSH);
     if (err != Z_OK) {
       fprintf(stderr, "deflate: %s (%d)\n", c_stream.msg, err);
-      exit(1);
+      exit(2);
     }
     n += fwrite(outbuf, 1, OUTSIZE-c_stream.avail_out, f);
   } while (!c_stream.avail_out);
@@ -120,7 +120,7 @@ int pdf_xship(FILE *f, int filter, char *s, int len) {
 }
 
 /* ship len bytes from s using zlib compression. */
-int flate_xship(FILE *f, int filter, char *s, int len) {
+int flate_xship(FILE *f, int filter, const char *s, int len) {
   static int fstate = 0;
   static z_stream c_stream;
   char outbuf[OUTSIZE];
@@ -138,7 +138,7 @@ int flate_xship(FILE *f, int filter, char *s, int len) {
     err = deflateInit(&c_stream, 9);
     if (err != Z_OK) {
       fprintf(stderr, "deflateInit: %s (%d)\n", c_stream.msg, err);
-      exit(1);
+      exit(2);
     }
     c_stream.avail_in = 0;
     n += a85init(f);
@@ -153,7 +153,7 @@ int flate_xship(FILE *f, int filter, char *s, int len) {
       err = deflate(&c_stream, Z_FINISH);
       if (err != Z_OK && err != Z_STREAM_END) {
 	fprintf(stderr, "deflate: %s (%d)\n", c_stream.msg, err);
-	exit(1);
+	exit(2);
       }
       n += a85write(f, outbuf, OUTSIZE-c_stream.avail_out);
     } while (err != Z_STREAM_END);
@@ -178,7 +178,7 @@ int flate_xship(FILE *f, int filter, char *s, int len) {
     err = deflate(&c_stream, Z_NO_FLUSH);
     if (err != Z_OK) {
       fprintf(stderr, "deflate: %s (%d)\n", c_stream.msg, err);
-      exit(1);
+      exit(2);
     }
     n += a85write(f, outbuf, OUTSIZE-c_stream.avail_out);
   } while (!c_stream.avail_out);
@@ -188,11 +188,11 @@ int flate_xship(FILE *f, int filter, char *s, int len) {
 
 #else  /* HAVE_ZLIB */
 
-int pdf_xship(FILE *f, int filter, char *s, int len) {
+int pdf_xship(FILE *f, int filter, const char *s, int len) {
   return dummy_xship(f, filter, s, len);
 }
 
-int flate_xship(FILE *f, int filter, char *s, int len) {
+int flate_xship(FILE *f, int filter, const char *s, int len) {
   return dummy_xship(f, filter, s, len);
 }
 
@@ -203,7 +203,7 @@ int flate_xship(FILE *f, int filter, char *s, int len) {
    This relies on lzw.c/h to do the actual compression. */
 
 /* use Postscript level 2 compression. Ship len bytes from str. */
-int lzw_xship(FILE *f, int filter, char *str, int len) {
+int lzw_xship(FILE *f, int filter, const char *str, int len) {
   static int fstate = 0;
   static lzw_stream_t *s = NULL;
   char outbuf[OUTSIZE];
@@ -218,7 +218,7 @@ int lzw_xship(FILE *f, int filter, char *str, int len) {
     s = lzw_init();
     if (s == NULL) {
       fprintf(stderr, "lzw_init: %s\n", strerror(errno));
-      exit(1);
+      exit(2);
     }
     n += a85init(f);
     fstate = 1;
@@ -234,7 +234,7 @@ int lzw_xship(FILE *f, int filter, char *str, int len) {
       err = lzw_compress(s, LZW_EOD);
       if (err) {
 	fprintf(stderr, "lzw_compress: %s\n", strerror(errno));
-	exit(1);
+	exit(2);
       }
       n += a85write(f, outbuf, OUTSIZE - s->avail_out);
     } while (s->avail_out == 0);
@@ -262,7 +262,7 @@ int lzw_xship(FILE *f, int filter, char *str, int len) {
     err = lzw_compress(s, LZW_NORMAL);
     if (err) {
       fprintf(stderr, "lzw_compress: %s\n", strerror(errno));
-      exit(1);
+      exit(2);
     }
     n += a85write(f, outbuf, OUTSIZE - s->avail_out);
   } while (s->avail_out == 0);
@@ -274,7 +274,7 @@ int lzw_xship(FILE *f, int filter, char *str, int len) {
 /* a85 interface: a85 encoding without compression */
 
 /* ship len bytes from s using a85 encoding only. */
-int a85_xship(FILE *f, int filter, char *s, int len) {
+int a85_xship(FILE *f, int filter, const char *s, int len) {
   static int fstate = 0;
   int n=0;
 
@@ -324,7 +324,7 @@ static int a85finish(FILE *f) {
   return r+2;
 }
 
-static int a85write(FILE *f, char *buf, int n) {
+static int a85write(FILE *f, const char *buf, int n) {
   int i;
   int r=0;
 

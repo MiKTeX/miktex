@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -86,9 +86,9 @@
    created until it is accessed. */
 
 struct lzw_dict_s {
-  char c;      /* last character of string represented by this entry */
-  int code;    /* code for the string represented by this entry */
-  int freq;    /* how often searched? For optimization only */
+  char c;            /* last character of string represented by this entry */
+  unsigned int code; /* code for the string represented by this entry */
+  int freq;          /* how often searched? For optimization only */
   struct lzw_dict_s *children;  /* list of sub-entries */
   struct lzw_dict_s *next;      /* for making a linked list */
 };
@@ -104,8 +104,8 @@ typedef struct lzw_dict_s lzw_dict_t;
 struct lzw_state_s {
   /* dictionary state */
   int n;           /* current size of the dictionary */
-  lzw_dict_t *d;     /* pointer to dictionary */
-  lzw_dict_t *s;     /* pointer to current string, or NULL at beginning */
+  lzw_dict_t *d;   /* pointer to dictionary */
+  lzw_dict_t *s;   /* pointer to current string, or NULL at beginning */
 
   /* buffers for pending output */
   BITBUF_TYPE buf; /* bits scheduled for output - left aligned, 0 padded */
@@ -143,7 +143,7 @@ static void lzw_clear_table(lzw_state_t *st) {
 /* write the code to the bit buffer. Precondition st->bufsize <= 7.
    Note: this does not change the dictionary state; in particular,
    n must be updated between consecutive calls. */
-static inline void lzw_emit(int code, lzw_state_t *st) {
+static inline void lzw_emit(unsigned int code, lzw_state_t *st) {
   BITBUF_TYPE mask;
   int bits = hibit(st->n);
 
@@ -232,7 +232,7 @@ static int lzw_encode_char(lzw_state_t *st, char c) {
       return 1;
     }
     e->c = c;
-    e->code = (int)(unsigned char)c;
+    e->code = (unsigned char)c;
     e->freq = 0;
     e->children = NULL;
     list_prepend(st->d, e);

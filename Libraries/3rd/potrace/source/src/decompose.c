@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -432,7 +432,7 @@ static int findnext(potrace_bitmap_t *bm, int *xp, int *yp) {
   x0 = (*xp) & ~(BM_WORDBITS-1);
 
   for (y=*yp; y>=0; y--) {
-    for (x=x0; x<bm->w; x+=BM_WORDBITS) {
+    for (x=x0; x<bm->w && x>=0; x+=(unsigned)BM_WORDBITS) {
       if (*bm_index(bm, x, y)) {
 	while (!BM_GET(bm, x, y)) {
 	  x++;

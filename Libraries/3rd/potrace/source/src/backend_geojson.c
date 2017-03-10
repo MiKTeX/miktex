@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -30,7 +30,7 @@ static inline double bezier(double t, double x0, double x1, double x2, double x3
   return s*s*s*x0 + 3*(s*s*t)*x1 + 3*(t*t*s)*x2 + t*t*t*x3;
 }
 
-static char *format = "%f";
+static const char *format = "%f";
 
 /* Convert a floating-point number to a string, using a pre-determined
    format. The format must be previously set with set_format().

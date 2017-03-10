@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -38,6 +38,8 @@ typedef int color_t;
 #define green  0x008000
 #define blue   0x0000ff
 
+#define TRY(x) if (x) goto try_error
+
 /* ---------------------------------------------------------------------- */
 /* functions for interfacing with compression backend */
 
@@ -47,7 +49,7 @@ typedef int color_t;
 
 /* print the token to f, but filtered through a compression
    filter in case filter!=0 */
-static int (*xship)(FILE *f, int filter, char *s, int len);
+static int (*xship)(FILE *f, int filter, const char *s, int len);
 static FILE *xship_file;
 
 /* ship postscript code, filtered */
@@ -67,7 +69,7 @@ static int ship(const char *fmt, ...) {
 }  
 
 /* ship a postscript comment, unfiltered */
-static int shipcom(char *fmt, ...) {
+static int shipcom(const char *fmt, ...) {
   static char buf[4096];
   va_list args;
 
@@ -153,7 +155,7 @@ static void eps_curveto(dpoint_t p1, dpoint_t p2, dpoint_t p3) {
 }
 
 /* this procedure returns a statically allocated string */
-static char *eps_colorstring(const color_t col) {
+static const char *eps_colorstring(const color_t col) {
   double r, g, b;
   static char buf[100];
 
@@ -399,7 +401,7 @@ static void eps_L(privcurve_t *curve, const color_t col) {
 /* postscript macros */
 
 /* special macros for size-optimized rendering of Bezier curves */
-static char *optimacros =
+static const char *optimacros =
   "/D{bind def}def\n"
   "/R{roll}D\n"
   "/K{copy}D\n"
@@ -427,7 +429,7 @@ static char *optimacros =
   "/w{%s z fill}D\n";
 
 /* special macros for debug output */
-static char *debugmacros =
+static const char *debugmacros =
   "/unit { %f } def\n"
   "/box { newpath 0 0 moveto 0 1 lineto 1 1 lineto 1 0 lineto closepath } def\n"
   "/circ { newpath 0 0 1 0 360 arc closepath } def\n"
@@ -451,7 +453,7 @@ static int render0(potrace_path_t *plist) {
   if (info.longcoding) {
     eps_setcolor(info.color);
     list_forall (p, plist) {
-      eps_path(p->priv->fcurve);
+      TRY(eps_path(p->priv->fcurve));
       ship("closepath\n");
       if (p->next == NULL || p->next->sign == '+') {
 	ship("fill\n");
@@ -459,7 +461,7 @@ static int render0(potrace_path_t *plist) {
     }
   } else {
     list_forall (p, plist) {
-      eps_path(p->priv->fcurve);
+      TRY(eps_path(p->priv->fcurve));
       if (p->next == NULL || p->next->sign == '+') {
 	ship("b\n");
       } else {
@@ -468,6 +470,9 @@ static int render0(potrace_path_t *plist) {
     }
   }
   return 0;
+
+ try_error:
+  return 1;
 }
 
 /* Opaque output: alternating black and white */
@@ -476,18 +481,21 @@ static int render0_opaque(potrace_path_t *plist) {
   
   if (info.longcoding) {
     list_forall (p, plist) {
-      eps_path(p->priv->fcurve);
+      TRY(eps_path(p->priv->fcurve));
       ship("closepath\n");
       eps_setcolor(p->sign=='+' ? info.color : info.fillcolor);
       ship("fill\n");
     }
   } else {
     list_forall (p, plist) {
-      eps_path(p->priv->fcurve);
+      TRY(eps_path(p->priv->fcurve));
       ship(p->sign=='+' ? "b\n" : "w\n");
     }
   }
   return 0;
+
+ try_error:
+  return 1;
 }
 
 /* Debug output type 1 (show optimal polygon) */
@@ -559,7 +567,7 @@ static int render2(potrace_path_t *plist) {
     /* output the path */
     eps_linewidth(.1);
     eps_setcolor(blue);
-    eps_path(&p->priv->curve);
+    TRY(eps_path(&p->priv->curve));
     ship("closepath\n");
     ship("stroke\n");
 
@@ -568,7 +576,7 @@ static int render2(potrace_path_t *plist) {
       /* output opticurve */
       eps_linewidth(.05);
       eps_setcolor(red);
-      eps_path(&p->priv->ocurve);
+      TRY(eps_path(&p->priv->ocurve));
       ship("closepath\n");
       ship("stroke\n");
       
@@ -580,6 +588,9 @@ static int render2(potrace_path_t *plist) {
     }
   }
   return 0;
+
+ try_error:
+  return 1;
 }
 
 /* Free-style debug output */
@@ -618,7 +629,7 @@ static int render_debug(potrace_path_t *plist) {
     /* output the path */
     eps_linewidth(.1);
     eps_setcolor(blue);
-    eps_path(&p->priv->curve);
+    TRY(eps_path(&p->priv->curve));
     ship("closepath\n");
     ship("stroke\n");
     
@@ -630,7 +641,7 @@ static int render_debug(potrace_path_t *plist) {
       /* output opticurve */
       eps_linewidth(.05);
       eps_setcolor(red);
-      eps_path(&p->priv->ocurve);
+      TRY(eps_path(&p->priv->ocurve));
       ship("closepath\n");
       ship("stroke\n");
       
@@ -648,6 +659,9 @@ static int render_debug(potrace_path_t *plist) {
     }
   }
   return 0;
+
+ try_error:
+  return 1;
 }
 
 /* select the appropriate rendering function from above */
@@ -686,7 +700,7 @@ static int eps_init(imginfo_t *imginfo) {
   char *c0, *c1;
 
   shipcom("%%!PS-Adobe-3.0 EPSF-3.0\n");
-  shipcom("%%%%Creator: "POTRACE" "VERSION", written by Peter Selinger 2001-2015\n");
+  shipcom("%%%%Creator: " POTRACE " " VERSION ", written by Peter Selinger 2001-2017\n");
   shipcom("%%%%LanguageLevel: %d\n", info.pslevel);
   shipcom("%%%%BoundingBox: 0 0 %.0f %.0f\n", 
 	  ceil(imginfo->trans.bb[0]+imginfo->lmar+imginfo->rmar),
@@ -725,28 +739,22 @@ static int eps_init(imginfo_t *imginfo) {
   return 0;
 }
 
-static int eps_term(void) {
+static void eps_term(void) {
   ship("restore\n");
   shipcom("%%%%EOF\n");
-  return 0;
 }
 
 /* public interface for EPS */
 int page_eps(FILE *fout, potrace_path_t *plist, imginfo_t *imginfo) {
-  int r;
-
   eps_callbacks(fout);
 
-  eps_init(imginfo);
-  
-  r = eps_render(plist);
-  if (r) {
-    return r;
-  }
-
+  TRY(eps_init(imginfo));
+  TRY(eps_render(plist));
   eps_term();
-
   return 0;
+
+ try_error:
+  return 1;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -761,7 +769,7 @@ int init_ps(FILE *fout) {
   eps_callbacks(fout);
 
   shipcom("%%!PS-Adobe-3.0\n");
-  shipcom("%%%%Creator: "POTRACE" "VERSION", written by Peter Selinger 2001-2015\n");
+  shipcom("%%%%Creator: " POTRACE " " VERSION ", written by Peter Selinger 2001-2017\n");
   shipcom("%%%%LanguageLevel: %d\n", info.pslevel);
   shipcom("%%%%BoundingBox: 0 0 %d %d\n", info.paperwidth, info.paperheight);
   shipcom("%%%%Pages: (atend)\n");

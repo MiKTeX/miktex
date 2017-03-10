@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -38,7 +38,7 @@ static char lastop = 0;
 static int column = 0;
 static int newline = 1;
 
-static void shiptoken(FILE *fout, char *token) {
+static void shiptoken(FILE *fout, const char *token) {
   int c = strlen(token);
   if (!newline && column+c+1 > 75) {
     fprintf(fout, "\n");
@@ -53,7 +53,7 @@ static void shiptoken(FILE *fout, char *token) {
   newline = 0;
 }
 
-static void ship(FILE *fout, char *fmt, ...) {
+static void ship(FILE *fout, const char *fmt, ...) {
   va_list args;
   static char buf[4096]; /* static string limit is okay here because
 			    we only use constant format strings - for
@@ -304,7 +304,7 @@ int page_svg(FILE *fout, potrace_path_t *plist, imginfo_t *imginfo) {
 
   /* metadata: creator */
   fprintf(fout, "<metadata>\n");
-  fprintf(fout, "Created by "POTRACE" "VERSION", written by Peter Selinger 2001-2015\n");
+  fprintf(fout, "Created by " POTRACE " " VERSION ", written by Peter Selinger 2001-2017\n");
   fprintf(fout, "</metadata>\n");
 
   /* use a "group" tag to establish coordinate system and style */

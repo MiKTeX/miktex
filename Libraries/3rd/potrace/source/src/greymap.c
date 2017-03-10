@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -26,39 +26,79 @@
 static int gm_readbody_pnm(FILE *f, greymap_t **gmp, int magic);
 static int gm_readbody_bmp(FILE *f, greymap_t **gmp);
 
+#define TRY(x) if (x) goto try_error
+#define TRY_EOF(x) if (x) goto eof
+#define TRY_STD(x) if (x) goto std_error
+
 /* ---------------------------------------------------------------------- */
 /* basic greymap routines */
 
-/* return new un-initialized greymap. NULL with errno on error.
+/* calculate the size, in bytes, required for the data area of a
+   greymap of the given dy and h. Assume h >= 0. Return -1 if the size
+   does not fit into the ptrdiff_t type. */
+static inline ptrdiff_t getsize(int dy, int h) {
+  ptrdiff_t size;
+
+  if (dy < 0) {
+    dy = -dy;
+  }
+  
+  size = (ptrdiff_t)dy * (ptrdiff_t)h * (ptrdiff_t)sizeof(gm_sample_t);
+
+  /* check for overflow error */
+  if (size < 0 || (h != 0 && dy != 0 && size / h / dy != sizeof(gm_sample_t))) {
+    return -1;
+  }
+
+  return size;
+}
+
+/* return the size, in bytes, of the data area of the greymap. Return
+   -1 if the size does not fit into the ptrdiff_t type; however, this
+   cannot happen if the bitmap is well-formed, i.e., if created with
+   gm_new or gm_dup. */
+static inline ptrdiff_t gm_size(const greymap_t *gm) {
+  return getsize(gm->dy, gm->h);
+}
+
+
+
+/* return new greymap initialized to 0. NULL with errno on error.
    Assumes w, h >= 0. */
 greymap_t *gm_new(int w, int h) {
   greymap_t *gm;
-  ptrdiff_t size = (ptrdiff_t)w * (ptrdiff_t)h * (ptrdiff_t)sizeof(signed short int);
-  
-  /* check for overflow error */
-  if (size < 0 || size / w / h != sizeof(signed short int)) {
+  int dy = w;
+  ptrdiff_t size;
+
+  size = getsize(dy, h);
+  if (size < 0) {
     errno = ENOMEM;
     return NULL;
   }
-
+  if (size == 0) {
+    size = 1; /* make surecmalloc() doesn't return NULL */
+  }
+  
   gm = (greymap_t *) malloc(sizeof(greymap_t));
   if (!gm) {
     return NULL;
   }
   gm->w = w;
   gm->h = h;
-  gm->map = (signed short int *) malloc(size);
-  if (!gm->map) {
+  gm->dy = dy;
+  gm->base = (gm_sample_t *) calloc(1, size);
+  if (!gm->base) {
     free(gm);
     return NULL;
   }
+  gm->map = gm->base;
   return gm;
 }
 
 /* free the given greymap */
 void gm_free(greymap_t *gm) {
   if (gm) {
-    free(gm->map);
+    free(gm->base);
   }
   free(gm);
 }
@@ -66,25 +106,90 @@ void gm_free(greymap_t *gm) {
 /* duplicate the given greymap. Return NULL on error with errno set. */
 greymap_t *gm_dup(greymap_t *gm) {
   greymap_t *gm1 = gm_new(gm->w, gm->h);
+  int y;
+  
   if (!gm1) {
     return NULL;
   }
-  memcpy(gm1->map, gm->map, gm->w*gm->h*sizeof(signed short int));
+  for (y=0; y<gm->h; y++) {
+    memcpy(gm_scanline(gm1, y), gm_scanline(gm, y), (size_t)gm1->dy * sizeof(gm_sample_t));
+  }
   return gm1;
 }
 
 /* clear the given greymap to color b. */
 void gm_clear(greymap_t *gm, int b) {
-  int i;
-
+  ptrdiff_t size = gm_size(gm);
+  int x, y;
+  
   if (b==0) {
-    memset(gm->map, 0, gm->w*gm->h*sizeof(signed short int));
+    memset(gm->base, 0, size);
   } else {
-    for (i=0; i<gm->w*gm->h; i++) {
-      gm->map[i] = b;
+    for (y=0; y<gm->h; y++) {
+      for (x=0; x<gm->w; x++) {
+        GM_UPUT(gm, x, y, b);
+      }
     }
-  }    
+  }
 }
+
+/* turn the given greymap upside down. This does not move the pixel
+   data or change the base address. */
+static inline void gm_flip(greymap_t *gm) {
+  int dy = gm->dy;
+
+  if (gm->h == 0 || gm->h == 1) {
+    return;
+  }
+  
+  gm->map = gm_scanline(gm, gm->h - 1);
+  gm->dy = -dy;
+}
+
+/* resize the greymap to the given new height. The pixel data remains
+   bottom-aligned (truncated at the top) when dy >= 0 and top-aligned
+   (truncated at the bottom) when dy < 0. Return 0 on success, or 1 on
+   error with errno set. If the new height is <= the old one, no error
+   should occur. If the new height is larger, the additional pixel
+   data is *not* initialized. */
+static inline int gm_resize(greymap_t *gm, int h) {
+  int dy = gm->dy;
+  ptrdiff_t newsize;
+  gm_sample_t *newbase;
+
+  if (dy < 0) {
+    gm_flip(gm);
+  }
+  
+  newsize = getsize(dy, h);
+  if (newsize < 0) {
+    errno = ENOMEM;
+    goto error;
+  }
+  if (newsize == 0) {
+    newsize = 1; /* make sure realloc() doesn't return NULL */
+  }
+  
+  newbase = (gm_sample_t *)realloc(gm->base, newsize);
+  if (newbase == NULL) {
+    goto error;
+  }
+  gm->base = newbase;
+  gm->map = newbase;
+  gm->h = h;
+
+  if (dy < 0) {
+    gm_flip(gm);
+  }
+  return 0;
+  
+ error:
+  if (dy < 0) {
+    gm_flip(gm);
+  }
+  return 1;  
+}
+
 
 /* ---------------------------------------------------------------------- */
 /* routines for reading pnm streams */
@@ -178,7 +283,7 @@ static int readbit(FILE *f) {
    -4 if wrong magic number. If the return value is >=0, *gmp is
    valid. */
 
-char *gm_read_error = NULL;
+const char *gm_read_error = NULL;
 
 int gm_read(FILE *f, greymap_t **gmp) {
   int magic[2];
@@ -212,7 +317,9 @@ static int gm_readbody_pnm(FILE *f, greymap_t **gmp, int magic) {
   int x, y, i, j, b, b1, sum;
   int bpr; /* bytes per row (as opposed to 4*gm->c) */
   int w, h, max;
-
+  int realheight;  /* in case of incomplete file, keeps track of how
+                      many scan lines actually contain data */
+  
   gm = NULL;
 
   w = readnum(f);
@@ -228,11 +335,10 @@ static int gm_readbody_pnm(FILE *f, greymap_t **gmp, int magic) {
   /* allocate greymap */
   gm = gm_new(w, h);
   if (!gm) {
-    return -1;
+    goto std_error;
   }
 
-  /* zero it out */
-  gm_clear(gm, 0);
+  realheight = 0;
 
   switch (magic) {
   default: 
@@ -242,7 +348,8 @@ static int gm_readbody_pnm(FILE *f, greymap_t **gmp, int magic) {
   case '1':
     /* read P1 format: PBM ascii */
     
-    for (y=h-1; y>=0; y--) {
+    for (y=0; y<h; y++) {
+      realheight = y+1;
       for (x=0; x<w; x++) {
 	b = readbit(f);
 	if (b<0) {
@@ -261,7 +368,8 @@ static int gm_readbody_pnm(FILE *f, greymap_t **gmp, int magic) {
       goto format_error;
     }
     
-    for (y=h-1; y>=0; y--) {
+    for (y=0; y<h; y++) {
+      realheight = y+1;
       for (x=0; x<w; x++) {
         b = readnum(f);
         if (b<0) {
@@ -280,7 +388,8 @@ static int gm_readbody_pnm(FILE *f, greymap_t **gmp, int magic) {
       goto format_error;
     }
     
-    for (y=h-1; y>=0; y--) {
+    for (y=0; y<h; y++) {
+      realheight = y+1;
       for (x=0; x<w; x++) {
 	sum = 0;
 	for (i=0; i<3; i++) {
@@ -305,7 +414,8 @@ static int gm_readbody_pnm(FILE *f, greymap_t **gmp, int magic) {
 
     bpr = (w+7)/8;
 
-    for (y=h-1; y>=0; y--) {
+    for (y=0; y<h; y++) {
+      realheight = y+1;
       for (i=0; i<bpr; i++) {
 	b = fgetc(f);
 	if (b==EOF) {
@@ -331,7 +441,8 @@ static int gm_readbody_pnm(FILE *f, greymap_t **gmp, int magic) {
       goto format_error;
     }
 
-    for (y=h-1; y>=0; y--) {
+    for (y=0; y<h; y++) {
+      realheight = y+1;
       for (x=0; x<w; x++) {
         b = fgetc(f);
         if (b==EOF)
@@ -361,7 +472,8 @@ static int gm_readbody_pnm(FILE *f, greymap_t **gmp, int magic) {
       goto format_error;
     }
 
-    for (y=h-1; y>=0; y--) {
+    for (y=0; y<h; y++) {
+      realheight = y+1;
       for (x=0; x<w; x++) {
         sum = 0;
         for (i=0; i<3; i++) {
@@ -384,10 +496,13 @@ static int gm_readbody_pnm(FILE *f, greymap_t **gmp, int magic) {
     break;
   }
 
+  gm_flip(gm);
   *gmp = gm;
   return 0;
 
  eof:
+  TRY_STD(gm_resize(gm, realheight));
+  gm_flip(gm);
   *gmp = gm;
   return 1;
 
@@ -401,6 +516,10 @@ static int gm_readbody_pnm(FILE *f, greymap_t **gmp, int magic) {
     gm_read_error = "invalid ppm file";
   }
   return -2;
+
+ std_error:
+  gm_free(gm);
+  return -1;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -447,7 +566,7 @@ static int bmp_readint(FILE *f, int n, unsigned int *p) {
     if (b==EOF) {
       return 1;
     }
-    sum += b << (8*i);
+    sum += (unsigned)b << (8*i);
   }
   bmp_count += n;
   bmp_pos += n;
@@ -492,11 +611,8 @@ static int bmp_forward(FILE *f, int pos) {
   return 0;
 }
 
-#define TRY(x) if (x) goto try_error
-#define TRY_EOF(x) if (x) goto eof
-
-/* correct y-coordinate for top-down format */
-#define ycorr(y) (bmpinfo.topdown ? bmpinfo.h-1-y : y)
+/* safe colortable access */
+#define COLTABLE(c) ((c) < bmpinfo.ncolors ? coltable[(c)] : 0)
 
 /* read BMP stream after magic number. Return values as for gm_read.
    We choose to be as permissive as possible, since there are many
@@ -516,6 +632,8 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
   unsigned int bitbuf;
   unsigned int n;
   unsigned int redshift, greenshift, blueshift;
+  int realheight;  /* in case of incomplete file, keeps track of how
+                      many scan lines actually contain data */
 
   gm_read_error = NULL;
   gm = NULL;
@@ -581,6 +699,10 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
     goto format_error;
   }
 
+  if (bmpinfo.comp > 3 || bmpinfo.bits > 32) {
+    goto format_error;
+  }
+  
   /* forward to color table (e.g., if bmpinfo.InfoSize == 64) */
   TRY(bmp_forward(f, 14+bmpinfo.InfoSize));
 
@@ -589,7 +711,7 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
     goto format_error;  /* can't handle planes */
   }
   
-  if (bmpinfo.ncolors == 0) {
+  if (bmpinfo.ncolors == 0 && bmpinfo.bits <= 8) {
     bmpinfo.ncolors = 1 << bmpinfo.bits;
   }
 
@@ -618,10 +740,9 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
   if (!gm) {
     goto std_error;
   }
-  
-  /* zero it out */
-  gm_clear(gm, 0);
 
+  realheight = 0;
+  
   switch (bmpinfo.bits + 0x100*bmpinfo.comp) {
     
   default:
@@ -632,11 +753,12 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
 
     /* raster data */
     for (y=0; y<bmpinfo.h; y++) {
+      realheight = y+1;
       bmp_pad_reset();
       for (i=0; 8*i<bmpinfo.w; i++) {
 	TRY_EOF(bmp_readint(f, 1, &b));
 	for (j=0; j<8; j++) {
-	  GM_PUT(gm, i*8+j, ycorr(y), b & (0x80 >> j) ? coltable[1] : coltable[0]);
+	  GM_PUT(gm, i*8+j, y, b & (0x80 >> j) ? COLTABLE(1) : COLTABLE(0));
 	}
       }
       TRY(bmp_pad(f));
@@ -651,6 +773,7 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
   case 0x007: 
   case 0x008:
     for (y=0; y<bmpinfo.h; y++) {
+      realheight = y+1;
       bmp_pad_reset();
       bitbuf = 0;  /* bit buffer: bits in buffer are high-aligned */
       n = 0;       /* number of bits currently in bitbuffer */
@@ -663,7 +786,7 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
 	b = bitbuf >> (INTBITS - bmpinfo.bits);
 	bitbuf <<= bmpinfo.bits;
 	n -= bmpinfo.bits;
-	GM_UPUT(gm, x, ycorr(y), coltable[b]);
+	GM_UPUT(gm, x, y, COLTABLE(b));
       }
       TRY(bmp_pad(f));
     }
@@ -679,11 +802,12 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
   case 0x018:  /* 24-bit encoding */
   case 0x020:  /* 32-bit encoding */
     for (y=0; y<bmpinfo.h; y++) {
+      realheight = y+1;
       bmp_pad_reset();
       for (x=0; x<bmpinfo.w; x++) {
         TRY_EOF(bmp_readint(f, bmpinfo.bits/8, &c));
 	c = ((c>>16) & 0xff) + ((c>>8) & 0xff) + (c & 0xff);
-        GM_UPUT(gm, x, ycorr(y), c/3);
+        GM_UPUT(gm, x, y, c/3);
       }
       TRY(bmp_pad(f));
     }
@@ -695,11 +819,12 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
     blueshift = lobit(bmpinfo.BlueMask);
 
     for (y=0; y<bmpinfo.h; y++) {
+      realheight = y+1;
       bmp_pad_reset();
       for (x=0; x<bmpinfo.w; x++) {
         TRY_EOF(bmp_readint(f, bmpinfo.bits/8, &c));
 	c = ((c & bmpinfo.RedMask) >> redshift) + ((c & bmpinfo.GreenMask) >> greenshift) + ((c & bmpinfo.BlueMask) >> blueshift);
-        GM_UPUT(gm, x, ycorr(y), c/3);
+        GM_UPUT(gm, x, y, c/3);
       }
       TRY(bmp_pad(f));
     }
@@ -713,8 +838,8 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
       TRY_EOF(bmp_readint(f, 1, &c)); /* argument */
       if (b>0) {
 	/* repeat count */
-	col[0] = coltable[(c>>4) & 0xf];
-	col[1] = coltable[c & 0xf];
+	col[0] = COLTABLE((c>>4) & 0xf);
+	col[1] = COLTABLE(c & 0xf);
 	for (i=0; i<b && x<bmpinfo.w; i++) {
 	  if (x>=bmpinfo.w) {
 	    x=0;
@@ -723,7 +848,8 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
 	  if (y>=bmpinfo.h) {
 	    break;
 	  }
-	  GM_UPUT(gm, x, ycorr(y), col[i&1]);
+          realheight = y+1;
+	  GM_UPUT(gm, x, y, col[i&1]);
 	  x++;
 	}
       } else if (c == 0) {
@@ -752,7 +878,8 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
 	  if (y>=bmpinfo.h) {
 	    break;
 	  }
-	  GM_PUT(gm, x, ycorr(y), coltable[(b>>(4-4*(i&1))) & 0xf]);
+          realheight = y+1;
+	  GM_PUT(gm, x, y, COLTABLE((b>>(4-4*(i&1))) & 0xf));
 	  x++;
 	}
 	if ((c+1) & 2) {
@@ -779,7 +906,8 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
 	  if (y>=bmpinfo.h) {
 	    break;
 	  }
-	  GM_UPUT(gm, x, ycorr(y), coltable[c]);
+          realheight = y+1;
+	  GM_UPUT(gm, x, y, COLTABLE(c));
 	  x++;
 	}
       } else if (c == 0) {
@@ -806,7 +934,8 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
           if (y>=bmpinfo.h) {
             break;
           }
-	  GM_PUT(gm, x, ycorr(y), coltable[b]);
+          realheight = y+1;
+	  GM_PUT(gm, x, y, COLTABLE(b));
 	  x++;
 	}
 	if (c & 1) {
@@ -824,18 +953,25 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
   bmp_forward(f, bmpinfo.FileSize);
 
   free(coltable);
+  if (bmpinfo.topdown) {
+    gm_flip(gm);
+  }
   *gmp = gm;
   return 0;
 
  eof:
+  TRY_STD(gm_resize(gm, realheight));
   free(coltable);
+  if (bmpinfo.topdown) {
+    gm_flip(gm);
+  }
   *gmp = gm;
   return 1;
 
  format_error:
  try_error:
   free(coltable);
-  free(gm);
+  gm_free(gm);
   if (!gm_read_error) {
     gm_read_error = "invalid bmp file";
   }
@@ -843,7 +979,7 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
 
  std_error:
   free(coltable);
-  free(gm);
+  gm_free(gm);
   return -1;
 }
 
@@ -855,7 +991,7 @@ static int gm_readbody_bmp(FILE *f, greymap_t **gmp) {
    if any (set to 2.2 if the image is to look optimal on a CRT monitor,
    2.8 for LCD). Set to 1.0 for no gamma correction */
 
-int gm_writepgm(FILE *f, greymap_t *gm, char *comment, int raw, int mode, double gamma) {
+int gm_writepgm(FILE *f, greymap_t *gm, const char *comment, int raw, int mode, double gamma) {
   int x, y, v;
   int gammatable[256];
   

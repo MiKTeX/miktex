@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -60,7 +60,6 @@ render_t *render_new(greymap_t *gm) {
     free(rm);
     return NULL;
   }
-  memset(rm->incrow_buf, 0, gm->h * sizeof(int));
   return rm;
 }
 

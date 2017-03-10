@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -62,7 +62,7 @@ int page_pgm(FILE *fout, potrace_path_t *plist, imginfo_t *imginfo) {
   int w, h;
   trans_t t;
   int mode;
-  char *comment = "created by "POTRACE" "VERSION", written by Peter Selinger 2001-2015";
+  const char *comment = "created by " POTRACE " " VERSION ", written by Peter Selinger 2001-2017";
 
   t.bb[0] = imginfo->trans.bb[0]+imginfo->lmar+imginfo->rmar;
   t.bb[1] = imginfo->trans.bb[1]+imginfo->tmar+imginfo->bmar;

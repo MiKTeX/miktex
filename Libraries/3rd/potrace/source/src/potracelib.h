@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -130,7 +130,7 @@ void potrace_state_free(potrace_state_t *st);
 
 /* return a static plain text version string identifying this version
    of potracelib */
-char *potrace_version(void);
+const char *potrace_version(void);
 
 #ifdef  __cplusplus
 } /* end of extern "C" */

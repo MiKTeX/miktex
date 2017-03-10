@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -24,6 +24,8 @@
 #include "auxiliary.h"
 
 typedef int color_t;
+
+#define TRY(x) if (x) goto try_error
 
 /* ---------------------------------------------------------------------- */
 /* auxiliary: growing arrays */
@@ -83,7 +85,7 @@ static size_t outcount;  /* output file position */
 
 /* print the token to f, but filtered through a compression
    filter in case filter!=0 */
-static int (*xship)(FILE *f, int filter, char *s, int len);
+static int (*xship)(FILE *f, int filter, const char *s, int len);
 static FILE *xship_file;
 
 /* ship PDF code, filtered */
@@ -103,7 +105,7 @@ static int ship(const char *fmt, ...) {
 }  
 
 /* ship PDF code, unfiltered */
-static int shipclear(char *fmt, ...) {
+static int shipclear(const char *fmt, ...) {
   static char buf[4096];
   va_list args;
 
@@ -165,7 +167,7 @@ static void pdf_curveto(dpoint_t p1, dpoint_t p2, dpoint_t p3) {
 }
 
 /* this procedure returns a statically allocated string */
-static char *pdf_colorstring(const color_t col) {
+static const char *pdf_colorstring(const color_t col) {
   double r, g, b;
   static char buf[100];
 
@@ -277,13 +279,13 @@ int init_pdf(FILE *fout)
 
 	shipclear("%%PDF-1.3\n");
 
-	intarray_set(&xref, nxref++, outcount);
+	TRY(intarray_set(&xref, nxref++, outcount));
 	shipclear("1 0 obj\n<</Type/Catalog/Pages 3 0 R>>\nendobj\n");
 
-	intarray_set(&xref, nxref++, outcount);
+	TRY(intarray_set(&xref, nxref++, outcount));
 	shipclear("2 0 obj\n"
 		"<</Creator"
-		"("POTRACE" "VERSION", written by Peter Selinger 2001-2015)>>\n"
+		"(" POTRACE " " VERSION ", written by Peter Selinger 2001-2017)>>\n"
 		"endobj\n");
 
 	/* delay obj #3 (pages) until end */
@@ -291,6 +293,9 @@ int init_pdf(FILE *fout)
 
 	fflush(fout);
 	return 0;
+
+ try_error:
+        return 1;
 }
 
 int term_pdf(FILE *fout)
@@ -300,7 +305,7 @@ int term_pdf(FILE *fout)
 
 	pdf_callbacks(fout);
 
-	intarray_set(&xref, 2, outcount);
+	TRY(intarray_set(&xref, 2, outcount));
 	shipclear("3 0 obj\n"
 		"<</Type/Pages/Count %d/Kids[\n", npages);
 	for (i = 0; i < npages; i++)
@@ -321,10 +326,14 @@ int term_pdf(FILE *fout)
 	intarray_term(&xref);
 	intarray_term(&pages);
 	return 0;
+
+ try_error:
+        return 1;
 }
 
-/* if largebbox is set, set bounding box to pagesize. */
-static void pdf_pageinit(imginfo_t *imginfo, int largebbox)
+/* if largebbox is set, set bounding box to pagesize. Return 0 on
+   success or 1 on error with errno set. */
+static int pdf_pageinit(imginfo_t *imginfo, int largebbox)
 {
 	double origx = imginfo->trans.orig[0] + imginfo->lmar;
 	double origy = imginfo->trans.orig[1] + imginfo->bmar;
@@ -338,7 +347,7 @@ static void pdf_pageinit(imginfo_t *imginfo, int largebbox)
 
 	pdf_color = -1;
 
-	intarray_set(&xref, nxref++, outcount);
+	TRY(intarray_set(&xref, nxref++, outcount));
 	shipclear("%d 0 obj\n", nxref);
 	shipclear("<</Type/Page/Parent 3 0 R/Resources<</ProcSet[/PDF]>>");
 	if (largebbox) {
@@ -349,9 +358,9 @@ static void pdf_pageinit(imginfo_t *imginfo, int largebbox)
 	shipclear("/Contents %d 0 R>>\n", nxref + 1);
 	shipclear("endobj\n");
 
-	intarray_set(&pages, npages++, nxref);
+	TRY(intarray_set(&pages, npages++, nxref));
 
-	intarray_set(&xref, nxref++, outcount);
+	TRY(intarray_set(&xref, nxref++, outcount));
 	shipclear("%d 0 obj\n", nxref);
 	if (info.compress)
 		shipclear("<</Filter/FlateDecode/Length %d 0 R>>\n", nxref + 1);
@@ -362,9 +371,14 @@ static void pdf_pageinit(imginfo_t *imginfo, int largebbox)
 	streamofs = outcount;
 
 	ship("%f %f %f %f %f %f cm\n", dxx, dxy, dyx, dyy, origx, origy);
+        return 0;
+
+       try_error:
+        return 1;
 }
 
-static void pdf_pageterm(void)
+/* Return 0 on success or 1 on error with errno set. */
+static int pdf_pageterm(void)
 {
 	int streamlen;
 
@@ -373,8 +387,12 @@ static void pdf_pageterm(void)
 	streamlen = outcount - streamofs;
 	shipclear("endstream\nendobj\n");
 	
-	intarray_set(&xref, nxref++, outcount);
+	TRY(intarray_set(&xref, nxref++, outcount));
 	shipclear("%d 0 obj\n%d\nendobj\n", nxref, streamlen);
+        return 0;
+
+       try_error:
+        return 1;
 }
 
 int page_pdf(FILE *fout, potrace_path_t *plist, imginfo_t *imginfo)
@@ -383,18 +401,20 @@ int page_pdf(FILE *fout, potrace_path_t *plist, imginfo_t *imginfo)
 
   pdf_callbacks(fout);
 
-  pdf_pageinit(imginfo, 0);
+  TRY(pdf_pageinit(imginfo, 0));
 
   r = pdf_render(plist);
   if (r) {
     return r;
   }
 
-  pdf_pageterm();
+  TRY(pdf_pageterm());
 
   fflush(fout);
-
   return 0;
+
+ try_error:
+  return 1;
 }
 
 int page_pdfpage(FILE *fout, potrace_path_t *plist, imginfo_t *imginfo)
@@ -403,17 +423,19 @@ int page_pdfpage(FILE *fout, potrace_path_t *plist, imginfo_t *imginfo)
 
   pdf_callbacks(fout);
 
-  pdf_pageinit(imginfo, 1);
+  TRY(pdf_pageinit(imginfo, 1));
 
   r = pdf_render(plist);
   if (r) {
     return r;
   }
 
-  pdf_pageterm();
+  TRY(pdf_pageterm());
 
   fflush(fout);
-
   return 0;
+
+ try_error:
+  return 1;
 }
 

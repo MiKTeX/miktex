@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -9,12 +9,12 @@
 /* user visible state */
 
 struct lzw_stream_s {
-  char *next_in;     /* pointer to next input character */
-  int avail_in;      /* number of input chars available */
-  char *next_out;    /* pointer to next free byte in output buffer */
-  int avail_out;     /* remaining size of output buffer */
+  const char *next_in; /* pointer to next input character */
+  int avail_in;        /* number of input chars available */
+  char *next_out;      /* pointer to next free byte in output buffer */
+  int avail_out;       /* remaining size of output buffer */
 
-  void *internal;    /* internal state, not user accessible */
+  void *internal;      /* internal state, not user accessible */
 };
 typedef struct lzw_stream_s lzw_stream_t;
 

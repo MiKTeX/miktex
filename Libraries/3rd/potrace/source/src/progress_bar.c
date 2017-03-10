@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -44,7 +44,7 @@ static void vt100_progress(double d, void *data) {
   if (d >= p->dnext) {
     tick = (int) floor(d*40+0.01);
     perc = (int) floor(d*100+0.025);
-    fprintf(stderr, "%-21s |%-40s| %d%% "COL0"", p->name, b+40-tick, perc);
+    fprintf(stderr, "%-21s |%-40s| %d%% " COL0 "", p->name, b+40-tick, perc);
     fflush(stderr);
     p->dnext = (tick+0.995) / 40.0;
   }

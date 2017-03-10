@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2015 Peter Selinger.
+/* Copyright (C) 2001-2017 Peter Selinger.
    This file is part of Potrace. It is free software and it is covered
    by the GNU General Public License. See the file COPYING for details. */
 
@@ -26,7 +26,7 @@
 #endif
 
 struct pageformat_s {
-  char *name;
+  const char *name;
   int w, h;
 };
 typedef struct pageformat_s pageformat_t;
@@ -179,7 +179,7 @@ int page_xfig(FILE *fout, potrace_path_t *plist, imginfo_t *imginfo) {
   trans_t t;
   double origx = imginfo->trans.orig[0] + imginfo->lmar;
   double origy = - imginfo->trans.orig[1] - imginfo->bmar + info.paperheight;
-  char *formatname;
+  const char *formatname;
   int best, penalty;
   pageformat_t *f;
   int i;
@@ -215,7 +215,7 @@ int page_xfig(FILE *fout, potrace_path_t *plist, imginfo_t *imginfo) {
 
   /* header */
   fprintf(fout, "#FIG 3.2\n");
-  fprintf(fout, "#created by "POTRACE" "VERSION", written by Peter Selinger 2001-2015\n");
+  fprintf(fout, "#created by " POTRACE " " VERSION ", written by Peter Selinger 2001-2017\n");
   fprintf(fout, "Portrait\n");
   fprintf(fout, "Center\n");
   fprintf(fout, "Inches\n");
