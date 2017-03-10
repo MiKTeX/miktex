@@ -532,8 +532,18 @@ Process2* unxProcess::get_Parent()
     parentProcess->pid = std::stoi(*tok);
     return parentProcess;
   }
-#endif
+#elif defined(__APPLE__)
+  struct proc_bsdinfo procinfo;
+  if (proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &procinfo, PROC_PIDTBSDINFO_SIZE) == 0)
+  {
+    return nullptr;
+  }
+  unxProcess* parentProcess = new unxProcess();
+  parentProcess->pid = procinfo.pbi_ppid;
+  return parentProcess;
+#else
   return nullptr;
+#endif
 }
 
 string unxProcess::get_ProcessName()
@@ -546,6 +556,14 @@ string unxProcess::get_ProcessName()
   {
     return line;
   }
-#endif
+#elif defined(__APPLE__)
+  char path[PROC_PIDPATHINFO_MAXSIZE];
+  if (proc_pidpath(pid, path, sizeof(path)) == 0)
+  {
+    return "?";
+  }
+  return PathName(path).GetFileName().ToString();
+#else
   return "?";
+#endif
 }
