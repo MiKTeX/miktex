@@ -959,7 +959,7 @@ static inline bool apply_lookup (hb_apply_context_t *c,
   TRACE_APPLY (NULL);
 
   hb_buffer_t *buffer = c->buffer;
-  unsigned int end;
+  int end;
 
   /* All positions are distance from beginning of *output* buffer.
    * Adjust. */
@@ -996,17 +996,38 @@ static inline bool apply_lookup (hb_apply_context_t *c,
     if (!delta)
         continue;
 
-    /* Recursed lookup changed buffer len.  Adjust. */
+    /* Recursed lookup changed buffer len.  Adjust.
+     *
+     * TODO:
+     *
+     * Right now, if buffer length increased by n, we assume n new glyphs
+     * were added right after the current position, and if buffer length
+     * was decreased by n, we assume n match positions after the current
+     * one where removed.  The former (buffer length increased) case is
+     * fine, but the decrease case can be improved in at least two ways,
+     * both of which are significant:
+     *
+     *   - If recursed-to lookup is MultipleSubst and buffer length
+     *     decreased, then it's current match position that was deleted,
+     *     NOT the one after it.
+     *
+     *   - If buffer length was decreased by n, it does not necessarily
+     *     mean that n match positions where removed, as there might
+     *     have been marks and default-ignorables in the sequence.  We
+     *     should instead drop match positions between current-position
+     *     and current-position + n instead.
+     *
+     * It should be possible to construct tests for both of these cases.
+     */
 
-    end = int (end) + delta;
-    if (end <= match_positions[idx])
+    end += delta;
+    if (end < int (match_positions[idx]))
     {
       /* End might end up being smaller than match_positions[idx] if the recursed
-       * lookup ended up removing many items, more than we have had matched.
+       * lookup ended up removing too many items.
        * Just never rewind end back and get out of here.
        * https://bugs.chromium.org/p/chromium/issues/detail?id=659496 */
       end = match_positions[idx];
-      /* There can't be any further changes. */
       break;
     }
 
@@ -1019,7 +1040,7 @@ static inline bool apply_lookup (hb_apply_context_t *c,
     }
     else
     {
-      /* NOTE: delta is negative. */
+      /* NOTE: delta is non-positive. */
       delta = MAX (delta, (int) next - (int) count);
       next -= delta;
     }
@@ -2313,7 +2334,7 @@ struct GSUBGPOS
 		featureList; 	/* FeatureList table */
   OffsetTo<LookupList>
 		lookupList; 	/* LookupList table */
-  OffsetTo<FeatureVariations, ULONG>
+  LOffsetTo<FeatureVariations>
 		featureVars;	/* Offset to Feature Variations
 				   table--from beginning of table
 				 * (may be NULL).  Introduced

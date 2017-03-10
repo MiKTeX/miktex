@@ -26,6 +26,7 @@ include_directories(BEFORE
 
 add_definitions(
   -DHAVE_CONFIG_H
+  -DHAVE_FALLBACK
   -DHB_NO_MT
   -DHB_NO_UNICODE_FUNCS
 )
@@ -105,10 +106,10 @@ list(APPEND sources
   source/src/hb-ot-layout-gsubgpos-private.hh
   source/src/hb-ot-layout-gsub-table.hh
   source/src/hb-ot-layout-jstf-table.hh
-  source/src/hb-ot-layout-math-table.hh
   source/src/hb-ot-layout-private.hh
   source/src/hb-ot-map.cc
   source/src/hb-ot-math.cc
+  source/src/hb-ot-math-table.hh
   source/src/hb-ot-map-private.hh
   source/src/hb-ot-math.h
   source/src/hb-ot-shape.cc
@@ -137,6 +138,12 @@ list(APPEND sources
   source/src/hb-ot-shape-normalize.cc
   source/src/hb-ot-shape-normalize-private.hh
   source/src/hb-ot-shape-private.hh
+  source/src/hb-ot-var-avar-table.hh
+  source/src/hb-ot-var-fvar-table.hh
+  source/src/hb-ot-var-hvar-table.hh
+  source/src/hb-ot-var-mvar-table.hh
+  source/src/hb-ot-var.cc
+  source/src/hb-ot-var.h
 )
 
 ## ICU

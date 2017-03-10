@@ -34,15 +34,10 @@
 #include "hb-ot-layout-gdef-table.hh"
 #include "hb-ot-layout-gsub-table.hh"
 #include "hb-ot-layout-gpos-table.hh"
-#include "hb-ot-layout-jstf-table.hh"
+#include "hb-ot-layout-jstf-table.hh" // Just so we compile it; unused otherwise.
 
 #include "hb-ot-map-private.hh"
 
-#include <stdlib.h>
-#include <string.h>
-
-
-HB_SHAPER_DATA_ENSURE_DECLARE(ot, face)
 
 hb_ot_layout_t *
 _hb_ot_layout_create (hb_face_t *face)
@@ -60,9 +55,9 @@ _hb_ot_layout_create (hb_face_t *face)
   layout->gpos_blob = OT::Sanitizer<OT::GPOS>::sanitize (face->reference_table (HB_OT_TAG_GPOS));
   layout->gpos = OT::Sanitizer<OT::GPOS>::lock_instance (layout->gpos_blob);
 
-  /* The MATH table is rarely used, so only try and load it in _get_math. */
-  layout->math_blob = NULL;
-  layout->math = NULL;
+  layout->math.init (face);
+  layout->fvar.init (face);
+  layout->avar.init (face);
 
   {
     /*
@@ -110,10 +105,16 @@ _hb_ot_layout_create (hb_face_t *face)
       || (994 == gdef_len && 60336 == gpos_len && 24474 == gsub_len)
       /* sha1sum:7199385abb4c2cc81c83a151a7599b6368e92343  tahomabd.ttf from Windows 10 */
       || (1006 == gdef_len && 61740 == gpos_len && 24470 == gsub_len)
+      /* sha1sum:b9c84d820c49850d3d27ec498be93955b82772b5  tahoma.ttf from Windows 10 AU */
+      || (1006 == gdef_len && 61352 == gpos_len && 24576 == gsub_len)
+      /* sha1sum:2bdfaab28174bdadd2f3d4200a30a7ae31db79d2  tahomabd.ttf from Windows 10 AU */
+      || (1018 == gdef_len && 62834 == gpos_len && 24572 == gsub_len)
       /* sha1sum:b0d36cf5a2fbe746a3dd277bffc6756a820807a7  Tahoma.ttf from Mac OS X 10.9 */
       || (832 == gdef_len && 47162 == gpos_len && 7324 == gsub_len)
       /* sha1sum:12fc4538e84d461771b30c18b5eb6bd434e30fba  Tahoma Bold.ttf from Mac OS X 10.9 */
       || (844 == gdef_len && 45474 == gpos_len && 7302 == gsub_len)
+      /* sha1sum:eb8afadd28e9cf963e886b23a30b44ab4fd83acc  himalaya.ttf from Windows 7 */
+      || (180 == gdef_len && 7254 == gpos_len && 13054 == gsub_len)
       /* sha1sum:73da7f025b238a3f737aa1fde22577a6370f77b0  himalaya.ttf from Windows 8 */
       || (192 == gdef_len && 7254 == gpos_len && 12638 == gsub_len)
       /* sha1sum:6e80fd1c0b059bbee49272401583160dc1e6a427  himalaya.ttf from Windows 8.1 */
@@ -132,6 +133,9 @@ _hb_ot_layout_create (hb_face_t *face)
       || (1330 == gdef_len && 57938 == gpos_len && 109904 == gsub_len)
       /* 91fcc10cf15e012d27571e075b3b4dfe31754a8a padauk-3.0/Padauk-bookbold.ttf */
       || (1330 == gdef_len && 58972 == gpos_len && 109904 == gsub_len)
+      /* sha1sum: c26e41d567ed821bed997e937bc0c41435689e85  Padauk.ttf
+       *  "Padauk Regular" "Version 2.5", see https://crbug.com/681813 */
+      || (1004 == gdef_len && 14836 == gpos_len && 59092 == gsub_len)
     )
     {
       /* Many versions of Tahoma have bad GDEF tables that incorrectly classify some spacing marks
@@ -181,7 +185,10 @@ _hb_ot_layout_destroy (hb_ot_layout_t *layout)
   hb_blob_destroy (layout->gdef_blob);
   hb_blob_destroy (layout->gsub_blob);
   hb_blob_destroy (layout->gpos_blob);
-  hb_blob_destroy (layout->math_blob);
+
+  layout->math.fini ();
+  layout->fvar.fini ();
+  layout->avar.fini ();
 
   free (layout);
 }
