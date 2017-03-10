@@ -1,6 +1,6 @@
 /* unxProcess.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -273,10 +273,10 @@ void unxProcess::Create()
       pipeStderr.Dispose();
       pipeStdin.Dispose();
       SessionImpl::GetSession()->SetEnvironmentVariables();
-      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("execv: %s"), startinfo.FileName.c_str());
+      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "execv: %s", startinfo.FileName.c_str());
       for (int idx = 0; argv[idx] != nullptr; ++idx)
       {
-        SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_(" argv[%d]: %s"), idx, argv[idx]);
+        SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", " argv[%d]: %s", idx, argv[idx]);
       }
       if (!startinfo.WorkingDirectory.empty())
       {
@@ -451,64 +451,62 @@ int unxProcess::get_ExitCode() const
   return WEXITSTATUS(status);
 }
 
-MIKTEXSTATICFUNC(PathName) FindSystemShell()
+string ConfStr(int name)
 {
-  PathName ret;
-  const char* lpszPathList;
-#if defined(HAVE_CONFSTR)
-  size_t n = confstr(_CS_PATH, nullptr, 0);
+  size_t n = confstr(name, nullptr, 0);
   if (n == 0)
   {
     MIKTEX_FATAL_CRT_ERROR("confstr");
   }
-  CharBuffer<char> pathList(n);
-  n = confstr(_CS_PATH, pathList.GetData(), n);
+  CharBuffer<char> result(n);
+  n = confstr(name, result.GetData(), n);
   if (n == 0)
   {
     MIKTEX_FATAL_CRT_ERROR("confstr");
   }
-  if (n > pathList.GetCapacity())
+  if (n > result.GetCapacity())
   {
     MIKTEX_UNEXPECTED();
   }
-  lpszPathList = pathList.GetData();
-#else
-  lpszPathList = "/bin";
-#endif
-  if (!SessionImpl::GetSession()->FindFile("sh", lpszPathList, ret))
-  {
-    MIKTEX_FATAL_ERROR_2(T_("The command processor could not be found."), "pathList", lpszPathList);
-  }
-  return ret;
+  return result.ToString();
 }
 
-void Process::StartSystemCommand(const string& commandLine)
+MIKTEXSTATICFUNC(PathName) FindSystemShell()
+{
+#if defined(HAVE_CONFSTR) && defined(_CS_SHELL)
+  return ConfStr(_CS_SHELL);
+#else
+  return "/bin/sh";
+#endif
+}
+
+void Process::StartSystemCommand(const string& command)
 {
   string arguments = "-c '";
-  arguments += commandLine;
+  arguments += command;
   arguments += '\'';
-  Process::Start(FindSystemShell(), arguments.c_str());
+  Process::Start(FindSystemShell(), arguments);
 }
 
 /*
  *
  * Process::ExecuteSystemCommand
  *
- * Start the command processor (usually /bin/sh) with a command line.
+ * Start the shell (usually /bin/sh) with a given command string.
  * Pass output (stdout & stderr) to caller.
  *
- * Suppose command-line is: tifftopnm "%i" | ppmtobmp -windows > "%o"
+ * Suppose the command string is: foo x | bar y > z
  *
  * Then we start as follows:
  *
- *   /bin/sh -c 'tifftopnm "%i" | ppmtobmp -windows > "%o"'
+ *   /bin/sh -c 'foo x | bar y > z'
  */
-bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* directory)
+bool Process::ExecuteSystemCommand(const string& command, int* exitCode, IRunProcessCallback* callback, const char* directory)
 {
   string arguments = "-c '";
-  arguments += commandLine;
+  arguments += command;
   arguments += '\'';
-  return Process::Run(FindSystemShell(), arguments.c_str(), callback, exitCode, directory);
+  return Process::Run(FindSystemShell(), arguments, callback, exitCode, directory);
 }
 
 Process2* Process2::GetCurrentProcess()
