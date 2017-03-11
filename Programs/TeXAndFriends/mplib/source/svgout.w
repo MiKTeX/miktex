@@ -1340,3 +1340,4 @@ int mp_svg_ship_out (mp_edge_object *hh, int prologues) {
   else if (gr_type(p)==mp_stroked_code) { do_write_postscript(p,mp_stroked_object); }
   else if (gr_type(p)==mp_text_code) { do_write_postscript(p,mp_text_object); }
 }
+

@@ -79,6 +79,9 @@ properly. That is |typedef struct pngout_data_struct * pngout_data|.
 #ifndef MPPNGOUT_H
 #define MPPNGOUT_H 1
 #include "cairo.h"
+const char *COMPILED_CAIRO_VERSION_STRING = CAIRO_VERSION_STRING;
+#include "pixman.h"
+const char *COMPILED_PIXMAN_VERSION_STRING = PIXMAN_VERSION_STRING;
 #define PNG_SKIP_SETJMP_CHECK 1
 #include "png.h"
 #include "mplib.h"
