@@ -127,6 +127,18 @@ typedef enum {
 #  define penalty_node_size    3
 #  define penalty(a)           vlink((a)+2)
 
+typedef enum {
+    user_penalty,
+    linebreak_penalty, /* includes widow, club, broken ect */
+    line_penalty,
+    word_penalty,
+    final_penalty,
+    noad_penalty,
+    before_display_penalty,
+    after_display_penalty,
+    equation_number_penalty,
+} penalty_subtypes ;
+
 /*
 #  define glue_node_size       4
 #  define glue_ptr(a)          vinfo((a)+2)
@@ -993,7 +1005,7 @@ extern halfword new_param_glue(int n);
 extern halfword new_glue(halfword q);
 extern halfword new_skip_param(int n);
 extern halfword new_kern(scaled w);
-extern halfword new_penalty(int m);
+extern halfword new_penalty(int m, int s);
 
 extern int lua_properties_enabled ;
 extern int lua_properties_level ;

@@ -281,14 +281,18 @@ the |number_regs| \.{\\dimen} registers.
 #  define math_nolimits_mode_code 90
 #  define math_rules_mode_code 91
 #  define math_rules_fam_code 92
-#  define synctex_code 93                                               /* is synctex file generation enabled ?  */
-#  define shape_mode_code 94
-#  define first_valid_language_code 95
-#  define hyphenation_bounds_code 96
-#  define math_skip_mode_code 97
-#  define math_pre_display_gap_factor_code 98
+#  define math_italics_mode_code 93
+#  define synctex_code 94                                               /* is synctex file generation enabled ?  */
+#  define shape_mode_code 95
+#  define first_valid_language_code 96
+#  define hyphenation_bounds_code 97
+#  define math_skip_mode_code 98
+#  define math_pre_display_gap_factor_code 99
+#  define hyphen_penalty_mode_code 100
+#  define automatic_hyphen_penalty_code 101
+#  define explicit_hyphen_penalty_code 102
 
-#  define math_option_code (math_skip_mode_code+1)
+#  define math_option_code (explicit_hyphen_penalty_code+1)
 
 #  define mathoption_int_base_code (math_option_code+1)                 /* one reserve */
 #  define mathoption_int_last_code (mathoption_int_base_code+8)
@@ -648,8 +652,9 @@ extern halfword last_cs_name;
 #define disable_lig_par                    int_par(disable_lig_code)
 #define disable_kern_par                   int_par(disable_kern_code)
 #define disable_space_par                  int_par(disable_space_code)
-#define scripts_mode_par                   int_par(math_scripts_mode_code)
-#define nolimits_mode_par                  int_par(math_nolimits_mode_code)
+#define math_scripts_mode_par              int_par(math_scripts_mode_code)
+#define math_nolimits_mode_par             int_par(math_nolimits_mode_code)
+#define math_italics_mode_par              int_par(math_italics_mode_code)
 #define math_rules_mode_par                int_par(math_rules_mode_code)
 #define math_rules_fam_par                 int_par(math_rules_fam_code)
 
@@ -765,6 +770,10 @@ extern halfword last_cs_name;
 #define default_skew_char_par              int_par(default_skew_char_code)
 #define saving_hyph_codes_par              int_par(saving_hyph_codes_code)
 
+#define hyphen_penalty_mode_par            int_par(hyphen_penalty_mode_code)
+#define automatic_hyphen_penalty_par       int_par(automatic_hyphen_penalty_code)
+#define explicit_hyphen_penalty_par        int_par(explicit_hyphen_penalty_code)
+
 #define cur_lang_par                       int_par(cur_lang_code)
 #define cur_font_par                       equiv(cur_font_loc)
 
@@ -801,5 +810,72 @@ extern halfword last_cs_name;
 
 #define xspace_skip_subtype (xspace_skip_code + 1)
 #define space_skip_subtype  (space_skip_code + 1)
+
+/*
+
+hyphen_penalty_mode_par   automatic_disc (-)                explicit_disc (\-)
+---------------------------------------------------------------------------------
+0 (default)               ex_hyphen_penalty_par             ex_hyphen_penalty_par
+1                         hyphen_penalty_par                hyphen_penalty_par
+2                         ex_hyphen_penalty_par             hyphen_penalty_par
+3                         hyphen_penalty_par                ex_hyphen_penalty_par
+4                         automatic_hyphen_penalty_par      explicit_disc_penalty_par
+5                         ex_hyphen_penalty_par             explicit_disc_penalty_par
+6                         hyphen_penalty_par                explicit_disc_penalty_par
+7                         automatic_hyphen_penalty_par      ex_hyphen_penalty_par
+8                         automatic_hyphen_penalty_par      hyphen_penalty_par
+*/
+
+#define set_automatic_disc_penalty(n) \
+    switch (hyphen_penalty_mode_par) { \
+        case 0: \
+        case 2: \
+        case 5: \
+            /* we take ex_hyphen_penalty */ \
+            disc_penalty(n) = ex_hyphen_penalty_par; \
+            break; \
+        case 1: \
+        case 3: \
+        case 6: \
+            /* we take hyphen_penalty */ \
+            disc_penalty(n) = hyphen_penalty_par; \
+            break; \
+        case 4: \
+        case 7: \
+        case 8: \
+            /* we take automatic_hyphen_penalty */ \
+            disc_penalty(n) = automatic_hyphen_penalty_par; \
+            break; \
+        default: \
+            /* what we've done since the beginning */ \
+            disc_penalty(n) = ex_hyphen_penalty_par; \
+            break; \
+    }
+
+#define set_explicit_disc_penalty(n) \
+    switch (hyphen_penalty_mode_par) { \
+        case 0: \
+        case 3: \
+        case 7: \
+            /* we take ex_hyphen_penalty */ \
+            disc_penalty(n) = ex_hyphen_penalty_par; \
+            break; \
+        case 1: \
+        case 2: \
+        case 8: \
+            /* we take hyphen_penalty */ \
+            disc_penalty(n) = hyphen_penalty_par; \
+            break; \
+        case 4: \
+        case 5: \
+        case 6: \
+            /* we take automatic_hyphen_penalty */ \
+            disc_penalty(n) = explicit_hyphen_penalty_par; \
+            break; \
+        default: \
+            /* what we've done since the beginning */ \
+            disc_penalty(n) = ex_hyphen_penalty_par; \
+            break; \
+    }
 
 #endif

@@ -894,11 +894,11 @@ static int os_gettimeofday(lua_State * L)
 }
 #endif
 
-static const char repl[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 
 #define MAXTRIES 36*36*36
 
 #ifndef HAVE_MKDTEMP
+static const char repl[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 static int dirs_made = 0;
 
 static char *do_mkdtemp(char *tmpl)
@@ -1014,7 +1014,7 @@ static int os_execute(lua_State * L)
 }
 
 
-void open_oslibext(lua_State * L, int safer)
+void open_oslibext(lua_State * L)
 {
 
     find_env(L);
@@ -1037,17 +1037,16 @@ void open_oslibext(lua_State * L, int safer)
     lua_setfield(L, -2, "gettimeofday");
 #endif
 
-    if (!safer) {
-        lua_pushcfunction(L, os_setenv);
-        lua_setfield(L, -2, "setenv");
-        lua_pushcfunction(L, os_exec);
-        lua_setfield(L, -2, "exec");
-        lua_pushcfunction(L, os_spawn);
-        lua_setfield(L, -2, "spawn");
-        lua_pushcfunction(L, os_execute);
-        lua_setfield(L, -2, "execute");
-        lua_pushcfunction(L, os_tmpdir);
-        lua_setfield(L, -2, "tmpdir");
-    }
+    lua_pushcfunction(L, os_setenv);
+    lua_setfield(L, -2, "setenv");
+    lua_pushcfunction(L, os_exec);
+    lua_setfield(L, -2, "exec");
+    lua_pushcfunction(L, os_spawn);
+    lua_setfield(L, -2, "spawn");
+    lua_pushcfunction(L, os_execute);
+    lua_setfield(L, -2, "execute");
+    lua_pushcfunction(L, os_tmpdir);
+    lua_setfield(L, -2, "tmpdir");
+
     lua_pop(L, 1);              /* pop the table */
 }

@@ -105,9 +105,9 @@ extern int l_new_image(lua_State * L);
 extern int luaopen_epdf(lua_State * L);
 extern int luaopen_pdfscanner(lua_State * L);
 extern int luaopen_mplib(lua_State * L);
+extern int luaopen_fio(lua_State * L);
 
-extern void open_oslibext(lua_State * L, int safer_option);
-extern int open_iolibext(lua_State * L);
+extern void open_oslibext(lua_State * L);
 extern void open_strlibext(lua_State * L);
 extern void open_lfslibext(lua_State * L);
 
@@ -154,6 +154,12 @@ extern void dump_luac_registers(void);
 extern void undump_luac_registers(void);
 
 extern int lua_only;
+extern const char *lc_ctype;
+extern const char *lc_collate;
+extern const char *lc_numeric;
+
+
+
 #ifdef LuajitTeX
 extern int luajiton;
 extern char *jithash_hashname ;
@@ -1246,10 +1252,10 @@ init_lua_key_alias(term_and_log,"term and log")
     } \
 } while(0)
 
-#ifdef __MINGW32__
-extern FILE *_cairo_win32_tmpfile( void );
-#define tmpfile() _cairo_win32_tmpfile()
-#endif /* __MINGW32__ */
+#ifdef _WIN32
+extern FILE *_cairo_win_tmpfile( void );
+#define tmpfile() _cairo_win_tmpfile()
+#endif /* _WIN32 */
 
 #endif                          /* LUATEX_API_H */
 

@@ -3388,6 +3388,147 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
     return ret;
 }
 
+char *tokenlist_to_xstring(int pp, int inhibit_par, int *siz)
+{
+    register int p, c, m;
+    int q;
+    int infop;
+    char *s, *sh;
+    int e = 0;
+    char *ret;
+    int match_chr = '#';
+    int n = '0';
+    unsigned alloci = 1024;
+    int i = 0;
+    int skipping = 1;
+    p = pp;
+    if (p == null) {
+        if (siz != NULL)
+            *siz = 0;
+        return NULL;
+    }
+    ret = xmalloc(alloci);
+    p = token_link(p);          /* skip refcount */
+    if (p != null) {
+        e = escape_char_par;
+    }
+    while (p != null) {
+        if (p < (int) fix_mem_min || p > (int) fix_mem_end) {
+            /* nothing */
+            break;
+        }
+        infop = token_info(p);
+        if (infop >= cs_token_flag) {
+            if (!(inhibit_par && infop == par_token)) {
+                q = infop - cs_token_flag;
+                if (q < hash_base) {
+                    /* nothing */
+                } else if ((q >= undefined_control_sequence) && ((q <= eqtb_size) || (q > eqtb_size + hash_extra))) {
+                    /* nothing */
+                } else if ((cs_text(q) < 0) || (cs_text(q) >= str_ptr)) {
+                    /* nothing */
+                } else {
+if (!skipping) {
+                    str_number txt = cs_text(q);
+                    sh = makecstring(txt);
+                    s = sh;
+                    if (is_active_cs(txt)) {
+                        s = s + 3;
+                        while (*s) {
+                            Print_char(*s);
+                            s++;
+                        }
+                    } else {
+                        if (e>=0 && e<0x110000) Print_uchar(e);
+                        while (*s) {
+                            Print_char(*s);
+                            s++;
+                        }
+                        if ((!single_letter(txt)) || is_cat_letter(txt)) {
+                            Print_char(' ');
+                        }
+                    }
+                    free(sh);
+}
+                }
+            }
+        } else {
+            if (infop < 0) {
+                /* nothing */
+            } else {
+                m = token_cmd(infop);
+                c = token_chr(infop);
+                switch (m) {
+                    case left_brace_cmd:
+                    case right_brace_cmd:
+                    case math_shift_cmd:
+                    case tab_mark_cmd:
+                    case sup_mark_cmd:
+                    case sub_mark_cmd:
+                    case spacer_cmd:
+                    case letter_cmd:
+                    case other_char_cmd:
+if (!skipping) {
+                        Print_uchar(c);
+}
+                        break;
+                   case mac_param_cmd:
+if (!skipping) {
+                        if (!in_lua_escape && (is_in_csname==0))
+                            Print_uchar(c);
+                        Print_uchar(c);
+}
+                        break;
+                    case out_param_cmd:
+if (!skipping) {
+                        Print_uchar(match_chr);
+}
+                        if (c <= 9) {
+if (!skipping) {
+                            Print_char(c + '0');
+}
+                        } else {
+                            /* nothing */
+                            goto EXIT;
+                        }
+                        break;
+                    case match_cmd:
+                        match_chr = c;
+if (!skipping) {
+                       Print_uchar(c);
+}
+                        n++;
+if (!skipping) {
+                        Print_char(n);
+}
+                        if (n > '9')
+                            goto EXIT;
+                        break;
+                    case end_match_cmd:
+                        if (c == 0) {
+if (!skipping) {
+                            Print_char('-');
+                            Print_char('>');
+}
+                            i = 0;
+skipping = 0 ;
+                        }
+                        break;
+                    default:
+                        /* nothing */
+                        break;
+                }
+            }
+        }
+        p = token_link(p);
+    }
+  EXIT:
+    ret[i] = '\0';
+    if (siz != NULL)
+        *siz = i;
+    return ret;
+}
+
 @ @c
 lstring *tokenlist_to_lstring(int pp, int inhibit_par)
 {

@@ -325,6 +325,13 @@ scaled divide_scaled(scaled s, scaled m, int dd)
     return sign * q;
 }
 
+#ifdef _WIN32
+#if !defined(MIKTEX)
+#undef floor
+#define floor win32_floor
+#endif
+#endif
+
 @ Same function, but using doubles instead of integers (faster)
 @c
 scaled divide_scaled_n(double sd, double md, double n)
@@ -360,12 +367,123 @@ int do_zround(double r)
 @c
 #ifdef _MSC_VER
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #  include <math.h>
 double rint(double x)
 {
     return floor(x+0.5);
 }
 #endif
+#endif
 
+@ replace tmpfile() on Windows
+@c
+#if defined(_WIN32)
+/* _cairo_win_tmpfile (void) - replace tmpfile() on Windows
+ * extracted from cairo-misc.c in cairo - a vector graphics library
+ * with display and print output
+ * the functiion name is changed from
+ * _cairo_win32_tmpfile (void) to
+ * _cairo_win_tmpfile (void)
+ *
+ *
+ * Copyright 2002 University of Southern California
+ * Copyright 2005 Red Hat, Inc.
+ * Copyright 2007 Adrian Johnson
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it either under the terms of the GNU Lesser General Public
+ * License version 2.1 as published by the Free Software Foundation
+ * (the "LGPL") or, at your option, under the terms of the Mozilla
+ * Public License Version 1.1 (the "MPL"). If you do not alter this
+ * notice, a recipient may use your version of this file under either
+ * the MPL or the LGPL.
+ *
+ * You should have received a copy of the LGPL along with this library
+ * in the file COPYING-LGPL-2.1; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Suite 500, Boston, MA 02110-1335, USA
+ * You should have received a copy of the MPL along with this library
+ * in the file COPYING-MPL-1.1
+ *
+ * The contents of this file are subject to the Mozilla Public License
+ * Version 1.1 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
+ * OF ANY KIND, either express or implied. See the LGPL or the MPL for
+ * the specific language governing rights and limitations.
+ *
+ * The Original Code is the cairo graphics library.
+ *
+ * The Initial Developer of the Original Code is University of Southern
+ * California.
+ *
+ * Contributor(s):
+ *	Carl D. Worth <cworth@cworth.org>
+ *      Adrian Johnson <ajohnson@redneon.com>
+ */
+
+#include <stdio.h>
+#define WIN32_LEAN_AND_MEAN
+/* We require Windows 2000 features such as ETO_PDY */
+#if !defined(WINVER) || (WINVER < 0x0500)
+# define WINVER 0x0500
+#endif
+#if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0500)
+# define _WIN32_WINNT 0x0500
+#endif
+
+#include <windows.h>
+#include <io.h>
+
+/* tmpfile() replacement for Windows.
+ *
+ * On Windows tmpfile() creates the file in the root directory. This
+ * may fail due to unsufficient privileges. However, this isn't a
+ * problem on Windows CE so we don't use it there.
+ */
+FILE *
+_cairo_win_tmpfile (void)
+{
+    DWORD path_len;
+    WCHAR path_name[MAX_PATH + 1];
+    WCHAR file_name[MAX_PATH + 1];
+    HANDLE handle;
+    int fd;
+    FILE *fp;
+
+    path_len = GetTempPathW (MAX_PATH, path_name);
+    if (path_len <= 0 || path_len >= MAX_PATH)
+	return NULL;
+
+    if (GetTempFileNameW (path_name, L"ps_", 0, file_name) == 0)
+	return NULL;
+
+    handle = CreateFileW (file_name,
+			 GENERIC_READ | GENERIC_WRITE,
+			 0,
+			 NULL,
+			 CREATE_ALWAYS,
+			 FILE_ATTRIBUTE_NORMAL | FILE_FLAG_DELETE_ON_CLOSE,
+			 NULL);
+    if (handle == INVALID_HANDLE_VALUE) {
+	DeleteFileW (file_name);
+	return NULL;
+    }
+
+    fd = _open_osfhandle((intptr_t) handle, 0);
+    if (fd < 0) {
+	CloseHandle (handle);
+	return NULL;
+    }
+
+    fp = _fdopen(fd, "w+b");
+    if (fp == NULL) {
+	_close(fd);
+	return NULL;
+    }
+
+    return fp;
+}
 #endif

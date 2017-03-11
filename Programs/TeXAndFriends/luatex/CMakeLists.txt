@@ -414,10 +414,12 @@ set(luatexlib_cwebs
   source/lang/hnjalloc.w
   source/lang/hyphen.w
   source/lang/texlang.w
+  source/lua/helpers.w
   source/lua/luainit.w
   source/lua/luanode.w
   source/lua/luastuff.w
   source/lua/luatoken.w
+  source/lua/mplibstuff.w
   source/lua/texluac.w
   source/pdf/pdfaction.w
   source/pdf/pdfannot.w
@@ -577,6 +579,7 @@ set(luatexlib_sources
   source/lua/ltexiolib.c
   source/lua/ltexlib.c
   source/lua/luatex-api.h
+  source/lua/luatex-core.c
   source/luatex.h
   source/pdf/pdfaction.h
   source/pdf/pdfannot.h

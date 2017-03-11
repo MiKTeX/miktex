@@ -262,7 +262,8 @@ const char *node_subtypes_boundary[] = {
     "cancel", "user", "protrusion", "word", NULL
 };
 const char *node_subtypes_penalty[] = {
-    "userpenalty", NULL
+    "userpenalty", "linebreakpenalty", "linepenalty", "wordpenalty", "finalpenalty",
+    "noadpenalty", "beforedisplaypenalty", "afterdisplaypenalty", "equationnumberpenalty", NULL
 };
 const char *node_subtypes_kern[] = {
     "fontkern", "userkern", "accentkern", "italiccorrection", NULL
@@ -3692,10 +3693,11 @@ break will be forced.
 be able to guess what comes next.
 
 @c
-halfword new_penalty(int m)
+halfword new_penalty(int m, int s)
 {
     halfword p = new_node(penalty_node, 0); /* the |subtype| is not used */
     penalty(p) = m;
+    subtype(p) = s;
     return p;
 }
 

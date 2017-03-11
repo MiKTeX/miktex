@@ -761,12 +761,11 @@ int luaopen_img(lua_State * L)
     luaL_register(L, NULL, img_m);
     luaL_newmetatable(L, TYPE_IMG_DICT);
     luaL_register(L, NULL, img_dict_m);
-    luaL_register(L, "img", imglib_f);
 #else
     luaL_setfuncs(L, img_m, 0);
     luaL_newmetatable(L, TYPE_IMG_DICT);
     luaL_setfuncs(L, img_dict_m, 0);
-    luaL_newlib(L, imglib_f);
 #endif
+    luaL_register(L, "img", imglib_f);
     return 1;
 }

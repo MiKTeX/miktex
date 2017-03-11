@@ -2249,7 +2249,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
                     d = 0;
     }
 
-    tail_append(new_penalty(pre_display_penalty_par));
+    tail_append(new_penalty(pre_display_penalty_par,after_display_penalty));
     if ((d + line_s <= pre_display_size_par) || l) {        /* not enough clearance */
         g1 = above_display_skip_code;
         g2 = below_display_skip_code;
@@ -2273,7 +2273,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
      /* } else {                       */
      /* }                              */
         append_to_vlist(eqno_box,lua_key_index(equation_number));
-        tail_append(new_penalty(inf_penalty));
+        tail_append(new_penalty(inf_penalty,equation_number_penalty));
     } else {
         inject_display_skip_before(g1);
     }
@@ -2364,7 +2364,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
     append_to_vlist(eq_box,lua_key_index(equation));
 
     if ((eqno_box != null) && (eqno_w == 0) && !l) {
-        tail_append(new_penalty(inf_penalty));
+        tail_append(new_penalty(inf_penalty,equation_number_penalty));
      /* if (math_direction_par==dir_TLT) { */
             shift_amount(eqno_box) = line_s + line_w - eqno_width ;
      /* } else {                       */
@@ -2384,7 +2384,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
         alink(pre_adjust_tail) = alink(tail);
         tail = pre_t;
     }
-    tail_append(new_penalty(post_display_penalty_par));
+    tail_append(new_penalty(post_display_penalty_par,after_display_penalty));
     inject_display_skip_after(g2);
     resume_after_display();
 }
@@ -2536,12 +2536,12 @@ void finish_display_alignment(pointer p, pointer q, halfword saved_prevdepth)
         check_display_math_end();
     }
     pop_nest();
-    tail_append(new_penalty(pre_display_penalty_par));
+    tail_append(new_penalty(pre_display_penalty_par,before_display_penalty));
     inject_display_skip_before(above_display_skip_code);
     vlink(tail) = p;
     if (p != null)
         tail = q;
-    tail_append(new_penalty(post_display_penalty_par));
+    tail_append(new_penalty(post_display_penalty_par,after_display_penalty));
     inject_display_skip_after(below_display_skip_code);
     cur_list.prev_depth_field = saved_prevdepth;
     resume_after_display();

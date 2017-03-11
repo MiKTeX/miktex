@@ -104,14 +104,14 @@ void line_break(boolean d, int line_break_context)
     new_hyphenation(temp_head, cur_list.tail_field);
     cur_list.tail_field = new_ligkern(temp_head, cur_list.tail_field);
     if (is_char_node(cur_list.tail_field)) {
-        tail_append(new_penalty(inf_penalty));
+        tail_append(new_penalty(inf_penalty,line_penalty));
     } else if (type(cur_list.tail_field) != glue_node) {
-        tail_append(new_penalty(inf_penalty));
+        tail_append(new_penalty(inf_penalty,line_penalty));
     } else {
         halfword t = alink(cur_list.tail_field);
 		flush_node(cur_list.tail_field);
 		cur_list.tail_field = t;
-		tail_append(new_penalty(inf_penalty));
+		tail_append(new_penalty(inf_penalty,line_penalty));
     }
     final_par_glue = new_param_glue(par_fill_skip_code);
     couple_nodes(cur_list.tail_field, final_par_glue);

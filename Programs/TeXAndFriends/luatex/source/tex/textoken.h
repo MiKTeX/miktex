@@ -174,6 +174,7 @@ extern void read_toks(int n, halfword r, halfword j);
 
 extern str_number tokens_to_string(halfword p); /* return a string from tokens list */
 
+extern char *tokenlist_to_xstring(int p, int inhibit_par, int *siz);
 extern char *tokenlist_to_cstring(int p, int inhibit_par, int *siz);
 extern lstring *tokenlist_to_lstring(int pp, int inhibit_par);
 extern void free_lstring(lstring * ls);

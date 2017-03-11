@@ -3484,11 +3484,6 @@ int luaopen_epdf(lua_State * L)
     setfuncs_meta(TextSpan);
     setfuncs_meta(XRef);
     setfuncs_meta(XRefEntry);
-
-#ifdef LuajitTeX
     luaL_register(L, "epdf", epdflib_f);
-#else
-    luaL_newlib(L, epdflib_f);
-#endif
     return 1;
 }

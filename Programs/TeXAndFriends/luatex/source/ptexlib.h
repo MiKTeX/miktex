@@ -61,7 +61,7 @@ ptexlib.h must be included first!!!
 #  include <miktex/unxemu.h>
 #endif
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #  ifdef _MSC_VER
 extern double rint(double x);
 #  endif
@@ -318,7 +318,7 @@ void vf_out_image(PDF pdf, unsigned i);
 /* lua/ltexiolib.c */
 void flush_loggable_info(void);
 
-/* lua/luastuff.w and lua/luajitstuff.w */
+/* lua/luastuff.w  */
 void luafunctioncall(int slot);
 
 /* lua/luastuff.c */

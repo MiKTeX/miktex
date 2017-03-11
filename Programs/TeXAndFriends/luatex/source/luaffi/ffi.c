@@ -3567,7 +3567,7 @@ int luaopen_ffi(lua_State *L)
 "The ffi module is available for:\n"
 "\n" 
 "    archictures       : ARCH_X86 and ARCH_X64,\n"
-"    operating systems : OS_CE, OS_WIN, OS_LINUX, OS BD and OS_POSIX\n"
+"    operating systems : OS_CE, OS_WIN, OS_LINUX, OS_BSD and OS_POSIX\n"
 "\n"
 "The ARM processor is currently not supported. There are subtle\n"
 "differences between this module and the one in luajitTeX \n"

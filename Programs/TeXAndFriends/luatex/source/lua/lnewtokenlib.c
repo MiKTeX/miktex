@@ -797,6 +797,53 @@ static int run_scan_token(lua_State * L)
 
 /* TODO: check for a quick way to set a macro to empty (HH) */
 
+static int get_meaning(lua_State * L)
+{
+    const char *name = null;
+    size_t lname = 0;
+    int cs, cmd;
+    if (lua_type(L, 1) == LUA_TSTRING) {
+        name = lua_tolstring(L, 1, &lname);
+        cs = string_lookup(name, lname);
+        cmd = eq_type(cs);
+        if (cmd >= call_cmd) {
+            int chr = equiv(cs);
+            char *str = tokenlist_to_cstring(chr, true, NULL);
+            lua_pushstring(L, str);
+            free(str);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int get_macro(lua_State * L)
+{
+    const char *name = null;
+    size_t lname = 0;
+    int cs, cmd;
+    if (lua_type(L, 1) == LUA_TSTRING) {
+        name = lua_tolstring(L, 1, &lname);
+        cs = string_lookup(name, lname);
+        cmd = eq_type(cs);
+        if (cmd >= call_cmd) {
+            /*
+                Expanding would expand in-place, unless we make a copy which we don't want to
+                do. So, we just pass the meaning i.e. no: expand_macros_in_tokenlist(chr).
+
+                Actually it would be nice to adapt tokenlist_to_cstring with an extra argument
+                indicating that we are not interested in the before -> part.
+            */
+            int chr = equiv(cs);
+            char *str = tokenlist_to_xstring(chr, true, NULL);
+            lua_pushstring(L, str);
+            free(str);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int set_macro(lua_State * L)
 {
     const char *name = null;
@@ -950,6 +997,8 @@ static const struct luaL_Reg tokenlib[] = {
     { "get_protected", lua_tokenlib_get_protected },
     /* maybe more setters */
     { "set_macro", set_macro },
+    { "get_macro", get_macro },
+    { "get_meaning", get_meaning },
     /* probably never */
  /* {"expand", run_expand},               */ /* does not work yet! */
  /* {"csname_id", run_get_csname_id},     */ /* yes or no */

@@ -157,6 +157,9 @@ void initialize_commands(void)
     primitive_luatex("pageheight", assign_dimen_cmd, dimen_base + page_height_code, dimen_base);
     primitive_luatex("pxdimen", assign_dimen_cmd, dimen_base + px_dimen_code, dimen_base);
     primitive_luatex("predisplaygapfactor", assign_int_cmd, int_base + math_pre_display_gap_factor_code, int_base);
+    primitive_luatex("hyphenpenaltymode", assign_int_cmd, int_base + hyphen_penalty_mode_code, int_base);
+    primitive_luatex("automatichyphenpenalty", assign_int_cmd, int_base + automatic_hyphen_penalty_code, int_base);
+    primitive_luatex("explicithyphenpenalty", assign_int_cmd, int_base + explicit_hyphen_penalty_code, int_base);
 
     /* Many of \TeX's primitives need no |equiv|, since they are identifiable
        by their |eq_type| alone. These primitives are loaded into the hash table
@@ -756,6 +759,7 @@ void initialize_etex_commands(void)
     primitive_luatex("mathdisplayskipmode", assign_int_cmd, int_base + math_display_skip_mode_code, int_base);
     primitive_luatex("mathscriptsmode", assign_int_cmd, int_base + math_scripts_mode_code, int_base);
     primitive_luatex("mathnolimitsmode", assign_int_cmd, int_base + math_nolimits_mode_code, int_base);
+    primitive_luatex("mathitalicsmode", assign_int_cmd, int_base + math_italics_mode_code, int_base);
     primitive_luatex("mathrulesmode", assign_int_cmd, int_base + math_rules_mode_code, int_base);
     primitive_luatex("mathrulesfam", assign_int_cmd, int_base + math_rules_fam_code, int_base);
     primitive_luatex("synctex", assign_int_cmd, int_base + synctex_code, int_base);

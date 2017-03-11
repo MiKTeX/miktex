@@ -2645,11 +2645,13 @@ static scaled make_op(pointer q, int cur_style)
                 small_fam(y) = math_fam(nucleus(q));
                 small_char(y) = math_character(nucleus(q));
                 x = do_delimiter(q, y, text_size, ok_size, false, cur_style, true, NULL, &delta);
-                if (do_new_math(cur_f)) {
-                    /* we never added italic correction */
-                } else if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits)) {
-                    /* remove italic correction */
-                    width(x) -= delta;
+                if (delta != 0) {
+                    if (do_new_math(cur_f)) {
+                        /* we never added italic correction */
+                    } else if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits)) {
+                        /* remove italic correction */
+                        width(x) -= delta;
+                    }
                 }
             } else {
                 ok_size = height_plus_depth(cur_f, cur_c) + 1;
@@ -2667,7 +2669,7 @@ static scaled make_op(pointer q, int cur_style)
                         /* we never added italic correction */
                     } else if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits)) {
                         /* remove italic correction */
-                        width(x) = width(x) - delta;
+                        width(x) -= delta;
                     }
                 }
                 axis_shift = true;
@@ -2681,7 +2683,7 @@ static scaled make_op(pointer q, int cur_style)
                     /* we never added italic correction */
                 } else if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits)) {
                     /* remove italic correction */
-                    width(x) = width(x) - delta;
+                    width(x) -= delta;
                 }
             }
             axis_shift = true;
@@ -2710,7 +2712,7 @@ static scaled make_op(pointer q, int cur_style)
                 /*
                     make_scripts(q, p, 0, cur_style, delta, -delta);
                 */
-                int mode = nolimits_mode_par; /* wins */
+                int mode = math_nolimits_mode_par; /* wins */
                 /*
                     for easy configuration ... fonts are somewhat inconsistent and the
                     values for italic correction run from 30 to 60% of the width
@@ -3296,7 +3298,7 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
         */
         x = clean_box(subscr(q), sub_style(cur_style), cur_style);
         width(x) = width(x) + space_after_script(cur_style);
-        switch (scripts_mode_par) {
+        switch (math_scripts_mode_par) {
             case 1:
                 shift_down = sub_shift_down(cur_style) ;
                 break;
@@ -3346,7 +3348,7 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
         */
         x = clean_box(supscr(q), sup_style(cur_style), cur_style);
         width(x) = width(x) + space_after_script(cur_style);
-        switch (scripts_mode_par) {
+        switch (math_scripts_mode_par) {
             case 1:
                 shift_up = sup_shift_up(cur_style);
                 break;
@@ -3401,7 +3403,7 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
             */
             y = clean_box(subscr(q), sub_style(cur_style), cur_style);
             width(y) = width(y) + space_after_script(cur_style);
-            switch (scripts_mode_par) {
+            switch (math_scripts_mode_par) {
                 case 1:
                     shift_down = sub_shift_down(cur_style) ;
                     break;
@@ -3866,6 +3868,7 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
     int t_subtype;                        /* the effective |subtype| of noad |q| during the second pass */
     pointer p = null;
     pointer z = null;
+    halfword nxt ;
     int pen;                              /* a penalty to be inserted */
     scaled max_hl = 0;                    /* maximum height of the list translated so far */
     scaled max_d = 0;                     /* maximum depth of the list translated so far */
@@ -3886,6 +3889,7 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
         */
       RESWITCH:
         delta = 0;
+        nxt = vlink(q);
         switch (type(q)) {
         case simple_noad:
             switch (subtype(q)) {
@@ -4074,8 +4078,42 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
 
         */
         p = check_nucleus_complexity(q, &delta, cur_style);
-
         if ((subscr(q) == null) && (supscr(q) == null)) {
+            /*
+                Adding italic correction here is kind of fuzzy because some
+                characters already have that built in. However, we also add
+                it in the scripts so if it's optional here it also should
+                be there.
+            */
+            if (nxt && (math_italics_mode_par > 0) && (delta != 0)) {
+                if (type(nxt) == simple_noad) {
+                    switch (subtype(nxt)) {
+                        case ord_noad_type:
+                        case bin_noad_type:
+                        case rel_noad_type:
+                        case open_noad_type:
+                        case close_noad_type:
+                        case punct_noad_type:
+                        case inner_noad_type:
+                            delta = 0;
+                            break;
+                        case op_noad_type_normal:
+                        case op_noad_type_limits:
+                        case op_noad_type_no_limits:
+                        case under_noad_type:
+                        case over_noad_type:
+                        case vcenter_noad_type:
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                if (delta != 0) {
+                    pointer d = new_kern(delta);
+                    reset_attributes(d, node_attr(q));
+                    couple_nodes(p,d);
+                }
+            }
             assign_new_hlist(q, p);
         } else {
             /* top, bottom */
@@ -4219,7 +4257,7 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
             r_type = type(vlink(q));
             r_subtype = subtype(vlink(q));
             if (r_type != penalty_node && (r_type != simple_noad || r_subtype != rel_noad_type)) {
-                z = new_penalty(pen);
+                z = new_penalty(pen,noad_penalty);
                 reset_attributes(z, node_attr(q));
                 couple_nodes(p,z);
                 p = z;

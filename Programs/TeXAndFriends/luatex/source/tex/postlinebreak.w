@@ -505,7 +505,7 @@ void ext_post_line_break(int paragraph_dir,
                 }
             }
             if (pen != 0) {
-                r = new_penalty(pen);
+                r = new_penalty(pen,linebreak_penalty);
                 couple_nodes(cur_list.tail_field, r);
                 cur_list.tail_field = r;
             }

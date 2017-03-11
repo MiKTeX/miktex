@@ -20,6 +20,9 @@
 @ @c
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
+#ifdef LuajitTeX
+#include "lua/lauxlib_bridge.h"
+#endif
 
 @ @c
 lua_State *Luas = NULL;
@@ -27,29 +30,43 @@ lua_State *Luas = NULL;
 int luastate_bytes = 0;
 int lua_active = 0;
 
+#ifdef LuajitTeX
+#define Luas_load(Luas,getS,ls,lua_id) \
+    lua_load(Luas,getS,ls,lua_id);
+#define Luas_open(name,luaopen_lib) \
+    lua_pushcfunction(L, luaopen_lib); \
+    lua_pushstring(L, name); \
+    lua_call(L, 1, 0);
+#else
+#define Luas_load(Luas,getS,ls,lua_id) \
+    lua_load(Luas,getS,ls,lua_id,NULL);
+#define Luas_open(name,luaopen_lib) \
+    luaL_requiref(L, name, luaopen_lib, 1); \
+    lua_pop(L, 1);
+#endif
+
 @ @c
-void make_table(lua_State * L, const char *tab, const char *mttab, const char *getfunc,
-                const char *setfunc)
+void make_table(lua_State * L, const char *tab, const char *mttab, const char *getfunc, const char *setfunc)
 {
     /* make the table *//* |[{<tex>}]| */
-    lua_pushstring(L, tab);     /* |[{<tex>},"dimen"]| */
-    lua_newtable(L);            /* |[{<tex>},"dimen",{}]| */
-    lua_settable(L, -3);        /* |[{<tex>}]| */
+    lua_pushstring(L, tab);           /* |[{<tex>},"dimen"]| */
+    lua_newtable(L);                  /* |[{<tex>},"dimen",{}]| */
+    lua_settable(L, -3);              /* |[{<tex>}]| */
     /* fetch it back */
-    lua_pushstring(L, tab);     /* |[{<tex>},"dimen"]| */
-    lua_gettable(L, -2);        /* |[{<tex>},{<dimen>}]| */
+    lua_pushstring(L, tab);           /* |[{<tex>},"dimen"]| */
+    lua_gettable(L, -2);              /* |[{<tex>},{<dimen>}]| */
     /* make the meta entries */
-    luaL_newmetatable(L, mttab);  /* |[{<tex>},{<dimen>},{<dimen_m>}]| */
-    lua_pushstring(L, "__index");       /* |[{<tex>},{<dimen>},{<dimen_m>},"__index"]| */
-    lua_pushstring(L, getfunc); /* |[{<tex>},{<dimen>},{<dimen_m>},"__index","getdimen"]| */
-    lua_gettable(L, -5);        /* |[{<tex>},{<dimen>},{<dimen_m>},"__index",<tex.getdimen>]| */
-    lua_settable(L, -3);        /* |[{<tex>},{<dimen>},{<dimen_m>}]|  */
-    lua_pushstring(L, "__newindex");    /* |[{<tex>},{<dimen>},{<dimen_m>},"__newindex"]| */
-    lua_pushstring(L, setfunc); /* |[{<tex>},{<dimen>},{<dimen_m>},"__newindex","setdimen"]| */
-    lua_gettable(L, -5);        /* |[{<tex>},{<dimen>},{<dimen_m>},"__newindex",<tex.setdimen>]| */
-    lua_settable(L, -3);        /* |[{<tex>},{<dimen>},{<dimen_m>}]| */
-    lua_setmetatable(L, -2);    /* |[{<tex>},{<dimen>}]| : assign the metatable */
-    lua_pop(L, 1);              /* |[{<tex>}]| : clean the stack */
+    luaL_newmetatable(L, mttab);      /* |[{<tex>},{<dimen>},{<dimen_m>}]| */
+    lua_pushstring(L, "__index");     /* |[{<tex>},{<dimen>},{<dimen_m>},"__index"]| */
+    lua_pushstring(L, getfunc);       /* |[{<tex>},{<dimen>},{<dimen_m>},"__index","getdimen"]| */
+    lua_gettable(L, -5);              /* |[{<tex>},{<dimen>},{<dimen_m>},"__index",<tex.getdimen>]| */
+    lua_settable(L, -3);              /* |[{<tex>},{<dimen>},{<dimen_m>}]|  */
+    lua_pushstring(L, "__newindex");  /* |[{<tex>},{<dimen>},{<dimen_m>},"__newindex"]| */
+    lua_pushstring(L, setfunc);       /* |[{<tex>},{<dimen>},{<dimen_m>},"__newindex","setdimen"]| */
+    lua_gettable(L, -5);              /* |[{<tex>},{<dimen>},{<dimen_m>},"__newindex",<tex.setdimen>]| */
+    lua_settable(L, -3);              /* |[{<tex>},{<dimen>},{<dimen_m>}]| */
+    lua_setmetatable(L, -2);          /* |[{<tex>},{<dimen>}]| : assign the metatable */
+    lua_pop(L, 1);                    /* |[{<tex>}]| : clean the stack */
 }
 
 @ @c
@@ -65,10 +82,17 @@ static const char *getS(lua_State * L, void *ud, size_t * size)
 }
 
 @ @c
+#ifdef LuajitTeX
+    /* Luatex has its own memory allocator, LuajitTeX uses the */
+    /* standard one from the stock. We left this space as      */
+    /* reference, but be careful: memory allocator is a key    */
+    /* component in luajit, it's easy to get sub-optimal       */
+    /* performances.                                           */
+#else
 static void *my_luaalloc(void *ud, void *ptr, size_t osize, size_t nsize)
 {
     void *ret = NULL;
-    (void) ud;                  /* for -Wunused */
+    (void) ud; /* for -Wunused */
     if (nsize == 0)
         free(ptr);
     else
@@ -76,11 +100,12 @@ static void *my_luaalloc(void *ud, void *ptr, size_t osize, size_t nsize)
     luastate_bytes += (int) (nsize - osize);
     return ret;
 }
+#endif
 
 @ @c
 static int my_luapanic(lua_State * L)
 {
-    (void) L;                   /* to avoid warnings */
+    (void) L;  /* to avoid warnings */
     fprintf(stderr, "PANIC: unprotected error in call to Lua API (%s)\n", lua_tostring(L, -1));
     return 0;
 }
@@ -112,93 +137,141 @@ void luafunctioncall(int slot)
 
 @ @c
 static const luaL_Reg lualibs[] = {
-    {"", luaopen_base},
-    {"package", luaopen_package},
-    {"coroutine", luaopen_coroutine},
-    {"table", luaopen_table},
-    {"io", open_iolibext},
-    {"os", luaopen_os},
-    {"string", luaopen_string},
-    {"math", luaopen_math},
-    {"debug", luaopen_debug},
-    {"unicode", luaopen_unicode},
-    {"zip", luaopen_zip},
-    {"bit32", luaopen_bit32},
-    {"md5", luaopen_md5},
-    {"ffi", luaopen_ffi},
-    {"lfs", luaopen_lfs},
-    {"profiler", luaopen_profiler},
-    {"lpeg", luaopen_lpeg},
-    {NULL, NULL}
+    /* standard lua libraries */
+    { "_G",        luaopen_base },
+    { "package",   luaopen_package },
+    { "table",     luaopen_table },
+    { "io",        luaopen_io },
+    { "os",        luaopen_os },
+    { "string",    luaopen_string },
+    { "math",      luaopen_math },
+    { "debug",     luaopen_debug },
+    { "lpeg",      luaopen_lpeg },
+    { "bit32",     luaopen_bit32 },
+#ifdef LuajitTeX
+    /* bit is only in luajit,               */
+    /* coroutine is loaded in a special way */
+    { "bit",	   luaopen_bit },
+#else
+    { "coroutine", luaopen_coroutine },
+#endif
+    /* additional (public) libraries */
+    { "unicode",   luaopen_unicode },
+    { "zip",       luaopen_zip },
+    { "md5",       luaopen_md5 },
+    { "lfs",       luaopen_lfs },
+    /* extra standard lua libraries */
+#ifdef LuajitTeX
+    { "jit",       luaopen_jit },
+#endif
+    { "ffi",       luaopen_ffi },
+    /* obsolete, undocumented and for oru own testing only */
+    /*{ "profiler",  luaopen_profiler }, */
+    /* more libraries will be loaded later */
+    { NULL,        NULL }
 };
 
 @ @c
 static void do_openlibs(lua_State * L)
 {
-    const luaL_Reg *lib;
-    for (lib = lualibs; lib->func; lib++) {
-        luaL_requiref(L, lib->name, lib->func, 1);
-    	lua_pop(L, 1);  /* remove lib */
+    const luaL_Reg *lib = lualibs;
+    for (; lib->func; lib++) {
+        Luas_open(lib->name,lib->func);
     }
 }
 
 @ @c
+#ifdef LuajitTeX
+    /* in luajit load_aux is not used.*/
+#else
 static int load_aux (lua_State *L, int status) {
-  if (status == 0)  /* OK? */
-    return 1;
-  else {
-    lua_pushnil(L);
-    lua_insert(L, -2);  /* put before error message */
-    return 2;  /* return nil plus error message */
-  }
+    if (status == 0)  /* OK? */
+        return 1;
+    else {
+        lua_pushnil(L);
+        lua_insert(L, -2);  /* put before error message */
+        return 2;  /* return nil plus error message */
+    }
 }
+#endif
 
 @ @c
 static int luatex_loadfile (lua_State *L) {
-  int status = 0;
-  const char *fname = luaL_optstring(L, 1, NULL);
-  const char *mode = luaL_optstring(L, 2, NULL);
-  int env = !lua_isnone(L, 3);  /* 'env' parameter? */
-  if (!lua_only && !fname && interaction == batch_mode) {
-     lua_pushnil(L);
-     lua_pushstring(L, "reading from stdin is disabled in batch mode");
-     return 2;  /* return nil plus error message */
-  }
-  status = luaL_loadfilex(L, fname, mode);
-  if (status == LUA_OK) {
-    recorder_record_input(fname);
-    if (env) {  /* 'env' parameter? */
-      lua_pushvalue(L, 3);
-      lua_setupvalue(L, -2, 1);  /* set it as 1st upvalue of loaded chunk */
+    int status = 0;
+    const char *fname = luaL_optstring(L, 1, NULL);
+    const char *mode = luaL_optstring(L, 2, NULL);
+#ifdef LuajitTeX
+    /* 5.1 */
+#else
+    int env = !lua_isnone(L, 3);  /* 'env' parameter? */
+#endif
+    if (!lua_only && !fname && interaction == batch_mode) {
+        lua_pushnil(L);
+        lua_pushstring(L, "reading from stdin is disabled in batch mode");
+        return 2;  /* return nil plus error message */
     }
-  }
-  return load_aux(L, status);
+    status = luaL_loadfilex(L, fname, mode);
+    if (status == LUA_OK) {
+        recorder_record_input(fname);
+#ifdef LuajitTeX
+    /* 5.1 */
+#else
+        if (env) {  /* 'env' parameter? */
+            lua_pushvalue(L, 3);
+            lua_setupvalue(L, -2, 1);  /* set it as 1st upvalue of loaded chunk */
+        }
+#endif
+    }
+#ifdef LuajitTeX
+    return RESERVED_load_aux_JIT(L, status,3);
+#else
+    return load_aux(L, status);
+#endif
 }
 
 @ @c
 static int luatex_dofile (lua_State *L) {
-  const char *fname = luaL_optstring(L, 1, NULL);
-  int n = lua_gettop(L);
-  if (!lua_only && !fname) {
-      if (interaction == batch_mode) {
-	  lua_pushnil(L);
-	  lua_pushstring(L, "reading from stdin is disabled in batch mode");
-	  return 2;  /* return nil plus error message */
-      } else {
-	  tprint_nl("lua> ");
-      }
-  }
-  if (luaL_loadfile(L, fname) != 0) lua_error(L);
-  recorder_record_input(fname);
-  lua_call(L, 0, LUA_MULTRET);
-  return lua_gettop(L) - n;
+    const char *fname = luaL_optstring(L, 1, NULL);
+    int n = lua_gettop(L);
+    if (!lua_only && !fname) {
+        if (interaction == batch_mode) {
+            lua_pushnil(L);
+            lua_pushstring(L, "reading from stdin is disabled in batch mode");
+            return 2;  /* return nil plus error message */
+        } else {
+            tprint_nl("lua> ");
+        }
+    }
+    if (luaL_loadfile(L, fname) != 0)
+        lua_error(L);
+    recorder_record_input(fname);
+    lua_call(L, 0, LUA_MULTRET);
+    return lua_gettop(L) - n;
 }
 
 @ @c
 void luainterpreter(void)
 {
     lua_State *L;
+#ifdef LuajitTeX
+    if (jithash_hashname == NULL) {
+        /* default lua51 */
+        luajittex_choose_hash_function = 0;
+        jithash_hashname = (char *) xmalloc(strlen("lua51") + 1);
+        jithash_hashname = strcpy ( jithash_hashname, "lua51");
+    } else if (strcmp((const char*)jithash_hashname,"lua51") == 0) {
+        luajittex_choose_hash_function = 0;
+    } else if (strcmp((const char*)jithash_hashname,"luajit20") == 0) {
+        luajittex_choose_hash_function = 1;
+    } else {
+        /* default lua51 */
+        luajittex_choose_hash_function = 0;
+        jithash_hashname = strcpy ( jithash_hashname, "lua51");
+    }
+    L = luaL_newstate() ;
+#else
     L = lua_newstate(my_luaalloc, NULL);
+#endif
     if (L == NULL) {
         fprintf(stderr, "Can't create the Lua state.\n");
         return;
@@ -206,29 +279,32 @@ void luainterpreter(void)
     lua_atpanic(L, &my_luapanic);
 
     do_openlibs(L);             /* does all the 'simple' libraries */
+#ifdef LuajitTeX
+    if (luajiton){
+       luaJIT_setmode(L, 0, LUAJIT_MODE_ENGINE|LUAJIT_MODE_ON);
+    }
+    else {
+       luaJIT_setmode(L, 0, LUAJIT_MODE_ENGINE|LUAJIT_MODE_OFF);
+    }
+#endif
 
     lua_pushcfunction(L,luatex_dofile);
     lua_setglobal(L, "dofile");
     lua_pushcfunction(L,luatex_loadfile);
     lua_setglobal(L, "loadfile");
 
-    luatex_md5_lua_open(L);
-
-    open_oslibext(L, safer_option);
-/*
-    open_iolibext(L);
-*/
+    open_oslibext(L);
     open_strlibext(L);
     open_lfslibext(L);
 
+    /*
+        The socket and mime libraries are a bit tricky to open because they use a load-time
+        dependency that has to be worked around for luatex, where the C module is loaded
+        way before the lua module.
+    */
 
-    /* luasockets */
-    /* socket and mime are a bit tricky to open because
-     they use a load-time  dependency that has to be
-     worked around for luatex, where the C module is
-     loaded way before the lua module.
-     */
     if (!nosocket_option) {
+        /* todo: move this to common */
         lua_getglobal(L, "package");
         lua_getfield(L, -1, "loaded");
         if (!lua_istable(L, -1)) {
@@ -245,16 +321,20 @@ void luainterpreter(void)
         lua_setfield(L, -2, "mime.core");
         lua_pushnil(L);
         lua_setfield(L, -2, "mime");    /* package.loaded.mime = nil */
-        lua_pop(L, 2);          /* pop the tables */
+        lua_pop(L, 2);                  /* pop the tables */
 
         luatex_socketlua_open(L);       /* preload the pure lua modules */
     }
+
     /* zlib. slightly odd calling convention */
     luaopen_zlib(L);
     lua_setglobal(L, "zlib");
+
     luaopen_gzip(L);
 
-    /* our own libraries */
+    /* our own libraries register themselves */
+
+    luaopen_fio(L);
     luaopen_ff(L);
     luaopen_tex(L);
     luaopen_token(L);
@@ -262,54 +342,25 @@ void luainterpreter(void)
     luaopen_texio(L);
     luaopen_kpse(L);
     luaopen_callback(L);
+
     luaopen_lua(L, startup_filename);
+
     luaopen_stats(L);
     luaopen_font(L);
     luaopen_lang(L);
     luaopen_mplib(L);
     luaopen_vf(L);
-
-    /* |luaopen_pdf(L);| */
-    /* environment table at |LUA_ENVIRONINDEX| needs to load this way: */
-    lua_pushcfunction(L, luaopen_pdf);
-    lua_pushstring(L, "pdf");
-    lua_call(L, 1, 0);
+    luaopen_pdf(L);
+    luaopen_epdf(L);
+    luaopen_pdfscanner(L);
 
     if (!lua_only) {
-        luaL_requiref(L, "img", luaopen_img, 1);
-        lua_pop(L, 1);
+        luaopen_img(L);
     }
-
-    luaL_requiref(L, "epdf", luaopen_epdf, 1);
-    lua_pop(L, 1);
-
-    /* |luaopen_pdfscanner(L);| */
-    lua_pushcfunction(L, luaopen_pdfscanner);
-    lua_pushstring(L, "pdfscanner");
-    lua_call(L, 1, 0);
 
     lua_createtable(L, 0, 0);
     lua_setglobal(L, "texconfig");
 
-    if (safer_option) {
-        /* disable some stuff if --safer */
-        (void) hide_lua_value(L, "os", "execute");
-        (void) hide_lua_value(L, "os", "rename");
-        (void) hide_lua_value(L, "os", "remove");
-        (void) hide_lua_value(L, "io", "popen");
-        /* make io.open only read files */
-        luaL_checkstack(L, 2, "out of stack space");
-        lua_getglobal(L, "io");
-        lua_getfield(L, -1, "open_ro");
-        lua_setfield(L, -2, "open");
-        (void) hide_lua_value(L, "io", "tmpfile");
-        (void) hide_lua_value(L, "io", "output");
-        (void) hide_lua_value(L, "lfs", "chdir");
-        (void) hide_lua_value(L, "lfs", "lock");
-        (void) hide_lua_value(L, "lfs", "touch");
-        (void) hide_lua_value(L, "lfs", "rmdir");
-        (void) hide_lua_value(L, "lfs", "mkdir");
-    }
     Luas = L;
 }
 
@@ -423,17 +474,17 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
         if (nameptr > 0) {
             int l = 0; /* not used */
             lua_id = tokenlist_to_cstring(nameptr, 1, &l);
-            i = lua_load(Luas, getS, &ls, lua_id, NULL);
+            i = Luas_load(Luas, getS, &ls, lua_id);
             xfree(lua_id);
         } else if (nameptr < 0) {
             lua_id = get_lua_name((nameptr + 65536));
             if (lua_id != NULL) {
-                i = lua_load(Luas, getS, &ls, lua_id, NULL);
+                i = Luas_load(Luas, getS, &ls, lua_id);
             } else {
-                i = lua_load(Luas, getS, &ls, "=[\\latelua]", NULL);
+                i = Luas_load(Luas, getS, &ls, "=[\\latelua]");
             }
         } else {
-            i = lua_load(Luas, getS, &ls, "=[\\latelua]", NULL);
+            i = Luas_load(Luas, getS, &ls, "=[\\latelua]");
         }
         if (i != 0) {
             Luas = luatex_error(Luas, (i == LUA_ERRSYNTAX ? 0 : 1));
@@ -483,17 +534,17 @@ void luatokencall(int p, int nameptr) /* hh-ls: optimized lua_id resolving */
     if (ls.size > 0) {
         if (nameptr > 0) {
             lua_id = tokenlist_to_cstring(nameptr, 1, &l);
-            i = lua_load(Luas, getS, &ls, lua_id, NULL);
+            i = Luas_load(Luas, getS, &ls, lua_id);
 	    xfree(lua_id);
         } else if (nameptr < 0) {
             lua_id = get_lua_name((nameptr + 65536));
             if (lua_id != NULL) {
-                i = lua_load(Luas, getS, &ls, lua_id, NULL);
+                i = Luas_load(Luas, getS, &ls, lua_id);
             } else {
-                i = lua_load(Luas, getS, &ls, "=[\\directlua]", NULL);
+                i = Luas_load(Luas, getS, &ls, "=[\\directlua]");
             }
         } else {
-            i = lua_load(Luas, getS, &ls, "=[\\directlua]", NULL);
+            i = Luas_load(Luas, getS, &ls, "=[\\directlua]");
         }
         xfree(s);
         if (i != 0) {
@@ -561,3 +612,68 @@ void preset_environment(lua_State * L, const parm_struct * p, const char *s)
     }
     lua_settable(L, LUA_REGISTRYINDEX); /* - */
 }
+
+
+@ @c
+/*
+    luajit compatibility layer for luatex lua5.2
+*/
+#ifdef LuajitTeX
+LUALIB_API void *luaL_testudata (lua_State *L, int ud, const char *tname) {
+    void *p = lua_touserdata(L, ud);
+    if (p != NULL) {  /* value is a userdata? */
+        if (lua_getmetatable(L, ud)) {  /* does it have a metatable? */
+            luaL_getmetatable(L, tname);  /* get correct metatable */
+        if (!lua_rawequal(L, -1, -2))  /* not the same? */
+            p = NULL;  /* value is a userdata with wrong metatable */
+        lua_pop(L, 2);  /* remove both metatables */
+        return p;
+        }
+    }
+    return NULL;  /* value is not a userdata with a metatable */
+}
+
+@ @c
+/* It's not ok. See lua-users.org/wiki/CompatibilityWithLuaFive for another solution */
+LUALIB_API void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup) {
+    /*luaL_checkversion(L);*/
+    luaL_checkstack(L, nup, "too many upvalues");
+    for (; l->name != NULL; l++) {  /* fill the table with given functions */
+        int i;
+        for (i = 0; i < nup; i++)  /* copy upvalues to the top */
+            lua_pushvalue(L, -nup);
+        lua_pushcclosure(L, l->func, nup);  /* closure with those upvalues */
+        lua_setfield(L, -(nup + 2), l->name);
+    }
+    lua_pop(L, nup);  /* remove upvalues */
+}
+
+@ @c
+LUALIB_API char *luaL_prepbuffsize (luaL_Buffer *B, size_t sz) {
+    lua_State *L = B->L;
+    if (sz > LUAL_BUFFERSIZE )
+        luaL_error(L, "buffer too large");
+    return luaL_prepbuffer(B) ;
+}
+
+@ @c
+LUA_API int lua_compare (lua_State *L, int o1, int o2, int op) {
+    /*StkId o1, o2;*/
+    int i = 0;
+    lua_lock(L);  /* may call tag method */
+    /* o1 = index2addr(L, index1); */
+    /* o2 = index2addr(L, index2); */
+    /*if (isvalid(o1) && isvalid(o2)) {*/
+    switch (op) {
+        case LUA_OPEQ: i = lua_equal(L, o1, o2); break;
+        case LUA_OPLT: i = lua_lessthan(L, o1, o2); break;
+        case LUA_OPLE: i = (lua_lessthan(L, o1, o2) || lua_equal(L, o1, o2)) ; break;
+        default: luaL_error(L, "invalid option");
+    }
+    /*}*/
+    lua_unlock(L);
+    return i;
+}
+
+@ @c
+#endif
