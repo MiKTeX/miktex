@@ -50,8 +50,6 @@ authorization from the copyright holders.
 #include FT_FREETYPE_H
 #include FT_TRUETYPE_TABLES_H
 
-#define MATH_TAG HB_TAG('M','A','T','H')
-
 // create specific subclasses for each supported platform
 
 class XeTeXFontInst
@@ -72,7 +70,6 @@ protected:
 
     FT_Face m_ftFace;
     hb_font_t* m_hbFont;
-    char *m_math;
 
 public:
     XeTeXFontInst(float pointSize, int &status);
@@ -84,7 +81,6 @@ public:
 
     void *getFontTable(OTTag tableTag) const;
     void *getFontTable(FT_Sfnt_Tag tableTag) const;
-    char *getMathTable();
 
     const char *getFilename(uint32_t* index) const
     {

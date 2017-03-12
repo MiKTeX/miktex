@@ -185,7 +185,6 @@ set(${xetex_target_name}_sources
   ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_SYNCTEX_DIR}/synctex.h
   c4p_pre.h
   miktex-first.h
-  source/MathTable.h
   source/XeTeXFontInst.cpp
   source/XeTeXFontInst.h
   source/XeTeXFontMgr.cpp

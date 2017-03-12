@@ -16435,6 +16435,7 @@ end else  begin b:=new_null_box;
   width(b):=null_delimiter_space; {use this width if no delimiter was found}
   end;
 shift_amount(b):=half(height(b)-depth(b)) - axis_height(s);
+free_ot_assembly(ot_assembly_ptr);
 var_delimiter:=b;
 end;
 
@@ -17083,6 +17084,7 @@ var p,@!x,@!y:pointer; {temporary registers for box construction}
 @!ot_assembly_ptr:void_pointer;
 begin fetch(accent_chr(q));
 x:=null;
+ot_assembly_ptr:=nil;
 if is_native_font(cur_f) then
   begin c:=cur_c; f:=cur_f;
   if not is_bottom_acc(q) then s:=compute_ot_math_accent_pos(q) else s:=0;
@@ -17136,6 +17138,7 @@ if x<>null then begin
   info(nucleus(q)):=y;
   math_type(nucleus(q)):=sub_box;
   end;
+  free_ot_assembly(ot_assembly_ptr);
 end;
 
 @ @<Make the height of box |y|...@>=
@@ -17347,6 +17350,7 @@ var delta:scaled; {offset between subscript and superscript}
 begin if (subtype(q)=normal)and(cur_style<text_style) then
   subtype(q):=limits;
 delta:=0;
+ot_assembly_ptr:=nil;
 if math_type(nucleus(q))=math_char then
   begin fetch(nucleus(q));
   if not is_ot_font(cur_f) then begin
@@ -17404,6 +17408,7 @@ found:
 save_f:=cur_f;
 if subtype(q)=limits then
   @<Construct a box with limits above and below it, skewed by |delta|@>;
+free_ot_assembly(ot_assembly_ptr);
 make_op:=delta;
 end;
 
