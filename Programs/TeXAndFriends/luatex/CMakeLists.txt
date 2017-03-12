@@ -705,7 +705,7 @@ set(libs
   ${kpsemu_dll_name}
   ${lua_lib_name}
   ${md5_dll_name}
-  ${mp_lib_name}
+#  ${mp_lib_name}
   ${w2cemu_dll_name}
 
   luatex-luaffi-static
