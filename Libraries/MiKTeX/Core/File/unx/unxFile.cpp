@@ -71,6 +71,13 @@ FileAttributeSet File::GetAttributes(const PathName& path)
     result += FileAttribute::ReadOnly;
   }
 
+  if (((attributes & S_IXUSR) != 0)
+    && ((attributes & S_IXGRP) != 0)
+    && ((attributes & S_IXOTH) != 0))
+  {
+    result += FileAttribute::Executable;
+  }
+  
   return result;
 }
 
@@ -92,15 +99,26 @@ void File::SetAttributes(const PathName& path, FileAttributeSet attributes)
 
   mode_t newAttributes = oldAttributes;
 
-  bool writable = (oldAttributes & S_IWUSR) != 0 && (oldAttributes & S_IWGRP) != 0 && (oldAttributes & S_IWOTH) != 0;
+  bool isWritable = (oldAttributes & S_IWUSR) != 0 && (oldAttributes & S_IWGRP) != 0 && (oldAttributes & S_IWOTH) != 0;
 
-  if (attributes[FileAttribute::ReadOnly] && writable)
+  if (attributes[FileAttribute::ReadOnly] && isWritable)
   {
     newAttributes &= ~(S_IWUSR | S_IWGRP | S_IWOTH);
   }
-  else if (!attributes[FileAttribute::ReadOnly] && !writable)
+  else if (!attributes[FileAttribute::ReadOnly] && !isWritable)
   {
     newAttributes |= (S_IWUSR | S_IWGRP | S_IWOTH);
+  }
+
+  bool isExecutable = (oldAttributes & S_IXUSR) != 0 && (oldAttributes & S_IXGRP) != 0 && (oldAttributes & S_IXOTH) != 0;
+
+  if (!attributes[FileAttribute::Executable] && isExecutable)
+  {
+    newAttributes &= ~(S_IXUSR | S_IXGRP | S_IXOTH);
+  }
+  else if (attributes[FileAttribute::Executable] && !isExecutable)
+  {
+    newAttributes |= (S_IXUSR | S_IXGRP | S_IXOTH);
   }
 
   if (newAttributes == oldAttributes)

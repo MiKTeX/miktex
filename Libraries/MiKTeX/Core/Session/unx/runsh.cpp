@@ -57,10 +57,13 @@ int SessionImpl::RunSh(int argc, const char** argv)
     MIKTEX_FATAL_ERROR_2(T_("The shell script file could not be found."), "name", name.ToString(), "path", relScriptPath);
   }
 
+  if (!File::GetAttributes(scriptPath)[FileAttribute::Executable])
+  {
+    MIKTEX_FATAL_ERROR_2(T_("Cannot execute script."), "path", Q_(scriptPath));
+  }
+  
   // build command line
   CommandLineBuilder commandLine;
-  commandLine.AppendArgument("source");
-  commandLine.AppendArgument(scriptPath);
   if (argc > 1)
   {
     commandLine.AppendArguments(argc - 1, &argv[1]);
@@ -68,7 +71,7 @@ int SessionImpl::RunSh(int argc, const char** argv)
 
   int exitCode;
 
-  Process::ExecuteSystemCommand(commandLine.ToString(), &exitCode);
+  Process::Run(scriptPath, commandLine.ToString(), nullptr, &exitCode, nullptr);
 
   return exitCode;
 }

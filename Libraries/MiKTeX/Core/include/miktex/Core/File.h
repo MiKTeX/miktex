@@ -1,6 +1,6 @@
 /* miktex/Core/File.h:                                  -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -90,6 +90,9 @@ enum class FileAttribute
 #if defined(MIKTEX_WINDOWS)
   /// File is hidden.
   Hidden,
+#endif
+#if defined(MIKTEX_UNIX)
+  Executable
 #endif
 };
 
