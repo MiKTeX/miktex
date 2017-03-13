@@ -1,6 +1,6 @@
 /* miktex/utf8wrap-config.h:                            -*- C++ -*-
 
-   Copyright (C) 2011-2016 Christian Schenk
+   Copyright (C) 2011-2017 Christian Schenk
 
    This file is part of the MiKTeX UTF8Wrap Library.
 
@@ -117,6 +117,9 @@
 #  endif
 #  if !defined(MIKTEX_UTF8_WRAP_PUTCHAR)
 #    define MIKTEX_UTF8_WRAP_PUTCHAR 1
+#  endif
+#  if !defined(MIKTEX_UTF8_WRAP_PUTENV)
+#    define MIKTEX_UTF8_WRAP_PUTENV 1
 #  endif
 #  if !defined(MIKTEX_UTF8_WRAP_RENAME)
 #    define MIKTEX_UTF8_WRAP_RENAME 1
