@@ -41,6 +41,28 @@ const char* const TheNameOfTheGame = T_("MiKTeX Configuration Utility");
 
 static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger(PROGNAME));
 
+template<class VALTYPE> class AutoRestore
+{
+public:
+  AutoRestore(VALTYPE& val) :
+    oldVal(val),
+    pVal(&val)
+  {
+  }
+
+public:
+  ~AutoRestore()
+  {
+    *pVal = oldVal;
+  }
+
+private:
+  VALTYPE oldVal;
+
+private:
+  VALTYPE* pVal;
+};
+
 enum class LinkType
 {
   Hard,
@@ -298,6 +320,11 @@ private:
 
 private:
   void ManageLinks(bool remove, bool force);
+
+#if defined(MIKTEX_UNIX)
+private:
+  void MakeScriptsExecutable();
+#endif
 
 private:
   void MakeLanguageDat(bool force);
@@ -2682,6 +2709,36 @@ void IniTeXMFApp::ManageLinks(bool remove, bool force)
   }
 }
 
+#if defined(MIKTEX_UNIX)
+void IniTeXMFApp::MakeScriptsExecutable()
+{
+  PathName scriptsIni;
+  if (!session->FindFile(MIKTEX_PATH_SCRIPTS_INI, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptsIni))
+  {
+    FatalError(T_("Script configuration file not found."));
+  }
+  unique_ptr<Cfg> config(Cfg::Create());
+  config->Read(scriptsIni, true);
+  AutoRestore<TriState> x(enableInstaller);
+  for (const shared_ptr<Cfg::Key>& key : config->GetKeys())
+  {
+    if (key->GetName() != "sh")
+    {
+      continue;
+    }
+    for (const shared_ptr<Cfg::Value>& val : key->GetValues())
+    {
+      PathName scriptPath;
+      if (!session->FindFile(val->GetValue(), MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
+      {
+        continue;
+      }
+      File::SetAttributes(scriptPath, File::GetAttributes(scriptPath) + FileAttribute::Executable);
+    }
+  }
+}
+#endif
+
 void IniTeXMFApp::MakeLanguageDat(bool force)
 {
   Verbose(T_("Creating language.dat, language.dat.lua and language.def..."));
@@ -3784,6 +3841,12 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   if (optMakeLinks || optRemoveLinks)
   {
     ManageLinks(optRemoveLinks, optForce);
+#if defined(MIKTEX_UNIX)
+    if (optMakeLinks)
+    {
+      MakeScriptsExecutable();
+    }
+#endif
   }
 
   if (optMakeMaps)
