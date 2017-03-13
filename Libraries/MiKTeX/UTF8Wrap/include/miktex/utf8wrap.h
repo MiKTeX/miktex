@@ -1,6 +1,6 @@
 /* miktex/utf8wrap.h: Unx emulation                     -*- C++ -*-
 
-   Copyright (C) 2011-2016 Christian Schenk
+   Copyright (C) 2011-2017 Christian Schenk
 
    This file is part of the MiKTeX UTF8Wrap Library.
 
@@ -84,6 +84,9 @@
 #endif
 #if MIKTEX_UTF8_WRAP_PUTCHAR && !IS_DEFINED_PUTCHAR
 #  define putchar putchar_hidden
+#endif
+#if MIKTEX_UTF8_WRAP_PUTENV
+#  define putenv putenv_hidden
 #endif
 #if MIKTEX_UTF8_WRAP_RENAME
 #  define rename rename_hidden
@@ -179,6 +182,8 @@ MIKTEXUTF8WRAPCEEAPI(FILE *) miktex_utf8__popen(const char * command, const char
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_putc(int ch, FILE * file);
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_putchar(int ch);
+
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_putenv(const char * envString);
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_rename(const char * oldPathName, const char * newPathName);
 
@@ -363,6 +368,14 @@ static inline int putc(int ch, FILE * file)
 static inline int putchar(int ch)
 {
   return miktex_utf8_putchar(ch);
+}
+#endif
+
+#if MIKTEX_UTF8_WRAP_PUTENV
+#undef putenv
+static inline int putenv(const char* envString)
+{
+  return miktex_utf8_putenv(envString);
 }
 #endif
 

@@ -1,6 +1,6 @@
 /* utf8wrap.cpp:
 
-   Copyright (C) 2011-2016 Christian Schenk
+   Copyright (C) 2011-2017 Christian Schenk
 
    This file is part of the MiKTeX UTF8Wrap Library.
 
@@ -156,6 +156,11 @@ MIKTEXUTF8WRAPCEEAPI(char *) miktex_utf8_getenv(const char * lpszName)
   }
   env[lpszName] = WideCharToUTF8(lpszWideChar);
   return env[lpszName].get();
+}
+
+MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8_putenv(const char* envString)
+{
+  return _wputenv(UW_(envString));
 }
 
 MIKTEXUTF8WRAPCEEAPI(int) miktex_utf8__utime64(const char * lpszFileName, struct __utimbuf64 * pTime)
