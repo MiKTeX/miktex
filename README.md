@@ -2,19 +2,24 @@
 
 MiKTeX is both a C/C++ implemenentation of TeX & Friends and a TeX distribution.
 
-You can find more information here:
-
-* [https://miktex.org](https://miktex.org "MiKTeX project page")
-* [https://miktex.org/howto/build-win](https://miktex.org/howto/build-win "Building MiKTeX (Windows)")
-* [https://miktex.org/howto/build-unx](https://miktex.org/howto/build-unx "Building MiKTeX (Unix-alike platforms)")
+Please visit the [MiKTeX Project Page](https://miktex.org), if you
+want to learn more about MiKTeX.
 
 ## What you will find here
 
-This readme file is located in the top-level directory of the the
-MiKTeX source code tree.  You use the source code to build and install
-a minimal TeX system.  MiKTeX provides an integrated package manager,
-i.e., this minimal TeX system can serve as a starting point for a much
-larger (complete) TeX system.
+This readme file is located in the top-level directory of the MiKTeX
+source code tree.
+
+You can use the source code to build and install a minimal TeX system.
+MiKTeX provides an integrated package manager, i.e., this minimal TeX
+system can serve as a starting point for a much larger (complete) TeX
+system.
+
+Please take a look at these HOWTOs for platform-specific information:
+
+* [https://miktex.org/howto/build-win](https://miktex.org/howto/build-win "Building MiKTeX (Windows)")
+* [https://miktex.org/howto/build-unx](https://miktex.org/howto/build-unx "Building MiKTeX (Unix-alike platforms)")
+* [https://miktex.org/howto/build-mac](https://miktex.org/howto/build-mac "Building MiKTeX (macOS)")
 
 ## Prerequisites
 
@@ -36,7 +41,7 @@ larger (complete) TeX system.
 * Libraries
 
   On Unix-alike platforms, you will need development packages (header
-  files) for a handful of popular libraries. Please see the top-level
+  files) for a handful of popular libraries.  Please see the top-level
   `CMakeLists.txt` for more information.
 
 ## Running CMake
@@ -54,7 +59,7 @@ CMake for Windows may require a generator specification.  If you want
 to generate Makefiles for `nmake`, run this:
 
     cmake -G "NMake Makefiles" ../source
-
+	
 ## Building MiKTeX
 
 Run the make utility to build MiKTeX, for example:
