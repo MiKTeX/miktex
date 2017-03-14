@@ -39,7 +39,6 @@
 <!ENTITY mandvips SYSTEM "Ref/dvips.xml">
 <!ENTITY manfindtexmf SYSTEM "Ref/findtexmf.xml">
 <!ENTITY mangftodvi SYSTEM "Ref/gftodvi.xml">
-<!ENTITY maninitexmf SYSTEM "Ref/initexmf.xml">
 <!ENTITY manmf SYSTEM "Ref/mf.xml">
 <!ENTITY manmpost SYSTEM "Ref/mpost.xml">
 <!ENTITY manmthelp SYSTEM "Ref/mthelp.xml">
@@ -554,7 +553,7 @@ option of &initexmf; to edit the configuration file, e.g.:</para>
 &mandvips;
 &manfindtexmf;
 &mangftodvi;
-&maninitexmf;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/initexmf.xml" />
 &manmf;
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/miktexsetup.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/mpm.xml" />

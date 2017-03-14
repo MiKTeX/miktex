@@ -53,14 +53,7 @@ command-line options.</para>
 <title>Options</title>
 
 <variablelist>
-<varlistentry>
-<term><option>--admin</option></term>
-<listitem>
-<indexterm>
-<primary>--admin</primary>
-</indexterm>
-<para>Run in administrative mode.</para></listitem>
-</varlistentry>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/admin.xml" />
 <varlistentry>
 <term><option>--find-updates</option></term>
 <listitem>

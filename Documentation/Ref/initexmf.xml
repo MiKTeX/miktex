@@ -1,3 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+<!ENTITY % version.ent SYSTEM "version.ent">
+%version.ent;
+%entities.ent;
+<!ENTITY optiondisableinstaller SYSTEM "../Options/disableinstaller.xml">
+<!ENTITY optionenableinstaller SYSTEM "../Options/enableinstaller.xml">
+]>
+
 <refentry id="initexmf">
 
 <?dbhh topicname="MIKTEXHELP_INITEXMF" topicid="0"?>
@@ -68,14 +79,7 @@ invoke the utility as follows:</para>
 <title>Options</title>
 
 <variablelist>
-<varlistentry>
-<term><option>--admin</option></term>
-<listitem>
-<indexterm>
-<primary>--admin</primary>
-</indexterm>
-<para>Run in administrative mode.</para></listitem>
-</varlistentry>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/admin.xml" />
 &optiondisableinstaller;
 <varlistentry>
 <term><option>--dump</option></term>
