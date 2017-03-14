@@ -173,7 +173,7 @@
 <!ENTITY pdfetex "<command>pdfetex</command>">
 <!ENTITY pdfvirtex "<command>pdfvirtex</command>">
 <!ENTITY progfldr "MiKTeX &MIKTEX_MAJOR_MINOR_STR;">
-<!ENTITY prompt "C:\&gt; ">
+<!ENTITY prompt "${PROMPT}">
 <!ENTITY basicmiktexexe "<command>basic-miktex-&MIKTEX_MAJOR_MINOR_STR;.<replaceable>xxxx</replaceable>.exe</command>">
 <!ENTITY basicmiktexexefile "<filename>basic-miktex-&MIKTEX_MAJOR_MINOR_STR;.<replaceable>xxxx</replaceable>.exe</filename>">
 <!ENTITY miktexsetup "<command>miktexsetup</command>">

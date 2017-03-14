@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -18,6 +18,12 @@
 ## USA.
 
 set(MIKTEX_CURRENT_FOLDER "Documentation")
+
+if(MIKTEX_UNIX_ALIKE)
+  set(PROMPT "&#36; ")
+else()
+  set(PROMPT "C:\&gt; ")
+endif()
 
 configure_file(
   version.ent.in
@@ -803,21 +809,21 @@ endif()
 if(MIKTEX_UNIX_ALIKE)
   add_custom_target(gen-man ALL
     DEPENDS
-	${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}bibtex.1
-	${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}dvicopy.1
-	${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}dvips.1
-	${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}gftodvi.1
-	${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}mf.1
-	${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}mpost.1
-	${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}pdftex.1
-	${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}tex.1
-	${CMAKE_CURRENT_BINARY_DIR}/findtexmf.1
-	${CMAKE_CURRENT_BINARY_DIR}/initexmf.1
-	${CMAKE_CURRENT_BINARY_DIR}/mpm.1
-	${CMAKE_CURRENT_BINARY_DIR}/mthelp.1
-	${CMAKE_CURRENT_BINARY_DIR}/pdftex.cfg.5
-	${CMAKE_CURRENT_BINARY_DIR}/texify.1
-	${CMAKE_CURRENT_BINARY_DIR}/updmap.cfg.5
+        ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}bibtex.1
+        ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}dvicopy.1
+        ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}dvips.1
+        ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}gftodvi.1
+        ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}mf.1
+        ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}mpost.1
+        ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}pdftex.1
+        ${CMAKE_CURRENT_BINARY_DIR}/${MIKTEX_PREFIX}tex.1
+        ${CMAKE_CURRENT_BINARY_DIR}/findtexmf.1
+        ${CMAKE_CURRENT_BINARY_DIR}/initexmf.1
+        ${CMAKE_CURRENT_BINARY_DIR}/mpm.1
+        ${CMAKE_CURRENT_BINARY_DIR}/mthelp.1
+        ${CMAKE_CURRENT_BINARY_DIR}/pdftex.cfg.5
+        ${CMAKE_CURRENT_BINARY_DIR}/texify.1
+        ${CMAKE_CURRENT_BINARY_DIR}/updmap.cfg.5
   )
   set_property(TARGET gen-man PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})  
 endif()
