@@ -7,9 +7,14 @@
 %entities.ent;
 ]>
 <varlistentry><term><option>--admin</option></term>
-<listitem><para>Run in administrative mode and operate on the
-system-wide &MiKTeX; configuration.  Using this option requires a
-shared &MiKTeX; setup.</para>
+<listitem><para>Run in administrative mode:</para>
+<itemizedlist>
+<listitem><para>Operate on the system-wide &MiKTeX; configuration data store.</para></listitem>
+<listitem><para>Install packages for all users.</para></listitem>
+</itemizedlist>
+<para>Using this option requires a shared &MiKTeX; setup, i.e.,
+&MiKTeX; must have been set up for all users.  The program must be run
+with administrator privileges.</para>
 <indexterm>
 <primary>--admin</primary>
 </indexterm>

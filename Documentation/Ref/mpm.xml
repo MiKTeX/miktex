@@ -155,7 +155,7 @@ a list of working package repository URLs.</para></listitem>
 <listitem><para>Select the release state of the remote package
 repository.  The release state is relevant for finding appropriate
 package repositories (<option>--list-repositories</option>,
-<option>--pick-repository-url</option>).</para></listitem>
+<option>--pick-repository-url</option>). The release state must be one of <option>stable</option> or <option>next</option>.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--reverse</option></term>
@@ -167,12 +167,10 @@ package repositories (<option>--list-repositories</option>,
 <indexterm>
 <primary>--set-repository=location</primary>
 </indexterm>
-<para>This option is only available on Windows systems:
-permanently register the location of the default package repository
-in the user area of the Windows Registry.
-The location can be either a fully qualified path name (a local
-package repository) or an <acronym>URL</acronym>
-(a remote package repository).</para></listitem>
+<para>Store the location of the default package repository in the &MiKTeX;
+configuration data store.  The location can be either a fully qualified path
+name (a local package repository) or an <acronym>URL</acronym> (a
+remote package repository).</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/trace.xml" />
 <varlistentry>

@@ -4,7 +4,7 @@
 <indexterm>
 <primary>MIKTEX_REPOSITORY</primary>
 </indexterm>
-<para>Location of the package repository.  This can be either a fully
+<para>Location of the default package repository.  This can be either a fully
 qualified path name (a local package repository) or an <acronym>URL</acronym>
 (a remote package repository).</para>
 </listitem>
