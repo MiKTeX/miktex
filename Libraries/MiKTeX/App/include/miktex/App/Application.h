@@ -64,6 +64,9 @@ public:
   virtual MIKTEXAPPEXPORT MIKTEXTHISCALL ~Application() noexcept;
 
 public:
+  virtual MIKTEXAPPTHISAPI(void) Init(const MiKTeX::Core::Session::InitInfo& initInfo, std::vector<char*>& args);
+
+public:
   virtual MIKTEXAPPTHISAPI(void) Init(const MiKTeX::Core::Session::InitInfo& initInfo);
 
 public:

@@ -130,11 +130,41 @@ void InstallSignalHandler(int sig)
   }
 }
 
-void Application::Init(const Session::InitInfo& initInfo_)
+void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args)
 {
   instance = this;
   pimpl->initialized = true;
-  Session::InitInfo initInfo(initInfo_);
+  Session::InitInfo initInfo(initInfoArg);
+  MIKTEX_ASSERT(!empty.args() && args.back() == nullptr);
+  vector<char*>::iterator it = args.begin();
+  while (it != args.end() && *it != nullptr)
+  {
+    bool keepArgument = false;
+    if (strcmp(*it, "--miktex-admin") == 0)
+    {
+      initInfo.AddOption(Session::InitOption::AdminMode);
+    }
+    else if (strcmp(*it, "--miktex-disable-installer") == 0)
+    {
+      pimpl->enableInstaller = TriState::False;
+    }
+    else if (strcmp(*it, "--miktex-enable-installer") == 0)
+    {
+      pimpl->enableInstaller = TriState::True;
+    }
+    else
+    {
+      keepArgument = true;
+    }
+    if (keepArgument)
+    {
+      ++it;
+    }
+    else
+    {
+      it = args.erase(it);
+    }
+  }
   initInfo.SetTraceCallback(this);
   pimpl->session = Session::Create(initInfo);
   pimpl->session->SetFindFileCallback(this);
@@ -206,39 +236,15 @@ void Application::Init(const Session::InitInfo& initInfo_)
   }
 }
 
+void Application::Init(const Session::InitInfo& initInfo)
+{
+  Init(initInfo, vector<char*>{ nullptr });
+}
+
 void Application::Init(vector<char*>& args)
 {
-  Session::InitInfo initInfo(args[0]);
-  vector<char*>::iterator it = args.begin();
-  while (it != args.end() && *it != nullptr)
-  {
-    bool keepArgument = false;
-    if (strcmp(*it, "--miktex-admin") == 0)
-    {
-      initInfo.AddOption(Session::InitOption::AdminMode);
-    }
-    else if (strcmp(*it, "--miktex-disable-installer") == 0)
-    {
-      pimpl->enableInstaller = TriState::False;
-    }
-    else if (strcmp(*it, "--miktex-enable-installer") == 0)
-    {
-      pimpl->enableInstaller = TriState::True;
-    }
-    else
-    {
-      keepArgument = true;
-    }
-    if (keepArgument)
-    {
-      ++it;
-    }
-    else
-    {
-      it = args.erase(it);
-    }
-  }
-  Init(initInfo);
+  MIKTEX_ASSERT(!args.empty() && args.back() != nullptr);
+  Init(Session::InitInfo(args[0]), args);
 }
 
 void Application::Init(const string& programInvocationName, const string& theNameOfTheGame)
@@ -248,10 +254,8 @@ void Application::Init(const string& programInvocationName, const string& theNam
   {
     initInfo.SetTheNameOfTheGame(theNameOfTheGame);
   }
-#if defined(MIKTEX_WINDOWS) && 0
-  initInfo.AddOption(Session::InitOption::InitializeCOM);
-#endif
-  Init(initInfo);
+  // FIXME:: eliminate const cast
+  Init(initInfo, vector<char*>{ (char*)programInvocationName.c_str(), nullptr });
 }
 
 void Application::Init(const string& programInvocationName)
