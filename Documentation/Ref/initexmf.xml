@@ -52,25 +52,25 @@
 <varlistentry>
 <term>User mode (default)</term>
 <listitem>
-<para>Only user related &MiKTeX; configuration and data files are
-modified.</para>
+<para>&MiKTeX; operates on user-scoped configuration and data files.</para>
 </listitem>
 </varlistentry>
 <varlistentry>
 <term>Administrative mode</term>
 <listitem>
 <para>Only system-wide &MiKTeX; configuration and data files are
-modified.  The utility should be run as the system administrator.</para>
+modified, assuming that the &MiKTeX; setup is shared by all
+users.  The utility must be run with administrator privileges.</para>
 </listitem>
 </varlistentry>
 </variablelist>
 
 <para>By default, the utility runs in user mode.  You can turn on
-administrative mode with the <option>--admin</option> option. For
+administrative mode with the <option>--admin</option> option.  For
 example, if you want to update the system-wide file name database, you
 invoke the utility as follows:</para>
 
-<programlisting>initexmf --admin --update-fndb</programlisting>
+<screen><prompt>&prompt;</prompt><userinput>initexmf --admin --update-fndb</userinput></screen>
 
 </refsect1>
 
