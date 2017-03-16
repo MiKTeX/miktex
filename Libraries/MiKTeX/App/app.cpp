@@ -238,7 +238,8 @@ void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args
 
 void Application::Init(const Session::InitInfo& initInfo)
 {
-  Init(initInfo, vector<char*>{ nullptr });
+  vector<char*> args{ nullptr };
+  Init(initInfo, args);
 }
 
 void Application::Init(vector<char*>& args)
@@ -255,7 +256,8 @@ void Application::Init(const string& programInvocationName, const string& theNam
     initInfo.SetTheNameOfTheGame(theNameOfTheGame);
   }
   // FIXME:: eliminate const cast
-  Init(initInfo, vector<char*>{ (char*)programInvocationName.c_str(), nullptr });
+  vector<char*> args{ (char*)programInvocationName.c_str(), nullptr };
+  Init(initInfo, args);
 }
 
 void Application::Init(const string& programInvocationName)
