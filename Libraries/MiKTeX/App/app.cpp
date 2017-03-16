@@ -32,7 +32,7 @@ using namespace std;
 
 static log4cxx::LoggerPtr logger;
 
-static Application * instance = nullptr;
+static Application* instance = nullptr;
 
 static bool initUiFrameworkDone = false;
 
@@ -64,7 +64,7 @@ void Application::CheckCancel()
   }
 }
 
-Application * Application::GetApplication()
+Application* Application::GetApplication()
 {
   return instance;
 }
@@ -108,7 +108,7 @@ Application::~Application() noexcept
     }
     FlushPendingTraceMessages();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -130,7 +130,7 @@ void InstallSignalHandler(int sig)
   }
 }
 
-void Application::Init(const Session::InitInfo & initInfo_)
+void Application::Init(const Session::InitInfo& initInfo_)
 {
   instance = this;
   pimpl->initialized = true;
@@ -206,10 +206,10 @@ void Application::Init(const Session::InitInfo & initInfo_)
   }
 }
 
-void Application::Init(vector<char *> & args)
+void Application::Init(vector<char*>& args)
 {
   Session::InitInfo initInfo(args[0]);
-  vector<char *>::iterator it = args.begin();
+  vector<char*>::iterator it = args.begin();
   while (it != args.end() && *it != nullptr)
   {
     bool keepArgument = false;
@@ -241,7 +241,7 @@ void Application::Init(vector<char *> & args)
   Init(initInfo);
 }
 
-void Application::Init(const string & programInvocationName, const string & theNameOfTheGame)
+void Application::Init(const string& programInvocationName, const string& theNameOfTheGame)
 {
   Session::InitInfo initInfo(programInvocationName);
   if (!theNameOfTheGame.empty())
@@ -254,7 +254,7 @@ void Application::Init(const string & programInvocationName, const string & theN
   Init(initInfo);
 }
 
-void Application::Init(const string & programInvocationName)
+void Application::Init(const string& programInvocationName)
 {
   Init(programInvocationName, "");
 }
@@ -281,7 +281,7 @@ void Application::Finalize()
   pimpl->initialized = false;
 }
 
-void Application::ReportLine(const string & str)
+void Application::ReportLine(const string& str)
 {
   LOG4CXX_INFO(logger, "mpm: " << str);
   if (!GetQuietFlag())
@@ -291,7 +291,7 @@ void Application::ReportLine(const string & str)
   }
 }
 
-bool Application::OnRetryableError(const string & message)
+bool Application::OnRetryableError(const string& message)
 {
   UNUSED_ALWAYS(message);
   return false;
@@ -307,7 +307,7 @@ MIKTEXAPPTHISAPI(void) Application::ShowLibraryVersions() const
 {
   vector<LibraryVersion> versions;
   GetLibraryVersions(versions);
-  for (auto & ver : set<LibraryVersion>(versions.begin(), versions.end()))
+  for (auto& ver : set<LibraryVersion>(versions.begin(), versions.end()))
   {
     if (!ver.fromHeader.empty() && !ver.fromRuntime.empty())
     {
@@ -324,9 +324,9 @@ MIKTEXAPPTHISAPI(void) Application::ShowLibraryVersions() const
   }
 }
 
-const char * const SEP = "======================================================================";
+const char* const SEP = "======================================================================";
 
-bool Application::InstallPackage(const string & deploymentName, const PathName & trigger, PathName & installRoot)
+bool Application::InstallPackage(const string& deploymentName, const PathName& trigger, PathName& installRoot)
 {
   if (pimpl->ignoredPackages.find(deploymentName) != pimpl->ignoredPackages.end())
   {
@@ -406,7 +406,7 @@ bool Application::InstallPackage(const string & deploymentName, const PathName &
     installRoot = pimpl->session->GetSpecialPath(SpecialPath::InstallRoot);
     done = true;
   }
-  catch (const MiKTeXException & ex)
+  catch (const MiKTeXException& ex)
   {
     pimpl->enableInstaller = TriState::False;
     pimpl->ignoredPackages.insert(deploymentName);
@@ -432,7 +432,7 @@ bool Application::InstallPackage(const string & deploymentName, const PathName &
   return done;
 }
 
-bool Application::TryCreateFile(const PathName & fileName, FileType fileType)
+bool Application::TryCreateFile(const PathName& fileName, FileType fileType)
 {
   CommandLineBuilder commandLine;
   switch (pimpl->enableInstaller)
@@ -504,7 +504,7 @@ TriState Application::GetEnableInstaller() const
   return pimpl->enableInstaller;
 }
 
-void Application::Trace(const TraceCallback::TraceMessage & traceMessage)
+void Application::Trace(const TraceCallback::TraceMessage& traceMessage)
 {
   if (!pimpl->isLog4cxxConfigured)
   {
@@ -521,14 +521,14 @@ void Application::Trace(const TraceCallback::TraceMessage & traceMessage)
 
 void Application::FlushPendingTraceMessages()
 {
-  for (const TraceCallback::TraceMessage & m : pimpl->pendingTraceMessages)
+  for (const TraceCallback::TraceMessage& m : pimpl->pendingTraceMessages)
   {
     TraceInternal(m);
   }
   pimpl->pendingTraceMessages.clear();
 }
 
-void Application::TraceInternal(const TraceCallback::TraceMessage & traceMessage)
+void Application::TraceInternal(const TraceCallback::TraceMessage& traceMessage)
 {
   if (pimpl->isLog4cxxConfigured)
   {
@@ -548,7 +548,7 @@ void Application::TraceInternal(const TraceCallback::TraceMessage & traceMessage
   }
 }
 
-void Application::Sorry(const string & name, const string & reason)
+void Application::Sorry(const string& name, const string& reason)
 {
   if (cerr.fail())
   {
@@ -579,7 +579,7 @@ void Application::Sorry(const string & name, const string & reason)
     << T_("You may want to visit the MiKTeX project page, if you need help.") << endl;
 }
 
-void Application::Sorry(const string & name, const MiKTeXException & ex)
+void Application::Sorry(const string& name, const MiKTeXException& ex)
 {
   if (logger != nullptr)
   {
@@ -591,7 +591,7 @@ void Application::Sorry(const string & name, const MiKTeXException & ex)
   Sorry(name);
 }
 
-void Application::Sorry(const string & name, const exception & ex)
+void Application::Sorry(const string& name, const exception& ex)
 {
   if (logger != nullptr)
   {
@@ -600,7 +600,7 @@ void Application::Sorry(const string & name, const exception & ex)
   Sorry(name);
 }
 
-MIKTEXNORETURN void Application::FatalError(const char * lpszFormat, ...)
+MIKTEXNORETURN void Application::FatalError(const char* lpszFormat, ...)
 {
   va_list arglist;
   va_start(arglist, lpszFormat);
@@ -623,7 +623,7 @@ MIKTEXNORETURN void Application::FatalError(const char * lpszFormat, ...)
   throw 1;
 }
 
-void Application::InvokeEditor(const PathName & editFileName, int editLineNumber, FileType editFileType, const PathName & transcriptFileName) const
+void Application::InvokeEditor(const PathName& editFileName, int editLineNumber, FileType editFileType, const PathName& transcriptFileName) const
 {
   string defaultEditor;
 
@@ -656,7 +656,7 @@ void Application::InvokeEditor(const PathName & editFileName, int editLineNumber
 
   string templ = pimpl->session->GetConfigValue("", MIKTEX_REGVAL_EDITOR, defaultEditor).GetString();
 
-  const char * lpszCommandLineTemplate = templ.c_str();
+  const char* lpszCommandLineTemplate = templ.c_str();
 
   string fileName;
 
