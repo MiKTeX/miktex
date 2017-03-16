@@ -55,10 +55,10 @@ public:
   Application& operator=(const Application& other) = delete;
 
 public:
-  Application(Application && other) = delete;
+  Application(Application&& other) = delete;
 
 public:
-  Application& operator=(Application && other) = delete;
+  Application& operator=(Application&& other) = delete;
 
 public:
   virtual MIKTEXAPPEXPORT MIKTEXTHISCALL ~Application() noexcept;
