@@ -57,7 +57,7 @@ public:
   virtual MIKTEXMFEXPORT MIKTEXTHISCALL ~MetafontApp() noexcept;
 
 protected:
-  MIKTEXMFTHISAPI(void) Init(const std::string& programInvocationName) override;
+  MIKTEXMFTHISAPI(void) Init(std::vector<char*>& args) override;
 
 public:
   MIKTEXMFTHISAPI(void) Finalize() override;

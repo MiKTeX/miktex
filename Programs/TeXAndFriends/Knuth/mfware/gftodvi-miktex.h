@@ -62,9 +62,9 @@ public:
   }
 
 public:
-  void Init(const std::string& programInvocationName) override
+  void Init(std::vector<char*>& args) override
   {
-    WebApp::Init(programInvocationName);
+    WebApp::Init(args);
     GFTODVIPROG.overlabeloffset = 10000000;
     titleFont = "cmr8";
     labelFont = "cmtt10";

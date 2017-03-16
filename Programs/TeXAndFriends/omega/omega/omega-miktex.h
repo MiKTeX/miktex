@@ -180,7 +180,7 @@ private:
   std::shared_ptr<MiKTeX::Core::Session> session;
 
 public:
-  void Init(const std::string& programInvocationName) override
+  void Init(std::vector<char*>& args) override
   {
     SetCharacterConverter(&charConv);
     SetErrorHandler(&errorHandler);
@@ -189,7 +189,7 @@ public:
     SetInputOutput(&inputOutput);
     SetStringHandler(&stringHandler);
     SetTeXMFMemoryHandler(&memoryHandler);
-    TeXApp::Init(programInvocationName);
+    TeXApp::Init(args);
     session = GetSession();
 #if defined(IMPLEMENT_TCX)
     EnableFeature(Feature::TCX);

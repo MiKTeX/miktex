@@ -172,7 +172,7 @@ private:
   MemoryHandlerImpl memoryHandler{ XETEXPROG, *this };
 
 public:
-  void Init(const std::string& programInvocationName) override
+  void Init(std::vector<char*>& args) override
   {
     SetCharacterConverter(&charConv);
     SetErrorHandler(&errorHandler);
@@ -181,7 +181,7 @@ public:
     SetInputOutput(&inputOutput);
     SetStringHandler(&stringHandler);
     SetTeXMFMemoryHandler(&memoryHandler);
-    ETeXApp::Init(programInvocationName);
+    ETeXApp::Init(args);
     EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
   }
 

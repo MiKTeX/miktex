@@ -116,7 +116,7 @@ private:
   MemoryHandlerImpl memoryHandler { MFPROG, *this };
 
 public:
-  void Init(const std::string& programInvocationName) override
+  void Init(std::vector<char*>& args) override
   {
     SetCharacterConverter(&charConv);
     SetErrorHandler(&errorHandler);
@@ -124,7 +124,7 @@ public:
     SetInputOutput(&inputOutput);
     SetStringHandler(&stringHandler);
     SetTeXMFMemoryHandler(&memoryHandler);
-    MetafontApp::Init(programInvocationName);
+    MetafontApp::Init(args);
     SetProgramInfo("mf", "", "", "");
 #ifdef IMPLEMENT_TCX
     EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);

@@ -131,7 +131,7 @@ public:
   }
 
 public:
-  MIKTEXMFTHISAPI(void) Init(const std::string& programInvocationName) override;
+  MIKTEXMFTHISAPI(void) Init(std::vector<char*>& args) override;
 
 public:
   MIKTEXMFTHISAPI(void) Finalize() override;
@@ -283,7 +283,7 @@ inline void miktexprocesscommandlineoptions()
 template<class PROGRAM_CLASS, class WEBAPP_CLASS> class ProgramRunner
 {
 public:
-  int Run(PROGRAM_CLASS& prog, WEBAPP_CLASS& app, int argc, char* argv[])
+  int Run(PROGRAM_CLASS& prog, WEBAPP_CLASS& app, const std::string& programName, int argc, char* argv[])
   {
     std::string componentVersion;
 #if defined(MIKTEX_COMPONENT_VERSION_STR)
@@ -297,11 +297,14 @@ public:
 #if defined(MIKTEX_COMP_TM_STR)
     componentTrademark = MIKTEX_COMP_TM_STR;
 #endif
-    app.SetProgramInfo(app.TheNameOfTheGame(), componentVersion, componentVersion, componentTrademark);
+    app.SetProgramInfo(programName, componentVersion, componentVersion, componentTrademark);
     try
     {
-      app.Init(argv[0]);
-      int exitCode = prog.Run(argc, argv);
+      MIKTEX_ASSERT(argv != nullptr && argv[argc] == nullptr);
+      std::vector<char*> newargv(argv, argv + argc + 1);
+      app.Init(newargv);
+      MIKTEX_ASSERT(!newargv.empty() && newargv.back() == nullptr);
+      int exitCode = prog.Run(newargv.size() - 1, &newargv[0]);
       app.Finalize();
       return exitCode;
     }
@@ -318,13 +321,15 @@ public:
   }
 };
 
+// TODO: MIKTEX_DEFINE_WEBAPP(programname, functionname, webappclass, webappinstance, programclass, programinstance)
 #define MIKTEX_DEFINE_WEBAPP(functionname, webappclass, webappinstance, programclass, programinstance) \
 programclass programinstance;                                                                          \
 webappclass webappinstance;                                                                            \
 extern "C" int MIKTEXCEECALL functionname(int argc, char* argv[])                                      \
 {                                                                                                      \
   MiKTeX::TeXAndFriends::ProgramRunner<programclass, webappclass> p;                                   \
-  return p.Run(programinstance, webappinstance, argc, argv);                                           \
+  std::string programName = #webappclass;                                                              \
+  return p.Run(programinstance, webappinstance, programName, argc, argv);                              \
 }
 
 MIKTEXMF_END_NAMESPACE;

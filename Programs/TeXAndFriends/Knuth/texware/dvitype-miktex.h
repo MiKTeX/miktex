@@ -61,9 +61,9 @@ public:
   }
 
 public:
-  void Init(const std::string& programInvocationName) override
+  void Init(std::vector<char*>& args) override
   {
-    WebApp::Init(programInvocationName);
+    WebApp::Init(args);
     DVITYPEPROG.outmode = 4;
     DVITYPEPROG.startvals = 0;
     DVITYPEPROG.startthere[0] = false;

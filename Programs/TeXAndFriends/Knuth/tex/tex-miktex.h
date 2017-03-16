@@ -72,7 +72,7 @@ private:
   MiKTeX::TeXAndFriends::TeXMemoryHandlerImpl<TEXPROGCLASS> memoryHandler { TEXPROG, *this };
 
 public:
-  void Init(const std::string& programInvocationName) override
+  void Init(std::vector<char*>& args) override
   {
     SetCharacterConverter(&charConv);
     SetErrorHandler(&errorHandler);
@@ -81,7 +81,7 @@ public:
     SetInputOutput(&inputOutput);
     SetStringHandler(&stringHandler);
     SetTeXMFMemoryHandler(&memoryHandler);
-    TeXApp::Init(programInvocationName);
+    TeXApp::Init(args);
 #if defined(IMPLEMENT_TCX)
     EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
     EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);

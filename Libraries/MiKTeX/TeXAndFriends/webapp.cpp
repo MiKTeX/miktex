@@ -83,8 +83,6 @@ public:
 public:
   vector<poptOption> options;
 public:
-  string theNameOfTheGame;
-public:
   int optBase;
 public:
   ICharacterConverter* characterConverter = nullptr;
@@ -105,13 +103,14 @@ WebApp::~WebApp()
 {
 }
 
-void WebApp::Init(const string& programInvocationName)
+void WebApp::Init(vector<char*>& args)
 {
-  Application::Init(programInvocationName, TheNameOfTheGame());
-  pimpl->theNameOfTheGame = Utils::GetExeName();
+  Session::InitInfo initInfo(args[0]);
+  initInfo.SetTheNameOfTheGame(TheNameOfTheGame());
+  Application::Init(initInfo, args);
   pimpl->enable8BitChars = false;
-  pimpl->isTeXProgram = pimpl->theNameOfTheGame == "TeX";
-  pimpl->isMETAFONTProgram = pimpl->theNameOfTheGame == "METAFONT";
+  pimpl->isTeXProgram = TheNameOfTheGame() == "TeX";
+  pimpl->isMETAFONTProgram = TheNameOfTheGame() == "METAFONT";
 }
 
 void WebApp::Finalize()
@@ -143,7 +142,6 @@ void WebApp::Finalize()
   pimpl->trademarks = "";
   pimpl->version = "";
   pimpl->options.clear();
-  pimpl->theNameOfTheGame = "";
   Application::Finalize();
 }
 
@@ -346,7 +344,7 @@ void WebApp::ProcessCommandLineOptions()
 
 string WebApp::TheNameOfTheGame() const
 {
-  return pimpl->theNameOfTheGame;
+  return pimpl->programName;
 }
 
 void WebApp::ShowProgramVersion() const

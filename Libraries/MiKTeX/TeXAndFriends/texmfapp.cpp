@@ -115,9 +115,9 @@ STATICFUNC(void) TraceExecutionTime(TraceStream* trace_time, clock_t clockStart)
 #endif // MIKTEX_WINDOWS
 }
 
-void TeXMFApp::Init(const string& programInvocationName)
+void TeXMFApp::Init(vector<char*>& args)
 {
-  WebAppInputLine::Init(programInvocationName);
+  WebAppInputLine::Init(args);
 
   pimpl->trace_time = TraceStream::Open(MIKTEX_TRACE_TIME);
 

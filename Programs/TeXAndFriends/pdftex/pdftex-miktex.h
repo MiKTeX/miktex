@@ -263,7 +263,7 @@ private:
   MemoryHandlerImpl memoryHandler{ PDFTEXPROG, *this };
 
 public:
-  void Init(const std::string& programInvocationName) override
+  void Init(std::vector<char*>& args) override
   {
     SetCharacterConverter(&charConv);
     SetErrorHandler(&errorHandler);
@@ -272,8 +272,8 @@ public:
     SetInputOutput(&inputOutput);
     SetStringHandler(&stringHandler);
     SetTeXMFMemoryHandler(&memoryHandler);
-    ETeXApp::Init(programInvocationName);
-    kpse_set_program_name(programInvocationName.c_str(), nullptr);
+    ETeXApp::Init(args);
+    kpse_set_program_name(args[0], nullptr);
 #if defined(IMPLEMENT_TCX)
     EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
     EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);

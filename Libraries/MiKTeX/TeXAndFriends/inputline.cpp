@@ -127,9 +127,9 @@ WebAppInputLine::~WebAppInputLine() noexcept
 {
 }
 
-void WebAppInputLine::Init(const string& programInvocationName)
+void WebAppInputLine::Init(vector<char*>& args)
 {
-  WebApp::Init(programInvocationName);
+  WebApp::Init(args);
   pimpl->enablePipes = false;
 }
 

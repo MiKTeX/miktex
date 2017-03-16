@@ -33,9 +33,9 @@ class TANGLEAPPCLASS :
   public MiKTeX::TeXAndFriends::WebApp
 {
 public:
-  void Init(const std::string& programInvocationName) override
+  void Init(std::vector<char*>& args) override
   {
-    MiKTeX::TeXAndFriends::WebApp::Init(programInvocationName);
+    MiKTeX::TeXAndFriends::WebApp::Init(args);
     TANGLEPROG.maxchar = 255;
   }
 

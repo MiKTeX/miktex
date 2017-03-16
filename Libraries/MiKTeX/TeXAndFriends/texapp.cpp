@@ -58,9 +58,9 @@ TeXApp::~TeXApp()
 {
 }
 
-void TeXApp::Init(const string& programInvocationName)
+void TeXApp::Init(vector<char*>& args)
 {
-  TeXMFApp::Init(programInvocationName);
+  TeXMFApp::Init(args);
 
   SetTeX();
 

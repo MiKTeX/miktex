@@ -38,9 +38,9 @@ MetafontApp::~MetafontApp() noexcept
 {
 }
 
-void MetafontApp::Init(const string& programInvocationName)
+void MetafontApp::Init(vector<char*>& args)
 {
-  TeXMFApp::Init(programInvocationName);
+  TeXMFApp::Init(args);
 }
 
 void MetafontApp::Finalize()

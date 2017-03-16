@@ -81,12 +81,12 @@ private:
   MiKTeX::TeXAndFriends::InputOutputImpl<BIBTEXPROGCLASS> inputOutput{ BIBTEXPROG };
 
 public:
-  void Init(const std::string& programInvocationName) override
+  void Init(std::vector<char*>& args) override
   {
     SetCharacterConverter(&charConv);
     SetInitFinalize(&initFinalize);
     SetInputOutput(&inputOutput);
-    WebAppInputLine::Init(programInvocationName);
+    WebAppInputLine::Init(args);
     session = GetSession();
 #if defined(IMPLEMENT_TCX)
     EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);

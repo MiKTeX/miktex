@@ -40,9 +40,9 @@ ETeXApp::~ETeXApp() noexcept
 {
 }
 
-void ETeXApp::Init(const string& programInvocationName)
+void ETeXApp::Init(vector<char*>& args)
 {
-  TeXApp::Init(programInvocationName);
+  TeXApp::Init(args);
   pimpl->enableETeX = false;
 }
 
