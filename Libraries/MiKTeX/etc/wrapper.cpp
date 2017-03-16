@@ -1,6 +1,6 @@
 /* wrapper.cpp: wrap a main function
 
-   Copyright (C) 2004-2016 Christian Schenk
+   Copyright (C) 2004-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -52,7 +52,7 @@
 #  define EXTERN_C extern "C"
 #endif
 
-EXTERN_C int MIKTEXCEECALL MAINFUNC(int argc, char ** argv);
+EXTERN_C int MIKTEXCEECALL MAINFUNC(int argc, char** argv);
 
 // Keep the application object in the global scope (C functions might
 // call exit())
@@ -72,7 +72,7 @@ static std::string nameOfTheGame;
 #  define WRAPPER_CHAR char
 #endif
 
-int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR * argv[])
+int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 {
   try
   {
@@ -80,7 +80,7 @@ int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR * argv[])
     std::vector<std::string> utf8args;
     utf8args.reserve(argc);
 #endif
-    std::vector<char *> args;
+    std::vector<char*> args;
     args.reserve(argc + 1);
     for (int idx = 0; idx < argc; ++idx)
     {
@@ -90,12 +90,13 @@ int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR * argv[])
 #else
       utf8args.push_back(MiKTeX::Util::StringUtil::AnsiToUTF8(argv[idx]));
 #endif
+	  // FIXME: eliminate const cast
       args.push_back(const_cast<char*>(utf8args[idx].c_str()));
 #else
       args.push_back(argv[idx]);
 #endif
     }
-    args.push_back(0);
+    args.push_back(nullptr);
 
     nameOfTheGame = args[0];
 
@@ -119,13 +120,13 @@ int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR * argv[])
 
     return exitCode;
   }
-  catch (const MiKTeX::Core::MiKTeXException & ex)
+  catch (const MiKTeX::Core::MiKTeXException& ex)
   {
     MiKTeX::App::Application::Sorry(nameOfTheGame, ex);
     app.Finalize();
     return EXIT_FAILURE;
   }
-  catch (const std::exception & ex)
+  catch (const std::exception& ex)
   {
     MiKTeX::App::Application::Sorry(nameOfTheGame, ex);
     app.Finalize();
