@@ -97,7 +97,7 @@ class MiKTeXHelp :
   public Application
 {
 public:
-  void MIKTEXTHISCALL Init(const Session::InitInfo& initInfo) override;
+  void MIKTEXTHISCALL Init(const Session::InitInfo& initInfo, vector<char*>&args) override;
 
 public:
   void Run(int argc, const char** argv);
@@ -191,9 +191,9 @@ const struct poptOption MiKTeXHelp::aoption[] = {
   POPT_TABLEEND
 };
 
-void MiKTeXHelp::Init(const Session::InitInfo& initInfo)
+void MiKTeXHelp::Init(const Session::InitInfo& initInfo, vector<char*>& args)
 {
-  Application::Init(initInfo);
+  Application::Init(initInfo, args);
   session = GetSession();
   pManager = PackageManager::Create();
 }
@@ -596,7 +596,7 @@ int MAIN(int argc, MAINCHAR** argv)
   {
     vector<string> utf8args;
     utf8args.reserve(argc);
-    vector<const char*> newargv;
+    vector<char*> newargv;
     newargv.reserve(argc + 1);
     for (int idx = 0; idx < argc; ++idx)
     {
@@ -607,13 +607,14 @@ int MAIN(int argc, MAINCHAR** argv)
 #else
       utf8args.push_back(argv[idx]);
 #endif
-      newargv.push_back(utf8args[idx].c_str());
+      // FIXME: eliminate const cast
+      newargv.push_back(const_cast<char*>(utf8args[idx].c_str()));
     }
     newargv.push_back(nullptr);
     MiKTeXHelp app;
-    app.Init(Session::InitInfo(newargv[0]));
+    app.Init(Session::InitInfo(newargv[0]), newargv);
     app.EnableInstaller(TriState::False);
-    app.Run(argc, &newargv[0]);
+    app.Run(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
     app.Finalize();
     return 0;
   }
