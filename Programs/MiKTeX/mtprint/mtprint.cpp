@@ -1,6 +1,6 @@
 /* mtprint.cpp: MiKTeX Print Utility
 
-   Copyright (C) 2003-2016 Christian Schenk
+   Copyright (C) 2003-2017 Christian Schenk
 
    This file is part of MiKTeX Print Utility.
 
@@ -28,13 +28,13 @@
 #  define THE_NAME_OF_THE_GAME T_("MiKTeX Print Utility")
 #endif
 
-const char * DEFAULT_TRACE_STREAMS = MIKTEX_TRACE_ERROR "," MIKTEX_TRACE_MTPRINT;
+const char* DEFAULT_TRACE_STREAMS = MIKTEX_TRACE_ERROR "," MIKTEX_TRACE_MTPRINT;
 
 struct PAPERSIZEINFO
 {
   short paperSize;
-  const char * lpszName;
-  const char * lpszDvipsSize;
+  const char* lpszName;
+  const char* lpszDvipsSize;
   unsigned width;
   unsigned height;
 };
@@ -90,31 +90,31 @@ public:
       trace_mtprint->Close();
       trace_error->Close();
     }
-    catch (const exception &)
+    catch (const exception&)
     {
     }
   }
 
 public:
-  virtual void Report(const char * lpszFormat, ...);
+  virtual void Report(const char* lpszFormat, ...);
 
 public:
-  void Run(int argc, const char ** argv);
+  void Run(int argc, const char** argv);
 
 private:
   void ShowVersion();
 
 private:
-  bool GetPaperSizeInfo(short paperSize, PAPERSIZEINFO & psi);
+  bool GetPaperSizeInfo(short paperSize, PAPERSIZEINFO& psi);
 
 private:
-  void StartDvips(const char * lpszDviFileName, const DVIPSOPTS & dvipsOpts, unsigned resolution, const char * lpszPrinterName, short paperSize, FILE * * ppfileDvipsOutRd = 0, FILE * * ppfileDvipsErrRd = 0);
+  void StartDvips(const char* lpszDviFileName, const DVIPSOPTS& dvipsOpts, unsigned resolution, const char* lpszPrinterName, short paperSize, FILE** ppfileDvipsOutRd = nullptr, FILE** ppfileDvipsErrRd = nullptr);
 
 private:
-  void StartGhostscript(const GSOPTS & gsOpts, unsigned resolution, short paperSize, FILE * pfileGsIn, FILE ** ppfileGsOut);
+  void StartGhostscript(const GSOPTS& gsOpts, unsigned resolution, short paperSize, FILE* pfileGsIn, FILE** ppfileGsOut);
 
 private:
-  void Spool(const char * lpszFileName, PrintMethod printMethod, const DVIPSOPTS & dvipsOpts, const GSOPTS & gsOpts, const string & printerName);
+  void Spool(const char* lpszFileName, PrintMethod printMethod, const DVIPSOPTS& dvipsOpts, const GSOPTS& gsOpts, const string& printerName);
 
 private:
   string printerName;
@@ -338,7 +338,7 @@ const struct poptOption PrintUtility::aoption[] = {
   POPT_TABLEEND
 };
 
-void PrintUtility::Report(const char * lpszFormat, ...)
+void PrintUtility::Report(const char* lpszFormat, ...)
 {
   if (!verbose)
   {
@@ -350,7 +350,7 @@ void PrintUtility::Report(const char * lpszFormat, ...)
   VA_END(argList);
 }
 
-bool PrintUtility::GetPaperSizeInfo(short paperSize, PAPERSIZEINFO & paperSizeInfo)
+bool PrintUtility::GetPaperSizeInfo(short paperSize, PAPERSIZEINFO& paperSizeInfo)
 {
   for (size_t idx = 0; idx < sizeof(paperSizes) / sizeof(paperSizes[0]); ++idx)
   {
@@ -363,7 +363,7 @@ bool PrintUtility::GetPaperSizeInfo(short paperSize, PAPERSIZEINFO & paperSizeIn
   return false;
 }
 
-void PrintUtility::StartDvips(const char * lpszDviFileName, const DVIPSOPTS & dvipsOpts, unsigned resolution, const char * lpszPrinterName, short paperSize, FILE * * ppfileDvipsOutRd, FILE * * ppfileDvipsErrRd)
+void PrintUtility::StartDvips(const char* lpszDviFileName, const DVIPSOPTS& dvipsOpts, unsigned resolution, const char* lpszPrinterName, short paperSize, FILE** ppfileDvipsOutRd, FILE** ppfileDvipsErrRd)
 {
   // locate dvips.exe
   PathName dvipsPath;
@@ -412,7 +412,7 @@ void PrintUtility::StartDvips(const char * lpszDviFileName, const DVIPSOPTS & dv
   }
   if (!dvipsOpts.runAsFilter)
   {
-    PRINTER_INFO_2W * pi2 = Printer::GetPrinterInfo(lpszPrinterName, nullptr);
+    PRINTER_INFO_2W* pi2 = Printer::GetPrinterInfo(lpszPrinterName, nullptr);
     AutoMemoryPointer autoFree(pi2);
     commandLine.AppendOption("-o ", dryRun ? "nul" : WU_(pi2->pPortName));
   }
@@ -450,7 +450,7 @@ void PrintUtility::StartDvips(const char * lpszDviFileName, const DVIPSOPTS & dv
   }
 }
 
-void PrintUtility::StartGhostscript(const GSOPTS & gsOpts, unsigned resolution, short paperSize, FILE * pfileGsIn, FILE ** ppfileGsOut)
+void PrintUtility::StartGhostscript(const GSOPTS& gsOpts, unsigned resolution, short paperSize, FILE* pfileGsIn, FILE** ppfileGsOut)
 {
   gsOpts;
 
@@ -483,13 +483,13 @@ void PrintUtility::StartGhostscript(const GSOPTS & gsOpts, unsigned resolution, 
   Process::Start(gsPath.GetData(), commandLine.ToString(), pfileGsIn, nullptr, ppfileGsOut, nullptr, nullptr);
 }
 
-void PrintUtility::Spool(const char * lpszFileName, PrintMethod printMethod, const DVIPSOPTS & dvipsOpts, const GSOPTS & gsOpts, const string & printerName)
+void PrintUtility::Spool(const char* lpszFileName, PrintMethod printMethod, const DVIPSOPTS& dvipsOpts, const GSOPTS& gsOpts, const string& printerName)
 {
   // get printer resolution and paper size
   unsigned resolution;
   Printer::GetPrinterCaps(printerName.c_str(), resolution);
   trace_mtprint->WriteFormattedLine("mtprint", "resolution: %u", resolution);
-  DEVMODEW * pdm = Printer::GetDevMode(printerName.c_str());
+  DEVMODEW* pdm = Printer::GetDevMode(printerName.c_str());
   short paperSize = pdm->dmPaperSize;
   free(pdm);
   pdm = nullptr;
@@ -502,15 +502,15 @@ void PrintUtility::Spool(const char * lpszFileName, PrintMethod printMethod, con
 
   MIKTEX_ASSERT(printMethod == PrintMethodPostScriptBMP);
 
-  FILE * pfileDvipsOutRd = nullptr;
-  FILE * pfileDvipsErrRd = nullptr;
+  FILE* pfileDvipsOutRd = nullptr;
+  FILE* pfileDvipsErrRd = nullptr;
 
   StartDvips(lpszFileName, dvipsOpts, resolution, printerName.c_str(), paperSize, &pfileDvipsOutRd, &pfileDvipsErrRd);
 
   FileStream dvipsOut(pfileDvipsOutRd);
   FileStream dvipsErr(pfileDvipsErrRd);
 
-  FILE * pfileGsRead = nullptr;
+  FILE* pfileGsRead = nullptr;
 
   StartGhostscript(gsOpts, resolution, paperSize, pfileDvipsOutRd, &pfileGsRead);
 
@@ -532,7 +532,7 @@ void PrintUtility::ShowVersion()
     << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
 
-void PrintUtility::Run(int argc, const char ** argv)
+void PrintUtility::Run(int argc, const char** argv)
 {
   session = GetSession();
 
@@ -626,7 +626,7 @@ void PrintUtility::Run(int argc, const char ** argv)
 
   TraceStream::SetTraceFlags(DEFAULT_TRACE_STREAMS);
 
-  for (const string & fileName : leftovers)
+  for (const string& fileName : leftovers)
   {
     Spool(fileName.c_str(), printMethod, dvipsOpts, gsOpts, printerName);
   }
@@ -640,13 +640,13 @@ void PrintUtility::Run(int argc, const char ** argv)
 #  define MAINCHAR char
 #endif
 
-int MAIN(int argc, const MAINCHAR ** argv)
+int MAIN(int argc, const MAINCHAR** argv)
 {
   try
   {
     vector<string> utf8args;
     utf8args.reserve(argc);
-    vector<const char *> newargv;
+    vector<const char*> newargv;
     newargv.reserve(argc + 1);
     for (int idx = 0; idx < argc; ++idx)
     {
@@ -664,12 +664,12 @@ int MAIN(int argc, const MAINCHAR ** argv)
     app.Finalize();
     return 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Application::Sorry(THE_NAME_OF_THE_GAME, e);
     return 1;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     Application::Sorry(THE_NAME_OF_THE_GAME, e);
     return 1;
