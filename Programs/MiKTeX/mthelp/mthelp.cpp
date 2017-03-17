@@ -76,8 +76,8 @@ va_end(arglist);
 #define T_(x) MIKTEXTEXT(x)
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
-const char * const TheNameOfTheGame = T_("MiKTeX Help Utility");
-const char * const PROGNAME = "mthelp";
+const char* const TheNameOfTheGame = T_("MiKTeX Help Utility");
+const char* const PROGNAME = "mthelp";
 
 #if defined(MIKTEX_WINDOWS)
 const char PATH_DELIMITER = ';';
@@ -88,52 +88,52 @@ const char PATH_DELIMITER = ':';
 #endif
 
 #if defined(MIKTEX_WINDOWS)
-const char * const DEFAULT_DOC_EXTENSIONS = ".chm;.html;.dvi;.pdf;.ps;.txt";
+const char* const DEFAULT_DOC_EXTENSIONS = ".chm;.html;.dvi;.pdf;.ps;.txt";
 #else
-const char * const DEFAULT_DOC_EXTENSIONS = ".html:.pdf:.dvi:.ps:.txt";
+const char* const DEFAULT_DOC_EXTENSIONS = ".html:.pdf:.dvi:.ps:.txt";
 #endif
 
 class MiKTeXHelp :
   public Application
 {
 public:
-  void MIKTEXTHISCALL Init(const Session::InitInfo & initInfo) override;
+  void MIKTEXTHISCALL Init(const Session::InitInfo& initInfo) override;
 
 public:
-  void Run(int argc, const char ** argv);
+  void Run(int argc, const char** argv);
 
 private:
   void ShowVersion();
 
 private:
-  void Warning(const char * lpszFormat, ...);
+  void Warning(const char* lpszFormat, ...);
 
 private:
-  bool SkipPrefix(const string & str, const char * lpszPrefix, string & result);
+  bool SkipPrefix(const string& str, const char* lpszPrefix, string& result);
 
 private:
-  bool SkipTeXMFPrefix(const string & str, string & result);
+  bool SkipTeXMFPrefix(const string& str, string& result);
 
 private:
-  void FindDocFilesByPackage(const string & packageName, map<string, vector<string> > & filesByExtension);
+  void FindDocFilesByPackage(const string& packageName, map<string, vector<string>>& filesByExtension);
 
 private:
-  void FindDocFilesByPackage(const string & packageName, vector<string> & files);
+  void FindDocFilesByPackage(const string& packageName, vector<string>& files);
 
 private:
-  void FindDocFilesByName(const string & name, vector<string> & files);
+  void FindDocFilesByName(const string& name, vector<string>& files);
 
 private:
-  void PrintFiles(const vector<string> & files);
+  void PrintFiles(const vector<string>& files);
 
 private:
-  void ViewFile(const PathName & fileName);
+  void ViewFile(const PathName& fileName);
 
 private:
-  void CreateHtmlAndView(const char * lpszPackageName, const vector<string> & files);
+  void CreateHtmlAndView(const char* lpszPackageName, const vector<string>& files);
 
 private:
-  void WriteText(StreamWriter & writer, const string & text);
+  void WriteText(StreamWriter& writer, const string& text);
 
 private:
   bool printOnly = false;
@@ -191,7 +191,7 @@ const struct poptOption MiKTeXHelp::aoption[] = {
   POPT_TABLEEND
 };
 
-void MiKTeXHelp::Init(const Session::InitInfo & initInfo)
+void MiKTeXHelp::Init(const Session::InitInfo& initInfo)
 {
   Application::Init(initInfo);
   session = GetSession();
@@ -206,7 +206,7 @@ void MiKTeXHelp::ShowVersion()
     << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
 
-void MiKTeXHelp::Warning(const char * lpszFormat, ...)
+void MiKTeXHelp::Warning(const char* lpszFormat, ...)
 {
   if (quiet)
   {
@@ -218,7 +218,7 @@ void MiKTeXHelp::Warning(const char * lpszFormat, ...)
   VA_END(arglist);
 }
 
-bool MiKTeXHelp::SkipPrefix(const string & str, const char * lpszPrefix, string & result)
+bool MiKTeXHelp::SkipPrefix(const string& str, const char* lpszPrefix, string& result)
 {
   size_t n = StrLen(lpszPrefix);
   if (str.compare(0, n, lpszPrefix) != 0)
@@ -229,7 +229,7 @@ bool MiKTeXHelp::SkipPrefix(const string & str, const char * lpszPrefix, string 
   return true;
 }
 
-bool MiKTeXHelp::SkipTeXMFPrefix(const string & str, string & result)
+bool MiKTeXHelp::SkipTeXMFPrefix(const string& str, string& result)
 {
   return SkipPrefix(str, "texmf/", result)
     || SkipPrefix(str, "texmf\\", result)
@@ -237,34 +237,34 @@ bool MiKTeXHelp::SkipTeXMFPrefix(const string & str, string & result)
     || SkipPrefix(str, ".\\texmf\\", result);
 }
 
-void MiKTeXHelp::FindDocFilesByPackage(const string & packageName, map<string, vector<string> > & filesByExtension)
+void MiKTeXHelp::FindDocFilesByPackage(const string& packageName, map<string, vector<string>>& filesByExtension)
 {
   PackageInfo pi;
   if (!pManager->TryGetPackageInfo(packageName, pi))
   {
     return;
   }
-  for (const string & fileName : pi.docFiles)
+  for (const string& fileName : pi.docFiles)
   {
     string extension = PathName(fileName).GetExtension();
     string file;
     PathName path;
     if (SkipTeXMFPrefix(fileName, file) && session->FindFile(file, MIKTEX_PATH_TEXMF_PLACEHOLDER_NO_MPM, path))
     {
-      vector<string> & files = filesByExtension[extension];
+      vector<string>& files = filesByExtension[extension];
       files.push_back(path.ToString());
     }
   }
 }
 
-void MiKTeXHelp::FindDocFilesByPackage(const string & packageName, vector<string> & files)
+void MiKTeXHelp::FindDocFilesByPackage(const string& packageName, vector<string>& files)
 {
-  map<string, vector<string> > filesByExtension;
+  map<string, vector<string>> filesByExtension;
   FindDocFilesByPackage(packageName, filesByExtension);
   string extensions = session->GetConfigValue("", MIKTEX_REGVAL_DOC_EXTENSIONS, DEFAULT_DOC_EXTENSIONS).GetString();
   for (Tokenizer ext(extensions, PATH_DELIMITER_STRING); ext; ++ext)
   {
-    vector<string> & vec = filesByExtension[*ext];
+    vector<string>& vec = filesByExtension[*ext];
     vector<string>::iterator it = vec.begin();
     while (it != vec.end())
     {
@@ -282,12 +282,12 @@ void MiKTeXHelp::FindDocFilesByPackage(const string & packageName, vector<string
   }
   for (Tokenizer ext(extensions, PATH_DELIMITER_STRING); ext; ++ext)
   {
-    vector<string> & vec = filesByExtension[*ext];
+    vector<string>& vec = filesByExtension[*ext];
     files.insert(files.end(), vec.begin(), vec.end());
   }
 }
 
-void MiKTeXHelp::FindDocFilesByName(const string & name, vector<string> & files)
+void MiKTeXHelp::FindDocFilesByName(const string& name, vector<string>& files)
 {
   string extensions = session->GetConfigValue("", MIKTEX_REGVAL_DOC_EXTENSIONS, DEFAULT_DOC_EXTENSIONS).GetString();
   string searchSpec = MIKTEX_PATH_TEXMF_PLACEHOLDER_NO_MPM;
@@ -306,15 +306,15 @@ void MiKTeXHelp::FindDocFilesByName(const string & name, vector<string> & files)
   }
 }
 
-void MiKTeXHelp::PrintFiles(const vector<string> & files)
+void MiKTeXHelp::PrintFiles(const vector<string>& files)
 {
-  for (const string & fileName : files)
+  for (const string& fileName : files)
   {
     cout << fileName << endl;
   }
 }
 
-void MiKTeXHelp::ViewFile(const PathName & fileName)
+void MiKTeXHelp::ViewFile(const PathName& fileName)
 {
   string viewer;
 
@@ -422,7 +422,7 @@ void MiKTeXHelp::ViewFile(const PathName & fileName)
   }
 }
 
-void MiKTeXHelp::CreateHtmlAndView(const char * lpszPackageName, const vector<string> & files)
+void MiKTeXHelp::CreateHtmlAndView(const char* lpszPackageName, const vector<string>& files)
 {
   PackageInfo pi = pManager->GetPackageInfo(lpszPackageName);
   PathName fileName = session->GetSpecialPath(SpecialPath::DataRoot);
@@ -432,7 +432,7 @@ void MiKTeXHelp::CreateHtmlAndView(const char * lpszPackageName, const vector<st
   fileName.AppendExtension(".html");
   StreamWriter writer(fileName);
   int idx = 0;
-  for (const char * lpsz = reinterpret_cast<const char *>(templateHtml); idx < sizeof(templateHtml); ++lpsz, ++idx)
+  for (const char* lpsz = reinterpret_cast<const char*>(templateHtml); idx < sizeof(templateHtml); ++lpsz, ++idx)
   {
     if (*lpsz == '%')
     {
@@ -459,7 +459,7 @@ void MiKTeXHelp::CreateHtmlAndView(const char * lpszPackageName, const vector<st
       }
       else if (tag == "TRURL")
       {
-        for (const string & fileName : files)
+        for (const string& fileName : files)
         {
           writer.WriteFormattedLine("<tr><td><a href=\"file://%s\">%s</td></tr>", fileName.c_str(), fileName.c_str());
         }
@@ -474,7 +474,7 @@ void MiKTeXHelp::CreateHtmlAndView(const char * lpszPackageName, const vector<st
   ViewFile(fileName);
 }
 
-void MiKTeXHelp::WriteText(StreamWriter & writer, const string & text)
+void MiKTeXHelp::WriteText(StreamWriter& writer, const string& text)
 {
   for (string::const_iterator it = text.begin(); it != text.end(); ++it)
   {
@@ -496,7 +496,7 @@ void MiKTeXHelp::WriteText(StreamWriter & writer, const string & text)
   }
 }
 
-void MiKTeXHelp::Run(int argc, const char ** argv)
+void MiKTeXHelp::Run(int argc, const char** argv)
 {
   bool optListOnly = false;
   bool optView = false;
@@ -543,7 +543,7 @@ void MiKTeXHelp::Run(int argc, const char ** argv)
     FatalError(T_("Missing NAME argument."));
   }
 
-  for (const string & name : leftovers)
+  for (const string& name : leftovers)
   {
     vector<string> filesByPackage;
     FindDocFilesByPackage(name.c_str(), filesByPackage);
