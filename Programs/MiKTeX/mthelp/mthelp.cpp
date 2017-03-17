@@ -476,9 +476,9 @@ void MiKTeXHelp::CreateHtmlAndView(const char* lpszPackageName, const vector<str
 
 void MiKTeXHelp::WriteText(StreamWriter& writer, const string& text)
 {
-  for (string::const_iterator it = text.begin(); it != text.end(); ++it)
+  for (const char& ch :text)
   {
-    switch (*it)
+    switch (ch)
     {
     case '<':
       writer.Write("&lt;");
@@ -490,7 +490,7 @@ void MiKTeXHelp::WriteText(StreamWriter& writer, const string& text)
       writer.Write(T_("&amp;"));
       break;
     default:
-      writer.Write(*it);
+      writer.Write(ch);
       break;
     }
   }
