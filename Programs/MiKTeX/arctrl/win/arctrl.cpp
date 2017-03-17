@@ -86,7 +86,7 @@ private:
   void ShowVersion();
 
 public:
-  void Run(int argc, const char ** argv);
+  void Run(int argc, const char** argv);
 
 private:
   enum {
