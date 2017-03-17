@@ -65,7 +65,19 @@ class ArCtrl :
   public Application
 {
 public:
-  ArCtrl();
+  ArCtrl() = default;
+
+public:
+  ArCtrl(const ArCtrl& other) = default;
+
+public:
+  ArCtrl& operator=(const ArCtrl& other) = default;
+
+public:
+  ArCtrl(ArCtrl&& other) = default;
+
+public:
+  ArCtrl& operator=(ArCtrl&& other) = default;
 
 public:
   virtual ~ArCtrl();
@@ -228,10 +240,6 @@ const struct poptOption ArCtrl::aoptionCommandLoop[] =
 };
 
 DWORD ArCtrl::idInst = 0;
-
-ArCtrl::ArCtrl()
-{
-}
 
 ArCtrl::~ArCtrl()
 {
