@@ -53,83 +53,83 @@ MiKTeX::App::Application app;
 int MAIN(int argc, MAINCHAR** argv)
 {
   try
+  {
+    app.Init(TU_(argv[0]));
+
+    MIKTEX_ASSERT(argc > 0);
+
+    // determine script name
+    PathName programName = PathName(argv[0]).GetFileNameWithoutExtension();
+
+    std::string scriptName;
+
+#if defined(MTXRUN)
+    bool isLuatools = (PathName::Compare(programName, "luatools") == 0);
+    bool isMtxrun = (PathName::Compare(programName, "mtxrun") == 0);
+    bool isTexmfstart = (PathName::Compare(programName, "texmfstart") == 0);
+    if (isLuatools)
     {
-      app.Init(TU_(argv[0]));
-
-      MIKTEX_ASSERT(argc > 0);
-
-      // determine script name
-      PathName programName = PathName(argv[0]).GetFileNameWithoutExtension();
-
-      std::string scriptName;
-
-#if defined(MTXRUN)
-      bool isLuatools = (PathName::Compare(programName, "luatools") == 0);
-      bool isMtxrun = (PathName::Compare(programName, "mtxrun") == 0);
-      bool isTexmfstart = (PathName::Compare(programName, "texmfstart") == 0);
-      if (isLuatools)
-      {
-	scriptName = "luatools";
-      }
-      else
-      {
-	scriptName = "mtxrun";
-      }
-#else
-      scriptName = programName.ToString();
-#endif
-
-      // get relative script path
-      PathName scriptsIni = app.GetSession()->GetSpecialPath(SpecialPath::DistRoot);
-      scriptsIni /= MIKTEX_PATH_SCRIPTS_INI;
-      unique_ptr<Cfg> scriptConfig(Cfg::Create());
-      scriptConfig->Read(scriptsIni, true);
-      std::string relScriptPath;
-      if (!scriptConfig->TryGetValue(CFGKEY, scriptName, relScriptPath))
-      {
-	MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("The Lua script is not registered."), "programName", programName.ToString());
-      }
-      scriptConfig = nullptr;
-      
-      // find script
-      PathName scriptPath;
-      if (!app.GetSession()->FindFile(relScriptPath, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
-      {
-        MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("The Lua script could not be found."), relScriptPath);
-      }
-      
-      // build new argv
-      vector<string> utf8args;
-      utf8args.reserve(argc + 3);
-      utf8args.push_back(TU_(argv[0]));
-      utf8args.push_back("--luaonly");
-      utf8args.push_back(scriptPath.GetData());
-#if defined(MTXRUN)
-      if (!(isLuatools || isMtxrun || isTexmfstart))
-      {
-	utf8args.push_back("--script");
-	utf8args.push_back(programName);
-      }
-#endif
-      for (int idx = 1; idx < argc; ++idx)
-      {
-	utf8args.push_back(TU_(argv[idx]));
-      }
-      vector<char*> newargv;
-      newargv.reserve(utf8args.size() + 1);
-      for (const string& arg : utf8args)
-      {
-	newargv.push_back((char*)arg.c_str());
-      }
-      newargv.push_back(nullptr);
-
-      // run texlua
-      int exitCode = Main(newargv.size() - 1, &newargv[0]);
-
-      app.Finalize();
-
-      return exitCode;
+      scriptName = "luatools";
     }
+    else
+    {
+      scriptName = "mtxrun";
+    }
+#else
+    scriptName = programName.ToString();
+#endif
+
+    // get relative script path
+    PathName scriptsIni = app.GetSession()->GetSpecialPath(SpecialPath::DistRoot);
+    scriptsIni /= MIKTEX_PATH_SCRIPTS_INI;
+    unique_ptr<Cfg> scriptConfig(Cfg::Create());
+    scriptConfig->Read(scriptsIni, true);
+    std::string relScriptPath;
+    if (!scriptConfig->TryGetValue(CFGKEY, scriptName, relScriptPath))
+    {
+      MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("The Lua script is not registered."), "programName", programName.ToString());
+    }
+    scriptConfig = nullptr;
+
+    // find script
+    PathName scriptPath;
+    if (!app.GetSession()->FindFile(relScriptPath, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptPath))
+    {
+      MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("The Lua script could not be found."), relScriptPath);
+    }
+
+    // build new argv
+    vector<string> utf8args;
+    utf8args.reserve(argc + 3);
+    utf8args.push_back(TU_(argv[0]));
+    utf8args.push_back("--luaonly");
+    utf8args.push_back(scriptPath.GetData());
+#if defined(MTXRUN)
+    if (!(isLuatools || isMtxrun || isTexmfstart))
+    {
+      utf8args.push_back("--script");
+      utf8args.push_back(programName);
+    }
+#endif
+    for (int idx = 1; idx < argc; ++idx)
+    {
+      utf8args.push_back(TU_(argv[idx]));
+    }
+    vector<char*> newargv;
+    newargv.reserve(utf8args.size() + 1);
+    for (const string& arg : utf8args)
+    {
+      newargv.push_back((char*)arg.c_str());
+    }
+    newargv.push_back(nullptr);
+
+    // run texlua
+    int exitCode = Main(newargv.size() - 1, &newargv[0]);
+
+    app.Finalize();
+
+    return exitCode;
+  }
   catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
