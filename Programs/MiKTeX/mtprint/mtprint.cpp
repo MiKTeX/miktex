@@ -620,13 +620,13 @@ void PrintUtility::Run(int argc, const char** argv)
 #  define MAINCHAR char
 #endif
 
-int MAIN(int argc, const MAINCHAR** argv)
+int MAIN(int argc, MAINCHAR** argv)
 {
   try
   {
     vector<string> utf8args;
     utf8args.reserve(argc);
-    vector<const char*> newargv;
+    vector<char*> newargv;
     newargv.reserve(argc + 1);
     for (int idx = 0; idx < argc; ++idx)
     {
@@ -635,12 +635,13 @@ int MAIN(int argc, const MAINCHAR** argv)
 #else
       utf8args.push_back(StringUtil::AnsiToUTF8(argv[idx]));
 #endif
-      newargv.push_back(utf8args[idx].c_str());
+      // FIXME: eliminate const cast
+      newargv.push_back(const_cast<char*>(utf8args[idx].c_str()));
     }
     newargv.push_back(nullptr);
     PrintUtility app;
-    app.Init(newargv[0]);
-    app.Run(argc, &newargv[0]);
+    app.Init(newargv);
+    app.Run(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
     app.Finalize();
     return 0;
   }
