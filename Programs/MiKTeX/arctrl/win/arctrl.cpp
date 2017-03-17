@@ -1,6 +1,6 @@
 /* arctrl.cpp: Acrobat Reader (AR) Controller
 
-   Written in the years 2006-2016 by Christian Schenk.
+   Written in the years 2006-2017 by Christian Schenk.
 
    This file is based on public domain work by Fabrice Popineau.
 
@@ -58,8 +58,8 @@ using namespace std;
 #  define UNUSED_ALWAYS(x) static_cast<void>(x)
 #endif
 
-const char * const TheNameOfTheGame = T_("MiKTeX AR Controller");
-const char * const PROGNAME = T_("arctrl");
+const char* const TheNameOfTheGame = T_("MiKTeX AR Controller");
+const char* const PROGNAME = T_("arctrl");
 
 class ArCtrl :
   public Application
@@ -82,7 +82,7 @@ private:
   } mode = None;
 
 private:
-  HSZ CreateDdeString(const char * lpsz);
+  HSZ CreateDdeString(const char* lpsz);
 
 private:
   void EstablishConversation();
@@ -91,13 +91,13 @@ private:
   void TerminateConversation();
 
 private:
-  void ExecuteDdeCommand(const char * lpszCommand, ...);
+  void ExecuteDdeCommand(const char* lpszCommand, ...);
 
 private:
-  void DocOpen(const PathName & path);
+  void DocOpen(const PathName& path);
 
 private:
-  void DocClose(const PathName & path);
+  void DocClose(const PathName& path);
 
 private:
   void CloseAllDocs();
@@ -112,16 +112,16 @@ private:
   void AppExit();
 
 private:
-  void DocGoTo(const PathName & path, int pageNum);
+  void DocGoTo(const PathName& path, int pageNum);
 
 private:
-  void DocGoToNameDest(const PathName & path, const string & nameDest);
+  void DocGoToNameDest(const PathName& path, const string& nameDest);
 
 private:
-  void FileOpen(const PathName & path);
+  void FileOpen(const PathName& path);
 
 private:
-  bool Execute(const string & command);
+  bool Execute(const string& command);
 
 private:
   void ReadAndExecute();
@@ -239,7 +239,7 @@ ArCtrl::~ArCtrl()
   {
     TerminateConversation();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -254,7 +254,7 @@ void ArCtrl::ShowVersion()
     << T_("Based on Adobe documentation.") << endl;
 }
 
-HSZ ArCtrl::CreateDdeString(const char * lpsz)
+HSZ ArCtrl::CreateDdeString(const char* lpsz)
 {
 
   HSZ hsz = DdeCreateStringHandleW(idInst, UW_(lpsz), CP_WINUNICODE);
@@ -322,14 +322,14 @@ HDDEDATA CALLBACK ArCtrl::DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HSZ hs
     }
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     ret = DDE_FNOTPROCESSED;
   }
   return reinterpret_cast<HDDEDATA>(ret);
 }
 
-const char * const ServiceNames[] = {
+const char* const ServiceNames[] = {
   "acroviewR15", "acroviewR11", "acroviewR10", "acroview"
 };
 
@@ -393,7 +393,7 @@ void ArCtrl::TerminateConversation()
   }
 }
 
-void ArCtrl::ExecuteDdeCommand(const char * lpszCommand, ...)
+void ArCtrl::ExecuteDdeCommand(const char* lpszCommand, ...)
 {
   va_list arglist;
   va_start(arglist, lpszCommand);
@@ -415,7 +415,7 @@ void ArCtrl::ExecuteDdeCommand(const char * lpszCommand, ...)
   }
 }
 
-void ArCtrl::DocOpen(const PathName & path)
+void ArCtrl::DocOpen(const PathName& path)
 {
   if (!File::Exists(path))
   {
@@ -426,7 +426,7 @@ void ArCtrl::DocOpen(const PathName & path)
   ExecuteDdeCommand("[DocOpen(\"%s\")]", fullPath.GetData());
 }
 
-void ArCtrl::DocClose(const PathName & path)
+void ArCtrl::DocClose(const PathName& path)
 {
   if (!File::Exists(path))
   {
@@ -457,7 +457,7 @@ void ArCtrl::AppExit()
   ExecuteDdeCommand("[AppExit()]");
 }
 
-void ArCtrl::DocGoTo(const PathName & path, int pageNum)
+void ArCtrl::DocGoTo(const PathName& path, int pageNum)
 {
   if (!File::Exists(path))
   {
@@ -468,7 +468,7 @@ void ArCtrl::DocGoTo(const PathName & path, int pageNum)
   ExecuteDdeCommand("[DocGoTo(\"%s\",%d)]", fullPath.GetData(), pageNum);
 }
 
-void ArCtrl::DocGoToNameDest(const PathName & path, const string & nameDest)
+void ArCtrl::DocGoToNameDest(const PathName& path, const string& nameDest)
 {
   if (!File::Exists(path))
   {
@@ -479,7 +479,7 @@ void ArCtrl::DocGoToNameDest(const PathName & path, const string & nameDest)
   ExecuteDdeCommand("[DocGoToNameDest(\"%s\",\"%s\")]", fullPath.GetData(), nameDest.c_str());
 }
 
-void ArCtrl::FileOpen(const PathName & path)
+void ArCtrl::FileOpen(const PathName& path)
 {
   if (!File::Exists(path))
   {
@@ -490,7 +490,7 @@ void ArCtrl::FileOpen(const PathName & path)
   ExecuteDdeCommand("[FileOpen(\"%s\")]", fullPath.GetData());
 }
 
-bool ArCtrl::Execute(const string & commandLine)
+bool ArCtrl::Execute(const string& commandLine)
 {
   Tokenizer tok(commandLine, " \t\r\n");
   if (!tok)
@@ -600,13 +600,13 @@ void ArCtrl::ReadAndExecute()
   }
 }
 
-void ArCtrl::Run(int argc, const char ** argv)
+void ArCtrl::Run(int argc, const char** argv)
 {
   session = GetSession();
 
   string program = Utils::GetExeName();
 
-  const poptOption * pOption = &aoption[0];
+  const poptOption* pOption = &aoption[0];
 
   PathName file;
   int pageNum = -1;
@@ -739,7 +739,7 @@ void ArCtrl::Run(int argc, const char ** argv)
   TerminateConversation();
 }
 
-extern "C" __declspec(dllexport) int __cdecl arctrlmain(int argc, const char ** argv)
+extern "C" __declspec(dllexport) int __cdecl arctrlmain(int argc, const char** argv)
 {
   try
   {
@@ -749,12 +749,12 @@ extern "C" __declspec(dllexport) int __cdecl arctrlmain(int argc, const char ** 
     app.Finalize();
     return 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Application::Sorry(TheNameOfTheGame, e);
     return 1;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     Application::Sorry(TheNameOfTheGame, e);
     return 1;
