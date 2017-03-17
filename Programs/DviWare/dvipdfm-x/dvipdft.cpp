@@ -63,7 +63,7 @@ void BadUsage()
   FatalError(MIKTEXTEXT("No DVI file name specified."));
 }
 
-void dvipdft(int argc, const char** argv)
+void dvipdft(int argc, char** argv)
 {
   shared_ptr<Session> session = Session::Get();
 
@@ -156,13 +156,15 @@ void dvipdft(int argc, const char** argv)
   }
 }
 
-int main(int argc, const char** argv)
+// TODO: _UNICODE
+int main(int argc, char** argv)
 {
   try
   {
     MiKTeX::App::Application app;
-    app.Init(argv[0]);
-    dvipdft(argc, argv);
+    vector<char*> newargv{ argv, argv + argc + 1 };
+    app.Init(newargv);
+    dvipdft(newargv.size() - 1, &newargv[0]);
     app.Finalize();
     return 0;
   }
