@@ -113,13 +113,14 @@ void ChunkDib::Run(int argc, const char** argv)
   } while (chunker->Process(DibChunker::Default, chunkSize, this));
 }
 
-int main(int argc, const char** argv)
+int main(int argc, char** argv)
 {
   try
   {
     ChunkDib app;
-    app.Init(argv[0]);
-    app.Run(argc, argv);
+    vector<char*> newargv{ argv, argv + argc + 1 };
+    app.Init(newargv);
+    app.Run(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
     app.Finalize();
     return 0;
   }
