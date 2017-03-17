@@ -774,15 +774,15 @@ void MakeFontMapApp::WriteHeader(StreamWriter& writer, const PathName& fileName)
 
 void MakeFontMapApp::WriteMap(StreamWriter& writer, const set<FontMapEntry>& set1)
 {
-  for (set<FontMapEntry>::const_iterator it = set1.begin(); it != set1.end(); ++it)
+  for (const FontMapEntry& fme : set1)
   {
-    writer.WriteFormatted("%s", it->texName.c_str());
-    writer.WriteFormatted(" %s", it->psName.c_str());
-    if (!it->specialInstructions.empty())
+    writer.WriteFormatted("%s", fme.texName.c_str());
+    writer.WriteFormatted(" %s", fme.psName.c_str());
+    if (!fme.specialInstructions.empty())
     {
-      writer.WriteFormatted(" \" %s \"", it->specialInstructions.c_str());
+      writer.WriteFormatted(" \" %s \"", fme.specialInstructions.c_str());
     }
-    for (Tokenizer tok(it->headerList, ";"); tok; ++tok)
+    for (Tokenizer tok(fme.headerList, ";"); tok; ++tok)
     {
       writer.WriteFormatted(" %s", (*tok).c_str());
     }
@@ -806,44 +806,44 @@ bool MakeFontMapApp::GetInstructionParam(const string& str, const string& instru
 
 void MakeFontMapApp::WriteDvipdfmMap(StreamWriter& writer, const set<FontMapEntry>& set1)
 {
-  for (set<FontMapEntry>::const_iterator it = set1.begin(); it != set1.end(); ++it)
+  for (const FontMapEntry& fme : set1)
   {
-    string field1 = it->texName;
+    string field1 = fme.texName;
     string field2;
-    if (!it->encFile.empty())
+    if (!fme.encFile.empty())
     {
-      field2 = PathName(it->encFile).GetFileNameWithoutExtension().GetData();
+      field2 = PathName(fme.encFile).GetFileNameWithoutExtension().GetData();
     }
     string field3;
-    if (!it->fontFile.empty())
+    if (!fme.fontFile.empty())
     {
-      field3 = PathName(it->fontFile).GetFileNameWithoutExtension().GetData();
+      field3 = PathName(fme.fontFile).GetFileNameWithoutExtension().GetData();
     }
-    else if (it->texName != it->psName)
+    else if (fme.texName != fme.psName)
     {
-      field3 = it->psName;
+      field3 = fme.psName;
     }
     string options;
     string param;
-    if (GetInstructionParam(it->specialInstructions, "ExtendFont", param))
+    if (GetInstructionParam(fme.specialInstructions, "ExtendFont", param))
     {
       options += " -e ";
       options += param;
     }
-    if (GetInstructionParam(it->specialInstructions, "SlantFont", param))
+    if (GetInstructionParam(fme.specialInstructions, "SlantFont", param))
     {
       options += " -s ";
       options += param;
     }
-    if (it->texName.substr(0, 2) == "cm"
-      || it->texName.substr(0, 2) == "eu"
-      || (it->texName.substr(0, 2) == "la" && !(it->encFile.substr(0, 12) == "cm-super-t2a"))
-      || (it->texName.substr(0, 2) == "lc" && !(it->encFile.substr(0, 12) == "cm-super-t2c"))
-      || it->texName.substr(0, 4) == "line"
-      || it->texName.substr(0, 4) == "msam"
-      || it->texName.substr(0, 2) == "xy")
+    if (fme.texName.substr(0, 2) == "cm"
+      || fme.texName.substr(0, 2) == "eu"
+      || (fme.texName.substr(0, 2) == "la" && !(fme.encFile.substr(0, 12) == "cm-super-t2a"))
+      || (fme.texName.substr(0, 2) == "lc" && !(fme.encFile.substr(0, 12) == "cm-super-t2c"))
+      || fme.texName.substr(0, 4) == "line"
+      || fme.texName.substr(0, 4) == "msam"
+      || fme.texName.substr(0, 2) == "xy")
     {
-      if (!(it->fontFile.substr(0, 4) == "fmex"))
+      if (!(fme.fontFile.substr(0, 4) == "fmex"))
       {
         options += " -r";
       }
@@ -1019,9 +1019,9 @@ void MakeFontMapApp::ReadMap(const string& fileName, set<FontMapEntry>& result, 
 set<FontMapEntry> MakeFontMapApp::CatMaps(const set<string>& fileNames)
 {
   set<FontMapEntry> result;
-  for (set<string>::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it)
+  for (const string& fn : fileNames)
   {
-    ReadMap(*it, result, false);
+    ReadMap(fn, result, false);
   }
   return result;
 }
@@ -1071,9 +1071,9 @@ void MakeFontMapApp::TranslatePSName(const map<string, string>& names, FontMapEn
 set<FontMapEntry> MakeFontMapApp::TranslateLW35(const set<FontMapEntry>& set1)
 {
   set<FontMapEntry> result;
-  for (set<FontMapEntry>::const_iterator it = set1.begin(); it != set1.end(); ++it)
+  for (const FontMapEntry& fme : set1)
   {
-    FontMapEntry fontMapEntry = *it;
+    FontMapEntry fontMapEntry = fme;
     switch (namingConvention)
     {
     case NamingConvention::URWkb:
@@ -1162,19 +1162,19 @@ void MakeFontMapApp::BuildFontconfigCache()
   for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
   {
     PathName root = session->GetRootDirectory(r);
-    for (size_t idx = 0; idx < sizeof(topDirs) / sizeof(topDirs[0]); ++idx)
+    for (const char* dir : topDirs)
     {
       PathName path = root;
-      path /= topDirs[idx];
+      path /= dir;
       if (Directory::Exists(path))
       {
         paths.push_back(path.GetData());
       }
     }
   }
-  for (vector<string>::const_iterator it = paths.begin(); it != paths.end(); ++it)
+  for (const string& path : paths)
   {
-    writer.WriteFormattedLine("<dir>%s</dir>", it->c_str());
+    writer.WriteFormattedLine("<dir>%s</dir>", path.c_str());
   }
   writer.WriteLine("</fontconfig>");
   writer.Close();
