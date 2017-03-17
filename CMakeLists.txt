@@ -456,6 +456,59 @@ else()
 endif()
 
 ###############################################################################
+## get today into cache
+
+if(NOT MIKTEX_CACHED_YEAR)
+  string(TIMESTAMP year_ "%Y")
+  string(TIMESTAMP month_ "%m")
+  string(TIMESTAMP mday_ "%d")
+  set(MIKTEX_CACHED_YEAR
+    ${year_}
+    CACHE STRING
+    "The current year."
+    FORCE
+  )
+  set(MIKTEX_CACHED_MONTH
+    ${month_}
+    CACHE STRING
+    "The current month."
+    FORCE
+  )
+  set(MIKTEX_CACHED_MDAY
+    ${mday_}
+    CACHE STRING
+    "The day of month."
+    FORCE
+  )
+endif()
+
+if(MIKTEX_CACHED_MONTH EQUAL 1)
+  set(MIKTEX_CACHED_MONTH_NAME "January")
+elseif(MIKTEX_CACHED_MONTH EQUAL 2)
+  set(MIKTEX_CACHED_MONTH_NAME "February")
+elseif(MIKTEX_CACHED_MONTH EQUAL 3)
+  set(MIKTEX_CACHED_MONTH_NAME "March")
+elseif(MIKTEX_CACHED_MONTH EQUAL 4)
+  set(MIKTEX_CACHED_MONTH_NAME "April")
+elseif(MIKTEX_CACHED_MONTH EQUAL 5)
+  set(MIKTEX_CACHED_MONTH_NAME "May")
+elseif(MIKTEX_CACHED_MONTH EQUAL 6)
+  set(MIKTEX_CACHED_MONTH_NAME "June")
+elseif(MIKTEX_CACHED_MONTH EQUAL 7)
+  set(MIKTEX_CACHED_MONTH_NAME "July")
+elseif(MIKTEX_CACHED_MONTH EQUAL 8)
+  set(MIKTEX_CACHED_MONTH_NAME "August")
+elseif(MIKTEX_CACHED_MONTH EQUAL 9)
+  set(MIKTEX_CACHED_MONTH_NAME "September")
+elseif(MIKTEX_CACHED_MONTH EQUAL 10)
+  set(MIKTEX_CACHED_MONTH_NAME "October")
+elseif(MIKTEX_CACHED_MONTH EQUAL 11)
+  set(MIKTEX_CACHED_MONTH_NAME "November")
+elseif(MIKTEX_CACHED_MONTH EQUAL 12)
+  set(MIKTEX_CACHED_MONTH_NAME "December")
+endif()  
+
+###############################################################################
 ## version information
 
 include(miktex-version.cmake)

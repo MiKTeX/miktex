@@ -28,8 +28,8 @@ set(MIKTEX_J2000_VERSION        6300)
 ## the version of the binary package
 set(MIKTEX_PACKAGE_REVISION     1)
 
-## the current year
-set(MIKTEX_YEAR_VERSION         2017)
+## cached date
+set(MIKTEX_YEAR_VERSION            ${MIKTEX_CACHED_YEAR})
 
 ## the release number; only meaningful for rc/beta builds
 set(MIKTEX_RELEASE_NUM          1)
