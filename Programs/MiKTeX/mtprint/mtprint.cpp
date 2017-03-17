@@ -76,26 +76,6 @@ private:
   };
 
 public:
-  PrintUtility() :
-    trace_mtprint(TraceStream::Open(MIKTEX_TRACE_MTPRINT)),
-    trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR))
-  {
-  }
-
-public:
-  virtual ~PrintUtility()
-  {
-    try
-    {
-      trace_mtprint->Close();
-      trace_error->Close();
-    }
-    catch (const exception&)
-    {
-    }
-  }
-
-public:
   virtual void Report(const char* lpszFormat, ...);
 
 public:
@@ -132,10 +112,10 @@ private:
   shared_ptr<Session> session;
 
 private:
-  unique_ptr<TraceStream> trace_mtprint;
+  unique_ptr<TraceStream> trace_mtprint = TraceStream::Open(MIKTEX_TRACE_MTPRINT);
 
 private:
-  unique_ptr<TraceStream> trace_error;
+  unique_ptr<TraceStream> trace_error = TraceStream::Open(MIKTEX_TRACE_ERROR);
 
 private:
   static const PAPERSIZEINFO paperSizes[];
