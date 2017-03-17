@@ -123,14 +123,14 @@ class MakeUtility :
   public Application
 {
 public:
-  void Init(const Session::InitInfo& initInfoArg) override
+  void Init(const Session::InitInfo& initInfoArg, std::vector<char*>& args) override
   {
     Session::InitInfo initInfo = initInfoArg;
     if (adminMode)
     {
       initInfo.SetOptions({ Session::InitOption::AdminMode });
     }
-    Application::Init(initInfo);
+    Application::Init(initInfo, args);
     session = GetSession();
   }
 
