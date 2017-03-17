@@ -136,9 +136,11 @@ void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args
   pimpl->initialized = true;
   Session::InitInfo initInfo(initInfoArg);
   MIKTEX_ASSERT(!empty.args() && args.back() == nullptr);
+  CommandLineBuilder cmdLineToLog;
   vector<char*>::iterator it = args.begin();
   while (it != args.end() && *it != nullptr)
   {
+    cmdLineToLog.AppendArgument(*it);
     bool keepArgument = false;
     if (strcmp(*it, "--miktex-admin") == 0)
     {
@@ -183,6 +185,7 @@ void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args
     log4cxx::BasicConfigurator::configure();
   }
   logger = log4cxx::Logger::getLogger(myName);
+  LOG4CXX_INFO(logger, "starting with command line: " << cmdLineToLog.ToString());
   pimpl->beQuiet = false;
   if (pimpl->enableInstaller == TriState::Undetermined)
   {
@@ -267,6 +270,10 @@ void Application::Init(const string& programInvocationName)
 
 void Application::Finalize()
 {
+  if (logger != nullptr)
+  {
+    LOG4CXX_DEBUG(logger, "finishing...");
+  }
   if (pimpl->installer != nullptr)
   {
     pimpl->installer->Dispose();
