@@ -1,6 +1,6 @@
 %% pdftex-miktex.ch:
 %% 
-%% Copyright (C) 1998-2016 Christian Schenk
+%% Copyright (C) 1998-2017 Christian Schenk
 %% 
 %% This file is free software; you can redistribute it and/or modify it
 %% under the terms of the GNU General Public License as published by the
@@ -140,7 +140,7 @@ end;
 @x
         pdf_mem := xrealloc_array(pdf_mem, integer, pdf_mem_size);
 @y
-        miktex_reallocate (pdf_mem, pdf_mem_size);
+        pdf_mem := miktex_reallocate(pdf_mem, pdf_mem_size);
 @z
 
 % _____________________________________________________________________________
@@ -172,7 +172,7 @@ pdf_os_buf_size := inf_pdf_os_buf_size;
 @x
         pdf_os_buf := xrealloc_array(pdf_os_buf, eight_bits, pdf_os_buf_size);
 @y
-        miktex_reallocate(pdf_os_buf, pdf_os_buf_size);
+        pdf_os_buf := miktex_reallocate(pdf_os_buf, pdf_os_buf_size);
 @z
 
 % _____________________________________________________________________________
@@ -196,13 +196,13 @@ pdf_os_buf_size := inf_pdf_os_buf_size;
 @x
         dest_names := xrealloc_array(dest_names, dest_name_entry, dest_names_size);
 @y
-        miktex_reallocate(dest_names, dest_names_size);
+        dest_names := miktex_reallocate(dest_names, dest_names_size);
 @z
 
 @x
         obj_tab := xrealloc_array(obj_tab, obj_entry, obj_tab_size);
 @y
-        miktex_reallocate(obj_tab, obj_tab_size);
+        obj_tab := miktex_reallocate(obj_tab, obj_tab_size);
 @z
 
 % _____________________________________________________________________________
@@ -382,7 +382,7 @@ pdf_print("/Producer (MiKTeX pdfTeX-");
 @x
 pdf_mem := xrealloc_array(pdf_mem, integer, pdf_mem_size);
 @y
-miktex_reallocate(pdf_mem, pdf_mem_size);
+pdf_mem := miktex_reallocate(pdf_mem, pdf_mem_size);
 @z
 
 % _____________________________________________________________________________
