@@ -527,7 +527,7 @@ void PrintUtility::ShowVersion()
 {
   cout
     << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, MIKTEX_COMPONENT_VERSION_STR) << endl
-    << "Copyright (C) 2003-2016 Christian Schenk" << endl
+    << "Copyright (C) 2003-2017 Christian Schenk" << endl
     << "This is free software; see the source for copying conditions.  There is NO" << endl
     << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
