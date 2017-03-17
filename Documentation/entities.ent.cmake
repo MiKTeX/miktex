@@ -148,7 +148,7 @@
 <!ENTITY xelatex "<command>xelatex</command>">
 <!ENTITY makeinfo "<command>makeinfo</command>">
 <!ENTITY mf "<command>mf</command>">
-<!ENTITY miktexrev "&MIKTEX_VERSION_STR;">
+<!ENTITY miktexrev "&MIKTEX_FULL_VERSION_STR;">
 <!ENTITY mpm "<command>mpm</command>">
 <!ENTITY miktexmpost "<command>miktex-mpost</command>">
 <!ENTITY mpost "<command>mpost</command>">
@@ -200,3 +200,9 @@
 <!ENTITY WindowsExplorer "<application>Windows Explorer</application>">
 <!ENTITY InternetExplorer40 "<application>Internet Explorer&nbsp;4.0</application>">
 <!ENTITY miktexnetsize "600&nbsp;<acronym>MB</acronym>">
+
+<!ENTITY revj2000 "${MIKTEX_COMP_J2000_VERSION}">
+<!ENTITY year "${MIKTEX_CACHED_YEAR}">
+<!ENTITY month "${MIKTEX_CACHED_MONTH_NAME} ${MIKTEX_CACHED_YEAR}">
+<!ENTITY date "${MIKTEX_CACHED_MONTH_NAME} ${MIKTEX_CACHED_MDAY}, ${MIKTEX_CACHED_YEAR}">
+<!ENTITY rev "&MIKTEX_MAJOR_MINOR_STR;.&revj2000;">

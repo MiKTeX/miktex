@@ -6,12 +6,6 @@
 %version.ent;
 %entities.ent;
 
-<!ENTITY revj2000 "5845">
-<!ENTITY month "January 2016">
-<!ENTITY date "January 02, 2016">
-
-<!ENTITY rev "&MIKTEX_MAJOR_MINOR_STR;.&revj2000;">
-
 <!ENTITY mfappdefaults SYSTEM "mfapp.defaults">
 <!ENTITY mfdefaults SYSTEM "mf.defaults">
 <!ENTITY mpostdefaults SYSTEM "mpost.defaults">
@@ -120,7 +114,7 @@
 
 <bookinfo>
 
-<title>&MiKTeX; &miktexrev; Manual</title>
+<title>&MiKTeX; Manual</title>
 <subtitle>Revision &rev;</subtitle>
 
 <edition>&rev;</edition>
@@ -194,7 +188,7 @@ and <filename>updmap.cfg</filename>.</para></listitem>
 -->
 
 <copyright>
-<year>2016</year>
+<year>&year;</year>
 <holder>Christian Schenk</holder>
 </copyright>
 
