@@ -56,8 +56,8 @@ using namespace std;
 
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
 
-const char * const TheNameOfTheGame = T_("MiKTeX Find Utility");
-const char * const PROGNAME = "findtexmf";
+const char* const TheNameOfTheGame = T_("MiKTeX Find Utility");
+const char* const PROGNAME = "findtexmf";
 
 class FindTeXMF :
   public Application
@@ -69,10 +69,10 @@ private:
   void ListFileTypes();
 
 private:
-  void PrintSearchPath(const char * lpszSearchPath);
+  void PrintSearchPath(const char* lpszSearchPath);
 
 public:
-  void Run(int argc, const char ** argv);
+  void Run(int argc, const char** argv);
 
 private:
   bool mustExist = false;
@@ -195,7 +195,7 @@ void FindTeXMF::ShowVersion()
 void FindTeXMF::ListFileTypes()
 {
   FileTypeInfo fti;
-  for (const FileTypeInfo & fti : session->GetFileTypes())
+  for (const FileTypeInfo& fti : session->GetFileTypes())
   {
     if (fti.fileNameExtensions.empty())
     {
@@ -205,7 +205,7 @@ void FindTeXMF::ListFileTypes()
   }
 }
 
-void FindTeXMF::PrintSearchPath(const char * lpszSearchPath)
+void FindTeXMF::PrintSearchPath(const char* lpszSearchPath)
 {
   bool first = true;
   PathName mpmRootPath = session->GetMpmRootPath();
@@ -230,7 +230,7 @@ void FindTeXMF::PrintSearchPath(const char * lpszSearchPath)
   cout << endl;
 }
 
-void FindTeXMF::Run(int argc, const char ** argv)
+void FindTeXMF::Run(int argc, const char** argv)
 {
   session = GetSession();
 
@@ -340,7 +340,7 @@ void FindTeXMF::Run(int argc, const char ** argv)
     }
   }
 
-  for (const string & fileName : leftovers)
+  for (const string& fileName : leftovers)
   {
     PathName path;
     FileType filetype = fileType;
