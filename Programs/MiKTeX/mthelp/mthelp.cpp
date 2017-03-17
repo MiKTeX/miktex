@@ -201,7 +201,7 @@ void MiKTeXHelp::Init(const Session::InitInfo & initInfo)
 void MiKTeXHelp::ShowVersion()
 {
   cout << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR) << endl
-    << "Copyright (C) 2004-2016 Christian Schenk" << endl
+    << "Copyright (C) 2004-2017 Christian Schenk" << endl
     << "This is free software; see the source for copying conditions.  There is NO" << endl
     << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
 }
