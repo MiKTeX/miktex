@@ -2,8 +2,6 @@
 <!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
                        "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
-<!ENTITY % version.ent SYSTEM "version.ent">
-%version.ent;
 %entities.ent;
 ]>
 <varlistentry><term><option>--admin</option></term>

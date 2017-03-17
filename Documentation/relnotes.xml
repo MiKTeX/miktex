@@ -1,11 +1,9 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
-<!ENTITY % version.ent SYSTEM "version.ent">
 <!ENTITY optionmainmemory SYSTEM "Options/mainmemory.xml">
 <!ENTITY optionextramembot SYSTEM "Options/extramembot.xml">
 <!ENTITY optionextramemtop SYSTEM "Options/extramemtop.xml">
-%version.ent;
 %entities.ent;
 ]>
 
@@ -49,11 +47,3 @@
 </section>
 
 </article>
-
-<!--
-Local Variables:
-mode:xml
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

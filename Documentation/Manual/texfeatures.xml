@@ -194,14 +194,14 @@ cycle:</para>
 <listitem><para>You compile the source file.</para></listitem>
 
 <listitem><para>You execute a special editor command to open the
-previewer <application>Yap</application>, going directly to the page
+previewer &Yap;, going directly to the page
 that corresponds to the cursor location in your editor
 window.</para></listitem>
 
 <listitem><para>You navigate through the viewed document.</para></listitem>
 
 <listitem><para>You double-click somewhere inside the viewed document;
-this causes <application>Yap</application> to bring the editor window
+this causes &Yap; to bring the editor window
 back to the front, moving the text cursor directly to the line that
 corresponds to the view location.</para></listitem>
 

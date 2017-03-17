@@ -28,11 +28,6 @@ else()
 endif()
 
 configure_file(
-  version.ent.in
-  ${CMAKE_CURRENT_BINARY_DIR}/version.ent
-)
-
-configure_file(
   entities.ent.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
 )

@@ -2,8 +2,6 @@
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
                    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
-<!ENTITY % version.ent SYSTEM "version.ent">
-%version.ent;
 %entities.ent;
 <!ENTITY optionhelp SYSTEM "../Options/help.xml">
 <!ENTITY optionhhelp SYSTEM "../Options/hhelp.xml">
@@ -257,7 +255,7 @@ which must have been properly installed by running &MPM; with the
 
 <screen><prompt>&prompt;</prompt><userinput>mpm --list-repositories</userinput></screen>
 
-<para>Retrieve the package database files from the FTP server
+<para>Retrieve the package database files from the &FTP; server
 <systemitem class="server">some.server</systemitem>:</para>
 
 <screen><prompt>&prompt;</prompt><userinput>mpm --repository=ftp://some.server/miktex/packages/ \
@@ -295,7 +293,7 @@ which must have been properly installed by running &MPM; with the
 </varlistentry>
 
 <varlistentry><term><envar>FTP_PROXY</envar></term>
-<listitem><para>The proxy server to be used for <acronym>FTP</acronym>.</para></listitem>
+<listitem><para>The proxy server to be used for &FTP;.</para></listitem>
 </varlistentry>
 
 <varlistentry><term><envar>ALL_PROXY</envar></term>

@@ -124,19 +124,10 @@ system up-to-date</para>
 <varlistentry>
 <term>lots of utilities</term>
 <listitem><para>tools for the creation of bibliographies &amp; indexes,
-<application>PostScript</application> utilities, and more</para>
+&PostScript; utilities, and more</para>
 </listitem>
 </varlistentry>
 
 </variablelist>
 
 </section>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("miktex.xml" "book")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

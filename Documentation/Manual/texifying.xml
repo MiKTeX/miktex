@@ -11,7 +11,7 @@ simplifies the creation of &DVI; (&PDF;) documents:
 <command>texify</command> automatically runs
 <application>LaTeX</application>
 (<application>pdfLaTeX</application>),
-<application>MakeIndex</application> and
+&MakeIndex; and
 <application>BibTeX</application> as many times as necessary to
 produce a &DVI; (&PDF;) file with sorted indices and
 all cross-references resolved.</para>
@@ -89,12 +89,3 @@ location <quote>200 foo.tex</quote>.  The previewer option
 <para>See the &Yap; manual, for a complete list of previewer options.</para>
 
 </section>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("miktex.xml" "book")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

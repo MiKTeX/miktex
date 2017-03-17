@@ -3,8 +3,6 @@
                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd"
 [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
-<!ENTITY % version.ent SYSTEM "version.ent">
-%version.ent;
 %entities.ent;
 <!ENTITY rev "2.9.5845">
 <!ENTITY date "January 02, 2016">
@@ -689,7 +687,7 @@ causes &Dvips; to use
 <para>You can type the page number followed by <keycap>g</keycap> to
 jump to a certain page.  For example, typing the key sequence
 <keycap>2</keycap><keycap>2</keycap><keycap>0</keycap><keycap>g</keycap>
-will direct <application>Yap</application> to page 220.</para>
+will direct &Yap; to page 220.</para>
 </answer>
 </qandaentry>
 </qandaset>
@@ -747,11 +745,3 @@ Streams</citetitle></ulink> in the &MiKTeX; manual.</para>
 </section>
 
 </article>
-
-<!--
-Local Variables:
-mode:xml
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->
