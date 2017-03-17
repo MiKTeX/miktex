@@ -747,13 +747,14 @@ void ArCtrl::Run(int argc, const char** argv)
   TerminateConversation();
 }
 
-extern "C" __declspec(dllexport) int __cdecl arctrlmain(int argc, const char** argv)
+extern "C" __declspec(dllexport) int __cdecl arctrlmain(int argc, char** argv)
 {
   try
   {
     ArCtrl app;
-    app.Init(argv[0]);
-    app.Run(argc, argv);
+    vector<char*> newargv{ argv, argv + argc + 1 };
+    app.Init(newargv);
+    app.Run(newargv.size(), const_cast<const char**>(&newargv[0]));
     app.Finalize();
     return 0;
   }
