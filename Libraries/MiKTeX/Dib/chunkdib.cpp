@@ -1,6 +1,6 @@
 /* chunkdib.cpp: test driver for the DibChunker interfaces
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2017 Christian Schenk
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public License
@@ -40,13 +40,13 @@ using namespace std;
 class ChunkDib : public Application, public IDibChunkerCallback
 {
 public:
-  virtual size_t MIKTEXTHISCALL Read(void * pBuf, size_t size);
+  virtual size_t MIKTEXTHISCALL Read(void* data, size_t size);
 
 public:
   virtual void MIKTEXTHISCALL OnNewChunk(shared_ptr<DibChunk> chunk);
 
 public:
-  void Run(int argc, const char ** argv);
+  void Run(int argc, const char** argv);
 
 private:
   FileStream stream;
@@ -61,9 +61,9 @@ private:
   string prefix;
 };
 
-size_t MIKTEXTHISCALL ChunkDib::Read(void * pBuf, size_t size)
+size_t MIKTEXTHISCALL ChunkDib::Read(void* data, size_t size)
 {
-  return stream.Read(pBuf, size);
+  return stream.Read(data, size);
 }
 
 void MIKTEXTHISCALL ChunkDib::OnNewChunk(shared_ptr<DibChunk> chunk)
@@ -71,7 +71,7 @@ void MIKTEXTHISCALL ChunkDib::OnNewChunk(shared_ptr<DibChunk> chunk)
   nChunks += 1;
   PathName fileName = StringUtil::FormatString("%s-%u-%u.bmp", prefix.c_str(), nBitmaps, nChunks);
   FileStream bitmapFile(File::Open(fileName, FileMode::Create, FileAccess::Write, false));
-  const BITMAPINFO * pBitmapInfo = chunk->GetBitmapInfo();
+  const BITMAPINFO* pBitmapInfo = chunk->GetBitmapInfo();
   unsigned long nBytesPerLine = (((pBitmapInfo->bmiHeader.biWidth * pBitmapInfo->bmiHeader.biBitCount) + 31) & ~31) >> 3;
   unsigned nColors = pBitmapInfo->bmiHeader.biBitCount == 24 ? 0 : 1 << pBitmapInfo->bmiHeader.biBitCount;
   BITMAPFILEHEADER header;
@@ -88,10 +88,10 @@ void MIKTEXTHISCALL ChunkDib::OnNewChunk(shared_ptr<DibChunk> chunk)
   cout << StringUtil::FormatString(T_("chunk %s written"), fileName.GetData()) << endl;
 }
 
-void ChunkDib::Run(int argc, const char ** argv)
+void ChunkDib::Run(int argc, const char** argv)
 {
   unsigned long chunkSize;
-  unique_ptr<DibChunker> pChunker(DibChunker::Create());
+  unique_ptr<DibChunker> chunker(DibChunker::Create());
   if (argc > 1)
   {
     PathName fileName = argv[1];
@@ -110,10 +110,10 @@ void ChunkDib::Run(int argc, const char ** argv)
   {
     ++nBitmaps;
     nChunks = 0;
-  } while (pChunker->Process(DibChunker::Default, chunkSize, this));
+  } while (chunker->Process(DibChunker::Default, chunkSize, this));
 }
 
-int main(int argc, const char ** argv)
+int main(int argc, const char** argv)
 {
   try
   {
@@ -123,19 +123,19 @@ int main(int argc, const char ** argv)
     app.Finalize();
     return 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
     return 1;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     Utils::PrintException(e);
     return 1;
   }
-  catch (const char * lpszMessage)
+  catch (const char* message)
   {
-    cerr << "fatal error: " << lpszMessage << endl;
+    cerr << "fatal error: " << message << endl;
     return 1;
   }
 }
