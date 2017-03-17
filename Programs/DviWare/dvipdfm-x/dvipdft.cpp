@@ -1,6 +1,6 @@
 /* dvipdft.cpp: run dvipdfm-gswin32-dvipdfm
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is part of dvipdm.
 
@@ -40,7 +40,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX;
 using namespace std;
 
-void FatalError(const char * lpszFormat, ...)
+void FatalError(const char* lpszFormat, ...)
 {
   fprintf(stderr, "%s: ", Utils::GetExeName().c_str());
   va_list marker;
@@ -51,7 +51,7 @@ void FatalError(const char * lpszFormat, ...)
   throw 1;
 }
 
-void FatalFileError(const char * lpszPath)
+void FatalFileError(const char* lpszPath)
 {
   fprintf(stderr, "%s: ", Utils::GetExeName().c_str());
   perror(lpszPath);
@@ -63,7 +63,7 @@ void BadUsage()
   FatalError(MIKTEXTEXT("No DVI file name specified."));
 }
 
-void dvipdft(int argc, const char * * argv)
+void dvipdft(int argc, const char** argv)
 {
   shared_ptr<Session> session = Session::Get();
 
@@ -100,7 +100,7 @@ void dvipdft(int argc, const char * * argv)
     }
   }
 
-  const char * lpszUserFilename = argv[argc - 1];
+  const char* lpszUserFilename = argv[argc - 1];
   if (fileNoExt.Empty())
   {
     fileNoExt = lpszUserFilename;
@@ -156,7 +156,7 @@ void dvipdft(int argc, const char * * argv)
   }
 }
 
-int main(int argc, const char * * argv)
+int main(int argc, const char** argv)
 {
   try
   {
@@ -166,12 +166,12 @@ int main(int argc, const char * * argv)
     app.Finalize();
     return 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
     return 1;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     Utils::PrintException(e);
     return 1;
