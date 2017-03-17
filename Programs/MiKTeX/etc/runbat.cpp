@@ -1,6 +1,6 @@
 /* runbat.cpp: the MiKTeX batch file runner
 
-   Copyright (C) 2004-2016 Christian Schenk
+   Copyright (C) 2004-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -31,16 +31,16 @@ using namespace MiKTeX::Util;
 using namespace std;
 
 #if defined(_UNICODE)
-int wmain(int argc, wchar_t ** argv)
+int wmain(int argc, wchar_t** argv)
 #else
-int main(int argc, char ** argv)
+int main(int argc, char** argv)
 #endif
 {
   try
   {
     vector<string> utf8args;
     utf8args.reserve(argc);
-    vector<const char *> newargv;
+    vector<const char*> newargv;
     newargv.reserve(argc + 1);
     for (int idx = 0; idx < argc; ++idx)
     {
@@ -60,12 +60,12 @@ int main(int argc, char ** argv)
     app.Finalize();
     return exitCode;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
     return 1;
   }
-  catch (const std::exception & e)
+  catch (const std::exception& e)
   {
     Utils::PrintException(e);
     return 1;
