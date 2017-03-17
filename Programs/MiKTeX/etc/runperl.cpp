@@ -40,7 +40,7 @@ int main(int argc, char** argv)
   {
     vector<string> utf8args;
     utf8args.reserve(argc);
-    vector<const char*> newargv;
+    vector<char*> newargv;
     newargv.reserve(argc + 1);
     for (int idx = 0; idx < argc; ++idx)
     {
@@ -51,12 +51,13 @@ int main(int argc, char** argv)
 #else
       utf8args.push_back(argv[idx]);
 #endif
-      newargv.push_back(utf8args[idx].c_str());
+      // FIXME: eliminate const cast
+      newargv.push_back(const_cast<char*>(utf8args[idx].c_str()));
     }
     newargv.push_back(nullptr);
     Application app;
-    app.Init(newargv[0]);
-    int exitCode = app.GetSession()->RunPerl(argc, &newargv[0]);
+    app.Init(newargv);
+    int exitCode = app.GetSession()->RunPerl(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
     app.Finalize();
     return exitCode;
   }
