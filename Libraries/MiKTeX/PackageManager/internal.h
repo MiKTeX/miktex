@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -99,9 +99,9 @@ BEGIN_INTERNAL_NAMESPACE;
 
 const time_t Y2000 = 946681200;
 
-const char * const MPM_AGENT = "MPM/" MIKTEX_COMPONENT_VERSION_STR;
+const char* const MPM_AGENT = "MPM/" MIKTEX_COMPONENT_VERSION_STR;
 
-const char * const MPMSVC = "mpmsvc";
+const char* const MPMSVC = "mpmsvc";
 
 const size_t MAXURL = 1024;
 
@@ -109,14 +109,14 @@ const size_t MAXURL = 1024;
 #define TEXMF_PREFIX_DIRECTORY \
   "texmf" MIKTEX_PATH_DIRECTORY_DELIMITER_STRING
 
-inline void DbgView(const std::string & s)
+inline void DbgView(const std::string& s)
 {
 #if defined(_WIN32)
   OutputDebugStringW(UW_("MiKTeX MPM: " + s));
 #endif
 }
 
-inline bool StripPrefix(const std::string & str, const char * lpszPrefix, std::string & result)
+inline bool StripPrefix(const std::string& str, const char* lpszPrefix, std::string& result)
 {
   size_t n = MiKTeX::Util::StrLen(lpszPrefix);
   if (MiKTeX::Core::PathName::Compare(str.c_str(), lpszPrefix, n) != 0)
@@ -136,17 +136,17 @@ struct InstalledFileInfo
 #  undef StrCmp
 #endif
 
-inline int StrCmp(const char * lpsz1, const char * lpsz2)
+inline int StrCmp(const char* lpsz1, const char* lpsz2)
 {
   return strcmp(lpsz1, lpsz2);
 }
 
-inline int StrCmp(const wchar_t * lpsz1, const wchar_t * lpsz2)
+inline int StrCmp(const wchar_t* lpsz1, const wchar_t* lpsz2)
 {
   return wcscmp(lpsz1, lpsz2);
 }
 
-inline int FPutS(const char * lpsz, FILE * stream)
+inline int FPutS(const char* lpsz, FILE* stream)
 {
   int n = fputs(lpsz, stream);
   if (n < 0)
@@ -156,7 +156,7 @@ inline int FPutS(const char * lpsz, FILE * stream)
   return n;
   }
 
-inline int FPutC(int ch, FILE * stream)
+inline int FPutC(int ch, FILE* stream)
 {
   int chWritten = fputc(ch, stream);
   if (chWritten == EOF)
@@ -169,7 +169,7 @@ inline int FPutC(int ch, FILE * stream)
 struct PathNameComparer :
   public std::binary_function<std::string, std::string, bool>
 {
-  bool operator() (const std::string & str1, const std::string & str2) const
+  bool operator() (const std::string& str1, const std::string& str2) const
   {
     return MiKTeX::Core::PathName::Compare(str1, str2) < 0;
   }
@@ -178,7 +178,7 @@ struct PathNameComparer :
 struct hash_path
 {
 public:
-  std::size_t operator() (const std::string & str) const
+  std::size_t operator() (const std::string& str) const
   {
     return MiKTeX::Core::PathName(str).GetHash();
   }
@@ -187,7 +187,7 @@ public:
 struct equal_path
 {
 public:
-  bool operator() (const std::string & str1, const std::string & str2) const
+  bool operator() (const std::string& str1, const std::string& str2) const
   {
     return MiKTeX::Core::PathName::Compare(str1.c_str(), str2.c_str()) == 0;
   }
@@ -214,13 +214,13 @@ public:
   void MIKTEXTHISCALL CreateMpmFndb() override;
 
 public:
-  unsigned long MIKTEXTHISCALL GetFileRefCount(const MiKTeX::Core::PathName & path) override;
+  unsigned long MIKTEXTHISCALL GetFileRefCount(const MiKTeX::Core::PathName& path) override;
 
 public:
-  MiKTeX::Packages::PackageInfo MIKTEXTHISCALL GetPackageInfo(const std::string & deploymentName) override;
+  MiKTeX::Packages::PackageInfo MIKTEXTHISCALL GetPackageInfo(const std::string& deploymentName) override;
 
 public:
-  void MIKTEXTHISCALL LoadDatabase(const MiKTeX::Core::PathName & path) override;
+  void MIKTEXTHISCALL LoadDatabase(const MiKTeX::Core::PathName& path) override;
 
 public:
   void MIKTEXTHISCALL UnloadDatabase() override;
@@ -250,37 +250,37 @@ public:
   std::string MIKTEXTHISCALL PickRepositoryUrl() override;
 
 public:
-  bool MIKTEXTHISCALL TryGetPackageInfo(const std::string & deploymentName, MiKTeX::Packages::PackageInfo & packageInfo) override;
+  bool MIKTEXTHISCALL TryGetPackageInfo(const std::string& deploymentName, MiKTeX::Packages::PackageInfo& packageInfo) override;
 
 private:
-  bool MIKTEXTHISCALL ReadDirectory(const MiKTeX::Core::PathName & path, std::vector<std::string> & subDirNames, std::vector<std::string> & fileNames, std::vector<std::string> & fileNameInfos) override;
+  bool MIKTEXTHISCALL ReadDirectory(const MiKTeX::Core::PathName& path, std::vector<std::string>& subDirNames, std::vector<std::string>& fileNames, std::vector<std::string>& fileNameInfos) override;
 
 private:
-  bool MIKTEXTHISCALL OnProgress(unsigned level, const MiKTeX::Core::PathName & directory) override;
+  bool MIKTEXTHISCALL OnProgress(unsigned level, const MiKTeX::Core::PathName& directory) override;
 
 public:
   void OnProgress() override;
 
 public:
-  bool MIKTEXTHISCALL TryGetRepositoryInfo(const std::string & url, MiKTeX::Packages::RepositoryInfo & repositoryInfo) override;
+  bool MIKTEXTHISCALL TryGetRepositoryInfo(const std::string& url, MiKTeX::Packages::RepositoryInfo& repositoryInfo) override;
 
 public:
-  MiKTeX::Packages::RepositoryInfo MIKTEXTHISCALL VerifyPackageRepository(const std::string & url) override;
+  MiKTeX::Packages::RepositoryInfo MIKTEXTHISCALL VerifyPackageRepository(const std::string& url) override;
 
 public:
-  bool MIKTEXTHISCALL TryVerifyInstalledPackage(const std::string & deploymentName) override;
+  bool MIKTEXTHISCALL TryVerifyInstalledPackage(const std::string& deploymentName) override;
 
 public:
-  std::string MIKTEXTHISCALL GetContainerPath(const std::string & deploymentName, bool useDisplayNames) override;
+  std::string MIKTEXTHISCALL GetContainerPath(const std::string& deploymentName, bool useDisplayNames) override;
 
 public:
-  PackageManagerImpl(const MiKTeX::Packages::PackageManager::InitInfo & initInfo);
+  PackageManagerImpl(const MiKTeX::Packages::PackageManager::InitInfo& initInfo);
 
 public:
   void ClearAll();
 
 public:
-  void IncrementFileRefCounts(const std::string & deploymentName);
+  void IncrementFileRefCounts(const std::string& deploymentName);
 
 public:
   void NeedInstalledFileInfoTable();
@@ -289,73 +289,73 @@ public:
   void FlushVariablePackageTable();
 
 public:
-  void GetAllPackageDefinitions(std::vector<MiKTeX::Packages::PackageInfo> & packages);
+  void GetAllPackageDefinitions(std::vector<MiKTeX::Packages::PackageInfo>& packages);
 
 public:
- MiKTeX::Packages:: PackageInfo * TryGetPackageInfo(const std::string & deploymentName);
+ MiKTeX::Packages:: PackageInfo* TryGetPackageInfo(const std::string& deploymentName);
 
 public:
-  InstalledFileInfo * GetInstalledFileInfo(const char * lpszPath);
+  InstalledFileInfo* GetInstalledFileInfo(const char* lpszPath);
 
 public:
-  bool IsRemovable(const std::string & deploymentName);
+  bool IsRemovable(const std::string& deploymentName);
 
 public:
-  time_t GetUserTimeInstalled(const std::string & deploymentName);
+  time_t GetUserTimeInstalled(const std::string& deploymentName);
 
 public:
-  time_t GetCommonTimeInstalled(const std::string & deploymentName);
+  time_t GetCommonTimeInstalled(const std::string& deploymentName);
 
 public:
-  time_t GetTimeInstalled(const std::string & deploymentName);
+  time_t GetTimeInstalled(const std::string& deploymentName);
 
 public:
-  bool IsPackageInstalled(const std::string & deploymentName);
+  bool IsPackageInstalled(const std::string& deploymentName);
 
 public:
-  bool IsPackageObsolete(const std::string & deploymentName);
+  bool IsPackageObsolete(const std::string& deploymentName);
 
 public:
-  void DeclarePackageObsolete(const std::string & deploymentName, bool obsolete);
+  void DeclarePackageObsolete(const std::string& deploymentName, bool obsolete);
 
 public:
-  void SetTimeInstalled(const std::string & deploymentName, time_t timeInstalled);
+  void SetTimeInstalled(const std::string& deploymentName, time_t timeInstalled);
 
 public:
-  void SetReleaseState(const std::string & deploymentName, MiKTeX::Packages::RepositoryReleaseState releaseState);
+  void SetReleaseState(const std::string& deploymentName, MiKTeX::Packages::RepositoryReleaseState releaseState);
 
 public:
- MiKTeX::Packages:: RepositoryReleaseState GetReleaseState(const std::string & deploymentName);
+ MiKTeX::Packages:: RepositoryReleaseState GetReleaseState(const std::string& deploymentName);
 
 public:
-  MiKTeX::Packages::PackageInfo * DefinePackage(const std::string & deploymentName, const MiKTeX::Packages::PackageInfo & packageinfo);
+  MiKTeX::Packages::PackageInfo* DefinePackage(const std::string& deploymentName, const MiKTeX::Packages::PackageInfo& packageinfo);
 
 public:
-  void TraceError(const char * lpszFormat, ...);
+  void TraceError(const char* lpszFormat, ...);
 
 private:
   void LoadVariablePackageTable();
 
 private:
-  void IncrementFileRefCounts(const std::vector<std::string> & files);
+  void IncrementFileRefCounts(const std::vector<std::string>& files);
 
 private:
-  void ParseAllPackageDefinitionFilesInDirectory(const MiKTeX::Core::PathName & directory);
+  void ParseAllPackageDefinitionFilesInDirectory(const MiKTeX::Core::PathName& directory);
 
 private:
   void ParseAllPackageDefinitionFiles();
 
 private:
-  bool TryGetFileDigest(const MiKTeX::Core::PathName & prefix, const std::string & fileName, bool & haveDigest, MiKTeX::Core::MD5 & digest);
+  bool TryGetFileDigest(const MiKTeX::Core::PathName& prefix, const std::string& fileName, bool& haveDigest, MiKTeX::Core::MD5& digest);
 
 private:
-  bool TryCollectFileDigests(const MiKTeX::Core::PathName & prefix, const std::vector<std::string> & files, FileDigestTable & fileDigests);
+  bool TryCollectFileDigests(const MiKTeX::Core::PathName& prefix, const std::vector<std::string>& files, FileDigestTable& fileDigests);
 
 private:
   void Dispose();
 
 public:
-  static MiKTeX::Packages::RepositoryType DetermineRepositoryType(const std::string & repository);
+  static MiKTeX::Packages::RepositoryType DetermineRepositoryType(const std::string& repository);
 
 private:
   std::string GetRemoteServiceBaseUrl();
@@ -400,7 +400,7 @@ private:
   std::shared_ptr<WebSession> webSession;
 
 public:
-  WebSession * GetWebSession() const
+  WebSession* GetWebSession() const
   {
     return webSession.get();
   }
@@ -443,13 +443,13 @@ public:
   }
 
 private:
-  bool TryGetValue(const std::string & deploymentName, const std::string & valueName, std::string & value)
+  bool TryGetValue(const std::string& deploymentName, const std::string& valueName, std::string& value)
   {
     return pcfg->TryGetValue(deploymentName, valueName, value);
   }
 
 public:
-  void Read(const MiKTeX::Core::PathName & path)
+  void Read(const MiKTeX::Core::PathName& path)
   {
     pcfg->Read(path);
   }
@@ -475,7 +475,7 @@ public:
   }
 
 public:
-  int GetArchiveFileSize(const std::string & deploymentName)
+  int GetArchiveFileSize(const std::string& deploymentName)
   {
     std::string str;
     if (!TryGetValue(deploymentName, "CabSize", str))
@@ -486,7 +486,7 @@ public:
   }
 
 public:
-  MiKTeX::Core::MD5 GetArchiveFileDigest(const std::string & deploymentName)
+  MiKTeX::Core::MD5 GetArchiveFileDigest(const std::string& deploymentName)
   {
     std::string str;
     if (!pcfg->TryGetValue(deploymentName, "CabMD5", str))
@@ -497,7 +497,7 @@ public:
   }
 
 public:
-  MiKTeX::Core::MD5 GetPackageDigest(const std::string & deploymentName)
+  MiKTeX::Core::MD5 GetPackageDigest(const std::string& deploymentName)
   {
     std::string str;
     if (!pcfg->TryGetValue(deploymentName, "MD5", str))
@@ -508,7 +508,7 @@ public:
   }
 
 public:
-  time_t GetTimePackaged(const std::string & deploymentName)
+  time_t GetTimePackaged(const std::string& deploymentName)
   {
     std::string str;
     if (!TryGetValue(deploymentName, "TimePackaged", str))
@@ -524,7 +524,7 @@ public:
   }
 
 public:
-  PackageLevel GetPackageLevel(const std::string & deploymentName)
+  PackageLevel GetPackageLevel(const std::string& deploymentName)
   {
     std::string str;
     if (!TryGetValue(deploymentName, "Level", str))
@@ -535,7 +535,7 @@ public:
   }
 
 public:
-  std::string GetPackageVersion(const std::string & deploymentName)
+  std::string GetPackageVersion(const std::string& deploymentName)
   {
     std::string version;
     if (!TryGetValue(deploymentName, "Version", version))
@@ -546,7 +546,7 @@ public:
   }
 
 public:
-  std::string GetPackageTargetSystem(const std::string & deploymentName)
+  std::string GetPackageTargetSystem(const std::string& deploymentName)
   {
     std::string targetSystem;
     if (!TryGetValue(deploymentName, "TargetSystem", targetSystem))
@@ -557,7 +557,7 @@ public:
     }
 
 public:
-  MiKTeX::Extractor::ArchiveFileType GetArchiveFileType(const std::string & deploymentName)
+  MiKTeX::Extractor::ArchiveFileType GetArchiveFileType(const std::string& deploymentName)
   {
     std::string str;
     if (!TryGetValue(deploymentName, "Type", str))
@@ -625,14 +625,14 @@ public:
   void MIKTEXTHISCALL Dispose() override;
 
 public:
-  void MIKTEXTHISCALL SetRepository(const std::string & repository) override
+  void MIKTEXTHISCALL SetRepository(const std::string& repository) override
   {
     repositoryType = PackageManagerImpl::DetermineRepositoryType(repository);
     this->repository = repository;
   }
 
 public:
-  void MIKTEXTHISCALL SetDownloadDirectory(const MiKTeX::Core::PathName & directory) override
+  void MIKTEXTHISCALL SetDownloadDirectory(const MiKTeX::Core::PathName& directory) override
   {
     this->downloadDirectory = directory;
   }
@@ -685,10 +685,10 @@ public:
   }
 
 public:
-  void MIKTEXTHISCALL SetCallback(PackageInstallerCallback * pCallback) override;
+  void MIKTEXTHISCALL SetCallback(PackageInstallerCallback* pCallback) override;
 
 public:
-  void MIKTEXTHISCALL SetFileLists(const std::vector<std::string> & tbi, const std::vector<std::string> & tbr) override
+  void MIKTEXTHISCALL SetFileLists(const std::vector<std::string>& tbi, const std::vector<std::string>& tbr) override
   {
     this->toBeInstalled = tbi;
     this->toBeRemoved = tbr;
@@ -701,7 +701,7 @@ public:
   }
 
 public:
-  void MIKTEXTHISCALL SetFileList(const std::vector<std::string> & tbi) override
+  void MIKTEXTHISCALL SetFileList(const std::vector<std::string>& tbi) override
   {
     SetFileLists(tbi, std::vector<std::string>());
   }
@@ -710,22 +710,22 @@ public:
   void OnProgress() override;
 
 public:
-  void MIKTEXTHISCALL OnBeginFileExtraction(const std::string & fileName, size_t uncompressedSize) override;
+  void MIKTEXTHISCALL OnBeginFileExtraction(const std::string& fileName, size_t uncompressedSize) override;
 
 public:
-  void MIKTEXTHISCALL OnEndFileExtraction(const std::string & fileName, size_t uncompressedSize) override;
+  void MIKTEXTHISCALL OnEndFileExtraction(const std::string& fileName, size_t uncompressedSize) override;
 
 public:
-  bool MIKTEXTHISCALL OnError(const std::string & message) override;
+  bool MIKTEXTHISCALL OnError(const std::string& message) override;
 
 public:
-  bool MIKTEXTHISCALL OnProcessOutput(const void * pOutput, size_t n) override;
+  bool MIKTEXTHISCALL OnProcessOutput(const void* pOutput, size_t n) override;
 
 private:
   void NeedRepository();
 
 private:
-  void UpdateMpmFndb(const std::vector<std::string> & installedFiles, const std::vector<std::string> & removedFiles, const char * lpszPackageName);
+  void UpdateMpmFndb(const std::vector<std::string>& installedFiles, const std::vector<std::string>& removedFiles, const char* lpszPackageName);
 
 private:
   void CalculateExpenditure(bool downloadOnly = false);
@@ -763,7 +763,7 @@ public:
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
 public:
-  STDMETHOD(QueryInterface) (REFIID riid, LPVOID * ppvObj);
+  STDMETHOD(QueryInterface) (REFIID riid, LPVOID* ppvObj);
 
 public:
   STDMETHOD_(ULONG, AddRef) ();
@@ -775,10 +775,10 @@ public:
   HRESULT __stdcall ReportLine(BSTR line) override;
 
 public:
-  HRESULT __stdcall OnRetryableError(BSTR message, VARIANT_BOOL * pDoContinue) override;
+  HRESULT __stdcall OnRetryableError(BSTR message, VARIANT_BOOL* pDoContinue) override;
 
 public:
-  HRESULT __stdcall OnProgress(LONG nf, VARIANT_BOOL * pDoContinue) override;
+  HRESULT __stdcall OnProgress(LONG nf, VARIANT_BOOL* pDoContinue) override;
 #endif
 
 private:
@@ -803,16 +803,16 @@ private:
  MiKTeX::Packages:: RepositoryReleaseState repositoryReleaseState = MiKTeX::Packages::RepositoryReleaseState::Unknown;
 
 private:
-  void ReportLine(const char * lpsz, ...);
+  void ReportLine(const char* lpsz, ...);
 
 private:
-  std::string MakeUrl(const char * lpszBase, const char * lpszRel);
+  std::string MakeUrl(const char* lpszBase, const char* lpszRel);
 
 private:
-  std::string MakeUrl(const char * lpszRel);
+  std::string MakeUrl(const char* lpszRel);
 
 private:
-  bool AbortOrRetry(const std::string & message)
+  bool AbortOrRetry(const std::string& message)
   {
     return pCallback == nullptr || !pCallback->OnRetryableError(message);
   }
@@ -830,21 +830,21 @@ private:
 
 #if defined(MIKTEX_WINDOWS)
 private:
-  void RegisterComponent (bool doRegister, const MiKTeX::Core::PathName & path, bool mustSucceed);
+  void RegisterComponent (bool doRegister, const MiKTeX::Core::PathName& path, bool mustSucceed);
 #endif
 
 private:
-  void RegisterComponents (bool doRegister, const std::vector<std::string> & packages);
+  void RegisterComponents (bool doRegister, const std::vector<std::string>& packages);
 
 private:
-  void RegisterComponents (bool doRegister, const std::vector<std::string> & packages, const std::vector<std::string> & packages2)
+  void RegisterComponents (bool doRegister, const std::vector<std::string>& packages, const std::vector<std::string>& packages2)
   {
     RegisterComponents(doRegister, packages);
     RegisterComponents(doRegister, packages2);
   }
 
 private:
-  void RunIniTeXMF(const char * lpszArguments);
+  void RunIniTeXMF(const char* lpszArguments);
 
 private:
   bool autoFndbSync;
@@ -909,61 +909,61 @@ private:
   void DoInstall();
 
 private:
-  void SetUpPackageDefinitionFiles (const MiKTeX::Core::PathName & directory);
+  void SetUpPackageDefinitionFiles (const MiKTeX::Core::PathName& directory);
 
 private:
-  void HandleObsoletePackageDefinitionFiles (const MiKTeX::Core::PathName & temporaryDirectory);
+  void HandleObsoletePackageDefinitionFiles (const MiKTeX::Core::PathName& temporaryDirectory);
 
 private:
   void CleanUpUserDatabase();
 
 private:
-  void Download(const std::string & url, const MiKTeX::Core::PathName & dest, size_t expectedSize = 0);
+  void Download(const std::string& url, const MiKTeX::Core::PathName& dest, size_t expectedSize = 0);
 
 private:
-  void Download(const MiKTeX::Core::PathName & fileName, size_t expectedSize = 0);
+  void Download(const MiKTeX::Core::PathName& fileName, size_t expectedSize = 0);
 
 private:
-  void RemoveFiles(const std::vector<std::string> & toBeRemoved, bool silently = false);
+  void RemoveFiles(const std::vector<std::string>& toBeRemoved, bool silently = false);
 
 private:
-  void ExtractFiles(const MiKTeX::Core::PathName & archiveFileName, MiKTeX::Extractor::ArchiveFileType archiveFileType);
+  void ExtractFiles(const MiKTeX::Core::PathName& archiveFileName, MiKTeX::Extractor::ArchiveFileType archiveFileType);
 
 private:
-  void CopyFiles(const MiKTeX::Core::PathName & pathSourceRoot, const std::vector<std::string> & fileList);
+  void CopyFiles(const MiKTeX::Core::PathName& pathSourceRoot, const std::vector<std::string>& fileList);
 
 private:
-  void AddToFileList(std::vector<std::string> & fileList, const MiKTeX::Core::PathName & fileName) const;
+  void AddToFileList(std::vector<std::string>& fileList, const MiKTeX::Core::PathName& fileName) const;
 
 private:
-  void RemoveFromFileList(std::vector<std::string> & fileList, const MiKTeX::Core::PathName & fileName) const;
+  void RemoveFromFileList(std::vector<std::string>& fileList, const MiKTeX::Core::PathName& fileName) const;
 
 private:
-  void CopyPackage(const MiKTeX::Core::PathName & pathSourceRoot, const std::string & deploymentName);
+  void CopyPackage(const MiKTeX::Core::PathName& pathSourceRoot, const std::string& deploymentName);
 
 private:
-  bool MIKTEXTHISCALL ReadDirectory(const MiKTeX::Core::PathName & path, std::vector<std::string> & subDirNames, std::vector<std::string> & fileNames, std::vector<std::string> & fileNameInfos) override;
+  bool MIKTEXTHISCALL ReadDirectory(const MiKTeX::Core::PathName& path, std::vector<std::string>& subDirNames, std::vector<std::string>& fileNames, std::vector<std::string>& fileNameInfos) override;
 
 private:
-  bool MIKTEXTHISCALL OnProgress(unsigned level, const MiKTeX::Core::PathName & directory) override;
+  bool MIKTEXTHISCALL OnProgress(unsigned level, const MiKTeX::Core::PathName& directory) override;
 
 private:
-  void RemovePackage(const std::string & deploymentName);
+  void RemovePackage(const std::string& deploymentName);
 
 private:
-  void InstallPackage(const std::string & deploymentName);
+  void InstallPackage(const std::string& deploymentName);
 
 private:
-  void MyCopyFile(const MiKTeX::Core::PathName & source, const MiKTeX::Core::PathName & dest, size_t & size);
+  void MyCopyFile(const MiKTeX::Core::PathName& source, const MiKTeX::Core::PathName& dest, size_t& size);
 
 private:
-  void DownloadPackage(const std::string & deploymentName);
+  void DownloadPackage(const std::string& deploymentName);
 
 private:
-  bool CheckArchiveFile(const std::string & deploymentName, const MiKTeX::Core::PathName & archiveFileName, bool mustBeOk);
+  bool CheckArchiveFile(const std::string& deploymentName, const MiKTeX::Core::PathName& archiveFileName, bool mustBeOk);
 
 private:
-  void CheckDependencies(std::set<std::string> & packages, const std::string & deploymentName, bool force, int level);
+  void CheckDependencies(std::set<std::string>& packages, const std::string& deploymentName, bool force, int level);
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
 private:
@@ -995,7 +995,7 @@ private:
   std::shared_ptr<PackageManagerImpl> pManager;
 
 private:
-  MiKTeX::Packages::PackageInstallerCallback * pCallback = nullptr;
+  MiKTeX::Packages::PackageInstallerCallback* pCallback = nullptr;
 
 private:
   std::vector<UpdateInfo> updates;
@@ -1030,7 +1030,7 @@ public:
   }
 
 public:
-  bool MIKTEXTHISCALL GetNext(MiKTeX::Packages::PackageInfo & packageinfo) override;
+  bool MIKTEXTHISCALL GetNext(MiKTeX::Packages::PackageInfo& packageinfo) override;
 
 public:
   PackageIteratorImpl(std::shared_ptr<PackageManagerImpl> pManager);
