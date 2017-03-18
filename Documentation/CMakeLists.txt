@@ -23,8 +23,12 @@ set(MIKTEX_CURRENT_FOLDER "Documentation")
 
 if(MIKTEX_UNIX_ALIKE)
   set(PROMPT "&#36; ")
+  set(COMMONINSTALL "/usr/local/share/miktex-texmf")
+  set(USERINSTALL "~/.miktex/texmfs/install")
 else()
   set(PROMPT "C:\&gt; ")
+  set(COMMONINSTALL "C:\Program Files\MiKTeX ${MIKTEX_MAJOR_MINOR_STR}")
+  set(USERINSTALL "C:\Documents and Settings\User\Local SettingsApplication Data\MiKTeX ${MIKTEX_MAJOR_MINOR_STR}")
 endif()
 
 configure_file(
@@ -255,7 +259,6 @@ if(MIKTEX_NATIVE_WINDOWS)
       ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS
       ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
-      ${CMAKE_CURRENT_BINARY_DIR}/version.ent
       ${MIKTEX_CORE_CONTEXT_HELP}
       ${MIKTEX_DOCBOOK_HTMLHELP}
       ${manual_listings}
@@ -310,7 +313,6 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
     ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
-    ${CMAKE_CURRENT_BINARY_DIR}/version.ent
     ${MIKTEX_DOCBOOK_CHUNKED_HTML}
     ${manual_listings}
     ${manual_xml_files}
@@ -345,7 +347,6 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
     ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
-    ${CMAKE_CURRENT_BINARY_DIR}/version.ent
     ${manual_listings}
     ${manual_xml_files}
     ${MIKTEX_DOCBOOK_FO}
@@ -424,7 +425,6 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
     ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
-    ${CMAKE_CURRENT_BINARY_DIR}/version.ent
     ${CMAKE_CURRENT_SOURCE_DIR}/packaging.xml
     ${MIKTEX_DOCBOOK_HTML}
     ${MIKTEX_HELP_STYLES}
@@ -481,7 +481,6 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
     ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
-    ${CMAKE_CURRENT_BINARY_DIR}/version.ent
     ${CMAKE_CURRENT_SOURCE_DIR}/relnotes.xml
     ${MIKTEX_DOCBOOK_HTML}
     ${MIKTEX_HELP_STYLES}
@@ -634,7 +633,6 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
     ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
-    ${CMAKE_CURRENT_BINARY_DIR}/version.ent
     ${MIKTEX_DOCBOOK_CHUNKED_HTML}
     ${MIKTEX_HELP_STYLES}
     ${screenshots_png}
@@ -670,7 +668,6 @@ add_custom_command(
   DEPENDS
     ${CMAKE_CURRENT_BINARY_DIR}/html/faq/index.html
     ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
-    ${CMAKE_CURRENT_BINARY_DIR}/version.ent
     ${MIKTEX_DOCBOOK_HTML}
     ${MIKTEX_HELP_STYLES}
     ${screenshots_png}

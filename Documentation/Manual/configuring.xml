@@ -315,11 +315,10 @@ latex thesis.tex</programlisting>
 
 <bridgehead>Register a user-managed &TEXMF; directory</bridgehead>
 
-<para>Register the root of the directory tree which
-contains your files. The directory tree must conform to the &TDS;
-standard, i.e., you must imitate the directory tree in the &MiKTeX;
-installation directory (usually
-<filename>&commoninstalldir;</filename>).</para>
+<para>Register the root of the directory tree which contains your
+files. The directory tree must conform to the &TDS; standard, i.e.,
+you must imitate the directory tree in the &MiKTeX; installation
+directory (usually &commoninstalldir;).</para>
 
 <tip><para>This is the recommended method. The rest of this section
 explains how you can register your own root directory.</para></tip>
@@ -481,12 +480,3 @@ TeX Files</filename> are now available to &MiKTeX;.</para>
 </section>
 
 </chapter>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "book")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

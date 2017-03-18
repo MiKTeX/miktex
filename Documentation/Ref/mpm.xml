@@ -47,6 +47,38 @@ command-line options.</para>
 </refsect1>
 
 <refsect1>
+<title>User mode vs. administrative mode</title>
+
+<para>This utility can be run in two modes:</para>
+
+<variablelist>
+<varlistentry>
+<term>User mode (default)</term>
+<listitem>
+<para>&MPM; operates on the user installation directory (usually &userinstalldir;).</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>Administrative mode</term>
+<listitem>
+<para>&MPM; operates on the system-wide installation directory
+(usually &commoninstalldir;), assuming that the &MiKTeX; setup is
+shared by all users.  &MPM; must be run with administrator
+privileges.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>By default, &MPM; runs in user mode.  You can turn on
+administrative mode with the <option>--admin</option> option.  For
+example, if you want to install a package for all users, you invoke
+&MPM; as follows:</para>
+
+<screen><prompt>&prompt;</prompt><userinput>mpm --admin --install=a0poster</userinput></screen>
+</refsect1>
+
+
+<refsect1>
 
 <title>Options</title>
 
@@ -131,6 +163,30 @@ installation status, the number of files, the size, and the name.</para>
 list and print it.</para></listitem>
 </varlistentry>
 <varlistentry>
+<term><option>--package-set=<replaceable>set</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--package-set=set</primary>
+</indexterm>
+<para>Use the specified package set (to be used in conjunction with <option>--upgrade</option>).</para>
+<para><replaceable>set</replaceable> must be one of:</para>
+<variablelist>
+<varlistentry>
+<term><option>essential</option></term>
+<listitem><para>Includes mandatory packages.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>basic</option></term>
+<listitem><para>Includes popular packages.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>complete</option></term>
+<listitem><para>Includes all available packages.</para></listitem>
+</varlistentry>
+</variablelist>
+</listitem>
+</varlistentry>
+<varlistentry>
 <term><option>--print-package-info=<replaceable>package</replaceable></option></term>
 <listitem>
 <indexterm>
@@ -206,6 +262,17 @@ the package repository.</para></listitem>
 </indexterm>
 <para>Update packages listed (line-by-line) in the specified
 file.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--upgrade</option></term>
+<listitem>
+<indexterm>
+<primary>--upgrade</primary>
+</indexterm>
+<para>Upgrade the &MiKTeX; setup to a package set (can be used in
+conjunction with <option>--package-set</option>).  This will install
+missing packages in addition to the packages which are
+out-of-date.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term>--verify</term>
