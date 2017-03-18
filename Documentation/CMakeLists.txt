@@ -27,8 +27,8 @@ if(MIKTEX_UNIX_ALIKE)
   set(USERINSTALL "~/.miktex/texmfs/install")
 else()
   set(PROMPT "C:\&gt; ")
-  set(COMMONINSTALL "C:\Program Files\MiKTeX ${MIKTEX_MAJOR_MINOR_STR}")
-  set(USERINSTALL "C:\Documents and Settings\User\Local SettingsApplication Data\MiKTeX ${MIKTEX_MAJOR_MINOR_STR}")
+  set(COMMONINSTALL "C:\\Program Files\\MiKTeX ${MIKTEX_MAJOR_MINOR_STR}")
+  set(USERINSTALL "C:\\Documents and Settings\\User\\Local SettingsApplication Data\\MiKTeX ${MIKTEX_MAJOR_MINOR_STR}")
 endif()
 
 configure_file(
