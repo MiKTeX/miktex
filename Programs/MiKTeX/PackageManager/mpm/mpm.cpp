@@ -1,6 +1,6 @@
 /* mpm.cpp: MiKTeX Package Manager (cli version)
 
-   Copyright (C) 2003-2016 Christian Schenk
+   Copyright (C) 2003-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -41,7 +41,7 @@ const char PATH_DELIMITER = ':';
 #define PATH_DELIMITER_STRING ":"
 #endif
 
-const char * DEFAULT_TRACE_STREAMS =
+const char* DEFAULT_TRACE_STREAMS =
 MIKTEX_TRACE_CORE ","
 MIKTEX_TRACE_CURL ","
 MIKTEX_TRACE_ERROR ","
@@ -70,7 +70,7 @@ enum class SortKey
 class PackageInfoComparer
 {
 public:
-  bool operator() (const PackageInfo & pi1, const PackageInfo & pi2) const
+  bool operator() (const PackageInfo& pi1, const PackageInfo& pi2) const
   {
     bool cmp;
     switch (sortKey)
@@ -103,7 +103,7 @@ bool PackageInfoComparer::reverse = false;
 class UpdateInfoComparer
 {
 public:
-  bool operator() (const PackageInstaller::UpdateInfo & ui1, const PackageInstaller::UpdateInfo & ui2) const
+  bool operator() (const PackageInstaller::UpdateInfo& ui1, const PackageInstaller::UpdateInfo& ui2) const
   {
     return PathName::Compare(ui1.deploymentName, ui2.deploymentName) < 0;
   }
@@ -139,31 +139,31 @@ public:
   }
 
 public:
-  void MIKTEXTHISCALL ReportLine(const string & str) override;
+  void MIKTEXTHISCALL ReportLine(const string& str) override;
 
 public:
-  bool MIKTEXTHISCALL OnRetryableError(const string & message) override;
+  bool MIKTEXTHISCALL OnRetryableError(const string& message) override;
 
 public:
   bool MIKTEXTHISCALL OnProgress(Notification nf) override;
 
 public:
-  void Main(int argc, const char ** argv);
+  void Main(int argc, const char** argv);
 
 private:
-  void Verbose(const char * lpszFormat, ...);
+  void Verbose(const char* lpszFormat, ...);
 
 private:
-  void Message(const char * lpszFormat, ...);
+  void Message(const char* lpszFormat, ...);
 
 private:
-  MIKTEXNORETURN void Error(const char * lpszFormat, ...);
+  MIKTEXNORETURN void Error(const char* lpszFormat, ...);
 
 private:
   void UpdateDb();
 
 private:
-  void Install(const vector<string> & toBeInstalled, const vector<string> & toBeRemoved);
+  void Install(const vector<string>& toBeInstalled, const vector<string>& toBeRemoved);
 
 #if defined(MIKTEX_WINDOWS)
 private:
@@ -171,7 +171,7 @@ private:
 #endif
 
 private:
-  void Verify(const vector<string> & toBeVerified);
+  void Verify(const vector<string>& toBeVerified);
 
 private:
   void VerifyMiKTeX();
@@ -180,19 +180,19 @@ private:
   void FindConflicts();
 
 private:
-  void ImportPackage(const string & deploymentName, vector<string> & toBeinstalled);
+  void ImportPackage(const string& deploymentName, vector<string>& toBeinstalled);
 
 private:
-  void ImportPackages(vector<string> & toBeinstalled);
+  void ImportPackages(vector<string>& toBeinstalled);
 
 private:
   void FindUpdates();
 
 private:
-  void Update(const vector<string> & updates);
+  void Update(const vector<string>& updates);
 
 private:
-  string GetDirectories(const string & deploymentName);
+  string GetDirectories(const string& deploymentName);
 
 private:
   void List(OutputFormat outputFormat, int maxCount);
@@ -204,16 +204,16 @@ private:
   void PickRepositoryUrl();
 
 private:
-  void PrintFiles(const vector<string> & files);
+  void PrintFiles(const vector<string>& files);
 
 private:
-  void PrintPackageInfo(const string & deploymentName);
+  void PrintPackageInfo(const string& deploymentName);
 
 private:
   void RestartWindowed();
 
 private:
-  void ReadFileList(const PathName & path, vector<string> & files);
+  void ReadFileList(const PathName& path, vector<string>& files);
 
 private:
   static void SignalHandler(int sig);
@@ -246,7 +246,7 @@ private:
   vector<TraceCallback::TraceMessage> pendingTraceMessages;
 
 public:
-  void MIKTEXTHISCALL Trace(const TraceCallback::TraceMessage & traceMessage) override
+  void MIKTEXTHISCALL Trace(const TraceCallback::TraceMessage& traceMessage) override
   {
     if (!isLog4cxxConfigured)
     {
@@ -264,7 +264,7 @@ public:
 private:
   void FlushPendingTraceMessages()
   {
-    for (const TraceCallback::TraceMessage & msg : pendingTraceMessages)
+    for (const TraceCallback::TraceMessage& msg : pendingTraceMessages)
     {
       TraceInternal(msg);
     }
@@ -272,7 +272,7 @@ private:
   }
 
 private:
-  void TraceInternal(const TraceCallback::TraceMessage & traceMessage)
+  void TraceInternal(const TraceCallback::TraceMessage& traceMessage)
   {
     log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.mpmcli.") + traceMessage.facility);
 
@@ -585,7 +585,7 @@ const struct poptOption Application::aoption[] = {
 
 volatile sig_atomic_t Application::interrupted = false;
 
-void Application::Message(const char * lpszFormat, ...)
+void Application::Message(const char* lpszFormat, ...)
 {
   va_list arglist;
   string s;
@@ -599,7 +599,7 @@ void Application::Message(const char * lpszFormat, ...)
   }
 }
 
-void Application::Verbose(const char * lpszFormat, ...)
+void Application::Verbose(const char* lpszFormat, ...)
 {
   va_list arglist;
   string s;
@@ -650,7 +650,7 @@ static void Sorry()
   Sorry("");
 }
 
-MIKTEXNORETURN void Application::Error(const char * lpszFormat, ...)
+MIKTEXNORETURN void Application::Error(const char* lpszFormat, ...)
 {
   va_list arglist;
   string s;
@@ -662,12 +662,12 @@ MIKTEXNORETURN void Application::Error(const char * lpszFormat, ...)
   throw 1;
 }
 
-void Application::ReportLine(const string & str)
+void Application::ReportLine(const string& str)
 {
   Verbose("%s", str.c_str());
 }
 
-bool Application::OnRetryableError(const string & message)
+bool Application::OnRetryableError(const string& message)
 {
   return false;
 }
@@ -693,9 +693,9 @@ void Application::UpdateDb()
   installer->Dispose();
 }
 
-void Application::Install(const vector<string> & toBeInstalled, const vector<string> & toBeRemoved)
+void Application::Install(const vector<string>& toBeInstalled, const vector<string>& toBeRemoved)
 {
-  for (const string & deploymentName : toBeInstalled)
+  for (const string& deploymentName : toBeInstalled)
   {
     PackageInfo packageInfo = pPackageManager->GetPackageInfo(deploymentName);
     if (packageInfo.IsInstalled())
@@ -704,7 +704,7 @@ void Application::Install(const vector<string> & toBeInstalled, const vector<str
     }
   }
 
-  for (const string & deploymentName : toBeRemoved)
+  for (const string& deploymentName : toBeRemoved)
   {
     PackageInfo packageInfo = pPackageManager->GetPackageInfo(deploymentName);
     if (!packageInfo.IsInstalled())
@@ -761,31 +761,31 @@ void Application::FindConflicts()
   PackageInfo packageInfo;
   while (packageIterator->GetNext(packageInfo))
   {
-    for (const string & fileName : packageInfo.runFiles)
+    for (const string& fileName : packageInfo.runFiles)
     {
       PathName file(fileName);
       file.TransformForComparison();
       filesAndPackages[file.GetData()].push_back(packageInfo.deploymentName);
     }
-    for (const string & fileName : packageInfo.docFiles)
+    for (const string& fileName : packageInfo.docFiles)
     {
       PathName file(fileName);
       file.TransformForComparison();
       filesAndPackages[file.GetData()].push_back(packageInfo.deploymentName);
     }
-    for (const string & fileName : packageInfo.sourceFiles)
+    for (const string& fileName : packageInfo.sourceFiles)
     {
       PathName file(fileName);
       file.TransformForComparison();
       filesAndPackages[file.GetData()].push_back(packageInfo.deploymentName);
     }
   }
-  for (const auto & package : filesAndPackages)
+  for (const auto& package : filesAndPackages)
   {
     if (package.second.size() > 1)
     {
       cout << package.first << endl;
-      for (const string & fileName : package.second)
+      for (const string& fileName : package.second)
       {
         cout << "  " << fileName << endl;
       }
@@ -810,7 +810,7 @@ void Application::VerifyMiKTeX()
   Verify(toBeVerified);
 }
 
-void Application::Verify(const vector<string> & toBeVerifiedArg)
+void Application::Verify(const vector<string>& toBeVerifiedArg)
 {
   vector<string> toBeVerified = toBeVerifiedArg;
   bool verifyAll = toBeVerified.empty();
@@ -827,7 +827,7 @@ void Application::Verify(const vector<string> & toBeVerifiedArg)
     }
   }
   bool ok = true;
-  for (const string & deploymentName : toBeVerified)
+  for (const string& deploymentName : toBeVerified)
   {
     if (!pPackageManager->TryVerifyInstalledPackage(deploymentName))
     {
@@ -859,7 +859,7 @@ void Application::Verify(const vector<string> & toBeVerifiedArg)
   }
 }
 
-void Application::ImportPackage(const string & deploymentName, vector<string> & toBeinstalled)
+void Application::ImportPackage(const string& deploymentName, vector<string>& toBeinstalled)
 {
   if (repository.empty())
   {
@@ -898,7 +898,7 @@ void Application::ImportPackage(const string & deploymentName, vector<string> & 
   toBeinstalled.push_back(deploymentName);
 }
 
-void Application::ImportPackages(vector<string> & toBeinstalled)
+void Application::ImportPackages(vector<string>& toBeinstalled)
 {
   if (repository.empty())
   {
@@ -912,7 +912,7 @@ void Application::ImportPackages(vector<string> & toBeinstalled)
   }
   unique_ptr<Cfg> cfg = Cfg::Create();
   cfg->Read(packagesIni);
-  for (const shared_ptr<Cfg::Key> & key : cfg->GetKeys())
+  for (const shared_ptr<Cfg::Key>& key : cfg->GetKeys())
   {
     if (strncmp(key->GetName().c_str(), "miktex-", 7) == 0)
     {
@@ -961,7 +961,7 @@ void Application::FindUpdates()
   }
 }
 
-void Application::Update(const vector<string> & updates)
+void Application::Update(const vector<string>& updates)
 {
   shared_ptr<PackageInstaller> installer(pPackageManager->CreateInstaller());
   if (!repository.empty())
@@ -972,7 +972,7 @@ void Application::Update(const vector<string> & updates)
   installer->FindUpdates();
   vector<PackageInstaller::UpdateInfo> serverUpdates = installer->GetUpdates();
   vector<string> updates2;
-  for (const PackageInstaller::UpdateInfo & upd : serverUpdates)
+  for (const PackageInstaller::UpdateInfo& upd : serverUpdates)
   {
     updates2.push_back(upd.deploymentName);
   }
@@ -988,7 +988,7 @@ void Application::Update(const vector<string> & updates)
   }
   else
   {
-    for (const string & deploymentName : updates)
+    for (const string& deploymentName : updates)
     {
       PackageInfo packageInfo = pPackageManager->GetPackageInfo(deploymentName);
       if (!packageInfo.IsInstalled())
@@ -1021,11 +1021,11 @@ void Application::Update(const vector<string> & updates)
   }
 }
 
-string Application::GetDirectories(const string & deploymentName)
+string Application::GetDirectories(const string& deploymentName)
 {
   set<string> directories;
   PackageInfo pi = pPackageManager->GetPackageInfo(deploymentName);
-  for (const string & fileName : pi.runFiles)
+  for (const string& fileName : pi.runFiles)
   {
     PathName path(fileName);
     if (!path.HasExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX))
@@ -1034,7 +1034,7 @@ string Application::GetDirectories(const string & deploymentName)
     }
   }
   string ret;
-  for (const string & dir : directories)
+  for (const string& dir : directories)
   {
     if (!ret.empty())
     {
@@ -1087,7 +1087,7 @@ void Application::List(OutputFormat outputFormat, int maxCount)
 class CountryComparer
 {
 public:
-  inline bool operator() (const RepositoryInfo & lhs, const RepositoryInfo & rhs)
+  inline bool operator() (const RepositoryInfo& lhs, const RepositoryInfo& rhs)
   {
     if (lhs.ranking == rhs.ranking)
     {
@@ -1109,7 +1109,7 @@ void Application::ListRepositories(OutputFormat outputFormat)
     Message(T_("No package repositories are currently available."));
   }
   sort(repositories.begin(), repositories.end(), CountryComparer());
-  for (const RepositoryInfo & ri : repositories)
+  for (const RepositoryInfo& ri : repositories)
   {
     cout << ri.url << endl;
   }
@@ -1120,9 +1120,9 @@ void Application::PickRepositoryUrl()
   cout << pPackageManager->PickRepositoryUrl() << endl;
 }
 
-void Application::PrintFiles(const vector<string> & files)
+void Application::PrintFiles(const vector<string>& files)
 {
-  for (const string & fileName : files)
+  for (const string& fileName : files)
   {
     PathName path = pSession->GetSpecialPath(SpecialPath::InstallRoot);
     string disp;
@@ -1135,7 +1135,7 @@ void Application::PrintFiles(const vector<string> & files)
   }
 }
 
-void Application::PrintPackageInfo(const string & deploymentName)
+void Application::PrintPackageInfo(const string& deploymentName)
 {
   PackageInfo packageInfo = pPackageManager->GetPackageInfo(deploymentName);
   cout << T_("name:") << " " << packageInfo.deploymentName << endl;
@@ -1180,7 +1180,7 @@ void Application::RestartWindowed()
   Process::Start(mpmgui, options);
 }
 
-void Application::ReadFileList(const PathName & path, vector<string> & files)
+void Application::ReadFileList(const PathName& path, vector<string>& files)
 {
   StreamReader reader(path);
   string line;
@@ -1195,7 +1195,7 @@ void Application::ReadFileList(const PathName & path, vector<string> & files)
   reader.Close();
 }
 
-void Application::Main(int argc, const char ** argv)
+void Application::Main(int argc, const char** argv)
 {
   StartupConfig startupConfig;
   Session::InitInfo initInfo;
@@ -1609,7 +1609,7 @@ void Application::Main(int argc, const char ** argv)
 
  ;
 
-  for (const string & name : installSome)
+  for (const string& name : installSome)
   {
     ReadFileList(name, toBeInstalled);
   }
@@ -1632,7 +1632,7 @@ void Application::Main(int argc, const char ** argv)
   }
 #endif
 
-  for (const string & name : updateSome)
+  for (const string& name : updateSome)
   {
     ReadFileList(name, updates);
   }
@@ -1713,7 +1713,7 @@ extern "C" void Application::SignalHandler(int signalToBeHandled)
 #  define MAINCHAR char
 #endif
 
-int MAIN(int argc, MAINCHAR * argv[])
+int MAIN(int argc, MAINCHAR* argv[])
 {
 #if defined(MIKTEX_WINDOWS)
   HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
@@ -1728,7 +1728,7 @@ int MAIN(int argc, MAINCHAR * argv[])
   {
     vector<string> utf8args;
     utf8args.reserve(argc);
-    vector<const char *> newargv;
+    vector<const char*> newargv;
     newargv.reserve(argc + 1);
     for (int idx = 0; idx < argc; ++idx)
     {
@@ -1745,7 +1745,7 @@ int MAIN(int argc, MAINCHAR * argv[])
     Application app;
     app.Main(argc, &newargv[0]);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     LOG4CXX_FATAL(logger, e.what());
     LOG4CXX_FATAL(logger, "Info: " << e.GetInfo());
@@ -1754,7 +1754,7 @@ int MAIN(int argc, MAINCHAR * argv[])
     Sorry();
     retCode = 1;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     LOG4CXX_FATAL(logger, e.what());
     Sorry();
