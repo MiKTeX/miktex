@@ -359,7 +359,7 @@ extern void writet1(fd_entry *);
 extern void t1_free(void);
 
 /* writet3.c */
-extern void writet3(int, internalfontnumber);
+extern void writet3(fm_entry *, int, internalfontnumber);
 extern scaled getpkcharwidth(internalfontnumber, scaled);
 
 /* writettf.c */
