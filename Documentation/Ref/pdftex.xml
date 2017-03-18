@@ -44,7 +44,7 @@ well as &DVI; files.</para>
 
 <para>The typical use of &pdfTeX; is with a pregenerated formats for
 which &PDF; output has been enabled.  The &miktexpdftex; command uses
-the equivalent of the plain &TeX; format, and the &pdflatex; command
+the equivalent of the plain &TeX; format, and the &miktexpdflatex; command
 uses the equivalent of the &LaTeX; format. To generate formats, use
 the <option>-initialize</option> switch.</para>
 

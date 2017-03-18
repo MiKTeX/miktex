@@ -30,7 +30,7 @@
 <title>Description</title>
 
 <para>&Dvips; takes a &DVI; file produced by &TeX; (or by some other
-processor such as &gftodvi;) and
+processor such as &miktexgftodvi;) and
 <indexterm>
 <primary>gftodvi</primary>
 </indexterm>

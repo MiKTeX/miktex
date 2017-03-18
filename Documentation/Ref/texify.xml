@@ -29,8 +29,8 @@
 
 <title>Description</title>
 
-<para>&texify; runs &Texinfo; or &LaTeX; input files through &tex;
-(&pdftex;) in turn until all cross-references are resolved, building
+<para>&texify; runs &Texinfo; or &LaTeX; input files through &miktextex;
+(&miktexpdftex;) in turn until all cross-references are resolved, building
 all indices.</para>
 
 <para>The directory containing each <replaceable>file</replaceable> is
@@ -39,7 +39,7 @@ searched for included files.  The suffix of
 (&LaTeX; or &Texinfo;).</para>
 
 <para>&makeinfo; is used to perform &Texinfo; macro expansion before
-running &tex; when needed.</para>
+running &miktextex; when needed.</para>
 
 </refsect1>
 
@@ -134,8 +134,8 @@ to the index generator.</para></listitem>
 <indexterm>
 <primary>--pdf</primary>
 </indexterm>
-<para>Use &pdftex; (or
-&pdflatex;) for processing.</para></listitem>
+<para>Use &miktexpdftex; (or
+&miktexpdflatex;) for processing.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--quiet</option></term>

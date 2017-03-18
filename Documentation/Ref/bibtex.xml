@@ -31,7 +31,7 @@
 
 <para>&BibTeX; reads the top-level auxiliary
 (<filename>.aux</filename>) file that was output during the running of
-&latex; or &tex; and creates a
+&latex; or &miktextex; and creates a
 bibliography (<filename>.bbl</filename>) file that will be
 <indexterm>
 <primary>.bbl (bibliography file)</primary>

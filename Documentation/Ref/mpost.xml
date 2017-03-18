@@ -41,7 +41,7 @@ commands and accessing features of &PostScript; not found in
 
 <para>&MetaPost; is normally used with some preloaded macros, and it
 will use its executable name as the name of the preload file to use.
-For example, when called as &mpost; the <filename>mpost.mp</filename>
+For example, when called as &miktexmpost; the <filename>mpost.mp</filename>
 file is used, which is identical to
 <filename>plain.mp</filename>. When the <option>--initialize</option>
 option is given, preloading does not happen.</para>
@@ -104,7 +104,7 @@ acts as DVI-to-MPX converter only.  See dvitomp(1) for details.</para>
 <primary>-tex=texprogram</primary>
 </indexterm>
 <para>Use <replaceable>texprogram</replaceable> instead of
-&tex; when compiling text labels.</para>
+&miktextex; when compiling text labels.</para>
 <para>This flag overrides the environment
 variable <envar>TEX</envar>.</para></listitem>
 </varlistentry>

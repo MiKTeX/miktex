@@ -516,8 +516,8 @@ breakpoints, et al.</para></listitem>
 extra_mem_bot=2000000
 font_mem_size=2000000</programlisting>
 
-<para>The name of the configuration file is that of the engine (e.g., &pdftex;)
-or format (e.g, &pdflatex;). You use the <option>--edit-config-file</option>
+<para>The name of the configuration file is that of the engine (e.g., &miktexpdftex;)
+or format (e.g, &miktexpdflatex;). You use the <option>--edit-config-file</option>
 option of &initexmf; to edit the configuration file, e.g.:</para>
 
 <informalexample>
