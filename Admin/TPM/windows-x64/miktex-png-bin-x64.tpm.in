@@ -6,7 +6,7 @@
     <TPM:Title>PNG runtime library, Windows x64</TPM:Title>
     <TPM:Copyright owner="Glenn Randers-Pehrson" year="1998-2016"/>
     <TPM:License type="permissive"/>
-    <TPM:Version>1.6.28</TPM:Version>
+    <TPM:Version>1.6.29</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
