@@ -1,6 +1,6 @@
 /* PackageInstaller.cpp:
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -34,7 +34,7 @@ using namespace std;
 
 #define LF "\n"
 
-string PackageInstallerImpl::MakeUrl(const char * lpszBase, const char * lpszRel)
+string PackageInstallerImpl::MakeUrl(const char* lpszBase, const char* lpszRel)
 {
   string url(lpszBase);
   size_t l = url.length();
@@ -54,7 +54,7 @@ string PackageInstallerImpl::MakeUrl(const char * lpszBase, const char * lpszRel
   return url;
 }
 
-string PackageInstallerImpl::MakeUrl(const char * lpszRel)
+string PackageInstallerImpl::MakeUrl(const char* lpszRel)
 {
   return MakeUrl(repository.c_str(), lpszRel);
 }
@@ -63,17 +63,17 @@ PackageInstaller::~PackageInstaller() noexcept
 {
 }
 
-MPMSTATICFUNC(bool) IsPureContainer(const string & deploymentName)
+MPMSTATICFUNC(bool) IsPureContainer(const string& deploymentName)
 {
   return strncmp(deploymentName.c_str(), "_miktex-", 8) == 0;
 }
 
-MPMSTATICFUNC(bool) IsMiKTeXPackage(const string & deploymentName)
+MPMSTATICFUNC(bool) IsMiKTeXPackage(const string& deploymentName)
 {
   return strncmp(deploymentName.c_str(), "miktex-", 7) == 0;
 }
 
-MPMSTATICFUNC(PathName) PrefixedPackageDefinitionFile(const string & deploymentName)
+MPMSTATICFUNC(PathName) PrefixedPackageDefinitionFile(const string& deploymentName)
 {
   PathName path(TEXMF_PREFIX_DIRECTORY);
   path /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
@@ -133,7 +133,7 @@ void PackageInstallerImpl::MyCoUninitialize()
 }
 #endif
 
-void PackageInstallerImpl::SetCallback(PackageInstallerCallback * pCallback)
+void PackageInstallerImpl::SetCallback(PackageInstallerCallback* pCallback)
 {
   this->pCallback = pCallback;
 }
@@ -144,7 +144,7 @@ PackageInstallerImpl::~PackageInstallerImpl()
   {
     Dispose();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -154,7 +154,7 @@ void PackageInstallerImpl::OnProgress()
   Notify();
 }
 
-void PackageInstallerImpl::Download(const string & url, const PathName & dest, size_t expectedSize)
+void PackageInstallerImpl::Download(const string& url, const PathName& dest, size_t expectedSize)
 {
   trace_mpm->WriteFormattedLine("libmpm", T_("going to download: %s => %s"), Q_(url), Q_(dest));
 
@@ -229,7 +229,7 @@ void PackageInstallerImpl::Download(const string & url, const PathName & dest, s
   downloadedFile->Keep();
 }
 
-void PackageInstallerImpl::OnBeginFileExtraction(const string & fileName, size_t uncompressedSize)
+void PackageInstallerImpl::OnBeginFileExtraction(const string& fileName, size_t uncompressedSize)
 {
   UNUSED_ALWAYS(uncompressedSize);
 
@@ -252,7 +252,7 @@ void PackageInstallerImpl::OnBeginFileExtraction(const string & fileName, size_t
   Notify(Notification::InstallFileStart);
 }
 
-void PackageInstallerImpl::OnEndFileExtraction(const string & fileName, size_t uncompressedSize)
+void PackageInstallerImpl::OnEndFileExtraction(const string& fileName, size_t uncompressedSize)
 {
   // update file name database
   if (autoFndbSync && !fileName.empty())
@@ -277,13 +277,13 @@ void PackageInstallerImpl::OnEndFileExtraction(const string & fileName, size_t u
   Notify(Notification::InstallFileEnd);
 }
 
-bool PackageInstallerImpl::OnError(const string & message)
+bool PackageInstallerImpl::OnError(const string& message)
 {
   // we have a problem: let the client decide how to proceed
   return !AbortOrRetry(message);
 }
 
-void PackageInstallerImpl::ExtractFiles(const PathName & archiveFileName, ArchiveFileType archiveFileType)
+void PackageInstallerImpl::ExtractFiles(const PathName& archiveFileName, ArchiveFileType archiveFileType)
 {
   unique_ptr<MiKTeX::Extractor::Extractor> pExtractor(MiKTeX::Extractor::Extractor::CreateExtractor(archiveFileType));
   pExtractor->Extract(archiveFileName, pSession->GetSpecialPath(SpecialPath::InstallRoot), true, this, TEXMF_PREFIX_DIRECTORY);
@@ -422,7 +422,7 @@ void PackageInstallerImpl::LoadDbLight(bool download)
   ReportLine(T_("lightweight database digest: %s"), dbLight.GetDigest().ToString().c_str());
 }
 
-int CompareSerieses(const string & ver1, const string & ver2)
+int CompareSerieses(const string& ver1, const string& ver2)
 {
   if (ver1.empty() || ver2.empty())
   {
@@ -470,7 +470,7 @@ void PackageInstallerImpl::FindUpdates()
     updateInfo.timePackaged = dbLight.GetTimePackaged(deploymentName);
     updateInfo.version = dbLight.GetPackageVersion(deploymentName);
 
-    const PackageInfo * pPackageInfo = pManager->TryGetPackageInfo(deploymentName);
+    const PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(deploymentName);
     if (pPackageInfo == nullptr || !pManager->IsPackageInstalled(deploymentName))
     {
 #if defined(MIKTEX_WINDOWS)
@@ -633,13 +633,13 @@ void PackageInstallerImpl::FindUpdatesThread()
     progressInfo.ready = true;
     Notify();
   }
-  catch (const OperationCancelledException & e)
+  catch (const OperationCancelledException& e)
   {
     progressInfo.ready = true;
     progressInfo.cancelled = true;
     threadMiKTeXException = e;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     progressInfo.ready = true;
     progressInfo.numErrors += 1;
@@ -653,7 +653,7 @@ void PackageInstallerImpl::FindUpdatesThread()
 #endif
 }
 
-void PackageInstallerImpl::RemoveFiles(const vector<string> & toBeRemoved, bool silently)
+void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool silently)
 {
   for (vector<string>::const_iterator it = toBeRemoved.begin(); it != toBeRemoved.end(); ++it)
   {
@@ -669,7 +669,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string> & toBeRemoved, bool 
     bool done = false;
 
     // get information about the installed file
-    InstalledFileInfo * pInstalledFileInfo = pManager->GetInstalledFileInfo(it->c_str());
+    InstalledFileInfo* pInstalledFileInfo = pManager->GetInstalledFileInfo(it->c_str());
 
     // decrement the file reference counter
     if (pInstalledFileInfo != nullptr && pInstalledFileInfo->refCount > 0)
@@ -699,7 +699,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string> & toBeRemoved, bool 
         File::Delete(path, deleteOptions);
         done = true;
       }
-      catch (const MiKTeXException & e)
+      catch (const MiKTeXException& e)
       {
         done = false;
         if (!silently)
@@ -736,7 +736,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string> & toBeRemoved, bool 
   }
 }
 
-void PackageInstallerImpl::RemovePackage(const string & deploymentName)
+void PackageInstallerImpl::RemovePackage(const string& deploymentName)
 {
   trace_mpm->WriteFormattedLine("libmpm", T_("going to remove %s"), Q_(deploymentName));
 
@@ -745,7 +745,7 @@ void PackageInstallerImpl::RemovePackage(const string & deploymentName)
   ReportLine(T_("removing package %s..."), Q_(deploymentName));
 
   // get package info
-  PackageInfo * pPackageInfo = pManager->TryGetPackageInfo(deploymentName);
+  PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(deploymentName);
   if (pPackageInfo == nullptr)
   {
     MIKTEX_UNEXPECTED();
@@ -796,7 +796,7 @@ void PackageInstallerImpl::RemovePackage(const string & deploymentName)
   Notify(Notification::RemovePackageEnd);
 }
 
-void PackageInstallerImpl::MyCopyFile(const PathName & source, const PathName & dest, size_t & size)
+void PackageInstallerImpl::MyCopyFile(const PathName& source, const PathName& dest, size_t& size)
 {
   // reset the read-only attribute, if the destination file exists
   if (File::Exists(dest))
@@ -819,7 +819,7 @@ void PackageInstallerImpl::MyCopyFile(const PathName & source, const PathName & 
     }
   }
 
-  FILE * pfileTo;
+  FILE* pfileTo;
 
   // open the destination file
   do
@@ -828,7 +828,7 @@ void PackageInstallerImpl::MyCopyFile(const PathName & source, const PathName & 
     {
       pfileTo = File::Open(dest, FileMode::Create, FileAccess::Write, false);
     }
-    catch (const MiKTeXException & e)
+    catch (const MiKTeXException& e)
     {
       ostringstream text;
       text
@@ -880,7 +880,7 @@ void PackageInstallerImpl::MyCopyFile(const PathName & source, const PathName & 
   }
 }
 
-void PackageInstallerImpl::CopyFiles(const PathName & pathSourceRoot, const vector<string> & fileList)
+void PackageInstallerImpl::CopyFiles(const PathName& pathSourceRoot, const vector<string>& fileList)
 {
   for (vector<string>::const_iterator it = fileList.begin(); it != fileList.end(); ++it)
   {
@@ -936,7 +936,7 @@ void PackageInstallerImpl::CopyFiles(const PathName & pathSourceRoot, const vect
   }
 }
 
-void PackageInstallerImpl::AddToFileList(vector<string> & fileList, const PathName & fileName) const
+void PackageInstallerImpl::AddToFileList(vector<string>& fileList, const PathName& fileName) const
 {
   // avoid duplicates
   for (vector<string>::const_iterator it = fileList.begin(); it != fileList.end(); ++it)
@@ -949,7 +949,7 @@ void PackageInstallerImpl::AddToFileList(vector<string> & fileList, const PathNa
   fileList.push_back(fileName.GetData());
 }
 
-void PackageInstallerImpl::RemoveFromFileList(vector<string> & fileList, const PathName & fileName) const
+void PackageInstallerImpl::RemoveFromFileList(vector<string>& fileList, const PathName& fileName) const
 {
   for (vector<string>::iterator it = fileList.begin(); it != fileList.end(); ++it)
   {
@@ -961,7 +961,7 @@ void PackageInstallerImpl::RemoveFromFileList(vector<string> & fileList, const P
   }
 }
 
-void PackageInstallerImpl::CopyPackage(const PathName & pathSourceRoot, const string & deploymentName)
+void PackageInstallerImpl::CopyPackage(const PathName& pathSourceRoot, const string& deploymentName)
 {
   // parse the package definition file
   PathName pathPackageFile = pathSourceRoot;
@@ -987,14 +987,14 @@ void PackageInstallerImpl::CopyPackage(const PathName & pathSourceRoot, const st
 
 typedef unordered_set<string> StringSet;
 
-MPMSTATICFUNC(void) GetFiles(const PackageInfo & packageInfo, StringSet & files)
+MPMSTATICFUNC(void) GetFiles(const PackageInfo& packageInfo, StringSet& files)
 {
   files.insert(packageInfo.runFiles.begin(), packageInfo.runFiles.end());
   files.insert(packageInfo.docFiles.begin(), packageInfo.docFiles.end());
   files.insert(packageInfo.sourceFiles.begin(), packageInfo.sourceFiles.end());
 }
 
-void PackageInstallerImpl::UpdateMpmFndb(const vector<string> & installedFiles, const vector<string> & removedFiles, const char * lpszPackageName)
+void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, const vector<string>& removedFiles, const char* lpszPackageName)
 {
 #if 0
   ReportLine(T_("updating MPM file name database:"));
@@ -1028,12 +1028,12 @@ void PackageInstallerImpl::UpdateMpmFndb(const vector<string> & installedFiles, 
   }
 }
 
-void PackageInstallerImpl::InstallPackage(const string & deploymentName)
+void PackageInstallerImpl::InstallPackage(const string& deploymentName)
 {
   trace_mpm->WriteFormattedLine("libmpm", T_("installing package %s"), Q_(deploymentName));
 
   // search the package table
-  PackageInfo * pPackageInfo = pManager->TryGetPackageInfo(deploymentName);
+  PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(deploymentName);
   if (pPackageInfo == nullptr)
   {
     MIKTEX_UNEXPECTED();
@@ -1202,7 +1202,7 @@ void PackageInstallerImpl::InstallPackage(const string & deploymentName)
   Notify(Notification::InstallPackageEnd);
 }
 
-void PackageInstallerImpl::DownloadPackage(const string & deploymentName)
+void PackageInstallerImpl::DownloadPackage(const string& deploymentName)
 {
   size_t expectedSize;
 
@@ -1255,7 +1255,7 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
   {
     if (!downloadOnly)
     {
-      PackageInfo * pPackageInfo = pManager->TryGetPackageInfo(*it);
+      PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(*it);
       if (pPackageInfo == nullptr)
       {
         MIKTEX_UNEXPECTED();
@@ -1294,7 +1294,7 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
 
     for (it = toBeRemoved.begin(); it != toBeRemoved.end(); ++it)
     {
-      PackageInfo * pPackageInfo = pManager->TryGetPackageInfo(*it);
+      PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(*it);
       if (pPackageInfo == nullptr)
       {
         MIKTEX_UNEXPECTED();
@@ -1309,7 +1309,7 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
   progressInfo = packageInfo;
 }
 
-bool PackageInstallerImpl::ReadDirectory(const PathName & path, vector<string> & subDirNames, vector<string> & fileNames, vector<string> & fileNameInfos)
+bool PackageInstallerImpl::ReadDirectory(const PathName& path, vector<string>& subDirNames, vector<string>& fileNames, vector<string>& fileNameInfos)
 {
   UNUSED_ALWAYS(path);
   UNUSED_ALWAYS(subDirNames);
@@ -1318,7 +1318,7 @@ bool PackageInstallerImpl::ReadDirectory(const PathName & path, vector<string> &
   return false;
 }
 
-bool PackageInstallerImpl::OnProgress(unsigned level, const PathName & directory)
+bool PackageInstallerImpl::OnProgress(unsigned level, const PathName& directory)
 {
   UNUSED_ALWAYS(level);
   UNUSED_ALWAYS(directory);
@@ -1327,13 +1327,13 @@ bool PackageInstallerImpl::OnProgress(unsigned level, const PathName & directory
     Notify();
     return true;
   }
-  catch (const OperationCancelledException &)
+  catch (const OperationCancelledException&)
   {
     return false;
   }
 }
 
-bool PackageInstallerImpl::CheckArchiveFile(const std::string & deploymentName, const PathName & archiveFileName, bool mustBeOk)
+bool PackageInstallerImpl::CheckArchiveFile(const std::string& deploymentName, const PathName& archiveFileName, bool mustBeOk)
 {
   if (!File::Exists(archiveFileName))
   {
@@ -1353,7 +1353,7 @@ bool PackageInstallerImpl::CheckArchiveFile(const std::string & deploymentName, 
 
 void PackageInstallerImpl::ConnectToServer()
 {
-  const char * MSG_CANNOT_START_SERVER = T_("Cannot start MiKTeX package manager.");
+  const char* MSG_CANNOT_START_SERVER = T_("Cannot start MiKTeX package manager.");
   if (!pSession->UnloadFilenameDatabase())
   {
     // ignore for now
@@ -1417,7 +1417,7 @@ void PackageInstallerImpl::ConnectToServer()
 
 #undef USE_REGSVR32
 
-void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName & path, bool mustSucceed)
+void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName& path, bool mustSucceed)
 {
   MIKTEX_ASSERT(!pSession->IsMiKTeXPortable());
   ReportLine("%s %s", (doRegister ? "registering" : "unregistering"), path.GetData());
@@ -1477,21 +1477,21 @@ void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName & p
 
 #if defined(MIKTEX_WINDOWS)
 
-static const char * const components[] = {
+static const char* const components[] = {
   MIKTEX_PATH_CORE_DLL, MIKTEX_PATH_CORE_PS_DLL, MIKTEX_PATH_MPM_DLL, MIKTEX_PATH_MPM_PS_DLL,
 };
 
 #endif
 
-static const char * const toBeConfigured[] = {
+static const char* const toBeConfigured[] = {
   MIKTEX_PATH_FONTCONFIG_CONFIG_FILE,
 };
 
-void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<string> & packages)
+void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<string>& packages)
 {
   for (vector<string>::const_iterator it = packages.begin(); it != packages.end(); ++it)
   {
-    PackageInfo * pPackageInfo = pManager->TryGetPackageInfo(*it);
+    PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(*it);
     if (pPackageInfo == nullptr)
     {
       MIKTEX_UNEXPECTED();
@@ -1597,12 +1597,12 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
 #endif
 }
 
-bool MIKTEXTHISCALL PackageInstallerImpl::OnProcessOutput(const void * pOutput, size_t n)
+bool MIKTEXTHISCALL PackageInstallerImpl::OnProcessOutput(const void* pOutput, size_t n)
 {
   return true;
 }
 
-void PackageInstallerImpl::RunIniTeXMF(const char * lpszArguments)
+void PackageInstallerImpl::RunIniTeXMF(const char* lpszArguments)
 {
 #if defined(MIKTEX_WINDOWS)
   // find initexmf
@@ -1627,13 +1627,13 @@ void PackageInstallerImpl::RunIniTeXMF(const char * lpszArguments)
 #endif
 }
 
-void PackageInstallerImpl::CheckDependencies(set<string> & packages, const string & deploymentName, bool force, int level)
+void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string& deploymentName, bool force, int level)
 {
   if (level > 10)
   {
     MIKTEX_UNEXPECTED();
   }
-  PackageInfo * pPackageInfo = pManager->TryGetPackageInfo(deploymentName);
+  PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(deploymentName);
   if (pPackageInfo != nullptr)
   {
     for (vector<string>::const_iterator it = pPackageInfo->requiredPackages.begin(); it != pPackageInfo->requiredPackages.end(); ++it)
@@ -1881,13 +1881,13 @@ void PackageInstallerImpl::InstallRemoveThread()
     progressInfo.ready = true;
     Notify();
   }
-  catch (const OperationCancelledException & e)
+  catch (const OperationCancelledException& e)
   {
     progressInfo.ready = true;
     progressInfo.cancelled = true;
     threadMiKTeXException = e;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     progressInfo.ready = true;
     progressInfo.numErrors += 1;
@@ -1901,7 +1901,7 @@ void PackageInstallerImpl::InstallRemoveThread()
 #endif
 }
 
-void PackageInstallerImpl::Download(const PathName & fileName, size_t expectedSize)
+void PackageInstallerImpl::Download(const PathName& fileName, size_t expectedSize)
 {
   Download(MakeUrl(fileName.GetData()).c_str(), downloadDirectory / fileName, expectedSize);
 }
@@ -2024,13 +2024,13 @@ void PackageInstallerImpl::DownloadThread()
     progressInfo.ready = true;
     Notify();
   }
-  catch (const OperationCancelledException & e)
+  catch (const OperationCancelledException& e)
   {
     progressInfo.ready = true;
     progressInfo.cancelled = true;
     threadMiKTeXException = e;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     progressInfo.ready = true;
     progressInfo.numErrors += 1;
@@ -2044,7 +2044,7 @@ void PackageInstallerImpl::DownloadThread()
 #endif
 }
 
-void PackageInstallerImpl::SetUpPackageDefinitionFiles(const PathName & directory)
+void PackageInstallerImpl::SetUpPackageDefinitionFiles(const PathName& directory)
 {
   // path to the database file
   PathName pathDatabase;
@@ -2125,7 +2125,7 @@ void PackageInstallerImpl::CleanUpUserDatabase()
   }
 }
 
-void PackageInstallerImpl::HandleObsoletePackageDefinitionFiles(const PathName & temporaryDirectory)
+void PackageInstallerImpl::HandleObsoletePackageDefinitionFiles(const PathName& temporaryDirectory)
 {
   PathName pathPackageDir(pSession->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
 
@@ -2342,13 +2342,13 @@ void PackageInstallerImpl::UpdateDbThread()
     progressInfo.ready = true;
     Notify();
   }
-  catch (const OperationCancelledException & e)
+  catch (const OperationCancelledException& e)
   {
     progressInfo.ready = true;
     progressInfo.cancelled = true;
     threadMiKTeXException = e;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     progressInfo.ready = true;
     progressInfo.numErrors += 1;
@@ -2396,7 +2396,7 @@ string PackageInstallerImpl::FatalError(ErrorCode error)
   }
 }
 
-void PackageInstallerImpl::ReportLine(const char * lpszFormat, ...)
+void PackageInstallerImpl::ReportLine(const char* lpszFormat, ...)
 {
   if (pCallback == nullptr)
   {
@@ -2463,7 +2463,7 @@ bool PackageInstallerImpl::UseLocalServer()
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
 
-HRESULT PackageInstallerImpl::QueryInterface(REFIID riid, LPVOID * ppvObj)
+HRESULT PackageInstallerImpl::QueryInterface(REFIID riid, LPVOID* ppvObj)
 {
   using namespace MiKTeXPackageManagerLib;
   if (trace_mpm->IsEnabled())
@@ -2521,11 +2521,11 @@ HRESULT PackageInstallerImpl::ReportLine(BSTR line)
     if (pCallback != nullptr)
     {
       _bstr_t bstr(line, false);
-      pCallback->ReportLine(static_cast<const char *>(bstr));
+      pCallback->ReportLine(static_cast<const char*>(bstr));
     }
     return S_OK;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     return E_FAIL;
   }
@@ -2535,14 +2535,14 @@ HRESULT PackageInstallerImpl::ReportLine(BSTR line)
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
 
-HRESULT PackageInstallerImpl::OnRetryableError(BSTR message, VARIANT_BOOL * pDoContinue)
+HRESULT PackageInstallerImpl::OnRetryableError(BSTR message, VARIANT_BOOL* pDoContinue)
 {
   try
   {
     if (pCallback != nullptr)
     {
       _bstr_t bstr(message, false);
-      *pDoContinue = pCallback->OnRetryableError(static_cast<const char *>(bstr)) ? VARIANT_TRUE : VARIANT_FALSE;
+      *pDoContinue = pCallback->OnRetryableError(static_cast<const char*>(bstr)) ? VARIANT_TRUE : VARIANT_FALSE;
     }
     else
     {
@@ -2550,7 +2550,7 @@ HRESULT PackageInstallerImpl::OnRetryableError(BSTR message, VARIANT_BOOL * pDoC
     }
     return S_OK;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     return E_FAIL;
   }
@@ -2560,7 +2560,7 @@ HRESULT PackageInstallerImpl::OnRetryableError(BSTR message, VARIANT_BOOL * pDoC
 
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
 
-HRESULT PackageInstallerImpl::OnProgress(LONG nf, VARIANT_BOOL *pDoContinue)
+HRESULT PackageInstallerImpl::OnProgress(LONG nf, VARIANT_BOOL* pDoContinue)
 {
   try
   {
@@ -2575,7 +2575,7 @@ HRESULT PackageInstallerImpl::OnProgress(LONG nf, VARIANT_BOOL *pDoContinue)
     }
     return S_OK;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     return E_FAIL;
   }
