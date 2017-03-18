@@ -954,9 +954,9 @@ void Application::FindUpdates()
   else
   {
     sort(updates.begin(), updates.end(), UpdateInfoComparer());
-    for (vector<PackageInstaller::UpdateInfo>::const_iterator it = updates.begin(); it != updates.end(); ++it)
+    for (const PackageInstaller::UpdateInfo& upd : updates)
     {
-      cout << it->deploymentName << endl;
+      cout << upd.deploymentName << endl;
     }
   }
 }
