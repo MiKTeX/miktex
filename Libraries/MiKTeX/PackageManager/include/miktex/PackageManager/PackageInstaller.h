@@ -1,6 +1,6 @@
 /* miktex/PackageManager/PackageInstaller.h:            -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -153,6 +153,23 @@ public:
 
 public:
   virtual std::vector<UpdateInfo> MIKTEXTHISCALL GetUpdates() = 0;
+
+public:
+  virtual void MIKTEXTHISCALL FindUpgrades(PackageLevel packageLevel) = 0;
+
+public:
+  virtual void MIKTEXTHISCALL FindUpgradesAsync(PackageLevel packageLevel) = 0;
+
+public:
+  struct UpgradeInfo
+  {
+    std::string deploymentName;
+    time_t timePackaged = static_cast<time_t>(0);
+    std::string version;
+  };
+
+public:
+  virtual std::vector<UpgradeInfo> MIKTEXTHISCALL GetUpgrades() = 0;
 
 public:
   virtual void MIKTEXTHISCALL InstallRemove() = 0;

@@ -93,6 +93,16 @@ example, if you want to install a package for all users, you invoke
 <para>Check the package repository for updates, then print
 the list of updateable packages.</para></listitem>
 </varlistentry>
+<varlistentry>
+<term><option>--find-upgrades</option></term>
+<listitem>
+<indexterm>
+<primary>--find-upgrades</primary>
+</indexterm>
+<para>Search for packages that must be installed in order to complete
+the &MiKTeX; setup (can be used in conjunction with
+<option>--package-level</option>).</para></listitem>
+</varlistentry>
 &optionhelp;
 &optionhhelp;
 <varlistentry>
@@ -163,13 +173,15 @@ installation status, the number of files, the size, and the name.</para>
 list and print it.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><option>--package-set=<replaceable>set</replaceable></option></term>
+<term><option>--package-level=<replaceable>level</replaceable></option></term>
 <listitem>
 <indexterm>
-<primary>--package-set=set</primary>
+<primary>--package-level=level</primary>
 </indexterm>
-<para>Use the specified package set (to be used in conjunction with <option>--upgrade</option>).</para>
-<para><replaceable>set</replaceable> must be one of:</para>
+<para>Use the specified package level (to be used in conjunction with
+<option>--find-upgrades</option> and
+<option>--upgrade</option>).</para>
+<para><replaceable>level</replaceable> must be one of:</para>
 <variablelist>
 <varlistentry>
 <term><option>essential</option></term>
@@ -269,10 +281,9 @@ file.</para></listitem>
 <indexterm>
 <primary>--upgrade</primary>
 </indexterm>
-<para>Upgrade the &MiKTeX; setup to a package set (can be used in
-conjunction with <option>--package-set</option>).  This will install
-missing packages in addition to the packages which are
-out-of-date.</para></listitem>
+<para>Upgrade the &MiKTeX; setup to a package level (can be used in
+conjunction with <option>--package-level</option>).  This will install
+all the missing packages.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term>--verify</term>

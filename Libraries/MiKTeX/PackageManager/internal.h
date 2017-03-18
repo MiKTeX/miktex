@@ -656,6 +656,18 @@ public:
   }
 
 public:
+  void MIKTEXTHISCALL FindUpgrades(PackageLevel packageLevel) override;
+
+public:
+  void MIKTEXTHISCALL FindUpgradesAsync(PackageLevel packageLevel) override;
+
+public:
+  std::vector<UpgradeInfo> MIKTEXTHISCALL GetUpgrades() override
+  {
+    return upgrades;
+  }
+
+public:
   void MIKTEXTHISCALL InstallRemove() override;
 
 public:
@@ -906,6 +918,9 @@ private:
   void FindUpdatesThread();
 
 private:
+  void FindUpgradesThread();
+
+private:
   void DoInstall();
 
 private:
@@ -999,6 +1014,12 @@ private:
 
 private:
   std::vector<UpdateInfo> updates;
+
+private:
+  std::vector<UpgradeInfo> upgrades;
+
+private:
+  PackageLevel upgradeLevel = PackageLevel::None;
 
 #if defined(MIKTEX_WINDOWS)
 private:

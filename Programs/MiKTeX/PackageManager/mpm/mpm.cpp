@@ -109,6 +109,15 @@ public:
   }
 };
 
+class UpgradeInfoComparer
+{
+public:
+  bool operator() (const PackageInstaller::UpgradeInfo& upg1, const PackageInstaller::UpgradeInfo& upg2) const
+  {
+    return PathName::Compare(upg1.deploymentName, upg2.deploymentName) < 0;
+  }
+};
+
 class Application :
   public PackageInstallerCallback,
   public TraceCallback
@@ -190,6 +199,12 @@ private:
 
 private:
   void Update(const vector<string>& updates);
+
+private:
+  void FindUpgrades(PackageLevel packageLevel);
+
+private:
+  void Upgrade(PackageLevel packageLevel);
 
 private:
   string GetDirectories(const string& deploymentName);
@@ -295,6 +310,7 @@ enum Option
   OPT_CSV,                      // deprecated
   OPT_FIND_CONFLICTS,           // internal
   OPT_FIND_UPDATES,
+  OPT_FIND_UPGRADES,
   OPT_HHELP,
   OPT_IMPORT,
   OPT_IMPORT_ALL,
@@ -306,6 +322,7 @@ enum Option
   OPT_LIST_REPOSITORIES,
   OPT_MAX_COUNT,                // experimental
   OPT_OUTPUT_FORMAT,            // experimental
+  OPT_PACKAGE_LEVEL,
   OPT_PICK_REPOSITORY_URL,
   OPT_PRINT_PACKAGE_INFO,
   OPT_PROXY,                    // experimental
@@ -326,6 +343,7 @@ enum Option
   OPT_UPDATE_DB,
   OPT_UPDATE_FNDB,              // experimental
   OPT_UPDATE_SOME,
+  OPT_UPGRADE,
   OPT_VERBOSE,
   OPT_VERIFY,
   OPT_VERIFY_MIKTEX,
@@ -355,6 +373,12 @@ const struct poptOption Application::aoption[] = {
   {
     "find-updates", 0, POPT_ARG_NONE, nullptr, OPT_FIND_UPDATES,
     T_("Test the package repository for updates, then print the list of updateable packages."),
+    nullptr,
+  },
+
+  {
+    "find-upgrades", 0, POPT_ARG_NONE, nullptr, OPT_FIND_UPGRADES,
+    T_("Search for packages that must be installed in order to complete the setup.  Works in conjunction with --package-level."),
     nullptr,
   },
 
@@ -426,6 +450,12 @@ const struct poptOption Application::aoption[] = {
     "output-format", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_OUTPUT_FORMAT,
     T_("Set the output format."),
     T_("FORMAT"),
+  },
+
+  {
+    "package-level", 0, POPT_ARG_STRING, nullptr, OPT_PACKAGE_LEVEL,
+    T_("Use the specified package level when doing an upgrade.  Level must be one of: essential, basic, complete."),
+    T_("LEVEL")
   },
 
   {
@@ -553,6 +583,12 @@ const struct poptOption Application::aoption[] = {
     "update-some", 0, POPT_ARG_STRING, nullptr, OPT_UPDATE_SOME,
     T_("Update packages listed (line-by-line) in the specified file."),
     T_("FILE")
+  },
+
+  {
+    "upgrade", 0, POPT_ARG_NONE, nullptr, OPT_UPGRADE,
+    T_("Upgrade the MiKTeX setup to a package level (works in conjunction with --package-level)."),
+    nullptr
   },
 
   {
@@ -1021,6 +1057,62 @@ void Application::Update(const vector<string>& updates)
   }
 }
 
+void Application::FindUpgrades(PackageLevel packageLevel)
+{
+  shared_ptr<PackageInstaller> installer(pPackageManager->CreateInstaller());
+  if (!repository.empty())
+  {
+    installer->SetRepository(repository);
+  }
+  installer->SetCallback(this);
+  installer->FindUpgrades(packageLevel);
+  vector<PackageInstaller::UpgradeInfo> upgrades = installer->GetUpgrades();
+  installer->Dispose();
+  if (upgrades.empty())
+  {
+    Message(T_("There are currently no upgrades available."));
+    return;
+  }
+  sort(upgrades.begin(), upgrades.end(), UpgradeInfoComparer());
+  for (const PackageInstaller::UpgradeInfo& upg : upgrades)
+  {
+    cout << upg.deploymentName << endl;
+  }
+}
+
+void Application::Upgrade(PackageLevel packageLevel)
+{
+  shared_ptr<PackageInstaller> installer(pPackageManager->CreateInstaller());
+  if (!repository.empty())
+  {
+    installer->SetRepository(repository);
+  }
+  installer->SetCallback(this);
+  installer->FindUpgrades(packageLevel);
+  vector<PackageInstaller::UpgradeInfo> upgrades = installer->GetUpgrades();
+  if (upgrades.empty())
+  {
+    Message(T_("There are currently no upgrades available."));
+    return;
+  }
+  vector<string> toBeInstalled;
+  for (const PackageInstaller::UpgradeInfo& upg : upgrades)
+  {
+    toBeInstalled.push_back(upg.deploymentName);
+  }
+  sort(toBeInstalled.begin(), toBeInstalled.end());
+  installer->SetFileLists(toBeInstalled, vector<string>());
+  installer->InstallRemove();
+  if (toBeInstalled.size() == 1)
+  {
+    Message(T_("Package \"%s\" has been successfully installed."), toBeInstalled[0].c_str());
+  }
+  else if (toBeInstalled.size() > 1)
+  {
+    Message(T_("%u packages have been successfully installed."), toBeInstalled.size());
+  }
+}
+
 string Application::GetDirectories(const string& deploymentName)
 {
   set<string> directories;
@@ -1205,10 +1297,12 @@ void Application::Main(int argc, const char** argv)
   bool optAdmin = false;
   bool optFindConflicts = false;
   bool optFindUpdates = false;
+  bool optFindUpgrades = false;
   bool optImport = false;
   bool optImportAll = false;
   bool optList = false;
   bool optListRepositories = false;
+  PackageLevel optPackageLevel = PackageLevel::None;
   bool optPickRepositoryUrl = false;
   bool optPrintPackageInfo = false;
   bool optRegisterComponents = false;
@@ -1219,6 +1313,7 @@ void Application::Main(int argc, const char** argv)
   bool optUpdateAll = false;
   bool optUpdateDb = false;
   bool optUpdateFndb = false;
+  bool optUpgrade = false;
   bool optVerify = false;
   bool optVerifyMiKTeX = false;
   bool optVersion = false;
@@ -1263,6 +1358,9 @@ void Application::Main(int argc, const char** argv)
     case OPT_FIND_UPDATES:
       optFindUpdates = true;
       break;
+    case OPT_FIND_UPGRADES:
+      optFindUpgrades = true;
+      break;
 #if defined (MIKTEX_WINDOWS)
     case OPT_HHELP:
     {
@@ -1299,6 +1397,23 @@ void Application::Main(int argc, const char** argv)
     case OPT_LIST_REPOSITORIES:
       optListRepositories = true;
       break;
+    case OPT_PACKAGE_LEVEL:
+      if (optArg == "essential")
+      {
+        optPackageLevel = PackageLevel::Essential;
+      }
+      else if (optArg == "basic")
+      {
+        optPackageLevel = PackageLevel::Basic;
+      }
+      else if (optArg == "complete")
+      {
+        optPackageLevel = PackageLevel::Complete;
+      }
+      else
+      {
+        Error(T_("Unknown package set."));
+      }
     case OPT_PICK_REPOSITORY_URL:
       optPickRepositoryUrl = true;
       break;
@@ -1455,6 +1570,9 @@ void Application::Main(int argc, const char** argv)
     case OPT_UPDATE_SOME:
       updateSome.push_back(optArg);
       break;
+    case OPT_UPGRADE:
+      optUpgrade = true;
+      break;
     case OPT_VERBOSE:
       if (quiet)
       {
@@ -1495,7 +1613,7 @@ void Application::Main(int argc, const char** argv)
   {
     cout
       << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-      << "Copyright (C) 2005-2016 Christian Schenk" << endl
+      << "Copyright (C) 2005-2017 Christian Schenk" << endl
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
     return;
@@ -1607,7 +1725,11 @@ void Application::Main(int argc, const char** argv)
     restartWindowed = false;
   }
 
- ;
+  if (optFindUpgrades)
+  {
+    FindUpgrades(optPackageLevel);
+    restartWindowed;
+  }
 
   for (const string& name : installSome)
   {
@@ -1640,6 +1762,12 @@ void Application::Main(int argc, const char** argv)
   if (optUpdateAll || !updates.empty())
   {
     Update(updates);
+    restartWindowed = false;
+  }
+
+  if (optUpgrade)
+  {
+    Upgrade(optPackageLevel);
     restartWindowed = false;
   }
 

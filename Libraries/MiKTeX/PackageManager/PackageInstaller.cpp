@@ -653,6 +653,84 @@ void PackageInstallerImpl::FindUpdatesThread()
 #endif
 }
 
+void PackageInstallerImpl::FindUpgrades(PackageLevel packageLevel)
+{
+  trace_mpm->WriteLine("libmpm", T_("searching for upgrades"));
+  UpdateDb();
+  LoadDbLight(false);
+  upgrades.clear();
+  for (string deploymentName = dbLight.FirstPackage(); !deploymentName.empty(); deploymentName = dbLight.NextPackage())
+  {
+    Notify();
+    const PackageInfo* packageInfo = pManager->TryGetPackageInfo(deploymentName);
+    if (packageInfo != nullptr && pManager->IsPackageInstalled(deploymentName))
+    {
+      continue;
+    }
+#if IGNORE_OTHER_SYSTEMS
+    string targetSystem = dbLight.GetPackageTargetSystem(deploymentName);
+    if (!targetSystem.empty() && targetSystem != MIKTEX_SYSTEM_TAG)
+    {
+      continue;
+    }
+#endif
+    if (dbLight.GetPackageLevel(deploymentName) > packageLevel)
+    {
+      continue;
+    }
+    trace_mpm->WriteFormattedLine("libmpm", T_("%s: upgrade"), deploymentName.c_str());
+    UpgradeInfo upgrade;
+    upgrade.deploymentName = deploymentName;
+    upgrade.timePackaged = dbLight.GetTimePackaged(deploymentName);
+    upgrade.version = dbLight.GetPackageVersion(deploymentName);
+    upgrades.push_back(upgrade);
+  }
+}
+
+void PackageInstallerImpl::FindUpgradesAsync(PackageLevel packageLevel)
+{
+  upgradeLevel = packageLevel;
+  StartWorkerThread(&PackageInstallerImpl::FindUpgradesThread);
+}
+
+void PackageInstallerImpl::FindUpgradesThread()
+{
+#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
+  HResult hr = E_FAIL;
+#endif
+  try
+  {
+#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
+    HResult hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+    if (hr.Failed())
+    {
+      MIKTEX_FATAL_ERROR_2(T_("Cannot start upgrader thread."), "hr", hr.GetText());
+    }
+#endif
+    FindUpgrades(upgradeLevel);
+    progressInfo.ready = true;
+    Notify();
+  }
+  catch (const OperationCancelledException& e)
+  {
+    progressInfo.ready = true;
+    progressInfo.cancelled = true;
+    threadMiKTeXException = e;
+  }
+  catch (const MiKTeXException& e)
+  {
+    progressInfo.ready = true;
+    progressInfo.numErrors += 1;
+    threadMiKTeXException = e;
+  }
+#if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
+  if (hr.Succeeded())
+  {
+    CoUninitialize();
+  }
+#endif
+}
+
 void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool silently)
 {
   for (vector<string>::const_iterator it = toBeRemoved.begin(); it != toBeRemoved.end(); ++it)
