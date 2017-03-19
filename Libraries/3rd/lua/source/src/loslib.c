@@ -11,6 +11,11 @@
 #include <string.h>
 #include <time.h>
 
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_UTF8_WRAP_ALL 1
+#  include <miktex/utf8wrap.h>
+#endif
+
 #define loslib_c
 #define LUA_LIB
 
