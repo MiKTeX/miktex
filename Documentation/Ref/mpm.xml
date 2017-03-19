@@ -55,7 +55,8 @@ command-line options.</para>
 <varlistentry>
 <term>User mode (default)</term>
 <listitem>
-<para>&MPM; operates on the user installation directory (usually &userinstalldir;).</para>
+<para>&MPM; operates on the user installation directory (usually
+&userinstalldir;).</para>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -90,8 +91,8 @@ example, if you want to install a package for all users, you invoke
 <indexterm>
 <primary>--find-updates</primary>
 </indexterm>
-<para>Check the package repository for updates, then print
-the list of updateable packages.</para></listitem>
+<para>Check the package repository for updates, then print the list of
+updateable packages.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--find-upgrades</option></term>
@@ -101,19 +102,20 @@ the list of updateable packages.</para></listitem>
 </indexterm>
 <para>Search for packages that must be installed in order to complete
 the &MiKTeX; setup (can be used in conjunction with
-<option>--package-level</option>).</para></listitem>
+<option>--package-level</option>). Then print the package
+list.</para></listitem>
 </varlistentry>
 &optionhelp;
 &optionhhelp;
 <varlistentry>
-<term><option>--import=<replaceable>PACKAGE</replaceable></option></term>
+<term><option>--import=<replaceable>package</replaceable></option></term>
 <listitem>
 <indexterm>
 <primary>--import=package</primary>
 </indexterm>
 <para>Import the specified package from another &MiKTeX; installation.
 The root directory must be specified via
-<option>--repository=<replaceable>DIR</replaceable></option>.</para>
+<option>--repository=<replaceable>dir</replaceable></option>.</para>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -122,9 +124,9 @@ The root directory must be specified via
 <indexterm>
 <primary>--import-all</primary>
 </indexterm>
-<para>Import all packages from another &MiKTeX; installation.
-The root directory must be specified via
-<option>--repository=<replaceable>DIR</replaceable></option>.</para>
+<para>Import all packages from another &MiKTeX; installation.  The
+root directory must be specified via
+<option>--repository=<replaceable>dir</replaceable></option>.</para>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -150,8 +152,9 @@ file.</para></listitem>
 <indexterm>
 <primary>--list</primary>
 </indexterm>
-<para>List the contents of the package database: for each package, print the
-installation status, the number of files, the size, and the name.</para>
+<para>List the contents of the package database: for each package,
+print the installation status, the number of files, the size, and the
+name.</para>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -167,10 +170,6 @@ installation status, the number of files, the size, and the name.</para>
 <varlistentry>
 <term><option>--max-count=<replaceable>num</replaceable></option></term>
 <listitem><para>Stop after <replaceable>num</replaceable> packages.</para></listitem>
-</varlistentry>
-<varlistentry><term><option>--pick-repository-url</option></term>
-<listitem><para>Pick up a suitable URL from the package repository
-list and print it.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--package-level=<replaceable>level</replaceable></option></term>
@@ -198,6 +197,10 @@ list and print it.</para></listitem>
 </variablelist>
 </listitem>
 </varlistentry>
+<varlistentry><term><option>--pick-repository-url</option></term>
+<listitem><para>Pick up a suitable &URL; from the package repository
+list and print it.</para></listitem>
+</varlistentry>
 <varlistentry>
 <term><option>--print-package-info=<replaceable>package</replaceable></option></term>
 <listitem>
@@ -212,16 +215,17 @@ specified package.</para></listitem>
 <term><option>--repository=<replaceable>location</replaceable></option></term>
 <listitem><para>Use the specified location as the package repository.
 The location can be either a fully qualified path name (a local
-package repository) or an URL (a remote package repository).
-You can use the <option>--list-repositories</option> to retrieve
-a list of working package repository URLs.</para></listitem>
+package repository) or an &URL; (a remote package repository).  You
+can use the <option>--list-repositories</option> to retrieve a list of
+working package repository &URL;s.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--repository-release-state=<replaceable>state</replaceable></option></term>
 <listitem><para>Select the release state of the remote package
 repository.  The release state is relevant for finding appropriate
 package repositories (<option>--list-repositories</option>,
-<option>--pick-repository-url</option>). The release state must be one of <option>stable</option> or <option>next</option>.</para></listitem>
+<option>--pick-repository-url</option>). The release state must be one
+of <option>stable</option> or <option>next</option>.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--reverse</option></term>
@@ -233,10 +237,10 @@ package repositories (<option>--list-repositories</option>,
 <indexterm>
 <primary>--set-repository=location</primary>
 </indexterm>
-<para>Store the location of the default package repository in the &MiKTeX;
-configuration data store.  The location can be either a fully qualified path
-name (a local package repository) or an <acronym>URL</acronym> (a
-remote package repository).</para></listitem>
+<para>Store the location of the default package repository in the
+&MiKTeX; configuration data store.  The location can be either a fully
+qualified path name (a local package repository) or an &URL; (a remote
+package repository).</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/trace.xml" />
 <varlistentry>
@@ -253,9 +257,9 @@ remote package repository).</para></listitem>
 <indexterm>
 <primary>--update=package</primary>
 </indexterm>
-<para>Update the specified package, if an updated version
-is available in the package repository.  Update all installed
-packages, if <replaceable>package</replaceable> is omitted.</para></listitem>
+<para>Update the specified package, if an updated version is available
+in the package repository.  Update all installed packages, if
+<replaceable>package</replaceable> is omitted.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--update-db</option></term>
@@ -263,8 +267,8 @@ packages, if <replaceable>package</replaceable> is omitted.</para></listitem>
 <indexterm>
 <primary>--update-db</primary>
 </indexterm>
-<para>Synchronize the local package database with
-the package repository.</para></listitem>
+<para>Synchronize the local package database with the package
+repository.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--update-some=<replaceable>file</replaceable></option></term>
@@ -286,7 +290,7 @@ conjunction with <option>--package-level</option>).  This will install
 all the missing packages.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term>--verify</term>
+<term><option>--verify</option></term>
 <listitem>
 <indexterm>
 <primary>--verify</primary>
@@ -295,7 +299,7 @@ all the missing packages.</para></listitem>
 </listitem>
 </varlistentry>
 <varlistentry>
-<term>--verify=<replaceable>package</replaceable></term>
+<term><option>--verify=<replaceable>package</replaceable></option></term>
 <listitem>
 <indexterm>
 <primary>--verify=package</primary>
@@ -329,21 +333,23 @@ which must have been properly installed by running &MPM; with the
 
 <title>Examples</title>
 
-<para>Print the list of known package repository URLs:</para>
+<para>Print the list of known package repository &URL;s:</para>
 
 <screen><prompt>&prompt;</prompt><userinput>mpm --list-repositories</userinput></screen>
 
 <para>Retrieve the package database files from the &FTP; server
-<systemitem class="server">some.server</systemitem>:</para>
+<systemitem class="server">some.server</systemitem> (assuming this a
+registered &URL;):</para>
 
 <screen><prompt>&prompt;</prompt><userinput>mpm --repository=ftp://some.server/miktex/packages/ \
   --verbose --update-db</userinput></screen>
 
-<para>Print information about package a0poster:</para>
+<para>Print information about package
+<application>a0poster</application>:</para>
 
 <screen><prompt>&prompt;</prompt><userinput>mpm --print-package-info a0poster</userinput></screen>
 
-<para>Install package a0poster:</para>
+<para>Install package <application>a0poster</application>:</para>
 
 <screen><prompt>&prompt;</prompt><userinput>mpm --verbose --install a0poster</userinput></screen>
 
@@ -351,10 +357,13 @@ which must have been properly installed by running &MPM; with the
 
 <screen><prompt>&prompt;</prompt><userinput>mpm --verbose --update</userinput></screen>
 
-
 <para>Print the list of installed packages:</para>
 
 <screen><prompt>&prompt;</prompt><userinput>mpm --list | grep ^i</userinput></screen>
+
+<para>Upgrade the &MiKTeX; setup to the highest level:</para>
+
+<screen><prompt>&prompt;</prompt><userinput>mpm --verbose --package-level=complete --upgrade</userinput></screen>
 
 </refsect1>
 
@@ -364,10 +373,12 @@ which must have been properly installed by running &MPM; with the
 
 <variablelist>
 
-&MIKTEX_REPOSITORY;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_REPOSITORY.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_TRACE.xml" />
 
 <varlistentry><term><envar>http_proxy</envar></term>
-<listitem><para>The proxy server to be used for <acronym>HTTP</acronym>.</para></listitem>
+<listitem><para>The proxy server to be used for
+&HTTP;.</para></listitem>
 </varlistentry>
 
 <varlistentry><term><envar>FTP_PROXY</envar></term>
@@ -381,7 +392,7 @@ set.</para></listitem>
 
 <varlistentry><term><envar>NO_PROXY</envar></term>
 <listitem><para>Comma-separated list of host names that should not go
-through  any proxy.</para></listitem>
+through any proxy.</para></listitem>
 </varlistentry>
 
 </variablelist>

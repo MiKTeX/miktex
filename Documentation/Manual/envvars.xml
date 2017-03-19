@@ -3,8 +3,8 @@
 &BIBINPUTS;
 &BSTINPUTS;
 &MFINPUTS;
-&MIKTEX_REPOSITORY;
-&MIKTEX_TRACE;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_REPOSITORY.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_TRACE.xml" />
 &MPINPUTS;
 &TEXINPUTS;
 &TFMFONTS;

@@ -1,21 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
 <varlistentry>
 <term><envar>MIKTEX_TRACE</envar></term>
 <listitem>
 <indexterm>
 <primary>MIKTEX_TRACE</primary>
 </indexterm>
-<para>Comma-separated list of trace
-stream names (see <xref linkend="tracestreams"/>).
-If this variable is set, then &MiKTeX; programs will write
-trace messages into the &DebugView; window.</para>
+<para>Comma-separated list of trace stream names (see <xref
+linkend="tracestreams"/>).  If this variable is set, then &MiKTeX;
+programs will write trace messages into the configured log sink.</para>
 </listitem>
 </varlistentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "reference")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

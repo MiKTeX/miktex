@@ -19,6 +19,7 @@
 <!ENTITY GNULinux "&GNU;/Linux">
 <!ENTITY Ghostscript "<application>Ghostscript</application>">
 <!ENTITY HTML "<acronym>HTML</acronym>">
+<!ENTITY HTTP "<acronym>HTTP</acronym>">
 <!ENTITY JPG "<acronym>JPG</acronym>">
 <!ENTITY LaTeX "<application>LaTeX</application>">
 <!ENTITY LuaTeX "<application>LuaTeX</application>">
@@ -58,6 +59,7 @@
 <!ENTITY TeXnFriends "&TeX;&nbsp;&amp;&nbsp;Friends">
 <!ENTITY TeXworks "<application>TeXworks</application>">
 <!ENTITY Texinfo "<application>Texinfo</application>">
+<!ENTITY URL "<acronym>URL</acronym>">
 <!ENTITY URW "<acronym>URW</acronym>">
 <!ENTITY Windows "<application>Windows</application>">
 <!ENTITY Windows7 "<application>Windows&nbsp;7</application>">
