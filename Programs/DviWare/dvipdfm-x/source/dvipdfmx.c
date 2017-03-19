@@ -178,8 +178,8 @@ show_version (void)
   if (*my_name == 'x')
     printf ("an extended version of DVIPDFMx, which in turn was\n");
   printf ("an extended version of dvipdfm-0.13.2c developed by Mark A. Wicks.\n");
-  printf ("\nCopyright (C) 2002-2016 the DVIPDFMx project team\n");
-  printf ("Copyright (C) 2006-2016 SIL International.\n");
+  printf ("\nCopyright (C) 2002-2017 the DVIPDFMx project team\n");
+  printf ("Copyright (C) 2006-2017 SIL International.\n");
   printf ("\nThis is free software; you can redistribute it and/or modify\n");
   printf ("it under the terms of the GNU General Public License as published by\n");
   printf ("the Free Software Foundation; either version 2 of the License, or\n");

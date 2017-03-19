@@ -48,7 +48,7 @@ extern char *strtok(); /* some systems don't have this in strings.h */
 #include <sys/resource.h>
 #endif
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #if defined(WIN32) && defined(KPATHSEA)
 #undef fopen
 #define fopen(file, fmode)  fsyscp_fopen(file, fmode)
@@ -543,7 +543,7 @@ newoutname(void) {
                seqptr = p + 1;
             else if (IS_DIR_SEP (*p))
                seqptr = 0;
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef WIN32
             else if (IS_KANJI(p))
                p++;
@@ -629,7 +629,7 @@ main(int argc, char **argv)
 #ifdef KPATHSEA
    kpse_set_program_name (argv[0], "dvips");
    kpse_set_program_enabled (kpse_pk_format, MAKE_TEX_PK_BY_DEFAULT, kpse_src_compile);
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef WIN32
    enc = kpse_var_value("command_line_encoding");
    if (get_command_line_args_utf8(enc, &ac, &av)) {
@@ -689,7 +689,7 @@ main(int argc, char **argv)
       } else if (strcmp (argv[1], "--version") == 0) {
         puts (BANNER);
         puts (kpathsea_version_string);
-        puts ("Copyright 2016 Radical Eye Software.\n\
+        puts ("Copyright 2017 Radical Eye Software.\n\
 There is NO warranty.  You may redistribute this software\n\
 under the terms of the GNU General Public License\n\
 and the Dvips copyright.\n\
@@ -1182,7 +1182,7 @@ default:
                      lastext = nextstring - iname;
                   else if (IS_DIR_SEP(*nextstring))
                      lastext = 0;
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef WIN32
                   else if (IS_KANJI(p-1)) {
                      nextstring++;
@@ -1346,7 +1346,7 @@ default:
          for (oname=p; *p && p[1]; p++)
             if (IS_DIR_SEP(*p))
                oname = p + 1;
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef WIN32
             else if (IS_KANJI(p))
                p++;

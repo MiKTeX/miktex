@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/dvips/">
     <TPM:Name>Dvips win64</TPM:Name>
     <TPM:Title>Dvips, Windows x64</TPM:Title>
-    <TPM:Copyright owner="Tomas Rokicki" year="1986-2016"/>
+    <TPM:Copyright owner="Radical Eye Software" year="2017"/>
     <TPM:License type="gpl"/>    
-    <TPM:Version>5.996</TPM:Version>
+    <TPM:Version>5.997</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
