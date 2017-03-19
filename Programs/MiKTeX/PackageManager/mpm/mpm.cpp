@@ -526,13 +526,11 @@ const struct poptOption Application::aoption[] = {
     nullptr
   },
 
-#if defined(MIKTEX_WINDOWS)
   {
     "set-repository", 0, POPT_ARG_STRING, nullptr, OPT_SET_REPOSITORY,
     T_("Register the location of the default package repository.  The location can be either a fully qualified path name (a local package repository) or an URL (a remote package repository)."),
     T_("LOCATION")
   },
-#endif
 
   {
     "trace", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr, OPT_TRACE,
@@ -1059,6 +1057,10 @@ void Application::Update(const vector<string>& updates)
 
 void Application::FindUpgrades(PackageLevel packageLevel)
 {
+  if (packageLevel == PackageLevel::None)
+  {
+    Error("No package level (--package-level) was specified.");
+  }
   shared_ptr<PackageInstaller> installer(pPackageManager->CreateInstaller());
   if (!repository.empty())
   {
@@ -1082,6 +1084,10 @@ void Application::FindUpgrades(PackageLevel packageLevel)
 
 void Application::Upgrade(PackageLevel packageLevel)
 {
+  if (packageLevel == PackageLevel::None)
+  {
+    Error("No package level (--package-level) was specified.");
+  }
   shared_ptr<PackageInstaller> installer(pPackageManager->CreateInstaller());
   if (!repository.empty())
   {
@@ -1414,6 +1420,7 @@ void Application::Main(int argc, const char** argv)
       {
         Error(T_("Unknown package set."));
       }
+      break;
     case OPT_PICK_REPOSITORY_URL:
       optPickRepositoryUrl = true;
       break;
@@ -1728,7 +1735,7 @@ void Application::Main(int argc, const char** argv)
   if (optFindUpgrades)
   {
     FindUpgrades(optPackageLevel);
-    restartWindowed;
+    restartWindowed = false;
   }
 
   for (const string& name : installSome)
