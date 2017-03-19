@@ -30,46 +30,61 @@
 
 using namespace std;
 
-static char errorMessage[200];
+class utf8wraperror : public std::exception
+{
+public:
+  utf8wraperror(const char* function, const char* utf8)
+  {
+    sprintf_s(errorMessage, "UTF-8 conversion failed; func=%s, utf8=\"%s\", error=%d", function, utf8, (int)::GetLastError());
+  }
+public:
+  utf8wraperror(const char* function, const wchar_t* wch)
+  {
+    sprintf_s(errorMessage, "UTF-8 conversion failed; func=%s, LPCWCH=\"%S\", error=%d", function, wch, (int)::GetLastError());
+  }
+public:
+  const char* what() const override
+  {
+    return errorMessage;
+  }
+private:
+  char errorMessage[2048];
+};
 
-MIKTEXSTATICFUNC(unique_ptr<wchar_t[]>) UTF8ToWideChar(const char* lpszUtf8)
+MIKTEXSTATICFUNC(unique_ptr<wchar_t[]>) UTF8ToWideChar(const char* lpszUtf8, const char* function)
 {
   int len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, lpszUtf8, -1, nullptr, 0);
   if (len <= 0)
-  {
-    sprintf_s(errorMessage, "MultiByteToWideChar() did not succeed; last error code is %d", (int)::GetLastError());
-    throw std::runtime_error(errorMessage);
+  {    
+    throw utf8wraperror(function, lpszUtf8);
   }
   unique_ptr<wchar_t[]> buf(new wchar_t[len]);
   len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, lpszUtf8, -1, buf.get(), len);
   if (len <= 0)
   {
-    sprintf_s(errorMessage, "MultiByteToWideChar() did not succeed; last error code is %d", (int)::GetLastError());
-    throw std::runtime_error(errorMessage);
+    throw utf8wraperror(function, lpszUtf8);
   }
   return buf;
 }
 
-MIKTEXSTATICFUNC(unique_ptr<char[]>) WideCharToUTF8(const wchar_t* lpszWideChar)
+MIKTEXSTATICFUNC(unique_ptr<char[]>) WideCharToUTF8(const wchar_t* lpszWideChar, const char* function)
 {
   int len = WideCharToMultiByte(CP_UTF8, 0, lpszWideChar, -1, nullptr, 0, nullptr, nullptr);
   if (len <= 0)
   {
-    sprintf_s(errorMessage, "WideCharToMultiByte() did not succeed; last error code is %d", (int)::GetLastError());
-    throw std::runtime_error(errorMessage);
+    throw utf8wraperror(function, lpszWideChar);
   }
   unique_ptr<char[]> buf(new char[len]);
   len = WideCharToMultiByte(CP_UTF8, 0, lpszWideChar, -1, buf.get(), len, nullptr, nullptr);
   if (len <= 0)
   {
-    sprintf_s(errorMessage, "WideCharToMultiByte() did not succeed; last error code is %d", (int)::GetLastError());
-    throw std::runtime_error(errorMessage);
+    throw utf8wraperror(function, lpszWideChar);
   }
   return buf;
 };
 
-#define UW_(x) UTF8ToWideChar(x).get()
-#define WU_(x) WideCharToUTF8(x).get()
+#define UW_(x) UTF8ToWideChar(x, __func__).get()
+#define WU_(x) WideCharToUTF8(x, __func__).get()
 
 MIKTEXUTF8WRAPCEEAPI(FILE*) miktex_utf8_fopen(const char* lpszFileName, const char* lpszMode)
 {
@@ -136,7 +151,7 @@ MIKTEXUTF8WRAPCEEAPI(char*) miktex_utf8__getcwd(char* lpszDirectoryName, size_t 
   {
     return nullptr;
   }
-  unique_ptr<char[]> utf8(WideCharToUTF8(wideChar.get()));
+  unique_ptr<char[]> utf8(WideCharToUTF8(wideChar.get(), __func__));
   if (strlen(utf8.get()) >= maxSize)
   {
     throw std::runtime_error("buffer too small");
@@ -154,7 +169,7 @@ MIKTEXUTF8WRAPCEEAPI(char*) miktex_utf8_getenv(const char* lpszName)
   {
     return nullptr;
   }
-  env[lpszName] = WideCharToUTF8(lpszWideChar);
+  env[lpszName] = WideCharToUTF8(lpszWideChar, __func__);
   return env[lpszName].get();
 }
 
