@@ -969,6 +969,9 @@ void lua_initialize(int ac, char **av)
     static char LC_NUMERIC_C[] = "LC_NUMERIC=C";
     static char engine_luatex[] = "engine=" my_name;
     char *old_locale = NULL;
+#if defined(MIKTEX)
+    char old_locale_copy[130];
+#endif
     char *env_locale = NULL;
     char *tmp = NULL;
     /* Save to pass along to topenin.  */
@@ -1045,6 +1048,14 @@ void lua_initialize(int ac, char **av)
     lc_collate = NULL;
     lc_numeric = NULL;
     if (old_locale) {
+#if defined(MIKTEX)
+        if (strlen(old_locale) > sizeof(old_locale_copy) - 1)
+        {
+          fprintf(stderr, "Unexpected locale name: \"%s\".\n");
+          exit(1);
+        }
+        old_locale = strcpy(old_locale_copy, old_locale);
+#endif
         /* If setlocale fails here, then the state   */
         /* could be compromised, and we exit.        */
         env_locale = setlocale (LC_ALL, "");
