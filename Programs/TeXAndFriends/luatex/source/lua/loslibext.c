@@ -631,8 +631,14 @@ static void find_env(lua_State * L)
 {
     char *envitem, *envitem_orig;
     char *envkey;
+#if defined(MIKTEX_WINDOWS)
+    wchar_t** envpointer = _wenviron;
+    // FIXME
+    char buffer[4096];
+#else
     char **envpointer;
     envpointer = environ;
+#endif
     lua_getglobal(L, "os");
     if (envpointer != NULL && lua_istable(L, -1)) {
         luaL_checkstack(L, 2, "out of stack space");
@@ -641,7 +647,11 @@ static void find_env(lua_State * L)
         while (*envpointer) {
             /* TODO: perhaps a memory leak here  */
             luaL_checkstack(L, 2, "out of stack space");
+#if defined(MIKTEX_WINDOWS)
+            envitem = xstrdup(miktex_wide_char_to_utf8(*envpointer, sizeof(buffer), buffer));
+#else
             envitem = xstrdup(*envpointer);
+#endif
             envitem_orig = envitem;
             envkey = envitem;
             while (*envitem != '=') {
