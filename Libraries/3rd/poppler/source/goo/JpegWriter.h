@@ -39,13 +39,13 @@ public:
   JpegWriter(Format format = RGB);
   ~JpegWriter();
 
-  bool init(FILE *f, int width, int height, int hDPI, int vDPI);
+  bool init(FILE *f, int width, int height, int hDPI, int vDPI) override;
 
-  bool writePointers(unsigned char **rowPointers, int rowCount);
-  bool writeRow(unsigned char **row);
+  bool writePointers(unsigned char **rowPointers, int rowCount) override;
+  bool writeRow(unsigned char **row) override;
 
-  bool close();
-  bool supportCMYK();
+  bool close() override;
+  bool supportCMYK() override;
 
 private:
   JpegWriter(const JpegWriter &other);

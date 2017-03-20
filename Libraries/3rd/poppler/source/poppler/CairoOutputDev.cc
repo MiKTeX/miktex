@@ -3119,7 +3119,7 @@ public:
     return image;
   }
 
-  void getRow(int row_num, uint32_t *row_data) {
+  void getRow(int row_num, uint32_t *row_data) override {
     int i;
     Guchar *pix;
 

@@ -20,7 +20,7 @@
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
 // Copyright (C) 2010 Jakob Voss <jakob.voss@gbv.de>
-// Copyright (C) 2012, 2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2012, 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2013 Thomas Fischer <fischer@unix-ag.uni-kl.de>
 // Copyright (C) 2013 Hib Eris <hib@hiberis.nl>
 //
@@ -349,7 +349,11 @@ void ImageOutputDev::writeImageFile(ImgWriter *writer, ImageFormat format, const
     str->reset();
   }
 
-  row = (unsigned char *) gmallocn(width, sizeof(unsigned int));
+  int pixelSize = sizeof(unsigned int);
+  if (format == imgRGB48)
+    pixelSize = 2*sizeof(unsigned int);
+
+  row = (unsigned char *) gmallocn(width, pixelSize);
 
   // PDF masks use 0 = draw current color, 1 = leave unchanged.
   // We invert this to provide the standard interpretation of alpha
@@ -383,6 +387,26 @@ void ImageOutputDev::writeImageFile(ImgWriter *writer, ImageFormat format, const
       }
       writer->writeRow(&row);
       break;
+
+    case imgRGB48: {
+      p = imgStr->getLine();
+      Gushort *rowp16 = (Gushort*)row;
+      for (int x = 0; x < width; ++x) {
+	if (p) {
+	  colorMap->getRGB(p, &rgb);
+	  *rowp16++ = colToShort(rgb.r);
+	  *rowp16++ = colToShort(rgb.g);
+	  *rowp16++ = colToShort(rgb.b);
+	  p += colorMap->getNumPixelComps();
+	} else {
+	  *rowp16++ = 0;
+	    *rowp16++ = 0;
+	    *rowp16++ = 0;
+	}
+      }
+      writer->writeRow(&row);
+      break;
+    }
 
     case imgCMYK:
       p = imgStr->getLine();
@@ -532,6 +556,12 @@ void ImageOutputDev::writeImage(GfxState *state, Object *ref, Stream *str,
                colorMap->getColorSpace()->getMode() == csCalGray) {
       writer = new PNGWriter(PNGWriter::GRAY);
       format = imgGray;
+    } else if ((colorMap->getColorSpace()->getMode() == csDeviceRGB ||
+		colorMap->getColorSpace()->getMode() == csCalRGB ||
+		(colorMap->getColorSpace()->getMode() == csICCBased && colorMap->getNumPixelComps() == 3)) &&
+	       colorMap->getBits() > 8) {
+      writer = new PNGWriter(PNGWriter::RGB48);
+      format = imgRGB48;
     } else {
       writer = new PNGWriter(PNGWriter::RGB);
       format = imgRGB;
@@ -557,6 +587,12 @@ void ImageOutputDev::writeImage(GfxState *state, Object *ref, Stream *str,
                (colorMap->getColorSpace()->getMode() == csICCBased && colorMap->getNumPixelComps() == 4)) {
       writer = new TiffWriter(TiffWriter::CMYK);
       format = imgCMYK;
+    } else if ((colorMap->getColorSpace()->getMode() == csDeviceRGB ||
+		colorMap->getColorSpace()->getMode() == csCalRGB ||
+		(colorMap->getColorSpace()->getMode() == csICCBased && colorMap->getNumPixelComps() == 3)) &&
+	       colorMap->getBits() > 8) {
+      writer = new TiffWriter(TiffWriter::RGB48);
+      format = imgRGB48;
     } else {
       writer = new TiffWriter(TiffWriter::RGB);
       format = imgRGB;

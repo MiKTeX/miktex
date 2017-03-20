@@ -6,7 +6,7 @@
 //
 // Copyright (C) 2010, 2012 William Bader <williambader@hotmail.com>
 // Copyright (C) 2011, 2012 Albert Astals Cid <aacid@kde.org>
-// Copyright (C) 2012 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2012, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2012 Pino Toscano <pino@kde.org>
 //
 //========================================================================
@@ -31,22 +31,23 @@ public:
    * GRAY                - 1 byte/pixel
    * MONOCHROME          - 8 pixels/byte
    * CMYK                - 4 bytes/pixel
+   * RGB48               - 6 bytes/pixel
    */
-  enum Format { RGB, RGBA_PREMULTIPLIED, GRAY, MONOCHROME, CMYK };
+  enum Format { RGB, RGBA_PREMULTIPLIED, GRAY, MONOCHROME, CMYK, RGB48 };
 
   TiffWriter(Format format = RGB);
   ~TiffWriter();
 
   void setCompressionString(const char *compressionStringArg);
 
-  bool init(FILE *openedFile, int width, int height, int hDPI, int vDPI);
+  bool init(FILE *openedFile, int width, int height, int hDPI, int vDPI) override;
 
-  bool writePointers(unsigned char **rowPointers, int rowCount);
-  bool writeRow(unsigned char **rowData);
+  bool writePointers(unsigned char **rowPointers, int rowCount) override;
+  bool writeRow(unsigned char **rowData) override;
 
-  bool supportCMYK() { return true; }
+  bool supportCMYK() override { return true; }
 
-  bool close();
+  bool close() override;
 
 private:
   TiffWriter(const TiffWriter &other);

@@ -17,7 +17,6 @@
 #if defined(MIKTEX)
 #include "config.h"
 #endif
-
 #include <PDFDoc.h>
 #include <GlobalParams.h>
 #include "parseargs.h"

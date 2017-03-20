@@ -8,7 +8,7 @@
 // Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
 // Copyright (C) 2009, 2011-2013 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
-// Copyright (C) 2010, 2011, 2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2010, 2011, 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2012 Pino Toscano <pino@kde.org>
 //
 //========================================================================
@@ -32,8 +32,9 @@ public:
    * RGBA       - 4 bytes/pixel
    * GRAY       - 1 byte/pixel
    * MONOCHROME - 8 pixels/byte
+   * RGB48      - 6 bytes/pixel
    */
-  enum Format { RGB, RGBA, GRAY, MONOCHROME };
+  enum Format { RGB, RGBA, GRAY, MONOCHROME, RGB48 };
 
   PNGWriter(Format format = RGB);
   ~PNGWriter();
@@ -42,12 +43,12 @@ public:
   void setSRGBProfile();
 
 
-  bool init(FILE *f, int width, int height, int hDPI, int vDPI);
+  bool init(FILE *f, int width, int height, int hDPI, int vDPI) override;
 
-  bool writePointers(unsigned char **rowPointers, int rowCount);
-  bool writeRow(unsigned char **row);
+  bool writePointers(unsigned char **rowPointers, int rowCount) override;
+  bool writeRow(unsigned char **row) override;
 
-  bool close();
+  bool close() override;
 
 private:
   PNGWriter(const PNGWriter &other);

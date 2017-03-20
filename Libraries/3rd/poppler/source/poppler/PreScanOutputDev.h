@@ -48,95 +48,95 @@ public:
   PreScanOutputDev(PDFDoc *docA);
 
   // Destructor.
-  virtual ~PreScanOutputDev();
+  ~PreScanOutputDev();
 
   //----- get info about output device
 
   // Does this device use upside-down coordinates?
   // (Upside-down means (0,0) is the top left corner of the page.)
-  virtual GBool upsideDown() { return gTrue; }
+  GBool upsideDown() override { return gTrue; }
 
   // Does this device use drawChar() or drawString()?
-  virtual GBool useDrawChar() { return gTrue; }
+  GBool useDrawChar() override { return gTrue; }
 
   // Does this device use tilingPatternFill()?  If this returns false,
   // tiling pattern fills will be reduced to a series of other drawing
   // operations.
-  virtual GBool useTilingPatternFill() { return gTrue; }
+  GBool useTilingPatternFill() override { return gTrue; }
 
   // Does this device use functionShadedFill(), axialShadedFill(), and
   // radialShadedFill()?  If this returns false, these shaded fills
   // will be reduced to a series of other drawing operations.
-  virtual GBool useShadedFills(int type) { return gTrue; }
+  GBool useShadedFills(int type) override { return gTrue; }
 
   // Does this device use beginType3Char/endType3Char?  Otherwise,
   // text in Type 3 fonts will be drawn with drawChar/drawString.
-  virtual GBool interpretType3Chars() { return gTrue; }
+  GBool interpretType3Chars() override { return gTrue; }
 
   //----- initialization and control
 
   // Start a page.
-  virtual void startPage(int pageNum, GfxState *state, XRef *xref);
+  void startPage(int pageNum, GfxState *state, XRef *xref) override;
 
   // End a page.
-  virtual void endPage();
+  void endPage() override;
 
   //----- path painting
-  virtual void stroke(GfxState *state);
-  virtual void fill(GfxState *state);
-  virtual void eoFill(GfxState *state);
-  virtual GBool tilingPatternFill(GfxState *state, Gfx *gfx, Catalog *cat, Object *str,
-				  double *pmat, int paintType, int tilingType, Dict *resDict,
-				  double *mat, double *bbox,
-				  int x0, int y0, int x1, int y1,
-				  double xStep, double yStep);
-  virtual GBool functionShadedFill(GfxState *state,
-				   GfxFunctionShading *shading);
-  virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax);
-  virtual GBool radialShadedFill(GfxState *state, GfxRadialShading *shading, double tMin, double tMax);
+  void stroke(GfxState *state) override;
+  void fill(GfxState *state) override;
+  void eoFill(GfxState *state) override;
+  GBool tilingPatternFill(GfxState *state, Gfx *gfx, Catalog *cat, Object *str,
+			  double *pmat, int paintType, int tilingType, Dict *resDict,
+			  double *mat, double *bbox,
+			  int x0, int y0, int x1, int y1,
+			  double xStep, double yStep) override;
+  GBool functionShadedFill(GfxState *state,
+			   GfxFunctionShading *shading) override;
+  GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax) override;
+  GBool radialShadedFill(GfxState *state, GfxRadialShading *shading, double tMin, double tMax) override;
 
   //----- path clipping
-  virtual void clip(GfxState *state);
-  virtual void eoClip(GfxState *state);
+  void clip(GfxState *state) override;
+  void eoClip(GfxState *state) override;
 
   //----- text drawing
-  virtual void beginStringOp(GfxState *state);
-  virtual void endStringOp(GfxState *state);
-  virtual GBool beginType3Char(GfxState *state, double x, double y,
-			       double dx, double dy,
-			       CharCode code, Unicode *u, int uLen);
-  virtual void endType3Char(GfxState *state);
+  void beginStringOp(GfxState *state) override;
+  void endStringOp(GfxState *state) override;
+  GBool beginType3Char(GfxState *state, double x, double y,
+		       double dx, double dy,
+		       CharCode code, Unicode *u, int uLen) override;
+  void endType3Char(GfxState *state) override;
 
   //----- image drawing
-  virtual void drawImageMask(GfxState *state, Object *ref, Stream *str,
-			     int width, int height, GBool invert,
-			     GBool interpolate, GBool inlineImg);
-  virtual void drawImage(GfxState *state, Object *ref, Stream *str,
-			 int width, int height, GfxImageColorMap *colorMap,
-			 GBool interpolate, int *maskColors, GBool inlineImg);
-  virtual void drawMaskedImage(GfxState *state, Object *ref, Stream *str,
-			       int width, int height,
-			       GfxImageColorMap *colorMap,
-			       GBool interpolate,
-			       Stream *maskStr, int maskWidth, int maskHeight,
-			       GBool maskInvert, GBool maskInterpolate);
-  virtual void drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
-				   int width, int height,
-				   GfxImageColorMap *colorMap,
-				   GBool interpolate,
-				   Stream *maskStr,
-				   int maskWidth, int maskHeight,
-				   GfxImageColorMap *maskColorMap,
-				   GBool maskInterpolate);
+  void drawImageMask(GfxState *state, Object *ref, Stream *str,
+		     int width, int height, GBool invert,
+		     GBool interpolate, GBool inlineImg) override;
+  void drawImage(GfxState *state, Object *ref, Stream *str,
+		 int width, int height, GfxImageColorMap *colorMap,
+		 GBool interpolate, int *maskColors, GBool inlineImg) override;
+  void drawMaskedImage(GfxState *state, Object *ref, Stream *str,
+		      int width, int height,
+		      GfxImageColorMap *colorMap,
+		      GBool interpolate,
+		      Stream *maskStr, int maskWidth, int maskHeight,
+		      GBool maskInvert, GBool maskInterpolate) override;
+  void drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
+			   int width, int height,
+			   GfxImageColorMap *colorMap,
+			   GBool interpolate,
+			   Stream *maskStr,
+			   int maskWidth, int maskHeight,
+			   GfxImageColorMap *maskColorMap,
+			   GBool maskInterpolate) override;
 
   //----- transparency groups and soft masks
-  virtual void beginTransparencyGroup(GfxState *state, double *bbox,
-				      GfxColorSpace *blendingColorSpace,
-				      GBool isolated, GBool knockout,
-				      GBool forSoftMask);
-	virtual void paintTransparencyGroup(GfxState *state, double *bbox);
-	virtual void setSoftMask(GfxState *state, double *bbox, GBool alpha,
-			   Function *transferFunc, GfxColor *backdropColor);
+  void beginTransparencyGroup(GfxState *state, double *bbox,
+			      GfxColorSpace *blendingColorSpace,
+			      GBool isolated, GBool knockout,
+			      GBool forSoftMask) override;
+  void paintTransparencyGroup(GfxState *state, double *bbox) override;
+  void setSoftMask(GfxState *state, double *bbox, GBool alpha,
+		   Function *transferFunc, GfxColor *backdropColor) override;
 
   //----- special access
 

@@ -269,7 +269,7 @@ class POPPLER_QT5_EXPORT LinkGoto : public Link
 		 * The destination to reach.
 		 */
 		LinkDestination destination() const;
-		LinkType linkType() const;
+		LinkType linkType() const override;
 
 	private:
 		Q_DECLARE_PRIVATE( LinkGoto )
@@ -308,7 +308,7 @@ class POPPLER_QT5_EXPORT LinkExecute : public Link
 		 * Destructor.
 		 */
 		~LinkExecute();
-		LinkType linkType() const;
+		LinkType linkType() const override;
 
 	private:
 		Q_DECLARE_PRIVATE( LinkExecute )
@@ -342,7 +342,7 @@ class POPPLER_QT5_EXPORT LinkBrowse : public Link
 		 * Destructor.
 		 */
 		~LinkBrowse();
-		LinkType linkType() const;
+		LinkType linkType() const override;
 
 	private:
 		Q_DECLARE_PRIVATE( LinkBrowse )
@@ -393,7 +393,7 @@ class POPPLER_QT5_EXPORT LinkAction : public Link
 		 * Destructor.
 		 */
 		~LinkAction();
-		LinkType linkType() const;
+		LinkType linkType() const override;
 
 	private:
 		Q_DECLARE_PRIVATE( LinkAction )
@@ -413,9 +413,9 @@ class POPPLER_QT5_EXPORT LinkSound : public Link
 		/**
 		 * Destructor.
 		 */
-		virtual ~LinkSound();
+		~LinkSound();
 
-		LinkType linkType() const;
+		LinkType linkType() const override;
 
 		/**
 		 * The volume to be used when playing the sound.
@@ -489,9 +489,9 @@ class POPPLER_QT5_EXPORT LinkRendition : public Link
 		/**
 		 * Destructor.
 		 */
-		virtual ~LinkRendition();
+		~LinkRendition();
 
-		LinkType linkType() const;
+		LinkType linkType() const override;
 
 		/**
 		 * Returns the media rendition object if the redition provides one, @c 0 otherwise
@@ -542,9 +542,9 @@ class POPPLER_QT5_EXPORT LinkJavaScript : public Link
 		/**
 		 * Destructor.
 		 */
-		virtual ~LinkJavaScript();
+		~LinkJavaScript();
 
-		LinkType linkType() const;
+		LinkType linkType() const override;
 
 		/**
 		 * The JS code
@@ -588,7 +588,7 @@ class POPPLER_QT5_EXPORT LinkMovie : public Link
 		 * Destructor.
 		 */
 		~LinkMovie();
-		LinkType linkType() const;
+		LinkType linkType() const override;
 		/**
 		 * Returns the operation to be performed on the movie.
 		 */
@@ -620,7 +620,7 @@ class POPPLER_QT5_EXPORT LinkOCGState : public Link
 		 */
 		~LinkOCGState();
 
-		LinkType linkType() const;
+		LinkType linkType() const override;
 
 	private:
 		Q_DECLARE_PRIVATE( LinkOCGState )

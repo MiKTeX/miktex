@@ -1855,7 +1855,7 @@ class GfxICCBasedColorSpaceKey : public PopplerCacheKey
     {
     }
     
-    bool operator==(const PopplerCacheKey &key) const
+    bool operator==(const PopplerCacheKey &key) const override
     {
       const GfxICCBasedColorSpaceKey *k = static_cast<const GfxICCBasedColorSpaceKey*>(&key);
       return k->num == num && k->gen == gen;

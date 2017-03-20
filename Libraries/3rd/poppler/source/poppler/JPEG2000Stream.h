@@ -28,16 +28,16 @@ class JPXStream: public FilterStream {
 public:
 
   JPXStream(Stream *strA);
-  virtual ~JPXStream();
-  virtual StreamKind getKind() { return strJPX; }
-  virtual void reset();
-  virtual void close();
-  virtual Goffset getPos();
-  virtual int getChar();
-  virtual int lookChar();
-  virtual GooString *getPSFilter(int psLevel, const char *indent);
-  virtual GBool isBinary(GBool last = gTrue);
-  virtual void getImageParams(int *bitsPerComponent, StreamColorSpaceMode *csMode);
+  ~JPXStream();
+  StreamKind getKind() override { return strJPX; }
+  void reset() override;
+  void close() override;
+  Goffset getPos() override;
+  int getChar() override;
+  int lookChar() override;
+  GooString *getPSFilter(int psLevel, const char *indent) override;
+  GBool isBinary(GBool last = gTrue) override;
+  void getImageParams(int *bitsPerComponent, StreamColorSpaceMode *csMode) override;
 
   int readStream(int nChars, Guchar *buffer) {
     return str->doGetChars(nChars, buffer);
@@ -48,8 +48,8 @@ private:
   JPXStreamPrivate *priv;
 
   void init();
-  virtual GBool hasGetChars() { return true; }
-  virtual int getChars(int nChars, Guchar *buffer);
+  GBool hasGetChars() override { return true; }
+  int getChars(int nChars, Guchar *buffer) override;
 };
 
 #endif

@@ -48,21 +48,21 @@ class JBIG2Stream: public FilterStream {
 public:
 
   JBIG2Stream(Stream *strA, Object *globalsStreamA, Object *globalsStreamRefA);
-  virtual ~JBIG2Stream();
-  virtual StreamKind getKind() { return strJBIG2; }
-  virtual void reset();
-  virtual void close();
-  virtual Goffset getPos();
-  virtual int getChar();
-  virtual int lookChar();
-  virtual GooString *getPSFilter(int psLevel, const char *indent);
-  virtual GBool isBinary(GBool last = gTrue);
+  ~JBIG2Stream();
+  StreamKind getKind() override { return strJBIG2; }
+  void reset() override;
+  void close() override;
+  Goffset getPos() override;
+  int getChar() override;
+  int lookChar() override;
+  GooString *getPSFilter(int psLevel, const char *indent) override;
+  GBool isBinary(GBool last = gTrue) override;
   virtual Object *getGlobalsStream() { return &globalsStream; }
   virtual Ref getGlobalsStreamRef() { return globalsStreamRef; }
 
 private:
-  virtual GBool hasGetChars() { return true; }
-  virtual int getChars(int nChars, Guchar *buffer);
+  GBool hasGetChars() override { return true; }
+  int getChars(int nChars, Guchar *buffer) override;
 
   void readSegments();
   GBool readSymbolDictSeg(Guint segNum, Guint length,

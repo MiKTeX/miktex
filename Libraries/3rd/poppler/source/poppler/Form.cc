@@ -5,7 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2006-2008 Julien Rebetez <julienr@svn.gnome.org>
-// Copyright 2007-2012, 2015, 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright 2007-2012, 2015-2017 Albert Astals Cid <aacid@kde.org>
 // Copyright 2007-2008, 2011 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright 2007, 2013, 2016 Adrian Johnson <ajohnson@redneon.com>
 // Copyright 2007 Iñigo Martínez <inigomartinez@gmail.com>
@@ -317,11 +317,6 @@ int FormWidgetText::getMaxLen () const
 
 void FormWidgetText::setContent(GooString* new_content)
 {
-  if (isReadOnly()) {
-    error(errInternal, -1, "FormWidgetText::setContentCopy called on a read only field\n");
-    return;
-  }
-
   parent()->setContentCopy(new_content);
 }
 
@@ -351,30 +346,18 @@ bool FormWidgetChoice::_checkRange (int i)
 
 void FormWidgetChoice::select (int i)
 {
-  if (isReadOnly()) {
-    error(errInternal, -1, "FormWidgetChoice::select called on a read only field\n");
-    return;
-  }
   if (!_checkRange(i)) return;
   parent()->select(i);
 }
 
 void FormWidgetChoice::toggle (int i)
 {
-  if (isReadOnly()) {
-    error(errInternal, -1, "FormWidgetChoice::toggle called on a read only field\n");
-    return;
-  }
   if (!_checkRange(i)) return;
   parent()->toggle(i);
 }
 
 void FormWidgetChoice::deselectAll ()
 {
-  if (isReadOnly()) {
-    error(errInternal, -1, "FormWidgetChoice::deselectAll called on a read only field\n");
-    return;
-  }
   parent()->deselectAll();
 }
 
@@ -401,10 +384,6 @@ bool FormWidgetChoice::isSelected (int i)
 
 void FormWidgetChoice::setEditChoice (GooString* new_content)
 {
-  if (isReadOnly()) {
-    error(errInternal, -1, "FormWidgetText::setEditChoice called on a read only field\n");
-    return;
-  }
   if (!hasEdit()) {
     error(errInternal, -1, "FormFieldChoice::setEditChoice : trying to edit an non-editable choice\n");
     return;
@@ -1658,6 +1637,25 @@ Form::Form(PDFDoc *docA, Object* acroFormA)
     }
   } else {
     error(errSyntaxError, -1, "Can't get Fields array\n");
+  }
+  obj1.free ();
+
+  acroForm->dictLookup("CO", &obj1);
+  if (obj1.isArray()) {
+    Array *array = obj1.getArray();
+    calculateOrder.reserve(array->getLength());
+    for(int i=0; i<array->getLength(); i++) {
+      Object oref;
+      array->getNF(i, &oref);
+      if (!oref.isRef()) {
+        error(errSyntaxWarning, -1, "Direct object in CO");
+        oref.free();
+        continue;
+      }
+      calculateOrder.push_back(oref.getRef());
+
+      oref.free();
+    }
   }
   obj1.free ();
 

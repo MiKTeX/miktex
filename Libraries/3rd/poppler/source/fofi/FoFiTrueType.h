@@ -53,7 +53,7 @@ public:
   // Create a FoFiTrueType object from a file on disk.
   static FoFiTrueType *load(char *fileName, int faceIndexA=0);
 
-  virtual ~FoFiTrueType();
+  ~FoFiTrueType();
 
   // Returns true if this an OpenType font containing CFF data, false
   // if it's a TrueType font (or OpenType font with TrueType data).

@@ -262,8 +262,8 @@ private:
   class XRefTableWriter: public XRefWriter {
   public:
     XRefTableWriter(OutStream* outStrA);
-    void startSection(int first, int count);
-    void writeEntry(Goffset offset, int gen, XRefEntryType type);
+    void startSection(int first, int count) override;
+    void writeEntry(Goffset offset, int gen, XRefEntryType type) override;
   private:
     OutStream* outStr;
   };
@@ -272,8 +272,8 @@ private:
   class XRefStreamWriter: public XRefWriter {
   public:
     XRefStreamWriter(Object *index, GooString *stmBuf, int offsetSize);
-    void startSection(int first, int count);
-    void writeEntry(Goffset offset, int gen, XRefEntryType type);
+    void startSection(int first, int count) override;
+    void writeEntry(Goffset offset, int gen, XRefEntryType type) override;
   private:
     Object *index;
     GooString *stmBuf;
@@ -284,8 +284,8 @@ private:
   class XRefPreScanWriter: public XRefWriter {
   public:
     XRefPreScanWriter();
-    void startSection(int first, int count);
-    void writeEntry(Goffset offset, int gen, XRefEntryType type);
+    void startSection(int first, int count) override;
+    void writeEntry(Goffset offset, int gen, XRefEntryType type) override;
 
     GBool hasOffsetsBeyond4GB;
   };

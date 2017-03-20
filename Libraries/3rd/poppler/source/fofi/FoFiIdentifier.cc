@@ -69,13 +69,13 @@ class MemReader: public Reader {
 public:
 
   static MemReader *make(char *bufA, int lenA);
-  virtual ~MemReader();
-  virtual int getByte(int pos);
-  virtual GBool getU16BE(int pos, int *val);
-  virtual GBool getU32BE(int pos, Guint *val);
-  virtual GBool getU32LE(int pos, Guint *val);
-  virtual GBool getUVarBE(int pos, int size, Guint *val);
-  virtual GBool cmp(int pos, const char *s);
+  ~MemReader();
+  int getByte(int pos) override;
+  GBool getU16BE(int pos, int *val) override;
+  GBool getU32BE(int pos, Guint *val) override;
+  GBool getU32LE(int pos, Guint *val) override;
+  GBool getUVarBE(int pos, int size, Guint *val) override;
+  GBool cmp(int pos, const char *s) override;
 
 private:
 
@@ -164,13 +164,13 @@ class FileReader: public Reader {
 public:
 
   static FileReader *make(char *fileName);
-  virtual ~FileReader();
-  virtual int getByte(int pos);
-  virtual GBool getU16BE(int pos, int *val);
-  virtual GBool getU32BE(int pos, Guint *val);
-  virtual GBool getU32LE(int pos, Guint *val);
-  virtual GBool getUVarBE(int pos, int size, Guint *val);
-  virtual GBool cmp(int pos, const char *s);
+  ~FileReader();
+  int getByte(int pos) override;
+  GBool getU16BE(int pos, int *val) override;
+  GBool getU32BE(int pos, Guint *val) override;
+  GBool getU32LE(int pos, Guint *val) override;
+  GBool getUVarBE(int pos, int size, Guint *val) override;
+  GBool cmp(int pos, const char *s) override;
 
 private:
 
@@ -287,13 +287,13 @@ class StreamReader: public Reader {
 public:
 
   static StreamReader *make(int (*getCharA)(void *data), void *dataA);
-  virtual ~StreamReader();
-  virtual int getByte(int pos);
-  virtual GBool getU16BE(int pos, int *val);
-  virtual GBool getU32BE(int pos, Guint *val);
-  virtual GBool getU32LE(int pos, Guint *val);
-  virtual GBool getUVarBE(int pos, int size, Guint *val);
-  virtual GBool cmp(int pos, const char *s);
+  ~StreamReader();
+  int getByte(int pos) override;
+  GBool getU16BE(int pos, int *val) override;
+  GBool getU32BE(int pos, Guint *val) override;
+  GBool getU32LE(int pos, Guint *val) override;
+  GBool getUVarBE(int pos, int size, Guint *val) override;
+  GBool cmp(int pos, const char *s) override;
 
 private:
 

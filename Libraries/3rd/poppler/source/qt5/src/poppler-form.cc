@@ -23,7 +23,6 @@
 #if defined(MIKTEX)
 #  include <config.h>
 #endif
-
 #include "poppler-qt5.h"
 
 #include <QtCore/QSizeF>
@@ -158,6 +157,26 @@ Link* FormField::activationAction() const
 {
   Link* action = 0;
   if (::LinkAction *act = m_formData->fm->getActivationAction())
+  {
+    action = PageData::convertLinkActionToLink(act, m_formData->doc, QRectF());
+  }
+  return action;
+}
+
+Link *FormField::additionalAction(AdditionalActionType type) const
+{
+  Annot::FormAdditionalActionsType actionType = Annot::actionFieldModified;
+  switch ( type )
+  {
+      case FieldModified:  actionType = Annot::actionFieldModified; break;
+      case FormatField:    actionType = Annot::actionFormatField; break;
+      case ValidateField:  actionType = Annot::actionValidateField; break;
+      case CalculateField: actionType = Annot::actionCalculateField; break;
+
+  }
+
+  Link* action = 0;
+  if (::LinkAction *act = m_formData->fm->getAdditionalAction(actionType))
   {
     action = PageData::convertLinkActionToLink(act, m_formData->doc, QRectF());
   }

@@ -31,12 +31,12 @@ class QIODeviceOutStream : public OutStream
 {
   public:
     QIODeviceOutStream(QIODevice* device);
-    virtual ~QIODeviceOutStream();
+    ~QIODeviceOutStream();
 
-    virtual void close();
-    virtual Goffset getPos();
-    virtual void put(char c);
-    virtual void printf(const char *format, ...);
+    void close() override;
+    Goffset getPos() override;
+    void put(char c) override;
+    void printf(const char *format, ...) override;
 
   private:
     QIODevice *m_device;

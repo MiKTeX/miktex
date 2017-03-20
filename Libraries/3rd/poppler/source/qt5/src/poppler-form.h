@@ -116,6 +116,25 @@ namespace Poppler {
 	 */
 	Link* activationAction() const;
 
+        /**
+	  * Describes the flags from the form 'AA' dictionary.
+	  *
+	  * \since 0.53
+	 */
+	enum AdditionalActionType
+	{
+	    FieldModified,   ///< A JavaScript action to be performed when the user modifies the field
+	    FormatField,     ///< A JavaScript action to be performed before the field is formatted to display its value
+	    ValidateField,   ///< A JavaScript action to be performed when the field value changes
+	    CalculateField,  ///< A JavaScript action to be performed when the field needs to be recalculated
+	};
+	/**
+	  * Returns a given form additional action
+	  *
+	  * \since 0.53
+	 */
+	Link* additionalAction(AdditionalActionType type) const;
+
     protected:
 	/// \cond PRIVATE
 	FormField(FormFieldData &dd);
@@ -148,9 +167,9 @@ namespace Poppler {
 	/// \cond PRIVATE
 	FormFieldButton(DocumentData *doc, ::Page *p, ::FormWidgetButton *w);
 	/// \endcond
-	virtual ~FormFieldButton();
+	~FormFieldButton();
 
-	virtual FormType type() const;
+	FormType type() const override;
 
 	/**
 	  The particular type of the button field.
@@ -204,9 +223,9 @@ namespace Poppler {
 	/// \cond PRIVATE
 	FormFieldText(DocumentData *doc, ::Page *p, ::FormWidgetText *w);
 	/// \endcond
-	virtual ~FormFieldText();
+	~FormFieldText();
 
-	virtual FormType type() const;
+	FormType type() const override;
 
 	/**
 	  The text type of the text field.
@@ -276,9 +295,9 @@ namespace Poppler {
 	/// \cond PRIVATE
 	FormFieldChoice(DocumentData *doc, ::Page *p, ::FormWidgetChoice *w);
 	/// \endcond
-	virtual ~FormFieldChoice();
+	~FormFieldChoice();
 
-	virtual FormType type() const;
+	FormType type() const override;
 
 	/**
 	  The choice type of the choice field.
@@ -435,9 +454,9 @@ namespace Poppler {
 	/// \cond PRIVATE
 	FormFieldSignature(DocumentData *doc, ::Page *p, ::FormWidgetSignature *w);
 	/// \endcond
-	virtual ~FormFieldSignature();
+	~FormFieldSignature();
 
-	virtual FormType type() const;
+	FormType type() const override;
 
 	/**
 	  Validate the signature.

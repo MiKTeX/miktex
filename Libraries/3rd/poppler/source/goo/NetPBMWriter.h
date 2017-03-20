@@ -36,12 +36,12 @@ public:
   NetPBMWriter(Format formatA = RGB);
   ~NetPBMWriter() {};
 
-  bool init(FILE *f, int width, int height, int hDPI, int vDPI);
+  bool init(FILE *f, int width, int height, int hDPI, int vDPI) override;
 
-  bool writePointers(unsigned char **rowPointers, int rowCount);
-  bool writeRow(unsigned char **row);
+  bool writePointers(unsigned char **rowPointers, int rowCount) override;
+  bool writeRow(unsigned char **row) override;
 
-  bool close();
+  bool close() override;
 
 private:
   FILE *file;

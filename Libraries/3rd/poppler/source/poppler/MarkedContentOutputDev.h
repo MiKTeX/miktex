@@ -89,24 +89,24 @@ public:
   virtual ~MarkedContentOutputDev();
 
   virtual GBool isOk() { return gTrue; }
-  virtual GBool upsideDown() { return gTrue; }
-  virtual GBool useDrawChar() { return gTrue; }
-  virtual GBool interpretType3Chars() { return gFalse; }
-  virtual GBool needNonText() { return gFalse; }
-  virtual GBool needCharCount() { return gFalse; }
+  GBool upsideDown() override { return gTrue; }
+  GBool useDrawChar() override { return gTrue; }
+  GBool interpretType3Chars() override { return gFalse; }
+  GBool needNonText() override { return gFalse; }
+  GBool needCharCount() override { return gFalse; }
 
-  virtual void startPage(int pageNum, GfxState *state, XRef *xref);
-  virtual void endPage();
+  void startPage(int pageNum, GfxState *state, XRef *xref) override;
+  void endPage() override;
 
-  virtual void drawChar(GfxState *state,
+  void drawChar(GfxState *state,
                         double xx, double yy,
                         double dx, double dy,
                         double ox, double oy,
                         CharCode c, int nBytes,
-                        Unicode *u, int uLen);
+                        Unicode *u, int uLen) override;
 
-  virtual void beginMarkedContent(char *name, Dict *properties);
-  virtual void endMarkedContent(GfxState *state);
+  void beginMarkedContent(char *name, Dict *properties) override;
+  void endMarkedContent(GfxState *state) override;
 
   const TextSpanArray& getTextSpans() const;
 

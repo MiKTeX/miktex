@@ -17,9 +17,8 @@
 class StdinCacheLoader : public CachedFileLoader {
 
 public:
-
-  size_t init(GooString *dummy, CachedFile* cachedFile);
-  int load(const std::vector<ByteRange> &ranges, CachedFileWriter *writer);
+  size_t init(GooString *dummy, CachedFile* cachedFile) override;
+  int load(const std::vector<ByteRange> &ranges, CachedFileWriter *writer) override;
 
 };
 

@@ -150,13 +150,13 @@ public:
   LinkGoTo(Object *destObj);
 
   // Destructor.
-  virtual ~LinkGoTo();
+  ~LinkGoTo();
 
   // Was the LinkGoTo created successfully?
-  virtual GBool isOk() { return dest || namedDest; }
+  GBool isOk() override { return dest || namedDest; }
 
   // Accessors.
-  virtual LinkActionKind getKind() { return actionGoTo; }
+  LinkActionKind getKind() override { return actionGoTo; }
   LinkDest *getDest() { return dest; }
   GooString *getNamedDest() { return namedDest; }
 
@@ -180,13 +180,13 @@ public:
   LinkGoToR(Object *fileSpecObj, Object *destObj);
 
   // Destructor.
-  virtual ~LinkGoToR();
+  ~LinkGoToR();
 
   // Was the LinkGoToR created successfully?
-  virtual GBool isOk() { return fileName && (dest || namedDest); }
+  GBool isOk() override { return fileName && (dest || namedDest); }
 
   // Accessors.
-  virtual LinkActionKind getKind() { return actionGoToR; }
+  LinkActionKind getKind() override { return actionGoToR; }
   GooString *getFileName() { return fileName; }
   LinkDest *getDest() { return dest; }
   GooString *getNamedDest() { return namedDest; }
@@ -211,13 +211,13 @@ public:
   LinkLaunch(Object *actionObj);
 
   // Destructor.
-  virtual ~LinkLaunch();
+  ~LinkLaunch();
 
   // Was the LinkLaunch created successfully?
-  virtual GBool isOk() { return fileName != NULL; }
+  GBool isOk() override { return fileName != NULL; }
 
   // Accessors.
-  virtual LinkActionKind getKind() { return actionLaunch; }
+  LinkActionKind getKind() override { return actionLaunch; }
   GooString *getFileName() { return fileName; }
   GooString *getParams() { return params; }
 
@@ -238,13 +238,13 @@ public:
   LinkURI(Object *uriObj, GooString *baseURI);
 
   // Destructor.
-  virtual ~LinkURI();
+  ~LinkURI();
 
   // Was the LinkURI created successfully?
-  virtual GBool isOk() { return uri != NULL; }
+  GBool isOk() override { return uri != NULL; }
 
   // Accessors.
-  virtual LinkActionKind getKind() { return actionURI; }
+  LinkActionKind getKind() override { return actionURI; }
   GooString *getURI() { return uri; }
 
 private:
@@ -262,11 +262,11 @@ public:
   // Build a LinkNamed given the action name.
   LinkNamed(Object *nameObj);
 
-  virtual ~LinkNamed();
+  ~LinkNamed();
 
-  virtual GBool isOk() { return name != NULL; }
+  GBool isOk() override { return name != NULL; }
 
-  virtual LinkActionKind getKind() { return actionNamed; }
+  LinkActionKind getKind() override { return actionNamed; }
   GooString *getName() { return name; }
 
 private:
@@ -290,10 +290,10 @@ public:
   };
 
   LinkMovie(Object *obj);
-  virtual ~LinkMovie();
+  ~LinkMovie();
 
-  virtual GBool isOk() { return annotRef.num >= 0 || annotTitle != NULL; }
-  virtual LinkActionKind getKind() { return actionMovie; }
+  GBool isOk() override { return annotRef.num >= 0 || annotTitle != NULL; }
+  LinkActionKind getKind() override { return actionMovie; }
 
   // a movie action stores either an indirect reference to a movie annotation
   // or the movie annotation title
@@ -333,11 +333,11 @@ public:
 
   LinkRendition(Object *Obj);
 
-  virtual ~LinkRendition();
+  ~LinkRendition();
 
-  virtual GBool isOk() { return true; }
+  GBool isOk() override { return true; }
 
-  virtual LinkActionKind getKind() { return actionRendition; }
+  LinkActionKind getKind() override { return actionRendition; }
 
   GBool hasRenditionObject() { return renditionObj.isDict(); }
   Object* getRenditionObject() { return &renditionObj; }
@@ -371,11 +371,11 @@ public:
 
   LinkSound(Object *soundObj);
 
-  virtual ~LinkSound();
+  ~LinkSound();
 
-  virtual GBool isOk() { return sound != NULL; }
+  GBool isOk() override { return sound != NULL; }
 
-  virtual LinkActionKind getKind() { return actionSound; }
+  LinkActionKind getKind() override { return actionSound; }
 
   double getVolume() { return volume; }
   GBool getSynchronous() { return sync; }
@@ -402,11 +402,11 @@ public:
   // Build a LinkJavaScript given the action name.
   LinkJavaScript(Object *jsObj);
 
-  virtual ~LinkJavaScript();
+  ~LinkJavaScript();
 
-  virtual GBool isOk() { return js != NULL; }
+  GBool isOk() override { return js != NULL; }
 
-  virtual LinkActionKind getKind() { return actionJavaScript; }
+  LinkActionKind getKind() override { return actionJavaScript; }
   GooString *getScript() { return js; }
 
 private:
@@ -421,11 +421,11 @@ class LinkOCGState: public LinkAction {
 public:
   LinkOCGState(Object *obj);
 
-  virtual ~LinkOCGState();
+  ~LinkOCGState();
 
-  virtual GBool isOk() { return stateList != NULL; }
+  GBool isOk() override { return stateList != NULL; }
 
-  virtual LinkActionKind getKind() { return actionOCGState; }
+  LinkActionKind getKind() override { return actionOCGState; }
 
   enum State { On, Off, Toggle};
   struct StateList {
@@ -454,13 +454,13 @@ public:
   LinkUnknown(char *actionA);
 
   // Destructor.
-  virtual ~LinkUnknown();
+  ~LinkUnknown();
 
   // Was the LinkUnknown create successfully?
-  virtual GBool isOk() { return action != NULL; }
+  GBool isOk() override { return action != NULL; }
 
   // Accessors.
-  virtual LinkActionKind getKind() { return actionUnknown; }
+  LinkActionKind getKind() override { return actionUnknown; }
   GooString *getAction() { return action; }
 
 private:

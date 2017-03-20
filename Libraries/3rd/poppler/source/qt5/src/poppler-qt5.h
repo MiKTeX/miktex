@@ -1,7 +1,7 @@
 /* poppler-qt.h: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
  * Copyright (C) 2005, 2007, Brad Hards <bradh@frogmouth.net>
- * Copyright (C) 2005-2015, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2005-2015, 2017, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2005, Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
  * Copyright (C) 2006-2011, Pino Toscano <pino@kde.org>
  * Copyright (C) 2009 Shawn Rutledge <shawn.t.rutledge@gmail.com>
@@ -1523,6 +1523,13 @@ QString subject = m_doc->info("Subject");
 	FormType formType() const;
 
 	/**
+	   Returns the calculate order for forms (using their id)
+
+	   \since 0.53
+	*/
+	QVector<int> formCalculateOrder() const;
+
+	/**
 	   Destructor.
 	*/
 	~Document();
@@ -1725,7 +1732,7 @@ height = dummy.height();
              */
             void setPageConvertedCallback(void (* callback)(int page, void *payload), void *payload);
 
-            bool convert();
+            bool convert() override;
 
         private:
             Q_DECLARE_PRIVATE(PSConverter)
@@ -1754,7 +1761,7 @@ height = dummy.height();
             /**
               Destructor.
             */
-            virtual ~PDFConverter();
+            ~PDFConverter();
 
             /**
               Sets the options for the PDF export.
@@ -1765,7 +1772,7 @@ height = dummy.height();
              */
             PDFOptions pdfOptions() const;
 
-            bool convert();
+            bool convert() override;
 
         private:
             Q_DECLARE_PRIVATE(PDFConverter)

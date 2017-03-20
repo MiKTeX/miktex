@@ -20,7 +20,6 @@
 #if defined(MIKTEX)
 #  include <config.h>
 #endif
-
 #include "poppler-media.h"
 
 #include "Rendition.h"

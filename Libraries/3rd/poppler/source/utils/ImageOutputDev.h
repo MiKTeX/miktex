@@ -17,7 +17,7 @@
 // Copyright (C) 2008 Timothy Lee <timothy.lee@siriushk.com>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2010 Jakob Voss <jakob.voss@gbv.de>
-// Copyright (C) 2012, 2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2012, 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 //
 // To see a description of the changes please see the Changelog file that
@@ -55,6 +55,7 @@ public:
   };
   enum ImageFormat {
     imgRGB,
+    imgRGB48,
     imgGray,
     imgMonochrome,
     imgCMYK
@@ -95,56 +96,56 @@ public:
   // Does this device use tilingPatternFill()?  If this returns false,
   // tiling pattern fills will be reduced to a series of other drawing
   // operations.
-  virtual GBool useTilingPatternFill() { return gTrue; }
+  GBool useTilingPatternFill() override { return gTrue; }
 
   // Does this device use beginType3Char/endType3Char?  Otherwise,
   // text in Type 3 fonts will be drawn with drawChar/drawString.
-  virtual GBool interpretType3Chars() { return gFalse; }
+  GBool interpretType3Chars() override { return gFalse; }
 
   // Does this device need non-text content?
-  virtual GBool needNonText() { return gTrue; }
+  GBool needNonText() override { return gTrue; }
 
   // Start a page
-  virtual void startPage(int pageNumA, GfxState *state, XRef *xref) 
+  void startPage(int pageNumA, GfxState *state, XRef *xref)  override
 			{ pageNum = pageNumA; }
  
   //---- get info about output device
 
   // Does this device use upside-down coordinates?
   // (Upside-down means (0,0) is the top left corner of the page.)
-  virtual GBool upsideDown() { return gTrue; }
+  GBool upsideDown() override { return gTrue; }
 
   // Does this device use drawChar() or drawString()?
-  virtual GBool useDrawChar() { return gFalse; }
+  GBool useDrawChar() override { return gFalse; }
 
   //----- path painting
-  virtual GBool tilingPatternFill(GfxState *state, Gfx *gfx, Catalog *cat, Object *str,
-				  double *pmat, int paintType, int tilingType, Dict *resDict,
-				  double *mat, double *bbox,
-				  int x0, int y0, int x1, int y1,
-				  double xStep, double yStep);
+  GBool tilingPatternFill(GfxState *state, Gfx *gfx, Catalog *cat, Object *str,
+			  double *pmat, int paintType, int tilingType, Dict *resDict,
+			  double *mat, double *bbox,
+			  int x0, int y0, int x1, int y1,
+			  double xStep, double yStep) override;
 
   //----- image drawing
-  virtual void drawImageMask(GfxState *state, Object *ref, Stream *str,
-			     int width, int height, GBool invert,
-			     GBool interpolate, GBool inlineImg);
-  virtual void drawImage(GfxState *state, Object *ref, Stream *str,
-			 int width, int height, GfxImageColorMap *colorMap,
-			 GBool interpolate, int *maskColors, GBool inlineImg);
-  virtual void drawMaskedImage(GfxState *state, Object *ref, Stream *str,
-			       int width, int height,
-			       GfxImageColorMap *colorMap,
-			       GBool interpolate,
-			       Stream *maskStr, int maskWidth, int maskHeight,
-			       GBool maskInvert, GBool maskInterpolate);
-  virtual void drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
-				   int width, int height,
-				   GfxImageColorMap *colorMap,
-				   GBool interpolate,
-				   Stream *maskStr,
-				   int maskWidth, int maskHeight,
-				   GfxImageColorMap *maskColorMap,
-				   GBool maskInterpolate);
+  void drawImageMask(GfxState *state, Object *ref, Stream *str,
+		     int width, int height, GBool invert,
+		     GBool interpolate, GBool inlineImg) override;
+  void drawImage(GfxState *state, Object *ref, Stream *str,
+		 int width, int height, GfxImageColorMap *colorMap,
+		 GBool interpolate, int *maskColors, GBool inlineImg) override;
+  void drawMaskedImage(GfxState *state, Object *ref, Stream *str,
+		       int width, int height,
+		       GfxImageColorMap *colorMap,
+		       GBool interpolate,
+		       Stream *maskStr, int maskWidth, int maskHeight,
+		       GBool maskInvert, GBool maskInterpolate) override;
+  void drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
+			   int width, int height,
+			   GfxImageColorMap *colorMap,
+			   GBool interpolate,
+			   Stream *maskStr,
+			   int maskWidth, int maskHeight,
+			   GfxImageColorMap *maskColorMap,
+			   GBool maskInterpolate) override;
 
 private:
   // Sets the output filename with a given file extension

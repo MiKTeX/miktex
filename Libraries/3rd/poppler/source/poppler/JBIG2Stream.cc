@@ -674,8 +674,8 @@ class JBIG2Bitmap: public JBIG2Segment {
 public:
 
   JBIG2Bitmap(Guint segNumA, int wA, int hA);
-  virtual ~JBIG2Bitmap();
-  virtual JBIG2SegmentType getType() { return jbig2SegBitmap; }
+  ~JBIG2Bitmap();
+  JBIG2SegmentType getType() override { return jbig2SegBitmap; }
   JBIG2Bitmap *copy() { return new JBIG2Bitmap(0, this); }
   JBIG2Bitmap *getSlice(Guint x, Guint y, Guint wA, Guint hA);
   void expand(int newH, Guint pixel);
@@ -1046,8 +1046,8 @@ class JBIG2SymbolDict: public JBIG2Segment {
 public:
 
   JBIG2SymbolDict(Guint segNumA, Guint sizeA);
-  virtual ~JBIG2SymbolDict();
-  virtual JBIG2SegmentType getType() { return jbig2SegSymbolDict; }
+  ~JBIG2SymbolDict();
+  JBIG2SegmentType getType() override { return jbig2SegSymbolDict; }
   Guint getSize() { return size; }
   void setBitmap(Guint idx, JBIG2Bitmap *bitmap) { bitmaps[idx] = bitmap; }
   JBIG2Bitmap *getBitmap(Guint idx) { return bitmaps[idx]; }
@@ -1107,8 +1107,8 @@ class JBIG2PatternDict: public JBIG2Segment {
 public:
 
   JBIG2PatternDict(Guint segNumA, Guint sizeA);
-  virtual ~JBIG2PatternDict();
-  virtual JBIG2SegmentType getType() { return jbig2SegPatternDict; }
+  ~JBIG2PatternDict();
+  JBIG2SegmentType getType() override { return jbig2SegPatternDict; }
   Guint getSize() { return size; }
   void setBitmap(Guint idx, JBIG2Bitmap *bitmap) { if (likely(idx < size)) bitmaps[idx] = bitmap; }
   JBIG2Bitmap *getBitmap(Guint idx) { return (idx < size) ? bitmaps[idx] : NULL; }
@@ -1148,8 +1148,8 @@ class JBIG2CodeTable: public JBIG2Segment {
 public:
 
   JBIG2CodeTable(Guint segNumA, JBIG2HuffmanTable *tableA);
-  virtual ~JBIG2CodeTable();
-  virtual JBIG2SegmentType getType() { return jbig2SegCodeTable; }
+  ~JBIG2CodeTable();
+  JBIG2SegmentType getType() override { return jbig2SegCodeTable; }
   JBIG2HuffmanTable *getHuffTable() { return table; }
 
 private:

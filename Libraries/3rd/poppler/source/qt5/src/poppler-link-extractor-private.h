@@ -34,13 +34,13 @@ class LinkExtractorOutputDev : public OutputDev
 {
   public:
     LinkExtractorOutputDev(PageData *data);
-    virtual ~LinkExtractorOutputDev();
+    ~LinkExtractorOutputDev();
 
     // inherited from OutputDev
-    virtual GBool upsideDown() { return gFalse; }
-    virtual GBool useDrawChar() { return gFalse; }
-    virtual GBool interpretType3Chars() { return gFalse; }
-    virtual void processLink(::AnnotLink *link);
+    GBool upsideDown() override { return gFalse; }
+    GBool useDrawChar() override { return gFalse; }
+    GBool interpretType3Chars() override { return gFalse; }
+    void processLink(::AnnotLink *link) override;
 
     // our stuff
     QList< Link* > links();

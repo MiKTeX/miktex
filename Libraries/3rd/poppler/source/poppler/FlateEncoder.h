@@ -44,16 +44,16 @@ class FlateEncoder: public FilterStream {
 public:
 
   FlateEncoder(Stream *strA);
-  virtual ~FlateEncoder();
-  virtual StreamKind getKind() { return strWeird; }
-  virtual void reset();
-  virtual int getChar()
+  ~FlateEncoder();
+  StreamKind getKind() override { return strWeird; }
+  void reset() override;
+  int getChar() override
     { return (outBufPtr >= outBufEnd && !fillBuf()) ? EOF : (*outBufPtr++ & 0xff); }
-  virtual int lookChar()
+  int lookChar() override
     { return (outBufPtr >= outBufEnd && !fillBuf()) ? EOF : (*outBufPtr & 0xff); }
-  virtual GooString *getPSFilter(int psLevel, const char *indent) { return NULL; }
-  virtual GBool isBinary(GBool last = gTrue) { return gTrue; }
-  virtual GBool isEncoder() { return gTrue; }
+  GooString *getPSFilter(int psLevel, const char *indent) override { return NULL; }
+  GBool isBinary(GBool last = gTrue) override { return gTrue; }
+  GBool isEncoder() override { return gTrue; }
 
 private:
 

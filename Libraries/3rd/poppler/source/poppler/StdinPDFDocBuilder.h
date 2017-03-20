@@ -23,10 +23,9 @@
 class StdinPDFDocBuilder : public PDFDocBuilder {
 
 public:
-
   PDFDoc *buildPDFDoc(const GooString &uri, GooString *ownerPassword = NULL,
-    GooString *userPassword = NULL, void *guiDataA = NULL);
-  GBool supports(const GooString &uri);
+                      GooString *userPassword = NULL, void *guiDataA = NULL) override;
+  GBool supports(const GooString &uri) override;
 
 };
 

@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2005 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2006 Stefan Schweizer <genstef@gentoo.org>
-// Copyright (C) 2006-2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006-2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
@@ -1220,7 +1220,7 @@ public:
 
   ~SplashOutFontFileID() {}
 
-  GBool matches(SplashFontFileID *id) {
+  GBool matches(SplashFontFileID *id) override {
     return ((SplashOutFontFileID *)id)->r.num == r.num &&
            ((SplashOutFontFileID *)id)->r.gen == r.gen;
   }
@@ -4025,9 +4025,9 @@ void SplashOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref,
     maskStr->reset();
     maskStr->doGetChars(maskWidth * maskHeight, data);
     maskStr->close();
-    Object *maskDict = new Object();
-    maskDict->initDict(maskStr->getDict());
-    maskStr = new MemStream((char *)data, 0, maskWidth * maskHeight, maskDict);
+    Object maskDict;
+    maskDict.initDict(maskStr->getDict());
+    maskStr = new MemStream((char *)data, 0, maskWidth * maskHeight, &maskDict);
     ((MemStream *) maskStr)->setNeedFree(gTrue);
   }
   imgMaskData.imgStr = new ImageStream(maskStr, maskWidth,

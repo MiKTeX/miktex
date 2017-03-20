@@ -105,14 +105,14 @@ public:
 
   BaseCryptStream(Stream *strA, Guchar *fileKey, CryptAlgorithm algoA,
                   int keyLength, int objNum, int objGen);
-  virtual ~BaseCryptStream();
-  virtual StreamKind getKind() { return strCrypt; }
-  virtual void reset();
-  virtual int getChar();
-  virtual int lookChar() = 0;
-  virtual Goffset getPos();
-  virtual GBool isBinary(GBool last);
-  virtual Stream *getUndecodedStream() { return this; }
+  ~BaseCryptStream();
+  StreamKind getKind() override { return strCrypt; }
+  void reset() override;
+  int getChar() override;
+  int lookChar() override = 0;
+  Goffset getPos() override;
+  GBool isBinary(GBool last) override;
+  Stream *getUndecodedStream() override { return this; }
   void setAutoDelete(GBool val);
 
 protected:
@@ -140,8 +140,8 @@ public:
   EncryptStream(Stream *strA, Guchar *fileKey, CryptAlgorithm algoA,
                 int keyLength, int objNum, int objGen);
   ~EncryptStream();
-  virtual void reset();
-  virtual int lookChar();
+  void reset() override;
+  int lookChar() override;
 };
 
 class DecryptStream : public BaseCryptStream {
@@ -150,8 +150,8 @@ public:
   DecryptStream(Stream *strA, Guchar *fileKey, CryptAlgorithm algoA,
                 int keyLength, int objNum, int objGen);
   ~DecryptStream();
-  virtual void reset();
-  virtual int lookChar();
+  void reset() override;
+  int lookChar() override;
 };
  
 //------------------------------------------------------------------------

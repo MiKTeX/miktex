@@ -6,7 +6,7 @@
 //
 // Copyright (C) 2010, 2012 William Bader <williambader@hotmail.com>
 // Copyright (C) 2012 Albert Astals Cid <aacid@kde.org>
-// Copyright (C) 2012 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2012, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2012 Pino Toscano <pino@kde.org>
 // Copyright (C) 2014 Steven Lee <roc.sky@gmail.com>
 //
@@ -146,6 +146,12 @@ bool TiffWriter::init(FILE *openedFile, int width, int height, int hDPI, int vDP
     case CMYK:
       samplesperpixel = 4;
       photometric = PHOTOMETRIC_SEPARATED;
+      break;
+
+    case RGB48:
+      samplesperpixel = 3;
+      bitspersample = 16;
+      photometric = PHOTOMETRIC_RGB;
       break;
   }
 

@@ -23,7 +23,6 @@
 #if defined(MIKTEX)
 #  include <config.h>
 #endif
-
 #include "poppler-qt5.h"
 #include "poppler-private.h"
 

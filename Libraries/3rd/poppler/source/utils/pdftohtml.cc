@@ -162,14 +162,14 @@ public:
   void drawChar(GfxState *state, double x, double y,
       double dx, double dy,
       double originX, double originY,
-      CharCode code, int nBytes, Unicode *u, int uLen) { }
+      CharCode code, int nBytes, Unicode *u, int uLen) override { }
   GBool beginType3Char(GfxState *state, double x, double y,
       double dx, double dy,
-      CharCode code, Unicode *u, int uLen) { return false; }
-  void endType3Char(GfxState *state) { }
-  void beginTextObject(GfxState *state) { }
-  void endTextObject(GfxState *state) { }
-  GBool interpretType3Chars() { return gFalse; }
+      CharCode code, Unicode *u, int uLen) override { return false; }
+  void endType3Char(GfxState *state) override { }
+  void beginTextObject(GfxState *state) override { }
+  void endTextObject(GfxState *state) override { }
+  GBool interpretType3Chars() override { return gFalse; }
 };
 #endif
 

@@ -107,21 +107,21 @@ class StandardSecurityHandler: public SecurityHandler {
 public:
 
   StandardSecurityHandler(PDFDoc *docA, Object *encryptDictA);
-  virtual ~StandardSecurityHandler();
+  ~StandardSecurityHandler();
 
-  virtual GBool isUnencrypted();
-  virtual void *makeAuthData(GooString *ownerPassword,
-			     GooString *userPassword);
-  virtual void *getAuthData();
-  virtual void freeAuthData(void *authData);
-  virtual GBool authorize(void *authData);
-  virtual int getPermissionFlags() { return permFlags; }
-  virtual GBool getOwnerPasswordOk() { return ownerPasswordOk; }
-  virtual Guchar *getFileKey() { return fileKey; }
-  virtual int getFileKeyLength() { return fileKeyLength; }
-  virtual int getEncVersion() { return encVersion; }
-  virtual int getEncRevision() { return encRevision; }
-  virtual CryptAlgorithm getEncAlgorithm() { return encAlgorithm; }
+  GBool isUnencrypted() override;
+  void *makeAuthData(GooString *ownerPassword,
+			     GooString *userPassword) override;
+  void *getAuthData() override;
+  void freeAuthData(void *authData) override;
+  GBool authorize(void *authData) override;
+  int getPermissionFlags() override { return permFlags; }
+  GBool getOwnerPasswordOk() override { return ownerPasswordOk; }
+  Guchar *getFileKey() override { return fileKey; }
+  int getFileKeyLength() override { return fileKeyLength; }
+  int getEncVersion() override { return encVersion; }
+  int getEncRevision() override { return encRevision; }
+  CryptAlgorithm getEncAlgorithm() override { return encAlgorithm; }
 
 private:
 

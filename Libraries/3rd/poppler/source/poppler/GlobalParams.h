@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2005, 2007-2010, 2012, 2015 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2007-2010, 2012, 2015, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Jonathan Blandford <jrb@redhat.com>
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
@@ -128,8 +128,7 @@ enum ScreenType {
 class GlobalParams {
 public:
 
-  // Initialize the global parameters by attempting to read a config
-  // file.
+  // Initialize the global parameters
   GlobalParams(const char *customPopplerDataDir = NULL);
 
   ~GlobalParams();

@@ -322,15 +322,15 @@ public:
   Gfx8BitFont(XRef *xref, const char *tagA, Ref idA, GooString *nameA,
 	      GfxFontType typeA, Ref embFontIDA, Dict *fontDict);
 
-  virtual int getNextChar(char *s, int len, CharCode *code,
+  int getNextChar(char *s, int len, CharCode *code,
 			  Unicode **u, int *uLen,
-			  double *dx, double *dy, double *ox, double *oy);
+			  double *dx, double *dy, double *ox, double *oy) override;
 
   // Return the encoding.
   char **getEncoding() { return enc; }
 
   // Return the Unicode map.
-  CharCodeToUnicode *getToUnicode();
+  CharCodeToUnicode *getToUnicode() override;
 
   // Return the character name associated with <code>.
   char *getCharName(int code) { return enc[code]; }
@@ -358,7 +358,7 @@ public:
   Dict *getResources();
 
 private:
-  virtual ~Gfx8BitFont();
+  ~Gfx8BitFont();
 
   const Base14FontMapEntry *base14;	// for Base-14 fonts only; NULL otherwise
   char *enc[256];		// char code --> char name
@@ -384,17 +384,17 @@ public:
   GfxCIDFont(XRef *xref, const char *tagA, Ref idA, GooString *nameA,
 	     GfxFontType typeA, Ref embFontIDA, Dict *fontDict);
 
-  virtual GBool isCIDFont() { return gTrue; }
+  GBool isCIDFont() override { return gTrue; }
 
-  virtual int getNextChar(char *s, int len, CharCode *code,
+  int getNextChar(char *s, int len, CharCode *code,
 			  Unicode **u, int *uLen,
-			  double *dx, double *dy, double *ox, double *oy);
+			  double *dx, double *dy, double *ox, double *oy) override;
 
   // Return the writing mode (0=horizontal, 1=vertical).
-  virtual int getWMode();
+  int getWMode() override;
 
   // Return the Unicode map.
-  CharCodeToUnicode *getToUnicode();
+  CharCodeToUnicode *getToUnicode() override;
 
   // Get the collection name (<registry>-<ordering>).
   GooString *getCollection();
@@ -409,7 +409,7 @@ public:
   double getWidth(char* s, int len);
 
 private:
-  virtual ~GfxCIDFont();
+  ~GfxCIDFont();
 
   int mapCodeToGID(FoFiTrueType *ff, int cmapi,
     Unicode unicode, GBool wmode);

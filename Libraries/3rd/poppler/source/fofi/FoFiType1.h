@@ -29,7 +29,7 @@ public:
   // Create a FoFiType1 object from a file on disk.
   static FoFiType1 *load(char *fileName);
 
-  virtual ~FoFiType1();
+  ~FoFiType1();
 
   // Return the font name.
   char *getName();

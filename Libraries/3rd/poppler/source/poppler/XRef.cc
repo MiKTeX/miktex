@@ -117,7 +117,7 @@ class ObjectStreamKey : public PopplerCacheKey
     {
     }
 
-    bool operator==(const PopplerCacheKey &key) const
+    bool operator==(const PopplerCacheKey &key) const override
     {
       const ObjectStreamKey *k = static_cast<const ObjectStreamKey*>(&key);
       return objStrNum == k->objStrNum;

@@ -109,11 +109,11 @@ class IdentityFunction: public Function {
 public:
 
   IdentityFunction();
-  virtual ~IdentityFunction();
-  virtual Function *copy() { return new IdentityFunction(); }
-  virtual int getType() { return -1; }
-  virtual void transform(double *in, double *out);
-  virtual GBool isOk() { return gTrue; }
+  ~IdentityFunction();
+  Function *copy() override { return new IdentityFunction(); }
+  int getType() override { return -1; }
+  void transform(double *in, double *out) override;
+  GBool isOk() override { return gTrue; }
 
 private:
 };
@@ -126,12 +126,12 @@ class SampledFunction: public Function {
 public:
 
   SampledFunction(Object *funcObj, Dict *dict);
-  virtual ~SampledFunction();
-  virtual Function *copy() { return new SampledFunction(this); }
-  virtual int getType() { return 0; }
-  virtual void transform(double *in, double *out);
-  virtual GBool isOk() { return ok; }
-  virtual GBool hasDifferentResultSet(Function *func);
+  ~SampledFunction();
+  Function *copy() override { return new SampledFunction(this); }
+  int getType() override { return 0; }
+  void transform(double *in, double *out) override;
+  GBool isOk() override { return ok; }
+  GBool hasDifferentResultSet(Function *func) override;
 
   int getSampleSize(int i) { return sampleSize[i]; }
   double getEncodeMin(int i) { return encode[i][0]; }
@@ -170,11 +170,11 @@ class ExponentialFunction: public Function {
 public:
 
   ExponentialFunction(Object *funcObj, Dict *dict);
-  virtual ~ExponentialFunction();
-  virtual Function *copy() { return new ExponentialFunction(this); }
-  virtual int getType() { return 2; }
-  virtual void transform(double *in, double *out);
-  virtual GBool isOk() { return ok; }
+  ~ExponentialFunction();
+  Function *copy() override { return new ExponentialFunction(this); }
+  int getType() override { return 2; }
+  void transform(double *in, double *out) override;
+  GBool isOk() override { return ok; }
 
   double *getC0() { return c0; }
   double *getC1() { return c1; }
@@ -199,11 +199,11 @@ class StitchingFunction: public Function {
 public:
 
   StitchingFunction(Object *funcObj, Dict *dict, std::set<int> *usedParents);
-  virtual ~StitchingFunction();
-  virtual Function *copy() { return new StitchingFunction(this); }
-  virtual int getType() { return 3; }
-  virtual void transform(double *in, double *out);
-  virtual GBool isOk() { return ok; }
+  ~StitchingFunction();
+  Function *copy() override { return new StitchingFunction(this); }
+  int getType() override { return 3; }
+  void transform(double *in, double *out) override;
+  GBool isOk() override { return ok; }
 
   int getNumFuncs() { return k; }
   Function *getFunc(int i) { return funcs[i]; }
@@ -231,11 +231,11 @@ class PostScriptFunction: public Function {
 public:
 
   PostScriptFunction(Object *funcObj, Dict *dict);
-  virtual ~PostScriptFunction();
-  virtual Function *copy() { return new PostScriptFunction(this); }
-  virtual int getType() { return 4; }
-  virtual void transform(double *in, double *out);
-  virtual GBool isOk() { return ok; }
+  ~PostScriptFunction();
+  Function *copy() override { return new PostScriptFunction(this); }
+  int getType() override { return 4; }
+  void transform(double *in, double *out) override;
+  GBool isOk() override { return ok; }
 
   GooString *getCodeString() { return codeString; }
 

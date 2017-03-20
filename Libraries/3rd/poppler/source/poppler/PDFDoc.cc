@@ -93,7 +93,6 @@
 #    include <miktex/utf8wrap.h>
 #  endif
 #endif
-
 //------------------------------------------------------------------------
 
 #define headerSearchSize 1024	// read this many bytes at beginning of

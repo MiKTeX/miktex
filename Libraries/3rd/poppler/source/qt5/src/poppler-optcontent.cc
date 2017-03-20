@@ -24,7 +24,6 @@
 #if defined(MIKTEX)
 #  include <config.h>
 #endif
-
 #include "poppler-optcontent.h"
 
 #include "poppler-optcontent-private.h"

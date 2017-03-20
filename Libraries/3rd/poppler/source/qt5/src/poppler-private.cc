@@ -27,7 +27,6 @@
 #if defined(MIKTEX)
 #  include <config.h>
 #endif
-
 #include "poppler-private.h"
 
 #include <QtCore/QByteArray>

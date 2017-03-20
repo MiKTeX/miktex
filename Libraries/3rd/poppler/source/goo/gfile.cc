@@ -72,7 +72,6 @@
 #    include <miktex/utf8wrap.h>
 #  endif
 #endif
-
 //------------------------------------------------------------------------
 
 GooString *getCurrentDir() {
@@ -707,7 +706,7 @@ GDirEntry::GDirEntry(char *dirPath, char *nameA, GBool doStat) {
 #ifdef VMS
   char *p;
 #elif defined(_WIN32)
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
   DWORD fa;
 #endif
 #elif defined(ACORN)
@@ -749,7 +748,7 @@ GDirEntry::~GDirEntry() {
 GDir::GDir(char *name, GBool doStatA) {
   path = new GooString(name);
   doStat = doStatA;
-#if defined(_WIN32) && ! defined(MIKTEX)
+#if defined(_WIN32) && !defined(MIKTEX)
   GooString *tmp;
 
   tmp = path->copy();
@@ -768,7 +767,7 @@ GDir::GDir(char *name, GBool doStatA) {
 
 GDir::~GDir() {
   delete path;
-#if defined(_WIN32) && ! defined(MIKTEX)
+#if defined(_WIN32) && !defined(MIKTEX)
   if (hnd != INVALID_HANDLE_VALUE) {
     FindClose(hnd);
     hnd = INVALID_HANDLE_VALUE;
@@ -784,7 +783,7 @@ GDir::~GDir() {
 GDirEntry *GDir::getNextEntry() {
   GDirEntry *e = NULL;
 
-#if defined(_WIN32) && ! defined(MIKTEX)
+#if defined(_WIN32) && !defined(MIKTEX)
   if (hnd != INVALID_HANDLE_VALUE) {
     e = new GDirEntry(path->getCString(), ffd.cFileName, doStat);
     if (!FindNextFile(hnd, &ffd)) {
@@ -824,7 +823,7 @@ GDirEntry *GDir::getNextEntry() {
 }
 
 void GDir::rewind() {
-#if defined(_WIN32) && ! defined(MIKTEX)
+#if defined(_WIN32) && !defined(MIKTEX)
   GooString *tmp;
 
   if (hnd != INVALID_HANDLE_VALUE)

@@ -251,28 +251,28 @@ public:
 
   // Does this device use upside-down coordinates?
   // (Upside-down means (0,0) is the top left corner of the page.)
-  virtual GBool upsideDown() { return gTrue; }
+  GBool upsideDown() override { return gTrue; }
 
   // Does this device use drawChar() or drawString()?
-  virtual GBool useDrawChar() { return gTrue; }
+  GBool useDrawChar() override { return gTrue; }
 
   // Does this device use beginType3Char/endType3Char?  Otherwise,
   // text in Type 3 fonts will be drawn with drawChar/drawString.
-  virtual GBool interpretType3Chars() { return gFalse; }
+  GBool interpretType3Chars() override { return gFalse; }
 
   // Does this device need non-text content?
-  virtual GBool needNonText() { return gTrue; }
+  GBool needNonText() override { return gTrue; }
 
   //----- initialization and control
 
-  virtual GBool checkPageSlice(Page *page, double hDPI, double vDPI,
-                               int rotate, GBool useMediaBox, GBool crop,
-                               int sliceX, int sliceY, int sliceW, int sliceH,
-                               GBool printing,
-                               GBool (* abortCheckCbk)(void *data) = NULL,
-                               void * abortCheckCbkData = NULL,
-                               GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data) = NULL,
-                               void *annotDisplayDecideCbkData = NULL)
+  GBool checkPageSlice(Page *page, double hDPI, double vDPI,
+                       int rotate, GBool useMediaBox, GBool crop,
+                       int sliceX, int sliceY, int sliceW, int sliceH,
+                       GBool printing,
+                       GBool (* abortCheckCbk)(void *data) = NULL,
+                       void * abortCheckCbkData = NULL,
+                       GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data) = NULL,
+                       void *annotDisplayDecideCbkData = NULL) override
   {
    docPage = page;
    return gTrue;
@@ -280,29 +280,29 @@ public:
 
 
   // Start a page.
-  virtual void startPage(int pageNum, GfxState *state, XRef *xref);
+  void startPage(int pageNum, GfxState *state, XRef *xref) override;
 
   // End a page.
-  virtual void endPage();
+  void endPage() override;
 
   //----- update text state
-  virtual void updateFont(GfxState *state);
+  void updateFont(GfxState *state) override;
 
   //----- text drawing
-  virtual void beginString(GfxState *state, GooString *s);
-  virtual void endString(GfxState *state);
-  virtual void drawChar(GfxState *state, double x, double y,
-			double dx, double dy,
-			double originX, double originY,
-			CharCode code, int nBytes, Unicode *u, int uLen);
+  void beginString(GfxState *state, GooString *s) override;
+  void endString(GfxState *state) override;
+  void drawChar(GfxState *state, double x, double y,
+		double dx, double dy,
+		double originX, double originY,
+		CharCode code, int nBytes, Unicode *u, int uLen) override;
   
-  virtual void drawImageMask(GfxState *state, Object *ref, 
-			     Stream *str,
-			     int width, int height, GBool invert,
-			     GBool interpolate, GBool inlineImg);
-  virtual void drawImage(GfxState *state, Object *ref, Stream *str,
-			 int width, int height, GfxImageColorMap *colorMap,
-			 GBool interpolate, int *maskColors, GBool inlineImg);
+  void drawImageMask(GfxState *state, Object *ref,
+		     Stream *str,
+		     int width, int height, GBool invert,
+		     GBool interpolate, GBool inlineImg) override;
+  void drawImage(GfxState *state, Object *ref, Stream *str,
+		 int width, int height, GfxImageColorMap *colorMap,
+		 GBool interpolate, int *maskColors, GBool inlineImg) override;
 
   //new feature    
   virtual int DevType() {return 1234;}
