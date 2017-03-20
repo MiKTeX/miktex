@@ -1,6 +1,7 @@
 # MiKTeX
 
-MiKTeX is both a C/C++ implemenentation of TeX & Friends and a TeX distribution.
+MiKTeX is both a C/C++ implemenentation of TeX & Friends and a TeX
+distribution.
 
 Please visit the [MiKTeX Project Page](https://miktex.org), if you
 want to learn more about MiKTeX.
@@ -23,10 +24,10 @@ Please take a look at these HOWTOs for platform-specific information:
 
 ## Prerequisites
 
-* C++ compiler
+* C/C++ compiler
 
   You will need a modern C/C++ compiler.  The minimum required
-  standard version is C++14.
+  standard version are C99 and C++14.
 
 * CMake
 
@@ -40,9 +41,9 @@ Please take a look at these HOWTOs for platform-specific information:
 
 * Libraries
 
-  On Unix-alike platforms, you will need development packages (header
-  files) for a handful of popular libraries.  Please see the top-level
-  `CMakeLists.txt` for more information.
+  On Unix-alike platforms (including macOS), you will need development
+  packages (header files) for a handful of popular libraries.  Please
+  see the top-level `CMakeLists.txt` for more information.
 
 ## Running CMake
 
@@ -73,7 +74,7 @@ or, if you build on Windows:
 ## Installing
 
 CMake creates a standard `install` target which you can use to install
-everything in the standard location.  On Linux, you run
+everything in the standard location.  On Linux, you would run
 
     sudo make install
 
@@ -106,7 +107,8 @@ After running this command, the pdfTeX engine can be invoked via `pdftex`.
 
 ### Installing packages
 
-You use the MiKTeX packagement utility to install some required packages:
+You use the MiKTeX packagement utility to install some required
+packages:
 
     sudo mpm --admin --install amsfonts
     sudo mpm --admin --install cm
