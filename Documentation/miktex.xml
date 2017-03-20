@@ -12,8 +12,6 @@
 <!ENTITY texappdefaults SYSTEM "texapp.defaults">
 <!ENTITY texmfappdefaults SYSTEM "texmfapp.defaults">
 
-<!ENTITY MIKTEX_REPOSITORY SYSTEM "EnvVars/MIKTEX_REPOSITORY.xml">
-
 <!ENTITY TFMFONTS SYSTEM "EnvVars/TFMFONTS.xml">
 <!ENTITY TEXINPUTS SYSTEM "EnvVars/TEXINPUTS.xml">
 <!ENTITY MFINPUTS SYSTEM "EnvVars/MFINPUTS.xml">
@@ -103,7 +101,6 @@
 <!ENTITY texfeatures SYSTEM "Manual/texfeatures.xml">
 <!ENTITY texifying SYSTEM "Manual/texifying.xml">
 <!ENTITY tracestreams SYSTEM "Manual/tracestreams.xml">
-<!ENTITY envvars SYSTEM "Manual/envvars.xml">
 <!ENTITY filetypes SYSTEM "filetypes">
 ]>
 
@@ -572,7 +569,7 @@ option of &initexmf; to edit the configuration file, e.g.:</para>
 
 <title>Environment variables</title>
 
-&envvars;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/envvars.xml" />
 
 </chapter>
 

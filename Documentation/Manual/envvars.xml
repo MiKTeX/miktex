@@ -1,3 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                         "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+<!ENTITY TFMFONTS SYSTEM "../EnvVars/TFMFONTS.xml">
+<!ENTITY TEXINPUTS SYSTEM "../EnvVars/TEXINPUTS.xml">
+<!ENTITY MFINPUTS SYSTEM "../EnvVars/MFINPUTS.xml">
+<!ENTITY MPINPUTS SYSTEM "../EnvVars/MPINPUTS.xml">
+<!ENTITY BSTINPUTS SYSTEM "../EnvVars/BSTINPUTS.xml">
+<!ENTITY BIBINPUTS SYSTEM "../EnvVars/BIBINPUTS.xml">
+]>
+
 <variablelist>
 
 &BIBINPUTS;
@@ -10,12 +23,3 @@
 &TFMFONTS;
 
 </variablelist>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "section")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->
