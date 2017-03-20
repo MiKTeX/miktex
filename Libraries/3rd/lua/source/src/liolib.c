@@ -14,6 +14,10 @@
 #define _FILE_OFFSET_BITS	64
 #endif
 
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_UTF8_WRAP_ALL 1
+#  include <miktex/utf8wrap.h>
+#endif
 
 #include <errno.h>
 #include <stdio.h>
@@ -28,10 +32,6 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
-#if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
-#endif
 
 
 #if !defined(lua_checkmode)

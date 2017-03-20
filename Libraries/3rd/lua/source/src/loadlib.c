@@ -8,6 +8,10 @@
 ** systems.
 */
 
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_UTF8_WRAP_ALL 1
+#  include <miktex/utf8wrap.h>
+#endif
 
 /*
 ** if needed, includes windows header before everything else
@@ -29,10 +33,6 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
-#if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
-#endif
 
 /*
 ** LUA_PATH and LUA_CPATH are the names of the environment

@@ -4,6 +4,10 @@
 ** See Copyright Notice in lua.h
 */
 
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_UTF8_WRAP_ALL 1
+#  include <miktex/utf8wrap.h>
+#endif
 
 #include <errno.h>
 #include <stdarg.h>
@@ -11,10 +15,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
-#endif
 
 /* This file uses only the official API of Lua.
 ** Any function declared here could be written as an application function.
