@@ -807,7 +807,7 @@ if(USE_SYSTEM_HUNSPELL)
 endif()
 
 if(USE_SYSTEM_ICU)
-  if("${CMAKE_VERSION}" VERSION_GREATER 2.7.0)
+  if("${CMAKE_VERSION}" VERSION_GREATER 3.7.0)
     find_package(ICU REQUIRED COMPONENTS i18n uc)
   else()
     find_package(ICU_ REQUIRED COMPONENTS i18n uc)
