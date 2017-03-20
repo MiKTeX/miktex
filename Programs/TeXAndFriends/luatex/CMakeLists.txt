@@ -673,6 +673,7 @@ target_link_libraries(luatex-static
     ${lua_lib_name}
     ${mp_lib_name}
     ${w2cemu_dll_name}
+    luatex-luaffi-static
     luatex-luamisc-static
     luatex-luasocket-static
     luatex-luafontforge-static
