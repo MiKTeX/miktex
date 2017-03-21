@@ -4025,6 +4025,7 @@ int MAIN(int argc, MAINCHAR* argv[])
     app.Init(newargv[0]);
     app.Run(argc, &newargv[0]);
     app.Finalize();
+    logger = nullptr;
     return 0;
   }
   catch (const MiKTeXException& e)
@@ -4037,6 +4038,7 @@ int MAIN(int argc, MAINCHAR* argv[])
       LOG4CXX_FATAL(logger, "Line: " << e.GetSourceLine());
     }
     Sorry();
+    logger = nullptr;
     return 1;
   }
   catch (const exception& e)
@@ -4046,11 +4048,12 @@ int MAIN(int argc, MAINCHAR* argv[])
       LOG4CXX_FATAL(logger, e.what());
     }
     Sorry();
+    logger = nullptr;
     return 1;
   }
   catch (int exitCode)
   {
+    logger = nullptr;
     return exitCode;
   }
-  logger = nullptr;
 }
