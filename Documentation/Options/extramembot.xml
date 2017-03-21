@@ -1,3 +1,9 @@
+<?xml version="1.0"?>
+<!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
 <varlistentry>
 <term><option>--extra-mem-bot=<replaceable>n</replaceable></option></term>
 <listitem><para>Set the
@@ -5,15 +11,6 @@
 <primary>--extra-mem-bot=n</primary>
 </indexterm>
 extra size (in memory words) for large data structures like boxes,
-glue, breakpoints, et al. Relevant only after the memory dump file
-has been read.</para></listitem>
+glue, breakpoints, et al. Relevant only after the memory dump file has
+been read.</para></listitem>
 </varlistentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "section")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

@@ -1,3 +1,11 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+<!ENTITY filetypes SYSTEM "filetypes">
+]>
+
 <refentry id="findtexmf">
 
 <?dbhh topicname="MIKTEXHELP_FINDTEXMF" topicid="0"?>
@@ -50,7 +58,7 @@ path for &TeX; source files is used.</para>
 <para>Pretend to be <replaceable>name</replaceable> when finding
 files.</para></listitem>
 </varlistentry>
-&optionhelp;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
 <varlistentry>
 <term><option>--file-type=<replaceable>filetype</replaceable></option></term>
 <listitem>
@@ -96,7 +104,7 @@ if the file was found.</para></listitem>
 <para>Set the name of the program. Relevant when searching for format
 files.</para></listitem>
 </varlistentry>
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/version.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
 </variablelist>
 
 </refsect1>

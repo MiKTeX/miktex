@@ -1,17 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
 <varlistentry>
 <term><option>--dont-parse-first-line</option></term>
-<listitem><para>Disable checking whether the first line of the main input file
+<listitem><para>Disable checking whether the first line of the main
+input file
 <indexterm>
 <primary>--dont-parse-first-line</primary>
 </indexterm>
 starts with <markup>%&amp;</markup>.</para></listitem>
 </varlistentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "section")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

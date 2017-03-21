@@ -1,3 +1,10 @@
+<?xml version="1.0"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                         "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
 <section id="texfeatures">
 
 <title>Specialities</title>
@@ -444,15 +451,6 @@ You enable the feature by specifying
 
 </section>
 
-&tcxtables;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="tcxtables.xml" />
 
 </section>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "book")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

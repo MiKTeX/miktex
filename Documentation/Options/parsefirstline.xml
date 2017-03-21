@@ -1,3 +1,9 @@
+<?xml version="1.0"?>
+<!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
 <varlistentry>
 <term><option>--parse-first-line</option></term>
 <listitem><para>Check whether the first line of the main input file
@@ -5,14 +11,6 @@ starts with <markup>%&amp;</markup>, and parse if it does.
 <indexterm>
 <primary>--parse-first-line</primary>
 </indexterm>
-This can be used to specify extra command-line options.</para></listitem>
+This can be used to specify extra command-line
+options.</para></listitem>
 </varlistentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "section")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

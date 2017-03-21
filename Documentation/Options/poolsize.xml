@@ -1,20 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
 <varlistentry>
 <term><option>--pool-size=<replaceable>n</replaceable></option></term>
 <listitem><para>Set the
 <indexterm>
 <primary>--pool-size=n</primary>
 </indexterm>
-maximum number of
-characters in strings, including all error messages and
-help texts, and the names of all fonts and control
+maximum number of characters in strings, including all error messages
+and help texts, and the names of all fonts and control
 sequences.</para></listitem>
 </varlistentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "section")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

@@ -3,8 +3,6 @@
                    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
-<!ENTITY optiondisableinstaller SYSTEM "../Options/disableinstaller.xml">
-<!ENTITY optionenableinstaller SYSTEM "../Options/enableinstaller.xml">
 ]>
 
 <refentry id="initexmf">
@@ -78,7 +76,7 @@ invoke the utility as follows:</para>
 
 <variablelist>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/admin.xml" />
-&optiondisableinstaller;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disableinstaller.xml" />
 <varlistentry>
 <term><option>--dump</option></term>
 <listitem>
@@ -108,7 +106,7 @@ invoke the utility as follows:</para>
 <para>Open the specified config file in a text editor.</para>
 </listitem>
 </varlistentry>
-&optionenableinstaller;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableinstaller.xml" />
 <varlistentry>
 <term><option>--engine=<replaceable>engine</replaceable></option></term>
 <listitem><para>Engine to be used when generating format files.</para></listitem>  

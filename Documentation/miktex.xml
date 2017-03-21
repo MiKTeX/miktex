@@ -11,97 +11,6 @@
 <!ENTITY pdftexdefaults SYSTEM "pdftex.defaults">
 <!ENTITY texappdefaults SYSTEM "texapp.defaults">
 <!ENTITY texmfappdefaults SYSTEM "texmfapp.defaults">
-
-<!ENTITY TFMFONTS SYSTEM "EnvVars/TFMFONTS.xml">
-<!ENTITY TEXINPUTS SYSTEM "EnvVars/TEXINPUTS.xml">
-<!ENTITY MFINPUTS SYSTEM "EnvVars/MFINPUTS.xml">
-<!ENTITY MPINPUTS SYSTEM "EnvVars/MPINPUTS.xml">
-<!ENTITY BSTINPUTS SYSTEM "EnvVars/BSTINPUTS.xml">
-<!ENTITY BIBINPUTS SYSTEM "EnvVars/BIBINPUTS.xml">
-
-<!ENTITY configuring SYSTEM "Manual/configuring.xml">
-<!ENTITY features SYSTEM "Manual/features.xml">
-<!ENTITY intro SYSTEM "Manual/intro.xml">
-<!ENTITY localguide SYSTEM "Manual/localguide.xml">
-<!ENTITY manbibtex SYSTEM "Ref/bibtex.xml">
-<!ENTITY mandvicopy SYSTEM "Ref/dvicopy.xml">
-<!ENTITY mandvips SYSTEM "Ref/dvips.xml">
-<!ENTITY manfindtexmf SYSTEM "Ref/findtexmf.xml">
-<!ENTITY mangftodvi SYSTEM "Ref/gftodvi.xml">
-<!ENTITY manmf SYSTEM "Ref/mf.xml">
-<!ENTITY manmpost SYSTEM "Ref/mpost.xml">
-<!ENTITY manmthelp SYSTEM "Ref/mthelp.xml">
-<!ENTITY manmtprint SYSTEM "Ref/mtprint.xml">
-<!ENTITY manxetex SYSTEM "Ref/xetex.xml">
-<!ENTITY manpdftex SYSTEM "Ref/pdftex.xml">
-<!ENTITY manpdftexcfg SYSTEM "Ref/pdftexcfg.xml">
-<!ENTITY mansetupwiz SYSTEM "Ref/setupwiz.xml">
-<!ENTITY mantex SYSTEM "Ref/tex.xml">
-<!ENTITY mantexify SYSTEM "Ref/texify.xml">
-<!ENTITY manupdmapcfg SYSTEM "Ref/updmapcfg.xml">
-<!ENTITY optionalias SYSTEM "Options/alias.xml">
-<!ENTITY optionauxdirectory SYSTEM "Options/auxdirectory.xml">
-<!ENTITY optionbistacksize SYSTEM "Options/bistacksize.xml">
-<!ENTITY optionbufsize SYSTEM "Options/bufsize.xml">
-<!ENTITY optioncstyleerrors SYSTEM "Options/cstyleerrors.xml">
-<!ENTITY optiondisableinstaller SYSTEM "Options/disableinstaller.xml">
-<!ENTITY optiondisablepipes SYSTEM "Options/disablepipes.xml">
-<!ENTITY optiondisablewriteeighteen SYSTEM "Options/disablewriteeighteen.xml">
-<!ENTITY optiondontparsefirstline SYSTEM "Options/dontparsefirstline.xml">
-<!ENTITY optionenableenctex SYSTEM "Options/enableenctex.xml">
-<!ENTITY optionenableetex SYSTEM "Options/enableetex.xml">
-<!ENTITY optionenableinstaller SYSTEM "Options/enableinstaller.xml">
-<!ENTITY optionenablemltex SYSTEM "Options/enablemltex.xml">
-<!ENTITY optionenablepipes SYSTEM "Options/enablepipes.xml">
-<!ENTITY optionenablewriteeighteen SYSTEM "Options/enablewriteeighteen.xml">
-<!ENTITY optionrestrictwriteeighteen SYSTEM "Options/restrictwriteeighteen.xml">
-<!ENTITY optionerrorline SYSTEM "Options/errorline.xml">
-<!ENTITY optionfontmax SYSTEM "Options/fontmax.xml">
-<!ENTITY optionfontmemsize SYSTEM "Options/fontmemsize.xml">
-<!ENTITY optionhalferrorline SYSTEM "Options/halferrorline.xml">
-<!ENTITY optionhaltonerror SYSTEM "Options/haltonerror.xml">
-<!ENTITY optionhelp SYSTEM "Options/help.xml">
-<!ENTITY optionhhelp SYSTEM "Options/hhelp.xml">
-<!ENTITY optionincludedirectory SYSTEM "Options/includedirectory.xml">
-<!ENTITY optioninitialize SYSTEM "Options/initialize.xml">
-<!ENTITY optioninteraction SYSTEM "Options/interaction.xml">
-<!ENTITY optionjobname SYSTEM "Options/jobname.xml">
-<!ENTITY optionjobtime SYSTEM "Options/jobtime.xml">
-<!ENTITY optionligtablesize SYSTEM "Options/ligtablesize.xml">
-<!ENTITY optionhashextra SYSTEM "Options/hashextra.xml">
-<!ENTITY optionmaxinopen SYSTEM "Options/maxinopen.xml">
-<!ENTITY optionmainmemory SYSTEM "Options/mainmemory.xml">
-<!ENTITY optionextramembot SYSTEM "Options/extramembot.xml">
-<!ENTITY optionextramemtop SYSTEM "Options/extramemtop.xml">
-<!ENTITY optionmaxprintline SYSTEM "Options/maxprintline.xml">
-<!ENTITY optionmaxstrings SYSTEM "Options/maxstrings.xml">
-<!ENTITY optionmaxwiggle SYSTEM "Options/maxwiggle.xml">
-<!ENTITY optionmovesize SYSTEM "Options/movesize.xml">
-<!ENTITY optionnestsize SYSTEM "Options/nestsize.xml">
-<!ENTITY optionnocstyleerrors SYSTEM "Options/nocstyleerrors.xml">
-<!ENTITY optionoutputdirectory SYSTEM "Options/outputdirectory.xml">
-<!ENTITY optionparamsize SYSTEM "Options/paramsize.xml">
-<!ENTITY optionparsefirstline SYSTEM "Options/parsefirstline.xml">
-<!ENTITY optionpathsize SYSTEM "Options/pathsize.xml">
-<!ENTITY optionpoolsize SYSTEM "Options/poolsize.xml">
-<!ENTITY optionrecorder SYSTEM "Options/recorder.xml">
-<!ENTITY optionrecordpackageusages SYSTEM "Options/recordpackageusages.xml">
-<!ENTITY optionsavesize SYSTEM "Options/savesize.xml">
-<!ENTITY optionsrcspecials SYSTEM "Options/srcspecials.xml">
-<!ENTITY optionstacksize SYSTEM "Options/stacksize.xml">
-<!ENTITY optionstringvacancies SYSTEM "Options/stringvacancies.xml">
-<!ENTITY optionsynctex SYSTEM "Options/synctex.xml">
-<!ENTITY optiontcx SYSTEM "Options/tcx.xml">
-<!ENTITY optiontimestatistics SYSTEM "Options/timestatistics.xml">
-<!ENTITY optiontrieopsize SYSTEM "Options/trieopsize.xml">
-<!ENTITY optiontriesize SYSTEM "Options/triesize.xml">
-<!ENTITY optionundump SYSTEM "Options/undump.xml">
-<!ENTITY printing SYSTEM "Manual/printing.xml">
-<!ENTITY tcxtables SYSTEM "Manual/tcxtables.xml">
-<!ENTITY texfeatures SYSTEM "Manual/texfeatures.xml">
-<!ENTITY texifying SYSTEM "Manual/texifying.xml">
-<!ENTITY tracestreams SYSTEM "Manual/tracestreams.xml">
-<!ENTITY filetypes SYSTEM "filetypes">
 ]>
 
 <book lang="en">
@@ -223,13 +132,14 @@ a translation approved by the Free Software Foundation.</para>
 
 <title>User Guide</title>
 
-&intro;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/intro.xml" />
 
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/installing.xml" />
 
-&localguide;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/localguide.xml" />
 
-&configuring;
+
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/configuring.xml" />
 
 <chapter id="advanced">
 
@@ -536,23 +446,23 @@ option of &initexmf; to edit the configuration file, e.g.:</para>
 
 <title>Programs</title>
 
-&manbibtex;
-&mandvicopy;
-&mandvips;
-&manfindtexmf;
-&mangftodvi;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/bibtex.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/dvicopy.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/dvips.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/findtexmf.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/gftodvi.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/initexmf.xml" />
-&manmf;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/mf.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/miktexsetup.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/mpm.xml" />
-&manmpost;
-&manmthelp;
-&manmtprint;
-&manpdftex;
-&mansetupwiz;
-&mantex;
-&mantexify;
-&manxetex;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/mpost.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/mthelp.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/mtprint.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/pdftex.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/setupwiz.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/tex.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/texify.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/xetex.xml" />
 
 </chapter>
 
@@ -560,8 +470,8 @@ option of &initexmf; to edit the configuration file, e.g.:</para>
 
 <title>Files</title>
 
-&manpdftexcfg;
-&manupdmapcfg;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/pdftexcfg.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/updmapcfg.xml" />
 
 </chapter>
 
@@ -577,7 +487,7 @@ option of &initexmf; to edit the configuration file, e.g.:</para>
 
 <title>Trace Streams</title>
 
-&tracestreams;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/tracestreams.xml" />
 
 </chapter>
 
@@ -650,10 +560,3 @@ option of &initexmf; to edit the configuration file, e.g.:</para>
 </index>
 
 </book>
-
-<!--
-Local Variables:
-mode: nxml
-nxml-child-indent: 0
-End:
--->

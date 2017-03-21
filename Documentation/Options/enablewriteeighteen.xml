@@ -1,3 +1,9 @@
+<?xml version="1.0"?>
+<!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
 <varlistentry>
 <term><option>--enable-write18</option></term>
 <listitem>
@@ -10,23 +16,14 @@
 <indexterm>
 <primary>\write18 (run a program from within TeX)</primary>
 </indexterm>
-<para>Fully enable the
-<markup role="tex">\write18{<replaceable>command</replaceable>}</markup>
-construct. It is only partially enabled by default to avoid security problems.
-When fully enabled, the command (which undergoes the usual
-&TeX; expansions) is passed to the command interpreter.
-The output of the command is not diverted anywhere, so it will not appear
-in the log file. The command execution either happens at
-<markup role="tex">\output</markup> time or right away, according to the
+<para>Fully enable the <markup
+role="tex">\write18{<replaceable>command</replaceable>}</markup>
+construct. It is only partially enabled by default to avoid security
+problems.  When fully enabled, the command (which undergoes the usual
+&TeX; expansions) is passed to the command interpreter.  The output of
+the command is not diverted anywhere, so it will not appear in the log
+file. The command execution either happens at <markup
+role="tex">\output</markup> time or right away, according to the
 absence or presence of the <markup role="tex">\immediate</markup>
 prefix.</para></listitem>
 </varlistentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "section")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

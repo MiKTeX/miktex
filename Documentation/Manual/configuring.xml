@@ -1,3 +1,10 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                         "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
 <chapter id="configuring">
     
 <title>Maintenance</title>
@@ -41,10 +48,10 @@ you manually install &TeX;/&LaTeX;-related files in a user-managed
 <screenshot>
 <mediaobject>
 <imageobject role="html">
-<imagedata format="PNG" fileref="images/mo-general.png" scale="75" />
+<imagedata format="PNG" fileref="Images/mo-general.png" scale="75" />
 </imageobject>
 <imageobject role="fo">
-<imagedata format="PNG" fileref="images/mo-general.png" scalefit="1" width="100%" contentdepth="100%" />
+<imagedata format="PNG" fileref="Images/mo-general.png" scalefit="1" width="100%" contentdepth="100%" />
 </imageobject>
 </mediaobject>
 </screenshot>
@@ -118,10 +125,10 @@ patterns are to be loaded by the &TeX; engines.</para>
 <screenshot>
 <mediaobject>
 <imageobject role="html">
-<imagedata format="PNG" fileref="images/mo-languages.png" scale="75" />
+<imagedata format="PNG" fileref="Images/mo-languages.png" scale="75" />
 </imageobject>
 <imageobject role="fo">
-<imagedata format="PNG" fileref="images/mo-languages.png" scale="75" />
+<imagedata format="PNG" fileref="Images/mo-languages.png" scale="75" />
 </imageobject>
 </mediaobject>
 </screenshot>
@@ -168,10 +175,10 @@ the latest &MiKTeX; updates.
 <screenshot>
 <mediaobject>
 <imageobject role="html">
-<imagedata format="PNG" fileref="images/updatewiz-download-type.png" scale="75" />
+<imagedata format="PNG" fileref="Images/updatewiz-download-type.png" scale="75" />
 </imageobject>
 <imageobject role="fo">
-<imagedata format="PNG" fileref="images/updatewiz-download-type.png" scalefit="1" width="100%" contentdepth="100%" />
+<imagedata format="PNG" fileref="Images/updatewiz-download-type.png" scalefit="1" width="100%" contentdepth="100%" />
 </imageobject>
 </mediaobject>
 </screenshot>
@@ -196,10 +203,10 @@ repositories. Choose the nearest repository:</para>
 <screenshot>
 <mediaobject>
 <imageobject role="html">
-<imagedata format="PNG" fileref="images/updatewiz-remote-repository.png" scale="75" />
+<imagedata format="PNG" fileref="Images/updatewiz-remote-repository.png" scale="75" />
 </imageobject>
 <imageobject role="fo">
-<imagedata format="PNG" fileref="images/updatewiz-remote-repository.png" scalefit="1" width="100%" contentdepth="100%" />
+<imagedata format="PNG" fileref="Images/updatewiz-remote-repository.png" scalefit="1" width="100%" contentdepth="100%" />
 </imageobject>
 </mediaobject>
 </screenshot>
@@ -214,10 +221,10 @@ you wish to update:</para>
 <screenshot>
 <mediaobject>
 <imageobject role="html">
-<imagedata format="PNG" fileref="images/updatewiz-packagelist.png" scale="75" />
+<imagedata format="PNG" fileref="Images/updatewiz-packagelist.png" scale="75" />
 </imageobject>
 <imageobject role="html">
-<imagedata format="PNG" fileref="images/updatewiz-packagelist.png" scalefit="1" width="100%" contentdepth="100%" />
+<imagedata format="PNG" fileref="Images/updatewiz-packagelist.png" scalefit="1" width="100%" contentdepth="100%" />
 </imageobject>
 </mediaobject>
 </screenshot>
@@ -232,10 +239,10 @@ process.</para>
 <screenshot>
 <mediaobject>
 <imageobject role="html">
-<imagedata format="PNG" fileref="images/updatewiz-progress.png" scale="75" />
+<imagedata format="PNG" fileref="Images/updatewiz-progress.png" scale="75" />
 </imageobject>
 <imageobject role="fo">
-<imagedata format="PNG" fileref="images/updatewiz-progress.png" scalefit="1" width="100%" contentdepth="100%" />
+<imagedata format="PNG" fileref="Images/updatewiz-progress.png" scalefit="1" width="100%" contentdepth="100%" />
 </imageobject>
 </mediaobject>
 </screenshot>
@@ -264,10 +271,10 @@ missing packages.</para>
 <screenshot>
 <mediaobject>
 <imageobject role="html">
-<imagedata format="PNG" fileref="images/autoinstall.png" scale="75" />
+<imagedata format="PNG" fileref="Images/autoinstall.png" scale="75" />
 </imageobject>
 <imageobject role="fo">
-<imagedata format="PNG" fileref="images/autoinstall.png" scalefit="1" width="100%" contentdepth="100%" />
+<imagedata format="PNG" fileref="Images/autoinstall.png" scalefit="1" width="100%" contentdepth="100%" />
 </imageobject>
 </mediaobject>
 </screenshot>
@@ -357,10 +364,10 @@ Files</filename>. This tree might look as follows:</para>
 <screenshot>
 <mediaobject>
 <imageobject role="html">
-<imagedata format="PNG" fileref="images/localtexmf.png" scale="75" />
+<imagedata format="PNG" fileref="Images/localtexmf.png" scale="75" />
 </imageobject>
 <imageobject role="fo">
-<imagedata format="PNG" fileref="images/localtexmf.png" scalefit="1" width="100%" contentdepth="100%" />
+<imagedata format="PNG" fileref="Images/localtexmf.png" scalefit="1" width="100%" contentdepth="100%" />
 </imageobject>
 </mediaobject>
 </screenshot>
@@ -407,10 +414,10 @@ shows the list of currently registered root directories.</para>
 <screenshot>
 <mediaobject>
 <imageobject role="html">
-<imagedata format="PNG" fileref="images/mo-roots.png" scale="75" />
+<imagedata format="PNG" fileref="Images/mo-roots.png" scale="75" />
 </imageobject>
 <imageobject role="fo">
-<imagedata format="PNG" fileref="images/mo-roots.png" scalefit="1" width="100%" contentdepth="100%" />
+<imagedata format="PNG" fileref="Images/mo-roots.png" scalefit="1" width="100%" contentdepth="100%" />
 </imageobject>
 </mediaobject>
 </screenshot>
@@ -425,10 +432,10 @@ TeX Files</filename> and click <guibutton>OK</guibutton>.</para>
 <screenshot>
 <mediaobject>
 <imageobject role="html">
-<imagedata format="PNG" fileref="images/browselocaltexmf.png" scale="75" />
+<imagedata format="PNG" fileref="Images/browselocaltexmf.png" scale="75" />
 </imageobject>
 <imageobject role="html">
-<imagedata format="PNG" fileref="images/browselocaltexmf.png" scalefit="1" width="100%" contentdepth="100%" />
+<imagedata format="PNG" fileref="Images/browselocaltexmf.png" scalefit="1" width="100%" contentdepth="100%" />
 </imageobject>
 </mediaobject>
 </screenshot>
@@ -442,10 +449,10 @@ linkend="mo-roots2"/>).</para>
 <screenshot>
 <mediaobject>
 <imageobject role="html">
-<imagedata format="PNG" fileref="images/mo-roots2.png" scale="75" />
+<imagedata format="PNG" fileref="Images/mo-roots2.png" scale="75" />
 </imageobject>
 <imageobject role="fo">
-<imagedata format="PNG" fileref="images/mo-roots2.png" scalefit="1" width="100%" contentdepth="100%" />
+<imagedata format="PNG" fileref="Images/mo-roots2.png" scalefit="1" width="100%" contentdepth="100%" />
 </imageobject>
 </mediaobject>
 </screenshot>
@@ -462,10 +469,10 @@ installation directory (<xref linkend="mo-roots3"/>).</para>
 <screenshot>
 <mediaobject>
 <imageobject role="html">
-<imagedata format="PNG" fileref="images/mo-roots3.png" scale="75" />
+<imagedata format="PNG" fileref="Images/mo-roots3.png" scale="75" />
 </imageobject>
 <imageobject role="fo">
-<imagedata format="PNG" fileref="images/mo-roots3.png" scalefit="1" width="100%" contentdepth="100%" />
+<imagedata format="PNG" fileref="Images/mo-roots3.png" scalefit="1" width="100%" contentdepth="100%" />
 </imageobject>
 </mediaobject>
 </screenshot>

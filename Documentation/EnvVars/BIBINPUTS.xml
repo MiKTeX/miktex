@@ -1,10 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
 <varlistentry>
 <term><envar>BIBINPUTS</envar></term>
 <listitem>
 <indexterm>
 <primary>BIBINPUTS</primary>
 </indexterm>
-<para>Extra paths to locate <filename>.bib</filename>
-files.</para>
+<para>Extra paths to locate <filename>.bib</filename> files.</para>
 </listitem>
 </varlistentry>

@@ -1,3 +1,10 @@
+<?xml version="1.0"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                         "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
 <section id="tcx">
 
 <title>&TCX; Files: Character Translations</title>
@@ -152,12 +159,3 @@ for <replaceable>src</replaceable>, and the output (font) character
 code for <replaceable>dest</replaceable>.</para>
 
 </section>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("miktex.xml" "book")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

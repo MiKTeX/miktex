@@ -341,6 +341,7 @@ add_custom_command(
     --path "${xslt_path}"
     --output ${CMAKE_CURRENT_BINARY_DIR}/miktex.fo
     --stringparam fop1.extensions 1
+    --stringparam img.src.path scratch/
     fo.xsl
     miktex.xml
   WORKING_DIRECTORY
@@ -364,7 +365,7 @@ add_custom_command(
     ${CMAKE_COMMAND}
     -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/Images
-    ${CMAKE_CURRENT_BINARY_DIR}/scratch/images
+    ${CMAKE_CURRENT_BINARY_DIR}/scratch/Manual/Images
   COMMAND
     ${CMAKE_COMMAND}
     -E chdir ${CMAKE_CURRENT_BINARY_DIR}/scratch

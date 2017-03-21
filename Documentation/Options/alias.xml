@@ -1,21 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
 <varlistentry>
 <term><option>--alias=<replaceable>name</replaceable></option></term>
-<listitem><para>Pretend to be program <replaceable>name</replaceable>, i.e.,
-set program (and memory dump) name to <replaceable>name</replaceable>.
+<listitem><para>Pretend to be program <replaceable>name</replaceable>,
+i.e., set program (and memory dump) name to
+<replaceable>name</replaceable>.
 <indexterm>
 <primary>--alias=name</primary>
 </indexterm>
-This may affect the search paths and other values used. Using this
+This may affect the search paths and other values used.  Using this
 option is equivalent to copying the program file to
 <filename><replaceable>name</replaceable></filename> and invoking
 <filename><replaceable>name</replaceable></filename>.</para></listitem>
 </varlistentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "section")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

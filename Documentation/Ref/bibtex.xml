@@ -1,3 +1,10 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
 <refentry id="bibtex">
 
 <?dbhh topicname="MIKTEXHELP_BIBTEX" topicid="0"?>
@@ -83,14 +90,14 @@ details of this format, and it gives other useful hints for using
 <title>Options</title>
 
 <variablelist>
-&optionalias;
-&optiondisableinstaller;
-&optiondisablepipes;
-&optionenableinstaller;
-&optionenablepipes;
-&optionhelp;
-&optionhhelp;
-&optionincludedirectory;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/alias.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disableinstaller.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disablepipes.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableinstaller.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enablepipes.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/hhelp.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/includedirectory.xml" />
 <varlistentry>
 <term><option>--min-crossrefs=<replaceable>n</replaceable></option></term>
 <listitem>
@@ -105,10 +112,10 @@ details of this format, and it gives other useful hints for using
 </indexterm>
 crossref'd entry on the citation list; the default is two.</para></listitem>
 </varlistentry>
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/quiet.xml" />
-&optionrecordpackageusages;
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/trace.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/version.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/quiet.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/recordpackageusages.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/trace.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
 </variablelist>
 
 </refsect1>
@@ -118,8 +125,8 @@ crossref'd entry on the citation list; the default is two.</para></listitem>
 <title>Environment</title>
 
 <variablelist>
-&BIBINPUTS;
-&BSTINPUTS;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/BIBINPUTS.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/BSTINPUTS.xml" />
 </variablelist>
 
 </refsect1>

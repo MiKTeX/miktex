@@ -1,11 +1,13 @@
 <?xml version="1.0"?>
 <!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
 <varlistentry>
 <indexterm>
 <primary>--quiet</primary>
 </indexterm>
 <term><option>--quiet</option></term>
-<listitem><para>Suppress all output,
-except errors.</para></listitem>
+<listitem><para>Suppress all output, except errors.</para></listitem>
 </varlistentry>

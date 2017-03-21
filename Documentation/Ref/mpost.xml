@@ -1,3 +1,10 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
 <refentry id="mpost">
 
 <?dbhh topicname="MIKTEXHELP_MPOST" topicid="0"?>
@@ -69,15 +76,15 @@ acts as DVI-to-MPX converter only.  See dvitomp(1) for details.</para>
 <title>Options</title>
 
 <variablelist>
-&optionalias;
-&optioncstyleerrors;
-&optiondontparsefirstline;
-&optionhaltonerror;
-&optionhelp;
-&optioninitialize;
-&optioninteraction;
-&optionjobname;
-&optionnocstyleerrors;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/alias.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/cstyleerrors.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/dontparsefirstline.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/haltonerror.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/initialize.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/interaction.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/jobname.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/nocstyleerrors.xml" />
 <varlistentry>
 <term><option>-numbersystem=<replaceable>string</replaceable></option></term>
 <listitem><para>Set number system mode
@@ -85,10 +92,10 @@ acts as DVI-to-MPX converter only.  See dvitomp(1) for details.</para>
 <option>double</option>, <option>binary</option>,
 <option>decimal</option>).</para></listitem>
 </varlistentry>
-&optionoutputdirectory;
-&optionparsefirstline;
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/quiet.xml" />
-&optionrecorder;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/outputdirectory.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/parsefirstline.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/quiet.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/recorder.xml" />
 <varlistentry>
 <term><option>-s <replaceable>internal</replaceable>="<replaceable>string</replaceable>"</option></term>
 <listitem><para>Set <replaceable>internal</replaceable> to the <replaceable>string</replaceable> value.</para></listitem>
@@ -108,8 +115,8 @@ acts as DVI-to-MPX converter only.  See dvitomp(1) for details.</para>
 <para>This flag overrides the environment
 variable <envar>TEX</envar>.</para></listitem>
 </varlistentry>
-&optionundump;
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/version.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/undump.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
 </variablelist>
 
 </refsect1>
@@ -119,8 +126,8 @@ variable <envar>TEX</envar>.</para></listitem>
 <title>Environment</title>
 
 <variablelist>
-&MFINPUTS;
-&MPINPUTS;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MFINPUTS.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MFINPUTS.xml" />
 </variablelist>
 
 </refsect1>

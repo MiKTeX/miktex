@@ -1,3 +1,9 @@
+<?xml version="1.0"?>
+<!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
 <varlistentry>
 <term><option>--buf-size=<replaceable>n</replaceable></option></term>
 <listitem><para>Set the
@@ -7,19 +13,9 @@
 the maximum number of characters simultaneously present in current
 lines of open files and in control sequences between <markup
 role="tex">\csname</markup> and <markup
-role="tex">\endcsname</markup>.
-&TeX; uses the buffer to contain input lines, but macro
-expansion works by writing material into the buffer and reparsing the
-line.  As a consequence, certain constructs require the buffer to be
-very large, even though most documents can be handled
-with a small value.</para></listitem>
+role="tex">\endcsname</markup>.  &TeX; uses the buffer to contain
+input lines, but macro expansion works by writing material into the
+buffer and reparsing the line.  As a consequence, certain constructs
+require the buffer to be very large, even though most documents can be
+handled with a small value.</para></listitem>
 </varlistentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "section")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

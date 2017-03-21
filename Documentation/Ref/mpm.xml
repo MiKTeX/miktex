@@ -3,8 +3,6 @@
                    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
-<!ENTITY optionhelp SYSTEM "../Options/help.xml">
-<!ENTITY optionhhelp SYSTEM "../Options/hhelp.xml">
 ]>
 
 <refentry id="mpm">
@@ -104,8 +102,8 @@ the &MiKTeX; setup (can be used in conjunction with
 <option>--package-level</option>). Then print the package
 list.</para></listitem>
 </varlistentry>
-&optionhelp;
-&optionhhelp;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/hhelp.xml" />
 <varlistentry>
 <term><option>--import=<replaceable>package</replaceable></option></term>
 <listitem>

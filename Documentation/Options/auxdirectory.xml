@@ -1,17 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
 <varlistentry>
 <term><option>--aux-directory=<replaceable>dir</replaceable></option></term>
-<listitem><para>Set the directory <replaceable>dir</replaceable> to which
+<listitem><para>Set the directory <replaceable>dir</replaceable> to
+which
 <indexterm>
 <primary>--aux-directory=dir</primary>
 </indexterm>
-auxiliary files are written. Also look for input files in <replaceable>dir</replaceable> first, before along the normal search path.</para></listitem>
+auxiliary files are written. Also look for input files in
+<replaceable>dir</replaceable> first, before along the normal search
+path.</para></listitem>
 </varlistentry>
-
-<!--
-Local Variables:
-mode:xml
-sgml-parent-document: ("../miktex.xml" "section")
-sgml-indent-step: 0
-sgml-set-face: t
-End:
--->

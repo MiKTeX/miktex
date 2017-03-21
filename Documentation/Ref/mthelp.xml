@@ -1,3 +1,10 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
 <refentry id="mthelp">
 
 <?dbhh topicname="MIKTEXHELP_MTHELP" topicid="0"?>
@@ -58,8 +65,8 @@ but do not start a viewer.</para></listitem>
 <listitem><para>Print the command that would be executed to view the
 documentation, but do not start the command.</para></listitem>
 </varlistentry>
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/quiet.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/version.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/quiet.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
 <varlistentry>
 <term><option>--view</option></term>
 <listitem><para>Open the main documenation file in a viewer.</para></listitem>

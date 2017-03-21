@@ -1,3 +1,10 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
 <refentry id="dvicopy">
 
 <?dbhh topicname="MIKTEXHELP_DVICOPY" topicid="0"?>
@@ -47,14 +54,14 @@ by passing the documents through &miktexdvicopy; first.</para>
 <title>Options</title>
 
 <variablelist>
-&optionalias;
-&optiondisableinstaller;
-&optiondisablepipes;
-&optionenableinstaller;
-&optionenablepipes;
-&optionhelp;
-&optionhhelp;
-&optionincludedirectory;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/alias.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disableinstaller.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disablepipes.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableinstaller.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enablepipes.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/hhelp.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/includedirectory.xml" />
 <varlistentry>
 <term><option>--mag=<replaceable>mag</replaceable></option></term>
 <listitem>
@@ -84,7 +91,7 @@ one million.  This option cannot be used together with
 example 2 or 5.*.-2.  This option cannot be used together with
 <option>--select</option>.</para></listitem>
 </varlistentry>
-&optionrecordpackageusages;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/recordpackageusages.xml" />
 <varlistentry>
 <term><option>--select=<replaceable>sel</replaceable></option></term>
 <listitem>
@@ -103,8 +110,8 @@ example 2 or 5.*.-2.  This option cannot be used together with
 options.  This option cannot be used together with
 <option>--max-pages</option> or <option>--page-start</option>.</para></listitem>
 </varlistentry>
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/trace.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/version.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/trace.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
 </variablelist>
 
 </refsect1>

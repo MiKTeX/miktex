@@ -1,3 +1,10 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
 <refentry id="gftodvi">
 
 <?dbhh topicname="MIKTEXHELP_GFTODVI" topicid="0"?>
@@ -72,9 +79,9 @@ extension added. For example, the input file
 
 <variablelist>
 
-&optionalias;
-&optiondisableinstaller;
-&optionenableinstaller;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/alias.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disableinstaller.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableinstaller.xml" />
 
 <varlistentry>
 <term><option>--gray-font=<replaceable>font</replaceable></option></term>
@@ -86,9 +93,9 @@ extension added. For example, the input file
 Default is <filename>gray</filename>.</para></listitem>
 </varlistentry>
 
-&optionhelp;
-&optionhhelp;
-&optionincludedirectory;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/hhelp.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/includedirectory.xml" />
 
 <varlistentry>
 <term><option>--label-font=<replaceable>font</replaceable></option></term>
@@ -122,7 +129,7 @@ any) are typeset. The value is given in points. The
 default is a little over two inches.</para></listitem>
 </varlistentry>
 
-&optionrecordpackageusages;
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/recordpackageusages.xml" />
 
 <varlistentry>
 <term><option>-slant-font=<replaceable>font</replaceable></option></term>
@@ -144,8 +151,8 @@ There is no default.</para></listitem>
 <filename>cmr8</filename>.</para></listitem>
 </varlistentry>
 
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/trace.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Options/version.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/trace.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
 
 </variablelist>
 
