@@ -20,7 +20,7 @@
 ###############################################################################
 ## CMake controls
 
-cmake_minimum_required(VERSION 3.2.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.7.0 FATAL_ERROR)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -807,11 +807,7 @@ if(USE_SYSTEM_HUNSPELL)
 endif()
 
 if(USE_SYSTEM_ICU)
-  if("${CMAKE_VERSION}" VERSION_GREATER 3.7.0)
-    find_package(ICU REQUIRED COMPONENTS i18n uc)
-  else()
-    find_package(ICU_ REQUIRED COMPONENTS i18n uc)
-  endif()
+  find_package(ICU REQUIRED COMPONENTS i18n uc)
 endif()
 
 if(USE_SYSTEM_JPEG)
