@@ -6,7 +6,7 @@
 ]>
 <varlistentry>
 <term><option>--aux-directory=<replaceable>dir</replaceable></option></term>
-<listitem><para>Set the directory <replaceable>dir</replaceable> to
+<listitem><para>Set <replaceable>dir</replaceable> as the directory to
 which
 <indexterm>
 <primary>--aux-directory=dir</primary>
