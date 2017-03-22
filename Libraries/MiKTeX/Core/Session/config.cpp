@@ -43,12 +43,12 @@ using namespace std;
 #if 0
 struct ConfigMapping
 {
-  const char * lpszConfigSection;
-  const char * lpszConfigValueName;
-  const char * lpszEnvVarName;
+  const char* lpszConfigSection;
+  const char* lpszConfigValueName;
+  const char* lpszEnvVarName;
 #if defined(MIKTEX_WINDOWS)
-  const char * lpszRegKey;
-  const char * lpszRegValueName;
+  const char* lpszRegKey;
+  const char* lpszRegValueName;
 #endif
 };
 #endif
@@ -62,7 +62,7 @@ namespace {
 #endif
 
 #if 0
-MIKTEXSTATICFUNC(const ConfigMapping *) FindConfigMapping(const char * lpszConfigSection, const char * lpszConfigValueName)
+MIKTEXSTATICFUNC(const ConfigMapping*) FindConfigMapping(const char* lpszConfigSection, const char* lpszConfigValueName)
 {
   for (size_t idx = 0; idx < sizeof(configMappings) / sizeof(configMappings); ++idx)
   {
@@ -91,7 +91,7 @@ PathName SessionImpl::GetMyPrefix(bool canonicalized)
   return prefix;
 }
 
-bool SessionImpl::FindStartupConfigFile(bool common, PathName & path)
+bool SessionImpl::FindStartupConfigFile(bool common, PathName& path)
 {
   if (initInfo.GetOptions()[InitOption::NoConfigFiles])
   {
@@ -192,7 +192,7 @@ bool SessionImpl::FindStartupConfigFile(bool common, PathName & path)
   return false;
 }
 
-void Absolutize(string & paths, const PathName & relativeFrom)
+void Absolutize(string& paths, const PathName& relativeFrom)
 {
   string result;
   for (CsvList path(paths, PATH_DELIMITER); path; ++path)
@@ -227,7 +227,7 @@ void Absolutize(string & paths, const PathName & relativeFrom)
   paths = result;
 }
 
-StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName & path)
+StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName& path)
 {
   StartupConfig ret;
 
@@ -326,7 +326,7 @@ StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName & p
   return ret;
 }
 
-void Relativize(string & paths, const PathName & relativeFrom)
+void Relativize(string& paths, const PathName& relativeFrom)
 {
 #if MIKTEX_WINDOWS
   string result;
@@ -352,7 +352,7 @@ void Relativize(string & paths, const PathName & relativeFrom)
 #endif
 }
 
-void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig & startupConfig)
+void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig& startupConfig)
 {
   MIKTEX_ASSERT(!IsMiKTeXDirect());
 
@@ -603,7 +603,7 @@ PathName SessionImpl::GetBinDirectory()
 #endif
 }
 
-void SessionImpl::ReadAllConfigFiles(const string & baseName, Cfg & cfg)
+void SessionImpl::ReadAllConfigFiles(const string& baseName, Cfg& cfg)
 {
   PathName fileName = MIKTEX_PATH_MIKTEX_CONFIG_DIR / baseName;
   fileName.AppendExtension(".ini");
@@ -623,7 +623,7 @@ void SessionImpl::ReadAllConfigFiles(const string & baseName, Cfg & cfg)
   }
 }
 
-MIKTEXSTATICFUNC(void) AppendToEnvVarName(string & name, const string & part)
+MIKTEXSTATICFUNC(void) AppendToEnvVarName(string& name, const string& part)
 {
   for (char ch : part)
   {
@@ -638,7 +638,7 @@ MIKTEXSTATICFUNC(void) AppendToEnvVarName(string & name, const string & part)
   }
 }
 
-bool SessionImpl::GetSessionValue(const string & sectionName, const string & valueName, string & value, const Optional<string> & defaultValue)
+bool SessionImpl::GetSessionValue(const string& sectionName, const string& valueName, string& value, const Optional<string>& defaultValue)
 {
   bool haveValue = false;
 
@@ -652,7 +652,7 @@ bool SessionImpl::GetSessionValue(const string & sectionName, const string & val
   // iterate over application tags, e.g.: latex;tex;miktex
   for (CsvList app(applicationNames, PATH_DELIMITER); !haveValue && app; ++app)
   {
-    Cfg * cfg = nullptr;
+    Cfg* cfg = nullptr;
 
     // read configuration files
     if (!initInfo.GetOptions()[InitOption::NoConfigFiles])
@@ -1070,12 +1070,12 @@ char ConfigValue::GetChar() const
   MIKTEX_UNEXPECTED();
 }
 
-bool SessionImpl::TryGetConfigValue(const std::string & sectionName, const string & valueName, string & value)
+bool SessionImpl::TryGetConfigValue(const std::string& sectionName, const string& valueName, string& value)
 {
   return GetSessionValue(sectionName, valueName, value);
 }
 
-ConfigValue SessionImpl::GetConfigValue(const std::string & sectionName, const string & valueName, const ConfigValue & defaultValue)
+ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName, const ConfigValue& defaultValue)
 {
   string value;
   if (!GetSessionValue(sectionName, valueName, value, Optional<string>(defaultValue.GetString())))
@@ -1085,7 +1085,7 @@ ConfigValue SessionImpl::GetConfigValue(const std::string & sectionName, const s
   return value;
 }
 
-void SessionImpl::SetConfigValue(const std::string & sectionName, const string & valueName, const ConfigValue & value)
+void SessionImpl::SetConfigValue(const std::string& sectionName, const string& valueName, const ConfigValue& value)
 {
   PathName pathConfigFile = GetSpecialPath(SpecialPath::ConfigRoot);
   pathConfigFile /= MIKTEX_PATH_MIKTEX_CONFIG_DIR;
@@ -1161,11 +1161,10 @@ bool SessionImpl::IsSharedSetup()
       if (isSharedSetup == TriState::Undetermined)
       {
 #if defined(MIKTEX_WINDOWS)
-	isSharedSetup = TriState::False;
+        isSharedSetup = TriState::False;
 #else
-	PathName myLoc = GetMyLocation(true);
-	isSharedSetup = Utils::IsParentDirectoryOf("/usr", myLoc) || Utils::IsParentDirectoryOf("/opt", myLoc) ? TriState::True : TriState::False;
-
+        PathName myLoc = GetMyLocation(true);
+        isSharedSetup = Utils::IsParentDirectoryOf("/usr", myLoc) || Utils::IsParentDirectoryOf("/opt", myLoc) ? TriState::True : TriState::False;
 #endif
       }
     }
@@ -1173,7 +1172,7 @@ bool SessionImpl::IsSharedSetup()
   return isSharedSetup == TriState::True;
 }
 
-void SessionImpl::ConfigureFile(const PathName & pathRel, HasNamedValues * callback)
+void SessionImpl::ConfigureFile(const PathName& pathRel, HasNamedValues* callback)
 {
   PathName pathOut(GetSpecialPath(SpecialPath::ConfigRoot));
   pathOut /= pathRel;
@@ -1190,7 +1189,7 @@ void SessionImpl::ConfigureFile(const PathName & pathRel, HasNamedValues * callb
 class ConfigureFileCallback : public HasNamedValues
 {
 public:
-  bool TryGetValue(const string & valueName, string & value)
+  bool TryGetValue(const string& valueName, string& value)
   {
     if (valueName == "MIKTEX_INSTALL")
     {
@@ -1211,7 +1210,7 @@ public:
     return true;
   }
 public:
-  string GetValue(const string & valueName)
+  string GetValue(const string& valueName)
   {
     string value;
     if (!TryGetValue(valueName, value))
@@ -1223,15 +1222,15 @@ public:
 public:
   ConfigureFileCallback() = delete;
 public:
-  ConfigureFileCallback(SessionImpl * session) :
+  ConfigureFileCallback(SessionImpl* session) :
     session(session)
   {
   }
 private:
-  SessionImpl * session;
+  SessionImpl* session;
 };
 
-void SessionImpl::ConfigureFile(const PathName & pathIn, const PathName & pathOut, HasNamedValues * callback)
+void SessionImpl::ConfigureFile(const PathName& pathIn, const PathName& pathOut, HasNamedValues* callback)
 {
   ConfigureFileCallback standardCallback(this);
   if (callback == nullptr)
@@ -1300,17 +1299,17 @@ void SessionImpl::ConfigureFile(const PathName & pathIn, const PathName & pathOu
   }
 }
 
-std::string SessionImpl::Expand(const string & toBeExpanded)
+std::string SessionImpl::Expand(const string& toBeExpanded)
 {
   return Expand(toBeExpanded, { ExpandOption::Values }, nullptr);
 }
 
-std::string SessionImpl::Expand(const string & toBeExpanded, HasNamedValues * callback)
+std::string SessionImpl::Expand(const string& toBeExpanded, HasNamedValues* callback)
 {
   return Expand(toBeExpanded, { ExpandOption::Values }, callback);
 }
 
-std::string SessionImpl::Expand(const string & toBeExpanded, ExpandOptionSet options, HasNamedValues * callback)
+std::string SessionImpl::Expand(const string& toBeExpanded, ExpandOptionSet options, HasNamedValues* callback)
 {
   string result = toBeExpanded;
   if (options[ExpandOption::Braces])
@@ -1332,9 +1331,9 @@ std::string SessionImpl::Expand(const string & toBeExpanded, ExpandOptionSet opt
   return result;
 }
 
-std::string SessionImpl::ExpandValues(const string & toBeExpanded, HasNamedValues * callback)
+std::string SessionImpl::ExpandValues(const string& toBeExpanded, HasNamedValues* callback)
 {
-  const char * lpsz = toBeExpanded.c_str();
+  const char* lpsz = toBeExpanded.c_str();
   string valueName;
   string expansion;
   expansion.reserve(strlen(lpsz));
@@ -1349,7 +1348,7 @@ std::string SessionImpl::ExpandValues(const string & toBeExpanded, HasNamedValue
       }
       else if (lpsz[1] == '(' || lpsz[1] == '{' || isalpha(lpsz[1]) || lpsz[1] == '_')
       {
-        const char * lpszBegin = lpsz;
+        const char* lpszBegin = lpsz;
         char endChar = (lpsz[1] == '(' ? ')' : (lpsz[1] == '{' ? '}' : 0));
         valueName = "";
         if (endChar == 0)
