@@ -55,7 +55,7 @@ namespace MiKTeXPackageManagerLib = MAKE_CURVER_ID(MiKTeXPackageManager);
 
 #define IGNORE_OTHER_SYSTEMS 1
 
-#if 1
+#if defined(MIKTEX_WINDOWS)
 #define ASYNC_LAUNCH_POLICY (std::launch::deferred | std::launch::async)
 #else
 #define ASYNC_LAUNCH_POLICY std::launch::deferred
