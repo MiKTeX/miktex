@@ -31,6 +31,7 @@
 <!ENTITY MakeIndex "<application>MakeIndex</application>">
 <!ENTITY MetaPost "<application>MetaPost</application>">
 <!ENTITY MiKTeX "<application>MiKTeX</application>">
+<!ENTITY MiKTeXconfigurationdatastore "&MiKTeX; configuration data store">
 <!ENTITY MiKTeXCurrentSeries "&MiKTeX;&nbsp;${MIKTEX_MAJOR_MINOR_STR}">
 <!ENTITY MiKTeXNetInstaller "<application>MiKTeX Net Installer</application>">
 <!ENTITY MiKTeXOptions "<application>&MiKTeX; Options</application>">
@@ -96,6 +97,7 @@
 <!ENTITY mf "<command>mf</command>">
 <!ENTITY miktexdvicopy "<command>miktex-dvicopy</command>">
 <!ENTITY miktexgftodvi "<command>miktex-gftodvi</command>">
+<!ENTITY miktexlatex "<command>miktex-latex</command>">
 <!ENTITY miktexmpost "<command>miktex-mpost</command>">
 <!ENTITY miktexpdflatex "<command>miktex-pdflatex</command>">
 <!ENTITY miktexpdftex "<command>miktex-pdftex</command>">

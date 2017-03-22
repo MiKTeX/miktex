@@ -1,13 +1,12 @@
 <?xml version="1.0"?>
 <!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+                              "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
 ]>
 <varlistentry>
 <term><option>--error-line=<replaceable>n</replaceable></option></term>
-<listitem><para>Set the
- width of context lines on
+<listitem><para>Set the width of context lines on
 <indexterm>
 <primary>--error-line=n</primary>
 </indexterm>

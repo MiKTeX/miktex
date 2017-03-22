@@ -19,7 +19,7 @@
 
 <refnamediv>
 <refname>miktex-bibtex</refname>
-<refpurpose>make a bibliography for (La)&TeX;</refpurpose>
+<refpurpose>make a bibliography for &LaTeX;</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
@@ -38,8 +38,8 @@
 
 <para>&BibTeX; reads the top-level auxiliary
 (<filename>.aux</filename>) file that was output during the running of
-&latex; or &miktextex; and creates a
-bibliography (<filename>.bbl</filename>) file that will be
+&miktexlatex; or &miktextex; and creates a bibliography
+(<filename>.bbl</filename>) file that will be
 <indexterm>
 <primary>.bbl (bibliography file)</primary>
 </indexterm>
@@ -104,13 +104,14 @@ details of this format, and it gives other useful hints for using
 <indexterm>
 <primary>--min-crossrefs=n</primary>
 </indexterm>
-<para>Defines the minimum number of
-<command>crossref</command>s required for automatic inclusion of the
+<para>Defines the minimum number of <command>crossref</command>s
+required for automatic inclusion of the
 <indexterm>
 <primary>cross-references</primary>
 <secondary>minimum number required</secondary>
 </indexterm>
-crossref'd entry on the citation list; the default is two.</para></listitem>
+crossref'd entry on the citation list; the default is
+two.</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/quiet.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/recordpackageusages.xml" />
@@ -127,6 +128,7 @@ crossref'd entry on the citation list; the default is two.</para></listitem>
 <variablelist>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/BIBINPUTS.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/BSTINPUTS.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_TRACE.xml" />
 </variablelist>
 
 </refsect1>

@@ -1,17 +1,16 @@
 <?xml version="1.0"?>
 <!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+                              "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
 ]>
 <varlistentry>
 <term><option>--disable-installer</option></term>
 <listitem>
-<para>Disable automatic installation of missing packages.
+<para>Disable automatic installation of packages.
 <indexterm>
-<primary>--disable-installer</primary>
-</indexterm>
-Specifying this option overwrites the global configuration setting in
-&MiKTeXOptions; (see <xref linkend="autoinstall"/>).</para>
+<primary>--disable-installer</primary> </indexterm> Specifying this
+option overrules settings in the
+&MiKTeXconfigurationdatastore;.</para>
 </listitem>
 </varlistentry>

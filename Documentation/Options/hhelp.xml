@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+                              "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
 ]>
@@ -10,7 +10,7 @@
 <indexterm>
 <primary>--hhelp</primary>
 </indexterm>
-<para>This option is only available on Windows systems: show the
+<para>This option is only available on &Windows; systems: show the
 manual page in an HTML Help window and exit when the window is
 closed.</para></listitem>
 </varlistentry>

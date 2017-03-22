@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+                              "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
 ]>
@@ -11,8 +11,8 @@
 <indexterm>
 <primary>--trace=tracestreams</primary>
 </indexterm>
-The <replaceable>tracestreams</replaceable> argument, if speciefied,
-is a comma-separated list of trace stream names (<xref
+The <replaceable>tracestreams</replaceable> argument, if specified, is
+a comma-separated list of trace stream names (<xref
 linkend="tracestreams"/>).</para>
 </listitem>
 </varlistentry>
