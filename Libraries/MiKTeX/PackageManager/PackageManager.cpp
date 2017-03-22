@@ -308,13 +308,13 @@ RepositoryReleaseState PackageManagerImpl::GetReleaseState(const string& deploym
 
 void PackageManagerImpl::IncrementFileRefCounts(const vector<string>& files)
 {
-  for (vector<string>::const_iterator it = files.begin(); it != files.end(); ++it)
+  for (const string& file : files)
   {
-    ++installedFileInfoTable[*it].refCount;
+    ++installedFileInfoTable[file].refCount;
 #if POLLUTE_THE_DEBUG_STREAM
-    if (installedFileInfoTable[*it].refCount >= 2)
+    if (installedFileInfoTable[file].refCount >= 2)
     {
-      trace_mpm->WriteFormattedLine("libmpm", T_("%s: ref count > 1"), Q_(*it));
+      trace_mpm->WriteFormattedLine("libmpm", T_("%s: ref count > 1"), Q_(file));
     }
 #endif
   }
@@ -435,21 +435,22 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
   trace_mpm->WriteFormattedLine("libmpm", T_("found %u package definition files"), static_cast<unsigned>(count));
 
   // determine dependencies
-  for (PackageDefinitionTable::iterator it = packageTable.begin(); it != packageTable.end(); ++it)
+  for (auto& kv : packageTable)
   {
+    PackageInfo& pkg = kv.second;
     // FIXME
     time_t timeInstalledMin = static_cast<time_t>(0xffffffffffffffffULL);
     time_t timeInstalledMax = 0;
-    for (vector<string>::const_iterator it2 = it->second.requiredPackages.begin(); it2 != it->second.requiredPackages.end(); ++it2)
+    for (const string& req : pkg.requiredPackages)
     {
-      PackageDefinitionTable::iterator it3 = packageTable.find(*it2);
+      PackageDefinitionTable::iterator it3 = packageTable.find(req);
       if (it3 == packageTable.end())
       {
-        trace_mpm->WriteFormattedLine("libmpm", T_("dependancy problem: %s is required by %s"), it2->c_str(), it->second.deploymentName.c_str());
+        trace_mpm->WriteFormattedLine("libmpm", T_("dependancy problem: %s is required by %s"), req.c_str(), pkg.deploymentName.c_str());
       }
       else
       {
-        it3->second.requiredBy.push_back(it->second.deploymentName);
+        it3->second.requiredBy.push_back(pkg.deploymentName);
         if (it3->second.timeInstalled < timeInstalledMin)
         {
           timeInstalledMin = it3->second.timeInstalled;
@@ -462,14 +463,12 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
     }
     if (timeInstalledMin > 0)
     {
-      if (it->second.IsPureContainer() || (it->second.IsInstalled() && it->second.timeInstalled < timeInstalledMax))
+      if (pkg.IsPureContainer() || (pkg.IsInstalled() && pkg.timeInstalled < timeInstalledMax))
       {
-        it->second.timeInstalled = timeInstalledMax;
+        pkg.timeInstalled = timeInstalledMax;
       }
     }
   }
-
-  PackageDefinitionTable::iterator it2;
 
   // create "Obsolete" container
   PackageInfo piObsolete;
@@ -477,14 +476,13 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
   piObsolete.displayName = T_("Obsolete");
   piObsolete.title = T_("Obsolete packages");
   piObsolete.description = T_("Packages that were removed from the MiKTeX package repository.");
-  for (it2 = packageTable.begin(); it2 != packageTable.end(); ++it2)
+  for (auto& kv : packageTable)
   {
-    if (!it2->second.IsContained()
-      && !it2->second.IsContainer()
-      && IsPackageObsolete(it2->second.deploymentName))
+    PackageInfo& pkg = kv.second;
+    if (!pkg.IsContained() && !pkg.IsContainer() && IsPackageObsolete(pkg.deploymentName))
     {
-      piObsolete.requiredPackages.push_back(it2->second.deploymentName);
-      it2->second.requiredBy.push_back(piObsolete.deploymentName);
+      piObsolete.requiredPackages.push_back(pkg.deploymentName);
+      pkg.requiredBy.push_back(piObsolete.deploymentName);
     }
   }
   if (piObsolete.requiredPackages.size() > 0)
@@ -498,12 +496,13 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
   piOther.deploymentName = "_miktex-all-the-rest";
   piOther.displayName = T_("Uncategorized");
   piOther.title = T_("Uncategorized packages");
-  for (it2 = packageTable.begin(); it2 != packageTable.end(); ++it2)
+  for (auto& kv : packageTable)
   {
-    if (!it2->second.IsContained() && !it2->second.IsContainer())
+    PackageInfo& pkg = kv.second;
+    if (!pkg.IsContained() && !pkg.IsContainer())
     {
-      piOther.requiredPackages.push_back(it2->second.deploymentName);
-      it2->second.requiredBy.push_back(piOther.deploymentName);
+      piOther.requiredPackages.push_back(pkg.deploymentName);
+      pkg.requiredBy.push_back(piOther.deploymentName);
     }
   }
   if (piOther.requiredPackages.size() > 0)
@@ -718,9 +717,9 @@ MPMSTATICFUNC(bool) IsUrl(const string& url)
     return false;
   }
   string scheme = url.substr(0, pos);
-  for (string::const_iterator it = scheme.begin(); it != scheme.end(); ++it)
+  for (const char& ch : scheme)
   {
-    if (!isalpha(*it, locale()))
+    if (!isalpha(ch, locale()))
     {
       return false;
     }
@@ -1054,21 +1053,20 @@ void PackageManagerImpl::CreateMpmFndb()
   ParseAllPackageDefinitionFiles();
 
   // collect the file names
-  for (PackageDefinitionTable::const_iterator it = packageTable.begin(); it != packageTable.end(); ++it)
+  for (const auto& kv : packageTable)
   {
-    const PackageInfo& pi = it->second;
-    vector<string>::const_iterator it2;
-    for (it2 = pi.runFiles.begin(); it2 != pi.runFiles.end(); ++it2)
+    const PackageInfo& pi = kv.second;
+    for (const string& file : pi.runFiles)
     {
-      RememberFileNameInfo(*it2, pi.deploymentName);
+      RememberFileNameInfo(file, pi.deploymentName);
     }
-    for (it2 = pi.docFiles.begin(); it2 != pi.docFiles.end(); ++it2)
+    for (const string& file : pi.docFiles)
     {
-      RememberFileNameInfo(*it2, pi.deploymentName);
+      RememberFileNameInfo(file, pi.deploymentName);
     }
-    for (it2 = pi.sourceFiles.begin(); it2 != pi.sourceFiles.end(); ++it2)
+    for (const string& file : pi.sourceFiles)
     {
-      RememberFileNameInfo(*it2, pi.deploymentName);
+      RememberFileNameInfo(file, pi.deploymentName);
     }
   }
 
@@ -1082,9 +1080,9 @@ void PackageManagerImpl::CreateMpmFndb()
 void PackageManagerImpl::GetAllPackageDefinitions(vector<PackageInfo>& packages)
 {
   ParseAllPackageDefinitionFiles();
-  for (PackageDefinitionTable::const_iterator it = packageTable.begin(); it != packageTable.end(); ++it)
+  for (const auto& kv : packageTable)
   {
-    packages.push_back(it->second);
+    packages.push_back(kv.second);
   }
 }
 
@@ -1193,9 +1191,9 @@ public:
       FPutC('>', stream);
       freshElement = false;
     }
-    for (const char* lpszText = text.c_str(); *lpszText != 0; ++lpszText)
+    for (const char& ch : text)
     {
-      switch (*lpszText)
+      switch (ch)
       {
       case '&':
         FPutS("&amp;", stream);
@@ -1207,7 +1205,7 @@ public:
         FPutS("&gt;", stream);
         break;
       default:
-        FPutC(*lpszText, stream);
+        FPutC(ch, stream);
         break;
       }
     }
@@ -1274,13 +1272,18 @@ void PackageManager::WritePackageDefinitionFile(const PathName& path, const Pack
   {
     xml.StartElement("TPM:RunFiles");
     xml.AddAttribute("size", std::to_string(static_cast<unsigned>(packageInfo.sizeRunFiles)).c_str());
-    for (vector<string>::const_iterator it = packageInfo.runFiles.begin(); it != packageInfo.runFiles.end(); ++it)
+    bool start = true;
+    for (const string& file : packageInfo.runFiles)
     {
-      if (it != packageInfo.runFiles.begin())
+      if (start)
+      {
+        start = false;
+      }
+      else
       {
         xml.Text(" ");
-      }
-      xml.Text(*it);
+      }      
+      xml.Text(file);
     }
     xml.EndElement();
   }
@@ -1290,13 +1293,18 @@ void PackageManager::WritePackageDefinitionFile(const PathName& path, const Pack
   {
     xml.StartElement("TPM:DocFiles");
     xml.AddAttribute("size", std::to_string(static_cast<unsigned>(packageInfo.sizeDocFiles)).c_str());
-    for (vector<string>::const_iterator it = packageInfo.docFiles.begin(); it != packageInfo.docFiles.end(); ++it)
+    bool start = true;
+    for (const string& file : packageInfo.docFiles)
     {
-      if (it != packageInfo.docFiles.begin())
+      if (start)
+      {
+        start = false;
+      }
+      else
       {
         xml.Text(" ");
-      }
-      xml.Text(*it);
+      }      
+      xml.Text(file);
     }
     xml.EndElement();
   }
@@ -1306,13 +1314,18 @@ void PackageManager::WritePackageDefinitionFile(const PathName& path, const Pack
   {
     xml.StartElement("TPM:SourceFiles");
     xml.AddAttribute("size", std::to_string(static_cast<unsigned>(packageInfo.sizeSourceFiles)).c_str());
-    for (vector<string>::const_iterator it = packageInfo.sourceFiles.begin(); it != packageInfo.sourceFiles.end(); ++it)
+    bool start = true;
+    for (const string& file : packageInfo.sourceFiles)
     {
-      if (it != packageInfo.sourceFiles.begin())
+      if (start)
+      {
+        start = false;
+      }
+      else
       {
         xml.Text(" ");
-      }
-      xml.Text(*it);
+      }      
+      xml.Text(file);
     }
     xml.EndElement();
   }
@@ -1321,10 +1334,10 @@ void PackageManager::WritePackageDefinitionFile(const PathName& path, const Pack
   if (packageInfo.requiredPackages.size() > 0)
   {
     xml.StartElement("TPM:Requires");
-    for (vector<string>::const_iterator it = packageInfo.requiredPackages.begin(); it != packageInfo.requiredPackages.end(); ++it)
+    for (const string& req : packageInfo.requiredPackages)
     {
       xml.StartElement("TPM:Package");
-      xml.AddAttribute("name", it->c_str());
+      xml.AddAttribute("name", req.c_str());
       xml.EndElement();
     }
     xml.EndElement();
@@ -1538,11 +1551,11 @@ RepositoryInfo PackageManagerImpl::VerifyPackageRepository(const string& url)
     return repositoryInfo;
   }
 #endif
-  for (vector<RepositoryInfo>::const_iterator it = repositories.begin(); it != repositories.end(); ++it)
+  for (const RepositoryInfo& repository : repositories)
   {
-    if (it->url == url)
+    if (repository.url == url)
     {
-      return *it;
+      return repository;
     }
   }
   ProxySettings proxySettings;
@@ -1652,13 +1665,13 @@ string PackageManagerImpl::GetContainerPath(const string& deploymentName, bool u
 {
   string path;
   PackageInfo packageInfo = GetPackageInfo(deploymentName);
-  for (size_t idx = 0; idx < packageInfo.requiredBy.size(); ++idx)
+  for (const string& reqby : packageInfo.requiredBy)
   {
-    PackageInfo packageInfo2 = GetPackageInfo(packageInfo.requiredBy[idx]);
+    PackageInfo packageInfo2 = GetPackageInfo(reqby);
     if (packageInfo2.IsPureContainer())
     {
       // RECUSION
-      path = GetContainerPath(packageInfo.requiredBy[idx], useDisplayNames);
+      path = GetContainerPath(reqby, useDisplayNames);
       path += PathName::DirectoryDelimiter;
       if (useDisplayNames)
       {
