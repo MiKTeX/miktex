@@ -92,6 +92,15 @@ struct FileLink
 #endif
 };
 
+enum class LinkCategory
+{
+  Formats,
+  MiKTeX,
+  Scripts
+};
+
+typedef OptionSet<LinkCategory> LinkCategoryOptions;
+
 class ProcessOutput :
   public IRunProcessCallback
 {
@@ -316,10 +325,10 @@ private:
   void ShowConfigValue(const string& valueSpec);
 
 private:
-  vector<FileLink> CollectLinks(bool overwrite);
+  vector<FileLink> CollectLinks(LinkCategoryOptions linkCategories, bool overwrite);
 
 private:
-  void ManageLinks(bool remove, bool force);
+  void ManageLinks(LinkCategoryOptions linkCategories, bool remove, bool force);
 
 #if defined(MIKTEX_UNIX)
 private:
@@ -723,10 +732,10 @@ const struct poptOption IniTeXMFApp::aoption_user[] = {
 
   {
     "mklinks", 0,
-    POPT_ARG_NONE, nullptr,
+    POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr,
     OPT_MKLINKS,
-    T_("Create executables."),
-    nullptr
+    T_("Create links for formats, scripts and miktex- executables."),
+    T_("CATEGORY")
   },
 
   {
@@ -1097,10 +1106,10 @@ const struct poptOption IniTeXMFApp::aoption_setup[] = {
 
   {
     "mklinks", 0,
-    POPT_ARG_NONE, nullptr,
+    POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr,
     OPT_MKLINKS,
-    T_("Create executables."),
-    nullptr
+    T_("Create links for formats, scripts and miktex- executables."),
+    T_("CATEGORY")
   },
 
   {
@@ -1487,10 +1496,10 @@ const struct poptOption IniTeXMFApp::aoption_update[] = {
 
   {
     "mklinks", 0,
-    POPT_ARG_NONE, nullptr,
+    POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr,
     OPT_MKLINKS,
-    T_("Create executables."),
-    nullptr
+    T_("Create links for formats, scripts and miktex- executables."),
+    T_("CATEGORY")
   },
 
   {
@@ -2563,120 +2572,134 @@ vector<FileLink> explicitFileLinks =
 #endif
 };
 
-vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
+vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories, bool overwrite)
 {
   vector<FileLink> result;
   PathName pathBinDir = session->GetSpecialPath(SpecialPath::BinDirectory);
   PathName internalBinDir = session->GetSpecialPath(SpecialPath::InternalBinDirectory);
-  for (const FileLink& fileLink : explicitFileLinks)
+
+  if (linkCategories[LinkCategory::MiKTeX])
   {
-    PathName targetPath = pathBinDir;
-    targetPath /= fileLink.target;
-    string extension = targetPath.GetExtension();
-    if (File::Exists(targetPath))
+    for (const FileLink& fileLink : explicitFileLinks)
     {
-      vector<string> linkNames;
-      for (const string& linkName : fileLink.linkNames)
+      PathName targetPath = pathBinDir;
+      targetPath /= fileLink.target;
+      string extension = targetPath.GetExtension();
+      if (File::Exists(targetPath))
       {
-        PathName linkPath = pathBinDir;
-        linkPath /= linkName;
-        if (!extension.empty())
+        vector<string> linkNames;
+        for (const string& linkName : fileLink.linkNames)
         {
-          linkPath.AppendExtension(extension);
+          PathName linkPath = pathBinDir;
+          linkPath /= linkName;
+          if (!extension.empty())
+          {
+            linkPath.AppendExtension(extension);
+          }
+          linkNames.push_back(linkPath.ToString());
         }
-        linkNames.push_back(linkPath.ToString());
+        result.push_back(FileLink(targetPath.ToString(), linkNames, fileLink.linkType));
       }
-      result.push_back(FileLink(targetPath.ToString(), linkNames, fileLink.linkType));
-    }
-    else
-    {
-      Warning(T_("The link target %s does not exist."), Q_(targetPath));
-    }
-  }
-
-  for (const FormatInfo& formatInfo : session->GetFormats())
-  {
-    if (formatInfo.noExecutable)
-    {
-      continue;
-    }
-    PathName compilerPath;
-    if (!session->FindFile(string(MIKTEX_PREFIX) + formatInfo.compiler, FileType::EXE, compilerPath))
-    {
-      Warning(T_("The %s executable could not be found."), formatInfo.compiler.c_str());
-      continue;
-    }
-    PathName tmp;
-    if (overwrite || !session->FindFile(formatInfo.name, FileType::EXE, tmp))
-    {
-      PathName exePath(pathBinDir, formatInfo.name);
-      if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
+      else
       {
-        exePath.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
-      }
-      if (!(compilerPath == exePath))
-      {
-        result.push_back(FileLink(compilerPath.ToString(), { exePath.ToString() }));
+        Warning(T_("The link target %s does not exist."), Q_(targetPath));
       }
     }
   }
 
-  PathName scriptsIni;
-  if (!session->FindFile(MIKTEX_PATH_SCRIPTS_INI, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptsIni))
+  if (linkCategories[LinkCategory::Formats])
   {
-    FatalError(T_("Script configuration file not found."));
-  }
-  unique_ptr<Cfg> config(Cfg::Create());
-  config->Read(scriptsIni, true);
-  for (const shared_ptr<Cfg::Key>& key : config->GetKeys())
-  {
-    PathName wrapper = session->GetSpecialPath(SpecialPath::InternalBinDirectory);
-    wrapper.AppendDirectoryDelimiter();
-    wrapper.Append("run", false);
-    wrapper.Append(key->GetName(), false);
-    wrapper.Append(MIKTEX_EXE_FILE_SUFFIX, false);
-    if (!File::Exists(wrapper))
+    for (const FormatInfo& formatInfo : session->GetFormats())
     {
-      continue;
-    }
-    for (const shared_ptr<Cfg::Value>& v : key->GetValues())
-    {
-      PathName pathExe(pathBinDir, v->GetName());
-      if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
+      if (formatInfo.noExecutable)
       {
-        pathExe.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
+        continue;
       }
-      result.push_back(FileLink(wrapper.ToString(), { pathExe.ToString() }));
+      PathName compilerPath;
+      if (!session->FindFile(string(MIKTEX_PREFIX) + formatInfo.compiler, FileType::EXE, compilerPath))
+      {
+        Warning(T_("The %s executable could not be found."), formatInfo.compiler.c_str());
+        continue;
+      }
+      PathName tmp;
+      if (overwrite || !session->FindFile(formatInfo.name, FileType::EXE, tmp))
+      {
+        PathName exePath(pathBinDir, formatInfo.name);
+        if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
+        {
+          exePath.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
+        }
+        if (!(compilerPath == exePath))
+        {
+          result.push_back(FileLink(compilerPath.ToString(), { exePath.ToString() }));
+        }
+      }
+    }
+  }
+
+  if (linkCategories[LinkCategory::Scripts])
+  {
+
+    PathName scriptsIni;
+    if (!session->FindFile(MIKTEX_PATH_SCRIPTS_INI, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptsIni))
+    {
+      FatalError(T_("Script configuration file not found."));
+    }
+    unique_ptr<Cfg> config(Cfg::Create());
+    config->Read(scriptsIni, true);
+    for (const shared_ptr<Cfg::Key>& key : config->GetKeys())
+    {
+      PathName wrapper = session->GetSpecialPath(SpecialPath::InternalBinDirectory);
+      wrapper.AppendDirectoryDelimiter();
+      wrapper.Append("run", false);
+      wrapper.Append(key->GetName(), false);
+      wrapper.Append(MIKTEX_EXE_FILE_SUFFIX, false);
+      if (!File::Exists(wrapper))
+      {
+        continue;
+      }
+      for (const shared_ptr<Cfg::Value>& v : key->GetValues())
+      {
+        PathName pathExe(pathBinDir, v->GetName());
+        if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
+        {
+          pathExe.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
+        }
+        result.push_back(FileLink(wrapper.ToString(), { pathExe.ToString() }));
+      }
     }
   }
 
 #if defined(MIKTEX_WINDOWS)
-  static PathName const copystarters[] = {
-    MIKTEX_PATH_INTERNAL_TASKBAR_ICON_EXE,
-    MIKTEX_PATH_INTERNAL_UPDATE_EXE,
-  };
-  PathName copystart;
-  if (session->FindFile(MIKTEX_PATH_INTERNAL_COPYSTART_EXE, MIKTEX_PATH_TEXMF_PLACEHOLDER, copystart))
+  if (linkCategories[LinkCategory::MiKTeX])
   {
-    for (const PathName& starter : copystarters)
+    static PathName const copystarters[] = {
+      MIKTEX_PATH_INTERNAL_TASKBAR_ICON_EXE,
+      MIKTEX_PATH_INTERNAL_UPDATE_EXE,
+    };
+    PathName copystart;
+    if (session->FindFile(MIKTEX_PATH_INTERNAL_COPYSTART_EXE, MIKTEX_PATH_TEXMF_PLACEHOLDER, copystart))
     {
-      PathName pathExe(pathBinDir);
-      pathExe /= starter.GetFileName();
-      result.push_back(FileLink(copystart.ToString(), { pathExe.ToString() }));
+      for (const PathName& starter : copystarters)
+      {
+        PathName pathExe(pathBinDir);
+        pathExe /= starter.GetFileName();
+        result.push_back(FileLink(copystart.ToString(), { pathExe.ToString() }));
+      }
     }
-  }
 
-  static PathName const copystarters_admin[] = {
-    MIKTEX_PATH_INTERNAL_UPDATE_ADMIN_EXE,
-  };
-  PathName copystart_admin;
-  if (session->FindFile(MIKTEX_PATH_INTERNAL_COPYSTART_ADMIN_EXE, MIKTEX_PATH_TEXMF_PLACEHOLDER, copystart_admin))
-  {
-    for (const PathName& starter : copystarters_admin)
+    static PathName const copystarters_admin[] = {
+      MIKTEX_PATH_INTERNAL_UPDATE_ADMIN_EXE,
+    };
+    PathName copystart_admin;
+    if (session->FindFile(MIKTEX_PATH_INTERNAL_COPYSTART_ADMIN_EXE, MIKTEX_PATH_TEXMF_PLACEHOLDER, copystart_admin))
     {
-      PathName pathExe(pathBinDir);
-      pathExe /= starter.GetFileName();
-      result.push_back(FileLink(copystart_admin.ToString(), { pathExe.ToString() }));
+      for (const PathName& starter : copystarters_admin)
+      {
+        PathName pathExe(pathBinDir);
+        pathExe /= starter.GetFileName();
+        result.push_back(FileLink(copystart_admin.ToString(), { pathExe.ToString() }));
+      }
     }
   }
 #endif
@@ -2684,7 +2707,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(bool overwrite)
   return result;
 }
 
-void IniTeXMFApp::ManageLinks(bool remove, bool force)
+void IniTeXMFApp::ManageLinks(LinkCategoryOptions linkCategories, bool remove, bool force)
 {
   PathName pathBinDir = session->GetSpecialPath(SpecialPath::BinDirectory);
   PathName internalBinDir = session->GetSpecialPath(SpecialPath::InternalBinDirectory);
@@ -2703,7 +2726,7 @@ void IniTeXMFApp::ManageLinks(bool remove, bool force)
     logStream.WriteLine("[files]");
   }
 
-  for (const FileLink& fileLink : CollectLinks(force))
+  for (const FileLink& fileLink : CollectLinks(linkCategories, force))
   {
     ManageLink(fileLink, supportsHardLinks, remove, force);
   }
@@ -3425,6 +3448,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   bool optListFormats = false;
   bool optListModes = false;
   bool optMakeLinks = isTexlinksMode;
+  LinkCategoryOptions linkCategories;
 #if defined(MIKTEX_WINDOWS)
   bool optNoRegistry = false;
 #endif
@@ -3590,6 +3614,26 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     case OPT_MKLINKS:
 
       optMakeLinks = true;
+      if (optArg.empty())
+      {
+        linkCategories.Set();
+      }
+      else if (optArg == "formats")
+      {
+        linkCategories += LinkCategory::Formats;
+      }
+      else if (optArg == "miktex")
+      {
+        linkCategories += LinkCategory::MiKTeX;
+      }
+      else if (optArg == "scripts")
+      {
+        linkCategories += LinkCategory::Scripts;
+      }
+      else
+      {
+        MIKTEX_FATAL_ERROR(T_("Unknown link category."));
+      }      
       break;
 
     case OPT_MKMAPS:
@@ -3648,6 +3692,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     case OPT_REMOVE_LINKS:
 
       optRemoveLinks = true;
+      linkCategories.Set();
       break;
       
     case OPT_REPORT:
@@ -3840,7 +3885,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
   if (optMakeLinks || optRemoveLinks)
   {
-    ManageLinks(optRemoveLinks, optForce);
+    ManageLinks(linkCategories, optRemoveLinks, optForce);
 #if defined(MIKTEX_UNIX)
     if (optMakeLinks)
     {

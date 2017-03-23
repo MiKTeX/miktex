@@ -118,6 +118,12 @@ public:
   }
 
 public:
+  void Set()
+  {
+    bits.set();
+  }
+
+public:
   void Reset()
   {
     bits.reset();
