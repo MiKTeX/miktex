@@ -1,18 +1,19 @@
 <?xml version="1.0"?>
 <!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-                       "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+                              "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
 ]>
 <varlistentry>
-<term><option>--tcx=<replaceable>name</replaceable></option></term>
+<term><option>--tcx=<replaceable>tcxname</replaceable></option></term>
 <listitem>
 <indexterm>
-<primary>--tcx=name</primary>
+<primary>--tcx=tcxname</primary>
 </indexterm>
 <indexterm>
-<primary>--translate-file=name</primary>
+<primary>--translate-file=tcxname</primary>
 </indexterm>
-<para>Process the &TCX; table
-<replaceable>name</replaceable>.</para></listitem>
+<para>Use the <replaceable>tcxname</replaceable> translation table to
+set the mapping of input characters and re-mapping of output
+characters.</para></listitem>
 </varlistentry>
