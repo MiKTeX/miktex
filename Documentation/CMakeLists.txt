@@ -25,10 +25,12 @@ if(MIKTEX_UNIX_ALIKE)
   set(PROMPT "&#36; ")
   set(COMMONINSTALL "/usr/local/share/miktex-texmf")
   set(USERINSTALL "~/.miktex/texmfs/install")
+  set(EXESUFFIX "")
 else()
   set(PROMPT "C:\&gt; ")
   set(COMMONINSTALL "C:\\Program Files\\MiKTeX ${MIKTEX_MAJOR_MINOR_STR}")
   set(USERINSTALL "C:\\Documents and Settings\\User\\Local SettingsApplication Data\\MiKTeX ${MIKTEX_MAJOR_MINOR_STR}")
+  set(EXESUFFIX ".exe")
 endif()
 
 configure_file(

@@ -11,6 +11,7 @@
 <!ENTITY Dvipdfm "<application>Dvipdfm</application>">
 <!ENTITY Dvips "<application>Dvips</application>">
 <!ENTITY EPS "<acronym>EPS</acronym>">
+<!ENTITY EXESUFFIX "${EXESUFFIX}">
 <!ENTITY FAQ "<acronym>FAQ</acronym>">
 <!ENTITY FNDB "<acronym>FNDB</acronym>">
 <!ENTITY FSF "<acronym>FSF</acronym>">
@@ -25,13 +26,13 @@
 <!ENTITY LuaTeX "<application>LuaTeX</application>">
 <!ENTITY MD5Walk "<application>MD5Walk</application>">
 <!ENTITY METAFONT "<application>METAFONT</application>">
+<!ENTITY MIKTEX_PREFIX "${MIKTEX_PREFIX}">
 <!ENTITY MLTeX "<application>MLTeX</application>">
 <!ENTITY MPC "<acronym>MPC</acronym>">
 <!ENTITY MPM "<acronym>MPM</acronym>">
 <!ENTITY MakeIndex "<application>MakeIndex</application>">
 <!ENTITY MetaPost "<application>MetaPost</application>">
 <!ENTITY MiKTeX "<application>MiKTeX</application>">
-<!ENTITY MiKTeXconfigurationdatastore "&MiKTeX; configuration data store">
 <!ENTITY MiKTeXCurrentSeries "&MiKTeX;&nbsp;${MIKTEX_MAJOR_MINOR_STR}">
 <!ENTITY MiKTeXNetInstaller "<application>MiKTeX Net Installer</application>">
 <!ENTITY MiKTeXOptions "<application>&MiKTeX; Options</application>">
@@ -42,11 +43,13 @@
 <!ENTITY MiKTeXSetupUtility "<application>&MiKTeX; Setup Utility</application>">
 <!ENTITY MiKTeXSetupWizard "<application>&MiKTeX; Setup Wizard</application>">
 <!ENTITY MiKTeXUpdateWizard "<application>&MiKTeX; Update Wizard</application>">
+<!ENTITY MiKTeXconfigurationdatastore "&MiKTeX; configuration data store">
 <!ENTITY MiKTeXpdfTeX "<application>MiKTeX-pdfTeX</application>">
 <!ENTITY Omega "<application>Omega</application>">
 <!ENTITY PACKAGE_NAME "${PACKAGE_NAME}">
 <!ENTITY PDF "<acronym>PDF</acronym>">
 <!ENTITY PNG "<acronym>PNG</acronym>">
+<!ENTITY Perl "<application>Perl</application>">
 <!ENTITY PostScript "<application>PostScript</application>">
 <!ENTITY SVG "<acronym>SVG</acronym>">
 <!ENTITY SyncTeX "<application>SyncTeX</application>">
@@ -76,8 +79,8 @@
 <!ENTITY XDV "<acronym>XDV</acronym>">
 <!ENTITY XeTeX "<application>XeTeX</application>">
 <!ENTITY Yap "<application>Yap</application>">
-<!ENTITY basicmiktexexe "<command>basic-miktex-${MIKTEX_MAJOR_MINOR_STR}.<replaceable>xxxx</replaceable>.exe</command>">
-<!ENTITY basicmiktexexefile "<filename>basic-miktex-${MIKTEX_MAJOR_MINOR_STR}.<replaceable>xxxx</replaceable>.exe</filename>">
+<!ENTITY basicmiktexexe "<command>basic-miktex-${MIKTEX_MAJOR_MINOR_STR}.<replaceable>xxxx</replaceable>${EXESUFFIX}</command>">
+<!ENTITY basicmiktexexefile "<filename>basic-miktex-${MIKTEX_MAJOR_MINOR_STR}.<replaceable>xxxx</replaceable>${EXESUFFIX}</filename>">
 <!ENTITY cabextract "<command>cabextract</command>">
 <!ENTITY commoninstalldir "<filename>${COMMONINSTALL}</filename>">
 <!ENTITY date "${MIKTEX_CACHED_MONTH_NAME} ${MIKTEX_CACHED_MDAY}, ${MIKTEX_CACHED_YEAR}">
@@ -95,16 +98,17 @@
 <!ENTITY makeinfo "<command>makeinfo</command>">
 <!ENTITY md5walk "<command>md5walk</command>">
 <!ENTITY mf "<command>mf</command>">
-<!ENTITY miktexdvicopy "<command>miktex-dvicopy</command>">
-<!ENTITY miktexgftodvi "<command>miktex-gftodvi</command>">
-<!ENTITY miktexlatex "<command>miktex-latex</command>">
-<!ENTITY miktexmpost "<command>miktex-mpost</command>">
-<!ENTITY miktexpdflatex "<command>miktex-pdflatex</command>">
-<!ENTITY miktexpdftex "<command>miktex-pdftex</command>">
+<!ENTITY miktexdvicopy "<command>${MIKTEX_PREFIX}dvicopy</command>">
+<!ENTITY miktexgftodvi "<command>${MIKTEX_PREFIX}gftodvi</command>">
+<!ENTITY miktexlatex "<command>${MIKTEX_PREFIX}latex</command>">
+<!ENTITY miktexmpost "<command>${MIKTEX_PREFIX}mpost</command>">
+<!ENTITY miktexpdflatex "<command>${MIKTEX_PREFIX}pdflatex</command>">
+<!ENTITY miktexpdftex "<command>${MIKTEX_PREFIX}pdftex</command>">
+<!ENTITY miktexprefix "<filename>${MIKTEX_PREFIX}</filename>">
 <!ENTITY miktexrev "${MIKTEX_FULL_VERSION_STR}">
 <!ENTITY miktexsetup "<command>miktexsetup</command>">
-<!ENTITY miktextex "<command>miktex-tex</command>">
-<!ENTITY miktexxetex "<command>miktex-xetex</command>">
+<!ENTITY miktextex "<command>${MIKTEX_PREFIX}tex</command>">
+<!ENTITY miktexxetex "<command>${MIKTEX_PREFIX}xetex</command>">
 <!ENTITY month "${MIKTEX_CACHED_MONTH_NAME} ${MIKTEX_CACHED_YEAR}">
 <!ENTITY mpc "<command>mpc</command>">
 <!ENTITY mpm "<command>mpm</command>">
@@ -118,8 +122,8 @@
 <!ENTITY prompt "${PROMPT}">
 <!ENTITY rev "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_COMP_J2000_VERSION}">
 <!ENTITY rsync "<command>rsync</command>">
-<!ENTITY setupexe "<command>setup-${MIKTEX_MAJOR_MINOR_STR}.<replaceable>xxxx</replaceable>.exe</command>">
-<!ENTITY setupexefile "<filename>setup-${MIKTEX_MAJOR_MINOR_STR}.<replaceable>xxxx</replaceable>.exe</filename>">
+<!ENTITY setupexe "<command>setup-${MIKTEX_MAJOR_MINOR_STR}.<replaceable>xxxx</replaceable>${EXESUFFIX}</command>">
+<!ENTITY setupexefile "<filename>setup-${MIKTEX_MAJOR_MINOR_STR}.<replaceable>xxxx</replaceable>${EXESUFFIX}</filename>">
 <!ENTITY tar "<command>tar</command>">
 <!ENTITY texi2dvi "<command>tex2dvi</command>">
 <!ENTITY texify "<command>texify</command>">
