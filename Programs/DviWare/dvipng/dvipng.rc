@@ -1,6 +1,6 @@
 /* dvipng.rc: version number                            -*- C++ -*-
 
-   Copyright (C) 2004-2016 Christian Schenk
+   Copyright (C) 2004-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,6 +21,6 @@
 
 #define VER_FILEDESCRIPTION_STR "DVI-to-PNG converter"
 #define VER_INTERNALNAME_STR "dvipng"
-#define VER_ORIGINALFILENAME_STR "dvipng.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-dvipng.exe"
 
 #include "miktex/win/version.rc"

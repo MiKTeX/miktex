@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2016 Christian Schenk
+## Copyright (C) 2015-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -50,23 +50,23 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(devnag ${devnag_sources})
+add_executable(${MIKTEX_PREFIX}devnag ${devnag_sources})
 
-set_property(TARGET devnag PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}devnag PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(devnag asInvoker)
-merge_compatibility_manifest(devnag)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}devnag asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}devnag)
 
-target_link_libraries(devnag
+target_link_libraries(${MIKTEX_PREFIX}devnag
   ${app_dll_name}
   ${core_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(devnag
+  target_link_libraries(${MIKTEX_PREFIX}devnag
     ${unxemu_dll_name}
     ${utf8wrap_dll_name}
   )
 endif()
 
-install(TARGETS devnag DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}devnag DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

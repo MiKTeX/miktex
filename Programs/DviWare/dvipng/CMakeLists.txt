@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -86,26 +86,26 @@ else()
   )
 endif()
 
-add_executable(dvipng ${dvipng_sources})
+add_executable(${MIKTEX_PREFIX}dvipng ${dvipng_sources})
 
-set_property(TARGET dvipng PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}dvipng PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(dvipng asInvoker)
-merge_compatibility_manifest(dvipng)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}dvipng asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}dvipng)
 
 if(USE_SYSTEM_FREETYPE2)
-  target_link_libraries(dvipng MiKTeX::Imported::FREETYPE2)
+  target_link_libraries(${MIKTEX_PREFIX}dvipng MiKTeX::Imported::FREETYPE2)
 else()
-  target_link_libraries(dvipng ${freetype2_dll_name})
+  target_link_libraries(${MIKTEX_PREFIX}dvipng ${freetype2_dll_name})
 endif()
 
 if(USE_SYSTEM_GD)
-  target_link_libraries(dvipng MiKTeX::Imported::GD)
+  target_link_libraries(${MIKTEX_PREFIX}dvipng MiKTeX::Imported::GD)
 else()
-  target_link_libraries(dvipng ${gd_dll_name})
+  target_link_libraries(${MIKTEX_PREFIX}dvipng ${gd_dll_name})
 endif()
 
-target_link_libraries(dvipng
+target_link_libraries(${MIKTEX_PREFIX}dvipng
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
@@ -113,11 +113,11 @@ target_link_libraries(dvipng
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(dvipng
+  target_link_libraries(${MIKTEX_PREFIX}dvipng
     ${getopt_dll_name}
     ${unxemu_dll_name}
     ${utf8wrap_dll_name}
   )
 endif()
 
-install(TARGETS dvipng DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}dvipng DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

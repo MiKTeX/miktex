@@ -13,7 +13,7 @@
       This package includes the ChkTeX utility.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/chktex.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}chktex.exe
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -68,26 +68,25 @@ set(executables
 )
 
 foreach(x ${executables})
-  add_executable(${x}
+  add_executable(${MIKTEX_PREFIX}${x}
     ${MIKTEX_LIBRARY_WRAPPER}
     source/${x}.c
   )
-  target_link_libraries(${x}
+  target_link_libraries(${MIKTEX_PREFIX}${x}
     ${app_dll_name}
     ${core_dll_name}
     psutils
   )
   if(MIKTEX_NATIVE_WINDOWS)
-    target_link_libraries(${x}
+    target_link_libraries(${MIKTEX_PREFIX}${x}
       ${unxemu_dll_name}
     )
   endif()
-  merge_trustinfo_manifest(${x} asInvoker)
-  merge_compatibility_manifest(${x})
-  set_property(TARGET ${x} PROPERTY FOLDER ${folder})
+  merge_trustinfo_manifest(${MIKTEX_PREFIX}${x} asInvoker)
+  merge_compatibility_manifest(${MIKTEX_PREFIX}${x})
+  set_property(TARGET ${MIKTEX_PREFIX}${x} PROPERTY FOLDER ${folder})
+  install(TARGETS ${MIKTEX_PREFIX}${x} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 endforeach()
-
-install(TARGETS ${executables} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 install(
   FILES

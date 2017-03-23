@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016 Christian Schenk
+## Copyright (C) 2016-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -301,12 +301,12 @@ foreach(p ${programs})
       ${p}.rc
     )
   endif()
-  add_executable(${p} ${${p}_sources})
-  set_property(TARGET ${p} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  merge_trustinfo_manifest(${p} asInvoker)
-  merge_compatibility_manifest(${p})
-  target_link_libraries(${p}
+  add_executable(${MIKTEX_PREFIX}${p} ${${p}_sources})
+  set_property(TARGET ${MIKTEX_PREFIX}${p} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  merge_trustinfo_manifest(${MIKTEX_PREFIX}${p} asInvoker)
+  merge_compatibility_manifest(${MIKTEX_PREFIX}${p})
+  target_link_libraries(${MIKTEX_PREFIX}${p}
     f2c
   )
-  install(TARGETS ${p} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+  install(TARGETS ${MIKTEX_PREFIX}${p} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 endforeach()

@@ -21,6 +21,6 @@
 
 #define VER_FILEDESCRIPTION_STR "AFM-to-TFM converter"
 #define VER_INTERNALNAME_STR "afm2tfm"
-#define VER_ORIGINALFILENAME_STR "afm2tfm.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-afm2tfm.exe"
 
 #include "miktex/win/version.rc"

@@ -14,8 +14,8 @@
       This package includes the BibTeX (8-bit enhanced) executable.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/bibtex8.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/bibtexu.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}bibtex8.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}bibtexu.exe
     </TPM:RunFiles>
  </rdf:Description>
 </rdf:RDF>

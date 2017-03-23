@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -30,6 +30,8 @@ add_definitions(
   -DWITH_MKTEXLSR=1
   -DWITH_TEXHASH=1
   -DWITH_TEXLINKS=1
+  -DWITH_TEXDOC=1
+  -DWITH_UPDMAP=1
 )
 
 if(MSVC)

@@ -13,14 +13,14 @@
       This package includes various CJK related font conversion utilities.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/bg5conv.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/cef5conv.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/cefconv.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/cefsconv.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}bg5conv.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}cef5conv.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}cefconv.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}cefsconv.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}extconv.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}hbf2gf.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}sjisconv.exe
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/cjklatex.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/extconv.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/hbf2gf.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/sjisconv.exe
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

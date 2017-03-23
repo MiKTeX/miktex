@@ -21,6 +21,6 @@
 
 #define VER_FILEDESCRIPTION_STR "DVI-to-PostScript converter"
 #define VER_INTERNALNAME_STR "dvips"
-#define VER_ORIGINALFILENAME_STR "dvips.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-dvips.exe"
 
 #include "miktex/win/version.rc"

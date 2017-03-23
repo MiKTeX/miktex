@@ -13,8 +13,8 @@
        This package includes the dvips executable.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/afm2tfm.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/dvips.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}afm2tfm.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}dvips.exe
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

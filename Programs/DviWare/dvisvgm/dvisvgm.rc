@@ -21,6 +21,6 @@
 
 #define VER_FILEDESCRIPTION_STR "DVI-to-SVG converter"
 #define VER_INTERNALNAME_STR "dvisvgm"
-#define VER_ORIGINALFILENAME_STR "dvisvgm.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-dvisvgm.exe"
 
 #include "miktex/win/version.rc"

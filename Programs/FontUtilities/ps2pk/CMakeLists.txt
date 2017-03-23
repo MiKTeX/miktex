@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -70,26 +70,26 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(pk2bm ${pk2bm_sources})
+add_executable(${MIKTEX_PREFIX}pk2bm ${pk2bm_sources})
 
-set_property(TARGET pk2bm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}pk2bm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(pk2bm asInvoker)
-merge_compatibility_manifest(pk2bm)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}pk2bm asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}pk2bm)
 
-target_link_libraries(pk2bm
+target_link_libraries(${MIKTEX_PREFIX}pk2bm
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(pk2bm
+  target_link_libraries(${MIKTEX_PREFIX}pk2bm
     ${utf8wrap_dll_name}
   )
 endif()
 
-install(TARGETS pk2bm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}pk2bm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(ps2pk_sources
   ${MIKTEX_LIBRARY_WRAPPER}
@@ -159,23 +159,23 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(ps2pk ${ps2pk_sources})
+add_executable(${MIKTEX_PREFIX}ps2pk ${ps2pk_sources})
 
-set_property(TARGET ps2pk PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}ps2pk PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(ps2pk asInvoker)
-merge_compatibility_manifest(ps2pk)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}ps2pk asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}ps2pk)
 
-target_link_libraries(ps2pk
+target_link_libraries(${MIKTEX_PREFIX}ps2pk
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(ps2pk
+  target_link_libraries(${MIKTEX_PREFIX}ps2pk
     ${utf8wrap_dll_name}
   )
 endif()
 
-install(TARGETS ps2pk DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}ps2pk DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

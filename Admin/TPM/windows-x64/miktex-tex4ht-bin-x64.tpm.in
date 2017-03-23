@@ -14,8 +14,8 @@
       This package includes the TeX4HT binaries.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/t4ht.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/tex4ht.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}t4ht.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}tex4ht.exe
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

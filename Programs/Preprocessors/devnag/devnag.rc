@@ -1,4 +1,4 @@
-/* devnag.rc: version number				-*- C++ -*-
+/* devnag.rc: version number                            -*- C++ -*-
 
    Copyright (C) 2015-2016 Christian Schenk
 
@@ -21,6 +21,6 @@
 
 #define VER_FILEDESCRIPTION_STR "Devnag - a Preprocessor for Devanagari for TeX"
 #define VER_INTERNALNAME_STR "devnag"
-#define VER_ORIGINALFILENAME_STR "devnag.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-devnag.exe"
 
 #include "miktex/win/version.rc"

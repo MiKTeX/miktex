@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016 Christian Schenk
+## Copyright (C) 2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -72,12 +72,12 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(prepmx ${prepmx_sources})
+add_executable(${MIKTEX_PREFIX}prepmx ${prepmx_sources})
 
-set_property(TARGET prepmx PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}prepmx PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(prepmx asInvoker)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}prepmx asInvoker)
 
-merge_compatibility_manifest(prepmx)
+merge_compatibility_manifest(${MIKTEX_PREFIX}prepmx)
 
-install(TARGETS prepmx DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}prepmx DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

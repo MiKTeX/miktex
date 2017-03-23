@@ -1,4 +1,4 @@
-/* tex2xindy.rc: version number				-*- C++ -*-
+/* tex2xindy.rc: version number                         -*- C++ -*-
 
    Copyright (C) 2015-2016 Christian Schenk
 
@@ -22,6 +22,6 @@
 #define VER_FILEDESCRIPTION_STR "tex2xindy - a preprocessor of the xindy index processor"
 
 #define VER_INTERNALNAME_STR "tex2xindy"
-#define VER_ORIGINALFILENAME_STR "tex2xindy.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-tex2xindy.exe"
 
 #include "miktex/win/version.rc"

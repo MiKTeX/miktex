@@ -1,6 +1,6 @@
-/* pk2bm.rc: version number				-*- C++ -*-
+/* pk2bm.rc: version number                             -*- C++ -*-
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,6 +21,6 @@
 
 #define VER_FILEDESCRIPTION_STR "Pk font to bitmap converter"
 #define VER_INTERNALNAME_STR "pk2bm"
-#define VER_ORIGINALFILENAME_STR "pk2bm.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-pk2bm.exe"
 
 #include "miktex/win/version.rc"

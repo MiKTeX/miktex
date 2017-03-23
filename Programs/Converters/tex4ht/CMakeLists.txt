@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -56,26 +56,26 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(t4ht ${t4ht_sources})
+add_executable(${MIKTEX_PREFIX}t4ht ${t4ht_sources})
 
-set_property(TARGET t4ht PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}t4ht PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(t4ht asInvoker)
-merge_compatibility_manifest(t4ht)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}t4ht asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}t4ht)
 
-target_link_libraries(t4ht
+target_link_libraries(${MIKTEX_PREFIX}t4ht
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(t4ht
+  target_link_libraries(${MIKTEX_PREFIX}t4ht
     ${utf8wrap_dll_name}
   )
 endif()
 
-install(TARGETS t4ht DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}t4ht DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(tex4ht_sources
   ${MIKTEX_LIBRARY_WRAPPER}
@@ -89,24 +89,24 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(tex4ht ${tex4ht_sources})
+add_executable(${MIKTEX_PREFIX}tex4ht ${tex4ht_sources})
 
-set_property(TARGET tex4ht PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}tex4ht PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(tex4ht asInvoker)
-merge_compatibility_manifest(tex4ht)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}tex4ht asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}tex4ht)
 
-target_link_libraries(tex4ht
+target_link_libraries(${MIKTEX_PREFIX}tex4ht
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(tex4ht
+  target_link_libraries(${MIKTEX_PREFIX}tex4ht
     ${unxemu_dll_name}
     ${utf8wrap_dll_name}
   )
 endif()
 
-install(TARGETS tex4ht DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}tex4ht DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

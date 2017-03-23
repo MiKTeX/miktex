@@ -1,6 +1,6 @@
 /* bibtex8.rc: version number
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,6 +21,6 @@
 
 #define VER_FILEDESCRIPTION_STR "8-bit big BibTeX"
 #define VER_INTERNALNAME_STR "bibtex8"
-#define VER_ORIGINALFILENAME_STR "bibtex8.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-bibtex8.exe"
 
 #include "miktex/win/version.rc"

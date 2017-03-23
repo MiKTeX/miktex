@@ -460,32 +460,32 @@ set_source_files_properties(${MIKTEX_LIBRARY_WRAPPER}
     COMPILE_FLAGS "-DCPLUSPLUSMAIN -DBEQUIET"
 )
 
-add_executable(dvisvgm ${dvisvgm_sources})
+add_executable(${MIKTEX_PREFIX}dvisvgm ${dvisvgm_sources})
 
-set_property(TARGET dvisvgm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}dvisvgm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(dvisvgm asInvoker)
-merge_compatibility_manifest(dvisvgm)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}dvisvgm asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}dvisvgm)
 
 if(USE_SYSTEM_FREETYPE2)
-  target_link_libraries(dvisvgm MiKTeX::Imported::FREETYPE2)
+  target_link_libraries(${MIKTEX_PREFIX}dvisvgm MiKTeX::Imported::FREETYPE2)
 else()
-  target_link_libraries(dvisvgm ${freetype2_dll_name})
+  target_link_libraries(${MIKTEX_PREFIX}dvisvgm ${freetype2_dll_name})
 endif()
 
 if(USE_SYSTEM_POTRACE)
-  target_link_libraries(dvisvgm MiKTeX::Imported::POTRACE)
+  target_link_libraries(${MIKTEX_PREFIX}dvisvgm MiKTeX::Imported::POTRACE)
 else()
-  target_link_libraries(dvisvgm ${potrace_lib_name})
+  target_link_libraries(${MIKTEX_PREFIX}dvisvgm ${potrace_lib_name})
 endif()
 
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(dvisvgm MiKTeX::Imported::ZLIB)
+  target_link_libraries(${MIKTEX_PREFIX}dvisvgm MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(dvisvgm ${zlib_dll_name})
+  target_link_libraries(${MIKTEX_PREFIX}dvisvgm ${zlib_dll_name})
 endif()
 
-target_link_libraries(dvisvgm
+target_link_libraries(${MIKTEX_PREFIX}dvisvgm
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
@@ -493,14 +493,14 @@ target_link_libraries(dvisvgm
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(dvisvgm
+  target_link_libraries(${MIKTEX_PREFIX}dvisvgm
     ${unxemu_dll_name}
     ${utf8wrap_dll_name}
   )
 else()
-  target_link_libraries(dvisvgm
+  target_link_libraries(${MIKTEX_PREFIX}dvisvgm
     ${CMAKE_DL_LIBS}
   )
 endif()
 
-install(TARGETS dvisvgm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}dvisvgm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

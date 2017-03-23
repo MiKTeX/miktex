@@ -1,6 +1,6 @@
 /* bibtexu.rc: version number
 
-   Copyright (C) 2014-2016 Christian Schenk
+   Copyright (C) 2014-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,6 +21,6 @@
 
 #define VER_FILEDESCRIPTION_STR "UTF-8 big BibTeX"
 #define VER_INTERNALNAME_STR "bibtexu"
-#define VER_ORIGINALFILENAME_STR "bibtexu.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-bibtexu.exe"
 
 #include "miktex/win/version.rc"

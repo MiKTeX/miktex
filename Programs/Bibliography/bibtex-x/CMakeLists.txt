@@ -85,29 +85,29 @@ if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND bibtex8_sources bibtex8.rc)
 endif()
 
-add_executable(bibtex8 ${bibtex8_sources})
+add_executable(${MIKTEX_PREFIX}bibtex8 ${bibtex8_sources})
 
-set_property(TARGET bibtex8 PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}bibtex8 PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_target_properties(bibtex8 PROPERTIES COMPILE_DEFINITIONS "SUPPORT_8BIT")
+set_target_properties(${MIKTEX_PREFIX}bibtex8 PROPERTIES COMPILE_DEFINITIONS "SUPPORT_8BIT")
 
-merge_trustinfo_manifest(bibtex8 asInvoker)
-merge_compatibility_manifest(bibtex8)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}bibtex8 asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}bibtex8)
 
-target_link_libraries(bibtex8
+target_link_libraries(${MIKTEX_PREFIX}bibtex8
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(bibtex8
+  target_link_libraries(${MIKTEX_PREFIX}bibtex8
     ${getopt_dll_name}
     ${utf8wrap_dll_name}
   )
 endif()
 
-install(TARGETS bibtex8 DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}bibtex8 DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(bibtexu_sources ${common_sources})
 
@@ -115,21 +115,21 @@ if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND bibtexu_sources bibtexu.rc)
 endif()
 
-add_executable(bibtexu ${bibtexu_sources})
+add_executable(${MIKTEX_PREFIX}bibtexu ${bibtexu_sources})
 
-set_property(TARGET bibtexu PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}bibtexu PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_target_properties(bibtexu PROPERTIES COMPILE_DEFINITIONS "UTF_8")
+set_target_properties(${MIKTEX_PREFIX}bibtexu PROPERTIES COMPILE_DEFINITIONS "UTF_8")
 
-merge_trustinfo_manifest(bibtexu asInvoker)
-merge_compatibility_manifest(bibtexu)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}bibtexu asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}bibtexu)
 
-target_include_directories(bibtexu
+target_include_directories(${MIKTEX_PREFIX}bibtexu
   PRIVATE
     ${ICU_INCLUDE_DIRS}
 )
 
-target_link_libraries(bibtexu
+target_link_libraries(${MIKTEX_PREFIX}bibtexu
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
@@ -137,10 +137,10 @@ target_link_libraries(bibtexu
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(bibtexu
+  target_link_libraries(${MIKTEX_PREFIX}bibtexu
     ${getopt_dll_name}
     ${utf8wrap_dll_name}
   )
 endif()
 
-install(TARGETS bibtexu DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}bibtexu DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

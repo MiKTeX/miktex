@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -75,38 +75,38 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(ttf2pk ${ttf2pk_sources})
+add_executable(${MIKTEX_PREFIX}ttf2pk ${ttf2pk_sources})
 
-set_property(TARGET ttf2pk PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}ttf2pk PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(ttf2pk asInvoker)
-merge_compatibility_manifest(ttf2pk)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}ttf2pk asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}ttf2pk)
 
 if(USE_SYSTEM_FREETYPE2)
-  target_link_libraries(ttf2pk MiKTeX::Imported::FREETYPE2)
+  target_link_libraries(${MIKTEX_PREFIX}ttf2pk MiKTeX::Imported::FREETYPE2)
 else()
-  target_link_libraries(ttf2pk ${freetype2_dll_name})
+  target_link_libraries(${MIKTEX_PREFIX}ttf2pk ${freetype2_dll_name})
 endif()
 
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(ttf2pk MiKTeX::Imported::ZLIB)
+  target_link_libraries(${MIKTEX_PREFIX}ttf2pk MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(ttf2pk ${zlib_dll_name})
+  target_link_libraries(${MIKTEX_PREFIX}ttf2pk ${zlib_dll_name})
 endif()
 
-target_link_libraries(ttf2pk
+target_link_libraries(${MIKTEX_PREFIX}ttf2pk
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(ttf2pk
+  target_link_libraries(${MIKTEX_PREFIX}ttf2pk
     ${utf8wrap_dll_name}
   )
 endif()
 
-install(TARGETS ttf2pk DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}ttf2pk DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(ttf2tfm_sources
   ${common_sources}
@@ -130,36 +130,36 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(ttf2tfm ${ttf2tfm_sources})
+add_executable(${MIKTEX_PREFIX}ttf2tfm ${ttf2tfm_sources})
 
-set_property(TARGET ttf2tfm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}ttf2tfm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(ttf2tfm asInvoker)
-merge_compatibility_manifest(ttf2tfm)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}ttf2tfm asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}ttf2tfm)
 
 if(USE_SYSTEM_FREETYPE2)
-  target_link_libraries(ttf2tfm MiKTeX::Imported::FREETYPE2)
+  target_link_libraries(${MIKTEX_PREFIX}ttf2tfm MiKTeX::Imported::FREETYPE2)
 else()
-  target_link_libraries(ttf2tfm ${freetype2_dll_name})
+  target_link_libraries(${MIKTEX_PREFIX}ttf2tfm ${freetype2_dll_name})
 endif()
 
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(ttf2tfm MiKTeX::Imported::ZLIB)
+  target_link_libraries(${MIKTEX_PREFIX}ttf2tfm MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(ttf2tfm ${zlib_dll_name})
+  target_link_libraries(${MIKTEX_PREFIX}ttf2tfm ${zlib_dll_name})
 endif()
 
-target_link_libraries(ttf2tfm
+target_link_libraries(${MIKTEX_PREFIX}ttf2tfm
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(ttf2tfm
+  target_link_libraries(${MIKTEX_PREFIX}ttf2tfm
     ${utf8wrap_dll_name}
   )
 endif()
 
-install(TARGETS ttf2tfm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}ttf2tfm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 

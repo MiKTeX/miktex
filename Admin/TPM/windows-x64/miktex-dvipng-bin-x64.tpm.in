@@ -17,7 +17,7 @@
       inclusion.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/dvipng.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}dvipng.exe
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

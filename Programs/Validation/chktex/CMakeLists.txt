@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2016 Christian Schenk
+## Copyright (C) 2015-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -90,25 +90,25 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(chktex ${chktex_sources})
+add_executable(${MIKTEX_PREFIX}chktex ${chktex_sources})
 
-set_property(TARGET chktex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}chktex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(chktex asInvoker)
-merge_compatibility_manifest(chktex)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}chktex asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}chktex)
 
-target_link_libraries(chktex
+target_link_libraries(${MIKTEX_PREFIX}chktex
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(chktex
+  target_link_libraries(${MIKTEX_PREFIX}chktex
     ${regex_dll_name}
     ${unxemu_dll_name}
     ${utf8wrap_dll_name}
   )
 endif()
 
-install(TARGETS chktex DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}chktex DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

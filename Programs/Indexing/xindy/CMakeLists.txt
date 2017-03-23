@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2016 Christian Schenk
+## Copyright (C) 2015-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -76,25 +76,3 @@ merge_trustinfo_manifest(${MIKTEX_PREFIX}tex2xindy asInvoker)
 merge_compatibility_manifest(${MIKTEX_PREFIX}tex2xindy)
 
 install(TARGETS ${MIKTEX_PREFIX}tex2xindy DESTINATION ${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR})
-
-add_executable(tex2xindy ${tex2xindy_sources})
-
-set_property(TARGET tex2xindy PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-target_link_libraries(tex2xindy
-  ${app_dll_name}
-  ${core_dll_name}
-  ${texmf_dll_name}
-)
-
-if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(tex2xindy
-    ${getopt_dll_name}
-    ${utf8wrap_dll_name}
-  )
-endif()
-
-merge_trustinfo_manifest(tex2xindy asInvoker)
-merge_compatibility_manifest(tex2xindy)
-
-install(TARGETS tex2xindy DESTINATION ${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR})

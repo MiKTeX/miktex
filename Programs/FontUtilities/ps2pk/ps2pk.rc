@@ -1,6 +1,6 @@
-/* ps2pk.rc: version number				-*- C++ -*-
+/* ps2pk.rc: version number                             -*- C++ -*-
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,6 +21,6 @@
 
 #define VER_FILEDESCRIPTION_STR "PS-to-PK converter"
 #define VER_INTERNALNAME_STR "ps2pk"
-#define VER_ORIGINALFILENAME_STR "ps2pk.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-ps2pk.exe"
 
 #include "miktex/win/version.rc"

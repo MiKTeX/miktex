@@ -14,12 +14,12 @@
       This package includes PostScript utilities.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/epsffit.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/psbook.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/psnup.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/psresize.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/psselect.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pstops.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}epsffit.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}psbook.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}psnup.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}psresize.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}psselect.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}pstops.exe
 texmf/scripts/psutils/extractres
 texmf/scripts/psutils/psjoin
     </TPM:RunFiles>

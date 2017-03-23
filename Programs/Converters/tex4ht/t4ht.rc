@@ -1,6 +1,6 @@
-/* tex4ht.rc: version number				-*- C++ -*-
+/* tex4ht.rc: version number                            -*- C++ -*-
 
-   Copyright (C) 1998-2016 Christian Schenk
+   Copyright (C) 1998-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,6 +21,6 @@
 
 #define VER_FILEDESCRIPTION_STR "TeX4ht - LaTeX and TeX for Hypertext"
 #define VER_INTERNALNAME_STR "t4ht"
-#define VER_ORIGINALFILENAME_STR "t4ht.exe"
+#define VER_ORIGINALFILENAME_STR "miktex-t4ht.exe"
 
 #include "miktex/win/version.rc"

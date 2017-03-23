@@ -2514,25 +2514,43 @@ void IniTeXMFApp::ModifyPath()
 #endif
 }
 
-vector<FileLink> explicitFileLinks =
+// TODO: extra source file;
+// TODO: better: configuration file (miktex-links.ini)
+vector<FileLink> miktexFileLinks =
 {
 #if defined(MIKTEX_WINDOWS)
   { "arctrl" MIKTEX_EXE_FILE_SUFFIX, { "pdfclose", "pdfdde", "pdfopen" } },
 #endif
   { "cjklatex" MIKTEX_EXE_FILE_SUFFIX, { "bg5pluslatex", "bg5pluspdflatex", "bg5latex", "bg5pdflatex", "bg5platex", "bg5ppdflatex", "cef5latex", "cef5pdflatex", "ceflatex", "cefpdflatex", "cefslatex", "cefspdflatex", "gbklatex", "gbkpdflatex", "sjislatex", "sjispdflatex" } },
-  { "mkfntmap" MIKTEX_EXE_FILE_SUFFIX, { "updmap" } },
-  { "mthelp" MIKTEX_EXE_FILE_SUFFIX, { "texdoc" } },
+
+  { MIKTEX_AFM2TFM_EXE, { "afm2tfm" } },
+  { MIKTEX_BG5CONV_EXE, { "bg5conv" } },
+  { MIKTEX_BIBTEX8_EXE, { "bibtex8" } },
+  { MIKTEX_BIBTEXU_EXE, { "bibtexu" } },
   { MIKTEX_BIBTEX_EXE, { "bibtex" } },
+  { MIKTEX_CEF5CONV_EXE, { "cef5conv" } },
+  { MIKTEX_CEFCONV_EXE, { "cefconv" } },
+  { MIKTEX_CEFSCONV_EXE, { "cefsconv" } },
+  { MIKTEX_CHKTEX_EXE, { "chktex" } },
+  { MIKTEX_DEVNAG_EXE, { "devnag" } },
   { MIKTEX_DVICOPY_EXE, { "dvicopy" } },
   { MIKTEX_DVIPDFMX_EXE, { "dvipdfm", "dvipdfmx", "ebb", "extractbb", "xbb", "xdvipdfmx", MIKTEX_XDVIPDFMX_EXE } },
+  { MIKTEX_DVIPNG_EXE, { "dvipng" } },
+  { MIKTEX_DVIPS_EXE, { "dvips" } },
+  { MIKTEX_DVISVGM_EXE, { "dvisvgm" } },
   { MIKTEX_DVITYPE_EXE, { "dvitype" } },
+  { MIKTEX_EPSFFIT_EXE, { "epsffit" } },
   { MIKTEX_EPSTOPDF_EXE,{ "epstopdf" } },
+  { MIKTEX_EXTCONV_EXE, { "extconv" } },
+  { MIKTEX_FRIBIDIXETEX_EXE, { "fribidixetex" } },
   { MIKTEX_GFTODVI_EXE, { "gftodvi" } },
   { MIKTEX_GFTOPK_EXE, { "gftopk" } },
   { MIKTEX_GFTYPE_EXE, { "gftype" } },
+  { MIKTEX_HBF2GF_EXE, { "hbf2gf" } },
   { MIKTEX_LUATEX_EXE, { MIKTEX_PREFIX "texlua", MIKTEX_PREFIX "texluac", "luatex", "texlua", "texluac", MIKTEX_LUALATEX_EXE } },
   { MIKTEX_MAKEBASE_EXE, { "makebase" } },
   { MIKTEX_MAKEFMT_EXE, { "makefmt" } },
+  { MIKTEX_MAKEINDEX_EXE, { "makeindex" } },
   { MIKTEX_MAKEPK_EXE, { "makepk" } },
   { MIKTEX_MAKETFM_EXE, { "maketfm" } },
   { MIKTEX_MFT_EXE, { "mft" } },
@@ -2546,11 +2564,27 @@ vector<FileLink> explicitFileLinks =
   { MIKTEX_OVP2OVF_EXE, { "ovp2ovf" } },
   { MIKTEX_PDFTEX_EXE, { "pdftex", MIKTEX_PDFLATEX_EXE } },
   { MIKTEX_PLTOTF_EXE, { "pltotf" } },
+  { MIKTEX_PMXAB_EXE, { "pmxab" } },
   { MIKTEX_POOLTYPE_EXE, { "pooltype" } },
+  { MIKTEX_PREPMX_EXE, { "prepmx" } },
+  { MIKTEX_PS2BM_EXE, { "ps2bm" } },
+  { MIKTEX_PS2PK_EXE, { "ps2pk" } },
+  { MIKTEX_PSBOOK_EXE, { "psbook" } },
+  { MIKTEX_PSNUP_EXE, { "psnup" } },
+  { MIKTEX_PSRESIZE_EXE, { "psresize" } },
+  { MIKTEX_PSSELECT_EXE, { "psselect" } },
+  { MIKTEX_PSTOPS_EXE, { "pstops" } },
+  { MIKTEX_SCOR2PRT_EXE, { "scor2prt" } },
+  { MIKTEX_SJISCONV_EXE, { "sjisconv" } },
+  { MIKTEX_T4HT_EXE, { "t4ht" } },
   { MIKTEX_TANGLE_EXE, { "tangle" } },
+  { MIKTEX_TEX2XINDY_EXE, { "tex2xindy" } },
+  { MIKTEX_TEX4HT_EXE, { "tex4ht" } },
   { MIKTEX_TEXWORKS_EXE, { "texworks" } },
   { MIKTEX_TEX_EXE, { "tex", "initex", "virtex", MIKTEX_LATEX_EXE } },
   { MIKTEX_TFTOPL_EXE, { "tftopl" } },
+  { MIKTEX_TTF2PK_EXE, { "ttf2pk" } },
+  { MIKTEX_TTF2TFM_EXE, { "ttf2tfm" } },
   { MIKTEX_VFTOVP_EXE, { "vftovp" } },
   { MIKTEX_VPTOVF_EXE, { "vptovf" } },
   { MIKTEX_WEAVE_EXE, { "weave" } },
@@ -2570,6 +2604,12 @@ vector<FileLink> explicitFileLinks =
 #if defined(WITH_TEXLINKS)
   { MIKTEX_INITEXMF_EXE, { "texlinks" }, LinkType::Copy },
 #endif
+#if defined(WITH_UPDMAP)
+  { "mkfntmap" MIKTEX_EXE_FILE_SUFFIX, { "updmap" } },
+#endif
+#if defined(WITH_TEXDOC)
+  { "mthelp" MIKTEX_EXE_FILE_SUFFIX, { "texdoc" } },
+#endif
 };
 
 vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories, bool overwrite)
@@ -2580,7 +2620,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories, b
 
   if (linkCategories[LinkCategory::MiKTeX])
   {
-    for (const FileLink& fileLink : explicitFileLinks)
+    for (const FileLink& fileLink : miktexFileLinks)
     {
       PathName targetPath = pathBinDir;
       targetPath /= fileLink.target;

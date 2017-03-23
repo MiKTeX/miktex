@@ -21,8 +21,8 @@
       scor2prt is an auxiliary program that makes parts from a score.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/pmxab.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/scor2prt.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKEX_PREFIX}pmxab.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKEX_PREFIX}scor2prt.exe
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

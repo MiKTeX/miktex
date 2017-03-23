@@ -16,7 +16,7 @@
       continues in use by those who prefer its language..
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/prepmx.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}prepmx.exe
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016 Christian Schenk
+## Copyright (C) 2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -37,17 +37,17 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(fribidixetex ${fribidixetex_sources})
+add_executable(${MIKTEX_PREFIX}fribidixetex ${fribidixetex_sources})
 
-set_property(TARGET fribidixetex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}fribidixetex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(fribidixetex asInvoker)
-merge_compatibility_manifest(fribidixetex)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}fribidixetex asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}fribidixetex)
 
 if(USE_SYSTEM_FRIBIDI)
-  target_link_libraries(fribidixetex MiKTeX::Imported::FRIBIDI)
+  target_link_libraries(${MIKTEX_PREFIX}fribidixetex MiKTeX::Imported::FRIBIDI)
 else()
-  target_link_libraries(fribidixetex ${fribidi_lib_name})
+  target_link_libraries(${MIKTEX_PREFIX}fribidixetex ${fribidi_lib_name})
 endif()
   
-install(TARGETS fribidixetex DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}fribidixetex DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

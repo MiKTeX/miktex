@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/dvisvgm/">
     <TPM:Name>Dvisvgm win32</TPM:Name>
     <TPM:Title>Dvisvgm, Windows x86</TPM:Title>
-    <TPM:Copyright owner="Martin Gieseking" year="2005-2016"/>
+    <TPM:Copyright owner="Martin Gieseking" year="2005-2017"/>
     <TPM:License type="gpl3"/>    
-    <TPM:Version>2.1</TPM:Version>
+    <TPM:Version>2.1.3</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
@@ -22,7 +22,7 @@
        PDF mapfile and PostScript specials.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/dvisvgm.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}dvisvgm.exe
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

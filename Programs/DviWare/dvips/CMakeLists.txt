@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -104,14 +104,14 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(dvips ${dvips_sources})
+add_executable(${MIKTEX_PREFIX}dvips ${dvips_sources})
 
-set_property(TARGET dvips PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}dvips PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(dvips asInvoker)
-merge_compatibility_manifest(dvips)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}dvips asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}dvips)
 
-target_link_libraries(dvips
+target_link_libraries(${MIKTEX_PREFIX}dvips
   PRIVATE
     ${app_dll_name}
     ${core_dll_name}
@@ -119,14 +119,14 @@ target_link_libraries(dvips
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(dvips
+  target_link_libraries(${MIKTEX_PREFIX}dvips
     PRIVATE
       ${unxemu_dll_name}
       ${utf8wrap_dll_name}
   )
 endif()
 
-install(TARGETS dvips DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}dvips DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(afm2tfm_sources
   ${MIKTEX_LIBRARY_WRAPPER}
@@ -147,14 +147,14 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(afm2tfm ${afm2tfm_sources})
+add_executable(${MIKTEX_PREFIX}afm2tfm ${afm2tfm_sources})
 
-set_property(TARGET afm2tfm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}afm2tfm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(afm2tfm asInvoker)
-merge_compatibility_manifest(afm2tfm)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}afm2tfm asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}afm2tfm)
 
-target_link_libraries(afm2tfm
+target_link_libraries(${MIKTEX_PREFIX}afm2tfm
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
@@ -162,10 +162,10 @@ target_link_libraries(afm2tfm
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(afm2tfm
+  target_link_libraries(${MIKTEX_PREFIX}afm2tfm
     ${unxemu_dll_name}
     ${utf8wrap_dll_name}
   )
 endif()
 
-install(TARGETS afm2tfm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}afm2tfm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
