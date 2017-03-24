@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+                          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
 ]>
@@ -25,7 +25,7 @@
 <refsynopsisdiv>
 
 <cmdsynopsis>
-<command>miktex-post</command>
+<command>miktex-mpost</command>
 <arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
 <group>
 <arg choice="opt" rep="repeat"><replaceable>command</replaceable></arg>
@@ -50,7 +50,7 @@ commands and accessing features of &PostScript; not found in
 will use its executable name as the name of the preload file to use.
 For example, when called as &miktexmpost; the <filename>mpost.mp</filename>
 file is used, which is identical to
-<filename>plain.mp</filename>. When the <option>--initialize</option>
+<filename>plain.mp</filename>.  When the <option>--initialize</option>
 option is given, preloading does not happen.</para>
 
 <para>The <replaceable>commands</replaceable> given on the command
@@ -67,7 +67,8 @@ jobname becomes <filename>mpout</filename>. The default extension,
 explicitly.</para>
 
 <para>When the <option>--dvitomp</option> option is given, &MetaPost;
-acts as DVI-to-MPX converter only.  See dvitomp(1) for details.</para>
+acts as DVI-to-MPX converter only.  Run <userinput>%miktexmpost;
+--dvitomp --help</userinput> for option explanation.</para>
 
 </refsect1>
 
@@ -78,7 +79,14 @@ acts as DVI-to-MPX converter only.  See dvitomp(1) for details.</para>
 <variablelist>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/alias.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/cstyleerrors.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/dontparsefirstline.xml" />
+<varlistentry>
+<term><option>--debug</option></term>
+<listitem><para>Print debugging info and leave temporary files in place.
+<indexterm>
+<primary>--debug</primary>
+</indexterm>
+</para></listitem>
+</varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/haltonerror.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/initialize.xml" />
@@ -86,34 +94,59 @@ acts as DVI-to-MPX converter only.  See dvitomp(1) for details.</para>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/jobname.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/nocstyleerrors.xml" />
 <varlistentry>
-<term><option>-numbersystem=<replaceable>string</replaceable></option></term>
+<term><option>--numbersystem=<replaceable>string</replaceable></option></term>
 <listitem><para>Set number system mode
+<indexterm>
+<primary>--numbersystem=string</primary>
+</indexterm>
 (<replaceable>string</replaceable> one of: <option>scaled</option>,
 <option>double</option>, <option>binary</option>,
 <option>decimal</option>).</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/outputdirectory.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/parsefirstline.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/quiet.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/recorder.xml" />
 <varlistentry>
+<term><option>--restricted</option></term>
+<listitem><para>Be secure: disable <command>tex</command>,
+<indexterm>
+<primary>--restricted</primary>
+</indexterm>
+<command>makempx</command> and editor commands.</para></listitem>
+</varlistentry>
+<varlistentry>
 <term><option>-s <replaceable>internal</replaceable>="<replaceable>string</replaceable>"</option></term>
-<listitem><para>Set <replaceable>internal</replaceable> to the <replaceable>string</replaceable> value.</para></listitem>
+<listitem><para>Set <replaceable>internal</replaceable> to the
+<indexterm>
+<primary>-s internal=STRING</primary>
+</indexterm>
+<replaceable>string</replaceable> value.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-s <replaceable>internal</replaceable>=<replaceable>number</replaceable></option></term>
-<listitem><para>Set <replaceable>internal</replaceable> to the <replaceable>number</replaceable> value.</para></listitem>
+<listitem><para>Set <replaceable>internal</replaceable> to the
+<indexterm>
+<primary>-s internal=NUMBER</primary>
+</indexterm>
+<replaceable>number</replaceable> value.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><option>-tex=<replaceable>texprogram</replaceable></option></term>
+<term><option>--tex=<replaceable>texprogram</replaceable></option></term>
 <listitem>
 <indexterm>
-<primary>-tex=texprogram</primary>
+<primary>--tex=texprogram</primary>
 </indexterm>
 <para>Use <replaceable>texprogram</replaceable> instead of
 &miktextex; when compiling text labels.</para>
 <para>This flag overrides the environment
 variable <envar>TEX</envar>.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--troff</option></term>
+<listitem>
+<indexterm>
+<primary>--troff</primary>
+</indexterm>
+<para>Set <command>prologues:=1</command> and assume <option>--tex=troff</option>.</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/undump.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
@@ -126,8 +159,9 @@ variable <envar>TEX</envar>.</para></listitem>
 <title>Environment</title>
 
 <variablelist>
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MFINPUTS.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MFINPUTS.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_TRACE.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MPINPUTS.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MPINPUTS.xml" />
 </variablelist>
 
 </refsect1>

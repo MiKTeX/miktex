@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+                          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
 ]>
@@ -40,7 +40,7 @@
 <title>Description</title>
 
 <para>&METAFONT; reads the program in the specified files and outputs
-font rasters (in <acronym>GF</acronym> format) and font metrics (in
+font rasters (in &GF; format) and font metrics (in
 <acronym>TFM</acronym> format).  The &METAFONT; language is described
 in <citetitle>The &METAFONT;book</citetitle>.</para>
 
@@ -48,12 +48,12 @@ in <citetitle>The &METAFONT;book</citetitle>.</para>
 precompiled macros, and font generation in particular requires the
 support of several macro files.  &METAFONT; looks at its command line
 to see what name it was called under.  Both &inimf; and &virmf; are
-linked to the &mf; executable.  When called as &inimf; (or when the
-<option>--initialize</option> option is given) it can be used to
+linked to the &miktexmf; executable.  When called as &inimf; (or when
+the <option>--initialize</option> option is given) it can be used to
 precompile macros into a <filename>.base</filename> file.  When called
 as &virmf; it will use the plain base.  When called under any other
 name, &METAFONT; will use that name as the name of the base to use.
-For example, when called as &mf; the mf base is used, which is
+For example, when called as &miktexmf; the mf base is used, which is
 identical to the plain base.  Other bases than plain are rarely
 used.</para>
 
@@ -66,11 +66,11 @@ semicolons, unless you quote them.)  As described in <citetitle>The
 filename, a <markup role="metafont">\controlsequence</markup>, or a
 <filename>&amp;<replaceable>basename</replaceable></filename>.</para>
 
-<para>The normal usage is to say <programlisting>mf
+<para>The normal usage is to say <userinput>miktex-mf
 \mode=<replaceable>printengine</replaceable>; input
-<replaceable>font</replaceable></programlisting> to start processing
+<replaceable>font</replaceable></userinput> to start processing
 <filename><replaceable>font</replaceable>.mf</filename>.  (Or you can
-just say &mf; and give the other stuff on the next line.)  Other
+just say &miktexmf; and give the other stuff on the next line.)  Other
 control sequences, such as <userinput>batchmode</userinput> (for
 silent operation) can also appear.  The name
 <replaceable>font</replaceable> will be the <quote>job name</quote>,
@@ -191,8 +191,7 @@ command-line.</para>
 <indexterm>
 <primary>--screen</primary>
 </indexterm>
-<para>Enable screen
-output.</para></listitem>
+<para>Enable screen output.</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/stacksize.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/stringvacancies.xml" />
@@ -211,6 +210,7 @@ output.</para></listitem>
 
 <variablelist>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MFINPUTS.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_TRACE.xml" />
 </variablelist>
 
 </refsect1>

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+                          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
 ]>
@@ -36,24 +36,24 @@
 
 <title>Description</title>
 
-<para>The &miktexgftodvi; program converts a generic font
-(<acronym>GF</acronym>) file output by, for example, &METAFONT;, to a
-device independent (&DVI;) file (that can then be typeset using the
-same software that has already been written for). The characters in
-the <acronym>GF</acronym> file will appear one per page, with labels,
-titles, and annotations as specified in Appendix&nbsp;H (Hardcopy
-Proofs) of <citetitle>The METAFONTbook</citetitle>.</para>
+<para>The &miktexgftodvi; program converts a generic font (&GF;) file
+output by, for example, &METAFONT;, to a device independent (&DVI;)
+file (that can then be typeset using the same software that has
+already been written for).  The characters in the &GF; file will
+appear one per page, with labels, titles, and annotations as specified
+in Appendix&nbsp;H (Hardcopy Proofs) of <citetitle>The
+METAFONTbook</citetitle>.</para>
 
-<para>&miktexgftodvi; uses other fonts in addition to the main
-<acronym>GF</acronym> file. A <quote>gray</quote> font is used to
-typeset the pixels that actually make up the character. (We wouldn't
-want all the pixels to be simply black, since then labels, key points,
-and other information would be lost.) A <quote>title</quote> font is
-used for the information at the top of the page. A
-<quote>label</quote> font is used for the labels on key points of the
-figure. A <quote>slant</quote> font is used to typeset diagonal lines,
-which otherwise have to be simulated using horizontal and vertical
-rules. The default gray, title, and label fonts are
+<para>&miktexgftodvi; uses other fonts in addition to the main &GF;
+file.  A <quote>gray</quote> font is used to typeset the pixels that
+actually make up the character.  (We wouldn't want all the pixels to
+be simply black, since then labels, key points, and other information
+would be lost.)  A <quote>title</quote> font is used for the
+information at the top of the page.  A <quote>label</quote> font is
+used for the labels on key points of the figure.  A
+<quote>slant</quote> font is used to typeset diagonal lines, which
+otherwise have to be simulated using horizontal and vertical rules.
+The default gray, title, and label fonts are
 <filename>gray</filename>, <filename>cmr8</filename>, and
 <filename>cmtt10</filename>, respectively; there is no default slant
 font.</para>
@@ -62,14 +62,13 @@ font.</para>
 your source file, or you can change the fonts on the
 command-line.</para>
 
-<para>The <acronym>GF</acronym> file name on the command-line must be
-complete.  Because the resolution is part of the extension, it would
-not make sense to append a default extension as is done with other
-&DVI;-reading software. The output file name defaults to the same root
-as the <acronym>GF</acronym> file, with the <filename>.dvi</filename>
-extension added. For example, the input file
-<filename>cmr10.2602gf</filename> would become
-<filename>cmr10.dvi</filename>.</para>
+<para>The &GF; file name on the command-line must be complete.
+Because the resolution is part of the extension, it would not make
+sense to append a default extension as is done with other
+&DVI;-reading software.  The output file name defaults to the same
+root as the &GF; file, with the <filename>.dvi</filename> extension
+added.  For example, the input file <filename>cmr10.2602gf</filename>
+would become <filename>cmr10.dvi</filename>.</para>
 
 </refsect1>
 
@@ -89,8 +88,8 @@ extension added. For example, the input file
 <indexterm>
 <primary>--gray-font=font</primary>
 </indexterm>
-<para>Sets the <quote>gray</quote> font.
-Default is <filename>gray</filename>.</para></listitem>
+<para>Sets the <quote>gray</quote> font.  Default is
+<filename>gray</filename>.</para></listitem>
 </varlistentry>
 
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
@@ -103,7 +102,7 @@ Default is <filename>gray</filename>.</para></listitem>
 <indexterm>
 <primary>--label-font=font</primary>
 </indexterm>
-<para>Sets the <quote>label</quote> font. Default is
+<para>Sets the <quote>label</quote> font.  Default is
 <filename>cmtt10</filename>.</para></listitem>
 </varlistentry>
 
@@ -113,7 +112,7 @@ Default is <filename>gray</filename>.</para></listitem>
 <indexterm>
 <primary>--logo-font=font</primary>
 </indexterm>
-<para>Sets the <quote>logo</quote> font. Default is
+<para>Sets the <quote>logo</quote> font.  Default is
 <filename>logo8</filename>.</para></listitem>
 </varlistentry>
 
@@ -123,10 +122,10 @@ Default is <filename>gray</filename>.</para></listitem>
 <indexterm>
 <primary>--overflow-label-offset=real</primary>
 </indexterm>
-<para>Specifies the distance from the right edge of the
-character bounding box at which the overflow equations (if
-any) are typeset. The value is given in points. The
-default is a little over two inches.</para></listitem>
+<para>Specifies the distance from the right edge of the character
+bounding box at which the overflow equations (if any) are typeset.
+The value is given in points.  The default is a little over two
+inches.</para></listitem>
 </varlistentry>
 
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/recordpackageusages.xml" />
@@ -137,8 +136,8 @@ default is a little over two inches.</para></listitem>
 <indexterm>
 <primary>-slant-font=font</primary>
 </indexterm>
-<para>Sets the <quote>slant</quote> font.
-There is no default.</para></listitem>
+<para>Sets the <quote>slant</quote> font.  There is no
+default.</para></listitem>
 </varlistentry>
 
 <varlistentry>
@@ -147,13 +146,23 @@ There is no default.</para></listitem>
 <indexterm>
 <primary>-title-font=font</primary>
 </indexterm>
-<para>Sets the <quote>title</quote> font. Default is
+<para>Sets the <quote>title</quote> font.  Default is
 <filename>cmr8</filename>.</para></listitem>
 </varlistentry>
 
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/trace.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
 
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>Environment</title>
+
+<variablelist>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_TRACE.xml" />
 </variablelist>
 
 </refsect1>

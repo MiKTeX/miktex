@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+                          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
 ]>
@@ -37,9 +37,9 @@
 
 <title>Description</title>
 
-<para>&miktexdvicopy; reads a &DVI; file, expands any references to virtual
-fonts to base fonts, and writes the resulting &DVI; file.  Thus you
-can use virtual fonts
+<para>&miktexdvicopy; reads a &DVI; file, expands any references to
+virtual fonts to base fonts, and writes the resulting &DVI; file.
+Thus you can use virtual fonts
 <indexterm>
 <primary>virtual fonts</primary>
 <secondary>resolving</secondary>
@@ -77,15 +77,15 @@ by passing the documents through &miktexdvicopy; first.</para>
 <indexterm>
 <primary>--max-pages=n</primary>
 </indexterm>
-<para>Process <replaceable>n</replaceable> pages; default
-one million.  This option cannot be used together with
+<para>Process <replaceable>n</replaceable> pages; default one million.
+This option cannot be used together with
 <option>--select</option>.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><option>--page-start=<replaceable>page-spec</replaceable></option></term>
+<term><option>--page-start=<replaceable>pagespec</replaceable></option></term>
 <listitem>
 <indexterm>
-<primary>--page-start=page-spec</primary>
+<primary>--page-start=pagespec</primary>
 </indexterm>
 <para>Start at <replaceable>page-spec</replaceable>, for
 example 2 or 5.*.-2.  This option cannot be used together with
@@ -98,7 +98,7 @@ example 2 or 5.*.-2.  This option cannot be used together with
 <indexterm>
 <primary>--select=sel</primary>
 </indexterm>
-<para>Select pages to be copied.</para><para> The syntax for
+<para>Select pages to be copied.</para><para>The syntax for
 <replaceable>sel</replaceable> is:
 <option><replaceable>start</replaceable>
 [<replaceable>n</replaceable>]</option>, where
@@ -112,6 +112,16 @@ options.  This option cannot be used together with
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/trace.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>Environment</title>
+
+<variablelist>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_TRACE.xml" />
 </variablelist>
 
 </refsect1>

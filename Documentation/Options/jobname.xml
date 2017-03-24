@@ -6,7 +6,7 @@
 ]>
 <varlistentry>
 <term><option>--job-name=<replaceable>name</replaceable></option></term>
-<listitem><para>Set the name of the job (<markup role="tex">\jobname</markup>.
+<listitem><para>Set the name of the job (<markup role="tex">\jobname</markup>).
 <indexterm>
 <primary>--job-name=name</primary>
 </indexterm>

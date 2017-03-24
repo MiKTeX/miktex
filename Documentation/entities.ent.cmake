@@ -16,6 +16,7 @@
 <!ENTITY FNDB "<acronym>FNDB</acronym>">
 <!ENTITY FSF "<acronym>FSF</acronym>">
 <!ENTITY FTP "<acronym>FTP</acronym>">
+<!ENTITY GF "<acronym>GF</acronym>">
 <!ENTITY GNU "<application>GNU</application>">
 <!ENTITY GNULinux "&GNU;/Linux">
 <!ENTITY Ghostscript "<application>Ghostscript</application>">
@@ -97,10 +98,10 @@
 <!ENTITY lzma "<command>lzma</command>">
 <!ENTITY makeinfo "<command>makeinfo</command>">
 <!ENTITY md5walk "<command>md5walk</command>">
-<!ENTITY mf "<command>mf</command>">
 <!ENTITY miktexdvicopy "<command>${MIKTEX_PREFIX}dvicopy</command>">
 <!ENTITY miktexgftodvi "<command>${MIKTEX_PREFIX}gftodvi</command>">
 <!ENTITY miktexlatex "<command>${MIKTEX_PREFIX}latex</command>">
+<!ENTITY miktexmf "<command>${MIKTEX_PREFIX}mf</command>">
 <!ENTITY miktexmpost "<command>${MIKTEX_PREFIX}mpost</command>">
 <!ENTITY miktexpdflatex "<command>${MIKTEX_PREFIX}pdflatex</command>">
 <!ENTITY miktexpdftex "<command>${MIKTEX_PREFIX}pdftex</command>">

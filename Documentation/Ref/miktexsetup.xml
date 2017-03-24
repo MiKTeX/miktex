@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+                          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
 ]>
@@ -59,14 +59,16 @@ suitable for unattended setup tasks.
 </indexterm>
 </para>
 
-<para>The <userinput>download</userinput> task creates a local package package repository
-which is a mirror of the remote package repository. It is possible to
-run the task on a regular basis in order to maintain an up-to-date
-package repository.</para>
+<para>The <userinput>download</userinput> task creates a local package
+package repository which is a mirror of the remote package
+repository. It is possible to run the task on a regular basis in order
+to maintain an up-to-date package repository.</para>
 
-<para>The <userinput>install</userinput> task installs &MiKTeX; from the local package repository.</para>
+<para>The <userinput>install</userinput> task installs &MiKTeX; from
+the local package repository.</para>
 
-<para>The <userinput>uninstall</userinput> task removes &MiKTeX;.</para>
+<para>The <userinput>uninstall</userinput> task removes
+&MiKTeX;.</para>
 
 </refsect1>
 
@@ -149,21 +151,23 @@ This must be one of
 
 <varlistentry>
 <term><option>--print-info-only</option></term>
-<listitem><para>Print information about what would be done then exit.</para></listitem>
+<listitem><para>Print information about what would be done then
+exit.</para></listitem>
 </varlistentry>
 
 <varlistentry>
 <term><option>--program-folder=<replaceable>name</replaceable></option></term>
-<listitem><para>Add shortcuts to the specified program folder.</para></listitem>
+<listitem><para>Add shortcuts to the specified program
+folder.</para></listitem>
 </varlistentry>
 
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/quiet.xml" />
 
 <varlistentry>
 <term><option>--remote-package-repository=<replaceable>url</replaceable></option></term>
-<listitem><para>Download from the specified <acronym>URL</acronym>.
-Use <option>--list-repositories</option> to download an up-to-date list
-of possible repositories.</para></listitem>
+<listitem><para>Download from the specified &URL;.  Use
+<option>--list-repositories</option> to download an up-to-date list of
+possible repositories.</para></listitem>
 </varlistentry>
 
 <varlistentry>
@@ -196,8 +200,8 @@ settings into the &Windows; registry. Use configuration files instead.</para>
 <varlistentry>
 <term><option>--user-config=<replaceable>dir</replaceable></option></term>
 <listitem><para>Set the location of the configuration directory for
-the current user.</para>
-<para>Environment variables (&lt;VARNAME&gt;) can be used. See the example below.</para></listitem>
+the current user.</para> <para>Environment variables (&lt;VARNAME&gt;)
+can be used. See the example below.</para></listitem>
 </varlistentry>
 	
 <varlistentry>
@@ -216,8 +220,8 @@ the current user.</para>
 <varlistentry>
 <term><option>--user-roots=<replaceable>dirs</replaceable></option></term>
 <listitem><para>Register additional directories for the current user.
-<replaceable>dirs</replaceable> must be a semicolon-separated list of fully
-qualified path names.</para>
+<replaceable>dirs</replaceable> must be a semicolon-separated list of
+fully qualified path names.</para>
 <para>Environment variables (&lt;VARNAME&gt;) can be used.</para></listitem>
 </varlistentry>
 
