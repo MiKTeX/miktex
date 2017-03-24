@@ -1065,12 +1065,41 @@ fprintf(stdout,
 "  after MPNAME is read.\n\n"
 "  With a --dvitomp argument, MetaPost acts as DVI-to-MPX converter only.\n"
 "  Call MetaPost with --dvitomp --help for option explanations.\n\n");
-fprintf(stdout,
 #if defined(MIKTEX)
+fprintf(stdout,
+"  -alias=NAME               pretend to be program NAME; this affects the mem file\n"
+"                            used and the search path\n"
+"  -c-style-errors           enable file:line:error style messages\n"
+"  -debug                    print debugging info and leave temporary files in place\n"
+"  -halt-on-error            stop after the first error\n"
+"  -help                     display this help and exit\n"
 "  -initialize               be inimpost, for dumping mem files\n"
+"  -interaction=STRING       set interaction mode (STRING=batchmode/nonstopmode/\n"
+"                            scrollmode/errorstopmode)\n"
+"  -job-name=NAME            set the job name to and hence the name(s) of the output\n"
+"                            file(s)\n"
+"  -no-c-style-errors        disable file:line:error style messages\n"
+"  -numbersystem=STRING      set number system mode (STRING=scaled/double/binary/decimal)\n"
+"  -output-directory=DIR     use DIR as the directory to write output files to\n"
+"  -recorder                 enable filename recorder\n"
+"  -restricted               be secure: disable tex, makempx and editor commands\n"
+"  -s INTERNAL=\"STRING\"    set internal INTERNAL to the string value STRING\n"
+"  -s INTERNAL=NUMBER        set internal INTERNAL to the integer value NUMBER\n"
+"  -tex=TEXPROGRAM           use TEXPROGRAM for text labels\n"
+"  -troff                    set prologues:=1 and assume TEXPROGRAM is really troff\n"
+"  -undump=MEMNAME           use MEMNAME instead of program name or a %%& line\n"
+"  -version                  output version information and exit\n"
+"\n"
+"  -file-line-error          same as -c-style-errors\n"
+"  -ini                      same as -initialize\n"
+"  -jobname=STRING           same as -job-name=STRING\n"
+"  -mem=MEMNAME or &MEMNAME  same as -undump=MEMNAME\n"
+"  -no-file-line-error       same as -no-c-style-errors\n"
+"  -progname=STRING          same as -alias=STRING\n"
+"\n");
 #else
+fprintf(stdout,
 "  -ini                      be inimpost, for dumping mem files\n"
-#endif
 "  -interaction=STRING       set interaction mode (STRING=batchmode/nonstopmode/\n"
 "                            scrollmode/errorstopmode)\n"
 "  -numbersystem=STRING      set number system mode (STRING=scaled/double/binary/decimal)\n"
@@ -1094,6 +1123,7 @@ fprintf(stdout,
 "\n"
 "Email bug reports to mp-implementors@@tug.org.\n"
 "\n");
+#endif
   exit(EXIT_SUCCESS);
 }
 
