@@ -1090,7 +1090,7 @@ int TeXMFApp::GetTeXStringLength(int stringNumber) const
 
 void TeXMFApp::InvokeEditor(int editFileName, int editFileNameLength, int editLineNumber, int transcriptFileName, int transcriptFileNameLength) const
 {
-  Application::InvokeEditor(PathName(GetTeXString(editFileName)), editLineNumber, GetInputFileType(), transcriptFileName == 0 ? PathName() : PathName(GetTeXString(transcriptFileName)));
+  Application::InvokeEditor(PathName(GetTeXString(editFileName, editFileNameLength)), editLineNumber, GetInputFileType(), transcriptFileName == 0 ? PathName() : PathName(GetTeXString(transcriptFileName, transcriptFileNameLength)));
 }
 
 void TeXMFApp::CheckPoolPointer(int poolptr, std::size_t len) const
