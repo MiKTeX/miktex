@@ -241,7 +241,7 @@ public:
   MIKTEXMFTHISAPI(int) GetTeXStringLength(int stringNumber) const;
 
 public:
-  MIKTEXMFTHISAPI(void) InvokeEditor(int editFileName_, int editFileNameLength, int editLineNumber, int transcriptFileName, int transcriptFileNameLength) const;
+  MIKTEXMFTHISAPI(void) InvokeEditor(int editFileName, int editFileNameLength, int editLineNumber, int transcriptFileName, int transcriptFileNameLength) const;
 
 public:
   void InvokeEditor(const MiKTeX::Core::PathName& editFileName, int editLineNumber, const MiKTeX::Core::PathName& transcriptFileName) const
