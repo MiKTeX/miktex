@@ -118,3 +118,14 @@ void miktex_show_library_versions()
 {
   Application::GetApplication()->ShowLibraryVersions();
 }
+
+void miktex_add_include_directory(const char* path)
+{
+  if (Directory::Exists(path))
+  {
+    PathName includeDirectory(path);
+    includeDirectory.MakeAbsolute();
+    shared_ptr<Session> session = Session::Get();
+    session->AddInputDirectory(includeDirectory, true);
+  }
+}

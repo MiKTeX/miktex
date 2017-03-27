@@ -85,6 +85,7 @@ const_string LUATEX_IHELP[] = {
     "   --enable-write18              enable system commands",
     "   --halt-on-error               stop processing at the first error",
     "   --help                        display help and exit",
+    "   --include-directory=DIR       Prefix DIR to the input search path",
     "   --initialize                  be ini" my_name ", for dumping formats",
     "   --interaction=STRING          set interaction mode (STRING=batchmode/nonstopmode/scrollmode/errorstopmode)",
     "   --job-name=STRING             set the job name to STRING",
@@ -286,6 +287,7 @@ static struct option long_options[] = {
     {"c-style-errors", 0, &filelineerrorstylep, 1},
     {"disable-installer", 0, 0, 0},
     {"enable-installer", 0, 0, 0},
+    {"include-directory", 1, 0, 0},
     {"initialize", 0, &ini_version, 1},
     {"job-name", 1, 0, 0},
     {"no-c-style-errors", 0, &filelineerrorstylep, -1},
@@ -532,6 +534,10 @@ static void parse_options(int ac, char **av)
         else if (ARGUMENT_IS("enable-installer"))
         {
           miktex_enable_installer(1);
+	}
+        else if (ARGUMENT_IS("include-directory"))
+        {
+          miktex_add_include_directory(optarg);
 #endif
         } else if (ARGUMENT_IS("help")) {
             usagehelp(LUATEX_IHELP, BUG_ADDRESS);
