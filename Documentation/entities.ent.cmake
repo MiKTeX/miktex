@@ -22,10 +22,11 @@
 <!ENTITY Ghostscript "<application>Ghostscript</application>">
 <!ENTITY HTML "<acronym>HTML</acronym>">
 <!ENTITY HTTP "<acronym>HTTP</acronym>">
+<!ENTITY J2BIG "<acronym>J2BIG</acronym>">
 <!ENTITY JPG "<acronym>JPG</acronym>">
 <!ENTITY LW35 "<acronym>LW35</acronym>">
 <!ENTITY LaTeX "<application>LaTeX</application>">
-<!ENTITY LuaTeX "<application>LuaTeX</application>">
+<!ENTITY Lua "<application>Lua</application>">
 <!ENTITY MD5Walk "<application>MD5Walk</application>">
 <!ENTITY METAFONT "<application>METAFONT</application>">
 <!ENTITY MIKTEX_PREFIX "${MIKTEX_PREFIX}">
@@ -36,6 +37,7 @@
 <!ENTITY MetaPost "<application>MetaPost</application>">
 <!ENTITY MiKTeX "<application>MiKTeX</application>">
 <!ENTITY MiKTeXCurrentSeries "&MiKTeX;&nbsp;${MIKTEX_MAJOR_MINOR_STR}">
+<!ENTITY MiKTeXHelpUtility "<application>&MiKTeX; Help Utility</application>">
 <!ENTITY MiKTeXNetInstaller "<application>MiKTeX Net Installer</application>">
 <!ENTITY MiKTeXOptions "<application>&MiKTeX; Options</application>">
 <!ENTITY MiKTeXPackageCreator "<application>&MiKTeX; Package Creator</application>">
@@ -96,10 +98,12 @@
 <!ENTITY initex "<command>initex</command>">
 <!ENTITY initexmf "<command>initexmf</command>">
 <!ENTITY latex "<command>latex</command>">
+<!ENTITY luaTeX "<application>luaTeX</application>">
 <!ENTITY lzma "<command>lzma</command>">
 <!ENTITY makeinfo "<command>makeinfo</command>">
 <!ENTITY md5walk "<command>md5walk</command>">
 <!ENTITY miktexdvicopy "<command>${MIKTEX_PREFIX}dvicopy</command>">
+<!ENTITY miktexepstopdf "<command>${MIKTEX_PREFIX}epstopdf</command>">
 <!ENTITY miktexgftodvi "<command>${MIKTEX_PREFIX}gftodvi</command>">
 <!ENTITY miktexlatex "<command>${MIKTEX_PREFIX}latex</command>">
 <!ENTITY miktexmf "<command>${MIKTEX_PREFIX}mf</command>">

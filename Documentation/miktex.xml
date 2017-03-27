@@ -452,6 +452,7 @@ option of &initexmf; to edit the configuration file, e.g.:</para>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/findtexmf.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/gftodvi.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/initexmf.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/luatex.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/mf.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/miktexsetup.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/mpm.xml" />

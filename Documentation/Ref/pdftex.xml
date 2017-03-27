@@ -39,10 +39,10 @@
 <title>Description</title>
 
 <para>Run the &pdfTeX; typesetter on <replaceable>file</replaceable>,
-usually creating <filename>file.pdf</filename>. If the file argument
-has no extension, <filename>.tex</filename> will be appended to
-it. Instead of a file name, a set of &pdfTeX; commands can be given,
-the first of which must start with a backslash.</para>
+usually creating <filename>file.pdf</filename>.  If the file argument
+has no extension, <filename>.tex</filename> will be appended to it.
+Instead of a file name, a set of &pdfTeX; commands can be given, the
+first of which must start with a backslash.</para>
 
 <para>&pdfTeX; is a version of &TeX; that can create &PDF; files as
 well as &DVI; files.</para>
@@ -53,7 +53,7 @@ for the &TeX; engine.</para>
 <para>The typical use of &pdfTeX; is with a pregenerated formats for
 which &PDF; output has been enabled.  The &miktexpdftex; command uses
 the equivalent of the plain &TeX; format, and the &miktexpdflatex;
-command uses the equivalent of the &LaTeX; format. To generate
+command uses the equivalent of the &LaTeX; format.  To generate
 formats, use the <option>-initialize</option> switch.</para>
 
 <para>In &PDF; mode, &pdfTeX; can natively handle the &PDF;, &JPG;,

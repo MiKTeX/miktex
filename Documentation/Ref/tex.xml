@@ -43,7 +43,7 @@ usually creating
 <filename><replaceable>file</replaceable>.dvi</filename>.  If the file
 argument has no extension, <filename>.tex</filename> will be appended
 to it.  Instead of a filename, a set of &TeX; commands can be given,
-the first of which must start with a backslash. With a
+the first of which must start with a backslash.  With a
 <option>&amp;format</option> argument &TeX; uses a different set of
 precompiled commands, contained in
 <filename><replaceable>format</replaceable>.fmt</filename>; it is

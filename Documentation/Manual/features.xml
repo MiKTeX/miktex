@@ -70,7 +70,7 @@ components:</para>
 <varlistentry>
 <term>&pdfTeX;</term>
 <term>&XeTeX;</term>
-<term>&LuaTeX;</term>
+<term>&luaTeX;</term>
 <term>&Omega;</term>
 <listitem><para>various &TeX; derivatives</para>
 </listitem>

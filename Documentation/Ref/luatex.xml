@@ -1,0 +1,156 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
+<refentry id="luatex">
+
+<?dbhh topicname="MIKTEXHELP_LUATEX" topicid="0"?>
+
+<refmeta>
+<refentrytitle>miktex-luatex</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">User Commands</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>miktex-luatex, miktex-texlua, miktex-texluac</refname>
+<refpurpose>an extended version of &pdfTeX; using &Lua; as an embedded scripting language</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+
+<cmdsynopsis>
+<command>miktex-luatex</command>
+<arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
+<group>
+<arg choice="opt" rep="repeat"><replaceable>command</replaceable></arg>
+<arg choice="opt"><replaceable>file</replaceable></arg>
+</group>
+</cmdsynopsis>
+
+</refsynopsisdiv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>Run the &luaTeX; typesetter on <replaceable>file</replaceable>,
+usually creating <filename>file.pdf</filename>.  Any remaining
+commands are processed as &luaTeX; input, after
+<replaceable>file</replaceable> is read.</para>
+
+<para>Alternatively, if the first non-option argument begins with a
+backslash, interpret all non-option arguments as a line of &luaTeX;
+input.</para>
+
+<para>Alternatively, if the first non-option argument begins with a
+<option>&amp;</option>, the next word is taken as the
+<replaceable>format</replaceable> to read, overriding all else.  Any
+remaining arguments are processed as above.</para>
+
+<para>If no arguments or options are specified, prompt for
+input.</para>
+
+<para>If called as <userinput>miktex-texlua</userinput> it acts as
+&Lua; interpreter.  If called as <userinput>miktex-texluac</userinput>
+it acts as &Lua; bytecode compiler.</para>
+
+<para>&luaTeX; is an extended version of &pdfTeX; with Unicode and
+OpenType font support, embeded &Lua; scripting language, the &eTeX;
+and &Omega; extensions, as well as integrated &MetaPost; engine, that
+can create &PDF; files as well as &DVI; files.  For more information
+about &luaTeX;, see <ulink
+url="http://www.luatex.org"></ulink>.</para>
+
+<para>You can read the &luaTeX; manual using the &MiKTeXHelpUtility;
+(<userinput>&mthelp; luatex</userinput>).</para>
+
+<para>All &luaTeX; text input and output is considered to be Unicode
+text.</para>
+
+<para>In &DVI; mode, &luaTeX; can be used as a complete replacement
+for the &TeX; engine.</para>
+
+<para>In &PDF; mode, &luaTeX; can natively handle the &PDF;, &JPG;,
+&JBIG2;, and &PNG; graphics formats.  &luaTeX; cannot include
+&PostScript; or Encapsulated &PostScript; (&EPS;) graphics files;
+first convert them to &PDF; using &miktexepstopdf; (1).</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Options</title>
+
+<para>When the &luaTeX; executable starts, it looks for the
+<option>--lua</option> commandline option.  If there is no
+<option>--lua</option> option, the commandline is interpreted in a
+similar fashion as in traditional &pdfTeX;. But if the option is
+present, &luaTeX; will enter an alternative mode of commandline
+parsing in comparison to the standard &MiKTeX; programs.  The presence
+of <option>--lua</option> makes most of other options unreliable,
+because the &Lua; initialization file can disable path searching
+and/or hook functions into various callbacks.</para>
+
+<variablelist>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/alias.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/cstyleerrors.xml" />
+<varlistentry>
+<term><option>--debug-format</option></term>
+<listitem><para>Enable format debugging.
+<indexterm>
+<primary>--debug-format</primary>
+</indexterm>
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--draftmode</option></term>
+<listitem><para>Switch on draft mode.
+<indexterm>
+<primary>--draftmode</primary>
+</indexterm>
+luaTeX; doesn't write a
+&PDF; and doesn't read any included images, thus speeding up
+execution.</para></listitem>
+</varlistentry>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/haltonerror.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/initialize.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/interaction.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/jobname.xml" />
+<varlistentry>
+<term><option>--lua=<replaceable>file</replaceable></option></term>
+<listitem>
+<para>Load and execute a
+<indexterm>
+<primary>--lua=file</primary>
+</indexterm>
+&Lua; initialization script.</para>
+</listitem>
+</varlistentry>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/nocstyleerrors.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/outputdirectory.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/recorder.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/undump.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+
+<title>Environment</title>
+
+<variablelist>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_EDITOR.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_TRACE.xml" />
+</variablelist>
+
+</refsect1>
+
+</refentry>
