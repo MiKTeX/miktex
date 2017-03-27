@@ -73,27 +73,69 @@ const_string LUATEX_IHELP[] = {
     "  The following regular options are understood: ",
     "",
 #if defined(MIKTEX)
+    "   --alias=NAME                  pretend to be program NAME; this affects the format file used and the search path",
     "   --aux-directory=DIR           use DIR as the directory to write auxiliary files to",
-#endif
+    "   --c-style-errors              enable file:line:error style messages",
     "   --credits                     display credits and exit",
     "   --debug-format                enable format debugging",
-#if defined(MIKTEX)
     "   --disable-installer           disable the package installer (do not automatically install missing files)",
-#endif
+    "   --disable-write18             disable system commands",
     "   --draftmode                   switch on draft mode (generates no output PDF)",
-#if defined(MIKTEX)
     "   --enable-installer            enable the package installer (automatically install missing files)",
+    "   --enable-write18              enable system commands",
+    "   --halt-on-error               stop processing at the first error",
+    "   --help                        display help and exit",
+    "   --initialize                  be ini" my_name ", for dumping formats",
+    "   --interaction=STRING          set interaction mode (STRING=batchmode/nonstopmode/scrollmode/errorstopmode)",
+    "   --job-name=STRING             set the job name to STRING",
+    "   --lua=FILE                    load and execute a lua initialization script",
+    "   --mktex=FMT                   enable automatic generation (FMT one of: tex, tfm)",
+    "   --no-c-style-errors           disable file:line:error style messages",
+    "   --no-mktex=FMT                disable automatic generation (FMT one of: tex, tfm)",
+    "   --nosocket                    disable the lua socket library",
+    "   --output-comment=STRING       use STRING for DVI file comment instead of date (no effect for PDF)",
+    "   --output-directory=DIR        use existing DIR as the directory to write files in",
+    "   --output-format=FORMAT        use FORMAT for job output; FORMAT is 'dvi' or 'pdf'",
+    "   --recorder                    enable filename recorder",
+    "   --restrict-write18            restrict system commands to a list of commands given in the configuration file(s)",
+    "   --safer                       disable easily exploitable lua commands",
+    "   --synctex=NUMBER              enable synctex",
+    "   --undump=FORMAT               load the format file FORMAT",
+    "   --utc                         init time to UTC",
+    "   --version                     display version and exit",
+    "",
+    "   --file-line-error             same as --c-style-errors",
+    "   --file-line-error-style       same as --c-style-errors",
+    "   --fmt=FORMAT                  same as --undump=FORMAT",
+    "   --ini                         same as --initialize",
+    "   --jobname=STRING              same as --job-name=STRING",
+    "   --no-file-line-error-style    same as --no-c-style-errors",
+    "   --no-shell-escape             same as --disable-write18",
+    "   --progname=STRING             same as --alias=STRING",
+    "   --shell-escape                same as --enable-write18",
+    "   --shell-restricted            same as --restrict-write18",
+    "",
+    "Alternate behaviour models can be obtained by special switches",
+    "",
+    "  --luaonly                      run a lua file, then exit",
+    "  --luaconly                     byte-compile a lua file, then exit",
+    "  --luahashchars                 the bits used by current Lua interpreter for strings hashing",
+#ifdef LuajitTeX
+    "  --jiton                        turns the JIT compiler on (default off)",
+    "  --jithash=STRING               choose the hash function for the lua strings (lua51|luajit20: default lua51)",
 #endif
+    "",
+    "See the reference manual for more information about the startup process.",
+#else
+    "   --credits                     display credits and exit",
+    "   --debug-format                enable format debugging",
+    "   --draftmode                   switch on draft mode (generates no output PDF)",
     "   --[no-]file-line-error        disable/enable file:line:error style messages",
     "   --[no-]file-line-error-style  aliases of --[no-]file-line-error",
     "   --fmt=FORMAT                  load the format file FORMAT",
     "   --halt-on-error               stop processing at the first error",
     "   --help                        display help and exit",
-#if defined(MIKTEX)
-    "   --initialize                  be ini" my_name ", for dumping formats",
-#else
     "   --ini                         be ini" my_name ", for dumping formats",
-#endif
     "   --interaction=STRING          set interaction mode (STRING=batchmode/nonstopmode/scrollmode/errorstopmode)",
     "   --jobname=STRING              set the job name to STRING",
     "   --kpathsea-debug=NUMBER       set path searching debugging flags according to the bits of NUMBER",
@@ -123,6 +165,7 @@ const_string LUATEX_IHELP[] = {
 #endif
     "",
     "See the reference manual for more information about the startup process.",
+#endif
     NULL
 };
 
@@ -237,6 +280,17 @@ option table in a variable |long_options|.
 */
 
 static struct option long_options[] = {
+#if defined(MIKTEX)
+    {"alias", 1, 0, 0},
+    {"aux-directory", 1, 0, 0},
+    {"c-style-errors", 0, &filelineerrorstylep, 1},
+    {"disable-installer", 0, 0, 0},
+    {"enable-installer", 0, 0, 0},
+    {"initialize", 0, &ini_version, 1},
+    {"job-name", 1, 0, 0},
+    {"no-c-style-errors", 0, &filelineerrorstylep, -1},
+    {"restrict-write18", 0, 0, 0},
+#endif
     {"fmt", 1, 0, 0},
     {"lua", 1, 0, 0},
     {"luaonly", 0, 0, 0},
@@ -249,17 +303,10 @@ static struct option long_options[] = {
     {"utc", 0, &utc_option, 1},
     {"nosocket", 0, &nosocket_option, 1},
     {"help", 0, 0, 0},
-#if defined(MIKTEX)
-    {"initialize", 0, &ini_version, 1},
-#else
     {"ini", 0, &ini_version, 1},
-#endif
     {"interaction", 1, 0, 0},
     {"halt-on-error", 0, &haltonerrorp, 1},
     {"kpathsea-debug", 1, 0, 0},
-#if defined(MIKTEX)
-    {"alias", 1, 0, 0},
-#endif
     {"progname", 1, 0, 0},
     {"version", 0, 0, 0},
     {"credits", 0, 0, 0},
@@ -275,10 +322,6 @@ static struct option long_options[] = {
     {"disable-write18", 0, &shellenabledp, -1},
     {"shell-restricted", 0, 0, 0},
     {"debug-format", 0, &debug_format_file, 1},
-#if defined(MIKTEX)
-    {"c-style-errors", 0, &filelineerrorstylep, 1},
-    {"no-c-style-errors", 0, &filelineerrorstylep, -1},
-#endif
     {"file-line-error-style", 0, &filelineerrorstylep, 1},
     {"no-file-line-error-style", 0, &filelineerrorstylep, -1},
 
@@ -286,9 +329,6 @@ static struct option long_options[] = {
 
     {"file-line-error", 0, &filelineerrorstylep, 1},
     {"no-file-line-error", 0, &filelineerrorstylep, -1},
-#if defined(MIKTEX)
-    {"job-name", 1, 0, 0},
-#endif
     {"jobname", 1, 0, 0},
     {"parse-first-line", 0, &parsefirstlinep, 1},
     {"no-parse-first-line", 0, &parsefirstlinep, -1},
@@ -297,11 +337,6 @@ static struct option long_options[] = {
     {"8bit", 0, 0, 0},
     {"mktex", 1, 0, 0},
     {"no-mktex", 1, 0, 0},
-#if defined(MIKTEX)
-    {"disable-installer", 0, 0, 0},
-    {"enable-installer", 0, 0, 0},
-    {"aux-directory", 1, 0, 0},
-#endif
 
     /* Synchronization: just like "interaction" above */
 
@@ -420,7 +455,11 @@ static void parse_options(int ac, char **av)
         } else if (ARGUMENT_IS("jobname")) {
 #endif
             c_job_name = optarg;
+#if defined(MIKTEX)
+        } else if (ARGUMENT_IS("undump") || ARGUMENT_IS("fmt")) {
+#else
         } else if (ARGUMENT_IS("fmt")) {
+#endif
             dump_name = optarg;
         } else if (ARGUMENT_IS("output-directory")) {
 #if defined(MIKTEX)
@@ -438,7 +477,11 @@ static void parse_options(int ac, char **av)
                 strncpy(output_comment, optarg, 255);
                 output_comment[255] = 0;
             }
+#if defined(MIKTEX)
+        } else if (ARGUMENT_IS("restrict-write18") || ARGUMENT_IS("shell-restricted")) {
+#else
         } else if (ARGUMENT_IS("shell-restricted")) {
+#endif
             shellenabledp = 1;
             restrictedshell = 1;
         } else if (ARGUMENT_IS("output-format")) {
