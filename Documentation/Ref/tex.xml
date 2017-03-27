@@ -79,18 +79,18 @@ unless you quote them.)  As described in <citetitle>The
 a <markup role="tex">\controlsequence</markup>, or a
 &amp;<replaceable>formatname</replaceable>.</para>
 
-<para>The normal usage is to say <programlisting>tex
-paper</programlisting> to start processing
-<filename>paper.tex</filename>.  The name <quote>paper</quote> will be
-the <quote>job name</quote>, and is used in forming output file names.
-If &TeX; doesn't get a file name in the first line, the job name is
-<filename>texput</filename>.  When looking for a file, &TeX; looks for
-the name with and without the default extension
-(<filename>.tex</filename>) appended, unless the name already contains
-that extension.  If paper is the <quote>job name</quote>, a log of
-error messages, with rather more detail than normally appears on the
-screen, will appear in <filename>paper.log</filename>, and the output
-file will be in <filename>paper.dvi</filename>.</para>
+<para>The normal usage is to say <userinput>&miktextex;
+paper</userinput> to start processing <filename>paper.tex</filename>.
+The name <quote>paper</quote> will be the <quote>job name</quote>, and
+is used in forming output file names.  If &TeX; doesn't get a file
+name in the first line, the job name is <filename>texput</filename>.
+When looking for a file, &TeX; looks for the name with and without the
+default extension (<filename>.tex</filename>) appended, unless the
+name already contains that extension.  If paper is the <quote>job
+name</quote>, a log of error messages, with rather more detail than
+normally appears on the screen, will appear in
+<filename>paper.log</filename>, and the output file will be in
+<filename>paper.dvi</filename>.</para>
 
 <para>This version of &TeX; will look in the first line of the file
 <filename>paper.tex</filename> to see if it begins with the magic
@@ -130,10 +130,12 @@ character (usually <keycombo>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/auxdirectory.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/bufsize.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/cstyleerrors.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disable8bitchars.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disableinstaller.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disablepipes.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disablewriteeighteen.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/dontparsefirstline.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enable8bitchars.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableenctex.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableinstaller.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enablemltex.xml" />
@@ -148,6 +150,7 @@ character (usually <keycombo>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/haltonerror.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/hashextra.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/hhelp.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/includedirectory.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/initialize.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/interaction.xml" />
@@ -162,10 +165,11 @@ character (usually <keycombo>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/outputdirectory.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/paramsize.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/parsefirstline.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/poolfree.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/poolsize.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/quiet.xml" />
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/recorder.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/recordpackageusages.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/recorder.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/restrictwriteeighteen.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/savesize.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/srcspecials.xml" />

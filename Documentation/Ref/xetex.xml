@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+                          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
 ]>
@@ -39,16 +39,15 @@
 <title>Description</title>
 
 <para>Run the &XeTeX; typesetter on <replaceable>file</replaceable>,
-usually creating <filename>file.pdf</filename>. If the file argument
-has no extension, <filename>.tex</filename> will be appended to
-it. Instead of a file name, a set of &XeTeX; commands can be given,
-the first of which must start with a backslash.</para>
+usually creating <filename>file.pdf</filename>.  If the file argument
+has no extension, <filename>.tex</filename> will be appended to it.
+Instead of a file name, a set of &XeTeX; commands can be given, the
+first of which must start with a backslash.</para>
 
-<para>&XeTeX; has simple font installation;
-it can use any installed fonts in the operating system
-without configuring &TeX; font metric. As a result, &XeTeX;
-can access font features such as special ligatures and variable
-font weights.</para>
+<para>&XeTeX; has simple font installation; it can use any installed
+fonts in the operating system without configuring &TeX; font metric.
+As a result, &XeTeX; can access font features such as special
+ligatures and variable font weights.</para>
 
 </refsect1>
 
@@ -79,6 +78,7 @@ font weights.</para>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/haltonerror.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/hashextra.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/hhelp.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/includedirectory.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/initialize.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/interaction.xml" />
@@ -96,7 +96,7 @@ font weights.</para>
 </indexterm>
 <term><option>--no-pdf</option></term>
 <listitem><para>Generate &XDV; (extended &DVI;) output rather than
-&PDF;</para></listitem>
+&PDF;.</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/outputdirectory.xml" />
 <varlistentry>
@@ -116,6 +116,7 @@ font weights.</para>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/paramsize.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/parsefirstline.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/poolfree.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/poolsize.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/quiet.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/recordpackageusages.xml" />

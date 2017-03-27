@@ -23,6 +23,7 @@
 <!ENTITY HTML "<acronym>HTML</acronym>">
 <!ENTITY HTTP "<acronym>HTTP</acronym>">
 <!ENTITY JPG "<acronym>JPG</acronym>">
+<!ENTITY LW35 "<acronym>LW35</acronym>">
 <!ENTITY LaTeX "<application>LaTeX</application>">
 <!ENTITY LuaTeX "<application>LuaTeX</application>">
 <!ENTITY MD5Walk "<application>MD5Walk</application>">
@@ -128,6 +129,7 @@
 <!ENTITY tar "<command>tar</command>">
 <!ENTITY texi2dvi "<command>tex2dvi</command>">
 <!ENTITY texify "<command>texify</command>">
+<!ENTITY userdatadir "<filename>${USERDATA}</filename>">
 <!ENTITY userinstalldir "<filename>${USERINSTALL}</filename>">
 <!ENTITY virmf "<command>virmf</command>">
 <!ENTITY virtex "<command>virtex</command>">

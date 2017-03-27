@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+                          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
 ]>
@@ -36,7 +36,7 @@
 
 <title>Description</title>
 
-<para>&mthelp; is a utility to lookup &TeX; package documentation.</para>
+<para>&mthelp; is a utility to look up &MiKTeX; related documentation.</para>
 
 <para>&mthelp; creates an &HTML; page which contains a short
 description of the package together with links to all documentation
@@ -81,6 +81,8 @@ documentation, but do not start the command.</para></listitem>
 
 <variablelist>
 
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_TRACE.xml" />
+
 <varlistentry>
 <term><envar>MIKTEX_VIEW_dvi</envar></term>
 <listitem><para>&DVI; viewer.</para></listitem>
@@ -109,7 +111,7 @@ documentation, but do not start the command.</para></listitem>
 </variablelist>
 
 <para>The environment variables should be set with a <quote>%f</quote>
-as a placeholder for the name of the file. For example:</para>
+as a placeholder for the name of the file.  For example:</para>
 
 <screen><prompt>&prompt;</prompt><userinput>MIKTEX_VIEW_pdf="gv %f"</userinput></screen>
 
@@ -122,7 +124,7 @@ as a placeholder for the name of the file. For example:</para>
 <para>The intermediate &HTML; file
 (<filename><replaceable>package</replaceable>.html</filename>) is
 stored in the directory <filename>miktex/mthelp</filename> relative to
-the data &TEXMF; root.</para>
+the data &TEXMF; data root (usually &userdatadir;).</para>
 </refsect1>
 
 <refsect1>
@@ -130,6 +132,18 @@ the data &TEXMF; root.</para>
 <title>See also</title>
 
 <para><ulink url="&hqbaseurl;">&MiKTeX; Project Page</ulink></para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Environment</title>
+
+<variablelist>
+
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_TRACE.xml" />
+
+</variablelist>
 
 </refsect1>
 

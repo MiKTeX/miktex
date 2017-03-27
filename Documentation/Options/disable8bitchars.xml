@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE varlistentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                              "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+<varlistentry>
+<indexterm>
+<primary>--disable-8bit-chars</primary>
+</indexterm>
+<term><option>--disable-8bit-chars</option></term>
+<listitem><para>Make only 7-bit characters printable.</para></listitem>
+</varlistentry>

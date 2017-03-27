@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+                          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
 ]>
@@ -47,13 +47,14 @@ the first of which must start with a backslash.</para>
 <para>&pdfTeX; is a version of &TeX; that can create &PDF; files as
 well as &DVI; files.</para>
 
-<para>In &DVI; mode, &pdfTeX; can be used as a complete replacement for the &TeX; engine.</para>
+<para>In &DVI; mode, &pdfTeX; can be used as a complete replacement
+for the &TeX; engine.</para>
 
 <para>The typical use of &pdfTeX; is with a pregenerated formats for
 which &PDF; output has been enabled.  The &miktexpdftex; command uses
-the equivalent of the plain &TeX; format, and the &miktexpdflatex; command
-uses the equivalent of the &LaTeX; format. To generate formats, use
-the <option>-initialize</option> switch.</para>
+the equivalent of the plain &TeX; format, and the &miktexpdflatex;
+command uses the equivalent of the &LaTeX; format. To generate
+formats, use the <option>-initialize</option> switch.</para>
 
 <para>In &PDF; mode, &pdfTeX; can natively handle the &PDF;, &JPG;,
 <acronym>JBIG2</acronym> and &PNG; graphics formats.  &pdfTeX; cannot
@@ -71,19 +72,20 @@ files; first convert them to &PDF; using epstopdf(1).</para>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/auxdirectory.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/bufsize.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/cstyleerrors.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disable8bitchars.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disableinstaller.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disablepipes.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disablewriteeighteen.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/dontparsefirstline.xml" />
 <varlistentry>
-<indexterm>
-<primary>--draftmode</primary>
-</indexterm>
 <term><option>--draftmode</option></term>
 <listitem><para>Sets <markup role="tex">\pdfdraftmode</markup> so
-&pdfTeX; doesn't write a &PDF; and doesn't read any included images,
-thus speeding up execution.</para></listitem>
+<indexterm>
+<primary>--draftmode</primary> </indexterm> &pdfTeX; doesn't write a
+&PDF; and doesn't read any included images, thus speeding up
+execution.</para></listitem>
 </varlistentry>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enable8bitchars.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableenctex.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableetex.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableinstaller.xml" />
@@ -99,6 +101,7 @@ thus speeding up execution.</para></listitem>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/haltonerror.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/hashextra.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/hhelp.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/includedirectory.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/initialize.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/interaction.xml" />
@@ -123,6 +126,7 @@ formats understood by &pdfTeX;.</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/paramsize.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/parsefirstline.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/poolfree.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/poolsize.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/quiet.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/recordpackageusages.xml" />
