@@ -140,6 +140,8 @@ font weights.</para>
 <title>Environment</title>
 
 <variablelist>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_EDITOR.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/MIKTEX_TRACE.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/TEXINPUTS.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../EnvVars/TFMFONTS.xml" />
 </variablelist>
