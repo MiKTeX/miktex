@@ -56,19 +56,17 @@ remaining arguments are processed as above.</para>
 <para>If no arguments or options are specified, prompt for
 input.</para>
 
-<para>If called as <userinput>miktex-texlua</userinput> it acts as
-&Lua; interpreter.  If called as <userinput>miktex-texluac</userinput>
-it acts as &Lua; bytecode compiler.</para>
+<para>If called as <command>miktex-texlua</command> it acts as &Lua;
+interpreter.  If called as <command>miktex-texluac</command> it acts
+as &Lua; bytecode compiler.</para>
 
 <para>&luaTeX; is an extended version of &pdfTeX; with Unicode and
 OpenType font support, embeded &Lua; scripting language, the &eTeX;
 and &Omega; extensions, as well as integrated &MetaPost; engine, that
-can create &PDF; files as well as &DVI; files.  For more information
-about &luaTeX;, see <ulink
-url="http://www.luatex.org"></ulink>.</para>
+can create &PDF; files as well as &DVI; files.</para>
 
 <para>You can read the &luaTeX; manual using the &MiKTeXHelpUtility;
-(<userinput>&mthelp; luatex</userinput>).</para>
+(run <userinput>&mthelp; luatex</userinput>).</para>
 
 <para>All &luaTeX; text input and output is considered to be Unicode
 text.</para>
@@ -79,7 +77,9 @@ for the &TeX; engine.</para>
 <para>In &PDF; mode, &luaTeX; can natively handle the &PDF;, &JPG;,
 &JBIG2;, and &PNG; graphics formats.  &luaTeX; cannot include
 &PostScript; or Encapsulated &PostScript; (&EPS;) graphics files;
-first convert them to &PDF; using &miktexepstopdf; (1).</para>
+first convert them to &PDF; using &miktexepstopdf; (consult the
+<citerefentry><refentrytitle>miktex-epstopdf</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+manual page).</para>
 
 </refsect1>
 
@@ -99,15 +99,26 @@ and/or hook functions into various callbacks.</para>
 
 <variablelist>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/alias.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/auxdirectory.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/cstyleerrors.xml" />
 <varlistentry>
+<term><option>--credits</option></term>
+<listitem><para>Display
+<indexterm>
+<primary>--credits</primary>
+</indexterm>
+credits and exit.</para></listitem>
+</varlistentry>
+<varlistentry>
 <term><option>--debug-format</option></term>
-<listitem><para>Enable format debugging.
+<listitem><para>Enable format
 <indexterm>
 <primary>--debug-format</primary>
 </indexterm>
-</para></listitem>
+debugging.</para></listitem>
 </varlistentry>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disableinstaller.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disablewriteeighteen.xml" />
 <varlistentry>
 <term><option>--draftmode</option></term>
 <listitem><para>Switch on draft mode.
@@ -118,6 +129,8 @@ luaTeX; doesn't write a
 &PDF; and doesn't read any included images, thus speeding up
 execution.</para></listitem>
 </varlistentry>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableinstaller.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enablewriteeighteen.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/haltonerror.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/initialize.xml" />
@@ -134,9 +147,61 @@ execution.</para></listitem>
 </listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/nocstyleerrors.xml" />
+<varlistentry>
+<term><option>--nosocket</option></term>
+<listitem>
+<para>Disable the &Lua;
+<indexterm>
+<primary>--nosocket</primary>
+</indexterm>
+socket library.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--output-comment=<replaceable>string</replaceable></option></term>
+<listitem>
+<para>Use <replaceable>string</replaceable>
+<indexterm>
+<primary>--output-comment=string</primary>
+</indexterm>
+for &DVI; file comment instead of date.</para>
+</listitem>
+</varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/outputdirectory.xml" />
+<varlistentry>
+<term><option>--output-format=<replaceable>format</replaceable></option></term>
+<listitem>
+<para>Use <replaceable>format</replaceable>
+<indexterm>
+<primary>--output-format=format</primary>
+</indexterm>
+for job output (one of: <option>dvi</option>, <option>pdf</option>).</para>
+</listitem>
+</varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/recorder.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/restrictwriteeighteen.xml" />
+<varlistentry>
+<term><option>--safer</option></term>
+<listitem>
+<para>Disable
+<indexterm>
+<primary>--safer</primary>
+</indexterm>
+easily exploitable &Lua; commands.</para>
+</listitem>
+</varlistentry>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/synctex.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/undump.xml" />
+<varlistentry>
+<term><option>--utc</option></term>
+<listitem>
+<para>Init
+<indexterm>
+<primary>--utc</primary>
+</indexterm>
+time to &UTC;.</para>
+</listitem>
+</varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/version.xml" />
 </variablelist>
 

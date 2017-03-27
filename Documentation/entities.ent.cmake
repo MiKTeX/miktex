@@ -22,7 +22,7 @@
 <!ENTITY Ghostscript "<application>Ghostscript</application>">
 <!ENTITY HTML "<acronym>HTML</acronym>">
 <!ENTITY HTTP "<acronym>HTTP</acronym>">
-<!ENTITY J2BIG "<acronym>J2BIG</acronym>">
+<!ENTITY JBIG2 "<acronym>JBIG2</acronym>">
 <!ENTITY JPG "<acronym>JPG</acronym>">
 <!ENTITY LW35 "<acronym>LW35</acronym>">
 <!ENTITY LaTeX "<application>LaTeX</application>">
@@ -68,6 +68,7 @@
 <!ENTITY TeXworks "<application>TeXworks</application>">
 <!ENTITY Texinfo "<application>Texinfo</application>">
 <!ENTITY URL "<acronym>URL</acronym>">
+<!ENTITY UTC "<acronym>UTC</acronym>">
 <!ENTITY URW "<acronym>URW</acronym>">
 <!ENTITY Windows "<application>Windows</application>">
 <!ENTITY Windows7 "<application>Windows&nbsp;7</application>">
