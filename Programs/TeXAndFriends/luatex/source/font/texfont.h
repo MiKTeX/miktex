@@ -153,6 +153,7 @@ typedef struct texfont {
     int _font_writingmode;
     int _font_identity;
     int _font_embedding;
+    int _font_streamprovider;
     int _font_bc;
     int _hyphen_char;
     int _skew_char;
@@ -315,6 +316,10 @@ boolean cmp_font_area(int, str_number);
 
 #  define font_encodingbytes(a)          font_tables[a]->_font_encodingbytes
 #  define set_font_encodingbytes(a,b)    font_encodingbytes(a) = b
+
+#  define font_streamprovider(a)         font_tables[a]->_font_streamprovider
+#  define set_font_streamprovider(a,b)   font_streamprovider(a) = b
+
 
 #  define font_oldmath(a)                font_tables[a]->_font_oldmath
 #  define set_font_oldmath(a,b)          font_oldmath(a) = b

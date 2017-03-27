@@ -174,11 +174,11 @@ static int glyf_cmp(const void *v1, const void *v2)
 }
 
 @ @c
-int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
+int tt_build_tables(sfnt * sfont, struct tt_glyphs *g, fd_entry * fd)
 {
     char *hmtx_table_data = NULL, *loca_table_data = NULL;
     char *glyf_table_data = NULL;
-    ULONG hmtx_table_size, loca_table_size, glyf_table_size;
+    ULONG hmtx_table_size, loca_table_size, glyf_table_size, glyf_table_used;
     /* some information available from other TrueType table */
     struct tt_head_table *head = NULL;
     struct tt_hhea_table *hhea = NULL;
@@ -189,6 +189,14 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
     ULONG *location, offset;
     long i;
     USHORT *w_stat;             /* Estimate most frequently appeared width */
+
+    int tex_font = fd->tex_font;
+    int streamprovider = 0;
+    int callback_id = 0 ;
+    if ((tex_font > 0) && (font_streamprovider(tex_font) == 2)) {
+        streamprovider = font_streamprovider(tex_font);
+        callback_id = callback_defined(glyph_stream_provider_callback);
+    }
 
     ASSERT(g);
 
@@ -307,6 +315,7 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
             formatted_error("ttf","invalid glyph data (gid %u)", gid);
         }
 
+/* todo: no need for this */
         g->gd[i].data = p = NEW(len, BYTE);
         endptr = p + len;
 
@@ -432,6 +441,7 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
         hmtx_table_data = p = NEW(hmtx_table_size, char);
         loca_table_data = q = NEW(loca_table_size, char);
         glyf_table_data = NEW(glyf_table_size, char);
+        glyf_table_used = 0;
 
         offset = 0UL;
         prev = 0;
@@ -451,8 +461,6 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
                     q += sfnt_put_ulong(q, (LONG) offset);
                 }
             }
-            padlen =
-                (int) ((g->gd[i].length % 4) ? (4 - (g->gd[i].length % 4)) : 0);
             if (g->gd[i].gid < hhea->numberOfHMetrics) {
                 p += sfnt_put_ushort(p, g->gd[i].advw);
             }
@@ -462,13 +470,35 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
             } else {
                 q += sfnt_put_ulong(q, (LONG) offset);
             }
-            memset(glyf_table_data + offset, 0,
-                   (size_t) (g->gd[i].length + (ULONG) padlen));
-            memcpy(glyf_table_data + offset, g->gd[i].data, g->gd[i].length);
-            offset += (g->gd[i].length + (ULONG) padlen);
+
+            if (callback_id > 0) {
+
+                lstring * result;
+                long size = 0;
+                run_callback(callback_id, "ddd->L", tex_font, g->gd[i].gid, streamprovider, &result); /* this call can be sped up */
+                padlen = (int) ((result->l % 4) ? (4 - (result->l % 4)) : 0);
+                size = (size_t) result->l + (ULONG) padlen;
+                if (glyf_table_used + size >= glyf_table_size) {
+                    glyf_table_size = glyf_table_size + 20 * size; /* just a guess */
+                    glyf_table_data = xrealloc(glyf_table_data, (unsigned)((unsigned)glyf_table_size*sizeof(char)));
+                }
+                glyf_table_used += size;
+                memset(glyf_table_data + offset, 0, (size_t) size);
+                memcpy(glyf_table_data + offset, (const char *) result->s, (size_t) result->l);
+                offset += size;
+                xfree(result);
+
+            } else {
+
+                padlen = (int) ((g->gd[i].length % 4) ? (4 - (g->gd[i].length % 4)) : 0);
+                memset(glyf_table_data + offset, 0, (size_t) (g->gd[i].length + (ULONG) padlen));
+                memcpy(glyf_table_data + offset, g->gd[i].data, g->gd[i].length);
+                offset += (g->gd[i].length + (ULONG) padlen);
+
+            }
             prev = g->gd[i].gid;
-            /* free data here since it consume much memory */
             RELEASE(g->gd[i].data);
+            /* free data here since it consume much memory */
             g->gd[i].length = 0;
             g->gd[i].data = NULL;
         }
@@ -478,12 +508,12 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
             q += sfnt_put_ulong(q, (LONG) offset);
         }
 
-        sfnt_set_table(sfont, "hmtx", (char *) hmtx_table_data,
-                       hmtx_table_size);
-        sfnt_set_table(sfont, "loca", (char *) loca_table_data,
-                       loca_table_size);
-        sfnt_set_table(sfont, "glyf", (char *) glyf_table_data,
-                       glyf_table_size);
+        sfnt_set_table(sfont, "hmtx", (char *) hmtx_table_data, hmtx_table_size);
+        sfnt_set_table(sfont, "loca", (char *) loca_table_data, loca_table_size);
+        if (callback_id > 0) {
+            glyf_table_size = glyf_table_used;
+        }
+        sfnt_set_table(sfont, "glyf", (char *) glyf_table_data, glyf_table_size);
     }
 
     head->checkSumAdjustment = 0;

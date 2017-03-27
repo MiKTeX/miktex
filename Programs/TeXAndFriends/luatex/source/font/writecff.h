@@ -1,5 +1,5 @@
 /* writecff.h
-    
+
    Copyright 2002 by Jin-Hwan Cho and Shunsaku Hirata,
    the dvipdfmx project team <dvipdfmx@project.ktug.or.kr>
    Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
@@ -327,11 +327,6 @@ typedef struct {
     } seac;                     /* unused in Type 2 charstring */
 } cs_ginfo;
 
-extern long cs_copy_charstring(card8 * dest, long destlen,
-                               card8 * src, long srclen,
-                               cff_index * gsubr, cff_index * subr,
-                               double default_width, double nominal_width,
-                               cs_ginfo * ginfo);
 #endif                          /* _CS_TYPE2_H_ */
 
 #define cff_is_cidfont(a) (a->flag & FONTTYPE_CIDFONT)

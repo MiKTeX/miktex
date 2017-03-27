@@ -19,7 +19,6 @@
 
 @ @c
 
-
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 #include "font/writecff.h"
@@ -30,6 +29,7 @@ extern int cidset;
 #define get_offset(s,n) get_unsigned(s, (n))
 #define get_card8(a)  (card8)(a->stream[a->offset++])
 #define get_card16(a) (card16)(get_unsigned(a,2))
+#define get_card32(a) (get_unsigned(a,4))
 
 #undef b0
 #undef b1
@@ -146,44 +146,38 @@ const char *const cff_stdstr[CFF_STDSTR_MAX] = {
     "Black", "Bold", "Book", "Light", "Medium", "Regular", "Roman", "Semibold"
 };
 
-
 @ Only read header part but not body
 @c
 cff_index *cff_get_index_header(cff_font * cff)
 {
     cff_index *idx;
     card16 i, count;
-
     idx = xcalloc(1, sizeof(cff_index));
-
-    idx->count = count = get_card16(cff);
+    if (cff->header_major == 2) {
+        idx->count = count = get_card32(cff);
+    } else {
+        idx->count = count = get_card16(cff);
+    }
     if (count > 0) {
         idx->offsize = get_card8(cff);
         if (idx->offsize < 1 || idx->offsize > 4)
-            normal_error("cff","invalid offsize data");
-
-        idx->offset =
-            xmalloc((unsigned) (((unsigned) count + 1) * sizeof(l_offset)));
+            normal_error("cff","invalid offsize data (1)");
+        idx->offset = xmalloc((unsigned) (((unsigned) count + 1) * sizeof(l_offset)));
         for (i = 0; i <count + 1 ; i++) {
             (idx->offset)[i] = get_offset(cff, idx->offsize);
             if (i == USHRT_MAX)
                 break;
         }
-
         if (idx->offset[0] != 1)
             normal_error("cff","invalid index data");
-
         idx->data = NULL;
     } else {
         idx->offsize = 0;
         idx->offset = NULL;
         idx->data = NULL;
     }
-
     return idx;
 }
-
-
 
 @ @c
 cff_index *cff_get_index(cff_font * cff)
@@ -191,30 +185,22 @@ cff_index *cff_get_index(cff_font * cff)
     cff_index *idx;
     card16 i, count;
     size_t length;
-
     idx = xcalloc(1, sizeof(cff_index));
-
     idx->count = count = get_card16(cff);
     if (count > 0) {
         idx->offsize = get_card8(cff);
         if (idx->offsize < 1 || idx->offsize > 4)
-            normal_error("cff","invalid offsize data");
-
-        idx->offset =
-            xmalloc((unsigned) (((unsigned) count + 1) * sizeof(l_offset)));
+            normal_error("cff","invalid offsize data (2)");
+        idx->offset = xmalloc((unsigned) (((unsigned) count + 1) * sizeof(l_offset)));
         for (i = 0; i < count + 1; i++) {
             idx->offset[i] = get_offset(cff, idx->offsize);
         }
-
         if (idx->offset[0] != 1)
             normal_error("cff","invalid index offset data");
-
         length = (size_t) (idx->offset[count] - idx->offset[0]);
-
         idx->data = xmalloc((unsigned) length * sizeof(card8));
         memcpy(idx->data, &cff->stream[cff->offset], length);
         cff->offset += length;
-
     } else {
         idx->offsize = 0;
         idx->offset = NULL;
@@ -223,6 +209,40 @@ cff_index *cff_get_index(cff_font * cff)
     return idx;
 }
 
+static cff_index *cff_empty_index(cff_font * cff)
+{
+    cff_index *idx;
+    idx = xcalloc(1, sizeof(cff_index));
+    idx->count = 0;
+    idx->offsize = 0;
+    idx->offset = NULL;
+    idx->data = NULL;
+    return idx;
+}
+
+static cff_index *cff_get_index2(cff_font * cff)
+{
+    /* we fake a dict array */
+
+    cff_index *idx;
+    size_t length;
+
+    idx = xcalloc(1, sizeof(cff_index));
+
+    length = (size_t) cff->header_offsize;
+
+    idx->offsize = 2;
+    idx->count = 1;
+    idx->offset = xmalloc((unsigned) (((unsigned) 2) * sizeof(l_offset)));
+    idx->offset[0] = 1; // get_offset(cff, idx->offsize);
+    idx->offset[1] = length + 1; // idx->offset[0] + length;
+
+    idx->data = xmalloc((unsigned) length * sizeof(card8));
+    memcpy(idx->data, &cff->stream[cff->offset], length );
+    cff->offset += length ;
+
+    return idx;
+}
 
 @ @c
 long cff_pack_index(cff_index * idx, card8 * dest, long destlen)
@@ -230,23 +250,18 @@ long cff_pack_index(cff_index * idx, card8 * dest, long destlen)
     long len = 0;
     unsigned long datalen;
     card16 i;
-
     if (idx->count < 1) {
         if (destlen < 2)
             normal_error("cff","not enough space available");
         memset(dest, 0, 2);
         return 2;
     }
-
     len = cff_index_size(idx);
     datalen = idx->offset[idx->count] - 1;
-
     if (destlen < len)
         normal_error("cff","not enough space available");
-
     *(dest++) = (card8) ((idx->count >> 8) & 0xff);
     *(dest++) = (card8) (idx->count & 0xff);
-
     if (datalen < 0xffUL) {
         idx->offsize = 1;
         *(dest++) = 1;
@@ -278,9 +293,7 @@ long cff_pack_index(cff_index * idx, card8 * dest, long destlen)
             *(dest++) = (card8) (idx->offset[i] & 0xff);
         }
     }
-
     memmove(dest, idx->data, idx->offset[idx->count] - 1);
-
     return len;
 }
 
@@ -289,7 +302,6 @@ long cff_index_size(cff_index * idx)
 {
     if (idx->count > 0) {
         l_offset datalen;
-
         datalen = idx->offset[idx->count] - 1;
         if (datalen < 0xffUL) {
             idx->offsize = 1;
@@ -310,11 +322,9 @@ long cff_index_size(cff_index * idx)
 cff_index *cff_new_index(card16 count)
 {
     cff_index *idx;
-
     idx = xcalloc(1, sizeof(cff_index));
     idx->count = count;
     idx->offsize = 0;
-
     if (count > 0) {
         idx->offset = xcalloc((unsigned) (count + 1), sizeof(l_offset));
         (idx->offset)[0] = 1;
@@ -322,10 +332,8 @@ cff_index *cff_new_index(card16 count)
         idx->offset = NULL;
     }
     idx->data = NULL;
-
     return idx;
 }
-
 
 @ @c
 void cff_release_index(cff_index * idx)
@@ -351,7 +359,6 @@ void cff_release_dict(cff_dict * dict)
         xfree(dict);
     }
 }
-
 
 @ @c
 void cff_release_encoding(cff_encoding * encoding)
@@ -407,12 +414,10 @@ void cff_release_fdselect(cff_fdselect * fdselect)
     }
 }
 
-
 @ @c
 void cff_close(cff_font * cff)
 {
     card16 i;
-
     if (cff) {
         xfree(cff->fontname);
         if (cff->name)
@@ -456,7 +461,6 @@ void cff_close(cff_font * cff)
             cff_release_index(cff->_string);
         xfree(cff);
     }
-
     return;
 }
 
@@ -466,28 +470,22 @@ char *cff_get_name(cff_font * cff)
     char *fontname;
     l_offset len;
     cff_index *idx;
-
     idx = cff->name;
     len = idx->offset[cff->index + 1] - idx->offset[cff->index];
     fontname = xmalloc((unsigned) (len + 1) * sizeof(char));
     memcpy(fontname, idx->data + idx->offset[cff->index] - 1, len);
     fontname[len] = '\0';
-
     return fontname;
 }
-
 
 @ @c
 long cff_set_name(cff_font * cff, char *name)
 {
     cff_index *idx;
-
     if (strlen(name) > 127)
         normal_error("cff","FontName string length too large");
-
     if (cff->name)
         cff_release_index(cff->name);
-
     cff->name = idx = xcalloc(1, sizeof(cff_index));
     idx->count = 1;
     idx->offsize = 1;
@@ -495,8 +493,7 @@ long cff_set_name(cff_font * cff, char *name)
     (idx->offset)[0] = 1;
     (idx->offset)[1] = strlen(name) + 1;
     idx->data = xmalloc((unsigned) strlen(name) * sizeof(card8));
-    memmove(idx->data, name, strlen(name));     /* no trailing |'\0'| */
-
+    memmove(idx->data, name, strlen(name)); /* no trailing |'\0'| */
     return (long) (5 + strlen(name));
 }
 
@@ -505,15 +502,16 @@ long cff_put_header(cff_font * cff, card8 * dest, long destlen)
     if (destlen < 4)
         normal_error("cff","not enough space available");
 
-    *(dest++) = cff->header_major;
+    *(dest++) = 1; /* cff->header_major; */
     *(dest++) = cff->header_minor;
-    *(dest++) = 4;              /* Additional data in between header and
-                                 * Name INDEX ignored.
-                                 */
-    /* We will set all offset (0) to four-byte integer. */
+    *(dest++) = 4;
+    /*
+        Additional data in between header and Name INDEX is ignored.
+
+        We will set all offset (0) to a four-byte integer.
+    */
     *(dest++) = 4;
     cff->header_offsize = 4;
-
     return 4;
 }
 
@@ -529,7 +527,6 @@ long cff_put_header(cff_font * cff, card8 * dest, long destlen)
 cff_dict *cff_new_dict(void)
 {
     cff_dict *dict;
-
     dict = xcalloc(1, sizeof(cff_dict));
     dict->max = DICT_ENTRY_MAX;
     dict->count = 0;
@@ -537,30 +534,22 @@ cff_dict *cff_new_dict(void)
     return dict;
 }
 
-@
+@ Operand stack: only numbers are stored (as double). Operand types are:
 
-Operand stack:
- only numbers are stored (as double)
-
-Operand types:
-
-number : double (integer or real)
-boolean: stored as a number
-SID    : stored as a number
-array  : array of numbers
-delta  : array of numbers
+\item number:  double (integer or real)
+\item boolean: stored as a number
+\item SID:     stored as a number
+\item array:   array of numbers
+\item delta:   array of numbers
 
 @c
 #define CFF_DICT_STACK_LIMIT 64
 static int stack_top = 0;
 static double arg_stack[CFF_DICT_STACK_LIMIT];
 
-@
-CFF DICT encoding:
-TODO: default values
-
+@ CFF DICT encoding.
 @c
-#define CFF_LAST_DICT_OP1 22
+#define CFF_LAST_DICT_OP1 26  /* 22 */
 #define CFF_LAST_DICT_OP2 39
 #define CFF_LAST_DICT_OP (CFF_LAST_DICT_OP1 + CFF_LAST_DICT_OP2)
 
@@ -568,78 +557,73 @@ static struct {
     const char *opname;
     int argtype;
 } dict_operator[CFF_LAST_DICT_OP] = {
-    {
-    "version", CFF_TYPE_SID}, {
-    "Notice", CFF_TYPE_SID}, {
-    "FullName", CFF_TYPE_SID}, {
-    "FamilyName", CFF_TYPE_SID}, {
-    "Weight", CFF_TYPE_SID}, {
-    "FontBBox", CFF_TYPE_ARRAY}, {
-    "BlueValues", CFF_TYPE_DELTA}, {
-    "OtherBlues", CFF_TYPE_DELTA}, {
-    "FamilyBlues", CFF_TYPE_DELTA}, {
-    "FamilyOtherBlues", CFF_TYPE_DELTA}, {
-    "StdHW", CFF_TYPE_NUMBER}, {
-    "StdVW", CFF_TYPE_NUMBER}, {
-    NULL, -1},                  /* first byte of two-byte operator */
-        /* Top */
-    {
-    "UniqueID", CFF_TYPE_NUMBER}, {
-    "XUID", CFF_TYPE_ARRAY}, {
-    "charset", CFF_TYPE_OFFSET}, {
-    "Encoding", CFF_TYPE_OFFSET}, {
-    "CharStrings", CFF_TYPE_OFFSET}, {
-    "Private", CFF_TYPE_SZOFF}, /* two numbers (size and offset) */
-        /* Private */
-    {
-    "Subrs", CFF_TYPE_OFFSET}, {
-    "defaultWidthX", CFF_TYPE_NUMBER}, {
-    "nominalWidthX", CFF_TYPE_NUMBER},
-        /* Operator 2 */
-    {
-    "Copyright", CFF_TYPE_SID}, {
-    "IsFixedPitch", CFF_TYPE_BOOLEAN}, {
-    "ItalicAngle", CFF_TYPE_NUMBER}, {
-    "UnderlinePosition", CFF_TYPE_NUMBER}, {
-    "UnderlineThickness", CFF_TYPE_NUMBER}, {
-    "PaintType", CFF_TYPE_NUMBER}, {
-    "CharstringType", CFF_TYPE_NUMBER}, {
-    "FontMatrix", CFF_TYPE_ARRAY}, {
-    "StrokeWidth", CFF_TYPE_NUMBER}, {
-    "BlueScale", CFF_TYPE_NUMBER}, {
-    "BlueShift", CFF_TYPE_NUMBER}, {
-    "BlueFuzz", CFF_TYPE_NUMBER}, {
-    "StemSnapH", CFF_TYPE_DELTA}, {
-    "StemSnapV", CFF_TYPE_DELTA}, {
-    "ForceBold", CFF_TYPE_BOOLEAN}, {
-    NULL, -1}, {
-    NULL, -1}, {
-    "LanguageGroup", CFF_TYPE_NUMBER}, {
-    "ExpansionFactor", CFF_TYPE_NUMBER}, {
-    "InitialRandomSeed", CFF_TYPE_NUMBER}, {
-    "SyntheticBase", CFF_TYPE_NUMBER}, {
-    "PostScript", CFF_TYPE_SID}, {
-    "BaseFontName", CFF_TYPE_SID}, {
-    "BaseFontBlend", CFF_TYPE_DELTA},   /* MMaster ? */
-    {
-    NULL, -1}, {
-    NULL, -1}, {
-    NULL, -1}, {
-    NULL, -1}, {
-    NULL, -1}, {
-    NULL, -1},
-        /* CID-Keyed font */
-    {
-    "ROS", CFF_TYPE_ROS},       /* SID SID number */
-    {
-    "CIDFontVersion", CFF_TYPE_NUMBER}, {
-    "CIDFontRevision", CFF_TYPE_NUMBER}, {
-    "CIDFontType", CFF_TYPE_NUMBER}, {
-    "CIDCount", CFF_TYPE_NUMBER}, {
-    "UIDBase", CFF_TYPE_NUMBER}, {
-    "FDArray", CFF_TYPE_OFFSET}, {
-    "FDSelect", CFF_TYPE_OFFSET}, {
-"FontName", CFF_TYPE_SID},};
+    { "version", CFF_TYPE_SID },
+    { "Notice", CFF_TYPE_SID },
+    { "FullName", CFF_TYPE_SID },
+    { "FamilyName", CFF_TYPE_SID },
+    { "Weight", CFF_TYPE_SID },
+    { "FontBBox", CFF_TYPE_ARRAY },
+    { "BlueValues", CFF_TYPE_DELTA },
+    { "OtherBlues", CFF_TYPE_DELTA },
+    { "FamilyBlues", CFF_TYPE_DELTA },
+    { "FamilyOtherBlues", CFF_TYPE_DELTA },
+    { "StdHW", CFF_TYPE_NUMBER },
+    { "StdVW", CFF_TYPE_NUMBER },
+    { NULL, -1 },  /* first byte of two-byte operator 12 */
+    { "UniqueID", CFF_TYPE_NUMBER },
+    { "XUID", CFF_TYPE_ARRAY },
+    { "charset", CFF_TYPE_OFFSET },
+    { "Encoding", CFF_TYPE_OFFSET },
+    { "CharStrings", CFF_TYPE_OFFSET },
+    { "Private", CFF_TYPE_SZOFF },  /* two numbers (size and offset) */
+    { "Subrs", CFF_TYPE_OFFSET },
+    { "defaultWidthX", CFF_TYPE_NUMBER },
+    { "nominalWidthX", CFF_TYPE_NUMBER },
+    { NULL, -1 },
+    { NULL, -1 },
+    { "vstore", CFF_TYPE_OFFSET },   /* cff2 */
+    { "maxstack", CFF_TYPE_NUMBER }, /* cff2 */
+    /* Here we start with operator 2 of 12 */
+    { "Copyright", CFF_TYPE_SID },
+    { "IsFixedPitch", CFF_TYPE_BOOLEAN },
+    { "ItalicAngle", CFF_TYPE_NUMBER },
+    { "UnderlinePosition", CFF_TYPE_NUMBER },
+    { "UnderlineThickness", CFF_TYPE_NUMBER },
+    { "PaintType", CFF_TYPE_NUMBER },
+    { "CharstringType", CFF_TYPE_NUMBER },
+    { "FontMatrix", CFF_TYPE_ARRAY },
+    { "StrokeWidth", CFF_TYPE_NUMBER },
+    { "BlueScale", CFF_TYPE_NUMBER },
+    { "BlueShift", CFF_TYPE_NUMBER },
+    { "BlueFuzz", CFF_TYPE_NUMBER },
+    { "StemSnapH", CFF_TYPE_DELTA },
+    { "StemSnapV", CFF_TYPE_DELTA },
+    { "ForceBold", CFF_TYPE_BOOLEAN },
+    { NULL, -1 },
+    { NULL, -1 },
+    { "LanguageGroup", CFF_TYPE_NUMBER },
+    { "ExpansionFactor", CFF_TYPE_NUMBER },
+    { "InitialRandomSeed", CFF_TYPE_NUMBER },
+    { "SyntheticBase", CFF_TYPE_NUMBER },
+    { "PostScript", CFF_TYPE_SID },
+    { "BaseFontName", CFF_TYPE_SID },
+    { "BaseFontBlend", CFF_TYPE_DELTA },
+    { NULL, -1 },
+    { NULL, -1 },
+    { NULL, -1 },
+    { NULL, -1 },
+    { NULL, -1 },
+    { NULL, -1 },
+    { "ROS", CFF_TYPE_ROS },
+    { "CIDFontVersion", CFF_TYPE_NUMBER },
+    { "CIDFontRevision", CFF_TYPE_NUMBER },
+    { "CIDFontType", CFF_TYPE_NUMBER },
+    { "CIDCount", CFF_TYPE_NUMBER },
+    { "UIDBase", CFF_TYPE_NUMBER },
+    { "FDArray", CFF_TYPE_OFFSET },
+    { "FDSelect", CFF_TYPE_OFFSET },
+    { "FontName", CFF_TYPE_SID }
+};
 
 @ Parse DICT data
 @c
@@ -833,12 +817,10 @@ cff_dict *cff_dict_unpack(card8 * data, card8 * endptr)
 {
     cff_dict *dict;
     int status = CFF_PARSE_OK;
-
     stack_top = 0;
-
     dict = cff_new_dict();
     while (data < endptr && status == CFF_PARSE_OK) {
-        if (*data < 22) {       /* operator */
+        if (*data < CFF_LAST_DICT_OP1) {       /* operator */
             add_dict(dict, &data, endptr, &status);
         } else if (*data == 30) {       /* real - First byte of a sequence (variable) */
             if (stack_top < CFF_DICT_STACK_LIMIT) {
@@ -847,7 +829,7 @@ cff_dict *cff_dict_unpack(card8 * data, card8 * endptr)
             } else {
                 status = CFF_CFF_ERROR_STACK_OVERFLOW;
             }
-        } else if (*data == 255 || (*data >= 22 && *data <= 27)) {      /* reserved */
+        } else if (*data == 255 || (*data >= CFF_LAST_DICT_OP1 && *data <= 27)) {      /* reserved */
             data++;
         } else {                /* everything else are integer */
             if (stack_top < CFF_DICT_STACK_LIMIT) {
@@ -858,14 +840,12 @@ cff_dict *cff_dict_unpack(card8 * data, card8 * endptr)
             }
         }
     }
-
     if (status != CFF_PARSE_OK) {
         formatted_error("cff","parsing DICT failed (error=%d)", status);
     } else if (stack_top != 0) {
         normal_warning("cff","garbage in DICT data");
         stack_top = 0;
     }
-
     return dict;
 }
 
@@ -873,13 +853,11 @@ cff_dict *cff_dict_unpack(card8 * data, card8 * endptr)
 int cff_dict_known(cff_dict * dict, const char *key)
 {
     int i;
-
     for (i = 0; i < dict->count; i++) {
         if (key && strcmp(key, (dict->entries)[i].key) == 0
             && (dict->entries)[i].count > 0)
             return 1;
     }
-
     return 0;
 }
 
@@ -888,9 +866,7 @@ double cff_dict_get(cff_dict * dict, const char *key, int idx)
 {
     double value = 0.0;
     int i;
-
     assert(key && dict);
-
     for (i = 0; i < dict->count; i++) {
         if (strcmp(key, (dict->entries)[i].key) == 0) {
            if ((dict->entries)[i].count > idx)
@@ -900,10 +876,8 @@ double cff_dict_get(cff_dict * dict, const char *key, int idx)
             break;
         }
     }
-
     if (i == dict->count)
         formatted_error("cff","DICT entry '%s' not found", key);
-
     return value;
 }
 
@@ -957,7 +931,6 @@ long cff_read_subrs(cff_font * cff)
     long offset;
     int i;
 
-
     if ((cff->flag & FONTTYPE_CIDFONT) && cff->fdselect == NULL) {
         cff_read_fdselect(cff);
     }
@@ -988,22 +961,18 @@ long cff_read_subrs(cff_font * cff)
                 len += cff_index_size((cff->subrs)[i]);
             }
         }
+    } else if (cff->private[0] == NULL || !cff_dict_known(cff->private[0], "Subrs")) {
+        (cff->subrs)[0] = NULL;
     } else {
-        if (cff->private[0] == NULL ||
-            !cff_dict_known(cff->private[0], "Subrs")) {
-            (cff->subrs)[0] = NULL;
-        } else {
-            offset = (long) cff_dict_get(cff->topdict, "Private", 1);
-            offset += (long) cff_dict_get(cff->private[0], "Subrs", 0);
-            cff->offset = (l_offset) offset;
-            (cff->subrs)[0] = cff_get_index(cff);
-            len += cff_index_size((cff->subrs)[0]);
-        }
+        offset = (long) cff_dict_get(cff->topdict, "Private", 1);
+        offset += (long) cff_dict_get(cff->private[0], "Subrs", 0);
+        cff->offset = (l_offset) offset;
+        (cff->subrs)[0] = cff_get_index(cff);
+        len += cff_index_size((cff->subrs)[0]);
     }
 
     return len;
 }
-
 
 @ @c
 long cff_read_fdarray(cff_font * cff)
@@ -1057,9 +1026,8 @@ long cff_read_private(cff_font * cff)
         cff->private = xmalloc((unsigned) (cff->num_fds * sizeof(cff_dict *)));
         for (i = 0; i < cff->num_fds; i++) {
             if (cff->fdarray[i] != NULL &&
-                cff_dict_known(cff->fdarray[i], "Private") &&
-                (size = (long) cff_dict_get(cff->fdarray[i], "Private", 0))
-                > 0) {
+                    cff_dict_known(cff->fdarray[i], "Private") &&
+                    (size = (long) cff_dict_get(cff->fdarray[i], "Private", 0)) > 0) {
                 offset = (long) cff_dict_get(cff->fdarray[i], "Private", 1);
                 cff->offset = (l_offset) offset;
                 data = xmalloc((unsigned) size * sizeof(card8));
@@ -1076,7 +1044,7 @@ long cff_read_private(cff_font * cff)
         cff->num_fds = 1;
         cff->private = xmalloc(sizeof(cff_dict *));
         if (cff_dict_known(cff->topdict, "Private") &&
-            (size = (long) cff_dict_get(cff->topdict, "Private", 0)) > 0) {
+                (size = (long) cff_dict_get(cff->topdict, "Private", 0)) > 0) {
             offset = (long) cff_dict_get(cff->topdict, "Private", 1);
             cff->offset = (l_offset) offset;
             data = xmalloc((unsigned) size * sizeof(card8));
@@ -1102,7 +1070,6 @@ cff_font *read_cff(unsigned char *buf, long buflength, int n)
     cff_index *idx;
     long offset;
 
-
     cff = xcalloc(1, sizeof(cff_font));
 
     cff->stream = buf;
@@ -1112,13 +1079,18 @@ cff_font *read_cff(unsigned char *buf, long buflength, int n)
     cff->header_major = get_card8(cff);
     cff->header_minor = get_card8(cff);
     cff->header_hdr_size = get_card8(cff);
-    cff->header_offsize = get_card8(cff);
-    if (cff->header_offsize < 1 || cff->header_offsize > 4) {
-        normal_warning("cff","invalid offsize data");
-        cff_close(cff);
-        return NULL;
+    if (cff->header_major == 2) {
+        /* we have only one top dictionary */
+        cff->header_offsize = get_card16(cff);
+    } else {
+        cff->header_offsize = get_card8(cff);
+        if (cff->header_offsize < 1 || cff->header_offsize > 4) {
+            normal_warning("cff","invalid offsize data (4)");
+            cff_close(cff);
+            return NULL;
+        }
     }
-    if (cff->header_major > 1) {
+    if (cff->header_major > 2) {
         formatted_warning("cff","major version %u not supported", cff->header_major);
         cff_close(cff);
         return NULL;
@@ -1126,19 +1098,27 @@ cff_font *read_cff(unsigned char *buf, long buflength, int n)
     cff->offset = cff->header_hdr_size;
 
     /* Name INDEX */
-    idx = cff_get_index(cff);
-    if (n > idx->count - 1) {
-        normal_warning("cff","invalid fontset index number");
-        cff_close(cff);
-        return NULL;
+    if (cff->header_major == 2) {
+        cff->name = cff_empty_index(cff);
+    } else {
+        idx = cff_get_index(cff);
+        if (n > idx->count - 1) {
+            normal_warning("cff","invalid fontset index number");
+            cff_close(cff);
+            return NULL;
+        }
+        cff->name = idx;
+        cff->fontname = cff_get_name(cff);
     }
 
-    cff->name = idx;
-
-    cff->fontname = cff_get_name(cff);
-
     /* Top DICT INDEX */
-    idx = cff_get_index(cff);
+    if (cff->header_major == 2) {
+        /* we fake an index (just one entry) */
+        idx = cff_get_index2(cff);
+    } else {
+        idx = cff_get_index(cff);
+    }
+
     if (n > idx->count - 1) {
         normal_warning("cff","top DICT not exist");
         cff_close(cff);
@@ -1167,7 +1147,11 @@ cff_font *read_cff(unsigned char *buf, long buflength, int n)
     }
 
     /* String INDEX */
-    cff->string = cff_get_index(cff);
+    if (cff->header_major == 2) {
+     //   cff->string = cff_empty_index(cff);
+    } else {
+        cff->string = cff_get_index(cff);
+    }
 
     /* offset to GSubr */
     cff->gsubr_offset = cff->offset;
@@ -1211,33 +1195,33 @@ static long pack_integer(card8 * dest, long destlen, long value)
 
     if (value >= -107 && value <= 107) {
         if (destlen < 1)
-            normal_error("cff","buffer overflow");
+            normal_error("cff","buffer overflow (1)");
         dest[0] = (card8) ((value + 139) & 0xff);
         len = 1;
     } else if (value >= 108 && value <= 1131) {
         if (destlen < 2)
-            normal_error("cff","buffer overflow");
+            normal_error("cff","buffer overflow (2)");
         value = (long) 0xf700u + value - 108;
         dest[0] = (card8) ((value >> 8) & 0xff);
         dest[1] = (card8) (value & 0xff);
         len = 2;
     } else if (value >= -1131 && value <= -108) {
         if (destlen < 2)
-            normal_error("cff","buffer overflow");
+            normal_error("cff","buffer overflow (3)");
         value = (long) 0xfb00u - value - 108;
         dest[0] = (card8) ((value >> 8) & 0xff);
         dest[1] = (card8) (value & 0xff);
         len = 2;
     } else if (value >= -32768 && value <= 32767) {     /* shortint */
         if (destlen < 3)
-            normal_error("cff","buffer overflow");
+            normal_error("cff","buffer overflow (4)");
         dest[0] = 28;
         dest[1] = (card8) ((value >> 8) & 0xff);
         dest[2] = (card8) (value & 0xff);
         len = 3;
     } else {                    /* longint */
         if (destlen < 5)
-            normal_error("cff","buffer overflow");
+            normal_error("cff","buffer overflow (5)");
         dest[0] = 29;
         dest[1] = (card8) ((value >> 24) & 0xff);
         dest[2] = (card8) ((value >> 16) & 0xff);
@@ -1257,7 +1241,7 @@ static long pack_real(card8 * dest, long destlen, double value)
 #define CFF_REAL_MAX_LEN 17
 
     if (destlen < 2)
-        normal_error("cff","buffer overflow");
+        normal_error("cff","buffer overflow (6)");
 
     dest[0] = 30;
 
@@ -1305,7 +1289,7 @@ static long pack_real(card8 * dest, long destlen, double value)
         }
 
         if (destlen < pos / 2 + 1)
-            normal_error("cff","buffer overflow");
+            normal_error("cff","buffer overflow (7)");
 
         if (pos % 2) {
             dest[pos / 2] = (card8) (dest[pos / 2] + ch);
@@ -1320,7 +1304,7 @@ static long pack_real(card8 * dest, long destlen, double value)
             dest[pos / 2] = (card8) (dest[pos / 2] + 0x0b);
         } else {
             if (destlen < pos / 2 + 1)
-                normal_error("cff","buffer overflow");
+                normal_error("cff","buffer overflow (8)");
             dest[pos / 2] = (card8) (0xb0);
         }
         pos++;
@@ -1329,7 +1313,7 @@ static long pack_real(card8 * dest, long destlen, double value)
             dest[pos / 2] = (card8) (dest[pos / 2] + 0x0c);
         } else {
             if (destlen < pos / 2 + 1)
-                normal_error("cff","buffer overflow");
+                normal_error("cff","buffer overflow (9)");
             dest[pos / 2] = (card8) (0xc0);
         }
         e *= -1;
@@ -1351,7 +1335,7 @@ static long pack_real(card8 * dest, long destlen, double value)
             }
 
             if (destlen < pos / 2 + 1)
-                normal_error("cff","buffer overflow");
+                normal_error("cff","buffer overflow (10)");
 
             if (pos % 2) {
                 dest[pos / 2] = (card8) (dest[pos / 2] + ch);
@@ -1367,7 +1351,7 @@ static long pack_real(card8 * dest, long destlen, double value)
         pos++;
     } else {
         if (destlen < pos / 2 + 1)
-            normal_error("cff","buffer overflow");
+            normal_error("cff","buffer overflow (11)");
         dest[pos / 2] = (card8) (0xff);
         pos += 2;
     }
@@ -1386,10 +1370,9 @@ static long cff_dict_put_number(double value,
     /* set offset to longint */
     if (type == CFF_TYPE_OFFSET) {
         long lvalue;
-
         lvalue = (long) value;
         if (destlen < 5)
-            normal_error("cff","buffer overflow");
+            normal_error("cff","buffer overflow (12)");
         dest[0] = 29;
         dest[1] = (card8) ((lvalue >> 24) & 0xff);
         dest[2] = (card8) ((lvalue >> 16) & 0xff);
@@ -1420,16 +1403,15 @@ static long put_dict_entry(cff_dict_entry * de, card8 * dest, long destlen)
             type = CFF_TYPE_NUMBER;
         }
         for (i = 0; i < de->count; i++) {
-            len += cff_dict_put_number(de->values[i],
-                                       dest + len, destlen - len, type);
+            len += cff_dict_put_number(de->values[i], dest + len, destlen - len, type);
         }
         if (id >= 0 && id < CFF_LAST_DICT_OP1) {
             if (len + 1 > destlen)
-                normal_error("cff","buffer overflow");
+                normal_error("cff","buffer overflow (13)");
             dest[len++] = (card8) id;
         } else if (id >= 0 && id < CFF_LAST_DICT_OP) {
             if (len + 2 > destlen)
-                normal_error("cff","buffer overflow");
+                normal_error("cff","buffer overflow (14)");
             dest[len++] = 12;
             dest[len++] = (card8) (id - CFF_LAST_DICT_OP1);
         } else {
@@ -1460,7 +1442,6 @@ long cff_dict_pack(cff_dict * dict, card8 * dest, long destlen)
 
     return len;
 }
-
 
 @ @c
 void cff_dict_add(cff_dict * dict, const char *key, int count)
@@ -1505,7 +1486,6 @@ void cff_dict_add(cff_dict * dict, const char *key, int count)
 
     return;
 }
-
 
 @ @c
 void cff_dict_remove(cff_dict * dict, const char *key)
@@ -1593,19 +1573,16 @@ long cff_get_sid(cff_font * cff, const char *str)
     return -1;
 }
 
-
 @ @c
 void cff_update_string(cff_font * cff)
 {
     if (cff == NULL)
         normal_error("cff","CFF font not opened");
-
     if (cff->string)
         cff_release_index(cff->string);
     cff->string = cff->_string;
     cff->_string = NULL;
 }
-
 
 @ @c
 s_SID cff_add_string(cff_font * cff, const char *str)
@@ -1613,70 +1590,64 @@ s_SID cff_add_string(cff_font * cff, const char *str)
     card16 idx;
     cff_index *strings;
     l_offset offset, size;
-
-    if (cff == NULL)
+    if (cff == NULL) {
         normal_error("cff","CFF font not opened");
-
-    if (cff->_string == NULL)
+    }
+    if (cff->_string == NULL) {
         cff->_string = cff_new_index(0);
+    }
     strings = cff->_string;
-
     for (idx = 0; idx < strings->count; idx++) {
         size = strings->offset[idx + 1] - strings->offset[idx];
         offset = strings->offset[idx];
-        if (size == strlen(str) &&
-            !memcmp(strings->data + offset - 1, str, strlen(str)))
+        if (size == strlen(str) && !memcmp(strings->data + offset - 1, str, strlen(str))) {
             return (s_SID) (idx + CFF_STDSTR_MAX);
+        }
     }
-
     for (idx = 0; idx < CFF_STDSTR_MAX; idx++) {
-        if (cff_stdstr[idx] && !strcmp(cff_stdstr[idx], str))
+        if (cff_stdstr[idx] && !strcmp(cff_stdstr[idx], str)) {
             return idx;
+        }
     }
     offset = (strings->count > 0) ? strings->offset[strings->count] : 1;
-    strings->offset =
-        xrealloc(strings->offset,
-                 (unsigned) (((unsigned) strings->count +
-                              2) * sizeof(l_offset)));
+    strings->offset = xrealloc(strings->offset, (unsigned) (((unsigned) strings->count + 2) * sizeof(l_offset)));
     if (strings->count == 0)
         strings->offset[0] = 1;
     idx = strings->count;
     strings->count = (card16) (strings->count + 1);
     strings->offset[strings->count] = offset + strlen(str);
-    strings->data =
-        xrealloc(strings->data,
-                 (unsigned) ((offset + strlen(str) - 1) * sizeof(card8)));
+    strings->data = xrealloc(strings->data, (unsigned) ((offset + strlen(str) - 1) * sizeof(card8)));
     memcpy(strings->data + offset - 1, str, strlen(str));
-
     return (s_SID) (idx + CFF_STDSTR_MAX);
 }
-
 
 @ @c
 void cff_dict_update(cff_dict * dict, cff_font * cff)
 {
     int i;
-
     for (i = 0; i < dict->count; i++) {
         if ((dict->entries)[i].count > 0) {
             char *str;
             int id;
-
             id = (dict->entries)[i].id;
-
             if (dict_operator[id].argtype == CFF_TYPE_SID) {
                 str = cff_get_string(cff, (s_SID) (dict->entries)[i].values[0]);
-                (dict->entries)[i].values[0] = cff_add_string(cff, str);
-                xfree(str);
+                if (str != NULL) {
+                    (dict->entries)[i].values[0] = cff_add_string(cff, str);
+                    xfree(str);
+                }
             } else if (dict_operator[id].argtype == CFF_TYPE_ROS) {
                 str = cff_get_string(cff, (s_SID) (dict->entries)[i].values[0]);
-                (dict->entries)[i].values[0] = cff_add_string(cff, str);
-                xfree(str);
+                if (str != NULL) {
+                    (dict->entries)[i].values[0] = cff_add_string(cff, str);
+                    xfree(str);
+                }
                 str = cff_get_string(cff, (s_SID) (dict->entries)[i].values[1]);
-                (dict->entries)[i].values[1] = cff_add_string(cff, str);
-                xfree(str);
+                if (str != NULL) {
+                    (dict->entries)[i].values[1] = cff_add_string(cff, str);
+                    xfree(str);
+                }
             }
-
         }
     }
 }
@@ -1775,7 +1746,6 @@ long cff_read_charsets(cff_font * cff)
     }
 
     if (count > 0) {
-        /* fprintf(stdout, "count=%d\n", count); */
         normal_warning("cff","charset data possibly broken (too many glyphs)");
     }
 
@@ -1793,7 +1763,7 @@ long cff_pack_charsets(cff_font * cff, card8 * dest, long destlen)
         return 0;
 
     if (destlen < 1)
-        normal_error("cff","buffer overflow");
+        normal_error("cff","buffer overflow (15)");
 
     charset = cff->charsets;
 
@@ -1801,7 +1771,7 @@ long cff_pack_charsets(cff_font * cff, card8 * dest, long destlen)
     switch (charset->format) {
     case 0:
         if (destlen < len + (charset->num_entries) * 2)
-            normal_error("cff","buffer overflow");
+            normal_error("cff","buffer overflow (16)");
         for (i = 0; i < (charset->num_entries); i++) {
             s_SID sid = (charset->data).glyphs[i];      /* or CID */
             dest[len++] = (card8) ((sid >> 8) & 0xff);
@@ -1811,10 +1781,9 @@ long cff_pack_charsets(cff_font * cff, card8 * dest, long destlen)
     case 1:
         {
             if (destlen < len + (charset->num_entries) * 3)
-                normal_error("cff","buffer overflow");
+                normal_error("cff","buffer overflow (17)");
             for (i = 0; i < (charset->num_entries); i++) {
-                dest[len++] =
-                    (card8) (((charset->data).range1[i].first >> 8) & 0xff);
+                dest[len++] = (card8) (((charset->data).range1[i].first >> 8) & 0xff);
                 dest[len++] = (card8) ((charset->data).range1[i].first & 0xff);
                 dest[len++] = (card8) ((charset->data).range1[i].n_left);
             }
@@ -1823,13 +1792,11 @@ long cff_pack_charsets(cff_font * cff, card8 * dest, long destlen)
     case 2:
         {
             if (destlen < len + (charset->num_entries) * 4)
-                normal_error("cff","buffer overflow");
+                normal_error("cff","buffer overflow (18)");
             for (i = 0; i < (charset->num_entries); i++) {
-                dest[len++] =
-                    (card8) (((charset->data).range2[i].first >> 8) & 0xff);
+                dest[len++] = (card8) (((charset->data).range2[i].first >> 8) & 0xff);
                 dest[len++] = (card8) ((charset->data).range2[i].first & 0xff);
-                dest[len++] =
-                    (card8) (((charset->data).range2[i].n_left >> 8) & 0xff);
+                dest[len++] = (card8) (((charset->data).range2[i].n_left >> 8) & 0xff);
                 dest[len++] = (card8) ((charset->data).range2[i].n_left & 0xff);
             }
         }
@@ -1869,7 +1836,6 @@ number in the range (0, 1] and push them into argument stack.
 How pseudo-random sequences are generated is not documented in the Type 2
 charstring spec..
 
-
 @c
 #define CS_TYPE2_DEBUG_STR "Type2 Charstring Parser"
 #define CS_TYPE2_DEBUG     5
@@ -1900,10 +1866,9 @@ static int cs2_nest = 0;
 static int have_width = 0;
 static double width = 0.0;
 
-@
- Standard Encoding Accented Characters:
- Optional four arguments for endchar. See, CFF spec., p.35.
-  This is obsolete feature and is no longer supported.
+@ Standard Encoding Accented Characters: Optional four arguments for
+endchar. See, CFF spec., p.35. This is obsolete feature and is no longer
+supported.
 @c
 #if 0
 /* adx ady bchar achar endchar */
@@ -1920,7 +1885,7 @@ static double trn_array[CS_TRANS_ARRAY_MAX];
 @c
 
 /*
- 1-byte CharString operaotrs:
+ 1-byte CharString operators:
  |cs_escape| is first byte of two-byte operator
 */
 
@@ -1939,8 +1904,8 @@ static double trn_array[CS_TRANS_ARRAY_MAX];
 #define cs_escape     12
 /*      |cs_hsbw|       13 : TYPE1 */
 #define cs_endchar    14
-/*      RESERVED      15 */
-/*      RESERVED      16 */
+#define cs_setvsindex 15
+#define cs_blend      16
 /*      RESERVED      17 */
 #define cs_hstemhm    18
 #define cs_hintmask   19
@@ -2001,8 +1966,7 @@ static double trn_array[CS_TRANS_ARRAY_MAX];
 #define cs_hflex1     36
 #define cs_flex1      37
 
-@
-|clear_stack()| put all operands sotred in operand stack to dest.
+@ |clear_stack()| put all operands sotred in operand stack to dest.
 @c
 static void clear_stack(card8 ** dest, card8 * limit)
 {
@@ -2016,18 +1980,18 @@ static void clear_stack(card8 ** dest, card8 * limit)
         ivalue = (long) floor(value + 0.5);
         if (value >= 0x8000L || value <= (-0x8000L - 1)) {
             /*
-             This number cannot be represented as a single operand.
-             We must use `a b mul ...' or `a c div' to represent large values.
-             */
+                This number cannot be represented as a single operand. We must
+                use `a b mul ...' or `a c div' to represent large values.
+            */
             normal_error("cff","argument value too large (this is bug)");
         } else if (fabs(value - (double) ivalue) > 3.0e-5) {
             /* 16.16-bit signed fixed value  */
             DST_NEED(limit, *dest + 5);
             *(*dest)++ = 255;
-            ivalue = (long) floor(value);       /* mantissa */
+            ivalue = (long) floor(value); /* mantissa */
             *(*dest)++ = (card8) ((ivalue >> 8) & 0xff);
             *(*dest)++ = (card8) (ivalue & 0xff);
-            ivalue = (long) ((value - (double) ivalue) * 0x10000l);     /* fraction */
+            ivalue = (long) ((value - (double) ivalue) * 0x10000l); /* fraction */
             *(*dest)++ = (card8) ((ivalue >> 8) & 0xff);
             *(*dest)++ = (card8) (ivalue & 0xff);
             /* Everything else are integers. */
@@ -2044,7 +2008,8 @@ static void clear_stack(card8 ** dest, card8 * limit)
             ivalue = (long) 0xfb00u - ivalue - 108;
             *(*dest)++ = (card8) ((ivalue >> 8) & 0xff);
             *(*dest)++ = (card8) (ivalue & 0xff);
-        } else if (ivalue >= -32768 && ivalue <= 32767) {       /* shortint */
+        } else if (ivalue >= -32768 && ivalue <= 32767) {
+            /* shortint */
             DST_NEED(limit, *dest + 3);
             *(*dest)++ = 28;
             *(*dest)++ = (card8) ((ivalue >> 8) & 0xff);
@@ -2053,24 +2018,25 @@ static void clear_stack(card8 ** dest, card8 * limit)
             normal_error("cff","unexpected error");
         }
     }
-
-    cs2_stack_top = 0;          /* clear stack */
-
+    cs2_stack_top = 0; /* clear stack */
     return;
 }
 
-@
- Single byte operators:
-  Path construction, Operator for finishing a path, Hint operators.
+@ Single byte operators: Path construction, Operator for finishing a
+path, Hint operators. Phases:
 
- phase:
- \item 0: inital state
- \item 1: hint declaration, first stack-clearing operator appeared
- \item 2: in path construction
+\item 0: inital state
+\item 1: hint declaration, first stack-clearing operator appeared
+\item 2: in path construction
 
 @c
-static void
-do_operator1(card8 ** dest, card8 * limit, card8 ** data, card8 * endptr)
+/*
+static int vsindex = 0;
+static int blends  = 0;
+static int regions = 5;
+*/
+
+static void do_operator1(card8 ** dest, card8 * limit, card8 ** data, card8 * endptr)
 {
     card8 op = **data;
 
@@ -2151,7 +2117,24 @@ do_operator1(card8 ** dest, card8 * limit, card8 ** data, card8 * endptr)
         *(*dest)++ = op;
         status = CS_CHAR_END;
         break;
-        /* above oprators are candidate for first stack-clearing operator */
+        /* above operators are candidate for first stack-clearing operator */
+    case cs_setvsindex:
+        /*
+        vsindex = cs2_arg_stack[cs2_stack_top-1];
+        cs2_stack_top -= 1;
+        */
+        normal_warning("cff2","unsupported setvindex operator");
+        status = CS_PARSE_CFF_ERROR;
+        break;
+    case cs_blend:
+        /*
+        blends = cs2_arg_stack[cs2_stack_top-1];
+        cs2_stack_top -= 1;
+        cs2_stack_top -= blends * regions ;
+        */
+        normal_warning("cff2","unsupported blend operator");
+        status = CS_PARSE_CFF_ERROR;
+        break;
     case cs_rlineto:
     case cs_hlineto:
     case cs_vlineto:
@@ -2184,20 +2167,14 @@ do_operator1(card8 ** dest, card8 * limit, card8 ** data, card8 * endptr)
         status = CS_PARSE_CFF_ERROR;
         break;
     }
-
     return;
 }
 
-@
- Double byte operators:
- Flex, arithmetic, conditional, and storage operators.
-
- Following operators are not supported:
-   random: How random ?
+@ Double byte operators: Flex, arithmetic, conditional, and storage operators.
+The following operators are not supported: random: How random ?
 
 @c
-static void
-do_operator2(card8 ** dest, card8 * limit, card8 ** data, card8 * endptr)
+static void do_operator2(card8 ** dest, card8 * limit, card8 ** data, card8 * endptr)
 {
     card8 op;
 
@@ -2398,13 +2375,10 @@ do_operator2(card8 ** dest, card8 * limit, card8 ** data, card8 * endptr)
         status = CS_PARSE_CFF_ERROR;
         break;
     }
-
     return;
 }
 
-@
- integer:
-  exactly the same as the DICT encoding (except 29)
+@ integer: exactly the same as the DICT encoding (except 29)
 @c
 static void cs2_get_integer(card8 ** data, card8 * endptr)
 {
@@ -2437,15 +2411,12 @@ static void cs2_get_integer(card8 ** data, card8 * endptr)
         status = CS_PARSE_CFF_ERROR;
         return;
     }
-
     NEED(CS_ARG_STACK_MAX, cs2_stack_top + 1);
     cs2_arg_stack[cs2_stack_top++] = (double) result;
-
     return;
 }
 
-@
-Signed 16.16-bits fixed number for Type 2 charstring encoding
+@ Signed 16.16-bits fixed number for Type 2 charstring encoding
 @c
 static void get_fixed(card8 ** data, card8 * endptr)
 {
@@ -2468,14 +2439,13 @@ static void get_fixed(card8 ** data, card8 * endptr)
     return;
 }
 
-@
- Subroutines:
-  The bias for subroutine number is introduced in type 2 charstrings.
+@ Subroutines: the bias for subroutine number is introduced in type 2
+charstrings.
 
-  subr:     set to a pointer to the subroutine charstring.
-  len:      set to the length of subroutine charstring.
-  |subr_idx|: CFF INDEX data that contains subroutines.
-  id:       biased subroutine number.
+\item subr:       set to a pointer to the subroutine charstring.
+\item len:        set to the length of subroutine charstring.
+\item |subr_idx|: CFF INDEX data that contains subroutines.
+\item id:         biased subroutine number.
 
 @c
 static void get_subr(card8 ** subr, long *len, cff_index * subr_idx, long id)
@@ -2505,17 +2475,14 @@ static void get_subr(card8 ** subr, long *len, cff_index * subr_idx, long id)
     return;
 }
 
-
-@ NOTE:
- The Type 2 interpretation of a number encoded in five-bytes (those with
- an initial byte value of 255) differs from how it is interpreted in the
- Type 1 format.
+@ The Type 2 interpretation of a number encoded in five-bytes (those with
+an initial byte value of 255) differs from how it is interpreted in the
+Type 1 format.
 
 @c
-static void
-do_charstring(card8 ** dest, card8 * limit,
-              card8 ** data, card8 * endptr,
-              cff_index * gsubr_idx, cff_index * subr_idx)
+static void do_charstring(card8 ** dest, card8 * limit,
+      card8 ** data, card8 * endptr,
+      cff_index * gsubr_idx, cff_index * subr_idx, int cff2)
 {
     card8 b0 = 0, *subr;
     long len;
@@ -2539,8 +2506,8 @@ do_charstring(card8 ** dest, card8 * limit,
                 get_subr(&subr, &len, gsubr_idx,
                          (long) cs2_arg_stack[cs2_stack_top]);
                 if (*dest + len > limit)
-                    formatted_error("cff","%s: possible buffer overflow", CS_TYPE2_DEBUG_STR);
-                do_charstring(dest, limit, &subr, subr + len, gsubr_idx, subr_idx);
+                    formatted_error("cff","%s: possible buffer overflow (1)", CS_TYPE2_DEBUG_STR);
+                do_charstring(dest, limit, &subr, subr + len, gsubr_idx, subr_idx, cff2);
                 *data += 1;
             }
         } else if (b0 == cs_callsubr) {
@@ -2551,8 +2518,8 @@ do_charstring(card8 ** dest, card8 * limit,
                 get_subr(&subr, &len, subr_idx,
                          (long) cs2_arg_stack[cs2_stack_top]);
                 if (limit < *dest + len)
-                    formatted_error("cff","%s: possible buffer overflow", CS_TYPE2_DEBUG_STR);
-                do_charstring(dest, limit, &subr, subr + len, gsubr_idx, subr_idx);
+                    formatted_error("cff","%s: possible buffer overflow (2)", CS_TYPE2_DEBUG_STR);
+                do_charstring(dest, limit, &subr, subr + len, gsubr_idx, subr_idx, cff2);
                 *data += 1;
             }
         } else if (b0 == cs_escape) {
@@ -2566,7 +2533,12 @@ do_charstring(card8 ** dest, card8 * limit,
         }
     }
 
-    if (status == CS_SUBR_RETURN) {
+    if (cff2) {
+        DST_NEED(limit, *dest + 1);
+        ++endptr;
+        *(*dest)++ = cs_endchar;
+        /* no return and endchar */
+    } else if (status == CS_SUBR_RETURN) {
         status = CS_PARSE_OK;
     } else if (status == CS_CHAR_END && *data < endptr) {
         formatted_warning("cff","%s: garbage after endchar", CS_TYPE2_DEBUG_STR);
@@ -2589,14 +2561,11 @@ static void cs_parse_init(void)
     cs2_stack_top = 0;
 }
 
-
 @ Not just copying...
 @c
-long
-cs_copy_charstring(card8 * dst, long dstlen,
-                   card8 * src, long srclen,
-                   cff_index * gsubr, cff_index * subr,
-                   double default_width, double nominal_width, cs_ginfo * ginfo)
+static long cs_copy_charstring(card8 * dst, long dstlen, card8 * src, long srclen,
+       cff_index * gsubr, cff_index * subr, double default_width,
+       double nominal_width, cs_ginfo * ginfo, int cff2)
 {
     card8 *save = dst;
 
@@ -2606,7 +2575,7 @@ cs_copy_charstring(card8 * dst, long dstlen,
     have_width = 0;
 
     /* expand call(g)subrs */
-    do_charstring(&dst, dst + dstlen, &src, src + srclen, gsubr, subr);
+    do_charstring(&dst, dst + dstlen, &src, src + srclen, gsubr, subr, cff2);
 
     if (ginfo) {
         ginfo->flags = 0;       /* not used */
@@ -2622,9 +2591,7 @@ cs_copy_charstring(card8 * dst, long dstlen,
 
 @* encodings.
 
-@ Encoding and Charset
-
-Encoding and Charset arrays always begin with GID = 1.
+@ Encoding and Charset arrays always begin with GID = 1.
 
 @c
 long cff_read_encoding(cff_font * cff)
@@ -2686,7 +2653,6 @@ long cff_read_encoding(cff_font * cff)
         normal_error("cff","unknown encoding format");
         break;
     }
-
     /* Supplementary data */
     if ((encoding->format) & 0x80) {
         cff_map *map;
@@ -2716,7 +2682,7 @@ long cff_pack_encoding(cff_font * cff, card8 * dest, long destlen)
         return 0;
 
     if (destlen < 2)
-        normal_error("cff","buffer overflow");
+        normal_error("cff","buffer overflow (19)");
 
     encoding = cff->encoding;
 
@@ -2725,7 +2691,7 @@ long cff_pack_encoding(cff_font * cff, card8 * dest, long destlen)
     switch (encoding->format & (~0x80)) {
     case 0:
         if (destlen < len + encoding->num_entries)
-            normal_error("cff","buffer overflow");
+            normal_error("cff","buffer overflow (20)");
         for (i = 0; i < (encoding->num_entries); i++) {
             dest[len++] = (encoding->data).codes[i];
         }
@@ -2733,7 +2699,7 @@ long cff_pack_encoding(cff_font * cff, card8 * dest, long destlen)
     case 1:
         {
             if (destlen < len + (encoding->num_entries) * 2)
-                normal_error("cff","buffer overflow");
+                normal_error("cff","buffer overflow (21)");
             for (i = 0; i < (encoding->num_entries); i++) {
                 dest[len++] = (card8) ((encoding->data).range1[i].first & 0xff);
                 dest[len++] = (card8) ((encoding->data).range1[i].n_left);
@@ -2747,7 +2713,7 @@ long cff_pack_encoding(cff_font * cff, card8 * dest, long destlen)
 
     if ((encoding->format) & 0x80) {
         if (destlen < len + (encoding->num_supps) * 3 + 1)
-            normal_error("cff","buffer overflow");
+            normal_error("cff","buffer overflow (22)");
         dest[len++] = encoding->num_supps;
         for (i = 0; i < (encoding->num_supps); i++) {
             dest[len++] = (card8) ((encoding->supp)[i].code);
@@ -2815,7 +2781,6 @@ long cff_read_fdselect(cff_font * cff)
     return length;
 }
 
-
 @ @c
 long cff_pack_fdselect(cff_font * cff, card8 * dest, long destlen)
 {
@@ -2827,7 +2792,7 @@ long cff_pack_fdselect(cff_font * cff, card8 * dest, long destlen)
         return 0;
 
     if (destlen < 1)
-        normal_error("cff","buffer overflow");
+        normal_error("cff","buffer overflow (23)");
 
     fdsel = cff->fdselect;
 
@@ -2837,7 +2802,7 @@ long cff_pack_fdselect(cff_font * cff, card8 * dest, long destlen)
         if (fdsel->num_entries != cff->num_glyphs)
             normal_error("cff","invalid data");
         if (destlen < len + fdsel->num_entries)
-            normal_error("cff","buffer overflow");
+            normal_error("cff","buffer overflow (24)");
         for (i = 0; i < fdsel->num_entries; i++) {
             dest[len++] = (fdsel->data).fds[i];
         }
@@ -2845,18 +2810,18 @@ long cff_pack_fdselect(cff_font * cff, card8 * dest, long destlen)
     case 3:
         {
             if (destlen < len + 2)
-                normal_error("cff","buffer overflow");
+                normal_error("cff","buffer overflow (25)");
             len += 2;
             for (i = 0; i < (fdsel->num_entries); i++) {
                 if (destlen < len + 3)
-                    normal_error("cff","buffer overflow");
+                    normal_error("cff","buffer overflow (26)");
                 dest[len++] =
                     (card8) (((fdsel->data).ranges[i].first >> 8) & 0xff);
                 dest[len++] = (card8) ((fdsel->data).ranges[i].first & 0xff);
                 dest[len++] = (card8) ((fdsel->data).ranges[i].fd);
             }
             if (destlen < len + 2)
-                normal_error("cff","buffer overflow");
+                normal_error("cff","buffer overflow (27)");
             dest[len++] = (card8) ((cff->num_glyphs >> 8) & 0xff);
             dest[len++] = (card8) (cff->num_glyphs & 0xff);
             dest[1] = (card8) (((len / 3 - 1) >> 8) & 0xff);
@@ -2870,8 +2835,6 @@ long cff_pack_fdselect(cff_font * cff, card8 * dest, long destlen)
 
     return len;
 }
-
-
 
 @ Create an instance of embeddable font.
 
@@ -2892,26 +2855,23 @@ static void write_fontfile(PDF pdf, cff_font * cffont, char *fullname)
     cff_dict_remove(cffont->topdict, "XUID");
     cff_dict_remove(cffont->topdict, "Private");        /* some bad font may have */
     cff_dict_remove(cffont->topdict, "Encoding");       /* some bad font may have */
+    cff_dict_remove(cffont->topdict, "vstore");         /* cff2 */
+    cff_dict_remove(cffont->topdict, "maxstack");       /* cff2 */
 
-    topdict->offset[1] = (l_offset) cff_dict_pack(cffont->topdict,
-                                                  (card8 *) work_buffer,
-                                                  WORK_BUFFER_SIZE) + 1;
+    topdict->offset[1] = (l_offset) cff_dict_pack(cffont->topdict, (card8 *) work_buffer, WORK_BUFFER_SIZE) + 1;
     for (i = 0; i < cffont->num_fds; i++) {
         size = 0;
         if (cffont->private && cffont->private[i]) {
-            size = cff_dict_pack(cffont->private[i],
-                                 (card8 *) work_buffer, WORK_BUFFER_SIZE);
-            if (size < 1) {     /* Private had contained only Subr */
+            size = cff_dict_pack(cffont->private[i], (card8 *) work_buffer, WORK_BUFFER_SIZE);
+            if (size < 1) {
+                /* Private had contained only Subr. */
                 cff_dict_remove(cffont->fdarray[i], "Private");
             }
         }
-        (private->offset)[i + 1] =
-            (unsigned long) ((private->offset)[i] + (unsigned) size);
-        (fdarray->offset)[i + 1] =
-            (unsigned long) ((fdarray->offset)[i] + (unsigned)
-                             cff_dict_pack(cffont->fdarray[i],
-                                           (card8 *) work_buffer,
-                                           WORK_BUFFER_SIZE));
+        (private->offset)[i + 1] = (unsigned long) ((private->offset)[i]
+            + (unsigned) size);
+        (fdarray->offset)[i + 1] = (unsigned long) ((fdarray->offset)[i]
+            + (unsigned) cff_dict_pack(cffont->fdarray[i], (card8 *) work_buffer, WORK_BUFFER_SIZE));
     }
 
     destlen = 4;                /* header size */
@@ -2924,7 +2884,6 @@ static void write_fontfile(PDF pdf, cff_font * cffont, char *fullname)
     destlen += cff_index_size(cffont->cstrings);
     destlen += cff_index_size(fdarray);
     destlen = (long) (destlen + (long) private->offset[private->count] - 1);    /* Private is not INDEX */
-
     dest = xcalloc((unsigned) destlen, sizeof(card8));
 
     offset = 0;
@@ -2939,30 +2898,23 @@ static void write_fontfile(PDF pdf, cff_font * cffont, char *fullname)
     offset += cff_pack_index(cffont->string, dest + offset, destlen - offset);
     /* Global Subrs */
     offset += cff_pack_index(cffont->gsubr, dest + offset, destlen - offset);
-
     /* charset */
     cff_dict_set(cffont->topdict, "charset", 0, (double) offset);
     offset += cff_pack_charsets(cffont, dest + offset, destlen - offset);
-
     /* FDSelect */
     cff_dict_set(cffont->topdict, "FDSelect", 0, (double) offset);
     offset += cff_pack_fdselect(cffont, dest + offset, destlen - offset);
-
     /* CharStrings */
     cff_dict_set(cffont->topdict, "CharStrings", 0, (double) offset);
-    offset += cff_pack_index(cffont->cstrings,
-                             dest + offset, cff_index_size(cffont->cstrings));
+    offset += cff_pack_index(cffont->cstrings, dest + offset, cff_index_size(cffont->cstrings));
     cff_release_index(cffont->cstrings);
     cffont->cstrings = NULL;    /* Charstrings cosumes huge memory */
-
     /* FDArray and Private */
     cff_dict_set(cffont->topdict, "FDArray", 0, (double) offset);
     fdarray_offset = offset;
     offset += cff_index_size(fdarray);
 
-    fdarray->data =
-        xcalloc((unsigned) (fdarray->offset[fdarray->count] - 1),
-                sizeof(card8));
+    fdarray->data = xcalloc((unsigned) (fdarray->offset[fdarray->count] - 1), sizeof(card8));
     for (i = 0; i < cffont->num_fds; i++) {
         size = (long) (private->offset[i + 1] - private->offset[i]);
         if (cffont->private[i] && size > 0) {
@@ -2970,55 +2922,26 @@ static void write_fontfile(PDF pdf, cff_font * cffont, char *fullname)
             cff_dict_set(cffont->fdarray[i], "Private", 0, (double) size);
             cff_dict_set(cffont->fdarray[i], "Private", 1, (double) offset);
         }
-        cff_dict_pack(cffont->fdarray[i],
-                      fdarray->data + (fdarray->offset)[i] - 1,
-                      (long) (fdarray->offset[fdarray->count] - 1));
+        cff_dict_pack(cffont->fdarray[i], fdarray->data + (fdarray->offset)[i] - 1, (long) (fdarray->offset[fdarray->count] - 1));
         offset += size;
     }
-
     cff_pack_index(fdarray, dest + fdarray_offset, cff_index_size(fdarray));
     cff_release_index(fdarray);
     cff_release_index(private);
 
     /* Finally Top DICT */
-    topdict->data =
-        xcalloc((unsigned) (topdict->offset[topdict->count] - 1),
-                sizeof(card8));
-    cff_dict_pack(cffont->topdict, topdict->data,
-                  (long) (topdict->offset[topdict->count] - 1));
+    topdict->data = xcalloc((unsigned) (topdict->offset[topdict->count] - 1), sizeof(card8));
+    cff_dict_pack(cffont->topdict, topdict->data, (long) (topdict->offset[topdict->count] - 1));
     cff_pack_index(topdict, dest + topdict_offset, cff_index_size(topdict));
     cff_release_index(topdict);
 
-    for (i = 0; i < offset; i++)
+    for (i = 0; i < offset; i++) {
+// printf("%i\n",(unsigned char)dest[i]);
         strbuf_putchar(pdf->fb, dest[i]);
-
+    }
     xfree(dest);
     return;
 }
-
-
-@ this block is used a few times
-@c
-#define DO_COPY_CHARSTRING()                                                   \
-  if ((avl_find(fd->gl_tree,glyph) != NULL)) {                                 \
-      size = (long)(cs_idx->offset[code+1] - cs_idx->offset[code]);            \
-    if (size > CS_STR_LEN_MAX) {                                               \
-      formatted_error("cff","charstring too long: gid=%u, %ld bytes", code, size);   \
-    }                                                                          \
-    if (charstring_len + CS_STR_LEN_MAX >= max_len) {                          \
-	max_len = (long)(charstring_len + 2 * CS_STR_LEN_MAX);		\
-	charstrings->data = xrealloc(charstrings->data, (unsigned)((unsigned)max_len*sizeof(card8))); \
-    }                                                                          \
-    (charstrings->offset)[gid] = (unsigned)(charstring_len + 1);	\
-    cffont->offset= (l_offset)((unsigned)offset + (cs_idx->offset)[code] - 1);	\
-    memcpy(data,&cffont->stream[cffont->offset],(size_t)size);		\
-    charstring_len += cs_copy_charstring(charstrings->data + charstring_len,   \
-                                         max_len - charstring_len,	\
-                                         data, size,                           \
-                                         cffont->gsubr, (cffont->subrs)[0],    \
-                                         default_width, nominal_width, NULL);  \
-    gid++;                                                                     \
-  }
 
 @ @c
 void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
@@ -3033,10 +2956,16 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 
     double nominal_width, default_width;
 
+    char *fontname;
     char *fullname;
 
     glw_entry *glyph, *found;
     struct avl_traverser t;
+
+cffont->_string = NULL;
+
+    fontname = xcalloc((unsigned) (1 + strlen(fd->fontname)), 1);
+    sprintf(fontname, "%s", fd->fontname);
 
     fullname = xcalloc((unsigned) (8 + strlen(fd->fontname)), 1);
     sprintf(fullname, "%s+%s", fd->subset_tag, fd->fontname);
@@ -3045,20 +2974,14 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     cff_read_private(cffont);
     cff_read_subrs(cffont);
 
-    /*
-     Widths
-     */
-    if (cffont->private[0] &&
-        cff_dict_known(cffont->private[0], "defaultWidthX")) {
-        default_width =
-            (double) cff_dict_get(cffont->private[0], "defaultWidthX", 0);
+    /* Widths */
+    if (cffont->private[0] && cff_dict_known(cffont->private[0], "defaultWidthX")) {
+        default_width = (double) cff_dict_get(cffont->private[0], "defaultWidthX", 0);
     } else {
         default_width = CFF_DEFAULTWIDTHX_DEFAULT;
     }
-    if (cffont->private[0] &&
-        cff_dict_known(cffont->private[0], "nominalWidthX")) {
-        nominal_width =
-            (double) cff_dict_get(cffont->private[0], "nominalWidthX", 0);
+    if (cffont->private[0] && cff_dict_known(cffont->private[0], "nominalWidthX")) {
+        nominal_width = (double) cff_dict_get(cffont->private[0], "nominalWidthX", 0);
     } else {
         nominal_width = CFF_NOMINALWIDTHX_DEFAULT;
     }
@@ -3113,15 +3036,31 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
             }
         }
         cffont->charsets = charset;
-    }
 
+        if (cffont->header_major == 2) {
+            cff_dict_add(cffont->topdict, "charset", 1);
+        }
+    }
     cff_dict_add(cffont->topdict, "CIDCount", 1);
     cff_dict_set(cffont->topdict, "CIDCount", 0, last_cid + 1);
+
+    if (cffont->header_major == 2) {
+
+        cff_dict_add(cffont->topdict, "FullName", 1);
+        cff_dict_set(cffont->topdict, "FullName", 0, (double) cff_add_string(cffont, fontname));
+
+        cff_dict_add(cffont->topdict, "FontBBox", 4);
+        cff_dict_set(cffont->topdict, "FontBBox", 0, fd->font_dim[FONTBBOX1_CODE].val);
+        cff_dict_set(cffont->topdict, "FontBBox", 1, fd->font_dim[FONTBBOX2_CODE].val);
+        cff_dict_set(cffont->topdict, "FontBBox", 2, fd->font_dim[FONTBBOX3_CODE].val);
+        cff_dict_set(cffont->topdict, "FontBBox", 3, fd->font_dim[FONTBBOX4_CODE].val);
+    }
 
     cffont->fdarray = xcalloc(1, sizeof(cff_dict *));
     cffont->fdarray[0] = cff_new_dict();
     cff_dict_add(cffont->fdarray[0], "FontName", 1);
-    cff_dict_set(cffont->fdarray[0], "FontName", 0, (double) cff_add_string(cffont, fullname)); /* FIXME: Skip XXXXXX+ */
+    /* FIXME: Skip XXXXXX+ */
+    cff_dict_set(cffont->fdarray[0], "FontName", 0, (double) cff_add_string(cffont, fullname));
     cff_dict_add(cffont->fdarray[0], "Private", 2);
     cff_dict_set(cffont->fdarray[0], "Private", 0, 0.0);
     cff_dict_set(cffont->fdarray[0], "Private", 0, 0.0);
@@ -3157,40 +3096,89 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 
     {
         int i;
+        int tex_font = fd->tex_font;
+        int streamprovider = 0;
+        int callback_id = 0 ;
+        if ((tex_font > 0) && (font_streamprovider(tex_font) == 1)) {
+            streamprovider = font_streamprovider(tex_font);
+            callback_id = callback_defined(glyph_stream_provider_callback);
+        }
         for (i = 0; i < cs_count1; i++) {
             code = (card16) i;
             glyph->id = code;
-            DO_COPY_CHARSTRING();
+            if ((avl_find(fd->gl_tree,glyph) != NULL)) {
+                /* this code is the same as below, apart from small details */
+                if (callback_id > 0) {
+                    lstring * result;
+                    run_callback(callback_id, "ddd->L", tex_font, i, streamprovider, &result); /* this call can be sped up */
+                    size = (size_t) result->l ;
+                    if (size > 0) {
+                        if (charstring_len + CS_STR_LEN_MAX >= max_len) {
+                            max_len = (long)(charstring_len + 2 * CS_STR_LEN_MAX);
+                            charstrings->data = xrealloc(charstrings->data, (unsigned)((unsigned)max_len*sizeof(card8)));
+                        }
+                        (charstrings->offset)[gid] = (unsigned)(charstring_len + 1);
+                cffont->offset = (l_offset)((unsigned)offset + (cs_idx->offset)[code] - 1);
+                        memcpy(charstrings->data+charstring_len,(const char *) result->s,(size_t) size);
+                        charstring_len += size;
+                        xfree(result);
+                    }
+                } else {
+                    size = (long)(cs_idx->offset[code+1] - cs_idx->offset[code]);
+                    if (size > CS_STR_LEN_MAX) {
+                        formatted_error("cff","charstring too long: gid=%u, %ld bytes", code, size);
+                    }
+                    if (charstring_len + CS_STR_LEN_MAX >= max_len) {
+                        max_len = (long)(charstring_len + 2 * CS_STR_LEN_MAX);
+                        charstrings->data = xrealloc(charstrings->data, (unsigned)((unsigned)max_len*sizeof(card8)));
+                    }
+                    (charstrings->offset)[gid] = (unsigned)(charstring_len + 1);
+                    cffont->offset = (l_offset)((unsigned)offset + (cs_idx->offset)[code] - 1);
+                    memcpy(data,&cffont->stream[cffont->offset],(size_t)size);
+                    charstring_len += cs_copy_charstring(
+                        charstrings->data + charstring_len,
+                        max_len - charstring_len,
+                        data, size,
+                        cffont->gsubr, (cffont->subrs)[0],
+                        default_width, nominal_width, NULL,
+                        cffont->header_major == 2
+                    );
+                }
+                gid++;
+            }
         }
     }
-
-    /* CIDSet: a table of bits indexed by cid, bytes with high order bit first,
-       each (set) bit is a (present) CID. */
+    /*
+        CIDSet: a table of bits indexed by cid, bytes with high order bit first,
+        each (set) bit is a (present) CID.
+    */
     if (1) {
-      int cid;
-      cidset = pdf_create_obj(pdf, obj_type_others, 0);
-      if (cidset != 0) {
-       size_t l = (last_cid/8)+1;
-       char *stream = xmalloc(l);
-       memset(stream, 0, l);
-       for (cid = 1; cid <= (long) last_cid; cid++) {
-           glyph->id = cid;
-           if (avl_find(fd->gl_tree,glyph) != NULL) {
-	      stream[(cid / 8)] |= (1 << (7 - (cid % 8)));
-           }
-       }
-       pdf_begin_obj(pdf, cidset, OBJSTM_NEVER);
-       pdf_begin_dict(pdf);
-       pdf_dict_add_streaminfo(pdf);
-       pdf_end_dict(pdf);
-       pdf_begin_stream(pdf);
-       pdf_out_block(pdf, stream, l);
-       pdf_end_stream(pdf);
-       pdf_end_obj(pdf);
-      }
+        int cid;
+        cidset = pdf_create_obj(pdf, obj_type_others, 0);
+        if (cidset != 0) {
+            size_t l = (last_cid/8)+1;
+            char *stream = xmalloc(l);
+            memset(stream, 0, l);
+            for (cid = 1; cid <= (long) last_cid; cid++) {
+                glyph->id = cid;
+                if (avl_find(fd->gl_tree,glyph) != NULL) {
+                    stream[(cid / 8)] |= (1 << (7 - (cid % 8)));
+                }
+            }
+            pdf_begin_obj(pdf, cidset, OBJSTM_NEVER);
+            pdf_begin_dict(pdf);
+            pdf_dict_add_streaminfo(pdf);
+            pdf_end_dict(pdf);
+            pdf_begin_stream(pdf);
+            pdf_out_block(pdf, stream, l);
+            pdf_end_stream(pdf);
+            pdf_end_obj(pdf);
+        }
     }
-
-    /* this happens if the internal metrics do not agree with the actual disk font */
+    /*
+        This happens if the internal metrics do not agree with the actual
+        disk font.
+    */
     if (gid < num_glyphs) {
         formatted_warning("cff","embedded subset is smaller than expected: %d instead of %d glyphs", gid, num_glyphs);
         num_glyphs = gid;
@@ -3203,10 +3191,9 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     charstrings->count = num_glyphs;
     cffont->num_glyphs = num_glyphs;
     cffont->cstrings = charstrings;
-
     /*
-     We don't use subroutines at all.
-     */
+        We don't use subroutines at all.
+    */
     if (cffont->gsubr)
         cff_release_index(cffont->gsubr);
     cffont->gsubr = cff_new_index(0);
@@ -3219,33 +3206,34 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
         cff_dict_remove((cffont->private)[0], "Subrs"); /* no Subrs */
     }
 
+    cff_dict_update(cffont->topdict, cffont);
+
     cff_add_string(cffont, "Adobe");
     cff_add_string(cffont, "Identity");
-
-    cff_dict_update(cffont->topdict, cffont);
-    cff_dict_update(cffont->private[0], cffont);
+    if (cffont->header_major == 2) {
+        /* crash */
+    } else {
+        cff_dict_update(cffont->private[0], cffont);
+    }
     cff_update_string(cffont);
 
-    /* CFF code need to be rewrote... */
+    /* CFF code need to be rewritten */
     cff_dict_add(cffont->topdict, "ROS", 3);
-    cff_dict_set(cffont->topdict, "ROS", 0,
-                 (double) cff_get_sid(cffont, "Adobe"));
-    cff_dict_set(cffont->topdict, "ROS", 1,
-                 (double) cff_get_sid(cffont, "Identity"));
+    cff_dict_set(cffont->topdict, "ROS", 0, (double) cff_get_sid(cffont, "Adobe"));
+    cff_dict_set(cffont->topdict, "ROS", 1, (double) cff_get_sid(cffont, "Identity"));
     cff_dict_set(cffont->topdict, "ROS", 2, 0.0);
 
     write_fontfile(pdf, cffont, fullname);
+    xfree(fontname);
     xfree(fullname);
     cff_close(cffont);
-
 }
 
 @ @c
-#undef ERROR                    /* for mingw */
+#undef ERROR /* for mingw */
 #define ERROR(a) { perror(a); return 0; }
 
-@ Input : SID or CID (16-bit unsigned int)
- Output: glyph index
+@ Input : SID or CID (16-bit unsigned int) Output: glyph index
 
 @c
 card16 cff_charsets_lookup(cff_font * cff, card16 cid)
@@ -3279,9 +3267,7 @@ card16 cff_charsets_lookup(cff_font * cff, card16 cid)
     case 1:
         for (i = 0; i < charset->num_entries; i++) {
             if (cid >= charset->data.range1[i].first &&
-                cid <=
-                charset->data.range1[i].first +
-                charset->data.range1[i].n_left) {
+                cid <= charset->data.range1[i].first + charset->data.range1[i].n_left) {
                 gid = (card16) (gid + cid - charset->data.range1[i].first + 1);
                 return gid;
             }
@@ -3291,9 +3277,7 @@ card16 cff_charsets_lookup(cff_font * cff, card16 cid)
     case 2:
         for (i = 0; i < charset->num_entries; i++) {
             if (cid >= charset->data.range2[i].first &&
-                cid <=
-                charset->data.range2[i].first +
-                charset->data.range2[i].n_left) {
+                cid <= charset->data.range2[i].first + charset->data.range2[i].n_left) {
                 gid = (card16) (gid + cid - charset->data.range2[i].first + 1);
                 return gid;
             }
@@ -3307,22 +3291,24 @@ card16 cff_charsets_lookup(cff_font * cff, card16 cid)
     return 0;                   /* not found */
 }
 
-
 @ @c
 #define is_cidfont(a) ((a)->flag & FONTTYPE_CIDFONT)
 #define CID_MAX 65535
+
 void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 {
     cff_index *charstrings, *cs_idx;
 
     long charstring_len, max_len;
     long size, offset = 0;
+    int tex_font = fd->tex_font;
+    int streamprovider = 0;
+    int callback_id = 0 ;
 
     card8 *data;
     card16 num_glyphs, cs_count1, gid, last_cid;
 
-
-    int fdsel, prev_fd, cid_count, cid;
+    int fdsel, prev_fd, cid_count, cid ;
     char *fullname;
 
     glw_entry *glyph;
@@ -3332,10 +3318,14 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     cff_fdselect *fdselect = NULL;
     cff_charsets *charset = NULL;
 
-
     if (!is_cidfont(cffont)) {
         perror("Not a CIDfont.");
         return;
+    }
+
+    if ((tex_font > 0) && (font_streamprovider(tex_font) == 1)) {
+        streamprovider = font_streamprovider(tex_font);
+        callback_id = callback_defined(glyph_stream_provider_callback);
     }
 
     fullname = xcalloc((unsigned) (8 + strlen(fd->fontname)), 1);
@@ -3348,9 +3338,12 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     } else {
         cid_count = CFF_CIDCOUNT_DEFAULT;
     }
-    cff_read_charsets(cffont);
-    CIDToGIDMap = xmalloc((unsigned)
-                          ((2 * (unsigned) cid_count) * sizeof(unsigned char)));
+    if (cffont->header_major == 2) {
+        /* hm */
+    } else {
+        cff_read_charsets(cffont);
+    }
+    CIDToGIDMap = xmalloc((unsigned) ((2 * (unsigned) cid_count) * sizeof(unsigned char)));
     memset(CIDToGIDMap, 0, (size_t) (2 * cid_count));
 
     glyph = xtalloc(1, glw_entry);
@@ -3376,12 +3369,15 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
             num_glyphs++;
         }
     }
-    if (last_cid >= cffont->num_glyphs) {
+    if (cffont->header_major == 2) {
+        /* hm */
+    } else if (last_cid >= cffont->num_glyphs) {
         formatted_error("cff font","bad glyph index %i",last_cid);
     }
-
-    /* CIDSet: a table of bits indexed by cid, bytes with high order bit first,
-       each (set) bit is a (present) CID. */
+    /*
+        CIDSet: a table of bits indexed by cid, bytes with high order bit
+        first, each (set) bit is a (present) CID.
+    */
     if (1) {
         cidset = pdf_create_obj(pdf, obj_type_others, 0);
         if (cidset != 0) {
@@ -3397,7 +3393,7 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
             pdf_begin_dict(pdf);
             pdf_dict_add_streaminfo(pdf);
             pdf_end_dict(pdf);
-	    pdf_begin_stream(pdf);
+            pdf_begin_stream(pdf);
             pdf_out_block(pdf, stream, l);
             pdf_end_stream(pdf);
             pdf_end_obj(pdf);
@@ -3405,13 +3401,11 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
         }
     }
 
-
     cff_read_fdselect(cffont);
     cff_read_fdarray(cffont);
     cff_read_private(cffont);
 
     cff_read_subrs(cffont);
-
 
     cffont->offset = (l_offset) cff_dict_get(cffont->topdict, "CharStrings", 0);
     cs_idx = cff_get_index_header(cffont);
@@ -3447,31 +3441,46 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
         if (avl_find(fd->gl_tree, glyph) == NULL)
             continue;
 
-        gid_org =
-            (short unsigned) ((CIDToGIDMap[2 * cid] << 8) |
-                              (CIDToGIDMap[2 * cid + 1]));
-        size = (long) (cs_idx->offset[gid_org + 1] - cs_idx->offset[gid_org]);
-        if (size > CS_STR_LEN_MAX) {
-            formatted_error("cff","charstring too long: gid=%u, %ld bytes", cid, size);
-        }
-        if (charstring_len + CS_STR_LEN_MAX >= max_len) {
-            max_len = charstring_len + 2 * CS_STR_LEN_MAX;
-            charstrings->data =
-                xrealloc(charstrings->data,
-                         (unsigned) ((unsigned) max_len * sizeof(card8)));
-        }
-        (charstrings->offset)[gid] = (l_offset) (charstring_len + 1);
-        cffont->offset =
-            (l_offset) ((unsigned) offset + (cs_idx->offset)[gid_org] - 1);
-        memcpy(data, &cffont->stream[cffont->offset], (size_t) size);
+        gid_org = (short unsigned) ((CIDToGIDMap[2 * cid] << 8) | (CIDToGIDMap[2 * cid + 1]));
         fdsel = cff_fdselect_lookup(cffont, gid_org);
-        charstring_len += cs_copy_charstring(charstrings->data + charstring_len,
-                                             max_len - charstring_len,
-                                             data, size,
-                                             cffont->gsubr,
-                                             (cffont->subrs)[fdsel], 0, 0,
-                                             NULL);
 
+        if (callback_id > 0) {
+            /* the next blob is not yet tested ... i need a font */
+            lstring * result;
+            run_callback(callback_id, "ddd->L", tex_font, gid_org, streamprovider, &result); /* this call can be sped up */
+            size = (size_t) result->l ;
+            if (size > 0) {
+                if (charstring_len + CS_STR_LEN_MAX >= max_len) {
+                    max_len = (long)(charstring_len + 2 * CS_STR_LEN_MAX);
+                    charstrings->data = xrealloc(charstrings->data, (unsigned)((unsigned)max_len*sizeof(card8)));
+                }
+                (charstrings->offset)[gid] = (unsigned)(charstring_len + 1);
+        cffont->offset = (l_offset)((unsigned)offset + (cs_idx->offset)[gid_org] - 1);
+                memcpy(charstrings->data+charstring_len,(const char *) result->s,(size_t)size);
+                charstring_len += size;
+                xfree(result);
+            }
+        } else {
+            size = (long) (cs_idx->offset[gid_org + 1] - cs_idx->offset[gid_org]);
+            if (size > CS_STR_LEN_MAX) {
+                formatted_error("cff","charstring too long: gid=%u, %ld bytes", cid, size);
+            }
+            if (charstring_len + CS_STR_LEN_MAX >= max_len) {
+                max_len = charstring_len + 2 * CS_STR_LEN_MAX;
+                charstrings->data = xrealloc(charstrings->data, (unsigned) ((unsigned) max_len * sizeof(card8)));
+            }
+            (charstrings->offset)[gid] = (l_offset) (charstring_len + 1);
+            cffont->offset = (l_offset) ((unsigned) offset + (cs_idx->offset)[gid_org] - 1);
+            memcpy(data, &cffont->stream[cffont->offset], (size_t) size);
+            charstring_len += cs_copy_charstring(
+                charstrings->data + charstring_len,
+                max_len - charstring_len,
+                data, size,
+                cffont->gsubr, (cffont->subrs)[fdsel],
+                0, 0, NULL,
+                cffont->header_major == 2
+            );
+        }
         if (cid > 0 && gid_org > 0) {
             charset->data.glyphs[charset->num_entries] = (s_SID) cid;
             charset->num_entries++;
@@ -3496,15 +3505,13 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     charstrings->count = num_glyphs;
     cffont->num_glyphs = num_glyphs;
     cffont->cstrings = charstrings;
-
     cff_release_charsets(cffont->charsets);
     cffont->charsets = charset;
     cff_release_fdselect(cffont->fdselect);
     cffont->fdselect = fdselect;
-
     /*
-     * We don't use subroutines at all.
-     */
+        We don't use subroutines at all.
+    */
     if (cffont->gsubr)
         cff_release_index(cffont->gsubr);
     cffont->gsubr = cff_new_index(0);
@@ -3518,14 +3525,12 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
             cff_dict_remove((cffont->private)[fdsel], "Subrs"); /* no Subrs */
         }
     }
-
     write_fontfile(pdf, cffont, fullname);
     xfree(fullname);
     cff_close(cffont);
-
 }
 
-@ here is a sneaky trick: fontforge knows how to convert Type1 to CFF, so
+@ Here is a sneaky trick: fontforge knows how to convert Type1 to CFF, so
 I have defined a utility function in luafflib.c that does exactly that.
 If it works out ok, I will clean up this code.
 

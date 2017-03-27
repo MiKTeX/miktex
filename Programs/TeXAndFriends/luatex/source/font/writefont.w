@@ -28,23 +28,23 @@ void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internal_font_number f);
 static void create_cid_fontdictionary(PDF pdf, internal_font_number f);
 
 const key_entry font_key[FONT_KEYS_NUM] = {
-    {"Ascent", "Ascender", 1}
-    , {"CapHeight", "CapHeight", 1}
-    , {"Descent", "Descender", 1}
-    , {"ItalicAngle", "ItalicAngle", 1}
-    , {"StemV", "StdVW", 1}
-    , {"XHeight", "XHeight", 1}
-    , {"FontBBox", "FontBBox", 1}
-    , {"", "", 0}
-    , {"", "", 0}
-    , {"", "", 0}
-    , {"FontName", "FontName", 1}
+    { "Ascent", "Ascender", 1 },
+    { "CapHeight", "CapHeight", 1 },
+    { "Descent", "Descender", 1 },
+    { "ItalicAngle", "ItalicAngle", 1 },
+    { "StemV", "StdVW", 1 },
+    { "XHeight", "XHeight", 1 },
+    { "FontBBox", "FontBBox", 1 },
+    { "", "", 0 },
+    { "", "", 0 },
+    { "", "", 0 },
+    { "FontName", "FontName", 1 }
 };
 
 @
 @c
-struct avl_table *fo_tree = NULL;       /* tree of font dictionaries */
-struct avl_table *fd_tree = NULL;       /* tree of font descriptor objects */
+struct avl_table *fo_tree = NULL; /* tree of font dictionaries */
+struct avl_table *fd_tree = NULL; /* tree of font descriptor objects */
 
 static int comp_fo_entry(const void *pa, const void *pb, void *p)
 {
@@ -83,7 +83,7 @@ static fo_entry *new_fo_entry(void)
 
 @ initialize data structure for /Type /FontDescriptor
 @c
-fd_entry *new_fd_entry(void)
+fd_entry *new_fd_entry(internal_font_number f)
 {
     fd_entry *fd;
     int i;
@@ -104,6 +104,7 @@ fd_entry *new_fd_entry(void)
     fd->fm = NULL;
     fd->tx_tree = NULL;
     fd->gl_tree = NULL;
+    fd->tex_font = f;
     return fd;
 }
 
@@ -249,7 +250,8 @@ void register_fd_entry(fd_entry * fd)
         assert(fd_tree != NULL);
     }
     assert(fd != NULL && fd->fm != NULL && is_fontfile(fd->fm));
-    assert(lookup_fd_entry(fd->fm->ff_name) == NULL);   /* font descriptor not yet registered */
+    /* font descriptor not yet registered: */
+    assert(lookup_fd_entry(fd->fm->ff_name) == NULL);
     aa = avl_probe(fd_tree, fd);
     assert(aa != NULL);
 }
@@ -259,11 +261,13 @@ static void create_fontdescriptor(fo_entry * fo, internal_font_number f)
     assert(fo != NULL);
     assert(fo->fm != NULL);
     assert(fo->fd == NULL);
-    fo->fd = new_fd_entry();
+    fo->fd = new_fd_entry(f);
     preset_fontname(fo, f);
     preset_fontmetrics(fo->fd, f);
-    fo->fd->fe = fo->fe;        /* encoding needed by TrueType writing */
-    fo->fd->fm = fo->fm;        /* map entry needed by TrueType writing */
+    /* encoding needed by TrueType writing: */
+    fo->fd->fe = fo->fe;
+    /* map entry needed by TrueType writing: */
+    fo->fd->fm = fo->fm;
     fo->fd->gl_tree = avl_create(comp_string_entry, NULL, &avl_xallocator);
     assert(fo->fd->gl_tree != NULL);
 }
@@ -285,7 +289,8 @@ static void mark_reenc_glyphs(fo_entry * fo, internal_font_number f)
         /* mark glyphs from TeX (externally reencoded characters) */
         g = fo->fe->glyph_names;
         for (i = fo->first_char; i <= fo->last_char; i++) {
-            if (pdf_char_marked(f, i) && g[i] != notdef
+            if (pdf_char_marked(f, i)
+                && g[i] != notdef
                 && (char *) avl_find(fo->fd->gl_tree, g[i]) == NULL) {
                 aa = avl_probe(fo->fd->gl_tree, xstrdup(g[i]));
                 assert(aa != NULL);
@@ -301,7 +306,7 @@ Function |mark_chars| has 2 uses:
 
 @c
 static struct avl_table *mark_chars(fo_entry * fo, struct avl_table *tx_tree,
-                             internal_font_number f)
+     internal_font_number f)
 {
     int i, *j;
     void **aa;
@@ -326,7 +331,8 @@ static void get_char_range(fo_entry * fo, internal_font_number f)
 {
     int i;
     assert(fo != NULL);
-    for (i = font_bc(f); i <= font_ec(f); i++)  /* search for |first_char| and |last_char| */
+    /* search for |first_char| and |last_char| */
+    for (i = font_bc(f); i <= font_ec(f); i++)
         if (pdf_char_marked(f, i))
             break;
     fo->first_char = i;
@@ -334,8 +340,8 @@ static void get_char_range(fo_entry * fo, internal_font_number f)
         if (pdf_char_marked(f, i))
             break;
     fo->last_char = i;
-    if ((fo->first_char > fo->last_char)
-        || !pdf_char_marked(f, fo->first_char)) {       /* no character used from this font */
+    if ((fo->first_char > fo->last_char) || !pdf_char_marked(f, fo->first_char)) {
+        /* no character used from this font */
         fo->last_char = 0;
         fo->first_char = fo->last_char + 1;
     }
@@ -344,7 +350,8 @@ static void get_char_range(fo_entry * fo, internal_font_number f)
 static int font_has_subset(internal_font_number f)
 {
     int i, s;
-    for (i = font_bc(f); i <= font_ec(f); i++)  /* search for |first_char| and |last_char| */
+    /* search for |first_char| and |last_char| */
+    for (i = font_bc(f); i <= font_ec(f); i++)
         if (pdf_char_marked(f, i))
             break;
     s = i;
@@ -359,8 +366,7 @@ static int font_has_subset(internal_font_number f)
 
 @
 @c
-static void write_charwidth_array(PDF pdf, fo_entry * fo,
-                                  internal_font_number f)
+static void write_charwidth_array(PDF pdf, fo_entry * fo, internal_font_number f)
 {
     int i, j, *ip, *fip;
     struct avl_traverser t;
@@ -420,13 +426,13 @@ static void register_fo_entry(fo_entry * fo)
 }
 
 @
+In principle we could replace the pdftex derived ttf.otf inclusion part
+by using the regular code for this and assigning indices and tounicodes
+to the character blobs, but for the moment we keep the current approach.
 @c
 static void write_fontfile(PDF pdf, fd_entry * fd)
 {
     assert(is_included(fd->fm));
-    /* In principle we could replace the pdftex derived ttf.otf inclusion part */
-    /* by using the regular code for this and assigning indices and tounicodes */
-    /* to the character blobs, but for the moment we keep the current approach */
     if (is_cidkeyed(fd->fm)) {
         if (is_opentype(fd->fm)) {
             writetype0(pdf, fd);
@@ -453,7 +459,7 @@ static void write_fontfile(PDF pdf, fd_entry * fd)
         return;
     assert(fd->ff_objnum == 0);
     fd->ff_objnum = pdf_create_obj(pdf, obj_type_others, 0);
-    pdf_begin_obj(pdf, fd->ff_objnum, OBJSTM_NEVER);    /* font file stream */
+    pdf_begin_obj(pdf, fd->ff_objnum, OBJSTM_NEVER); /* font file stream */
     pdf_begin_dict(pdf);
     if (is_cidkeyed(fd->fm)) {
         /* No subtype is used for TrueType-based OpenType fonts */
@@ -463,17 +469,16 @@ static void write_fontfile(PDF pdf, fd_entry * fd)
         else
             pdf_dict_add_name(pdf, "Subtype", "OpenType");
 #endif
+    } else if (is_type1(fd->fm)) {
+        pdf_dict_add_int(pdf, "Length1", (int) t1_length1);
+        pdf_dict_add_int(pdf, "Length2", (int) t1_length2);
+        pdf_dict_add_int(pdf, "Length3", (int) t1_length3);
+    } else if (is_truetype(fd->fm)) {
+        pdf_dict_add_int(pdf, "Length1", (int) ttf_length);
+    } else if (is_opentype(fd->fm)) {
+        pdf_dict_add_name(pdf, "Subtype", "Type1C");
     } else {
-        if (is_type1(fd->fm)) {
-            pdf_dict_add_int(pdf, "Length1", (int) t1_length1);
-            pdf_dict_add_int(pdf, "Length2", (int) t1_length2);
-            pdf_dict_add_int(pdf, "Length3", (int) t1_length3);
-        } else if (is_truetype(fd->fm))
-            pdf_dict_add_int(pdf, "Length1", (int) ttf_length);
-        else if (is_opentype(fd->fm))
-            pdf_dict_add_name(pdf, "Subtype", "Type1C");
-        else
-            assert(0);
+        assert(0); /* todo: error messages */
     }
     pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
@@ -489,32 +494,36 @@ int cidset = 0;
 static void write_fontdescriptor(PDF pdf, fd_entry * fd)
 {
     static const int std_flags[] = {
-        /* indices for << start with 0, but bits start with 1, so the numbers
-         * for << are 1 lower than the bits in table 5.20 */
+        /*
+            The indices for << start with 0, but bits start with 1, so the
+            numbers for << are 1 lower than the bits in table 5.20.
+        */
         /* *INDENT-OFF* */
-        1 + 2 + (1 << 5),                       /* Courier */
-        1 + 2 + (1 << 5)            + (1 << 18),/* Courier-Bold */
-        1 + 2 + (1 << 5) + (1 << 6),            /* Courier-Oblique */
-        1 + 2 + (1 << 5) + (1 << 6) + (1 << 18),/* Courier-BoldOblique */
-                (1 << 5),                       /* Helvetica */
-                (1 << 5)            + (1 << 18),/* Helvetica-Bold */
-                (1 << 5) + (1 << 6),            /* Helvetica-Oblique */
-                (1 << 5) + (1 << 6) + (1 << 18),/* Helvetica-BoldOblique */
-              4,                                /* Symbol */
-            2 + (1 << 5),                       /* Times-Roman */
-            2 + (1 << 5)            + (1 << 18),/* Times-Bold */
-            2 + (1 << 5) + (1 << 6),            /* Times-Italic */
-            2 + (1 << 5) + (1 << 6) + (1 << 18),/* Times-BoldItalic */
-              4                                 /* ZapfDingbats */
+        1 + 2 + (1 << 5),                        /* Courier */
+        1 + 2 + (1 << 5)            + (1 << 18), /* Courier-Bold */
+        1 + 2 + (1 << 5) + (1 << 6),             /* Courier-Oblique */
+        1 + 2 + (1 << 5) + (1 << 6) + (1 << 18), /* Courier-BoldOblique */
+                (1 << 5),                        /* Helvetica */
+                (1 << 5)            + (1 << 18), /* Helvetica-Bold */
+                (1 << 5) + (1 << 6),             /* Helvetica-Oblique */
+                (1 << 5) + (1 << 6) + (1 << 18), /* Helvetica-BoldOblique */
+              4,                                 /* Symbol */
+            2 + (1 << 5),                        /* Times-Roman */
+            2 + (1 << 5)            + (1 << 18), /* Times-Bold */
+            2 + (1 << 5) + (1 << 6),             /* Times-Italic */
+            2 + (1 << 5) + (1 << 6) + (1 << 18), /* Times-BoldItalic */
+              4                                  /* ZapfDingbats */
         /* *INDENT-ON* */
     };
     char *glyph;
     struct avl_traverser t;
     int fd_flags;
     assert(fd != NULL && fd->fm != NULL);
-    cidset = 0;                 /* possibly updated by |write_fontfile| */
-    if (is_fontfile(fd->fm) && is_included(fd->fm))
-        write_fontfile(pdf, fd);        /* this will set |fd->ff_found| if font file is found */
+    cidset = 0; /* possibly updated by |write_fontfile| */
+    if (is_fontfile(fd->fm) && is_included(fd->fm)) {
+        /* this will set |fd->ff_found| if font file is found */
+        write_fontfile(pdf, fd);
+    }
     if (fd->fd_objnum == 0)
         fd->fd_objnum = pdf_create_obj(pdf, obj_type_others, 0);
     pdf_begin_obj(pdf, fd->fd_objnum, OBJSTM_ALWAYS);
@@ -572,10 +581,11 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
     if ((! pdf->omit_cidset) && (cidset != 0)) {
         pdf_dict_add_ref(pdf, "CIDSet", cidset);
     }
-    /* TODO: Other optional keys for CID fonts.
-       The most interesting one is
-       \.{/Style << /Panose <12-byte string>>>}
-     */
+    /*
+        Currently we don't export the optional keys for CID fonts like
+        \.{/Style << /Panose <12-byte string> >>} and we probably never
+        will.
+    */
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
 }
@@ -587,8 +597,7 @@ static void write_fontdescriptors(PDF pdf)
     if (fd_tree == NULL)
         return;
     avl_t_init(&t, fd_tree);
-    for (fd = (fd_entry *) avl_t_first(&t, fd_tree); fd != NULL;
-         fd = (fd_entry *) avl_t_next(&t))
+    for (fd = (fd_entry *) avl_t_first(&t, fd_tree); fd != NULL; fd = (fd_entry *) avl_t_next(&t))
         write_fontdescriptor(pdf, fd);
 }
 
@@ -598,18 +607,16 @@ static void write_fontdictionary(PDF pdf, fo_entry * fo)
 {
     assert(fo != NULL);
     assert(fo->fm != NULL);
-    assert(fo->fo_objnum != 0); /* reserved as |pdf_font_num(f)| elsewhere */
+    /* reserved as |pdf_font_num(f)| elsewhere: */
+    assert(fo->fo_objnum != 0);
 
     /* write ToUnicode entry if needed */
     if (pdf->gen_tounicode > 0 && fo->fd != NULL) {
         if (fo->fe != NULL) {
-            fo->tounicode_objnum =
-                write_tounicode(pdf, fo->fe->glyph_names, fo->fe->name);
+            fo->tounicode_objnum = write_tounicode(pdf, fo->fe->glyph_names, fo->fe->name);
         } else if (is_type1(fo->fm)) {
             assert(fo->fd->builtin_glyph_names != NULL);
-            fo->tounicode_objnum =
-                write_tounicode(pdf, fo->fd->builtin_glyph_names,
-                                fo->fm->tfm_name);
+            fo->tounicode_objnum = write_tounicode(pdf, fo->fd->builtin_glyph_names, fo->fm->tfm_name);
         }
     }
     pdf_begin_obj(pdf, fo->fo_objnum, OBJSTM_ALWAYS);
@@ -630,13 +637,11 @@ static void write_fontdictionary(PDF pdf, fo_entry * fo)
     pdf_dict_add_int(pdf, "FirstChar", (int) fo->first_char);
     pdf_dict_add_int(pdf, "LastChar", (int) fo->last_char);
     pdf_dict_add_ref(pdf, "Widths", (int) fo->cw_objnum);
-    if ((is_type1(fo->fm) || is_opentype(fo->fm)) && fo->fe != NULL
-        && fo->fe->fe_objnum != 0)
+    if ((is_type1(fo->fm) || is_opentype(fo->fm)) && fo->fe != NULL && fo->fe->fe_objnum != 0)
         pdf_dict_add_ref(pdf, "Encoding", (int) fo->fe->fe_objnum);
     if (fo->tounicode_objnum != 0)
         pdf_dict_add_ref(pdf, "ToUnicode", (int) fo->tounicode_objnum);
-    if (pdf_font_attr(fo->tex_font) != get_nullstr() &&
-        pdf_font_attr(fo->tex_font) != 0) {
+    if (pdf_font_attr(fo->tex_font) != get_nullstr() && pdf_font_attr(fo->tex_font) != 0) {
         pdf_print(pdf, pdf_font_attr(fo->tex_font));
         pdf_out(pdf, '\n');
     }
@@ -651,14 +656,12 @@ static void write_fontdictionaries(PDF pdf)
     if (fo_tree == NULL)
         return;
     avl_t_init(&t, fo_tree);
-    for (fo = (fo_entry *) avl_t_first(&t, fo_tree); fo != NULL;
-         fo = (fo_entry *) avl_t_next(&t))
+    for (fo = (fo_entry *) avl_t_first(&t, fo_tree); fo != NULL; fo = (fo_entry *) avl_t_next(&t))
         write_fontdictionary(pdf, fo);
 }
 
-@ Final flush of all font related stuff by call from
- \.{Output fonts definitions} elsewhere
-
+@ Final flush of all font related stuff by call from \.{Output fonts
+definitions} elsewhere
 @c
 void write_fontstuff(PDF pdf)
 {
@@ -673,23 +676,30 @@ static void create_fontdictionary(PDF pdf, internal_font_number f)
 {
     fo_entry *fo = new_fo_entry();
     fm_entry *fm = font_map(f);
-    get_char_range(fo, f);      /* set |fo->first_char| and |fo->last_char| from |f| */
+    /* set |fo->first_char| and |fo->last_char| from |f| */
+    get_char_range(fo, f);
     if (fo->last_char > 255)
-        fo->last_char = 255;    /* added 9-4-2008, mantis \#25 */
+        fo->last_char = 255;
     assert(fo->last_char >= fo->first_char);
     fo->fm = fm;
     fo->fo_objnum = pdf_font_num(f);
     fo->tex_font = f;
-    if (is_reencoded(fo->fm)) { /* at least the map entry tells so */
-        fo->fe = get_fe_entry(fo->fm->encname); /* returns |NULL| if .enc file couldn't be opened */
-        if (fo->fe != NULL && (is_type1(fo->fm) || is_opentype(fo->fm))) {  /* not entered for truetype */
+    if (is_reencoded(fo->fm)) {
+        /*
+            At least the map entry tells so but it returns |NULL| if the .enc
+            file couldn't be opened.
+        */
+        fo->fe = get_fe_entry(fo->fm->encname);
+        if (fo->fe != NULL && (is_type1(fo->fm) || is_opentype(fo->fm))) {
+            /* We don't end up here for truetype fonts. */
             if (fo->fe->fe_objnum == 0)
                 fo->fe->fe_objnum = pdf_create_obj(pdf, obj_type_others, 0);    /* then it will be written out */
-            /* mark encoding pairs used by TeX to optimize encoding vector */
+            /* Mark encoding pairs used by TeX to optimize encoding vector. */
             fo->fe->tx_tree = mark_chars(fo, fo->fe->tx_tree, f);
         }
     }
-    fo->tx_tree = mark_chars(fo, fo->tx_tree, f);       /* for |write_charwidth_array| */
+    /* for |write_charwidth_array|: */
+    fo->tx_tree = mark_chars(fo, fo->tx_tree, f);
     write_charwidth_array(pdf, fo, f);
     if (!is_builtin(fo->fm)) {
         if (is_type1(fo->fm)) {
@@ -697,36 +707,42 @@ static void create_fontdictionary(PDF pdf, internal_font_number f)
                 create_fontdescriptor(fo, f);
                 register_fd_entry(fo->fd);
             }
-        } else
+        } else {
             create_fontdescriptor(fo, f);
+        }
         if (fo->fe != NULL) {
             mark_reenc_glyphs(fo, f);
             if (!is_type1(fo->fm)) {
                 /* mark reencoded characters as chars on TeX level */
                 assert(fo->fd->tx_tree == NULL);
                 fo->fd->tx_tree = mark_chars(fo, fo->fd->tx_tree, f);
-                if (is_truetype(fo->fm))
+                if (is_truetype(fo->fm)) {
                     fo->fd->write_ttf_glyph_names = true;
+                }
             }
-        } else
+        } else {
             /* mark non-reencoded characters as chars on TeX level */
             fo->fd->tx_tree = mark_chars(fo, fo->fd->tx_tree, f);
-        if (!is_type1(fo->fm))
+        }
+        if (!is_type1(fo->fm)) {
             write_fontdescriptor(pdf, fo->fd);
+        }
     } else {
-        /* builtin fonts still need the /Widths array and /FontDescriptor
-         * (to avoid error 'font FOO contains bad /BBox')
-         */
+        /*
+            Builtin fonts still need the /Widths array and /FontDescriptor
+            (to avoid error 'font FOO contains bad /BBox').
+        */
         create_fontdescriptor(fo, f);
         write_fontdescriptor(pdf, fo->fd);
-        if (!is_std_t1font(fo->fm))
-            formatted_warning("map file", "font '%s' is not a standard font; I suppose it is available to your PDF viewer then",
-                fo->fm->ps_name);
+        if (!is_std_t1font(fo->fm)) {
+            formatted_warning("map file", "font '%s' is not a standard font; I suppose it is available to your PDF viewer then", fo->fm->ps_name);
+        }
     }
-    if (is_type1(fo->fm))
+    if (is_type1(fo->fm)) {
         register_fo_entry(fo);
-    else
+    } else {
         write_fontdictionary(pdf, fo);
+    }
 }
 
 @
@@ -751,32 +767,37 @@ void do_pdf_font(PDF pdf, internal_font_number f)
 {
     int del_file = 0;
     fm_entry *fm;
-    /* TODO This is not 100\% true: CID is actually needed whenever (and
-     only) there are more than 256 separate glyphs used. But for
-     now, just assume the user knows what he is doing;
-     */
+    /*
+        This is not 100\% true: CID is actually needed whenever (and
+        only) there are more than 256 separate glyphs used. But for
+        now, we just assume the user knows what he is doing. In practice
+        this seems to be the case.
+    */
     if (!font_has_subset(f))
         return;
 
     if (font_encodingbytes(f) == 2) {
-        /* Create a virtual font map entry, as this is needed by the
-         rest of the font inclusion mechanism.
-         */
+        /*
+            Create a virtual font map entry, as this is needed by the
+            rest of the font inclusion mechanism.
+        */
         fm = font_map(f) = new_fm_entry();
         fm->tfm_name = font_name(f);    /* or whatever, not a real tfm */
         fm->ff_name = font_filename(f); /* the actual file */
         if (font_psname(f) != NULL)
-            fm->ps_name = font_psname(f);       /* the true name */
+            fm->ps_name = font_psname(f);   /* the true name */
         else
-            fm->ps_name = font_fullname(f);     /* the true name */
+            fm->ps_name = font_fullname(f); /* the true name */
         if (fm->ff_name
             && strlen(fm->ff_name) >= 6
-            && strstr(fm->ff_name,
-                      ".dfont") == (fm->ff_name + strlen(fm->ff_name) - 6)) {
-            /* In case of a .dfont, we will extract the correct ttf here,
-               and adjust |fm->ff_name| to point to the temporary file.
-               This file will be deleted later. Todo: keep a nicer name
-               somewhere for the terminal message.
+            && strstr(fm->ff_name,".dfont") == (fm->ff_name + strlen(fm->ff_name) - 6)) {
+            /*
+                In case of a .dfont, we will extract the correct ttf here,
+                and adjust |fm->ff_name| to point to the temporary file.
+                This file will be deleted later. Todo: keep a nicer name
+                somewhere for the terminal message.
+
+                Support for dfonts will be removed at some point anyhow.
              */
             char *s = FindResourceTtfFont(fm->ff_name, fm->ps_name);
             if (s != NULL) {
@@ -786,12 +807,14 @@ void do_pdf_font(PDF pdf, internal_font_number f)
                 formatted_error("font","file '%s' does not contain font '%s'",fm->ff_name, fm->ps_name);
             }
         }
-        fm->encname = font_encodingname(f);     /* for the CIDSystemInfo */
-        fm->slant = font_slant(f);      /* slant factor */
+        /* Needed for the CIDSystemInfo: */
+        fm->encname = font_encodingname(f);
+        fm->slant = font_slant(f);
         set_slantset(fm);
-        fm->extend = font_extend(f);    /* extension factor */
+        fm->extend = font_extend(f);
         set_extendset(fm);
-        fm->fd_flags = 4;       /* can perhaps be done better */
+        /* Flags can perhaps be done better. */
+        fm->fd_flags = 4;
         set_inuse(fm);
 
         switch (font_format(f)) {
@@ -826,7 +849,10 @@ void do_pdf_font(PDF pdf, internal_font_number f)
             unlink(fm->ff_name);
 
     } else {
-        /* by now |font_map(f)|, if any, should have been set via |pdf_init_font()| */
+        /*
+            By now |font_map(f)|, if any, should have been set via
+            |pdf_init_font()|.
+        */
         if ((fm = font_map(f)) == NULL
             || (fm->ps_name == NULL && fm->ff_name == NULL))
             writet3(pdf, f);
@@ -836,12 +862,12 @@ void do_pdf_font(PDF pdf, internal_font_number f)
 }
 
 @ The glyph width is included in |glw_entry|, because that width
-   depends on the value it has in the font where it is actually
-   typeset from, not the font that is the 'owner' of the fd entry.
+depends on the value it has in the font where it is actually
+typeset from, not the font that is the 'owner' of the fd entry.
 
-   TODO: It is possible that the user messes with the metric width,
-   but handling that properly would require access to the 'hmtx' table
-   at this point in the program.
+TODO: It is possible that the user messes with the metric width,
+but handling that properly would require access to the 'hmtx' table
+at this point in the program.
 
 @c
 static int comp_glw_entry(const void *pa, const void *pb, void *p
@@ -860,19 +886,19 @@ static void create_cid_fontdescriptor(fo_entry * fo, internal_font_number f)
     assert(fo != NULL);
     assert(fo->fm != NULL);
     assert(fo->fd == NULL);
-    fo->fd = new_fd_entry();
+    fo->fd = new_fd_entry(f);
     preset_fontname(fo, f);
     preset_fontmetrics(fo->fd, f);
-    fo->fd->fe = fo->fe;        /* encoding needed by TrueType writing */
-    fo->fd->fm = fo->fm;        /* map entry needed by TrueType writing */
+    fo->fd->fe = fo->fe; /* encoding needed by TrueType writing */
+    fo->fd->fm = fo->fm; /* map entry needed by TrueType writing */
     fo->fd->gl_tree = avl_create(comp_glw_entry, NULL, &avl_xallocator);
     assert(fo->fd->gl_tree != NULL);
 }
 
 
-@ The values |font_bc()| and |font_ec()| are potentially large
-   character ids, but the strings that are written out use CID
-   indexes, and those are limited to 16-bit values.
+@ The values |font_bc()| and |font_ec()| are potentially large character
+ids, but the strings that are written out use CID indexes, and those are
+limited to 16-bit values.
 
 @c
 static void mark_cid_subset_glyphs(fo_entry * fo, internal_font_number f)
@@ -900,17 +926,16 @@ static void mark_cid_subset_glyphs(fo_entry * fo, internal_font_number f)
     }
 }
 
+@ It is possible to compress the widths array even better, by using the
+alternate 'range' syntax and possibly even using /DW to set a default
+value.
 
-@  It is possible to compress the widths array even better, by using the
-   alternate 'range' syntax and possibly even using /DW to set
-   a default value.
+There is a some optimization here already: glyphs that are not used do
+not appear in the widths array at all.
 
-   There is a some optimization here already: glyphs that are
-   not used do not appear in the widths array at all.
-
-   We have to make sure that we do not output an (incorrect!)
-   width for a character that exists in the font, but is not used
-   in typesetting. An enormous negative width is used as sentinel value
+We have to make sure that we do not output an (incorrect!) width for a
+character that exists in the font, but is not used in typesetting. An
+enormous negative width is used as sentinel value
 
 @c
 static void write_cid_charwidth_array(PDF pdf, fo_entry * fo)
@@ -977,10 +1002,10 @@ static void create_cid_fontdictionary(PDF pdf, internal_font_number f)
     mark_cid_subset_glyphs(fo, f);
     if (is_subsetted(fo->fm)) {
         /*
-           this is a bit sneaky. |make_subset_tag()| actually expects the glyph tree
-           to contain strings instead of |glw_entry| items. However, all calculations
-           are done using explicit typecasts, so it works out ok.
-         */
+           This is a bit sneaky. |make_subset_tag()| actually expects the glyph
+           tree to contain strings instead of |glw_entry| items. However, all
+           calculations are done using explicit typecasts, so it works out ok.
+        */
         make_subset_tag(fo->fd);
     }
     write_cid_charwidth_array(pdf, fo);
@@ -1038,15 +1063,13 @@ void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internal_font_number f)
     pdf_dict_add_ref(pdf, "W", (int) fo->cw_objnum);
     pdf_add_name(pdf, "CIDSystemInfo");
     pdf_begin_dict(pdf);
-    pdf_dict_add_string(pdf, "Registry",
-                        (font_cidregistry(f) ? font_cidregistry(f) : "Adobe"));
-    pdf_dict_add_string(pdf, "Ordering",
-                        (font_cidordering(f) ? font_cidordering(f) :
-                         "Identity"));
+    pdf_dict_add_string(pdf, "Registry", (font_cidregistry(f) ? font_cidregistry(f) : "Adobe"));
+    pdf_dict_add_string(pdf, "Ordering", (font_cidordering(f) ? font_cidordering(f) : "Identity"));
     pdf_dict_add_int(pdf, "Supplement", (int) font_cidsupplement(f));
     pdf_end_dict(pdf);
 
     /* I doubt there is anything useful that could be written here */
+
 #if 0
     if (pdf_font_attr(fo->tex_font) != get_nullstr()) {
         pdf_out(pdf, '\n');
@@ -1054,6 +1077,7 @@ void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internal_font_number f)
         pdf_out(pdf, '\n');
     }
 #endif
+
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
 }

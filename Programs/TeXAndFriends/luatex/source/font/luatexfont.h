@@ -102,6 +102,7 @@ typedef struct fd_entry_ {
     fm_entry *fm;               /* pointer to font map structure */
     struct avl_table *tx_tree;  /* tree of non-reencoded TeX characters marked as used */
     struct avl_table *gl_tree;  /* tree of all marked glyphs */
+    internal_font_number tex_font;      /* needed for variable */
 } fd_entry;
 
 typedef struct fo_entry_ {
@@ -162,7 +163,7 @@ void writetype0(PDF pdf, fd_entry * fd);
 /* writefont.c */
 void do_pdf_font(PDF, internal_font_number);
 fd_entry *lookup_fd_entry(char *);
-fd_entry *new_fd_entry(void);
+fd_entry *new_fd_entry(internal_font_number);
 void write_fontstuff(PDF);
 void register_fd_entry(fd_entry * fd);
 

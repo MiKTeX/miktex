@@ -438,6 +438,7 @@ int font_to_lua(lua_State * L, int f)
     dump_stringfield(L,writingmode,font_writingmode_strings[font_writingmode(f)]);
     dump_stringfield(L,identity,font_identity_strings[font_identity(f)]);
     dump_stringfield(L,embedding,font_embedding_strings[font_embedding(f)]);
+    dump_intfield(L,streamprovider,font_streamprovider(f));
 
     dump_intfield(L,units_per_em,font_units_per_em(f));
     dump_intfield(L,size,font_size(f));
@@ -1383,6 +1384,8 @@ int font_from_lua(lua_State * L, int f)
     set_font_natural_dir(f, i);
     i = lua_numeric_field_by_index(L,lua_key_index(encodingbytes), 0);
     set_font_encodingbytes(f, (char) i);
+    i = lua_numeric_field_by_index(L,lua_key_index(streamprovider), 0);
+    set_font_streamprovider(f, (char) i);
     i = n_boolean_field(L,lua_key_index(oldmath), 0);
     set_font_oldmath(f, i);
     i = lua_numeric_field_by_index(L,lua_key_index(tounicode), 0);

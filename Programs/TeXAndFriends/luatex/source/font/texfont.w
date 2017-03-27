@@ -1542,6 +1542,7 @@ static void dump_font_entry(texfont * f)
     dump_int(f->_font_writingmode);
     dump_int(f->_font_identity);
     dump_int(f->_font_embedding);
+    dump_int(f->_font_streamprovider);
     dump_int(f->_font_bc);
     dump_int(f->_hyphen_char);
     dump_int(f->_skew_char);
@@ -1721,6 +1722,7 @@ static void undump_font_entry(texfont * f)
     undump_int(x); f->_font_writingmode = x;
     undump_int(x); f->_font_identity = x;
     undump_int(x); f->_font_embedding = x;
+    undump_int(x); f->_font_streamprovider = x;
     undump_int(x); f->_font_bc = x;
     undump_int(x); f->_hyphen_char = x;
     undump_int(x); f->_skew_char = x;

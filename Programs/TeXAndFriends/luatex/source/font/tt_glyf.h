@@ -1,5 +1,5 @@
 /* tt_glyf.h
-    
+
    Copyright 2002 by Jin-Hwan Cho and Shunsaku Hirata,
    the dvipdfmx project team <dvipdfmx@project.ktug.or.kr>
    Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
@@ -52,7 +52,7 @@ extern USHORT tt_add_glyph(struct tt_glyphs *g, USHORT gid, USHORT new_gid);
 extern USHORT tt_get_index(struct tt_glyphs *g, USHORT gid);
 extern USHORT tt_find_glyph(struct tt_glyphs *g, USHORT gid);
 
-extern int tt_build_tables(sfnt * sfont, struct tt_glyphs *g);
+extern int tt_build_tables(sfnt * sfont, struct tt_glyphs *g, fd_entry * fd);
 extern int tt_get_metrics(sfnt * sfont, struct tt_glyphs *g);
 
 #endif                          /* _TT_GLYF_H_ */

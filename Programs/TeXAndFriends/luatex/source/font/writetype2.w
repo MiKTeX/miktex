@@ -344,7 +344,7 @@ boolean make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buff, int buflen)
             normal_error("type 2","there are no glyphs in the subset");
         }
 
-        if (tt_build_tables(sfont, glyphs) < 0) {
+        if (tt_build_tables(sfont, glyphs, fd) < 0) {
             normal_error("type 2","the TTF buffer can't be parsed");
         }
 

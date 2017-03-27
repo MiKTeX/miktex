@@ -74,6 +74,7 @@ static const char *const callbacknames[] = {
     "contribute_filter",
     "call_edit",
     "build_page_insert",
+    "glyph_stream_provider",
     NULL
 };
 

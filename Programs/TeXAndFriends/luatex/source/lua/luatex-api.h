@@ -782,6 +782,7 @@ make_lua_key(start);\
 make_lua_key(step);\
 make_lua_key(stream);\
 make_lua_key(streamfile);\
+make_lua_key(streamprovider);\
 make_lua_key(stretch);\
 make_lua_key(stretch_order);\
 make_lua_key(string);\
@@ -1143,6 +1144,7 @@ init_lua_key(start);\
 init_lua_key(step);\
 init_lua_key(stream);\
 init_lua_key(streamfile);\
+init_lua_key(streamprovider);\
 init_lua_key(stretch);\
 init_lua_key(stretch_order);\
 init_lua_key(string);\
@@ -1571,6 +1573,7 @@ use_lua_key(start);
 use_lua_key(step);
 use_lua_key(stream);
 use_lua_key(streamfile);
+use_lua_key(streamprovider);
 use_lua_key(stretch);
 use_lua_key(stretch_order);
 use_lua_key(string);

@@ -1751,7 +1751,6 @@ void writettf(PDF pdf, fd_entry * fd)
 
     pdf_save_offset(pdf);
     pdf_flush(pdf);
-
     if (is_subsetted(fd_cur->fm)) {
         ttf_copy_encoding();
         ttf_subset_font(pdf);
@@ -1795,9 +1794,13 @@ static void do_writeotf(PDF pdf, fd_entry * fd)
     if (ttf_name_lookup("post", false) != NULL)
         ttf_read_post();
     /* copy font file */
-    tab = ttf_seek_tab("CFF ", 0);
-    for (i = (long) tab->length; i > 0; i--)
+    if (ttf_name_lookup("CFF2", false) != NULL)      /* HH */
+        tab = ttf_seek_tab("CFF2", 0);               /* HH */
+    else                                             /* HH */
+        tab = ttf_seek_tab("CFF ", 0);
+    for (i = (long) tab->length; i > 0; i--) {
         copy_char();
+    }
     xfree(dir_tab);
     if (tracefilenames)
         tex_printf(">>");

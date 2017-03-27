@@ -19,13 +19,13 @@
 
 @ @c
 
-
 #include "ptexlib.h"
 #include "font/writettf.h"
 #include "font/writecff.h"
 
 @ @c
 extern unsigned char *ttf_buffer;
+
 void writetype0(PDF pdf, fd_entry * fd)
 {
     int callback_id;
@@ -76,13 +76,11 @@ void writetype0(PDF pdf, fd_entry * fd)
     if (sfont->type == SFNT_TYPE_TTC)
         i = ff_get_ttc_index(fd->fm->ff_name, fd->fm->ps_name);
 
-
     if (is_subsetted(fd_cur->fm)) {
         report_start_file(filetype_subset, cur_file_name);
     } else {
         report_start_file(filetype_font, cur_file_name);
     }
-
 
     if (sfont->type == SFNT_TYPE_TTC) otc_read_tabdir(i);
     else ttf_read_tabdir();
@@ -99,7 +97,10 @@ void writetype0(PDF pdf, fd_entry * fd)
         ttf_read_post();
 
     /* copy font file */
-    tab = ttf_seek_tab("CFF ", 0);
+    if (ttf_name_lookup("CFF2", false) != NULL)      /* HH */
+        tab = ttf_seek_tab("CFF2", 0);               /* HH */
+    else                                             /* HH */
+        tab = ttf_seek_tab("CFF ", 0);
 
     /* TODO the next 0 is a subfont index */
     cff = read_cff(ttf_buffer + ttf_curbyte, (long) tab->length, 0);
