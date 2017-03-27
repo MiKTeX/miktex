@@ -18,7 +18,7 @@
 </refmeta>
 
 <refnamediv>
-<refname>miktex-luatex, miktex-texlua, miktex-texluac</refname>
+<refname>miktex-luatex</refname>
 <refpurpose>an extended version of &pdfTeX; using &Lua; as an embedded scripting language</refpurpose>
 </refnamediv>
 
@@ -151,32 +151,31 @@ execution.</para></listitem>
 <varlistentry>
 <term><option>--nosocket</option></term>
 <listitem>
-<para>Disable the &Lua;
 <indexterm>
 <primary>--nosocket</primary>
 </indexterm>
-socket library.</para>
+<para>Disable the &Lua; socket library.</para>
 </listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--output-comment=<replaceable>string</replaceable></option></term>
 <listitem>
-<para>Use <replaceable>string</replaceable>
+<para>Use <replaceable>string</replaceable> for &DVI; file comment
 <indexterm>
 <primary>--output-comment=string</primary>
 </indexterm>
-for &DVI; file comment instead of date.</para>
+instead of date.</para>
 </listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/outputdirectory.xml" />
 <varlistentry>
 <term><option>--output-format=<replaceable>format</replaceable></option></term>
 <listitem>
-<para>Use <replaceable>format</replaceable>
+<para>Use <replaceable>format</replaceable> for job output
 <indexterm>
 <primary>--output-format=format</primary>
 </indexterm>
-for job output (one of: <option>dvi</option>, <option>pdf</option>).</para>
+(one of: <option>dvi</option>, <option>pdf</option>).</para>
 </listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/recorder.xml" />
