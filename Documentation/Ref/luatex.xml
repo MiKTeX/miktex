@@ -133,6 +133,7 @@ execution.</para></listitem>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enablewriteeighteen.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/haltonerror.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/help.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/includedirectory.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/initialize.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/interaction.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/jobname.xml" />
