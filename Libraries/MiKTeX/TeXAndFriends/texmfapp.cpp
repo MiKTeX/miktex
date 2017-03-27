@@ -221,7 +221,6 @@ enum {
   OPT_RECORDER,
   OPT_STACK_SIZE,
   OPT_STRICT,
-  OPT_STRINGS_FREE,
   OPT_STRING_VACANCIES,
   OPT_TCX,
   OPT_TIME_STATISTICS,
@@ -291,11 +290,6 @@ void TeXMFApp::AddOptions()
   AddOption(T_("recorder\0Turn on the file name recorder to leave a trace of the files opened for input and output in a file with extension .fls."), FIRST_OPTION_VAL + pimpl->optBase + OPT_RECORDER);
   AddOption(T_("stack-size\0Set stack_size to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_STACK_SIZE, POPT_ARG_STRING, "N");
   AddOption(T_("strict\0Disable MiKTeX extensions."), FIRST_OPTION_VAL + pimpl->optBase + OPT_STRICT, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN);
-
-  if (AmITeX())
-  {
-    AddOption(T_("strings-free\0Set strings_free to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_STRINGS_FREE, POPT_ARG_STRING, "N");
-  }
 
   AddOption(T_("string-vacancies\0Set string_vacancies to N."), FIRST_OPTION_VAL + pimpl->optBase + OPT_STRING_VACANCIES, POPT_ARG_STRING, "N");
   AddOption(T_("time-statistics\0Show processing time statistics."), FIRST_OPTION_VAL + pimpl->optBase + OPT_TIME_STATISTICS);

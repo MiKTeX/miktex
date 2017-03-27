@@ -182,7 +182,6 @@ public:
     SetStringHandler(&stringHandler);
     SetTeXMFMemoryHandler(&memoryHandler);
     ETeXApp::Init(args);
-    EnableFeature(MiKTeX::TeXAndFriends::Feature::EightBitChars);
   }
 
 public:

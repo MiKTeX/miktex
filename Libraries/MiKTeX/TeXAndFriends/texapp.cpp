@@ -134,9 +134,6 @@ void TeXApp::AddOptions()
   AddOption(T_("disable-write18\0Disable the \\write18{COMMAND} construct."),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_WRITE18);
 
-  AddOption(T_("enable-enctex\0Enable EncTeX extensions such as \\mubyte."),
-    FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_ENCTEX);
-
   AddOption(T_("enable-mltex\0Enable MLTeX extensions such as \\charsubdef."),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_MLTEX);
 
@@ -170,6 +167,12 @@ void TeXApp::AddOptions()
     FIRST_OPTION_VAL + pimpl->optBase + OPT_SAVE_SIZE,
     POPT_ARG_STRING,
     "N");
+
+  if (!AmI("xetex"))
+  {
+    AddOption(T_("enable-enctex\0Enable EncTeX extensions such as \\mubyte."),
+      FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_ENCTEX);
+  }
 
 #if WITH_SYNCTEX
   if (AmI("xetex") || AmI("pdftex"))
@@ -226,12 +229,15 @@ void TeXApp::AddOptions()
   AddOption("src", "src-specials");
 
   // supported Web2C options
-  AddOption("enc", "enable-enctex");
   AddOption("mltex", "enable-mltex");
   AddOption("fmt", "undump");
   AddOption("no-shell-escape", "disable-write18");
   AddOption("shell-restricted", "restrict-write18");
   AddOption("shell-escape", "enable-write18");
+  if (!AmI("xetex"))
+  {
+    AddOption("enc", "enable-enctex");
+  }
 
   // unsupported Web2C options
   AddOption("ipc", OPT_UNSUPPORTED);
