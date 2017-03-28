@@ -1,6 +1,6 @@
 ## CMakeLists.txt:                                      -*- CMake -*-
 ##
-## Copyright (C) 2015-2016 Christian Schenk
+## Copyright (C) 2015-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -42,6 +42,7 @@ endforeach()
 if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
   set(target_system_tpms
     windows-x86/miktex-arctrl-bin.tpm.in
+    windows-x86/miktex-autosp-bin.tpm.in
     windows-x86/miktex-bibtex-bin.tpm.in
     windows-x86/miktex-bibtex8bit-bin.tpm.in
     windows-x86/miktex-bin.tpm.in
@@ -125,6 +126,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
 elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
   set(target_system_tpms
     windows-x64/miktex-arctrl-bin-x64.tpm.in
+    windows-x64/miktex-autosp-bin-x64.tpm.in
     windows-x64/miktex-bibtex-bin-x64.tpm.in
     windows-x64/miktex-bibtex8bit-bin-x64.tpm.in
     windows-x64/miktex-bin-x64.tpm.in

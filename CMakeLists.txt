@@ -1691,6 +1691,7 @@ endif()
 enable_testing()
 
 add_subdirectory(${MIKTEX_REL_APP_DIR})
+add_subdirectory(${MIKTEX_REL_AUTOSP_DIR})
 add_subdirectory(${MIKTEX_REL_BIBTEXX_DIR})
 add_subdirectory(${MIKTEX_REL_BIBTEX_DIR})
 add_subdirectory(${MIKTEX_REL_BUILD_TOOLS_ETC_DIR})

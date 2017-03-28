@@ -1,6 +1,6 @@
 ## SourcePaths.cmake
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -22,6 +22,7 @@ set(MIKTEX_REL_APP_DIR                  "Libraries/MiKTeX/App")
 set(MIKTEX_REL_APR_DIR                  "Libraries/3rd/apr")
 set(MIKTEX_REL_APR_UTIL_DIR             "Libraries/3rd/apr-util")
 set(MIKTEX_REL_ARCTRL_WIN_DIR           "Programs/MiKTeX/arctrl/win")
+set(MIKTEX_REL_AUTOSP_DIR               "Programs/Preprocessors/autosp")
 set(MIKTEX_REL_BIBTEX_DIR               "Programs/Bibliography/bibtex")
 set(MIKTEX_REL_BIBTEXX_DIR              "Programs/Bibliography/bibtex-x")
 set(MIKTEX_REL_BOTAN_DIR                "Libraries/3rd/botan")

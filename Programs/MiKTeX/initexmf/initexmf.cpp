@@ -2524,6 +2524,7 @@ vector<FileLink> miktexFileLinks =
   { "cjklatex" MIKTEX_EXE_FILE_SUFFIX, { "bg5pluslatex", "bg5pluspdflatex", "bg5latex", "bg5pdflatex", "bg5platex", "bg5ppdflatex", "cef5latex", "cef5pdflatex", "ceflatex", "cefpdflatex", "cefslatex", "cefspdflatex", "gbklatex", "gbkpdflatex", "sjislatex", "sjispdflatex" } },
 
   { MIKTEX_AFM2TFM_EXE, { "afm2tfm" } },
+  { MIKTEX_AUTOSP_EXE, { "autosp" } },
   { MIKTEX_BG5CONV_EXE, { "bg5conv" } },
   { MIKTEX_BIBTEX8_EXE, { "bibtex8" } },
   { MIKTEX_BIBTEXU_EXE, { "bibtexu" } },
@@ -2574,6 +2575,7 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_PSRESIZE_EXE, { "psresize" } },
   { MIKTEX_PSSELECT_EXE, { "psselect" } },
   { MIKTEX_PSTOPS_EXE, { "pstops" } },
+  { MIKTEX_REBAR_EXE, { "rebar" } },
   { MIKTEX_SCOR2PRT_EXE, { "scor2prt" } },
   { MIKTEX_SJISCONV_EXE, { "sjisconv" } },
   { MIKTEX_T4HT_EXE, { "t4ht" } },

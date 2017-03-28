@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/autosp/">
+    <TPM:Name>autosp/rebar win32</TPM:Name>
+    <TPM:Title>autosp and rebar, Windows x86</TPM:Title>
+    <TPM:Copyright owner="D. Tennent School of Computing, Queen's University" year="2014-2016"/>
+    <TPM:License type="gpl2"/>
+    <TPM:Version>2016-11-02</TPM:Version>
+    <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      autosp is a preprocessor that generates note-spacing commands
+      for MusiXTeX scores. It simplifies the creation of MusiXTeX
+      scores by converting (non-standard) commands of the form \anotes
+      ... \en into one or more conventional note-spacing commands, as
+      determined by the note values themselves, with \sk spacing
+      commands inserted as necessary.  The coding for an entire
+      measure can be entered one part at a time, without concern for
+      note-spacing changes within the part or spacing requirements of
+      other parts.
+
+      Included in the autosp package is a small utility rebar that
+      reads a MusiXTeX score and generates a copy with bar-number
+      comments of the form %barno appended to commands such as \bar,
+      \alaligne, etc. replacing any existing comments.  Bar-numbering
+      in the MusiXTeX output is not affected.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKEX_PREFIX}autosp.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKEX_PREFIX}rebar.exe
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>
