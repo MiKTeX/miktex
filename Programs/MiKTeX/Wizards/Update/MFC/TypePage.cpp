@@ -1,6 +1,6 @@
 /* TypePage.cpp:
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2017 Christian Schenk
 
    This file is part of the MiKTeX Update Wizard.
 
@@ -44,7 +44,7 @@ END_MESSAGE_MAP();
 
 const int SOURCE_CHOICE_REMOTE = 0;
 const int SOURCE_CHOICE_LOCAL = 1;
-const int SOURCE_CHOUCE_CD = 2;
+const int SOURCE_CHOICE_CD = 2;
 
 const int REMOTE_CHOICE_NEAREST = 0;
 const int REMOTE_CHOICE_LAST_USED = 1;
@@ -80,7 +80,7 @@ TypePage::TypePage() :
         localChoice = LOCAL_CHOICE_LAST_USED;
         break;
       case RepositoryType::MiKTeXDirect:
-        sourceChoice = SOURCE_CHOUCE_CD;
+        sourceChoice = SOURCE_CHOICE_CD;
         break;
       }
     }
@@ -157,11 +157,11 @@ BOOL TypePage::OnInitDialog()
 
     EnableButtons();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
@@ -182,7 +182,7 @@ BOOL TypePage::OnSetActive()
   return CPropertyPage::OnSetActive();
 }
 
-void TypePage::DoDataExchange(CDataExchange * pDX)
+void TypePage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Radio(pDX, IDC_INSTALL_FROM_INTERNET, sourceChoice);
@@ -216,16 +216,14 @@ LRESULT TypePage::OnWizardNext()
         proxySettings.password = dlg.GetPassword();
         PackageManager::SetProxy(proxySettings);
       }
-      int controlId2 =
-        GetCheckedRadioButton(IDC_RANDOM, IDC_CHOOSE_REPOSITORY);
+      int controlId2 = GetCheckedRadioButton(IDC_RANDOM, IDC_CHOOSE_REPOSITORY);
       if (controlId2 == IDC_RANDOM)
       {
         nextPage = IDD_PACKAGE_LIST;
       }
       else if (controlId2 == IDC_LAST_USED_REPOSITORY)
       {
-        RepositoryInfo repositoryInfo =
-          UpdateWizardApplication::packageManager->VerifyPackageRepository(remoteRepository);
+        RepositoryInfo repositoryInfo = UpdateWizardApplication::packageManager->VerifyPackageRepository(remoteRepository);
         if (repositoryInfo.delay > 0
           && (AfxMessageBox(T_(_T("The last used pacakage repository does not contain the latest packages.\r\n\r\nContinue anyway?")), MB_YESNO) != IDYES))
         {
@@ -258,12 +256,12 @@ LRESULT TypePage::OnWizardNext()
     pSheet->SetCameFrom(IDD);
     return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(nextPage));
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
     return -1;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
     return -1;
@@ -293,17 +291,15 @@ BOOL TypePage::OnKillActive()
       pSheet->SetRandomRepositoryFlag(remoteChoice == REMOTE_CHOICE_NEAREST);
       pSheet->SetRepositoryType(sourceChoice == SOURCE_CHOICE_REMOTE
         ? RepositoryType::Remote
-        : (sourceChoice == SOURCE_CHOICE_LOCAL
-          ? RepositoryType::Local
-          : RepositoryType::MiKTeXDirect));
+        : (sourceChoice == SOURCE_CHOICE_LOCAL ? RepositoryType::Local : RepositoryType::MiKTeXDirect));
       pSheet->SetRepositoryReleaseState(isMiKTeXNextSelected ? RepositoryReleaseState::Next : RepositoryReleaseState::Stable);
     }
-    catch (const MiKTeXException & e)
+    catch (const MiKTeXException& e)
     {
       pSheet->ReportError(e);
       ret = FALSE;
     }
-    catch (const exception & e)
+    catch (const exception& e)
     {
       pSheet->ReportError(e);
       ret = FALSE;
@@ -319,11 +315,11 @@ void TypePage::OnInstallFromInternet()
     sourceChoice = SOURCE_CHOICE_REMOTE;
     EnableButtons();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
@@ -336,11 +332,11 @@ void TypePage::OnInstallFromLocalRepository()
     sourceChoice = SOURCE_CHOICE_LOCAL;
     EnableButtons();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
@@ -350,14 +346,14 @@ void TypePage::OnInstallFromCd()
 {
   try
   {
-    sourceChoice = SOURCE_CHOUCE_CD;
+    sourceChoice = SOURCE_CHOICE_CD;
     EnableButtons();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
@@ -368,8 +364,9 @@ void TypePage::EnableButtons()
   EnableControl(IDC_RANDOM, sourceChoice == SOURCE_CHOICE_REMOTE);
   EnableControl(
     IDC_LAST_USED_REPOSITORY,
-    sourceChoice == SOURCE_CHOICE_REMOTE && haveRemoteRepository
-    && (isMiKTeXNextSelected ? repositoryReleaseState == RepositoryReleaseState::Next : repositoryReleaseState != RepositoryReleaseState::Next));
+    sourceChoice == SOURCE_CHOICE_REMOTE && haveRemoteRepository && (isMiKTeXNextSelected
+      ? repositoryReleaseState == RepositoryReleaseState::Next
+      : repositoryReleaseState != RepositoryReleaseState::Next));
   EnableControl(IDC_CHOOSE_REPOSITORY, sourceChoice == SOURCE_CHOICE_REMOTE);
   EnableControl(IDC_CONNECTION_SETTINGS, sourceChoice == SOURCE_CHOICE_REMOTE);
   EnableControl(IDC_LAST_USED_DIRECTORY, sourceChoice == SOURCE_CHOICE_LOCAL && haveLocalRepository);
@@ -382,14 +379,14 @@ void TypePage::EnableControl(UINT controlId, bool enable)
   GetControl(controlId)->EnableWindow(enable ? TRUE : FALSE);
 }
 
-CWnd * TypePage::GetControl(UINT controlId)
+CWnd* TypePage::GetControl(UINT controlId)
 {
-  CWnd * pWnd = GetDlgItem(controlId);
-  if (pWnd == 0)
+  CWnd* wnd = GetDlgItem(controlId);
+  if (wnd == 0)
   {
     MIKTEX_UNEXPECTED();
   }
-  return pWnd;
+  return wnd;
 }
 
 void TypePage::OnConnectionSettings()
@@ -399,11 +396,11 @@ void TypePage::OnConnectionSettings()
     ConnectionSettingsDialog dlg(this);
     dlg.DoModal();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
@@ -411,12 +408,12 @@ void TypePage::OnConnectionSettings()
 
 void TypePage::OnMiKTeXNext()
 {
-  CWnd * pWnd = GetDlgItem(IDC_MIKTEX_NEXT);
-  if (pWnd == 0)
+  CWnd* wnd = GetDlgItem(IDC_MIKTEX_NEXT);
+  if (wnd == nullptr)
   {
     MIKTEX_UNEXPECTED();
   }
-  isMiKTeXNextSelected = ((CButton*)pWnd)->GetCheck() == BST_CHECKED;
+  isMiKTeXNextSelected = ((CButton*)wnd)->GetCheck() == BST_CHECKED;
   if (isMiKTeXNextSelected && !isMiKTeXNextWarningIssued)
   {
     AfxMessageBox(UT_(T_("You have chosen to get untested packages. Although every effort has been made to ensure the correctness of these packages, a hassle-free operation cannot be guaranteed.\r\n\r\nPlease visit http://miktex.org/kb/miktex-next, for more information.")), MB_OK | MB_ICONWARNING);
@@ -432,11 +429,11 @@ void TypePage::OnNearestRepository()
     remoteChoice = REMOTE_CHOICE_NEAREST;
     EnableButtons();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
@@ -449,11 +446,11 @@ void TypePage::OnLastUsedRepository()
     remoteChoice = REMOTE_CHOICE_LAST_USED;
     EnableButtons();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
@@ -466,11 +463,11 @@ void TypePage::OnChooseRepository()
     remoteChoice = REMOTE_CHOICE_SELECT;
     EnableButtons();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
