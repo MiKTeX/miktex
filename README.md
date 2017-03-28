@@ -113,12 +113,13 @@ build variables as follows:
 
 The most useful build variables are:
 
-* CMAKE\_INSTALL\_PREFIX=_PATH_
-  The installation directory used by
-  `make install` (see below).  This variable defaults to `/usr/local`
-  on Unix-like systems.
+* `CMAKE_INSTALL_PREFIX=`_PATH_
 
-* WITH\_UI\_QT=ON
+  The installation directory used by `make install` (see below).  This
+  variable defaults to `/usr/local` on Unix-like systems.
+
+* `WITH\_UI\_QT=ON`
+
   Build UI applications (experimental).
 	
 ## Building MiKTeX
@@ -134,7 +135,7 @@ or, if you build with NMake on Windows:
 ## Installing
 
 CMake creates a standard `install` target which you can use to install
-everything in the standard location (see the `CMAKE\_INSTALL\_PREFIX`
+everything in the standard location (see the `CMAKE_INSTALL_PREFIX`
 description above).  On Linux and macOS, you would run
 
     make install
@@ -150,7 +151,7 @@ to relocate the whole installation:
     make DESTDIR=/home/jane install
    
 This will install everything using the installation prefix
-(`CMAKE\_INSTALL\_PREFIX`) prepended with the `DESTDIR` value, which
+(`CMAKE_INSTALL_PREFIX`) prepended with the `DESTDIR` value, which
 finally gives `/home/jane/usr/local`.
 
 ## First steps
