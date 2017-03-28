@@ -2278,7 +2278,7 @@ void IniTeXMFApp::MakeFormatFilesByName(const vector<string>& formatsByName, con
   }
 }
 
-void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, bool remove, bool overwrite)
+void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, bool isRemoveRequested, bool allowOverwrite)
 {
   LinkType linkType = fileLink.linkType;
   if (linkType == LinkType::Hard && !supportsHardLinks)
@@ -2289,13 +2289,13 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
   {
     if (File::Exists(linkName))
     {
-      if (!remove && (!overwrite || (linkType == LinkType::Copy && File::Equals(fileLink.target, linkName))))
+      if (!isRemoveRequested && (!allowOverwrite || (linkType == LinkType::Copy && File::Equals(fileLink.target, linkName))))
       {
         continue;
       }
       File::Delete(linkName, { FileDeleteOption::TryHard, FileDeleteOption::UpdateFndb });
     }
-    if (remove)
+    if (isRemoveRequested)
     {
       continue;
     }
