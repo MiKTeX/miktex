@@ -118,7 +118,7 @@ The most useful build variables are:
   The installation directory used by `make install` (see below).  This
   variable defaults to `/usr/local` on Unix-like systems.
 
-* `WITH\_UI\_QT=ON`
+* `WITH_UI_QT=ON`
 
   Build UI applications (experimental).
 	
