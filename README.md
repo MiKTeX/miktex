@@ -103,7 +103,7 @@ CMake for Windows may require a generator specification.  If you want
 to generate Makefiles for `nmake`, run this:
 
     cmake -G "NMake Makefiles" ../source
-	
+
 ### Useful build variables
 
 When running CMake to generates the Makefiles, it is possible to set
@@ -117,6 +117,18 @@ The most useful build variables are:
 
   The installation directory used by `make install` (see below).  This
   variable defaults to `/usr/local` on Unix-like systems.
+  
+  Suitable prefixes are:
+  
+  * `$HOME/miktex`
+  
+    Use this prefix, if you want to install MiKTeX just for yourself.
+    No administrative privileges are required.
+	
+  * `/opt/miktex`
+  
+    Use this prefix, if you want to create a self-contained MiKTeX
+    setup which does not conflict with other system packages.
 
 * `WITH_UI_QT=ON`
 
