@@ -116,7 +116,8 @@ The most useful build variables are:
 * `CMAKE_INSTALL_PREFIX=`_PATH_
 
   The installation directory used by `make install` (see below).  This
-  variable defaults to `/usr/local` on Unix-like systems.
+  variable defaults to `/usr/local` on Unix-like systems (including
+  macOS).
   
   Suitable prefixes are:
   
@@ -165,6 +166,9 @@ to relocate the whole installation:
 This will install everything using the installation prefix
 (`CMAKE_INSTALL_PREFIX`) prepended with the `DESTDIR` value, which
 finally gives `/home/jane/usr/local`.
+
+The `DESTDIR` mechanism is helpful if you want to understand what
+`make install` installs where.
 
 ## First steps
 
