@@ -181,7 +181,7 @@ package database must have been set up for this to work:
 	
 The `--admin` option is only required, if you are building a shared
 MiKTeX setup.  If you are setting up MiKTeX just for yourself (i.e.,
-in your user directory), you have to ommit the `--admin` option.
+in your user directory), you have to omit the `--admin` option.
 
 Consult the man page mpm(1), for more information about the utility.
 
