@@ -205,12 +205,6 @@ packages:
 
     mpm --admin --upgrade=basic
 
-### Making font map files
-
-Run this, to create font map files required by pdfTeX, LuaTeX and XeTeX:
-    
-	initexmf --admin --mkmaps
-   
 ### Running the pdfTeX engine for the first time
 
 You can now test the MiKTeX setup by running
