@@ -183,7 +183,7 @@ The `--admin` option is only required, if you are building a shared
 MiKTeX setup.  If you are setting up MiKTeX just for yourself (i.e.,
 in your user directory), you have to omit the `--admin` option.
 
-Consult the man page mpm(1), for more information about the utility.
+Consult the mpm(1) man page, for more information about the utility.
 
 ### Enabling "on-the-fly" package installation
 
@@ -195,7 +195,7 @@ Configuration Utility as follows:
 Again, you have to omit `--admin`, if you intend to use MiKTeX just
 for yourself.
 
-Consult the man page and initexmf(1), for more information about the
+Consult the initexmf(1) man page, for more information about the
 utility.
    
 ### Symbolic links
