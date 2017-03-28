@@ -408,12 +408,7 @@ void TypePage::OnConnectionSettings()
 
 void TypePage::OnMiKTeXNext()
 {
-  CWnd* wnd = GetDlgItem(IDC_MIKTEX_NEXT);
-  if (wnd == nullptr)
-  {
-    MIKTEX_UNEXPECTED();
-  }
-  isMiKTeXNextSelected = ((CButton*)wnd)->GetCheck() == BST_CHECKED;
+  isMiKTeXNextSelected = ((CButton*)GetControl(IDC_MIKTEX_NEXT))->GetCheck() == BST_CHECKED;
   if (isMiKTeXNextSelected && !isMiKTeXNextWarningIssued)
   {
     AfxMessageBox(UT_(T_("You have chosen to get untested packages. Although every effort has been made to ensure the correctness of these packages, a hassle-free operation cannot be guaranteed.\r\n\r\nPlease visit http://miktex.org/kb/miktex-next, for more information.")), MB_OK | MB_ICONWARNING);
