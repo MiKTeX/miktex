@@ -2293,7 +2293,11 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
       {
         continue;
       }
-      File::Delete(linkName, { FileDeleteOption::TryHard, FileDeleteOption::UpdateFndb });
+      PrintOnly("rm %s", Q_(linkName));
+      if (!printOnly)
+      {
+        File::Delete(linkName, { FileDeleteOption::TryHard, FileDeleteOption::UpdateFndb });
+      }
     }
     if (isRemoveRequested)
     {
