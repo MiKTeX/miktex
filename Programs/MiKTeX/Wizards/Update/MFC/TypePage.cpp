@@ -382,7 +382,7 @@ void TypePage::EnableControl(UINT controlId, bool enable)
 CWnd* TypePage::GetControl(UINT controlId)
 {
   CWnd* wnd = GetDlgItem(controlId);
-  if (wnd == 0)
+  if (wnd == nullptr)
   {
     MIKTEX_UNEXPECTED();
   }
