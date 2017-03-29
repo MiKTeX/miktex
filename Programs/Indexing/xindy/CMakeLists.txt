@@ -56,23 +56,23 @@ if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND tex2xindy_sources tex2xindy.rc)
 endif()
 
-add_executable(${MIKTEX_PREFIX}tex2xindy ${tex2xindy_sources})
+add_executable(tex2xindy ${tex2xindy_sources})
 
-set_property(TARGET ${MIKTEX_PREFIX}tex2xindy PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET tex2xindy PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_link_libraries(${MIKTEX_PREFIX}tex2xindy
+target_link_libraries(tex2xindy
   ${app_dll_name}
   ${core_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(${MIKTEX_PREFIX}tex2xindy
+  target_link_libraries(tex2xindy
     ${getopt_dll_name}
     ${utf8wrap_dll_name}
   )
 endif()
 
-merge_trustinfo_manifest(${MIKTEX_PREFIX}tex2xindy asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}tex2xindy)
+merge_trustinfo_manifest(tex2xindy asInvoker)
+merge_compatibility_manifest(tex2xindy)
 
-install(TARGETS ${MIKTEX_PREFIX}tex2xindy DESTINATION ${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR})
+install(TARGETS tex2xindy DESTINATION ${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR})

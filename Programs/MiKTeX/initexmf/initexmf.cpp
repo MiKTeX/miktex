@@ -2585,7 +2585,6 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_SJISCONV_EXE, { "sjisconv" } },
   { MIKTEX_T4HT_EXE, { "t4ht" } },
   { MIKTEX_TANGLE_EXE, { "tangle" } },
-  { MIKTEX_TEX2XINDY_EXE, { "tex2xindy" } },
   { MIKTEX_TEX4HT_EXE, { "tex4ht" } },
   { MIKTEX_TEXWORKS_EXE, { "texworks" } },
   { MIKTEX_TEX_EXE, { "tex", "initex", "virtex", MIKTEX_LATEX_EXE } },
