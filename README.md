@@ -222,6 +222,17 @@ packages:
 
     mpm --admin --verbose --package-level=basic --upgrade
 
+In order to create the font map files for the various TeX engines, you
+must run
+
+    initexmf --admin --mkmaps
+
+### Refreshing the file name database
+
+Finally, you update the file name database by running
+
+    initexmf --admin --update-fndb
+
 ### Running the pdfTeX engine for the first time
 
 You can now test the MiKTeX setup by running
