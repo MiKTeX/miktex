@@ -55,6 +55,7 @@ include_directories(BEFORE
 
 add_definitions(
   -Dmain=Main
+  -DUSE_MIKTEX_EXIT=1
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
