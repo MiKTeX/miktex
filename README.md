@@ -220,7 +220,7 @@ format `pdflatex` loaded) and `latexmk` (wrapper for the Perl script
 You use the MiKTeX Package Manager in order to install basic MiKTeX
 packages:
 
-    mpm --admin --upgrade=basic
+    mpm --admin --verbose --package-level=basic --upgrade
 
 ### Running the pdfTeX engine for the first time
 
