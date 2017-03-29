@@ -457,20 +457,24 @@ int MAIN(int argc, MAINCHAR** argv)
     app.Init(Session::InitInfo(newargv[0]), newargv);
     app.Run(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
     app.Finalize();
+    logger = nullptr;
     return 0;
   }
   catch (const MiKTeXException& ex)
   {
     Application::Sorry("makefmt", ex);
+    logger = nullptr;
     return 1;
   }
   catch (const exception& ex)
   {
     Application::Sorry("makefmt", ex);
+    logger = nullptr;
     return 1;
   }
   catch (int exitCode)
   {
+    logger = nullptr;
     return exitCode;
   }
 }
