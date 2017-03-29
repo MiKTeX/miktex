@@ -335,7 +335,7 @@ static void write_png_rgb_alpha(integer img)
     pdfcreateobj(0, 0);
     smask_objnum = objptr;
     pdf_printf("/SMask %i 0 R\n", (int) smask_objnum);
-    smask_size = (png_get_rowbytes(png_ptr(img), png_info(img)) / 2)
+    smask_size = (png_get_rowbytes(png_ptr(img), png_info(img)) / 4)
                  * png_get_image_height(png_ptr(img), png_info(img));
     smask = xtalloc(smask_size, png_byte);
     pdfbeginstream();
