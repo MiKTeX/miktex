@@ -1352,20 +1352,24 @@ int MAIN(int argc, MAINCHAR** argv)
     MakeFontMapApp app;
     app.Init(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
     app.Run();
+    logger = nullptr;
     return 0;
   }
   catch (const MiKTeXException& ex)
   {
     Application::Sorry(THE_NAME_OF_THE_GAME, ex);
+    logger = nullptr;
     return 1;
   }
   catch (const exception& ex)
   {
     Application::Sorry(THE_NAME_OF_THE_GAME, ex);
+    logger = nullptr;
     return 1;
   }
   catch (int exitCode)
   {
+    logger = nullptr;
     return exitCode;
   }
 }
