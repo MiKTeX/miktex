@@ -373,7 +373,7 @@ option(
 option(
   WITH_UI_QT
   "Build Qt components."
-  TRUE
+  ${WIN32}
 )
 
 option(
