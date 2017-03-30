@@ -133,13 +133,11 @@ merge_compatibility_manifest(${MIKTEX_PREFIX}gregorio)
 
 target_link_libraries(${MIKTEX_PREFIX}gregorio
   ${app_dll_name}
-  ${core_dll_name}
   ${kpsemu_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${MIKTEX_PREFIX}gregorio
-    ${unxemu_dll_name}
     ${utf8wrap_dll_name}
   )
 endif()
