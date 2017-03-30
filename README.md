@@ -1,7 +1,7 @@
 # MiKTeX
 
-MiKTeX is both a C/C++ implemenentation of TeX & Friends and a TeX
-distribution.
+MiKTeX is both a modern C/C++ implemenentation of TeX & Friends and a
+TeX distribution.
 
 The [MiKTeX Project Page](https://miktex.org) is the place to go, if
 you want to learn more about MiKTeX.
@@ -222,14 +222,14 @@ packages:
 
     mpm --admin --verbose --package-level=basic --upgrade
 
-In order to create the font map files for the various TeX engines, you
-must run
+In order to make newly installed font map files available for the
+various TeX engines, you must run
 
     initexmf --admin --mkmaps
 
 ### Refreshing the file name database
 
-Finally, you update the file name database by running
+Finally, you update the MiKTeX file name database by running
 
     initexmf --admin --update-fndb
 
