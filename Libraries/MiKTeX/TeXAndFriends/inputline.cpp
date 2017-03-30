@@ -446,7 +446,11 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
     return false;
   }
 
-  CheckBom(*ppFile);
+  auto openFileInfo = session->TryGetOpenFileInfo(*ppFile);
+  if (openFileInfo.first && openFileInfo.second.mode != FileMode::Command)
+  {
+    CheckBom(*ppFile);
+  }
 
   pimpl->lastInputFileName = lpszFileName;
 
