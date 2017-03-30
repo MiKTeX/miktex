@@ -1,5 +1,5 @@
 /*
-Copyright 1996-2014 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2017 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -295,7 +295,7 @@ void writet3(fm_entry * fm, int objnum, internalfontnumber f)
         t3_char_procs[i] = 0;
         t3_char_widths[i] = 0;
     }
-    fe = fm ? get_fe_entry(fm->encname) : NULL;
+    fe = fm && fm->encname ? get_fe_entry(fm->encname) : NULL;
     glyph_names = fe ? fe->glyph_names : NULL;
     if (glyph_names)
         remove_duplicate_glyph_names(glyph_names, fm->encname);
