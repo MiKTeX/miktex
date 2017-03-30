@@ -110,16 +110,7 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
   }
 #endif
 
-  bool oldAdminMode = adminMode;
-
-  if (forceAdminMode)
-  {
-    adminMode = true;
-  }
-  else
-  {
-    adminMode = initInfo.GetOptions()[InitOption::AdminMode];
-  }
+  adminMode = forceAdminMode || initInfo.GetOptions()[InitOption::AdminMode];
 
 #if defined(_MSC_VER)
   if (Utils::GetEnvironmentString("MIKTEX_DEBUG_ON_STD_EXCEPTION", val))
@@ -166,12 +157,6 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
   if (!traceOptions.empty())
   {
     TraceStream::SetTraceFlags(traceOptions);
-  }
-
-  if (!forceAdminMode)
-  {
-    adminMode = oldAdminMode;
-    SetAdminMode(initInfo.GetOptions()[InitOption::AdminMode], false);
   }
 
   DoStartupConfig();
