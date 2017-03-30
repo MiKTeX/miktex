@@ -189,13 +189,15 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
   }
 #endif
 
-  trace_core->WriteFormattedLine("core", T_("operating system: %s"), Utils::GetOSVersionString().c_str());
-  trace_core->WriteFormattedLine("core", T_("program file: %s"), GetMyProgramFile(true).GetData());
+  trace_core->WriteFormattedLine("core", T_("operating system: %s"), Q_(Utils::GetOSVersionString()));
+  trace_core->WriteFormattedLine("core", T_("program file: %s"), Q_(GetMyProgramFile(true)));
   trace_core->WriteFormattedLine("core", T_("current directory: %s"), Q_(PathName().SetToCurrentDirectory()));
+  trace_config->WriteFormattedLine("core", T_("admin mode: %s"), IsAdminMode() ? T_("yes") : T_("no"));
+  trace_config->WriteFormattedLine("core", T_("shared setup: %s"), IsSharedSetup() ? T_("yes") : T_("no"));
 
   trace_config->WriteFormattedLine("core", T_("session locale: %s"), Q_(defaultLocale.name()));
 
-  if (adminMode && !IsSharedSetup())
+  if (IsAdminMode() && !IsSharedSetup())
   {
     MIKTEX_FATAL_ERROR(T_("Administrative startup refused because this is not a shared MiKTeX setup."));
   }
