@@ -608,6 +608,15 @@ public:
   };
 
 public:
+  struct OpenFileInfo
+  {
+    const FILE* file = nullptr;
+    std::string fileName;
+    FileMode mode = FileMode::Open;
+    FileAccess access = FileAccess::None;
+  };
+
+public:
   static MIKTEXCORECEEAPI(std::shared_ptr<Session>) Get();
 
 public:
@@ -725,6 +734,9 @@ public:
 
 public:
   virtual FILE* MIKTEXTHISCALL TryOpenFile(const PathName& path, FileMode mode, FileAccess access, bool isTextFile, FileShare share) = 0;
+
+public:
+  virtual std::pair<bool, OpenFileInfo> MIKTEXTHISCALL TryGetOpenFileInfo(FILE* file) = 0;
 
 public:
   virtual void MIKTEXTHISCALL CloseFile(FILE* file) = 0;

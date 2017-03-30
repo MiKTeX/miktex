@@ -1,6 +1,6 @@
 /* files.cpp: file system operations
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -216,7 +216,7 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
   try
   {
     OpenFileInfo info;
-    info.pFile = pFile;
+    info.file = pFile;
     info.fileName = path.ToString();
     info.mode = mode;
     info.access = access;
@@ -288,6 +288,19 @@ FILE* SessionImpl::OpenFileOnStream(std::unique_ptr<Stream> stream)
   thread readerThread(&ReaderThread, move(stream), move(files[1]));
   readerThread.detach();
   return files[0]->Detach();
+}
+
+pair<bool, Session::OpenFileInfo> SessionImpl::TryGetOpenFileInfo(FILE* file)
+{
+  map<const FILE*, OpenFileInfo>::const_iterator it = openFilesMap.find(file);
+  if (it == openFilesMap.end())
+  {
+    return make_pair<bool, Session::OpenFileInfo>(false, Session::OpenFileInfo());
+  }
+  else
+  {
+    return make_pair<bool, Session::OpenFileInfo>(true, Session::OpenFileInfo(it->second));
+  }
 }
 
 void SessionImpl::CloseFile(FILE* pFile)

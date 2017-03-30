@@ -203,6 +203,9 @@ public:
   FILE* TryOpenFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::FileMode mode, MiKTeX::Core::FileAccess access, bool isTextFile, MiKTeX::Core::FileShare share) override;
 
 public:
+  std::pair<bool, OpenFileInfo> TryGetOpenFileInfo(FILE* file) override;
+
+public:
   void CloseFile(FILE* file) override;
 
 public:
@@ -915,16 +918,6 @@ private:
 
 private:
   std::vector<MiKTeX::Core::MIKTEXMFMODE> metafontModes;
-
-  // info about open file
-private:
-  struct OpenFileInfo
-  {
-    const FILE* pFile = nullptr;
-    std::string fileName;
-    MiKTeX::Core::FileMode mode = MiKTeX::Core::FileMode::Open;
-    MiKTeX::Core::FileAccess access = MiKTeX::Core::FileAccess::None;
-  };
 
   // caching open files
 private:
