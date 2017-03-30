@@ -872,7 +872,7 @@ public:
   virtual bool MIKTEXTHISCALL RunningAsAdministrator() = 0;
 
 public:
-  virtual void MIKTEXTHISCALL SetAdminMode(bool adminMode, bool isSetup = false) = 0;
+  virtual void MIKTEXTHISCALL SetAdminMode(bool adminMode, bool force = false) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL IsAdminMode() = 0;

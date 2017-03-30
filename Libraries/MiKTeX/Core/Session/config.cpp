@@ -1123,13 +1123,13 @@ void SessionImpl::SetConfigValue(const std::string& sectionName, const string& v
   configurationSettings.clear();
 }
 
-void SessionImpl::SetAdminMode(bool adminMode, bool isSetup)
+void SessionImpl::SetAdminMode(bool adminMode, bool force)
 {
   if (this->adminMode == adminMode)
   {
     return;
   }
-  if (adminMode && !isSetup && !IsSharedSetup())
+  if (adminMode && !force && !IsSharedSetup())
   {
     MIKTEX_FATAL_ERROR(T_("Administrative mode cannot be enabled (makes no sense) because this is not a shared MiKTeX setup."));
   }

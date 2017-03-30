@@ -366,7 +366,7 @@ public:
   bool RunningAsAdministrator() override;
 
 public:
-  void SetAdminMode(bool isAdminMode, bool isSetup) override;
+  void SetAdminMode(bool isAdminMode, bool force) override;
 
 public:
   bool IsAdminMode() override;
