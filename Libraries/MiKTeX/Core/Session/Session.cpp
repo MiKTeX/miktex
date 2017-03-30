@@ -1,6 +1,6 @@
 /* Session.cpp: session initialization
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -42,7 +42,7 @@ using namespace std;
 
 weak_ptr<SessionImpl> SessionImpl::theSession;
 
-shared_ptr<Session> Session::Create(const Session::InitInfo & initInfo)
+shared_ptr<Session> Session::Create(const Session::InitInfo& initInfo)
 {
   if (!SessionImpl::theSession.expired())
   {
@@ -87,18 +87,18 @@ SessionImpl::~SessionImpl()
   {
     Uninitialize();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
 
-void SessionImpl::Initialize(const Session::InitInfo & initInfo)
+void SessionImpl::Initialize(const Session::InitInfo& initInfo)
 {
   string val;
 
   PathName programInvocationName = initInfo.GetProgramInvocationName();
   programInvocationName = programInvocationName.GetFileNameWithoutExtension();
-  const char * lpsz = strstr(programInvocationName.GetData(), MIKTEX_ADMIN_SUFFIX);
+  const char* lpsz = strstr(programInvocationName.GetData(), MIKTEX_ADMIN_SUFFIX);
   bool forceAdminMode = lpsz != nullptr && strlen(lpsz) == strlen(MIKTEX_ADMIN_SUFFIX);
 
 #if defined(MIKTEX_WINDOWS)
@@ -235,7 +235,7 @@ void SessionImpl::Uninitialize()
     Botan::LibraryInitializer::deinitialize();
 #endif
   }
-  catch (const exception &)
+  catch (const exception&)
   {
 #if defined(MIKTEX_WINDOWS)
     while (numCoInitialize > 0)
@@ -321,7 +321,7 @@ void SessionImpl::SetEnvironmentVariables()
   SetCWDEnv();
 }
 
-void SessionImpl::SetTheNameOfTheGame(const string & name)
+void SessionImpl::SetTheNameOfTheGame(const string& name)
 {
   fileTypes.clear();
   theNameOfTheGame = name;
