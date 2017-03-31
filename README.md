@@ -208,7 +208,8 @@ executables:
     initexmf --admin --mklinks
 
 After running this command, the pdfTeX engine can be invoked as
-`pdftex`.
+`pdftex`, provided that `pdftex` did not exist before (use the
+`--force` option to overwrite existing link names).
 
 The `--mklinks` option will also create symbolic links for format
 files and scripts.  That is, you can run `pdflatex` (pdfTeX with
