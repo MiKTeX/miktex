@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2016 Christian Schenk
+## Copyright (C) 2010-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -29,6 +29,7 @@ target_include_directories(${lua_lib_name}
 if(MIKTEX_UNIX_ALIKE)
   target_link_libraries(${lua_lib_name}
     PUBLIC
+      ${CMAKE_DL_LIBS}
       ${MATH_LIBRARY}
   )
 endif()
