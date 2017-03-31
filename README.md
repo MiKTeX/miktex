@@ -234,6 +234,8 @@ Finally, you update the MiKTeX file name database by running
 
     initexmf --admin --update-fndb
 
+## Testing
+
 ### Running the pdfTeX engine for the first time
 
 You can now test the MiKTeX setup by running
@@ -245,3 +247,11 @@ or, if you want to omit the `miktex-` prefix:
     pdflatex sample2e
 
 This will create the PDF file `sample.pdf`.
+
+### Test suite
+
+It is recommended that you run
+the
+[MiKTeX test suite](https://github.com/MiKTeX/miktex-testing "MiKTeX test suite on GitHub") on
+your fresh MiKTeX setup.
+
