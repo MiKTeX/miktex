@@ -34,6 +34,12 @@ add_definitions(
   -DWITH_UPDMAP=1
 )
 
+if(MIKTEX_NATIVE_WINDOWS)
+  add_definitions(
+    -DWITH_POPPLER_UTILS=1
+  )
+endif()
+
 if(MSVC)
   add_definitions(
     -DUNICODE

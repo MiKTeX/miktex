@@ -2616,6 +2616,19 @@ vector<FileLink> miktexFileLinks =
 #if defined(WITH_TEXDOC)
   { "mthelp" MIKTEX_EXE_FILE_SUFFIX, { "texdoc" } },
 #endif
+#if defined(WITH_POPPLER_UTILS)
+  { MIKTEX_PDFDETACH_EXE, { "pdfdetach" } },
+  { MIKTEX_PDFFONTS_EXE, { "pdffonts" } },
+  { MIKTEX_PDFIMAGES_EXE, { "pdfimages" } },
+  { MIKTEX_PDFINFO_EXE, { "pdfinfo" } },
+  { MIKTEX_PDFSEPARATE_EXE, { "pdfseparate" } },
+  { MIKTEX_PDFSIG_EXE, { "pdfsig" } },
+  { MIKTEX_PDFTOHTML_EXE, { "pdftohtml" } },
+  { MIKTEX_PDFTOPPM_EXE, { "pdftoppm" } },
+  { MIKTEX_PDFTOPS_EXE, { "pdftops" } },
+  { MIKTEX_PDFTOTEXT_EXE, { "pdftotext" } },
+  { MIKTEX_PDFUNITE_EXE, { "pdfunite" } },
+#endif
 };
 
 vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories, bool overwrite)
