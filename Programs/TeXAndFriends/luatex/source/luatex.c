@@ -30,7 +30,7 @@
 
 int luatex_version = 100;        /* \.{\\luatexversion}  */
 int luatex_revision = '4';      /* \.{\\luatexrevision}  */
-int luatex_date_info = 2017021514;     /* the compile date is now hardwired :YEAR MONTH DAY HOUR*/
+int luatex_date_info = 2017033109;     /* the compile date is now hardwired :YEAR MONTH DAY HOUR*/
 const char *luatex_version_string = "1.0.4";
 const char *engine_name = my_name;     /* the name of this engine */
 
@@ -565,7 +565,6 @@ main (int ac, string *av)
   xputenv ("TEXMF", lpszPath);
   free (lpszPath);
 #endif
-
 #  ifdef __EMX__
     _wildcard(&ac, &av);
     _response(&ac, &av);

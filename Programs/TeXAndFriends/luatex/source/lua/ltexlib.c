@@ -1775,6 +1775,7 @@ static int do_convert(lua_State * L, int cur_code)
 static int do_scan_internal(lua_State * L, int cur_cmd1, int cur_code, int values)
 {
     int texstr;
+    int retval = 1 ;
     char *str = NULL;
     int save_cur_val, save_cur_val_level;
     save_cur_val = cur_val;
@@ -1790,13 +1791,15 @@ static int do_scan_internal(lua_State * L, int cur_cmd1, int cur_code, int value
         case mu_val_level:
             if (values == 0) {
                 lua_pushinteger(L,width(cur_val));
+                flush_node(cur_val);
             } else if (values == 1) {
                 lua_pushinteger(L,width(cur_val));
                 lua_pushinteger(L,stretch(cur_val));
                 lua_pushinteger(L,shrink(cur_val));
                 lua_pushinteger(L,stretch_order(cur_val));
                 lua_pushinteger(L,shrink_order(cur_val));
-                return 5;
+                flush_node(cur_val);
+                retval = 5;
             } else {
                 lua_nodelib_push_fast(L, cur_val);
             }
@@ -1815,7 +1818,7 @@ static int do_scan_internal(lua_State * L, int cur_cmd1, int cur_code, int value
     }
     cur_val = save_cur_val;
     cur_val_level = save_cur_val_level;
-    return 1;
+    return retval;
 }
 
 static int do_lastitem(lua_State * L, int cur_code)

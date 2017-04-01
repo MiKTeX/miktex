@@ -145,16 +145,6 @@ set(luamisc_sources
   source/luamd5/md5lib.c
   source/luapeg/lpeg.c
   source/luapeg/lpeg.h
-  source/luaprofiler/clocks.c
-  source/luaprofiler/clocks.h
-  source/luaprofiler/core_profiler.c
-  source/luaprofiler/core_profiler.h
-  source/luaprofiler/function_meter.c
-  source/luaprofiler/function_meter.h
-  source/luaprofiler/lua50_profiler.c
-  source/luaprofiler/luaprofiler.h
-  source/luaprofiler/stack.c
-  source/luaprofiler/stack.h
   source/luazip/src/luazip.c
   source/luazip/src/luazip.h
   source/luazlib/lgzip.c
