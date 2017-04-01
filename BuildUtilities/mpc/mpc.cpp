@@ -458,7 +458,7 @@ PathName PackageCreator::GetDbFileName(int id, const VersionNumber& versionNumbe
   PathName ret("miktex-zzdb");
   ret.Append(std::to_string(id), false);
   ret.Append("-", false);
-  ret.Append(versionNumber.ToString().c_str(), false);
+  ret.Append(versionNumber.ToString(), false);
   ret.AppendExtension(PackageCreator::GetFileNameExtension(GetDbArchiveFileType()));
   return ret;
 }
@@ -691,7 +691,7 @@ void PackageCreator::InitializeStagingDirectory(const PathName& stagingDir, cons
 
 void PackageCreator::CopyPackage(const MpcPackageInfo& packageinfo, const PathName& destDir)
 {
-  Verbose(T_("Copying %s ..."), Q_(packageinfo.deploymentName.c_str()));
+  Verbose(T_("Copying %s ..."), Q_(packageinfo.deploymentName));
 
   // path to package definition directory, e.g.:
   // /miktex/texmf/tpm/packages/
@@ -1244,13 +1244,13 @@ void PackageCreator::CleanUp(const PathName& repository)
       path2.AppendExtension(".tar.bz2");
       if (File::Exists(path2))
       {
-        toBeDeleted.push_back(path.GetData());
+        toBeDeleted.push_back(path.ToString());
       }
       path2 = path;
       path2.AppendExtension(".tar.lzma");
       if (File::Exists(path2))
       {
-        toBeDeleted.push_back(path.GetData());
+        toBeDeleted.push_back(path.ToString());
       }
     }
     else if (path.HasExtension(".bz2"))
@@ -1259,7 +1259,7 @@ void PackageCreator::CleanUp(const PathName& repository)
       path2.AppendExtension(".lzma");
       if (File::Exists(path2))
       {
-        toBeDeleted.push_back(path.GetData());
+        toBeDeleted.push_back(path.ToString());
       }
     }
   }
@@ -1484,7 +1484,7 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
       // extract the package definition file
       PathName filter(texmfPrefix);
       filter /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
-      filter /= packageInfo.deploymentName.c_str();
+      filter /= packageInfo.deploymentName;
       filter.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
 #if defined(MIKTEX_WINDOWS)
       filter.ConvertToUnix();
@@ -1517,7 +1517,7 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
     archiveFileType = GetPackageArchiveFileType(packageInfo);
 #endif
 
-    PathName packageArchiveFile(packageInfo.deploymentName.c_str());
+    PathName packageArchiveFile(packageInfo.deploymentName);
     packageArchiveFile.AppendExtension
     (PackageCreator::GetFileNameExtension(archiveFileType));
 
@@ -1613,7 +1613,7 @@ ArchiveFileType PackageCreator::CreateArchiveFile(MpcPackageInfo& packageInfo, c
   packageInfo.archiveFileSize = File::GetSize(archiveFile);
 
   // get MD5 of archive file
-  packageInfo.archiveFileDigest = MD5::FromFile(archiveFile.GetData());
+  packageInfo.archiveFileDigest = MD5::FromFile(archiveFile);
 
   // touch the new archive file
   File::SetTimes(archiveFile, reuseExisting ? static_cast<time_t>(-1) : programStartTime, static_cast<time_t>(-1), packageInfo.timePackaged);
@@ -1680,7 +1680,7 @@ map<string, MpcPackageInfo> PackageCreator::LoadDbHeavy(const PathName& reposito
   {
     PathName packageDefinitionFile(directory);
     packageDefinitionFile /= direntry.name;
-    PackageInfo packageInfo = PackageManager::ReadPackageDefinitionFile(packageDefinitionFile.GetData(), texmfPrefix);
+    PackageInfo packageInfo = PackageManager::ReadPackageDefinitionFile(packageDefinitionFile, texmfPrefix);
     packageInfo.deploymentName = packageDefinitionFile.GetFileNameWithoutExtension().ToString();
     packageTable[packageInfo.deploymentName] = packageInfo;
   }
@@ -1714,7 +1714,7 @@ void PackageCreator::UpdateRepository(map<string, MpcPackageInfo>& packageTable,
         && HavePackageArchiveFile(repository, it->second.deploymentName, archiveFile, archiveFileType))
       {
 #if 0
-        Verbose(T_("%s hasn't changed => skipping"), Q_(it->second.deploymentName.c_str()));
+        Verbose(T_("%s hasn't changed => skipping"), Q_(it->second.deploymentName));
 #endif
         continue;
       }
@@ -1850,7 +1850,7 @@ void PackageCreator::ReadList(const PathName& path, set<string>& setPackageList)
 void PackageCreator::DisassemblePackage(const PathName& packageDefinitionFile, const PathName& sourceDir, const PathName& stagingDir)
 {
   // parse the package definition file
-  Verbose(T_("Parsing %s..."), Q_(packageDefinitionFile.GetData()));
+  Verbose(T_("Parsing %s..."), Q_(packageDefinitionFile));
   PackageInfo packageInfo = PackageManager::ReadPackageDefinitionFile(packageDefinitionFile, texmfPrefix);
 
   // remove the package definition file from the RunFiles list
@@ -1875,7 +1875,7 @@ void PackageCreator::DisassemblePackage(const PathName& packageDefinitionFile, c
   // a0poster
   packageInfo.deploymentName = packageDefinitionFile.GetFileNameWithoutExtension().ToString();
 
-  Verbose(" %s (%u files)...", Q_(packageInfo.deploymentName.c_str()), static_cast<unsigned>(packageInfo.GetNumFiles()));
+  Verbose(" %s (%u files)...", packageInfo.deploymentName.c_str(), static_cast<unsigned>(packageInfo.GetNumFiles()));
 
   // copy files and calculate checksums; the package definition file
   // has been removed from the RunFiles list
@@ -1952,7 +1952,7 @@ void PackageCreator::Run(int argc, const char** argv)
       optDisassemblePackage = true;
       break;
     case OPT_MIKTEX_MAJOR_MINOR:
-      majorMinorVersion = optArg.c_str();
+      majorMinorVersion = optArg;
       if (majorMinorVersion.CompareTo(MIKTEX_MAJOR_MINOR_STR) > 0)
       {
         FatalError(T_("Unsupported MiKTeX major/minor version."));
@@ -2034,7 +2034,7 @@ void PackageCreator::Run(int argc, const char** argv)
     Verbose(T_("Loading database from %s..."), Q_(repository));
     unique_ptr<Cfg> dbLight(LoadDbLight(repository));
     map<string, MpcPackageInfo> packageTable = LoadDbHeavy(repository);
-    Verbose(T_("Reading staging directory %s..."), stagingDir.GetData());
+    Verbose(T_("Reading staging directory %s..."), Q_(stagingDir));
     MpcPackageInfo packageInfo = InitializePackageInfo(stagingDir.GetData());
     CollectPackage(packageInfo);
     packageTable[packageInfo.deploymentName] = packageInfo;
