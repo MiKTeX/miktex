@@ -337,11 +337,11 @@ private:
 const struct poptOption PackageCreator::options[] = {
 
   {
-    "build-tds", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_BUILD_TDS, T_("Create a TDS hierarchy."), 0
+    "build-tds", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_BUILD_TDS, T_("Create a TDS hierarchy."), nullptr
   },
 
   {
-    "create-package", 0, POPT_ARG_NONE, 0, OPT_CREATE_PACKAGE, T_("Create a package archive file and update the database."), 0
+    "create-package", 0, POPT_ARG_NONE, 0, OPT_CREATE_PACKAGE, T_("Create a package archive file and update the database."), nullptr
   },
 
   {
@@ -349,7 +349,7 @@ const struct poptOption PackageCreator::options[] = {
   },
 
   {
-    "disassemble-package", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_DISASSEMBLE_PACKAGE, T_("Create a staging directory."), 0
+    "disassemble-package", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_DISASSEMBLE_PACKAGE, T_("Create a staging directory."), nullptr
   },
 
   {
@@ -398,15 +398,15 @@ const struct poptOption PackageCreator::options[] = {
   },
 
   {
-    "update-repository", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_UPDATE_REPOSITORY, T_("Update the package repository."), 0
+    "update-repository", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, 0, OPT_UPDATE_REPOSITORY, T_("Update the package repository."), nullptr
   },
 
   {
-    "verbose", 0, POPT_ARG_NONE, 0, OPT_VERBOSE, T_("Turn on verbose mode."), 0
+    "verbose", 0, POPT_ARG_NONE, 0, OPT_VERBOSE, T_("Turn on verbose mode."), nullptr
   },
 
   {
-    "version", 0, POPT_ARG_NONE, 0, OPT_VERSION, T_("Print version information and exit."), 0
+    "version", 0, POPT_ARG_NONE, 0, OPT_VERSION, T_("Print version information and exit."), nullptr
   },
 
   POPT_AUTOHELP
@@ -2017,7 +2017,7 @@ void PackageCreator::Run(int argc, const char** argv)
   {
     cout
       << Utils::MakeProgramVersionString(TheNameOfTheGame, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-      << "Copyright (C) 1996-2016 Christian Schenk" << endl
+      << "Copyright (C) 1996-2017 Christian Schenk" << endl
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
   }
