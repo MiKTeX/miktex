@@ -227,7 +227,11 @@ template<class FileType> inline bool miktexopeninputfile(FileType& f)
   bool done = WebAppInputLine::GetWebAppInputLine()->OpenInputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile());
   if (done)
   {
+#if defined(MIKTEX_OMEGA)
     WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->MangleNameOfFile(WebAppInputLine::GetWebAppInputLine()->GetFoundFile().GetData()));
+#else
+    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->GetFoundFile());
+#endif
   }
   return done;
 }
@@ -246,7 +250,11 @@ template<class FileType> inline bool miktexopenoutputfile(FileType& f, C4P::C4P_
   bool done = WebAppInputLine::GetWebAppInputLine()->OpenOutputFile(*static_cast<C4P::FileRoot*>(&f), WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), share, text, outPath);
   if (done)
   {
+#if defined(MIKTEX_OMEGA)
     WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->MangleNameOfFile(outPath.GetData()));
+#else
+    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(outPath);
+#endif
   }
   return done;
 }
