@@ -406,7 +406,7 @@ const struct poptOption PackageCreator::options[] = {
   },
 
   {
-    T_("version"), 0, POPT_ARG_NONE, 0, OPT_VERSION, T_("Print version information and exit."), 0
+    "version", 0, POPT_ARG_NONE, 0, OPT_VERSION, T_("Print version information and exit."), 0
   },
 
   POPT_AUTOHELP
