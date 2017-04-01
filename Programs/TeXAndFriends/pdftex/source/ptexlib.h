@@ -198,6 +198,7 @@ extern const char *ptexbanner;
 
 /* mapfile.c */
 extern boolean hasfmentry(internalfontnumber);
+extern boolean isscalable(internalfontnumber);
 extern void fm_free(void);
 extern void fm_read_info(void);
 extern ff_entry *check_ff_exist(char *, boolean);

@@ -294,8 +294,7 @@ static int check_fm_entry(fm_entry * fm, boolean warn)
 
     /* if for non-Type3 font both ps_name and font file are missing,
        drop this entry */
-    if ((is_type1(fm) || is_truetype(fm) || is_opentype(fm))
-        && fm->ps_name == NULL && !is_fontfile(fm)) {
+    if (!is_type3(fm) && fm->ps_name == NULL && !is_fontfile(fm)) {
         if (warn)
             pdftex_warn
                 ("invalid entry for `%s': both ps_name and font file missing",
@@ -543,8 +542,13 @@ static void fm_scan_line(void)
             set_opentype(fm);
         else
             set_type1(fm);
-    } else if (is_std_t1font(fm))
-        set_type1(fm);          /* assume a builtin font is Type1 */
+    } else {
+        if (is_std_t1font(fm)) {
+          set_type1(fm);          /* assume a builtin font is Type1 */
+        } else {
+          set_type3(fm);          /* otherwise font is Type3 */
+        }
+    }
     if (check_fm_entry(fm, true) != 0)
         goto bad_line;
     /*
@@ -626,6 +630,11 @@ boolean hasfmentry(internalfontnumber f)
         pdffontmap[f] = fmlookup(f);
     assert(pdffontmap[f] != NULL);
     return pdffontmap[f] != (fmentryptr) dummy_fm_entry();
+}
+
+boolean isscalable(internalfontnumber f)
+{
+    return hasfmentry(f) && (!is_type3((fm_entry *)pdffontmap[f]));
 }
 
 /* check whether a map entry is valid for font replacement */
