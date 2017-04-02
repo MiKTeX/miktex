@@ -300,6 +300,12 @@ static int check_fm_entry(fm_entry * fm, boolean warn)
                 ("invalid entry for `%s': both ps_name and font file missing",
                  fm->tfm_name);
         a += 1;
+    } else if (is_type3(fm) && fm->encname == NULL) {
+        if (warn)
+            pdftex_warn
+                ("invalid entry for `%s': encoding file for type3 missing",
+                 fm->tfm_name);
+        a += 1;
     }
 
     /* TrueType fonts cannot be reencoded without subsetting */

@@ -362,6 +362,8 @@ void writet3(fm_entry * fm, int objnum, internalfontnumber f)
     cptr = pdfnewobjnum();
     pdf_printf("/Widths %i 0 R\n/Encoding %i 0 R\n/CharProcs %i 0 R\n",
                (int) wptr, (int) eptr, (int) cptr);
+    if (tounicode_objnum != 0)
+        pdf_printf("/ToUnicode %i 0 R\n", (int) tounicode_objnum);
     pdfenddict();
     pdfbeginobj(wptr, 1);       /* chars width array */
     pdf_puts("[");
@@ -406,8 +408,6 @@ void writet3(fm_entry * fm, int objnum, internalfontnumber f)
         }
     }
     pdf_puts("]\n");
-    if (tounicode_objnum != 0)
-        pdf_printf("/ToUnicode %i 0 R\n", (int) tounicode_objnum);
     pdfenddict();
     pdfbegindict(cptr, 1);      /* CharProcs dictionary */
     for (i = first_char; i <= last_char; i++)
