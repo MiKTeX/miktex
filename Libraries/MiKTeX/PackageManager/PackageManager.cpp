@@ -485,13 +485,13 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
       pkg.requiredBy.push_back(piObsolete.deploymentName);
     }
   }
-  if (piObsolete.requiredPackages.size() > 0)
+  if (!piObsolete.requiredPackages.empty())
   {
     // insert "Obsolete" into the database
     DefinePackage(piObsolete.deploymentName, piObsolete);
   }
 
-  // create "Other" container
+  // create "Uncategorized" container
   PackageInfo piOther;
   piOther.deploymentName = "_miktex-all-the-rest";
   piOther.displayName = T_("Uncategorized");
@@ -505,7 +505,7 @@ void PackageManagerImpl::ParseAllPackageDefinitionFilesInDirectory(const PathNam
       pkg.requiredBy.push_back(piOther.deploymentName);
     }
   }
-  if (piOther.requiredPackages.size() > 0)
+  if (!piOther.requiredPackages.empty())
   {
     // insert "Other" into the database
     DefinePackage(piOther.deploymentName, piOther);
@@ -1268,7 +1268,7 @@ void PackageManager::WritePackageDefinitionFile(const PathName& path, const Pack
 
 
   // create "TPM:RunFiles" node
-  if (packageInfo.runFiles.size() > 0)
+  if (!packageInfo.runFiles.empty())
   {
     xml.StartElement("TPM:RunFiles");
     xml.AddAttribute("size", std::to_string(static_cast<unsigned>(packageInfo.sizeRunFiles)).c_str());
@@ -1289,7 +1289,7 @@ void PackageManager::WritePackageDefinitionFile(const PathName& path, const Pack
   }
 
   // create "TPM:DocFiles" node
-  if (packageInfo.docFiles.size() > 0)
+  if (!packageInfo.docFiles.empty())
   {
     xml.StartElement("TPM:DocFiles");
     xml.AddAttribute("size", std::to_string(static_cast<unsigned>(packageInfo.sizeDocFiles)).c_str());
@@ -1310,7 +1310,7 @@ void PackageManager::WritePackageDefinitionFile(const PathName& path, const Pack
   }
 
   // create "TPM:SourceFiles" node
-  if (packageInfo.sourceFiles.size())
+  if (!packageInfo.sourceFiles.empty())
   {
     xml.StartElement("TPM:SourceFiles");
     xml.AddAttribute("size", std::to_string(static_cast<unsigned>(packageInfo.sizeSourceFiles)).c_str());
@@ -1331,7 +1331,7 @@ void PackageManager::WritePackageDefinitionFile(const PathName& path, const Pack
   }
 
   // create "TPM:Requires" node
-  if (packageInfo.requiredPackages.size() > 0)
+  if (!packageInfo.requiredPackages.empty())
   {
     xml.StartElement("TPM:Requires");
     for (const string& req : packageInfo.requiredPackages)
