@@ -2109,7 +2109,6 @@ void PackageCreator::Run(int argc, const char** argv)
       }
       // load light-weight database
       unique_ptr<Cfg> dbLight(LoadDbLight(repository));
-      UpdateRepository(packageTable, repository, *dbLight);
 #if 1
       bool autoCategorize = true;
       if (autoCategorize)
@@ -2145,6 +2144,7 @@ void PackageCreator::Run(int argc, const char** argv)
         }
       }
 #endif
+      UpdateRepository(packageTable, repository, *dbLight);
       WriteDatabase(packageTable, repository, true, *dbLight);
     }
   }
