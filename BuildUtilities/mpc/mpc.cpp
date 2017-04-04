@@ -113,6 +113,11 @@ public:
   }
 };
 
+bool StartsWith(const string& s, const string& prefix)
+{
+  return s.compare(0, prefix.length(), prefix) == 0;
+}
+
 class PackageCreator :
   public IRunProcessCallback
 
@@ -2105,6 +2110,41 @@ void PackageCreator::Run(int argc, const char** argv)
       // load light-weight database
       unique_ptr<Cfg> dbLight(LoadDbLight(repository));
       UpdateRepository(packageTable, repository, *dbLight);
+#if 1
+      bool autoCategorize = true;
+      if (autoCategorize)
+      {
+        // determine dependencies
+        for (auto& pkg : packageTable)
+        {
+          for (const string& req : pkg.second.requiredPackages)
+          {
+            auto it3 = packageTable.find(req);
+            if (it3 == packageTable.end())
+            {
+              Warning(T_("dependancy problem: %s is required by %s"), req.c_str(), pkg.second.deploymentName.c_str());
+            }
+            else
+            {
+              it3->second.requiredBy.push_back(pkg.second.deploymentName);
+            }
+          }
+        }
+        // categorize
+        auto latex = packageTable.find("_miktex-latex-packages");
+        for (auto& pkg : packageTable)
+        {
+          if (pkg.second.requiredBy.empty())
+          {
+            if (latex != packageTable.end() && StartsWith(pkg.second.ctanPath, "/macros/latex/contrib/"))
+            {
+              pkg.second.requiredBy.push_back(latex->second.deploymentName);
+              latex->second.requiredPackages.push_back(pkg.second.deploymentName);
+            }
+          }
+        }
+      }
+#endif
       WriteDatabase(packageTable, repository, true, *dbLight);
     }
   }
