@@ -17,9 +17,9 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_COMP_ORIG_VERSION_STR "4.2.0")
+set(MIKTEX_COMP_ORIG_VERSION_STR "5.0.0-rc1")
 
 set(MIKTEX_COMP_J2000_VERSION 6300)
 
-set(MIKTEX_COMP_COPYRIGHT_STR "(C) 2006-2016 The Gregorio Project")
-set(MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2006-2016 The Gregorio Project")
+set(MIKTEX_COMP_COPYRIGHT_STR "(C) 2006-2017 The Gregorio Project")
+set(MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2006-2017 The Gregorio Project")

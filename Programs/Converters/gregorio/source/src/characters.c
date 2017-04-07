@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX.
  * This file contains functions that deal with lyrics and styles.
  *
- * Copyright (C) 2008-2016 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2008-2017 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -120,8 +120,8 @@ void gregorio_set_centering_language(char *const language)
     }
 }
 
-static __inline gregorio_character *skip_verbatim_or_special(
-        gregorio_character *ch)
+static __inline const gregorio_character *skip_verbatim_or_special(
+        const gregorio_character *ch)
 {
     /* skip past verbatim and special characters */
     if (ch->cos.s.type == ST_T_BEGIN && (ch->cos.s.style == ST_VERBATIM
@@ -160,43 +160,66 @@ static __inline bool handle_elision(const gregorio_character *const ch,
     return true;
 }
 
-static void determine_center(gregorio_character *character, int *start,
-        int *end)
+static __inline int for_each_centerable_character(
+        const gregorio_character *const character,
+        void (*capture)(grewchar *, int, grewchar), grewchar *buffer)
 {
     int count;
-    grewchar *subject;
-    gregorio_character *ch;
-    bool in_elision;
+    const gregorio_character *ch;
+    bool in_elision = false;
 
-    *start = *end = -1;
-
-    in_elision = false;
     for (count = 0, ch = character; ch; ch = ch->next_character) {
         if (ch->is_character) {
             if (!in_elision) {
+                if (capture) {
+                    capture(buffer, count, ch->cos.character);
+                }
                 ++count;
             }
-        } else if (!handle_elision(ch, &in_elision)) {
-            ch = skip_verbatim_or_special(ch);
+        } else {
+            if (ch->cos.s.style == ST_PROTRUSION_FACTOR) {
+                /* if there is a protrusion, we will always encounter the
+                 * protrusion factor first */
+                break;
+            }
+            if (ch->cos.s.type == ST_T_BEGIN && ch->cos.s.style == ST_ELISION) {
+                /* put in a special character at the beginning of an elision
+                 * that represents the elision */
+                if (capture) {
+                    capture(buffer, count, GREVOWEL_ELISION_MARK);
+                }
+                ++count;
+            }
+            if (!handle_elision(ch, &in_elision)) {
+                ch = skip_verbatim_or_special(ch);
+            }
         }
     }
+    return count;
+}
+
+/* this function assumes subject is sized correctly */
+static void capture_subject(grewchar *const subject, const int count,
+        const grewchar character)
+{
+    subject[count] = character;
+}
+
+static void determine_center(gregorio_character *character, int *start,
+        int *end)
+{
+    const int count = for_each_centerable_character(character, NULL, NULL);
+    grewchar *subject;
+
     if (count == 0) {
         return;
     }
 
-    in_elision = false;
     subject = (grewchar *)gregorio_malloc((count + 1) * sizeof(grewchar));
-    for (count = 0, ch = character; ch; ch = ch->next_character) {
-        if (ch->is_character) {
-            if (!in_elision) {
-                subject[count ++] = ch->cos.character;
-            }
-        } else if (!handle_elision(ch, &in_elision)) {
-            ch = skip_verbatim_or_special(ch);
-        }
-    }
+    for_each_centerable_character(character, capture_subject, subject);
     subject[count] = (grewchar)0;
 
+    *start = *end = -1;
     gregorio_find_vowel_group(subject, start, end);
 
     free(subject);
@@ -913,6 +936,12 @@ void gregorio_rebuild_characters(gregorio_character **const param_character,
                     }
                 }
 
+                if (style == ST_ELISION) {
+                    /* skip over the elision marker in the vowel determination
+                     * buffer */
+                    ++index;
+                }
+
                 switch (style) {
                 case ST_VERBATIM:
                 case ST_SPECIAL_CHAR:
@@ -960,8 +989,15 @@ void gregorio_rebuild_characters(gregorio_character **const param_character,
                         /* just loop */
                     }
                     if (current_style) {
+                        /* repeated styles should already have been filtered out
+                         * during parsing, so if this is hit, it's a programming
+                         * error */
+                        /* LCOV_EXCL_START */
+                        gregorio_fail(gregorio_rebuild_characters,
+                                "encountered repeated style");
                         current_character = suppress_character(current_character);
                         continue;
+                        /* LCOV_EXCL_STOP */
                     }
                     /* if it is something to add then we just push the style in the
                      * stack and continue. */
@@ -1126,9 +1162,13 @@ void gregorio_rebuild_first_syllable(gregorio_character **param_character,
     /* now we are going to place the two INITIAL styles (begin and end) */
     while (current_character) {
         if (!current_character->is_character
-                && current_character->cos.s.style == ST_FORCED_CENTER) {
+                && (current_character->cos.s.style == ST_FORCED_CENTER
+                    || current_character->cos.s.style == ST_PROTRUSION_FACTOR)) {
             /* we don't touch anything after a FORCED_CENTER, so we put an
-             * empty INITIAL style just before */
+             * empty INITIAL style just before; we handle the weird case of
+             * a protrusion (manual or automatic) at the initial the same way
+             * (we need only check for PROTRUSION_FACTOR since that will come
+             * before PROTRUSION) */
             current_character = first_character;
             insert_style_before(ST_T_BEGIN, ST_INITIAL, current_character);
             current_character = current_character->previous_character;
@@ -1219,13 +1259,26 @@ void gregorio_rebuild_first_syllable(gregorio_character **param_character,
                 insert_style_after(ST_T_END, ST_FIRST_SYLLABLE_INITIAL,
                         &current_character);
             }
-            if (!current_character->is_character
-                    && (current_character->cos.s.style == ST_CENTER
-                    || current_character->cos.s.style == ST_FORCED_CENTER)) {
-                insert_style_before(ST_T_END, ST_FIRST_SYLLABLE,
-                        current_character);
-                insert_style_after(ST_T_BEGIN, ST_FIRST_SYLLABLE,
-                        &current_character);
+            if (!current_character->is_character) {
+                switch (current_character->cos.s.style) {
+                case ST_CENTER:
+                case ST_FORCED_CENTER:
+                    insert_style_before(ST_T_END, ST_FIRST_SYLLABLE,
+                            current_character);
+                    insert_style_after(ST_T_BEGIN, ST_FIRST_SYLLABLE,
+                            &current_character);
+                    break;
+
+                case ST_PROTRUSION_FACTOR:
+                    /* protrusion is not allowed to be the syllable initial;
+                     * we only need to check PROTRUSION_FACTOR since that will
+                     * come before PROTRUSION */
+                    marked_syllable_initial = true;
+                    break;
+
+                default:
+                    break;
+                }
             }
             if (!current_character->next_character) {
                 insert_style_after(ST_T_END, ST_FIRST_SYLLABLE,
@@ -1269,7 +1322,7 @@ void gregorio_set_first_word(gregorio_character **const character)
         }
     }
     /* else there are no more characters here */
-    
+
     if (*character) {
         gregorio_go_to_first_character_c(character);
     }

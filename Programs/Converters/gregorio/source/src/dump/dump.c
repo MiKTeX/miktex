@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX.
  * This file provides functions to dump out Gregorio structures.
  *
- * Copyright (C) 2007-2016 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2007-2017 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  * 
@@ -215,6 +215,9 @@ void dump_write_score(FILE *f, gregorio_score *score)
             fprintf(f, "   euouae                    %s\n",
                     gregorio_euouae_to_string(syllable->euouae));
         }
+        if (syllable->clear) {
+            fprintf(f, "   clear                     true\n");
+        }
         if (syllable->text) {
             if (syllable->translation) {
                 fprintf(f, "\n  Text\n");
@@ -256,6 +259,9 @@ void dump_write_score(FILE *f, gregorio_score *score)
                     fprintf(f, "     force_pitch             true\n");
                 }
                 break;
+            case GRE_SUPPRESS_CUSTOS:
+                /* not handling this would generate an error below */
+                break;
             case GRE_SPACE:
                 if (element->u.misc.unpitched.info.space) {
                     char *factor = element->u.misc.unpitched.info.
@@ -269,7 +275,7 @@ void dump_write_score(FILE *f, gregorio_score *score)
                 break;
             case GRE_TEXVERB_ELEMENT:
                 fprintf(f, "     TeX string              \"%s\"\n",
-                        element->texverb);
+                        gregorio_texverb(element->texverb));
                 break;
             case GRE_NLBA:
                 fprintf(f, "     nlba                    %d (%s)\n",
@@ -279,7 +285,7 @@ void dump_write_score(FILE *f, gregorio_score *score)
                 break;
             case GRE_ALT:
                 fprintf(f, "     Above lines text        \"%s\"\n",
-                        element->texverb);
+                        gregorio_texverb(element->texverb));
                 break;
             case GRE_BAR:
                 if (element->u.misc.unpitched.info.bar) {
@@ -338,7 +344,7 @@ void dump_write_score(FILE *f, gregorio_score *score)
                     switch (glyph->type) {
                     case GRE_TEXVERB_GLYPH:
                         fprintf(f, "       TeX string            \"%s\"\n",
-                                glyph->texverb);
+                                gregorio_texverb(glyph->texverb));
                         break;
 
                     case GRE_SPACE:
@@ -353,6 +359,9 @@ void dump_write_score(FILE *f, gregorio_score *score)
                                 glyph->u.notes.glyph_type,
                                 gregorio_glyph_type_to_string(glyph->u.notes.
                                                               glyph_type));
+                        if (glyph->u.notes.is_cavum) {
+                            fprintf(f, "       is_cavum              true\n");
+                        }
                         if (glyph->u.notes.liquescentia) {
                             fprintf(f, "       liquescentia          %d (%s)\n",
                                     glyph->u.notes.liquescentia,
@@ -391,6 +400,9 @@ void dump_write_score(FILE *f, gregorio_score *score)
                                             gregorio_shape_to_string(
                                                     note->u.note.shape));
                                 }
+                                if (note->u.note.is_cavum) {
+                                    fprintf(f, "         is_cavum               true\n");
+                                }
                                 if (note->u.note.liquescentia) {
                                     fprintf(f, "         liquescentia           %d (%s)\n",
                                             note->u.note.liquescentia,
@@ -409,7 +421,7 @@ void dump_write_score(FILE *f, gregorio_score *score)
                             }
                             if (note->texverb) {
                                 fprintf(f, "         TeX string             \"%s\"\n",
-                                        note->texverb);
+                                        gregorio_texverb(note->texverb));
                             }
                             if (note->choral_sign) {
                                 fprintf(f, "         Choral Sign            \"%s\"\n",
@@ -471,13 +483,37 @@ void dump_write_score(FILE *f, gregorio_score *score)
                             dump_hepisema_adjustment(f, note, SO_OVER, "above");
                             dump_hepisema_adjustment(f, note, SO_UNDER,
                                     "below");
-                            if (note->explicit_high_ledger_line) {
+                            switch (note->high_ledger_specificity) {
+                            case LEDGER_SUPPOSED:
+                                break;
+                            case LEDGER_EXPLICIT:
                                 fprintf(f, "         explicit high line     %s\n",
-                                        dump_bool(note->supposed_high_ledger_line));
+                                        dump_bool(note->high_ledger_line));
+                                break;
+                            case LEDGER_DRAWN:
+                                fprintf(f, "         drawn high line        %s\n",
+                                        dump_bool(note->high_ledger_line));
+                                break;
+                            case LEDGER_EXPLICITLY_DRAWN:
+                                fprintf(f, "         forced drawn high line %s\n",
+                                        dump_bool(note->high_ledger_line));
+                                break;
                             }
-                            if (note->explicit_low_ledger_line) {
+                            switch (note->low_ledger_specificity) {
+                            case LEDGER_SUPPOSED:
+                                break;
+                            case LEDGER_EXPLICIT:
                                 fprintf(f, "         explicit low line      %s\n",
-                                        dump_bool(note->supposed_low_ledger_line));
+                                        dump_bool(note->low_ledger_line));
+                                break;
+                            case LEDGER_DRAWN:
+                                fprintf(f, "         drawn low line         %s\n",
+                                        dump_bool(note->low_ledger_line));
+                                break;
+                            case LEDGER_EXPLICITLY_DRAWN:
+                                fprintf(f, "         forced drawn low line  %s\n",
+                                        dump_bool(note->low_ledger_line));
+                                break;
                             }
                         }
                     }

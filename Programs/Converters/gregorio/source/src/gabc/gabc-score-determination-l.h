@@ -230,6 +230,8 @@ extern char *gabc_score_determination_text;
 #define comments 6
 #define inicomments 7
 #define alt 8
+#define protrusion_value 9
+#define protrusion_end 10
 
 #endif
 
@@ -338,9 +340,9 @@ extern int gabc_score_determination_lex (void);
 #undef YY_DECL
 #endif
 
-#line 401 "gabc/gabc-score-determination.l"
+#line 429 "gabc/gabc-score-determination.l"
 
 
-#line 345 "gabc/gabc-score-determination-l.h"
+#line 347 "gabc/gabc-score-determination-l.h"
 #undef gabc_score_determination_IN_HEADER
 #endif /* gabc_score_determination_HEADER_H */

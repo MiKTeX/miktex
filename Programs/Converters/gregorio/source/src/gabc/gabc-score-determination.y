@@ -4,7 +4,7 @@
  * This file implements the score parser.
  *
  * Gregorio score determination from gabc.
- * Copyright (C) 2006-2016 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2017 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  * 
@@ -51,10 +51,13 @@
         (Current).last_line    = YYRHSLOC (Rhs, N).last_line; \
         (Current).last_column  = YYRHSLOC (Rhs, N).last_column; \
         (Current).last_offset  = YYRHSLOC (Rhs, N).last_offset; \
+        (Current).generate_point_and_click = YYRHSLOC (Rhs, 1).generate_point_and_click; \
     } else { \
         (Current).first_line   = (Current).last_line   = YYRHSLOC (Rhs, 0).last_line; \
         (Current).first_column = (Current).last_column = YYRHSLOC (Rhs, 0).last_column; \
         (Current).first_offset = (Current).last_offset = YYRHSLOC (Rhs, 0).last_offset; \
+        (Current).first_offset = (Current).last_offset = YYRHSLOC (Rhs, 0).last_offset; \
+        (Current).generate_point_and_click = YYRHSLOC (Rhs, 0).generate_point_and_click; \
     }
 
 #include "gabc-score-determination.h"
@@ -86,6 +89,7 @@ gregorio_element *current_element;
 static char *macros[10];
 /* other variables that we will have to use */
 static gregorio_character *current_character;
+static gregorio_character *suspended_character;
 static gregorio_character *first_text_character;
 static gregorio_character *first_translation_character;
 static gregorio_tr_centering translation_type;
@@ -104,6 +108,9 @@ static bool got_staff_lines;
 static bool started_first_word;
 static struct sha1_ctx digester;
 static gabc_style_bits styles;
+static bool generate_point_and_click;
+static bool clear_syllable_text;
+static bool has_protrusion;
 
 /* punctum_inclinatum_orientation maintains the running punctum inclinatum
  * orientation in order to decide if the glyph needs to be cut when a punctum
@@ -140,7 +147,7 @@ static void gabc_score_determination_error(const char *error_str)
  * The function that will initialize the variables. 
  */
 
-static void initialize_variables(void)
+static void initialize_variables(bool point_and_click)
 {
     int i;
     /* build a brand new empty score */
@@ -153,6 +160,7 @@ static void initialize_variables(void)
     number_of_voices = 1;
     voice = 0; /* first (and only) voice */
     current_character = NULL;
+    suspended_character = NULL;
     first_translation_character = NULL;
     first_text_character = NULL;
     translation_type = TR_NORMAL;
@@ -168,6 +176,9 @@ static void initialize_variables(void)
     started_first_word = false;
     styles = 0;
     punctum_inclinatum_orientation = S_PUNCTUM_INCLINATUM_UNDETERMINED;
+    generate_point_and_click = point_and_click;
+    clear_syllable_text = false;
+    has_protrusion = false;
 }
 
 /*
@@ -192,7 +203,7 @@ static void end_definitions(void)
 {
     int i;
 
-    gregorio_assert_only(check_infos_integrity(score), end_definitions,
+    gregorio_assert_only(gabc_check_infos_integrity(score), end_definitions,
             "can't determine valid infos on the score");
 
     elements = (gregorio_element **) gregorio_malloc(number_of_voices *
@@ -304,116 +315,6 @@ static void rebuild_score_characters(void)
 }
 
 /*
- * Function to close a syllable and update the position. 
- */
-
-static void close_syllable(YYLTYPE *loc)
-{
-    int i = 0;
-    gregorio_character *ch;
-
-    /* make sure any elisions that are opened are closed within the syllable */
-    for (ch = first_text_character; ch; ch = ch->next_character) {
-        if (!ch->is_character) {
-            switch (ch->cos.s.style) {
-            case ST_ELISION:
-                switch (ch->cos.s.type) {
-                case ST_T_BEGIN:
-                    ++i;
-                    if (i > 1) {
-                        gregorio_message(_("elisions may not be nested"),
-                                "close_syllable", VERBOSITY_ERROR, 0);
-                    }
-                    break;
-
-                case ST_T_END:
-                    --i;
-                    /* the parser precludes this from failing here */
-                    gregorio_assert_only(i >= 0, close_syllable,
-                            "encountered elision end with no beginning");
-                    break;
-
-                case ST_T_NOTHING:
-                    /* not reachable unless there's a programming error */
-                    /* LCOV_EXCL_START */
-                    gregorio_fail(close_syllable, "encountered ST_T_NOTHING");
-                    break;
-                    /* LCOV_EXCL_STOP */
-                }
-                break;
-
-            case ST_FORCED_CENTER:
-                if (i > 0) {
-                    gregorio_message(
-                            _("forced center may not be within an elision"),
-                            "close_syllable", VERBOSITY_ERROR, 0);
-                }
-                break;
-
-            default:
-                break;
-            }
-        }
-    }
-    /* the parser precludes this from failing here */
-    gregorio_assert_only(i == 0, close_syllable,
-            "encountered elision beginning with no end");
-
-    gregorio_add_syllable(&current_syllable, number_of_voices, elements,
-            first_text_character, first_translation_character, position,
-            abovelinestext, translation_type, no_linebreak_area, euouae, loc,
-            started_first_word);
-    if (!score->first_syllable) {
-        /* we rebuild the first syllable if we have to */
-        score->first_syllable = current_syllable;
-    }
-    if (translation_type == TR_WITH_CENTER_END) {
-        gregorio_set_translation_center_beginning(current_syllable);
-    }
-    /* we update the position */
-    if (position == WORD_BEGINNING) {
-        position = WORD_MIDDLE;
-    }
-    if (position == WORD_ONE_SYLLABLE || position == WORD_END) {
-        position = WORD_BEGINNING;
-
-        if (started_first_word) {
-            started_first_word = false;
-        }
-    }
-    center_is_determined = CENTER_NOT_DETERMINED;
-    current_character = NULL;
-    first_text_character = NULL;
-    first_translation_character = NULL;
-    translation_type = TR_NORMAL;
-    no_linebreak_area = NLBA_NORMAL;
-    euouae = EUOUAE_NORMAL;
-    abovelinestext = NULL;
-    for (i = 0; i < number_of_voices; i++) {
-        elements[i] = NULL;
-    }
-    current_element = NULL;
-}
-
-/* a function called when we see a [, basically, all characters are added to
- * the translation pointer instead of the text pointer */
-static void start_translation(unsigned char asked_translation_type)
-{
-    ready_characters();
-    first_text_character = current_character;
-    /* the middle letters of the translation have no sense */
-    center_is_determined = CENTER_FULLY_DETERMINED;
-    current_character = NULL;
-    translation_type = asked_translation_type;
-}
-
-static void end_translation(void)
-{
-    ready_characters();
-    first_translation_character = current_character;
-}
-
-/*
  * 
  * The two functions called when lex returns a style, we simply add it. All the 
  * complex things will be done by the function after...
@@ -428,6 +329,33 @@ static void add_style(unsigned char style)
 static void end_style(unsigned char style)
 {
     gregorio_end_style(&current_character, style);
+}
+
+static __inline void save_text(void)
+{
+    if (has_protrusion) {
+        end_style(ST_PROTRUSION);
+    }
+    ready_characters();
+    first_text_character = current_character;
+}
+
+/* a function called when we see a [, basically, all characters are added to
+ * the translation pointer instead of the text pointer */
+static void start_translation(unsigned char asked_translation_type)
+{
+    suspended_character = current_character;
+    /* the middle letters of the translation have no sense */
+    /*center_is_determined = CENTER_FULLY_DETERMINED;*/
+    current_character = NULL;
+    translation_type = asked_translation_type;
+}
+
+static void end_translation(void)
+{
+    ready_characters();
+    first_translation_character = current_character;
+    current_character = suspended_character;
 }
 
 /*
@@ -473,6 +401,165 @@ static void add_text(char *mbcharacters)
     free(mbcharacters);
 }
 
+static void add_protrusion(char *factor)
+{
+    if (has_protrusion) {
+        gregorio_message("syllable already has protrusion; pr tag ignored",
+                "det_score", VERBOSITY_WARNING, 0);
+        free(factor);
+    } else {
+        if (center_is_determined == CENTER_HALF_DETERMINED) {
+            gregorio_message("closing open syllable center before protrusion",
+                    "det_score", VERBOSITY_WARNING, 0);
+            end_style(ST_FORCED_CENTER);
+            center_is_determined = CENTER_FULLY_DETERMINED;
+        }
+
+        add_style(ST_PROTRUSION_FACTOR);
+        add_text(factor);
+        end_style(ST_PROTRUSION_FACTOR);
+        add_style(ST_PROTRUSION);
+        has_protrusion = true;
+    }
+}
+
+static void add_auto_protrusion(char *protrusion)
+{
+    if (has_protrusion) {
+        add_text(protrusion);
+    } else {
+        add_style(ST_PROTRUSION_FACTOR);
+        add_style(ST_VERBATIM);
+        add_text(gregorio_strdup("\\GreProtrusionFactor{"));
+
+        switch (*protrusion) {
+        case ',':
+            add_text(gregorio_strdup("comma"));
+            break;
+        case ';':
+            add_text(gregorio_strdup("semicolon"));
+            break;
+        case ':':
+            add_text(gregorio_strdup("colon"));
+            break;
+        case '.':
+            add_text(gregorio_strdup("period"));
+            break;
+        default:
+            /* not reachable unless there's a programming error */
+            /* LCOV_EXCL_START */
+            gregorio_fail2(add_auto_protrusion,
+                    "unsupported protruding punctuation: %c", *protrusion);
+            break;
+            /* LCOV_EXCL_STOP */
+        }
+
+        add_text(gregorio_strdup("}"));
+        end_style(ST_VERBATIM);
+        end_style(ST_PROTRUSION_FACTOR);
+
+        add_style(ST_PROTRUSION);
+        add_text(protrusion);
+        end_style(ST_PROTRUSION);
+
+        has_protrusion = true;
+    }
+}
+
+/*
+ * Function to close a syllable and update the position.
+ */
+
+static void close_syllable(YYLTYPE *loc)
+{
+    int i = 0;
+    gregorio_character *ch;
+
+    /* make sure any elisions that are opened are closed within the syllable */
+    for (ch = first_text_character; ch; ch = ch->next_character) {
+        if (!ch->is_character) {
+            switch (ch->cos.s.style) {
+            case ST_ELISION:
+                switch (ch->cos.s.type) {
+                case ST_T_BEGIN:
+                    ++i;
+                    /* the parser precludes this from falling here */
+                    gregorio_assert_only(i <= 1, close_syllable,
+                            "elisions may not be nested");
+                    break;
+
+                case ST_T_END:
+                    --i;
+                    /* the parser precludes this from failing here */
+                    gregorio_assert_only(i >= 0, close_syllable,
+                            "encountered elision end with no beginning");
+                    break;
+
+                case ST_T_NOTHING:
+                    /* not reachable unless there's a programming error */
+                    /* LCOV_EXCL_START */
+                    gregorio_fail(close_syllable, "encountered ST_T_NOTHING");
+                    break;
+                    /* LCOV_EXCL_STOP */
+                }
+                break;
+
+            case ST_FORCED_CENTER:
+                if (i > 0) {
+                    gregorio_message(
+                            _("forced center may not be within an elision"),
+                            "close_syllable", VERBOSITY_ERROR, 0);
+                }
+                break;
+
+            default:
+                break;
+            }
+        }
+    }
+    /* the parser precludes this from failing here */
+    gregorio_assert_only(i == 0, close_syllable,
+            "encountered elision beginning with no end");
+
+    gregorio_add_syllable(&current_syllable, number_of_voices, elements,
+            first_text_character, first_translation_character, position,
+            abovelinestext, translation_type, no_linebreak_area, euouae, loc,
+            started_first_word, clear_syllable_text);
+    if (!score->first_syllable) {
+        /* we rebuild the first syllable if we have to */
+        score->first_syllable = current_syllable;
+    }
+    if (translation_type == TR_WITH_CENTER_END) {
+        gregorio_set_translation_center_beginning(current_syllable);
+    }
+    /* we update the position */
+    if (position == WORD_BEGINNING) {
+        position = WORD_MIDDLE;
+    }
+    if (position == WORD_ONE_SYLLABLE || position == WORD_END) {
+        position = WORD_BEGINNING;
+
+        if (started_first_word) {
+            started_first_word = false;
+        }
+    }
+    center_is_determined = CENTER_NOT_DETERMINED;
+    current_character = NULL;
+    suspended_character = NULL;
+    first_text_character = NULL;
+    first_translation_character = NULL;
+    translation_type = TR_NORMAL;
+    no_linebreak_area = NLBA_NORMAL;
+    euouae = EUOUAE_NORMAL;
+    abovelinestext = NULL;
+    for (i = 0; i < number_of_voices; i++) {
+        elements[i] = NULL;
+    }
+    current_element = NULL;
+    clear_syllable_text = false;
+    has_protrusion = false;
+}
+
 void gabc_digest(const void *const buf, const size_t size)
 {
     sha1_process_bytes(buf, size, &digester);
@@ -484,7 +571,7 @@ void gabc_digest(const void *const buf, const size_t size)
  * aleady open. It returns a valid gregorio_score 
  */
 
-gregorio_score *gabc_read_score(FILE *f_in)
+gregorio_score *gabc_read_score(FILE *f_in, bool point_and_click)
 {
     /* compute the SHA-1 digest while parsing, for I/O efficiency */
     sha1_init_ctx(&digester);
@@ -495,21 +582,23 @@ gregorio_score *gabc_read_score(FILE *f_in)
     gabc_score_determination_in = f_in;
     gregorio_assert(f_in, gabc_read_score, "can't read stream from NULL",
             return NULL);
-    initialize_variables();
+    initialize_variables(point_and_click);
     /* the flex/bison main call, it will build the score (that we have
      * initialized) */
     gabc_score_determination_parse();
     if (!score->legacy_oriscus_orientation) {
-        determine_oriscus_orientation(score);
+        gabc_determine_oriscus_orientation(score);
     }
-    determine_punctum_inclinatum_orientation(score);
+    gabc_determine_punctum_inclinatum_orientation(score);
+    gabc_determine_ledger_lines(score);
     gregorio_fix_initial_keys(score, gregorio_default_clef);
     rebuild_score_characters();
-    fix_custos(score);
+    gabc_suppress_extra_custos_at_linebreak(score);
+    gabc_fix_custos_pitches(score);
     gabc_det_notes_finish();
     free_variables();
     /* then we check the validity and integrity of the score we have built. */
-    if (!check_score_integrity(score)) {
+    if (!gabc_check_score_integrity(score)) {
         gregorio_message(_("unable to determine a valid score from file"),
                 "gabc_read_score", VERBOSITY_ERROR, 0);
     }
@@ -554,6 +643,13 @@ static void gabc_y_add_notes(char *notes, YYLTYPE loc) {
         current_element->nabc_lines = nabc_state;
     }
 }
+
+static char *concatenate(char *first, char *const second) {
+    first = (char *)gregorio_realloc(first, strlen(first) + strlen(second) + 1);
+    strcat(first, second);
+    free(second);
+    return first;
+}
 %}
 
 %initial-action {
@@ -563,6 +659,7 @@ static void gabc_y_add_notes(char *notes, YYLTYPE loc) {
     @$.last_line = 1;
     @$.last_column = 0;
     @$.last_offset = 0;
+    @$.generate_point_and_click = generate_point_and_click;
 }
 
 %lex-param { gabc_style_bits *STYLE_BITS }
@@ -571,9 +668,8 @@ static void gabc_y_add_notes(char *notes, YYLTYPE loc) {
 %token LANGUAGE STAFF_LINES ORISCUS_ORIENTATION
 %token DEF_MACRO OTHER_HEADER
 %token ANNOTATION MODE MODE_MODIFIER MODE_DIFFERENTIA
-%token INITIAL_STYLE /* DEPRECATED for removal in 5.0 */
 %token END_OF_DEFINITIONS END_OF_FILE
-%token COLON SEMICOLON SPACE CHARACTERS NOTES HYPHEN ATTRIBUTE
+%token COLON SEMICOLON CHARACTERS NOTES HYPHEN ATTRIBUTE
 %token OPENING_BRACKET CLOSING_BRACKET CLOSING_BRACKET_WITH_SPACE
 %token I_BEGIN I_END
 %token TT_BEGIN TT_END
@@ -582,7 +678,7 @@ static void gabc_y_add_notes(char *notes, YYLTYPE loc) {
 %token B_BEGIN B_END
 %token SC_BEGIN SC_END
 %token SP_BEGIN SP_END
-%token VERB_BEGIN VERB VERB_END
+%token VERB_BEGIN VERB_END
 %token CENTER_BEGIN CENTER_END
 %token ELISION_BEGIN ELISION_END
 %token TRANSLATION_BEGIN TRANSLATION_END TRANSLATION_CENTER_END
@@ -590,6 +686,13 @@ static void gabc_y_add_notes(char *notes, YYLTYPE loc) {
 %token NLBA_B NLBA_E
 %token EUOUAE_B EUOUAE_E
 %token NABC_CUT NABC_LINES
+%token CLEAR
+%token PROTRUSION PROTRUSION_VALUE PROTRUSION_END PROTRUDING_PUNCTUATION
+
+%precedence HYPHEN PROTRUDING_PUNCTUATION
+%precedence TRANSLATION_BEGIN TRANSLATION_CENTER_END
+%precedence TRANSLATION_END
+%precedence OPENING_BRACKET
 
 %%
 
@@ -607,12 +710,20 @@ definitions:
     | definitions definition
     ;
 
+attribute_value:
+    ATTRIBUTE {
+        $$.text = $1.text;
+    }
+    | attribute_value ATTRIBUTE {
+        $$.text = concatenate($1.text, $2.text);
+    }
+    ;
+
 attribute:
-    COLON ATTRIBUTE SEMICOLON {
+    COLON attribute_value SEMICOLON {
         $$.text = $2.text;
     }
-    |
-    COLON SEMICOLON {
+    | COLON SEMICOLON {
         $$.text = NULL;
     }
     ;
@@ -677,16 +788,6 @@ definition:
             gregorio_add_score_header(score, $1.text, $2.text);
             nabc_lines=atoi($2.text);
             score->nabc_lines=nabc_lines;
-        }
-    }
-    | INITIAL_STYLE attribute {
-        if ($2.text) {
-            /* DEPRECATED for removal in 5.0 */
-            gregorio_message("\"initial-style\" header is deprecated. Please "
-            "use \\gresetinitiallines in TeX instead.",
-            "gabc_score_determination_parse", VERBOSITY_DEPRECATION, 0);
-            score->initial_style = atoi($2.text);
-            free($2.text);
         }
     }
     | ANNOTATION attribute {
@@ -781,15 +882,6 @@ style_beginning:
     | SP_BEGIN {
         add_style(ST_SPECIAL_CHAR);
     }
-    | ELISION_BEGIN {
-        add_style(ST_ELISION);
-    }
-    | CENTER_BEGIN {
-        if (!center_is_determined) {
-            add_style(ST_FORCED_CENTER);
-            center_is_determined=CENTER_HALF_DETERMINED;
-        }
-    }
     ;
 
 style_end:
@@ -817,13 +909,40 @@ style_end:
     | SP_END {
         end_style(ST_SPECIAL_CHAR);
     }
-    | ELISION_END {
+    ;
+
+special_style_beginning:
+    ELISION_BEGIN {
+        add_style(ST_ELISION);
+    }
+    | CENTER_BEGIN {
+        if (center_is_determined) {
+            gregorio_message(
+                    "syllable already has center; ignoring additional center",
+                    "det_score", VERBOSITY_WARNING, 0);
+        } else if (has_protrusion) {
+            gregorio_message(
+                    "center not allowed after protrusion; ignored",
+                    "det_score", VERBOSITY_WARNING, 0);
+        } else {
+            add_style(ST_FORCED_CENTER);
+            center_is_determined = CENTER_HALF_DETERMINED;
+        }
+    }
+    ;
+
+special_style_end:
+    ELISION_END {
         end_style(ST_ELISION);
     }
     | CENTER_END {
-        if (center_is_determined==CENTER_HALF_DETERMINED) {
+        if (center_is_determined == CENTER_HALF_DETERMINED) {
             end_style(ST_FORCED_CENTER);
-            center_is_determined=CENTER_FULLY_DETERMINED;
+            center_is_determined = CENTER_FULLY_DETERMINED;
+        } else {
+            gregorio_message(
+                    "not within a syllable center",
+                    "det_score", VERBOSITY_WARNING, 0);
         }
     }
     ;
@@ -846,6 +965,15 @@ linebreak_area:
     }
     ;
 
+protrusion:
+    PROTRUSION PROTRUSION_VALUE PROTRUSION_END {
+        add_protrusion($2.text);
+    }
+    | PROTRUSION {
+        add_protrusion(gregorio_strdup("d")); /* d = default */
+    }
+    ;
+
 character:
     above_line_text
     | CHARACTERS {
@@ -853,22 +981,44 @@ character:
     }
     | style_beginning
     | style_end
+    | special_style_beginning
+    | special_style_end
     | linebreak_area
     | euouae
-    ;
-
-text_hyphen:
-    HYPHEN {
+    | CLEAR {
+        clear_syllable_text = true;
+    }
+    | protrusion
+    | HYPHEN {
         add_text(gregorio_strdup("-"));
     }
-    | text_hyphen HYPHEN {
-        add_text(gregorio_strdup("-"));
+    | PROTRUDING_PUNCTUATION {
+        add_text($1.text);
     }
     ;
 
 text:
+    character
     | text character
-    | text text_hyphen character
+    ;
+
+translation_character:
+    CHARACTERS {
+        add_text($1.text);
+    }
+    | style_beginning
+    | style_end
+    | HYPHEN {
+        add_text(gregorio_strdup("-"));
+    }
+    | PROTRUDING_PUNCTUATION {
+        add_text($1.text);
+    }
+    ;
+
+translation_text:
+    translation_character
+    | translation_text translation_character
     ;
 
 translation_beginning:
@@ -878,11 +1028,15 @@ translation_beginning:
     ;
 
 translation:
-    translation_beginning text TRANSLATION_END {
+    translation_beginning TRANSLATION_END {
+        end_translation();
+    }
+    | translation_beginning translation_text TRANSLATION_END {
         end_translation();
     }
     | TRANSLATION_CENTER_END {
         start_translation(TR_WITH_CENTER_END);
+        end_translation();
     }
     ;
 
@@ -894,25 +1048,59 @@ above_line_text:
 
 syllable_with_notes:
     text OPENING_BRACKET notes {
-        ready_characters();
-        first_text_character = current_character;
+        save_text();
+        close_syllable(&@1);
+    }
+    | HYPHEN OPENING_BRACKET notes {
+        add_style(ST_VERBATIM);
+        add_text(gregorio_strdup("\\GreForceHyphen"));
+        end_style(ST_VERBATIM);
+        save_text();
         close_syllable(&@1);
     }
     | text HYPHEN OPENING_BRACKET notes {
         add_style(ST_VERBATIM);
         add_text(gregorio_strdup("\\GreForceHyphen"));
         end_style(ST_VERBATIM);
-        ready_characters();
-        first_text_character = current_character;
+        save_text();
+        close_syllable(&@1);
+    }
+    | PROTRUDING_PUNCTUATION OPENING_BRACKET notes {
+        add_auto_protrusion($1.text);
+        save_text();
+        close_syllable(&@1);
+    }
+    | text PROTRUDING_PUNCTUATION OPENING_BRACKET notes {
+        add_auto_protrusion($2.text);
+        save_text();
         close_syllable(&@1);
     }
     | text translation OPENING_BRACKET notes {
+        save_text();
+        close_syllable(&@1);
+    }
+    | HYPHEN translation OPENING_BRACKET notes {
+        add_style(ST_VERBATIM);
+        add_text(gregorio_strdup("\\GreForceHyphen"));
+        end_style(ST_VERBATIM);
+        save_text();
         close_syllable(&@1);
     }
     | text HYPHEN translation OPENING_BRACKET notes {
         add_style(ST_VERBATIM);
         add_text(gregorio_strdup("\\GreForceHyphen"));
         end_style(ST_VERBATIM);
+        save_text();
+        close_syllable(&@1);
+    }
+    | PROTRUDING_PUNCTUATION translation OPENING_BRACKET notes {
+        add_auto_protrusion($1.text);
+        save_text();
+        close_syllable(&@1);
+    }
+    | text PROTRUDING_PUNCTUATION translation OPENING_BRACKET notes {
+        add_auto_protrusion($2.text);
+        save_text();
         close_syllable(&@1);
     }
     ;

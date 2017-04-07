@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This header prototypes GregorioTeX writing data structures and entry points.
  *
- * Copyright (C) 2006-2016 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2017 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  * 
@@ -35,14 +35,14 @@ typedef enum gtex_type {
     T_ONE_NOTE = 1,
     /* two note neumes */
     T_PES,
-    T_PESQUADRATUM,
-    T_PESQUILISMA,
-    T_PESQUASSUS,
-    T_PESQUILISMAQUADRATUM,
+    T_PES_QUADRATUM,
+    T_QUILISMA_PES,
+    T_PES_QUASSUS,
+    T_QUILISMA_PES_QUADRATUM,
     T_FLEXUS,
     T_FLEXUS_ORISCUS,
     T_FLEXUS_ORISCUS_SCAPUS,
-    T_VIRGA_STRATA,
+    T_PES_ORISCUS,
     /* three note neumes */
     T_PORRECTUS,
     T_TORCULUS,

@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file provides functions for writing gabc from Gregorio structures.
  *
- * Copyright (C) 2006-2016 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2017 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  * 
@@ -35,6 +35,14 @@
 #include "plugins.h"
 
 #include "gabc.h"
+
+typedef enum {
+    GABC_NORMAL,
+    GABC_AT_PROTRUSION_FACTOR,
+    GABC_IN_PROTRUSION_FACTOR
+} gabc_write_state;
+
+static gabc_write_state write_state;
 
 static __inline char pitch_letter(const char height) {
     char result = height + 'a' - LOWEST_PITCH;
@@ -102,11 +110,15 @@ static void gabc_write_begin(FILE *f, grestyle_style style)
     case ST_ELISION:
         fprintf(f, "<e>");
         break;
+    case ST_PROTRUSION_FACTOR:
+        write_state = GABC_AT_PROTRUSION_FACTOR;
+        break;
     case ST_INITIAL:
     case ST_CENTER:
     case ST_FIRST_WORD:
     case ST_FIRST_SYLLABLE:
     case ST_FIRST_SYLLABLE_INITIAL:
+    case ST_PROTRUSION:
         /* nothing should be emitted for these */
         break;
     default:
@@ -152,11 +164,17 @@ static void gabc_write_end(FILE *f, grestyle_style style)
     case ST_ELISION:
         fprintf(f, "</e>");
         break;
+    case ST_PROTRUSION_FACTOR:
+        if (write_state == GABC_IN_PROTRUSION_FACTOR) {
+            fprintf(f, ">");
+        }
+        break;
     case ST_INITIAL:
     case ST_CENTER:
     case ST_FIRST_WORD:
     case ST_FIRST_SYLLABLE:
     case ST_FIRST_SYLLABLE_INITIAL:
+    case ST_PROTRUSION:
         /* nothing should be emitted for these */
         break;
     default:
@@ -191,9 +209,14 @@ static void gabc_write_special_char(FILE *f, const grewchar *first_char)
  */
 static void gabc_write_verb(FILE *f, const grewchar *first_char)
 {
-    fprintf(f, "<v>");
-    gregorio_print_unistring(f, first_char);
-    fprintf(f, "</v>");
+    if (write_state == GABC_AT_PROTRUSION_FACTOR) {
+        /* this is an auto protrusion, so ignore it */
+        write_state = GABC_NORMAL;
+    } else {
+        fprintf(f, "<v>");
+        gregorio_print_unistring(f, first_char);
+        fprintf(f, "</v>");
+    }
 }
 
 /*
@@ -206,7 +229,17 @@ static void gabc_write_verb(FILE *f, const grewchar *first_char)
 
 static void gabc_print_char(FILE *f, const grewchar to_print)
 {
-    gregorio_print_unichar(f, to_print);
+    if (write_state == GABC_AT_PROTRUSION_FACTOR) {
+        write_state = GABC_IN_PROTRUSION_FACTOR;
+        if (to_print == 'd') {
+            fprintf(f, "<pr");
+        } else {
+            fprintf(f, "<pr:");
+            gregorio_print_unichar(f, to_print);
+        }
+    } else {
+        gregorio_print_unichar(f, to_print);
+    }
 }
 
 /*
@@ -442,11 +475,25 @@ static const char *mora_vposition(gregorio_note *note)
 }
 
 static void write_note_heuristics(FILE *f, gregorio_note *note) {
-    if (note->explicit_high_ledger_line) {
-        fprintf(f, "[hl:%c]", note->supposed_high_ledger_line? '1' : '0');
+    switch (note->high_ledger_specificity) {
+    case LEDGER_EXPLICIT:
+        fprintf(f, "[hl:%c]", note->high_ledger_line? '1' : '0');
+        break;
+    case LEDGER_EXPLICITLY_DRAWN:
+        fprintf(f, "[oll:%c]", note->high_ledger_line? '1' : '0');
+        break;
+    default:
+        break;
     }
-    if (note->explicit_low_ledger_line) {
-        fprintf(f, "[ll:%c]", note->supposed_low_ledger_line? '1' : '0');
+    switch (note->low_ledger_specificity) {
+    case LEDGER_EXPLICIT:
+        fprintf(f, "[ll:%c]", note->low_ledger_line? '1' : '0');
+        break;
+    case LEDGER_EXPLICITLY_DRAWN:
+        fprintf(f, "[ull:%c]", note->low_ledger_line? '1' : '0');
+        break;
+    default:
+        break;
     }
 }
 
@@ -496,12 +543,6 @@ static void gabc_write_gregorio_note(FILE *f, gregorio_note *note,
     case S_PUNCTUM_INCLINATUM_AUCTUS:
         fprintf(f, "%c", toupper((unsigned char)pitch_letter(note->u.note.pitch)));
         break;
-    case S_PUNCTUM_CAVUM_INCLINATUM:
-        fprintf(f, "%cr", toupper((unsigned char)pitch_letter(note->u.note.pitch)));
-        break;
-    case S_PUNCTUM_CAVUM_INCLINATUM_AUCTUS:
-        fprintf(f, "%cr<", toupper((unsigned char)pitch_letter(note->u.note.pitch)));
-        break;
     case S_FLAT:
         fprintf(f, "%cx", pitch_letter(note->u.note.pitch));
         break;
@@ -527,16 +568,6 @@ static void gabc_write_gregorio_note(FILE *f, gregorio_note *note,
         fprintf(f, "%co", pitch_letter(note->u.note.pitch));
         /* Note: the DEMINUTUS is also in the liquescentia */
         break;
-    case S_ORISCUS_CAVUM_ASCENDENS:
-        fprintf(f, "%co1r", pitch_letter(note->u.note.pitch));
-        break;
-    case S_ORISCUS_CAVUM_DESCENDENS:
-        fprintf(f, "%co0r", pitch_letter(note->u.note.pitch));
-        break;
-    case S_ORISCUS_CAVUM_DEMINUTUS:
-        fprintf(f, "%cor", pitch_letter(note->u.note.pitch));
-        /* Note: the DEMINUTUS is also in the liquescentia */
-        break;
     case S_QUILISMA:
         if (is_quadratum) {
             fprintf(f, "%cW", pitch_letter(note->u.note.pitch));
@@ -547,14 +578,8 @@ static void gabc_write_gregorio_note(FILE *f, gregorio_note *note,
     case S_LINEA:
         fprintf(f, "%c=", pitch_letter(note->u.note.pitch));
         break;
-    case S_PUNCTUM_CAVUM:
-        fprintf(f, "%cr", pitch_letter(note->u.note.pitch));
-        break;
     case S_LINEA_PUNCTUM:
         fprintf(f, "%cR", pitch_letter(note->u.note.pitch));
-        break;
-    case S_LINEA_PUNCTUM_CAVUM:
-        fprintf(f, "%cr0", pitch_letter(note->u.note.pitch));
         break;
     case S_ORISCUS_SCAPUS_ASCENDENS:
         fprintf(f, "%cO1", pitch_letter(note->u.note.pitch));
@@ -575,6 +600,9 @@ static void gabc_write_gregorio_note(FILE *f, gregorio_note *note,
         fprintf(f, "%c", pitch_letter(note->u.note.pitch));
         break;
         /* LCOV_EXCL_STOP */
+    }
+    if (note->u.note.is_cavum) {
+        fprintf(f, "r");
     }
     switch (note->signs) {
     case _PUNCTUM_MORA:
@@ -619,6 +647,15 @@ static void gabc_write_gregorio_note(FILE *f, gregorio_note *note,
     case _SEMI_CIRCULUS_REVERSUS:
         fprintf(f, "r5");
         break;
+    case _MUSICA_FICTA_FLAT:
+        fprintf(f, "r6");
+        break;
+    case _MUSICA_FICTA_NATURAL:
+        fprintf(f, "r7");
+        break;
+    case _MUSICA_FICTA_SHARP:
+        fprintf(f, "r8");
+        break;
     case _NO_SIGN:
         /* if there's no sign, don't emit anything */
         break;
@@ -646,7 +683,7 @@ static void gabc_write_gregorio_note(FILE *f, gregorio_note *note,
     }
     write_note_heuristics(f, note);
     if (note->texverb) {
-        fprintf(f, "[nv:%s]", note->texverb);
+        fprintf(f, "[nv:%s]", gregorio_texverb(note->texverb));
     }
 }
 
@@ -804,7 +841,7 @@ static void gabc_write_gregorio_glyph(FILE *f, gregorio_glyph *glyph,
     switch (glyph->type) {
     case GRE_TEXVERB_GLYPH:
         if (glyph->texverb) {
-            fprintf(f, "[gv:%s]", glyph->texverb);
+            fprintf(f, "[gv:%s]", gregorio_texverb(glyph->texverb));
         }
         break;
     case GRE_SPACE:
@@ -910,12 +947,12 @@ static void gabc_write_gregorio_element(FILE *f, gregorio_element *element,
         break;
     case GRE_TEXVERB_ELEMENT:
         if (element->texverb) {
-            fprintf(f, "[ev:%s]", element->texverb);
+            fprintf(f, "[ev:%s]", gregorio_texverb(element->texverb));
         }
         break;
     case GRE_ALT:
         if (element->texverb) {
-            fprintf(f, "[alt:%s]", element->texverb);
+            fprintf(f, "[alt:%s]", gregorio_texverb(element->texverb));
         }
         break;
     case GRE_SPACE:
@@ -947,6 +984,9 @@ static void gabc_write_gregorio_element(FILE *f, gregorio_element *element,
         } else {
             fprintf(f, "z0");
         }
+        break;
+    case GRE_SUPPRESS_CUSTOS:
+        fprintf(f, "[nocustos]");
         break;
     case GRE_NLBA:
         switch (element->u.misc.unpitched.info.nlba) {
@@ -1018,11 +1058,15 @@ static void gabc_write_gregorio_syllable(FILE *f, gregorio_syllable *syllable,
     bool linebreak_or_bar_in_element;
     gregorio_assert(syllable, gabc_write_gregorio_syllable,
             "call with NULL argument", return);
+    write_state = GABC_NORMAL;
     if (syllable->no_linebreak_area == NLBA_BEGINNING) {
         fprintf(f, "<nlba>");
     }
     if (syllable->euouae == EUOUAE_BEGINNING) {
         fprintf(f, "<eu>");
+    }
+    if (syllable->clear) {
+        fprintf(f, "<clear>");
     }
     if (syllable->text) {
         /* we call the magic function (defined in struct_utils.c), that will

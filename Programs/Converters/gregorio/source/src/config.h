@@ -4,7 +4,7 @@
  *
  * Gregorio configuration headers.
  *
- * Copyright (C) 2015 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2015-2017 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  * 
@@ -31,7 +31,6 @@
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>
 #endif
-
 #ifdef BRANCH_VERSION
 #define GREGORIO_VERSION VERSION "-" BRANCH_VERSION
 #else

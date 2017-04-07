@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This header prototypes the "main" entry points for reading and writing data.
  *
- * Copyright (C) 2008-2016 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2008-2017 The Gregorio Project (see CONTRIBUTORS.md)
  * 
  * This file is part of Gregorio.
  *
@@ -23,12 +23,14 @@
 #ifndef PLUGINS_H
 #define PLUGINS_H
 
+#include "bool.h"
+
 void dump_write_score(FILE *f, gregorio_score *score);
 
 void dump_write_characters(FILE *const f,
         const gregorio_character *current_character);
 
-gregorio_score *gabc_read_score(FILE *f_in);
+gregorio_score *gabc_read_score(FILE *f_in, bool point_and_click);
 
 void gabc_write_score(FILE *f, gregorio_score *score);
 

@@ -3,7 +3,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file implements the note parser.
  *
- * Copyright (C) 2006-2016 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2017 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -49,8 +49,17 @@ static char *before_ledger_length = NULL;
 static unsigned short ledger_var[2] = { 0, 0 };
 static unsigned char staff_lines;
 static signed char highest_pitch;
+static signed char high_ledger_line_pitch;
 static bool legacy_oriscus_orientation;
 static unsigned short he_adjustment_index[2] = { 0, 0 };
+static signed char bracket_low_pitch, bracket_high_pitch;
+static unsigned short left_bracket_texverb = 0;
+
+#define LEDGER(WHICH, SPECIFICITY, VALUE) \
+    if (LEDGER_##SPECIFICITY > current_note->WHICH##_ledger_specificity) { \
+        current_note->WHICH##_ledger_line = VALUE; \
+        current_note->WHICH##_ledger_specificity = LEDGER_##SPECIFICITY; \
+    }
 
 typedef struct slur_info {
     unsigned short var;
@@ -91,7 +100,7 @@ static __inline int letter_to_pitch_adjustment(const char letter) {
     /* LCOV_EXCL_STOP */
 }
 
-static __inline char pitch_letter_to_height(const char pitch) {
+static __inline signed char pitch_letter_to_height(const char pitch) {
     char result = pitch - 'a' + LOWEST_PITCH;
     if (pitch == 'p') {
         --result;
@@ -100,6 +109,14 @@ static __inline char pitch_letter_to_height(const char pitch) {
         gregorio_messagef("pitch_letter_to_height", VERBOSITY_ERROR, 0,
                 _("invalid pitch for %u lines: %c"), (unsigned int)staff_lines,
                 pitch);
+    }
+    if (left_bracket_texverb) {
+        if (result < bracket_low_pitch) {
+            bracket_low_pitch = result;
+        }
+        if (result > bracket_high_pitch) {
+            bracket_high_pitch = result;
+        }
     }
     return result;
 }
@@ -120,21 +137,25 @@ static gregorio_shape punctum_inclinatum(const char orientation)
 static __inline void lex_add_note(int i, gregorio_shape shape, char signs,
         char liquescentia)
 {
+    signed char height = pitch_letter_to_height(tolower(
+            (unsigned char)gabc_notes_determination_text[i]));
+
     nbof_isolated_episema = 0;
-    gregorio_add_note(&current_note, pitch_letter_to_height(
-            tolower((unsigned char)gabc_notes_determination_text[i])),
-            shape, signs, liquescentia, NULL, &notes_lloc);
+    gregorio_add_note(&current_note, height, shape, signs, liquescentia, NULL,
+            &notes_lloc);
     current_note->he_adjustment_index[SO_OVER] = he_adjustment_index[SO_OVER];
     current_note->he_adjustment_index[SO_UNDER] = he_adjustment_index[SO_UNDER];
 
-    if (ledger_var[SO_OVER]) {
-        current_note->supposed_high_ledger_line = true;
-        current_note->explicit_high_ledger_line = true;
+    if (height >= high_ledger_line_pitch) {
+        LEDGER(high, DRAWN, true);
+    } else if (ledger_var[SO_OVER]) {
+        LEDGER(high, EXPLICIT, true);
     }
 
-    if (ledger_var[SO_UNDER]) {
-        current_note->supposed_low_ledger_line = true;
-        current_note->explicit_low_ledger_line = true;
+    if (height <= LOW_LEDGER_LINE_PITCH) {
+        LEDGER(low, DRAWN, true);
+    } else if (ledger_var[SO_UNDER]) {
+        LEDGER(low, EXPLICIT, true);
     }
 }
 
@@ -491,15 +512,88 @@ static void end_var_slur(void)
     slur[index].start = NULL;
 }
 
-void parse_hepisema_adjustment(void)
+static void left_bracket(void)
 {
-    /* [xh:yz{]
-     * - x indicates l(ow) or h(igh) episema
-     * - y (optional) for l(ow), m(iddle), or h(igh) vertical position in space
-     * - z (optional) nudge dimension that starts with + or -
-     * - { (optional) starts a group
-     * - at least one of y, z, or w must be provided
-     * - if y and z are omitted, : may be omitted
+    if (left_bracket_texverb) {
+        gregorio_message(
+                _("cannot add a left bracket before closing the previous one"),
+                "left_bracket", VERBOSITY_ERROR, 0);
+        return;
+    }
+
+    /* when setting the left bracket, temporarily store the point-and-click
+     * information in the texverb */
+    if (notes_lloc.generate_point_and_click) {
+        gregorio_snprintf(tempstr, sizeof tempstr, "%u:%u:%u",
+                notes_lloc.first_line, notes_lloc.first_offset,
+                notes_lloc.first_column + 1);
+    } else {
+        tempstr[0] = '\0';
+    }
+    left_bracket_texverb = gregorio_add_texverb_as_note(&current_note,
+            gregorio_strdup(tempstr), GRE_TEXVERB_GLYPH, &notes_lloc);
+    bracket_low_pitch = MAX_PITCH;
+    bracket_high_pitch = LOWEST_PITCH;
+}
+
+static void right_bracket(void)
+{
+    if (!left_bracket_texverb) {
+        gregorio_message(
+                _("cannot add a right bracket without a matching left bracket"),
+                "right_bracket", VERBOSITY_ERROR, 0);
+        return;
+    }
+
+    if (bracket_high_pitch < bracket_low_pitch) {
+        gregorio_message(
+                _("cannot add brackets without notes between them"),
+                "right_bracket", VERBOSITY_ERROR, 0);
+        return;
+    }
+
+    gregorio_snprintf(tempstr, sizeof tempstr, "\\GreBracket{0}{%d}{%d}{%s}",
+            bracket_low_pitch, bracket_high_pitch,
+            gregorio_texverb(left_bracket_texverb));
+    gregorio_change_texverb(left_bracket_texverb, gregorio_strdup(tempstr));
+
+    if (notes_lloc.generate_point_and_click) {
+        gregorio_snprintf(tempstr, sizeof tempstr,
+                "\\GreBracket{1}{%d}{%d}{%u:%u:%u}", bracket_low_pitch,
+                bracket_high_pitch, notes_lloc.first_line,
+                notes_lloc.first_offset, notes_lloc.first_column + 1);
+    } else {
+        gregorio_snprintf(tempstr, sizeof tempstr,
+                "\\GreBracket{1}{%d}{%d}{}", bracket_low_pitch,
+                bracket_high_pitch);
+    }
+    gregorio_add_texverb_as_note(&current_note, gregorio_strdup(tempstr),
+            GRE_TEXVERB_GLYPH, &notes_lloc);
+
+    left_bracket_texverb = 0;
+}
+
+static void parse_hepisema_adjustment(void)
+{
+    /* See https://github.com/gregorio-project/gregorio/issues/872
+     *
+     * [xh:yzw]
+     *
+     * - x is o(ver) or u(under)
+     * - y is optional and is
+     *   - l for low in the space (chooses ol or ul depending on x)
+     *   - m for middle of the space
+     *   - h for high in the space (chooses oh or uh depending on x)
+     *   - ol for low in the space as if the episema were over the note
+     *   - oh for high in the space as if the episema were over the note
+     *   - ul for low in the space as if the episema were under the note
+     *   - uh for high in the space as if the episema were under the note
+     * - z is an optional nudge and must start with + or -
+     * - w is optional and may be { to start a range or } to end a range.
+     *
+     * at least one of y, z, or w must be provided
+     * if y and z are omitted, the : may be omitted
+     * y and z are not permitted when w is }
      */
 
     const gregorio_sign_orientation index = letter_to_sign_orientation(
@@ -587,7 +681,7 @@ void parse_hepisema_adjustment(void)
     }
 }
 
-void end_hepisema_adjustment(void)
+static void end_hepisema_adjustment(void)
 {
     /* [xh:}]
      * - x indicates l(ow) or h(igh) episema
@@ -640,6 +734,11 @@ void gabc_det_notes_finish(void)
                     over_or_under(orientation));
             ledger_var[orientation] = 0;
         }
+    }
+    if (left_bracket_texverb) {
+        gregorio_message(_("unclosed left bracket"),
+                "gabc_det_notes_finish", VERBOSITY_ERROR, 0);
+        left_bracket_texverb = 0;
     }
 }
 
@@ -845,29 +944,29 @@ void gabc_det_notes_finish(void)
     }
 <INITIAL>\[nm[1-9]\] {
         if (notesmacros[gabc_notes_determination_text[3]-'0']) {
-            gregorio_add_texverb_to_note(current_note,
-            gregorio_strdup(notesmacros[gabc_notes_determination_text[3]-'0']));
+            gregorio_add_texverb_to_note(current_note, gregorio_strdup(
+                    notesmacros[gabc_notes_determination_text[3]-'0']));
         } else error();
     }
 <INITIAL>\[gm[1-9]\] {
         if (notesmacros[gabc_notes_determination_text[3]-'0']) {
-            gregorio_add_texverb_as_note(&current_note,
-            gregorio_strdup(notesmacros[gabc_notes_determination_text[3]-'0']),
-            GRE_TEXVERB_GLYPH, &notes_lloc);
+            gregorio_add_texverb_as_note(&current_note, gregorio_strdup(
+                    notesmacros[gabc_notes_determination_text[3]-'0']),
+                    GRE_TEXVERB_GLYPH, &notes_lloc);
         } else error();
     }
 <INITIAL>\[em[1-9]\] {
         if (notesmacros[gabc_notes_determination_text[3]-'0']) {
-            gregorio_add_texverb_as_note(&current_note,
-            gregorio_strdup(notesmacros[gabc_notes_determination_text[3]-'0']),
-            GRE_TEXVERB_ELEMENT, &notes_lloc);
+            gregorio_add_texverb_as_note(&current_note, gregorio_strdup(
+                    notesmacros[gabc_notes_determination_text[3]-'0']),
+                    GRE_TEXVERB_ELEMENT, &notes_lloc);
         } else error();
     }
 <INITIAL>\[altm[1-9]\] {
         if (notesmacros[gabc_notes_determination_text[5]-'0']) {
-            gregorio_add_texverb_as_note(&current_note,
-            gregorio_strdup(notesmacros[gabc_notes_determination_text[5]-'0']),
-            GRE_TEXVERB_ELEMENT, &notes_lloc);
+            gregorio_add_texverb_as_note(&current_note, gregorio_strdup(
+                    notesmacros[gabc_notes_determination_text[5]-'0']),
+                    GRE_TEXVERB_ELEMENT, &notes_lloc);
         } else error();
     }
 <INITIAL>\[nv: {
@@ -959,6 +1058,12 @@ void gabc_det_notes_finish(void)
         gregorio_add_space_as_note(&current_note, SP_AD_HOC_SPACE_NB,
                 gregorio_strdup(gabc_notes_determination_text), &notes_lloc);
     }
+<INITIAL>\[oll:1\] {
+        LEDGER(high, EXPLICITLY_DRAWN, true);
+    }
+<INITIAL>\[oll:0\] {
+        LEDGER(high, EXPLICITLY_DRAWN, false);
+    }
 <INITIAL>\[oll:\}\] {
         end_variable_ledger(SO_OVER);
     }
@@ -976,6 +1081,12 @@ void gabc_det_notes_finish(void)
 <overledger2>\{[^\]]+ {
         add_variable_ledger(SO_OVER, gabc_notes_determination_text);
         BEGIN(endledger);
+    }
+<INITIAL>\[ull:1\] {
+        LEDGER(low, EXPLICITLY_DRAWN, true);
+    }
+<INITIAL>\[ull:0\] {
+        LEDGER(low, EXPLICITLY_DRAWN, false);
     }
 <INITIAL>\[ull:\}\] {
         end_variable_ledger(SO_UNDER);
@@ -1017,6 +1128,12 @@ void gabc_det_notes_finish(void)
 <INITIAL>\[[ou]h:?\}\] {
         end_hepisema_adjustment();
     }
+<INITIAL>\[\[ {
+        left_bracket();
+    }
+<INITIAL>\]\] {
+        right_bracket();
+    }
 \{  {
         gregorio_add_texverb_as_note(&current_note,
                 gregorio_strdup("\\hbox to 0pt{"), GRE_TEXVERB_ELEMENT,
@@ -1033,8 +1150,11 @@ void gabc_det_notes_finish(void)
                 &notes_lloc);
     }
 [\t\r\n]+ /* ignore ends of line and tabs */;
+<INITIAL>\[nocustos\] {
+        gregorio_add_suppress_custos_as_note(&current_note, &notes_lloc);
+    }
 z0  {
-        gregorio_add_custo_as_note(&current_note, &notes_lloc);
+        gregorio_add_custos_as_note(&current_note, &notes_lloc);
     }
 z   {
         gregorio_add_end_of_line_as_note(&current_note, false, false, false,
@@ -1101,16 +1221,16 @@ Z-  {
         add_bar_as_note(B_DIVISIO_FINALIS);
     }
 r   {
-        gregorio_change_shape(current_note, S_PUNCTUM_CAVUM,
-                legacy_oriscus_orientation);
+        gregorio_add_cavum(current_note);
     }
 R   {
         gregorio_change_shape(current_note, S_LINEA_PUNCTUM,
                 legacy_oriscus_orientation);
     }
 r0  {
-        gregorio_change_shape(current_note, S_LINEA_PUNCTUM_CAVUM,
+        gregorio_change_shape(current_note, S_LINEA_PUNCTUM,
                 legacy_oriscus_orientation);
+        gregorio_add_cavum(current_note);
     }
 r1  {
         gregorio_add_special_sign(current_note, _ACCENTUS);
@@ -1126,6 +1246,15 @@ r4  {
     }
 r5  {
         gregorio_add_special_sign(current_note, _SEMI_CIRCULUS_REVERSUS);
+    }
+r6  {
+        gregorio_add_special_sign(current_note, _MUSICA_FICTA_FLAT);
+    }
+r7  {
+        gregorio_add_special_sign(current_note, _MUSICA_FICTA_NATURAL);
+    }
+r8  {
+        gregorio_add_special_sign(current_note, _MUSICA_FICTA_SHARP);
     }
 x   {
         gregorio_change_shape(current_note, S_FLAT, legacy_oriscus_orientation);
@@ -1301,20 +1430,16 @@ s   {
                 legacy_oriscus_orientation);
     }
 \[hl:1\] {
-        current_note->supposed_high_ledger_line = true;
-        current_note->explicit_high_ledger_line = true;
+        LEDGER(high, EXPLICIT, true);
     }
 \[hl:0\] {
-        current_note->supposed_high_ledger_line = false;
-        current_note->explicit_high_ledger_line = true;
+        LEDGER(high, EXPLICIT, false);
     }
 \[ll:1\] {
-        current_note->supposed_low_ledger_line = true;
-        current_note->explicit_low_ledger_line = true;
+        LEDGER(low, EXPLICIT, true);
     }
 \[ll:0\] {
-        current_note->supposed_low_ledger_line = false;
-        current_note->explicit_low_ledger_line = true;
+        LEDGER(low, EXPLICIT, false);
     }
 .|\n {
         gregorio_messagef("det_notes_from_string", VERBOSITY_ERROR, 0,
@@ -1337,9 +1462,11 @@ gregorio_note *gabc_det_notes_from_string(char *str, char *newmacros[10],
     notes_lloc.last_line = loc->first_line;
     notes_lloc.last_column = loc->first_column;
     notes_lloc.last_offset = loc->first_offset;
+    notes_lloc.generate_point_and_click = loc->generate_point_and_click;
 
     staff_lines = score->staff_lines;
     highest_pitch = score->highest_pitch;
+    high_ledger_line_pitch = score->high_ledger_line_pitch;
     legacy_oriscus_orientation = score->legacy_oriscus_orientation;
 
     /* a small optimization could uccur here: we could do it only once at the

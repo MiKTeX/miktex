@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file contains functions for logging messages, warnings, and errors.
  *
- * Copyright (C) 2009-2016 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2009-2017 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  * 
@@ -67,8 +67,11 @@ static const char *verbosity_to_str(const gregorio_verbosity verbosity)
         str = _("warning:");
         break;
     case VERBOSITY_DEPRECATION:
+        /* if there is no deprecation, these lines will not be hit */
+        /* LCOV_EXCL_START */
         str = _("deprecation:");
         break;
+        /* LCOV_EXCL_STOP */
     case VERBOSITY_ERROR:
         str = _("error:");
         break;
@@ -139,9 +142,12 @@ void gregorio_messagef(const char *function_name,
 
     switch (verbosity) {
     case VERBOSITY_DEPRECATION:
+        /* if there is no deprecation, these lines will not be hit */
+        /* LCOV_EXCL_START */
         if (deprecation_is_warning) {
             break;
         }
+        /* LCOV_EXCL_STOP */
         /* else fall through */
     case VERBOSITY_ERROR:
     case VERBOSITY_ASSERTION:

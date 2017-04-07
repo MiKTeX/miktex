@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This header shares definitions between the vowel parser and lexer.
  *
- * Copyright (C) 2015 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2015-2017 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *

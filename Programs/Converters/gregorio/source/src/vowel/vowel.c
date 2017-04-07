@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file implements vowel rule handling (aside from parsing).
  *
- * Copyright (C) 2015 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2015-2017 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -82,7 +82,7 @@ static void character_set_free(character_set *const set)
 }
 
 static bool character_set_contains(character_set *const set,
-        const grewchar vowel, character_set **const next)
+        const grewchar character, character_set **const next)
 {
     unsigned int index;
     assert(set);
@@ -90,9 +90,9 @@ static bool character_set_contains(character_set *const set,
     if (next) {
         *next = NULL;
     }
-    for (index = ((unsigned long)vowel) & set->mask; set->table[index];
+    for (index = ((unsigned long)character) & set->mask; set->table[index];
             index = (index + 1) & set->mask) {
-        if (set->table[index] == vowel) {
+        if (set->table[index] == character) {
             if (next && set->next) {
                 *next = set->next[index];
             }
@@ -103,18 +103,18 @@ static bool character_set_contains(character_set *const set,
 }
 
 static __inline void character_set_put(character_set *const set,
-        const grewchar vowel, character_set *next)
+        const grewchar character, character_set *next)
 {
     unsigned int index;
 
     assert(set);
 
-    index = ((unsigned long)vowel) & set->mask;
+    index = ((unsigned long)character) & set->mask;
     while (set->table[index]) {
         index = (index + 1) & set->mask;
     }
 
-    set->table[index] = vowel;
+    set->table[index] = character;
     if (set->next) {
         set->next[index] = next;
     }
@@ -161,11 +161,11 @@ static __inline void character_set_grow(character_set *const set) {
 }
 
 static character_set *character_set_add(character_set *const set,
-        const grewchar vowel)
+        const grewchar character)
 {
     character_set *next = NULL;
 
-    if (!character_set_contains(set, vowel, &next)) {
+    if (!character_set_contains(set, character, &next)) {
         if (((++(set->size) * 10) / set->bins) >= 7) {
             character_set_grow(set);
         }
@@ -174,7 +174,7 @@ static character_set *character_set_add(character_set *const set,
             next = character_set_new(true);
         }
 
-        character_set_put(set, vowel, next);
+        character_set_put(set, character, next);
     }
 
     return next;
@@ -377,9 +377,11 @@ bool gregorio_find_vowel_group(const grewchar *const string, int *const start,
             prefix_buffer[bufpos] = *subject;
             if (character_set_contains(vowel_table, *subject, NULL)) {
                 /* we found a vowel */
-                if (!character_set_contains(vowel_table, *(subject + 1), NULL)
+                if ((!character_set_contains(vowel_table, *(subject + 1), NULL)
+                            && *(subject + 1) != GREVOWEL_ELISION_MARK)
                         || !is_in_prefix(bufpos)) {
-                    /* no vowel after or not in prefix, so this is the start */
+                    /* no vowel/elision after, or not in prefix, so this is the
+                     * start */
                     *start = i;
                     state = VWL_WITHIN;
                 }

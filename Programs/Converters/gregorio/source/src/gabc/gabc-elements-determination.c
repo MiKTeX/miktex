@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX.
  * This file provides functions for determining elements from notes.
  *
- * Copyright (C) 2006-2016 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2017 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  * 
@@ -175,7 +175,7 @@ static gregorio_element *gabc_det_elements_from_glyphs(
             }
             first_glyph = current_glyph->next;
             previous_glyph = NULL;
-            current_glyph->texverb = NULL;
+            current_glyph->texverb = 0;
             gregorio_free_one_glyph(&current_glyph);
             continue;
         }

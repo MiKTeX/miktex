@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This file contains the logic for positioning signs on neumes.
  *
- * Copyright (C) 2008-2016 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2008-2017 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  * 
@@ -377,7 +377,7 @@ static gregorio_vposition advise_positioning(const gregorio_glyph *const glyph,
 
     switch (type) {
     case T_PES:
-    case T_PESQUILISMA:
+    case T_QUILISMA_PES:
         /*
          * in the case of a pes, we put the episema just under the bottom note 
          */
@@ -408,9 +408,9 @@ static gregorio_vposition advise_positioning(const gregorio_glyph *const glyph,
             v_episema = below_if_auctus(glyph);
         }
         break;
-    case T_PESQUADRATUM:
-    case T_PESQUASSUS:
-    case T_PESQUILISMAQUADRATUM:
+    case T_PES_QUADRATUM:
+    case T_PES_QUASSUS:
+    case T_QUILISMA_PES_QUADRATUM:
         if (i == 1) {
             note->gtex_offset_case = first_note_case(note, glyph);
             h_episema = above_if_h_episema(note->next);
@@ -911,8 +911,6 @@ static gregorio_vposition advise_positioning(const gregorio_glyph *const glyph,
         case S_PUNCTUM_INCLINATUM_AUCTUS:
         case S_PUNCTUM_INCLINATUM_ASCENDENS:
         case S_PUNCTUM_INCLINATUM_DESCENDENS:
-        case S_PUNCTUM_CAVUM_INCLINATUM_AUCTUS:
-        case S_PUNCTUM_CAVUM_INCLINATUM:
             note->gtex_offset_case = FinalInclinatum;
             break;
         case S_STROPHA:
@@ -928,11 +926,6 @@ static gregorio_vposition advise_positioning(const gregorio_glyph *const glyph,
             note->gtex_offset_case = fused_single_note_case(glyph, FinalOriscus,
                     LeadingOriscus);
             break;
-        case S_ORISCUS_CAVUM_ASCENDENS:
-        case S_ORISCUS_CAVUM_DESCENDENS:
-        case S_ORISCUS_CAVUM_DEMINUTUS:
-            note->gtex_offset_case = FinalOriscus;
-            break;
         case S_VIRGA:
             note->gtex_offset_case = InitialVirga;
             break;
@@ -944,7 +937,6 @@ static gregorio_vposition advise_positioning(const gregorio_glyph *const glyph,
             }
             break;
         case S_LINEA_PUNCTUM:
-        case S_LINEA_PUNCTUM_CAVUM:
             note->gtex_offset_case = FinalLineaPunctum;
             break;
         case S_LINEA:
@@ -1168,17 +1160,17 @@ static __inline void position_h_episema(gregorio_note *const note,
             adj->pitch_extremum = h->height;
         }
     }
-    if (!note->explicit_high_ledger_line && !note->supposed_high_ledger_line) {
-        note->supposed_high_ledger_line = high_ledger_line;
+    if (!note->high_ledger_specificity && !note->high_ledger_line) {
+        note->high_ledger_line = high_ledger_line;
     }
-    if (!note->explicit_low_ledger_line && !note->supposed_low_ledger_line) {
-        note->supposed_low_ledger_line = low_ledger_line;
+    if (!note->low_ledger_specificity && !note->low_ledger_line) {
+        note->low_ledger_line = low_ledger_line;
     }
 }
 
 static __inline void next_has_ledger_line(
         const height_computation *const h, bool *high_ledger_line,
-        bool *low_ledger_line, const gregorio_score *const score)
+        bool *low_ledger_line)
 {
     const gregorio_element *element = h->last_connected_element;
     const gregorio_glyph *glyph = h->last_connected_glyph;
@@ -1205,10 +1197,8 @@ static __inline void next_has_ledger_line(
                 note = glyph->u.notes.first_note;
             }
 
-            *high_ledger_line = *high_ledger_line
-                    || has_high_ledger_line(note->u.note.pitch, false, score);
-            *low_ledger_line = *low_ledger_line
-                    || has_low_ledger_line(note->u.note.pitch, false);
+            *high_ledger_line = *high_ledger_line || note->high_ledger_line;
+            *low_ledger_line = *low_ledger_line || note->low_ledger_line;
 
             if (keep_going) {
                 keep_going = false;
@@ -1224,7 +1214,7 @@ static __inline void next_has_ledger_line(
 
 static __inline void previous_has_ledger_line(
         const height_computation *const h, bool *high_ledger_line,
-        bool *low_ledger_line, const gregorio_score *const score)
+        bool *low_ledger_line)
 {
     const gregorio_element *element = h->start_element;
     const gregorio_glyph *glyph = h->start_glyph;
@@ -1253,10 +1243,8 @@ static __inline void previous_has_ledger_line(
                 } while (glyph->type != GRE_GLYPH);
                 note = gregorio_glyph_last_note(glyph);
             }
-            *high_ledger_line = *high_ledger_line
-                    || has_high_ledger_line(note->u.note.pitch, false, score);
-            *low_ledger_line = *low_ledger_line
-                    || has_low_ledger_line(note->u.note.pitch, false);
+            *high_ledger_line = *high_ledger_line || note->high_ledger_line;
+            *low_ledger_line = *low_ledger_line || note->low_ledger_line;
 
             if (keep_going) {
                 keep_going = false;
@@ -1284,8 +1272,8 @@ static __inline void set_h_episema_height(const height_computation *const h,
     bool low_ledger_line = has_low_ledger_line(h->height, true)
             || has_low_ledger_line(h->height - h->vpos, false);
 
-    next_has_ledger_line(h, &high_ledger_line, &low_ledger_line, score);
-    previous_has_ledger_line(h, &high_ledger_line, &low_ledger_line, score);
+    next_has_ledger_line(h, &high_ledger_line, &low_ledger_line);
+    previous_has_ledger_line(h, &high_ledger_line, &low_ledger_line);
 
     for ( ; element; element = element->next) {
         if (element->type == GRE_ELEMENT) {
@@ -1328,11 +1316,17 @@ static __inline bool is_connected_right(const grehepisema_size size) {
     return size == H_NORMAL || size == H_SMALL_RIGHT;
 }
 
-static __inline bool is_connectable_interglyph_ambitus(
+static __inline bool is_connectable_interglyph_ambitus(const signed char first,
+        const signed char second)
+{
+    return abs(first - second) < 3;
+}
+
+static __inline bool is_connectable_interglyph_notes(
         const gregorio_note *const first, const gregorio_note *const second)
 {
-    return first && second
-            && abs(first->u.note.pitch - second->u.note.pitch) < 3;
+    return first && second && is_connectable_interglyph_ambitus(
+            first->u.note.pitch, second->u.note.pitch);
 }
 
 static __inline bool has_space_to_left(const gregorio_note *const note) {
@@ -1341,7 +1335,7 @@ static __inline bool has_space_to_left(const gregorio_note *const note) {
     case S_PUNCTUM_INCLINATUM_DESCENDENS:
     case S_PUNCTUM_INCLINATUM_DEMINUTUS:
     case S_PUNCTUM_INCLINATUM_AUCTUS:
-        return !is_connectable_interglyph_ambitus(note->previous, note);
+        return !is_connectable_interglyph_notes(note->previous, note);
 
     default:
         return !note->previous;
@@ -1430,7 +1424,6 @@ static __inline void compute_h_episema(height_computation *const h,
         const gregorio_glyph *const glyph, gregorio_note *const note,
         const int i, const gtex_type type, const gregorio_score *const score)
 {
-    signed char next_height;
     grehepisema_size size;
 
     if (h->is_applicable(note)) {
@@ -1438,11 +1431,11 @@ static __inline void compute_h_episema(height_computation *const h,
             size = h->get_size(note);
 
             if (h->active) {
+                const signed char next_height = compute_h_episema_height(
+                        glyph, note, h->vpos);
                 if (h->connected && is_connected_left(size)
                         && (i != 1 || is_connectable_interglyph_ambitus(
-                                note, h->last_connected_note))) {
-                    next_height = compute_h_episema_height(glyph, note,
-                            h->vpos);
+                                next_height, h->height))) {
                     if (h->is_better_height(next_height, h->height)) {
                         h->height = next_height;
                     }
@@ -1555,10 +1548,6 @@ static __inline int compute_fused_shift(const gregorio_glyph *glyph)
     switch (first_note->u.note.shape) {
     case S_QUILISMA:
     case S_QUILISMA_QUADRATUM:
-    case S_PUNCTUM_CAVUM:
-    case S_ORISCUS_CAVUM_ASCENDENS:
-    case S_ORISCUS_CAVUM_DESCENDENS:
-    case S_ORISCUS_CAVUM_DEMINUTUS:
     case S_FLAT:
     case S_SHARP:
     case S_NATURAL:
@@ -1586,22 +1575,6 @@ static __inline int compute_fused_shift(const gregorio_glyph *glyph)
 
     gregorio_assert(prev_note->type == GRE_NOTE, compute_fused_shift,
             "previous note wasn't a note", return 0);
-
-    switch (prev_note->u.note.shape) {
-    case S_PUNCTUM_CAVUM:
-    case S_ORISCUS_CAVUM_ASCENDENS:
-    case S_ORISCUS_CAVUM_DESCENDENS:
-    case S_ORISCUS_CAVUM_DEMINUTUS:
-    case S_FLAT:
-    case S_SHARP:
-    case S_NATURAL:
-        /* these don't fuse to anything */
-        return 0;
-
-    default:
-        /* anything else is potentially fusible */
-        break;
-    }
 
     shift = first_note->u.note.pitch - prev_note->u.note.pitch;
     gregorio_assert(shift >= -MAX_AMBITUS && shift <= MAX_AMBITUS,
@@ -1642,70 +1615,6 @@ static __inline int compute_fused_shift(const gregorio_glyph *glyph)
     }
 
     return shift;
-}
-
-static __inline void guess_ledger_lines(const gregorio_element *element,
-        const gregorio_score *const score)
-{
-    bool high_ledger_line = false;
-    bool low_ledger_line = false;
-    gregorio_note *prev = NULL;
-
-    for (; element; element = element->next) {
-        if (element->type == GRE_ELEMENT) {
-            gregorio_glyph *glyph;
-            for (glyph = element->u.first_glyph; glyph;
-                    glyph = glyph->next) {
-                if (glyph->type == GRE_GLYPH) {
-                    gregorio_note *note;
-                    for (note = glyph->u.notes.first_note; note;
-                            note = note->next) {
-                        if (note->type == GRE_NOTE) {
-                            if (high_ledger_line
-                                    && !note->explicit_high_ledger_line
-                                    && !note->supposed_high_ledger_line) {
-                                note->supposed_high_ledger_line = true;
-                            }
-                            if (low_ledger_line
-                                    && !note->explicit_low_ledger_line
-                                    && !note->supposed_low_ledger_line) {
-                                note->supposed_low_ledger_line = true;
-                            }
-                            high_ledger_line = has_high_ledger_line(
-                                    note->u.note.pitch, false, score);
-                            low_ledger_line = has_low_ledger_line(
-                                    note->u.note.pitch, false);
-                            if (high_ledger_line) {
-                                if (!note->explicit_high_ledger_line
-                                        && !note->supposed_high_ledger_line) {
-                                    note->supposed_high_ledger_line = true;
-                                }
-                                if (prev && !prev->explicit_high_ledger_line
-                                        && !prev->supposed_high_ledger_line) {
-                                    prev->supposed_high_ledger_line = true;
-                                }
-                            }
-                            if (low_ledger_line) {
-                                if (!note->explicit_low_ledger_line
-                                        && !note->supposed_low_ledger_line) {
-                                    note->supposed_low_ledger_line = true;
-                                }
-                                if (prev && !prev->explicit_low_ledger_line
-                                        && !prev->supposed_low_ledger_line) {
-                                    prev->supposed_low_ledger_line = true;
-                                }
-                            }
-                            prev = note;
-                        }
-                    }
-                }
-            }
-            /* this heuristic ends eith the element */
-            high_ledger_line = false;
-            low_ledger_line = false;
-            prev = NULL;
-        }
-    }
 }
 
 void gregoriotex_compute_positioning(
@@ -1758,8 +1667,6 @@ void gregoriotex_compute_positioning(
     gtex_alignment ignored;
     gtex_type type;
     const gregorio_element *element;
-
-    guess_ledger_lines(param_element, score);
 
     for (element = param_element; element; element = element->next) {
         if (element->type == GRE_ELEMENT) {

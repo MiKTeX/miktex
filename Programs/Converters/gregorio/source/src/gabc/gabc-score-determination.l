@@ -4,7 +4,7 @@
  * This file implements the score lexer.
  *
  * Gregorio score determination in gabc input.
- * Copyright (C) 2006-2016 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2006-2017 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -69,7 +69,7 @@ static bool eof_found = false;
 #define YY_INPUT(buf,result,max_size) \
     if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) { \
         int c = '*'; \
-        size_t n; \
+        int n; \
         for (n = 0; n < max_size \
                 && (c = getc(gabc_score_determination_in)) != EOF \
                 && c != '\n'; ++n ) { \
@@ -109,6 +109,8 @@ static bool eof_found = false;
 %x comments
 %x inicomments
 %x alt
+%x protrusion_value
+%x protrusion_end
 
 %option stack
 %option pointer
@@ -151,15 +153,20 @@ semicolon. */
         BEGIN(attribute);
         return COLON;
     }
-<attribute>[^;\n\r]*(;[^;\n\r]+)*([\n\r]+[^;]*(;[^;]+)*)? {
+<attribute>;;?[\n\r \t]*[\n\r] {
+         BEGIN(INITIAL);
+         return SEMICOLON;
+    }
+<attribute>[^;]+ {
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
         return ATTRIBUTE;
     }
-<attribute>;;?[\n\r]+ {
-         BEGIN(INITIAL);
-         return SEMICOLON;
-    }
+<attribute>; {
+        gabc_score_determination_lval.text =
+                gregorio_strdup(gabc_score_determination_text);
+        return ATTRIBUTE;
+}
 <INITIAL>def-m[0-9] {
          gabc_score_determination_lval.character = gabc_score_determination_text[5];
          return DEF_MACRO;
@@ -178,10 +185,6 @@ semicolon. */
         gabc_score_determination_lval.text =
                 gregorio_strdup(gabc_score_determination_text);
         return GABC_COPYRIGHT;
-    }
-<INITIAL>initial-style {
-        /* DEPRECATED for removal in 5.0 */
-        return INITIAL_STYLE;
     }
 <INITIAL>mode {
         gabc_score_determination_lval.text =
@@ -245,11 +248,16 @@ semicolon. */
 <score>[\n\r][\n\r \t]* {
         RETURN_SPACE;
     }
-<score,sp>[^-\{\}\(\[\]<%\n\r]+ {
+<score>[^-,;:.\{\}\(\[\]<%\n\r]+ {
         RETURN_CHARACTERS;
     }
 <score>- {
         return HYPHEN;
+    }
+<score>[,;:.] {
+        gabc_score_determination_lval.text =
+                gregorio_strdup(gabc_score_determination_text);
+        return PROTRUDING_PUNCTUATION;
     }
 <score><nlba> {
         return NLBA_B;
@@ -333,7 +341,7 @@ semicolon. */
 <verb,alt>[^<]+ {
         RETURN_CHARACTERS;
     }
-<verb,sp,score,alt>< {
+<verb,score,alt>< {
         RETURN_CHARACTERS;
     }
 <score>\{ {
@@ -364,6 +372,26 @@ semicolon. */
     }
 <score>\] {
         return TRANSLATION_END;
+    }
+<score><[\n\r \t]*clear[\n\r \t]*\/?[\n\r \t]*> {
+        return CLEAR;
+    }
+<score><[\n\r \t]*pr[\n\r \t]*\/?[\n\r \t]*> {
+        return PROTRUSION;
+    }
+<score><[\n\r \t]*pr[\n\r \t]*:[\n\r \t]* {
+        BEGIN(protrusion_value);
+        return PROTRUSION;
+    }
+<protrusion_value>([0-9]*\.?[0-9]+|[0-9]+\.) {
+        BEGIN(protrusion_end);
+        gabc_score_determination_lval.text =
+                gregorio_strdup(gabc_score_determination_text);
+        return PROTRUSION_VALUE;
+    }
+<protrusion_end>[\n\r \t]*\/?[\n\r \t]*> {
+        BEGIN(score);
+        return PROTRUSION_END;
     }
 <score>\( {
         BEGIN(notes);

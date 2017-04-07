@@ -58,51 +58,53 @@ extern int gabc_score_determination_debug;
     MODE = 268,
     MODE_MODIFIER = 269,
     MODE_DIFFERENTIA = 270,
-    INITIAL_STYLE = 271,
-    END_OF_DEFINITIONS = 272,
-    END_OF_FILE = 273,
-    COLON = 274,
-    SEMICOLON = 275,
-    SPACE = 276,
-    CHARACTERS = 277,
-    NOTES = 278,
-    HYPHEN = 279,
-    ATTRIBUTE = 280,
-    OPENING_BRACKET = 281,
-    CLOSING_BRACKET = 282,
-    CLOSING_BRACKET_WITH_SPACE = 283,
-    I_BEGIN = 284,
-    I_END = 285,
-    TT_BEGIN = 286,
-    TT_END = 287,
-    UL_BEGIN = 288,
-    UL_END = 289,
-    C_BEGIN = 290,
-    C_END = 291,
-    B_BEGIN = 292,
-    B_END = 293,
-    SC_BEGIN = 294,
-    SC_END = 295,
-    SP_BEGIN = 296,
-    SP_END = 297,
-    VERB_BEGIN = 298,
-    VERB = 299,
-    VERB_END = 300,
-    CENTER_BEGIN = 301,
-    CENTER_END = 302,
-    ELISION_BEGIN = 303,
-    ELISION_END = 304,
-    TRANSLATION_BEGIN = 305,
-    TRANSLATION_END = 306,
-    TRANSLATION_CENTER_END = 307,
-    ALT_BEGIN = 308,
-    ALT_END = 309,
-    NLBA_B = 310,
-    NLBA_E = 311,
-    EUOUAE_B = 312,
-    EUOUAE_E = 313,
-    NABC_CUT = 314,
-    NABC_LINES = 315
+    END_OF_DEFINITIONS = 271,
+    END_OF_FILE = 272,
+    COLON = 273,
+    SEMICOLON = 274,
+    CHARACTERS = 275,
+    NOTES = 276,
+    HYPHEN = 277,
+    ATTRIBUTE = 278,
+    OPENING_BRACKET = 279,
+    CLOSING_BRACKET = 280,
+    CLOSING_BRACKET_WITH_SPACE = 281,
+    I_BEGIN = 282,
+    I_END = 283,
+    TT_BEGIN = 284,
+    TT_END = 285,
+    UL_BEGIN = 286,
+    UL_END = 287,
+    C_BEGIN = 288,
+    C_END = 289,
+    B_BEGIN = 290,
+    B_END = 291,
+    SC_BEGIN = 292,
+    SC_END = 293,
+    SP_BEGIN = 294,
+    SP_END = 295,
+    VERB_BEGIN = 296,
+    VERB_END = 297,
+    CENTER_BEGIN = 298,
+    CENTER_END = 299,
+    ELISION_BEGIN = 300,
+    ELISION_END = 301,
+    TRANSLATION_BEGIN = 302,
+    TRANSLATION_END = 303,
+    TRANSLATION_CENTER_END = 304,
+    ALT_BEGIN = 305,
+    ALT_END = 306,
+    NLBA_B = 307,
+    NLBA_E = 308,
+    EUOUAE_B = 309,
+    EUOUAE_E = 310,
+    NABC_CUT = 311,
+    NABC_LINES = 312,
+    CLEAR = 313,
+    PROTRUSION = 314,
+    PROTRUSION_VALUE = 315,
+    PROTRUSION_END = 316,
+    PROTRUDING_PUNCTUATION = 317
   };
 #endif
 /* Tokens.  */
@@ -119,51 +121,53 @@ extern int gabc_score_determination_debug;
 #define MODE 268
 #define MODE_MODIFIER 269
 #define MODE_DIFFERENTIA 270
-#define INITIAL_STYLE 271
-#define END_OF_DEFINITIONS 272
-#define END_OF_FILE 273
-#define COLON 274
-#define SEMICOLON 275
-#define SPACE 276
-#define CHARACTERS 277
-#define NOTES 278
-#define HYPHEN 279
-#define ATTRIBUTE 280
-#define OPENING_BRACKET 281
-#define CLOSING_BRACKET 282
-#define CLOSING_BRACKET_WITH_SPACE 283
-#define I_BEGIN 284
-#define I_END 285
-#define TT_BEGIN 286
-#define TT_END 287
-#define UL_BEGIN 288
-#define UL_END 289
-#define C_BEGIN 290
-#define C_END 291
-#define B_BEGIN 292
-#define B_END 293
-#define SC_BEGIN 294
-#define SC_END 295
-#define SP_BEGIN 296
-#define SP_END 297
-#define VERB_BEGIN 298
-#define VERB 299
-#define VERB_END 300
-#define CENTER_BEGIN 301
-#define CENTER_END 302
-#define ELISION_BEGIN 303
-#define ELISION_END 304
-#define TRANSLATION_BEGIN 305
-#define TRANSLATION_END 306
-#define TRANSLATION_CENTER_END 307
-#define ALT_BEGIN 308
-#define ALT_END 309
-#define NLBA_B 310
-#define NLBA_E 311
-#define EUOUAE_B 312
-#define EUOUAE_E 313
-#define NABC_CUT 314
-#define NABC_LINES 315
+#define END_OF_DEFINITIONS 271
+#define END_OF_FILE 272
+#define COLON 273
+#define SEMICOLON 274
+#define CHARACTERS 275
+#define NOTES 276
+#define HYPHEN 277
+#define ATTRIBUTE 278
+#define OPENING_BRACKET 279
+#define CLOSING_BRACKET 280
+#define CLOSING_BRACKET_WITH_SPACE 281
+#define I_BEGIN 282
+#define I_END 283
+#define TT_BEGIN 284
+#define TT_END 285
+#define UL_BEGIN 286
+#define UL_END 287
+#define C_BEGIN 288
+#define C_END 289
+#define B_BEGIN 290
+#define B_END 291
+#define SC_BEGIN 292
+#define SC_END 293
+#define SP_BEGIN 294
+#define SP_END 295
+#define VERB_BEGIN 296
+#define VERB_END 297
+#define CENTER_BEGIN 298
+#define CENTER_END 299
+#define ELISION_BEGIN 300
+#define ELISION_END 301
+#define TRANSLATION_BEGIN 302
+#define TRANSLATION_END 303
+#define TRANSLATION_CENTER_END 304
+#define ALT_BEGIN 305
+#define ALT_END 306
+#define NLBA_B 307
+#define NLBA_E 308
+#define EUOUAE_B 309
+#define EUOUAE_E 310
+#define NABC_CUT 311
+#define NABC_LINES 312
+#define CLEAR 313
+#define PROTRUSION 314
+#define PROTRUSION_VALUE 315
+#define PROTRUSION_END 316
+#define PROTRUDING_PUNCTUATION 317
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

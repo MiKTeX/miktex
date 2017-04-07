@@ -2,7 +2,7 @@
  * Gregorio is a program that translates gabc files to GregorioTeX
  * This header prototypes the vowel handling data structures and entry points.
  *
- * Copyright (C) 2015 The Gregorio Project (see CONTRIBUTORS.md)
+ * Copyright (C) 2015-2017 The Gregorio Project (see CONTRIBUTORS.md)
  *
  * This file is part of Gregorio.
  *
@@ -26,6 +26,9 @@
 #include <stdio.h>
 #include "bool.h"
 #include "unicode.h"
+
+/* Use unicode 0xfffe, which is guaranteed not to be a character */
+#define GREVOWEL_ELISION_MARK ((grewchar)0xfffe)
 
 typedef enum rulefile_parse_status {
     RFPS_NOT_FOUND = 0,
