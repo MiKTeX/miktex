@@ -534,7 +534,7 @@ static void parse_options(int ac, char **av)
         else if (ARGUMENT_IS("enable-installer"))
         {
           miktex_enable_installer(1);
-	}
+        }
         else if (ARGUMENT_IS("include-directory"))
         {
           miktex_add_include_directory(optarg);
@@ -1018,9 +1018,6 @@ void lua_initialize(int ac, char **av)
     static char LC_NUMERIC_C[] = "LC_NUMERIC=C";
     static char engine_luatex[] = "engine=" my_name;
     char *old_locale = NULL;
-#if defined(MIKTEX)
-    char old_locale_copy[130];
-#endif
     char *env_locale = NULL;
     char *tmp = NULL;
     /* Save to pass along to topenin.  */
@@ -1092,19 +1089,11 @@ void lua_initialize(int ac, char **av)
     /* Get the current locale (it should be C )          */
     /* and save LC_CTYPE, LC_COLLATE and LC_NUMERIC.     */
     /* Later luainterpreter() will consciously use them. */
-    old_locale = setlocale (LC_ALL, NULL);
+    old_locale = xstrdup(setlocale (LC_ALL, NULL));
     lc_ctype = NULL;
     lc_collate = NULL;
     lc_numeric = NULL;
     if (old_locale) {
-#if defined(MIKTEX)
-        if (strlen(old_locale) > sizeof(old_locale_copy) - 1)
-        {
-          fprintf(stderr, "Unexpected locale name: \"%s\".\n");
-          exit(1);
-        }
-        old_locale = strcpy(old_locale_copy, old_locale);
-#endif
         /* If setlocale fails here, then the state   */
         /* could be compromised, and we exit.        */
         env_locale = setlocale (LC_ALL, "");
@@ -1132,6 +1121,7 @@ void lua_initialize(int ac, char **av)
 	  fprintf(stderr,"Unable to restore original locale:exit now.\n");
 	  exit(1);
 	}
+        xfree(old_locale);
     } else {
        fprintf(stderr,"Unable to store environment locale.\n");
     }
