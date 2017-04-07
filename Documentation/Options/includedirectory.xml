@@ -10,7 +10,6 @@
 <indexterm>
 <primary>--include-directory=dir</primary>
 </indexterm>
-<anchor id="includedirectory"/>
 head of the list of directories to be searched for input
 files.</para></listitem>
 </varlistentry>
