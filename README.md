@@ -32,25 +32,26 @@ Please consult these HOWTOs for platform-specific information:
 
   MiKTeX is built by using CMake, which will create Makefiles suited
   for your local system.  The minimum required CMake version is 3.7.0.
-  
+
 * Various build utilities
 
   In addition to the compiler and the CMake build system, you will need these utilities:
 
   All platforms:
-  
+
   * cat, sed
   * xsltproc
-  
+
   Windows only:
-  
+
+  * fop
   * hhc
   * makehm
   * pandoc
   * mc
   * midl
   * mt
-  
+
 * Libraries
 
   On Unix-like platforms (including macOS), you will need development
@@ -85,7 +86,7 @@ Please consult these HOWTOs for platform-specific information:
   * zzip
 
   When building UI components with Qt5:
-  
+
   * poppler-qt5
 
 ## Running CMake
@@ -118,23 +119,23 @@ The most useful build variables are:
   The installation directory used by `make install` (see below).  This
   variable defaults to `/usr/local` on Unix-like systems (including
   macOS).
-  
+
   Suitable prefixes are:
-  
+
   * `$HOME/miktex`
-  
+
     Use this prefix, if you want to install MiKTeX just for yourself.
     No administrative privileges are required.
-	
+
   * `/opt/miktex`
-  
+
     Use this prefix, if you want to create a self-contained MiKTeX
     setup which does not conflict with other system packages.
 
 * `WITH_UI_QT=ON`
 
   Build UI applications (experimental).
-	
+
 ## Building MiKTeX
 
 Run the Make utility to build MiKTeX, for example:
@@ -162,7 +163,7 @@ On Unix-like platforms, you can use the `DESTDIR` mechanism in order
 to relocate the whole installation:
 
     make DESTDIR=/home/jane install
-   
+
 This will install everything using the installation prefix
 (`CMAKE_INSTALL_PREFIX`) prepended with the `DESTDIR` value, which
 finally gives `/home/jane/usr/local`.
@@ -178,7 +179,7 @@ MiKTeX has the ability to install missing packages "on-the-fly".  The
 package database must have been set up for this to work:
 
     mpm --admin --update-db
-	
+
 The `--admin` option is only required, if you are building a shared
 MiKTeX setup.  If you are setting up MiKTeX just for yourself (i.e.,
 in your user directory), you have to omit the `--admin` option.
@@ -191,13 +192,13 @@ In order to enable the automatic package installer, run the MiKTeX
 Configuration Utility as follows:
 
     initexmf --admin --set-config-value [MPM]AutoInstall=1
-	
+
 Again, you have to omit `--admin`, if you intend to use MiKTeX just
 for yourself.
 
 Consult the initexmf(1) man page, for more information about the
 utility.
-   
+
 ### Symbolic links
 
 Most of the MiKTeX executables are prefixed with `miktex-`.  For
