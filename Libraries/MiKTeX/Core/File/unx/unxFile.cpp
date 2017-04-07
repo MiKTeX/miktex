@@ -184,7 +184,7 @@ void File::SetTimes(const PathName& path, time_t creationTime, time_t lastAccess
   times.modtime = lastWriteTime;
   if (utime(path.GetData(), &times) != 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("utimes", "path", path.ToString());
+    MIKTEX_FATAL_CRT_ERROR_2("utime", "path", path.ToString());
   }
 }
 
