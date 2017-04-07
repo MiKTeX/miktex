@@ -311,11 +311,13 @@ public:
     catch (const MiKTeX::Core::MiKTeXException& ex)
     {
       MiKTeX::App::Application::Sorry(argv[0], ex);
+      app.Finalize();
       return 1;
     }
     catch (const std::exception& ex)
     {
       MiKTeX::App::Application::Sorry(argv[0], ex);
+      app.Finalize();
       return 1;
     }
   }
