@@ -19,9 +19,9 @@
 
 #define MIKTEX_COMP_J2000_VERSION 6300
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "2016-11-02"
+#define MIKTEX_COMP_ORIG_VERSION_STR "2017-04-06"
 
-#define MIKTEX_COMP_COPYRIGHT_STR "(C) 2014-2016 R. D. Tennent School of Computing, Queen's University"
-#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2014-2016 R. D. Tennent School of Computing, Queen's University"
+#define MIKTEX_COMP_COPYRIGHT_STR "(C) 2014-2017 R. D. Tennent School of Computing, Queen's University"
+#define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2014-2017 R. D. Tennent School of Computing, Queen's University"
 
 #include <miktex/Version>

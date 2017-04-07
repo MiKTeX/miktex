@@ -4,9 +4,9 @@
   <rdf:Description about="http://www.miktex.org/packages/autosp/">
     <TPM:Name>autosp/rebar win32</TPM:Name>
     <TPM:Title>autosp and rebar, Windows x86</TPM:Title>
-    <TPM:Copyright owner="D. Tennent School of Computing, Queen's University" year="2014-2016"/>
+    <TPM:Copyright owner="D. Tennent School of Computing, Queen's University" year="2014-2017"/>
     <TPM:License type="gpl2"/>
-    <TPM:Version>2016-11-02</TPM:Version>
+    <TPM:Version>2017-04-06</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

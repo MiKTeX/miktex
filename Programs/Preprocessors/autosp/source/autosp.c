@@ -1,6 +1,6 @@
-char version[12] = "2016-11-02";
+char version[12] = "2017-04-06";
 
-/*  Copyright (C) 2014-16 R. D. Tennent School of Computing,
+/*  Copyright (C) 2014-17 R. D. Tennent School of Computing,
  *  Queen's University, rdt@cs.queensu.ca
  *
  *  This program is free software; you can redistribute it
@@ -119,6 +119,7 @@ PRIVATE char *outfilename_n = outfilename;
 PRIVATE char logfilename[SHORT_LEN];
 PRIVATE char *logfilename_n = logfilename;
 
+
 PRIVATE FILE *infile, *outfile, *logfile;
 
 PRIVATE char line[LINE_LEN];            /* line of input                      */
@@ -174,6 +175,11 @@ PRIVATE bool bar_rest[MAX_STAFFS];
 PRIVATE char outstrings[MAX_STAFFS][LINE_LEN];  
                                /* accumulate commands to be output    */
 PRIVATE char *n_outstrings[MAX_STAFFS];
+
+PRIVATE int global_skip;  
+   /* = 1, 2 or 4, for (non-standard) commands \QQsk \HQsk \Qsk */
+PRIVATE char global_skip_str[8];
+PRIVATE char *n_global_skip_str = global_skip_str;
 
 PRIVATE void
 usage (FILE *f)
@@ -337,6 +343,7 @@ void analyze_notes (char **ln)
   for (i=1; i <= nstaffs; i++)
     xtuplet[i] = 1;
   appoggiatura = false;
+  global_skip = 0;
   if (debug) 
   { fprintf (logfile, "\nAfter analyze_notes:\n");
     status_all ();
@@ -363,14 +370,17 @@ void checkn (char *s)
 
 PRIVATE
 void output_filtered (int i)
-{ /* discard \sk \hsk and \Cpause */
+{ /* discard \sk \hsk \Qsk \HQsk \QQsk and \Cpause */
   char *s = notes[i];
   while (s < current[i])
   { char *t = strpbrk (s+1, "\\&|$");
     if (t == NULL || t > current[i]) t = current[i];
     if (!prefix ("\\sk", s)
      && !prefix ("\\hsk", s)
-     && !prefix ("\\Cpause", s) )
+     && !prefix ("\\Cpause", s) 
+     && !prefix ("\\Qsk", s) 
+     && !prefix ("\\HQsk", s) 
+     && !prefix ("\\QQsk", s) )
     {
       while (s < t) 
       { *n_outstrings[i] = *s; 
@@ -632,7 +642,8 @@ int spacing_note (int i)
     { spacing = SP(1); break; }
     
     if ( prefix ("\\ha", s)
-      || prefix ("\\hl", s)
+      || (prefix ("\\hl", s)  && !prefix ( "\\hloff", s) )
+         
       || prefix ("\\hu", s)
       || prefix ("\\hp", s)
       || prefix ("\\hpause", s) )
@@ -850,6 +861,13 @@ int spacing_note (int i)
       else 
         s = skip_arg(t); 
     }
+    else if (prefix ("\\Qsk", s) )
+    /* may have global skips in more than one staff */
+    {  if (global_skip < 4) global_skip = 4; }
+    else if (prefix ("\\HQsk", s) )
+    {  if (global_skip < 2) global_skip = 2; }
+    else if (prefix ("\\QQsk", s) )
+    {  if (global_skip < 1) global_skip = 1; }
 
     /* Command is non-spacing.         */
     /* Skip ahead to the next command. */
@@ -1393,6 +1411,7 @@ void generate_notes ()
   while (true)
   { old_spacing = spacing;
     spacing = MAX_SPACING;
+    global_skip = 0;
     nonvirtual_notes = false;
     if (debug)
     { fprintf (logfile, "\nIn generate_notes:\n");
@@ -1433,8 +1452,24 @@ void generate_notes ()
         output_rests ();
       initialize_notes ();
     }
+
+    /*  generate global_skip_str:  */
+    global_skip_str[0] = '\0';
+    n_global_skip_str = global_skip_str;
+    switch (global_skip) 
+    {
+      case 0: break;
+      case 1: append (global_skip_str, &(n_global_skip_str), "\\qqsk", 8); break;  
+      case 2: append (global_skip_str, &(n_global_skip_str), "\\hqsk", 8); break;  
+      case 4: append (global_skip_str, &(n_global_skip_str), "\\qsk", 8); break;  
+    }
+
     for (i=1; i <= nstaffs; i++)  /* append current notes to outstrings */
-      if (active[i]) output_notes (i);
+      if (active[i]) 
+      {
+        append (outstrings[i], &(n_outstrings[i]), global_skip_str, LINE_LEN);
+        output_notes (i);
+      }
     for (i=1; i <= nstaffs; i++)
     {
       /* virtual notes needed?  */
@@ -1878,7 +1913,7 @@ int main (int argc, char *argv[])
   time (&mytime);
   strftime (today, 11, "%Y-%m-%d", localtime (&mytime) );
   fprintf (stdout, "This is autosp, version %s.\n", version);
-  fprintf (stdout, "Copyright (C) 2014-16  R. D. Tennent\n" );
+  fprintf (stdout, "Copyright (C) 2014-17  R. D. Tennent\n" );
   fprintf (stdout, "School of Computing, Queen's University, rdt@cs.queensu.ca\n" );
   fprintf (stdout, "License GNU GPL version 2 or later <http://gnu.org/licences/gpl.html>.\n" );
   fprintf (stdout, "There is NO WARRANTY, to the extent permitted by law.\n\n" );
