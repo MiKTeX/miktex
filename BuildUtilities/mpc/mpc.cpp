@@ -2131,14 +2131,28 @@ void PackageCreator::Run(int argc, const char** argv)
         }
         // categorize
         auto latex = packageTable.find("_miktex-latex-packages");
+        auto outlineFonts = packageTable.find("_miktex-fonts-type1");
+        auto isOutlineFont = [](const string& s)
+        {
+          return Utils::IsParentDirectoryOf("texmf/fonts/type1", s) || Utils::IsParentDirectoryOf("texmf/fonts/truetype", s);
+        };
         for (auto& pkg : packageTable)
         {
+          const auto& ctanPath = pkg.second.ctanPath;
+          const auto& runFiles = pkg.second.runFiles;
           if (pkg.second.requiredBy.empty())
           {
-            if (latex != packageTable.end() && StartsWith(pkg.second.ctanPath, "/macros/latex/contrib/"))
+            if (latex != packageTable.end() && StartsWith(ctanPath, "/macros/latex/contrib/"))
             {
               pkg.second.requiredBy.push_back(latex->second.deploymentName);
               latex->second.requiredPackages.push_back(pkg.second.deploymentName);
+            }
+            else if (outlineFonts != packageTable.end()
+              && StartsWith(ctanPath, "/fonts/")
+              && std::any_of(runFiles.begin(), runFiles.end(), isOutlineFont))
+            {
+              pkg.second.requiredBy.push_back(outlineFonts->second.deploymentName);
+              outlineFonts->second.requiredPackages.push_back(pkg.second.deploymentName);
             }
           }
         }
