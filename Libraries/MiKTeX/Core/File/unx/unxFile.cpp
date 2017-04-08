@@ -151,20 +151,39 @@ size_t File::GetSize(const PathName& path)
 
 void File::SetTimes(int fd, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
 {
-  UNUSED_ALWAYS(fd);
   UNUSED_ALWAYS(creationTime);
-  UNUSED_ALWAYS(lastAccessTime);
-  UNUSED_ALWAYS(lastWriteTime);
+  time_t now = time(nullptr);
+  if (lastAccessTime == static_cast<time_t>(-1))
+  {
+    lastAccessTime = now;
+  }
+  if (lastWriteTime == static_cast<time_t>(-1))
+  {
+    lastWriteTime = now;
+  }
+#if defined(HAVE_FUTIMES)
+  timeval times[2] = {
+    { lastAccessTime, 0 },
+    { lastWriteTime, 0 }
+  };
+  if (futimes(fd, times) < 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("futimes");
+  }
+#else
+  UNUSED_ALWAYS(fd);
   UNIMPLEMENTED();
+#endif
 }
 
 void File::SetTimes(FILE* stream, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
 {
-  UNUSED_ALWAYS(stream);
-  UNUSED_ALWAYS(creationTime);
-  UNUSED_ALWAYS(lastAccessTime);
-  UNUSED_ALWAYS(lastWriteTime);
-  UNIMPLEMENTED();
+  int fd = fileno(stream);
+  if (fd < 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("fileno");
+  }    
+  SetTimes(fd, creationTime, lastAccessTime, lastWriteTime);
 }
 
 void File::SetTimes(const PathName& path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
