@@ -467,7 +467,7 @@ bool ParseCommand(const string& command, string& quotedCommand, string& executab
 #endif
       quotedCommand += *it++;
     }
-}
+  }
   if (!startOfArg)
   {
     quotedCommand += QUOTE;
@@ -475,7 +475,7 @@ bool ParseCommand(const string& command, string& quotedCommand, string& executab
   return true;
 }
 
-TeXApp::Write18Result TeXApp::Write18(const string& command_, int &exitCode) const
+TeXApp::Write18Result TeXApp::Write18(const string& command_, int& exitCode) const
 {
   Write18Result result = Write18Result::Executed;
   string command = command_;
@@ -503,13 +503,12 @@ TeXApp::Write18Result TeXApp::Write18(const string& command_, int &exitCode) con
     else
     {
       shared_ptr<Session> session = GetSession();
-      bool allowed = StringUtil::Contains(session->GetConfigValue("", MIKTEX_REGVAL_ALLOWED_SHELL_COMMANDS, texapp::texapp::AllowedShellCommands()).GetString().c_str(), executable.c_str(), ",;:",
 #if defined(MIKTEX_WINDOWS)
-        true
+      bool ignoreCase = true;
 #else
-        false
+      bool ignoreCase = false;
 #endif
-        );
+      bool allowed = StringUtil::Contains(session->GetConfigValue("", MIKTEX_REGVAL_ALLOWED_SHELL_COMMANDS, texapp::texapp::AllowedShellCommands()).GetString().c_str(), executable.c_str(), ",;:", ignoreCase);
       if (!allowed)
       {
         return Write18Result::Disallowed;
@@ -521,7 +520,7 @@ TeXApp::Write18Result TeXApp::Write18(const string& command_, int &exitCode) con
   default:
     MIKTEX_UNEXPECTED();
   }
-  Process::ExecuteSystemCommand(command.c_str(), &exitCode);
+  Process::ExecuteSystemCommand(command, &exitCode);
   return result;
 }
 
