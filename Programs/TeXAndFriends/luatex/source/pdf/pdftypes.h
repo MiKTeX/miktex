@@ -40,7 +40,7 @@
 /*#  define i64round(a) (int64_t) ( (double)(a+0.5) - ((int64_t)(a+0.5))%1  ) */
 #ifdef _WIN32
 #if defined(MIKTEX_WINDOWS)
-#  define i64round(a) (int64_t) lround(a)
+#  define i64round(a) (int64_t) llround(a)
 #else
 #  define i64round(a) (int64_t) win32_floor((a) + 0.5)
 #endif
