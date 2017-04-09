@@ -1,6 +1,6 @@
 /* papersize.cpp: paper size info
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -44,7 +44,7 @@ constexpr int mm2bp(int mm)
   return inch2bp(mm * (1.0 / 25.4));
 }
 
-MIKTEXSTATICFUNC(bool) IsKnownPaperSize(int width, int height, string & name)
+MIKTEXSTATICFUNC(bool) IsKnownPaperSize(int width, int height, string& name)
 {
   static const struct
   {
@@ -62,7 +62,7 @@ MIKTEXSTATICFUNC(bool) IsKnownPaperSize(int width, int height, string & name)
     { "Letter", inch2bp(8.5), inch2bp(11) },
     { "Tabloid", inch2bp(11), inch2bp(17) },
   };
-  for (const auto & paperSize : knownPaperSizes)
+  for (const auto& paperSize : knownPaperSizes)
   {
     if (paperSize.width == width && paperSize.height == height)
     {
@@ -73,7 +73,7 @@ MIKTEXSTATICFUNC(bool) IsKnownPaperSize(int width, int height, string & name)
   return false;
 }
 
-MIKTEXSTATICFUNC(int) CalculatePostScriptPoints(double value, const string & unit)
+MIKTEXSTATICFUNC(int) CalculatePostScriptPoints(double value, const string& unit)
 {
   static const struct
   {
@@ -91,7 +91,7 @@ MIKTEXSTATICFUNC(int) CalculatePostScriptPoints(double value, const string & uni
     { "cc", (72.27 / 12 / (1238.0 / 1157)) / 72.0 },
     { "sp", (72.27 * 65536) / 72.0 },
   };
-  for (const auto & u : unittable)
+  for (const auto& u : unittable)
   {
     if (u.unit == unit)
     {
@@ -101,11 +101,11 @@ MIKTEXSTATICFUNC(int) CalculatePostScriptPoints(double value, const string & uni
   MIKTEX_UNEXPECTED();
 }
 
-MIKTEXSTATICFUNC(bool) ChopFloat(char * & lpsz, double & ret)
+MIKTEXSTATICFUNC(bool) ChopFloat(char*& lpsz, double& ret)
 {
   SkipSpace(lpsz);
   bool gotDot = false;
-  char * lpszStart = lpsz;
+  char* lpszStart = lpsz;
   string str;
   while (*lpsz != 0 && (IsDigit(*lpsz) || (*lpsz == '.' && !gotDot)))
   {
@@ -125,10 +125,10 @@ MIKTEXSTATICFUNC(bool) ChopFloat(char * & lpsz, double & ret)
   return true;
 }
 
-MIKTEXSTATICFUNC(bool) ChopToken(char * & lpsz, string & ret)
+MIKTEXSTATICFUNC(bool) ChopToken(char*& lpsz, string& ret)
 {
   SkipSpace(lpsz);
-  char * lpszStart = lpsz;
+  char* lpszStart = lpsz;
   ret = "";
   while (*lpsz != 0 && !IsSpace(*lpsz) && *lpsz != ',')
   {
@@ -139,9 +139,9 @@ MIKTEXSTATICFUNC(bool) ChopToken(char * & lpsz, string & ret)
   return lpsz != lpszStart;
 }
 
-void SessionImpl::AddDvipsPaperSize(const DvipsPaperSizeInfo & dvipsPaperSizeInfo)
+void SessionImpl::AddDvipsPaperSize(const DvipsPaperSizeInfo& dvipsPaperSizeInfo)
 {
-  for (DvipsPaperSizeInfo & siz : dvipsPaperSizes)
+  for (DvipsPaperSizeInfo& siz : dvipsPaperSizes)
   {
     if (Utils::EqualsIgnoreCase(siz.dvipsName, dvipsPaperSizeInfo.dvipsName))
     {
@@ -176,7 +176,7 @@ void SessionImpl::ReadDvipsPaperSizes()
           continue;
         }
         CharBuffer<char> buf(line.c_str() + 1);
-        char * lpsz = buf.GetData();
+        char* lpsz = buf.GetData();
         SkipSpace(lpsz);
         if (*lpsz == 0)
         {
@@ -239,7 +239,7 @@ void SessionImpl::ReadDvipsPaperSizes()
   }
 }
 
-bool SessionImpl::GetPaperSizeInfo(int idx, PaperSizeInfo & paperSizeInfo)
+bool SessionImpl::GetPaperSizeInfo(int idx, PaperSizeInfo& paperSizeInfo)
 {
   if (dvipsPaperSizes.empty())
   {
@@ -267,7 +267,7 @@ bool SessionImpl::GetPaperSizeInfo(int idx, PaperSizeInfo & paperSizeInfo)
   return true;
 }
 
-PaperSizeInfo SessionImpl::GetPaperSizeInfo(const string & dvipsName)
+PaperSizeInfo SessionImpl::GetPaperSizeInfo(const string& dvipsName)
 {
   PaperSizeInfo paperSizeInfo;
   for (int idx = 0; GetPaperSizeInfo(idx, paperSizeInfo); ++idx)
@@ -280,13 +280,13 @@ PaperSizeInfo SessionImpl::GetPaperSizeInfo(const string & dvipsName)
   MIKTEX_FATAL_ERROR_2(T_("Unknown paper size."), "dvipsName", dvipsName);
 }
 
-PaperSizeInfo PaperSizeInfo::Parse(const string & spec)
+PaperSizeInfo PaperSizeInfo::Parse(const string& spec)
 {
   double texWidth;
 
   CharBuffer<char> buf(spec);
 
-  char * lpsz = buf.GetData();
+  char* lpsz = buf.GetData();
 
   if (!ChopFloat(lpsz, texWidth))
   {
@@ -342,7 +342,7 @@ PaperSizeInfo PaperSizeInfo::Parse(const string & spec)
   return paperSizeInfo;
 }
 
-void SessionImpl::SetDefaultPaperSize(const string & dvipsName)
+void SessionImpl::SetDefaultPaperSize(const string& dvipsName)
 {
   if (dvipsPaperSizes.empty())
   {
@@ -382,7 +382,7 @@ void SessionImpl::SetDefaultPaperSize(const string & dvipsName)
 class StreamEditor
 {
 public:
-  StreamEditor(const PathName & path) :
+  StreamEditor(const PathName& path) :
     path(path)
   {
     bak = path;
@@ -411,13 +411,13 @@ public:
   }
 
 public:
-  bool ReadLine(string & line)
+  bool ReadLine(string& line)
   {
     return reader.ReadLine(line);
   }
 
 public:
-  void WriteLine(const string & line)
+  void WriteLine(const string& line)
   {
     writer.WriteLine(line);
   }
@@ -429,7 +429,7 @@ public:
   }
 
 public:
-  void WriteFormattedLine(const char * lpszFormat, ...)
+  void WriteFormattedLine(const char* lpszFormat, ...)
   {
     va_list marker;
     va_start(marker, lpszFormat);
@@ -450,14 +450,14 @@ private:
   StreamWriter writer;
 };
 
-bool SessionImpl::TryCreateFromTemplate(const PathName & path)
+bool SessionImpl::TryCreateFromTemplate(const PathName& path)
 {
   unsigned r = TryDeriveTEXMFRoot(path);
   if (r == INVALID_ROOT_INDEX)
   {
     return false;
   }
-  const char * lpszRelPath = Utils::GetRelativizedPath(path.GetData(), GetRootDirectory(r).GetData());
+  const char* lpszRelPath = Utils::GetRelativizedPath(path.GetData(), GetRootDirectory(r).GetData());
   if (lpszRelPath == nullptr)
   {
     MIKTEX_UNEXPECTED();
@@ -518,9 +518,9 @@ void SessionImpl::WriteDvipsPaperSizes()
   editor.WriteLine("@");
   editor.WriteLine();
 
-  for (const DvipsPaperSizeInfo & dvipsPaper : dvipsPaperSizes)
+  for (const DvipsPaperSizeInfo& dvipsPaper : dvipsPaperSizes)
   {
-    for (const string & def : dvipsPaper.definition)
+    for (const string& def : dvipsPaper.definition)
     {
       editor.WriteLine(def);
     }
