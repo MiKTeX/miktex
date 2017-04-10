@@ -234,7 +234,6 @@ static struct
 configShortcuts[] = {
   "pdftex", MIKTEX_PATH_PDFTEX_CFG,
   "dvips", MIKTEX_PATH_CONFIG_PS,
-  "dvipdfm", MIKTEX_PATH_DVIPDFM_CONFIG,
   "dvipdfmx", MIKTEX_PATH_DVIPDFMX_CONFIG,
   "updmap", MIKTEX_PATH_UPDMAP_CFG,
 };

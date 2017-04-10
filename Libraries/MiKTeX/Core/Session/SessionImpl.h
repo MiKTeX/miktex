@@ -500,9 +500,6 @@ private:
   void WriteDvipsPaperSizes();
 
 private:
-  void WriteDvipdfmPaperSize();
-
-private:
   void WriteDvipdfmxPaperSize();
 
 private:

@@ -664,7 +664,6 @@ static const char* const configFiles[] = {
 
 static const char* const configDirs[] = {
   MIKTEX_PATH_DVIPDFMX_CONFIG_DIR,
-  MIKTEX_PATH_DVIPDFM_CONFIG_DIR,
   MIKTEX_PATH_DVIPS_CONFIG_DIR,
   MIKTEX_PATH_MIKTEX_CONFIG_DIR,
   MIKTEX_PATH_PDFTEX_CONFIG_DIR,

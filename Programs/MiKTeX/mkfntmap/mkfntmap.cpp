@@ -168,9 +168,9 @@ private:
   }
 
 private:
-  PathName GetDvipdfmOutputDir()
+  PathName GetDvipdfmxOutputDir()
   {
-    return CreateOutputDir(MIKTEX_PATH_DVIPDFM_CONFIG_DIR);
+    return CreateOutputDir(MIKTEX_PATH_DVIPDFMX_CONFIG_DIR);
   }
 
 private:
@@ -912,7 +912,7 @@ void MakeFontMapApp::WriteDvipsMapFile(const PathName& fileName, const set<FontM
 
 void MakeFontMapApp::WriteDvipdfmMapFile(const PathName& fileName, const set<FontMapEntry>& set1, const set<FontMapEntry>& set2, const set<FontMapEntry>& set3)
 {
-  PathName path(GetDvipdfmOutputDir());
+  PathName path(GetDvipdfmxOutputDir());
   path /= fileName;
   Verbose(T_("Writing %s..."), Q_(path));
   // TODO: backup old file
@@ -1109,7 +1109,7 @@ void MakeFontMapApp::CopyFile(const PathName& pathSrc, const PathName& pathDest)
 void MakeFontMapApp::CopyFiles()
 {
   PathName dvipsOutputDir(GetDvipsOutputDir());
-  PathName dvipdfmOutputDir(GetDvipdfmOutputDir());
+  PathName dvipdfmxOutputDir(GetDvipdfmxOutputDir());
   PathName pdftexOutputDir(GetPdfTeXOutputDir());
 
   PathName pathSrc;
@@ -1118,11 +1118,11 @@ void MakeFontMapApp::CopyFiles()
   pathSrc.AppendExtension(".map");
   CopyFile(pathSrc, PathName(dvipsOutputDir, "psfonts.map"));
 
-  pathSrc = dvipdfmOutputDir / (dvipdfmDownloadBase14 ? "dvipdfm_dl14" : "dvipdfm_ndl14");
+  pathSrc = dvipdfmxOutputDir / (dvipdfmDownloadBase14 ? "dvipdfm_dl14" : "dvipdfm_ndl14");
   pathSrc.AppendExtension(".map");
-  CopyFile(pathSrc, PathName(dvipdfmOutputDir, "dvipdfm.map"));
+  CopyFile(pathSrc, PathName(dvipdfmxOutputDir, "dvipdfm.map"));
 #if CREATE_DEPRECATED_MAP_FILES
-  CopyFile(pathSrc, PathName(dvipdfmOutputDir, "psfonts.map"));
+  CopyFile(pathSrc, PathName(dvipdfmxOutputDir, "psfonts.map"));
 #endif
 
   pathSrc = pdftexOutputDir / (pdftexDownloadBase14 ? "pdftex_dl14" : "pdftex_ndl14");

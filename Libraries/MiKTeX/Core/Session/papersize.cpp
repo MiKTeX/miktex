@@ -374,7 +374,6 @@ void SessionImpl::SetDefaultPaperSize(const string& dvipsName)
   swap(*dvipsPaperSizes.begin(), *it);
 
   WriteDvipsPaperSizes();
-  WriteDvipdfmPaperSize();
   WriteDvipdfmxPaperSize();
   WritePdfTeXPaperSize();
 }
@@ -526,40 +525,6 @@ void SessionImpl::WriteDvipsPaperSizes()
     }
     editor.WriteLine();
   }
-}
-
-void SessionImpl::WriteDvipdfmPaperSize()
-{
-  if (dvipsPaperSizes.empty())
-  {
-    MIKTEX_UNEXPECTED();
-  }
-
-  DvipsPaperSizeInfo paperSizeInfo = dvipsPaperSizes[0];
-
-  PathName configFile(GetSpecialPath(SpecialPath::ConfigRoot), MIKTEX_PATH_DVIPDFM_CONFIG);
-
-  if (!File::Exists(configFile))
-  {
-    if (!TryCreateFromTemplate(configFile))
-    {
-      Directory::Create(PathName(configFile).RemoveFileSpec());
-      StreamWriter writer(configFile);
-      writer.Close();
-    }
-  }
-
-  StreamEditor editor(configFile);
-  string line;
-  while (editor.ReadLine(line))
-  {
-    if (!(line.compare(0, 2, "p ") == 0))
-    {
-      editor.WriteLine(line);
-    }
-  }
-
-  editor.WriteFormattedLine("p %s", Utils::MakeLower(paperSizeInfo.name).c_str());
 }
 
 void SessionImpl::WriteDvipdfmxPaperSize()
