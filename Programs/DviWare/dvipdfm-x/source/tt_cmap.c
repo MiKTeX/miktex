@@ -612,7 +612,7 @@ static unsigned char lrange_max[4] = {0x7f, 0xff, 0xff, 0xff};
 
 static void
 load_cmap4 (struct cmap4 *map,
-	    unsigned char *GIDToCIDMap, CMap *cmap)
+	    unsigned char *GIDToCIDMap, otl_gsub *gsub_list, CMap *cmap)
 {
   USHORT  c0, c1, gid, cid;
   USHORT  j, d, segCount;
@@ -628,19 +628,20 @@ load_cmap4 (struct cmap4 *map,
       ch = c0 + j;
       if (map->idRangeOffset[i] == 0) {
 	gid = (ch + map->idDelta[i]) & 0xffff;
-      } else if (c0 == 0xffff && c1 == 0xffff && map->idRangeOffset[i] == 0xffff) {
+      } else if (c0 == 0xffff && c1 == 0xffff &&
+                   map->idRangeOffset[i] == 0xffff) {
 	/* this is for protection against some old broken fonts... */
 	gid = 0;
       } else {
-	gid = (map->glyphIndexArray[j+d] +
-	       map->idDelta[i]) & 0xffff;
+        gid = (map->glyphIndexArray[j+d] + map->idDelta[i]) & 0xffff;
       }
       if (gid != 0 && gid != 0xffff) {
+        if (gsub_list)
+          otl_gsub_apply(gsub_list, &gid);
 	if (GIDToCIDMap) {
 	  cid = ((GIDToCIDMap[2*gid] << 8)|GIDToCIDMap[2*gid+1]);
 	  if (cid == 0)
-	    WARN("GID %u does not have corresponding CID %u.",
-		 gid, cid);
+            WARN("GID %u does not have corresponding CID %u.", gid, cid);
 	} else {
 	  cid = gid;
 	}
@@ -658,7 +659,7 @@ load_cmap4 (struct cmap4 *map,
 
 static void
 load_cmap12 (struct cmap12 *map,
-	     unsigned char *GIDToCIDMap, CMap *cmap)
+	     unsigned char *GIDToCIDMap, otl_gsub *gsub_list, CMap *cmap)
 {
   ULONG   i, ch;  /* LONG ? */
   USHORT  gid, cid;
@@ -669,6 +670,8 @@ load_cmap12 (struct cmap12 *map,
 	 ch++) {
       int  d = ch - map->groups[i].startCharCode;
       gid = (USHORT) ((map->groups[i].startGlyphID + d) & 0xffff);
+      if (gsub_list)
+        otl_gsub_apply(gsub_list, &gid);
       if (GIDToCIDMap) {
 	cid = ((GIDToCIDMap[2*gid] << 8)|GIDToCIDMap[2*gid+1]);
 	if (cid == 0)
@@ -1594,7 +1597,7 @@ handle_assign (pdf_obj *dst, pdf_obj *src, int flag,
 
 static int
 load_base_CMap (const char *cmap_name, int wmode,
-		CIDSysInfo *csi, unsigned char *GIDToCIDMap,
+		CIDSysInfo *csi, unsigned char *GIDToCIDMap, otl_gsub *gsub_list,
 		tt_cmap *ttcmap)
 {
   int cmap_id;
@@ -1616,9 +1619,9 @@ load_base_CMap (const char *cmap_name, int wmode,
     }
 
     if (ttcmap->format == 12) {
-      load_cmap12(ttcmap->map, GIDToCIDMap, cmap);
+      load_cmap12(ttcmap->map, GIDToCIDMap, gsub_list, cmap);
     } else if (ttcmap->format == 4) {
-      load_cmap4(ttcmap->map, GIDToCIDMap, cmap);
+      load_cmap4(ttcmap->map, GIDToCIDMap, gsub_list, cmap);
     }
 
     cmap_id = CMap_cache_add(cmap);
@@ -1893,11 +1896,30 @@ otf_load_Unicode_CMap (const char *map_name, int ttc_index, /* 0 for non-TTC fon
       }
     }
   }
+  if (wmode == 1) {
+    gsub_list = otl_gsub_new();
+    if (otl_gsub_add_feat(gsub_list, "*", "*", "vrt2", sfont) < 0) {
+      if (otl_gsub_add_feat(gsub_list, "*", "*", "vert", sfont) < 0) {
+        WARN("GSUB feature vrt2/vert not found.");
+        otl_gsub_release(gsub_list);
+        gsub_list = NULL;
+      } else {
+        otl_gsub_select(gsub_list, "*", "*", "vert");
+      }
+    } else {
+      otl_gsub_select(gsub_list, "*", "*", "vrt2");
+    }
+  } else {
+    gsub_list = NULL;
+  }
   cmap_id = load_base_CMap(base_name, wmode,
-			   (is_cidfont ? &csi : NULL),
-			   GIDToCIDMap, ttcmap);
+                           (is_cidfont ? &csi : NULL), GIDToCIDMap,
+                           gsub_list, ttcmap);
   if (cmap_id < 0)
     ERROR("Failed to read OpenType/TrueType cmap table.");
+  if (gsub_list)
+    otl_gsub_release(gsub_list);
+  gsub_list = NULL;
 
   if (!otl_tags) {
     RELEASE(cmap_name);
