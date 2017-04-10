@@ -306,6 +306,20 @@ void SessionImpl::SetEnvironmentVariables()
   }
 
   SetCWDEnv();
+
+  // experimental
+#if 1
+  string envPath;
+  if (GetEnvironmentString("PATH", envPath))
+  {
+    string newEnvPath;
+    bool competition = false;
+    if (FixProgramSearchPath(envPath, GetBinDirectory(), competition, newEnvPath, competition))
+    {
+      Utils::SetEnvironmentString("PATH", newEnvPath);
+    }
+  }
+#endif
 }
 
 void SessionImpl::SetTheNameOfTheGame(const string& name)

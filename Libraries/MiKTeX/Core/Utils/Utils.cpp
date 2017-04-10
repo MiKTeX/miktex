@@ -1,6 +1,6 @@
 /* util.cpp: generi utilities
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -25,6 +25,7 @@
 
 #include "miktex/Core/CsvList.h"
 #include "miktex/Core/PathName.h"
+#include "miktex/Core/Paths.h"
 #include "miktex/Core/PathNameParser.h"
 
 #include "Session/SessionImpl.h"
@@ -900,4 +901,87 @@ bool Utils::FindProgram(const std::string & programName, PathName & path)
     }
   }
   return false;
+}
+
+MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathName& binDir_, bool checkCompetition, string& newPath, bool& competition)
+{
+  bool modified = false;
+  bool found = false;
+  competition = false;
+  newPath = "";
+  PathName binDir = binDir_;
+  binDir.AppendDirectoryDelimiter();
+#if defined(MIKTEX_WINDOWS)
+  binDir.ConvertToDos();
+#endif
+  for (CsvList entry(oldPath, PathName::PathNameDelimiter); entry; ++entry)
+  {
+    string str2;
+    for (const char& ch : *entry)
+    {
+      // FIXME: only on Windows
+      if (ch != '"' && ch != '<' && ch != '>' && ch != '|')
+      {
+        str2 += ch;
+      }
+    }
+    PathName dir(str2);
+    dir.AppendDirectoryDelimiter();
+    if (binDir == dir)
+    {
+      if (found)
+      {
+        // prevent duplicates
+        continue;
+      }
+      found = true;
+    }
+    else if (checkCompetition)
+    {
+      PathName otherPdfTeX(dir);
+      otherPdfTeX /= "pdftex" MIKTEX_EXE_FILE_SUFFIX;
+      if (!found && File::Exists(otherPdfTeX))
+      {
+        int exitCode;
+        ProcessOutput<80> pdfTeXOutput;
+        bool isOtherPdfTeX = true;
+        if (Process::Run(otherPdfTeX, "--version", &pdfTeXOutput, &exitCode, nullptr) && exitCode == 0)
+        {
+          if (pdfTeXOutput.StdoutToString().find("MiKTeX") != string::npos)
+          {
+            isOtherPdfTeX = false;
+          }
+        }
+        if (isOtherPdfTeX)
+        {
+          // another TeX system is in our way; push it out
+          // from this place
+          if (!newPath.empty())
+          {
+            newPath += PathName::PathNameDelimiter;
+          }
+          newPath += binDir.GetData();
+          found = true;
+          modified = true;
+          competition = true;
+        }
+      }
+    }
+    if (!newPath.empty())
+    {
+      newPath += PathName::PathNameDelimiter;
+    }
+    newPath += *entry;
+  }
+  if (!found)
+  {
+    // MiKTeX is not yet in the PATH
+    if (!newPath.empty())
+    {
+      newPath += PathName::PathNameDelimiter;
+    }
+    newPath += binDir.GetData();
+    modified = true;
+  }
+  return !modified;
 }

@@ -203,6 +203,7 @@ bool FileIsOnROMedia(const char * lpszPath);
 bool GetCrtErrorMessage(int functionResult, std::string & errorMessage);
 MiKTeX::Core::PathName GetFullPath(const char * lpszPath);
 MiKTeX::Core::PathName GetHomeDirectory();
+bool FixProgramSearchPath(const std::string& oldPath, const MiKTeX::Core::PathName& binDir_, bool checkCompetition, std::string& newPath, bool& competition);
 
 #if defined(MIKTEX_WINDOWS)
 bool GetUserProfileDirectory(MiKTeX::Core::PathName & path);

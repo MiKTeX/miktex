@@ -1134,88 +1134,6 @@ void Utils::CheckHeap()
 #endif
 }
 
-MIKTEXSTATICFUNC(bool) CheckPath(const string& oldPath, const PathName& binDirArg, string& newPath, bool& competition)
-{
-  bool modified = false;
-  bool found = false;
-  competition = false;
-  newPath = "";
-  PathName binDir = binDirArg;
-  binDir.AppendDirectoryDelimiter();
-#if defined(MIKTEX_WINDOWS)
-  binDir.ConvertToDos();
-#endif
-  for (CsvList entry(oldPath, PathName::PathNameDelimiter); entry; ++entry)
-  {
-    string str2;
-    for (const char& ch : *entry)
-    {
-      if (ch != '"' && ch != '<' && ch != '>' && ch != '|')
-      {
-        str2 += ch;
-      }
-    }
-    PathName dir(str2);
-    dir.AppendDirectoryDelimiter();
-    if (binDir == dir)
-    {
-      if (found)
-      {
-        // prevent duplicates
-        continue;
-      }
-      found = true;
-    }
-    else
-    {
-      PathName otherPdfTeX(dir);
-      otherPdfTeX /= "pdftex.exe";
-      if (!found && File::Exists(otherPdfTeX))
-      {
-        int exitCode;
-        ProcessOutput<80> pdfTeXOutput;
-        bool isOtherPdfTeX = true;
-        if (Process::Run(otherPdfTeX.GetData(), "--version", &pdfTeXOutput, &exitCode, nullptr) && exitCode == 0)
-        {
-          if (pdfTeXOutput.StdoutToString().find("MiKTeX") != string::npos)
-          {
-            isOtherPdfTeX = false;
-          }
-        }
-        if (isOtherPdfTeX)
-        {
-          // another TeX system is in our way; push it out
-          // from this place
-          if (!newPath.empty())
-          {
-            newPath += PathName::PathNameDelimiter;
-          }
-          newPath += binDir.GetData();
-          found = true;
-          modified = true;
-          competition = true;
-        }
-      }
-    }
-    if (!newPath.empty())
-    {
-      newPath += PathName::PathNameDelimiter;
-    }
-    newPath += *entry;
-  }
-  if (!found)
-  {
-    // MiKTeX is not yet in the PATH
-    if (!newPath.empty())
-    {
-      newPath += PathName::PathNameDelimiter;
-    }
-    newPath += binDir.GetData();
-    modified = true;
-  }
-  return !modified;
-}
-
 bool Utils::CheckPath(bool repair)
 {
 #define REGSTR_KEY_ENVIRONMENT_COMMON L"System\\CurrentControlSet\\Control\\Session Manager\\Environment"
@@ -1252,7 +1170,7 @@ bool Utils::CheckPath(bool repair)
 
   bool systemPathCompetition;
 
-  bool systemPathOkay = !Directory::Exists(commonBinDir) || ::CheckPath(WU_(systemPath), commonBinDir, repairedSystemPath, systemPathCompetition);
+  bool systemPathOkay = !Directory::Exists(commonBinDir) || FixProgramSearchPath(WU_(systemPath), commonBinDir, true, repairedSystemPath, systemPathCompetition);
 
   bool repaired = false;
 
@@ -1281,7 +1199,7 @@ bool Utils::CheckPath(bool repair)
     {
       string repairedUserPath;
       bool userPathCompetition;
-      systemPathOkay = ::CheckPath(WU_(userPath), commonBinDir, repairedUserPath, userPathCompetition);
+      systemPathOkay = FixProgramSearchPath(WU_(userPath), commonBinDir, true, repairedUserPath, userPathCompetition);
       if (!systemPathOkay && repair)
       {
         SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new user PATH:"));
@@ -1296,7 +1214,7 @@ bool Utils::CheckPath(bool repair)
     userBinDir /= MIKTEX_PATH_BIN_DIR;
     string repairedUserPath;
     bool userPathCompetition;
-    userPathOkay = !Directory::Exists(userBinDir) || ::CheckPath(WU_(userPath), userBinDir, repairedUserPath, userPathCompetition);
+    userPathOkay = !Directory::Exists(userBinDir) || FixProgramSearchPath(WU_(userPath), userBinDir, true, repairedUserPath, userPathCompetition);
     if (!userPathOkay && repair)
     {
       SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new user PATH:"));
