@@ -87,7 +87,7 @@ PathName Utils::GetFolderPath(int nFolder, int nFallbackFolder, bool getCurrentP
   return szPath;
 }
 
-void Utils::RemoveBlanksFromPathName(PathName & path)
+void Utils::RemoveBlanksFromPathName(PathName& path)
 {
   // make a working copy
   PathName temp(path);
@@ -182,7 +182,7 @@ void Utils::RemoveBlanksFromPathName(PathName & path)
   }
 }
 
-string GetOperatingSystem(const OSVERSIONINFOEXW & osvi, const SYSTEM_INFO & si)
+string GetOperatingSystem(const OSVERSIONINFOEXW& osvi, const SYSTEM_INFO& si)
 {
   string str = "Windows ";
   if (osvi.dwMajorVersion == 10)
@@ -284,7 +284,7 @@ inline HMODULE GetKernel32Module()
   return h;
 }
 
-string GetWindowsProductType(const OSVERSIONINFOEXW & osvi, const SYSTEM_INFO & si)
+string GetWindowsProductType(const OSVERSIONINFOEXW& osvi, const SYSTEM_INFO& si)
 {
   string str;
   if (osvi.dwMajorVersion >= 6)
@@ -715,7 +715,7 @@ bool Utils::RunningOnAServer()
 }
 
 // see Q246772
-bool Utils::GetDefPrinter(string & printerName)
+bool Utils::GetDefPrinter(string& printerName)
 {
   OSVERSIONINFOW osv;
   osv.dwOSVersionInfoSize = sizeof(OSVERSIONINFOW);
@@ -811,7 +811,7 @@ bool Utils::GetDefPrinter(string & printerName)
   }
 }
 
-void Utils::SetEnvironmentString(const string & valueName, const string & value)
+void Utils::SetEnvironmentString(const string& valueName, const string& value)
 {
   string oldValue;
   if (::GetEnvironmentString(valueName, oldValue) && oldValue == value)
@@ -991,7 +991,7 @@ HINSTANCE ShellExecuteURL(HWND hwnd, const wchar_t* lpOperation, const wchar_t* 
 // like InternetCrackUrl because it's much more forgiving, and we only
 // need to extract the scheme anyway
 
-void Utils::ShowWebPage(const string & url)
+void Utils::ShowWebPage(const string& url)
 {
   HINSTANCE hInst = ShellExecuteURL(nullptr, nullptr, StringUtil::UTF8ToWideChar(url).c_str(), nullptr, nullptr, SW_SHOWNORMAL);
   if (reinterpret_cast<size_t>(hInst) <= 32)
@@ -1001,7 +1001,7 @@ void Utils::ShowWebPage(const string & url)
 }
 
 #if !USE_CODECVT_UTF8
-MIKTEXSTATICFUNC(wchar_t*) UTF8ToWideChar(const char* lpszUtf8, size_t & sizeWideChar, wchar_t* lpszWideChar)
+MIKTEXSTATICFUNC(wchar_t*) UTF8ToWideChar(const char* lpszUtf8, size_t& sizeWideChar, wchar_t* lpszWideChar)
 {
   MIKTEX_ASSERT(Utils::IsUTF8(lpszUtf8));
   MIKTEX_ASSERT(sizeWideChar == 0 || lpszWideChar != nullptr);
@@ -1048,7 +1048,7 @@ MIKTEXSTATICFUNC(wchar_t*) UTF8ToWideChar(const char* lpszUtf8, size_t & sizeWid
 #endif
 
 #if !USE_CODECVT_UTF8
-MIKTEXSTATICFUNC(char *) WideCharToUTF8(const wchar_t* lpszWideChar, size_t & sizeUtf8, char* lpszUtf8)
+MIKTEXSTATICFUNC(char *) WideCharToUTF8(const wchar_t* lpszWideChar, size_t& sizeUtf8, char* lpszUtf8)
 {
   MIKTEX_ASSERT(sizeUtf8 == 0 || lpszUtf8 != nullptr);
   MIKTEX_ASSERT(sizeUtf8 != 0 || lpszUtf8 == nullptr);
@@ -1134,7 +1134,7 @@ void Utils::CheckHeap()
 #endif
 }
 
-MIKTEXSTATICFUNC(bool) CheckPath(const string & oldPath, const PathName & binDirArg, string & newPath, bool & competition)
+MIKTEXSTATICFUNC(bool) CheckPath(const string& oldPath, const PathName& binDirArg, string& newPath, bool& competition)
 {
   bool modified = false;
   bool found = false;
@@ -1148,7 +1148,7 @@ MIKTEXSTATICFUNC(bool) CheckPath(const string & oldPath, const PathName & binDir
   for (CsvList entry(oldPath, PathName::PathNameDelimiter); entry; ++entry)
   {
     string str2;
-    for (const char & ch : *entry)
+    for (const char& ch : *entry)
     {
       if (ch != '"' && ch != '<' && ch != '>' && ch != '|')
       {
@@ -1218,8 +1218,7 @@ MIKTEXSTATICFUNC(bool) CheckPath(const string & oldPath, const PathName & binDir
 
 bool Utils::CheckPath(bool repair)
 {
-#define REGSTR_KEY_ENVIRONMENT_COMMON \
-   L"System\\CurrentControlSet\\Control\\Session Manager\\Environment"
+#define REGSTR_KEY_ENVIRONMENT_COMMON L"System\\CurrentControlSet\\Control\\Session Manager\\Environment"
 
 #define REGSTR_KEY_ENVIRONMENT_USER L"Environment"
 
@@ -1324,7 +1323,7 @@ bool Utils::CheckPath(bool repair)
   return repaired || (systemPathOkay && userPathOkay);
 }
 
-void Utils::CanonicalizePathName(PathName & path)
+void Utils::CanonicalizePathName(PathName& path)
 {
   wchar_t szFullPath[BufferSizes::MaxPath];
   DWORD n = GetFullPathNameW(path.ToWideCharString().c_str(), BufferSizes::MaxPath, szFullPath, nullptr);
@@ -1339,7 +1338,7 @@ void Utils::CanonicalizePathName(PathName & path)
   path = szFullPath;
 }
 
-void Utils::RegisterShellFileAssoc(const string & extension, const string & progId, bool takeOwnership)
+void Utils::RegisterShellFileAssoc(const string& extension, const string& progId, bool takeOwnership)
 {
   shared_ptr<Session> session = Session::Get();
   PathName regPath("Software\\Classes");
@@ -1374,7 +1373,7 @@ void Utils::RegisterShellFileAssoc(const string & extension, const string & prog
   }
 }
 
-void Utils::UnregisterShellFileAssoc(const string & extension, const string & progId)
+void Utils::UnregisterShellFileAssoc(const string& extension, const string& progId)
 {
   shared_ptr<Session> session = Session::Get();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
@@ -1404,7 +1403,7 @@ void Utils::UnregisterShellFileAssoc(const string & extension, const string & pr
   }
 }
 
-void Utils::RegisterShellFileType(const string & progId, const string & userFriendlyName, const string & iconPath)
+void Utils::RegisterShellFileType(const string& progId, const string& userFriendlyName, const string& iconPath)
 {
   shared_ptr<Session> session = Session::Get();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
@@ -1422,7 +1421,7 @@ void Utils::RegisterShellFileType(const string & progId, const string & userFrie
   }
 }
 
-void Utils::UnregisterShellFileType(const string & progId)
+void Utils::UnregisterShellFileType(const string& progId)
 {
   shared_ptr<Session> session = Session::Get();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
@@ -1431,7 +1430,7 @@ void Utils::UnregisterShellFileType(const string & progId)
   winRegistry::TryDeleteRegistryKey(hkeyRoot, regPath.ToString());
 }
 
-void Utils::RegisterShellVerb(const string & progId, const string & verb, const string & command, const string & ddeExec)
+void Utils::RegisterShellVerb(const string& progId, const string& verb, const string& command, const string& ddeExec)
 {
   shared_ptr<Session> session = Session::Get();
   HKEY hkeyRoot = session->IsAdminMode() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
@@ -1455,12 +1454,12 @@ void Utils::RegisterShellVerb(const string & progId, const string & verb, const 
   }
 }
 
-string Utils::MakeProgId(const string & progId)
+string Utils::MakeProgId(const string& progId)
 {
   return string("MiKTeX") + "." + progId + "." + MIKTEX_MAJOR_MINOR_STR;
 }
 
-bool Utils::SupportsHardLinks(const PathName & path)
+bool Utils::SupportsHardLinks(const PathName& path)
 {
   DWORD fileSystemFlags;
   wchar_t fileSystemName[_MAX_PATH];
