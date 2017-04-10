@@ -1,6 +1,6 @@
 /* SetupService.cpp:
 
-   Copyright (C) 2013-2016 Christian Schenk
+   Copyright (C) 2013-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -964,7 +964,7 @@ void SetupServiceImpl::DoTheInstallation()
     cmdScriptFileName /= "miktex-portable.cmd";
     StreamWriter cmdScript(cmdScriptFileName);
     cmdScript.WriteLine("@echo off");
-    cmdScript.WriteFormattedLine("start %s", taskbarIcon.ToDos().GetData());
+    cmdScript.WriteFormattedLine("start \"\" \"%s\"", taskbarIcon.ToDos().GetData());
     cmdScript.Close();
   }
 }
