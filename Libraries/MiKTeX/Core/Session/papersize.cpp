@@ -405,7 +405,7 @@ public:
         Fndb::Add(path);
       }
     }
-    catch (const exception &)
+    catch (const exception&)
     {
     }
   }
