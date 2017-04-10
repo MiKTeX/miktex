@@ -121,11 +121,11 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
   switch (specialPath)
   {
   case SpecialPath::BinDirectory:
-    path = GetBinDirectory();
+    path = GetBinDirectory(true);
     break;
   case SpecialPath::InternalBinDirectory:
 #if defined(MIKTEX_WINDOWS)
-    path = GetBinDirectory();
+    path = GetBinDirectory(true);
     path /= "internal";
 #else
     path = GetMyPrefix(false);

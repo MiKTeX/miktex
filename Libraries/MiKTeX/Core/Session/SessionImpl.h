@@ -806,7 +806,7 @@ private:
   std::shared_ptr<FileNameDatabase> GetFileNameDatabase(unsigned r);
 
 private:
-  MiKTeX::Core::PathName GetBinDirectory();
+  MiKTeX::Core::PathName GetBinDirectory(bool canonicalized);
 
 private:
   void AppendToSearchPath(std::string& strSearchPath, const std::string& strSearchPath2);

@@ -314,7 +314,7 @@ void SessionImpl::SetEnvironmentVariables()
   {
     string newEnvPath;
     bool competition = false;
-    if (FixProgramSearchPath(envPath, GetBinDirectory(), competition, newEnvPath, competition))
+    if (FixProgramSearchPath(envPath, GetBinDirectory(false), competition, newEnvPath, competition))
     {
       Utils::SetEnvironmentString("PATH", newEnvPath);
     }

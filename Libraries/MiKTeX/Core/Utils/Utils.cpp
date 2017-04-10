@@ -983,5 +983,5 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
     newPath += binDir.GetData();
     modified = true;
   }
-  return !modified;
+  return modified;
 }

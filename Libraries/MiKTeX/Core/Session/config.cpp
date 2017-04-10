@@ -592,14 +592,14 @@ bool SessionImpl::IsMiKTeXPortable()
   return startupConfig.config == MiKTeXConfiguration::Portable;
 }
 
-PathName SessionImpl::GetBinDirectory()
+PathName SessionImpl::GetBinDirectory(bool canonicalized)
 {
 #if defined(MIKTEX_NATIVE_WINDOWS)
   PathName ret = GetRootDirectory(GetInstallRoot());
   ret += MIKTEX_PATH_BIN_DIR;
   return ret;
 #else
-  return GetMyLocation(true);
+  return GetMyLocation(canonicalized);
 #endif
 }
 

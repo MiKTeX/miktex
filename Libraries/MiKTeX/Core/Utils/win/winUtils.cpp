@@ -1170,7 +1170,7 @@ bool Utils::CheckPath(bool repair)
 
   bool systemPathCompetition;
 
-  bool systemPathOkay = !Directory::Exists(commonBinDir) || FixProgramSearchPath(WU_(systemPath), commonBinDir, true, repairedSystemPath, systemPathCompetition);
+  bool systemPathOkay = !Directory::Exists(commonBinDir) || !FixProgramSearchPath(WU_(systemPath), commonBinDir, true, repairedSystemPath, systemPathCompetition);
 
   bool repaired = false;
 
@@ -1199,7 +1199,7 @@ bool Utils::CheckPath(bool repair)
     {
       string repairedUserPath;
       bool userPathCompetition;
-      systemPathOkay = FixProgramSearchPath(WU_(userPath), commonBinDir, true, repairedUserPath, userPathCompetition);
+      systemPathOkay = !FixProgramSearchPath(WU_(userPath), commonBinDir, true, repairedUserPath, userPathCompetition);
       if (!systemPathOkay && repair)
       {
         SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new user PATH:"));
@@ -1214,7 +1214,7 @@ bool Utils::CheckPath(bool repair)
     userBinDir /= MIKTEX_PATH_BIN_DIR;
     string repairedUserPath;
     bool userPathCompetition;
-    userPathOkay = !Directory::Exists(userBinDir) || FixProgramSearchPath(WU_(userPath), userBinDir, true, repairedUserPath, userPathCompetition);
+    userPathOkay = !Directory::Exists(userBinDir) || !FixProgramSearchPath(WU_(userPath), userBinDir, true, repairedUserPath, userPathCompetition);
     if (!userPathOkay && repair)
     {
       SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new user PATH:"));
