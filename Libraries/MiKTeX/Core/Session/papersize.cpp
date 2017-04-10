@@ -558,7 +558,18 @@ void SessionImpl::WriteDvipdfmxPaperSize()
     }
   }
 
-  editor.WriteFormattedLine("p %dbp,%dbp", paperSizeInfo.width, paperSizeInfo.height);
+  if (Utils::EqualsIgnoreCase(paperSizeInfo.dvipsName, "a4"))
+  {
+    editor.WriteLine("p a4");
+  }
+  else if (Utils::EqualsIgnoreCase(paperSizeInfo.dvipsName, "letter"))
+  {
+    editor.WriteLine("p letter");
+  }
+  else
+  {
+    editor.WriteFormattedLine("p %dbp,%dbp", paperSizeInfo.width, paperSizeInfo.height);
+  }
 }
 
 void SessionImpl::WritePdfTeXPaperSize()
@@ -592,7 +603,19 @@ void SessionImpl::WritePdfTeXPaperSize()
     }
   }
 
-  editor.WriteFormattedLine("page_width %d true bp", paperSizeInfo.width);
-
-  editor.WriteFormattedLine("page_height %d true bp", paperSizeInfo.height);
+  if (Utils::EqualsIgnoreCase(paperSizeInfo.dvipsName, "a4"))
+  {
+    editor.WriteLine("page_width 210 true mm");
+    editor.WriteLine("page_height 297 true mm");
+  }
+  else if (Utils::EqualsIgnoreCase(paperSizeInfo.dvipsName, "letter"))
+  {
+    editor.WriteLine("page_width 8.5 true in");
+    editor.WriteLine("page_height 11 true in");
+  }
+  else
+  {
+    editor.WriteFormattedLine("page_width %d true bp", paperSizeInfo.width);
+    editor.WriteFormattedLine("page_height %d true bp", paperSizeInfo.height);
+  }
 }
