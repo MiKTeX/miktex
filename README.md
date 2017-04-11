@@ -261,6 +261,6 @@ This will create the PDF file `sample.pdf`.
 
 ### Test suite
 
-You can run the [MiKTeX test
+In order to validate the MiKTeX setup, you can run the [MiKTeX test
 suite](https://github.com/MiKTeX/miktex-testing "MiKTeX test suite on
-GitHub") on your fresh MiKTeX setup.
+GitHub").
