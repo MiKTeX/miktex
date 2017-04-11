@@ -6517,8 +6517,13 @@ if( !dot_file && dos_env_file){
 #ifdef KPATHSEA
 if( !dot_file ) {                    U_CHAR * envfile;
                              char *arch, *p, str[256];
-  
+#if defined(MIKTEX_WINDOWS)
+p = arch = xstrdup("/win");
+#elif defined(MIKTEX_UNIX)
+p = arch = xstrdup("/unx");
+#else
 p = arch = (char *) kpse_var_value( "SELFAUTOLOC" );
+#endif
 while( *p != '\0' ){
    if( (*p ==   '/') || (*p == '\\') ){
       arch = p;
