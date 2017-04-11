@@ -1634,8 +1634,14 @@ void Application::Main(int argc, const char** argv)
   if (pSession->FindFile("mpmcli." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
     || pSession->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
   {
-    Utils::SetEnvironmentString("MIKTEX_LOG_DIR", PathName(pSession->GetSpecialPath(SpecialPath::DataRoot)).AppendComponent(MIKTEX_PATH_MIKTEX_LOG_DIR).ToString());
-    Utils::SetEnvironmentString("MIKTEX_LOG_NAME", "mpmcli");
+    PathName logDir = pSession->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR;
+    string logName = "mpmcli";
+    if (optAdmin)
+    {
+      logName += MIKTEX_ADMIN_SUFFIX;
+    }
+    Utils::SetEnvironmentString("MIKTEX_LOG_DIR", logDir.ToString());
+    Utils::SetEnvironmentString("MIKTEX_LOG_NAME", logName);
     log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
     isLog4cxxConfigured = true;
     LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("mpmcli", MIKTEX_COMPONENT_VERSION_STR));
