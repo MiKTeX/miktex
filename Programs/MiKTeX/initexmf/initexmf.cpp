@@ -642,6 +642,14 @@ const struct poptOption IniTeXMFApp::aoption_user[] = {
   },
 
   {
+    "default-paper-size", 0,
+    POPT_ARG_STRING, nullptr,
+    OPT_DEFAULT_PAPER_SIZE,
+    T_("Set the default paper size (one of: a4, letter)."),
+    T_("PAPER"),
+  },
+
+  {
     "disable-installer", 0,
     POPT_ARG_NONE, nullptr,
     OPT_DISABLE_INSTALLER,
