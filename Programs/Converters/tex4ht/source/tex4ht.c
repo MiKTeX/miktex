@@ -6518,9 +6518,9 @@ if( !dot_file && dos_env_file){
 if( !dot_file ) {                    U_CHAR * envfile;
                              char *arch, *p, str[256];
 #if defined(MIKTEX_WINDOWS)
-p = arch = xstrdup("/win");
+p = arch = xstrdup("/win32");
 #elif defined(MIKTEX_UNIX)
-p = arch = xstrdup("/unx");
+p = arch = xstrdup("/unix");
 #else
 p = arch = (char *) kpse_var_value( "SELFAUTOLOC" );
 #endif
