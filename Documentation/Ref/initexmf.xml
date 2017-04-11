@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-                   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+                          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
 ]>
@@ -76,6 +76,20 @@ invoke the utility as follows:</para>
 
 <variablelist>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/admin.xml" />
+<varlistentry>
+<term><option>--default-paper-size=<replaceable>paper</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--default-paper-size=paper</primary>
+</indexterm>
+<indexterm>
+<primary>paper size</primary>
+<secondary>setting default</secondary>
+</indexterm>
+<para>Set the default paper size.  <replaceable>paper</replaceable>
+must be <option>a4</option> or
+<option>letter</option>.</para></listitem>
+</varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disableinstaller.xml" />
 <varlistentry>
 <term><option>--dump</option></term>

@@ -11,11 +11,17 @@ you want to learn more about MiKTeX.
 This readme file is located in the top-level directory of the MiKTeX
 source code tree.
 
-Use the source code to build and install a minimal TeX system.  MiKTeX
-provides an integrated package manager, i.e., the minimal TeX system
-can serve as a starting point for a much larger (complete) TeX system.
+The MiKTeX source code allows you to build and install a minimal TeX
+system.  MiKTeX provides an integrated package manager, which can
+automatically download and install missing packages.  Thus:
 
-Please consult these HOWTOs for platform-specific information:
+* you start with a compact TeX setup
+* only packages which are referenced by your projects will be
+  installed
+  
+MiKTeX can be built on Windows and Unix-like (including macOS)
+systems.  Please consult these HOWTOs for platform-specific build
+instructions:
 
 * [https://miktex.org/howto/build-win](https://miktex.org/howto/build-win "Building MiKTeX (Windows)")
 * [https://miktex.org/howto/build-unx](https://miktex.org/howto/build-unx "Building MiKTeX (Unix-line)")
@@ -25,13 +31,14 @@ Please consult these HOWTOs for platform-specific information:
 
 * C/C++ compiler
 
-  You will need a modern C/C++ compiler.  The minimum required
-  standard versions are C99 and C++14.
+  Building MiKTeX requires a modern C/C++ compiler.  The minimum
+  required standard versions are C99 and C++14.
 
 * CMake
 
-  MiKTeX is built by using CMake, which will create Makefiles suited
-  for your local system.  The minimum required CMake version is 3.7.0.
+  The MiKTeX build is driven by CMake, a tool which will create
+  Makefiles suited for the local system.  The minimum required CMake
+  version is 3.7.0.
 
 * Various build utilities
 
@@ -39,12 +46,13 @@ Please consult these HOWTOs for platform-specific information:
 
   All platforms:
 
-  * cat, sed
+  * cat
+  * fop
+  * sed
   * xsltproc
 
   Windows only:
 
-  * fop
   * hhc
   * makehm
   * pandoc
@@ -89,6 +97,8 @@ Please consult these HOWTOs for platform-specific information:
 
   * poppler-qt5
 
+Please consult the platform-specific HOWTOs, for more information.
+
 ## Running CMake
 
 It is recommended that you build outside the source code
@@ -96,9 +106,8 @@ directory:
 
     cmake ../source
 
-If you are doing an out-of-source build, then you have to specify the
-path to the MiKTeX source code directory (`../source` in the example
-above).
+Here you have to specify the path to the MiKTeX source code directory
+(`../source` in the example above).
 
 CMake for Windows may require a generator specification.  If you want
 to generate Makefiles for `nmake`, run this:
@@ -148,9 +157,10 @@ or, if you build with NMake on Windows:
 
 ## Installing
 
-CMake creates a standard `install` target which you can use to install
-everything in the standard location (see the `CMAKE_INSTALL_PREFIX`
-description above).  On Linux and macOS, you would run
+CMake has created a standard `install` target which you can use to
+install everything in the standard location (see the
+`CMAKE_INSTALL_PREFIX` description above).  On Linux and macOS, you
+would run
 
     make install
 
@@ -180,11 +190,12 @@ package database must have been set up for this to work:
 
     mpm --admin --update-db
 
-The `--admin` option is only required, if you are building a shared
+The `--admin` option is only required if you are building a shared
 MiKTeX setup.  If you are setting up MiKTeX just for yourself (i.e.,
-in your user directory), you have to omit the `--admin` option.
+in your user directory), you have to omit this option.
 
-Consult the mpm(1) man page, for more information about the utility.
+Please consult the mpm(1) man page, for more information about the
+utility.
 
 ### Enabling "on-the-fly" package installation
 
@@ -196,14 +207,14 @@ Configuration Utility as follows:
 Again, you have to omit `--admin`, if you intend to use MiKTeX just
 for yourself.
 
-Consult the initexmf(1) man page, for more information about the
-utility.
+Please consult the initexmf(1) man page, for more information about
+the MiKTeX Configuration Utility.
 
 ### Symbolic links
 
 Most of the MiKTeX executables are prefixed with `miktex-`.  For
-example, the pdfTeX executable has the file name `miktex-pdftex`.  You
-can create symbolic links targetting the `miktex-` prefixed
+example, the file name of the pdfTeX executable is `miktex-pdftex`.
+You can create symbolic links targetting the `miktex-` prefixed
 executables:
 
     initexmf --admin --mklinks
@@ -213,14 +224,13 @@ After running this command, the pdfTeX engine can be invoked as
 `--force` option to overwrite existing link names).
 
 The `--mklinks` option will also create symbolic links for format
-files and scripts.  That is, you can run `pdflatex` (pdfTeX with
-format `pdflatex` loaded) and `latexmk` (wrapper for the Perl script
-`latexmk.pl`).
+files and scripts.  For example, you can invoke `pdflatex` (pdfTeX
+with format `pdflatex` loaded) and `latexmk` (wrapper for the Perl
+script `latexmk.pl`).
 
 ### Installing basic packages
 
-You use the MiKTeX Package Manager in order to install basic MiKTeX
-packages:
+You use the MiKTeX Package Manager to install basic MiKTeX packages:
 
     mpm --admin --verbose --package-level=basic --upgrade
 
@@ -251,8 +261,6 @@ This will create the PDF file `sample.pdf`.
 
 ### Test suite
 
-It is recommended that you run
-the
-[MiKTeX test suite](https://github.com/MiKTeX/miktex-testing "MiKTeX test suite on GitHub") on
-your fresh MiKTeX setup.
-
+You can run the [MiKTeX test
+suite](https://github.com/MiKTeX/miktex-testing "MiKTeX test suite on
+GitHub") on your fresh MiKTeX setup.
