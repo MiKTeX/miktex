@@ -260,7 +260,18 @@ public:
   }
 
 public:
-  void Init(const char* argv0);
+  string GetLogName()
+  {
+    string logName = "initexmf";
+    if (adminMode)
+    {
+      logName += MIKTEX_ADMIN_SUFFIX;
+    }
+    return logName;
+  }
+
+public:
+  void Init(int argc, const char* argv[]);
 
 public:
   void Finalize();
@@ -698,9 +709,10 @@ IniTeXMFApp::~IniTeXMFApp()
   }
 }
 
-void IniTeXMFApp::Init(const char* argv0)
+void IniTeXMFApp::Init(int argc, const char* argv[])
 {
-  Session::InitInfo initInfo(argv0);
+  adminMode = argc > 0 && std::any_of(&argv[1], &argv[argc], [](const char* arg) { return strcmp(arg, "--admin") == 0 || strcmp(arg, "-admin") == 0; });
+  Session::InitInfo initInfo(argv[0]);
 #if defined(MIKTEX_WINDOWS)
   initInfo.SetOptions({ Session::InitOption::InitializeCOM });
 #endif
@@ -712,7 +724,7 @@ void IniTeXMFApp::Init(const char* argv0)
     || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
   {
     Utils::SetEnvironmentString("MIKTEX_LOG_DIR", GetLogDir().ToString());
-    Utils::SetEnvironmentString("MIKTEX_LOG_NAME", "initexmf");
+    Utils::SetEnvironmentString("MIKTEX_LOG_NAME", GetLogName());
     log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
   }
   else
@@ -723,7 +735,7 @@ void IniTeXMFApp::Init(const char* argv0)
   LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR));
   packageManager = PackageManager::Create(PackageManager::InitInfo(this));
   FindWizards();
-  PathName myName = PathName(argv0).GetFileNameWithoutExtension();
+  PathName myName = PathName(argv[0]).GetFileNameWithoutExtension();
   isMktexlsrMode = myName == "mktexlsr" || myName == "texhash";
   isTexlinksMode = myName == "texlinks";
   session->SetFindFileCallback(this);
@@ -3033,7 +3045,7 @@ int MAIN(int argc, MAINCHAR* argv[])
     }
     newargv.push_back(nullptr);
     IniTeXMFApp app;
-    app.Init(newargv[0]);
+    app.Init(argc, &newargv[0]);
     app.Run(argc, &newargv[0]);
     app.Finalize();
     logger = nullptr;
