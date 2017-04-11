@@ -2231,7 +2231,7 @@ void IniTeXMFApp::MakeFormatFile(const string& formatKey)
     arguments.AppendOption("--engine-option=", formatInfo.arguments);
   }
 
-  RunMakeTeX(maker.c_str(), arguments);
+  RunMakeTeX(maker, arguments);
 
   formatsMade.push_back(formatKey);
 }
@@ -2492,7 +2492,7 @@ void IniTeXMFApp::RegisterShellFileTypes(bool reg)
       }
       if (sft.lpszUserFriendlyName != 0 || !iconPath.empty())
       {
-        Utils::RegisterShellFileType(progId.c_str(), sft.lpszUserFriendlyName, iconPath);
+        Utils::RegisterShellFileType(progId, sft.lpszUserFriendlyName, iconPath);
       }
       if (sft.lpszVerb != nullptr && (!command.empty() || sft.lpszDdeArgs != nullptr))
       {
@@ -3912,7 +3912,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
   if (!defaultPaperSize.empty())
   {
-    session->SetDefaultPaperSize(defaultPaperSize.c_str());
+    session->SetDefaultPaperSize(defaultPaperSize);
   }
 
   if (optDump)
@@ -4050,7 +4050,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     {
       for (const string& r : updateRoots)
       {
-        UpdateFilenameDatabase(r.c_str());
+        UpdateFilenameDatabase(r);
       }
     }
   }
