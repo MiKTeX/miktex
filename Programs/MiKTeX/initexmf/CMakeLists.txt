@@ -49,6 +49,9 @@ endif()
 
 set(initexmf_sources
   StdAfx.h
+  aoption_setup.h
+  aoption_update.h
+  aoption_user.h
   initexmf-version.h
   initexmf.cpp
 )
