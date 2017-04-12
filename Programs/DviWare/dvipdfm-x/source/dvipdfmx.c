@@ -209,7 +209,7 @@ show_usage (void)
   printf ("  -r resolution\tSet resolution (in DPI) for raster fonts [600]\n");
   printf ("  -s pages\tSelect page ranges [all pages]\n");
   printf ("  --showpaper\tShow available paper formats and exit\n");
-  printf ("  -t \t\tEmbed thumbnail images of PNG format [DVIFILE.1] \n");
+  printf ("  -t \t\tEmbed thumbnail images of PNG format (DVIFILE.pageno, pageno=int) \n");
   printf ("  --version\tOutput version information and exit\n");
   printf ("  -v \t\tBe verbose\n");
   printf ("  -vv\t\tBe more verbose\n");
