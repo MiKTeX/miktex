@@ -240,12 +240,36 @@ become a link to the internal &Perl; wrapper
 </listitem>
 </varlistentry>
 <varlistentry>
+<term><option>--remove-links</option></term>
+<listitem>
+<indexterm>
+<primary>--remove-links</primary>
+</indexterm>
+<para>Remove the links which were created by <option>--mklinks</option>.</para></listitem>
+</varlistentry>
+<varlistentry>
 <term><option>--report</option></term>
 <listitem>
 <indexterm>
 <primary>--report</primary>
 </indexterm>
 <para>Write a &MiKTeX; configuration report.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--set-config-value=[<replaceable>section</replaceable>]<replaceable>valuename</replaceable>=<replaceable>value</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--set-config-value=[section]valuename=value</primary>
+</indexterm>
+<para>Set a configuration value.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--show-config-value=[<replaceable>section</replaceable>]<replaceable>valuename</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--show-config-value=[section]valuename</primary>
+</indexterm>
+<para>Show a configuration value.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--unregister-root=<replaceable>dir</replaceable></option></term>
