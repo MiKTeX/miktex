@@ -55,10 +55,10 @@ instructions:
 
   * hhc
   * makehm
-  * pandoc
   * mc
   * midl
   * mt
+  * pandoc
 
 * Libraries
 
@@ -97,7 +97,7 @@ instructions:
 
   * poppler-qt5
 
-Please consult the platform-specific HOWTOs, for more information.
+Please consult the platform-specific HOWTO, for more information.
 
 ## Running CMake
 
@@ -116,7 +116,7 @@ to generate Makefiles for `nmake`, run this:
 
 ### Useful build variables
 
-When running CMake to generates the Makefiles, it is possible to set
+When running CMake to generate the Makefiles, it is possible to set
 build variables as follows:
 
     cmake -DVAR1=VAL1 -DVAR2=VAL2 ...
