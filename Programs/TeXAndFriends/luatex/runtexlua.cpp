@@ -133,15 +133,18 @@ int MAIN(int argc, MAINCHAR** argv)
   catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
+    app.Finalize();
     return 1;
   }
   catch (const std::exception& e)
   {
     Utils::PrintException(e);
+    app.Finalize();
     return 1;
   }
   catch (int exitCode)
   {
+    app.Finalize();
     return exitCode;
   }
 }
