@@ -1636,7 +1636,7 @@ void Application::Main(int argc, const char** argv)
   {
     PathName logDir = pSession->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR;
     string logName = "mpmcli";
-    if (optAdmin)
+    if (optAdmin && pSession->RunningAsAdministrator())
     {
       logName += MIKTEX_ADMIN_SUFFIX;
     }

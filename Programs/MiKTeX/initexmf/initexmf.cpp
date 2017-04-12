@@ -263,7 +263,7 @@ public:
   string GetLogName()
   {
     string logName = "initexmf";
-    if (adminMode)
+    if (adminMode && session->RunningAsAdministrator())
     {
       logName += MIKTEX_ADMIN_SUFFIX;
     }
