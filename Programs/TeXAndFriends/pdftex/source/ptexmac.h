@@ -1,5 +1,5 @@
 /*
-Copyright 1996-2014 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2017 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -159,7 +159,6 @@ size_t          T##_limit
 #  define F_TYPE1             0x10
 #  define F_TRUETYPE          0x20
 #  define F_OTF               0x40
-#  define F_TYPE3             0x80
 
 #  define set_included(fm)    ((fm)->type |= F_INCLUDED)
 #  define set_subsetted(fm)   ((fm)->type |= F_SUBSETTED)
@@ -168,7 +167,6 @@ size_t          T##_limit
 #  define set_type1(fm)       ((fm)->type |= F_TYPE1)
 #  define set_truetype(fm)    ((fm)->type |= F_TRUETYPE)
 #  define set_opentype(fm)    ((fm)->type |= F_OTF)
-#  define set_type3(fm)       ((fm)->type |= F_TYPE3)
 
 #  define unset_included(fm)  ((fm)->type &= ~F_INCLUDED)
 #  define unset_subsetted(fm) ((fm)->type &= ~F_SUBSETTED)
@@ -177,7 +175,6 @@ size_t          T##_limit
 #  define unset_type1(fm)     ((fm)->type &= ~F_TYPE1)
 #  define unset_truetype(fm)  ((fm)->type &= ~F_TRUETYPE)
 #  define unset_opentype(fm)  ((fm)->type &= ~F_OTF)
-#  define unset_type3(fm)     ((fm)->type &= ~F_TYPE3)
 
 #  define is_included(fm)     (((fm)->type & F_INCLUDED) != 0)
 #  define is_subsetted(fm)    (((fm)->type & F_SUBSETTED) != 0)
@@ -186,7 +183,6 @@ size_t          T##_limit
 #  define is_type1(fm)        (((fm)->type & F_TYPE1) != 0)
 #  define is_truetype(fm)     (((fm)->type & F_TRUETYPE) != 0)
 #  define is_opentype(fm)     (((fm)->type & F_OTF) != 0)
-#  define is_type3(fm)        (((fm)->type & F_TYPE3) != 0)
 
 #  define fm_slant(fm)        (fm)->slant
 #  define fm_extend(fm)       (fm)->extend

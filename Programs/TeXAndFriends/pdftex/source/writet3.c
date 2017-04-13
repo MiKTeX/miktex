@@ -254,31 +254,7 @@ static boolean writepk(internalfontnumber f)
     return true;
 }
 
-static void remove_duplicate_glyph_names(char **g, const char *encname)
-{
-    struct avl_table *gl_tree;
-    char *aa;
-    int i;
-    gl_tree = avl_create(comp_string_entry, NULL, &avl_xallocator);
-    assert(gl_tree != NULL);
-    for (i = 0; i < 256; i++) {
-        if (g[i] == notdef)
-            continue;
-        aa = (char *) avl_find(gl_tree, g[i]);
-        if (aa == NULL) {
-            aa = (char *) avl_probe(gl_tree, g[i]);
-            assert(aa != NULL);
-        } else {
-            pdftex_warn("%s: duplicate glyph name `%s' at position %d",
-                        encname, g[i], i);
-            xfree(g[i]);
-            g[i] = (char *) notdef;
-        }
-    }
-    avl_destroy(gl_tree, NULL);
-}
-
-void writet3(fm_entry * fm, int objnum, internalfontnumber f)
+void writet3(int objnum, internalfontnumber f)
 {
     static char t3_font_scale_str[] = "\\pdffontscale";
     int i;
@@ -286,19 +262,12 @@ void writet3(fm_entry * fm, int objnum, internalfontnumber f)
     int first_char, last_char;
     integer pk_font_scale;
     boolean is_notdef;
-    fe_entry *fe;
-    char **glyph_names;
-    integer tounicode_objnum;
     t3_glyph_num = 0;
     t3_image_used = false;
     for (i = 0; i < 256; i++) {
         t3_char_procs[i] = 0;
         t3_char_widths[i] = 0;
     }
-    fe = fm && fm->encname ? get_fe_entry(fm->encname) : NULL;
-    glyph_names = fe ? fe->glyph_names : NULL;
-    if (glyph_names)
-        remove_duplicate_glyph_names(glyph_names, fm->encname);
     packfilename(fontname[f], getnullstr(), maketexstring(".pgc"));
     cur_file_name = makecstring(makenamestring());
     is_pk_font = false;
@@ -329,11 +298,6 @@ void writet3(fm_entry * fm, int objnum, internalfontnumber f)
         if (pdfcharmarked(f, i))
             break;
     last_char = i;
-    /* write ToUnicode entry if needed */
-    if (fixedgentounicode > 0 && !pdffontnobuiltintounicode[f] && fe != NULL)
-        tounicode_objnum = write_tounicode(glyph_names, fm->tfm_name,fe->name);
-    else
-        tounicode_objnum = 0;
     pdfbegindict(objnum, 1);    /* Type 3 font dictionary */
     pdf_puts("/Type /Font\n/Subtype /Type3\n");
     pdf_printf("/Name /F%i\n", (int) f);
@@ -362,8 +326,6 @@ void writet3(fm_entry * fm, int objnum, internalfontnumber f)
     cptr = pdfnewobjnum();
     pdf_printf("/Widths %i 0 R\n/Encoding %i 0 R\n/CharProcs %i 0 R\n",
                (int) wptr, (int) eptr, (int) cptr);
-    if (tounicode_objnum != 0)
-        pdf_printf("/ToUnicode %i 0 R\n", (int) tounicode_objnum);
     pdfenddict();
     pdfbeginobj(wptr, 1);       /* chars width array */
     pdf_puts("[");
@@ -382,12 +344,7 @@ void writet3(fm_entry * fm, int objnum, internalfontnumber f)
         pdf_printf("/%s", notdef);
         is_notdef = true;
     } else {
-        if (glyph_names
-            && glyph_names[first_char]
-            && glyph_names[first_char] != notdef)
-            pdf_printf("/%s", glyph_names[first_char]);
-        else
-            pdf_printf("/a%i", first_char);
+        pdf_printf("/a%i", first_char);
         is_notdef = false;
     }
     for (i = first_char + 1; i <= last_char; i++) {
@@ -401,10 +358,7 @@ void writet3(fm_entry * fm, int objnum, internalfontnumber f)
                 pdf_printf(" %i", i);
                 is_notdef = false;
             }
-            if (glyph_names && glyph_names[i] && glyph_names[i] != notdef)
-                pdf_printf("/%s", glyph_names[i]);
-            else
-                pdf_printf("/a%i", i);
+            pdf_printf("/a%i", i);
         }
     }
     pdf_puts("]\n");
@@ -412,12 +366,7 @@ void writet3(fm_entry * fm, int objnum, internalfontnumber f)
     pdfbegindict(cptr, 1);      /* CharProcs dictionary */
     for (i = first_char; i <= last_char; i++)
         if (t3_char_procs[i] != 0)
-            if (glyph_names && glyph_names[i] && glyph_names[i] != notdef)
-                pdf_printf("/%s %i 0 R\n", glyph_names[i], 
-                           (int) t3_char_procs[i]);
-            else
-                pdf_printf("/a%i %i 0 R\n", (int) i,
-                           (int) t3_char_procs[i]);
+            pdf_printf("/a%i %i 0 R\n", (int) i, (int) t3_char_procs[i]);
     pdfenddict();
     t3_close();
     tex_printf(">");
