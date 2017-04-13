@@ -1,6 +1,6 @@
 /* Setup.rc2:                                           -*- C++ -*-
 
-   Copyright (C) 1996-2015 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -21,7 +21,7 @@
 #  error this file is not editable by Microsoft Visual C++
 #endif
 
-IDR_LICENSE LICENSE "LICENSE.TXT"
+IDR_LICENSE LICENSE "${CMAKE_BINARY_DIR}/${MIKTEX_REL_DOC_DIR}/LICENSE.txt"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION MIKTEX_MAJOR_VERSION,MIKTEX_MINOR_VERSION,MIKTEX_COMP_J2000_VERSION,0

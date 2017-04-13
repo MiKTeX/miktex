@@ -1,11 +1,12 @@
+<!ENTITY BSD "<acronym>BSD</acronym>">
 <!ENTITY BasicMiKTeXInstaller "<application>Basic MiKTeX Installer</application>">
 <!ENTITY BibTeX "<application>BibTeX</application>">
-<!ENTITY CD "<abbrev>CD</abbrev>">
+<!ENTITY CD "<acronym>CD</acronym>">
 <!ENTITY CTAN "<acronym>CTAN</acronym>">
 <!ENTITY ConTeXt "<application>ConTeXt</application>">
 <!ENTITY Cygwin "<application>Cygwin</application>">
-<!ENTITY DVD "<abbrev>DVD</abbrev>">
-<!ENTITY DVDdashR "<abbrev>DVD-R</abbrev>">
+<!ENTITY DVD "<acronym>DVD</acronym>">
+<!ENTITY DVDdashR "<acronym>DVD-R</acronym>">
 <!ENTITY DVI "<acronym>DVI</acronym>">
 <!ENTITY DebugView "<application>DebugView</application>">
 <!ENTITY Dvipdfm "<application>Dvipdfm</application>">
@@ -24,6 +25,7 @@
 <!ENTITY HTTP "<acronym>HTTP</acronym>">
 <!ENTITY JBIG2 "<acronym>JBIG2</acronym>">
 <!ENTITY JPG "<acronym>JPG</acronym>">
+<!ENTITY LPPL "<acronym>LPPL</acronym>">
 <!ENTITY LW35 "<acronym>LW35</acronym>">
 <!ENTITY LaTeX "<application>LaTeX</application>">
 <!ENTITY Lua "<application>Lua</application>">

@@ -501,6 +501,20 @@ add_custom_command(
   VERBATIM
 )
 
+add_custom_command(
+  OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt
+  COMMAND
+    ${PANDOC_EXECUTABLE}
+      -f html
+      -t plain
+      -o ${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt
+      ${CMAKE_CURRENT_BINARY_DIR}/license.html
+  DEPENDS
+    ${CMAKE_CURRENT_BINARY_DIR}/license.html
+  VERBATIM
+)
+
 install(
   FILES
     ${CMAKE_CURRENT_BINARY_DIR}/license.html
@@ -712,6 +726,13 @@ install(
     local.txt
   DESTINATION
     ${MIKTEX_TEXMF_DIR}/doc/latex/00LocalGuide
+)
+
+###############################################################################
+
+add_custom_target(gen-LICENSE-txt
+  DEPENDS
+    ${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt
 )
 
 ###############################################################################
