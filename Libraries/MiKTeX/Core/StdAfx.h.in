@@ -86,6 +86,11 @@
 #  include <unistd.h>
 #endif
 
+#if defined(HAVE_SYS_TIME_H)
+// REQUIRE: futimes()
+#  include <sys/time.h>
+#endif
+
 #if defined(HAVE_SYS_UTIME_H)
 #  include <sys/utime.h>
 #endif

@@ -25,6 +25,7 @@
 #cmakedefine HAVE_SYS_MMAN_H 1
 #cmakedefine HAVE_SYS_STATVFS_H 1
 #cmakedefine HAVE_SYS_STAT_H 1
+#cmakedefine HAVE_SYS_TIME_H 1
 #cmakedefine HAVE_SYS_UTIME_H 1
 #cmakedefine HAVE_SYS_UTSNAME_H 1
 #cmakedefine HAVE_SYS_WAIT_H 1
