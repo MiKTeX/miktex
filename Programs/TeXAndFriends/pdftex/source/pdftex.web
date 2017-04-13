@@ -15731,7 +15731,7 @@ var w, s_out: scaled;
     s: integer;
 begin
     w := char_width(f)(char_info(f)(c));
-    if isscalable(f) then begin
+    if hasfmentry(f) then begin
         if pdf_cur_Tm_a = 0 then begin
             call_func(divide_scaled(w, pdf_font_size[f], 4));
             pdf_delta_h := pdf_delta_h + scaled_out;
@@ -15942,7 +15942,7 @@ begin
     {if |f| is auto expanded then ensure the base font is initialized}
     if pdf_font_auto_expand[f] and (pdf_font_blink[f] <> null_font) then begin
         b := pdf_font_blink[f];
-        if not isscalable(b) then
+        if not hasfmentry(b) then
             pdf_error("font expansion", "auto expansion is only possible with scalable fonts");
         if not font_used[b] then
             pdf_init_font(b);
@@ -15953,11 +15953,11 @@ begin
     here: 1) |f| and |k| have the same tfm name (so they have been loaded at
     different sizes, eg 'cmr10' and 'cmr10 at 11pt'); 2) |f| has been auto
     expanded from |k|}
-    if isscalable(f) then begin
+    if hasfmentry(f) then begin
         i := head_tab[obj_type_font];
         while i <> 0 do begin
             k := obj_info(i);
-            if isscalable(k) and
+            if hasfmentry(k) and
                (pdf_font_map[k] = pdf_font_map[f]) and
                (str_eq_str(font_name[k], font_name[f]) or
                 (pdf_font_auto_expand[f] and
