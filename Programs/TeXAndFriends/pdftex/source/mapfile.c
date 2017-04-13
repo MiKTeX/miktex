@@ -326,7 +326,7 @@ static int check_fm_entry(fm_entry * fm, boolean warn)
             pdftex_warn
                 ("invalid entry for `%s': too big value of SlantFont (%g)",
                  fm->tfm_name ? fm->tfm_name : "",
-                 fm->slant ? fm->slant / 1000.0 : 0);
+                 fm->slant / 1000.0);
         a += 8;
     }
     if (abs(fm->extend) > 2000) {
@@ -334,7 +334,7 @@ static int check_fm_entry(fm_entry * fm, boolean warn)
             pdftex_warn
                 ("invalid entry for `%s': too big value of ExtendFont (%g)",
                  fm->tfm_name ? fm->tfm_name : "",
-                 fm->extend ? fm->extend / 1000.0 : 0);
+                 fm->extend / 1000.0);
         a += 16;
     }
 
