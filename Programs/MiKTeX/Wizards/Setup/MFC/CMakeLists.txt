@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -38,6 +38,11 @@ set(SHOW_FOLDER_PAGE FALSE)
 configure_file(
   res/Setup.manifest.in
   ${CMAKE_CURRENT_BINARY_DIR}/res/Setup.manifest
+)
+
+configure_file(
+  res/Setup.rc2.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/res/Setup.rc2
 )
 
 configure_file(
@@ -128,6 +133,8 @@ add_executable(setup WIN32 ${setup_mfc_sources})
 
 set_property(TARGET setup PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+add_dependencies(setup gen-LICENSE-txt)
+
 if(MIKTEX_NATIVE_WINDOWS)
   add_link_flags(setup "/ENTRY:\"wWinMainCRTStartup\"")
 endif()
@@ -168,27 +175,3 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 install(TARGETS setup DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
-
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/LICENSE.TXT
-  COMMAND
-    ${PANDOC_EXECUTABLE}
-    -f docbook
-    -t plain
-    -o ${CMAKE_CURRENT_BINARY_DIR}/LICENSE.TXT
-    ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DOC_DIR}/license.xml
-  MAIN_DEPENDENCY
-    ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DOC_DIR}/license.xml
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  VERBATIM
-)
-
-add_custom_target(gen-license-text ALL
-  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/LICENSE.TXT
-)
-
-set_property(TARGET gen-license-text PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-add_dependencies(setup gen-license-text)

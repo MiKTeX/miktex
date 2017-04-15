@@ -62,7 +62,6 @@
 #include "tt_aux.h"
 
 #include "error.h"
-
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/unxemu.h>
 #include <getopt.h>
@@ -210,7 +209,7 @@ show_usage (void)
   printf ("  -r resolution\tSet resolution (in DPI) for raster fonts [600]\n");
   printf ("  -s pages\tSelect page ranges [all pages]\n");
   printf ("  --showpaper\tShow available paper formats and exit\n");
-  printf ("  -t \t\tEmbed thumbnail images of PNG format [DVIFILE.1] \n");
+  printf ("  -t \t\tEmbed thumbnail images of PNG format (DVIFILE.pageno, pageno=int) \n");
   printf ("  --version\tOutput version information and exit\n");
   printf ("  -v \t\tBe verbose\n");
   printf ("  -vv\t\tBe more verbose\n");
@@ -408,7 +407,7 @@ select_pages (const char *pagespec)
   return;
 }
 
-static const char *optstrig = ":hD:r:m:g:x:y:o:s:t:p:clf:i:qvV:z:d:I:S:K:P:O:MC:Ee";
+static const char *optstrig = ":hD:r:m:g:x:y:o:s:p:clf:i:qtvV:z:d:I:K:P:O:MSC:Ee";
 
 static struct option long_options[] = {
   {"help", 0, 0, 'h'},

@@ -175,8 +175,14 @@ void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args
   if (pimpl->session->FindFile(myName + "." + MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
     || pimpl->session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
   {
-    Utils::SetEnvironmentString("MIKTEX_LOG_DIR", PathName(pimpl->session->GetSpecialPath(SpecialPath::DataRoot), MIKTEX_PATH_MIKTEX_LOG_DIR).ToString());
-    Utils::SetEnvironmentString("MIKTEX_LOG_NAME", myName);
+    PathName logDir = pimpl->session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR;
+    string logName = myName;
+    if (pimpl->session->IsAdminMode())
+    {
+      logName += MIKTEX_ADMIN_SUFFIX;
+    }
+    Utils::SetEnvironmentString("MIKTEX_LOG_DIR", logDir.ToString());
+    Utils::SetEnvironmentString("MIKTEX_LOG_NAME", logName);
     log4cxx::xml::DOMConfigurator::configure(xmlFileName.ToWideCharString());
     pimpl->isLog4cxxConfigured = true;
   }

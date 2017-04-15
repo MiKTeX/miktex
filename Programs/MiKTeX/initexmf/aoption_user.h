@@ -256,7 +256,7 @@ const struct poptOption IniTeXMFApp::aoption_user[] = {
 
   {
     "set-config-value", 0,
-    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_STRING, nullptr,
     OPT_SET_CONFIG_VALUE,
     T_("Set the specified configuration value."),
     T_("[SECTION]VALUENAME=VALUE")
@@ -264,7 +264,7 @@ const struct poptOption IniTeXMFApp::aoption_user[] = {
 
   {
     "show-config-value", 0,
-    POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    POPT_ARG_STRING, nullptr,
     OPT_SHOW_CONFIG_VALUE,
     T_("Show the specified configuration value."),
     T_("[SECTION]VALUENAME")

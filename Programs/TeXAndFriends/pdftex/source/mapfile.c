@@ -1,5 +1,5 @@
 /* mapfile.c: handling of map files/lines
-Copyright 1996-2014 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2017 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -286,25 +286,18 @@ static int check_fm_entry(fm_entry * fm, boolean warn)
     if (is_fontfile(fm) && !is_included(fm)) {
         if (warn)
             pdftex_warn
-                ("ambiguous entry for `%s': font file present but not included, "
-                 "will be treated as font file not present", fm->tfm_name);
+              ("ambiguous entry for `%s': font file present but not included, "
+               "will be treated as font file not present", fm->tfm_name);
         xfree(fm->ff_name);
-        /* do not set variable |a| as this entry will be still accepted */
+        /* do not set variable |a| as this entry will still be accepted */
     }
 
-    /* if for non-Type3 font both ps_name and font file are missing,
-       drop this entry */
-    if (!is_type3(fm) && fm->ps_name == NULL && !is_fontfile(fm)) {
+    /* if both ps_name and font file are missing, drop this entry */
+    if (fm->ps_name == NULL && !is_fontfile(fm)) {
         if (warn)
             pdftex_warn
                 ("invalid entry for `%s': both ps_name and font file missing",
-                 fm->tfm_name);
-        a += 1;
-    } else if (is_type3(fm) && fm->encname == NULL) {
-        if (warn)
-            pdftex_warn
-                ("invalid entry for `%s': encoding file for type3 missing",
-                 fm->tfm_name);
+                 fm->tfm_name ? fm->tfm_name : "");
         a += 1;
     }
 
@@ -313,7 +306,7 @@ static int check_fm_entry(fm_entry * fm, boolean warn)
         if (warn)
             pdftex_warn
                 ("invalid entry for `%s': only subsetted TrueType font can be reencoded",
-                 fm->tfm_name);
+                 fm->tfm_name ? fm->tfm_name : "");
         a += 2;
     }
 
@@ -323,7 +316,7 @@ static int check_fm_entry(fm_entry * fm, boolean warn)
         if (warn)
             pdftex_warn
                 ("invalid entry for `%s': SlantFont/ExtendFont can be used only with embedded Type1 fonts",
-                 fm->tfm_name);
+                 fm->tfm_name ? fm->tfm_name : "");
         a += 4;
     }
 
@@ -332,14 +325,16 @@ static int check_fm_entry(fm_entry * fm, boolean warn)
         if (warn)
             pdftex_warn
                 ("invalid entry for `%s': too big value of SlantFont (%g)",
-                 fm->tfm_name, fm->slant / 1000.0);
+                 fm->tfm_name ? fm->tfm_name : "",
+                 fm->slant / 1000.0);
         a += 8;
     }
     if (abs(fm->extend) > 2000) {
         if (warn)
             pdftex_warn
                 ("invalid entry for `%s': too big value of ExtendFont (%g)",
-                 fm->tfm_name, fm->extend / 1000.0);
+                 fm->tfm_name ? fm->tfm_name : "",
+                 fm->extend / 1000.0);
         a += 16;
     }
 
@@ -349,7 +344,7 @@ static int check_fm_entry(fm_entry * fm, boolean warn)
         if (warn)
             pdftex_warn
                 ("invalid entry for `%s': PidEid can be used only with subsetted non-reencoded TrueType fonts",
-                 fm->tfm_name);
+                 fm->tfm_name ? fm->tfm_name : "");
         a += 32;
     }
 
@@ -548,17 +543,15 @@ static void fm_scan_line(void)
             set_opentype(fm);
         else
             set_type1(fm);
-    } else {
-        if (is_std_t1font(fm)) {
-          set_type1(fm);          /* assume a builtin font is Type1 */
-        } else {
-          set_type3(fm);          /* otherwise font is Type3 */
-        }
-    }
-    if (check_fm_entry(fm, true) != 0)
+    } else
+        set_type1(fm);          /* assume a builtin font is Type1 */
+
+    /* If the input is devious, check_fm_entry may not recognize a
+       problem. Check that we have a tfm_name in any case. */
+    if (check_fm_entry(fm, true) != 0 || ! fm->tfm_name)
         goto bad_line;
     /*
-       Until here the map line has been completely scanned without errors;
+       If we get here, the map line has been completely scanned without errors;
        fm points to a valid, freshly filled-out fm_entry structure.
        Now follows the actual work of registering/deleting.
      */
@@ -636,11 +629,6 @@ boolean hasfmentry(internalfontnumber f)
         pdffontmap[f] = fmlookup(f);
     assert(pdffontmap[f] != NULL);
     return pdffontmap[f] != (fmentryptr) dummy_fm_entry();
-}
-
-boolean isscalable(internalfontnumber f)
-{
-    return hasfmentry(f) && (!is_type3((fm_entry *)pdffontmap[f]));
 }
 
 /* check whether a map entry is valid for font replacement */
