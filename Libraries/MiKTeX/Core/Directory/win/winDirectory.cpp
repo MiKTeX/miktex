@@ -29,6 +29,7 @@
 #include "Session/SessionImpl.h"
 
 using namespace MiKTeX::Core;
+using namespace std;
 
 PathName Directory::GetCurrent()
 {
@@ -57,15 +58,22 @@ static unsigned long GetFileAttributes_harmlessErrors[] = {
 
 bool Directory::Exists(const PathName& path)
 {
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
   unsigned long attributes = GetFileAttributesW(path.ToWideCharString().c_str());
   if (attributes != INVALID_FILE_ATTRIBUTES)
   {
     if ((attributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
     {
-      SessionImpl::GetSession()->trace_access->WriteFormattedLine("core", T_("%s is not a directory"), Q_(path));
+      if (session != nullptr)
+      {
+        session->trace_access->WriteFormattedLine("core", T_("%s is not a directory"), Q_(path));
+      }
       return false;
     }
-    SessionImpl::GetSession()->trace_access->WriteFormattedLine("core", T_("accessing directory %s: OK"), Q_(path));
+    if (session != nullptr)
+    {
+      session->trace_access->WriteFormattedLine("core", T_("accessing directory %s: OK"), Q_(path));
+    }
     return true;
   }
   unsigned long error = ::GetLastError();
@@ -82,13 +90,20 @@ bool Directory::Exists(const PathName& path)
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("GetFileAttributesW", "path", path.ToString());
   }
-  SessionImpl::GetSession()->trace_access->WriteFormattedLine("core", T_("accessing directory %s: NOK"), Q_(path));
+  if (session != nullptr)
+  {
+    session->trace_access->WriteFormattedLine("core", T_("accessing directory %s: NOK"), Q_(path));
+  }
   return false;
 }
 
 void Directory::Delete(const PathName& path)
 {
-  SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("deleting directory %s"), Q_(path));
+  shared_ptr<SessionImpl> session = SessionImpl::TryGetSession();
+  if (session != nullptr)
+  {
+    session->trace_files->WriteFormattedLine("core", T_("deleting directory %s"), Q_(path));
+  }
   if (!RemoveDirectoryW(UW_(path.GetData())))
   {
     MIKTEX_FATAL_WINDOWS_ERROR_2("RemoveDirectoryW", "path", path.ToString());
