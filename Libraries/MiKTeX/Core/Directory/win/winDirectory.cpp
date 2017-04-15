@@ -37,7 +37,7 @@ PathName Directory::GetCurrent()
   return cd;
 }
 
-void Directory::SetCurrent(const PathName & path)
+void Directory::SetCurrent(const PathName& path)
 {
   if (_wchdir(UW_(path.GetData())) != 0)
   {
@@ -55,7 +55,7 @@ static unsigned long GetFileAttributes_harmlessErrors[] = {
   ERROR_BAD_PATHNAME, // 161
 };
 
-bool Directory::Exists(const PathName & path)
+bool Directory::Exists(const PathName& path)
 {
   unsigned long attributes = GetFileAttributesW(path.ToWideCharString().c_str());
   if (attributes != INVALID_FILE_ATTRIBUTES)
@@ -86,7 +86,7 @@ bool Directory::Exists(const PathName & path)
   return false;
 }
 
-void Directory::Delete(const PathName & path)
+void Directory::Delete(const PathName& path)
 {
   SessionImpl::GetSession()->trace_files->WriteFormattedLine("core", T_("deleting directory %s"), Q_(path));
   if (!RemoveDirectoryW(UW_(path.GetData())))
@@ -95,7 +95,7 @@ void Directory::Delete(const PathName & path)
   }
 }
 
-void Directory::SetTimes(const PathName & path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
+void Directory::SetTimes(const PathName& path, time_t creationTime, time_t lastAccessTime, time_t lastWriteTime)
 {
   HANDLE h = CreateFileW(path.ToWideCharString().c_str(), FILE_WRITE_ATTRIBUTES, 0, nullptr, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, nullptr);
   if (h == INVALID_HANDLE_VALUE)
@@ -106,7 +106,7 @@ void Directory::SetTimes(const PathName & path, time_t creationTime, time_t last
   SetTimesInternal(h, creationTime, lastAccessTime, lastWriteTime);
 }
 
-void Directory::Move(const PathName & source, const PathName & dest)
+void Directory::Move(const PathName& source, const PathName& dest)
 {
   File::Move(source, dest);
 }
