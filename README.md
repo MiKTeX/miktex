@@ -264,3 +264,14 @@ This will create the PDF file `sample.pdf`.
 In order to validate the MiKTeX setup, you can run the [MiKTeX test
 suite](https://github.com/MiKTeX/miktex-testing "MiKTeX test suite on
 GitHub").
+
+## Uninstalling
+
+There is an `uninstall` target which allows you to remove installed
+files.
+
+Before running `make uninstall`, you should remove the symbolic links
+created by `initexmf --mklinks` (see above):
+
+   initexmf --admin --force --remove-links
+   make uninstall
