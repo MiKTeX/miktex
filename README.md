@@ -273,5 +273,5 @@ files.
 Before running `make uninstall`, you should remove the symbolic links
 created by `initexmf --mklinks` (see above):
 
-   initexmf --admin --force --remove-links
-   make uninstall
+    initexmf --admin --force --remove-links
+    make uninstall
