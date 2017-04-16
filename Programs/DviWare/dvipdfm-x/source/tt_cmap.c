@@ -817,8 +817,8 @@ handle_CIDFont (sfnt *sfont,
 	  count = ranges[i].n_left + 1;
 	  while (count-- > 0 &&
 		 gid <= num_glyphs) {
-	    map[gid] = (cid >> 8) & 0xff;
-	    map[gid] = cid & 0xff;
+	    map[2*gid] = (cid >> 8) & 0xff;
+	    map[2*gid+1] = cid & 0xff;
 	    gid++; cid++;
 	  }
 	}
