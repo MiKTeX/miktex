@@ -6,7 +6,7 @@
     <TPM:Title>gregorio, Windows x86</TPM:Title>
     <TPM:Copyright owner="The Gregorio Project" year="2006-2017"/>
     <TPM:License type="gpl3"/>
-    <TPM:Version>5.0.0</TPM:Version>
+    <TPM:Version>5.0.1</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
