@@ -235,10 +235,10 @@ static lua_Number shell_escape_state(void)
         return (lua_Number) 0;
     } else if (restrictedshell == 0) {
         /* Shell has no restriction. */
-        return (lua_Number) 2;
+        return (lua_Number) 1;
     } else {
         /* Shell has restrictions, see cnf file. */
-        return (lua_Number) 1;
+        return (lua_Number) 2;
     }
 }
 
