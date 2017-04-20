@@ -370,10 +370,9 @@ extern XETEXAPPCLASS XETEXAPP;
 
 inline int miktexwrite18(XETEXPROGCLASS::strnumber stringNumber)
 {
-  // TODO
-  MIKTEX_UNEXPECTED();
+  int exitCode;
+  return static_cast<int>(XETEXAPP.Write18(XETEXAPP.GetTeXString(stringNumber), exitCode));
 }
-
 
 inline char* gettexstring(XETEXPROGCLASS::strnumber stringNumber)
 {
