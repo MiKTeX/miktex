@@ -315,8 +315,8 @@ known as `\eTeX'.
 @d eTeX_version_string=='-2.6' {current \eTeX\ version}
 @#
 @d XeTeX_version=0 { \.{\\XeTeXversion} }
-@d XeTeX_revision==".99997" { \.{\\XeTeXrevision} }
-@d XeTeX_version_string=='-0.99997' {current \XeTeX\ version}
+@d XeTeX_revision==".99998" { \.{\\XeTeXrevision} }
+@d XeTeX_version_string=='-0.99998' {current \XeTeX\ version}
 @#
 @d XeTeX_banner=='This is XeTeX, Version 3.14159265',eTeX_version_string,XeTeX_version_string
   {printed when \XeTeX\ starts}
@@ -615,11 +615,10 @@ emphasize this distinction.
    must be |<=max_quarterword|, this refers to UTF16 codepoints that we store in strings, etc;
  actual character codes can exceed this range, up to |biggest_usv|}
 @d too_big_char=65536 {|biggest_char+1|}
-@d special_char=65537 {|biggest_char+2|}
-@d number_chars=65536 {|biggest_char+1|}
 @d biggest_usv=@"10FFFF {the largest Unicode Scalar Value}
 @d too_big_usv=@"110000 {|biggest_usv+1|}
 @d number_usvs=@"110000 {|biggest_usv+1|}
+@d special_char=@"110001 {|biggest_usv+2|}
 @d biggest_reg=255 {the largest allowed register number;
    must be |<=max_quarterword|}
 @d number_regs=256 {|biggest_reg+1|}
@@ -4991,8 +4990,8 @@ things.
 paragraphs is to define these names, and to set up the initial values of the
 equivalents.
 
-In the first region we have |number_chars| equivalents for ``active characters''
-that act as control sequences, followed by |number_chars| equivalents for
+In the first region we have |number_usvs| equivalents for ``active characters''
+that act as control sequences, followed by |number_usvs| equivalents for
 single-character control sequences.
 
 Then comes region~2, which corresponds to the hash table that we will
@@ -5785,7 +5784,7 @@ complete failure.
 for k:=int_base to del_code_base-1 do eqtb[k].int:=0;
 mag:=1000; tolerance:=10000; hang_after:=1; max_dead_cycles:=25;
 escape_char:="\"; end_line_char:=carriage_return;
-for k:=0 to number_chars-1 do del_code(k):=-1;
+for k:=0 to number_usvs-1 do del_code(k):=-1;
 del_code("."):=0; {this null delimiter is used in error recovery}
 
 @ The following procedure, which is called just before \TeX\ initializes its
