@@ -46,10 +46,12 @@ mapitem *mitem = NULL;
 
 static const char nontfm[] = "<nontfm>";
 
-#define read_field(r, q, buf) do {  \
+#define read_field(r, q, buf, buf_size) do {  \
     q = buf;                        \
-    while (*r != ' ' && *r != '<' && *r != '"' && *r != '\0') \
+    while (*r != ' ' && *r != '<' && *r != '"' && *r != '\0') { \
+        check_buf(q - (buf) + 1, (buf_size)); \
         *q++ = *r++;                \
+    }                               \
     *q = '\0';                      \
     skip (r, ' ');                  \
 } while (0)
@@ -275,13 +277,16 @@ static char *add_encname(char *s)
     return p;
 }
 
+
 /**********************************************************************/
-/* consistency check for map entry, with warn flag */
+/* consistency check for map entry, with warn flag; return zero if ok,
+   nonzero bits of warnings otherwise. */
 
 static int check_fm_entry(fm_entry * fm, boolean warn)
 {
     int a = 0;
     assert(fm != NULL);
+    assert(fm->tfm_name);
 
     if (is_fontfile(fm) && !is_included(fm)) {
         if (warn)
@@ -292,12 +297,10 @@ static int check_fm_entry(fm_entry * fm, boolean warn)
         /* do not set variable |a| as this entry will still be accepted */
     }
 
-    /* if both ps_name and font file are missing, drop this entry */
-    if (fm->ps_name == NULL && !is_fontfile(fm)) {
+    /* if no tfm name, nothing to do here; a bare tfm is ok */
+    if (*(fm->tfm_name) == '\0') {
         if (warn)
-            pdftex_warn
-                ("invalid entry for `%s': both ps_name and font file missing",
-                 fm->tfm_name ? fm->tfm_name : "");
+            pdftex_warn ("invalid map entry: tfm missing");
         a += 1;
     }
 
@@ -305,18 +308,19 @@ static int check_fm_entry(fm_entry * fm, boolean warn)
     if (is_truetype(fm) && is_reencoded(fm) && !is_subsetted(fm)) {
         if (warn)
             pdftex_warn
-                ("invalid entry for `%s': only subsetted TrueType font can be reencoded",
-                 fm->tfm_name ? fm->tfm_name : "");
+                ("invalid entry for `%s': only subsetted TrueType fonts can be reencoded",
+                 fm->tfm_name);
         a += 2;
     }
 
     /* SlantFont and ExtendFont can be used only with Type1 fonts */
     if ((fm->slant != 0 || fm->extend != 0)
-        && !(is_t1fontfile(fm) && is_included(fm))) {
+        && (strlen(fm->tfm_name) == 0
+            || !(is_t1fontfile(fm) && is_included(fm)))) {
         if (warn)
             pdftex_warn
                 ("invalid entry for `%s': SlantFont/ExtendFont can be used only with embedded Type1 fonts",
-                 fm->tfm_name ? fm->tfm_name : "");
+                 fm->tfm_name);
         a += 4;
     }
 
@@ -324,17 +328,15 @@ static int check_fm_entry(fm_entry * fm, boolean warn)
     if (abs(fm->slant) > 1000) {
         if (warn)
             pdftex_warn
-                ("invalid entry for `%s': too big value of SlantFont (%g)",
-                 fm->tfm_name ? fm->tfm_name : "",
-                 fm->slant / 1000.0);
+                ("invalid entry for `%s': SlantFont value too big: %g",
+                 fm->tfm_name, fm->slant / 1000.0);
         a += 8;
     }
     if (abs(fm->extend) > 2000) {
         if (warn)
             pdftex_warn
-                ("invalid entry for `%s': too big value of ExtendFont (%g)",
-                 fm->tfm_name ? fm->tfm_name : "",
-                 fm->extend / 1000.0);
+                ("invalid entry for `%s': ExtendFont value too big: %g",
+                 fm->tfm_name, fm->extend / 1000.0);
         a += 16;
     }
 
@@ -344,7 +346,7 @@ static int check_fm_entry(fm_entry * fm, boolean warn)
         if (warn)
             pdftex_warn
                 ("invalid entry for `%s': PidEid can be used only with subsetted non-reencoded TrueType fonts",
-                 fm->tfm_name ? fm->tfm_name : "");
+                 fm->tfm_name);
         a += 32;
     }
 
@@ -432,10 +434,12 @@ static void fm_scan_line(void)
     if (*r == '\0' || is_cfg_comment(*r))
         return;
     fm = new_fm_entry();
-    read_field(r, q, buf);
+    read_field(r, q, buf, FM_BUF_SIZE);
     set_field(tfm_name);
+    if (fm->tfm_name == NULL) /* used in messages, so don't let be null */
+      fm->tfm_name = xstrdup ("");
     if (!isdigit((unsigned char)*r)) {         /* 2nd field ps_name may not start with a digit */
-        read_field(r, q, buf);
+        read_field(r, q, buf, FM_BUF_SIZE);
         set_field(ps_name);
     }
     if (isdigit((unsigned char)*r)) {          /* font descriptor /Flags given? */
@@ -506,7 +510,7 @@ static void fm_scan_line(void)
                 if (*r == '<' || *r == '[')
                     b = *r++;
             }
-            read_field(r, q, buf);
+            read_field(r, q, buf, FM_BUF_SIZE);
             /* encoding, formats: '8r.enc' or '<8r.enc' or '<[8r.enc' */
             if (strlen(buf) > 4 && strcasecmp(strend(buf) - 4, ".enc") == 0) {
                 fm->encname = add_encname(buf);
@@ -546,9 +550,7 @@ static void fm_scan_line(void)
     } else
         set_type1(fm);          /* assume a builtin font is Type1 */
 
-    /* If the input is devious, check_fm_entry may not recognize a
-       problem. Check that we have a tfm_name in any case. */
-    if (check_fm_entry(fm, true) != 0 || ! fm->tfm_name)
+    if (check_fm_entry(fm, true) != 0)
         goto bad_line;
     /*
        If we get here, the map line has been completely scanned without errors;
