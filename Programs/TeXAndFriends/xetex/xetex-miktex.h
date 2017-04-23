@@ -368,10 +368,10 @@ inline int loadpoolstrings(int size)
 
 extern XETEXAPPCLASS XETEXAPP;
 
-inline int miktexwrite18(XETEXPROGCLASS::strnumber stringNumber)
+inline int miktexwrite18(XETEXPROGCLASS::strnumber stringNumber, int stringLength)
 {
   int exitCode;
-  return static_cast<int>(XETEXAPP.Write18(XETEXAPP.GetTeXString(stringNumber), exitCode));
+  return static_cast<int>(XETEXAPP.Write18(XETEXAPP.GetTeXString(XETEXAPP.GetTeXStringStart(stringNumber), stringLength) , exitCode));
 }
 
 inline char* gettexstring(XETEXPROGCLASS::strnumber stringNumber)
