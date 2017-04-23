@@ -502,7 +502,7 @@ procedure flush_str(s: str_number); {flush a string if possible}
       name_of_file[k+1] := 0;
       runsystem_ret := runsystem(conststringcast(name_of_file+1));
 @y
-      runsystem_ret := miktex_write18(str_ptr);
+      runsystem_ret := miktex_write18(str_ptr, cur_length);
 @z
 
 % _____________________________________________________________________________

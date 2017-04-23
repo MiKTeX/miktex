@@ -29,6 +29,10 @@ set(public_include_directories
 
 add_definitions(-DLUA_COMPAT_MODULE)
 
+if(MIKTEX_UNIX_ALIKE)
+  add_definitions(-DLUA_USE_POSIX)
+endif()
+
 ignore_warnings()
 
 set(public_headers

@@ -203,9 +203,12 @@ In order to enable the automatic package installer, run the MiKTeX
 Configuration Utility as follows:
 
     initexmf --admin --set-config-value [MPM]AutoInstall=1
+    initexmf --admin --update-fndb
 
 Again, you have to omit `--admin`, if you intend to use MiKTeX just
 for yourself.
+
+The option `--update-fndb` updates the file name data base.
 
 Please consult the initexmf(1) man page, for more information about
 the MiKTeX Configuration Utility.
@@ -267,11 +270,40 @@ GitHub").
 
 ## Uninstalling
 
-There is an `uninstall` target which allows you to remove installed
-files.
+If you want to completely wipe out MiKTeX, you have to
 
-Before running `make uninstall`, you should remove the symbolic links
-created by `initexmf --mklinks` (see above):
+* remove symbolic links
+* undo the effect of `make install`
+* remove MiKTeX directories
+
+Before you proceed, you should run `initexmf --report` in order to
+find the locations of the MiKTeX directories.
+
+### Removing symbolic links
+
+Run
 
     initexmf --admin --force --remove-links
+
+to remove the symbolic links created by `initexmf --mklinks` (see
+above).
+
+### Uninstalling
+
+There is an `uninstall` target which allows you to remove all files
+installed by `make install` (see above):
+
     make uninstall
+
+### Removing MiKTeX directories
+
+There are a couple of MiKTeX directories which have to be removed
+manually.  For example:
+
+    rm -fr ~/.miktex
+    rm -fr /var/lib/miktex-texmf
+    rm -fr /var/cache/miktex-texmf
+    rm -fr /usr/local/share/miktex-texmf
+
+Please inspect the output of `initexmf --report` in order to find out
+the exact locations.

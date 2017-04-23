@@ -120,8 +120,8 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
     {
       destdir /= splittedPrefix[i];
     }
-    ret.commonConfigRoot = destdir / PathName("/var/lib") / MIKTEX_PREFIX "texmf";
-    ret.commonDataRoot = destdir / PathName("/var/cache") / MIKTEX_PREFIX "texmf";
+    ret.commonConfigRoot = destdir / PathName("var/lib") / MIKTEX_PREFIX "texmf";
+    ret.commonDataRoot = destdir / PathName("var/cache") / MIKTEX_PREFIX "texmf";
     ret.commonInstallRoot = prefix / MIKTEX_TEXMF_DIR;
   }
   else
