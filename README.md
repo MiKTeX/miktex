@@ -208,7 +208,7 @@ Configuration Utility as follows:
 Again, you have to omit `--admin`, if you intend to use MiKTeX just
 for yourself.
 
-The option `--update-fndb` updates the file name data base.
+The option `--update-fndb` updates the file name database.
 
 Please consult the initexmf(1) man page, for more information about
 the MiKTeX Configuration Utility.
@@ -242,11 +242,14 @@ various TeX engines, you must run
 
     initexmf --admin --mkmaps
 
-### Refreshing the file name database
+### Finalizing
 
-Finally, you update the MiKTeX file name database by running
+These are the final steps: update the file name database again and, if
+you used the `--admin` option, remove the `.miktex` directory, which
+was created in the previous steps:
 
     initexmf --admin --update-fndb
+    rm -fr ~/.miktex
 
 ## Testing
 
