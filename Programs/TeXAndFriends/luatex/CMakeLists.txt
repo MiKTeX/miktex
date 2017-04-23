@@ -39,6 +39,10 @@ add_definitions(
   -DHAVE_STRUCTTREEROOT_H
 )
 
+if(MIKTEX_UNIX_ALIKE)
+  add_definitions(-DLUA_USE_POSIX)
+endif()
+
 if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(
     -DUNICODE
