@@ -20,7 +20,7 @@
 
 ### New platforms
 
-It is possible to build this release on [Linux](/howto/build-unx) and [macOS](/howto/build-mac).
+It is possible to build this release on [Linux](https://miktex.org/howto/build-unx) and [macOS](https://miktex.org/howto/build-mac).
 
 ### Bug fixes
 
