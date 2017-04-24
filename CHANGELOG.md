@@ -24,4 +24,10 @@ It is possible to build this release on [Linux](https://miktex.org/howto/build-u
 
 ### Bug fixes
 
-Please consult [this page](https://sourceforge.net/p/miktex/bugs/milestone/6300/) to see the list of fixed bugs.
+* [2593](https://sourceforge.net/p/miktex/bugs/2593/): luatex can't include colors of a plot
+* [2591](https://sourceforge.net/p/miktex/bugs/2591/): Noto fonts not listed in MO font list
+* [2586](https://sourceforge.net/p/miktex/bugs/2586/): Bis: lualatex.exe fails if the profil name has non ASCII characters
+* [2581](https://sourceforge.net/p/miktex/bugs/2581/): epstopdf creates .eps.pdf file instead of .pdf as in TeXLive
+* [2580](https://sourceforge.net/p/miktex/bugs/2580/): wrong output to stdin when using lualatex
+* [2579](https://sourceforge.net/p/miktex/bugs/2579/): xelatex adds unwanted stuff to stdin at the end of the compilation
+* [2570](https://sourceforge.net/p/miktex/bugs/2570/): pdflatex doesn't ignore BOM (byte order mark)
