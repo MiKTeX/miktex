@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## 2.9.6300 - not yet released
+## 2.9.6300 - 2017-05-25
 
 ### Additions
 
