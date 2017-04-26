@@ -9,6 +9,7 @@
 
 ### Upgraded libraries
 
+* libcurl 7.54.0
 * [HarBuzz 1.4.6](https://github.com/behdad/harfbuzz/releases/tag/1.4.6)
 
 ## 2.9.6300 - 2017-05-25

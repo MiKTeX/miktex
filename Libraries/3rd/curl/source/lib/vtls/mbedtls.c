@@ -157,6 +157,71 @@ const mbedtls_x509_crt_profile mbedtls_x509_crt_profile_fr =
 static Curl_recv mbed_recv;
 static Curl_send mbed_send;
 
+static CURLcode mbedtls_version_from_curl(int *mbedver, long version)
+{
+  switch(version) {
+    case CURL_SSLVERSION_TLSv1_0:
+      *mbedver = MBEDTLS_SSL_MINOR_VERSION_1;
+      return CURLE_OK;
+    case CURL_SSLVERSION_TLSv1_1:
+      *mbedver = MBEDTLS_SSL_MINOR_VERSION_2;
+      return CURLE_OK;
+    case CURL_SSLVERSION_TLSv1_2:
+      *mbedver = MBEDTLS_SSL_MINOR_VERSION_3;
+      return CURLE_OK;
+    case CURL_SSLVERSION_TLSv1_3:
+      break;
+  }
+  return CURLE_SSL_CONNECT_ERROR;
+}
+
+static CURLcode
+set_ssl_version_min_max(struct connectdata *conn, int sockindex)
+{
+  struct Curl_easy *data = conn->data;
+  struct ssl_connect_data *connssl = &conn->ssl[sockindex];
+  int mbedtls_ver_min = MBEDTLS_SSL_MINOR_VERSION_1;
+  int mbedtls_ver_max = MBEDTLS_SSL_MINOR_VERSION_1;
+  long ssl_version = SSL_CONN_CONFIG(version);
+  long ssl_version_max = SSL_CONN_CONFIG(version_max);
+  CURLcode result = CURLE_OK;
+
+  switch(ssl_version) {
+    case CURL_SSLVERSION_DEFAULT:
+    case CURL_SSLVERSION_TLSv1:
+      ssl_version = CURL_SSLVERSION_TLSv1_0;
+      ssl_version_max = CURL_SSLVERSION_MAX_TLSv1_2;
+      break;
+  }
+
+  switch(ssl_version_max) {
+    case CURL_SSLVERSION_MAX_NONE:
+      ssl_version_max = ssl_version << 16;
+      break;
+    case CURL_SSLVERSION_MAX_DEFAULT:
+      ssl_version_max = CURL_SSLVERSION_MAX_TLSv1_2;
+      break;
+  }
+
+  result = mbedtls_version_from_curl(&mbedtls_ver_min, ssl_version);
+  if(result) {
+    failf(data, "unsupported min version passed via CURLOPT_SSLVERSION");
+    return result;
+  }
+  result = mbedtls_version_from_curl(&mbedtls_ver_max, ssl_version_max >> 16);
+  if(result) {
+    failf(data, "unsupported max version passed via CURLOPT_SSLVERSION");
+    return result;
+  }
+
+  mbedtls_ssl_conf_min_version(&connssl->config, MBEDTLS_SSL_MAJOR_VERSION_3,
+                               mbedtls_ver_min);
+  mbedtls_ssl_conf_max_version(&connssl->config, MBEDTLS_SSL_MAJOR_VERSION_3,
+                               mbedtls_ver_max);
+
+  return result;
+}
+
 static CURLcode
 mbed_connect_step1(struct connectdata *conn,
                    int sockindex)
@@ -333,29 +398,15 @@ mbed_connect_step1(struct connectdata *conn,
     infof(data, "mbedTLS: Set SSL version to SSLv3\n");
     break;
   case CURL_SSLVERSION_TLSv1_0:
-    mbedtls_ssl_conf_min_version(&connssl->config, MBEDTLS_SSL_MAJOR_VERSION_3,
-                                 MBEDTLS_SSL_MINOR_VERSION_1);
-    mbedtls_ssl_conf_max_version(&connssl->config, MBEDTLS_SSL_MAJOR_VERSION_3,
-                                 MBEDTLS_SSL_MINOR_VERSION_1);
-    infof(data, "mbedTLS: Set SSL version to TLS 1.0\n");
-    break;
   case CURL_SSLVERSION_TLSv1_1:
-    mbedtls_ssl_conf_min_version(&connssl->config, MBEDTLS_SSL_MAJOR_VERSION_3,
-                                 MBEDTLS_SSL_MINOR_VERSION_2);
-    mbedtls_ssl_conf_max_version(&connssl->config, MBEDTLS_SSL_MAJOR_VERSION_3,
-                                 MBEDTLS_SSL_MINOR_VERSION_2);
-    infof(data, "mbedTLS: Set SSL version to TLS 1.1\n");
-    break;
   case CURL_SSLVERSION_TLSv1_2:
-    mbedtls_ssl_conf_min_version(&connssl->config, MBEDTLS_SSL_MAJOR_VERSION_3,
-                                 MBEDTLS_SSL_MINOR_VERSION_3);
-    mbedtls_ssl_conf_max_version(&connssl->config, MBEDTLS_SSL_MAJOR_VERSION_3,
-                                 MBEDTLS_SSL_MINOR_VERSION_3);
-    infof(data, "mbedTLS: Set SSL version to TLS 1.2\n");
-    break;
   case CURL_SSLVERSION_TLSv1_3:
-    failf(data, "mbedTLS: TLS 1.3 is not yet supported");
-    return CURLE_SSL_CONNECT_ERROR;
+    {
+      CURLcode result = set_ssl_version_min_max(conn, sockindex);
+      if(result != CURLE_OK)
+        return result;
+      break;
+    }
   default:
     failf(data, "Unrecognized parameter passed via CURLOPT_SSLVERSION");
     return CURLE_SSL_CONNECT_ERROR;
@@ -379,7 +430,7 @@ mbed_connect_step1(struct connectdata *conn,
 #endif
 
   /* Check if there's a cached ID we can/should use here! */
-  if(data->set.general_ssl.sessionid) {
+  if(SSL_SET_OPTION(primary.sessionid)) {
     void *old_session = NULL;
 
     Curl_ssl_sessionid_lock(conn);
@@ -443,6 +494,16 @@ mbed_connect_step1(struct connectdata *conn,
    */
   mbedtls_debug_set_threshold(4);
 #endif
+
+  /* give application a chance to interfere with mbedTLS set up. */
+  if(data->set.ssl.fsslctx) {
+    ret = (*data->set.ssl.fsslctx)(data, &connssl->config,
+                                   data->set.ssl.fsslctxp);
+    if(ret) {
+      failf(data, "error signaled by ssl ctx callback");
+      return ret;
+    }
+  }
 
   connssl->connecting_state = ssl_connect_2;
 
@@ -623,7 +684,7 @@ mbed_connect_step3(struct connectdata *conn,
 
   DEBUGASSERT(ssl_connect_3 == connssl->connecting_state);
 
-  if(data->set.general_ssl.sessionid) {
+  if(SSL_SET_OPTION(primary.sessionid)) {
     int ret;
     mbedtls_ssl_session *our_ssl_sessionid;
     void *old_ssl_sessionid = NULL;
@@ -636,6 +697,7 @@ mbed_connect_step3(struct connectdata *conn,
 
     ret = mbedtls_ssl_get_session(&connssl->ssl, our_ssl_sessionid);
     if(ret) {
+      free(our_ssl_sessionid);
       failf(data, "mbedtls_ssl_get_session returned -0x%x", -ret);
       return CURLE_SSL_CONNECT_ERROR;
     }

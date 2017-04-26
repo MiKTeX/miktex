@@ -278,7 +278,7 @@ static CURLcode handshake(struct connectdata *conn,
   struct ssl_connect_data *connssl = &conn->ssl[sockindex];
   gnutls_session_t session = conn->ssl[sockindex].session;
   curl_socket_t sockfd = conn->sock[sockindex];
-  long timeout_ms;
+  time_t timeout_ms;
   int rc;
   int what;
 
@@ -314,7 +314,7 @@ static CURLcode handshake(struct connectdata *conn,
           return CURLE_OK;
         else if(timeout_ms) {
           /* timeout */
-          failf(data, "SSL connection timeout at %ld", timeout_ms);
+          failf(data, "SSL connection timeout at %ld", (long)timeout_ms);
           return CURLE_OPERATION_TIMEDOUT;
         }
       }
@@ -375,6 +375,100 @@ static gnutls_x509_crt_fmt_t do_file_type(const char *type)
   return -1;
 }
 
+#ifndef USE_GNUTLS_PRIORITY_SET_DIRECT
+static CURLcode
+set_ssl_version_min_max(int *list, size_t list_size, struct connectdata *conn)
+{
+  struct Curl_easy *data = conn->data;
+  long ssl_version = SSL_CONN_CONFIG(version);
+  long ssl_version_max = SSL_CONN_CONFIG(version_max);
+  long i = ssl_version;
+  long protocol_priority_idx = 0;
+
+  switch(ssl_version_max) {
+    case CURL_SSLVERSION_MAX_NONE:
+      ssl_version_max = ssl_version << 16;
+      break;
+    case CURL_SSLVERSION_MAX_DEFAULT:
+      ssl_version_max = CURL_SSLVERSION_MAX_TLSv1_2;
+      break;
+  }
+
+  for(; i <= (ssl_version_max >> 16) &&
+        protocol_priority_idx < list_size; ++i) {
+    switch(i) {
+      case CURL_SSLVERSION_TLSv1_0:
+        protocol_priority[protocol_priority_idx++] = GNUTLS_TLS1_0;
+        break;
+      case CURL_SSLVERSION_TLSv1_1:
+        protocol_priority[protocol_priority_idx++] = GNUTLS_TLS1_1;
+        break;
+      case CURL_SSLVERSION_TLSv1_2:
+        protocol_priority[protocol_priority_idx++] = GNUTLS_TLS1_2;
+        break;
+      case CURL_SSLVERSION_TLSv1_3:
+        failf(data, "GnuTLS: TLS 1.3 is not yet supported");
+        return CURLE_SSL_CONNECT_ERROR;
+    }
+  }
+  return CURLE_OK;
+}
+#else
+#define GNUTLS_CIPHERS "NORMAL:-ARCFOUR-128:-CTYPE-ALL:+CTYPE-X509"
+/* If GnuTLS was compiled without support for SRP it will error out if SRP is
+   requested in the priority string, so treat it specially
+ */
+#define GNUTLS_SRP "+SRP"
+
+static CURLcode
+set_ssl_version_min_max(const char **prioritylist, struct connectdata *conn)
+{
+  struct Curl_easy *data = conn->data;
+  long ssl_version = SSL_CONN_CONFIG(version);
+  long ssl_version_max = SSL_CONN_CONFIG(version_max);
+  if(ssl_version == CURL_SSLVERSION_TLSv1_3 ||
+     ssl_version_max == CURL_SSLVERSION_MAX_TLSv1_3) {
+    failf(data, "GnuTLS: TLS 1.3 is not yet supported");
+    return CURLE_SSL_CONNECT_ERROR;
+  }
+  if(ssl_version_max == CURL_SSLVERSION_MAX_NONE) {
+    ssl_version_max = ssl_version << 16;
+  }
+  switch(ssl_version | ssl_version_max) {
+    case CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_0:
+      *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
+                      "+VERS-TLS1.0:" GNUTLS_SRP;
+      return CURLE_OK;
+    case CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_1:
+      *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
+                      "+VERS-TLS1.0:+VERS-TLS1.1:" GNUTLS_SRP;
+      return CURLE_OK;
+    case CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_2:
+    case CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_DEFAULT:
+      *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
+                      "+VERS-TLS1.0:+VERS-TLS1.1:+VERS-TLS1.2:" GNUTLS_SRP;
+      return CURLE_OK;
+    case CURL_SSLVERSION_TLSv1_1 | CURL_SSLVERSION_MAX_TLSv1_1:
+      *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
+                      "+VERS-TLS1.1:" GNUTLS_SRP;
+      return CURLE_OK;
+    case CURL_SSLVERSION_TLSv1_1 | CURL_SSLVERSION_MAX_TLSv1_2:
+    case CURL_SSLVERSION_TLSv1_1 | CURL_SSLVERSION_MAX_DEFAULT:
+      *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
+                      "+VERS-TLS1.1:+VERS-TLS1.2:" GNUTLS_SRP;
+      return CURLE_OK;
+    case CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_MAX_TLSv1_2:
+    case CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_MAX_DEFAULT:
+      *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
+                      "+VERS-TLS1.2:" GNUTLS_SRP;
+      return CURLE_OK;
+  }
+
+  failf(data, "GnuTLS: cannot set ssl protocol");
+  return CURLE_SSL_CONNECT_ERROR;
+}
+#endif
+
 static CURLcode
 gtls_connect_step1(struct connectdata *conn,
                    int sockindex)
@@ -406,13 +500,8 @@ gtls_connect_step1(struct connectdata *conn,
     GNUTLS_CIPHER_3DES_CBC,
   };
   static const int cert_type_priority[] = { GNUTLS_CRT_X509, 0 };
-  static int protocol_priority[] = { 0, 0, 0, 0 };
+  int protocol_priority[] = { 0, 0, 0, 0 };
 #else
-#define GNUTLS_CIPHERS "NORMAL:-ARCFOUR-128:-CTYPE-ALL:+CTYPE-X509"
-/* If GnuTLS was compiled without support for SRP it will error out if SRP is
-   requested in the priority string, so treat it specially
- */
-#define GNUTLS_SRP "+SRP"
   const char *prioritylist;
   const char *err = NULL;
 #endif
@@ -576,7 +665,7 @@ gtls_connect_step1(struct connectdata *conn,
     return CURLE_SSL_CONNECT_ERROR;
   }
 
-  switch(SSL_CONN_CONFIG(version) {
+  switch(SSL_CONN_CONFIG(version)) {
     case CURL_SSLVERSION_SSLv3:
       protocol_priority[0] = GNUTLS_SSL3;
       break;
@@ -587,17 +676,16 @@ gtls_connect_step1(struct connectdata *conn,
       protocol_priority[2] = GNUTLS_TLS1_2;
       break;
     case CURL_SSLVERSION_TLSv1_0:
-      protocol_priority[0] = GNUTLS_TLS1_0;
-      break;
     case CURL_SSLVERSION_TLSv1_1:
-      protocol_priority[0] = GNUTLS_TLS1_1;
-      break;
     case CURL_SSLVERSION_TLSv1_2:
-      protocol_priority[0] = GNUTLS_TLS1_2;
-      break;
     case CURL_SSLVERSION_TLSv1_3:
-      failf(data, "GnuTLS: TLS 1.3 is not yet supported");
-      return CURLE_SSL_CONNECT_ERROR;
+      {
+        CURLcode result = set_ssl_version_min_max(protocol_priority,
+                sizeof(protocol_priority)/sizeof(protocol_priority[0]), conn);
+        if(result != CURLE_OK)
+          return result;
+        break;
+      }
     case CURL_SSLVERSION_SSLv2:
       failf(data, "GnuTLS does not support SSLv2");
       return CURLE_SSL_CONNECT_ERROR;
@@ -625,20 +713,15 @@ gtls_connect_step1(struct connectdata *conn,
       prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:" GNUTLS_SRP;
       break;
     case CURL_SSLVERSION_TLSv1_0:
-      prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
-                     "+VERS-TLS1.0:" GNUTLS_SRP;
-      break;
     case CURL_SSLVERSION_TLSv1_1:
-      prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
-                     "+VERS-TLS1.1:" GNUTLS_SRP;
-      break;
     case CURL_SSLVERSION_TLSv1_2:
-      prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
-                     "+VERS-TLS1.2:" GNUTLS_SRP;
-      break;
     case CURL_SSLVERSION_TLSv1_3:
-      failf(data, "GnuTLS: TLS 1.3 is not yet supported");
-      return CURLE_SSL_CONNECT_ERROR;
+      {
+        CURLcode result = set_ssl_version_min_max(&prioritylist, conn);
+        if(result != CURLE_OK)
+          return result;
+        break;
+      }
     case CURL_SSLVERSION_SSLv2:
       failf(data, "GnuTLS does not support SSLv2");
       return CURLE_SSL_CONNECT_ERROR;
@@ -790,7 +873,7 @@ gtls_connect_step1(struct connectdata *conn,
 
   /* This might be a reconnect, so we check for a session ID in the cache
      to speed up things */
-  if(data->set.general_ssl.sessionid) {
+  if(SSL_SET_OPTION(primary.sessionid)) {
     void *ssl_sessionid;
     size_t ssl_idsize;
 
@@ -890,7 +973,9 @@ gtls_connect_step3(struct connectdata *conn,
   gnutls_datum_t proto;
 #endif
   CURLcode result = CURLE_OK;
+#ifndef CURL_DISABLE_VERBOSE_STRINGS
   gnutls_protocol_t version = gnutls_protocol_get_version(session);
+#endif
   const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name :
     conn->host.name;
 
@@ -1319,7 +1404,7 @@ gtls_connect_step3(struct connectdata *conn,
   conn->recv[sockindex] = gtls_recv;
   conn->send[sockindex] = gtls_send;
 
-  if(data->set.general_ssl.sessionid) {
+  if(SSL_SET_OPTION(primary.sessionid)) {
     /* we always unconditionally get the session id here, as even if we
        already got it from the cache and asked to use it in the connection, it
        might've been rejected and then a new one is in use now and we need to

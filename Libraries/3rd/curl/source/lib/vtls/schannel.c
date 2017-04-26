@@ -103,6 +103,41 @@ static void InitSecBufferDesc(SecBufferDesc *desc, SecBuffer *BufArr,
 }
 
 static CURLcode
+set_ssl_version_min_max(SCHANNEL_CRED *schannel_cred, struct connectdata *conn)
+{
+  struct Curl_easy *data = conn->data;
+  long ssl_version = SSL_CONN_CONFIG(version);
+  long ssl_version_max = SSL_CONN_CONFIG(version_max);
+  long i = ssl_version;
+
+  switch(ssl_version_max) {
+    case CURL_SSLVERSION_MAX_NONE:
+      ssl_version_max = ssl_version << 16;
+      break;
+    case CURL_SSLVERSION_MAX_DEFAULT:
+      ssl_version_max = CURL_SSLVERSION_MAX_TLSv1_2;
+      break;
+  }
+  for(; i <= (ssl_version_max >> 16); ++i) {
+    switch(i) {
+      case CURL_SSLVERSION_TLSv1_0:
+        schannel_cred->grbitEnabledProtocols |= SP_PROT_TLS1_0_CLIENT;
+        break;
+      case CURL_SSLVERSION_TLSv1_1:
+        schannel_cred->grbitEnabledProtocols |= SP_PROT_TLS1_1_CLIENT;
+        break;
+      case CURL_SSLVERSION_TLSv1_2:
+        schannel_cred->grbitEnabledProtocols |= SP_PROT_TLS1_2_CLIENT;
+        break;
+      case CURL_SSLVERSION_TLSv1_3:
+        failf(data, "Schannel: TLS 1.3 is not yet supported");
+        return CURLE_SSL_CONNECT_ERROR;
+    }
+  }
+  return CURLE_OK;
+}
+
+static CURLcode
 schannel_connect_step1(struct connectdata *conn, int sockindex)
 {
   ssize_t written = -1;
@@ -124,7 +159,7 @@ schannel_connect_step1(struct connectdata *conn, int sockindex)
 #endif
   TCHAR *host_name;
   CURLcode result;
-  const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name :
+  char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name :
     conn->host.name;
 
   infof(data, "schannel: SSL/TLS connection with %s port %hu (step 1/3)\n",
@@ -153,7 +188,7 @@ schannel_connect_step1(struct connectdata *conn, int sockindex)
   connssl->cred = NULL;
 
   /* check for an existing re-usable credential handle */
-  if(data->set.general_ssl.sessionid) {
+  if(SSL_SET_OPTION(primary.sessionid)) {
     Curl_ssl_sessionid_lock(conn);
     if(!Curl_ssl_getsessionid(conn, (void **)&old_cred, NULL, sockindex)) {
       connssl->cred = old_cred;
@@ -216,17 +251,15 @@ schannel_connect_step1(struct connectdata *conn, int sockindex)
         SP_PROT_TLS1_2_CLIENT;
       break;
     case CURL_SSLVERSION_TLSv1_0:
-      schannel_cred.grbitEnabledProtocols = SP_PROT_TLS1_0_CLIENT;
-      break;
     case CURL_SSLVERSION_TLSv1_1:
-      schannel_cred.grbitEnabledProtocols = SP_PROT_TLS1_1_CLIENT;
-      break;
     case CURL_SSLVERSION_TLSv1_2:
-      schannel_cred.grbitEnabledProtocols = SP_PROT_TLS1_2_CLIENT;
-      break;
     case CURL_SSLVERSION_TLSv1_3:
-      failf(data, "Schannel: TLS 1.3 is not yet supported");
-      return CURLE_SSL_CONNECT_ERROR;
+      {
+        result = set_ssl_version_min_max(&schannel_cred, conn);
+        if(result != CURLE_OK)
+          return result;
+        break;
+      }
     case CURL_SSLVERSION_SSLv3:
       schannel_cred.grbitEnabledProtocols = SP_PROT_SSL3_CLIENT;
       break;
@@ -423,7 +456,7 @@ schannel_connect_step2(struct connectdata *conn, int sockindex)
   TCHAR *host_name;
   CURLcode result;
   bool doread;
-  const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name :
+  char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name :
     conn->host.name;
 
   doread = (connssl->connecting_state != ssl_connect_2_writing) ? TRUE : FALSE;
@@ -657,8 +690,10 @@ schannel_connect_step3(struct connectdata *conn, int sockindex)
   struct ssl_connect_data *connssl = &conn->ssl[sockindex];
   SECURITY_STATUS sspi_status = SEC_E_OK;
   CERT_CONTEXT *ccert_context = NULL;
+#ifndef CURL_DISABLE_VERBOSE_STRINGS
   const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name :
     conn->host.name;
+#endif
 #ifdef HAS_ALPN
   SecPkgContext_ApplicationProtocol alpn_result;
 #endif
@@ -722,7 +757,7 @@ schannel_connect_step3(struct connectdata *conn, int sockindex)
 #endif
 
   /* save the current session data for possible re-use */
-  if(data->set.general_ssl.sessionid) {
+  if(SSL_SET_OPTION(primary.sessionid)) {
     bool incache;
     struct curl_schannel_cred *old_cred = NULL;
 
@@ -1399,7 +1434,7 @@ int Curl_schannel_shutdown(struct connectdata *conn, int sockindex)
    */
   struct Curl_easy *data = conn->data;
   struct ssl_connect_data *connssl = &conn->ssl[sockindex];
-  const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name :
+  char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name :
     conn->host.name;
 
   infof(data, "schannel: shutting down SSL/TLS connection with %s port %hu\n",
