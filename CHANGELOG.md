@@ -2,6 +2,11 @@
 
 ## 2.9.6320 - not yet released
 
+### Upgraded programs
+
+* dvipdfmx 20170318
+  - TL sync: support additional length units
+
 ### Upgraded libraries
 
 * [HarBuzz 1.4.6](https://github.com/behdad/harfbuzz/releases/tag/1.4.6)
