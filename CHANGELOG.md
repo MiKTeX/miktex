@@ -1,13 +1,19 @@
 # MiKTeX Change Log
 
+## 2.9.6320 - not yet released
+
+### Upgraded libraries
+
+* [HarBuzz 1.4.6](https://github.com/behdad/harfbuzz/releases/tag/1.4.6)
+
 ## 2.9.6300 - 2017-05-25
 
 ### Additions
 
 * [Gregorio](http://gregorio-project.github.io) - convert from gabc to GregorioTeX
-* [autosp](http://ctan.org/pkg/autosp) - a Preprocessor that generates note-spacing commands for MusiXTeX scores
+* [autosp](http://ctan.org/pkg/autosp) - a preprocessor that generates note-spacing commands for MusiXTeX scores
 
-### Upgrades
+### Upgraded programs
 
 * Dvisvgm 2.1.3
 * LuaTeX 1.0.4
