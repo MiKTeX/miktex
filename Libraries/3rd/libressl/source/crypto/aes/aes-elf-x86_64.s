@@ -1,3 +1,5 @@
+#include "x86_arch.h"
+
 .text	
 .type	_x86_64_AES_encrypt,@function
 .align	16
@@ -1300,6 +1302,7 @@ AES_set_decrypt_key:
 .type	AES_cbc_encrypt,@function
 .align	16
 
+.hidden	OPENSSL_ia32cap_P
 .globl	asm_AES_cbc_encrypt
 .hidden	asm_AES_cbc_encrypt
 asm_AES_cbc_encrypt:
@@ -1329,7 +1332,7 @@ AES_cbc_encrypt:
 	jb	.Lcbc_slow_prologue
 	testq	$15,%rdx
 	jnz	.Lcbc_slow_prologue
-	btl	$28,%r10d
+	btl	$IA32CAP_BIT0_HT,%r10d
 	jc	.Lcbc_slow_prologue
 
 

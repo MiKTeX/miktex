@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_mul.c,v 1.19 2014/07/11 08:44:48 jsing Exp $ */
+/* $OpenBSD: bn_mul.c,v 1.20 2015/02/09 15:49:22 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

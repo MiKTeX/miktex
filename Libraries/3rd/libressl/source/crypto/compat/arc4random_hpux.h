@@ -1,4 +1,4 @@
-/*	$OpenBSD: arc4random_hpux.h,v 1.2 2015/01/15 06:57:18 deraadt Exp $	*/
+/*	$OpenBSD: arc4random_hpux.h,v 1.3 2016/06/30 12:19:51 bcook Exp $	*/
 
 /*
  * Copyright (c) 1996, David Mazieres <dm@uun.org>

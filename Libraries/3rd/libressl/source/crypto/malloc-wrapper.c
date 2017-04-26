@@ -1,4 +1,4 @@
-/* $OpenBSD: malloc-wrapper.c,v 1.2 2014/04/17 20:44:45 tedu Exp $ */
+/* $OpenBSD: malloc-wrapper.c,v 1.3 2014/04/20 14:32:19 jsing Exp $ */
 /*
  * Copyright (c) 2014 Bob Beck
  *

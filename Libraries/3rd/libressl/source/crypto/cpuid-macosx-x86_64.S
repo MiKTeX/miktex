@@ -1,11 +1,12 @@
+#include "x86_arch.h"
 
 .private_extern	_OPENSSL_cpuid_setup
 .mod_init_func
 	.p2align	3
 	.quad	_OPENSSL_cpuid_setup
 
+
 .private_extern	_OPENSSL_ia32cap_P
-.comm	_OPENSSL_ia32cap_P,8,2
 
 .text	
 
@@ -64,8 +65,8 @@ _OPENSSL_ia32_cpuid:
 	movl	%eax,%r10d
 	movl	$2147483649,%eax
 	cpuid
-	orl	%ecx,%r9d
-	andl	$2049,%r9d
+	andl	$IA32CAP_MASK1_AMD_XOP,%r9d
+	orl	$1,%r9d
 
 	cmpl	$2147483656,%r10d
 	jb	L$intel
@@ -77,12 +78,12 @@ _OPENSSL_ia32_cpuid:
 
 	movl	$1,%eax
 	cpuid
-	btl	$28,%edx
+	btl	$IA32CAP_BIT0_HT,%edx
 	jnc	L$generic
 	shrl	$16,%ebx
 	cmpb	%r10b,%bl
 	ja	L$generic
-	andl	$4026531839,%edx
+	xorl	$IA32CAP_MASK0_HT,%edx
 	jmp	L$generic
 
 L$intel:
@@ -100,33 +101,37 @@ L$intel:
 L$nocacheinfo:
 	movl	$1,%eax
 	cpuid
-	andl	$3220176895,%edx
+
+	andl	$(~(IA32CAP_MASK0_INTELP4 | IA32CAP_MASK0_INTEL)),%edx
 	cmpl	$0,%r9d
 	jne	L$notintel
-	orl	$1073741824,%edx
+
+	orl	$IA32CAP_MASK0_INTEL,%edx
 	andb	$15,%ah
 	cmpb	$15,%ah
 	jne	L$notintel
-	orl	$1048576,%edx
+
+	orl	$IA32CAP_MASK0_INTELP4,%edx
 L$notintel:
-	btl	$28,%edx
+	btl	$IA32CAP_BIT0_HT,%edx
 	jnc	L$generic
-	andl	$4026531839,%edx
+	xorl	$IA32CAP_MASK0_HT,%edx
 	cmpl	$0,%r10d
 	je	L$generic
 
-	orl	$268435456,%edx
+	orl	$IA32CAP_MASK0_HT,%edx
 	shrl	$16,%ebx
 	cmpb	$1,%bl
 	ja	L$generic
-	andl	$4026531839,%edx
+	xorl	$IA32CAP_MASK0_HT,%edx
+
 L$generic:
-	andl	$2048,%r9d
-	andl	$4294965247,%ecx
+	andl	$IA32CAP_MASK1_AMD_XOP,%r9d
+	andl	$(~IA32CAP_MASK1_AMD_XOP),%ecx
 	orl	%ecx,%r9d
 
 	movl	%edx,%r10d
-	btl	$27,%r9d
+	btl	$IA32CAP_BIT1_OSXSAVE,%r9d
 	jnc	L$clear_avx
 	xorl	%ecx,%ecx
 .byte	0x0f,0x01,0xd0		
@@ -134,7 +139,7 @@ L$generic:
 	cmpl	$6,%eax
 	je	L$done
 L$clear_avx:
-	movl	$4026525695,%eax
+	movl	$(~(IA32CAP_MASK1_AVX | IA32CAP_MASK1_FMA3 | IA32CAP_MASK1_AMD_XOP)),%eax
 	andl	%eax,%r9d
 L$done:
 	shlq	$32,%r9

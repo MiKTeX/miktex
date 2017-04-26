@@ -1,4 +1,4 @@
-/* $OpenBSD: ecs_asn1.c,v 1.7 2015/10/16 15:12:30 jsing Exp $ */
+/* $OpenBSD: ecs_asn1.c,v 1.8 2015/10/16 15:15:39 jsing Exp $ */
 /* ====================================================================
  * Copyright (c) 2000-2002 The OpenSSL Project.  All rights reserved.
  *

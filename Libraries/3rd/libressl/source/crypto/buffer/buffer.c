@@ -1,4 +1,4 @@
-/* $OpenBSD: buffer.c,v 1.20 2014/07/10 13:58:22 jsing Exp $ */
+/* $OpenBSD: buffer.c,v 1.24 2017/03/16 13:29:56 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -73,14 +73,11 @@ BUF_MEM_new(void)
 {
 	BUF_MEM *ret;
 
-	ret = malloc(sizeof(BUF_MEM));
-	if (ret == NULL) {
-		BUFerr(BUF_F_BUF_MEM_NEW, ERR_R_MALLOC_FAILURE);
+	if ((ret = calloc(1, sizeof(BUF_MEM))) == NULL) {
+		BUFerror(ERR_R_MALLOC_FAILURE);
 		return (NULL);
 	}
-	ret->length = 0;
-	ret->max = 0;
-	ret->data = NULL;
+
 	return (ret);
 }
 
@@ -108,24 +105,22 @@ BUF_MEM_grow(BUF_MEM *str, size_t len)
 		return (len);
 	}
 	if (str->max >= len) {
-		memset(&str->data[str->length], 0, len - str->length);
 		str->length = len;
 		return (len);
 	}
 	/* This limit is sufficient to ensure (len+3)/3*4 < 2**31 */
 	if (len > LIMIT_BEFORE_EXPANSION) {
-		BUFerr(BUF_F_BUF_MEM_GROW, ERR_R_MALLOC_FAILURE);
+		BUFerror(ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
 	n = (len + 3) / 3 * 4;
-	ret = realloc(str->data, n);
+	ret = recallocarray(str->data, str->max, n, 1);
 	if (ret == NULL) {
-		BUFerr(BUF_F_BUF_MEM_GROW, ERR_R_MALLOC_FAILURE);
+		BUFerror(ERR_R_MALLOC_FAILURE);
 		len = 0;
 	} else {
 		str->data = ret;
 		str->max = n;
-		memset(&str->data[str->length], 0, len - str->length);
 		str->length = len;
 	}
 	return (len);
@@ -143,30 +138,22 @@ BUF_MEM_grow_clean(BUF_MEM *str, size_t len)
 		return (len);
 	}
 	if (str->max >= len) {
-		memset(&str->data[str->length], 0, len - str->length);
 		str->length = len;
 		return (len);
 	}
 	/* This limit is sufficient to ensure (len+3)/3*4 < 2**31 */
 	if (len > LIMIT_BEFORE_EXPANSION) {
-		BUFerr(BUF_F_BUF_MEM_GROW_CLEAN, ERR_R_MALLOC_FAILURE);
+		BUFerror(ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
 	n = (len + 3) / 3 * 4;
-	ret = malloc(n);
-	/* we're not shrinking - that case returns above */
-	if ((ret != NULL)  && (str->data != NULL)) {
-		memcpy(ret, str->data, str->max);
-		explicit_bzero(str->data, str->max);
-		free(str->data);
-	}
+	ret = recallocarray(str->data, str->max, n, 1);
 	if (ret == NULL) {
-		BUFerr(BUF_F_BUF_MEM_GROW_CLEAN, ERR_R_MALLOC_FAILURE);
+		BUFerror(ERR_R_MALLOC_FAILURE);
 		len = 0;
 	} else {
 		str->data = ret;
 		str->max = n;
-		memset(&str->data[str->length], 0, len - str->length);
 		str->length = len;
 	}
 	return (len);

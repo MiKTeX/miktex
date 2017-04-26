@@ -1,4 +1,4 @@
-/* $OpenBSD: x_x509a.c,v 1.13 2015/02/11 04:00:39 jsing Exp $ */
+/* $OpenBSD: x_x509a.c,v 1.14 2015/02/14 15:28:39 miod Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */

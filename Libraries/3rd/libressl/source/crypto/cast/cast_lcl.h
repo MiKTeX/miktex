@@ -1,4 +1,4 @@
-/* $OpenBSD: cast_lcl.h,v 1.10 2014/06/12 15:49:28 deraadt Exp $ */
+/* $OpenBSD: cast_lcl.h,v 1.11 2015/11/05 21:46:51 miod Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

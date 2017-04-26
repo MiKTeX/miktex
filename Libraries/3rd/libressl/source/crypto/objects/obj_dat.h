@@ -62,12 +62,12 @@
  * [including the GNU Public Licence.]
  */
 
-#define NUM_NID 950
-#define NUM_SN 943
-#define NUM_LN 943
-#define NUM_OBJ 884
+#define NUM_NID 956
+#define NUM_SN 949
+#define NUM_LN 949
+#define NUM_OBJ 890
 
-static const unsigned char lvalues[6199]={
+static const unsigned char lvalues[6217]={
 0x2A,0x86,0x48,0x86,0xF7,0x0D,               /* [  0] OBJ_rsadsi */
 0x2A,0x86,0x48,0x86,0xF7,0x0D,0x01,          /* [  6] OBJ_pkcs */
 0x2A,0x86,0x48,0x86,0xF7,0x0D,0x02,0x02,     /* [ 13] OBJ_md2 */
@@ -946,6 +946,12 @@ static const unsigned char lvalues[6199]={
 0x2A,0x85,0x03,0x07,0x01,0x01,0x01,0x02,     /* [6174] OBJ_id_tc26_gost3410_2012_512 */
 0x2A,0x85,0x03,0x07,0x01,0x01,0x03,0x02,     /* [6182] OBJ_id_tc26_signwithdigest_gost3410_2012_256 */
 0x2A,0x85,0x03,0x07,0x01,0x01,0x03,0x03,     /* [6190] OBJ_id_tc26_signwithdigest_gost3410_2012_512 */
+0x2B,0x65,0x6E,                              /* [6198] OBJ_X25519 */
+0x2B,0x65,0x6F,                              /* [6201] OBJ_X448 */
+0x2B,0x65,0x70,                              /* [6204] OBJ_Ed25519 */
+0x2B,0x65,0x71,                              /* [6207] OBJ_Ed448 */
+0x2B,0x65,0x72,                              /* [6210] OBJ_Ed25519ph */
+0x2B,0x65,0x73,                              /* [6213] OBJ_Ed448ph */
 };
 
 static const ASN1_OBJECT nid_objs[NUM_NID]={
@@ -2145,7 +2151,7 @@ static const ASN1_OBJECT nid_objs[NUM_NID]={
 	&(lvalues[5097]),0},
 {"subjectDirectoryAttributes","X509v3 Subject Directory Attributes",
 	NID_subject_directory_attributes,3,&(lvalues[5105]),0},
-{"issuingDistributionPoint","X509v3 Issuing Distrubution Point",
+{"issuingDistributionPoint","X509v3 Issuing Distribution Point",
 	NID_issuing_distribution_point,3,&(lvalues[5108]),0},
 {"certificateIssuer","X509v3 Certificate Issuer",
 	NID_certificate_issuer,3,&(lvalues[5111]),0},
@@ -2483,6 +2489,12 @@ static const ASN1_OBJECT nid_objs[NUM_NID]={
 {"id-tc26-signwithdigest-gost3410-2012-512",
 	"GOST R 34.11-2012 with GOST R 34.10-2012 (512 bit)",
 	NID_id_tc26_signwithdigest_gost3410_2012_512,8,&(lvalues[6190]),0},
+{"X25519","X25519",NID_X25519,3,&(lvalues[6198]),0},
+{"X448","X448",NID_X448,3,&(lvalues[6201]),0},
+{"Ed25519","Ed25519",NID_Ed25519,3,&(lvalues[6204]),0},
+{"Ed448","Ed448",NID_Ed448,3,&(lvalues[6207]),0},
+{"Ed25519ph","Ed25519ph",NID_Ed25519ph,3,&(lvalues[6210]),0},
+{"Ed448ph","Ed448ph",NID_Ed448ph,3,&(lvalues[6213]),0},
 };
 
 static const unsigned int sn_objs[NUM_SN]={
@@ -2572,6 +2584,10 @@ static const unsigned int sn_objs[NUM_SN]={
 70,	/* "DSA-SHA1-old" */
 67,	/* "DSA-old" */
 297,	/* "DVCS" */
+952,	/* "Ed25519" */
+954,	/* "Ed25519ph" */
+953,	/* "Ed448" */
+955,	/* "Ed448ph" */
 936,	/* "FRP256v1" */
 99,	/* "GN" */
 855,	/* "HMAC" */
@@ -2671,6 +2687,8 @@ static const unsigned int sn_objs[NUM_SN]={
 143,	/* "SXNetID" */
 458,	/* "UID" */
  0,	/* "UNDEF" */
+950,	/* "X25519" */
+951,	/* "X448" */
 11,	/* "X500" */
 378,	/* "X500algorithms" */
 12,	/* "X509" */
@@ -3447,6 +3465,10 @@ static const unsigned int ln_objs[NUM_LN]={
 382,	/* "Directory" */
 392,	/* "Domain" */
 132,	/* "E-mail Protection" */
+952,	/* "Ed25519" */
+954,	/* "Ed25519ph" */
+953,	/* "Ed448" */
+955,	/* "Ed448ph" */
 389,	/* "Enterprises" */
 384,	/* "Experimental" */
 372,	/* "Extended OCSP Status" */
@@ -3547,6 +3569,8 @@ static const unsigned int ln_objs[NUM_LN]={
 129,	/* "TLS Web Server Authentication" */
 133,	/* "Time Stamping" */
 375,	/* "Trust Root" */
+950,	/* "X25519" */
+951,	/* "X448" */
 12,	/* "X509" */
 402,	/* "X509v3 AC Targeting" */
 746,	/* "X509v3 Any Policy" */
@@ -3562,7 +3586,7 @@ static const unsigned int ln_objs[NUM_LN]={
 857,	/* "X509v3 Freshest CRL" */
 748,	/* "X509v3 Inhibit Any Policy" */
 86,	/* "X509v3 Issuer Alternative Name" */
-770,	/* "X509v3 Issuing Distrubution Point" */
+770,	/* "X509v3 Issuing Distribution Point" */
 83,	/* "X509v3 Key Usage" */
 666,	/* "X509v3 Name Constraints" */
 403,	/* "X509v3 No Revocation Available" */
@@ -4400,6 +4424,12 @@ static const unsigned int obj_objs[NUM_OBJ]={
 435,	/* OBJ_pss                          0 9 2342 */
 183,	/* OBJ_ISO_US                       1 2 840 */
 381,	/* OBJ_iana                         1 3 6 1 */
+950,	/* OBJ_X25519                       1 3 101 110 */
+951,	/* OBJ_X448                         1 3 101 111 */
+952,	/* OBJ_Ed25519                      1 3 101 112 */
+953,	/* OBJ_Ed448                        1 3 101 113 */
+954,	/* OBJ_Ed25519ph                    1 3 101 114 */
+955,	/* OBJ_Ed448ph                      1 3 101 115 */
 677,	/* OBJ_certicom_arc                 1 3 132 */
 394,	/* OBJ_selected_attribute_types     2 5 1 5 */
 13,	/* OBJ_commonName                   2 5 4 3 */

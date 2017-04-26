@@ -1,4 +1,4 @@
-/* $OpenBSD: v3_purp.c,v 1.25 2015/02/10 11:22:22 jsing Exp $ */
+/* $OpenBSD: v3_purp.c,v 1.29 2017/01/29 17:49:23 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2001.
  */
@@ -138,7 +138,7 @@ int
 X509_PURPOSE_set(int *p, int purpose)
 {
 	if (X509_PURPOSE_get_by_id(purpose) == -1) {
-		X509V3err(X509V3_F_X509_PURPOSE_SET, X509V3_R_INVALID_PURPOSE);
+		X509V3error(X509V3_R_INVALID_PURPOSE);
 		return 0;
 	}
 	*p = purpose;
@@ -206,8 +206,7 @@ X509_PURPOSE_add(int id, int trust, int flags,
 	name_dup = sname_dup = NULL;
 
 	if (name == NULL || sname == NULL) {
-		X509V3err(X509V3_F_X509_PURPOSE_ADD,
-		    X509V3_R_INVALID_NULL_ARGUMENT);
+		X509V3error(X509V3_R_INVALID_NULL_ARGUMENT);
 		return 0;
 	}
 
@@ -220,8 +219,7 @@ X509_PURPOSE_add(int id, int trust, int flags,
 	/* Need a new entry */
 	if (idx == -1) {
 		if ((ptmp = malloc(sizeof(X509_PURPOSE))) == NULL) {
-			X509V3err(X509V3_F_X509_PURPOSE_ADD,
-			    ERR_R_MALLOC_FAILURE);
+			X509V3error(ERR_R_MALLOC_FAILURE);
 			return 0;
 		}
 		ptmp->flags = X509_PURPOSE_DYNAMIC;
@@ -266,7 +264,7 @@ err:
 	free(sname_dup);
 	if (idx == -1)
 		free(ptmp);
-	X509V3err(X509V3_F_X509_PURPOSE_ADD, ERR_R_MALLOC_FAILURE);
+	X509V3error(ERR_R_MALLOC_FAILURE);
 	return 0;
 }
 
@@ -325,8 +323,24 @@ nid_cmp(const int *a, const int *b)
 	return *a - *b;
 }
 
-DECLARE_OBJ_BSEARCH_CMP_FN(int, int, nid);
-IMPLEMENT_OBJ_BSEARCH_CMP_FN(int, int, nid);
+static int nid_cmp_BSEARCH_CMP_FN(const void *, const void *);
+static int nid_cmp(int const *, int const *);
+static int *OBJ_bsearch_nid(int *key, int const *base, int num);
+
+static int
+nid_cmp_BSEARCH_CMP_FN(const void *a_, const void *b_)
+{
+	int const *a = a_;
+	int const *b = b_;
+	return nid_cmp(a, b);
+}
+
+static int *
+OBJ_bsearch_nid(int *key, int const *base, int num)
+{
+	return (int *)OBJ_bsearch_(key, base, num, sizeof(int),
+	    nid_cmp_BSEARCH_CMP_FN);
+}
 
 int
 X509_supported_extension(X509_EXTENSION *ex)
@@ -450,8 +464,14 @@ x509v3_cache_extensions(X509 *x)
 			x->ex_flags |= EXFLAG_INVALID;
 		}
 		if (pci->pcPathLengthConstraint) {
-			x->ex_pcpathlen =
-			    ASN1_INTEGER_get(pci->pcPathLengthConstraint);
+			if (pci->pcPathLengthConstraint->type ==
+			    V_ASN1_NEG_INTEGER) {
+				x->ex_flags |= EXFLAG_INVALID;
+				x->ex_pcpathlen = 0;
+			} else
+				x->ex_pcpathlen =
+				    ASN1_INTEGER_get(pci->
+				      pcPathLengthConstraint);
 		} else
 			x->ex_pcpathlen = -1;
 		PROXY_CERT_INFO_EXTENSION_free(pci);

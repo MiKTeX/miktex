@@ -1,4 +1,4 @@
-/* $OpenBSD: nsseq.c,v 1.9 2015/02/11 03:39:51 jsing Exp $ */
+/* $OpenBSD: nsseq.c,v 1.10 2015/02/11 04:00:39 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */

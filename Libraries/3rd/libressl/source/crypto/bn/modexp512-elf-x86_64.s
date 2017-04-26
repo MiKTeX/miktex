@@ -1,3 +1,4 @@
+#include "x86_arch.h"
 .text	
 
 .type	MULADD_128x512,@function

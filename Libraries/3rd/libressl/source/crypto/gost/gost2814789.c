@@ -1,4 +1,4 @@
-/* $OpenBSD: gost2814789.c,v 1.4 2015/02/10 09:46:30 miod Exp $ */
+/* $OpenBSD: gost2814789.c,v 1.5 2015/09/10 15:56:25 jsing Exp $ */
 /*
  * Copyright (c) 2014 Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
  * Copyright (c) 2005-2006 Cryptocom LTD

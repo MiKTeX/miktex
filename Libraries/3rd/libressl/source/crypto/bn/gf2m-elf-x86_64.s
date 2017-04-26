@@ -1,3 +1,4 @@
+#include "x86_arch.h"
 .text	
 
 .type	_mul_1x1,@function
@@ -197,12 +198,13 @@ _mul_1x1:
 .Lend_mul_1x1:
 .size	_mul_1x1,.-_mul_1x1
 
+.hidden	OPENSSL_ia32cap_P
 .globl	bn_GF2m_mul_2x2
 .type	bn_GF2m_mul_2x2,@function
 .align	16
 bn_GF2m_mul_2x2:
-	movq	OPENSSL_ia32cap_P(%rip),%rax
-	btq	$33,%rax
+	movl	OPENSSL_ia32cap_P+4(%rip),%eax
+	btl	$IA32CAP_BIT1_PCLMUL,%eax
 	jnc	.Lvanilla_mul_2x2
 
 	movd	%rsi,%xmm0

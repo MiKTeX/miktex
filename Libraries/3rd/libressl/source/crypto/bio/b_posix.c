@@ -1,4 +1,4 @@
-/* $OpenBSD: b_sock.c,v 1.58 2014/10/13 02:49:53 bcook Exp $ */
+/* $OpenBSD: b_posix.c,v 1.1 2014/12/03 22:14:38 bcook Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

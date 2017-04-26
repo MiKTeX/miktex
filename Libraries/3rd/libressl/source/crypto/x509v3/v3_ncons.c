@@ -1,4 +1,4 @@
-/* $OpenBSD: v3_ncons.c,v 1.8 2015/07/25 16:14:29 jsing Exp $ */
+/* $OpenBSD: v3_ncons.c,v 1.11 2017/01/29 17:49:23 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project.
  */
@@ -82,7 +82,7 @@ static int nc_uri(ASN1_IA5STRING *uri, ASN1_IA5STRING *base);
 const X509V3_EXT_METHOD v3_name_constraints = {
 	.ext_nid = NID_name_constraints,
 	.ext_flags = 0,
-	.it = ASN1_ITEM_ref(NAME_CONSTRAINTS),
+	.it = &NAME_CONSTRAINTS_it,
 	.ext_new = NULL,
 	.ext_free = NULL,
 	.d2i = NULL,
@@ -204,8 +204,7 @@ v2i_NAME_CONSTRAINTS(const X509V3_EXT_METHOD *method, X509V3_CTX *ctx,
 			ptree = &ncons->excludedSubtrees;
 			tval.name = val->name + 9;
 		} else {
-			X509V3err(X509V3_F_V2I_NAME_CONSTRAINTS,
-			    X509V3_R_INVALID_SYNTAX);
+			X509V3error(X509V3_R_INVALID_SYNTAX);
 			goto err;
 		}
 		tval.value = val->value;
@@ -222,7 +221,7 @@ v2i_NAME_CONSTRAINTS(const X509V3_EXT_METHOD *method, X509V3_CTX *ctx,
 	return ncons;
 
 memerr:
-	X509V3err(X509V3_F_V2I_NAME_CONSTRAINTS, ERR_R_MALLOC_FAILURE);
+	X509V3error(ERR_R_MALLOC_FAILURE);
 err:
 	if (ncons)
 		NAME_CONSTRAINTS_free(ncons);

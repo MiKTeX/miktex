@@ -1,4 +1,4 @@
-/* $OpenBSD: x_algor.c,v 1.20 2015/02/11 04:00:39 jsing Exp $ */
+/* $OpenBSD: x_algor.c,v 1.21 2015/07/24 15:09:52 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2000.
  */

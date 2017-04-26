@@ -1,4 +1,4 @@
-/* $OpenBSD: ocsp_prn.c,v 1.7 2014/06/12 15:49:30 deraadt Exp $ */
+/* $OpenBSD: ocsp_prn.c,v 1.8 2015/07/16 02:16:19 miod Exp $ */
 /* Written by Tom Titchener <Tom_Titchener@groove.net> for the OpenSSL
  * project. */
 

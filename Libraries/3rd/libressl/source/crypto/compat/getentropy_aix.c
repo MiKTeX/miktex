@@ -1,4 +1,4 @@
-/*	$OpenBSD: getentropy_aix.c,v 1.3 2015/08/25 17:26:43 deraadt Exp $	*/
+/*	$OpenBSD: getentropy_aix.c,v 1.5 2016/08/07 03:27:21 tb Exp $	*/
 
 /*
  * Copyright (c) 2015 Michael Felt <aixtools@gmail.com>
@@ -18,7 +18,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  * Emulation of getentropy(2) as documented at:
- * http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man2/getentropy.2
+ * http://man.openbsd.org/getentropy.2
  */
 /*
  * -lperfstat is needed for the psuedo entropy data

@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_word.c,v 1.12 2014/07/11 08:44:48 jsing Exp $ */
+/* $OpenBSD: bn_word.c,v 1.13 2016/07/05 02:54:35 bcook Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

@@ -1,4 +1,4 @@
-/* $OpenBSD: cversion.c,v 1.14 2014/07/11 08:44:47 jsing Exp $ */
+/* $OpenBSD: cversion.c,v 1.15 2014/07/11 11:42:28 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

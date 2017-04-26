@@ -1,4 +1,4 @@
-/* $OpenBSD: rsa_crpt.c,v 1.15 2016/06/30 02:02:06 bcook Exp $ */
+/* $OpenBSD: rsa_crpt.c,v 1.18 2017/01/29 17:49:23 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -65,6 +65,8 @@
 #include <openssl/err.h>
 #include <openssl/lhash.h>
 #include <openssl/rsa.h>
+
+#include "bn_lcl.h"
 
 #ifndef OPENSSL_NO_ENGINE
 #include <openssl/engine.h>
@@ -160,7 +162,7 @@ rsa_get_public_exp(const BIGNUM *d, const BIGNUM *p, const BIGNUM *q,
 	if (!BN_mul(r0, r1, r2, ctx))
 		goto err;
 
-	ret = BN_mod_inverse(NULL, d, r0, ctx);
+	ret = BN_mod_inverse_ct(NULL, d, r0, ctx);
 err:
 	BN_CTX_end(ctx);
 	return ret;
@@ -185,8 +187,7 @@ RSA_setup_blinding(RSA *rsa, BN_CTX *in_ctx)
 	if (rsa->e == NULL) {
 		e = rsa_get_public_exp(rsa->d, rsa->p, rsa->q, ctx);
 		if (e == NULL) {
-			RSAerr(RSA_F_RSA_SETUP_BLINDING,
-			    RSA_R_NO_PUBLIC_EXPONENT);
+			RSAerror(RSA_R_NO_PUBLIC_EXPONENT);
 			goto err;
 		}
 	} else
@@ -199,7 +200,7 @@ RSA_setup_blinding(RSA *rsa, BN_CTX *in_ctx)
 	    rsa->_method_mod_n);
 
 	if (ret == NULL) {
-		RSAerr(RSA_F_RSA_SETUP_BLINDING, ERR_R_BN_LIB);
+		RSAerror(ERR_R_BN_LIB);
 		goto err;
 	}
 	CRYPTO_THREADID_current(BN_BLINDING_thread_id(ret));

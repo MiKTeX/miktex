@@ -1,4 +1,4 @@
-/* $OpenBSD: dh_asn1.c,v 1.7 2015/02/10 05:12:23 jsing Exp $ */
+/* $OpenBSD: dh_asn1.c,v 1.10 2016/12/30 15:26:49 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2000.
  */
@@ -137,7 +137,31 @@ i2d_DHparams(const DH *a, unsigned char **out)
 }
 
 DH *
+d2i_DHparams_bio(BIO *bp, DH **a)
+{
+	return ASN1_item_d2i_bio(&DHparams_it, bp, a);
+}
+
+int
+i2d_DHparams_bio(BIO *bp, DH *a)
+{
+	return ASN1_item_i2d_bio(&DHparams_it, bp, a);
+}
+
+DH *
+d2i_DHparams_fp(FILE *fp, DH **a)
+{
+	return ASN1_item_d2i_fp(&DHparams_it, fp, a);
+}
+
+int
+i2d_DHparams_fp(FILE *fp, DH *a)
+{
+	return ASN1_item_i2d_fp(&DHparams_it, fp, a);
+}
+
+DH *
 DHparams_dup(DH *dh)
 {
-	return ASN1_item_dup(ASN1_ITEM_rptr(DHparams), dh);
+	return ASN1_item_dup(&DHparams_it, dh);
 }

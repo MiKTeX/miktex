@@ -1,4 +1,4 @@
-/* $OpenBSD: rc4_enc.c,v 1.14 2015/10/20 15:50:13 jsing Exp $ */
+/* $OpenBSD: rc4_enc.c,v 1.15 2015/10/21 16:36:50 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

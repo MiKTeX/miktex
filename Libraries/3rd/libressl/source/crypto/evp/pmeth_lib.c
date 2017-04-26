@@ -1,4 +1,4 @@
-/* $OpenBSD: pmeth_lib.c,v 1.10 2014/11/09 19:17:13 miod Exp $ */
+/* $OpenBSD: pmeth_lib.c,v 1.13 2017/01/29 17:49:23 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2006.
  */
@@ -103,8 +103,9 @@ static const EVP_PKEY_METHOD *standard_methods[] = {
 	&cmac_pkey_meth,
 };
 
-DECLARE_OBJ_BSEARCH_CMP_FN(const EVP_PKEY_METHOD *, const EVP_PKEY_METHOD *,
-    pmeth);
+static int pmeth_cmp_BSEARCH_CMP_FN(const void *, const void *);
+static int pmeth_cmp(const EVP_PKEY_METHOD * const *, const EVP_PKEY_METHOD * const *);
+static const EVP_PKEY_METHOD * *OBJ_bsearch_pmeth(const EVP_PKEY_METHOD * *key, const EVP_PKEY_METHOD * const *base, int num);
 
 static int
 pmeth_cmp(const EVP_PKEY_METHOD * const *a, const EVP_PKEY_METHOD * const *b)
@@ -112,8 +113,21 @@ pmeth_cmp(const EVP_PKEY_METHOD * const *a, const EVP_PKEY_METHOD * const *b)
 	return ((*a)->pkey_id - (*b)->pkey_id);
 }
 
-IMPLEMENT_OBJ_BSEARCH_CMP_FN(const EVP_PKEY_METHOD *, const EVP_PKEY_METHOD *,
-    pmeth);
+
+static int
+pmeth_cmp_BSEARCH_CMP_FN(const void *a_, const void *b_)
+{
+	const EVP_PKEY_METHOD * const *a = a_;
+	const EVP_PKEY_METHOD * const *b = b_;
+	return pmeth_cmp(a, b);
+}
+
+static const EVP_PKEY_METHOD * *
+OBJ_bsearch_pmeth(const EVP_PKEY_METHOD * *key, const EVP_PKEY_METHOD * const *base, int num)
+{
+	return (const EVP_PKEY_METHOD * *)OBJ_bsearch_(key, base, num, sizeof(const EVP_PKEY_METHOD *),
+	    pmeth_cmp_BSEARCH_CMP_FN);
+}
 
 const EVP_PKEY_METHOD *
 EVP_PKEY_meth_find(int type)
@@ -152,7 +166,7 @@ int_ctx_new(EVP_PKEY *pkey, ENGINE *e, int id)
 	/* Try to find an ENGINE which implements this method */
 	if (e) {
 		if (!ENGINE_init(e)) {
-			EVPerr(EVP_F_INT_CTX_NEW, ERR_R_ENGINE_LIB);
+			EVPerror(ERR_R_ENGINE_LIB);
 			return NULL;
 		}
 	} else
@@ -169,7 +183,7 @@ int_ctx_new(EVP_PKEY *pkey, ENGINE *e, int id)
 		pmeth = EVP_PKEY_meth_find(id);
 
 	if (pmeth == NULL) {
-		EVPerr(EVP_F_INT_CTX_NEW, EVP_R_UNSUPPORTED_ALGORITHM);
+		EVPerror(EVP_R_UNSUPPORTED_ALGORITHM);
 		return NULL;
 	}
 
@@ -179,7 +193,7 @@ int_ctx_new(EVP_PKEY *pkey, ENGINE *e, int id)
 		if (e)
 			ENGINE_finish(e);
 #endif
-		EVPerr(EVP_F_INT_CTX_NEW, ERR_R_MALLOC_FAILURE);
+		EVPerror(ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
 	ret->engine = e;
@@ -322,7 +336,7 @@ EVP_PKEY_CTX_dup(EVP_PKEY_CTX *pctx)
 #ifndef OPENSSL_NO_ENGINE
 	/* Make sure it's safe to copy a pkey context using an ENGINE */
 	if (pctx->engine && !ENGINE_init(pctx->engine)) {
-		EVPerr(EVP_F_EVP_PKEY_CTX_DUP, ERR_R_ENGINE_LIB);
+		EVPerror(ERR_R_ENGINE_LIB);
 		return 0;
 	}
 #endif
@@ -395,26 +409,26 @@ EVP_PKEY_CTX_ctrl(EVP_PKEY_CTX *ctx, int keytype, int optype, int cmd,
 	int ret;
 
 	if (!ctx || !ctx->pmeth || !ctx->pmeth->ctrl) {
-		EVPerr(EVP_F_EVP_PKEY_CTX_CTRL, EVP_R_COMMAND_NOT_SUPPORTED);
+		EVPerror(EVP_R_COMMAND_NOT_SUPPORTED);
 		return -2;
 	}
 	if ((keytype != -1) && (ctx->pmeth->pkey_id != keytype))
 		return -1;
 
 	if (ctx->operation == EVP_PKEY_OP_UNDEFINED) {
-		EVPerr(EVP_F_EVP_PKEY_CTX_CTRL, EVP_R_NO_OPERATION_SET);
+		EVPerror(EVP_R_NO_OPERATION_SET);
 		return -1;
 	}
 
 	if ((optype != -1) && !(ctx->operation & optype)) {
-		EVPerr(EVP_F_EVP_PKEY_CTX_CTRL, EVP_R_INVALID_OPERATION);
+		EVPerror(EVP_R_INVALID_OPERATION);
 		return -1;
 	}
 
 	ret = ctx->pmeth->ctrl(ctx, cmd, p1, p2);
 
 	if (ret == -2)
-		EVPerr(EVP_F_EVP_PKEY_CTX_CTRL, EVP_R_COMMAND_NOT_SUPPORTED);
+		EVPerror(EVP_R_COMMAND_NOT_SUPPORTED);
 
 	return ret;
 
@@ -424,15 +438,13 @@ int
 EVP_PKEY_CTX_ctrl_str(EVP_PKEY_CTX *ctx, const char *name, const char *value)
 {
 	if (!ctx || !ctx->pmeth || !ctx->pmeth->ctrl_str) {
-		EVPerr(EVP_F_EVP_PKEY_CTX_CTRL_STR,
-		    EVP_R_COMMAND_NOT_SUPPORTED);
+		EVPerror(EVP_R_COMMAND_NOT_SUPPORTED);
 		return -2;
 	}
 	if (!strcmp(name, "digest")) {
 		const EVP_MD *md;
 		if (!value || !(md = EVP_get_digestbyname(value))) {
-			EVPerr(EVP_F_EVP_PKEY_CTX_CTRL_STR,
-			    EVP_R_INVALID_DIGEST);
+			EVPerror(EVP_R_INVALID_DIGEST);
 			return 0;
 		}
 		return EVP_PKEY_CTX_set_signature_md(ctx, md);

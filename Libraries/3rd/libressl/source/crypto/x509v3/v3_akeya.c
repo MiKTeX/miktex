@@ -1,4 +1,4 @@
-/* $OpenBSD: v3_akeya.c,v 1.6 2015/02/09 16:03:11 jsing Exp $ */
+/* $OpenBSD: v3_akeya.c,v 1.7 2015/07/25 16:00:14 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */

@@ -1,3 +1,4 @@
+#include "x86_arch.h"
 .text	
 
 
@@ -197,12 +198,13 @@ _mul_1x1:
 L$end_mul_1x1:
 
 
+.private_extern	_OPENSSL_ia32cap_P
 .globl	_bn_GF2m_mul_2x2
 
 .p2align	4
 _bn_GF2m_mul_2x2:
-	movq	_OPENSSL_ia32cap_P(%rip),%rax
-	btq	$33,%rax
+	movl	_OPENSSL_ia32cap_P+4(%rip),%eax
+	btl	$IA32CAP_BIT1_PCLMUL,%eax
 	jnc	L$vanilla_mul_2x2
 
 	movd	%rsi,%xmm0

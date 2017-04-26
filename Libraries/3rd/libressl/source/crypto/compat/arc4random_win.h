@@ -1,4 +1,4 @@
-/*	$OpenBSD: arc4random_win.h,v 1.4 2014/07/20 20:51:13 bcook Exp $	*/
+/*	$OpenBSD: arc4random_win.h,v 1.6 2016/06/30 12:17:29 bcook Exp $	*/
 
 /*
  * Copyright (c) 1996, David Mazieres <dm@uun.org>

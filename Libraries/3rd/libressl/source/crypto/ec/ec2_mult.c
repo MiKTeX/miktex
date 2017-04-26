@@ -1,4 +1,4 @@
-/* $OpenBSD: ec2_mult.c,v 1.7 2015/02/09 15:49:22 jsing Exp $ */
+/* $OpenBSD: ec2_mult.c,v 1.9 2017/01/29 17:49:23 beck Exp $ */
 /* ====================================================================
  * Copyright 2002 Sun Microsystems, Inc. ALL RIGHTS RESERVED.
  *
@@ -267,7 +267,7 @@ ec_GF2m_montgomery_point_multiply(const EC_GROUP *group, EC_POINT *r,
 	BN_ULONG mask, word;
 
 	if (r == point) {
-		ECerr(EC_F_EC_GF2M_MONTGOMERY_POINT_MULTIPLY, EC_R_INVALID_ARGUMENT);
+		ECerror(EC_R_INVALID_ARGUMENT);
 		return 0;
 	}
 	/* if result should be point at infinity */

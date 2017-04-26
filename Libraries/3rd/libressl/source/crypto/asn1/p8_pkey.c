@@ -1,4 +1,4 @@
-/* $OpenBSD: p8_pkey.c,v 1.16 2015/07/16 18:21:57 miod Exp $ */
+/* $OpenBSD: p8_pkey.c,v 1.17 2015/09/10 15:56:25 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */

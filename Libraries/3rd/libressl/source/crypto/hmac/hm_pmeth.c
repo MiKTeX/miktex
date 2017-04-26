@@ -1,4 +1,4 @@
-/* $OpenBSD: hm_pmeth.c,v 1.8 2014/07/11 08:44:48 jsing Exp $ */
+/* $OpenBSD: hm_pmeth.c,v 1.9 2015/09/10 15:56:25 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2007.
  */

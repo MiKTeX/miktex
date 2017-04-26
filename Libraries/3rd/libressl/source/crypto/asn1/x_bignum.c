@@ -1,4 +1,4 @@
-/* $OpenBSD: x_bignum.c,v 1.7 2014/07/12 16:42:47 miod Exp $ */
+/* $OpenBSD: x_bignum.c,v 1.8 2015/07/25 17:07:17 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2000.
  */

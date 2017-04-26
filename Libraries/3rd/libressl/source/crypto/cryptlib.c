@@ -1,4 +1,4 @@
-/* $OpenBSD: cryptlib.c,v 1.36 2015/09/13 10:02:49 miod Exp $ */
+/* $OpenBSD: cryptlib.c,v 1.40 2017/01/29 17:49:22 beck Exp $ */
 /* ====================================================================
  * Copyright (c) 1998-2006 The OpenSSL Project.  All rights reserved.
  *
@@ -210,11 +210,11 @@ CRYPTO_get_new_lockid(char *name)
 
 	if ((app_locks == NULL) &&
 	    ((app_locks = sk_OPENSSL_STRING_new_null()) == NULL)) {
-		CRYPTOerr(CRYPTO_F_CRYPTO_GET_NEW_LOCKID, ERR_R_MALLOC_FAILURE);
+		CRYPTOerror(ERR_R_MALLOC_FAILURE);
 		return (0);
 	}
 	if (name == NULL || (str = strdup(name)) == NULL) {
-		CRYPTOerr(CRYPTO_F_CRYPTO_GET_NEW_LOCKID, ERR_R_MALLOC_FAILURE);
+		CRYPTOerror(ERR_R_MALLOC_FAILURE);
 		return (0);
 	}
 	i = sk_OPENSSL_STRING_push(app_locks, str);
@@ -238,32 +238,28 @@ CRYPTO_get_new_dynlockid(void)
 	CRYPTO_dynlock *pointer = NULL;
 
 	if (dynlock_create_callback == NULL) {
-		CRYPTOerr(CRYPTO_F_CRYPTO_GET_NEW_DYNLOCKID,
-		    CRYPTO_R_NO_DYNLOCK_CREATE_CALLBACK);
+		CRYPTOerror(CRYPTO_R_NO_DYNLOCK_CREATE_CALLBACK);
 		return (0);
 	}
 	CRYPTO_w_lock(CRYPTO_LOCK_DYNLOCK);
 	if ((dyn_locks == NULL) &&
 	    ((dyn_locks = sk_CRYPTO_dynlock_new_null()) == NULL)) {
 		CRYPTO_w_unlock(CRYPTO_LOCK_DYNLOCK);
-		CRYPTOerr(CRYPTO_F_CRYPTO_GET_NEW_DYNLOCKID,
-		    ERR_R_MALLOC_FAILURE);
+		CRYPTOerror(ERR_R_MALLOC_FAILURE);
 		return (0);
 	}
 	CRYPTO_w_unlock(CRYPTO_LOCK_DYNLOCK);
 
 	pointer = malloc(sizeof(CRYPTO_dynlock));
 	if (pointer == NULL) {
-		CRYPTOerr(CRYPTO_F_CRYPTO_GET_NEW_DYNLOCKID,
-		    ERR_R_MALLOC_FAILURE);
+		CRYPTOerror(ERR_R_MALLOC_FAILURE);
 		return (0);
 	}
 	pointer->references = 1;
 	pointer->data = dynlock_create_callback(__FILE__, __LINE__);
 	if (pointer->data == NULL) {
 		free(pointer);
-		CRYPTOerr(CRYPTO_F_CRYPTO_GET_NEW_DYNLOCKID,
-		    ERR_R_MALLOC_FAILURE);
+		CRYPTOerror(ERR_R_MALLOC_FAILURE);
 		return (0);
 	}
 
@@ -627,47 +623,30 @@ CRYPTO_get_lock_name(int type)
 	defined(__INTEL__) || \
 	defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64)
 
-unsigned int  OPENSSL_ia32cap_P[2];
+uint64_t OPENSSL_ia32cap_P;
 
 uint64_t
 OPENSSL_cpu_caps(void)
 {
-	return *(uint64_t *)OPENSSL_ia32cap_P;
+	return OPENSSL_ia32cap_P;
 }
 
-#if defined(OPENSSL_CPUID_OBJ) && !defined(OPENSSL_NO_ASM) && !defined(I386_ONLY)
+#if defined(OPENSSL_CPUID_OBJ) && !defined(OPENSSL_NO_ASM)
 #define OPENSSL_CPUID_SETUP
-typedef unsigned long long IA32CAP;
 void
 OPENSSL_cpuid_setup(void)
 {
 	static int trigger = 0;
-	IA32CAP OPENSSL_ia32_cpuid(void);
-	IA32CAP vec;
+	uint64_t OPENSSL_ia32_cpuid(void);
 
 	if (trigger)
 		return;
 	trigger = 1;
-
-	vec = OPENSSL_ia32_cpuid();
-
-	/*
-	 * |(1<<10) sets a reserved bit to signal that variable
-	 * was initialized already... This is to avoid interference
-	 * with cpuid snippets in ELF .init segment.
-	 */
-	OPENSSL_ia32cap_P[0] = (unsigned int)vec | (1 << 10);
-	OPENSSL_ia32cap_P[1] = (unsigned int)(vec >> 32);
+	OPENSSL_ia32cap_P = OPENSSL_ia32_cpuid();
 }
 #endif
 
 #else
-unsigned long *
-OPENSSL_ia32cap_loc(void)
-{
-	return NULL;
-}
-
 uint64_t
 OPENSSL_cpu_caps(void)
 {

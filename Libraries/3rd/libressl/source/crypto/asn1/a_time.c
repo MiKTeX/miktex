@@ -1,4 +1,4 @@
-/* $OpenBSD: a_time.c,v 1.26 2015/10/02 15:04:45 beck Exp $ */
+/* $OpenBSD: a_time.c,v 1.27 2015/10/19 16:32:37 beck Exp $ */
 /* ====================================================================
  * Copyright (c) 1999 The OpenSSL Project.  All rights reserved.
  *

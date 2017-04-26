@@ -1,5 +1,7 @@
+#include "x86_arch.h"
 .text	
 
+.private_extern	_OPENSSL_ia32cap_P
 
 .globl	_RC4
 
@@ -31,7 +33,7 @@ L$prologue:
 	movl	(%rdi,%r10,4),%eax
 	testq	$-16,%r11
 	jz	L$loop1
-	btl	$30,%r8d
+	btl	$IA32CAP_BIT0_INTEL,%r8d
 	jc	L$intel
 	andq	$7,%rbx
 	leaq	1(%r10),%rsi
@@ -531,7 +533,7 @@ _RC4_set_key:
 	xorq	%r11,%r11
 
 	movl	_OPENSSL_ia32cap_P(%rip),%r8d
-	btl	$20,%r8d
+	btl	$IA32CAP_BIT0_INTELP4,%r8d
 	jc	L$c1stloop
 	jmp	L$w1stloop
 
@@ -595,9 +597,9 @@ L$exit_key:
 _RC4_options:
 	leaq	L$opts(%rip),%rax
 	movl	_OPENSSL_ia32cap_P(%rip),%edx
-	btl	$20,%edx
+	btl	$IA32CAP_BIT0_INTELP4,%edx
 	jc	L$8xchar
-	btl	$30,%edx
+	btl	$IA32CAP_BIT0_INTEL,%edx
 	jnc	L$done
 	addq	$25,%rax
 	.byte	0xf3,0xc3

@@ -1,4 +1,4 @@
-/* $OpenBSD: bio_b64.c,v 1.19 2014/07/11 12:04:46 miod Exp $ */
+/* $OpenBSD: bio_b64.c,v 1.20 2015/02/07 13:19:15 doug Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

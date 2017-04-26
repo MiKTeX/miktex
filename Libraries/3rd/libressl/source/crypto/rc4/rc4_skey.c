@@ -1,4 +1,4 @@
-/* $OpenBSD: rc4_skey.c,v 1.13 2014/10/28 07:35:59 jsg Exp $ */
+/* $OpenBSD: rc4_skey.c,v 1.14 2015/10/20 15:50:13 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

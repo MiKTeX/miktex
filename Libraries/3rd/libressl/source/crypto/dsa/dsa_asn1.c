@@ -1,4 +1,4 @@
-/* $OpenBSD: dsa_asn1.c,v 1.15 2015/02/10 05:12:23 jsing Exp $ */
+/* $OpenBSD: dsa_asn1.c,v 1.19 2017/01/29 17:49:22 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2000.
  */
@@ -73,7 +73,7 @@ sig_cb(int operation, ASN1_VALUE **pval, const ASN1_ITEM *it, void *exarg)
 
 		sig = malloc(sizeof(DSA_SIG));
 		if (!sig) {
-			DSAerr(DSA_F_SIG_CB, ERR_R_MALLOC_FAILURE);
+			DSAerror(ERR_R_MALLOC_FAILURE);
 			return 0;
 		}
 		sig->r = NULL;
@@ -283,6 +283,30 @@ i2d_DSAparams(const DSA *a, unsigned char **out)
 	return ASN1_item_i2d((ASN1_VALUE *)a, out, &DSAparams_it);
 }
 
+DSA *
+d2i_DSAparams_bio(BIO *bp, DSA **a)
+{
+	return ASN1_item_d2i_bio(&DSAparams_it, bp, a);
+}
+
+int
+i2d_DSAparams_bio(BIO *bp, DSA *a)
+{
+	return ASN1_item_i2d_bio(&DSAparams_it, bp, a);
+}
+
+DSA *
+d2i_DSAparams_fp(FILE *fp, DSA **a)
+{
+	return ASN1_item_d2i_fp(&DSAparams_it, fp, a);
+}
+
+int
+i2d_DSAparams_fp(FILE *fp, DSA *a)
+{
+	return ASN1_item_i2d_fp(&DSAparams_it, fp, a);
+}
+
 /*
  * DSA public key is a bit trickier... its effectively a CHOICE type
  * decided by a field called write_params which can either write out
@@ -383,7 +407,7 @@ i2d_DSAPublicKey(const DSA *a, unsigned char **out)
 DSA *
 DSAparams_dup(DSA *dsa)
 {
-	return ASN1_item_dup(ASN1_ITEM_rptr(DSAparams), dsa);
+	return ASN1_item_dup(&DSAparams_it, dsa);
 }
 
 int

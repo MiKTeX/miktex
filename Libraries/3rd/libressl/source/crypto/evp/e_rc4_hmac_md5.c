@@ -1,4 +1,4 @@
-/* $OpenBSD: e_rc4_hmac_md5.c,v 1.4 2014/07/10 22:45:57 jsing Exp $ */
+/* $OpenBSD: e_rc4_hmac_md5.c,v 1.8 2017/01/31 13:17:21 inoguchi Exp $ */
 /* ====================================================================
  * Copyright (c) 2011 The OpenSSL Project.  All rights reserved.
  *
@@ -60,12 +60,6 @@
 #include <openssl/rc4.h>
 #include <openssl/md5.h>
 
-#ifndef EVP_CIPH_FLAG_AEAD_CIPHER
-#define EVP_CIPH_FLAG_AEAD_CIPHER	0x200000
-#define EVP_CTRL_AEAD_TLS1_AAD		0x16
-#define EVP_CTRL_AEAD_SET_MAC_KEY	0x17
-#endif
-
 /* FIXME: surely this is available elsewhere? */
 #define EVP_RC4_KEY_SIZE		16
 
@@ -105,6 +99,7 @@ rc4_hmac_md5_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *inkey,
 	defined(__INTEL__)		) && \
 	!(defined(__APPLE__) && defined(__MACH__))
 #define	STITCHED_CALL
+#include "x86_arch.h"
 #endif
 
 #if !defined(STITCHED_CALL)
@@ -122,7 +117,6 @@ rc4_hmac_md5_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 	md5_off = MD5_CBLOCK - key->md.num,
 	    blocks;
 	unsigned int l;
-	extern unsigned int OPENSSL_ia32cap_P[];
 #endif
 	size_t	plen = key->payload_length;
 
@@ -139,7 +133,7 @@ rc4_hmac_md5_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 
 		if (plen > md5_off &&
 		    (blocks = (plen - md5_off) / MD5_CBLOCK) &&
-		    (OPENSSL_ia32cap_P[0]&(1 << 20)) == 0) {
+		    (OPENSSL_cpu_caps() & CPUCAP_MASK_INTELP4) == 0) {
 			MD5_Update(&key->md, in, md5_off);
 			RC4(&key->ks, rc4_off, in, out);
 
@@ -187,7 +181,7 @@ rc4_hmac_md5_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 			rc4_off += MD5_CBLOCK;
 
 		if (len > rc4_off && (blocks = (len - rc4_off) / MD5_CBLOCK) &&
-		    (OPENSSL_ia32cap_P[0] & (1 << 20)) == 0) {
+		    (OPENSSL_cpu_caps() & CPUCAP_MASK_INTELP4) == 0) {
 			RC4(&key->ks, rc4_off, in, out);
 			MD5_Update(&key->md, out, md5_off);
 
@@ -268,6 +262,8 @@ rc4_hmac_md5_ctrl(EVP_CIPHER_CTX *ctx, int type, int arg, void *ptr)
 			unsigned int len = p[arg - 2] << 8 | p[arg - 1];
 
 			if (!ctx->encrypt) {
+				if (len < MD5_DIGEST_LENGTH)
+					return -1;
 				len -= MD5_DIGEST_LENGTH;
 				p[arg - 2] = len >> 8;
 				p[arg - 1] = len;

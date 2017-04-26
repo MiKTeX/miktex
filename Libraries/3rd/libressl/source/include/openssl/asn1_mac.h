@@ -1,4 +1,4 @@
-/* $OpenBSD: asn1_mac.h,v 1.13 2014/06/12 15:49:27 deraadt Exp $ */
+/* $OpenBSD: asn1_mac.h,v 1.14 2014/06/27 04:41:09 miod Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

@@ -1,4 +1,4 @@
-/* $OpenBSD: a_strex.c,v 1.24 2014/07/11 08:44:47 jsing Exp $ */
+/* $OpenBSD: a_strex.c,v 1.25 2015/02/07 13:19:15 doug Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2000.
  */

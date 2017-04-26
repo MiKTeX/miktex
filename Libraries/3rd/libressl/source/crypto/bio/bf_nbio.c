@@ -1,4 +1,4 @@
-/* $OpenBSD: bf_nbio.c,v 1.18 2014/10/22 13:02:03 jsing Exp $ */
+/* $OpenBSD: bf_nbio.c,v 1.19 2015/02/07 13:19:15 doug Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

@@ -6,7 +6,7 @@
     <TPM:Title>LibreSSL runtime libraries, Windows x86</TPM:Title>
     <TPM:Copyright owner="The OpenSSL Project" year="1998-2001"/>
     <TPM:License type="permissive"/>
-    <TPM:Version>2.4.5</TPM:Version>
+    <TPM:Version>2.5.3</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

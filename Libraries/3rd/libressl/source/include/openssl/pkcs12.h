@@ -1,4 +1,4 @@
-/* $OpenBSD: pkcs12.h,v 1.12 2014/06/12 15:49:30 deraadt Exp $ */
+/* $OpenBSD: pkcs12.h,v 1.17 2016/12/30 15:08:58 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -121,7 +121,6 @@ typedef struct {
 } PKCS12_SAFEBAG;
 
 DECLARE_STACK_OF(PKCS12_SAFEBAG)
-DECLARE_ASN1_SET_OF(PKCS12_SAFEBAG)
 DECLARE_PKCS12_STACK_OF(PKCS12_SAFEBAG)
 
 typedef struct pkcs12_bag_st {
@@ -137,6 +136,8 @@ typedef struct pkcs12_bag_st {
 
 #define PKCS12_ERROR	0
 #define PKCS12_OK	1
+
+#ifndef LIBRESSL_INTERNAL
 
 /* Compatibility macros */
 
@@ -157,6 +158,8 @@ typedef struct pkcs12_bag_st {
 #define M_PKCS12_bag_type(bg) OBJ_obj2nid((bg)->type)
 #define M_PKCS12_cert_bag_type(bg) OBJ_obj2nid((bg)->value.bag->type)
 #define M_PKCS12_crl_bag_type M_PKCS12_cert_bag_type
+
+#endif /* !LIBRESSL_INTERNAL */
 
 #define PKCS12_get_attr(bag, attr_nid) \
 			 PKCS12_get_attr_gen(bag->attrib, attr_nid)
@@ -234,13 +237,29 @@ unsigned char *OPENSSL_asc2uni(const char *asc, int asclen,
     unsigned char **uni, int *unilen);
 char *OPENSSL_uni2asc(unsigned char *uni, int unilen);
 
-DECLARE_ASN1_FUNCTIONS(PKCS12)
-DECLARE_ASN1_FUNCTIONS(PKCS12_MAC_DATA)
-DECLARE_ASN1_FUNCTIONS(PKCS12_SAFEBAG)
-DECLARE_ASN1_FUNCTIONS(PKCS12_BAGS)
+PKCS12 *PKCS12_new(void);
+void PKCS12_free(PKCS12 *a);
+PKCS12 *d2i_PKCS12(PKCS12 **a, const unsigned char **in, long len);
+int i2d_PKCS12(PKCS12 *a, unsigned char **out);
+extern const ASN1_ITEM PKCS12_it;
+PKCS12_MAC_DATA *PKCS12_MAC_DATA_new(void);
+void PKCS12_MAC_DATA_free(PKCS12_MAC_DATA *a);
+PKCS12_MAC_DATA *d2i_PKCS12_MAC_DATA(PKCS12_MAC_DATA **a, const unsigned char **in, long len);
+int i2d_PKCS12_MAC_DATA(PKCS12_MAC_DATA *a, unsigned char **out);
+extern const ASN1_ITEM PKCS12_MAC_DATA_it;
+PKCS12_SAFEBAG *PKCS12_SAFEBAG_new(void);
+void PKCS12_SAFEBAG_free(PKCS12_SAFEBAG *a);
+PKCS12_SAFEBAG *d2i_PKCS12_SAFEBAG(PKCS12_SAFEBAG **a, const unsigned char **in, long len);
+int i2d_PKCS12_SAFEBAG(PKCS12_SAFEBAG *a, unsigned char **out);
+extern const ASN1_ITEM PKCS12_SAFEBAG_it;
+PKCS12_BAGS *PKCS12_BAGS_new(void);
+void PKCS12_BAGS_free(PKCS12_BAGS *a);
+PKCS12_BAGS *d2i_PKCS12_BAGS(PKCS12_BAGS **a, const unsigned char **in, long len);
+int i2d_PKCS12_BAGS(PKCS12_BAGS *a, unsigned char **out);
+extern const ASN1_ITEM PKCS12_BAGS_it;
 
-DECLARE_ASN1_ITEM(PKCS12_SAFEBAGS)
-DECLARE_ASN1_ITEM(PKCS12_AUTHSAFES)
+extern const ASN1_ITEM PKCS12_SAFEBAGS_it;
+extern const ASN1_ITEM PKCS12_AUTHSAFES_it;
 
 void PKCS12_PBE_add(void);
 int PKCS12_parse(PKCS12 *p12, const char *pass, EVP_PKEY **pkey, X509 **cert,

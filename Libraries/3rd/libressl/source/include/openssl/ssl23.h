@@ -1,4 +1,4 @@
-/* $OpenBSD: ssl23.h,v 1.3 2014/06/12 15:49:31 deraadt Exp $ */
+/* $OpenBSD: ssl23.h,v 1.4 2014/12/14 15:30:50 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

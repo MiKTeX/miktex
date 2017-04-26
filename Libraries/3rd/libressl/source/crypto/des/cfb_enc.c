@@ -1,4 +1,4 @@
-/* $OpenBSD: cfb_enc.c,v 1.12 2014/10/28 07:35:58 jsg Exp $ */
+/* $OpenBSD: cfb_enc.c,v 1.13 2015/02/10 09:46:30 miod Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

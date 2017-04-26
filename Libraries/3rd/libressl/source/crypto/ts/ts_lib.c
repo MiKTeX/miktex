@@ -1,4 +1,4 @@
-/* $OpenBSD: ts_lib.c,v 1.9 2015/07/29 14:58:34 jsing Exp $ */
+/* $OpenBSD: ts_lib.c,v 1.10 2015/09/10 14:29:22 jsing Exp $ */
 /* Written by Zoltan Glozik (zglozik@stones.com) for the OpenSSL
  * project 2002.
  */

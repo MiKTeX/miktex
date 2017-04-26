@@ -1,4 +1,4 @@
-/* $OpenBSD: p12_utl.c,v 1.11 2014/07/10 13:58:23 jsing Exp $ */
+/* $OpenBSD: p12_utl.c,v 1.15 2016/12/30 15:34:35 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -56,6 +56,7 @@
  *
  */
 
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -66,19 +67,29 @@
 unsigned char *
 OPENSSL_asc2uni(const char *asc, int asclen, unsigned char **uni, int *unilen)
 {
-	int ulen, i;
+	size_t ulen, i;
 	unsigned char *unitmp;
 
-	if (asclen == -1)
-		asclen = strlen(asc);
-	ulen = asclen * 2 + 2;
-	if (!(unitmp = malloc(ulen)))
+	if (asclen < 0)
+		ulen = strlen(asc);
+	else
+		ulen = (size_t)asclen;
+	ulen++;
+	if (ulen == 0) /* unlikely overflow */
 		return NULL;
+	if ((unitmp = reallocarray(NULL, ulen, 2)) == NULL)
+		return NULL;
+	ulen *= 2;
+	/* XXX This interface ought to use unsigned types */
+	if (ulen > INT_MAX) {
+		free(unitmp);
+		return NULL;
+	}
 	for (i = 0; i < ulen - 2; i += 2) {
 		unitmp[i] = 0;
-		unitmp[i + 1] = asc[i >> 1];
+		unitmp[i + 1] = *asc++;
 	}
-	/* Make result double null terminated */
+	/* Make result double-NUL terminated */
 	unitmp[ulen - 2] = 0;
 	unitmp[ulen - 1] = 0;
 	if (unilen)
@@ -91,78 +102,84 @@ OPENSSL_asc2uni(const char *asc, int asclen, unsigned char **uni, int *unilen)
 char *
 OPENSSL_uni2asc(unsigned char *uni, int unilen)
 {
-	int asclen, i;
+	size_t asclen, u16len, i;
 	char *asctmp;
 
-	asclen = unilen / 2;
-	/* If no terminating zero allow for one */
-	if (!unilen || uni[unilen - 1])
-		asclen++;
-	uni++;
-	if (!(asctmp = malloc(asclen)))
+	if (unilen < 0)
 		return NULL;
-	for (i = 0; i < unilen; i += 2)
-		asctmp[i >> 1] = uni[i];
-	asctmp[asclen - 1] = 0;
+
+	asclen = u16len = (size_t)unilen / 2;
+	/* If no terminating NUL, allow for one */
+	if (unilen == 0 || uni[unilen - 1] != '\0')
+		asclen++;
+	if ((asctmp = malloc(asclen)) == NULL)
+		return NULL;
+	/* Skip first zero byte */
+	uni++;
+	for (i = 0; i < u16len; i++) {
+		asctmp[i] = *uni;
+		uni += 2;
+	}
+	asctmp[asclen - 1] = '\0';
 	return asctmp;
 }
 
 int
 i2d_PKCS12_bio(BIO *bp, PKCS12 *p12)
 {
-	return ASN1_item_i2d_bio(ASN1_ITEM_rptr(PKCS12), bp, p12);
+	return ASN1_item_i2d_bio(&PKCS12_it, bp, p12);
 }
 
 int
 i2d_PKCS12_fp(FILE *fp, PKCS12 *p12)
 {
-	return ASN1_item_i2d_fp(ASN1_ITEM_rptr(PKCS12), fp, p12);
+	return ASN1_item_i2d_fp(&PKCS12_it, fp, p12);
 }
 
 PKCS12 *
 d2i_PKCS12_bio(BIO *bp, PKCS12 **p12)
 {
-	return ASN1_item_d2i_bio(ASN1_ITEM_rptr(PKCS12), bp, p12);
+	return ASN1_item_d2i_bio(&PKCS12_it, bp, p12);
 }
 
 PKCS12 *
 d2i_PKCS12_fp(FILE *fp, PKCS12 **p12)
 {
-	    return ASN1_item_d2i_fp(ASN1_ITEM_rptr(PKCS12), fp, p12);
+	    return ASN1_item_d2i_fp(&PKCS12_it, fp, p12);
 }
 
 PKCS12_SAFEBAG *
 PKCS12_x5092certbag(X509 *x509)
 {
-	return PKCS12_item_pack_safebag(x509, ASN1_ITEM_rptr(X509),
+	return PKCS12_item_pack_safebag(x509, &X509_it,
 	    NID_x509Certificate, NID_certBag);
 }
 
 PKCS12_SAFEBAG *
 PKCS12_x509crl2certbag(X509_CRL *crl)
 {
-	return PKCS12_item_pack_safebag(crl, ASN1_ITEM_rptr(X509_CRL),
+	return PKCS12_item_pack_safebag(crl, &X509_CRL_it,
 	    NID_x509Crl, NID_crlBag);
 }
 
 X509 *
 PKCS12_certbag2x509(PKCS12_SAFEBAG *bag)
 {
-	if (M_PKCS12_bag_type(bag) != NID_certBag)
+	if (OBJ_obj2nid(bag->type) != NID_certBag)
 		return NULL;
-	if (M_PKCS12_cert_bag_type(bag) != NID_x509Certificate)
+	if (OBJ_obj2nid(bag->value.bag->type) != NID_x509Certificate)
 		return NULL;
 	return ASN1_item_unpack(bag->value.bag->value.octet,
-	    ASN1_ITEM_rptr(X509));
+	    &X509_it);
 }
 
 X509_CRL *
 PKCS12_certbag2x509crl(PKCS12_SAFEBAG *bag)
 {
-	if (M_PKCS12_bag_type(bag) != NID_crlBag)
+	if (OBJ_obj2nid(bag->type) != NID_crlBag)
 		return NULL;
-	if (M_PKCS12_cert_bag_type(bag) != NID_x509Crl)
+	if (OBJ_obj2nid(bag->value.bag->type) != NID_x509Crl)
 		return NULL;
 	return ASN1_item_unpack(bag->value.bag->value.octet,
-	    ASN1_ITEM_rptr(X509_CRL));
+	    &X509_CRL_it);
 }

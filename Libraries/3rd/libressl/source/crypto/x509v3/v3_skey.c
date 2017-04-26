@@ -1,4 +1,4 @@
-/* $OpenBSD: v3_skey.c,v 1.12 2015/07/29 16:13:49 jsing Exp $ */
+/* $OpenBSD: v3_skey.c,v 1.15 2017/01/29 17:49:23 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -68,7 +68,7 @@ static ASN1_OCTET_STRING *s2i_skey_id(X509V3_EXT_METHOD *method,
 const X509V3_EXT_METHOD v3_skey_id = {
 	.ext_nid = NID_subject_key_identifier,
 	.ext_flags = 0,
-	.it = ASN1_ITEM_ref(ASN1_OCTET_STRING),
+	.it = &ASN1_OCTET_STRING_it,
 	.ext_new = NULL,
 	.ext_free = NULL,
 	.d2i = NULL,
@@ -95,7 +95,7 @@ s2i_ASN1_OCTET_STRING(X509V3_EXT_METHOD *method, X509V3_CTX *ctx, char *str)
 	long length;
 
 	if (!(oct = ASN1_OCTET_STRING_new())) {
-		X509V3err(X509V3_F_S2I_ASN1_OCTET_STRING, ERR_R_MALLOC_FAILURE);
+		X509V3error(ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
 
@@ -121,7 +121,7 @@ s2i_skey_id(X509V3_EXT_METHOD *method, X509V3_CTX *ctx, char *str)
 		return s2i_ASN1_OCTET_STRING(method, ctx, str);
 
 	if (!(oct = ASN1_OCTET_STRING_new())) {
-		X509V3err(X509V3_F_S2I_SKEY_ID, ERR_R_MALLOC_FAILURE);
+		X509V3error(ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
 
@@ -129,7 +129,7 @@ s2i_skey_id(X509V3_EXT_METHOD *method, X509V3_CTX *ctx, char *str)
 		return oct;
 
 	if (!ctx || (!ctx->subject_req && !ctx->subject_cert)) {
-		X509V3err(X509V3_F_S2I_SKEY_ID, X509V3_R_NO_PUBLIC_KEY);
+		X509V3error(X509V3_R_NO_PUBLIC_KEY);
 		goto err;
 	}
 
@@ -139,7 +139,7 @@ s2i_skey_id(X509V3_EXT_METHOD *method, X509V3_CTX *ctx, char *str)
 		pk = ctx->subject_cert->cert_info->key->public_key;
 
 	if (!pk) {
-		X509V3err(X509V3_F_S2I_SKEY_ID, X509V3_R_NO_PUBLIC_KEY);
+		X509V3error(X509V3_R_NO_PUBLIC_KEY);
 		goto err;
 	}
 
@@ -148,7 +148,7 @@ s2i_skey_id(X509V3_EXT_METHOD *method, X509V3_CTX *ctx, char *str)
 		goto err;
 
 	if (!ASN1_STRING_set(oct, pkey_dig, diglen)) {
-		X509V3err(X509V3_F_S2I_SKEY_ID, ERR_R_MALLOC_FAILURE);
+		X509V3error(ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 

@@ -1,4 +1,4 @@
-/* $OpenBSD: pem_seal.c,v 1.21 2014/10/18 17:20:40 jsing Exp $ */
+/* $OpenBSD: pem_seal.c,v 1.24 2017/01/29 17:49:23 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -70,6 +70,14 @@
 #include <openssl/rsa.h>
 #include <openssl/x509.h>
 
+static void
+PEM_ENCODE_SEAL_CTX_cleanup(PEM_ENCODE_SEAL_CTX *ctx)
+{
+	EVP_CIPHER_CTX_cleanup(&ctx->cipher);
+	EVP_MD_CTX_cleanup(&ctx->md);
+	explicit_bzero(&ctx->encode, sizeof(ctx->encode));
+}
+
 int
 PEM_SealInit(PEM_ENCODE_SEAL_CTX *ctx, EVP_CIPHER *type, EVP_MD *md_type,
     unsigned char **ek, int *ekl, unsigned char *iv, EVP_PKEY **pubk, int npubk)
@@ -79,9 +87,17 @@ PEM_SealInit(PEM_ENCODE_SEAL_CTX *ctx, EVP_CIPHER *type, EVP_MD *md_type,
 	int i, j, max = 0;
 	char *s = NULL;
 
+	/*
+	 * Make sure ctx is properly initialized so that we can always pass
+	 * it to PEM_ENCODE_SEAL_CTX_cleanup() in the error path.
+	 */
+	EVP_EncodeInit(&ctx->encode);
+	EVP_MD_CTX_init(&ctx->md);
+	EVP_CIPHER_CTX_init(&ctx->cipher);
+
 	for (i = 0; i < npubk; i++) {
 		if (pubk[i]->type != EVP_PKEY_RSA) {
-			PEMerr(PEM_F_PEM_SEALINIT, PEM_R_PUBLIC_KEY_NO_RSA);
+			PEMerror(PEM_R_PUBLIC_KEY_NO_RSA);
 			goto err;
 		}
 		j = RSA_size(pubk[i]->pkey.rsa);
@@ -90,17 +106,13 @@ PEM_SealInit(PEM_ENCODE_SEAL_CTX *ctx, EVP_CIPHER *type, EVP_MD *md_type,
 	}
 	s = reallocarray(NULL, max, 2);
 	if (s == NULL) {
-		PEMerr(PEM_F_PEM_SEALINIT, ERR_R_MALLOC_FAILURE);
+		PEMerror(ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 
-	EVP_EncodeInit(&ctx->encode);
-
-	EVP_MD_CTX_init(&ctx->md);
 	if (!EVP_SignInit(&ctx->md, md_type))
 		goto err;
 
-	EVP_CIPHER_CTX_init(&ctx->cipher);
 	ret = EVP_SealInit(&ctx->cipher, type, ek, ekl, iv, pubk, npubk);
 	if (ret <= 0)
 		goto err;
@@ -115,9 +127,12 @@ PEM_SealInit(PEM_ENCODE_SEAL_CTX *ctx, EVP_CIPHER *type, EVP_MD *md_type,
 
 	ret = npubk;
 
+	if (0) {
 err:
+		PEM_ENCODE_SEAL_CTX_cleanup(ctx);
+	}
 	free(s);
-	explicit_bzero(key, EVP_MAX_KEY_LENGTH);
+	explicit_bzero(key, sizeof(key));
 	return (ret);
 }
 
@@ -155,7 +170,7 @@ PEM_SealFinal(PEM_ENCODE_SEAL_CTX *ctx, unsigned char *sig, int *sigl,
 	unsigned int i;
 
 	if (priv->type != EVP_PKEY_RSA) {
-		PEMerr(PEM_F_PEM_SEALFINAL, PEM_R_PUBLIC_KEY_NO_RSA);
+		PEMerror(PEM_R_PUBLIC_KEY_NO_RSA);
 		goto err;
 	}
 	i = RSA_size(priv->pkey.rsa);
@@ -163,7 +178,7 @@ PEM_SealFinal(PEM_ENCODE_SEAL_CTX *ctx, unsigned char *sig, int *sigl,
 		i = 100;
 	s = reallocarray(NULL, i, 2);
 	if (s == NULL) {
-		PEMerr(PEM_F_PEM_SEALFINAL, ERR_R_MALLOC_FAILURE);
+		PEMerror(ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 
@@ -182,8 +197,7 @@ PEM_SealFinal(PEM_ENCODE_SEAL_CTX *ctx, unsigned char *sig, int *sigl,
 	ret = 1;
 
 err:
-	EVP_MD_CTX_cleanup(&ctx->md);
-	EVP_CIPHER_CTX_cleanup(&ctx->cipher);
+	PEM_ENCODE_SEAL_CTX_cleanup(ctx);
 	free(s);
 	return (ret);
 }

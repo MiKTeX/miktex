@@ -1,4 +1,4 @@
-/* $OpenBSD: ssl_algs.c,v 1.21 2014/11/18 05:33:43 miod Exp $ */
+/* $OpenBSD: ssl_algs.c,v 1.24 2017/03/01 14:01:24 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -71,9 +71,6 @@ SSL_library_init(void)
 	EVP_add_cipher(EVP_des_cbc());
 	EVP_add_cipher(EVP_des_ede3_cbc());
 #endif
-#ifndef OPENSSL_NO_IDEA
-	EVP_add_cipher(EVP_idea_cbc());
-#endif
 #ifndef OPENSSL_NO_RC4
 	EVP_add_cipher(EVP_rc4());
 #if !defined(OPENSSL_NO_MD5) && (defined(__x86_64) || defined(__x86_64__))
@@ -104,8 +101,10 @@ SSL_library_init(void)
 #endif
 
 	EVP_add_digest(EVP_md5());
+	EVP_add_digest(EVP_md5_sha1());
 	EVP_add_digest_alias(SN_md5, "ssl2-md5");
 	EVP_add_digest_alias(SN_md5, "ssl3-md5");
+
 	EVP_add_digest(EVP_sha1()); /* RSA with sha1 */
 	EVP_add_digest_alias(SN_sha1, "ssl3-sha1");
 	EVP_add_digest_alias(SN_sha1WithRSAEncryption, SN_sha1WithRSA);

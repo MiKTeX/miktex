@@ -1,4 +1,4 @@
-/* $OpenBSD: e_des.c,v 1.13 2014/10/18 17:20:40 jsing Exp $ */
+/* $OpenBSD: e_des.c,v 1.14 2015/10/12 06:05:52 guenther Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

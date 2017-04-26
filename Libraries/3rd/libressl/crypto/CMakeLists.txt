@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016 Christian Schenk
+## Copyright (C) 2016-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -29,6 +29,7 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${crypto_source_dir}
   ${crypto_source_dir}/asn1
+  ${crypto_source_dir}/bn
   ${crypto_source_dir}/dsa
   ${crypto_source_dir}/evp
   ${crypto_source_dir}/modes
@@ -217,6 +218,8 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/conf/conf_mall.c
   ${crypto_source_dir}/conf/conf_mod.c
   ${crypto_source_dir}/conf/conf_sap.c
+  ${crypto_source_dir}/curve25519/curve25519-generic.c
+  ${crypto_source_dir}/curve25519/curve25519.c
   ${crypto_source_dir}/des/cbc_cksm.c
   ${crypto_source_dir}/des/cbc_enc.c
   ${crypto_source_dir}/des/cfb64ede.c
@@ -285,6 +288,10 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/ec/ecp_mont.c
   ${crypto_source_dir}/ec/ecp_nist.c
   ${crypto_source_dir}/ec/ecp_oct.c
+  ${crypto_source_dir}/ec/ecp_nistp224.c
+  ${crypto_source_dir}/ec/ecp_nistp256.c
+  ${crypto_source_dir}/ec/ecp_nistp521.c
+  ${crypto_source_dir}/ec/ecp_nistputil.c
   ${crypto_source_dir}/ec/ecp_smpl.c
   ${crypto_source_dir}/ecdh/ech_err.c
   ${crypto_source_dir}/ecdh/ech_key.c
@@ -358,6 +365,7 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/evp/m_gostr341194.c
   ${crypto_source_dir}/evp/m_md4.c
   ${crypto_source_dir}/evp/m_md5.c
+  ${crypto_source_dir}/evp/m_md5_sha1.c
   ${crypto_source_dir}/evp/m_null.c
   ${crypto_source_dir}/evp/m_ripemd.c
   ${crypto_source_dir}/evp/m_sha1.c
@@ -399,7 +407,6 @@ list(APPEND crypto_sources
   ${crypto_source_dir}/idea/i_ecb.c
   ${crypto_source_dir}/idea/i_ofb64.c
   ${crypto_source_dir}/idea/i_skey.c
-  ${crypto_source_dir}/krb5/krb5_asn.c
   ${crypto_source_dir}/lhash/lh_stats.c
   ${crypto_source_dir}/lhash/lhash.c
   ${crypto_source_dir}/md4/md4_dgst.c
@@ -596,12 +603,20 @@ if(NOT HAVE_ASPRINTF)
   list(APPEND crypto_sources ${crypto_source_dir}/compat/bsd-asprintf.c)
 endif()
 
+if(NOT HAVE_GETPAGESIZE)
+  list(APPEND crypto_sources ${crypto_source_dir}/compat/getpagesize.c)
+endif()
+
 if(NOT HAVE_INET_PTON)
   list(APPEND crypto_sources ${crypto_source_dir}/compat/inet_pton.c)
 endif()
 
 if(NOT HAVE_REALLOCARRAY)
   list(APPEND crypto_sources ${crypto_source_dir}/compat/reallocarray.c)
+endif()
+
+if(NOT HAVE_RECALLOCARRAY)
+  list(APPEND crypto_sources ${crypto_source_dir}/compat/recallocarray.c)
 endif()
 
 if(NOT HAVE_STRCASECMP)
@@ -623,6 +638,10 @@ if(NOT HAVE_STRNDUP)
   endif()
 endif()
 
+if(NOT HAVE_STRSEP)
+  list(APPEND crypto_sources ${crypto_source_dir}/compat/strsep.c)
+endif()
+
 if(NOT HAVE_TIMEGM)
   list(APPEND crypto_sources ${crypto_source_dir}/compat/timegm.c)
 endif()
@@ -635,15 +654,12 @@ endif()
 
 if(NOT HAVE_ARC4RANDOM_BUF)
   list(APPEND crypto_sources ${crypto_source_dir}/compat/arc4random.c)
+  list(APPEND crypto_sources ${crypto_source_dir}/compat/arc4random_uniform.c)
   if(NOT HAVE_GETENTROPY)
     if(CMAKE_HOST_WIN32)
       list(APPEND crypto_sources ${crypto_source_dir}/compat/getentropy_win.c)
     endif()
   endif()
-endif()
-
-if(NOT HAVE_ARC4RANDOM_UNIFORM)
-  list(APPEND crypto_sources ${crypto_source_dir}/compat/arc4random_uniform.c)
 endif()
 
 if(NOT HAVE_TIMINGSAFE_BCMP)

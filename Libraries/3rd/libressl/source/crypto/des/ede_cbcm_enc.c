@@ -1,4 +1,4 @@
-/* $OpenBSD: ede_cbcm_enc.c,v 1.5 2014/06/12 15:49:28 deraadt Exp $ */
+/* $OpenBSD: ede_cbcm_enc.c,v 1.6 2014/10/28 07:35:58 jsg Exp $ */
 /* Written by Ben Laurie <ben@algroup.co.uk> for the OpenSSL
  * project 13 Feb 1999.
  */

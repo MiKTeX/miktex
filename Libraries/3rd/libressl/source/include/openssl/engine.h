@@ -1,4 +1,4 @@
-/* $OpenBSD: engine.h,v 1.30 2014/10/18 17:20:40 jsing Exp $ */
+/* $OpenBSD: engine.h,v 1.31 2015/07/19 22:34:27 doug Exp $ */
 /* Written by Geoff Thorpe (geoff@geoffthorpe.net) for the OpenSSL
  * project 2000.
  */

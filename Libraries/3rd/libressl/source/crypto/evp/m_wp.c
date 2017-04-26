@@ -1,4 +1,4 @@
-/* $OpenBSD: m_wp.c,v 1.7 2014/07/11 08:44:48 jsing Exp $ */
+/* $OpenBSD: m_wp.c,v 1.8 2014/07/13 09:30:02 miod Exp $ */
 
 #include <stdio.h>
 

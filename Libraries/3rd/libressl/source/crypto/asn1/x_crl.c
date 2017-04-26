@@ -1,4 +1,4 @@
-/* $OpenBSD: x_crl.c,v 1.24 2015/02/11 04:00:39 jsing Exp $ */
+/* $OpenBSD: x_crl.c,v 1.27 2017/01/29 17:49:22 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -535,7 +535,7 @@ X509_CRL_add0_revoked(X509_CRL *crl, X509_REVOKED *rev)
 	if (!inf->revoked)
 		inf->revoked = sk_X509_REVOKED_new(X509_REVOKED_cmp);
 	if (!inf->revoked || !sk_X509_REVOKED_push(inf->revoked, rev)) {
-		ASN1err(ASN1_F_X509_CRL_ADD0_REVOKED, ERR_R_MALLOC_FAILURE);
+		ASN1error(ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
 	inf->enc.modified = 1;
@@ -571,7 +571,7 @@ X509_CRL_get0_by_cert(X509_CRL *crl, X509_REVOKED **ret, X509 *x)
 static int
 def_crl_verify(X509_CRL *crl, EVP_PKEY *r)
 {
-	return(ASN1_item_verify(ASN1_ITEM_rptr(X509_CRL_INFO),
+	return(ASN1_item_verify(&X509_CRL_INFO_it,
 	    crl->sig_alg, crl->signature, crl->crl, r));
 }
 

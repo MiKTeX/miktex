@@ -1,4 +1,4 @@
-/* $OpenBSD: a_digest.c,v 1.14 2014/06/24 19:37:58 miod Exp $ */
+/* $OpenBSD: a_digest.c,v 1.15 2014/07/11 08:44:47 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

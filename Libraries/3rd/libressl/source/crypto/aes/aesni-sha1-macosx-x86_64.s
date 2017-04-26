@@ -1,5 +1,7 @@
+#include "x86_arch.h"
 .text	
 
+.private_extern	_OPENSSL_ia32cap_P
 
 .globl	_aesni_cbc_sha1_enc
 

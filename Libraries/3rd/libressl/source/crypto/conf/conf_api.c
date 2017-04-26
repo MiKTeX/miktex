@@ -1,4 +1,4 @@
-/* $OpenBSD: conf_api.c,v 1.14 2015/02/10 11:22:21 jsing Exp $ */
+/* $OpenBSD: conf_api.c,v 1.15 2015/04/11 16:03:21 deraadt Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

@@ -14,6 +14,9 @@
 #include <io.h>
 #include <process.h>
 
+#define STDOUT_FILENO   1
+#define STDERR_FILENO   2
+
 #define R_OK    4
 #define W_OK    2
 #define X_OK    0
@@ -36,6 +39,14 @@ int getentropy(void *buf, size_t buflen);
 #endif
 #endif
 
+#ifndef HAVE_GETPAGESIZE
+int getpagesize(void);
+#endif
+
 #define pledge(request, paths) 0
+
+#ifndef HAVE_PIPE2
+int pipe2(int fildes[2], int flags);
+#endif
 
 #endif

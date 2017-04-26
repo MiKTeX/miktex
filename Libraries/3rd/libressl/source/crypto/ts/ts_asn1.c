@@ -1,4 +1,4 @@
-/* $OpenBSD: ts_asn1.c,v 1.8 2015/02/10 05:25:45 jsing Exp $ */
+/* $OpenBSD: ts_asn1.c,v 1.11 2017/01/29 17:49:23 beck Exp $ */
 /* Written by Nils Larsch for the OpenSSL project 2004.
  */
 /* ====================================================================
@@ -124,28 +124,26 @@ TS_MSG_IMPRINT_dup(TS_MSG_IMPRINT *x)
 TS_MSG_IMPRINT *
 d2i_TS_MSG_IMPRINT_bio(BIO *bp, TS_MSG_IMPRINT **a)
 {
-	return ASN1_d2i_bio_of(TS_MSG_IMPRINT, TS_MSG_IMPRINT_new,
-	    d2i_TS_MSG_IMPRINT, bp, a);
+	return ASN1_item_d2i_bio(&TS_MSG_IMPRINT_it, bp, a);
 }
 
 int
 i2d_TS_MSG_IMPRINT_bio(BIO *bp, TS_MSG_IMPRINT *a)
 {
-	return ASN1_i2d_bio_of_const(TS_MSG_IMPRINT, i2d_TS_MSG_IMPRINT, bp, a);
+	return ASN1_item_i2d_bio(&TS_MSG_IMPRINT_it, bp, a);
 }
 #endif
 
 TS_MSG_IMPRINT *
 d2i_TS_MSG_IMPRINT_fp(FILE *fp, TS_MSG_IMPRINT **a)
 {
-	return ASN1_d2i_fp_of(TS_MSG_IMPRINT, TS_MSG_IMPRINT_new,
-	    d2i_TS_MSG_IMPRINT, fp, a);
+	return ASN1_item_d2i_fp(&TS_MSG_IMPRINT_it, fp, a);
 }
 
 int
 i2d_TS_MSG_IMPRINT_fp(FILE *fp, TS_MSG_IMPRINT *a)
 {
-	return ASN1_i2d_fp_of_const(TS_MSG_IMPRINT, i2d_TS_MSG_IMPRINT, fp, a);
+	return ASN1_item_i2d_fp(&TS_MSG_IMPRINT_it, fp, a);
 }
 
 static const ASN1_TEMPLATE TS_REQ_seq_tt[] = {
@@ -239,26 +237,26 @@ TS_REQ_dup(TS_REQ *x)
 TS_REQ *
 d2i_TS_REQ_bio(BIO *bp, TS_REQ **a)
 {
-	return ASN1_d2i_bio_of(TS_REQ, TS_REQ_new, d2i_TS_REQ, bp, a);
+	return ASN1_item_d2i_bio(&TS_REQ_it, bp, a);
 }
 
 int
 i2d_TS_REQ_bio(BIO *bp, TS_REQ *a)
 {
-	return ASN1_i2d_bio_of_const(TS_REQ, i2d_TS_REQ, bp, a);
+	return ASN1_item_i2d_bio(&TS_REQ_it, bp, a);
 }
 #endif
 
 TS_REQ *
 d2i_TS_REQ_fp(FILE *fp, TS_REQ **a)
 {
-	return ASN1_d2i_fp_of(TS_REQ, TS_REQ_new, d2i_TS_REQ, fp, a);
+	return ASN1_item_d2i_fp(&TS_REQ_it, fp, a);
 }
 
 int
 i2d_TS_REQ_fp(FILE *fp, TS_REQ *a)
 {
-	return ASN1_i2d_fp_of_const(TS_REQ, i2d_TS_REQ, fp, a);
+	return ASN1_item_i2d_fp(&TS_REQ_it, fp, a);
 }
 
 static const ASN1_TEMPLATE TS_ACCURACY_seq_tt[] = {
@@ -446,28 +444,26 @@ TS_TST_INFO_dup(TS_TST_INFO *x)
 TS_TST_INFO *
 d2i_TS_TST_INFO_bio(BIO *bp, TS_TST_INFO **a)
 {
-	return ASN1_d2i_bio_of(TS_TST_INFO, TS_TST_INFO_new, d2i_TS_TST_INFO,
-	    bp, a);
+	return ASN1_item_d2i_bio(&TS_TST_INFO_it, bp, a);
 }
 
 int
 i2d_TS_TST_INFO_bio(BIO *bp, TS_TST_INFO *a)
 {
-	return ASN1_i2d_bio_of_const(TS_TST_INFO, i2d_TS_TST_INFO, bp, a);
+	return ASN1_item_i2d_bio(&TS_TST_INFO_it, bp, a);
 }
 #endif
 
 TS_TST_INFO *
 d2i_TS_TST_INFO_fp(FILE *fp, TS_TST_INFO **a)
 {
-	return ASN1_d2i_fp_of(TS_TST_INFO, TS_TST_INFO_new, d2i_TS_TST_INFO,
-	    fp, a);
+	return ASN1_item_d2i_fp(&TS_TST_INFO_it, fp, a);
 }
 
 int
 i2d_TS_TST_INFO_fp(FILE *fp, TS_TST_INFO *a)
 {
-	return ASN1_i2d_fp_of_const(TS_TST_INFO, i2d_TS_TST_INFO, fp, a);
+	return ASN1_item_i2d_fp(&TS_TST_INFO_it, fp, a);
 }
 
 static const ASN1_TEMPLATE TS_STATUS_INFO_seq_tt[] = {
@@ -545,19 +541,18 @@ ts_resp_set_tst_info(TS_RESP *a)
 
 	if (a->token) {
 		if (status != 0 && status != 1) {
-			TSerr(TS_F_TS_RESP_SET_TST_INFO, TS_R_TOKEN_PRESENT);
+			TSerror(TS_R_TOKEN_PRESENT);
 			return 0;
 		}
 		if (a->tst_info != NULL)
 			TS_TST_INFO_free(a->tst_info);
 		a->tst_info = PKCS7_to_TS_TST_INFO(a->token);
 		if (!a->tst_info) {
-			TSerr(TS_F_TS_RESP_SET_TST_INFO,
-			    TS_R_PKCS7_TO_TS_TST_INFO_FAILED);
+			TSerror(TS_R_PKCS7_TO_TS_TST_INFO_FAILED);
 			return 0;
 		}
 	} else if (status == 0 || status == 1) {
-		TSerr(TS_F_TS_RESP_SET_TST_INFO, TS_R_TOKEN_NOT_PRESENT);
+		TSerror(TS_R_TOKEN_NOT_PRESENT);
 		return 0;
 	}
 
@@ -652,26 +647,26 @@ TS_RESP_dup(TS_RESP *x)
 TS_RESP *
 d2i_TS_RESP_bio(BIO *bp, TS_RESP **a)
 {
-	return ASN1_d2i_bio_of(TS_RESP, TS_RESP_new, d2i_TS_RESP, bp, a);
+	return ASN1_item_d2i_bio(&TS_RESP_it, bp, a);
 }
 
 int
 i2d_TS_RESP_bio(BIO *bp, TS_RESP *a)
 {
-	return ASN1_i2d_bio_of_const(TS_RESP, i2d_TS_RESP, bp, a);
+	return ASN1_item_i2d_bio(&TS_RESP_it, bp, a);
 }
 #endif
 
 TS_RESP *
 d2i_TS_RESP_fp(FILE *fp, TS_RESP **a)
 {
-	return ASN1_d2i_fp_of(TS_RESP, TS_RESP_new, d2i_TS_RESP, fp, a);
+	return ASN1_item_d2i_fp(&TS_RESP_it, fp, a);
 }
 
 int
 i2d_TS_RESP_fp(FILE *fp, TS_RESP *a)
 {
-	return ASN1_i2d_fp_of_const(TS_RESP, i2d_TS_RESP, fp, a);
+	return ASN1_item_i2d_fp(&TS_RESP_it, fp, a);
 }
 
 static const ASN1_TEMPLATE ESS_ISSUER_SERIAL_seq_tt[] = {
@@ -862,13 +857,13 @@ PKCS7_to_TS_TST_INFO(PKCS7 *token)
 	const unsigned char *p;
 
 	if (!PKCS7_type_is_signed(token)) {
-		TSerr(TS_F_PKCS7_TO_TS_TST_INFO, TS_R_BAD_PKCS7_TYPE);
+		TSerror(TS_R_BAD_PKCS7_TYPE);
 		return NULL;
 	}
 
 	/* Content must be present. */
 	if (PKCS7_get_detached(token)) {
-		TSerr(TS_F_PKCS7_TO_TS_TST_INFO, TS_R_DETACHED_CONTENT);
+		TSerror(TS_R_DETACHED_CONTENT);
 		return NULL;
 	}
 
@@ -876,14 +871,14 @@ PKCS7_to_TS_TST_INFO(PKCS7 *token)
 	pkcs7_signed = token->d.sign;
 	enveloped = pkcs7_signed->contents;
 	if (OBJ_obj2nid(enveloped->type) != NID_id_smime_ct_TSTInfo) {
-		TSerr(TS_F_PKCS7_TO_TS_TST_INFO, TS_R_BAD_PKCS7_TYPE);
+		TSerror(TS_R_BAD_PKCS7_TYPE);
 		return NULL;
 	}
 
 	/* We have a DER encoded TST_INFO as the signed data. */
 	tst_info_wrapper = enveloped->d.other;
 	if (tst_info_wrapper->type != V_ASN1_OCTET_STRING) {
-		TSerr(TS_F_PKCS7_TO_TS_TST_INFO, TS_R_BAD_TYPE);
+		TSerror(TS_R_BAD_TYPE);
 		return NULL;
 	}
 

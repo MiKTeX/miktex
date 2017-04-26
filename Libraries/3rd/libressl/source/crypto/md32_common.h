@@ -1,4 +1,4 @@
-/* $OpenBSD: md32_common.h,v 1.19 2014/10/20 13:06:54 bcook Exp $ */
+/* $OpenBSD: md32_common.h,v 1.22 2016/11/04 13:56:04 miod Exp $ */
 /* ====================================================================
  * Copyright (c) 1999-2007 The OpenSSL Project.  All rights reserved.
  *
@@ -152,8 +152,8 @@ static inline uint32_t ROTATE(uint32_t a, uint32_t n)
 #if defined(DATA_ORDER_IS_BIG_ENDIAN)
 
 #if defined(__GNUC__) && __GNUC__>=2 && !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM)
-# if ((defined(__i386) || defined(__i386__)) && !defined(I386_ONLY)) || \
-      (defined(__x86_64) || defined(__x86_64__))
+# if (defined(__i386) || defined(__i386__) || \
+      defined(__x86_64) || defined(__x86_64__))
     /*
      * This gives ~30-40% performance improvement in SHA-256 compiled
      * with gcc [on P4]. Well, first macro to be frank. We can pull
@@ -167,10 +167,6 @@ static inline uint32_t ROTATE(uint32_t a, uint32_t n)
 				   asm ("bswapl %0":"=r"(r):"0"(r));	\
 				   *((unsigned int *)(c))=r; (c)+=4;	})
 # endif
-#endif
-#if defined(__s390__) || defined(__s390x__)
-# define HOST_c2l(c,l) ((l)=*((const unsigned int *)(c)), (c)+=4)
-# define HOST_l2c(l,c) (*((unsigned int *)(c))=(l), (c)+=4)
 #endif
 
 #ifndef HOST_c2l
@@ -190,16 +186,6 @@ static inline uint32_t ROTATE(uint32_t a, uint32_t n)
 
 #elif defined(DATA_ORDER_IS_LITTLE_ENDIAN)
 
-#if defined(__GNUC__) && __GNUC__>=2 && !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM)
-# if defined(__s390x__)
-#  define HOST_c2l(c,l)	({ asm ("lrv	%0,%1"			\
-				   :"=d"(l) :"m"(*(const unsigned int *)(c)));\
-				   (c)+=4; 				})
-#  define HOST_l2c(l,c)	({ asm ("strv	%1,%0"			\
-				   :"=m"(*(unsigned int *)(c)) :"d"(l));\
-				   (c)+=4; 				})
-# endif
-#endif
 #if defined(__i386) || defined(__i386__) || defined(__x86_64) || defined(__x86_64__)
 #  define HOST_c2l(c,l)	((l)=*((const unsigned int *)(c)), (c)+=4)
 #  define HOST_l2c(l,c)	(*((unsigned int *)(c))=(l), (c)+=4)

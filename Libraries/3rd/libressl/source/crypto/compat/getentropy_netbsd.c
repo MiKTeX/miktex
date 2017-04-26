@@ -1,4 +1,4 @@
-/*	$OpenBSD: getentropy_netbsd.c,v 1.1 2015/01/19 20:21:40 bcook Exp $	*/
+/*	$OpenBSD: getentropy_netbsd.c,v 1.3 2016/08/07 03:27:21 tb Exp $	*/
 
 /*
  * Copyright (c) 2014 Pawel Jakub Dawidek <pjd@FreeBSD.org>
@@ -17,7 +17,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  * Emulation of getentropy(2) as documented at:
- * http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man2/getentropy.2
+ * http://man.openbsd.org/getentropy.2
  */
 
 #include <sys/types.h>

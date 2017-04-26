@@ -1,4 +1,4 @@
-/* $OpenBSD: pcy_tree.c,v 1.15 2015/07/18 00:01:05 beck Exp $ */
+/* $OpenBSD: pcy_tree.c,v 1.17 2016/11/05 15:21:20 miod Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2004.
  */
@@ -99,7 +99,9 @@ tree_print(char *str, X509_POLICY_TREE *tree, X509_POLICY_LEVEL *curr)
 	int i;
 	BIO *err;
 
-	err = BIO_new_fp(stderr, BIO_NOCLOSE);
+	if ((err = BIO_new_fp(stderr, BIO_NOCLOSE)) == NULL)
+		return;
+
 	if (!curr)
 		curr = tree->levels + tree->nlevel;
 	else

@@ -15,6 +15,7 @@
 #include <ws2tcpip.h>
 
 #include <errno.h>
+#include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,6 +41,28 @@ posix_fopen(const char *path, const char *mode)
 	}
 
 	return fopen(path, mode);
+}
+
+int
+posix_open(const char *path, ...)
+{
+	va_list ap;
+	int mode = 0;
+	int flags;
+
+	va_start(ap, path);
+	flags = va_arg(ap, int);
+	if (flags & O_CREAT)
+		mode = va_arg(ap, int);
+	va_end(ap);
+
+	flags |= O_BINARY;
+	if (flags & O_CLOEXEC) {
+		flags &= ~O_CLOEXEC;
+		flags |= O_NOINHERIT;
+	}
+	flags &= ~O_NONBLOCK;
+	return open(path, flags, mode);
 }
 
 char *
@@ -112,6 +135,9 @@ wsa_errno(int err)
 	case WSAEAFNOSUPPORT:
 		errno = EAFNOSUPPORT;
 		break;
+	case WSAEBADF:
+		errno = EBADF;
+		break;
 	case WSAENETRESET:
 	case WSAENOTCONN:
 	case WSAECONNABORTED:
@@ -138,7 +164,7 @@ posix_close(int fd)
 {
 	if (closesocket(fd) == SOCKET_ERROR) {
 		int err = WSAGetLastError();
-		return err == WSAENOTSOCK ?
+		return (err == WSAENOTSOCK || err == WSAEBADF) ?
 			close(fd) : wsa_errno(err);
 	}
 	return 0;
@@ -150,7 +176,7 @@ posix_read(int fd, void *buf, size_t count)
 	ssize_t rc = recv(fd, buf, count, 0);
 	if (rc == SOCKET_ERROR) {
 		int err = WSAGetLastError();
-		return err == WSAENOTSOCK ?
+		return (err == WSAENOTSOCK || err == WSAEBADF) ?
 			read(fd, buf, count) : wsa_errno(err);
 	}
 	return rc;
@@ -162,7 +188,7 @@ posix_write(int fd, const void *buf, size_t count)
 	ssize_t rc = send(fd, buf, count, 0);
 	if (rc == SOCKET_ERROR) {
 		int err = WSAGetLastError();
-		return err == WSAENOTSOCK ?
+		return (err == WSAENOTSOCK || err == WSAEBADF) ?
 			write(fd, buf, count) : wsa_errno(err);
 	}
 	return rc;

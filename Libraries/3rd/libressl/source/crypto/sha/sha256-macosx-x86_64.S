@@ -1,3 +1,4 @@
+#include "x86_arch.h"
 .text	
 
 .globl	_sha256_block_data_order

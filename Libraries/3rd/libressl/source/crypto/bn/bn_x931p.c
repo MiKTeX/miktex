@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_x931p.c,v 1.7 2015/02/14 15:07:54 jsing Exp $ */
+/* $OpenBSD: bn_x931p.c,v 1.10 2017/01/25 06:15:44 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2005.
  */
@@ -58,6 +58,8 @@
 
 #include <stdio.h>
 #include <openssl/bn.h>
+
+#include "bn_lcl.h"
 
 /* X9.31 routines for prime derivation */
 
@@ -134,13 +136,13 @@ BN_X931_derive_prime_ex(BIGNUM *p, BIGNUM *p1, BIGNUM *p2, const BIGNUM *Xp,
 
 	/* First set p to value of Rp */
 
-	if (!BN_mod_inverse(p, p2, p1, ctx))
+	if (!BN_mod_inverse_ct(p, p2, p1, ctx))
 		goto err;
 
 	if (!BN_mul(p, p, p2, ctx))
 		goto err;
 
-	if (!BN_mod_inverse(t, p1, p2, ctx))
+	if (!BN_mod_inverse_ct(t, p1, p2, ctx))
 		goto err;
 
 	if (!BN_mul(t, t, p1, ctx))
@@ -169,7 +171,7 @@ BN_X931_derive_prime_ex(BIGNUM *p, BIGNUM *p1, BIGNUM *p2, const BIGNUM *Xp,
 			goto err;
 		if (!BN_sub_word(pm1, 1))
 			goto err;
-		if (!BN_gcd(t, pm1, e, ctx))
+		if (!BN_gcd_ct(t, pm1, e, ctx))
 			goto err;
 		if (BN_is_one(t)
 		/* X9.31 specifies 8 MR and 1 Lucas test or any prime test

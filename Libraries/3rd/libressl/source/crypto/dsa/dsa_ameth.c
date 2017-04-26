@@ -1,4 +1,4 @@
-/* $OpenBSD: dsa_ameth.c,v 1.18 2015/09/10 18:12:55 miod Exp $ */
+/* $OpenBSD: dsa_ameth.c,v 1.23 2017/01/29 17:49:22 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2006.
  */
@@ -66,11 +66,8 @@
 #include <openssl/err.h>
 #include <openssl/x509.h>
 
-#ifndef OPENSSL_NO_CMS
-#include <openssl/cms.h>
-#endif
-
 #include "asn1_locl.h"
+#include "bn_lcl.h"
 
 static int
 dsa_pub_decode(EVP_PKEY *pkey, X509_PUBKEY *pubkey)
@@ -95,26 +92,26 @@ dsa_pub_decode(EVP_PKEY *pkey, X509_PUBKEY *pubkey)
 		pmlen = pstr->length;
 
 		if (!(dsa = d2i_DSAparams(NULL, &pm, pmlen))) {
-			DSAerr(DSA_F_DSA_PUB_DECODE, DSA_R_DECODE_ERROR);
+			DSAerror(DSA_R_DECODE_ERROR);
 			goto err;
 		}
 	} else if (ptype == V_ASN1_NULL || ptype == V_ASN1_UNDEF) {
 		if (!(dsa = DSA_new())) {
-			DSAerr(DSA_F_DSA_PUB_DECODE, ERR_R_MALLOC_FAILURE);
+			DSAerror(ERR_R_MALLOC_FAILURE);
 			goto err;
 			}
 	} else {
-		DSAerr(DSA_F_DSA_PUB_DECODE, DSA_R_PARAMETER_ENCODING_ERROR);
+		DSAerror(DSA_R_PARAMETER_ENCODING_ERROR);
 		goto err;
 	}
 
 	if (!(public_key=d2i_ASN1_INTEGER(NULL, &p, pklen))) {
-		DSAerr(DSA_F_DSA_PUB_DECODE, DSA_R_DECODE_ERROR);
+		DSAerror(DSA_R_DECODE_ERROR);
 		goto err;
 	}
 
 	if (!(dsa->pub_key = ASN1_INTEGER_to_BN(public_key, NULL))) {
-		DSAerr(DSA_F_DSA_PUB_DECODE, DSA_R_BN_DECODE_ERROR);
+		DSAerror(DSA_R_BN_DECODE_ERROR);
 		goto err;
 	}
 
@@ -144,12 +141,12 @@ dsa_pub_encode(X509_PUBKEY *pk, const EVP_PKEY *pkey)
 
 		str = ASN1_STRING_new();
 		if (str == NULL) {
-			DSAerr(DSA_F_DSA_PUB_ENCODE, ERR_R_MALLOC_FAILURE);
+			DSAerror(ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
 		str->length = i2d_DSAparams(dsa, &str->data);
 		if (str->length <= 0) {
-			DSAerr(DSA_F_DSA_PUB_ENCODE, ERR_R_MALLOC_FAILURE);
+			DSAerror(ERR_R_MALLOC_FAILURE);
 			ASN1_STRING_free(str);
 			goto err;
 		}
@@ -163,7 +160,7 @@ dsa_pub_encode(X509_PUBKEY *pk, const EVP_PKEY *pkey)
 	penclen = i2d_DSAPublicKey(dsa, &penc);
 
 	if (penclen <= 0) {
-		DSAerr(DSA_F_DSA_PUB_ENCODE, ERR_R_MALLOC_FAILURE);
+		DSAerror(ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 
@@ -214,21 +211,21 @@ dsa_priv_decode(EVP_PKEY *pkey, PKCS8_PRIV_KEY_INFO *p8)
 		goto decerr;
 	/* We have parameters now set private key */
 	if (!(dsa->priv_key = ASN1_INTEGER_to_BN(privkey, NULL))) {
-		DSAerr(DSA_F_DSA_PRIV_DECODE,DSA_R_BN_ERROR);
+		DSAerror(DSA_R_BN_ERROR);
 		goto dsaerr;
 	}
 	/* Calculate public key */
 	if (!(dsa->pub_key = BN_new())) {
-		DSAerr(DSA_F_DSA_PRIV_DECODE, ERR_R_MALLOC_FAILURE);
+		DSAerror(ERR_R_MALLOC_FAILURE);
 		goto dsaerr;
 	}
 	if (!(ctx = BN_CTX_new())) {
-		DSAerr(DSA_F_DSA_PRIV_DECODE, ERR_R_MALLOC_FAILURE);
+		DSAerror(ERR_R_MALLOC_FAILURE);
 		goto dsaerr;
 	}
 
-	if (!BN_mod_exp(dsa->pub_key, dsa->g, dsa->priv_key, dsa->p, ctx)) {
-		DSAerr(DSA_F_DSA_PRIV_DECODE,DSA_R_BN_ERROR);
+	if (!BN_mod_exp_ct(dsa->pub_key, dsa->g, dsa->priv_key, dsa->p, ctx)) {
+		DSAerror(DSA_R_BN_ERROR);
 		goto dsaerr;
 	}
 
@@ -239,7 +236,7 @@ dsa_priv_decode(EVP_PKEY *pkey, PKCS8_PRIV_KEY_INFO *p8)
 	goto done;
 
 decerr:
-	DSAerr(DSA_F_DSA_PRIV_DECODE, DSA_R_DECODE_ERROR);
+	DSAerror(DSA_R_DECODE_ERROR);
 dsaerr:
 	DSA_free(dsa);
 done:
@@ -258,13 +255,13 @@ dsa_priv_encode(PKCS8_PRIV_KEY_INFO *p8, const EVP_PKEY *pkey)
 
 	params = ASN1_STRING_new();
 	if (!params) {
-		DSAerr(DSA_F_DSA_PRIV_ENCODE, ERR_R_MALLOC_FAILURE);
+		DSAerror(ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 
 	params->length = i2d_DSAparams(pkey->pkey.dsa, &params->data);
 	if (params->length <= 0) {
-		DSAerr(DSA_F_DSA_PRIV_ENCODE, ERR_R_MALLOC_FAILURE);
+		DSAerror(ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 	params->type = V_ASN1_SEQUENCE;
@@ -272,7 +269,7 @@ dsa_priv_encode(PKCS8_PRIV_KEY_INFO *p8, const EVP_PKEY *pkey)
 	/* Get private key into integer */
 	prkey = BN_to_ASN1_INTEGER(pkey->pkey.dsa->priv_key, NULL);
 	if (!prkey) {
-		DSAerr(DSA_F_DSA_PRIV_ENCODE, DSA_R_BN_ERROR);
+		DSAerror(DSA_R_BN_ERROR);
 		goto err;
 	}
 
@@ -410,7 +407,7 @@ do_dsa_print(BIO *bp, const DSA *x, int off, int ptype)
 
 	m = malloc(buf_len + 10);
 	if (m == NULL) {
-		DSAerr(DSA_F_DO_DSA_PRINT, ERR_R_MALLOC_FAILURE);
+		DSAerror(ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 
@@ -444,7 +441,7 @@ dsa_param_decode(EVP_PKEY *pkey, const unsigned char **pder, int derlen)
 	DSA *dsa;
 
 	if (!(dsa = d2i_DSAparams(NULL, pder, derlen))) {
-		DSAerr(DSA_F_DSA_PARAM_DECODE, ERR_R_DSA_LIB);
+		DSAerror(ERR_R_DSA_LIB);
 		return 0;
 	}
 	EVP_PKEY_assign_DSA(pkey, dsa);
@@ -483,7 +480,7 @@ old_dsa_priv_decode(EVP_PKEY *pkey, const unsigned char **pder, int derlen)
 	BIGNUM *j, *p1, *newp1;
 
 	if (!(dsa = d2i_DSAPrivateKey(NULL, pder, derlen))) {
-		DSAerr(DSA_F_OLD_DSA_PRIV_DECODE, ERR_R_DSA_LIB);
+		DSAerror(ERR_R_DSA_LIB);
 		return 0;
 	}
 
@@ -504,13 +501,13 @@ old_dsa_priv_decode(EVP_PKEY *pkey, const unsigned char **pder, int derlen)
 	if (BN_sub(p1, dsa->p, BN_value_one()) == 0)
 		goto err;
 	/* j = (p - 1) / q */
-	if (BN_div(j, NULL, p1, dsa->q, ctx) == 0)
+	if (BN_div_ct(j, NULL, p1, dsa->q, ctx) == 0)
 		goto err;
 	/* q * j should == p - 1 */
 	if (BN_mul(newp1, dsa->q, j, ctx) == 0)
 		goto err;
 	if (BN_cmp(newp1, p1) != 0) {
-		DSAerr(DSA_F_DSA_PARAM_DECODE, DSA_R_BAD_Q_VALUE);
+		DSAerror(DSA_R_BAD_Q_VALUE);
 		goto err;
 	}
 
@@ -519,7 +516,7 @@ old_dsa_priv_decode(EVP_PKEY *pkey, const unsigned char **pder, int derlen)
 	 */
 
 	if (BN_is_prime_ex(dsa->q, BN_prime_checks, ctx, NULL) == 0) {
-		DSAerr(DSA_F_DSA_PARAM_DECODE, DSA_R_BAD_Q_VALUE);
+		DSAerror(DSA_R_BAD_Q_VALUE);
 		goto err;
 	}
 
@@ -564,7 +561,7 @@ dsa_sig_print(BIO *bp, const X509_ALGOR *sigalg, const ASN1_STRING *sig,
 		update_buflen(dsa_sig->s, &buf_len);
 		m = malloc(buf_len + 10);
 		if (m == NULL) {
-			DSAerr(DSA_F_DSA_SIG_PRINT, ERR_R_MALLOC_FAILURE);
+			DSAerror(ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
 
@@ -606,26 +603,6 @@ dsa_pkey_ctrl(EVP_PKEY *pkey, int op, long arg1, void *arg2)
 			    0);
 		}
 		return 1;
-#ifndef OPENSSL_NO_CMS
-	case ASN1_PKEY_CTRL_CMS_SIGN:
-		if (arg1 == 0) {
-			int snid, hnid;
-			X509_ALGOR *alg1, *alg2;
-
-			CMS_SignerInfo_get0_algs(arg2, NULL, NULL, &alg1, &alg2);
-			if (alg1 == NULL || alg1->algorithm == NULL)
-				return -1;
-			hnid = OBJ_obj2nid(alg1->algorithm);
-			if (hnid == NID_undef)
-				return -1;
-			if (!OBJ_find_sigid_by_algs(&snid, hnid,
-			    EVP_PKEY_id(pkey)))
-				return -1; 
-			X509_ALGOR_set0(alg2, OBJ_nid2obj(snid), V_ASN1_UNDEF,
-			    0);
-		}
-		return 1;
-#endif
 
 	case ASN1_PKEY_CTRL_DEFAULT_MD_NID:
 		*(int *)arg2 = NID_sha1;

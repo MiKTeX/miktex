@@ -9,6 +9,7 @@
 
 ### Upgraded libraries
 
+* LibreSSL 2.5.3
 * libcurl 7.54.0
 * [HarBuzz 1.4.6](https://github.com/behdad/harfbuzz/releases/tag/1.4.6)
 

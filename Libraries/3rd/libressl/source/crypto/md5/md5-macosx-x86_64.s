@@ -1,3 +1,4 @@
+#include "x86_arch.h"
 .text	
 .p2align	4
 

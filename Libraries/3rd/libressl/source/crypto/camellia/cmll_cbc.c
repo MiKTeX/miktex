@@ -1,4 +1,4 @@
-/* $OpenBSD: cmll_cbc.c,v 1.3 2014/06/12 15:49:28 deraadt Exp $ */
+/* $OpenBSD: cmll_cbc.c,v 1.4 2014/11/13 20:01:58 miod Exp $ */
 /* ====================================================================
  * Copyright (c) 2006 The OpenSSL Project.  All rights reserved.
  *

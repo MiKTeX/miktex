@@ -1,4 +1,4 @@
-/* $OpenBSD: x509_trs.c,v 1.19 2014/12/06 19:26:37 doug Exp $ */
+/* $OpenBSD: x509_trs.c,v 1.22 2017/01/29 17:49:23 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -116,6 +116,22 @@ X509_check_trust(X509 *x, int id, int flags)
 
 	if (id == -1)
 		return 1;
+	/*
+	 * XXX beck/jsing This enables self signed certs to be trusted for
+	 * an unspecified id/trust flag value (this is NOT the
+	 * X509_TRUST_DEFAULT), which was the longstanding
+	 * openssl behaviour. boringssl does not have this behaviour.
+	 *
+	 * This should be revisited, but changing the default "not default"
+	 * may break things.
+	 */
+	if (id == 0) {
+		int rv;
+		rv = obj_trust(NID_anyExtendedKeyUsage, x, 0);
+		if (rv != X509_TRUST_UNTRUSTED)
+			return rv;
+		return trust_compat(NULL, x, 0);
+	}
 	idx = X509_TRUST_get_by_id(id);
 	if (idx == -1)
 		return default_trust(id, x, flags);
@@ -162,7 +178,7 @@ int
 X509_TRUST_set(int *t, int trust)
 {
 	if (X509_TRUST_get_by_id(trust) == -1) {
-		X509err(X509_F_X509_TRUST_SET, X509_R_INVALID_TRUST);
+		X509error(X509_R_INVALID_TRUST);
 		return 0;
 	}
 	*t = trust;
@@ -186,14 +202,14 @@ X509_TRUST_add(int id, int flags, int (*ck)(X509_TRUST *, X509 *, int),
 	/* Need a new entry */
 	if (idx == -1) {
 		if (!(trtmp = malloc(sizeof(X509_TRUST)))) {
-			X509err(X509_F_X509_TRUST_ADD, ERR_R_MALLOC_FAILURE);
+			X509error(ERR_R_MALLOC_FAILURE);
 			return 0;
 		}
 		trtmp->flags = X509_TRUST_DYNAMIC;
 	} else {
 		trtmp = X509_TRUST_get0(idx);
 		if (trtmp == NULL) {
-			X509err(X509_F_X509_TRUST_ADD, X509_R_INVALID_TRUST);
+			X509error(X509_R_INVALID_TRUST);
 			return 0;
 		}
 	}
@@ -230,7 +246,7 @@ err:
 	free(name_dup);
 	if (idx == -1)
 		free(trtmp);
-	X509err(X509_F_X509_TRUST_ADD, ERR_R_MALLOC_FAILURE);
+	X509error(ERR_R_MALLOC_FAILURE);
 	return 0;
 }
 

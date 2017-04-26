@@ -1,4 +1,4 @@
-/* $OpenBSD: crypto.h,v 1.39 2015/09/13 16:56:11 miod Exp $ */
+/* $OpenBSD: crypto.h,v 1.40 2015/09/17 09:51:40 bcook Exp $ */
 /* ====================================================================
  * Copyright (c) 1998-2006 The OpenSSL Project.  All rights reserved.
  *

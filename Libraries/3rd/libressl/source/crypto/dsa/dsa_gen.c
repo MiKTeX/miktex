@@ -1,4 +1,4 @@
-/* $OpenBSD: dsa_gen.c,v 1.21 2015/07/15 16:32:29 miod Exp $ */
+/* $OpenBSD: dsa_gen.c,v 1.24 2017/01/21 10:38:29 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -68,6 +68,7 @@
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 
+#include "bn_lcl.h"
 #include "dsa_locl.h"
 
 int
@@ -270,7 +271,7 @@ dsa_builtin_paramgen(DSA *ret, size_t bits, size_t qbits, const EVP_MD *evpmd,
 			/* step 9 */
 			if (!BN_lshift1(r0, q))
 				goto err;
-			if (!BN_mod(c, X, r0, ctx))
+			if (!BN_mod_ct(c, X, r0, ctx))
 				goto err;
 			if (!BN_sub(r0, c, BN_value_one()))
 				goto err;
@@ -305,7 +306,7 @@ end:
 	/* Set r0=(p-1)/q */
 	if (!BN_sub(test, p, BN_value_one()))
 		goto err;
-	if (!BN_div(r0, NULL, test, q, ctx))
+	if (!BN_div_ct(r0, NULL, test, q, ctx))
 		goto err;
 
 	if (!BN_set_word(test, h))
@@ -315,7 +316,7 @@ end:
 
 	for (;;) {
 		/* g=test^r0%p */
-		if (!BN_mod_exp_mont(g, test, r0, p, ctx, mont))
+		if (!BN_mod_exp_mont_ct(g, test, r0, p, ctx, mont))
 			goto err;
 		if (!BN_is_one(g))
 			break;

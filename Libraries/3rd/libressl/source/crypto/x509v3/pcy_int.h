@@ -1,4 +1,4 @@
-/* $OpenBSD: pcy_int.h,v 1.3 2014/06/12 15:49:31 deraadt Exp $ */
+/* $OpenBSD: pcy_int.h,v 1.5 2016/12/21 15:49:29 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2004.
  */
@@ -56,6 +56,7 @@
  *
  */
 
+__BEGIN_HIDDEN_DECLS
 
 typedef struct X509_POLICY_DATA_st X509_POLICY_DATA;
 
@@ -204,3 +205,5 @@ int policy_node_match(const X509_POLICY_LEVEL *lvl,
     const X509_POLICY_NODE *node, const ASN1_OBJECT *oid);
 
 const X509_POLICY_CACHE *policy_cache_set(X509 *x);
+
+__END_HIDDEN_DECLS

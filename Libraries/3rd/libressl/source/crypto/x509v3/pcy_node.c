@@ -1,4 +1,4 @@
-/* $OpenBSD: pcy_node.c,v 1.5 2014/07/23 20:49:52 miod Exp $ */
+/* $OpenBSD: pcy_node.c,v 1.6 2015/07/18 00:01:05 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2004.
  */

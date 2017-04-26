@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_exp2.c,v 1.9 2014/07/11 08:44:47 jsing Exp $ */
+/* $OpenBSD: bn_exp2.c,v 1.12 2017/01/29 17:49:22 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -137,7 +137,7 @@ BN_mod_exp2_mont(BIGNUM *rr, const BIGNUM *a1, const BIGNUM *p1,
 	bn_check_top(m);
 
 	if (!(m->d[0] & 1)) {
-		BNerr(BN_F_BN_MOD_EXP2_MONT, BN_R_CALLED_WITH_EVEN_MODULUS);
+		BNerror(BN_R_CALLED_WITH_EVEN_MODULUS);
 		return (0);
 	}
 	bits1 = BN_num_bits(p1);
@@ -175,7 +175,7 @@ BN_mod_exp2_mont(BIGNUM *rr, const BIGNUM *a1, const BIGNUM *p1,
 	 * Build table for a1:   val1[i] := a1^(2*i + 1) mod m  for i = 0 .. 2^(window1-1)
 	 */
 	if (a1->neg || BN_ucmp(a1, m) >= 0) {
-		if (!BN_mod(val1[0], a1, m, ctx))
+		if (!BN_mod_ct(val1[0], a1, m, ctx))
 			goto err;
 		a_mod_m = val1[0];
 	} else
@@ -206,7 +206,7 @@ BN_mod_exp2_mont(BIGNUM *rr, const BIGNUM *a1, const BIGNUM *p1,
 	 * Build table for a2:   val2[i] := a2^(2*i + 1) mod m  for i = 0 .. 2^(window2-1)
 	 */
 	if (a2->neg || BN_ucmp(a2, m) >= 0) {
-		if (!BN_mod(val2[0], a2, m, ctx))
+		if (!BN_mod_ct(val2[0], a2, m, ctx))
 			goto err;
 		a_mod_m = val2[0];
 	} else

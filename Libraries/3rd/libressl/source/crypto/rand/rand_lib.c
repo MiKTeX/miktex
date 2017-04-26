@@ -1,4 +1,4 @@
-/* $OpenBSD: rand_lib.c,v 1.19 2014/07/11 08:44:49 jsing Exp $ */
+/* $OpenBSD: rand_lib.c,v 1.20 2014/10/22 13:02:04 jsing Exp $ */
 /*
  * Copyright (c) 2014 Ted Unangst <tedu@openbsd.org>
  *

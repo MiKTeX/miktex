@@ -1,4 +1,4 @@
-/* $OpenBSD: bio_ssl.c,v 1.21 2014/11/16 14:12:47 jsing Exp $ */
+/* $OpenBSD: bio_ssl.c,v 1.27 2017/02/07 02:08:38 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -66,6 +66,8 @@
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
+#include "ssl_locl.h"
+
 static int ssl_write(BIO *h, const char *buf, int num);
 static int ssl_read(BIO *h, char *buf, int size);
 static int ssl_puts(BIO *h, const char *str);
@@ -108,7 +110,7 @@ ssl_new(BIO *bi)
 
 	bs = calloc(1, sizeof(BIO_SSL));
 	if (bs == NULL) {
-		BIOerr(BIO_F_SSL_NEW, ERR_R_MALLOC_FAILURE);
+		SSLerrorx(ERR_R_MALLOC_FAILURE);
 		return (0);
 	}
 	bi->init = 0;
@@ -291,9 +293,11 @@ ssl_ctrl(BIO *b, int cmd, long num, void *ptr)
 	case BIO_CTRL_RESET:
 		SSL_shutdown(ssl);
 
-		if (ssl->handshake_func == ssl->method->ssl_connect)
+		if (ssl->internal->handshake_func ==
+		    ssl->method->internal->ssl_connect)
 			SSL_set_connect_state(ssl);
-		else if (ssl->handshake_func == ssl->method->ssl_accept)
+		else if (ssl->internal->handshake_func ==
+		    ssl->method->internal->ssl_accept)
 			SSL_set_accept_state(ssl);
 
 		SSL_clear(ssl);
@@ -376,7 +380,8 @@ ssl_ctrl(BIO *b, int cmd, long num, void *ptr)
 	case BIO_CTRL_PUSH:
 		if ((b->next_bio != NULL) && (b->next_bio != ssl->rbio)) {
 			SSL_set_bio(ssl, b->next_bio, b->next_bio);
-			CRYPTO_add(&b->next_bio->references, 1, CRYPTO_LOCK_BIO);
+			CRYPTO_add(&b->next_bio->references, 1,
+			    CRYPTO_LOCK_BIO);
 		}
 		break;
 	case BIO_CTRL_POP:
@@ -444,7 +449,8 @@ ssl_ctrl(BIO *b, int cmd, long num, void *ptr)
 		{
 			void (**fptr)(const SSL *xssl, int type, int val);
 
-			fptr = (void (**)(const SSL *xssl, int type, int val))ptr;
+			fptr = (void (**)(const SSL *xssl, int type, int val))
+			    ptr;
 			*fptr = SSL_get_info_callback(ssl);
 		}
 		break;
@@ -469,7 +475,8 @@ ssl_callback_ctrl(BIO *b, int cmd, bio_info_cb *fp)
 		{
 		/* FIXME: setting this via a completely different prototype
 		   seems like a crap idea */
-			SSL_set_info_callback(ssl, (void (*)(const SSL *, int, int))fp);
+			SSL_set_info_callback(ssl,
+			    (void (*)(const SSL *, int, int))fp);
 		}
 		break;
 	default:

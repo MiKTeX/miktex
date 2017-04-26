@@ -1,4 +1,4 @@
-/* $OpenBSD: p12_asn.c,v 1.8 2015/07/25 15:42:14 jsing Exp $ */
+/* $OpenBSD: p12_asn.c,v 1.9 2015/07/25 17:08:40 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */

@@ -1,4 +1,4 @@
-/* $OpenBSD: v3_ocsp.c,v 1.12 2015/07/29 16:13:49 jsing Exp $ */
+/* $OpenBSD: v3_ocsp.c,v 1.15 2017/01/29 17:49:23 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -96,7 +96,7 @@ static int i2r_ocsp_serviceloc(const X509V3_EXT_METHOD *method, void *in,
 const X509V3_EXT_METHOD v3_ocsp_crlid = {
 	.ext_nid = NID_id_pkix_OCSP_CrlID,
 	.ext_flags = 0,
-	.it = ASN1_ITEM_ref(OCSP_CRLID),
+	.it = &OCSP_CRLID_it,
 	.ext_new = NULL,
 	.ext_free = NULL,
 	.d2i = NULL,
@@ -113,7 +113,7 @@ const X509V3_EXT_METHOD v3_ocsp_crlid = {
 const X509V3_EXT_METHOD v3_ocsp_acutoff = {
 	.ext_nid = NID_id_pkix_OCSP_archiveCutoff,
 	.ext_flags = 0,
-	.it = ASN1_ITEM_ref(ASN1_GENERALIZEDTIME),
+	.it = &ASN1_GENERALIZEDTIME_it,
 	.ext_new = NULL,
 	.ext_free = NULL,
 	.d2i = NULL,
@@ -130,7 +130,7 @@ const X509V3_EXT_METHOD v3_ocsp_acutoff = {
 const X509V3_EXT_METHOD v3_crl_invdate = {
 	.ext_nid = NID_invalidity_date,
 	.ext_flags = 0,
-	.it = ASN1_ITEM_ref(ASN1_GENERALIZEDTIME),
+	.it = &ASN1_GENERALIZEDTIME_it,
 	.ext_new = NULL,
 	.ext_free = NULL,
 	.d2i = NULL,
@@ -147,7 +147,7 @@ const X509V3_EXT_METHOD v3_crl_invdate = {
 const X509V3_EXT_METHOD v3_crl_hold = {
 	.ext_nid = NID_hold_instruction_code,
 	.ext_flags = 0,
-	.it = ASN1_ITEM_ref(ASN1_OBJECT),
+	.it = &ASN1_OBJECT_it,
 	.ext_new = NULL,
 	.ext_free = NULL,
 	.d2i = NULL,
@@ -181,7 +181,7 @@ const X509V3_EXT_METHOD v3_ocsp_nonce = {
 const X509V3_EXT_METHOD v3_ocsp_nocheck = {
 	.ext_nid = NID_id_pkix_OCSP_noCheck,
 	.ext_flags = 0,
-	.it = ASN1_ITEM_ref(ASN1_NULL),
+	.it = &ASN1_NULL_it,
 	.ext_new = NULL,
 	.ext_free = NULL,
 	.d2i = NULL,
@@ -198,7 +198,7 @@ const X509V3_EXT_METHOD v3_ocsp_nocheck = {
 const X509V3_EXT_METHOD v3_ocsp_serviceloc = {
 	.ext_nid = NID_id_pkix_OCSP_serviceLocator,
 	.ext_flags = 0,
-	.it = ASN1_ITEM_ref(OCSP_SERVICELOC),
+	.it = &OCSP_SERVICELOC_it,
 	.ext_new = NULL,
 	.ext_free = NULL,
 	.d2i = NULL,
@@ -313,7 +313,7 @@ d2i_ocsp_nonce(void *a, const unsigned char **pp, long length)
 err:
 	if (pos == NULL || *pos != os)
 		ASN1_OCTET_STRING_free(os);
-	OCSPerr(OCSP_F_D2I_OCSP_NONCE, ERR_R_MALLOC_FAILURE);
+	OCSPerror(ERR_R_MALLOC_FAILURE);
 	return NULL;
 }
 

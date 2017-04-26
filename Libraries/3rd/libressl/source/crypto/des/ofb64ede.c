@@ -1,4 +1,4 @@
-/* $OpenBSD: ofb64ede.c,v 1.5 2014/10/28 07:35:58 jsg Exp $ */
+/* $OpenBSD: ofb64ede.c,v 1.6 2015/02/07 13:19:15 doug Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

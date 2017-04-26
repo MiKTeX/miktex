@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_asm.c,v 1.13 2014/07/11 08:44:47 jsing Exp $ */
+/* $OpenBSD: bn_asm.c,v 1.14 2015/02/25 15:39:49 bcook Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

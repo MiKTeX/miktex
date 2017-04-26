@@ -1,4 +1,4 @@
-/* $OpenBSD: b_dump.c,v 1.20 2014/11/11 19:26:12 miod Exp $ */
+/* $OpenBSD: b_dump.c,v 1.21 2015/04/23 06:11:19 deraadt Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

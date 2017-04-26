@@ -1,4 +1,4 @@
-/* $OpenBSD: eng_fat.c,v 1.14 2014/07/10 22:45:57 jsing Exp $ */
+/* $OpenBSD: eng_fat.c,v 1.16 2017/01/29 17:49:23 beck Exp $ */
 /* ====================================================================
  * Copyright (c) 1999-2001 The OpenSSL Project.  All rights reserved.
  *
@@ -147,8 +147,7 @@ ENGINE_set_default_string(ENGINE *e, const char *def_list)
 	unsigned int flags = 0;
 
 	if (!CONF_parse_list(def_list, ',', 1, int_def_cb, &flags)) {
-		ENGINEerr(ENGINE_F_ENGINE_SET_DEFAULT_STRING,
-		    ENGINE_R_INVALID_STRING);
+		ENGINEerror(ENGINE_R_INVALID_STRING);
 		ERR_asprintf_error_data("str=%s",def_list);
 		return 0;
 	}

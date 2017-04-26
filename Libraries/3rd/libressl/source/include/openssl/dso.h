@@ -1,4 +1,4 @@
-/* $OpenBSD: dso.h,v 1.11 2015/02/07 13:19:15 doug Exp $ */
+/* $OpenBSD: dso.h,v 1.12 2016/03/15 20:50:22 krw Exp $ */
 /* Written by Geoff Thorpe (geoff@geoffthorpe.net) for the OpenSSL
  * project 2000.
  */

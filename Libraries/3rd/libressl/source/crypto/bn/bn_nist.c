@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_nist.c,v 1.17 2016/07/17 22:01:01 bcook Exp $ */
+/* $OpenBSD: bn_nist.c,v 1.18 2016/07/18 01:04:52 bcook Exp $ */
 /*
  * Written by Nils Larsch for the OpenSSL project
  */

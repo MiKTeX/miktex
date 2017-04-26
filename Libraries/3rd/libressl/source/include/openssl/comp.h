@@ -1,4 +1,4 @@
-/* $OpenBSD: comp.h,v 1.7 2014/06/12 15:49:28 deraadt Exp $ */
+/* $OpenBSD: comp.h,v 1.8 2014/11/03 16:58:28 tedu Exp $ */
 
 #ifndef HEADER_COMP_H
 #define HEADER_COMP_H

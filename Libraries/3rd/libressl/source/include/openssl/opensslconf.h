@@ -5,9 +5,6 @@
 #define __attribute__(a)
 #endif
 
-/* Generate 80386 code? */
-#undef I386_ONLY
-
 #if defined(HEADER_CRYPTLIB_H) && !defined(OPENSSLDIR)
 #define OPENSSLDIR "/etc/ssl"
 #endif

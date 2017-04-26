@@ -1,4 +1,4 @@
-/* $OpenBSD: rmd_dgst.c,v 1.16 2014/08/18 19:11:48 bcook Exp $ */
+/* $OpenBSD: rmd_dgst.c,v 1.17 2014/10/28 07:35:59 jsg Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

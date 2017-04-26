@@ -1,4 +1,4 @@
-/* $OpenBSD: x_exten.c,v 1.15 2015/02/11 04:00:39 jsing Exp $ */
+/* $OpenBSD: x_exten.c,v 1.16 2015/07/24 15:09:52 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2000.
  */

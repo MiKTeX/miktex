@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_recp.c,v 1.12 2015/03/21 08:05:20 doug Exp $ */
+/* $OpenBSD: bn_recp.c,v 1.15 2017/01/29 17:49:22 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -212,7 +212,7 @@ BN_div_recp(BIGNUM *dv, BIGNUM *rem, const BIGNUM *m, BN_RECP_CTX *recp,
 	j = 0;
 	while (BN_ucmp(r, &(recp->N)) >= 0) {
 		if (j++ > 2) {
-			BNerr(BN_F_BN_DIV_RECP, BN_R_BAD_RECIPROCAL);
+			BNerror(BN_R_BAD_RECIPROCAL);
 			goto err;
 		}
 		if (!BN_usub(r, r, &(recp->N)))
@@ -251,7 +251,7 @@ BN_reciprocal(BIGNUM *r, const BIGNUM *m, int len, BN_CTX *ctx)
 	if (!BN_set_bit(t, len))
 		goto err;
 
-	if (!BN_div(r, NULL, t,m, ctx))
+	if (!BN_div_ct(r, NULL, t,m, ctx))
 		goto err;
 
 	ret = len;

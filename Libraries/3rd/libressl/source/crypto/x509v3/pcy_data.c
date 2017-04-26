@@ -1,4 +1,4 @@
-/* $OpenBSD: pcy_data.c,v 1.8 2014/07/11 08:44:49 jsing Exp $ */
+/* $OpenBSD: pcy_data.c,v 1.9 2015/07/15 16:53:42 miod Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2004.
  */

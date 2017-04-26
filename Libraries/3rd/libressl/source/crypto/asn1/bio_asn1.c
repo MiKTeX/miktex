@@ -1,4 +1,4 @@
-/* $OpenBSD: bio_asn1.c,v 1.11 2015/02/10 09:52:35 miod Exp $ */
+/* $OpenBSD: bio_asn1.c,v 1.12 2015/12/23 01:46:33 mmcc Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project.
  */

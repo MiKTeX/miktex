@@ -1,4 +1,4 @@
-/* $OpenBSD: aes_wrap.c,v 1.9 2014/07/11 08:44:47 jsing Exp $ */
+/* $OpenBSD: aes_wrap.c,v 1.10 2015/09/10 15:56:24 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project.
  */

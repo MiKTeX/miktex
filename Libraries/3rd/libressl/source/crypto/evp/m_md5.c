@@ -1,4 +1,4 @@
-/* $OpenBSD: m_md5.c,v 1.14 2014/07/11 08:44:48 jsing Exp $ */
+/* $OpenBSD: m_md5.c,v 1.15 2014/07/13 09:30:02 miod Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

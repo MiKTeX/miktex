@@ -1,4 +1,4 @@
-/* $OpenBSD: sha_locl.h,v 1.20 2015/09/13 21:09:56 doug Exp $ */
+/* $OpenBSD: sha_locl.h,v 1.23 2016/12/23 23:22:25 patrick Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -85,10 +85,15 @@
 					  ix=(a)=ROTATE((a),1)	\
 					)
 
+__BEGIN_HIDDEN_DECLS
+
 #ifndef SHA1_ASM
 static
 #endif
+
 void sha1_block_data_order (SHA_CTX *c, const void *p,size_t num);
+
+__END_HIDDEN_DECLS
 
 #include "md32_common.h"
 

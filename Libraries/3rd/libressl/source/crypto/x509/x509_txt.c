@@ -1,4 +1,4 @@
-/* $OpenBSD: x509_txt.c,v 1.18 2014/06/12 15:49:31 deraadt Exp $ */
+/* $OpenBSD: x509_txt.c,v 1.19 2014/07/11 08:44:49 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

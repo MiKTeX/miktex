@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_div.c,v 1.22 2014/07/11 08:44:47 jsing Exp $ */
+/* $OpenBSD: bn_div.c,v 1.25 2017/01/29 17:49:22 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -116,9 +116,9 @@
  *     rm->neg == num->neg                 (unless the remainder is zero)
  * If 'dv' or 'rm' is NULL, the respective value is not returned.
  */
-int
-BN_div(BIGNUM *dv, BIGNUM *rm, const BIGNUM *num, const BIGNUM *divisor,
-    BN_CTX *ctx)
+static int
+BN_div_internal(BIGNUM *dv, BIGNUM *rm, const BIGNUM *num, const BIGNUM *divisor,
+    BN_CTX *ctx, int ct)
 {
 	int norm_shift, i, loop;
 	BIGNUM *tmp, wnum, *snum, *sdiv, *res;
@@ -131,16 +131,14 @@ BN_div(BIGNUM *dv, BIGNUM *rm, const BIGNUM *num, const BIGNUM *divisor,
 	 * in the case of 'num', so don't just rely on bn_check_top() for this one
 	 * (bn_check_top() works only for BN_DEBUG builds) */
 	if (num->top > 0 && num->d[num->top - 1] == 0) {
-		BNerr(BN_F_BN_DIV, BN_R_NOT_INITIALIZED);
+		BNerror(BN_R_NOT_INITIALIZED);
 		return 0;
 	}
 
 	bn_check_top(num);
 
-	if ((BN_get_flags(num, BN_FLG_CONSTTIME) != 0) ||
-	    (BN_get_flags(divisor, BN_FLG_CONSTTIME) != 0)) {
+	if (ct)
 		no_branch = 1;
-	}
 
 	bn_check_top(dv);
 	bn_check_top(rm);
@@ -148,7 +146,7 @@ BN_div(BIGNUM *dv, BIGNUM *rm, const BIGNUM *num, const BIGNUM *divisor,
 	bn_check_top(divisor);
 
 	if (BN_is_zero(divisor)) {
-		BNerr(BN_F_BN_DIV, BN_R_DIV_BY_ZERO);
+		BNerror(BN_R_DIV_BY_ZERO);
 		return (0);
 	}
 
@@ -378,4 +376,28 @@ err:
 	bn_check_top(rm);
 	BN_CTX_end(ctx);
 	return (0);
+}
+
+int
+BN_div(BIGNUM *dv, BIGNUM *rm, const BIGNUM *num, const BIGNUM *divisor,
+    BN_CTX *ctx)
+{
+	int ct = ((BN_get_flags(num, BN_FLG_CONSTTIME) != 0) ||
+	    (BN_get_flags(divisor, BN_FLG_CONSTTIME) != 0));
+
+	return BN_div_internal(dv, rm, num, divisor, ctx, ct);
+}
+
+int
+BN_div_nonct(BIGNUM *dv, BIGNUM *rm, const BIGNUM *num, const BIGNUM *divisor,
+    BN_CTX *ctx)
+{
+	return BN_div_internal(dv, rm, num, divisor, ctx, 0);
+}
+
+int
+BN_div_ct(BIGNUM *dv, BIGNUM *rm, const BIGNUM *num, const BIGNUM *divisor,
+    BN_CTX *ctx)
+{
+	return BN_div_internal(dv, rm, num, divisor, ctx, 1);
 }

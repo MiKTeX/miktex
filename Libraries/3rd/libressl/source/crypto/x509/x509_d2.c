@@ -1,4 +1,4 @@
-/* $OpenBSD: x509_d2.c,v 1.9 2014/07/11 08:44:49 jsing Exp $ */
+/* $OpenBSD: x509_d2.c,v 1.10 2015/01/22 09:06:39 reyk Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -62,7 +62,6 @@
 #include <openssl/crypto.h>
 #include <openssl/err.h>
 #include <openssl/x509.h>
-
 #if defined(MIKTEX) && defined(HAVE_CERT_PEM_H)
 #include "cert.pem.h"
 #endif

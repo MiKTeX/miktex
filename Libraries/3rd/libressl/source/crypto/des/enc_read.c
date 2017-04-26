@@ -1,4 +1,4 @@
-/* $OpenBSD: enc_read.c,v 1.14 2014/07/11 08:44:48 jsing Exp $ */
+/* $OpenBSD: enc_read.c,v 1.15 2015/02/12 03:54:07 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

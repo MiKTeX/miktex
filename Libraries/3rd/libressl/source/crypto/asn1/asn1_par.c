@@ -1,4 +1,4 @@
-/* $OpenBSD: asn1_par.c,v 1.24 2015/09/30 18:41:06 jsing Exp $ */
+/* $OpenBSD: asn1_par.c,v 1.25 2015/09/30 19:01:14 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_exp.c,v 1.22 2015/03/21 08:05:20 doug Exp $ */
+/* $OpenBSD: bn_exp.c,v 1.30 2017/01/29 17:49:22 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -115,6 +115,7 @@
 #include <openssl/err.h>
 
 #include "bn_lcl.h"
+#include "constant_time_locl.h"
 
 /* maximum precomputation table size for *variable* sliding windows */
 #define TABLE_SIZE	32
@@ -128,7 +129,7 @@ BN_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, BN_CTX *ctx)
 
 	if (BN_get_flags(p, BN_FLG_CONSTTIME) != 0) {
 		/* BN_FLG_CONSTTIME only supported by BN_mod_exp_mont() */
-		BNerr(BN_F_BN_EXP, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
+		BNerror(ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return -1;
 	}
 
@@ -171,9 +172,9 @@ err:
 	return (ret);
 }
 
-int
-BN_mod_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
-    BN_CTX *ctx)
+static int
+BN_mod_exp_internal(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
+    BN_CTX *ctx, int ct)
 {
 	int ret;
 
@@ -211,41 +212,43 @@ BN_mod_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
 	 * has been integrated into OpenSSL.)
 	 */
 
-#define MONT_MUL_MOD
-#define MONT_EXP_WORD
-#define RECP_MUL_MOD
-
-#ifdef MONT_MUL_MOD
-	/* I have finally been able to take out this pre-condition of
-	 * the top bit being set.  It was caused by an error in BN_div
-	 * with negatives.  There was also another problem when for a^b%m
-	 * a >= m.  eay 07-May-97 */
-/*	if ((m->d[m->top-1]&BN_TBIT) && BN_is_odd(m)) */
-
 	if (BN_is_odd(m)) {
-#  ifdef MONT_EXP_WORD
-		if (a->top == 1 && !a->neg &&
-		    (BN_get_flags(p, BN_FLG_CONSTTIME) == 0)) {
+		if (a->top == 1 && !a->neg && !ct) {
 			BN_ULONG A = a->d[0];
 			ret = BN_mod_exp_mont_word(r, A,p, m,ctx, NULL);
 		} else
-#  endif
-			ret = BN_mod_exp_mont(r, a,p, m,ctx, NULL);
-	} else
-#endif
-#ifdef RECP_MUL_MOD
-	{
+			ret = BN_mod_exp_mont_ct(r, a,p, m,ctx, NULL);
+	} else	{
 		ret = BN_mod_exp_recp(r, a,p, m, ctx);
 	}
-#else
-	{
-		ret = BN_mod_exp_simple(r, a,p, m, ctx);
-	}
-#endif
 
 	bn_check_top(r);
 	return (ret);
 }
+
+int
+BN_mod_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
+    BN_CTX *ctx)
+{
+	return BN_mod_exp_internal(r, a, p, m, ctx,
+	    (BN_get_flags(p, BN_FLG_CONSTTIME) != 0));
+}
+
+int
+BN_mod_exp_ct(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
+    BN_CTX *ctx)
+{
+	return BN_mod_exp_internal(r, a, p, m, ctx, 1);
+}
+
+
+int
+BN_mod_exp_nonct(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
+    BN_CTX *ctx)
+{
+	return BN_mod_exp_internal(r, a, p, m, ctx, 0);
+}
+
 
 int
 BN_mod_exp_recp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
@@ -260,14 +263,18 @@ BN_mod_exp_recp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
 
 	if (BN_get_flags(p, BN_FLG_CONSTTIME) != 0) {
 		/* BN_FLG_CONSTTIME only supported by BN_mod_exp_mont() */
-		BNerr(BN_F_BN_MOD_EXP_RECP, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
+		BNerror(ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return -1;
 	}
 
 	bits = BN_num_bits(p);
-
 	if (bits == 0) {
-		ret = BN_one(r);
+		/* x**0 mod 1 is still zero. */
+		if (BN_is_one(m)) {
+			ret = 1;
+			BN_zero(r);
+		} else
+			ret = BN_one(r);
 		return ret;
 	}
 
@@ -377,9 +384,9 @@ err:
 	return (ret);
 }
 
-int
-BN_mod_exp_mont(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
-    BN_CTX *ctx, BN_MONT_CTX *in_mont)
+static int
+BN_mod_exp_mont_internal(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
+    BN_CTX *ctx, BN_MONT_CTX *in_mont, int ct)
 {
 	int i, j, bits, ret = 0, wstart, wend, window, wvalue;
 	int start = 1;
@@ -389,7 +396,7 @@ BN_mod_exp_mont(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
 	BIGNUM *val[TABLE_SIZE];
 	BN_MONT_CTX *mont = NULL;
 
-	if (BN_get_flags(p, BN_FLG_CONSTTIME) != 0) {
+	if (ct) {
 		return BN_mod_exp_mont_consttime(rr, a, p, m, ctx, in_mont);
 	}
 
@@ -398,12 +405,18 @@ BN_mod_exp_mont(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
 	bn_check_top(m);
 
 	if (!BN_is_odd(m)) {
-		BNerr(BN_F_BN_MOD_EXP_MONT, BN_R_CALLED_WITH_EVEN_MODULUS);
+		BNerror(BN_R_CALLED_WITH_EVEN_MODULUS);
 		return (0);
 	}
+
 	bits = BN_num_bits(p);
 	if (bits == 0) {
-		ret = BN_one(rr);
+		/* x**0 mod 1 is still zero. */
+		if (BN_is_one(m)) {
+			ret = 1;
+			BN_zero(rr);
+		} else
+			ret = BN_one(rr);
 		return ret;
 	}
 
@@ -523,6 +536,27 @@ err:
 	return (ret);
 }
 
+int
+BN_mod_exp_mont(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
+    BN_CTX *ctx, BN_MONT_CTX *in_mont)
+{
+	return BN_mod_exp_mont_internal(rr, a, p, m, ctx, in_mont,
+	    (BN_get_flags(p, BN_FLG_CONSTTIME) != 0));
+}
+
+int
+BN_mod_exp_mont_ct(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
+    BN_CTX *ctx, BN_MONT_CTX *in_mont)
+{
+	return BN_mod_exp_mont_internal(rr, a, p, m, ctx, in_mont, 1);
+}
+
+int
+BN_mod_exp_mont_nonct(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
+    BN_CTX *ctx, BN_MONT_CTX *in_mont)
+{
+	return BN_mod_exp_mont_internal(rr, a, p, m, ctx, in_mont, 0);
+}
 
 /* BN_mod_exp_mont_consttime() stores the precomputed powers in a specific layout
  * so that accessing any of these table values shows the same access pattern as far
@@ -531,14 +565,17 @@ err:
 
 static int
 MOD_EXP_CTIME_COPY_TO_PREBUF(const BIGNUM *b, int top, unsigned char *buf,
-    int idx, int width)
+    int idx, int window)
 {
-	size_t i, j;
+	int i, j;
+	int width = 1 << window;
+	BN_ULONG *table = (BN_ULONG *)buf;
 
 	if (top > b->top)
 		top = b->top; /* this works because 'buf' is explicitly zeroed */
-	for (i = 0, j = idx; i < top * sizeof b->d[0]; i++, j += width) {
-		buf[j] = ((unsigned char*)b->d)[i];
+
+	for (i = 0, j = idx; i < top; i++, j += width) {
+		table[j] = b->d[i];
 	}
 
 	return 1;
@@ -546,17 +583,52 @@ MOD_EXP_CTIME_COPY_TO_PREBUF(const BIGNUM *b, int top, unsigned char *buf,
 
 static int
 MOD_EXP_CTIME_COPY_FROM_PREBUF(BIGNUM *b, int top, unsigned char *buf, int idx,
-    int width)
+    int window)
 {
-	size_t i, j;
+	int i, j;
+	int width = 1 << window;
+	volatile BN_ULONG *table = (volatile BN_ULONG *)buf;
 
 	if (bn_wexpand(b, top) == NULL)
 		return 0;
 
-	for (i = 0, j = idx; i < top * sizeof b->d[0]; i++, j += width) {
-		((unsigned char*)b->d)[i] = buf[j];
-	}
+	if (window <= 3) {
+		for (i = 0; i < top; i++, table += width) {
+		    BN_ULONG acc = 0;
 
+		    for (j = 0; j < width; j++) {
+			acc |= table[j] &
+			       ((BN_ULONG)0 - (constant_time_eq_int(j,idx)&1));
+		    }
+
+		    b->d[i] = acc;
+		}
+	} else {
+		int xstride = 1 << (window - 2);
+		BN_ULONG y0, y1, y2, y3;
+
+		i = idx >> (window - 2);        /* equivalent of idx / xstride */
+		idx &= xstride - 1;             /* equivalent of idx % xstride */
+
+		y0 = (BN_ULONG)0 - (constant_time_eq_int(i,0)&1);
+		y1 = (BN_ULONG)0 - (constant_time_eq_int(i,1)&1);
+		y2 = (BN_ULONG)0 - (constant_time_eq_int(i,2)&1);
+		y3 = (BN_ULONG)0 - (constant_time_eq_int(i,3)&1);
+
+		for (i = 0; i < top; i++, table += width) {
+		    BN_ULONG acc = 0;
+
+		    for (j = 0; j < xstride; j++) {
+			acc |= ( (table[j + 0 * xstride] & y0) |
+				 (table[j + 1 * xstride] & y1) |
+				 (table[j + 2 * xstride] & y2) |
+				 (table[j + 3 * xstride] & y3) )
+			       & ((BN_ULONG)0 - (constant_time_eq_int(j,idx)&1));
+		    }
+
+		    b->d[i] = acc;
+		}
+	}
 	b->top = top;
 	bn_correct_top(b);
 	return 1;
@@ -589,16 +661,21 @@ BN_mod_exp_mont_consttime(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
 	bn_check_top(p);
 	bn_check_top(m);
 
-	top = m->top;
-
-	if (!(m->d[0] & 1)) {
-		BNerr(BN_F_BN_MOD_EXP_MONT_CONSTTIME,
-		    BN_R_CALLED_WITH_EVEN_MODULUS);
+	if (!BN_is_odd(m)) {
+		BNerror(BN_R_CALLED_WITH_EVEN_MODULUS);
 		return (0);
 	}
+
+	top = m->top;
+
 	bits = BN_num_bits(p);
 	if (bits == 0) {
-		ret = BN_one(rr);
+		/* x**0 mod 1 is still zero. */
+		if (BN_is_one(m)) {
+			ret = 1;
+			BN_zero(rr);
+		} else
+			ret = BN_one(rr);
 		return ret;
 	}
 
@@ -657,7 +734,7 @@ BN_mod_exp_mont_consttime(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
 
 	/* prepare a^1 in Montgomery domain */
 	if (a->neg || BN_ucmp(a, m) >= 0) {
-		if (!BN_mod(&am, a,m, ctx))
+		if (!BN_mod_ct(&am, a,m, ctx))
 			goto err;
 		if (!BN_to_montgomery(&am, &am, mont, ctx))
 			goto err;
@@ -756,10 +833,10 @@ BN_mod_exp_mont_consttime(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
 #endif
 	{
 		if (!MOD_EXP_CTIME_COPY_TO_PREBUF(&tmp, top, powerbuf, 0,
-		    numPowers))
+		    window))
 			goto err;
 		if (!MOD_EXP_CTIME_COPY_TO_PREBUF(&am,  top, powerbuf, 1,
-		    numPowers))
+		    window))
 			goto err;
 
 		/* If the window size is greater than 1, then calculate
@@ -771,7 +848,7 @@ BN_mod_exp_mont_consttime(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
 			if (!BN_mod_mul_montgomery(&tmp, &am, &am, mont, ctx))
 				goto err;
 			if (!MOD_EXP_CTIME_COPY_TO_PREBUF(&tmp, top, powerbuf,
-			    2, numPowers))
+			    2, window))
 				goto err;
 			for (i = 3; i < numPowers; i++) {
 				/* Calculate a^i = a^(i-1) * a */
@@ -779,7 +856,7 @@ BN_mod_exp_mont_consttime(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
 				    mont, ctx))
 					goto err;
 				if (!MOD_EXP_CTIME_COPY_TO_PREBUF(&tmp, top,
-				    powerbuf, i, numPowers))
+				    powerbuf, i, window))
 					goto err;
 			}
 		}
@@ -788,7 +865,7 @@ BN_mod_exp_mont_consttime(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
 		for (wvalue = 0, i = bits % window; i >= 0; i--, bits--)
 			wvalue = (wvalue << 1) + BN_is_bit_set(p, bits);
 		if (!MOD_EXP_CTIME_COPY_FROM_PREBUF(&tmp, top, powerbuf,
-		    wvalue, numPowers))
+		    wvalue, window))
 			goto err;
 
 		/* Scan the exponent one window at a time starting from the most
@@ -807,7 +884,7 @@ BN_mod_exp_mont_consttime(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
 
 			/* Fetch the appropriate pre-computed value from the pre-buf */
 			if (!MOD_EXP_CTIME_COPY_FROM_PREBUF(&am, top, powerbuf,
-			    wvalue, numPowers))
+			    wvalue, window))
 				goto err;
 
 			/* Multiply the result into the intermediate result */
@@ -846,7 +923,7 @@ BN_mod_exp_mont_word(BIGNUM *rr, BN_ULONG a, const BIGNUM *p, const BIGNUM *m,
 #define BN_MOD_MUL_WORD(r, w, m) \
 		(BN_mul_word(r, (w)) && \
 		(/* BN_ucmp(r, (m)) < 0 ? 1 :*/  \
-			(BN_mod(t, r, m, ctx) && (swap_tmp = r, r = t, t = swap_tmp, 1))))
+			(BN_mod_ct(t, r, m, ctx) && (swap_tmp = r, r = t, t = swap_tmp, 1))))
 		/* BN_MOD_MUL_WORD is only used with 'w' large,
 		 * so the BN_ucmp test is probably more overhead
 		 * than always using BN_mod (which uses BN_copy if
@@ -860,8 +937,7 @@ BN_mod_exp_mont_word(BIGNUM *rr, BN_ULONG a, const BIGNUM *p, const BIGNUM *m,
 
 	if (BN_get_flags(p, BN_FLG_CONSTTIME) != 0) {
 		/* BN_FLG_CONSTTIME only supported by BN_mod_exp_mont() */
-		BNerr(BN_F_BN_MOD_EXP_MONT_WORD,
-		    ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
+		BNerror(ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return -1;
 	}
 
@@ -869,7 +945,7 @@ BN_mod_exp_mont_word(BIGNUM *rr, BN_ULONG a, const BIGNUM *p, const BIGNUM *m,
 	bn_check_top(m);
 
 	if (!BN_is_odd(m)) {
-		BNerr(BN_F_BN_MOD_EXP_MONT_WORD, BN_R_CALLED_WITH_EVEN_MODULUS);
+		BNerror(BN_R_CALLED_WITH_EVEN_MODULUS);
 		return (0);
 	}
 	if (m->top == 1)
@@ -877,7 +953,12 @@ BN_mod_exp_mont_word(BIGNUM *rr, BN_ULONG a, const BIGNUM *p, const BIGNUM *m,
 
 	bits = BN_num_bits(p);
 	if (bits == 0) {
-		ret = BN_one(rr);
+		/* x**0 mod 1 is still zero. */
+		if (BN_is_one(m)) {
+			ret = 1;
+			BN_zero(rr);
+		} else
+			ret = BN_one(rr);
 		return ret;
 	}
 	if (a == 0) {
@@ -985,7 +1066,7 @@ int
 BN_mod_exp_simple(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
     BN_CTX *ctx)
 {
-	int i, j,bits, ret = 0, wstart, wend, window, wvalue;
+	int i, j, bits, ret = 0, wstart, wend, window, wvalue;
 	int start = 1;
 	BIGNUM *d;
 	/* Table of variables obtained from 'ctx' */
@@ -993,15 +1074,18 @@ BN_mod_exp_simple(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
 
 	if (BN_get_flags(p, BN_FLG_CONSTTIME) != 0) {
 		/* BN_FLG_CONSTTIME only supported by BN_mod_exp_mont() */
-		BNerr(BN_F_BN_MOD_EXP_SIMPLE,
-		    ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
+		BNerror(ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return -1;
 	}
 
 	bits = BN_num_bits(p);
-
 	if (bits == 0) {
-		ret = BN_one(r);
+		/* x**0 mod 1 is still zero. */
+		if (BN_is_one(m)) {
+			ret = 1;
+			BN_zero(r);
+		} else
+			ret = BN_one(r);
 		return ret;
 	}
 

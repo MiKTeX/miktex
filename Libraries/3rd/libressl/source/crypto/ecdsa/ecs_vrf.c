@@ -1,4 +1,4 @@
-/* $OpenBSD: ecs_vrf.c,v 1.4 2015/01/28 04:14:31 beck Exp $ */
+/* $OpenBSD: ecs_vrf.c,v 1.5 2015/02/08 13:35:07 jsing Exp $ */
 /*
  * Written by Nils Larsch for the OpenSSL project
  */

@@ -1,4 +1,4 @@
-/* $OpenBSD: aes_core.c,v 1.12 2015/02/10 09:46:30 miod Exp $ */
+/* $OpenBSD: aes_core.c,v 1.13 2015/11/05 21:59:13 miod Exp $ */
 /**
  * rijndael-alg-fst.c
  *

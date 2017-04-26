@@ -1,4 +1,4 @@
-/* $OpenBSD: ecdh.h,v 1.4 2015/09/13 11:49:44 jsing Exp $ */
+/* $OpenBSD: ecdh.h,v 1.5 2015/09/13 12:03:07 jsing Exp $ */
 /* ====================================================================
  * Copyright 2002 Sun Microsystems, Inc. ALL RIGHTS RESERVED.
  *

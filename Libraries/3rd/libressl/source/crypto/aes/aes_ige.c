@@ -1,4 +1,4 @@
-/* $OpenBSD: aes_ige.c,v 1.6 2014/07/11 08:44:47 jsing Exp $ */
+/* $OpenBSD: aes_ige.c,v 1.7 2015/02/10 09:46:30 miod Exp $ */
 /* ====================================================================
  * Copyright (c) 2006 The OpenSSL Project.  All rights reserved.
  *

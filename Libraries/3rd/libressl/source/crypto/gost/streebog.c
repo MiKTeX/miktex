@@ -1,4 +1,4 @@
-/* $OpenBSD: streebog.c,v 1.4 2014/12/07 16:33:51 jsing Exp $ */
+/* $OpenBSD: streebog.c,v 1.5 2015/09/10 15:56:25 jsing Exp $ */
 /*
  * Copyright (c) 2014 Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
  * Copyright (c) 2005-2006 Cryptocom LTD

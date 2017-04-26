@@ -1,4 +1,4 @@
-/* $OpenBSD: a_bool.c,v 1.6 2014/06/12 15:49:27 deraadt Exp $ */
+/* $OpenBSD: a_bool.c,v 1.8 2017/01/29 17:49:22 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -110,6 +110,6 @@ d2i_ASN1_BOOLEAN(int *a, const unsigned char **pp, long length)
 	return (ret);
 
 err:
-	ASN1err(ASN1_F_D2I_ASN1_BOOLEAN, i);
+	ASN1error(i);
 	return (ret);
 }

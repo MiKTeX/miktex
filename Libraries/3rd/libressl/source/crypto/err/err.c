@@ -1,4 +1,4 @@
-/* $OpenBSD: err.c,v 1.40 2014/10/05 15:21:48 deraadt Exp $ */
+/* $OpenBSD: err.c,v 1.45 2017/02/20 23:21:19 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -566,7 +566,7 @@ static ERR_STRING_DATA SYS_str_reasons[NUM_SYS_STR_REASONS + 1];
  * others will be displayed numerically by ERR_error_string.
  * It is crucial that we have something for each reason code
  * that occurs in ERR_str_reasons, or bogus reason strings
- * will be returned for SYSerr(), which always gets an errno
+ * will be returned for SYSerror(which always gets an errno
  * value and never one of those 'standard' reason codes. */
 
 static void
@@ -1092,14 +1092,6 @@ ERR_asprintf_error_data(char * format, ...) {
 	else
 		ERR_set_error_data(errbuf, ERR_TXT_MALLOCED|ERR_TXT_STRING);
 }
-void
-ERR_add_error_data(int num, ...)
-{
-	va_list args;
-	va_start(args, num);
-	ERR_add_error_vdata(num, args);
-	va_end(args);
-}
 
 void
 ERR_add_error_vdata(int num, va_list args)
@@ -1119,6 +1111,15 @@ ERR_add_error_vdata(int num, va_list args)
 		ERR_set_error_data("malloc failed", ERR_TXT_STRING);
 	else
 		ERR_set_error_data(errbuf, ERR_TXT_MALLOCED|ERR_TXT_STRING);
+}
+
+void
+ERR_add_error_data(int num, ...)
+{
+	va_list args;
+	va_start(args, num);
+	ERR_add_error_vdata(num, args);
+	va_end(args);
 }
 
 int

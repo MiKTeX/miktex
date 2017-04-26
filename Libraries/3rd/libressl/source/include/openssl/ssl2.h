@@ -1,4 +1,4 @@
-/* $OpenBSD: ssl2.h,v 1.11 2014/08/11 04:45:19 miod Exp $ */
+/* $OpenBSD: ssl2.h,v 1.12 2014/12/14 15:30:50 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

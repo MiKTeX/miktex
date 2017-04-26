@@ -1,4 +1,4 @@
-/* $OpenBSD: x509_set.c,v 1.11 2015/09/30 17:30:16 jsing Exp $ */
+/* $OpenBSD: x509_set.c,v 1.12 2015/09/30 17:49:59 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

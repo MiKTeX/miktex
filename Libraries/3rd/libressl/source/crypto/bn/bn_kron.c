@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_kron.c,v 1.5 2014/07/11 08:44:48 jsing Exp $ */
+/* $OpenBSD: bn_kron.c,v 1.6 2015/02/09 15:49:22 jsing Exp $ */
 /* ====================================================================
  * Copyright (c) 1998-2000 The OpenSSL Project.  All rights reserved.
  *

@@ -1,3 +1,4 @@
+#include "x86_arch.h"
 .text	
 .globl	aesni_encrypt
 .type	aesni_encrypt,@function

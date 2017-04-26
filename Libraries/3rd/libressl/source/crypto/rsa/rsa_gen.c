@@ -1,4 +1,4 @@
-/* $OpenBSD: rsa_gen.c,v 1.17 2015/02/09 15:49:22 jsing Exp $ */
+/* $OpenBSD: rsa_gen.c,v 1.22 2017/01/29 17:49:23 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -69,6 +69,8 @@
 #include <openssl/err.h>
 #include <openssl/rsa.h>
 
+#include "bn_lcl.h"
+
 static int rsa_builtin_keygen(RSA *rsa, int bits, BIGNUM *e_value, BN_GENCB *cb);
 
 /*
@@ -136,7 +138,7 @@ rsa_builtin_keygen(RSA *rsa, int bits, BIGNUM *e_value, BN_GENCB *cb)
 			goto err;
 		if (!BN_sub(r2, rsa->p, BN_value_one()))
 			goto err;
-		if (!BN_gcd(r1, r2, rsa->e, ctx))
+		if (!BN_gcd_ct(r1, r2, rsa->e, ctx))
 			goto err;
 		if (BN_is_one(r1))
 			break;
@@ -160,13 +162,12 @@ rsa_builtin_keygen(RSA *rsa, int bits, BIGNUM *e_value, BN_GENCB *cb)
 		    ++degenerate < 3);
 		if (degenerate == 3) {
 			ok = 0; /* we set our own err */
-			RSAerr(RSA_F_RSA_BUILTIN_KEYGEN,
-			    RSA_R_KEY_SIZE_TOO_SMALL);
+			RSAerror(RSA_R_KEY_SIZE_TOO_SMALL);
 			goto err;
 		}
 		if (!BN_sub(r2, rsa->q, BN_value_one()))
 			goto err;
-		if (!BN_gcd(r1, r2, rsa->e, ctx))
+		if (!BN_gcd_ct(r1, r2, rsa->e, ctx))
 			goto err;
 		if (BN_is_one(r1))
 			break;
@@ -195,29 +196,29 @@ rsa_builtin_keygen(RSA *rsa, int bits, BIGNUM *e_value, BN_GENCB *cb)
 
 	BN_with_flags(&pr0, r0, BN_FLG_CONSTTIME);
 
-	if (!BN_mod_inverse(rsa->d, rsa->e, &pr0, ctx)) /* d */
+	if (!BN_mod_inverse_ct(rsa->d, rsa->e, &pr0, ctx)) /* d */
 		goto err;
 
 	/* set up d for correct BN_FLG_CONSTTIME flag */
 	BN_with_flags(&d, rsa->d, BN_FLG_CONSTTIME);
 
 	/* calculate d mod (p-1) */
-	if (!BN_mod(rsa->dmp1, &d, r1, ctx))
+	if (!BN_mod_ct(rsa->dmp1, &d, r1, ctx))
 		goto err;
 
 	/* calculate d mod (q-1) */
-	if (!BN_mod(rsa->dmq1, &d, r2, ctx))
+	if (!BN_mod_ct(rsa->dmq1, &d, r2, ctx))
 		goto err;
 
 	/* calculate inverse of q mod p */
 	BN_with_flags(&p, rsa->p, BN_FLG_CONSTTIME);
-	if (!BN_mod_inverse(rsa->iqmp, rsa->q, &p, ctx))
+	if (!BN_mod_inverse_ct(rsa->iqmp, rsa->q, &p, ctx))
 		goto err;
 
 	ok = 1;
 err:
 	if (ok == -1) {
-		RSAerr(RSA_F_RSA_BUILTIN_KEYGEN, ERR_LIB_BN);
+		RSAerror(ERR_LIB_BN);
 		ok = 0;
 	}
 	if (ctx != NULL) {

@@ -1,4 +1,4 @@
-/* $OpenBSD: x509_cmp.c,v 1.25 2014/09/26 19:31:09 miod Exp $ */
+/* $OpenBSD: x509_cmp.c,v 1.27 2017/01/29 17:49:23 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -351,16 +351,13 @@ X509_check_private_key(X509 *x, EVP_PKEY *k)
 	case 1:
 		break;
 	case 0:
-		X509err(X509_F_X509_CHECK_PRIVATE_KEY,
-		    X509_R_KEY_VALUES_MISMATCH);
+		X509error(X509_R_KEY_VALUES_MISMATCH);
 		break;
 	case -1:
-		X509err(X509_F_X509_CHECK_PRIVATE_KEY,
-		    X509_R_KEY_TYPE_MISMATCH);
+		X509error(X509_R_KEY_TYPE_MISMATCH);
 		break;
 	case -2:
-		X509err(X509_F_X509_CHECK_PRIVATE_KEY,
-		    X509_R_UNKNOWN_KEY_TYPE);
+		X509error(X509_R_UNKNOWN_KEY_TYPE);
 	}
 	EVP_PKEY_free(xk);
 	if (ret > 0)

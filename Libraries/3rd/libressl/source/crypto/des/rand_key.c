@@ -1,4 +1,4 @@
-/* $OpenBSD: rand_key.c,v 1.7 2014/07/22 18:09:20 miod Exp $ */
+/* $OpenBSD: rand_key.c,v 1.8 2014/10/22 13:02:04 jsing Exp $ */
 /* ====================================================================
  * Copyright (c) 1998-2000 The OpenSSL Project.  All rights reserved.
  *

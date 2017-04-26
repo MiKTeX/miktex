@@ -1,4 +1,4 @@
-/* $OpenBSD: ec_cvt.c,v 1.5 2014/06/12 15:49:29 deraadt Exp $ */
+/* $OpenBSD: ec_cvt.c,v 1.6 2014/07/10 22:45:57 jsing Exp $ */
 /*
  * Originally written by Bodo Moeller for the OpenSSL project.
  */

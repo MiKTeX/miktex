@@ -1,4 +1,4 @@
-/* $OpenBSD: v3_lib.c,v 1.13 2014/07/11 08:44:49 jsing Exp $ */
+/* $OpenBSD: v3_lib.c,v 1.17 2017/01/29 17:49:23 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -75,11 +75,11 @@ int
 X509V3_EXT_add(X509V3_EXT_METHOD *ext)
 {
 	if (!ext_list && !(ext_list = sk_X509V3_EXT_METHOD_new(ext_cmp))) {
-		X509V3err(X509V3_F_X509V3_EXT_ADD, ERR_R_MALLOC_FAILURE);
+		X509V3error(ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
 	if (!sk_X509V3_EXT_METHOD_push(ext_list, ext)) {
-		X509V3err(X509V3_F_X509V3_EXT_ADD, ERR_R_MALLOC_FAILURE);
+		X509V3error(ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
 	return 1;
@@ -91,10 +91,24 @@ ext_cmp(const X509V3_EXT_METHOD * const *a, const X509V3_EXT_METHOD * const *b)
 	return ((*a)->ext_nid - (*b)->ext_nid);
 }
 
-DECLARE_OBJ_BSEARCH_CMP_FN(const X509V3_EXT_METHOD *,
-    const X509V3_EXT_METHOD *, ext);
-IMPLEMENT_OBJ_BSEARCH_CMP_FN(const X509V3_EXT_METHOD *,
-    const X509V3_EXT_METHOD *, ext);
+static int ext_cmp_BSEARCH_CMP_FN(const void *, const void *);
+static int ext_cmp(const X509V3_EXT_METHOD * const *, const X509V3_EXT_METHOD * const *);
+static const X509V3_EXT_METHOD * *OBJ_bsearch_ext(const X509V3_EXT_METHOD * *key, const X509V3_EXT_METHOD * const *base, int num);
+
+static int
+ext_cmp_BSEARCH_CMP_FN(const void *a_, const void *b_)
+{
+	const X509V3_EXT_METHOD * const *a = a_;
+	const X509V3_EXT_METHOD * const *b = b_;
+	return ext_cmp(a, b);
+}
+
+static const X509V3_EXT_METHOD * *
+OBJ_bsearch_ext(const X509V3_EXT_METHOD * *key, const X509V3_EXT_METHOD * const *base, int num)
+{
+	return (const X509V3_EXT_METHOD * *)OBJ_bsearch_(key, base, num, sizeof(const X509V3_EXT_METHOD *),
+	    ext_cmp_BSEARCH_CMP_FN);
+}
 
 const X509V3_EXT_METHOD *
 X509V3_EXT_get_nid(int nid)
@@ -143,12 +157,11 @@ X509V3_EXT_add_alias(int nid_to, int nid_from)
 	X509V3_EXT_METHOD *tmpext;
 
 	if (!(ext = X509V3_EXT_get_nid(nid_from))) {
-		X509V3err(X509V3_F_X509V3_EXT_ADD_ALIAS,
-		    X509V3_R_EXTENSION_NOT_FOUND);
+		X509V3error(X509V3_R_EXTENSION_NOT_FOUND);
 		return 0;
 	}
 	if (!(tmpext = malloc(sizeof(X509V3_EXT_METHOD)))) {
-		X509V3err(X509V3_F_X509V3_EXT_ADD_ALIAS, ERR_R_MALLOC_FAILURE);
+		X509V3error(ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
 	*tmpext = *ext;
@@ -194,7 +207,7 @@ X509V3_EXT_d2i(X509_EXTENSION *ext)
 	p = ext->value->data;
 	if (method->it)
 		return ASN1_item_d2i(NULL, &p, ext->value->length,
-		    ASN1_ITEM_ptr(method->it));
+		    method->it);
 	return method->d2i(NULL, &p, ext->value->length);
 }
 
@@ -317,8 +330,7 @@ X509V3_add1_i2d(STACK_OF(X509_EXTENSION) **x, int nid, void *value,
 	ext = X509V3_EXT_i2d(nid, crit, value);
 
 	if (!ext) {
-		X509V3err(X509V3_F_X509V3_ADD1_I2D,
-		    X509V3_R_ERROR_CREATING_EXTENSION);
+		X509V3error(X509V3_R_ERROR_CREATING_EXTENSION);
 		return 0;
 	}
 
@@ -340,6 +352,6 @@ X509V3_add1_i2d(STACK_OF(X509_EXTENSION) **x, int nid, void *value,
 
 err:
 	if (!(flags & X509V3_ADD_SILENT))
-		X509V3err(X509V3_F_X509V3_ADD1_I2D, errcode);
+		X509V3error(errcode);
 	return 0;
 }

@@ -1,4 +1,4 @@
-/* $OpenBSD: rc2_ecb.c,v 1.5 2014/06/12 15:49:30 deraadt Exp $ */
+/* $OpenBSD: rc2_ecb.c,v 1.6 2014/07/09 11:10:51 bcook Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

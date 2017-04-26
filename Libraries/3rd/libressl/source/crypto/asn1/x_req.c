@@ -1,4 +1,4 @@
-/* $OpenBSD: x_req.c,v 1.14 2015/02/11 03:39:51 jsing Exp $ */
+/* $OpenBSD: x_req.c,v 1.15 2015/02/11 04:00:39 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

@@ -1,4 +1,4 @@
-/* $OpenBSD: ocsp_srv.c,v 1.7 2014/10/18 17:20:40 jsing Exp $ */
+/* $OpenBSD: ocsp_srv.c,v 1.10 2017/01/29 17:49:23 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2001.
  */
@@ -127,7 +127,7 @@ OCSP_response_create(int status, OCSP_BASICRESP *bs)
 	if (!(rsp->responseBytes = OCSP_RESPBYTES_new()))
 		goto err;
 	rsp->responseBytes->responseType = OBJ_nid2obj(NID_id_pkix_OCSP_basic);
-	if (!ASN1_item_pack(bs, ASN1_ITEM_rptr(OCSP_BASICRESP),
+	if (!ASN1_item_pack(bs, &OCSP_BASICRESP_it,
 	    &rsp->responseBytes->response))
 		goto err;
 	return rsp;
@@ -168,8 +168,7 @@ OCSP_basic_add1_status(OCSP_BASICRESP *rsp, OCSP_CERTID *cid, int status,
 	switch (cs->type = status) {
 	case V_OCSP_CERTSTATUS_REVOKED:
 		if (!revtime) {
-			OCSPerr(OCSP_F_OCSP_BASIC_ADD1_STATUS,
-			    OCSP_R_NO_REVOKED_TIME);
+			OCSPerror(OCSP_R_NO_REVOKED_TIME);
 			goto err;
 		}
 		if (!(cs->value.revoked = ri = OCSP_REVOKEDINFO_new()))
@@ -226,8 +225,7 @@ OCSP_basic_sign(OCSP_BASICRESP *brsp, X509 *signer, EVP_PKEY *key,
 	OCSP_RESPID *rid;
 
 	if (!X509_check_private_key(signer, key)) {
-		OCSPerr(OCSP_F_OCSP_BASIC_SIGN,
-		    OCSP_R_PRIVATE_KEY_DOES_NOT_MATCH_CERTIFICATE);
+		OCSPerror(OCSP_R_PRIVATE_KEY_DOES_NOT_MATCH_CERTIFICATE);
 		goto err;
 	}
 

@@ -1,4 +1,4 @@
-/* $OpenBSD: ec_print.c,v 1.6 2014/12/03 19:45:16 deraadt Exp $ */
+/* $OpenBSD: ec_print.c,v 1.7 2014/12/03 19:53:20 deraadt Exp $ */
 /* ====================================================================
  * Copyright (c) 1998-2002 The OpenSSL Project.  All rights reserved.
  *

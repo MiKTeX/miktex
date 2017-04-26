@@ -1,4 +1,4 @@
-/* $OpenBSD: v3_bitst.c,v 1.11 2015/07/29 16:13:48 jsing Exp $ */
+/* $OpenBSD: v3_bitst.c,v 1.14 2017/01/29 17:49:23 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -91,7 +91,7 @@ static BIT_STRING_BITNAME key_usage_type_table[] = {
 const X509V3_EXT_METHOD v3_nscert = {
 	.ext_nid = NID_netscape_cert_type,
 	.ext_flags = 0,
-	.it = ASN1_ITEM_ref(ASN1_BIT_STRING),
+	.it = &ASN1_BIT_STRING_it,
 	.ext_new = NULL,
 	.ext_free = NULL,
 	.d2i = NULL,
@@ -108,7 +108,7 @@ const X509V3_EXT_METHOD v3_nscert = {
 const X509V3_EXT_METHOD v3_key_usage = {
 	.ext_nid = NID_key_usage,
 	.ext_flags = 0,
-	.it = ASN1_ITEM_ref(ASN1_BIT_STRING),
+	.it = &ASN1_BIT_STRING_it,
 	.ext_new = NULL,
 	.ext_free = NULL,
 	.d2i = NULL,
@@ -145,7 +145,7 @@ v2i_ASN1_BIT_STRING(X509V3_EXT_METHOD *method, X509V3_CTX *ctx,
 	BIT_STRING_BITNAME *bnam;
 
 	if (!(bs = ASN1_BIT_STRING_new())) {
-		X509V3err(X509V3_F_V2I_ASN1_BIT_STRING, ERR_R_MALLOC_FAILURE);
+		X509V3error(ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
 	for (i = 0; i < sk_CONF_VALUE_num(nval); i++) {
@@ -155,8 +155,7 @@ v2i_ASN1_BIT_STRING(X509V3_EXT_METHOD *method, X509V3_CTX *ctx,
 			    !strcmp(bnam->lname, val->name) ) {
 				if (!ASN1_BIT_STRING_set_bit(bs,
 				    bnam->bitnum, 1)) {
-					X509V3err(X509V3_F_V2I_ASN1_BIT_STRING,
-					    ERR_R_MALLOC_FAILURE);
+					X509V3error(ERR_R_MALLOC_FAILURE);
 					ASN1_BIT_STRING_free(bs);
 					return NULL;
 				}
@@ -164,8 +163,7 @@ v2i_ASN1_BIT_STRING(X509V3_EXT_METHOD *method, X509V3_CTX *ctx,
 			}
 		}
 		if (!bnam->lname) {
-			X509V3err(X509V3_F_V2I_ASN1_BIT_STRING,
-			    X509V3_R_UNKNOWN_BIT_STRING_ARGUMENT);
+			X509V3error(X509V3_R_UNKNOWN_BIT_STRING_ARGUMENT);
 			X509V3_conf_err(val);
 			ASN1_BIT_STRING_free(bs);
 			return NULL;

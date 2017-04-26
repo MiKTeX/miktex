@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_blind.c,v 1.13 2014/07/11 08:44:47 jsing Exp $ */
+/* $OpenBSD: bn_blind.c,v 1.17 2017/01/29 17:49:22 beck Exp $ */
 /* ====================================================================
  * Copyright (c) 1998-2006 The OpenSSL Project.  All rights reserved.
  *
@@ -144,7 +144,7 @@ BN_BLINDING_new(const BIGNUM *A, const BIGNUM *Ai, BIGNUM *mod)
 	bn_check_top(mod);
 
 	if ((ret = calloc(1, sizeof(BN_BLINDING))) == NULL) {
-		BNerr(BN_F_BN_BLINDING_NEW, ERR_R_MALLOC_FAILURE);
+		BNerror(ERR_R_MALLOC_FAILURE);
 		return (NULL);
 	}
 	if (A != NULL) {
@@ -194,7 +194,7 @@ BN_BLINDING_update(BN_BLINDING *b, BN_CTX *ctx)
 	int ret = 0;
 
 	if ((b->A == NULL) || (b->Ai == NULL)) {
-		BNerr(BN_F_BN_BLINDING_UPDATE, BN_R_NOT_INITIALIZED);
+		BNerror(BN_R_NOT_INITIALIZED);
 		goto err;
 	}
 
@@ -235,7 +235,7 @@ BN_BLINDING_convert_ex(BIGNUM *n, BIGNUM *r, BN_BLINDING *b, BN_CTX *ctx)
 	bn_check_top(n);
 
 	if ((b->A == NULL) || (b->Ai == NULL)) {
-		BNerr(BN_F_BN_BLINDING_CONVERT_EX, BN_R_NOT_INITIALIZED);
+		BNerror(BN_R_NOT_INITIALIZED);
 		return (0);
 	}
 
@@ -273,7 +273,7 @@ BN_BLINDING_invert_ex(BIGNUM *n, const BIGNUM *r, BN_BLINDING *b, BN_CTX *ctx)
 		ret = BN_mod_mul(n, n, r, b->mod, ctx);
 	else {
 		if (b->Ai == NULL) {
-			BNerr(BN_F_BN_BLINDING_INVERT_EX, BN_R_NOT_INITIALIZED);
+			BNerror(BN_R_NOT_INITIALIZED);
 			return (0);
 		}
 		ret = BN_mod_mul(n, n, b->Ai, b->mod, ctx);
@@ -351,13 +351,12 @@ BN_BLINDING_create_param(BN_BLINDING *b, const BIGNUM *e, BIGNUM *m,
 	do {
 		if (!BN_rand_range(ret->A, ret->mod))
 			goto err;
-		if (BN_mod_inverse(ret->Ai, ret->A, ret->mod, ctx) == NULL) {
+		if (BN_mod_inverse_ct(ret->Ai, ret->A, ret->mod, ctx) == NULL) {
 			/* this should almost never happen for good RSA keys */
 			unsigned long error = ERR_peek_last_error();
 			if (ERR_GET_REASON(error) == BN_R_NO_INVERSE) {
 				if (retry_counter-- == 0) {
-					BNerr(BN_F_BN_BLINDING_CREATE_PARAM,
-					    BN_R_TOO_MANY_ITERATIONS);
+					BNerror(BN_R_TOO_MANY_ITERATIONS);
 					goto err;
 				}
 				ERR_clear_error();
@@ -372,7 +371,7 @@ BN_BLINDING_create_param(BN_BLINDING *b, const BIGNUM *e, BIGNUM *m,
 		    ctx, ret->m_ctx))
 			goto err;
 	} else {
-		if (!BN_mod_exp(ret->A, ret->A, ret->e, ret->mod, ctx))
+		if (!BN_mod_exp_ct(ret->A, ret->A, ret->e, ret->mod, ctx))
 			goto err;
 	}
 

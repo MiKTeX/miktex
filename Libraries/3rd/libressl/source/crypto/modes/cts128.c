@@ -1,4 +1,4 @@
-/* $OpenBSD: cts128.c,v 1.4 2015/02/10 09:46:30 miod Exp $ */
+/* $OpenBSD: cts128.c,v 1.5 2015/07/19 18:27:26 miod Exp $ */
 /* ====================================================================
  * Copyright (c) 2008 The OpenSSL Project. All rights reserved.
  *

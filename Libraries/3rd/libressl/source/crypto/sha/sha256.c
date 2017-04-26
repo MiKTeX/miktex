@@ -1,4 +1,4 @@
-/* $OpenBSD: sha256.c,v 1.8 2014/08/18 19:11:48 bcook Exp $ */
+/* $OpenBSD: sha256.c,v 1.9 2015/09/10 15:56:26 jsing Exp $ */
 /* ====================================================================
  * Copyright (c) 2004 The OpenSSL Project.  All rights reserved
  * according to the OpenSSL license [found in ../../LICENSE].

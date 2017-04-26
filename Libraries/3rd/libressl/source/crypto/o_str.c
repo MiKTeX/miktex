@@ -1,4 +1,4 @@
-/* $OpenBSD: o_str.c,v 1.8 2014/06/12 15:49:27 deraadt Exp $ */
+/* $OpenBSD: o_str.c,v 1.9 2014/07/09 20:22:14 tedu Exp $ */
 /*
  * Written by Theo de Raadt.  Public domain.
  */

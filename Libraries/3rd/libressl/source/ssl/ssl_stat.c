@@ -1,4 +1,4 @@
-/* $OpenBSD: ssl_stat.c,v 1.11 2014/07/13 00:08:44 jsing Exp $ */
+/* $OpenBSD: ssl_stat.c,v 1.13 2017/01/23 08:48:45 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -91,7 +91,7 @@ SSL_state_string_long(const SSL *s)
 {
 	const char *str;
 
-	switch (s->state) {
+	switch (s->internal->state) {
 	case SSL_ST_BEFORE:
 		str = "before SSL initialization";
 		break;
@@ -325,7 +325,7 @@ SSL_rstate_string_long(const SSL *s)
 {
 	const char *str;
 
-	switch (s->rstate) {
+	switch (s->internal->rstate) {
 	case SSL_ST_READ_HEADER:
 		str = "read header";
 		break;
@@ -347,7 +347,7 @@ SSL_state_string(const SSL *s)
 {
 	const char *str;
 
-	switch (s->state) {
+	switch (s->internal->state) {
 	case SSL_ST_BEFORE:
 		str = "PINIT ";
 		break;
@@ -783,7 +783,7 @@ SSL_rstate_string(const SSL *s)
 {
 	const char *str;
 
-	switch (s->rstate) {
+	switch (s->internal->rstate) {
 	case SSL_ST_READ_HEADER:
 		str = "RH";
 		break;

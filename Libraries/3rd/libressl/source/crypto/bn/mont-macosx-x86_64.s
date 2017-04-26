@@ -1,3 +1,4 @@
+#include "x86_arch.h"
 .text	
 
 .globl	_bn_mul_mont

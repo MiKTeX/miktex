@@ -1,4 +1,4 @@
-/* $OpenBSD: cmac.h,v 1.2 2014/06/12 15:49:28 deraadt Exp $ */
+/* $OpenBSD: cmac.h,v 1.3 2014/06/21 13:42:14 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project.
  */

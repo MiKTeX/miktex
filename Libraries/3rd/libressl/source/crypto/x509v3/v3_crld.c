@@ -1,4 +1,4 @@
-/* $OpenBSD: v3_crld.c,v 1.18 2015/07/25 16:14:29 jsing Exp $ */
+/* $OpenBSD: v3_crld.c,v 1.21 2017/01/29 17:49:23 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -73,7 +73,7 @@ static int i2r_crldp(const X509V3_EXT_METHOD *method, void *pcrldp, BIO *out,
 const X509V3_EXT_METHOD v3_crld = {
 	.ext_nid = NID_crl_distribution_points,
 	.ext_flags = 0,
-	.it = ASN1_ITEM_ref(CRL_DIST_POINTS),
+	.it = &CRL_DIST_POINTS_it,
 	.ext_new = NULL,
 	.ext_free = NULL,
 	.d2i = NULL,
@@ -90,7 +90,7 @@ const X509V3_EXT_METHOD v3_crld = {
 const X509V3_EXT_METHOD v3_freshest_crl = {
 	.ext_nid = NID_freshest_crl,
 	.ext_flags = 0,
-	.it = ASN1_ITEM_ref(CRL_DIST_POINTS),
+	.it = &CRL_DIST_POINTS_it,
 	.ext_new = NULL,
 	.ext_free = NULL,
 	.d2i = NULL,
@@ -115,8 +115,7 @@ STACK_OF(GENERAL_NAME) *gnames_from_sectname(X509V3_CTX *ctx, char *sect)
 	else
 		gnsect = X509V3_parse_list(sect);
 	if (!gnsect) {
-		X509V3err(X509V3_F_GNAMES_FROM_SECTNAME,
-		    X509V3_R_SECTION_NOT_FOUND);
+		X509V3error(X509V3_R_SECTION_NOT_FOUND);
 		return NULL;
 	}
 	gens = v2i_GENERAL_NAMES(NULL, ctx, gnsect);
@@ -146,8 +145,7 @@ set_dist_point_name(DIST_POINT_NAME **pdp, X509V3_CTX *ctx, CONF_VALUE *cnf)
 			return -1;
 		dnsect = X509V3_get_section(ctx, cnf->value);
 		if (!dnsect) {
-			X509V3err(X509V3_F_SET_DIST_POINT_NAME,
-			    X509V3_R_SECTION_NOT_FOUND);
+			X509V3error(X509V3_R_SECTION_NOT_FOUND);
 			X509_NAME_free(nm);
 			return -1;
 		}
@@ -163,16 +161,14 @@ set_dist_point_name(DIST_POINT_NAME **pdp, X509V3_CTX *ctx, CONF_VALUE *cnf)
 		 */
 		if (sk_X509_NAME_ENTRY_value(rnm,
 		    sk_X509_NAME_ENTRY_num(rnm) - 1)->set) {
-			X509V3err(X509V3_F_SET_DIST_POINT_NAME,
-			    X509V3_R_INVALID_MULTIPLE_RDNS);
+			X509V3error(X509V3_R_INVALID_MULTIPLE_RDNS);
 			goto err;
 		}
 	} else
 		return 0;
 
 	if (*pdp) {
-		X509V3err(X509V3_F_SET_DIST_POINT_NAME,
-		    X509V3_R_DISTPOINT_ALREADY_SET);
+		X509V3error(X509V3_R_DISTPOINT_ALREADY_SET);
 		goto err;
 	}
 
@@ -361,7 +357,7 @@ v2i_crld(const X509V3_EXT_METHOD *method, X509V3_CTX *ctx,
 	return crld;
 
 merr:
-	X509V3err(X509V3_F_V2I_CRLD, ERR_R_MALLOC_FAILURE);
+	X509V3error(ERR_R_MALLOC_FAILURE);
 err:
 	GENERAL_NAME_free(gen);
 	GENERAL_NAMES_free(gens);
@@ -642,7 +638,7 @@ static void *v2i_idp(const X509V3_EXT_METHOD *method, X509V3_CTX *ctx,
 
 const X509V3_EXT_METHOD v3_idp = {
 	NID_issuing_distribution_point, X509V3_EXT_MULTILINE,
-	ASN1_ITEM_ref(ISSUING_DIST_POINT),
+	&ISSUING_DIST_POINT_it,
 	0, 0, 0, 0,
 	0, 0,
 	0,
@@ -692,7 +688,7 @@ v2i_idp(const X509V3_EXT_METHOD *method, X509V3_CTX *ctx,
 			if (!set_reasons(&idp->onlysomereasons, val))
 				goto err;
 		} else {
-			X509V3err(X509V3_F_V2I_IDP, X509V3_R_INVALID_NAME);
+			X509V3error(X509V3_R_INVALID_NAME);
 			X509V3_conf_err(cnf);
 			goto err;
 		}
@@ -700,7 +696,7 @@ v2i_idp(const X509V3_EXT_METHOD *method, X509V3_CTX *ctx,
 	return idp;
 
 merr:
-	X509V3err(X509V3_F_V2I_IDP, ERR_R_MALLOC_FAILURE);
+	X509V3error(ERR_R_MALLOC_FAILURE);
 err:
 	ISSUING_DIST_POINT_free(idp);
 	return NULL;

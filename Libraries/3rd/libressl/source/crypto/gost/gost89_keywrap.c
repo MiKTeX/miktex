@@ -1,4 +1,4 @@
-/* $OpenBSD: gost89_keywrap.c,v 1.2 2014/11/09 19:27:29 miod Exp $ */
+/* $OpenBSD: gost89_keywrap.c,v 1.3 2014/11/09 19:28:44 miod Exp $ */
 /*
  * Copyright (c) 2014 Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
  * Copyright (c) 2005-2006 Cryptocom LTD

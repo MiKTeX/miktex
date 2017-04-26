@@ -1,4 +1,4 @@
-/* $OpenBSD: d1_lib.c,v 1.32 2015/10/07 13:20:48 bcook Exp $ */
+/* $OpenBSD: d1_lib.c,v 1.41 2017/02/07 02:08:38 beck Exp $ */
 /*
  * DTLS implementation written by Nagendra Modadugu
  * (nagendra@cs.stanford.edu) for the OpenSSL project 2005.
@@ -70,24 +70,11 @@
 #include "pqueue.h"
 #include "ssl_locl.h"
 
-int dtls1_listen(SSL *s, struct sockaddr *client);
+static int dtls1_listen(SSL *s, struct sockaddr *client);
 
 SSL3_ENC_METHOD DTLSv1_enc_data = {
 	.enc = dtls1_enc,
-	.mac = tls1_mac,
-	.setup_key_block = tls1_setup_key_block,
-	.generate_master_secret = tls1_generate_master_secret,
-	.change_cipher_state = tls1_change_cipher_state,
-	.final_finish_mac = tls1_final_finish_mac,
-	.finish_mac_length = TLS1_FINISH_MAC_LENGTH,
-	.cert_verify_mac = tls1_cert_verify_mac,
-	.client_finished_label = TLS_MD_CLIENT_FINISH_CONST,
-	.client_finished_label_len = TLS_MD_CLIENT_FINISH_CONST_SIZE,
-	.server_finished_label = TLS_MD_SERVER_FINISH_CONST,
-	.server_finished_label_len = TLS_MD_SERVER_FINISH_CONST_SIZE,
-	.alert_value = tls1_alert_code,
-	.export_keying_material = tls1_export_keying_material,
-	.enc_flags = SSL_ENC_FLAG_DTLS|SSL_ENC_FLAG_EXPLICIT_IV,
+	.enc_flags = SSL_ENC_FLAG_EXPLICIT_IV,
 };
 
 long
@@ -105,38 +92,43 @@ dtls1_new(SSL *s)
 
 	if (!ssl3_new(s))
 		return (0);
-	if ((d1 = calloc(1, sizeof *d1)) == NULL) {
+	if ((d1 = calloc(1, sizeof(*d1))) == NULL) {
+		ssl3_free(s);
+		return (0);
+	}
+	if ((d1->internal = calloc(1, sizeof(*d1->internal))) == NULL) {
+		free(d1);
 		ssl3_free(s);
 		return (0);
 	}
 
 	/* d1->handshake_epoch=0; */
 
-	d1->unprocessed_rcds.q = pqueue_new();
-	d1->processed_rcds.q = pqueue_new();
-	d1->buffered_messages = pqueue_new();
+	d1->internal->unprocessed_rcds.q = pqueue_new();
+	d1->internal->processed_rcds.q = pqueue_new();
+	d1->internal->buffered_messages = pqueue_new();
 	d1->sent_messages = pqueue_new();
-	d1->buffered_app_data.q = pqueue_new();
+	d1->internal->buffered_app_data.q = pqueue_new();
 
 	if (s->server) {
-		d1->cookie_len = sizeof(s->d1->cookie);
+		d1->internal->cookie_len = sizeof(D1I(s)->cookie);
 	}
 
-	if (!d1->unprocessed_rcds.q || !d1->processed_rcds.q ||
-	    !d1->buffered_messages || !d1->sent_messages ||
-	    !d1->buffered_app_data.q) {
-		pqueue_free(d1->unprocessed_rcds.q);
-		pqueue_free(d1->processed_rcds.q);
-		pqueue_free(d1->buffered_messages);
+	if (!d1->internal->unprocessed_rcds.q || !d1->internal->processed_rcds.q ||
+	    !d1->internal->buffered_messages || !d1->sent_messages ||
+	    !d1->internal->buffered_app_data.q) {
+		pqueue_free(d1->internal->unprocessed_rcds.q);
+		pqueue_free(d1->internal->processed_rcds.q);
+		pqueue_free(d1->internal->buffered_messages);
 		pqueue_free(d1->sent_messages);
-		pqueue_free(d1->buffered_app_data.q);
+		pqueue_free(d1->internal->buffered_app_data.q);
 		free(d1);
 		ssl3_free(s);
 		return (0);
 	}
 
 	s->d1 = d1;
-	s->method->ssl_clear(s);
+	s->method->internal->ssl_clear(s);
 	return (1);
 }
 
@@ -147,21 +139,21 @@ dtls1_clear_queues(SSL *s)
 	hm_fragment *frag = NULL;
 	DTLS1_RECORD_DATA *rdata;
 
-	while ((item = pqueue_pop(s->d1->unprocessed_rcds.q)) != NULL) {
+	while ((item = pqueue_pop(D1I(s)->unprocessed_rcds.q)) != NULL) {
 		rdata = (DTLS1_RECORD_DATA *) item->data;
 		free(rdata->rbuf.buf);
 		free(item->data);
 		pitem_free(item);
 	}
 
-	while ((item = pqueue_pop(s->d1->processed_rcds.q)) != NULL) {
+	while ((item = pqueue_pop(D1I(s)->processed_rcds.q)) != NULL) {
 		rdata = (DTLS1_RECORD_DATA *) item->data;
 		free(rdata->rbuf.buf);
 		free(item->data);
 		pitem_free(item);
 	}
 
-	while ((item = pqueue_pop(s->d1->buffered_messages)) != NULL) {
+	while ((item = pqueue_pop(D1I(s)->buffered_messages)) != NULL) {
 		frag = (hm_fragment *)item->data;
 		free(frag->fragment);
 		free(frag);
@@ -175,7 +167,7 @@ dtls1_clear_queues(SSL *s)
 		pitem_free(item);
 	}
 
-	while ((item = pqueue_pop(s->d1->buffered_app_data.q)) != NULL) {
+	while ((item = pqueue_pop(D1I(s)->buffered_app_data.q)) != NULL) {
 		rdata = (DTLS1_RECORD_DATA *) item->data;
 		free(rdata->rbuf.buf);
 		free(item->data);
@@ -193,20 +185,25 @@ dtls1_free(SSL *s)
 
 	dtls1_clear_queues(s);
 
-	pqueue_free(s->d1->unprocessed_rcds.q);
-	pqueue_free(s->d1->processed_rcds.q);
-	pqueue_free(s->d1->buffered_messages);
+	pqueue_free(D1I(s)->unprocessed_rcds.q);
+	pqueue_free(D1I(s)->processed_rcds.q);
+	pqueue_free(D1I(s)->buffered_messages);
 	pqueue_free(s->d1->sent_messages);
-	pqueue_free(s->d1->buffered_app_data.q);
+	pqueue_free(D1I(s)->buffered_app_data.q);
 
-	explicit_bzero(s->d1, sizeof *s->d1);
+	explicit_bzero(s->d1->internal, sizeof(*s->d1->internal));
+	free(s->d1->internal);
+
+	explicit_bzero(s->d1, sizeof(*s->d1));
 	free(s->d1);
+
 	s->d1 = NULL;
 }
 
 void
 dtls1_clear(SSL *s)
 {
+	struct dtls1_state_internal_st *internal;
 	pqueue unprocessed_rcds;
 	pqueue processed_rcds;
 	pqueue buffered_messages;
@@ -215,30 +212,33 @@ dtls1_clear(SSL *s)
 	unsigned int mtu;
 
 	if (s->d1) {
-		unprocessed_rcds = s->d1->unprocessed_rcds.q;
-		processed_rcds = s->d1->processed_rcds.q;
-		buffered_messages = s->d1->buffered_messages;
+		unprocessed_rcds = D1I(s)->unprocessed_rcds.q;
+		processed_rcds = D1I(s)->processed_rcds.q;
+		buffered_messages = D1I(s)->buffered_messages;
 		sent_messages = s->d1->sent_messages;
-		buffered_app_data = s->d1->buffered_app_data.q;
-		mtu = s->d1->mtu;
+		buffered_app_data = D1I(s)->buffered_app_data.q;
+		mtu = D1I(s)->mtu;
 
 		dtls1_clear_queues(s);
 
-		memset(s->d1, 0, sizeof(*(s->d1)));
+		memset(s->d1->internal, 0, sizeof(*s->d1->internal));
+		internal = s->d1->internal;
+		memset(s->d1, 0, sizeof(*s->d1));
+		s->d1->internal = internal;
 
 		if (s->server) {
-			s->d1->cookie_len = sizeof(s->d1->cookie);
+			D1I(s)->cookie_len = sizeof(D1I(s)->cookie);
 		}
 
 		if (SSL_get_options(s) & SSL_OP_NO_QUERY_MTU) {
-			s->d1->mtu = mtu;
+			D1I(s)->mtu = mtu;
 		}
 
-		s->d1->unprocessed_rcds.q = unprocessed_rcds;
-		s->d1->processed_rcds.q = processed_rcds;
-		s->d1->buffered_messages = buffered_messages;
+		D1I(s)->unprocessed_rcds.q = unprocessed_rcds;
+		D1I(s)->processed_rcds.q = processed_rcds;
+		D1I(s)->buffered_messages = buffered_messages;
 		s->d1->sent_messages = sent_messages;
-		s->d1->buffered_app_data.q = buffered_app_data;
+		D1I(s)->buffered_app_data.q = buffered_app_data;
 	}
 
 	ssl3_clear(s);
@@ -306,7 +306,7 @@ dtls1_start_timer(SSL *s)
 	/* Add duration to current time */
 	s->d1->next_timeout.tv_sec += s->d1->timeout_duration;
 	BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SET_NEXT_TIMEOUT, 0,
-	    &(s->d1->next_timeout));
+	    &s->d1->next_timeout);
 }
 
 struct timeval*
@@ -383,7 +383,7 @@ void
 dtls1_stop_timer(SSL *s)
 {
 	/* Reset everything */
-	memset(&(s->d1->timeout), 0, sizeof(struct dtls1_timeout_st));
+	memset(&(D1I(s)->timeout), 0, sizeof(struct dtls1_timeout_st));
 	memset(&(s->d1->next_timeout), 0, sizeof(struct timeval));
 	s->d1->timeout_duration = 1;
 	BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SET_NEXT_TIMEOUT, 0,
@@ -395,18 +395,18 @@ dtls1_stop_timer(SSL *s)
 int
 dtls1_check_timeout_num(SSL *s)
 {
-	s->d1->timeout.num_alerts++;
+	D1I(s)->timeout.num_alerts++;
 
 	/* Reduce MTU after 2 unsuccessful retransmissions */
-	if (s->d1->timeout.num_alerts > 2) {
-		s->d1->mtu = BIO_ctrl(SSL_get_wbio(s),
+	if (D1I(s)->timeout.num_alerts > 2) {
+		D1I(s)->mtu = BIO_ctrl(SSL_get_wbio(s),
 		    BIO_CTRL_DGRAM_GET_FALLBACK_MTU, 0, NULL);
 
 	}
 
-	if (s->d1->timeout.num_alerts > DTLS1_TMO_ALERT_COUNT) {
+	if (D1I(s)->timeout.num_alerts > DTLS1_TMO_ALERT_COUNT) {
 		/* fail the connection, enough alerts have been sent */
-		SSLerr(SSL_F_DTLS1_CHECK_TIMEOUT_NUM, SSL_R_READ_TIMEOUT_EXPIRED);
+		SSLerror(s, SSL_R_READ_TIMEOUT_EXPIRED);
 		return -1;
 	}
 
@@ -426,9 +426,9 @@ dtls1_handle_timeout(SSL *s)
 	if (dtls1_check_timeout_num(s) < 0)
 		return -1;
 
-	s->d1->timeout.read_timeouts++;
-	if (s->d1->timeout.read_timeouts > DTLS1_TMO_READ_COUNT) {
-		s->d1->timeout.read_timeouts = 1;
+	D1I(s)->timeout.read_timeouts++;
+	if (D1I(s)->timeout.read_timeouts > DTLS1_TMO_READ_COUNT) {
+		D1I(s)->timeout.read_timeouts = 1;
 	}
 
 	dtls1_start_timer(s);
@@ -444,7 +444,7 @@ dtls1_listen(SSL *s, struct sockaddr *client)
 	SSL_clear(s);
 
 	SSL_set_options(s, SSL_OP_COOKIE_EXCHANGE);
-	s->d1->listen = 1;
+	D1I(s)->listen = 1;
 
 	ret = SSL_accept(s);
 	if (ret <= 0)

@@ -1,4 +1,4 @@
-/* $OpenBSD: ec_curve.c,v 1.12 2015/06/20 13:26:08 jsing Exp $ */
+/* $OpenBSD: ec_curve.c,v 1.15 2017/01/29 17:49:23 beck Exp $ */
 /*
  * Written by Nils Larsch for the OpenSSL project.
  */
@@ -3050,11 +3050,15 @@ static const ec_list_element curve_list[] = {
 	{NID_X9_62_prime239v1, &_EC_X9_62_PRIME_239V1.h, 0, "X9.62 curve over a 239 bit prime field"},
 	{NID_X9_62_prime239v2, &_EC_X9_62_PRIME_239V2.h, 0, "X9.62 curve over a 239 bit prime field"},
 	{NID_X9_62_prime239v3, &_EC_X9_62_PRIME_239V3.h, 0, "X9.62 curve over a 239 bit prime field"},
-#ifndef OPENSSL_NO_EC_NISTP_64_GCC_128
-	{NID_X9_62_prime256v1, &_EC_X9_62_PRIME_256V1.h, EC_GFp_nistp256_method, "X9.62/SECG curve over a 256 bit prime field"},
+	{NID_X9_62_prime256v1, &_EC_X9_62_PRIME_256V1.h,
+#if defined(ECP_NISTZ256_ASM)
+	 EC_GFp_nistz256_method,
+#elif !defined(OPENSSL_NO_EC_NISTP_64_GCC_128)
+	 EC_GFp_nistp256_method,
 #else
-	{NID_X9_62_prime256v1, &_EC_X9_62_PRIME_256V1.h, 0, "X9.62/SECG curve over a 256 bit prime field"},
+	 0,
 #endif
+	 "X9.62/SECG curve over a 256 bit prime field"},
 #ifndef OPENSSL_NO_EC2M
 	/* characteristic two field curves */
 	/* NIST/SECG curves */
@@ -3164,7 +3168,7 @@ ec_group_new_from_data(const ec_list_element curve)
 	const unsigned char *params;
 
 	if ((ctx = BN_CTX_new()) == NULL) {
-		ECerr(EC_F_EC_GROUP_NEW_FROM_DATA, ERR_R_MALLOC_FAILURE);
+		ECerror(ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 	data = curve.data;
@@ -3176,19 +3180,19 @@ ec_group_new_from_data(const ec_list_element curve)
 	if (!(p = BN_bin2bn(params + 0 * param_len, param_len, NULL)) ||
 	    !(a = BN_bin2bn(params + 1 * param_len, param_len, NULL)) ||
 	    !(b = BN_bin2bn(params + 2 * param_len, param_len, NULL))) {
-		ECerr(EC_F_EC_GROUP_NEW_FROM_DATA, ERR_R_BN_LIB);
+		ECerror(ERR_R_BN_LIB);
 		goto err;
 	}
 	if (curve.meth != 0) {
 		meth = curve.meth();
 		if (((group = EC_GROUP_new(meth)) == NULL) ||
 		    (!(group->meth->group_set_curve(group, p, a, b, ctx)))) {
-			ECerr(EC_F_EC_GROUP_NEW_FROM_DATA, ERR_R_EC_LIB);
+			ECerror(ERR_R_EC_LIB);
 			goto err;
 		}
 	} else if (data->field_type == NID_X9_62_prime_field) {
 		if ((group = EC_GROUP_new_curve_GFp(p, a, b, ctx)) == NULL) {
-			ECerr(EC_F_EC_GROUP_NEW_FROM_DATA, ERR_R_EC_LIB);
+			ECerror(ERR_R_EC_LIB);
 			goto err;
 		}
 	}
@@ -3196,37 +3200,37 @@ ec_group_new_from_data(const ec_list_element curve)
 	else {			/* field_type ==
 				 * NID_X9_62_characteristic_two_field */
 		if ((group = EC_GROUP_new_curve_GF2m(p, a, b, ctx)) == NULL) {
-			ECerr(EC_F_EC_GROUP_NEW_FROM_DATA, ERR_R_EC_LIB);
+			ECerror(ERR_R_EC_LIB);
 			goto err;
 		}
 	}
 #endif
 
 	if ((P = EC_POINT_new(group)) == NULL) {
-		ECerr(EC_F_EC_GROUP_NEW_FROM_DATA, ERR_R_EC_LIB);
+		ECerror(ERR_R_EC_LIB);
 		goto err;
 	}
 	if (!(x = BN_bin2bn(params + 3 * param_len, param_len, NULL))
 	    || !(y = BN_bin2bn(params + 4 * param_len, param_len, NULL))) {
-		ECerr(EC_F_EC_GROUP_NEW_FROM_DATA, ERR_R_BN_LIB);
+		ECerror(ERR_R_BN_LIB);
 		goto err;
 	}
 	if (!EC_POINT_set_affine_coordinates_GFp(group, P, x, y, ctx)) {
-		ECerr(EC_F_EC_GROUP_NEW_FROM_DATA, ERR_R_EC_LIB);
+		ECerror(ERR_R_EC_LIB);
 		goto err;
 	}
 	if (!(order = BN_bin2bn(params + 5 * param_len, param_len, NULL))
 	    || !BN_set_word(x, (BN_ULONG) data->cofactor)) {
-		ECerr(EC_F_EC_GROUP_NEW_FROM_DATA, ERR_R_BN_LIB);
+		ECerror(ERR_R_BN_LIB);
 		goto err;
 	}
 	if (!EC_GROUP_set_generator(group, P, order, x)) {
-		ECerr(EC_F_EC_GROUP_NEW_FROM_DATA, ERR_R_EC_LIB);
+		ECerror(ERR_R_EC_LIB);
 		goto err;
 	}
 	if (seed_len) {
 		if (!EC_GROUP_set_seed(group, params - seed_len, seed_len)) {
-			ECerr(EC_F_EC_GROUP_NEW_FROM_DATA, ERR_R_EC_LIB);
+			ECerror(ERR_R_EC_LIB);
 			goto err;
 		}
 	}
@@ -3262,7 +3266,7 @@ EC_GROUP_new_by_curve_name(int nid)
 			break;
 		}
 	if (ret == NULL) {
-		ECerr(EC_F_EC_GROUP_NEW_BY_CURVE_NAME, EC_R_UNKNOWN_GROUP);
+		ECerror(EC_R_UNKNOWN_GROUP);
 		return NULL;
 	}
 	EC_GROUP_set_curve_name(ret, nid);

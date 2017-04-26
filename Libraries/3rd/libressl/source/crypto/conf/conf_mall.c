@@ -1,4 +1,4 @@
-/* $OpenBSD: conf_mall.c,v 1.8 2014/07/10 22:45:56 jsing Exp $ */
+/* $OpenBSD: conf_mall.c,v 1.9 2014/07/11 08:44:48 jsing Exp $ */
 /* Written by Stephen Henson (steve@openssl.org) for the OpenSSL
  * project 2001.
  */

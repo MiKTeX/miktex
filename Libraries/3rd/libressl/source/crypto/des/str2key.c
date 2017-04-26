@@ -1,4 +1,4 @@
-/* $OpenBSD: str2key.c,v 1.9 2014/10/28 07:35:58 jsg Exp $ */
+/* $OpenBSD: str2key.c,v 1.10 2015/09/10 15:56:25 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

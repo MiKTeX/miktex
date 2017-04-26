@@ -1,3 +1,5 @@
+#include "x86_arch.h"
+
 .text	
 
 .p2align	4
@@ -1300,6 +1302,7 @@ L$dec_key_epilogue:
 
 .p2align	4
 
+.private_extern	_OPENSSL_ia32cap_P
 .globl	_asm_AES_cbc_encrypt
 .private_extern	_asm_AES_cbc_encrypt
 _asm_AES_cbc_encrypt:
@@ -1329,7 +1332,7 @@ L$cbc_picked_te:
 	jb	L$cbc_slow_prologue
 	testq	$15,%rdx
 	jnz	L$cbc_slow_prologue
-	btl	$28,%r10d
+	btl	$IA32CAP_BIT0_HT,%r10d
 	jc	L$cbc_slow_prologue
 
 

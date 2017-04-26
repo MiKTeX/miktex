@@ -1,4 +1,4 @@
-/* $OpenBSD: xcbc_enc.c,v 1.8 2014/10/28 07:35:58 jsg Exp $ */
+/* $OpenBSD: xcbc_enc.c,v 1.9 2015/02/07 13:19:15 doug Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

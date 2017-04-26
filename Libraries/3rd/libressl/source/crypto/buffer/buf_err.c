@@ -1,4 +1,4 @@
-/* $OpenBSD: buf_err.c,v 1.9 2014/06/12 15:49:28 deraadt Exp $ */
+/* $OpenBSD: buf_err.c,v 1.11 2017/01/29 17:49:22 beck Exp $ */
 /* ====================================================================
  * Copyright (c) 1999-2006 The OpenSSL Project.  All rights reserved.
  *
@@ -72,12 +72,7 @@
 #define ERR_REASON(reason) ERR_PACK(ERR_LIB_BUF,0,reason)
 
 static ERR_STRING_DATA BUF_str_functs[] = {
-	{ERR_FUNC(BUF_F_BUF_MEMDUP),	"BUF_memdup"},
-	{ERR_FUNC(BUF_F_BUF_MEM_GROW),	"BUF_MEM_grow"},
-	{ERR_FUNC(BUF_F_BUF_MEM_GROW_CLEAN),	"BUF_MEM_grow_clean"},
-	{ERR_FUNC(BUF_F_BUF_MEM_NEW),	"BUF_MEM_new"},
-	{ERR_FUNC(BUF_F_BUF_STRDUP),	"BUF_strdup"},
-	{ERR_FUNC(BUF_F_BUF_STRNDUP),	"BUF_strndup"},
+	{ERR_FUNC(0xfff), "CRYPTO_internal"},
 	{0, NULL}
 };
 

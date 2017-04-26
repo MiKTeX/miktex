@@ -1,4 +1,4 @@
-/* $OpenBSD: d1_enc.c,v 1.10 2015/07/17 07:04:40 doug Exp $ */
+/* $OpenBSD: d1_enc.c,v 1.14 2017/01/23 08:08:06 beck Exp $ */
 /*
  * DTLS implementation written by Nagendra Modadugu
  * (nagendra@cs.stanford.edu) for the OpenSSL project 2005.
@@ -139,17 +139,17 @@ dtls1_enc(SSL *s, int send)
 	const EVP_CIPHER *enc;
 
 	if (send) {
-		if (EVP_MD_CTX_md(s->write_hash)) {
-			mac_size = EVP_MD_CTX_size(s->write_hash);
+		if (EVP_MD_CTX_md(s->internal->write_hash)) {
+			mac_size = EVP_MD_CTX_size(s->internal->write_hash);
 			if (mac_size < 0)
 				return -1;
 		}
-		ds = s->enc_write_ctx;
-		rec = &(s->s3->wrec);
-		if (s->enc_write_ctx == NULL)
+		ds = s->internal->enc_write_ctx;
+		rec = &(S3I(s)->wrec);
+		if (s->internal->enc_write_ctx == NULL)
 			enc = NULL;
 		else {
-			enc = EVP_CIPHER_CTX_cipher(s->enc_write_ctx);
+			enc = EVP_CIPHER_CTX_cipher(s->internal->enc_write_ctx);
 			if (rec->data != rec->input) {
 #ifdef DEBUG
 				/* we can't write into the input stream */
@@ -167,7 +167,7 @@ dtls1_enc(SSL *s, int send)
 			OPENSSL_assert(mac_size >= 0);
 		}
 		ds = s->enc_read_ctx;
-		rec = &(s->s3->rrec);
+		rec = &(S3I(s)->rrec);
 		if (s->enc_read_ctx == NULL)
 			enc = NULL;
 		else

@@ -1,4 +1,4 @@
-/* $OpenBSD: sha.h,v 1.20 2014/10/20 13:06:54 bcook Exp $ */
+/* $OpenBSD: sha.h,v 1.21 2015/09/13 21:09:56 doug Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

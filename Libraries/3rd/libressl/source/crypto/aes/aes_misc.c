@@ -1,4 +1,4 @@
-/* $OpenBSD: aes_misc.c,v 1.9 2014/07/09 09:10:07 miod Exp $ */
+/* $OpenBSD: aes_misc.c,v 1.10 2014/07/09 11:10:50 bcook Exp $ */
 /* ====================================================================
  * Copyright (c) 1998-2002 The OpenSSL Project.  All rights reserved.
  *

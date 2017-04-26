@@ -1,4 +1,4 @@
-/*	$OpenBSD: strcasecmp.c,v 1.6 2005/08/08 08:05:37 espie Exp $	*/
+/*	$OpenBSD: strcasecmp.c,v 1.7 2015/08/31 02:53:57 guenther Exp $	*/
 
 /*
  * Copyright (c) 1987, 1993

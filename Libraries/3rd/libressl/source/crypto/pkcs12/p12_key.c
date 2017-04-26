@@ -1,4 +1,4 @@
-/* $OpenBSD: p12_key.c,v 1.22 2015/02/07 13:19:15 doug Exp $ */
+/* $OpenBSD: p12_key.c,v 1.25 2017/01/29 17:49:23 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -81,7 +81,7 @@ PKCS12_key_gen_asc(const char *pass, int passlen, unsigned char *salt,
 		unipass = NULL;
 		uniplen = 0;
 	} else if (!OPENSSL_asc2uni(pass, passlen, &unipass, &uniplen)) {
-		PKCS12err(PKCS12_F_PKCS12_KEY_GEN_ASC, ERR_R_MALLOC_FAILURE);
+		PKCS12error(ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
 	ret = PKCS12_key_gen_uni(unipass, uniplen, salt, saltlen,
@@ -107,11 +107,12 @@ PKCS12_key_gen_uni(unsigned char *pass, int passlen, unsigned char *salt,
 	BIGNUM *Ij, *Bpl1;	/* These hold Ij and B + 1 */
 	EVP_MD_CTX ctx;
 
-	EVP_MD_CTX_init(&ctx);
 	v = EVP_MD_block_size(md_type);
 	u = EVP_MD_size(md_type);
 	if (u < 0)
 		return 0;
+
+	EVP_MD_CTX_init(&ctx);
 	D = malloc(v);
 	Ai = malloc(u);
 	B = malloc(v + 1);
@@ -185,7 +186,7 @@ PKCS12_key_gen_uni(unsigned char *pass, int passlen, unsigned char *salt,
 	}
 
 err:
-	PKCS12err(PKCS12_F_PKCS12_KEY_GEN_UNI, ERR_R_MALLOC_FAILURE);
+	PKCS12error(ERR_R_MALLOC_FAILURE);
 
 end:
 	free(Ai);

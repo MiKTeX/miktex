@@ -1,4 +1,4 @@
-/* $OpenBSD: evp_key.c,v 1.22 2015/02/10 09:55:39 miod Exp $ */
+/* $OpenBSD: evp_key.c,v 1.24 2017/01/29 17:49:23 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -135,11 +135,11 @@ EVP_BytesToKey(const EVP_CIPHER *type, const EVP_MD *md,
 	niv = type->iv_len;
 
 	if ((size_t)nkey > EVP_MAX_KEY_LENGTH) {
-		EVPerr(EVP_F_EVP_BYTESTOKEY, EVP_R_BAD_KEY_LENGTH);
+		EVPerror(EVP_R_BAD_KEY_LENGTH);
 		return 0;
 	}
 	if ((size_t)niv > EVP_MAX_IV_LENGTH) {
-		EVPerr(EVP_F_EVP_BYTESTOKEY, EVP_R_IV_TOO_LARGE);
+		EVPerror(EVP_R_IV_TOO_LARGE);
 		return 0;
 	}
 

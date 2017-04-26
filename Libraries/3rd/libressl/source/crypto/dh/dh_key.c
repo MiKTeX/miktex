@@ -1,4 +1,4 @@
-/* $OpenBSD: dh_key.c,v 1.24 2016/06/30 02:02:06 bcook Exp $ */
+/* $OpenBSD: dh_key.c,v 1.27 2017/01/29 17:49:22 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -61,6 +61,8 @@
 #include <openssl/bn.h>
 #include <openssl/dh.h>
 #include <openssl/err.h>
+
+#include "bn_lcl.h"
 
 static int generate_key(DH *dh);
 static int compute_key(unsigned char *key, const BIGNUM *pub_key, DH *dh);
@@ -163,7 +165,7 @@ generate_key(DH *dh)
 	ok = 1;
 err:
 	if (ok != 1)
-		DHerr(DH_F_GENERATE_KEY, ERR_R_BN_LIB);
+		DHerror(ERR_R_BN_LIB);
 
 	if (pub_key != NULL && dh->pub_key == NULL)
 		BN_free(pub_key);
@@ -183,7 +185,7 @@ compute_key(unsigned char *key, const BIGNUM *pub_key, DH *dh)
         int check_result;
 
 	if (BN_num_bits(dh->p) > OPENSSL_DH_MAX_MODULUS_BITS) {
-		DHerr(DH_F_COMPUTE_KEY, DH_R_MODULUS_TOO_LARGE);
+		DHerror(DH_R_MODULUS_TOO_LARGE);
 		goto err;
 	}
 
@@ -195,7 +197,7 @@ compute_key(unsigned char *key, const BIGNUM *pub_key, DH *dh)
 		goto err;
 	
 	if (dh->priv_key == NULL) {
-		DHerr(DH_F_COMPUTE_KEY, DH_R_NO_PRIVATE_VALUE);
+		DHerror(DH_R_NO_PRIVATE_VALUE);
 		goto err;
 	}
 
@@ -210,13 +212,13 @@ compute_key(unsigned char *key, const BIGNUM *pub_key, DH *dh)
 	}
 
         if (!DH_check_pub_key(dh, pub_key, &check_result) || check_result) {
-		DHerr(DH_F_COMPUTE_KEY, DH_R_INVALID_PUBKEY);
+		DHerror(DH_R_INVALID_PUBKEY);
 		goto err;
 	}
 
 	if (!dh->meth->bn_mod_exp(dh, tmp, pub_key, dh->priv_key, dh->p, ctx,
 	    mont)) {
-		DHerr(DH_F_COMPUTE_KEY, ERR_R_BN_LIB);
+		DHerror(ERR_R_BN_LIB);
 		goto err;
 	}
 
@@ -233,7 +235,7 @@ static int
 dh_bn_mod_exp(const DH *dh, BIGNUM *r, const BIGNUM *a, const BIGNUM *p,
     const BIGNUM *m, BN_CTX *ctx, BN_MONT_CTX *m_ctx)
 {
-	return BN_mod_exp_mont(r, a, p, m, ctx, m_ctx);
+	return BN_mod_exp_mont_ct(r, a, p, m, ctx, m_ctx);
 }
 
 static int

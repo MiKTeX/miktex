@@ -1,4 +1,4 @@
-/* $OpenBSD: x509_req.c,v 1.17 2015/03/15 22:52:17 doug Exp $ */
+/* $OpenBSD: x509_req.c,v 1.20 2017/01/29 17:49:23 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -80,7 +80,7 @@ X509_to_X509_REQ(X509 *x, EVP_PKEY *pkey, const EVP_MD *md)
 
 	ret = X509_REQ_new();
 	if (ret == NULL) {
-		X509err(X509_F_X509_TO_X509_REQ, ERR_R_MALLOC_FAILURE);
+		X509error(ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 
@@ -133,31 +133,26 @@ X509_REQ_check_private_key(X509_REQ *x, EVP_PKEY *k)
 		ok = 1;
 		break;
 	case 0:
-		X509err(X509_F_X509_REQ_CHECK_PRIVATE_KEY,
-		    X509_R_KEY_VALUES_MISMATCH);
+		X509error(X509_R_KEY_VALUES_MISMATCH);
 		break;
 	case -1:
-		X509err(X509_F_X509_REQ_CHECK_PRIVATE_KEY,
-		    X509_R_KEY_TYPE_MISMATCH);
+		X509error(X509_R_KEY_TYPE_MISMATCH);
 		break;
 	case -2:
 #ifndef OPENSSL_NO_EC
 		if (k->type == EVP_PKEY_EC) {
-			X509err(X509_F_X509_REQ_CHECK_PRIVATE_KEY,
-			    ERR_R_EC_LIB);
+			X509error(ERR_R_EC_LIB);
 			break;
 		}
 #endif
 #ifndef OPENSSL_NO_DH
 		if (k->type == EVP_PKEY_DH) {
 			/* No idea */
-			X509err(X509_F_X509_REQ_CHECK_PRIVATE_KEY,
-			    X509_R_CANT_CHECK_DH_KEY);
+			X509error(X509_R_CANT_CHECK_DH_KEY);
 			break;
 		}
 #endif
-		X509err(X509_F_X509_REQ_CHECK_PRIVATE_KEY,
-		    X509_R_UNKNOWN_KEY_TYPE);
+		X509error(X509_R_UNKNOWN_KEY_TYPE);
 	}
 
 	EVP_PKEY_free(xk);
@@ -224,7 +219,7 @@ X509_REQ_get_extensions(X509_REQ *req)
 		return NULL;
 	p = ext->value.sequence->data;
 	return (STACK_OF(X509_EXTENSION) *)ASN1_item_d2i(NULL, &p,
-	    ext->value.sequence->length, ASN1_ITEM_rptr(X509_EXTENSIONS));
+	    ext->value.sequence->length, &X509_EXTENSIONS_it);
 }
 
 /* Add a STACK_OF extensions to a certificate request: allow alternative OIDs
@@ -245,7 +240,7 @@ X509_REQ_add_extensions_nid(X509_REQ *req, STACK_OF(X509_EXTENSION) *exts,
 	at->type = V_ASN1_SEQUENCE;
 	/* Generate encoding of extensions */
 	at->value.sequence->length = ASN1_item_i2d((ASN1_VALUE *)exts,
-	    &at->value.sequence->data, ASN1_ITEM_rptr(X509_EXTENSIONS));
+	    &at->value.sequence->data, &X509_EXTENSIONS_it);
 	if (!(attr = X509_ATTRIBUTE_new()))
 		goto err;
 	if (!(attr->value.set = sk_ASN1_TYPE_new_null()))

@@ -1,4 +1,4 @@
-/* $OpenBSD: eng_openssl.c,v 1.11 2015/08/28 01:06:09 beck Exp $ */
+/* $OpenBSD: eng_openssl.c,v 1.12 2015/12/07 03:30:09 bcook Exp $ */
 /* Written by Geoff Thorpe (geoff@geoffthorpe.net) for the OpenSSL
  * project 2000.
  */

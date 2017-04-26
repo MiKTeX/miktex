@@ -1,4 +1,4 @@
-/* $OpenBSD: e_old.c,v 1.7 2014/07/10 22:45:57 jsing Exp $ */
+/* $OpenBSD: e_old.c,v 1.8 2015/02/10 11:45:09 jsing Exp $ */
 /* Written by Richard Levitte (richard@levitte.org) for the OpenSSL
  * project 2004.
  */

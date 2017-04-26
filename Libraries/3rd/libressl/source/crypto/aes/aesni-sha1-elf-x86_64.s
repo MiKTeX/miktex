@@ -1,5 +1,7 @@
+#include "x86_arch.h"
 .text	
 
+.hidden	OPENSSL_ia32cap_P
 
 .globl	aesni_cbc_sha1_enc
 .type	aesni_cbc_sha1_enc,@function

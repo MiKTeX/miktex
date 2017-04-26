@@ -1,4 +1,4 @@
-/* $OpenBSD: srtp.h,v 1.5 2014/12/14 15:30:50 jsing Exp $ */
+/* $OpenBSD: srtp.h,v 1.6 2015/09/01 15:18:23 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

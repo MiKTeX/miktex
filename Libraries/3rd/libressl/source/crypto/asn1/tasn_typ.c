@@ -1,4 +1,4 @@
-/* $OpenBSD: tasn_typ.c,v 1.12 2015/07/24 13:49:58 jsing Exp $ */
+/* $OpenBSD: tasn_typ.c,v 1.13 2015/07/24 15:09:52 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2000.
  */

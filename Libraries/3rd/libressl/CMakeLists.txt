@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2016 Christian Schenk
+## Copyright (C) 2015-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -47,11 +47,11 @@ set(public_headers
   openssl/cast.h
   openssl/chacha.h
   openssl/cmac.h
-  openssl/cms.h
   openssl/comp.h
   openssl/conf.h
   openssl/conf_api.h
   openssl/crypto.h
+  openssl/curve25519.h
   openssl/des.h
   openssl/dh.h
   openssl/dsa.h
@@ -66,7 +66,6 @@ set(public_headers
   openssl/gost.h
   openssl/hmac.h
   openssl/idea.h
-  openssl/krb5_asn.h
   openssl/lhash.h
   openssl/md4.h
   openssl/md5.h
@@ -117,6 +116,8 @@ endforeach()
 
 add_definitions(-DLIBRESSL_INTERNAL)
 add_definitions(-DOPENSSL_NO_HW_PADLOCK)
+add_definitions(-D__BEGIN_HIDDEN_DECLS=)
+add_definitions(-D__END_HIDDEN_DECLS=)
 
 if(MSVC)
 #  add_definitions(-Dinline=__inline)
@@ -126,6 +127,10 @@ if(MSVC)
 #  add_definitions(-D_REENTRANT -D_POSIX_THREAD_SAFE_FUNCTIONS)
 #  add_definitions(-DWIN32_LEAN_AND_MEAN -D_WIN32_WINNT=0x0501)
 #  add_definitions(-DCPPFLAGS -DOPENSSL_NO_SPEED -DNO_SYSLOG -DNO_CRYPT)
+endif()
+
+if(HAVE_STRNLEN)
+  add_definitions(-DHAVE_STRNLEN)
 endif()
 
 add_subdirectory(crypto)

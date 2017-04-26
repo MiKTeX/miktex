@@ -1,5 +1,7 @@
+#include "x86_arch.h"
 .text	
 
+.hidden	OPENSSL_ia32cap_P
 
 .globl	sha1_block_data_order
 .type	sha1_block_data_order,@function
@@ -7,7 +9,7 @@
 sha1_block_data_order:
 	movl	OPENSSL_ia32cap_P+0(%rip),%r9d
 	movl	OPENSSL_ia32cap_P+4(%rip),%r8d
-	testl	$512,%r8d
+	testl	$IA32CAP_MASK1_SSSE3,%r8d
 	jz	.Lialu
 	jmp	_ssse3_shortcut
 

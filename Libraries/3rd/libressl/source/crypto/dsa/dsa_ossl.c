@@ -1,4 +1,4 @@
-/* $OpenBSD: dsa_ossl.c,v 1.25 2016/06/06 23:37:37 tedu Exp $ */
+/* $OpenBSD: dsa_ossl.c,v 1.30 2017/01/29 17:49:22 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -65,6 +65,8 @@
 #include <openssl/dsa.h>
 #include <openssl/err.h>
 #include <openssl/sha.h>
+
+#include "bn_lcl.h"
 
 static DSA_SIG *dsa_do_sign(const unsigned char *dgst, int dlen, DSA *dsa);
 static int dsa_sign_setup(DSA *dsa, BN_CTX *ctx_in, BIGNUM **kinvp,
@@ -167,7 +169,7 @@ redo:
 	
 err:
 	if (!ret) {
-		DSAerr(DSA_F_DSA_DO_SIGN, reason);
+		DSAerror(reason);
 		BN_free(r);
 		BN_free(s);
 	}
@@ -186,7 +188,7 @@ dsa_sign_setup(DSA *dsa, BN_CTX *ctx_in, BIGNUM **kinvp, BIGNUM **rp)
 	int ret = 0;
 
 	if (!dsa->p || !dsa->q || !dsa->g) {
-		DSAerr(DSA_F_DSA_SIGN_SETUP, DSA_R_MISSING_PARAMETERS);
+		DSAerror(DSA_R_MISSING_PARAMETERS);
 		return 0;
 	}
 
@@ -238,15 +240,15 @@ dsa_sign_setup(DSA *dsa, BN_CTX *ctx_in, BIGNUM **kinvp, BIGNUM **rp)
 					dsa->method_mont_p))
 			goto err;
 	} else {
-		if (!BN_mod_exp_mont(r, dsa->g, &k, dsa->p, ctx, dsa->method_mont_p))
+		if (!BN_mod_exp_mont_ct(r, dsa->g, &k, dsa->p, ctx, dsa->method_mont_p))
 			goto err;
 	}
 
-	if (!BN_mod(r,r,dsa->q,ctx))
+	if (!BN_mod_ct(r,r,dsa->q,ctx))
 		goto err;
 
 	/* Compute  part of 's = inv(k) (m + xr) mod q' */
-	if ((kinv = BN_mod_inverse(NULL, &k, dsa->q, ctx)) == NULL)
+	if ((kinv = BN_mod_inverse_ct(NULL, &k, dsa->q, ctx)) == NULL)
 		goto err;
 
 	BN_clear_free(*kinvp);
@@ -257,7 +259,7 @@ dsa_sign_setup(DSA *dsa, BN_CTX *ctx_in, BIGNUM **kinvp, BIGNUM **rp)
 	ret = 1;
 err:
 	if (!ret) {
-		DSAerr(DSA_F_DSA_SIGN_SETUP, ERR_R_BN_LIB);
+		DSAerror(ERR_R_BN_LIB);
 		BN_clear_free(r);
 	}
 	if (ctx_in == NULL)
@@ -275,19 +277,19 @@ dsa_do_verify(const unsigned char *dgst, int dgst_len, DSA_SIG *sig, DSA *dsa)
 	int ret = -1, i;
 
 	if (!dsa->p || !dsa->q || !dsa->g) {
-		DSAerr(DSA_F_DSA_DO_VERIFY, DSA_R_MISSING_PARAMETERS);
+		DSAerror(DSA_R_MISSING_PARAMETERS);
 		return -1;
 	}
 
 	i = BN_num_bits(dsa->q);
 	/* fips 186-3 allows only different sizes for q */
 	if (i != 160 && i != 224 && i != 256) {
-		DSAerr(DSA_F_DSA_DO_VERIFY, DSA_R_BAD_Q_VALUE);
+		DSAerror(DSA_R_BAD_Q_VALUE);
 		return -1;
 	}
 
 	if (BN_num_bits(dsa->p) > OPENSSL_DSA_MAX_MODULUS_BITS) {
-		DSAerr(DSA_F_DSA_DO_VERIFY, DSA_R_MODULUS_TOO_LARGE);
+		DSAerror(DSA_R_MODULUS_TOO_LARGE);
 		return -1;
 	}
 	BN_init(&u1);
@@ -310,7 +312,7 @@ dsa_do_verify(const unsigned char *dgst, int dgst_len, DSA_SIG *sig, DSA *dsa)
 
 	/* Calculate W = inv(S) mod Q
 	 * save W in u2 */
-	if ((BN_mod_inverse(&u2, sig->s, dsa->q, ctx)) == NULL)
+	if ((BN_mod_inverse_ct(&u2, sig->s, dsa->q, ctx)) == NULL)
 		goto err;
 
 	/* save M in u1 */
@@ -349,10 +351,10 @@ dsa_do_verify(const unsigned char *dgst, int dgst_len, DSA_SIG *sig, DSA *dsa)
 						mont))
 			goto err;
 	}
-		
+
 	/* BN_copy(&u1,&t1); */
 	/* let u1 = u1 mod q */
-	if (!BN_mod(&u1, &t1, dsa->q, ctx))
+	if (!BN_mod_ct(&u1, &t1, dsa->q, ctx))
 		goto err;
 
 	/* V is now in u1.  If the signature is correct, it will be
@@ -361,7 +363,7 @@ dsa_do_verify(const unsigned char *dgst, int dgst_len, DSA_SIG *sig, DSA *dsa)
 
 err:
 	if (ret < 0)
-		DSAerr(DSA_F_DSA_DO_VERIFY, ERR_R_BN_LIB);
+		DSAerror(ERR_R_BN_LIB);
 	BN_CTX_free(ctx);
 	BN_free(&u1);
 	BN_free(&u2);

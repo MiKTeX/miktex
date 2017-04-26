@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_mont.c,v 1.23 2014/07/11 08:44:48 jsing Exp $ */
+/* $OpenBSD: bn_mont.c,v 1.26 2017/01/21 11:00:46 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -400,7 +400,7 @@ BN_MONT_CTX_set(BN_MONT_CTX *mont, const BIGNUM *mod, BN_CTX *ctx)
 		if ((buf[1] = mod->top > 1 ? mod->d[1] : 0))
 			tmod.top = 2;
 
-		if ((BN_mod_inverse(Ri, R, &tmod, ctx)) == NULL)
+		if ((BN_mod_inverse_ct(Ri, R, &tmod, ctx)) == NULL)
 			goto err;
 		if (!BN_lshift(Ri, Ri, 2 * BN_BITS2))
 			goto err; /* R*Ri */
@@ -418,7 +418,7 @@ BN_MONT_CTX_set(BN_MONT_CTX *mont, const BIGNUM *mod, BN_CTX *ctx)
 			Ri->d[1] = BN_MASK2;
 			Ri->top = 2;
 		}
-		if (!BN_div(Ri, NULL, Ri, &tmod, ctx))
+		if (!BN_div_ct(Ri, NULL, Ri, &tmod, ctx))
 			goto err;
 		/* Ni = (R*Ri-1)/N,
 		 * keep only couple of least significant words: */
@@ -433,7 +433,7 @@ BN_MONT_CTX_set(BN_MONT_CTX *mont, const BIGNUM *mod, BN_CTX *ctx)
 		buf[1] = 0;
 		tmod.top = buf[0] != 0 ? 1 : 0;
 		/* Ri = R^-1 mod N*/
-		if ((BN_mod_inverse(Ri, R, &tmod, ctx)) == NULL)
+		if ((BN_mod_inverse_ct(Ri, R, &tmod, ctx)) == NULL)
 			goto err;
 		if (!BN_lshift(Ri, Ri, BN_BITS2))
 			goto err; /* R*Ri */
@@ -446,7 +446,7 @@ BN_MONT_CTX_set(BN_MONT_CTX *mont, const BIGNUM *mod, BN_CTX *ctx)
 			if (!BN_set_word(Ri, BN_MASK2))
 				goto err;  /* Ri-- (mod word size) */
 		}
-		if (!BN_div(Ri, NULL, Ri, &tmod, ctx))
+		if (!BN_div_ct(Ri, NULL, Ri, &tmod, ctx))
 			goto err;
 		/* Ni = (R*Ri-1)/N,
 		 * keep only least significant word: */
@@ -461,14 +461,14 @@ BN_MONT_CTX_set(BN_MONT_CTX *mont, const BIGNUM *mod, BN_CTX *ctx)
 		if (!BN_set_bit(R, mont->ri))
 			goto err;  /* R = 2^ri */
 		/* Ri = R^-1 mod N*/
-		if ((BN_mod_inverse(Ri, R, &mont->N, ctx)) == NULL)
+		if ((BN_mod_inverse_ct(Ri, R, &mont->N, ctx)) == NULL)
 			goto err;
 		if (!BN_lshift(Ri, Ri, mont->ri))
 			goto err; /* R*Ri */
 		if (!BN_sub_word(Ri, 1))
 			goto err;
 		/* Ni = (R*Ri-1) / N */
-		if (!BN_div(&(mont->Ni), NULL, Ri, &mont->N, ctx))
+		if (!BN_div_ct(&(mont->Ni), NULL, Ri, &mont->N, ctx))
 			goto err;
 	}
 #endif
@@ -477,7 +477,7 @@ BN_MONT_CTX_set(BN_MONT_CTX *mont, const BIGNUM *mod, BN_CTX *ctx)
 	BN_zero(&(mont->RR));
 	if (!BN_set_bit(&(mont->RR), mont->ri*2))
 		goto err;
-	if (!BN_mod(&(mont->RR), &(mont->RR), &(mont->N), ctx))
+	if (!BN_mod_ct(&(mont->RR), &(mont->RR), &(mont->N), ctx))
 		goto err;
 
 	ret = 1;

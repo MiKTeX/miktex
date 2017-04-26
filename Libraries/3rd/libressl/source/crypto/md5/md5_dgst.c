@@ -1,4 +1,4 @@
-/* $OpenBSD: md5_dgst.c,v 1.13 2014/07/09 11:10:51 bcook Exp $ */
+/* $OpenBSD: md5_dgst.c,v 1.14 2014/10/28 07:35:59 jsg Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

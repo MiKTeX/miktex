@@ -1,4 +1,4 @@
-/* $OpenBSD: ecb_enc.c,v 1.15 2014/07/09 11:10:50 bcook Exp $ */
+/* $OpenBSD: ecb_enc.c,v 1.16 2014/10/28 07:35:58 jsg Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

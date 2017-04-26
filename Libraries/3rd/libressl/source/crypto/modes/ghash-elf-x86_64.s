@@ -1,3 +1,4 @@
+#include "x86_arch.h"
 .text	
 
 .globl	gcm_gmult_4bit

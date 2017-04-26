@@ -1,4 +1,4 @@
-/* $OpenBSD: rmd_one.c,v 1.8 2015/09/10 15:03:59 jsing Exp $ */
+/* $OpenBSD: rmd_one.c,v 1.9 2015/09/10 15:56:25 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

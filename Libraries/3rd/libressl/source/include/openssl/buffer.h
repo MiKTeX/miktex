@@ -1,4 +1,4 @@
-/* $OpenBSD: buffer.h,v 1.14 2014/10/16 03:19:02 beck Exp $ */
+/* $OpenBSD: buffer.h,v 1.15 2015/06/24 10:05:14 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

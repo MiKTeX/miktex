@@ -1,4 +1,4 @@
-/* $OpenBSD: modes_lcl.h,v 1.7 2014/06/12 15:49:30 deraadt Exp $ */
+/* $OpenBSD: modes_lcl.h,v 1.10 2016/12/21 15:49:29 jsing Exp $ */
 /* ====================================================================
  * Copyright (c) 2010 The OpenSSL Project.  All rights reserved.
  *
@@ -11,6 +11,8 @@
 #include <openssl/opensslconf.h>
 
 #include <openssl/modes.h>
+
+__BEGIN_HIDDEN_DECLS
 
 #if defined(_LP64)
 typedef long i64;
@@ -34,7 +36,7 @@ typedef unsigned char u8;
 #  define BSWAP4(x) ({	u32 ret=(x);			\
 			asm ("bswapl %0"		\
 			: "+r"(ret));	ret;		})
-# elif (defined(__i386) || defined(__i386__)) && !defined(I386_ONLY)
+# elif (defined(__i386) || defined(__i386__))
 #  define BSWAP8(x) ({	u32 lo=(u64)(x)>>32,hi=(x);	\
 			asm ("bswapl %0; bswapl %1"	\
 			: "+r"(hi),"+r"(lo));		\
@@ -106,3 +108,4 @@ struct ccm128_context {
 	void *key;
 };
 
+__END_HIDDEN_DECLS

@@ -1,4 +1,4 @@
-/* $OpenBSD$ */
+/* $OpenBSD: gost_asn1.h,v 1.3 2016/12/21 15:49:29 jsing Exp $ */
 /*
  * Copyright (c) 2014 Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
  * Copyright (c) 2005-2006 Cryptocom LTD
@@ -54,12 +54,18 @@
 
 #include <openssl/asn1.h>
 
+__BEGIN_HIDDEN_DECLS
+
 typedef struct {
 	ASN1_OCTET_STRING *encrypted_key;
 	ASN1_OCTET_STRING *imit;
 } GOST_KEY_INFO;
 
-DECLARE_ASN1_FUNCTIONS(GOST_KEY_INFO)
+GOST_KEY_INFO *GOST_KEY_INFO_new(void);
+void GOST_KEY_INFO_free(GOST_KEY_INFO *a);
+GOST_KEY_INFO *d2i_GOST_KEY_INFO(GOST_KEY_INFO **a, const unsigned char **in, long len);
+int i2d_GOST_KEY_INFO(GOST_KEY_INFO *a, unsigned char **out);
+extern const ASN1_ITEM GOST_KEY_INFO_it;
 
 typedef struct {
 	ASN1_OBJECT *cipher;
@@ -67,14 +73,22 @@ typedef struct {
 	ASN1_OCTET_STRING *eph_iv;
 } GOST_KEY_AGREEMENT_INFO;
 
-DECLARE_ASN1_FUNCTIONS(GOST_KEY_AGREEMENT_INFO)
+GOST_KEY_AGREEMENT_INFO *GOST_KEY_AGREEMENT_INFO_new(void);
+void GOST_KEY_AGREEMENT_INFO_free(GOST_KEY_AGREEMENT_INFO *a);
+GOST_KEY_AGREEMENT_INFO *d2i_GOST_KEY_AGREEMENT_INFO(GOST_KEY_AGREEMENT_INFO **a, const unsigned char **in, long len);
+int i2d_GOST_KEY_AGREEMENT_INFO(GOST_KEY_AGREEMENT_INFO *a, unsigned char **out);
+extern const ASN1_ITEM GOST_KEY_AGREEMENT_INFO_it;
 
 typedef struct {
 	GOST_KEY_INFO *key_info;
 	GOST_KEY_AGREEMENT_INFO *key_agreement_info;
 } GOST_KEY_TRANSPORT;
 
-DECLARE_ASN1_FUNCTIONS(GOST_KEY_TRANSPORT)
+GOST_KEY_TRANSPORT *GOST_KEY_TRANSPORT_new(void);
+void GOST_KEY_TRANSPORT_free(GOST_KEY_TRANSPORT *a);
+GOST_KEY_TRANSPORT *d2i_GOST_KEY_TRANSPORT(GOST_KEY_TRANSPORT **a, const unsigned char **in, long len);
+int i2d_GOST_KEY_TRANSPORT(GOST_KEY_TRANSPORT *a, unsigned char **out);
+extern const ASN1_ITEM GOST_KEY_TRANSPORT_it;
 
 typedef struct {
 	ASN1_OBJECT *key_params;
@@ -82,6 +96,12 @@ typedef struct {
 	ASN1_OBJECT *cipher_params;
 } GOST_KEY_PARAMS;
 
-DECLARE_ASN1_FUNCTIONS(GOST_KEY_PARAMS)
+GOST_KEY_PARAMS *GOST_KEY_PARAMS_new(void);
+void GOST_KEY_PARAMS_free(GOST_KEY_PARAMS *a);
+GOST_KEY_PARAMS *d2i_GOST_KEY_PARAMS(GOST_KEY_PARAMS **a, const unsigned char **in, long len);
+int i2d_GOST_KEY_PARAMS(GOST_KEY_PARAMS *a, unsigned char **out);
+extern const ASN1_ITEM GOST_KEY_PARAMS_it;
+
+__END_HIDDEN_DECLS
 
 #endif

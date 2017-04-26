@@ -1,4 +1,4 @@
-/* $OpenBSD: x_nx509.c,v 1.5 2015/02/11 03:39:51 jsing Exp $ */
+/* $OpenBSD: x_nx509.c,v 1.6 2015/02/11 04:00:39 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2005.
  */

@@ -1,4 +1,4 @@
-/* $OpenBSD: x_attrib.c,v 1.12 2015/02/10 05:25:45 jsing Exp $ */
+/* $OpenBSD: x_attrib.c,v 1.13 2015/02/14 14:56:45 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

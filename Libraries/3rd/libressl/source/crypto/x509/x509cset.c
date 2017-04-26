@@ -1,4 +1,4 @@
-/* $OpenBSD: x509cset.c,v 1.10 2015/09/30 17:30:16 jsing Exp $ */
+/* $OpenBSD: x509cset.c,v 1.11 2015/09/30 17:49:59 jsing Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2001.
  */

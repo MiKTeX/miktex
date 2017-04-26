@@ -1,4 +1,4 @@
-/* $OpenBSD: fcrypt_b.c,v 1.8 2014/06/12 15:49:28 deraadt Exp $ */
+/* $OpenBSD: fcrypt_b.c,v 1.9 2014/10/28 07:35:58 jsg Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

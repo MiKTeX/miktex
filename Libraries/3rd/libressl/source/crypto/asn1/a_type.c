@@ -1,4 +1,4 @@
-/* $OpenBSD: a_type.c,v 1.18 2016/05/04 14:53:29 tedu Exp $ */
+/* $OpenBSD: a_type.c,v 1.19 2016/05/04 15:00:24 tedu Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

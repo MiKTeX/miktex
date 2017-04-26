@@ -1,4 +1,4 @@
-/* $OpenBSD: err_prn.c,v 1.15 2014/07/10 13:58:22 jsing Exp $ */
+/* $OpenBSD: err_prn.c,v 1.18 2017/02/07 15:52:33 jsing Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

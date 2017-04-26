@@ -1,4 +1,4 @@
-/* $OpenBSD: dh_check.c,v 1.15 2015/02/07 13:19:15 doug Exp $ */
+/* $OpenBSD: dh_check.c,v 1.16 2016/07/05 02:54:35 bcook Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *

@@ -1,4 +1,4 @@
-/* $OpenBSD: bn_prime.c,v 1.14 2015/10/21 19:02:22 miod Exp $ */
+/* $OpenBSD: bn_prime.c,v 1.18 2017/01/29 17:49:22 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -173,7 +173,7 @@ BN_generate_prime_ex(BIGNUM *ret, int bits, int safe, const BIGNUM *add,
 		 * There are no prime numbers smaller than 2, and the smallest
 		 * safe prime (7) spans three bits.
 		 */
-		BNerr(BN_F_BN_GENERATE_PRIME_EX, BN_R_BITS_TOO_SMALL);
+		BNerror(BN_R_BITS_TOO_SMALL);
 		return 0;
 	}
 
@@ -369,7 +369,7 @@ static int
 witness(BIGNUM *w, const BIGNUM *a, const BIGNUM *a1, const BIGNUM *a1_odd,
     int k, BN_CTX *ctx, BN_MONT_CTX *mont)
 {
-	if (!BN_mod_exp_mont(w, w, a1_odd, a, ctx, mont))
+	if (!BN_mod_exp_mont_ct(w, w, a1_odd, a, ctx, mont))
 		/* w := w^a1_odd mod a */
 		return -1;
 	if (BN_is_one(w))
@@ -443,7 +443,7 @@ probable_prime_dh(BIGNUM *rnd, int bits, const BIGNUM *add, const BIGNUM *rem,
 
 	/* we need ((rnd-rem) % add) == 0 */
 
-	if (!BN_mod(t1, rnd, add, ctx))
+	if (!BN_mod_ct(t1, rnd, add, ctx))
 		goto err;
 	if (!BN_sub(rnd, rnd, t1))
 		goto err;
@@ -500,7 +500,7 @@ probable_prime_dh_safe(BIGNUM *p, int bits, const BIGNUM *padd,
 		goto err;
 
 	/* we need ((rnd-rem) % add) == 0 */
-	if (!BN_mod(t1, q,qadd, ctx))
+	if (!BN_mod_ct(t1, q,qadd, ctx))
 		goto err;
 	if (!BN_sub(q, q, t1))
 		goto err;

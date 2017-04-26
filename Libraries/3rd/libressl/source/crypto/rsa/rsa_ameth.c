@@ -1,4 +1,4 @@
-/* $OpenBSD: rsa_ameth.c,v 1.14 2015/02/11 04:05:14 beck Exp $ */
+/* $OpenBSD: rsa_ameth.c,v 1.18 2017/01/29 17:49:23 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 2006.
  */
@@ -66,9 +66,6 @@
 #include <openssl/rsa.h>
 #include <openssl/x509.h>
 
-#ifndef OPENSSL_NO_CMS
-#include <openssl/cms.h>
-#endif
 
 #include "asn1_locl.h"
 
@@ -99,7 +96,7 @@ rsa_pub_decode(EVP_PKEY *pkey, X509_PUBKEY *pubkey)
 	if (!X509_PUBKEY_get0_param(NULL, &p, &pklen, NULL, pubkey))
 		return 0;
 	if (!(rsa = d2i_RSAPublicKey(NULL, &p, pklen))) {
-		RSAerr(RSA_F_RSA_PUB_DECODE, ERR_R_RSA_LIB);
+		RSAerror(ERR_R_RSA_LIB);
 		return 0;
 	}
 	EVP_PKEY_assign_RSA (pkey, rsa);
@@ -121,7 +118,7 @@ old_rsa_priv_decode(EVP_PKEY *pkey, const unsigned char **pder, int derlen)
 	RSA *rsa;
 
 	if (!(rsa = d2i_RSAPrivateKey (NULL, pder, derlen))) {
-		RSAerr(RSA_F_OLD_RSA_PRIV_DECODE, ERR_R_RSA_LIB);
+		RSAerror(ERR_R_RSA_LIB);
 		return 0;
 	}
 	EVP_PKEY_assign_RSA(pkey, rsa);
@@ -143,13 +140,13 @@ rsa_priv_encode(PKCS8_PRIV_KEY_INFO *p8, const EVP_PKEY *pkey)
 	rklen = i2d_RSAPrivateKey(pkey->pkey.rsa, &rk);
 
 	if (rklen <= 0) {
-		RSAerr(RSA_F_RSA_PRIV_ENCODE, ERR_R_MALLOC_FAILURE);
+		RSAerror(ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
 
 	if (!PKCS8_pkey_set0(p8, OBJ_nid2obj(NID_rsaEncryption), 0,
 	    V_ASN1_NULL, NULL, rk, rklen)) {
-		RSAerr(RSA_F_RSA_PRIV_ENCODE, ERR_R_MALLOC_FAILURE);
+		RSAerror(ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
 
@@ -219,7 +216,7 @@ do_rsa_print(BIO *bp, const RSA *x, int off, int priv)
 
 	m = malloc(buf_len + 10);
 	if (m == NULL) {
-		RSAerr(RSA_F_DO_RSA_PRINT, ERR_R_MALLOC_FAILURE);
+		RSAerror(ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 
@@ -420,17 +417,6 @@ rsa_pkey_ctrl(EVP_PKEY *pkey, int op, long arg1, void *arg2)
 		if (arg1 == 0)
 			PKCS7_RECIP_INFO_get0_alg(arg2, &alg);
 		break;
-#ifndef OPENSSL_NO_CMS
-	case ASN1_PKEY_CTRL_CMS_SIGN:
-		if (arg1 == 0)
-			CMS_SignerInfo_get0_algs(arg2, NULL, NULL, NULL, &alg);
-		break;
-
-	case ASN1_PKEY_CTRL_CMS_ENVELOPE:
-		if (arg1 == 0)
-			CMS_RecipientInfo_ktri_get0_algs(arg2, NULL, NULL, &alg);
-		break;
-#endif
 
 	case ASN1_PKEY_CTRL_DEFAULT_MD_NID:
 		*(int *)arg2 = NID_sha1;
@@ -464,7 +450,7 @@ rsa_item_verify(EVP_MD_CTX *ctx, const ASN1_ITEM *it, void *asn,
 
 	/* Sanity check: make sure it is PSS */
 	if (OBJ_obj2nid(sigalg->algorithm) != NID_rsassaPss) {
-		RSAerr(RSA_F_RSA_ITEM_VERIFY, RSA_R_UNSUPPORTED_SIGNATURE_TYPE);
+		RSAerror(RSA_R_UNSUPPORTED_SIGNATURE_TYPE);
 		return -1;
 	}
 
@@ -472,25 +458,22 @@ rsa_item_verify(EVP_MD_CTX *ctx, const ASN1_ITEM *it, void *asn,
 	pss = rsa_pss_decode(sigalg, &maskHash);
 
 	if (pss == NULL) {
-		RSAerr(RSA_F_RSA_ITEM_VERIFY, RSA_R_INVALID_PSS_PARAMETERS);
+		RSAerror(RSA_R_INVALID_PSS_PARAMETERS);
 		goto err;
 	}
 	/* Check mask and lookup mask hash algorithm */
 	if (pss->maskGenAlgorithm) {
 		if (OBJ_obj2nid(pss->maskGenAlgorithm->algorithm) != NID_mgf1) {
-			RSAerr(RSA_F_RSA_ITEM_VERIFY,
-			    RSA_R_UNSUPPORTED_MASK_ALGORITHM);
+			RSAerror(RSA_R_UNSUPPORTED_MASK_ALGORITHM);
 			goto err;
 		}
 		if (!maskHash) {
-			RSAerr(RSA_F_RSA_ITEM_VERIFY,
-			    RSA_R_UNSUPPORTED_MASK_PARAMETER);
+			RSAerror(RSA_R_UNSUPPORTED_MASK_PARAMETER);
 			goto err;
 		}
 		mgf1md = EVP_get_digestbyobj(maskHash->algorithm);
 		if (mgf1md == NULL) {
-			RSAerr(RSA_F_RSA_ITEM_VERIFY,
-			    RSA_R_UNKNOWN_MASK_DIGEST);
+			RSAerror(RSA_R_UNKNOWN_MASK_DIGEST);
 			goto err;
 		}
 	} else
@@ -499,7 +482,7 @@ rsa_item_verify(EVP_MD_CTX *ctx, const ASN1_ITEM *it, void *asn,
 	if (pss->hashAlgorithm) {
 		md = EVP_get_digestbyobj(pss->hashAlgorithm->algorithm);
 		if (md == NULL) {
-			RSAerr(RSA_F_RSA_ITEM_VERIFY, RSA_R_UNKNOWN_PSS_DIGEST);
+			RSAerror(RSA_R_UNKNOWN_PSS_DIGEST);
 			goto err;
 		}
 	} else
@@ -512,8 +495,7 @@ rsa_item_verify(EVP_MD_CTX *ctx, const ASN1_ITEM *it, void *asn,
 		 * RSA routines will trap other invalid values anyway.
 		 */
 		if (saltlen < 0) {
-			RSAerr(RSA_F_RSA_ITEM_VERIFY,
-			    RSA_R_INVALID_SALT_LENGTH);
+			RSAerror(RSA_R_INVALID_SALT_LENGTH);
 			goto err;
 		}
 	} else
@@ -523,7 +505,7 @@ rsa_item_verify(EVP_MD_CTX *ctx, const ASN1_ITEM *it, void *asn,
 	 * and PKCS#1 says we should reject any other value anyway.
 	 */
 	if (pss->trailerField && ASN1_INTEGER_get(pss->trailerField) != 1) {
-		RSAerr(RSA_F_RSA_ITEM_VERIFY, RSA_R_INVALID_TRAILER);
+		RSAerror(RSA_R_INVALID_TRAILER);
 		goto err;
 	}
 
@@ -602,7 +584,7 @@ rsa_item_sign(EVP_MD_CTX *ctx, const ASN1_ITEM *it, void *asn,
 			/* need to embed algorithm ID inside another */
 			mgf1alg = X509_ALGOR_new();
 			X509_ALGOR_set_md(mgf1alg, mgf1md);
-			if (!ASN1_item_pack(mgf1alg, ASN1_ITEM_rptr(X509_ALGOR),
+			if (!ASN1_item_pack(mgf1alg, &X509_ALGOR_it,
 			    &stmp))
 				goto err;
 			pss->maskGenAlgorithm = X509_ALGOR_new();
@@ -612,7 +594,7 @@ rsa_item_sign(EVP_MD_CTX *ctx, const ASN1_ITEM *it, void *asn,
 			    OBJ_nid2obj(NID_mgf1), V_ASN1_SEQUENCE, stmp);
 		}
 		/* Finally create string with pss parameter encoding. */
-		if (!ASN1_item_pack(pss, ASN1_ITEM_rptr(RSA_PSS_PARAMS), &os1))
+		if (!ASN1_item_pack(pss, &RSA_PSS_PARAMS_it, &os1))
 			goto err;
 		if (alg2) {
 			os2 = ASN1_STRING_dup(os1);

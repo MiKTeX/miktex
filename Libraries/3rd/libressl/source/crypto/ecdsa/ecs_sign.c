@@ -1,4 +1,4 @@
-/* $OpenBSD: ecs_sign.c,v 1.5 2014/10/18 17:20:40 jsing Exp $ */
+/* $OpenBSD: ecs_sign.c,v 1.6 2015/02/08 13:35:07 jsing Exp $ */
 /* ====================================================================
  * Copyright (c) 1998-2002 The OpenSSL Project.  All rights reserved.
  *

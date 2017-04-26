@@ -1,4 +1,4 @@
-/* $OpenBSD: a_strnid.c,v 1.18 2014/10/28 05:46:55 miod Exp $ */
+/* $OpenBSD: a_strnid.c,v 1.21 2017/01/29 17:49:22 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -201,7 +201,9 @@ sk_table_cmp(const ASN1_STRING_TABLE * const *a,
 	return (*a)->nid - (*b)->nid;
 }
 
-DECLARE_OBJ_BSEARCH_CMP_FN(ASN1_STRING_TABLE, ASN1_STRING_TABLE, table);
+static int table_cmp_BSEARCH_CMP_FN(const void *, const void *);
+static int table_cmp(ASN1_STRING_TABLE const *, ASN1_STRING_TABLE const *);
+static ASN1_STRING_TABLE *OBJ_bsearch_table(ASN1_STRING_TABLE *key, ASN1_STRING_TABLE const *base, int num);
 
 static int
 table_cmp(const ASN1_STRING_TABLE *a, const ASN1_STRING_TABLE *b)
@@ -209,7 +211,21 @@ table_cmp(const ASN1_STRING_TABLE *a, const ASN1_STRING_TABLE *b)
 	return a->nid - b->nid;
 }
 
-IMPLEMENT_OBJ_BSEARCH_CMP_FN(ASN1_STRING_TABLE, ASN1_STRING_TABLE, table);
+
+static int
+table_cmp_BSEARCH_CMP_FN(const void *a_, const void *b_)
+{
+	ASN1_STRING_TABLE const *a = a_;
+	ASN1_STRING_TABLE const *b = b_;
+	return table_cmp(a, b);
+}
+
+static ASN1_STRING_TABLE *
+OBJ_bsearch_table(ASN1_STRING_TABLE *key, ASN1_STRING_TABLE const *base, int num)
+{
+	return (ASN1_STRING_TABLE *)OBJ_bsearch_(key, base, num, sizeof(ASN1_STRING_TABLE),
+	    table_cmp_BSEARCH_CMP_FN);
+}
 
 ASN1_STRING_TABLE *
 ASN1_STRING_TABLE_get(int nid)
@@ -242,14 +258,13 @@ ASN1_STRING_TABLE_add(int nid, long minsize, long maxsize, unsigned long mask,
 	if (!stable)
 		stable = sk_ASN1_STRING_TABLE_new(sk_table_cmp);
 	if (!stable) {
-		ASN1err(ASN1_F_ASN1_STRING_TABLE_ADD, ERR_R_MALLOC_FAILURE);
+		ASN1error(ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
 	if (!(tmp = ASN1_STRING_TABLE_get(nid))) {
 		tmp = malloc(sizeof(ASN1_STRING_TABLE));
 		if (!tmp) {
-			ASN1err(ASN1_F_ASN1_STRING_TABLE_ADD,
-			    ERR_R_MALLOC_FAILURE);
+			ASN1error(ERR_R_MALLOC_FAILURE);
 			return 0;
 		}
 		tmp->flags = flags | STABLE_FLAGS_MALLOC;
@@ -264,8 +279,7 @@ ASN1_STRING_TABLE_add(int nid, long minsize, long maxsize, unsigned long mask,
 	if (new_nid) {
 		if (sk_ASN1_STRING_TABLE_push(stable, tmp) == 0) {
 			free(tmp);
-			ASN1err(ASN1_F_ASN1_STRING_TABLE_ADD,
-			    ERR_R_MALLOC_FAILURE);
+			ASN1error(ERR_R_MALLOC_FAILURE);
 			return 0;
 		}
 	}

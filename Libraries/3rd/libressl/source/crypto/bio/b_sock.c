@@ -1,4 +1,4 @@
-/* $OpenBSD: b_sock.c,v 1.60 2014/12/03 21:55:51 bcook Exp $ */
+/* $OpenBSD: b_sock.c,v 1.63 2017/01/29 17:49:22 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -89,13 +89,12 @@ BIO_get_host_ip(const char *str, unsigned char *ip)
 	CRYPTO_w_lock(CRYPTO_LOCK_GETHOSTBYNAME);
 	he = BIO_gethostbyname(str);
 	if (he == NULL) {
-		BIOerr(BIO_F_BIO_GET_HOST_IP, BIO_R_BAD_HOSTNAME_LOOKUP);
+		BIOerror(BIO_R_BAD_HOSTNAME_LOOKUP);
 		goto err;
 	}
 
 	if (he->h_addrtype != AF_INET) {
-		BIOerr(BIO_F_BIO_GET_HOST_IP,
-		    BIO_R_GETHOSTBYNAME_ADDR_IS_NOT_AF_INET);
+		BIOerror(BIO_R_GETHOSTBYNAME_ADDR_IS_NOT_AF_INET);
 		goto err;
 	}
 	for (i = 0; i < 4; i++)
@@ -120,57 +119,20 @@ BIO_get_port(const char *str, unsigned short *port_ptr)
 		.ai_socktype = SOCK_STREAM,
 		.ai_flags = AI_PASSIVE,
 	};
-	long port;
-	char *ep;
+	int error;
 
 	if (str == NULL) {
-		BIOerr(BIO_F_BIO_GET_PORT, BIO_R_NO_PORT_SPECIFIED);
+		BIOerror(BIO_R_NO_PORT_SPECIFIED);
 		return (0);
 	}
 
-	errno = 0;
-	port = strtol(str, &ep, 10);
-	if (str[0] != '\0' && *ep == '\0') {
-		if (errno == ERANGE && (port == LONG_MAX || port == LONG_MIN)) {
-			BIOerr(BIO_F_BIO_GET_PORT, BIO_R_INVALID_PORT_NUMBER);
-			return (0);
-		}
-		if (port < 0 || port > 65535) {
-			BIOerr(BIO_F_BIO_GET_PORT, BIO_R_INVALID_PORT_NUMBER);
-			return (0);
-		}
-		goto done;
-	}
-
-	if (getaddrinfo(NULL, str, &hints, &res) == 0) {
-		port = ntohs(((struct sockaddr_in *)(res->ai_addr))->sin_port);
-		goto done;
-	}
-
-	if (strcmp(str, "http") == 0)
-		port = 80;
-	else if (strcmp(str, "telnet") == 0)
-		port = 23;
-	else if (strcmp(str, "socks") == 0)
-		port = 1080;
-	else if (strcmp(str, "https") == 0)
-		port = 443;
-	else if (strcmp(str, "ssl") == 0)
-		port = 443;
-	else if (strcmp(str, "ftp") == 0)
-		port = 21;
-	else if (strcmp(str, "gopher") == 0)
-		port = 70;
-	else {
-		SYSerr(SYS_F_GETSERVBYNAME, errno);
-		ERR_asprintf_error_data("service='%s'", str);
+	if ((error = getaddrinfo(NULL, str, &hints, &res)) != 0) {
+		ERR_asprintf_error_data("getaddrinfo: service='%s' : %s'", str,
+		    gai_strerror(error));
 		return (0);
 	}
-
-done:
-	if (res)
-		freeaddrinfo(res);
-	*port_ptr = (unsigned short)port;
+	*port_ptr = ntohs(((struct sockaddr_in *)(res->ai_addr))->sin_port);
+	freeaddrinfo(res);
 	return (1);
 }
 
@@ -199,7 +161,7 @@ BIO_socket_ioctl(int fd, long type, void *arg)
 
 	ret = ioctl(fd, type, arg);
 	if (ret < 0)
-		SYSerr(SYS_F_IOCTLSOCKET, errno);
+		SYSerror(errno);
 	return (ret);
 }
 
@@ -295,10 +257,9 @@ BIO_get_accept_socket(char *host, int bind_mode)
 again:
 	s = socket(server.sa.sa_family, SOCK_STREAM, IPPROTO_TCP);
 	if (s == -1) {
-		SYSerr(SYS_F_SOCKET, errno);
+		SYSerror(errno);
 		ERR_asprintf_error_data("port='%s'", host);
-		BIOerr(BIO_F_BIO_GET_ACCEPT_SOCKET,
-		    BIO_R_UNABLE_TO_CREATE_SOCKET);
+		BIOerror(BIO_R_UNABLE_TO_CREATE_SOCKET);
 		goto err;
 	}
 
@@ -338,17 +299,15 @@ again:
 			}
 			/* else error */
 		}
-		SYSerr(SYS_F_BIND, err_num);
+		SYSerror(err_num);
 		ERR_asprintf_error_data("port='%s'", host);
-		BIOerr(BIO_F_BIO_GET_ACCEPT_SOCKET,
-		    BIO_R_UNABLE_TO_BIND_SOCKET);
+		BIOerror(BIO_R_UNABLE_TO_BIND_SOCKET);
 		goto err;
 	}
 	if (listen(s, SOMAXCONN) == -1) {
-		SYSerr(SYS_F_BIND, errno);
+		SYSerror(errno);
 		ERR_asprintf_error_data("port='%s'", host);
-		BIOerr(BIO_F_BIO_GET_ACCEPT_SOCKET,
-		    BIO_R_UNABLE_TO_LISTEN_SOCKET);
+		BIOerror(BIO_R_UNABLE_TO_LISTEN_SOCKET);
 		goto err;
 	}
 	ret = 1;
@@ -384,8 +343,8 @@ BIO_accept(int sock, char **addr)
 	if (ret == -1) {
 		if (BIO_sock_should_retry(ret))
 			return -2;
-		SYSerr(SYS_F_ACCEPT, errno);
-		BIOerr(BIO_F_BIO_ACCEPT, BIO_R_ACCEPT_ERROR);
+		SYSerror(errno);
+		BIOerror(BIO_R_ACCEPT_ERROR);
 		goto end;
 	}
 
@@ -408,7 +367,7 @@ BIO_accept(int sock, char **addr)
 			ret = -1;
 			free(p);
 			*addr = NULL;
-			BIOerr(BIO_F_BIO_ACCEPT, ERR_R_MALLOC_FAILURE);
+			BIOerror(ERR_R_MALLOC_FAILURE);
 			goto end;
 		}
 		p = tmp;
@@ -424,7 +383,7 @@ BIO_accept(int sock, char **addr)
 		if ((p = malloc(24)) == NULL) {
 			close(ret);
 			ret = -1;
-			BIOerr(BIO_F_BIO_ACCEPT, ERR_R_MALLOC_FAILURE);
+			BIOerror(ERR_R_MALLOC_FAILURE);
 			goto end;
 		}
 		*addr = p;

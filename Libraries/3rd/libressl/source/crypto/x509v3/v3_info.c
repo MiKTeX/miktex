@@ -1,4 +1,4 @@
-/* $OpenBSD: v3_info.c,v 1.22 2015/07/25 16:00:14 jsing Exp $ */
+/* $OpenBSD: v3_info.c,v 1.25 2017/01/29 17:49:23 beck Exp $ */
 /* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
@@ -74,7 +74,7 @@ static AUTHORITY_INFO_ACCESS *v2i_AUTHORITY_INFO_ACCESS(
 const X509V3_EXT_METHOD v3_info = {
 	.ext_nid = NID_info_access,
 	.ext_flags = X509V3_EXT_MULTILINE,
-	.it = ASN1_ITEM_ref(AUTHORITY_INFO_ACCESS),
+	.it = &AUTHORITY_INFO_ACCESS_it,
 	.ext_new = NULL,
 	.ext_free = NULL,
 	.d2i = NULL,
@@ -91,7 +91,7 @@ const X509V3_EXT_METHOD v3_info = {
 const X509V3_EXT_METHOD v3_sinfo = {
 	.ext_nid = NID_sinfo_access,
 	.ext_flags = X509V3_EXT_MULTILINE,
-	.it = ASN1_ITEM_ref(AUTHORITY_INFO_ACCESS),
+	.it = &AUTHORITY_INFO_ACCESS_it,
 	.ext_new = NULL,
 	.ext_free = NULL,
 	.d2i = NULL,
@@ -221,8 +221,7 @@ i2v_AUTHORITY_INFO_ACCESS(X509V3_EXT_METHOD *method,
 		nlen = strlen(objtmp) + strlen(vtmp->name) + 5;
 		ntmp = malloc(nlen);
 		if (!ntmp) {
-			X509V3err(X509V3_F_I2V_AUTHORITY_INFO_ACCESS,
-			    ERR_R_MALLOC_FAILURE);
+			X509V3error(ERR_R_MALLOC_FAILURE);
 			return NULL;
 		}
 		strlcpy(ntmp, objtmp, nlen);
@@ -248,27 +247,23 @@ v2i_AUTHORITY_INFO_ACCESS(X509V3_EXT_METHOD *method, X509V3_CTX *ctx,
 	char *objtmp, *ptmp;
 
 	if (!(ainfo = sk_ACCESS_DESCRIPTION_new_null())) {
-		X509V3err(X509V3_F_V2I_AUTHORITY_INFO_ACCESS,
-		    ERR_R_MALLOC_FAILURE);
+		X509V3error(ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
 	for (i = 0; i < sk_CONF_VALUE_num(nval); i++) {
 		cnf = sk_CONF_VALUE_value(nval, i);
 		if ((acc = ACCESS_DESCRIPTION_new()) == NULL) {
-			X509V3err(X509V3_F_V2I_AUTHORITY_INFO_ACCESS,
-			    ERR_R_MALLOC_FAILURE);
+			X509V3error(ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
 		if (sk_ACCESS_DESCRIPTION_push(ainfo, acc) == 0) {
 			ACCESS_DESCRIPTION_free(acc);
-			X509V3err(X509V3_F_V2I_AUTHORITY_INFO_ACCESS,
-			    ERR_R_MALLOC_FAILURE);
+			X509V3error(ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
 		ptmp = strchr(cnf->name, ';');
 		if (!ptmp) {
-			X509V3err(X509V3_F_V2I_AUTHORITY_INFO_ACCESS,
-			    X509V3_R_INVALID_SYNTAX);
+			X509V3error(X509V3_R_INVALID_SYNTAX);
 			goto err;
 		}
 		objlen = ptmp - cnf->name;
@@ -277,15 +272,13 @@ v2i_AUTHORITY_INFO_ACCESS(X509V3_EXT_METHOD *method, X509V3_CTX *ctx,
 		if (!v2i_GENERAL_NAME_ex(acc->location, method, ctx, &ctmp, 0))
 			goto err;
 		if (!(objtmp = malloc(objlen + 1))) {
-			X509V3err(X509V3_F_V2I_AUTHORITY_INFO_ACCESS,
-			    ERR_R_MALLOC_FAILURE);
+			X509V3error(ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
 		strlcpy(objtmp, cnf->name, objlen + 1);
 		acc->method = OBJ_txt2obj(objtmp, 0);
 		if (!acc->method) {
-			X509V3err(X509V3_F_V2I_AUTHORITY_INFO_ACCESS,
-			    X509V3_R_BAD_OBJECT);
+			X509V3error(X509V3_R_BAD_OBJECT);
 			ERR_asprintf_error_data("value=%s", objtmp);
 			free(objtmp);
 			goto err;

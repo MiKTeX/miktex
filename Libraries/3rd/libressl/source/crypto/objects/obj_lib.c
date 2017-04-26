@@ -1,4 +1,4 @@
-/* $OpenBSD: obj_lib.c,v 1.12 2014/07/11 08:44:49 jsing Exp $ */
+/* $OpenBSD: obj_lib.c,v 1.14 2017/01/29 17:49:23 beck Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -79,7 +79,7 @@ OBJ_dup(const ASN1_OBJECT *o)
 
 	r = ASN1_OBJECT_new();
 	if (r == NULL) {
-		OBJerr(OBJ_F_OBJ_DUP, ERR_R_ASN1_LIB);
+		OBJerror(ERR_R_ASN1_LIB);
 		return (NULL);
 	}
 	data = malloc(o->length);
@@ -110,7 +110,7 @@ OBJ_dup(const ASN1_OBJECT *o)
 	return (r);
 
 err:
-	OBJerr(OBJ_F_OBJ_DUP, ERR_R_MALLOC_FAILURE);
+	OBJerror(ERR_R_MALLOC_FAILURE);
 	free(ln);
 	free(sn);
 	free(data);
