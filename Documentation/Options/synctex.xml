@@ -6,9 +6,31 @@
 ]>
 <varlistentry>
 <term><option>--synctex=<replaceable>n</replaceable></option></term>
-<listitem><para>Generate &SyncTeX; data for previewers
+<listitem><para>Generate &SyncTeX; data for previewers.
 <indexterm>
 <primary>--synctex=n</primary>
 </indexterm>
-if nonzero.</para></listitem>
+If <replaceable>n</replaceable> is zero, no
+<filename>.synctex</filename> file is created.  If
+<replaceable>n</replaceable> is negative, the
+<filename>.synctex</filename> file is a text file.  If
+<replaceable>n</replaceable> is positive, the
+<filename>.synctex</filename> file is compressed with
+<command>gzip</command> and the <filename>.gz</filename> file name extension is added.</para>
+<para>Furthermore, <replaceable>n</replaceable> is interpreted as a bit field:</para>
+<variablelist>
+<varlistentry>
+<term>Bit 1 (<replaceable>n</replaceable> AND 2)</term>
+<listitem><para>Don't add the <filename>.gz</filename> file name extension.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Bit 2 (<replaceable>n</replaceable> AND 4)</term>
+<listitem><para>Activate form support.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Bit 3 (<replaceable>n</replaceable> AND 8)</term>
+<listitem><para>Activate better compression.</para></listitem>
+</varlistentry>
+</variablelist>
+</listitem>
 </varlistentry>
