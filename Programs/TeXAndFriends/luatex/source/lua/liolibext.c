@@ -35,7 +35,6 @@
 #endif
 
 
-
 #ifdef LuajitTeX
 /* luajit has its own way for io, which is a mix of    */
 /* lua 5.1 and lua 5.2 . We use the stock luajit.      */    

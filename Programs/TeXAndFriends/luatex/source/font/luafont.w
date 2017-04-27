@@ -858,7 +858,7 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
             }
             lua_pop(L, 1);      /* command code */
         } else {
-            normal_error("vf command","commands has to be a tbale");
+            normal_error("vf command","commands has to be a table");
             /* fprintf(stdout, "Found a `commands' item that is not a table\n"); */
         }
         lua_pop(L, 1);          /* command table */

@@ -35,7 +35,6 @@ set_make_keys;
 #if defined(MIKTEX)
 #  include <miktex/Core/Paths.h> // MIKTEX_PREFIX
 #endif
-
 @
 This file is getting a bit messy, but it is not simple to fix unilaterally.
 
@@ -151,7 +150,7 @@ const_string LUATEX_IHELP[] = {
     "   --safer                       disable easily exploitable lua commands",
     "   --[no-]shell-escape           disable/enable system commands",
     "   --shell-restricted            restrict system commands to a list of commands given in texmf.cnf",
-    "   --synctex=NUMBER              enable synctex",
+    "   --synctex=NUMBER              enable synctex (see man synctex)",
     "   --utc                         init time to UTC",
     "   --version                     display version and exit",
     "",

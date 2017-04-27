@@ -3198,9 +3198,9 @@ static int lua_nodelib_set_glue(lua_State * L)
             stretch_order(n) = ((top > 4 && lua_type(L, 5) == LUA_TNUMBER)) ? lua_tointeger(L,5) : 0;
             shrink_order(n)  = ((top > 5 && lua_type(L, 6) == LUA_TNUMBER)) ? lua_tointeger(L,6) : 0;
         }
+	return 0;
     }
     return luaL_error(L, "glue (spec) expected");
-    return 0;
 }
 
 static int lua_nodelib_is_zero_glue(lua_State * L)
