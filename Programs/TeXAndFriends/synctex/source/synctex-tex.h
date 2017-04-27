@@ -49,3 +49,4 @@ Thu Jun 19 09:39:21 UTC 2008
 */
 
 #include "texd.h"
+#define SYNCTEX_interaction interaction

@@ -83,6 +83,8 @@ authorization from the copyright holder.
 #define glue_node 12
 #define kern_node 13
 
+#   define SYNCTEX_PRE_NL ""
+#   define SYNCTEX_POST_NL "\n"
 #if defined(MIKTEX)
 #define termoffset term_offset
 #endif

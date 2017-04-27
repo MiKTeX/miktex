@@ -55,7 +55,7 @@ Thu Jun 19 09:39:21 UTC 2008
 #endif
 /* this will define XeTeX, which we can use in later conditionals */
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #  include <xetexdir/xetexextra.h>
 #endif
 

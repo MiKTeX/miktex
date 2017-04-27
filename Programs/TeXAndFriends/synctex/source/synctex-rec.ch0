@@ -407,8 +407,8 @@ sync_tag(r+box_node_size):=sync_tag(p+box_node_size);
 sync_line(r+box_node_size):=sync_line(p+box_node_size);
 
 @ @<Copy the rule {\sl Sync\TeX} information@>=
-{sync_tag(r+rule_node_size):=sync_tag(p+rule_node_size);
-sync_line(r+rule_node_size):=sync_line(p+rule_node_size);}
+{|sync_tag(r+rule_node_size):=sync_tag(p+rule_node_size);|
+|sync_line(r+rule_node_size):=sync_line(p+rule_node_size);|}
 
 @ @<Copy the medium sized node {\sl Sync\TeX} information@>=
 sync_tag(r+medium_node_size):=sync_tag(p+medium_node_size);

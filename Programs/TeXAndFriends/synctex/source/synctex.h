@@ -1,8 +1,11 @@
 /* synctex.h
 
-Copyright (c) 2008, 2009 jerome DOT laurens AT u-bourgogne DOT fr
+Copyright (c) 2008-2017 jerome DOT laurens AT u-bourgogne DOT fr
 
 This file is part of the SyncTeX package.
+
+Version 1
+Lates Revision: Sat Apr 22 10:07:05 UTC 2017
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
@@ -35,9 +38,6 @@ Nota Bene:
 If you include or use a significant part of the synctex package into a software,
 I would appreciate to be listed as contributor and see "SyncTeX" highlighted.
 
-Version 1
-Latest Revision: Wed Jul  1 08:17:50 UTC 2009
-
 */
 
 #  ifndef __SYNCTEX_HEADER__
@@ -53,13 +53,23 @@ extern void synctexstartinput(void);
 
 /*  Recording the "{..." line.  In *tex.web, use synctex_sheet(pdf_output) at
  *  the very beginning of the ship_out procedure.
-*/
+ */
 extern void synctexsheet(integer mag);
 
 /*  Recording the "}..." line.  In *tex.web, use synctex_teehs at
  *  the very end of the ship_out procedure.
-*/
+ */
 extern void synctexteehs(void);
+
+/*  Recording the "<..." line.  In pdftex.web, use synctex_pdfxform(p) at
+ *  the very beginning of the pdf_ship_out procedure.
+ */
+extern void synctexpdfxform(halfword p);
+
+/*  Recording the ">" line.  In pdftex.web, use synctex_mrofxfdp at
+ *  the very end of the ship_out procedure.
+ */
+extern void synctexmrofxfdp(void);
 
 /*  This message is sent when a vlist will be shipped out, more precisely at
  *  the beginning of the vlist_out procedure in *TeX.web.  It will be balanced
@@ -99,6 +109,10 @@ extern void synctexhorizontalruleorglue(halfword p, halfword this_box);
 
 /*  Send this message whenever a kern node will ship out. */
 extern void synctexkern(halfword p, halfword this_box);
+
+/*  Recording the "f" line.  In pdftex.web, use synctex_pdfrefxform when \pfdrefxform si used.
+ */
+extern void synctexpdfrefxform(int objnum);
 
 /*  this message is sent whenever a char node ships out    */
 extern void synctexchar(halfword p, halfword this_box);

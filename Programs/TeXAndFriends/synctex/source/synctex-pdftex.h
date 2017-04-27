@@ -1,9 +1,10 @@
 /* 
-Copyright (c) 2008, 2009, 2010, 2011 jerome DOT laurens AT u-bourgogne DOT fr
+Copyright (c) 2008-2017 jerome DOT laurens AT u-bourgogne DOT fr
 
 This file is part of the SyncTeX package.
 
-Latest Revision: Fri Apr 15 19:10:57 UTC 2011
+Version 1
+Latest Revision: Sat Apr 22 10:07:05 UTC 2017
 
 License:
 --------
@@ -43,9 +44,6 @@ Nota Bene:
 If you include or use a significant part of the synctex package into a software,
 I would appreciate to be listed as contributor and see "SyncTeX" highlighted.
 
-Version 1
-Thu Jun 19 09:39:21 UTC 2008
-
 */
 
 #if defined(MIKTEX)
@@ -55,9 +53,25 @@ Thu Jun 19 09:39:21 UTC 2008
 #    include "pdftexd.h"
 #endif
 
-/*   We observe pdfoutputvalue in order to determine whether output mode is
- *   pdf or dvi.
- *   We will assume that pdf_output_value equals pdf_output before entering
- *   the synctex_sheet function below, in the including synctex.c file.  */
-#    define SYNCTEX_OFFSET_IS_PDF (pdfoutputvalue>0)
-#    define SYNCTEX_OUTPUT ((pdfoutputvalue>0)?"pdf":"dvi")
+/*  We observe pdfoutputvalue in order to determine whether output mode is
+ *  pdf or dvi.
+ *  We will assume that pdf_output_value equals pdf_output      entering
+ *  the synctex_sheet function below, in the including synctex.c file.
+ */
+#   define SYNCTEX_OFFSET_IS_PDF (pdfoutputvalue>0)
+#   define SYNCTEX_OUTPUT ((pdfoutputvalue>0)?"pdf":"dvi")
+
+/*  Adding support for pdf forms
+ */
+#   define SYNCTEX_SUPPORT_PDF_FORM (1)
+#   define SYNCTEX_PDF_CUR_FORM (pdfcurform)
+
+/*  these messages should be sent to record information
+ *  for a form node (\pdfrefxform).
+ *  No engine discrimination.
+ */
+extern void synctexpdfxform(halfword p);
+extern void synctexmrofxfdp();
+extern void synctexpdfrefxform(int objnum);
+
+#define SYNCTEX_interaction interaction

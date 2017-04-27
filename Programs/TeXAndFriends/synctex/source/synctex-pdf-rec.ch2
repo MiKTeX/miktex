@@ -1,8 +1,9 @@
-Copyright (c) 2008, 2009 jerome DOT laurens AT u-bourgogne DOT fr
+Copyright (c) 2008-2017 jerome DOT laurens AT u-bourgogne DOT fr
 
 This file is part of the SyncTeX package.
 
-Latest Revision: Wed Jul  1 11:17:45 UTC 2009
+Version 1
+Latest Revision: Sat Apr 22 10:07:05 UTC 2017
 
 License:
 --------
@@ -42,14 +43,17 @@ Nota Bene:
 If you include or use a significant part of the synctex package into a software,
 I would appreciate to be listed as contributor and see "SyncTeX" highlighted.
 
-Version 1
-Latest Revision: Wed Jul  1 08:11:50 UTC 2009
-
 History:
 --------
 
+- the synctex hooks are changed to encapsulate Ship box |p| out
 - if the pdf file is removed, the synctex file is removed too.
 
+@x pdftex.web l.14550
+@ @<Output the non-|char_node| |p| for |hlist_out|...@>=
+@y
+@ @<Output the non-|char_node| |p| for |hlist_out|...@>=
+@z
 @x
 margin_kern_node,
 kern_node: begin
@@ -58,13 +62,13 @@ margin_kern_node:cur_h:=cur_h+width(p); {separate the |margin_kern_node| case in
 kern_node: begin
 @z
 
-@x
+@x pdftex.web l.18491
 procedure pdf_hlist_out; {output an |hlist_node| box}
 @y
 procedure pdf_hlist_out; {output an |hlist_node| box}
 @z
 
-@x pdftex.web l.18367
+@x pdftex.web l.18519
 while p<>null do
     @<Output node |p| for |pdf_hlist_out| and move to the next node,
     maintaining the condition |cur_v=base_line|@>;
@@ -76,13 +80,13 @@ while p<>null do
 @<Finish hlist {\sl Sync\TeX} information record@>;
 @z
 
-@x
+@x pdftex.web l.18533
 @ @<Output node |p| for |pdf_hlist_out|...@>=
 @y
 @ @<Output node |p| for |pdf_hlist_out|...@>=
 @z
 
-@x pdftex.web l.18382
+@x pdftex.web l.18544
   until not is_char_node(p);
 @y
   until not is_char_node(p);
@@ -95,7 +99,7 @@ while p<>null do
 @ @<Output the non-|char_node| |p| for |pdf_hlist_out|...@>=
 @z
 
-@x
+@x pdftex.web l.18557
 margin_kern_node,
 kern_node:cur_h:=cur_h+width(p);
 @y
@@ -115,7 +119,7 @@ math_node: begin
 end;
 @z
 
-@x pdftex.web l.18411
+@x pdftex.web l.18566
 move_past: cur_h:=cur_h+rule_wd;
 @y
 move_past: begin
@@ -146,7 +150,7 @@ if list_ptr(p)=null then
 @p procedure pdf_vlist_out; {output a |pdf_vlist_node| box}
 @z
 
-@x pdftex.web l.18521
+@x pdftex.web l.18670
 left_edge:=cur_h; cur_v:=cur_v-height(this_box); top_edge:=cur_v;
 @y
 left_edge:=cur_h;
@@ -154,7 +158,7 @@ left_edge:=cur_h;
 cur_v:=cur_v-height(this_box); top_edge:=cur_v;
 @z
 
-@x pdftex.web l.18523
+@x pdftex.web l.18673
 while p<>null do
     @<Output node |p| for |pdf_vlist_out| and move to the next node,
     maintaining the condition |cur_h=left_edge|@>;
@@ -165,7 +169,7 @@ while p<>null do
 @<Finish vlist {\sl Sync\TeX} information record@>;
 @z
 
-@x pdftex.web l.18557
+@x pdftex.web l.18706
 @ @<(\pdfTeX) Output a box in a vlist@>=
 if list_ptr(p)=null then cur_v:=cur_v+height(p)+depth(p)
 @y
@@ -177,27 +181,13 @@ if list_ptr(p)=null then begin
 end
 @z
 
-@x
-@p procedure pdf_ship_out(p: pointer; shipping_page: boolean); {output the box |p|}
+@x pdftex.web l.18879
+@<(\pdfTeX) Ship box |p| out@>;
 @y
-@p procedure pdf_ship_out(p: pointer; shipping_page: boolean); {output the box |p|}
-@z
-
-@x pdftex.web l.18680
-pdf_last_resources: integer; {pointer to most recently generated Resources object}
-@y
-pdf_last_resources: integer; {pointer to most recently generated Resources object}
-begin @<Start sheet {\sl Sync\TeX} information record@>;
-@z
-
-@x pdftex.web l.18699
-@<Flush the box from memory, showing statistics if requested@>;
-end;
-@y
-@<Flush the box from memory, showing statistics if requested@>;
-end;
-@<Finish sheet {\sl Sync\TeX} information record@>;
-end;
+pdf_output_value:=pdf_output; {{\sl Sync\TeX}: we assume that |pdf_output| is properly set up}
+if shipping_page then synctex_sheet(mag) @+else synctex_pdfxform(p);
+@<(\pdfTeX) Ship box |p| out@>;
+if shipping_page then synctex_teehs @+else synctex_mrofxfdp;
 @z
 
 @x
@@ -206,16 +196,18 @@ procedure close_files_and_terminate;
 procedure close_files_and_terminate;
 @z
 
-@x
+@x pdftex.web l.33072
         remove_pdffile;
 @y
         remove_pdffile;
 		synctex_abort(log_opened);
 @z
 
-@x
-synctex_sheet(mag);
+@x pdftex.web l.36224
+procedure out_form(p: pointer);
+begin
 @y
-pdf_output_value:=pdf_output; {{\sl Sync\TeX}: we assume that |pdf_output| is properly set up}
-synctex_sheet(mag);
+procedure out_form(p: pointer);
+begin
+  synctexpdfrefxform(pdf_xform_objnum(p));
 @z
