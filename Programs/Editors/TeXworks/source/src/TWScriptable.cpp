@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2009-2015  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2009-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
 #define MIKTEX_UTF8_WRAP_ALL 1
 #include <miktex/utf8wrap.h>
 #endif
-
 #include "TWScriptable.h"
 #include "TWScriptAPI.h"
 #include "ScriptManager.h"
@@ -51,7 +50,6 @@ Q_IMPORT_PLUGIN(TWLuaPlugin)
 #include <QtPlugin>
 Q_IMPORT_PLUGIN(TWPythonPlugin)
 #endif
-
 #if defined(MIKTEX_WINDOWS)
 #define MIKTEX_UTF8_WRAP_ALL 1
 #include <miktex/utf8wrap.h>
@@ -481,6 +479,7 @@ TWScriptManager::runHooks(const QString& hookName, QObject * context /* = NULL *
 TWScriptable::TWScriptable()
 	: QMainWindow(),
 	  scriptsMenu(NULL),
+	  scriptMapper(NULL),
 	  staticScriptMenuItemCount(0)
 {
 }

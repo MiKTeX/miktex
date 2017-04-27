@@ -548,6 +548,27 @@
         <source>Page number:</source>
         <translation>ページ番号:</translation>
     </message>
+    <message>
+        <source>Open URL</source>
+        <translation>URLを開く</translation>
+    </message>
+    <message>
+        <source>You are in the process of opening the URL %1. Opening unknown or untrusted web adresses can be a security risk.
+Do you want to continue?</source>
+        <translation>URL %1を開こうとしています。信頼できないWebページを開くことはセキュリティリスクとなります。URLを開きますか？</translation>
+    </message>
+    <message>
+        <source>Custom...</source>
+        <translation>カスタム</translation>
+    </message>
+    <message>
+        <source>Set Zoom</source>
+        <translation>拡大縮小の設定</translation>
+    </message>
+    <message>
+        <source>Zoom level:</source>
+        <translation>ズームレベル:</translation>
+    </message>
 </context>
 <context>
     <name>PDFFindDialog</name>
@@ -748,7 +769,7 @@
     </message>
     <message>
         <source> dpi</source>
-        <translation> dpi</translation>
+        <translation type="obsolete"> dpi</translation>
     </message>
     <message>
         <source>Typesetting</source>
@@ -1013,6 +1034,40 @@
     </message>
 </context>
 <context>
+    <name>ScreenCalibrationWidget</name>
+    <message>
+        <source>Drag the ruler or change the value to match real world lengths.
+Common paper sizes are marked as well (you may need to resize the dialog window to see them).
+Use the context menu to change the units.</source>
+        <translation>実際の長さと合うようにルーラーをドラッグするか、値を入力してください。
+一般的な用紙サイズはあらかじめ設定済みです（確認するにはダイアログウィンドウのサイズを変更しなければならないかもしれません）。
+長さの単位はコンテキストメニューで変更可能です。</translation>
+    </message>
+    <message>
+        <source> dpi</source>
+        <extracomment>dots per inch</extracomment>
+        <translation> dpi</translation>
+    </message>
+    <message>
+        <source>DIN A4</source>
+        <translation>A4</translation>
+    </message>
+    <message>
+        <source>Letter</source>
+        <translation>レター</translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <extracomment>this refers to the length unit of centimeters</extracomment>
+        <translation>cm</translation>
+    </message>
+    <message>
+        <source>in</source>
+        <extracomment>this refers to the length unit of inches</extracomment>
+        <translation>in</translation>
+    </message>
+</context>
+<context>
     <name>ScriptManager</name>
     <message>
         <source>Manage Scripts</source>
@@ -1209,8 +1264,8 @@
         <translation>バイナリディレクトリが見つかりませんでした</translation>
     </message>
     <message>
-        <source>None of the predefined directories for TeX-related programs could be found.&lt;p&gt;&lt;small&gt;To run any processes, you will need to set the binaries directory (or directories) for your TeX distribution using the Typesetting tab of the Preferences dialog.</source>
-        <translation>TeX関連プログラムがインストールされたディレクトリが見つかりません。&lt;p&gt;&lt;small&gt;プロセスを起動するためには、お使いのTeXディストリビューションに合わせたディレクトリ設定を[設定]-[タイプセット]ダイアログでおこなっておく必要があります</translation>
+        <source>None of the predefined directories for TeX-related programs could be found.&lt;p&gt;&lt;small&gt;To run any processes, you will need to set the binaries directory (or directories) for your TeX distribution using the Typesetting tab of the Preferences dialog.&lt;/small&gt;</source>
+        <translation>TeX関連プログラムがインストールされたディレクトリが見つかりません。&lt;p&gt;&lt;small&gt;プロセスを起動するためには、お使いのTeXディストリビューションに合わせたディレクトリ設定を[設定]-[タイプセット]ダイアログでおこなっておく必要があります&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Unable to find help file.</source>

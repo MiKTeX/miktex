@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2015  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -454,7 +454,6 @@ QHash<QString, QString>* TWUtils::getDictionaryList(const bool forceReload /* = 
 		if (affFileInfo.isReadable())
 			dictionaryList->insertMulti(dicFileInfo.canonicalFilePath(), dicFileInfo.completeBaseName());
 	}
-
 #if defined(MIKTEX)
         std::shared_ptr<MiKTeX::Core::Session> pSession = MiKTeX::Core::Session::Get();
 	for (unsigned r = 0; r < pSession->GetNumberOfTEXMFRoots(); ++ r)
@@ -506,7 +505,6 @@ Hunhandle* TWUtils::getDictionary(const QString& language)
 #endif
 		(*dictionaries)[language] = h;
 	}
-
 #if defined(MIKTEX)
         std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
         for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
@@ -525,7 +523,6 @@ Hunhandle* TWUtils::getDictionary(const QString& language)
           }
         }
 #endif
-
 	return h;
 }
 
@@ -1298,6 +1295,7 @@ bool CmdKeyFilter::eventFilter(QObject *obj, QEvent *event)
 
 Engine::Engine()
 	: QObject()
+	, f_showPdf(false)
 {
 }
 

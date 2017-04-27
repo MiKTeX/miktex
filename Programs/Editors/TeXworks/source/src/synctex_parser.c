@@ -51,7 +51,6 @@ Version 1
 Thu Jun 19 09:39:21 UTC 2008
 
 */
-
 #if defined(MIKTEX_WINDOWS)
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>

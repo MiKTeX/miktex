@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="ko_KR">
+<TS version="2.1" language="ko_KR">
 <context>
     <name>CompletingEdit</name>
     <message>
@@ -549,6 +549,27 @@
         <source>Page number:</source>
         <translation>쪽 번호:</translation>
     </message>
+    <message>
+        <source>Open URL</source>
+        <translation>URL 열기</translation>
+    </message>
+    <message>
+        <source>You are in the process of opening the URL %1. Opening unknown or untrusted web adresses can be a security risk.
+Do you want to continue?</source>
+        <translation>다음 URL을 열고자 합니다: %1. 신뢰할 수 없는 웹주소를 열면 보안이 위험해집니다. 계속하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>Custom...</source>
+        <translation>사용자 설정...</translation>
+    </message>
+    <message>
+        <source>Set Zoom</source>
+        <translation>확대 설정</translation>
+    </message>
+    <message>
+        <source>Zoom level:</source>
+        <translation>확대 비율:</translation>
+    </message>
 </context>
 <context>
     <name>PDFFindDialog</name>
@@ -734,10 +755,6 @@
     <message>
         <source>Screen resolution:</source>
         <translation>화면 해상도:</translation>
-    </message>
-    <message>
-        <source> dpi</source>
-        <translation></translation>
     </message>
     <message>
         <source>Typesetting</source>
@@ -1015,6 +1032,40 @@
     </message>
 </context>
 <context>
+    <name>ScreenCalibrationWidget</name>
+    <message>
+        <source>Drag the ruler or change the value to match real world lengths.
+Common paper sizes are marked as well (you may need to resize the dialog window to see them).
+Use the context menu to change the units.</source>
+        <translation>실제 길이에 맞추려면 줄자를 드래그하거나 값을 변경하세요.
+널리 쓰이는 용지 크기도 표시됩니다 (대화창 크기를 조정해야 할 수 있습니다).
+단위를 변경하려면 오른쪽 버튼 메뉴를 이용하세요.</translation>
+    </message>
+    <message>
+        <source> dpi</source>
+        <extracomment>dots per inch</extracomment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>DIN A4</source>
+        <translation>A4</translation>
+    </message>
+    <message>
+        <source>Letter</source>
+        <translation>레터</translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <extracomment>this refers to the length unit of centimeters</extracomment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>in</source>
+        <extracomment>this refers to the length unit of inches</extracomment>
+        <translation></translation>
+    </message>
+</context>
+<context>
     <name>ScriptManager</name>
     <message>
         <source>Manage Scripts</source>
@@ -1211,8 +1262,8 @@
         <translation>기본 바이너리 디렉토리를 찾을 수 없습니다</translation>
     </message>
     <message>
-        <source>None of the predefined directories for TeX-related programs could be found.&lt;p&gt;&lt;small&gt;To run any processes, you will need to set the binaries directory (or directories) for your TeX distribution using the Typesetting tab of the Preferences dialog.</source>
-        <translation>TeX 관련 프로그램의 경로를 찾을 수 없습니다.&lt;p&gt;&lt;small&gt;문서처리를 위해서는 TeX 배포판의 바이너리 디렉토리를 환경 설정 대화상자의 문서처리 탭에서 설정해야 합니다.</translation>
+        <source>None of the predefined directories for TeX-related programs could be found.&lt;p&gt;&lt;small&gt;To run any processes, you will need to set the binaries directory (or directories) for your TeX distribution using the Typesetting tab of the Preferences dialog.&lt;/small&gt;</source>
+        <translation>TeX 관련 프로그램의 경로를 찾을 수 없습니다.&lt;p&gt;&lt;small&gt;문서처리를 위해서는 TeX 배포판의 바이너리 디렉토리를 환경 설정 대화상자의 문서처리 탭에서 설정해야 합니다.&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Save File</source>

@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2017  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
 #define MIKTEX_UTF8_WRAP_ALL 1
 #include <miktex/utf8wrap.h>
 #endif
-
 #include "TWApp.h"
 #include "TWUtils.h"
 #include "TeXDocument.h"
@@ -324,7 +323,7 @@ void TWApp::about()
 {
 	QString aboutText = tr("<p>%1 is a simple environment for editing, typesetting, and previewing TeX documents.</p>").arg(TEXWORKS_NAME);
 	aboutText += "<small>";
-	aboutText += "<p>&#xA9; 2007-2016  Jonathan Kew, Stefan L&#xF6;ffler, Charlie Sharpsteen";
+	aboutText += "<p>&#xA9; 2007-2017  Jonathan Kew, Stefan L&#xF6;ffler, Charlie Sharpsteen";
 	if (TWUtils::isGitInfoAvailable())
 		aboutText += tr("<br>Version %1 (%2) [r.%3, %4]").arg(TEXWORKS_VERSION).arg(TW_BUILD_ID_STR).arg(TWUtils::gitCommitHash()).arg(TWUtils::gitCommitDate().toLocalTime().toString(Qt::SystemLocaleShortDate));
 	else
@@ -384,7 +383,15 @@ QString TWApp::GetWindowsVersionString()
 		GetSystemInfo(&si);
 	
 	if ( VER_PLATFORM_WIN32_NT == osvi.dwPlatformId && osvi.dwMajorVersion > 4 ) {
-		if ( osvi.dwMajorVersion == 6 ) {
+		if ( osvi.dwMajorVersion == 10 ) {
+			if ( osvi.dwMinorVersion == 0 ) {
+				if ( osvi.wProductType == VER_NT_WORKSTATION )
+					result = "10";
+				else
+					result = "Server 2016";
+			}
+		}
+		else if ( osvi.dwMajorVersion == 6 ) {
 			if ( osvi.dwMinorVersion == 0 ) {
 				if ( osvi.wProductType == VER_NT_WORKSTATION )
 					result = "Vista";
@@ -396,6 +403,18 @@ QString TWApp::GetWindowsVersionString()
 					result = "7";
 				else
 					result = "Server 2008 R2";
+			}
+			else if ( osvi.dwMinorVersion == 2 ) {
+				if( osvi.wProductType == VER_NT_WORKSTATION )
+					result = "8";
+				else
+					result = "Server 2012";
+			}
+			else if ( osvi.dwMinorVersion == 3 ) {
+				if( osvi.wProductType == VER_NT_WORKSTATION )
+					result = "8.1";
+				else
+					result = "Server 2012 R2";
 			}
 		}
 		else if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2 ) {
@@ -572,11 +591,7 @@ void TWApp::writeToMailingList()
 #endif
 #endif
 
-#if defined(MIKTEX)
-	body += "Qt version      : " QT_VERSION_STR " (build) / ";
-#else
-	body += "Qt4 version      : " QT_VERSION_STR " (build) / ";
-#endif
+	body += "Qt version       : " QT_VERSION_STR " (build) / ";
 	body += qVersion();
 	body += " (runtime)\n";
 	body += "------------------------------\n";
@@ -585,11 +600,7 @@ void TWApp::writeToMailingList()
 	body.replace('\n', "\r\n");
 #endif
 
-#if defined(MIKTEX)
-	openUrl(QUrl(QString("mailto:%1?body=%2").arg(address).arg(body)));
-#else
-	openUrl(QUrl(QString("mailto:%1?subject=&body=%2").arg(address).arg(body)));
-#endif
+	openUrl(QUrl(QString("mailto:%1?subject=&body=%2").arg(address).arg(QString(QUrl::toPercentEncoding(body)))));
 }
 
 void TWApp::launchAction()
@@ -941,6 +952,7 @@ void TWApp::setDefaultEngineList()
 		<< Engine("ConTeXt (pdfTeX)", "texexec" EXE, QStringList("--synctex") << "$fullname", true)
 		<< Engine("ConTeXt (XeTeX)", "texexec" EXE, QStringList("--synctex") << "--xtx" << "$fullname", true)
 		<< Engine("BibTeX", MIKTEX_BIBTEX_EXE, QStringList("$basename"), false)
+		<< Engine("Biber", "biber" EXE, QStringList("$basename"), false)
 		<< Engine("MakeIndex", MIKTEX_MAKEINDEX_EXE, QStringList("$basename"), false);
 	defaultEngineIndex = 2;
 #else
@@ -957,6 +969,7 @@ void TWApp::setDefaultEngineList()
 		<< Engine("ConTeXt (pdfTeX)", "texexec" EXE, QStringList("--synctex") << "$fullname", true)
 		<< Engine("ConTeXt (XeTeX)", "texexec" EXE, QStringList("--synctex") << "--xtx" << "$fullname", true)
 		<< Engine("BibTeX", "bibtex" EXE, QStringList("$basename"), false)
+		<< Engine("Biber", "biber" EXE, QStringList("$basename"), false)
 		<< Engine("MakeIndex", "makeindex" EXE, QStringList("$basename"), false);
 	defaultEngineIndex = 1;
 #endif

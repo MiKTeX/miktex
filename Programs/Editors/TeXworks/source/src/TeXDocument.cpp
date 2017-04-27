@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2015  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -402,7 +402,6 @@ void TeXDocument::init()
 #else
 	delayedInit();
 #endif
-
 #if defined(MIKTEX)
         actionAbout_MiKTeX = new QAction(this);
 	actionAbout_MiKTeX->setIcon(QIcon(":/MiKTeX/miktex32x32.png"));
@@ -3293,7 +3292,6 @@ void TeXDocument::detachPdf()
 		pdfDoc = NULL;
 	}
 }
-
 #if defined(MIKTEX_TODO_PRINT)
 // see http://code.google.com/p/texworks/issues/detail?id=78#c1
 void TeXDocument::print()

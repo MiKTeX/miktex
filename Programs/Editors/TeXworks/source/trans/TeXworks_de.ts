@@ -27,12 +27,12 @@
         <translation>Löschen</translation>
     </message>
     <message>
-        <location filename="../src/ConfirmDelete.cpp" line="70"/>
+        <location filename="../src/ConfirmDelete.cpp" line="71"/>
         <source>Unable to delete</source>
         <translation>Löschen fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../src/ConfirmDelete.cpp" line="71"/>
+        <location filename="../src/ConfirmDelete.cpp" line="72"/>
         <source>Some of the auxiliary files could not be removed. Perhaps you don&apos;t have permission to delete them.</source>
         <translation>Einige der Hilfsdateien konnten nicht gelöscht werden. Vielleicht haben Sie nicht die nötige Berechtigung, um sie zu löschen.</translation>
     </message>
@@ -168,70 +168,97 @@
         <translation>Zuletzt geöffnet</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocument.cpp" line="422"/>
+        <location filename="../src/PDFDocument.cpp" line="426"/>
         <source>Error initializing SyncTeX</source>
         <translation>Fehler bei der Initialisierung von SyncTeX</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocument.cpp" line="424"/>
+        <location filename="../src/PDFDocument.cpp" line="428"/>
         <source>No SyncTeX data available</source>
         <translation>Keine SyncTeX-Daten verfügbar</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocument.cpp" line="426"/>
+        <location filename="../src/PDFDocument.cpp" line="430"/>
         <source>SyncTeX: &quot;%1&quot;</source>
         <translation>SyncTeX: &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocument.cpp" line="535"/>
+        <location filename="../src/PDFDocument.cpp" line="539"/>
         <source>%1[*] - %2</source>
         <translation>%1[*] - %2</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocument.cpp" line="564"/>
+        <location filename="../src/PDFDocument.cpp" line="568"/>
         <source>page %1 of %2</source>
         <translation>Seite %1 von %2</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocument.cpp" line="569"/>
+        <location filename="../src/PDFDocument.cpp" line="573"/>
         <source>%1%</source>
         <translation>%1%</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocument.cpp" line="681"/>
+        <location filename="../src/PDFDocument.cpp" line="691"/>
         <source>Abort typesetting</source>
         <translation>Textsatz abbrechen</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocument.cpp" line="726"/>
+        <location filename="../src/PDFDocument.cpp" line="736"/>
         <source>Jump to Source</source>
         <translation>Gehe zum Quelltext</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocument.cpp" line="893"/>
-        <location filename="../src/PDFDocument.cpp" line="897"/>
+        <location filename="../src/PDFDocument.cpp" line="838"/>
+        <source>Open URL</source>
+        <translation>URL öffnen</translation>
+    </message>
+    <message>
+        <location filename="../src/PDFDocument.cpp" line="838"/>
+        <source>You are in the process of opening the URL %1. Opening unknown or untrusted web adresses can be a security risk.
+Do you want to continue?</source>
+        <translation>Sie sind dabei, die URL %1 zu öffnen. Das Öffnen von unbekannten oder nicht vertrauenswürdigen Webseiten kann ein Sicherheitsrisiko darstellen.
+Wollen Sie fortfahren?</translation>
+    </message>
+    <message>
+        <location filename="../src/PDFDocument.cpp" line="890"/>
+        <source>Custom...</source>
+        <translation>Benutzerdefiniert...</translation>
+    </message>
+    <message>
+        <location filename="../src/PDFDocument.cpp" line="950"/>
+        <location filename="../src/PDFDocument.cpp" line="954"/>
         <source>Go to Page</source>
         <translation>Gehe zu Seite</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocument.cpp" line="894"/>
-        <location filename="../src/PDFDocument.cpp" line="898"/>
+        <location filename="../src/PDFDocument.cpp" line="951"/>
+        <location filename="../src/PDFDocument.cpp" line="955"/>
         <source>Page number:</source>
         <translation>Seite:</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocument.cpp" line="810"/>
+        <location filename="../src/PDFDocument.cpp" line="967"/>
+        <source>Set Zoom</source>
+        <translation>Vergrößerung einstellen</translation>
+    </message>
+    <message>
+        <location filename="../src/PDFDocument.cpp" line="967"/>
+        <source>Zoom level:</source>
+        <translation>Zoomlevel:</translation>
+    </message>
+    <message>
+        <location filename="../src/PDFDocument.cpp" line="864"/>
         <source>Unfortunately, this version of %1 is unable to print Pdf documents due to various technical reasons.
 </source>
         <translation>Diese Version von %1 kann aufgrund verschiedener technischer Gründe leider keine Pdf Dokumente drucken.</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocument.cpp" line="811"/>
+        <location filename="../src/PDFDocument.cpp" line="865"/>
         <source>Do you want to open the file in the default viewer for printing instead?</source>
         <translation>Wollen Sie die Datei stattdessen in Ihrem Pdf-Standardprogramm öffnen, um es von dort zu drucken?</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocument.cpp" line="812"/>
+        <location filename="../src/PDFDocument.cpp" line="866"/>
         <source> (remember to close it again to avoid access problems)</source>
         <translation> (bitte schließen Sie es nach dem Drucken wieder, um Zugriffsprobleme zu vermeiden)</translation>
     </message>
@@ -267,7 +294,7 @@
     </message>
     <message>
         <location filename="../src/PDFDocument.ui" line="501"/>
-        <location filename="../src/PDFDocument.cpp" line="688"/>
+        <location filename="../src/PDFDocument.cpp" line="698"/>
         <source>Typeset</source>
         <translation>Setzen</translation>
     </message>
@@ -313,7 +340,7 @@
     </message>
     <message>
         <location filename="../src/PDFDocument.ui" line="275"/>
-        <location filename="../src/PDFDocument.cpp" line="733"/>
+        <location filename="../src/PDFDocument.cpp" line="743"/>
         <source>Zoom In</source>
         <translation>Vergrößern</translation>
     </message>
@@ -345,7 +372,7 @@
     </message>
     <message>
         <location filename="../src/PDFDocument.ui" line="290"/>
-        <location filename="../src/PDFDocument.cpp" line="734"/>
+        <location filename="../src/PDFDocument.cpp" line="744"/>
         <source>Zoom Out</source>
         <translation>Verkleinern</translation>
     </message>
@@ -356,7 +383,7 @@
     </message>
     <message>
         <location filename="../src/PDFDocument.ui" line="308"/>
-        <location filename="../src/PDFDocument.cpp" line="737"/>
+        <location filename="../src/PDFDocument.cpp" line="747"/>
         <source>Fit to Window</source>
         <translation>An Fenstergröße anpassen</translation>
     </message>
@@ -367,7 +394,7 @@
     </message>
     <message>
         <location filename="../src/PDFDocument.ui" line="323"/>
-        <location filename="../src/PDFDocument.cpp" line="735"/>
+        <location filename="../src/PDFDocument.cpp" line="745"/>
         <source>Actual Size</source>
         <translation>Originalgröße</translation>
     </message>
@@ -378,7 +405,7 @@
     </message>
     <message>
         <location filename="../src/PDFDocument.ui" line="341"/>
-        <location filename="../src/PDFDocument.cpp" line="736"/>
+        <location filename="../src/PDFDocument.cpp" line="746"/>
         <source>Fit to Width</source>
         <translation>An Fensterbreite anpassen</translation>
     </message>
@@ -484,7 +511,7 @@
     </message>
     <message>
         <location filename="../src/PDFDocument.ui" line="733"/>
-        <location filename="../src/PDFDocument.cpp" line="815"/>
+        <location filename="../src/PDFDocument.cpp" line="869"/>
         <source>Print Pdf...</source>
         <translation>Pdf drucken...</translation>
     </message>
@@ -615,7 +642,7 @@
         <translation>Bild auswählen</translation>
     </message>
     <message>
-        <location filename="../src/PDFDocument.cpp" line="409"/>
+        <location filename="../src/PDFDocument.cpp" line="413"/>
         <source>Failed to load file &quot;%1&quot;; perhaps it is not a valid PDF document.</source>
         <translation>Konnte die Datei &apos;%1&apos; nicht laden; vielleicht handelt es sich nicht um ein gültiges PDF Dokument.</translation>
     </message>
@@ -962,67 +989,66 @@
         <translation>Ringlupe</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="682"/>
+        <location filename="../src/PrefsDialog.ui" line="701"/>
         <source>Screen resolution:</source>
         <translation>Bildschirmauflösung:</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="692"/>
         <source> dpi</source>
-        <translation>dpi</translation>
+        <translation type="obsolete">dpi</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="708"/>
+        <location filename="../src/PrefsDialog.ui" line="669"/>
         <source>Page mode:</source>
         <translation>Seitenansicht:</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="716"/>
+        <location filename="../src/PrefsDialog.ui" line="683"/>
         <source>Single Page</source>
         <translation>Einseitig</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="721"/>
+        <location filename="../src/PrefsDialog.ui" line="688"/>
         <source>Single Page Continuous</source>
         <translation>Einseitig fortlaufend</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="726"/>
+        <location filename="../src/PrefsDialog.ui" line="693"/>
         <source>Two Page Continuous</source>
         <translation>Zweiseitig fortlaufend</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="750"/>
+        <location filename="../src/PrefsDialog.ui" line="727"/>
         <source>Typesetting</source>
         <translation>Textsatz</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="767"/>
+        <location filename="../src/PrefsDialog.ui" line="744"/>
         <source>Paths for TeX and related programs</source>
         <translation>Pfade für TeX und verwandte Programme</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="840"/>
+        <location filename="../src/PrefsDialog.ui" line="817"/>
         <source>Processing tools</source>
         <translation>Verarbeitungsprogramme</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="875"/>
+        <location filename="../src/PrefsDialog.ui" line="852"/>
         <source>Edit...</source>
         <translation>Bearbeiten ...</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="913"/>
+        <location filename="../src/PrefsDialog.ui" line="890"/>
         <source>Default:</source>
         <translation>Standard:</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="943"/>
+        <location filename="../src/PrefsDialog.ui" line="920"/>
         <source>Hide console output:</source>
         <translation>Konsolenausgabe schließen:</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="956"/>
+        <location filename="../src/PrefsDialog.ui" line="933"/>
         <source>&lt;p&gt;&lt;strong&gt;Never:&lt;/strong&gt; Never hide the console output panel after typesetting.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Automatically:&lt;/strong&gt; Hide the console output panel after successful typesetting, but only if it was hidden before.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;On Success:&lt;/strong&gt; Hide the console output panel after successful typesetting, regardless of its previous state.&lt;/p&gt;
@@ -1033,60 +1059,60 @@
 </translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="966"/>
+        <location filename="../src/PrefsDialog.ui" line="943"/>
         <source>Never</source>
         <extracomment>&quot;Hide console output&quot; mode</extracomment>
         <translation>Nie</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="971"/>
+        <location filename="../src/PrefsDialog.ui" line="948"/>
         <source>Automatically</source>
         <extracomment>&quot;Hide console output&quot; mode</extracomment>
         <translation>Automatisch</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="976"/>
+        <location filename="../src/PrefsDialog.ui" line="953"/>
         <source>On success</source>
         <extracomment>&quot;Hide console output&quot; mode</extracomment>
         <translation>Bei Erfolg</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="1002"/>
+        <location filename="../src/PrefsDialog.ui" line="979"/>
         <source>Scripts</source>
         <translation>Skripte</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="1008"/>
+        <location filename="../src/PrefsDialog.ui" line="985"/>
         <source>Security</source>
         <translation>Sicherheit</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="1014"/>
+        <location filename="../src/PrefsDialog.ui" line="991"/>
         <source>Allow scripts to read all files (script and document files are always readable)</source>
         <translation>Skripte dürfen alle Dateien lesen (Skripte und Dokumentdateien dürfen immer gelesen werden)</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="1021"/>
+        <location filename="../src/PrefsDialog.ui" line="998"/>
         <source>Allow scripts to write files</source>
         <translation>Skripte dürfen Dateien schreiben</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="1035"/>
+        <location filename="../src/PrefsDialog.ui" line="1012"/>
         <source>Enable plug-in scripting languages (may circumvent other restrictions on script behavior)</source>
         <translation>Skriptsprachen Plugins aktivieren (einige Skripteinschränkungen könnten dadurch umgangen werden)</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="1045"/>
+        <location filename="../src/PrefsDialog.ui" line="1022"/>
         <source>Debugging</source>
         <translation>Entwicklung/Debugging</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="1051"/>
+        <location filename="../src/PrefsDialog.ui" line="1028"/>
         <source>Enable QtScript debugger</source>
         <translation>QtScript Debugger einschalten</translation>
     </message>
     <message>
-        <location filename="../src/PrefsDialog.ui" line="1028"/>
+        <location filename="../src/PrefsDialog.ui" line="1005"/>
         <source>Allow scripts to run system commands</source>
         <translation>Skripte dürfen Systembefehle ausführen</translation>
     </message>
@@ -1273,6 +1299,48 @@
     </message>
 </context>
 <context>
+    <name>ScreenCalibrationWidget</name>
+    <message>
+        <location filename="../src/ScreenCalibrationWidget.cpp" line="19"/>
+        <source>Drag the ruler or change the value to match real world lengths.
+Common paper sizes are marked as well (you may need to resize the dialog window to see them).
+Use the context menu to change the units.</source>
+        <translation>Ziehen Sie das Lineal oder ändern Sie den Wert, bis die angezeigten Abstände realen Abständen entsprechen.
+Gängige Papierformate sind ebenfalls eingezeichnet (Sie müssen eventuell das Dialogfenster vergrößern, um sie zu sehen).
+Verwenden Sie das Kontextmenü, um die Längeneinheit zu ändern.</translation>
+    </message>
+    <message>
+        <location filename="../src/ScreenCalibrationWidget.cpp" line="55"/>
+        <source> dpi</source>
+        <extracomment>dots per inch</extracomment>
+        <translation> dpi</translation>
+    </message>
+    <message>
+        <location filename="../src/ScreenCalibrationWidget.cpp" line="58"/>
+        <source>DIN A4</source>
+        <translation>DIN A4</translation>
+    </message>
+    <message>
+        <location filename="../src/ScreenCalibrationWidget.cpp" line="59"/>
+        <source>Letter</source>
+        <translation>Letter</translation>
+    </message>
+    <message>
+        <location filename="../src/ScreenCalibrationWidget.cpp" line="63"/>
+        <location filename="../src/ScreenCalibrationWidget.cpp" line="69"/>
+        <source>cm</source>
+        <extracomment>this refers to the length unit of centimeters</extracomment>
+        <translation>cm</translation>
+    </message>
+    <message>
+        <location filename="../src/ScreenCalibrationWidget.cpp" line="65"/>
+        <location filename="../src/ScreenCalibrationWidget.cpp" line="75"/>
+        <source>in</source>
+        <extracomment>this refers to the length unit of inches</extracomment>
+        <translation>in</translation>
+    </message>
+</context>
+<context>
     <name>ScriptManager</name>
     <message>
         <location filename="../src/ScriptManager.cpp" line="190"/>
@@ -1450,39 +1518,39 @@
         <translation>Über %1</translation>
     </message>
     <message>
-        <location filename="../src/TWApp.cpp" line="581"/>
+        <location filename="../src/TWApp.cpp" line="601"/>
         <source>Unable to create window</source>
         <translation>Kann kein Fenster erzeugen</translation>
     </message>
     <message>
-        <location filename="../src/TWApp.cpp" line="582"/>
+        <location filename="../src/TWApp.cpp" line="602"/>
         <source>Something is badly wrong; %1 was unable to create a document window. The application will now quit.</source>
         <translation>Irgendetwas ist völlig schief gelaufen; %1 konnte kein Dokumentfenster erzeugen. Die Anwendung schließt jetzt.</translation>
     </message>
     <message>
-        <location filename="../src/TWApp.cpp" line="634"/>
-        <location filename="../src/TWApp.cpp" line="649"/>
+        <location filename="../src/TWApp.cpp" line="654"/>
+        <location filename="../src/TWApp.cpp" line="669"/>
         <source>Open File</source>
         <translation>Datei öffnen</translation>
     </message>
     <message>
-        <location filename="../src/TWApp.cpp" line="828"/>
+        <location filename="../src/TWApp.cpp" line="848"/>
         <source>No default binary directory found</source>
         <translation>Kein Standard-Programm-Verzeichnis gefunden</translation>
     </message>
     <message>
-        <location filename="../src/TWApp.cpp" line="829"/>
-        <source>None of the predefined directories for TeX-related programs could be found.&lt;p&gt;&lt;small&gt;To run any processes, you will need to set the binaries directory (or directories) for your TeX distribution using the Typesetting tab of the Preferences dialog.</source>
+        <location filename="../src/TWApp.cpp" line="849"/>
+        <source>None of the predefined directories for TeX-related programs could be found.&lt;p&gt;&lt;small&gt;To run any processes, you will need to set the binaries directory (or directories) for your TeX distribution using the Typesetting tab of the Preferences dialog.&lt;/small&gt;</source>
         <translatorcomment>&quot;Binärverzeichnisse&quot; wow, a folder that is binary :)</translatorcomment>
-        <translation>Keines der vordefinierten Verzeichnisse für TeX und verwandte Programme konnte gefunden werden.&lt;p&gt;&lt;small&gt;Um einen Prozess zu starten müssen Sie die korrekten Programm-Verzeichnisse Ihrer TeX-Distribution angeben (Einstellungs-Dialog unter &quot;Textsatz&quot;).</translation>
+        <translation>Keines der vordefinierten Verzeichnisse für TeX und verwandte Programme konnte gefunden werden.&lt;p&gt;&lt;small&gt;Um einen Prozess zu starten müssen Sie die korrekten Programm-Verzeichnisse Ihrer TeX-Distribution angeben (Einstellungs-Dialog unter &quot;Textsatz&quot;).&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="../src/TWApp.cpp" line="1319"/>
+        <location filename="../src/TWApp.cpp" line="1340"/>
         <source>Permission request</source>
         <translation>Sicherheitsanfrage</translation>
     </message>
     <message>
-        <location filename="../src/TWApp.cpp" line="1320"/>
+        <location filename="../src/TWApp.cpp" line="1341"/>
         <source>The script &quot;%1&quot; is trying to open the file &quot;%2&quot; without sufficient permissions. Do you want to open the file?</source>
         <translation>Das Skript &quot;%1&quot; versucht, die Datei &quot;%2&quot; ohne ausreichende Berechtigung zu öffnen. Soll die Datei geöffnet werden?</translation>
     </message>
@@ -1579,12 +1647,12 @@
         <translation>&lt;a href=&quot;mailto:jcnengel@googlemail.com&quot;&gt;Johannes Engel&lt;/a&gt;, &lt;a href=&quot;mailto:st.loeffler@gmail.com&quot;&gt;Stefan Löffler&lt;/a&gt; und &lt;a href=&quot;mailto:tomfloeren@mac.com&quot;&gt;Thomas Floeren&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../src/TWApp.cpp" line="663"/>
+        <location filename="../src/TWApp.cpp" line="683"/>
         <source>Save File</source>
         <translation>Datei speichern</translation>
     </message>
     <message>
-        <location filename="../src/TWApp.cpp" line="1129"/>
+        <location filename="../src/TWApp.cpp" line="1150"/>
         <source>Unable to find help file.</source>
         <translation>Kann die Hilfedatei nicht finden.</translation>
     </message>
@@ -1631,49 +1699,49 @@
 <context>
     <name>TWScriptable</name>
     <message>
-        <location filename="../src/TWScriptable.cpp" line="575"/>
-        <location filename="../src/TWScriptable.cpp" line="583"/>
+        <location filename="../src/TWScriptable.cpp" line="576"/>
+        <location filename="../src/TWScriptable.cpp" line="584"/>
         <source>Script &quot;%1&quot;: %2</source>
         <translation>Skript &quot;%1&quot;: %2</translation>
     </message>
     <message>
-        <location filename="../src/TWScriptable.cpp" line="577"/>
+        <location filename="../src/TWScriptable.cpp" line="578"/>
         <source>Script result</source>
         <translation>Ergebnis des Skripts</translation>
     </message>
     <message>
-        <location filename="../src/TWScriptable.cpp" line="582"/>
+        <location filename="../src/TWScriptable.cpp" line="583"/>
         <source>unknown error</source>
         <translation>unbekannter Fehler</translation>
     </message>
     <message>
-        <location filename="../src/TWScriptable.cpp" line="583"/>
+        <location filename="../src/TWScriptable.cpp" line="584"/>
         <source>Script error</source>
         <translation>Fehler im Skript</translation>
     </message>
     <message>
-        <location filename="../src/TWScriptable.cpp" line="604"/>
+        <location filename="../src/TWScriptable.cpp" line="605"/>
         <source>Scripts may be used to add new commands to %1, and to extend or modify its behavior.</source>
         <translation>Skripte können verwendet werden, um neue Befehle zu %1 hinzuzufügen und um dessen Funktionalität zu erweitern oder zu verändern.</translation>
     </message>
     <message>
-        <location filename="../src/TWScriptable.cpp" line="607"/>
+        <location filename="../src/TWScriptable.cpp" line="608"/>
         <source>For more information on creating and using scripts, see %1&lt;/p&gt;</source>
         <translation>Siehe %1 für zusätzliche Informationen zum Erstellen und Verwenden von Skripten&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/TWScriptable.cpp" line="609"/>
+        <location filename="../src/TWScriptable.cpp" line="610"/>
         <source>Scripting languages currently available in this copy of %1:</source>
         <translation>Skriptsprachen, die im Moment in dieser Installation von %1 verfügbar sind:</translation>
     </message>
     <message>
-        <location filename="../src/TWScriptable.cpp" line="622"/>
+        <location filename="../src/TWScriptable.cpp" line="623"/>
         <source>(disabled in the preferences)</source>
         <extracomment>This string is appended to a script language name to indicate it is currently disabled</extracomment>
         <translation>(in den Einstellungen deaktiviert)</translation>
     </message>
     <message>
-        <location filename="../src/TWScriptable.cpp" line="626"/>
+        <location filename="../src/TWScriptable.cpp" line="627"/>
         <source>About Scripts</source>
         <translation>Über Skripte...</translation>
     </message>

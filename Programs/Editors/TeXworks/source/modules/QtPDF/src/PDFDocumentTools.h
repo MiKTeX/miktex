@@ -242,8 +242,6 @@ protected:
 // - marquee selection (selects all boxes inside a rectangle drawn by the user
 // - Ctrl+C to copy selected text (if supported by backend)
 //
-// FIXME: When the document (or the current page) is changed, resetBoxes()
-//        should be called to ensure we don't work with the wrong boxes
 // TODO: Marquee selection is slow for large rectangles
 // TODO: Handle selections spanning multiple pages
 // TODO: possibly load boxes asynchronously
@@ -256,6 +254,7 @@ protected:
 //       moving the mouse, the boxes information is not updated
 class Select : public AbstractTool
 {
+  friend class QtPDF::PDFDocumentView;
 public:
   Select(PDFDocumentView * parent);
   virtual ~Select();
@@ -271,7 +270,11 @@ protected:
   virtual void keyPressEvent(QKeyEvent *event);
 
   void resetBoxes(const int pageNum = -1);
-  
+  // Call this to notify Select that the page graphics item it has been working 
+  // on has been destroyed so all pointers to graphics items should be
+  // invalidated
+  void pageDestroyed();
+
   // The mouse mode depends on whether the LMB is pressed, and where/how it was
   // pressed initially (e.g., over a box, over a free area, etc.)
   enum MouseMode { MouseMode_None, MouseMode_MarqueeSelect, MouseMode_TextSelect, MouseMode_ImageSelect };

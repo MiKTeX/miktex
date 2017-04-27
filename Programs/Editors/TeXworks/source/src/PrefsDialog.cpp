@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2015  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -355,7 +355,7 @@ void PrefsDialog::restoreDefaults()
 				break;
 			}
 
-			resolution->setValue(QApplication::desktop()->logicalDpiX());
+			resolution->setDpi(QApplication::desktop()->physicalDpiX());
 			
 			switch (kDefault_MagnifierSize) {
 				case 1:
@@ -584,8 +584,8 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 			break;
 	}
 
-	int oldResolution = settings.value("previewResolution", QApplication::desktop()->logicalDpiX()).toInt();
-	dlg.resolution->setValue(oldResolution);
+	double oldResolution = settings.value("previewResolution", QApplication::desktop()->physicalDpiX()).toDouble();
+	dlg.resolution->setDpi(oldResolution);
 	
 	int oldMagSize = settings.value("magnifierSize", kDefault_MagnifierSize).toInt();
 	switch (oldMagSize) {
@@ -746,7 +746,7 @@ QDialog::DialogCode PrefsDialog::doPrefsDialog(QWidget *parent)
 				break;
 		}
 
-		int resolution = dlg.resolution->value();
+		double resolution = dlg.resolution->dpi();
 		if (resolution != oldResolution) {
 			settings.setValue("previewResolution", resolution);
 			foreach (QWidget *widget, qApp->topLevelWidgets()) {

@@ -95,7 +95,7 @@
     </message>
     <message>
         <source>No recent search strings</source>
-        <translation></translation>
+        <translation>Son arama yok</translation>
     </message>
     <message>
         <source>(invalid)</source>
@@ -549,6 +549,27 @@
         <source>Page number:</source>
         <translation>Sayfa no:</translation>
     </message>
+    <message>
+        <source>Open URL</source>
+        <translation>URL aç</translation>
+    </message>
+    <message>
+        <source>You are in the process of opening the URL %1. Opening unknown or untrusted web adresses can be a security risk.
+Do you want to continue?</source>
+        <translation>%1 URL&apos;ini açmak üzeresiniz. Bilinmeyen veya güvenilmeyen web adreslerini açmak güvenlik riski oluşturabilir. Devam etmek istiyor musunuz?</translation>
+    </message>
+    <message>
+        <source>Custom...</source>
+        <translation>Özel...</translation>
+    </message>
+    <message>
+        <source>Set Zoom</source>
+        <translation>Yakınlaştırmayı ayarla</translation>
+    </message>
+    <message>
+        <source>Zoom level:</source>
+        <translation>Yakınlaştırma seviyesi:</translation>
+    </message>
 </context>
 <context>
     <name>PDFFindDialog</name>
@@ -737,7 +758,7 @@
     </message>
     <message>
         <source> dpi</source>
-        <translation>dpi</translation>
+        <translation type="obsolete">dpi</translation>
     </message>
     <message>
         <source>Typesetting</source>
@@ -1015,6 +1036,40 @@
     </message>
 </context>
 <context>
+    <name>ScreenCalibrationWidget</name>
+    <message>
+        <source>Drag the ruler or change the value to match real world lengths.
+Common paper sizes are marked as well (you may need to resize the dialog window to see them).
+Use the context menu to change the units.</source>
+        <translation>Cetveli sürükleyin veya değeri gerçek uzunluklara göre ayarlayın.
+Yaygın kağıt boyutları işaretlidir (Bunları görmek için pencerenin boyutlarını değiştirmeniz gerekebilir).
+Birimleri değiştirmek için menüyü kullanın.</translation>
+    </message>
+    <message>
+        <source> dpi</source>
+        <extracomment>dots per inch</extracomment>
+        <translation> dpi</translation>
+    </message>
+    <message>
+        <source>DIN A4</source>
+        <translation>DIN A4</translation>
+    </message>
+    <message>
+        <source>Letter</source>
+        <translation>Letter</translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <extracomment>this refers to the length unit of centimeters</extracomment>
+        <translation>cm</translation>
+    </message>
+    <message>
+        <source>in</source>
+        <extracomment>this refers to the length unit of inches</extracomment>
+        <translation>in</translation>
+    </message>
+</context>
+<context>
     <name>ScriptManager</name>
     <message>
         <source>Manage Scripts</source>
@@ -1211,8 +1266,8 @@
         <translation>Hiçbir öntanımlı ikili dizini bulunamadı</translation>
     </message>
     <message>
-        <source>None of the predefined directories for TeX-related programs could be found.&lt;p&gt;&lt;small&gt;To run any processes, you will need to set the binaries directory (or directories) for your TeX distribution using the Typesetting tab of the Preferences dialog.</source>
-        <translation>TeX ile ilgili programlar için önceden tanımlanmış dizinlerin hiçbiri bulunamadı.&lt;p&gt;&lt;small&gt;Bir işlem çalıştırmak için Tercihler penceresindeki Dizgi sekmesinde TeX dağıtımınız için ikililer dizini (veya dizinleri) ayarlamanız gerekecek.</translation>
+        <source>None of the predefined directories for TeX-related programs could be found.&lt;p&gt;&lt;small&gt;To run any processes, you will need to set the binaries directory (or directories) for your TeX distribution using the Typesetting tab of the Preferences dialog.&lt;/small&gt;</source>
+        <translation>TeX ile ilgili programlar için önceden tanımlanmış dizinlerin hiçbiri bulunamadı.&lt;p&gt;&lt;small&gt;Bir işlem çalıştırmak için Tercihler penceresindeki Dizgi sekmesinde TeX dağıtımınız için ikililer dizini (veya dizinleri) ayarlamanız gerekecek.&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Unable to find help file.</source>

@@ -25,4 +25,4 @@ Here is some additional information regarding the files in this directory:
 
 Qt language files that were taken from the VirtualBox repository
 (http://www.virtualbox.org/browser/trunk/src/VBox/Frontends/VirtualBox/nls):
-  qt_ca.ts, qt_it.ts, qt_nl.ts, qt_pt_BR.ts, qt_tr.ts
+  qt_nl.ts, qt_pt_BR.ts, qt_tr.ts

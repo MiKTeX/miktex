@@ -418,7 +418,17 @@ QSharedPointer<QImage> PDFPageCache::getImage(const PDFPageTile & tile) const
   return QSharedPointer<QImage>();
 }
 
-QSharedPointer<QImage> PDFPageCache::setImage(const PDFPageTile & tile, QImage * image, const bool overwrite /* = true */)
+PDFPageCache::TileStatus PDFPageCache::getStatus(const PDFPageTile & tile) const
+{
+  PDFPageCache::TileStatus retVal = UNKNOWN;
+  _lock.lockForRead();
+  if (_tileStatus.contains(tile))
+    retVal = _tileStatus[tile];
+  _lock.unlock();
+  return retVal;
+}
+
+QSharedPointer<QImage> PDFPageCache::setImage(const PDFPageTile & tile, QImage * image, const TileStatus status, const bool overwrite /* = true */)
 {
   _lock.lockForWrite();
   QSharedPointer<QImage> retVal;
@@ -429,9 +439,14 @@ QSharedPointer<QImage> PDFPageCache::setImage(const PDFPageTile & tile, QImage *
   if (!retVal) {
     QSharedPointer<QImage> * toInsert = new QSharedPointer<QImage>(image);
     insert(tile, toInsert, (image ? image->byteCount() : 0));
+    _tileStatus.insert(tile, status);
     retVal = *toInsert;
   }
-  else if(overwrite) {
+  else if (retVal.data() == image) {
+    // Trying to overwrite an image with itself - just update the status
+    _tileStatus.insert(tile, status);
+  }
+  else if (overwrite) {
     // TODO: overwriting an image with a different one can change its size (and
     // therefore its cost in the cache). There doesn't seem to be a method to
     // hande that in QCache, though, and since we only use one tile size this
@@ -443,9 +458,18 @@ QSharedPointer<QImage> PDFPageCache::setImage(const PDFPageTile & tile, QImage *
       insert(tile, toInsert, 0);
       retVal = *toInsert;
     }
+    _tileStatus.insert(tile, status);
   }
   _lock.unlock();
   return retVal;
+}
+
+void PDFPageCache::markOutdated()
+{
+  QWriteLocker l(&_lock);
+  QMap<PDFPageTile, TileStatus>::iterator it;
+  for (it = _tileStatus.begin(); it != _tileStatus.end(); ++it)
+    it.value() = OUTDATED;
 }
 
 
@@ -618,13 +642,19 @@ void Page::detachFromParent()
   _parent = NULL;
 }
 
-QSharedPointer<QImage> Page::getCachedImage(double xres, double yres, QRect render_box)
+QSharedPointer<QImage> Page::getCachedImage(double xres, double yres, QRect render_box /* = QRect() */, PDFPageCache::TileStatus * status /* = NULL */)
 {
   QReadLocker docLocker(_docLock.data());
   QReadLocker pageLocker(_pageLock);
-  if (!_parent)
+  if (!_parent) {
+    if (status)
+      *status = PDFPageCache::UNKNOWN;
     return QSharedPointer<QImage>();
-  return _parent->pageCache().getImage(PDFPageTile(xres, yres, render_box, _n));
+  }
+  PDFPageTile tile(xres, yres, render_box, _n);
+  if (status)
+    *status = _parent->pageCache().getStatus(tile);
+  return _parent->pageCache().getImage(tile);
 }
 
 void Page::asyncRenderToImage(QObject *listener, double xres, double yres, QRect render_box, bool cache)
@@ -651,9 +681,13 @@ QSharedPointer<QImage> Page::getTileImage(QObject * listener, const double xres,
   if (render_box.isNull())
     render_box = QRectF(0, 0, pageSizeF().width() * xres / 72., pageSizeF().height() * yres / 72.).toAlignedRect();
 
-  // If the tile is cached, return it
-  QSharedPointer<QImage> retVal = getCachedImage(xres, yres, render_box);
-  if (retVal)
+  // If the tile is cached, return it if
+  // 1) it is current
+  // 2) it is a placeholder (in this case, it is currently rendering in the
+  // background and we don't need to do anything)
+  PDFPageCache::TileStatus status;
+  QSharedPointer<QImage> retVal = getCachedImage(xres, yres, render_box, &status);
+  if (retVal && (status == PDFPageCache::CURRENT || status == PDFPageCache::PLACEHOLDER))
     return retVal;
 
   if (listener) {
@@ -664,70 +698,77 @@ QSharedPointer<QImage> Page::getTileImage(QObject * listener, const double xres,
     // there's nothing to worry about
     asyncRenderToImage(listener, xres, yres, render_box, true);
 
-    QImage * tmpImg = new QImage(render_box.width(), render_box.height(), QImage::Format_ARGB32);
-    QPainter p(tmpImg);
-    p.fillRect(tmpImg->rect(), *pageDummyBrush);
-
-    // Look through the cache to find tiles we can reuse (by scaling) for our
-    // dummy tile
-    // TODO: Benchmark this. If it is actualy too slow (i.e., just keeping the
-    // rendered image from popping up due to the write lock we hold) disable it
-    if (_parent) {
-      QList<PDFPageTile> tiles = _parent->pageCache().tiles();
-      for (QList<PDFPageTile>::iterator it = tiles.begin(); it != tiles.end(); ) {
-        if (it->page_num != pageNum()) {
-          it = tiles.erase(it);
-          continue;
-        }
-        // See if it->render_box intersects with render_box (after proper scaling)
-        QRect scaledRect = QTransform::fromScale(xres / it->xres, yres / it->yres).mapRect(it->render_box);
-        if (!scaledRect.intersects(render_box)) {
-          it = tiles.erase(it);
-          continue;
-        }
-        ++it;
-      }
-      // Sort the remaining tiles by size, high-res first
-      qSort(tiles.begin(), tiles.end(), higherResolutionThan);
-      // Finally, crop, scale and paint each image until the whole area is
-      // filled or no images are left in the list
-      QPainterPath clipPath;
-      clipPath.addRect(0, 0, render_box.width(), render_box.height());
-      foreach (PDFPageTile tile, tiles) {
-        QSharedPointer<QImage> tileImg = _parent->pageCache().getImage(tile);
-        if (!tileImg)
-          continue;
-
-        // cropRect is the part of `tile` that overlaps the tile-to-paint (after
-        // proper scaling).
-        // paintRect is the part `tile` fills of the area we paint to (after
-        // proper scaling).
-        QRect cropRect = QTransform::fromScale(tile.xres / xres, tile.yres / yres).mapRect(render_box).intersected(tile.render_box).translated(-tile.render_box.left(), -tile.render_box.top());
-        QRect paintRect = QTransform::fromScale(xres / tile.xres, yres / tile.yres).mapRect(tile.render_box).intersected(render_box).translated(-render_box.left(), -render_box.top());
-
-        // Get the actual image and paint it onto the dummy tile
-        QImage tmp(tileImg->copy(cropRect).scaled(paintRect.size()));
-        p.setClipPath(clipPath);
-        p.drawImage(paintRect.topLeft(), tmp);
-
-        // Confine the clipping path to the part we have not painted to yet.
-        QPainterPath pp;
-        pp.addRect(paintRect);
-        clipPath = clipPath.subtracted(pp);
-        if (clipPath.isEmpty())
-          break;
-      }
+    if (retVal && status == PDFPageCache::OUTDATED) {
+      // If we have an outdated image, use that as a placeholder
+      _parent->pageCache().setImage(PDFPageTile(xres, yres, render_box, _n), retVal.data(), PDFPageCache::PLACEHOLDER, false);
     }
-    // stop painting or else we couldn't (possibly) delete tmpImg below
-    p.end();
+    else {
+      // otherwise construct a dummy image
+      QImage * tmpImg = new QImage(render_box.width(), render_box.height(), QImage::Format_ARGB32);
+      QPainter p(tmpImg);
+      p.fillRect(tmpImg->rect(), *pageDummyBrush);
 
-    // Add the dummy tile to the cache
-    // Note: In the meantime the asynchronous rendering could have finished and
-    // insert the final image in the cache---we must handle that case and delete
-    // our temporary image
-    retVal = _parent->pageCache().setImage(PDFPageTile(xres, yres, render_box, _n), tmpImg, false);
-    if (retVal != tmpImg)
-      delete tmpImg;
+      // Look through the cache to find tiles we can reuse (by scaling) for our
+      // dummy tile
+      // TODO: Benchmark this. If it is actualy too slow (i.e., just keeping the
+      // rendered image from popping up due to the write lock we hold) disable it
+      if (_parent) {
+        QList<PDFPageTile> tiles = _parent->pageCache().tiles();
+        for (QList<PDFPageTile>::iterator it = tiles.begin(); it != tiles.end(); ) {
+          if (it->page_num != pageNum()) {
+            it = tiles.erase(it);
+            continue;
+          }
+          // See if it->render_box intersects with render_box (after proper scaling)
+          QRect scaledRect = QTransform::fromScale(xres / it->xres, yres / it->yres).mapRect(it->render_box);
+          if (!scaledRect.intersects(render_box)) {
+            it = tiles.erase(it);
+            continue;
+          }
+          ++it;
+        }
+        // Sort the remaining tiles by size, high-res first
+        qSort(tiles.begin(), tiles.end(), higherResolutionThan);
+        // Finally, crop, scale and paint each image until the whole area is
+        // filled or no images are left in the list
+        QPainterPath clipPath;
+        clipPath.addRect(0, 0, render_box.width(), render_box.height());
+        foreach (PDFPageTile tile, tiles) {
+          QSharedPointer<QImage> tileImg = _parent->pageCache().getImage(tile);
+          if (!tileImg)
+            continue;
+
+          // cropRect is the part of `tile` that overlaps the tile-to-paint (after
+          // proper scaling).
+          // paintRect is the part `tile` fills of the area we paint to (after
+          // proper scaling).
+          QRect cropRect = QTransform::fromScale(tile.xres / xres, tile.yres / yres).mapRect(render_box).intersected(tile.render_box).translated(-tile.render_box.left(), -tile.render_box.top());
+          QRect paintRect = QTransform::fromScale(xres / tile.xres, yres / tile.yres).mapRect(tile.render_box).intersected(render_box).translated(-render_box.left(), -render_box.top());
+
+          // Get the actual image and paint it onto the dummy tile
+          QImage tmp(tileImg->copy(cropRect).scaled(paintRect.size()));
+          p.setClipPath(clipPath);
+          p.drawImage(paintRect.topLeft(), tmp);
+
+          // Confine the clipping path to the part we have not painted to yet.
+          QPainterPath pp;
+          pp.addRect(paintRect);
+          clipPath = clipPath.subtracted(pp);
+          if (clipPath.isEmpty())
+            break;
+        }
+      }
+      // stop painting or else we couldn't (possibly) delete tmpImg below
+      p.end();
+
+      // Add the dummy tile to the cache
+      // Note: In the meantime the asynchronous rendering could have finished and
+      // insert the final image in the cache---we must handle that case and delete
+      // our temporary image
+      retVal = _parent->pageCache().setImage(PDFPageTile(xres, yres, render_box, _n), tmpImg, PDFPageCache::PLACEHOLDER, false);
+      if (retVal != tmpImg)
+        delete tmpImg;
+    }
     return retVal;
   }
   else {

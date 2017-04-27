@@ -48,7 +48,6 @@ authorization from the copyright holder.
 #endif
 #include "miktex/miktex-texworks.h"
 #endif
-
 #include <synctex_parser_utils.h>
 #include <stdlib.h>
 #include <string.h>

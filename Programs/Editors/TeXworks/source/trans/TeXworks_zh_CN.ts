@@ -523,23 +523,23 @@
     </message>
     <message>
         <source>Alt+Left</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+Left</translation>
     </message>
     <message>
         <source>Single Page</source>
-        <translation type="unfinished"></translation>
+        <translation>单页</translation>
     </message>
     <message>
         <source>Single Page Continuous</source>
-        <translation type="unfinished"></translation>
+        <translation>连续单页</translation>
     </message>
     <message>
         <source>Two Pages Continuous</source>
-        <translation type="unfinished"></translation>
+        <translation>连续双页</translation>
     </message>
     <message>
         <source>Jump to Source</source>
-        <translation type="unfinished">跳至源文件</translation>
+        <translation>跳至源文件</translation>
     </message>
     <message>
         <source>Go to Page</source>
@@ -547,7 +547,28 @@
     </message>
     <message>
         <source>Page number:</source>
-        <translation type="unfinished">页码：</translation>
+        <translation>页码：</translation>
+    </message>
+    <message>
+        <source>Open URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You are in the process of opening the URL %1. Opening unknown or untrusted web adresses can be a security risk.
+Do you want to continue?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Custom...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set Zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom level:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -737,7 +758,7 @@
     </message>
     <message>
         <source> dpi</source>
-        <translation>dpi</translation>
+        <translation type="obsolete">dpi</translation>
     </message>
     <message>
         <source>Typesetting</source>
@@ -865,19 +886,19 @@
     </message>
     <message>
         <source>Page mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>页面模式：</translation>
     </message>
     <message>
         <source>Single Page</source>
-        <translation type="unfinished"></translation>
+        <translation>单页</translation>
     </message>
     <message>
         <source>Single Page Continuous</source>
-        <translation type="unfinished"></translation>
+        <translation>连续单页</translation>
     </message>
     <message>
         <source>Two Page Continuous</source>
-        <translation type="unfinished"></translation>
+        <translation>连续双页</translation>
     </message>
 </context>
 <context>
@@ -1011,6 +1032,38 @@
     <message>
         <source>Registry (%1)</source>
         <translation>注册表（%1）</translation>
+    </message>
+</context>
+<context>
+    <name>ScreenCalibrationWidget</name>
+    <message>
+        <source>Drag the ruler or change the value to match real world lengths.
+Common paper sizes are marked as well (you may need to resize the dialog window to see them).
+Use the context menu to change the units.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> dpi</source>
+        <extracomment>dots per inch</extracomment>
+        <translation type="unfinished">dpi</translation>
+    </message>
+    <message>
+        <source>DIN A4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Letter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <extracomment>this refers to the length unit of centimeters</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>in</source>
+        <extracomment>this refers to the length unit of inches</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1183,7 +1236,7 @@
     </message>
     <message>
         <source>[translator&apos;s name/email]</source>
-        <translation>&lt;a href=&quot;mailto:crickzhang1@gmail.com&quot;&gt;Yinhe Zhang&lt;/a&gt;</translation>
+        <translation>&lt;a href=&quot;mailto:crickzhang1@gmail.com&quot;&gt;Yinhe Zhang&lt;/a&gt; 和 &lt;a href=&quot;mailto:073plan@gmail.com&quot;&gt;Boyuan Yang&lt;/a&gt;</translation>
     </message>
     <message>
         <source>About %1</source>
@@ -1210,8 +1263,8 @@
         <translation>没有找到默认的可执行程序（bin）目录</translation>
     </message>
     <message>
-        <source>None of the predefined directories for TeX-related programs could be found.&lt;p&gt;&lt;small&gt;To run any processes, you will need to set the binaries directory (or directories) for your TeX distribution using the Typesetting tab of the Preferences dialog.</source>
-        <translation>没有找到 TeX 相关程序所在的预定义目录。&lt;p&gt;&lt;small&gt;为了运行任何处理程序，您需要在＜首选项＞对话框的＜排版＞选项卡中设定 TeX 系统的二进制程序目录 (bin)。</translation>
+        <source>None of the predefined directories for TeX-related programs could be found.&lt;p&gt;&lt;small&gt;To run any processes, you will need to set the binaries directory (or directories) for your TeX distribution using the Typesetting tab of the Preferences dialog.&lt;/small&gt;</source>
+        <translation>没有找到 TeX 相关程序所在的预定义目录。&lt;p&gt;&lt;small&gt;为了运行任何处理程序，您需要在＜首选项＞对话框的＜排版＞选项卡中设定 TeX 系统的二进制程序目录 (bin)。&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Unable to find help file.</source>
@@ -1247,15 +1300,15 @@
     </message>
     <message>
         <source>Quit TeXworks</source>
-        <translation type="unfinished">退出 TeXworks</translation>
+        <translation>退出 TeXworks</translation>
     </message>
     <message>
         <source>&lt;p&gt;&lt;a href=&quot;http://www.qt.io/&quot;&gt;Qt application framework&lt;/a&gt; v%1 by The Qt Company.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&lt;a href=&quot;http://www.qt.io/&quot;&gt;Qt 应用程序框架&lt;/a&gt; v%1 由 Qt 公司提供。</translation>
     </message>
     <message>
         <source>&lt;br&gt;&lt;a href=&quot;http://hunspell.github.io/&quot;&gt;Hunspell&lt;/a&gt; spell checker by L&amp;#xE1;szl&amp;#xF3; N&amp;#xE9;meth.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;br&gt;&lt;a href=&quot;http://hunspell.github.io/&quot;&gt;Hunspell&lt;/a&gt; 拼写检查器由 L&amp;#xE1;szl&amp;#xF3; N&amp;#xE9;meth 提供。</translation>
     </message>
 </context>
 <context>
@@ -1326,7 +1379,7 @@
     <message>
         <source>(disabled in the preferences)</source>
         <extracomment>This string is appended to a script language name to indicate it is currently disabled</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>（已在首选项中停用）</translation>
     </message>
 </context>
 <context>

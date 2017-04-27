@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2008-2015  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2008-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@ void ConfirmDelete::init()
 	connect(selectAll, SIGNAL(clicked()), this, SLOT(doSelectAll()));
 	connect(selectNone, SIGNAL(clicked()), this, SLOT(doSelectNone()));
 	connect(toggleSelection, SIGNAL(clicked()), this, SLOT(doToggleSelection()));
+	connect(listWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(doToggleItemSelection(QListWidgetItem*)));
 	connect(listWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(setDeleteButtonEnabledStatus()));
 }
 
@@ -93,6 +94,13 @@ void ConfirmDelete::doToggleSelection()
 		listWidget->item(i)->setCheckState(checked == Qt::Unchecked ? Qt::Checked : Qt::Unchecked);
 	}
 	setDeleteButtonEnabledStatus();
+}
+
+void ConfirmDelete::doToggleItemSelection(QListWidgetItem * item)
+{
+	if (!item)
+		return;
+	item->setCheckState(item->checkState() == Qt::Unchecked ? Qt::Checked : Qt::Unchecked);
 }
 
 void ConfirmDelete::setDeleteButtonEnabledStatus()

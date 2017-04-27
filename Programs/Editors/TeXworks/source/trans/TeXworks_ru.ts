@@ -557,6 +557,28 @@
         <source>Page number:</source>
         <translation>Страница:</translation>
     </message>
+    <message>
+        <source>Open URL</source>
+        <translation>Открыть URL-адрес</translation>
+    </message>
+    <message>
+        <source>You are in the process of opening the URL %1. Opening unknown or untrusted web adresses can be a security risk.
+Do you want to continue?</source>
+        <translation>Вы собираетесь открыть URL-адрес %1. Открывать неизвестные или непроверенные URL-адреса может быть небезопасно.
+Продолжить?</translation>
+    </message>
+    <message>
+        <source>Custom...</source>
+        <translation>Настройка...</translation>
+    </message>
+    <message>
+        <source>Set Zoom</source>
+        <translation>Установить масштаб</translation>
+    </message>
+    <message>
+        <source>Zoom level:</source>
+        <translation>Масштаб:</translation>
+    </message>
 </context>
 <context>
     <name>PDFFindDialog</name>
@@ -758,7 +780,7 @@
     </message>
     <message>
         <source> dpi</source>
-        <translation> дпи</translation>
+        <translation type="obsolete"> дпи</translation>
     </message>
     <message>
         <source>Typesetting</source>
@@ -1029,6 +1051,40 @@
     </message>
 </context>
 <context>
+    <name>ScreenCalibrationWidget</name>
+    <message>
+        <source>Drag the ruler or change the value to match real world lengths.
+Common paper sizes are marked as well (you may need to resize the dialog window to see them).
+Use the context menu to change the units.</source>
+        <translation type="unfinished">Передвиньте линейку или измените значение, чтобы задать масштаб.
+Общепринятые размеры страниц также указаны на линейке (чтобы их увидеть измените размер окна).
+Используйте контекстное меню чтобы изменить единицы измерения.</translation>
+    </message>
+    <message>
+        <source> dpi</source>
+        <extracomment>dots per inch</extracomment>
+        <translation> дпи</translation>
+    </message>
+    <message>
+        <source>DIN A4</source>
+        <translation>Размер A4</translation>
+    </message>
+    <message>
+        <source>Letter</source>
+        <translation>Размер Letter</translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <extracomment>this refers to the length unit of centimeters</extracomment>
+        <translation>см</translation>
+    </message>
+    <message>
+        <source>in</source>
+        <extracomment>this refers to the length unit of inches</extracomment>
+        <translation>дюйм</translation>
+    </message>
+</context>
+<context>
     <name>ScriptManager</name>
     <message>
         <source>Name: </source>
@@ -1233,8 +1289,8 @@
         <translation>Отсутствует заданный по умолчанию каталог с программами</translation>
     </message>
     <message>
-        <source>None of the predefined directories for TeX-related programs could be found.&lt;p&gt;&lt;small&gt;To run any processes, you will need to set the binaries directory (or directories) for your TeX distribution using the Typesetting tab of the Preferences dialog.</source>
-        <translation>Невозможно найти какой-либо из предопределённых каталогов с TeX и сопутствующих программ.&lt;p&gt;&lt;small&gt;Чтобы сверстать документ нужно установить путь к каталогу (каталогам) с программами вашего дистрибутива TeX, используя вкладку Вёрстка в окне Настройки.</translation>
+        <source>None of the predefined directories for TeX-related programs could be found.&lt;p&gt;&lt;small&gt;To run any processes, you will need to set the binaries directory (or directories) for your TeX distribution using the Typesetting tab of the Preferences dialog.&lt;/small&gt;</source>
+        <translation>Невозможно найти какой-либо из предопределённых каталогов с TeX и сопутствующих программ.&lt;p&gt;&lt;small&gt;Чтобы сверстать документ нужно установить путь к каталогу (каталогам) с программами вашего дистрибутива TeX, используя вкладку Вёрстка в окне Настройки.&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Unable to find help file.</source>

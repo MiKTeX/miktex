@@ -112,6 +112,7 @@ public slots:
   // default alignment is centering here, which is also used if `alignment` == 0.
   // `anchor` must be given in item coordinates
   void goToPage(const int pageNum, const QPointF anchor, const int alignment = Qt::AlignHCenter | Qt::AlignVCenter);
+  void goToPDFDestination(const PDFDestination & dest, bool saveOldViewRect = true);
   void setPageMode(const PageMode pageMode, const bool forceRelayout = false);
   void setSinglePageMode() { setPageMode(PageMode_SinglePage); }
   void setOneColContPageMode() { setPageMode(PageMode_OneColumnContinuous); }
@@ -154,7 +155,7 @@ signals:
 
   void requestOpenUrl(const QUrl url);
   void requestExecuteCommand(QString command);
-  void requestOpenPdf(QString filename, int page, bool newWindow);
+  void requestOpenPdf(QString filename, QtPDF::PDFDestination destination, bool newWindow);
   void contextClick(const int page, const QPointF pos);
 
 protected:
@@ -187,7 +188,6 @@ protected slots:
   void goToPage(const PDFPageGraphicsItem * page, const QRectF view, const bool mayZoom = false);
   void goToPage(const PDFPageGraphicsItem * page, const int alignment = Qt::AlignLeft | Qt::AlignTop);
   void goToPage(const PDFPageGraphicsItem * page, const QPointF anchor, const int alignment = Qt::AlignHCenter | Qt::AlignVCenter);
-  void goToPDFDestination(const PDFDestination & dest, bool saveOldViewRect = true);
   void searchResultReady(int index);
   void searchProgressValueChanged(int progressValue);
   void switchInterfaceLocale(const QLocale & newLocale);

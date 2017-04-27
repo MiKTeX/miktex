@@ -1018,6 +1018,15 @@ void Select::resetBoxes(const int pageNum /* = -1 */)
 #endif // DEBUG
 }
 
+void Select::pageDestroyed()
+{
+  _highlightPath = NULL;
+#ifdef DEBUG
+  _displayBoxes.clear();
+#endif
+  resetBoxes(-1);
+}
+
 void Select::setHighlightColor(const QColor & color)
 {
   _highlightColor = color;

@@ -29,7 +29,6 @@
 #include <QMap>
 #include <QPair>
 #include <QSettings>
-
 #if defined(MIKTEX)
 #  include <miktex/Core/Directory>
 #  include <miktex/Core/Paths>

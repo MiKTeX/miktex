@@ -2,6 +2,10 @@
 
 ## MiKTeX NEXT
 
+### Upgraded programs
+
+* TeXworks 0.7
+
 ### Changed programs
 
 * dvipdfmx
@@ -17,7 +21,7 @@
 
 ## 2.9.6300 - 2017-05-25
 
-### Additions
+### New programs
 
 * [autosp](http://ctan.org/pkg/autosp) - a preprocessor that generates note-spacing commands for MusiXTeX scores
 * [Gregorio](http://gregorio-project.github.io) - convert from gabc to GregorioTeX
@@ -29,9 +33,10 @@
 * pdfTeX 1.40.18
 * XeTeX 0.99998
 
-### New features
+### Changed programs
 
-* LuaTeX now understands the [--include-directory](https://docs.miktex.org/manual/luatex.html#luatex-include-directory) option.
+* LuaTeX
+  - New option: [--include-directory=DIR](https://docs.miktex.org/manual/luatex.html#luatex-include-directory)
 
 ### New platforms
 

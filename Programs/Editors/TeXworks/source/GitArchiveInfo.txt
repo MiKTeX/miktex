@@ -1,4 +1,4 @@
 // This file is used to identify the latest git commit. Please do not touch.
-#define GIT_COMMIT_HASH "3614278"
-#define GIT_COMMIT_DATE "2016-05-01 10:43:14 +0200"
+#define GIT_COMMIT_HASH "$Format:%h$"
+#define GIT_COMMIT_DATE "$Format:%ci$"
 

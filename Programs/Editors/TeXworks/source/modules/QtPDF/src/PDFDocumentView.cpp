@@ -16,7 +16,6 @@
 #if QT_VERSION_MAJOR >= 5
   #include <QtConcurrent>
 #endif
-
 #if defined(MIKTEX) && defined(_MSC_VER)
 #  include <ciso646>
 #endif
@@ -135,7 +134,10 @@ void PDFDocumentView::setScene(QSharedPointer<PDFDocumentScene> a_scene)
   }
 
   _pdf_scene = a_scene;
-  
+
+  // Reinitialize all scene-related data
+  // NB: This also resets any text selection and search results as it clears the
+  // page graphic items.
   reinitializeFromScene();
   
   if (a_scene) {
@@ -168,9 +170,6 @@ void PDFDocumentView::setScene(QSharedPointer<PDFDocumentScene> a_scene)
   // Ensure proper layout
   setPageMode(_pageMode, true);
 
-  // Ensure search result list is empty in case we are switching from another
-  // scene.
-  _searchResults.clear();
   if (_pdf_scene)
     emit changedDocument(_pdf_scene->document());
   else
@@ -543,7 +542,7 @@ void PDFDocumentView::goToPage(const int pageNum, const QPointF anchor, const in
 
 void PDFDocumentView::goToPDFDestination(const PDFDestination & dest, bool saveOldViewRect /* = true */)
 {
-  if (!dest.isValid() || !dest.isExplicit())
+  if (!dest.isValid())
     return;
 
   Q_ASSERT(_pdf_scene != NULL);
@@ -551,6 +550,15 @@ void PDFDocumentView::goToPDFDestination(const PDFDestination & dest, bool saveO
   QSharedPointer<Backend::Document> doc(_pdf_scene->document().toStrongRef());
   if (!doc)
     return;
+
+  PDFDestination finalDest;
+  if (!dest.isExplicit()) {
+    finalDest = doc->resolveDestination(dest);
+    if (!finalDest.isValid())
+      return;
+  }
+  else
+    finalDest = dest;
 
   Q_ASSERT(isPageItem(_pdf_scene->pageAt(_currentPage)));
   PDFPageGraphicsItem * pageItem = static_cast<PDFPageGraphicsItem*>(_pdf_scene->pageAt(_currentPage));
@@ -562,7 +570,7 @@ void PDFDocumentView::goToPDFDestination(const PDFDestination & dest, bool saveO
   oldViewport = QRectF(pageItem->mapToPage(oldViewport.topLeft()), \
                        pageItem->mapToPage(oldViewport.bottomRight()));
   // Calculate the new viewport (in page coordinates)
-  QRectF view(dest.viewport(doc.data(), oldViewport, _zoomLevel));
+  QRectF view(finalDest.viewport(doc.data(), oldViewport, _zoomLevel));
 
   if (saveOldViewRect) {
     PDFDestination origin(_currentPage);
@@ -571,7 +579,7 @@ void PDFDocumentView::goToPDFDestination(const PDFDestination & dest, bool saveO
     _oldViewRects.push(origin);
   }
 
-  goToPage(static_cast<PDFPageGraphicsItem*>(_pdf_scene->pageAt(dest.page())), view, true);
+  goToPage(static_cast<PDFPageGraphicsItem*>(_pdf_scene->pageAt(finalDest.page())), view, true);
 }
 
 void PDFDocumentView::zoomBy(const qreal zoomFactor, const QGraphicsView::ViewportAnchor anchor /* = QGraphicsView::AnchorViewCenter */)
@@ -1165,7 +1173,7 @@ void PDFDocumentView::pdfActionTriggered(const PDFAction * action)
         // security issue) or to create a new window, we need to propagate this
         // up the hierarchy. Otherwise we can handle it ourselves here.
         if (actionGoto->isRemote() || actionGoto->openInNewWindow())
-          emit requestOpenPdf(actionGoto->filename(), actionGoto->destination().page(), actionGoto->openInNewWindow());
+          emit requestOpenPdf(actionGoto->filename(), actionGoto->destination(), actionGoto->openInNewWindow());
         else {
           Q_ASSERT(_pdf_scene != NULL);
           Q_ASSERT(!_pdf_scene->document().isNull());
@@ -1248,6 +1256,20 @@ void PDFDocumentView::reinitializeFromScene()
     _lastPage = -1;
     _currentPage = -1;
   }
+  // Ensure the text selection marker is reset (if any) as it holds pointers to
+  // page items (highlight path, boxes) that are now changed and/or destroyed.
+  DocumentTool::Select * selectTool = static_cast<DocumentTool::Select*>(getToolByType(DocumentTool::AbstractTool::Tool_Select));
+  if (selectTool)
+    selectTool->pageDestroyed();
+  // Ensure (old) search data is destroyed as well
+  if (!_searchResultWatcher.isFinished())
+    _searchResultWatcher.cancel();
+  _searchResults.clear();
+  _currentSearchResult = -1;
+  // Also reset _searchString. Otherwise the next search for the same string
+  // will assume the search has already been run (without results as
+  // _searchResults is empty) and won't run it again on the new scene data.
+  _searchString = QString();
 }
 
 
@@ -1441,13 +1463,14 @@ void PDFDocumentView::wheelEvent(QWheelEvent * event)
 
   if (event->orientation() == Qt::Vertical && event->buttons() == Qt::NoButton && event->modifiers() == Qt::ControlModifier) {
     // TODO: Possibly make the Ctrl modifier configurable?
-    // TODO: According to Qt docs, the delta() is not necessarily the same for all
-    // mice. Decide if we want to enforce the same step size regardless of the
-    // resolution of the mouse wheel sensor
-    if ( delta > 0 )
-      zoomIn(QGraphicsView::AnchorUnderMouse);
-    else if ( delta < 0 )
-      zoomOut(QGraphicsView::AnchorUnderMouse);
+    // According to Qt docs, the resolution of delta() is not necessarily the
+    // same for all mice. delta() returns the rotation in 1/8 degrees. Here, we
+    // use a zoom factor of 1.5 every 15 degrees (= delta() == 120, which seems
+    // to be a widespread default resolution).
+    // TODO: for high-resolution mice, this may trigger many small zooms,
+    // resulting in the rendering of many intermediate resolutions. This can
+    // cause a lagging display and can potentially fill the pdf cache.
+    zoomBy(pow(1.5, delta / 120.), QGraphicsView::AnchorUnderMouse);
     event->accept();
     return;
   }
@@ -1586,24 +1609,21 @@ void PDFDocumentMagnifierView::setSizeAndShape(const int size, const DocumentToo
     case DocumentTool::MagnifyingGlass::Magnifier_Rectangle:
       setFixedSize(size * 4 / 3, size);
       clearMask();
-#if defined(Q_WS_MAC) || defined(Q_OS_MAC)
-      // On OS X there is a bug that affects masking of QAbstractScrollArea and
-      // its subclasses:
+      // There is a bug that affects masking of QAbstractScrollArea and its
+      // subclasses:
       //
       //   https://bugreports.qt.nokia.com/browse/QTBUG-7150
       //
-      // The fix is to explicitly mask the viewport. As of Qt 4.7.4, this bug
-      // is still present.
+      // The workaround is to explicitly mask the viewport. As of Qt 4.7.4, this
+      // bug is still present. As of Qt 5, it also seems to affect other
+      // platforms
       viewport()->clearMask();
-#endif
       break;
     case DocumentTool::MagnifyingGlass::Magnifier_Circle:
       setFixedSize(size, size);
       setMask(QRegion(rect(), QRegion::Ellipse));
-#if defined(Q_WS_MAC) || defined(Q_OS_MAC)
       // Hack to fix QTBUG-7150
       viewport()->setMask(QRegion(rect(), QRegion::Ellipse));
-#endif
       break;
   }
   _dropShadow = QPixmap();
@@ -2516,7 +2536,14 @@ void PDFLinkGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
   // Actually opening the link is handled during a `mouseReleaseEvent` --- but
   // only if the `_activated` flag is `true`.
-  _activated = true;
+  // Only set _activated if no keyboard modifiers are currently pressed (which
+  // most likely indicates some tool or other is active)
+  if (event->modifiers() == Qt::NoModifier)
+    _activated = true;
+  else {
+    _activated = false;
+    Super::mousePressEvent(event);
+  }
 }
 
 // The real nitty-gritty of link activation happens in here.
@@ -2528,6 +2555,7 @@ void PDFLinkGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
   if ( (not _activated) || (not contains(event->pos())) )
   {
     _activated = false;
+    Super::mouseReleaseEvent(event);
     return;
   }
 
@@ -2616,15 +2644,24 @@ void PDFMarkupAnnotationGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *
 {
   // Actually opening the popup is handled during a `mouseReleaseEvent` --- but
   // only if the `_activated` flag is `true`.
-  _activated = true;
+  // Only set _activated if no keyboard modifiers are currently pressed (which
+  // most likely indicates some tool or other is active)
+  if (event->modifiers() == Qt::NoModifier)
+    _activated = true;
+  else {
+    _activated = false;
+    Super::mousePressEvent(event);
+  }
 }
 
 void PDFMarkupAnnotationGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
   Q_ASSERT(event != NULL);
 
-  if (!_activated)
+  if (!_activated) {
+    Super::mouseReleaseEvent(event);
     return;
+  }
   _activated = false;
   
   if (!contains(event->pos()) || !_annot)

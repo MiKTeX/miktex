@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2017  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -33,13 +33,13 @@ QList<TeXHighlighter::HighlightingSpec> *TeXHighlighter::syntaxRules = NULL;
 QList<TeXHighlighter::TagPattern> *TeXHighlighter::tagPatterns = NULL;
 
 TeXHighlighter::TeXHighlighter(QTextDocument *parent, TeXDocument *texDocument)
-	: QSyntaxHighlighter(parent)
-	, texDoc(texDocument)
-	, highlightIndex(-1)
-	, isTagging(true)
-	, pHunspell(NULL)
-	, spellingCodec(NULL)
-	, textDoc(parent)
+    : NonblockingSyntaxHighlighter(parent)
+    , texDoc(texDocument)
+    , highlightIndex(-1)
+    , isTagging(true)
+    , pHunspell(NULL)
+    , spellingCodec(NULL)
+    , textDoc(parent)
 {
 	loadPatterns();
 	// TODO: We should use QTextCharFormat::SpellCheckUnderline here, but that
@@ -132,7 +132,7 @@ void TeXHighlighter::highlightBlock(const QString &text)
 					break;
 			}
 		}
-		if (changed)	
+		if (changed)
 			texDoc->tagsChanged();
 	}
 #endif
@@ -158,7 +158,7 @@ void TeXHighlighter::setSpellChecker(Hunhandle* h, QTextCodec* codec)
 QStringList TeXHighlighter::syntaxOptions()
 {
 	loadPatterns();
-	
+
 	QStringList options;
 	if (syntaxRules != NULL)
 		foreach (const HighlightingSpec& spec, *syntaxRules)
@@ -234,7 +234,7 @@ void TeXHighlighter::loadPatterns()
 				syntaxRules->append(spec);
 		}
 	}
-	
+
 	if (tagPatterns == NULL) {
 		// read tag-recognition patterns
 		tagPatterns = new QList<TagPattern>;
@@ -260,5 +260,252 @@ void TeXHighlighter::loadPatterns()
 				}
 			}
 		}
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// NonblockingSyntaxHighlighter
+///////////////////////////////////////////////////////////////////////////////
+
+void NonblockingSyntaxHighlighter::setDocument(QTextDocument * doc)
+{
+	if (_parent)
+		disconnect(_parent);
+	_parent = doc;
+	_highlightRanges.clear();
+	_dirtyRanges.clear();
+	if (_parent) {
+		connect(_parent, SIGNAL(destroyed(QObject*)), this, SLOT(unlinkFromDocument()));
+		connect(_parent, SIGNAL(contentsChange(int,int,int)), this, SLOT(maybeRehighlightText(int, int, int)));
+		rehighlight();
+	}
+}
+
+void NonblockingSyntaxHighlighter::rehighlight()
+{
+	if (!_parent)
+		return;
+
+	_highlightRanges.clear();
+	range r;
+	r.from = 0;
+	r.to = _parent->characterCount();
+	_highlightRanges.push_back(r);
+	processWhenIdle();
+}
+
+void NonblockingSyntaxHighlighter::rehighlightBlock(const QTextBlock & block)
+{
+	pushHighlightBlock(block);
+	processWhenIdle();
+}
+
+void NonblockingSyntaxHighlighter::maybeRehighlightText(int position, int charsRemoved, int charsAdded)
+{
+	if (!_parent)
+		return;
+
+	// Adjust ranges already present in _highlightRanges
+	for (int i = 0; i < _highlightRanges.size(); ++i) {
+		// Adjust front (if necessary)
+		if (_highlightRanges[i].from >= position + charsRemoved)
+			_highlightRanges[i].from += charsAdded - charsRemoved;
+		else if (_highlightRanges[i].from >= position) // && _highlightRanges[i].from < position + charsRemoved
+			_highlightRanges[i].from = position + charsAdded;
+		// Adjust back (if necessary)
+		if (_highlightRanges[i].to >= position + charsRemoved)
+			_highlightRanges[i].to += charsAdded - charsRemoved;
+		else if (_highlightRanges[i].to >= position) // && _highlightRanges[i].to < position + charsRemoved
+			_highlightRanges[i].to = position;
+	}
+	// NB: pushHighlightRange() implicitly calls sanitizeHighlightRanges() so
+	// there is no need to call it here explicitly
+
+	// NB: Don't subtract charsRemoved. If charsAdded = 0 and charsRemoved > 0
+	// we still want to rehighlight that line
+	// Add 1 because of the following cases:
+	// a) if charsAdded = 0, we still need to have at least one character in the range
+	// b) if the insertion ends in a newline character (0x2029), for some
+	//    reason the line immediately following the inserted line loses
+	//    highlighting. Adding 1 ensures that that next line is rehighlighted
+	//    as well.
+	// c) if the insertion does not end in a newline character, adding 1 does
+	//    not extend the range to a new line, so it doesn't matter (as
+	//    highlighting is only performed line-wise).
+	pushHighlightRange(position, position + charsAdded + 1);
+
+	processWhenIdle();
+}
+
+void NonblockingSyntaxHighlighter::sanitizeHighlightRanges()
+{
+	// 1) remove any invalid ranges
+	for (int i = _highlightRanges.size() - 1; i >= 0; --i) {
+		if (_highlightRanges[i].to <= _highlightRanges[i].from)
+			_highlightRanges.remove(i);
+	}
+	// 2) merge adjacent (or overlapping) ranges
+	// NB: There must not be any invalid ranges in here for this or else the
+	// merging algorithm would fail
+	for (int i = _highlightRanges.size() - 1; i >= 1; --i) {
+		if (_highlightRanges[i].from <= _highlightRanges[i - 1].to) {
+			if (_highlightRanges[i - 1].from > _highlightRanges[i].from)
+				_highlightRanges[i - 1].from > _highlightRanges[i].from;
+			if (_highlightRanges[i - 1].to < _highlightRanges[i].to)
+				_highlightRanges[i - 1].to > _highlightRanges[i].to;
+			_highlightRanges.remove(i);
+		}
+	}
+}
+
+
+void NonblockingSyntaxHighlighter::process()
+{
+	_processingPending = false;
+	if (!_parent)
+		return;
+
+	QTime start = QTime::currentTime();
+
+	while (start.msecsTo(QTime::currentTime()) < MAX_TIME_MSECS && hasBlocksToHighlight()) {
+		const QTextBlock & block = nextBlockToHighlight();
+		if (block.isValid()) {
+			int prevUserState = block.userState();
+			_currentBlock = block;
+			_currentFormatRanges.clear();
+			highlightBlock(block.text());
+
+			block.layout()->setAdditionalFormats(_currentFormatRanges);
+
+			// If the userState has changed, make sure the next block is rehighlighted
+			// as well
+			if (block.userState() != prevUserState)
+				pushHighlightBlock(block.next());
+			blockHighlighted(block);
+		}
+	}
+
+	// Notify the document of our changes
+	markDirtyContent();
+
+	// if there is more work, queue another round
+	if (hasBlocksToHighlight())
+		processWhenIdle();
+}
+
+void NonblockingSyntaxHighlighter::pushHighlightBlock(const QTextBlock & block)
+{
+	if (block.isValid())
+		pushHighlightRange(block.position(), block.position() + block.length());
+}
+
+void NonblockingSyntaxHighlighter::pushHighlightRange(const int from, const int to)
+{
+	int i;
+	range r;
+	r.from = from;
+	r.to = to;
+
+	// Find the first old range such that the start of the new range is before
+	// the end of the old range
+	for (i = 0; i < _highlightRanges.size(); ++i) {
+		if (from < _highlightRanges[i].from)
+			break;
+	}
+
+	if (i == _highlightRanges.size())
+		_highlightRanges.push_back(r);
+	else
+		_highlightRanges.insert(i, r);
+
+	sanitizeHighlightRanges();
+}
+
+void NonblockingSyntaxHighlighter::popHighlightRange(const int from, const int to)
+{
+	for (int i = _highlightRanges.size() - 1; i >= 0 && _highlightRanges[i].to > from; --i) {
+		// Case 1: crop the end of the range (or the whole range)
+		if (to >= _highlightRanges[i].to) {
+			if (from <= _highlightRanges[i].from)
+				_highlightRanges.remove(i);
+			else
+				_highlightRanges[i].to = from;
+		}
+		// Case 2: crop the middle
+		else if (from > _highlightRanges[i].from) {
+			// Split the range into two
+			range r = _highlightRanges[i];
+			_highlightRanges[i].from = to;
+			r.to = from;
+			_highlightRanges.insert(i, r);
+			--i;
+		}
+		// Case 3: crop the front of the range
+		else if (to > _highlightRanges[i].from) {
+			_highlightRanges[i].from = to;
+		}
+		// Case 4: to <= _highlightRanges[i].from
+		// no overlap => do nothing
+	}
+}
+
+void NonblockingSyntaxHighlighter::blockHighlighted(const QTextBlock &block)
+{
+	popHighlightRange(block.position(), block.position() + block.length());
+	pushDirtyRange(block);
+}
+
+const QTextBlock NonblockingSyntaxHighlighter::nextBlockToHighlight() const
+{
+	if (!_parent || _highlightRanges.empty()) return QTextBlock();
+	return _parent->findBlock(_highlightRanges[0].from);
+}
+
+void NonblockingSyntaxHighlighter::pushDirtyRange(const int from, const int length)
+{
+	// NB: we currently use (at most) one range as it seems that
+	// QTextDocument::markContentsDirty() operates not only on the given lines
+	// but also on all later lines. Thus, calling it repeatedly with adjacent
+	// lines would create a huge, unncessary overhead compared to calling it
+	// once.
+
+	int to = from + length;
+	if (_dirtyRanges.empty()) {
+		range r;
+		r.from = from;
+		r.to = to;
+		_dirtyRanges.push_back(r);
+	}
+	else {
+		if (_dirtyRanges[0].from > from) _dirtyRanges[0].from = from;
+		if (_dirtyRanges[0].to < to) _dirtyRanges[0].to = to;
+	}
+}
+
+void NonblockingSyntaxHighlighter::markDirtyContent()
+{
+	if (!_parent)
+		return;
+
+	foreach(range r, _dirtyRanges)
+		_parent->markContentsDirty(r.from, r.to - r.from);
+	_dirtyRanges.clear();
+}
+
+
+void NonblockingSyntaxHighlighter::setFormat(const int start, const int count, const QTextCharFormat & format)
+{
+	QTextLayout::FormatRange formatRange;
+	formatRange.start = start;
+	formatRange.length = count;
+	formatRange.format = format;
+	_currentFormatRanges << formatRange;
+}
+
+void NonblockingSyntaxHighlighter::processWhenIdle()
+{
+	if (!_processingPending) {
+		_processingPending = true;
+		QTimer::singleShot(IDLE_DELAY_TIME, this, SLOT(process()));
 	}
 }

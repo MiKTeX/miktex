@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2009-2016 Christian Schenk
+## Copyright (C) 2009-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -93,6 +93,8 @@ set(texworks_sources
   source/src/PrefsDialog.h
   source/src/ResourcesDialog.cpp
   source/src/ResourcesDialog.h
+  source/src/ScreenCalibrationWidget.cpp
+  source/src/ScreenCalibrationWidget.h
   source/src/ScriptManager.cpp
   source/src/ScriptManager.h
   source/src/TWApp.cpp

@@ -5,7 +5,7 @@
     <name>CompletingEdit</name>
     <message>
         <source>Jump to PDF</source>
-        <translation>Saltar para o PDF</translation>
+        <translation>Ir para o PDF</translation>
     </message>
     <message>
         <source>No suggestions</source>
@@ -79,7 +79,7 @@
     </message>
     <message>
         <source>Search all &amp;open files</source>
-        <translation>Procurar e &amp;abrir arquivos</translation>
+        <translation>Procurar em todos os &amp;arquivos abertos</translation>
     </message>
     <message>
         <source>&amp;Case sensitive</source>
@@ -91,7 +91,7 @@
     </message>
     <message>
         <source>&amp;Regular expression</source>
-        <translation>Expressões &amp;regulares</translation>
+        <translation>Expressão &amp;regular</translation>
     </message>
     <message>
         <source>No recent search strings</source>
@@ -549,6 +549,28 @@
         <source>Page number:</source>
         <translation>Número da página:</translation>
     </message>
+    <message>
+        <source>Open URL</source>
+        <translation>Abrir URL</translation>
+    </message>
+    <message>
+        <source>You are in the process of opening the URL %1. Opening unknown or untrusted web adresses can be a security risk.
+Do you want to continue?</source>
+        <translation>Você está prestes a abrir a URL %1. Abrir endereços desconhecidos ou inconfiáveis na web pode ser um risco à segurança.
+Você quer continuar?</translation>
+    </message>
+    <message>
+        <source>Custom...</source>
+        <translation>Personalizado...</translation>
+    </message>
+    <message>
+        <source>Set Zoom</source>
+        <translation>Escolher Zoom</translation>
+    </message>
+    <message>
+        <source>Zoom level:</source>
+        <translation>Nível de zoom:</translation>
+    </message>
 </context>
 <context>
     <name>PDFFindDialog</name>
@@ -749,7 +771,7 @@
     </message>
     <message>
         <source> dpi</source>
-        <translation> ppp</translation>
+        <translation type="obsolete"> ppp</translation>
     </message>
     <message>
         <source>Typesetting</source>
@@ -1014,6 +1036,41 @@
     </message>
 </context>
 <context>
+    <name>ScreenCalibrationWidget</name>
+    <message>
+        <source>Drag the ruler or change the value to match real world lengths.
+Common paper sizes are marked as well (you may need to resize the dialog window to see them).
+Use the context menu to change the units.</source>
+        <translation>Arraste a régua ou mude o valor para corresponder a medidas reais.
+Tamanhos comuns de papel estão marcados também (você pode precisar redimensionar a caixa de diálogo para vê-los).
+Use o menu de contexto para mudar as unidades.</translation>
+    </message>
+    <message>
+        <source> dpi</source>
+        <extracomment>dots per inch</extracomment>
+        <translatorcomment>pontos por polegada</translatorcomment>
+        <translation> ppp</translation>
+    </message>
+    <message>
+        <source>DIN A4</source>
+        <translation>ISO A4</translation>
+    </message>
+    <message>
+        <source>Letter</source>
+        <translation>Carta</translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <extracomment>this refers to the length unit of centimeters</extracomment>
+        <translation>cm</translation>
+    </message>
+    <message>
+        <source>in</source>
+        <extracomment>this refers to the length unit of inches</extracomment>
+        <translation>pol</translation>
+    </message>
+</context>
+<context>
     <name>ScriptManager</name>
     <message>
         <source>Manage Scripts</source>
@@ -1068,7 +1125,7 @@
     <name>SearchResults</name>
     <message>
         <source>...</source>
-        <translation></translation>
+        <translation>...</translation>
     </message>
     <message>
         <source>File</source>
@@ -1210,8 +1267,8 @@
         <translation>Pasta padrão dos binários não encontrada</translation>
     </message>
     <message>
-        <source>None of the predefined directories for TeX-related programs could be found.&lt;p&gt;&lt;small&gt;To run any processes, you will need to set the binaries directory (or directories) for your TeX distribution using the Typesetting tab of the Preferences dialog.</source>
-        <translation>Nenhuma das pastas predefinidas para os programas relacionados ao TeX pode ser encontrada.&lt;p&gt;&lt;small&gt;Para executar quaisquer processos você precisará configurar a(s) pasta(s) de binários de sua distribuição TeX usando a aba Composição da caixa de Preferências.</translation>
+        <source>None of the predefined directories for TeX-related programs could be found.&lt;p&gt;&lt;small&gt;To run any processes, you will need to set the binaries directory (or directories) for your TeX distribution using the Typesetting tab of the Preferences dialog.&lt;/small&gt;</source>
+        <translation>Nenhuma das pastas predefinidas para os programas relacionados ao TeX pode ser encontrada.&lt;p&gt;&lt;small&gt;Para executar quaisquer processos você precisará configurar a(s) pasta(s) de binários de sua distribuição TeX usando a aba Composição da caixa de Preferências.&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Unable to find help file.</source>

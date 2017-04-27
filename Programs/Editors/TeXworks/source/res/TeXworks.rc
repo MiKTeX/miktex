@@ -22,7 +22,7 @@ BEGIN
             VALUE "FileDescription",  "TeXworks editor & previewer"
             VALUE "FileVersion",      TEXWORKS_VERSION "-r." GIT_COMMIT_HASH
             VALUE "InternalName",     "TeXworks"
-            VALUE "LegalCopyright",   "Copyright (C) 2007-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"
+            VALUE "LegalCopyright",   "Copyright (C) 2007-2017  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen"
             VALUE "OriginalFilename", "TeXworks.exe"
             VALUE "ProductName",      "TeXworks"
             VALUE "ProductVersion",   "TeXworks " TEXWORKS_VERSION
@@ -34,3 +34,5 @@ BEGIN
         VALUE "Translation", 0x409, 1252
     END
 END
+
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST TeXworks.exe.manifest

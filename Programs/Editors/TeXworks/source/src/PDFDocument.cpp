@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2015  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -144,10 +144,11 @@ void PDFDocument::init()
 
 	connect(pdfWidget, SIGNAL(changedPage(int)), this, SLOT(updateStatusBar()));
 	connect(pdfWidget, SIGNAL(changedZoom(qreal)), this, SLOT(updateStatusBar()));
-	connect(pdfWidget, SIGNAL(changedDocument(const QWeakPointer<QtPDF::Backend::Document>)), this, SLOT(updateStatusBar()));
-	connect(pdfWidget, SIGNAL(changedDocument(const QWeakPointer<QtPDF::Backend::Document>)), this, SLOT(invalidateSyncHighlight()));
+	connect(pdfWidget, SIGNAL(changedDocument(const QWeakPointer<QtPDF::Backend::Document>)), this, SLOT(changedDocument(const QWeakPointer<QtPDF::Backend::Document>)));
 	connect(pdfWidget, SIGNAL(searchResultHighlighted(const int, const QList<QPolygonF>)), this, SLOT(searchResultHighlighted(const int, const QList<QPolygonF>)));
 	connect(pdfWidget, SIGNAL(changedPageMode(QtPDF::PDFDocumentView::PageMode)), this, SLOT(updatePageMode(QtPDF::PDFDocumentView::PageMode)));
+	connect(pdfWidget, SIGNAL(requestOpenPdf(QString,QtPDF::PDFDestination,bool)), this, SLOT(maybeOpenPdf(QString,QtPDF::PDFDestination,bool)));
+	connect(pdfWidget, SIGNAL(requestOpenUrl(QUrl)), this, SLOT(maybeOpenUrl(QUrl)));
 
 	toolButtonGroup = new QButtonGroup(toolBar);
 	toolButtonGroup->addButton(qobject_cast<QAbstractButton*>(toolBar->widgetForAction(actionMagnify)), QtPDF::PDFDocumentView::MouseMode_MagnifyingGlass);
@@ -286,6 +287,7 @@ void PDFDocument::init()
 			setPageMode(kDefault_PDFPageMode);
 			break;
 	}
+	resetMagnifier();
 
 	if (settings.contains("previewResolution"))
 		pdfWidget->setResolution(settings.value("previewResolution", QApplication::desktop()->logicalDpiX()).toInt());
@@ -299,7 +301,6 @@ void PDFDocument::init()
 	
 	TWUtils::insertHelpMenuItems(menuHelp);
 	TWUtils::installCustomShortcuts(this);
-
 #if defined(MIKTEX)
         actionAbout_MiKTeX = new QAction(this);
 	actionAbout_MiKTeX->setIcon(QIcon(":/MiKTeX/miktex32x32.png"));
@@ -612,6 +613,12 @@ void PDFDocument::goToSource()
 		actionGo_to_Source->setEnabled(false);
 }
 
+void PDFDocument::changedDocument(const QWeakPointer<QtPDF::Backend::Document> newDoc) {
+	updateStatusBar();
+	invalidateSyncHighlight();
+	enablePageActions(pdfWidget->currentPage());
+}
+
 void PDFDocument::enablePageActions(int pageIndex)
 {
 //#if !defined(Q_OS_DARWIN)
@@ -683,7 +690,7 @@ void PDFDocument::resetMagnifier()
 	pdfWidget->setMagnifierSize(magSizes[qBound(0, settings.value("magnifierSize", kDefault_MagnifierSize).toInt() - 1, 2)]);
 }
 
-void PDFDocument::setResolution(int res)
+void PDFDocument::setResolution(const double res)
 {
 	Q_ASSERT(pdfWidget != NULL);
 	if (res > 0)
@@ -841,6 +848,32 @@ void PDFDocument::setDefaultScale() {
 			break;
 	}
 }
+
+void PDFDocument::maybeOpenUrl(const QUrl url)
+{
+	// Opening URLs could be a security risk, so ask the user (but make "yes,
+	// proceed the default option - after all the user typically clicked on the
+	// link deliberately)
+	if (QMessageBox::question(this, tr("Open URL"), tr("You are in the process of opening the URL %1. Opening unknown or untrusted web adresses can be a security risk.\nDo you want to continue?").arg(url.toString()),
+	                          QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
+		QDesktopServices::openUrl(url);
+}
+
+void PDFDocument::maybeOpenPdf(QString filename, QtPDF::PDFDestination destination, bool newWindow)
+{
+	// Unlike in maybeOpenUrl, this function only works on local PDF files which
+	// we assume are safe.
+	// TODO: We currently ignore the value of newWindow and always open a new
+	// window. This avoids the need to update/invalidate all pointers to this
+	// PDFDocument (e.g., in the TeXDocument associated with it) to notify the
+	// other parts of the code that a completely new and unrelated document is
+	// loaded here now.
+	PDFDocument * pdf = qobject_cast<PDFDocument*>(TWApp::instance()->openFile(filename));
+	if (!pdf || !pdf->widget())
+		return;
+	pdf->widget()->goToPDFDestination(destination, false);
+}
+
 
 void PDFDocument::print()
 {
@@ -1074,6 +1107,9 @@ void PDFDocument::showScaleContextMenu(const QPoint pos)
 		contextMenu->addAction(actionFit_to_Window);
 		contextMenu->addSeparator();
 		
+		a = contextMenu->addAction(tr("Custom..."));
+		connect(a, SIGNAL(triggered()), this, SLOT(doScaleDialog()));
+
 		a = contextMenu->addAction("200%");
 		connect(a, SIGNAL(triggered()), contextMenuMapper, SLOT(map()));
 		contextMenuMapper->setMapping(a, "2");
@@ -1141,4 +1177,14 @@ void PDFDocument::doPageDialog()
 #endif
 	if (ok)
 		pdfWidget->goToPage(pageNo - 1);
+}
+
+void PDFDocument::doScaleDialog()
+{
+	bool ok;
+	Q_ASSERT(pdfWidget != NULL);
+
+	double newScale = QInputDialog::getDouble(this, tr("Set Zoom"), tr("Zoom level:"), 100 * pdfWidget->zoomLevel(), 0, 2147483647, 0, &ok);
+	if (ok)
+		pdfWidget->setZoomLevel(newScale / 100);
 }

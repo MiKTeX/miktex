@@ -29,8 +29,8 @@ public:
 
   QWeakPointer<Backend::Document> document() const;
 
-  bool watchForDocumentChangesOnDisk() const { return _scene->watchForDocumentChangesOnDisk(); }
-  void setWatchForDocumentChangesOnDisk(const bool doWatch = true) { _scene->setWatchForDocumentChangesOnDisk(doWatch); }
+  bool watchForDocumentChangesOnDisk() const { if (_scene) return _scene->watchForDocumentChangesOnDisk(); }
+  void setWatchForDocumentChangesOnDisk(const bool doWatch = true) { if (_scene) _scene->setWatchForDocumentChangesOnDisk(doWatch); }
 
   QStringList backends() const;
   QString defaultBackend() const;

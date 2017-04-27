@@ -146,6 +146,11 @@ protected:
   FontProgramType _fontProgramType;
 };
 
+class PDFPageTile;
+
+// Need a hash function in order to allow `PDFPageTile` to be used as a key
+// object for a `QCache`.
+uint qHash(const PDFPageTile &tile);
 
 class PDFPageTile
 {
@@ -169,19 +174,23 @@ public:
     return (xres == other.xres && yres == other.yres && render_box == other.render_box && page_num == other.page_num);
   }
 
+  bool operator <(const PDFPageTile &other) const
+  {
+    return qHash(*this) < qHash(other);
+  }
+
 #ifdef DEBUG
   operator QString() const;
 #endif
 };
-// Need a hash function in order to allow `PDFPageTile` to be used as a key
-// object for a `QCache`.
-uint qHash(const PDFPageTile &tile);
 
 // This class is thread-safe
 class PDFPageCache : protected QCache<PDFPageTile, QSharedPointer<QImage> >
 {
   typedef QCache<PDFPageTile, QSharedPointer<QImage> > Super;
 public:
+  enum TileStatus { UNKNOWN, PLACEHOLDER, CURRENT, OUTDATED };
+
   PDFPageCache() { }
   virtual ~PDFPageCache() { }
 
@@ -191,19 +200,26 @@ public:
 
   // Returns the image under the key `tile` or NULL if it doesn't exist
   QSharedPointer<QImage> getImage(const PDFPageTile & tile) const;
+  TileStatus getStatus(const PDFPageTile & tile) const;
   // Returns the pointer to the image in the cache under they key `tile` after
   // the insertion. If overwrite == true, this will always be image, otherwise
   // it can be different
-  QSharedPointer<QImage> setImage(const PDFPageTile & tile, QImage * image, const bool overwrite = true);
+  QSharedPointer<QImage> setImage(const PDFPageTile & tile, QImage * image, const TileStatus status, const bool overwrite = true);
   
+
   void lock() const { _lock.lockForRead(); }
   void unlock() const { _lock.unlock(); }
 
-  void clear() { QWriteLocker l(&_lock); Super::clear(); }
+  void clear() { QWriteLocker l(&_lock); Super::clear(); _tileStatus.clear(); }
+  // Mark all tiles outdated
+  void markOutdated();
 
   QList<PDFPageTile> tiles() const { return keys(); }
 protected:
   mutable QReadWriteLock _lock;
+  // Map to keep track of the current status of tiles; note that the status
+  // information is not deleted when the QCache scraps images to save memory.
+  QMap<PDFPageTile, TileStatus> _tileStatus;
 };
 
 class PageProcessingRequest : public QObject
@@ -556,7 +572,7 @@ protected:
   Page(Document *parent, int at, QSharedPointer<QReadWriteLock> docLock);
 
   // Uses doc-read-lock and page-read-lock.
-  QSharedPointer<QImage> getCachedImage(double xres, double yres, QRect render_box = QRect());
+  QSharedPointer<QImage> getCachedImage(double xres, double yres, QRect render_box = QRect(), PDFPageCache::TileStatus * status = NULL);
 
   // Uses doc-read-lock and page-read-lock.
   virtual void asyncRenderToImage(QObject *listener, double xres, double yres, QRect render_box = QRect(), bool cache = false);

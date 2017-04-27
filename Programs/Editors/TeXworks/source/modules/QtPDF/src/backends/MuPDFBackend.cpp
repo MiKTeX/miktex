@@ -406,7 +406,7 @@ void Document::reload()
   MuPDFLocaleResetter lr;
 
   clearPages();
-  _pageCache.clear();
+  _pageCache.markOutdated();
 
   if (_mupdf_data) {
     pdf_free_xref(_mupdf_data);
@@ -933,7 +933,7 @@ QImage Page::renderToImage(double xres, double yres, QRect render_box, bool cach
   if( cache ) {
     PDFPageTile key(xres, yres, render_box, _n);
     QImage * img = new QImage(renderedPage.copy());
-    if (img != _parent->pageCache().setImage(key, img))
+    if (img != _parent->pageCache().setImage(key, img, PDFPageCache::CURRENT))
       delete img;
   }
 

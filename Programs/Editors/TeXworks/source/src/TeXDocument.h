@@ -1,6 +1,6 @@
 /*
 	This is part of TeXworks, an environment for working with TeX documents
-	Copyright (C) 2007-2015  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
+	Copyright (C) 2007-2016  Jonathan Kew, Stefan Löffler, Charlie Sharpsteen
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -307,7 +307,6 @@ private:
 	QTextCursor	dragSavedCursor;
 
 	static QList<TeXDocument*> docList;
-
 #if defined(MIKTEX)
     QAction * actionAbout_MiKTeX;
 #if defined(MIKTEX_TODO_PRINT)

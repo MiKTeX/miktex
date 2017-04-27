@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>No suggestions</source>
-        <translation>No tenemos sugerencias</translation>
+        <translation>No hay sugerencias</translation>
     </message>
     <message>
         <source>Ignore word</source>
@@ -28,7 +28,7 @@
     </message>
     <message>
         <source>Some of the auxiliary files could not be removed. Perhaps you don&apos;t have permission to delete them.</source>
-        <translation>Algunos archivos auxiliares no se puedieron eliminar. Probablemente no cuenta con los permisos necesarios.</translation>
+        <translation>Algunos archivos auxiliares no se puedieron eliminar. Probablemente no cuenta con los permisos requeridos.</translation>
     </message>
     <message>
         <source>Confirm file deletion</source>
@@ -162,7 +162,7 @@
     <message>
         <source>Unfortunately, this version of %1 is unable to print Pdf documents due to various technical reasons.
 </source>
-        <translation>Lo sentimos, esta versión de %1 es incapaz de imprimir documentos PDF debido a varias razones técnicas.</translation>
+        <translation>Lo sentimos. Esta versión de %1 es incapaz de imprimir documentos PDF por varias razones técnicas.</translation>
     </message>
     <message>
         <source>Do you want to open the file in the default viewer for printing instead?</source>
@@ -548,6 +548,31 @@
         <source>Page number:</source>
         <translation>Número de página:</translation>
     </message>
+    <message>
+        <source>Open URL</source>
+        <translatorcomment>Abrir URL</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>You are in the process of opening the URL %1. Opening unknown or untrusted web adresses can be a security risk.
+Do you want to continue?</source>
+        <translation>Intenta acceder a la URL %1. Abrir sitios web desconocidos o no confiables puede ser un riesgo para la seguridad.
+¿Desea continuar?</translation>
+    </message>
+    <message>
+        <source>Custom...</source>
+        <translatorcomment>Personalizar...</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Set Zoom</source>
+        <translatorcomment>Establecer ampliación</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Zoom level:</source>
+        <translation>Ampliación:</translation>
+    </message>
 </context>
 <context>
     <name>PDFFindDialog</name>
@@ -744,7 +769,7 @@
     </message>
     <message>
         <source> dpi</source>
-        <translation> dpi</translation>
+        <translation type="obsolete"> dpi</translation>
     </message>
     <message>
         <source>Typesetting</source>
@@ -1017,6 +1042,43 @@
     </message>
 </context>
 <context>
+    <name>ScreenCalibrationWidget</name>
+    <message>
+        <source>Drag the ruler or change the value to match real world lengths.
+Common paper sizes are marked as well (you may need to resize the dialog window to see them).
+Use the context menu to change the units.</source>
+        <translation>Arrastre la regla o cambie los valores para hacerlos coincidir con las longitudes reales.
+Los tamaños de papel más comunes aparecen marcados (puede que deba cambiar el tamaño de la ventana de diálogo para verlos).
+Utilice el menú contextual para modificar las unidades.</translation>
+    </message>
+    <message>
+        <source> dpi</source>
+        <extracomment>dots per inch</extracomment>
+        <translatorcomment>.dpi</translatorcomment>
+        <translation> dpi</translation>
+    </message>
+    <message>
+        <source>DIN A4</source>
+        <translation>DIN A4</translation>
+    </message>
+    <message>
+        <source>Letter</source>
+        <translation>Tamaño carta</translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <extracomment>this refers to the length unit of centimeters</extracomment>
+        <translatorcomment>cm</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>in</source>
+        <extracomment>this refers to the length unit of inches</extracomment>
+        <translatorcomment>pulg.</translatorcomment>
+        <translation></translation>
+    </message>
+</context>
+<context>
     <name>ScriptManager</name>
     <message>
         <source>Name: </source>
@@ -1217,12 +1279,12 @@
         <translation>No se encontró el directorio predeterminado con lo binarios respectivos</translation>
     </message>
     <message>
-        <source>None of the predefined directories for TeX-related programs could be found.&lt;p&gt;&lt;small&gt;To run any processes, you will need to set the binaries directory (or directories) for your TeX distribution using the Typesetting tab of the Preferences dialog.</source>
-        <translation>Ninguno de los directorios predefinidos con los programas TeX correspondientes se pudo encontrar.&lt;p&gt;&lt;small&gt; Para ejecutar cualquier proceso debe establecer la ubicación del directorio (o directorios) con los programas de su ditribución TeX, utilizando la pestaña Compilar en la ventana de Preferencias.</translation>
+        <source>None of the predefined directories for TeX-related programs could be found.&lt;p&gt;&lt;small&gt;To run any processes, you will need to set the binaries directory (or directories) for your TeX distribution using the Typesetting tab of the Preferences dialog.&lt;/small&gt;</source>
+        <translation>Ninguno de los directorios predefinidos con los programas TeX correspondientes se pudo encontrar.&lt;p&gt;&lt;small&gt; Para ejecutar cualquier proceso debe establecer la ubicación del directorio (o directorios) con los programas de su distribución TeX, utilizando la pestaña Compilar en la ventana de Preferencias.&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Unable to find help file.</source>
-        <translation>Imposible localizar el archivo de ayuda.</translation>
+        <translation>No se encontró el archivo de ayuda.</translation>
     </message>
     <message>
         <source>Permission request</source>
@@ -2183,7 +2245,7 @@ Ofrecemos disculpas por las molestias ocasionadas.</translation>
     </message>
     <message>
         <source>View PDF after running</source>
-        <translation>Exhibir PDF al terminar ejecución</translation>
+        <translation>Exhibir el PDF al terminar ejecución</translation>
     </message>
 </context>
 </TS>
