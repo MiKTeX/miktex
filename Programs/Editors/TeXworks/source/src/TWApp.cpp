@@ -600,7 +600,11 @@ void TWApp::writeToMailingList()
 	body.replace('\n', "\r\n");
 #endif
 
+#if defined(MIKTEX)
+        openUrl(QUrl(QString("mailto:%1?body=%2").arg(address).arg(QString(QUrl::toPercentEncoding(body)))));
+#else
 	openUrl(QUrl(QString("mailto:%1?subject=&body=%2").arg(address).arg(QString(QUrl::toPercentEncoding(body)))));
+#endif
 }
 
 void TWApp::launchAction()
