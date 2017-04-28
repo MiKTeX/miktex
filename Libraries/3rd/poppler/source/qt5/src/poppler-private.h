@@ -10,6 +10,7 @@
  * Copyright (C) 2014 Bogdan Cristea <cristeab@gmail.com>
  * Copyright (C) 2014 Aki Koskinen <freedesktop@akikoskinen.info>
  * Copyright (C) 2016 Jakub Alba <jakubalba@gmail.com>
+ * Copyright (C) 2017 Christoph Cullmann <cullmann@kde.org>
  * Inspired on code by
  * Copyright (C) 2004 by Albert Astals Cid <tsdgeos@terra.es>
  * Copyright (C) 2004 by Enrico Ros <eros.kde@email.it>
@@ -92,7 +93,7 @@ namespace Poppler {
 #ifdef _WIN32
 		doc = new PDFDoc((wchar_t *)filePath.utf16(), filePath.length(), ownerPassword, userPassword);
 #else
-		GooString *fileName = new GooString(QFile::encodeName(filePath));
+		GooString *fileName = new GooString(QFile::encodeName(filePath).constData());
 		doc = new PDFDoc(fileName, ownerPassword, userPassword);
 #endif
 
@@ -148,7 +149,7 @@ namespace Poppler {
 	int m_hints;
 	static int count;
 #if defined(MIKTEX) && defined(MIKTEX_TEXWORKS_PATCHES)
-	static GBool ownGlobalParams;
+        static GBool ownGlobalParams;
 #endif
     };
 

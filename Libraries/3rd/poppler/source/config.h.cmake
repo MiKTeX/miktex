@@ -241,7 +241,6 @@
 
 /* Define for large files, on AIX-style hosts. */
 /* TODO This is wrong, port if needed #undef _LARGE_FILES */
-
 #if defined(MIKTEX)
 #  if defined(MIKTEX_WINDOWS)
 #    define MIKTEX_UTF8_WRAP_ALL 1

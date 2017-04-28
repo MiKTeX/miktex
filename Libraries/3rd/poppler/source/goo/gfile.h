@@ -73,7 +73,6 @@ extern "C" {
 #endif
 }
 #include "gtypes.h"
-
 #if defined(MIKTEX_WINDOWS)
 #  include <miktex/unxemu.h>
 #endif

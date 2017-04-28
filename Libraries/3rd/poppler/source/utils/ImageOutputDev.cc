@@ -288,6 +288,26 @@ void ImageOutputDev::listImage(GfxState *state, Object *ref, Stream *str,
     printf("   - \n");
 
   ++imgNum;
+
+  if (inlineImg) {
+    // For inline images we need to advance the stream position to the end of the image
+    // as Gfx needs to continue reading content after the image data.
+    ImageFormat format;
+    if (!colorMap || (colorMap->getNumPixelComps() == 1 && colorMap->getBits() == 1)) {
+      format = imgMonochrome;
+    } else if (colorMap->getColorSpace()->getMode() == csDeviceGray ||
+               colorMap->getColorSpace()->getMode() == csCalGray) {
+      format = imgGray;
+    } else if ((colorMap->getColorSpace()->getMode() == csDeviceRGB ||
+		colorMap->getColorSpace()->getMode() == csCalRGB ||
+		(colorMap->getColorSpace()->getMode() == csICCBased && colorMap->getNumPixelComps() == 3)) &&
+	       colorMap->getBits() > 8) {
+      format = imgRGB48;
+    } else {
+      format = imgRGB;
+    }
+    writeImageFile(NULL, format, "", str, width, height, colorMap);
+  }
 }
 
 void ImageOutputDev::writeRawImage(Stream *str, const char *ext) {
@@ -327,16 +347,18 @@ void ImageOutputDev::writeImageFile(ImgWriter *writer, ImageFormat format, const
   Guchar zero = 0;
   int invert_bits;
 
-  setFilename(ext);
-  ++imgNum;
-  if (!(f = fopen(fileName, "wb"))) {
-    error(errIO, -1, "Couldn't open image file '{0:s}'", fileName);
-    return;
-  }
+  if (writer) {
+    setFilename(ext);
+    ++imgNum;
+    if (!(f = fopen(fileName, "wb"))) {
+      error(errIO, -1, "Couldn't open image file '{0:s}'", fileName);
+      return;
+    }
 
-  if (!writer->init(f, width, height, 72, 72)) {
-    error(errIO, -1, "Error writing '{0:s}'", fileName);
-    return;
+    if (!writer->init(f, width, height, 72, 72)) {
+      error(errIO, -1, "Error writing '{0:s}'", fileName);
+      return;
+    }
   }
 
   if (format != imgMonochrome) {
@@ -385,7 +407,8 @@ void ImageOutputDev::writeImageFile(ImgWriter *writer, ImageFormat format, const
           *rowp++ = 0;
         }
       }
-      writer->writeRow(&row);
+      if (writer)
+	writer->writeRow(&row);
       break;
 
     case imgRGB48: {
@@ -404,7 +427,8 @@ void ImageOutputDev::writeImageFile(ImgWriter *writer, ImageFormat format, const
 	    *rowp16++ = 0;
 	}
       }
-      writer->writeRow(&row);
+      if (writer)
+	writer->writeRow(&row);
       break;
     }
 
@@ -426,7 +450,8 @@ void ImageOutputDev::writeImageFile(ImgWriter *writer, ImageFormat format, const
           *rowp++ = 0;
         }
       }
-      writer->writeRow(&row);
+      if (writer)
+	writer->writeRow(&row);
       break;
 
     case imgGray:
@@ -441,14 +466,16 @@ void ImageOutputDev::writeImageFile(ImgWriter *writer, ImageFormat format, const
           *rowp++ = 0;
         }
       }
-      writer->writeRow(&row);
+      if (writer)
+	writer->writeRow(&row);
       break;
 
     case imgMonochrome:
       int size = (width + 7)/8;
       for (int x = 0; x < size; x++)
         row[x] = str->getChar() ^ invert_bits;
-      writer->writeRow(&row);
+      if (writer)
+	writer->writeRow(&row);
       break;
     }
   }
@@ -459,8 +486,10 @@ void ImageOutputDev::writeImageFile(ImgWriter *writer, ImageFormat format, const
     delete imgStr;
   }
   str->close();
-  writer->close();
-  fclose(f);
+  if (writer) {
+    writer->close();
+    fclose(f);
+  }
 }
 
 void ImageOutputDev::writeImage(GfxState *state, Object *ref, Stream *str,
