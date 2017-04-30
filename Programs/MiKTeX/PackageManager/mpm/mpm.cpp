@@ -1651,11 +1651,7 @@ void Application::Main(int argc, const char** argv)
   {
     if (!pSession->RunningAsAdministrator())
     {
-#if defined(MIKTEX_WINDOWS)
-      Error(T_("Option --admin requires administrator privileges."));
-#else
-      Error(T_("Option --admin requires root privileges."));
-#endif
+      Verbose(T_("Option --admin may require administrative privileges"));
     }
     if (!pSession->IsSharedSetup())
     {

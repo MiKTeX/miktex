@@ -2788,11 +2788,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     }
     if (!session->RunningAsAdministrator())
     {
-#if defined(MIKTEX_WINDOWS)
-      FatalError(T_("Option --admin requires administrator privileges."));
-#else
-      FatalError(T_("Option --admin requires root privileges."));
-#endif
+      Verbose(T_("Option --admin may require administrative privileges"));
     }
     session->SetAdminMode(true, setupWizardRunning);
   }
