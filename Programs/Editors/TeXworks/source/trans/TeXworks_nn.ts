@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="nn_NO">
+<TS version="2.1" language="nn_NO">
 <context>
     <name>CompletingEdit</name>
     <message>
@@ -261,7 +261,7 @@
     </message>
     <message>
         <source>Fit to Width</source>
-        <translation>Tilpass sidebreidd</translation>
+        <translation>Tilpass til sidebreidd</translation>
     </message>
     <message>
         <source>Ctrl+2</source>
@@ -502,16 +502,18 @@
     <message>
         <source>Unfortunately, this version of %1 is unable to print Pdf documents due to various technical reasons.
 </source>
-        <translation>Dessverre kan ikkje denne versjonen av %1 skriva ut PDF-dokument, av ulike tekniske grunnar.
+        <translation>Av ulike tekniske grunnar kan dessverre ikkje denne versjonen av %1 skriva ut PDF-dokument.
 </translation>
     </message>
     <message>
         <source>Do you want to open the file in the default viewer for printing instead?</source>
-        <translation>Vil du opna fila i standard PDF-lesar og skriva ut derifrå i staden for?</translation>
+        <translation>Vil du opna fila i standard PDF-lesar og skriva ho ut derifrå i staden for?</translation>
     </message>
     <message>
         <source> (remember to close it again to avoid access problems)</source>
-        <translation> (hugs å lukka programmet igjen etterpå, for å unngå tilgangsproblem)</translation>
+        <translatorcomment>Skal vera stor forbokstav og punktum her, sidan det vert vist som sjølvstendig setning.
+</translatorcomment>
+        <translation> (Hugs å lukka programmet igjen etterpå, for å unngå tilgangsproblem.)</translation>
     </message>
     <message>
         <source>Error initializing SyncTeX</source>
@@ -551,24 +553,29 @@
     </message>
     <message>
         <source>Open URL</source>
-        <translation type="unfinished"></translation>
+        <oldsource>Open URL</oldsource>
+        <translation>Opna adresse</translation>
     </message>
     <message>
         <source>You are in the process of opening the URL %1. Opening unknown or untrusted web adresses can be a security risk.
 Do you want to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>Du er i ferd med å opna adressa %1. Å opna ukjende nettadresser er ein tryggleiksrisiko.
+Er du sikker på at du vil halda fram?</translation>
     </message>
     <message>
         <source>Custom...</source>
-        <translation type="unfinished"></translation>
+        <oldsource>Custom...</oldsource>
+        <translation>Tilpassa …</translation>
     </message>
     <message>
         <source>Set Zoom</source>
-        <translation type="unfinished"></translation>
+        <oldsource>Set Zoom...</oldsource>
+        <translation>Vel visingsstorleik</translation>
     </message>
     <message>
         <source>Zoom level:</source>
-        <translation type="unfinished"></translation>
+        <oldsource>Log level:</oldsource>
+        <translation>Forstørring:</translation>
     </message>
 </context>
 <context>
@@ -658,7 +665,7 @@ Do you want to continue?</source>
     </message>
     <message>
         <source>New blank document</source>
-        <translation>Nytt tomt dokument</translation>
+        <translation>Nytt, tomt dokument</translation>
     </message>
     <message>
         <source>Template selection dialog</source>
@@ -757,10 +764,6 @@ Do you want to continue?</source>
         <translation>Skjermoppløysing:</translation>
     </message>
     <message>
-        <source> dpi</source>
-        <translation type="obsolete"> ppt</translation>
-    </message>
-    <message>
         <source>Typesetting</source>
         <translation>Kompilering</translation>
     </message>
@@ -826,7 +829,7 @@ Do you want to continue?</source>
     </message>
     <message>
         <source>Hide console output:</source>
-        <translation>Gøym resultapanel:</translation>
+        <translation>Gøym resultatpanel:</translation>
     </message>
     <message>
         <source>&lt;p&gt;&lt;strong&gt;Never:&lt;/strong&gt; Never hide the console output panel after typesetting.&lt;/p&gt;
@@ -1041,30 +1044,35 @@ Do you want to continue?</source>
         <source>Drag the ruler or change the value to match real world lengths.
 Common paper sizes are marked as well (you may need to resize the dialog window to see them).
 Use the context menu to change the units.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dra linjalen eller endra verdien slik at han svarer til fysisk lengd.
+Vanlege papirstorleikar er òg merkerte. (Det kan vera du må endra storleiken på vindauget for å sjå dei).
+Bruk kontekstmenyen for å endra einingane.</translation>
     </message>
     <message>
         <source> dpi</source>
         <extracomment>dots per inch</extracomment>
-        <translation type="unfinished"> ppt</translation>
+        <translation> p.p.t.</translation>
     </message>
     <message>
         <source>DIN A4</source>
-        <translation type="unfinished"></translation>
+        <translation>A4</translation>
     </message>
     <message>
         <source>Letter</source>
-        <translation type="unfinished"></translation>
+        <oldsource>Letter</oldsource>
+        <translation>Letter</translation>
     </message>
     <message>
         <source>cm</source>
+        <oldsource>cm</oldsource>
         <extracomment>this refers to the length unit of centimeters</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>cm</translation>
     </message>
     <message>
         <source>in</source>
+        <oldsource>in</oldsource>
         <extracomment>this refers to the length unit of inches</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>tommar</translation>
     </message>
 </context>
 <context>
@@ -1213,7 +1221,7 @@ Use the context menu to change the units.</source>
     </message>
     <message>
         <source>&lt;br&gt;&lt;a href=&quot;http://poppler.freedesktop.org/&quot;&gt;Poppler&lt;/a&gt; PDF rendering library by Kristian H&amp;#xF8;gsberg, Albert Astals Cid and others.</source>
-        <translation>&lt;br&gt;&lt;a href=&quot;http://poppler.freedesktop.org/&quot;&gt;Poppler&lt;/a&gt; PDF-bibliotek av Kristian H&amp;#xF8;gsberg, Albert Astals Cid og andre.</translation>
+        <translation>&lt;br&gt;&lt;a href=&quot;http://poppler.freedesktop.org/&quot;&gt;Poppler&lt;/a&gt; PDF-bibliotek av Kristian Høgsberg, Albert Astals Cid og andre.</translation>
     </message>
     <message>
         <source>&lt;br&gt;Concept and resources from &lt;a href=&quot;http://www.uoregon.edu/~koch/texshop/&quot;&gt;TeXShop&lt;/a&gt; by Richard Koch.</source>
@@ -1225,7 +1233,7 @@ Use the context menu to change the units.</source>
     </message>
     <message>
         <source>&lt;br&gt;Some icons used are from the &lt;a href=&quot;http://tango.freedesktop.org/&quot;&gt;Tango Desktop Project&lt;/a&gt;.</source>
-        <translation>&lt;br&gt;Nokre av ikona er tekna frå &lt;a href=&quot;http://tango.freedesktop.org/&quot;&gt;Tango Desktop Project&lt;/a&gt;.</translation>
+        <translation>&lt;br&gt;Nokre av ikona er tekne frå &lt;a href=&quot;http://tango.freedesktop.org/&quot;&gt;Tango Desktop Project&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>&lt;p&gt;%1 translation kindly contributed by %2.</source>
@@ -1359,11 +1367,11 @@ Use the context menu to change the units.</source>
     </message>
     <message>
         <source>Scripts may be used to add new commands to %1, and to extend or modify its behavior.</source>
-        <translation>Skript kan brukast til å leggja nye kommandoar til %1, og til å utvida eller endra funksjonalitet.</translation>
+        <translation>Skript kan brukast til å leggja nye kommandoar til %1 og til å utvida eller endra funksjonalitet.</translation>
     </message>
     <message>
         <source>For more information on creating and using scripts, see %1&lt;/p&gt;</source>
-        <translation>Du finn meir informasjon på %1 om korleis du lagar og brukar skript&lt;/p&gt;</translation>
+        <translation>Du finn meir informasjon om korleis du lagar og brukar skript på %1.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Scripting languages currently available in this copy of %1:</source>

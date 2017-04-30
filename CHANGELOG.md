@@ -4,7 +4,7 @@
 
 ### Upgraded programs
 
-* TeXworks 0.7
+* TeXworks 0.6.2
 
 ### Changed programs
 
