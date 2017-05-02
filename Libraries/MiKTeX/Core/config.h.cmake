@@ -1,4 +1,4 @@
-/* config.h (created from config.h.cmake)		-*- C++ -*-
+/* config.h (created from config.h.cmake)               -*- C++ -*-
 
    Copyright (C) 1996-2017 Christian Schenk
 
@@ -19,7 +19,7 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#cmakedefine HAVE_ATLBASE_H
+#cmakedefine HAVE_ATLBASE_H 1
 #cmakedefine HAVE_DIRENT_H 1
 #cmakedefine HAVE_INTTYPES_H 1
 #cmakedefine HAVE_SYS_MMAN_H 1
@@ -41,11 +41,6 @@
 #cmakedefine HAVE_UNAME_SYSCALL 1
 #cmakedefine HAVE_VFORK 1
 
-#cmakedefine HAVE_HASH_MAP
-#cmakedefine HAVE_HASH_SET
-#cmakedefine HAVE_UNORDERED_MAP
-#cmakedefine HAVE_UNORDERED_SET
-
 #cmakedefine HAVE_STRUCT_DIRENT_D_TYPE 1
 
 #cmakedefine CMAKE_USE_PTHREADS_INIT ${CMAKE_USE_PTHREADS_INIT}
@@ -57,15 +52,15 @@
 #cmakedefine ADMIN_CONTROLS_USER_CONFIG 1
 #cmakedefine REPORT_EVENTS 1
 
-#cmakedefine USE_SYSTEM_BOTAN ${USE_SYSTEM_BOTAN}
-#cmakedefine WITH_BOTAN ${WITH_BOTAN}
+#cmakedefine USE_SYSTEM_BOTAN 1
+#cmakedefine WITH_BOTAN 1
 
 #if defined(WITH_BOTAN) || defined(USE_SYSTEM_BOTAN)
 #  define ENABLE_BOTAN 1
 #endif
 
-#cmakedefine USE_SYSTEM_OPENSSL_CRYPTO ${USE_SYSTEM_OPENSSL_CRYPTO}
-#cmakedefine WITH_LIBRESSL_CRYPTO ${WITH_LIBRESSL_CRYPTO}
+#cmakedefine USE_SYSTEM_OPENSSL_CRYPTO 1
+#cmakedefine WITH_LIBRESSL_CRYPTO 1
 
 #if defined(WITH_LIBRESSL_CRYPTO) || defined(USE_SYSTEM_OPENSSL_CRYPTO)
 #  define ENABLE_OPENSSL 1
