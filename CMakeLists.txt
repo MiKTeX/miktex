@@ -117,11 +117,21 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND MIKTEX_NATIVE_WINDOWS)
 endif()
 
 ###############################################################################
+## Homebrew detection
+
+string(SUBSTRING ${CMAKE_INSTALL_PREFIX} 0 17 homebrew_cellar)
+if(homebrew_cellar STREQUAL "/usr/local/Cellar")
+  set(MIKTEX_HOMEBREW TRUE)
+endif()
+
+###############################################################################
 ## handle install prefix standards
 
 if(CMAKE_INSTALL_PREFIX STREQUAL "/usr")
   set(MIKTEX_SELF_CONTAINED_DEFAULT FALSE)
 elseif(CMAKE_INSTALL_PREFIX STREQUAL "/usr/local")
+  set(MIKTEX_SELF_CONTAINED_DEFAULT FALSE)
+elseif(MIKTEX_HOMEBREW)
   set(MIKTEX_SELF_CONTAINED_DEFAULT FALSE)
 elseif(MIKTEX_UNIX_ALIKE)
   set(MIKTEX_SELF_CONTAINED_DEFAULT TRUE)
@@ -268,10 +278,16 @@ option(
   ${MIKTEX_UNIX_ALIKE}
 )
 
+if(MIKTEX_HOMEBREW)
+  set(use_system_mspack_default FALSE)
+elseif(MIKTEX_UNIX_ALIKE)
+  set(use_system_mspack_default TRUE)
+endif()
+
 option(
   USE_SYSTEM_MSPACK
   "Use the system mspack compression library."
-  ${MIKTEX_UNIX_ALIKE}
+  ${use_system_mspack_default}
 )
 
 option(
