@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % entities.ent SYSTEM "entities.ent">
+%entities.ent;
+]>
+
+<refentry id="miktexini">
+
+<?dbhh topicname="MIKTEXHELP_MIKTEX_INI" topicid="0"?>
+
+<refmeta>
+<refentrytitle>miktex.ini</refentrytitle>
+<manvolnum>5</manvolnum>
+<refmiscinfo class="source">&PACKAGE_NAME;</refmiscinfo>
+<refmiscinfo class="version">&miktexrev;</refmiscinfo>
+<refmiscinfo class="manual">File Formats</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>miktex.ini</refname>
+<refpurpose>&MiKTeX; configuration file</refpurpose>
+</refnamediv>
+
+<refsect1>
+
+<title>Description</title>
+
+<para>&MiKTeX; configurations settings are read from the file
+<filename>miktex.ini</filename>.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Syntax</title>
+
+<para>The syntax follows the informal conventions of a traditional
+<ulink url="https://en.wikipedia.org/wiki/INI_file">INI file</ulink>.</para>
+
+</refsect1>
+
+<refsect1>
+
+<title>Settings</title>
+
+<variablelist>
+
+<varlistentry>
+<term>[MPM]AutoAdmin</term>
+<listitem><para>tbd</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>[MPM]AutoInstall</term>
+<listitem><para>tbd</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+</refsect1>
+
+</refentry>

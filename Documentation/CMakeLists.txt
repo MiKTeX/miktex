@@ -154,6 +154,7 @@ set(ref_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/initexmf.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/luatex.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/mf.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktexini.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/miktexsetup.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/mpm.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Ref/mpost.xml
@@ -253,7 +254,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     COMMAND
       ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
         ${XSLTPROC_EXECUTABLE}
-	  --xinclude
+          --xinclude
           --path "${xslt_path}"
           --stringparam base.dir scratch/
           --stringparam chunk.fast 1

@@ -471,6 +471,7 @@ option of &initexmf; to edit the configuration file, e.g.:</para>
 
 <title>Files</title>
 
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/miktexini.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/pdftexcfg.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Ref/updmapcfg.xml" />
 
