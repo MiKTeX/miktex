@@ -65,16 +65,6 @@ else()
   set(MIKTEX_MAN_DESTINATION_DIR "share/man")
 endif()
 
-if(MIKTEX_WORDS_BIGENDIAN)
-  set(MIKTEX_REL_MIKTEX_BASE_DIR "miktex/data/be")
-  set(MIKTEX_REL_MIKTEX_FMT_DIR "miktex/data/be")
-  set(MIKTEX_REL_MIKTEX_FNDB_DIR "miktex/data/be")
-else()
-  set(MIKTEX_REL_MIKTEX_BASE_DIR "miktex/data/le")
-  set(MIKTEX_REL_MIKTEX_FMT_DIR "miktex/data/le")
-  set(MIKTEX_REL_MIKTEX_FNDB_DIR "miktex/data/le")
-endif()
-
 set(MIKTEX_REL_DOC_DIR "doc")
 
 set(MIKTEX_REL_MIKTEX_DOC_DIR "${MIKTEX_REL_DOC_DIR}/miktex")
