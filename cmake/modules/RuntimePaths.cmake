@@ -26,3 +26,8 @@ else()
   set(MIKTEX_REL_MIKTEX_FMT_DIR "miktex/data/le")
   set(MIKTEX_REL_MIKTEX_FNDB_DIR "miktex/data/le")
 endif()
+
+if(MIKTEX_UNIX_ALIKE)
+  set(MIKTEX_SYSTEM_VAR_CACHE_DIR "/var/cache" CACHE PATH "Directory for application cache data." FORCE)
+  set(MIKTEX_SYSTEM_VAR_LIB_DIR "/var/lib" CACHE PATH "Directory for state information." FORCE)
+endif()
