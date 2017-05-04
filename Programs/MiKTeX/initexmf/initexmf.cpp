@@ -1150,7 +1150,7 @@ void IniTeXMFApp::MakeFormatFile(const string& formatKey)
 
 void IniTeXMFApp::MakeFormatFiles(const vector<string>& formats)
 {
-  if (formats.size() == 0)
+  if (formats.empty())
   {
     for (const FormatInfo& formatInfo : session->GetFormats())
     {
@@ -2209,7 +2209,7 @@ void IniTeXMFApp::ReportBrokenPackages()
     }
   }
   pkgIter->Dispose();
-  if (broken.size() > 0)
+  if (!broken.empty())
   {
     if (xml)
     {
@@ -2924,7 +2924,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
   if (optUpdateFilenameDatabase)
   {
-    if (updateRoots.size() == 0)
+    if (updateRoots.empty())
     {
       unsigned nRoots = session->GetNumberOfTEXMFRoots();
       for (unsigned r = 0; r < nRoots; ++r)
