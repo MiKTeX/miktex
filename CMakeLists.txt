@@ -613,6 +613,12 @@ if(NOT MIKTEX_FULL_VERSION_STR)
 endif()
 
 ###############################################################################
+## Endianess
+
+include(TestBigEndian)
+test_big_endian(MIKTEX_WORDS_BIGENDIAN)
+
+###############################################################################
 ## CMake modules
 
 include(Admin/COM/guids.cmake)
@@ -644,7 +650,6 @@ include(MergeManifests)
 include(MergeTrustInfoManifest)
 include(Rebase)
 include(RuntimePaths)
-include(TestBigEndian)
 include(SourcePaths)
 include(UseStaticCRT)
 include(IgnoreWarnings)
@@ -895,8 +900,6 @@ endif()
 if(MSVC)
   set(HAVE_PRAGMA_ONCE TRUE)
 endif()
-
-test_big_endian(MIKTEX_WORDS_BIGENDIAN)
 
 if(MIKTEX_NATIVE_WINDOWS AND MSVC)
   check_symbol_exists(alloca "malloc.h" HAVE_ALLOCA)
