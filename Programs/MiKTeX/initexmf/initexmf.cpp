@@ -471,6 +471,17 @@ private:
   }
 
 private:
+  void EnsureInstaller()
+  {
+    if (packageInstaller == nullptr)
+    {
+      packageInstaller = packageManager->CreateInstaller();
+      packageInstaller->SetCallback(this);
+      packageInstaller->SetNoPostProcessing(true);
+    }
+  }
+
+private:
   PathName enumDir;
 
 private:
@@ -905,12 +916,7 @@ bool IniTeXMFApp::InstallPackage(const string& deploymentName, const PathName& t
   }
   LOG4CXX_INFO(logger, "installing package " << deploymentName << " triggered by " << trigger.ToString());
   Verbose(T_("Installing package %s..."), deploymentName.c_str());
-  if (packageInstaller == nullptr)
-  {
-    packageInstaller = packageManager->CreateInstaller();
-    packageInstaller->SetCallback(this);
-    packageInstaller->SetNoPostProcessing(true);
-  }
+  EnsureInstaller();
   packageInstaller->SetFileLists({ deploymentName }, {});
   packageInstaller->InstallRemove();
   installRoot = session->GetSpecialPath(SpecialPath::InstallRoot);
@@ -2951,6 +2957,11 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
             Verbose(T_("Skipping common root directory (%s)..."), Q_(session->GetRootDirectory(r)));
           }
         }
+      }
+      if (enableInstaller == TriState::True)
+      {
+        EnsureInstaller();
+        packageInstaller->UpdateDb();
       }
       packageManager->CreateMpmFndb();
     }
