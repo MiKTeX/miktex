@@ -28,6 +28,6 @@ else()
 endif()
 
 if(MIKTEX_UNIX_ALIKE)
-  set(MIKTEX_SYSTEM_VAR_CACHE_DIR "/var/cache" CACHE PATH "Directory for application cache data." FORCE)
-  set(MIKTEX_SYSTEM_VAR_LIB_DIR "/var/lib" CACHE PATH "Directory for state information." FORCE)
+  set(MIKTEX_SYSTEM_VAR_CACHE_DIR "/var/cache" CACHE PATH "Directory for application cache data.")
+  set(MIKTEX_SYSTEM_VAR_LIB_DIR "/var/lib" CACHE PATH "Directory for state information.")
 endif()
