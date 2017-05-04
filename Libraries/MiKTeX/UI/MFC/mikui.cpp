@@ -1,6 +1,6 @@
 /* mikui.cpp:
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -32,6 +32,8 @@
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace std;
+
+#include <miktex/mpm.defaults.h>
 
 AFX_EXTENSION_MODULE MikuiDLL = { FALSE, nullptr };
 
@@ -65,7 +67,7 @@ MIKTEXUIEXPORT void MIKTEXCEECALL MiKTeX::UI::MFC::InitializeFramework()
 MIKTEXUIEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::MFC::InstallPackageMessageBox(CWnd* parent, shared_ptr<PackageManager> packageManager, const string& packageName, const string& trigger)
 {
   shared_ptr<Session> pSession = Session::Get();
-  TriState enableInstaller = pSession->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, TriState::Undetermined).GetTriState();
+  TriState enableInstaller = pSession->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, mpm::AutoInstall()).GetTriState();
   unsigned int ret;
   if (enableInstaller != TriState::Undetermined)
   {

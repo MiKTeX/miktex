@@ -147,6 +147,18 @@ option(
 )
 
 option(
+  MIKTEX_MPM_AUTO_ADMIN
+  "Install packages for all users."
+  FALSE
+)
+
+option(
+  MIKTEX_MPM_AUTO_INSTALL
+  "Install missing packages automatically (on-the-fly)."
+  FALSE
+)
+
+option(
   MIKTEX_SUPPORT_WINDOWS_XP
   "Support Windows XP."
   ${WIN32}

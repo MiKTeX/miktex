@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -53,8 +53,13 @@ set(public_headers
   include/miktex/UI/MFC/UpdateDialog.h
 )
 
+set(generated_sources
+  ${CMAKE_BINARY_DIR}/include/miktex/mpm.defaults.h
+)
+
 set(${ui_mfc_dll_name}_sources
   ${CMAKE_CURRENT_BINARY_DIR}/mikui.rc
+  ${generated_sources}
   ${public_headers}
   ConnectionSettingsDialog.cpp
   ConnectionSettingsDialog.h
@@ -95,6 +100,14 @@ set(${ui_mfc_dll_name}_sources
 add_library(${ui_mfc_dll_name} SHARED ${${ui_mfc_dll_name}_sources})
 
 set_property(TARGET ${ui_mfc_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+add_dependencies(${ui_mfc_dll_name} gen-defaults)
+
+set_source_files_properties(
+  ${generated_sources}
+  PROPERTIES
+    GENERATED TRUE
+)
 
 set_target_properties(${ui_mfc_dll_name}
   PROPERTIES

@@ -35,6 +35,14 @@ add_library(${app_dll_name} SHARED ${${app_dll_name}_sources})
 
 set_property(TARGET ${app_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+add_dependencies(${app_dll_name} gen-defaults)
+
+set_source_files_properties(
+  ${generated_sources}
+  PROPERTIES
+    GENERATED TRUE
+)
+
 set_target_properties(${app_dll_name}
   PROPERTIES
     VERSION "${MIKTEX_COMP_J2000_VERSION}"

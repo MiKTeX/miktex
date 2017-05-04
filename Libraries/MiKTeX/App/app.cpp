@@ -30,6 +30,8 @@ using namespace MiKTeX::Packages;
 using namespace MiKTeX::Util;
 using namespace std;
 
+#include "miktex/mpm.defaults.h"
+
 static log4cxx::LoggerPtr logger;
 
 static Application* instance = nullptr;
@@ -195,9 +197,9 @@ void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args
   pimpl->beQuiet = false;
   if (pimpl->enableInstaller == TriState::Undetermined)
   {
-    pimpl->enableInstaller = pimpl->session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, TriState::Undetermined).GetTriState();
+    pimpl->enableInstaller = pimpl->session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, mpm::AutoInstall()).GetTriState();
   }
-  pimpl->autoAdmin = pimpl->session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_ADMIN, TriState::Undetermined).GetTriState();
+  pimpl->autoAdmin = pimpl->session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_ADMIN, mpm::AutoAdmin()).GetTriState();
   InstallSignalHandler(SIGINT);
   InstallSignalHandler(SIGTERM);
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(pimpl->session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
