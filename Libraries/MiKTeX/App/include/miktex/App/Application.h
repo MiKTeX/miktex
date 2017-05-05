@@ -165,6 +165,12 @@ private:
   void TraceInternal(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage);
 
 private:
+  void ConfigureLogging();
+
+private:
+  void AutoMaintenance();
+
+private:
   class impl;
   std::unique_ptr<impl> pimpl;
 };

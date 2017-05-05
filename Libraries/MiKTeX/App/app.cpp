@@ -76,7 +76,7 @@ class Application::impl
 public:
   set<string> ignoredPackages;
 public:
-  TriState autoAdmin = TriState::Undetermined;
+  TriState mpmAutoAdmin = TriState::Undetermined;
 public:
   shared_ptr<PackageManager> packageManager;
 public:
@@ -172,6 +172,21 @@ void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args
   initInfo.SetTraceCallback(this);
   pimpl->session = Session::Create(initInfo);
   pimpl->session->SetFindFileCallback(this);
+  ConfigureLogging();
+  LOG4CXX_INFO(logger, "starting with command line: " << cmdLineToLog.ToString());
+  pimpl->beQuiet = false;
+  if (pimpl->enableInstaller == TriState::Undetermined)
+  {
+    pimpl->enableInstaller = pimpl->session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, mpm::AutoInstall()).GetTriState();
+  }
+  pimpl->mpmAutoAdmin = pimpl->session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_ADMIN, mpm::AutoAdmin()).GetTriState();
+  InstallSignalHandler(SIGINT);
+  InstallSignalHandler(SIGTERM);
+  AutoMaintenance();
+}
+
+void Application::ConfigureLogging()
+{
   string myName = Utils::GetExeName();
   PathName xmlFileName;
   if (pimpl->session->FindFile(myName + "." + MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
@@ -193,15 +208,10 @@ void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args
     log4cxx::BasicConfigurator::configure();
   }
   logger = log4cxx::Logger::getLogger(myName);
-  LOG4CXX_INFO(logger, "starting with command line: " << cmdLineToLog.ToString());
-  pimpl->beQuiet = false;
-  if (pimpl->enableInstaller == TriState::Undetermined)
-  {
-    pimpl->enableInstaller = pimpl->session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, mpm::AutoInstall()).GetTriState();
-  }
-  pimpl->autoAdmin = pimpl->session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_ADMIN, mpm::AutoAdmin()).GetTriState();
-  InstallSignalHandler(SIGINT);
-  InstallSignalHandler(SIGTERM);
+}
+
+void Application::AutoMaintenance()
+{
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(pimpl->session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   PathName mpmDatabasePath(pimpl->session->GetMpmDatabasePathName());
   bool mustRefreshFndb = !File::Exists(mpmDatabasePath) || (!pimpl->session->IsAdminMode() && lastAdminMaintenance + 30 > File::GetLastWriteTime(mpmDatabasePath));
@@ -211,38 +221,38 @@ void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args
   PathName initexmf;
   if ((mustRefreshFndb || mustRefreshUserLanguageDat) && pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
   {
-    CommandLineBuilder commandLine;
+    CommandLineBuilder commonCommandLine;
     switch (pimpl->enableInstaller)
     {
     case TriState::False:
-      commandLine.AppendOption("--disable-installer");
+      commonCommandLine.AppendOption("--disable-installer");
       break;
     case TriState::True:
-      commandLine.AppendOption("--enable-installer");
+      commonCommandLine.AppendOption("--enable-installer");
       break;
     case TriState::Undetermined:
       break;
     }
     if (pimpl->session->IsAdminMode())
     {
-      commandLine.AppendOption("--admin");
+      commonCommandLine.AppendOption("--admin");
     }
-    commandLine.AppendArgument("--quiet");
+    commonCommandLine.AppendArgument("--quiet");
     if (mustRefreshFndb)
     {
       pimpl->session->UnloadFilenameDatabase();
-      CommandLineBuilder xCommandLine(commandLine);
-      xCommandLine.AppendOption("--update-fndb");
-      LOG4CXX_INFO(logger, "running 'initexmf " << xCommandLine.ToString() << "' to refresh the file name database");
-      Process::Run(initexmf, xCommandLine.ToString());
+      CommandLineBuilder commandLine(commonCommandLine);
+      commandLine.AppendOption("--update-fndb");
+      LOG4CXX_INFO(logger, "running 'initexmf " << commandLine.ToString() << "' to refresh the file name database");
+      Process::Run(initexmf, commandLine.ToString());
     }
     if (mustRefreshUserLanguageDat)
     {
       MIKTEX_ASSERT(!pimpl->session->IsAdminMode());
-      CommandLineBuilder xCommandLine(commandLine);
-      xCommandLine.AppendOption("--mklangs");
-      LOG4CXX_INFO(logger, "running 'initexmf " << xCommandLine.ToString() << "' to refresh language.dat");
-      Process::Run(initexmf, xCommandLine.ToString());
+      CommandLineBuilder commandLine(commonCommandLine);
+      commandLine.AppendOption("--mklangs");
+      LOG4CXX_INFO(logger, "running 'initexmf " << commandLine.ToString() << "' to refresh language.dat");
+      Process::Run(initexmf, commandLine.ToString());
     }
   }
 }
@@ -380,7 +390,7 @@ bool Application::InstallPackage(const string& deploymentName, const PathName& t
       pimpl->ignoredPackages.insert(deploymentName);
       return false;
     }
-    pimpl->autoAdmin = (((msgBoxRet & MiKTeX::UI::ADMIN) != 0) ? TriState::True : TriState::False);
+    pimpl->mpmAutoAdmin = (((msgBoxRet & MiKTeX::UI::ADMIN) != 0) ? TriState::True : TriState::False);
   }
   string url;
   RepositoryType repositoryType(RepositoryType::Unknown);
@@ -416,7 +426,7 @@ bool Application::InstallPackage(const string& deploymentName, const PathName& t
     cout << endl << SEP << endl;
   }
   bool done = false;
-  bool switchToAdminMode = (pimpl->autoAdmin == TriState::True && !pimpl->session->IsAdminMode());
+  bool switchToAdminMode = (pimpl->mpmAutoAdmin == TriState::True && !pimpl->session->IsAdminMode());
   if (switchToAdminMode)
   {
     pimpl->session->SetAdminMode(true);
