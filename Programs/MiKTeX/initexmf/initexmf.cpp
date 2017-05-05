@@ -2960,12 +2960,24 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
           }
         }
       }
-      if (enableInstaller == TriState::True)
+      PackageInfo test;
+      bool havePackageDatabase = packageManager->TryGetPackageInfo("miktex-tex", test);
+      if (!havePackageDatabase)
       {
-        EnsureInstaller();
-        packageInstaller->UpdateDb();
+        if (enableInstaller == TriState::True)
+        {
+          EnsureInstaller();
+          packageInstaller->UpdateDb();
+        }
+        else
+        {
+          Warning(T_("The local package database does not exist."));
+        }
       }
-      packageManager->CreateMpmFndb();
+      else
+      {
+        packageManager->CreateMpmFndb();
+      }
     }
     else
     {
