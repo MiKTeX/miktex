@@ -598,7 +598,7 @@ PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& deploymentName)
   }
   if (parsedAllPackageDefinitionFiles)
   {
-    return 0;
+    return nullptr;
   }
   PathName pathPackageDefinitionFile;
   bool havePackageInfoFile = false;
@@ -620,7 +620,7 @@ PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& deploymentName)
   }
   if (!havePackageInfoFile)
   {
-    return 0;
+    return nullptr;
   }
   TpmParser tpmParser;
   tpmParser.Parse(pathPackageDefinitionFile);
@@ -628,7 +628,7 @@ PackageInfo* PackageManagerImpl::TryGetPackageInfo(const string& deploymentName)
   string targetSystems = tpmParser.GetPackageInfo().targetSystem;
   if (targetSystems != "" && !StringUtil::Contains(targetSystems.c_str(), MIKTEX_SYSTEM_TAG))
   {
-    return 0;
+    return nullptr;
   }
 #endif
   return DefinePackage(deploymentName, tpmParser.GetPackageInfo());
