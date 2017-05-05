@@ -489,7 +489,7 @@ bool Application::TryCreateFile(const PathName& fileName, FileType fileType)
   case FileType::FMT:
     if (!pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, makeUtility))
     {
-      MIKTEX_UNEXPECTED();
+      MIKTEX_FATAL_ERROR(T_("The MiKTeX configuration utility (initexmf) could not be found."));
     }
     commandLine.AppendOption("--dump-by-name=", baseName);
     if (fileType == FileType::FMT)
@@ -500,7 +500,7 @@ bool Application::TryCreateFile(const PathName& fileName, FileType fileType)
   case FileType::TFM:
     if (!pimpl->session->FindFile(MIKTEX_MAKETFM_EXE, FileType::EXE, makeUtility))
     {
-      MIKTEX_UNEXPECTED();
+      MIKTEX_FATAL_ERROR(T_("The MakeTFM utility could not be found."));
     }
     commandLine.AppendArgument(baseName);
     break;
@@ -775,7 +775,7 @@ shared_ptr<Session> Application::GetSession() const
 {
   if (!pimpl->session)
   {
-    MIKTEX_FATAL_ERROR("not yet initialized");
+    MIKTEX_UNEXPECTED();
   }
   return pimpl->session;
 }
