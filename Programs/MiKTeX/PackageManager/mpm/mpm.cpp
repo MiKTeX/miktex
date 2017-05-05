@@ -163,6 +163,9 @@ private:
   void Verbose(const char* lpszFormat, ...);
 
 private:
+  void Warn(const char* lpszFormat, ...);
+
+private:
   void Message(const char* lpszFormat, ...);
 
 private:
@@ -645,6 +648,17 @@ void Application::Verbose(const char* lpszFormat, ...)
   {
     cout << s << endl;
   }
+}
+
+void Application::Warn(const char* lpszFormat, ...)
+{
+  va_list arglist;
+  string s;
+  VA_START(arglist, lpszFormat);
+  s = StringUtil::FormatStringVA(lpszFormat, arglist);
+  VA_END(arglist);
+  LOG4CXX_WARN(logger, s);
+  cout << T_("Warning:") << " " << s << endl;
 }
 
 static void Sorry(string reason)
@@ -1658,6 +1672,12 @@ void Application::Main(int argc, const char** argv)
       Error(T_("Option --admin only makes sense for a shared MiKTeX setup."));
     }
     pSession->SetAdminMode(true);
+    Verbose(T_("Operating on the shared (system-wide) MiKTeX setup"));
+  }
+  else if (pSession->IsSharedSetup())
+  {
+    Verbose(T_("Operating on the private (per-user) MiKTeX setup"));
+    Warn(T_("You must use --admin, if you intend to make system-wide changes."));
   }
 
   pPackageManager = PackageManager::Create();
