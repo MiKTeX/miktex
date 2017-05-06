@@ -13,6 +13,6 @@ if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
 		     -DUSE_SYSTEM_MSPACK=FALSE \
 		     -DMIKTEX_MPM_AUTO_ADMIN=t \
 		     -DMIKTEX_MPM_AUTO_INSTALL=t \
-		     -DMIKTEX_SYSTEM_VAR_CACHE_DIR=\"${vardir}/cache\" \
-		     -DMIKTEX_SYSTEM_VAR_LIB_DIR=\"${vardir}/lib\"
+		     -DMIKTEX_SYSTEM_VAR_CACHE_DIR="${vardir}/cache" \
+		     -DMIKTEX_SYSTEM_VAR_LIB_DIR="${vardir}/lib"
 fi
