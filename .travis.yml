@@ -1,0 +1,10 @@
+language: cpp
+
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode8.3
+
+before_install: ./travis-ci/before_install.sh
+before_script: ./travis-ci/before_script.sh
+script: ./travis-ci/script.sh
