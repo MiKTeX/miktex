@@ -4,7 +4,13 @@ set -ev
 
 if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     brew update
+
     brew outdated cmake || brew upgrade cmake
+    brew install dos2unix
+    brew install fop
+    brew install pandoc
+    brew install pkg-config
+
     brew install apr
     brew install apr-util
     brew install cairo
