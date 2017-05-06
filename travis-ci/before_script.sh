@@ -7,7 +7,7 @@ cd "${TRAVIS_BUILD_DIR}/build"
 
 if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     brewprefix=`brew --prefix`
-    vardir="${brewprefix}/var
+    vardir="${brewprefix}/var"
     CMAKE_PREFIX_PATH="${brewprefix}/opt/icu4c:${brewprefix}/opt/openssl:${CMAKE_PREFIX_PATH}" \
 		     cmake .. \
 		     -DUSE_SYSTEM_MSPACK=FALSE \
