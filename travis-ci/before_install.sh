@@ -9,7 +9,7 @@ if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     brew install dos2unix
     brew install fop
     brew install pandoc
-    brew install pkg-config
+    brew outdated pkg-config || brew install pkg-config
 
     brew install apr
     brew install apr-util
