@@ -4,6 +4,7 @@ set -ev
 
 if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     brew update
+    brew outdated cmake || brew upgrade cmake
     brew install apr
     brew install apr-util
     brew install cairo
