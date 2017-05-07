@@ -3,10 +3,9 @@
 set -ev
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-    mkdir cmake-3.8.1
+    mkdir "${TRAVIS_BUILD_DIR}/mycmake"
     cmakeurl=https://cmake.org/files/v3.8/cmake-3.8.1-Linux-x86_64.tar.gz
-    wget --quiet -O - ${cmakeurl} | tar --strip-components=1 -xz -C cmake-3.8.1
-    export PATH=`pwd`/cmake-3.8.1/bin:${PATH}
+    wget -O - ${cmakeurl} | tar --strip-components=1 -xz -C "${TRAVIS_BUILD_DIR}/mycmake"
     
     sudo apt-get -qq update
 
