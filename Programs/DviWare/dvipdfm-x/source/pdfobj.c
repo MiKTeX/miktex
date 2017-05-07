@@ -40,6 +40,12 @@
 
 #ifdef HAVE_ZLIB
 #include <zlib.h>
+#if defined(MIKTEX)
+/* FIXME: add cmake test for z_const */
+#if !defined(z_const)
+#  define z_const
+#endif
+#endif
 #endif /* HAVE_ZLIB */
 
 #include "pdfobj.h"
