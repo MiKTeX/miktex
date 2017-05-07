@@ -3,9 +3,13 @@
 set -ev
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+    mkdir cmake-3.8.1
+    cmakeurl=https://cmake.org/files/v3.8/cmake-3.8.1-Linux-x86_64.tar.gz
+    wget --quiet -O - ${cmakeurl} | tar --strip-components=1 -xz -C cmake-3.8.1
+    export PATH=`pwd`/cmake-3.8.1/bin:${PATH}
+    
     sudo apt-get -qq update
 
-    sudo apt-get install -y cmake
     sudo apt-get install -y pkg-config
 
     sudo apt-get install -y dos2unix
