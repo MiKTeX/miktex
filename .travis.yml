@@ -2,10 +2,9 @@ language: cpp
 
 matrix:
   include:
-    - os: linux
-      dist: trusty
-      sudo: required
-      compiler: clang
+#    - os: linux
+#      dist: trusty
+#      sudo: required
     - os: osx
       osx_image: xcode6.4
     - os: osx
