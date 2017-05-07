@@ -6,6 +6,7 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-5
+      - gcc-5
     
 matrix:
   include:
