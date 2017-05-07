@@ -2,7 +2,44 @@
 
 set -ev
 
-if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
+if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+    sudo apt-get -qq update
+
+    sudo apt-get install -y cmake
+    sudo apt-get install -y pkg-config
+
+    sudo apt-get install -y dos2unix
+    sudo apt-get install -y fop
+    sudo apt-get install -y pandoc
+    
+    sudo apt-get install -y libapr1-dev
+    sudo apt-get install -y libaprutil1-dev
+    sudo apt-get install -y libcairo2-dev
+    sudo apt-get install -y libffi-dev
+    sudo apt-get install -y libfontconfig1-dev
+    sudo apt-get install -y libfreetype6-dev
+    sudo apt-get install -y libfribidi-dev
+    sudo apt-get install -y libgd-dev
+    sudo apt-get install -y libgmp-dev
+    sudo apt-get install -y libgraphite2-dev
+    sudo apt-get install -y libhunspell-dev
+    sudo apt-get install -y libicu-dev
+    sudo apt-get install -y libjpeg-dev
+    sudo apt-get install -y liblog4cxx10-dev
+    sudo apt-get install -y liblzma-dev
+    sudo apt-get install -y libmpfr-dev
+    sudo apt-get install -y libmspack-dev
+    sudo apt-get install -y libpixman-1-dev
+    sudo apt-get install -y libpng-dev
+    sudo apt-get install -y libpoppler-dev
+    sudo apt-get install -y libpoppler-private-dev
+    sudo apt-get install -y libpopt-dev
+    sudo apt-get install -y libpotrace-dev
+    sudo apt-get install -y libssl-dev
+    sudo apt-get install -y libtiff5-dev
+    sudo apt-get install -y liburiparser-dev
+    sudo apt-get install -y libzzip-dev
+elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     brew update
 
     brew outdated cmake || brew upgrade cmake
