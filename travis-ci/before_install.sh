@@ -14,6 +14,7 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     sudo apt-get install -y dos2unix
     sudo apt-get install -y fop
     sudo apt-get install -y pandoc
+    sudo apt-get install -y xsltproc
     
     sudo apt-get install -y libapr1-dev
     sudo apt-get install -y libaprutil1-dev
