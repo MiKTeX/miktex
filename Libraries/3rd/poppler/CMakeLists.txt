@@ -372,9 +372,16 @@ target_link_libraries(${poppler_lib_name}
   PUBLIC
     ${core_dll_name}
     ${tiff_dll_name}
-    ${unxemu_dll_name}
-    ${utf8wrap_dll_name}
+    Threads::Threads
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${poppler_lib_name}
+    PUBLIC
+      ${unxemu_dll_name}
+      ${utf8wrap_dll_name}
+  )
+endif()
 
 if(USE_SYSTEM_FREETYPE2)
   target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::FREETYPE2)
