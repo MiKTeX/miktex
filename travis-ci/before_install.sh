@@ -26,6 +26,7 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     sudo apt-get install -y libgd-dev
     sudo apt-get install -y libgmp-dev
     sudo apt-get install -y libgraphite2-dev
+    sudo apt-get install -y libharfbuzz-dev
     sudo apt-get install -y libhunspell-dev
     sudo apt-get install -y libicu-dev
     sudo apt-get install -y libjpeg-dev
