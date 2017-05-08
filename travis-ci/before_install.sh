@@ -26,7 +26,6 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     sudo apt-get install -y libgd-dev
     sudo apt-get install -y libgmp-dev
     sudo apt-get install -y libgraphite2-dev
-    sudo apt-get install -y libharfbuzz-dev
     sudo apt-get install -y libhunspell-dev
     sudo apt-get install -y libicu-dev
     sudo apt-get install -y libjpeg-dev
@@ -43,10 +42,15 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     sudo apt-get install -y liburiparser-dev
     sudo apt-get install -y libzzip-dev
 
+    if [ -z $MIKTEX_BUILD_HARFBUZZ ]; then
+        sudo apt-get install -y libharfbuzz-dev
+    fi
+
     if [ -z $MIKTEX_BUILD_POPPLER ]; then
 	sudo apt-get install -y libpoppler-dev
 	sudo apt-get install -y libpoppler-private-dev
     fi
+
 elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     brew update
 
