@@ -829,11 +829,11 @@ if(USE_SYSTEM_GRAPHITE2)
 endif()
 
 if(USE_SYSTEM_HARFBUZZ)
-  find_package(HARFBUZZ)
+  find_package(HARFBUZZ REQUIRED)
 endif()
 
 if(USE_SYSTEM_HARFBUZZ_ICU)
-  find_package(HARFBUZZ_ICU)
+  find_package(HARFBUZZ_ICU REQUIRED)
 endif()
 
 if(USE_SYSTEM_HUNSPELL)
