@@ -10,7 +10,7 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     mycmake="${TRAVIS_BUILD_DIR}/mycmake/bin/cmake"
     cmakeflags=-DMIKTEX_MPM_AUTO_INSTALL=t
     if [ -n $MIKTEX_BUILD_POPPLER ]; then cmakeflags="-DUSE_SYSTEM_POPPLER=FALSE $cmakeflags"; fi
-    "${mycmake}" ${cmakeflags}	  
+    "${mycmake}" .. ${cmakeflags}	  
 elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     brewprefix="`brew --prefix`"
     vardir="${brewprefix}/var"
