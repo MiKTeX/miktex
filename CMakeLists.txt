@@ -1207,6 +1207,25 @@ endif()
 
 ###############################################################################
 ## add/import 3rd party libs
+##
+## base libraries (on which other libraries depend on) must be defined early
+
+if(USE_SYSTEM_ZLIB)
+  get_filename_component(suffix ${ZLIB_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::ZLIB SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::ZLIB STATIC IMPORTED)
+  endif()
+  set_target_properties(MiKTeX::Imported::ZLIB
+    PROPERTIES
+      IMPORTED_LOCATION "${ZLIB_LIBRARY}"
+      INTERFACE_COMPILE_DEFINITIONS "HAVE_LIBZ=1;HAVE_ZLIB=1;HAVE_ZLIB_H=1;HAVE_ZLIB_COMPRESS2=1"
+      INTERFACE_INCLUDE_DIRECTORIES "${ZLIB_INCLUDE_DIRS}"
+  )
+else()
+  add_subdirectory(${MIKTEX_REL_ZLIB_DIR})
+endif()
 
 if(USE_SYSTEM_APR)
   get_filename_component(suffix ${APR_LIBRARY} EXT)
@@ -1683,23 +1702,6 @@ if(USE_SYSTEM_URIPARSER)
   )
 else()
   add_subdirectory(${MIKTEX_REL_URIPARSER_DIR})
-endif()
-
-if(USE_SYSTEM_ZLIB)
-  get_filename_component(suffix ${ZLIB_LIBRARY} EXT)
-  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
-    add_library(MiKTeX::Imported::ZLIB SHARED IMPORTED)
-  else()
-    add_library(MiKTeX::Imported::ZLIB STATIC IMPORTED)
-  endif()
-  set_target_properties(MiKTeX::Imported::ZLIB
-    PROPERTIES
-      IMPORTED_LOCATION "${ZLIB_LIBRARY}"
-      INTERFACE_COMPILE_DEFINITIONS "HAVE_LIBZ=1;HAVE_ZLIB=1;HAVE_ZLIB_H=1;HAVE_ZLIB_COMPRESS2=1"
-      INTERFACE_INCLUDE_DIRECTORIES "${ZLIB_INCLUDE_DIRS}"
-  )
-else()
-  add_subdirectory(${MIKTEX_REL_ZLIB_DIR})
 endif()
 
 if(USE_SYSTEM_ZZIP)
