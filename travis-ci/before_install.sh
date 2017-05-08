@@ -35,14 +35,17 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     sudo apt-get install -y libmspack-dev
     sudo apt-get install -y libpixman-1-dev
     sudo apt-get install -y libpng-dev
-    sudo apt-get install -y libpoppler-dev
-    sudo apt-get install -y libpoppler-private-dev
     sudo apt-get install -y libpopt-dev
     sudo apt-get install -y libpotrace-dev
     sudo apt-get install -y libssl-dev
     sudo apt-get install -y libtiff5-dev
     sudo apt-get install -y liburiparser-dev
     sudo apt-get install -y libzzip-dev
+
+    if [ -z $MIKTEX_BUILD_POPPLER ]; then
+	sudo apt-get install -y libpoppler-dev
+	sudo apt-get install -y libpoppler-private-dev
+    fi
 elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     brew update
 

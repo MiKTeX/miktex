@@ -7,10 +7,12 @@ cd "${TRAVIS_BUILD_DIR}/build"
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
-    "${TRAVIS_BUILD_DIR}/mycmake/bin/cmake" .. \
-	  -DMIKTEX_MPM_AUTO_INSTALL=t
+    mycmake="${TRAVIS_BUILD_DIR}/mycmake/bin/cmake"
+    cmakeflags=-DMIKTEX_MPM_AUTO_INSTALL=t
+    if [ -n $MIKTEX_BUILD_POPPLER ]; then cmakeflags="-DUSE_SYSTEM_POPPLER=FALSE $cmakeflags"; fi
+    "${mycmake}" ${cmakeflags}	  
 elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
-    brewprefix=`brew --prefix`
+    brewprefix="`brew --prefix`"
     vardir="${brewprefix}/var"
     CMAKE_PREFIX_PATH="${brewprefix}/opt/icu4c:${brewprefix}/opt/openssl:${CMAKE_PREFIX_PATH}" \
 		     cmake .. \
