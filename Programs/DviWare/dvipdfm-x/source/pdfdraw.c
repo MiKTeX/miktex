@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2017 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -39,6 +39,7 @@
 
 #include "pdfdraw.h"
 
+#define OUR_EPSILON 2.5e-16
 
 /*
  * Numbers are rounding to 0-5 fractional digits
@@ -54,7 +55,7 @@ inversematrix (pdf_tmatrix *W, const pdf_tmatrix *M)
   double  det;
 
   det = detP(M);
-  if (fabs(det) < 1.e-8) {
+  if (fabs(det) < OUR_EPSILON) {
     WARN("Inverting matrix with zero determinant...");
     return -1; /* result is undefined. */
   }
@@ -191,7 +192,7 @@ pdf_invertmatrix (pdf_tmatrix *M)
   ASSERT(M);
 
   det = detP(M);
-  if (fabs(det) < 1.e-8) {
+  if (fabs(det) < OUR_EPSILON) {
     WARN("Inverting matrix with zero determinant...");
     W.a = 1.0; W.c = 0.0;
     W.b = 0.0; W.d = 1.0;
@@ -539,8 +540,8 @@ pdf_path__elliptarc (pdf_path         *pa,
   int         n_c; /* number of segments */
   int         i, error = 0;
 
-  if (fabs(r_x) < 1.e-8 ||
-      fabs(r_y) < 1.e-8)
+  if (fabs(r_x) < OUR_EPSILON ||
+      fabs(r_y) < OUR_EPSILON)
     return -1;
 
   if (a_d < 0) {
@@ -552,7 +553,7 @@ pdf_path__elliptarc (pdf_path         *pa,
   d_a  = a_1 - a_0;
   for (n_c = 1; fabs(d_a) > 90.0 * n_c; n_c++);
   d_a /= n_c;
-  if (fabs(d_a) < 1.e-8)
+  if (fabs(d_a) < OUR_EPSILON)
     return -1;
 
   a_0 *= M_PI / 180.0;
@@ -712,7 +713,7 @@ pdf_path__isarect (pdf_path *pa,
 static /* __inline__ */ int
 INVERTIBLE_MATRIX (const pdf_tmatrix *M)
 {
-  if (fabs(detP(M)) < 1.e-8) {
+  if (fabs(detP(M)) < OUR_EPSILON) {
     WARN("Transformation matrix not invertible.");
     WARN("--- M = [%g %g %g %g %g %g]",
          M->a, M->b, M->c, M->d, M->e, M->f);
@@ -1315,16 +1316,16 @@ pdf_dev_concat (const pdf_tmatrix *M)
   /* Adobe Reader erases page content if there are
    * non invertible transformation.
    */
-  if (fabs(detP(M)) < 1.0e-8) {
+  if (fabs(detP(M)) < OUR_EPSILON) {
     WARN("Transformation matrix not invertible.");
     WARN("--- M = [%g %g %g %g %g %g]",
          M->a, M->b, M->c, M->d, M->e, M->f);
     return -1;
   }
 
-  if (fabs(M->a - 1.0) > 1.e-8 || fabs(M->b) > 1.e-8
-   || fabs(M->c) > 1.e-8 || fabs(M->d - 1.0) > 1.e-8
-   || fabs(M->e) > 1.e-8 || fabs(M->f) > 1.e-8) {
+  if (fabs(M->a - 1.0) > OUR_EPSILON || fabs(M->b) > OUR_EPSILON
+   || fabs(M->c) > OUR_EPSILON || fabs(M->d - 1.0) > OUR_EPSILON
+   || fabs(M->e) > OUR_EPSILON || fabs(M->f) > OUR_EPSILON) {
     buf[len++] = ' ';
     len += pdf_sprint_matrix(buf + len, M);
     buf[len++] = ' ';
