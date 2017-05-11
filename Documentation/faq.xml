@@ -4,9 +4,9 @@
 [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
-<!ENTITY rev "2.9.5845">
-<!ENTITY date "January 02, 2016">
-<!ENTITY month "January 2016">
+<!ENTITY rev "2.9.6340">
+<!ENTITY date "May 11, 2017">
+<!ENTITY month "May 2017">
 ]>
 
 <article>
@@ -23,7 +23,7 @@
 </author>
 
 <copyright>
-<year>2001&ndash;2015</year>
+<year>2001&ndash;2017</year>
 <holder>Christian Schenk</holder>
 </copyright>
 
@@ -53,14 +53,14 @@ a translation approved by the Free Software Foundation.</para>
 
 <title>About this document</title>
 
-<para>This is the official &MiKTeX; &FAQ;. It is available in the
+<para>This is the official &MiKTeX; &FAQ;.  It is available in the
 following formats:</para>
 
 <itemizedlist>
-<listitem><para>formatted in <ulink url="faq.html">HTML</ulink>
+<listitem><para>formatted in <ulink url="faq.html">&HTML;</ulink>
 entirely on one web page</para></listitem>
 <listitem><para>formatted
-in <ulink url="index.html">HTML</ulink> with one web page per
+in <ulink url="index.html">&HTML;</ulink> with one web page per
 section</para></listitem>
 </itemizedlist>
 
@@ -77,7 +77,7 @@ section</para></listitem>
 <para>What is &MiKTeX;?</para>
 </question>
 <answer>
-<para>&MiKTeX; is a complete &TeX; system for Windows.</para>
+<para>&MiKTeX; is an implementation of &TeXnFriends; for &Windows;, &macOS; and &Linux;.</para>
 </answer>
 </qandaentry>
 
@@ -97,9 +97,15 @@ url="&hqbaseurl;">&hqbaseurl;</ulink>.</para>
 &MiKTeX;?</para>
 </question>
 <answer>
-<para>&MiKTeXCurrentSeries; requires one of the following &Windows; operating
+<para>&MiKTeX; requires one of the following &Windows; operating
 systems:</para>
 <itemizedlist>
+<listitem>
+<para>&Windows10;</para>
+</listitem>
+<listitem>
+<para>&Windows81;</para>
+</listitem>
 <listitem>
 <para>&Windows8;</para>
 </listitem>
@@ -107,22 +113,46 @@ systems:</para>
 <para>&Windows7;</para>
 </listitem>
 <listitem>
-<para>&WindowsVistaServicePack2; (all editions except Starter Edition)</para>
-</listitem>
-<listitem>
-<para>&WindowsXPServicePack3; (all editions except Starter Edition)</para>
+<para>&WindowsServer2012R2;</para>
 </listitem>
 <listitem>
 <para>&WindowsServer2008R2;</para>
 </listitem>
+</itemizedlist>
+</answer>
+</qandaentry>
+
+<qandaentry id="macosver">
+<question>
+<para>Which &macOS; version is required for running &MiKTeX;?</para>
+</question>
+<answer>
+<para>&MiKTeX; requires one of the following &macOS; operating
+systems:</para>
+<itemizedlist>
 <listitem>
-<para>&WindowsServer2008ServicePack2;</para>
+<para>&macOSSierra;</para>
 </listitem>
 <listitem>
-<para>&WindowsServer2003R2;</para>
+<para>&macOSElCapitan;</para>
 </listitem>
 <listitem>
-<para>&WindowsServer2003ServicePack2;</para>
+<para>&macOSYosemite;</para>
+</listitem>
+</itemizedlist>
+</answer>
+</qandaentry>
+
+<qandaentry id="linuxver">
+<question>
+<para>Which &Linux; version is required for running &MiKTeX;?</para>
+</question>
+<answer>
+<para>&MiKTeX; requires one of the following &Linux; operating
+systems:</para>
+<itemizedlist>
+<listitem>
+<para>tbd</para>
 </listitem>
 </itemizedlist>
 </answer>
@@ -142,6 +172,18 @@ used, copied, modified, and redistributed.</para>
 <para>Please visit <ulink
 url="&hqbaseurl;copying">this page</ulink>,
 for more information</para>
+</answer>
+</qandaentry>
+
+<qandaentry id="selling">
+<question>
+<para>Am I allowed to sell &MiKTeX;?</para>
+</question>
+<answer>
+<para>Yes, as long as you honor the licenses of the &MiKTeX;
+components.  For example, many of the components are licensed under
+the &GPL;, which requires you to make their source code
+available.</para>
 </answer>
 </qandaentry>
 

@@ -21,6 +21,7 @@
 <!ENTITY GNU "<application>GNU</application>">
 <!ENTITY GNULinux "&GNU;/Linux">
 <!ENTITY Ghostscript "<application>Ghostscript</application>">
+<!ENTITY GPL "<acronym>GPL</acronym>">
 <!ENTITY HTML "<acronym>HTML</acronym>">
 <!ENTITY HTTP "<acronym>HTTP</acronym>">
 <!ENTITY JBIG2 "<acronym>JBIG2</acronym>">
@@ -73,9 +74,12 @@
 <!ENTITY UTC "<acronym>UTC</acronym>">
 <!ENTITY URW "<acronym>URW</acronym>">
 <!ENTITY Windows "<application>Windows</application>">
+<!ENTITY Windows10 "<application>Windows&nbsp;10</application>">
 <!ENTITY Windows7 "<application>Windows&nbsp;7</application>">
 <!ENTITY Windows8 "<application>Windows&nbsp;8</application>">
+<!ENTITY Windows81 "<application>Windows&nbsp;8.1</application>">
 <!ENTITY WindowsRegistry "<application>Windows Registry</application>">
+<!ENTITY WindowsServer2012R2 "<application>Windows Server&nbsp;2012&nbsp;R2</application>">
 <!ENTITY WindowsServer2003R2 "<application>Windows Server&nbsp;2003&nbsp;R2</application>">
 <!ENTITY WindowsServer2003ServicePack2 "<application>Windows Server&nbsp;2003 with Service Pack&nbsp;2</application>">
 <!ENTITY WindowsServer2008R2 "<application>Windows Server&nbsp;2008&nbsp;R2</application>">
@@ -103,6 +107,10 @@
 <!ENTITY latex "<command>latex</command>">
 <!ENTITY luaTeX "<application>luaTeX</application>">
 <!ENTITY lzma "<command>lzma</command>">
+<!ENTITY macOS "<application>macOS</application>">
+<!ENTITY macOSSierra "<application>macOS&nbsp;Sierra</application>">
+<!ENTITY macOSElCapitan "<application>macOS&nbsp;El&nbsp;Capitan</application>">
+<!ENTITY macOSYosemite "<application>macOS&nbsp;Yosemite</application>">
 <!ENTITY makeinfo "<command>makeinfo</command>">
 <!ENTITY md5walk "<command>md5walk</command>">
 <!ENTITY miktexdvicopy "<command>${MIKTEX_PREFIX}dvicopy</command>">
