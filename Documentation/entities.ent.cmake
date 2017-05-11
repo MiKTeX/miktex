@@ -18,8 +18,7 @@
 <!ENTITY FSF "<acronym>FSF</acronym>">
 <!ENTITY FTP "<acronym>FTP</acronym>">
 <!ENTITY GF "<acronym>GF</acronym>">
-<!ENTITY GNU "<application>GNU</application>">
-<!ENTITY GNULinux "&GNU;/Linux">
+<!ENTITY GNU "<acronym>GNU</acronym>">
 <!ENTITY Ghostscript "<application>Ghostscript</application>">
 <!ENTITY GPL "<acronym>GPL</acronym>">
 <!ENTITY HTML "<acronym>HTML</acronym>">
@@ -29,6 +28,7 @@
 <!ENTITY LPPL "<acronym>LPPL</acronym>">
 <!ENTITY LW35 "<acronym>LW35</acronym>">
 <!ENTITY LaTeX "<application>LaTeX</application>">
+<!ENTITY Linux "<application>Linux</application>">
 <!ENTITY Lua "<application>Lua</application>">
 <!ENTITY MD5Walk "<application>MD5Walk</application>">
 <!ENTITY METAFONT "<application>METAFONT</application>">

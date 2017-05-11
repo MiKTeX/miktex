@@ -96,7 +96,7 @@ package archive files. It is a part of the
 </variablelist>
 
 <para>All but &MPC; and &MD5Walk; are standard utilities which are
-available on all platforms (&Windows;, &GNULinux;, &hellip;). The
+available on all platforms (&Windows;, &Linux;, &hellip;). The
 portable source code of &mpc; and &md5walk; can be obtained from the
 &MiKTeX; project page.</para>
 
