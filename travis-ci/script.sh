@@ -4,3 +4,4 @@ set -ev
 
 cd "${TRAVIS_BUILD_DIR}"/build
 make
+make test
