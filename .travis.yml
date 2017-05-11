@@ -7,7 +7,11 @@ addons:
     packages:
       - g++-5
       - gcc-5
-    
+
+env:
+  global:
+    - MAKEFLAGS="-j 2"
+
 matrix:
   include:
     - os: linux
