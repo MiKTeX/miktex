@@ -27,7 +27,6 @@
    output by web2c.  */
 
 #  include "cpascal.h"
-
 #  if defined(MIKTEX) && defined(round)
 #    undef round
 #  endif

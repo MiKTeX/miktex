@@ -33,7 +33,6 @@ ptexlib.h must be included first!!!
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>
 #endif
-
 #ifdef HAVE_CONFIG_H
 #include <w2c/config.h>
 #endif
@@ -46,7 +45,6 @@ ptexlib.h must be included first!!!
 #    define PATH_MAX 260
 #  endif
 #endif
-
 /* WEB2C macros and prototypes */
 #  include "luatex.h"
 

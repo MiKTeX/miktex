@@ -27,7 +27,6 @@
 #  define CreateFile CreateFileW
 #  include <miktex/unxemu.h>
 #endif
-
 #ifndef _WIN32
 #ifndef _AIX
 #define _FILE_OFFSET_BITS 64 /* Linux, Solaris and HP-UX */

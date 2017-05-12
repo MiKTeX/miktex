@@ -1178,6 +1178,10 @@ void lua_initialize(int ac, char **av)
         }
         /* */
         init_tex_table(Luas);
+        if (lua_only) {
+          if (load_luatex_core_lua(Luas))
+            fprintf(stderr, "Error in execution of luatex-core.lua .\n");
+        }
         if (lua_pcall(Luas, 0, 0, 0)) {
             fprintf(stdout, "%s\n", lua_tostring(Luas, -1));
         lua_traceback(Luas);

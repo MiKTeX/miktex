@@ -33,7 +33,6 @@
 #if defined(MIKTEX)
 #  include "w2c/config.h"
 #endif
-
 #define FONT_METATABLE "fontloader.splinefont"
 #define FONT_SUBFONT_METATABLE "fontloader.splinefont.subfont"
 #define FONT_GLYPHS_METATABLE "fontloader.splinefont.glyphs"

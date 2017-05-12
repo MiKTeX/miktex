@@ -26,7 +26,6 @@
 #if defined(MIKTEX)
 #  include <miktex/KPSE/Emulation.h>
 #endif
-
 char **gww_errors = NULL;
 int gww_error_count = 0;
 

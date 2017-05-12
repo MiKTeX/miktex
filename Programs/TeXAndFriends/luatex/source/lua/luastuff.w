@@ -293,8 +293,6 @@ void luainterpreter(void)
     lua_pushcfunction(L,luatex_loadfile);
     lua_setglobal(L, "loadfile");
 
-    luatex_md5_lua_open(L);
-
     open_oslibext(L);
     open_strlibext(L);
     open_lfslibext(L);

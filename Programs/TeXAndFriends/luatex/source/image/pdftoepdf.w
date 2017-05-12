@@ -27,7 +27,6 @@
 #  include <miktex/utf8wrap.h>
 #  include <inttypes.h>
 #endif
-
 #include "image/epdf.h"
 
 /*

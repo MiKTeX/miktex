@@ -29,7 +29,6 @@
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>
 #endif
-
 #include "basics.h"
 #include "ustring.h"
 #include "gfile.h"
