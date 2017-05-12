@@ -15,6 +15,8 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     sudo apt-get install -y fop
     sudo apt-get install -y pandoc
     sudo apt-get install -y xsltproc
+
+    sudo apt-get install -y ghostscript
     
     sudo apt-get install -y libapr1-dev
     sudo apt-get install -y libaprutil1-dev
@@ -60,9 +62,11 @@ elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
 
     ( brew ls -1 | grep -w dos2unix ) || brew install dos2unix
     ( brew ls -1 | grep -w fop ) || brew install fop
-    ( brew ls -1 | grep -w md5sha1sum ) || brew install md5sha1sum
     ( brew ls -1 | grep -w pandoc ) || brew install pandoc
 
+    ( brew ls -1 | grep -w ghostscript ) || brew install ghostscript
+    ( brew ls -1 | grep -w md5sha1sum ) || brew install md5sha1sum
+    
     brew install harfbuzz --with-graphite2
     
     ( brew ls -1 | grep -w apr ) || brew install apr
