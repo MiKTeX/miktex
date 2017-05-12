@@ -47,6 +47,7 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     fi
 
     if [ -z $MIKTEX_BUILD_POPPLER ]; then
+	sudo apt-get install -y poppler-utils
 	sudo apt-get install -y libpoppler-dev
 	sudo apt-get install -y libpoppler-private-dev
     fi
@@ -59,6 +60,7 @@ elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
 
     ( brew ls -1 | grep -w dos2unix ) || brew install dos2unix
     ( brew ls -1 | grep -w fop ) || brew install fop
+    ( brew ls -1 | grep -w md5sha1sum ) || brew install md5sha1sum
     ( brew ls -1 | grep -w pandoc ) || brew install pandoc
 
     brew install harfbuzz --with-graphite2
