@@ -12,3 +12,5 @@ ${sudo} initexmf --admin --update-fndb
 ${sudo} initexmf --admin --mklinks
 ${sudo} mpm --admin --package-level=basic --upgrade
 ${sudo} initexmf --admin --mkmaps
+
+${sudo} rm -fr ~/.miktex
