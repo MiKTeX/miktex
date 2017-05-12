@@ -34,7 +34,7 @@ add_definitions(
   -DWITH_UPDMAP=1
 )
 
-if(MIKTEX_NATIVE_WINDOWS)
+if(NOT USE_SYSTEM_POPPLER)
   add_definitions(
     -DWITH_POPPLER_UTILS=1
   )

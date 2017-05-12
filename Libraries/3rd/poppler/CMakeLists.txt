@@ -437,6 +437,4 @@ if(WITH_UI_QT)
   add_subdirectory(qt-shared)
 endif()
 
-if(WITH_UI_QT)
-  add_subdirectory(utils)
-endif()
+add_subdirectory(utils)
