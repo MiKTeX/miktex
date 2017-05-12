@@ -28,3 +28,4 @@ matrix:
 before_install: ./travis-ci/before_install.sh
 before_script: ./travis-ci/before_script.sh
 script: ./travis-ci/script.sh
+after_failure: ./travis-ci/after_failure.sh
