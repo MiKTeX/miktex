@@ -4,7 +4,7 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     sudo=sudo
 fi
 
-${sudo} make install
+${sudo} make -s install
 
 ${sudo} mpm --admin --update-db
 ${sudo} initexmf --admin --set-config-value [MPM]AutoInstall=1
