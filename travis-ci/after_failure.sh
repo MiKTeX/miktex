@@ -16,6 +16,6 @@ if [ -d "${TRAVIS_BUILD_DIR}/miktex-testing/build/pdftex" ]; then
     ls -l "${TRAVIS_BUILD_DIR}/miktex-testing/build/pdftex"
 fi
 
-if [ -e "${TRAVIS_BUILD_DIR}/miktex-testing/build/pdftex/miktex-makepk.core" ]; then
-    gdb --batch --quiet -ex "bt" /usr/local/bin/miktex-makepk "${TRAVIS_BUILD_DIR}/miktex-testing/build/pdftex/miktex-makepk.core"
+if [ -e /tmp/miktex-makepk.core ]; then
+    gdb --batch --quiet -ex "bt" /usr/local/bin/miktex-makepk /tmp/miktex-makepk.core
 fi
