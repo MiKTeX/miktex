@@ -145,7 +145,6 @@ set(luamisc_sources
   source/luafilesystem/src/lfs.h
   source/luamd5/luamd5.h
   source/luamd5/md5.c
-  source/luamd5/md5_lua.c
   source/luamd5/md5lib.c
   source/luapeg/lpeg.c
   source/luapeg/lpeg.h
