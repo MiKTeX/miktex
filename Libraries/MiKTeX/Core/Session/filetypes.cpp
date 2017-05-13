@@ -1,6 +1,6 @@
 /* filetypes.cpp: MiKTeX file type registry
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -263,7 +263,7 @@ void SessionImpl::RegisterFileType(FileType fileType)
         exePath += binDir.GetData();
       }
     }
-    PathName myLocation = GetMyLocation(true);
+    PathName myLocation = GetMyLocation(false);
     if (!StringUtil::Contains(exePath.c_str(), myLocation.GetData(), PATH_DELIMITER_STRING))
     {
       if (!exePath.empty())
