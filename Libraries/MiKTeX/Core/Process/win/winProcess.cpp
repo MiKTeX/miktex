@@ -437,6 +437,14 @@ int winProcess::get_ExitCode() const
   {
     MIKTEX_FATAL_WINDOWS_ERROR("GetExitCodeProcess");
   }
+  if (exitCode == STATUS_PENDING)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  else if (exitCode == STATUS_ACCESS_VIOLATION)
+  {
+    MIKTEX_FATAL_ERROR_2(T_("The process terminated due to an access violation."), "fileName", startinfo.FileName);
+  }
   return static_cast<int>(exitCode);
 }
 
