@@ -84,7 +84,7 @@ MPMSTATICFUNC(PathName) PrefixedPackageDefinitionFile(const string& deploymentNa
 
 PackageInstallerImpl::PackageInstallerImpl(shared_ptr<PackageManagerImpl> manager) :
   packageManager(manager),
-  pSession(Session::Get()),
+  session(Session::Get()),
   trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM))
 {
@@ -133,9 +133,9 @@ void PackageInstallerImpl::MyCoUninitialize()
 }
 #endif
 
-void PackageInstallerImpl::SetCallback(PackageInstallerCallback* pCallback)
+void PackageInstallerImpl::SetCallback(PackageInstallerCallback* callback)
 {
-  this->pCallback = pCallback;
+  this->callback = callback;
 }
 
 PackageInstallerImpl::~PackageInstallerImpl()
@@ -286,7 +286,7 @@ bool PackageInstallerImpl::OnError(const string& message)
 void PackageInstallerImpl::ExtractFiles(const PathName& archiveFileName, ArchiveFileType archiveFileType)
 {
   unique_ptr<MiKTeX::Extractor::Extractor> pExtractor(MiKTeX::Extractor::Extractor::CreateExtractor(archiveFileType));
-  pExtractor->Extract(archiveFileName, pSession->GetSpecialPath(SpecialPath::InstallRoot), true, this, TEXMF_PREFIX_DIRECTORY);
+  pExtractor->Extract(archiveFileName, session->GetSpecialPath(SpecialPath::InstallRoot), true, this, TEXMF_PREFIX_DIRECTORY);
 }
 
 void PackageInstallerImpl::InstallDbLight()
@@ -309,7 +309,7 @@ void PackageInstallerImpl::InstallDbLight()
         : "MiKTeXDirect"))));
 
   // path to config dir
-  PathName pathConfigDir(pSession->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_MIKTEX_CONFIG_DIR);
+  PathName pathConfigDir(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_MIKTEX_CONFIG_DIR);
 
   if (repositoryType == RepositoryType::Remote || repositoryType == RepositoryType::Local)
   {
@@ -356,7 +356,7 @@ void PackageInstallerImpl::InstallDbLight()
     PathName pathMpmIniSrc(repository);
     pathMpmIniSrc /= MIKTEXDIRECT_PREFIX_DIR;
     pathMpmIniSrc /= MIKTEX_PATH_MPM_INI;
-    PathName pathMpmIniDst = pSession->GetSpecialPath(SpecialPath::InstallRoot);
+    PathName pathMpmIniDst = session->GetSpecialPath(SpecialPath::InstallRoot);
     pathMpmIniDst /= MIKTEX_PATH_MPM_INI;
     size_t size;
     MyCopyFile(pathMpmIniSrc, pathMpmIniDst, size);
@@ -365,7 +365,7 @@ void PackageInstallerImpl::InstallDbLight()
   {
     PathName pathMpmIniSrc(repository);
     pathMpmIniSrc /= MIKTEX_PATH_MPM_INI;
-    PathName pathMpmIniDst = pSession->GetSpecialPath(SpecialPath::InstallRoot);
+    PathName pathMpmIniDst = session->GetSpecialPath(SpecialPath::InstallRoot);
     pathMpmIniDst /= MIKTEX_PATH_MPM_INI;
     size_t size;
     MyCopyFile(pathMpmIniSrc, pathMpmIniDst, size);
@@ -382,17 +382,17 @@ void PackageInstallerImpl::LoadDbLight(bool download)
 
 #if 1
   // path to mpm.ini
-  PathName pathMpmIni(pSession->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_MPM_INI);
+  PathName pathMpmIni(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_MPM_INI);
 #else
   PathName commonMpmIni(
-    pSession->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_MPM_INI);
+    session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_MPM_INI);
 
   PathName userMpmIni(
-    pSession->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_MPM_INI);
+    session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_MPM_INI);
 
   PathName pathMpmIni;
 
-  if (pSession->IsAdminMode()
+  if (session->IsAdminMode()
     || (
       !download
       && userMpmIni != commonMpmIni
@@ -482,7 +482,7 @@ void PackageInstallerImpl::FindUpdates()
 #if IGNORE_OTHER_SYSTEMS
         && (targetSystem.empty() || targetSystem == MIKTEX_SYSTEM_TAG)
 #endif
-        //&& pSession->IsAdminMode()
+        //&& session->IsAdminMode()
         //&& CompareSerieses(dbLight.GetPackageVersion(deploymentName), MIKTEX_MAJOR_MINOR_STR) == 0
         )
       {
@@ -495,8 +495,8 @@ void PackageInstallerImpl::FindUpdates()
     else
     {
       // clean the user-installation directory
-      if (!pSession->IsAdminMode()
-        && pSession->GetSpecialPath(SpecialPath::UserInstallRoot) != pSession->GetSpecialPath(SpecialPath::CommonInstallRoot)
+      if (!session->IsAdminMode()
+        && session->GetSpecialPath(SpecialPath::UserInstallRoot) != session->GetSpecialPath(SpecialPath::CommonInstallRoot)
         && packageManager->GetUserTimeInstalled(deploymentName) != static_cast<time_t>(0)
         && packageManager->GetCommonTimeInstalled(deploymentName) != static_cast<time_t>(0))
       {
@@ -756,7 +756,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
     }
 
     // make an absolute path name
-    PathName path(pSession->GetSpecialPath(SpecialPath::InstallRoot), fileName);
+    PathName path(session->GetSpecialPath(SpecialPath::InstallRoot), fileName);
 
     // only delete if the reference count reached zero
     if (pInstalledFileInfo != nullptr && pInstalledFileInfo->refCount > 0)
@@ -796,9 +796,9 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
     // remove from MPM FNDB
 #if 0
     if (autoFndbSync
-      && Fndb::Exists(PathName(pSession->GetMpmRootPath(), fileName)))
+      && Fndb::Exists(PathName(session->GetMpmRootPath(), fileName)))
     {
-      Fndb::Remove(PathName(pSession->GetMpmRootPath(), fileName));
+      Fndb::Remove(PathName(session->GetMpmRootPath(), fileName));
     }
 #endif
 
@@ -978,7 +978,7 @@ void PackageInstallerImpl::CopyFiles(const PathName& pathSourceRoot, const vecto
       MIKTEX_FATAL_ERROR_2(FatalError(ERROR_SOURCE_FILE_NOT_FOUND), "file", pathSource.ToString());
     }
 
-    PathName pathDest(pSession->GetSpecialPath(SpecialPath::InstallRoot), fileName);
+    PathName pathDest(session->GetSpecialPath(SpecialPath::InstallRoot), fileName);
 
     PathName pathDestFolder(pathDest);
     pathDestFolder.RemoveFileSpec();
@@ -1081,7 +1081,7 @@ void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, c
 #endif
   for (const string& f : installedFiles)
   {
-    PathName path(pSession->GetMpmRootPath(), f);
+    PathName path(session->GetMpmRootPath(), f);
     if (!Fndb::FileExists(path))
     {
       Fndb::Add(path, lpszPackageName);
@@ -1093,7 +1093,7 @@ void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, c
   }
   for (const string& f : removedFiles)
   {
-    PathName path(pSession->GetMpmRootPath(), f);
+    PathName path(session->GetMpmRootPath(), f);
     if (Fndb::FileExists(path))
     {
       Fndb::Remove(path);
@@ -1211,7 +1211,7 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
   }
 
   // parse the new package definition file
-  PathName pathPackageFile = pSession->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_DEFINITION_DIR / deploymentName;
+  PathName pathPackageFile = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_PACKAGE_DEFINITION_DIR / deploymentName;
   pathPackageFile.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
   TpmParser tpmparser;
   tpmparser.Parse(pathPackageFile);
@@ -1427,7 +1427,7 @@ bool PackageInstallerImpl::CheckArchiveFile(const std::string& deploymentName, c
 void PackageInstallerImpl::ConnectToServer()
 {
   const char* MSG_CANNOT_START_SERVER = T_("Cannot start MiKTeX package manager.");
-  if (!pSession->UnloadFilenameDatabase())
+  if (!session->UnloadFilenameDatabase())
   {
     // ignore for now
   }
@@ -1492,7 +1492,7 @@ void PackageInstallerImpl::ConnectToServer()
 
 void PackageInstallerImpl::RegisterComponent(bool doRegister, const PathName& path, bool mustSucceed)
 {
-  MIKTEX_ASSERT(!pSession->IsMiKTeXPortable());
+  MIKTEX_ASSERT(!session->IsMiKTeXPortable());
   ReportLine("%s %s", (doRegister ? "registering" : "unregistering"), path.GetData());
 #if !USE_REGSVR32
   MIKTEX_ASSERT(path.HasExtension(MIKTEX_SHARED_LIB_FILE_SUFFIX));
@@ -1587,12 +1587,12 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
           {
             continue;
           }
-          PathName pathIn = pSession->GetSpecialPath(SpecialPath::InstallRoot);
+          PathName pathIn = session->GetSpecialPath(SpecialPath::InstallRoot);
           pathIn /= relPathIn;
           if (File::Exists(pathIn))
           {
             ReportLine(T_("configuring %s"), relPath.GetData());
-            pSession->ConfigureFile(relPath);
+            session->ConfigureFile(relPath);
           }
           else
           {
@@ -1601,7 +1601,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
         }
       }
 #if defined(MIKTEX_WINDOWS)
-      if (!pSession->IsMiKTeXPortable() && (pSession->RunningAsAdministrator() || pSession->RunningAsPowerUser()))
+      if (!session->IsMiKTeXPortable() && (session->RunningAsAdministrator() || session->RunningAsPowerUser()))
       {
         for (size_t idx = 0; idx < sizeof(components) / sizeof(components[0]); ++idx)
         {
@@ -1609,7 +1609,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
           {
             continue;
           }
-          PathName path = pSession->GetSpecialPath(SpecialPath::InstallRoot);
+          PathName path = session->GetSpecialPath(SpecialPath::InstallRoot);
           path /= components[idx];
           if (File::Exists(path))
           {
@@ -1635,13 +1635,13 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
     for (const char* comp : toBeConfigured)
     {
       PathName relPath(comp);
-      PathName pathIn(pSession->GetSpecialPath(SpecialPath::InstallRoot));
+      PathName pathIn(session->GetSpecialPath(SpecialPath::InstallRoot));
       pathIn /= relPath;
       pathIn.AppendExtension(".in");
       if (File::Exists(pathIn))
       {
         ReportLine(T_("configuring %s"), relPath.GetData());
-        pSession->ConfigureFile(relPath);
+        session->ConfigureFile(relPath);
       }
       else
       {
@@ -1650,12 +1650,12 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
     }
   }
 #if defined(MIKTEX_WINDOWS)
-  if (!pSession->IsMiKTeXPortable()
-    && (pSession->RunningAsAdministrator() || pSession->RunningAsPowerUser()))
+  if (!session->IsMiKTeXPortable()
+    && (session->RunningAsAdministrator() || session->RunningAsPowerUser()))
   {
     for (const char* comp : components)
     {
-      PathName path(pSession->GetSpecialPath(SpecialPath::InstallRoot));
+      PathName path(session->GetSpecialPath(SpecialPath::InstallRoot));
       path /= comp;
       if (File::Exists(path))
       {
@@ -1675,25 +1675,24 @@ bool MIKTEXTHISCALL PackageInstallerImpl::OnProcessOutput(const void* pOutput, s
   return true;
 }
 
-void PackageInstallerImpl::RunIniTeXMF(const char* lpszArguments)
+void PackageInstallerImpl::RunIniTeXMF(const char* extraArguments)
 {
 #if defined(MIKTEX_WINDOWS)
   // find initexmf
-  PathName exe;
-  if (!pSession->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, exe))
+  PathName initexmf;
+  if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
   {
     MIKTEX_UNEXPECTED();
   }
 
-  // run initexmf.exe
+  // run initexmf
   string arguments;
-  if (pSession->IsAdminMode())
+  if (session->IsAdminMode())
   {
-    arguments = "--admin ";
+    arguments = "--admin";
   }
   // TODO: propagate --enable-installer
-  arguments += lpszArguments;
-  Process::Run(exe, arguments.c_str(), this);
+  Process::Run(initexmf, arguments + " " + extraArguments, this);
 #else
   UNUSED_ALWAYS(lpszArguments);
   #  warning Unimplemented : PackageInstallerImpl::RunIniTeXMF
@@ -1792,7 +1791,7 @@ void PackageInstallerImpl::InstallRemove()
   }
 
   ReportLine(T_("starting package maintenance..."));
-  ReportLine(T_("installation directory: %s"), Q_(pSession->GetSpecialPath(SpecialPath::InstallRoot)));
+  ReportLine(T_("installation directory: %s"), Q_(session->GetSpecialPath(SpecialPath::InstallRoot)));
   if (installing)
   {
     ReportLine(T_("package repository: %s"), Q_(repository));
@@ -1801,7 +1800,7 @@ void PackageInstallerImpl::InstallRemove()
   SetAutoFndbSync(true);
 
   // make sure that mpm.fndb exists
-  if (autoFndbSync && !File::Exists(pSession->GetMpmDatabasePathName()))
+  if (autoFndbSync && !File::Exists(session->GetMpmDatabasePathName()))
   {
     packageManager->CreateMpmFndb();
   }
@@ -1916,7 +1915,7 @@ void PackageInstallerImpl::InstallRemove()
   {
     // refresh file name database now
     ReportLine(T_("refreshing file name database..."));
-    if (!Fndb::Refresh(pSession->GetSpecialPath(SpecialPath::InstallRoot), this))
+    if (!Fndb::Refresh(session->GetSpecialPath(SpecialPath::InstallRoot), this))
     {
       throw OperationCancelledException();
     }
@@ -2141,9 +2140,9 @@ void PackageInstallerImpl::SetUpPackageDefinitionFiles(const PathName& directory
 
 void PackageInstallerImpl::CleanUpUserDatabase()
 {
-  PathName userDir(pSession->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
+  PathName userDir(session->GetSpecialPath(SpecialPath::UserInstallRoot), MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
 
-  PathName commonDir(pSession->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
+  PathName commonDir(session->GetSpecialPath(SpecialPath::CommonInstallRoot), MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
 
   if (!Directory::Exists(userDir) || !Directory::Exists(commonDir))
   {
@@ -2198,7 +2197,7 @@ void PackageInstallerImpl::CleanUpUserDatabase()
 
 void PackageInstallerImpl::HandleObsoletePackageDefinitionFiles(const PathName& temporaryDirectory)
 {
-  PathName pathPackageDir(pSession->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
+  PathName pathPackageDir(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
 
   if (!Directory::Exists(pathPackageDir))
   {
@@ -2315,7 +2314,7 @@ void PackageInstallerImpl::UpdateDb()
   HandleObsoletePackageDefinitionFiles(pkgDir);
 
   // update the package definition directory
-  PathName packageDefinitionDir(pSession->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
+  PathName packageDefinitionDir(session->GetSpecialPath(SpecialPath::InstallRoot), MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
   ReportLine(T_("updating package definition directory (%s)..."), Q_(packageDefinitionDir));
   size_t count = 0;
   unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(pkgDir);
@@ -2384,7 +2383,7 @@ void PackageInstallerImpl::UpdateDb()
   ReportLine(T_("installed %u package definition files"), static_cast<unsigned>(count));
 
   // clean up the user database
-  if (!pSession->IsAdminMode())
+  if (!session->IsAdminMode())
   {
     CleanUpUserDatabase();
   }
@@ -2469,7 +2468,7 @@ string PackageInstallerImpl::FatalError(ErrorCode error)
 
 void PackageInstallerImpl::ReportLine(const char* lpszFormat, ...)
 {
-  if (pCallback == nullptr)
+  if (callback == nullptr)
   {
     return;
   }
@@ -2477,7 +2476,7 @@ void PackageInstallerImpl::ReportLine(const char* lpszFormat, ...)
   va_start(marker, lpszFormat);
   string str = StringUtil::FormatStringVA(lpszFormat, marker);
   va_end(marker);
-  pCallback->ReportLine(str);
+  callback->ReportLine(str);
 }
 
 void PackageInstallerImpl::Dispose()
@@ -2517,13 +2516,13 @@ bool PackageInstallerImpl::UseLocalServer()
   {
     return false;
   }
-  if (!pSession->IsAdminMode())
+  if (!session->IsAdminMode())
   {
     return false;
   }
 #if defined(MIKTEX_WINDOWS)
-  bool elevationRequired = WindowsVersion::IsWindowsVistaOrGreater() && !pSession->RunningAsAdministrator();
-  bool forceLocalServer = pSession->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_FORCE_LOCAL_SERVER, false).GetBool();
+  bool elevationRequired = WindowsVersion::IsWindowsVistaOrGreater() && !session->RunningAsAdministrator();
+  bool forceLocalServer = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_FORCE_LOCAL_SERVER, false).GetBool();
   return elevationRequired || forceLocalServer;
 #else
   return false;
@@ -2589,10 +2588,10 @@ HRESULT PackageInstallerImpl::ReportLine(BSTR line)
 {
   try
   {
-    if (pCallback != nullptr)
+    if (callback != nullptr)
     {
       _bstr_t bstr(line, false);
-      pCallback->ReportLine(static_cast<const char*>(bstr));
+      callback->ReportLine(static_cast<const char*>(bstr));
     }
     return S_OK;
   }
@@ -2610,10 +2609,10 @@ HRESULT PackageInstallerImpl::OnRetryableError(BSTR message, VARIANT_BOOL* pDoCo
 {
   try
   {
-    if (pCallback != nullptr)
+    if (callback != nullptr)
     {
       _bstr_t bstr(message, false);
-      *pDoContinue = pCallback->OnRetryableError(static_cast<const char*>(bstr)) ? VARIANT_TRUE : VARIANT_FALSE;
+      *pDoContinue = callback->OnRetryableError(static_cast<const char*>(bstr)) ? VARIANT_TRUE : VARIANT_FALSE;
     }
     else
     {
@@ -2635,10 +2634,10 @@ HRESULT PackageInstallerImpl::OnProgress(LONG nf, VARIANT_BOOL* pDoContinue)
 {
   try
   {
-    if (pCallback != nullptr)
+    if (callback != nullptr)
     {
       Notification notification((Notification)nf);
-      *pDoContinue = pCallback->OnProgress(notification) ? VARIANT_TRUE : VARIANT_FALSE;
+      *pDoContinue = callback->OnProgress(notification) ? VARIANT_TRUE : VARIANT_FALSE;
     }
     else
     {

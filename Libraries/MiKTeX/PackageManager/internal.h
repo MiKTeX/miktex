@@ -423,11 +423,11 @@ public:
 class DbLight
 {
 private:
-  std::unique_ptr<MiKTeX::Core::Cfg> pcfg;
+  std::unique_ptr<MiKTeX::Core::Cfg> cfg;
 
 public:
   DbLight() :
-    pcfg(MiKTeX::Core::Cfg::Create())
+    cfg(MiKTeX::Core::Cfg::Create())
   {
   }
 
@@ -439,39 +439,39 @@ public:
 public:
   MiKTeX::Core::MD5 GetDigest()
   {
-    return pcfg->GetDigest();
+    return cfg->GetDigest();
   }
 
 private:
   bool TryGetValue(const std::string& deploymentName, const std::string& valueName, std::string& value)
   {
-    return pcfg->TryGetValue(deploymentName, valueName, value);
+    return cfg->TryGetValue(deploymentName, valueName, value);
   }
 
 public:
   void Read(const MiKTeX::Core::PathName& path)
   {
-    pcfg->Read(path);
+    cfg->Read(path);
   }
 
 public:
   std::string FirstPackage()
   {
-    std::shared_ptr<MiKTeX::Core::Cfg::Key> key = pcfg->FirstKey();
+    std::shared_ptr<MiKTeX::Core::Cfg::Key> key = cfg->FirstKey();
     return key == nullptr ? "" : key->GetName();
   }
 
 public:
   std::string NextPackage()
   {
-    std::shared_ptr<MiKTeX::Core::Cfg::Key> key = pcfg->NextKey();
+    std::shared_ptr<MiKTeX::Core::Cfg::Key> key = cfg->NextKey();
     return key == nullptr ? "" : key->GetName();
   }
 
 public:
   void Clear()
   {
-    pcfg = MiKTeX::Core::Cfg::Create();
+    cfg = MiKTeX::Core::Cfg::Create();
   }
 
 public:
@@ -489,7 +489,7 @@ public:
   MiKTeX::Core::MD5 GetArchiveFileDigest(const std::string& deploymentName)
   {
     std::string str;
-    if (!pcfg->TryGetValue(deploymentName, "CabMD5", str))
+    if (!cfg->TryGetValue(deploymentName, "CabMD5", str))
     {
       MIKTEX_FATAL_ERROR_2(T_("Unknown archive file digest."), "package", deploymentName);
     }
@@ -500,7 +500,7 @@ public:
   MiKTeX::Core::MD5 GetPackageDigest(const std::string& deploymentName)
   {
     std::string str;
-    if (!pcfg->TryGetValue(deploymentName, "MD5", str))
+    if (!cfg->TryGetValue(deploymentName, "MD5", str))
     {
       MIKTEX_FATAL_ERROR_2(T_("Unknown package digest."), "package", deploymentName);
     }
@@ -697,7 +697,7 @@ public:
   }
 
 public:
-  void MIKTEXTHISCALL SetCallback(PackageInstallerCallback* pCallback) override;
+  void MIKTEXTHISCALL SetCallback(PackageInstallerCallback* callback) override;
 
 public:
   void MIKTEXTHISCALL SetFileLists(const std::vector<std::string>& tbi, const std::vector<std::string>& tbr) override
@@ -826,13 +826,13 @@ private:
 private:
   bool AbortOrRetry(const std::string& message)
   {
-    return pCallback == nullptr || !pCallback->OnRetryableError(message);
+    return callback == nullptr || !callback->OnRetryableError(message);
   }
 
 private:
   void Notify(MiKTeX::Packages::Notification nf = MiKTeX::Packages::Notification::None)
   {
-    if (pCallback != nullptr && !pCallback->OnProgress(nf))
+    if (callback != nullptr && !callback->OnProgress(nf))
     {
       trace_mpm->WriteLine("libmpm", T_("client wants to cancel"));
       trace_mpm->WriteLine("libmpm", T_("throwing OperationCancelledException"));
@@ -882,7 +882,7 @@ private:
   ProgressInfo progressInfo;
 
 private:
-  std::shared_ptr<MiKTeX::Core::Session> pSession;
+  std::shared_ptr<MiKTeX::Core::Session> session;
 
 private:
   MiKTeX::Core::MiKTeXException threadMiKTeXException;
@@ -1010,7 +1010,7 @@ private:
   std::shared_ptr<PackageManagerImpl> packageManager;
 
 private:
-  MiKTeX::Packages::PackageInstallerCallback* pCallback = nullptr;
+  MiKTeX::Packages::PackageInstallerCallback* callback = nullptr;
 
 private:
   std::vector<UpdateInfo> updates;
