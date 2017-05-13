@@ -1677,7 +1677,6 @@ bool MIKTEXTHISCALL PackageInstallerImpl::OnProcessOutput(const void* pOutput, s
 
 void PackageInstallerImpl::RunIniTeXMF(const char* extraArguments)
 {
-#if defined(MIKTEX_WINDOWS)
   // find initexmf
   PathName initexmf;
   if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
@@ -1693,10 +1692,6 @@ void PackageInstallerImpl::RunIniTeXMF(const char* extraArguments)
   }
   // TODO: propagate --enable-installer
   Process::Run(initexmf, arguments + " " + extraArguments, this);
-#else
-  UNUSED_ALWAYS(lpszArguments);
-  #  warning Unimplemented : PackageInstallerImpl::RunIniTeXMF
-#endif
 }
 
 void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string& deploymentName, bool force, int level)
