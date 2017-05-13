@@ -83,7 +83,7 @@ MPMSTATICFUNC(PathName) PrefixedPackageDefinitionFile(const string& deploymentNa
 }
 
 PackageInstallerImpl::PackageInstallerImpl(shared_ptr<PackageManagerImpl> manager) :
-  pManager(manager),
+  packageManager(manager),
   pSession(Session::Get()),
   trace_error(TraceStream::Open(MIKTEX_TRACE_ERROR)),
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM))
@@ -103,7 +103,7 @@ void PackageInstallerImpl::NeedRepository()
   }
   string repository;
   RepositoryType repositoryType(RepositoryType::Unknown);
-  if (pManager->TryGetDefaultPackageRepository(repositoryType, repository))
+  if (packageManager->TryGetDefaultPackageRepository(repositoryType, repository))
   {
     SetRepository(repository);
   }
@@ -168,7 +168,7 @@ void PackageInstallerImpl::Download(const string& url, const PathName& dest, siz
   }
 
   // open the remote file
-  unique_ptr<WebFile> webFile(pManager->GetWebSession()->OpenUrl(url.c_str()));
+  unique_ptr<WebFile> webFile(packageManager->GetWebSession()->OpenUrl(url.c_str()));
 
   // open the local file
   FileStream destStream(File::Open(dest, FileMode::Create, FileAccess::Write, false));
@@ -295,7 +295,7 @@ void PackageInstallerImpl::InstallDbLight()
   NeedRepository();
   if (repositoryType == RepositoryType::Unknown)
   {
-    repository = pManager->PickRepositoryUrl();
+    repository = packageManager->PickRepositoryUrl();
     repositoryType = RepositoryType::Remote;
   }
 
@@ -470,8 +470,8 @@ void PackageInstallerImpl::FindUpdates()
     updateInfo.timePackaged = dbLight.GetTimePackaged(deploymentName);
     updateInfo.version = dbLight.GetPackageVersion(deploymentName);
 
-    const PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(deploymentName);
-    if (pPackageInfo == nullptr || !pManager->IsPackageInstalled(deploymentName))
+    const PackageInfo* package = packageManager->TryGetPackageInfo(deploymentName);
+    if (package == nullptr || !packageManager->IsPackageInstalled(deploymentName))
     {
 #if defined(MIKTEX_WINDOWS)
 #if IGNORE_OTHER_SYSTEMS
@@ -497,10 +497,10 @@ void PackageInstallerImpl::FindUpdates()
       // clean the user-installation directory
       if (!pSession->IsAdminMode()
         && pSession->GetSpecialPath(SpecialPath::UserInstallRoot) != pSession->GetSpecialPath(SpecialPath::CommonInstallRoot)
-        && pManager->GetUserTimeInstalled(deploymentName) != static_cast<time_t>(0)
-        && pManager->GetCommonTimeInstalled(deploymentName) != static_cast<time_t>(0))
+        && packageManager->GetUserTimeInstalled(deploymentName) != static_cast<time_t>(0)
+        && packageManager->GetCommonTimeInstalled(deploymentName) != static_cast<time_t>(0))
       {
-        if (!pPackageInfo->isRemovable)
+        if (!package->isRemovable)
         {
           MIKTEX_UNEXPECTED();
         }
@@ -512,8 +512,8 @@ void PackageInstallerImpl::FindUpdates()
 
       // check the integrity of installed MiKTeX packages
       if (IsMiKTeXPackage(deploymentName)
-        && !pManager->TryVerifyInstalledPackage(deploymentName)
-        && pPackageInfo->isRemovable)
+        && !packageManager->TryVerifyInstalledPackage(deploymentName)
+        && package->isRemovable)
       {
         // the package has been tampered with
         trace_mpm->WriteFormattedLine("libmpm", T_("%s: package is broken"), deploymentName.c_str());
@@ -525,16 +525,16 @@ void PackageInstallerImpl::FindUpdates()
 
       // compare digests, version numbers and time stamps
       MD5 md5 = dbLight.GetPackageDigest(deploymentName);
-      if (md5 == pPackageInfo->digest)
+      if (md5 == package->digest)
       {
         // digests do match => no update necessary
         continue;
       }
 
       // check release state mismatch
-      bool isReleaseStateDiff = pPackageInfo->releaseState != RepositoryReleaseState::Unknown
+      bool isReleaseStateDiff = package->releaseState != RepositoryReleaseState::Unknown
         && repositoryReleaseState != RepositoryReleaseState::Unknown
-        && pPackageInfo->releaseState != repositoryReleaseState;
+        && package->releaseState != repositoryReleaseState;
       if (isReleaseStateDiff)
       {
         trace_mpm->WriteFormattedLine("libmpm", T_("%s: package release state changed"), deploymentName.c_str());
@@ -544,12 +544,12 @@ void PackageInstallerImpl::FindUpdates()
         trace_mpm->WriteFormattedLine("libmpm", T_("%s: server has a different version"), deploymentName.c_str());
       }
       trace_mpm->WriteFormattedLine("libmpm", T_("server digest: %s"), md5.ToString().c_str());
-      trace_mpm->WriteFormattedLine("libmpm", T_("local digest: %s"), pPackageInfo->digest.ToString().c_str());
+      trace_mpm->WriteFormattedLine("libmpm", T_("local digest: %s"), package->digest.ToString().c_str());
       if (!isReleaseStateDiff)
       {
         // compare time stamps
         time_t timePackaged = dbLight.GetTimePackaged(deploymentName);
-        if (timePackaged <= pPackageInfo->timePackaged)
+        if (timePackaged <= package->timePackaged)
         {
           // server has an older package => no update
           // necessary
@@ -559,7 +559,7 @@ void PackageInstallerImpl::FindUpdates()
         trace_mpm->WriteFormattedLine("libmpm", T_("%s: server has new version"), deploymentName.c_str());
       }
 
-      if (!pPackageInfo->isRemovable)
+      if (!package->isRemovable)
       {
         trace_mpm->WriteFormattedLine("libmpm", T_("%s: no permission to update package"), deploymentName.c_str());
         updateInfo.action = UpdateInfo::KeepAdmin;
@@ -578,16 +578,16 @@ void PackageInstallerImpl::FindUpdates()
     }
   }
 
-  shared_ptr<PackageIterator> pIter(pManager->CreateIterator());
+  shared_ptr<PackageIterator> pIter(packageManager->CreateIterator());
   pIter->AddFilter({ PackageFilter::Obsolete });
-  PackageInfo packageInfo;
-  while (pIter->GetNext(packageInfo))
+  PackageInfo package;
+  while (pIter->GetNext(package))
   {
-    trace_mpm->WriteFormattedLine("libmpm", T_("%s: package is obsolete"), packageInfo.deploymentName.c_str());
+    trace_mpm->WriteFormattedLine("libmpm", T_("%s: package is obsolete"), package.deploymentName.c_str());
     UpdateInfo updateInfo;
-    updateInfo.deploymentName = packageInfo.deploymentName;
-    updateInfo.timePackaged = packageInfo.timePackaged;
-    if (packageInfo.isRemovable)
+    updateInfo.deploymentName = package.deploymentName;
+    updateInfo.timePackaged = package.timePackaged;
+    if (package.isRemovable)
     {
       updateInfo.action = UpdateInfo::ForceRemove;
     }
@@ -662,8 +662,8 @@ void PackageInstallerImpl::FindUpgrades(PackageLevel packageLevel)
   for (string deploymentName = dbLight.FirstPackage(); !deploymentName.empty(); deploymentName = dbLight.NextPackage())
   {
     Notify();
-    const PackageInfo* packageInfo = pManager->TryGetPackageInfo(deploymentName);
-    if (packageInfo != nullptr && pManager->IsPackageInstalled(deploymentName))
+    const PackageInfo* package = packageManager->TryGetPackageInfo(deploymentName);
+    if (package != nullptr && packageManager->IsPackageInstalled(deploymentName))
     {
       continue;
     }
@@ -747,7 +747,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
     bool done = false;
 
     // get information about the installed file
-    InstalledFileInfo* pInstalledFileInfo = pManager->GetInstalledFileInfo(f.c_str());
+    InstalledFileInfo* pInstalledFileInfo = packageManager->GetInstalledFileInfo(f.c_str());
 
     // decrement the file reference counter
     if (pInstalledFileInfo != nullptr && pInstalledFileInfo->refCount > 0)
@@ -823,44 +823,44 @@ void PackageInstallerImpl::RemovePackage(const string& deploymentName)
   ReportLine(T_("removing package %s..."), Q_(deploymentName));
 
   // get package info
-  PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(deploymentName);
-  if (pPackageInfo == nullptr)
+  PackageInfo* package = packageManager->TryGetPackageInfo(deploymentName);
+  if (package == nullptr)
   {
     MIKTEX_UNEXPECTED();
   }
 
   // check to see whether it is installed
-  if (pManager->GetTimeInstalled(deploymentName) == 0)
+  if (packageManager->GetTimeInstalled(deploymentName) == 0)
   {
     MIKTEX_UNEXPECTED();
   }
 
   // clear the installTime value => package is not installed
   trace_mpm->WriteFormattedLine("libmpm", T_("removing %s from the variable package table"), Q_(deploymentName));
-  pManager->SetTimeInstalled(deploymentName, 0);
-  pManager->FlushVariablePackageTable();
-  pPackageInfo->timeInstalled = 0;
+  packageManager->SetTimeInstalled(deploymentName, 0);
+  packageManager->FlushVariablePackageTable();
+  package->timeInstalled = 0;
 
-  if (pManager->IsPackageObsolete(deploymentName))
+  if (packageManager->IsPackageObsolete(deploymentName))
   {
     // it's an obsolete package: make sure that the package
     // definition file gets removed too
-    AddToFileList(pPackageInfo->runFiles, PrefixedPackageDefinitionFile(deploymentName));
+    AddToFileList(package->runFiles, PrefixedPackageDefinitionFile(deploymentName));
   }
   else
   {
     // make sure that the package definition file does not get removed
-    RemoveFromFileList(pPackageInfo->runFiles, PrefixedPackageDefinitionFile(deploymentName));
+    RemoveFromFileList(package->runFiles, PrefixedPackageDefinitionFile(deploymentName));
   }
 
   // remove the files
-  size_t nTotal = (pPackageInfo->runFiles.size()
-    + pPackageInfo->docFiles.size()
-    + pPackageInfo->sourceFiles.size());
+  size_t nTotal = (package->runFiles.size()
+    + package->docFiles.size()
+    + package->sourceFiles.size());
   trace_mpm->WriteFormattedLine("libmpm", T_("going to remove %u file(s)"), static_cast<unsigned>(nTotal));
-  RemoveFiles(pPackageInfo->runFiles);
-  RemoveFiles(pPackageInfo->docFiles);
-  RemoveFiles(pPackageInfo->sourceFiles);
+  RemoveFiles(package->runFiles);
+  RemoveFiles(package->docFiles);
+  RemoveFiles(package->sourceFiles);
 
   trace_mpm->WriteFormattedLine("libmpm", T_("package %s successfully removed"), Q_(deploymentName));
 
@@ -897,14 +897,14 @@ void PackageInstallerImpl::MyCopyFile(const PathName& source, const PathName& de
     }
   }
 
-  FILE* pfileTo;
+  FILE* destinationFile;
 
   // open the destination file
   do
   {
     try
     {
-      pfileTo = File::Open(dest, FileMode::Create, FileAccess::Write, false);
+      destinationFile = File::Open(dest, FileMode::Create, FileAccess::Write, false);
     }
     catch (const MiKTeXException& e)
     {
@@ -927,11 +927,11 @@ void PackageInstallerImpl::MyCopyFile(const PathName& source, const PathName& de
       {
         throw;
       }
-      pfileTo = nullptr;
+      destinationFile = nullptr;
     }
-  } while (pfileTo == nullptr);
+  } while (destinationFile == nullptr);
 
-  FileStream toStream(pfileTo);
+  FileStream toStream(destinationFile);
 
   // open the source file
   FileStream fromStream(File::Open(source, FileMode::Open, FileAccess::Read, false));
@@ -1050,26 +1050,26 @@ void PackageInstallerImpl::CopyPackage(const PathName& pathSourceRoot, const str
   tpmparser.Parse(pathPackageFile);
 
   // get the package info from the parser; set the package name
-  PackageInfo packageInfo = tpmparser.GetPackageInfo();
-  packageInfo.deploymentName = deploymentName;
+  PackageInfo package = tpmparser.GetPackageInfo();
+  package.deploymentName = deploymentName;
 
   // make sure that the package definition file is included in the
   // file list
-  AddToFileList(packageInfo.runFiles, PrefixedPackageDefinitionFile(deploymentName));
+  AddToFileList(package.runFiles, PrefixedPackageDefinitionFile(deploymentName));
 
   // copy the files
-  CopyFiles(pathSourceRoot, packageInfo.runFiles);
-  CopyFiles(pathSourceRoot, packageInfo.docFiles);
-  CopyFiles(pathSourceRoot, packageInfo.sourceFiles);
+  CopyFiles(pathSourceRoot, package.runFiles);
+  CopyFiles(pathSourceRoot, package.docFiles);
+  CopyFiles(pathSourceRoot, package.sourceFiles);
 }
 
 typedef unordered_set<string> StringSet;
 
-MPMSTATICFUNC(void) GetFiles(const PackageInfo& packageInfo, StringSet& files)
+MPMSTATICFUNC(void) GetFiles(const PackageInfo& package, StringSet& files)
 {
-  files.insert(packageInfo.runFiles.begin(), packageInfo.runFiles.end());
-  files.insert(packageInfo.docFiles.begin(), packageInfo.docFiles.end());
-  files.insert(packageInfo.sourceFiles.begin(), packageInfo.sourceFiles.end());
+  files.insert(package.runFiles.begin(), package.runFiles.end());
+  files.insert(package.docFiles.begin(), package.docFiles.end());
+  files.insert(package.sourceFiles.begin(), package.sourceFiles.end());
 }
 
 void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, const vector<string>& removedFiles, const char* lpszPackageName)
@@ -1110,8 +1110,8 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
   trace_mpm->WriteFormattedLine("libmpm", T_("installing package %s"), Q_(deploymentName));
 
   // search the package table
-  PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(deploymentName);
-  if (pPackageInfo == nullptr)
+  PackageInfo* package = packageManager->TryGetPackageInfo(deploymentName);
+  if (package == nullptr)
   {
     MIKTEX_UNEXPECTED();
   }
@@ -1122,11 +1122,11 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
   {
     lock_guard<mutex> lockGuard(progressIndicatorMutex);
     progressInfo.deploymentName = deploymentName;
-    progressInfo.displayName = pPackageInfo->displayName;
+    progressInfo.displayName = package->displayName;
     progressInfo.cFilesPackageInstallCompleted = 0;
-    progressInfo.cFilesPackageInstallTotal = pPackageInfo->GetNumFiles();
+    progressInfo.cFilesPackageInstallTotal = package->GetNumFiles();
     progressInfo.cbPackageInstallCompleted = 0;
-    progressInfo.cbPackageInstallTotal = pPackageInfo->GetSize();
+    progressInfo.cbPackageInstallTotal = package->GetSize();
     if (repositoryType == RepositoryType::Remote)
     {
       progressInfo.cbPackageDownloadCompleted = 0;
@@ -1172,17 +1172,17 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
 
   // silently uninstall the package (this also decrements the file
   // reference counts)
-  if (pManager->IsPackageInstalled(deploymentName))
+  if (packageManager->IsPackageInstalled(deploymentName))
   {
     trace_mpm->WriteFormattedLine("libmpm", T_("%s: removing old files"), deploymentName.c_str());
     // make sure that the package info file does not get removed
-    RemoveFromFileList(pPackageInfo->runFiles, PrefixedPackageDefinitionFile(deploymentName));
-    RemoveFiles(pPackageInfo->runFiles, true);
-    RemoveFiles(pPackageInfo->docFiles, true);
-    RemoveFiles(pPackageInfo->sourceFiles, true);
+    RemoveFromFileList(package->runFiles, PrefixedPackageDefinitionFile(deploymentName));
+    RemoveFiles(package->runFiles, true);
+    RemoveFiles(package->docFiles, true);
+    RemoveFiles(package->sourceFiles, true);
     // temporarily set the status to "not installed"
-    pManager->SetTimeInstalled(deploymentName, 0);
-    pManager->FlushVariablePackageTable();
+    packageManager->SetTimeInstalled(deploymentName, 0);
+    packageManager->FlushVariablePackageTable();
   }
 
   if (repositoryType == RepositoryType::Remote || repositoryType == RepositoryType::Local)
@@ -1217,14 +1217,14 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
   tpmparser.Parse(pathPackageFile);
 
   // get new package info
-  PackageInfo packageInfo = tpmparser.GetPackageInfo();
-  packageInfo.deploymentName = deploymentName;
+  PackageInfo newPackage = tpmparser.GetPackageInfo();
+  newPackage.deploymentName = deploymentName;
 
   // find recycled and brand new files
   StringSet set1;
-  GetFiles(*pPackageInfo, set1);
+  GetFiles(*package, set1);
   StringSet set2;
-  GetFiles(packageInfo, set2);
+  GetFiles(newPackage, set2);
   vector<string> recycledFiles;
   for (const string& s : set1)
   {
@@ -1257,16 +1257,16 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
   }
 
   // set the timeInstalled value => package is installed
-  packageInfo.timeInstalled = time(nullptr);
-  pManager->SetTimeInstalled(deploymentName, packageInfo.timeInstalled);
-  pManager->SetReleaseState(deploymentName, repositoryReleaseState);
-  pManager->FlushVariablePackageTable();
+  newPackage.timeInstalled = time(nullptr);
+  packageManager->SetTimeInstalled(deploymentName, newPackage.timeInstalled);
+  packageManager->SetReleaseState(deploymentName, repositoryReleaseState);
+  packageManager->FlushVariablePackageTable();
 
   // update package info table
-  *pPackageInfo = packageInfo;
+  *package = newPackage;
 
   // increment file ref counts
-  pManager->IncrementFileRefCounts(deploymentName);
+  packageManager->IncrementFileRefCounts(deploymentName);
 
   // update progress info
   {
@@ -1315,12 +1315,11 @@ void PackageInstallerImpl::DownloadPackage(const string& deploymentName)
 
 void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
 {
-  ProgressInfo packageInfo;
+  ProgressInfo package;
 
   if (!downloadOnly)
   {
-    packageInfo.cPackagesInstallTotal =
-      static_cast<unsigned long>(toBeInstalled.size());
+    package.cPackagesInstallTotal = static_cast<unsigned long>(toBeInstalled.size());
   }
 
   NeedRepository();
@@ -1329,13 +1328,13 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
   {
     if (!downloadOnly)
     {
-      PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(p);
-      if (pPackageInfo == nullptr)
+      PackageInfo* installCandidate = packageManager->TryGetPackageInfo(p);
+      if (installCandidate == nullptr)
       {
         MIKTEX_UNEXPECTED();
       }
-      packageInfo.cFilesInstallTotal += pPackageInfo->GetNumFiles();
-      packageInfo.cbInstallTotal += pPackageInfo->GetSize();
+      package.cFilesInstallTotal += installCandidate->GetNumFiles();
+      package.cbInstallTotal += installCandidate->GetSize();
     }
     if (repositoryType == RepositoryType::Remote)
     {
@@ -1348,39 +1347,39 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
           MIKTEX_UNEXPECTED();
         }
       }
-      packageInfo.cbDownloadTotal += iSize;
+      package.cbDownloadTotal += iSize;
     }
   }
 
-  if (packageInfo.cbDownloadTotal > 0)
+  if (package.cbDownloadTotal > 0)
   {
-    ReportLine(T_("going to download %u bytes"), packageInfo.cbDownloadTotal);
+    ReportLine(T_("going to download %u bytes"), package.cbDownloadTotal);
   }
 
-  if (!downloadOnly && toBeInstalled.size() > 0)
+  if (!downloadOnly && !toBeInstalled.empty())
   {
-    ReportLine(T_("going to install %u file(s) (%u package(s))"), packageInfo.cFilesInstallTotal, packageInfo.cPackagesInstallTotal);
+    ReportLine(T_("going to install %u file(s) (%u package(s))"), package.cFilesInstallTotal, package.cPackagesInstallTotal);
   }
 
-  if (!downloadOnly && toBeRemoved.size() > 0)
+  if (!downloadOnly && !toBeRemoved.empty())
   {
-    packageInfo.cPackagesRemoveTotal = static_cast<unsigned long>(toBeRemoved.size());
+    package.cPackagesRemoveTotal = static_cast<unsigned long>(toBeRemoved.size());
 
     for (const string& p : toBeRemoved)
     {
-      PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(p);
-      if (pPackageInfo == nullptr)
+      PackageInfo* removeCandidate = packageManager->TryGetPackageInfo(p);
+      if (removeCandidate == nullptr)
       {
         MIKTEX_UNEXPECTED();
       }
-      packageInfo.cFilesRemoveTotal += pPackageInfo->GetNumFiles();
+      package.cFilesRemoveTotal += removeCandidate->GetNumFiles();
     }
 
-    ReportLine(T_("going to remove %u file(s) (%u package(s))"), packageInfo.cFilesRemoveTotal, packageInfo.cPackagesRemoveTotal);
+    ReportLine(T_("going to remove %u file(s) (%u package(s))"), package.cFilesRemoveTotal, package.cPackagesRemoveTotal);
   }
 
   lock_guard<mutex> lockGuard(progressIndicatorMutex);
-  progressInfo = packageInfo;
+  progressInfo = package;
 }
 
 bool PackageInstallerImpl::ReadDirectory(const PathName& path, vector<string>& subDirNames, vector<string>& fileNames, vector<string>& fileNameInfos)
@@ -1565,12 +1564,12 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
 {
   for (const string& p : packages)
   {
-    PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(p);
-    if (pPackageInfo == nullptr)
+    PackageInfo* package = packageManager->TryGetPackageInfo(p);
+    if (package == nullptr)
     {
       MIKTEX_UNEXPECTED();
     }
-    for (const string& f : pPackageInfo->runFiles)
+    for (const string& f : package->runFiles)
     {
       string fileName;
       if (!PackageManager::StripTeXMFPrefix(f, fileName))
@@ -1707,15 +1706,15 @@ void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string
   {
     MIKTEX_UNEXPECTED();
   }
-  PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(deploymentName);
-  if (pPackageInfo != nullptr)
+  PackageInfo* package = packageManager->TryGetPackageInfo(deploymentName);
+  if (package != nullptr)
   {
-    for (const string& p : pPackageInfo->requiredPackages)
+    for (const string& p : package->requiredPackages)
     {
       CheckDependencies(packages, p, force, level + 1);
     }
   }
-  if (force || !pManager->IsPackageInstalled(deploymentName))
+  if (force || !packageManager->IsPackageInstalled(deploymentName))
   {
     packages.insert(deploymentName);
   }
@@ -1783,12 +1782,12 @@ void PackageInstallerImpl::InstallRemove()
     if (repositoryType == RepositoryType::Unknown)
     {
       // we must have a package repository
-      repository = pManager->PickRepositoryUrl();
+      repository = packageManager->PickRepositoryUrl();
       repositoryType = RepositoryType::Remote;
     }
     else if (repositoryType == RepositoryType::Remote)
     {
-      repositoryReleaseState = pManager->VerifyPackageRepository(repository).releaseState;
+      repositoryReleaseState = packageManager->VerifyPackageRepository(repository).releaseState;
     }
   }
 
@@ -1804,12 +1803,12 @@ void PackageInstallerImpl::InstallRemove()
   // make sure that mpm.fndb exists
   if (autoFndbSync && !File::Exists(pSession->GetMpmDatabasePathName()))
   {
-    pManager->CreateMpmFndb();
+    packageManager->CreateMpmFndb();
   }
 
-  if (toBeInstalled.size() > 1 || toBeRemoved.size() > 0)
+  if (toBeInstalled.size() > 1 || !toBeRemoved.empty())
   {
-    pManager->NeedInstalledFileInfoTable();
+    packageManager->NeedInstalledFileInfoTable();
   }
 
   // collect all packages, if no packages were specified by the caller
@@ -1866,7 +1865,7 @@ void PackageInstallerImpl::InstallRemove()
       toBeInstalled.push_back(deploymentName);
     } while (!(deploymentName = dbLight.NextPackage()).empty());
   }
-  else if (toBeInstalled.size() > 0)
+  else if (!toBeInstalled.empty())
   {
     // we need mpm.ini, if packages are to be installed
     LoadDbLight(false);
@@ -1921,7 +1920,7 @@ void PackageInstallerImpl::InstallRemove()
     {
       throw OperationCancelledException();
     }
-    pManager->CreateMpmFndb();
+    packageManager->CreateMpmFndb();
   }
 
   if (!noPostProcessing)
@@ -1984,12 +1983,12 @@ void PackageInstallerImpl::Download()
 
   if (repositoryType == RepositoryType::Remote)
   {
-    repositoryReleaseState = pManager->VerifyPackageRepository(repository).releaseState;
+    repositoryReleaseState = packageManager->VerifyPackageRepository(repository).releaseState;
   }
 
   if (repositoryType == RepositoryType::Unknown)
   {
-    repository = pManager->PickRepositoryUrl();
+    repository = packageManager->PickRepositoryUrl();
     repositoryType = RepositoryType::Remote;
   }
 
@@ -2230,7 +2229,7 @@ void PackageInstallerImpl::HandleObsoletePackageDefinitionFiles(const PathName& 
     string deploymentName = name.GetFileNameWithoutExtension().ToString();
 
     // check to see whether the obsolete package is installed
-    if (pManager->GetTimeInstalled(deploymentName) == 0 || IsPureContainer(deploymentName))
+    if (packageManager->GetTimeInstalled(deploymentName) == 0 || IsPureContainer(deploymentName))
     {
       // not installed: remove the package definition file
       trace_mpm->WriteFormattedLine("libmpm", T_("removing obsolete %s"), Q_(name));
@@ -2241,13 +2240,13 @@ void PackageInstallerImpl::HandleObsoletePackageDefinitionFiles(const PathName& 
       // installed: declare the package as obsolete (we wont
       // uninstall obsolete packages)
       trace_mpm->WriteFormattedLine("libmpm", T_("declaring %s obsolete"), Q_(deploymentName));
-      pManager->DeclarePackageObsolete(deploymentName, true);
+      packageManager->DeclarePackageObsolete(deploymentName, true);
     }
   }
 
   pLister->Close();
 
-  pManager->FlushVariablePackageTable();
+  packageManager->FlushVariablePackageTable();
 }
 
 void PackageInstallerImpl::UpdateDb()
@@ -2279,12 +2278,12 @@ void PackageInstallerImpl::UpdateDb()
 
   if (repositoryType == RepositoryType::Unknown)
   {
-    repository = pManager->PickRepositoryUrl();
+    repository = packageManager->PickRepositoryUrl();
     repositoryType = RepositoryType::Remote;
   }
   else if (repositoryType == RepositoryType::Remote)
   {
-    repositoryReleaseState = pManager->VerifyPackageRepository(repository).releaseState;
+    repositoryReleaseState = packageManager->VerifyPackageRepository(repository).releaseState;
   }
 
   // we might need a temporary directory
@@ -2341,7 +2340,7 @@ void PackageInstallerImpl::UpdateDb()
     PathName currentPackageDefinitionfile(packageDefinitionDir, name);
 
     // ignore package, if package is already installed
-    if (!IsPureContainer(deploymentName) && pManager->IsPackageInstalled(deploymentName))
+    if (!IsPureContainer(deploymentName) && packageManager->IsPackageInstalled(deploymentName))
     {
 #if 0
       if (File::Exists(currentPackageDefinitionfile))
@@ -2356,7 +2355,7 @@ void PackageInstallerImpl::UpdateDb()
 #if 0
     PackageInfo currentPackageInfo;
     if (!IsPureContainer(szDeploymentName)
-      && pManager->TryGetPackageInfo(szDeploymentName, currentPackageInfo)
+      && packageManager->TryGetPackageInfo(szDeploymentName, currentPackageInfo)
       && tpmparser.GetPackageInfo().digest == currentPackageInfo.digest)
     {
       // nothing new
@@ -2375,7 +2374,7 @@ void PackageInstallerImpl::UpdateDb()
     File::Copy(newPackageDefinitionFile, currentPackageDefinitionfile);
 
     // update the database
-    pManager->DefinePackage(deploymentName, tpmparser.GetPackageInfo());
+    packageManager->DefinePackage(deploymentName, tpmparser.GetPackageInfo());
 
     ++count;
   }
@@ -2395,10 +2394,10 @@ void PackageInstallerImpl::UpdateDb()
 
   // force a reload of the database
   dbLight.Clear();
-  pManager->ClearAll();
+  packageManager->ClearAll();
 
   // create the MPM file name database
-  pManager->CreateMpmFndb();
+  packageManager->CreateMpmFndb();
 }
 
 void PackageInstallerImpl::UpdateDbAsync()

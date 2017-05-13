@@ -1007,7 +1007,7 @@ private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_mpm;
 
 private:
-  std::shared_ptr<PackageManagerImpl> pManager;
+  std::shared_ptr<PackageManagerImpl> packageManager;
 
 private:
   MiKTeX::Packages::PackageInstallerCallback* pCallback = nullptr;
