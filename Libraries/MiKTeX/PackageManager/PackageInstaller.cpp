@@ -600,11 +600,11 @@ void PackageInstallerImpl::FindUpdates()
 
   if (maverick)
   {
-    for (vector<UpdateInfo>::iterator it = updates.begin(); it != updates.end(); ++it)
+    for (UpdateInfo& upd : updates)
     {
-      if (PathName::Compare(it->deploymentName, MAVERICK) != 0 && it->action == UpdateInfo::Update)
+      if (PathName::Compare(upd.deploymentName, MAVERICK) != 0 && upd.action == UpdateInfo::Update)
       {
-        it->action = UpdateInfo::Keep;
+        upd.action = UpdateInfo::Keep;
       }
     }
   }
@@ -733,13 +733,13 @@ void PackageInstallerImpl::FindUpgradesThread()
 
 void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool silently)
 {
-  for (vector<string>::const_iterator it = toBeRemoved.begin(); it != toBeRemoved.end(); ++it)
+  for (const string& f : toBeRemoved)
   {
     Notify(Notification::RemoveFileStart);
 
     // only consider texmf files
     string fileName;
-    if (!PackageManager::StripTeXMFPrefix(*it, fileName))
+    if (!PackageManager::StripTeXMFPrefix(f, fileName))
     {
       continue;
     }
@@ -747,7 +747,7 @@ void PackageInstallerImpl::RemoveFiles(const vector<string>& toBeRemoved, bool s
     bool done = false;
 
     // get information about the installed file
-    InstalledFileInfo* pInstalledFileInfo = pManager->GetInstalledFileInfo(it->c_str());
+    InstalledFileInfo* pInstalledFileInfo = pManager->GetInstalledFileInfo(f.c_str());
 
     // decrement the file reference counter
     if (pInstalledFileInfo != nullptr && pInstalledFileInfo->refCount > 0)
@@ -960,13 +960,13 @@ void PackageInstallerImpl::MyCopyFile(const PathName& source, const PathName& de
 
 void PackageInstallerImpl::CopyFiles(const PathName& pathSourceRoot, const vector<string>& fileList)
 {
-  for (vector<string>::const_iterator it = fileList.begin(); it != fileList.end(); ++it)
+  for (const string& f : fileList)
   {
     Notify();
 
     // only consider texmf files
     string fileName;
-    if (!(PackageManager::StripTeXMFPrefix(*it, fileName)))
+    if (!(PackageManager::StripTeXMFPrefix(f, fileName)))
     {
       continue;
     }
@@ -1017,9 +1017,9 @@ void PackageInstallerImpl::CopyFiles(const PathName& pathSourceRoot, const vecto
 void PackageInstallerImpl::AddToFileList(vector<string>& fileList, const PathName& fileName) const
 {
   // avoid duplicates
-  for (vector<string>::const_iterator it = fileList.begin(); it != fileList.end(); ++it)
+  for (const string& f : fileList)
   {
-    if (PathName::Compare(*it, fileName.ToString()) == 0)
+    if (PathName::Compare(f, fileName.ToString()) == 0)
     {
       return;
     }
@@ -1079,10 +1079,9 @@ void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, c
   ReportLine(T_("  %u records to be added"), installedFiles.size());
   ReportLine(T_("  %u records to be removed"), removedFiles.size());
 #endif
-  vector<string>::const_iterator it;
-  for (it = installedFiles.begin(); it != installedFiles.end(); ++it)
+  for (const string& f : installedFiles)
   {
-    PathName path(pSession->GetMpmRootPath(), *it);
+    PathName path(pSession->GetMpmRootPath(), f);
     if (!Fndb::FileExists(path))
     {
       Fndb::Add(path, lpszPackageName);
@@ -1092,9 +1091,9 @@ void PackageInstallerImpl::UpdateMpmFndb(const vector<string>& installedFiles, c
       trace_mpm->WriteFormattedLine("libmpm", T_("%s already exists in mpm fndb"), Q_(path));
     }
   }
-  for (it = removedFiles.begin(); it != removedFiles.end(); ++it)
+  for (const string& f : removedFiles)
   {
-    PathName path(pSession->GetMpmRootPath(), *it);
+    PathName path(pSession->GetMpmRootPath(), f);
     if (Fndb::FileExists(path))
     {
       Fndb::Remove(path);
@@ -1226,26 +1225,25 @@ void PackageInstallerImpl::InstallPackage(const string& deploymentName)
   GetFiles(*pPackageInfo, set1);
   StringSet set2;
   GetFiles(packageInfo, set2);
-  StringSet::const_iterator it;
   vector<string> recycledFiles;
-  for (it = set1.begin(); it != set1.end(); ++it)
+  for (const string& s : set1)
   {
-    if (set2.find(*it) == set2.end())
+    if (set2.find(s) == set2.end())
     {
       string str;
-      if (PackageManager::StripTeXMFPrefix(*it, str))
+      if (PackageManager::StripTeXMFPrefix(s, str))
       {
         recycledFiles.push_back(str);
       }
     }
   }
   vector<string> newFiles;
-  for (it = set2.begin(); it != set2.end(); ++it)
+  for (const string& s : set2)
   {
-    if (set1.find(*it) == set1.end())
+    if (set1.find(s) == set1.end())
     {
       string str;
-      if (PackageManager::StripTeXMFPrefix(*it, str))
+      if (PackageManager::StripTeXMFPrefix(s, str))
       {
         newFiles.push_back(str);
       }
@@ -1317,8 +1315,6 @@ void PackageInstallerImpl::DownloadPackage(const string& deploymentName)
 
 void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
 {
-  vector<string>::const_iterator it;
-
   ProgressInfo packageInfo;
 
   if (!downloadOnly)
@@ -1329,11 +1325,11 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
 
   NeedRepository();
 
-  for (it = toBeInstalled.begin(); it != toBeInstalled.end(); ++it)
+  for (const string& p : toBeInstalled)
   {
     if (!downloadOnly)
     {
-      PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(*it);
+      PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(p);
       if (pPackageInfo == nullptr)
       {
         MIKTEX_UNEXPECTED();
@@ -1343,11 +1339,11 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
     }
     if (repositoryType == RepositoryType::Remote)
     {
-      int iSize = dbLight.GetArchiveFileSize(*it);
+      int iSize = dbLight.GetArchiveFileSize(p);
       if (iSize == 0)
       {
         LoadDbLight(true);
-        if ((iSize = dbLight.GetArchiveFileSize(*it)) == 0)
+        if ((iSize = dbLight.GetArchiveFileSize(p)) == 0)
         {
           MIKTEX_UNEXPECTED();
         }
@@ -1370,9 +1366,9 @@ void PackageInstallerImpl::CalculateExpenditure(bool downloadOnly)
   {
     packageInfo.cPackagesRemoveTotal = static_cast<unsigned long>(toBeRemoved.size());
 
-    for (it = toBeRemoved.begin(); it != toBeRemoved.end(); ++it)
+    for (const string& p : toBeRemoved)
     {
-      PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(*it);
+      PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(p);
       if (pPackageInfo == nullptr)
       {
         MIKTEX_UNEXPECTED();
@@ -1567,17 +1563,17 @@ static const char* const toBeConfigured[] = {
 
 void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<string>& packages)
 {
-  for (vector<string>::const_iterator it = packages.begin(); it != packages.end(); ++it)
+  for (const string& p : packages)
   {
-    PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(*it);
+    PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(p);
     if (pPackageInfo == nullptr)
     {
       MIKTEX_UNEXPECTED();
     }
-    for (vector<string>::const_iterator it2 = pPackageInfo->runFiles.begin(); it2 != pPackageInfo->runFiles.end(); ++it2)
+    for (const string& f : pPackageInfo->runFiles)
     {
       string fileName;
-      if (!PackageManager::StripTeXMFPrefix(*it2, fileName))
+      if (!PackageManager::StripTeXMFPrefix(f, fileName))
       {
         continue;
       }
@@ -1637,9 +1633,9 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
 {
   if (doRegister)
   {
-    for (size_t idx = 0; idx < sizeof(toBeConfigured) / sizeof(toBeConfigured[0]); ++idx)
+    for (const char* comp : toBeConfigured)
     {
-      PathName relPath(toBeConfigured[idx]);
+      PathName relPath(comp);
       PathName pathIn(pSession->GetSpecialPath(SpecialPath::InstallRoot));
       pathIn /= relPath;
       pathIn.AppendExtension(".in");
@@ -1658,10 +1654,10 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
   if (!pSession->IsMiKTeXPortable()
     && (pSession->RunningAsAdministrator() || pSession->RunningAsPowerUser()))
   {
-    for (size_t idx = 0; idx < sizeof(components) / sizeof(components[0]); ++idx)
+    for (const char* comp : components)
     {
       PathName path(pSession->GetSpecialPath(SpecialPath::InstallRoot));
-      path /= components[idx];
+      path /= comp;
       if (File::Exists(path))
       {
         RegisterComponent(doRegister, path, doRegister && WindowsVersion::IsWindowsVistaOrGreater());
@@ -1714,9 +1710,9 @@ void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string
   PackageInfo* pPackageInfo = pManager->TryGetPackageInfo(deploymentName);
   if (pPackageInfo != nullptr)
   {
-    for (vector<string>::const_iterator it = pPackageInfo->requiredPackages.begin(); it != pPackageInfo->requiredPackages.end(); ++it)
+    for (const string& p : pPackageInfo->requiredPackages)
     {
-      CheckDependencies(packages, *it, force, level + 1);
+      CheckDependencies(packages, p, force, level + 1);
     }
   }
   if (force || !pManager->IsPackageInstalled(deploymentName))
@@ -1734,17 +1730,17 @@ void PackageInstallerImpl::InstallRemove()
   {
     HResult hr;
     ConnectToServer();
-    for (vector<string>::const_iterator it = toBeInstalled.begin(); it != toBeInstalled.end(); ++it)
+    for (const string& p : toBeInstalled)
     {
-      hr = localServer.pInstaller->Add(_bstr_t(it->c_str()), VARIANT_TRUE);
+      hr = localServer.pInstaller->Add(_bstr_t(p.c_str()), VARIANT_TRUE);
       if (hr.Failed())
       {
         MIKTEX_FATAL_ERROR_2(T_("Cannot communicate with mpmsvc."), "hr", hr.GetText());
       }
     }
-    for (vector<string>::const_iterator it = toBeRemoved.begin(); it != toBeRemoved.end(); ++it)
+    for (const string& p : toBeRemoved)
     {
-      HResult hr = localServer.pInstaller->Add(_bstr_t(it->c_str()), VARIANT_FALSE);
+      HResult hr = localServer.pInstaller->Add(_bstr_t(p.c_str()), VARIANT_FALSE);
       if (hr.Failed())
       {
         MIKTEX_FATAL_ERROR_2(T_("Cannot communicate with mpmsvc."), "hr", hr.GetText());
@@ -1878,40 +1874,38 @@ void PackageInstallerImpl::InstallRemove()
 
   // check dependencies
   set<string> tmp;
-  for (vector<string>::const_iterator it = toBeInstalled.begin(); it != toBeInstalled.end(); ++it)
+  for (const string& p : toBeInstalled)
   {
-    CheckDependencies(tmp, *it, true, 0);
+    CheckDependencies(tmp, p, true, 0);
   }
   toBeInstalled.assign(tmp.begin(), tmp.end());
 
   // calculate total size and more
   CalculateExpenditure();
 
-  vector<string>::const_iterator it;
-
   RegisterComponents(false, toBeInstalled, toBeRemoved);
 
   // install packages
-  for (it = toBeInstalled.begin(); it != toBeInstalled.end(); ++it)
+  for (const string& p : toBeInstalled)
   {
-    InstallPackage(*it);
+    InstallPackage(p);
   }
 
   // remove packages
-  for (it = toBeRemoved.begin(); it != toBeRemoved.end(); ++it)
+  for (const string& p : toBeRemoved)
   {
-    RemovePackage(*it);
+    RemovePackage(p);
   }
 
   // check dependencies (install missing required packages)
   tmp.clear();
-  for (vector<string>::const_iterator it = toBeInstalled.begin(); it != toBeInstalled.end(); ++it)
+  for (const string& p : toBeInstalled)
   {
-    CheckDependencies(tmp, *it, false, 0);
+    CheckDependencies(tmp, p, false, 0);
   }
-  for (set<string>::const_iterator it = tmp.begin(); it != tmp.end(); ++it)
+  for (const string& p : tmp)
   {
-    InstallPackage(*it);
+    InstallPackage(p);
   }
 
   if (!noPostProcessing)
@@ -2073,9 +2067,9 @@ void PackageInstallerImpl::Download()
   Download(MIKTEX_MPM_DB_FULL_FILE_NAME);
 
   // download archive files
-  for (vector<string>::const_iterator it = toBeInstalled.begin(); it != toBeInstalled.end(); ++it)
+  for (const string& p : toBeInstalled)
   {
-    DownloadPackage(*it);
+    DownloadPackage(p);
   }
 }
 
@@ -2196,10 +2190,10 @@ void PackageInstallerImpl::CleanUpUserDatabase()
   pLister->Close();
 
   // remove redundant user package definition files
-  for (vector<PathName>::const_iterator it = toBeRemoved.begin(); it != toBeRemoved.end(); ++it)
+  for (const PathName& p : toBeRemoved)
   {
-    trace_mpm->WriteFormattedLine("libmpm", T_("removing redundant package definition file: %s"), Q_(*it));
-    File::Delete(*it, { FileDeleteOption::TryHard });
+    trace_mpm->WriteFormattedLine("libmpm", T_("removing redundant package definition file: %s"), Q_(p));
+    File::Delete(p, { FileDeleteOption::TryHard });
   }
 }
 
