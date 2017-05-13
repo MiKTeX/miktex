@@ -12,10 +12,10 @@ if [ -d ~/.miktex/texmfs/data/miktex/log ]; then
     curl -sT logs.tar.xz chunk.io
 fi
 
-if [ -d "${TRAVIS_BUILD_DIR}/miktex-testing/build" ]; then
-    ls -l "${TRAVIS_BUILD_DIR}/miktex-testing/build"
+if [ -d "${TRAVIS_BUILD_DIR}/miktex-testing/build/pdftex" ]; then
+    ls -l "${TRAVIS_BUILD_DIR}/miktex-testing/build/pdftex"
 fi
 
-if [ -e "${TRAVIS_BUILD_DIR}/miktex-testing/build/miktex-makepk.core" ]; then
-    gdb --batch --quiet -ex "bt" /usr/local/bin/miktex-makepk "${TRAVIS_BUILD_DIR}/miktex-testing/build/miktex-makepk.core"
+if [ -e "${TRAVIS_BUILD_DIR}/miktex-testing/build/pdftex/miktex-makepk.core" ]; then
+    gdb --batch --quiet -ex "bt" /usr/local/bin/miktex-makepk "${TRAVIS_BUILD_DIR}/miktex-testing/build/pdftex/miktex-makepk.core"
 fi
