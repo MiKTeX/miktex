@@ -404,15 +404,30 @@ void unxProcess::WaitForExit()
 {
   if (this->pid > 0)
   {
-    SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("waiting for process %d"), static_cast<int>(this->pid));
+    auto session = SessionImpl::GetSession();
+    session->trace_process->WriteFormattedLine("core", T_("waiting for process %d"), static_cast<int>(this->pid));
     pid_t pid = this->pid;
     this->pid = -1;
     if (waitpid(pid, &status, 0) <= 0)
     {
       MIKTEX_FATAL_CRT_ERROR("waitpid");
     }
-    MIKTEX_ASSERT(WIFEXITED(status) != 0);
-    SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("process %d exited with status %d"), static_cast<int>(pid),WEXITSTATUS(status));
+    if (WIFEXITED(status) != 0)
+    {
+      session->trace_process->WriteFormattedLine("core", T_("process %d exited with status %d"), static_cast<int>(pid), WEXITSTATUS(status));
+    }
+    else if (WIFSIGNALED(status) != 0)
+    {
+      session->trace_process->WriteFormattedLine("core", T_("process %d terminated due to signal %d"), static_cast<int>(pid), WTERMSIG(status));
+    }
+    else if (WIFSTOPPED(status) != 0)
+    {
+      session->trace_process->WriteFormattedLine("core", T_("process %d stopped due to signal %d"), static_cast<int>(pid), WSTOPSIG(status));
+    }
+    else if (WIFCONTINUED(status) != 0)
+    {
+      session->trace_process->WriteFormattedLine("core", T_("process %d continued"));
+    }
   }
 }
 
@@ -444,11 +459,18 @@ bool unxProcess::WaitForExit(int milliseconds)
 
 int unxProcess::get_ExitCode() const
 {
-  if (WIFEXITED(status) == 0)
+  if (WIFEXITED(status) != 0)
+  {
+    return WEXITSTATUS(status);
+  }
+  else if (WIFSIGNALED(status) != 0)
+  {
+    MIKTEX_FATAL_ERROR_2(T_("Process terminated due to a signal."), "fileName", startinfo.FileName, "signal", std::to_string(WTERMSIG(status)));
+  }
+  else
   {
     MIKTEX_UNEXPECTED();
   }
-  return WEXITSTATUS(status);
 }
 
 string ConfStr(int name)
