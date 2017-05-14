@@ -9,6 +9,8 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     
     sudo apt-get -qq update
 
+    sudo apt-get install -y gdb
+
     sudo apt-get install -y pkg-config
 
     sudo apt-get install -y dos2unix

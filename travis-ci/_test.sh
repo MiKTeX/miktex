@@ -14,6 +14,7 @@ fi
 ${cmake} ..
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+    sudo ulimit -c unlimited -S
     sudo sysctl -w "kernel.core_pattern=/tmp/%e.core"
 fi
 
