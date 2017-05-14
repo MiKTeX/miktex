@@ -1,6 +1,6 @@
 /* inliners.h:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -142,6 +142,15 @@ inline void SkipNonDigit(const char * & lpsz)
   {
     ++lpsz;
   }
+}
+
+inline size_t SkipNonDigit(const std::string& s, size_t pos = 0)
+{
+  while (pos < s.length() && !IsDigit(s[pos]))
+  {
+    ++pos;
+  }
+  return pos;
 }
 
 END_INTERNAL_NAMESPACE;

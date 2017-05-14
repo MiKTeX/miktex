@@ -1,4 +1,4 @@
-/* makepk.c:
+/* makepk.cpp:
 
    Copyright (C) 1998-2017 Christian Schenk
 
@@ -46,13 +46,13 @@ private:
   END_OPTION_MAP();
 
 private:
-  void MakeModeName(string& mode, int bdpi);
+  string MakeModeName(int bdpi);
 
 private:
   void MakePKFilename(const char* lpszName, int bdpi, int dpi, PathName& result);
 
 private:
-  void CheckOptions(int* pBaseDPI, int dpi, const char* lpszMode);
+  void CheckOptions(int* pBaseDPI, int dpi, const string& mode);
 
 private:
   void ExtraPS2PKOptions(const FontMapEntry& mapEntry, CommandLineBuilder& arguments);
@@ -232,7 +232,7 @@ void MakePk::MakePKFilename(const char* lpszName, int bdpi, int dpi, PathName& r
   result = temp;
 }
 
-void MakePk::MakeModeName(string& mode, int bdpi)
+string MakePk::MakeModeName(int bdpi)
 {
   if (bdpi == 0)
   {
@@ -243,7 +243,7 @@ void MakePk::MakeModeName(string& mode, int bdpi)
   {
     FatalError(T_("The METAFONT mode could not be determined."));
   }
-  mode = mfmode.mnemonic;
+  return mfmode.mnemonic;
 }
 
 bool GetInstructionParam(const string& str, const string& instruction, string& param)
@@ -329,19 +329,15 @@ void MakePk::RunPS2PK(const FontMapEntry& mapEntry, const char* lpszPkName, int 
   }
 }
 
-void MakePk::CheckOptions(int* pBaseDPI, int dpi, const char* lpszMode)
+void MakePk::CheckOptions(int* baseDpi, int dpi, const string& mode)
 {
   UNUSED_ALWAYS(dpi);
   MIKTEXMFMODE mfmode;
-#if defined(_MSC_VER)
-  // C4701
-  memset(&mfmode, 0, sizeof(mfmode));
-#endif
   int i = 0;
   bool found = false;
   while (!found && session->GetMETAFONTMode(i, mfmode))
   {
-    if (mfmode.mnemonic == lpszMode)
+    if (mfmode.mnemonic == mode)
     {
       found = true;
     }
@@ -352,18 +348,15 @@ void MakePk::CheckOptions(int* pBaseDPI, int dpi, const char* lpszMode)
   }
   if (!found)
   {
-    FatalError(T_("%s is an unknown METAFONT mode."), Q_(lpszMode));
+    FatalError(T_("%s is an unknown METAFONT mode."), Q_(mode));
   }
-  else
+  if (*baseDpi == 0)
   {
-    if (*pBaseDPI == 0)
-    {
-      *pBaseDPI = mfmode.horizontalResolution;
-    }
-    if (mfmode.horizontalResolution != *pBaseDPI)
-    {
-      FatalError(T_("Specified BDPI (%d) doesn't match %s resolution (%d)."), *pBaseDPI, Q_(lpszMode), mfmode.horizontalResolution);
-    }
+    *baseDpi = mfmode.horizontalResolution;
+  }
+  if (mfmode.horizontalResolution != *baseDpi)
+  {
+    FatalError(T_("Specified BDPI (%d) doesn't match %s resolution (%d)."), *baseDpi, Q_(mode), mfmode.horizontalResolution);
   }
 }
 
@@ -451,11 +444,12 @@ void MakePk::Run(int argc, const char** argv)
   // make a mode name if none was specified
   if (mfMode.empty() || mfMode == "default")
   {
-    MakeModeName(mfMode, bdpi);
+    mfMode = MakeModeName(bdpi);
+    Verbose(T_("The METFAONT mode is: %s"), mfMode.c_str());
   }
 
   // validate command-line arguments
-  CheckOptions(&bdpi, dpi, mfMode.c_str());
+  CheckOptions(&bdpi, dpi, mfMode);
 
   // create a temporary working directory
   unique_ptr<TemporaryDirectory> wrkDir = TemporaryDirectory::Create();

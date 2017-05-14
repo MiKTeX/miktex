@@ -1,6 +1,6 @@
 /* mfmodes.cpp: METAFONT modes
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -35,9 +35,9 @@ using namespace std;
 
 struct ModeComparer
 {
-  bool operator() (const MIKTEXMFMODE & lhs, const MIKTEXMFMODE & rhs) const
+  bool operator()(const MIKTEXMFMODE& lhs, const MIKTEXMFMODE& rhs) const
   {
-    return StringCompare(lhs.description.c_str(), rhs.description.c_str()) < 0;
+    return lhs.description < rhs.description;
   }
 };
 
@@ -47,7 +47,7 @@ void SessionImpl::ReadMetafontModes()
 
   if (!FindFile("modes.mf", FileType::MF, path))
   {
-    MIKTEX_UNEXPECTED();
+    MIKTEX_FATAL_ERROR(T_("METAFONT modes cannot be initialized becaus 'modes.mf' is missing."));
   }
 
   StreamReader reader(path);
@@ -59,64 +59,65 @@ void SessionImpl::ReadMetafontModes()
   metafontModes.reserve(200);
 
   MIKTEXMFMODE mfmode;
-
-  memset(&mfmode, 0, sizeof(mfmode));
+  mfmode.horizontalResolution = 0;
+  mfmode.verticalResolution = 0;
 
   while (reader.ReadLine(line))
   {
     if (readingModeDef)
     {
-      const char * lpsz;
-      if (strncmp(line.c_str(), "enddef;", 7) == 0)
+      size_t pos;
+      if (line.compare(0, 7, "enddef;") == 0)
       {
-	metafontModes.push_back(mfmode);
-	readingModeDef = false;
+        metafontModes.push_back(mfmode);
+        readingModeDef = false;
       }
-      else if (mfmode.horizontalResolution == 0 && ((lpsz = strstr(line.c_str(), "pixels_per_inch")) != nullptr))
+      else if (mfmode.horizontalResolution == 0 && (pos = line.find("pixels_per_inch") != string::npos))
       {
-	SkipNonDigit(lpsz);
-	mfmode.horizontalResolution = mfmode.verticalResolution = atoi(lpsz);
+        pos = SkipNonDigit(line, pos);
+        mfmode.horizontalResolution = mfmode.verticalResolution = std::stoi(line.substr(pos));
       }
-      else if ((lpsz = strstr(line.c_str(), "aspect_ratio")) != nullptr)
+      else if ((pos = line.find("aspect_ratio")) != string::npos)
       {
-	SkipNonDigit(lpsz);
-	mfmode.verticalResolution = atoi(lpsz);
+        pos = SkipNonDigit(line, pos);
+        mfmode.verticalResolution = std::stoi(line.substr(pos));
       }
     }
-    else if (strncmp(line.c_str(), "mode_def", 8) == 0)
+    else if (line.compare(0, 8, "mode_def") == 0)
     {
-      const char * lpsz = line.c_str() + 8;
+      const char* lpsz = line.c_str() + 8;
       while (!IsAlpha(*lpsz) && *lpsz != '\n')
       {
-	++lpsz;
+        ++lpsz;
       }
       if (!IsAlpha(*lpsz))
       {
-	continue;
+        continue;
       }
-      const char * lpszModeName = lpsz;
+      const char* lpszModeName = lpsz;
       SkipAlpha(lpsz);
       if (*lpsz == 0)
       {
-	continue;
+        continue;
       }
-      *const_cast<char *>(lpsz++) = 0;
+      // FIXME: avoid const_cast
+      *const_cast<char*>(lpsz++) = 0;
       if (Utils::Equals(lpszModeName, "help"))
       {
-	continue;
+        continue;
       }
       lpsz = strstr(lpsz, "%\\[");
       if (lpsz == nullptr)
       {
-	continue;
+        continue;
       }
       lpsz += 3;
       SkipSpace(lpsz);
       if (lpsz == nullptr)
       {
-	continue;
+        continue;
       }
-      const char * printer_name = lpsz;
+      const char* printer_name = lpsz;
       readingModeDef = true;
       mfmode.mnemonic = lpszModeName;
       mfmode.description = printer_name;
@@ -127,9 +128,9 @@ void SessionImpl::ReadMetafontModes()
   sort(metafontModes.begin(), metafontModes.end(), ModeComparer());
 }
 
-bool SessionImpl::GetMETAFONTMode(unsigned idx, MIKTEXMFMODE & mode)
+bool SessionImpl::GetMETAFONTMode(unsigned idx, MIKTEXMFMODE& mode)
 {
-  if (metafontModes.size() == 0)
+  if (metafontModes.empty())
   {
     ReadMetafontModes();
   }
@@ -148,15 +149,15 @@ bool SessionImpl::GetMETAFONTMode(unsigned idx, MIKTEXMFMODE & mode)
   return true;
 }
 
-bool SessionImpl::FindMETAFONTMode(const char * lpszMnemonic, MIKTEXMFMODE * pMode)
+bool SessionImpl::FindMETAFONTMode(const char* mnemonic, MIKTEXMFMODE* mode)
 {
   MIKTEXMFMODE candidate;
 
   for (unsigned long idx = 0; GetMETAFONTMode(idx, candidate); ++idx)
   {
-    if (candidate.mnemonic == lpszMnemonic)
+    if (candidate.mnemonic == mnemonic)
     {
-      *pMode = candidate;
+      *mode = candidate;
       return true;
     }
   }
@@ -164,9 +165,9 @@ bool SessionImpl::FindMETAFONTMode(const char * lpszMnemonic, MIKTEXMFMODE * pMo
   return false;
 }
 
-bool SessionImpl::DetermineMETAFONTMode(unsigned dpi, MIKTEXMFMODE & mode)
+bool SessionImpl::DetermineMETAFONTMode(unsigned dpi, MIKTEXMFMODE& mode)
 {
-  const char * lpszMode = nullptr;
+  const char* lpszMode = nullptr;
 
   // favour well known modes
   switch (dpi)
