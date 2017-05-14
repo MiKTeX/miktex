@@ -594,7 +594,7 @@ bool SessionImpl::IsMiKTeXPortable()
 
 PathName SessionImpl::GetBinDirectory(bool canonicalized)
 {
-#if defined(MIKTEX_NATIVE_WINDOWS)
+#if defined(MIKTEX_WINDOWS)
   PathName ret = GetRootDirectory(GetInstallRoot());
   ret += MIKTEX_PATH_BIN_DIR;
   return ret;
