@@ -2,7 +2,7 @@
 
 #set -ev
 
-if [ -e "${TRAVIS_BUILD_DIR}/miktex-testing/build/Testing/Temporary/LastTest.log" ]; then
+if [ -f "${TRAVIS_BUILD_DIR}/miktex-testing/build/Testing/Temporary/LastTest.log" ]; then
    curl -sT "${TRAVIS_BUILD_DIR}/miktex-testing/build/Testing/Temporary/LastTest.log" chunk.io
 fi
 
@@ -12,8 +12,8 @@ if [ -d ~/.miktex/texmfs/data/miktex/log ]; then
     curl -sT logs.tar.xz chunk.io
 fi
 
-ls -l /tmp
-
-if [ -e /tmp/miktex-makepk.core ]; then
-    gdb --batch --quiet -ex "bt" /usr/local/bin/miktex-makepk /tmp/miktex-makepk.core
-fi
+for core in /tmp/*.core; do
+    basename=$(basename "${core}")
+    name=${basename%.*}
+    gdb --batch --quiet -ex "bt" "/usr/local/bin/${name}" "${core}"
+done
