@@ -14,7 +14,7 @@ fi
 ${cmake} ..
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-    ulimit -c unlimited -S
+    ulimit -Sc unlimited
     sudo bash -c "echo '/tmp/%e.core' > /proc/sys/kernel/core_pattern"
 fi
 
