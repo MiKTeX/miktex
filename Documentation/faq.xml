@@ -4,8 +4,8 @@
 [
 <!ENTITY % entities.ent SYSTEM "entities.ent">
 %entities.ent;
-<!ENTITY rev "2.9.6340">
-<!ENTITY date "May 11, 2017">
+<!ENTITY rev "2.9.6345">
+<!ENTITY date "May 16, 2017">
 <!ENTITY month "May 2017">
 ]>
 
@@ -77,7 +77,8 @@ section</para></listitem>
 <para>What is &MiKTeX;?</para>
 </question>
 <answer>
-<para>&MiKTeX; is an implementation of &TeXnFriends; for &Windows;, &macOS; and &Linux;.</para>
+<para>&MiKTeX; is an implementation of &TeXnFriends; for &Windows;,
+&macOS; and &Linux;.</para>
 </answer>
 </qandaentry>
 
@@ -93,8 +94,7 @@ url="&hqbaseurl;">&hqbaseurl;</ulink>.</para>
 
 <qandaentry id="winver">
 <question>
-<para>Which &Windows; version is required for running
-&MiKTeX;?</para>
+<para>Which &Windows; version is required for running &MiKTeX;?</para>
 </question>
 <answer>
 <para>&MiKTeX; requires one of the following &Windows; operating
@@ -134,10 +134,10 @@ systems:</para>
 <para>&macOSSierra;</para>
 </listitem>
 <listitem>
-<para>&macOSElCapitan;</para>
+<para>&OSXElCapitan;</para>
 </listitem>
 <listitem>
-<para>&macOSYosemite;</para>
+<para>&OSXYosemite;</para>
 </listitem>
 </itemizedlist>
 </answer>
@@ -163,9 +163,9 @@ systems:</para>
 <para>Am I allowed to redistribute &MiKTeX;?</para>
 </question>
 <answer>
-<para>The &MiKTeX; distribution is a conglomerate of many software
-packages.  To the best of my knowledge, all packages meet the
-requirements of the <ulink
+<para>The &MiKTeX; distribution is a conglomerate of many components.
+To the best of my knowledge, all components meet the requirements of
+the <ulink
 url="http://www.debian.org/social_contract#guidelines">Debian Free
 Software Guidelines</ulink>.  This means that &MiKTeX; may be freely
 used, copied, modified, and redistributed.</para>
@@ -199,7 +199,7 @@ available.</para>
 
 <qandaentry id="downloading">
 <question>
-<para>How do I download &MiKTeX;?</para>
+<para>How do I download &MiKTeX; on &Windows;?</para>
 </question>
 <answer>
 <para>It is recommended that you download the
@@ -217,29 +217,54 @@ to set up a complete &MiKTeX; system
 
 <qandaentry id="installing">
 <question>
-<para>How do I install &MiKTeX;?</para>
+<para>How do I install &MiKTeX; on &Windows;?</para>
 </question>
 <answer>
-<para>You use one of the installers to set up a
- a &MiKTeX; system:</para>
+<para>You use one of the installers to set up a &MiKTeX;
+installation on &Windows;:</para>
 <variablelist>
 <varlistentry>
 <term>&BasicMiKTeXInstaller; (&basicmiktexexefile;)</term>
 <listitem>
 <para>The <quote>Basic &MiKTeX;</quote> installer can be used to set up
-a basic &MiKTeX; system.</para>
+a basic &MiKTeX; installation.</para>
 </listitem>
 </varlistentry>
 <varlistentry>
 <term>&MiKTeXNetInstaller; (&setupexefile;)</term>
 <listitem>
 <para>The <quote>&MiKTeXNetInstaller;</quote> can be used to set up a
-complete &MiKTeX; system.</para>
+complete &MiKTeX; installation.</para>
 </listitem>
 </varlistentry>
 </variablelist>
 <para>For more information, read the tutorial <ulink
- url="&hqbaseurl;howto/install-miktex"><citetitle>Install &MiKTeX;</citetitle></ulink>.</para>
+ url="&hqbaseurl;howto/install-miktex"><citetitle>Install &MiKTeX; on &Windows;</citetitle></ulink>.</para>
+</answer>
+</qandaentry>
+
+<qandaentry id="installmac">
+<question>
+<para>How do I install &MiKTeX; on &macOS;?</para>
+</question>
+<answer>
+<para>You use the &Homebrew; package manager to set up a &MiKTeX;
+installation on &macOS;:</para>
+<informalexample>
+<programlisting>brew tap miktex/miktex
+brew install miktex</programlisting>
+</informalexample>
+<para>For more information, read the tutorial <ulink
+ url="&hqbaseurl;howto/install-miktex-mac"><citetitle>Install &MiKTeX; on &macOS;</citetitle></ulink>.</para>
+</answer>
+</qandaentry>
+
+<qandaentry id="installunx">
+<question>
+<para>How do I install &MiKTeX; on &Linux;?</para>
+</question>
+<answer>
+<para>tbd</para>
 </answer>
 </qandaentry>
 

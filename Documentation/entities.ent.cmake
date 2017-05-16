@@ -17,6 +17,7 @@
 <!ENTITY FNDB "<acronym>FNDB</acronym>">
 <!ENTITY FSF "<acronym>FSF</acronym>">
 <!ENTITY FTP "<acronym>FTP</acronym>">
+<!ENTITY Homebrew "<application>Homebrew</application>">
 <!ENTITY GF "<acronym>GF</acronym>">
 <!ENTITY GNU "<acronym>GNU</acronym>">
 <!ENTITY Ghostscript "<application>Ghostscript</application>">
@@ -52,6 +53,8 @@
 <!ENTITY MiKTeXUpdateWizard "<application>&MiKTeX; Update Wizard</application>">
 <!ENTITY MiKTeXconfigurationdatastore "&MiKTeX; configuration data store">
 <!ENTITY MiKTeXpdfTeX "<application>MiKTeX-pdfTeX</application>">
+<!ENTITY OSXElCapitan "<application>OS&nbsp;X&nbsp;El&nbsp;Capitan</application>">
+<!ENTITY OSXYosemite "<application>OS&nbsp;X&nbsp;Yosemite</application>">
 <!ENTITY Omega "<application>Omega</application>">
 <!ENTITY PACKAGE_NAME "${PACKAGE_NAME}">
 <!ENTITY PDF "<acronym>PDF</acronym>">
@@ -109,8 +112,6 @@
 <!ENTITY lzma "<command>lzma</command>">
 <!ENTITY macOS "<application>macOS</application>">
 <!ENTITY macOSSierra "<application>macOS&nbsp;Sierra</application>">
-<!ENTITY macOSElCapitan "<application>macOS&nbsp;El&nbsp;Capitan</application>">
-<!ENTITY macOSYosemite "<application>macOS&nbsp;Yosemite</application>">
 <!ENTITY makeinfo "<command>makeinfo</command>">
 <!ENTITY md5walk "<command>md5walk</command>">
 <!ENTITY miktexdvicopy "<command>${MIKTEX_PREFIX}dvicopy</command>">
