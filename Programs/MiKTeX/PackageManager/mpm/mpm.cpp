@@ -1100,7 +1100,7 @@ void Application::Upgrade(PackageLevel packageLevel)
 {
   if (packageLevel == PackageLevel::None)
   {
-    Error("No package level (--package-level) was specified.");
+    Error(T_("No package level (--package-level) was specified."));
   }
   shared_ptr<PackageInstaller> installer(pPackageManager->CreateInstaller());
   if (!repository.empty())
@@ -1432,7 +1432,7 @@ void Application::Main(int argc, const char** argv)
       }
       else
       {
-        Error(T_("Unknown package set."));
+        Error(T_("Unknown package level."));
       }
       break;
     case OPT_PICK_REPOSITORY_URL:
