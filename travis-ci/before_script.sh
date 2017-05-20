@@ -14,12 +14,14 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     "${mycmake}" .. ${cmakeflags}	  
 elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     brewprefix="`brew --prefix`"
+    etcdir="${brewprefix}/etc"
     vardir="${brewprefix}/var"
     CMAKE_PREFIX_PATH="${brewprefix}/opt/icu4c:${brewprefix}/opt/openssl:${CMAKE_PREFIX_PATH}" \
 		     cmake .. \
 		     -DUSE_SYSTEM_MSPACK=FALSE \
 		     -DMIKTEX_MPM_AUTO_ADMIN=t \
 		     -DMIKTEX_MPM_AUTO_INSTALL=t \
+		     -DMIKTEX_SYSTEM_ETC_FONTS_CONFD_DIR="${etcdir}/fonts/conf.d" \
 		     -DMIKTEX_SYSTEM_VAR_CACHE_DIR="${vardir}/cache" \
 		     -DMIKTEX_SYSTEM_VAR_LIB_DIR="${vardir}/lib"
 fi
