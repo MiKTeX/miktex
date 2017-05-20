@@ -1583,9 +1583,9 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
       if (doRegister)
       {
 #if defined(MIKTEX_WINDOWS)
-        for (size_t idx = 0; idx < sizeof(toBeConfigured) / sizeof(toBeConfigured[0]); ++idx)
+        for (const char* file : toBeConfigured)
         {
-          PathName relPath(toBeConfigured[idx]);
+          PathName relPath(file);
           PathName relPathIn(relPath);
           relPathIn.AppendExtension(".in");
           if (PathName(fileName) != relPathIn)
@@ -1609,14 +1609,14 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
 #if defined(MIKTEX_WINDOWS)
       if (!session->IsMiKTeXPortable() && (session->RunningAsAdministrator() || session->RunningAsPowerUser()))
       {
-        for (size_t idx = 0; idx < sizeof(components) / sizeof(components[0]); ++idx)
+        for (const char* comp : components)
         {
-          if (PathName(fileName) != components[idx])
+          if (PathName(fileName) != comp)
           {
             continue;
           }
           PathName path = session->GetSpecialPath(SpecialPath::InstallRoot);
-          path /= components[idx];
+          path /= comp;
           if (File::Exists(path))
           {
             RegisterComponent(doRegister, path, doRegister && WindowsVersion::IsWindowsVistaOrGreater());
