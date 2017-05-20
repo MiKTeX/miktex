@@ -1556,9 +1556,13 @@ static const char* const components[] = {
 
 #endif
 
+#if defined(MIKTEX_WINDOWS)
+
 static const char* const toBeConfigured[] = {
   MIKTEX_PATH_FONTCONFIG_CONFIG_FILE,
 };
+
+#endif
 
 void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<string>& packages)
 {
@@ -1578,6 +1582,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
       }
       if (doRegister)
       {
+#if defined(MIKTEX_WINDOWS)
         for (size_t idx = 0; idx < sizeof(toBeConfigured) / sizeof(toBeConfigured[0]); ++idx)
         {
           PathName relPath(toBeConfigured[idx]);
@@ -1599,6 +1604,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
             ReportLine(T_("problem: %s does not exist"), pathIn.GetData());
           }
         }
+#endif
       }
 #if defined(MIKTEX_WINDOWS)
       if (!session->IsMiKTeXPortable() && (session->RunningAsAdministrator() || session->RunningAsPowerUser()))
