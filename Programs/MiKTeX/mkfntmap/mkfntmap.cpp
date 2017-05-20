@@ -1159,7 +1159,7 @@ void MakeFontMapApp::BuildFontconfigCache()
 #if defined(MIKTEX_WINDOWS)
     arguments.AppendOption("--miktex-admin");
 #else
-    arguments.appendOption("--system-only");
+    arguments.AppendOption("--system-only");
 #endif
   }
   if (force)
