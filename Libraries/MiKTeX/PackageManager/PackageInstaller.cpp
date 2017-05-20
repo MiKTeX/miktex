@@ -1638,6 +1638,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
 {
   if (doRegister)
   {
+#if defined(MIKTEX_WINDOWS)
     for (const char* comp : toBeConfigured)
     {
       PathName relPath(comp);
@@ -1654,6 +1655,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
         ReportLine(T_("problem: %s does not exist"), pathIn.GetData());
       }
     }
+#endif
   }
 #if defined(MIKTEX_WINDOWS)
   if (!session->IsMiKTeXPortable()
