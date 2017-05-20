@@ -1149,10 +1149,17 @@ void MakeFontMapApp::BuildFontconfigCache()
 #endif
   CreateFontconfigLocalfontsConf();
   PathName fcCacheExe;
+#if defined(MIKTEX_WINDOWSx)
   if (!session->FindFile("fc-cache", FileType::EXE, fcCacheExe))
   {
     FatalError(T_("The fc-cache executable could not be found."));
   }
+#else
+  if (!Utils::FindProgram("fc-cache", fcCacheExe))
+  {
+    FatalError(T_("The fc-cache executable could not be found."));
+  }
+#endif
   CommandLineBuilder arguments;
   if (optAdminMode)
   {
