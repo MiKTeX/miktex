@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/axohelp/">
+    <TPM:Name>axohelp win32</TPM:Name>
+    <TPM:Title>axohelp, Windows x86</TPM:Title>
+    <TPM:Copyright owner="John Collins" year="2016"/>
+    <TPM:Copyright owner="Jos Vermaseren" year="2016"/>
+    <TPM:License type="gpl3"/>
+    <TPM:Version>1.0</TPM:Version>
+    <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      Axohelp is a helper utility for the axodraw2 package.  It is
+      used to perform the geometrical calculations needed for the PDF
+      code inserted in the output file.  The processing involves a run
+      of pdflatex, a run of axohelp, and then another run of pdflatex.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}axohelp.exe
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

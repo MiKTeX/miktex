@@ -2,6 +2,10 @@
 
 ## MiKTeX NEXT
 
+### New programs
+
+* axohelp: a helper utility for the [axodraw2 package](https://www.ctan.org/tex-archive/graphics/axodraw2).
+
 ### Upgraded programs
 
 * TeXworks 0.6.2

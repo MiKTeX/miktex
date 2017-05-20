@@ -43,6 +43,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
   set(target_system_tpms
     windows-x86/miktex-arctrl-bin.tpm.in
     windows-x86/miktex-autosp-bin.tpm.in
+    windows-x86/miktex-axohelp-bin.tpm.in
     windows-x86/miktex-bibtex-bin.tpm.in
     windows-x86/miktex-bibtex8bit-bin.tpm.in
     windows-x86/miktex-bin.tpm.in
@@ -128,6 +129,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
   set(target_system_tpms
     windows-x64/miktex-arctrl-bin-x64.tpm.in
     windows-x64/miktex-autosp-bin-x64.tpm.in
+    windows-x64/miktex-axohelp-bin-x64.tpm.in
     windows-x64/miktex-bibtex-bin-x64.tpm.in
     windows-x64/miktex-bibtex8bit-bin-x64.tpm.in
     windows-x64/miktex-bin-x64.tpm.in

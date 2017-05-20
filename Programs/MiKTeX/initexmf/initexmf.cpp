@@ -1456,6 +1456,7 @@ vector<FileLink> miktexFileLinks =
 
   { MIKTEX_AFM2TFM_EXE, { "afm2tfm" } },
   { MIKTEX_AUTOSP_EXE, { "autosp" } },
+  { MIKTEX_AXOHELP_EXE,{ "axohelp" } },
   { MIKTEX_BG5CONV_EXE, { "bg5conv" } },
   { MIKTEX_BIBTEX8_EXE, { "bibtex8" } },
   { MIKTEX_BIBTEXU_EXE, { "bibtexu" } },
