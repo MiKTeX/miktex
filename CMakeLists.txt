@@ -242,16 +242,28 @@ option(
   ${MIKTEX_UNIX_ALIKE}
 )
 
+if(MIKTEX_HOMEBREW)
+  set(use_system_harfbuzz_default FALSE)
+elseif(MIKTEX_UNIX_ALIKE)
+  set(use_system_harfbuzz_default TRUE)
+endif()
+
 option(
   USE_SYSTEM_HARFBUZZ
   "Use the system Harfbuzz text shaping library."
-  ${MIKTEX_UNIX_ALIKE}
+  ${use_system_harfbuzz_default}
 )
+
+if(MIKTEX_HOMEBREW)
+  set(use_system_harfbuzz_icu_default FALSE)
+elseif(MIKTEX_UNIX_ALIKE)
+  set(use_system_harfbuzz_icu_default TRUE)
+endif()
 
 option(
   USE_SYSTEM_HARFBUZZ_ICU
   "Use the system Harfbuzz (ICU) text shaping library."
-  ${MIKTEX_UNIX_ALIKE}
+  ${use_system_harfbuzz_icu_default}
 )
 
 option(
