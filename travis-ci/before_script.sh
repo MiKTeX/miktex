@@ -19,6 +19,8 @@ elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     CMAKE_PREFIX_PATH="${brewprefix}/opt/icu4c:${brewprefix}/opt/openssl:${CMAKE_PREFIX_PATH}" \
 		     cmake .. \
 		     -DUSE_SYSTEM_MSPACK=FALSE \
+		     -DUSE_SYSTEM_HARFBUZZ=FALSE \
+		     -DUSE_SYSTEM_HARFBUZZ_ICU=FALSE \
 		     -DMIKTEX_MPM_AUTO_ADMIN=t \
 		     -DMIKTEX_MPM_AUTO_INSTALL=t \
 		     -DMIKTEX_SYSTEM_ETC_FONTS_CONFD_DIR="${etcdir}/fonts/conf.d" \
