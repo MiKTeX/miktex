@@ -68,23 +68,18 @@ elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
 
     ( brew ls -1 | grep -w ghostscript ) || brew install ghostscript
     ( brew ls -1 | grep -w md5sha1sum ) || brew install md5sha1sum
+
+    ( brew ls -1 | grep -w icu4c ) || brew install icu4c
     
-    brew install harfbuzz --with-graphite2
-    
-    ( brew ls -1 | grep -w apr ) || brew install apr
-    ( brew ls -1 | grep -w apr-util ) || brew install apr-util
     ( brew ls -1 | grep -w cairo ) || brew install cairo
     ( brew ls -1 | grep -w fontconfig ) || brew install fontconfig
     ( brew ls -1 | grep -w freetype ) || brew install freetype
     ( brew ls -1 | grep -w fribidi ) || brew install fribidi
     ( brew ls -1 | grep -w gd ) || brew install gd
-    ( brew ls -1 | grep -w glib ) || brew install glib
     ( brew ls -1 | grep -w gmp ) || brew install gmp
     ( brew ls -1 | grep -w graphite2 ) || brew install graphite2
     ( brew ls -1 | grep -w hunspell ) || brew install hunspell
-    ( brew ls -1 | grep -w icu4c ) || brew install icu4c
     ( brew ls -1 | grep -w jpeg ) || brew install jpeg
-    ( brew ls -1 | grep -w libffi ) || brew install libffi
     ( brew ls -1 | grep -w libpng ) || brew install libpng
     ( brew ls -1 | grep -w libtiff ) || brew install libtiff
     ( brew ls -1 | grep -w libzzip ) || brew install libzzip
