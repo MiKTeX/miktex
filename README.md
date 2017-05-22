@@ -47,12 +47,12 @@ instructions:
   All platforms:
 
   * cat
-  * fop
   * sed
   * xsltproc
 
   Windows only:
 
+  * fop
   * hhc
   * makehm
   * mc
