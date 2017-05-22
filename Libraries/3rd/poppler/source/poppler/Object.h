@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008 Kees Cook <kees@outflux.net>
-// Copyright (C) 2008, 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Jakub Wilk <jwilk@jwilk.net>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
@@ -208,6 +208,13 @@ public:
   // Where the exact value of integers up to 2^63 is required, use isInt64()/getInt64().
   double getNum() { OBJECT_3TYPES_CHECK(objInt, objInt64, objReal);
     return type == objInt ? (double)intg : type == objInt64 ? (double)int64g : real; }
+  double getNum(bool *ok) {
+    if (unlikely(type != objInt && type != objInt64 && type != objReal)) {
+      *ok = false;
+      return 0.;
+    }
+    return type == objInt ? (double)intg : type == objInt64 ? (double)int64g : real;
+  }
   GooString *getString() { OBJECT_TYPE_CHECK(objString); return string; }
   // After takeString() the only method that should be called for the object is free()
   // because the object it's not expected to have a NULL string.

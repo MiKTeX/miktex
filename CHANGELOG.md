@@ -19,10 +19,10 @@
   
 ### Upgraded libraries
 
-* [HarBuzz 1.4.6](https://github.com/behdad/harfbuzz/releases/tag/1.4.6)
+* [HarfBuzz 1.4.6](https://github.com/behdad/harfbuzz/releases/tag/1.4.6)
 * libcurl 7.54.0
 * LibreSSL 2.5.3
-* Poppler 0.54.0
+* Poppler 0.55.0
 
 ## 2.9.6300 - 2017-04-25
 

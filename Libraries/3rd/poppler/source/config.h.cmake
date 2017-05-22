@@ -30,6 +30,12 @@
 /* Use cairo for rendering. */
 #cmakedefine HAVE_CAIRO 1
 
+/* Do we have any DCT decoder?. */
+#cmakedefine HAVE_DCT_DECODER 1
+
+/* Do we have any JPX decoder?. */
+#cmakedefine HAVE_JPX_DECODER 1
+
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
 #cmakedefine HAVE_DIRENT_H 1

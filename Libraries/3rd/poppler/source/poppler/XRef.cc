@@ -1144,13 +1144,16 @@ GBool XRef::okToAssemble(GBool ignoreOwnerPW) {
 }
 
 Object *XRef::getCatalog(Object *catalog) {
-  Object *obj = fetch(rootNum, rootGen, catalog);
-  if (obj->isDict()) {
-    return obj;
+  fetch(rootNum, rootGen, catalog);
+  if (catalog->isDict()) {
+    return catalog;
   }
   GBool wasReconstructed = false;
-  GBool ok = constructXRef(&wasReconstructed, gTrue);
-  return (ok) ? fetch(rootNum, rootGen, catalog) : obj;
+  if (constructXRef(&wasReconstructed, gTrue)) {
+    catalog->free();
+    fetch(rootNum, rootGen, catalog);
+  }
+  return catalog;
 }
 
 Object *XRef::fetch(int num, int gen, Object *obj, int recursion) {
@@ -1606,8 +1609,7 @@ GBool XRef::parseEntry(Goffset offset, XRefEntry *entry)
      str->makeSubStream(offset, gFalse, 20, &obj)), gTrue);
 
   Object obj1, obj2, obj3;
-  if (((parser.getObj(&obj1)->isInt()) ||
-       parser.getObj(&obj1)->isInt64()) &&
+  if (((parser.getObj(&obj1)->isInt()) || obj1.isInt64()) &&
       (parser.getObj(&obj2)->isInt()) &&
       (parser.getObj(&obj3)->isCmd("n") || obj3.isCmd("f"))) {
     if (obj1.isInt64())

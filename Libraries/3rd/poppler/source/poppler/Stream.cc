@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Jeff Muizelaar <jeff@infidigm.net>
-// Copyright (C) 2006-2010, 2012-2014, 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006-2010, 2012-2014, 2016, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2008 Julien Rebetez <julien@fhtagn.net>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
@@ -313,7 +313,12 @@ Stream *Stream::makeFilter(char *name, Stream *str, Object *params, int recursio
       }
       obj.free();
     }
+#ifdef HAVE_DCT_DECODER
     str = new DCTStream(str, colorXform, dict, recursion);
+#else
+    error(errSyntaxError, getPos(), "Unknown filter '{0:s}'", name);
+    str = new EOFStream(str);
+#endif
   } else if (!strcmp(name, "FlateDecode") || !strcmp(name, "Fl")) {
     pred = 1;
     columns = 1;
@@ -348,7 +353,12 @@ Stream *Stream::makeFilter(char *name, Stream *str, Object *params, int recursio
     globals.free();
     obj.free();
   } else if (!strcmp(name, "JPXDecode")) {
+#ifdef HAVE_JPX_DECODER
     str = new JPXStream(str);
+#else
+    error(errSyntaxError, getPos(), "Unknown filter '{0:s}'", name);
+    str = new EOFStream(str);
+#endif
   } else if (!strcmp(name, "Crypt")) {
     if (str->getKind() == strCrypt) {
       str = str->getBaseStream();
