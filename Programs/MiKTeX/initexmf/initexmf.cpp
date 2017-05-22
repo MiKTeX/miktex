@@ -1731,6 +1731,7 @@ void IniTeXMFApp::MakeScriptsExecutable()
   unique_ptr<Cfg> config(Cfg::Create());
   config->Read(scriptsIni, true);
   AutoRestore<TriState> x(enableInstaller);
+  enableInstaller = false;
   for (const shared_ptr<Cfg::Key>& key : config->GetKeys())
   {
     if (key->GetName() != "sh")
