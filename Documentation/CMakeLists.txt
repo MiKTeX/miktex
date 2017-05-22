@@ -213,29 +213,30 @@ set(xslt_path "${xslt_path} ${CMAKE_CURRENT_SOURCE_DIR}")
 set(xslt_path "${xslt_path} ${CMAKE_CURRENT_SOURCE_DIR}/Styles")
 set(xslt_path "${xslt_path} ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}")
 
-install(
-  FILES
-    Styles/miktexman.css
-  DESTINATION
-    ${MIKTEX_DOC_DESTINATION_DIR}
-)
-
-install(
-  DIRECTORY
-    Images/
-    ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DOCBOOK_XSL_DIR}/images
-  DESTINATION
-    ${MIKTEX_DOC_DESTINATION_DIR}/Images
-  PATTERN "callouts" EXCLUDE
-  PATTERN "colorsvg" EXCLUDE
-)
+if(WITH_MIKTEX_DOC)
+  install(
+    FILES
+      Styles/miktexman.css
+    DESTINATION
+      ${MIKTEX_DOC_DESTINATION_DIR}
+  )
+  install(
+    DIRECTORY
+      Images/
+      ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DOCBOOK_XSL_DIR}/images
+    DESTINATION
+      ${MIKTEX_DOC_DESTINATION_DIR}/Images
+    PATTERN "callouts" EXCLUDE
+    PATTERN "colorsvg" EXCLUDE
+  )
+endif()
 
 ###############################################################################
 ## manual
 
 ## help file
 
-if(MIKTEX_NATIVE_WINDOWS)
+if(WITH_MIKTEX_DOC)
   add_custom_command(
     OUTPUT
       ${CMAKE_CURRENT_BINARY_DIR}/miktex.chm
@@ -292,243 +293,246 @@ endif()
 
 ## chunked html
 
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/html/manual/index.html
-  COMMAND
-    ${CMAKE_COMMAND} -E
-      remove_directory ${CMAKE_CURRENT_BINARY_DIR}/html/manual
-  COMMAND
-    ${CMAKE_COMMAND} -E
-      copy_directory ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DOCBOOK_XSL_DIR}/images ${CMAKE_CURRENT_BINARY_DIR}/html/manual/images
-  COMMAND
-    ${CMAKE_COMMAND} -E
-      copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Images ${CMAKE_CURRENT_BINARY_DIR}/html/manual/images
-  COMMAND
-    ${CMAKE_COMMAND} -E
-      copy ${MIKTEX_MANUAL_STYLES} ${CMAKE_CURRENT_BINARY_DIR}/html/manual
-  COMMAND
-    ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
-      ${XSLTPROC_EXECUTABLE}
-        --xinclude
-        --path "${xslt_path}"
-        --stringparam base.dir html/manual/
-        --stringparam chunk.fast 1
-        htmlchunk.xsl
-        miktex.xml
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
-    ${MIKTEX_DOCBOOK_CHUNKED_HTML}
-    ${manual_listings}
-    ${manual_xml_files}
-    ${MIKTEX_HELP_STYLES}
-    ${screenshots_png}
-  VERBATIM
-)
-
-install(
-  DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}/html/manual/
-  DESTINATION
-    ${MIKTEX_DOC_DESTINATION_DIR}/manual
-)
+if(WITH_MIKTEX_DOC)
+  add_custom_command(
+    OUTPUT
+      ${CMAKE_CURRENT_BINARY_DIR}/html/manual/index.html
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        remove_directory ${CMAKE_CURRENT_BINARY_DIR}/html/manual
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        copy_directory ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DOCBOOK_XSL_DIR}/images ${CMAKE_CURRENT_BINARY_DIR}/html/manual/images
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Images ${CMAKE_CURRENT_BINARY_DIR}/html/manual/images
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        copy ${MIKTEX_MANUAL_STYLES} ${CMAKE_CURRENT_BINARY_DIR}/html/manual
+    COMMAND
+      ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
+        ${XSLTPROC_EXECUTABLE}
+          --xinclude
+          --path "${xslt_path}"
+          --stringparam base.dir html/manual/
+          --stringparam chunk.fast 1
+          htmlchunk.xsl
+          miktex.xml
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
+      ${MIKTEX_DOCBOOK_CHUNKED_HTML}
+      ${manual_listings}
+      ${manual_xml_files}
+      ${MIKTEX_HELP_STYLES}
+      ${screenshots_png}
+    VERBATIM
+  )
+  install(
+    DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/html/manual/
+    DESTINATION
+      ${MIKTEX_DOC_DESTINATION_DIR}/manual
+  )
+endif()
 
 ## pdf
 
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/miktex.fo
-  COMMAND
-    ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
-      ${XSLTPROC_EXECUTABLE}
-        --xinclude
-        --path "${xslt_path}"
-        --output ${CMAKE_CURRENT_BINARY_DIR}/miktex.fo
-        --stringparam fop1.extensions 1
-        --stringparam img.src.path scratch/
-        fo.xsl
-        miktex.xml
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
-    ${manual_listings}
-    ${manual_xml_files}
-    ${MIKTEX_DOCBOOK_FO}
-  VERBATIM
-)
-
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/miktex.pdf
-  COMMAND
-    ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/scratch
-  COMMAND
-    ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Images ${CMAKE_CURRENT_BINARY_DIR}/scratch/Manual/Images
-  COMMAND
-    ${CMAKE_COMMAND} -E chdir ${CMAKE_CURRENT_BINARY_DIR}/scratch
-      ${FOP_EXECUTABLE}
-        -fo ${CMAKE_CURRENT_BINARY_DIR}/miktex.fo
-        -pdf ${CMAKE_CURRENT_BINARY_DIR}/miktex.pdf
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/miktex.fo
-    ${screenshots_png}
-  VERBATIM
-)
-
-install(
-  FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/miktex.pdf
-  DESTINATION
-    ${MIKTEX_DOC_DESTINATION_DIR}
-)
+if(WITH_MIKTEX_DOC)
+  add_custom_command(
+    OUTPUT
+      ${CMAKE_CURRENT_BINARY_DIR}/miktex.fo
+    COMMAND
+      ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
+        ${XSLTPROC_EXECUTABLE}
+          --xinclude
+          --path "${xslt_path}"
+          --output ${CMAKE_CURRENT_BINARY_DIR}/miktex.fo
+          --stringparam fop1.extensions 1
+          --stringparam img.src.path scratch/
+          fo.xsl
+          miktex.xml
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
+      ${manual_listings}
+      ${manual_xml_files}
+      ${MIKTEX_DOCBOOK_FO}
+    VERBATIM
+  )
+  add_custom_command(
+    OUTPUT
+      ${CMAKE_CURRENT_BINARY_DIR}/miktex.pdf
+    COMMAND
+      ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/scratch
+    COMMAND
+      ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Images ${CMAKE_CURRENT_BINARY_DIR}/scratch/Manual/Images
+    COMMAND
+      ${CMAKE_COMMAND} -E chdir ${CMAKE_CURRENT_BINARY_DIR}/scratch
+        ${FOP_EXECUTABLE}
+          -fo ${CMAKE_CURRENT_BINARY_DIR}/miktex.fo
+          -pdf ${CMAKE_CURRENT_BINARY_DIR}/miktex.pdf
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/miktex.fo
+      ${screenshots_png}
+    VERBATIM
+  )
+  install(
+    FILES
+      ${CMAKE_CURRENT_BINARY_DIR}/miktex.pdf
+    DESTINATION
+      ${MIKTEX_DOC_DESTINATION_DIR}
+  )
+endif()
 
 ###############################################################################
 ## packaging guide
 
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/html/packaging/index.html
-  COMMAND
-    ${CMAKE_COMMAND} -E
-      remove_directory ${CMAKE_CURRENT_BINARY_DIR}/html/packaging
-  COMMAND
-    ${CMAKE_COMMAND} -E
-      copy_directory ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DOCBOOK_XSL_DIR}/images ${CMAKE_CURRENT_BINARY_DIR}/html/packaging/images
-  COMMAND
-    ${CMAKE_COMMAND} -E
-      copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Images ${CMAKE_CURRENT_BINARY_DIR}/html/packaging/images
-  COMMAND
-    ${CMAKE_COMMAND} -E
-      copy ${MIKTEX_MANUAL_STYLES} ${CMAKE_CURRENT_BINARY_DIR}/html/packaging
-  COMMAND
-    ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
-      ${XSLTPROC_EXECUTABLE}
-        --xinclude
-        --path "${xslt_path}"
-        --stringparam base.dir html/packaging/
-        --output ${CMAKE_CURRENT_BINARY_DIR}/html/packaging/index.html
-        html.xsl
-        packaging.xml
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
-    ${CMAKE_CURRENT_SOURCE_DIR}/packaging.xml
-    ${MIKTEX_DOCBOOK_HTML}
-    ${MIKTEX_HELP_STYLES}
-    ${screenshots_png}
-  VERBATIM
-)
-
-install(
-  DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}/html/packaging/
-  DESTINATION
-    ${MIKTEX_DOC_DESTINATION_DIR}/packaging/
-  PATTERN ".svn" EXCLUDE
-)
+if(WITH_MIKTEX_DOC)
+  add_custom_command(
+    OUTPUT
+      ${CMAKE_CURRENT_BINARY_DIR}/html/packaging/index.html
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        remove_directory ${CMAKE_CURRENT_BINARY_DIR}/html/packaging
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        copy_directory ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DOCBOOK_XSL_DIR}/images ${CMAKE_CURRENT_BINARY_DIR}/html/packaging/images
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Images ${CMAKE_CURRENT_BINARY_DIR}/html/packaging/images
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        copy ${MIKTEX_MANUAL_STYLES} ${CMAKE_CURRENT_BINARY_DIR}/html/packaging
+    COMMAND
+      ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
+        ${XSLTPROC_EXECUTABLE}
+          --xinclude
+          --path "${xslt_path}"
+          --stringparam base.dir html/packaging/
+          --output ${CMAKE_CURRENT_BINARY_DIR}/html/packaging/index.html
+          html.xsl
+          packaging.xml
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
+      ${CMAKE_CURRENT_SOURCE_DIR}/packaging.xml
+      ${MIKTEX_DOCBOOK_HTML}
+      ${MIKTEX_HELP_STYLES}
+      ${screenshots_png}
+    VERBATIM
+  )
+  install(
+    DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/html/packaging/
+    DESTINATION
+      ${MIKTEX_DOC_DESTINATION_DIR}/packaging/
+    PATTERN ".svn" EXCLUDE
+  )
+endif()
 
 ###############################################################################
 ## release notes
 
 ## html
 
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes/index.html
-  COMMAND
-    ${CMAKE_COMMAND} -E
-      remove_directory ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes
-  COMMAND
-    ${CMAKE_COMMAND} -E
-      copy_directory ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DOCBOOK_XSL_DIR}/images ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes/images
-  COMMAND
-    ${CMAKE_COMMAND} -E
-      copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Images ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes/images
-  COMMAND
-    ${CMAKE_COMMAND} -E
-      copy ${MIKTEX_MANUAL_STYLES} ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes
-  COMMAND
-    ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
-      ${XSLTPROC_EXECUTABLE}
-        --xinclude
-        --path "${xslt_path}"
-        --stringparam base.dir html/relnotes/
-        --output ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes/index.html
-        html.xsl
-        relnotes.xml
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
-    ${CMAKE_CURRENT_SOURCE_DIR}/relnotes.xml
-    ${MIKTEX_DOCBOOK_HTML}
-    ${MIKTEX_HELP_STYLES}
-    ${screenshots_png}
-  VERBATIM
-)
-
-install(
-  DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes/
-  DESTINATION
-    ${MIKTEX_DOC_DESTINATION_DIR}/relnotes/
-  PATTERN ".svn" EXCLUDE
-)
+if(WITH_MIKTEX_DOC)
+  add_custom_command(
+    OUTPUT
+      ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes/index.html
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        remove_directory ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        copy_directory ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DOCBOOK_XSL_DIR}/images ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes/images
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Images ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes/images
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        copy ${MIKTEX_MANUAL_STYLES} ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes
+    COMMAND
+      ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
+        ${XSLTPROC_EXECUTABLE}
+          --xinclude
+          --path "${xslt_path}"
+          --stringparam base.dir html/relnotes/
+          --output ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes/index.html
+          html.xsl
+          relnotes.xml
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
+      ${CMAKE_CURRENT_SOURCE_DIR}/relnotes.xml
+      ${MIKTEX_DOCBOOK_HTML}
+      ${MIKTEX_HELP_STYLES}
+      ${screenshots_png}
+    VERBATIM
+  )
+  install(
+    DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes/
+    DESTINATION
+      ${MIKTEX_DOC_DESTINATION_DIR}/relnotes/
+    PATTERN ".svn" EXCLUDE
+  )
+endif()
 
 ###############################################################################
 ## license
 
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/license.html
-  COMMAND
-    ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
-      ${XSLTPROC_EXECUTABLE}
-        --xinclude
-        --path "${xslt_path}"
-        --output ${CMAKE_CURRENT_BINARY_DIR}/license.html
-        html.xsl
-        license.xml
-  DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
-    ${CMAKE_CURRENT_SOURCE_DIR}/license.xml
-    ${MIKTEX_DOCBOOK_HTML}
-  VERBATIM
-)
-
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt
-  COMMAND
-    ${PANDOC_EXECUTABLE}
-      -f html
-      -t plain
-      -o ${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt
+if(WITH_MIKTEX_DOC)
+  add_custom_command(
+    OUTPUT
       ${CMAKE_CURRENT_BINARY_DIR}/license.html
-  DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/license.html
-  VERBATIM
-)
-
-install(
-  FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/license.html
-  DESTINATION
-    ${MIKTEX_DOC_DESTINATION_DIR}
-)
+    COMMAND
+      ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
+        ${XSLTPROC_EXECUTABLE}
+          --xinclude
+          --path "${xslt_path}"
+          --output ${CMAKE_CURRENT_BINARY_DIR}/license.html
+          html.xsl
+          license.xml
+    DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
+      ${CMAKE_CURRENT_SOURCE_DIR}/license.xml
+      ${MIKTEX_DOCBOOK_HTML}
+    VERBATIM
+  )
+  add_custom_command(
+    OUTPUT
+      ${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt
+    COMMAND
+      ${PANDOC_EXECUTABLE}
+        -f html
+        -t plain
+        -o ${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt
+        ${CMAKE_CURRENT_BINARY_DIR}/license.html
+    DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/license.html
+    VERBATIM
+  )
+  install(
+    FILES
+      ${CMAKE_CURRENT_BINARY_DIR}/license.html
+    DESTINATION
+      ${MIKTEX_DOC_DESTINATION_DIR}
+  )
+endif()
 
 ###############################################################################
 ## faq
 
 ## help file
 
-if(MIKTEX_NATIVE_WINDOWS)
+if(WITH_MIKTEX_DOC)
   add_custom_command(
     OUTPUT
       ${CMAKE_CURRENT_BINARY_DIR}/faq.chm
@@ -582,74 +586,77 @@ endif()
 
 ## chunked html
 
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/html/faq/index.html
-  COMMAND
-    ${CMAKE_COMMAND} -E
-      remove_directory ${CMAKE_CURRENT_BINARY_DIR}/html/faq
-  COMMAND
-    ${CMAKE_COMMAND} -E
-      copy_directory ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DOCBOOK_XSL_DIR}/images ${CMAKE_CURRENT_BINARY_DIR}/html/faq/images
-  COMMAND
-    ${CMAKE_COMMAND} -E
-      copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Images ${CMAKE_CURRENT_BINARY_DIR}/html/faq/images
-  COMMAND
-    ${CMAKE_COMMAND} -E
-      copy ${MIKTEX_MANUAL_STYLES} ${CMAKE_CURRENT_BINARY_DIR}/html/faq
-  COMMAND
-    ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
-      ${XSLTPROC_EXECUTABLE}
-        --xinclude
-        --path "${xslt_path}"
-        --stringparam base.dir html/faq/
-        --stringparam chunk.fast 1
-        htmlchunk.xsl
-        faq.xml
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
-    ${MIKTEX_DOCBOOK_CHUNKED_HTML}
-    ${MIKTEX_HELP_STYLES}
-    ${screenshots_png}
-    faq.xml
-  VERBATIM
-) 
-
-install(
-  DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}/html/faq/
-  DESTINATION
-    ${MIKTEX_DOC_DESTINATION_DIR}/faq/
-  PATTERN ".svn" EXCLUDE
-)
+if(WITH_MIKTEX_DOC)
+  add_custom_command(
+    OUTPUT
+      ${CMAKE_CURRENT_BINARY_DIR}/html/faq/index.html
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        remove_directory ${CMAKE_CURRENT_BINARY_DIR}/html/faq
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        copy_directory ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_DOCBOOK_XSL_DIR}/images ${CMAKE_CURRENT_BINARY_DIR}/html/faq/images
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Images ${CMAKE_CURRENT_BINARY_DIR}/html/faq/images
+    COMMAND
+      ${CMAKE_COMMAND} -E
+        copy ${MIKTEX_MANUAL_STYLES} ${CMAKE_CURRENT_BINARY_DIR}/html/faq
+    COMMAND
+      ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
+        ${XSLTPROC_EXECUTABLE}
+          --xinclude
+          --path "${xslt_path}"
+          --stringparam base.dir html/faq/
+          --stringparam chunk.fast 1
+          htmlchunk.xsl
+          faq.xml
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
+      ${MIKTEX_DOCBOOK_CHUNKED_HTML}
+      ${MIKTEX_HELP_STYLES}
+      ${screenshots_png}
+      faq.xml
+    VERBATIM
+  ) 
+  install(
+    DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/html/faq/
+    DESTINATION
+      ${MIKTEX_DOC_DESTINATION_DIR}/faq/
+    PATTERN ".svn" EXCLUDE
+  )
+endif()
 
 ## html
 
-add_custom_command(
-  OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/html/faq/faq.html
-  COMMAND
-    ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
-      ${XSLTPROC_EXECUTABLE}
-        --xinclude
-        --path "${xslt_path}"
-        --output ${CMAKE_CURRENT_BINARY_DIR}/html/faq/faq.html
-        --stringparam base.dir html/faq/
-        html.xsl
-        faq.xml
-  WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/html/faq/index.html
-    ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
-    ${MIKTEX_DOCBOOK_HTML}
-    ${MIKTEX_HELP_STYLES}
-    ${screenshots_png}
-    faq.xml
-  VERBATIM
-) 
+if(WITH_MIKTEX_DOC)
+  add_custom_command(
+    OUTPUT
+      ${CMAKE_CURRENT_BINARY_DIR}/html/faq/faq.html
+    COMMAND
+      ${CMAKE_COMMAND} -E env "XML_CATALOG_FILES=${MIKTEX_XML_CATALOG_FILE}"
+        ${XSLTPROC_EXECUTABLE}
+          --xinclude
+          --path "${xslt_path}"
+          --output ${CMAKE_CURRENT_BINARY_DIR}/html/faq/faq.html
+          --stringparam base.dir html/faq/
+          html.xsl
+          faq.xml
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/html/faq/index.html
+      ${CMAKE_CURRENT_BINARY_DIR}/entities.ent
+      ${MIKTEX_DOCBOOK_HTML}
+      ${MIKTEX_HELP_STYLES}
+      ${screenshots_png}
+      faq.xml
+    VERBATIM
+  ) 
+endif()
 
 ###############################################################################
 ## man pages
@@ -682,7 +689,7 @@ set(generated_man_pages
   ${generated_man5_pages}
 )
 
-if(MIKTEX_UNIX_ALIKE)
+if(WITH_MAN_PAGES)
   add_custom_command(
     OUTPUT
       ${generated_man_pages}
@@ -722,43 +729,43 @@ endif()
 ###############################################################################
 ## local guide (required LaTeX file)
 
-install(
-  FILES
-    local.txt
-  DESTINATION
-    ${MIKTEX_TEXMF_DIR}/doc/latex/00LocalGuide
-)
+if(WITH_MIKTEX_DOC)
+  install(
+    FILES
+      local.txt
+    DESTINATION
+      ${MIKTEX_TEXMF_DIR}/doc/latex/00LocalGuide
+  )
+endif()
 
 ###############################################################################
 
-add_custom_target(gen-LICENSE-txt
-  DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt
-)
+if(WITH_MIKTEX_DOC)
+  add_custom_target(gen-LICENSE-txt
+    DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt
+  )
+endif()
 
 ###############################################################################
 ## ALL targets
 
-add_custom_target(gen-html ALL
-  DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/html/faq/faq.html
-    ${CMAKE_CURRENT_BINARY_DIR}/html/faq/index.html
-    ${CMAKE_CURRENT_BINARY_DIR}/html/manual/index.html
-    ${CMAKE_CURRENT_BINARY_DIR}/html/packaging/index.html
-    ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes/index.html
-    ${CMAKE_CURRENT_BINARY_DIR}/license.html
-)
-
-set_property(TARGET gen-html PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-add_custom_target(gen-pdf ALL
-  DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/miktex.pdf
-)
-
-set_property(TARGET gen-pdf PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-if(MIKTEX_NATIVE_WINDOWS)
+if(WITH_MIKTEX_DOC)
+  add_custom_target(gen-html ALL
+    DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/html/faq/faq.html
+      ${CMAKE_CURRENT_BINARY_DIR}/html/faq/index.html
+      ${CMAKE_CURRENT_BINARY_DIR}/html/manual/index.html
+      ${CMAKE_CURRENT_BINARY_DIR}/html/packaging/index.html
+      ${CMAKE_CURRENT_BINARY_DIR}/html/relnotes/index.html
+      ${CMAKE_CURRENT_BINARY_DIR}/license.html
+  )
+  set_property(TARGET gen-html PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  add_custom_target(gen-pdf ALL
+    DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/miktex.pdf
+  )
+  set_property(TARGET gen-pdf PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   add_custom_target(gen-miktex-help ALL
     DEPENDS
       ${CMAKE_CURRENT_BINARY_DIR}/faq.chm
@@ -767,8 +774,7 @@ if(MIKTEX_NATIVE_WINDOWS)
   set_property(TARGET gen-miktex-help PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})  
 endif()
 
-
-if(MIKTEX_UNIX_ALIKE)
+if(WITH_MAN_PAGES)
   add_custom_target(gen-man ALL
     DEPENDS
       ${generated_man_pages}

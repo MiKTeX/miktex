@@ -13,8 +13,6 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
 
     sudo apt-get install -y pkg-config
 
-    sudo apt-get install -y dos2unix
-    sudo apt-get install -y fop
     sudo apt-get install -y pandoc
     sudo apt-get install -y xsltproc
 
@@ -62,8 +60,6 @@ elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     brew outdated cmake || brew upgrade cmake
     brew outdated pkg-config || brew upgrade pkg-config
 
-    ( brew ls -1 | grep -w dos2unix ) || brew install dos2unix
-    ( brew ls -1 | grep -w fop ) || brew install fop
     ( brew ls -1 | grep -w pandoc ) || brew install pandoc
 
     ( brew ls -1 | grep -w ghostscript ) || brew install ghostscript

@@ -470,6 +470,36 @@ option(
   TRUE
 )
 
+option(
+  WITH_TPMS
+  "Build package definition files."
+  ${WIN32}
+)
+
+option(
+  WITH_CONFIG_FILES
+  "Build configuration files."
+  ${WIN32}
+)
+
+option(
+  WITH_MIKTEX_DOC
+  "Build miktex-doc package."
+  ${WIN32}
+)
+
+option(
+  WITH_SCRIPTS
+  "Build script files."
+  ${WIN32}
+)
+
+option(
+  WITH_MAN_PAGES
+  "Build man pages."
+  ${MIKTEX_UNIX_ALIKE}
+)
+
 ###############################################################################
 ## fixed values
 
@@ -748,14 +778,16 @@ foreach(p ${required_programs})
   endif()
 endforeach()
 
-if(MIKTEX_NATIVE_WINDOWS)
-  set(fop_name fop.cmd)
-else()
-  set(fop_name fop)
-endif()
-find_program(FOP_EXECUTABLE NAMES ${fop_name})
-if(NOT FOP_EXECUTABLE)
-  message(FATAL_ERROR "The program ${fop_name} could not be found.")
+if(WITH_MIKTEX_DOC)
+  if(MIKTEX_NATIVE_WINDOWS)
+    set(fop_name fop.cmd)
+  else()
+    set(fop_name fop)
+  endif()
+  find_program(FOP_EXECUTABLE NAMES ${fop_name})
+  if(NOT FOP_EXECUTABLE)
+    message(FATAL_ERROR "The program ${fop_name} could not be found.")
+  endif()
 endif()
 
 find_package(BISON REQUIRED)
@@ -1747,7 +1779,6 @@ add_subdirectory(${MIKTEX_REL_C4P_DIR})
 add_subdirectory(${MIKTEX_REL_CFG_DIR})
 add_subdirectory(${MIKTEX_REL_CHKTEX_DIR})
 add_subdirectory(${MIKTEX_REL_CJKUTILS_DIR})
-add_subdirectory(${MIKTEX_REL_CONFIG_DIR})
 add_subdirectory(${MIKTEX_REL_CORE_DIR})
 add_subdirectory(${MIKTEX_REL_CWEB_DIR})
 add_subdirectory(${MIKTEX_REL_DEFAULTS_DIR})
@@ -1803,7 +1834,6 @@ add_subdirectory(${MIKTEX_REL_TEX_DIR})
 add_subdirectory(${MIKTEX_REL_TEX_ETC_DIR})
 add_subdirectory(${MIKTEX_REL_TIE_DIR})
 add_subdirectory(${MIKTEX_REL_TOUCH_DIR})
-add_subdirectory(${MIKTEX_REL_TPM_DIR})
 add_subdirectory(${MIKTEX_REL_TRACE_DIR})
 add_subdirectory(${MIKTEX_REL_TTF2PK2_DIR})
 add_subdirectory(${MIKTEX_REL_UTIL_DIR})
@@ -1811,6 +1841,14 @@ add_subdirectory(${MIKTEX_REL_W2CEMU_DIR})
 add_subdirectory(${MIKTEX_REL_WEB_DIR})
 add_subdirectory(${MIKTEX_REL_XETEX_DIR})
 add_subdirectory(${MIKTEX_REL_XINDY_DIR})
+
+if(WITH_CONFIG_FILES)
+  add_subdirectory(${MIKTEX_REL_CONFIG_DIR})
+endif()
+
+if(WITH_TPMS)
+  add_subdirectory(${MIKTEX_REL_TPM_DIR})
+endif()
 
 if(WITH_OMEGA)
   add_subdirectory(${MIKTEX_REL_OMEGAWARE_DIR})

@@ -88,10 +88,12 @@ foreach(x ${executables})
   install(TARGETS ${MIKTEX_PREFIX}${x} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 endforeach()
 
-install(
-  FILES
-    source/extractres
-    source/psjoin
-  DESTINATION
-    ${MIKTEX_TEXMF_DIR}/scripts/psutils
-)
+if(WITH_SCRIPTS)
+  install(
+    FILES
+      source/extractres
+      source/psjoin
+    DESTINATION
+      ${MIKTEX_TEXMF_DIR}/scripts/psutils
+  )
+endif()
