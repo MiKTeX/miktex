@@ -74,6 +74,9 @@
 #endif
 
 #include "pdftocairo-win32.h"
+#if defined(MIKTEX)
+#  include <unistd.h>
+#endif
 
 
 static GBool png = gFalse;
@@ -868,7 +871,11 @@ static void checkInvalidImageOption(GBool option, const char *option_name)
   }
 }
 
+#if defined(MIKTEX)
+int Main(int argc, char** argv) {
+#else
 int main(int argc, char *argv[]) {
+#endif
   PDFDoc *doc;
   GooString *fileName = NULL;
   GooString *outputName = NULL;

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2013-2016 Christian Schenk
+## Copyright (C) 2013-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -50,8 +50,8 @@ set(CAIRO_HAS_EGL_FUNCTIONS FALSE)
 set(CAIRO_HAS_GLX_FUNCTIONS FALSE)
 set(CAIRO_HAS_WGL_FUNCTIONS FALSE)
 set(CAIRO_HAS_SCRIPT_SURFACE TRUE)
-set(CAIRO_HAS_FT_FONT FALSE)
-set(CAIRO_HAS_FC_FONT FALSE)
+set(CAIRO_HAS_FT_FONT TRUE)
+set(CAIRO_HAS_FC_FONT TRUE)
 set(CAIRO_HAS_PS_SURFACE TRUE)
 set(CAIRO_HAS_PDF_SURFACE TRUE)
 set(CAIRO_HAS_SVG_SURFACE TRUE)
@@ -64,23 +64,21 @@ set(CAIRO_HAS_TRACE FALSE)
 set(CAIRO_HAS_INTERPRETER TRUE)
 set(CAIRO_HAS_SYMBOL_LOOKUP FALSE)
 
-configure_file(
-  source/src/cairo.h
-  ${CMAKE_CURRENT_BINARY_DIR}/include/cairo.h
-  COPYONLY
-)
+include(features.cmake)
 
-configure_file(
+set(public_headers
+  ${enabled_cairo_headers}
   source/cairo-version.h
-  ${CMAKE_CURRENT_BINARY_DIR}/include/cairo-version.h
-  COPYONLY
 )
 
-configure_file(
-  source/src/cairo-deprecated.h
-  ${CMAKE_CURRENT_BINARY_DIR}/include/cairo-deprecated.h
-  COPYONLY
-)
+foreach(h ${public_headers})
+  get_filename_component(fn ${h} NAME)
+  configure_file(
+    ${h}
+    ${CMAKE_CURRENT_BINARY_DIR}/include/${fn}
+    COPYONLY
+  )
+endforeach()
 
 configure_file(
   cairo-features.h.cmake
@@ -92,8 +90,6 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src
 )
-
-include(features.cmake)
 
 set(${cairo_dll_name}_sources
   ${enabled_cairo_sources}
@@ -127,6 +123,18 @@ target_include_directories(${cairo_dll_name}
     ${CMAKE_CURRENT_BINARY_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
+
+if(USE_SYSTEM_FONTCONFIG)
+  target_link_libraries(${cairo_dll_name} PUBLIC MiKTeX::Imported::FONTCONFIG)
+else()
+  target_link_libraries(${cairo_dll_name} PUBLIC ${fontconfig_dll_name})
+endif()
+
+if(USE_SYSTEM_FREETYPE2)
+  target_link_libraries(${cairo_dll_name} PUBLIC MiKTeX::Imported::FREETYPE2)
+else()
+  target_link_libraries(${cairo_dll_name} PUBLIC ${freetype2_dll_name})
+endif()
 
 if(USE_SYSTEM_PIXMAN)
   target_link_libraries(${cairo_dll_name} PUBLIC MiKTeX::Imported::PIXMAN)

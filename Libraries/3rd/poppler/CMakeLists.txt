@@ -55,6 +55,9 @@ set(HAVE_LIBZ TRUE)
 set(HAVE_SPLASH TRUE)
 set(HAVE_FREETYPE_H TRUE)
 
+set(HAVE_CAIRO TRUE)
+set(HAVE_UNISTD_H TRUE)
+
 add_definitions(-DHAVE_CONFIG_H=1)
 
 ignore_warnings()
@@ -381,6 +384,12 @@ if(MIKTEX_NATIVE_WINDOWS)
       ${unxemu_dll_name}
       ${utf8wrap_dll_name}
   )
+endif()
+
+if(USE_SYSTEM_CAIRO)
+  target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::CAIRO)
+else()
+  target_link_libraries(${poppler_lib_name} PUBLIC ${cairo_dll_name})
 endif()
 
 if(USE_SYSTEM_FREETYPE2)

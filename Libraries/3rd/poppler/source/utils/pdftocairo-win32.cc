@@ -10,6 +10,9 @@
 //
 //========================================================================
 
+#if defined(MIKTEX)
+#include "config.h"
+#endif
 #include <cairo.h>
 #ifdef CAIRO_HAS_WIN32_SURFACE
 

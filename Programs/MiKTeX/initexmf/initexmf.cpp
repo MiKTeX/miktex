@@ -1551,6 +1551,7 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_PDFINFO_EXE, { "pdfinfo" } },
   { MIKTEX_PDFSEPARATE_EXE, { "pdfseparate" } },
   { MIKTEX_PDFSIG_EXE, { "pdfsig" } },
+  { MIKTEX_PDFTOCAIRO_EXE,{ "pdftocairo" } },
   { MIKTEX_PDFTOHTML_EXE, { "pdftohtml" } },
   { MIKTEX_PDFTOPPM_EXE, { "pdftoppm" } },
   { MIKTEX_PDFTOPS_EXE, { "pdftops" } },

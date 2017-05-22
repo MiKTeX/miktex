@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2007-2016 Christian Schenk
+## Copyright (C) 2007-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -72,17 +72,17 @@ file(READ
 )
 
 string(REGEX REPLACE
-  "#undef +(HAVE_FCNTL_H)" "#define \\1"
+  "#undef +(HAVE_FCNTL_H)" "#define \\1 1"
   ftconfig_h "${ftconfig_h}"
 )
 
 string(REGEX REPLACE
-  "#undef +(HAVE_STDINT_H)" "#define \\1"
+  "#undef +(HAVE_STDINT_H)" "#define \\1 1"
   ftconfig_h "${ftconfig_h}"
 )
 
 string(REGEX REPLACE
-  "#undef +(HAVE_UNISTD_H)" "#define \\1"
+  "#undef +(HAVE_UNISTD_H)" "#define \\1 1"
   ftconfig_h "${ftconfig_h}"
 )
 
@@ -277,6 +277,11 @@ target_include_directories(${freetype2_dll_name}
 target_link_libraries(${freetype2_dll_name}
   PRIVATE
     ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+)
+
+target_link_libraries(${freetype2_dll_name}
+  PUBLIC
     ${utf8wrap_dll_name}
 )
 

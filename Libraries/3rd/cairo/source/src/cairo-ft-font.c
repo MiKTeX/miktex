@@ -66,6 +66,10 @@
 #include FT_LCD_FILTER_H
 #endif
 
+#if defined(MIKTEX_WINDOWS)
+/* TODO: link with unxemu */
+#undef HAVE_UNISTD_H
+#endif
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #else
