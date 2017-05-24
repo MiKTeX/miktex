@@ -414,7 +414,7 @@ private:
   bool OnProgress(unsigned level, const PathName& directory) override;
 
 private:
-  bool OnFndbItem(const PathName& path, const string& name, const string& info, bool isDirectory) override;
+  bool OnFndbItem(const PathName& parent, const string& name, const string& info, bool isDirectory) override;
 
 public:
   void ReportLine(const string& str) override;
@@ -2363,11 +2363,11 @@ void IniTeXMFApp::WriteReport()
   }
 }
 
-bool IniTeXMFApp::OnFndbItem(const PathName& path, const string& name, const string& info, bool isDirectory)
+bool IniTeXMFApp::OnFndbItem(const PathName& parent, const string& name, const string& info, bool isDirectory)
 {
   if (recursive)
   {
-    PathName path(path, name);
+    PathName path(parent, name);
     const char* lpszRel = Utils::GetRelativizedPath(path.GetData(), enumDir.GetData());
     if (!isDirectory)
     {
