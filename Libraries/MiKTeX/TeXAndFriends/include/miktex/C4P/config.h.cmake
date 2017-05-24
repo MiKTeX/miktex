@@ -1,6 +1,6 @@
 /* miktex/C4P/config.h: C4P compile-time configuration  -*- C++ -*-
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2017 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -54,5 +54,9 @@
 
 #cmakedefine HAVE_ROUND 1
 #cmakedefine HAVE_TRUNC 1
+
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wparentheses-equality"
+#endif
 
 #endif

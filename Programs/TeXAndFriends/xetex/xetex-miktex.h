@@ -26,6 +26,8 @@
 #  include <miktex/utf8wrap.h>
 #endif
 
+#include "xetex-version.h"
+
 #include <miktex/Core/FileType>
 #include <miktex/Core/MD5>
 #include <miktex/Core/Paths>
@@ -41,8 +43,6 @@
 #include <miktex/W2C/Emulation>
 
 #include "xetexd.h"
-
-#include "xetex-version.h"
 
 #if 0
 namespace xetex {

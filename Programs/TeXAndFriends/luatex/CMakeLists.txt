@@ -29,7 +29,6 @@ include_directories(BEFORE
 add_definitions(
   -DAPPTAG=luatex
   -DLUA_COMPAT_ALL
-  -DLUA_COMPAT_MODULE
   -DMIKTEX_LUATEX
   -DNO_DUMP_SHARE
   -DPDF_PARSER_ONLY

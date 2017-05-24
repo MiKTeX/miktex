@@ -244,6 +244,10 @@ extern int mk_getc (FILE *str);         /* line endings patch */
 
 /* NB: The typecasts here are CRITICAL for correct sorting of entries
    that use characters in the range 128..255! */
+#if defined(MIKTEX)
+#  undef TOLOWER
+#  undef TOUPPER
+#endif
 #define TOLOWER(C) (isupper((unsigned char)(C)) ? \
 	(unsigned char)tolower((unsigned char)(C)) : (unsigned char)(C))
 #define TOUPPER(C) (isupper((unsigned char)(C)) ? \

@@ -87,7 +87,7 @@ inline void recorder_record_input(const char* fname)
   MiKTeX::Web2C::RecordFileName(fname, MiKTeX::Core::FileAccess::Read);
 }
 #else
-static inline recorder_record_input(const char* fname)
+static inline void recorder_record_input(const char* fname)
 {
   miktex_web2c_record_file_name(fname, 1);
 }

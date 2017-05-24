@@ -34,10 +34,7 @@ include_directories(
 add_definitions(
   -DHAVE_C4P_PRE_H
   -DLE_USE_CMEMORY
-  -DMIKTEX_XETEX
   -DSYNCTEX_ENGINE_H="synctex-xetex.h"
-  -DXETEXAPP=g_XETEXApp
-  -DXETEXAPPCLASS=XETEX
   -DXETEX_OTHER
   -DXeTeX
   -D__SyncTeX__
