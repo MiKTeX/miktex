@@ -2026,7 +2026,7 @@ void IniTeXMFApp::ReportMiKTeXVersion()
   }
   else
   {
-    cout << "MiKTeX: " << Utils::GetMiKTeXVersionString() << endl;
+    cout << "MiKTeX: " << Utils::GetMiKTeXBannerString() << endl;
     cout << T_("Invokers:") << " ";
     bool first = true;
     for (const string& name : invokerNames)
