@@ -1242,13 +1242,6 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/SDK/samples/c++/findpk/findpk.cpp
 )
 
-if(MIKTEX_NATIVE_WINDOWS AND MIKTEX_RELEASE_STATE EQUAL 4)
-  configure_file(
-    miktexstartup.ini.debug.in
-    ${CMAKE_CURRENT_BINARY_DIR}/miktexstartup.ini.debug
-  )
-endif()
-
 ###############################################################################
 ## add/import 3rd party libs
 ##

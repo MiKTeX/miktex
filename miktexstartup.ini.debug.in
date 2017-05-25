@@ -1,7 +1,0 @@
-;;; MiKTeX startup information
-
-
-[Paths]
-
-;; common TEXMF root directories
-CommonInstall=C:\Program Files\MiKTeX 2.9
