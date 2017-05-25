@@ -23,7 +23,7 @@
 #  pragma once
 #endif
 
-#if ! defined(ED87D0F8C292441A8B1032D6D24136E5)
+#if !defined(ED87D0F8C292441A8B1032D6D24136E5)
 #define ED87D0F8C292441A8B1032D6D24136E5
 
 #include "../miktex/W2C/pre.h"
