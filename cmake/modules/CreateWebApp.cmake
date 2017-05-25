@@ -177,14 +177,12 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
     set(_sed_script ${CMAKE_CURRENT_BINARY_DIR}/dyn.sed)
   elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dyn.sed)
     set(_sed_script ${CMAKE_CURRENT_SOURCE_DIR}/dyn.sed)
-  else()
-    set(_sed_script /dev/null)
   endif()
 
   add_custom_command(
     OUTPUT
       ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}.cc
-      ${${_short_name_l}_header_file}
+      ${${_short_name_l}_header_file}.intermediate
       ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}defs.h
     COMMAND
       c4p
@@ -199,12 +197,7 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
       ${C4P_FLAGS}
       ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}.p
     COMMAND
-      ${SED_EXECUTABLE}
-      -f ${_sed_script}
-      ${${_short_name_l}_header_file}
-      > tmp
-    COMMAND
-      ${CMAKE_COMMAND} -E copy tmp ${${_short_name_l}_header_file}
+      ${CMAKE_COMMAND} -E rename ${${_short_name_l}_header_file} ${${_short_name_l}_header_file}.intermediate
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     MAIN_DEPENDENCY
@@ -213,6 +206,30 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
       c4p
     VERBATIM
   )
+
+  if(_sed_script)
+    add_custom_command(
+      OUTPUT
+        ${${_short_name_l}_header_file}
+      COMMAND
+        ${SED_EXECUTABLE} -f ${_sed_script} ${${_short_name_l}_header_file}.intermediate > ${${_short_name_l}_header_file}
+      WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}
+      MAIN_DEPENDENCY
+        ${${_short_name_l}_header_file}.intermediate
+    )
+  else()
+    add_custom_command(
+      OUTPUT
+        ${${_short_name_l}_header_file}
+      COMMAND
+        ${CMAKE_COMMAND} -E copy ${${_short_name_l}_header_file}.intermediate ${${_short_name_l}_header_file}
+      WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}
+      MAIN_DEPENDENCY
+        ${${_short_name_l}_header_file}.intermediate
+    )
+  endif()
 
   if(NOT ${_short_name_l} STREQUAL "tangle")
     add_custom_command(
