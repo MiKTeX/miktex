@@ -24,6 +24,10 @@
 * LibreSSL 2.5.3
 * Poppler 0.55.0
 
+### Bug fixes
+
+* [2604](https://sourceforge.net/p/miktex/bugs/2604/): Report clearly when repository servers are intentionally offline
+
 ## 2.9.6300 - 2017-04-25
 
 ### New programs
