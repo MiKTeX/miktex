@@ -1,0 +1,3 @@
+[MPM]
+  AutoInstall=no
+  

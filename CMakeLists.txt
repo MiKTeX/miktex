@@ -27,11 +27,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_COLOR_MAKEFILE FALSE)
 #set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
-set(outdir "${CMAKE_BINARY_DIR}/binlib")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${outdir}")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${outdir}")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${outdir}")
-
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 set(CMAKE_LINK_DEPENDS_NO_SHARED 1)
@@ -707,6 +702,43 @@ include(RuntimePaths)
 include(SourcePaths)
 include(UseStaticCRT)
 include(IgnoreWarnings)
+
+###############################################################################
+## build sandbox
+
+set(MIKTEX_SANDBOX_SOURCE_DIR "${CMAKE_SOURCE_DIR}/sandbox")
+set(MIKTEX_SANDBOX_BINARY_DIR "${CMAKE_BINARY_DIR}/sandbox")
+
+configure_file(
+  sandbox/miktex/config/miktexstartup.ini.cmake
+  ${MIKTEX_SANDBOX_BINARY_DIR}/miktex/config/miktexstartup.ini
+)
+
+configure_file(
+  sandbox/miktex/config/miktex.ini.cmake
+  ${MIKTEX_SANDBOX_BINARY_DIR}/miktex/config/miktex.ini
+)
+
+configure_file(
+  Admin/ConfigFiles/win/log4cxx.win.xml
+  ${MIKTEX_SANDBOX_BINARY_DIR}/miktex/config/win/log4cxx.win.xml
+  COPYONLY
+)
+
+configure_file(
+  Admin/ConfigFiles/unx/log4cxx.unx.xml
+  ${MIKTEX_SANDBOX_BINARY_DIR}/miktex/config/unx/log4cxx.unx.xml
+  COPYONLY
+)
+
+set(outdir "${MIKTEX_SANDBOX_BINARY_DIR}/${MIKTEX_REL_MIKTEX_BIN_DIR}")
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${outdir}")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${outdir}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${outdir}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${outdir}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${outdir}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${outdir}")
 
 ###############################################################################
 ## RPATH handling
