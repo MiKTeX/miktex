@@ -13,9 +13,9 @@
 ### Changed programs
 
 * dvipdfmx
-  - TL sync: support additional length units
+  - Support additional length units (from TL)
 * pdfTeX
-  - TL sync: adding SyncTeX support to `\pdfxform`
+  - Adding SyncTeX support to `\pdfxform` (from TL)
   
 ### Upgraded libraries
 
