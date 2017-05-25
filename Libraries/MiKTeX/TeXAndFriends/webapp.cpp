@@ -99,7 +99,7 @@ WebApp::WebApp() :
 {
 }
 
-WebApp::~WebApp()
+WebApp::~WebApp() noexcept
 {
 }
 

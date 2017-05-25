@@ -159,25 +159,17 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
       HEADER_FILE_ONLY TRUE
   )
 
-  set_source_files_properties(
-    ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}.cc
-    ${${_short_name_l}_header_file}
-    ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}main.cpp
-    PROPERTIES COMPILE_FLAGS
-      "-DMIKTEX_${_name_u} -DMIKTEX_${_short_name_u} -D${_short_name_u}PROG=${${_short_name_l}_prog} -D${_short_name_u}PROGCLASS=${${_short_name_l}_progclass} -D${_short_name_u}APP=${${_short_name_l}_app} -D${_short_name_u}APPCLASS=${${_short_name_l}_appclass}"
-  )
-
   if(MSVC)
     set_source_files_properties(
       ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}wrapper.cpp
       PROPERTIES COMPILE_FLAGS
-      "-DFUNC=MiKTeX_${_name_u} -DMIKTEX_${_name_u} -D_UNICODE"
+      "-DFUNC=MiKTeX_${_name_u} -D_UNICODE"
     )
   else()
     set_source_files_properties(
       ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}wrapper.cpp
       PROPERTIES COMPILE_FLAGS
-      "-DFUNC=MiKTeX_${_name_u} -DMIKTEX_${_name_u}"
+      "-DFUNC=MiKTeX_${_name_u}"
     )
   endif()
 

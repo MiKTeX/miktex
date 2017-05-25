@@ -54,7 +54,7 @@ TeXApp::TeXApp() :
 {
 }
 
-TeXApp::~TeXApp()
+TeXApp::~TeXApp() noexcept
 {
 }
 
