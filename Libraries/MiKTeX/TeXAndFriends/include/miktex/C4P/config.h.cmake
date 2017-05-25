@@ -56,6 +56,7 @@
 #cmakedefine HAVE_TRUNC 1
 
 #if defined(__clang__)
+#pragma clang diagnostic ignored "-Wdangling-else"
 #pragma clang diagnostic ignored "-Wparentheses-equality"
 #endif
 
