@@ -24,6 +24,16 @@
 * LibreSSL 2.5.3
 * Poppler 0.55.0
 
+### macOS support
+
+It is now possible to install MiKTeX via the Homebrew package manager:
+
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    brew tap miktex/miktex
+    brew install miktex
+
+See [this howto](https://miktex.org/howto/install-miktex-mac) for more info.
+
 ### Bug fixes
 
 * [2604](https://sourceforge.net/p/miktex/bugs/2604/): Report clearly when repository servers are intentionally offline
