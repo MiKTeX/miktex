@@ -1,7 +1,7 @@
 /* miktex/KPSE/Emulation.h: kpathsea emulation          -*- C++ -*-
 
    Copyright 1993, 1995, 1996, 2005, 2008, 2009, 2010 Karl Berry
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is part of the MiKTeX KPSEMU Library.
 
@@ -199,6 +199,7 @@ typedef const char * const_string;
 #endif
 
 #if !defined(HAVE_BOOLEAN)
+#  define HAVE_BOOLEAN 1
 #  if defined(_WIN32)
   // FIXME:  boolean is a MIDL base type (see <rpcndr.h>)
   typedef int miktex_kpse_boolean;
