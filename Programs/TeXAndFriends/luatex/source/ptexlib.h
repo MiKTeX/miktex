@@ -77,7 +77,9 @@ extern char **suffixlist;       /* in luainit.w */
 #  define eTeX_revision ".2"    /* \.{\\eTeXrevision} */
 
 
+#if defined(MIKTEX) && !defined(LUA_COMPAT_ALL)
 #define LUA_COMPAT_MODULE 1
+#endif
 #  include "lua.h"
 
 
