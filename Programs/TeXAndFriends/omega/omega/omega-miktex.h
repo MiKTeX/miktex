@@ -23,6 +23,8 @@
 
 #include "omega-miktex-config.h"
 
+#include "omega-version.h"
+
 #include <miktex/KPSE/Emulation>
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
 #include <miktex/TeXAndFriends/ErrorHandlerImpl>
@@ -34,12 +36,10 @@
 #include <miktex/TeXAndFriends/TeXMemoryHandlerImpl>
 #include <miktex/W2C/Emulation>
 
-#if defined(MIKTEX)
 #define P1H(x1) (x1)
 #define P1C(t1, v1) (t1 v1)
 #define P2C(t1, v1, t2, v2) (t1 v1, t2 v2)
 #define P4C(t1, v1, t2, v2, t3, v3, t4, v4) (t1 v1, t2 v2, t3 v3, t4 v4)
-#endif
 
 #include "omega.h"
 

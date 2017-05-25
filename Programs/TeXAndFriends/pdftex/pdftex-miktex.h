@@ -31,6 +31,8 @@
 #  include <miktex/utf8wrap.h>
 #endif
 
+#include "pdftex-version.h"
+
 #include <miktex/Core/Paths>
 #include <miktex/KPSE/Emulation>
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
@@ -43,8 +45,6 @@
 #include <miktex/TeXAndFriends/ETeXMemoryHandlerImpl>
 
 #include "pdftexd.h"
-
-#include "pdftex-version.h"
 
 namespace pdftex {
 #include <miktex/pdftex.defaults.h>

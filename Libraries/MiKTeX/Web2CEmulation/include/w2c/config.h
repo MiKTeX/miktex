@@ -34,7 +34,11 @@
 
 MIKTEX_BEGIN_EXTERN_C_BLOCK
 
-typedef int integer;
+#if !defined(INTEGER_TYPE)
+#define INTEGER_TYPE int
+typedef INTEGER_TYPE integer;
+#endif
+
 typedef MIKTEX_INT64 longinteger;
 typedef long long LONGINTEGER_TYPE;
 #define LONGINTEGER_PRI "ll"

@@ -21,12 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
 #if defined(MIKTEX)
 #define C4PEXTERN extern
-#if defined(MIKTEX_OMEGA)
 #include "omega-miktex.h"
-#endif
-#if defined(MIKTEX_EOMEGA)
-#include "eomega-miktex.h"
-#endif	/* MiKTeX */
 #else
 #define EXTERN extern
 #endif
@@ -34,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #include "omegad.h"
 #endif
 #undef read

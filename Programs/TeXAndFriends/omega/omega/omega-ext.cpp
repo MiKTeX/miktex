@@ -19,14 +19,11 @@ You should have received a copy of the GNU Library General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
-#define C4PEXTERN extern	// MiKTeX
 
-#if defined(MIKTEX_OMEGA)
-#  include "omega-miktex.h"	// MiKTeX
-#endif
 
-#if defined(MIKTEX_EOMEGA)
-#  include "eomega-miktex.h"	// MiKTeX
+#if defined(MIKTEX)
+#  define C4PEXTERN extern
+#  include "omega-miktex.h"
 #endif
 
 void

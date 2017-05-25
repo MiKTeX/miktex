@@ -146,12 +146,6 @@ add_custom_command(
   VERBATIM
 )
 
-set_source_files_properties(
-  ${CMAKE_CURRENT_BINARY_DIR}/tex_pool.cpp
-  PROPERTIES COMPILE_FLAGS
-    "-DMIKTEX_TEX -DTEXPROGCLASS=${tex_progclass} -DTEXPROG=${tex_prog} -DTEXAPPCLASS=${tex_appclass} -DTEXAPP=${tex_app}"
-)
-
 add_custom_target(tex-dev ALL
   DEPENDS
     ${CMAKE_CURRENT_BINARY_DIR}/tex-n.web

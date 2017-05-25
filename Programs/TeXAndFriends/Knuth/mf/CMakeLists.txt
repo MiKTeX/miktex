@@ -86,13 +86,6 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/mf.pool
 )
 
-set_source_files_properties(
-  ${CMAKE_CURRENT_SOURCE_DIR}/screen.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/mf_pool.cpp
-  PROPERTIES COMPILE_FLAGS
-    "-DMIKTEX_METAFONT -DMIKTEX_MF -DMFPROGCLASS=${mf_progclass} -DMFPROG=${mf_prog} -DMFAPPCLASS=${mf_appclass} -DMFAPP=${mf_app}"
-)
-
 add_dependencies(${mf_target_name} gen-defaults)
 
 set_source_files_properties(

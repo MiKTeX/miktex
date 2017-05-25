@@ -99,13 +99,6 @@ set_source_files_properties(
   PROPERTIES LANGUAGE CXX
 )
 
-set_source_files_properties(
-  ${${omega_target_name}_sources}
-  PROPERTIES COMPILE_FLAGS
-    "-DC4PEXTERN=extern -DMIKTEX_OMEGA"
-
-)
-
 file(READ ${MIKTEX_DYN_TEX_SCRIPT} tex_dyn_sed_contents)
 file(READ ${MIKTEX_DYN_OMEGA_SCRIPT} omega_dyn_sed_contents)
 
