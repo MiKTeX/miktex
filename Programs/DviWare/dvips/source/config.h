@@ -8,8 +8,8 @@
 #if defined(MIKTEX_WINDOWS)
 #define MIKTEX_UTF8_WRAP_ALL 1
 #include <miktex/utf8wrap.h>
-#define register
 #endif
+#define register
 #endif
 
 /* The stuff from the path searching library.  */
