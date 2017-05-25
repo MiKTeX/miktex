@@ -41,7 +41,9 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "ptexlib.h"
-
+#if defined(MIKTEX)
+#define register
+#endif
 /*
  *   Now we have some routines to get stuff from the pk file.  pkbyte returns
  *   the next byte from the pk file.

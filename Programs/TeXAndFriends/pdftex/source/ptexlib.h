@@ -28,6 +28,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    endif
 #    define _USE_MATH_DEFINES 
 #    include <cmath>
+#    include "pdftex-version.h"
 #    include <miktex/KPSE/Emulation>
 #    include <miktex/W2C/Emulation>
 #    include "pdftex-miktex.h"

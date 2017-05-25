@@ -103,6 +103,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #endif
 #include <getopt.h>
 #include <fcntl.h>
+#define register
 #endif
 #include <stdio.h>
 #include <stdlib.h>
