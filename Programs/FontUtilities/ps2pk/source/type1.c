@@ -59,7 +59,10 @@
 #include  "fontmisc.h"
 #include  "ffilest.h"
 #include  "fontfcn.h"
- 
+#if defined(MIKTEX)
+#include "math.h"
+#endif
+
 /**********************************/
 /* Type1 Constants and Structures */
 /**********************************/

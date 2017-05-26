@@ -10,7 +10,9 @@
 #endif
 #include "cpascal.h"
 #include <ctype.h> 
-
+#if defined(MIKTEX)
+#define register
+#endif
 
 /*:5*//*8:*/
 

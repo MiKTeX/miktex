@@ -1,6 +1,6 @@
 /* scan.l: C4P Lexical Scanner Specification            -*- C++ -*-
 
-   Copyright (C) 1991-2016 Christian Schenk
+   Copyright (C) 1991-2017 Christian Schenk
 
    This file is part of C4P.
 
@@ -33,7 +33,9 @@
 #if defined(MIKTEX_WINDOWS)
 #define YY_NO_UNISTD_H
 #endif
-  
+
+#define register
+
 extern YYSTYPE yylval;
 
 namespace {

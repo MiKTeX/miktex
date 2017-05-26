@@ -154,6 +154,9 @@
 #  include <miktex/utf8wrap.h>
 #  include <miktex/unxemu.h>
 #endif
+#if defined(MIKTEX)
+#define register
+#endif
 #ifdef KPATHSEA
 #include <kpathsea/config.h>
 #endif

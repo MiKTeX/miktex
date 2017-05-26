@@ -1,6 +1,6 @@
 /* miktex/Core/IntegerTypes.h:                          -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -27,7 +27,7 @@
 #define B8790D0F8ECA42169AD3373FC845E5D7
 
 #if !defined(HAVE_INTTYPES_H)
-#cmakedefine HAVE_INTTYPES_H
+#cmakedefine HAVE_INTTYPES_H 1
 #endif
 
 #if defined(HAVE_INTTYPES_H)
@@ -35,7 +35,7 @@
 #endif
 
 #if !defined(HAVE_STDINT_H)
-#cmakedefine HAVE_STDINT_H
+#cmakedefine HAVE_STDINT_H 1
 #endif
 
 #if defined(HAVE_STDINT_H)

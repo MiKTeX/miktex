@@ -15,6 +15,9 @@
  * bytes. The MTHREShold is where we stop finding a better median.
  */
 #include "qsort.h"			/* qq_compar_fn_t type and qqsort() prototype */
+#if defined(MIKTEX)
+#define register
+#endif
 
 #define THRESH  4			/* threshold for insertion */
 #define MTHRESH 6			/* threshold for median */
