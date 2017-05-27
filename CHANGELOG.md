@@ -1,10 +1,10 @@
 # MiKTeX Change Log
 
-## MiKTeX NEXT
+## 2.9.6350 - 2017-05-28
 
 ### New programs
 
-* axohelp: a helper utility for the [axodraw2 package](https://www.ctan.org/tex-archive/graphics/axodraw2).
+* axohelp: a helper utility for the [axodraw2 package](https://miktex.org/packages/axodraw2).
 
 ### Upgraded programs
 
@@ -13,9 +13,9 @@
 ### Changed programs
 
 * dvipdfmx
-  - Support additional length units (from TL)
+  - Support additional length units
 * pdfTeX
-  - Adding SyncTeX support to `\pdfxform` (from TL)
+  - Adding SyncTeX support to `\pdfxform`
   
 ### Upgraded libraries
 
@@ -42,7 +42,7 @@ See [this howto](https://miktex.org/howto/install-miktex-mac) for more info.
 
 ### New programs
 
-* [autosp](http://ctan.org/pkg/autosp) - a preprocessor that generates note-spacing commands for MusiXTeX scores
+* [autosp](https://miktex.org/packages/autosp) - a preprocessor that generates note-spacing commands for MusiXTeX scores
 * [Gregorio](http://gregorio-project.github.io) - convert from gabc to GregorioTeX
 
 ### Upgraded programs
