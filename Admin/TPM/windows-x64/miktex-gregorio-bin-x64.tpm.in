@@ -3,7 +3,7 @@
 	 xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/gregorio/">
     <TPM:Name>gregorio win64</TPM:Name>
-    <TPM:Title>gregorio, Windows x86</TPM:Title>
+    <TPM:Title>gregorio, Windows x64</TPM:Title>
     <TPM:Copyright owner="The Gregorio Project" year="2006-2017"/>
     <TPM:License type="gpl3"/>
     <TPM:Version>5.0.1</TPM:Version>
