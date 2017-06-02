@@ -23,6 +23,8 @@
 
 #include "mf-miktex-config.h"
 
+#include "mf-version.h"
+
 #include <miktex/Core/FileType>
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
 #include <miktex/TeXAndFriends/ErrorHandlerImpl>

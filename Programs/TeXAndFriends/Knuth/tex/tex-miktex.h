@@ -23,6 +23,8 @@
 
 #include "tex-miktex-config.h"
 
+#include "tex-version.h"
+
 #include <miktex/TeXAndFriends/CharacterConverterImpl>
 #include <miktex/TeXAndFriends/ErrorHandlerImpl>
 #include <miktex/TeXAndFriends/FormatHandlerImpl>
