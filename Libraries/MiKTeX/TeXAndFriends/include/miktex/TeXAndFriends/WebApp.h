@@ -297,7 +297,7 @@ public:
 #if defined(MIKTEX_COMP_TM_STR)
     componentTrademark = MIKTEX_COMP_TM_STR;
 #endif
-    app.SetProgramInfo(programName, componentVersion, componentVersion, componentTrademark);
+    app.SetProgramInfo(programName, componentVersion, componentCopyright, componentTrademark);
     try
     {
       MIKTEX_ASSERT(argv != nullptr && argv[argc] == nullptr);
