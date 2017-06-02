@@ -60,10 +60,12 @@ ligatures and variable font weights.</para>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/auxdirectory.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/bufsize.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/cstyleerrors.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disable8bitchars.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disableinstaller.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disablepipes.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/disablewriteeighteen.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/dontparsefirstline.xml" />
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enable8bitchars.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableetex.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enableinstaller.xml" />
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/enablemltex.xml" />
