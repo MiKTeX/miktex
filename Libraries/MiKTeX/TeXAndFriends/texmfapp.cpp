@@ -242,7 +242,7 @@ void TeXMFApp::AddOptions()
   if (IsFeatureEnabled(Feature::EightBitChars))
   {
     AddOption(T_("enable-8bit-chars\0Make all characters printable by default."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_8BIT_CHARS);
-    AddOption(T_("disable-8bit-chars\0Make only 7-bit characters printable by."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_8BIT_CHARS);
+    AddOption(T_("disable-8bit-chars\0Make only 7-bit characters printable."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_8BIT_CHARS);
   }
 
   AddOption(T_("aux-directory\0Use DIR as the directory to write auxiliary files to."), FIRST_OPTION_VAL + pimpl->optBase + OPT_AUX_DIRECTORY, POPT_ARG_STRING, "DIR");
@@ -621,12 +621,12 @@ void TeXMFApp::CheckFirstLine(const PathName& fileName)
       PathName fileName(memoryDumpFileName);
       if (!fileName.HasExtension())
       {
-	fileName.SetExtension(GetMemoryDumpFileExtension());
+        fileName.SetExtension(GetMemoryDumpFileExtension());
       }
       PathName path;
       if (session->FindFile(fileName.ToString(), GetMemoryDumpFileType(), path))
       {
-	pimpl->memoryDumpFileName = memoryDumpFileName;
+        pimpl->memoryDumpFileName = memoryDumpFileName;
       }
     }
   }
