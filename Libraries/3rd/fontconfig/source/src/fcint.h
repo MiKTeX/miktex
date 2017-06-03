@@ -34,7 +34,6 @@
 #include <miktex/utf8wrap.h>
 #include <miktex/unxemu.h>
 #endif
-
 #include "fcstdint.h"
 
 #include <stdlib.h>
@@ -69,7 +68,6 @@
 #    include <io.h>
 #  endif
 #endif
-
 #ifndef FC_CONFIG_PATH
 #define FC_CONFIG_PATH "fonts.conf"
 #endif
@@ -87,6 +85,12 @@ extern pfnSHGetFolderPathA pSHGetFolderPathA;
 #  define FC_SEARCH_PATH_SEPARATOR ':'
 #  define FC_DIR_SEPARATOR         '/'
 #  define FC_DIR_SEPARATOR_S       "/"
+#endif
+
+#ifdef PATH_MAX
+#define FC_PATH_MAX	PATH_MAX
+#else
+#define FC_PATH_MAX	128
 #endif
 
 #if __GNUC__ >= 4

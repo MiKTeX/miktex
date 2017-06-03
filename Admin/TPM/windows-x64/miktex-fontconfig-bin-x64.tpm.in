@@ -6,7 +6,7 @@
     <TPM:Title>FontConfig, Windows x64</TPM:Title>
     <TPM:Copyright owner="Keith Packard, et al." year="2000-2004,2006-2007"/>
     <TPM:License type="mit"/>
-    <TPM:Version>2.12.1</TPM:Version>
+    <TPM:Version>2.12.3</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

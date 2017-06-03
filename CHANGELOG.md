@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## MiKTeX NEXT
+
+### Upgraded libraries
+
+* fontconfig 2.12.3
+
 ## 2.9.6350 - 2017-06-03
 
 ### New programs

@@ -29,6 +29,9 @@
 /* System font directory */
 #undef FC_DEFAULT_FONTS
 
+/* The type of len parameter of the gperf hash/lookup function */
+#define FC_GPERF_SIZE_T unsigned int
+
 /* Define to nothing if C supports flexible array members, and to 1 if it does
    not. That way, with a declaration like `struct s { int n; double
    d[FLEXIBLE_ARRAY_MEMBER]; };', the struct hack can be used with pre-C99
@@ -373,8 +376,7 @@
 #undef pid_t
 
 #include "config-fixups.h"
-
-#if defined(MIKTEX) && ! defined(DONT_USE_MIKTEX_EXIT)
+#if defined(MIKTEX) && !defined(DONT_USE_MIKTEX_EXIT)
 #if defined(MIKTEX_WINDOWS)
 #  define MIKTEX_USE_UTF8_FILE_NAMES 1
 #endif

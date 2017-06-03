@@ -31,7 +31,6 @@
 #    include <fcntl.h>
 #  endif
 #endif /* MIKTEX */
-
 #include <fontconfig/fontconfig.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -182,7 +181,6 @@ main (int argc, char **argv)
 #if defined(MIKTEX) && defined(MIKTEX_WINDOWS)
 	_setmode (_fileno(stdout), _O_BINARY);
 #endif
-
 	for (j = 0; j < fs->nfont; j++)
 	{
 	    if (verbose)
