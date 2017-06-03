@@ -127,7 +127,7 @@ public:
     SetStringHandler(&stringHandler);
     SetTeXMFMemoryHandler(&memoryHandler);
     MetafontApp::Init(args);
-    SetProgramInfo("mf", "", "", "");
+    SetProgramInfo("mf", MIKTEX_COMPONENT_VERSION_STR, MIKTEX_COMP_COPYRIGHT_STR, MIKTEX_COMP_TM_STR);
 #ifdef IMPLEMENT_TCX
     EnableFeature(MiKTeX::TeXAndFriends::Feature::TCX);
 #endif
