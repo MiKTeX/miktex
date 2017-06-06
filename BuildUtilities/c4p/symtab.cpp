@@ -319,7 +319,8 @@ void symtab_init()
   new_variable("c4prbmode", "integer"); /* "rb" */
   new_variable("c4pwbmode", "integer"); /* "wb" */
 
-  new_function("abs", "integer");
+  new_mapping("abs", "c4p_abs");
+  new_function("c4p_abs", "integer");
   new_function("chr", "char");
   new_function("eof", "boolean");
   new_function("eoln", "boolean");
