@@ -2,4 +2,4 @@ MiKTeX is a TeX distribution with the ability to install required
 files on-the-fly.
 
 For more information about the MiKTeX project, visit the project page:
-http://miktex.org
+https://miktex.org
