@@ -28,9 +28,11 @@
 
 #define TeX
 
+/* for tl17 update, change luatex_date_info but nothing else,
+   as context depends on the numeric version number. */
 int luatex_version = 100;        /* \.{\\luatexversion}  */
 int luatex_revision = '4';      /* \.{\\luatexrevision}  */
-int luatex_date_info = 2017033109;     /* the compile date is now hardwired :YEAR MONTH DAY HOUR*/
+int luatex_date_info = 2017060901;     /* the compile date is now hardwired :YEAR MONTH DAY HOUR*/
 const char *luatex_version_string = "1.0.4";
 const char *engine_name = my_name;     /* the name of this engine */
 
