@@ -1,6 +1,6 @@
 /* cfg.cpp: configuration files
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -369,7 +369,13 @@ class OpenSSLWalkCallback : public WalkCallback
 {
 public:
   OpenSSLWalkCallback(EVP_PKEY * pkey, bool verify) :
-    mdctx(EVP_MD_CTX_create(), EVP_MD_CTX_destroy)
+    mdctx(EVP_MD_CTX_create(),
+#if defined(LIBRESSL_VERSION_NUMBER) || OPENSSL_VERSION_NUMBER < 0x10100000L
+	  EVP_MD_CTX_destroy
+#else
+	  EVP_MD_CTX_free
+#endif
+	  )
   {
     this->isVerifying = verify;
     this->pkey = pkey;

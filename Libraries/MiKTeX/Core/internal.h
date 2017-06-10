@@ -188,7 +188,11 @@ Botan::Public_Key * LoadPublicKey_Botan(const MiKTeX::Core::PathName & publicKey
 
 #if defined(ENABLE_OPENSSL)
 using BIO_ptr = std::unique_ptr<BIO, decltype(&::BIO_free)>;
+#if defined(LIBRESSL_VERSION_NUMBER) || OPENSSL_VERSION_NUMBER < 0x10100000L
 using EVP_MD_CTX_ptr = std::unique_ptr<EVP_MD_CTX, decltype(&::EVP_MD_CTX_destroy)>;
+#else
+using EVP_MD_CTX_ptr = std::unique_ptr<EVP_MD_CTX, decltype(&::EVP_MD_CTX_free)>;
+#endif
 using EVP_PKEY_ptr = std::unique_ptr<EVP_PKEY, decltype(&::EVP_PKEY_free)>;
 using RSA_ptr = std::unique_ptr<RSA, decltype(&::RSA_free)>;
 void FatalOpenSSLError();
