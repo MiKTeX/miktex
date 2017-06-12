@@ -1981,7 +1981,9 @@ endif()
 ###############################################################################
 ## packaging
 
-set(CPACK_GENERATOR DEB)
+if(UNIX AND NOT APPLE)
+  list(APPEND CPACK_GENERATOR DEB)
+endif()
 
 if(LINK_EVERYTHING_STATICALLY)
   list(APPEND CPACK_GENERATOR TGZ)
