@@ -673,6 +673,7 @@ test_big_endian(MIKTEX_WORDS_BIGENDIAN)
 include(Admin/COM/guids.cmake)
 
 include(FindPackageHandleStandardArgs)
+include(GNUInstallDirs)
 
 include(AddLinkFlags)
 include(CheckCCompilerFlag)
@@ -748,9 +749,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${outdir}")
 
 if(APPLE)
   set(CMAKE_MACOSX_RPATH TRUE)
-  set(CMAKE_INSTALL_RPATH "@loader_path/../lib")
+  set(CMAKE_INSTALL_RPATH "@loader_path/../${CMAKE_INSTALL_LIBDIR}")
 else()
-  set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+  set(CMAKE_INSTALL_RPATH "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
 endif()
 
 ###############################################################################
