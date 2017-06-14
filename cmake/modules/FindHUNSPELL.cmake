@@ -28,6 +28,7 @@ find_library(HUNSPELL_LIBRARY
   NAMES
     hunspell
     hunspell-1.3
+    hunspell-1.4
     hunspell-1.6
 )
 
