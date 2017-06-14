@@ -337,7 +337,7 @@ private:
   void ShowConfigValue(const string& valueSpec);
 
 private:
-  vector<FileLink> CollectLinks(LinkCategoryOptions linkCategories, bool overwrite);
+  vector<FileLink> CollectLinks(LinkCategoryOptions linkCategories);
 
 private:
   void ManageLinks(LinkCategoryOptions linkCategories, bool remove, bool force);
@@ -1560,7 +1560,7 @@ vector<FileLink> miktexFileLinks =
 #endif
 };
 
-vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories, bool overwrite)
+vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
 {
   vector<FileLink> result;
   PathName pathBinDir = session->GetSpecialPath(SpecialPath::BinDirectory);
@@ -1609,18 +1609,14 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories, b
         Warning(T_("The %s executable could not be found."), formatInfo.compiler.c_str());
         continue;
       }
-      PathName tmp;
-      if (overwrite || !session->FindFile(formatInfo.name, FileType::EXE, tmp))
+      PathName exePath(pathBinDir, formatInfo.name);
+      if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
       {
-        PathName exePath(pathBinDir, formatInfo.name);
-        if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
-        {
-          exePath.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
-        }
-        if (!(compilerPath == exePath))
-        {
-          result.push_back(FileLink(compilerPath.ToString(), { exePath.ToString() }));
-        }
+        exePath.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
+      }
+      if (!(compilerPath == exePath))
+      {
+        result.push_back(FileLink(compilerPath.ToString(), { exePath.ToString() }));
       }
     }
   }
@@ -1714,7 +1710,7 @@ void IniTeXMFApp::ManageLinks(LinkCategoryOptions linkCategories, bool remove, b
     logStream.WriteLine("[files]");
   }
 
-  for (const FileLink& fileLink : CollectLinks(linkCategories, force))
+  for (const FileLink& fileLink : CollectLinks(linkCategories))
   {
     ManageLink(fileLink, supportsHardLinks, remove, force);
   }
