@@ -542,6 +542,10 @@ Process2* unxProcess::get_Parent()
 {
 #if defined(__linux__)
   string path = "/proc/" + std::to_string(pid) + "/stat";
+  if (!File::Exists(path))
+  {
+    return nullptr;
+  }
   StreamReader reader(path);
   string line;
   while (reader.ReadLine(line))
@@ -572,6 +576,10 @@ string unxProcess::get_ProcessName()
 {
 #if defined(__linux__)
   string path = "/proc/" + std::to_string(pid) + "/comm";
+  if (!File::Exists(path))
+  {
+    return "?";
+  }
   StreamReader reader(path);
   string line;
   while (reader.ReadLine(line))
