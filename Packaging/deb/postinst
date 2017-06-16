@@ -1,2 +1,2 @@
 #!/bin/sh
-initexmf --admin --configure
+initexmf --admin --disable-installer --update-fndb --mklinks

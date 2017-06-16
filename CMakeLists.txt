@@ -370,9 +370,9 @@ option(
 )
 
 option(
-  INSTALL_PACKAGE_DATABASE
-  "Install the package database."
-  FALSE
+  WITH_BOOTSTRAPPING
+  "Install files necessary for initializing a bare MiKTeX installation."
+  ${MIKTEX_UNIX_ALIKE}
 )
 
 option(
@@ -493,6 +493,42 @@ option(
   WITH_MAN_PAGES
   "Build man pages."
   ${MIKTEX_UNIX_ALIKE}
+)
+
+option(
+  WITH_KPSEWHICH
+  ""
+  TRUE
+)
+
+option(
+  WITH_MKTEXLSR
+  ""
+  TRUE
+)
+
+option(
+  WITH_TEXHASH
+  ""
+  TRUE
+)
+
+option(
+  WITH_TEXLINKS
+  ""
+  TRUE
+)
+
+option(
+  WITH_TEXDOC
+  ""
+  TRUE
+)
+
+option(
+  WITH_UPDMAP
+  ""
+  TRUE
 )
 
 ###############################################################################
@@ -799,10 +835,9 @@ if(MSVC)
   )
 endif()
 
-if(INSTALL_PACKAGE_DATABASE)
+if(WITH_BOOTSTRAPPING)
   list(APPEND required_programs
-    tar
-    wget
+    curl
   )
 endif()
 
@@ -1939,43 +1974,34 @@ if(NOT HAVE_REGEXEC)
 endif()
 
 ###############################################################################
-## package database
+## bootstrapping
 
-if(INSTALL_PACKAGE_DATABASE)
+if(WITH_BOOTSTRAPPING)
   set(remote_repository
-    "http://ctan.org/systems/win32/miktex/tm/packages/"
+    "http://ctan.org/tex-archive/systems/win32/miktex/tm/packages/"
   )
-
-  execute_process(
-    COMMAND
-      ${WGET_EXECUTABLE} -q -O - ${remote_repository}/miktex-zzdb1-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
-    COMMAND
-      ${TAR_EXECUTABLE} -xJf -
-    WORKING_DIRECTORY
-      ${CMAKE_CURRENT_BINARY_DIR}
+  list(APPEND bootstrapping_files
+    miktex-zzdb1-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
+    miktex-zzdb2-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
+    miktex-misc.tar.lzma
   )
-
-  execute_process(
-    COMMAND
-      ${WGET_EXECUTABLE} -q -O - ${remote_repository}/miktex-zzdb2-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
-    COMMAND
-      ${TAR_EXECUTABLE} -xJf -
-    WORKING_DIRECTORY
-      ${CMAKE_CURRENT_BINARY_DIR}
+  foreach(f ${bootstrapping_files})
+    add_custom_command(
+      OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/${f}
+      COMMAND
+        ${CURL_EXECUTABLE} -o ${CMAKE_CURRENT_BINARY_DIR}/${f} -fsSL ${remote_repository}/${f}
+    )
+    list(APPEND generated_bootstrapping_files ${CMAKE_CURRENT_BINARY_DIR}/${f})
+  endforeach()
+  add_custom_target(gen-bootstrapping-files ALL DEPENDS
+    ${generated_bootstrapping_files}
   )
-
   install(
     FILES
-      ${CMAKE_CURRENT_BINARY_DIR}/mpm.ini
+      ${generated_bootstrapping_files}
     DESTINATION
-      ${MIKTEX_TEXMF_DIR}/miktex/config
-  )
-
-  install(
-    DIRECTORY
-      ${CMAKE_CURRENT_BINARY_DIR}/texmf/tpm/packages/
-    DESTINATION
-      ${MIKTEX_TEXMF_DIR}/tpm/packages
+      ${MIKTEX_BOOTSTRAPPING_DESTINATION_DIR}
   )
 endif()
 
@@ -2043,15 +2069,15 @@ set(CPACK_DEBIAN_PACKAGE_SECTION
   "TeX"
 )
 
-#set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
-#  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst"
-#)
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
+  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst"
+)
 
 set(CPACK_RPM_PACKAGE_RELEASE ${MIKTEX_PACKAGE_REVISION})
 
-#set(CPACK_RPM_SPEC_INSTALL_POST
-#  "initexmf --admin --configure"
-#)
+set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE
+  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst"
+)
 
 set(CPACK_STRIP_SYMBOLS TRUE)
 

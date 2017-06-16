@@ -387,6 +387,9 @@ private:
 private:
   void WriteReport();
 
+private:
+  void Bootstrap();
+
 #if !defined(MIKTEX_STANDALONE)
 private:
   void Configure();
@@ -731,6 +734,8 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
 #endif
   initInfo.SetTraceCallback(this);
   session = Session::Create(initInfo);
+  packageManager = PackageManager::Create(PackageManager::InitInfo(this));
+  Bootstrap();
   enableInstaller = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, mpm::AutoInstall()).GetTriState();
   PathName xmlFileName;
   if (session->FindFile("initexmf." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
@@ -746,7 +751,7 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
   }
   isLog4cxxConfigured = true;
   LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR));
-  packageManager = PackageManager::Create(PackageManager::InitInfo(this));
+  FlushPendingTraceMessages();
   FindWizards();
   PathName myName = PathName(argv[0]).GetFileNameWithoutExtension();
   isMktexlsrMode = myName == "mktexlsr" || myName == "texhash";
@@ -2254,6 +2259,22 @@ bool IniTeXMFApp::OnProgress(Notification nf)
 {
   UNUSED_ALWAYS(nf);
   return true;
+}
+
+void IniTeXMFApp::Bootstrap()
+{
+#if defined(WITH_BOOTSTRAPPING)
+  PackageInfo miktexMisc;
+  if (!packageManager->TryGetPackageInfo("miktex-misc", miktexMisc))
+  {
+    EnsureInstaller();
+    packageInstaller->SetRepository((session->GetSpecialPath(SpecialPath::DistRoot) / MIKTEX_PATH_MIKTEX_BOOTSTRAPPING_DIR).ToString());
+    packageInstaller->UpdateDb();
+    packageInstaller->SetFileList({ "miktex-misc" });
+    packageInstaller->InstallRemove();
+    packageInstaller = nullptr;
+  }
+#endif
 }
 
 #if !defined(MIKTEX_STANDALONE)

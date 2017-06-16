@@ -25,13 +25,12 @@ if(LINK_EVERYTHING_STATICALLY)
   use_static_crt()
 endif()
 
+include_directories(BEFORE
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
 add_definitions(
-  -DWITH_KPSEWHICH=1
-  -DWITH_MKTEXLSR=1
-  -DWITH_TEXHASH=1
-  -DWITH_TEXLINKS=1
-  -DWITH_TEXDOC=1
-  -DWITH_UPDMAP=1
+  -DHAVE_CONFIG_H=1
 )
 
 if(NOT USE_SYSTEM_POPPLER)
@@ -47,7 +46,13 @@ if(MSVC)
   )
 endif()  
 
+configure_file(
+  config.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
 set(initexmf_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
   StdAfx.h
   aoption_setup.h
   aoption_update.h
