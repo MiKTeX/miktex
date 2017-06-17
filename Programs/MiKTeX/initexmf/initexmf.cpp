@@ -2267,12 +2267,16 @@ void IniTeXMFApp::Bootstrap()
   PackageInfo miktexMisc;
   if (!packageManager->TryGetPackageInfo("miktex-misc", miktexMisc))
   {
-    EnsureInstaller();
-    packageInstaller->SetRepository((session->GetSpecialPath(SpecialPath::DistRoot) / MIKTEX_PATH_MIKTEX_BOOTSTRAPPING_DIR).ToString());
-    packageInstaller->UpdateDb();
-    packageInstaller->SetFileList({ "miktex-misc" });
-    packageInstaller->InstallRemove();
-    packageInstaller = nullptr;
+    PathName bootstrappingDir = session->GetSpecialPath(SpecialPath::DistRoot) / MIKTEX_PATH_MIKTEX_BOOTSTRAPPING_DIR;
+    if (Directory::Exists(bootstrappingDir))
+    {
+      EnsureInstaller();
+      packageInstaller->SetRepository(bootstrappingDir.ToString());
+      packageInstaller->UpdateDb();
+      packageInstaller->SetFileList({ "miktex-misc" });
+      packageInstaller->InstallRemove();
+      packageInstaller = nullptr;
+    }
   }
 #endif
 }
