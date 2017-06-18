@@ -46,9 +46,9 @@ foreach(t ${executables})
   add_executable(${t} ${t}.cpp)
   set_property(TARGET ${t} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   if (APPLE)
-    set_target_properties(${t} PROPERTIES INSTALL_RPATH "@loader_path/..")
+    set_target_properties(${t} PROPERTIES INSTALL_RPATH "@loader_path/../../${CMAKE_INSTALL_LIBDIR}")
   else()
-    set_target_properties(${t} PROPERTIES INSTALL_RPATH "$ORIGIN/..")
+    set_target_properties(${t} PROPERTIES INSTALL_RPATH "$ORIGIN/../../${CMAKE_INSTALL_LIBDIR}")
   endif()
   target_link_libraries(${t}
     ${app_dll_name}
