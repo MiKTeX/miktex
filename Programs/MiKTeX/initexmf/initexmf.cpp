@@ -2265,8 +2265,16 @@ bool IniTeXMFApp::OnProgress(Notification nf)
 void IniTeXMFApp::Bootstrap()
 {
 #if defined(WITH_BOOTSTRAPPING)
-  PackageInfo miktexMisc;
-  if (!packageManager->TryGetPackageInfo("miktex-misc", miktexMisc))
+  vector<string> neededPackages;
+  for (CsvList package(MIKTEX_BOOTSTRAPPING_PACKAGES, ';'); package; ++package)
+  {
+    PackageInfo packageInfo;
+    if (!packageManager->TryGetPackageInfo(*package, packageInfo))
+    {
+      neededPackages.push_back(*package);
+    }
+  }
+  if (!neededPackages.empty())
   {
     PathName bootstrappingDir = session->GetSpecialPath(SpecialPath::DistRoot) / MIKTEX_PATH_MIKTEX_BOOTSTRAPPING_DIR;
     if (Directory::Exists(bootstrappingDir))
@@ -2274,7 +2282,7 @@ void IniTeXMFApp::Bootstrap()
       EnsureInstaller();
       packageInstaller->SetRepository(bootstrappingDir.ToString());
       packageInstaller->UpdateDb();
-      packageInstaller->SetFileList({ "miktex-misc" });
+      packageInstaller->SetFileList(neededPackages);
       packageInstaller->InstallRemove();
       packageInstaller = nullptr;
     }

@@ -781,6 +781,16 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${outdir}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${outdir}")
 
 ###############################################################################
+## bootstrapping packages
+
+if(WITH_BOOTSTRAPPING)
+  list(APPEND MIKTEX_BOOTSTRAPPING_PACKAGES
+    miktex-config-${MIKTEX_MAJOR_MINOR_STR}
+    miktex-misc
+  )
+endif()
+
+###############################################################################
 ## RPATH handling
 
 if(APPLE)
@@ -1983,8 +1993,12 @@ if(WITH_BOOTSTRAPPING)
   list(APPEND bootstrapping_files
     miktex-zzdb1-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
     miktex-zzdb2-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
-    miktex-misc.tar.lzma
   )
+  foreach(p ${MIKTEX_BOOTSTRAPPING_PACKAGES})
+    list(APPEND bootstrapping_files
+      ${p}.tar.lzma
+    )
+  endforeach()
   foreach(f ${bootstrapping_files})
     add_custom_command(
       OUTPUT
