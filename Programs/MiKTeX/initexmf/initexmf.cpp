@@ -2825,6 +2825,10 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     }
     session->SetAdminMode(true, setupWizardRunning);
   }
+  else if (session->RunningAsAdministrator())
+  {
+    Warning(T_("Option --admin should be specified when running this program with administrative privileges"));
+  }
 
   if (optPortable)
   {
