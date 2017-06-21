@@ -190,36 +190,6 @@ The `DESTDIR` mechanism is helpful if you want to understand what
 
 ## First steps
 
-### Initialize the package database
-
-MiKTeX has the ability to install missing packages "on-the-fly".  The
-package database must have been set up for this to work:
-
-    mpm --admin --update-db
-
-The `--admin` option is only required if you are building a shared
-MiKTeX setup.  If you are setting up MiKTeX just for yourself (i.e.,
-in your user directory), you have to omit this option.
-
-Please consult the mpm(1) man page, for more information about the
-utility.
-
-### Enabling "on-the-fly" package installation
-
-In order to enable the automatic package installer, run the MiKTeX
-Configuration Utility as follows:
-
-    initexmf --admin --set-config-value [MPM]AutoInstall=1
-    initexmf --admin --update-fndb
-
-Again, you have to omit `--admin`, if you intend to use MiKTeX just
-for yourself.
-
-The option `--update-fndb` updates the file name database.
-
-Please consult the initexmf(1) man page, for more information about
-the MiKTeX Configuration Utility.
-
 ### Symbolic links
 
 Most of the MiKTeX executables are prefixed with `miktex-`.  For
@@ -227,11 +197,10 @@ example, the file name of the pdfTeX executable is `miktex-pdftex`.
 You can create symbolic links targetting the `miktex-` prefixed
 executables:
 
-    initexmf --admin --mklinks
+    initexmf --admin --force --mklinks
 
 After running this command, the pdfTeX engine can be invoked as
-`pdftex`, provided that `pdftex` did not exist before (use the
-`--force` option to overwrite existing link names).
+`pdftex`.
 
 The `--mklinks` option will also create symbolic links for format
 files and scripts.  For example, you can invoke `pdflatex` (pdfTeX
@@ -240,7 +209,11 @@ script `latexmk.pl`).
 
 ### Installing basic packages
 
-You use the MiKTeX Package Manager to install basic MiKTeX packages:
+You have the option to "upgrade" your MiKTeX installation.  This is
+usually not recommended when you use MiKTeX just for yourself.  But it
+might make sense if you are maintaining a system-wide MiKTeX installation.
+
+To upgrade to a basic MiKTeX installation, run
 
     mpm --admin --verbose --package-level=basic --upgrade
 
