@@ -2031,7 +2031,7 @@ set(CPACK_PACKAGE_DESCRIPTION_FILE
 )
 
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
-  "MiKTeX ${MIKTEX_MAJOR_MINOR_STR}: a TeX distribution"
+  "MiKTeX: a scalable TeX distribution"
 )
 
 set(CPACK_PACKAGE_CONTACT
@@ -2055,18 +2055,23 @@ set(CPACK_DEBIAN_PACKAGE_VERSION
   "${MIKTEX_VERSION_TAG_STR}-${MIKTEX_PACKAGE_REVISION}"
 )
 
+set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "${MIKTEX_HQ_BASE_URL_NO_SLASH}")
+
 find_program(DPKG_SHLIBDEPS_EXECUTABLE NAMES dpkg-shlibdeps)
 
+set(debian_runtime_dependencies "fontconfig")
+
 if(DPKG_SHLIBDEPS_EXECUTABLE)
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS "${debian_runtime_dependencies}")
   set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS TRUE)
 else()
   set(CPACK_DEBIAN_PACKAGE_DEPENDS
-    "libbz2-1.0, libc6 (>= 2.14), libcairo2 (>= 1.2.4), libcurl3-gnutls (>= 7.16.2), libexpat1 (>= 2.0.1), libfontconfig1 (>= 2.11), libfreetype6 (>= 2.3.9), libfribidi0 (>= 0.19.2), libgcc1 (>= 1:4.0), libgd3 (>= 2.1.0~alpha~), libgmp10, libgraphite2-3 (>= 1.2.2), libharfbuzz-icu0 (>= 0.9.9), libharfbuzz0b (>= 1.4.1), libicu57 (>= 57.1-1~), libjpeg62-turbo (>= 1.3.1), liblog4cxx10v5, liblzma5 (>= 5.1.1alpha+20120614), libmpfr4 (>= 3.1.3), libmspack0 (>= 0.4), libpixman-1-0 (>= 0.10.0), libpng16-16 (>= 1.6.2-1), libpoppler57 (>= 0.38.0), libpopt0 (>= 1.14), libpotrace0, libssl1.0.2 (>= 1.0.2d), libstdc++6 (>= 6), liburiparser1 (>= 0.6.0), libzzip-0-13 (>= 0.13.56), zlib1g (>= 1:1.1.4)"
+    "${debian_runtime_dependencies}, libbz2-1.0, libc6 (>= 2.14), libcairo2 (>= 1.2.4), libcurl3-gnutls (>= 7.16.2), libexpat1 (>= 2.0.1), libfontconfig1 (>= 2.11), libfreetype6 (>= 2.3.9), libfribidi0 (>= 0.19.2), libgcc1 (>= 1:4.0), libgd3 (>= 2.1.0~alpha~), libgmp10, libgraphite2-3 (>= 1.2.2), libharfbuzz-icu0 (>= 0.9.9), libharfbuzz0b (>= 1.4.1), libicu57 (>= 57.1-1~), libjpeg62-turbo (>= 1.3.1), liblog4cxx10v5, liblzma5 (>= 5.1.1alpha+20120614), libmpfr4 (>= 3.1.3), libmspack0 (>= 0.4), libpixman-1-0 (>= 0.10.0), libpng16-16 (>= 1.6.2-1), libpoppler57 (>= 0.38.0), libpopt0 (>= 1.14), libpotrace0, libssl1.0.2 (>= 1.0.2d), libstdc++6 (>= 6), liburiparser1 (>= 0.6.0), libzzip-0-13 (>= 0.13.56), zlib1g (>= 1:1.1.4)"
   )
 endif()
 
 set(CPACK_DEBIAN_PACKAGE_SECTION
-  "TeX"
+  "tex"
 )
 
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA

@@ -1,5 +1,5 @@
-MiKTeX is a TeX distribution with the ability to install required
-files on-the-fly.
+MiKTeX is a scalable TeX distribution.  The bare installation is "just
+enough TeX" to get you going.
 
 For more information about the MiKTeX project, visit the project page:
 https://miktex.org
