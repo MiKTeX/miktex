@@ -6,6 +6,28 @@
 
 * fontconfig 2.12.3
 
+### Dockerized build environments
+
+The MiKTeX build environment has been dockerized for the following
+Linux distros:
+
+* [Ubuntu 16.04](https://github.com/MiKTeX/docker-miktex-build-xenial)
+* [Debian 9](https://github.com/MiKTeX/docker-miktex-build-stretch)
+* [Fedora 25](https://github.com/MiKTeX/docker-miktex-build-fedora-25)
+
+This makes it possible to build MiKTeX using Docker (only).  For
+example, to build MiKTeX for Debian 9 in the current working
+directory:
+
+    mkdir -p /tmp/miktex
+    curl -fsSL https://miktex.org/download/ctan/systems/win32/miktex/source/miktex-2.9.tar.xz | \
+      tar -xJ --strip-components=1 -C /tmp/miktex
+    docker pull miktex/miktex-build-stretch
+    docker run --rm -t \
+      -v /tmp/miktex:/miktex/source:ro \
+      -v `pwd`:/miktex/build:rw \
+      miktex/miktex-build-stretch
+
 ## 2.9.6350 - 2017-06-03
 
 ### New programs

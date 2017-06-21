@@ -11,13 +11,14 @@ you want to learn more about MiKTeX.
 This readme file is located in the top-level directory of the MiKTeX
 source code tree.
 
-The MiKTeX source code allows you to build and install a minimal TeX
-system.  MiKTeX provides an integrated package manager, which can
-automatically download and install missing packages.  Thus:
+The MiKTeX source code allows you to build and install a bare TeX
+system (aka "Just enough TeX").  MiKTeX provides an integrated package
+manager, which can automatically download and install missing
+packages.  Thus:
 
-* you start with a compact TeX setup
-* only packages which are referenced by your projects will be
-  installed
+* you start with MiKTeX executables and man pages
+* in the course of authoring your documents: only necessary packages
+  will be downloaded and installed
   
 MiKTeX can be built on Windows and Unix-like (including macOS)
 systems.  Please consult these HOWTOs for platform-specific build
@@ -26,6 +27,12 @@ instructions:
 * [https://miktex.org/howto/build-win](https://miktex.org/howto/build-win "Building MiKTeX (Windows)")
 * [https://miktex.org/howto/build-unx](https://miktex.org/howto/build-unx "Building MiKTeX (Unix-line)")
 * [https://miktex.org/howto/build-mac](https://miktex.org/howto/build-mac "Building MiKTeX (macOS)")
+
+In addition, you can try one of the Dockerized build environments to build MiKTeX:
+
+* [Ubuntu 16.04](https://github.com/MiKTeX/docker-miktex-build-xenial)
+* [Debian 9](https://github.com/MiKTeX/docker-miktex-build-stretch)
+* [Fedora 25](https://github.com/MiKTeX/docker-miktex-build-fedora-25)
 
 ## Prerequisites
 
