@@ -150,7 +150,7 @@ option(
 option(
   MIKTEX_MPM_AUTO_INSTALL
   "Install missing packages automatically (on-the-fly)."
-  FALSE
+  ${MIKTEX_UNIX_ALIKE}
 )
 
 option(
