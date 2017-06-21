@@ -197,10 +197,11 @@ example, the file name of the pdfTeX executable is `miktex-pdftex`.
 You can create symbolic links targetting the `miktex-` prefixed
 executables:
 
-    initexmf --admin --force --mklinks
+    initexmf --admin --mklinks
 
 After running this command, the pdfTeX engine can be invoked as
-`pdftex`.
+`pdftex`, provided that `pdftex` did not exist before (use the
+`--force` option to overwrite existing link names).
 
 The `--mklinks` option will also create symbolic links for format
 files and scripts.  For example, you can invoke `pdflatex` (pdfTeX
