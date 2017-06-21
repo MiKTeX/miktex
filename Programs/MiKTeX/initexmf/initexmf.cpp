@@ -2041,8 +2041,9 @@ void IniTeXMFApp::ReportMiKTeXVersion()
     }
     cout << endl;
     cout << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << endl;
-#if defined(MIKTEX_WINDOWS)
     cout << "SystemAdmin: " << (session->IsUserAnAdministrator() ? T_("yes") : T_("no")) << endl;
+    cout << "RootPrivileges: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << endl;     
+#if defined(MIKTEX_WINDOWS)
     cout << "PowerUser: " << (session->IsUserAPowerUser() ? T_("yes") : T_("no")) << endl;
 #endif
   }
