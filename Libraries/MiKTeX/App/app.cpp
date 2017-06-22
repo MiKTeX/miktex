@@ -241,6 +241,7 @@ void Application::AutoMaintenance()
     {
       pimpl->session->UnloadFilenameDatabase();
       CommandLineBuilder commandLine(commonCommandLine);
+      commandLine.AppendOption("--mkmaps");
       commandLine.AppendOption("--update-fndb");
       LOG4CXX_INFO(logger, "running 'initexmf " << commandLine.ToString() << "' to refresh the file name database");
       Process::Run(initexmf, commandLine.ToString());
