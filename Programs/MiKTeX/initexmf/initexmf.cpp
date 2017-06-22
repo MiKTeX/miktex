@@ -1547,7 +1547,9 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_T4HT_EXE, { "t4ht" } },
   { MIKTEX_TANGLE_EXE, { "tangle" } },
   { MIKTEX_TEX4HT_EXE, { "tex4ht" } },
+#if defined(MIKTEX_QT)
   { MIKTEX_TEXWORKS_EXE, { "texworks" } },
+#endif
   { MIKTEX_TEX_EXE, { "tex", "initex", "virtex" } },
   { MIKTEX_TFTOPL_EXE, { "tftopl" } },
   { MIKTEX_TTF2PK_EXE, { "ttf2pk" } },
@@ -1556,7 +1558,7 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_VPTOVF_EXE, { "vptovf" } },
   { MIKTEX_WEAVE_EXE, { "weave" } },
   { MIKTEX_XETEX_EXE, { "xetex", MIKTEX_XELATEX_EXE } },
-#if !defined(MIKTEX_WINDOWS)
+#if !defined(MIKTEX_WINDOWS) && defined(MIKTEX_QT)
   { MIKTEX_MPM_QT_EXE, { MIKTEX_MPM_QT_ADMIN_EXE } },
 #endif
 #if defined(WITH_KPSEWHICH)
