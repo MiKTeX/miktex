@@ -215,8 +215,7 @@ void Application::AutoMaintenance()
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(pimpl->session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   PathName mpmDatabasePath(pimpl->session->GetMpmDatabasePathName());
   bool mustRefreshFndb = !File::Exists(mpmDatabasePath) || (!pimpl->session->IsAdminMode() && lastAdminMaintenance + 30 > File::GetLastWriteTime(mpmDatabasePath));
-  PathName userLanguageDat = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot);
-  userLanguageDat /= MIKTEX_PATH_LANGUAGE_DAT;
+  PathName userLanguageDat = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT;
   bool mustRefreshUserLanguageDat = !pimpl->session->IsAdminMode() && File::Exists(userLanguageDat) && lastAdminMaintenance + 30 > File::GetLastWriteTime(userLanguageDat);
   PathName initexmf;
   if ((mustRefreshFndb || mustRefreshUserLanguageDat) && pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
@@ -671,9 +670,7 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
 
   // read information from yap.ini
   // FIXME: use FindFile()
-  PathName yapIni = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot);
-  yapIni /= MIKTEX_PATH_MIKTEX_CONFIG_DIR;
-  yapIni /= MIKTEX_YAP_INI_FILENAME;
+  PathName yapIni = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / MIKTEX_YAP_INI_FILENAME;
   if (File::Exists(yapIni))
   {
     unique_ptr<Cfg> yapConfig(Cfg::Create());
