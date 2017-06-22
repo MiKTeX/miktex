@@ -434,16 +434,28 @@ private:
 private:
   vector<TraceCallback::TraceMessage> pendingTraceMessages;
 
+private:
+  void PushTraceMessage(const TraceCallback::TraceMessage& traceMessage)
+  {
+    if (pendingTraceMessages.size() > 100)
+    {
+      pendingTraceMessages.clear();
+    }
+    pendingTraceMessages.push_back(traceMessage);
+  }
+
+private:
+  void PushTraceMessage(const string& message)
+  {
+    PushTraceMessage(TraceCallback::TraceMessage("initexmf", "initexmf", message));
+  }
+  
 public:
   void Trace(const TraceCallback::TraceMessage& traceMessage) override
   {
     if (!isLog4cxxConfigured)
     {
-      if (pendingTraceMessages.size() > 100)
-      {
-        pendingTraceMessages.clear();
-      }
-      pendingTraceMessages.push_back(traceMessage);
+      PushTraceMessage(traceMessage);
       return;
     }
     FlushPendingTraceMessages();
@@ -2282,6 +2294,7 @@ void IniTeXMFApp::Bootstrap()
     PathName bootstrappingDir = session->GetSpecialPath(SpecialPath::DistRoot) / MIKTEX_PATH_MIKTEX_BOOTSTRAPPING_DIR;
     if (Directory::Exists(bootstrappingDir))
     {
+      PushTraceMessage("running MIKTEX_HOOK_BOOTSTRAPPING");
       EnsureInstaller();
       packageInstaller->SetRepository(bootstrappingDir.ToString());
       packageInstaller->UpdateDb();
