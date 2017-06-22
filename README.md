@@ -201,16 +201,27 @@ executables:
 
 After running this command, the pdfTeX engine can be invoked as
 `pdftex`, provided that `pdftex` did not exist before (use the
-`--force` option to overwrite existing link names).
+`--force` option to overwrite existing files).
 
 The `--mklinks` option will also create symbolic links for format
 files and scripts.  For example, you can invoke `pdflatex` (pdfTeX
 with format `pdflatex` loaded) and `latexmk` (wrapper for the Perl
 script `latexmk.pl`).
 
-### Installing basic packages
+### Installing packages
 
-You have the option to "upgrade" your MiKTeX installation.  This is
+You are now at a point where you have the MiKTeX executables, some
+configuration files and man pages.
+
+It is recommended that you install some packages now:
+
+    mpm --admin --install=amsfonts --install=ltxbase
+
+Package `amsfonts` contains Type1 fonts for the traditional TeX fonts
+(aka "Computer Modern").  Package `ltxbase` contains the LaTeX
+document preparation system.
+
+If disk space is not an issue, you can "upgrade" your MiKTeX installation.  This is
 usually not recommended when you use MiKTeX just for yourself.  But it
 might make sense if you are maintaining a system-wide MiKTeX installation.
 
