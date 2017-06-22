@@ -811,7 +811,7 @@ void IniTeXMFApp::Verbose(const char* lpszFormat, ...)
     throw;
   }
   va_end(arglist);
-  if (!printOnly)
+  if (!printOnly && isLog4cxxConfigured)
   {
     LOG4CXX_INFO(logger, s);
   }
@@ -858,7 +858,10 @@ void IniTeXMFApp::Warning(const char* lpszFormat, ...)
     throw;
   }
   va_end(arglist);
-  LOG4CXX_WARN(logger, s);
+  if (isLog4cxxConfigured)
+  {
+    LOG4CXX_WARN(logger, s);
+  }
   if (!quiet)
   {
     cerr << PROGNAME << ": " << T_("warning") << ": " << s << endl;
