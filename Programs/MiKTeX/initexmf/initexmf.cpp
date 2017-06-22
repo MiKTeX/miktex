@@ -265,7 +265,7 @@ public:
   string GetLogName()
   {
     string logName = "initexmf";
-    if (adminMode && session->RunningAsAdministrator())
+    if (session->IsAdminMode() && session->RunningAsAdministrator())
     {
       logName += MIKTEX_ADMIN_SUFFIX;
     }
@@ -523,9 +523,6 @@ private:
   bool removeFndb = false;
 
 private:
-  bool adminMode = false;
-
-private:
   StartupConfig startupConfig;
 
 private:
@@ -739,7 +736,7 @@ IniTeXMFApp::~IniTeXMFApp()
 
 void IniTeXMFApp::Init(int argc, const char* argv[])
 {
-  adminMode = argc > 0 && std::any_of(&argv[1], &argv[argc], [](const char* arg) { return strcmp(arg, "--admin") == 0 || strcmp(arg, "-admin") == 0; });
+  bool adminMode = argc > 0 && std::any_of(&argv[1], &argv[argc], [](const char* arg) { return strcmp(arg, "--admin") == 0 || strcmp(arg, "-admin") == 0; });
   Session::InitInfo initInfo(argv[0]);
 #if defined(MIKTEX_WINDOWS)
   initInfo.SetOptions({ Session::InitOption::InitializeCOM });
@@ -747,6 +744,23 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
   initInfo.SetTraceCallback(this);
   session = Session::Create(initInfo);
   packageManager = PackageManager::Create(PackageManager::InitInfo(this));
+  FindWizards();
+  if (adminMode)
+  {
+    if (!setupWizardRunning && !session->IsSharedSetup())
+    {
+      FatalError(T_("Option --admin only makes sense for a shared MiKTeX setup."));
+    }
+    if (!session->RunningAsAdministrator())
+    {
+      Verbose(T_("Option --admin may require administrative privileges"));
+    }
+    session->SetAdminMode(true, setupWizardRunning);
+  }
+  else if (session->RunningAsAdministrator())
+  {
+    Warning(T_("Option --admin should be specified when running this program with administrative privileges"));
+  }
   Bootstrap();
   enableInstaller = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, mpm::AutoInstall()).GetTriState();
   PathName xmlFileName;
@@ -764,7 +778,6 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
   isLog4cxxConfigured = true;
   LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR));
   FlushPendingTraceMessages();
-  FindWizards();
   PathName myName = PathName(argv[0]).GetFileNameWithoutExtension();
   isMktexlsrMode = myName == "mktexlsr" || myName == "texhash";
   isTexlinksMode = myName == "texlinks";
@@ -1097,7 +1110,7 @@ void IniTeXMFApp::RunMakeTeX(const string& makeProg, const CommandLineBuilder& a
     xArguments.AppendOption("--quiet");
   }
 
-  if (adminMode)
+  if (session->IsAdminMode())
   {
     xArguments.AppendOption("--admin");
   }
@@ -1871,7 +1884,7 @@ void IniTeXMFApp::MakeMaps(bool force)
   {
     arguments.AppendOption("--verbose");
   }
-  if (adminMode)
+  if (session->IsAdminMode())
   {
     arguments.AppendOption("--admin");
   }
@@ -2762,7 +2775,10 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
     case OPT_ADMIN:
 
-      adminMode = true;
+      if (!session->IsAdminMode())
+      {
+        MIKTEX_UNEXPECTED();
+      }
       break;
 
     case OPT_UNREGISTER_ROOT:
@@ -2835,23 +2851,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     {
       logStream.Attach(File::Open(logFile, FileMode::Create, FileAccess::Write));
     }
-  }
-
-  if (adminMode)
-  {
-    if (!setupWizardRunning && !session->IsSharedSetup())
-    {
-      FatalError(T_("Option --admin only makes sense for a shared MiKTeX setup."));
-    }
-    if (!session->RunningAsAdministrator())
-    {
-      Verbose(T_("Option --admin may require administrative privileges"));
-    }
-    session->SetAdminMode(true, setupWizardRunning);
-  }
-  else if (session->RunningAsAdministrator())
-  {
-    Warning(T_("Option --admin should be specified when running this program with administrative privileges"));
   }
 
   if (optPortable)
