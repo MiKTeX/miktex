@@ -1,6 +1,6 @@
 /* StdAfx.h: pre-compiled header stuff                  -*- C++ -*-
 
-   Copyright (C) 2005-2016 Christian Schenk
+   Copyright (C) 2005-2017 Christian Schenk
 
    This file is part of the MiKTeX App Library.
 
@@ -37,8 +37,10 @@
 #include <memory>
 #include <set>
 
+#include <miktex/Core/AutoResource>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/Directory>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/File>
 #include <miktex/Core/FileType>
@@ -47,6 +49,7 @@
 #include <miktex/Core/Registry>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Session>
+#include <miktex/Core/TemporaryFile>
 #include <miktex/Trace/Trace>
 
 #include <miktex/UI/UI>

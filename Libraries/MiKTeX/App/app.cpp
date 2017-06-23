@@ -212,6 +212,8 @@ void Application::ConfigureLogging()
 
 void Application::AutoMaintenance()
 {
+  PathName lockdir = pimpl->session->GetSpecialPath(SpecialPath::UserDataRoot) / MIKTEX_PATH_MIKTEX_DIR / "locks";
+  PathName lockfile = lockdir / "A6D646EE9FBF44D6A3E6C1A3A72FF7E3.lck";
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(pimpl->session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   PathName mpmDatabasePath(pimpl->session->GetMpmDatabasePathName());
   bool mustRefreshFndb = !File::Exists(mpmDatabasePath) || (!pimpl->session->IsAdminMode() && lastAdminMaintenance + 30 > File::GetLastWriteTime(mpmDatabasePath));
@@ -220,6 +222,13 @@ void Application::AutoMaintenance()
   PathName initexmf;
   if ((mustRefreshFndb || mustRefreshUserLanguageDat) && pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
   {
+    if (File::Exists(lockfile))
+    {
+      return;
+    }
+    Directory::Create(lockdir);
+    unique_ptr<TemporaryFile> tmpfile = TemporaryFile::Create(lockfile);
+    AutoFILE closeme (File::Open(tmpfile->GetPathName(), FileMode::Create, FileAccess::ReadWrite, false, FileShare::ReadWrite, { FileOpenOption::DeleteOnClose }));
     CommandLineBuilder commonCommandLine;
     switch (pimpl->enableInstaller)
     {
