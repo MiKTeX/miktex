@@ -228,7 +228,7 @@ void Application::AutoMaintenance()
     }
     Directory::Create(lockdir);
     unique_ptr<TemporaryFile> tmpfile = TemporaryFile::Create(lockfile);
-    AutoFILE closeme (File::Open(tmpfile->GetPathName(), FileMode::Create, FileAccess::ReadWrite, false, FileShare::ReadWrite, { FileOpenOption::DeleteOnClose }));
+    AutoFILE closeme (File::Open(tmpfile->GetPathName(), FileMode::Create, FileAccess::ReadWrite, false, FileShare::ReadWrite));
     CommandLineBuilder commonCommandLine;
     switch (pimpl->enableInstaller)
     {
