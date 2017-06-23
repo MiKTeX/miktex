@@ -250,10 +250,7 @@ void Application::AutoMaintenance()
     {
       pimpl->session->UnloadFilenameDatabase();
       CommandLineBuilder commandLine(commonCommandLine);
-#if 0
-      // this will result in endless recursion
       commandLine.AppendOption("--mkmaps");
-#endif
       commandLine.AppendOption("--update-fndb");
       LOG4CXX_INFO(logger, "running 'initexmf " << commandLine.ToString() << "' to refresh the file name database");
       Process::Run(initexmf, commandLine.ToString());
