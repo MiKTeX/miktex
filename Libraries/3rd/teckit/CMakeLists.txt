@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2007-2016 Christian Schenk
+## Copyright (C) 2007-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,11 +17,13 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/teckit")
 
 include_directories(BEFORE
-  ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 set(public_include_directories
@@ -30,13 +32,18 @@ set(public_include_directories
 
 ignore_warnings()
 
+configure_file(
+  teckit-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/teckit-version.h
+)
+
 set(sources
+  ${CMAKE_CURRENT_BINARY_DIR}/teckit-version.h
   source/source/Engine.cpp
   source/source/Engine.h
   source/source/Public-headers/TECkit_Common.h
   source/source/Public-headers/TECkit_Engine.h
   source/source/TECkit_Format.h
-  teckit-version.h
 )
 
 set(${teckit_dll_name}_sources ${sources})
@@ -58,8 +65,8 @@ set_property(TARGET ${teckit_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 set_target_properties(${teckit_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
-    SOVERSION "1"
+    VERSION "${MIKTEX_COMP_J2000_VERSION}"
+    SOVERSION "${MIKTEX_COMP_INTERFACE_VERSION}"
 )
 
 target_include_directories(${teckit_dll_name}

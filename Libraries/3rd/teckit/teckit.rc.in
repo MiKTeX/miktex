@@ -1,6 +1,6 @@
 /* teckit.rc: version number                            -*- C++ -*-
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,7 +19,7 @@
 
 #include "teckit-version.h"
 
-#define VER_FILEDESCRIPTION_STR "TECkit - a Text Encoding Conversion toolkit"
+#define VER_FILEDESCRIPTION_STR "${MIKTEX_COMP_DESCRIPTION}"
 #define VER_FILETYPE VFT_DLL
 #define VER_INTERNALNAME_STR "${teckit_dll_name}"
 #define VER_ORIGINALFILENAME_STR "${teckit_dll_name}.dll"
