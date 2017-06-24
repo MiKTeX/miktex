@@ -28,6 +28,7 @@ are needed.  For example, to build MiKTeX for Debian 9:
 * cairo 1.4.10
 * fontconfig 2.12.3
 * freetype 2.8
+* graphite2 1.3.10
 * libcurl 7.54.1
 * zzip 0.13.66
 

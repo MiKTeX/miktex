@@ -6,7 +6,7 @@
     <TPM:Title>Graphite2 runtime library, Windows x86</TPM:Title>
     <TPM:Copyright owner="SIL International" year="2010"/>
     <TPM:License type="lgpl2.1"/>
-    <TPM:Version>1.3.9</TPM:Version>
+    <TPM:Version>1.3.10</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
