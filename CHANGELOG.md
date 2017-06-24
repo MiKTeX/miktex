@@ -2,13 +2,6 @@
 
 ## MiKTeX NEXT
 
-### Upgraded libraries
-
-* cairo 1.4.10
-* fontconfig 2.12.3
-* freetype 2.8
-* libcurl 7.54.1
-
 ### Dockerized build environments
 
 The MiKTeX build environment has been dockerized for the following
@@ -29,6 +22,14 @@ are needed.  For example, to build MiKTeX for Debian 9:
       -v /tmp/miktex:/miktex/source:ro \
       -v `pwd`:/miktex/build:rw \
       miktex/miktex-build-stretch
+
+### Upgraded libraries
+
+* cairo 1.4.10
+* fontconfig 2.12.3
+* freetype 2.8
+* libcurl 7.54.1
+* zzip 0.13.66
 
 ## 2.9.6350 - 2017-06-03
 

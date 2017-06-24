@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2016 Christian Schenk
+## Copyright (C) 2010-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -52,7 +52,6 @@ set(sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/zzip/__fnmatch.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/zzip/__hints.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/zzip/__mmap.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/zzip/_config.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/zzip/_msvc.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/zzip/autoconf.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/zzip/conf.h

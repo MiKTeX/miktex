@@ -2,12 +2,7 @@
  * Author:
  *      Guido Draheim <guidod@gmx.de>
  *
- *      Copyright (c) 2010 Guido Draheim
- *          All rights reserved,
- *          usage allowed under the restrictions of the
- *          Lesser GNU General Public License
- *          or alternatively the restrictions
- *          of the Mozilla Public License 1.1
+ * Copyright (c) Guido Draheim, use under copyleft (LGPL,MPL)
  *
  * The compat32 headers is targeted towards those poor souls who can
  * not compile their application or library with _LARGEFILE_SOURCE but

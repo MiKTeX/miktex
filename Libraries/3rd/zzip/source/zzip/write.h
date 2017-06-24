@@ -1,12 +1,13 @@
 #ifndef _ZZIP_WRITE_H
 #define _ZZIP_WRITE_H
+/*
+ * Example code. write support is not yet implemented.
+ *
+ * Copyright (c) Guido Draheim, use under copyleft (LGPL,MPL)
+ */
 
 #include <zzip/lib.h>
 
-/* ........................................................................
- * write support is not yet implemented
- * zzip/write.c
- */
 #define ZZIP_NO_CREAT 1
 
 ZZIP_DIR*    zzip_dir_creat_ext_io(zzip_char_t* name, int o_mode, 
