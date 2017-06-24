@@ -793,6 +793,7 @@ _get_image_surface (cairo_xlib_surface_t    *surface,
 
 	    _cairo_xlib_shm_surface_get_ximage (&image->base, &shm_image);
 
+	    XSync (display->display, False);
 	    old_handler = XSetErrorHandler (_noop_error_handler);
 	    success = XShmGetImage (display->display,
 				    surface->drawable,
@@ -814,6 +815,7 @@ _get_image_surface (cairo_xlib_surface_t    *surface,
     if (surface->use_pixmap == 0) {
 	cairo_xlib_error_func_t old_handler;
 
+	XSync (display->display, False);
 	old_handler = XSetErrorHandler (_noop_error_handler);
 
 	ximage = XGetImage (display->display,

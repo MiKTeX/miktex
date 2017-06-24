@@ -1780,7 +1780,7 @@ cairo_cff_font_subset_charstrings_and_subroutines (cairo_cff_font_t  *font)
 
     font->subset_subroutines = TRUE;
     for (i = 0; i < font->scaled_font_subset->num_glyphs; i++) {
-	if (font->is_cid) {
+	if (font->is_cid && !font->is_opentype) {
 	    cid = font->scaled_font_subset->glyphs[i];
 	    status = cairo_cff_font_get_gid_for_cid (font, cid, &glyph);
 	    if (unlikely (status))
@@ -1847,11 +1847,15 @@ cairo_cff_font_subset_fontdict (cairo_cff_font_t  *font)
 
     font->num_subset_fontdicts = 0;
     for (i = 0; i < font->scaled_font_subset->num_glyphs; i++) {
-	cid = font->scaled_font_subset->glyphs[i];
-	status = cairo_cff_font_get_gid_for_cid (font, cid, &gid);
-	if (unlikely (status)) {
-	    free (reverse_map);
-	    return status;
+	if (font->is_opentype) {
+	    gid = font->scaled_font_subset->glyphs[i];
+	} else {
+	    cid = font->scaled_font_subset->glyphs[i];
+	    status = cairo_cff_font_get_gid_for_cid (font, cid, &gid);
+	    if (unlikely (status)) {
+		free (reverse_map);
+		return status;
+	    }
 	}
 
         fd = font->fdselect[gid];

@@ -730,6 +730,11 @@ _cairo_truetype_get_style (cairo_scaled_font_t  	 *scaled_font,
 cairo_private cairo_int_status_t
 _cairo_escape_ps_name (char **ps_name);
 
+#if DEBUG_SUBSETS
+cairo_private void
+dump_scaled_font_subsets (cairo_scaled_font_subsets_t *font_subsets);
+#endif
+
 #endif /* CAIRO_HAS_FONT_SUBSET */
 
 #endif /* CAIRO_SCALED_FONT_SUBSETS_PRIVATE_H */
