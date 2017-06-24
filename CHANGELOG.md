@@ -4,6 +4,7 @@
 
 ### Upgraded libraries
 
+* libcurl 7.54.1
 * fontconfig 2.12.3
 * freetype 2.8
 
