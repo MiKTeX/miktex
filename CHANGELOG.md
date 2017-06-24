@@ -5,6 +5,7 @@
 ### Upgraded libraries
 
 * fontconfig 2.12.3
+* freetype 2.8
 
 ### Dockerized build environments
 
@@ -16,8 +17,7 @@ Linux distros:
 * [Fedora 25](https://github.com/MiKTeX/docker-miktex-build-fedora-25)
 
 This makes it possible to build MiKTeX using Docker (only).  For
-example, to build MiKTeX for Debian 9 in the current working
-directory:
+example, to build MiKTeX for Debian 9:
 
     mkdir -p /tmp/miktex
     curl -fsSL https://miktex.org/download/ctan/systems/win32/miktex/source/miktex-2.9.tar.xz | \
