@@ -17,10 +17,13 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/lua")
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_LUA_DIR}
+include_directories(BEFORE
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 set(public_include_directories
@@ -34,6 +37,11 @@ if(MIKTEX_UNIX_ALIKE)
 endif()
 
 ignore_warnings()
+
+configure_file(
+  liblua-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/liblua-version.h
+)
 
 set(public_headers
   lapi.h

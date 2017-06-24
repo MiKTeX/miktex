@@ -1,5 +1,5 @@
 set(lua_lib_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/liblua-version.h
+  ${CMAKE_CURRENT_BINARY_DIR}/liblua-version.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/lapi.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/lapi.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/lauxlib.c

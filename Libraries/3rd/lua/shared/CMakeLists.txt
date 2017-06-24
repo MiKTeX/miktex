@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2016 Christian Schenk
+## Copyright (C) 2010-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -61,8 +61,8 @@ endif()
 
 set_target_properties(${lua_dll_name}
   PROPERTIES
-    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
-    SOVERSION "1"
+    VERSION "${MIKTEX_COMP_J2000_VERSION}"
+    SOVERSION "${MIKTEX_COMP_INTERFACE_VERSION}"
 )
 
 rebase(${lua_dll_name})
