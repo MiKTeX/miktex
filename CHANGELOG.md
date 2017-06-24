@@ -23,6 +23,10 @@ are needed.  For example, to build MiKTeX for Debian 9:
       -v `pwd`:/miktex/build:rw \
       miktex/miktex-build-stretch
 
+### Bug fixes
+
+* dvipdfmx: warning: Ignore invalid attribute dictionary
+
 ### Upgraded libraries
 
 * cairo 1.4.10
