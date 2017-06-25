@@ -905,7 +905,7 @@ void MakeFontMapApp::WriteDvipsMapFile(const PathName& fileName, const set<FontM
   path /= fileName;
   Verbose(T_("Writing %s..."), Q_(path));
   // TODO: backup old file
-  StreamWriter writer(File::Open(path, FileMode::Create, FileAccess::Write, false));
+  StreamWriter writer(File::Open(path, File::Exists(fileName) ? FileMode::Open : FileMode::Create, FileAccess::Write, false));
   WriteHeader(writer, path);
   set<FontMapEntry> setAll = set1;
   setAll.insert(set2.begin(), set2.end());
