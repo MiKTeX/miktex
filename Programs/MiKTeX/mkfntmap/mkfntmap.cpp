@@ -23,6 +23,7 @@
    licensed under the following agreement:
    Anyone may freely use, modify, and/or distribute this file... */
 
+#undef NDEBUG
 #include "internal.h"
 
 using namespace MiKTeX::App;
@@ -263,7 +264,11 @@ private:
   set<string> mixedMapFiles;
 
 private:
+#if defined(NDEBUG)
   bool verbose = false;
+#else
+  bool verbose = true;
+#endif
 
   // transform file names from URWkb (berry names) to URW (vendor
   // names)

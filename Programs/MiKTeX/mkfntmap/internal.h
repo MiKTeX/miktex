@@ -54,10 +54,10 @@
 #include <log4cxx/xml/domconfigurator.h>
 #include <log4cxx/rollingfileappender.h>
 
-#if 0
+#if defined(NDEBUG)
 #define DEBUG_OUTPUT(s)
 #else
-#define DEBUG_OUTPUT(s) std::cerr << __LINE__ << ": " << s << "\n";
+#define DEBUG_OUTPUT(s) std::cout << __LINE__ << ": " << s << "\n";
 #endif
 
 #define UNUSED_ALWAYS(x)
