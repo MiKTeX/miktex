@@ -208,7 +208,7 @@ string Timestamp()
 {
   auto now = time(nullptr);
   stringstream s;
-  s << std::put_time(gmtime(&now), "%Y-%m-%d-%H%M%S");
+  s << std::put_time(localtime(&now), "%Y-%m-%d-%H%M%S");
   return s.str();
 }
 
