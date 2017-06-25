@@ -121,6 +121,14 @@ const struct poptOption IniTeXMFApp::aoption_setup[] = {
   },
 
   {
+    "find-other-tex", 0,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    OPT_FIND_OTHER_TEX,
+    nullptr,
+    nullptr
+  },
+
+  {
     "force", 0,
     POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_FORCE,

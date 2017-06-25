@@ -381,6 +381,17 @@ private:
 private:
   void Bootstrap();
 
+private:
+  struct OtherTeX
+  {
+    string name;
+    string version;
+    StartupConfig startupConfig;
+  };
+
+private:
+  vector<OtherTeX> FindOtherTeX();
+
 #if !defined(MIKTEX_STANDALONE)
 private:
   void Configure();
@@ -596,6 +607,7 @@ enum Option
   OPT_ADD_FILE,                 // <experimental/>
   OPT_CREATE_CONFIG_FILE,       // <experimental/>
   OPT_CSV,                      // <experimental/>
+  OPT_FIND_OTHER_TEX,           // <experimental/>
   OPT_LIST_DIRECTORY,           // <experimental/>
   OPT_LIST_FORMATS,             // <experimental/>
   OPT_MODIFY_PATH,              // <experimental/>
@@ -2312,6 +2324,34 @@ void IniTeXMFApp::Bootstrap()
 #endif
 }
 
+vector<IniTeXMFApp::OtherTeX> IniTeXMFApp::FindOtherTeX()
+{
+  vector<OtherTeX> result;
+  ProcessOutput<1024> version;
+  int exitCode;
+  if (Process::ExecuteSystemCommand("kpsewhich --version", &exitCode, &version, nullptr) && version.StdoutToString().find("MiKTeX") == string::npos)
+  {
+    OtherTeX otherTeX;
+    otherTeX.name = "kpathsea";
+    string versionString = version.StdoutToString();
+    otherTeX.version = versionString.substr(0, versionString.find_first_of("\r\n"));
+    StartupConfig otherConfig;
+    ProcessOutput<1024> texmfhome;
+    if (Process::ExecuteSystemCommand("kpsewhich --expand-var '$TEXMFHOME'", &exitCode, &texmfhome, nullptr))
+    {
+      otherConfig.userRoots = texmfhome.StdoutToString();
+    }
+    ProcessOutput<1024> texmfdist;
+    if (Process::ExecuteSystemCommand("kpsewhich --expand-var '$TEXMFDIST'", &exitCode, &texmfdist, nullptr))
+    {
+      otherConfig.commonRoots = texmfdist.StdoutToString();
+    }
+    otherTeX.startupConfig = otherConfig;
+    result.push_back(otherTeX);
+  }
+  return result;
+}
+
 #if !defined(MIKTEX_STANDALONE)
 void IniTeXMFApp::Configure()
 {
@@ -2483,6 +2523,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
   bool optDump = false;
   bool optDumpByName = false;
+  bool optFindOtherTeX = false;
   bool optForce = false;
   bool optMakeLanguageDat = false;
   bool optMakeMaps = false;
@@ -2590,6 +2631,10 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
     case OPT_ENGINE:
       engine = optArg;
+      break;
+
+    case OPT_FIND_OTHER_TEX:
+      optFindOtherTeX = true;
       break;
 
     case OPT_FORCE:
@@ -3079,6 +3124,18 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   if (optReport)
   {
     WriteReport();
+  }
+
+  if (optFindOtherTeX)
+  {
+    vector<OtherTeX> otherTeXs = FindOtherTeX();
+    for (const OtherTeX& otherTeX : otherTeXs)
+    {
+      cout << "Found OtherTeX: " << otherTeX.name << "\n";
+      cout << "  Version:" << otherTeX.version << "\n";
+      cout << "  UserRoots: " << otherTeX.startupConfig.userRoots << "\n";
+      cout << "  CommonRoots: " << otherTeX.startupConfig.commonRoots << "\n";
+    }
   }
 }
 

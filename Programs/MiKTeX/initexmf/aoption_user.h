@@ -99,6 +99,14 @@ const struct poptOption IniTeXMFApp::aoption_user[] = {
   },
 
   {
+    "find-other-tex", 0,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    OPT_FIND_OTHER_TEX,
+    T_("Locate other TeX installations."),
+    nullptr
+  },
+
+  {
     "force", 0,
     POPT_ARG_NONE, nullptr,
     OPT_FORCE,
