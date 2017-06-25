@@ -219,4 +219,4 @@
 #define USE_MIKTEX_EXIT 1
 
 /* Define as 1 if we should use the memory mapped files on Windows. */
-#undef ENABLE_WIN32_MMAP
+#undef MIKTEX_ENABLE_WIN32_MMAP

@@ -761,7 +761,7 @@ void Message(int activeflags, const char *fmt, ...)
 
 bool MmapFile (char *filename,struct filemmap *fmmap)
 {
-#if !defined(WIN32) || !defined(ENABLE_WIN32_MMAP)
+#if !defined(WIN32) || !defined(MIKTEX_ENABLE_WIN32_MMAP)
   struct stat stat;
 #endif
 #if defined(MIKTEX)
@@ -774,8 +774,13 @@ bool MmapFile (char *filename,struct filemmap *fmmap)
 
   DEBUG_PRINT(DEBUG_DVI,("\n  OPEN FILE:\t'%s'", filename));
   fmmap->data=NULL;
-#if !defined(WIN32) || !defined(ENABLE_WIN32_MMAP)
+#if !defined(WIN32) || !defined(MIKTEX_ENABLE_WIN32_MMAP)
+#if defined(MIKTEX_WINDOWS)
+  if ((fmmap->fd = open(filename, _O_RDONLY | _O_BINARY)) == -1)
+  {
+#else
   if ((fmmap->fd = open(filename,O_RDONLY)) == -1) {
+#endif
     Warning("cannot open file <%s>", filename);
     return(true);
   }
@@ -842,7 +847,7 @@ bool MmapFile (char *filename,struct filemmap *fmmap)
 void UnMmapFile(struct filemmap* fmmap)
 {
   if (fmmap->data!=NULL) {
-#if !defined(WIN32) || !defined(ENABLE_WIN32_MMAP)
+#if !defined(WIN32) || !defined(MIKTEX_ENABLE_WIN32_MMAP)
 # ifdef HAVE_MMAP
     if (munmap(fmmap->data,fmmap->size))
       Warning("cannot munmap file at 0x%X",fmmap->data);

@@ -187,7 +187,7 @@ void             ClearPSHeaders(void);
 /********************************************************/
 
 struct filemmap {
-#if defined(WIN32) && defined(ENABLE_WIN32_MMAP)
+#if defined(WIN32) && defined(MIKTEX_ENABLE_WIN32_MMAP)
   HANDLE hFile;
   HANDLE hMap;
 #else  /* WIN32 */

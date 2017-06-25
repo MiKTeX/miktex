@@ -161,7 +161,7 @@ void FontDef(unsigned char* command, void* parent)
   tfontptr->next = hfontptr;
   hfontptr = tfontptr;
   tfontnump->fontp = tfontptr;
-#if !defined(WIN32) || !defined(ENABLE_WIN32_MMAP)
+#if !defined(WIN32) || !defined(MIKTEX_ENABLE_WIN32_MMAP)
   tfontptr->fmmap.fd = 0;
 #else  /* WIN32 */
   tfontptr->fmmap.hFile = INVALID_HANDLE_VALUE;
@@ -251,7 +251,7 @@ static void FontFind(struct font_entry * tfontptr)
       page_flags |= PAGE_GAVE_WARN;
       Warning("font %s at %d dpi not found, characters will be left blank",
         tfontptr->n, tfontptr->dpi);
-#if !defined(WIN32) || !defined(ENABLE_WIN32_MMAP)
+#if !defined(WIN32) || !defined(MIKTEX_ENABLE_WIN32_MMAP)
       tfontptr->fmmap.fd = 0;
 #else  /* WIN32 */
       tfontptr->fmmap.hFile = INVALID_HANDLE_VALUE;
