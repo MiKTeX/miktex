@@ -804,7 +804,7 @@ bool MmapFile (char *filename,struct filemmap *fmmap)
 # endif /* HAVE_MMAP */
 #else /* WIN32 */
 #if defined(MIKTEX_WINDOWS)
-  fmmap->hFile = CreateFile(wfilename, GENERIC_READ, FILE_SHARE_READ, 0,
+  fmmap->hFile = CreateFile(wfilename, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0,
 #else
   fmmap->hFile = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, 0,
 #endif
