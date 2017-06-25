@@ -226,6 +226,7 @@ void Application::AutoMaintenance()
     {
       return;
     }
+    LOG4CXX_TRACE(logger, "running MIKTEX_HOOK_AUTO_MAINTENANCE")
     Directory::Create(lockdir);
     unique_ptr<TemporaryFile> tmpfile = TemporaryFile::Create(lockfile);
     AutoFILE closeme (File::Open(tmpfile->GetPathName(), FileMode::Create, FileAccess::ReadWrite, false, FileShare::ReadWrite));
