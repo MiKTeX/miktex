@@ -764,7 +764,9 @@ bool MmapFile (char *filename,struct filemmap *fmmap)
 #if !defined(WIN32) || !defined(ENABLE_WIN32_MMAP)
   struct stat stat;
 #endif
-
+#if defined(MIKTEX)
+  int n;
+#endif
 #if defined(MIKTEX_WINDOWS)
   wchar_t wfilename[_MAX_PATH];
   miktex_utf8_to_wide_char (filename, _MAX_PATH, wfilename);
@@ -793,11 +795,12 @@ bool MmapFile (char *filename,struct filemmap *fmmap)
     close(fmmap->fd);
     return(true);
   }
-  if (read(fmmap->fd,fmmap->data,fmmap->size)<fmmap->size) {
 #if defined(MIKTEX)
+  if ((n=read(fmmap->fd,fmmap->data,fmmap->size))<fmmap->size) {
     Warning("not enough data in <%s>", filename);
-    Warning("expected to read %lu bytes", (unsigned long)fmmap->size);
+    Warning("expected/read %lu/%ld bytes", (unsigned long)fmmap->size, (unsigned long)n);
 #else
+  if (read(fmmap->fd,fmmap->data,fmmap->size)<fmmap->size) {
     Warning("too little data in <%s>", filename);
 #endif
     free(fmmap->data);
