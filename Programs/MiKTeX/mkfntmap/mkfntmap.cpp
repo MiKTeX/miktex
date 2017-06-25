@@ -777,6 +777,7 @@ void MakeFontMapApp::WriteHeader(StreamWriter& writer, const PathName& fileName)
 
 void MakeFontMapApp::WriteMap(StreamWriter& writer, const set<FontMapEntry>& set1)
 {
+  DEBUG_OUTPUT("start writing map");
   for (const FontMapEntry& fme : set1)
   {
     writer.WriteFormatted("%s", fme.texName.c_str());
@@ -791,6 +792,7 @@ void MakeFontMapApp::WriteMap(StreamWriter& writer, const set<FontMapEntry>& set
     }
     writer.WriteLine();
   }
+  DEBUG_OUTPUT("end writing map");
 }
 
 bool MakeFontMapApp::GetInstructionParam(const string& str, const string& instruction, string& param)

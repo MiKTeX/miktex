@@ -1,6 +1,6 @@
 /* internal.h:                                          -*- C++ -*-
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2017 Christian Schenk
 
    This file is part of MkFntMap.
 
@@ -53,6 +53,12 @@
 #include <log4cxx/logger.h>
 #include <log4cxx/xml/domconfigurator.h>
 #include <log4cxx/rollingfileappender.h>
+
+#if 0
+#define DEBUG_OUTPUT(s)
+#else
+#define DEBUG_OUTPUT(s) std::cerr << __LINE__ << ": " << s << "\n";
+#endif
 
 #define UNUSED_ALWAYS(x)
 
