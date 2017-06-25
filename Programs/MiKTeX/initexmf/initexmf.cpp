@@ -103,42 +103,6 @@ enum class LinkCategory
 
 typedef OptionSet<LinkCategory> LinkCategoryOptions;
 
-class ProcessOutput :
-  public IRunProcessCallback
-{
-public:
-  void RemoveTrailingNewline()
-  {
-    if (!output.empty() && output[output.length() - 1] == '\n')
-    {
-      output.erase(output.length() - 1);
-    }
-  }
-public:
-  const string ToString()
-  {
-    return output;
-  }
-public:
-  bool IsEmpty()
-  {
-    return output.empty();
-  }
-public:
-  void Clear()
-  {
-    output = "";
-  }
-public:
-  bool OnProcessOutput(const void* pOutput, size_t n) override
-  {
-    output.append(reinterpret_cast<const char*>(pOutput), n);
-    return true;
-  }
-private:
-  string output;
-};
-
 class XmlWriter
 {
 public:
@@ -240,6 +204,14 @@ configShortcuts[] = {
   "updmap", MIKTEX_PATH_UPDMAP_CFG,
 };
 
+string Timestamp()
+{
+  auto now = time(nullptr);
+  stringstream s;
+  s << std::put_time(gmtime(&now), "%Y-%m-%d-%H%M%S");
+  return s.str();
+}
+
 class IniTeXMFApp :
   public IFindFileCallback,
   public ICreateFndbCallback,
@@ -311,6 +283,25 @@ private:
 #else
   void SetTeXMFRootDirectories();
 #endif
+
+private:
+  void RunProcess(const PathName& fileName, const string& arguments)
+  {
+    ProcessOutput<4096> output;
+    int exitCode;
+    if (!Process::Run(fileName, arguments, &output, &exitCode, nullptr) || exitCode != 0)
+    {
+      auto outputBytes = output.GetStandardOutput();
+      PathName outfile = GetLogDir() / fileName.GetFileNameWithoutExtension();
+      outfile += "_";
+      outfile += Timestamp().c_str();
+      outfile.SetExtension(".out");
+      FileStream outstream = File::Open(outfile, FileMode::Open, FileAccess::Write, false);
+      outstream.Write(&outputBytes[0], outputBytes.size());
+      outstream.Close();
+      MIKTEX_FATAL_ERROR_2(T_("The executed process did not succeed. The process output has been saved to a file."), "fileName", fileName.ToString(), "arguments", arguments, "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
+    }
+  }
 
 private:
   void RunMakeTeX(const string& makeProg, const CommandLineBuilder& arguments);
@@ -1128,7 +1119,7 @@ void IniTeXMFApp::RunMakeTeX(const string& makeProg, const CommandLineBuilder& a
   }
 
   LOG4CXX_INFO(logger, "running '" << makeProg << " " << xArguments.ToString() << "'");
-  Process::Run(exe, xArguments.ToString());
+  RunProcess(exe, xArguments.ToString());
 }
 
 void IniTeXMFApp::MakeFormatFile(const string& formatKey)
@@ -1912,7 +1903,7 @@ void IniTeXMFApp::MakeMaps(bool force)
   else
   {
     LOG4CXX_INFO(logger, "running: mkfntmap " << arguments.ToString());
-    Process::Run(pathMkfontmap, arguments.ToString());
+    RunProcess(pathMkfontmap, arguments.ToString());
   }
 }
 
