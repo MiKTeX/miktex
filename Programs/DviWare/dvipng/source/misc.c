@@ -800,14 +800,8 @@ bool MmapFile (char *filename,struct filemmap *fmmap)
     close(fmmap->fd);
     return(true);
   }
-#if defined(MIKTEX)
-  if ((n=read(fmmap->fd,fmmap->data,fmmap->size))<fmmap->size) {
-    Warning("not enough data in <%s>", filename);
-    Warning("expected/read %lu/%ld bytes", (unsigned long)fmmap->size, (unsigned long)n);
-#else
   if (read(fmmap->fd,fmmap->data,fmmap->size)<fmmap->size) {
-    Warning("too little data in <%s>", filename);
-#endif
+    Warning("too little data in <%s>",filename);
     free(fmmap->data);
     fmmap->data=NULL;
     close(fmmap->fd);
