@@ -23,7 +23,7 @@
    licensed under the following agreement:
    Anyone may freely use, modify, and/or distribute this file... */
 
-#undef NDEBUG
+//#undef NDEBUG
 #include "internal.h"
 
 using namespace MiKTeX::App;
@@ -782,7 +782,6 @@ void MakeFontMapApp::WriteHeader(StreamWriter& writer, const PathName& fileName)
 
 void MakeFontMapApp::WriteMap(StreamWriter& writer, const set<FontMapEntry>& set1)
 {
-  DEBUG_OUTPUT("start writing map");
   for (const FontMapEntry& fme : set1)
   {
     writer.WriteFormatted("%s", fme.texName.c_str());
@@ -797,7 +796,6 @@ void MakeFontMapApp::WriteMap(StreamWriter& writer, const set<FontMapEntry>& set
     }
     writer.WriteLine();
   }
-  DEBUG_OUTPUT("end writing map");
 }
 
 bool MakeFontMapApp::GetInstructionParam(const string& str, const string& instruction, string& param)
@@ -907,15 +905,10 @@ void MakeFontMapApp::WriteDvipsMapFile(const PathName& fileName, const set<FontM
   path /= fileName;
   Verbose(T_("Writing %s..."), Q_(path));
   // TODO: backup old file
-  DEBUG_OUTPUT("opening map file");
   StreamWriter writer(File::Open(path, FileMode::Create, FileAccess::Write, false));
-  DEBUG_OUTPUT("writing header");
   WriteHeader(writer, path);
-  DEBUG_OUTPUT("create set");
   set<FontMapEntry> setAll = set1;
-  DEBUG_OUTPUT("extending set");
   setAll.insert(set2.begin(), set2.end());
-  DEBUG_OUTPUT("extending set");
   setAll.insert(set3.begin(), set3.end());
   WriteMap(writer, setAll);
   writer.Close();
