@@ -388,12 +388,6 @@ option(
 )
 
 option(
-  WITH_SOAP_CLIENT
-  "Use the (legacy) SOAP web service to retrieve the repository list."
-  FALSE
-)
-
-option(
   WITH_TRAPMF
   "Build trapmf."
   FALSE
@@ -1910,10 +1904,6 @@ endif()
 if(WITH_OMEGA)
   add_subdirectory(${MIKTEX_REL_OMEGAWARE_DIR})
   add_subdirectory(${MIKTEX_REL_OMEGA_DIR})
-endif()
-
-if(WITH_SOAP_CLIENT)
-  add_subdirectory(${MIKTEX_REL_MTREP_DIR} EXCLUDE_FROM_ALL)
 endif()
 
 if(WITH_UI_QT)

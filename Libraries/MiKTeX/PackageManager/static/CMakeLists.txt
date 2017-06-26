@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -29,8 +29,6 @@ target_compile_definitions(${mpm_lib_name}
 )
 
 target_include_directories(${mpm_lib_name}
-    PRIVATE
-      ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_GSOAP_DIR}/source/gsoap
     PUBLIC
       ${public_include_directories}
 )
