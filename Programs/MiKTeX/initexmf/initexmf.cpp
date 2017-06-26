@@ -2337,12 +2337,12 @@ vector<IniTeXMFApp::OtherTeX> IniTeXMFApp::FindOtherTeX()
     otherTeX.version = versionString.substr(0, versionString.find_first_of("\r\n"));
     StartupConfig otherConfig;
     ProcessOutput<1024> texmfhome;
-    if (Process::ExecuteSystemCommand("kpsewhich --expand-var '$TEXMFHOME'", &exitCode, &texmfhome, nullptr))
+    if (Process::ExecuteSystemCommand("kpsewhich --var-value=TEXMFHOME", &exitCode, &texmfhome, nullptr))
     {
       otherConfig.userRoots = texmfhome.StdoutToString();
     }
     ProcessOutput<1024> texmfdist;
-    if (Process::ExecuteSystemCommand("kpsewhich --expand-var '$TEXMFDIST'", &exitCode, &texmfdist, nullptr))
+    if (Process::ExecuteSystemCommand("kpsewhich --var-value=TEXMFDIST", &exitCode, &texmfdist, nullptr))
     {
       otherConfig.commonRoots = texmfdist.StdoutToString();
     }
