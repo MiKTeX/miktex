@@ -1,222 +1,222 @@
-/* config.h.in.  Edited for MiKTeX.  */
+/* config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define as 1 to get the debug (-d) option. */
-#undef DEBUG
+#cmakedefine DEBUG 1
 
 /* The environment setting for $SELFAUTODIR */
-#undef ENV_SELFAUTODIR
+#cmakedefine ENV_SELFAUTODIR
 
 /* The environment setting for $SELFAUTOLOC */
-#undef ENV_SELFAUTOLOC
+#cmakedefine ENV_SELFAUTOLOC
 
 /* The environment setting for $SELFAUTOPARENT */
-#undef ENV_SELFAUTOPARENT
+#cmakedefine ENV_SELFAUTOPARENT
 
 /* Define as the path to GhostScript. */
-#undef GS_PATH
+#cmakedefine GS_PATH
 
 /* Define to 1 if you don't have `vprintf' but do have `_doprnt.' */
-#undef HAVE_DOPRNT
+#cmakedefine HAVE_DOPRNT 1
 
 /* Define to 1 if you have the `dup2' function. */
-#undef HAVE_DUP2
+#cmakedefine HAVE_DUP2 1
 
 /* Define to 1 if you have the <fcntl.h> header file. */
-#define HAVE_FCNTL_H 1
+#cmakedefine HAVE_FCNTL_H 1
 
 /* Define to 1 if you have the `fork' function. */
-#undef HAVE_FORK
+#cmakedefine HAVE_FORK 1
 
 /* Define to 1 if you have freetype2 */
-#define HAVE_FT2 1
+#cmakedefine HAVE_FT2 1
 
 /* Define to 1 if you have the `ftime' function. */
-#undef HAVE_FTIME
+#cmakedefine HAVE_FTIME 1
 
 /* Define to 1 if you have the `FT_Library_Version' function. */
-#undef HAVE_FT_LIBRARY_VERSION
+#cmakedefine HAVE_FT_LIBRARY_VERSION 1
 
 /* Define to 1 if you have the `gdImageCreateFromJpeg' function. */
-#undef HAVE_GDIMAGECREATEFROMJPEG
+#cmakedefine HAVE_GDIMAGECREATEFROMJPEG 1
 
 /* Define to 1 if you have the `gdImageCreateFromPngPtr' function. */
-#undef HAVE_GDIMAGECREATEFROMPNGPTR
+#cmakedefine HAVE_GDIMAGECREATEFROMPNGPTR 1
 
 /* Define to 1 if you have the `gdImageCreateTrueColor' function. */
-#define HAVE_GDIMAGECREATETRUECOLOR 1
+#cmakedefine HAVE_GDIMAGECREATETRUECOLOR 1
 
 /* Define to 1 if you have the `gdImageGif' function. */
-#undef HAVE_GDIMAGEGIF
+#cmakedefine HAVE_GDIMAGEGIF 1
 
 /* Define to 1 if you have the `gdImagePngEx' function. */
-#define HAVE_GDIMAGEPNGEX 1
+#cmakedefine HAVE_GDIMAGEPNGEX 1
 
 /* Define to 1 if you have the <gd.h> header file. */
-#define HAVE_GD_H 1
+#cmakedefine HAVE_GD_H 1
 
 /* Define to 1 if you have the `getpagesize' function. */
-#undef HAVE_GETPAGESIZE
+#cmakedefine HAVE_GETPAGESIZE 1
 
 /* Define to 1 if you have the `gettimeofday' function. */
-#undef HAVE_GETTIMEOFDAY
+#cmakedefine HAVE_GETTIMEOFDAY 1
 
 /* Define to 1 if you have the <inttypes.h> header file. */
-#define HAVE_INTTYPES_H 1
+#cmakedefine HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the <kpathsea/kpathsea.h> header file. */
-#define HAVE_KPATHSEA_KPATHSEA_H 1
+#cmakedefine HAVE_KPATHSEA_KPATHSEA_H 1
 
 /* Define to 1 if your kpathsea has kpse_enc_format */
-#define HAVE_KPSE_ENC_FORMATS 1
+#cmakedefine HAVE_KPSE_ENC_FORMATS 1
 
 /* Define to 1 if you have the `gd' library (-lgd). */
-#define HAVE_LIBGD 1
+#cmakedefine HAVE_LIBGD 1
 
 /* Define to 1 if you have the <libgen.h> header file. */
-#undef HAVE_LIBGEN_H
+#cmakedefine HAVE_LIBGEN_H 1
 
 /* Define to 1 if you have the `kpathsea' library (-lkpathsea). */
-#define HAVE_LIBKPATHSEA 1
+#cmakedefine HAVE_LIBKPATHSEA 1
 
 /* Define to 1 if you have the `m' library (-lm). */
-#define HAVE_LIBM 1
+#cmakedefine HAVE_LIBM
 
 /* Define to 1 if you have the `png' library (-lpng). */
-#define HAVE_LIBPNG 1
+#cmakedefine HAVE_LIBPNG
 
 /* Define to 1 if you have the `z' library (-lz). */
-#undef HAVE_LIBZ
+#cmakedefine HAVE_LIBZ 1
 
 /* Define to 1 if you have the <memory.h> header file. */
-#undef HAVE_MEMORY_H
+#cmakedefine HAVE_MEMORY_H 1
 
 /* Define to 1 if you have the `memset' function. */
-#define HAVE_MEMSET 1
+#cmakedefine HAVE_MEMSET 1
 
 /* Define to 1 if you have a working `mmap' system call. */
-#undef HAVE_MMAP
+#cmakedefine HAVE_MMAP 1
 
 /* Define to 1 if you have the `munmap' function. */
-#undef HAVE_MUNMAP
+#cmakedefine HAVE_MUNMAP 1
 
 /* Define to 1 if you have the <png.h> header file. */
-#define HAVE_PNG_H 1
+#cmakedefine HAVE_PNG_H 1
 
 /* Define to 1 if you have the `pow' function. */
-#undef HAVE_POW
+#cmakedefine HAVE_POW 1
 
 /* Define to 1 if you have the `putenv' function. */
-#undef HAVE_PUTENV
+#cmakedefine HAVE_PUTENV 1
 
 /* Define to 1 if stdbool.h conforms to C99. */
-#undef HAVE_STDBOOL_H
+#cmakedefine HAVE_STDBOOL_H 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
-#undef HAVE_STDINT_H
+#cmakedefine HAVE_STDINT_H 1
 
 /* Define to 1 if you have the <stdlib.h> header file. */
-#define HAVE_STDLIB_H 1
+#cmakedefine HAVE_STDLIB_H 1
 
 /* Define to 1 if you have the `strchr' function. */
-#define HAVE_STRCHR 1
+#cmakedefine HAVE_STRCHR 1
 
 /* Define to 1 if you have the <strings.h> header file. */
-#undef HAVE_STRINGS_H
+#cmakedefine HAVE_STRINGS_H 1
 
 /* Define to 1 if you have the <string.h> header file. */
-#define HAVE_STRING_H 1
+#cmakedefine HAVE_STRING_H 1
 
 /* Define to 1 if you have the `strrchr' function. */
-#undef HAVE_STRRCHR
+#cmakedefine HAVE_STRRCHR 1
 
 /* Define to 1 if you have the `strstr' function. */
-#undef HAVE_STRSTR
+#cmakedefine HAVE_STRSTR 1
 
 /* Define to 1 if you have the `strtol' function. */
-#undef HAVE_STRTOL
+#cmakedefine HAVE_STRTOL 1
 
 /* Define to 1 if you have the <sys/param.h> header file. */
-#undef HAVE_SYS_PARAM_H
+#cmakedefine HAVE_SYS_PARAM_H 1
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
-#define HAVE_SYS_STAT_H 1
+#cmakedefine HAVE_SYS_STAT_H 1
 
 /* Define to 1 if you have the <sys/time.h> header file. */
-#undef HAVE_SYS_TIME_H
+#cmakedefine HAVE_SYS_TIME_H 1
 
 /* Define to 1 if you have the <sys/types.h> header file. */
-#undef HAVE_SYS_TYPES_H
+#cmakedefine HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have <sys/wait.h> that is POSIX.1 compatible. */
-#undef HAVE_SYS_WAIT_H
+#cmakedefine HAVE_SYS_WAIT_H 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
-#undef HAVE_UNISTD_H
+#cmakedefine HAVE_UNISTD_H 1
 
 /* Define to 1 if you have the `vfork' function. */
-#undef HAVE_VFORK
+#cmakedefine HAVE_VFORK 1
 
 /* Define to 1 if you have the <vfork.h> header file. */
-#undef HAVE_VFORK_H
+#cmakedefine HAVE_VFORK_H 1
 
 /* Define to 1 if you have the `vprintf' function. */
-#define HAVE_VPRINTF 1
+#cmakedefine HAVE_VPRINTF 1
 
 /* Define to 1 if `fork' works. */
-#undef HAVE_WORKING_FORK
+#cmakedefine HAVE_WORKING_FORK 1
 
 /* Define to 1 if `vfork' works. */
-#undef HAVE_WORKING_VFORK
+#cmakedefine HAVE_WORKING_VFORK 1
 
 /* Define to 1 if the system has the type `_Bool'. */
-#undef HAVE__BOOL
+#cmakedefine HAVE__BOOL 1
 
 /* Define to the address where bug reports for this package should be sent. */
-#undef PACKAGE_BUGREPORT
+#cmakedefine PACKAGE_BUGREPORT "${PACKAGE_BUGREPORT}"
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "dvipng"
+#cmakedefine PACKAGE_NAME "${PACKAGE_NAME}"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "dvipng 1.15"
+#cmakedefine PACKAGE_STRING "${PACKAGE_STRING}"
 
 /* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "dvipng"
+#cmakedefine PACKAGE_TARNAME "${PACKAGE_TARNAME}"
+
 /* Define to the home page for this package. */
-#undef PACKAGE_URL
+#cmakedefine PACKAGE_URL "${PACKAGE_URL}"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.15"
+#cmakedefine PACKAGE_VERSION "${PACKAGE_VERSION}"
 
 /* Define to 1 if you have the ANSI C header files. */
-#undef STDC_HEADERS
+#cmakedefine STDC_HEADERS 1
 
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
-#undef TIME_WITH_SYS_TIME
+#cmakedefine TIME_WITH_SYS_TIME 1
 
 /* Define as 1 to get execution time output. */
-#undef TIMING
+#cmakedefine TIMING 1
 
 /* Define to empty if `const' does not conform to ANSI C. */
-#undef const
+#cmakedefine const
 
 /* Define to `long long' if <inttypes.h> does not define it. */
-#undef int64_t
+#cmakedefine int64_t
 
 /* Define to `int' if <sys/types.h> does not define. */
-#undef pid_t
+#cmakedefine pid_t
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
-#undef size_t
+#cmakedefine size_t
 
 /* Define to `unsigned long long' if <inttypes.h> does not define it. */
-#undef uint64_t
+#cmakedefine uint64_t
 
 /* Define as `fork' if `vfork' does not work. */
-#undef vfork
+#cmakedefine vfork
 
-/* Define as 1 so that miktex_exit() shadows exit() */
+#if defined(MIKTEX)
 #define USE_MIKTEX_EXIT 1
-
-/* Define as 1 if we should use the memory mapped files on Windows. */
 #undef MIKTEX_ENABLE_WIN32_MMAP
+#endif

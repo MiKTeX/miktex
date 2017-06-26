@@ -22,7 +22,34 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_DVIWARE_FOLDER}/dvipng")
 ## cannot compile as C++: too many implicit casts
 set(DVIPNG_COMPILE_AS_CXX 0)
 
+set(HAVE_FT2 1)
+set(HAVE_FT_LIBRARY_VERSION 1)
+set(HAVE_GDIMAGECREATEFROMJPEG 1)
+set(HAVE_GDIMAGECREATEFROMPNGPTR 1)
+set(HAVE_GDIMAGECREATETRUECOLOR 1)
+set(HAVE_GDIMAGEGIF 1)
+set(HAVE_GDIMAGEPNGEX 1)
+set(HAVE_GD_H 1)
+set(HAVE_KPATHSEA_KPATHSEA_H 1)
+set(HAVE_KPSE_ENC_FORMATS 1)
+set(HAVE_LIBGD 1)
+set(HAVE_LIBKPATHSEA 1)
+set(HAVE_LIBM)
+set(HAVE_LIBPNG)
+set(HAVE_LIBZ)
+set(HAVE_PNG_H 1)
+
+set(PACKAGE_NAME "dvipng")
+set(PACKAGE_STRING "dvipng 1.15")
+set(PACKAGE_VERSION "1.15")
+
+configure_file(
+  config.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
 include_directories(BEFORE
+  ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -47,9 +74,9 @@ set(dvipng_c_sources
 )
 
 set(dvipng_sources
-  ${dvipng_c_sources}
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
   ${MIKTEX_LIBRARY_WRAPPER}
-  config.h
+  ${dvipng_c_sources}
   dvipng-version.h
   source/commands.h
   source/dvipng.h

@@ -152,7 +152,7 @@ static gdImagePtr
 ps2png(struct pscode* pscodep, const char *device, int hresolution, int vresolution,
        int llx, int lly, int urx, int ury, int bgred, int bggreen, int bgblue)
 {
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
   int pspipe[2], pngpipe[2];
 #define READ_END 0
 #define WRITE_END 1
@@ -170,7 +170,7 @@ ps2png(struct pscode* pscodep, const char *device, int hresolution, int vresolut
   int savestdin, savestdout;
 #endif /* WIN32 */
 #else /* MIKTEX */
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
   HANDLE hPngStream;
   HANDLE hPsStream;
   HANDLE hStdErr;
@@ -179,7 +179,7 @@ ps2png(struct pscode* pscodep, const char *device, int hresolution, int vresolut
   _TCHAR szCommandLine[2048];
   _TCHAR szGsPath[_MAX_PATH];
 #define GS_PATH szGsPath
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #define fdopen _tfdopen
 #define close _close
 #endif
@@ -269,7 +269,7 @@ ps2png(struct pscode* pscodep, const char *device, int hresolution, int vresolut
   pngpipe[READ_END] = _open_osfhandle((intptr_t)hPngStream, _O_RDONLY);
 #endif
 #endif /* MIKTEX */
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
   if (pspipe[WRITE_END] >= 0) {
     if ((psstream=fdopen(pspipe[WRITE_END],"wb")) == NULL)
       close(pspipe[WRITE_END]);
@@ -290,7 +290,7 @@ ps2png(struct pscode* pscodep, const char *device, int hresolution, int vresolut
       }
       writepscode(psstream,pscodep);
       fclose(psstream);
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
     }
   }
   if (pngpipe[READ_END] >= 0) {
@@ -300,7 +300,7 @@ ps2png(struct pscode* pscodep, const char *device, int hresolution, int vresolut
 #endif
       psimage = gdImageCreateFromPng(pngstream);
       fclose(pngstream);
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
     }
   }
 #endif
@@ -319,7 +319,7 @@ ps2png(struct pscode* pscodep, const char *device, int hresolution, int vresolut
   close(savestdout);
 #endif /* WIN32 */
 #else /* MIKTEX */
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
   /* Close miktex process */
   CloseHandle(pi.hProcess);
 #endif

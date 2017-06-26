@@ -28,7 +28,11 @@
 #include "dvipng.h"
 
 #ifdef MIKTEX
-#  define main MIKTEXCEECALL Main
+#  if defined(MIKTEX)
+#  define main Main
+#  else
+#  define main __cdecl Main
+#  endif
 #endif        /* MIKTEX */
 /**********************************************************************/
 /*******************************  main  *******************************/
