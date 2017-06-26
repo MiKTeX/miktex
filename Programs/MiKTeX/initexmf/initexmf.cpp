@@ -296,7 +296,7 @@ private:
       outfile += "_";
       outfile += Timestamp().c_str();
       outfile.SetExtension(".out");
-      FileStream outstream = File::Open(outfile, FileMode::Create, FileAccess::Write, false);
+      FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
       outstream.Write(&outputBytes[0], outputBytes.size());
       outstream.Close();
       MIKTEX_FATAL_ERROR_2(T_("The executed process did not succeed. The process output has been saved to a file."), "fileName", fileName.ToString(), "arguments", arguments, "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
