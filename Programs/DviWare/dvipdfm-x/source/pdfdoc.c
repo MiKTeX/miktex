@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2008-2016 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
+    Copyright (C) 2008-2017 by Jin-Hwan Cho, Matthias Franz, and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -1123,22 +1123,11 @@ pdf_doc_get_page (pdf_file *pf,
       if (crop_box)
         box = crop_box;
       else {
-        if (is_xdv) {
-          /* New scheme only for XDV files */
-          if (!(box = media_box) &&
-              !(box = bleed_box) &&
-              !(box = trim_box) &&
-              art_box) {
-              box = art_box;
-          }
-        } else {
-          /* Backward compatibility */
-          if (!(box = art_box) &&
-              !(box = trim_box) &&
-              !(box = bleed_box) &&
-              media_box) {
-              box = media_box;
-          }
+        if (!(box = media_box) &&
+            !(box = bleed_box) &&
+            !(box = trim_box) &&
+            art_box) {
+            box = art_box;
         }
       }
     } else if (options == 1) {

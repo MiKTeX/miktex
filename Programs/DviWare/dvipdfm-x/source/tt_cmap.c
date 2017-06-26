@@ -610,7 +610,8 @@ static unsigned char lrange_max[4] = {0x7f, 0xff, 0xff, 0xff};
 static void
 load_cmap4 (struct cmap4 *map,
 	    unsigned char *GIDToCIDMap,
-      otl_gsub *gsub_vert, otl_gsub *gsub_list, CMap *cmap)
+        otl_gsub *gsub_vert, otl_gsub *gsub_list,
+        CMap *cmap, CMap *tounicode_add)
 {
   USHORT  c0, c1, gid, cid;
   USHORT  j, d, segCount;
@@ -649,7 +650,15 @@ load_cmap4 (struct cmap4 *map,
 	wbuf[1] = 0;
 	wbuf[2] = (ch >> 8) & 0xff;
 	wbuf[3] =  ch & 0xff;
+	wbuf[4] = (cid >> 8) & 0xff;
+	wbuf[5] =  cid & 0xff;
 	CMap_add_cidchar(cmap, wbuf, 4, cid);
+	if (tounicode_add) {
+	  unsigned char *p = wbuf + 6;
+	  size_t   uc_len;
+	  uc_len = UC_UTF16BE_encode_char(ch, &p, wbuf + WBUF_SIZE -1 );
+	  CMap_add_bfchar(tounicode_add, wbuf+4, 2, wbuf+6, uc_len);
+	}
       }
     }
   }
@@ -660,7 +669,8 @@ load_cmap4 (struct cmap4 *map,
 static void
 load_cmap12 (struct cmap12 *map,
 	     unsigned char *GIDToCIDMap,
-       otl_gsub *gsub_vert, otl_gsub *gsub_list, CMap *cmap)
+         otl_gsub *gsub_vert, otl_gsub *gsub_list,
+         CMap *cmap, CMap *tounicode_add)
 {
   ULONG   i, ch;  /* LONG ? */
   USHORT  gid, cid;
@@ -686,7 +696,15 @@ load_cmap12 (struct cmap12 *map,
       wbuf[1] = (ch >> 16) & 0xff;
       wbuf[2] = (ch >>  8) & 0xff;
       wbuf[3] = ch & 0xff;
+      wbuf[4] = (cid >> 8) & 0xff;
+      wbuf[5] =  cid & 0xff;
       CMap_add_cidchar(cmap, wbuf, 4, cid);
+      if (tounicode_add) {
+          unsigned char *p = wbuf + 6;
+          size_t   uc_len;
+          uc_len = UC_UTF16BE_encode_char(ch, &p, wbuf + WBUF_SIZE -1 );
+          CMap_add_bfchar(tounicode_add, wbuf+4, 2, wbuf+6, uc_len);
+      }
     }
   }
 
@@ -1103,7 +1121,10 @@ create_ToUnicode_cmap (tt_cmap *ttcmap,
   CMap_set_CIDSysInfo(cmap, &CSI_UNICODE);
   CMap_add_codespacerange(cmap, srange_min, srange_max, 2);
 
-  if (code_to_cid_cmap && cffont && is_cidfont) {
+  /* cmap_add here stores information about all unencoded glyphs which can be
+   * accessed only through OT Layout GSUB table.
+   */
+  if (code_to_cid_cmap && cffont && is_cidfont && !cmap_add) {
     USHORT i;
     for (i = 0; i < 8192; i++) {
       int j;
@@ -1192,7 +1213,7 @@ otf_create_ToUnicode_stream (const char *font_name,
   int         cmap_add_id;
   tt_cmap    *ttcmap;
   char       *normalized_font_name;
-  char       *cmap_name;
+  char       *cmap_name, *cmap_add_name;
   FILE       *fp = NULL;
   sfnt       *sfont;
   ULONG       offset = 0;
@@ -1263,7 +1284,10 @@ otf_create_ToUnicode_stream (const char *font_name,
   if (cmap_type != CMAP_TYPE_CODE_TO_CID)
     code_to_cid_cmap = NULL;
 
-  cmap_add_id = CMap_cache_find(cmap_name);
+  cmap_add_name = NEW(strlen(font_name)+strlen(",000-UCS32-Add")+1, char);
+  sprintf(cmap_add_name, "%s,%03d-UCS32-Add", font_name, ttc_index);
+  cmap_add_id = CMap_cache_find(cmap_add_name);
+  RELEASE(cmap_add_name);
   if (cmap_add_id < 0) {
     cmap_add = NULL;
   } else {
@@ -1308,7 +1332,7 @@ otf_create_ToUnicode_stream (const char *font_name,
 }
 
 static int
-load_base_CMap (const char *cmap_name, int wmode,
+load_base_CMap (const char *cmap_name, CMap *tounicode_add, int wmode,
 		CIDSysInfo *csi, unsigned char *GIDToCIDMap,
     otl_gsub *gsub_vert, otl_gsub *gsub_list,
 		tt_cmap *ttcmap)
@@ -1332,9 +1356,11 @@ load_base_CMap (const char *cmap_name, int wmode,
     }
 
     if (ttcmap->format == 12) {
-      load_cmap12(ttcmap->map, GIDToCIDMap, gsub_vert, gsub_list, cmap);
+      load_cmap12(ttcmap->map, GIDToCIDMap, gsub_vert, gsub_list,
+                  cmap, tounicode_add);
     } else if (ttcmap->format == 4) {
-      load_cmap4(ttcmap->map, GIDToCIDMap, gsub_vert, gsub_list, cmap);
+      load_cmap4(ttcmap->map, GIDToCIDMap, gsub_vert, gsub_list,
+                 cmap, tounicode_add);
     }
 
     cmap_id = CMap_cache_add(cmap);
@@ -1348,6 +1374,10 @@ otf_load_Unicode_CMap (const char *map_name, int ttc_index, /* 0 for non-TTC fon
 		       const char *otl_tags, int wmode)
 {
   int    cmap_id = -1;
+  /* Additional ToUncidoe mappings required by OTL GSUB substitusion */
+  int    tounicode_add_id = -1;
+  CMap  *tounicode_add = NULL;
+  char  *tounicode_add_name = NULL;
   int    is_cidfont = 0;
   sfnt  *sfont;
   ULONG  offset = 0;
@@ -1415,6 +1445,26 @@ otf_load_Unicode_CMap (const char *map_name, int ttc_index, /* 0 for non-TTC fon
       sprintf(cmap_name, "%s,%03d,%s-UCS4-V", map_name, ttc_index, otl_tags);
     else
       sprintf(cmap_name, "%s,%03d,%s-UCS4-H", map_name, ttc_index, otl_tags);
+    /* tounicode_add here is later refered by otf_create_ToUnicode_stream()
+     * for finding additional CID to Unicode mapping entries required by
+     * OTL gsub substitution.
+     */
+    tounicode_add_name = NEW(strlen(map_name)+strlen(",000-UCS32-Add")+1, char);
+    sprintf(tounicode_add_name, "%s,%03d-UCS32-Add", map_name, ttc_index);
+    tounicode_add_id = CMap_cache_find(tounicode_add_name);
+ 	if (tounicode_add_id >= 0)
+ 	  tounicode_add = CMap_cache_get(tounicode_add_id);
+ 	else {
+ 	  tounicode_add = CMap_new();
+ 	  CMap_set_name (tounicode_add, tounicode_add_name);
+ 	  CMap_set_type (tounicode_add, CMAP_TYPE_TO_UNICODE);
+ 	  CMap_set_wmode(tounicode_add, 0);
+ 	  CMap_add_codespacerange(tounicode_add, srange_min, srange_max, 2);
+ 	  CMap_set_CIDSysInfo(tounicode_add, &CSI_UNICODE);
+ 	  CMap_add_bfchar(tounicode_add, srange_min, 2, srange_max, 2);
+      tounicode_add_id = CMap_cache_add(tounicode_add);
+    }
+    RELEASE(tounicode_add_name);
   } else {
     cmap_name = NEW(strlen(base_name)+1, char);
     strcpy(cmap_name, base_name);
@@ -1486,7 +1536,7 @@ otf_load_Unicode_CMap (const char *map_name, int ttc_index, /* 0 for non-TTC fon
   } else {
     gsub_list = NULL;
   }
-  cmap_id = load_base_CMap(base_name, wmode,
+  cmap_id = load_base_CMap(cmap_name, tounicode_add, wmode,
                            (is_cidfont ? &csi : NULL), GIDToCIDMap,
                            gsub_vert, gsub_list, ttcmap);
   if (cmap_id < 0)
