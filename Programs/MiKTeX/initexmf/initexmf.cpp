@@ -1517,6 +1517,7 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_GFTYPE_EXE, { "gftype" } },
   { MIKTEX_GREGORIO_EXE, { "gregorio" } },
   { MIKTEX_HBF2GF_EXE, { "hbf2gf" } },
+  { MIKTEX_LACHECK_EXE, { "lacheck" } },
   { MIKTEX_LUATEX_EXE, { MIKTEX_PREFIX "texlua", MIKTEX_PREFIX "texluac", "luatex", "texlua", "texluac", MIKTEX_LUALATEX_EXE } },
   { MIKTEX_MAKEBASE_EXE, { "makebase" } },
   { MIKTEX_MAKEFMT_EXE, { "makefmt" } },

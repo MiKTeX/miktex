@@ -2,6 +2,10 @@
 
 ## MiKTeX NEXT
 
+### New programs
+
+* lacheck: a consistency checker checker for LaTeX documents
+
 ### Dockerized build environments
 
 The MiKTeX build environment has been dockerized for the following
@@ -12,7 +16,9 @@ Linux distros:
 * [Fedora 25](https://github.com/MiKTeX/docker-miktex-build-fedora-25)
 
 This makes it possible to build MiKTeX using Docker.  No build tools
-are needed.  For example, to build MiKTeX for Debian 9:
+required.
+
+For example, to build MiKTeX for Debian 9:
 
     mkdir -p /tmp/miktex
     curl -fsSL https://miktex.org/download/ctan/systems/win32/miktex/source/miktex-2.9.tar.xz | \

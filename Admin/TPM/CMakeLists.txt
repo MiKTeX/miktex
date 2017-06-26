@@ -74,6 +74,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-int-bin.tpm.in
     windows-x86/miktex-jpeg-bin.tpm.in
     windows-x86/miktex-kpathsea-bin.tpm.in
+    windows-x86/miktex-lacheck-bin.tpm.in
     windows-x86/miktex-libressl-bin.tpm.in
     windows-x86/miktex-log4cxx-bin.tpm.in
     windows-x86/miktex-lua52-bin.tpm.in
@@ -160,6 +161,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-int-bin-x64.tpm.in
     windows-x64/miktex-jpeg-bin-x64.tpm.in
     windows-x64/miktex-kpathsea-bin-x64.tpm.in
+    windows-x64/miktex-lacheck-bin-x64.tpm.in
     windows-x64/miktex-libressl-bin-x64.tpm.in
     windows-x64/miktex-log4cxx-bin-x64.tpm.in
     windows-x64/miktex-lua52-bin-x64.tpm.in
