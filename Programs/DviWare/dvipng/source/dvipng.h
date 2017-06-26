@@ -100,8 +100,10 @@ typedef int bool;
 # ifdef HAVE_DOPRNT
 #  define   vfprintf(stream, message, args)  _doprnt(message, args, stream)
 # else
+#if !defined(MIKTEX)
 #  error: vfprintf AND _doprnt are missing!!!
    /* If we have neither, should fall back to fprintf with fixed args.  */
+#endif
 # endif
 #endif
 
