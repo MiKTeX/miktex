@@ -18,6 +18,7 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     sudo apt-get install -y pandoc
     sudo apt-get install -y xsltproc
 
+    sudo apt-get install -y fontconfig
     sudo apt-get install -y ghostscript
     
     sudo apt-get install -y libapr1-dev
