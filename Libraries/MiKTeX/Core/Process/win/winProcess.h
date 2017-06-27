@@ -1,6 +1,6 @@
-/* winProcess.h: executing secondary process		-*- C++ -*-
+/* winProcess.h: executing secondary process            -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -27,16 +27,17 @@
 
 BEGIN_INTERNAL_NAMESPACE;
 
-class winProcess : public MiKTeX::Core::Process2
+class winProcess :
+  public MiKTeX::Core::Process2
 {
 public:
-  FILE * MIKTEXTHISCALL get_StandardInput() override;
+  FILE* MIKTEXTHISCALL get_StandardInput() override;
 
 public:
-  FILE * MIKTEXTHISCALL get_StandardOutput() override;
+  FILE* MIKTEXTHISCALL get_StandardOutput() override;
 
 public:
-  FILE * MIKTEXTHISCALL get_StandardError() override;
+  FILE* MIKTEXTHISCALL get_StandardError() override;
 
 public:
   void MIKTEXTHISCALL WaitForExit() override;
@@ -51,7 +52,7 @@ public:
   void MIKTEXTHISCALL Close() override;
 
 public:
-  MiKTeX::Core::Process2 * MIKTEXTHISCALL get_Parent() override;
+  MiKTeX::Core::Process2* MIKTEXTHISCALL get_Parent() override;
 
 public:
   std::string MIKTEXTHISCALL get_ProcessName() override;
@@ -60,7 +61,7 @@ private:
   winProcess();
 
 private:
-  winProcess(const MiKTeX::Core::ProcessStartInfo & startinfo);
+  winProcess(const MiKTeX::Core::ProcessStartInfo& startinfo);
 
 private:
   virtual ~winProcess();
@@ -80,9 +81,9 @@ private:
   HANDLE standardError = INVALID_HANDLE_VALUE;
 
 private:
-  FILE * pFileStandardInput = nullptr;
-  FILE * pFileStandardOutput = nullptr;
-  FILE * pFileStandardError = nullptr;
+  FILE* pFileStandardInput = nullptr;
+  FILE* pFileStandardOutput = nullptr;
+  FILE* pFileStandardError = nullptr;
 
 private:
   bool processStarted = false;
@@ -94,7 +95,7 @@ private:
   static PROCESSENTRY32W GetProcessEntry(DWORD processId);
 
 private:
-  static bool TryGetProcessEntry(DWORD processId, PROCESSENTRY32W & processEntry);
+  static bool TryGetProcessEntry(DWORD processId, PROCESSENTRY32W& processEntry);
 
 private:
   friend class MiKTeX::Core::Process;
