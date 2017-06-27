@@ -1,6 +1,6 @@
 /* process.cpp: executing secondary processes
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -38,7 +38,7 @@ Process2::~Process2()
 {
 }
 
-void Process::Start(const PathName & fileName, const string & arguments, FILE * pFileStandardInput, FILE ** ppFileStandardInput, FILE ** ppFileStandardOutput, FILE ** ppFileStandardError, const char * lpszWorkingDirectory)
+void Process::Start(const PathName& fileName, const string& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory)
 {
   MIKTEX_ASSERT_STRING_OR_NIL(lpszWorkingDirectory);
 
@@ -80,7 +80,7 @@ void Process::Start(const PathName & fileName, const string & arguments, FILE * 
   pProcess->Close();
 }
 
-bool Process::Run(const PathName & fileName, const string & arguments, IRunProcessCallback * pCallback, int * pExitCode, const char * lpszWorkingDirectory)
+bool Process::Run(const PathName& fileName, const string& arguments, IRunProcessCallback* pCallback, int* pExitCode, const char* lpszWorkingDirectory)
 {
   MIKTEX_ASSERT_STRING_OR_NIL(lpszWorkingDirectory);
 
@@ -115,7 +115,7 @@ bool Process::Run(const PathName & fileName, const string & arguments, IRunProce
       int err = ferror(stdoutStream.Get());
       if (err != 0 && err != EPIPE)
       {
-	MIKTEX_FATAL_CRT_ERROR_2("fread", "processFileName", fileName.ToString(), "processArguments", arguments);
+        MIKTEX_FATAL_CRT_ERROR_2("fread", "processFileName", fileName.ToString(), "processArguments", arguments);
       }
       // pass output to caller
       total += n;
@@ -146,12 +146,12 @@ bool Process::Run(const PathName & fileName, const string & arguments, IRunProce
   }
 }
 
-void Process::Run(const PathName & fileName, const string & arguments)
+void Process::Run(const PathName& fileName, const string& arguments)
 {
   Process::Run(fileName, arguments, nullptr);
 }
 
-void Process::Run(const PathName & fileName, const string & arguments, IRunProcessCallback * pCallback)
+void Process::Run(const PathName& fileName, const string& arguments, IRunProcessCallback* pCallback)
 {
   int exitCode;
   if (!Run(fileName, arguments, pCallback, &exitCode, nullptr) || exitCode != 0)
@@ -160,12 +160,12 @@ void Process::Run(const PathName & fileName, const string & arguments, IRunProce
   }
 }
 
-bool Process::ExecuteSystemCommand(const string & commandLine)
+bool Process::ExecuteSystemCommand(const string& commandLine)
 {
   return ExecuteSystemCommand(commandLine, nullptr, nullptr, nullptr);
 }
 
-bool Process::ExecuteSystemCommand(const string & commandLine, int * pExitCode)
+bool Process::ExecuteSystemCommand(const string& commandLine, int* pExitCode)
 {
   return ExecuteSystemCommand(commandLine, pExitCode, nullptr, nullptr);
 }
