@@ -229,7 +229,7 @@ void unxProcess::Create()
   SessionImpl::GetSession()->UnloadFilenameDatabase();
 
   // fork
-  SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("forking..."));
+  SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "forking...");
   if (pipeStdout.GetReadEnd() >= 0
     || pipeStderr.GetReadEnd() >= 0
     || pipeStdin.GetReadEnd() >= 0
@@ -410,7 +410,7 @@ void unxProcess::WaitForExit()
   if (this->pid > 0)
   {
     auto session = SessionImpl::GetSession();
-    session->trace_process->WriteFormattedLine("core", T_("waiting for process %d"), static_cast<int>(this->pid));
+    session->trace_process->WriteFormattedLine("core", "waiting for process %d", static_cast<int>(this->pid));
     pid_t pid = this->pid;
     this->pid = -1;
     if (waitpid(pid, &status, 0) <= 0)
@@ -419,19 +419,19 @@ void unxProcess::WaitForExit()
     }
     if (WIFEXITED(status) != 0)
     {
-      session->trace_process->WriteFormattedLine("core", T_("process %d exited with status %d"), static_cast<int>(pid), WEXITSTATUS(status));
+      session->trace_process->WriteFormattedLine("core", "process %d exited with status %d", static_cast<int>(pid), WEXITSTATUS(status));
     }
     else if (WIFSIGNALED(status) != 0)
     {
-      session->trace_process->WriteFormattedLine("core", T_("process %d terminated due to signal %d"), static_cast<int>(pid), WTERMSIG(status));
+      session->trace_process->WriteFormattedLine("core", "process %d terminated due to signal %d", static_cast<int>(pid), WTERMSIG(status));
     }
     else if (WIFSTOPPED(status) != 0)
     {
-      session->trace_process->WriteFormattedLine("core", T_("process %d stopped due to signal %d"), static_cast<int>(pid), WSTOPSIG(status));
+      session->trace_process->WriteFormattedLine("core", "process %d stopped due to signal %d", static_cast<int>(pid), WSTOPSIG(status));
     }
     else if (WIFCONTINUED(status) != 0)
     {
-      session->trace_process->WriteFormattedLine("core", T_("process %d continued"));
+      session->trace_process->WriteFormattedLine("core", "process %d continued");
     }
   }
 }
