@@ -495,24 +495,16 @@ MIKTEXSTATICFUNC(PathName) Wrap(string & arguments)
   return systemShell;
 }
 
-/* _________________________________________________________________________
-
-   Process::ExecuteSystemCommand
-
-   Start cmd.exe with a command line.  Pass output (stdout & stderr)
-   to caller.
-
-   Suppose command-line is: tifftopnm "%i" | ppmtobmp -windows > "%o"
-
-   Then we start as follows on Windows 95:
-
-     conspawn "command /c tifftopnm \"%i\" | ppmtobmp -windows > \"%o\""
-
-   conspawn.exe runs
-
-     command /c tifftopnm "%i" | ppmtobmp -windows > "%o"
-   _________________________________________________________________________ */
-
+// Start cmd.exe with a command line.  Pass output (stdout & stderr)
+// to caller.
+//
+// Suppose command-line is:
+// 
+//   tifftopnm "%i" | ppmtobmp -windows > "%o"
+// 
+// Then we start as follows:
+// 
+//   C:\Windows\System32\cmd.exe /c "tifftopnm \"%i\" | ppmtobmp -windows > \"%o\""
 bool Process::ExecuteSystemCommand(const string & commandLine, int * pExitCode, IRunProcessCallback * pCallback, const char * lpszDirectory)
 {
   string arguments(commandLine);
