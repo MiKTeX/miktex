@@ -61,7 +61,7 @@ private:
   winProcess();
 
 private:
-  winProcess(const MiKTeX::Core::ProcessStartInfo& startinfo);
+  winProcess(const MiKTeX::Core::ProcessStartInfo2& startinfo);
 
 private:
   virtual ~winProcess();
@@ -70,7 +70,7 @@ private:
   void Create();
 
 private:
-  MiKTeX::Core::ProcessStartInfo startinfo;
+  MiKTeX::Core::ProcessStartInfo2 startinfo;
 
 private:
   PROCESS_INFORMATION processInformation;

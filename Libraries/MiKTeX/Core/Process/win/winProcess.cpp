@@ -23,6 +23,7 @@
 
 #include "internal.h"
 
+#include "miktex/Core/CommandLineBuilder.h"
 #include "miktex/Core/win/winAutoResource.h"
 
 #include "winProcess.h"
@@ -34,13 +35,27 @@ using namespace std;
 
 Process* Process::Start(const ProcessStartInfo& startinfo)
 {
-  return new winProcess(startinfo);
+  ProcessStartInfo2 startinfo2;
+  Argv argv(startinfo.FileName, startinfo.Arguments);
+  for (int idx = 0; idx < argv.GetArgc(); ++idx)
+  {
+    startinfo2.Argv.push_back(argv[idx]);
+  }
+  startinfo2.FileName = startinfo.FileName;
+  startinfo2.RedirectStandardError = startinfo.RedirectStandardError;
+  startinfo2.RedirectStandardInput = startinfo.RedirectStandardInput;
+  startinfo2.RedirectStandardOutput = startinfo.RedirectStandardOutput;
+  startinfo2.StandardError = startinfo.StandardError;
+  startinfo2.StandardInput = startinfo.StandardInput;
+  startinfo2.StandardOutput = startinfo.StandardOutput;
+  startinfo2.WorkingDirectory = startinfo.WorkingDirectory;
+  return new winProcess(startinfo2);
 }
 
 // TODO: return unique_ptr<Process>
 Process* Process::Start(const ProcessStartInfo2& startinfo)
 {
-  UNIMPLEMENTED();
+  return new winProcess(startinfo);
 }
 
 #if defined(NDEBUG)
@@ -75,6 +90,10 @@ void winProcess::Create()
     fileName = szFileName;
   }
 
+  CommandLineBuilder commandLine;
+  // TODO?: commandLine.SetQuotingConvention(QuotingConvention::None);
+  commandLine.AppendArguments(startinfo.Argv);
+
   // standard security attributes for pipes
   SECURITY_ATTRIBUTES const SAPIPE = {
     sizeof(SECURITY_ATTRIBUTES),
@@ -102,16 +121,16 @@ void winProcess::Create()
       int fd = _fileno(startinfo.StandardOutput);
       if (fd < 0)
       {
-        MIKTEX_FATAL_CRT_ERROR_2("_fileno", "processFileName", startinfo.FileName, "processArguments", startinfo.Arguments);
+        MIKTEX_FATAL_CRT_ERROR_2("_fileno", "processFileName", startinfo.FileName, "commandLine", commandLine.ToString());
       }
       HANDLE hStdout = reinterpret_cast<HANDLE>(_get_osfhandle(fd));
       if (hStdout == INVALID_HANDLE_VALUE)
       {
-        MIKTEX_FATAL_CRT_ERROR_2("_get_osfhandle", "processFileName", startinfo.FileName, "processArguments", startinfo.Arguments);
+        MIKTEX_FATAL_CRT_ERROR_2("_get_osfhandle", "processFileName", startinfo.FileName, "commandLine", commandLine.ToString());
       }
       if (!DuplicateHandle(hCurrentProcess, hStdout, hCurrentProcess, &hChildStdout, 0, TRUE, DUPLICATE_SAME_ACCESS))
       {
-        MIKTEX_FATAL_WINDOWS_ERROR_2("DuplicateHandle", "processFileName", startinfo.FileName, "processArguments", startinfo.Arguments);
+        MIKTEX_FATAL_WINDOWS_ERROR_2("DuplicateHandle", "processFileName", startinfo.FileName, "commandLine", commandLine.ToString());
       }
     }
     else if (startinfo.RedirectStandardOutput)
@@ -123,12 +142,12 @@ void winProcess::Create()
       AutoHANDLE hStdoutRd;
       if (!CreatePipe(&hStdoutRd, &hChildStdout, const_cast<LPSECURITY_ATTRIBUTES>(&SAPIPE), PIPE_BUF_SIZE))
       {
-        MIKTEX_FATAL_WINDOWS_ERROR_2("CreatePipe", "processFileName", startinfo.FileName, "processArguments", startinfo.Arguments);
+        MIKTEX_FATAL_WINDOWS_ERROR_2("CreatePipe", "processFileName", startinfo.FileName, "commandLine", commandLine.ToString());
       }
       // duplicate the read end of the pipe
       if (!DuplicateHandle(hCurrentProcess, hStdoutRd.Get(), hCurrentProcess, &standardOutput, 0, FALSE, DUPLICATE_SAME_ACCESS))
       {
-        MIKTEX_FATAL_WINDOWS_ERROR_2("DuplicateHandle", "processFileName", startinfo.FileName, "processArguments", startinfo.Arguments);
+        MIKTEX_FATAL_WINDOWS_ERROR_2("DuplicateHandle", "processFileName", startinfo.FileName, "commandLine", commandLine.ToString());
       }
     }
 
@@ -141,16 +160,16 @@ void winProcess::Create()
       int fd = _fileno(startinfo.StandardError);
       if (fd < 0)
       {
-        MIKTEX_FATAL_CRT_ERROR_2("_fileno", "processFileName", startinfo.FileName, "processArguments", startinfo.Arguments);
+        MIKTEX_FATAL_CRT_ERROR_2("_fileno", "processFileName", startinfo.FileName, "commandLine", commandLine.ToString());
       }
       HANDLE hStderr = reinterpret_cast<HANDLE>(_get_osfhandle(fd));
       if (hStderr == INVALID_HANDLE_VALUE)
       {
-        MIKTEX_FATAL_CRT_ERROR_2("_get_osfhandle", "processFileName", startinfo.FileName, "processArguments", startinfo.Arguments);
+        MIKTEX_FATAL_CRT_ERROR_2("_get_osfhandle", "processFileName", startinfo.FileName, "commandLine", commandLine.ToString());
       }
       if (!DuplicateHandle(hCurrentProcess, hStderr, hCurrentProcess, &hChildStderr, 0, TRUE, DUPLICATE_SAME_ACCESS))
       {
-        MIKTEX_FATAL_WINDOWS_ERROR_2("DuplicateHandle", "processFileName", startinfo.FileName, "processArguments", startinfo.Arguments);
+        MIKTEX_FATAL_WINDOWS_ERROR_2("DuplicateHandle", "processFileName", startinfo.FileName, "commandLine", commandLine.ToString());
       }
     }
     else if (startinfo.RedirectStandardError)
@@ -162,12 +181,12 @@ void winProcess::Create()
       AutoHANDLE hStderrRd;
       if (!CreatePipe(&hStderrRd, &hChildStderr, const_cast<LPSECURITY_ATTRIBUTES>(&SAPIPE), PIPE_BUF_SIZE))
       {
-        MIKTEX_FATAL_WINDOWS_ERROR_2("CreatePipe", "processFileName", startinfo.FileName, "processArguments", startinfo.Arguments);
+        MIKTEX_FATAL_WINDOWS_ERROR_2("CreatePipe", "processFileName", startinfo.FileName, "commandLine", commandLine.ToString());
       }
       // duplicate the read end of the pipe
       if (!DuplicateHandle(hCurrentProcess, hStderrRd.Get(), hCurrentProcess, &standardError, 0, FALSE, DUPLICATE_SAME_ACCESS))
       {
-        MIKTEX_FATAL_WINDOWS_ERROR_2("DuplicateHandle", "processFileName", startinfo.FileName, "processArguments", startinfo.Arguments);
+        MIKTEX_FATAL_WINDOWS_ERROR_2("DuplicateHandle", "processFileName", startinfo.FileName, "commandLine", commandLine.ToString());
       }
     }
 #if MERGE_STDOUT_STDERR
@@ -179,7 +198,7 @@ void winProcess::Create()
       // make child stderr = child stdout
       if (!DuplicateHandle(hCurrentProcess, hChildStdout, hCurrentProcess, &hChildStderr, 0, TRUE, DUPLICATE_SAME_ACCESS))
       {
-        MIKTEX_FATAL_WINDOWS_ERROR_2("DuplicateHandle", "processFileName", startinfo.FileName, "processArguments", startinfo.Arguments);
+        MIKTEX_FATAL_WINDOWS_ERROR_2("DuplicateHandle", "processFileName", startinfo.FileName, "commandLine", commandLine.ToString());
       }
     }
 #endif
@@ -193,16 +212,16 @@ void winProcess::Create()
       int fd = _fileno(startinfo.StandardInput);
       if (fd < 0)
       {
-        MIKTEX_FATAL_CRT_ERROR_2("_fileno", "processFileName", startinfo.FileName, "processArguments", startinfo.Arguments);
+        MIKTEX_FATAL_CRT_ERROR_2("_fileno", "processFileName", startinfo.FileName, "commandLine", commandLine.ToString());
       }
       HANDLE hStdin = reinterpret_cast<HANDLE>(_get_osfhandle(fd));
       if (hStdin == INVALID_HANDLE_VALUE)
       {
-        MIKTEX_FATAL_CRT_ERROR_2("_get_osfhandle", "processFileName", startinfo.FileName, "processArguments", startinfo.Arguments);
+        MIKTEX_FATAL_CRT_ERROR_2("_get_osfhandle", "processFileName", startinfo.FileName, "commandLine", commandLine.ToString());
       }
       if (!DuplicateHandle(hCurrentProcess, hStdin, hCurrentProcess, &hChildStdin, 0, TRUE, DUPLICATE_SAME_ACCESS))
       {
-        MIKTEX_FATAL_WINDOWS_ERROR_2("DuplicateHandle", "processFileName", startinfo.FileName, "processArguments", startinfo.Arguments);
+        MIKTEX_FATAL_WINDOWS_ERROR_2("DuplicateHandle", "processFileName", startinfo.FileName, "commandLine", commandLine.ToString());
       }
     }
     else if (startinfo.RedirectStandardInput)
@@ -214,12 +233,12 @@ void winProcess::Create()
       AutoHANDLE hStdinWr;
       if (!CreatePipe(&hChildStdin, &hStdinWr, const_cast<LPSECURITY_ATTRIBUTES>(&SAPIPE), PIPE_BUF_SIZE))
       {
-        MIKTEX_FATAL_WINDOWS_ERROR_2("CreatePipe", "processFileName", startinfo.FileName, "processArguments", startinfo.Arguments);
+        MIKTEX_FATAL_WINDOWS_ERROR_2("CreatePipe", "processFileName", startinfo.FileName, "commandLine", commandLine.ToString());
       }
       // duplicate the write end of the pipe
       if (!DuplicateHandle(hCurrentProcess, hStdinWr.Get(), hCurrentProcess, &standardInput, 0, FALSE, DUPLICATE_SAME_ACCESS))
       {
-        MIKTEX_FATAL_WINDOWS_ERROR_2("DuplicateHandle", "processFileName", startinfo.FileName, "processArguments", startinfo.Arguments);
+        MIKTEX_FATAL_WINDOWS_ERROR_2("DuplicateHandle", "processFileName", startinfo.FileName, "commandLine", commandLine.ToString());
       }
     }
 
@@ -243,36 +262,18 @@ void winProcess::Create()
       creationFlags |= CREATE_NO_WINDOW;
     }
 
-    // build command-line
-    string commandLine;
-    bool needQuotes = (startinfo.FileName.find(' ') != string::npos);
-    if (needQuotes)
-    {
-      commandLine = '"';
-    }
-    commandLine += startinfo.FileName;
-    if (needQuotes)
-    {
-      commandLine += '"';
-    }
-    if (!startinfo.Arguments.empty())
-    {
-      commandLine += ' ';
-      commandLine += startinfo.Arguments;
-    }
-
     // set environment variables
     SessionImpl::GetSession()->SetEnvironmentVariables();
 
     // start child process
-    SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "start process: %s", commandLine.c_str());
+    SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "start process: %s", commandLine.ToString().c_str());
 #if 1
     // experimental
     SessionImpl::GetSession()->UnloadFilenameDatabase();
 #endif
-    if (!CreateProcessW(UW_(fileName.GetData()), UW_(commandLine), nullptr, nullptr, TRUE, creationFlags, nullptr, startinfo.WorkingDirectory.empty() ? nullptr : UW_(startinfo.WorkingDirectory), &siStartInfo, &processInformation))
+    if (!CreateProcessW(UW_(fileName.GetData()), UW_(commandLine.ToString()), nullptr, nullptr, TRUE, creationFlags, nullptr, startinfo.WorkingDirectory.empty() ? nullptr : UW_(startinfo.WorkingDirectory), &siStartInfo, &processInformation))
     {
-      MIKTEX_FATAL_WINDOWS_ERROR_2("CreateProcess", "fileName", startinfo.FileName, "commandLine", commandLine);
+      MIKTEX_FATAL_WINDOWS_ERROR_2("CreateProcess", "fileName", startinfo.FileName, "commandLine", commandLine.ToString());
     }
     processStarted = true;
   }
@@ -322,7 +323,7 @@ void winProcess::Create()
   }
 }
 
-winProcess::winProcess(const ProcessStartInfo& startinfo) :
+winProcess::winProcess(const ProcessStartInfo2& startinfo) :
   startinfo(startinfo)
 {
   processEntry.dwSize = 0;

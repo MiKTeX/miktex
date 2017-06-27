@@ -146,7 +146,8 @@ struct ProcessStartInfo
 struct ProcessStartInfo2
 {
   /// Arguments to be passed to the process.
-  std::vector<std::string> Arguments;
+  /// Argv[0] being the process name.
+  std::vector<std::string> Argv;
 
   /// Path name to be executed.
   std::string FileName;
