@@ -63,6 +63,19 @@ Argv::Argv(const string& fileName, const string& arguments) :
   Append(arguments);
 }
 
+Argv::Argv(const vector<string>& arguments) :
+  pimpl(new impl{ { nullptr } })
+{
+  MIKTEX_ASSERT(!pimpl->argv.empty());
+  pimpl->argv.pop_back();
+  MIKTEX_ASSERT(pimpl->argv.empty());
+  for(const string& arg : arguments)
+  {
+    pimpl->argv.push_back(MIKTEX_STRDUP(arg.c_str()));
+  }
+  pimpl->argv.push_back(nullptr);
+}
+
 const char* const* Argv::GetArgv() const
 {
   return &pimpl->argv[0];

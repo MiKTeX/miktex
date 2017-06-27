@@ -163,12 +163,24 @@ private:
 
 Process* Process::Start(const ProcessStartInfo& startinfo)
 {
-  return new unxProcess(startinfo);
+  ProcessStartInfo2 startinfo2;
+  Argv argv(startinfo.FileName, startinfo.Arguments);
+  for (int idx = 0; idx < argv.GetArgc(); ++idx)
+  {
+    startinfo2.Arguments.push_back(argv[idx]);
+  }
+  startinfo2.FileName = startinfo.FileName;
+  startinfo2.RedirectStandardError = startinfo.RedirectStandardError;
+  startinfo2.RedirectStandardInput = startinfo.RedirectStandardInput;
+  startinfo2.RedirectStandardOutput = startinfo.RedirectStandardOutput;
+  startinfo2.StandardInput = startinfo.StandardInput;
+  startinfo2.WorkingDirectory = startinfo.WorkingDirectory;
+  return new unxProcess(startinfo2);
 }
 
 Process* Process::Start(const ProcessStartInfo2& startinfo)
 {
-  UNIMPLEMENTED();
+  return new unxProcess(startinfo);
 }
 
 #if defined(NDEBUG)
@@ -184,7 +196,7 @@ void unxProcess::Create()
     MIKTEX_UNEXPECTED();
   }
 
-  Argv argv(startinfo.FileName, startinfo.Arguments);
+  Argv argv(startinfo.Arguments);
 
   Pipe pipeStdout;
   Pipe pipeStderr;
@@ -323,7 +335,7 @@ void unxProcess::Create()
   pipeStdin.Dispose();
 }
 
-unxProcess::unxProcess(const ProcessStartInfo& startinfo) :
+unxProcess::unxProcess(const ProcessStartInfo2& startinfo) :
   startinfo(startinfo)
 {
   Create();
@@ -507,33 +519,25 @@ MIKTEXSTATICFUNC(PathName) FindSystemShell()
 #endif
 }
 
-void Process::StartSystemCommand(const string& command)
+MIKTEXSTATICFUNC(vector<string>) Wrap(const string& commandLine)
 {
-  string arguments = "-c '";
-  arguments += command;
-  arguments += '\'';
-  Process::Start(FindSystemShell(), arguments);
+  return vector<string> {
+    FindSystemShell().ToString(),
+    "-c",
+    commandLine
+  };
 }
 
-/*
- *
- * Process::ExecuteSystemCommand
- *
- * Start the shell (usually /bin/sh) with a given command string.
- * Pass output (stdout & stderr) to caller.
- *
- * Suppose the command string is: foo x | bar y > z
- *
- * Then we start as follows:
- *
- *   /bin/sh -c 'foo x | bar y > z'
- */
-bool Process::ExecuteSystemCommand(const string& command, int* exitCode, IRunProcessCallback* callback, const char* directory)
+void Process::StartSystemCommand(const string& commandLine)
 {
-  string arguments = "-c '";
-  arguments += command;
-  arguments += '\'';
-  return Process::Run(FindSystemShell(), arguments, callback, exitCode, directory);
+  vector<string> arguments = Wrap(commandLine);
+  Process::Start(arguments[0], arguments);
+}
+
+bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* directory)
+{
+  vector<string> arguments = Wrap(commandLine);
+  return Process::Run(arguments[0], arguments, callback, exitCode, directory);
 }
 
 Process2* Process2::GetCurrentProcess()

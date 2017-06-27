@@ -1,6 +1,6 @@
 /* unxProcess.h:                                        -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -66,7 +66,7 @@ private:
   }
   
 private:
-  unxProcess(const MiKTeX::Core::ProcessStartInfo& startinfo);
+  unxProcess(const MiKTeX::Core::ProcessStartInfo2& startinfo);
 
 private:
   ~unxProcess() override;
@@ -75,7 +75,7 @@ private:
   void Create();
 
 private:
-  MiKTeX::Core::ProcessStartInfo startinfo;
+  MiKTeX::Core::ProcessStartInfo2 startinfo;
 
 private:
   int status;
