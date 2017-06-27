@@ -491,38 +491,25 @@ MIKTEXSTATICFUNC(PathName) FindSystemShell()
   return szCmd;
 }
 
-MIKTEXSTATICFUNC(PathName) Wrap(string& arguments)
+MIKTEXSTATICFUNC(vector<string>) Wrap(const string& commandLine)
 {
-  PathName systemShell = FindSystemShell();
-  string wrappedArguments = "/s /c \"";
-  wrappedArguments += arguments;
-  wrappedArguments += "\"";
-  arguments = wrappedArguments;
-  return systemShell;
+  return vector<string> {
+    FindSystemShell().ToString(),
+    "/c",
+    commandLine
+  };
 }
 
-// Start cmd.exe with a command line.  Pass output (stdout & stderr)
-// to caller.
-//
-// Suppose command-line is:
-// 
-//   tifftopnm "%i" | ppmtobmp -windows > "%o"
-// 
-// Then we start as follows:
-// 
-//   C:\Windows\System32\cmd.exe /c "tifftopnm \"%i\" | ppmtobmp -windows > \"%o\""
-bool Process::ExecuteSystemCommand(const string& commandLine, int* pExitCode, IRunProcessCallback* pCallback, const char* lpszDirectory)
+bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* lpszDirectory)
 {
-  string arguments(commandLine);
-  PathName systemShell = Wrap(arguments);
-  return Process::Run(systemShell, arguments.c_str(), pCallback, pExitCode, lpszDirectory);
+  vector<string> arguments = Wrap(commandLine);
+  return Process::Run(arguments[0], arguments, callback, exitCode, lpszDirectory);
 }
 
 void Process::StartSystemCommand(const string& commandLine)
 {
-  string arguments(commandLine);
-  PathName systemShell = Wrap(arguments);
-  Process::Start(systemShell, arguments.c_str());
+  vector<string> arguments = Wrap(commandLine);
+  Process::Start(arguments[0], arguments);
 }
 
 winProcess::winProcess()

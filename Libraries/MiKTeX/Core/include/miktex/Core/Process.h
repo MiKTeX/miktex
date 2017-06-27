@@ -238,7 +238,7 @@ public:
   /// @return Returns true, if the process exited successfully, or
   /// if pExitCode isn't null.
 public:
-  static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string& commandLine, int* pExitCode);
+  static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string& commandLine, int* exitCode);
 
   /// Executes the system shell to execute a command.
   /// @param lpszCommandLine Command to be executed.
@@ -248,13 +248,14 @@ public:
   /// @return Returns true, if the process exited successfully, or
   /// if pExitCode isn't null.
 public:
-  static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string& commandLine, int* pExitCode, IRunProcessCallback* callback, const char* lpszWorkingDirectory);
+  static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* lpszWorkingDirectory);
 
   /// Executes a process.
   /// @param lpszFileName The name of an executable file to run in the process.
   /// @param lpszArguments The command-line arguments to pass when starting
   /// the process.
 public:
+  // DEPRECATED
   static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::string& arguments);
 
 public:
@@ -286,9 +287,12 @@ public:
   static MIKTEXCORECEEAPI(void) Start(const PathName& fileName, const std::string& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory);
 
 public:
+  static MIKTEXCORECEEAPI(void) Start(const PathName& fileName, const std::vector<std::string>& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory);
+
+public:
   static void Start(const PathName& fileName)
   {
-    Start(fileName, "", nullptr, nullptr, nullptr, nullptr, nullptr);
+    Start(fileName, std::vector<std::string>{ fileName.ToString() }, nullptr, nullptr, nullptr, nullptr, nullptr);
   }
 
 public:
@@ -298,6 +302,11 @@ public:
     Start(fileName, arguments, nullptr, nullptr, nullptr, nullptr, nullptr);
   }
 
+public:
+  static void Start(const PathName& fileName, const std::vector<std::string>& arguments)
+  {
+    Start(fileName, arguments, nullptr, nullptr, nullptr, nullptr, nullptr);
+  }
 };
 
 class MIKTEXNOVTABLE Process2 :

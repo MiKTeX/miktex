@@ -41,11 +41,22 @@ Process2::~Process2()
 
 void Process::Start(const PathName& fileName, const string& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory)
 {
+  Argv rawargv(fileName.ToString(), arguments);
+  vector<string> argv;
+  for (int idx = 0; idx < rawargv.GetArgc(); ++idx)
+  {
+    argv.push_back(rawargv[idx]);
+  }
+  Start(fileName, argv, pFileStandardInput, ppFileStandardInput, ppFileStandardOutput, ppFileStandardError, lpszWorkingDirectory);
+}
+
+void Process::Start(const PathName& fileName, const vector<string>& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory)
+{
   MIKTEX_ASSERT_STRING_OR_NIL(lpszWorkingDirectory);
 
   MIKTEX_ASSERT(pFileStandardInput == nullptr || ppFileStandardInput == nullptr);
 
-  ProcessStartInfo startinfo;
+  ProcessStartInfo2 startinfo;
 
   startinfo.FileName = fileName.ToString();
   startinfo.Arguments = arguments;
@@ -177,9 +188,9 @@ bool Process::ExecuteSystemCommand(const string& commandLine)
   return ExecuteSystemCommand(commandLine, nullptr, nullptr, nullptr);
 }
 
-bool Process::ExecuteSystemCommand(const string& commandLine, int* pExitCode)
+bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode)
 {
-  return ExecuteSystemCommand(commandLine, pExitCode, nullptr, nullptr);
+  return ExecuteSystemCommand(commandLine, exitCode, nullptr, nullptr);
 }
 
 vector<string> Process2::GetInvokerNames()
