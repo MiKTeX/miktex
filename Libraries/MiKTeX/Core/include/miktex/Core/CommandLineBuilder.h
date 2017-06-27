@@ -1,6 +1,6 @@
 /* miktex/Core/CommandLineBuilder.h:                    -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -45,34 +45,34 @@ public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL Argv();
 
 public:
-  Argv(const Argv & other) = delete;
+  Argv(const Argv& other) = delete;
 
 public:
-  Argv & operator= (const Argv & other) = delete;
+  Argv& operator= (const Argv& other) = delete;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL Argv(Argv && other);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL Argv(Argv&& other);
 
 public:
-  Argv & operator= (Argv && other) = delete;
+  Argv& operator= (Argv&& other) = delete;
 
 public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~Argv() noexcept;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL Argv(const std::string & fileName, const std::string & arguments);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL Argv(const std::string& fileName, const std::string& arguments);
 
 public:
-  MIKTEXCORETHISAPI(void) Append(const std::string & arguments);
+  MIKTEXCORETHISAPI(void) Append(const std::string& arguments);
 
 public:
-  MIKTEXCORETHISAPI(const char * const *) GetArgv() const;
+  MIKTEXCORETHISAPI(const char* const*) GetArgv() const;
 
 public:
   MIKTEXCORETHISAPI(int) GetArgc() const;
 
 public:
-  MIKTEXCORETHISAPI(const char *) operator[] (std::size_t idx) const;
+  MIKTEXCORETHISAPI(const char*) operator[] (std::size_t idx) const;
 
 private:
   class impl;
@@ -100,28 +100,28 @@ public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder();
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const CommandLineBuilder & other);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const CommandLineBuilder& other);
 
 public:
-  MIKTEXCORETHISAPI(CommandLineBuilder &) operator= (const CommandLineBuilder & other);
+  MIKTEXCORETHISAPI(CommandLineBuilder&) operator= (const CommandLineBuilder& other);
 
 public:
-  CommandLineBuilder(CommandLineBuilder && other) = delete;
+  CommandLineBuilder(CommandLineBuilder&& other) = delete;
 
 public:
-  CommandLineBuilder & operator= (CommandLineBuilder && other) = delete;
+  CommandLineBuilder& operator= (CommandLineBuilder&& other) = delete;
 
 public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~CommandLineBuilder() noexcept;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::string & argument);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::string& argument);
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::string & argument1, const std::string & argument2);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::string& argument1, const std::string& argument2);
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::string & argument1, const std::string & argument2, const std::string & argument3);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::string& argument1, const std::string& argument2, const std::string& argument3);
 
 public:
   MIKTEXCORETHISAPI(void) SetOptionConvention(OptionConvention optionConvention);
@@ -133,72 +133,72 @@ public:
   MIKTEXCORETHISAPI(void) Clear();
 
 public:
-  MIKTEXCORETHISAPI(void) AppendArgument(const std::string & argument);
+  MIKTEXCORETHISAPI(void) AppendArgument(const std::string& argument);
 
 public:
-  void AppendArgument(const PathName & argument)
+  void AppendArgument(const PathName& argument)
   {
     AppendArgument(argument.ToString());
   }
 
 public:
-  void AppendArgument(const char * argument)
+  void AppendArgument(const char* argument)
   {
     MIKTEX_ASSERT_STRING(argument);
     AppendArgument(std::string(argument));
   }
 
 public:
-  MIKTEXCORETHISAPI(void) AppendUnquoted(const std::string & text);
+  MIKTEXCORETHISAPI(void) AppendUnquoted(const std::string& text);
 
 public:
-  MIKTEXCORETHISAPI(void) AppendArguments(int argc, const char * const * argv);
+  MIKTEXCORETHISAPI(void) AppendArguments(int argc, const char* const* argv);
 
 public:
-  MIKTEXCORETHISAPI(void) AppendArguments(const std::vector<std::string> & argv);
+  MIKTEXCORETHISAPI(void) AppendArguments(const std::vector<std::string>& argv);
 
 public:
-  MIKTEXCORETHISAPI(void) AppendArguments(const Argv & argv);
+  MIKTEXCORETHISAPI(void) AppendArguments(const Argv& argv);
 
 public:
-  MIKTEXCORETHISAPI(void) AppendOption(const std::string & name, const std::string & value);
+  MIKTEXCORETHISAPI(void) AppendOption(const std::string& name, const std::string& value);
 
 public:
-  void AppendOption(const std::string & name)
+  void AppendOption(const std::string& name)
   {
     AppendOption(name, std::string());
   }
 
 public:
-  void AppendOption(const std::string & name, const PathName & value)
+  void AppendOption(const std::string& name, const PathName& value)
   {
     AppendOption(name, value.ToString());
   }
 
 public:
-  void AppendOption(const std::string & name, const char * value)
+  void AppendOption(const std::string& name, const char* value)
   {
     MIKTEX_ASSERT_STRING(value);
     AppendOption(name, std::string(value));
   }
 
 public:
-  MIKTEXCORETHISAPI(void) AppendRedirection(const PathName & path, std::string direction);
+  MIKTEXCORETHISAPI(void) AppendRedirection(const PathName& path, std::string direction);
 
 public:
-  void AppendStdoutRedirection(const PathName & path, bool append)
+  void AppendStdoutRedirection(const PathName& path, bool append)
   {
     return AppendRedirection(path, append ? ">>" : ">");
   }
 
 public:
-  void AppendStdoutRedirection(const PathName & path)
+  void AppendStdoutRedirection(const PathName& path)
   {
     return AppendStdoutRedirection(path, false);
   }
 
 public:
-  void AppendStdinRedirection(const PathName & path)
+  void AppendStdinRedirection(const PathName& path)
   {
     return AppendRedirection(path, "<");
   }
