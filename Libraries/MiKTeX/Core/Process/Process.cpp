@@ -103,7 +103,7 @@ bool Process::Run(const PathName& fileName, const string& arguments, IRunProcess
 
   if (pCallback != nullptr)
   {
-    SessionImpl::GetSession()->trace_process->WriteLine("core", T_("start reading the pipe"));
+    SessionImpl::GetSession()->trace_process->WriteLine("core", "start reading the pipe");
     const size_t CHUNK_SIZE = 64;
     char buf[CHUNK_SIZE];
     bool cancelled = false;
@@ -121,7 +121,7 @@ bool Process::Run(const PathName& fileName, const string& arguments, IRunProcess
       total += n;
       cancelled = !pCallback->OnProcessOutput(buf, n);
     }
-    SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("read %u bytes from the pipe"), static_cast<unsigned>(total));
+    SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "read %u bytes from the pipe", static_cast<unsigned>(total));
   }
 
   // wait for the process to finish
@@ -141,7 +141,7 @@ bool Process::Run(const PathName& fileName, const string& arguments, IRunProcess
   }
   else
   {
-    SessionImpl::GetSession()->trace_error->WriteFormattedLine("core", T_("%s returned with exit code %d"), Q_(fileName), static_cast<int>(exitCode));
+    SessionImpl::GetSession()->trace_error->WriteFormattedLine("core", "%s returned with exit code %d", Q_(fileName), static_cast<int>(exitCode));
     return false;
   }
 }
