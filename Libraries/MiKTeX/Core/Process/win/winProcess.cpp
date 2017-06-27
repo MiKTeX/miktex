@@ -92,7 +92,7 @@ void winProcess::Create()
     if (startinfo.StandardOutput != nullptr)
     {
 #if TRACEREDIR
-      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("redirecting stdout to a stream"));
+      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "redirecting stdout to a stream");
 #endif
       int fd = _fileno(startinfo.StandardOutput);
       if (fd < 0)
@@ -112,7 +112,7 @@ void winProcess::Create()
     else if (startinfo.RedirectStandardOutput)
     {
 #if TRACEREDIR
-      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("redirecting stdout to a pipe"));
+      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "redirecting stdout to a pipe");
 #endif
       // create stdout pipe
       AutoHANDLE hStdoutRd;
@@ -131,7 +131,7 @@ void winProcess::Create()
     if (startinfo.StandardError != nullptr)
     {
 #if TRACEREDIR
-      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("redirecting stderr to a stream"));
+      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "redirecting stderr to a stream");
 #endif
       int fd = _fileno(startinfo.StandardError);
       if (fd < 0)
@@ -151,7 +151,7 @@ void winProcess::Create()
     else if (startinfo.RedirectStandardError)
     {
 #if TRACEREDIR
-      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("redirecting stderr to a pipe"));
+      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "redirecting stderr to a pipe");
 #endif
       // create child stderr pipe
       AutoHANDLE hStderrRd;
@@ -169,7 +169,7 @@ void winProcess::Create()
     else if (hChildStdout != INVALID_HANDLE_VALUE)
     {
 #if TRACEREDIR
-      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("make child stderr = child stdout"));
+      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "make child stderr = child stdout");
 #endif
       // make child stderr = child stdout
       if (!DuplicateHandle(hCurrentProcess, hChildStdout, hCurrentProcess, &hChildStderr, 0, TRUE, DUPLICATE_SAME_ACCESS))
@@ -183,7 +183,7 @@ void winProcess::Create()
     if (startinfo.StandardInput != nullptr)
     {
 #if TRACEREDIR
-      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("redirecting stdin to a stream"));
+      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "redirecting stdin to a stream");
 #endif
       int fd = _fileno(startinfo.StandardInput);
       if (fd < 0)
@@ -203,7 +203,7 @@ void winProcess::Create()
     else if (startinfo.RedirectStandardInput)
     {
 #if TRACEREDIR
-      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("redirecting stdin to a pipe"));
+      SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "redirecting stdin to a pipe");
 #endif
       // create child stdin pipe
       AutoHANDLE hStdinWr;
@@ -260,7 +260,7 @@ void winProcess::Create()
     SessionImpl::GetSession()->SetEnvironmentVariables();
 
     // start child process
-    SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("start process: %s"), commandLine.c_str());
+    SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "start process: %s", commandLine.c_str());
 #if 1
     // experimental
     SessionImpl::GetSession()->UnloadFilenameDatabase();
