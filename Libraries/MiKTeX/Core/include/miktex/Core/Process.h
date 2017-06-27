@@ -108,11 +108,45 @@ private:
   std::size_t stdoutOffset = 0;
 };
 
-/// Proces start info struct.
+/// Proces start info struct (deprecated).
 struct ProcessStartInfo
 {
-  /// Arguments to be passed to the process.
   std::string Arguments;
+  std::string FileName;
+
+#if defined(MIKTEX_WINDOWS)
+  FILE* StandardError = nullptr;
+#endif
+
+  FILE* StandardInput = nullptr;
+
+#if defined(MIKTEX_WINDOWS)
+  FILE* StandardOutput = nullptr;
+#endif
+
+  bool RedirectStandardError = false;
+
+  bool RedirectStandardInput = false;
+
+  bool RedirectStandardOutput = false;
+
+  std::string WorkingDirectory;
+
+  ProcessStartInfo()
+  {
+  }
+
+  ProcessStartInfo(const PathName& fileName) :
+    FileName(fileName.ToString())
+  {
+  }
+
+};
+
+struct ProcessStartInfo2
+{
+  /// Arguments to be passed to the process.
+  std::vector<std::string> Arguments;
 
   /// Path name to be executed.
   std::string FileName;
@@ -142,15 +176,14 @@ struct ProcessStartInfo
   /// Working directory for the process.
   std::string WorkingDirectory;
 
-  ProcessStartInfo()
+  ProcessStartInfo2()
   {
   }
 
-  ProcessStartInfo(const PathName& fileName) :
+  ProcessStartInfo2(const PathName& fileName) :
     FileName(fileName.ToString())
   {
   }
-
 };
 
 /// Process class.
@@ -237,6 +270,9 @@ public:
 
 public:
   static MIKTEXCORECEEAPI(Process*) Start(const ProcessStartInfo& startinfo);
+
+public:
+  static MIKTEXCORECEEAPI(Process*) Start(const ProcessStartInfo2& startinfo);
 
 public:
   static MIKTEXCORECEEAPI(void) Start(const PathName& fileName, const std::string& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory);

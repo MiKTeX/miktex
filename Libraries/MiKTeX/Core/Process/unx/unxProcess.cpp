@@ -166,6 +166,11 @@ Process* Process::Start(const ProcessStartInfo& startinfo)
   return new unxProcess(startinfo);
 }
 
+Process* Process::Start(const ProcessStartInfo2& startinfo)
+{
+  UNIMPLEMENTED();
+}
+
 #if defined(NDEBUG)
 #  define TRACEREDIR 0
 #else

@@ -32,10 +32,15 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-// TODO: return unique_ptr<Process>
 Process* Process::Start(const ProcessStartInfo& startinfo)
 {
   return new winProcess(startinfo);
+}
+
+// TODO: return unique_ptr<Process>
+Process* Process::Start(const ProcessStartInfo2& startinfo)
+{
+  UNIMPLEMENTED();
 }
 
 #if defined(NDEBUG)
