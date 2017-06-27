@@ -1,6 +1,6 @@
 /* miktex/Core/Process.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -50,7 +50,7 @@ class MIKTEXNOVTABLE IRunProcessCallback
   /// @param n Number of output text bytes.
   /// @return Returns true, of the Process object shall continue.
 public:
-  virtual bool MIKTEXTHISCALL OnProcessOutput(const void * pOutput, std::size_t n) = 0;
+  virtual bool MIKTEXTHISCALL OnProcessOutput(const void* pOutput, std::size_t n) = 0;
 
 #if 0
   /// Error function. Called by the Process object if new error text
@@ -59,7 +59,7 @@ public:
   /// @param n Number of error text bytes.
   /// @return Returns true, of the Process object shall continue.
 public:
-  virtual bool MIKTEXTHISCALL OnProcessError(const void * pError, std::size_t n) = 0;
+  virtual bool MIKTEXTHISCALL OnProcessError(const void* pError, std::size_t n) = 0;
 #endif
 };
 
@@ -67,7 +67,7 @@ template<std::size_t MaxStdoutSize_ = 1024> class ProcessOutput :
   public IRunProcessCallback
 {
 public:
-  bool MIKTEXTHISCALL OnProcessOutput(const void * bytes, std::size_t nBytes) override
+  bool MIKTEXTHISCALL OnProcessOutput(const void* bytes, std::size_t nBytes) override
   {
 #if defined(_MSC_VER)
 #pragma push_macro("min")
@@ -119,15 +119,15 @@ struct ProcessStartInfo
 
 #if defined(MIKTEX_WINDOWS)
   /// Output file stream for stderr redirection.
-  FILE * StandardError = nullptr;
+  FILE* StandardError = nullptr;
 #endif
 
   /// Input file stream for stdin redirection.
-  FILE * StandardInput = nullptr;
+  FILE* StandardInput = nullptr;
 
 #if defined(MIKTEX_WINDOWS)
   /// Output file stream for stdout redirection.
-  FILE * StandardOutput = nullptr;
+  FILE* StandardOutput = nullptr;
 #endif
 
   /// Indicates whether error output shall be written to a pipe.
@@ -146,7 +146,7 @@ struct ProcessStartInfo
   {
   }
 
-  ProcessStartInfo(const PathName & fileName) :
+  ProcessStartInfo(const PathName& fileName) :
     FileName(fileName.ToString())
   {
   }
@@ -160,16 +160,16 @@ public:
   virtual MIKTEXTHISCALL ~Process() noexcept = 0;
 
 public:
-  virtual FILE * MIKTEXTHISCALL get_StandardInput() = 0;
+  virtual FILE* MIKTEXTHISCALL get_StandardInput() = 0;
 
-public:
   /// Gets the redirected output stream.
   /// @return Returns the redirected output stream. Returns 0, if
   /// the output was not redirected.
-  virtual FILE * MIKTEXTHISCALL get_StandardOutput() = 0;
+public:
+  virtual FILE* MIKTEXTHISCALL get_StandardOutput() = 0;
 
 public:
-  virtual FILE * MIKTEXTHISCALL get_StandardError() = 0;
+  virtual FILE* MIKTEXTHISCALL get_StandardError() = 0;
 
   /// Waits for the process.
 public:
@@ -190,13 +190,13 @@ public:
   /// Start the system shell to execute a command.
   /// @param lpszCommandLine Command to be executed.
 public:
-  static MIKTEXCORECEEAPI(void) StartSystemCommand(const std::string & commandLine);
+  static MIKTEXCORECEEAPI(void) StartSystemCommand(const std::string& commandLine);
 
   /// Executes the system shell to execute a command.
   /// @param lpszCommandLine Command to be executed.
   /// @return Returns true, if the command exited successfully.
 public:
-  static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string & commandLine);
+  static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string& commandLine);
 
   /// Executes the system shell to execute a command.
   /// @param lpszCommandLine Command to be executed.
@@ -204,7 +204,7 @@ public:
   /// @return Returns true, if the process exited successfully, or
   /// if pExitCode isn't null.
 public:
-  static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string & commandLine, int * pExitCode);
+  static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string& commandLine, int* pExitCode);
 
   /// Executes the system shell to execute a command.
   /// @param lpszCommandLine Command to be executed.
@@ -214,41 +214,41 @@ public:
   /// @return Returns true, if the process exited successfully, or
   /// if pExitCode isn't null.
 public:
-  static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string & commandLine, int * pExitCode, IRunProcessCallback * callback, const char * lpszWorkingDirectory);
+  static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string& commandLine, int* pExitCode, IRunProcessCallback* callback, const char* lpszWorkingDirectory);
 
   /// Executes a process.
   /// @param lpszFileName The name of an executable file to run in the process.
   /// @param lpszArguments The command-line arguments to pass when starting
   /// the process.
 public:
-  static MIKTEXCORECEEAPI(void) Run(const PathName & fileName, const std::string & arguments);
+  static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::string& arguments);
 
 public:
-  static void Run(const PathName & fileName)
+  static void Run(const PathName& fileName)
   {
     Run(fileName, "");
   }
 
 public:
-  static MIKTEXCORECEEAPI(void) Run(const PathName & fileName, const std::string & arguments, IRunProcessCallback * callback);
+  static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::string& arguments, IRunProcessCallback* callback);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Run(const PathName & fileName, const std::string & arguments, IRunProcessCallback * callback, int * pExitCode, const char * lpszWorkingDirectory);
+  static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::string& arguments, IRunProcessCallback* callback, int* pExitCode, const char* lpszWorkingDirectory);
 
 public:
-  static MIKTEXCORECEEAPI(Process *) Start(const ProcessStartInfo & startinfo);
+  static MIKTEXCORECEEAPI(Process*) Start(const ProcessStartInfo& startinfo);
 
 public:
-  static MIKTEXCORECEEAPI(void) Start(const PathName & fileName, const std::string & arguments, FILE * pFileStandardInput, FILE ** ppFileStandardInput, FILE ** ppFileStandardOutput, FILE ** ppFileStandardError, const char * lpszWorkingDirectory);
+  static MIKTEXCORECEEAPI(void) Start(const PathName& fileName, const std::string& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory);
 
 public:
-  static void Start(const PathName & fileName)
+  static void Start(const PathName& fileName)
   {
     Start(fileName, "", nullptr, nullptr, nullptr, nullptr, nullptr);
   }
 
 public:
-  static void Start(const PathName & fileName, const std::string & arguments)
+  static void Start(const PathName& fileName, const std::string& arguments)
   {
     Start(fileName, arguments, nullptr, nullptr, nullptr, nullptr, nullptr);
   }
@@ -262,13 +262,13 @@ public:
   MIKTEXTHISCALL ~Process2() override = 0;
 
 public:
-  virtual Process2 * MIKTEXTHISCALL get_Parent() = 0;
+  virtual Process2* MIKTEXTHISCALL get_Parent() = 0;
 
 public:
   virtual std::string MIKTEXTHISCALL get_ProcessName() = 0;
 
 public:
-  static MIKTEXCORECEEAPI(Process2 *) GetCurrentProcess();
+  static MIKTEXCORECEEAPI(Process2*) GetCurrentProcess();
 
 public:
   static MIKTEXCORECEEAPI(std::vector<std::string>) GetInvokerNames();
