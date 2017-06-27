@@ -1153,6 +1153,11 @@ if(HAVE_LIMITS_H)
   set(STDC_HEADERS)
 endif()
 
+try_compile(HAVE_STRUCT_DIRENT_D_TYPE
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/cmake/modules/HAVE_STRUCT_DIRENT_D_TYPE.c
+)
+
 ###############################################################################
 ## set the build type
 ##
