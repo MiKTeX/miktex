@@ -1,6 +1,6 @@
 /* ArgvImpl.h:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
    
    This file is part of the MiKTeX Core Library.
 
@@ -22,5 +22,5 @@
 class MiKTeX::Core::Argv::impl
 {
 public:
-  std::vector<char *> argv;
+  std::vector<char*> argv;
 };
