@@ -39,7 +39,7 @@ Process* Process::Start(const ProcessStartInfo& startinfo)
   Argv argv(startinfo.FileName, startinfo.Arguments);
   for (int idx = 0; idx < argv.GetArgc(); ++idx)
   {
-    startinfo2.Argv.push_back(argv[idx]);
+    startinfo2.Arguments.push_back(argv[idx]);
   }
   startinfo2.FileName = startinfo.FileName;
   startinfo2.RedirectStandardError = startinfo.RedirectStandardError;
@@ -92,7 +92,7 @@ void winProcess::Create()
 
   CommandLineBuilder commandLine;
   // TODO?: commandLine.SetQuotingConvention(QuotingConvention::None);
-  commandLine.AppendArguments(startinfo.Argv);
+  commandLine.AppendArguments(startinfo.Arguments);
 
   // standard security attributes for pipes
   SECURITY_ATTRIBUTES const SAPIPE = {

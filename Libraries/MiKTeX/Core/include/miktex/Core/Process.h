@@ -108,7 +108,7 @@ private:
   std::size_t stdoutOffset = 0;
 };
 
-/// Proces start info struct (deprecated).
+/// Proces start info struct (DEPRECATED).
 struct ProcessStartInfo
 {
   std::string Arguments;
@@ -146,8 +146,8 @@ struct ProcessStartInfo
 struct ProcessStartInfo2
 {
   /// Arguments to be passed to the process.
-  /// Argv[0] being the process name.
-  std::vector<std::string> Argv;
+  /// Arguments[0] being the process name.
+  std::vector<std::string> Arguments;
 
   /// Path name to be executed.
   std::string FileName;
@@ -264,18 +264,25 @@ public:
   }
 
 public:
+  // DEPRECATED
   static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::string& arguments, IRunProcessCallback* callback);
 
 public:
+  // DEPRECATED
   static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::string& arguments, IRunProcessCallback* callback, int* pExitCode, const char* lpszWorkingDirectory);
 
 public:
+  static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback, int* pExitCode, const char* lpszWorkingDirectory);
+
+public:
+  // DEPRECATED
   static MIKTEXCORECEEAPI(Process*) Start(const ProcessStartInfo& startinfo);
 
 public:
   static MIKTEXCORECEEAPI(Process*) Start(const ProcessStartInfo2& startinfo);
 
 public:
+  // DEPRECATED
   static MIKTEXCORECEEAPI(void) Start(const PathName& fileName, const std::string& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory);
 
 public:
@@ -285,6 +292,7 @@ public:
   }
 
 public:
+  // DEPRECATED
   static void Start(const PathName& fileName, const std::string& arguments)
   {
     Start(fileName, arguments, nullptr, nullptr, nullptr, nullptr, nullptr);

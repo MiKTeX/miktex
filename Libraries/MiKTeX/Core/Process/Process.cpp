@@ -23,6 +23,7 @@
 
 #include "internal.h"
 
+#include "miktex/Core/CommandLineBuilder.h"
 #include "miktex/Core/Process.h"
 
 #include "Session/SessionImpl.h"
@@ -80,18 +81,29 @@ void Process::Start(const PathName& fileName, const string& arguments, FILE* pFi
   pProcess->Close();
 }
 
-bool Process::Run(const PathName& fileName, const string& arguments, IRunProcessCallback* pCallback, int* pExitCode, const char* lpszWorkingDirectory)
+bool Process::Run(const PathName& fileName, const string& arguments, IRunProcessCallback* callback, int* exitCode, const char* lpszWorkingDirectory)
+{
+  Argv rawargv(fileName.ToString(), arguments);
+  vector<string> argv;
+  for (int idx = 0; idx < rawargv.GetArgc(); ++idx)
+  {
+    argv.push_back(rawargv[idx]);
+  }
+  return Run(fileName, argv, callback, exitCode, lpszWorkingDirectory);
+}
+
+bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRunProcessCallback* callback, int* exitCode, const char* lpszWorkingDirectory)
 {
   MIKTEX_ASSERT_STRING_OR_NIL(lpszWorkingDirectory);
 
-  ProcessStartInfo startinfo;
+  ProcessStartInfo2 startinfo;
 
   startinfo.FileName = fileName.ToString();
   startinfo.Arguments = arguments;
 
   startinfo.StandardInput = nullptr;
   startinfo.RedirectStandardInput = false;
-  startinfo.RedirectStandardOutput = pCallback != nullptr;
+  startinfo.RedirectStandardOutput = callback != nullptr;
   startinfo.RedirectStandardError = false;
 
   if (lpszWorkingDirectory != nullptr)
@@ -101,7 +113,7 @@ bool Process::Run(const PathName& fileName, const string& arguments, IRunProcess
 
   unique_ptr<Process> pProcess(Process::Start(startinfo));
 
-  if (pCallback != nullptr)
+  if (callback != nullptr)
   {
     SessionImpl::GetSession()->trace_process->WriteLine("core", "start reading the pipe");
     const size_t CHUNK_SIZE = 64;
@@ -115,11 +127,11 @@ bool Process::Run(const PathName& fileName, const string& arguments, IRunProcess
       int err = ferror(stdoutStream.Get());
       if (err != 0 && err != EPIPE)
       {
-        MIKTEX_FATAL_CRT_ERROR_2("fread", "processFileName", fileName.ToString(), "processArguments", arguments);
+        MIKTEX_FATAL_CRT_ERROR_2("fread", "processFileName", fileName.ToString());
       }
       // pass output to caller
       total += n;
-      cancelled = !pCallback->OnProcessOutput(buf, n);
+      cancelled = !callback->OnProcessOutput(buf, n);
     }
     SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "read %u bytes from the pipe", static_cast<unsigned>(total));
   }
@@ -128,20 +140,20 @@ bool Process::Run(const PathName& fileName, const string& arguments, IRunProcess
   pProcess->WaitForExit();
 
   // get the exit code & close process
-  int exitCode = pProcess->get_ExitCode();
+  int processExitCode = pProcess->get_ExitCode();
   pProcess->Close();
-  if (pExitCode != nullptr)
+  if (exitCode != nullptr)
   {
-    *pExitCode = exitCode;
+    *exitCode = processExitCode;
     return true;
   }
-  else if (exitCode == 0)
+  else if (processExitCode == 0)
   {
     return true;
   }
   else
   {
-    SessionImpl::GetSession()->trace_error->WriteFormattedLine("core", "%s returned with exit code %d", Q_(fileName), static_cast<int>(exitCode));
+    SessionImpl::GetSession()->trace_error->WriteFormattedLine("core", "%s returned with exit code %d", Q_(fileName), static_cast<int>(processExitCode));
     return false;
   }
 }
