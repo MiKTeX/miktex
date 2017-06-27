@@ -33,7 +33,7 @@ using namespace MiKTeX::Util;
 using namespace std;
 
 // TODO: return unique_ptr<Process>
-Process * Process::Start(const ProcessStartInfo & startinfo)
+Process* Process::Start(const ProcessStartInfo& startinfo)
 {
   return new winProcess(startinfo);
 }
@@ -61,7 +61,7 @@ void winProcess::Create()
   }
   else
   {
-    wchar_t * lpszFilePart = nullptr;
+    wchar_t* lpszFilePart = nullptr;
     wchar_t szFileName[_MAX_PATH];
     if (SearchPathW(nullptr, UW_(startinfo.FileName), nullptr, _MAX_PATH, szFileName, &lpszFilePart) == 0)
     {
@@ -272,7 +272,7 @@ void winProcess::Create()
     processStarted = true;
   }
 
-  catch (const exception &)
+  catch (const exception&)
   {
     if (hChildStdin != INVALID_HANDLE_VALUE)
     {
@@ -317,8 +317,8 @@ void winProcess::Create()
   }
 }
 
-winProcess::winProcess(const ProcessStartInfo & startinfo)
-  : startinfo(startinfo)
+winProcess::winProcess(const ProcessStartInfo& startinfo) :
+  startinfo(startinfo)
 {
   processEntry.dwSize = 0;
   Create();
@@ -330,7 +330,7 @@ winProcess::~winProcess()
   {
     Close();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -360,7 +360,7 @@ void winProcess::Close()
   }
 }
 
-FILE * winProcess::get_StandardInput()
+FILE* winProcess::get_StandardInput()
 {
   if (pFileStandardInput != nullptr)
   {
@@ -380,7 +380,7 @@ FILE * winProcess::get_StandardInput()
   return pFileStandardInput;
 }
 
-FILE * winProcess::get_StandardOutput()
+FILE* winProcess::get_StandardOutput()
 {
   if (pFileStandardOutput != nullptr)
   {
@@ -400,7 +400,7 @@ FILE * winProcess::get_StandardOutput()
   return pFileStandardOutput;
 }
 
-FILE * winProcess::get_StandardError()
+FILE* winProcess::get_StandardError()
 {
   if (pFileStandardError != nullptr)
   {
@@ -460,7 +460,7 @@ MIKTEXSTATICFUNC(PathName) FindSystemShell()
     {
       if (!Utils::IsAbsolutePath(path))
       {
-        wchar_t * lpsz = nullptr;
+        wchar_t* lpsz = nullptr;
         if (SearchPathW(nullptr, PathName(path).ToWideCharString().c_str(), nullptr, ARRAY_SIZE(szCmd), szCmd, &lpsz) == 0)
         {
           szCmd[0] = 0;
@@ -473,8 +473,8 @@ MIKTEXSTATICFUNC(PathName) FindSystemShell()
     }
     if (szCmd[0] == 0)
     {
-      const wchar_t * lpszShell = L"cmd.exe";
-      wchar_t * lpsz = nullptr;
+      const wchar_t* lpszShell = L"cmd.exe";
+      wchar_t* lpsz = nullptr;
       if (SearchPathW(nullptr, lpszShell, nullptr, ARRAY_SIZE(szCmd), szCmd, &lpsz) == 0)
       {
         MIKTEX_UNEXPECTED();
@@ -485,7 +485,7 @@ MIKTEXSTATICFUNC(PathName) FindSystemShell()
   return szCmd;
 }
 
-MIKTEXSTATICFUNC(PathName) Wrap(string & arguments)
+MIKTEXSTATICFUNC(PathName) Wrap(string& arguments)
 {
   PathName systemShell = FindSystemShell();
   string wrappedArguments = "/s /c \"";
@@ -505,14 +505,14 @@ MIKTEXSTATICFUNC(PathName) Wrap(string & arguments)
 // Then we start as follows:
 // 
 //   C:\Windows\System32\cmd.exe /c "tifftopnm \"%i\" | ppmtobmp -windows > \"%o\""
-bool Process::ExecuteSystemCommand(const string & commandLine, int * pExitCode, IRunProcessCallback * pCallback, const char * lpszDirectory)
+bool Process::ExecuteSystemCommand(const string& commandLine, int* pExitCode, IRunProcessCallback* pCallback, const char* lpszDirectory)
 {
   string arguments(commandLine);
   PathName systemShell = Wrap(arguments);
   return Process::Run(systemShell, arguments.c_str(), pCallback, pExitCode, lpszDirectory);
 }
 
-void Process::StartSystemCommand(const string & commandLine)
+void Process::StartSystemCommand(const string& commandLine)
 {
   string arguments(commandLine);
   PathName systemShell = Wrap(arguments);
@@ -525,14 +525,14 @@ winProcess::winProcess()
 }
 
 // TODO: return unique_ptr<Process2>
-Process2 * Process2::GetCurrentProcess()
+Process2* Process2::GetCurrentProcess()
 {
   HANDLE myHandle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
   if (myHandle == nullptr)
   {
     MIKTEX_FATAL_WINDOWS_ERROR("OpenProcess");
   }
-  winProcess * pCurrentProcess = new winProcess();
+  winProcess* pCurrentProcess = new winProcess();
   pCurrentProcess->processStarted = true;
   pCurrentProcess->processInformation.hProcess = myHandle;
   pCurrentProcess->processInformation.hThread = GetCurrentThread();
@@ -541,7 +541,7 @@ Process2 * Process2::GetCurrentProcess()
   return pCurrentProcess;
 }
 
-bool winProcess::TryGetProcessEntry(DWORD processId, PROCESSENTRY32W & result)
+bool winProcess::TryGetProcessEntry(DWORD processId, PROCESSENTRY32W& result)
 {
   HANDLE snapshotHandle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
   if (snapshotHandle == INVALID_HANDLE_VALUE)
@@ -594,7 +594,7 @@ PROCESSENTRY32W winProcess::GetProcessEntry(DWORD processId)
 }
 
 // TODO: return unique_ptr<Process2>
-Process2 * winProcess::get_Parent()
+Process2* winProcess::get_Parent()
 {
   if (processEntry.dwSize == 0)
   {
@@ -608,7 +608,7 @@ Process2 * winProcess::get_Parent()
   {
     return nullptr;
   }
-  winProcess * pParentProcess = new winProcess();
+  winProcess* pParentProcess = new winProcess();
   pParentProcess->processStarted = true;
   pParentProcess->processInformation.hProcess = parentProcessHandle;
   pParentProcess->processInformation.dwProcessId = processEntry.th32ParentProcessID;
