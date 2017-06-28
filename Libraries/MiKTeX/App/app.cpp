@@ -29,6 +29,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::Util;
 using namespace std;
+using namespace std::string_literals;
 
 #include "miktex/mpm.defaults.h"
 
@@ -475,21 +476,21 @@ bool Application::InstallPackage(const string& deploymentName, const PathName& t
 
 bool Application::TryCreateFile(const PathName& fileName, FileType fileType)
 {
-  CommandLineBuilder commandLine;
+  vector<string> args{ "" };
   switch (pimpl->enableInstaller)
   {
   case TriState::False:
-    commandLine.AppendOption("--disable-installer");
+    args.push_back("--disable-installer");
     break;
   case TriState::True:
-    commandLine.AppendOption("--enable-installer");
+    args.push_back("--enable-installer");
     break;
   case TriState::Undetermined:
     break;
   }
   if (pimpl->session->IsAdminMode())
   {
-    commandLine.AppendOption("--admin");
+    args.push_back("--admin");
   }
   PathName makeUtility;
   PathName baseName = fileName.GetFileNameWithoutExtension();
@@ -501,10 +502,10 @@ bool Application::TryCreateFile(const PathName& fileName, FileType fileType)
     {
       MIKTEX_FATAL_ERROR(T_("The MiKTeX configuration utility (initexmf) could not be found."));
     }
-    commandLine.AppendOption("--dump-by-name=", baseName);
+    args.push_back("--dump-by-name="s + baseName.ToString());
     if (fileType == FileType::FMT)
     {
-      commandLine.AppendOption("--engine=", pimpl->session->GetEngineName());
+      args.push_back("--engine="s + pimpl->session->GetEngineName());
     }
     break;
   case FileType::TFM:
@@ -512,7 +513,7 @@ bool Application::TryCreateFile(const PathName& fileName, FileType fileType)
     {
       MIKTEX_FATAL_ERROR(T_("The MakeTFM utility could not be found."));
     }
-    commandLine.AppendArgument(baseName);
+    args.push_back(baseName.ToString());
     break;
   default:
     return false;
@@ -520,7 +521,8 @@ bool Application::TryCreateFile(const PathName& fileName, FileType fileType)
   LOG4CXX_INFO(logger, "going to create file: " << fileName);
   ProcessOutput<50000> processOutput;
   int exitCode;
-  if (!Process::Run(makeUtility, commandLine.ToString(), &processOutput, &exitCode, nullptr))
+  args[0] = makeUtility.GetFileNameWithoutExtension().ToString();
+  if (!Process::Run(makeUtility, args, &processOutput, &exitCode, nullptr))
   {
     LOG4CXX_ERROR(logger, makeUtility << " could not be started");
     return false;
