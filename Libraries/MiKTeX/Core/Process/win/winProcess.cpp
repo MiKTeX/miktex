@@ -91,7 +91,7 @@ void winProcess::Create()
   }
 
   CommandLineBuilder commandLine;
-  // TODO?: commandLine.SetQuotingConvention(QuotingConvention::None);
+  commandLine.SetQuotingConvention(QuotingConvention::Whitespace);
   commandLine.AppendArguments(startinfo.Arguments);
 
   // standard security attributes for pipes
