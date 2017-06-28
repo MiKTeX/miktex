@@ -945,7 +945,7 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
         int exitCode;
         ProcessOutput<80> pdfTeXOutput;
         bool isOtherPdfTeX = true;
-        if (Process::Run(otherPdfTeX, "--version", &pdfTeXOutput, &exitCode, nullptr) && exitCode == 0)
+        if (Process::Run(otherPdfTeX, vector<string>{ "pdftex", "--version" }, &pdfTeXOutput, &exitCode, nullptr) && exitCode == 0)
         {
           if (pdfTeXOutput.StdoutToString().find("MiKTeX") != string::npos)
           {
