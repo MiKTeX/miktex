@@ -24,6 +24,7 @@
 #include "internal.h"
 
 #include "miktex/Core/BufferSizes.h"
+#include "miktex/Core/CommandLineBuilder.h"
 #include "miktex/Core/Debug.h"
 #include "miktex/Core/PathName.h"
 #include "miktex/Core/Paths.h"
@@ -294,6 +295,6 @@ MIKTEXCORECEEAPI(int) miktex_execute_system_command(const char* command, int* ex
 MIKTEXCORECEEAPI(void) miktex_start_process(const char* lpszFileName, const char* lpszArguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory)
 {
   C_FUNC_BEGIN();
-  Process::Start(lpszFileName, lpszArguments == nullptr ? "" : lpszArguments, pFileStandardInput, ppFileStandardInput, ppFileStandardOutput, ppFileStandardError, lpszWorkingDirectory);
+  Process::Start(lpszFileName, Argv(lpszFileName, lpszArguments == nullptr ? "" : lpszArguments).ToStringVector(), pFileStandardInput, ppFileStandardInput, ppFileStandardOutput, ppFileStandardError, lpszWorkingDirectory);
   C_FUNC_END();
 }

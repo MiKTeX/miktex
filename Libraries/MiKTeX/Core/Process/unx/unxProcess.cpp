@@ -178,9 +178,9 @@ Process* Process::Start(const ProcessStartInfo& startinfo)
   return new unxProcess(startinfo2);
 }
 
-Process* Process::Start(const ProcessStartInfo2& startinfo)
+unique_ptr<Process> Process::Start(const ProcessStartInfo2& startinfo)
 {
-  return new unxProcess(startinfo);
+  return make_unique<unxProcess>(startinfo);
 }
 
 #if defined(NDEBUG)

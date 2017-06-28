@@ -65,10 +65,10 @@ private:
   {
   }
   
-private:
+public:
   unxProcess(const MiKTeX::Core::ProcessStartInfo2& startinfo);
 
-private:
+public:
   ~unxProcess() override;
 
 private:

@@ -26,6 +26,7 @@ using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
 using namespace std;
+using namespace std::string_literals;
 
 #include <miktex/mpm.defaults.h>
 
@@ -285,7 +286,7 @@ private:
 #endif
 
 private:
-  void RunProcess(const PathName& fileName, const string& arguments)
+  void RunProcess(const PathName& fileName, const vector<string>& arguments)
   {
     ProcessOutput<4096> output;
     int exitCode;
@@ -299,12 +300,12 @@ private:
       FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
       outstream.Write(&outputBytes[0], outputBytes.size());
       outstream.Close();
-      MIKTEX_FATAL_ERROR_2(T_("The executed process did not succeed. The process output has been saved to a file."), "fileName", fileName.ToString(), "arguments", arguments, "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
+      MIKTEX_FATAL_ERROR_2(T_("The executed process did not succeed. The process output has been saved to a file."), "fileName", fileName.ToString(), "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
     }
   }
 
 private:
-  void RunMakeTeX(const string& makeProg, const CommandLineBuilder& arguments);
+  void RunMakeTeX(const string& makeProg, const vector<string>& arguments);
 
 private:
   void MakeFormatFile(const string& formatKey);
@@ -1087,7 +1088,7 @@ void IniTeXMFApp::SetTeXMFRootDirectories(
   }
 }
 
-void IniTeXMFApp::RunMakeTeX(const string& makeProg, const CommandLineBuilder& arguments)
+void IniTeXMFApp::RunMakeTeX(const string& makeProg, const vector<string>& arguments)
 {
   PathName exe;
 
@@ -1096,42 +1097,44 @@ void IniTeXMFApp::RunMakeTeX(const string& makeProg, const CommandLineBuilder& a
     FatalError(T_("The %s executable could not be found."), Q_(makeProg));
   }
 
-  CommandLineBuilder xArguments(arguments);
+  vector<string> xArguments{ makeProg };
+
+  xArguments.insert(xArguments.end(), arguments.begin(), arguments.end());
 
   if (printOnly)
   {
-    xArguments.AppendOption("--print-only");
+    xArguments.push_back("--print-only");
   }
 
   if (verbose)
   {
-    xArguments.AppendOption("--verbose");
+    xArguments.push_back("--verbose");
   }
 
   if (quiet)
   {
-    xArguments.AppendOption("--quiet");
+    xArguments.push_back("--quiet");
   }
 
   if (session->IsAdminMode())
   {
-    xArguments.AppendOption("--admin");
+    xArguments.push_back("--admin");
   }
 
   switch (enableInstaller)
   {
   case TriState::True:
-    xArguments.AppendOption("--enable-installer");
+    xArguments.push_back("--enable-installer");
     break;
   case TriState::False:
-    xArguments.AppendOption("--disable-installer");
+    xArguments.push_back("--disable-installer");
     break;
   default:
     break;
   }
 
-  LOG4CXX_INFO(logger, "running '" << makeProg << " " << xArguments.ToString() << "'");
-  RunProcess(exe, xArguments.ToString());
+  LOG4CXX_INFO(logger, "running '" << makeProg << "'");
+  RunProcess(exe, xArguments);
 }
 
 void IniTeXMFApp::MakeFormatFile(const string& formatKey)
@@ -1149,7 +1152,7 @@ void IniTeXMFApp::MakeFormatFile(const string& formatKey)
 
   string maker;
 
-  CommandLineBuilder arguments;
+  vector<string> arguments;
 
   if (formatInfo.compiler == "mf")
   {
@@ -1158,10 +1161,10 @@ void IniTeXMFApp::MakeFormatFile(const string& formatKey)
   else
   {
     maker = MIKTEX_MAKEFMT_EXE;
-    arguments.AppendOption("--engine=", formatInfo.compiler);
+    arguments.push_back("--engine="s + formatInfo.compiler);
   }
 
-  arguments.AppendOption("--dest-name=", formatInfo.name);
+  arguments.push_back("--dest-name="s + formatInfo.name);
 
   if (!formatInfo.preloaded.empty())
   {
@@ -1172,19 +1175,19 @@ void IniTeXMFApp::MakeFormatFile(const string& formatKey)
     }
     // RECURSION
     MakeFormatFile(formatInfo.preloaded);
-    arguments.AppendOption("--preload=", formatInfo.preloaded);
+    arguments.push_back("--preload="s + formatInfo.preloaded);
   }
 
   if (PathName(formatInfo.inputFile).HasExtension(".ini"))
   {
-    arguments.AppendOption("--no-dump");
+    arguments.push_back("--no-dump");
   }
 
-  arguments.AppendArgument(formatInfo.inputFile);
+  arguments.push_back(formatInfo.inputFile);
 
   if (!formatInfo.arguments.empty())
   {
-    arguments.AppendOption("--engine-option=", formatInfo.arguments);
+    arguments.push_back("--engine-option="s + formatInfo.arguments);
   }
 
   RunMakeTeX(maker, arguments);
@@ -1885,38 +1888,38 @@ void IniTeXMFApp::MakeMaps(bool force)
   {
     FatalError(T_("The mkfntmap executable could not be found."));
   }
-  CommandLineBuilder arguments;
+  vector<string> arguments{ "mkfntmap" };
   if (verbose)
   {
-    arguments.AppendOption("--verbose");
+    arguments.push_back("--verbose");
   }
   if (session->IsAdminMode())
   {
-    arguments.AppendOption("--admin");
+    arguments.push_back("--admin");
   }
   if (force)
   {
-    arguments.AppendOption("--force");
+    arguments.push_back("--force");
   }
   switch (enableInstaller)
   {
   case TriState::True:
-    arguments.AppendOption("--enable-installer");
+    arguments.push_back("--enable-installer");
     break;
   case TriState::False:
-    arguments.AppendOption("--disable-installer");
+    arguments.push_back("--disable-installer");
     break;
   default:
     break;
   }
   if (printOnly)
   {
-    PrintOnly("mkfntmap %s", arguments.ToString().c_str());
+    PrintOnly("%s", CommandLineBuilder(arguments).ToString().c_str());
   }
   else
   {
-    LOG4CXX_INFO(logger, "running: mkfntmap " << arguments.ToString());
-    RunProcess(pathMkfontmap, arguments.ToString());
+    LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(arguments));
+    RunProcess(pathMkfontmap, arguments);
   }
 }
 
@@ -1957,8 +1960,6 @@ void IniTeXMFApp::CreateConfigFile(const string& relPath, bool edit)
   }
   if (edit)
   {
-    CommandLineBuilder commandLine;
-    commandLine.AppendArgument(configFile);
     string editor;
     const char* lpszEditor = getenv("EDITOR");
     if (lpszEditor != nullptr)
@@ -1973,7 +1974,7 @@ void IniTeXMFApp::CreateConfigFile(const string& relPath, bool edit)
       FatalError(T_("Environment variable EDITOR is not defined."));
 #endif
     }
-    Process::Start(editor, commandLine.ToString());
+    Process::Start(editor, { editor, configFile.ToString() });
   }
 }
 

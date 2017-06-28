@@ -170,7 +170,7 @@ const std::vector<std::string> outputdriverargs = {
   "-q",
   "-E"
 };
-MiKTeX::Core::Process* outputdriverprocess;
+std::unique_ptr<MiKTeX::Core::Process> outputdriverprocess;
 #else
 const char *outputdriver = "xdvipdfmx -q -E"; /* default to portable xdvipdfmx driver */
 #endif
@@ -2852,8 +2852,7 @@ dviclose(/*[in,out]*/ C4P::FileRoot & dviFile)
       outputdriverprocess->WaitForExit();
       int ret = outputdriverprocess->get_ExitCode();
       outputdriverprocess->Close ();
-      delete outputdriverprocess;
-      outputdriverprocess = 0;
+      outputdriverprocess = nullptr;
       return (ret);
     }
 }

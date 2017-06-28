@@ -856,7 +856,7 @@ private:
   }
 
 private:
-  void RunIniTeXMF(const char* lpszArguments);
+  void RunIniTeXMF(const std::vector<std::string>& arguments);
 
 private:
   bool autoFndbSync;

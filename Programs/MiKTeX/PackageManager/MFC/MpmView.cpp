@@ -1,6 +1,6 @@
 /* MpmView.cpp:
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -917,13 +917,11 @@ void MpmView::OnUpdateWizard()
     {
       MIKTEX_UNEXPECTED();
     }
-    CommandLineBuilder arguments;
-    arguments.AppendArgument(updateDat);
     if (!pSession->UnloadFilenameDatabase())
     {
       MIKTEX_UNEXPECTED();
     }
-    Process::Start(copystart, arguments.ToString());
+    Process::Start(copystart, { MIKTEX_COPYSTART_ADMIN_EXE, updateDat.ToString() });
     // TODO: close app
   }
   catch (const MiKTeXException & e)

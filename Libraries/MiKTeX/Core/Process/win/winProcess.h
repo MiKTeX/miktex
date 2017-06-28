@@ -60,10 +60,10 @@ public:
 private:
   winProcess();
 
-private:
+public:
   winProcess(const MiKTeX::Core::ProcessStartInfo2& startinfo);
 
-private:
+public:
   virtual ~winProcess();
 
 private:

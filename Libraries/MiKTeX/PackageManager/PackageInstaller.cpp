@@ -1683,7 +1683,7 @@ bool MIKTEXTHISCALL PackageInstallerImpl::OnProcessOutput(const void* pOutput, s
   return true;
 }
 
-void PackageInstallerImpl::RunIniTeXMF(const char* extraArguments)
+void PackageInstallerImpl::RunIniTeXMF(const vector<string>& extraArguments)
 {
   // find initexmf
   PathName initexmf;
@@ -1693,13 +1693,14 @@ void PackageInstallerImpl::RunIniTeXMF(const char* extraArguments)
   }
 
   // run initexmf
-  string arguments;
+  vector<string> arguments{ "initexmf" };
   if (session->IsAdminMode())
   {
-    arguments = "--admin";
+    arguments.push_back("--admin");
   }
+  arguments.insert(arguments.end(), extraArguments.begin(), extraArguments.end());
   // TODO: propagate --enable-installer
-  Process::Run(initexmf, arguments + " " + extraArguments, this);
+  Process::Run(initexmf, arguments, this);
 }
 
 void PackageInstallerImpl::CheckDependencies(set<string>& packages, const string& deploymentName, bool force, int level)
@@ -1927,7 +1928,7 @@ void PackageInstallerImpl::InstallRemove()
 
   if (!noPostProcessing)
   {
-    RunIniTeXMF("--mklinks --mkmaps");
+    RunIniTeXMF({ "--mklinks",  "--mkmaps" });
   }
 }
 

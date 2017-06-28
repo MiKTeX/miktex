@@ -52,10 +52,9 @@ Process* Process::Start(const ProcessStartInfo& startinfo)
   return new winProcess(startinfo2);
 }
 
-// TODO: return unique_ptr<Process>
-Process* Process::Start(const ProcessStartInfo2& startinfo)
+unique_ptr<Process> Process::Start(const ProcessStartInfo2& startinfo)
 {
-  return new winProcess(startinfo);
+  return make_unique<winProcess>(startinfo);
 }
 
 #if defined(NDEBUG)

@@ -93,6 +93,16 @@ const char* Argv::operator[] (size_t idx) const
   return pimpl->argv[idx];
 }
 
+vector<string> Argv::ToStringVector() const
+{
+  vector<string> result;
+  for (size_t idx = 0; idx < GetArgc(); ++idx)
+  {
+    result.push_back(this->operator[](idx));
+  }
+  return result;
+}
+
 class CommandLineBuilder::impl
 {
 public:
@@ -147,6 +157,12 @@ CommandLineBuilder::CommandLineBuilder(const string& argument1, const string& ar
   AppendArgument(argument1);
   AppendArgument(argument2);
   AppendArgument(argument3);
+}
+
+CommandLineBuilder::CommandLineBuilder(const vector<string>& arguments) :
+  CommandLineBuilder()
+{
+  AppendArguments(arguments);
 }
 
 void CommandLineBuilder::SetOptionConvention(OptionConvention optionConvention)

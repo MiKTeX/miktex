@@ -1273,13 +1273,19 @@ void Application::RestartWindowed()
 {
   Verbose(T_("Restarting in windowed mode..."));
 
+  vector<string> options{ "" };
+
 #if defined(MIKTEX_ATLMFC)
   string mpmGuiName = pSession->IsAdminMode() ? MIKTEX_MPM_MFC_ADMIN_EXE : MIKTEX_MPM_MFC_EXE;
-  string options;
 #else
   string mpmGuiName = pSession->IsAdminMode() ? MIKTEX_MPM_QT_ADMIN_EXE : MIKTEX_MPM_QT_EXE;
-  string options = pSession->IsAdminMode() ? "--admin" : "";
+  if (pSession->IsAdminMode())
+  {
+    options.push_back("--admin");
+  }
 #endif
+
+  options[0] = mpmGuiName;
 
   PathName mpmgui;
 

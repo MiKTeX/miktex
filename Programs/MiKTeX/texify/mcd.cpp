@@ -1662,11 +1662,14 @@ void Driver::RunViewer()
 #else
     UNIMPLEMENTED();
 #endif
-    CommandLineBuilder commandLine;
-    commandLine.AppendArguments(pOptions->viewerOptions);
-    commandLine.AppendArgument(pathDest);
-    pApplication->Verbose(T_("running %s %s..."), Q_(szExecutable), commandLine.ToString().c_str());
-    Process::Start(szExecutable, commandLine.ToString(), nullptr, nullptr, nullptr, nullptr, pOptions->startDirectory.GetData());
+    vector<string> args{ PathName(szExecutable).GetFileNameWithoutExtension().ToString() };
+    for (int idx = 0; idx < pOptions->viewerOptions.GetArgc(); ++idx)
+    {
+      args.push_back(pOptions->viewerOptions[idx]);
+    }
+    args.push_back(pathDest.ToString());
+    pApplication->Verbose(T_("running %s..."), CommandLineBuilder(args).ToString().c_str());
+    Process::Start(szExecutable, args, nullptr, nullptr, nullptr, nullptr, pOptions->startDirectory.GetData());
   }
 }
 

@@ -31,6 +31,7 @@
 #include <cstddef>
 
 #include <memory>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -75,7 +76,10 @@ public:
   MIKTEXCORETHISAPI(int) GetArgc() const;
 
 public:
-  MIKTEXCORETHISAPI(const char*) operator[] (std::size_t idx) const;
+  MIKTEXCORETHISAPI(const char*) operator[](std::size_t idx) const;
+
+public:
+  MIKTEXCORETHISAPI(std::vector<std::string>) ToStringVector() const;
 
 private:
   class impl;
@@ -125,6 +129,9 @@ public:
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::string& argument1, const std::string& argument2, const std::string& argument3);
+
+public:
+  MIKTEXCOREEXPORT MIKTEXTHISCALL CommandLineBuilder(const std::vector<std::string>& arguments);
 
 public:
   MIKTEXCORETHISAPI(void) SetOptionConvention(OptionConvention optionConvention);
@@ -213,6 +220,11 @@ private:
   class impl;
   std::unique_ptr<impl> pimpl;
 };
+
+inline std::ostream& operator<<(std::ostream& os, const CommandLineBuilder& cmd)
+{
+  return os << cmd.ToString();
+}
 
 MIKTEX_CORE_END_NAMESPACE;
 

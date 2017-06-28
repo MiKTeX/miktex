@@ -34,6 +34,7 @@
 
 #include <algorithm>
 #include <array>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -286,7 +287,7 @@ public:
   static MIKTEXCORECEEAPI(Process*) Start(const ProcessStartInfo& startinfo);
 
 public:
-  static MIKTEXCORECEEAPI(Process*) Start(const ProcessStartInfo2& startinfo);
+  static MIKTEXCORECEEAPI(std::unique_ptr<Process>) Start(const ProcessStartInfo2& startinfo);
 
 public:
   // DEPRECATED
@@ -322,13 +323,27 @@ public:
   MIKTEXTHISCALL ~Process2() override = 0;
 
 public:
+  // DEPRECATED
   virtual Process2* MIKTEXTHISCALL get_Parent() = 0;
+
+public:
+  // TODO
+#if 0
+  virtual std::unique_ptr<Process2> MIKTEXTHISCALL get_Parent() = 0;
+#endif
 
 public:
   virtual std::string MIKTEXTHISCALL get_ProcessName() = 0;
 
 public:
+  // DEPRECATED
   static MIKTEXCORECEEAPI(Process2*) GetCurrentProcess();
+
+public:
+  // TODO
+#if 0
+  static MIKTEXCORECEEAPI(std::unique_ptr<Process2>) GetCurrentProcess();
+#endif
 
 public:
   static MIKTEXCORECEEAPI(std::vector<std::string>) GetInvokerNames();

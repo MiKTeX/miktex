@@ -945,7 +945,7 @@ BOOL SetupApp::InitInstance()
       INT_PTR r = reinterpret_cast<INT_PTR>(ShellExecuteW(nullptr, L"open", pathLogFile.ToWideCharString().c_str(), nullptr, nullptr, SW_SHOWNORMAL));
       if (r <= 32)
       {
-        Process::Start("notepad.exe", pathLogFile.GetData());
+        Process::Start("notepad.exe", { "notepad", pathLogFile.ToString() });
       }
     }
     traceStream.reset();
