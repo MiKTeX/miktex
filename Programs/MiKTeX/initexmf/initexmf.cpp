@@ -1974,7 +1974,7 @@ void IniTeXMFApp::CreateConfigFile(const string& relPath, bool edit)
       FatalError(T_("Environment variable EDITOR is not defined."));
 #endif
     }
-    Process::Start(editor, { editor, configFile.ToString() });
+    Process::Start(editor, vector<string>{ editor, configFile.ToString() });
   }
 }
 
