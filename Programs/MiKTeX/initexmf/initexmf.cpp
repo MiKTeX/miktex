@@ -2325,6 +2325,15 @@ void IniTeXMFApp::Bootstrap()
 #endif
 }
 
+string kpsewhich_expand_path(const string varname)
+{
+  string cmd = "kpsewhich --expand-path=";
+#if defined(MIKTEX_UNIX)
+  cmd += "\\";
+#endif
+  return cmd + "$" + varname;
+}
+
 vector<IniTeXMFApp::OtherTeX> IniTeXMFApp::FindOtherTeX()
 {
   vector<OtherTeX> result;
@@ -2338,12 +2347,12 @@ vector<IniTeXMFApp::OtherTeX> IniTeXMFApp::FindOtherTeX()
     otherTeX.version = versionString.substr(0, versionString.find_first_of("\r\n"));
     StartupConfig otherConfig;
     ProcessOutput<1024> texmfhome;
-    if (Process::ExecuteSystemCommand("kpsewhich --var-value=TEXMFHOME", &exitCode, &texmfhome, nullptr))
+    if (Process::ExecuteSystemCommand(kpsewhich_expand_path("TEXMFHOME"), &exitCode, &texmfhome, nullptr))
     {
       otherConfig.userRoots = texmfhome.StdoutToString();
     }
     ProcessOutput<1024> texmfdist;
-    if (Process::ExecuteSystemCommand("kpsewhich --var-value=TEXMFDIST", &exitCode, &texmfdist, nullptr))
+    if (Process::ExecuteSystemCommand(kpsewhich_expand_path("TEXMFDIST"), &exitCode, &texmfdist, nullptr))
     {
       otherConfig.commonRoots = texmfdist.StdoutToString();
     }
