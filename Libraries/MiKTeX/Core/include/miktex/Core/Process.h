@@ -250,23 +250,29 @@ public:
 public:
   static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* lpszWorkingDirectory);
 
+public:
+  // DEPRECATED
+  static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::string& arguments);
+
   /// Executes a process.
   /// @param lpszFileName The name of an executable file to run in the process.
   /// @param lpszArguments The command-line arguments to pass when starting
   /// the process.
 public:
-  // DEPRECATED
-  static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::string& arguments);
+  static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::vector<std::string>& arguments);
 
 public:
   static void Run(const PathName& fileName)
   {
-    Run(fileName, "");
+    Run(fileName, std::vector<std::string>{ fileName.ToString() });
   }
 
 public:
   // DEPRECATED
   static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::string& arguments, IRunProcessCallback* callback);
+
+public:
+  static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback);
 
 public:
   // DEPRECATED

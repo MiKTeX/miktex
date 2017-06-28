@@ -230,39 +230,39 @@ void Application::AutoMaintenance()
     Directory::Create(lockdir);
     unique_ptr<TemporaryFile> tmpfile = TemporaryFile::Create(lockfile);
     AutoFILE closeme (File::Open(tmpfile->GetPathName(), FileMode::Create, FileAccess::ReadWrite, false, FileShare::ReadWrite));
-    CommandLineBuilder commonCommandLine;
+    vector<string> commonArgs{ "initexmf" };
     switch (pimpl->enableInstaller)
     {
     case TriState::False:
-      commonCommandLine.AppendOption("--disable-installer");
+      commonArgs.push_back("--disable-installer");
       break;
     case TriState::True:
-      commonCommandLine.AppendOption("--enable-installer");
+      commonArgs.push_back("--enable-installer");
       break;
     case TriState::Undetermined:
       break;
     }
     if (pimpl->session->IsAdminMode())
     {
-      commonCommandLine.AppendOption("--admin");
+      commonArgs.push_back("--admin");
     }
-    commonCommandLine.AppendArgument("--quiet");
+    commonArgs.push_back("--quiet");
     if (mustRefreshFndb)
     {
       pimpl->session->UnloadFilenameDatabase();
-      CommandLineBuilder commandLine(commonCommandLine);
-      commandLine.AppendOption("--mkmaps");
-      commandLine.AppendOption("--update-fndb");
-      LOG4CXX_INFO(logger, "running 'initexmf " << commandLine.ToString() << "' to refresh the file name database");
-      Process::Run(initexmf, commandLine.ToString());
+      vector<string> args = commonArgs;
+      args.push_back("--mkmaps");
+      args.push_back("--update-fndb");
+      LOG4CXX_INFO(logger, "running 'initexmf' to refresh the file name database");
+      Process::Run(initexmf, args);
     }
     if (mustRefreshUserLanguageDat)
     {
       MIKTEX_ASSERT(!pimpl->session->IsAdminMode());
-      CommandLineBuilder commandLine(commonCommandLine);
-      commandLine.AppendOption("--mklangs");
-      LOG4CXX_INFO(logger, "running 'initexmf " << commandLine.ToString() << "' to refresh language.dat");
-      Process::Run(initexmf, commandLine.ToString());
+      vector<string> args = commonArgs;
+      args.push_back("--mklangs");
+      LOG4CXX_INFO(logger, "running 'initexmf' to refresh language.dat");
+      Process::Run(initexmf, args);
     }
   }
 }

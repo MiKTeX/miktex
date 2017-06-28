@@ -174,12 +174,26 @@ void Process::Run(const PathName& fileName, const string& arguments)
   Process::Run(fileName, arguments, nullptr);
 }
 
+void Process::Run(const PathName& fileName, const vector<string>& arguments)
+{
+  Process::Run(fileName, arguments, nullptr);
+}
+
 void Process::Run(const PathName& fileName, const string& arguments, IRunProcessCallback* pCallback)
 {
   int exitCode;
   if (!Run(fileName, arguments, pCallback, &exitCode, nullptr) || exitCode != 0)
   {
     MIKTEX_FATAL_ERROR_2(T_("The executed process did not succeed."), "fileName", fileName.ToString(), "arguments", arguments, "exitCode", std::to_string(exitCode));
+  }
+}
+
+void Process::Run(const PathName& fileName, const vector<string>& arguments, IRunProcessCallback* callback)
+{
+  int exitCode;
+  if (!Run(fileName, arguments, callback, &exitCode, nullptr) || exitCode != 0)
+  {
+    MIKTEX_FATAL_ERROR_2(T_("The executed process did not succeed."), "fileName", fileName.ToString(), "exitCode", std::to_string(exitCode));
   }
 }
 
