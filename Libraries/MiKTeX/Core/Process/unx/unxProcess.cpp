@@ -196,7 +196,7 @@ void unxProcess::Create()
     MIKTEX_UNEXPECTED();
   }
 
-  Argv argv(startinfo.Arguments);
+  Argv argv(startinfo.Arguments.empty() ? vector<string>{ PathName(startinfo.FileName).GetFileNameWithoutExtension().ToString() } : startinfo.Arguments);
 
   Pipe pipeStdout;
   Pipe pipeStderr;

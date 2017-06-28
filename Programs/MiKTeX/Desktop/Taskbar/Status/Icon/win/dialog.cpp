@@ -306,9 +306,9 @@ void InitInstance(HINSTANCE hInstance, int nCmdShow)
     PathName initexmf;
     if (session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
     {
-      ProcessStartInfo startInfo;
-      startInfo.FileName = initexmf.GetData();
-      startInfo.Arguments = "--mkmaps";
+      ProcessStartInfo2 startInfo;
+      startInfo.FileName = initexmf.ToString();
+      startInfo.Arguments = { "initexmf", "--mkmaps" };
       AutoFILE nul(fopen("nul", "w"));
       startInfo.StandardOutput = nul.Get();
       startInfo.StandardError = nul.Get();

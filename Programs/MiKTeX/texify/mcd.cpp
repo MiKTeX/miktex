@@ -74,6 +74,7 @@ using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
 using namespace std;
+using namespace std::string_literals;
 
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
 
@@ -366,13 +367,13 @@ public:
   string texindexProgram;
 
 public:
-  Argv makeindexOptions;
+  vector<string> makeindexOptions;
 
 public:
-  Argv texOptions;
+  vector<string> texOptions;
 
 public:
-  Argv viewerOptions;
+  vector<string> viewerOptions;
 
 public:
   string traceStreams;
@@ -979,30 +980,33 @@ bool Driver::RunMakeinfo(const PathName & pathFrom, const PathName & pathTo)
     FatalUtilityError(pOptions->makeinfoProgram);
   }
 
-  CommandLineBuilder commandLine;
+  vector<string> args{ pOptions->makeinfoProgram };
 
-  commandLine.AppendOption("--footnote-style=", "end");
-  commandLine.AppendOption("-I ", originalInputDirectory);
+  args.push_back("--footnote-style="s + "end");
+  args.push_back("-I");
+  args.push_back(originalInputDirectory.ToString());
 
-  for (const string & dir : pOptions->includeDirectories)
+  for (const string& dir : pOptions->includeDirectories)
   {
-    commandLine.AppendOption("-I ", dir);
+    args.push_back("-I");
+    args.push_back(dir);
   }
 
+  args.push_back("-o");
 #if defined(MIKTEX_WINDOWS)
-  commandLine.AppendOption("-o ", "nul");
+  args.push_back("nul");
 #else
-  commandLine.AppendOption("-o ", "/dev/null");
+  args.push_back("/dev/null");
 #endif
 
-  commandLine.AppendOption("--macro-expand=", pathTo);
+  args.push_back("--macro-expand="s + pathTo.ToString());
 
-  commandLine.AppendArgument(pathFrom);
+  args.push_back(pathFrom.ToString());
 
   int exitCode = 0;
 
   ProcessOutputTrash trash;
-  Process::Run(pathExe, commandLine.ToString(), &trash, &exitCode, nullptr);
+  Process::Run(pathExe, args, &trash, &exitCode, nullptr);
 
   return exitCode == 0;
 }
@@ -1038,7 +1042,7 @@ bool Driver::Check_texinfo_tex()
 
   int exitCode = 0;
   ProcessOutputSaver processOutput;
-  if (!Process::Run(pathExe, fileName.GetData(), &processOutput, &exitCode, tmpdir->GetPathName().GetData()))
+  if (!Process::Run(pathExe, vector<string>{ pOptions->texProgram, fileName.ToString() }, &processOutput, &exitCode, tmpdir->GetPathName().GetData()))
   {
     MIKTEX_UNEXPECTED();
   }
@@ -1238,17 +1242,17 @@ void Driver::RunBibTeX()
         subAuxNameNoExt.RemoveDirectorySpec();
       }
 
-      CommandLineBuilder commandLine;
+      vector<string> args{ pOptions->bibtexProgram };
 
-      commandLine.AppendArgument(subAuxNameNoExt);
+      args.push_back(subAuxNameNoExt.ToString());
 
-      pApplication->Verbose(T_("running %s %s..."), Q_(pOptions->bibtexProgram), Q_(commandLine.ToString()));
+      pApplication->Verbose(T_("running %s..."), CommandLineBuilder(args).ToString().c_str());
 
       exitCode = 0;
 
       ProcessOutputTrash trash;
 
-      Process::Run(pathExe, commandLine.ToString(), (pOptions->quiet ? &trash : nullptr), &exitCode, subDir.Empty() ? nullptr : subDir.GetData());
+      Process::Run(pathExe, args, (pOptions->quiet ? &trash : nullptr), &exitCode, subDir.Empty() ? nullptr : subDir.GetData());
       if (exitCode != 0)
       {
         MIKTEX_FATAL_ERROR(T_("BibTeX failed for some reason."));
@@ -1267,15 +1271,15 @@ void Driver::RunBibTeX()
     return;
   }
 
-  CommandLineBuilder commandLine;
+  vector<string> args{ pOptions->bibtexProgram };
 
-  commandLine.AppendArgument(jobName);
+  args.push_back(jobName.ToString());
 
-  pApplication->Verbose(T_("running %s %s..."), Q_(pOptions->bibtexProgram), commandLine.ToString().c_str());
+  pApplication->Verbose(T_("running %s..."), CommandLineBuilder(args).ToString().c_str());
 
   ProcessOutputTrash trash;
 
-  Process::Run(pathExe, commandLine.ToString(), (pOptions->quiet ? &trash : nullptr), &exitCode, nullptr);
+  Process::Run(pathExe, args, (pOptions->quiet ? &trash : nullptr), &exitCode, nullptr);
 
   if (exitCode != 0)
   {
@@ -1307,18 +1311,18 @@ void Driver::RunIndexGenerator(const vector<string> & idxFiles)
     FatalUtilityError(lpszExeName);
   }
 
-  CommandLineBuilder commandLine;
+  vector<string> args{ lpszExeName };
 
-  commandLine.AppendArguments(pOptions->makeindexOptions);
-  commandLine.AppendArguments(idxFiles);
+  args.insert(args.end(), pOptions->makeindexOptions.begin(), pOptions->makeindexOptions.end());
+  args.insert(args.end(), idxFiles.begin(), idxFiles.end());
 
   ProcessOutputTrash trash;
 
   int exitCode = 0;
 
-  pApplication->Verbose(T_("running %s %s..."), Q_(lpszExeName), commandLine.ToString().c_str());
+  pApplication->Verbose(T_("running %s..."), CommandLineBuilder(args).ToString().c_str());
 
-  Process::Run(pathExe, commandLine.ToString(), (pOptions->quiet ? &trash : nullptr), &exitCode, nullptr);
+  Process::Run(pathExe, args, (pOptions->quiet ? &trash : nullptr), &exitCode, nullptr);
 
   if (exitCode != 0)
   {
@@ -1335,7 +1339,7 @@ void Driver::InstallProgram(const char * lpszProgram)
     FatalUtilityError("initexmf");
   }
   ProcessOutputTrash trash;
-  Process::Run(pathExe, "--mklinks", (pOptions->quiet ? &trash : nullptr));
+  Process::Run(pathExe, vector<string>{ "initexmf", "--mklinks" }, (pOptions->quiet ? &trash : nullptr));
 }
 
 PathName Driver::GetTeXEnginePath(string & exeName)
@@ -1409,11 +1413,11 @@ void Driver::RunTeX()
   string exeName;
   PathName pathExe = GetTeXEnginePath(exeName);
 
-  CommandLineBuilder commandLine;
+  vector<string> args{ pathExe.GetFileNameWithoutExtension().ToString() };
 
   if (!pOptions->jobName.empty())
   {
-    commandLine.AppendOption("--job-name=", jobName);
+    args.push_back("--job-name="s + jobName.ToString());
   }
 
 #if defined(SUPPORT_OPT_SRC_SPECIALS)
@@ -1421,41 +1425,41 @@ void Driver::RunTeX()
   {
     if (!pOptions->sourceSpecialsWhere.empty())
     {
-      commandLine.AppendOption("--src-specials=", pOptions->sourceSpecialsWhere);
+      args.push_back("--src-specials="s + pOptions->sourceSpecialsWhere);
     }
     else
     {
-      commandLine.AppendOption("--src-specials");
+      args.push_back("--src-specials");
     }
   }
 #endif
 
   if (pOptions->synctex != SyncTeXOption::Disabled)
   {
-    commandLine.AppendOption("--synctex=", pOptions->synctex == SyncTeXOption::Compressed ? "1" : "-1");
+    args.push_back("--synctex="s + (pOptions->synctex == SyncTeXOption::Compressed ? "1" : "-1"));
   }
 
   if (pOptions->quiet)
   {
-    commandLine.AppendOption("--quiet");
+    args.push_back("--quiet");
   }
   if (pOptions->batch && !pOptions->quiet)
   {
-    commandLine.AppendOption("--interaction=", "scrollmode");
+    args.push_back("--interaction="s + "scrollmode");
   }
-  commandLine.AppendArguments(pOptions->texOptions);
+  args.insert(args.end(), pOptions->texOptions.begin(), pOptions->texOptions.end());
 #if 0
   if (pOptions->traceStreams.length() > 0)
   {
-    commandLine.AppendOption("--trace=", pOptions->traceStreams);
+    args.push_back("--trace="s + pOptions->traceStreams);
   }
 #endif
-  commandLine.AppendArgument(pathInputFile);
+  args.push_back(pathInputFile.ToString());
 
-  pApplication->Verbose(T_("running %s %s..."), Q_(exeName), commandLine.ToString().c_str());
+  pApplication->Verbose(T_("running %s..."), CommandLineBuilder(args).ToString().c_str());
 
   int exitCode = 0;
-  Process::Run(pathExe, commandLine.ToString(), nullptr, &exitCode, nullptr);
+  Process::Run(pathExe, args, nullptr, &exitCode, nullptr);
   if (exitCode != 0)
   {
     PathName logName(jobName);
@@ -1639,7 +1643,7 @@ void Driver::RunViewer()
 
   PathName pathDest(pOptions->startDirectory, pathFileName);
 
-  if (pOptions->viewerOptions.GetArgc() == 0)
+  if (pOptions->viewerOptions.empty())
   {
     pApplication->Verbose(T_("opening %s..."), Q_(pathDest));
 #if defined(MIKTEX_WINDOWS)
@@ -1663,10 +1667,7 @@ void Driver::RunViewer()
     UNIMPLEMENTED();
 #endif
     vector<string> args{ PathName(szExecutable).GetFileNameWithoutExtension().ToString() };
-    for (int idx = 0; idx < pOptions->viewerOptions.GetArgc(); ++idx)
-    {
-      args.push_back(pOptions->viewerOptions[idx]);
-    }
+    args.insert(args.end(), pOptions->viewerOptions.begin(), pOptions->viewerOptions.end());
     args.push_back(pathDest.ToString());
     pApplication->Verbose(T_("running %s..."), CommandLineBuilder(args).ToString().c_str());
     Process::Start(szExecutable, args, nullptr, nullptr, nullptr, nullptr, pOptions->startDirectory.GetData());
@@ -2071,20 +2072,20 @@ void McdApp::Run(int argc, const char ** argv)
       }
       break;
     case OPT_MKIDX_OPTION:
-      options.makeindexOptions.Append(optArg.c_str());
+      options.makeindexOptions.push_back(optArg);
       break;
     case OPT_TEX_OPTION:
-      for (const string & o : forbiddenTexOptions)
+      for (const string& o : forbiddenTexOptions)
       {
         if (optArg.find(o) != string::npos)
         {
           FatalError(T_("TeX option \"--%s\" is not supported."), o.c_str());
         }
       }
-      options.texOptions.Append(optArg.c_str());
+      options.texOptions.push_back(optArg);
       break;
     case OPT_VIEWER_OPTION:
-      options.viewerOptions.Append(optArg.c_str());
+      options.viewerOptions.push_back(optArg);
       break;
     case OPT_RUN_VIEWER:
       options.runViewer = true;

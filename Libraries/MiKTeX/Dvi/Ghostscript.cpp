@@ -1,6 +1,6 @@
 /* Ghostscript.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -54,9 +54,9 @@ void Ghostscript::Start()
   }
 
   // make Ghostscript command line
-  CommandLineBuilder arguments;
+  vector<string> arguments{ gsExe.GetFileNameWithoutExtension().ToString() };
   string res = std::to_string(static_cast<double>(pDviImpl->GetResolution()) / shrinkFactor);
-  arguments.AppendOption("-r", res + 'x' + res);
+  arguments.push_back("-r" + res + 'x' + res);
   PaperSizeInfo paperSizeInfo = pDviImpl->GetPaperSizeInfo();
   int width = paperSizeInfo.width;
   int height = paperSizeInfo.height;
@@ -70,32 +70,32 @@ void Ghostscript::Start()
   height =
     static_cast<int>(((pDviImpl->GetResolution() * height) / 72.0)
       / shrinkFactor);
-  arguments.AppendOption("-g", std::to_string(width) + 'x' + std::to_string(height));
-  arguments.AppendOption("-sDEVICE=", "bmp16m");
-  arguments.AppendOption("-q");
-  arguments.AppendOption("-dBATCH");
-  arguments.AppendOption("-dNOPAUSE");
-  arguments.AppendOption("-dDELAYSAFER");
-  arguments.AppendOption("-sstdout=", "%stderr");
-  arguments.AppendOption("-dTextAlphaBits=", "4");
-  arguments.AppendOption("-dGraphicsAlphaBits=", "4");
-  arguments.AppendOption("-dDOINTERPOLATE");
-  arguments.AppendOption("-sOutputFile=", "-");
-  arguments.AppendArgument("-");
+  arguments.push_back("-g" + std::to_string(width) + 'x' + std::to_string(height));
+  arguments.push_back("-sDEVICE="s + "bmp16m");
+  arguments.push_back("-q");
+  arguments.push_back("-dBATCH");
+  arguments.push_back("-dNOPAUSE");
+  arguments.push_back("-dDELAYSAFER");
+  arguments.push_back("-sstdout="s + "%stderr");
+  arguments.push_back("-dTextAlphaBits="s + "4");
+  arguments.push_back("-dGraphicsAlphaBits="s + "4");
+  arguments.push_back("-dDOINTERPOLATE");
+  arguments.push_back("-sOutputFile="s + "-");
+  arguments.push_back("-");
 
-  tracePS->WriteFormattedLine("libdvi", "%s", arguments.ToString().c_str());
+  tracePS->WriteFormattedLine("libdvi", "%s", CommandLineBuilder(arguments).ToString().c_str());
 
-  ProcessStartInfo startinfo;
+  ProcessStartInfo2 startinfo;
 
-  startinfo.Arguments = arguments.ToString();
+  startinfo.Arguments = arguments;
   startinfo.FileName = gsExe.ToString();
-  startinfo.StandardInput = 0;
+  startinfo.StandardInput = nullptr;
   startinfo.RedirectStandardInput = true;
   startinfo.RedirectStandardOutput = true;
   startinfo.RedirectStandardError = true;
-  startinfo.WorkingDirectory = pDviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().GetData();
+  startinfo.WorkingDirectory = pDviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().ToString();
 
-  pProcess.reset(Process::Start(startinfo));
+  pProcess = Process::Start(startinfo);
 
   gsIn.Attach(pProcess->get_StandardInput());
   gsOut.Attach(pProcess->get_StandardOutput());

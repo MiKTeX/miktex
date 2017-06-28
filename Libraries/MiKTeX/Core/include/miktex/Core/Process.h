@@ -299,7 +299,7 @@ public:
 public:
   static void Start(const PathName& fileName)
   {
-    Start(fileName, std::vector<std::string>{ fileName.ToString() }, nullptr, nullptr, nullptr, nullptr, nullptr);
+    Start(fileName, std::vector<std::string>{ fileName.GetFileNameWithoutExtension().ToString() }, nullptr, nullptr, nullptr, nullptr, nullptr);
   }
 
 public:

@@ -54,6 +54,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
 using namespace std;
+using namespace std::string_literals;
 
 #if defined(_MSC_VER)
 #  if (_MSC_VER < 1400)
@@ -603,22 +604,22 @@ Process * Converter::StartGhostscript(const char * lpszFontFile, const char * lp
   // build the command-line
   //
 
-  CommandLineBuilder commandLine;
+  vector<string> arguments;
 
   // - no device output
-  commandLine.AppendOption("-dNODISPLAY");
+  arguments.push_back("-dNODISPLAY");
 
   // - no garbage collection
-  commandLine.AppendOption("-dNOGC");
+  arguments.push_back("-dNOGC");
 
   // - set font substitution
-  commandLine.AppendOption("-sSUBSTFONT=", lpszFontName);
+  arguments.push_back("-sSUBSTFONT="s + lpszFontName);
 
   // - be quiet
-  commandLine.AppendOption("-q");
+  arguments.push_back("-q");
 
   // ???
-  commandLine.AppendOption("--");
+  arguments.push_back("--");
 
   // - path to render.ps
   PathName pathRenderPS;
@@ -626,10 +627,10 @@ Process * Converter::StartGhostscript(const char * lpszFontFile, const char * lp
   {
     Error(T_("The driver file render.ps could not be found."));
   }
-  commandLine.AppendArgument(pathRenderPS.ToUnix());
+  arguments.push_back(pathRenderPS.ToUnix().ToString());
 
   // - font name
-  commandLine.AppendArgument(lpszFontName);
+  arguments.push_back(lpszFontName);
 
   // - font/enc load string
   string loadString;
@@ -665,20 +666,20 @@ Process * Converter::StartGhostscript(const char * lpszFontFile, const char * lp
     loadString += pathEnc.ToUnix().ToString();
     loadString += " ) run";
   }
-  commandLine.AppendArgument(loadString);
+  arguments.push_back(loadString);
 
   // - special info
-  commandLine.AppendArgument(lpszSpecInfo == 0 ? "" : lpszSpecInfo);
+  arguments.push_back(lpszSpecInfo == nullptr ? "" : lpszSpecInfo);
 
   // - DPI
-  commandLine.AppendArgument(lpszDPI);
+  arguments.push_back(lpszDPI);
 
-  Verbose(T_("Starting Ghostscript with arguments:\n%s"), commandLine.ToString().c_str());
+  Verbose(T_("Starting Ghostscript with arguments:\n%s"), CommandLineBuilder(arguments).ToString().c_str());
 
-  ProcessStartInfo startinfo;
+  ProcessStartInfo2 startinfo;
 
   startinfo.FileName = pathGs.ToString();
-  startinfo.Arguments = commandLine.ToString();
+  startinfo.Arguments = arguments;
   startinfo.StandardInput = nullptr;
   startinfo.RedirectStandardInput = true;
   startinfo.RedirectStandardOutput = true;

@@ -291,7 +291,7 @@ void ArCtrl::StartAR()
   {
     FatalError(T_("The PDF viewer could not be located."));
   }
-  unique_ptr<Process> pProcess(Process::Start(ProcessStartInfo(szExecutable)));
+  unique_ptr<Process> pProcess(Process::Start(ProcessStartInfo2(szExecutable)));
   ARstarted = true;
 #if 0
   // <todo>

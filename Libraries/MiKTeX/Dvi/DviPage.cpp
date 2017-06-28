@@ -1,6 +1,6 @@
 /* DviPage.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -836,16 +836,17 @@ unique_ptr<Process> DviPageImpl::StartDvips()
   }
 
   // make Dvips command line
-  CommandLineBuilder arguments;
-  arguments.AppendOption("-D", std::to_string(pDviImpl->GetResolution()));
+  vector<string> arguments{ dvipsPath.GetFileNameWithoutExtension().ToString() };
+  arguments.push_back("-D" + std::to_string(pDviImpl->GetResolution()));
   string metafontMode = pDviImpl->GetMetafontMode();
   if (!metafontMode.empty())
   {
-    arguments.AppendOption("-mode ", metafontMode.c_str());
+    arguments.push_back("-mode");
+    arguments.push_back(metafontMode);
   }
-  arguments.AppendOption("-f", "1");
-  arguments.AppendOption("-p=", std::to_string(pageIdx + 1));
-  arguments.AppendOption("-l", std::to_string(pageIdx + 1));
+  arguments.push_back("-f"s + "1");
+  arguments.push_back("-p=" + std::to_string(pageIdx + 1));
+  arguments.push_back("-l" + std::to_string(pageIdx + 1));
   if (!pDviImpl->HavePaperSizeSpecial())
   {
     PaperSizeInfo paperSizeInfo = pDviImpl->GetPaperSizeInfo();
@@ -855,28 +856,28 @@ unique_ptr<Process> DviPageImpl::StartDvips()
     {
       swap(width, height);
     }
-    arguments.AppendOption("-T", std::to_string(width) + "bp" + ',' + std::to_string(height) + "bp");
+    arguments.push_back("-T" + std::to_string(width) + "bp" + ',' + std::to_string(height) + "bp");
   }
-  arguments.AppendOption("-MiKTeX:nolandscape");
+  arguments.push_back("-MiKTeX:nolandscape");
   if (session->GetConfigValue("Dvips", "Pedantic", false).GetBool())
   {
-    arguments.AppendOption("-MiKTeX:pedantic");
+    arguments.push_back("-MiKTeX:pedantic");
   }
-  arguments.AppendOption("-MiKTeX:allowallpaths");
-  arguments.AppendOption("-h", "gs_permitfilereading.pro");
-  arguments.AppendArgument(pDviImpl->GetDviFileName());
+  arguments.push_back("-MiKTeX:allowallpaths");
+  arguments.push_back("-h"s + "gs_permitfilereading.pro");
+  arguments.push_back(pDviImpl->GetDviFileName().ToString());
 
   PathName dir(pDviImpl->GetDviFileName());
   dir.MakeAbsolute();
   dir.RemoveFileSpec();
 
-  ProcessStartInfo processStartInfo;
+  ProcessStartInfo2 processStartInfo;
 
-  processStartInfo.Arguments = arguments.ToString();
-  processStartInfo.FileName = dvipsPath.GetData();
+  processStartInfo.Arguments = arguments;
+  processStartInfo.FileName = dvipsPath.ToString();
   processStartInfo.RedirectStandardError = true;
   processStartInfo.RedirectStandardOutput = true;
-  processStartInfo.WorkingDirectory = dir.GetData();
+  processStartInfo.WorkingDirectory = dir.ToString();
 
   unique_ptr<Process> pDvips(Process::Start(processStartInfo));
 
@@ -891,9 +892,9 @@ unique_ptr<Process> DviPageImpl::StartGhostscript(int shrinkFactor)
   PathName gsPath = session->GetGhostscript(nullptr);
 
   // make Ghostscript command line
-  CommandLineBuilder arguments;
+  vector<string> arguments{ gsPath.GetFileNameWithoutExtension().ToString() };
   string res = std::to_string(static_cast<double>(pDviImpl->GetResolution()) / shrinkFactor);
-  arguments.AppendOption("-r", res + 'x' + res);
+  arguments.push_back("-r" + res + 'x' + res);
   PaperSizeInfo paperSizeInfo = pDviImpl->GetPaperSizeInfo();
   int width = paperSizeInfo.width;
   int height = paperSizeInfo.height;
@@ -903,27 +904,27 @@ unique_ptr<Process> DviPageImpl::StartGhostscript(int shrinkFactor)
   }
   width = static_cast<int>(((pDviImpl->GetResolution() * width) / 72.0) / shrinkFactor);
   height = static_cast<int>(((pDviImpl->GetResolution() * height) / 72.0) / shrinkFactor);
-  arguments.AppendOption("-g", std::to_string(width) + 'x' + std::to_string(height));
-  arguments.AppendOption("-sDEVICE=", "bmp16m");
-  arguments.AppendOption("-q");
-  arguments.AppendOption("-dBATCH");
-  arguments.AppendOption("-dNOPAUSE");
-  arguments.AppendOption("-dDELAYSAFER");
-  arguments.AppendOption("-sstdout=", "%stderr");
-  arguments.AppendOption("-dTextAlphaBits=", "4");
-  arguments.AppendOption("-dGraphicsAlphaBits=", "4");
-  arguments.AppendOption("-dDOINTERPOLATE");
-  arguments.AppendOption("-sOutputFile=", "-");
-  arguments.AppendArgument("-");
+  arguments.push_back("-g" + std::to_string(width) + 'x' + std::to_string(height));
+  arguments.push_back("-sDEVICE="s + "bmp16m");
+  arguments.push_back("-q");
+  arguments.push_back("-dBATCH");
+  arguments.push_back("-dNOPAUSE");
+  arguments.push_back("-dDELAYSAFER");
+  arguments.push_back("-sstdout="s + "%stderr");
+  arguments.push_back("-dTextAlphaBits="s + "4");
+  arguments.push_back("-dGraphicsAlphaBits="s + "4");
+  arguments.push_back("-dDOINTERPOLATE");
+  arguments.push_back("-sOutputFile="s + "-");
+  arguments.push_back("-");
 
-  ProcessStartInfo processStartInfo;
+  ProcessStartInfo2 processStartInfo;
 
-  processStartInfo.Arguments = arguments.ToString();
-  processStartInfo.FileName = gsPath.GetData();
+  processStartInfo.Arguments = arguments;
+  processStartInfo.FileName = gsPath.ToString();
   processStartInfo.StandardInput = dvipsOut.Get();
   processStartInfo.RedirectStandardError = true;
   processStartInfo.RedirectStandardOutput = true;
-  processStartInfo.WorkingDirectory = pDviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().GetData();
+  processStartInfo.WorkingDirectory = pDviImpl->GetDviFileName().MakeAbsolute().RemoveFileSpec().ToString();
 
   unique_ptr<Process> pGhostscript(Process::Start(processStartInfo));
 

@@ -37,10 +37,7 @@ Process* Process::Start(const ProcessStartInfo& startinfo)
 {
   ProcessStartInfo2 startinfo2;
   Argv argv(startinfo.FileName, startinfo.Arguments);
-  for (int idx = 0; idx < argv.GetArgc(); ++idx)
-  {
-    startinfo2.Arguments.push_back(argv[idx]);
-  }
+  startinfo2.Arguments = Argv(startinfo.FileName, startinfo.Arguments).ToStringVector();
   startinfo2.FileName = startinfo.FileName;
   startinfo2.RedirectStandardError = startinfo.RedirectStandardError;
   startinfo2.RedirectStandardInput = startinfo.RedirectStandardInput;
@@ -91,7 +88,7 @@ void winProcess::Create()
 
   CommandLineBuilder commandLine;
   commandLine.SetQuotingConvention(QuotingConvention::Whitespace);
-  commandLine.AppendArguments(startinfo.Arguments);
+  commandLine.AppendArguments(startinfo.Arguments.empty() ? vector<string>{ PathName(startinfo.FileName).GetFileNameWithoutExtension().ToString() } : startinfo.Arguments);
 
   // standard security attributes for pipes
   SECURITY_ATTRIBUTES const SAPIPE = {
