@@ -2696,7 +2696,7 @@ boolean open_dvi_output(C4P::FileRoot & dviFile)
     bool done = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->OpenOutputFile(dviFile, MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetNameOfFile(), MiKTeX::Core::FileShare::ReadWrite, false, outPath);
     if (done)
     {
-      MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->MangleNameOfFile(outPath.GetData()));
+      MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(outPath);
     }
     return done;
   }
@@ -2720,8 +2720,7 @@ boolean open_dvi_output(C4P::FileRoot & dviFile)
       break;
     }
     processStartInfo.Arguments.insert(processStartInfo.Arguments.end(), outputdriverargs.begin(), outputdriverargs.end());
-    MiKTeX::Core::PathName outPath = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory();
-    outPath /= MiKTeX::TeXAndFriends::WebAppInputLine::UnmangleNameOfFile(MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetNameOfFile().GetData());
+    MiKTeX::Core::PathName outPath = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory() / MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetNameOfFile();
     processStartInfo.Arguments.push_back("-o");
     processStartInfo.Arguments.push_back(outPath.ToString());
     if (papersize != nullptr)
@@ -2732,7 +2731,7 @@ boolean open_dvi_output(C4P::FileRoot & dviFile)
     processStartInfo.RedirectStandardInput = true;
     outputdriverprocess = MiKTeX::Core::Process::Start(processStartInfo);
     dviFile.Attach(outputdriverprocess->get_StandardInput(), true);
-    MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->MangleNameOfFile(outPath.GetData()));
+    MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(outPath.GetData());
     return 1;
   }
 }
