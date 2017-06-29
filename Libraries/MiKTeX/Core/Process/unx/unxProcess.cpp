@@ -161,23 +161,6 @@ private:
   int twofd[2] = { -1, -1 };
 };
 
-Process* Process::Start(const ProcessStartInfo& startinfo)
-{
-  ProcessStartInfo2 startinfo2;
-  Argv argv(startinfo.FileName, startinfo.Arguments);
-  for (int idx = 0; idx < argv.GetArgc(); ++idx)
-  {
-    startinfo2.Arguments.push_back(argv[idx]);
-  }
-  startinfo2.FileName = startinfo.FileName;
-  startinfo2.RedirectStandardError = startinfo.RedirectStandardError;
-  startinfo2.RedirectStandardInput = startinfo.RedirectStandardInput;
-  startinfo2.RedirectStandardOutput = startinfo.RedirectStandardOutput;
-  startinfo2.StandardInput = startinfo.StandardInput;
-  startinfo2.WorkingDirectory = startinfo.WorkingDirectory;
-  return new unxProcess(startinfo2);
-}
-
 unique_ptr<Process> Process::Start(const ProcessStartInfo2& startinfo)
 {
   return make_unique<unxProcess>(startinfo);
@@ -540,14 +523,14 @@ bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRu
   return Process::Run(arguments[0], arguments, callback, exitCode, directory);
 }
 
-Process2* Process2::GetCurrentProcess()
+unique_ptr<Process2> Process2::GetCurrentProcess()
 {
-  unxProcess* currentProcess = new unxProcess();
+  unique_ptr<unxProcess> currentProcess = make_unique<unxProcess>();
   currentProcess->pid = getpid();
   return currentProcess;
 }
 
-Process2* unxProcess::get_Parent()
+unique_ptr<Process2> unxProcess::get_Parent()
 {
 #if defined(__linux__)
   string path = "/proc/" + std::to_string(pid) + "/stat";
@@ -563,7 +546,7 @@ Process2* unxProcess::get_Parent()
     ++tok;
     ++tok;
     ++tok;
-    unxProcess* parentProcess = new unxProcess();
+    unique_ptr<unxProcess> parentProcess = make_unique<unxProcess>();
     parentProcess->pid = std::stoi(*tok);
     return parentProcess;
   }
@@ -573,7 +556,7 @@ Process2* unxProcess::get_Parent()
   {
     return nullptr;
   }
-  unxProcess* parentProcess = new unxProcess();
+  unique_ptr<unxProcess> parentProcess = make_unique<unxProcess>();
   parentProcess->pid = procinfo.pbi_ppid;
   return parentProcess;
 #else

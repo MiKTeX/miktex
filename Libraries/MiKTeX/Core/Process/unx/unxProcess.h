@@ -55,12 +55,12 @@ public:
   void Close() override;
 
 public:
-  MiKTeX::Core::Process2* get_Parent() override;
+  std::unique_ptr<MiKTeX::Core::Process2> get_Parent() override;
 
 public:
   std::string get_ProcessName() override;
 
-private:
+public:
   unxProcess()
   {
   }

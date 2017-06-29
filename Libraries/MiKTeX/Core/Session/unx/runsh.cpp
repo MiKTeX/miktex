@@ -63,15 +63,15 @@ int SessionImpl::RunSh(int argc, const char** argv)
   }
   
   // build command line
-  CommandLineBuilder commandLine;
+  vector<string> args{ name.ToString() };
   if (argc > 1)
   {
-    commandLine.AppendArguments(argc - 1, &argv[1]);
+    args.insert(args.end(), &argv[1], &argv[argc]);
   }
 
   int exitCode;
 
-  Process::Run(scriptPath, commandLine.ToString(), nullptr, &exitCode, nullptr);
+  Process::Run(scriptPath, args, nullptr, &exitCode, nullptr);
 
   return exitCode;
 }
