@@ -1119,18 +1119,7 @@ pdf_doc_get_page (pdf_file *pf,
     }
 
     /* Nasty BBox selection... */
-    if (options == 0) {
-      if (crop_box)
-        box = crop_box;
-      else {
-        if (!(box = media_box) &&
-            !(box = bleed_box) &&
-            !(box = trim_box) &&
-            art_box) {
-            box = art_box;
-        }
-      }
-    } else if (options == 1) {
+    if ((options == 0) || (options == 1)) {
       if (crop_box)
         box = crop_box;
       else
