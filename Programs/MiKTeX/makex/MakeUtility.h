@@ -245,7 +245,7 @@ protected:
     
     // run the program
     int exitCode = 0;
-    if (!(printOnly || find(arguments.begin(), arguments.end(), "--print-only") != arguments.end()))
+    if (!(printOnly || find(allArgs.begin(), allArgs.end(), "--print-only") != allArgs.end()))
     {
       ProcessOutputTrash trash;
       ProcessOutputStderr toStderr;
@@ -258,7 +258,7 @@ protected:
         {
           callback = &toStderr;
         }
-      if (!Process::Run(exe, arguments, callback, &exitCode, workingDirectory.GetData()))
+      if (!Process::Run(exe, allArgs, callback, &exitCode, workingDirectory.GetData()))
       {
         FatalError(T_("The application file %s could not be started."), Q_(lpszExeName));
       }
