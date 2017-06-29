@@ -6,7 +6,7 @@
     <TPM:Title>TECkit runtime library, Windows x86</TPM:Title>
     <TPM:Copyright owner="SIL International" year="2002-2016"/>
     <TPM:License type="lgpl"/>
-    <TPM:Version>2.5.6</TPM:Version>
+    <TPM:Version>2.5.7</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

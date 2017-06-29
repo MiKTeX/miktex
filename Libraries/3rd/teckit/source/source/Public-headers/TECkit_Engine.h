@@ -97,7 +97,6 @@ extern "C" {
 #if defined(MIKTEX)
 #  define EXPORTED
 #endif
-
 /* this seems to be needed for a gcc-mingw32 build to work... */
 #ifndef EXPORTED
 #ifdef _WIN32

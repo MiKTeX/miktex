@@ -65,6 +65,7 @@ For example, to build MiKTeX for Debian 9:
 * libcurl 7.54.0
 * LibreSSL 2.5.3
 * Poppler 0.55.0
+* teckit 2.5.7
 
 ### macOS support
 
