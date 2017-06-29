@@ -441,30 +441,30 @@ void PrintUtility::StartGhostscript(const GSOPTS& gsOpts, unsigned resolution, s
   PathName gsPath = session->GetGhostscript(nullptr);
 
   // make GS command line
-  CommandLineBuilder commandLine;
-  commandLine.AppendOption("-sDEVICE=", "bmp16m");
+  vector<string> args{ gsPath.GetFileNameWithoutExtension().ToString() };
+  args.push_back("-sDEVICE="s + "bmp16m");
   MIKTEX_ASSERT(ppfileGsOut != nullptr);
-  commandLine.AppendOption("-sOutputFile=", "-");
+  args.push_back("-sOutputFile="s + "-");
   if (resolution > 0)
   {
-    commandLine.AppendOption("-r", std::to_string(resolution));
+    args.push_back("-r" + std::to_string(resolution));
   }
   PAPERSIZEINFO paperSizeInfo;
   if (GetPaperSizeInfo(paperSize, paperSizeInfo))
   {
-    commandLine.AppendOption("-dDEVICEWIDTHPOINTS=", std::to_string(paperSizeInfo.width));
-    commandLine.AppendOption("-dDEVICEHEIGHTPOINTS=", std::to_string(paperSizeInfo.height));
+    args.push_back("-dDEVICEWIDTHPOINTS=" + std::to_string(paperSizeInfo.width));
+    args.push_back("-dDEVICEHEIGHTPOINTS=" + std::to_string(paperSizeInfo.height));
   }
-  commandLine.AppendOption("-q");
-  commandLine.AppendOption("-dBATCH");
-  commandLine.AppendOption("-dNOPAUSE");
-  commandLine.AppendOption("-dSAFER");
-  commandLine.AppendArgument("-");
+  args.push_back("-q");
+  args.push_back("-dBATCH");
+  args.push_back("-dNOPAUSE");
+  args.push_back("-dSAFER");
+  args.push_back("-");
 
-  trace_mtprint->WriteLine("mtprint", commandLine.ToString().c_str());
+  trace_mtprint->WriteLine("mtprint", CommandLineBuilder(args).ToString());
 
   // start Ghostscript
-  Process::Start(gsPath.GetData(), commandLine.ToString(), pfileGsIn, nullptr, ppfileGsOut, nullptr, nullptr);
+  Process::Start(gsPath.GetData(), args, pfileGsIn, nullptr, ppfileGsOut, nullptr, nullptr);
 }
 
 void PrintUtility::Spool(const char* lpszFileName, PrintMethod printMethod, const DVIPSOPTS& dvipsOpts, const GSOPTS& gsOpts, const string& printerName)

@@ -1,6 +1,6 @@
 /* StdAfx.h:                                            -*- C++ -*-
 
-   Copyright (C) 2003-2016 Christian Schenk
+   Copyright (C) 2003-2017 Christian Schenk
 
    This file is part of MTPrint.
 
@@ -56,3 +56,4 @@ using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
 using namespace std;
+using namespace std::string_literals;
