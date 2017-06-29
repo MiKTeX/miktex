@@ -510,7 +510,7 @@ unique_ptr<Process2> Process2::GetCurrentProcess()
   pCurrentProcess->processInformation.hThread = GetCurrentThread();
   pCurrentProcess->processInformation.dwProcessId = GetCurrentProcessId();
   pCurrentProcess->processInformation.dwThreadId = GetCurrentThreadId();
-  return pCurrentProcess;
+  return unique_ptr<Process2>(pCurrentProcess.release());
 }
 
 bool winProcess::TryGetProcessEntry(DWORD processId, PROCESSENTRY32W& result)
@@ -565,7 +565,6 @@ PROCESSENTRY32W winProcess::GetProcessEntry(DWORD processId)
   return result;
 }
 
-// TODO: return unique_ptr<Process2>
 unique_ptr<Process2> winProcess::get_Parent()
 {
   if (processEntry.dwSize == 0)
@@ -586,7 +585,7 @@ unique_ptr<Process2> winProcess::get_Parent()
   pParentProcess->processInformation.dwProcessId = processEntry.th32ParentProcessID;
   pParentProcess->processInformation.hThread = nullptr;
   pParentProcess->processInformation.dwThreadId = 0;
-  return pParentProcess;
+  return unique_ptr<Process2>(pParentProcess.release());
 }
 
 string winProcess::get_ProcessName()

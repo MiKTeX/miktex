@@ -527,7 +527,7 @@ unique_ptr<Process2> Process2::GetCurrentProcess()
 {
   unique_ptr<unxProcess> currentProcess = make_unique<unxProcess>();
   currentProcess->pid = getpid();
-  return currentProcess;
+  return unique_ptr<Process2>(currentProcess.release());
 }
 
 unique_ptr<Process2> unxProcess::get_Parent()
@@ -548,7 +548,7 @@ unique_ptr<Process2> unxProcess::get_Parent()
     ++tok;
     unique_ptr<unxProcess> parentProcess = make_unique<unxProcess>();
     parentProcess->pid = std::stoi(*tok);
-    return parentProcess;
+    return unique_ptr<Process2>(parentProcess.release());
   }
 #elif defined(__APPLE__)
   struct proc_bsdinfo procinfo;
@@ -558,7 +558,7 @@ unique_ptr<Process2> unxProcess::get_Parent()
   }
   unique_ptr<unxProcess> parentProcess = make_unique<unxProcess>();
   parentProcess->pid = procinfo.pbi_ppid;
-  return parentProcess;
+  return unique_ptr<Process2>(parentProcess.release());
 #else
   return nullptr;
 #endif
