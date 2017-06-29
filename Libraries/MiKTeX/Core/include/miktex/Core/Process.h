@@ -109,41 +109,6 @@ private:
   std::size_t stdoutOffset = 0;
 };
 
-/// Proces start info struct (DEPRECATED).
-struct ProcessStartInfo
-{
-  std::string Arguments;
-  std::string FileName;
-
-#if defined(MIKTEX_WINDOWS)
-  FILE* StandardError = nullptr;
-#endif
-
-  FILE* StandardInput = nullptr;
-
-#if defined(MIKTEX_WINDOWS)
-  FILE* StandardOutput = nullptr;
-#endif
-
-  bool RedirectStandardError = false;
-
-  bool RedirectStandardInput = false;
-
-  bool RedirectStandardOutput = false;
-
-  std::string WorkingDirectory;
-
-  ProcessStartInfo()
-  {
-  }
-
-  ProcessStartInfo(const PathName& fileName) :
-    FileName(fileName.ToString())
-  {
-  }
-
-};
-
 struct ProcessStartInfo2
 {
   /// Arguments to be passed to the process.
@@ -251,10 +216,6 @@ public:
 public:
   static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* lpszWorkingDirectory);
 
-public:
-  // DEPRECATED
-  static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::string& arguments);
-
   /// Executes a process.
   /// @param lpszFileName The name of an executable file to run in the process.
   /// @param lpszArguments The command-line arguments to pass when starting
@@ -269,29 +230,13 @@ public:
   }
 
 public:
-  // DEPRECATED
-  static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::string& arguments, IRunProcessCallback* callback);
-
-public:
   static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback);
-
-public:
-  // DEPRECATED
-  static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::string& arguments, IRunProcessCallback* callback, int* pExitCode, const char* lpszWorkingDirectory);
 
 public:
   static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback, int* pExitCode, const char* lpszWorkingDirectory);
 
 public:
-  // DEPRECATED
-  static MIKTEXCORECEEAPI(Process*) Start(const ProcessStartInfo& startinfo);
-
-public:
   static MIKTEXCORECEEAPI(std::unique_ptr<Process>) Start(const ProcessStartInfo2& startinfo);
-
-public:
-  // DEPRECATED
-  static MIKTEXCORECEEAPI(void) Start(const PathName& fileName, const std::string& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory);
 
 public:
   static MIKTEXCORECEEAPI(void) Start(const PathName& fileName, const std::vector<std::string>& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory);
@@ -300,13 +245,6 @@ public:
   static void Start(const PathName& fileName)
   {
     Start(fileName, std::vector<std::string>{ fileName.GetFileNameWithoutExtension().ToString() }, nullptr, nullptr, nullptr, nullptr, nullptr);
-  }
-
-public:
-  // DEPRECATED
-  static void Start(const PathName& fileName, const std::string& arguments)
-  {
-    Start(fileName, arguments, nullptr, nullptr, nullptr, nullptr, nullptr);
   }
 
 public:
@@ -323,27 +261,13 @@ public:
   MIKTEXTHISCALL ~Process2() override = 0;
 
 public:
-  // DEPRECATED
-  virtual Process2* MIKTEXTHISCALL get_Parent() = 0;
-
-public:
-  // TODO
-#if 0
   virtual std::unique_ptr<Process2> MIKTEXTHISCALL get_Parent() = 0;
-#endif
 
 public:
   virtual std::string MIKTEXTHISCALL get_ProcessName() = 0;
 
 public:
-  // DEPRECATED
-  static MIKTEXCORECEEAPI(Process2*) GetCurrentProcess();
-
-public:
-  // TODO
-#if 0
   static MIKTEXCORECEEAPI(std::unique_ptr<Process2>) GetCurrentProcess();
-#endif
 
 public:
   static MIKTEXCORECEEAPI(std::vector<std::string>) GetInvokerNames();

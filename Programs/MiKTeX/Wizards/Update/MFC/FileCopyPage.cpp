@@ -475,26 +475,13 @@ void FileCopyPage::ConfigureMiKTeX()
   }
 
   // register components, configure files
-  RunMpm(CommandLineBuilder("--register-components"));
+  RunMpm({ "--register-components" });
 
-  CommandLineBuilder cmdLine;
+  RunIniTeXMF({ "--update-fndb" });
 
-  cmdLine.Clear();
-  cmdLine.AppendOption("--update-fndb");
-  RunIniTeXMF(cmdLine);
+  RunIniTeXMF({"--force", "--mklinks"});
 
-  cmdLine.Clear();
-  cmdLine.AppendOption("--force");
-  cmdLine.AppendOption("--mklinks");
-  RunIniTeXMF(cmdLine);
-
-  cmdLine.Clear();
-#if 0 // experimental
-  cmdLine.AppendOption("--force");
-#endif
-  cmdLine.AppendOption("--mkmaps");
-  cmdLine.AppendOption("--mklangs");
-  RunIniTeXMF(cmdLine);
+  RunIniTeXMF({"--mkmaps", "--mklangs"});
 }
 
 void FileCopyPage::RunMpm(const vector<string>& args)

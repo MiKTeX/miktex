@@ -52,12 +52,12 @@ public:
   void MIKTEXTHISCALL Close() override;
 
 public:
-  MiKTeX::Core::Process2* MIKTEXTHISCALL get_Parent() override;
+  std::unique_ptr<MiKTeX::Core::Process2> MIKTEXTHISCALL get_Parent() override;
 
 public:
   std::string MIKTEXTHISCALL get_ProcessName() override;
 
-private:
+public:
   winProcess();
 
 public:

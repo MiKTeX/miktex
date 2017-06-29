@@ -827,7 +827,7 @@ public:
   virtual bool MIKTEXTHISCALL GetMakeFontsFlag() = 0;
 
 public:
-  virtual std::string MIKTEXTHISCALL MakeMakePkCommandLine(const std::string& fontName, int dpi, int baseDpi, const std::string& mfMode, PathName& fileName, TriState enableInstaller) = 0;
+  virtual std::vector<std::string> MIKTEXTHISCALL MakeMakePkCommandLine(const std::string& fontName, int dpi, int baseDpi, const std::string& mfMode, PathName& fileName, TriState enableInstaller) = 0;
 
 #if defined(MIKTEX_WINDOWS)
 public:

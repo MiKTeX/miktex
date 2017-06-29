@@ -312,7 +312,7 @@ public:
   bool GetMakeFontsFlag() override;
 
 public:
-  std::string MakeMakePkCommandLine(const std::string& fontName, int dpi, int baseDpi, const std::string& mfMode, MiKTeX::Core::PathName& fileName, MiKTeX::Core::TriState enableInstaller) override;
+  std::vector<std::string> MakeMakePkCommandLine(const std::string& fontName, int dpi, int baseDpi, const std::string& mfMode, MiKTeX::Core::PathName& fileName, MiKTeX::Core::TriState enableInstaller) override;
 
 #if defined(MIKTEX_WINDOWS)
 public:

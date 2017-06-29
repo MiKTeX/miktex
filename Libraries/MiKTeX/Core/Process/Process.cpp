@@ -39,17 +39,6 @@ Process2::~Process2()
 {
 }
 
-void Process::Start(const PathName& fileName, const string& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory)
-{
-  Argv rawargv(fileName.ToString(), arguments);
-  vector<string> argv;
-  for (int idx = 0; idx < rawargv.GetArgc(); ++idx)
-  {
-    argv.push_back(rawargv[idx]);
-  }
-  Start(fileName, argv, pFileStandardInput, ppFileStandardInput, ppFileStandardOutput, ppFileStandardError, lpszWorkingDirectory);
-}
-
 void Process::Start(const PathName& fileName, const vector<string>& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory)
 {
   MIKTEX_ASSERT_STRING_OR_NIL(lpszWorkingDirectory);
@@ -90,17 +79,6 @@ void Process::Start(const PathName& fileName, const vector<string>& arguments, F
   }
 
   pProcess->Close();
-}
-
-bool Process::Run(const PathName& fileName, const string& arguments, IRunProcessCallback* callback, int* exitCode, const char* lpszWorkingDirectory)
-{
-  Argv rawargv(fileName.ToString(), arguments);
-  vector<string> argv;
-  for (int idx = 0; idx < rawargv.GetArgc(); ++idx)
-  {
-    argv.push_back(rawargv[idx]);
-  }
-  return Run(fileName, argv, callback, exitCode, lpszWorkingDirectory);
 }
 
 bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRunProcessCallback* callback, int* exitCode, const char* lpszWorkingDirectory)
@@ -169,23 +147,9 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRu
   }
 }
 
-void Process::Run(const PathName& fileName, const string& arguments)
-{
-  Process::Run(fileName, arguments, nullptr);
-}
-
 void Process::Run(const PathName& fileName, const vector<string>& arguments)
 {
   Process::Run(fileName, arguments, nullptr);
-}
-
-void Process::Run(const PathName& fileName, const string& arguments, IRunProcessCallback* pCallback)
-{
-  int exitCode;
-  if (!Run(fileName, arguments, pCallback, &exitCode, nullptr) || exitCode != 0)
-  {
-    MIKTEX_FATAL_ERROR_2(T_("The executed process did not succeed."), "fileName", fileName.ToString(), "arguments", arguments, "exitCode", std::to_string(exitCode));
-  }
 }
 
 void Process::Run(const PathName& fileName, const vector<string>& arguments, IRunProcessCallback* callback)
@@ -216,7 +180,7 @@ vector<string> Process2::GetInvokerNames()
   for (int level = 0; pParentProcess.get() != nullptr && level < maxLevels; ++level)
   {
     result.push_back(pParentProcess->get_ProcessName());
-    pParentProcess.reset(pParentProcess->get_Parent());
+    pParentProcess = pParentProcess->get_Parent();
   }
   if (pParentProcess.get() != nullptr)
   {

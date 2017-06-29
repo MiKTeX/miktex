@@ -301,13 +301,13 @@ bool PkFont::Make(const string & name, int dpi, int baseDpi, const string & meta
   dviInfo.transcript += "\r\n";
   dviInfo.transcript += T_("Making PK font:\r\n");
   PathName pathMakePk;
-  string commandLine = session->MakeMakePkCommandLine(name, dpi, baseDpi, metafontMode, pathMakePk, TriState::Undetermined);
-  dviInfo.transcript += commandLine;
+  vector<string> args = session->MakeMakePkCommandLine(name, dpi, baseDpi, metafontMode, pathMakePk, TriState::Undetermined);
+  dviInfo.transcript += CommandLineBuilder(args).ToString();
   dviInfo.transcript += "\r\n";
   pDviImpl->Progress(DviNotification::BeginLoadFont, "%s...", dviInfo.name.c_str());
   ProcessOutput<4096> makepkOutput;
   int exitCode;
-  bool b = Process::Run(pathMakePk, commandLine.c_str(), &makepkOutput, &exitCode, nullptr) && exitCode == 0;
+  bool b = Process::Run(pathMakePk, args, &makepkOutput, &exitCode, nullptr) && exitCode == 0;
   if (!b)
   {
     trace_error->WriteLine("libdvi", makepkOutput.StdoutToString());

@@ -132,7 +132,7 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_find_glyph(kpathsea pKpseInstance, const 
       MIKTEX_UNEXPECTED();
     }
     PathName pathMakePk;
-    std::string arguments = session->MakeMakePkCommandLine(lpszFontName, dpi, kpse_baseResolution, kpse_mode, pathMakePk, app->GetEnableInstaller());
+    vector<std::string> arguments = session->MakeMakePkCommandLine(lpszFontName, dpi, kpse_baseResolution, kpse_mode, pathMakePk, app->GetEnableInstaller());
     if (!(Process::Run(pathMakePk, arguments, nullptr, nullptr, nullptr) && session->FindPkFile(lpszFontName, kpse_mode, dpi, path)))
     {
       return nullptr;

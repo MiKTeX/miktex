@@ -33,22 +33,6 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-Process* Process::Start(const ProcessStartInfo& startinfo)
-{
-  ProcessStartInfo2 startinfo2;
-  Argv argv(startinfo.FileName, startinfo.Arguments);
-  startinfo2.Arguments = Argv(startinfo.FileName, startinfo.Arguments).ToStringVector();
-  startinfo2.FileName = startinfo.FileName;
-  startinfo2.RedirectStandardError = startinfo.RedirectStandardError;
-  startinfo2.RedirectStandardInput = startinfo.RedirectStandardInput;
-  startinfo2.RedirectStandardOutput = startinfo.RedirectStandardOutput;
-  startinfo2.StandardError = startinfo.StandardError;
-  startinfo2.StandardInput = startinfo.StandardInput;
-  startinfo2.StandardOutput = startinfo.StandardOutput;
-  startinfo2.WorkingDirectory = startinfo.WorkingDirectory;
-  return new winProcess(startinfo2);
-}
-
 unique_ptr<Process> Process::Start(const ProcessStartInfo2& startinfo)
 {
   return make_unique<winProcess>(startinfo);
@@ -513,15 +497,14 @@ winProcess::winProcess()
   processEntry.dwSize = 0;
 }
 
-// TODO: return unique_ptr<Process2>
-Process2* Process2::GetCurrentProcess()
+unique_ptr<Process2> Process2::GetCurrentProcess()
 {
   HANDLE myHandle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
   if (myHandle == nullptr)
   {
     MIKTEX_FATAL_WINDOWS_ERROR("OpenProcess");
   }
-  winProcess* pCurrentProcess = new winProcess();
+  unique_ptr<winProcess> pCurrentProcess = make_unique<winProcess>();
   pCurrentProcess->processStarted = true;
   pCurrentProcess->processInformation.hProcess = myHandle;
   pCurrentProcess->processInformation.hThread = GetCurrentThread();
@@ -583,7 +566,7 @@ PROCESSENTRY32W winProcess::GetProcessEntry(DWORD processId)
 }
 
 // TODO: return unique_ptr<Process2>
-Process2* winProcess::get_Parent()
+unique_ptr<Process2> winProcess::get_Parent()
 {
   if (processEntry.dwSize == 0)
   {
@@ -597,7 +580,7 @@ Process2* winProcess::get_Parent()
   {
     return nullptr;
   }
-  winProcess* pParentProcess = new winProcess();
+  unique_ptr<winProcess> pParentProcess = make_unique<winProcess>();
   pParentProcess->processStarted = true;
   pParentProcess->processInformation.hProcess = parentProcessHandle;
   pParentProcess->processInformation.dwProcessId = processEntry.th32ParentProcessID;

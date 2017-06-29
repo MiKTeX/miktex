@@ -276,7 +276,7 @@ MIKTEXSTATICFUNC(int) magstep(int n, int bdpi)
   }
 }
 
-string SessionImpl::MakeMakePkCommandLine(const string & fontName, int dpi, int baseDpi, const string & mfMode, PathName & fileName, TriState enableInstaller)
+vector<string> SessionImpl::MakeMakePkCommandLine(const string& fontName, int dpi, int baseDpi, const string& mfMode, PathName& fileName, TriState enableInstaller)
 {
   MIKTEX_ASSERT(baseDpi != 0);
 
@@ -353,33 +353,32 @@ string SessionImpl::MakeMakePkCommandLine(const string & fontName, int dpi, int 
     strMagStep += ')';
   }
 
-  string cmdline;
-  cmdline.reserve(256);
+  vector<string> args{ fileName.GetFileNameWithoutExtension().ToString() };
 
   switch (enableInstaller)
   {
   case TriState::False:
-    cmdline += " --disable-installer";
+    args.push_back("--disable-installer");
     break;
   case TriState::True:
-    cmdline += " --enable-installer";
+    args.push_back("--enable-installer");
     break;
   default:
     break;
   }
 
-  cmdline += " --verbose";
-  cmdline += ' '; cmdline += fontName;
-  cmdline += ' '; cmdline += std::to_string(dpi);
-  cmdline += ' '; cmdline += std::to_string(baseDpi);
-  cmdline += ' '; cmdline += strMagStep;
+  args.push_back("--verbose");
+  args.push_back(fontName);
+  args.push_back(std::to_string(dpi));
+  args.push_back(std::to_string(baseDpi));
+  args.push_back(strMagStep);
 
   if (!mfMode.empty())
   {
-    cmdline += ' '; cmdline += mfMode;
+    args.push_back(mfMode);
   }
 
-  return cmdline;
+  return args;
 }
 
 bool SessionImpl::EnableFontMaker(bool enable)
