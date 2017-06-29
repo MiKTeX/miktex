@@ -382,7 +382,7 @@ bool PkFont::MakeTFM(const string & name)
   PathName baseName = PathName(name).GetFileNameWithoutExtension();
   vector<string> args{ makeTFM.GetFileNameWithoutExtension().ToString() };
   args.push_back("-v");
-  args.push_back(baseName);
+  args.push_back(baseName.ToString());
   dviInfo.transcript += CommandLineBuilder(args).ToString();
   dviInfo.transcript += "\r\n";
   pDviImpl->Progress(DviNotification::BeginLoadFont, "%s...", dviInfo.name.c_str());
