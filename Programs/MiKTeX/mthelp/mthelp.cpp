@@ -334,7 +334,6 @@ void MiKTeXHelp::ViewFile(const PathName& fileName)
   if (viewer.empty())
   {
     wchar_t szExecutable[BufferSizes::MaxPath];
-    PathName directory(fileName);
     HINSTANCE hInst = FindExecutableW(fileName.ToWideCharString().c_str(), L"C:\\", szExecutable);
     if (hInst >= reinterpret_cast<HINSTANCE>(32))
     {
@@ -345,7 +344,7 @@ void MiKTeXHelp::ViewFile(const PathName& fileName)
       }
       else
       {
-        Process::Start(szExecutable, Q_(fileName));
+        Process::Start(szExecutable, { PathName(szExecutable).GetFileNameWithoutExtension().ToString(), fileName.ToString() });
       }
       return;
     }
