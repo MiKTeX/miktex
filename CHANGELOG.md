@@ -63,6 +63,7 @@ For example, to build MiKTeX for Debian 9:
 
 * [HarfBuzz 1.4.6](https://github.com/behdad/harfbuzz/releases/tag/1.4.6)
 * libcurl 7.54.0
+* libpng 1.6.30
 * LibreSSL 2.5.3
 * Poppler 0.55.0
 * teckit 2.5.7
