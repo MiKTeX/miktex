@@ -77,9 +77,7 @@ void PropPageFormats::OnMake()
       int idx = listControl.GetNextSelectedItem(pos);
       CString formatKey = listControl.GetItemText(idx, 0);
       FormatInfo formatInfo = session->GetFormatInfo(TU_(formatKey));
-      CommandLineBuilder cmdLine;
-      cmdLine.AppendOption("--dump=", formatInfo.key);
-      if (!pSheet->RunIniTeXMF(formatInfo.description.c_str(), cmdLine, ppd.get()))
+      if (!pSheet->RunIniTeXMF(formatInfo.description.c_str(), { "--dump="s + formatInfo.key }, ppd.get()))
       {
         // TODO
       }

@@ -125,24 +125,24 @@ void MakeTfm::CreateDestinationDirectory()
 bool MakeTfm::MakeFromHBF(const char* lpszName, const PathName& workingDirectory)
 {
   // run hbf2gf to make a .pl file
-  CommandLineBuilder arguments;
+  vector<string> arguments;
   if (debug)
   {
-    arguments.AppendOption("-q");
+    arguments.push_back("-q");
   }
-  arguments.AppendOption("-g");
-  arguments.AppendArgument(lpszName);
-  arguments.AppendArgument(std::to_string(300));
-  if (!RunProcess(MIKTEX_HBF2GF_EXE, arguments.ToString(), workingDirectory))
+  arguments.push_back("-g");
+  arguments.push_back(lpszName);
+  arguments.push_back(std::to_string(300));
+  if (!RunProcess(MIKTEX_HBF2GF_EXE, arguments, workingDirectory))
   {
     return false;
   }
 
   // run PLtoTF
-  arguments.Clear();
-  arguments.AppendArgument(PathName(lpszName).AppendExtension(".pl"));
-  arguments.AppendArgument(PathName(lpszName).AppendExtension(".tfm"));
-  if (!RunProcess(MIKTEX_PLTOTF_EXE, arguments.ToString(), workingDirectory))
+  arguments.clear();
+  arguments.push_back(PathName(lpszName).AppendExtension(".pl").ToString());
+  arguments.push_back(PathName(lpszName).AppendExtension(".tfm").ToString());
+  if (!RunProcess(MIKTEX_PLTOTF_EXE, arguments, workingDirectory))
   {
     FatalError(T_("PLtoTF failed on %s."), Q_(lpszName));
   }
@@ -185,21 +185,21 @@ void MakeTfm::Run(int argc, const char** argv)
   bool done = false;
   if (!session->FindFile(name, FileType::MF, mfPath))
   {
-    CommandLineBuilder arguments;
+    vector<string> arguments;
     if (debug)
     {
-      arguments.AppendOption("--debug");
+      arguments.push_back("--debug");
     }
     if (verbose)
     {
-      arguments.AppendOption("--verbose");
+      arguments.push_back("--verbose");
     }
     if (printOnly)
     {
-      arguments.AppendOption("--print-only");
+      arguments.push_back("--print-only");
     }
-    arguments.AppendArgument(name);
-    if (!RunProcess(MIKTEX_MAKEMF_EXE, arguments.ToString(), wrkDir->GetPathName()))
+    arguments.push_back(name);
+    if (!RunProcess(MIKTEX_MAKEMF_EXE, arguments, wrkDir->GetPathName()))
     {
       // no METAFONT input file; try to make from HBF file
       if (!MakeFromHBF(name.c_str(), wrkDir->GetPathName()))

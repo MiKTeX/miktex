@@ -39,6 +39,7 @@ using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
 using namespace MiKTeX;
 using namespace std;
+using namespace std::string_literals;
 
 void FatalError(const char* lpszFormat, ...)
 {
@@ -84,17 +85,17 @@ void dvipdft(int argc, char** argv)
   // create a temporary directory
   unique_ptr<TemporaryDirectory> tempDir;
 
-  CommandLineBuilder arguments;
+  vector<string> arguments{ dvipdfmExe.GetFileNameWithoutExtension().ToString() };
   PathName fileNoExt;
 
   // loop over all arguments except the last one
   for (int i = 1; i < argc - 1; ++i)
   {
-    arguments.AppendArgument(argv[i]);
+    arguments.push_back(argv[i]);
     if (strcmp(argv[i], "-o") == 0 && i + 1 < argc - 1)
     {
       ++i;
-      arguments.AppendArgument(argv[i]);
+      arguments.push_back(argv[i]);
       fileNoExt = argv[i];
       fileNoExt.SetExtension(nullptr);
     }
@@ -108,11 +109,11 @@ void dvipdft(int argc, char** argv)
   }
 
   // run dvipdfm with the fastest options for the first pass
-  arguments.AppendOption("-e");
-  arguments.AppendOption("-z", "0");
-  arguments.AppendArgument(lpszUserFilename);
+  arguments.push_back("-e");
+  arguments.push_back("-z"s + "0");
+  arguments.push_back(lpszUserFilename);
   int exitCode = 0;
-  if (!Process::Run(dvipdfmExe, arguments.ToString(), nullptr, &exitCode, nullptr))
+  if (!Process::Run(dvipdfmExe, arguments, nullptr, &exitCode, nullptr))
   {
     FatalError(MIKTEXTEXT("%s could not be started."), dvipdfmExe.GetData());
   }
@@ -124,14 +125,14 @@ void dvipdft(int argc, char** argv)
   // run GhostScript to create thumbnails
   PathName outFileTemplate = tempDir->GetPathName() / fileNoExt;
   outFileTemplate.AppendExtension(".%d");
-  arguments.Clear();
-  arguments.AppendOption("-r", "10");
-  arguments.AppendOption("-dNOPAUSE");
-  arguments.AppendOption("-dBATCH");
-  arguments.AppendOption("-sDEVICE:", "png256");
-  arguments.AppendOption("-sOutputFile:", outFileTemplate);
-  arguments.AppendArgument(PathName(fileNoExt).AppendExtension(".pdf"));
-  if (!Process::Run(gsExe, arguments.ToString(), nullptr, &exitCode, nullptr))
+  arguments = { gsExe.GetFileNameWithoutExtension().ToString() };
+  arguments.push_back("-r"s + "10");
+  arguments.push_back("-dNOPAUSE");
+  arguments.push_back("-dBATCH");
+  arguments.push_back("-sDEVICE:"s + "png256");
+  arguments.push_back("-sOutputFile:"s + outFileTemplate.ToString());
+  arguments.push_back(PathName(fileNoExt).AppendExtension(".pdf").ToString());
+  if (!Process::Run(gsExe, arguments, nullptr, &exitCode, nullptr))
   {
     FatalError(MIKTEXTEXT("%s could not be started."), gsExe.GetData());
   }
@@ -141,12 +142,15 @@ void dvipdft(int argc, char** argv)
   }
 
   // run dvipdfm with the users specified options for the last pass
-  arguments.Clear();
-  arguments.AppendOption("-dt");
-  arguments.AppendArguments(argc - 1, &argv[1]);
-  printf("dvipdfm %s\n", arguments.ToString().c_str());
+  arguments = { dvipdfmExe.GetFileNameWithoutExtension().ToString() };
+  arguments.push_back("-dt");
+  for (int idx = 1; idx < argc; ++idx)
+  {
+    arguments.push_back(argv[idx]);
+  }
+  printf("%s\n", CommandLineBuilder(arguments).ToString().c_str());
   Utils::SetEnvironmentString("MIKTEX_TEMP", tempDir->GetPathName().ToString());
-  if (!Process::Run(dvipdfmExe.GetData(), arguments.ToString(), nullptr, &exitCode, nullptr))
+  if (!Process::Run(dvipdfmExe, arguments, nullptr, &exitCode, nullptr))
   {
     FatalError(MIKTEXTEXT("%s could not be started."), dvipdfmExe.GetData());
   }

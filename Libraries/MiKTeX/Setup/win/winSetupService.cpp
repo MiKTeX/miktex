@@ -686,9 +686,9 @@ void winSetupServiceImpl::UnregisterShellFileTypes()
   }
   if (session->RunningAsAdministrator() || session->RunningAsPowerUser())
   {
-    Process::Run(initexmfExe.GetData(), "--admin --unregister-shell-file-types");
+    Process::Run(initexmfExe, { initexmfExe.GetFileNameWithoutExtension().ToString(), "--admin", "--unregister-shell-file-types" });
   }
-  Process::Run(initexmfExe.GetData(), "--unregister-shell-file-types");
+  Process::Run(initexmfExe, { initexmfExe.GetFileNameWithoutExtension().ToString(), "--unregister-shell-file-types" });
 }
 
 void winSetupServiceImpl::UnregisterPath(bool shared)

@@ -81,6 +81,7 @@ using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
+using namespace std::string_literals;
 
 #define T_(x) MIKTEXTEXT(x)
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
@@ -226,7 +227,7 @@ protected:
   }
   
 protected:
-  bool RunProcess(const char* lpszExeName, const std::string& arguments, const PathName& workingDirectory)
+  bool RunProcess(const char* lpszExeName, const std::vector<std::string>& arguments, const PathName& workingDirectory)
   {
     // find the executable; make sure it contains no blanks
     PathName exe;
@@ -235,13 +236,16 @@ protected:
       FatalError(T_("The application file %s could not be found."), Q_(lpszExeName));
     }
 
+    std::vector<std::string> allArgs{ lpszExeName };
+    allArgs.insert(allArgs.end(), arguments.begin(), arguments.end());
+
     Message(T_("Running %s..."), Q_(lpszExeName));
-    LOG4CXX_INFO(logger, "running: " << Q_(lpszExeName) << " " << arguments);
-    PrintOnly("%s %s", Q_(lpszExeName), arguments.c_str());
+    LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(allArgs).ToString());
+    PrintOnly("%s", CommandLineBuilder(allArgs).ToString().c_str());
     
     // run the program
     int exitCode = 0;
-    if (!printOnly || arguments.find("--print-only") != string::npos)
+    if (!(printOnly || find(arguments.begin(), arguments.end(), "--print-only") != arguments.end()))
     {
       ProcessOutputTrash trash;
       ProcessOutputStderr toStderr;
@@ -266,36 +270,30 @@ protected:
 protected:
   bool RunMETAFONT(const char* lpszName, const char* lpszMode, const char* lpszMag, const PathName& workingDirectory)
   {
-    string arguments;
-    arguments += "--undump=mf";
+    vector<string> arguments;
+    arguments.push_back("--undump="s + "mf");
     switch (GetEnableInstaller())
     {
     case TriState::False:
-      arguments += " --disable-installer";
+      arguments.push_back("--disable-installer");
       break;
     case TriState::True:
-      arguments += " --enable-installer";
+      arguments.push_back("--enable-installer");
       break;
     default:
       break;
     }
-    arguments += " \"\\mode:=";
-    arguments += (lpszMode == nullptr ? "ljfour" : lpszMode);
-    arguments += ";\"";
+    arguments.push_back("\\mode:="s + (lpszMode == nullptr ? "ljfour" : lpszMode) + ";");
     if (lpszMag != nullptr)
     {
-      arguments += " \"\\mag:=";
-      arguments += lpszMag;
-      arguments += ";\"";
+      arguments.push_back("\\mag:="s + lpszMag + ";");
     }
     if (!debug)
     {
-      arguments += " nonstopmode;";
+      arguments.push_back("nonstopmode;");
     }
-    arguments += " \"input ";
-    arguments += lpszName;
-    arguments += '"';
-    if (RunProcess(MIKTEX_MF_EXE, arguments.c_str(), workingDirectory))
+    arguments.push_back("input "s + lpszName);
+    if (RunProcess(MIKTEX_MF_EXE, arguments, workingDirectory))
     {
       return true;
     }

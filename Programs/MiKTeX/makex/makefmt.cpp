@@ -129,7 +129,7 @@ private:
 private:
   void AppendEngineOption(const char* lpszOption)
   {
-    engineOptions.Append(lpszOption);
+    engineOptions.push_back(lpszOption);
   }
 
 private:
@@ -210,7 +210,7 @@ private:
   bool noDumpPrimitive = false;
 
 private:
-  Argv engineOptions;
+  vector<string> engineOptions;
 };
 
 void MakeFmt::Usage()
@@ -369,35 +369,35 @@ void MakeFmt::Run(int argc, const char** argv)
   unique_ptr<TemporaryDirectory> wrkDir = TemporaryDirectory::Create();
 
   // make command line
-  CommandLineBuilder arguments;
-  arguments.AppendOption("--initialize");
-  arguments.AppendOption("--interaction=", "nonstopmode");
-  arguments.AppendOption("--halt-on-error");
+  vector<string> arguments;
+  arguments.push_back("--initialize");
+  arguments.push_back("--interaction="s + "nonstopmode");
+  arguments.push_back("--halt-on-error");
   if (destinationName != GetEngineName())
   {
-    arguments.AppendOption("--alias=", destinationName);
+    arguments.push_back("--alias=" + destinationName.ToString());
   }
-  arguments.AppendOption("--job-name=", destinationName);
+  arguments.push_back("--job-name=" + destinationName.ToString());
   if (!jobTime.empty())
   {
-    arguments.AppendOption("--job-time=", jobTime);
+    arguments.push_back("--job-time=" + jobTime);
   }
-  arguments.AppendArguments(engineOptions);
+  arguments.insert(arguments.end(), engineOptions.begin(), engineOptions.end());
   if (!preloadedFormat.empty())
   {
-    arguments.AppendArgument(string("&") + preloadedFormat);
+    arguments.push_back("&"s + preloadedFormat);
   }
   if (engine != Engine::LuaTeX && IsExtended() && preloadedFormat.empty())
   {
-    arguments.AppendOption("--enable-etex");
+    arguments.push_back("--enable-etex");
   }
   switch (GetEnableInstaller())
   {
   case TriState::False:
-    arguments.AppendOption("--disable-installer");
+    arguments.push_back("--disable-installer");
     break;
   case TriState::True:
-    arguments.AppendOption("--enable-installer");
+    arguments.push_back("--enable-installer");
     break;
   default:
     break;
@@ -408,14 +408,14 @@ void MakeFmt::Run(int argc, const char** argv)
     InstallPdftexConfigTeX();
   }
 #endif
-  arguments.AppendArgument(inputFile);
+  arguments.push_back(inputFile.ToString());
   if (!noDumpPrimitive)
   {
-    arguments.AppendArgument("\\dump");
+    arguments.push_back("\\dump");
   }
 
   // start the engine
-  if (!RunProcess(GetEngineExeName(), arguments.ToString(), wrkDir->GetPathName()))
+  if (!RunProcess(GetEngineExeName(), arguments, wrkDir->GetPathName()))
   {
     FatalError(T_("%s failed on %s."), GetEngineExeName(), Q_(name));
   }

@@ -1,6 +1,6 @@
 /* print.cpp: DVI printing
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of Yap.
 
@@ -208,9 +208,9 @@ void DviView::PrintPostScript(const char * lpszDviFileName, const char * lpszPri
   Utils::RemoveBlanksFromPathName(mtprint);
 
   // make command-line
-  CommandLineBuilder commandLine;
-  commandLine.AppendOption("--printer=", lpszPrinterName);
-  commandLine.AppendOption("--print-method=", "ps");
+  vector<string> args{ "mtprint" };
+  args.push_back("--printer="s + lpszPrinterName);
+  args.push_back("--print-method="s + "ps");
   switch (pr.nRange)
   {
   case PrintRange::All:
@@ -219,19 +219,19 @@ void DviView::PrintPostScript(const char * lpszDviFileName, const char * lpszPri
     string str(std::to_string(pr.nFirst));
     str += "-";
     str += std::to_string(pr.nLast);
-    commandLine.AppendOption("--page-range=", str);
+    args.push_back("--page-range="s + str);
     break;
   }
   switch (pr.nEvenOdd)
   {
   case PrintRange::EvenOnly:
-    commandLine.AppendOption("--even-only");
+    args.push_back("--even-only");
     break;
   case PrintRange::OddOnly:
-    commandLine.AppendOption("--odd-only");
+    args.push_back("--odd-only");
     break;
   }
-  commandLine.AppendArgument(lpszDviFileName);
+  args.push_back(lpszDviFileName);
 
   unique_ptr<ProgressDialog> pProgDlg(ProgressDialog::Create());
   pProgDlg->StartProgressDialog(GetSafeHwnd());
@@ -240,7 +240,7 @@ void DviView::PrintPostScript(const char * lpszDviFileName, const char * lpszPri
   pProgDlg->SetLine(2, lpszDviFileName);
   ProcessOutput<4096> processOutput;
   int exitCode;
-  bool done = Process::Run(mtprint, commandLine.ToString(), &processOutput, &exitCode, nullptr);
+  bool done = Process::Run(mtprint, args, &processOutput, &exitCode, nullptr);
   pProgDlg->StopProgressDialog();
   pProgDlg.reset();
 

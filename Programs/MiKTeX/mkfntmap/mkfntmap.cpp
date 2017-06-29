@@ -1165,25 +1165,25 @@ void MakeFontMapApp::BuildFontconfigCache()
     FatalError(T_("The fc-cache executable could not be found."));
   }
 #endif
-  CommandLineBuilder arguments;
+  vector<string> arguments{ fcCacheExe.GetFileNameWithoutExtension().ToString() };
   if (optAdminMode)
   {
 #if defined(MIKTEX_WINDOWS)
-    arguments.AppendOption("--miktex-admin");
+    arguments.push_back("--miktex-admin");
 #else
-    arguments.AppendOption("--system-only");
+    arguments.push_back("--system-only");
 #endif
   }
   if (force)
   {
-    arguments.AppendOption("--force");
+    arguments.push_back("--force");
   }
   if (verbose)
   {
-    arguments.AppendOption("--verbose");
+    arguments.push_back("--verbose");
   }
-  LOG4CXX_INFO(logger, "running: fc-cache " << arguments.ToString());
-  Process::Run(fcCacheExe, arguments.ToString(), this);
+  LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(arguments).ToString());
+  Process::Run(fcCacheExe, arguments, this);
 }
 
 void MakeFontMapApp::CreateFontconfigLocalfontsConf()

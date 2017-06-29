@@ -42,7 +42,7 @@ public:
   virtual ~PropSheet();
 
 public:
-  bool RunIniTeXMF(const char * lpszTitle, const CommandLineBuilder & cmdLine, ProgressDialog * pProgressDialog);
+  bool RunIniTeXMF(const char * lpszTitle, const std::vector<std::string>& args, ProgressDialog * pProgressDialog);
 
 public:
   void BuildFormats();

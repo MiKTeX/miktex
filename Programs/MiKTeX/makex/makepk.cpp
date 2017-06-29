@@ -55,7 +55,7 @@ private:
   void CheckOptions(int* pBaseDPI, int dpi, const string& mode);
 
 private:
-  void ExtraPS2PKOptions(const FontMapEntry& mapEntry, CommandLineBuilder& arguments);
+  void ExtraPS2PKOptions(const FontMapEntry& mapEntry, vector<string>& arguments);
 
 private:
   void RunGSF2PK(const FontMapEntry& mapEntry, const char* lpszPkName, int dpi, const PathName& workingDirectory);
@@ -260,40 +260,40 @@ bool GetInstructionParam(const string& str, const string& instruction, string& p
   return false;
 }
 
-void MakePk::ExtraPS2PKOptions(const FontMapEntry& mapEntry, CommandLineBuilder& arguments)
+void MakePk::ExtraPS2PKOptions(const FontMapEntry& mapEntry, vector<string>& arguments)
 {
   if (!mapEntry.encFile.empty())
   {
-    arguments.AppendOption("-e");
-    arguments.AppendArgument(mapEntry.encFile);
+    arguments.push_back("-e");
+    arguments.push_back(mapEntry.encFile);
   }
 
   string param;
 
   if (GetInstructionParam(mapEntry.specialInstructions, "ExtendFont", param))
   {
-    arguments.AppendOption("-E");
-    arguments.AppendArgument(param);
+    arguments.push_back("-E");
+    arguments.push_back(param);
   }
 
   if (GetInstructionParam(mapEntry.specialInstructions, "SlantFont", param))
   {
-    arguments.AppendOption("-S");
-    arguments.AppendArgument(param);
+    arguments.push_back("-S");
+    arguments.push_back(param);
   }
 }
 
 void MakePk::RunGSF2PK(const FontMapEntry& mapEntry, const char* lpszPkName, int dpi, const PathName& workingDirectory)
 {
-  CommandLineBuilder arguments;
-  arguments.AppendArgument(mapEntry.texName);
-  arguments.AppendArgument(mapEntry.psName);
-  arguments.AppendArgument(mapEntry.specialInstructions);
-  arguments.AppendArgument(mapEntry.encFile);
-  arguments.AppendArgument(mapEntry.fontFile);
-  arguments.AppendArgument(std::to_string(dpi));
-  arguments.AppendArgument(lpszPkName);
-  if (!RunProcess(MIKTEX_GSF2PK_EXE, arguments.ToString(), workingDirectory))
+  vector<string> arguments;
+  arguments.push_back(mapEntry.texName);
+  arguments.push_back(mapEntry.psName);
+  arguments.push_back(mapEntry.specialInstructions);
+  arguments.push_back(mapEntry.encFile);
+  arguments.push_back(mapEntry.fontFile);
+  arguments.push_back(std::to_string(dpi));
+  arguments.push_back(lpszPkName);
+  if (!RunProcess(MIKTEX_GSF2PK_EXE, arguments, workingDirectory))
   {
     FatalError(T_("GSF2PK failed on %s."), Q_(mapEntry.fontFile));
   }
@@ -303,27 +303,27 @@ void MakePk::RunPS2PK(const FontMapEntry& mapEntry, const char* lpszPkName, int 
 {
   bool oldFonts = false;        // FIXME
 
-  CommandLineBuilder arguments;
+  vector<string> arguments;
 
   if (verbose)
   {
-    arguments.AppendOption("-v");
+    arguments.push_back("-v");
   }
 
   if (oldFonts)
   {
-    arguments.AppendOption("-O");
+    arguments.push_back("-O");
   }
 
-  arguments.AppendOption("-X", std::to_string(dpi));
+  arguments.push_back("-X" + std::to_string(dpi));
 
   ExtraPS2PKOptions(mapEntry, arguments);
 
-  arguments.AppendArgument(mapEntry.fontFile);
+  arguments.push_back(mapEntry.fontFile);
 
-  arguments.AppendArgument(lpszPkName);
+  arguments.push_back(lpszPkName);
 
-  if (!RunProcess(MIKTEX_PS2PK_EXE, arguments.ToString(), workingDirectory))
+  if (!RunProcess(MIKTEX_PS2PK_EXE, arguments, workingDirectory))
   {
     FatalError(T_("PS2PK failed on %s."), Q_(mapEntry.fontFile));
   }
@@ -474,21 +474,21 @@ void MakePk::Run(int argc, const char** argv)
   }
   else
   {
-    CommandLineBuilder arguments;
+    vector<string> arguments;
     if (debug)
     {
-      arguments.AppendOption("--debug");
+      arguments.push_back("--debug");
     }
     if (verbose)
     {
-      arguments.AppendOption("--verbose");
+      arguments.push_back("--verbose");
     }
     if (printOnly)
     {
-      arguments.AppendOption("--print-only");
+      arguments.push_back("--print-only");
     }
-    arguments.AppendArgument(name);
-    if (RunProcess(MIKTEX_MAKEMF_EXE, arguments.ToString(), wrkDir->GetPathName()))
+    arguments.push_back(name);
+    if (RunProcess(MIKTEX_MAKEMF_EXE, arguments, wrkDir->GetPathName()))
     {
       haveSource = true;
     }
@@ -497,21 +497,17 @@ void MakePk::Run(int argc, const char** argv)
   // try to convert a TTF file
   if (!haveSource)
   {
-    CommandLineBuilder arguments;
-    arguments.AppendOption("-q"); // suppress informational output
-    arguments.AppendOption("-t"); // test for font (returns 0 on succ.)
-    arguments.AppendArgument(name);
-    if (RunProcess(MIKTEX_TTF2PK_EXE, arguments.ToString(), wrkDir->GetPathName()))
+    if (RunProcess(MIKTEX_TTF2PK_EXE, { "-q", "-t", name }, wrkDir->GetPathName()))
     {
-      arguments.Clear();
+      vector<string> arguments;
       if (!debug)
       {
-        arguments.AppendOption("-q");
+        arguments.push_back("-q");
       }
-      arguments.AppendOption("-n"); // only use '.pk' as extension
-      arguments.AppendArgument(name);
-      arguments.AppendArgument(std::to_string(dpi));
-      if (RunProcess(MIKTEX_TTF2PK_EXE, arguments.ToString(), wrkDir->GetPathName()))
+      arguments.push_back("-n"); // only use '.pk' as extension
+      arguments.push_back(name);
+      arguments.push_back(std::to_string(dpi));
+      if (RunProcess(MIKTEX_TTF2PK_EXE, arguments, wrkDir->GetPathName()))
       {
         isTTF = true;
         modeless = true;
@@ -523,15 +519,15 @@ void MakePk::Run(int argc, const char** argv)
   // try to convert an HBF file
   if (!haveSource && IsHbf(name.c_str()))
   {
-    CommandLineBuilder arguments;
+    vector<string> arguments;
     if (debug)
     {
-      arguments.AppendOption("-q");
+      arguments.push_back("-q");
     }
-    arguments.AppendOption("-p");
-    arguments.AppendArgument(name);
-    arguments.AppendArgument(std::to_string(dpi));
-    if (RunProcess(MIKTEX_HBF2GF_EXE, arguments.ToString(), wrkDir->GetPathName()))
+    arguments.push_back("-p");
+    arguments.push_back(name);
+    arguments.push_back(std::to_string(dpi));
+    if (RunProcess(MIKTEX_HBF2GF_EXE, arguments, wrkDir->GetPathName()))
     {
       isHBF = true;
       modeless = true;
@@ -583,10 +579,7 @@ void MakePk::Run(int argc, const char** argv)
     else if (isHBF)
     {
       // convert GF file into PK file
-      CommandLineBuilder arguments;
-      arguments.AppendArgument(gfName);
-      arguments.AppendArgument(pkName);
-      if (!RunProcess(MIKTEX_GFTOPK_EXE, arguments.ToString(), wrkDir->GetPathName()))
+      if (!RunProcess(MIKTEX_GFTOPK_EXE, { gfName, pkName.ToString() }, wrkDir->GetPathName()))
       {
         FatalError(T_("GFtoPK failed on %s."), Q_(gfName));
       }
@@ -616,10 +609,7 @@ void MakePk::Run(int argc, const char** argv)
     {
       FatalError(T_("METAFONT failed on %s."), Q_(name));
     }
-    CommandLineBuilder arguments;
-    arguments.AppendArgument(gfName);
-    arguments.AppendArgument(pkName);
-    if (!RunProcess(MIKTEX_GFTOPK_EXE, arguments.ToString(), wrkDir->GetPathName()))
+    if (!RunProcess(MIKTEX_GFTOPK_EXE, { gfName, pkName.ToString() }, wrkDir->GetPathName()))
     {
       FatalError(T_("GFtoPK failed on %s."), Q_(gfName));
     }

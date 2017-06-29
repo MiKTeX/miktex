@@ -227,12 +227,12 @@ void CJKLaTeXApp::RunEngine(const PathName& inputFile)
   {
     Error(T_("Engine %s not found."), engine.c_str());
   }
-  CommandLineBuilder arguments;
-  arguments.AppendArgument(inputFile.ToString());
-  PrintOnly("%s %s", Q_(engineExe), arguments.ToString().c_str());
+  vector<string> arguments{ engineExe.GetFileNameWithoutExtension().ToString() };
+  arguments.push_back(inputFile.ToString());
+  PrintOnly("%s", CommandLineBuilder(arguments).ToString().c_str());
   if (!printOnly)
   {
-    Process::Run(engineExe, arguments.ToString());
+    Process::Run(engineExe, arguments);
   }
 }
 

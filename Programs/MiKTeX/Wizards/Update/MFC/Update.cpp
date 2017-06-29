@@ -325,7 +325,7 @@ bool UpdateWizardApplication::Upgrade(bool & upgrading)
         MIKTEX_UNEXPECTED();
       }
       ProcessOutput<1024> processOutput;
-      if (!Process::Run(migrate, vector<string>(), &processOutput, nullptr, nullptr))
+      if (!Process::Run(migrate, vector<string>{ "migrate" }, &processOutput, nullptr, nullptr))
       {
         MIKTEX_UNEXPECTED();
       }

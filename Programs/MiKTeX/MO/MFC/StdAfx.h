@@ -1,6 +1,6 @@
 /* StdAfx.h: pre-compiled header stuff                  -*- C++ -*-
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is part of MiKTeX Options.
 
@@ -107,3 +107,4 @@ using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::MFC;
 using namespace MiKTeX::Util;
 using namespace std;
+using namespace std::string_literals;

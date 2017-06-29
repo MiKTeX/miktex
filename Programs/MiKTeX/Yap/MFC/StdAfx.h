@@ -127,3 +127,4 @@ using namespace MiKTeX::Trace;
 using namespace MiKTeX::UI::MFC;
 using namespace MiKTeX::Wrappers;
 using namespace std;
+using namespace std::string_literals;

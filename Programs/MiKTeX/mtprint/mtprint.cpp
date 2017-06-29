@@ -353,80 +353,84 @@ void PrintUtility::StartDvips(const char* lpszDviFileName, const DVIPSOPTS& dvip
   }
 
   // make dvips command line
-  CommandLineBuilder commandLine;
+  vector<string> args{ dvipsPath.GetFileNameWithoutExtension().ToString() };
   if (dvipsOpts.oddPagesOnly)
   {
-    commandLine.AppendOption("-A");
+    args.push_back("-A");
   }
   if (dvipsOpts.evenPagesOnly)
   {
-    commandLine.AppendOption("-B");
+    args.push_back("-B");
   }
   if (resolution > 0)
   {
-    commandLine.AppendOption("-D", std::to_string(resolution));
+    args.push_back("-D" + std::to_string(resolution));
   }
   PAPERSIZEINFO paperSizeInfo;
   if (GetPaperSizeInfo(paperSize, paperSizeInfo))
   {
-    commandLine.AppendOption("-T", paperSizeInfo.lpszDvipsSize);
+    args.push_back("-T"s + paperSizeInfo.lpszDvipsSize);
   }
   if (dvipsOpts.runAsFilter)
   {
-    commandLine.AppendOption("-f", "1");
+    args.push_back("-f"s + "1");
   }
   if (dvipsOpts.sendCtrlDAtEnd)
   {
-    commandLine.AppendOption("-F"), "1";
+    args.push_back("-F"s + "1");
   }
   if (dvipsOpts.shiftLowCharsToHigherPos)
   {
-    commandLine.AppendOption("-G"), "1";
+    args.push_back("-G"s + "1");
   }
   if (dvipsOpts.offsetX.length() > 0 && dvipsOpts.offsetY.length() > 0)
   {
     string str(dvipsOpts.offsetX);
     str += ",";
     str += dvipsOpts.offsetY;
-    commandLine.AppendOption("-O", str.c_str());
+    args.push_back("-O" + str);
   }
   if (!dvipsOpts.runAsFilter)
   {
     PRINTER_INFO_2W* pi2 = Printer::GetPrinterInfo(lpszPrinterName, nullptr);
     AutoMemoryPointer autoFree(pi2);
-    commandLine.AppendOption("-o ", dryRun ? "nul" : WU_(pi2->pPortName));
+    args.push_back("-o");
+    args.push_back(dryRun ? "nul" : WU_(pi2->pPortName));
   }
   for (vector<DVIPSOPTS::PAGERANGE>::const_iterator it = dvipsOpts.pageRanges.begin(); it != dvipsOpts.pageRanges.end(); ++it)
   {
     string str(std::to_string(it->firstPage));
     str += ':';
     str += std::to_string(it->lastPage);
-    commandLine.AppendOption("-pp ", str.c_str());
+    args.push_back("-pp");
+    args.push_back(str);
   }
   if (dvipsOpts.config.length() > 0)
   {
-    commandLine.AppendOption("-P ", dvipsOpts.config.c_str());
+    args.push_back("-P");
+    args.push_back(dvipsOpts.config);
   }
   if (dvipsOpts.runQuietly)
   {
-    commandLine.AppendOption("-q", "1");
+    args.push_back("-q"s + "1");
   }
   if (dvipsOpts.paperFormat.length() > 0)
   {
-    commandLine.AppendOption("-t ", dvipsOpts.paperFormat.c_str());
+    args.push_back("-t");
+    args.push_back(dvipsOpts.paperFormat);
   }
-  commandLine.AppendArgument(lpszDviFileName);
+  args.push_back(lpszDviFileName);
 
-  trace_mtprint->WriteLine("mtprint", commandLine.ToString().c_str());
+  trace_mtprint->WriteLine("mtprint", CommandLineBuilder(args).ToString());
 
   // start Dvips
   if (dvipsOpts.runAsFilter)
   {
-    Process::Start(dvipsPath.GetData(), commandLine.ToString(), nullptr, nullptr, ppfileDvipsOutRd, ppfileDvipsErrRd, nullptr);
+    Process::Start(dvipsPath, args, nullptr, nullptr, ppfileDvipsOutRd, ppfileDvipsErrRd, nullptr);
   }
   else
   {
-    Process::Run(dvipsPath.GetData(), commandLine.ToString());
+    Process::Run(dvipsPath, args);
   }
 }
 
