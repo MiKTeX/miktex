@@ -1650,6 +1650,24 @@ void Application::Main(int argc, const char** argv)
 
   pSession = Session::Create(initInfo);
 
+  if (optAdmin)
+  {
+    if (!pSession->IsSharedSetup())
+    {
+      Error(T_("Option --admin only makes sense for a shared MiKTeX setup."));
+    }
+    if (!pSession->RunningAsAdministrator())
+    {
+      Warn(T_("Option --admin may require administrative privileges"));
+    }
+    pSession->SetAdminMode(true);
+  }
+
+  if (pSession->RunningAsAdministrator() && !pSession->IsAdminMode())
+  {
+    Warn(T_("Option --admin should be specified when running this program with administrative privileges"));
+  }
+
   PathName xmlFileName;
   if (pSession->FindFile("mpmcli." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
     || pSession->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
@@ -1667,23 +1685,13 @@ void Application::Main(int argc, const char** argv)
     LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString("mpmcli", MIKTEX_COMPONENT_VERSION_STR));
   }
 
-  if (optAdmin)
+  if (pSession->IsAdminMode())
   {
-    if (!pSession->RunningAsAdministrator())
-    {
-      Verbose(T_("Option --admin may require administrative privileges"));
-    }
-    if (!pSession->IsSharedSetup())
-    {
-      Error(T_("Option --admin only makes sense for a shared MiKTeX setup."));
-    }
-    pSession->SetAdminMode(true);
     Verbose(T_("Operating on the shared (system-wide) MiKTeX setup"));
   }
-  else if (pSession->IsSharedSetup())
+  else
   {
     Verbose(T_("Operating on the private (per-user) MiKTeX setup"));
-    Warn(T_("You must use --admin, if you intend to make system-wide changes."));
   }
 
   pPackageManager = PackageManager::Create();

@@ -757,11 +757,11 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
     }
     if (!session->RunningAsAdministrator())
     {
-      Verbose(T_("Option --admin may require administrative privileges"));
+      Warning(T_("Option --admin may require administrative privileges"));
     }
     session->SetAdminMode(true, setupWizardRunning);
   }
-  else if (session->RunningAsAdministrator())
+  if (session->RunningAsAdministrator() && !session->IsAdminMode())
   {
     Warning(T_("Option --admin should be specified when running this program with administrative privileges"));
   }
@@ -782,6 +782,14 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
   isLog4cxxConfigured = true;
   LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR));
   FlushPendingTraceMessages();
+  if (session->IsAdminMode())
+  {
+    Verbose(T_("Operating on the shared (system-wide) MiKTeX setup"));
+  }
+  else
+  {
+    Verbose(T_("Operating on the private (per-user) MiKTeX setup"));
+  }
   PathName myName = PathName(argv[0]).GetFileNameWithoutExtension();
   isMktexlsrMode = myName == "mktexlsr" || myName == "texhash";
   isTexlinksMode = myName == "texlinks";
