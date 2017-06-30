@@ -483,13 +483,13 @@ foreach(cweb ${luatexlib_cwebs})
     OUTPUT
       ${CMAKE_CURRENT_BINARY_DIR}/${fn}.c
     COMMAND
-      ctangle ${CMAKE_CURRENT_SOURCE_DIR}/${cweb}
+      ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/${cweb}
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     MAIN_DEPENDENCY
       ${cweb}
     DEPENDS
-      ctangle
+      ${MIKTEX_PREFIX}ctangle
       ${CMAKE_CURRENT_SOURCE_DIR}/${cweb}
     VERBATIM
   )
@@ -504,13 +504,13 @@ foreach(ccweb ${luatexlib_ccwebs})
     OUTPUT
       ${CMAKE_CURRENT_BINARY_DIR}/${fn}.cc
     COMMAND
-      ctangle ${CMAKE_CURRENT_SOURCE_DIR}/${ccweb} - ${CMAKE_CURRENT_BINARY_DIR}/${fn}.cc
+      ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/${ccweb} - ${CMAKE_CURRENT_BINARY_DIR}/${fn}.cc
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     MAIN_DEPENDENCY
       ${ccweb}
     DEPENDS
-      ctangle
+      ${MIKTEX_PREFIX}ctangle
       ${CMAKE_CURRENT_SOURCE_DIR}/${ccweb}
     VERBATIM
   )

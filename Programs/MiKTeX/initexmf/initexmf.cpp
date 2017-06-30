@@ -1520,6 +1520,8 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_CEFCONV_EXE, { "cefconv" } },
   { MIKTEX_CEFSCONV_EXE, { "cefsconv" } },
   { MIKTEX_CHKTEX_EXE, { "chktex" } },
+  { MIKTEX_CTANGLE_EXE,{ "ctangle" } },
+  { MIKTEX_CWEAVE_EXE,{ "cweave" } },
   { MIKTEX_DEVNAG_EXE, { "devnag" } },
   { MIKTEX_DVICOPY_EXE, { "dvicopy" } },
   { MIKTEX_DVIPDFMX_EXE, { "dvipdfm", "dvipdfmx", "ebb", "extractbb", "xbb", "xdvipdfmx", MIKTEX_XDVIPDFMX_EXE } },

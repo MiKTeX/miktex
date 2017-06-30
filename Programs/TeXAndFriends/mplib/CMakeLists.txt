@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2016 Christian Schenk
+## Copyright (C) 2010-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -77,13 +77,13 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/mplib.h
     ${CMAKE_CURRENT_BINARY_DIR}/mpmp.h
   COMMAND
-    ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mp
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mp
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   MAIN_DEPENDENCY
     source/mp.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
   VERBATIM
 )
 
@@ -92,13 +92,13 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/mpmath.c
     ${CMAKE_CURRENT_BINARY_DIR}/mpmath.h
   COMMAND
-    ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpmath
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpmath
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   MAIN_DEPENDENCY
     source/mpmath.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
   VERBATIM
 )
 
@@ -107,13 +107,13 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/mpmathbinary.c
     ${CMAKE_CURRENT_BINARY_DIR}/mpmathbinary.h
   COMMAND
-    ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpmathbinary
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpmathbinary
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   MAIN_DEPENDENCY
     source/mpmathbinary.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
   VERBATIM
 )
 
@@ -122,13 +122,13 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/mpmathdecimal.c
     ${CMAKE_CURRENT_BINARY_DIR}/mpmathdecimal.h
   COMMAND
-    ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpmathdecimal
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpmathdecimal
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   MAIN_DEPENDENCY
     source/mpmathdecimal.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
   VERBATIM
 )
 
@@ -137,13 +137,13 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/mpmathdouble.c
     ${CMAKE_CURRENT_BINARY_DIR}/mpmathdouble.h
   COMMAND
-    ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpmathdouble
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpmathdouble
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   MAIN_DEPENDENCY
     source/mpmathdouble.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
   VERBATIM
 )
 
@@ -152,13 +152,13 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/mpstrings.c
     ${CMAKE_CURRENT_BINARY_DIR}/mpstrings.h
   COMMAND
-    ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpstrings
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpstrings
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   MAIN_DEPENDENCY
     source/mpstrings.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
   VERBATIM
 )
 
@@ -168,13 +168,13 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/mppngout.h
     ${CMAKE_CURRENT_BINARY_DIR}/mplibpng.h
   COMMAND
-    ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/pngout
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/pngout
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   MAIN_DEPENDENCY
     source/pngout.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
   VERBATIM
 )
 
@@ -184,13 +184,13 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/mppsout.h
     ${CMAKE_CURRENT_BINARY_DIR}/mplibps.h
   COMMAND
-    ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/psout
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/psout
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   MAIN_DEPENDENCY
     source/psout.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
   VERBATIM
 )
 
@@ -200,13 +200,13 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/mpsvgout.h
     ${CMAKE_CURRENT_BINARY_DIR}/mplibsvg.h
   COMMAND
-    ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/svgout
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/svgout
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   MAIN_DEPENDENCY
     source/svgout.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
   VERBATIM
 )
 
@@ -214,13 +214,13 @@ add_custom_command(
   OUTPUT
     ${CMAKE_CURRENT_BINARY_DIR}/tfmin.c
   COMMAND
-    ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/tfmin
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/tfmin
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   MAIN_DEPENDENCY
     source/tfmin.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
   VERBATIM
 )
 
@@ -296,13 +296,13 @@ add_custom_command(
   OUTPUT
     ${CMAKE_CURRENT_BINARY_DIR}/mpost.c
   COMMAND
-    ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpost
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpost
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   MAIN_DEPENDENCY
     source/mpost.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
   VERBATIM
 )
 
@@ -311,13 +311,13 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/mpxout.c
     ${CMAKE_CURRENT_BINARY_DIR}/mpxout.h
   COMMAND
-    ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpxout
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/mpxout
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   MAIN_DEPENDENCY
     source/mpxout.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
   VERBATIM
 )
 

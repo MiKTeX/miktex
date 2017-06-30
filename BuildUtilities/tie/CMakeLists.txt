@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -29,7 +29,7 @@ set(tie_sources ${CMAKE_CURRENT_BINARY_DIR}/tie.c)
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/tie.c
   COMMAND
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
     ${CMAKE_CURRENT_SOURCE_DIR}/source/tie.w
     ${CMAKE_CURRENT_SOURCE_DIR}/tie-miktex.ch 
     ${CMAKE_CURRENT_BINARY_DIR}/tie.c
@@ -38,7 +38,7 @@ add_custom_command(
   MAIN_DEPENDENCY
     source/tie.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
     ${CMAKE_CURRENT_SOURCE_DIR}/source/tie.w
     ${CMAKE_CURRENT_SOURCE_DIR}/tie-miktex.ch
   VERBATIM

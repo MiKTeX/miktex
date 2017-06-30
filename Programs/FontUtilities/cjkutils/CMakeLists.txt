@@ -45,11 +45,11 @@ add_custom_command(
   OUTPUT
     ${CMAKE_CURRENT_BINARY_DIR}/bg5conv.c
   COMMAND
-    ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/utils/Bg5conv/bg5conv.w
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/utils/Bg5conv/bg5conv.w
   MAIN_DEPENDENCY
     ${CMAKE_CURRENT_SOURCE_DIR}/source/utils/Bg5conv/bg5conv.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   VERBATIM
@@ -78,11 +78,11 @@ foreach(t cef5conv cefconv cefsconv)
     OUTPUT
       ${CMAKE_CURRENT_BINARY_DIR}/${t}.c
     COMMAND
-      ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CEFconv/${t}.w
+      ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CEFconv/${t}.w
     MAIN_DEPENDENCY
       ${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CEFconv/${t}.w
     DEPENDS
-      ctangle
+      ${MIKTEX_PREFIX}ctangle
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     VERBATIM
@@ -109,11 +109,11 @@ add_custom_command(
   OUTPUT
     ${CMAKE_CURRENT_BINARY_DIR}/extconv.c
   COMMAND
-    ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/utils/extconv/extconv.w
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/utils/extconv/extconv.w
   MAIN_DEPENDENCY
     ${CMAKE_CURRENT_SOURCE_DIR}/source/utils/extconv/extconv.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   VERBATIM
@@ -145,13 +145,13 @@ add_custom_command(
   OUTPUT
     ${CMAKE_CURRENT_BINARY_DIR}/hbf2gf.c
   COMMAND
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
     ${CMAKE_CURRENT_SOURCE_DIR}/source/utils/hbf2gf/hbf2gf.w
     ${CMAKE_CURRENT_SOURCE_DIR}/hbf2gf-miktex.ch
   MAIN_DEPENDENCY
     ${CMAKE_CURRENT_SOURCE_DIR}/source/utils/hbf2gf/hbf2gf.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
     ${CMAKE_CURRENT_SOURCE_DIR}/hbf2gf-miktex.ch
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
@@ -194,11 +194,11 @@ add_custom_command(
   OUTPUT
     ${CMAKE_CURRENT_BINARY_DIR}/sjisconv.c
   COMMAND
-    ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/utils/SJISconv/sjisconv.w
+    ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/source/utils/SJISconv/sjisconv.w
   MAIN_DEPENDENCY
     ${CMAKE_CURRENT_SOURCE_DIR}/source/utils/SJISconv/sjisconv.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
   VERBATIM

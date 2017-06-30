@@ -13,8 +13,8 @@
       This package includes the ctangle &amp; cweave executables.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/ctangle.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/cweave.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}ctangle.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${MIKTEX_PREFIX}cweave.exe
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>
