@@ -1267,6 +1267,14 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
       {
         continue;
       }
+#if defined(MIKTEX_UNIX)
+      bool isMiKTeXSymlinked = File::IsSymbolicLink(linkName) && File::ReadSymbolicLink(linkName).GetFileName() == PathName(fileLink.target).GetFileName();
+      if (isMiKTeXSymlinked)
+      {
+        LOG4CXX_TRACE(logger, Q_(linkName) << "is not symlinked to a MiKTeX executable");
+        continue;
+      }
+#endif
       PrintOnly("rm %s", Q_(linkName));
       if (!printOnly)
       {
