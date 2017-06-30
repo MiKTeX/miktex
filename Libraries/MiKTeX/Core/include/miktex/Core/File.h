@@ -208,6 +208,12 @@ public:
   static MIKTEXCORECEEAPI(void) CreateLink(const PathName& oldName, const PathName& newName, CreateLinkOptionSet options);
 
 public:
+  static MIKTEXCORECEEAPI(bool) IsSymbolicLink(const PathName& path);
+
+public:
+  static MIKTEXCORECEEAPI(PathName) ReadSymbolicLink(const PathName& path);
+
+public:
   static MIKTEXCORECEEAPI(bool) Equals(const PathName& path1, const PathName& path2);
 
 public:
