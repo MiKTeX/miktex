@@ -1,2 +1,10 @@
 #!/bin/sh
-initexmf --admin --disable-installer --update-fndb --mklinks
+. /usr/share/debconf/confmodule
+db_get miktex/mklinks
+if [ "$RET" = "force" ]; then
+    initexmf --admin --disable-installer --update-fndb --force --mklinks
+elif [ "$RET" = "yes" ]; then
+    initexmf --admin --disable-installer --update-fndb --mklinks
+else
+    initexmf --admin --disable-installer --update-fndb
+fi
