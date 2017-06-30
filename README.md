@@ -174,22 +174,6 @@ would run
 This will install MiKTeX in the `/usr/local`-prefixed directory
 tree.
 
-### Relocating the installation
-
-On Unix-like platforms, you can use the `DESTDIR` mechanism in order
-to relocate the whole installation:
-
-    make DESTDIR=/home/jane install
-
-This will install everything using the installation prefix
-(`CMAKE_INSTALL_PREFIX`) prepended with the `DESTDIR` value, which
-finally gives `/home/jane/usr/local`.
-
-The `DESTDIR` mechanism is helpful if you want to understand what
-`make install` installs where.
-
-## First steps
-
 ### Symbolic links
 
 Most of the MiKTeX executables are prefixed with `miktex-`.  For
@@ -208,6 +192,22 @@ files and scripts.  For example, you can invoke `pdflatex` (pdfTeX
 with format `pdflatex` loaded) and `latexmk` (wrapper for the Perl
 script `latexmk.pl`).
 
+### Relocating the installation
+
+On Unix-like platforms, you can use the `DESTDIR` mechanism in order
+to relocate the whole installation:
+
+    make DESTDIR=/home/jane install
+
+This will install everything using the installation prefix
+(`CMAKE_INSTALL_PREFIX`) prepended with the `DESTDIR` value, which
+finally gives `/home/jane/usr/local`.
+
+The `DESTDIR` mechanism is helpful if you want to understand what
+`make install` installs where.
+
+## First steps
+
 ### Installing packages
 
 You are now at a point where you have the MiKTeX executables, some
@@ -221,9 +221,10 @@ Package `amsfonts` contains Type1 fonts for the traditional TeX fonts
 (aka "Computer Modern").  Package `ltxbase` contains the LaTeX
 document preparation system.
 
-If disk space is not an issue, you can "upgrade" your MiKTeX installation.  This is
-usually not recommended when you use MiKTeX just for yourself.  But it
-might make sense if you are maintaining a system-wide MiKTeX installation.
+If disk space is not an issue, you can "upgrade" your MiKTeX
+installation.  This is usually not recommended when you use MiKTeX
+just for yourself.  But it might make sense if you are maintaining a
+system-wide MiKTeX installation.
 
 To upgrade to a basic MiKTeX installation, run
 
@@ -236,11 +237,13 @@ various TeX engines, you must run
 
 ### Finalizing
 
-These are the final steps: update the file name database again and, if
-you used the `--admin` option, remove the `.miktex` directory, which
-was created in the previous steps:
+These are the final steps: update the file name database again:
 
     initexmf --admin --update-fndb
+
+If you used the `--admin` option to set up a shared MiKTeX
+installation, remove the user `.miktex` directory:
+
     rm -fr ~/.miktex
 
 ## Testing
