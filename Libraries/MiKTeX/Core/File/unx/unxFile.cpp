@@ -397,7 +397,7 @@ PathName File::ReadSymbolicLink(const PathName& path)
   ssize_t len = readlink(path.GetData(), result.GetData(), result.GetCapacity());
   if (len < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("lstat", "path", path.ToString());
+    MIKTEX_FATAL_CRT_ERROR_2("readlink", "path", path.ToString());
   }
   if (len == result.GetCapacity())
   {
