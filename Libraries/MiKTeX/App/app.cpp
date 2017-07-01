@@ -174,7 +174,7 @@ void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args
   pimpl->session = Session::Create(initInfo);
   pimpl->session->SetFindFileCallback(this);
   ConfigureLogging();
-  LOG4CXX_INFO(logger, "starting with command line: " << cmdLineToLog.ToString());
+  LOG4CXX_INFO(logger, "starting with command line: " << cmdLineToLog);
   pimpl->beQuiet = false;
   if (pimpl->enableInstaller == TriState::Undetermined)
   {
@@ -231,7 +231,7 @@ void Application::AutoMaintenance()
     Directory::Create(lockdir);
     unique_ptr<TemporaryFile> tmpfile = TemporaryFile::Create(lockfile);
     AutoFILE closeme (File::Open(tmpfile->GetPathName(), FileMode::Create, FileAccess::ReadWrite, false, FileShare::ReadWrite));
-    vector<string> commonArgs{ "initexmf" };
+    vector<string> commonArgs{ initexmf.GetFileNameWithoutExtension().ToString() };
     switch (pimpl->enableInstaller)
     {
     case TriState::False:
@@ -252,9 +252,16 @@ void Application::AutoMaintenance()
     {
       pimpl->session->UnloadFilenameDatabase();
       vector<string> args = commonArgs;
-      args.push_back("--mkmaps");
       args.push_back("--update-fndb");
       LOG4CXX_INFO(logger, "running 'initexmf' to refresh the file name database");
+      Process::Run(initexmf, args);
+    }
+    if (mustRefreshFndb)
+    {
+      pimpl->session->UnloadFilenameDatabase();
+      vector<string> args = commonArgs;
+      args.push_back("--mkmaps");
+      LOG4CXX_INFO(logger, "running 'initexmf' to create font map files");
       Process::Run(initexmf, args);
     }
     if (mustRefreshUserLanguageDat)
