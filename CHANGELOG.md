@@ -33,6 +33,10 @@ For example, to build MiKTeX for Debian 9:
 
 * dvipdfmx: warning: Ignore invalid attribute dictionary
 
+### Upgraded programs
+
+* autosp 2017-06-21
+
 ### Upgraded libraries
 
 * cairo 1.4.10
