@@ -2,10 +2,16 @@ Template: miktex/mklinks
 Type: select
 Choices: yes, no, force
 Default: yes
-Description: Create symbolic links targetting the MiKTeX executables?
- Most of the MiKTeX executables are prefixed with 'miktex-'.  For
- example, the file name of the pdfTeX executable is 'miktex-pdftex'.
- .
- Symbolic links targetting the 'miktex-' prefixed executables can now
- be created.  Existing files will not be overwritten unless you select
- 'force'.
+Description: Create symbolic links targetting MiKTeX executables?
+  Most of the MiKTeX executables are prefixed with 'miktex-'.  For
+  example, the file name of the pdfTeX executable is 'miktex-pdftex'.
+  .
+  Symbolic links targetting the 'miktex-' prefixed executables can now
+  be created.  Existing files will not be overwritten unless you select
+  'force'.
+
+Template: miktex/autoinstall
+Type: boolean
+Default: true
+Description: Install packages on-the-fly?
+  MiKTeX can be configured to install missing packages from the Internet.

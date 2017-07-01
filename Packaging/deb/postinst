@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 . /usr/share/debconf/confmodule
 db_get miktex/mklinks
 if [ "$RET" = "force" ]; then
@@ -8,3 +8,5 @@ elif [ "$RET" = "yes" ]; then
 else
     initexmf --admin --disable-installer --update-fndb
 fi
+db_get miktex/autoinstall
+initexmf --admin --set-config-value=[MPM]AutoInstall="$RET"
