@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -42,19 +42,19 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(mkocp ${mkocp_sources})
+add_executable(${MIKTEX_PREFIX}mkocp ${mkocp_sources})
 
-set_property(TARGET mkocp PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}mkocp PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_link_libraries(mkocp
+target_link_libraries(${MIKTEX_PREFIX}mkocp
   ${app_dll_name}
   ${core_dll_name}
 )
 
-merge_trustinfo_manifest(mkocp asInvoker)
-merge_compatibility_manifest(mkocp)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}mkocp asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}mkocp)
 
-install(TARGETS mkocp DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}mkocp DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(outocp_sources
   source/outocp.c
@@ -68,11 +68,11 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(outocp ${outocp_sources})
+add_executable(${MIKTEX_PREFIX}outocp ${outocp_sources})
 
-set_property(TARGET outocp PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}outocp PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_link_libraries(outocp
+target_link_libraries(${MIKTEX_PREFIX}outocp
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
@@ -80,15 +80,15 @@ target_link_libraries(outocp
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(outocp
+  target_link_libraries(${MIKTEX_PREFIX}outocp
     ${getopt_dll_name}
   )
 endif()
 
-merge_trustinfo_manifest(outocp asInvoker)
-merge_compatibility_manifest(outocp)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}outocp asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}outocp)
 
-install(TARGETS outocp DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}outocp DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(otp2ocp_sources
   ${CMAKE_CURRENT_BINARY_DIR}/y_tab.c
@@ -134,11 +134,11 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(otp2ocp ${otp2ocp_sources})
+add_executable(${MIKTEX_PREFIX}otp2ocp ${otp2ocp_sources})
 
-set_property(TARGET otp2ocp PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}otp2ocp PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_link_libraries(otp2ocp
+target_link_libraries(${MIKTEX_PREFIX}otp2ocp
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
@@ -146,13 +146,13 @@ target_link_libraries(otp2ocp
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(otp2ocp
+  target_link_libraries(${MIKTEX_PREFIX}otp2ocp
     ${getopt_dll_name}
     ${unxemu_dll_name}
   )
 endif()
 
-merge_trustinfo_manifest(otp2ocp asInvoker)
-merge_compatibility_manifest(otp2ocp)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}otp2ocp asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}otp2ocp)
 
-install(TARGETS otp2ocp DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}otp2ocp DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

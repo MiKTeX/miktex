@@ -278,16 +278,16 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(dvipdft ${dvipdft_sources})
+add_executable(${MIKTEX_PREFIX}dvipdft ${dvipdft_sources})
 
-set_property(TARGET dvipdft PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}dvipdft PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(dvipdft asInvoker)
-merge_compatibility_manifest(dvipdft)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}dvipdft asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}dvipdft)
 
-target_link_libraries(dvipdft
+target_link_libraries(${MIKTEX_PREFIX}dvipdft
   ${app_dll_name}
   ${core_dll_name}
 )
 
-install(TARGETS dvipdft DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS ${MIKTEX_PREFIX}dvipdft DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
