@@ -248,6 +248,14 @@ BEGIN_TEST_FUNCTION(12);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(13);
+{
+  PathName prefix;
+  TEST(Utils::GetPathNamePrefix("/abc/def/ghi/jkl", "ghi/jkl", prefix));
+  TEST(prefix == "/abc/def");
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
@@ -262,6 +270,7 @@ BEGIN_TEST_PROGRAM();
   CALL_TEST_FUNCTION(10);
   CALL_TEST_FUNCTION(11);
   CALL_TEST_FUNCTION(12);
+  CALL_TEST_FUNCTION(13);
 }
 END_TEST_PROGRAM();
 
