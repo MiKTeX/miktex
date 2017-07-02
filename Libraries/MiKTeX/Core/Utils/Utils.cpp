@@ -35,7 +35,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-MIKTEXINTERNALFUNC(void) CopyString2(char * lpszBuf, size_t bufSize, const char * lpszSource, size_t count)
+MIKTEXINTERNALFUNC(void) CopyString2(char* lpszBuf, size_t bufSize, const char* lpszSource, size_t count)
 {
   MIKTEX_ASSERT_CHAR_BUFFER(lpszBuf, bufSize);
   MIKTEX_ASSERT_STRING(lpszSource);
@@ -47,7 +47,7 @@ MIKTEXINTERNALFUNC(void) CopyString2(char * lpszBuf, size_t bufSize, const char 
     return;
   }
 
-  char * lpsz = lpszBuf;
+  char* lpsz = lpszBuf;
 
   while (bufSize > 0 && count > 0 && (*lpsz++ = *lpszSource++) != 0)
   {
@@ -70,14 +70,14 @@ MIKTEXINTERNALFUNC(void) CopyString2(char * lpszBuf, size_t bufSize, const char 
   }
 }
 
-string Utils::Hexify(const void * pv, size_t nBytes, bool lowerCase)
+string Utils::Hexify(const void* pv, size_t nBytes, bool lowerCase)
 {
   string ret;
 #define TOHEX(x) ((x) < 10 ? '0' + (x) : (x) - 10 + 'A')
 #define tohex(x) ((x) < 10 ? '0' + (x) : (x) - 10 + 'a')
   for (size_t i = 0; i < nBytes; ++i)
   {
-    unsigned char XX = reinterpret_cast<const unsigned char *>(pv)[i];
+    unsigned char XX = reinterpret_cast<const unsigned char*>(pv)[i];
     ret += (lowerCase ? tohex(XX >> 4) : TOHEX(XX >> 4));
     ret += (lowerCase ? tohex(XX & 15) : TOHEX(XX & 15));
   }
@@ -86,15 +86,15 @@ string Utils::Hexify(const void * pv, size_t nBytes, bool lowerCase)
   return ret;
 }
 
-string Utils::Hexify(const void * pv, size_t nBytes)
+string Utils::Hexify(const void* pv, size_t nBytes)
 {
   return Hexify(pv, nBytes, true);
 }
 
-bool Utils::IsUTF8(const char * lpsz, bool allowPureAscii)
+bool Utils::IsUTF8(const char* lpsz, bool allowPureAscii)
 {
   MIKTEX_ASSERT_STRING(lpsz);
-  const unsigned char * lpsz2 = reinterpret_cast<const unsigned char *>(lpsz);
+  const unsigned char* lpsz2 = reinterpret_cast<const unsigned char*>(lpsz);
   for (; lpsz2[0] != 0; ++lpsz2)
   {
     if (((lpsz2[0] & 0xe0) == 0xc0) && ((lpsz2[1] & 0xc0) == 0x80))
@@ -118,9 +118,9 @@ bool Utils::IsUTF8(const char * lpsz, bool allowPureAscii)
   return allowPureAscii;
 }
 
-MIKTEXINTERNALFUNC(const char *) GetShortSourceFile(const char * lpszSourceFile)
+MIKTEXINTERNALFUNC(const char*) GetShortSourceFile(const char* lpszSourceFile)
 {
-  const char * lpszShortSourceFile = 0;
+  const char* lpszShortSourceFile = 0;
   if (Utils::IsAbsolutePath(lpszSourceFile))
   {
     lpszShortSourceFile = Utils::GetRelativizedPath(lpszSourceFile, MIKTEX_SOURCE_DIR);
@@ -136,7 +136,7 @@ MIKTEXINTERNALFUNC(const char *) GetShortSourceFile(const char * lpszSourceFile)
   return lpszShortSourceFile;
 }
 
-inline int StrNCmpI(const char * lpsz1, const char * lpsz2, size_t n)
+inline int StrNCmpI(const char* lpsz1, const char* lpsz2, size_t n)
 {
 #if defined(_MSC_VER)
   return _strnicmp(lpsz1, lpsz2, n);
@@ -160,7 +160,7 @@ inline int StrNCmpI(const char * lpsz1, const char * lpsz2, size_t n)
    C:\ef.gh                     C:\                     ef.gh
    _________________________________________________________________________ */
 
-const char * Utils::GetRelativizedPath(const char * lpszPath, const char * lpszRoot)
+const char* Utils::GetRelativizedPath(const char* lpszPath, const char* lpszRoot)
 {
   MIKTEX_ASSERT_STRING(lpszPath);
   MIKTEX_ASSERT_STRING(lpszRoot);
@@ -213,7 +213,7 @@ const char * Utils::GetRelativizedPath(const char * lpszPath, const char * lpszR
   return lpszPath + rootLen + 1;
 }
 
-bool Utils::IsAbsolutePath(const PathName & path)
+bool Utils::IsAbsolutePath(const PathName& path)
 {
   // "\xyz\foo.txt", "\\server\xyz\foo.txt"
   if (IsDirectoryDelimiter(path[0]))
@@ -234,14 +234,14 @@ bool Utils::IsAbsolutePath(const PathName & path)
   }
 }
 
-static const char * const forbiddenFileNames[] = {
+static const char* const forbiddenFileNames[] = {
 #if defined(MIKTEX_WINDOWS)
   "desktop.ini", "folder.htt",
 #endif
   nullptr,
 };
 
-bool Utils::IsSafeFileName(const PathName & path, bool forInput)
+bool Utils::IsSafeFileName(const PathName& path, bool forInput)
 {
   if (forInput)
   {
@@ -285,7 +285,7 @@ bool Utils::IsSafeFileName(const PathName & path, bool forInput)
   return true;
 }
 
-void Utils::MakeTeXPathName(PathName & path)
+void Utils::MakeTeXPathName(PathName& path)
 {
 #if defined(MIKTEX_WINDOWS)
   path.Convert({ ConvertPathNameOption::RemoveBlanks, ConvertPathNameOption::ToUnix });
@@ -298,7 +298,7 @@ void Utils::MakeTeXPathName(PathName & path)
 #endif
 }
 
-bool Utils::IsParentDirectoryOf(const PathName & parentDir, const PathName & fileName)
+bool Utils::IsParentDirectoryOf(const PathName& parentDir, const PathName& fileName)
 {
   size_t len1 = parentDir.GetLength();
   if (PathName::Compare(parentDir, fileName, len1) != 0)
@@ -319,7 +319,7 @@ bool Utils::IsParentDirectoryOf(const PathName & parentDir, const PathName & fil
   return IsDirectoryDelimiter(fileName[len1]);
 }
 
-bool Utils::GetUncRootFromPath(const PathName & path, PathName & uncRoot)
+bool Utils::GetUncRootFromPath(const PathName& path, PathName& uncRoot)
 {
   // must start with "\\"
   if (!(IsDirectoryDelimiter(path[0]) && IsDirectoryDelimiter(path[1])))
@@ -329,7 +329,7 @@ bool Utils::GetUncRootFromPath(const PathName & path, PathName & uncRoot)
 
   uncRoot = path;
 
-  char * lpsz = uncRoot.GetData() + 2;
+  char* lpsz = uncRoot.GetData() + 2;
 
   if (lpsz[0] == 0 || lpsz[1] == 0)
   {
@@ -374,7 +374,7 @@ bool Utils::GetUncRootFromPath(const PathName & path, PathName & uncRoot)
   return true;
 }
 
-bool Utils::GetPathNamePrefix(const PathName & path, const PathName & suffix, PathName & prefix)
+bool Utils::GetPathNamePrefix(const PathName& path, const PathName& suffix, PathName& prefix)
 {
   MIKTEX_ASSERT(!Utils::IsAbsolutePath(suffix));
 
@@ -396,7 +396,7 @@ bool Utils::GetPathNamePrefix(const PathName & path, const PathName & suffix, Pa
   return true;
 }
 
-MIKTEXINTERNALFUNC(void) AppendDirectoryDelimiter(string & path)
+MIKTEXINTERNALFUNC(void) AppendDirectoryDelimiter(string& path)
 {
   size_t l = path.length();
   if (l > 0 && !IsDirectoryDelimiter(path[l - 1]))
@@ -405,7 +405,7 @@ MIKTEXINTERNALFUNC(void) AppendDirectoryDelimiter(string & path)
   }
 }
 
-MIKTEXINTERNALFUNC(void) AppendDirectoryDelimiter(char * lpszPath, size_t size)
+MIKTEXINTERNALFUNC(void) AppendDirectoryDelimiter(char* lpszPath, size_t size)
 {
   MIKTEX_ASSERT(size > 0);
   MIKTEX_ASSERT_STRING(lpszPath);
@@ -423,7 +423,7 @@ MIKTEXINTERNALFUNC(void) AppendDirectoryDelimiter(char * lpszPath, size_t size)
   }
 }
 
-MIKTEXINTERNALFUNC(void) RemoveDirectoryDelimiter(char * lpszPath)
+MIKTEXINTERNALFUNC(void) RemoveDirectoryDelimiter(char* lpszPath)
 {
   size_t l = strlen(lpszPath);
   if (l > 1 && IsDirectoryDelimiter(lpszPath[l - 1]))
@@ -438,10 +438,10 @@ MIKTEXINTERNALFUNC(void) RemoveDirectoryDelimiter(char * lpszPath)
   }
 }
 
-MIKTEXINTERNALFUNC(const char *) GetFileNameExtension(const char * lpszPath)
+MIKTEXINTERNALFUNC(const char*) GetFileNameExtension(const char* lpszPath)
 {
-  const char * lpszExtension = nullptr;
-  for (const char * lpsz = lpszPath; *lpsz != 0; ++lpsz)
+  const char* lpszExtension = nullptr;
+  for (const char* lpsz = lpszPath; *lpsz != 0; ++lpsz)
   {
     if (IsDirectoryDelimiter(*lpsz))
     {
@@ -455,7 +455,7 @@ MIKTEXINTERNALFUNC(const char *) GetFileNameExtension(const char * lpszPath)
   return lpszExtension;
 }
 
-MIKTEXINTERNALFUNC(bool) IsExplicitlyRelativePath(const char * lpszPath)
+MIKTEXINTERNALFUNC(bool) IsExplicitlyRelativePath(const char* lpszPath)
 {
   if (lpszPath[0] == '.')
   {
@@ -467,7 +467,7 @@ MIKTEXINTERNALFUNC(bool) IsExplicitlyRelativePath(const char * lpszPath)
   }
 }
 
-MIKTEXINTERNALFUNC(PathName) GetFullPath(const char * lpszPath)
+MIKTEXINTERNALFUNC(PathName) GetFullPath(const char* lpszPath)
 {
   PathName path;
 
@@ -499,7 +499,7 @@ MIKTEXINTERNALFUNC(PathName) GetFullPath(const char * lpszPath)
   return path;
 }
 
-void Utils::PrintException(const exception & e)
+void Utils::PrintException(const exception& e)
 {
   if (cerr.fail())
   {
@@ -514,7 +514,7 @@ void Utils::PrintException(const exception & e)
   }
 }
 
-void Utils::PrintException(const MiKTeXException & e)
+void Utils::PrintException(const MiKTeXException& e)
 {
   if (cerr.fail())
   {
@@ -531,7 +531,7 @@ void Utils::PrintException(const MiKTeXException & e)
       name = path.GetFileName().ToString();
     }
     int last = '\n';
-    for (const char * lpsz = e.what(); *lpsz != 0; ++lpsz)
+    for (const char* lpsz = e.what(); *lpsz != 0; ++lpsz)
     {
       if (haveName && last == '\n')
       {
@@ -546,7 +546,7 @@ void Utils::PrintException(const MiKTeXException & e)
       last = '\n';
     }
     string info = e.GetInfo();
-    for (const char * lpsz = info.c_str(); *lpsz != 0; ++lpsz)
+    for (const char* lpsz = info.c_str(); *lpsz != 0; ++lpsz)
     {
       if (haveName && last == '\n')
       {
@@ -599,7 +599,7 @@ string Utils::GetMiKTeXBannerString()
   return MIKTEX_BANNER_STR;
 }
 
-string Utils::MakeProgramVersionString(const string & programName, const VersionNumber & programVersionNumber)
+string Utils::MakeProgramVersionString(const string& programName, const VersionNumber& programVersionNumber)
 {
   string str = programName;
   if (string(MIKTEX_BANNER_STR).find(programVersionNumber.ToString()) == string::npos)
@@ -611,7 +611,7 @@ string Utils::MakeProgramVersionString(const string & programName, const Version
   return str;
 }
 
-bool Utils::GetEnvironmentString(const string & name, string & str)
+bool Utils::GetEnvironmentString(const string& name, string& str)
 {
   bool haveValue = ::GetEnvironmentString(name, str);
   if (SessionImpl::TryGetSession() != 0
@@ -623,7 +623,7 @@ bool Utils::GetEnvironmentString(const string & name, string & str)
   return haveValue;
 }
 
-bool Utils::GetEnvironmentString(const string & name, PathName & path)
+bool Utils::GetEnvironmentString(const string& name, PathName& path)
 {
   string s;
   bool result = GetEnvironmentString(name, s);
@@ -634,7 +634,7 @@ bool Utils::GetEnvironmentString(const string & name, PathName & path)
   return result;
 }
 
-bool Utils::ParseDvipsMapLine(const string & line, FontMapEntry & mapEntry)
+bool Utils::ParseDvipsMapLine(const string& line, FontMapEntry& mapEntry)
 {
   mapEntry.texName = "";
   mapEntry.psName = "";
@@ -773,7 +773,7 @@ bool Utils::ParseDvipsMapLine(const string & line, FontMapEntry & mapEntry)
   return true;
 }
 
-inline int GetC(FILE * stream)
+inline int GetC(FILE* stream)
 {
   int ch = getc(stream);
   if (ferror(stream) != 0)
@@ -783,7 +783,7 @@ inline int GetC(FILE * stream)
   return ch;
 }
 
-inline void UnGetC(int ch, FILE * stream)
+inline void UnGetC(int ch, FILE* stream)
 {
   int ch2 = ungetc(ch, stream);
   if (ch2 == EOF)
@@ -792,7 +792,7 @@ inline void UnGetC(int ch, FILE * stream)
   }
 }
 
-bool Utils::ReadUntilDelim(string & str, int delim, FILE * stream)
+bool Utils::ReadUntilDelim(string& str, int delim, FILE* stream)
 {
   if (delim == '\n')
   {
@@ -819,7 +819,7 @@ bool Utils::ReadUntilDelim(string & str, int delim, FILE * stream)
   }
 }
 
-bool Utils::ReadLine(string & str, FILE * stream, bool keepLineEnding)
+bool Utils::ReadLine(string& str, FILE* stream, bool keepLineEnding)
 {
   str = "";
   if (feof(stream) != 0)
@@ -866,10 +866,10 @@ bool Utils::ReadLine(string & str, FILE * stream, bool keepLineEnding)
 }
 
 #if defined(MIKTEX_WINDOWS)
-static const char * const pathext[] = { ".com", ".exe", ".cmd", ".bat" };
+static const char* const pathext[] = { ".com", ".exe", ".cmd", ".bat" };
 #endif
 
-bool Utils::FindProgram(const std::string & programName, PathName & path)
+bool Utils::FindProgram(const std::string& programName, PathName& path)
 {
   string envPath;
   if (!Utils::GetEnvironmentString("PATH", envPath))
@@ -883,7 +883,7 @@ bool Utils::FindProgram(const std::string & programName, PathName & path)
 #if defined(MIKTEX_WINDOWS)
     if (!cand.HasExtension())
     {
-      for (const char * ext : pathext)
+      for (const char* ext : pathext)
       {
         cand.SetExtension(ext);
         if (File::Exists(cand))
