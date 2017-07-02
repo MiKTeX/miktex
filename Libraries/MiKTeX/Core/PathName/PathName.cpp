@@ -59,8 +59,8 @@ int PathName::Compare(const char* lpszPath1, const char* lpszPath2)
   {
     MIKTEX_ASSERT(!(*lpszPath1 == 0 && *lpszPath2 == 0));
     if (
-	(*lpszPath1 == 0 && IsDirectoryDelimiter(*lpszPath2) && *(lpszPath2 + 1) == 0)
-	|| (*lpszPath2 == 0 && IsDirectoryDelimiter(*lpszPath1) && *(lpszPath1 + 1) == 0))
+        (*lpszPath1 == 0 && IsDirectoryDelimiter(*lpszPath2) && *(lpszPath2 + 1) == 0)
+        || (*lpszPath2 == 0 && IsDirectoryDelimiter(*lpszPath1) && *(lpszPath1 + 1) == 0))
     {
       return 0;
     }
@@ -185,7 +185,7 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
     {
       for (char* lpsz = GetData(); *lpsz != 0; ++lpsz)
       {
-	*lpsz = toUpper ? ToUpper(*lpsz) : ToLower(*lpsz);
+        *lpsz = toUpper ? ToUpper(*lpsz) : ToLower(*lpsz);
       }
     }
     else
@@ -193,7 +193,7 @@ PathName& PathName::Convert(ConvertPathNameOptions options)
       CharBuffer<wchar_t> wideCharBuffer(GetData());
       for (wchar_t* lpsz = wideCharBuffer.GetData(); *lpsz != 0; ++lpsz)
       {
-	*lpsz = toUpper ? ToUpper(*lpsz) : ToLower(*lpsz);
+        *lpsz = toUpper ? ToUpper(*lpsz) : ToLower(*lpsz);
       }
       *this = wideCharBuffer.GetData();
     }
@@ -338,18 +338,18 @@ PathName& PathName::CutOffLastComponent(bool allowSelfCutting)
 #if defined(MIKTEX_WINDOWS)
       if (end > 1 && Base::operator[](end - 2) == PathName::VolumeDelimiter)
       {
-	Base::operator[](end) = 0;
+        Base::operator[](end) = 0;
       }
       else
 #endif
-	if (end == 1)
-	{
-	  Base::operator[](1) = 0;
-	}
-	else
-	{
-	  Base::operator[](end - 1) = 0;
-	}
+        if (end == 1)
+        {
+          Base::operator[](1) = 0;
+        }
+        else
+        {
+          Base::operator[](end - 1) = 0;
+        }
       noCut = false;
     }
   }
