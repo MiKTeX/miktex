@@ -1673,7 +1673,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
         Warning(T_("The %s executable could not be found."), formatInfo.compiler.c_str());
         continue;
       }
-      PathName exePath(pathBinDir, formatInfo.name);
+      PathName exePath(pathLocalBinDir, formatInfo.name);
       if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
       {
         exePath.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
@@ -1708,7 +1708,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
       }
       for (const shared_ptr<Cfg::Value>& v : key->GetValues())
       {
-        PathName pathExe(pathBinDir, v->GetName());
+        PathName pathExe(pathLocalBinDir, v->GetName());
         if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
         {
           pathExe.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
@@ -1730,7 +1730,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
     {
       for (const PathName& starter : copystarters)
       {
-        PathName pathExe(pathBinDir);
+        PathName pathExe(pathLocalBinDir);
         pathExe /= starter.GetFileName();
         result.push_back(FileLink(copystart.ToString(), { pathExe.ToString() }));
       }
@@ -1744,7 +1744,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
     {
       for (const PathName& starter : copystarters_admin)
       {
-        PathName pathExe(pathBinDir);
+        PathName pathExe(pathLocalBinDir);
         pathExe /= starter.GetFileName();
         result.push_back(FileLink(copystart_admin.ToString(), { pathExe.ToString() }));
       }
