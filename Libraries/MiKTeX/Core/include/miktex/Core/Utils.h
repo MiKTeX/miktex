@@ -213,7 +213,7 @@ public:
   static MIKTEXCORECEEAPI(void) CanonicalizePathName(PathName& path);
 
 public:
-  static MIKTEXCORECEEAPI(bool) GetPathNamePrefix(const PathName& path_, const PathName& suffix_, PathName& prefix);
+  static MIKTEXCORECEEAPI(bool) GetPathNamePrefix(const PathName& path, const PathName& suffix, PathName& prefix);
 
 public:
   static bool IsPureAscii(const char* lpsz)
