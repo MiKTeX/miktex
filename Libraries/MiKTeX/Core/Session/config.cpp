@@ -81,16 +81,21 @@ MIKTEXSTATICFUNC(const ConfigMapping*) FindConfigMapping(const char* lpszConfigS
 PathName SessionImpl::GetMyPrefix(bool canonicalized)
 {
   PathName bindir = GetMyLocation(canonicalized);
-
   RemoveDirectoryDelimiter(bindir.GetData());
-
-  PathName prefix(bindir);
-
-  // /usr/local/bin => /usr/local
-  // /usr/bin => /usr
-  prefix.CutOffLastComponent();
-
-  return prefix;
+  for (const string& subdir : {
+    MIKTEX_BINARY_DESTINATION_DIR,
+    MIKTEX_INTERNAL_BINARY_DESTINATION_DIR,
+    MIKTEX_PATH_BIN_DIR,
+    MIKTEX_PATH_INTERNAL_BIN_DIR,
+  })
+  {
+    PathName prefix;
+    if (Utils::GetPathNamePrefix(bindir, subdir, prefix))
+    {
+      return prefix;
+    }
+  }
+  MIKTEX_FATAL_ERROR("Cannot derive the path prefix of the running executable.");
 }
 
 bool SessionImpl::FindStartupConfigFile(bool common, PathName& path)
@@ -159,7 +164,7 @@ bool SessionImpl::FindStartupConfigFile(bool common, PathName& path)
     }
 #if defined(MIKTEX_UNIX)
     // try /usr/share/miktex-texmf/miktex/config/miktexstartup.ini
-    prefix = GetMyPrefix(false);
+    prefix = GetMyPrefix(true);
     path = prefix;
     path /= MIKTEX_TEXMF_DIR;
     path /= MIKTEX_PATH_STARTUP_CONFIG_FILE;

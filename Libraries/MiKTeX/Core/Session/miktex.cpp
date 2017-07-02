@@ -121,15 +121,22 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
   switch (specialPath)
   {
   case SpecialPath::BinDirectory:
-    path = GetBinDirectory(false);
+    path = GetBinDirectory(true);
     break;
   case SpecialPath::InternalBinDirectory:
 #if defined(MIKTEX_WINDOWS)
-    path = GetBinDirectory(false);
-    path /= "internal";
+    // FIXME: hard-coded sub-directory
+    path = GetSpecialPath(SpecialPath::BinDirectory) / "internal";
 #else
-    path = GetMyPrefix(false);
-    path /= MIKTEX_INTERNAL_BINARY_DESTINATION_DIR;
+    path = GetMyPrefix(true) / MIKTEX_INTERNAL_BINARY_DESTINATION_DIR;
+#endif
+    break;
+  case SpecialPath::LocalBinDirectory:
+#if defined(MIKTEX_WINDOWS)
+    path = GetSpecialPath(SpecialPath::BinDirectory);
+#else
+    // FIXME: hard-coded path
+    path = "/usr/local/bin";
 #endif
     break;
   case SpecialPath::CommonInstallRoot:

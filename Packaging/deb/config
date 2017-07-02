@@ -1,6 +1,6 @@
 #!/bin/sh -e
 . /usr/share/debconf/confmodule
-db_input high miktex/mklinks || true
+db_input medium miktex/mklinks || true
 db_go
-db_input high miktex/autoinstall || true
+db_input medium miktex/autoinstall || true
 db_go

@@ -420,7 +420,7 @@ unsigned SessionImpl::GetDistRoot()
   }
   return INVALID_ROOT_INDEX;
 #else
-  return TryDeriveTEXMFRoot(GetMyPrefix(false) / MIKTEX_TEXMF_DIR);
+  return TryDeriveTEXMFRoot(GetMyPrefix(true) / MIKTEX_TEXMF_DIR);
 #endif
 }
 

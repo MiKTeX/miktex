@@ -1629,23 +1629,21 @@ vector<FileLink> miktexFileLinks =
 vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
 {
   vector<FileLink> result;
+  PathName pathLocalBinDir = session->GetSpecialPath(SpecialPath::LocalBinDirectory);
   PathName pathBinDir = session->GetSpecialPath(SpecialPath::BinDirectory);
-  PathName internalBinDir = session->GetSpecialPath(SpecialPath::InternalBinDirectory);
 
   if (linkCategories[LinkCategory::MiKTeX])
   {
     for (const FileLink& fileLink : miktexFileLinks)
     {
-      PathName targetPath = pathBinDir;
-      targetPath /= fileLink.target;
+      PathName targetPath = pathBinDir / fileLink.target;
       string extension = targetPath.GetExtension();
       if (File::Exists(targetPath))
       {
         vector<string> linkNames;
         for (const string& linkName : fileLink.linkNames)
         {
-          PathName linkPath = pathBinDir;
-          linkPath /= linkName;
+          PathName linkPath = pathLocalBinDir / linkName;
           if (!extension.empty())
           {
             linkPath.AppendExtension(extension);

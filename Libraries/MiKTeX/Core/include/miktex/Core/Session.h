@@ -130,6 +130,10 @@ enum class SpecialPath
   PortableMount,
 
   DistRoot,
+
+  /// The local bin directory.
+  /// This directory contains the symbolic links.
+  LocalBinDirectory
 };
 
 /// Paper size info.
