@@ -492,37 +492,37 @@ option(
 option(
   WITH_KPSEWHICH
   ""
-  TRUE
+  ${WIN32}
 )
 
 option(
   WITH_MKTEXLSR
   ""
-  TRUE
+  ${WIN32}
 )
 
 option(
   WITH_TEXHASH
   ""
-  TRUE
+  ${WIN32}
 )
 
 option(
   WITH_TEXLINKS
   ""
-  TRUE
+  ${WIN32}
 )
 
 option(
   WITH_TEXDOC
   ""
-  TRUE
+  ${WIN32}
 )
 
 option(
   WITH_UPDMAP
   ""
-  TRUE
+  ${WIN32}
 )
 
 ###############################################################################
