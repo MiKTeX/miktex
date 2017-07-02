@@ -253,6 +253,7 @@ BEGIN_TEST_FUNCTION(13);
   PathName prefix;
   TEST(Utils::GetPathNamePrefix("/abc/def/ghi/jkl", "ghi/jkl", prefix));
   TEST(prefix == "/abc/def");
+  TEST(!Utils::GetPathNamePrefix("/abc/def/ghi/jkl", "ghi/jkl/foo.bar", prefix));
 }
 END_TEST_FUNCTION();
 
