@@ -45,7 +45,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace std;
 
-MIKTEXSTATICFUNC(bool) IsGoodTempDirectory(const char * lpszPath)
+MIKTEXSTATICFUNC(bool) IsGoodTempDirectory(const char* lpszPath)
 {
   return Utils::IsAbsolutePath(lpszPath) && Directory::Exists(lpszPath);
 }
@@ -77,7 +77,7 @@ PathName SessionImpl::GetTempDirectory()
 
 void SessionImpl::RegisterLibraryTraceStreams()
 {
-  TraceCallback * callback = initInfo.GetTraceCallback();
+  TraceCallback* callback = initInfo.GetTraceCallback();
   trace_access = TraceStream::Open(MIKTEX_TRACE_ACCESS, callback);
   trace_config = TraceStream::Open(MIKTEX_TRACE_CONFIG, callback);
   trace_core = TraceStream::Open(MIKTEX_TRACE_CORE, callback);
@@ -395,7 +395,7 @@ bool SessionImpl::GetMakeFontsFlag()
 }
 
 #if HAVE_MIKTEX_USER_INFO
-bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo & info)
+bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo& info)
 {
   static TriState haveResult = TriState::Undetermined;
   static MiKTeXUserInfo result;
@@ -503,7 +503,7 @@ bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo & info)
 #endif
 
 #if HAVE_MIKTEX_USER_INFO
-MiKTeXUserInfo SessionImpl::RegisterMiKTeXUser(const MiKTeXUserInfo & info)
+MiKTeXUserInfo SessionImpl::RegisterMiKTeXUser(const MiKTeXUserInfo& info)
 {
   Utils::ShowWebPage(MIKTEX_URL_WWW_GIVE_BACK);
   // TODO
@@ -511,10 +511,10 @@ MiKTeXUserInfo SessionImpl::RegisterMiKTeXUser(const MiKTeXUserInfo & info)
 }
 #endif
 
-MIKTEXINTERNALFUNC(bool) GetEnvironmentString(const string & name, string & value)
+MIKTEXINTERNALFUNC(bool) GetEnvironmentString(const string& name, string& value)
 {
 #if defined(MIKTEX_WINDOWS)
-  wchar_t * lpszValue = _wgetenv(UW_(name));
+  wchar_t* lpszValue = _wgetenv(UW_(name));
   if (lpszValue == nullptr)
   {
     return false;
@@ -525,7 +525,7 @@ MIKTEXINTERNALFUNC(bool) GetEnvironmentString(const string & name, string & valu
     return true;
   }
 #else
-  const char * lpszValue = getenv(name.c_str());
+  const char* lpszValue = getenv(name.c_str());
   if (lpszValue == nullptr)
   {
     return false;
@@ -538,7 +538,7 @@ MIKTEXINTERNALFUNC(bool) GetEnvironmentString(const string & name, string & valu
 #endif
 }
 
-MIKTEXINTERNALFUNC(bool) HaveEnvironmentString(const char * lpszName)
+MIKTEXINTERNALFUNC(bool) HaveEnvironmentString(const char* lpszName)
 {
   string value;
   return GetEnvironmentString(lpszName, value);
@@ -569,7 +569,7 @@ MIKTEXINTERNALFUNC(CryptoLib) GetCryptoLib()
 }
 
 #if defined(ENABLE_BOTAN)
-MIKTEXINTERNALFUNC(Botan::Public_Key*) LoadPublicKey_Botan(const PathName & publicKeyFile)
+MIKTEXINTERNALFUNC(Botan::Public_Key*) LoadPublicKey_Botan(const PathName& publicKeyFile)
 {
   if (publicKeyFile.Empty())
   {
@@ -583,7 +583,7 @@ MIKTEXINTERNALFUNC(Botan::Public_Key*) LoadPublicKey_Botan(const PathName & publ
 #endif
 
 #if defined(ENABLE_OPENSSL)
-extern "C" int OnOpenSSLError(const char * str, size_t len, void * u)
+extern "C" int OnOpenSSLError(const char* str, size_t len, void* u)
 {
   // TODO: log
   return 1;
@@ -597,14 +597,14 @@ MIKTEXINTERNALFUNC(void) FatalOpenSSLError()
 #endif
 
 #if defined(ENABLE_OPENSSL)
-MIKTEXINTERNALFUNC(RSA_ptr) LoadPublicKey_OpenSSL(const PathName & publicKeyFile)
+MIKTEXINTERNALFUNC(RSA_ptr) LoadPublicKey_OpenSSL(const PathName& publicKeyFile)
 {
   BIO_ptr mem(BIO_new(BIO_s_mem()), BIO_free);
   if (mem == nullptr)
   {
     FatalOpenSSLError();
   }
-  RSA * rsa;
+  RSA* rsa;
   if (publicKeyFile.Empty())
   {
     if (BIO_write(mem.get(), &PUBLIC_KEY_NAME[0], sizeof(PUBLIC_KEY_NAME)) != sizeof(PUBLIC_KEY_NAME))
@@ -634,7 +634,7 @@ void SessionImpl::SetCWDEnv()
 {
   string str;
   str.reserve(256);
-  for (const PathName & dir : inputDirectories)
+  for (const PathName& dir : inputDirectories)
   {
     if (!str.empty())
     {
@@ -645,7 +645,7 @@ void SessionImpl::SetCWDEnv()
   Utils::SetEnvironmentString(MIKTEX_ENV_CWD_LIST, str);
 }
 
-void SessionImpl::AddInputDirectory(const PathName & path, bool atEnd)
+void SessionImpl::AddInputDirectory(const PathName& path, bool atEnd)
 {
   if (!Utils::IsAbsolutePath(path))
   {
@@ -669,7 +669,7 @@ void SessionImpl::AddInputDirectory(const PathName & path, bool atEnd)
 #endif
 }
 
-bool SessionImpl::GetWorkingDirectory(unsigned n, PathName & path)
+bool SessionImpl::GetWorkingDirectory(unsigned n, PathName& path)
 {
   if (n == inputDirectories.size() + 1)
   {

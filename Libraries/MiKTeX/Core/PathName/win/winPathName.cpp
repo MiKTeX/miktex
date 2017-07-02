@@ -1,6 +1,6 @@
 /* winPathName.cpp: path name utilities
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -29,7 +29,7 @@
 
 using namespace MiKTeX::Core;
 
-PathName & PathName::SetToCurrentDirectory()
+PathName& PathName::SetToCurrentDirectory()
 {
   wchar_t buf[_MAX_PATH];
   if (_wgetcwd(buf, _MAX_PATH) == 0)
@@ -40,7 +40,7 @@ PathName & PathName::SetToCurrentDirectory()
   return *this;
 }
 
-PathName & PathName::SetToTempDirectory()
+PathName& PathName::SetToTempDirectory()
 {
   wchar_t szTemp[BufferSizes::MaxPath];
   unsigned long n =GetTempPathW(static_cast<DWORD>(BufferSizes::MaxPath), szTemp);
@@ -56,7 +56,7 @@ PathName & PathName::SetToTempDirectory()
   return *this;
 }
 
-PathName & PathName::SetToTempFile(const PathName & directory)
+PathName& PathName::SetToTempFile(const PathName& directory)
 {
   wchar_t szTemp[MAX_PATH];
   UINT n = GetTempFileNameW(directory.ToWideCharString().c_str(), L"mik", 0, szTemp);
@@ -69,7 +69,7 @@ PathName & PathName::SetToTempFile(const PathName & directory)
   return *this;
 }
 
-PathName & PathName::SetToTempFile()
+PathName& PathName::SetToTempFile()
 {
   return SetToTempFile(SessionImpl::GetSession()->GetTempDirectory());
 }
@@ -84,7 +84,7 @@ PathName PathName::GetMountPoint() const
   return szDir;
 }
 
-PathName & PathName::AppendAltDirectoryDelimiter()
+PathName& PathName::AppendAltDirectoryDelimiter()
 {
   size_t l = GetLength();
   if (l == 0 || !IsDirectoryDelimiter(CharBuffer::operator[](l - 1)))
@@ -93,4 +93,3 @@ PathName & PathName::AppendAltDirectoryDelimiter()
   }
   return *this;
 }
-

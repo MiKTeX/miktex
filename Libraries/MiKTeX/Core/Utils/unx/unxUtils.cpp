@@ -1,6 +1,6 @@
 /* unxUtil.cpp: 
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -90,7 +90,7 @@ void Utils::ShowWebPage(const string& url)
   UNIMPLEMENTED();
 }
 
-bool Utils::SupportsHardLinks(const PathName & path)
+bool Utils::SupportsHardLinks(const PathName& path)
 {
   return true;
 }
