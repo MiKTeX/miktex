@@ -1,6 +1,6 @@
 /* miktex/Core/Utils.h:                                 -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -61,7 +61,7 @@ struct FontMapEntry
   std::string headerList;
 };
 
-inline bool operator< (const FontMapEntry & lhs, const FontMapEntry & rhs)
+inline bool operator< (const FontMapEntry& lhs, const FontMapEntry& rhs)
 {
   return lhs.texName < rhs.texName;
 }
@@ -74,16 +74,16 @@ public:
   Utils() = delete;
 
 public:
-  Utils(const Utils & other) = delete;
+  Utils(const Utils& other) = delete;
 
 public:
-  Utils & operator=(const Utils & other) = delete;
+  Utils& operator=(const Utils& other) = delete;
 
 public:
-  Utils(Utils && other) = delete;
+  Utils(Utils&& other) = delete;
 
 public:
-  Utils & operator=(Utils && other) = delete;
+  Utils& operator=(Utils&& other) = delete;
 
 public:
   ~Utils() = delete;
@@ -94,17 +94,17 @@ public:
   /// @param[out] str The string object to be filled with the value.
   /// @return Returns true if the environment variable exists.
 public:
-  static MIKTEXCORECEEAPI(bool) GetEnvironmentString(const std::string & name, std::string & str);
+  static MIKTEXCORECEEAPI(bool) GetEnvironmentString(const std::string& name, std::string& str);
 
 public:
-  static MIKTEXCORECEEAPI(bool) GetEnvironmentString(const std::string & name, PathName & path);
+  static MIKTEXCORECEEAPI(bool) GetEnvironmentString(const std::string& name, PathName& path);
 
 public:
-  static MIKTEXCORECEEAPI(bool) FindProgram(const std::string & programName, PathName & path);
+  static MIKTEXCORECEEAPI(bool) FindProgram(const std::string& programName, PathName& path);
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCORECEEAPI(bool) GetDefPrinter(std::string & printerName);
+  static MIKTEXCORECEEAPI(bool) GetDefPrinter(std::string& printerName);
 #endif
 
 public:
@@ -121,7 +121,7 @@ public:
   static MIKTEXCORECEEAPI(std::string) GetMiKTeXBannerString();
 
 public:
-  static MIKTEXCORECEEAPI(std::string) MakeProgramVersionString(const std::string & programName, const VersionNumber & versionNumber);
+  static MIKTEXCORECEEAPI(std::string) MakeProgramVersionString(const std::string& programName, const VersionNumber& versionNumber);
 
 public:
   static MIKTEXCORECEEAPI(std::string) GetOSVersionString();
@@ -130,63 +130,63 @@ public:
   static MIKTEXCORECEEAPI(bool) RunningOnAServer();
 
 public:
-  static MIKTEXCORECEEAPI(void) UncompressFile(const PathName & pathIn, PathName & pathOut);
+  static MIKTEXCORECEEAPI(void) UncompressFile(const PathName& pathIn, PathName& pathOut);
 
 public:
   // FIXME: bad interface
-  static MIKTEXCORECEEAPI(const char *) GetRelativizedPath(const char * lpszPath, const char * lpszRoot);
+  static MIKTEXCORECEEAPI(const char*) GetRelativizedPath(const char* lpszPath, const char* lpszRoot);
 
 public:
-  static MIKTEXCORECEEAPI(bool) GetUncRootFromPath(const PathName & path, PathName & uncRoot);
+  static MIKTEXCORECEEAPI(bool) GetUncRootFromPath(const PathName& path, PathName& uncRoot);
 
 public:
-  static MIKTEXCORECEEAPI(bool) IsAbsolutePath(const PathName & path);
+  static MIKTEXCORECEEAPI(bool) IsAbsolutePath(const PathName& path);
 
 public:
-  static MIKTEXCORECEEAPI(bool) IsSafeFileName(const PathName & path, bool forInput);
+  static MIKTEXCORECEEAPI(bool) IsSafeFileName(const PathName& path, bool forInput);
 
 public:
-  static MIKTEXCORECEEAPI(bool) IsParentDirectoryOf(const PathName & parentDir, const PathName & fileName);
+  static MIKTEXCORECEEAPI(bool) IsParentDirectoryOf(const PathName& parentDir, const PathName& fileName);
 
 public:
-  static MIKTEXCORECEEAPI(bool) SupportsHardLinks(const PathName & path);
+  static MIKTEXCORECEEAPI(bool) SupportsHardLinks(const PathName& path);
 
 public:
-  static MIKTEXCORECEEAPI(void) MakeTeXPathName(PathName & path);
+  static MIKTEXCORECEEAPI(void) MakeTeXPathName(PathName& path);
 
 public:
-  static MIKTEXCORECEEAPI(void) SetEnvironmentString(const std::string & valueName, const std::string & value);
+  static MIKTEXCORECEEAPI(void) SetEnvironmentString(const std::string& valueName, const std::string& value);
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCORECEEAPI(void) RemoveBlanksFromPathName(PathName & path);
+  static MIKTEXCORECEEAPI(void) RemoveBlanksFromPathName(PathName& path);
 #endif
 
 public:
-  static MIKTEXCORECEEAPI(void) PrintException(const std::exception & e);
+  static MIKTEXCORECEEAPI(void) PrintException(const std::exception& e);
 
   /// Prints a MiKTeXException to the standard error stream.
   /// @param e Execption to print.  
 public:
-  static MIKTEXCORECEEAPI(void) PrintException(const MiKTeXException & e);
+  static MIKTEXCORECEEAPI(void) PrintException(const MiKTeXException& e);
 
 public:
-  static MIKTEXCORECEEAPI(bool) ReadUntilDelim(std::string & str, int delim, FILE * stream);
+  static MIKTEXCORECEEAPI(bool) ReadUntilDelim(std::string& str, int delim, FILE* stream);
 
 public:
-  static MIKTEXCORECEEAPI(bool) ReadLine(std::string & str, FILE * stream, bool keepLineEnding);
+  static MIKTEXCORECEEAPI(bool) ReadLine(std::string& str, FILE* stream, bool keepLineEnding);
 
 public:
-  static MIKTEXCORECEEAPI(std::string) Hexify(const void * pv, std::size_t nBytes, bool lowerCase);
+  static MIKTEXCORECEEAPI(std::string) Hexify(const void* pv, std::size_t nBytes, bool lowerCase);
 
 public:
-  static MIKTEXCORECEEAPI(std::string) Hexify(const void * pv, std::size_t nBytes);
+  static MIKTEXCORECEEAPI(std::string) Hexify(const void* pv, std::size_t nBytes);
 
 public:
-  static MIKTEXCORECEEAPI(bool) ParseDvipsMapLine(const std::string & line, FontMapEntry & fontMapEntry);
+  static MIKTEXCORECEEAPI(bool) ParseDvipsMapLine(const std::string& line, FontMapEntry& fontMapEntry);
 
 public:
-  static MIKTEXCORECEEAPI(bool) IsMiKTeXDirectRoot(const PathName & root);
+  static MIKTEXCORECEEAPI(bool) IsMiKTeXDirectRoot(const PathName& root);
 
 #if !HAVE_MIKTEX_USER_INFO
 public:
@@ -199,7 +199,7 @@ public:
 #endif
 
 public:
-  static MIKTEXCORECEEAPI(void) ShowWebPage(const std::string & url);
+  static MIKTEXCORECEEAPI(void) ShowWebPage(const std::string& url);
   
 public:
 #if defined(MIKTEX_WINDOWS)
@@ -210,13 +210,13 @@ public:
   static MIKTEXCORECEEAPI(void) CheckHeap();
 
 public:
-  static MIKTEXCORECEEAPI(void) CanonicalizePathName(PathName & path);
+  static MIKTEXCORECEEAPI(void) CanonicalizePathName(PathName& path);
 
 public:
-  static MIKTEXCORECEEAPI(bool) GetPathNamePrefix(const PathName & path_, const PathName & suffix_, PathName & prefix);
+  static MIKTEXCORECEEAPI(bool) GetPathNamePrefix(const PathName& path_, const PathName& suffix_, PathName& prefix);
 
 public:
-  static bool IsPureAscii(const char * lpsz)
+  static bool IsPureAscii(const char* lpsz)
   {
     MIKTEX_ASSERT_STRING(lpsz);
     for (; *lpsz != 0; ++lpsz)
@@ -230,28 +230,28 @@ public:
   }
 
 public:
-  static bool IsPureAscii(const std::string & str)
+  static bool IsPureAscii(const std::string& str)
   {
     return IsPureAscii(str.c_str());
   }
 
 public:
-  static MIKTEXCORECEEAPI(bool) IsUTF8(const char * lpsz, bool allowPureAscii);
+  static MIKTEXCORECEEAPI(bool) IsUTF8(const char* lpsz, bool allowPureAscii);
 
 public:
-  static bool IsUTF8(const char * lpsz)
+  static bool IsUTF8(const char* lpsz)
   {
     return IsUTF8(lpsz, true);
   }
 
 public:
-  static bool Equals(const char * str1, const char * str2)
+  static bool Equals(const char* str1, const char* str2)
   {
     return strcmp(str1, str2) == 0;
   }
 
 public:
-  static bool EqualsIgnoreCase(const char * str1, const char * str2)
+  static bool EqualsIgnoreCase(const char* str1, const char* str2)
   {
     MIKTEX_ASSERT(IsPureAscii(str1) && IsPureAscii(str2));
 #if defined(_MSC_VER)
@@ -262,13 +262,13 @@ public:
   }
 
 public:
-  static bool EqualsIgnoreCase(const std::string & str1, const std::string & str2)
+  static bool EqualsIgnoreCase(const std::string& str1, const std::string& str2)
   {
     return EqualsIgnoreCase(str1.c_str(), str2.c_str());
   }
 
 public:
-  static std::string MakeLower(const std::string & str)
+  static std::string MakeLower(const std::string& str)
   {
     MIKTEX_ASSERT(IsPureAscii(str));
     std::string str2(str.size(), 0);
@@ -283,32 +283,32 @@ public:
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCORECEEAPI(void) RegisterShellFileAssoc(const std::string & extension, const std::string & progId, bool takeOwnership);
+  static MIKTEXCORECEEAPI(void) RegisterShellFileAssoc(const std::string& extension, const std::string& progId, bool takeOwnership);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCORECEEAPI(void) UnregisterShellFileAssoc(const std::string & extension, const std::string & progId);
+  static MIKTEXCORECEEAPI(void) UnregisterShellFileAssoc(const std::string& extension, const std::string& progId);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCORECEEAPI(void) RegisterShellFileType(const std::string & progId, const std::string & userFriendlyName, const std::string & iconPath);
+  static MIKTEXCORECEEAPI(void) RegisterShellFileType(const std::string& progId, const std::string& userFriendlyName, const std::string& iconPath);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCORECEEAPI(void) UnregisterShellFileType(const std::string & progId);
+  static MIKTEXCORECEEAPI(void) UnregisterShellFileType(const std::string& progId);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCORECEEAPI(void) RegisterShellVerb(const std::string & progId, const std::string & verb, const std::string & command, const std::string & ddeExec);
+  static MIKTEXCORECEEAPI(void) RegisterShellVerb(const std::string& progId, const std::string& verb, const std::string& command, const std::string& ddeExec);
 #endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  static MIKTEXCORECEEAPI(std::string) MakeProgId(const std::string & progId);
+  static MIKTEXCORECEEAPI(std::string) MakeProgId(const std::string& progId);
 #endif
 };
 
