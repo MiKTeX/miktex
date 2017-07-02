@@ -6,6 +6,21 @@
 
 * lacheck: a consistency checker checker for LaTeX documents
 
+### Upgraded programs
+
+* autosp 2017-06-21
+
+### Upgraded libraries
+
+* cairo 1.4.10
+* fontconfig 2.12.3
+* freetype 2.8
+* graphite2 1.3.10
+* libcurl 7.54.1
+* libpng 1.6.30
+* teckit 2.5.7
+* zzip 0.13.66
+
 ### Dockerized build environments
 
 The MiKTeX build environment has been dockerized for the following
@@ -33,19 +48,6 @@ For example, to build MiKTeX for Debian 9:
 
 * dvipdfmx: warning: Ignore invalid attribute dictionary
 
-### Upgraded programs
-
-* autosp 2017-06-21
-
-### Upgraded libraries
-
-* cairo 1.4.10
-* fontconfig 2.12.3
-* freetype 2.8
-* graphite2 1.3.10
-* libcurl 7.54.1
-* zzip 0.13.66
-
 ## 2.9.6350 - 2017-06-03
 
 ### New programs
@@ -67,10 +69,8 @@ For example, to build MiKTeX for Debian 9:
 
 * [HarfBuzz 1.4.6](https://github.com/behdad/harfbuzz/releases/tag/1.4.6)
 * libcurl 7.54.0
-* libpng 1.6.30
 * LibreSSL 2.5.3
 * Poppler 0.55.0
-* teckit 2.5.7
 
 ### macOS support
 
