@@ -102,7 +102,6 @@ bool Utils::IsUTF8(const char* lpsz, bool allowPureAscii)
       return true;
     }
     else if (((lpsz2[0] & 0xf0) == 0xe0) && ((lpsz2[1] & 0xc0) == 0x80) && ((lpsz2[2] & 0xc0) == 0x80))
-
     {
       return true;
     }
