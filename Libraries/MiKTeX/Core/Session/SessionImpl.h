@@ -744,6 +744,9 @@ public:
   unsigned GetUserInstallRoot();
 
 public:
+  MiKTeX::Core::PathName GetBootstrappingDirectory();
+
+public:
   unsigned GetDistRoot();
 
 private:

@@ -136,7 +136,9 @@ enum class SpecialPath
   LocalBinDirectory,
 
   /// Where the log files are stored.
-  LogDirectory
+  LogDirectory,
+
+  BootstrappingRoot,
 };
 
 /// Paper size info.

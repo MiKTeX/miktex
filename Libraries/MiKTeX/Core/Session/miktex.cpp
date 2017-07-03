@@ -162,6 +162,9 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
   case SpecialPath::InstallRoot:
     path = GetRootDirectory(GetInstallRoot());
     break;
+  case SpecialPath::BootstrappingRoot:
+    path = GetBootstrappingDirectory();
+    break;
   case SpecialPath::DistRoot:
     path = GetRootDirectory(GetDistRoot());
     break;
