@@ -25,5 +25,6 @@ elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
 		     -DMIKTEX_MPM_AUTO_INSTALL=t \
 		     -DMIKTEX_SYSTEM_ETC_FONTS_CONFD_DIR="${etcdir}/fonts/conf.d" \
 		     -DMIKTEX_SYSTEM_VAR_CACHE_DIR="${vardir}/cache" \
-		     -DMIKTEX_SYSTEM_VAR_LIB_DIR="${vardir}/lib"
+		     -DMIKTEX_SYSTEM_VAR_LIB_DIR="${vardir}/lib" \
+		     -DMIKTEX_SYSTEM_VAR_LOG_DIR="${vardir}/log"
 fi

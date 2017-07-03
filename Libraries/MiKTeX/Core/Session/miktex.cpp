@@ -139,6 +139,20 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     path = "/usr/local/bin";
 #endif
     break;
+  case SpecialPath::LogDirectory:
+#if defined(MIKTEX_UNIX)
+    if (IsAdminMode())
+    {
+      path = MIKTEX_SYSTEM_VAR_LOG_DIR;
+      // FIXME: hard-coded sub-directory
+      path /= "miktex";
+    }
+    else
+#endif
+    {
+      path = GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR;
+    }
+    break;
   case SpecialPath::CommonInstallRoot:
     path = GetRootDirectory(GetCommonInstallRoot());
     break;

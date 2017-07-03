@@ -229,9 +229,7 @@ public:
 public:
   PathName GetLogDir()
   {
-    PathName logDir(session->GetSpecialPath(SpecialPath::DataRoot));
-    logDir /= MIKTEX_PATH_MIKTEX_LOG_DIR;
-    return logDir;
+    return session->GetSpecialPath(SpecialPath::LogDirectory);
   }
 
 public:

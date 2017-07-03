@@ -133,7 +133,10 @@ enum class SpecialPath
 
   /// The local bin directory.
   /// This directory contains the symbolic links.
-  LocalBinDirectory
+  LocalBinDirectory,
+
+  /// Where the log files are stored.
+  LogDirectory
 };
 
 /// Paper size info.

@@ -193,7 +193,7 @@ void Application::ConfigureLogging()
   if (pimpl->session->FindFile(myName + "." + MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
     || pimpl->session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
   {
-    PathName logDir = pimpl->session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR;
+    PathName logDir = pimpl->session->GetSpecialPath(SpecialPath::LogDirectory);
     string logName = myName;
     if (pimpl->session->IsAdminMode())
     {
