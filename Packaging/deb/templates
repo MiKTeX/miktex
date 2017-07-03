@@ -6,8 +6,9 @@ Description: Create symbolic links in '/usr/local/bin'?
   Most of the MiKTeX executables in '/usr/bin' are prefixed with 'miktex-'.
   For example, the file name of the pdfTeX executable is 'miktex-pdftex'.
   .
-  Symbolic links targetting the 'miktex-' prefixed executables can now
-  be created in '/usr/local/bin'.
+  Symbolic links targetting the 'miktex-' prefixed executables can be
+  created in '/usr/local/bin'.  This allows users to invoke the executables
+  as usual.
   .
   Existing files in '/usr/local/bin' will not be overwritten unless
   you select 'force'.
