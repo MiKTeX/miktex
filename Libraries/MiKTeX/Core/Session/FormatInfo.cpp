@@ -1,6 +1,6 @@
 /* FormatInfo.cpp: format file info
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -36,14 +36,14 @@ vector<FormatInfo> SessionImpl::GetFormats()
 {
   ReadFormatsIni();
   vector<FormatInfo> result;
-  for (const auto & f : formats)
+  for (const auto& f : formats)
   {
     result.push_back(f);
   }
   return result;
 }
 
-FormatInfo SessionImpl::GetFormatInfo(const string & key)
+FormatInfo SessionImpl::GetFormatInfo(const string& key)
 {
   FormatInfo formatInfo;
   if (!TryGetFormatInfo(key, formatInfo))
@@ -53,10 +53,10 @@ FormatInfo SessionImpl::GetFormatInfo(const string & key)
   return formatInfo;
 }
 
-bool SessionImpl::TryGetFormatInfo(const string & key, FormatInfo & formatInfo)
+bool SessionImpl::TryGetFormatInfo(const string& key, FormatInfo& formatInfo)
 {
   ReadFormatsIni();
-  for (const FormatInfo & fmt : formats)
+  for (const FormatInfo& fmt : formats)
   {
     if (PathName::Equals(fmt.key, key))
     {
@@ -67,13 +67,13 @@ bool SessionImpl::TryGetFormatInfo(const string & key, FormatInfo & formatInfo)
   return false;
 }
 
-void SessionImpl::ReadFormatsIni(const PathName & cfgFile)
+void SessionImpl::ReadFormatsIni(const PathName& cfgFile)
 {
   unique_ptr<Cfg> cfgFormats(Cfg::Create());
   cfgFormats->Read(cfgFile);
   unsigned distRoot = GetDistRoot();
   bool isCustom = distRoot != INVALID_ROOT_INDEX && DeriveTEXMFRoot(cfgFile) != distRoot;
-  for (const shared_ptr<Cfg::Key> & key : cfgFormats->GetKeys())
+  for (const shared_ptr<Cfg::Key>& key : cfgFormats->GetKeys())
   {
     FormatInfo_ formatInfo;
     vector<FormatInfo_>::iterator it;
@@ -169,7 +169,7 @@ void SessionImpl::WriteFormatsIni()
 {
   unique_ptr<Cfg> cfgFormats(Cfg::Create());
 
-  for (const FormatInfo_ & fmt : formats)
+  for (const FormatInfo_& fmt : formats)
   {
     if (fmt.custom)
     {
@@ -238,7 +238,7 @@ void SessionImpl::WriteFormatsIni()
   }
 }
 
-void SessionImpl::DeleteFormatInfo(const string & key)
+void SessionImpl::DeleteFormatInfo(const string& key)
 {
   ReadFormatsIni();
   for (vector<FormatInfo_>::iterator it = formats.begin(); it != formats.end(); ++it)
@@ -257,7 +257,7 @@ void SessionImpl::DeleteFormatInfo(const string & key)
   MIKTEX_FATAL_ERROR_2(T_("The format could not be found."), "formatName", key);
 }
 
-void SessionImpl::SetFormatInfo(const FormatInfo & formatInfo)
+void SessionImpl::SetFormatInfo(const FormatInfo& formatInfo)
 {
   ReadFormatsIni();
   vector<FormatInfo_>::iterator it;
