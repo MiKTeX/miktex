@@ -68,14 +68,13 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
  * UserConfig:    $HOME/.miktex/texmfs/config
  * UserData:      $HOME/.miktex/texmfs/data
  * UserInstall:   $HOME/.miktex/texmfs/install
- * CommonConfig:  /var/lib/miktex-texmf
- *             or /var/local/lib/miktex-texmf
- *             or /opt/miktex/texmfs/config
- * CommonData:    /var/cache/miktex-texmf
- *             or /opt/miktex/texmfs/data
- * CommonInstall: /usr/share/miktex-texmf
- *             or /usr/local/share/miktex-texmf
- *             or /opt/miktex/texmfs/install
+ * CommonConfig:  /var/lib/miktex-texmf           (DEB,RPM)
+ *             or /var/local/lib/miktex-texmf     (TGZ)
+ *             or /opt/miktex/texmfs/config       (self-contained)
+ * CommonData:    /var/cache/miktex-texmf         (DEB,RPM,TGZ)
+ *             or /opt/miktex/texmfs/data         (self-contained)
+ * CommonInstall: /usr/local/share/miktex-texmf   (DEB,RPM,TGZ)
+ *             or /opt/miktex/texmfs/install      (self-contained)
  */
 StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathName& commonPrefixArg, const PathName& userPrefixArg)
 {
@@ -124,7 +123,7 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
     ret.commonConfigRoot = destdir / PathName(MIKTEX_SYSTEM_VAR_LIB_DIR + 1) / MIKTEX_PREFIX "texmf";
     MIKTEX_ASSERT(MIKTEX_SYSTEM_VAR_CACHE_DIR[0] == '/');
     ret.commonDataRoot = destdir / PathName(MIKTEX_SYSTEM_VAR_CACHE_DIR + 1) / MIKTEX_PREFIX "texmf";
-    ret.commonInstallRoot = prefix / MIKTEX_TEXMF_DIR;
+    ret.commonInstallRoot = destdir / "usr/local" / MIKTEX_TEXMF_DIR;
   }
   else
   {
