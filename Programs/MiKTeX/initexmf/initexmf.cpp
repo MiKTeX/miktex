@@ -2346,13 +2346,42 @@ void IniTeXMFApp::Bootstrap()
 #endif
 }
 
-string kpsewhich_expand_path(const string varname)
+string kpsewhich_expand_path(const string& varname)
 {
   string cmd = "kpsewhich --expand-path=";
 #if defined(MIKTEX_UNIX)
   cmd += "\\";
 #endif
-  return cmd + "$" + varname;
+  ProcessOutput<1024> output;
+  int exitCode;
+  if (!Process::ExecuteSystemCommand(cmd + "$" + varname, &exitCode, &output, nullptr) || exitCode != 0)
+  {
+    return string();
+  }
+  string result = output.StdoutToString();
+  if (!result.empty() && result[result.length() - 1] == '\n')
+  {
+    result.erase(result.length() - 1);
+  }
+  return result;
+}
+
+string Concat(const initializer_list<string>& searchPaths, char separator = PathName::PathNameDelimiter)
+{
+  string result;
+  for (const string& s : searchPaths)
+  {
+    if (s.empty())
+    {
+      continue;
+    }
+    if (result.empty())
+    {
+      result += separator;
+    }
+    result += s;
+  }
+  return result;
 }
 
 vector<IniTeXMFApp::OtherTeX> IniTeXMFApp::FindOtherTeX()
@@ -2367,16 +2396,14 @@ vector<IniTeXMFApp::OtherTeX> IniTeXMFApp::FindOtherTeX()
     string versionString = version.StdoutToString();
     otherTeX.version = versionString.substr(0, versionString.find_first_of("\r\n"));
     StartupConfig otherConfig;
-    ProcessOutput<1024> texmfhome;
-    if (Process::ExecuteSystemCommand(kpsewhich_expand_path("TEXMFHOME"), &exitCode, &texmfhome, nullptr))
-    {
-      otherConfig.userRoots = texmfhome.StdoutToString();
-    }
-    ProcessOutput<1024> texmfdist;
-    if (Process::ExecuteSystemCommand(kpsewhich_expand_path("TEXMFDIST"), &exitCode, &texmfdist, nullptr))
-    {
-      otherConfig.commonRoots = texmfdist.StdoutToString();
-    }
+    otherConfig.userRoots = Concat({
+      kpsewhich_expand_path("TEXMFHOME")
+    });
+    otherConfig.commonRoots = Concat({
+      kpsewhich_expand_path("TEXMFLOCAL"),
+      kpsewhich_expand_path("TEXMFDEBIAN"),
+      kpsewhich_expand_path("TEXMFDIST")
+    });
     otherTeX.startupConfig = otherConfig;
     result.push_back(otherTeX);
   }
@@ -3163,7 +3190,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     for (const OtherTeX& otherTeX : otherTeXs)
     {
       cout << "Found OtherTeX: " << otherTeX.name << "\n";
-      cout << "  Version:" << otherTeX.version << "\n";
+      cout << "  Version: " << otherTeX.version << "\n";
       cout << "  UserRoots: " << otherTeX.startupConfig.userRoots << "\n";
       cout << "  CommonRoots: " << otherTeX.startupConfig.commonRoots << "\n";
     }
