@@ -21,7 +21,7 @@ Description: Install missing files on-the-fly?
 
 Template: miktex/othertexmf
 Type: boolean
-Default: true
+Default: false
 Description: Add other TEXMF directories?
  Another TeX distribution has been detected.
- You can allow to add their TEXMF directories to the MiKTeX configuration.
+ You can allow to add their TEXMF directories to the MiKTeX search path.
