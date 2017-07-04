@@ -81,6 +81,18 @@ public:
   }
 
 public:
+  void set_Other(bool other)
+  {
+    this->other = other;
+  }
+
+public:
+  bool IsOther() const
+  {
+    return other;
+  }
+
+public:
   void SetFndb(std::shared_ptr<FileNameDatabase> fndb)
   {
     this->fndb = fndb;
@@ -110,6 +122,10 @@ private:
   // true, if this is a common root directory
 private:
   bool common = false;
+
+  // true, if this is an unmanaged root directory
+private:
+  bool other = false;
 };
 
 END_INTERNAL_NAMESPACE;
