@@ -1,6 +1,6 @@
 /* RootDirectory.h:                                     -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -38,20 +38,20 @@ public:
   }
 
 public:
-  RootDirectory(const MiKTeX::Core::PathName & unexpandedPath, const MiKTeX::Core::PathName & path) :
+  RootDirectory(const MiKTeX::Core::PathName& unexpandedPath, const MiKTeX::Core::PathName& path) :
     unexpandedPath(unexpandedPath),
     path(path)
   {
   }
 
 public:
-  const MiKTeX::Core::PathName & get_UnexpandedPath() const
+  const MiKTeX::Core::PathName& get_UnexpandedPath() const
   {
     return unexpandedPath;
   }
 
 public:
-  const MiKTeX::Core::PathName & get_Path() const
+  const MiKTeX::Core::PathName& get_Path() const
   {
     return path;
   }
