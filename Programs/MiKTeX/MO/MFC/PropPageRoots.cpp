@@ -1,6 +1,6 @@
 /* PropPageRoots.cpp:
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is part of MiKTeX Options.
 
@@ -484,6 +484,10 @@ bool PropPageTeXMFRoots::IsHiddenRoot(const PathName & root)
   {
     return true;
   }
+  if (session->IsOtherRootDirectory(rootOrdinal))
+  {
+    return true;
+  }
   return root == commonInstallRoot || root == commonConfigRoot || root == commonDataRoot;
 }
 
@@ -692,7 +696,7 @@ BOOL PropPageTeXMFRoots::OnApply()
         str += it->GetData();
       }
 
-      session->RegisterRootDirectories(str);
+      session->RegisterRootDirectories(str, false);
 
       unique_ptr<ProgressDialog> pProgressDialog(ProgressDialog::Create());
 

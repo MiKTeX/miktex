@@ -668,6 +668,9 @@ public:
 public:
   virtual bool MIKTEXTHISCALL IsCommonRootDirectory(unsigned r) = 0;
 
+public:
+  virtual bool MIKTEXTHISCALL IsOtherRootDirectory(unsigned r) = 0;
+
   /// Gets the path name of the virtual MPM TEXMF root.
 public:
   virtual PathName MIKTEXTHISCALL GetMpmRootPath() = 0;
@@ -709,7 +712,7 @@ public:
   virtual unsigned MIKTEXTHISCALL SplitTEXMFPath(const PathName& path, PathName& root, PathName& relative) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL RegisterRootDirectories(const std::string& roots) = 0;
+  virtual void MIKTEXTHISCALL RegisterRootDirectories(const std::string& roots, bool other) = 0;
 
 public:
   virtual void MIKTEXTHISCALL RegisterRootDirectories(const StartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options) = 0;

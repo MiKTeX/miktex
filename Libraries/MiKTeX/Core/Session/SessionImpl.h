@@ -140,6 +140,9 @@ public:
   bool IsCommonRootDirectory(unsigned r) override;
 
 public:
+  bool IsOtherRootDirectory(unsigned r) override;
+
+public:
   MiKTeX::Core::PathName GetMpmRootPath() override;
 
 public:
@@ -164,7 +167,7 @@ public:
   unsigned SplitTEXMFPath(const MiKTeX::Core::PathName& path, MiKTeX::Core::PathName& root, MiKTeX::Core::PathName& relative) override;
 
 public:
-  void RegisterRootDirectories(const std::string& roots) override;
+  void RegisterRootDirectories(const std::string& roots, bool other) override;
 
 public:
   void RegisterRootDirectories(const MiKTeX::Core::StartupConfig& startupConfig, MiKTeX::Core::RegisterRootDirectoriesOptionSet options) override;
@@ -753,7 +756,7 @@ private:
   bool IsManagedRoot(unsigned root);
 
 private:
-  unsigned RegisterRootDirectory(const MiKTeX::Core::PathName& root, bool common);
+  unsigned RegisterRootDirectory(const MiKTeX::Core::PathName& root, bool common, bool other);
 
 private:
   bool FindStartupConfigFile(bool common, MiKTeX::Core::PathName& path);

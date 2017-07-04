@@ -275,6 +275,11 @@ StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName& pa
       Absolutize(str, relativeFrom);
       ret.commonRoots = str;
     }
+    if (pcfg->TryGetValue("Paths", MIKTEX_REGVAL_OTHER_COMMON_ROOTS, str))
+    {
+      Absolutize(str, relativeFrom);
+      ret.otherCommonRoots = str;
+    }
     if (pcfg->TryGetValue("Paths", MIKTEX_REGVAL_COMMON_INSTALL, str))
     {
       Absolutize(str, relativeFrom);
@@ -297,6 +302,11 @@ StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName& pa
     {
       Absolutize(str, relativeFrom);
       ret.userRoots = str;
+    }
+    if (pcfg->TryGetValue("Paths", MIKTEX_REGVAL_OTHER_USER_ROOTS, str))
+    {
+      Absolutize(str, relativeFrom);
+      ret.otherUserRoots = str;
     }
     if (pcfg->TryGetValue("Paths", MIKTEX_REGVAL_USER_INSTALL, str))
     {
@@ -445,6 +455,15 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig& start
       };
       pcfg->PutValue("Paths", MIKTEX_REGVAL_COMMON_ROOTS, val, T_("common TEXMF root directories"), startupConfig.commonRoots == "");
     }
+    if (startupConfig.otherCommonRoots != "" || showAllValues)
+    {
+      string val = startupConfig.otherCommonRoots;
+      if (relativize)
+      {
+        Relativize(val, relativeFrom);
+      };
+      pcfg->PutValue("Paths", MIKTEX_REGVAL_OTHER_COMMON_ROOTS, val, T_("other common TEXMF root directories"), startupConfig.otherCommonRoots == "");
+    }
     if (!startupConfig.commonInstallRoot.Empty() && (startupConfig.commonInstallRoot != defaultConfig.commonInstallRoot || showAllValues))
     {
       string val = startupConfig.commonInstallRoot.GetData();
@@ -485,6 +504,15 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig& start
         Relativize(val, relativeFrom);
       };
       pcfg->PutValue("Paths", MIKTEX_REGVAL_USER_ROOTS, val, T_("user TEXMF root directories"), startupConfig.userRoots == "");
+    }
+    if (startupConfig.otherUserRoots != "" || showAllValues)
+    {
+      string val = startupConfig.otherUserRoots;
+      if (relativize)
+      {
+        Relativize(val, relativeFrom);
+      };
+      pcfg->PutValue("Paths", MIKTEX_REGVAL_USER_ROOTS, val, T_("other user TEXMF root directories"), startupConfig.otherUserRoots == "");
     }
     if (!startupConfig.userInstallRoot.Empty() && (startupConfig.userInstallRoot != defaultConfig.userInstallRoot || showAllValues))
     {
@@ -548,6 +576,10 @@ StartupConfig SessionImpl::ReadEnvironment(bool common)
     {
       ret.commonRoots = str;
     }
+    if (Utils::GetEnvironmentString(MIKTEX_ENV_OTHER_COMMON_ROOTS, str))
+    {
+      ret.otherCommonRoots = str;
+    }
     if (Utils::GetEnvironmentString(MIKTEX_ENV_COMMON_INSTALL, str))
     {
       ret.commonInstallRoot = str;
@@ -566,6 +598,10 @@ StartupConfig SessionImpl::ReadEnvironment(bool common)
     if (Utils::GetEnvironmentString(MIKTEX_ENV_USER_ROOTS, str))
     {
       ret.userRoots = str;
+    }
+    if (Utils::GetEnvironmentString(MIKTEX_ENV_OTHER_USER_ROOTS, str))
+    {
+      ret.otherUserRoots = str;
     }
     if (Utils::GetEnvironmentString(MIKTEX_ENV_USER_INSTALL, str))
     {

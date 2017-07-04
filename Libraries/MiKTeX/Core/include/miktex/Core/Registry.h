@@ -1,6 +1,6 @@
 /* miktex/Core/Registry.h: MiKTeX settings              -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -86,6 +86,8 @@
 #define MIKTEX_REGVAL_MAX_REDIRECTS "MaxRedirects"
 #define MIKTEX_REGVAL_MIKTEXDIRECT_ROOT "MiKTeXDirectRoot"
 #define MIKTEX_REGVAL_NO_REGISTRY "NoRegistry"
+#define MIKTEX_REGVAL_OTHER_COMMON_ROOTS "OtherCommonRoots"
+#define MIKTEX_REGVAL_OTHER_USER_ROOTS "OtherUserRoots"
 #define MIKTEX_REGVAL_PARSE_FIRST_LINE "ParseFirstLine"
 #define MIKTEX_REGVAL_PK_FN_TEMPLATE "PKFnTemplate"
 #define MIKTEX_REGVAL_PROXY_AUTH_REQ "ProxyAuthReq"

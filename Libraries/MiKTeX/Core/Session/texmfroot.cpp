@@ -85,7 +85,7 @@ static string ExpandEnvironmentVariables(const char* toBeExpanded)
   return expansion;
 }
 
-unsigned SessionImpl::RegisterRootDirectory(const PathName& root, bool common)
+unsigned SessionImpl::RegisterRootDirectory(const PathName& root, bool common, bool other)
 {
   unsigned idx;
   for (idx = 0; idx < rootDirectories.size(); ++idx)
@@ -98,12 +98,18 @@ unsigned SessionImpl::RegisterRootDirectory(const PathName& root, bool common)
         trace_config->WriteFormattedLine("core", T_("now a common TEXMF root: %s"), root.GetData());
         rootDirectories[idx].set_Common(common);
       }
+      if (other && !rootDirectories[idx].IsOther())
+      {
+        trace_config->WriteFormattedLine("core", "now a foreign TEXMF root: %s", root.GetData());
+        rootDirectories[idx].set_Common(common);
+      }
       return idx;
     }
   }
   trace_config->WriteFormattedLine("core", T_("registering %s TEXMF root: %s"), common ? "common" : "user", root.GetData());
   RootDirectory rootDirectory(root, ExpandEnvironmentVariables(root.GetData()));
   rootDirectory.set_Common(common);
+  rootDirectory.set_Other(other);
   rootDirectories.reserve(10);
   rootDirectories.push_back(rootDirectory);
   return idx;
@@ -122,6 +128,14 @@ MIKTEXSTATICFUNC(void) MergeStartupConfig(StartupConfig& startupConfig, const St
   if (startupConfig.userRoots.empty())
   {
     startupConfig.userRoots = defaults.userRoots;
+  }
+  if (startupConfig.otherCommonRoots.empty())
+  {
+    startupConfig.otherCommonRoots = defaults.otherCommonRoots;
+  }
+  if (startupConfig.otherUserRoots.empty())
+  {
+    startupConfig.otherUserRoots = defaults.otherUserRoots;
   }
   if (startupConfig.commonInstallRoot.Empty())
   {
@@ -236,13 +250,13 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
   // UserConfig
   if (!startupConfig.userConfigRoot.Empty())
   {
-    userConfigRootIndex = RegisterRootDirectory(startupConfig.userConfigRoot, false);
+    userConfigRootIndex = RegisterRootDirectory(startupConfig.userConfigRoot, false, false);
   }
 
   // UserData
   if (!startupConfig.userDataRoot.Empty())
   {
-    userDataRootIndex = RegisterRootDirectory(startupConfig.userDataRoot, false);
+    userDataRootIndex = RegisterRootDirectory(startupConfig.userDataRoot, false, false);
   }
 
   // UserRoots
@@ -250,26 +264,26 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
   {
     if (!(*root).empty())
     {
-      RegisterRootDirectory(*root, false);
+      RegisterRootDirectory(*root, false, false);
     }
   }
 
   // UserInstall
   if (!startupConfig.userInstallRoot.Empty())
   {
-    userInstallRootIndex = RegisterRootDirectory(startupConfig.userInstallRoot, false);
+    userInstallRootIndex = RegisterRootDirectory(startupConfig.userInstallRoot, false, false);
   }
 
   // CommonConfig
   if (!startupConfig.commonConfigRoot.Empty())
   {
-    commonConfigRootIndex = RegisterRootDirectory(startupConfig.commonConfigRoot, true);
+    commonConfigRootIndex = RegisterRootDirectory(startupConfig.commonConfigRoot, true, false);
   }
 
   // CommonData
   if (!startupConfig.commonDataRoot.Empty())
   {
-    commonDataRootIndex = RegisterRootDirectory(startupConfig.commonDataRoot, true);
+    commonDataRootIndex = RegisterRootDirectory(startupConfig.commonDataRoot, true, false);
   }
 
   // CommonRoots
@@ -277,14 +291,32 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
   {
     if (!(*root).empty())
     {
-      RegisterRootDirectory(*root, true);
+      RegisterRootDirectory(*root, true, false);
     }
   }
 
   // CommonInstall
   if (!startupConfig.commonInstallRoot.Empty())
   {
-    commonInstallRootIndex = RegisterRootDirectory(startupConfig.commonInstallRoot, true);
+    commonInstallRootIndex = RegisterRootDirectory(startupConfig.commonInstallRoot, true, false);
+  }
+
+  // OtherUserRoots
+  for (CsvList root(startupConfig.otherUserRoots, PATH_DELIMITER); root; ++root)
+  {
+    if (!(*root).empty())
+    {
+      RegisterRootDirectory(*root, true, true);
+    }
+  }
+
+  // OtherCommonRoots
+  for (CsvList root(startupConfig.otherCommonRoots, PATH_DELIMITER); root; ++root)
+  {
+    if (!(*root).empty())
+    {
+      RegisterRootDirectory(*root, true, true);
+    }
   }
 
   if (rootDirectories.size() == 0)
@@ -322,7 +354,7 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
     userInstallRootIndex = userConfigRootIndex;
   }
 
-  RegisterRootDirectory(MPM_ROOT_PATH, IsAdminMode());
+  RegisterRootDirectory(MPM_ROOT_PATH, IsAdminMode(), false);
 
   trace_config->WriteFormattedLine("core", "UserData: %s", GetRootDirectory(userDataRootIndex).GetData());
 
@@ -372,6 +404,15 @@ bool SessionImpl::IsCommonRootDirectory(unsigned r)
   return rootDirectories[r].IsCommon();
 }
 
+bool SessionImpl::IsOtherRootDirectory(unsigned r)
+{
+  unsigned n = GetNumberOfTEXMFRoots();
+  if (r == INVALID_ROOT_INDEX || r >= n)
+  {
+    INVALID_ARGUMENT("index", std::to_string(r));
+  }
+  return rootDirectories[r].IsOther();
+}
 
 unsigned SessionImpl::GetMpmRoot()
 {
@@ -447,6 +488,8 @@ void SessionImpl::SaveRootDirectories(
   unsigned n = GetNumberOfTEXMFRoots();
   startupConfig.commonRoots.reserve(n * 30);
   startupConfig.userRoots.reserve(n * 30);
+  startupConfig.otherCommonRoots.reserve(n * 30);
+  startupConfig.otherUserRoots.reserve(n * 30);
   for (unsigned idx = 0; idx < n; ++idx)
   {
     const RootDirectory rootDirectory = this->rootDirectories[idx];
@@ -459,11 +502,22 @@ void SessionImpl::SaveRootDirectories(
         // implicitly defined
         continue;
       }
-      if (!startupConfig.commonRoots.empty())
+      if (rootDirectory.IsOther())
       {
-        startupConfig.commonRoots += PATH_DELIMITER;
+        if (!startupConfig.otherCommonRoots.empty())
+        {
+          startupConfig.otherCommonRoots += PATH_DELIMITER;
+        }
+        startupConfig.otherCommonRoots += rootDirectory.get_UnexpandedPath().GetData();
       }
-      startupConfig.commonRoots += rootDirectory.get_UnexpandedPath().GetData();
+      else
+      {
+        if (!startupConfig.commonRoots.empty())
+        {
+          startupConfig.commonRoots += PATH_DELIMITER;
+        }
+        startupConfig.commonRoots += rootDirectory.get_UnexpandedPath().GetData();
+      }
     }
     else
     {
@@ -474,11 +528,22 @@ void SessionImpl::SaveRootDirectories(
         // implicitly defined
         continue;
       }
-      if (!startupConfig.userRoots.empty())
+      if (rootDirectory.IsOther())
       {
-        startupConfig.userRoots += PATH_DELIMITER;
+        if (!startupConfig.otherUserRoots.empty())
+        {
+          startupConfig.otherUserRoots += PATH_DELIMITER;
+        }
+        startupConfig.otherUserRoots += rootDirectory.get_UnexpandedPath().GetData();
       }
-      startupConfig.userRoots += rootDirectory.get_UnexpandedPath().GetData();
+      else
+      {
+        if (!startupConfig.userRoots.empty())
+        {
+          startupConfig.userRoots += PATH_DELIMITER;
+        }
+        startupConfig.userRoots += rootDirectory.get_UnexpandedPath().GetData();
+      }
     }
   }
   if (commonInstallRootIndex != INVALID_ROOT_INDEX)
@@ -557,11 +622,15 @@ void SessionImpl::RecordMaintenance()
   }
 }
 
-void SessionImpl::RegisterRootDirectories(const string& roots)
+void SessionImpl::RegisterRootDirectories(const string& roots, bool other)
 {
 #if defined(MIKTEX_WINDOWS) && USE_LOCAL_SERVER
   if (UseLocalServer())
   {
+    if (other)
+    {
+      MIKTEX_UNEXPECTED();
+    }
     ConnectToServer();
     HResult hr = localServer.pSession->RegisterRootDirectories(_bstr_t(roots.c_str()));
     if (hr.Failed())
@@ -584,11 +653,25 @@ void SessionImpl::RegisterRootDirectories(const string& roots)
   StartupConfig startupConfig;
   if (IsAdminMode())
   {
-    startupConfig.commonRoots = roots;
+    if (other)
+    {
+      startupConfig.otherCommonRoots = roots;
+    }
+    else
+    {
+      startupConfig.commonRoots = roots;
+    }
   }
   else
   {
-    startupConfig.userRoots = roots;
+    if (other)
+    {
+      startupConfig.otherUserRoots = roots;
+    }
+    else
+    {
+      startupConfig.userRoots = roots;
+    }
   }
   RegisterRootDirectoriesOptionSet options;
 #if defined(MIKTEX_WINDOWS)

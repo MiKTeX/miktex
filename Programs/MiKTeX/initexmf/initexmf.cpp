@@ -341,7 +341,7 @@ private:
   void MakeLanguageDat(bool force);
 
 private:
-  void RegisterRoots(const vector<PathName>& roots, bool reg);
+  void RegisterRoots(const vector<PathName>& roots, bool other, bool reg);
 
 #if defined(MIKTEX_WINDOWS)
 private:
@@ -1329,7 +1329,7 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
   }
 }
 
-void IniTeXMFApp::RegisterRoots(const vector<PathName>& roots, bool reg)
+void IniTeXMFApp::RegisterRoots(const vector<PathName>& roots, bool other, bool reg)
 {
   string newRoots;
 
@@ -1404,7 +1404,7 @@ void IniTeXMFApp::RegisterRoots(const vector<PathName>& roots, bool reg)
     }
   }
 
-  session->RegisterRootDirectories(newRoots);
+  session->RegisterRootDirectories(newRoots, other);
 
   if (reg)
   {
@@ -2431,7 +2431,7 @@ void IniTeXMFApp::RegisterOtherRoots()
   }
   else
   {
-    RegisterRoots(otherRoots, true);
+    RegisterRoots(otherRoots, true, true);
   }
 }
 
@@ -3101,12 +3101,12 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
   if (!unregisterRoots.empty())
   {
-    RegisterRoots(unregisterRoots, false);
+    RegisterRoots(unregisterRoots, false, false);
   }
 
   if (!registerRoots.empty())
   {
-    RegisterRoots(registerRoots, true);
+    RegisterRoots(registerRoots, false, true);
   }
 
   if (optUpdateFilenameDatabase)
