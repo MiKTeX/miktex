@@ -123,7 +123,7 @@ private:
 private:
   bool common = false;
 
-  // true, if this is an unmanaged root directory
+  // true, if this is a root directory of another distro
 private:
   bool other = false;
 };
