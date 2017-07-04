@@ -362,7 +362,7 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig& start
   {
     userStartupConfigFile = str;
   }
-#if ! NO_REGISTRY
+#if !NO_REGISTRY
   else if (winRegistry::TryGetRegistryValue(TriState::False, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
   {
     userStartupConfigFile = str;
@@ -380,7 +380,7 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig& start
   {
     commonStartupConfigFile = str;
   }
-#if ! NO_REGISTRY
+#if !NO_REGISTRY
   else if (winRegistry::TryGetRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_STARTUP_FILE, str))
   {
     commonStartupConfigFile = str;
