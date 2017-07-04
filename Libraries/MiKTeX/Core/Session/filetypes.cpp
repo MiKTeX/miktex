@@ -272,6 +272,15 @@ void SessionImpl::RegisterFileType(FileType fileType)
       }
       exePath += myLocation.GetData();
     }
+    PathName myLocationCanon = GetMyLocation(true);
+    if (!StringUtil::Contains(exePath.c_str(), myLocationCanon.GetData(), PATH_DELIMITER_STRING))
+    {
+      if (!exePath.empty())
+      {
+        exePath += PATH_DELIMITER;
+      }
+      exePath += myLocationCanon.GetData();
+    }
     if (fileType == FileType::EXE)
     {
       RegisterFileType(FileType::EXE, "exe", nullptr, extensions.c_str(), exePath.c_str(), "");
