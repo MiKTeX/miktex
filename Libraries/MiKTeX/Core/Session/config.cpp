@@ -388,6 +388,7 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig& start
 #endif
   else
   {
+#if defined(MIKTEX_WINDOWS)
     PathName myloc = GetMyLocation(true);
     RemoveDirectoryDelimiter(myloc.GetData());
     PathName internalBindir(MIKTEX_PATH_INTERNAL_BIN_DIR);
@@ -408,6 +409,11 @@ void SessionImpl::WriteStartupConfigFile(bool common, const StartupConfig& start
       MIKTEX_UNEXPECTED();
     }
     commonStartupConfigFile /= MIKTEX_PATH_STARTUP_CONFIG_FILE;
+#else
+    // TODO: /etc/miktex/miktexstartup.ini
+    commonStartupConfigFile = defaultConfig.commonConfigRoot;
+    commonStartupConfigFile /= MIKTEX_PATH_STARTUP_CONFIG_FILE;
+#endif
   }
 
   unique_ptr<Cfg> pcfg(Cfg::Create());
