@@ -4,3 +4,7 @@ db_input medium miktex/mklinks || true
 db_go
 db_input medium miktex/autoinstall || true
 db_go
+if [ -x /usr/bin/kpsewhich ]; then
+    db_input medium miktex/othertexmf || true
+    db_go
+fi

@@ -391,6 +391,9 @@ private:
 private:
   vector<OtherTeX> FindOtherTeX();
 
+private:
+  void RegisterOtherRoots();
+
 #if !defined(MIKTEX_STANDALONE)
 private:
   void Configure();
@@ -611,6 +614,7 @@ enum Option
   OPT_LIST_FORMATS,             // <experimental/>
   OPT_MODIFY_PATH,              // <experimental/>
   OPT_RECURSIVE,                // <experimental/>
+  OPT_REGISTER_OTHER_ROOTS,     // <experimental/>
   OPT_REGISTER_SHELL_FILE_TYPES,        // <experimental/>
   OPT_REMOVE_FILE,              // <experimental/>
   OPT_SET_CONFIG_VALUE,         // <experimental/>
@@ -2375,7 +2379,7 @@ string Concat(const initializer_list<string>& searchPaths, char separator = Path
     {
       continue;
     }
-    if (result.empty())
+    if (!result.empty())
     {
       result += separator;
     }
@@ -2408,6 +2412,27 @@ vector<IniTeXMFApp::OtherTeX> IniTeXMFApp::FindOtherTeX()
     result.push_back(otherTeX);
   }
   return result;
+}
+
+void IniTeXMFApp::RegisterOtherRoots()
+{
+  vector<OtherTeX> otherTeXDists = FindOtherTeX();
+  vector<PathName> otherRoots;
+  for (const OtherTeX& other : otherTeXDists)
+  {
+    const string& roots = (session->IsAdminMode() ? other.startupConfig.commonRoots : other.startupConfig.userRoots);
+    for (CsvList r(roots, PathName::PathNameDelimiter); r; ++r)
+    {
+      otherRoots.push_back(*r);
+    }
+  }
+  if (otherRoots.empty())
+  {
+  }
+  else
+  {
+    RegisterRoots(otherRoots, true);
+  }
 }
 
 #if !defined(MIKTEX_STANDALONE)
@@ -2593,6 +2618,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   bool optNoRegistry = false;
 #endif
   bool optPortable = false;
+  bool optRegisterOtherRoots = false;
   bool optRegisterShellFileTypes = false;
   bool optRemoveLinks = false;
   bool optModifyPath = false;
@@ -2816,6 +2842,11 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     case OPT_RECURSIVE:
 
       recursive = true;
+      break;
+
+    case OPT_REGISTER_OTHER_ROOTS:
+
+      optRegisterOtherRoots = true;
       break;
 
     case OPT_REGISTER_SHELL_FILE_TYPES:
@@ -3194,6 +3225,11 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       cout << "  UserRoots: " << otherTeX.startupConfig.userRoots << "\n";
       cout << "  CommonRoots: " << otherTeX.startupConfig.commonRoots << "\n";
     }
+  }
+
+  if (optRegisterOtherRoots)
+  {
+    RegisterOtherRoots();
   }
 }
 

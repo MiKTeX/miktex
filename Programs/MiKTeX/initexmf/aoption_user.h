@@ -213,6 +213,14 @@ const struct poptOption IniTeXMFApp::aoption_user[] = {
   },
 
   {
+    "register-other-roots", 0,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    OPT_REGISTER_OTHER_ROOTS,
+    T_("Register TEXMF root directories of other TeX installations."),
+    nullptr
+  },
+
+  {
     "register-root", 0,
     POPT_ARG_STRING, nullptr,
     OPT_REGISTER_ROOT,

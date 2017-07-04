@@ -243,6 +243,14 @@ const struct poptOption IniTeXMFApp::aoption_setup[] = {
   },
 
   {
+    "register-other-roots", 0,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    OPT_REGISTER_OTHER_ROOTS,
+    nullptr,
+    nullptr
+  },
+
+  {
     "register-root", 0,
     POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_REGISTER_ROOT,
