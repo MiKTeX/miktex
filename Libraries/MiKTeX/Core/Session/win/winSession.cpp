@@ -1,6 +1,6 @@
 /* winSession.cpp: Windows specials
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -481,7 +481,7 @@ void SessionImpl::WriteRegistry(bool common, const StartupConfig& startupConfig)
   if (common)
   {
     if (!startupConfig.commonRoots.empty()
-      && startupConfig.commonRoots != startupConfig.commonInstallRoot)
+      && startupConfig.commonRoots != defaultConfig.commonRoots)
     {
       winRegistry::SetRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_COMMON_ROOTS, startupConfig.commonRoots.c_str());
     }
@@ -505,7 +505,7 @@ void SessionImpl::WriteRegistry(bool common, const StartupConfig& startupConfig)
   {
     TriState shared = AdminControlsUserConfig() ? TriState::Undetermined : TriState::False;
     if (!startupConfig.userRoots.empty()
-      && startupConfig.userRoots != startupConfig.userInstallRoot)
+      && startupConfig.userRoots != defaultConfig.userRoots)
     {
       winRegistry::SetRegistryValue(shared, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_ROOTS, startupConfig.userRoots.c_str());
     }
