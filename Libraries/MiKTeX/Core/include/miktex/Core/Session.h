@@ -88,6 +88,12 @@ public:
   PathName commonInstallRoot;
 
 public:
+  std::string otherUserRoots;
+
+public:
+  std::string otherCommonRoots;
+
+public:
   MiKTeXConfiguration config = MiKTeXConfiguration::None;
 };
 
