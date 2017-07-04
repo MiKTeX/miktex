@@ -21,6 +21,17 @@
 * teckit 2.5.7
 * zzip 0.13.66
 
+### Ubuntu 16.04 support
+
+It is now possible to install MiKTeX on Ubuntu 16.04 amd64:
+
+    sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys D6BC243565B2087BC3F897C9277A7293F59E4889
+    echo "deb https://miktex.org/download/ubuntu xenial universe" | sudo tee /etc/apt/sources.list.d/miktex.list
+    sudo apt-get update
+    sudo apt-get install miktex
+
+See [this howto](https://miktex.org/howto/install-miktex-unx) for more info.
+
 ### Dockerized build environments
 
 The MiKTeX build environment has been dockerized for the following
