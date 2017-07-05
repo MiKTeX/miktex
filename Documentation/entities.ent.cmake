@@ -73,6 +73,7 @@
 <!ENTITY TeXnFriends "&TeX;&nbsp;&amp;&nbsp;Friends">
 <!ENTITY TeXworks "<application>TeXworks</application>">
 <!ENTITY Texinfo "<application>Texinfo</application>">
+<!ENTITY Ubuntu "<application>Ubuntu</application>">
 <!ENTITY URL "<acronym>URL</acronym>">
 <!ENTITY UTC "<acronym>UTC</acronym>">
 <!ENTITY URW "<acronym>URW</acronym>">
@@ -93,8 +94,10 @@
 <!ENTITY XDV "<acronym>XDV</acronym>">
 <!ENTITY XeTeX "<application>XeTeX</application>">
 <!ENTITY Yap "<application>Yap</application>">
+<!ENTITY aptget "<command>apt-get</command>">
 <!ENTITY basicmiktexexe "<command>basic-miktex-${MIKTEX_MAJOR_MINOR_STR}.<replaceable>xxxx</replaceable>${EXESUFFIX}</command>">
 <!ENTITY basicmiktexexefile "<filename>basic-miktex-${MIKTEX_MAJOR_MINOR_STR}.<replaceable>xxxx</replaceable>${EXESUFFIX}</filename>">
+<!ENTITY brew "<command>brew</command>">
 <!ENTITY cabextract "<command>cabextract</command>">
 <!ENTITY commoninstalldir "<filename>${COMMONINSTALL}</filename>">
 <!ENTITY date "${MIKTEX_CACHED_MONTH_NAME} ${MIKTEX_CACHED_MDAY}, ${MIKTEX_CACHED_YEAR}">
