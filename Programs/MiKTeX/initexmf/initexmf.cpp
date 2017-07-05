@@ -247,7 +247,7 @@ public:
   void Init(int argc, const char* argv[]);
 
 public:
-  void Finalize();
+  void Finalize(bool keepSession);
 
 private:
   void Verbose(const char* lpszFormat, ...);
@@ -272,6 +272,9 @@ private:
 
 private:
   void ListMetafontModes();
+
+private:
+  void Clean();
 
 private:
   void RemoveFndb();
@@ -603,6 +606,7 @@ enum Option
   OPT_VERSION,
 
   OPT_ADD_FILE,                 // <experimental/>
+  OPT_CLEAN,                    // <experimental/>
   OPT_CREATE_CONFIG_FILE,       // <experimental/>
   OPT_CSV,                      // <experimental/>
   OPT_FIND_OTHER_TEX,           // <experimental/>
@@ -729,7 +733,7 @@ IniTeXMFApp::~IniTeXMFApp()
 {
   try
   {
-    Finalize();
+    Finalize(false);
   }
   catch (const exception &)
   {
@@ -794,7 +798,7 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
   session->SetFindFileCallback(this);
 }
 
-void IniTeXMFApp::Finalize()
+void IniTeXMFApp::Finalize(bool keepSession)
 {
   if (logStream.IsOpen())
   {
@@ -803,7 +807,10 @@ void IniTeXMFApp::Finalize()
   FlushPendingTraceMessages();
   packageInstaller = nullptr;
   packageManager = nullptr;
-  session = nullptr;
+  if (!keepSession)
+  {
+    session = nullptr;
+  }
 }
 
 void IniTeXMFApp::FindWizards()
@@ -1055,6 +1062,18 @@ void IniTeXMFApp::ListMetafontModes()
   {
     cout << StringUtil::FormatString("%-8s  %5dx%-5d  %s", mode.mnemonic.c_str(), mode.horizontalResolution, mode.verticalResolution, mode.description.c_str()) << endl;
   }
+}
+
+void IniTeXMFApp::Clean()
+{
+  LinkCategoryOptions linkCategories;
+  linkCategories.Set();
+  ManageLinks(linkCategories, true, false);
+  session->UnloadFilenameDatabase();
+  Finalize(true);
+  isLog4cxxConfigured = false;
+  logger = nullptr;
+  Directory::Delete(session->GetSpecialPath(SpecialPath::DataRoot), true);
 }
 
 void IniTeXMFApp::RemoveFndb()
@@ -2538,6 +2557,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   string logFile;
   string portableRoot;
 
+  bool optClean = false;
   bool optDump = false;
   bool optDumpByName = false;
   bool optFindOtherTeX = false;
@@ -2597,6 +2617,10 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     case OPT_ADD_FILE:
 
       addFiles.push_back(optArg);
+      break;
+
+    case OPT_CLEAN:
+      optClean = true;
       break;
 
     case OPT_CREATE_CONFIG_FILE:
@@ -3148,6 +3172,11 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   {
     RegisterOtherRoots();
   }
+
+  if (optClean)
+  {
+    Clean();
+  }
 }
 
 #if defined(_UNICODE)
@@ -3181,7 +3210,7 @@ int MAIN(int argc, MAINCHAR* argv[])
     IniTeXMFApp app;
     app.Init(argc, &newargv[0]);
     app.Run(argc, &newargv[0]);
-    app.Finalize();
+    app.Finalize(false);
     logger = nullptr;
     return 0;
   }

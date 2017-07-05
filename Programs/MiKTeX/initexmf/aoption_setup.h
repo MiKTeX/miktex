@@ -17,6 +17,14 @@ const struct poptOption IniTeXMFApp::aoption_setup[] = {
   },
 
   {
+    "clean", 0,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    OPT_CLEAN,
+    nullptr,
+    nullptr
+  },
+
+  {
     "common-config", 0,
     POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_COMMON_CONFIG,

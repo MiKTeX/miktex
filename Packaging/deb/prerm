@@ -1,2 +1,2 @@
 #!/bin/sh -e
-initexmf --admin --remove-links
+initexmf --admin --clean

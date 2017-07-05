@@ -17,6 +17,14 @@ const struct poptOption IniTeXMFApp::aoption_user[] = {
   },
 
   {
+    "clean", 0,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    OPT_CLEAN,
+    T_("Remove restorable data."),
+    nullptr
+  },
+
+  {
     "create-config-file", 0,
     POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_CREATE_CONFIG_FILE,
