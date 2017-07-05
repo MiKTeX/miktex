@@ -394,11 +394,6 @@ private:
 private:
   void RegisterOtherRoots();
 
-#if !defined(MIKTEX_STANDALONE)
-private:
-  void Configure();
-#endif
-
 private:
   void CreatePortableSetup(const PathName& portableRoot);
 
@@ -584,8 +579,6 @@ private:
 enum Option
 {
   OPT_AAA = 256,
-
-  OPT_CONFIGURE,                // ! MIKTEX_STANDALONE
 
   OPT_ADMIN,
   OPT_DISABLE_INSTALLER,
@@ -2438,64 +2431,6 @@ void IniTeXMFApp::RegisterOtherRoots()
   }
 }
 
-#if !defined(MIKTEX_STANDALONE)
-void IniTeXMFApp::Configure()
-{
-  ProcessOutput output;
-  int exitCode;
-  output.Clear();
-  Process::ExecuteSystemCommand("kpsewhich --expand-path \\$TEXMF", &exitCode, &output, 0);
-  output.RemoveTrailingNewline();
-  if (exitCode == 0 && !output.IsEmpty())
-  {
-    if (session->IsAdminMode())
-    {
-      if (!startuconfig.commonRoots.empty())
-      {
-        startuconfig.commonRoots += PathName::PathNameDelimiter;
-      }
-      startuconfig.commonRoots += output.ToString();
-    }
-    else
-    {
-      if (!startuconfig.userRoots.empty())
-      {
-        startuconfig.userRoots += PathName::PathNameDelimiter;
-      }
-      startuconfig.userRoots += output.ToString();
-    }
-    SetTeXMFRootDirectories();
-  }
-  unsigned nRoots = session->GetNumberOfTEXMFRoots();
-  for (unsigned r = 0; r < nRoots; ++r)
-  {
-    if (session->IsAdminMode())
-    {
-      if (session->IsCommonRootDirectory(r))
-      {
-        UpdateFilenameDatabase(r);
-      }
-      else
-      {
-        Verbose(T_("Skipping user root directory (%s)..."), Q_(session->GetRootDirectory(r)));
-      }
-    }
-    else
-    {
-      if (!session->IsCommonRootDirectory(r))
-      {
-        UpdateFilenameDatabase(r);
-      }
-      else
-      {
-        Verbose(T_("Skipping common root directory (%s)..."), Q_(session->GetRootDirectory(r)));
-      }
-    }
-  }
-  packageManager->CreateMpmFndb();
-}
-#endif
-
 void IniTeXMFApp::CreatePortableSetup(const PathName& portableRoot)
 {
   unique_ptr<Cfg> config(Cfg::Create());
@@ -2603,10 +2538,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   string logFile;
   string portableRoot;
 
-#if !defined(MIKTEX_STANDALONE)
-  bool optConfigure = false;
-#endif
-
   bool optDump = false;
   bool optDumpByName = false;
   bool optFindOtherTeX = false;
@@ -2667,12 +2598,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
       addFiles.push_back(optArg);
       break;
-
-#if !defined(MIKTEX_STANDALONE)
-    case OPT_CONFIGURE:
-      optConfigure = true;
-      break;
-#endif
 
     case OPT_CREATE_CONFIG_FILE:
 
@@ -2997,14 +2922,10 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     || !startupConfig.commonConfigRoot.Empty()
     || !startupConfig.commonInstallRoot.Empty())
   {
-#if !defined(MIKTEX_STANDALONE)
-    optConfigure = true;
-#else
 #if defined(MIKTEX_WINDOWS)
     SetTeXMFRootDirectories(optNoRegistry);
 #else
     SetTeXMFRootDirectories();
-#endif
 #endif
   }
 
@@ -3205,13 +3126,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   {
     ListMetafontModes();
   }
-
-#if !defined(MIKTEX_STANDALONE)
-  if (optConfigure)
-  {
-    Configure();
-  }
-#endif
 
   if (optReport)
   {

@@ -1,6 +1,6 @@
 /* miktex/Version.h: MiKTeX version information         -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -26,9 +26,6 @@
 
 #include <miktex/First.h>
 #include <miktex/Definitions.h>
-
-// DEPRECATED: always stand-alone
-#define MIKTEX_STANDALONE 1
 
 #define MIKTEX_MAJOR_VERSION @MIKTEX_MAJOR_VERSION@
 #define MIKTEX_MINOR_VERSION @MIKTEX_MINOR_VERSION@

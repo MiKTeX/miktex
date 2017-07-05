@@ -16,16 +16,6 @@ const struct poptOption IniTeXMFApp::aoption_user[] = {
     nullptr
   },
 
-#if !defined(MIKTEX_STANDALONE)
-  {
-    "configure", 0,
-    POPT_ARG_NONE, nullptr,
-    OPT_CONFIGURE,
-    T_("Configure MiKTeX."),
-    nullptr
-  },
-#endif
-
   {
     "create-config-file", 0,
     POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
@@ -311,16 +301,6 @@ const struct poptOption IniTeXMFApp::aoption_user[] = {
     T_("Update the file name database."),
     T_("ROOT")
   },
-
-#if !defined(MIKTEX_STANDALONE)
-  {
-    "user-install", 0,
-    POPT_ARG_STRING, nullptr,
-    OPT_USER_INSTALL,
-    T_("Register the user installation directory."),
-    T_("DIR")
-  },
-#endif
 
   {
     "user-roots", 'r',

@@ -402,12 +402,10 @@ void MakeFmt::Run(int argc, const char** argv)
   default:
     break;
   }
-#if defined(MIKTEX_STANDALONE)
   if (IsPdf())
   {
     InstallPdftexConfigTeX();
   }
-#endif
   arguments.push_back(inputFile.ToString());
   if (!noDumpPrimitive)
   {
