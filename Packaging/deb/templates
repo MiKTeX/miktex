@@ -7,7 +7,7 @@ Description: Create symbolic links in '/usr/local/bin'?
  .
  Symbolic links targetting the 'miktex-' prefixed executables can be
  created in '/usr/local/bin'.
- This allows users to invoke the executables  as usual.
+ This allows users to invoke the executables as usual.
  .
  Existing files in '/usr/local/bin' will not be overwritten unless
  you select 'force'.
@@ -21,7 +21,7 @@ Description: Install missing files on-the-fly?
 
 Template: miktex/othertexmf
 Type: boolean
-Default: false
+Default: true
 Description: Add other TEXMF directories?
  Another TeX distribution has been detected.
  You can allow to add their TEXMF directories to the MiKTeX search path.
