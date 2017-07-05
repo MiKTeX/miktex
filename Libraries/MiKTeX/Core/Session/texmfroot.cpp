@@ -787,7 +787,11 @@ unsigned SessionImpl::GetUserConfigRoot()
 
 bool SessionImpl::IsTeXMFReadOnly(unsigned r)
 {
-  return !IsMiKTeXPortable() && !rootDirectories[r].IsOther() && ((IsMiKTeXDirect() && r == GetInstallRoot()) || (rootDirectories[r].IsCommon() && !IsAdminMode()));
+  return
+    !IsMiKTeXPortable()
+    && ((IsMiKTeXDirect() && r == GetInstallRoot())
+      || rootDirectories[r].IsOther()
+      || (rootDirectories[r].IsCommon() && !IsAdminMode()));
 }
 
 bool SessionImpl::FindFilenameDatabase(unsigned r, PathName& path)

@@ -459,6 +459,9 @@ public:
   {
     if (!isLog4cxxConfigured)
     {
+#if 0
+      fprintf(stderr, "%s\n", traceMessage.message.c_str());
+#endif
       PushTraceMessage(traceMessage);
       return;
     }
