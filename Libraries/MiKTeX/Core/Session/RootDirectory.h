@@ -107,7 +107,7 @@ public:
 private:
   MiKTeX::Core::PathName unexpandedPath;
 
-  // fully qualified path to root folder
+  // fully qualified path to root directory
 private:
   MiKTeX::Core::PathName path;
 
@@ -115,11 +115,11 @@ private:
 private:
   std::shared_ptr<FileNameDatabase> fndb;
 
-  // true, if an FNDB doesn't exist
+  // true, if a file name database doesn't exist
 private:
   bool noFndb = false;
 
-  // true, if this is a common root directory
+  // true, if this is a system-wide root directory
 private:
   bool common = false;
 

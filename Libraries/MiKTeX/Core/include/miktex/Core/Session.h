@@ -100,33 +100,37 @@ public:
 /// Special path enum class.
 enum class SpecialPath
 {
-  /// The common installation root directory.
+  /// The system-wide installation root directory.
   CommonInstallRoot,
 
-  // The installation directory of the user.
+  // The user's installation root directory.
   UserInstallRoot,
 
-  /// The common data root directory.
+  /// The system-wide data root directory.
   CommonDataRoot,
 
-  /// The data root directory of the user.
+  /// The user's data root directory.
   UserDataRoot,
 
+  /// The system-wide configuration root directory.
   CommonConfigRoot,
+
+  /// The user's configuration root directory.
   UserConfigRoot,
+
+  /// The effective installation root directory.
   InstallRoot,
 
-  /// The prefered data root directory. For a common MiKTeX setup
-  /// this is equivalent to the common data directory. For a private
-  /// MiKTeX setup this is equivalent to the user data directory.
+  /// The effective data root directory.
   DataRoot,
 
+  /// The effective configuration root directory.
   ConfigRoot,
 
-  /// The bin directory.
+  /// The effective directory for MiKTeX binaries.
   BinDirectory,
 
-  /// The internal bin directory.
+  /// The directory for internal MiKTeX binaries.
   InternalBinDirectory,
 
   /// The portable root directory.
@@ -135,15 +139,18 @@ enum class SpecialPath
   /// The portable mount directory.
   PortableMount,
 
+  /// The distro root directory.
+  /// This is either CommonInstallRoot (for a shared installation) or
+  /// UserInstallRoot (for single user installation)
   DistRoot,
 
-  /// The local bin directory.
-  /// This directory contains the symbolic links.
+  /// The effective directory for symbolic links to MiKTeX binaries.
   LocalBinDirectory,
 
-  /// Where the log files are stored.
+  /// The effective directory for log files.
   LogDirectory,
 
+  /// The root directory of the MiKTeX installation.
   BootstrappingRoot,
 };
 
