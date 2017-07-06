@@ -9,22 +9,23 @@
 
 <title>Installing &MiKTeX;</title>
 
-<para>You use the &BasicMiKTeXInstaller; to install &MiKTeX; on your
-computer. You can download the installer from
-the <ulink url="&hqbaseurl;download">&MiKTeX; download
-page</ulink>.
-</para>
+<section id="installwin">
 
-<para>Please read
-<ulink url="&hqbaseurl;howto/install-miktex">the installation
-tutorial</ulink> for a step-to-step guide.</para>
+<title>Installing for &Windows;</title>
+  
+<para>You use the &BasicMiKTeXInstaller; to install &MiKTeX; on your
+&Windows; computer. You can download the installer from the <ulink
+url="&hqbaseurl;download">&MiKTeX; download page</ulink>.</para>
+
+<para>Please read <ulink url="&hqbaseurl;howto/install-miktex">the
+installation tutorial</ulink> for a step-to-step guide.</para>
 
 <section id="startmenu">
 
 <title>Items in the Start Menu</title>
 
-<para>&MiKTeXSetupWizard; installs the
-following menu items in the &Windows;
+<para>&MiKTeXSetupWizard; installs the following menu items in the
+&Windows;
 <indexterm>
 <primary>start menu</primary>
 </indexterm>
@@ -192,6 +193,85 @@ Programs</guilabel>.</para></step>
 <step><para>Click <guimenuitem>Change/Remove</guimenuitem>.</para></step>
 
 </procedure>
+
+</section>
+
+</section>
+
+<section id="installmac">
+
+<title>Installing for &macOS;</title>
+
+<para>&MiKTeX; can be installed via the &Homebrew; package manager.</para>
+
+<section>
+
+<title>Install &Homebrew;</title>
+	 
+<para>If you don't already have &Homebrew; installed, you can install it by pasting</para>
+
+<informalexample>
+<screen><prompt>&promptunx;</prompt><userinput>/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+</userinput></screen>
+</informalexample>
+
+<para>in a &Terminal; prompt.  Please visit the <ulink url="https://brew.sh">&Homebrew; homepage</ulink>
+for more detailed instructions.</para>
+
+</section>
+
+<section>
+
+<title>Install &MiKTeX;</title>
+
+<para>&MiKTeX; can then be installed by pasting these commands:</para>
+
+<informalexample>
+<screen><prompt>&promptunx;</prompt><userinput>brew tap miktex/miktex</userinput>
+<prompt>&promptunx;</prompt><userinput>brew install miktex</userinput></screen>
+</informalexample>
+
+<para>in a &Terminal; prompt.  The first command adds the &MiKTeX;
+repository to the list of formulae that &Homebrew; tracks, updates and
+installs from.  The second command sets up a bare minimum &MiKTeX;, i.e.,
+only executable files and manual pages.</para>
+
+<para>From time to time, you should run</para>
+
+<informalexample>
+<screen><prompt>&promptunx;</prompt><userinput>brew update</userinput>
+<prompt>&promptunx;</prompt><userinput>brew outdated miktex || brew upgrade miktex</userinput></screen>
+</informalexample>
+
+<para>This will update the &MiKTeX; executables, if there is a newer Version available.</para>
+
+</section>
+
+<section>
+
+<title>Installing packages</title>
+
+<para>&MiKTeX; is pre-configured to install missing files on-the-fly,
+which allows you to keep the &TeX; installation reduced to the most
+necessary.</para>
+
+<para>If you intend to work offline, you can upgrade your &TeX;
+installation by runnning</para>
+
+<informalexample>
+<screen><prompt>&promptunx;</prompt><userinput>mpm --admin --package-level=basic --upgrade</userinput></screen>
+</informalexample>
+
+</section>
+
+</section>
+
+<section id="installunx">
+
+<title>Installing for &Linux;</title>
+
+<para>
+</para>
 
 </section>
 

@@ -65,6 +65,7 @@
 <!ENTITY SyncTeX "<application>SyncTeX</application>">
 <!ENTITY TCX "<acronym>TCX</acronym>">
 <!ENTITY TDS "<acronym>TDS</acronym>">
+<!ENTITY Terminal "<application>Terminal</application>">
 <!ENTITY TEXMF "<acronym>TEXMF</acronym>">
 <!ENTITY TeX "<application>TeX</application>">
 <!ENTITY TeXAndFriends "<application>TeX</application>&nbsp;&amp;&nbsp;Friends">
@@ -141,6 +142,8 @@
 <!ENTITY pdfTeX "<application>pdfTeX</application>">
 <!ENTITY progfldr "MiKTeX ${MIKTEX_MAJOR_MINOR_STR}">
 <!ENTITY prompt "${PROMPT}">
+<!ENTITY promptunx "${PROMPTUNX}">
+<!ENTITY promptwin "${PROMPTWIN}">
 <!ENTITY rev "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_COMP_J2000_VERSION}">
 <!ENTITY rsync "<command>rsync</command>">
 <!ENTITY setupexe "<command>setup-${MIKTEX_MAJOR_MINOR_STR}.<replaceable>xxxx</replaceable>${EXESUFFIX}</command>">
