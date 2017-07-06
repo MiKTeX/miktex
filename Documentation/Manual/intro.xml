@@ -16,7 +16,7 @@
 <para>This manual is about &MiKTeX;, a modern implementation of
 &TeXnFriends;.</para>
 
-<para>If you are not yet familiar with using &TeX; (and Friends), then
+<para>If you are not yet familiar with using &TeX; (&LaTeX;), then
 please consider reading one of the tutorials available on the
 Internet.</para>
 
@@ -36,7 +36,7 @@ Internet.</para>
 <para>The &MiKTeX; installer for &Windows; can be downloaded from the <ulink
 url="&hqbaseurl;download">&MiKTeX; download page</ulink>.</para>
 
-<para>For other platforms (&macOS;, &Ubuntu) you can get &MiKTeX; via
+<para>For other platforms (&macOS;, &Ubuntu;) you can get &MiKTeX; via
 the system package manager frontend (&brew;, &aptget;).  The <ulink
 url="&hqbaseurl;download">&MiKTeX; download page</ulink> has relevant
 information available.</para>
