@@ -3,7 +3,6 @@
 <!ENTITY BibTeX "<application>BibTeX</application>">
 <!ENTITY CD "<acronym>CD</acronym>">
 <!ENTITY CTAN "<acronym>CTAN</acronym>">
-<!ENTITY ConTeXt "<application>ConTeXt</application>">
 <!ENTITY Cygwin "<application>Cygwin</application>">
 <!ENTITY DVD "<acronym>DVD</acronym>">
 <!ENTITY DVDdashR "<acronym>DVD-R</acronym>">
@@ -118,6 +117,7 @@
 <!ENTITY macOSSierra "<application>macOS&nbsp;Sierra</application>">
 <!ENTITY makeinfo "<command>makeinfo</command>">
 <!ENTITY md5walk "<command>md5walk</command>">
+<!ENTITY memoir "<application>memoir</application>">
 <!ENTITY miktexdvicopy "<command>${MIKTEX_PREFIX}dvicopy</command>">
 <!ENTITY miktexepstopdf "<command>${MIKTEX_PREFIX}epstopdf</command>">
 <!ENTITY miktexgftodvi "<command>${MIKTEX_PREFIX}gftodvi</command>">
