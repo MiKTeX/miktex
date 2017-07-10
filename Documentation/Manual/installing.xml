@@ -262,6 +262,37 @@ installation by runnning</para>
 <screen><prompt>&promptunx;</prompt><userinput>mpm --admin --package-level=basic --upgrade</userinput></screen>
 </informalexample>
 
+<para>This will upgrade to a &TeX; installation which has the most
+popular packages.  If you want to install all available packages, then
+you can choose package level
+<userinput>complete</userinput>.</para>
+
+</section>
+
+<section>
+
+<title>Directory Structure</title>
+
+<para>&TEXMF; root directories:</para>
+
+<itemizedlist>
+<listitem><para>UserConfig: <filename>~/.miktex/texmfs/config</filename></para></listitem>
+<listitem><para>UserData: <filename>~/.miktex/texmfs/data</filename></para></listitem>
+<listitem><para>UserInstall: <filename>~/.miktex/texmfs/install</filename></para></listitem>
+<listitem><para>CommonConfig: <filename>/usr/local/var/lib/miktex-texmf</filename></para></listitem>
+<listitem><para>CommonData: <filename>/usr/local/var/cache/miktex-texmf</filename></para></listitem>
+<listitem><para>CommonInstall: <filename>/usr/local/share/miktex-texmf</filename></para></listitem>
+</itemizedlist>
+
+<para>Special directories:</para>
+
+<itemizedlist>
+<listitem><para>&MiKTeX; binaries: <filename>/usr/local/bin</filename></para></listitem>
+<listitem><para>&MiKTeX; internal binaries: <filename>/usr/local/lib/miktex</filename></para></listitem>
+<listitem><para>&MiKTeX; shared objects: <filename>/usr/local/lib</filename></para></listitem>
+<listitem><para>&MiKTeX; man pages: <filename>/usr/local/share/man/man<replaceable>x</replaceable></filename></para></listitem>
+</itemizedlist>
+
 </section>
 
 </section>
