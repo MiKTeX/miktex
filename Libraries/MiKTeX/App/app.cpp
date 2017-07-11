@@ -775,7 +775,7 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
     }
   }
 
-  Process::Start(fileName, Argv(fileName, commandLine).ToStringVector());
+  Process::Start(fileName, Argv(commandLine).ToStringVector());
 }
 
 bool Application::GetQuietFlag() const

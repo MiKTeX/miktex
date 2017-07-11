@@ -238,7 +238,7 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
 
 FILE* SessionImpl::InitiateProcessPipe(const string& command, FileAccess access, FileMode& mode)
 {
-  Argv argv("", command);
+  Argv argv(command);
   int argc = argv.GetArgc();
   if (argc == 0)
   {

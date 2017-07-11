@@ -296,6 +296,6 @@ MIKTEXCORECEEAPI(void) miktex_start_process(const char* lpszFileName, const char
 {
   C_FUNC_BEGIN();
   MIKTEX_ASSERT_STRING(commandLine);
-  Process::Start(lpszFileName, Argv(lpszFileName, commandLine).ToStringVector(), pFileStandardInput, ppFileStandardInput, ppFileStandardOutput, ppFileStandardError, lpszWorkingDirectory);
+  Process::Start(lpszFileName, Argv(commandLine).ToStringVector(), pFileStandardInput, ppFileStandardInput, ppFileStandardOutput, ppFileStandardError, lpszWorkingDirectory);
   C_FUNC_END();
 }

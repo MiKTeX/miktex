@@ -584,7 +584,7 @@ Argv TeXMFApp::ParseFirstLine(const PathName& path)
     return Argv();
   }
 
-  return Argv("foo", firstLine.c_str() + 2);
+  return Argv(firstLine.c_str() + 2);
 }
 
 bool inParseFirstLine = false;

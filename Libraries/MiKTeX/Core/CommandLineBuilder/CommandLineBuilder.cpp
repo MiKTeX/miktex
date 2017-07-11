@@ -57,8 +57,8 @@ Argv::~Argv() noexcept
   }
 }
 
-Argv::Argv(const string& fileName, const string& commandLine) :
-  pimpl(new impl{ { MIKTEX_STRDUP(fileName.c_str()), nullptr } })
+Argv::Argv(const string& commandLine) :
+  pimpl(new impl{ { nullptr } })
 {
   Append(commandLine);
 }
@@ -67,6 +67,7 @@ Argv::Argv(const vector<string>& arguments) :
   pimpl(new impl{ { nullptr } })
 {
   MIKTEX_ASSERT(!pimpl->argv.empty());
+  MIKTEX_ASSERT(pimpl->argv.back() == nullptr);
   pimpl->argv.pop_back();
   MIKTEX_ASSERT(pimpl->argv.empty());
   for(const string& arg : arguments)
