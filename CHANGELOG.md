@@ -21,9 +21,9 @@
 * teckit 2.5.7
 * zzip 0.13.66
 
-### Ubuntu 16.04 support
+### Ubuntu 16.04 / Linux Mint 18.x
 
-It is now possible to install MiKTeX on Ubuntu 16.04 amd64:
+It is now possible to install MiKTeX on Ubuntu 16.04 64-bit and Linux Mint 18.x 64-bit:
 
     sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys D6BC243565B2087BC3F897C9277A7293F59E4889
     echo "deb https://miktex.org/download/ubuntu xenial universe" | sudo tee /etc/apt/sources.list.d/miktex.list

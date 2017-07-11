@@ -2,6 +2,9 @@
 <!ENTITY BasicMiKTeXInstaller "<application>Basic MiKTeX Installer</application>">
 <!ENTITY BibTeX "<application>BibTeX</application>">
 <!ENTITY CD "<acronym>CD</acronym>">
+<!ENTITY CommonConfig "<varname>CommonConfig</varname>">
+<!ENTITY CommonData "<varname>CommonData</varname>">
+<!ENTITY CommonInstall "<varname>CommonInstall</varname>">
 <!ENTITY CTAN "<acronym>CTAN</acronym>">
 <!ENTITY Cygwin "<application>Cygwin</application>">
 <!ENTITY DVD "<acronym>DVD</acronym>">
@@ -75,6 +78,9 @@
 <!ENTITY Texinfo "<application>Texinfo</application>">
 <!ENTITY Ubuntu "<application>Ubuntu</application>">
 <!ENTITY URL "<acronym>URL</acronym>">
+<!ENTITY UserConfig "<varname>UserConfig</varname>">
+<!ENTITY UserData "<varname>UserData</varname>">
+<!ENTITY UserInstall "<varname>UserInstall</varname>">
 <!ENTITY UTC "<acronym>UTC</acronym>">
 <!ENTITY URW "<acronym>URW</acronym>">
 <!ENTITY Windows "<application>Windows</application>">

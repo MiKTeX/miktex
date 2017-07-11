@@ -10,21 +10,20 @@
 <title>Specialities</title>
 
 <para>This section describes features that were added to the &MiKTeX;
-implementation of &TeXnFriends;.</para>
+&TeX; implementation.</para>
 
 <section id="autoinstalloptions">
 
 <title>Automatic Package Installation</title>
 
-<para>All &MiKTeX; programs can be configured in such a way that
-missing packages
+<para>&MiKTeX; can be configured in such a way that missing packages
 <indexterm>
 <primary>automatic package installation</primary>
 </indexterm>
 are automatically installed (see <xref linkend="autoinstall"/>).</para>
 
-<para>It is possible to override the global configuration setting
-with these command line options:</para>
+<para>It is possible to override the global configuration setting with
+these command line options:</para>
 
 <variablelist>
 <varlistentry>
@@ -152,16 +151,17 @@ name.  Look at the following example:</para>
 
 <informalexample>
 <screen><prompt>&prompt;</prompt><userinput>latex -job-name=foo sample2e</userinput>
-This is TeX, Version 3.14159 (MiKTeX 2.2)
-(D:\texmf\tex\latex\base\sample2e.tex
-LaTeX2e &lt;2001/06/01&gt;
-Babel &lt;v3.7h&gt; and hyphenation patterns for english, german, ngerman, loaded.
-(D:\texmf\tex\latex\base\article.cls
-Document Class: article 2001/04/21 v1.4e Standard LaTeX document class
-(D:\texmf\tex\latex\base\size10.clo))
-No file foo.aux.
-(D:\texmf\tex\latex\base\omscmr.fd) [1] [2] [3] (foo.aux) )
-Output written on foo.dvi (3 pages, 7256 bytes).
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6350 64-bit)
+entering extended mode
+("C:/Program Files/MiKTeX 2.9/tex/latex/base/sample2e.tex"
+LaTeX2e &lt;2017-04-15&gt;
+Babel &lt;3.10&gt; and hyphenation patterns for 75 language(s) loaded.
+("C:/Program Files/MiKTeX 2.9/tex/latex/base/article.cls"
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+("C:/Program Files/MiKTeX 2.9/tex/latex/base/size10.clo")) (foo.aux)
+("C:/Program Files/MiKTeX 2.9/tex/latex/base/omscmr.fd") [1] [2] [3] (foo.aux)
+)
+Output written on foo.dvi (3 pages, 7484 bytes).
 Transcript written on foo.log.
 <prompt>&prompt;</prompt></screen>
 </informalexample>
@@ -328,7 +328,7 @@ causes &TeX; to create all output files in another directory.</para>
 
 <para>This ensures that all output files
 (<filename>foo.dvi</filename>, <filename>foo.log</filename>, &hellip;)
-will be created in <filename>C:\texoutput\</filename>.</para>
+will be created in <filename>C:\texoutput</filename>.</para>
 
 </section>
 
@@ -356,9 +356,9 @@ causes &TeX; to create auxiliary files in another directory. For example:</para>
 </informalexample>
 
 <para>This ensures that 1)&nbsp;<filename>foo.dvi</filename> will be
-created in <filename>C:\texoutput\</filename> and 2)&nbsp;all other
+created in <filename>C:\texoutput</filename> and 2)&nbsp;all other
 files (<filename>foo.log</filename>, &hellip;) will be created in
-<filename>C:\tobedeleted\.</filename>.</para>
+<filename>C:\tobedeleted</filename>.</para>
 
 </section>
 
@@ -379,13 +379,15 @@ way: the token list is interpreted as a command line.  If the <markup
 role="tex">\write18</markup> feature is enabled (see below), then
 <markup
 role="tex">\write18{<replaceable>toklist</replaceable>}</markup>
-starts the command interpreter (usually <command>cmd.exe</command>) to
-carry out the command specified by <replaceable>toklist</replaceable>.
-For example:
+starts the system command interpreter (usually
+<command>cmd.exe</command> for &Windows; and <command>sh</command> for
+other systems) to carry out the command specified by
+<replaceable>toklist</replaceable>.  For example:
 <programlisting>
-\write18{dir}
+\write18{miktex-kpsewhich sample2e.tex}
 </programlisting>
-lists the files and sub-directories of the current directory.</para>
+prints the fully qualified path to the &LaTeX; input file
+<filename>sample2e.tex</filename>.</para>
 
 <note>
 <para>The <markup
@@ -398,7 +400,8 @@ only well known commands are allowed.
 <primary>--enable-write18</primary>
 </indexterm>
 You fully enable the feature by specifying
-<option>--enable-write18</option> on the &TeX; command-line.</para>
+<option>--enable-write18</option> on the &TeX; command-line.  But
+please keep in mind that this tears a huge security hole.</para>
 </note>
 
 </section>
@@ -411,21 +414,21 @@ You fully enable the feature by specifying
 interprocess communication by prepending a pipe symbol to the file
 name.</para>
 
-<para>If this feature is enabled, then
-<markup role="tex">\input "|<replaceable>command</replaceable>"</markup>
-starts the command interpreter (usually <command>cmd.exe</command>) to
-carry out the command. The output of the command becomes the input of
-&TeX;.
-For example:
+<para>If this feature is enabled, then <markup role="tex">\input
+"|<replaceable>command</replaceable>"</markup> starts the command
+interpreter (usually <command>cmd.exe</command> for &Windows; and
+<command>sh</command> for other systems) to carry out the command. The
+output of the command becomes the input of &TeX;.  For example:
 <programlisting>
-\input "|dir/b"
+\input "|miktex-kpsewhich sample2e.tex"
 </programlisting>
-typesets the file names of the current directory.</para>
+typesets he fully qualified path to the &LaTeX; input file
+<filename>sample2e.tex</filename>.</para>
 
 <para>Likewise, it is possible to let &TeX; write something into
 the input stream of a command. For example:
 <programlisting>
-\immediate\openout1 = "|unix2dos|sort > sorted"
+\immediate\openout1 = "sort > sorted"
 \immediate\write 1 {b}
 \immediate\write 1 {a}
 \immediate\write 1 {c}
@@ -435,16 +438,16 @@ the input stream of a command. For example:
 typesets a b c.</para>
 
 <note>
-<para>Piped input and output is disabled by default to avoid security
-problems.
+<para>Piped input and output is disabled by default.
 <indexterm>
 <primary>security</primary>
 </indexterm>
 <indexterm significance="preferred">
 <primary>--enable-pipes</primary>
 </indexterm>
-You enable the feature by specifying
-<option>--enable-pipes</option> on the &TeX; command-line.</para>
+You enable the feature by specifying <option>--enable-pipes</option>
+on the &TeX; command-line.  But please keep in mind that this tears a
+huge security hole.</para>
 </note>
 
 </section>

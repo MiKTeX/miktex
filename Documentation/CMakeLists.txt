@@ -183,6 +183,7 @@ set(manual_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/texfeatures.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/texifying.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/tracestreams.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/miktex.xml
   ${envvar_xml_files}
   ${options_xml_files}
   ${ref_xml_files}

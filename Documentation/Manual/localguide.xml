@@ -17,15 +17,16 @@
 <indexterm>
 <primary>local guide</primary>
 </indexterm>
-to work through one of the &TeX;/&LaTeX; tutorials. A good
-starting point is this entry in the UK &TeX; &FAQ;:
-<ulink url="http://www.tex.ac.uk/cgi-bin/texfaq2html?label=tutorials*">http://www.tex.ac.uk/cgi-bin/texfaq2html?label=tutorials*</ulink>.</para>
+to work through one of the &TeX;/&LaTeX; tutorials. A good starting
+point is this entry in the <acronym>UK</acronym> &TeX; &FAQ;: <ulink
+url="http://www.tex.ac.uk/faq/">http://www.tex.ac.uk/faq/</ulink>.</para>
 
 <para>&MiKTeX; doesn't differ very much from
 any other &TeX; system you might have used before.
 Typesetting with &MiKTeX; involves these steps:</para>
 <procedure>
-<step><para>Start &TeXworks; and edit your &LaTeX; document.</para></step>
+<step><para>Start &TeXworks; (a simple &TeX; frontend) and edit your
+&LaTeX; document.</para></step>
 <step><para>Press <keycombo>
 <keycap>Ctrl</keycap>
 <keycap>T</keycap>
