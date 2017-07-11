@@ -25,6 +25,7 @@
 
 #define EXPERT_SRC_SPECIALS 0
 
+#include "miktex/miktex.defaults.h"
 #include "miktex/texapp.defaults.h"
 
 class TeXApp::impl
@@ -508,7 +509,7 @@ TeXApp::Write18Result TeXApp::Write18(const string& command_, int& exitCode) con
 #else
       bool ignoreCase = false;
 #endif
-      bool allowed = StringUtil::Contains(session->GetConfigValue("", MIKTEX_REGVAL_ALLOWED_SHELL_COMMANDS, texapp::texapp::AllowedShellCommands()).GetString().c_str(), executable.c_str(), ",;:", ignoreCase);
+      bool allowed = StringUtil::Contains(session->GetConfigValue("", MIKTEX_REGVAL_ALLOWED_SHELL_COMMANDS, miktex::AllowedShellCommands()).GetString().c_str(), executable.c_str(), ",;:", ignoreCase);
       if (!allowed)
       {
         return Write18Result::Disallowed;
