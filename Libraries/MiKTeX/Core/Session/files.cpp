@@ -223,7 +223,7 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
     openFilesMap.insert(pair<FILE*, OpenFileInfo>(pFile, info));
     if (setvbuf(pFile, 0, _IOFBF, 1024 * 4) != 0)
     {
-      trace_error->WriteFormattedLine("core", T_("setvbuf() failed for some reason"));
+      trace_error->WriteFormattedLine("core", "setvbuf() failed for some reason");
     }
     RecordFileInfo(path, access);
     trace_files->WriteFormattedLine("core", "  => %p", pFile);
@@ -379,7 +379,7 @@ void SessionImpl::CheckOpenFiles()
 {
   for (map<const FILE*, OpenFileInfo>::const_iterator it = openFilesMap.begin(); it != openFilesMap.end(); ++it)
   {
-    trace_error->WriteFormattedLine("core", T_("still open: %s"), Q_(it->second.fileName));
+    trace_error->WriteFormattedLine("core", "still open: %s", Q_(it->second.fileName));
   }
 }
 
