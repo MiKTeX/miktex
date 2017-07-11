@@ -26,14 +26,13 @@
 #define EXPERT_SRC_SPECIALS 0
 
 #include "miktex/miktex.defaults.h"
-#include "miktex/texapp.defaults.h"
 
 class TeXApp::impl
 {
 public:
   int optBase;
 public:
-  Write18Mode write18Mode = Write18Mode::Disabled;
+  ShellCommandMode shellCommandMode = ShellCommandMode::Forbidden;
 public:
   bool enableMLTeX;
 public:
@@ -67,7 +66,7 @@ void TeXApp::Init(vector<char*>& args)
 
   pimpl->enableEncTeX = false;
   pimpl->enableMLTeX = false;
-  pimpl->write18Mode = Write18Mode::Disabled;
+  pimpl->shellCommandMode = ShellCommandMode::Forbidden;
   pimpl->lastLineNum = -1;
 # define SYNCTEX_NO_OPTION INT_MAX
   pimpl->synchronizationOptions = SYNCTEX_NO_OPTION;
@@ -77,27 +76,7 @@ void TeXApp::OnTeXMFStartJob()
 {
   TeXMFApp::OnTeXMFStartJob();
   shared_ptr<Session> session = GetSession();
-  string enableWrite18 = session->GetConfigValue("", MIKTEX_REGVAL_ENABLE_WRITE18, texapp::texapp::EnableWrite18()).GetString();
-  if (enableWrite18 == "t")
-  {
-    pimpl->write18Mode = Write18Mode::Enabled;
-  }
-  else if (enableWrite18 == "f")
-  {
-    pimpl->write18Mode = Write18Mode::Disabled;
-  }
-  else if (enableWrite18 == "p")
-  {
-    pimpl->write18Mode = Write18Mode::PartiallyEnabled;
-  }
-  else if (enableWrite18 == "q")
-  {
-    pimpl->write18Mode = Write18Mode::Query;
-  }
-  else
-  {
-    MIKTEX_UNEXPECTED();
-  }
+  pimpl->shellCommandMode = session->GetShellCommandMode();
 }
 
 void TeXApp::Finalize()
@@ -257,16 +236,16 @@ bool TeXApp::ProcessOption(int optchar, const string& optArg)
   switch (optchar - FIRST_OPTION_VAL - pimpl->optBase)
   {
   case OPT_DISABLE_WRITE18:
-    pimpl->write18Mode = Write18Mode::Disabled;
+    pimpl->shellCommandMode = ShellCommandMode::Forbidden;
     break;
   case OPT_ENABLE_WRITE18:
     if (!inParseFirstLine)
     {
-      pimpl->write18Mode = Write18Mode::Enabled;
+      pimpl->shellCommandMode = ShellCommandMode::Unrestricted;
     }
     break;
   case OPT_RESTRICT_WRITE18:
-    pimpl->write18Mode = Write18Mode::PartiallyEnabled;
+    pimpl->shellCommandMode = ShellCommandMode::Restricted;
     break;
   case OPT_FONT_MAX:
     GetUserParams()["font_max"] = std::stoi(optArg);
@@ -480,14 +459,14 @@ TeXApp::Write18Result TeXApp::Write18(const string& command_, int& exitCode) con
 {
   Write18Result result = Write18Result::Executed;
   string command = command_;
-  switch (pimpl->write18Mode)
+  switch (pimpl->shellCommandMode)
   {
-  case Write18Mode::Enabled:
+  case ShellCommandMode::Unrestricted:
     break;
-  case Write18Mode::Disabled:
+  case ShellCommandMode::Forbidden:
     MIKTEX_UNEXPECTED();
-  case Write18Mode::Query:
-  case Write18Mode::PartiallyEnabled:
+  case ShellCommandMode::Query:
+  case ShellCommandMode::Restricted:
   {
     string quotedCommand;
     string executable;
@@ -496,7 +475,7 @@ TeXApp::Write18Result TeXApp::Write18(const string& command_, int& exitCode) con
       return Write18Result::QuotationError;
     }
     command = quotedCommand;
-    if (pimpl->write18Mode == Write18Mode::Query)
+    if (pimpl->shellCommandMode == ShellCommandMode::Query)
     {
       // todo
       return Write18Result::Disallowed;
@@ -509,7 +488,22 @@ TeXApp::Write18Result TeXApp::Write18(const string& command_, int& exitCode) con
 #else
       bool ignoreCase = false;
 #endif
-      bool allowed = StringUtil::Contains(session->GetConfigValue("", MIKTEX_REGVAL_ALLOWED_SHELL_COMMANDS, miktex::AllowedShellCommands()).GetString().c_str(), executable.c_str(), ",;:", ignoreCase);
+      bool allowed = false;
+      for (const string& s : session->GetAllowedShellCommands())
+      {
+        if (ignoreCase)
+        {
+          allowed = Utils::EqualsIgnoreCase(s, executable);
+        }
+        else
+        {
+          allowed = (s == executable);
+        }
+        if (allowed)
+        {
+          break;
+        }
+      }
       if (!allowed)
       {
         return Write18Result::Disallowed;
@@ -525,16 +519,16 @@ TeXApp::Write18Result TeXApp::Write18(const string& command_, int& exitCode) con
   return result;
 }
 
-TeXApp::Write18Mode TeXApp::GetWrite18Mode() const
+ShellCommandMode TeXApp::GetWrite18Mode() const
 {
-  return pimpl->write18Mode;
+  return pimpl->shellCommandMode;
 }
 
 bool TeXApp::Write18P() const
 {
-  return pimpl->write18Mode == Write18Mode::Enabled
-    || pimpl->write18Mode == Write18Mode::PartiallyEnabled
-    || pimpl->write18Mode == Write18Mode::Query;
+  return pimpl->shellCommandMode == ShellCommandMode::Unrestricted
+    || pimpl->shellCommandMode == ShellCommandMode::Restricted
+    || pimpl->shellCommandMode == ShellCommandMode::Query;
 }
 
 bool TeXApp::MLTeXP() const

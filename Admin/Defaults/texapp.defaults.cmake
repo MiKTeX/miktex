@@ -26,8 +26,3 @@ hyph_size=8191
 
 ;; Size of the output buffer; must be a multiple of 8.
 dvi_buf_size=8192
-
-;; Enable system commands via \write18{...}.  When enabled fully (set to
-;; t), obviously insecure.  When enabled partially (set to p), only the
-;; commands listed in AllowedShellCommands are allowed.
-EnableWrite18=p

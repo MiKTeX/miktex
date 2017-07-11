@@ -137,16 +137,7 @@ public:
   MIKTEXMFTHISAPI(bool) EncTeXP() const;
 
 public:
-  enum class Write18Mode
-  {
-    Enabled = 't',
-    Disabled = 'f',
-    PartiallyEnabled = 'p',
-    Query = 'q',
-  };
-
-public:
-  MIKTEXMFTHISAPI(Write18Mode) GetWrite18Mode() const;
+  MIKTEXMFTHISAPI(MiKTeX::Core::ShellCommandMode) GetWrite18Mode() const;
 
 public:
   MIKTEXMFTHISAPI(bool) Write18P() const;
@@ -318,7 +309,7 @@ inline int miktexgetsynchronizationoptions()
 
 inline bool restrictedshell()
 {
-  return TeXApp::GetTeXApp()->GetWrite18Mode() == TeXApp::Write18Mode::PartiallyEnabled || TeXApp::GetTeXApp()->GetWrite18Mode() == TeXApp::Write18Mode::Query;
+  return TeXApp::GetTeXApp()->GetWrite18Mode() == MiKTeX::Core::ShellCommandMode::Restricted || TeXApp::GetTeXApp()->GetWrite18Mode() == MiKTeX::Core::ShellCommandMode::Query;
 }
 
 inline bool shellenabledp()

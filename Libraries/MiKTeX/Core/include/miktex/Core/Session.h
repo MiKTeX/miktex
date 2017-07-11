@@ -437,6 +437,14 @@ enum class RegisterRootDirectoriesOption
 
 typedef OptionSet<RegisterRootDirectoriesOption> RegisterRootDirectoriesOptionSet;
 
+enum class ShellCommandMode
+{
+  Forbidden,
+  Restricted,
+  Query,
+  Unrestricted
+};
+
 /// Find file callback interface
 class MIKTEXNOVTABLE IFindFileCallback
 {
@@ -979,6 +987,15 @@ public:
   virtual bool TryGetMiKTeXUserInfo(MiKTeXUserInfo& info) = 0;
 #endif
 
+public:
+  virtual ShellCommandMode GetShellCommandMode() = 0;
+
+public:
+  virtual std::vector<std::string> GetAllowedShellCommands() = 0;
+
+public:
+  virtual std::pair<bool, std::string> ExamineCommandLine(const std::string& commandLine) = 0;
+    
 public:
   static MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL FatalCrtError(const std::string& functionName, int errorCode, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation);
 

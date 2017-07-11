@@ -245,6 +245,10 @@ FILE* SessionImpl::InitiateProcessPipe(const string& command, FileAccess access,
     MIKTEX_FATAL_ERROR_2(T_("Invalid command."), "command", command);
   }
   string verb = argv[0];
+  if (verb.length() > 1 && verb[0] == '"' && verb[verb.length() - 1] == verb[0])
+  {
+    verb = verb.substr(1, verb.length() - 2);
+  }
   if (verb == "zcat" && argc == 2 && access == FileAccess::Read)
   {
     mode = FileMode::Open;
@@ -262,7 +266,12 @@ FILE* SessionImpl::InitiateProcessPipe(const string& command, FileAccess access,
   }
   else
   {
-    return POpen(command.c_str(), access == FileAccess::Read ? "r" : "w");
+    pair<bool, string> p = ExamineCommandLine(command);
+    if (!p.first)
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    return POpen(p.second.c_str(), access == FileAccess::Read ? "r" : "w");
   }
 }
 

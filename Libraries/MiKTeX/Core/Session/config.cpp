@@ -37,6 +37,11 @@
 #include "Session/SessionImpl.h"
 #include "Utils/inliners.h"
 
+// TODO:
+#if 0
+#include "miktex/miktex.defaults.h"
+#endif
+
 using namespace MiKTeX::Core;
 using namespace std;
 
@@ -1449,4 +1454,41 @@ std::string SessionImpl::ExpandValues(const string& toBeExpanded, HasNamedValues
     }
   }
   return expansion;
+}
+
+ShellCommandMode SessionImpl::GetShellCommandMode()
+{
+  string shellCommandMode = GetConfigValue("", MIKTEX_REGVAL_SHELL_COMMAND_MODE, "Restricted").GetString();
+  if (shellCommandMode == "Forbidden")
+  {
+    return ShellCommandMode::Forbidden;
+  }
+  else if (shellCommandMode == "Query")
+  {
+    return ShellCommandMode::Query;
+  }
+  else if (shellCommandMode == "Restricted")
+  {
+    return ShellCommandMode::Restricted;
+  }
+  else if (shellCommandMode == "Unrestricted")
+  {
+    return ShellCommandMode::Unrestricted;
+  }
+  else
+  {
+    MIKTEX_FATAL_ERROR_2(T_("Invalid configuration: unknown shell command mode."), "shellCommandMode", shellCommandMode);
+  }
+}
+
+vector<string> SessionImpl::GetAllowedShellCommands()
+{
+  UNIMPLEMENTED();
+}
+
+pair<bool, string> SessionImpl::ExamineCommandLine(const string& commandLine)
+{
+  bool ok = true;
+  string approvedCommandLine = commandLine;
+  return pair<bool, string>(ok, approvedCommandLine);
 }

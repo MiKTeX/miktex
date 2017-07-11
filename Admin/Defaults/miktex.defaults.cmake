@@ -1,3 +1,9 @@
+;; Shell command mode.
+;;   Forbidden: don't allow shell commands
+;;   Restricted: allow the commands listed in AllowedShellCommands
+;;   Unrestricted: allow all shell commands
+ShellCommandMode=Restricted
+
 ;; The programs listed here are as safe as any we know: they either do
 ;; not write any output files, respect openout_any, or have hard-coded
 ;; restrictions similar to or higher than openout_any=p.  They also

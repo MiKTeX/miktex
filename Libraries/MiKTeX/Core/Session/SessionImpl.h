@@ -443,6 +443,15 @@ public:
 #endif
 
 public:
+  MiKTeX::Core::ShellCommandMode GetShellCommandMode() override;
+
+public:
+  std::vector<std::string> GetAllowedShellCommands() override;
+
+public:
+  std::pair<bool, std::string> ExamineCommandLine(const std::string& commandLine) override;
+
+public:
   bool IsTEXMFFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::PathName& relPath, unsigned& rootIndex);
 
 public:

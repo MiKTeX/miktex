@@ -1,7 +1,7 @@
 !include texmfapp.ini
 !include texapp.ini
 
-EnableWrite18=f
+AllowShellCommands=none
 
 [ft.tex]
 

@@ -812,15 +812,32 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValu
   }
   else if (varName == "shell_escape")
   {
-    result = session->TryGetConfigValue("", MIKTEX_REGVAL_ENABLE_WRITE18, varValue);
+    switch (session->GetShellCommandMode())
+    {
+    case ShellCommandMode::Forbidden:
+      varValue = "f";
+      break;
+    case ShellCommandMode::Query:
+    case ShellCommandMode::Restricted:
+      varValue = "p";
+      break;
+    case ShellCommandMode::Unrestricted:
+      varValue = "t";
+      break;
+    }
+    result = true;
   }
   else if (varName == "shell_escape_commands")
   {
-    result = session->TryGetConfigValue("", MIKTEX_REGVAL_ALLOWED_SHELL_COMMANDS, varValue);
-    if (result)
+    for (const std::string& s : session->GetAllowedShellCommands())
     {
-      std::replace(varValue.begin(), varValue.end(), char(PathName::PathNameDelimiter), ',');
+      if (!varValue.empty())
+      {
+        varValue += ",";
+      }
+      varValue += s;
     }
+    result = true;
   }
   // configuration files and environment
   else if (session->TryGetConfigValue("", varName, varValue))
