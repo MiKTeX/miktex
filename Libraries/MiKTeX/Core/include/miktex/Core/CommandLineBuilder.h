@@ -61,7 +61,7 @@ public:
   virtual MIKTEXCOREEXPORT MIKTEXTHISCALL ~Argv() noexcept;
 
 public:
-  MIKTEXCOREEXPORT MIKTEXTHISCALL Argv(const std::string& fileName, const std::string& arguments);
+  MIKTEXCOREEXPORT MIKTEXTHISCALL Argv(const std::string& fileName, const std::string& commandLine);
 
 public:
   MIKTEXCOREEXPORT MIKTEXTHISCALL Argv(const std::vector<std::string>& arguments);

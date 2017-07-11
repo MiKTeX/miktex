@@ -94,20 +94,20 @@ namespace {
   bool unregistering = false;
 }
 
-void ParseYapCommandLine(const char * lpszCommandLine, YapCommandLineInfo & cmdInfo)
+void ParseYapCommandLine(const char * lpszArguments, YapCommandLineInfo & cmdInfo)
 {
   shared_ptr<Session> session = Session::Get();
 
   cmdInfo.m_nShellCommand = CCommandLineInfo::FileNothing;
 
-  if (*lpszCommandLine == 0)
+  if (*lpszArguments == 0)
   {
     return;
   }
 
   int option;
 
-  Argv argv("yap", lpszCommandLine);
+  Argv argv("yap", "yap"s + " "s + lpszArguments);
 
   PoptWrapper popt(argv.GetArgc(), const_cast<const char **>(argv.GetArgv()), aoption);
 

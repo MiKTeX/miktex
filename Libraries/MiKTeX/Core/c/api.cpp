@@ -292,9 +292,10 @@ MIKTEXCORECEEAPI(int) miktex_execute_system_command(const char* command, int* ex
 }
 
 
-MIKTEXCORECEEAPI(void) miktex_start_process(const char* lpszFileName, const char* lpszArguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory)
+MIKTEXCORECEEAPI(void) miktex_start_process(const char* lpszFileName, const char* commandLine, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory)
 {
   C_FUNC_BEGIN();
-  Process::Start(lpszFileName, Argv(lpszFileName, lpszArguments == nullptr ? "" : lpszArguments).ToStringVector(), pFileStandardInput, ppFileStandardInput, ppFileStandardOutput, ppFileStandardError, lpszWorkingDirectory);
+  MIKTEX_ASSERT_STRING(commandLine);
+  Process::Start(lpszFileName, Argv(lpszFileName, commandLine).ToStringVector(), pFileStandardInput, ppFileStandardInput, ppFileStandardOutput, ppFileStandardError, lpszWorkingDirectory);
   C_FUNC_END();
 }

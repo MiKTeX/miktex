@@ -57,10 +57,10 @@ Argv::~Argv() noexcept
   }
 }
 
-Argv::Argv(const string& fileName, const string& arguments) :
+Argv::Argv(const string& fileName, const string& commandLine) :
   pimpl(new impl{ { MIKTEX_STRDUP(fileName.c_str()), nullptr } })
 {
-  Append(arguments);
+  Append(commandLine);
 }
 
 Argv::Argv(const vector<string>& arguments) :

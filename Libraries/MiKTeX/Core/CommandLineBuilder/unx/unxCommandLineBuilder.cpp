@@ -1,6 +1,6 @@
 /* unxCommandLineBuilder.cpp: command-line builder
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -36,14 +36,8 @@ using namespace std;
 void Argv::Append(const string& arguments)
 {
   MIKTEX_ASSERT(!pimpl->argv.empty());
-
+  MIKTEX_ASSERT(pimpl->argv.back() == nullptr);
   pimpl->argv.pop_back();
-
-  if (pimpl->argv.empty())
-  {
-    pimpl->argv.push_back(MIKTEX_STRDUP("foo"));
-  }
-
   string arg;
   char quote = 0;
   for (const char* lpsz = arguments.c_str(); *lpsz != 0; ++lpsz)

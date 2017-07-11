@@ -244,21 +244,15 @@ ps2png(struct pscode* pscodep, const char *device, int hresolution, int vresolut
       Warning("Ghostscript could not be found");
       return(NULL);
   }
-#if defined(MIKTEX)
-  snprintf(szCommandLine,2048,"%s %s %s %s %s %s %s %s %s %s",/* %s",*/
-	   device, resolution, /*devicesize,*/
-	   "-dBATCH", "-dNOPAUSE", "-q", "-sOutputFile=-", 
-	   "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4",
-	   (option_flags & NO_GSSAFER) ? "-": "-dSAFER", 
-	   (option_flags & NO_GSSAFER) ? "": "-");
-  miktex_start_process(szGsPath, szCommandLine, 0, &psstream, &pngstream, 0, 0);
-#else
   snprintf(szCommandLine,2048,"\"%s\" %s %s %s %s %s %s %s %s %s %s",/* %s",*/
 	   szGsPath, device, resolution, /*devicesize,*/
 	   "-dBATCH", "-dNOPAUSE", "-q", "-sOutputFile=-",
 	   "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4",
 	   (option_flags & NO_GSSAFER) ? "-": "-dSAFER",
 	   (option_flags & NO_GSSAFER) ? "": "-");
+#if defined(MIKTEX)
+  miktex_start_process(szGsPath, szCommandLine, 0, &psstream, &pngstream, 0, 0);
+#else
   if (! miktex_start_process_3(szCommandLine, &pi, INVALID_HANDLE_VALUE,
 			       &hPsStream, &hPngStream, &hStdErr, 0)) {
       Warning("Ghostscript could not be started");

@@ -707,11 +707,13 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
   const char* lpszCommandLineTemplate = templ.c_str();
 
   string fileName;
+  string commandLine;
 
   bool quoted = false;
 
   for (; *lpszCommandLineTemplate != ' ' || (*lpszCommandLineTemplate != 0 && quoted); ++lpszCommandLineTemplate)
   {
+    commandLine += *lpszCommandLineTemplate;
     if (*lpszCommandLineTemplate == '"')
     {
       quoted = !quoted;
@@ -724,10 +726,8 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
 
   for (; *lpszCommandLineTemplate == ' '; ++lpszCommandLineTemplate)
   {
-
+    commandLine += *lpszCommandLineTemplate;
   }
-
-  string arguments;
 
   while (*lpszCommandLineTemplate != 0)
   {
@@ -738,18 +738,18 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
       default:
         break;
       case '%':
-        arguments += '%';
+        commandLine += '%';
         break;
       case 'f':
       {
         PathName path;
         if (pimpl->session->FindFile(editFileName.ToString(), editFileType, path))
         {
-          arguments += path.GetData();
+          commandLine += path.GetData();
         }
         else
         {
-          arguments += editFileName.GetData();
+          commandLine += editFileName.GetData();
         }
         break;
       }
@@ -757,10 +757,10 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
         // TODO
         break;
       case 't':
-        arguments += transcriptFileName.GetData();
+        commandLine += transcriptFileName.GetData();
         break;
       case 'l':
-        arguments += std::to_string(editLineNumber);
+        commandLine += std::to_string(editLineNumber);
         break;
       case 'm':
         // TODO
@@ -770,12 +770,12 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
     }
     else
     {
-      arguments += *lpszCommandLineTemplate;
+      commandLine += *lpszCommandLineTemplate;
       ++lpszCommandLineTemplate;
     }
   }
 
-  Process::Start(fileName, Argv(fileName, arguments).ToStringVector());
+  Process::Start(fileName, Argv(fileName, commandLine).ToStringVector());
 }
 
 bool Application::GetQuietFlag() const

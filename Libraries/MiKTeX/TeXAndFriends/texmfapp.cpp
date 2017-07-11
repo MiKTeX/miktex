@@ -605,19 +605,19 @@ void TeXMFApp::CheckFirstLine(const PathName& fileName)
 
   Argv argv = ParseFirstLine(path);
 
-  if (argv.GetArgc() <= 1)
+  if (argv.GetArgc() == 0)
   {
     return;
   }
 
   int optidx;
 
-  if (argv.GetArgc() > 1 && argv[1][0] != '-')
+  if (argv[0][0] != '-')
   {
-    optidx = 2;
+    optidx = 1;
     if (pimpl->memoryDumpFileName.empty())
     {
-      string memoryDumpFileName = argv[1];
+      string memoryDumpFileName = argv[0];
       PathName fileName(memoryDumpFileName);
       if (!fileName.HasExtension())
       {
@@ -632,7 +632,7 @@ void TeXMFApp::CheckFirstLine(const PathName& fileName)
   }
   else
   {
-    optidx = 1;
+    optidx = 0;
   }
 
   int opt;

@@ -244,21 +244,21 @@ FILE* SessionImpl::InitiateProcessPipe(const string& command, FileAccess access,
   {
     MIKTEX_FATAL_ERROR_2(T_("Invalid command."), "command", command);
   }
-  string verb = argv[1];
-  if (verb == "zcat" && argc == 3 && access == FileAccess::Read)
+  string verb = argv[0];
+  if (verb == "zcat" && argc == 2 && access == FileAccess::Read)
   {
     mode = FileMode::Open;
-    return OpenFileOnStream(GzipStream::Create(argv[2], true));
+    return OpenFileOnStream(GzipStream::Create(argv[1], true));
   }
-  else if (verb == "bzcat" && argc == 3 && access == FileAccess::Read)
+  else if (verb == "bzcat" && argc == 2 && access == FileAccess::Read)
   {
     mode = FileMode::Open;
-    return OpenFileOnStream(BZip2Stream::Create(argv[2], true));
+    return OpenFileOnStream(BZip2Stream::Create(argv[1], true));
   }
-  else if (verb == "xzcat" && argc == 3 && access == FileAccess::Read)
+  else if (verb == "xzcat" && argc == 2 && access == FileAccess::Read)
   {
     mode = FileMode::Open;
-    return OpenFileOnStream(LzmaStream::Create(argv[2], true));
+    return OpenFileOnStream(LzmaStream::Create(argv[1], true));
   }
   else
   {
