@@ -97,7 +97,7 @@ static array<unique_ptr<FileStream>, 2> CreatePipe(size_t pipeSize)
     files[0] = make_unique<FileStream>(FdOpen(handles[0], "rb"));
     files[1] = make_unique<FileStream>(FdOpen(handles[1], "wb"));
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     if (files[0] == nullptr)
     {
@@ -154,16 +154,16 @@ FILE* SessionImpl::TryOpenFile(const PathName& path, FileMode mode, FileAccess a
     return OpenFile(path, mode, access, text, FileShare::ReadWrite);
   }
 #if defined(MIKTEX_WINDOWS)
-  catch (const SharingViolationException &)
+  catch (const SharingViolationException&)
   {
     return nullptr;
   }
 #endif
-  catch (const UnauthorizedAccessException &)
+  catch (const UnauthorizedAccessException&)
   {
     return nullptr;
   }
-  catch (const FileNotFoundException &)
+  catch (const FileNotFoundException&)
   {
     return nullptr;
   }
@@ -181,16 +181,16 @@ FILE* SessionImpl::TryOpenFile(const PathName& path, FileMode mode, FileAccess a
     return OpenFile(path, mode, access, text, share);
   }
 #if defined(MIKTEX_WINDOWS)
-  catch (const SharingViolationException &)
+  catch (const SharingViolationException&)
   {
     return nullptr;
   }
 #endif
-  catch (const UnauthorizedAccessException &)
+  catch (const UnauthorizedAccessException&)
   {
     return nullptr;
   }
-  catch (const FileNotFoundException &)
+  catch (const FileNotFoundException&)
   {
     return nullptr;
   }
@@ -229,7 +229,7 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
     trace_files->WriteFormattedLine("core", "  => %p", pFile);
     return pFile;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     fclose(pFile);
     throw;
@@ -277,7 +277,7 @@ MIKTEXSTATICFUNC(void) ReaderThread(unique_ptr<Stream> inStream, unique_ptr<Stre
       outStream->Write(buf, len);
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
