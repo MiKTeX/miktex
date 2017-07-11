@@ -29,6 +29,7 @@
 #include "miktex/Core/PathName.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/Registry.h"
+#include "miktex/Util/Tokenizer.h"
 
 #if defined(MIKTEX_WINDOWS)
 #  include "win/winRegistry.h"
@@ -43,6 +44,7 @@
 #endif
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 using namespace std;
 
 #if 0
@@ -1458,7 +1460,9 @@ std::string SessionImpl::ExpandValues(const string& toBeExpanded, HasNamedValues
 
 ShellCommandMode SessionImpl::GetShellCommandMode()
 {
-  string shellCommandMode = GetConfigValue("", MIKTEX_REGVAL_SHELL_COMMAND_MODE, "Restricted").GetString();
+  // FIXME: hard-coded default
+  string defVal = "Restricted";
+  string shellCommandMode = GetConfigValue("", MIKTEX_REGVAL_SHELL_COMMAND_MODE, defVal).GetString();
   if (shellCommandMode == "Forbidden")
   {
     return ShellCommandMode::Forbidden;
@@ -1483,7 +1487,14 @@ ShellCommandMode SessionImpl::GetShellCommandMode()
 
 vector<string> SessionImpl::GetAllowedShellCommands()
 {
-  UNIMPLEMENTED();
+  // FIXME: hard-coded default
+  string defVal = "miktex-bibtex;miktex-bibtex8;miktex-epstopdf;miktex-gregorio;miktex-kpsewhich;miktex-makeindex;bibtex;bibtex8;epstopdf;extractbb;findtexmf;gregorio;kpsewhich;makeindex;texosquery-jre8";
+  vector<string> result;
+  for (Tokenizer cmd(GetConfigValue("", MIKTEX_REGVAL_ALLOWED_SHELL_COMMANDS, defVal).GetString(), " \t;,:"); cmd; ++cmd)
+  {
+    result.push_back(*cmd);
+  }
+  return result;
 }
 
 pair<bool, string> SessionImpl::ExamineCommandLine(const string& commandLine)
