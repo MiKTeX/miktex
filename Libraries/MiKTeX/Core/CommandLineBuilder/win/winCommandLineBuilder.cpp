@@ -36,7 +36,7 @@ void Argv::Append(const string& arguments)
   MIKTEX_ASSERT(!pimpl->argv.empty());
   MIKTEX_ASSERT(pimpl->argv.back() == nullptr);
   pimpl->argv.pop_back();
-  for (const char * lpsz = arguments.c_str(); *lpsz != 0; )
+  for (const char* lpsz = arguments.c_str(); *lpsz != 0; )
   {
     for (; *lpsz == ' ' || *lpsz == '\t'; ++lpsz)
     {
