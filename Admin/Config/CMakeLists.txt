@@ -19,6 +19,18 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_ADMIN_FOLDER}/Config")
 
+if(MIKTEX_MPM_AUTO_ADMIN)
+  set(MPM_AutoAdmin "t")
+else()
+  set(MPM_AutoAdmin "?")
+endif()
+
+if(MIKTEX_MPM_AUTO_INSTALL)
+  set(MPM_AutoInstall "t")
+else()
+  set(MPM_AutoInstall "?")
+endif()
+
 configure_file(
   miktex-config.json.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.json

@@ -271,27 +271,32 @@ public:
 public:
   ConfigValue(const ConfigValue& other)
   {
-    switch (other.tag)
+    switch (other.type)
     {
-    case Tag::String:
+    case Type::String:
       new (&this->s) std::string(other.s);
       break;
-    case Tag::Int:
+    case Type::Int:
       this->i = other.i;
       break;
-    case Tag::Bool:
+    case Type::Bool:
       this->b = other.b;
       break;
-    case Tag::Tri:
+    case Type::Tri:
       this->t = other.t;
       break;
-    case Tag::Char:
+    case Type::Char:
       this->c = other.c;
       break;
-    case Tag::None:
+    case Type::StringArray:
+      new (&this->sa) std::vector<std::string>(other.sa);
+      break;
+    case Type::None:
       break;
     }
-    this->tag = other.tag;
+    this->type = other.type;
+    this->section = other.section;
+    this->description = other.description;
   }
 
 public:
@@ -300,27 +305,31 @@ public:
 public:
   ConfigValue(ConfigValue&& other)
   {
-    switch (other.tag)
+    switch (other.type)
     {
-    case Tag::String:
+    case Type::String:
       this->s = std::move(other.s);
       break;
-    case Tag::Int:
+    case Type::Int:
       this->i = other.i;
       break;
-    case Tag::Bool:
+    case Type::Bool:
       this->b = other.b;
       break;
-    case Tag::Tri:
+    case Type::Tri:
       this->t = other.t;
       break;
-    case Tag::Char:
+    case Type::Char:
       this->c = other.c;
       break;
-    case Tag::None:
+    case Type::StringArray:
+      this->sa = std::move(other.sa);
+      break;
+    case Type::None:
       break;
     }
-    this->tag = other.tag;
+    this->type = other.type;
+    this->section = other.section;
   }
 
 public:
@@ -329,53 +338,64 @@ public:
 public:
   virtual ~ConfigValue() noexcept
   {
-    if (tag == Tag::String)
+    if (type == Type::String)
     {
       this->s.~basic_string();
     }
-    tag = Tag::None;
+    else if (type == Type::StringArray)
+    {
+      this->sa.~vector();
+    }
+    type = Type::None;
   }
 
 public:
   ConfigValue(const std::string& s)
   {
     new(&this->s) std::string(s);
-    tag = Tag::String;
+    type = Type::String;
   }
 
 public:
   ConfigValue(const char* lpsz)
   {
     new(&this->s) std::string(lpsz == nullptr ? "" : lpsz);
-    tag = Tag::String;
+    type = Type::String;
   }
 
 public:
   ConfigValue(int i)
   {
     this->i = i;
-    tag = Tag::Int;
+    type = Type::Int;
   }
 
 public:
   ConfigValue(bool b)
   {
     this->b = b;
-    tag = Tag::Bool;
+    type = Type::Bool;
   }
 
 public:
   ConfigValue(TriState t)
   {
     this->t = t;
-    tag = Tag::Tri;
+    type = Type::Tri;
   }
 
 public:
   ConfigValue(char c)
   {
     this->c = c;
-    tag = Tag::Char;
+    type = Type::Char;
+  }
+
+public:
+  ConfigValue(const std::vector<std::string>& sa)
+  {
+    new(&this->sa) std::vector<std::string>(sa);
+    type = Type::StringArray;
   }
 
 public:
@@ -393,19 +413,47 @@ public:
 public:
   MIKTEXCORETHISAPI(char) GetChar() const;
 
-private:
-  enum class Tag
+public:
+  MIKTEXCORETHISAPI(std::vector<std::string>) GetStringArray() const;
+
+public:
+  enum class Type
   {
     None,
     String,
     Int,
     Bool,
     Tri,
-    Char
+    Char,
+    StringArray
   };
 
 private:
-  Tag tag = Tag::None;
+  Type type = Type::None;
+
+public:
+  Type GetType() const
+  {
+    return type;
+  }
+
+private:
+  std::string section;
+
+public:
+  std::string GetSection() const
+  {
+    return section;
+  }
+
+private:
+  std::string description;
+
+public:
+  std::string GetDescription() const
+  {
+    return description;
+  }
 
 private:
   union
@@ -415,6 +463,7 @@ private:
     bool b;
     TriState t;
     char c;
+    std::vector<std::string> sa;
   };
 };
 

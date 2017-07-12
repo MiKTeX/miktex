@@ -887,19 +887,32 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
 
 std::string ConfigValue::GetString() const
 {
-  switch (tag)
+  switch (type)
   {
-  case Tag::String:
+  case Type::String:
     return this->s;
-  case Tag::Int:
+  case Type::Int:
     return std::to_string(this->i);
-  case Tag::Bool:
+  case Type::Bool:
     return this->b ? "true" : "false";
-  case Tag::Tri:
+  case Type::Tri:
     return this->t == TriState::Undetermined ? "undetermined" : this->t == TriState::False ? "false" : "true";
-  case Tag::Char:
+  case Type::Char:
     return std::string(1, this->c);
-  case Tag::None:
+  case Type::StringArray:
+  {
+    string flattened;
+    for (const string& v : this->sa)
+    {
+      if (!flattened.empty())
+      {
+        flattened += ",";
+      }
+      flattened += v;
+    }
+    return flattened;
+  }
+  case Type::None:
     break;
   }
   MIKTEX_UNEXPECTED();
@@ -907,19 +920,19 @@ std::string ConfigValue::GetString() const
 
 int ConfigValue::GetInt() const
 {
-  switch (tag)
+  switch (type)
   {
-  case Tag::String:
+  case Type::String:
     return std::stoi(this->s);
-  case Tag::Int:
+  case Type::Int:
     return this->i;
-  case Tag::Bool:
+  case Type::Bool:
     return (int)this->b;
-  case Tag::Tri:
+  case Type::Tri:
     return (int)this->t;
-  case Tag::Char:
+  case Type::Char:
     return (int)this->c;
-  case Tag::None:
+  case Type::None:
     break;
   }
   MIKTEX_UNEXPECTED();
@@ -927,9 +940,9 @@ int ConfigValue::GetInt() const
 
 bool ConfigValue::GetBool() const
 {
-  switch (tag)
+  switch (type)
   {
-  case Tag::String:
+  case Type::String:
     if (this->s == "0"
       || this->s == "disable"
       || this->s == "off"
@@ -954,7 +967,7 @@ bool ConfigValue::GetBool() const
     {
       MIKTEX_UNEXPECTED();
     }
-  case Tag::Int:
+  case Type::Int:
     if (this->i == 0)
     {
       return false;
@@ -967,9 +980,9 @@ bool ConfigValue::GetBool() const
     {
       MIKTEX_UNEXPECTED();
     }
-  case Tag::Bool:
+  case Type::Bool:
     return this->b;
-  case Tag::Tri:
+  case Type::Tri:
     if (this->t == TriState::False)
     {
       return false;
@@ -982,7 +995,7 @@ bool ConfigValue::GetBool() const
     {
       MIKTEX_UNEXPECTED();
     }
-  case Tag::Char:
+  case Type::Char:
     if (this->c == '0'
       || this->c == 'f'
       || this->c == 'n')
@@ -999,7 +1012,7 @@ bool ConfigValue::GetBool() const
     {
       MIKTEX_UNEXPECTED();
     }
-  case Tag::None:
+  case Type::None:
     break;
   }
   MIKTEX_UNEXPECTED();
@@ -1007,9 +1020,9 @@ bool ConfigValue::GetBool() const
 
 TriState ConfigValue::GetTriState() const
 {
-  switch (tag)
+  switch (type)
   {
-  case Tag::String:
+  case Type::String:
     if (this->s == "0"
       || this->s == "disable"
       || this->s == "off"
@@ -1041,7 +1054,7 @@ TriState ConfigValue::GetTriState() const
     {
       MIKTEX_UNEXPECTED();
     }
-  case Tag::Int:
+  case Type::Int:
     if (this->i == 0)
     {
       return TriState::False;
@@ -1058,11 +1071,11 @@ TriState ConfigValue::GetTriState() const
     {
       MIKTEX_UNEXPECTED();
     }
-  case Tag::Bool:
+  case Type::Bool:
     return this->b ? TriState::True : TriState::False;
-  case Tag::Tri:
+  case Type::Tri:
     return this->t;
-  case Tag::Char:
+  case Type::Char:
     if (this->c == '0'
       || this->c == 'f'
       || this->c == 'n')
@@ -1084,7 +1097,7 @@ TriState ConfigValue::GetTriState() const
     {
       MIKTEX_UNEXPECTED();
     }
-  case Tag::None:
+  case Type::None:
     break;
   }
   MIKTEX_UNEXPECTED();
@@ -1092,23 +1105,44 @@ TriState ConfigValue::GetTriState() const
 
 char ConfigValue::GetChar() const
 {
-  switch (tag)
+  switch (type)
   {
-  case Tag::String:
+  case Type::String:
     if (this->s.length() != 1)
     {
       MIKTEX_UNEXPECTED();
     }
     return this->s[0];
-  case Tag::Int:
+  case Type::Int:
     return (char)this->i;
-  case Tag::Bool:
+  case Type::Bool:
     return this->b ? 't' : 'f';
-  case Tag::Tri:
+  case Type::Tri:
     return this->t == TriState::Undetermined ? '?' : this->t == TriState::False ? 'f' : 't';
-  case Tag::Char:
+  case Type::Char:
     return this->c;
-  case Tag::None:
+  case Type::None:
+    break;
+  }
+  MIKTEX_UNEXPECTED();
+}
+
+vector<string> ConfigValue::GetStringArray() const
+{
+  switch (type)
+  {
+  case Type::String:
+  {
+    vector<string> splitted;
+    for (CsvList s(this->s, ','); s; ++s)
+    {
+      splitted.push_back(*s);
+    }
+    return splitted;
+  }
+  case Type::StringArray:
+    return this->sa;
+  case Type::None:
     break;
   }
   MIKTEX_UNEXPECTED();
