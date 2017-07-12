@@ -192,6 +192,8 @@
 #include <zlib.h>
 #include <uriparser/Uri.h>
 
+#include <nlohmann/json.hpp>
+
 #include <miktex/Trace/Trace>
 #include <miktex/Trace/TraceCallback>
 #include <miktex/Trace/TraceStream>

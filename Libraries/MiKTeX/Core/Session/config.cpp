@@ -38,10 +38,9 @@
 #include "Session/SessionImpl.h"
 #include "Utils/inliners.h"
 
-// TODO:
-#if 0
-#include "miktex/miktex.defaults.h"
-#endif
+namespace {
+#include "miktex-config.json.h"
+}
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;

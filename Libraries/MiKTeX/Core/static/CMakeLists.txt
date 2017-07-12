@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -68,6 +68,7 @@ endif()
 target_link_libraries(${core_lib_name}
   PUBLIC
     ${md5_lib_name}
+    ${nlohmann_json_lib_name}
     ${trace_lib_name}
     ${util_lib_name}
     Threads::Threads

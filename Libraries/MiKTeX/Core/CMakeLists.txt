@@ -82,6 +82,7 @@ configure_file(
 )
 
 set(miktex_der_h ${CMAKE_CURRENT_BINARY_DIR}/miktex.der.h)
+set(miktex_config_json_h ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.json.h)
 
 set(public_headers_core
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/IntegerTypes.h
@@ -308,6 +309,7 @@ set(misc_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Exceptions.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
   ${CMAKE_CURRENT_SOURCE_DIR}/vi/Runtime.cpp
+  ${miktex_config_json_h}
   ${miktex_der_h}
 )
 
@@ -490,6 +492,29 @@ add_custom_command(
 
 list(APPEND generated_core_sources
   ${miktex_der_h}
+)
+
+add_custom_command(
+  OUTPUT
+    ${miktex_config_json_h}
+  COMMAND
+    bintoc miktex_config_json
+    < ${CMAKE_BINARY_DIR}/${MIKTEX_REL_CONFIG_DIR}/miktex-config.json
+    > ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.json.h.tmp
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.json.h.tmp
+    ${miktex_config_json_h}
+  COMMAND
+    ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.json.h.tmp
+  DEPENDS
+    bintoc
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.json
+  VERBATIM
+)
+
+list(APPEND generated_core_sources
+  ${miktex_config_json_h}
 )
 
 if(REPORT_EVENTS)
