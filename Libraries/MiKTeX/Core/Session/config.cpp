@@ -44,6 +44,7 @@ namespace {
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
+using namespace nlohmann;
 using namespace std;
 
 #if 0
@@ -682,7 +683,7 @@ MIKTEXSTATICFUNC(void) AppendToEnvVarName(string& name, const string& part)
   }
 }
 
-bool SessionImpl::GetSessionValue(const string& sectionName, const string& valueName, string& value, const Optional<string>& defaultValue)
+bool SessionImpl::GetSessionValue(const string& sectionName, const string& valueName, string& value)
 {
   bool haveValue = false;
 
@@ -852,13 +853,6 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
       value = otfDirs;
       haveValue = true;
     }
-  }
-
-  // if we have found nothing, then we return the default value
-  if (!haveValue && defaultValue)
-  {
-    value = *defaultValue;
-    haveValue = true;
   }
 
 #if 1
@@ -1153,14 +1147,19 @@ bool SessionImpl::TryGetConfigValue(const std::string& sectionName, const string
   return GetSessionValue(sectionName, valueName, value);
 }
 
+void ParseConfig()
+{
+  json config = json::parse(&miktex_config_json[0], &miktex_config_json[sizeof(miktex_config_json)]);
+}
+
 ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName, const ConfigValue& defaultValue)
 {
   string value;
-  if (!GetSessionValue(sectionName, valueName, value, Optional<string>(defaultValue.GetString())))
+  if (GetSessionValue(sectionName, valueName, value))
   {
-    INVALID_ARGUMENT("valueName", valueName);
+    return value;
   }
-  return value;
+  return defaultValue;
 }
 
 void SessionImpl::SetConfigValue(const std::string& sectionName, const string& valueName, const ConfigValue& value)

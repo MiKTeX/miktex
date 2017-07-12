@@ -401,9 +401,9 @@ bool SessionImpl::MakePkFileName(PathName& pkFileName, const char* lpszFontName,
 {
   string nameTemplate;
 
-  if (!GetSessionValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_PK_FN_TEMPLATE, nameTemplate, DEFAULT_PK_NAME_TEMPLATE))
+  if (!GetSessionValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_PK_FN_TEMPLATE, nameTemplate))
   {
-    MIKTEX_UNEXPECTED();
+    nameTemplate = DEFAULT_PK_NAME_TEMPLATE;
   }
 
   string str;
@@ -462,9 +462,9 @@ bool SessionImpl::FindPkFile(const string& fontName, const string& mfMode, int d
 
   string searchPathTemplate;
 
-  if (!GetSessionValue(MIKTEX_REGKEY_CORE, "PKPath", searchPathTemplate, DEFAULT_PK_SEARCH_PATH))
+  if (!GetSessionValue(MIKTEX_REGKEY_CORE, "PKPath", searchPathTemplate))
   {
-    MIKTEX_UNEXPECTED();
+    searchPathTemplate = DEFAULT_PK_SEARCH_PATH;
   }
 
   string searchPath;
