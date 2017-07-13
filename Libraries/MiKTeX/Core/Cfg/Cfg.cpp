@@ -1139,7 +1139,9 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
 void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile)
 {
   traceStream->WriteFormattedLine("core", T_("parsing: %s..."), path.GetData());
-  Read(std::ifstream(path.ToString()), defaultKeyName, level, mustBeSigned, publicKeyFile);
+  std::ifstream reader(path.ToString());
+  Read(reader, defaultKeyName, level, mustBeSigned, publicKeyFile);
+  reader.close();
 }
 
 bool CfgImpl::ParseValueDefinition(const string& line, string& valueName, string& value, CfgImpl::PutMode& putMode)
