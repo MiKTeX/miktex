@@ -29,6 +29,18 @@
 	${MIKTEX_CONFIG_VALUE_ALLOWEDSHELLCOMMANDS} = makeindex
 	${MIKTEX_CONFIG_VALUE_ALLOWEDSHELLCOMMANDS} = texosquery-jre8
 
+[${MIKTEX_CONFIG_SECTION_CORE_FILETYPES}.tex]
+
+	;; Search path.
+	${MIKTEX_CONFIG_VALUE_PATHS} = .
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/{$progname,generic,}
+
+	;; Environment variables to be used for searching.
+	${MIKTEX_CONFIG_VALUE_ENVVARS} = TEXINPUTS
+
+	;; File name extensions.
+	${MIKTEX_CONFIG_VALUE_EXTENSIONS} = .tex
+
 [${MIKTEX_CONFIG_SECTION_MPM}]
 
 	;; Install packages for all users.

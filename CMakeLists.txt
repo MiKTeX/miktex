@@ -1968,9 +1968,15 @@ endif()
 ## bootstrapping
 
 if(WITH_BOOTSTRAPPING)
-  set(remote_repository
-    "http://ctan.org/tex-archive/systems/win32/miktex/tm/packages/"
-  )
+  if(MIKTEX_RELEASE_STATE EQUAL 1)
+    set(remote_repository
+      "http://ctan.org/tex-archive/systems/win32/miktex/tm/packages/next"
+    )
+  else()
+    set(remote_repository
+      "http://ctan.org/tex-archive/systems/win32/miktex/tm/packages/"
+    )
+  endif()
   list(APPEND bootstrapping_files
     miktex-zzdb1-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
     miktex-zzdb2-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
