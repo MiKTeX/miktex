@@ -27,115 +27,120 @@ set(win_config_files
   ${MIKTEX_SHORTEST_TARGET_SYSTEM_TAG_WIN}/log4cxx.${MIKTEX_SHORTEST_TARGET_SYSTEM_TAG_WIN}.xml
 )
 
-set(inc_ini_files
-  ${CMAKE_CURRENT_BINARY_DIR}/bibtex-x.ini
+set(inc_ini_names
+  bibtex-x
 )
 
 if(WITH_CONTEXT_SUPPORT)
-  list(APPEND inc_ini_files
-    ${CMAKE_CURRENT_BINARY_DIR}/context.ini
-    ${CMAKE_CURRENT_BINARY_DIR}/formats-context.ini
+  list(APPEND inc_ini_names
+    context
+    formats-context
   )
 endif()
 
-set(main_ini_files
-  ${CMAKE_CURRENT_BINARY_DIR}/amstex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/bibtex8.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/bibtexu.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/cslatex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/csplain.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/dvilualatex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/dviluatex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/dvipdfm.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/dvipdfmx.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/elatex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/eplain.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/etex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/fontinst.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/formats.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/frlatex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/frtex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/ftex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/jadetex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/lambda.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/latex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/latex209.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/lualatex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/luatex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/mex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/mllatex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/mltex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/olatex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/omega.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/pdfamstex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/pdfcslatex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/pdfcsplain.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/pdfelatex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/pdfjadetex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/pdflatex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/pdfmex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/pdfplatex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/pdftex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/pdftexinfo.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/pdfxlatex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/pdfxmex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/pdfxmltex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/pdfxtex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/platex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/t4ht.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/tex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/tex4ht.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/texinfo.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/ttf2pk.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/ttf2tfm.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/utf8mex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/xdvipdfmx.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/xelatex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/xeplain.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/xetex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/xmltex.ini
-  ${CMAKE_CURRENT_BINARY_DIR}/yap.ini
+set(main_ini_names
+  amstex
+  bibtex8
+  bibtexu
+  cslatex
+  csplain
+  dvilualatex
+  dviluatex
+  dvipdfm
+  dvipdfmx
+  elatex
+  eplain
+  etex
+  fontinst
+  formats
+  frlatex
+  frtex
+  ftex
+  jadetex
+  lambda
+  latex
+  latex209
+  lualatex
+  luatex
+  mex
+  mllatex
+  mltex
+  olatex
+  omega
+  pdfamstex
+  pdfcslatex
+  pdfcsplain
+  pdfelatex
+  pdfjadetex
+  pdflatex
+  pdfmex
+  pdfplatex
+  pdftex
+  pdftexinfo
+  pdfxlatex
+  pdfxmex
+  pdfxmltex
+  pdfxtex
+  platex
+  t4ht
+  tex
+  tex4ht
+  texinfo
+  ttf2pk
+  ttf2tfm
+  utf8mex
+  xdvipdfmx
+  xelatex
+  xeplain
+  xetex
+  xmltex
+  yap
 )
 
 if(WITH_CONTEXT_SUPPORT)
-  list(APPEND main_ini_files
-    ${CMAKE_CURRENT_BINARY_DIR}/cont-de.ini
-    ${CMAKE_CURRENT_BINARY_DIR}/cont-en.ini
-    ${CMAKE_CURRENT_BINARY_DIR}/cont-fr.ini
-    ${CMAKE_CURRENT_BINARY_DIR}/cont-it.ini
-    ${CMAKE_CURRENT_BINARY_DIR}/cont-nl.ini
-    ${CMAKE_CURRENT_BINARY_DIR}/cont-ro.ini
+  list(APPEND main_ini_names
+    cont-de
+    cont-en
+    cont-fr
+    cont-it
+    cont-nl
+    cont-ro
   )
 endif()
 
-foreach(i ${main_ini_files} ${inc_ini_files})
-  get_filename_component(ininame ${i} NAME)
+foreach(i ${main_ini_names} ${inc_ini_names})
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/${i}.ini.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/${i}.ini.body
+    NEWLINE_STYLE UNIX
+  )
   add_custom_command(
     OUTPUT
-      ${i}
+      ${CMAKE_CURRENT_BINARY_DIR}/${i}.ini
     COMMAND
       ${CAT_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/header.txt
-      ${CMAKE_CURRENT_SOURCE_DIR}/${ininame}.body
-      > ${i}
+      ${CMAKE_CURRENT_BINARY_DIR}/${i}.ini.body
+      > ${CMAKE_CURRENT_BINARY_DIR}/${i}.ini
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS
       ${CMAKE_CURRENT_SOURCE_DIR}/header.txt
-      ${CMAKE_CURRENT_SOURCE_DIR}/${ininame}.body
+      ${CMAKE_CURRENT_BINARY_DIR}/${i}.ini.body
     VERBATIM
   )
+  list(APPEND all_ini_files ${CMAKE_CURRENT_BINARY_DIR}/${i}.ini)
 endforeach()
 
 foreach(i texmfapp texapp)
   add_custom_command(
     OUTPUT
-      ${i}.ini
+      ${CMAKE_CURRENT_BINARY_DIR}/${i}.ini
     COMMAND
       ${CAT_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/header.txt
       ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/${i}.defaults
-      > ${i}.ini
+      > ${CMAKE_CURRENT_BINARY_DIR}/${i}.ini
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS
@@ -143,23 +148,19 @@ foreach(i texmfapp texapp)
       ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/${i}.defaults
     VERBATIM
   )
-  list(APPEND texmf_ini_files ${CMAKE_CURRENT_BINARY_DIR}/${i}.ini)
+  list(APPEND all_ini_files ${CMAKE_CURRENT_BINARY_DIR}/${i}.ini)
 endforeach()
 
 add_custom_target(gen-config-files ALL
   DEPENDS
-    ${inc_ini_files}
-    ${main_ini_files}
-    ${texmf_ini_files}
+    ${all_ini_files}
 )
 
 set_property(TARGET gen-config-files PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 install(
   FILES
-    ${inc_ini_files}
-    ${main_ini_files}
-    ${texmf_ini_files}
+    ${all_ini_files}
   DESTINATION
     ${MIKTEX_CONFIG_DESTINATION_DIR}
 )
