@@ -509,7 +509,7 @@ add_custom_command(
     ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.json.h.tmp
   DEPENDS
     bintoc
-    ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.json
+    ${CMAKE_BINARY_DIR}/${MIKTEX_REL_CONFIG_DIR}/miktex-config.json
   VERBATIM
 )
 
