@@ -1,6 +1,6 @@
 /* StdAfx.h: pre-compiled header stuff                  -*- C++ -*-
 
-   Copyright (C) 2010-2016 Christian Schenk
+   Copyright (C) 2010-2017 Christian Schenk
 
    This file is part of the MiKTeX W2CEMU Library.
 
@@ -29,6 +29,7 @@
 #include <iostream>
 
 #include <miktex/Core/BufferSizes>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Registry>
 #include <miktex/TeXAndFriends/TeXApp>

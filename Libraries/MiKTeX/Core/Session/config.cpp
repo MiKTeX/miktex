@@ -23,6 +23,7 @@
 
 #include "internal.h"
 
+#include "miktex/Core/ConfigNames.h"
 #include "miktex/Core/CsvList.h"
 #include "miktex/Core/Directory.h"
 #include "miktex/Core/Environment.h"
@@ -918,18 +919,7 @@ std::string ConfigValue::GetString() const
   case Type::Char:
     return std::string(1, this->c);
   case Type::StringArray:
-  {
-    string flattened;
-    for (const string& v : this->sa)
-    {
-      if (!flattened.empty())
-      {
-        flattened += ",";
-      }
-      flattened += v;
-    }
-    return flattened;
-  }
+    return StringUtil::Flatten(this->sa, PathName::PathNameDelimiter);
   case Type::None:
     break;
   }
@@ -951,6 +941,7 @@ int ConfigValue::GetInt() const
   case Type::Char:
     return (int)this->c;
   case Type::None:
+  case Type::StringArray:
     break;
   }
   MIKTEX_UNEXPECTED();
@@ -1031,6 +1022,7 @@ bool ConfigValue::GetBool() const
       MIKTEX_UNEXPECTED();
     }
   case Type::None:
+  case Type::StringArray:
     break;
   }
   MIKTEX_UNEXPECTED();
@@ -1116,6 +1108,7 @@ TriState ConfigValue::GetTriState() const
       MIKTEX_UNEXPECTED();
     }
   case Type::None:
+  case Type::StringArray:
     break;
   }
   MIKTEX_UNEXPECTED();
@@ -1132,6 +1125,10 @@ char ConfigValue::GetChar() const
     }
     return this->s[0];
   case Type::Int:
+    if (this->i < CHAR_MIN || this->i > CHAR_MAX)
+    {
+      MIKTEX_UNEXPECTED();
+    }
     return (char)this->i;
   case Type::Bool:
     return this->b ? 't' : 'f';
@@ -1140,6 +1137,7 @@ char ConfigValue::GetChar() const
   case Type::Char:
     return this->c;
   case Type::None:
+  case Type::StringArray:
     break;
   }
   MIKTEX_UNEXPECTED();
@@ -1150,17 +1148,14 @@ vector<string> ConfigValue::GetStringArray() const
   switch (type)
   {
   case Type::String:
-  {
-    vector<string> splitted;
-    for (CsvList s(this->s, ','); s; ++s)
-    {
-      splitted.push_back(*s);
-    }
-    return splitted;
-  }
+    return StringUtil::Split(this->s, PathName::PathNameDelimiter);
   case Type::StringArray:
     return this->sa;
   case Type::None:
+  case Type::Int:
+  case Type::Bool:
+  case Type::Tri:
+  case Type::Char:
     break;
   }
   MIKTEX_UNEXPECTED();
@@ -1178,7 +1173,17 @@ ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const st
   {
     return value;
   }
-  return defaultValue;
+  return Expand(defaultValue.GetString(), nullptr);
+}
+
+ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName)
+{
+  string value;
+  if (!GetSessionValue(sectionName, valueName, value))
+  {
+    MIKTEX_FATAL_ERROR_2(T_("Unknown configuration value."), "sectionName", sectionName, "valueName", valueName);
+  }
+  return value;
 }
 
 void SessionImpl::SetConfigValue(const std::string& sectionName, const string& valueName, const ConfigValue& value)
@@ -1511,9 +1516,7 @@ std::string SessionImpl::ExpandValues(const string& toBeExpanded, HasNamedValues
 
 ShellCommandMode SessionImpl::GetShellCommandMode()
 {
-  // FIXME: hard-coded default
-  string defVal = "Restricted";
-  string shellCommandMode = GetConfigValue("", MIKTEX_REGVAL_SHELL_COMMAND_MODE, defVal).GetString();
+  string shellCommandMode = GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_SHELLCOMMANDMODE).GetString();
   if (shellCommandMode == "Forbidden")
   {
     return ShellCommandMode::Forbidden;
@@ -1538,14 +1541,7 @@ ShellCommandMode SessionImpl::GetShellCommandMode()
 
 vector<string> SessionImpl::GetAllowedShellCommands()
 {
-  // FIXME: hard-coded default
-  string defVal = "miktex-bibtex;miktex-bibtex8;miktex-epstopdf;miktex-gregorio;miktex-kpsewhich;miktex-makeindex;bibtex;bibtex8;epstopdf;extractbb;findtexmf;gregorio;kpsewhich;makeindex;texosquery-jre8";
-  vector<string> result;
-  for (Tokenizer cmd(GetConfigValue("", MIKTEX_REGVAL_ALLOWED_SHELL_COMMANDS, defVal).GetString(), " \t;,:"); cmd; ++cmd)
-  {
-    result.push_back(*cmd);
-  }
-  return result;
+  return GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWEDSHELLCOMMANDS).GetStringArray();
 }
 
 pair<bool, string> SessionImpl::ExamineCommandLine(const string& commandLine)

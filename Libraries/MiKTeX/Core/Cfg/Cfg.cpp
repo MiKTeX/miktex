@@ -116,19 +116,29 @@ public:
   {
     if (IsMultiValue())
     {
-      MIKTEX_UNEXPECTED();
+      return StringUtil::Flatten(value, PathName::PathNameDelimiter);
     }
-    return value.empty() ? "" : value.front();
+    else
+    {
+      return value.empty() ? "" : value.front();
+    }
   }
 
 public:
   vector<string> MIKTEXTHISCALL GetMultiValue() const override
   {
-    if (!IsMultiValue())
+    if (IsMultiValue())
     {
-      MIKTEX_UNEXPECTED();
+      return value;
     }
-    return value;
+    else if (value.empty())
+    {
+      return vector<string>();
+    }
+    else
+    {
+      return StringUtil::Split(value.front(), PathName::PathNameDelimiter);
+    }
   }
 
 public:
@@ -481,7 +491,10 @@ public:
   MD5 MIKTEXTHISCALL GetDigest() const override;
 
 public:
-  string MIKTEXTHISCALL GetValue(const string& keyName, const string& valueName) const override;
+  shared_ptr<Value> MIKTEXTHISCALL GetValue(const string& keyName, const string& valueName) const override;
+
+public:
+  bool MIKTEXTHISCALL TryGetValue(const string& keyName, const string& valueName, shared_ptr<Value>& value) const override;
 
 public:
   bool MIKTEXTHISCALL TryGetValue(const string& keyName, const string& valueName, string& value) const override;
@@ -788,9 +801,9 @@ unique_ptr<Cfg> Cfg::Create()
   return make_unique<CfgImpl>();
 }
 
-string CfgImpl::GetValue(const string& keyName, const string& valueName) const
+shared_ptr<Cfg::Value> CfgImpl::GetValue(const string& keyName, const string& valueName) const
 {
-  string result;
+  shared_ptr<Value> result;
   if (!TryGetValue(keyName, valueName, result))
   {
     MIKTEX_FATAL_ERROR_2(T_("The configuration value does not exist."), "valueName", valueName);
@@ -798,7 +811,7 @@ string CfgImpl::GetValue(const string& keyName, const string& valueName) const
   return result;
 }
 
-bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, string& outValue) const
+bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, shared_ptr<Value>& outValue) const
 {
   shared_ptr<CfgKey> key = FindKey(keyName);
 
@@ -814,40 +827,41 @@ bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, string
     return false;
   }
 
-  outValue = value->GetValue();
+  outValue = value;
 
+  return true;
+}
+
+bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, string& outValue) const
+{
+  shared_ptr<Value> value;
+  if (!TryGetValue(keyName, valueName, value))
+  {
+    return false;
+  }
+  outValue = value->GetValue();
   return true;
 }
 
 bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, PathName& path) const
 {
-  string value;
+  shared_ptr<Value> value;
   if (!TryGetValue(keyName, valueName, value))
   {
     return false;
   }
-  path = value;
+  path = value->GetValue();
   return true;
 }
 
 bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, vector<string>& outValue) const
 {
-  shared_ptr<CfgKey> key = FindKey(keyName);
-
-  if (key == nullptr)
+  shared_ptr<Value> value;
+  if (!TryGetValue(keyName, valueName, value))
   {
     return false;
   }
-
-  shared_ptr<Cfg::Value> value = key->GetValue(valueName);
-
-  if (value == nullptr || value->IsCommentedOut())
-  {
-    return false;
-  }
-
   outValue = value->GetMultiValue();
-
   return true;
 }
 

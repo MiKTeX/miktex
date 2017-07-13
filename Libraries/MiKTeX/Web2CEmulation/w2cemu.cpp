@@ -23,8 +23,6 @@
 
 #include "internal.h"
 
-#include <miktex/texmfapp.defaults.h>
-
 using namespace MiKTeX;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::TeXAndFriends;
@@ -143,7 +141,7 @@ void Web2C::SetOutputDirectory(const PathName& path)
   outputDirectory.MakeAbsolute();
   if (!Directory::Exists(outputDirectory))
   {
-    if (session->GetConfigValue("", MIKTEX_REGVAL_CREATE_OUTPUT_DIRECTORY, texmfapp::CreateOutputDirectory()).GetString() == "t")
+    if (session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_CREATEOUTPUTDIRECTORY).GetString() == "t")
     {
       Directory::Create(outputDirectory);
     }

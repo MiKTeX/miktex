@@ -42,6 +42,11 @@ set(ADMIN_CONTROLS_USER_CONFIG TRUE)
 set(REPORT_EVENTS FALSE)
 
 configure_file(
+  include/miktex/Core/ConfigNames.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/ConfigNames.h
+)
+
+configure_file(
   include/miktex/Core/Paths.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/Paths.h
 )
@@ -85,6 +90,7 @@ set(miktex_der_h ${CMAKE_CURRENT_BINARY_DIR}/miktex.der.h)
 set(miktex_config_ini_h ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.ini.h)
 
 set(public_headers_core
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/ConfigNames.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/IntegerTypes.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/Paths.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/Urls.h
@@ -100,6 +106,7 @@ set(public_headers_core
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Cfg.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CommandLineBuilder
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CommandLineBuilder.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/ConfigNames
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CsvList
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CsvList.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Debug

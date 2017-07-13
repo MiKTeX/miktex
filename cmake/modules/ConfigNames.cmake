@@ -1,6 +1,6 @@
-## version.cmake:
+## ConfigNames.cmake
 ##
-## Copyright (C) 2016-2017 Christian Schenk
+## Copyright (C) 2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,5 +17,12 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_COMP_J2000_VERSION 6403)
-set(MIKTEX_COMP_INTERFACE_VERSION 1)
+set(MIKTEX_CONFIG_SECTION_CORE "Core")
+set(MIKTEX_CONFIG_SECTION_MPM "MPM")
+set(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS "TeXandFriends")
+
+set(MIKTEX_CONFIG_VALUE_ALLOWEDSHELLCOMMANDS "AllowedShellCommands[]")
+set(MIKTEX_CONFIG_VALUE_AUTOADMIN "AutoAdmin")
+set(MIKTEX_CONFIG_VALUE_AUTOINSTALL "AutoInstall")
+set(MIKTEX_CONFIG_VALUE_CREATEOUTPUTDIRECTORY "CreateOutputDirectory")
+set(MIKTEX_CONFIG_VALUE_SHELLCOMMANDMODE "ShellCommandMode")

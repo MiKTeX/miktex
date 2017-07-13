@@ -96,7 +96,11 @@ public:
 
   /// Gets a configuration value.
 public:
-  virtual std::string MIKTEXTHISCALL GetValue(const std::string& keyName, const std::string& valueName) const = 0;
+  virtual std::shared_ptr<Value> MIKTEXTHISCALL GetValue(const std::string& keyName, const std::string& valueName) const = 0;
+
+  /// Gets a configuration value.
+public:
+  virtual bool MIKTEXTHISCALL TryGetValue(const std::string& keyName, const std::string& valueName, std::shared_ptr<Value>& value) const = 0;
 
   /// Gets a configuration value.
 public:

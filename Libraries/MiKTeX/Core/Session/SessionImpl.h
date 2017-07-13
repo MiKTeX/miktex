@@ -191,6 +191,9 @@ public:
   MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& defaultValue) override;
 
 public:
+  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName) override;
+
+public:
   void SetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& value) override;
 
 public:

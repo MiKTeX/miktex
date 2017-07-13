@@ -21,6 +21,31 @@
 
 #include "internal.h"
 
+string StringUtil::Flatten(const std::vector<std::string>& vec, char sep)
+{
+  string result;
+  for (const string& s : vec)
+  {
+    if (!result.empty())
+    {
+      result += sep;
+    }
+    result += s;
+  }
+  return result;
+}
+
+vector<string> StringUtil::Split(const std::string& s, char sep)
+{
+  vector<string> result;
+  for (Tokenizer tok(s, string(1, sep)); tok; ++tok)
+  {
+    result.push_back(*tok);
+  }
+  return result;
+}
+
+
 size_t StringUtil::AppendString(char* dest, size_t destSize, const char* source)
 {
   // TODO: MIKTEX_ASSERT_STRING(lpszBuf);

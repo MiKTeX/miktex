@@ -495,7 +495,7 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
     SetOutputDirectory(outputDirectory);
     if (!Directory::Exists(outputDirectory))
     {
-      if (session->GetConfigValue("", MIKTEX_REGVAL_CREATE_OUTPUT_DIRECTORY, texmfapp::texmfapp::CreateOutputDirectory()).GetString() == "t")
+      if (session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_CREATEOUTPUTDIRECTORY).GetString() == "t")
       {
         Directory::Create(outputDirectory);
       }
