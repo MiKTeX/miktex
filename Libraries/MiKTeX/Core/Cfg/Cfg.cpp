@@ -26,7 +26,6 @@
 #include "miktex/Core/CsvList.h"
 #include "miktex/Core/Cfg.h"
 #include "miktex/Core/Registry.h"
-#include "miktex/Core/StreamReader.h"
 #include "miktex/Core/StreamWriter.h"
 
 #include "Utils/inliners.h"
@@ -506,6 +505,9 @@ public:
   void MIKTEXTHISCALL PutValue(const string& keyName, const string& valueName, const string& value, const string& documentation, bool commentedOut) override;
 
 private:
+  void Read(std::istream& reader, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile);
+
+private:
   void Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile);
 
 public:
@@ -928,11 +930,9 @@ void CfgImpl::PutValue(const string& keyName, const string& valueName, const str
   return PutValue(keyName, valueName, value, None, value, commentedOut);
 }
 
-void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile)
+void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile)
 {
   MIKTEX_ASSERT(!(level > 0 && mustBeSigned));
-  
-  traceStream->WriteFormattedLine("core", T_("parsing: %s..."), path.GetData());
 
   if (mustBeSigned)
   {
@@ -940,11 +940,6 @@ void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level
   }
 
   bool wasEmpty = Empty();
-
-  StreamReader reader(path);
-
-  string line;
-  line.reserve(128);
 
   AutoRestore<int> autoRestore1(lineno);
   AutoRestore<PathName> autoRestore(currentFile);
@@ -956,7 +951,7 @@ void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level
 
   string documentation;
 
-  while (reader.ReadLine(line))
+  for (string line; std::getline(reader, line); )
   {
     ++lineno;
     Trim(line);
@@ -1046,8 +1041,6 @@ void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level
     }
   }
 
-  reader.Close();
-
   if (mustBeSigned && signature.empty())
   {
     FATAL_CFG_ERROR(T_("the configuration file is not signed"));
@@ -1092,7 +1085,7 @@ void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level
 #if defined(ENABLE_OPENSSL)
     if (GetCryptoLib() == CryptoLib::OpenSSL)
     {
-      BIO_ptr b64 (BIO_new(BIO_f_base64()), BIO_free);
+      BIO_ptr b64(BIO_new(BIO_f_base64()), BIO_free);
       if (b64 == nullptr)
       {
         FatalOpenSSLError();
@@ -1103,7 +1096,7 @@ void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level
       {
         modifiableSignature.push_back(ch);
       }
-      BIO_ptr mem (BIO_new_mem_buf(&modifiableSignature[0], modifiableSignature.size()), BIO_free);
+      BIO_ptr mem(BIO_new_mem_buf(&modifiableSignature[0], modifiableSignature.size()), BIO_free);
       if (mem == nullptr)
       {
         FatalOpenSSLError();
@@ -1121,7 +1114,7 @@ void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level
         FatalOpenSSLError();
       }
       RSA_ptr rsa = LoadPublicKey_OpenSSL(publicKeyFile);
-      EVP_PKEY_ptr pkey (EVP_PKEY_new(), EVP_PKEY_free);
+      EVP_PKEY_ptr pkey(EVP_PKEY_new(), EVP_PKEY_free);
       if (pkey == nullptr)
       {
         FatalOpenSSLError();
@@ -1141,6 +1134,12 @@ void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level
     }
 #endif
   }
+}
+
+void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile)
+{
+  traceStream->WriteFormattedLine("core", T_("parsing: %s..."), path.GetData());
+  Read(std::ifstream(path.ToString()), defaultKeyName, level, mustBeSigned, publicKeyFile);
 }
 
 bool CfgImpl::ParseValueDefinition(const string& line, string& valueName, string& value, CfgImpl::PutMode& putMode)

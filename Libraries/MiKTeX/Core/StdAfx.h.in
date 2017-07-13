@@ -136,9 +136,11 @@
 #include <codecvt>
 #include <condition_variable>
 #include <deque>
+#include <fstream>
 #include <functional>
 #include <iomanip>
 #include <iostream>
+#include <istream>
 #include <locale>
 #include <map>
 #include <memory>
