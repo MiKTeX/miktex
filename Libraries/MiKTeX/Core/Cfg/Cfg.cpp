@@ -40,21 +40,21 @@ using namespace std;
   MIKTEX_FATAL_ERROR_2(T_("A MiKTeX configuration file could not be loaded."), "file", currentFile.ToString(), "line", std::to_string(lineno), "error", message)
 
 const char COMMENT_CHAR = ';';
-const char * const COMMENT_CHAR_STR = ";";
+const char* const COMMENT_CHAR_STR = ";";
 
 #if defined(ENABLE_BOTAN)
-const char * const EMSA_ = "EMSA3(SHA-256)";
+const char* const EMSA_ = "EMSA3(SHA-256)";
 #endif
 
-MIKTEXSTATICFUNC(bool) EndsWith(const string & s, const string & suffix)
+MIKTEXSTATICFUNC(bool) EndsWith(const string& s, const string& suffix)
 {
   return s.length() >= suffix.length() &&
     s.compare(s.length() - suffix.length(), suffix.length(), suffix) == 0;
 }
 
-MIKTEXSTATICFUNC(string &) Trim(string & str)
+MIKTEXSTATICFUNC(string&) Trim(string& str)
 {
-  const char * whitespace = " \t\r\n";
+  const char* whitespace = " \t\r\n";
   size_t pos = str.find_last_not_of(whitespace);
   if (pos != string::npos)
   {
@@ -95,7 +95,7 @@ public:
   }
 
 public:
-  CfgValue(const string & name, const string & lookupName, const string & value, const string & documentation, bool isCommentedOut) :
+  CfgValue(const string& name, const string& lookupName, const string& value, const string& documentation, bool isCommentedOut) :
     name(name), lookupName(lookupName), value{ value }, documentation(documentation), commentedOut(isCommentedOut)
   {
   }
@@ -145,7 +145,7 @@ public:
   }
 };
 
-inline bool operator< (const CfgValue & lhs, const CfgValue & rhs)
+inline bool operator< (const CfgValue& lhs, const CfgValue& rhs)
 {
   return lhs.lookupName < rhs.lookupName;
 }
@@ -163,7 +163,7 @@ public:
   }
 
 public:
-  CfgKey(const string & name, const string & lookupName) :
+  CfgKey(const string& name, const string& lookupName) :
     name(name), lookupName(lookupName)
   {
   }
@@ -181,7 +181,7 @@ public:
   }
 
 public:
-  shared_ptr<Cfg::Value> MIKTEXTHISCALL GetValue(const string & valueName) const override
+  shared_ptr<Cfg::Value> MIKTEXTHISCALL GetValue(const string& valueName) const override
   {
     ValueMap::const_iterator it = valueMap.find(Utils::MakeLower(valueName));
     if (it == valueMap.end())
@@ -196,7 +196,7 @@ public:
   {
     vector<CfgValue> values;
     values.reserve(valueMap.size());
-    for (const auto & p : valueMap)
+    for (const auto& p : valueMap)
     {
       values.push_back(*p.second);
     }
@@ -211,7 +211,7 @@ public:
   vector<shared_ptr<Cfg::Value>> MIKTEXTHISCALL GetValues() const override
   {
     vector<shared_ptr<Cfg::Value>> values;
-    for (const auto & p : valueMap)
+    for (const auto& p : valueMap)
     {
       values.push_back(p.second);
     }
@@ -222,24 +222,24 @@ private:
   ValueMap::iterator iter = valueMap.end();
 
 public:
-  void WriteValues(StreamWriter & writer) const;
+  void WriteValues(StreamWriter& writer) const;
 };
 
-inline bool operator< (const CfgKey & lhs, const CfgKey & rhs)
+inline bool operator< (const CfgKey& lhs, const CfgKey& rhs)
 {
   return lhs.lookupName < rhs.lookupName;
 }
 
-static const char * const knownSearchPathValues[] = {
+static const char* const knownSearchPathValues[] = {
   "path",
   "extensions",
   MIKTEX_REGVAL_COMMON_ROOTS,
   MIKTEX_REGVAL_USER_ROOTS,
 };
 
-bool IsSearchPathValue(const string & valueName)
+bool IsSearchPathValue(const string& valueName)
 {
-  for (const char * path : knownSearchPathValues)
+  for (const char* path : knownSearchPathValues)
   {
     if (Utils::EqualsIgnoreCase(valueName, path))
     {
@@ -249,10 +249,10 @@ bool IsSearchPathValue(const string & valueName)
   return false;
 }
 
-void CfgKey::WriteValues(StreamWriter & writer) const
+void CfgKey::WriteValues(StreamWriter& writer) const
 {
   bool isKeyWritten = false;
-  for (const CfgValue & v : GetCfgValues(true))
+  for (const CfgValue& v : GetCfgValues(true))
   {
     if (!isKeyWritten)
     {
@@ -264,7 +264,7 @@ void CfgKey::WriteValues(StreamWriter & writer) const
     {
       writer.WriteLine();
       bool start = true;
-      for (const char & ch : v.documentation)
+      for (const char& ch : v.documentation)
       {
         if (start)
         {
@@ -286,7 +286,7 @@ void CfgKey::WriteValues(StreamWriter & writer) const
     }
     else if (v.IsMultiValue())
     {
-      for (const string & val : v.value)
+      for (const string& val : v.value)
       {
         writer.WriteFormattedLine("%s%s=%s",
           v.commentedOut ? COMMENT_CHAR_STR : "",
@@ -323,13 +323,13 @@ class WalkCallback
 {
 public:
   virtual ~WalkCallback() {}
-  virtual void addData(const string & data) = 0;
+  virtual void addData(const string& data) = 0;
 };
 
 class MD5WalkCallback : public WalkCallback
 {
 public:
-  void addData(const string & data) override
+  void addData(const string& data) override
   {
     md5Builder.Update(data.c_str(), data.length());
   }
@@ -348,16 +348,16 @@ private:
 class BotanWalkCallback : public WalkCallback
 {
 public:
-  BotanWalkCallback(Botan::Pipe & pipe) :
+  BotanWalkCallback(Botan::Pipe& pipe) :
     pipe(pipe)
   {
   }
 
 private:
-  Botan::Pipe & pipe;
+  Botan::Pipe& pipe;
   
 public:
-  void addData(const string & data) override
+  void addData(const string& data) override
   {
     pipe.write(data);
   }
@@ -368,14 +368,14 @@ public:
 class OpenSSLWalkCallback : public WalkCallback
 {
 public:
-  OpenSSLWalkCallback(EVP_PKEY * pkey, bool verify) :
+  OpenSSLWalkCallback(EVP_PKEY* pkey, bool verify) :
     mdctx(EVP_MD_CTX_create(),
 #if defined(LIBRESSL_VERSION_NUMBER) || OPENSSL_VERSION_NUMBER < 0x10100000L
-	  EVP_MD_CTX_destroy
+          EVP_MD_CTX_destroy
 #else
-	  EVP_MD_CTX_free
+          EVP_MD_CTX_free
 #endif
-	  )
+          )
   {
     this->isVerifying = verify;
     this->pkey = pkey;
@@ -383,7 +383,7 @@ public:
     {
       FatalOpenSSLError();
     }
-    const EVP_MD * md = EVP_get_digestbyname("SHA256");
+    const EVP_MD* md = EVP_get_digestbyname("SHA256");
     if (md == nullptr)
     {
       MIKTEX_UNEXPECTED();
@@ -405,7 +405,7 @@ public:
   }
 
 public:
-  void addData(const string & data) override
+  void addData(const string& data) override
   {
     if (isVerifying)
     {
@@ -424,7 +424,7 @@ public:
   }
 
 public:
-  bool Verify(const vector<unsigned char> & sig)
+  bool Verify(const vector<unsigned char>& sig)
   {
     if (!isVerifying)
     {
@@ -469,7 +469,7 @@ private:
   EVP_MD_CTX_ptr mdctx;
 
 private:
-  EVP_PKEY * pkey;
+  EVP_PKEY* pkey;
 };
 #endif
 
@@ -482,16 +482,16 @@ public:
   MD5 MIKTEXTHISCALL GetDigest() const override;
 
 public:
-  string MIKTEXTHISCALL GetValue(const string & keyName, const string & valueName) const override;
+  string MIKTEXTHISCALL GetValue(const string& keyName, const string& valueName) const override;
 
 public:
-  bool MIKTEXTHISCALL TryGetValue(const string & keyName, const string & valueName, string & value) const override;
+  bool MIKTEXTHISCALL TryGetValue(const string& keyName, const string& valueName, string& value) const override;
 
 public:
-  bool MIKTEXTHISCALL TryGetValue(const string & keyName, const string & valueName, PathName & path) const override;
+  bool MIKTEXTHISCALL TryGetValue(const string& keyName, const string& valueName, PathName& path) const override;
 
 public:
-  bool MIKTEXTHISCALL TryGetValue(const string & keyName, const string & valueName, vector<string> & value) const override;
+  bool MIKTEXTHISCALL TryGetValue(const string& keyName, const string& valueName, vector<string>& value) const override;
 
 public:
   void MIKTEXTHISCALL SetModified(bool b) override;
@@ -500,43 +500,43 @@ public:
   bool MIKTEXTHISCALL IsModified() const override;
 
 public:
-  void MIKTEXTHISCALL PutValue(const string & keyName, const string & valueName, const string & value) override;
+  void MIKTEXTHISCALL PutValue(const string& keyName, const string& valueName, const string& value) override;
 
 public:
-  void MIKTEXTHISCALL PutValue(const string & keyName, const string & valueName, const string & value, const string & documentation, bool commentedOut) override;
+  void MIKTEXTHISCALL PutValue(const string& keyName, const string& valueName, const string& value, const string& documentation, bool commentedOut) override;
 
 private:
-  void Read(const PathName & path, const string & defaultKeyName, int level, bool mustBeSigned, const PathName & publicKeyFile);
+  void Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile);
 
 public:
-  void MIKTEXTHISCALL Read(const PathName & path) override
+  void MIKTEXTHISCALL Read(const PathName& path) override
   {
     this->path = path;
     Read(path, false);
   }
 
 public:
-  void MIKTEXTHISCALL Read(const PathName & path, bool mustBeSigned) override
+  void MIKTEXTHISCALL Read(const PathName& path, bool mustBeSigned) override
   {
     this->path = path;
     Read(path, path.GetFileNameWithoutExtension().ToString(), 0, mustBeSigned, PathName());
   }
 
 public:
-  void MIKTEXTHISCALL Read(const PathName & path, const PathName & publicKeyFile) override
+  void MIKTEXTHISCALL Read(const PathName& path, const PathName& publicKeyFile) override
   {
     this->path = path;
     Read(path, path.GetFileNameWithoutExtension().ToString(), 0, true, publicKeyFile);
   }
   
 public:
-  void MIKTEXTHISCALL Write(const PathName & path) override
+  void MIKTEXTHISCALL Write(const PathName& path) override
   {
     Write(path, T_("DO NOT EDIT THIS FILE!"));
   }
 
 public:
-  void MIKTEXTHISCALL Write(const PathName & path, const string & header) override
+  void MIKTEXTHISCALL Write(const PathName& path, const string& header) override
   {
     Write(path, header, nullptr);
   }
@@ -546,7 +546,7 @@ public:
   {
     vector<CfgKey> keys;
     keys.reserve(keyMap.size());
-    for (const auto & p : keyMap)
+    for (const auto& p : keyMap)
     {
       keys.push_back(*p.second);
     }
@@ -561,7 +561,7 @@ public:
   vector<shared_ptr<Key>> GetKeys() override
   {
     vector<shared_ptr<Cfg::Key>> keys;
-    for (const auto & p : keyMap)
+    for (const auto& p : keyMap)
     {
       keys.push_back(p.second);
     }
@@ -575,10 +575,10 @@ public:
   shared_ptr<Key> MIKTEXTHISCALL NextKey() override;
 
 public:
-  void MIKTEXTHISCALL DeleteKey(const string & keyName) override;
+  void MIKTEXTHISCALL DeleteKey(const string& keyName) override;
 
 public:
-  void MIKTEXTHISCALL DeleteValue(const string & keyName, const string & valueName) override;
+  void MIKTEXTHISCALL DeleteValue(const string& keyName, const string& valueName) override;
 
 public:
   bool MIKTEXTHISCALL IsSigned() const override
@@ -587,7 +587,7 @@ public:
   }
 
 public:
-  void MIKTEXTHISCALL Write(const PathName & path, const string & header, IPrivateKeyProvider * pPrivateKeyProvider) override;
+  void MIKTEXTHISCALL Write(const PathName& path, const string& header, IPrivateKeyProvider* pPrivateKeyProvider) override;
 
 private:
   enum PutMode {
@@ -597,10 +597,10 @@ private:
   };
 
 private:
-  bool ParseValueDefinition(const string & line, string & valueName, string & value, PutMode & putMode);
+  bool ParseValueDefinition(const string& line, string& valueName, string& value, PutMode& putMode);
 
 private:
-  void Walk(WalkCallback * callback) const;
+  void Walk(WalkCallback* callback) const;
 
 private:
   PathName path;
@@ -636,16 +636,16 @@ private:
   string GetDefaultKeyName() const;
 
 private:
-  shared_ptr<CfgKey> FindKey(const string & keyName) const;
+  shared_ptr<CfgKey> FindKey(const string& keyName) const;
 
 private:
-  void WriteKeys(StreamWriter & writer);
+  void WriteKeys(StreamWriter& writer);
 
 private:
-  void PutValue(const string & keyName, const string & valueName, const string & value, PutMode putMode, const string & documentation, bool commentedOut);
+  void PutValue(const string& keyName, const string& valueName, const string& value, PutMode putMode, const string& documentation, bool commentedOut);
 
 private:
-  bool ClearValue(const string & keyName, const string & valueName);
+  bool ClearValue(const string& keyName, const string& valueName);
   
 private:
   int lineno = 0;
@@ -674,7 +674,7 @@ CfgImpl::~CfgImpl()
     traceError->Close();
     traceStream->Close();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -688,7 +688,7 @@ string CfgImpl::GetDefaultKeyName() const
   return path.GetFileNameWithoutExtension().ToString();
 }
 
-shared_ptr<CfgKey> CfgImpl::FindKey(const string & keyName) const
+shared_ptr<CfgKey> CfgImpl::FindKey(const string& keyName) const
 {
   KeyMap::const_iterator it = keyMap.find(Utils::MakeLower(keyName.empty() ? GetDefaultKeyName() : keyName));
   if (it == keyMap.end())
@@ -698,9 +698,9 @@ shared_ptr<CfgKey> CfgImpl::FindKey(const string & keyName) const
   return it->second;
 }
 
-void CfgImpl::WriteKeys(StreamWriter & writer)
+void CfgImpl::WriteKeys(StreamWriter& writer)
 {
-  for (const CfgKey & k : GetCfgKeys(true))
+  for (const CfgKey& k : GetCfgKeys(true))
   {
     k.WriteValues(writer);
   }
@@ -710,7 +710,7 @@ void CfgImpl::WriteKeys(StreamWriter & writer)
   }
 }
 
-void CfgImpl::DeleteKey(const string & keyName)
+void CfgImpl::DeleteKey(const string& keyName)
 {
   KeyMap::iterator it = keyMap.find(Utils::MakeLower(keyName));
   if (it == keyMap.end())
@@ -720,14 +720,14 @@ void CfgImpl::DeleteKey(const string & keyName)
   keyMap.erase(it);
 }
 
-void CfgImpl::Walk(WalkCallback * callback) const
+void CfgImpl::Walk(WalkCallback* callback) const
 {
-  for (const CfgKey & key : GetCfgKeys(true))
+  for (const CfgKey& key : GetCfgKeys(true))
   {
     callback->addData("[");
     callback->addData(key.lookupName);
     callback->addData("]\n");
-    for (const CfgValue & val : key.GetCfgValues(true))
+    for (const CfgValue& val : key.GetCfgValues(true))
     {
       if (val.value.empty())
       {
@@ -737,7 +737,7 @@ void CfgImpl::Walk(WalkCallback * callback) const
       }
       else if (val.IsMultiValue())
       {
-        for (const string & v : val.value)
+        for (const string& v : val.value)
         {
           callback->addData(val.lookupName);
           callback->addData("=");
@@ -768,7 +768,7 @@ unique_ptr<Cfg> Cfg::Create()
   return make_unique<CfgImpl>();
 }
 
-string CfgImpl::GetValue(const string & keyName, const string & valueName) const
+string CfgImpl::GetValue(const string& keyName, const string& valueName) const
 {
   string result;
   if (!TryGetValue(keyName, valueName, result))
@@ -778,7 +778,7 @@ string CfgImpl::GetValue(const string & keyName, const string & valueName) const
   return result;
 }
 
-bool CfgImpl::TryGetValue(const string & keyName, const string & valueName, string & outValue) const
+bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, string& outValue) const
 {
   shared_ptr<CfgKey> key = FindKey(keyName);
 
@@ -799,7 +799,7 @@ bool CfgImpl::TryGetValue(const string & keyName, const string & valueName, stri
   return true;
 }
 
-bool CfgImpl::TryGetValue(const string & keyName, const string & valueName, PathName & path) const
+bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, PathName& path) const
 {
   string value;
   if (!TryGetValue(keyName, valueName, value))
@@ -810,7 +810,7 @@ bool CfgImpl::TryGetValue(const string & keyName, const string & valueName, Path
   return true;
 }
 
-bool CfgImpl::TryGetValue(const string & keyName, const string & valueName, vector<string> & outValue) const
+bool CfgImpl::TryGetValue(const string& keyName, const string& valueName, vector<string>& outValue) const
 {
   shared_ptr<CfgKey> key = FindKey(keyName);
 
@@ -831,7 +831,7 @@ bool CfgImpl::TryGetValue(const string & keyName, const string & valueName, vect
   return true;
 }
 
-void CfgImpl::PutValue(const string & keyName_, const string & valueName, const string & value, CfgImpl::PutMode putMode, const string & documentation, bool commentedOut)
+void CfgImpl::PutValue(const string& keyName_, const string& valueName, const string& value, CfgImpl::PutMode putMode, const string& documentation, bool commentedOut)
 {
   string keyName = keyName_.empty() ? GetDefaultKeyName() : keyName_;
   if (keyName.empty())
@@ -895,7 +895,7 @@ void CfgImpl::PutValue(const string & keyName_, const string & valueName, const 
   }
 }
 
-bool CfgImpl::ClearValue(const string & keyName_, const string & valueName)
+bool CfgImpl::ClearValue(const string& keyName_, const string& valueName)
 {
   string keyName = keyName_.empty() ? GetDefaultKeyName() : keyName_;
   if (keyName.empty())
@@ -918,17 +918,17 @@ bool CfgImpl::ClearValue(const string & keyName_, const string & valueName)
   return true;
 }
 
-void CfgImpl::PutValue(const string & keyName, const string & valueName, const string & value)
+void CfgImpl::PutValue(const string& keyName, const string& valueName, const string& value)
 {
   return PutValue(keyName, valueName, value, None, "", false);
 }
 
-void CfgImpl::PutValue(const string & keyName, const string & valueName, const string & value, const string & documentation, bool commentedOut)
+void CfgImpl::PutValue(const string& keyName, const string& valueName, const string& value, const string& documentation, bool commentedOut)
 {
   return PutValue(keyName, valueName, value, None, value, commentedOut);
 }
 
-void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int level, bool mustBeSigned, const PathName & publicKeyFile)
+void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile)
 {
   MIKTEX_ASSERT(!(level > 0 && mustBeSigned));
   
@@ -1061,7 +1061,7 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
       Botan::Pipe sigPipe(new Botan::Base64_Decoder(Botan::Decoder_Checking::FULL_CHECK));
       sigPipe.process_msg(signature);
       unique_ptr<Botan::Public_Key> pPublicKey(LoadPublicKey_Botan(publicKeyFile));
-      Botan::RSA_PublicKey * pRsaKey = dynamic_cast<Botan::RSA_PublicKey*>(pPublicKey.get());
+      Botan::RSA_PublicKey* pRsaKey = dynamic_cast<Botan::RSA_PublicKey*>(pPublicKey.get());
       if (pRsaKey == nullptr)
       {
         MIKTEX_UNEXPECTED();
@@ -1099,7 +1099,7 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
       }
       BIO_set_flags(b64.get(), BIO_FLAGS_BASE64_NO_NL);
       vector<char> modifiableSignature;
-      for (const char & ch : signature)
+      for (const char& ch : signature)
       {
         modifiableSignature.push_back(ch);
       }
@@ -1108,7 +1108,7 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
       {
         FatalOpenSSLError();
       }
-      BIO * bio = BIO_push(b64.get(), mem.get());
+      BIO* bio = BIO_push(b64.get(), mem.get());
       unsigned char buf[1000];
       vector<unsigned char> sig;
       int n = 0;
@@ -1143,7 +1143,7 @@ void CfgImpl::Read(const PathName & path, const string & defaultKeyName, int lev
   }
 }
 
-bool CfgImpl::ParseValueDefinition(const string & line, string & valueName, string & value, CfgImpl::PutMode & putMode)
+bool CfgImpl::ParseValueDefinition(const string& line, string& valueName, string& value, CfgImpl::PutMode& putMode)
 {
   MIKTEX_ASSERT(!line.empty() && (IsAlNum(line[0]) || line[0] == '.'));
 
@@ -1180,26 +1180,26 @@ bool CfgImpl::ParseValueDefinition(const string & line, string & valueName, stri
 class BotanUI : public Botan::User_Interface
 {
 public:
-  BotanUI(IPrivateKeyProvider * pPrivateKeyProvider) :
+  BotanUI(IPrivateKeyProvider* pPrivateKeyProvider) :
     pPrivateKeyProvider(pPrivateKeyProvider)
   {
   }
 public:
-  string get_passphrase(const string & what, const string & source, UI_Result & result) const override
+  string get_passphrase(const string& what, const string& source, UI_Result& result) const override
   {
     string passphrase;
     result = (pPrivateKeyProvider->GetPassphrase(passphrase) ? UI_Result::OK : UI_Result::CANCEL_ACTION);
     return passphrase;
   }
 private:
-  IPrivateKeyProvider * pPrivateKeyProvider = nullptr;
+  IPrivateKeyProvider* pPrivateKeyProvider = nullptr;
 };
 #endif
 
 #if defined(ENABLE_OPENSSL)
-extern "C" int OpenSSLPasswordCallback(char * buf, int size, int rwflag, void * userdata)
+extern "C" int OpenSSLPasswordCallback(char* buf, int size, int rwflag, void* userdata)
 {
-  IPrivateKeyProvider * privKey = (IPrivateKeyProvider*)userdata;
+  IPrivateKeyProvider* privKey = (IPrivateKeyProvider*)userdata;
   string passphrase;
   if (!privKey->GetPassphrase(passphrase))
   {
@@ -1214,7 +1214,7 @@ extern "C" int OpenSSLPasswordCallback(char * buf, int size, int rwflag, void * 
 }
 #endif
 
-string ToBase64(const vector<unsigned char> & bytes)
+string ToBase64(const vector<unsigned char>& bytes)
 {
 #if defined(ENABLE_OPENSSL)
   BIO_ptr b64 (BIO_new(BIO_f_base64()), BIO_free);
@@ -1254,7 +1254,7 @@ string ToBase64(const vector<unsigned char> & bytes)
 #endif
 }
 
-void CfgImpl::Write(const PathName & path, const string & header, IPrivateKeyProvider * pPrivateKeyProvider)
+void CfgImpl::Write(const PathName& path, const string& header, IPrivateKeyProvider* pPrivateKeyProvider)
 {
   time_t t = time(nullptr);
   StreamWriter writer(path);
@@ -1275,7 +1275,7 @@ void CfgImpl::Write(const PathName & path, const string & header, IPrivateKeyPro
       BotanUI ui(pPrivateKeyProvider);
       unique_ptr<Botan::Pipe> pPipe;
       privateKey.reset(Botan::PKCS8::load_key(pPrivateKeyProvider->GetPrivateKeyFile().ToString(), rng, ui));
-      Botan::RSA_PrivateKey * pRsaKey = dynamic_cast<Botan::RSA_PrivateKey *>(privateKey.get());
+      Botan::RSA_PrivateKey* pRsaKey = dynamic_cast<Botan::RSA_PrivateKey*>(privateKey.get());
       if (pRsaKey == nullptr)
       {
         MIKTEX_UNEXPECTED();
@@ -1360,7 +1360,7 @@ shared_ptr<Cfg::Key> CfgImpl::NextKey()
   return iter->second;
 }
 
-void CfgImpl::DeleteValue(const string & keyName, const string & valueName)
+void CfgImpl::DeleteValue(const string& keyName, const string& valueName)
 {
   KeyMap::iterator it = keyMap.find(Utils::MakeLower(keyName));
   if (it == keyMap.end())
