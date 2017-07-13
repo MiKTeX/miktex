@@ -30,6 +30,7 @@
 
 #include <cstdio>
 
+#include <istream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -129,11 +130,21 @@ public:
 public:
   virtual void MIKTEXTHISCALL Read(const PathName& path) = 0;
 
+  /// Reads configuration values from a stream.
+public:
+  virtual void MIKTEXTHISCALL Read(std::istream& reader) = 0;
+
 public:
   virtual void MIKTEXTHISCALL Read(const PathName& path, bool mustBeSigned) = 0;
 
- public:
+public:
+  virtual void MIKTEXTHISCALL Read(std::istream& reader, bool mustBeSigned) = 0;
+
+public:
   virtual void MIKTEXTHISCALL Read(const PathName& path, const PathName& publicKeyFile) = 0;
+
+public:
+  virtual void MIKTEXTHISCALL Read(std::istream& reader, const PathName& publicKeyFile) = 0;
 
   /// Write configuration settings into a file.
 public:

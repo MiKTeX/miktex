@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -136,6 +136,16 @@ BEGIN_TEST_FUNCTION(6);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(7);
+{
+  shared_ptr<Cfg> cfg;
+  TESTX(cfg = Cfg::Create());
+  istringstream reader("[sec1]\nfoo=bar\n[sec2]\nfoo=bar\n");
+  TESTX(cfg->Read(reader));
+  TEST(cfg->GetValue("sec2", "foo") == "bar")
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
@@ -144,6 +154,7 @@ BEGIN_TEST_PROGRAM();
   CALL_TEST_FUNCTION(4);
   CALL_TEST_FUNCTION(5);
   CALL_TEST_FUNCTION(6);
+  CALL_TEST_FUNCTION(7);
 }
 END_TEST_PROGRAM();
 

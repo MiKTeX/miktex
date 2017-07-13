@@ -505,16 +505,22 @@ public:
   void MIKTEXTHISCALL PutValue(const string& keyName, const string& valueName, const string& value, const string& documentation, bool commentedOut) override;
 
 private:
-  void Read(std::istream& reader, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile);
+  void Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile);
 
 private:
-  void Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile);
+  void Read(std::istream& reader, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile);
 
 public:
   void MIKTEXTHISCALL Read(const PathName& path) override
   {
     this->path = path;
     Read(path, false);
+  }
+
+public:
+  void MIKTEXTHISCALL Read(std::istream& reader) override
+  {
+    Read(reader, false);
   }
 
 public:
@@ -525,12 +531,24 @@ public:
   }
 
 public:
+  void MIKTEXTHISCALL Read(std::istream& reader, bool mustBeSigned) override
+  {
+    Read(reader, "", 0, mustBeSigned, PathName());
+  }
+
+public:
   void MIKTEXTHISCALL Read(const PathName& path, const PathName& publicKeyFile) override
   {
     this->path = path;
     Read(path, path.GetFileNameWithoutExtension().ToString(), 0, true, publicKeyFile);
   }
   
+public:
+  void MIKTEXTHISCALL Read(std::istream& reader, const PathName& publicKeyFile) override
+  {
+    Read(reader, "", 0, true, publicKeyFile);
+  }
+
 public:
   void MIKTEXTHISCALL Write(const PathName& path) override
   {
@@ -930,6 +948,14 @@ void CfgImpl::PutValue(const string& keyName, const string& valueName, const str
   return PutValue(keyName, valueName, value, None, value, commentedOut);
 }
 
+void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile)
+{
+  traceStream->WriteFormattedLine("core", T_("parsing: %s..."), path.GetData());
+  std::ifstream reader(path.ToString());
+  Read(reader, defaultKeyName, level, mustBeSigned, publicKeyFile);
+  reader.close();
+}
+
 void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile)
 {
   MIKTEX_ASSERT(!(level > 0 && mustBeSigned));
@@ -1134,14 +1160,6 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
     }
 #endif
   }
-}
-
-void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile)
-{
-  traceStream->WriteFormattedLine("core", T_("parsing: %s..."), path.GetData());
-  std::ifstream reader(path.ToString());
-  Read(reader, defaultKeyName, level, mustBeSigned, publicKeyFile);
-  reader.close();
 }
 
 bool CfgImpl::ParseValueDefinition(const string& line, string& valueName, string& value, CfgImpl::PutMode& putMode)

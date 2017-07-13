@@ -1146,10 +1146,6 @@ bool SessionImpl::TryGetConfigValue(const std::string& sectionName, const string
   return GetSessionValue(sectionName, valueName, value);
 }
 
-void ParseConfig()
-{
-}
-
 ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName, const ConfigValue& defaultValue)
 {
   string value;
