@@ -105,7 +105,6 @@ target_link_libraries(${core_dll_name}
     Threads::Threads
   PUBLIC
     ${md5_dll_name}
-    ${nlohmann_json_dll_name}
     ${trace_dll_name}
     ${util_dll_name}
 )

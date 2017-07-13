@@ -32,6 +32,6 @@ else()
 endif()
 
 configure_file(
-  miktex-config.json.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.json
+  miktex-config.ini.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.ini
 )

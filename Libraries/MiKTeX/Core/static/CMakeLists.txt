@@ -68,7 +68,6 @@ endif()
 target_link_libraries(${core_lib_name}
   PUBLIC
     ${md5_lib_name}
-    ${nlohmann_json_lib_name}
     ${trace_lib_name}
     ${util_lib_name}
     Threads::Threads

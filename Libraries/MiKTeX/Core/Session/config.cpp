@@ -39,12 +39,11 @@
 #include "Utils/inliners.h"
 
 namespace {
-#include "miktex-config.json.h"
+#include "miktex-config.ini.h"
 }
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
-using namespace nlohmann;
 using namespace std;
 
 #if 0
@@ -1149,7 +1148,6 @@ bool SessionImpl::TryGetConfigValue(const std::string& sectionName, const string
 
 void ParseConfig()
 {
-  json config = json::parse(&miktex_config_json[0], &miktex_config_json[sizeof(miktex_config_json)]);
 }
 
 ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName, const ConfigValue& defaultValue)
