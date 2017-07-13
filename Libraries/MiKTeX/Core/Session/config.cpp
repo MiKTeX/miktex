@@ -855,6 +855,31 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   }
 
 #if 1
+  // try factory settings
+  if (!haveValue)
+  {
+    const string& factorySettionsKey = "<\\miktex|config/>";
+    Cfg* cfg = nullptr;
+    ConfigurationSettings::iterator it = configurationSettings.find(factorySettionsKey);
+    if (it != configurationSettings.end())
+    {
+      cfg = it->second.get();
+    }
+    else
+    {
+      pair<ConfigurationSettings::iterator, bool> p = configurationSettings.insert(ConfigurationSettings::value_type(factorySettionsKey, Cfg::Create()));
+      cfg = p.first->second.get();
+      istringstream reader(string(&miktex_config_ini[0], &miktex_config_ini[sizeof(miktex_config_ini)]));
+      cfg->Read(reader);
+    }
+    if (cfg->TryGetValue(sectionName, valueName, value))
+    {
+      haveValue = true;
+    }
+  }
+#endif
+
+#if 1
   // expand the value
   if (haveValue)
   {
