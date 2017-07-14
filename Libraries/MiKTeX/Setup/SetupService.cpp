@@ -1291,8 +1291,8 @@ void SetupServiceImpl::ConfigureMiKTeX()
   }
 
   // set auto-install
-  string valueSpec = "[" MIKTEX_REGKEY_PACKAGE_MANAGER "]";
-  valueSpec += MIKTEX_REGVAL_AUTO_INSTALL;
+  string valueSpec = "[" MIKTEX_CONFIG_SECTION_MPM "]";
+  valueSpec += MIKTEX_CONFIG_VALUE_AUTOINSTALL;
   valueSpec += "=";
   valueSpec += std::to_string((int)options.IsInstallOnTheFlyEnabled);
   RunIniTeXMF({ "--set-config-value=" + valueSpec });

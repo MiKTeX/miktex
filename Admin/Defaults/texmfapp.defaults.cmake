@@ -46,11 +46,3 @@ strings_free=100
 ;; Minimum pool space after TeX/MP's own strings; must be at least
 ;; 25000 less than pool_size, but doesn't need to be nearly that large.
 string_vacancies=90000
-
-;; Create auxiliary directory if '--aux-directory=DIR' refers
-;; a non-existing directory.
-CreateAuxDirectory=t
-
-;; Create output directory if '--output-directory=DIR' refers
-;; a non-existing directory.
-CreateOutputDirectory=t

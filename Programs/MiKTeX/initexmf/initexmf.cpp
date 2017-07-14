@@ -28,8 +28,6 @@ using namespace MiKTeX::Wrappers;
 using namespace std;
 using namespace std::string_literals;
 
-#include <miktex/mpm.defaults.h>
-
 #define UNUSED_ALWAYS(x)
 
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
@@ -768,7 +766,7 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
     Warning(T_("Option --admin should be specified when running this program with administrative privileges"));
   }
   Bootstrap();
-  enableInstaller = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, mpm::AutoInstall()).GetTriState();
+  enableInstaller = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
   PathName xmlFileName;
   if (session->FindFile("initexmf." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
     || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))

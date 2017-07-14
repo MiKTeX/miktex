@@ -27,8 +27,6 @@
 #include "PropSheet.h"
 #include "resource.hm"
 
-#include <miktex/mpm.defaults.h>
-
 BEGIN_MESSAGE_MAP(PropPageGeneral, CPropertyPage)
   ON_BN_CLICKED(IDC_REFRESH_FNDB, OnRefreshFndb)
   ON_BN_CLICKED(IDC_UPDATE_FMT, OnUpdateFmt)
@@ -50,7 +48,7 @@ BOOL PropPageGeneral::OnInitDialog()
   BOOL ret = TRUE;
   try
   {
-    switch (session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, mpm::AutoInstall()).GetTriState())
+    switch (session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState())
     {
     case TriState::True:
       installOnTheFly = 0;
@@ -129,7 +127,7 @@ BOOL PropPageGeneral::OnApply()
         tri = TriState::Undetermined;
         break;
       }
-      session->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, (int)tri);
+      session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)tri);
       previousInstallOnTheFly = installOnTheFly;
     }
     if (paperSizeIndex != previousPaperSizeIndex)

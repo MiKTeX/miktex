@@ -61,12 +61,6 @@ set(initexmf_sources
   initexmf.cpp
 )
 
-set(generated_sources
-  ${CMAKE_BINARY_DIR}/include/miktex/mpm.defaults.h
-)
-
-list(APPEND initexmf_sources ${generated_sources})
-
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND initexmf_sources initexmf.rc)
 endif()
@@ -74,14 +68,6 @@ endif()
 add_executable(initexmf ${initexmf_sources})
 
 set_property(TARGET initexmf PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-add_dependencies(initexmf gen-defaults)
-
-set_source_files_properties(
-  ${generated_sources}
-  PROPERTIES
-    GENERATED TRUE
-)
 
 install(TARGETS initexmf DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 

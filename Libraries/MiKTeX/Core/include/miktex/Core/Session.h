@@ -189,6 +189,7 @@ struct FileTypeInfo
   FileType fileType = FileType::None;
   std::string fileTypeString;
   std::string fileNameExtensions;
+  // DEPRECATED
   std::string applicationName;
   std::string searchPath;
   std::string envVarNames;

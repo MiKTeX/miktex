@@ -60,6 +60,7 @@
 
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Debug>
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>

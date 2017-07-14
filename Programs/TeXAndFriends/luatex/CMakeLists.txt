@@ -60,13 +60,7 @@ endif()
 ## luatex-miktex-static
 ###############################################################################
 
-set(generated_texmf_sources
-  ${CMAKE_BINARY_DIR}/include/miktex/texapp.defaults.h
-  ${CMAKE_BINARY_DIR}/include/miktex/texmfapp.defaults.h
-)
-
 set(miktex_sources
-  ${generated_texmf_sources}
   miktex/luatex.h
   miktex/miktex.cpp
 )
@@ -74,14 +68,6 @@ set(miktex_sources
 add_library(luatex-miktex-static STATIC ${miktex_sources})
 
 set_property(TARGET luatex-miktex-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-add_dependencies(luatex-miktex-static gen-defaults)
-
-set_source_files_properties(
-  ${generated_texmf_sources}
-  PROPERTIES
-    GENERATED TRUE
-)
 
 target_link_libraries(luatex-miktex-static
   PUBLIC

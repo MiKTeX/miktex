@@ -859,7 +859,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   // try factory settings
   if (!haveValue)
   {
-    const string& factorySettionsKey = "<\\miktex|config/>";
+    const string& factorySettionsKey = "<\\miktex|core|config/>";
     Cfg* cfg = nullptr;
     ConfigurationSettings::iterator it = configurationSettings.find(factorySettionsKey);
     if (it != configurationSettings.end())

@@ -18,6 +18,7 @@
    USA.  */
 
 #include <miktex/App/Application>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/FileType>
 #include <miktex/Core/Paths>
@@ -27,10 +28,6 @@
 #include <string>
 
 #include "luatex.h"
-
-namespace texmfapp {
-#include <miktex/texmfapp.defaults.h>
-}
 
 #define T_(x) MIKTEXTEXT(x)
 
@@ -85,7 +82,7 @@ void miktex_set_aux_directory(const char* path)
   shared_ptr<Session> session = Session::Get();
   if (!Directory::Exists(auxDirectory))
   {
-    if (session->GetConfigValue("", MIKTEX_REGVAL_CREATE_AUX_DIRECTORY, texmfapp::texmfapp::CreateAuxDirectory()).GetString() == "t")
+    if (session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_CREATEAUXDIRECTORY).GetString() == "t")
     {
       Directory::Create(auxDirectory);
     }

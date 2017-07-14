@@ -165,7 +165,7 @@ void TeXMFApp::OnTeXMFStartJob()
   }
   session->PushBackAppName(appName);
   pimpl->parseFirstLine = session->GetConfigValue("", MIKTEX_REGVAL_PARSE_FIRST_LINE, AmITeX()).GetBool();
-  pimpl->showFileLineErrorMessages = session->GetConfigValue("", MIKTEX_REGVAL_C_STYLE_ERRORS, false).GetBool();
+  pimpl->showFileLineErrorMessages = session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_CSTYLEERRORS).GetBool();
   EnablePipes(session->GetConfigValue("", MIKTEX_REGVAL_ENABLE_PIPES, false).GetBool());
   pimpl->clockStart = clock();
 }
@@ -355,7 +355,7 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
     SetAuxDirectory(auxDirectory);
     if (!Directory::Exists(auxDirectory))
     {
-      if (session->GetConfigValue("", MIKTEX_REGVAL_CREATE_AUX_DIRECTORY, texmfapp::texmfapp::CreateAuxDirectory()).GetString() == "t")
+      if (session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_CREATEAUXDIRECTORY).GetString() == "t")
       {
         Directory::Create(auxDirectory);
       }

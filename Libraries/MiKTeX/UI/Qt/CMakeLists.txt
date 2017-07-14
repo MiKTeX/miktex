@@ -40,13 +40,8 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/mikuiqt-version.h
 )
 
-set(generated_sources
-  ${CMAKE_BINARY_DIR}/include/miktex/mpm.defaults.h
-)
-
 set(${ui_qt_dll_name}_sources
   ${CMAKE_CURRENT_BINARY_DIR}/mikuiqt-version.h
-  ${generated_sources}
   ${public_headers}
   ConnectionSettingsDialog.cpp
   ConnectionSettingsDialog.h
@@ -131,14 +126,6 @@ add_library(${ui_qt_dll_name} SHARED
 )
 
 set_property(TARGET ${ui_qt_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-add_dependencies(${ui_qt_dll_name} gen-defaults)
-
-set_source_files_properties(
-  ${generated_sources}
-  PROPERTIES
-    GENERATED TRUE
-)
 
 set_target_properties(${ui_qt_dll_name}
   PROPERTIES

@@ -1,3 +1,3 @@
 [Graphics]
 
-.png.bmp=convert "%i" "%o"
+	.png.bmp = convert "%i" "%o"

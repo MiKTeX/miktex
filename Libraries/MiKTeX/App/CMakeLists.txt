@@ -39,10 +39,6 @@ set(public_headers
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/App/vi/Version
 )
 
-set(generated_sources
-  ${CMAKE_BINARY_DIR}/include/miktex/mpm.defaults.h
-)
-
 configure_file(
   app-version.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/app-version.h
@@ -59,7 +55,6 @@ set(app_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/app.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
   ${CMAKE_CURRENT_SOURCE_DIR}/vi/Runtime.cpp
-  ${generated_sources}
   ${public_headers}
 )
 

@@ -23,7 +23,6 @@ set(all_defaults_cmake
   mf.defaults.cmake
   mfapp.defaults.cmake
   miktex.defaults.cmake
-  mpm.defaults.cmake
   mpost.defaults.cmake
   omega.defaults.cmake
   pdftex.defaults.cmake
@@ -32,18 +31,6 @@ set(all_defaults_cmake
 )
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/include/miktex)
-
-if(MIKTEX_MPM_AUTO_ADMIN)
-  set(MPM_AutoAdmin "t")
-else()
-  set(MPM_AutoAdmin "?")
-endif()
-
-if(MIKTEX_MPM_AUTO_INSTALL)
-  set(MPM_AutoInstall "t")
-else()
-  set(MPM_AutoInstall "?")
-endif()
 
 foreach(d ${all_defaults_cmake})
   get_filename_component(fn ${d} NAME_WE)

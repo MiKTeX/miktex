@@ -23,14 +23,6 @@ add_library(${app_lib_name} STATIC ${app_sources})
 
 set_property(TARGET ${app_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-add_dependencies(${app_lib_name} gen-defaults)
-
-set_source_files_properties(
-  ${generated_sources}
-  PROPERTIES
-    GENERATED TRUE
-)
-
 target_compile_definitions(${app_lib_name}
   PUBLIC
     -DMIKTEX_APP_STATIC

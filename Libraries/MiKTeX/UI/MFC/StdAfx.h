@@ -1,6 +1,6 @@
 /* StdAfx.h: pre-compiled header stuff
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -48,6 +48,7 @@
 #include <vector>
 
 #include <miktex/Core/BufferSizes>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Debug>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Exceptions>

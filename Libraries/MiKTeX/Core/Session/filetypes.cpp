@@ -409,10 +409,6 @@ void SessionImpl::RegisterFileType(FileType fileType)
     RegisterFileType(FileType::PDFTEXCONFIG, "pdftex config", nullptr, "", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_PDFTEX_DIR "/{$progname,}")), "PDFTEXCONFIG");
     break;
 
-  case FileType::PERLSCRIPT:
-    RegisterFileType(FileType::PERLSCRIPT, "perlscript", nullptr, ".pl", P8_(R_(MIKTEX_PATH_SCRIPT_DIR), R_(MIKTEX_PATH_CONTEXT_DIR), R_(MIKTEX_PATH_MIKTEX_DIR), R_(MIKTEX_PATH_NTS_DIR), R_(MIKTEX_PATH_PDFTEX_DIR), R_(MIKTEX_PATH_PSUTILS_DIR), R_(MIKTEX_PATH_SOURCE_DIR), R_(MIKTEX_PATH_TEX_DIR)), "");
-    break;
-
   case FileType::PK:
     RegisterFileType(
       FileType::PK, "pk", nullptr, ".pk", // TODO

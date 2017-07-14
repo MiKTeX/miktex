@@ -31,8 +31,6 @@ using namespace MiKTeX::Util;
 using namespace std;
 using namespace std::string_literals;
 
-#include "miktex/mpm.defaults.h"
-
 static log4cxx::LoggerPtr logger;
 
 static Application* instance = nullptr;
@@ -178,9 +176,9 @@ void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args
   pimpl->beQuiet = false;
   if (pimpl->enableInstaller == TriState::Undetermined)
   {
-    pimpl->enableInstaller = pimpl->session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, mpm::AutoInstall()).GetTriState();
+    pimpl->enableInstaller = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
   }
-  pimpl->mpmAutoAdmin = pimpl->session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_ADMIN, mpm::AutoAdmin()).GetTriState();
+  pimpl->mpmAutoAdmin = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN).GetTriState();
   InstallSignalHandler(SIGINT);
   InstallSignalHandler(SIGTERM);
   AutoMaintenance();
