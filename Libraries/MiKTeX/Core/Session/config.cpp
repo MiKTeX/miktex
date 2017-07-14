@@ -43,6 +43,15 @@ namespace {
 #include "miktex-config.ini.h"
 }
 
+class memstreambuf : public std::streambuf
+{
+public:
+  memstreambuf(char* s, size_t n)
+  {
+    setg(s, s, s + n);
+  }
+};
+
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
@@ -870,7 +879,9 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
     {
       pair<ConfigurationSettings::iterator, bool> p = configurationSettings.insert(ConfigurationSettings::value_type(factorySettionsKey, Cfg::Create()));
       cfg = p.first->second.get();
-      istringstream reader(string(&miktex_config_ini[0], &miktex_config_ini[sizeof(miktex_config_ini)]));
+      //istringstream reader(string(&miktex_config_ini[0], &miktex_config_ini[sizeof(miktex_config_ini)]));
+      memstreambuf buf((char*)&miktex_config_ini[0], sizeof(miktex_config_ini));
+      istream reader(&buf);
       cfg->Read(reader);
     }
     if (cfg->TryGetValue(sectionName, valueName, value))
