@@ -34,4 +34,5 @@ endif()
 configure_file(
   miktex-config.ini.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.ini
+  NEWLINE_STYLE UNIX
 )

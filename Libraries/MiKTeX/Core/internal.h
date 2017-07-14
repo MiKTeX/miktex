@@ -272,6 +272,17 @@ inline bool AdminControlsUserConfig()
 #endif
 }
 
+class memstreambuf :
+  public std::streambuf
+{
+public:
+  memstreambuf(const unsigned char* mem, size_t len)
+  {
+    char* s = reinterpret_cast<char*>(const_cast<unsigned char*>(mem));
+    setg(s, s, s + len);
+  }
+};
+
 template<class VALTYPE> class AutoRestore
 {
 public:

@@ -22,7 +22,6 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_ADMIN_FOLDER}/Defaults")
 set(all_defaults_cmake
   mf.defaults.cmake
   mfapp.defaults.cmake
-  miktex.defaults.cmake
   mpost.defaults.cmake
   omega.defaults.cmake
   pdftex.defaults.cmake
