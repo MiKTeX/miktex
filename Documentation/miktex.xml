@@ -6,8 +6,6 @@
 
 <!ENTITY mfappdefaults SYSTEM "mfapp.defaults">
 <!ENTITY mfdefaults SYSTEM "mf.defaults">
-<!ENTITY miktexdefaults SYSTEM "miktex.defaults">
-<!ENTITY mpmdefaults SYSTEM "mpm.defaults">
 <!ENTITY mpostdefaults SYSTEM "mpost.defaults">
 <!ENTITY omegadefaults SYSTEM "omega.defaults">
 <!ENTITY pdftexdefaults SYSTEM "pdftex.defaults">
@@ -434,22 +432,6 @@ option of &initexmf; to edit the configuration file, e.g.:</para>
 
 <para>&MiKTeX; configuration settings are initialized with defaualt
 values which are described in this chapter.</para>
-
-<section id="miktexdefaults">
-
-<title>All &MiKTeX; Programs</title>
-
-<programlisting>&miktexdefaults;</programlisting>
-
-</section>
-
-<section id="mpmdefaults">
-
-<title>&MiKTeXPackageManager;</title>
-
-<programlisting>&mpmdefaults;</programlisting>
-
-</section>
 
 <section id="texmfdefaults">
 
