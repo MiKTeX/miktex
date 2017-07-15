@@ -96,7 +96,7 @@
 
 	;; Search path for dynamic libraries for Lua.
 	${MIKTEX_CONFIG_VALUE_PATHS} = .
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/scripts/{$progname,$engine,}/lua//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/scripts/{$$progname,$$engine,}/lua//
 
 	;; Environment variables to be used for searching dynamic
 	;; libraries for Lua.
@@ -281,8 +281,8 @@
 
 	;; Search path for Lua files.
 	${MIKTEX_CONFIG_VALUE_PATHS} = .
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/scripts/{$progname,$engine,}/lua//
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/{$progname,generic,}//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/scripts/{$$progname,$$engine,}/lua//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/{$$progname,generic,}//
 
 	;; Environment variables to be used for searching Lua files.
 	${MIKTEX_CONFIG_VALUE_ENVVARS} = LUAINPUTS
@@ -303,7 +303,7 @@
 
 	;; Search path for font map files.
 	${MIKTEX_CONFIG_VALUE_PATHS} = .
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/{$progname,pdftex,dvips,}//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/fonts/map/{$$progname,pdftex,dvips,}//
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/miktex/config//
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/dvips//
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/pdftex//
@@ -545,7 +545,7 @@
 
 	;; Search path for pdfTeX configuration files.
 	${MIKTEX_CONFIG_VALUE_PATHS} = .
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/pdftex/{$progname,}//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/pdftex/{$$progname,}//
 
 	;; Environment variables to be used for searching pdfTeX
 	;; configuration files.
@@ -564,13 +564,13 @@
 
 	;; Search path for program binary files.
 	${MIKTEX_CONFIG_VALUE_PATHS} = .
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/$progname//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/$$progname//
 
 [${MIKTEX_CONFIG_SECTION_CORE_FILETYPES}.other text files]
 
 	;; Search path for program text files.
 	${MIKTEX_CONFIG_VALUE_PATHS} = .
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/$progname//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/$$progname//
 
 [${MIKTEX_CONFIG_SECTION_CORE_FILETYPES}.PostScript header]
 
@@ -599,7 +599,7 @@
 
 	;; Search path for architecture-independent executables.
 	${MIKTEX_CONFIG_VALUE_PATHS} = .
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/scripts/{$progname,$engine,}//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/scripts/{$$progname,$$engine,}//
 
 	;; Environment variables to be used for searching
 	;; architecture-independent executables.
@@ -633,7 +633,7 @@
 
 	;; Search path for TeX input files.
 	${MIKTEX_CONFIG_VALUE_PATHS} = .
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/{$progname,generic,}//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/{$$progname,generic,}//
 
 	;; Environment variables to be used for searching TeX input
 	;; files.
