@@ -65,7 +65,7 @@ public:
   }
 
 public:
-  ListBuilder(const char * lpszElement1, const char * lpszElement2 = nullptr, const char * lpszElement3 = nullptr, const char * lpszElement4 = nullptr, const char * lpszElement5 = nullptr, const char * lpszElement6 = nullptr, const char * lpszElement7 = nullptr, const char * lpszElement8 = nullptr)
+  ListBuilder(const char* lpszElement1, const char* lpszElement2 = nullptr, const char* lpszElement3 = nullptr, const char* lpszElement4 = nullptr, const char* lpszElement5 = nullptr, const char* lpszElement6 = nullptr, const char* lpszElement7 = nullptr, const char* lpszElement8 = nullptr)
   {
     Reserve(0
       + strlen(lpszElement1)
@@ -117,13 +117,13 @@ public:
   }
 
 public:
-  operator const char * () const
+  operator const char* () const
   {
     return GetData();
   }
 };
 
-void SessionImpl::RegisterFileType(FileType fileType, const char * lpszFileType, const char * lpszApplication, const char * lpszFileNameExtensions, const char * lpszAlternateExtensions, const char * lpszDefaultSearchPath, const char * lpszEnvVarNames)
+void SessionImpl::RegisterFileType(FileType fileType, const char* lpszFileType, const char* lpszApplication, const char* lpszFileNameExtensions, const char* lpszAlternateExtensions, const char* lpszDefaultSearchPath, const char* lpszEnvVarNames)
 {
   MIKTEX_ASSERT_STRING(lpszFileType);
   MIKTEX_ASSERT_STRING_OR_NIL(lpszApplication);
@@ -513,7 +513,7 @@ void SessionImpl::RegisterFileTypes()
   }
 }
 
-InternalFileTypeInfo * SessionImpl::GetInternalFileTypeInfo(FileType fileType)
+InternalFileTypeInfo* SessionImpl::GetInternalFileTypeInfo(FileType fileType)
 {
   RegisterFileType(fileType);
   return &fileTypes[(size_t)fileType];
@@ -524,11 +524,11 @@ FileTypeInfo SessionImpl::GetFileTypeInfo(FileType fileType)
   return *GetInternalFileTypeInfo(fileType);
 }
 
-FileType SessionImpl::DeriveFileType(const PathName & fileName)
+FileType SessionImpl::DeriveFileType(const PathName& fileName)
 {
   RegisterFileTypes();
 
-  const char * lpszExt = GetFileNameExtension(fileName.GetData());
+  const char* lpszExt = GetFileNameExtension(fileName.GetData());
 
   for (int idx = 1; idx < fileTypes.size(); ++idx)
   {
@@ -566,7 +566,7 @@ vector<FileTypeInfo> SessionImpl::GetFileTypes()
 
 void SessionImpl::ClearSearchVectors()
 {
-  for (InternalFileTypeInfo & info : fileTypes)
+  for (InternalFileTypeInfo& info : fileTypes)
   {
     info.searchVec.clear();
   }
