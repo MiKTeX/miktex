@@ -29,6 +29,7 @@
 #include "Session/SessionImpl.h"
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 using namespace std;
 
 void SessionImpl::ExpandRootDirectories(const string & toBeExpanded, vector<PathName> & paths)
@@ -139,19 +140,14 @@ void SessionImpl::PushBackPath(vector<PathName> & vec, const PathName & path)
   }
 }
 
-void SessionImpl::SplitSearchPath(vector<PathName> & vec, const string & searchPath)
+vector<PathName> SessionImpl::SplitSearchPath(const string& searchPath)
 {
-  for (CsvList path(searchPath, PATH_DELIMITER); path; ++path)
+  vector<PathName> result;
+  for (const string& s : StringUtil::Split(searchPath, PathName::PathNameDelimiter))
   {
-    PushBackPath(vec, *path);
+    PushBackPath(result, s);
   }
-}
-
-vector<PathName> SessionImpl::SplitSearchPath(const string & searchPath)
-{
-  vector<PathName> vec;
-  SplitSearchPath(vec, searchPath);
-  return vec;
+  return result;
 }
 
 MIKTEXINTERNALFUNC(string) MakeSearchPath(const vector<PathName> & vec)
@@ -166,16 +162,6 @@ MIKTEXINTERNALFUNC(string) MakeSearchPath(const vector<PathName> & vec)
     searchPath += path.GetData();
   }
   return searchPath;
-}
-
-void SessionImpl::AppendToSearchPath(string & searchPath, const string & searchPath2)
-{
-  vector<PathName> vec = SplitSearchPath(searchPath.c_str());
-  for (CsvList path(searchPath2, PATH_DELIMITER); path; ++path)
-  {
-    PushBackPath(vec, *path);
-  }
-  searchPath = MakeSearchPath(vec);
 }
 
 void SessionImpl::TraceSearchVector(const char * lpszKey, const vector<PathName> & vec)
@@ -194,21 +180,27 @@ void SessionImpl::TraceSearchVector(const char * lpszKey, const vector<PathName>
 
 vector<PathName> SessionImpl::ConstructSearchVector(FileType fileType)
 {
-  InternalFileTypeInfo * pfti = GetInternalFileTypeInfo(fileType);
-  if (pfti->searchVec.empty())
+  InternalFileTypeInfo* fti = GetInternalFileTypeInfo(fileType);
+  if (fti->searchVec.empty())
   {
-    for (CsvList env(pfti->envVarNames, PATH_DELIMITER); env; ++env)
+    for (const string& env : fti->envVarNames)
     {
       string searchPath;
-      if (Utils::GetEnvironmentString(*env, searchPath))
+      if (Utils::GetEnvironmentString(env, searchPath))
       {
-        SplitSearchPath(pfti->searchVec, searchPath.c_str());
+        for (const string& s : StringUtil::Split(searchPath, PathName::PathNameDelimiter))
+        {
+          PushBackPath(fti->searchVec, s);
+        }
       }
     }
-    SplitSearchPath(pfti->searchVec, pfti->searchPath.c_str());
-    TraceSearchVector(pfti->fileTypeString.c_str(), pfti->searchVec);
+    for (const string& s : fti->searchPath)
+    {
+      PushBackPath(fti->searchVec, s);
+    }
+    TraceSearchVector(fti->fileTypeString.c_str(), fti->searchVec);
   }
-  return pfti->searchVec;
+  return fti->searchVec;
 }
 
 string SessionImpl::GetExpandedSearchPath(FileType fileType)

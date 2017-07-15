@@ -201,7 +201,7 @@ void FindTeXMF::ListFileTypes()
     {
       continue;
     }
-    cout << "  " << fti.fileTypeString << " (" << fti.fileNameExtensions << ")" << endl;
+    cout << "  " << fti.fileTypeString << " (" << StringUtil::Flatten(fti.fileNameExtensions, PathName::PathNameDelimiter) << ")" << endl;
   }
 }
 

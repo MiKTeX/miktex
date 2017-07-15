@@ -94,8 +94,6 @@ struct InternalFileTypeInfo : public MiKTeX::Core::FileTypeInfo
 {
 public:
   std::vector<MiKTeX::Core::PathName> searchVec;
-public:
-  std::string alternateExtensions;
 };
 
 class DvipsPaperSizeInfo : public MiKTeX::Core::PaperSizeInfo
@@ -821,12 +819,6 @@ private:
   MiKTeX::Core::PathName GetBinDirectory(bool canonicalized);
 
 private:
-  void AppendToSearchPath(std::string& strSearchPath, const std::string& strSearchPath2);
-
-private:
-  void SplitSearchPath(std::vector<MiKTeX::Core::PathName>& pathvec, const std::string& searchPath);
-
-private:
   std::vector<MiKTeX::Core::PathName> SplitSearchPath(const std::string& searchPath);
 
 private:
@@ -891,15 +883,6 @@ private:
 
 private:
   std::vector<MiKTeX::Core::PathName> ExpandPathPatterns(const std::string& toBeExpanded);
-
-private:
-  void RegisterFileType(MiKTeX::Core::FileType fileType, const char* fileTypeString, const char* application, const char* fileNameExtensions, const char* alternateExtensions, const char* defaultSearchPath, const char* envVarNames);
-
-private:
-  void RegisterFileType(MiKTeX::Core::FileType fileType, const char* fileTypeString, const char* application, const char* fileNameExtensions, const char* defaultSearchPath, const char* envVarNames)
-  {
-    RegisterFileType(fileType, fileTypeString, application, fileNameExtensions, nullptr, defaultSearchPath, envVarNames);
-  }
 
 private:
   void RegisterFileType(MiKTeX::Core::FileType fileType);

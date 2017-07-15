@@ -268,6 +268,15 @@
 	;; Ligature definition file name extensions.
 	${MIKTEX_CONFIG_VALUE_EXTENSIONS} = .lig
 
+[${MIKTEX_CONFIG_SECTION_CORE_FILETYPES}.ls-R]
+
+	;; Search path for Web2c file name database files.
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R
+
+	;; Environment variables to be used for searching Web2C file
+	;; name database files.
+	${MIKTEX_CONFIG_VALUE_ENVVARS} = TEXMFDBS
+
 [${MIKTEX_CONFIG_SECTION_CORE_FILETYPES}.lua]
 
 	;; Search path for Lua files.
@@ -756,6 +765,12 @@
 
 	;; TeX virtual font file name extensions.
 	${MIKTEX_CONFIG_VALUE_EXTENSIONS} = .vf
+
+[${MIKTEX_CONFIG_SECTION_CORE_FILETYPES}.web2c files]
+
+	;; Search path for Web2c files.
+	${MIKTEX_CONFIG_VALUE_PATHS} = .
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/web2c//
 
 [${MIKTEX_CONFIG_SECTION_CORE_FILETYPES}.web]
 

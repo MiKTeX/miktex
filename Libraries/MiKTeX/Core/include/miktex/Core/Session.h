@@ -188,9 +188,10 @@ struct FileTypeInfo
 {
   FileType fileType = FileType::None;
   std::string fileTypeString;
-  std::string fileNameExtensions;
-  std::string searchPath;
-  std::string envVarNames;
+  std::vector<std::string> fileNameExtensions;
+  std::vector<std::string> alternateExtensions;
+  std::vector<std::string> searchPath;
+  std::vector<std::string> envVarNames;
 };
 
 struct FileInfoRecord
@@ -265,7 +266,9 @@ struct LanguageInfo
 class ConfigValue
 {
 public:
-  ConfigValue() = delete;
+  ConfigValue()
+  {
+  }
 
 public:
   ConfigValue(const ConfigValue& other)
@@ -299,7 +302,7 @@ public:
   }
 
 public:
-  ConfigValue& operator= (const ConfigValue& other) = delete;
+  ConfigValue& operator=(const ConfigValue& other) = delete;
 
 public:
   ConfigValue(ConfigValue&& other)
@@ -332,7 +335,35 @@ public:
   }
 
 public:
-  ConfigValue& operator= (ConfigValue&& other) = delete;
+  ConfigValue& operator=(ConfigValue&& other)
+  {
+    switch (other.type)
+    {
+    case Type::String:
+      this->s = std::move(other.s);
+      break;
+    case Type::Int:
+      this->i = other.i;
+      break;
+    case Type::Bool:
+      this->b = other.b;
+      break;
+    case Type::Tri:
+      this->t = other.t;
+      break;
+    case Type::Char:
+      this->c = other.c;
+      break;
+    case Type::StringArray:
+      this->sa = std::move(other.sa);
+      break;
+    case Type::None:
+      break;
+    }
+    this->type = other.type;
+    this->section = other.section;
+    return *this;
+  }
 
 public:
   virtual ~ConfigValue() noexcept
@@ -434,6 +465,12 @@ public:
   Type GetType() const
   {
     return type;
+  }
+
+public:
+  bool HasValue() const
+  {
+    return type != Type::None;
   }
 
 private:

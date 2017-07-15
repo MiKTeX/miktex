@@ -23,6 +23,7 @@
 
 #include "internal.h"
 
+#include "miktex/Core/ConfigNames.h"
 #include "miktex/Core/CsvList.h"
 #include "miktex/Core/Environment.h"
 #include "miktex/Core/Paths.h"
@@ -33,112 +34,69 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-#if defined(MIKTEX_WINDOWS)
-#  define DELIM ";"
-#else
-#  define DELIM ":"
-#endif
-
-#define R_(x) S_(x) "//"
-#define r_(x) s_(x) "//"
-#define S_(x) "%R" x
-#define s_(x) "%r" x
-
-#define P2_(a, b) a DELIM b
-#define P3_(a, b, c) a DELIM b DELIM c
-#define P4_(a, b, c, d) a DELIM b DELIM c DELIM d
-#define P5_(a, b, c, d, e) a DELIM b DELIM c DELIM d DELIM e
-#define P6_(a, b, c, d, e, f) a DELIM b DELIM c DELIM d DELIM e DELIM f
-#define P7_(a, b, c, d, e, f, g) a DELIM b DELIM c DELIM d DELIM e DELIM f DELIM g
-#define P8_(a, b, c, d, e, f, g, h) a DELIM b DELIM c DELIM d DELIM e DELIM f DELIM g DELIM h
-#define P9_(a, b, c, d, e, f, g, h, i) a DELIM b DELIM c DELIM d DELIM e DELIM f DELIM g DELIM h DELIM i
-#define P10_(a, b, c, d, e, f, g, h, i, j) a DELIM b DELIM c DELIM d DELIM e DELIM f DELIM g DELIM h DELIM i DELIM j
-
-#define P_ ListBuilder
-
-class ListBuilder :
-  protected CharBuffer<char, 512>
-{
-public:
-  ListBuilder()
-  {
-  }
-
-public:
-  ListBuilder(const char* lpszElement1, const char* lpszElement2 = nullptr, const char* lpszElement3 = nullptr, const char* lpszElement4 = nullptr, const char* lpszElement5 = nullptr, const char* lpszElement6 = nullptr, const char* lpszElement7 = nullptr, const char* lpszElement8 = nullptr)
-  {
-    Reserve(0
-      + strlen(lpszElement1)
-      + (lpszElement2 == nullptr ? 0 : strlen(lpszElement2) + 1)
-      + (lpszElement3 == nullptr ? 0 : strlen(lpszElement3) + 1)
-      + (lpszElement4 == nullptr ? 0 : strlen(lpszElement4) + 1)
-      + (lpszElement5 == nullptr ? 0 : strlen(lpszElement5) + 1)
-      + (lpszElement6 == nullptr ? 0 : strlen(lpszElement6) + 1)
-      + (lpszElement7 == nullptr ? 0 : strlen(lpszElement7) + 1)
-      + (lpszElement8 == nullptr ? 0 : strlen(lpszElement8) + 1)
-      + 1
-      );
-    Set(lpszElement1);
-    if (lpszElement2 != nullptr && *lpszElement2 != 0)
-    {
-      Append(PATH_DELIMITER);
-      Append(lpszElement2);
-    }
-    if (lpszElement3 != nullptr && *lpszElement3 != 0)
-    {
-      Append(PATH_DELIMITER);
-      Append(lpszElement3);
-    }
-    if (lpszElement4 != nullptr && *lpszElement4 != 0)
-    {
-      Append(PATH_DELIMITER);
-      Append(lpszElement4);
-    }
-    if (lpszElement5 != nullptr && *lpszElement5 != 0)
-    {
-      Append(PATH_DELIMITER);
-      Append(lpszElement5);
-    }
-    if (lpszElement6 != nullptr && *lpszElement6 != 0)
-    {
-      Append(PATH_DELIMITER);
-      Append(lpszElement6);
-    }
-    if (lpszElement7 != nullptr && *lpszElement7 != 0)
-    {
-      Append(PATH_DELIMITER);
-      Append(lpszElement7);
-    }
-    if (lpszElement8 != nullptr && *lpszElement8 != 0)
-    {
-      Append(PATH_DELIMITER);
-      Append(lpszElement8);
-    }
-  }
-
-public:
-  operator const char* () const
-  {
-    return GetData();
-  }
+unordered_map<FileType, string> fileTypeStrings = {
+  { FileType::AFM, "afm" },
+  { FileType::BASE, "base" },
+  { FileType::BIB, "bib" },
+  { FileType::BST, "bst" },
+  { FileType::CID, "cid maps" },
+  { FileType::CLUA, "clua" },
+  { FileType::CNF, "cnf" },
+  { FileType::CMAP, "cmap files" },
+  { FileType::CWEB, "cweb" },
+  { FileType::DB, "ls-R" },
+  { FileType::DVI, "dvi" },
+  { FileType::DVIPSCONFIG, "dvips config" },
+  { FileType::ENC, "enc" },
+  { FileType::EXE, "executables" },
+  { FileType::FEA, "font feature files" },
+  { FileType::FMT, "fmt" },
+  { FileType::GF, "gf" },
+  { FileType::GLYPHFONT, "bitmap font" },
+  { FileType::GRAPHICS, "graphic/figure" },
+  { FileType::HBF, "hbf" },
+  { FileType::IST, "ist" },
+  { FileType::LIG, "lig files" },
+  { FileType::LUA, "lua" },
+  { FileType::MAP, "map" },
+  { FileType::MEM, "mem" },
+  { FileType::MF, "mf" },
+  { FileType::MFPOOL, "mfpool" },
+  { FileType::MFT, "mft" },
+  { FileType::MISCFONT, "misc fonts" },
+  { FileType::MLBIB, "mlbib" },
+  { FileType::MLBST, "mlbst" },
+  { FileType::MP, "mp" },
+  { FileType::MPPOOL, "mppool" },
+  { FileType::MPSUPPORT, "MetaPost support" },
+  { FileType::OCP, "ocp" },
+  { FileType::OFM, "ofm" },
+  { FileType::OPL, "opl" },
+  { FileType::OTP, "otp" },
+  { FileType::OTF, "opentype fonts" },
+  { FileType::OVF, "ovf" },
+  { FileType::OVP, "ovp" },
+  { FileType::PDFTEXCONFIG, "pdftex config" },
+  { FileType::PK, "pk" },
+  { FileType::PROGRAMBINFILE, "other binary files" },
+  { FileType::PROGRAMTEXTFILE, "other text files" },
+  { FileType::PSHEADER, "PostScript header" },
+  { FileType::SCRIPT, "texmfscripts" },
+  { FileType::SFD, "subfont definition files" },
+  { FileType::TCX, "tcx" },
+  { FileType::TEX, "tex" },
+  { FileType::TEXPOOL, "texpool" },
+  { FileType::TEXSOURCE, "TeX system sources" },
+  { FileType::TEXSYSDOC, "TeX system documentation" },
+  { FileType::TFM, "tfm" },
+  { FileType::TROFF, "troff fonts" },
+  { FileType::TTF, "truetype fonts" },
+  { FileType::TYPE1, "type1 fonts" },
+  { FileType::TYPE42, "type42 fonts" },
+  { FileType::VF, "vf" },
+  { FileType::WEB, "web" },
+  { FileType::WEB2C, "web2c files" }
 };
-
-void SessionImpl::RegisterFileType(FileType fileType, const char* lpszFileType, const char* lpszApplication, const char* lpszFileNameExtensions, const char* lpszAlternateExtensions, const char* lpszDefaultSearchPath, const char* lpszEnvVarNames)
-{
-  MIKTEX_ASSERT_STRING(lpszFileType);
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszApplication);
-  InternalFileTypeInfo fti;
-  fti.fileType = fileType;
-  fti.fileTypeString = lpszFileType;
-  string section = "ft.";
-  section += lpszFileType;
-  fti.fileNameExtensions = GetConfigValue(section, "extensions", lpszFileNameExtensions == nullptr ? "" : lpszFileNameExtensions).GetString();
-  fti.alternateExtensions = GetConfigValue(section, "alternate_extensions", lpszAlternateExtensions == nullptr ? "" : lpszAlternateExtensions).GetString();
-  fti.searchPath = GetConfigValue(section, "path", lpszDefaultSearchPath == nullptr ? "" : lpszDefaultSearchPath).GetString();
-  fti.envVarNames = GetConfigValue(section, "env", lpszEnvVarNames == nullptr ? "" : lpszEnvVarNames).GetString();
-  fileTypes.resize((size_t)FileType::E_N_D);
-  fileTypes[(size_t)fileType] = fti;
-}
 
 void SessionImpl::RegisterFileType(FileType fileType)
 {
@@ -146,359 +104,102 @@ void SessionImpl::RegisterFileType(FileType fileType)
   {
     fileTypes.resize((size_t)FileType::E_N_D);
   }
-
   if (fileTypes[(size_t)fileType].fileType == fileType)
   {
     // already registered
     return;
   }
-
+  vector<string> extensions;
+  vector<string> searchPath;
   switch (fileType)
   {
-
-  case FileType::AFM:
-    RegisterFileType(FileType::AFM, "afm", nullptr, ".afm", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_AFM_DIR)), P2_("AFMFONTS", "TEXFONTS"));
-    break;
-
-  case FileType::BASE:
-    RegisterFileType(FileType::BASE, "base", "METAFONT", ".base", P2_(CURRENT_DIRECTORY, s_(MIKTEX_PATH_BASE_DIR)), "");
-    break;
-
-  case FileType::BIB:
-    RegisterFileType(FileType::BIB, "bib", "BibTeX", ".bib", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_BIBTEX_DIR "/bib")), P2_("BIBINPUTS", "TEXBIB"));
-    break;
-
-  case FileType::BST:
-    RegisterFileType(FileType::BST, "bst", "BibTeX", ".bst", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_BIBTEX_DIR "/{bst,csf}")), "BSTINPUTS");
-    break;
-
-  case FileType::CID:
-    RegisterFileType(FileType::CID, "cid maps", nullptr, P2_(".cid", ".cidmap"), P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_CIDMAP_DIR)), "FONTCIDMAPS");
-    break;
-
-  case FileType::CLUA:
-    RegisterFileType(FileType::CLUA, "clua", nullptr, P2_(".dll", ".so"), P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_SCRIPT_DIR "/{$progname,$engine,}/lua")), "CLUAINPUTS");
-    break;
-
-  case FileType::CNF:
-    RegisterFileType(FileType::CNF, "cnf", nullptr, ".cnf", S_(MIKTEX_PATH_WEB2C_DIR), "TEXMFCNF");
-    break;
-
-  case FileType::CMAP:
-    RegisterFileType(FileType::CMAP, "cmap files", nullptr, "", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_CMAP_DIR)), P2_("CMAPFONTS", "TEXFONTS"));
-    break;
-
-  case FileType::CWEB:
-    RegisterFileType(FileType::CWEB, "cweb", "CWeb", ".w", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_CWEB_DIR)), "CWEBINPUTS");
-    break;
-
-  case FileType::DB:
-    RegisterFileType(FileType::DB, "ls-R", nullptr, "", "", "TEXMFDBS");
-    break;
-
-  case FileType::DVI:
-    RegisterFileType(FileType::DVI, "dvi", nullptr, ".dvi", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_DOC_DIR)), "");
-    break;
-
-  case FileType::DVIPSCONFIG:
-    RegisterFileType(FileType::DVIPSCONFIG, "dvips config", "Dvips", "", R_(MIKTEX_PATH_DVIPS_DIR), "TEXCONFIG");
-    break;
-
-  case FileType::ENC:
-    RegisterFileType(FileType::ENC, "enc", nullptr, ".enc", P6_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_ENC_DIR), R_(MIKTEX_PATH_MIKTEX_CONFIG_DIR), R_(MIKTEX_PATH_DVIPS_DIR), R_(MIKTEX_PATH_PDFTEX_DIR), R_(MIKTEX_PATH_DVIPDFM_DIR)), P2_("ENCFONTS", "TEXFONTS"));
-    break;
-
   case FileType::EXE:
-#if defined(MIKTEX_WINDOWS)
-  case FileType::WindowsCommandScriptFile:
-#endif
   {
-    string extensions;
 #if defined(MIKTEX_WINDOWS)
-    if (!Utils::GetEnvironmentString("PATHEXT", extensions) || extensions.empty())
+    string pathext;
+    if (!Utils::GetEnvironmentString("PATHEXT", pathext) || pathext.empty())
     {
-      extensions = P3_(".com", ".exe", ".bat");
+      pathext = ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC";
     }
+    extensions = StringUtil::Split(pathext, ';');
 #elif defined(MIKTEX_EXE_FILE_SUFFIX)
-    extensions = MIKTEX_EXE_FILE_SUFFIX;
+    extensions.push_back(MIKTEX_EXE_FILE_SUFFIX);
 #endif
-    string exePath;
     PathName userBinDir = GetSpecialPath(SpecialPath::UserInstallRoot);
     userBinDir /= MIKTEX_PATH_BIN_DIR;
     userBinDir.Canonicalize();
-    if (!IsAdminMode() && !StringUtil::Contains(exePath.c_str(), userBinDir.GetData(), PATH_DELIMITER_STRING))
+    // FIXME: case-senstive
+    if (!IsAdminMode() && std::find(searchPath.begin(), searchPath.end(), userBinDir.ToString()) == searchPath.end())
     {
-      if (!exePath.empty())
-      {
-        exePath += PATH_DELIMITER;
-      }
-      exePath += userBinDir.GetData();
+      searchPath.push_back(userBinDir.ToString());
     }
     PathName commonBinDir = GetSpecialPath(SpecialPath::CommonInstallRoot);
     commonBinDir /= MIKTEX_PATH_BIN_DIR;
     commonBinDir.Canonicalize();
-    if (!StringUtil::Contains(exePath.c_str(), commonBinDir.GetData(), PATH_DELIMITER_STRING))
+    if (std::find(searchPath.begin(), searchPath.end(), commonBinDir.ToString()) == searchPath.end())
     {
-      if (!exePath.empty())
-      {
-        exePath += PATH_DELIMITER;
-      }
-      exePath += commonBinDir.GetData();
+      searchPath.push_back(commonBinDir.ToString());
     }
     string str;
     if (Utils::GetEnvironmentString(MIKTEX_ENV_BIN_DIR, str))
     {
       PathName binDir = str;
       binDir.Canonicalize();
-      if (!StringUtil::Contains(exePath.c_str(), binDir.GetData(), PATH_DELIMITER_STRING))
+      if (std::find(searchPath.begin(), searchPath.end(), binDir.ToString()) == searchPath.end())
       {
-        if (!exePath.empty())
-        {
-          exePath += PATH_DELIMITER;
-        }
-        exePath += binDir.GetData();
+        searchPath.push_back(binDir.ToString());
       }
     }
     PathName myLocation = GetMyLocation(false);
-    if (!StringUtil::Contains(exePath.c_str(), myLocation.GetData(), PATH_DELIMITER_STRING))
+    if (std::find(searchPath.begin(), searchPath.end(), myLocation.ToString()) == searchPath.end())
     {
-      if (!exePath.empty())
-      {
-        exePath += PATH_DELIMITER;
-      }
-      exePath += myLocation.GetData();
+      searchPath.push_back(myLocation.ToString());
     }
     PathName myLocationCanon = GetMyLocation(true);
-    if (!StringUtil::Contains(exePath.c_str(), myLocationCanon.GetData(), PATH_DELIMITER_STRING))
+    if (std::find(searchPath.begin(), searchPath.end(), myLocationCanon.ToString()) == searchPath.end())
     {
-      if (!exePath.empty())
-      {
-        exePath += PATH_DELIMITER;
-      }
-      exePath += myLocationCanon.GetData();
+      searchPath.push_back(myLocationCanon.ToString());
     }
-    if (fileType == FileType::EXE)
-    {
-      RegisterFileType(FileType::EXE, "exe", nullptr, extensions.c_str(), exePath.c_str(), "");
-    }
-#if defined(MIKTEX_WINDOWS)
-    else if (fileType == FileType::WindowsCommandScriptFile)
-    {
-      RegisterFileType(FileType::WindowsCommandScriptFile, "Windows command script file", nullptr, P2_(".bat", ".cmd"), P_(R_(MIKTEX_PATH_SCRIPT_DIR), exePath.c_str()), "");
-    }
-#endif
     break;
   }
-
-  case FileType::FEA:
-    RegisterFileType(FileType::FEA, "font feature files", nullptr, ".fea", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_FONT_FEATURE_DIR)), "FONTFEATURES");
-    break;
-
-  case FileType::FMT:
-    RegisterFileType(FileType::FMT, "fmt", "TeX", ".fmt", P2_(CURRENT_DIRECTORY, s_(MIKTEX_PATH_FMT_DIR "/{$engine,}")), "");
-    break;
-
-  case FileType::GF:
-    RegisterFileType(
-      FileType::GF, "gf", nullptr, ".gf", // TODO
-      P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_FONT_DIR)), // TODO
-      P3_("GFFONTS", "GLYPHFONTS", "TEXFONTS"));
-    break;
-
-  case FileType::GLYPHFONT:
-    RegisterFileType(FileType::GLYPHFONT, "bitmap font", nullptr, "", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_FONT_DIR)), P2_("GLYPHFONTS", "TEXFONTS"));
-    break;
-
-  case FileType::GRAPHICS:
-    RegisterFileType(FileType::GRAPHICS, "graphic/figure", nullptr, P3_(".eps", ".epsi", ".png"), P4_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_DVIPS_DIR), R_(MIKTEX_PATH_PDFTEX_DIR), R_(MIKTEX_PATH_TEX_DIR)), P2_("TEXPICTS", "TEXINPUTS"));
-    break;
-
-  case FileType::HBF:
-    RegisterFileType(FileType::HBF, "hbf", nullptr, ".hbf", P3_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_HBF_DIR), R_(MIKTEX_PATH_TYPE1_DIR)), "");
-    break;
-
-  case FileType::IST:
-    RegisterFileType(FileType::IST, "ist", "MakeIndex", ".ist", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_MAKEINDEX_DIR)), P2_("TEXINDEXSTYLE", "INDEXSTYLE"));
-    break;
-
-  case FileType::LIG:
-    RegisterFileType(FileType::LIG, "lig files", nullptr, ".lig", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_LIG_DIR)), "TEXFONTS");
-    break;
-
-  case FileType::LUA:
-    RegisterFileType(FileType::LUA, "lua", nullptr, P7_(".lua", ".luatex", ".luc", ".luctex", ".texlua", ".texluc", ".tlu"), P_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_SCRIPT_DIR "/{$progname,$engine,}/{lua,}"), GetFileTypeInfo(FileType::TEX).searchPath.c_str()), "LUAINPUTS");
-    break;
-
-  case FileType::MAP:
-    RegisterFileType(FileType::MAP, "map", nullptr, ".map", P6_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_MAP_DIR "/{$progname,pdftex,dvips,}"), R_(MIKTEX_PATH_MIKTEX_CONFIG_DIR), R_(MIKTEX_PATH_DVIPS_DIR), R_(MIKTEX_PATH_PDFTEX_DIR), R_(MIKTEX_PATH_DVIPDFM_DIR)), P2_("TEXFONTMAPS", "TEXFONTS"));
-    break;
-
-  case FileType::MEM:
-    RegisterFileType(FileType::MEM, "mem", "MetaPost", ".mem", CURRENT_DIRECTORY, "");
-    break;
-
-  case FileType::MF:
-    RegisterFileType(FileType::MF, "mf", "METAFONT", ".mf", P3_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_METAFONT_DIR), R_(MIKTEX_PATH_FONT_SOURCE_DIR)), "MFINPUTS");
-    break;
-
-  case FileType::MFPOOL:
-    RegisterFileType(FileType::MFPOOL, "mfpool", nullptr, ".pool", CURRENT_DIRECTORY, P2_("MFPOOL", "TEXMFINI"));
-    break;
-
-  case FileType::MFT:
-    RegisterFileType(FileType::MFT, "mft", nullptr, ".mft", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_MFT_DIR)), "MFTINPUTS");
-    break;
-
-  case FileType::MISCFONT:
-    RegisterFileType(FileType::MISCFONT, "misc fonts", nullptr, "", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_MISCFONTS_DIR)), P2_("MISCFONTS", "TEXFONTS"));
-    break;
-
-  case FileType::MLBIB:
-    RegisterFileType(FileType::MLBIB, "mlbib", nullptr, P2_(".mlbib", ".bib"), P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_BIBTEX_DIR "/bib/{mlbib,}")), P3_("MLBIBINPUTS", "BIBINPUTS", "TEXBIB"));
-    break;
-
-  case FileType::MLBST:
-    RegisterFileType(FileType::MLBST, "mlbst", nullptr, ".bst", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_BIBTEX_DIR "/{mlbst,bst}")), P2_("MLBSTINPUTS", "BSTINPUTS"));
-    break;
-
-  case FileType::MP:
-    RegisterFileType(FileType::MP, "mp", "MetaPost", ".mp", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_METAPOST_DIR)), "MPINPUTS");
-    break;
-
-  case FileType::MPPOOL:
-    RegisterFileType(FileType::MPPOOL, "mppool", nullptr, ".pool", CURRENT_DIRECTORY, P2_("MPPOOL", "TEXMFINI"));
-    break;
-
-  case FileType::MPSUPPORT:
-    RegisterFileType(FileType::MPSUPPORT, "MetaPost support", nullptr, "", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_MPSUPPORT_DIR)), "MPSUPPORT");
-    break;
-
-  case FileType::OCP:
-    RegisterFileType(FileType::OCP, "ocp", "Omega", ".ocp", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_OCP_DIR)), "OCPINPUTS");
-    break;
-
-  case FileType::OFM:
-    RegisterFileType(FileType::OFM, "ofm", "Omega", P2_(".ofm", ".tfm"), P3_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_OFM_DIR), R_(MIKTEX_PATH_TFM_DIR)), P2_("OFMFONTS", "TEXFONTS"));
-    break;
-
-  case FileType::OPL:
-    RegisterFileType(FileType::OPL, "opl", nullptr, ".opl", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_OPL_DIR)), P2_("OPLFONTS", "TEXFONTS"));
-    break;
-
-  case FileType::OTP:
-    RegisterFileType(FileType::OTP, "otp", "otp2ocp", ".otp", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_OTP_DIR)), "OTPINPUTS");
-    break;
-
   case FileType::OTF:
-    RegisterFileType(FileType::OTF, "opentype fonts", nullptr, ".otf", P_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_OPENTYPE_DIR), GetLocalFontDirectories().c_str()), P2_("OPENTYPEFONTS", "TEXFONTS"));
+    searchPath = StringUtil::Split(GetLocalFontDirectories(), PathName::PathNameDelimiter);
     break;
-
-  case FileType::OVF:
-    RegisterFileType(FileType::OVF, "ovf", nullptr, ".ovf", P3_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_OVF_DIR), R_(MIKTEX_PATH_VF_DIR)), P2_("OVFFONTS", "TEXFONTS"));
-    break;
-
-  case FileType::OVP:
-    RegisterFileType(FileType::OVP, "ovp", nullptr, ".ovp", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_OVP_DIR)), P2_("OVPFONTS", "TEXFONTS"));
-    break;
-
-  case FileType::PDFTEXCONFIG:
-    RegisterFileType(FileType::PDFTEXCONFIG, "pdftex config", nullptr, "", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_PDFTEX_DIR "/{$progname,}")), "PDFTEXCONFIG");
-    break;
-
-  case FileType::PK:
-    RegisterFileType(
-      FileType::PK, "pk", nullptr, ".pk", // TODO
-      P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_FONT_DIR)), // TODO
-      "");
-    break;
-
-  case FileType::PROGRAMBINFILE:
-    RegisterFileType(FileType::PROGRAMBINFILE, "other binary files", nullptr, "", P2_(CURRENT_DIRECTORY, R_("/$progname")), "");
-    break;
-
-  case FileType::PROGRAMTEXTFILE:
-    RegisterFileType(FileType::PROGRAMTEXTFILE, "other text files", nullptr, "", P2_(CURRENT_DIRECTORY, R_("/$progname")), "");
-    break;
-
-  case FileType::PSHEADER:
-    RegisterFileType(FileType::PSHEADER, "PostScript header", nullptr, P2_(".pro", ".enc"), P10_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_MIKTEX_CONFIG_DIR), R_(MIKTEX_PATH_DVIPS_DIR), R_(MIKTEX_PATH_PDFTEX_DIR), R_(MIKTEX_PATH_DVIPDFM_DIR), R_(MIKTEX_PATH_ENC_DIR), R_(MIKTEX_PATH_TYPE1_DIR), R_(MIKTEX_PATH_TYPE42_DIR), R_(MIKTEX_PATH_TYPE3_DIR), "$psfontdirs"), P2_("TEXPSHEADERS", "PSHEADERS"));
-    break;
-
-  case FileType::SCRIPT:
-    RegisterFileType(FileType::SCRIPT, "texmfscripts", nullptr, "", R_(MIKTEX_PATH_SCRIPT_DIR "/{$progname,$engine,}"), "TEXMFSCRIPTS");
-    break;
-
-  case FileType::SFD:
-    RegisterFileType(FileType::SFD, "subfont definition files", nullptr, ".sfd", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_SFD_DIR)), P2_("SFDFONTS", "TEXFONTS"));
-    break;
-
-  case FileType::TCX:
-    RegisterFileType(FileType::TCX, "tcx", nullptr, ".tcx", P3_(CURRENT_DIRECTORY, S_(MIKTEX_PATH_MIKTEX_CONFIG_DIR), S_(MIKTEX_PATH_WEB2C_DIR)), "");
-    break;
-
-  case FileType::TEX:
-    RegisterFileType(FileType::TEX, "tex", "TeX", ".tex", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_TEX_DIR "/{$progname,generic,}")), "TEXINPUTS");
-    break;
-
-  case FileType::TEXPOOL:
-    RegisterFileType(FileType::TEXPOOL, "texpool", nullptr, ".pool", CURRENT_DIRECTORY, P2_("TEXPOOL", "TEXMFINI"));
-    break;
-
-  case FileType::TEXSOURCE:
-    RegisterFileType(FileType::TEXSOURCE, "TeX system sources", nullptr, "", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_SOURCE_DIR)), "TEXSOURCES");
-    break;
-
-  case FileType::TEXSYSDOC:
-    RegisterFileType(FileType::TEXSYSDOC, "TeX system documentation", nullptr,
-#if defined(MIKTEX_WINDOWS)
-      P6_(".chm", ".dvi", ".html", ".txt", ".pdf", ".ps"),
-#else
-      P5_(".dvi", ".html", ".txt", ".pdf", ".ps"),
-#endif
-      P2_(R_(MIKTEX_PATH_MIKTEX_DOC_DIR), R_(MIKTEX_PATH_DOC_DIR)), "TEXDOCS");
-    break;
-
-  case FileType::TFM:
-    RegisterFileType(FileType::TFM, "tfm", nullptr, ".tfm", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_TFM_DIR)), P2_("TFMFONTS", "TEXFONTS"));
-    break;
-
-  case FileType::TROFF:
-    RegisterFileType(FileType::TROFF, "troff fonts", nullptr, "", "", "TRFONTS");
-    break;
-
   case FileType::TTF:
-    RegisterFileType(FileType::TTF, "truetype fonts", nullptr, P2_(".ttf", ".ttc"), P_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_TRUETYPE_DIR), GetLocalFontDirectories().c_str()), P2_("TTFONTS", "TEXFONTS"));
+    searchPath = StringUtil::Split(GetLocalFontDirectories(), PathName::PathNameDelimiter);
     break;
-
   case FileType::TYPE1:
-    RegisterFileType(FileType::TYPE1, "type1 fonts", nullptr, P2_(".pfb", ".pfa"), P_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_TYPE1_DIR), GetLocalFontDirectories().c_str()), P5_("T1FONTS", "T1INPUTS", "TEXFONTS", "TEXPSHEADERS", "PSHEADERS"));
+    searchPath = StringUtil::Split(GetLocalFontDirectories(), PathName::PathNameDelimiter);
     break;
-
-  case FileType::TYPE42:
-    RegisterFileType(FileType::TYPE42, "type42 fonts", nullptr,
-#if defined(MIKTEX_WINDOWS)
-      ".t42",
-#else
-      P2_(".t42", ".T42"),
-#endif
-      P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_TYPE42_DIR)), P2_("T42FONTS", "TEXFONTS"));
-    break;
-
-  case FileType::VF:
-    RegisterFileType(FileType::VF, "vf", nullptr, ".vf", P2_(CURRENT_DIRECTORY, R_(MIKTEX_PATH_VF_DIR)), P2_("VFFONTS", "TEXFONTS"));
-    break;
-
-  case FileType::WEB:
-    RegisterFileType(FileType::WEB, "web", nullptr, ".web", R_(MIKTEX_PATH_WEB_DIR), "WEBINPUTS");
-    break;
-
-  case FileType::WEB2C:
-    RegisterFileType(FileType::WEB2C, "web2c files", nullptr, "", R_(MIKTEX_PATH_WEB2C_DIR), "");
-    break;
-
-  default:
-    MIKTEX_UNEXPECTED();
   }
+  InternalFileTypeInfo fti;
+  fti.fileType = fileType;
+  fti.fileTypeString = fileTypeStrings[fileType];
+  string section = string(MIKTEX_CONFIG_SECTION_CORE_FILETYPES) + "." + fti.fileTypeString;
+  ConfigValue configValue = GetConfigValue(section, MIKTEX_CONFIG_VALUE_EXTENSIONS);
+  if (configValue.HasValue())
+  {
+    fti.fileNameExtensions = GetConfigValue(section, MIKTEX_CONFIG_VALUE_EXTENSIONS).GetStringArray();
+  }
+  configValue = GetConfigValue(section, MIKTEX_CONFIG_VALUE_ALTEXTENSIONS);
+  if (configValue.HasValue())
+  {
+    fti.alternateExtensions = configValue.GetStringArray();
+  }
+  configValue = GetConfigValue(section, MIKTEX_CONFIG_VALUE_PATHS);
+  if (configValue.HasValue())
+  {
+    fti.searchPath = configValue.GetStringArray();
+  }
+  configValue = GetConfigValue(section, MIKTEX_CONFIG_VALUE_ENVVARS);
+  if (configValue.HasValue())
+  {
+    fti.envVarNames = configValue.GetStringArray();
+  }
+  fti.fileNameExtensions.insert(fti.fileNameExtensions.end(), extensions.begin(), extensions.end());
+  fti.searchPath.insert(fti.searchPath.begin(), searchPath.begin(), searchPath.end());
+  fileTypes.resize((size_t)FileType::E_N_D);
+  fileTypes[(size_t)fileType] = fti;
 }
 
 void SessionImpl::RegisterFileTypes()
@@ -523,30 +224,25 @@ FileTypeInfo SessionImpl::GetFileTypeInfo(FileType fileType)
 FileType SessionImpl::DeriveFileType(const PathName& fileName)
 {
   RegisterFileTypes();
-
-  const char* lpszExt = GetFileNameExtension(fileName.GetData());
-
+  PathName extension(fileName.GetExtension());
   for (int idx = 1; idx < fileTypes.size(); ++idx)
   {
-    if (lpszExt == nullptr)
+    const InternalFileTypeInfo& fti = fileTypes[idx];
+    if (extension.Empty())
     {
-      if (fileTypes[idx].fileTypeString == fileName)
+      if (fti.fileTypeString == fileName)
       {
-        return fileTypes[idx].fileType;
+        return fti.fileType;
       }
     }
     else
     {
-      for (CsvList ext(fileTypes[idx].fileNameExtensions, PATH_DELIMITER); ext; ++ext)
+      if (std::find_if(fti.fileNameExtensions.begin(), fti.fileNameExtensions.end(), [extension](const string& ext) { return extension == ext; }) != fti.fileNameExtensions.end())
       {
-        if (PathName::Compare(*ext, lpszExt) == 0)
-        {
-          return fileTypes[idx].fileType;
-        }
+        return fti.fileType;
       }
     }
   }
-
   return FileType::None;
 }
 

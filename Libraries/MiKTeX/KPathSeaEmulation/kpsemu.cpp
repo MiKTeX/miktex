@@ -722,13 +722,13 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValu
   if (varName == "OPENTYPEFONTS")
   {
     FileTypeInfo fti = session->GetFileTypeInfo(FileType::OTF);
-    varValue = fti.searchPath;
+    varValue = StringUtil::Flatten(fti.searchPath, PathName::PathNameDelimiter);
     result = true;
   }
   else if (varName == "TTFONTS")
   {
     FileTypeInfo fti = session->GetFileTypeInfo(FileType::TTF);
-    varValue = fti.searchPath;
+    varValue = StringUtil::Flatten(fti.searchPath, PathName::PathNameDelimiter);
     result = true;
   }
   else if (varName == "SELFAUTOLOC")
@@ -1068,7 +1068,7 @@ MIKTEXKPSCEEAPI(const char*) miktex_kpathsea_init_format(kpathsea pKpseInstance,
     FileType ft = ToFileType(format);
     FileTypeInfo fti = session->GetFileTypeInfo(ft);
     VarExpand expander;
-    std::string searchPath = HideMpmRoot(session->Expand(fti.searchPath, { ExpandOption::Values, ExpandOption::Braces }, &expander));
+    std::string searchPath = HideMpmRoot(session->Expand(StringUtil::Flatten(fti.searchPath, PathName::PathNameDelimiter), { ExpandOption::Values, ExpandOption::Braces }, &expander));
     formatInfo.path = ToUnix(xstrdup(searchPath.c_str()));
     formatInfo.type = xstrdup(fti.fileTypeString.c_str());
     formatInfo.suffix = ToStringList(fti.fileNameExtensions);

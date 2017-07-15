@@ -1174,17 +1174,27 @@ ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const st
   {
     return value;
   }
-  return Expand(defaultValue.GetString(), nullptr);
+  else if (defaultValue.GetType() != ConfigValue::Type::None)
+  {
+    return Expand(defaultValue.GetString(), nullptr);
+  }
+  else
+  {
+    return ConfigValue();
+  }
 }
 
 ConfigValue SessionImpl::GetConfigValue(const std::string& sectionName, const string& valueName)
 {
   string value;
-  if (!GetSessionValue(sectionName, valueName, value))
+  if (GetSessionValue(sectionName, valueName, value))
   {
-    MIKTEX_FATAL_ERROR_2(T_("Unknown configuration value."), "sectionName", sectionName, "valueName", valueName);
+    return value;
   }
-  return value;
+  else
+  {
+    return ConfigValue();
+  }
 }
 
 void SessionImpl::SetConfigValue(const std::string& sectionName, const string& valueName, const ConfigValue& value)
