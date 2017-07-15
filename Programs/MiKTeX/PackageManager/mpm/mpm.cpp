@@ -1672,7 +1672,7 @@ void Application::Main(int argc, const char** argv)
   if (pSession->FindFile("mpmcli." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
     || pSession->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
   {
-    PathName logDir = pSession->GetSpecialPath(SpecialPath::LogDirectory) / MIKTEX_PATH_MIKTEX_LOG_DIR;
+    PathName logDir = pSession->GetSpecialPath(SpecialPath::LogDirectory);
     string logName = "mpmcli";
     if (optAdmin && pSession->RunningAsAdministrator())
     {
