@@ -130,10 +130,6 @@ void SessionImpl::RegisterFileType(FileType fileType, const char* lpszFileType, 
   InternalFileTypeInfo fti;
   fti.fileType = fileType;
   fti.fileTypeString = lpszFileType;
-  if (lpszApplication != nullptr)
-  {
-    fti.applicationName = lpszApplication;
-  }
   string section = "ft.";
   section += lpszFileType;
   fti.fileNameExtensions = GetConfigValue(section, "extensions", lpszFileNameExtensions == nullptr ? "" : lpszFileNameExtensions).GetString();
