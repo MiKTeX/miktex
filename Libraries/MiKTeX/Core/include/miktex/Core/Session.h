@@ -310,6 +310,7 @@ public:
     switch (other.type)
     {
     case Type::String:
+      new (&this->s) std::string(other.s);
       this->s = std::move(other.s);
       break;
     case Type::Int:
@@ -325,6 +326,7 @@ public:
       this->c = other.c;
       break;
     case Type::StringArray:
+      new (&this->sa) std::vector<std::string>(other.sa);
       this->sa = std::move(other.sa);
       break;
     case Type::None:
@@ -337,9 +339,21 @@ public:
 public:
   ConfigValue& operator=(ConfigValue&& other)
   {
+    if (this->type == Type::String && other.type != Type::String)
+    {
+      this->s.~basic_string();
+    }
+    else if (this->type == Type::StringArray && other.type != Type::StringArray)
+    {
+      this->sa.~vector();
+    }
     switch (other.type)
     {
     case Type::String:
+      if (this->type != Type::String)
+      {
+        new (&this->s) std::string(other.s);
+      }
       this->s = std::move(other.s);
       break;
     case Type::Int:
@@ -355,6 +369,10 @@ public:
       this->c = other.c;
       break;
     case Type::StringArray:
+      if (this->type != Type::StringArray)
+      {
+        new (&this->sa) std::vector<std::string>(other.sa);
+      }
       this->sa = std::move(other.sa);
       break;
     case Type::None:

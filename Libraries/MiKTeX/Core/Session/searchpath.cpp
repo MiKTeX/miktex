@@ -36,24 +36,24 @@ void SessionImpl::ExpandRootDirectories(const string& toBeExpanded, vector<PathN
 {
   if (toBeExpanded[0] == '%' && (toBeExpanded[1] == 'R' || toBeExpanded[1] == 'r'))
   {
-    const char* lpszSuffix = toBeExpanded.c_str() + 2;
-    if (IsDirectoryDelimiter(*lpszSuffix))
+    const char* suffix = toBeExpanded.c_str() + 2;
+    if (IsDirectoryDelimiter(*suffix))
     {
-      ++lpszSuffix;
+      ++suffix;
     }
     for (unsigned idx = 0; idx < GetNumberOfTEXMFRoots(); ++idx)
     {
-      PathName path2 = GetRootDirectory(idx);
-      path2.AppendDirectoryDelimiter();
-      path2.Append(lpszSuffix, false);
-      paths.push_back(path2);
+      PathName path = GetRootDirectory(idx);
+      path.AppendDirectoryDelimiter();
+      path.Append(suffix, false);
+      paths.push_back(path);
     }
     if (toBeExpanded[1] == 'R')
     {
-      PathName path2 = MPM_ROOT_PATH;
-      path2.AppendDirectoryDelimiter();
-      path2.Append(lpszSuffix, false);
-      paths.push_back(path2);
+      PathName path = MPM_ROOT_PATH;
+      path.AppendDirectoryDelimiter();
+      path.Append(suffix, false);
+      paths.push_back(path);
     }
   }
   else

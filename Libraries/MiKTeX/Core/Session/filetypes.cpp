@@ -34,6 +34,16 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
+namespace std {
+  template <> struct hash<FileType>
+  {
+    size_t operator()(const FileType& ft) const
+    {
+      return hash<int>()((int)ft);
+    }
+  };
+}
+
 unordered_map<FileType, string> fileTypeStrings = {
   { FileType::AFM, "afm" },
   { FileType::BASE, "base" },
