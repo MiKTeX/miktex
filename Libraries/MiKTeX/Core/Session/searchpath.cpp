@@ -32,11 +32,11 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-void SessionImpl::ExpandRootDirectories(const string & toBeExpanded, vector<PathName> & paths)
+void SessionImpl::ExpandRootDirectories(const string& toBeExpanded, vector<PathName>& paths)
 {
   if (toBeExpanded[0] == '%' && (toBeExpanded[1] == 'R' || toBeExpanded[1] == 'r'))
   {
-    const char * lpszSuffix = toBeExpanded.c_str() + 2;
+    const char* lpszSuffix = toBeExpanded.c_str() + 2;
     if (IsDirectoryDelimiter(*lpszSuffix))
     {
       ++lpszSuffix;
@@ -62,7 +62,7 @@ void SessionImpl::ExpandRootDirectories(const string & toBeExpanded, vector<Path
   }
 }
 
-vector<PathName> SessionImpl::ExpandRootDirectories(const string & toBeExpanded)
+vector<PathName> SessionImpl::ExpandRootDirectories(const string& toBeExpanded)
 {
   vector<PathName> result;
   for (CsvList path(toBeExpanded, PATH_DELIMITER); path; ++path)
@@ -72,11 +72,11 @@ vector<PathName> SessionImpl::ExpandRootDirectories(const string & toBeExpanded)
   return result;
 }
 
-void SessionImpl::PushBackPath(vector<PathName> & vec, const PathName & path)
+void SessionImpl::PushBackPath(vector<PathName>& vec, const PathName& path)
 {
   vector<PathName> paths = ExpandBraces(path.GetData());
 
-  for (const PathName & path : paths)
+  for (const PathName& path : paths)
   {
     // expand '~'
     if (path[0] == '~' && (path[1] == 0 || IsDirectoryDelimiter(path[1])))
@@ -150,10 +150,10 @@ vector<PathName> SessionImpl::SplitSearchPath(const string& searchPath)
   return result;
 }
 
-MIKTEXINTERNALFUNC(string) MakeSearchPath(const vector<PathName> & vec)
+MIKTEXINTERNALFUNC(string) MakeSearchPath(const vector<PathName>& vec)
 {
   string searchPath;
-  for (const PathName & path : vec)
+  for (const PathName& path : vec)
   {
     if (!searchPath.empty())
     {
@@ -164,7 +164,7 @@ MIKTEXINTERNALFUNC(string) MakeSearchPath(const vector<PathName> & vec)
   return searchPath;
 }
 
-void SessionImpl::TraceSearchVector(const char * lpszKey, const vector<PathName> & vec)
+void SessionImpl::TraceSearchVector(const char* lpszKey, const vector<PathName>& vec)
 {
   if (!trace_filesearch->IsEnabled())
   {
@@ -209,7 +209,7 @@ string SessionImpl::GetExpandedSearchPath(FileType fileType)
   return MakeSearchPath(ConstructSearchVector(fileType));
 }
 
-void SessionImpl::DirectoryWalk(const PathName & directory, const PathName & pathPattern, vector<PathName> & paths)
+void SessionImpl::DirectoryWalk(const PathName& directory, const PathName& pathPattern, vector<PathName>& paths)
 {
   if (pathPattern.Empty())
   {
@@ -231,7 +231,7 @@ void SessionImpl::DirectoryWalk(const PathName & directory, const PathName & pat
   }
   dirLister->Close();
   // TODO: async?
-  for (const PathName & subdir : subdirs)
+  for (const PathName& subdir : subdirs)
   {
     if (!pathPattern.Empty())
     {
@@ -242,10 +242,10 @@ void SessionImpl::DirectoryWalk(const PathName & directory, const PathName & pat
   }
 }
 
-void SessionImpl::ExpandPathPattern(const PathName & rootDirectory, const PathName & pathPattern, vector<PathName> & paths)
+void SessionImpl::ExpandPathPattern(const PathName& rootDirectory, const PathName& pathPattern, vector<PathName>& paths)
 {
   MIKTEX_ASSERT(!pathPattern.Empty());
-  const char * lpszRecursionIndicator = strstr(pathPattern.GetData(), RECURSION_INDICATOR);
+  const char* lpszRecursionIndicator = strstr(pathPattern.GetData(), RECURSION_INDICATOR);
   if (lpszRecursionIndicator == nullptr)
   {
     // no recursion; check to see whether the path pattern specifies an
@@ -262,7 +262,7 @@ void SessionImpl::ExpandPathPattern(const PathName & rootDirectory, const PathNa
     // recursion; decompose the path pattern into two parts:
     // (1) sub directory (2) smaller (possibly empty) path pattern
     string subDir(pathPattern.GetData(), lpszRecursionIndicator - pathPattern.GetData());
-    const char * lpszSmallerPathPattern = lpszRecursionIndicator + RECURSION_INDICATOR_LENGTH;
+    const char* lpszSmallerPathPattern = lpszRecursionIndicator + RECURSION_INDICATOR_LENGTH;
     for (; IsDirectoryDelimiter(*lpszSmallerPathPattern); ++lpszSmallerPathPattern)
     {
     };
@@ -276,11 +276,11 @@ void SessionImpl::ExpandPathPattern(const PathName & rootDirectory, const PathNa
   }
 }
 
-vector<PathName> SessionImpl::ExpandPathPatterns(const string & toBeExpanded)
+vector<PathName> SessionImpl::ExpandPathPatterns(const string& toBeExpanded)
 {
   vector<PathName> pathPatterns = SplitSearchPath(toBeExpanded);
   vector<PathName> paths;
-  for (const PathName & pattern : pathPatterns)
+  for (const PathName& pattern : pathPatterns)
   {
     PathName comparablePathPattern(pattern);
     comparablePathPattern.TransformForComparison();
@@ -300,7 +300,7 @@ vector<PathName> SessionImpl::ExpandPathPatterns(const string & toBeExpanded)
   return paths;
 }
 
-inline void Combine(vector<PathName> & paths, const vector<PathName> & toBeAppended)
+inline void Combine(vector<PathName>& paths, const vector<PathName>& toBeAppended)
 {
   if (toBeAppended.empty())
   {
@@ -313,9 +313,9 @@ inline void Combine(vector<PathName> & paths, const vector<PathName> & toBeAppen
   }
   vector<PathName> result;
   result.reserve(paths.size() * toBeAppended.size());
-  for (const PathName & p1 : paths)
+  for (const PathName& p1 : paths)
   {
-    for (const PathName & p2 : toBeAppended)
+    for (const PathName& p2 : toBeAppended)
     {
       PathName path(p1);
       path.Append(p2.GetData(), false);
@@ -325,14 +325,14 @@ inline void Combine(vector<PathName> & paths, const vector<PathName> & toBeAppen
   paths = result;
 }
 
-inline void Combine(vector<PathName> & paths, const string & path)
+inline void Combine(vector<PathName>& paths, const string& path)
 {
   vector<PathName> toBeAppended;
   toBeAppended.push_back(path);
   Combine(paths, toBeAppended);
 }
 
-inline vector<PathName> ExpandBracesHelper(const char * & lpszToBeExpanded)
+inline vector<PathName> ExpandBracesHelper(const char*& lpszToBeExpanded)
 {
   MIKTEX_ASSERT(*lpszToBeExpanded == '{');
   ++lpszToBeExpanded;
@@ -373,11 +373,11 @@ inline vector<PathName> ExpandBracesHelper(const char * & lpszToBeExpanded)
 // abcdghklmn
 // abefghijmn
 // abefghklmn
-void SessionImpl::ExpandBraces(const string & toBeExpanded, vector<PathName> & paths)
+void SessionImpl::ExpandBraces(const string& toBeExpanded, vector<PathName>& paths)
 {
   string str;
   vector<PathName> result;
-  for (const char * lpszToBeExpanded = toBeExpanded.c_str(); *lpszToBeExpanded != 0; ++lpszToBeExpanded)
+  for (const char* lpszToBeExpanded = toBeExpanded.c_str(); *lpszToBeExpanded != 0; ++lpszToBeExpanded)
   {
     if (*lpszToBeExpanded == '{')
     {
@@ -398,11 +398,11 @@ void SessionImpl::ExpandBraces(const string & toBeExpanded, vector<PathName> & p
   paths.insert(paths.end(), result.begin(), result.end());
 }
 
-vector<PathName> SessionImpl::ExpandBraces(const string & toBeExpanded)
+vector<PathName> SessionImpl::ExpandBraces(const string& toBeExpanded)
 {
   vector<PathName> paths = ExpandRootDirectories(toBeExpanded);
   vector<PathName> result;
-  for (const PathName & path : paths)
+  for (const PathName& path : paths)
   {
     ExpandBraces(path.GetData(), result);
   }
