@@ -1206,9 +1206,9 @@ void MakeFontMapApp::CreateFontconfigLocalfontsConf()
 #endif
   vector<string> paths;
 #if defined(MIKTEX_WINDOWS)
-  for (CsvList path(session->GetLocalFontDirectories(), PathName::PathNameDelimiter); path; ++path)
+  for (const string& path : StringUtil::Split(session->GetLocalFontDirectories(), PathName::PathNameDelimiter))
   {
-    paths.push_back(*path);
+    paths.push_back(path);
   }
 #endif
   for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)

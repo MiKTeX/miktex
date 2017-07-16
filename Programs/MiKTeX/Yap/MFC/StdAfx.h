@@ -89,7 +89,6 @@
 #include "yap-version.h"
 
 #include <miktex/Core/BufferSizes>
-#include <miktex/Core/CsvList>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Debug>

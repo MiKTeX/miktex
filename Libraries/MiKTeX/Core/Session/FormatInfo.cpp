@@ -24,12 +24,12 @@
 #include "internal.h"
 
 #include "miktex/Core/Directory.h"
-#include "miktex/Core/CsvList.h"
 #include "miktex/Core/Paths.h"
 
 #include "Session/SessionImpl.h"
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 using namespace std;
 
 vector<FormatInfo> SessionImpl::GetFormats()
@@ -120,13 +120,13 @@ void SessionImpl::ReadFormatsIni(const PathName& cfgFile)
     {
       formatInfo.exclude = false;
       formatInfo.noExecutable = false;
-      for (CsvList flag(val, ','); flag; ++flag)
+      for (const string& flag : StringUtil::Split(val, ','))
       {
-        if (*flag == "exclude")
+        if (flag == "exclude")
         {
           formatInfo.exclude = true;
         }
-        else if (*flag == "noexe")
+        else if (flag == "noexe")
         {
           formatInfo.noExecutable = true;
         }

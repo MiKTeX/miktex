@@ -198,22 +198,22 @@ bool SessionImpl::FindStartupConfigFile(bool common, PathName& path)
 void Absolutize(string& paths, const PathName& relativeFrom)
 {
   string result;
-  for (CsvList path(paths, PATH_DELIMITER); path; ++path)
+  for (const string& path : StringUtil::Split(paths, PathName::PathNameDelimiter))
   {
     if (!result.empty())
     {
-      result += PATH_DELIMITER;
+      result += PathName::PathNameDelimiter;
     }
-    if (Utils::IsAbsolutePath(*path))
+    if (Utils::IsAbsolutePath(path))
     {
-      result += *path;
+      result += path;
     }
     else
     {
 #if MIKTEX_WINDOWS
       MIKTEX_ASSERT(Utils::IsAbsolutePath(relativeFrom));
       PathName absPath(relativeFrom);
-      absPath /= *path;
+      absPath /= path;
       PathName absPath2;
       MIKTEX_ASSERT(absPath2.GetCapacity() >= MAX_PATH);
       // FIXME: use wchar_t API
@@ -221,7 +221,7 @@ void Absolutize(string& paths, const PathName& relativeFrom)
       {
         absPath2 = absPath;
       }
-      result += absPath2.GetData();
+      result += absPath2.ToString();
 #else
       UNIMPLEMENTED();
 #endif
@@ -343,20 +343,20 @@ void Relativize(string& paths, const PathName& relativeFrom)
 {
 #if MIKTEX_WINDOWS
   string result;
-  for (CsvList path(paths, PATH_DELIMITER); path; ++path)
+  for (const string& path : StringUtil::Split(paths, PathName::PathNameDelimiter))
   {
     if (!result.empty())
     {
-      result += PATH_DELIMITER;
+      result += PathName::PathNameDelimiter;
     }
     wchar_t szRelPath[MAX_PATH];
-    if (PathRelativePathToW(szRelPath, relativeFrom.ToWideCharString().c_str(), FILE_ATTRIBUTE_DIRECTORY, UW_(*path), FILE_ATTRIBUTE_DIRECTORY))
+    if (PathRelativePathToW(szRelPath, relativeFrom.ToWideCharString().c_str(), FILE_ATTRIBUTE_DIRECTORY, UW_(path), FILE_ATTRIBUTE_DIRECTORY))
     {
       result += WU_(szRelPath);
     }
     else
     {
-      result += *path;
+      result += path;
     }
   }
   paths = result;
@@ -695,7 +695,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   }
 
   // iterate over application tags, e.g.: latex;tex;miktex
-  for (CsvList app(applicationNames, PATH_DELIMITER); !haveValue && app; ++app)
+  for (CsvList app(applicationNames, PathName::PathNameDelimiter); !haveValue && app; ++app)
   {
     Cfg* cfg = nullptr;
 
@@ -806,8 +806,9 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   }
   else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_PROGNAME))
   {
-    MIKTEX_ASSERT(!applicationNames.empty());
-    value = CsvList(applicationNames, PATH_DELIMITER);
+    CsvList progname(applicationNames, PathName::PathNameDelimiter);
+    MIKTEX_ASSERT(progname);
+    value = *progname;
     haveValue = true;
   }
 #if defined(MIKTEX_WINDOWS)

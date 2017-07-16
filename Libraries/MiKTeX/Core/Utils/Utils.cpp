@@ -272,7 +272,7 @@ bool Utils::IsSafeFileName(const PathName& path, bool forInput)
   string forbiddenExtensions;
   if (!extension.empty() && ::GetEnvironmentString("PATHEXT", forbiddenExtensions))
   {
-    for (CsvList ext(forbiddenExtensions, PATH_DELIMITER); ext; ++ext)
+    for (CsvList ext(forbiddenExtensions, PathName::PathNameDelimiter); ext; ++ext)
     {
       if (PathName::Compare(*ext, extension) == 0)
       {

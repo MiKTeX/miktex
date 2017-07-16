@@ -31,7 +31,6 @@
 
 #include <miktex/App/Application>
 
-#include <miktex/Core/CsvList>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/CommandLineBuilder>
 #include <miktex/Core/Directory>

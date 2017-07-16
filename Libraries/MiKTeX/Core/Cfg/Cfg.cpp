@@ -23,7 +23,6 @@
 
 #include "internal.h"
 
-#include "miktex/Core/CsvList.h"
 #include "miktex/Core/Cfg.h"
 #include "miktex/Core/Registry.h"
 #include "miktex/Core/StreamWriter.h"
@@ -303,17 +302,17 @@ void CfgKey::WriteValues(StreamWriter& writer) const
           val.c_str());
       }
     }
-    else if (IsSearchPathValue(v.name) && v.value.front().find_first_of(PATH_DELIMITER) != string::npos)
+    else if (IsSearchPathValue(v.name) && v.value.front().find_first_of(PathName::PathNameDelimiter) != string::npos)
     {
       writer.WriteFormattedLine("%s%s=",
         v.commentedOut ? COMMENT_CHAR_STR : "",
         v.name.c_str());
-      for (CsvList root(v.value.front(), PATH_DELIMITER); root; ++root)
+      for (const string& root: StringUtil::Split(v.value.front(), PathName::PathNameDelimiter))
       {
         writer.WriteFormattedLine("%s%s;=%s",
           v.commentedOut ? COMMENT_CHAR_STR : "",
           v.name.c_str(),
-          (*root).c_str());
+          root.c_str());
       }
     }
     else
@@ -912,7 +911,7 @@ void CfgImpl::PutValue(const string& keyName_, const string& valueName, const st
       {
         if (!itVal->second->value.front().empty())
         {
-          itVal->second->value.front() += PATH_DELIMITER;
+          itVal->second->value.front() += PathName::PathNameDelimiter;
         }
         itVal->second->value.front() += value;
       }

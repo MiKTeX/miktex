@@ -24,7 +24,6 @@
 #include "internal.h"
 
 #include "miktex/Core/ConfigNames.h"
-#include "miktex/Core/CsvList.h"
 #include "miktex/Core/Environment.h"
 #include "miktex/Core/Paths.h"
 

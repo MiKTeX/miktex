@@ -1876,9 +1876,9 @@ void IniTeXMFApp::MakeLanguageDat(bool force)
 
     // language.dat
     languageDat.WriteFormattedLine("%s %s", languageInfo.key.c_str(), languageInfo.loader.c_str());
-    for (CsvList synonym(languageInfo.synonyms, ','); synonym; ++synonym)
+    for (const string& synonym : StringUtil::Split(languageInfo.synonyms, ','))
     {
-      languageDat.WriteFormattedLine("=%s", (*synonym).c_str());
+      languageDat.WriteFormattedLine("=%s", synonym.c_str());
     }
 
     // language.def
@@ -1891,9 +1891,9 @@ void IniTeXMFApp::MakeLanguageDat(bool force)
     languageDatLua.WriteFormattedLine("\t\trighthyphenmin=%d,", languageInfo.righthyphenmin);
     languageDatLua.Write("\t\tsynonyms={ ");
     int nSyn = 0;
-    for (CsvList synonym(languageInfo.synonyms, ','); synonym; ++synonym)
+    for (const string& synonym : StringUtil::Split(languageInfo.synonyms, ','))
     {
-      languageDatLua.WriteFormatted("%s'%s'", nSyn > 0 ? "," : "", (*synonym).c_str());
+      languageDatLua.WriteFormatted("%s'%s'", nSyn > 0 ? "," : "", synonym.c_str());
       nSyn++;
     }
     languageDatLua.WriteLine(" },");
@@ -2338,12 +2338,12 @@ void IniTeXMFApp::Bootstrap()
 {
 #if defined(WITH_BOOTSTRAPPING)
   vector<string> neededPackages;
-  for (CsvList package(MIKTEX_BOOTSTRAPPING_PACKAGES, ';'); package; ++package)
+  for (const string& package : StringUtil::Split(MIKTEX_BOOTSTRAPPING_PACKAGES, ';'))
   {
     PackageInfo packageInfo;
-    if (!packageManager->TryGetPackageInfo(*package, packageInfo))
+    if (!packageManager->TryGetPackageInfo(package, packageInfo))
     {
-      neededPackages.push_back(*package);
+      neededPackages.push_back(package);
     }
   }
   if (!neededPackages.empty())
@@ -2434,9 +2434,9 @@ void IniTeXMFApp::RegisterOtherRoots()
   for (const OtherTeX& other : otherTeXDists)
   {
     const string& roots = (session->IsAdminMode() ? other.startupConfig.commonRoots : other.startupConfig.userRoots);
-    for (CsvList r(roots, PathName::PathNameDelimiter); r; ++r)
+    for (const string& r : StringUtil::Split(roots, PathName::PathNameDelimiter))
     {
-      otherRoots.push_back(*r);
+      otherRoots.push_back(r);
     }
   }
   if (otherRoots.empty())

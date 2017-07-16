@@ -149,32 +149,17 @@ MIKTEXKPSCEEAPI(char*) miktex_kpathsea_find_glyph(kpathsea pKpseInstance, const 
   return lpsz;
 }
 
-MIKTEXSTATICFUNC(const char**) ToStringList(const vector<std::string>& vec)
+MIKTEXSTATICFUNC(const char**) ToStringList(const std::string& str)
 {
-  const char** pStringList = XTALLOC(vec.size() + 1, const char*);
+  vector<std::string> vec = StringUtil::Split(str, PathName::PathNameDelimiter);
+  const char** result = XTALLOC(vec.size() + 1, const char*);
   size_t idx = 0;
   for (const std::string& s : vec)
   {
-    pStringList[idx++] = xstrdup(s.c_str());
+    result[idx++] = xstrdup(s.c_str());
   }
-  pStringList[idx] = nullptr;
-  return pStringList;
-}
-
-#if defined(MIKTEX_WINDOWS)
-const char PATH_DELIMITER = ';';
-#else
-const char PATH_DELIMITER = ':';
-#endif
-
-MIKTEXSTATICFUNC(const char**) ToStringList(const std::string& str)
-{
-  vector<std::string> vec;
-  for (CsvList s(str, PATH_DELIMITER); s; ++s)
-  {
-    vec.push_back(*s);
-  }
-  return ToStringList(vec);
+  result[idx] = nullptr;
+  return result;
 }
 
 MIKTEXSTATICFUNC(FileType) ToFileType(kpse_file_format_type format)
@@ -698,9 +683,9 @@ MIKTEXSTATICFUNC(std::string) HideMpmRoot(const std::string& searchPath)
   PathName mpmRootPath = session->GetMpmRootPath();
   size_t mpmRootPathLen = mpmRootPath.GetLength();
   std::string result;
-  for (CsvList path(searchPath, PathName::PathNameDelimiter); path; ++path)
+  for (const std::string& path : StringUtil::Split(searchPath, PathName::PathNameDelimiter))
   {
-    if ((PathName::Compare(*path, mpmRootPath, mpmRootPathLen) == 0) && ((*path).length() == mpmRootPathLen || IsDirectoryDelimiter((*path)[mpmRootPathLen])))
+    if ((PathName::Compare(path, mpmRootPath, mpmRootPathLen) == 0) && (path.length() == mpmRootPathLen || IsDirectoryDelimiter(path[mpmRootPathLen])))
     {
       continue;
     }
@@ -708,7 +693,7 @@ MIKTEXSTATICFUNC(std::string) HideMpmRoot(const std::string& searchPath)
     {
       result += PathName::PathNameDelimiter;
     }
-    result += *path;
+    result += path;
   }
   return result;
 }
@@ -1071,7 +1056,7 @@ MIKTEXKPSCEEAPI(const char*) miktex_kpathsea_init_format(kpathsea pKpseInstance,
     std::string searchPath = HideMpmRoot(session->Expand(StringUtil::Flatten(fti.searchPath, PathName::PathNameDelimiter), { ExpandOption::Values, ExpandOption::Braces }, &expander));
     formatInfo.path = ToUnix(xstrdup(searchPath.c_str()));
     formatInfo.type = xstrdup(fti.fileTypeString.c_str());
-    formatInfo.suffix = ToStringList(fti.fileNameExtensions);
+    formatInfo.suffix = ToStringList(StringUtil::Flatten(fti.fileNameExtensions, PathName::PathNameDelimiter));
   }
   return formatInfo.path;
 }

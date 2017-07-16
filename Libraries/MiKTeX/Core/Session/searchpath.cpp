@@ -24,7 +24,6 @@
 #include "internal.h"
 
 #include "miktex/Core/Directory.h"
-#include "miktex/Core/CsvList.h"
 
 #include "Session/SessionImpl.h"
 
@@ -65,9 +64,9 @@ void SessionImpl::ExpandRootDirectories(const string& toBeExpanded, vector<PathN
 vector<PathName> SessionImpl::ExpandRootDirectories(const string& toBeExpanded)
 {
   vector<PathName> result;
-  for (CsvList path(toBeExpanded, PATH_DELIMITER); path; ++path)
+  for (const string& s : StringUtil::Split(toBeExpanded, PathName::PathNameDelimiter))
   {
-    ExpandRootDirectories(*path, result);
+    ExpandRootDirectories(s, result);
   }
   return result;
 }

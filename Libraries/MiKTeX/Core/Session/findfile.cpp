@@ -23,7 +23,6 @@
 
 #include "internal.h"
 
-#include "miktex/Core/CsvList.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/Registry.h"
 

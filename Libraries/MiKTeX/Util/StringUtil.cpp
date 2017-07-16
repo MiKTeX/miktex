@@ -38,13 +38,25 @@ string StringUtil::Flatten(const std::vector<std::string>& vec, char sep)
 vector<string> StringUtil::Split(const std::string& s, char sep)
 {
   vector<string> result;
-  for (Tokenizer tok(s, string(1, sep)); tok; ++tok)
+  if (s.empty())
   {
-    result.push_back(*tok);
+    return result;
   }
+  string current;
+  for (const char& ch : s)
+  {
+    if (ch == sep)
+    {
+      result.push_back(std::move(current));
+    }
+    else
+    {
+      current += ch;
+    }
+  }
+  result.push_back(std::move(current));
   return result;
 }
-
 
 size_t StringUtil::AppendString(char* dest, size_t destSize, const char* source)
 {

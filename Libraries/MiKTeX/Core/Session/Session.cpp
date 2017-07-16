@@ -25,7 +25,6 @@
 
 #include "core-version.h"
 
-#include "miktex/Core/CsvList.h"
 #include "miktex/Core/Environment.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/Registry.h"
@@ -38,6 +37,7 @@
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
+using namespace MiKTeX::Util;
 using namespace std;
 
 weak_ptr<SessionImpl> SessionImpl::theSession;
@@ -172,9 +172,9 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
   string miktexCwd;
   if (Utils::GetEnvironmentString(MIKTEX_ENV_CWD_LIST, miktexCwd))
   {
-    for (CsvList cwd(miktexCwd, PATH_DELIMITER); cwd; ++cwd)
+    for (const string& cwd : StringUtil::Split(miktexCwd, PathName::PathNameDelimiter))
     {
-      AddInputDirectory(*cwd, true);
+      AddInputDirectory(cwd, true);
     }
   }
 

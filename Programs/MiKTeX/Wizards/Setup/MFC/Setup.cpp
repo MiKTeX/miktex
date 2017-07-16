@@ -274,9 +274,9 @@ void CheckStartupConfig(StartupConfig & startupConfig)
 {
 #if 1
   string commonRoots;
-  for (CsvList tok(startupConfig.commonRoots, ';'); tok; ++tok)
+  for (const string& tok : StringUtil::Split(startupConfig.commonRoots, PathName::PathNameDelimiter))
   {
-    PathName path(*tok);
+    PathName path(tok);
     if (path.Empty())
     {
       continue;
@@ -314,9 +314,9 @@ void CheckStartupConfig(StartupConfig & startupConfig)
   startupConfig.commonRoots = commonRoots;
 
   string userRoots;
-  for (CsvList tok(startupConfig.userRoots, ';'); tok; ++tok)
+  for (const string& tok : StringUtil::Split(startupConfig.userRoots, PathName::PathNameDelimiter))
   {
-    PathName path(*tok);
+    PathName path(tok);
     if (path.Empty())
     {
       continue;

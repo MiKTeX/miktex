@@ -23,7 +23,6 @@
 
 #include "internal.h"
 
-#include "miktex/Core/CsvList.h"
 #include "miktex/Core/Environment.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/Registry.h"
@@ -37,6 +36,7 @@
 #include "Session/SessionImpl.h"
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 using namespace std;
 
 // index of the hidden MPM root
@@ -260,11 +260,11 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
   }
 
   // UserRoots
-  for (CsvList root(startupConfig.userRoots, PATH_DELIMITER); root; ++root)
+  for (const string& root : StringUtil::Split(startupConfig.userRoots, PathName::PathNameDelimiter))
   {
-    if (!(*root).empty())
+    if (!root.empty())
     {
-      RegisterRootDirectory(*root, false, false);
+      RegisterRootDirectory(root, false, false);
     }
   }
 
@@ -287,11 +287,11 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
   }
 
   // CommonRoots
-  for (CsvList root(startupConfig.commonRoots, PATH_DELIMITER); root; ++root)
+  for (const string& root : StringUtil::Split(startupConfig.commonRoots, PathName::PathNameDelimiter))
   {
-    if (!(*root).empty())
+    if (!root.empty())
     {
-      RegisterRootDirectory(*root, true, false);
+      RegisterRootDirectory(root, true, false);
     }
   }
 
@@ -302,24 +302,24 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
   }
 
   // OtherUserRoots
-  for (CsvList root(startupConfig.otherUserRoots, PATH_DELIMITER); root; ++root)
+  for (const string& root : StringUtil::Split(startupConfig.otherUserRoots, PathName::PathNameDelimiter))
   {
-    if (!(*root).empty())
+    if (!root.empty())
     {
-      RegisterRootDirectory(*root, true, true);
+      RegisterRootDirectory(root, true, true);
     }
   }
 
   // OtherCommonRoots
-  for (CsvList root(startupConfig.otherCommonRoots, PATH_DELIMITER); root; ++root)
+  for (const string& root : StringUtil::Split(startupConfig.otherCommonRoots, PathName::PathNameDelimiter))
   {
-    if (!(*root).empty())
+    if (!root.empty())
     {
-      RegisterRootDirectory(*root, true, true);
+      RegisterRootDirectory(root, true, true);
     }
   }
 
-  if (rootDirectories.size() == 0)
+  if (rootDirectories.empty())
   {
     MIKTEX_UNEXPECTED();
   }

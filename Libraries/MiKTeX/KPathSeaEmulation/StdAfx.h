@@ -30,7 +30,6 @@
 #include <miktex/App/Application>
 #include <miktex/C4P/C4P>
 #include <miktex/Core/BufferSizes>
-#include <miktex/Core/CsvList>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/File>
 #include <miktex/Core/FileType>
