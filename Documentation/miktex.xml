@@ -430,7 +430,7 @@ option of &initexmf; to edit the configuration file, e.g.:</para>
 
 <title>Run-Time Defaults</title>
 
-<para>&MiKTeX; configuration settings are initialized with defaualt
+<para>&MiKTeX; configuration settings are initialized with default
 values which are described in this chapter.</para>
 
 <section id="texmfdefaults">
