@@ -428,14 +428,13 @@ typesets he fully qualified path to the &LaTeX; input file
 <para>Likewise, it is possible to let &TeX; write something into
 the input stream of a command. For example:
 <programlisting>
-\immediate\openout1 = "|sort > sorted"
+\immediate\openout1 = "|sort"
 \immediate\write 1 {b}
 \immediate\write 1 {a}
 \immediate\write 1 {c}
 \immediate\closeout1
-\input sorted
 </programlisting>
-typesets a b c.</para>
+</para>
 
 <note>
 <para>Piped input and output is disabled by default.
