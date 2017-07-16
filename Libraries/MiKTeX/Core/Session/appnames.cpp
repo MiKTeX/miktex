@@ -1,6 +1,6 @@
 /* appnames.cpp: managing application names
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -30,7 +30,7 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-inline void AppendTag(string & str, const string & tag)
+inline void AppendTag(string& str, const string& tag)
 {
   if (!str.empty())
   {
@@ -39,7 +39,7 @@ inline void AppendTag(string & str, const string & tag)
   str += tag;
 }
 
-void SessionImpl::PushAppName(const string & name)
+void SessionImpl::PushAppName(const string& name)
 {
   MIKTEX_ASSERT(name.find(PATH_DELIMITER) == string::npos);
   string newApplicationNames = name;
@@ -70,7 +70,7 @@ void SessionImpl::PushAppName(const string & name)
   trace_config->WriteLine("core", T_("application tags: ") + applicationNames);
 }
 
-void SessionImpl::PushBackAppName(const string & name)
+void SessionImpl::PushBackAppName(const string& name)
 {
   MIKTEX_ASSERT(name.find(PATH_DELIMITER) == string::npos);
   fileTypes.clear();
