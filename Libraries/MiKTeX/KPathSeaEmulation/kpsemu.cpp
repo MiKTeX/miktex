@@ -814,14 +814,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValu
   }
   else if (varName == "shell_escape_commands")
   {
-    for (const std::string& s : session->GetAllowedShellCommands())
-    {
-      if (!varValue.empty())
-      {
-        varValue += ",";
-      }
-      varValue += s;
-    }
+    varValue = StringUtil::Flatten(session->GetAllowedShellCommands(), ',');
     result = true;
   }
   // configuration files and environment

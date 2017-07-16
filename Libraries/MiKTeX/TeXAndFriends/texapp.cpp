@@ -457,6 +457,7 @@ TeXApp::Write18Result TeXApp::Write18(const string& command_, int& exitCode) con
 {
   Write18Result result = Write18Result::Executed;
   string command = command_;
+  shared_ptr<Session> session = GetSession();
   switch (pimpl->shellCommandMode)
   {
   case ShellCommandMode::Unrestricted:
@@ -480,23 +481,10 @@ TeXApp::Write18Result TeXApp::Write18(const string& command_, int& exitCode) con
     }
     else
     {
-      shared_ptr<Session> session = GetSession();
-#if defined(MIKTEX_WINDOWS)
-      bool ignoreCase = true;
-#else
-      bool ignoreCase = false;
-#endif
       bool allowed = false;
       for (const string& s : session->GetAllowedShellCommands())
       {
-        if (ignoreCase)
-        {
-          allowed = Utils::EqualsIgnoreCase(s, executable);
-        }
-        else
-        {
-          allowed = (s == executable);
-        }
+        allowed = (PathName(s) == executable);
         if (allowed)
         {
           break;
@@ -513,7 +501,12 @@ TeXApp::Write18Result TeXApp::Write18(const string& command_, int& exitCode) con
   default:
     MIKTEX_UNEXPECTED();
   }
-  Process::ExecuteSystemCommand(command, &exitCode);
+  pair<bool, string> okcmd = session->ExamineCommandLine(command);
+  if (!okcmd.first)
+  {
+    return Write18Result::Disallowed;
+  }
+  Process::ExecuteSystemCommand(okcmd.second, &exitCode);
   return result;
 }
 

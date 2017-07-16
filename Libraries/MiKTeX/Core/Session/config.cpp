@@ -1558,6 +1558,7 @@ vector<string> SessionImpl::GetAllowedShellCommands()
 
 pair<bool, string> SessionImpl::ExamineCommandLine(const string& commandLine)
 {
+  // TODO
   bool ok = true;
   string approvedCommandLine = commandLine;
   return pair<bool, string>(ok, approvedCommandLine);
