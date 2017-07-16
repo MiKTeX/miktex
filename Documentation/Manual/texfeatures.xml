@@ -392,7 +392,7 @@ prints the fully qualified path to the &LaTeX; input file
 <note>
 <para>The <markup
 role="tex">\write18</markup> feature is only partially enabled by default to avoid security problems:
-only well known commands are allowed.
+only well known commands are allowed.  You can examine the list of allowed commands by running <userinput>initexmf --show-config-value [Core]AllowedShellCommands[]</userinput>.
 <indexterm>
 <primary>security</primary>
 </indexterm>
@@ -428,7 +428,7 @@ typesets he fully qualified path to the &LaTeX; input file
 <para>Likewise, it is possible to let &TeX; write something into
 the input stream of a command. For example:
 <programlisting>
-\immediate\openout1 = "sort > sorted"
+\immediate\openout1 = "|sort > sorted"
 \immediate\write 1 {b}
 \immediate\write 1 {a}
 \immediate\write 1 {c}
