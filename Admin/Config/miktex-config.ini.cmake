@@ -281,7 +281,7 @@
 
 	;; Search path for Lua files.
 	${MIKTEX_CONFIG_VALUE_PATHS} = .
-	${MIKTEX_CONFIG_VALUE_PATHS} = %R/scripts/{$$progname,$$engine,}/lua//
+	${MIKTEX_CONFIG_VALUE_PATHS} = %R/scripts/{$$progname,$$engine,}/{lua,}//
 	${MIKTEX_CONFIG_VALUE_PATHS} = %R/tex/{$$progname,generic,}//
 
 	;; Environment variables to be used for searching Lua files.
