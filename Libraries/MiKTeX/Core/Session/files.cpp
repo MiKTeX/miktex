@@ -266,12 +266,15 @@ FILE* SessionImpl::InitiateProcessPipe(const string& command, FileAccess access,
   }
   else
   {
-    pair<bool, string> p = ExamineCommandLine(command);
-    if (!p.first)
+    Session::ExamineCommandLineResult examineResult;
+    string examinedCommand;
+    string toBeExecuted;
+    std::tie(examineResult, examinedCommand, toBeExecuted) = ExamineCommandLine(command);
+    if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
     {
       MIKTEX_UNEXPECTED();
     }
-    return POpen(p.second.c_str(), access == FileAccess::Read ? "r" : "w");
+    return POpen(toBeExecuted.c_str(), access == FileAccess::Read ? "r" : "w");
   }
 }
 

@@ -501,12 +501,15 @@ TeXApp::Write18Result TeXApp::Write18(const string& command_, int& exitCode) con
   default:
     MIKTEX_UNEXPECTED();
   }
-  pair<bool, string> okcmd = session->ExamineCommandLine(command);
-  if (!okcmd.first)
+  Session::ExamineCommandLineResult examineResult;
+  string examinedCommand;
+  string toBeExecuted;
+  tie(examineResult, examinedCommand, toBeExecuted) = session->ExamineCommandLine(command);
+  if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
   {
     return Write18Result::Disallowed;
   }
-  Process::ExecuteSystemCommand(okcmd.second, &exitCode);
+  Process::ExecuteSystemCommand(toBeExecuted, &exitCode);
   return result;
 }
 

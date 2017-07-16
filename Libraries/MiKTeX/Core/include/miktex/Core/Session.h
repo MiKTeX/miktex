@@ -1100,7 +1100,15 @@ public:
   virtual std::vector<std::string> GetAllowedShellCommands() = 0;
 
 public:
-  virtual std::pair<bool, std::string> ExamineCommandLine(const std::string& commandLine) = 0;
+  enum class ExamineCommandLineResult {
+    ProbablySafe,
+    MaybeSafe,
+    NotSafe,
+    SyntaxError
+  };
+
+public:
+  virtual std::tuple<ExamineCommandLineResult, std::string, std::string> ExamineCommandLine(const std::string& commandLine) = 0;
     
 public:
   static MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL FatalCrtError(const std::string& functionName, int errorCode, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation);

@@ -450,7 +450,7 @@ public:
   std::vector<std::string> GetAllowedShellCommands() override;
 
 public:
-  std::pair<bool, std::string> ExamineCommandLine(const std::string& commandLine) override;
+  std::tuple<ExamineCommandLineResult, std::string, std::string> ExamineCommandLine(const std::string& commandLine) override;
 
 public:
   bool IsTEXMFFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::PathName& relPath, unsigned& rootIndex);

@@ -23,6 +23,8 @@
 
 #include "internal.h"
 
+
+#include "miktex/Core/CommandLineBuilder.h"
 #include "miktex/Core/ConfigNames.h"
 #include "miktex/Core/CsvList.h"
 #include "miktex/Core/Directory.h"
@@ -1556,10 +1558,31 @@ vector<string> SessionImpl::GetAllowedShellCommands()
   return GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWEDSHELLCOMMANDS).GetStringArray();
 }
 
-pair<bool, string> SessionImpl::ExamineCommandLine(const string& commandLine)
+tuple<Session::ExamineCommandLineResult, string, string> SessionImpl::ExamineCommandLine(const string& commandLine)
 {
-  // TODO
-  bool ok = true;
-  string approvedCommandLine = commandLine;
-  return pair<bool, string>(ok, approvedCommandLine);
+  Argv argv(commandLine);
+  if (argv.GetArgc() == 0 || string(argv[0]).find_first_of(" \t") != string::npos)
+  {
+    return make_tuple(ExamineCommandLineResult::SyntaxError, "", "");
+  }
+  PathName argv0(argv[0]);
+  vector<string> allowedCommands = GetAllowedShellCommands();
+  ExamineCommandLineResult examineResult = std::find_if(allowedCommands.begin(), allowedCommands.end(), [argv0](const string& cmd) { return argv0 == cmd; }) != allowedCommands.end()
+    ? ExamineCommandLineResult::ProbablySafe
+    : ExamineCommandLineResult::MaybeSafe;
+  MIKTEX_ASSERT(argv0.ToString().find_first_of(" \t") == string::npos);
+  string toBeExecuted = argv[0];
+#if defined(MIKTEX_WINDOWS)
+  const char quoteChar = '"';
+#else
+  const char quoteChar = '\'';
+#endif
+  for (int idx = 1; idx < argv.GetArgc(); ++idx)
+  {
+    toBeExecuted += ' ';
+    toBeExecuted += quoteChar;
+    toBeExecuted += argv[idx];
+    toBeExecuted += quoteChar;
+  }
+  return make_tuple(examineResult, argv[0], toBeExecuted);
 }
