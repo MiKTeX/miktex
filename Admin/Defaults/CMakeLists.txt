@@ -23,11 +23,14 @@ set(all_defaults_cmake
   mf.defaults.cmake
   mfapp.defaults.cmake
   mpost.defaults.cmake
-  omega.defaults.cmake
   pdftex.defaults.cmake
   texapp.defaults.cmake
   texmfapp.defaults.cmake
 )
+
+if(WITH_OMEGA)
+  list(APPEND all_defaults_cmake omega.defaults.cmake)
+endif()
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/include/miktex)
 
@@ -36,7 +39,7 @@ foreach(d ${all_defaults_cmake})
   configure_file(
     ${d}
     ${CMAKE_CURRENT_BINARY_DIR}/${fn}.defaults
-    NEWLINE_STYLE LF
+    NEWLINE_STYLE UNIX
   )
   add_custom_command(
     OUTPUT
