@@ -55,6 +55,10 @@ For example, to build MiKTeX for Debian 9:
       -v `pwd`:/miktex/build:rw \
       miktex/miktex-build-stretch
 
+### Closed feature requets
+
+* [345](https://sourceforge.net/p/miktex/feature-requests/345/): Build pdftocairo with libpng support 
+
 ### Bug fixes
 
 * dvipdfmx: warning: Ignore invalid attribute dictionary
