@@ -274,7 +274,7 @@ bool WebAppInputLine::AllowFileName(const PathName& fileName, bool forInput)
   {
     if (pimpl->allowInput == TriState::Undetermined)
     {
-      allow = session->GetConfigValue("", "AllowUnsafeInputFiles", true).GetBool();
+      allow = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEINPUTFILES).GetBool();
       pimpl->allowInput = allow ? TriState::True : TriState::False;
     }
     else
@@ -286,7 +286,7 @@ bool WebAppInputLine::AllowFileName(const PathName& fileName, bool forInput)
   {
     if (pimpl->allowOutput == TriState::Undetermined)
     {
-      allow = session->GetConfigValue("", "AllowUnsafeOutputFiles", false).GetBool();
+      allow = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEOUTPUTFILES).GetBool();
       pimpl->allowOutput = allow ? TriState::True : TriState::False;
     }
     else

@@ -233,36 +233,32 @@ bool Utils::IsAbsolutePath(const PathName& path)
   }
 }
 
-static const char* const forbiddenFileNames[] = {
+static vector<string> forbiddenFileNames = {
 #if defined(MIKTEX_WINDOWS)
-  "desktop.ini", "folder.htt",
+  "desktop.ini",
+  "folder.htt",
 #endif
-  nullptr,
 };
 
 bool Utils::IsSafeFileName(const PathName& path, bool forInput)
 {
-  if (forInput)
-  {
-    return true;
-  }
   if (IsAbsolutePath(path))
   {
     return false;
   }
   PathName fileName;
-  for (PathNameParser parser(path); parser; ++parser)
+  for (PathNameParser comp(path); comp; ++comp)
   {
-    if (PathName::Compare(*parser, PARENT_DIRECTORY) == 0)
+    fileName = *comp;
+    if (fileName.GetLength() > 1 && fileName[0] == '.')
     {
       return false;
-    }
-    fileName = *parser;
+    }    
   }
   MIKTEX_ASSERT(!fileName.Empty());
-  for (int idx = 0; forbiddenFileNames[idx] != nullptr; ++idx)
+  for (const string& forbidden : forbiddenFileNames)
   {
-    if (PathName::Compare(forbiddenFileNames[idx], fileName) == 0)
+    if (PathName::Compare(forbidden, fileName) == 0)
     {
       return false;
     }

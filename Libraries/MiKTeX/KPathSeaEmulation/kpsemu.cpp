@@ -869,12 +869,16 @@ MIKTEXKPSCEEAPI(void) miktex_kpathsea_xputenv(kpathsea pKpseInstance, const char
 
 MIKTEXKPSCEEAPI(int) miktex_kpathsea_in_name_ok(kpathsea pKpseInstance, const char* lpszFileName)
 {
-  return Utils::IsSafeFileName(lpszFileName, true) ? 1 : 0;
+  return Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEINPUTFILES).GetBool() || Utils::IsSafeFileName(lpszFileName, true)
+    ? 1
+    : 0;
 }
 
 MIKTEXKPSCEEAPI(int) miktex_kpathsea_out_name_ok(kpathsea pKpseInstance, const char* lpszFileName)
 {
-  return Utils::IsSafeFileName(lpszFileName, false) ? 1 : 0;
+  return Session::Get()->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEOUTPUTFILES).GetBool() || Utils::IsSafeFileName(lpszFileName, false)
+    ? 1
+    : 0;
 }
 
 MIKTEXKPSCEEAPI(boolean) miktex_kpathsea_absolute_p(kpathsea pKpseInstance, const char* lpszFileName, boolean relativeOk)

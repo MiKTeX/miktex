@@ -7,12 +7,13 @@
 	${MIKTEX_CONFIG_VALUE_SHELLCOMMANDMODE} = Restricted
 
 	;; The programs listed here are probably safe: they either do
-	;; not write any output files, respect openout_any, or have
-	;; hard-coded restrictions similar to or higher than
-	;; openout_any=p.  They also have no features to invoke
-	;; arbitrary other programs, and no known exploitable bugs.
-	;; All to the best of our knowledge.  They also have practical
-	;; use for being called from TeX.
+	;; not write any output files or implement restrictions
+	;; similar to or higher than
+	;; [${MIKTEX_CONFIG_SECTION_CORE}]${MIKTEX_CONFIG_VALUE_ALLOWUNSAFEOUTPUTFILES}=true.
+	;; They also have no features to invoke arbitrary other
+	;; programs, and no known exploitable bugs.  All to the best
+	;; of our knowledge.  They also have practical use for being
+	;; called from TeX.
 	${MIKTEX_CONFIG_VALUE_ALLOWEDSHELLCOMMANDS} = ${MIKTEX_PREFIX}bibtex
 	${MIKTEX_CONFIG_VALUE_ALLOWEDSHELLCOMMANDS} = ${MIKTEX_PREFIX}bibtex8
 	${MIKTEX_CONFIG_VALUE_ALLOWEDSHELLCOMMANDS} = ${MIKTEX_PREFIX}epstopdf
@@ -28,6 +29,16 @@
 	${MIKTEX_CONFIG_VALUE_ALLOWEDSHELLCOMMANDS} = kpsewhich
 	${MIKTEX_CONFIG_VALUE_ALLOWEDSHELLCOMMANDS} = makeindex
 	${MIKTEX_CONFIG_VALUE_ALLOWEDSHELLCOMMANDS} = texosquery-jre8
+
+	;; Do we allow TeX \input or \openin on file names starting
+	;; with `.' (e.g., .rhosts) or outside the current tree (e.g.,
+	;; /etc/passwd)?
+	${MIKTEX_CONFIG_VALUE_ALLOWUNSAFEINPUTFILES} = true
+
+	;; Do we allow TeX \openout on file names starting with `.'
+	;; (e.g., .rhosts) or outside the current tree (e.g.,
+	;; /etc/passwd)?
+	${MIKTEX_CONFIG_VALUE_ALLOWUNSAFEOUTPUTFILES} = false
 
 [${MIKTEX_CONFIG_SECTION_CORE_FILETYPES}.afm]
 
