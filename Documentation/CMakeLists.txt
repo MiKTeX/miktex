@@ -191,6 +191,7 @@ set(manual_xml_files
 
 set(manual_listings
   ${CMAKE_CURRENT_BINARY_DIR}/filetypes
+  ${CMAKE_BINARY_DIR}/${MIKTEX_REL_CONFIG_DIR}/miktex-config.ini
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/mf.defaults
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/mfapp.defaults
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/mpost.defaults
@@ -214,6 +215,7 @@ set(xslt_path "${CMAKE_CURRENT_BINARY_DIR}")
 set(xslt_path "${xslt_path} ${CMAKE_CURRENT_BINARY_DIR}/Styles")
 set(xslt_path "${xslt_path} ${CMAKE_CURRENT_SOURCE_DIR}")
 set(xslt_path "${xslt_path} ${CMAKE_CURRENT_SOURCE_DIR}/Styles")
+set(xslt_path "${xslt_path} ${CMAKE_BINARY_DIR}/${MIKTEX_REL_CONFIG_DIR}")
 set(xslt_path "${xslt_path} ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}")
 
 if(WITH_MIKTEX_DOC)
