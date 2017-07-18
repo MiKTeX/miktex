@@ -104,6 +104,26 @@ vector<string> Argv::ToStringVector() const
   return result;
 }
 
+char** Argv::CloneFreeable() const
+{
+  size_t size = sizeof(char*) * (GetArgc() + 1);
+  for (int idx = 0; idx < GetArgc(); ++idx)
+  {
+    size += strlen(pimpl->argv[idx]) + 1;
+  }
+  void* mem = MIKTEX_MALLOC(size);
+  char** result = (char**)mem;
+  char* pool = ((char*)mem) + sizeof(char*) * (GetArgc() + 1);
+  for (int idx = 0; idx < GetArgc(); ++idx)
+  {
+    result[idx] = pool;
+    strcpy(pool, pimpl->argv[idx]);
+    pool += strlen(pimpl->argv[idx]) + 1;
+  }
+  result[GetArgc()] = nullptr;
+  return result;
+}
+
 class CommandLineBuilder::impl
 {
 public:

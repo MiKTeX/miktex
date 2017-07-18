@@ -85,6 +85,8 @@ public:
 public:
   int optBase;
 public:
+  unordered_map<string, vector<string>> optionShortcuts;
+public:
   ICharacterConverter* characterConverter = nullptr;
 public:
   IInitFinalize* initFinalize = nullptr;
@@ -142,6 +144,7 @@ void WebApp::Finalize()
   pimpl->trademarks = "";
   pimpl->version = "";
   pimpl->options.clear();
+  pimpl->optionShortcuts.clear();
   Application::Finalize();
 }
 
@@ -196,18 +199,12 @@ void WebApp::AddOption(const string& name, const string& help, int val, int argI
 
 void WebApp::AddOption(const string& aliasName, const string& name)
 {
-  for (const poptOption& opt : pimpl->options)
-  {
-    if (opt.longName != nullptr && name == opt.longName)
-    {
-      poptOption alias = opt;
-      alias.longName = pimpl->AddString(aliasName);
-      alias.argInfo |= POPT_ARGFLAG_DOC_HIDDEN;
-      pimpl->options.push_back(alias);
-      return;
-    }
-  }
-  MIKTEX_UNEXPECTED();
+  AddOptionShortcut(aliasName, { "--" + name });
+}
+
+void WebApp::AddOptionShortcut(const std::string& longName, const std::vector<std::string>& args)
+{
+  pimpl->optionShortcuts[longName] = args;
 }
 
 enum {
@@ -322,6 +319,11 @@ void WebApp::ProcessCommandLineOptions()
   }
 
   pimpl->popt.Construct(argc, argv, &pimpl->options[0]);
+  for (auto shortcut : pimpl->optionShortcuts)
+  {
+    Argv argv(shortcut.second);
+    pimpl->popt.AddAlias(shortcut.first.c_str(), 0, argv.GetArgc(), (const char**)argv.CloneFreeable());
+  }
   pimpl->popt.SetOtherOptionHelp(GetUsage());
 
   int opt;

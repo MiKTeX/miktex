@@ -75,6 +75,7 @@ void TeXApp::OnTeXMFStartJob()
   TeXMFApp::OnTeXMFStartJob();
   shared_ptr<Session> session = GetSession();
   pimpl->shellCommandMode = session->GetShellCommandMode();
+  EnablePipes(session->GetConfigValue("", MIKTEX_REGVAL_ENABLE_PIPES, pimpl->shellCommandMode == ShellCommandMode::Restricted || pimpl->shellCommandMode == ShellCommandMode::Unrestricted).GetBool());
 }
 
 void TeXApp::Finalize()
@@ -85,9 +86,11 @@ void TeXApp::Finalize()
 }
 
 enum {
+  OPT_DISABLE_PIPES,
   OPT_DISABLE_WRITE18,
   OPT_ENABLE_ENCTEX,
   OPT_ENABLE_MLTEX,
+  OPT_ENABLE_PIPES,
   OPT_ENABLE_WRITE18,
   OPT_FONT_MAX,
   OPT_FONT_MEM_SIZE,
@@ -109,11 +112,17 @@ void TeXApp::AddOptions()
 
   pimpl->optBase = (int)GetOptions().size();
 
+  AddOption(T_("disable-pipes\0Disable input (output) from (to) processes."), 
+    FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_PIPES);
+
   AddOption(T_("disable-write18\0Disable the \\write18{COMMAND} construct."),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_WRITE18);
 
   AddOption(T_("enable-mltex\0Enable MLTeX extensions such as \\charsubdef."),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_MLTEX);
+
+  AddOption(T_("enable-pipes\0Enable input (output) from (to) processes."),
+    FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_PIPES);
 
   AddOption(T_("enable-write18\0Enable the \\write18{COMMAND} construct."),
     FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_WRITE18);
@@ -209,9 +218,9 @@ void TeXApp::AddOptions()
   // supported Web2C options
   AddOption("mltex", "enable-mltex");
   AddOption("fmt", "undump");
-  AddOption("no-shell-escape", "disable-write18");
-  AddOption("shell-restricted", "restrict-write18");
-  AddOption("shell-escape", "enable-write18");
+  AddOptionShortcut("no-shell-escape", { "--disable-write18", "--disable-pipes" });
+  AddOptionShortcut("shell-restricted", { "--restrict-write18", "--enable-pipes" });
+  AddOptionShortcut("shell-escape", { "--enable-write18", "--enable-pipes" });
   if (!AmI("xetex"))
   {
     AddOption("enc", "enable-enctex");
@@ -233,17 +242,30 @@ bool TeXApp::ProcessOption(int optchar, const string& optArg)
   bool done = true;
   switch (optchar - FIRST_OPTION_VAL - pimpl->optBase)
   {
+  case OPT_DISABLE_PIPES:
+    EnablePipes(false);
+    break;
   case OPT_DISABLE_WRITE18:
     pimpl->shellCommandMode = ShellCommandMode::Forbidden;
+    EnablePipes(false);
+    break;
+  case OPT_ENABLE_ENCTEX:
+    pimpl->enableEncTeX = true;
+    break;
+  case OPT_ENABLE_MLTEX:
+    pimpl->enableMLTeX = true;
+    break;
+  case OPT_ENABLE_PIPES:
+    if (!inParseFirstLine)
+    {
+      EnablePipes(true);
+    }
     break;
   case OPT_ENABLE_WRITE18:
     if (!inParseFirstLine)
     {
       pimpl->shellCommandMode = ShellCommandMode::Unrestricted;
     }
-    break;
-  case OPT_RESTRICT_WRITE18:
-    pimpl->shellCommandMode = ShellCommandMode::Restricted;
     break;
   case OPT_FONT_MAX:
     GetUserParams()["font_max"] = std::stoi(optArg);
@@ -260,14 +282,14 @@ bool TeXApp::ProcessOption(int optchar, const string& optArg)
   case OPT_MEM_BOT:
     GetUserParams()["mem_bot"] = std::stoi(optArg);
     break;
-  case OPT_ENABLE_ENCTEX:
-    pimpl->enableEncTeX = true;
-    break;
-  case OPT_ENABLE_MLTEX:
-    pimpl->enableMLTeX = true;
-    break;
   case OPT_NEST_SIZE:
     GetUserParams()["nest_size"] = std::stoi(optArg);
+    break;
+  case OPT_RESTRICT_WRITE18:
+    if (!inParseFirstLine)
+    {
+      pimpl->shellCommandMode = ShellCommandMode::Restricted;
+    }
     break;
   case OPT_SAVE_SIZE:
     GetUserParams()["save_size"] = std::stoi(optArg);

@@ -81,6 +81,9 @@ public:
 public:
   MIKTEXCORETHISAPI(std::vector<std::string>) ToStringVector() const;
 
+public:
+  MIKTEXCORETHISAPI(char**) CloneFreeable() const;
+
 private:
   class impl;
   std::unique_ptr<impl> pimpl;

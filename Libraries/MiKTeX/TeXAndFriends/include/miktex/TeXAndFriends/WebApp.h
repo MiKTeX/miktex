@@ -170,6 +170,10 @@ protected:
 protected:
   MIKTEXMFTHISAPI(void) AddOption(const std::string& aliasName, const std::string& name);
 
+
+protected:
+  MIKTEXMFTHISAPI(void) AddOptionShortcut(const std::string& longName, const std::vector<std::string>& args);
+
 protected:
   MIKTEXMFTHISAPI(std::vector<poptOption>) GetOptions() const;
 

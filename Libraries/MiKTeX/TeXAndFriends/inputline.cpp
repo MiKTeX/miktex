@@ -143,17 +143,10 @@ void WebAppInputLine::Finalize()
   WebApp::Finalize();
 }
 
-enum {
-  OPT_DISABLE_PIPES,
-  OPT_ENABLE_PIPES,
-};
-
 void WebAppInputLine::AddOptions()
 {
   WebApp::AddOptions();
   pimpl->optBase = (int)GetOptions().size();
-  AddOption(T_("enable-pipes\0Enable input (output) from (to) processes."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_PIPES);
-  AddOption(T_("disable-pipes\0Disable input (output) from (to) processes."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_PIPES);
 }
 
 bool WebAppInputLine::ProcessOption(int opt, const string& optArg)
@@ -162,14 +155,6 @@ bool WebAppInputLine::ProcessOption(int opt, const string& optArg)
 
   switch (opt - FIRST_OPTION_VAL - pimpl->optBase)
   {
-
-  case OPT_DISABLE_PIPES:
-    pimpl->enablePipes = false;
-    break;
-
-  case OPT_ENABLE_PIPES:
-    pimpl->enablePipes = true;
-    break;
 
   default:
     done = WebApp::ProcessOption(opt, optArg);

@@ -166,7 +166,6 @@ void TeXMFApp::OnTeXMFStartJob()
   session->PushBackAppName(appName);
   pimpl->parseFirstLine = session->GetConfigValue("", MIKTEX_REGVAL_PARSE_FIRST_LINE, AmITeX()).GetBool();
   pimpl->showFileLineErrorMessages = session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_CSTYLEERRORS).GetBool();
-  EnablePipes(session->GetConfigValue("", MIKTEX_REGVAL_ENABLE_PIPES, false).GetBool());
   pimpl->clockStart = clock();
 }
 
