@@ -533,6 +533,7 @@ option(
 
 if(WITH_ASYMPTOTE AND MIKTEX_NATIVE_WINDOWS)
   set(WITH_LIBATOMIC_OPS TRUE)
+  set(WITH_GC TRUE)
 endif()
   
 ###############################################################################
@@ -1504,6 +1505,10 @@ if(USE_SYSTEM_FRIBIDI)
   )
 else()
   add_subdirectory(${MIKTEX_REL_FRIBIDI_DIR})
+endif()
+
+if(WITH_GC)
+  add_subdirectory(${MIKTEX_REL_GC_DIR})
 endif()
 
 if(USE_SYSTEM_GD)
