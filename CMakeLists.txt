@@ -1043,6 +1043,10 @@ if(USE_SYSTEM_ZZIP)
   find_package(ZZIP REQUIRED)
 endif()
 
+if(WITH_ASYMPTOTE)
+  find_package(OpenGL REQUIRED)
+endif()
+
 if(NOT MSVC)
   check_c_compiler_flag(-fvisibility=hidden HAVE_C_VISIBILITY_OPTION)
   check_cxx_compiler_flag(-fvisibility=hidden HAVE_CXX_VISIBILITY_OPTION)
@@ -1919,6 +1923,10 @@ add_subdirectory(${MIKTEX_REL_W2CEMU_DIR})
 add_subdirectory(${MIKTEX_REL_WEB_DIR})
 add_subdirectory(${MIKTEX_REL_XETEX_DIR})
 add_subdirectory(${MIKTEX_REL_XINDY_DIR})
+
+if(WITH_ASYMPTOTE)
+  add_subdirectory(${MIKTEX_REL_ASYMPTOTE_DIR})
+endif()
 
 if(WITH_CONFIG_FILES)
   add_subdirectory(${MIKTEX_REL_CONFIGFILES_DIR})

@@ -17,8 +17,6 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-use_static_crt()
-
 add_library(${libatomic_ops_lib_name} STATIC ${libatomic_ops_sources})
 
 set_property(TARGET ${libatomic_ops_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
