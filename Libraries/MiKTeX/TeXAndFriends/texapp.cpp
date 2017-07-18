@@ -364,122 +364,21 @@ bool TeXApp::ProcessOption(int optchar, const string& optArg)
   return done;
   }
 
-#if defined(MIKTEX_WINDOWS)
-inline bool NeedsEscape(char ch)
+TeXApp::Write18Result TeXApp::Write18(const string& command, int& exitCode) const
 {
-  return
-    ch == '&'
-    || ch == '|'
-    || ch == '%'
-    || ch == '<'
-    || ch == '>'
-    || ch == ';'
-    || ch == ','
-    || ch == '('
-    || ch == ')';
-}
-#endif
-
-bool ParseCommand(const string& command, string& quotedCommand, string& executable)
-{
-#if defined(MIKTEX_WINDOWS)
-  const char QUOTE = '"';
-#else
-  const char QUOTE = '\'';
-#endif
-  string::const_iterator it = command.begin();
-  for (; it != command.end() && (*it == ' ' || *it == '\t'); ++it)
-  {
-  }
-  quotedCommand = "";
-  executable = "";
-  for (; it != command.end() && *it != ' ' && *it != '\t'; ++it)
-  {
-    quotedCommand += *it;
-    executable += *it;
-  }
-  for (; it != command.end() && (*it == ' ' || *it == '\t'); ++it)
-  {
-    quotedCommand += *it;
-  }
-  bool startOfArg = true;
-  while (it != command.end())
-  {
-    if (*it == '\'')
-    {
-      // only " quatation is allowd
-      return false;
-    }
-    if (*it == '"')
-    {
-      if (!startOfArg)
-      {
-        quotedCommand += QUOTE;
-      }
-      startOfArg = false;
-      quotedCommand += QUOTE;
-      ++it;
-      while (it != command.end() && *it != '"')
-      {
-#if defined(MIKTEX_WINDOWS)
-        if (NeedsEscape(*it))
-        {
-          quotedCommand += '^';
-        }
-#endif
-        quotedCommand += *it++;
-      }
-      if (it == command.end())
-      {
-        return false;
-      }
-      ++it;
-      if (it != command.end() && !(*it == ' ' || *it == '\t'))
-      {
-        return false;
-      }
-  }
-    else if (startOfArg && !(*it == ' ' || *it == '\t'))
-    {
-      startOfArg = false;
-      quotedCommand += QUOTE;
-#if defined(MIKTEX_WINDOWS)
-      if (NeedsEscape(*it))
-      {
-        quotedCommand += '^';
-      }
-#endif
-      quotedCommand += *it++;
-    }
-    else if (!startOfArg && (*it == ' ' || *it == '\t'))
-    {
-      startOfArg = true;
-      quotedCommand += QUOTE;
-      quotedCommand += *it++;
-    }
-    else
-    {
-#if defined(MIKTEX_WINDOWS)
-      if (NeedsEscape(*it))
-      {
-        quotedCommand += '^';
-      }
-#endif
-      quotedCommand += *it++;
-    }
-  }
-  if (!startOfArg)
-  {
-    quotedCommand += QUOTE;
-  }
-  return true;
-}
-
-TeXApp::Write18Result TeXApp::Write18(const string& command_, int& exitCode) const
-{
-  Write18Result result = Write18Result::Executed;
-  string command = command_;
   shared_ptr<Session> session = GetSession();
+  Session::ExamineCommandLineResult examineResult;
+  string examinedCommand;
+  string toBeExecuted;
+  tie(examineResult, examinedCommand, toBeExecuted) = session->ExamineCommandLine(command);
+  if (examineResult == Session::ExamineCommandLineResult::SyntaxError)
+  {
+    Write18Result::QuotationError;
+  }
+  if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
+  {
+    return Write18Result::Disallowed;
+  }
   switch (pimpl->shellCommandMode)
   {
   case ShellCommandMode::Unrestricted:
@@ -487,52 +386,18 @@ TeXApp::Write18Result TeXApp::Write18(const string& command_, int& exitCode) con
   case ShellCommandMode::Forbidden:
     MIKTEX_UNEXPECTED();
   case ShellCommandMode::Query:
+    // TODO
   case ShellCommandMode::Restricted:
-  {
-    string quotedCommand;
-    string executable;
-    if (!ParseCommand(command, quotedCommand, executable))
+    if (examineResult != Session::ExamineCommandLineResult::ProbablySafe)
     {
-      return Write18Result::QuotationError;
-    }
-    command = quotedCommand;
-    if (pimpl->shellCommandMode == ShellCommandMode::Query)
-    {
-      // todo
       return Write18Result::Disallowed;
     }
-    else
-    {
-      bool allowed = false;
-      for (const string& s : session->GetAllowedShellCommands())
-      {
-        allowed = (PathName(s) == executable);
-        if (allowed)
-        {
-          break;
-        }
-      }
-      if (!allowed)
-      {
-        return Write18Result::Disallowed;
-      }
-    }
-    result = Write18Result::ExecutedAllowed;
     break;
-  }
   default:
     MIKTEX_UNEXPECTED();
   }
-  Session::ExamineCommandLineResult examineResult;
-  string examinedCommand;
-  string toBeExecuted;
-  tie(examineResult, examinedCommand, toBeExecuted) = session->ExamineCommandLine(command);
-  if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
-  {
-    return Write18Result::Disallowed;
-  }
   Process::ExecuteSystemCommand(toBeExecuted, &exitCode);
-  return result;
+  return examineResult == Session::ExamineCommandLineResult::ProbablySafe ? Write18Result::ExecutedAllowed : Write18Result::Executed;
 }
 
 ShellCommandMode TeXApp::GetWrite18Mode() const
