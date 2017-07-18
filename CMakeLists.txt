@@ -370,6 +370,12 @@ option(
 )
 
 option(
+  WITH_ASYMPTOTE
+  "Build asymptote."
+  ${MIKTEX_NATIVE_WINDOWS}
+)
+
+option(
   WITH_BOOTSTRAPPING
   "Install files necessary for initializing a bare MiKTeX installation."
   ${MIKTEX_UNIX_ALIKE}
@@ -525,6 +531,10 @@ option(
   ${WIN32}
 )
 
+if(WITH_ASYMPTOTE AND MIKTEX_NATIVE_WINDOWS)
+  set(WITH_LIBATOMIC_OPS TRUE)
+endif()
+  
 ###############################################################################
 ## fixed values
 
@@ -1607,6 +1617,10 @@ if(USE_SYSTEM_JPEG)
   )
 else()
   add_subdirectory(${MIKTEX_REL_JPEG_DIR})
+endif()
+
+if(WITH_LIBATOMIC_OPS)
+  add_subdirectory(${MIKTEX_REL_LIBATOMIC_OPS_DIR})
 endif()
 
 if(USE_SYSTEM_LOG4CXX)
