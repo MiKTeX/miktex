@@ -164,7 +164,7 @@ public:
   };
 
 public:
-  MIKTEXMFTHISAPI(Write18Result) Write18(const std::string& command, int& exitCode) const;
+  MIKTEXMFTHISAPI(Write18Result) Write18(const std::string& command, int& exitCode);
 
 public:
   MIKTEXMFTHISAPI(void) SetFormatHandler(IFormatHandler* formatHandler);

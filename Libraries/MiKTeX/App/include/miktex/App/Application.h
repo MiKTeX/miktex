@@ -147,6 +147,12 @@ public:
   MIKTEXAPPTHISAPI(MiKTeX::Core::TriState) GetEnableInstaller() const;
 
 public:
+  MIKTEXAPPTHISAPI(void) LogInfo(const std::string& message);
+
+public:
+  MIKTEXAPPTHISAPI(void) LogError(const std::string& message);
+
+public:
   static MIKTEXAPPCEEAPI(Application*) GetApplication();
 
 protected:
@@ -154,9 +160,6 @@ protected:
 
 public:
   static MIKTEXAPPCEEAPI(void) CheckCancel();
-
-public:
-  MIKTEXAPPTHISAPI(bool) IsLog4cxxConfigured() const;
 
 private:
   void FlushPendingTraceMessages();

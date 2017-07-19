@@ -795,7 +795,18 @@ shared_ptr<Session> Application::GetSession() const
   return pimpl->session;
 }
 
-bool Application::IsLog4cxxConfigured() const
+void Application::LogInfo(const std::string& message)
 {
-  return pimpl->isLog4cxxConfigured;
+  if (pimpl->isLog4cxxConfigured)
+  {
+    LOG4CXX_INFO(logger, message);
+  }
+}
+
+void Application::LogError(const std::string& message)
+{
+  if (pimpl->isLog4cxxConfigured)
+  {
+    LOG4CXX_ERROR(logger, message);
+  }
 }
