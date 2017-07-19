@@ -123,16 +123,16 @@ void WebApp::Finalize()
     FileStream stream(File::Open(pimpl->packageListFileName, FileMode::Create, FileAccess::Write));
     vector<FileInfoRecord> fileInfoRecords = session->GetFileInfoRecords();
     set<string> packages;
-    for (vector<FileInfoRecord>::const_iterator it = fileInfoRecords.begin(); it != fileInfoRecords.end(); ++it)
+    for (const FileInfoRecord& fir : fileInfoRecords)
     {
-      if (!it->packageName.empty())
+      if (!fir.packageName.empty())
       {
-	packages.insert(it->packageName);
+	packages.insert(fir.packageName);
       }
     }
-    for (set<string>::const_iterator it2 = packages.begin(); it2 != packages.end(); ++it2)
+    for (const string& pkg : packages)
     {
-      fprintf(stream.Get(), "%s\n", it2->c_str());
+      fprintf(stream.Get(), "%s\n", pkg.c_str());
     }
     stream.Close();
   }
