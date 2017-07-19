@@ -21,6 +21,12 @@ include(component.cmake)
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_GRAPHICS_UTILITIES_FOLDER}/asymptote")
 
+add_definitions(
+  -DCPLUSPLUSMAIN
+  -DUSE_MIKTEX_EXIT
+  -Dmain=Main
+)
+
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -294,10 +300,12 @@ set(header_files
 )
 
 set(asy_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/asy-version.h
+  ${MIKTEX_LIBRARY_WRAPPER}
   ${corefiles}
   ${header_files}
-  source/main.cc
   revision.cc
+  source/main.cc
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -314,17 +322,36 @@ merge_trustinfo_manifest(${MIKTEX_PREFIX}asy asInvoker)
 merge_compatibility_manifest(${MIKTEX_PREFIX}asy)
 
 target_link_libraries(${MIKTEX_PREFIX}asy
-  ${app_dll_name}
-  ${gc_lib_name}
-  ${kpsemu_dll_name}
-  ${unxemu_dll_name}
-  ${zlib_dll_name}
+  PUBLIC
+    ${app_dll_name}
+    ${core_dll_name}
+    ${kpsemu_dll_name}
+)
+
+target_link_libraries(${MIKTEX_PREFIX}asy
+  PUBLIC
+    ${gc_lib_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${MIKTEX_PREFIX}asy
-    ${getopt_dll_name}
-    ${utf8wrap_dll_name}
+    PUBLIC
+      ${unxemu_dll_name}
+      ${utf8wrap_dll_name}
+  )
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${MIKTEX_PREFIX}asy PUBLIC MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${MIKTEX_PREFIX}asy PUBLIC ${zlib_dll_name})
+endif()
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}asy
+    PUBLIC
+      ${getopt_dll_name}
+      ${utf8wrap_dll_name}
   )
 endif()
 

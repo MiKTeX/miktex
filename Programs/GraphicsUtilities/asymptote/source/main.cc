@@ -22,7 +22,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <cerrno>
-#if !defined(MIKTEX_WINDOWS)
+#if defined(MIKTEX_WINDOWS)
+#else
 #include <sys/wait.h>
 #endif
 #include <sys/types.h>
@@ -116,6 +117,9 @@ struct Args
   Args(int argc, char **argv) : argc(argc), argv(argv) {}
 };
 
+#if defined(MIKTEX)
+#define exit(x) throw x
+#endif
 void *asymain(void *A)
 {
   setsignal(signalHandler);
@@ -176,7 +180,11 @@ void exitHandler(int)
   exit(0);
 }
 
+#if defined(MIKTEX)
+int main(int argc, char **argv)
+#else
 int main(int argc, char *argv[]) 
+#endif
 {
 #ifdef HAVE_LIBGSL  
   unsetenv("GSL_RNG_SEED");
@@ -223,6 +231,9 @@ int main(int argc, char *argv[])
   gl::glthread=false;
 #endif  
   asymain(&args);
+#if defined(MIKTEX)
+  return 0;
+#endif
 }
 #if defined(MIKTEX)
 #include "types.h"
