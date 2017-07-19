@@ -814,11 +814,14 @@ void gen_runpicture45(stack *Stack)
 #if defined(MIKTEX_WINDOWS)
   // MIKTEX-TODO
   static long arg_max = 1000;
+  const unsigned maxargs = ::min(
+    (unsigned)(arg_max / (prefix.size() + xformat.size() + 25)),
+    (unsigned)256);
 #else
   static long arg_max=sysconf(_SC_ARG_MAX);
+  const unsigned maxargs = ::min(arg_max / (prefix.size() + xformat.size() + 25ul),
+    256ul);
 #endif
-  const unsigned maxargs=::min(arg_max/(prefix.size()+xformat.size()+25ul),
-                               256ul);
   openpipeout();
 
   fprintf(pipeout,"%d\n",maxargs);
