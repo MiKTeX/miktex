@@ -78,7 +78,9 @@ function *realRealFunction();
 #include <iostream>
 #include <fstream>
 #include <time.h>
+#if !defined(MIKTEX_WINDOWS)
 #include <sys/times.h>
+#endif
 #include <locale.h>
   
 #include "angle.h"
@@ -1033,7 +1035,11 @@ void gen_runtime79(stack *Stack)
   Int seconds=vm::pop<Int>(Stack);
 #line 700 "runtime.in"
   if(seconds <= 0) return;      
+#if defined(MIKTEX_WINDOWS)
+  _sleep(seconds * 1000);
+#else
   sleep(seconds);
+#endif
 }
 
 #line 705 "runtime.in"
@@ -1043,7 +1049,11 @@ void gen_runtime80(stack *Stack)
   Int microseconds=vm::pop<Int>(Stack);
 #line 706 "runtime.in"
   if(microseconds <= 0) return; 
-  usleep((unsigned long) microseconds); 
+#if defined(MIKTEX_WINDOWS)
+  _sleep(microseconds);
+#else
+  usleep((unsigned long) microseconds);
+#endif
 }
 
 #line 711 "runtime.in"
@@ -1484,6 +1494,9 @@ void gen_runtime111(stack *Stack)
 // realarray* _cputime();
 void gen_runtime112(stack *Stack)
 {
+#if defined(MIKTEX_WINDOWS)
+  // TODO
+#else
 #line 1022 "runtime.in"
   static const real ticktime=1.0/sysconf(_SC_CLK_TCK);
   struct tms buf;
@@ -1495,6 +1508,7 @@ void gen_runtime112(stack *Stack)
   (*t)[2] = ((real) buf.tms_cutime)*ticktime;
   (*t)[3] = ((real) buf.tms_cstime)*ticktime;
   {Stack->push<realarray*>(t); return;}
+#endif
 }
 
 

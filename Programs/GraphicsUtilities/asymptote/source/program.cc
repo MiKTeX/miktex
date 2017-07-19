@@ -60,6 +60,9 @@ ostream& operator<< (ostream& out, const item& i)
   if (std::abs(n) < 1000000)
     return out << n;
 
+#if defined(MIKTEX) && !defined(and)
+#define and &&
+#endif
   if (fabs(x) < 1e30 and fabs(x) > 1e-30)
     return out << x;
 

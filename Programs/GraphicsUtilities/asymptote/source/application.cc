@@ -13,6 +13,9 @@
 #include "coenv.h"
 #include "runtime.h"
 #include "runarray.h"
+#if defined(MIKTEX)
+#include <functional>
+#endif
 
 using namespace types;
 using absyntax::varinit;

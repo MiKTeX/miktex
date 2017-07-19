@@ -239,6 +239,9 @@ public:
       return ent == 0;
     }
 
+#if defined(MIKTEX) && !defined(and)
+#  define and &&
+#endif
     bool filled() const {
       return !empty() and !isATomb();
     }

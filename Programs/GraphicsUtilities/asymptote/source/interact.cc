@@ -8,7 +8,9 @@
 #include <cassert>
 #include <iostream>
 #include <sstream>
+#if !defined(MIKTEX)
 #include <sys/wait.h>
+#endif
 #include <sys/types.h>
 #include <unistd.h>
 #include <csignal>
@@ -39,6 +41,9 @@ bool uptodate=true;
 int lines=0;  
 bool query=false;
 
+#if defined(MIKTEX) && !defined(STDIN_FILENO)
+#define STDIN_FILENO 0
+#endif
 bool tty=isatty(STDIN_FILENO);  
 completer *currentCompleter=0;
 
@@ -154,7 +159,11 @@ string simpleline(string prompt) {
   } else {
     cout << endl;
     if(!tty || getSetting<bool>("exitonEOF"))
+#if defined(MIKTEX)
+      throw eof_exception();
+#else
       throw eof();
+#endif
     return "\n";
   }
 }

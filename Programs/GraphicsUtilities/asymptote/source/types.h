@@ -19,6 +19,10 @@
 #include "common.h"
 #include "util.h"
 
+#if defined(MIKTEX)
+#include <iterator>
+using std::inserter;
+#endif
 using std::ostream;
 
 using sym::symbol;

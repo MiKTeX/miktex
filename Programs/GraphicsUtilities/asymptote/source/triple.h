@@ -17,6 +17,9 @@
 #include "common.h"
 #include "angle.h"
 #include "pair.h"
+#if defined(MIKTEX)
+#include <algorithm>
+#endif
 
 namespace run {
 void transpose(double *a, size_t n);

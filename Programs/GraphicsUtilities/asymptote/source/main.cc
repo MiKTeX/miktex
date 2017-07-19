@@ -22,7 +22,9 @@
 #include <iostream>
 #include <cstdlib>
 #include <cerrno>
+#if !defined(MIKTEX)
 #include <sys/wait.h>
+#endif
 #include <sys/types.h>
 
 #include "common.h"
@@ -85,8 +87,10 @@ void setsignal(RETSIGTYPE (*handler)(int))
                                 mystack,sizeof (mystack));
   sigsegv_install_handler(&sigsegv_handler);
 #endif
+#if !defined(MIKTEX_WINDOWS)
   Signal(SIGBUS,handler);
   Signal(SIGFPE,handler);
+#endif
 }
 
 void signalHandler(int)
@@ -94,8 +98,10 @@ void signalHandler(int)
   // Print the position and trust the shell to print an error message.
   em.runtime(vm::getPos());
 
+#if !defined(MIKTEX_WINDOWS)
   Signal(SIGBUS,SIG_DFL);
   Signal(SIGFPE,SIG_DFL);
+#endif
 }
 
 void interruptHandler(int)
@@ -147,8 +153,12 @@ void *asymain(void *A)
 #endif
 
   if(getSetting<bool>("wait")) {
+#if defined(MIKTEX_WINDOWS)
+    // TODO
+#else
     int status;
     while(wait(&status) > 0);
+#endif
   }
 #ifdef HAVE_GL
 #ifdef HAVE_PTHREAD
@@ -214,3 +224,7 @@ int main(int argc, char *argv[])
 #endif  
   asymain(&args);
 }
+#if defined(MIKTEX)
+#include "types.h"
+const types::signature::OPEN_t types::signature::OPEN;
+#endif

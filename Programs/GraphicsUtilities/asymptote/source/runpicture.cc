@@ -811,7 +811,12 @@ void gen_runpicture45(stack *Stack)
   string prefix=outname();
   const string xformat="png";
 
+#if defined(MIKTEX_WINDOWS)
+  // TODO
+  static long arg_max = 1000;
+#else
   static long arg_max=sysconf(_SC_ARG_MAX);
+#endif
   const unsigned maxargs=::min(arg_max/(prefix.size()+xformat.size()+25ul),
                                256ul);
   openpipeout();

@@ -467,7 +467,11 @@ bool picture::texprocess(const string& texname, const string& outname,
           string dvipsrc=getSetting<string>("dir");
           if(dvipsrc.empty()) dvipsrc=systemDir;
           dvipsrc += dirsep+"nopapersize.ps";
+#if defined(MIKTEX_WINDOWS)
+          putenv(("DVIPSRC=" + dvipsrc).c_str());
+#else
           setenv("DVIPSRC",dvipsrc.c_str(),1);
+#endif
           string papertype=getSetting<string>("papertype") == "letter" ?
             "letterSize" : "a4size";
           cmd.push_back(getSetting<string>("dvips"));
@@ -738,14 +742,23 @@ bool picture::postprocess(const string& prename, const string& outname,
       int pid;
       if(running) {
         pid=p->second;
+#if defined(MIKTEX)
+        // TODO
+#else
         if(pid)
           running=(waitpid(pid, &status, WNOHANG) != pid);
+#endif
       }
         
       bool pdfreload=pdfformat && getSetting<bool>("pdfreload");
       if(running) {
         // Tell gv/acroread to reread file.       
+#if defined(MIKTEX)
+        // TODO
+        if (Viewer == "gv");
+#else
         if(Viewer == "gv") kill(pid,SIGHUP);
+#endif
         else if(pdfreload) reloadPDF(Viewer,outname);
       } else {
         mem::vector<string> cmd;
@@ -766,10 +779,18 @@ bool picture::postprocess(const string& prename, const string& outname,
 
         if(pdfreload) {
           // Work around race conditions in acroread initialization script
+#if defined(MIKTEX_WINDOWS)
+          _sleep(getSetting<Int>("pdfreloaddelay"));
+#else
           usleep(getSetting<Int>("pdfreloaddelay"));
+#endif
           // Only reload if pdf viewer process is already running.
+#if defined(MIKTEX_WINDOWS)
+          // TODO
+#else
           if(waitpid(pid, &status, WNOHANG) == pid)
             reloadPDF(Viewer,outname);
+#endif
         }
       }
     } else {

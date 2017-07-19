@@ -34,6 +34,10 @@
 
 #include "memory.h"
 
+#if defined(MIKTEX) && defined(_MSC_VER)
+#  define LONG_LONG_MAX LLONG_MAX
+#  define LONG_LONG_MIN LLONG_MIN
+#endif
 #if defined(HAVE_LONG_LONG) && defined(LONG_LONG_MAX) && defined(LONG_LONG_MIN)
 #define Int_MAX2 LONG_LONG_MAX
 #define Int_MIN LONG_LONG_MIN

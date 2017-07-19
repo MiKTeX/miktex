@@ -11,8 +11,10 @@
 #include <cfloat>
 #include <sstream>
 #include <cerrno>
+#if !defined(MIKTEX_WINDOWS)
 #include <sys/wait.h>
 #include <sys/param.h>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -187,12 +189,17 @@ string auxname(string filename, string suffix)
   
 sighandler_t Signal(int signum, sighandler_t handler)
 {
+#if defined(MIKTEX_WINDOWS)
+  // TODO
+  return SIG_ERR;
+#else
   struct sigaction action,oldaction;
   action.sa_handler=handler;
   sigemptyset(&action.sa_mask);
   action.sa_flags=0;
   return sigaction(signum,&action,&oldaction) == 0 ? oldaction.sa_handler : 
     SIG_ERR;
+#endif
 }
 
 void push_split(mem::vector<string>& a, const string& S) 
@@ -256,12 +263,17 @@ void execError(const char *command, const char *hint, const char *application)
 int System(const mem::vector<string> &command, int quiet, bool wait,
            const char *hint, const char *application, int *ppid)
 {
+#if defined(MIKTEX_WINDOWS)
+  // TODO
+  return -1;
+#else
   int status;
 
   cout.flush(); // Flush stdout to avoid duplicate output.
     
   char **argv=args(command);
 
+  int pid = -1;
   int pid=fork();
   if(pid == -1)
     camp::reportError("Cannot fork process");
@@ -317,6 +329,7 @@ int System(const mem::vector<string> &command, int quiet, bool wait,
       }
     }
   }
+#endif
 }
 
 string stripblanklines(const string& s)
@@ -397,7 +410,12 @@ void popupHelp() {
 
   // If the help viewer isn't running (or its last run has termined), launch the
   // viewer again.
+#if defined(MIKTEX_WINDOWS)
+  // TODO
+  if (pid == 0) {
+#else
   if (pid==0 || (waitpid(pid, &status, WNOHANG) == pid)) {
+#endif
     mem::vector<string> cmd;
     push_command(cmd,getSetting<string>("pdfviewer"));
     string viewerOptions=getSetting<string>("pdfviewerOptions"); 

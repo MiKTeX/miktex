@@ -861,7 +861,11 @@ public:
       } catch(interrupted&) {
         em.Interrupt(false);
         restart=true;
+#if defined(MIKTEX)
+      } catch(eof_exception&) {
+#else
       } catch(eof&) {
+#endif
         restart=false;
       }
     } while(restart);

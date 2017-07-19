@@ -12,6 +12,9 @@
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
+#if defined(MIKTEX_WINDOWS)
+#  include <miktex/unxemu.h>
+#endif
 
 #include "interact.h"
 #include "locate.h"
@@ -20,7 +23,11 @@
 
 // The lexical analysis and parsing functions used by parseFile.
 void setlexer(size_t (*input) (char* bif, size_t max_size), string filename);
+#if defined(MIKTEX)
+extern int yyparse(void);
+#else
 extern bool yyparse(void);
+#endif
 extern int yydebug;
 extern int yy_flex_debug;
 static const int YY_NULL = 0;

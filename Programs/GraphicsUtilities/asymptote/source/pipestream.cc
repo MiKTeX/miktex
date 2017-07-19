@@ -22,6 +22,9 @@
 #include <sstream>
 #include <signal.h>
 
+#if defined(MIKTEX)
+#include "process.h"
+#endif
 #include "pipestream.h"
 #include "common.h"
 #include "errormsg.h"
@@ -35,6 +38,9 @@
 void iopipestream::open(const mem::vector<string> &command, const char *hint,
                         const char *application, int out_fileno)
 {
+#if defined(MIKTEX_WINDOWS)
+  // TODO
+#else
   if(pipe(in) == -1) {
     ostringstream buf;
     buf << "in pipe failed: ";
@@ -80,6 +86,7 @@ void iopipestream::open(const mem::vector<string> &command, const char *hint,
   pipein=true;
   Running=true;
   block(false,true);
+#endif
 }
 
 void iopipestream::eof()
@@ -92,6 +99,9 @@ void iopipestream::eof()
 
 void iopipestream::pipeclose()
 {
+#if defined(MIKTEX_WINDOWS)
+  // TODO
+#else
   if(pipeopen) {
     kill(pid,SIGTERM);
     eof();
@@ -100,20 +110,29 @@ void iopipestream::pipeclose()
     pipeopen=false;
     waitpid(pid,NULL,0); // Avoid zombies.
   }
+#endif
 }
 
 void iopipestream::block(bool write, bool read)
 {
+#if defined(MIKTEX_WINDOWS)
+  // TODO
+#else
   if(pipeopen) {
     int w=fcntl(in[1],F_GETFL);
     int r=fcntl(out[0],F_GETFL);
     fcntl(in[1],F_SETFL,write ? w & ~O_NONBLOCK : w | O_NONBLOCK);
     fcntl(out[0],F_SETFL,read ? r & ~O_NONBLOCK : r | O_NONBLOCK);
   }
+#endif
 }
 
 ssize_t iopipestream::readbuffer()
 {
+#if defined(MIKTEX_WINDOWS)
+  // TODO
+  return -1;
+#else
   ssize_t nc;
   char *p=buffer;
   ssize_t size=BUFSIZE-1;
@@ -136,6 +155,7 @@ ssize_t iopipestream::readbuffer()
     }
   }
   return nc;
+#endif
 }
 
 bool iopipestream::tailequals(const char *buf, size_t len, const char *prompt,
@@ -177,6 +197,10 @@ void iopipestream::wait(const char *prompt)
 
 int iopipestream::wait()
 {
+#if defined(MIKTEX_WINDOWS)
+  // TODO
+  return -1;
+#else
   for(;;) {
     int status;
     if (waitpid(pid,&status,0) == -1) {
@@ -195,6 +219,7 @@ int iopipestream::wait()
       }
     }
   }
+#endif
 }
 
 void iopipestream::Write(const string &s)

@@ -24,7 +24,15 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_GRAPHICS_UTILITIES_FOLDER}/asymptote")
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/source
 )
+
+set(HAVE_TGAMMA 1)
+set(HAVE_UNORDERED_MAP 1)
+set(RETSIGTYPE void)
+set(PACKAGE_NAME "miktex-asy")
+set(PACKAGE_VERSION "${MIKTEX_COMP_ORIG_VERSION_STR}")
+set(PACKAGE_BUGREPORT "")
 
 configure_file(
   config.h.cmake
@@ -57,7 +65,7 @@ set(camp
   source/path3.cc
   source/pen.cc
   source/picture.cc
-  source/pipestream
+  source/pipestream.cc
   source/psfile.cc
   source/settings.cc
   source/texfile.cc
@@ -310,6 +318,8 @@ target_link_libraries(${MIKTEX_PREFIX}asy
   ${app_dll_name}
   ${gc_lib_name}
   ${kpsemu_dll_name}
+  ${unxemu_dll_name}
+  ${zlib_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

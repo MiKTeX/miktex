@@ -17,7 +17,13 @@ using std::ostream;
 struct handled_error {}; // Exception to process next file.
 struct interrupted {};   // Exception to interrupt execution.
 struct quit {};          // Exception to quit current operation.
+#if defined(MIKTEX)
+struct eof_exception
+{
+};
+#else
 struct eof {};           // Exception to exit interactive mode.
+#endif
 
 class fileinfo : public gc {
   string filename;

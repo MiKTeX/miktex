@@ -20,11 +20,16 @@
 #ifndef PIPESTREAM_H
 #define PIPESTREAM_H
 
+#if !defined(MIKTEX)
 #include <sys/wait.h>
+#endif
 #include <unistd.h>
 #include <fcntl.h>
 
 #include "common.h"
+#if defined(MIKTEX_WINDOWS)
+typedef int ssize_t;
+#endif
 
 // bidirectional stream for reading and writing to pipes
 class iopipestream {
@@ -40,6 +45,9 @@ protected:
   bool pipein;
 public:
   
+#if defined(MIKTEX_WINDOWS)
+#  define STDOUT_FILENO 1
+#endif
   void open(const mem::vector<string> &command, const char *hint=NULL,
             const char *application="", int out_fileno=STDOUT_FILENO);
 

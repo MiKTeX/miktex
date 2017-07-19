@@ -44,6 +44,7 @@ set(public_include_directories
 set(unx_includes
   dirent.h
   unistd.h
+  sys/time.h
 )
 
 foreach(inc ${unx_includes})

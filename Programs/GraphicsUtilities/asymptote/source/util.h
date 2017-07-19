@@ -22,7 +22,9 @@ extern "C" int sigaction(int signum, const struct sigaction *act, struct sigacti
 
 #include "common.h"
 
+#if !defined(MIKTEX) || defined(HAVE_STRINGS_H)
 #include <strings.h>
+#endif
 
 // Demangle a typeid name (if the proper library is installed.
 string demangle(const char *s);
