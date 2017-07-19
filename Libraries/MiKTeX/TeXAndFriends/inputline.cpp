@@ -49,7 +49,7 @@ void Seek(FILE* file, int pos)
   }
 }
 
-void CheckBom(FILE* file)
+int CheckBom(FILE* file)
 {
   long filePosition = ftell(file);
   if (filePosition < 0)
@@ -58,7 +58,7 @@ void CheckBom(FILE* file)
   }
   if (filePosition > 0)
   {
-    return;
+    return 0;
   }
   int val = 0;
   MIKTEX_ASSERT(Bom::UTF8_length >= Bom::UTF16_length);
@@ -73,8 +73,7 @@ void CheckBom(FILE* file)
     int bom = val & Bom::UTF8_mask;
     if (bom == Bom::UTF8)
     {
-      // TODO: logging
-      return;
+      return bom;
     }
     else
     {
@@ -86,12 +85,12 @@ void CheckBom(FILE* file)
     int bom = val & Bom::UTF16_mask;
     if (bom == Bom::UTF16be || bom == Bom::UTF16le)
     {
-      // TODO: logging
       Seek(file, Bom::UTF16_length);
-      return;
+      return bom;
     }
   }
   Seek(file, 0);
+  return 0;
 }
 
 class WebAppInputLine::impl
@@ -385,7 +384,9 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
   string utf8FileName;
   if (!Utils::IsUTF8(lpszFileName))
   {
+    LogWarn("converting ANSI file name");
     utf8FileName = StringUtil::AnsiToUTF8(lpszFileName);
+    LogWarn("conversion succeeded: " + utf8FileName);
     lpszFileName = utf8FileName.c_str();
   }
 #endif
@@ -507,7 +508,19 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
   auto openFileInfo = session->TryGetOpenFileInfo(*ppFile);
   if (openFileInfo.first && openFileInfo.second.mode != FileMode::Command)
   {
-    CheckBom(*ppFile);
+    int bom = CheckBom(*ppFile);
+    switch (bom)
+    {
+    case Bom::UTF8:
+      LogInfo("UTF8 BOM detected: " + openFileInfo.second.fileName);
+      break;
+    case Bom::UTF16be:
+      LogInfo("UTF16be BOM detected: " + openFileInfo.second.fileName);
+      break;
+    case Bom::UTF16le:
+      LogInfo("UTF16le BOM detected: " + openFileInfo.second.fileName);
+      break;
+    }
   }
 
   pimpl->lastInputFileName = lpszFileName;
@@ -542,6 +555,11 @@ void WebAppInputLine::TouchJobOutputFile(FILE *) const
 
 void WebAppInputLine::SetOutputDirectory(const PathName& path)
 {
+  if (pimpl->outputDirectory == path)
+  {
+    return;
+  }
+  LogInfo("setting output directory: " + path.ToString());
   pimpl->outputDirectory = path;
 }
 
@@ -552,6 +570,11 @@ PathName WebAppInputLine::GetOutputDirectory() const
 
 void WebAppInputLine::SetAuxDirectory(const PathName& path)
 {
+  if (pimpl->auxDirectory == path)
+  {
+    return;
+  }
+  LogInfo("setting aux directory: " + path.ToString());
   pimpl->auxDirectory = path;
 }
 
@@ -572,6 +595,22 @@ PathName WebAppInputLine::GetFoundFileFq() const
 
 void WebAppInputLine::EnableShellCommands(ShellCommandMode mode)
 {
+  if (mode == pimpl->shellCommandMode)
+  {
+    return;
+  }
+  switch (mode)
+  {
+  case ShellCommandMode::Forbidden:
+    LogInfo("disabling shell commands");
+    break;
+  case ShellCommandMode::Restricted:
+    LogInfo("allowing known shell commands");
+    break;
+  case ShellCommandMode::Unrestricted:
+    LogInfo("allowing all shell commands");
+    break;
+  }
   pimpl->shellCommandMode = mode;
 }
 
@@ -582,6 +621,11 @@ ShellCommandMode WebAppInputLine::GetShellCommandMode() const
 
 void WebAppInputLine::EnablePipes(bool f)
 {
+  if (f == pimpl->enablePipes)
+  {
+    return;
+  }
+  LogInfo((f ? "enabling"s : "disabling"s) + " input (output) from (to) processes"s);
   pimpl->enablePipes = f;
 }
 
@@ -604,7 +648,7 @@ void WebAppInputLine::BufferSizeExceeded() const
 {
   if (GetFormatIdent() == 0)
   {
-    fputs("Buffer size exceeded!", stdout);
+    LogError("buffer size exceeded");
     throw new C4P::Exception9999;
   }
   else

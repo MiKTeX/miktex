@@ -362,7 +362,7 @@ bool TeXApp::ProcessOption(int optchar, const string& optArg)
   return done;
   }
 
-TeXApp::Write18Result TeXApp::Write18(const string& command, int& exitCode)
+TeXApp::Write18Result TeXApp::Write18(const string& command, int& exitCode) const
 {
   shared_ptr<Session> session = GetSession();
   Session::ExamineCommandLineResult examineResult;
@@ -398,7 +398,7 @@ TeXApp::Write18Result TeXApp::Write18(const string& command, int& exitCode)
   default:
     MIKTEX_UNEXPECTED();
   }
-  LogInfo("executing write18: \"" + toBeExecuted + "\"");
+  LogInfo("executing write18 shell command: \"" + toBeExecuted + "\"");
   Process::ExecuteSystemCommand(toBeExecuted, &exitCode);
   return examineResult == Session::ExamineCommandLineResult::ProbablySafe ? Write18Result::ExecutedAllowed : Write18Result::Executed;
 }

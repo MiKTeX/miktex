@@ -147,10 +147,13 @@ public:
   MIKTEXAPPTHISAPI(MiKTeX::Core::TriState) GetEnableInstaller() const;
 
 public:
-  MIKTEXAPPTHISAPI(void) LogInfo(const std::string& message);
+  MIKTEXAPPTHISAPI(void) LogInfo(const std::string& message) const;
 
 public:
-  MIKTEXAPPTHISAPI(void) LogError(const std::string& message);
+  MIKTEXAPPTHISAPI(void) LogWarn(const std::string& message) const;
+
+public:
+  MIKTEXAPPTHISAPI(void) LogError(const std::string& message) const;
 
 public:
   static MIKTEXAPPCEEAPI(Application*) GetApplication();
