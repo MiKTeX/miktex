@@ -107,7 +107,9 @@ public:
 public:
   PathName foundFileFq;
 public:
-  bool enablePipes;
+  ShellCommandMode shellCommandMode = ShellCommandMode::Forbidden;
+public:
+  bool enablePipes = false;
 public:
   PathName lastInputFileName;
 public:
@@ -130,6 +132,7 @@ WebAppInputLine::~WebAppInputLine() noexcept
 void WebAppInputLine::Init(vector<char*>& args)
 {
   WebApp::Init(args);
+  pimpl->shellCommandMode = ShellCommandMode::Forbidden;
   pimpl->enablePipes = false;
 }
 
@@ -301,7 +304,37 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
   FILE* file = nullptr;
   if (pimpl->enablePipes && lpszPath[0] == '|')
   {
-    file = session->OpenFile(lpszPath + 1, FileMode::Command, FileAccess::Write, false);
+    string command = lpszPath + 1;
+    Session::ExamineCommandLineResult examineResult;
+    string examinedCommand;
+    string toBeExecuted;
+    tie(examineResult, examinedCommand, toBeExecuted) = session->ExamineCommandLine(command);
+    if (examineResult == Session::ExamineCommandLineResult::SyntaxError)
+    {
+      return false;
+    }
+    if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
+    {
+      return false;
+    }
+    switch (pimpl->shellCommandMode)
+    {
+    case ShellCommandMode::Unrestricted:
+      break;
+    case ShellCommandMode::Forbidden:
+      return false;
+    case ShellCommandMode::Query:
+      // TODO
+    case ShellCommandMode::Restricted:
+      if (examineResult != Session::ExamineCommandLineResult::ProbablySafe)
+      {
+        return false;
+      }
+      break;
+    default:
+      MIKTEX_UNEXPECTED();
+    }
+    file = session->OpenFile(toBeExecuted, FileMode::Command, FileAccess::Write, false);
   }
   else
   {
@@ -495,6 +528,16 @@ PathName WebAppInputLine::GetFoundFile() const
 PathName WebAppInputLine::GetFoundFileFq() const
 {
   return pimpl->foundFileFq;
+}
+
+void WebAppInputLine::EnableShellCommands(ShellCommandMode mode)
+{
+  pimpl->shellCommandMode = mode;
+}
+
+ShellCommandMode WebAppInputLine::GetShellCommandMode() const
+{
+  return pimpl->shellCommandMode;
 }
 
 void WebAppInputLine::EnablePipes(bool f)

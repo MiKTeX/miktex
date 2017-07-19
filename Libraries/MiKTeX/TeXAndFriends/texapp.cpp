@@ -30,8 +30,6 @@ class TeXApp::impl
 public:
   int optBase;
 public:
-  ShellCommandMode shellCommandMode = ShellCommandMode::Forbidden;
-public:
   bool enableMLTeX;
 public:
   bool enableEncTeX;
@@ -64,7 +62,6 @@ void TeXApp::Init(vector<char*>& args)
 
   pimpl->enableEncTeX = false;
   pimpl->enableMLTeX = false;
-  pimpl->shellCommandMode = ShellCommandMode::Forbidden;
   pimpl->lastLineNum = -1;
 # define SYNCTEX_NO_OPTION INT_MAX
   pimpl->synchronizationOptions = SYNCTEX_NO_OPTION;
@@ -74,8 +71,9 @@ void TeXApp::OnTeXMFStartJob()
 {
   TeXMFApp::OnTeXMFStartJob();
   shared_ptr<Session> session = GetSession();
-  pimpl->shellCommandMode = session->GetShellCommandMode();
-  EnablePipes(session->GetConfigValue("", MIKTEX_REGVAL_ENABLE_PIPES, pimpl->shellCommandMode == ShellCommandMode::Restricted || pimpl->shellCommandMode == ShellCommandMode::Unrestricted).GetBool());
+  ShellCommandMode shellCommandMode = session->GetShellCommandMode();
+  EnableShellCommands(shellCommandMode);
+  EnablePipes(session->GetConfigValue("", MIKTEX_REGVAL_ENABLE_PIPES, shellCommandMode == ShellCommandMode::Restricted || shellCommandMode == ShellCommandMode::Unrestricted).GetBool());
 }
 
 void TeXApp::Finalize()
@@ -246,7 +244,7 @@ bool TeXApp::ProcessOption(int optchar, const string& optArg)
     EnablePipes(false);
     break;
   case OPT_DISABLE_WRITE18:
-    pimpl->shellCommandMode = ShellCommandMode::Forbidden;
+    EnableShellCommands(ShellCommandMode::Forbidden);
     EnablePipes(false);
     break;
   case OPT_ENABLE_ENCTEX:
@@ -264,7 +262,7 @@ bool TeXApp::ProcessOption(int optchar, const string& optArg)
   case OPT_ENABLE_WRITE18:
     if (!inParseFirstLine)
     {
-      pimpl->shellCommandMode = ShellCommandMode::Unrestricted;
+      EnableShellCommands(ShellCommandMode::Unrestricted);
     }
     break;
   case OPT_FONT_MAX:
@@ -288,7 +286,7 @@ bool TeXApp::ProcessOption(int optchar, const string& optArg)
   case OPT_RESTRICT_WRITE18:
     if (!inParseFirstLine)
     {
-      pimpl->shellCommandMode = ShellCommandMode::Restricted;
+      EnableShellCommands(ShellCommandMode::Restricted);
     }
     break;
   case OPT_SAVE_SIZE:
@@ -379,7 +377,7 @@ TeXApp::Write18Result TeXApp::Write18(const string& command, int& exitCode) cons
   {
     return Write18Result::Disallowed;
   }
-  switch (pimpl->shellCommandMode)
+  switch (GetShellCommandMode())
   {
   case ShellCommandMode::Unrestricted:
     break;
@@ -402,14 +400,14 @@ TeXApp::Write18Result TeXApp::Write18(const string& command, int& exitCode) cons
 
 ShellCommandMode TeXApp::GetWrite18Mode() const
 {
-  return pimpl->shellCommandMode;
+  return GetShellCommandMode();
 }
 
 bool TeXApp::Write18P() const
 {
-  return pimpl->shellCommandMode == ShellCommandMode::Unrestricted
-    || pimpl->shellCommandMode == ShellCommandMode::Restricted
-    || pimpl->shellCommandMode == ShellCommandMode::Query;
+  return GetShellCommandMode() == ShellCommandMode::Unrestricted
+    || GetShellCommandMode() == ShellCommandMode::Restricted
+    || GetShellCommandMode() == ShellCommandMode::Query;
 }
 
 bool TeXApp::MLTeXP() const
