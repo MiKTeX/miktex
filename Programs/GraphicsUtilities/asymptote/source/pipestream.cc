@@ -22,9 +22,6 @@
 #include <sstream>
 #include <signal.h>
 
-#if defined(MIKTEX)
-#include "process.h"
-#endif
 #include "pipestream.h"
 #include "common.h"
 #include "errormsg.h"
@@ -39,7 +36,7 @@ void iopipestream::open(const mem::vector<string> &command, const char *hint,
                         const char *application, int out_fileno)
 {
 #if defined(MIKTEX_WINDOWS)
-  // TODO
+  // // MIKTEX-TODO
 #else
   if(pipe(in) == -1) {
     ostringstream buf;
@@ -100,7 +97,7 @@ void iopipestream::eof()
 void iopipestream::pipeclose()
 {
 #if defined(MIKTEX_WINDOWS)
-  // TODO
+  // // MIKTEX-TODO
 #else
   if(pipeopen) {
     kill(pid,SIGTERM);
@@ -116,7 +113,7 @@ void iopipestream::pipeclose()
 void iopipestream::block(bool write, bool read)
 {
 #if defined(MIKTEX_WINDOWS)
-  // TODO
+  // // MIKTEX-TODO
 #else
   if(pipeopen) {
     int w=fcntl(in[1],F_GETFL);
@@ -130,7 +127,7 @@ void iopipestream::block(bool write, bool read)
 ssize_t iopipestream::readbuffer()
 {
 #if defined(MIKTEX_WINDOWS)
-  // TODO
+  // // MIKTEX-TODO
   return -1;
 #else
   ssize_t nc;

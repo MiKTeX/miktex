@@ -581,6 +581,7 @@ void gen_runfile43(stack *Stack)
 #line 352 "runfile.in"
   char *S=Strdup(s+"XXXXXX");
 #if defined(MIKTEX_WINDOWS)
+  // MIKTEX-TODO
   int fd = -1;
 #else
   int fd=mkstemp(S);

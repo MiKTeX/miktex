@@ -22,7 +22,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cerrno>
-#if !defined(MIKTEX)
+#if !defined(MIKTEX_WINDOWS)
 #include <sys/wait.h>
 #endif
 #include <sys/types.h>
@@ -154,7 +154,7 @@ void *asymain(void *A)
 
   if(getSetting<bool>("wait")) {
 #if defined(MIKTEX_WINDOWS)
-    // TODO
+    // MIKTEX-TODO
 #else
     int status;
     while(wait(&status) > 0);

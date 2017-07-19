@@ -1,6 +1,6 @@
 /* miktex/unxemu.h: Unx emulation                       -*- C++ -*-
 
-   Copyright (C) 2007-2016 Christian Schenk
+   Copyright (C) 2007-2017 Christian Schenk
 
    This file is part of the MiKTeX UNXEMU Library.
 
@@ -269,6 +269,10 @@ static inline int mkdir(const char * path, int mode)
  * unistd.h
  *
  */
+
+#define STDIN_FILENO 0
+#define STDOUT_FILENO 1
+#define STDERR_FILENO 2
 
 #define F_OK 0
 #define W_OK 2

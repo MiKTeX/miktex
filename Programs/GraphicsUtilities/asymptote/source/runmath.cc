@@ -126,7 +126,7 @@ void Srand(Int seed)
   const int n=256;
   static char state[n];
 #if defined(MIKTEX)
-  // TODO
+  // MIKTEX-TODO
   srand(intcast(seed));
 #else
   initstate(intcast(seed),state,n);
@@ -198,6 +198,7 @@ void gen_runmath5(stack *Stack)
   if(initializeRandom)
     Srand(1);
 #if defined(MIKTEX_WINDOWS)
+  // MIKTEX-TODO
   {Stack->push<Int>(rand()); return; }
 #else
   {Stack->push<Int>(random()); return;}
@@ -220,6 +221,7 @@ void gen_runmath7(stack *Stack)
 {
 #line 120 "runmath.in"                         
 #if defined(MIKTEX_WINDOWS)
+  // MIKTEX-TODO
   {Stack->push<real>(((real)rand()) / RANDOM_MAX); return; }
 #else
   {Stack->push<real>(((real) random())/RANDOM_MAX); return;}

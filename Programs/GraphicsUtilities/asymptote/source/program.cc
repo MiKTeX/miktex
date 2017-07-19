@@ -61,7 +61,7 @@ ostream& operator<< (ostream& out, const item& i)
     return out << n;
 
 #if defined(MIKTEX) && !defined(and)
-#define and &&
+#  define and &&
 #endif
   if (fabs(x) < 1e30 and fabs(x) > 1e-30)
     return out << x;

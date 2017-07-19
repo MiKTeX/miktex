@@ -743,7 +743,7 @@ bool picture::postprocess(const string& prename, const string& outname,
       if(running) {
         pid=p->second;
 #if defined(MIKTEX)
-        // TODO
+        // MIKTEX-TODO
 #else
         if(pid)
           running=(waitpid(pid, &status, WNOHANG) != pid);
@@ -754,7 +754,7 @@ bool picture::postprocess(const string& prename, const string& outname,
       if(running) {
         // Tell gv/acroread to reread file.       
 #if defined(MIKTEX)
-        // TODO
+        // MIKTEX-TODO
         if (Viewer == "gv");
 #else
         if(Viewer == "gv") kill(pid,SIGHUP);
@@ -780,13 +780,14 @@ bool picture::postprocess(const string& prename, const string& outname,
         if(pdfreload) {
           // Work around race conditions in acroread initialization script
 #if defined(MIKTEX_WINDOWS)
+          // MIKTEX-TODO
           _sleep(getSetting<Int>("pdfreloaddelay"));
 #else
           usleep(getSetting<Int>("pdfreloaddelay"));
 #endif
           // Only reload if pdf viewer process is already running.
 #if defined(MIKTEX_WINDOWS)
-          // TODO
+          // MIKTEX-TODO
 #else
           if(waitpid(pid, &status, WNOHANG) == pid)
             reloadPDF(Viewer,outname);

@@ -190,7 +190,7 @@ string auxname(string filename, string suffix)
 sighandler_t Signal(int signum, sighandler_t handler)
 {
 #if defined(MIKTEX_WINDOWS)
-  // TODO
+  // MIKTEX-TODO
   return SIG_ERR;
 #else
   struct sigaction action,oldaction;
@@ -264,7 +264,7 @@ int System(const mem::vector<string> &command, int quiet, bool wait,
            const char *hint, const char *application, int *ppid)
 {
 #if defined(MIKTEX_WINDOWS)
-  // TODO
+  // MIKTEX-TODO
   return -1;
 #else
   int status;
@@ -411,7 +411,7 @@ void popupHelp() {
   // If the help viewer isn't running (or its last run has termined), launch the
   // viewer again.
 #if defined(MIKTEX_WINDOWS)
-  // TODO
+  // MIKTEX-TODO
   if (pid == 0) {
 #else
   if (pid==0 || (waitpid(pid, &status, WNOHANG) == pid)) {

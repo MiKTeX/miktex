@@ -20,7 +20,7 @@
 #ifndef PIPESTREAM_H
 #define PIPESTREAM_H
 
-#if !defined(MIKTEX)
+#if !defined(MIKTEX_WINDOWS)
 #include <sys/wait.h>
 #endif
 #include <unistd.h>
@@ -45,9 +45,6 @@ protected:
   bool pipein;
 public:
   
-#if defined(MIKTEX_WINDOWS)
-#  define STDOUT_FILENO 1
-#endif
   void open(const mem::vector<string> &command, const char *hint=NULL,
             const char *application="", int out_fileno=STDOUT_FILENO);
 

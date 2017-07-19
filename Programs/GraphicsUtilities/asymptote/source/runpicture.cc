@@ -812,7 +812,7 @@ void gen_runpicture45(stack *Stack)
   const string xformat="png";
 
 #if defined(MIKTEX_WINDOWS)
-  // TODO
+  // MIKTEX-TODO
   static long arg_max = 1000;
 #else
   static long arg_max=sysconf(_SC_ARG_MAX);

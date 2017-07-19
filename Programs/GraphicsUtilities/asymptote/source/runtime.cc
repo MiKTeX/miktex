@@ -1036,6 +1036,7 @@ void gen_runtime79(stack *Stack)
 #line 700 "runtime.in"
   if(seconds <= 0) return;      
 #if defined(MIKTEX_WINDOWS)
+  // MIKTEX-TODO
   _sleep(seconds * 1000);
 #else
   sleep(seconds);
@@ -1050,6 +1051,7 @@ void gen_runtime80(stack *Stack)
 #line 706 "runtime.in"
   if(microseconds <= 0) return; 
 #if defined(MIKTEX_WINDOWS)
+  // MIKTEX-TODO
   _sleep(microseconds);
 #else
   usleep((unsigned long) microseconds);
@@ -1495,7 +1497,7 @@ void gen_runtime111(stack *Stack)
 void gen_runtime112(stack *Stack)
 {
 #if defined(MIKTEX_WINDOWS)
-  // TODO
+  // MIKTEX-TODO
 #else
 #line 1022 "runtime.in"
   static const real ticktime=1.0/sysconf(_SC_CLK_TCK);

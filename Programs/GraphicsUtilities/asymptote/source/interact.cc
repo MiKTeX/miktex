@@ -8,7 +8,7 @@
 #include <cassert>
 #include <iostream>
 #include <sstream>
-#if !defined(MIKTEX)
+#if !defined(MIKTEX_WINDOWS)
 #include <sys/wait.h>
 #endif
 #include <sys/types.h>
@@ -41,9 +41,6 @@ bool uptodate=true;
 int lines=0;  
 bool query=false;
 
-#if defined(MIKTEX) && !defined(STDIN_FILENO)
-#define STDIN_FILENO 0
-#endif
 bool tty=isatty(STDIN_FILENO);  
 completer *currentCompleter=0;
 

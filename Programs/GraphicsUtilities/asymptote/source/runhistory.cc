@@ -227,9 +227,6 @@ void gen_runhistory2(stack *Stack)
   string name=vm::pop<string>(Stack,emptystring);
   string prompt=vm::pop<string>(Stack,emptystring);
 #line 156 "runhistory.in"
-#if defined(MIKTEX) && !defined(STDIN_FILENO)
-#define STDIN_FILENO 0
-#endif
   if(!(isatty(STDIN_FILENO) || getSetting<Int>("inpipe") >= 0))
     {Stack->push<string>(emptystring); return;}
 #if defined(HAVE_LIBREADLINE) && defined(HAVE_LIBCURSES)

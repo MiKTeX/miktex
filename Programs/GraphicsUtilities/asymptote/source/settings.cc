@@ -83,8 +83,8 @@ const bool havegl=false;
 mode_t mask;
 
 #if defined(MIKTEX)
-// TODO
-string systemDir = "/";
+// MIKTEX-TODO
+string systemDir;
 #else
 string systemDir=ASYMPTOTE_SYSDIR;
 #endif
@@ -95,8 +95,8 @@ string defaultEPSdriver="eps2write";
 bool msdos=false;
 string HOME="HOME";
 #if defined(MIKTEX)
-// TODO
-string docdir = "/";
+// MIKTEX-TODO
+string docdir;
 #else
 string docdir=ASYMPTOTE_DOCDIR;
 #endif
@@ -1338,9 +1338,6 @@ char *getArg(int n) { return argList[n]; }
 
 void setInteractive()
 {
-#if defined(MIKTEX) && !defined(STDIN_FILENO)
-#define STDIN_FILENO 0
-#endif
   if(numArgs() == 0 && !getSetting<bool>("listvariables") && 
      getSetting<string>("command").empty() &&
      (isatty(STDIN_FILENO) || getSetting<Int>("inpipe") >= 0))
@@ -1350,6 +1347,7 @@ void setInteractive()
     historyname=string(getPath())+dirsep+"."+suffix+"_history";
   else {
 #if defined(MIKTEX_WINDOWS)
+    // MIKTEX-TODO
     if (mkdir(initdir.c_str()) != 0 && errno != EEXIST)
       cerr << "failed to create directory " + initdir + "." << endl;
 #else
