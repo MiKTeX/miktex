@@ -1965,8 +1965,10 @@ const struct poptOption optionTable[] = {
 void McdApp::Run(int argc, const char** argv)
 {
   Session::InitInfo initInfo(argv[0]);
+  vector<const char*> newargv(&argv[0], &argv[argc + 1]);
+  ExamineArgs(newargv, initInfo);
 
-  PoptWrapper popt(argc, argv, optionTable);
+  PoptWrapper popt(newargv.size() - 1, &newargv[0], optionTable);
 
   int option;
 
@@ -2126,7 +2128,6 @@ void McdApp::Run(int argc, const char** argv)
     initInfo.SetTraceFlags(options.traceStreams);
   }
 
-  // MIKTEX-TODO: pass argc/argv
   Init(initInfo);
 
   for (const string& fileName : leftovers)

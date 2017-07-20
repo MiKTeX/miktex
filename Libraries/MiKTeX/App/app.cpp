@@ -92,6 +92,8 @@ public:
   shared_ptr<Session> session;
 public:
   bool isLog4cxxConfigured = false;
+public:
+  string commandLine;
 };
 
 Application::Application() :
@@ -131,17 +133,13 @@ void InstallSignalHandler(int sig)
   }
 }
 
-void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args)
+template<typename T> void ExamineArgs(vector<T>& args, Session::InitInfo& initInfo, Application::impl* pimpl)
 {
-  instance = this;
-  pimpl->initialized = true;
-  Session::InitInfo initInfo(initInfoArg);
-  MIKTEX_ASSERT(!empty.args() && args.back() == nullptr);
-  CommandLineBuilder cmdLineToLog;
-  vector<char*>::iterator it = args.begin();
+  CommandLineBuilder commandLine;
+  auto it = args.begin();
   while (it != args.end() && *it != nullptr)
   {
-    cmdLineToLog.AppendArgument(*it);
+    commandLine.AppendArgument(*it);
     bool keepArgument = false;
     if (strcmp(*it, "--miktex-admin") == 0)
     {
@@ -168,20 +166,36 @@ void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args
       it = args.erase(it);
     }
   }
-  initInfo.SetTraceCallback(this);
-  pimpl->session = Session::Create(initInfo);
-  pimpl->session->SetFindFileCallback(this);
-  ConfigureLogging();
-  LOG4CXX_INFO(logger, "starting with command line: " << cmdLineToLog);
-  pimpl->beQuiet = false;
-  if (pimpl->enableInstaller == TriState::Undetermined)
-  {
-    pimpl->enableInstaller = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
-  }
-  pimpl->mpmAutoAdmin = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN).GetTriState();
-  InstallSignalHandler(SIGINT);
-  InstallSignalHandler(SIGTERM);
-  AutoMaintenance();
+  pimpl->commandLine = commandLine.ToString();
+}
+
+
+string Application::ExamineArgs(std::vector<const char*>& args, MiKTeX::Core::Session::InitInfo& initInfo)
+{
+  ::ExamineArgs(args, initInfo, pimpl.get());
+  return pimpl->commandLine;
+}
+
+string Application::ExamineArgs(std::vector<char*>& args, MiKTeX::Core::Session::InitInfo& initInfo)
+{
+  ::ExamineArgs(args, initInfo, pimpl.get());
+  return pimpl->commandLine;
+}
+
+void Application::Init(const Session::InitInfo& initInfoArg, vector<const char*>& args)
+{
+  Session::InitInfo initInfo(initInfoArg);
+  MIKTEX_ASSERT(!empty.args() && args.back() == nullptr);
+  ::ExamineArgs(args, initInfo, pimpl.get());
+  Init(initInfo);
+}
+
+void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args)
+{
+  Session::InitInfo initInfo(initInfoArg);
+  MIKTEX_ASSERT(!empty.args() && args.back() == nullptr);
+  ::ExamineArgs(args, initInfo, pimpl.get());
+  Init(initInfo);
 }
 
 void Application::ConfigureLogging()
@@ -273,10 +287,32 @@ void Application::AutoMaintenance()
   }
 }
 
-void Application::Init(const Session::InitInfo& initInfo)
+void Application::Init(const Session::InitInfo& initInfoArg)
 {
-  vector<char*> args{ nullptr };
-  Init(initInfo, args);
+  instance = this;
+  pimpl->initialized = true;
+  Session::InitInfo initInfo(initInfoArg);
+  initInfo.SetTraceCallback(this);
+  pimpl->session = Session::Create(initInfo);
+  pimpl->session->SetFindFileCallback(this);
+  ConfigureLogging();
+  if (pimpl->commandLine.empty())
+  {
+    // TODO
+  }
+  else
+  {
+    LOG4CXX_INFO(logger, "starting with command line: " << pimpl->commandLine);
+  }
+  pimpl->beQuiet = false;
+  if (pimpl->enableInstaller == TriState::Undetermined)
+  {
+    pimpl->enableInstaller = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
+  }
+  pimpl->mpmAutoAdmin = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN).GetTriState();
+  InstallSignalHandler(SIGINT);
+  InstallSignalHandler(SIGTERM);
+  AutoMaintenance();
 }
 
 void Application::Init(vector<char*>& args)
@@ -292,8 +328,7 @@ void Application::Init(const string& programInvocationName, const string& theNam
   {
     initInfo.SetTheNameOfTheGame(theNameOfTheGame);
   }
-  // FIXME:: eliminate const cast
-  vector<char*> args{ (char*)programInvocationName.c_str(), nullptr };
+  vector<const char*> args{ programInvocationName.c_str(), nullptr };
   Init(initInfo, args);
 }
 

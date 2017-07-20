@@ -562,13 +562,14 @@ void MakeFontMapApp::ParseConfigFile(const PathName& path)
 
 void MakeFontMapApp::Init(int argc, const char** argv)
 {
-  ProcessOptions(argc, argv);
   Session::InitInfo initInfo(argv[0]);
+  vector<const char*> newargv(&argv[0], &argv[argc + 1]);
+  ExamineArgs(newargv, initInfo);
+  ProcessOptions(newargv.size() - 1, &newargv[0]);
   if (optAdminMode)
   {
     initInfo.AddOption(Session::InitOption::AdminMode);
   }
-  // MIKTEX-TODO: pass argc/argv
   Application::Init(initInfo);
   session = GetSession();
   if (optAdminMode)
@@ -1372,7 +1373,7 @@ int MAIN(int argc, MAINCHAR** argv)
   {
     vector<string> utf8args;
     utf8args.reserve(argc);
-    vector<char*> newargv;
+    vector<const char*> newargv;
     newargv.reserve(argc + 1);
     for (int idx = 0; idx < argc; ++idx)
     {
@@ -1383,12 +1384,11 @@ int MAIN(int argc, MAINCHAR** argv)
 #else
       utf8args.push_back(argv[idx]);
 #endif
-      // FIXME: eliminate const cast
-      newargv.push_back(const_cast<char*>(utf8args[idx].c_str()));
+      newargv.push_back(utf8args[idx].c_str());
     }
     newargv.push_back(nullptr);
     MakeFontMapApp app;
-    app.Init(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
+    app.Init(newargv.size() - 1, &newargv[0]);
     app.Run();
     logger = nullptr;
     return 0;

@@ -736,16 +736,18 @@ void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const Pat
 
 void EpsToPdfApp::Run(int argc, const char** argv)
 {
+  Session::InitInfo initInfo(argv[0]);
+  vector<const char*> newargv(&argv[0], &argv[argc + 1]);
+  ExamineArgs(newargv, initInfo);
+
   PathName outFile;
 
-  PoptWrapper popt(argc, argv, aoption);
+  PoptWrapper popt(newargv.size() - 1, &newargv[0], aoption);
 
   int option;
 
   bool antiAliasing = false;
   bool doCompress = true;
-
-  Session::InitInfo initInfo(argv[0]);
 
   vector<string> gsOptions;
 
@@ -846,7 +848,6 @@ void EpsToPdfApp::Run(int argc, const char** argv)
     FatalError("%s", msg.c_str());
   }
 
-  // MIKTEX-TODO: pass argc/argv
   Init(initInfo);
   session = GetSession();
 
