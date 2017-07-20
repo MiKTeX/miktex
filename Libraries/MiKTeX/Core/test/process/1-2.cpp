@@ -1,6 +1,6 @@
 /* 1-2.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -19,29 +19,32 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include <cstring>
-
-#include <string>
+#include "config.h"
 
 #include <miktex/Core/Test>
 
-BEGIN_TEST_SCRIPT();
+#include <string>
+
+using namespace MiKTeX::Test;
+using namespace std;
+
+BEGIN_TEST_SCRIPT("process-1-2");
 
 BEGIN_TEST_FUNCTION(1);
 {
   for (const std::string & arg : vecArgs)
   {
-    TEST (PrintF("%s\n", arg.c_str()) == strlen(arg.c_str()) + 1);
+    TEST(printf("%s\n", arg.c_str()) == strlen(arg.c_str()) + 1);
   }
 }
 END_TEST_FUNCTION();
 
 BEGIN_TEST_PROGRAM();
 {
-  CALL_TEST_FUNCTION (1);
+  CALL_TEST_FUNCTION(1);
 }
 END_TEST_PROGRAM();
 
 END_TEST_SCRIPT();
 
-RUN_TEST_SCRIPT ();
+RUN_TEST_SCRIPT();

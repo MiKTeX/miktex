@@ -1,6 +1,6 @@
 /* 1.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -19,26 +19,32 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include <string>
+#include "config.h"
 
 #include <miktex/Core/Test>
+
+#include <string>
 
 #include <miktex/Core/File>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 
-BEGIN_TEST_SCRIPT();
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Test;
+using namespace std;
+
+BEGIN_TEST_SCRIPT("process-1");
 
 BEGIN_TEST_FUNCTION(1);
 {
   PathName pathExe = pSession->GetSpecialPath(SpecialPath::BinDirectory);
-  pathExe += "1-1" MIKTEX_EXE_FILE_SUFFIX;
+  pathExe /= "core_process_test1-1" MIKTEX_EXE_FILE_SUFFIX;
   int exitCode;
-  TEST (Process::Run(pathExe.Get(), "a.txt", nullptr, &exitCode, nullptr));
-  TEST (exitCode == 0);
-  TEST (File::Exists("a.txt"));
-  TESTX (File::Delete("a.txt", true));
+  TEST(Process::Run(pathExe, { "1-1", "a.txt" }, nullptr, &exitCode, nullptr));
+  TEST(exitCode == 0);
+  TEST(File::Exists("a.txt"));
+  TESTX(File::Delete("a.txt"));
 }
 END_TEST_FUNCTION();
 
@@ -47,44 +53,26 @@ string outputBuffer;
 BEGIN_TEST_FUNCTION(2);
 {
   PathName pathExe = pSession->GetSpecialPath(SpecialPath::BinDirectory);
-  pathExe += "1-2" MIKTEX_EXE_FILE_SUFFIX;
+  pathExe /= "core_process_test1-2" MIKTEX_EXE_FILE_SUFFIX;
   int exitCode;
-  ProcessOutput processOutput;
-  TEST (Process::Run(pathExe.Get(), "hello world!", &processOutput, &exitCode, nullptr));
-  TEST (exitCode == 0);
-  TEST (processOutput.GetOutput() == "hello\nworld!\n");
-}
-END_TEST_FUNCTION();
-
-BEGIN_TEST_FUNCTION(3);
-{
-  PathName pathExe = pSession->GetSpecialPath(SpecialPath::BinDirectory);
-  pathExe += "1-2" MIKTEX_EXE_FILE_SUFFIX;
-  int exitCode;
-  char buf[100];
-  size_t n = 10;
-  TEST (Process::Run(pathExe.Get(), "01234567890123456789", buf, &n, &exitCode));
-  TEST (exitCode == 0);
-  TEST (n == 10);
-  std::string str (buf, n);
-  TEST (str == "0123456789");
-  n = 100;
-  TEST (Process::Run(pathExe.Get(),"01234567890123456789", buf, &n, &exitCode));
-  TEST (exitCode == 0);
-  TEST (n == 21);
-  str.assign (buf, n);
-  TEST (str == "01234567890123456789\n");
+  MiKTeX::Core::ProcessOutput<1024> processOutput;
+  TEST(Process::Run(pathExe, { "1-2", "hello", "world!" }, &processOutput, &exitCode, nullptr));
+  TEST(exitCode == 0);
+#if defined(MIKTEX_WINDOWS)
+  TEST(processOutput.StdoutToString() == "hello\r\nworld!\r\n");
+#else
+  TEST(processOutput.StdoutToString() == "hello\nworld!\n");
+#endif
 }
 END_TEST_FUNCTION();
 
 BEGIN_TEST_PROGRAM();
 {
-  CALL_TEST_FUNCTION (1);
-  CALL_TEST_FUNCTION (2);
-  CALL_TEST_FUNCTION (3);
+  CALL_TEST_FUNCTION(1);
+  CALL_TEST_FUNCTION(2);
 }
 END_TEST_PROGRAM();
 
 END_TEST_SCRIPT();
 
-RUN_TEST_SCRIPT ();
+RUN_TEST_SCRIPT();

@@ -1,6 +1,6 @@
 /* 3.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -19,82 +19,86 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#include <cstdio>
-
-#include <memory>
-#include <string>
-#include <vector>
+#include "config.h"
 
 #include <miktex/Core/Test>
 
+#include <string>
+
 #include <miktex/Core/File>
 #include <miktex/Core/PathName>
+#include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 
-BEGIN_TEST_SCRIPT();
+using namespace MiKTeX::Core;
+using namespace MiKTeX::Test;
+using namespace std;
+
+
+BEGIN_TEST_SCRIPT("process-3");
 
 BEGIN_TEST_FUNCTION(1);
 {
-  TEST (Process::ExecuteSystemCommand("echo 0123456789x> a.txt"));
-  FILE * pFileIn = File::Open("a.txt", FileMode::Open, FileAccess::Read, false);
-  TEST (pFileIn != 0);
+  TEST(Process::ExecuteSystemCommand("echo 0123456789x> a.txt"));
+  FILE* pFileIn = File::Open("a.txt", FileMode::Open, FileAccess::Read, false);
+  TEST(pFileIn != nullptr);
   PathName pathExe = pSession->GetSpecialPath(SpecialPath::BinDirectory);
-  pathExe += "3-1" MIKTEX_EXE_FILE_SUFFIX;
-  FILE * pFileChildOut;
-  TESTX (Process::Start(pathExe.Get(), 0, pFileIn, 0, &pFileChildOut, 0, 0));
+  pathExe /= "core_process_test3-1" MIKTEX_EXE_FILE_SUFFIX;
+  FILE* pFileChildOut;
+  TESTX(Process::Start(pathExe, { "3-1" }, pFileIn, nullptr, &pFileChildOut, nullptr, nullptr));
   size_t n;
   std::string str;
   char buf[100];
   while ((n = fread(buf, 1, 100, pFileChildOut)) > 0)
-    {
-      str.append (buf, n);
-    }
-  fclose (pFileIn);
-  fclose (pFileChildOut);
+  {
+    str.append(buf, n);
+  }
+  fclose(pFileIn);
+  fclose(pFileChildOut);
 #if defined(MIKTEX_WINDOWS)
-  TEST (str == "0123456789x\r\n");
+  TEST(str == "0123456789x\r\n");
 #else
-  TEST (str == "0123456789x\n");
+  TEST(str == "0123456789x\n");
 #endif
-  TESTX (File::Delete("a.txt"));
+  TESTX(File::Delete("a.txt"));
 }
 END_TEST_FUNCTION();
 
 #if defined(MIKTEX_WINDOWS)
 BEGIN_TEST_FUNCTION(2);
 {
-  TEST (Process::ExecuteSystemCommand("echo 0123456789x> a.txt"));
-  FILE * pFileIn = File::Open("a.txt", FileMode::Open, FileAccess::Read, false);
-  TEST (pFileIn != nullptr);
+  TEST(Process::ExecuteSystemCommand("echo 0123456789x> a.txt"));
+  FILE* pFileIn = File::Open("a.txt", FileMode::Open, FileAccess::Read, false);
+  TEST(pFileIn != nullptr);
   PathName pathExe = pSession->GetSpecialPath(SpecialPath::BinDirectory);
-  pathExe += "3-1" MIKTEX_EXE_FILE_SUFFIX;
-  FILE * pFileChildOut = File::Open("b.txt", FileMode::Create, FileAccess::Write, false);
-  TEST (pFileChildOut != nullptr);
-  ProcessStartInfo psi (pathExe.Get());
+  pathExe /= "core_process_test3-1" MIKTEX_EXE_FILE_SUFFIX;
+  FILE* pFileChildOut = File::Open("b.txt", FileMode::Create, FileAccess::Write, false);
+  TEST(pFileChildOut != nullptr);
+  ProcessStartInfo2 psi(pathExe);
   psi.StandardInput = pFileIn;
   psi.StandardOutput = pFileChildOut;
-  unique_ptr<Process> pProcess (Process::Start(psi));
-  TEST (pProcess->WaitForExit(2000));
-  fclose (pFileIn);
-  fclose (pFileChildOut);
-  std::vector<unsigned char> vec1 (File::ReadAllBytes("a.txt"));
-  std::vector<unsigned char> vec2 (File::ReadAllBytes("b.txt"));
-  TEST (vec1 == vec2);
-  TESTX (File::Delete("a.txt"));
-  TESTX (File::Delete("b.txt"));
+  unique_ptr<Process> pProcess(Process::Start(psi));
+  TEST(pProcess->WaitForExit(2000));
+  fclose(pFileIn);
+  fclose(pFileChildOut);
+  std::vector<unsigned char> vec1(File::ReadAllBytes("a.txt"));
+  std::vector<unsigned char> vec2(File::ReadAllBytes("b.txt"));
+  TEST(vec1 == vec2);
+  TESTX(File::Delete("a.txt"));
+  TESTX(File::Delete("b.txt"));
 }
 END_TEST_FUNCTION();
 #endif
 
 BEGIN_TEST_PROGRAM();
 {
-  CALL_TEST_FUNCTION (1);
+  CALL_TEST_FUNCTION(1);
 #if defined(MIKTEX_WINDOWS)
-  CALL_TEST_FUNCTION (2);
+  CALL_TEST_FUNCTION(2);
 #endif
 }
 END_TEST_PROGRAM();
 
 END_TEST_SCRIPT();
 
-RUN_TEST_SCRIPT ();
+RUN_TEST_SCRIPT();
