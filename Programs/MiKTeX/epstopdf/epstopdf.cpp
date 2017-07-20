@@ -846,6 +846,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
     FatalError("%s", msg.c_str());
   }
 
+  // MIKTEX-TODO: pass argc/argv
   Init(initInfo);
   session = GetSession();
 

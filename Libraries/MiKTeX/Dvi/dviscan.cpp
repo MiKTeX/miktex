@@ -118,6 +118,7 @@ void DviScanner::Run(int argc, const char ** argv)
     throw 1;
   }
 
+  // MIKTEX-TODO: pass argc/argv
   Init(initInfo);
   session = GetSession();
 

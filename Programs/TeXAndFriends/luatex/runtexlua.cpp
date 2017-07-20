@@ -54,6 +54,7 @@ int MAIN(int argc, MAINCHAR** argv)
 {
   try
   {
+    // MIKTEX-TODO: pass argc/argv
     app.Init(TU_(argv[0]));
 
     MIKTEX_ASSERT(argc > 0);

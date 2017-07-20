@@ -2126,6 +2126,7 @@ void McdApp::Run(int argc, const char** argv)
     initInfo.SetTraceFlags(options.traceStreams);
   }
 
+  // MIKTEX-TODO: pass argc/argv
   Init(initInfo);
 
   for (const string& fileName : leftovers)

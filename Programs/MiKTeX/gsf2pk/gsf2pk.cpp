@@ -1477,6 +1477,7 @@ void Converter::Main(int argc, const char * * argv)
     Error(T_("Wrong number of command-line arguments."));
   }
 
+  // MIKTEX-TODO: pass argc/argv
   Init(argv[0]);
   session = GetSession();
 

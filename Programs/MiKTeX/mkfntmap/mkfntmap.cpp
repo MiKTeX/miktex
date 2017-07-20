@@ -568,6 +568,7 @@ void MakeFontMapApp::Init(int argc, const char** argv)
   {
     initInfo.AddOption(Session::InitOption::AdminMode);
   }
+  // MIKTEX-TODO: pass argc/argv
   Application::Init(initInfo);
   session = GetSession();
   if (optAdminMode)

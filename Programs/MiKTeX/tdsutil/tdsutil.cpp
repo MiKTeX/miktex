@@ -169,6 +169,7 @@ void TdsUtility::Run(int argc, const char ** argv)
     }
   }
   
+  // MIKTEX-TODO: pass argc/argv
   Init(initInfo);
   session = GetSession();
 
