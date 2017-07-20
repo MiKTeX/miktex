@@ -1,6 +1,6 @@
-/* 1-2.cpp:
+/* 4.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -25,23 +25,35 @@
 
 #include <string>
 
+#include <miktex/Core/File>
+#include <miktex/Core/PathName>
+#include <miktex/Core/Paths>
+#include <miktex/Core/Process>
+
+using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
 using namespace std;
 
-BEGIN_TEST_SCRIPT("process-1-2");
+BEGIN_TEST_SCRIPT("process-4");
 
 BEGIN_TEST_FUNCTION(1);
 {
-  for (const std::string& arg : vecArgs)
-  {
-    TEST(printf("%s\n", arg.c_str()) == strlen(arg.c_str()) + 1);
-  }
 }
 END_TEST_FUNCTION();
+
+#if defined(MIKTEX_WINDOWS)
+BEGIN_TEST_FUNCTION(2);
+{
+}
+END_TEST_FUNCTION();
+#endif
 
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
+#if defined(MIKTEX_WINDOWS)
+  CALL_TEST_FUNCTION(2);
+#endif
 }
 END_TEST_PROGRAM();
 
