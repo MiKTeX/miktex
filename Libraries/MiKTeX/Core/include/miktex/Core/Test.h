@@ -256,6 +256,7 @@ public:
     }
     catch (const MiKTeX::Core::MiKTeXException& e)
     {
+      fprintf(stderr, "catched MiKTeXException thrown here: %s:%d\n", e.GetSourceFile().c_str(), e.GetSourceLine());
       if (isLog4cxxConfigured)
       {
         LOG4CXX_FATAL(logger, e.what());
@@ -267,6 +268,7 @@ public:
     }
     catch (const std::exception& e)
     {
+      fprintf(stderr, "catched std::exception: %s\n", e.what());
       if (isLog4cxxConfigured)
       {
         LOG4CXX_FATAL(logger, e.what());
@@ -275,7 +277,11 @@ public:
     }
     catch (int code)
     {
-      LOG4CXX_FATAL(logger, "test script failure " << code);
+      fprintf(stderr, "catched int: %d\n", code);
+      if (isLog4cxxConfigured)
+      {
+        LOG4CXX_FATAL(logger, "test script failure " << code);
+      }
       rc = 1;
     }
     return rc;
@@ -376,7 +382,7 @@ const struct poptOption TestScript::optionTable[] = {
   POPT_TABLEEND
 };
 
-#define FAIL() f.iLine = __LINE__; f.strFile = __FILE__; throw (f)
+#define FAIL() f.iLine = __LINE__; f.strFile = __FILE__; throw f
 
 #define TEST(exp)                               \
   LOG4CXX_INFO(logger, "Test: " << #exp);       \
@@ -388,7 +394,7 @@ const struct poptOption TestScript::optionTable[] = {
   {                                             \
     exp;                                        \
   }                                             \
-  catch (const MiKTeX::Core::MiKTeXException &) \
+  catch (const MiKTeX::Core::MiKTeXException&)  \
   {                                             \
     FAIL();                                     \
   }

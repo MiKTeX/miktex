@@ -44,7 +44,7 @@ BEGIN_TEST_FUNCTION(1);
   PathName pathExe = pSession->GetMyLocation(false);
   pathExe /= "core_process_test3-1" MIKTEX_EXE_FILE_SUFFIX;
   FILE* childOut;
-  TESTX(Process::Start(pathExe, { "3-1" }, inFile, nullptr, &childOut, nullptr, nullptr));
+  TESTX(Process::Start(pathExe, { pathExe.ToString() }, inFile, nullptr, &childOut, nullptr, nullptr));
   size_t n;
   string str;
   char buf[100];

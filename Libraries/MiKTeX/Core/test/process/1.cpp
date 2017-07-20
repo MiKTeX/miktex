@@ -39,10 +39,10 @@ BEGIN_TEST_FUNCTION(1);
   PathName pathExe = pSession->GetMyLocation(false);
   pathExe /= "core_process_test1-1" MIKTEX_EXE_FILE_SUFFIX;
   int exitCode;
-  TEST(Process::Run(pathExe, { "1-1", "a.txt" }, nullptr, &exitCode, nullptr));
+  TEST(Process::Run(pathExe, { pathExe.ToString(), "1-1.txt" }, nullptr, &exitCode, nullptr));
   TEST(exitCode == 0);
-  TEST(File::Exists("a.txt"));
-  TESTX(File::Delete("a.txt"));
+  TEST(File::Exists("1-1.txt"));
+  TESTX(File::Delete("1-1.txt"));
 }
 END_TEST_FUNCTION();
 
@@ -54,7 +54,7 @@ BEGIN_TEST_FUNCTION(2);
   pathExe /= "core_process_test1-2" MIKTEX_EXE_FILE_SUFFIX;
   int exitCode;
   ProcessOutput<1024> processOutput;
-  TEST(Process::Run(pathExe, { "1-2", "hello", "world!" }, &processOutput, &exitCode, nullptr));
+  TEST(Process::Run(pathExe, { pathExe.ToString(), "hello", "world!" }, &processOutput, &exitCode, nullptr));
   TEST(exitCode == 0);
   TEST(processOutput.StdoutToString() == "hello\nworld!\n");
 }
