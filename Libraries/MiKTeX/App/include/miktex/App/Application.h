@@ -79,6 +79,9 @@ public:
   virtual MIKTEXAPPTHISAPI(void) Init(const MiKTeX::Core::Session::InitInfo& initInfo);
 
 public:
+  virtual MIKTEXAPPTHISAPI(void) Init(std::vector<const char*>& args);
+
+public:
   virtual MIKTEXAPPTHISAPI(void) Init(std::vector<char*>& args);
 
 public:

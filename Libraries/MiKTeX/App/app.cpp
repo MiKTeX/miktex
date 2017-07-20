@@ -315,6 +315,12 @@ void Application::Init(const Session::InitInfo& initInfoArg)
   AutoMaintenance();
 }
 
+void Application::Init(vector<const char*>& args)
+{
+  MIKTEX_ASSERT(!args.empty() && args.back() != nullptr);
+  Init(Session::InitInfo(args[0]), args);
+}
+
 void Application::Init(vector<char*>& args)
 {
   MIKTEX_ASSERT(!args.empty() && args.back() != nullptr);
