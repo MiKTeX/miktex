@@ -2126,10 +2126,10 @@ void McdApp::Run(int argc, const char** argv)
     initInfo.SetTraceFlags(options.traceStreams);
   }
 
+  Init(initInfo);
+
   for (const string& fileName : leftovers)
   {
-    Init(initInfo);
-
     Verbose(T_("processing %s..."), Q_(fileName));
 
     // See if the file exists.  If it doesn't we're in trouble since, // even though the user may be able to reenter a valid filename at
@@ -2143,9 +2143,9 @@ void McdApp::Run(int argc, const char** argv)
     Driver driver;
     driver.Initialize(this, &options, fileName.c_str());
     driver.Run();
-
-    Finalize();
   }
+
+  Finalize();
 }
 
 #if defined(_UNICODE)
