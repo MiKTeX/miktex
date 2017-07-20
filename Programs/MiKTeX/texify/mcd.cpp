@@ -2156,7 +2156,7 @@ void McdApp::Run(int argc, const char** argv)
 #  define MAINCHAR char
 #endif
 
-int MAIN(int argc, MAINCHAR** argv)
+int MAIN(int argc, MAINCHAR* argv[])
 {
   try
   {
