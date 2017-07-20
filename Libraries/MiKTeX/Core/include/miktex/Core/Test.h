@@ -1,6 +1,6 @@
 /* miktex/Core/test.h: test framework                   -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -107,7 +107,7 @@ private:
   std::vector<MiKTeX::Trace::TraceCallback::TraceMessage> pendingTraceMessages;
 
 public:
-  void MIKTEXTHISCALL Trace(const MiKTeX::Trace::TraceCallback::TraceMessage & traceMessage) override
+  void MIKTEXTHISCALL Trace(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage) override
   {
     if (!isLog4cxxConfigured)
     {
@@ -125,7 +125,7 @@ public:
 private:
   void FlushPendingTraceMessages()
   {
-    for (const MiKTeX::Trace::TraceCallback::TraceMessage & msg : pendingTraceMessages)
+    for (const MiKTeX::Trace::TraceCallback::TraceMessage& msg : pendingTraceMessages)
     {
       TraceInternal(msg);
     }
@@ -133,7 +133,7 @@ private:
   }
 
 private:
-  void TraceInternal(const MiKTeX::Trace::TraceCallback::TraceMessage & traceMessage)
+  void TraceInternal(const MiKTeX::Trace::TraceCallback::TraceMessage& traceMessage)
   {
     log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(std::string("trace.test.") + traceMessage.facility);
 
@@ -157,7 +157,7 @@ protected:
   std::vector<std::string> argv;
 
 public:
-  int Main(int argc, const char **argv)
+  int Main(int argc, const char** argv)
   {
 #if defined(_MSC_VER)
     _setmode(_fileno(stdin), _O_BINARY);
@@ -187,7 +187,7 @@ public:
         ;
       }
     }
-    for (const std::string & arg : popt.GetLeftovers())
+    for (const std::string& arg : popt.GetLeftovers())
     {
       vecArgs.push_back(arg);
     }
@@ -246,7 +246,7 @@ public:
       Run();
       pSession = nullptr;
     }
-    catch (const FAILURE & f)
+    catch (const FAILURE& f)
     {
       if (isLog4cxxConfigured)
       {
@@ -254,7 +254,7 @@ public:
       }
       rc = 1;
     }
-    catch (const MiKTeX::Core::MiKTeXException & e)
+    catch (const MiKTeX::Core::MiKTeXException& e)
     {
       if (isLog4cxxConfigured)
       {
@@ -265,7 +265,7 @@ public:
       }
       rc = 1;
     }
-    catch (const std::exception & e)
+    catch (const std::exception& e)
     {
       if (isLog4cxxConfigured)
       {
@@ -297,14 +297,14 @@ protected:
   virtual void Run() = 0;
 
 protected:
-  bool FindFile(const char * lpszFileName, const char * lpszPathList)
+  bool FindFile(const char* lpszFileName, const char* lpszPathList)
   {
     MiKTeX::Core::PathName path;
     return pSession->FindFile(lpszFileName, lpszPathList, path);
   }
 
 protected:
-  bool RunTestCommand(const char * lpszProgramName)
+  bool RunTestCommand(const char* lpszProgramName)
   {
   std::string commandLine = MiKTeX::Core::PathName(pSession->GetMyLocation(false), lpszProgramName).ToString();
     for (std::vector<std::string>::const_iterator it = argv.begin(); it != argv.end(); ++it)
@@ -318,9 +318,9 @@ protected:
   }
 
 protected:
-  void Touch(const char * lpszPath)
+  void Touch(const char* lpszPath)
   {
-    FILE * pFile;
+    FILE* pFile;
 #if defined(_MSC_VER) && _MSC_VER >= 1400
     if (fopen_s(&pFile, lpszPath, "wb") != 0)
     {
@@ -337,7 +337,7 @@ protected:
   }
 
 protected:
-  void Touch(const MiKTeX::Core::PathName & path)
+  void Touch(const MiKTeX::Core::PathName& path)
   {
     Touch(path.GetData());
   }
@@ -365,32 +365,15 @@ private:
 };
 
 const struct poptOption TestScript::optionTable[] = {
-  { "install-root", 0, POPT_ARG_STRING, 0, (int)Option::InstallRoot,
-    T_("Set the install root directory."), 0},
-  { "data-root", 0, POPT_ARG_STRING, 0, (int)Option::DataRoot,
-    T_("Set the data root directory."), 0},
-  { "root-directories", 0, POPT_ARG_STRING, 0, (int)Option::RootDirectories,
-    T_("Set the root directories."), 0},
-  { "trace", 0, POPT_ARG_STRING, 0, (int)Option::Trace,
-    T_("Set trace flags."), 0},
+  { "install-root", 0, POPT_ARG_STRING, nullptr, (int)Option::InstallRoot,
+    T_("Set the install root directory."), nullptr },
+  { "data-root", 0, POPT_ARG_STRING, nullptr, (int)Option::DataRoot,
+    T_("Set the data root directory."), nullptr },
+  { "root-directories", 0, POPT_ARG_STRING, nullptr, (int)Option::RootDirectories,
+    T_("Set the root directories."), nullptr },
+  { "trace", 0, POPT_ARG_STRING, nullptr, (int)Option::Trace,
+    T_("Set trace flags."), nullptr },
   POPT_TABLEEND
-};
-
-class ProcessOutput : public MiKTeX::Core::IRunProcessCallback
-{
-public:
-  bool MIKTEXTHISCALL OnProcessOutput(const void * ptr, size_t n) override
-  {
-    output.append(reinterpret_cast<const char *>(ptr), n);
-    return true;
-  }
-private:
-  std::string output;
-public:
-  std::string GetOutput() const
-  {
-    return output;
-  }
 };
 
 #define FAIL() f.iLine = __LINE__; f.strFile = __FILE__; throw (f)

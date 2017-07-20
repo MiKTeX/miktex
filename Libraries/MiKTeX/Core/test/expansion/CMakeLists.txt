@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2016 Christian Schenk
+## Copyright (C) 2010-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -39,6 +39,4 @@ target_link_libraries(core_expansion_test1
 add_test(
   NAME core_expansion_test1
   COMMAND $<TARGET_FILE:core_expansion_test1>
-  	--data-root=${dataroot}
-	--install-root=${installroot}
 )

@@ -47,8 +47,6 @@ foreach(t ${tests})
   add_test(
     NAME core_process_test${t}
     COMMAND $<TARGET_FILE:core_process_test${t}>
-        --data-root=${dataroot}
-        --install-root=${installroot}
   )
 endforeach()
 

@@ -38,13 +38,12 @@ BEGIN_TEST_SCRIPT("process-2");
 
 BEGIN_TEST_FUNCTION(1);
 {
-  std::string commandLine;
-  commandLine = "echo 0123456789 > a.txt";
+  string commandLine = "echo 0123456789 > a.txt";
   int exitCode;
-  TEST(MiKTeX::Core::Process::ExecuteSystemCommand(commandLine, &exitCode));
+  TEST(Process::ExecuteSystemCommand(commandLine, &exitCode));
   TEST(exitCode == 0);
-  TEST(MiKTeX::Core::File::Exists("a.txt"));
-  TESTX(MiKTeX::Core::File::Delete("a.txt"));
+  TEST(File::Exists("a.txt"));
+  TESTX(File::Delete("a.txt"));
 }
 END_TEST_FUNCTION();
 
@@ -52,11 +51,10 @@ std::string outputBuffer;
 
 BEGIN_TEST_FUNCTION(2);
 {
-  std::string commandLine;
-  commandLine = "echo 0123456789";
+  string commandLine = "echo 0123456789";
   int exitCode;
-  MiKTeX::Core::ProcessOutput<1024> processOutput;
-  TEST(MiKTeX::Core::Process::ExecuteSystemCommand(commandLine, &exitCode, &processOutput, nullptr));
+  ProcessOutput<1024> processOutput;
+  TEST(Process::ExecuteSystemCommand(commandLine, &exitCode, &processOutput, nullptr));
   TEST(exitCode == 0);
 #if defined(MIKTEX_WINDOWS)
   TEST(processOutput.StdoutToString() == "0123456789\r\n");

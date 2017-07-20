@@ -23,8 +23,6 @@
 
 #include <miktex/Core/Test>
 
-#include <string>
-
 #include <miktex/Core/File>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
@@ -38,7 +36,7 @@ BEGIN_TEST_SCRIPT("process-1");
 
 BEGIN_TEST_FUNCTION(1);
 {
-  PathName pathExe = pSession->GetSpecialPath(SpecialPath::BinDirectory);
+  PathName pathExe = pSession->GetMyLocation(false);
   pathExe /= "core_process_test1-1" MIKTEX_EXE_FILE_SUFFIX;
   int exitCode;
   TEST(Process::Run(pathExe, { "1-1", "a.txt" }, nullptr, &exitCode, nullptr));
@@ -52,17 +50,13 @@ string outputBuffer;
 
 BEGIN_TEST_FUNCTION(2);
 {
-  PathName pathExe = pSession->GetSpecialPath(SpecialPath::BinDirectory);
+  PathName pathExe = pSession->GetMyLocation(false);
   pathExe /= "core_process_test1-2" MIKTEX_EXE_FILE_SUFFIX;
   int exitCode;
-  MiKTeX::Core::ProcessOutput<1024> processOutput;
+  ProcessOutput<1024> processOutput;
   TEST(Process::Run(pathExe, { "1-2", "hello", "world!" }, &processOutput, &exitCode, nullptr));
   TEST(exitCode == 0);
-#if defined(MIKTEX_WINDOWS)
-  TEST(processOutput.StdoutToString() == "hello\r\nworld!\r\n");
-#else
   TEST(processOutput.StdoutToString() == "hello\nworld!\n");
-#endif
 }
 END_TEST_FUNCTION();
 

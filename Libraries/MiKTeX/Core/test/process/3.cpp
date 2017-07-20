@@ -34,27 +34,26 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Test;
 using namespace std;
 
-
 BEGIN_TEST_SCRIPT("process-3");
 
 BEGIN_TEST_FUNCTION(1);
 {
   TEST(Process::ExecuteSystemCommand("echo 0123456789x> a.txt"));
-  FILE* pFileIn = File::Open("a.txt", FileMode::Open, FileAccess::Read, false);
-  TEST(pFileIn != nullptr);
-  PathName pathExe = pSession->GetSpecialPath(SpecialPath::BinDirectory);
+  FILE* inFile = File::Open("a.txt", FileMode::Open, FileAccess::Read, false);
+  TEST(inFile != nullptr);
+  PathName pathExe = pSession->GetMyLocation(false);
   pathExe /= "core_process_test3-1" MIKTEX_EXE_FILE_SUFFIX;
-  FILE* pFileChildOut;
-  TESTX(Process::Start(pathExe, { "3-1" }, pFileIn, nullptr, &pFileChildOut, nullptr, nullptr));
+  FILE* childOut;
+  TESTX(Process::Start(pathExe, { "3-1" }, inFile, nullptr, &childOut, nullptr, nullptr));
   size_t n;
-  std::string str;
+  string str;
   char buf[100];
-  while ((n = fread(buf, 1, 100, pFileChildOut)) > 0)
+  while ((n = fread(buf, 1, 100, childOut)) > 0)
   {
     str.append(buf, n);
   }
-  fclose(pFileIn);
-  fclose(pFileChildOut);
+  fclose(inFile);
+  fclose(childOut);
 #if defined(MIKTEX_WINDOWS)
   TEST(str == "0123456789x\r\n");
 #else
@@ -68,21 +67,21 @@ END_TEST_FUNCTION();
 BEGIN_TEST_FUNCTION(2);
 {
   TEST(Process::ExecuteSystemCommand("echo 0123456789x> a.txt"));
-  FILE* pFileIn = File::Open("a.txt", FileMode::Open, FileAccess::Read, false);
-  TEST(pFileIn != nullptr);
-  PathName pathExe = pSession->GetSpecialPath(SpecialPath::BinDirectory);
+  FILE* inFile = File::Open("a.txt", FileMode::Open, FileAccess::Read, false);
+  TEST(inFile != nullptr);
+  PathName pathExe = pSession->GetMyLocation(false);
   pathExe /= "core_process_test3-1" MIKTEX_EXE_FILE_SUFFIX;
-  FILE* pFileChildOut = File::Open("b.txt", FileMode::Create, FileAccess::Write, false);
-  TEST(pFileChildOut != nullptr);
+  FILE* childOut = File::Open("b.txt", FileMode::Create, FileAccess::Write, false);
+  TEST(childOut != nullptr);
   ProcessStartInfo2 psi(pathExe);
-  psi.StandardInput = pFileIn;
-  psi.StandardOutput = pFileChildOut;
-  unique_ptr<Process> pProcess(Process::Start(psi));
-  TEST(pProcess->WaitForExit(2000));
-  fclose(pFileIn);
-  fclose(pFileChildOut);
-  std::vector<unsigned char> vec1(File::ReadAllBytes("a.txt"));
-  std::vector<unsigned char> vec2(File::ReadAllBytes("b.txt"));
+  psi.StandardInput = inFile;
+  psi.StandardOutput = childOut;
+  unique_ptr<Process> process(Process::Start(psi));
+  TEST(process->WaitForExit(2000));
+  fclose(inFile);
+  fclose(childOut);
+  vector<unsigned char> vec1(File::ReadAllBytes("a.txt"));
+  vector<unsigned char> vec2(File::ReadAllBytes("b.txt"));
   TEST(vec1 == vec2);
   TESTX(File::Delete("a.txt"));
   TESTX(File::Delete("b.txt"));
