@@ -371,12 +371,12 @@ TeXApp::Write18Result TeXApp::Write18(const string& command, int& exitCode) cons
   tie(examineResult, examinedCommand, toBeExecuted) = session->ExamineCommandLine(command);
   if (examineResult == Session::ExamineCommandLineResult::SyntaxError)
   {
-    LogError("command line syntax error: \"" + command + "\"");
+    LogError("command line syntax error: " + command);
     Write18Result::QuotationError;
   }
   if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
   {
-    LogError("command is unsafe: \"" + command + "\"");
+    LogError("command is unsafe: " + command);
     return Write18Result::Disallowed;
   }
   switch (GetShellCommandMode())
@@ -384,21 +384,21 @@ TeXApp::Write18Result TeXApp::Write18(const string& command, int& exitCode) cons
   case ShellCommandMode::Unrestricted:
     break;
   case ShellCommandMode::Forbidden:
-    LogError("command not executed: \"" + command + "\"");
+    LogError("command not executed: " + command);
     MIKTEX_UNEXPECTED();
   case ShellCommandMode::Query:
     // TODO
   case ShellCommandMode::Restricted:
     if (examineResult != Session::ExamineCommandLineResult::ProbablySafe)
     {
-      LogError("command not allowed: \"" + command + "\"");
+      LogError("command not allowed: " + command);
       return Write18Result::Disallowed;
     }
     break;
   default:
     MIKTEX_UNEXPECTED();
   }
-  LogInfo("executing write18 shell command: \"" + toBeExecuted + "\"");
+  LogInfo("executing write18 shell command: " + toBeExecuted);
   Process::ExecuteSystemCommand(toBeExecuted, &exitCode);
   return examineResult == Session::ExamineCommandLineResult::ProbablySafe ? Write18Result::ExecutedAllowed : Write18Result::Executed;
 }

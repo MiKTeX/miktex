@@ -310,12 +310,12 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
     tie(examineResult, examinedCommand, toBeExecuted) = session->ExamineCommandLine(command);
     if (examineResult == Session::ExamineCommandLineResult::SyntaxError)
     {
-      LogError("command line syntax error: \"" + command + "\"");
+      LogError("command line syntax error: " + command);
       return false;
     }
     if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
     {
-      LogError("command is unsafe: \"" + command + "\"");
+      LogError("command is unsafe: " + command);
       return false;
     }
     switch (pimpl->shellCommandMode)
@@ -323,21 +323,21 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
     case ShellCommandMode::Unrestricted:
       break;
     case ShellCommandMode::Forbidden:
-      LogError("command not executed: \"" + command + "\"");
+      LogError("command not executed: " + command);
       return false;
     case ShellCommandMode::Query:
       // TODO
     case ShellCommandMode::Restricted:
       if (examineResult != Session::ExamineCommandLineResult::ProbablySafe)
       {
-        LogError("command not allowed: \"" + command + "\"");
+        LogError("command not allowed: " + command);
         return false;
       }
       break;
     default:
       MIKTEX_UNEXPECTED();
     }
-    LogInfo("executing output pipe: \"" + toBeExecuted + "\"");
+    LogInfo("executing output pipe: " + toBeExecuted);
     file = session->OpenFile(toBeExecuted, FileMode::Command, FileAccess::Write, false);
   }
   else
@@ -402,12 +402,12 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
     tie(examineResult, examinedCommand, toBeExecuted) = session->ExamineCommandLine(command);
     if (examineResult == Session::ExamineCommandLineResult::SyntaxError)
     {
-      LogError("command line syntax error: \"" + command + "\"");
+      LogError("command line syntax error: " + command);
       return false;
     }
     if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
     {
-      LogError("command is unsafe: \"" + command + "\"");
+      LogError("command is unsafe: " + command);
       return false;
     }
     switch (pimpl->shellCommandMode)
@@ -415,21 +415,21 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
     case ShellCommandMode::Unrestricted:
       break;
     case ShellCommandMode::Forbidden:
-      LogError("command not executed: \"" + command + "\"");
+      LogError("command not executed: " + command);
       return false;
     case ShellCommandMode::Query:
       // TODO
     case ShellCommandMode::Restricted:
       if (examineResult != Session::ExamineCommandLineResult::ProbablySafe)
       {
-        LogError("command not allowed: \"" + command + "\"");
+        LogError("command not allowed: " + command);
         return false;
       }
       break;
     default:
       MIKTEX_UNEXPECTED();
     }
-    LogInfo("executing input pipe: \"" + toBeExecuted + "\"");
+    LogInfo("executing input pipe: " + toBeExecuted);
     *ppFile = session->OpenFile(toBeExecuted, FileMode::Command, FileAccess::Read, false);
     pimpl->foundFile.Clear();
     pimpl->foundFileFq.Clear();
