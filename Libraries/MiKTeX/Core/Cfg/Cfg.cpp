@@ -964,7 +964,10 @@ void CfgImpl::PutValue(const string& keyName, const string& valueName, const str
 void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level, bool mustBeSigned, const PathName& publicKeyFile)
 {
   traceStream->WriteFormattedLine("core", T_("parsing: %s..."), path.GetData());
-  std::ifstream reader(path.ToString());
+  AutoRestore<int> autoRestore1(lineno);
+  AutoRestore<PathName> autoRestore(currentFile);
+  std::ifstream reader;
+  reader.open(path.ToString());
   Read(reader, defaultKeyName, level, mustBeSigned, publicKeyFile);
   reader.close();
 }
@@ -979,9 +982,6 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
   }
 
   bool wasEmpty = Empty();
-
-  AutoRestore<int> autoRestore1(lineno);
-  AutoRestore<PathName> autoRestore(currentFile);
 
   string keyName = defaultKeyName;
 
@@ -1078,6 +1078,11 @@ void CfgImpl::Read(std::istream& reader, const string& defaultKeyName, int level
         }
       }
     }
+  }
+
+  if (reader.bad() || reader.fail() && !reader.eof())
+  {
+    FATAL_CFG_ERROR(T_("error reading the configuration file"));
   }
 
   if (mustBeSigned && signature.empty())

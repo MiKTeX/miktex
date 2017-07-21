@@ -56,7 +56,7 @@ int MAIN(int argc, MAINCHAR** argv)
   {
     // build new argv
     vector<string> utf8args;
-    for (int idx = 1; idx < argc; ++idx)
+    for (int idx = 0; idx < argc; ++idx)
     {
       utf8args.push_back(TU_(argv[idx]));
     }
