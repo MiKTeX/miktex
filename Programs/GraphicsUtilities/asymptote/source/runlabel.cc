@@ -155,7 +155,11 @@ array *readpath(const string& psname, bool keep, bool pdf=false,
 #ifdef __MSDOS__
   const string null="NUL";
 #else
+#if defined(MIKTEX_WINDOWS)
+  const string null = "nul";
+#else
   const string null="/dev/null";
+#endif
 #endif
   string epsdriver=getSetting<string>("epsdriver");
   cmd.push_back("-sDEVICE="+epsdriver);

@@ -16,6 +16,9 @@
 #include "errormsg.h"
 #include "array.h"
 #include "stack.h"
+#if defined(MIKTEX_WINDOWS) && defined(__MSDOS__)
+#  include <io.h>
+#endif
 
 using std::ofstream;
 using std::setw;

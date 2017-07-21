@@ -22,13 +22,15 @@
 #include <iostream>
 #include <cstdlib>
 #include <cerrno>
-#if defined(MIKTEX_WINDOWS)
-#else
+#if !defined(MIKTEX_WINDOWS)
 #include <sys/wait.h>
 #endif
 #include <sys/types.h>
 
 #include "common.h"
+#if defined(MIKTEX)
+#  include <miktex/Core/Session>
+#endif
 
 #ifdef HAVE_LIBSIGSEGV
 #include <sigsegv.h>
@@ -186,6 +188,9 @@ int main(int argc, char **argv)
 int main(int argc, char *argv[]) 
 #endif
 {
+#if defined(MIKTEX)
+  MiKTeX::Core::Session::Get()->PushBackAppName("asymptote");
+#endif
 #ifdef HAVE_LIBGSL  
   unsetenv("GSL_RNG_SEED");
   unsetenv("GSL_RNG_TYPE");

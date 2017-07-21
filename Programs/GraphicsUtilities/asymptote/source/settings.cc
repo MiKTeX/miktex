@@ -34,6 +34,10 @@
 #include "refaccess.h"
 #include "pipestream.h"
 #include "array.h"
+#if defined(MIKTEX)
+#  include <miktex/Core/PathName>
+#  include <miktex/Core/Session>
+#endif
 
 #ifdef HAVE_LIBCURSES
 extern "C" {
@@ -83,7 +87,6 @@ const bool havegl=false;
 mode_t mask;
 
 #if defined(MIKTEX)
-// MIKTEX-TODO
 string systemDir;
 #else
 string systemDir=ASYMPTOTE_SYSDIR;
@@ -95,12 +98,12 @@ string defaultEPSdriver="eps2write";
 bool msdos=false;
 string HOME="HOME";
 #if defined(MIKTEX)
-// MIKTEX-TODO
 string docdir;
+const char pathSeparator = MiKTeX::Core::PathName::PathNameDelimiter;
 #else
 string docdir=ASYMPTOTE_DOCDIR;
+const char pathSeparator = ':';
 #endif
-const char pathSeparator=':';
 string defaultPSViewer="gv";
 #ifdef __APPLE__
 string defaultPDFViewer="open";
@@ -1347,7 +1350,6 @@ void setInteractive()
     historyname=string(getPath())+dirsep+"."+suffix+"_history";
   else {
 #if defined(MIKTEX_WINDOWS)
-    // MIKTEX-TODO
     if (mkdir(initdir.c_str()) != 0 && errno != EEXIST)
       cerr << "failed to create directory " + initdir + "." << endl;
 #else
@@ -1388,8 +1390,14 @@ string outname()
 string lookup(const string& symbol) 
 {
 #if defined(MIKTEX)
-  // MIKTEX-TODO
-  return "";
+  if (symbol == "TEXMFMAIN")
+  {
+    return MiKTeX::Core::Session::Get()->GetSpecialPath(MiKTeX::Core::SpecialPath::DistRoot).GetData();
+  }
+  else
+  {
+    return "";
+  }
 #else
   string s;
   mem::vector<string> cmd;

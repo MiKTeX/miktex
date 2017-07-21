@@ -27,6 +27,9 @@
 #include "errormsg.h"
 #include "camperror.h"
 #include "interact.h"
+#if defined(MIKTEX)
+#  include <miktex/Core/PathName>
+#endif
 
 using namespace settings;
 
@@ -87,6 +90,9 @@ char *StrdupMalloc(string s)
 
 string stripDir(string name)
 {
+#if defined(MIKTEX)
+  return MiKTeX::Core::PathName(name.c_str()).GetFileName().GetData();
+#else
   size_t p;
 #ifdef __MSDOS__  
   p=name.rfind('\\');
@@ -95,10 +101,14 @@ string stripDir(string name)
   p=name.rfind('/');
   if(p < string::npos) name.erase(0,p+1);
   return name;
+#endif
 }
 
 string stripFile(string name)
 {
+#if defined(MIKTEX)
+  return MiKTeX::Core::PathName(name.c_str()).GetDirectoryName().GetData();
+#else
   size_t p;
   bool dir=false;
 #ifdef __MSDOS__  
@@ -117,6 +127,7 @@ string stripFile(string name)
   }
   
   return dir ? name : "";
+#endif
 }
   
 string stripExt(string name, const string& ext)

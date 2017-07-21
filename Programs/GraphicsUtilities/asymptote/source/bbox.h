@@ -9,6 +9,12 @@
 #define BBOX_H
 
 #include "pair.h"
+#if defined(MIKTEX) && defined(min)
+#  undef min
+#endif
+#if defined(MIKTEX) && defined(max)
+#  undef max
+#endif
 
 namespace camp {
 

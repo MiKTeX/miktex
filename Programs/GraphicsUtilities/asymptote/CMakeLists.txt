@@ -32,7 +32,20 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+add_definitions(
+  -DUSEGC
+)
+
+if(MIKTEX_NATIVE_WINDOWS AND FALSE)
+  add_definitions(
+    -D__MSDOS__
+  )
+endif()
+
 set(HAVE_GNU_GETOPT_H TRUE)
+set(HAVE_LIBGL TRUE)
+set(HAVE_LIBGLU TRUE)
+set(HAVE_LIBGLUT FALSE)
 set(HAVE_TGAMMA TRUE)
 set(HAVE_UNORDERED_MAP TRUE)
 set(PACKAGE_BUGREPORT "")
@@ -326,7 +339,6 @@ target_link_libraries(${MIKTEX_PREFIX}asy
   PUBLIC
     ${app_dll_name}
     ${core_dll_name}
-    ${kpsemu_dll_name}
 )
 
 target_link_libraries(${MIKTEX_PREFIX}asy
@@ -340,6 +352,14 @@ if(MIKTEX_NATIVE_WINDOWS)
       ${unxemu_dll_name}
       ${utf8wrap_dll_name}
   )
+endif()
+
+if(USE_SYSTEM_OPENGL AND MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}asy PUBLIC opengl32)
+  target_link_libraries(${MIKTEX_PREFIX}asy PUBLIC glu32)
+else()
+  target_link_libraries(${MIKTEX_PREFIX}asy PUBLIC MiKTeX::Imported::OPENGL)
+  target_link_libraries(${MIKTEX_PREFIX}asy PUBLIC MiKTeX::Imported::GLU)
 endif()
 
 if(USE_SYSTEM_ZLIB)

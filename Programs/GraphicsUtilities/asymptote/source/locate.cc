@@ -10,7 +10,10 @@
 #include "settings.h"
 #include "util.h"
 #include "locate.h"
-
+#if defined(MIKTEX)
+#  include <miktex/Core/PathName>
+#  include <miktex/Core/Session>
+#endif
 
   
 namespace settings {
@@ -70,6 +73,13 @@ string locateFile(string id)
   for (file_list_t::iterator leaf = filenames.begin();
        leaf != filenames.end();
        ++leaf) {
+#if defined(MIKTEX)
+    MiKTeX::Core::PathName result;
+    if (MiKTeX::Core::Session::Get()->FindFile(id.c_str(), MiKTeX::Core::FileType::PROGRAMTEXTFILE, result))
+    {
+      return result.GetData();
+    }
+#endif
 #ifdef __MSDOS__
     size_t p;
     while ((p=leaf->find('\\')) < string::npos)

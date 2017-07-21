@@ -532,6 +532,7 @@ option(
 )
 
 if(WITH_ASYMPTOTE AND MIKTEX_NATIVE_WINDOWS)
+  set(USE_SYSTEM_OPENGL TRUE)
   set(WITH_LIBATOMIC_OPS TRUE)
   set(WITH_GC TRUE)
 endif()
@@ -1003,6 +1004,10 @@ if(USE_SYSTEM_MSPACK)
   find_package(MSPACK REQUIRED)
 endif()
 
+if(USE_SYSTEM_OPENGL)
+  find_package(OpenGL REQUIRED)
+endif()
+
 if(USE_SYSTEM_OPENSSL_CRYPTO)
   find_package(OpenSSL REQUIRED)
 endif()
@@ -1041,10 +1046,6 @@ endif()
 
 if(USE_SYSTEM_ZZIP)
   find_package(ZZIP REQUIRED)
-endif()
-
-if(WITH_ASYMPTOTE)
-  find_package(OpenGL REQUIRED)
 endif()
 
 if(NOT MSVC)
@@ -1694,6 +1695,31 @@ if(USE_SYSTEM_MSPACK)
   )
 else()
   add_subdirectory(${MIKTEX_REL_MSPACK_DIR})
+endif()
+
+if(USE_SYSTEM_OPENGL)
+  get_filename_component(suffix ${OPENGL_gl_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::OPENGL SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::OPENGL STATIC IMPORTED)
+  endif()
+  set_target_properties(MiKTeX::Imported::OPENGL
+    PROPERTIES
+      IMPORTED_LOCATION "${OPENGL_gl_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${OPENGL_INCLUDE_DIR}"
+  )
+  get_filename_component(suffix ${OPENGL_glu_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::GLU SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::GLU STATIC IMPORTED)
+  endif()
+  set_target_properties(MiKTeX::Imported::GLU
+    PROPERTIES
+      IMPORTED_LOCATION "${OPENGL_glu_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${OPENGL_INCLUDE_DIR}"
+  )
 endif()
 
 if(USE_SYSTEM_OPENSSL_CRYPTO)

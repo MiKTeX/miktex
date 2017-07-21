@@ -202,6 +202,9 @@ extern int yydebug;
     BREAK = 301,
     CONTINUE = 302,
     RETURN_ = 303,
+#if defined(MIKTEX) && defined(THIS)
+#  undef THIS
+#endif
     THIS = 304,
     EXPLICIT = 305,
     GARBAGE = 306,

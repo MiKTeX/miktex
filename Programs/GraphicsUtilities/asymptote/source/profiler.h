@@ -9,7 +9,7 @@
 #define PROFILER_H
 
 #include <sys/time.h>
-#if defined(MIKTEX_WINDOWS)
+#if defined(MIKTEX_WINDOWSx)
 #include <WinSock2.h>
 #endif
 

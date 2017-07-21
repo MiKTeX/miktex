@@ -7,6 +7,12 @@
 #include <cassert>
 #include "Delaunay.h"
 #include "predicates.h"
+#if defined(MIKTEX) && defined(min)
+#  undef min
+#endif
+#if defined(MIKTEX) && defined(max)
+#  undef max
+#endif
 
 inline double max(double a, double b)
 {
