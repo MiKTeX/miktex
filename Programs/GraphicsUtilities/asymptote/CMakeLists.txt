@@ -32,12 +32,13 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-set(HAVE_TGAMMA 1)
-set(HAVE_UNORDERED_MAP 1)
-set(RETSIGTYPE void)
+set(HAVE_GNU_GETOPT_H TRUE)
+set(HAVE_TGAMMA TRUE)
+set(HAVE_UNORDERED_MAP TRUE)
+set(PACKAGE_BUGREPORT "")
 set(PACKAGE_NAME "miktex-asy")
 set(PACKAGE_VERSION "${MIKTEX_COMP_ORIG_VERSION_STR}")
-set(PACKAGE_BUGREPORT "")
+set(RETSIGTYPE void)
 
 configure_file(
   config.h.cmake

@@ -34,7 +34,7 @@
 #cmakedefine HAVE_FSEEKO 1
 
 /* Define if getopt.h is the GNU version */
-#cmakedefine HAVE_GNU_GETOPT_H
+#cmakedefine HAVE_GNU_GETOPT_H 1
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #cmakedefine HAVE_INTTYPES_H 1

@@ -1387,6 +1387,10 @@ string outname()
 
 string lookup(const string& symbol) 
 {
+#if defined(MIKTEX)
+  // MIKTEX-TODO
+  return "";
+#else
   string s;
   mem::vector<string> cmd;
   string kpsewhich="kpsewhich";
@@ -1404,6 +1408,7 @@ string lookup(const string& symbol)
   if(n != string::npos)
     s.erase(n,1);
   return s;
+#endif
 }
 
 void initDir() {
