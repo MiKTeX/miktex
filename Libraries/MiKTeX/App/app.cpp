@@ -27,6 +27,7 @@
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace std;
 using namespace std::string_literals;
@@ -70,7 +71,7 @@ Application* Application::GetApplication()
   return instance;
 }
 
-class Application::impl
+class Impl
 {
 public:
   set<string> ignoredPackages;
@@ -94,6 +95,11 @@ public:
   bool isLog4cxxConfigured = false;
 public:
   string commandLine;
+};
+
+class Application::impl : public Impl
+{
+
 };
 
 Application::Application() :
@@ -133,7 +139,7 @@ void InstallSignalHandler(int sig)
   }
 }
 
-template<typename T> void ExamineArgs(vector<T>& args, Session::InitInfo& initInfo, Application::impl* pimpl)
+template<typename T> void ExamineArgs(vector<T>& args, Session::InitInfo& initInfo, Impl* pimpl)
 {
   CommandLineBuilder commandLine;
   auto it = args.begin();
