@@ -45,21 +45,24 @@ BEGIN_TEST_FUNCTION(1);
   pathExe /= "core_process_test3-1" MIKTEX_EXE_FILE_SUFFIX;
   FILE* childOut;
   TESTX(Process::Start(pathExe, { pathExe.ToString() }, inFile, nullptr, &childOut, nullptr, nullptr));
+  fclose(inFile);
   size_t n;
   string str;
   char buf[100];
   while ((n = fread(buf, 1, 100, childOut)) > 0)
   {
     str.append(buf, n);
-  }
-  fclose(inFile);
+  }  
   fclose(childOut);
 #if defined(MIKTEX_WINDOWS)
   TEST(str == "0123456789x\r\n");
 #else
   TEST(str == "0123456789x\n");
 #endif
+#if !defined(MIKTEX_WINDOWS)
+  // this may fail on Windows
   TESTX(File::Delete("a.txt"));
+#endif
 }
 END_TEST_FUNCTION();
 
