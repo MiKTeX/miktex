@@ -55,6 +55,9 @@ public:
   void Close() override;
 
 public:
+  int GetSystemId() override;
+
+public:
   std::unique_ptr<MiKTeX::Core::Process> get_Parent() override;
 
 public:

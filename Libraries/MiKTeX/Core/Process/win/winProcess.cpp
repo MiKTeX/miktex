@@ -342,7 +342,10 @@ void winProcess::Close()
   {
     processStarted = false;
     CloseHandle(processInformation.hProcess);
-    CloseHandle(processInformation.hThread);
+    if (processInformation.hThread != nullptr)
+    {
+      CloseHandle(processInformation.hThread);
+    }
   }
 }
 
@@ -513,6 +516,22 @@ unique_ptr<Process> Process::GetCurrentProcess()
   return unique_ptr<Process>(pCurrentProcess.release());
 }
 
+unique_ptr<Process> Process::GetProcess(int systemId)
+{
+  HANDLE handle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, systemId);
+  if (handle == nullptr)
+  {
+    return nullptr;
+  }
+  unique_ptr<winProcess> process = make_unique<winProcess>();
+  process->processStarted = true;
+  process->processInformation.hProcess = handle;
+  process->processInformation.hThread = nullptr;
+  process->processInformation.dwProcessId = systemId;
+  process->processInformation.dwThreadId = -1;
+  return unique_ptr<Process>(process.release());
+}
+
 bool winProcess::TryGetProcessEntry(DWORD processId, PROCESSENTRY32W& result)
 {
   HANDLE snapshotHandle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -599,4 +618,9 @@ string winProcess::get_ProcessName()
   }
   PathName exePath(processEntry.szExeFile);
   return exePath.GetFileNameWithoutExtension().GetData();
+}
+
+int winProcess::GetSystemId()
+{
+  return processInformation.dwProcessId;
 }

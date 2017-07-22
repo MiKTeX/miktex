@@ -530,6 +530,17 @@ unique_ptr<Process> Process::GetCurrentProcess()
   return unique_ptr<Process>(currentProcess.release());
 }
 
+unique_ptr<Process> Process::GetProcess(int systemId)
+{
+  unique_ptr<unxProcess> currentProcess = make_unique<unxProcess>();
+  if (kill(systemId, 0) != 0)
+  {
+    return nullptr;
+  }
+  currentProcess->pid = systemId;
+  return unique_ptr<Process>(currentProcess.release());
+}
+
 unique_ptr<Process> unxProcess::get_Parent()
 {
 #if defined(__linux__)
@@ -588,4 +599,9 @@ string unxProcess::get_ProcessName()
 #else
   return "?";
 #endif
+}
+
+int unxProcess::GetSystemId()
+{
+  return this->pid;
 }

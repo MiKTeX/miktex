@@ -188,6 +188,9 @@ public:
   virtual void MIKTEXTHISCALL Close() = 0;
 
 public:
+  virtual int MIKTEXTHISCALL GetSystemId() = 0;
+
+public:
   virtual std::unique_ptr<Process> MIKTEXTHISCALL get_Parent() = 0;
 
 public:
@@ -195,6 +198,9 @@ public:
 
 public:
   static MIKTEXCORECEEAPI(std::unique_ptr<Process>) GetCurrentProcess();
+
+public:
+  static MIKTEXCORECEEAPI(std::unique_ptr<Process>) GetProcess(int systemId);
 
 public:
   static MIKTEXCORECEEAPI(std::vector<std::string>) GetInvokerNames();

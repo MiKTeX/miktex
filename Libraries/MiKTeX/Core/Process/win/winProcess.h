@@ -52,6 +52,9 @@ public:
   void MIKTEXTHISCALL Close() override;
 
 public:
+  int MIKTEXTHISCALL GetSystemId() override;
+
+public:
   std::unique_ptr<MiKTeX::Core::Process> MIKTEXTHISCALL get_Parent() override;
 
 public:
