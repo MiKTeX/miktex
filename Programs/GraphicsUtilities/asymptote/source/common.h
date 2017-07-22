@@ -77,7 +77,9 @@ typedef unsigned int unsignedInt;
 
 #define int_MIN LONG_MIN
 
+#if !defined(MIKTEX_WINDOWS)
 #define RANDOM_MAX 0x7FFFFFFF
+#endif
 
 using std::cout;
 using std::cin;

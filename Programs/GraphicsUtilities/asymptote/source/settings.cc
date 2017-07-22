@@ -85,7 +85,7 @@ const bool havegl=false;
 #endif
   
 mode_t mask;
-
+  
 #if defined(MIKTEX)
 string systemDir;
 #else
@@ -102,7 +102,7 @@ string docdir;
 const char pathSeparator = MiKTeX::Core::PathName::PathNameDelimiter;
 #else
 string docdir=ASYMPTOTE_DOCDIR;
-const char pathSeparator = ':';
+const char pathSeparator=':';
 #endif
 string defaultPSViewer="gv";
 #ifdef __APPLE__

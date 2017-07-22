@@ -1,6 +1,6 @@
 /* unxemu.cpp:
 
-   Copyright (C) 2007-2016 Christian Schenk
+   Copyright (C) 2007-2017 Christian Schenk
 
    This file is part of the MiKTeX UNXEMU Library.
 
@@ -163,4 +163,43 @@ MIKTEXUNXCEEAPI(int) miktex_gettimeofday(struct timeval * ptv, void * pNull)
   ptv->tv_sec = static_cast<long>(mktime(&tm));
   ptv->tv_usec = systemTime.wMilliseconds;
   return 0;
+}
+
+// derived from glibc 2.3.6 libc/sysdeps/posix/tempname.c
+// Copyright (C) 1991-1999, 2000, 2001 Free Software Foundation, Inc.
+MIKTEXUNXCEEAPI(int) miktex_mkstemp(char* tmpl)
+{
+  size_t len = strlen(tmpl);
+  if (len < 6 || strcmp(&tmpl[len - 6], "XXXXXX") != 0)
+  {
+    // TODO
+    return -1;
+  }
+  char* XXXXXX = &tmpl[len - 6];
+  static const char letters[] = "abcdefghijklmnopqrstuvwxyz0123456789";
+  const int lettercount = sizeof(letters) - 1;
+  const int maxrounds = 1000;
+  int fd;
+  uint64_t value = time(nullptr);
+  for (int count = 0; count < maxrounds; ++count, value += 7777)
+  {
+    uint64_t v = value;
+    for (int idx = 0; idx < 6; ++idx)
+    {
+      XXXXXX[idx] = letters[v % lettercount];
+      v /= lettercount;
+    }
+    fd = _open(tmpl, O_RDWR | O_CREAT | O_EXCL);
+    if (fd >= 0)
+    {
+      return fd;
+    }
+    else if (fd != EEXIST)
+    {
+      // TODO
+      return -1;
+    }
+  }
+  // TODO
+  return -1;
 }

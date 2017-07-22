@@ -190,6 +190,13 @@ int main(int argc, char *argv[])
 {
 #if defined(MIKTEX)
   MiKTeX::Core::Session::Get()->PushBackAppName("asymptote");
+  MiKTeX::Core::PathName plainAsy;
+  if (!MiKTeX::Core::Session::Get()->FindFile("plain.asy", MiKTeX::Core::FileType::PROGRAMTEXTFILE, plainAsy))
+  {
+    cerr
+      << "warning: package 'asymptote' is not installed\n"
+      << "         run 'mpm --install asymptote' to install it\n";
+  }
 #endif
 #ifdef HAVE_LIBGSL  
   unsetenv("GSL_RNG_SEED");

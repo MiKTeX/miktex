@@ -876,7 +876,12 @@ void base_venv(venv &ve)
   addConstant<double>(ve, DBL_MIN, primReal(), SYM(realMin));
   addConstant<double>(ve, DBL_EPSILON, primReal(), SYM(realEpsilon));
   addConstant<Int>(ve, DBL_DIG, primInt(), SYM(realDigits));
+#if defined(MIKTEX_WINDOWS)
+  // MIKTEX-TODO
+  addConstant<Int>(ve, RAND_MAX, primInt(), SYM(randMax));
+#else
   addConstant<Int>(ve, RANDOM_MAX, primInt(), SYM(randMax));
+#endif
   addConstant<double>(ve, PI, primReal(), SYM(pi));
   addConstant<string>(ve, string(REVISION),primString(),SYM(VERSION));
 

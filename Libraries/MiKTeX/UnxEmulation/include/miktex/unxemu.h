@@ -135,6 +135,19 @@ static inline FILE* popen(const char* command, const char* mode)
 }
 #endif
 
+/* stdlib.h */
+
+MIKTEX_EXTERN_C MIKTEXUNXCEEAPI(int) miktex_mkstemp(char* tmpl);
+
+#if !HAVE_MKSTEMP && !defined(mkstemp)
+#undef HAVE_MKSTEMP
+#define HAVE_MKSTEMP 1
+static inline int mkstemp(char* tmpl)
+{
+  return miktex_mkstemp(tmpl);
+}
+#endif
+
 /* strings.h */
 
 MIKTEX_EXTERN_C MIKTEXUNXCEEAPI(int) miktex_strncasecmp(const char* lpsz1, const char* lpsz2, size_t n);

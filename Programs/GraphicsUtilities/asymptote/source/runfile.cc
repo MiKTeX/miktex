@@ -580,12 +580,7 @@ void gen_runfile43(stack *Stack)
   string s=vm::pop<string>(Stack);
 #line 352 "runfile.in"
   char *S=Strdup(s+"XXXXXX");
-#if defined(MIKTEX_WINDOWS)
-  // MIKTEX-TODO
-  int fd = -1;
-#else
   int fd=mkstemp(S);
-#endif
   if(fd < 0) {
     ostringstream buf;
     buf << "Could not create unique temporary filename based on " << s;

@@ -222,7 +222,7 @@ void gen_runmath7(stack *Stack)
 #line 120 "runmath.in"                         
 #if defined(MIKTEX_WINDOWS)
   // MIKTEX-TODO
-  {Stack->push<real>(((real)rand()) / RANDOM_MAX); return; }
+  {Stack->push<real>(((real)rand()) / RAND_MAX); return; }
 #else
   {Stack->push<real>(((real) random())/RANDOM_MAX); return;}
 #endif

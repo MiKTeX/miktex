@@ -32,9 +32,13 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_definitions(
-  -DUSEGC
-)
+set(use_gc FALSE)
+
+if(use_gc)
+  add_definitions(
+    -DUSEGC
+  )
+endif()
 
 if(MIKTEX_NATIVE_WINDOWS AND FALSE)
   add_definitions(
@@ -341,10 +345,12 @@ target_link_libraries(${MIKTEX_PREFIX}asy
     ${core_dll_name}
 )
 
-target_link_libraries(${MIKTEX_PREFIX}asy
-  PUBLIC
-    ${gc_lib_name}
-)
+if(use_gc)
+  target_link_libraries(${MIKTEX_PREFIX}asy
+    PUBLIC
+      ${gc_lib_name}
+  )
+endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${MIKTEX_PREFIX}asy
