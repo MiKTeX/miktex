@@ -1525,10 +1525,7 @@ vector<FileLink> miktexFileLinks =
   { "cjklatex" MIKTEX_EXE_FILE_SUFFIX, { "bg5pluslatex", "bg5pluspdflatex", "bg5latex", "bg5pdflatex", "bg5platex", "bg5ppdflatex", "cef5latex", "cef5pdflatex", "ceflatex", "cefpdflatex", "cefslatex", "cefspdflatex", "gbklatex", "gbkpdflatex", "sjislatex", "sjispdflatex" } },
 
   { MIKTEX_AFM2TFM_EXE, { "afm2tfm" } },
-  // TODO
-#if 0
   { MIKTEX_ASY_EXE, { "asy" } },
-#endif
   { MIKTEX_AUTOSP_EXE, { "autosp" } },
   { MIKTEX_AXOHELP_EXE,{ "axohelp" } },
   { MIKTEX_BG5CONV_EXE, { "bg5conv" } },

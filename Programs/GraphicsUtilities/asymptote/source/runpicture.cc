@@ -19,6 +19,10 @@
  *****/
 
 #line 1 "runtimebase.in"
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_UTF8_WRAP_ALL 1
+#  include <miktex/utf8wrap.h>
+#endif
 #include "stack.h"
 #include "types.h"
 #include "builtin.h"
@@ -819,8 +823,8 @@ void gen_runpicture45(stack *Stack)
     (unsigned)256);
 #else
   static long arg_max=sysconf(_SC_ARG_MAX);
-  const unsigned maxargs = ::min(arg_max / (prefix.size() + xformat.size() + 25ul),
-    256ul);
+  const unsigned maxargs=::min(arg_max/(prefix.size()+xformat.size()+25ul),
+                               256ul);
 #endif
   openpipeout();
 

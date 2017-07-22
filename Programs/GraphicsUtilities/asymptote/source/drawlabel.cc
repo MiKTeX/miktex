@@ -71,7 +71,7 @@ inline double urand()
   static const double factor = 2.0 / RAND_MAX;
   return rand() * factor - 1.0;
 #else
-  static const double factor = 2.0 / RANDOM_MAX;
+  static const double factor=2.0/RANDOM_MAX;
   return random()*factor-1.0;
 #endif
 }

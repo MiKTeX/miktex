@@ -18,13 +18,7 @@
 #include "angle.h"
 #include "pair.h"
 #if defined(MIKTEX)
-#include <algorithm>
-#if defined(MIKTEX) && defined(min)
-#  undef min
-#endif
-#if defined(MIKTEX) && defined(max)
-#  undef max
-#endif
+#  include <algorithm>
 #endif
 
 namespace run {

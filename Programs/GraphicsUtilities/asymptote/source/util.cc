@@ -5,6 +5,10 @@
  * A place for useful utility functions.
  *****/
 
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_UTF8_WRAP_ALL 1
+#  include <miktex/utf8wrap.h>
+#endif
 #include <cassert>
 #include <iostream>
 #include <cstdio>
@@ -29,6 +33,7 @@
 #include "interact.h"
 #if defined(MIKTEX)
 #  include <miktex/Core/PathName>
+#  include <miktex/Core/Process>
 #endif
 
 using namespace settings;
@@ -202,7 +207,7 @@ sighandler_t Signal(int signum, sighandler_t handler)
 {
 #if defined(MIKTEX_WINDOWS)
   // MIKTEX-TODO
-  return SIG_ERR;
+  return signal(signum, handler);
 #else
   struct sigaction action,oldaction;
   action.sa_handler=handler;
@@ -276,7 +281,28 @@ int System(const mem::vector<string> &command, int quiet, bool wait,
 {
 #if defined(MIKTEX_WINDOWS)
   // MIKTEX-TODO
-  return -1;
+  MiKTeX::Core::ProcessStartInfo startInfo;
+  startInfo.FileName = command[0];
+  startInfo.Arguments = command;
+  if (quiet > 0)
+  {
+    startInfo.RedirectStandardOutput = true;
+  }
+  if (quiet > 1)
+  {
+    startInfo.RedirectStandardError = true;
+  }
+  std::unique_ptr<MiKTeX::Core::Process> process = MiKTeX::Core::Process::Start(startInfo);
+  if (ppid != nullptr)
+  {
+    *ppid = process->GetSystemId();
+  }
+  if (!wait)
+  {
+    return 0;
+  }
+  process->WaitForExit();
+  return process->get_ExitCode();
 #else
   int status;
 
@@ -284,7 +310,6 @@ int System(const mem::vector<string> &command, int quiet, bool wait,
     
   char **argv=args(command);
 
-  int pid = -1;
   int pid=fork();
   if(pid == -1)
     camp::reportError("Cannot fork process");

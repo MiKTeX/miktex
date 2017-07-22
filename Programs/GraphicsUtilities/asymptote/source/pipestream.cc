@@ -31,12 +31,15 @@
 #include "lexical.h"
 #include "camperror.h"
 #include "pen.h"
+#if defined(MIKTEX_WINDOWS)
+#  include <miktex/Core/Exceptions>
+#endif
 
 void iopipestream::open(const mem::vector<string> &command, const char *hint,
                         const char *application, int out_fileno)
 {
 #if defined(MIKTEX_WINDOWS)
-  // // MIKTEX-TODO
+  pipeStream.Open(command[0], command);
 #else
   if(pipe(in) == -1) {
     ostringstream buf;
@@ -78,42 +81,48 @@ void iopipestream::open(const mem::vector<string> &command, const char *hint,
   }
   close(out[1]);
   close(in[0]);
+#endif
   *buffer=0;
   pipeopen=true;
   pipein=true;
   Running=true;
   block(false,true);
-#endif
 }
 
 void iopipestream::eof()
 {
   if(pipeopen && pipein) {
+#if defined(MIKTEX_WINDOWS)
+    pipeStream.CloseIn();
+#else
     close(in[1]);
+#endif
     pipein=false;
   }
 }
 
 void iopipestream::pipeclose()
 {
-#if defined(MIKTEX_WINDOWS)
-  // // MIKTEX-TODO
-#else
   if(pipeopen) {
+#if defined(MIKTEX_WINDOWS)
+    pipeStream.Close();
+#else
     kill(pid,SIGTERM);
     eof();
     close(out[0]);
+#endif
     Running=false;
     pipeopen=false;
+#if !defined(MIKTEX_WINDOWS)
     waitpid(pid,NULL,0); // Avoid zombies.
-  }
 #endif
+  }
 }
 
 void iopipestream::block(bool write, bool read)
 {
 #if defined(MIKTEX_WINDOWS)
-  // // MIKTEX-TODO
+  // MIKTEX-TODO
 #else
   if(pipeopen) {
     int w=fcntl(in[1],F_GETFL);
@@ -126,24 +135,29 @@ void iopipestream::block(bool write, bool read)
 
 ssize_t iopipestream::readbuffer()
 {
-#if defined(MIKTEX_WINDOWS)
-  // // MIKTEX-TODO
-  return -1;
-#else
   ssize_t nc;
   char *p=buffer;
   ssize_t size=BUFSIZE-1;
   errno=0;
   for(;;) {
+#if defined(MIKTEX_WINDOWS)
+    nc = pipeStream.Read(p, size);
+#else
     if((nc=read(out[0],p,size)) < 0) {
       if(errno == EAGAIN) {p[0]=0; break;}
       else camp::reportError("read from pipe failed");
       nc=0;
     }
+#endif
     p[nc]=0;
     if(nc == 0) {
+#if defined(MIKTEX_WINDOWS)
+      pipeStream.Close();
+      Running = false;
+#else
       if(waitpid(pid,NULL,WNOHANG) == pid)
         Running=false;
+#endif
       break;
     }
     if(nc > 0) {
@@ -152,7 +166,6 @@ ssize_t iopipestream::readbuffer()
     }
   }
   return nc;
-#endif
 }
 
 bool iopipestream::tailequals(const char *buf, size_t len, const char *prompt,
@@ -195,8 +208,7 @@ void iopipestream::wait(const char *prompt)
 int iopipestream::wait()
 {
 #if defined(MIKTEX_WINDOWS)
-  // TODO
-  return -1;
+  return pipeStream.Wait();
 #else
   for(;;) {
     int status;
@@ -223,7 +235,11 @@ void iopipestream::Write(const string &s)
 {
   ssize_t size=s.length();
   if(settings::verbose > 2) cerr << s;
+#if defined(MIKTEX_WINDOWS)
+  pipeStream.Write(s.c_str(), size);
+#else
   if(write(in[1],s.c_str(),size) != size) {
     camp::reportFatal("write to pipe failed");
   }
+#endif
 }

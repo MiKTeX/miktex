@@ -123,12 +123,12 @@ static bool initializeRandom=true;
 void Srand(Int seed)
 { 
   initializeRandom=false;
-  const int n=256;
-  static char state[n];
 #if defined(MIKTEX)
   // MIKTEX-TODO
-  srand(intcast(seed));
+  srand(unsignedIntcast(seed));
 #else
+  const int n=256;
+  static char state[n];
   initstate(intcast(seed),state,n);
 #endif
 }  
@@ -399,7 +399,7 @@ void gen_runmath24(stack *Stack)
   {Stack->push<real>(tgamma(x)); return;}
 #else
   real lg = lgamma(x);
-  {Stack->push<real>(signgam*exp(lg)); return; }
+  {Stack->push<real>(signgam*exp(lg)); return;}
 #endif
 }
 

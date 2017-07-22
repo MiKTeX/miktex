@@ -28,6 +28,10 @@
 #include "errormsg.h"
 #include "util.h"
 #include "process.h"
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Util/CharBuffer>
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#endif
 
 namespace vm {
 extern bool indebugger;  
@@ -356,13 +360,25 @@ public:
     } else {
       if(mode & std::ios::out)
         name=outpath(name);
+#if defined(MIKTEX_WINDOWS)
+      stream = fstream = new std::fstream(UW_(name.c_str()), mode);
+#else
       stream=fstream=new std::fstream(name.c_str(),mode);
+#endif
       if(mode & std::ios::out) {
         if(error()) {
           delete fstream;
+#if defined(MIKTEX_WINDOWS)
+          std::ofstream f(UW_(name.c_str()));
+#else
           std::ofstream f(name.c_str());
+#endif
           f.close();
+#if defined(MIKTEX_WINDOWS)
+          stream = fstream = new std::fstream(UW_(name.c_str()), mode);
+#else
           stream=fstream=new std::fstream(name.c_str(),mode);
+#endif
         }
       }
       index=processData().ifile.add(fstream);

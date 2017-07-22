@@ -28,14 +28,19 @@
 
 #include "common.h"
 #if defined(MIKTEX_WINDOWS)
+#include <miktex/PipeStream.h>
 typedef int ssize_t;
 #endif
 
 // bidirectional stream for reading and writing to pipes
 class iopipestream {
 protected:
+#if defined(MIKTEX_WINDOWS)
+  MiKTeX::Aymptote::PipeStream pipeStream;
+#else
   int in[2];
   int out[2];
+#endif
   static const int BUFSIZE=SHRT_MAX;
   char buffer[BUFSIZE];
   string sbuffer;

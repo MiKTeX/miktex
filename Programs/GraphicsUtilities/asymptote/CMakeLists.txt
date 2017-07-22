@@ -27,6 +27,14 @@ add_definitions(
   -Dmain=Main
 )
 
+if(MSVC)
+  add_definitions(
+    -DNOMINMAX
+    -DUNICODE
+    -D_UNICODE
+  )
+endif()  
+
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -322,8 +330,9 @@ set(asy_sources
   ${MIKTEX_LIBRARY_WRAPPER}
   ${corefiles}
   ${header_files}
-  revision.cc
+  miktex/PipeStream.h
   source/main.cc
+  source/revision.cc
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

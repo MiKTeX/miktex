@@ -4,6 +4,10 @@
  *
  *****/
 
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_UTF8_WRAP_ALL 1
+#  include <miktex/utf8wrap.h>
+#endif
 #include <fstream>
 #include <sstream>
 
@@ -14,6 +18,8 @@
 #endif
 #if defined(MIKTEX_WINDOWS)
 #  include <miktex/unxemu.h>
+#  include <miktex/Util/CharBuffer>
+#  define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 #endif
 
 #include "interact.h"
@@ -116,7 +122,11 @@ absyntax::file *parseFile(const string& filename,
   debug(false); 
 
   std::filebuf filebuf;
+#if defined(MIKTEX_WINDOWS)
+  if (!filebuf.open(UW_(file.c_str()), std::ios::in))
+#else
   if(!filebuf.open(file.c_str(),std::ios::in))
+#endif
     error(filename);
   
 #ifdef HAVE_SYS_STAT_H

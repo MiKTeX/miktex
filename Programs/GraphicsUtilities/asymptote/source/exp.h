@@ -1005,6 +1005,9 @@ class specExp : public exp {
   camp::side s;
 
 public:
+#if defined(MIKTEX) && defined(OUT)
+#  undef OUT
+#endif
   specExp(position pos, symbol op, exp *arg, camp::side s=camp::OUT)
     : exp(pos), op(op), arg(arg), s(s) {}
 

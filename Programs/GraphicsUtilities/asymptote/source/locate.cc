@@ -5,6 +5,10 @@
  * Locate files in search path.
  *****/
 
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_UTF8_WRAP_ALL 1
+#  include <miktex/utf8wrap.h>
+#endif
 #include <unistd.h>
 
 #include "settings.h"

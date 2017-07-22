@@ -40,6 +40,9 @@
 #include "triple.h"
 #include "callable.h"
 #include "opsymbols.h"
+#if defined(MIKTEX_WINDOWS)
+#  include <Windows.h>
+#endif
 
 using vm::stack;
 using vm::error;
@@ -1054,7 +1057,7 @@ void gen_runtime80(stack *Stack)
   // MIKTEX-TODO
   _sleep(microseconds);
 #else
-  usleep((unsigned long) microseconds);
+  usleep((unsigned long) microseconds); 
 #endif
 }
 
@@ -1498,6 +1501,38 @@ void gen_runtime112(stack *Stack)
 {
 #if defined(MIKTEX_WINDOWS)
   // MIKTEX-TODO
+  HINSTANCE hinstKernel;
+  hinstKernel = LoadLibraryW(L"kernel32.dll");
+  if (hinstKernel == nullptr)
+  {
+    return;
+  }
+  FARPROC pfGetProcessTimes;
+  pfGetProcessTimes = GetProcAddress(hinstKernel, "GetProcessTimes");
+  if (pfGetProcessTimes == nullptr)
+  {
+    return;
+}
+  FILETIME ftCreate, ftExit, ftKernel, ftUser;
+  if (!GetProcessTimes(GetCurrentProcess(), &ftCreate, &ftExit, &ftKernel, &ftUser))
+  {
+    return;
+  }
+  LARGE_INTEGER tUser64;
+  LARGE_INTEGER tKernel64;
+  DWORD tUser, tKernel;
+  tUser64.LowPart = ftUser.dwLowDateTime;
+  tUser64.HighPart = ftUser.dwHighDateTime;
+  tKernel64.LowPart = ftKernel.dwLowDateTime;
+  tKernel64.HighPart = ftKernel.dwHighDateTime;
+  tUser = static_cast<DWORD>(tUser64.QuadPart / 10000);
+  tKernel = static_cast<DWORD>(tKernel64.QuadPart / 10000);
+  array *t = new array(4);
+  (*t)[0] = tUser;
+  (*t)[1] = tKernel;
+  (*t)[2] = 0;
+  (*t)[3] = 0;
+  {Stack->push<realarray*>(t); return; }
 #else
 #line 1022 "runtime.in"
   static const real ticktime=1.0/sysconf(_SC_CLK_TCK);

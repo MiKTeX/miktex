@@ -5,6 +5,10 @@
  * Declares a list of global variables that act as settings in the system.
  *****/
 
+#if defined(MIKTEX_WINDOWS)
+#  define MIKTEX_UTF8_WRAP_ALL 1
+#  include <miktex/utf8wrap.h>
+#endif
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
@@ -36,6 +40,7 @@
 #include "array.h"
 #if defined(MIKTEX)
 #  include <miktex/Core/PathName>
+#  include <miktex/Core/Paths>
 #  include <miktex/Core/Session>
 #endif
 
@@ -108,9 +113,17 @@ string defaultPSViewer="gv";
 #ifdef __APPLE__
 string defaultPDFViewer="open";
 #else  
+#if defined(MIKTEX_WINDOWS)
+string defaultPDFViewer = MIKTEX_TEXWORKS_EXE;
+#else
 string defaultPDFViewer="acroread";
+#endif
 #endif  
+#if defined(MIKTEX_WINDOWS)
+string defaultGhostscript = MIKTEX_GS_EXE;
+#else
 string defaultGhostscript="gs";
+#endif
 string defaultGhostscriptLibrary="/usr/lib/libgs.so";
 string defaultDisplay="display";
 string defaultAnimate="animate";

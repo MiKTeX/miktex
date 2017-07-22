@@ -92,7 +92,7 @@ int numArgs();
 char *getArg(int n);
  
 Int getScroll();
-
+  
 #if defined(MIKTEX_WINDOWS)
 typedef int mode_t;
 #endif

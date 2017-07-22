@@ -3,7 +3,6 @@
 #  include <io.h>
 #  undef eof
 #endif
-
 #line 2 "lex.yy.cc"
 
 #line 4 "lex.yy.cc"

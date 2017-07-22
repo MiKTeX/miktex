@@ -23,6 +23,10 @@
 #include "psfile.h"
 #include "settings.h"
 #include "process.h"
+#if defined(MIKTEX_WINDOWS)
+#include <miktex/Util/CharBuffer>
+#define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
+#endif
 
 namespace camp {
 
@@ -126,7 +130,11 @@ void texdefines(T& out, mem::list<string>& preamble=processData().TeXpreamble,
   if(pipe) {
     // Make tex pipe aware of a previously generated aux file.
     string name=auxname(settings::outname(),"aux");
+#if defined(MIKTEX_WINDOWS)
+    std::ifstream fin(UW_(name.c_str()));
+#else
     std::ifstream fin(name.c_str());
+#endif
     if(fin) {
       std::ofstream fout("texput.aux");
       string s;
