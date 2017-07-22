@@ -175,21 +175,18 @@ MIKTEXUNXCEEAPI(int) miktex_mkstemp(char* tmpl)
     // TODO
     return -1;
   }
-  char* XXXXXX = &tmpl[len - 6];
-  static const char letters[] = "abcdefghijklmnopqrstuvwxyz0123456789";
+  char* const XXXXXX = &tmpl[len - 6];
+  static const char letters[] = "ABCDEFGHIJKLMnopqrstuvwxyz0123456789";
   const int lettercount = sizeof(letters) - 1;
-  const int maxrounds = 1000;
-  int fd;
-  uint64_t value = time(nullptr);
-  for (int count = 0; count < maxrounds; ++count, value += 7777)
+  uint64_t value = time(nullptr) ^ GetCurrentProcessId();
+  for (int rounds = 1000; rounds> 0; rounds--, value += 7777)
   {
     uint64_t v = value;
-    for (int idx = 0; idx < 6; ++idx)
+    for (char *x = XXXXXX; *x != 0; ++x, v /= lettercount)
     {
-      XXXXXX[idx] = letters[v % lettercount];
-      v /= lettercount;
+      *x = letters[v % lettercount];
     }
-    fd = _open(tmpl, O_RDWR | O_CREAT | O_EXCL);
+    int fd = _open(tmpl, _O_CREAT | _O_EXCL | _O_RDWR, _S_IREAD | _S_IWRITE);
     if (fd >= 0)
     {
       return fd;
