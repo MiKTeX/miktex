@@ -39,7 +39,7 @@ struct DIR_
   unique_ptr<DirectoryLister> pLister;
   struct dirent direntry;
   PathName path;
-  DIR_(const char * lpszPath) :
+  DIR_(const char* lpszPath) :
     path(lpszPath),
     pLister(DirectoryLister::Open(lpszPath))
   {
@@ -51,14 +51,14 @@ struct WDIR_
   unique_ptr<DirectoryLister> pLister;
   struct wdirent direntry;
   PathName path;
-  WDIR_(const wchar_t * lpszPath) :
+  WDIR_(const wchar_t* lpszPath) :
     path(lpszPath),
     pLister(DirectoryLister::Open(lpszPath))
   {
   }
 };
 
-MIKTEXUNXCEEAPI(int) closedir(DIR * pDir)
+MIKTEXUNXCEEAPI(int) closedir(DIR* pDir)
 {
   C_FUNC_BEGIN();
   delete pDir;
@@ -66,7 +66,7 @@ MIKTEXUNXCEEAPI(int) closedir(DIR * pDir)
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(int) wclosedir(WDIR * pDir)
+MIKTEXUNXCEEAPI(int) wclosedir(WDIR* pDir)
 {
   C_FUNC_BEGIN();
   delete pDir;
@@ -74,7 +74,7 @@ MIKTEXUNXCEEAPI(int) wclosedir(WDIR * pDir)
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(DIR *) opendir(const char * lpszPath)
+MIKTEXUNXCEEAPI(DIR*) opendir(const char* lpszPath)
 {
   C_FUNC_BEGIN();
   if (!Directory::Exists(lpszPath))
@@ -86,7 +86,7 @@ MIKTEXUNXCEEAPI(DIR *) opendir(const char * lpszPath)
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(WDIR *) wopendir(const wchar_t * lpszPath)
+MIKTEXUNXCEEAPI(WDIR*) wopendir(const wchar_t* lpszPath)
 {
   C_FUNC_BEGIN();
   if (!Directory::Exists(lpszPath))
@@ -98,7 +98,7 @@ MIKTEXUNXCEEAPI(WDIR *) wopendir(const wchar_t * lpszPath)
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(struct dirent *) readdir(DIR * pDir)
+MIKTEXUNXCEEAPI(struct dirent*) readdir(DIR* pDir)
 {
   C_FUNC_BEGIN();
   DirectoryEntry directoryEntry;
@@ -111,8 +111,7 @@ MIKTEXUNXCEEAPI(struct dirent *) readdir(DIR * pDir)
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(struct wdirent *)
-wreaddir(WDIR * pDir)
+MIKTEXUNXCEEAPI(struct wdirent*) wreaddir(WDIR* pDir)
 {
   C_FUNC_BEGIN();
   DirectoryEntry directoryEntry;
@@ -125,7 +124,7 @@ wreaddir(WDIR * pDir)
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(void) rewinddir(DIR * pDir)
+MIKTEXUNXCEEAPI(void) rewinddir(DIR* pDir)
 {
   C_FUNC_BEGIN();
   pDir->pLister->Close();
@@ -133,7 +132,7 @@ MIKTEXUNXCEEAPI(void) rewinddir(DIR * pDir)
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(void) wrewinddir(WDIR * pDir)
+MIKTEXUNXCEEAPI(void) wrewinddir(WDIR* pDir)
 {
   C_FUNC_BEGIN();
   pDir->pLister->Close();
@@ -141,12 +140,12 @@ MIKTEXUNXCEEAPI(void) wrewinddir(WDIR * pDir)
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(int) miktex_strncasecmp(const char * lpsz1, const char * lpsz2, size_t n)
+MIKTEXUNXCEEAPI(int) miktex_strncasecmp(const char* lpsz1, const char* lpsz2, size_t n)
 {
   return MiKTeX::Util::StringCompare(lpsz1, lpsz2, n, true);
 }
 
-MIKTEXUNXCEEAPI(int) miktex_gettimeofday(struct timeval * ptv, void * pNull)
+MIKTEXUNXCEEAPI(int) miktex_gettimeofday(struct timeval* ptv, void* pNull)
 {
   MIKTEX_ASSERT(pNull == nullptr);
   MIKTEX_ASSERT(ptv != nullptr);
