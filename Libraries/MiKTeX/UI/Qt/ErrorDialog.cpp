@@ -1,6 +1,6 @@
 /* ErrorDialog.cpp:
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2017 Christian Schenk
 
    This file is part of MiKTeX UI Library.
 
@@ -92,7 +92,7 @@ string ErrorDialogImpl::CreateReport()
   {
     try
     {
-      vector<string> invokerNames = Process2::GetInvokerNames();
+      vector<string> invokerNames = Process::GetInvokerNames();
       s << "MiKTeX: " << Utils::GetMiKTeXVersionString() << endl
 	<< "OS: " << Utils::GetOSVersionString() << endl;
       s << "Invokers: ";

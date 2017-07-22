@@ -676,7 +676,7 @@ Process * Converter::StartGhostscript(const char * lpszFontFile, const char * lp
 
   Verbose(T_("Starting Ghostscript with arguments:\n%s"), CommandLineBuilder(arguments).ToString().c_str());
 
-  ProcessStartInfo2 startinfo;
+  ProcessStartInfo startinfo;
 
   startinfo.FileName = pathGs.ToString();
   startinfo.Arguments = arguments;

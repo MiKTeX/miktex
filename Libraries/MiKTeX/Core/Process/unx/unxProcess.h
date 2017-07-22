@@ -31,7 +31,7 @@
 BEGIN_INTERNAL_NAMESPACE;
 
 class unxProcess :
-  public MiKTeX::Core::Process2
+  public MiKTeX::Core::Process
 {
 public:
   FILE* get_StandardInput() override;
@@ -55,7 +55,7 @@ public:
   void Close() override;
 
 public:
-  std::unique_ptr<MiKTeX::Core::Process2> get_Parent() override;
+  std::unique_ptr<MiKTeX::Core::Process> get_Parent() override;
 
 public:
   std::string get_ProcessName() override;
@@ -66,7 +66,7 @@ public:
   }
   
 public:
-  unxProcess(const MiKTeX::Core::ProcessStartInfo2& startinfo);
+  unxProcess(const MiKTeX::Core::ProcessStartInfo& startinfo);
 
 public:
   ~unxProcess() override;
@@ -75,7 +75,7 @@ private:
   void Create();
 
 private:
-  MiKTeX::Core::ProcessStartInfo2 startinfo;
+  MiKTeX::Core::ProcessStartInfo startinfo;
 
 private:
   int status;
@@ -95,7 +95,6 @@ private:
 
 private:
   friend class MiKTeX::Core::Process;
-  friend class MiKTeX::Core::Process2;
 };
 
 END_INTERNAL_NAMESPACE;

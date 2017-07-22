@@ -1,6 +1,6 @@
 /* yap.cpp: Yet Another Previewer
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of Yap.
 
@@ -401,7 +401,7 @@ BOOL YapApplication::InitInstance()
 
     unsigned showSplashWindow = 0;
 
-    vector<string> invokers = Process2::GetInvokerNames();
+    vector<string> invokers = Process::GetInvokerNames();
     for (vector<string>::const_iterator it = invokers.begin(); it != invokers.end(); ++it)
     {
       if (StringUtil::Contains(COMMERCIAL_INVOKERS, PathName(*it).GetFileNameWithoutExtension().GetData()))

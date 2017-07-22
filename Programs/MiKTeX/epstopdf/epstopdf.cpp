@@ -705,7 +705,7 @@ void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const Pat
     PrintOnly("%s\n", CommandLineBuilder(gsOptions).ToString().c_str());
     if (!printOnly)
     {
-      ProcessStartInfo2 processStartInfo;
+      ProcessStartInfo processStartInfo;
       processStartInfo.FileName = gsExe.ToString();
       processStartInfo.Arguments = gsOptions;
       processStartInfo.StandardInput = nullptr;

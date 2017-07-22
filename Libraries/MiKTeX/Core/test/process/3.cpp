@@ -76,7 +76,7 @@ BEGIN_TEST_FUNCTION(2);
   pathExe /= "core_process_test3-1" MIKTEX_EXE_FILE_SUFFIX;
   FILE* childOut = File::Open("b.txt", FileMode::Create, FileAccess::Write, false);
   TEST(childOut != nullptr);
-  ProcessStartInfo2 psi(pathExe);
+  ProcessStartInfo psi(pathExe);
   psi.StandardInput = inFile;
   psi.StandardOutput = childOut;
   unique_ptr<Process> process(Process::Start(psi));

@@ -161,7 +161,7 @@ private:
   int twofd[2] = { -1, -1 };
 };
 
-unique_ptr<Process> Process::Start(const ProcessStartInfo2& startinfo)
+unique_ptr<Process> Process::Start(const ProcessStartInfo& startinfo)
 {
   return make_unique<unxProcess>(startinfo);
 }
@@ -318,7 +318,7 @@ void unxProcess::Create()
   pipeStdin.Dispose();
 }
 
-unxProcess::unxProcess(const ProcessStartInfo2& startinfo) :
+unxProcess::unxProcess(const ProcessStartInfo& startinfo) :
   startinfo(startinfo)
 {
   Create();
@@ -523,14 +523,14 @@ bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRu
   return Process::Run(arguments[0], arguments, callback, exitCode, directory);
 }
 
-unique_ptr<Process2> Process2::GetCurrentProcess()
+unique_ptr<Process> Process::GetCurrentProcess()
 {
   unique_ptr<unxProcess> currentProcess = make_unique<unxProcess>();
   currentProcess->pid = getpid();
-  return unique_ptr<Process2>(currentProcess.release());
+  return unique_ptr<Process>(currentProcess.release());
 }
 
-unique_ptr<Process2> unxProcess::get_Parent()
+unique_ptr<Process> unxProcess::get_Parent()
 {
 #if defined(__linux__)
   string path = "/proc/" + std::to_string(pid) + "/stat";
@@ -548,7 +548,7 @@ unique_ptr<Process2> unxProcess::get_Parent()
     ++tok;
     unique_ptr<unxProcess> parentProcess = make_unique<unxProcess>();
     parentProcess->pid = std::stoi(*tok);
-    return unique_ptr<Process2>(parentProcess.release());
+    return unique_ptr<Process>(parentProcess.release());
   }
 #elif defined(__APPLE__)
   struct proc_bsdinfo procinfo;
@@ -558,7 +558,7 @@ unique_ptr<Process2> unxProcess::get_Parent()
   }
   unique_ptr<unxProcess> parentProcess = make_unique<unxProcess>();
   parentProcess->pid = procinfo.pbi_ppid;
-  return unique_ptr<Process2>(parentProcess.release());
+  return unique_ptr<Process>(parentProcess.release());
 #else
   return nullptr;
 #endif

@@ -871,7 +871,7 @@ unique_ptr<Process> DviPageImpl::StartDvips()
   dir.MakeAbsolute();
   dir.RemoveFileSpec();
 
-  ProcessStartInfo2 processStartInfo;
+  ProcessStartInfo processStartInfo;
 
   processStartInfo.Arguments = arguments;
   processStartInfo.FileName = dvipsPath.ToString();
@@ -917,7 +917,7 @@ unique_ptr<Process> DviPageImpl::StartGhostscript(int shrinkFactor)
   arguments.push_back("-sOutputFile="s + "-");
   arguments.push_back("-");
 
-  ProcessStartInfo2 processStartInfo;
+  ProcessStartInfo processStartInfo;
 
   processStartInfo.Arguments = arguments;
   processStartInfo.FileName = gsPath.ToString();

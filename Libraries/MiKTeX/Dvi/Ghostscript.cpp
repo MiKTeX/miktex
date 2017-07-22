@@ -85,7 +85,7 @@ void Ghostscript::Start()
 
   tracePS->WriteFormattedLine("libdvi", "%s", CommandLineBuilder(arguments).ToString().c_str());
 
-  ProcessStartInfo2 startinfo;
+  ProcessStartInfo startinfo;
 
   startinfo.Arguments = arguments;
   startinfo.FileName = gsExe.ToString();

@@ -815,7 +815,7 @@ void IniTeXMFApp::FindWizards()
 {
   setupWizardRunning = false;
   updateWizardRunning = false;
-  vector<string> invokerNames = Process2::GetInvokerNames();
+  vector<string> invokerNames = Process::GetInvokerNames();
   for (const string& name : invokerNames)
   {
     if (PathName::Compare(name, MIKTEX_PREFIX "update") == 0
@@ -2081,7 +2081,7 @@ void IniTeXMFApp::ShowConfigValue(const string& valueSpec)
 
 void IniTeXMFApp::ReportMiKTeXVersion()
 {
-  vector<string> invokerNames = Process2::GetInvokerNames();
+  vector<string> invokerNames = Process::GetInvokerNames();
   if (xml)
   {
     xmlWriter.StartElement("setup");

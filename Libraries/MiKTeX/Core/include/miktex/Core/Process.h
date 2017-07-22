@@ -109,7 +109,7 @@ private:
   std::size_t stdoutOffset = 0;
 };
 
-struct ProcessStartInfo2
+struct ProcessStartInfo
 {
   /// Arguments to be passed to the process.
   /// Arguments[0] being the process name.
@@ -143,11 +143,11 @@ struct ProcessStartInfo2
   /// Working directory for the process.
   std::string WorkingDirectory;
 
-  ProcessStartInfo2()
+  ProcessStartInfo()
   {
   }
 
-  ProcessStartInfo2(const PathName& fileName) :
+  ProcessStartInfo(const PathName& fileName) :
     FileName(fileName.ToString())
   {
   }
@@ -186,6 +186,18 @@ public:
 
 public:
   virtual void MIKTEXTHISCALL Close() = 0;
+
+public:
+  virtual std::unique_ptr<Process> MIKTEXTHISCALL get_Parent() = 0;
+
+public:
+  virtual std::string MIKTEXTHISCALL get_ProcessName() = 0;
+
+public:
+  static MIKTEXCORECEEAPI(std::unique_ptr<Process>) GetCurrentProcess();
+
+public:
+  static MIKTEXCORECEEAPI(std::vector<std::string>) GetInvokerNames();
 
   /// Start the system shell to execute a command.
   /// @param lpszCommandLine Command to be executed.
@@ -236,7 +248,7 @@ public:
   static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback, int* pExitCode, const char* lpszWorkingDirectory);
 
 public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<Process>) Start(const ProcessStartInfo2& startinfo);
+  static MIKTEXCORECEEAPI(std::unique_ptr<Process>) Start(const ProcessStartInfo& startinfo);
 
 public:
   static MIKTEXCORECEEAPI(void) Start(const PathName& fileName, const std::vector<std::string>& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory);
@@ -252,25 +264,6 @@ public:
   {
     Start(fileName, arguments, nullptr, nullptr, nullptr, nullptr, nullptr);
   }
-};
-
-class MIKTEXNOVTABLE Process2 :
-  public Process
-{
-public:
-  MIKTEXTHISCALL ~Process2() override = 0;
-
-public:
-  virtual std::unique_ptr<Process2> MIKTEXTHISCALL get_Parent() = 0;
-
-public:
-  virtual std::string MIKTEXTHISCALL get_ProcessName() = 0;
-
-public:
-  static MIKTEXCORECEEAPI(std::unique_ptr<Process2>) GetCurrentProcess();
-
-public:
-  static MIKTEXCORECEEAPI(std::vector<std::string>) GetInvokerNames();
 };
 
 MIKTEX_CORE_END_NAMESPACE;

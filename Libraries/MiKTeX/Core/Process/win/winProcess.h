@@ -28,7 +28,7 @@
 BEGIN_INTERNAL_NAMESPACE;
 
 class winProcess :
-  public MiKTeX::Core::Process2
+  public MiKTeX::Core::Process
 {
 public:
   FILE* MIKTEXTHISCALL get_StandardInput() override;
@@ -52,7 +52,7 @@ public:
   void MIKTEXTHISCALL Close() override;
 
 public:
-  std::unique_ptr<MiKTeX::Core::Process2> MIKTEXTHISCALL get_Parent() override;
+  std::unique_ptr<MiKTeX::Core::Process> MIKTEXTHISCALL get_Parent() override;
 
 public:
   std::string MIKTEXTHISCALL get_ProcessName() override;
@@ -61,7 +61,7 @@ public:
   winProcess();
 
 public:
-  winProcess(const MiKTeX::Core::ProcessStartInfo2& startinfo);
+  winProcess(const MiKTeX::Core::ProcessStartInfo& startinfo);
 
 public:
   virtual ~winProcess();
@@ -70,7 +70,7 @@ private:
   void Create();
 
 private:
-  MiKTeX::Core::ProcessStartInfo2 startinfo;
+  MiKTeX::Core::ProcessStartInfo startinfo;
 
 private:
   PROCESS_INFORMATION processInformation;
@@ -99,7 +99,6 @@ private:
 
 private:
   friend class MiKTeX::Core::Process;
-  friend class MiKTeX::Core::Process2;
 };
 
 END_INTERNAL_NAMESPACE;

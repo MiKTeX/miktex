@@ -35,17 +35,13 @@ Process::~Process() noexcept
 {
 }
 
-Process2::~Process2()
-{
-}
-
 void Process::Start(const PathName& fileName, const vector<string>& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory)
 {
   MIKTEX_ASSERT_STRING_OR_NIL(lpszWorkingDirectory);
 
   MIKTEX_ASSERT(pFileStandardInput == nullptr || ppFileStandardInput == nullptr);
 
-  ProcessStartInfo2 startinfo;
+  ProcessStartInfo startinfo;
 
   startinfo.FileName = fileName.ToString();
   startinfo.Arguments = arguments;
@@ -85,7 +81,7 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRu
 {
   MIKTEX_ASSERT_STRING_OR_NIL(lpszWorkingDirectory);
 
-  ProcessStartInfo2 startinfo;
+  ProcessStartInfo startinfo;
 
   startinfo.FileName = fileName.ToString();
   startinfo.Arguments = arguments;
@@ -171,11 +167,11 @@ bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode)
   return ExecuteSystemCommand(commandLine, exitCode, nullptr, nullptr);
 }
 
-vector<string> Process2::GetInvokerNames()
+vector<string> Process::GetInvokerNames()
 {
   vector<string> result;
-  unique_ptr<Process2> pProcess(Process2::GetCurrentProcess());
-  unique_ptr<Process2> pParentProcess(pProcess->get_Parent());
+  unique_ptr<Process> pProcess(Process::GetCurrentProcess());
+  unique_ptr<Process> pParentProcess(pProcess->get_Parent());
   const int maxLevels = 3;
   for (int level = 0; pParentProcess.get() != nullptr && level < maxLevels; ++level)
   {

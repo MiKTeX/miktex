@@ -44,7 +44,7 @@ public:
 public:
   void Open(const MiKTeX::Core::PathName& fileName, const std::vector<std::string>& arguments)
   {
-    MiKTeX::Core::ProcessStartInfo2 startInfo;
+    MiKTeX::Core::ProcessStartInfo startInfo;
     startInfo.FileName = fileName.ToString();
     startInfo.Arguments = arguments;
     startInfo.RedirectStandardInput = true;

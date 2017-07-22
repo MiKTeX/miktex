@@ -2707,7 +2707,7 @@ boolean open_dvi_output(C4P::FileRoot & dviFile)
     {
       return 0;
     }
-    MiKTeX::Core::ProcessStartInfo2 processStartInfo;
+    MiKTeX::Core::ProcessStartInfo processStartInfo;
     processStartInfo.FileName = xdvipdfmx.ToString();
     processStartInfo.Arguments.push_back(outputdriver);
     switch (MiKTeX::App::Application::GetApplication()->GetEnableInstaller())

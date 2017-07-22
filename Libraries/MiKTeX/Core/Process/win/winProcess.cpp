@@ -33,7 +33,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-unique_ptr<Process> Process::Start(const ProcessStartInfo2& startinfo)
+unique_ptr<Process> Process::Start(const ProcessStartInfo& startinfo)
 {
   return make_unique<winProcess>(startinfo);
 }
@@ -303,7 +303,7 @@ void winProcess::Create()
   }
 }
 
-winProcess::winProcess(const ProcessStartInfo2& startinfo) :
+winProcess::winProcess(const ProcessStartInfo& startinfo) :
   startinfo(startinfo)
 {
   processEntry.dwSize = 0;
@@ -497,7 +497,7 @@ winProcess::winProcess()
   processEntry.dwSize = 0;
 }
 
-unique_ptr<Process2> Process2::GetCurrentProcess()
+unique_ptr<Process> Process::GetCurrentProcess()
 {
   HANDLE myHandle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
   if (myHandle == nullptr)
@@ -510,7 +510,7 @@ unique_ptr<Process2> Process2::GetCurrentProcess()
   pCurrentProcess->processInformation.hThread = GetCurrentThread();
   pCurrentProcess->processInformation.dwProcessId = GetCurrentProcessId();
   pCurrentProcess->processInformation.dwThreadId = GetCurrentThreadId();
-  return unique_ptr<Process2>(pCurrentProcess.release());
+  return unique_ptr<Process>(pCurrentProcess.release());
 }
 
 bool winProcess::TryGetProcessEntry(DWORD processId, PROCESSENTRY32W& result)
@@ -565,7 +565,7 @@ PROCESSENTRY32W winProcess::GetProcessEntry(DWORD processId)
   return result;
 }
 
-unique_ptr<Process2> winProcess::get_Parent()
+unique_ptr<Process> winProcess::get_Parent()
 {
   if (processEntry.dwSize == 0)
   {
@@ -585,7 +585,7 @@ unique_ptr<Process2> winProcess::get_Parent()
   pParentProcess->processInformation.dwProcessId = processEntry.th32ParentProcessID;
   pParentProcess->processInformation.hThread = nullptr;
   pParentProcess->processInformation.dwThreadId = 0;
-  return unique_ptr<Process2>(pParentProcess.release());
+  return unique_ptr<Process>(pParentProcess.release());
 }
 
 string winProcess::get_ProcessName()
