@@ -4,6 +4,7 @@
 
 ### New programs
 
+* asy: asymptote - 2D and 3D TeX-Aware Vector Graphics Language
 * lacheck: a consistency checker checker for LaTeX documents
 
 ### Upgraded programs

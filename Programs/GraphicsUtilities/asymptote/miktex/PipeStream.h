@@ -19,117 +19,107 @@
 
 #include "config.h"
 
-#include <miktex/Core/Process>
-#include <miktex/Core/Session>
+#include <cstdio>
+#include <memory>
+#include <string>
+#include <thread>
+#include <vector>
 
+#include <miktex/Core/PathName>
+#include <miktex/Core/Process>
+
+#include "InProcPipe.h"
+
+#if !defined(MIKTEX_BEGIN_NS)
 #define MIKTEX_BEGIN_NS                         \
 namespace MiKTeX {                              \
   namespace Aymptote {
-
 #define MIKTEX_END_NS                           \
   }                                             \
 }
+#endif
 
 MIKTEX_BEGIN_NS;
 
 class PipeStream
 {
 public:
-  virtual ~PipeStream()
-  {
-    Close();
-  }
+  virtual ~PipeStream();
+
 public:
-  void Open(const MiKTeX::Core::PathName& fileName, const std::vector<std::string>& arguments)
-  {
-    MiKTeX::Core::ProcessStartInfo startInfo;
-    startInfo.FileName = fileName.ToString();
-    startInfo.Arguments = arguments;
-    startInfo.RedirectStandardInput = true;
-    startInfo.RedirectStandardError = true;
-    startInfo.RedirectStandardOutput = true;
-    process = MiKTeX::Core::Process::Start(startInfo);
-    inFile = process->get_StandardInput();
-    outFile = process->get_StandardOutput();
-    errFile = process->get_StandardError();
-  }
+  void Open(const MiKTeX::Core::PathName& fileName, const std::vector<std::string>& arguments);
+
 public:
-  void Close()
-  {
-    CloseIn();
-    CloseOut();
-    CloseErr();
-    if (process != nullptr)
-    {
-      process->WaitForExit(1000);
-    }
-  }
+  void Close();
+
 public:
-  void CloseIn()
-  {
-    if (inFile != nullptr)
-    {
-      fclose(inFile);
-      inFile = nullptr;
-    }
-  }
-protected:
-  void CloseOut()
-  {
-    if (outFile != nullptr)
-    {
-      fclose(outFile);
-      outFile = nullptr;
-    }
-  }
-protected:
-  void CloseErr()
-  {
-    if (errFile != nullptr)
-    {
-      fclose(errFile);
-      errFile = nullptr;
-    }
-  }
+  void CloseIn();
+
+private:
+  void StartThreads();
+
+private:
+  void StopThreads();
+
+private:
+  void ChildStdoutReaderThread();
+
 private:
   FILE* inFile = nullptr;
-private:
-  FILE* outFile = nullptr;
-private:
-  FILE* errFile = nullptr;
+
 public:
-  void Write(const void* buf, size_t size)
-  {
-    if (fwrite(buf, 1, size, inFile) != size)
-    {
-      MIKTEX_FATAL_CRT_ERROR("fwrite");
-    }
-  }
+  void Write(const void* buf, size_t size);
+
 public:
-  size_t Read(void* buf, size_t size)
-  {
-    try
-    {
-      size_t n = fread(buf, 1, size, outFile);
-      if (ferror(outFile) != 0)
-      {
-        MIKTEX_FATAL_CRT_ERROR("fread");
-      }
-      return n;
-    }
-    catch (const MiKTeX::Core::BrokenPipeException&)
-    {
-      return 0;
-    }
-  }
+  size_t Read(void* buf, size_t size);
+
 public:
-  int Wait()
-  {
-    process->WaitForExit();
-    return process->get_ExitCode();
-  }
+  int Wait();
+
 private:
   std::unique_ptr<MiKTeX::Core::Process> process;
+
+private:
+  std::thread childStdoutReaderThread;
+
+private:
+  InProcPipe childStdoutPipe;
+
+protected:
+  enum State {
+    Ready = 1,
+    Successful = 2
+  };
+
+protected:
+  std::atomic_int state{ 0 };
+
+protected:
+  bool IsReady()
+  {
+    return (state.load() & Ready) != 0;
+  }
+
+protected:
+  bool IsSuccessful()
+  {
+    return (state.load() & Successful) != 0;
+  }
+
+protected:
+  bool IsUnsuccessful()
+  {
+    return state.load() == Ready;
+  }
+
+protected:
+  void Finish(bool successful)
+  {
+    state = Ready | (successful ? Successful : 0);
+  }
+
+protected:
+  MiKTeX::Core::MiKTeXException childStdoutReaderThreadException;
 };
 
 MIKTEX_END_NS;

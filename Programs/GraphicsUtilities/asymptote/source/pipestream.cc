@@ -152,8 +152,7 @@ ssize_t iopipestream::readbuffer()
     p[nc]=0;
     if(nc == 0) {
 #if defined(MIKTEX_WINDOWS)
-      pipeStream.Close();
-      Running = false;
+      // MIKTEX-TODO
 #else
       if(waitpid(pid,NULL,WNOHANG) == pid)
         Running=false;

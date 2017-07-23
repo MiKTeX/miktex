@@ -330,6 +330,8 @@ set(asy_sources
   ${MIKTEX_LIBRARY_WRAPPER}
   ${corefiles}
   ${header_files}
+  miktex/InProcPipe.h
+  miktex/PipeStream.cpp
   miktex/PipeStream.h
   source/main.cc
   source/revision.cc
