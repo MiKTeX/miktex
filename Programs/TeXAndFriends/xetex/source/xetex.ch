@@ -122,6 +122,27 @@ if translate_filename then begin
   wterm_ln('" ignored)');
 @z
 
+@x We add a new |history| value for failure of the output driver
+has been detected. It has four possible values: |spotless|, |warning_issued|,
+|error_message_issued|, and |fatal_error_stop|.
+@y
+has been detected. It has five possible values: |spotless|, |warning_issued|,
+|error_message_issued|, |fatal_error_stop|, and |output_failure|.
+@z
+
+@x
+@d fatal_error_stop=3 {|history| value when termination was premature}
+@y
+@d fatal_error_stop=3 {|history| value when termination was premature}
+@d output_failure=4 {|history| value when output driver returned an error}
+@z
+
+@x
+@!history:spotless..fatal_error_stop; {has the source input been clean so far?}
+@y
+@!history:spotless..output_failure; {has the source input been clean so far?}
+@z
+
 @x [6.84] l.1904 - Implement the switch-to-editor option.
     begin edit_name_start:=str_start[edit_file.name_field];
     edit_name_length:=str_start[edit_file.name_field+1] -
@@ -532,6 +553,7 @@ if list_ptr(p)=null then begin
     else print("driver return code");
     print(") generating output;");
     print_nl("file "); print(output_file_name); print(" may not be valid.");
+    history:=output_failure;
     end;
 @z
 
