@@ -17,6 +17,7 @@
 * fontconfig 2.12.3
 * freetype 2.8
 * graphite2 1.3.10
+* HarfBuzz 1.4.7
 * libcurl 7.54.1
 * libpng 1.6.30
 * teckit 2.5.7
@@ -83,7 +84,7 @@ For example, to build MiKTeX for Debian 9:
   
 ### Upgraded libraries
 
-* [HarfBuzz 1.4.6](https://github.com/behdad/harfbuzz/releases/tag/1.4.6)
+* HarfBuzz 1.4.6
 * libcurl 7.54.0
 * LibreSSL 2.5.3
 * Poppler 0.55.0
