@@ -19,7 +19,7 @@
 
 set(MIKTEX_COMP_ORIG_VERSION_STR "2.41")
 
-set(MIKTEX_COMP_J2000_VERSION 6411)
+set(MIKTEX_COMP_J2000_VERSION 6412)
 
 set(MIKTEX_COMP_COPYRIGHT_STR "(C) 2004 Andy Hammerlindl, John C. Bowman, Tom Prince")
 set(MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2004 Andy Hammerlindl, John C. Bowman, Tom Prince")

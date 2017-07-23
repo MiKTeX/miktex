@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 #endif
 {
 #if defined(MIKTEX)
-  MiKTeX::Core::Session::Get()->PushBackAppName("asymptote");
+  MiKTeX::Core::Session::Get()->PushAppName("asymptote");
   MiKTeX::Core::PathName plainAsy;
   if (!MiKTeX::Core::Session::Get()->FindFile("plain.asy", MiKTeX::Core::FileType::PROGRAMTEXTFILE, plainAsy))
   {
