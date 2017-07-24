@@ -349,12 +349,17 @@ void Application::Init(const string& programInvocationName)
   Init(programInvocationName, "");
 }
 
-void Application::Finalize()
+void Application::Finalize(int exitCode)
 {
   if (logger != nullptr)
   {
-    LOG4CXX_DEBUG(logger, "finishing...");
+    LOG4CXX_INFO(logger, "finishing with exit code " << exitCode);
   }
+  Finalize();
+}
+  
+void Application::Finalize()
+{
   if (pimpl->installer != nullptr)
   {
     pimpl->installer->Dispose();

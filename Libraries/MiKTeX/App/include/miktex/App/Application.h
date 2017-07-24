@@ -94,6 +94,9 @@ public:
   virtual MIKTEXAPPTHISAPI(void) Finalize();
 
 public:
+  virtual MIKTEXAPPTHISAPI(void) Finalize(int exitCode);
+
+public:
   virtual void GetLibraryVersions(std::vector<MiKTeX::Core::LibraryVersion>& versions) const
   {
     versions.push_back(MiKTeX::App::vi::Version::GetLibraryVersion());

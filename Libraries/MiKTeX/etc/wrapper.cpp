@@ -116,25 +116,25 @@ int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 
     int exitCode = MAINFUNC(args.size() - 1, &args[0]);
 
-    app.Finalize();
+    app.Finalize(exitCode);
 
     return exitCode;
   }
   catch (const MiKTeX::Core::MiKTeXException& ex)
   {
     MiKTeX::App::Application::Sorry(nameOfTheGame, ex);
-    app.Finalize();
+    app.Finalize(EXIT_FAILURE);
     return EXIT_FAILURE;
   }
   catch (const std::exception& ex)
   {
     MiKTeX::App::Application::Sorry(nameOfTheGame, ex);
-    app.Finalize();
+    app.Finalize(EXIT_FAILURE);
     return EXIT_FAILURE;
   }
   catch (int exitCode)
   {
-    app.Finalize();
+    app.Finalize(EXIT_FAILURE);
     return exitCode;
   }
 }
