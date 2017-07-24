@@ -349,7 +349,7 @@ void Application::Init(const string& programInvocationName)
   Init(programInvocationName, "");
 }
 
-void Application::Finalize(int exitCode)
+void Application::Finalize2(int exitCode)
 {
   if (logger != nullptr)
   {

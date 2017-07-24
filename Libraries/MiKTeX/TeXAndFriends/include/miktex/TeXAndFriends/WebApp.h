@@ -309,19 +309,19 @@ public:
       app.Init(newargv);
       MIKTEX_ASSERT(!newargv.empty() && newargv.back() == nullptr);
       int exitCode = prog.Run(newargv.size() - 1, &newargv[0]);
-      app.Finalize(exitCode);
+      app.Finalize2(exitCode);
       return exitCode;
     }
     catch (const MiKTeX::Core::MiKTeXException& ex)
     {
       MiKTeX::App::Application::Sorry(argv[0], ex);
-      app.Finalize(1);
+      app.Finalize2(1);
       return 1;
     }
     catch (const std::exception& ex)
     {
       MiKTeX::App::Application::Sorry(argv[0], ex);
-      app.Finalize(1);
+      app.Finalize2(1);
       return 1;
     }
   }

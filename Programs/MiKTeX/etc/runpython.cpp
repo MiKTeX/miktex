@@ -58,7 +58,7 @@ int main(int argc, char** argv)
     Application app;
     app.Init(newargv);
     int exitCode = app.GetSession()->RunPython(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
-    app.Finalize(exitCode);
+    app.Finalize2(exitCode);
     return exitCode;
   }
   catch (const MiKTeXException& e)

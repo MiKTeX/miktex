@@ -126,25 +126,25 @@ int MAIN(int argc, MAINCHAR** argv)
     // run texlua
     int exitCode = Main(newargv.size() - 1, &newargv[0]);
 
-    app.Finalize(exitCode);
+    app.Finalize2(exitCode);
 
     return exitCode;
   }
   catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
-    app.Finalize(1);
+    app.Finalize2(1);
     return 1;
   }
   catch (const std::exception& e)
   {
     Utils::PrintException(e);
-    app.Finalize(1);
+    app.Finalize2(1);
     return 1;
   }
   catch (int exitCode)
   {
-    app.Finalize(exitCode);
+    app.Finalize2(exitCode);
     return exitCode;
   }
 }
