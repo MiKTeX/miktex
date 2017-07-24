@@ -63,6 +63,12 @@ public:
   }
 
 public:
+  bool IsDone()
+  {
+    return done;
+  }
+
+public:
   void Write(const void* data, size_t count)
   {
     std::unique_lock<std::mutex> lock(mut);

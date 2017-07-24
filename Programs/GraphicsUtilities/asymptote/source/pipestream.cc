@@ -152,7 +152,10 @@ ssize_t iopipestream::readbuffer()
     p[nc]=0;
     if(nc == 0) {
 #if defined(MIKTEX_WINDOWS)
-      // MIKTEX-TODO
+      if (!pipeStream.IsChildRunning())
+      {
+        Running = false;
+      }
 #else
       if(waitpid(pid,NULL,WNOHANG) == pid)
         Running=false;

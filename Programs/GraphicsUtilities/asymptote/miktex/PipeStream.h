@@ -76,6 +76,12 @@ public:
 public:
   int Wait();
 
+public:
+  bool IsChildRunning()
+  {
+    return !childStdoutPipe.IsDone();
+  }
+
 private:
   std::unique_ptr<MiKTeX::Core::Process> process;
 
