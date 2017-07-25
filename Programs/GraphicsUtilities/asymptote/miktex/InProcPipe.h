@@ -98,13 +98,12 @@ public:
     std::unique_lock<std::mutex> lock(mut);
     size_t read = 0;
     bool noMore = false;
-    while (read < count && !noMore)
+    while (read < count
+      && CanRead()
+      && !noMore
+      && readCondition.wait_for(lock, std::chrono::milliseconds(0), [this] { return done || CanRead(); }))
     {
-      if (!readCondition.wait_for(lock, std::chrono::milliseconds(100), [this] { return done || CanRead(); }))
-      {
-        return read;
-      }
-      size_t n = std::min(count - read, size);
+      size_t n = std::min(count - read, size.load());
       size_t num1 = std::min(n, capacity - head);
       size_t num2 = n - num1;
       memcpy(reinterpret_cast<unsigned char*>(data) + read, buffer + head, num1);
@@ -153,7 +152,7 @@ private:
 
 private:
   size_t capacity = 0;
-  size_t size = 0;
+  std::atomic_size_t size = 0;
   size_t head = 0;
   size_t tail = 0;
   std::atomic_bool done{ false };
