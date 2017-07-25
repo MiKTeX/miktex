@@ -127,11 +127,14 @@ void PipeStream::ChildStdoutReaderThread()
     do
     {
       size_t n = outFile.Read(inbuf, BUFFER_SIZE);
-      if (n == 0)
+      if (n > 0)
+      {
+        childStdoutPipe.Write(inbuf, n);
+      }
+      if (feof(outFile.Get()))
       {
         break;
       }
-      childStdoutPipe.Write(inbuf, n);
     }
     while (true);
     outFile.Close();
