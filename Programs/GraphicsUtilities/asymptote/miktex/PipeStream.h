@@ -65,7 +65,7 @@ private:
   void ChildStdoutReaderThread();
 
 private:
-  FILE* inFile = nullptr;
+  FILE* childStdinFile = nullptr;
 
 public:
   void Write(const void* buf, size_t size);

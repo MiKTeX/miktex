@@ -83,8 +83,8 @@ public:
       size_t n = std::min(count - written, capacity - size);
       size_t num1 = std::min(n, capacity - tail);
       size_t num2 = n - num1;
-      memcpy(buffer + tail, (unsigned char *)data + written, num1);
-      memcpy(buffer, (unsigned char *)data + written + num1, num2);
+      memcpy(buffer + tail, reinterpret_cast<const unsigned char*>(data) + written, num1);
+      memcpy(buffer, reinterpret_cast<const unsigned char*>(data) + written + num1, num2);
       tail = (tail + n) % capacity;
       size += n;
       readCondition.notify_one();
@@ -107,8 +107,8 @@ public:
       size_t n = std::min(count - read, size);
       size_t num1 = std::min(n, capacity - head);
       size_t num2 = n - num1;
-      memcpy((unsigned char *)data + read, buffer + head, num1);
-      memcpy((unsigned char *)data + read + num1, buffer, num2);
+      memcpy(reinterpret_cast<unsigned char*>(data) + read, buffer + head, num1);
+      memcpy(reinterpret_cast<unsigned char*>(data) + read + num1, buffer, num2);
       head = (head + n) % capacity;
       size -= n;
       writeCondition.notify_one();

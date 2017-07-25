@@ -19,7 +19,9 @@
 
 #include "config.h"
 
+#if defined(MIKTEX_WINDOWS)
 #include <io.h>
+#endif
 
 #include <miktex/Core/FileStream>
 #include <miktex/Core/Session>
@@ -45,7 +47,7 @@ void PipeStream::Open(const PathName& fileName, const vector<string>& arguments)
   startInfo.RedirectStandardError = true;
   startInfo.RedirectStandardOutput = true;
   process = Process::Start(startInfo);
-  inFile = process->get_StandardInput();
+  childStdinFile = process->get_StandardInput();
   StartThreads();
 }
 
@@ -61,20 +63,20 @@ void PipeStream::Close()
 
 void PipeStream::CloseIn()
 {
-  if (inFile != nullptr)
+  if (childStdinFile != nullptr)
   {
-    fclose(inFile);
-    inFile = nullptr;
+    fclose(childStdinFile);
+    childStdinFile = nullptr;
   }
 }
 
 void PipeStream::Write(const void* buf, size_t size)
 {
-  if (fwrite(buf, 1, size, inFile) != size)
+  if (fwrite(buf, 1, size, childStdinFile) != size)
   {
     MIKTEX_FATAL_CRT_ERROR("fwrite");
   }
-  fflush(inFile);
+  fflush(childStdinFile);
 }
 
 size_t PipeStream::Read(void* buf, size_t size)

@@ -121,9 +121,7 @@ void iopipestream::pipeclose()
 
 void iopipestream::block(bool write, bool read)
 {
-#if defined(MIKTEX_WINDOWS)
-  // MIKTEX-TODO
-#else
+#if !defined(MIKTEX_WINDOWS)
   if(pipeopen) {
     int w=fcntl(in[1],F_GETFL);
     int r=fcntl(out[0],F_GETFL);

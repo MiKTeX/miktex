@@ -280,7 +280,6 @@ int System(const mem::vector<string> &command, int quiet, bool wait,
            const char *hint, const char *application, int *ppid)
 {
 #if defined(MIKTEX_WINDOWS)
-  // MIKTEX-TODO
   MiKTeX::Core::ProcessStartInfo startInfo;
   startInfo.FileName = command[0];
   startInfo.Arguments = command;

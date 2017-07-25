@@ -394,3 +394,10 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 install(TARGETS ${MIKTEX_PREFIX}asy DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+source_group(MiKTeX FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/asy-version.h
+  miktex/InProcPipe.h
+  miktex/PipeStream.cpp
+  miktex/PipeStream.h
+)
