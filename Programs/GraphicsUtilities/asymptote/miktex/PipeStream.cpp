@@ -121,7 +121,7 @@ void PipeStream::ChildStdoutReaderThread()
     {
       MIKTEX_FATAL_WINDOWS_ERROR("SetNamedPipeHandleState");
     }
-    const size_t BUFFER_SIZE = 1024 * 16;
+    const size_t BUFFER_SIZE = 512;
     //const size_t BUFFER_SIZE = 1;
     unsigned char inbuf[BUFFER_SIZE];
     do
