@@ -97,12 +97,9 @@ public:
   {
     std::unique_lock<std::mutex> lock(mut);
     size_t read = 0;
-    bool noMore = false;
-    while (read < count
-      && CanRead()
-      && !noMore
-      && readCondition.wait_for(lock, std::chrono::milliseconds(0), [this] { return done || CanRead(); }))
+    while (read < count && CanRead())
     {
+      readCondition.wait(lock, [this] { return done || CanRead(); });
       size_t n = std::min(count - read, size.load());
       size_t num1 = std::min(n, capacity - head);
       size_t num2 = n - num1;
@@ -112,31 +109,13 @@ public:
       size -= n;
       writeCondition.notify_one();
       read += n;
-      noMore = done;
+      if (done)
+      {
+        break;
+      }
     }
     return read;
   }
-
-#if 0
-private:
-  void Resize(size_t newCapacity)
-  {
-    if (done || newCapacity <= capacity)
-    {
-      return;
-    }
-    unsigned char * newBuffer = new unsigned char[newCapacity];
-    size_t size = GetSize();
-    size_t num1 = min(size, capacity - head);
-    size_t num2 = size - num1;
-    memcpy(newBuffer, buffer + head, num1);
-    memcpy(newBuffer + num1, buffer, num2);
-    delete[] buffer;
-    buffer = newBuffer;
-    head = 0;
-    tail = size;
-  }
-#endif
 
 private:
   bool CanWrite() const
@@ -152,7 +131,7 @@ private:
 
 private:
   size_t capacity = 0;
-  std::atomic_size_t size = 0;
+  std::atomic_size_t size{ 0 };
   size_t head = 0;
   size_t tail = 0;
   std::atomic_bool done{ false };
