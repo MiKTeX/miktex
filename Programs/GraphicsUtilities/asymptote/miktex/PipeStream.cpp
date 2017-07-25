@@ -19,6 +19,8 @@
 
 #include "config.h"
 
+#include <io.h>
+
 #include <miktex/Core/FileStream>
 #include <miktex/Core/Session>
 
@@ -44,6 +46,16 @@ void PipeStream::Open(const PathName& fileName, const vector<string>& arguments)
   startInfo.RedirectStandardOutput = true;
   process = Process::Start(startInfo);
   inFile = process->get_StandardInput();
+  HANDLE inFileHandle = (HANDLE)_get_osfhandle(fileno(inFile));
+  if (inFileHandle == INVALID_HANDLE_VALUE)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  DWORD mode = PIPE_NOWAIT;
+  if (!SetNamedPipeHandleState(inFileHandle, &mode, nullptr, nullptr))
+  {
+    MIKTEX_FATAL_WINDOWS_ERROR("SetNamedPipeHandleState");
+  }
   StartThreads();
 }
 
@@ -109,8 +121,8 @@ void PipeStream::ChildStdoutReaderThread()
   try
   {
     FileStream outFile(process->get_StandardOutput());
-    //const size_t BUFFER_SIZE = 1024 * 16;
-    const size_t BUFFER_SIZE = 1;
+    const size_t BUFFER_SIZE = 1024 * 16;
+    //const size_t BUFFER_SIZE = 1;
     unsigned char inbuf[BUFFER_SIZE];
     do
     {
