@@ -110,34 +110,35 @@ void PipeStream::ChildStdoutReaderThread()
 {
   try
   {
-    FileStream outFile(process->get_StandardOutput());
-    HANDLE outFileHandle = (HANDLE)_get_osfhandle(fileno(outFile.Get()));
-    if (outFileHandle == INVALID_HANDLE_VALUE)
+    FileStream childStdoutFile(process->get_StandardOutput());
+    HANDLE childStdoutFileHandle = (HANDLE)_get_osfhandle(fileno(childStdoutFile.Get()));
+    if (childStdoutFileHandle == INVALID_HANDLE_VALUE)
     {
       MIKTEX_UNEXPECTED();
     }
-    DWORD mode = PIPE_NOWAIT;
-    if (!SetNamedPipeHandleState(outFileHandle, &mode, nullptr, nullptr))
-    {
-      MIKTEX_FATAL_WINDOWS_ERROR("SetNamedPipeHandleState");
-    }
     const size_t BUFFER_SIZE = 512;
-    //const size_t BUFFER_SIZE = 1;
     unsigned char inbuf[BUFFER_SIZE];
     do
     {
-      size_t n = outFile.Read(inbuf, BUFFER_SIZE);
-      if (n > 0)
+      DWORD avail;
+      if (!PeekNamedPipe(childStdoutFileHandle, nullptr, 0, nullptr, &avail, nullptr))
       {
-        childStdoutPipe.Write(inbuf, n);
+        if (GetLastError() == ERROR_BROKEN_PIPE)
+        {
+          break;
+        }
+        MIKTEX_FATAL_WINDOWS_ERROR("PeekNamedPipe");
       }
-      if (feof(outFile.Get()))
+      if (avail == 0)
       {
-        break;
+        Sleep(1);
+        continue;
       }
+      size_t n = childStdoutFile.Read(inbuf, BUFFER_SIZE > avail ? avail : BUFFER_SIZE);
+      childStdoutPipe.Write(inbuf, n);
     }
     while (true);
-    outFile.Close();
+    childStdoutFile.Close();
     childStdoutPipe.Close();
     Finish(true);
   }
