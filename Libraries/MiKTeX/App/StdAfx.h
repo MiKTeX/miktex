@@ -27,12 +27,6 @@
 #  include "config.h"
 #endif
 
-#if defined(MIKTEX_WINDOWS)
-#  include <process.h>
-#else
-#  include <unistd.h>
-#endif
-
 #include <csignal>
 #include <cstdarg>
 #include <cstdlib>
