@@ -22,34 +22,24 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_ADMIN_FOLDER}/Defaults")
 set(all_defaults_cmake
   mf.defaults.cmake
   mfapp.defaults.cmake
-  mpm.defaults.cmake
   mpost.defaults.cmake
-  omega.defaults.cmake
   pdftex.defaults.cmake
   texapp.defaults.cmake
   texmfapp.defaults.cmake
 )
 
+if(WITH_OMEGA)
+  list(APPEND all_defaults_cmake omega.defaults.cmake)
+endif()
+
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/include/miktex)
-
-if(MIKTEX_MPM_AUTO_ADMIN)
-  set(MPM_AutoAdmin "t")
-else()
-  set(MPM_AutoAdmin "?")
-endif()
-
-if(MIKTEX_MPM_AUTO_INSTALL)
-  set(MPM_AutoInstall "t")
-else()
-  set(MPM_AutoInstall "?")
-endif()
 
 foreach(d ${all_defaults_cmake})
   get_filename_component(fn ${d} NAME_WE)
   configure_file(
     ${d}
     ${CMAKE_CURRENT_BINARY_DIR}/${fn}.defaults
-    NEWLINE_STYLE LF
+    NEWLINE_STYLE UNIX
   )
   add_custom_command(
     OUTPUT

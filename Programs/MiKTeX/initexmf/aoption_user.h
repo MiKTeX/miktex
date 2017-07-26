@@ -16,15 +16,13 @@ const struct poptOption IniTeXMFApp::aoption_user[] = {
     nullptr
   },
 
-#if !defined(MIKTEX_STANDALONE)
   {
-    "configure", 0,
-    POPT_ARG_NONE, nullptr,
-    OPT_CONFIGURE,
-    T_("Configure MiKTeX."),
+    "clean", 0,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    OPT_CLEAN,
+    T_("Remove restorable data."),
     nullptr
   },
-#endif
 
   {
     "create-config-file", 0,
@@ -96,6 +94,14 @@ const struct poptOption IniTeXMFApp::aoption_user[] = {
     OPT_ENGINE,
     T_("Engine to be used."),
     T_("ENGINE")
+  },
+
+  {
+    "find-other-tex", 0,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    OPT_FIND_OTHER_TEX,
+    T_("Locate other TeX installations."),
+    nullptr
   },
 
   {
@@ -205,6 +211,14 @@ const struct poptOption IniTeXMFApp::aoption_user[] = {
   },
 
   {
+    "register-other-roots", 0,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    OPT_REGISTER_OTHER_ROOTS,
+    T_("Register TEXMF root directories of other TeX installations."),
+    nullptr
+  },
+
+  {
     "register-root", 0,
     POPT_ARG_STRING, nullptr,
     OPT_REGISTER_ROOT,
@@ -295,16 +309,6 @@ const struct poptOption IniTeXMFApp::aoption_user[] = {
     T_("Update the file name database."),
     T_("ROOT")
   },
-
-#if !defined(MIKTEX_STANDALONE)
-  {
-    "user-install", 0,
-    POPT_ARG_STRING, nullptr,
-    OPT_USER_INSTALL,
-    T_("Register the user installation directory."),
-    T_("DIR")
-  },
-#endif
 
   {
     "user-roots", 'r',

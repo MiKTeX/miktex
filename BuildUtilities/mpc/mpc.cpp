@@ -775,9 +775,9 @@ MpcPackageInfo PackageCreator::InitializePackageInfo(const char* lpszStagingDir)
   string strReqList;
   if (cfg->TryGetValue("", "requires", strReqList))
   {
-    for (CsvList tok(strReqList, ';'); tok; ++tok)
+    for (const string& tok : StringUtil::Split(strReqList, ';'))
     {
-      packageInfo.requiredPackages.push_back(*tok);
+      packageInfo.requiredPackages.push_back(tok);
     }
   }
 
@@ -1977,9 +1977,9 @@ void PackageCreator::Run(int argc, const char** argv)
       break;
     case OPT_STAGING_ROOTS:
     {
-      for (CsvList dir(optArg, PathName::PathNameDelimiter); dir; ++dir)
+      for (const string& dir : StringUtil::Split(optArg, PathName::PathNameDelimiter))
       {
-        stagingRoots.push_back(*dir);
+        stagingRoots.push_back(dir);
       }
       break;
     }

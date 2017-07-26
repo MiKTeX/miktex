@@ -1,6 +1,6 @@
-## CMakeLists.txt						-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2007-2016 Christian Schenk
+## Copyright (C) 2007-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -66,3 +66,4 @@ add_subdirectory(expansion)
 add_subdirectory(fndb)
 add_subdirectory(filesystem)
 add_subdirectory(file)
+add_subdirectory(process)

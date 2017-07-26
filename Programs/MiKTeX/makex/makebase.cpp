@@ -49,7 +49,7 @@ private:
 private:
   void AppendEngineOption(const char* lpszOption)
   {
-    engineOptions.Append(lpszOption);
+    engineOptions.push_back(lpszOption);
   }
 
 private:
@@ -59,7 +59,7 @@ private:
   bool noDumpPrimitive = false;
 
 private:
-  Argv engineOptions;
+  vector<string> engineOptions;
 };
 
 void MakeBase::Usage()
@@ -135,31 +135,31 @@ void MakeBase::Run(int argc, const char** argv)
   unique_ptr<TemporaryDirectory> wrkDir = TemporaryDirectory::Create();
 
   // invoke METAFONT to make the base file
-  CommandLineBuilder arguments;
-  arguments.AppendOption("--initialize");
-  arguments.AppendOption("--interaction=", "nonstopmode");
-  arguments.AppendOption("--halt-on-error");
+  vector<string> arguments;
+  arguments.push_back("--initialize");
+  arguments.push_back("--interaction="s + "nonstopmode");
+  arguments.push_back("--halt-on-error");
   switch (GetEnableInstaller())
   {
   case TriState::False:
-    arguments.AppendOption("--disable-installer");
+    arguments.push_back("--disable-installer");
     break;
   case TriState::True:
-    arguments.AppendOption("--enable-installer");
+    arguments.push_back("--enable-installer");
     break;
   default:
     break;
   }
-  arguments.AppendArguments(engineOptions);
+  arguments.insert(arguments.end(), engineOptions.begin(), engineOptions.end());
   if (!noDumpPrimitive)
   {
-    arguments.AppendArgument(name + T_("; input modes; dump"));
+    arguments.push_back(name + "; input modes; dump");
   }
   else
   {
-    arguments.AppendArgument(name);
+    arguments.push_back(name);
   }
-  if (!RunProcess(MIKTEX_MF_EXE, arguments.ToString(), wrkDir->GetPathName()))
+  if (!RunProcess(MIKTEX_MF_EXE, arguments, wrkDir->GetPathName()))
   {
     FatalError(T_("METAFONT failed on %s."), Q_(name));
   }

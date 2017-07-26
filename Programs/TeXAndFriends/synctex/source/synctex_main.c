@@ -1,14 +1,15 @@
 /* 
-Copyright (c) 2008-2014 jerome DOT laurens AT u-bourgogne DOT fr
-
-This file is part of the SyncTeX package.
-
-Latest Revision: Tue Jan 14 09:55:00 UTC 2014
-
-Version: 1.18
-
-License:
---------
+ Copyright (c) 2008-2017 jerome DOT laurens AT u-bourgogne DOT fr
+ 
+ This file is part of the __SyncTeX__ package.
+ 
+ [//]: # (Latest Revision: Fri Jul 14 16:20:41 UTC 2017)
+ [//]: # (Version: 1.19)
+ 
+ See `synctex_parser_readme.md` for more details
+ 
+ ## License
+ 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
 files (the "Software"), to deal in the Software without
@@ -59,16 +60,18 @@ This file is named "synctex_main.c".
 This is the command line interface to the synctex_parser.c.
 */
 
-#   define SYNCTEX_CLI_VERSION_STRING "1.3"
+#   define SYNCTEX_CLI_VERSION_STRING "1.4"
 
 #   ifdef __linux__
 #       define _ISOC99_SOURCE /* to get the fmax() prototype */
 #   endif
 
-#   ifdef __SYNCTEX_WORK__
-#       include <synctex_parser_c-auto.h> /* for inline && HAVE_xxx */
+#   ifdef SYNCTEX_WORK
+#       include <synctex_parser_c-auto.h>
+/*      for inline && HAVE_xxx */
 #   else
-#       include <w2c/c-auto.h> /* for inline && HAVE_xxx */
+#       include <w2c/c-auto.h>
+/*      for inline && HAVE_xxx */
 #   endif
 
 #   include <stdlib.h>
@@ -76,7 +79,7 @@ This is the command line interface to the synctex_parser.c.
 #   include <string.h>
 #   include <stdarg.h>
 #   include <math.h>
-#   include "synctex_parser.h"
+#   include "synctex_parser_advanced.h"
 #   include "synctex_parser_utils.h"
 
 /*  The code below uses strlcat and strlcpy, which avoids security warnings with some compilers.
@@ -123,7 +126,7 @@ int main(int argc, char *argv[])
 {
 	int arg_index = 1;
 	printf("This is SyncTeX command line utility, version " SYNCTEX_CLI_VERSION_STRING "\n");
-	if(arg_index<argc) {
+    if(arg_index<argc) {
 		if(0==strcmp("help",argv[arg_index])) {
 			if(++arg_index<argc) {
 				if(0==strcmp("view",argv[arg_index])) {
@@ -194,15 +197,18 @@ void synctex_help_view(const char * error,...) {
 	fputs("synctex view: forwards or direct synchronization,\n"
 		"command sent by the editor to view the output corresponding to the position under the mouse\n"
 		"\n"
-		"usage: synctex view -i line:column:input -o output [-d directory] [-x viewer-command] [-h before/offset:middle/after]\n"
+		"usage: synctex view -i line:column:[page_hint:]input -o output [-d directory] [-x viewer-command] [-h before/offset:middle/after]\n"
 		"\n"
-		"-i line:column:input\n"
-		"       specify the line, column and input file.\n"
+		"-i line:column:[page_hint:]input\n"
+		"       specify the line, column, optional page hint and input file.\n"
 		"       The line and column are 1 based integers,\n"
 		"       they allow to identify every character in a file.\n"
 		"       column is the offset of a character relative to the containing line.\n"
 		"       Pass 0 if this information is not relevant.\n"
-		"       input is either the name of the main source file or an included document.\n"
+        "       page_hint is the currently displayed page number.\n"
+        "       If there is an answer on that page, it will be returned.\n"
+        "       Pass 0 if this information is not available to you.\n"
+        "       input is either the name of the main source file or an included document.\n"
 		"       It must be the very name as understood by TeX, id est the name exactly as it appears in the log file.\n"
 		"       It does not matter if the file actually exists or not, except that the command is not really useful.\n"
 		"       \n"
@@ -256,7 +262,8 @@ void synctex_help_view(const char * error,...) {
 
 typedef struct {
 	int line;
-	int column;
+    int column;
+    int page;
 	unsigned int offset;
 	char * input;
 	char * output;
@@ -274,7 +281,7 @@ int synctex_view(int argc, char *argv[]) {
 	int arg_index = 0;
 	char * start = NULL;
 	char * end = NULL;
-	synctex_view_params_t Ps = {-1,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+	synctex_view_params_t Ps = {-1,0,0,-1,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 		
 	/* required */
 	if((arg_index>=argc) || strcmp("-i",argv[arg_index]) || (++arg_index>=argc)) {
@@ -366,11 +373,12 @@ option_hint:
 }
 
 int synctex_view_proceed(synctex_view_params_t * Ps) {
-	synctex_scanner_t scanner = NULL;
+	synctex_scanner_p scanner = NULL;
 	size_t size = 0;
 #if SYNCTEX_DEBUG
 	printf("line:%i\n",Ps->line);
-	printf("column:%i\n",Ps->column);
+    printf("column:%i\n",Ps->column);
+    printf("page:%i\n",Ps->page);
 	printf("input:%s\n",Ps->input);
 	printf("viewer:%s\n",Ps->viewer);
 	printf("before:%s\n",Ps->before);
@@ -387,9 +395,9 @@ int synctex_view_proceed(synctex_view_params_t * Ps) {
 		return -1;
 	}
 	scanner = synctex_scanner_new_with_output_file(Ps->output,Ps->directory,1);
-	if(scanner && synctex_display_query(scanner,Ps->input,Ps->line,Ps->column)) {
-		synctex_node_t node = NULL;
-		if((node = synctex_next_result(scanner)) != NULL) {
+	if(scanner && synctex_display_query(scanner,Ps->input,Ps->line,Ps->column,Ps->page)) {
+		synctex_node_p node = NULL;
+		if((node = synctex_scanner_next_result(scanner)) != NULL) {
 			/* filtering the command */
 			if(Ps->viewer && strlen(Ps->viewer)) {
 				char * viewer = Ps->viewer;
@@ -504,7 +512,7 @@ int synctex_view_proceed(synctex_view_params_t * Ps) {
 							Ps->offset,
 							(Ps->middle?Ps->middle:""),
 							(Ps->after?Ps->after:""));
-				} while((node = synctex_next_result(scanner)) != NULL);
+				} while((node = synctex_scanner_next_result(scanner)) != NULL);
 				puts("SyncTeX result end");
 			}
 		}
@@ -658,7 +666,7 @@ option_hint:
 }
 
 int synctex_edit_proceed(synctex_edit_params_t * Ps) {
-	synctex_scanner_t scanner = NULL;
+	synctex_scanner_p scanner = NULL;
 #if SYNCTEX_DEBUG
 	printf("page:%i\n",Ps->page);
 	printf("x:%f\n",Ps->x);
@@ -675,9 +683,9 @@ int synctex_edit_proceed(synctex_edit_params_t * Ps) {
 		return -1;
 	}
 	if(synctex_edit_query(scanner,Ps->page,Ps->x,Ps->y)) {
-		synctex_node_t node = NULL;
+		synctex_node_p node = NULL;
 		const char * input = NULL;
-		if(NULL != (node = synctex_next_result(scanner))
+		if(NULL != (node = synctex_scanner_next_result(scanner))
 				&& NULL != (input = synctex_scanner_get_name(scanner,synctex_node_tag(node)))) {
 			/* filtering the command */
 			if(Ps->editor && strlen(Ps->editor)) {
@@ -767,7 +775,7 @@ int synctex_edit_proceed(synctex_edit_params_t * Ps) {
 							synctex_node_column(node),
 							Ps->offset,
 							(Ps->context?Ps->context:""));
-				} while((node = synctex_next_result(scanner)) != NULL);
+				} while((node = synctex_scanner_next_result(scanner)) != NULL);
 				puts("SyncTeX result end");
 			}
 		}
@@ -807,7 +815,7 @@ void synctex_help_update(const char * error,...) {
 /*  "usage: synctex update -o output [-d directory] [-m number] [-x dimension] [-y dimension]\n"  */
 int synctex_update(int argc, char *argv[]) {
 	int arg_index = 0;
-	synctex_updater_t updater = NULL;
+	synctex_updater_p updater = NULL;
 	char * magnification = NULL;
 	char * x = NULL;
 	char * y = NULL;

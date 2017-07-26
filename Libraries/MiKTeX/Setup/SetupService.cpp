@@ -32,6 +32,7 @@ using namespace MiKTeX::Setup;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace std;
+using namespace std::string_literals;
 
 #define LICENSE_FILE "LICENSE.TXT"
 #define DOWNLOAD_INFO_FILE "README.TXT"
@@ -1193,92 +1194,90 @@ void SetupServiceImpl::ConfigureMiKTeX()
     return;
   }
 
-  CommandLineBuilder cmdLine;
+  vector<string> args;
 
   if (options.Task != SetupTask::PrepareMiKTeXDirect)
   {
     // define roots & remove old fndbs
-    cmdLine.Clear();
+    args.clear();
     if (options.IsPortable)
     {
-      cmdLine.AppendOption("--portable=", GetInstallRoot());
+      args.push_back("--portable=" + GetInstallRoot().ToString());
     }
     else
     {
       if (!options.Config.userInstallRoot.Empty())
       {
-        cmdLine.AppendOption("--user-install=", options.Config.userInstallRoot);
+        args.push_back("--user-install=" + options.Config.userInstallRoot.ToString());
       }
       if (!options.Config.userDataRoot.Empty())
       {
-        cmdLine.AppendOption("--user-data=", options.Config.userDataRoot);
+        args.push_back("--user-data=" + options.Config.userDataRoot.ToString());
       }
       if (!options.Config.userConfigRoot.Empty())
       {
-        cmdLine.AppendOption("--user-config=", options.Config.userConfigRoot);
+        args.push_back("--user-config=" + options.Config.userConfigRoot.ToString());
       }
       if (!options.Config.commonDataRoot.Empty())
       {
-        cmdLine.AppendOption("--common-data=", options.Config.commonDataRoot);
+        args.push_back("--common-data=" + options.Config.commonDataRoot.ToString());
       }
       if (!options.Config.commonConfigRoot.Empty())
       {
-        cmdLine.AppendOption("--common-config=", options.Config.commonConfigRoot);
+        args.push_back("--common-config=" + options.Config.commonConfigRoot.ToString());
       }
       if (!options.Config.commonInstallRoot.Empty())
       {
-        cmdLine.AppendOption("--common-install=", options.Config.commonInstallRoot);
+        args.push_back("--common-install=" + options.Config.commonInstallRoot.ToString());
       }
 #if defined(MIKTEX_WINDOWS)
       if (!options.IsRegistryEnabled)
       {
-        cmdLine.AppendOption("--no-registry");
-        cmdLine.AppendOption("--create-config-file=", MIKTEX_PATH_MIKTEX_INI);
-        cmdLine.AppendOption("--set-config-value=", "[" MIKTEX_REGKEY_CORE "]" MIKTEX_REGVAL_NO_REGISTRY "=1");
+        args.push_back("--no-registry");
+        args.push_back("--create-config-file="s + MIKTEX_PATH_MIKTEX_INI);
+        args.push_back("--set-config-value="s + "[" + MIKTEX_REGKEY_CORE + "]" + MIKTEX_REGVAL_NO_REGISTRY + "=1");
       }
 #endif
       if (options.IsCommonSetup)
       {
-        cmdLine.AppendOption("--set-config-value=", "[" MIKTEX_REGKEY_CORE "]" MIKTEX_REGVAL_SHARED_SETUP "=1");
+        args.push_back("--set-config-value="s + "[" + MIKTEX_REGKEY_CORE + "]" + MIKTEX_REGVAL_SHARED_SETUP + "=1");
       }
     }
     if (!options.Config.commonRoots.empty())
     {
-      cmdLine.AppendOption("--common-roots=", options.Config.commonRoots);
+      args.push_back("--common-roots=" + options.Config.commonRoots);
     }
     if (!options.Config.userRoots.empty())
     {
-      cmdLine.AppendOption("--user-roots=", options.Config.userRoots);
+      args.push_back("--user-roots=" + options.Config.userRoots);
     }
-    RunIniTeXMF(cmdLine);
+    RunIniTeXMF(args);
     if (cancelled)
     {
       return;
     }
 
-    RunIniTeXMF(CommandLineBuilder("--rmfndb"));
+    RunIniTeXMF({ "--rmfndb" });
 
     // register components, configure files
-    RunMpm(CommandLineBuilder("--register-components"));
+    RunMpm({ "--register-components" });
 
     // create filename database files
-    cmdLine.Clear();
-    cmdLine.AppendOption("--update-fndb");
-    RunIniTeXMF(cmdLine);
+    RunIniTeXMF({ "--update-fndb" });
     if (cancelled)
     {
       return;
     }
 
     // create latex.exe, ...
-    RunIniTeXMF(CommandLineBuilder("--force", "--mklinks"));
+    RunIniTeXMF({ "--force", "--mklinks" });
     if (cancelled)
     {
       return;
     }
 
     // create font map files and language.dat
-    RunIniTeXMF(CommandLineBuilder("--mkmaps", "--mklangs"));
+    RunIniTeXMF({ "--mkmaps", "--mklangs" });
     if (cancelled)
     {
       return;
@@ -1288,24 +1287,20 @@ void SetupServiceImpl::ConfigureMiKTeX()
   // set paper size
   if (!options.PaperSize.empty())
   {
-    cmdLine.Clear();
-    cmdLine.AppendOption("--default-paper-size=", options.PaperSize);
-    RunIniTeXMF(cmdLine);
+    RunIniTeXMF({ "--default-paper-size=" + options.PaperSize });
   }
 
   // set auto-install
-  string valueSpec = "[" MIKTEX_REGKEY_PACKAGE_MANAGER "]";
-  valueSpec += MIKTEX_REGVAL_AUTO_INSTALL;
+  string valueSpec = "[" MIKTEX_CONFIG_SECTION_MPM "]";
+  valueSpec += MIKTEX_CONFIG_VALUE_AUTOINSTALL;
   valueSpec += "=";
   valueSpec += std::to_string((int)options.IsInstallOnTheFlyEnabled);
-  cmdLine.Clear();
-  cmdLine.AppendOption("--set-config-value=", valueSpec);
-  RunIniTeXMF(cmdLine);
+  RunIniTeXMF({ "--set-config-value=" + valueSpec });
 
   if (options.Task != SetupTask::PrepareMiKTeXDirect)
   {
     // refresh file name database again
-    RunIniTeXMF(CommandLineBuilder("--update-fndb"));
+    RunIniTeXMF({ "--update-fndb" });
     if (cancelled)
     {
       return;
@@ -1314,23 +1309,23 @@ void SetupServiceImpl::ConfigureMiKTeX()
 
   if (!options.IsPortable)
   {
-    RunIniTeXMF(CommandLineBuilder("--register-shell-file-types"));
+    RunIniTeXMF({ "--register-shell-file-types" });
   }
 
   if (!options.IsPortable && options.IsRegisterPathEnabled)
   {
-    RunIniTeXMF(CommandLineBuilder("--modify-path"));
+    RunIniTeXMF({ "--modify-path" });
   }
 
   // create report
-  RunIniTeXMF(CommandLineBuilder("--report"));
+  RunIniTeXMF({ "--report" });
   if (cancelled)
   {
     return;
   }
 }
 
-void SetupServiceImpl::RunIniTeXMF(const CommandLineBuilder & cmdLine1)
+void SetupServiceImpl::RunIniTeXMF(const vector<string>& args)
 {
   shared_ptr<Session> session = Session::Get();
 
@@ -1341,26 +1336,27 @@ void SetupServiceImpl::RunIniTeXMF(const CommandLineBuilder & cmdLine1)
   exePath /= MIKTEX_INITEXMF_EXE;
 
   // make command line
-  CommandLineBuilder cmdLine(cmdLine1);
+  vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
+  allArgs.insert(allArgs.end(), args.begin(), args.end());
   if (options.IsCommonSetup)
   {
-    cmdLine.AppendOption("--admin");
+    allArgs.push_back("--admin");
   }
-  cmdLine.AppendOption("--log-file=", GetULogFileName());
-  cmdLine.AppendOption("--verbose");
+  allArgs.push_back("--log-file=" + GetULogFileName().ToString());
+  allArgs.push_back("--verbose");
 
   // run initexmf.exe
   if (!options.IsDryRun)
   {
-    Log("%s %s:\n", Q_(exePath), cmdLine.ToString().c_str());
+    Log("%s:\n", CommandLineBuilder(allArgs).ToString().c_str());
     ULogClose(false);
     session->UnloadFilenameDatabase();
-    Process::Run(exePath, cmdLine.ToString(), this);
+    Process::Run(exePath, allArgs, this);
     ULogOpen();
   }
 }
 
-void SetupServiceImpl::RunMpm(const CommandLineBuilder & cmdLine1)
+void SetupServiceImpl::RunMpm(const vector<string>& args)
 {
   shared_ptr<Session> session = Session::Get();
   // make absolute exe path name
@@ -1370,20 +1366,21 @@ void SetupServiceImpl::RunMpm(const CommandLineBuilder & cmdLine1)
   exePath /= MIKTEX_MPM_EXE;
 
   // make command line
-  CommandLineBuilder cmdLine(cmdLine1);
+  vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
+  allArgs.insert(allArgs.end(), args.begin(), args.end());
   if (options.IsCommonSetup)
   {
-    cmdLine.AppendOption("--admin");
+    allArgs.push_back("--admin");
   }
-  cmdLine.AppendOption("--verbose");
+  allArgs.push_back("--verbose");
 
   // run mpm.exe
   if (!options.IsDryRun)
   {
-    Log("%s %s:\n", Q_(exePath), cmdLine.ToString().c_str());
+    Log("%s:\n", CommandLineBuilder(allArgs).ToString().c_str());
     ULogClose(false);
     session->UnloadFilenameDatabase();
-    Process::Run(exePath.GetData(), cmdLine.ToString(), this);
+    Process::Run(exePath, allArgs, this);
     ULogOpen();
   }
 }

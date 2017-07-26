@@ -21,6 +21,43 @@
 
 #include "internal.h"
 
+string StringUtil::Flatten(const std::vector<std::string>& vec, char sep)
+{
+  string result;
+  for (const string& s : vec)
+  {
+    if (!result.empty())
+    {
+      result += sep;
+    }
+    result += s;
+  }
+  return result;
+}
+
+vector<string> StringUtil::Split(const std::string& s, char sep)
+{
+  vector<string> result;
+  if (s.empty())
+  {
+    return result;
+  }
+  string current;
+  for (const char& ch : s)
+  {
+    if (ch == sep)
+    {
+      result.push_back(std::move(current));
+    }
+    else
+    {
+      current += ch;
+    }
+  }
+  result.push_back(std::move(current));
+  return result;
+}
+
 size_t StringUtil::AppendString(char* dest, size_t destSize, const char* source)
 {
   // TODO: MIKTEX_ASSERT_STRING(lpszBuf);

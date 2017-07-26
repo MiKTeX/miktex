@@ -1,6 +1,6 @@
 /* miktex/Wrappers/PoptWrapper.h: popt library wrapper  -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU Library General Public License as
@@ -62,20 +62,20 @@ public:
   }
 
 public:
-  PoptWrapper(const char * lpszName, int argc, const char ** argv, const struct poptOption* options, int flags = 0)
+  PoptWrapper(const char* lpszName, int argc, const char** argv, const struct poptOption* options, int flags = 0)
   {
     Construct(lpszName, argc, argv, options, flags);
   }
 
 public:
-  PoptWrapper(int argc, const char ** argv, const struct poptOption* options, int flags = 0)
+  PoptWrapper(int argc, const char** argv, const struct poptOption* options, int flags = 0)
   {
     Construct(argc, argv, options, flags);
   }
 
 
 public:
-  void Construct(const char * lpszName, int argc, const char** argv, const struct poptOption* options, int flags = 0)
+  void Construct(const char* lpszName, int argc, const char** argv, const struct poptOption* options, int flags = 0)
   {
     ctx = poptGetContext(lpszName, argc, argv, options, flags);
   }
@@ -84,6 +84,12 @@ public:
   void Construct(int argc, const char** argv, const struct poptOption* options, int flags = 0)
   {
     Construct(nullptr, argc, argv, options, flags);
+  }
+
+public:
+  int AddAlias(const char* longName, char shortName, int argc, const char** argvFreeable)
+  {
+    return poptAddAlias(ctx, { longName, shortName, argc, argvFreeable }, 0);
   }
 
 public:
@@ -136,7 +142,7 @@ public:
   std::string GetOptArg()
   {
     std::string result;
-    char * lpsz = poptGetOptArg(ctx);
+    char* lpsz = poptGetOptArg(ctx);
     if (lpsz != nullptr)
     {
       result = lpsz;
@@ -152,7 +158,7 @@ public:
     const char** args = poptGetArgs(ctx);
     if (args != nullptr)
     {
-      for (const char ** a = args; *a != nullptr; ++a)
+      for (const char** a = args; *a != nullptr; ++a)
       {
         result.push_back(*a);
       }

@@ -165,8 +165,7 @@ void TeXMFApp::OnTeXMFStartJob()
   }
   session->PushBackAppName(appName);
   pimpl->parseFirstLine = session->GetConfigValue("", MIKTEX_REGVAL_PARSE_FIRST_LINE, AmITeX()).GetBool();
-  pimpl->showFileLineErrorMessages = session->GetConfigValue("", MIKTEX_REGVAL_C_STYLE_ERRORS, false).GetBool();
-  EnablePipes(session->GetConfigValue("", MIKTEX_REGVAL_ENABLE_PIPES, false).GetBool());
+  pimpl->showFileLineErrorMessages = session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_CSTYLEERRORS).GetBool();
   pimpl->clockStart = clock();
 }
 
@@ -355,7 +354,7 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
     SetAuxDirectory(auxDirectory);
     if (!Directory::Exists(auxDirectory))
     {
-      if (session->GetConfigValue("", MIKTEX_REGVAL_CREATE_AUX_DIRECTORY, texmfapp::texmfapp::CreateAuxDirectory()).GetString() == "t")
+      if (session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_CREATEAUXDIRECTORY).GetString() == "t")
       {
         Directory::Create(auxDirectory);
       }
@@ -495,7 +494,7 @@ bool TeXMFApp::ProcessOption(int opt, const string& optArg)
     SetOutputDirectory(outputDirectory);
     if (!Directory::Exists(outputDirectory))
     {
-      if (session->GetConfigValue("", MIKTEX_REGVAL_CREATE_OUTPUT_DIRECTORY, texmfapp::texmfapp::CreateOutputDirectory()).GetString() == "t")
+      if (session->GetConfigValue(MIKTEX_CONFIG_SECTION_TEXANDFRIENDS, MIKTEX_CONFIG_VALUE_CREATEOUTPUTDIRECTORY).GetString() == "t")
       {
         Directory::Create(outputDirectory);
       }
@@ -584,7 +583,7 @@ Argv TeXMFApp::ParseFirstLine(const PathName& path)
     return Argv();
   }
 
-  return Argv("foo", firstLine.c_str() + 2);
+  return Argv(firstLine.c_str() + 2);
 }
 
 bool inParseFirstLine = false;
@@ -605,19 +604,19 @@ void TeXMFApp::CheckFirstLine(const PathName& fileName)
 
   Argv argv = ParseFirstLine(path);
 
-  if (argv.GetArgc() <= 1)
+  if (argv.GetArgc() == 0)
   {
     return;
   }
 
   int optidx;
 
-  if (argv.GetArgc() > 1 && argv[1][0] != '-')
+  if (argv[0][0] != '-')
   {
-    optidx = 2;
+    optidx = 1;
     if (pimpl->memoryDumpFileName.empty())
     {
-      string memoryDumpFileName = argv[1];
+      string memoryDumpFileName = argv[0];
       PathName fileName(memoryDumpFileName);
       if (!fileName.HasExtension())
       {
@@ -632,7 +631,7 @@ void TeXMFApp::CheckFirstLine(const PathName& fileName)
   }
   else
   {
-    optidx = 1;
+    optidx = 0;
   }
 
   int opt;

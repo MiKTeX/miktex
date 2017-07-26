@@ -11,13 +11,14 @@ you want to learn more about MiKTeX.
 This readme file is located in the top-level directory of the MiKTeX
 source code tree.
 
-The MiKTeX source code allows you to build and install a minimal TeX
-system.  MiKTeX provides an integrated package manager, which can
-automatically download and install missing packages.  Thus:
+The MiKTeX source code allows you to build and install a bare TeX
+system (aka "Just enough TeX").  MiKTeX provides an integrated package
+manager, which can automatically download and install missing
+packages.  Thus:
 
-* you start with a compact TeX setup
-* only packages which are referenced by your projects will be
-  installed
+* you start with MiKTeX executables and man pages
+* in the course of authoring your documents: only necessary packages
+  will be downloaded and installed
   
 MiKTeX can be built on Windows and Unix-like (including macOS)
 systems.  Please consult these HOWTOs for platform-specific build
@@ -26,6 +27,12 @@ instructions:
 * [https://miktex.org/howto/build-win](https://miktex.org/howto/build-win "Building MiKTeX (Windows)")
 * [https://miktex.org/howto/build-unx](https://miktex.org/howto/build-unx "Building MiKTeX (Unix-line)")
 * [https://miktex.org/howto/build-mac](https://miktex.org/howto/build-mac "Building MiKTeX (macOS)")
+
+In addition, you can try one of the Dockerized build environments to build MiKTeX:
+
+* [Ubuntu 16.04](https://github.com/MiKTeX/docker-miktex-build-xenial)
+* [Debian 9](https://github.com/MiKTeX/docker-miktex-build-stretch)
+* [Fedora 25](https://github.com/MiKTeX/docker-miktex-build-fedora-25)
 
 ## Prerequisites
 
@@ -167,6 +174,24 @@ would run
 This will install MiKTeX in the `/usr/local`-prefixed directory
 tree.
 
+### Symbolic links
+
+Most of the MiKTeX executables are prefixed with `miktex-`.  For
+example, the file name of the pdfTeX executable is `miktex-pdftex`.
+You can create symbolic links targetting the `miktex-` prefixed
+executables:
+
+    initexmf --admin --mklinks
+
+After running this command, the pdfTeX engine can be invoked as
+`pdftex`, provided that `pdftex` did not exist before (use the
+`--force` option to overwrite existing files).
+
+The `--mklinks` option will also create symbolic links for format
+files and scripts.  For example, you can invoke `pdflatex` (pdfTeX
+with format `pdflatex` loaded) and `latexmk` (wrapper for the Perl
+script `latexmk.pl`).
+
 ### Relocating the installation
 
 On Unix-like platforms, you can use the `DESTDIR` mechanism in order
@@ -183,57 +208,25 @@ The `DESTDIR` mechanism is helpful if you want to understand what
 
 ## First steps
 
-### Initialize the package database
+### Installing packages
 
-MiKTeX has the ability to install missing packages "on-the-fly".  The
-package database must have been set up for this to work:
+You are now at a point where you have the MiKTeX executables, some
+configuration files and man pages.
 
-    mpm --admin --update-db
+It is recommended that you install some packages now:
 
-The `--admin` option is only required if you are building a shared
-MiKTeX setup.  If you are setting up MiKTeX just for yourself (i.e.,
-in your user directory), you have to omit this option.
+    mpm --admin --install=amsfonts --install=ltxbase
 
-Please consult the mpm(1) man page, for more information about the
-utility.
+Package `amsfonts` contains Type1 fonts for the traditional TeX fonts
+(aka "Computer Modern").  Package `ltxbase` contains the LaTeX
+document preparation system.
 
-### Enabling "on-the-fly" package installation
+If disk space is not an issue, you can "upgrade" your MiKTeX
+installation.  This is usually not recommended when you use MiKTeX
+just for yourself.  But it might make sense if you are maintaining a
+system-wide MiKTeX installation.
 
-In order to enable the automatic package installer, run the MiKTeX
-Configuration Utility as follows:
-
-    initexmf --admin --set-config-value [MPM]AutoInstall=1
-    initexmf --admin --update-fndb
-
-Again, you have to omit `--admin`, if you intend to use MiKTeX just
-for yourself.
-
-The option `--update-fndb` updates the file name database.
-
-Please consult the initexmf(1) man page, for more information about
-the MiKTeX Configuration Utility.
-
-### Symbolic links
-
-Most of the MiKTeX executables are prefixed with `miktex-`.  For
-example, the file name of the pdfTeX executable is `miktex-pdftex`.
-You can create symbolic links targetting the `miktex-` prefixed
-executables:
-
-    initexmf --admin --mklinks
-
-After running this command, the pdfTeX engine can be invoked as
-`pdftex`, provided that `pdftex` did not exist before (use the
-`--force` option to overwrite existing link names).
-
-The `--mklinks` option will also create symbolic links for format
-files and scripts.  For example, you can invoke `pdflatex` (pdfTeX
-with format `pdflatex` loaded) and `latexmk` (wrapper for the Perl
-script `latexmk.pl`).
-
-### Installing basic packages
-
-You use the MiKTeX Package Manager to install basic MiKTeX packages:
+To upgrade to a basic MiKTeX installation, run
 
     mpm --admin --verbose --package-level=basic --upgrade
 
@@ -244,11 +237,13 @@ various TeX engines, you must run
 
 ### Finalizing
 
-These are the final steps: update the file name database again and, if
-you used the `--admin` option, remove the `.miktex` directory, which
-was created in the previous steps:
+These are the final steps: update the file name database again:
 
     initexmf --admin --update-fndb
+
+If you used the `--admin` option to set up a shared MiKTeX
+installation, remove the user `.miktex` directory:
+
     rm -fr ~/.miktex
 
 ## Testing

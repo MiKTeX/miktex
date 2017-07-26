@@ -82,7 +82,6 @@ enum class FileType
   OVF,
   OVP,
   PDFTEXCONFIG,
-  PERLSCRIPT,
   PK,
   PROGRAMBINFILE,
   PROGRAMTEXTFILE,
@@ -105,9 +104,6 @@ enum class FileType
   VF,
   WEB,
   WEB2C,
-#if defined(MIKTEX_WINDOWS)
-  WindowsCommandScriptFile,
-#endif
   E_N_D
 };
 

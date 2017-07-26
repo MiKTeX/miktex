@@ -64,12 +64,6 @@ set(mo_mfc_sources
   resource.hm
 )
 
-set(generated_sources
-  ${CMAKE_BINARY_DIR}/include/miktex/mpm.defaults.h
-)
-
-list(APPEND mo_mfc_sources ${generated_sources})
-
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND mo_mfc_sources
     ${CMAKE_CURRENT_BINARY_DIR}/mo.rc)
@@ -90,14 +84,6 @@ endif()
 add_executable(mo WIN32 ${mo_mfc_sources})
 
 set_property(TARGET mo PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-add_dependencies(mo gen-defaults)
-
-set_source_files_properties(
-  ${generated_sources}
-  PROPERTIES
-    GENERATED TRUE
-)
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_link_flags(mo "/ENTRY:\"wWinMainCRTStartup\"")
@@ -128,8 +114,6 @@ install(TARGETS mo DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 add_executable(mo${MIKTEX_ADMIN_SUFFIX} WIN32 ${mo_mfc_sources})
 
 set_property(TARGET mo${MIKTEX_ADMIN_SUFFIX} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-add_dependencies(mo${MIKTEX_ADMIN_SUFFIX} gen-defaults)
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_link_flags(mo${MIKTEX_ADMIN_SUFFIX} "/ENTRY:\"wWinMainCRTStartup\"")

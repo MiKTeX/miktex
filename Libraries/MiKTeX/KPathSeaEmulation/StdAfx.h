@@ -1,6 +1,6 @@
 /* StdAfx.h: pre-compiled header stuff                  -*- C++ -*-
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is part of the MiKTeX KPSEMU Library.
 
@@ -30,8 +30,8 @@
 #include <miktex/App/Application>
 #include <miktex/C4P/C4P>
 #include <miktex/Core/BufferSizes>
-#include <miktex/Core/CsvList>
 #include <miktex/Core/Cfg>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/File>
 #include <miktex/Core/FileType>
 #include <miktex/Core/Fndb>

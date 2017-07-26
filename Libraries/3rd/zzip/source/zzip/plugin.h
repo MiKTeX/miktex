@@ -1,13 +1,8 @@
 /*
  * Author: 
- *	Guido Draheim <guidod@gmx.de>
+ *     Guido Draheim <guidod@gmx.de>
  *
- * Copyright (c) 2002,2003 Guido Draheim
- * 	    All rights reserved
- *	    use under the restrictions of the
- *	    Lesser GNU General Public License
- *          or alternatively the restrictions 
- *          of the Mozilla Public License 1.1
+ * Copyright (c) Guido Draheim, use under copyleft
  *
  *  the interfaces for the plugin_io system
  *
@@ -93,7 +88,7 @@ int zzip_init_io(zzip_plugin_io_handlers_t io, int flags);
 # define ZZIP_IO_USE_MMAP 1
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif

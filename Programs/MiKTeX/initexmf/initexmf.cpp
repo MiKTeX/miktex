@@ -26,8 +26,7 @@ using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
 using namespace std;
-
-#include <miktex/mpm.defaults.h>
+using namespace std::string_literals;
 
 #define UNUSED_ALWAYS(x)
 
@@ -102,42 +101,6 @@ enum class LinkCategory
 };
 
 typedef OptionSet<LinkCategory> LinkCategoryOptions;
-
-class ProcessOutput :
-  public IRunProcessCallback
-{
-public:
-  void RemoveTrailingNewline()
-  {
-    if (!output.empty() && output[output.length() - 1] == '\n')
-    {
-      output.erase(output.length() - 1);
-    }
-  }
-public:
-  const string ToString()
-  {
-    return output;
-  }
-public:
-  bool IsEmpty()
-  {
-    return output.empty();
-  }
-public:
-  void Clear()
-  {
-    output = "";
-  }
-public:
-  bool OnProcessOutput(const void* pOutput, size_t n) override
-  {
-    output.append(reinterpret_cast<const char*>(pOutput), n);
-    return true;
-  }
-private:
-  string output;
-};
 
 class XmlWriter
 {
@@ -240,6 +203,14 @@ configShortcuts[] = {
   "updmap", MIKTEX_PATH_UPDMAP_CFG,
 };
 
+string Timestamp()
+{
+  auto now = time(nullptr);
+  stringstream s;
+  s << std::put_time(localtime(&now), "%Y-%m-%d-%H%M%S");
+  return s.str();
+}
+
 class IniTeXMFApp :
   public IFindFileCallback,
   public ICreateFndbCallback,
@@ -256,16 +227,14 @@ public:
 public:
   PathName GetLogDir()
   {
-    PathName logDir(session->GetSpecialPath(SpecialPath::DataRoot));
-    logDir /= MIKTEX_PATH_MIKTEX_LOG_DIR;
-    return logDir;
+    return session->GetSpecialPath(SpecialPath::LogDirectory);
   }
 
 public:
   string GetLogName()
   {
     string logName = "initexmf";
-    if (adminMode && session->RunningAsAdministrator())
+    if (session->IsAdminMode() && session->RunningAsAdministrator())
     {
       logName += MIKTEX_ADMIN_SUFFIX;
     }
@@ -276,7 +245,7 @@ public:
   void Init(int argc, const char* argv[]);
 
 public:
-  void Finalize();
+  void Finalize(bool keepSession);
 
 private:
   void Verbose(const char* lpszFormat, ...);
@@ -303,6 +272,9 @@ private:
   void ListMetafontModes();
 
 private:
+  void Clean();
+
+private:
   void RemoveFndb();
 
 private:
@@ -313,7 +285,26 @@ private:
 #endif
 
 private:
-  void RunMakeTeX(const string& makeProg, const CommandLineBuilder& arguments);
+  void RunProcess(const PathName& fileName, const vector<string>& arguments)
+  {
+    ProcessOutput<4096> output;
+    int exitCode;
+    if (!Process::Run(fileName, arguments, &output, &exitCode, nullptr) || exitCode != 0)
+    {
+      auto outputBytes = output.GetStandardOutput();
+      PathName outfile = GetLogDir() / fileName.GetFileNameWithoutExtension();
+      outfile += "_";
+      outfile += Timestamp().c_str();
+      outfile.SetExtension(".out");
+      FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
+      outstream.Write(&outputBytes[0], outputBytes.size());
+      outstream.Close();
+      MIKTEX_FATAL_ERROR_2(T_("The executed process did not succeed. The process output has been saved to a file."), "fileName", fileName.ToString(), "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
+    }
+  }
+
+private:
+  void RunMakeTeX(const string& makeProg, const vector<string>& arguments);
 
 private:
   void MakeFormatFile(const string& formatKey);
@@ -337,7 +328,7 @@ private:
   void ShowConfigValue(const string& valueSpec);
 
 private:
-  vector<FileLink> CollectLinks(LinkCategoryOptions linkCategories, bool overwrite);
+  vector<FileLink> CollectLinks(LinkCategoryOptions linkCategories);
 
 private:
   void ManageLinks(LinkCategoryOptions linkCategories, bool remove, bool force);
@@ -351,7 +342,7 @@ private:
   void MakeLanguageDat(bool force);
 
 private:
-  void RegisterRoots(const vector<PathName>& roots, bool reg);
+  void RegisterRoots(const vector<PathName>& roots, bool other, bool reg);
 
 #if defined(MIKTEX_WINDOWS)
 private:
@@ -387,10 +378,22 @@ private:
 private:
   void WriteReport();
 
-#if !defined(MIKTEX_STANDALONE)
 private:
-  void Configure();
-#endif
+  void Bootstrap();
+
+private:
+  struct OtherTeX
+  {
+    string name;
+    string version;
+    StartupConfig startupConfig;
+  };
+
+private:
+  vector<OtherTeX> FindOtherTeX();
+
+private:
+  void RegisterOtherRoots();
 
 private:
   void CreatePortableSetup(const PathName& portableRoot);
@@ -431,16 +434,31 @@ private:
 private:
   vector<TraceCallback::TraceMessage> pendingTraceMessages;
 
+private:
+  void PushTraceMessage(const TraceCallback::TraceMessage& traceMessage)
+  {
+    if (pendingTraceMessages.size() > 100)
+    {
+      pendingTraceMessages.clear();
+    }
+    pendingTraceMessages.push_back(traceMessage);
+  }
+
+private:
+  void PushTraceMessage(const string& message)
+  {
+    PushTraceMessage(TraceCallback::TraceMessage("initexmf", "initexmf", message));
+  }
+  
 public:
   void Trace(const TraceCallback::TraceMessage& traceMessage) override
   {
     if (!isLog4cxxConfigured)
     {
-      if (pendingTraceMessages.size() > 100)
-      {
-        pendingTraceMessages.clear();
-      }
-      pendingTraceMessages.push_back(traceMessage);
+#if 0
+      fprintf(stderr, "%s\n", traceMessage.message.c_str());
+#endif
+      PushTraceMessage(traceMessage);
       return;
     }
     FlushPendingTraceMessages();
@@ -508,9 +526,6 @@ private:
   bool removeFndb = false;
 
 private:
-  bool adminMode = false;
-
-private:
   StartupConfig startupConfig;
 
 private:
@@ -566,8 +581,6 @@ enum Option
 {
   OPT_AAA = 256,
 
-  OPT_CONFIGURE,                // ! MIKTEX_STANDALONE
-
   OPT_ADMIN,
   OPT_DISABLE_INSTALLER,
   OPT_DUMP,
@@ -591,12 +604,15 @@ enum Option
   OPT_VERSION,
 
   OPT_ADD_FILE,                 // <experimental/>
+  OPT_CLEAN,                    // <experimental/>
   OPT_CREATE_CONFIG_FILE,       // <experimental/>
   OPT_CSV,                      // <experimental/>
+  OPT_FIND_OTHER_TEX,           // <experimental/>
   OPT_LIST_DIRECTORY,           // <experimental/>
   OPT_LIST_FORMATS,             // <experimental/>
   OPT_MODIFY_PATH,              // <experimental/>
   OPT_RECURSIVE,                // <experimental/>
+  OPT_REGISTER_OTHER_ROOTS,     // <experimental/>
   OPT_REGISTER_SHELL_FILE_TYPES,        // <experimental/>
   OPT_REMOVE_FILE,              // <experimental/>
   OPT_SET_CONFIG_VALUE,         // <experimental/>
@@ -715,7 +731,7 @@ IniTeXMFApp::~IniTeXMFApp()
 {
   try
   {
-    Finalize();
+    Finalize(false);
   }
   catch (const exception &)
   {
@@ -724,14 +740,33 @@ IniTeXMFApp::~IniTeXMFApp()
 
 void IniTeXMFApp::Init(int argc, const char* argv[])
 {
-  adminMode = argc > 0 && std::any_of(&argv[1], &argv[argc], [](const char* arg) { return strcmp(arg, "--admin") == 0 || strcmp(arg, "-admin") == 0; });
+  bool adminMode = argc > 0 && std::any_of(&argv[1], &argv[argc], [](const char* arg) { return strcmp(arg, "--admin") == 0 || strcmp(arg, "-admin") == 0; });
   Session::InitInfo initInfo(argv[0]);
 #if defined(MIKTEX_WINDOWS)
   initInfo.SetOptions({ Session::InitOption::InitializeCOM });
 #endif
   initInfo.SetTraceCallback(this);
   session = Session::Create(initInfo);
-  enableInstaller = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, mpm::AutoInstall()).GetTriState();
+  packageManager = PackageManager::Create(PackageManager::InitInfo(this));
+  FindWizards();
+  if (adminMode)
+  {
+    if (!setupWizardRunning && !session->IsSharedSetup())
+    {
+      FatalError(T_("Option --admin only makes sense for a shared MiKTeX setup."));
+    }
+    if (!session->RunningAsAdministrator())
+    {
+      Warning(T_("Option --admin may require administrative privileges"));
+    }
+    session->SetAdminMode(true, setupWizardRunning);
+  }
+  if (session->RunningAsAdministrator() && !session->IsAdminMode())
+  {
+    Warning(T_("Option --admin should be specified when running this program with administrative privileges"));
+  }
+  Bootstrap();
+  enableInstaller = session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
   PathName xmlFileName;
   if (session->FindFile("initexmf." MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
     || session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
@@ -746,15 +781,22 @@ void IniTeXMFApp::Init(int argc, const char* argv[])
   }
   isLog4cxxConfigured = true;
   LOG4CXX_INFO(logger, "starting: " << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR));
-  packageManager = PackageManager::Create(PackageManager::InitInfo(this));
-  FindWizards();
+  FlushPendingTraceMessages();
+  if (session->IsAdminMode())
+  {
+    Verbose(T_("Operating on the shared (system-wide) MiKTeX setup"));
+  }
+  else
+  {
+    Verbose(T_("Operating on the private (per-user) MiKTeX setup"));
+  }
   PathName myName = PathName(argv[0]).GetFileNameWithoutExtension();
   isMktexlsrMode = myName == "mktexlsr" || myName == "texhash";
   isTexlinksMode = myName == "texlinks";
   session->SetFindFileCallback(this);
 }
 
-void IniTeXMFApp::Finalize()
+void IniTeXMFApp::Finalize(bool keepSession)
 {
   if (logStream.IsOpen())
   {
@@ -763,14 +805,17 @@ void IniTeXMFApp::Finalize()
   FlushPendingTraceMessages();
   packageInstaller = nullptr;
   packageManager = nullptr;
-  session = nullptr;
+  if (!keepSession)
+  {
+    session = nullptr;
+  }
 }
 
 void IniTeXMFApp::FindWizards()
 {
   setupWizardRunning = false;
   updateWizardRunning = false;
-  vector<string> invokerNames = Process2::GetInvokerNames();
+  vector<string> invokerNames = Process::GetInvokerNames();
   for (const string& name : invokerNames)
   {
     if (PathName::Compare(name, MIKTEX_PREFIX "update") == 0
@@ -806,7 +851,7 @@ void IniTeXMFApp::Verbose(const char* lpszFormat, ...)
     throw;
   }
   va_end(arglist);
-  if (!printOnly)
+  if (!printOnly && isLog4cxxConfigured)
   {
     LOG4CXX_INFO(logger, s);
   }
@@ -853,7 +898,10 @@ void IniTeXMFApp::Warning(const char* lpszFormat, ...)
     throw;
   }
   va_end(arglist);
-  LOG4CXX_WARN(logger, s);
+  if (isLog4cxxConfigured)
+  {
+    LOG4CXX_WARN(logger, s);
+  }
   if (!quiet)
   {
     cerr << PROGNAME << ": " << T_("warning") << ": " << s << endl;
@@ -1014,6 +1062,18 @@ void IniTeXMFApp::ListMetafontModes()
   }
 }
 
+void IniTeXMFApp::Clean()
+{
+  LinkCategoryOptions linkCategories;
+  linkCategories.Set();
+  ManageLinks(linkCategories, true, false);
+  session->UnloadFilenameDatabase();
+  Finalize(true);
+  isLog4cxxConfigured = false;
+  logger = nullptr;
+  Directory::Delete(session->GetSpecialPath(SpecialPath::DataRoot), true);
+}
+
 void IniTeXMFApp::RemoveFndb()
 {
   session->UnloadFilenameDatabase();
@@ -1051,7 +1111,7 @@ void IniTeXMFApp::SetTeXMFRootDirectories(
   }
 }
 
-void IniTeXMFApp::RunMakeTeX(const string& makeProg, const CommandLineBuilder& arguments)
+void IniTeXMFApp::RunMakeTeX(const string& makeProg, const vector<string>& arguments)
 {
   PathName exe;
 
@@ -1060,42 +1120,44 @@ void IniTeXMFApp::RunMakeTeX(const string& makeProg, const CommandLineBuilder& a
     FatalError(T_("The %s executable could not be found."), Q_(makeProg));
   }
 
-  CommandLineBuilder xArguments(arguments);
+  vector<string> xArguments{ makeProg };
+
+  xArguments.insert(xArguments.end(), arguments.begin(), arguments.end());
 
   if (printOnly)
   {
-    xArguments.AppendOption("--print-only");
+    xArguments.push_back("--print-only");
   }
 
   if (verbose)
   {
-    xArguments.AppendOption("--verbose");
+    xArguments.push_back("--verbose");
   }
 
   if (quiet)
   {
-    xArguments.AppendOption("--quiet");
+    xArguments.push_back("--quiet");
   }
 
-  if (adminMode)
+  if (session->IsAdminMode())
   {
-    xArguments.AppendOption("--admin");
+    xArguments.push_back("--admin");
   }
 
   switch (enableInstaller)
   {
   case TriState::True:
-    xArguments.AppendOption("--enable-installer");
+    xArguments.push_back("--enable-installer");
     break;
   case TriState::False:
-    xArguments.AppendOption("--disable-installer");
+    xArguments.push_back("--disable-installer");
     break;
   default:
     break;
   }
 
-  LOG4CXX_INFO(logger, "running '" << makeProg << " " << xArguments.ToString() << "'");
-  Process::Run(exe, xArguments.ToString());
+  LOG4CXX_INFO(logger, "running '" << makeProg << "'");
+  RunProcess(exe, xArguments);
 }
 
 void IniTeXMFApp::MakeFormatFile(const string& formatKey)
@@ -1113,7 +1175,7 @@ void IniTeXMFApp::MakeFormatFile(const string& formatKey)
 
   string maker;
 
-  CommandLineBuilder arguments;
+  vector<string> arguments;
 
   if (formatInfo.compiler == "mf")
   {
@@ -1122,10 +1184,10 @@ void IniTeXMFApp::MakeFormatFile(const string& formatKey)
   else
   {
     maker = MIKTEX_MAKEFMT_EXE;
-    arguments.AppendOption("--engine=", formatInfo.compiler);
+    arguments.push_back("--engine="s + formatInfo.compiler);
   }
 
-  arguments.AppendOption("--dest-name=", formatInfo.name);
+  arguments.push_back("--dest-name="s + formatInfo.name);
 
   if (!formatInfo.preloaded.empty())
   {
@@ -1136,19 +1198,19 @@ void IniTeXMFApp::MakeFormatFile(const string& formatKey)
     }
     // RECURSION
     MakeFormatFile(formatInfo.preloaded);
-    arguments.AppendOption("--preload=", formatInfo.preloaded);
+    arguments.push_back("--preload="s + formatInfo.preloaded);
   }
 
   if (PathName(formatInfo.inputFile).HasExtension(".ini"))
   {
-    arguments.AppendOption("--no-dump");
+    arguments.push_back("--no-dump");
   }
 
-  arguments.AppendArgument(formatInfo.inputFile);
+  arguments.push_back(formatInfo.inputFile);
 
   if (!formatInfo.arguments.empty())
   {
-    arguments.AppendOption("--engine-option=", formatInfo.arguments);
+    arguments.push_back("--engine-option="s + formatInfo.arguments);
   }
 
   RunMakeTeX(maker, arguments);
@@ -1220,6 +1282,14 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
       {
         continue;
       }
+#if defined(MIKTEX_UNIX)
+      bool isMiKTeXSymlinked = File::IsSymbolicLink(linkName) && File::ReadSymbolicLink(linkName).GetFileName() == PathName(fileLink.target).GetFileName();
+      if (!isMiKTeXSymlinked)
+      {
+        LOG4CXX_TRACE(logger, Q_(linkName) << "is not symlinked to a MiKTeX executable");
+        continue;
+      }
+#endif
       PrintOnly("rm %s", Q_(linkName));
       if (!printOnly)
       {
@@ -1272,7 +1342,7 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
   }
 }
 
-void IniTeXMFApp::RegisterRoots(const vector<PathName>& roots, bool reg)
+void IniTeXMFApp::RegisterRoots(const vector<PathName>& roots, bool other, bool reg)
 {
   string newRoots;
 
@@ -1347,7 +1417,7 @@ void IniTeXMFApp::RegisterRoots(const vector<PathName>& roots, bool reg)
     }
   }
 
-  session->RegisterRootDirectories(newRoots);
+  session->RegisterRootDirectories(newRoots, other);
 
   if (reg)
   {
@@ -1455,6 +1525,7 @@ vector<FileLink> miktexFileLinks =
   { "cjklatex" MIKTEX_EXE_FILE_SUFFIX, { "bg5pluslatex", "bg5pluspdflatex", "bg5latex", "bg5pdflatex", "bg5platex", "bg5ppdflatex", "cef5latex", "cef5pdflatex", "ceflatex", "cefpdflatex", "cefslatex", "cefspdflatex", "gbklatex", "gbkpdflatex", "sjislatex", "sjispdflatex" } },
 
   { MIKTEX_AFM2TFM_EXE, { "afm2tfm" } },
+  { MIKTEX_ASY_EXE, { "asy" } },
   { MIKTEX_AUTOSP_EXE, { "autosp" } },
   { MIKTEX_AXOHELP_EXE,{ "axohelp" } },
   { MIKTEX_BG5CONV_EXE, { "bg5conv" } },
@@ -1465,9 +1536,12 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_CEFCONV_EXE, { "cefconv" } },
   { MIKTEX_CEFSCONV_EXE, { "cefsconv" } },
   { MIKTEX_CHKTEX_EXE, { "chktex" } },
+  { MIKTEX_CTANGLE_EXE,{ "ctangle" } },
+  { MIKTEX_CWEAVE_EXE,{ "cweave" } },
   { MIKTEX_DEVNAG_EXE, { "devnag" } },
   { MIKTEX_DVICOPY_EXE, { "dvicopy" } },
   { MIKTEX_DVIPDFMX_EXE, { "dvipdfm", "dvipdfmx", "ebb", "extractbb", "xbb", "xdvipdfmx", MIKTEX_XDVIPDFMX_EXE } },
+  { MIKTEX_DVIPDFT_EXE,{ "dvipdft" } },
   { MIKTEX_DVIPNG_EXE, { "dvipng" } },
   { MIKTEX_DVIPS_EXE, { "dvips" } },
   { MIKTEX_DVISVGM_EXE, { "dvisvgm" } },
@@ -1481,6 +1555,7 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_GFTYPE_EXE, { "gftype" } },
   { MIKTEX_GREGORIO_EXE, { "gregorio" } },
   { MIKTEX_HBF2GF_EXE, { "hbf2gf" } },
+  { MIKTEX_LACHECK_EXE, { "lacheck" } },
   { MIKTEX_LUATEX_EXE, { MIKTEX_PREFIX "texlua", MIKTEX_PREFIX "texluac", "luatex", "texlua", "texluac", MIKTEX_LUALATEX_EXE } },
   { MIKTEX_MAKEBASE_EXE, { "makebase" } },
   { MIKTEX_MAKEFMT_EXE, { "makefmt" } },
@@ -1489,14 +1564,18 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_MAKETFM_EXE, { "maketfm" } },
   { MIKTEX_MFT_EXE, { "mft" } },
   { MIKTEX_MF_EXE, { "mf", "inimf", "virmf" } },
+  { MIKTEX_MKOCP_EXE, { "mkocp" } },
   { MIKTEX_MPOST_EXE, { "dvitomp", "mpost" } },
   { MIKTEX_ODVICOPY_EXE, { "odvicopy" } },
   { MIKTEX_OFM2OPL_EXE, { "ofm2opl" } },
   { MIKTEX_OMEGA_EXE, { "omega" } },
   { MIKTEX_OPL2OFM_EXE, { "opl2ofm" } },
+  { MIKTEX_OTP2OCP_EXE, { "otp2ocp" } },
+  { MIKTEX_OUTOCP_EXE, { "outocp" } },
   { MIKTEX_OVF2OVP_EXE, { "ovf2ovp" } },
   { MIKTEX_OVP2OVF_EXE, { "ovp2ovf" } },
   { MIKTEX_PDFTEX_EXE, { "pdftex", MIKTEX_LATEX_EXE, MIKTEX_PDFLATEX_EXE } },
+  { MIKTEX_PDFTOSRC_EXE, { "pdftosrc" } },
   { MIKTEX_PK2BM_EXE, { "pk2bm" } },
   { MIKTEX_PLTOTF_EXE, { "pltotf" } },
   { MIKTEX_PMXAB_EXE, { "pmxab" } },
@@ -1514,16 +1593,19 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_T4HT_EXE, { "t4ht" } },
   { MIKTEX_TANGLE_EXE, { "tangle" } },
   { MIKTEX_TEX4HT_EXE, { "tex4ht" } },
+#if defined(MIKTEX_QT)
   { MIKTEX_TEXWORKS_EXE, { "texworks" } },
+#endif
   { MIKTEX_TEX_EXE, { "tex", "initex", "virtex" } },
   { MIKTEX_TFTOPL_EXE, { "tftopl" } },
+  { MIKTEX_TTF2AFM_EXE, { "ttf2afm" } },
   { MIKTEX_TTF2PK_EXE, { "ttf2pk" } },
   { MIKTEX_TTF2TFM_EXE, { "ttf2tfm" } },
   { MIKTEX_VFTOVP_EXE, { "vftovp" } },
   { MIKTEX_VPTOVF_EXE, { "vptovf" } },
   { MIKTEX_WEAVE_EXE, { "weave" } },
   { MIKTEX_XETEX_EXE, { "xetex", MIKTEX_XELATEX_EXE } },
-#if !defined(MIKTEX_WINDOWS)
+#if !defined(MIKTEX_WINDOWS) && defined(MIKTEX_QT)
   { MIKTEX_MPM_QT_EXE, { MIKTEX_MPM_QT_ADMIN_EXE } },
 #endif
 #if defined(WITH_KPSEWHICH)
@@ -1560,26 +1642,24 @@ vector<FileLink> miktexFileLinks =
 #endif
 };
 
-vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories, bool overwrite)
+vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
 {
   vector<FileLink> result;
+  PathName pathLocalBinDir = session->GetSpecialPath(SpecialPath::LocalBinDirectory);
   PathName pathBinDir = session->GetSpecialPath(SpecialPath::BinDirectory);
-  PathName internalBinDir = session->GetSpecialPath(SpecialPath::InternalBinDirectory);
 
   if (linkCategories[LinkCategory::MiKTeX])
   {
     for (const FileLink& fileLink : miktexFileLinks)
     {
-      PathName targetPath = pathBinDir;
-      targetPath /= fileLink.target;
+      PathName targetPath = pathBinDir / fileLink.target;
       string extension = targetPath.GetExtension();
       if (File::Exists(targetPath))
       {
         vector<string> linkNames;
         for (const string& linkName : fileLink.linkNames)
         {
-          PathName linkPath = pathBinDir;
-          linkPath /= linkName;
+          PathName linkPath = pathLocalBinDir / linkName;
           if (!extension.empty())
           {
             linkPath.AppendExtension(extension);
@@ -1609,18 +1689,14 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories, b
         Warning(T_("The %s executable could not be found."), formatInfo.compiler.c_str());
         continue;
       }
-      PathName tmp;
-      if (overwrite || !session->FindFile(formatInfo.name, FileType::EXE, tmp))
+      PathName exePath(pathLocalBinDir, formatInfo.name);
+      if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
       {
-        PathName exePath(pathBinDir, formatInfo.name);
-        if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
-        {
-          exePath.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
-        }
-        if (!(compilerPath == exePath))
-        {
-          result.push_back(FileLink(compilerPath.ToString(), { exePath.ToString() }));
-        }
+        exePath.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
+      }
+      if (!(compilerPath == exePath))
+      {
+        result.push_back(FileLink(compilerPath.ToString(), { exePath.ToString() }));
       }
     }
   }
@@ -1648,7 +1724,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories, b
       }
       for (const shared_ptr<Cfg::Value>& v : key->GetValues())
       {
-        PathName pathExe(pathBinDir, v->GetName());
+        PathName pathExe(pathLocalBinDir, v->GetName());
         if (strlen(MIKTEX_EXE_FILE_SUFFIX) > 0)
         {
           pathExe.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
@@ -1670,7 +1746,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories, b
     {
       for (const PathName& starter : copystarters)
       {
-        PathName pathExe(pathBinDir);
+        PathName pathExe(pathLocalBinDir);
         pathExe /= starter.GetFileName();
         result.push_back(FileLink(copystart.ToString(), { pathExe.ToString() }));
       }
@@ -1684,7 +1760,7 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories, b
     {
       for (const PathName& starter : copystarters_admin)
       {
-        PathName pathExe(pathBinDir);
+        PathName pathExe(pathLocalBinDir);
         pathExe /= starter.GetFileName();
         result.push_back(FileLink(copystart_admin.ToString(), { pathExe.ToString() }));
       }
@@ -1714,7 +1790,7 @@ void IniTeXMFApp::ManageLinks(LinkCategoryOptions linkCategories, bool remove, b
     logStream.WriteLine("[files]");
   }
 
-  for (const FileLink& fileLink : CollectLinks(linkCategories, force))
+  for (const FileLink& fileLink : CollectLinks(linkCategories))
   {
     ManageLink(fileLink, supportsHardLinks, remove, force);
   }
@@ -1801,9 +1877,9 @@ void IniTeXMFApp::MakeLanguageDat(bool force)
 
     // language.dat
     languageDat.WriteFormattedLine("%s %s", languageInfo.key.c_str(), languageInfo.loader.c_str());
-    for (CsvList synonym(languageInfo.synonyms, ','); synonym; ++synonym)
+    for (const string& synonym : StringUtil::Split(languageInfo.synonyms, ','))
     {
-      languageDat.WriteFormattedLine("=%s", (*synonym).c_str());
+      languageDat.WriteFormattedLine("=%s", synonym.c_str());
     }
 
     // language.def
@@ -1816,9 +1892,9 @@ void IniTeXMFApp::MakeLanguageDat(bool force)
     languageDatLua.WriteFormattedLine("\t\trighthyphenmin=%d,", languageInfo.righthyphenmin);
     languageDatLua.Write("\t\tsynonyms={ ");
     int nSyn = 0;
-    for (CsvList synonym(languageInfo.synonyms, ','); synonym; ++synonym)
+    for (const string& synonym : StringUtil::Split(languageInfo.synonyms, ','))
     {
-      languageDatLua.WriteFormatted("%s'%s'", nSyn > 0 ? "," : "", (*synonym).c_str());
+      languageDatLua.WriteFormatted("%s'%s'", nSyn > 0 ? "," : "", synonym.c_str());
       nSyn++;
     }
     languageDatLua.WriteLine(" },");
@@ -1850,38 +1926,38 @@ void IniTeXMFApp::MakeMaps(bool force)
   {
     FatalError(T_("The mkfntmap executable could not be found."));
   }
-  CommandLineBuilder arguments;
+  vector<string> arguments{ "mkfntmap" };
   if (verbose)
   {
-    arguments.AppendOption("--verbose");
+    arguments.push_back("--verbose");
   }
-  if (adminMode)
+  if (session->IsAdminMode())
   {
-    arguments.AppendOption("--admin");
+    arguments.push_back("--admin");
   }
   if (force)
   {
-    arguments.AppendOption("--force");
+    arguments.push_back("--force");
   }
   switch (enableInstaller)
   {
   case TriState::True:
-    arguments.AppendOption("--enable-installer");
+    arguments.push_back("--enable-installer");
     break;
   case TriState::False:
-    arguments.AppendOption("--disable-installer");
+    arguments.push_back("--disable-installer");
     break;
   default:
     break;
   }
   if (printOnly)
   {
-    PrintOnly("mkfntmap %s", arguments.ToString().c_str());
+    PrintOnly("%s", CommandLineBuilder(arguments).ToString().c_str());
   }
   else
   {
-    LOG4CXX_INFO(logger, "running: mkfntmap " << arguments.ToString());
-    Process::Run(pathMkfontmap, arguments.ToString());
+    LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(arguments));
+    RunProcess(pathMkfontmap, arguments);
   }
 }
 
@@ -1922,8 +1998,6 @@ void IniTeXMFApp::CreateConfigFile(const string& relPath, bool edit)
   }
   if (edit)
   {
-    CommandLineBuilder commandLine;
-    commandLine.AppendArgument(configFile);
     string editor;
     const char* lpszEditor = getenv("EDITOR");
     if (lpszEditor != nullptr)
@@ -1938,7 +2012,7 @@ void IniTeXMFApp::CreateConfigFile(const string& relPath, bool edit)
       FatalError(T_("Environment variable EDITOR is not defined."));
 #endif
     }
-    Process::Start(editor, commandLine.ToString());
+    Process::Start(editor, vector<string>{ editor, configFile.ToString() });
   }
 }
 
@@ -2004,7 +2078,7 @@ void IniTeXMFApp::ShowConfigValue(const string& valueSpec)
 
 void IniTeXMFApp::ReportMiKTeXVersion()
 {
-  vector<string> invokerNames = Process2::GetInvokerNames();
+  vector<string> invokerNames = Process::GetInvokerNames();
   if (xml)
   {
     xmlWriter.StartElement("setup");
@@ -2040,8 +2114,9 @@ void IniTeXMFApp::ReportMiKTeXVersion()
     }
     cout << endl;
     cout << "SharedSetup: " << (session->IsSharedSetup() ? T_("yes") : T_("no")) << endl;
-#if defined(MIKTEX_WINDOWS)
     cout << "SystemAdmin: " << (session->IsUserAnAdministrator() ? T_("yes") : T_("no")) << endl;
+    cout << "RootPrivileges: " << (session->RunningAsAdministrator() ? T_("yes") : T_("no")) << endl;     
+#if defined(MIKTEX_WINDOWS)
     cout << "PowerUser: " << (session->IsUserAPowerUser() ? T_("yes") : T_("no")) << endl;
 #endif
   }
@@ -2260,63 +2335,119 @@ bool IniTeXMFApp::OnProgress(Notification nf)
   return true;
 }
 
-#if !defined(MIKTEX_STANDALONE)
-void IniTeXMFApp::Configure()
+void IniTeXMFApp::Bootstrap()
 {
-  ProcessOutput output;
-  int exitCode;
-  output.Clear();
-  Process::ExecuteSystemCommand("kpsewhich --expand-path \\$TEXMF", &exitCode, &output, 0);
-  output.RemoveTrailingNewline();
-  if (exitCode == 0 && !output.IsEmpty())
+#if defined(WITH_BOOTSTRAPPING)
+  vector<string> neededPackages;
+  for (const string& package : StringUtil::Split(MIKTEX_BOOTSTRAPPING_PACKAGES, ';'))
   {
-    if (session->IsAdminMode())
+    PackageInfo packageInfo;
+    if (!packageManager->TryGetPackageInfo(package, packageInfo))
     {
-      if (!startuconfig.commonRoots.empty())
-      {
-        startuconfig.commonRoots += PathName::PathNameDelimiter;
-      }
-      startuconfig.commonRoots += output.ToString();
-    }
-    else
-    {
-      if (!startuconfig.userRoots.empty())
-      {
-        startuconfig.userRoots += PathName::PathNameDelimiter;
-      }
-      startuconfig.userRoots += output.ToString();
-    }
-    SetTeXMFRootDirectories();
-  }
-  unsigned nRoots = session->GetNumberOfTEXMFRoots();
-  for (unsigned r = 0; r < nRoots; ++r)
-  {
-    if (session->IsAdminMode())
-    {
-      if (session->IsCommonRootDirectory(r))
-      {
-        UpdateFilenameDatabase(r);
-      }
-      else
-      {
-        Verbose(T_("Skipping user root directory (%s)..."), Q_(session->GetRootDirectory(r)));
-      }
-    }
-    else
-    {
-      if (!session->IsCommonRootDirectory(r))
-      {
-        UpdateFilenameDatabase(r);
-      }
-      else
-      {
-        Verbose(T_("Skipping common root directory (%s)..."), Q_(session->GetRootDirectory(r)));
-      }
+      neededPackages.push_back(package);
     }
   }
-  packageManager->CreateMpmFndb();
-}
+  if (!neededPackages.empty())
+  {
+    PathName bootstrappingDir = session->GetSpecialPath(SpecialPath::BootstrappingRoot) / MIKTEX_PATH_MIKTEX_BOOTSTRAPPING_DIR;
+    if (Directory::Exists(bootstrappingDir))
+    {
+      PushTraceMessage("running MIKTEX_HOOK_BOOTSTRAPPING");
+      EnsureInstaller();
+      packageInstaller->SetRepository(bootstrappingDir.ToString());
+      packageInstaller->UpdateDb();
+      packageInstaller->SetFileList(neededPackages);
+      packageInstaller->InstallRemove();
+      packageInstaller = nullptr;
+    }
+  }
 #endif
+}
+
+string kpsewhich_expand_path(const string& varname)
+{
+  string cmd = "kpsewhich --expand-path=";
+#if defined(MIKTEX_UNIX)
+  cmd += "\\";
+#endif
+  ProcessOutput<1024> output;
+  int exitCode;
+  if (!Process::ExecuteSystemCommand(cmd + "$" + varname, &exitCode, &output, nullptr) || exitCode != 0)
+  {
+    return string();
+  }
+  string result = output.StdoutToString();
+  if (!result.empty() && result[result.length() - 1] == '\n')
+  {
+    result.erase(result.length() - 1);
+  }
+  return result;
+}
+
+string Concat(const initializer_list<string>& searchPaths, char separator = PathName::PathNameDelimiter)
+{
+  string result;
+  for (const string& s : searchPaths)
+  {
+    if (s.empty())
+    {
+      continue;
+    }
+    if (!result.empty())
+    {
+      result += separator;
+    }
+    result += s;
+  }
+  return result;
+}
+
+vector<IniTeXMFApp::OtherTeX> IniTeXMFApp::FindOtherTeX()
+{
+  vector<OtherTeX> result;
+  ProcessOutput<1024> version;
+  int exitCode;
+  if (Process::ExecuteSystemCommand("kpsewhich --version", &exitCode, &version, nullptr) && version.StdoutToString().find("MiKTeX") == string::npos)
+  {
+    OtherTeX otherTeX;
+    otherTeX.name = "kpathsea";
+    string versionString = version.StdoutToString();
+    otherTeX.version = versionString.substr(0, versionString.find_first_of("\r\n"));
+    StartupConfig otherConfig;
+    otherConfig.userRoots = Concat({
+      kpsewhich_expand_path("TEXMFHOME")
+    });
+    otherConfig.commonRoots = Concat({
+      kpsewhich_expand_path("TEXMFLOCAL"),
+      kpsewhich_expand_path("TEXMFDEBIAN"),
+      kpsewhich_expand_path("TEXMFDIST")
+    });
+    otherTeX.startupConfig = otherConfig;
+    result.push_back(otherTeX);
+  }
+  return result;
+}
+
+void IniTeXMFApp::RegisterOtherRoots()
+{
+  vector<OtherTeX> otherTeXDists = FindOtherTeX();
+  vector<PathName> otherRoots;
+  for (const OtherTeX& other : otherTeXDists)
+  {
+    const string& roots = (session->IsAdminMode() ? other.startupConfig.commonRoots : other.startupConfig.userRoots);
+    for (const string& r : StringUtil::Split(roots, PathName::PathNameDelimiter))
+    {
+      otherRoots.push_back(r);
+    }
+  }
+  if (otherRoots.empty())
+  {
+  }
+  else
+  {
+    RegisterRoots(otherRoots, true, true);
+  }
+}
 
 void IniTeXMFApp::CreatePortableSetup(const PathName& portableRoot)
 {
@@ -2425,12 +2556,10 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   string logFile;
   string portableRoot;
 
-#if !defined(MIKTEX_STANDALONE)
-  bool optConfigure = false;
-#endif
-
+  bool optClean = false;
   bool optDump = false;
   bool optDumpByName = false;
+  bool optFindOtherTeX = false;
   bool optForce = false;
   bool optMakeLanguageDat = false;
   bool optMakeMaps = false;
@@ -2442,6 +2571,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
   bool optNoRegistry = false;
 #endif
   bool optPortable = false;
+  bool optRegisterOtherRoots = false;
   bool optRegisterShellFileTypes = false;
   bool optRemoveLinks = false;
   bool optModifyPath = false;
@@ -2488,11 +2618,9 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       addFiles.push_back(optArg);
       break;
 
-#if !defined(MIKTEX_STANDALONE)
-    case OPT_CONFIGURE:
-      optConfigure = true;
+    case OPT_CLEAN:
+      optClean = true;
       break;
-#endif
 
     case OPT_CREATE_CONFIG_FILE:
 
@@ -2538,6 +2666,10 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
     case OPT_ENGINE:
       engine = optArg;
+      break;
+
+    case OPT_FIND_OTHER_TEX:
+      optFindOtherTeX = true;
       break;
 
     case OPT_FORCE:
@@ -2663,6 +2795,11 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
       recursive = true;
       break;
 
+    case OPT_REGISTER_OTHER_ROOTS:
+
+      optRegisterOtherRoots = true;
+      break;
+
     case OPT_REGISTER_SHELL_FILE_TYPES:
 
       optRegisterShellFileTypes = true;
@@ -2716,7 +2853,10 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
     case OPT_ADMIN:
 
-      adminMode = true;
+      if (!session->IsAdminMode())
+      {
+        MIKTEX_UNEXPECTED();
+      }
       break;
 
     case OPT_UNREGISTER_ROOT:
@@ -2791,19 +2931,6 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     }
   }
 
-  if (adminMode)
-  {
-    if (!setupWizardRunning && !session->IsSharedSetup())
-    {
-      FatalError(T_("Option --admin only makes sense for a shared MiKTeX setup."));
-    }
-    if (!session->RunningAsAdministrator())
-    {
-      Verbose(T_("Option --admin may require administrative privileges"));
-    }
-    session->SetAdminMode(true, setupWizardRunning);
-  }
-
   if (optPortable)
   {
     CreatePortableSetup(portableRoot);
@@ -2818,14 +2945,10 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     || !startupConfig.commonConfigRoot.Empty()
     || !startupConfig.commonInstallRoot.Empty())
   {
-#if !defined(MIKTEX_STANDALONE)
-    optConfigure = true;
-#else
 #if defined(MIKTEX_WINDOWS)
     SetTeXMFRootDirectories(optNoRegistry);
 #else
     SetTeXMFRootDirectories();
-#endif
 #endif
   }
 
@@ -2925,12 +3048,12 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
 
   if (!unregisterRoots.empty())
   {
-    RegisterRoots(unregisterRoots, false);
+    RegisterRoots(unregisterRoots, false, false);
   }
 
   if (!registerRoots.empty())
   {
-    RegisterRoots(registerRoots, true);
+    RegisterRoots(registerRoots, false, true);
   }
 
   if (optUpdateFilenameDatabase)
@@ -3027,16 +3150,31 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     ListMetafontModes();
   }
 
-#if !defined(MIKTEX_STANDALONE)
-  if (optConfigure)
-  {
-    Configure();
-  }
-#endif
-
   if (optReport)
   {
     WriteReport();
+  }
+
+  if (optFindOtherTeX)
+  {
+    vector<OtherTeX> otherTeXs = FindOtherTeX();
+    for (const OtherTeX& otherTeX : otherTeXs)
+    {
+      cout << "Found OtherTeX: " << otherTeX.name << "\n";
+      cout << "  Version: " << otherTeX.version << "\n";
+      cout << "  UserRoots: " << otherTeX.startupConfig.userRoots << "\n";
+      cout << "  CommonRoots: " << otherTeX.startupConfig.commonRoots << "\n";
+    }
+  }
+
+  if (optRegisterOtherRoots)
+  {
+    RegisterOtherRoots();
+  }
+
+  if (optClean)
+  {
+    Clean();
   }
 }
 
@@ -3071,7 +3209,7 @@ int MAIN(int argc, MAINCHAR* argv[])
     IniTeXMFApp app;
     app.Init(argc, &newargv[0]);
     app.Run(argc, &newargv[0]);
-    app.Finalize();
+    app.Finalize(false);
     logger = nullptr;
     return 0;
   }

@@ -13,17 +13,9 @@
     </layout>
   </appender>
 
-  <appender name="DebugView" class="org.apache.log4j.OutputDebugStringAppender">
-    <param name="Threshold" value="TRACE" />
-    <layout class="org.apache.log4j.PatternLayout">
-      <param name="ConversionPattern" value="%-5p %c{2} - %m%n" />
-    </layout>
-  </appender>
-
   <root>
     <level value="TRACE" />
     <appender-ref ref="RollingLogFile" />
-    <appender-ref ref="DebugView" />
   </root>
 
 </log4j:configuration>

@@ -1,6 +1,6 @@
 /* StdAfx.h:                                            -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2017 Christian Schenk
 
    This file is part of MPC.
 
@@ -41,7 +41,6 @@
 #include "mpc-version.h"
 
 #include <miktex/Core/BufferSizes>
-#include <miktex/Core/CsvList>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>

@@ -319,7 +319,8 @@ _word_wrap_stream_write (cairo_output_stream_t  *base,
 	    if (*data == '\n' || stream->column >= stream->max_column) {
 		_cairo_output_stream_printf (stream->output, "\n");
 		stream->column = 0;
-	    } else if (*data == '<') {
+	    }
+	    if (*data == '<') {
 		stream->state = WRAP_STATE_HEXSTRING;
 	    } else if (*data == '(') {
 		stream->state = WRAP_STATE_STRING;

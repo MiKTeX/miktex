@@ -1,6 +1,6 @@
 /* StdAfx.h: pre-compiled header stuff                  -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX TeXMF Library.
 
@@ -37,6 +37,7 @@
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/CommandLineBuilder>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/File>
 #include <miktex/Core/FileStream>

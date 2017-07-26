@@ -1,6 +1,6 @@
 /* RootDirectory.h:                                     -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -38,20 +38,20 @@ public:
   }
 
 public:
-  RootDirectory(const MiKTeX::Core::PathName & unexpandedPath, const MiKTeX::Core::PathName & path) :
+  RootDirectory(const MiKTeX::Core::PathName& unexpandedPath, const MiKTeX::Core::PathName& path) :
     unexpandedPath(unexpandedPath),
     path(path)
   {
   }
 
 public:
-  const MiKTeX::Core::PathName & get_UnexpandedPath() const
+  const MiKTeX::Core::PathName& get_UnexpandedPath() const
   {
     return unexpandedPath;
   }
 
 public:
-  const MiKTeX::Core::PathName & get_Path() const
+  const MiKTeX::Core::PathName& get_Path() const
   {
     return path;
   }
@@ -81,6 +81,18 @@ public:
   }
 
 public:
+  void set_Other(bool other)
+  {
+    this->other = other;
+  }
+
+public:
+  bool IsOther() const
+  {
+    return other;
+  }
+
+public:
   void SetFndb(std::shared_ptr<FileNameDatabase> fndb)
   {
     this->fndb = fndb;
@@ -95,7 +107,7 @@ public:
 private:
   MiKTeX::Core::PathName unexpandedPath;
 
-  // fully qualified path to root folder
+  // fully qualified path to root directory
 private:
   MiKTeX::Core::PathName path;
 
@@ -103,13 +115,17 @@ private:
 private:
   std::shared_ptr<FileNameDatabase> fndb;
 
-  // true, if an FNDB doesn't exist
+  // true, if a file name database doesn't exist
 private:
   bool noFndb = false;
 
-  // true, if this is a common root directory
+  // true, if this is a system-wide root directory
 private:
   bool common = false;
+
+  // true, if this is a root directory of another distro
+private:
+  bool other = false;
 };
 
 END_INTERNAL_NAMESPACE;

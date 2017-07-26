@@ -86,10 +86,8 @@ int main(int argc, char ** argv)
     {
       outputName = argv1.GetFileName();
     }
-    CommandLineBuilder commandLine;
-    commandLine.AppendArgument(outputName.GetData());
-    Process::Run(otp2ocp.GetData(), commandLine.ToString());
-    tcout << outputName.GetData() << ".ocp" << endl;
+    Process::Run(otp2ocp, { otp2ocp.GetFileNameWithoutExtension().ToString(), outputName.ToString() });
+    tcout << outputName.ToString() << ".ocp" << endl;
     return 0;
   }
   catch (const MiKTeXException & e)

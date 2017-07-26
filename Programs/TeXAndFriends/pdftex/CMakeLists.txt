@@ -79,38 +79,38 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(pdftosrc ${pdftosrc_sources})
-set_property(TARGET pdftosrc PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+add_executable(${MIKTEX_PREFIX}pdftosrc ${pdftosrc_sources})
+set_property(TARGET ${MIKTEX_PREFIX}pdftosrc PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 if(USE_SYSTEM_JPEG)
-  target_link_libraries(pdftosrc MiKTeX::Imported::JPEG)
+  target_link_libraries(${MIKTEX_PREFIX}pdftosrc MiKTeX::Imported::JPEG)
 else()
-  target_link_libraries(pdftosrc ${jpeg_dll_name})
+  target_link_libraries(${MIKTEX_PREFIX}pdftosrc ${jpeg_dll_name})
 endif()
 if(USE_SYSTEM_POPPLER)
-  target_link_libraries(pdftosrc MiKTeX::Imported::POPPLER)
+  target_link_libraries(${MIKTEX_PREFIX}pdftosrc MiKTeX::Imported::POPPLER)
 else()
-  target_link_libraries(pdftosrc ${poppler_lib_name})
+  target_link_libraries(${MIKTEX_PREFIX}pdftosrc ${poppler_lib_name})
 endif()
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(pdftosrc MiKTeX::Imported::ZLIB)
+  target_link_libraries(${MIKTEX_PREFIX}pdftosrc MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(pdftosrc ${zlib_dll_name})
+  target_link_libraries(${MIKTEX_PREFIX}pdftosrc ${zlib_dll_name})
 endif()
-target_link_libraries(pdftosrc
+target_link_libraries(${MIKTEX_PREFIX}pdftosrc
   ${app_dll_name}
   ${core_dll_name}
   ${w2cemu_dll_name}
 )
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(pdftosrc
+  target_link_libraries(${MIKTEX_PREFIX}pdftosrc
     ${getopt_dll_name}
     ${unxemu_dll_name}
     ${utf8wrap_dll_name}
   )
 endif()
-merge_trustinfo_manifest(pdftosrc asInvoker)
-merge_compatibility_manifest(pdftosrc)
-install(TARGETS pdftosrc DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+merge_trustinfo_manifest(${MIKTEX_PREFIX}pdftosrc asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}pdftosrc)
+install(TARGETS ${MIKTEX_PREFIX}pdftosrc DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(ttf2afm_sources
   ${MIKTEX_LIBRARY_WRAPPER}
@@ -134,23 +134,23 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-add_executable(ttf2afm ${ttf2afm_sources})
-set_property(TARGET ttf2afm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-target_link_libraries(ttf2afm
+add_executable(${MIKTEX_PREFIX}ttf2afm ${ttf2afm_sources})
+set_property(TARGET ${MIKTEX_PREFIX}ttf2afm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+target_link_libraries(${MIKTEX_PREFIX}ttf2afm
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
   ${texmf_dll_name}
 )
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(ttf2afm
+  target_link_libraries(${MIKTEX_PREFIX}ttf2afm
     ${getopt_dll_name}
     ${utf8wrap_dll_name}
   )
 endif()
-merge_trustinfo_manifest(ttf2afm asInvoker)
-merge_compatibility_manifest(ttf2afm)
-install(TARGETS ttf2afm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+merge_trustinfo_manifest(${MIKTEX_PREFIX}ttf2afm asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}ttf2afm)
+install(TARGETS ${MIKTEX_PREFIX}ttf2afm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(miktex_synctex_changefiles ${TEX_MIKTEX_SYNCTEX_CH})
 

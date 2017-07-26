@@ -71,6 +71,7 @@ typedef struct _cairo_sub_font {
     cairo_bool_t is_composite;
     cairo_bool_t is_user;
     cairo_bool_t use_latin_subset;
+    cairo_bool_t reserve_notdef;
     cairo_scaled_font_subsets_t *parent;
     cairo_scaled_font_t *scaled_font;
     unsigned int font_id;
@@ -283,6 +284,7 @@ _cairo_sub_font_create (cairo_scaled_font_subsets_t	*parent,
     sub_font->is_scaled = is_scaled;
     sub_font->is_composite = is_composite;
     sub_font->is_user = _cairo_font_face_is_user (scaled_font->font_face);
+    sub_font->reserve_notdef = !sub_font->is_user;
     _cairo_sub_font_init_key (sub_font, scaled_font);
 
     sub_font->parent = parent;
@@ -533,23 +535,8 @@ _cairo_sub_font_add_glyph (cairo_sub_font_t	   *sub_font,
     else
 	num_glyphs_in_subset_ptr = &sub_font->num_glyphs_in_current_subset;
 
-    /* Reserve first glyph in subset for the .notdef glyph except for
-     * Type 3 fonts */
-    if (*num_glyphs_in_subset_ptr == 0 &&
-	scaled_font_glyph_index != 0 &&
-	! _cairo_font_face_is_user (sub_font->scaled_font->font_face))
-    {
-	status = _cairo_sub_font_add_glyph (sub_font,
-					    0,
-					    is_latin,
-					    0,
-					    0,
-					    NULL,
-					    -1,
-					    &sub_font_glyph);
-	if (unlikely (status))
-	    return status;
-    }
+    if ((*num_glyphs_in_subset_ptr == 0) && sub_font->reserve_notdef)
+	(*num_glyphs_in_subset_ptr)++;
 
     sub_font_glyph = _cairo_sub_font_glyph_create (scaled_font_glyph_index,
 						   is_latin ? 0 : sub_font->current_subset,
@@ -713,11 +700,24 @@ _cairo_sub_font_collect (void *entry, void *closure)
 	collection->max_glyph = 0;
 	memset (collection->latin_to_subset_glyph_index, 0, 256*sizeof(unsigned long));
 
+	if (sub_font->reserve_notdef) {
+	    // add .notdef
+	    collection->glyphs[0] = 0;
+	    collection->utf8[0] = 0;
+	    collection->to_latin_char[0] = 0;
+	    collection->latin_to_subset_glyph_index[0] = 0;
+	    collection->num_glyphs++;
+	}
+
 	_cairo_hash_table_foreach (sub_font->sub_font_glyphs,
 				   _cairo_sub_font_glyph_collect, collection);
 	if (collection->status)
 	    break;
+
 	if (collection->num_glyphs == 0)
+	    continue;
+
+	if (sub_font->reserve_notdef && collection->num_glyphs == 1)
 	    continue;
 
         /* Ensure the resulting array has no uninitialized holes */
@@ -1121,6 +1121,87 @@ _cairo_string_equal (const void *key_a, const void *key_b)
 	return FALSE;
 }
 
+#if DEBUG_SUBSETS
+
+static void
+dump_glyph (void *entry, void *closure)
+{
+    cairo_sub_font_glyph_t *glyph = entry;
+    char buf[10];
+    int i;
+
+    printf("    font_glyph_index: %ld\n", glyph->base.hash);
+    printf("      subset_id: %d\n", glyph->subset_id);
+    printf("      subset_glyph_index: %d\n", glyph->subset_glyph_index);
+    printf("      x_advance: %f\n", glyph->x_advance);
+    printf("      y_advance: %f\n", glyph->y_advance);
+    printf("      is_latin: %d\n", glyph->is_latin);
+    printf("      latin_character: '%c' (0x%02x)\n", glyph->latin_character, glyph->latin_character);
+    printf("      is_latin: %d\n", glyph->is_latin);
+    printf("      is_mapped: %d\n", glyph->is_mapped);
+    printf("      unicode: U+%04x\n", glyph->unicode);
+    memset(buf, 0, sizeof(buf));
+    memcpy(buf, glyph->utf8, glyph->utf8_len);
+    printf("      utf8: '%s'\n", buf);
+    printf("      utf8 (hex):");
+    for (i = 0; i < glyph->utf8_len; i++)
+	printf(" 0x%02x", glyph->utf8[0]);
+    printf("\n\n");
+}
+
+static void
+dump_subfont (cairo_sub_font_t *sub_font)
+{
+    while (sub_font) {
+	printf("    font_id: %d\n", sub_font->font_id);
+	printf("    current_subset: %d\n", sub_font->current_subset);
+	printf("    is_scaled: %d\n", sub_font->is_scaled);
+	printf("    is_composite: %d\n", sub_font->is_composite);
+	printf("    is_user: %d\n", sub_font->is_user);
+	printf("    use_latin_subset: %d\n", sub_font->use_latin_subset);
+	printf("    reserve_notdef: %d\n", sub_font->reserve_notdef);
+	printf("    num_glyphs_in_current_subset: %d\n", sub_font->num_glyphs_in_current_subset);
+	printf("    num_glyphs_in_latin_subset: %d\n", sub_font->num_glyphs_in_latin_subset);
+	printf("    max_glyphs_per_subset: %d\n\n", sub_font->max_glyphs_per_subset);
+
+	_cairo_hash_table_foreach (sub_font->sub_font_glyphs, dump_glyph, NULL);
+
+	printf("\n");
+	sub_font = sub_font->next;
+    }
+}
+
+void
+dump_scaled_font_subsets (cairo_scaled_font_subsets_t *font_subsets)
+{
+    printf("font subsets\n");
+    switch (font_subsets->type)
+    {
+	case CAIRO_SUBSETS_SCALED:
+	    printf("  type: CAIRO_SUBSETS_SCALED\n");
+	    break;
+	case CAIRO_SUBSETS_SIMPLE:
+	    printf("  type: CAIRO_SUBSETS_SIMPLE\n");
+	    break;
+	case CAIRO_SUBSETS_COMPOSITE:
+	    printf("  type: CAIRO_SUBSETS_COMPOSITE\n");
+	    break;
+    }
+    printf("  use_latin_subset: %d\n", font_subsets->use_latin_subset);
+    printf("  max_glyphs_per_unscaled_subset_used: %d\n", font_subsets->max_glyphs_per_unscaled_subset_used);
+    printf("  max_glyphs_per_scaled_subset_used: %d\n", font_subsets->max_glyphs_per_scaled_subset_used);
+    printf("  num_sub_fonts: %d\n\n", font_subsets->num_sub_fonts);
+
+    printf("  scaled subsets:\n");
+    dump_subfont (font_subsets->scaled_sub_fonts_list);
+
+    printf("\n  unscaled subsets:\n");
+    dump_subfont (font_subsets->unscaled_sub_fonts_list);
+}
+
+#endif
+
+
 static void
 _cairo_string_init_key (cairo_string_entry_t *key, char *s)
 {
@@ -1200,8 +1281,12 @@ _cairo_scaled_font_subset_create_glyph_names (cairo_scaled_font_subset_t *subset
 	utf16_len = 0;
 	if (utf8 && *utf8) {
 	    status = _cairo_utf8_to_utf16 (utf8, -1, &utf16, &utf16_len);
-	    if (unlikely (status))
+	    if (status == CAIRO_STATUS_INVALID_STRING) {
+		utf16 = NULL;
+		utf16_len = 0;
+	    } else if (unlikely (status)) {
 		goto CLEANUP_HASH;
+	    }
 	}
 
 	if (utf16_len == 1) {

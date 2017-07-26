@@ -42,6 +42,11 @@ set(ADMIN_CONTROLS_USER_CONFIG TRUE)
 set(REPORT_EVENTS FALSE)
 
 configure_file(
+  include/miktex/Core/ConfigNames.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/ConfigNames.h
+)
+
+configure_file(
   include/miktex/Core/Paths.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/Paths.h
 )
@@ -82,8 +87,10 @@ configure_file(
 )
 
 set(miktex_der_h ${CMAKE_CURRENT_BINARY_DIR}/miktex.der.h)
+set(miktex_config_ini_h ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.ini.h)
 
 set(public_headers_core
+  ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/ConfigNames.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/IntegerTypes.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/Paths.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/Core/Urls.h
@@ -99,6 +106,7 @@ set(public_headers_core
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Cfg.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CommandLineBuilder
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CommandLineBuilder.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/ConfigNames
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CsvList
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/CsvList.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Debug
@@ -308,6 +316,7 @@ set(misc_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Exceptions.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
   ${CMAKE_CURRENT_SOURCE_DIR}/vi/Runtime.cpp
+  ${miktex_config_ini_h}
   ${miktex_der_h}
 )
 
@@ -490,6 +499,29 @@ add_custom_command(
 
 list(APPEND generated_core_sources
   ${miktex_der_h}
+)
+
+add_custom_command(
+  OUTPUT
+    ${miktex_config_ini_h}
+  COMMAND
+    bintoc miktex_config_ini
+    < ${CMAKE_BINARY_DIR}/${MIKTEX_REL_CONFIG_DIR}/miktex-config.ini
+    > ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.ini.h.tmp
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.ini.h.tmp
+    ${miktex_config_ini_h}
+  COMMAND
+    ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_BINARY_DIR}/miktex-config.ini.h.tmp
+  DEPENDS
+    bintoc
+    ${CMAKE_BINARY_DIR}/${MIKTEX_REL_CONFIG_DIR}/miktex-config.ini
+  VERBATIM
+)
+
+list(APPEND generated_core_sources
+  ${miktex_config_ini_h}
 )
 
 if(REPORT_EVENTS)

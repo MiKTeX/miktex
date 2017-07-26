@@ -1,6 +1,6 @@
 /* internal.h: internal definitions                     -*- C++ -*-
 
-   Copyright (C) 2013-2016 Christian Schenk
+   Copyright (C) 2013-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -39,7 +39,7 @@
 
 #include <miktex/Core/BufferSizes>
 #include <miktex/Core/CommandLineBuilder>
-#include <miktex/Core/CsvList>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Cfg>
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
@@ -361,10 +361,10 @@ protected:
   void ConfigureMiKTeX();
 
 protected:
-  void RunIniTeXMF(const MiKTeX::Core::CommandLineBuilder & cmdLine1);
+  void RunIniTeXMF(const std::vector<std::string>& args);
 
 protected:
-  void RunMpm(const MiKTeX::Core::CommandLineBuilder & cmdLine1);
+  void RunMpm(const std::vector<std::string>& args);
 
 protected:
   std::wstring & Expand(const char * lpszSource, std::wstring & dest);

@@ -18,12 +18,7 @@
  * Author:
  *      Guido Draheim <guidod@gmx.de>
  *
- * Copyright (c) 2003,2004,2006 Guido Draheim
- *          All rights reserved,
- *          use under the restrictions of the
- *          Lesser GNU General Public License
- *          or alternatively the restrictions
- *          of the Mozilla Public License 1.1
+ * Copyright (c)Guido Draheim, use under copyleft (LGPL,MPL)
  */
 
 #define _ZZIP_DISK_FILE_STRUCT 1
@@ -62,8 +57,22 @@
 #define ____ }
 #endif
 
+#ifdef DEBUG
+#define debug1(msg) do { fprintf(stderr, "%s : " msg "\n", __func__); } while(0)
+#define debug2(msg, arg1) do { fprintf(stderr, "%s : " msg "\n", __func__, arg1); } while(0)
+#define debug3(msg, arg1, arg2) do { fprintf(stderr, "%s : " msg "\n", __func__, arg1, arg2); } while(0)
+#define debug4(msg, arg1, arg2, arg3) do { fprintf(stderr, "%s : " msg "\n", __func__, arg1, arg2, arg3); } while(0)
+#else
+#define debug1(msg) 
+#define debug2(msg, arg1) 
+#define debug3(msg, arg1, arg2) 
+#define debug4(msg, arg1, arg2, arg3) 
+#endif
+
 /** => zzip_disk_mmap
  * This function does primary initialization of a disk-buffer struct.
+ * 
+ * This function always returns 0 as success.
  */
 int
 zzip_disk_init(ZZIP_DISK * disk, void *buffer, zzip_size_t buflen)
@@ -80,13 +89,15 @@ zzip_disk_init(ZZIP_DISK * disk, void *buffer, zzip_size_t buflen)
 
 /** => zzip_disk_mmap
  * This function allocates a new disk-buffer with => malloc(3)
+ *
+ * This function may return null on errors (errno).
  */
 zzip__new__ ZZIP_DISK *
 zzip_disk_new(void)
 {
     ZZIP_DISK *disk = malloc(sizeof(ZZIP_DISK));
     if (! disk)
-        return disk;
+        return disk; /* ENOMEM */
     zzip_disk_init(disk, 0, 0);
     return disk;
 }
@@ -97,19 +108,24 @@ zzip_disk_new(void)
  * file and calls the system => mmap(2) to put it in main memory. If it is
  * successful then a newly allocated ZZIP_DISK* is returned with
  * disk->buffer pointing to the mapview of the zipdisk content.
+ *
+ * This function may return null on errors (errno).
  */
 zzip__new__ ZZIP_DISK *
 zzip_disk_mmap(int fd)
 {
     struct stat st;
     if (fstat(fd, &st) || ! st.st_size)
-        return 0;
+        return 0; /* EACCESS */
     ___ ZZIP_DISK *disk = zzip_disk_new();
     if (! disk)
-        return 0;
+        return 0; /* ENOMEM */
     disk->buffer = _zzip_mmap(disk->mapped, fd, 0, st.st_size);
     if (disk->buffer == MAP_FAILED)
-        { free (disk); return 0; }
+    { 
+        free (disk); 
+        return 0; /* EFAULT */
+    }
     disk->endbuf = disk->buffer + st.st_size;
     return disk;
     ____;
@@ -136,6 +152,8 @@ zzip_disk_munmap(ZZIP_DISK * disk)
  * be => mmap(2)'ed then we slurp the whole file into a newly => malloc(2)'ed
  * memory block. Only if that fails too then we return null. Since handling
  * of disk->buffer is ambigous it should not be snatched away please.
+ *
+ * This function may return null on errors (errno).
  */
 zzip__new__ ZZIP_DISK *
 zzip_disk_open(char *filename)
@@ -145,26 +163,33 @@ zzip_disk_open(char *filename)
 #  endif
     struct stat st;
     if (stat(filename, &st) || ! st.st_size)
-        return 0;
+        return 0; /* ENOENT */
     ___ int fd = open(filename, O_RDONLY | O_BINARY);
     if (fd <= 0)
-        return 0;
+        return 0; /* EACCESS */
     ___ ZZIP_DISK *disk = zzip_disk_mmap(fd);
     if (disk)
         return disk;
     ___ zzip_byte_t *buffer = malloc(st.st_size);
     if (! buffer)
-        return 0;
-    if ((st.st_size == read(fd, buffer, st.st_size)) &&
-        (disk = zzip_disk_new()))
     {
-        disk->buffer = buffer;
-        disk->endbuf = buffer + st.st_size;
-        disk->mapped = -1;
-        disk->flags |= ZZIP_DISK_FLAGS_OWNED_BUFFER;
-    } else {
-        free(buffer);
+        return 0; /* ENOMEM */
     }
+    if ((st.st_size < read(fd, buffer, st.st_size)))
+    {
+        free (buffer);
+        return 0; /* EIO */
+    }
+    disk = zzip_disk_new();
+    if (! disk)
+    {
+        free (buffer);
+        return 0; /* ENOMEM */
+    }
+    disk->buffer = buffer;
+    disk->endbuf = buffer + st.st_size;
+    disk->mapped = -1;
+    disk->flags |= ZZIP_DISK_FLAGS_OWNED_BUFFER;
     return disk;
     ____;
     ____;
@@ -179,6 +204,8 @@ zzip_disk_open(char *filename)
  * wrapping a ZZIP_DISK around the memory buffer just as
  * this function will do. Note that this function will not
  * own the buffer, it will neither be written nor free()d.
+ *
+ * This function may return null (errno).
  */
 zzip__new__ ZZIP_DISK *
 zzip_disk_buffer(void *buffer, size_t buflen) {
@@ -197,6 +224,8 @@ zzip_disk_buffer(void *buffer, size_t buflen) {
  * This function will release all data needed to access a (mmapped)
  * zip archive, including any malloc()ed blocks, sharedmem mappings
  * and it dumps the handle struct as well.
+ *
+ * This function returns 0 on sucess (or whatever => munmap says).
  */
 int
 zzip_disk_close(ZZIP_DISK * disk)
@@ -268,28 +297,41 @@ _zzip_strcasecmp(char *__zzip_restrict a, char *_zzip_restrict b)
  * a disk_entry pointer (as returned by _find* functions) into a pointer to
  * the data block right after the file_header. Only disk->buffer would be
  * needed to perform the seek but we check the mmapped range end as well.
+ *
+ * This function returns a pointer into disk->buffer or 0 on error (errno).
  */
 zzip_byte_t *
 zzip_disk_entry_to_data(ZZIP_DISK * disk, struct zzip_disk_entry * entry)
 {
     struct zzip_file_header *file = zzip_disk_entry_to_file_header(disk, entry);
-    if (file)
-        return zzip_file_header_to_data(file);
-    return 0;
+    if (! file)
+        return 0; /* EBADMSG */
+    return zzip_file_header_to_data(file);
 }
 
 /** => zzip_disk_entry_to_data
  * This function does half the job of => zzip_disk_entry_to_data where it
  * can augment with => zzip_file_header_to_data helper from format/fetch.h
+ *
+ * This function returns a pointer into disk->buffer or 0 on error (errno).
  */
 struct zzip_file_header *
 zzip_disk_entry_to_file_header(ZZIP_DISK * disk, struct zzip_disk_entry *entry)
 {
-    zzip_byte_t *file_header =  /* (struct zzip_file_header*) */
-        (disk->buffer + zzip_disk_entry_fileoffset(entry));
-    if (disk->buffer > file_header || file_header >= disk->endbuf)
+    zzip_byte_t *const ptr = disk->buffer + zzip_disk_entry_fileoffset(entry);
+    if (disk->buffer > ptr || ptr >= disk->endbuf)
+    {
+        errno = EBADMSG;
         return 0;
-    return (struct zzip_file_header *) file_header;
+    }
+    ___  struct zzip_file_header *file_header = (void *) ptr;
+    if (zzip_file_header_get_magic(file_header) != ZZIP_FILE_HEADER_MAGIC)
+    {
+        errno = EBADMSG;
+        return 0;
+    }
+    return file_header;
+    ____;
 }
 
 /** => zzip_disk_entry_to_data
@@ -298,54 +340,83 @@ zzip_disk_entry_to_file_header(ZZIP_DISK * disk, struct zzip_disk_entry *entry)
  * with libc we need it that way. Secondly, the filename SHOULD be present
  * in the zip central directory but if not then we fallback to the filename
  * given in the file_header of each compressed data portion.
+ *
+ * This function returns a new string buffer, or null on error.
+ * If no name can be found then an empty string is returned.
  */
 zzip__new__ char *
 zzip_disk_entry_strdup_name(ZZIP_DISK * disk, struct zzip_disk_entry *entry)
 {
     if (! disk || ! entry)
+    {
+        errno=EINVAL;
         return 0;
+    }
 
-    ___ char *name;
-    zzip_size_t len;
-    struct zzip_file_header *file;
-    if ((len = zzip_disk_entry_namlen(entry)))
+    ___ char *name = 0;
+    zzip_size_t len = len = zzip_disk_entry_namlen(entry);
+    if (len)
+    {
         name = zzip_disk_entry_to_filename(entry);
-    else if ((file = zzip_disk_entry_to_file_header(disk, entry)) &&
-             (len = zzip_file_header_namlen(file)))
-        name = zzip_file_header_to_filename(file);
+    }
     else
-        return 0;
+    {
+        struct zzip_file_header *file = zzip_disk_entry_to_file_header(disk, entry);
+        if (! file)
+           return 0; /* EBADMSG */
+
+        len = zzip_file_header_namlen(file);
+        if (! len)
+        {
+            /* neither a name in disk_entry nor in file_header */
+            return strdup(""); /* ENOMEM */
+        }
+        name = zzip_file_header_to_filename(file);
+    }
 
     if ((zzip_byte_t *) name < disk->buffer ||
         (zzip_byte_t *) name + len > disk->endbuf)
+    {
+        errno=EBADMSG;
         return 0;
+    }
 
-    return _zzip_strndup(name, len);
+    return _zzip_strndup(name, len); /* ENOMEM */
     ____;
 }
 
 /** => zzip_disk_entry_to_data
  * This function is similar creating a reference to a zero terminated
  * string but it can only exist in the zip central directory entry.
+ *
+ * This function returns a new string buffer, or null on error (errno).
+ * If no name can be found then an empty string is returned.
  */
 zzip__new__ char *
 zzip_disk_entry_strdup_comment(ZZIP_DISK * disk, struct zzip_disk_entry *entry)
 {
     if (! disk || ! entry)
+    {
+        errno = EINVAL;
         return 0;
+    }
 
-    ___ char *text;
-    zzip_size_t len;
-    if ((len = zzip_disk_entry_comment(entry)))
-        text = zzip_disk_entry_to_comment(entry);
-    else
-        return 0;
+    ___ zzip_size_t len = zzip_disk_entry_comment(entry);
+    if (! len)
+    {
+        return strdup(""); /* ENOMEM */
+    }
 
+    ___ char *text = zzip_disk_entry_to_comment(entry);
     if ((zzip_byte_t *) text < disk->buffer ||
-        (zzip_byte_t *) text + len > disk->endbuf)
+        (zzip_byte_t *) text + len > disk->endbuf) 
+    {
+        errno = EBADMSG;
         return 0;
+    }
 
-    return _zzip_strndup(text, len);
+    return _zzip_strndup(text, len); /* ENOMEM */
+    ____;
     ____;
 }
 
@@ -376,13 +447,25 @@ zzip_disk_entry_strdup_comment(ZZIP_DISK * disk, struct zzip_disk_entry *entry)
  * accept a disk_trailer with a seekvalue that points to a disk_entry and
  * both parts have valid PK-magic parts. Beyond some sanity check we try to
  * catch a common brokeness with zip archives that still allows us to find
- * the start of the zip central directory.
+ * the start of the zip central directory.So this function may return null
+ * and sets errno.
  */
 struct zzip_disk_entry *
 zzip_disk_findfirst(ZZIP_DISK * disk)
 {
-    if (disk->buffer > disk->endbuf - sizeof(struct zzip_disk_trailer))
+    debug1("findfirst");
+    if (! disk)
+    {
+        debug1("non arg");
+        errno = EINVAL;
         return 0;
+    }
+    if (disk->buffer > disk->endbuf - sizeof(struct zzip_disk_trailer))
+    {
+        debug1("not enough data for a disk trailer");
+        errno = EBADMSG;
+        return 0;
+    }
     ___ zzip_byte_t *p = disk->endbuf - sizeof(struct zzip_disk_trailer);
     for (; p >= disk->buffer; p--)
     {
@@ -390,11 +473,14 @@ zzip_disk_findfirst(ZZIP_DISK * disk)
         if (zzip_disk_trailer_check_magic(p))
         {
             struct zzip_disk_trailer *trailer = (struct zzip_disk_trailer *) p;
-            root = disk->buffer + zzip_disk_trailer_get_rootseek(trailer);
+            zzip_size_t rootseek = zzip_disk_trailer_get_rootseek(trailer);
+            root = disk->buffer + rootseek;
+            debug2("disk rootseek at %lli", (long long)rootseek);
             if (root > p)
             {
                 /* the first disk_entry is after the disk_trailer? can't be! */
                 zzip_size_t rootsize = zzip_disk_trailer_get_rootsize(trailer);
+                debug2("have rootsize at %lli", (long long)rootsize);
                 if (disk->buffer + rootsize > p)
                     continue;
                 /* a common brokeness that can be fixed: we just assume the
@@ -406,8 +492,14 @@ zzip_disk_findfirst(ZZIP_DISK * disk)
             struct zzip_disk64_trailer *trailer =
                 (struct zzip_disk64_trailer *) p;
             if (sizeof(void *) < 8)
-                return 0;       /* EOVERFLOW */
-            root = disk->buffer + zzip_disk64_trailer_get_rootseek(trailer);
+            {
+                debug1("disk64 trailer in non-largefile part");
+                errno = EFBIG;
+                return 0;
+            }
+            zzip_size_t rootseek = zzip_disk64_trailer_get_rootseek(trailer);
+            debug2("disk64 rootseek at %lli", (long long)rootseek);
+            root = disk->buffer + rootseek;
             if (root > p)
                 continue;
         } else
@@ -415,11 +507,21 @@ zzip_disk_findfirst(ZZIP_DISK * disk)
             continue;
         }
 
+        debug4("buffer %p root %p endbuf %p", disk->buffer, root, disk->endbuf);
         if (root < disk->buffer)
-            continue;
+        {
+            debug1("root before buffer should be impossible");
+            errno = EBADMSG;
+            return 0;
+        }
         if (zzip_disk_entry_check_magic(root))
+        {
+            debug1("found the disk root");
             return (struct zzip_disk_entry *) root;
+        }
     } ____;
+    /* not found */
+    errno = ENOENT;
     return 0;
 }
 
@@ -428,23 +530,36 @@ zzip_disk_findfirst(ZZIP_DISK * disk)
  * This function takes an existing disk_entry in the central root directory
  * (e.g. from zzip_disk_findfirst) and returns the next entry within in
  * the given bounds of the mmapped file area.
+ *
+ * This function returns null if no next entry can be found.
+ * This function may return null on errors. (errno = ENOENT|EINVAL|EBADMSG)
  */
 struct zzip_disk_entry *
 zzip_disk_findnext(ZZIP_DISK * disk, struct zzip_disk_entry *entry)
 {
+    if (! disk || ! entry)
+    {
+        errno = EINVAL;
+        return 0;
+    }
     if ((zzip_byte_t *) entry < disk->buffer ||
         (zzip_byte_t *) entry > disk->endbuf - sizeof(entry) ||
         ! zzip_disk_entry_check_magic(entry) ||
         zzip_disk_entry_sizeto_end(entry) > 64 * 1024)
+    {
+        errno = EBADMSG;
         return 0;
+    }
     entry = zzip_disk_entry_to_next_entry(entry);
     if ((zzip_byte_t *) entry > disk->endbuf - sizeof(entry) ||
         ! zzip_disk_entry_check_magic(entry) ||
         zzip_disk_entry_sizeto_end(entry) > 64 * 1024 ||
         zzip_disk_entry_skipto_end(entry) + sizeof(entry) > disk->endbuf)
+    {
+        errno = ENOENT;
         return 0;
-    else
-        return entry;
+    }
+    return entry;
 }
 
 /** search for files in the (mmapped) zip central directory
@@ -456,6 +571,9 @@ zzip_disk_findnext(ZZIP_DISK * disk, struct zzip_disk_entry *entry)
  * matching entry, otherwise the last returned value if you look for other
  * entries with a special "compare" function (if null then a doubled search
  * is rather useless with this variant of _findfile).
+ *
+ * This functionreturns the entry pointer.
+ * This function may return null on error. (errno = ENOMEM|EBADMSG|ENOENT)
  */
 struct zzip_disk_entry *
 zzip_disk_findfile(ZZIP_DISK * disk, char *filename,
@@ -470,13 +588,18 @@ zzip_disk_findfile(ZZIP_DISK * disk, char *filename,
     {
         /* filenames within zip files are often not null-terminated! */
         char *realname = zzip_disk_entry_strdup_name(disk, entry);
-        if (realname && ! compare(filename, realname))
+        if (! realname)
+        {
+            return 0; /* ENOMEM | EBADMSG */
+        }
+        if (! compare(filename, realname))
         {
             free(realname);
-            return entry;
+            return entry; /* found */
         }
         free(realname);
     }
+    errno = ENOENT;
     return 0;
 }
 
@@ -492,6 +615,9 @@ zzip_disk_findfile(ZZIP_DISK * disk, char *filename,
  * - use null as argument for "after"-entry when searching the first
  * matching entry, or the last disk_entry return-value to find the
  * next entry matching the given filespec.
+ *
+ * This function will return the matching entry pointer.
+ * This function may return null on error. (errno = ENOMEM|EBADMSG|ENOENT)
  */
 struct zzip_disk_entry *
 zzip_disk_findmatch(ZZIP_DISK * disk, char *filespec,
@@ -510,13 +636,18 @@ zzip_disk_findmatch(ZZIP_DISK * disk, char *filespec,
     {
         /* filenames within zip files are often not null-terminated! */
         char *realname = zzip_disk_entry_strdup_name(disk, entry);
-        if (realname && ! compare(filespec, realname, flags))
+        if (! realname)
+        {
+            return 0; /* ENOMEM | EBADMSG */
+        }
+        if (compare(filespec, realname, flags))
         {
             free(realname);
-            return entry;
+            return entry; /* found */
         }
         free(realname);
     }
+    errno = ENOENT;
     return 0;
 }
 
@@ -532,6 +663,8 @@ zzip_disk_findmatch(ZZIP_DISK * disk, char *filespec,
  * information is memorized on the ZZIP_DISK_FILE so that subsequent
  * _read() operations will be able to get the next data portion or
  * return an eof condition for that file part wrapped in the zip archive.
+ *
+ * This function may return null on errors (errno = ENOMEM|EBADMSG).
  */
 zzip__new__ ZZIP_DISK_FILE *
 zzip_disk_entry_fopen(ZZIP_DISK * disk, ZZIP_DISK_ENTRY * entry)
@@ -540,10 +673,10 @@ zzip_disk_entry_fopen(ZZIP_DISK * disk, ZZIP_DISK_ENTRY * entry)
     struct zzip_file_header *header =
         zzip_disk_entry_to_file_header(disk, entry);
     if (! header)
-        return 0;
+        return 0; /* EBADMSG */
     ___ ZZIP_DISK_FILE *file = malloc(sizeof(ZZIP_DISK_FILE));
     if (! file)
-        return file;
+        return 0; /* ENOMEM */
     file->buffer = disk->buffer;
     file->endbuf = disk->endbuf;
     file->avail = zzip_file_header_usize(header);
@@ -560,7 +693,11 @@ zzip_disk_entry_fopen(ZZIP_DISK * disk, ZZIP_DISK_ENTRY * entry)
 
     if (! zzip_file_header_data_deflated(header) ||
         inflateInit2(&file->zlib, -MAX_WBITS) != Z_OK)
-        { free (file); return 0; }
+    {
+        free (file);
+        errno = EBADMSG;
+        return 0; 
+    }
 
     return file;
     ____;
@@ -571,17 +708,17 @@ zzip_disk_entry_fopen(ZZIP_DISK * disk, ZZIP_DISK_ENTRY * entry)
  * This function opens a file found by name, so it does a search into
  * the zip central directory with => zzip_disk_findfile and whatever
  * is found first is given to => zzip_disk_entry_fopen
+ *
+ * This function may return null on errors (errno).
  */
 zzip__new__ ZZIP_DISK_FILE *
 zzip_disk_fopen(ZZIP_DISK * disk, char *filename)
 {
     ZZIP_DISK_ENTRY *entry = zzip_disk_findfile(disk, filename, 0, 0);
     if (! entry)
-        return 0;
-    else
-        return zzip_disk_entry_fopen(disk, entry);
+        return 0; /* EBADMSG */
+    return zzip_disk_entry_fopen(disk, entry);
 }
-
 
 /** => zzip_disk_fopen
  *
@@ -595,6 +732,8 @@ zzip_disk_fread(void *ptr, zzip_size_t sized, zzip_size_t nmemb,
                 ZZIP_DISK_FILE * file)
 {
     zzip_size_t size = sized * nmemb;
+    if (! ptr || ! sized || ! file)
+        return 0;
     if (size > file->avail)
         size = file->avail;
     if (file->stored)
@@ -623,13 +762,18 @@ zzip_disk_fread(void *ptr, zzip_size_t sized, zzip_size_t nmemb,
 /** => zzip_disk_fopen
  * This function releases any zlib decoder info needed for decompression
  * and dumps the ZZIP_DISK_FILE* then.
+ *
+ * This function always returns 0.
  */
 int
 zzip_disk_fclose(ZZIP_DISK_FILE * file)
 {
-    if (! file->stored)
-        inflateEnd(&file->zlib);
-    free(file);
+    if (file)
+    {
+        if (! file->stored)
+            inflateEnd(&file->zlib);
+        free(file);
+    }
     return 0;
 }
 
@@ -638,9 +782,14 @@ zzip_disk_fclose(ZZIP_DISK_FILE * file)
  * This function allows to distinguish an error from an eof condition.
  * Actually, if we found an error but we did already reach eof then we
  * just keep on saying that it was an eof, so the app can just continue.
+ *
+ * This function returns EOF in case and 0 when not at the end
+ * of file.
  */
 int
 zzip_disk_feof(ZZIP_DISK_FILE * file)
 {
-    return ! file || ! file->avail;
+    if (! file || ! file->avail)
+        return EOF;
+    return 0;
 }

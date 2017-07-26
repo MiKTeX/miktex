@@ -23,7 +23,6 @@
 
 #include "internal.h"
 
-#include "miktex/Core/CsvList.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/Registry.h"
 
@@ -264,38 +263,23 @@ bool SessionImpl::FindFileInternal(const string& fileName, FileType fileType, bo
   vector<PathName> vec = ConstructSearchVector(fileType);
 
   // get the file type information
-  const InternalFileTypeInfo* fileTypeInfo = GetInternalFileTypeInfo(fileType);
+  const InternalFileTypeInfo* fti = GetInternalFileTypeInfo(fileType);
   MIKTEX_ASSERT(fileTypeInfo != nullptr);
 
   // check to see whether the file name has a registered file name extension
-  const char* lpszExtension = GetFileNameExtension(fileName.c_str());
-  bool hasRegisteredExtension = false;
-  if (lpszExtension != nullptr)
-  {
-    for (CsvList ext(fileTypeInfo->fileNameExtensions, PATH_DELIMITER); ext && !hasRegisteredExtension; ++ext)
-    {
-      if (PathName::Compare(lpszExtension, *ext) == 0)
-      {
-        hasRegisteredExtension = true;
-      }
-    }
-    for (CsvList ext(fileTypeInfo->alternateExtensions, PATH_DELIMITER); ext && !hasRegisteredExtension; ++ext)
-    {
-      if (PathName::Compare(lpszExtension, *ext) == 0)
-      {
-        hasRegisteredExtension = true;
-      }
-    }
-  }
+  PathName extension = PathName(fileName).GetExtension();
+  bool hasRegisteredExtension = !extension.Empty()
+    && (std::find_if(fti->fileNameExtensions.begin(), fti->fileNameExtensions.end(), [extension](const string& ext) { return extension == ext; }) != fti->fileNameExtensions.end()
+      || std::find_if(fti->alternateExtensions.begin(), fti->alternateExtensions.end(), [extension](const string& ext) { return extension == ext; }) != fti->alternateExtensions.end());
 
   vector<PathName> fileNamesToTry;
 
   // try each registered file name extension, if none was specified
   if (!hasRegisteredExtension)
   {
-    for (CsvList ext(fileTypeInfo->fileNameExtensions, PATH_DELIMITER); ext; ++ext)
+    for (const string& ext : fti->fileNameExtensions)
     {
-      fileNamesToTry.push_back(PathName(fileName).AppendExtension(*ext));
+      fileNamesToTry.push_back(PathName(fileName).AppendExtension(ext));
     }
   }
 
@@ -303,9 +287,9 @@ bool SessionImpl::FindFileInternal(const string& fileName, FileType fileType, bo
   fileNamesToTry.push_back(fileName);
 
   // first round: use the fndb
-  for (vector<PathName>::const_iterator it = fileNamesToTry.begin(); it != fileNamesToTry.end(); ++it)
+  for (const PathName& fn : fileNamesToTry)
   {
-    if (FindFileInternal(it->GetData(), vec, firstMatchOnly, true, false, result) && firstMatchOnly)
+    if (FindFileInternal(fn.GetData(), vec, firstMatchOnly, true, false, result) && firstMatchOnly)
     {
       return true;
     }
@@ -314,9 +298,9 @@ bool SessionImpl::FindFileInternal(const string& fileName, FileType fileType, bo
   // second round: don't use the fndb
   if (tryHard)
   {
-    for (vector<PathName>::const_iterator it = fileNamesToTry.begin(); it != fileNamesToTry.end(); ++it)
+    for (const PathName& fn : fileNamesToTry)
     {
-      if (FindFileInternal(it->GetData(), vec, firstMatchOnly, false, true, result) && firstMatchOnly)
+      if (FindFileInternal(fn.GetData(), vec, firstMatchOnly, false, true, result) && firstMatchOnly)
       {
         return true;
       }
@@ -401,9 +385,9 @@ bool SessionImpl::MakePkFileName(PathName& pkFileName, const char* lpszFontName,
 {
   string nameTemplate;
 
-  if (!GetSessionValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_PK_FN_TEMPLATE, nameTemplate, DEFAULT_PK_NAME_TEMPLATE))
+  if (!GetSessionValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_PK_FN_TEMPLATE, nameTemplate))
   {
-    MIKTEX_UNEXPECTED();
+    nameTemplate = DEFAULT_PK_NAME_TEMPLATE;
   }
 
   string str;
@@ -462,9 +446,9 @@ bool SessionImpl::FindPkFile(const string& fontName, const string& mfMode, int d
 
   string searchPathTemplate;
 
-  if (!GetSessionValue(MIKTEX_REGKEY_CORE, "PKPath", searchPathTemplate, DEFAULT_PK_SEARCH_PATH))
+  if (!GetSessionValue(MIKTEX_REGKEY_CORE, "PKPath", searchPathTemplate))
   {
-    MIKTEX_UNEXPECTED();
+    searchPathTemplate = DEFAULT_PK_SEARCH_PATH;
   }
 
   string searchPath;

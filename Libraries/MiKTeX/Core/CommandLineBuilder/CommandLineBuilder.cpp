@@ -1,6 +1,6 @@
 /* CommandLine.cpp: command-line builder
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -35,7 +35,7 @@ Argv::Argv() :
 {
 }
 
-Argv::Argv(Argv && rhs) :
+Argv::Argv(Argv&& rhs) :
   pimpl(std::move(rhs.pimpl))
 {
 }
@@ -52,18 +52,32 @@ Argv::~Argv() noexcept
       }
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
 
-Argv::Argv(const string & fileName, const string & arguments) :
-  pimpl(new impl{ { MIKTEX_STRDUP(fileName.c_str()), nullptr } })
+Argv::Argv(const string& commandLine) :
+  pimpl(new impl{ { nullptr } })
 {
-  Append(arguments);
+  Append(commandLine);
 }
 
-const char * const * Argv::GetArgv() const
+Argv::Argv(const vector<string>& arguments) :
+  pimpl(new impl{ { nullptr } })
+{
+  MIKTEX_ASSERT(!pimpl->argv.empty());
+  MIKTEX_ASSERT(pimpl->argv.back() == nullptr);
+  pimpl->argv.pop_back();
+  MIKTEX_ASSERT(pimpl->argv.empty());
+  for(const string& arg : arguments)
+  {
+    pimpl->argv.push_back(MIKTEX_STRDUP(arg.c_str()));
+  }
+  pimpl->argv.push_back(nullptr);
+}
+
+const char* const* Argv::GetArgv() const
 {
   return &pimpl->argv[0];
 }
@@ -74,10 +88,40 @@ int Argv::GetArgc() const
   return static_cast<int>(pimpl->argv.size() - 1);
 }
 
-const char * Argv::operator[] (size_t idx) const
+const char* Argv::operator[] (size_t idx) const
 {
   MIKTEX_ASSERT(idx < pimpl->argv.size());
   return pimpl->argv[idx];
+}
+
+vector<string> Argv::ToStringVector() const
+{
+  vector<string> result;
+  for (size_t idx = 0; idx < GetArgc(); ++idx)
+  {
+    result.push_back(this->operator[](idx));
+  }
+  return result;
+}
+
+char** Argv::CloneFreeable() const
+{
+  size_t size = sizeof(char*) * (GetArgc() + 1);
+  for (int idx = 0; idx < GetArgc(); ++idx)
+  {
+    size += strlen(pimpl->argv[idx]) + 1;
+  }
+  void* mem = MIKTEX_MALLOC(size);
+  char** result = (char**)mem;
+  char* pool = ((char*)mem) + sizeof(char*) * (GetArgc() + 1);
+  for (int idx = 0; idx < GetArgc(); ++idx)
+  {
+    result[idx] = pool;
+    strcpy(pool, pimpl->argv[idx]);
+    pool += strlen(pimpl->argv[idx]) + 1;
+  }
+  result[GetArgc()] = nullptr;
+  return result;
 }
 
 class CommandLineBuilder::impl
@@ -99,19 +143,19 @@ CommandLineBuilder::CommandLineBuilder() :
   SetQuotingConvention(QuotingConvention::Whitespace);
 }
 
-CommandLineBuilder::CommandLineBuilder(const CommandLineBuilder & other) :
+CommandLineBuilder::CommandLineBuilder(const CommandLineBuilder& other) :
   CommandLineBuilder()
 {
   *pimpl = *other.pimpl;
 }
 
-CommandLineBuilder & CommandLineBuilder::operator= (const CommandLineBuilder & other)
+CommandLineBuilder& CommandLineBuilder::operator= (const CommandLineBuilder& other)
 {
   *pimpl = *other.pimpl;
   return *this;
 }
 
-CommandLineBuilder::CommandLineBuilder(const string & argument) :
+CommandLineBuilder::CommandLineBuilder(const string& argument) :
   CommandLineBuilder()
 {
   AppendArgument(argument);
@@ -121,19 +165,25 @@ CommandLineBuilder::~CommandLineBuilder() noexcept
 {
 }
 
-CommandLineBuilder::CommandLineBuilder(const string & argument1, const string & argument2) :
+CommandLineBuilder::CommandLineBuilder(const string& argument1, const string& argument2) :
   CommandLineBuilder()
 {
   AppendArgument(argument1);
   AppendArgument(argument2);
 }
 
-CommandLineBuilder::CommandLineBuilder(const string & argument1, const string & argument2, const string & argument3) :
+CommandLineBuilder::CommandLineBuilder(const string& argument1, const string& argument2, const string& argument3) :
   CommandLineBuilder()
 {
   AppendArgument(argument1);
   AppendArgument(argument2);
   AppendArgument(argument3);
+}
+
+CommandLineBuilder::CommandLineBuilder(const vector<string>& arguments) :
+  CommandLineBuilder()
+{
+  AppendArguments(arguments);
 }
 
 void CommandLineBuilder::SetOptionConvention(OptionConvention optionConvention)
@@ -180,7 +230,7 @@ void CommandLineBuilder::Clear()
   pimpl->str = "";
 }
 
-void CommandLineBuilder::AppendUnquoted(const string & text)
+void CommandLineBuilder::AppendUnquoted(const string& text)
 {
   if (!pimpl->str.empty())
   {
@@ -189,7 +239,7 @@ void CommandLineBuilder::AppendUnquoted(const string & text)
   pimpl->str += text;
 }
 
-void CommandLineBuilder::AppendArgument(const string & argument)
+void CommandLineBuilder::AppendArgument(const string& argument)
 {
   if (!pimpl->str.empty())
   {
@@ -207,7 +257,7 @@ void CommandLineBuilder::AppendArgument(const string & argument)
   }
 }
 
-void CommandLineBuilder::AppendArguments(int argc, const char * const * argv)
+void CommandLineBuilder::AppendArguments(int argc, const char* const* argv)
 {
   for (int idx = 0; idx < argc; ++idx)
   {
@@ -215,15 +265,15 @@ void CommandLineBuilder::AppendArguments(int argc, const char * const * argv)
   }
 }
 
-void CommandLineBuilder::AppendArguments(const vector<string> & argv)
+void CommandLineBuilder::AppendArguments(const vector<string>& argv)
 {
-  for (const string & arg : argv)
+  for (const string& arg : argv)
   {
     AppendArgument(arg);
   }
 }
 
-void CommandLineBuilder::AppendArguments(const Argv & argv)
+void CommandLineBuilder::AppendArguments(const Argv& argv)
 {
   if (argv.GetArgc() > 0)
   {
@@ -231,7 +281,7 @@ void CommandLineBuilder::AppendArguments(const Argv & argv)
   }
 }
 
-void CommandLineBuilder::AppendOption(const string & name, const string & value)
+void CommandLineBuilder::AppendOption(const string& name, const string& value)
 {
   if (!pimpl->str.empty())
   {
@@ -255,7 +305,7 @@ void CommandLineBuilder::AppendOption(const string & name, const string & value)
   }
 }
 
-void CommandLineBuilder::AppendRedirection(const PathName & path_, string direction)
+void CommandLineBuilder::AppendRedirection(const PathName& path_, string direction)
 {
 #if defined(MIKTEX_WINDOWS)
   string path = PathName(path_).ToDos().ToString();

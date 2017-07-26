@@ -33,7 +33,6 @@
 #include "findtexmf-version.h"
 
 #include <miktex/App/Application>
-#include <miktex/Core/CsvList>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/FileType>
 #include <miktex/Core/Paths>
@@ -201,7 +200,7 @@ void FindTeXMF::ListFileTypes()
     {
       continue;
     }
-    cout << "  " << fti.fileTypeString << " (" << fti.fileNameExtensions << ")" << endl;
+    cout << "  " << fti.fileTypeString << " (" << StringUtil::Flatten(fti.fileNameExtensions, PathName::PathNameDelimiter) << ")" << endl;
   }
 }
 
@@ -210,10 +209,10 @@ void FindTeXMF::PrintSearchPath(const char* lpszSearchPath)
   bool first = true;
   PathName mpmRootPath = session->GetMpmRootPath();
   size_t mpmRootPathLen = mpmRootPath.GetLength();
-  for (CsvList path(lpszSearchPath, PathName::PathNameDelimiter); path; ++path)
+  for (const string& path : StringUtil::Split(lpszSearchPath, PathName::PathNameDelimiter))
   {
-    if ((PathName::Compare(*path, mpmRootPath, mpmRootPathLen) == 0)
-      && ((*path).length() == mpmRootPathLen || IsDirectoryDelimiter((*path)[mpmRootPathLen])))
+    if ((PathName::Compare(path, mpmRootPath, mpmRootPathLen) == 0)
+      && (path.length() == mpmRootPathLen || IsDirectoryDelimiter(path[mpmRootPathLen])))
     {
       continue;
     }
@@ -225,7 +224,7 @@ void FindTeXMF::PrintSearchPath(const char* lpszSearchPath)
     {
       cout << ";";
     }
-    cout << session->Expand((*path), { ExpandOption::Braces }, nullptr);
+    cout << session->Expand(path, { ExpandOption::Braces }, nullptr);
   }
   cout << endl;
 }

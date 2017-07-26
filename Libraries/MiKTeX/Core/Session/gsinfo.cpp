@@ -82,8 +82,8 @@ PathName SessionImpl::GetGhostscript(unsigned long* versionNumber)
   if (versionNumber != nullptr && gsVersion.n1 == 0)
   {
     int exitCode;
-    ProcessOutput<80> gsOut;
-    if (!Process::Run(pathGsExe, "--version", &gsOut, &exitCode, nullptr))
+    ProcessOutput<1024> gsOut;
+    if (!Process::Run(pathGsExe, vector<string>{ pathGsExe.GetFileNameWithoutExtension().ToString(), "--version"}, &gsOut, &exitCode, nullptr))
     {
       MIKTEX_UNEXPECTED();
     }

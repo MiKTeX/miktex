@@ -335,7 +335,10 @@ _cairo_ps_surface_emit_header (cairo_ps_surface_t *surface)
 				 "      cairo_store_point /cairo_font where { pop cairo_selectfont } if } bind def\n"
 				 "/g { setgray } bind def\n"
 				 "/rg { setrgbcolor } bind def\n"
-				 "/d1 { setcachedevice } bind def\n");
+				 "/d1 { setcachedevice } bind def\n"
+				 "/cairo_flush_ascii85_file { cairo_ascii85_file status { cairo_ascii85_file flushfile } if } def\n"
+				 "/cairo_image { image cairo_flush_ascii85_file } def\n"
+				 "/cairo_imagemask { imagemask cairo_flush_ascii85_file } def\n");
 
     if (!surface->eps) {
 	_cairo_output_stream_printf (surface->final_stream,
@@ -2679,6 +2682,9 @@ _cairo_ps_surface_emit_image (cairo_ps_surface_t    *surface,
 				     "] def\n");
 	_cairo_output_stream_printf (surface->stream,
 				     "/CairoImageDataIndex 0 def\n");
+    } else {
+	_cairo_output_stream_printf (surface->stream,
+				     "/cairo_ascii85_file currentfile /ASCII85Decode filter def\n");
     }
 
     if (use_mask) {
@@ -2713,7 +2719,7 @@ _cairo_ps_surface_emit_image (cairo_ps_surface_t    *surface,
 					 compress_filter);
 	} else {
 	    _cairo_output_stream_printf (surface->stream,
-					 "    /DataSource currentfile /ASCII85Decode filter /%s filter def\n",
+					 "    /DataSource cairo_ascii85_file /%s filter def\n",
 					 compress_filter);
 	}
 
@@ -2767,15 +2773,16 @@ _cairo_ps_surface_emit_image (cairo_ps_surface_t    *surface,
 					 compress_filter);
 	} else {
 	    _cairo_output_stream_printf (surface->stream,
-					 "  /DataSource currentfile /ASCII85Decode filter /%s filter def\n",
+					 "  /DataSource cairo_ascii85_file /%s filter def\n",
 					 compress_filter);
 	}
 
 	_cairo_output_stream_printf (surface->stream,
 				     "  /ImageMatrix [ 1 0 0 -1 0 %d ] def\n"
 				     "end\n"
-				     "%s\n",
+				     "%s%s\n",
 				     ps_image->height,
+				     surface->use_string_datasource ? "" : "cairo_",
 				     stencil_mask ? "imagemask" : "image");
     }
 
@@ -2865,6 +2872,9 @@ _cairo_ps_surface_emit_jpeg_image (cairo_ps_surface_t    *surface,
 				     "] def\n");
 	_cairo_output_stream_printf (surface->stream,
 				     "/CairoImageDataIndex 0 def\n");
+    } else {
+	_cairo_output_stream_printf (surface->stream,
+				     "/cairo_ascii85_file currentfile /ASCII85Decode filter def\n");
     }
 
     _cairo_output_stream_printf (surface->stream,
@@ -2891,14 +2901,15 @@ _cairo_ps_surface_emit_jpeg_image (cairo_ps_surface_t    *surface,
 				     "  } /ASCII85Decode filter /DCTDecode filter def\n");
     } else {
 	_cairo_output_stream_printf (surface->stream,
-				     "  /DataSource currentfile /ASCII85Decode filter /DCTDecode filter def\n");
+				     "  /DataSource cairo_ascii85_file /DCTDecode filter def\n");
     }
 
     _cairo_output_stream_printf (surface->stream,
 				 "  /ImageMatrix [ 1 0 0 -1 0 %d ] def\n"
 				 "end\n"
-				 "image\n",
-				 info.height);
+				 "%simage\n",
+				 info.height,
+				 surface->use_string_datasource ? "" : "cairo_");
 
     if (!surface->use_string_datasource) {
 	/* Emit the image data as a base85-encoded string which will

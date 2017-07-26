@@ -32,7 +32,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-int PathName::Compare(const char * lpszPath1, const char * lpszPath2)
+int PathName::Compare(const char* lpszPath1, const char* lpszPath2)
 {
   MIKTEX_ASSERT_STRING(lpszPath1);
   MIKTEX_ASSERT_STRING(lpszPath2);
@@ -59,8 +59,8 @@ int PathName::Compare(const char * lpszPath1, const char * lpszPath2)
   {
     MIKTEX_ASSERT(!(*lpszPath1 == 0 && *lpszPath2 == 0));
     if (
-	(*lpszPath1 == 0 && IsDirectoryDelimiter(*lpszPath2) && *(lpszPath2 + 1) == 0)
-	|| (*lpszPath2 == 0 && IsDirectoryDelimiter(*lpszPath1) && *(lpszPath1 + 1) == 0))
+        (*lpszPath1 == 0 && IsDirectoryDelimiter(*lpszPath2) && *(lpszPath2 + 1) == 0)
+        || (*lpszPath2 == 0 && IsDirectoryDelimiter(*lpszPath1) && *(lpszPath1 + 1) == 0))
     {
       return 0;
     }
@@ -82,7 +82,7 @@ int PathName::Compare(const char * lpszPath1, const char * lpszPath2)
   return ret;
 }
 
-int PathName::Compare(const char * lpszPath1, const char * lpszPath2, size_t count)
+int PathName::Compare(const char* lpszPath1, const char* lpszPath2, size_t count)
 
 {
   MIKTEX_ASSERT_STRING(lpszPath1);
@@ -106,14 +106,14 @@ int PathName::Compare(const char * lpszPath1, const char * lpszPath2, size_t cou
   {
     if (*lpszPath1 == 0 || *lpszPath1 != *lpszPath2)
     {
-      return *reinterpret_cast<const unsigned char *>(lpszPath1) - *reinterpret_cast<const unsigned char *>(lpszPath2);
+      return *reinterpret_cast<const unsigned char*>(lpszPath1) - *reinterpret_cast<const unsigned char*>(lpszPath2);
     }
   }
 
   return 0;
 }
 
-PathName & PathName::Convert(ConvertPathNameOptions options)
+PathName& PathName::Convert(ConvertPathNameOptions options)
 {
   bool toUnix = options[ConvertPathNameOption::ToUnix];
   bool toDos = options[ConvertPathNameOption::ToDos];
@@ -166,7 +166,7 @@ PathName & PathName::Convert(ConvertPathNameOptions options)
 
   if (toUnix || toDos)
   {
-    for (char * lpsz = GetData(); *lpsz != 0; ++lpsz)
+    for (char* lpsz = GetData(); *lpsz != 0; ++lpsz)
     {
       if (toUnix && *lpsz == PathName::DosDirectoryDelimiter)
       {
@@ -183,17 +183,17 @@ PathName & PathName::Convert(ConvertPathNameOptions options)
   {
     if (Utils::IsPureAscii(GetData()))
     {
-      for (char * lpsz = GetData(); *lpsz != 0; ++lpsz)
+      for (char* lpsz = GetData(); *lpsz != 0; ++lpsz)
       {
-	*lpsz = toUpper ? ToUpper(*lpsz) : ToLower(*lpsz);
+        *lpsz = toUpper ? ToUpper(*lpsz) : ToLower(*lpsz);
       }
     }
     else
     {
       CharBuffer<wchar_t> wideCharBuffer(GetData());
-      for (wchar_t * lpsz = wideCharBuffer.GetData(); *lpsz != 0; ++lpsz)
+      for (wchar_t* lpsz = wideCharBuffer.GetData(); *lpsz != 0; ++lpsz)
       {
-	*lpsz = toUpper ? ToUpper(*lpsz) : ToLower(*lpsz);
+        *lpsz = toUpper ? ToUpper(*lpsz) : ToLower(*lpsz);
       }
       *this = wideCharBuffer.GetData();
     }
@@ -202,7 +202,7 @@ PathName & PathName::Convert(ConvertPathNameOptions options)
   return *this;
 }
 
-static bool InternalMatch(const char * lpszPattern, const char * lpszPath)
+static bool InternalMatch(const char* lpszPattern, const char* lpszPath)
 {
   switch (*lpszPattern)
   {
@@ -223,7 +223,7 @@ static bool InternalMatch(const char * lpszPattern, const char * lpszPath)
   }
 }
 
-bool PathName::Match(const char * lpszPattern, const char * lpszPath)
+bool PathName::Match(const char* lpszPattern, const char* lpszPath)
 {
   MIKTEX_ASSERT_STRING(lpszPath);
   MIKTEX_ASSERT_STRING(lpszPattern);
@@ -240,11 +240,11 @@ vector<string> PathName::Split(const PathName& path)
   return result;
 }
 
-void PathName::Split(const PathName & path, string & directory, string & fileNameWithoutExtension, string & extension)
+void PathName::Split(const PathName& path, string& directory, string& fileNameWithoutExtension, string& extension)
 {
-  const char * lpsz;
+  const char* lpsz;
 
-  const char * lpszName_ = nullptr;
+  const char* lpszName_ = nullptr;
 
   // find the beginning of the name
   for (lpsz = path.GetData(); *lpsz != 0; ++lpsz)
@@ -262,7 +262,7 @@ void PathName::Split(const PathName & path, string & directory, string & fileNam
   directory.assign(path.GetData(), lpszName_ - path.GetData());
 
   // find the extension
-  const char * lpszExtension_ = nullptr;
+  const char* lpszExtension_ = nullptr;
   for (lpsz = lpszName_; *lpsz != 0; ++lpsz)
   {
     if (*lpsz == '.')
@@ -282,11 +282,11 @@ void PathName::Split(const PathName & path, string & directory, string & fileNam
 
 string PathName::GetExtension() const
 {
-  const char * e = GetFileNameExtension(GetData());
+  const char* e = GetFileNameExtension(GetData());
   return e == nullptr ? string() : string(e);
 }
 
-PathName & PathName::SetExtension(const char * extension, bool override)
+PathName& PathName::SetExtension(const char* extension, bool override)
 {
   string directory;
   string fileNameWithoutExtension;
@@ -317,7 +317,7 @@ PathName & PathName::SetExtension(const char * extension, bool override)
   return *this;
 }
 
-PathName & PathName::AppendDirectoryDelimiter()
+PathName& PathName::AppendDirectoryDelimiter()
 {
   size_t l = GetLength();
   if (l == 0 || !IsDirectoryDelimiter(Base::operator[](l - 1)))
@@ -327,7 +327,7 @@ PathName & PathName::AppendDirectoryDelimiter()
   return *this;
 }
 
-PathName & PathName::CutOffLastComponent(bool allowSelfCutting)
+PathName& PathName::CutOffLastComponent(bool allowSelfCutting)
 {
   RemoveDirectoryDelimiter(GetData());
   bool noCut = true;
@@ -338,18 +338,18 @@ PathName & PathName::CutOffLastComponent(bool allowSelfCutting)
 #if defined(MIKTEX_WINDOWS)
       if (end > 1 && Base::operator[](end - 2) == PathName::VolumeDelimiter)
       {
-	Base::operator[](end) = 0;
+        Base::operator[](end) = 0;
       }
       else
 #endif
-	if (end == 1)
-	{
-	  Base::operator[](1) = 0;
-	}
-	else
-	{
-	  Base::operator[](end - 1) = 0;
-	}
+        if (end == 1)
+        {
+          Base::operator[](1) = 0;
+        }
+        else
+        {
+          Base::operator[](end - 1) = 0;
+        }
       noCut = false;
     }
   }
@@ -373,7 +373,7 @@ size_t PathName::GetHash() const
   const size_t offset_basis = 2166136261;
 #endif
   size_t hash = offset_basis;
-  for (const char * lpsz = GetData(); *lpsz != 0; ++lpsz)
+  for (const char* lpsz = GetData(); *lpsz != 0; ++lpsz)
   {
     char ch = *lpsz;
 #if defined(MIKTEX_WINDOWS)

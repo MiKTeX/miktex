@@ -1,7 +1,11 @@
 #ifndef __ZZIP_MEMDISK_H
 #define __ZZIP_MEMDISK_H
 
-/* NOTE: this is part of libzzipmmapped (i.e. it is not libzzip). */
+/*
+ * NOTE: this is part of libzzipmmapped (i.e. it is not libzzip).
+ *
+ * Copyright (c) Guido Draheim, use under copyleft (LGPL,MPL)
+ */
 
 #include <zzip/types.h>
 #include <zzip/mmapped.h>
@@ -65,8 +69,9 @@ struct _zzip_mem_entry {
     int              zz_diskstart; /* (from "z_diskstart") rridden by zip64 */
     int              zz_filetype;  /* (from "z_filetype") */
     char*            zz_comment;   /* zero-terminated (from "comment") */
-    ZZIP_EXTRA_BLOCK* zz_ext[3];   /* terminated by null in z_datatype */
-};                                 /* the extra blocks are NOT converted */
+    ZZIP_EXTRA_BLOCK* zz_ext[3];    /* terminated by null in z_datatype */
+    zzip_size_t       zz_extlen[3]; /* the extra blocks are NOT converted */
+};                                
 
 #define _zzip_mem_disk_findfirst(_d_) ((_d_)->list)
 #define _zzip_mem_disk_findnext(_d_,_e_) (!(_e_)?(_d_)->list:(_e_)->zz_next)

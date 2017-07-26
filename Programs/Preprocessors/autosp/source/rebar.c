@@ -102,7 +102,7 @@ process_command (char **ln)
   }
   else if ( prefix ("\\advance\\barno", *ln) )
   { 
-    int barno_increment;
+    int barno_increment = 0;
     t = strpbrk (*ln, "-0123456789");
     if ( (*ln == NULL) || (sscanf (t, "%d", &barno_increment) != 1 ) )
       error ("Expected barno increment/decrement");

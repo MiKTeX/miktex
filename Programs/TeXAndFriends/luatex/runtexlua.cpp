@@ -54,12 +54,24 @@ int MAIN(int argc, MAINCHAR** argv)
 {
   try
   {
-    app.Init(TU_(argv[0]));
+    // build new argv
+    vector<string> utf8args;
+    for (int idx = 0; idx < argc; ++idx)
+    {
+      utf8args.push_back(TU_(argv[idx]));
+    }
+    vector<char*> newargv;
+    newargv.reserve(utf8args.size() + 1);
+    for (const string& arg : utf8args)
+    {
+      newargv.push_back((char*)arg.c_str());
+    }
+    newargv.push_back(nullptr);
 
-    MIKTEX_ASSERT(argc > 0);
+    app.Init(newargv);
 
     // determine script name
-    PathName programName = PathName(argv[0]).GetFileNameWithoutExtension();
+    PathName programName = PathName(newargv[0]).GetFileNameWithoutExtension();
 
     std::string scriptName;
 
@@ -98,53 +110,41 @@ int MAIN(int argc, MAINCHAR** argv)
       MIKTEX_FATAL_ERROR_2(MIKTEXTEXT("The Lua script could not be found."), relScriptPath);
     }
 
-    // build new argv
-    vector<string> utf8args;
-    utf8args.reserve(argc + 3);
-    utf8args.push_back(TU_(argv[0]));
-    utf8args.push_back("--luaonly");
-    utf8args.push_back(scriptPath.GetData());
+    // inject arguments
+    vector<char*> extraArgs;
+    extraArgs.push_back("--luaonly");
+    extraArgs.push_back(scriptPath.GetData());
 #if defined(MTXRUN)
     if (!(isLuatools || isMtxrun || isTexmfstart))
     {
-      utf8args.push_back("--script");
-      utf8args.push_back(programName);
+      extraArgs.push_back("--script");
+      extraArgs.push_back(programName);
     }
 #endif
-    for (int idx = 1; idx < argc; ++idx)
-    {
-      utf8args.push_back(TU_(argv[idx]));
-    }
-    vector<char*> newargv;
-    newargv.reserve(utf8args.size() + 1);
-    for (const string& arg : utf8args)
-    {
-      newargv.push_back((char*)arg.c_str());
-    }
-    newargv.push_back(nullptr);
+    newargv.insert(newargv.begin() + 1, extraArgs.begin(), extraArgs.end());
 
     // run texlua
     int exitCode = Main(newargv.size() - 1, &newargv[0]);
 
-    app.Finalize();
+    app.Finalize2(exitCode);
 
     return exitCode;
   }
   catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
-    app.Finalize();
+    app.Finalize2(1);
     return 1;
   }
   catch (const std::exception& e)
   {
     Utils::PrintException(e);
-    app.Finalize();
+    app.Finalize2(1);
     return 1;
   }
   catch (int exitCode)
   {
-    app.Finalize();
+    app.Finalize2(exitCode);
     return exitCode;
   }
 }

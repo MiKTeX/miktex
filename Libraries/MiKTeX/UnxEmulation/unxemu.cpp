@@ -1,6 +1,6 @@
 /* unxemu.cpp:
 
-   Copyright (C) 2007-2016 Christian Schenk
+   Copyright (C) 2007-2017 Christian Schenk
 
    This file is part of the MiKTeX UNXEMU Library.
 
@@ -39,7 +39,7 @@ struct DIR_
   unique_ptr<DirectoryLister> pLister;
   struct dirent direntry;
   PathName path;
-  DIR_(const char * lpszPath) :
+  DIR_(const char* lpszPath) :
     path(lpszPath),
     pLister(DirectoryLister::Open(lpszPath))
   {
@@ -51,14 +51,14 @@ struct WDIR_
   unique_ptr<DirectoryLister> pLister;
   struct wdirent direntry;
   PathName path;
-  WDIR_(const wchar_t * lpszPath) :
+  WDIR_(const wchar_t* lpszPath) :
     path(lpszPath),
     pLister(DirectoryLister::Open(lpszPath))
   {
   }
 };
 
-MIKTEXUNXCEEAPI(int) closedir(DIR * pDir)
+MIKTEXUNXCEEAPI(int) closedir(DIR* pDir)
 {
   C_FUNC_BEGIN();
   delete pDir;
@@ -66,7 +66,7 @@ MIKTEXUNXCEEAPI(int) closedir(DIR * pDir)
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(int) wclosedir(WDIR * pDir)
+MIKTEXUNXCEEAPI(int) wclosedir(WDIR* pDir)
 {
   C_FUNC_BEGIN();
   delete pDir;
@@ -74,7 +74,7 @@ MIKTEXUNXCEEAPI(int) wclosedir(WDIR * pDir)
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(DIR *) opendir(const char * lpszPath)
+MIKTEXUNXCEEAPI(DIR*) opendir(const char* lpszPath)
 {
   C_FUNC_BEGIN();
   if (!Directory::Exists(lpszPath))
@@ -86,7 +86,7 @@ MIKTEXUNXCEEAPI(DIR *) opendir(const char * lpszPath)
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(WDIR *) wopendir(const wchar_t * lpszPath)
+MIKTEXUNXCEEAPI(WDIR*) wopendir(const wchar_t* lpszPath)
 {
   C_FUNC_BEGIN();
   if (!Directory::Exists(lpszPath))
@@ -98,7 +98,7 @@ MIKTEXUNXCEEAPI(WDIR *) wopendir(const wchar_t * lpszPath)
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(struct dirent *) readdir(DIR * pDir)
+MIKTEXUNXCEEAPI(struct dirent*) readdir(DIR* pDir)
 {
   C_FUNC_BEGIN();
   DirectoryEntry directoryEntry;
@@ -111,8 +111,7 @@ MIKTEXUNXCEEAPI(struct dirent *) readdir(DIR * pDir)
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(struct wdirent *)
-wreaddir(WDIR * pDir)
+MIKTEXUNXCEEAPI(struct wdirent*) wreaddir(WDIR* pDir)
 {
   C_FUNC_BEGIN();
   DirectoryEntry directoryEntry;
@@ -125,7 +124,7 @@ wreaddir(WDIR * pDir)
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(void) rewinddir(DIR * pDir)
+MIKTEXUNXCEEAPI(void) rewinddir(DIR* pDir)
 {
   C_FUNC_BEGIN();
   pDir->pLister->Close();
@@ -133,7 +132,7 @@ MIKTEXUNXCEEAPI(void) rewinddir(DIR * pDir)
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(void) wrewinddir(WDIR * pDir)
+MIKTEXUNXCEEAPI(void) wrewinddir(WDIR* pDir)
 {
   C_FUNC_BEGIN();
   pDir->pLister->Close();
@@ -141,12 +140,12 @@ MIKTEXUNXCEEAPI(void) wrewinddir(WDIR * pDir)
   C_FUNC_END();
 }
 
-MIKTEXUNXCEEAPI(int) miktex_strncasecmp(const char * lpsz1, const char * lpsz2, size_t n)
+MIKTEXUNXCEEAPI(int) miktex_strncasecmp(const char* lpsz1, const char* lpsz2, size_t n)
 {
   return MiKTeX::Util::StringCompare(lpsz1, lpsz2, n, true);
 }
 
-MIKTEXUNXCEEAPI(int) miktex_gettimeofday(struct timeval * ptv, void * pNull)
+MIKTEXUNXCEEAPI(int) miktex_gettimeofday(struct timeval* ptv, void* pNull)
 {
   MIKTEX_ASSERT(pNull == nullptr);
   MIKTEX_ASSERT(ptv != nullptr);
@@ -163,4 +162,40 @@ MIKTEXUNXCEEAPI(int) miktex_gettimeofday(struct timeval * ptv, void * pNull)
   ptv->tv_sec = static_cast<long>(mktime(&tm));
   ptv->tv_usec = systemTime.wMilliseconds;
   return 0;
+}
+
+// derived from glibc 2.3.6 libc/sysdeps/posix/tempname.c
+// Copyright (C) 1991-1999, 2000, 2001 Free Software Foundation, Inc.
+MIKTEXUNXCEEAPI(int) miktex_mkstemp(char* tmpl)
+{
+  size_t len = strlen(tmpl);
+  if (len < 6 || strcmp(&tmpl[len - 6], "XXXXXX") != 0)
+  {
+    // TODO
+    return -1;
+  }
+  char* const XXXXXX = &tmpl[len - 6];
+  static const char letters[] = "ABCDEFGHIJKLMnopqrstuvwxyz0123456789";
+  const int lettercount = sizeof(letters) - 1;
+  uint64_t value = time(nullptr) ^ GetCurrentProcessId();
+  for (int rounds = 1000; rounds> 0; rounds--, value += 7777)
+  {
+    uint64_t v = value;
+    for (char *x = XXXXXX; *x != 0; ++x, v /= lettercount)
+    {
+      *x = letters[v % lettercount];
+    }
+    int fd = _open(tmpl, _O_CREAT | _O_EXCL | _O_RDWR, _S_IREAD | _S_IWRITE);
+    if (fd >= 0)
+    {
+      return fd;
+    }
+    else if (fd != EEXIST)
+    {
+      // TODO
+      return -1;
+    }
+  }
+  // TODO
+  return -1;
 }

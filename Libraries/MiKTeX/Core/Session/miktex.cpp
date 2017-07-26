@@ -45,7 +45,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Trace;
 using namespace std;
 
-MIKTEXSTATICFUNC(bool) IsGoodTempDirectory(const char * lpszPath)
+MIKTEXSTATICFUNC(bool) IsGoodTempDirectory(const char* lpszPath)
 {
   return Utils::IsAbsolutePath(lpszPath) && Directory::Exists(lpszPath);
 }
@@ -77,7 +77,7 @@ PathName SessionImpl::GetTempDirectory()
 
 void SessionImpl::RegisterLibraryTraceStreams()
 {
-  TraceCallback * callback = initInfo.GetTraceCallback();
+  TraceCallback* callback = initInfo.GetTraceCallback();
   trace_access = TraceStream::Open(MIKTEX_TRACE_ACCESS, callback);
   trace_config = TraceStream::Open(MIKTEX_TRACE_CONFIG, callback);
   trace_core = TraceStream::Open(MIKTEX_TRACE_CORE, callback);
@@ -121,16 +121,37 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
   switch (specialPath)
   {
   case SpecialPath::BinDirectory:
-    path = GetBinDirectory(false);
+    path = GetBinDirectory(true);
     break;
   case SpecialPath::InternalBinDirectory:
 #if defined(MIKTEX_WINDOWS)
-    path = GetBinDirectory(false);
-    path /= "internal";
+    // FIXME: hard-coded sub-directory
+    path = GetSpecialPath(SpecialPath::BinDirectory) / "internal";
 #else
-    path = GetMyPrefix(false);
-    path /= MIKTEX_INTERNAL_BINARY_DESTINATION_DIR;
+    path = GetMyPrefix(true) / MIKTEX_INTERNAL_BINARY_DESTINATION_DIR;
 #endif
+    break;
+  case SpecialPath::LocalBinDirectory:
+#if defined(MIKTEX_WINDOWS)
+    path = GetSpecialPath(SpecialPath::BinDirectory);
+#else
+    // FIXME: hard-coded path
+    path = "/usr/local/bin";
+#endif
+    break;
+  case SpecialPath::LogDirectory:
+#if defined(MIKTEX_UNIX)
+    if (IsAdminMode())
+    {
+      path = MIKTEX_SYSTEM_VAR_LOG_DIR;
+      // FIXME: hard-coded sub-directory
+      path /= "miktex";
+    }
+    else
+#endif
+    {
+      path = GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR;
+    }
     break;
   case SpecialPath::CommonInstallRoot:
     path = GetRootDirectory(GetCommonInstallRoot());
@@ -140,6 +161,9 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     break;
   case SpecialPath::InstallRoot:
     path = GetRootDirectory(GetInstallRoot());
+    break;
+  case SpecialPath::BootstrappingRoot:
+    path = GetBootstrappingDirectory();
     break;
   case SpecialPath::DistRoot:
     path = GetRootDirectory(GetDistRoot());
@@ -276,7 +300,7 @@ MIKTEXSTATICFUNC(int) magstep(int n, int bdpi)
   }
 }
 
-string SessionImpl::MakeMakePkCommandLine(const string & fontName, int dpi, int baseDpi, const string & mfMode, PathName & fileName, TriState enableInstaller)
+vector<string> SessionImpl::MakeMakePkCommandLine(const string& fontName, int dpi, int baseDpi, const string& mfMode, PathName& fileName, TriState enableInstaller)
 {
   MIKTEX_ASSERT(baseDpi != 0);
 
@@ -353,33 +377,32 @@ string SessionImpl::MakeMakePkCommandLine(const string & fontName, int dpi, int 
     strMagStep += ')';
   }
 
-  string cmdline;
-  cmdline.reserve(256);
+  vector<string> args{ fileName.GetFileNameWithoutExtension().ToString() };
 
   switch (enableInstaller)
   {
   case TriState::False:
-    cmdline += " --disable-installer";
+    args.push_back("--disable-installer");
     break;
   case TriState::True:
-    cmdline += " --enable-installer";
+    args.push_back("--enable-installer");
     break;
   default:
     break;
   }
 
-  cmdline += " --verbose";
-  cmdline += ' '; cmdline += fontName;
-  cmdline += ' '; cmdline += std::to_string(dpi);
-  cmdline += ' '; cmdline += std::to_string(baseDpi);
-  cmdline += ' '; cmdline += strMagStep;
+  args.push_back("--verbose");
+  args.push_back(fontName);
+  args.push_back(std::to_string(dpi));
+  args.push_back(std::to_string(baseDpi));
+  args.push_back(strMagStep);
 
   if (!mfMode.empty())
   {
-    cmdline += ' '; cmdline += mfMode;
+    args.push_back(mfMode);
   }
 
-  return cmdline;
+  return args;
 }
 
 bool SessionImpl::EnableFontMaker(bool enable)
@@ -396,7 +419,7 @@ bool SessionImpl::GetMakeFontsFlag()
 }
 
 #if HAVE_MIKTEX_USER_INFO
-bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo & info)
+bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo& info)
 {
   static TriState haveResult = TriState::Undetermined;
   static MiKTeXUserInfo result;
@@ -504,7 +527,7 @@ bool SessionImpl::TryGetMiKTeXUserInfo(MiKTeXUserInfo & info)
 #endif
 
 #if HAVE_MIKTEX_USER_INFO
-MiKTeXUserInfo SessionImpl::RegisterMiKTeXUser(const MiKTeXUserInfo & info)
+MiKTeXUserInfo SessionImpl::RegisterMiKTeXUser(const MiKTeXUserInfo& info)
 {
   Utils::ShowWebPage(MIKTEX_URL_WWW_GIVE_BACK);
   // TODO
@@ -512,10 +535,10 @@ MiKTeXUserInfo SessionImpl::RegisterMiKTeXUser(const MiKTeXUserInfo & info)
 }
 #endif
 
-MIKTEXINTERNALFUNC(bool) GetEnvironmentString(const string & name, string & value)
+MIKTEXINTERNALFUNC(bool) GetEnvironmentString(const string& name, string& value)
 {
 #if defined(MIKTEX_WINDOWS)
-  wchar_t * lpszValue = _wgetenv(UW_(name));
+  wchar_t* lpszValue = _wgetenv(UW_(name));
   if (lpszValue == nullptr)
   {
     return false;
@@ -526,7 +549,7 @@ MIKTEXINTERNALFUNC(bool) GetEnvironmentString(const string & name, string & valu
     return true;
   }
 #else
-  const char * lpszValue = getenv(name.c_str());
+  const char* lpszValue = getenv(name.c_str());
   if (lpszValue == nullptr)
   {
     return false;
@@ -539,7 +562,7 @@ MIKTEXINTERNALFUNC(bool) GetEnvironmentString(const string & name, string & valu
 #endif
 }
 
-MIKTEXINTERNALFUNC(bool) HaveEnvironmentString(const char * lpszName)
+MIKTEXINTERNALFUNC(bool) HaveEnvironmentString(const char* lpszName)
 {
   string value;
   return GetEnvironmentString(lpszName, value);
@@ -570,7 +593,7 @@ MIKTEXINTERNALFUNC(CryptoLib) GetCryptoLib()
 }
 
 #if defined(ENABLE_BOTAN)
-MIKTEXINTERNALFUNC(Botan::Public_Key*) LoadPublicKey_Botan(const PathName & publicKeyFile)
+MIKTEXINTERNALFUNC(Botan::Public_Key*) LoadPublicKey_Botan(const PathName& publicKeyFile)
 {
   if (publicKeyFile.Empty())
   {
@@ -584,7 +607,7 @@ MIKTEXINTERNALFUNC(Botan::Public_Key*) LoadPublicKey_Botan(const PathName & publ
 #endif
 
 #if defined(ENABLE_OPENSSL)
-extern "C" int OnOpenSSLError(const char * str, size_t len, void * u)
+extern "C" int OnOpenSSLError(const char* str, size_t len, void* u)
 {
   // TODO: log
   return 1;
@@ -598,14 +621,14 @@ MIKTEXINTERNALFUNC(void) FatalOpenSSLError()
 #endif
 
 #if defined(ENABLE_OPENSSL)
-MIKTEXINTERNALFUNC(RSA_ptr) LoadPublicKey_OpenSSL(const PathName & publicKeyFile)
+MIKTEXINTERNALFUNC(RSA_ptr) LoadPublicKey_OpenSSL(const PathName& publicKeyFile)
 {
   BIO_ptr mem(BIO_new(BIO_s_mem()), BIO_free);
   if (mem == nullptr)
   {
     FatalOpenSSLError();
   }
-  RSA * rsa;
+  RSA* rsa;
   if (publicKeyFile.Empty())
   {
     if (BIO_write(mem.get(), &PUBLIC_KEY_NAME[0], sizeof(PUBLIC_KEY_NAME)) != sizeof(PUBLIC_KEY_NAME))
@@ -635,7 +658,7 @@ void SessionImpl::SetCWDEnv()
 {
   string str;
   str.reserve(256);
-  for (const PathName & dir : inputDirectories)
+  for (const PathName& dir : inputDirectories)
   {
     if (!str.empty())
     {
@@ -646,7 +669,7 @@ void SessionImpl::SetCWDEnv()
   Utils::SetEnvironmentString(MIKTEX_ENV_CWD_LIST, str);
 }
 
-void SessionImpl::AddInputDirectory(const PathName & path, bool atEnd)
+void SessionImpl::AddInputDirectory(const PathName& path, bool atEnd)
 {
   if (!Utils::IsAbsolutePath(path))
   {
@@ -670,7 +693,7 @@ void SessionImpl::AddInputDirectory(const PathName & path, bool atEnd)
 #endif
 }
 
-bool SessionImpl::GetWorkingDirectory(unsigned n, PathName & path)
+bool SessionImpl::GetWorkingDirectory(unsigned n, PathName& path)
 {
   if (n == inputDirectories.size() + 1)
   {

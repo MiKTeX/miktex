@@ -12,12 +12,7 @@
  *      Guido Draheim <guidod@gmx.de>
  *      Tomi Ollila <Tomi.Ollila@tfi.net>
  *
- *      Copyright (c) 1999,2000,2001,2002 Guido Draheim
- *          All rights reserved,
- *          use under the restrictions of the
- *          Lesser GNU General Public License
- *          or alternatively the restrictions 
- *          of the Mozilla Public License 1.1
+ * Copyright (c) Guido Draheim, use under copyleft (LGPL,MPL)
  */
 
 #ifndef _ZZIP_FILE_H /* zzip-file.h */

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -43,6 +43,4 @@ target_link_libraries(core_compression_test1
 add_test(
   NAME core_compression_test1
   COMMAND $<TARGET_FILE:core_compression_test1>
-        --data-root=${dataroot}
-        --install-root=${installroot}
 )

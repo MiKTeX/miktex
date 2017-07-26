@@ -1,4 +1,4 @@
-/* config.h (created from config.h.cmake)		-*- C++ -*-
+/* config.h (created from config.h.cmake)               -*- C++ -*-
 
    This file is part of MiKTeX Package Manager.
 
@@ -18,32 +18,3 @@
    USA. */
 
 #cmakedefine HAVE_ATLBASE_H 1
-#cmakedefine HAVE_FLOAT_H 1
-#cmakedefine HAVE_FTIME 1
-#cmakedefine HAVE_GMTIME 1
-#cmakedefine HAVE_HASH_MAP 1
-#cmakedefine HAVE_HASH_SET 1
-#cmakedefine HAVE_LIMITS_H 1
-#cmakedefine HAVE_MATH_H 1
-#cmakedefine HAVE_MBTOWC 1
-#cmakedefine HAVE_SNPRINTF 1
-#cmakedefine HAVE_SPRINTF_L 1
-#cmakedefine HAVE_SSCANF 1
-#cmakedefine HAVE_STRRCHR 1
-#cmakedefine HAVE_STRTOD 1
-#cmakedefine HAVE_STRTOD_L 1
-#cmakedefine HAVE_STRTOL 1
-#cmakedefine HAVE_STRTOLL 1
-#cmakedefine HAVE_STRTOUL 1
-#cmakedefine HAVE_STRTOULL 1
-#cmakedefine HAVE_SYS_TIMEB_H 1
-#cmakedefine HAVE_UNORDERED_MAP 1
-#cmakedefine HAVE_UNORDERED_SET 1
-#cmakedefine HAVE_WCTOMB 1
-
-#cmakedefine WITH_SOAP_CLIENT 1
-
-#if defined(_MSC_VER)
-#  define SOAP_LONG_FORMAT "%I64d"
-#  define SOAP_ULONG_FORMAT "%I64u"
-#endif

@@ -27,10 +27,10 @@
 using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
+using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace std;
-
-#include "miktex/mpm.defaults.h"
+using namespace std::string_literals;
 
 static log4cxx::LoggerPtr logger;
 
@@ -71,7 +71,7 @@ Application* Application::GetApplication()
   return instance;
 }
 
-class Application::impl
+class Impl
 {
 public:
   set<string> ignoredPackages;
@@ -93,6 +93,13 @@ public:
   shared_ptr<Session> session;
 public:
   bool isLog4cxxConfigured = false;
+public:
+  string commandLine;
+};
+
+class Application::impl : public Impl
+{
+
 };
 
 Application::Application() :
@@ -132,17 +139,13 @@ void InstallSignalHandler(int sig)
   }
 }
 
-void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args)
+template<typename T> void ExamineArgs(vector<T>& args, Session::InitInfo& initInfo, Impl* pimpl)
 {
-  instance = this;
-  pimpl->initialized = true;
-  Session::InitInfo initInfo(initInfoArg);
-  MIKTEX_ASSERT(!empty.args() && args.back() == nullptr);
-  CommandLineBuilder cmdLineToLog;
-  vector<char*>::iterator it = args.begin();
+  CommandLineBuilder commandLine;
+  auto it = args.begin();
   while (it != args.end() && *it != nullptr)
   {
-    cmdLineToLog.AppendArgument(*it);
+    commandLine.AppendArgument(*it);
     bool keepArgument = false;
     if (strcmp(*it, "--miktex-admin") == 0)
     {
@@ -169,20 +172,36 @@ void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args
       it = args.erase(it);
     }
   }
-  initInfo.SetTraceCallback(this);
-  pimpl->session = Session::Create(initInfo);
-  pimpl->session->SetFindFileCallback(this);
-  ConfigureLogging();
-  LOG4CXX_INFO(logger, "starting with command line: " << cmdLineToLog.ToString());
-  pimpl->beQuiet = false;
-  if (pimpl->enableInstaller == TriState::Undetermined)
-  {
-    pimpl->enableInstaller = pimpl->session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, mpm::AutoInstall()).GetTriState();
-  }
-  pimpl->mpmAutoAdmin = pimpl->session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_ADMIN, mpm::AutoAdmin()).GetTriState();
-  InstallSignalHandler(SIGINT);
-  InstallSignalHandler(SIGTERM);
-  AutoMaintenance();
+  pimpl->commandLine = commandLine.ToString();
+}
+
+
+string Application::ExamineArgs(std::vector<const char*>& args, MiKTeX::Core::Session::InitInfo& initInfo)
+{
+  ::ExamineArgs(args, initInfo, pimpl.get());
+  return pimpl->commandLine;
+}
+
+string Application::ExamineArgs(std::vector<char*>& args, MiKTeX::Core::Session::InitInfo& initInfo)
+{
+  ::ExamineArgs(args, initInfo, pimpl.get());
+  return pimpl->commandLine;
+}
+
+void Application::Init(const Session::InitInfo& initInfoArg, vector<const char*>& args)
+{
+  Session::InitInfo initInfo(initInfoArg);
+  MIKTEX_ASSERT(!empty.args() && args.back() == nullptr);
+  ::ExamineArgs(args, initInfo, pimpl.get());
+  Init(initInfo);
+}
+
+void Application::Init(const Session::InitInfo& initInfoArg, vector<char*>& args)
+{
+  Session::InitInfo initInfo(initInfoArg);
+  MIKTEX_ASSERT(!empty.args() && args.back() == nullptr);
+  ::ExamineArgs(args, initInfo, pimpl.get());
+  Init(initInfo);
 }
 
 void Application::ConfigureLogging()
@@ -192,7 +211,7 @@ void Application::ConfigureLogging()
   if (pimpl->session->FindFile(myName + "." + MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName)
     || pimpl->session->FindFile(MIKTEX_LOG4CXX_CONFIG_FILENAME, MIKTEX_PATH_TEXMF_PLACEHOLDER "/" MIKTEX_PATH_MIKTEX_PLATFORM_CONFIG_DIR, xmlFileName))
   {
-    PathName logDir = pimpl->session->GetSpecialPath(SpecialPath::DataRoot) / MIKTEX_PATH_MIKTEX_LOG_DIR;
+    PathName logDir = pimpl->session->GetSpecialPath(SpecialPath::LogDirectory);
     string logName = myName;
     if (pimpl->session->IsAdminMode())
     {
@@ -212,55 +231,100 @@ void Application::ConfigureLogging()
 
 void Application::AutoMaintenance()
 {
+  PathName lockdir = pimpl->session->GetSpecialPath(SpecialPath::UserDataRoot) / MIKTEX_PATH_MIKTEX_DIR / "locks";
+  PathName lockfile = lockdir / "A6D646EE9FBF44D6A3E6C1A3A72FF7E3.lck";
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(pimpl->session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   PathName mpmDatabasePath(pimpl->session->GetMpmDatabasePathName());
   bool mustRefreshFndb = !File::Exists(mpmDatabasePath) || (!pimpl->session->IsAdminMode() && lastAdminMaintenance + 30 > File::GetLastWriteTime(mpmDatabasePath));
-  PathName userLanguageDat = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot);
-  userLanguageDat /= MIKTEX_PATH_LANGUAGE_DAT;
+  PathName userLanguageDat = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT;
   bool mustRefreshUserLanguageDat = !pimpl->session->IsAdminMode() && File::Exists(userLanguageDat) && lastAdminMaintenance + 30 > File::GetLastWriteTime(userLanguageDat);
   PathName initexmf;
   if ((mustRefreshFndb || mustRefreshUserLanguageDat) && pimpl->session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
   {
-    CommandLineBuilder commonCommandLine;
+    if (File::Exists(lockfile))
+    {
+      return;
+    }
+    LOG4CXX_TRACE(logger, "running MIKTEX_HOOK_AUTO_MAINTENANCE")
+    Directory::Create(lockdir);
+    unique_ptr<TemporaryFile> tmpfile = TemporaryFile::Create(lockfile);
+    AutoFILE closeme (File::Open(tmpfile->GetPathName(), FileMode::Create, FileAccess::ReadWrite, false, FileShare::ReadWrite));
+    vector<string> commonArgs{ initexmf.GetFileNameWithoutExtension().ToString() };
     switch (pimpl->enableInstaller)
     {
     case TriState::False:
-      commonCommandLine.AppendOption("--disable-installer");
+      commonArgs.push_back("--disable-installer");
       break;
     case TriState::True:
-      commonCommandLine.AppendOption("--enable-installer");
+      commonArgs.push_back("--enable-installer");
       break;
     case TriState::Undetermined:
       break;
     }
     if (pimpl->session->IsAdminMode())
     {
-      commonCommandLine.AppendOption("--admin");
+      commonArgs.push_back("--admin");
     }
-    commonCommandLine.AppendArgument("--quiet");
+    commonArgs.push_back("--quiet");
     if (mustRefreshFndb)
     {
       pimpl->session->UnloadFilenameDatabase();
-      CommandLineBuilder commandLine(commonCommandLine);
-      commandLine.AppendOption("--update-fndb");
-      LOG4CXX_INFO(logger, "running 'initexmf " << commandLine.ToString() << "' to refresh the file name database");
-      Process::Run(initexmf, commandLine.ToString());
+      vector<string> args = commonArgs;
+      args.push_back("--update-fndb");
+      LOG4CXX_INFO(logger, "running 'initexmf' to refresh the file name database");
+      Process::Run(initexmf, args);
+    }
+    if (mustRefreshFndb)
+    {
+      pimpl->session->UnloadFilenameDatabase();
+      vector<string> args = commonArgs;
+      args.push_back("--mkmaps");
+      LOG4CXX_INFO(logger, "running 'initexmf' to create font map files");
+      Process::Run(initexmf, args);
     }
     if (mustRefreshUserLanguageDat)
     {
       MIKTEX_ASSERT(!pimpl->session->IsAdminMode());
-      CommandLineBuilder commandLine(commonCommandLine);
-      commandLine.AppendOption("--mklangs");
-      LOG4CXX_INFO(logger, "running 'initexmf " << commandLine.ToString() << "' to refresh language.dat");
-      Process::Run(initexmf, commandLine.ToString());
+      vector<string> args = commonArgs;
+      args.push_back("--mklangs");
+      LOG4CXX_INFO(logger, "running 'initexmf' to refresh language.dat");
+      Process::Run(initexmf, args);
     }
   }
 }
 
-void Application::Init(const Session::InitInfo& initInfo)
+void Application::Init(const Session::InitInfo& initInfoArg)
 {
-  vector<char*> args{ nullptr };
-  Init(initInfo, args);
+  instance = this;
+  pimpl->initialized = true;
+  Session::InitInfo initInfo(initInfoArg);
+  initInfo.SetTraceCallback(this);
+  pimpl->session = Session::Create(initInfo);
+  pimpl->session->SetFindFileCallback(this);
+  ConfigureLogging();
+  if (pimpl->commandLine.empty())
+  {
+    // TODO
+  }
+  else
+  {
+    LOG4CXX_INFO(logger, "starting with command line: " << pimpl->commandLine);
+  }
+  pimpl->beQuiet = false;
+  if (pimpl->enableInstaller == TriState::Undetermined)
+  {
+    pimpl->enableInstaller = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
+  }
+  pimpl->mpmAutoAdmin = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN).GetTriState();
+  InstallSignalHandler(SIGINT);
+  InstallSignalHandler(SIGTERM);
+  AutoMaintenance();
+}
+
+void Application::Init(vector<const char*>& args)
+{
+  MIKTEX_ASSERT(!args.empty() && args.back() != nullptr);
+  Init(Session::InitInfo(args[0]), args);
 }
 
 void Application::Init(vector<char*>& args)
@@ -276,8 +340,7 @@ void Application::Init(const string& programInvocationName, const string& theNam
   {
     initInfo.SetTheNameOfTheGame(theNameOfTheGame);
   }
-  // FIXME:: eliminate const cast
-  vector<char*> args{ (char*)programInvocationName.c_str(), nullptr };
+  vector<const char*> args{ programInvocationName.c_str(), nullptr };
   Init(initInfo, args);
 }
 
@@ -286,12 +349,17 @@ void Application::Init(const string& programInvocationName)
   Init(programInvocationName, "");
 }
 
-void Application::Finalize()
+void Application::Finalize2(int exitCode)
 {
   if (logger != nullptr)
   {
-    LOG4CXX_DEBUG(logger, "finishing...");
+    LOG4CXX_INFO(logger, "finishing with exit code " << exitCode);
   }
+  Finalize();
+}
+  
+void Application::Finalize()
+{
   if (pimpl->installer != nullptr)
   {
     pimpl->installer->Dispose();
@@ -465,21 +533,21 @@ bool Application::InstallPackage(const string& deploymentName, const PathName& t
 
 bool Application::TryCreateFile(const PathName& fileName, FileType fileType)
 {
-  CommandLineBuilder commandLine;
+  vector<string> args{ "" };
   switch (pimpl->enableInstaller)
   {
   case TriState::False:
-    commandLine.AppendOption("--disable-installer");
+    args.push_back("--disable-installer");
     break;
   case TriState::True:
-    commandLine.AppendOption("--enable-installer");
+    args.push_back("--enable-installer");
     break;
   case TriState::Undetermined:
     break;
   }
   if (pimpl->session->IsAdminMode())
   {
-    commandLine.AppendOption("--admin");
+    args.push_back("--admin");
   }
   PathName makeUtility;
   PathName baseName = fileName.GetFileNameWithoutExtension();
@@ -491,10 +559,10 @@ bool Application::TryCreateFile(const PathName& fileName, FileType fileType)
     {
       MIKTEX_FATAL_ERROR(T_("The MiKTeX configuration utility (initexmf) could not be found."));
     }
-    commandLine.AppendOption("--dump-by-name=", baseName);
+    args.push_back("--dump-by-name="s + baseName.ToString());
     if (fileType == FileType::FMT)
     {
-      commandLine.AppendOption("--engine=", pimpl->session->GetEngineName());
+      args.push_back("--engine="s + pimpl->session->GetEngineName());
     }
     break;
   case FileType::TFM:
@@ -502,7 +570,7 @@ bool Application::TryCreateFile(const PathName& fileName, FileType fileType)
     {
       MIKTEX_FATAL_ERROR(T_("The MakeTFM utility could not be found."));
     }
-    commandLine.AppendArgument(baseName);
+    args.push_back(baseName.ToString());
     break;
   default:
     return false;
@@ -510,7 +578,8 @@ bool Application::TryCreateFile(const PathName& fileName, FileType fileType)
   LOG4CXX_INFO(logger, "going to create file: " << fileName);
   ProcessOutput<50000> processOutput;
   int exitCode;
-  if (!Process::Run(makeUtility, commandLine.ToString(), &processOutput, &exitCode, nullptr))
+  args[0] = makeUtility.GetFileNameWithoutExtension().ToString();
+  if (!Process::Run(makeUtility, args, &processOutput, &exitCode, nullptr))
   {
     LOG4CXX_ERROR(logger, makeUtility << " could not be started");
     return false;
@@ -671,9 +740,7 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
 
   // read information from yap.ini
   // FIXME: use FindFile()
-  PathName yapIni = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot);
-  yapIni /= MIKTEX_PATH_MIKTEX_CONFIG_DIR;
-  yapIni /= MIKTEX_YAP_INI_FILENAME;
+  PathName yapIni = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / MIKTEX_YAP_INI_FILENAME;
   if (File::Exists(yapIni))
   {
     unique_ptr<Cfg> yapConfig(Cfg::Create());
@@ -690,11 +757,13 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
   const char* lpszCommandLineTemplate = templ.c_str();
 
   string fileName;
+  string commandLine;
 
   bool quoted = false;
 
   for (; *lpszCommandLineTemplate != ' ' || (*lpszCommandLineTemplate != 0 && quoted); ++lpszCommandLineTemplate)
   {
+    commandLine += *lpszCommandLineTemplate;
     if (*lpszCommandLineTemplate == '"')
     {
       quoted = !quoted;
@@ -707,10 +776,8 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
 
   for (; *lpszCommandLineTemplate == ' '; ++lpszCommandLineTemplate)
   {
-
+    commandLine += *lpszCommandLineTemplate;
   }
-
-  string arguments;
 
   while (*lpszCommandLineTemplate != 0)
   {
@@ -721,18 +788,18 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
       default:
         break;
       case '%':
-        arguments += '%';
+        commandLine += '%';
         break;
       case 'f':
       {
         PathName path;
         if (pimpl->session->FindFile(editFileName.ToString(), editFileType, path))
         {
-          arguments += path.GetData();
+          commandLine += path.GetData();
         }
         else
         {
-          arguments += editFileName.GetData();
+          commandLine += editFileName.GetData();
         }
         break;
       }
@@ -740,10 +807,10 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
         // TODO
         break;
       case 't':
-        arguments += transcriptFileName.GetData();
+        commandLine += transcriptFileName.GetData();
         break;
       case 'l':
-        arguments += std::to_string(editLineNumber);
+        commandLine += std::to_string(editLineNumber);
         break;
       case 'm':
         // TODO
@@ -753,12 +820,12 @@ void Application::InvokeEditor(const PathName& editFileName, int editLineNumber,
     }
     else
     {
-      arguments += *lpszCommandLineTemplate;
+      commandLine += *lpszCommandLineTemplate;
       ++lpszCommandLineTemplate;
     }
   }
 
-  Process::Start(fileName, arguments);
+  Process::Start(fileName, Argv(commandLine).ToStringVector());
 }
 
 bool Application::GetQuietFlag() const
@@ -780,7 +847,26 @@ shared_ptr<Session> Application::GetSession() const
   return pimpl->session;
 }
 
-bool Application::IsLog4cxxConfigured() const
+void Application::LogInfo(const std::string& message) const
 {
-  return pimpl->isLog4cxxConfigured;
+  if (pimpl->isLog4cxxConfigured)
+  {
+    LOG4CXX_INFO(logger, message);
+  }
+}
+
+void Application::LogWarn(const std::string& message) const
+{
+  if (pimpl->isLog4cxxConfigured)
+  {
+    LOG4CXX_WARN(logger, message);
+  }
+}
+
+void Application::LogError(const std::string& message) const
+{
+  if (pimpl->isLog4cxxConfigured)
+  {
+    LOG4CXX_ERROR(logger, message);
+  }
 }

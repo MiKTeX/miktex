@@ -86,7 +86,7 @@ bool PropSheet::OnProcessOutput(const void * pOutput, size_t n)
   return !pProgressDialog->HasUserCancelled();
 }
 
-bool PropSheet::RunIniTeXMF(const char * lpszTitle, const CommandLineBuilder & cmdLine, ProgressDialog * pProgressDialog)
+bool PropSheet::RunIniTeXMF(const char * lpszTitle, const std::vector<std::string>& args, ProgressDialog * pProgressDialog)
 {
   PathName exePath;
 
@@ -95,13 +95,14 @@ bool PropSheet::RunIniTeXMF(const char * lpszTitle, const CommandLineBuilder & c
     MIKTEX_UNEXPECTED();
   }
 
-  CommandLineBuilder commandLine(cmdLine);
+  vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
+  allArgs.insert(allArgs.end(), args.begin(), args.end());
 
-  commandLine.AppendOption("--verbose");
+  allArgs.push_back("--verbose");
 
   if (pSession->IsAdminMode())
   {
-    commandLine.AppendOption("--admin");
+    allArgs.push_back("--admin");
   }
 
   this->pProgressDialog = pProgressDialog;
@@ -117,9 +118,9 @@ bool PropSheet::RunIniTeXMF(const char * lpszTitle, const CommandLineBuilder & c
 
   processOutput = "";
   int exitCode;
-  Process::Run(exePath, commandLine.ToString(), this, &exitCode, 0);
+  Process::Run(exePath, allArgs, this, &exitCode, nullptr);
 
-  this->pProgressDialog = 0;
+  this->pProgressDialog = nullptr;
 
   if (exitCode == 0)
   {
@@ -140,7 +141,7 @@ void PropSheet::BuildFormats()
   pProgDlg->StartProgressDialog(GetSafeHwnd());
   pProgDlg->SetTitle(T_("MiKTeX Maintenance"));
   pProgDlg->SetLine(1, T_("Creating language.dat, ..."));
-  RunIniTeXMF("language.dat", CommandLineBuilder("--mklangs"), pProgDlg.get());
+  RunIniTeXMF("language.dat", { "--mklangs" }, pProgDlg.get());
   pProgDlg->SetLine(1, T_("Creating format file for:"));
   for (const FormatInfo & formatInfo : pSession->GetFormats())
   {
@@ -148,9 +149,7 @@ void PropSheet::BuildFormats()
     {
       continue;
     }
-    CommandLineBuilder cmdLine;
-    cmdLine.AppendOption("--dump=", formatInfo.name);
-    RunIniTeXMF(formatInfo.description.c_str(), cmdLine, pProgDlg.get());
+    RunIniTeXMF(formatInfo.description.c_str(), { "--dump="s + formatInfo.name }, pProgDlg.get());
   }
   pProgDlg->StopProgressDialog();
   pProgDlg.reset();;

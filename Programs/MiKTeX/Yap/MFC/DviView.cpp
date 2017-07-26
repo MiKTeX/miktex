@@ -1,6 +1,6 @@
 /* DviView.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of Yap.
 
@@ -1995,13 +1995,11 @@ void DviView::OnUpdateDarkerText(CCmdUI * pCmdUI)
 void DviView::InitializeGammaTable()
 {
   gammaTable.clear();
-  CsvList gammas(g_pYapConfig->gammaValues, _T(' '));
-  while (gammas)
+  for (const string& s : StringUtil::Split(g_pYapConfig->gammaValues, ' '))
   {
-    gammaTable.push_back(std::stod(*gammas));
-    ++gammas;
+    gammaTable.push_back(std::stod(s));
   }
-  if (gammaTable.size() == 0)
+  if (gammaTable.empty())
   {
     gammaTable.push_back(1.0);
   }

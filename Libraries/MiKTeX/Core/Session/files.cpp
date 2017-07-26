@@ -97,7 +97,7 @@ static array<unique_ptr<FileStream>, 2> CreatePipe(size_t pipeSize)
     files[0] = make_unique<FileStream>(FdOpen(handles[0], "rb"));
     files[1] = make_unique<FileStream>(FdOpen(handles[1], "wb"));
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     if (files[0] == nullptr)
     {
@@ -154,16 +154,16 @@ FILE* SessionImpl::TryOpenFile(const PathName& path, FileMode mode, FileAccess a
     return OpenFile(path, mode, access, text, FileShare::ReadWrite);
   }
 #if defined(MIKTEX_WINDOWS)
-  catch (const SharingViolationException &)
+  catch (const SharingViolationException&)
   {
     return nullptr;
   }
 #endif
-  catch (const UnauthorizedAccessException &)
+  catch (const UnauthorizedAccessException&)
   {
     return nullptr;
   }
-  catch (const FileNotFoundException &)
+  catch (const FileNotFoundException&)
   {
     return nullptr;
   }
@@ -181,16 +181,16 @@ FILE* SessionImpl::TryOpenFile(const PathName& path, FileMode mode, FileAccess a
     return OpenFile(path, mode, access, text, share);
   }
 #if defined(MIKTEX_WINDOWS)
-  catch (const SharingViolationException &)
+  catch (const SharingViolationException&)
   {
     return nullptr;
   }
 #endif
-  catch (const UnauthorizedAccessException &)
+  catch (const UnauthorizedAccessException&)
   {
     return nullptr;
   }
-  catch (const FileNotFoundException &)
+  catch (const FileNotFoundException&)
   {
     return nullptr;
   }
@@ -223,13 +223,13 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
     openFilesMap.insert(pair<FILE*, OpenFileInfo>(pFile, info));
     if (setvbuf(pFile, 0, _IOFBF, 1024 * 4) != 0)
     {
-      trace_error->WriteFormattedLine("core", T_("setvbuf() failed for some reason"));
+      trace_error->WriteFormattedLine("core", "setvbuf() failed for some reason");
     }
     RecordFileInfo(path, access);
     trace_files->WriteFormattedLine("core", "  => %p", pFile);
     return pFile;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     fclose(pFile);
     throw;
@@ -238,27 +238,31 @@ FILE* SessionImpl::OpenFile(const PathName& path, FileMode mode, FileAccess acce
 
 FILE* SessionImpl::InitiateProcessPipe(const string& command, FileAccess access, FileMode& mode)
 {
-  Argv argv("", command);
+  Argv argv(command);
   int argc = argv.GetArgc();
   if (argc == 0)
   {
     MIKTEX_FATAL_ERROR_2(T_("Invalid command."), "command", command);
   }
-  string verb = argv[1];
-  if (verb == "zcat" && argc == 3 && access == FileAccess::Read)
+  string verb = argv[0];
+  if (verb.length() > 1 && verb[0] == '"' && verb[verb.length() - 1] == verb[0])
   {
-    mode = FileMode::Open;
-    return OpenFileOnStream(GzipStream::Create(argv[2], true));
+    verb = verb.substr(1, verb.length() - 2);
   }
-  else if (verb == "bzcat" && argc == 3 && access == FileAccess::Read)
+  if (verb == "zcat" && argc == 2 && access == FileAccess::Read)
   {
     mode = FileMode::Open;
-    return OpenFileOnStream(BZip2Stream::Create(argv[2], true));
+    return OpenFileOnStream(GzipStream::Create(argv[1], true));
   }
-  else if (verb == "xzcat" && argc == 3 && access == FileAccess::Read)
+  else if (verb == "bzcat" && argc == 2 && access == FileAccess::Read)
   {
     mode = FileMode::Open;
-    return OpenFileOnStream(LzmaStream::Create(argv[2], true));
+    return OpenFileOnStream(BZip2Stream::Create(argv[1], true));
+  }
+  else if (verb == "xzcat" && argc == 2 && access == FileAccess::Read)
+  {
+    mode = FileMode::Open;
+    return OpenFileOnStream(LzmaStream::Create(argv[1], true));
   }
   else
   {
@@ -277,7 +281,7 @@ MIKTEXSTATICFUNC(void) ReaderThread(unique_ptr<Stream> inStream, unique_ptr<Stre
       outStream->Write(buf, len);
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -379,7 +383,7 @@ void SessionImpl::CheckOpenFiles()
 {
   for (map<const FILE*, OpenFileInfo>::const_iterator it = openFilesMap.begin(); it != openFilesMap.end(); ++it)
   {
-    trace_error->WriteFormattedLine("core", T_("still open: %s"), Q_(it->second.fileName));
+    trace_error->WriteFormattedLine("core", "still open: %s", Q_(it->second.fileName));
   }
 }
 

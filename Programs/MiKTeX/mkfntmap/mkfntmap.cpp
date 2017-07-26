@@ -23,6 +23,7 @@
    licensed under the following agreement:
    Anyone may freely use, modify, and/or distribute this file... */
 
+//#undef NDEBUG
 #include "internal.h"
 
 using namespace MiKTeX::App;
@@ -263,7 +264,11 @@ private:
   set<string> mixedMapFiles;
 
 private:
+#if defined(NDEBUG)
   bool verbose = false;
+#else
+  bool verbose = true;
+#endif
 
   // transform file names from URWkb (berry names) to URW (vendor
   // names)
@@ -557,8 +562,10 @@ void MakeFontMapApp::ParseConfigFile(const PathName& path)
 
 void MakeFontMapApp::Init(int argc, const char** argv)
 {
-  ProcessOptions(argc, argv);
   Session::InitInfo initInfo(argv[0]);
+  vector<const char*> newargv(&argv[0], &argv[argc + 1]);
+  ExamineArgs(newargv, initInfo);
+  ProcessOptions(newargv.size() - 1, &newargv[0]);
   if (optAdminMode)
   {
     initInfo.AddOption(Session::InitOption::AdminMode);
@@ -1160,25 +1167,25 @@ void MakeFontMapApp::BuildFontconfigCache()
     FatalError(T_("The fc-cache executable could not be found."));
   }
 #endif
-  CommandLineBuilder arguments;
+  vector<string> arguments{ fcCacheExe.GetFileNameWithoutExtension().ToString() };
   if (optAdminMode)
   {
 #if defined(MIKTEX_WINDOWS)
-    arguments.AppendOption("--miktex-admin");
+    arguments.push_back("--miktex-admin");
 #else
-    arguments.AppendOption("--system-only");
+    arguments.push_back("--system-only");
 #endif
   }
   if (force)
   {
-    arguments.AppendOption("--force");
+    arguments.push_back("--force");
   }
   if (verbose)
   {
-    arguments.AppendOption("--verbose");
+    arguments.push_back("--verbose");
   }
-  LOG4CXX_INFO(logger, "running: fc-cache " << arguments.ToString());
-  Process::Run(fcCacheExe, arguments.ToString(), this);
+  LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(arguments).ToString());
+  Process::Run(fcCacheExe, arguments, this);
 }
 
 void MakeFontMapApp::CreateFontconfigLocalfontsConf()
@@ -1201,9 +1208,9 @@ void MakeFontMapApp::CreateFontconfigLocalfontsConf()
 #endif
   vector<string> paths;
 #if defined(MIKTEX_WINDOWS)
-  for (CsvList path(session->GetLocalFontDirectories(), PathName::PathNameDelimiter); path; ++path)
+  for (const string& path : StringUtil::Split(session->GetLocalFontDirectories(), PathName::PathNameDelimiter))
   {
-    paths.push_back(*path);
+    paths.push_back(path);
   }
 #endif
   for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
@@ -1366,7 +1373,7 @@ int MAIN(int argc, MAINCHAR** argv)
   {
     vector<string> utf8args;
     utf8args.reserve(argc);
-    vector<char*> newargv;
+    vector<const char*> newargv;
     newargv.reserve(argc + 1);
     for (int idx = 0; idx < argc; ++idx)
     {
@@ -1377,12 +1384,11 @@ int MAIN(int argc, MAINCHAR** argv)
 #else
       utf8args.push_back(argv[idx]);
 #endif
-      // FIXME: eliminate const cast
-      newargv.push_back(const_cast<char*>(utf8args[idx].c_str()));
+      newargv.push_back(utf8args[idx].c_str());
     }
     newargv.push_back(nullptr);
     MakeFontMapApp app;
-    app.Init(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
+    app.Init(newargv.size() - 1, &newargv[0]);
     app.Run();
     logger = nullptr;
     return 0;

@@ -45,6 +45,7 @@ extern void     __zzip_set64(zzip_byte_t * s, uint64_t v);
 # ifndef ZZIP_HAVE_ALIGNED_ACCESS_REQUIRED
 #  if defined __i386__ || defined __x86_64__ || defined _M_X86 || defined _M_X64
 #  define _ZZIP_USE_DEREF
+#  endif
 # endif
 #endif
 
@@ -69,7 +70,6 @@ extern void     __zzip_set64(zzip_byte_t * s, uint64_t v);
 #define ZZIP_SET64(__p,__x) (__zzip_set64((__p),(__x)))
 #define ZZIP_SET32(__p,__x) (__zzip_set32((__p),(__x)))
 #define ZZIP_SET16(__p,__x) (__zzip_set16((__p),(__x)))
-#endif
 #endif
 
 /* ..................... bitcorrect physical access .................... */

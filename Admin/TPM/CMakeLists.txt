@@ -42,6 +42,7 @@ endforeach()
 if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
   set(target_system_tpms
     windows-x86/miktex-arctrl-bin.tpm.in
+    windows-x86/miktex-asymptote-bin.tpm.in
     windows-x86/miktex-autosp-bin.tpm.in
     windows-x86/miktex-axohelp-bin.tpm.in
     windows-x86/miktex-bibtex-bin.tpm.in
@@ -74,6 +75,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-int-bin.tpm.in
     windows-x86/miktex-jpeg-bin.tpm.in
     windows-x86/miktex-kpathsea-bin.tpm.in
+    windows-x86/miktex-lacheck-bin.tpm.in
     windows-x86/miktex-libressl-bin.tpm.in
     windows-x86/miktex-log4cxx-bin.tpm.in
     windows-x86/miktex-lua52-bin.tpm.in
@@ -128,6 +130,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
 elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
   set(target_system_tpms
     windows-x64/miktex-arctrl-bin-x64.tpm.in
+    windows-x64/miktex-asymptote-bin-x64.tpm.in
     windows-x64/miktex-autosp-bin-x64.tpm.in
     windows-x64/miktex-axohelp-bin-x64.tpm.in
     windows-x64/miktex-bibtex-bin-x64.tpm.in
@@ -160,6 +163,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-int-bin-x64.tpm.in
     windows-x64/miktex-jpeg-bin-x64.tpm.in
     windows-x64/miktex-kpathsea-bin-x64.tpm.in
+    windows-x64/miktex-lacheck-bin-x64.tpm.in
     windows-x64/miktex-libressl-bin-x64.tpm.in
     windows-x64/miktex-log4cxx-bin-x64.tpm.in
     windows-x64/miktex-lua52-bin-x64.tpm.in

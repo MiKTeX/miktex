@@ -21,14 +21,16 @@ include(component.cmake)
 
 set(MIKTEX_CURRENT_FOLDER "Documentation")
 
+set(PROMPT "&gt; ")
+set(PROMPTUNX "&#36; ")
+set(PROMPTWIN "C:\&gt; ")
+
 if(MIKTEX_UNIX_ALIKE)
-  set(PROMPT "&#36; ")
   set(COMMONINSTALL "/usr/local/share/miktex-texmf")
   set(USERDATA "~/.miktex/texmfs/data")
   set(USERINSTALL "~/.miktex/texmfs/install")
   set(EXESUFFIX "")
 else()
-  set(PROMPT "C:\&gt; ")
   set(COMMONINSTALL "C:\\Program Files\\MiKTeX ${MIKTEX_MAJOR_MINOR_STR}")
   set(USERDATA "&#37;LOCALAPPDATA&#37;\\MiKTeX\\${MIKTEX_MAJOR_MINOR_STR}")
   set(USERINSTALL "&#37;LOCALAPPDATA&#37;\\Programs\\MiKTeX ${MIKTEX_MAJOR_MINOR_STR}")
@@ -181,6 +183,7 @@ set(manual_xml_files
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/texfeatures.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/texifying.xml
   ${CMAKE_CURRENT_SOURCE_DIR}/Manual/tracestreams.xml
+  ${CMAKE_CURRENT_SOURCE_DIR}/miktex.xml
   ${envvar_xml_files}
   ${options_xml_files}
   ${ref_xml_files}
@@ -188,6 +191,7 @@ set(manual_xml_files
 
 set(manual_listings
   ${CMAKE_CURRENT_BINARY_DIR}/filetypes
+  ${CMAKE_BINARY_DIR}/${MIKTEX_REL_CONFIG_DIR}/miktex-config.ini
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/mf.defaults
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/mfapp.defaults
   ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}/mpost.defaults
@@ -211,6 +215,7 @@ set(xslt_path "${CMAKE_CURRENT_BINARY_DIR}")
 set(xslt_path "${xslt_path} ${CMAKE_CURRENT_BINARY_DIR}/Styles")
 set(xslt_path "${xslt_path} ${CMAKE_CURRENT_SOURCE_DIR}")
 set(xslt_path "${xslt_path} ${CMAKE_CURRENT_SOURCE_DIR}/Styles")
+set(xslt_path "${xslt_path} ${CMAKE_BINARY_DIR}/${MIKTEX_REL_CONFIG_DIR}")
 set(xslt_path "${xslt_path} ${CMAKE_BINARY_DIR}/${MIKTEX_REL_DEFAULTS_DIR}")
 
 if(WITH_MIKTEX_DOC)

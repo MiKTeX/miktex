@@ -91,10 +91,10 @@ private:
   void ConfigureMiKTeX();
 
 private:
-  void RunMpm(const CommandLineBuilder& cmdLine1);
+  void RunMpm(const std::vector<std::string>& args);
 
 private:
-  void RunIniTeXMF(const CommandLineBuilder& cmdLine1);
+  void RunIniTeXMF(const std::vector<std::string>& args);
 
 private:
   void Report(bool withLog, const char* lpszFormat, ...);

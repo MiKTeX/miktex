@@ -1,6 +1,6 @@
 /* StdAfx.h: pre-compiled header stuff
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2017 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -37,6 +37,7 @@
 #include <string>
 
 #include <miktex/Core/Debug>
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/File>

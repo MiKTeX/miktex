@@ -54,6 +54,7 @@ using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
 using namespace MiKTeX;
 using namespace std;
+using namespace std::string_literals;
 
 #define PROGRAM_NAME "epstopdf"
 
@@ -138,7 +139,7 @@ private:
   void PrepareInput(bool runAsFilter, const PathName& inputFile);
 
 private:
-  void PrepareOutput(bool runAsFilter, bool runGhostscript, const PathName& gsExe, const CommandLineBuilder& gsOptions, const PathName& outFile);
+  void PrepareOutput(bool runAsFilter, bool runGhostscript, const PathName& gsExe, const vector<string>& gsExtra, const PathName& outFile);
 
 private:
   unique_ptr<Process> gsProcess;
@@ -674,43 +675,44 @@ void EpsToPdfApp::PrepareInput(bool runAsFilter, const PathName& inputFile)
   }
 }
 
-void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const PathName& gsExe, const CommandLineBuilder& gsOptions, const PathName& outFile)
+void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const PathName& gsExe, const vector<string>& gsExtra, const PathName& outFile)
 {
   if (runGhostscript)
   {
-    CommandLineBuilder cmdLine(gsOptions);
-    cmdLine.AppendOption("-q");
-    cmdLine.AppendOption("-sDEVICE=", "pdfwrite");
-    cmdLine.AppendOption("-dSAFER");
+    vector<string>gsOptions{ gsExe.GetFileName().ToString() };
+    gsOptions.insert(gsOptions.end(), gsExtra.begin(), gsExtra.end());
+    gsOptions.push_back("-q");
+    gsOptions.push_back("-sDEVICE="s + "pdfwrite");
+    gsOptions.push_back("-dSAFER");
 #if 1                           // 642845
-    cmdLine.AppendOption("-dAutoRotatePages=", "/None");
+    gsOptions.push_back("-dAutoRotatePages="s + "/None");
 #endif
     if (!pdfVersion.empty())
     {
-      cmdLine.AppendOption("-dCompatibilityLevel=", pdfVersion);
+      gsOptions.push_back("-dCompatibilityLevel="s + pdfVersion);
     }
     if (runAsFilter)
     {
-      cmdLine.AppendOption("-sOutputFile=", "-");
+      gsOptions.push_back("-sOutputFile="s + "-");
     }
     else
     {
-      cmdLine.AppendOption("-sOutputFile=", outFile);
+      gsOptions.push_back("-sOutputFile="s + outFile.ToString());
     }
-    cmdLine.AppendOption("-");
-    cmdLine.AppendOption("-c");
-    cmdLine.AppendArgument("quit");
-    PrintOnly("%s %s\n", Q_(gsExe), cmdLine.ToString().c_str());
+    gsOptions.push_back("-");
+    gsOptions.push_back("-c");
+    gsOptions.push_back("quit");
+    PrintOnly("%s\n", CommandLineBuilder(gsOptions).ToString().c_str());
     if (!printOnly)
     {
       ProcessStartInfo processStartInfo;
       processStartInfo.FileName = gsExe.ToString();
-      processStartInfo.Arguments = cmdLine.ToString();
+      processStartInfo.Arguments = gsOptions;
       processStartInfo.StandardInput = nullptr;
       processStartInfo.RedirectStandardError = false;
       processStartInfo.RedirectStandardInput = true;
       processStartInfo.RedirectStandardOutput = false;
-      gsProcess = auto_ptr<Process>(Process::Start(processStartInfo));
+      gsProcess = Process::Start(processStartInfo);
       outStream.Attach(gsProcess->get_StandardInput());
     }
   }
@@ -734,18 +736,20 @@ void EpsToPdfApp::PrepareOutput(bool runAsFilter, bool runGhostscript, const Pat
 
 void EpsToPdfApp::Run(int argc, const char** argv)
 {
+  Session::InitInfo initInfo(argv[0]);
+  vector<const char*> newargv(&argv[0], &argv[argc + 1]);
+  ExamineArgs(newargv, initInfo);
+
   PathName outFile;
 
-  PoptWrapper popt(argc, argv, aoption);
+  PoptWrapper popt(newargv.size() - 1, &newargv[0], aoption);
 
   int option;
 
   bool antiAliasing = false;
   bool doCompress = true;
 
-  Session::InitInfo initInfo(argv[0]);
-
-  CommandLineBuilder gsOptions;
+  vector<string> gsOptions;
 
   while ((option = popt.GetNextOpt()) >= 0)
   {
@@ -774,7 +778,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
       runGhostscript = true;
       break;
     case OPT_GSOPT:
-      gsOptions.AppendUnquoted(optArg);
+      gsOptions.push_back(optArg);
       break;
     case OPT_HIRES:
       hiResBoundingBox = true;
@@ -883,13 +887,13 @@ void EpsToPdfApp::Run(int argc, const char** argv)
 
   if (antiAliasing)
   {
-    gsOptions.AppendOption("-dTextAlphaBits=", "4");
-    gsOptions.AppendOption("-dGraphicsAlphaBits=", "4");
+    gsOptions.push_back("-dTextAlphaBits="s + "4");
+    gsOptions.push_back("-dGraphicsAlphaBits="s + "4");
   }
 
   if (!doCompress)
   {
-    gsOptions.AppendOption("-dUseFlateCompression=", "false");
+    gsOptions.push_back("-dUseFlateCompression="s + "false");
   }
 
   boundingBoxName = "%%BoundingBox:";

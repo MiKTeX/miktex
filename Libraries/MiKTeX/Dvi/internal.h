@@ -1,6 +1,6 @@
 /* internal.h: internal DVI definitions                 -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX DVI Library.
 
@@ -30,6 +30,7 @@ using namespace MiKTeX::Graphics;
 using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace std;
+using namespace std::string_literals;
 
 class DviFont;
 class DviImpl;

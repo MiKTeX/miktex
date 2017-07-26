@@ -10,12 +10,7 @@
  * Author:
  *      Guido Draheim <guidod@gmx.de>
  *
- *      Copyright (c) 2001,2002,2003,2004 Guido Draheim
- *          All rights reserved,
- *          use under the restrictions of the
- *          Lesser GNU General Public License
- *          or alternatively the restrictions
- *          of the Mozilla Public License 1.1
+ * Copyright: (c) Guido Draheim, use under copyleft (LGPL,MPL)
  */
 
 #ifndef _ZZIP_CONF_H

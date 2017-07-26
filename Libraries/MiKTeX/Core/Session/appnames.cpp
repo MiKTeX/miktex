@@ -1,6 +1,6 @@
 /* appnames.cpp: managing application names
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -23,42 +23,37 @@
 
 #include "internal.h"
 
-#include "miktex/Core/CsvList.h"
-
 #include "Session/SessionImpl.h"
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 using namespace std;
 
-inline void AppendTag(string & str, const string & tag)
+inline void AppendTag(string& str, const string& tag)
 {
   if (!str.empty())
   {
-    str += PATH_DELIMITER;
+    str += PathName::PathNameDelimiter;
   }
   str += tag;
 }
 
-void SessionImpl::PushAppName(const string & name)
+void SessionImpl::PushAppName(const string& name)
 {
-  MIKTEX_ASSERT(name.find(PATH_DELIMITER) == string::npos);
+  MIKTEX_ASSERT(name.find(PathName::PathNameDelimiter) == string::npos);
   string newApplicationNames = name;
-  for (CsvList tag(applicationNames, PATH_DELIMITER); tag; ++tag)
+  for (const string& tag : StringUtil::Split(applicationNames, PathName::PathNameDelimiter))
   {
     // stop at the miktex application tag; this is always the last tag
-    if (Utils::EqualsIgnoreCase(*tag, "miktex"))
+    if (Utils::EqualsIgnoreCase(tag, "miktex"))
     {
-#if defined(MIKTEX_DEBUG)
-      ++tag;
-      MIKTEX_ASSERT(!tag);
-#endif
       break;
     }
-    if (Utils::EqualsIgnoreCase(*tag, name))
+    if (Utils::EqualsIgnoreCase(tag, name))
     {
       continue;
     }
-    AppendTag(newApplicationNames, *tag);
+    AppendTag(newApplicationNames, tag);
   }
   AppendTag(newApplicationNames, "miktex");
   if (Utils::EqualsIgnoreCase(newApplicationNames, applicationNames))
@@ -70,27 +65,23 @@ void SessionImpl::PushAppName(const string & name)
   trace_config->WriteLine("core", T_("application tags: ") + applicationNames);
 }
 
-void SessionImpl::PushBackAppName(const string & name)
+void SessionImpl::PushBackAppName(const string& name)
 {
-  MIKTEX_ASSERT(name.find(PATH_DELIMITER) == string::npos);
+  MIKTEX_ASSERT(name.find(PathName::PathNameDelimiter) == string::npos);
   fileTypes.clear();
   string newApplicationNames;
-  for (CsvList tag(applicationNames, PATH_DELIMITER); tag; ++tag)
+  for (const string& tag : StringUtil::Split(applicationNames, PathName::PathNameDelimiter))
   {
     // stop at the miktex application tag; this is always the last tag
-    if (Utils::EqualsIgnoreCase(*tag, "miktex"))
+    if (Utils::EqualsIgnoreCase(tag, "miktex"))
     {
-#if defined(MIKTEX_DEBUG)
-      ++tag;
-      MIKTEX_ASSERT(!tag);
-#endif
       break;
     }
-    if (Utils::EqualsIgnoreCase(*tag, name))
+    if (Utils::EqualsIgnoreCase(tag, name))
     {
       continue;
     }
-    AppendTag(newApplicationNames, *tag);
+    AppendTag(newApplicationNames, tag);
   }
   AppendTag(newApplicationNames, name);
   AppendTag(newApplicationNames, "miktex");

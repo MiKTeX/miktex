@@ -686,9 +686,9 @@ void winSetupServiceImpl::UnregisterShellFileTypes()
   }
   if (session->RunningAsAdministrator() || session->RunningAsPowerUser())
   {
-    Process::Run(initexmfExe.GetData(), "--admin --unregister-shell-file-types");
+    Process::Run(initexmfExe, { initexmfExe.GetFileNameWithoutExtension().ToString(), "--admin", "--unregister-shell-file-types" });
   }
-  Process::Run(initexmfExe.GetData(), "--unregister-shell-file-types");
+  Process::Run(initexmfExe, { initexmfExe.GetFileNameWithoutExtension().ToString(), "--unregister-shell-file-types" });
 }
 
 void winSetupServiceImpl::UnregisterPath(bool shared)
@@ -766,9 +766,9 @@ bool winSetupServiceImpl::RemoveBinDirFromPath(string & path)
   PathName commonBinDir = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
   commonBinDir /= MIKTEX_PATH_BIN_DIR;
   commonBinDir.AppendDirectoryDelimiter();
-  for (CsvList entry(path, PathName::PathNameDelimiter); entry; ++entry)
+  for (const string& entry : StringUtil::Split(path, PathName::PathNameDelimiter))
   {
-    PathName dir(*entry);
+    PathName dir(entry);
     dir.AppendDirectoryDelimiter();
     if (userBinDir == dir || commonBinDir == dir)
     {
@@ -780,7 +780,7 @@ bool winSetupServiceImpl::RemoveBinDirFromPath(string & path)
       {
         newPath += PathName::PathNameDelimiter;
       }
-      newPath += *entry;
+      newPath += entry;
     }
   }
   if (removed)

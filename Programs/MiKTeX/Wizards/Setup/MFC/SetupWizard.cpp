@@ -123,7 +123,7 @@ BOOL SetupWizard::OnInitDialog()
       CString prefix;
       CString version(UT_(MIKTEX_MAJOR_MINOR_STR));
       version += _T('.');
-      version += UT_(pConfig->GetValue("repository", "version").c_str());
+      version += UT_(pConfig->GetValue("repository", "version")->GetValue().c_str());
       switch (SetupApp::Instance->GetPackageLevel())
       {
       case PackageLevel::Essential:

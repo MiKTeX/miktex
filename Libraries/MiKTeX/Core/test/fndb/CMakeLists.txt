@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2016 Christian Schenk
+## Copyright (C) 2010-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -37,7 +37,5 @@ foreach(t ${tests})
   add_test(
     NAME core_fndb_test${t}
     COMMAND $<TARGET_FILE:core_fndb_test${t}>
-    	--data-root=${dataroot}
-	--install-root=${installroot}
   )
 endforeach(t)

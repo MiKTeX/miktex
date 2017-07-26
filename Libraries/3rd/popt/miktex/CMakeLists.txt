@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -24,6 +24,12 @@ set(public_include_directories
 )
 
 add_library(miktex-popt-wrapper INTERFACE)
+
+target_sources(miktex-popt-wrapper
+  INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Wrappers/PoptWrapper
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Wrappers/PoptWrapper.h
+)
 
 target_include_directories(miktex-popt-wrapper
   INTERFACE

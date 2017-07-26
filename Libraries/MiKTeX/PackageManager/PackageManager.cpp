@@ -1531,7 +1531,7 @@ bool PackageManagerImpl::TryGetRepositoryInfo(const string& url, RepositoryInfo&
     configFile /= "pr.ini";
     unique_ptr<Cfg> pConfig(Cfg::Create());
     pConfig->Read(configFile);
-    string value = pConfig->GetValue("repository", "date");
+    string value = pConfig->GetValue("repository", "date")->GetValue();
     repositoryInfo.timeDate = std::stoi(value);
     return true;
   }

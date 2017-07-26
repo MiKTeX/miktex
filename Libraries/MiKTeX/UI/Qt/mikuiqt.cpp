@@ -33,8 +33,6 @@ using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
 using namespace std;
 
-#include <miktex/mpm.defaults.h>
-
 static QApplication * pApplication = nullptr;
 
 MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
@@ -73,8 +71,8 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::FinalizeFramework()
 MIKTEXUIQTEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::Qt::InstallPackageMessageBox(QWidget* parent, shared_ptr<PackageManager> packageManager, const string& packageName, const string& trigger)
 {
   shared_ptr<Session> pSession = Session::Get();
-  TriState enableInstaller = pSession->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, mpm::AutoInstall()).GetTriState();
-  bool autoAdmin = pSession->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_ADMIN, mpm::AutoAdmin()).GetTriState() == TriState::True;
+  TriState enableInstaller = pSession->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
+  bool autoAdmin = pSession->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN).GetTriState() == TriState::True;
   unsigned int ret;
   if (enableInstaller != TriState::Undetermined)
   {
@@ -103,14 +101,14 @@ MIKTEXUIQTEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::Qt::InstallPackageMessag
       }
       if (dialogCode == QDialog::Accepted && autoAdmin != dlg.GetAdminMode())
       {
-	pSession->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_ADMIN, dlg.GetAdminMode());
+	pSession->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN, dlg.GetAdminMode());
       }
       if (!dlg.GetAlwaysAsk())
       {
 	ret |= DONTASKAGAIN;
 	if (dialogCode == QDialog::Accepted)
 	{
-	  pSession->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, "1");
+	  pSession->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, "1");
 	}
       }
     }

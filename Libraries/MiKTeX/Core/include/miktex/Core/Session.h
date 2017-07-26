@@ -88,39 +88,49 @@ public:
   PathName commonInstallRoot;
 
 public:
+  std::string otherUserRoots;
+
+public:
+  std::string otherCommonRoots;
+
+public:
   MiKTeXConfiguration config = MiKTeXConfiguration::None;
 };
 
 /// Special path enum class.
 enum class SpecialPath
 {
-  /// The common installation root directory.
+  /// The system-wide installation root directory.
   CommonInstallRoot,
 
-  // The installation directory of the user.
+  // The user's installation root directory.
   UserInstallRoot,
 
-  /// The common data root directory.
+  /// The system-wide data root directory.
   CommonDataRoot,
 
-  /// The data root directory of the user.
+  /// The user's data root directory.
   UserDataRoot,
 
+  /// The system-wide configuration root directory.
   CommonConfigRoot,
+
+  /// The user's configuration root directory.
   UserConfigRoot,
+
+  /// The effective installation root directory.
   InstallRoot,
 
-  /// The prefered data root directory. For a common MiKTeX setup
-  /// this is equivalent to the common data directory. For a private
-  /// MiKTeX setup this is equivalent to the user data directory.
+  /// The effective data root directory.
   DataRoot,
 
+  /// The effective configuration root directory.
   ConfigRoot,
 
-  /// The bin directory.
+  /// The effective directory for MiKTeX binaries.
   BinDirectory,
 
-  /// The internal bin directory.
+  /// The directory for internal MiKTeX binaries.
   InternalBinDirectory,
 
   /// The portable root directory.
@@ -129,7 +139,19 @@ enum class SpecialPath
   /// The portable mount directory.
   PortableMount,
 
+  /// The distro root directory.
+  /// This is either CommonInstallRoot (for a shared installation) or
+  /// UserInstallRoot (for single user installation)
   DistRoot,
+
+  /// The effective directory for symbolic links to MiKTeX binaries.
+  LocalBinDirectory,
+
+  /// The effective directory for log files.
+  LogDirectory,
+
+  /// The root directory of the MiKTeX installation.
+  BootstrappingRoot,
 };
 
 /// Paper size info.
@@ -166,10 +188,10 @@ struct FileTypeInfo
 {
   FileType fileType = FileType::None;
   std::string fileTypeString;
-  std::string fileNameExtensions;
-  std::string applicationName;
-  std::string searchPath;
-  std::string envVarNames;
+  std::vector<std::string> fileNameExtensions;
+  std::vector<std::string> alternateExtensions;
+  std::vector<std::string> searchPath;
+  std::vector<std::string> envVarNames;
 };
 
 struct FileInfoRecord
@@ -244,116 +266,184 @@ struct LanguageInfo
 class ConfigValue
 {
 public:
-  ConfigValue() = delete;
+  ConfigValue()
+  {
+  }
 
 public:
   ConfigValue(const ConfigValue& other)
   {
-    switch (other.tag)
+    switch (other.type)
     {
-    case Tag::String:
+    case Type::String:
       new (&this->s) std::string(other.s);
       break;
-    case Tag::Int:
+    case Type::Int:
       this->i = other.i;
       break;
-    case Tag::Bool:
+    case Type::Bool:
       this->b = other.b;
       break;
-    case Tag::Tri:
+    case Type::Tri:
       this->t = other.t;
       break;
-    case Tag::Char:
+    case Type::Char:
       this->c = other.c;
       break;
-    case Tag::None:
+    case Type::StringArray:
+      new (&this->sa) std::vector<std::string>(other.sa);
+      break;
+    case Type::None:
       break;
     }
-    this->tag = other.tag;
+    this->type = other.type;
+    this->section = other.section;
+    this->description = other.description;
   }
 
 public:
-  ConfigValue& operator= (const ConfigValue& other) = delete;
+  ConfigValue& operator=(const ConfigValue& other) = delete;
 
 public:
   ConfigValue(ConfigValue&& other)
   {
-    switch (other.tag)
+    switch (other.type)
     {
-    case Tag::String:
+    case Type::String:
+      new (&this->s) std::string(other.s);
       this->s = std::move(other.s);
       break;
-    case Tag::Int:
+    case Type::Int:
       this->i = other.i;
       break;
-    case Tag::Bool:
+    case Type::Bool:
       this->b = other.b;
       break;
-    case Tag::Tri:
+    case Type::Tri:
       this->t = other.t;
       break;
-    case Tag::Char:
+    case Type::Char:
       this->c = other.c;
       break;
-    case Tag::None:
+    case Type::StringArray:
+      new (&this->sa) std::vector<std::string>(other.sa);
+      this->sa = std::move(other.sa);
+      break;
+    case Type::None:
       break;
     }
-    this->tag = other.tag;
+    this->type = other.type;
+    this->section = other.section;
   }
 
 public:
-  ConfigValue& operator= (ConfigValue&& other) = delete;
+  ConfigValue& operator=(ConfigValue&& other)
+  {
+    if (this->type == Type::String && other.type != Type::String)
+    {
+      this->s.~basic_string();
+    }
+    else if (this->type == Type::StringArray && other.type != Type::StringArray)
+    {
+      this->sa.~vector();
+    }
+    switch (other.type)
+    {
+    case Type::String:
+      if (this->type != Type::String)
+      {
+        new (&this->s) std::string(other.s);
+      }
+      this->s = std::move(other.s);
+      break;
+    case Type::Int:
+      this->i = other.i;
+      break;
+    case Type::Bool:
+      this->b = other.b;
+      break;
+    case Type::Tri:
+      this->t = other.t;
+      break;
+    case Type::Char:
+      this->c = other.c;
+      break;
+    case Type::StringArray:
+      if (this->type != Type::StringArray)
+      {
+        new (&this->sa) std::vector<std::string>(other.sa);
+      }
+      this->sa = std::move(other.sa);
+      break;
+    case Type::None:
+      break;
+    }
+    this->type = other.type;
+    this->section = other.section;
+    return *this;
+  }
 
 public:
   virtual ~ConfigValue() noexcept
   {
-    if (tag == Tag::String)
+    if (type == Type::String)
     {
       this->s.~basic_string();
     }
-    tag = Tag::None;
+    else if (type == Type::StringArray)
+    {
+      this->sa.~vector();
+    }
+    type = Type::None;
   }
 
 public:
   ConfigValue(const std::string& s)
   {
     new(&this->s) std::string(s);
-    tag = Tag::String;
+    type = Type::String;
   }
 
 public:
   ConfigValue(const char* lpsz)
   {
     new(&this->s) std::string(lpsz == nullptr ? "" : lpsz);
-    tag = Tag::String;
+    type = Type::String;
   }
 
 public:
   ConfigValue(int i)
   {
     this->i = i;
-    tag = Tag::Int;
+    type = Type::Int;
   }
 
 public:
   ConfigValue(bool b)
   {
     this->b = b;
-    tag = Tag::Bool;
+    type = Type::Bool;
   }
 
 public:
   ConfigValue(TriState t)
   {
     this->t = t;
-    tag = Tag::Tri;
+    type = Type::Tri;
   }
 
 public:
   ConfigValue(char c)
   {
     this->c = c;
-    tag = Tag::Char;
+    type = Type::Char;
+  }
+
+public:
+  ConfigValue(const std::vector<std::string>& sa)
+  {
+    new(&this->sa) std::vector<std::string>(sa);
+    type = Type::StringArray;
   }
 
 public:
@@ -371,19 +461,53 @@ public:
 public:
   MIKTEXCORETHISAPI(char) GetChar() const;
 
-private:
-  enum class Tag
+public:
+  MIKTEXCORETHISAPI(std::vector<std::string>) GetStringArray() const;
+
+public:
+  enum class Type
   {
     None,
     String,
     Int,
     Bool,
     Tri,
-    Char
+    Char,
+    StringArray
   };
 
 private:
-  Tag tag = Tag::None;
+  Type type = Type::None;
+
+public:
+  Type GetType() const
+  {
+    return type;
+  }
+
+public:
+  bool HasValue() const
+  {
+    return type != Type::None;
+  }
+
+private:
+  std::string section;
+
+public:
+  std::string GetSection() const
+  {
+    return section;
+  }
+
+private:
+  std::string description;
+
+public:
+  std::string GetDescription() const
+  {
+    return description;
+  }
 
 private:
   union
@@ -393,6 +517,7 @@ private:
     bool b;
     TriState t;
     char c;
+    std::vector<std::string> sa;
   };
 };
 
@@ -414,6 +539,14 @@ enum class RegisterRootDirectoriesOption
 };
 
 typedef OptionSet<RegisterRootDirectoriesOption> RegisterRootDirectoriesOptionSet;
+
+enum class ShellCommandMode
+{
+  Forbidden,
+  Restricted,
+  Query,
+  Unrestricted
+};
 
 /// Find file callback interface
 class MIKTEXNOVTABLE IFindFileCallback
@@ -653,6 +786,9 @@ public:
 public:
   virtual bool MIKTEXTHISCALL IsCommonRootDirectory(unsigned r) = 0;
 
+public:
+  virtual bool MIKTEXTHISCALL IsOtherRootDirectory(unsigned r) = 0;
+
   /// Gets the path name of the virtual MPM TEXMF root.
 public:
   virtual PathName MIKTEXTHISCALL GetMpmRootPath() = 0;
@@ -694,7 +830,7 @@ public:
   virtual unsigned MIKTEXTHISCALL SplitTEXMFPath(const PathName& path, PathName& root, PathName& relative) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL RegisterRootDirectories(const std::string& roots) = 0;
+  virtual void MIKTEXTHISCALL RegisterRootDirectories(const std::string& roots, bool other) = 0;
 
 public:
   virtual void MIKTEXTHISCALL RegisterRootDirectories(const StartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options) = 0;
@@ -716,6 +852,9 @@ public:
 
 public:
   virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const std::string& sectionName, const std::string& valueName, const ConfigValue& defaultValue) = 0;
+
+public:
+  virtual ConfigValue MIKTEXTHISCALL GetConfigValue(const std::string& sectionName, const std::string& valueName) = 0;
 
 public:
   virtual void MIKTEXTHISCALL SetConfigValue(const std::string& sectionName, const std::string& valueName, const ConfigValue& value) = 0;
@@ -827,7 +966,7 @@ public:
   virtual bool MIKTEXTHISCALL GetMakeFontsFlag() = 0;
 
 public:
-  virtual std::string MIKTEXTHISCALL MakeMakePkCommandLine(const std::string& fontName, int dpi, int baseDpi, const std::string& mfMode, PathName& fileName, TriState enableInstaller) = 0;
+  virtual std::vector<std::string> MIKTEXTHISCALL MakeMakePkCommandLine(const std::string& fontName, int dpi, int baseDpi, const std::string& mfMode, PathName& fileName, TriState enableInstaller) = 0;
 
 #if defined(MIKTEX_WINDOWS)
 public:
@@ -954,6 +1093,23 @@ public:
   virtual bool TryGetMiKTeXUserInfo(MiKTeXUserInfo& info) = 0;
 #endif
 
+public:
+  virtual ShellCommandMode GetShellCommandMode() = 0;
+
+public:
+  virtual std::vector<std::string> GetAllowedShellCommands() = 0;
+
+public:
+  enum class ExamineCommandLineResult {
+    ProbablySafe,
+    MaybeSafe,
+    NotSafe,
+    SyntaxError
+  };
+
+public:
+  virtual std::tuple<ExamineCommandLineResult, std::string, std::string> ExamineCommandLine(const std::string& commandLine) = 0;
+    
 public:
   static MIKTEXCOREEXPORT MIKTEXNORETURN void MIKTEXCEECALL FatalCrtError(const std::string& functionName, int errorCode, const MiKTeXException::KVMAP& info, const SourceLocation& sourceLocation);
 

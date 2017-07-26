@@ -1,6 +1,6 @@
 /* unxProcess.h:                                        -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -31,7 +31,7 @@
 BEGIN_INTERNAL_NAMESPACE;
 
 class unxProcess :
-  public MiKTeX::Core::Process2
+  public MiKTeX::Core::Process
 {
 public:
   FILE* get_StandardInput() override;
@@ -55,20 +55,23 @@ public:
   void Close() override;
 
 public:
-  MiKTeX::Core::Process2* get_Parent() override;
+  int GetSystemId() override;
+
+public:
+  std::unique_ptr<MiKTeX::Core::Process> get_Parent() override;
 
 public:
   std::string get_ProcessName() override;
 
-private:
+public:
   unxProcess()
   {
   }
   
-private:
+public:
   unxProcess(const MiKTeX::Core::ProcessStartInfo& startinfo);
 
-private:
+public:
   ~unxProcess() override;
 
 private:
@@ -95,7 +98,6 @@ private:
 
 private:
   friend class MiKTeX::Core::Process;
-  friend class MiKTeX::Core::Process2;
 };
 
 END_INTERNAL_NAMESPACE;

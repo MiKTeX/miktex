@@ -4,12 +4,7 @@
  *	Guido Draheim <guidod@gmx.de>
  *	Tomi Ollila <Tomi.Ollila@iki.fi>
  *
- * Copyright (c) 1999,2000,2001,2002 Guido Draheim
- * 	    All rights reserved,
- *	    use under the restrictions of the
- *	    Lesser GNU General Public License
- *          or alternatively the restrictions 
- *          of the Mozilla Public License 1.1
+ * Copyright (c) Guido Draheim, use under copyleft (LGPL,MPL)
  *
  * Description:
  *      although this file is defining a function called zzip_stat it

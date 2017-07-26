@@ -32,6 +32,7 @@
 #include <cwchar>
 
 #include <string>
+#include <vector>
 
 MIKTEX_UTIL_BEGIN_NAMESPACE;
 
@@ -54,6 +55,12 @@ public:
 
 public:
   ~StringUtil() = delete;
+
+public:
+  static MIKTEXUTILCEEAPI(std::string) Flatten(const std::vector<std::string>& vec, char sep);
+
+public:
+  static MIKTEXUTILCEEAPI(std::vector<std::string>) Split(const std::string& s, char sep);
 
 public:
   static MIKTEXUTILCEEAPI(std::size_t) AppendString(char* dest, std::size_t destSize, const char* source);

@@ -1,6 +1,6 @@
 /* copystart.cpp: MiKTeX copy starter
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -88,7 +88,7 @@ void CopyStart(const wchar_t * lpszFileName, const wchar_t * lpszArgs)
   }
 
   // start the executable
-  Process::Start(pathExe.GetData(), StringUtil::WideCharToUTF8(lpszArgs).c_str());
+  Process::Start(pathExe, vector<string>{ pathExe.GetFileNameWithoutExtension().ToString(), StringUtil::WideCharToUTF8(lpszArgs) });
 }
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, wchar_t * lpCmdLine, int nCmdShow)

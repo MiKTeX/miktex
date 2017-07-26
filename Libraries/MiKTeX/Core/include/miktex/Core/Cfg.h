@@ -1,6 +1,6 @@
 /* miktex/Core/Cfg.h:                                   -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -30,6 +30,7 @@
 
 #include <cstdio>
 
+#include <istream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -45,7 +46,7 @@ public:
   virtual PathName MIKTEXTHISCALL GetPrivateKeyFile() = 0;
 
 public:
-  virtual bool MIKTEXTHISCALL GetPassphrase(std::string & passphrase) = 0;
+  virtual bool MIKTEXTHISCALL GetPassphrase(std::string& passphrase) = 0;
 };
 
 /// Configuration settings.
@@ -72,7 +73,7 @@ public:
   public:
     virtual std::string MIKTEXTHISCALL GetName() const = 0;
   public:
-    virtual std::shared_ptr<Value> MIKTEXTHISCALL GetValue(const std::string & valueName) const = 0;
+    virtual std::shared_ptr<Value> MIKTEXTHISCALL GetValue(const std::string& valueName) const = 0;
   public:
     virtual std::vector<std::shared_ptr<Value>> MIKTEXTHISCALL GetValues() const = 0;
   };
@@ -95,19 +96,23 @@ public:
 
   /// Gets a configuration value.
 public:
-  virtual std::string MIKTEXTHISCALL GetValue(const std::string & keyName, const std::string & valueName) const = 0;
+  virtual std::shared_ptr<Value> MIKTEXTHISCALL GetValue(const std::string& keyName, const std::string& valueName) const = 0;
 
   /// Gets a configuration value.
 public:
-  virtual bool MIKTEXTHISCALL TryGetValue(const std::string & keyName, const std::string & valueName, std::string & value) const = 0;
+  virtual bool MIKTEXTHISCALL TryGetValue(const std::string& keyName, const std::string& valueName, std::shared_ptr<Value>& value) const = 0;
 
   /// Gets a configuration value.
 public:
-  virtual bool MIKTEXTHISCALL TryGetValue(const std::string & keyName, const std::string & valueName, PathName & path) const = 0;
+  virtual bool MIKTEXTHISCALL TryGetValue(const std::string& keyName, const std::string& valueName, std::string& value) const = 0;
 
   /// Gets a configuration value.
 public:
-  virtual bool MIKTEXTHISCALL TryGetValue(const std::string & keyName, const std::string & valueName, std::vector<std::string> & value) const = 0;
+  virtual bool MIKTEXTHISCALL TryGetValue(const std::string& keyName, const std::string& valueName, PathName& path) const = 0;
+
+  /// Gets a configuration value.
+public:
+  virtual bool MIKTEXTHISCALL TryGetValue(const std::string& keyName, const std::string& valueName, std::vector<std::string>& value) const = 0;
 
   /// Marks this Cfg object as modified.
 public:
@@ -119,33 +124,43 @@ public:
 
   /// Sets a configuration value.
 public:
-  virtual void MIKTEXTHISCALL PutValue(const std::string & keyName, const std::string & valueName, const std::string & value) = 0;
+  virtual void MIKTEXTHISCALL PutValue(const std::string& keyName, const std::string& valueName, const std::string& value) = 0;
 
   /// Sets a configuration value.
 public:
-  virtual void MIKTEXTHISCALL PutValue(const std::string & keyName, const std::string & valueName, const std::string & value, const std::string & documentation, bool commentedOut) = 0;
+  virtual void MIKTEXTHISCALL PutValue(const std::string& keyName, const std::string& valueName, const std::string& value, const std::string& documentation, bool commentedOut) = 0;
 
   /// Reads configuration values from a file.
 public:
-  virtual void MIKTEXTHISCALL Read(const PathName & path) = 0;
+  virtual void MIKTEXTHISCALL Read(const PathName& path) = 0;
+
+  /// Reads configuration values from a stream.
+public:
+  virtual void MIKTEXTHISCALL Read(std::istream& reader) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL Read(const PathName & path, bool mustBeSigned) = 0;
+  virtual void MIKTEXTHISCALL Read(const PathName& path, bool mustBeSigned) = 0;
 
- public:
-  virtual void MIKTEXTHISCALL Read(const PathName & path, const PathName & publicKeyFile) = 0;
+public:
+  virtual void MIKTEXTHISCALL Read(std::istream& reader, bool mustBeSigned) = 0;
+
+public:
+  virtual void MIKTEXTHISCALL Read(const PathName& path, const PathName& publicKeyFile) = 0;
+
+public:
+  virtual void MIKTEXTHISCALL Read(std::istream& reader, const PathName& publicKeyFile) = 0;
 
   /// Write configuration settings into a file.
 public:
-  virtual void MIKTEXTHISCALL Write(const PathName & path) = 0;
+  virtual void MIKTEXTHISCALL Write(const PathName& path) = 0;
 
   /// Write configuration settings into a file.
 public:
-  virtual void MIKTEXTHISCALL Write(const PathName & path, const std::string & header) = 0;
+  virtual void MIKTEXTHISCALL Write(const PathName& path, const std::string& header) = 0;
 
   /// Write configuration settings into a file and sign the file.
 public:
-  virtual void MIKTEXTHISCALL Write(const PathName & path, const std::string & header, IPrivateKeyProvider * privateKeyProvider) = 0;
+  virtual void MIKTEXTHISCALL Write(const PathName& path, const std::string& header, IPrivateKeyProvider* privateKeyProvider) = 0;
 
   /// Gets all keys.
 public:
@@ -161,11 +176,11 @@ public:
 
   /// Deletes a key.
 public:
-  virtual void MIKTEXTHISCALL DeleteKey(const std::string & keyName) = 0;
+  virtual void MIKTEXTHISCALL DeleteKey(const std::string& keyName) = 0;
 
   /// Deletes a value (experimental).
 public:
-  virtual void MIKTEXTHISCALL DeleteValue(const std::string & keyName, const std::string & valueName) = 0;
+  virtual void MIKTEXTHISCALL DeleteValue(const std::string& keyName, const std::string& valueName) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL IsSigned() const = 0;

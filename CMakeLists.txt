@@ -150,7 +150,7 @@ option(
 option(
   MIKTEX_MPM_AUTO_INSTALL
   "Install missing packages automatically (on-the-fly)."
-  FALSE
+  ${MIKTEX_UNIX_ALIKE}
 )
 
 option(
@@ -370,9 +370,15 @@ option(
 )
 
 option(
-  INSTALL_PACKAGE_DATABASE
-  "Install the package database."
-  FALSE
+  WITH_ASYMPTOTE
+  "Build asymptote."
+  ${MIKTEX_NATIVE_WINDOWS}
+)
+
+option(
+  WITH_BOOTSTRAPPING
+  "Install files necessary for initializing a bare MiKTeX installation."
+  ${MIKTEX_UNIX_ALIKE}
 )
 
 option(
@@ -385,12 +391,6 @@ option(
   WITH_LIBRESSL_CRYPTO
   "Use the LibreSSL crypto library supplied with MiKTeX."
   ${WIN32}
-)
-
-option(
-  WITH_SOAP_CLIENT
-  "Use the (legacy) SOAP web service to retrieve the repository list."
-  FALSE
 )
 
 option(
@@ -495,6 +495,48 @@ option(
   ${MIKTEX_UNIX_ALIKE}
 )
 
+option(
+  WITH_KPSEWHICH
+  ""
+  ${WIN32}
+)
+
+option(
+  WITH_MKTEXLSR
+  ""
+  ${WIN32}
+)
+
+option(
+  WITH_TEXHASH
+  ""
+  ${WIN32}
+)
+
+option(
+  WITH_TEXLINKS
+  ""
+  ${WIN32}
+)
+
+option(
+  WITH_TEXDOC
+  ""
+  ${WIN32}
+)
+
+option(
+  WITH_UPDMAP
+  ""
+  ${WIN32}
+)
+
+if(WITH_ASYMPTOTE AND MIKTEX_NATIVE_WINDOWS)
+  set(USE_SYSTEM_OPENGL TRUE)
+  set(WITH_LIBATOMIC_OPS TRUE)
+  set(WITH_GC TRUE)
+endif()
+  
 ###############################################################################
 ## fixed values
 
@@ -673,6 +715,7 @@ test_big_endian(MIKTEX_WORDS_BIGENDIAN)
 include(Admin/COM/guids.cmake)
 
 include(FindPackageHandleStandardArgs)
+include(GNUInstallDirs)
 
 include(AddLinkFlags)
 include(CheckCCompilerFlag)
@@ -684,6 +727,7 @@ include(CheckStructHasMember)
 include(CheckSymbolExists)
 include(CheckTypeSize)
 include(CheckVariableExists)
+include(ConfigNames)
 include(CreateDllWrapper)
 include(CreateSymbolicLinks)
 include(CreateWebApp)
@@ -731,6 +775,14 @@ configure_file(
   COPYONLY
 )
 
+file(MAKE_DIRECTORY
+  ${MIKTEX_SANDBOX_BINARY_DIR}/miktex/locks
+)
+file(WRITE
+  ${MIKTEX_SANDBOX_BINARY_DIR}/miktex/locks/A6D646EE9FBF44D6A3E6C1A3A72FF7E3.lck
+  ""
+)
+
 set(outdir "${MIKTEX_SANDBOX_BINARY_DIR}/${MIKTEX_REL_MIKTEX_BIN_DIR}")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${outdir}")
@@ -744,13 +796,23 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${outdir}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${outdir}")
 
 ###############################################################################
+## bootstrapping packages
+
+if(WITH_BOOTSTRAPPING)
+  list(APPEND MIKTEX_BOOTSTRAPPING_PACKAGES
+    miktex-config-${MIKTEX_MAJOR_MINOR_STR}
+    miktex-misc
+  )
+endif()
+
+###############################################################################
 ## RPATH handling
 
 if(APPLE)
   set(CMAKE_MACOSX_RPATH TRUE)
-  set(CMAKE_INSTALL_RPATH "@loader_path/../lib")
+  set(CMAKE_INSTALL_RPATH "@loader_path/../${CMAKE_INSTALL_LIBDIR}")
 else()
-  set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+  set(CMAKE_INSTALL_RPATH "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
 endif()
 
 ###############################################################################
@@ -798,10 +860,9 @@ if(MSVC)
   )
 endif()
 
-if(INSTALL_PACKAGE_DATABASE)
+if(WITH_BOOTSTRAPPING)
   list(APPEND required_programs
-    tar
-    wget
+    curl
   )
 endif()
 
@@ -943,6 +1004,10 @@ if(USE_SYSTEM_MSPACK)
   find_package(MSPACK REQUIRED)
 endif()
 
+if(USE_SYSTEM_OPENGL)
+  find_package(OpenGL REQUIRED)
+endif()
+
 if(USE_SYSTEM_OPENSSL_CRYPTO)
   find_package(OpenSSL REQUIRED)
 endif()
@@ -999,11 +1064,9 @@ else()
 endif()
 
 check_function_exists(access HAVE_ACCESS)
-check_function_exists(canonicalize_file_name HAVE_CANONICALIZE_FILE_NAME)
 check_function_exists(chdir HAVE_CHDIR)
 check_function_exists(chmod HAVE_CHMOD)
 check_function_exists(chown HAVE_CHOWN)
-check_function_exists(close HAVE_CLOSE)
 check_function_exists(closedir HAVE_CLOSEDIR)
 check_function_exists(confstr HAVE_CONFSTR)
 check_function_exists(finite HAVE_FINITE)
@@ -1016,11 +1079,9 @@ check_function_exists(getcwd HAVE_GETCWD)
 check_function_exists(getenv HAVE_GETENV)
 check_function_exists(geteuid HAVE_GETEUID)
 check_function_exists(getopt_long HAVE_GETOPT_LONG)
+check_function_exists(getpagesize HAVE_GETPAGESIZE)
+check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
 check_function_exists(getpid HAVE_GETPID)
-check_function_exists(getuid HAVE_GETUID)
-check_function_exists(gmtime HAVE_GMTIME)
-check_function_exists(lsqrt HAVE_LSQRT)
-check_function_exists(mbtowc HAVE_MBTOWC)
 check_function_exists(memcmp HAVE_MEMCMP)
 check_function_exists(memmove HAVE_MEMMOVE)
 check_function_exists(memset HAVE_MEMSET)
@@ -1030,39 +1091,30 @@ check_function_exists(open HAVE_OPEN)
 check_function_exists(opendir HAVE_OPENDIR)
 check_function_exists(pclose HAVE_PCLOSE)
 check_function_exists(popen HAVE_POPEN)
+check_function_exists(putenv HAVE_PUTENV)
 check_function_exists(readdir HAVE_READDIR)
-check_function_exists(regexec HAVE_REGEXEC)
-check_function_exists(rename HAVE_RENAME)
-check_function_exists(resolvepath HAVE_RESOLVEPATH)
 check_function_exists(rmdir HAVE_RMDIR)
 check_function_exists(setenv HAVE_SETENV)
 check_function_exists(setreuid HAVE_SETREUID)
 check_function_exists(setuid HAVE_SETUID)
-check_function_exists(snprintf HAVE_SNPRINTF)
 check_function_exists(spawnvp HAVE_SPAWNVP)
-check_function_exists(sprintf_l HAVE_SPRINTF_L)
-check_function_exists(sscanf HAVE_SSCANF)
 check_function_exists(stat HAVE_STAT)
 check_function_exists(statvfs HAVE_STATVFS)
 check_function_exists(stpcpy HAVE_DECL_STPCPY)
 check_function_exists(strcasecmp HAVE_STRCASECMP)
+check_function_exists(strchr HAVE_STRCHR)
 check_function_exists(strdup HAVE_STRDUP)
 check_function_exists(strerror HAVE_STRERROR)
 check_function_exists(strlwr HAVE_STRLWR)
 check_function_exists(strnlen HAVE_STRNLEN)
 check_function_exists(strrchr HAVE_STRRCHR)
-check_function_exists(strtod HAVE_STRTOD)
-check_function_exists(strtod_l HAVE_STRTOD_L)
 check_function_exists(strtol HAVE_STRTOL)
 check_function_exists(strtoll HAVE_STRTOLL)
-check_function_exists(strtoul HAVE_STRTOUL)
-check_function_exists(strtoull HAVE_STRTOULL)
-check_function_exists(system HAVE_SYSTEM)
 check_function_exists(uname HAVE_UNAME_SYSCALL)
 check_function_exists(unlink HAVE_UNLINK)
 check_function_exists(utime HAVE_UTIME)
+check_function_exists(vprintf HAVE_VPRINTF)
 check_function_exists(vfork HAVE_VFORK)
-check_function_exists(wctomb HAVE_WCTOMB)
 
 if(WITH_UI_MFC)
   set(HAVE_AFXWIN_H "YES")
@@ -1072,30 +1124,27 @@ if(WITH_COM)
   set(HAVE_ATLBASE_H "YES")
 endif()
 
-check_include_file_cxx(hash_map HAVE_HASH_MAP)
-check_include_file_cxx(hash_set HAVE_HASH_SET)
-check_include_file_cxx(unordered_map HAVE_UNORDERED_MAP)
-check_include_file_cxx(unordered_set HAVE_UNORDERED_SET)
-
 check_include_files(alloca.h HAVE_ALLOCA_H)
 check_include_files(dirent.h HAVE_DIRENT_H)
 check_include_files(errno.h HAVE_ERRNO_H)
+check_include_files(fcntl.h HAVE_FCNTL_H)
 check_include_files(float.h HAVE_FLOAT_H)
-check_include_files(getopt.h HAVE_GETOPT_H)
 check_include_files(inttypes.h HAVE_INTTYPES_H)
 check_include_files(io.h HAVE_IO_H)
+check_include_files(libgen.h HAVE_LIBGEN_H)
 check_include_files(libintl.h HAVE_LIBINTL_H)
 check_include_files(limits.h HAVE_LIMITS_H)
-check_include_files(math.h HAVE_MATH_H)
 check_include_files(mcheck.h HAVE_MCHECK_H)
 check_include_files(memory.h HAVE_MEMORY_H)
 check_include_files(ndir.h HAVE_NDIR_H)
-check_include_files(regex.h HAVE_REGEX_H)
 check_include_files(stat.h HAVE_STAT_H)
-check_include_files(stddef.h HAVE_STDARG_H)
+check_include_files(stdbool.h HAVE_STDBOOL_H)
+check_include_files(stdarg.h HAVE_STDARG_H)
 check_include_files(stddef.h HAVE_STDDEF_H)
 check_include_files(stdint.h HAVE_STDINT_H)
+check_include_files(stdlib.h HAVE_STDLIB_H)
 check_include_files(string.h HAVE_STRING_H)
+check_include_files(strings.h HAVE_STRINGS_H)
 check_include_files(sys/dir.h HAVE_SYS_DIR_H)
 check_include_files(sys/mman.h HAVE_SYS_MMAN_H)
 check_include_files(sys/ndir.h HAVE_SYS_NDIR_H)
@@ -1110,10 +1159,6 @@ check_include_files(sys/utsname.h HAVE_SYS_UTSNAME_H)
 check_include_files(sys/wait.h HAVE_SYS_WAIT_H)
 check_include_files(unistd.h HAVE_UNISTD_H)
 check_include_files(utime.h HAVE_UTIME_H)
-
-if(WIN32)
-  check_include_files(VersionHelpers.h HAVE_VERSIONHELPERS_H)
-endif()
 
 check_struct_has_member("struct tm" tm_gmtoff time.h HAVE_TM_GMTOFF)
 
@@ -1467,6 +1512,10 @@ else()
   add_subdirectory(${MIKTEX_REL_FRIBIDI_DIR})
 endif()
 
+if(WITH_GC)
+  add_subdirectory(${MIKTEX_REL_GC_DIR})
+endif()
+
 if(USE_SYSTEM_GD)
   get_filename_component(suffix ${GD_LIBRARY} EXT)
   if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
@@ -1580,6 +1629,10 @@ else()
   add_subdirectory(${MIKTEX_REL_JPEG_DIR})
 endif()
 
+if(WITH_LIBATOMIC_OPS)
+  add_subdirectory(${MIKTEX_REL_LIBATOMIC_OPS_DIR})
+endif()
+
 if(USE_SYSTEM_LOG4CXX)
   get_filename_component(suffix ${LOG4CXX_LIBRARY} EXT)
   if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
@@ -1642,6 +1695,31 @@ if(USE_SYSTEM_MSPACK)
   )
 else()
   add_subdirectory(${MIKTEX_REL_MSPACK_DIR})
+endif()
+
+if(USE_SYSTEM_OPENGL)
+  get_filename_component(suffix ${OPENGL_gl_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::OPENGL SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::OPENGL STATIC IMPORTED)
+  endif()
+  set_target_properties(MiKTeX::Imported::OPENGL
+    PROPERTIES
+      IMPORTED_LOCATION "${OPENGL_gl_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${OPENGL_INCLUDE_DIR}"
+  )
+  get_filename_component(suffix ${OPENGL_glu_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::GLU SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::GLU STATIC IMPORTED)
+  endif()
+  set_target_properties(MiKTeX::Imported::GLU
+    PROPERTIES
+      IMPORTED_LOCATION "${OPENGL_glu_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${OPENGL_INCLUDE_DIR}"
+  )
 endif()
 
 if(USE_SYSTEM_OPENSSL_CRYPTO)
@@ -1807,6 +1885,7 @@ add_subdirectory(${MIKTEX_REL_C4P_DIR})
 add_subdirectory(${MIKTEX_REL_CFG_DIR})
 add_subdirectory(${MIKTEX_REL_CHKTEX_DIR})
 add_subdirectory(${MIKTEX_REL_CJKUTILS_DIR})
+add_subdirectory(${MIKTEX_REL_CONFIG_DIR})
 add_subdirectory(${MIKTEX_REL_CORE_DIR})
 add_subdirectory(${MIKTEX_REL_CWEB_DIR})
 add_subdirectory(${MIKTEX_REL_DEFAULTS_DIR})
@@ -1827,6 +1906,7 @@ add_subdirectory(${MIKTEX_REL_INIPOOL_DIR})
 add_subdirectory(${MIKTEX_REL_INITEXMF_DIR})
 add_subdirectory(${MIKTEX_REL_KPSEMU_DIR})
 add_subdirectory(${MIKTEX_REL_KPSEWHICH_DIR})
+add_subdirectory(${MIKTEX_REL_LACHECK_DIR})
 add_subdirectory(${MIKTEX_REL_LUATEX_DIR})
 add_subdirectory(${MIKTEX_REL_LUA_DIR})
 add_subdirectory(${MIKTEX_REL_M_TX_DIR})
@@ -1870,8 +1950,12 @@ add_subdirectory(${MIKTEX_REL_WEB_DIR})
 add_subdirectory(${MIKTEX_REL_XETEX_DIR})
 add_subdirectory(${MIKTEX_REL_XINDY_DIR})
 
+if(WITH_ASYMPTOTE)
+  add_subdirectory(${MIKTEX_REL_ASYMPTOTE_DIR})
+endif()
+
 if(WITH_CONFIG_FILES)
-  add_subdirectory(${MIKTEX_REL_CONFIG_DIR})
+  add_subdirectory(${MIKTEX_REL_CONFIGFILES_DIR})
 endif()
 
 if(WITH_TPMS)
@@ -1881,10 +1965,6 @@ endif()
 if(WITH_OMEGA)
   add_subdirectory(${MIKTEX_REL_OMEGAWARE_DIR})
   add_subdirectory(${MIKTEX_REL_OMEGA_DIR})
-endif()
-
-if(WITH_SOAP_CLIENT)
-  add_subdirectory(${MIKTEX_REL_MTREP_DIR} EXCLUDE_FROM_ALL)
 endif()
 
 if(WITH_UI_QT)
@@ -1938,50 +2018,53 @@ if(NOT HAVE_REGEXEC)
 endif()
 
 ###############################################################################
-## package database
+## bootstrapping
 
-if(INSTALL_PACKAGE_DATABASE)
-  set(remote_repository
-    "http://ctan.org/systems/win32/miktex/tm/packages/"
+if(WITH_BOOTSTRAPPING)
+  if(MIKTEX_RELEASE_STATE EQUAL 1)
+    set(remote_repository
+      "http://ctan.org/tex-archive/systems/win32/miktex/tm/packages/next"
+    )
+  else()
+    set(remote_repository
+      "http://ctan.org/tex-archive/systems/win32/miktex/tm/packages/"
+    )
+  endif()
+  list(APPEND bootstrapping_files
+    miktex-zzdb1-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
+    miktex-zzdb2-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
   )
-
-  execute_process(
-    COMMAND
-      ${WGET_EXECUTABLE} -q -O - ${remote_repository}/miktex-zzdb1-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
-    COMMAND
-      ${TAR_EXECUTABLE} -xJf -
-    WORKING_DIRECTORY
-      ${CMAKE_CURRENT_BINARY_DIR}
+  foreach(p ${MIKTEX_BOOTSTRAPPING_PACKAGES})
+    list(APPEND bootstrapping_files
+      ${p}.tar.lzma
+    )
+  endforeach()
+  foreach(f ${bootstrapping_files})
+    add_custom_command(
+      OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/${f}
+      COMMAND
+        ${CURL_EXECUTABLE} -o ${CMAKE_CURRENT_BINARY_DIR}/${f} -fsSL ${remote_repository}/${f}
+    )
+    list(APPEND generated_bootstrapping_files ${CMAKE_CURRENT_BINARY_DIR}/${f})
+  endforeach()
+  add_custom_target(gen-bootstrapping-files ALL DEPENDS
+    ${generated_bootstrapping_files}
   )
-
-  execute_process(
-    COMMAND
-      ${WGET_EXECUTABLE} -q -O - ${remote_repository}/miktex-zzdb2-${MIKTEX_MAJOR_MINOR_STR}.tar.lzma
-    COMMAND
-      ${TAR_EXECUTABLE} -xJf -
-    WORKING_DIRECTORY
-      ${CMAKE_CURRENT_BINARY_DIR}
-  )
-
   install(
     FILES
-      ${CMAKE_CURRENT_BINARY_DIR}/mpm.ini
+      ${generated_bootstrapping_files}
     DESTINATION
-      ${MIKTEX_TEXMF_DIR}/miktex/config
-  )
-
-  install(
-    DIRECTORY
-      ${CMAKE_CURRENT_BINARY_DIR}/texmf/tpm/packages/
-    DESTINATION
-      ${MIKTEX_TEXMF_DIR}/tpm/packages
+      ${MIKTEX_BOOTSTRAPPING_DESTINATION_DIR}
   )
 endif()
 
 ###############################################################################
 ## packaging
 
-set(CPACK_GENERATOR DEB)
+if(UNIX AND NOT APPLE)
+  list(APPEND CPACK_GENERATOR DEB)
+endif()
 
 if(LINK_EVERYTHING_STATICALLY)
   list(APPEND CPACK_GENERATOR TGZ)
@@ -2002,7 +2085,7 @@ set(CPACK_PACKAGE_DESCRIPTION_FILE
 )
 
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
-  "MiKTeX ${MIKTEX_MAJOR_MINOR_STR}: a TeX distribution"
+  "MiKTeX: a scalable TeX distribution"
 )
 
 set(CPACK_PACKAGE_CONTACT
@@ -2026,29 +2109,38 @@ set(CPACK_DEBIAN_PACKAGE_VERSION
   "${MIKTEX_VERSION_TAG_STR}-${MIKTEX_PACKAGE_REVISION}"
 )
 
+set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "${MIKTEX_HQ_BASE_URL_NO_SLASH}")
+
 find_program(DPKG_SHLIBDEPS_EXECUTABLE NAMES dpkg-shlibdeps)
 
+set(debian_install_dependencies "debconf (>= 0.2.17)")
+set(debian_runtime_dependencies "fontconfig")
+
 if(DPKG_SHLIBDEPS_EXECUTABLE)
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS "${debian_install_dependencies}, ${debian_runtime_dependencies}")
   set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS TRUE)
 else()
   set(CPACK_DEBIAN_PACKAGE_DEPENDS
-    "libbz2-1.0, libc6 (>= 2.14), libcairo2 (>= 1.2.4), libcurl3-gnutls (>= 7.16.2), libexpat1 (>= 2.0.1), libfontconfig1 (>= 2.11), libfreetype6 (>= 2.3.9), libfribidi0 (>= 0.19.2), libgcc1 (>= 1:4.0), libgd3 (>= 2.1.0~alpha~), libgmp10, libgraphite2-3 (>= 1.2.2), libharfbuzz-icu0 (>= 0.9.9), libharfbuzz0b (>= 1.4.1), libicu57 (>= 57.1-1~), libjpeg62-turbo (>= 1.3.1), liblog4cxx10v5, liblzma5 (>= 5.1.1alpha+20120614), libmpfr4 (>= 3.1.3), libmspack0 (>= 0.4), libpixman-1-0 (>= 0.10.0), libpng16-16 (>= 1.6.2-1), libpoppler57 (>= 0.38.0), libpopt0 (>= 1.14), libpotrace0, libssl1.0.2 (>= 1.0.2d), libstdc++6 (>= 6), liburiparser1 (>= 0.6.0), libzzip-0-13 (>= 0.13.56), zlib1g (>= 1:1.1.4)"
+    "${debian_install_dependencies}, ${debian_runtime_dependencies}, libbz2-1.0, libc6 (>= 2.14), libcairo2 (>= 1.2.4), libcurl3-gnutls (>= 7.16.2), libexpat1 (>= 2.0.1), libfontconfig1 (>= 2.11), libfreetype6 (>= 2.3.9), libfribidi0 (>= 0.19.2), libgcc1 (>= 1:4.0), libgd3 (>= 2.1.0~alpha~), libgmp10, libgraphite2-3 (>= 1.2.2), libharfbuzz-icu0 (>= 0.9.9), libharfbuzz0b (>= 1.4.1), libicu57 (>= 57.1-1~), libjpeg62-turbo (>= 1.3.1), liblog4cxx10v5, liblzma5 (>= 5.1.1alpha+20120614), libmpfr4 (>= 3.1.3), libmspack0 (>= 0.4), libpixman-1-0 (>= 0.10.0), libpng16-16 (>= 1.6.2-1), libpoppler57 (>= 0.38.0), libpopt0 (>= 1.14), libpotrace0, libssl1.0.2 (>= 1.0.2d), libstdc++6 (>= 6), liburiparser1 (>= 0.6.0), libzzip-0-13 (>= 0.13.56), zlib1g (>= 1:1.1.4)"
   )
 endif()
 
 set(CPACK_DEBIAN_PACKAGE_SECTION
-  "TeX"
+  "tex"
 )
 
-#set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
-#  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst"
-#)
+list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
+  "${CMAKE_SOURCE_DIR}/Packaging/deb/config"
+  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst"
+  "${CMAKE_SOURCE_DIR}/Packaging/deb/prerm"
+  "${CMAKE_SOURCE_DIR}/Packaging/deb/templates"
+)
 
 set(CPACK_RPM_PACKAGE_RELEASE ${MIKTEX_PACKAGE_REVISION})
 
-#set(CPACK_RPM_SPEC_INSTALL_POST
-#  "initexmf --admin --configure"
-#)
+set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE
+  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst"
+)
 
 set(CPACK_STRIP_SYMBOLS TRUE)
 

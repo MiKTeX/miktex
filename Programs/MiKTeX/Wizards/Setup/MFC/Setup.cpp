@@ -274,9 +274,9 @@ void CheckStartupConfig(StartupConfig & startupConfig)
 {
 #if 1
   string commonRoots;
-  for (CsvList tok(startupConfig.commonRoots, ';'); tok; ++tok)
+  for (const string& tok : StringUtil::Split(startupConfig.commonRoots, PathName::PathNameDelimiter))
   {
-    PathName path(*tok);
+    PathName path(tok);
     if (path.Empty())
     {
       continue;
@@ -314,9 +314,9 @@ void CheckStartupConfig(StartupConfig & startupConfig)
   startupConfig.commonRoots = commonRoots;
 
   string userRoots;
-  for (CsvList tok(startupConfig.userRoots, ';'); tok; ++tok)
+  for (const string& tok : StringUtil::Split(startupConfig.userRoots, PathName::PathNameDelimiter))
   {
-    PathName path(*tok);
+    PathName path(tok);
     if (path.Empty())
     {
       continue;
@@ -945,7 +945,7 @@ BOOL SetupApp::InitInstance()
       INT_PTR r = reinterpret_cast<INT_PTR>(ShellExecuteW(nullptr, L"open", pathLogFile.ToWideCharString().c_str(), nullptr, nullptr, SW_SHOWNORMAL));
       if (r <= 32)
       {
-        Process::Start("notepad.exe", pathLogFile.GetData());
+        Process::Start("notepad.exe", { "notepad", pathLogFile.ToString() });
       }
     }
     traceStream.reset();

@@ -68,21 +68,20 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
     MIKTEX_FATAL_ERROR_2(T_("The script could not be found."), "scriptEngine", scriptEngine, "name", name.ToString(), "path", relScriptPath);
   }
 
-  // build command line
-  CommandLineBuilder commandLine;
+  vector<string> args{ name.ToString() };
   if (!scriptEngineArgument.empty())
   {
-    commandLine.AppendArgument(scriptEngineArgument);
+    args.push_back(scriptEngineArgument);
   }
-  commandLine.AppendArgument(scriptPath.ToString());
-  if (argc > 1)
+  args.push_back(scriptPath.ToString());
+  for(int idx = 1; idx < argc; ++idx)
   {
-    commandLine.AppendArguments(argc - 1, &argv[1]);
+    args.push_back(argv[idx]);
   }
 
   int exitCode;
 
-  Process::Run(engine, commandLine.ToString(), nullptr, &exitCode, nullptr);
+  Process::Run(engine, args, nullptr, &exitCode, nullptr);
 
   return exitCode;
 }

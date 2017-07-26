@@ -215,7 +215,7 @@ string ErrorDialogImpl::CreateReport()
   {
     try
     {
-      vector<string> invokerNames = Process2::GetInvokerNames();
+      vector<string> invokerNames = Process::GetInvokerNames();
       s << "MiKTeX: "
 	<< Utils::GetMiKTeXVersionString() << endl
 	<< "OS: " << Utils::GetOSVersionString() << endl;

@@ -64,10 +64,22 @@ public:
   virtual MIKTEXAPPEXPORT MIKTEXTHISCALL ~Application() noexcept;
 
 public:
+  virtual MIKTEXAPPTHISAPI(std::string) ExamineArgs(std::vector<const char*>& args, MiKTeX::Core::Session::InitInfo& initInfo);
+
+public:
+  virtual MIKTEXAPPTHISAPI(std::string) ExamineArgs(std::vector<char*>& args, MiKTeX::Core::Session::InitInfo& initInfo);
+
+public:
+  virtual MIKTEXAPPTHISAPI(void) Init(const MiKTeX::Core::Session::InitInfo& initInfo, std::vector<const char*>& args);
+
+public:
   virtual MIKTEXAPPTHISAPI(void) Init(const MiKTeX::Core::Session::InitInfo& initInfo, std::vector<char*>& args);
 
 public:
   virtual MIKTEXAPPTHISAPI(void) Init(const MiKTeX::Core::Session::InitInfo& initInfo);
+
+public:
+  virtual MIKTEXAPPTHISAPI(void) Init(std::vector<const char*>& args);
 
 public:
   virtual MIKTEXAPPTHISAPI(void) Init(std::vector<char*>& args);
@@ -80,6 +92,9 @@ public:
 
 public:
   virtual MIKTEXAPPTHISAPI(void) Finalize();
+
+public:
+  virtual MIKTEXAPPTHISAPI(void) Finalize2(int exitCode);
 
 public:
   virtual void GetLibraryVersions(std::vector<MiKTeX::Core::LibraryVersion>& versions) const
@@ -147,6 +162,15 @@ public:
   MIKTEXAPPTHISAPI(MiKTeX::Core::TriState) GetEnableInstaller() const;
 
 public:
+  MIKTEXAPPTHISAPI(void) LogInfo(const std::string& message) const;
+
+public:
+  MIKTEXAPPTHISAPI(void) LogWarn(const std::string& message) const;
+
+public:
+  MIKTEXAPPTHISAPI(void) LogError(const std::string& message) const;
+
+public:
   static MIKTEXAPPCEEAPI(Application*) GetApplication();
 
 protected:
@@ -154,9 +178,6 @@ protected:
 
 public:
   static MIKTEXAPPCEEAPI(void) CheckCancel();
-
-public:
-  MIKTEXAPPTHISAPI(bool) IsLog4cxxConfigured() const;
 
 private:
   void FlushPendingTraceMessages();

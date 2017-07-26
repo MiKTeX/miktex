@@ -1310,11 +1310,14 @@ _cairo_truetype_reverse_cmap (cairo_scaled_font_t *scaled_font,
 
     /* search for glyph in segments with rangeOffset=0 */
     for (i = 0; i < num_segments; i++) {
+	uint16_t start = be16_to_cpu (start_code[i]);
+	uint16_t end = be16_to_cpu (end_code[i]);
+
+	if (start == 0xffff && end == 0xffff)
+	    break;
+
 	c = index - be16_to_cpu (delta[i]);
-	if (range_offset[i] == 0 &&
-	    c >= be16_to_cpu (start_code[i]) &&
-	    c <= be16_to_cpu (end_code[i]))
-	{
+	if (range_offset[i] == 0 && c >= start && c <= end) {
 	    *ucs4 = c;
 	    goto found;
 	}
@@ -1322,9 +1325,15 @@ _cairo_truetype_reverse_cmap (cairo_scaled_font_t *scaled_font,
 
     /* search for glyph in segments with rangeOffset=1 */
     for (i = 0; i < num_segments; i++) {
+	uint16_t start = be16_to_cpu (start_code[i]);
+	uint16_t end = be16_to_cpu (end_code[i]);
+
+	if (start == 0xffff && end == 0xffff)
+	    break;
+
 	if (range_offset[i] != 0) {
 	    uint16_t *glyph_ids = &range_offset[i] + be16_to_cpu (range_offset[i])/2;
-	    int range_size = be16_to_cpu (end_code[i]) - be16_to_cpu (start_code[i]) + 1;
+	    int range_size = end - start + 1;
 	    uint16_t g_id_be = cpu_to_be16 (index);
 	    int j;
 
@@ -1334,7 +1343,7 @@ _cairo_truetype_reverse_cmap (cairo_scaled_font_t *scaled_font,
 
 		for (j = 0; j < range_size; j++) {
 		    if (glyph_ids[j] == g_id_be) {
-			*ucs4 = be16_to_cpu (start_code[i]) + j;
+			*ucs4 = start + j;
 			goto found;
 		    }
 		}

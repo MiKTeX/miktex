@@ -55,7 +55,7 @@ int main(int argc, char** argv)
     }
     newargv.push_back(nullptr);
     Application app;
-    app.Init(newargv[0]);
+    app.Init(newargv);
     int exitCode = app.GetSession()->RunSh(argc, &newargv[0]);
     app.Finalize();
     return exitCode;

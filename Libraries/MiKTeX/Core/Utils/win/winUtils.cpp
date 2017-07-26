@@ -23,7 +23,6 @@
 
 #include "internal.h"
 
-#include "miktex/Core/CsvList.h"
 #include "miktex/Core/Directory.h"
 #include "miktex/Core/PathName.h"
 #include "miktex/Core/Paths.h"

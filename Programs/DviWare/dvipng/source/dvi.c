@@ -23,12 +23,8 @@
 ************************************************************************/
 
 #include "dvipng.h"
-#ifdef MIKTEX_WINDOWS
-#  if defined(MIKTEX)
-#    define basename xbasename
-#  else
+#ifdef MIKTEX_NOT
 # include <gnu-miktex.h>
-#  endif
 # define USLEEP    Sleep
 #else  /* MIKTEX */
 # ifdef HAVE_LIBGEN_H

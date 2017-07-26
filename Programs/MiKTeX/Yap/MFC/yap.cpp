@@ -1,6 +1,6 @@
 /* yap.cpp: Yet Another Previewer
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of Yap.
 
@@ -94,20 +94,20 @@ namespace {
   bool unregistering = false;
 }
 
-void ParseYapCommandLine(const char * lpszCommandLine, YapCommandLineInfo & cmdInfo)
+void ParseYapCommandLine(const char * lpszArguments, YapCommandLineInfo & cmdInfo)
 {
   shared_ptr<Session> session = Session::Get();
 
   cmdInfo.m_nShellCommand = CCommandLineInfo::FileNothing;
 
-  if (*lpszCommandLine == 0)
+  if (*lpszArguments == 0)
   {
     return;
   }
 
   int option;
 
-  Argv argv("yap", lpszCommandLine);
+  Argv argv("yap"s + " "s + lpszArguments);
 
   PoptWrapper popt(argv.GetArgc(), const_cast<const char **>(argv.GetArgv()), aoption);
 
@@ -401,7 +401,7 @@ BOOL YapApplication::InitInstance()
 
     unsigned showSplashWindow = 0;
 
-    vector<string> invokers = Process2::GetInvokerNames();
+    vector<string> invokers = Process::GetInvokerNames();
     for (vector<string>::const_iterator it = invokers.begin(); it != invokers.end(); ++it)
     {
       if (StringUtil::Contains(COMMERCIAL_INVOKERS, PathName(*it).GetFileNameWithoutExtension().GetData()))

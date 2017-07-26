@@ -94,8 +94,6 @@ struct InternalFileTypeInfo : public MiKTeX::Core::FileTypeInfo
 {
 public:
   std::vector<MiKTeX::Core::PathName> searchVec;
-public:
-  std::string alternateExtensions;
 };
 
 class DvipsPaperSizeInfo : public MiKTeX::Core::PaperSizeInfo
@@ -140,6 +138,9 @@ public:
   bool IsCommonRootDirectory(unsigned r) override;
 
 public:
+  bool IsOtherRootDirectory(unsigned r) override;
+
+public:
   MiKTeX::Core::PathName GetMpmRootPath() override;
 
 public:
@@ -164,7 +165,7 @@ public:
   unsigned SplitTEXMFPath(const MiKTeX::Core::PathName& path, MiKTeX::Core::PathName& root, MiKTeX::Core::PathName& relative) override;
 
 public:
-  void RegisterRootDirectories(const std::string& roots) override;
+  void RegisterRootDirectories(const std::string& roots, bool other) override;
 
 public:
   void RegisterRootDirectories(const MiKTeX::Core::StartupConfig& startupConfig, MiKTeX::Core::RegisterRootDirectoriesOptionSet options) override;
@@ -186,6 +187,9 @@ public:
 
 public:
   MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& defaultValue) override;
+
+public:
+  MiKTeX::Core::ConfigValue GetConfigValue(const std::string& sectionName, const std::string& valueName) override;
 
 public:
   void SetConfigValue(const std::string& sectionName, const std::string& valueName, const MiKTeX::Core::ConfigValue& value) override;
@@ -312,7 +316,7 @@ public:
   bool GetMakeFontsFlag() override;
 
 public:
-  std::string MakeMakePkCommandLine(const std::string& fontName, int dpi, int baseDpi, const std::string& mfMode, MiKTeX::Core::PathName& fileName, MiKTeX::Core::TriState enableInstaller) override;
+  std::vector<std::string> MakeMakePkCommandLine(const std::string& fontName, int dpi, int baseDpi, const std::string& mfMode, MiKTeX::Core::PathName& fileName, MiKTeX::Core::TriState enableInstaller) override;
 
 #if defined(MIKTEX_WINDOWS)
 public:
@@ -438,6 +442,15 @@ public:
 public:
   bool TryGetMiKTeXUserInfo(MiKTeX::Core::MiKTeXUserInfo& info) override;
 #endif
+
+public:
+  MiKTeX::Core::ShellCommandMode GetShellCommandMode() override;
+
+public:
+  std::vector<std::string> GetAllowedShellCommands() override;
+
+public:
+  std::tuple<ExamineCommandLineResult, std::string, std::string> ExamineCommandLine(const std::string& commandLine) override;
 
 public:
   bool IsTEXMFFile(const MiKTeX::Core::PathName& path, MiKTeX::Core::PathName& relPath, unsigned& rootIndex);
@@ -690,13 +703,7 @@ private:
   bool CheckCandidate(MiKTeX::Core::PathName& path, const char* fileInfo);
 
 private:
-  bool GetSessionValue(const std::string& sectionName, const std::string& valueName, std::string& value, const Optional<std::string>& defaultValue);
-
-private:
-  bool GetSessionValue(const std::string& sectionName, const std::string& valueName, std::string& value)
-  {
-    return GetSessionValue(sectionName, valueName, value, Optional<std::string>());
-  }
+  bool GetSessionValue(const std::string& sectionName, const std::string& valueName, std::string& value);
 
 private:
   void ReadAllConfigFiles(const std::string& baseName, MiKTeX::Core::Cfg& cfg);
@@ -744,13 +751,16 @@ public:
   unsigned GetUserInstallRoot();
 
 public:
+  MiKTeX::Core::PathName GetBootstrappingDirectory();
+
+public:
   unsigned GetDistRoot();
 
 private:
   bool IsManagedRoot(unsigned root);
 
 private:
-  unsigned RegisterRootDirectory(const MiKTeX::Core::PathName& root, bool common);
+  unsigned RegisterRootDirectory(const MiKTeX::Core::PathName& root, bool common, bool other);
 
 private:
   bool FindStartupConfigFile(bool common, MiKTeX::Core::PathName& path);
@@ -807,12 +817,6 @@ private:
 
 private:
   MiKTeX::Core::PathName GetBinDirectory(bool canonicalized);
-
-private:
-  void AppendToSearchPath(std::string& strSearchPath, const std::string& strSearchPath2);
-
-private:
-  void SplitSearchPath(std::vector<MiKTeX::Core::PathName>& pathvec, const std::string& searchPath);
 
 private:
   std::vector<MiKTeX::Core::PathName> SplitSearchPath(const std::string& searchPath);
@@ -879,15 +883,6 @@ private:
 
 private:
   std::vector<MiKTeX::Core::PathName> ExpandPathPatterns(const std::string& toBeExpanded);
-
-private:
-  void RegisterFileType(MiKTeX::Core::FileType fileType, const char* fileTypeString, const char* application, const char* fileNameExtensions, const char* alternateExtensions, const char* defaultSearchPath, const char* envVarNames);
-
-private:
-  void RegisterFileType(MiKTeX::Core::FileType fileType, const char* fileTypeString, const char* application, const char* fileNameExtensions, const char* defaultSearchPath, const char* envVarNames)
-  {
-    RegisterFileType(fileType, fileTypeString, application, fileNameExtensions, nullptr, defaultSearchPath, envVarNames);
-  }
 
 private:
   void RegisterFileType(MiKTeX::Core::FileType fileType);

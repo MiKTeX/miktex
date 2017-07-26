@@ -74,6 +74,7 @@ using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace MiKTeX::Wrappers;
 using namespace std;
+using namespace std::string_literals;
 
 #define UNIMPLEMENTED() MIKTEX_INTERNAL_ERROR()
 
@@ -122,13 +123,13 @@ catch(...)                                      \
 }                                               \
 va_end(arglist);
 
-const char * DEFAULT_TRACE_STREAMS = MIKTEX_TRACE_ERROR "," MIKTEX_TRACE_PROCESS "," PROGRAM_NAME;
+const char* DEFAULT_TRACE_STREAMS = MIKTEX_TRACE_ERROR "," MIKTEX_TRACE_PROCESS "," PROGRAM_NAME;
 
 class ProcessOutputTrash :
   public IRunProcessCallback
 {
 public:
-  bool MIKTEXTHISCALL OnProcessOutput(const void * pOutput, size_t n) override
+  bool MIKTEXTHISCALL OnProcessOutput(const void* pOutput, size_t n) override
   {
     ALWAYS_UNUSED(pOutput);
     ALWAYS_UNUSED(n);
@@ -140,13 +141,13 @@ class ProcessOutputSaver :
   public IRunProcessCallback
 {
 public:
-  bool MIKTEXTHISCALL OnProcessOutput(const void * pOutput, size_t n) override
+  bool MIKTEXTHISCALL OnProcessOutput(const void* pOutput, size_t n) override
   {
     output.append(reinterpret_cast<const char*>(pOutput), n);
     return true;
   }
 public:
-  const string & GetOutput() const
+  const string& GetOutput() const
   {
     return output;
   }
@@ -154,15 +155,15 @@ private:
   string output;
 };
 
-void CopyFiles(const vector<string> & vec, const PathName & destDir)
+void CopyFiles(const vector<string>& vec, const PathName& destDir)
 {
-  for (const string & fileName : vec)
+  for (const string& fileName : vec)
   {
     File::Copy(fileName, PathName(destDir, fileName));
   }
 }
 
-vector<char> ReadFile(const PathName & fileName)
+vector<char> ReadFile(const PathName& fileName)
 {
   size_t fileSize = File::GetSize(fileName);
   vector<char> vec(fileSize + 1);
@@ -173,18 +174,18 @@ vector<char> ReadFile(const PathName & fileName)
   return vec;
 }
 
-bool Contains(const PathName & fileName, regex_t * preg)
+bool Contains(const PathName& fileName, regex_t* preg)
 {
   vector<char> file = ReadFile(fileName);
   return regexec(preg, &file[0], 0, nullptr, 0) == 0;
 }
 
-bool Contains(const PathName & fileName, const char * lpszText)
+bool Contains(const PathName& fileName, const char* lpszText)
 {
   unique_ptr<MemoryMappedFile> pMappedFile(MemoryMappedFile::Create());
-  const char * ptr = reinterpret_cast<char*>(pMappedFile->Open(fileName, false));
+  const char* ptr = reinterpret_cast<char*>(pMappedFile->Open(fileName, false));
   size_t size = pMappedFile->GetSize();
-  const char * p = lpszText;
+  const char* p = lpszText;
   for (size_t i = 0; *p != 0 && i < size; ++i, ++ptr)
   {
     if (*ptr == *p)
@@ -200,10 +201,10 @@ bool Contains(const PathName & fileName, const char * lpszText)
   return *p == 0;
 }
 
-string FlattenStringVector(const vector<string> & vec, char sep)
+string FlattenStringVector(const vector<string>& vec, char sep)
 {
   string str = "";
-  for (const string & s : vec)
+  for (const string& s : vec)
   {
     if (!str.empty())
     {
@@ -223,7 +224,7 @@ string FlattenStringVector(const vector<string> & vec, char sep)
   return str;
 }
 
-bool IsPrefixOf(const char * lpszPrefix, const string & str)
+bool IsPrefixOf(const char* lpszPrefix, const string& str)
 {
   return str.compare(0, StrLen(lpszPrefix), lpszPrefix) == 0;
 }
@@ -366,19 +367,19 @@ public:
   string texindexProgram;
 
 public:
-  Argv makeindexOptions;
+  vector<string> makeindexOptions;
 
 public:
-  Argv texOptions;
+  vector<string> texOptions;
 
 public:
-  Argv viewerOptions;
+  vector<string> viewerOptions;
 
 public:
   string traceStreams;
 
 private:
-  string SetProgramName(const string & envName, const string & defaultProgram)
+  string SetProgramName(const string& envName, const string& defaultProgram)
   {
     string programName;
     if (!Utils::GetEnvironmentString(envName, programName))
@@ -392,7 +393,7 @@ public:
   Engine engine = Engine::NotSet;
 
 public:
-  void SetEngine(const string & engineName)
+  void SetEngine(const string& engineName)
   {
     if (Utils::EqualsIgnoreCase(engineName, "tex"))
     {
@@ -501,13 +502,13 @@ public:
   };
 
 public:
-  void Run(int argc, const char ** argv);
+  void Run(int argc, const char** argv);
 
 public:
-  void Trace(const char * lpszFormat, ...);
+  void Trace(const char* lpszFormat, ...);
 
 public:
-  void Verbose(const char * lpszFormat, ...);
+  void Verbose(const char* lpszFormat, ...);
 
 private:
   void Version();
@@ -522,7 +523,7 @@ private:
   vector<string> forbiddenTexOptions;
 };
 
-void McdApp::Verbose(const char * lpszFormat, ...)
+void McdApp::Verbose(const char* lpszFormat, ...)
 {
   va_list arglist;
   string s;
@@ -536,7 +537,7 @@ void McdApp::Verbose(const char * lpszFormat, ...)
   }
 }
 
-void McdApp::Trace(const char * lpszFormat, ...)
+void McdApp::Trace(const char* lpszFormat, ...)
 {
   va_list arglist;
   va_start(arglist, lpszFormat);
@@ -561,25 +562,25 @@ public:
   virtual ~Driver();
 
 public:
-  void Initialize(McdApp * pApplication, Options * pOptions, const char * lpszFileName);
+  void Initialize(McdApp* pApplication, Options* pOptions, const char* lpszFileName);
 
 public:
   void Run();
 
 private:
-  void FatalUtilityError(const string & name)
+  void FatalUtilityError(const string& name)
   {
     pApplication->FatalError("A required utility could not be found. Utility name: %s.", name.c_str());
   }
 
 private:
-  MacroLanguage GuessMacroLanguage(const PathName & fileName);
+  MacroLanguage GuessMacroLanguage(const PathName& fileName);
 
 private:
-  void TexinfoPreprocess(const PathName & pathFrom, const PathName & pathTo);
+  void TexinfoPreprocess(const PathName& pathFrom, const PathName& pathTo);
 
 private:
-  void TexinfoUncomment(const PathName & pathFrom, const PathName & pathTo);
+  void TexinfoUncomment(const PathName& pathFrom, const PathName& pathTo);
 
 private:
   void SetIncludeDirectories();
@@ -591,19 +592,19 @@ private:
   void InsertCommands();
 
 private:
-  bool RunMakeinfo(const PathName & pathFrom, const PathName & pathTo);
+  bool RunMakeinfo(const PathName& pathFrom, const PathName& pathTo);
 
 private:
   void RunBibTeX();
 
 private:
-  PathName GetTeXEnginePath(string & exeName);
+  PathName GetTeXEnginePath(string& exeName);
 
 private:
   void RunTeX();
 
 private:
-  void RunIndexGenerator(const vector<string> & idxFiles);
+  void RunIndexGenerator(const vector<string>& idxFiles);
 
 private:
   void RunViewer();
@@ -618,13 +619,13 @@ private:
   void InstallOutputFile();
 
 private:
-  void GetAuxFiles(vector<string> & auxFiles, vector<string> * pIdxFiles = nullptr);
+  void GetAuxFiles(vector<string>& auxFiles, vector<string>* pIdxFiles = nullptr);
 
 private:
-  void GetAuxFiles(const PathName & baseName, const char * lpszExtension, vector<string> & auxFiles);
+  void GetAuxFiles(const PathName& baseName, const char* lpszExtension, vector<string>& auxFiles);
 
 private:
-  void InstallProgram(const char * lpszProgram);
+  void InstallProgram(const char* lpszProgram);
 
   // the macro language
 private:
@@ -678,10 +679,10 @@ private:
   vector<string> previousAuxFiles;
 
 private:
-  McdApp * pApplication = nullptr;
+  McdApp* pApplication = nullptr;
 
 private:
-  Options * pOptions = nullptr;
+  Options* pOptions = nullptr;
 
 protected:
   shared_ptr<Session> pSession = Session::Get();
@@ -705,7 +706,7 @@ Driver::~Driver()
   }
 }
 
-void Driver::Initialize(McdApp * pApplication, Options * pOptions, const char * lpszFileName)
+void Driver::Initialize(McdApp* pApplication, Options* pOptions, const char* lpszFileName)
 {
   this->pApplication = pApplication;
   this->pOptions = pOptions;
@@ -780,7 +781,7 @@ void Driver::Initialize(McdApp * pApplication, Options * pOptions, const char * 
   originalInputDirectory.ConvertToUnix();
 }
 
-MacroLanguage Driver::GuessMacroLanguage(const PathName & fileName)
+MacroLanguage Driver::GuessMacroLanguage(const PathName& fileName)
 {
   StreamReader reader(fileName);
   string firstLine;
@@ -820,7 +821,7 @@ MacroLanguage Driver::GuessMacroLanguage(const PathName & fileName)
    sed.
    _________________________________________________________________________ */
 
-void Driver::TexinfoPreprocess(const PathName & pathFrom, const PathName & pathTo)
+void Driver::TexinfoPreprocess(const PathName& pathFrom, const PathName& pathTo)
 {
   StreamReader reader(pathFrom);
   StreamWriter writer(pathTo);
@@ -917,7 +918,7 @@ void Driver::TexinfoPreprocess(const PathName & pathFrom, const PathName & pathT
    Uncommenting is simple: Remove any leading `@c texi2dvi'.
    _________________________________________________________________________ */
 
-void Driver::TexinfoUncomment(const PathName & pathFrom, const PathName & pathTo)
+void Driver::TexinfoUncomment(const PathName& pathFrom, const PathName& pathTo)
 {
   StreamReader reader(pathFrom);
   StreamWriter writer(pathTo);
@@ -954,7 +955,7 @@ void Driver::SetIncludeDirectories()
   {
     pSession->AddInputDirectory(originalInputDirectory, true);
   }
-  for (const string & dir : pOptions->includeDirectories)
+  for (const string& dir : pOptions->includeDirectories)
   {
     pSession->AddInputDirectory(dir, true);
   }
@@ -970,7 +971,7 @@ void Driver::SetIncludeDirectories()
    main info output, the user asked to run TeX, not makeinfo.
    _________________________________________________________________________ */
 
-bool Driver::RunMakeinfo(const PathName & pathFrom, const PathName & pathTo)
+bool Driver::RunMakeinfo(const PathName& pathFrom, const PathName& pathTo)
 {
   PathName pathExe;
 
@@ -979,30 +980,33 @@ bool Driver::RunMakeinfo(const PathName & pathFrom, const PathName & pathTo)
     FatalUtilityError(pOptions->makeinfoProgram);
   }
 
-  CommandLineBuilder commandLine;
+  vector<string> args{ pOptions->makeinfoProgram };
 
-  commandLine.AppendOption("--footnote-style=", "end");
-  commandLine.AppendOption("-I ", originalInputDirectory);
+  args.push_back("--footnote-style="s + "end");
+  args.push_back("-I");
+  args.push_back(originalInputDirectory.ToString());
 
-  for (const string & dir : pOptions->includeDirectories)
+  for (const string& dir : pOptions->includeDirectories)
   {
-    commandLine.AppendOption("-I ", dir);
+    args.push_back("-I");
+    args.push_back(dir);
   }
 
+  args.push_back("-o");
 #if defined(MIKTEX_WINDOWS)
-  commandLine.AppendOption("-o ", "nul");
+  args.push_back("nul");
 #else
-  commandLine.AppendOption("-o ", "/dev/null");
+  args.push_back("/dev/null");
 #endif
 
-  commandLine.AppendOption("--macro-expand=", pathTo);
+  args.push_back("--macro-expand="s + pathTo.ToString());
 
-  commandLine.AppendArgument(pathFrom);
+  args.push_back(pathFrom.ToString());
 
   int exitCode = 0;
 
   ProcessOutputTrash trash;
-  Process::Run(pathExe, commandLine.ToString(), &trash, &exitCode, nullptr);
+  Process::Run(pathExe, args, &trash, &exitCode, nullptr);
 
   return exitCode == 0;
 }
@@ -1016,7 +1020,7 @@ bool Driver::RunMakeinfo(const PathName & pathFrom, const PathName & pathTo)
    _________________________________________________________________________ */
 
    // minimum texinfo.tex version to have macro expansion
-const char * txiprereq = "19990129";
+const char* txiprereq = "19990129";
 
 bool Driver::Check_texinfo_tex()
 {
@@ -1038,7 +1042,7 @@ bool Driver::Check_texinfo_tex()
 
   int exitCode = 0;
   ProcessOutputSaver processOutput;
-  if (!Process::Run(pathExe, fileName.GetData(), &processOutput, &exitCode, tmpdir->GetPathName().GetData()))
+  if (!Process::Run(pathExe, vector<string>{ pOptions->texProgram, fileName.ToString() }, &processOutput, &exitCode, tmpdir->GetPathName().GetData()))
   {
     MIKTEX_UNEXPECTED();
   }
@@ -1238,17 +1242,17 @@ void Driver::RunBibTeX()
         subAuxNameNoExt.RemoveDirectorySpec();
       }
 
-      CommandLineBuilder commandLine;
+      vector<string> args{ pOptions->bibtexProgram };
 
-      commandLine.AppendArgument(subAuxNameNoExt);
+      args.push_back(subAuxNameNoExt.ToString());
 
-      pApplication->Verbose(T_("running %s %s..."), Q_(pOptions->bibtexProgram), Q_(commandLine.ToString()));
+      pApplication->Verbose(T_("running %s..."), CommandLineBuilder(args).ToString().c_str());
 
       exitCode = 0;
 
       ProcessOutputTrash trash;
 
-      Process::Run(pathExe, commandLine.ToString(), (pOptions->quiet ? &trash : nullptr), &exitCode, subDir.Empty() ? nullptr : subDir.GetData());
+      Process::Run(pathExe, args, (pOptions->quiet ? &trash : nullptr), &exitCode, subDir.Empty() ? nullptr : subDir.GetData());
       if (exitCode != 0)
       {
         MIKTEX_FATAL_ERROR(T_("BibTeX failed for some reason."));
@@ -1267,15 +1271,15 @@ void Driver::RunBibTeX()
     return;
   }
 
-  CommandLineBuilder commandLine;
+  vector<string> args{ pOptions->bibtexProgram };
 
-  commandLine.AppendArgument(jobName);
+  args.push_back(jobName.ToString());
 
-  pApplication->Verbose(T_("running %s %s..."), Q_(pOptions->bibtexProgram), commandLine.ToString().c_str());
+  pApplication->Verbose(T_("running %s..."), CommandLineBuilder(args).ToString().c_str());
 
   ProcessOutputTrash trash;
 
-  Process::Run(pathExe, commandLine.ToString(), (pOptions->quiet ? &trash : nullptr), &exitCode, nullptr);
+  Process::Run(pathExe, args, (pOptions->quiet ? &trash : nullptr), &exitCode, nullptr);
 
   if (exitCode != 0)
   {
@@ -1293,9 +1297,9 @@ void Driver::RunBibTeX()
    won't know that if the index files are out of date or nonexistent.
    _________________________________________________________________________ */
 
-void Driver::RunIndexGenerator(const vector<string> & idxFiles)
+void Driver::RunIndexGenerator(const vector<string>& idxFiles)
 {
-  const char * lpszExeName =
+  const char* lpszExeName =
     (macroLanguage == MacroLanguage::Texinfo
       ? pOptions->texindexProgram.c_str()
       : pOptions->makeindexProgram.c_str());
@@ -1307,18 +1311,18 @@ void Driver::RunIndexGenerator(const vector<string> & idxFiles)
     FatalUtilityError(lpszExeName);
   }
 
-  CommandLineBuilder commandLine;
+  vector<string> args{ lpszExeName };
 
-  commandLine.AppendArguments(pOptions->makeindexOptions);
-  commandLine.AppendArguments(idxFiles);
+  args.insert(args.end(), pOptions->makeindexOptions.begin(), pOptions->makeindexOptions.end());
+  args.insert(args.end(), idxFiles.begin(), idxFiles.end());
 
   ProcessOutputTrash trash;
 
   int exitCode = 0;
 
-  pApplication->Verbose(T_("running %s %s..."), Q_(lpszExeName), commandLine.ToString().c_str());
+  pApplication->Verbose(T_("running %s..."), CommandLineBuilder(args).ToString().c_str());
 
-  Process::Run(pathExe, commandLine.ToString(), (pOptions->quiet ? &trash : nullptr), &exitCode, nullptr);
+  Process::Run(pathExe, args, (pOptions->quiet ? &trash : nullptr), &exitCode, nullptr);
 
   if (exitCode != 0)
   {
@@ -1326,7 +1330,7 @@ void Driver::RunIndexGenerator(const vector<string> & idxFiles)
   }
 }
 
-void Driver::InstallProgram(const char * lpszProgram)
+void Driver::InstallProgram(const char* lpszProgram)
 {
   ALWAYS_UNUSED(lpszProgram);
   PathName pathExe;
@@ -1335,10 +1339,10 @@ void Driver::InstallProgram(const char * lpszProgram)
     FatalUtilityError("initexmf");
   }
   ProcessOutputTrash trash;
-  Process::Run(pathExe, "--mklinks", (pOptions->quiet ? &trash : nullptr));
+  Process::Run(pathExe, vector<string>{ "initexmf", "--mklinks" }, (pOptions->quiet ? &trash : nullptr));
 }
 
-PathName Driver::GetTeXEnginePath(string & exeName)
+PathName Driver::GetTeXEnginePath(string& exeName)
 {
   if (macroLanguage == MacroLanguage::Texinfo)
   {
@@ -1409,11 +1413,11 @@ void Driver::RunTeX()
   string exeName;
   PathName pathExe = GetTeXEnginePath(exeName);
 
-  CommandLineBuilder commandLine;
+  vector<string> args{ pathExe.GetFileNameWithoutExtension().ToString() };
 
   if (!pOptions->jobName.empty())
   {
-    commandLine.AppendOption("--job-name=", jobName);
+    args.push_back("--job-name="s + jobName.ToString());
   }
 
 #if defined(SUPPORT_OPT_SRC_SPECIALS)
@@ -1421,41 +1425,41 @@ void Driver::RunTeX()
   {
     if (!pOptions->sourceSpecialsWhere.empty())
     {
-      commandLine.AppendOption("--src-specials=", pOptions->sourceSpecialsWhere);
+      args.push_back("--src-specials="s + pOptions->sourceSpecialsWhere);
     }
     else
     {
-      commandLine.AppendOption("--src-specials");
+      args.push_back("--src-specials");
     }
   }
 #endif
 
   if (pOptions->synctex != SyncTeXOption::Disabled)
   {
-    commandLine.AppendOption("--synctex=", pOptions->synctex == SyncTeXOption::Compressed ? "1" : "-1");
+    args.push_back("--synctex="s + (pOptions->synctex == SyncTeXOption::Compressed ? "1" : "-1"));
   }
 
   if (pOptions->quiet)
   {
-    commandLine.AppendOption("--quiet");
+    args.push_back("--quiet");
   }
   if (pOptions->batch && !pOptions->quiet)
   {
-    commandLine.AppendOption("--interaction=", "scrollmode");
+    args.push_back("--interaction="s + "scrollmode");
   }
-  commandLine.AppendArguments(pOptions->texOptions);
+  args.insert(args.end(), pOptions->texOptions.begin(), pOptions->texOptions.end());
 #if 0
   if (pOptions->traceStreams.length() > 0)
   {
-    commandLine.AppendOption("--trace=", pOptions->traceStreams);
+    args.push_back("--trace="s + pOptions->traceStreams);
   }
 #endif
-  commandLine.AppendArgument(pathInputFile);
+  args.push_back(pathInputFile.ToString());
 
-  pApplication->Verbose(T_("running %s %s..."), Q_(exeName), commandLine.ToString().c_str());
+  pApplication->Verbose(T_("running %s..."), CommandLineBuilder(args).ToString().c_str());
 
   int exitCode = 0;
-  Process::Run(pathExe, commandLine.ToString(), nullptr, &exitCode, nullptr);
+  Process::Run(pathExe, args, nullptr, &exitCode, nullptr);
   if (exitCode != 0)
   {
     PathName logName(jobName);
@@ -1511,7 +1515,7 @@ bool Driver::Ready()
 
   // File list is the same.  We must compare each file until we find
   // a difference.
-  for (const string & aux : auxFiles)
+  for (const string& aux : auxFiles)
   {
     PathName auxFile(auxDirectory, aux);
     pApplication->Verbose(T_("comparing xref file %s..."), Q_(aux));
@@ -1530,7 +1534,7 @@ bool Driver::Ready()
 
 void Driver::InstallOutputFile()
 {
-  const char * lpszExt = pOptions->outputType == OutputType::PDF ? ".pdf" : ".dvi";
+  const char* lpszExt = pOptions->outputType == OutputType::PDF ? ".pdf" : ".dvi";
   pApplication->Verbose(T_("copying %s file from %s to %s..."), lpszExt, Q_(workingDirectory), Q_(pOptions->startDirectory));
   PathName pathSource(workingDirectory, jobName);
   pathSource.AppendExtension(lpszExt);
@@ -1539,7 +1543,7 @@ void Driver::InstallOutputFile()
   File::Copy(pathSource, pathDest);
   if (pOptions->synctex != SyncTeXOption::Disabled)
   {
-    const char * lpszSyncTeXExt = pOptions->synctex == SyncTeXOption::Compressed ? ".synctex.gz" : ".synctex";
+    const char* lpszSyncTeXExt = pOptions->synctex == SyncTeXOption::Compressed ? ".synctex.gz" : ".synctex";
     PathName pathSyncTeXSource(workingDirectory, jobName);
     pathSyncTeXSource.AppendExtension(lpszSyncTeXExt);
     PathName pathSyncTeXDest(pOptions->startDirectory, jobName);
@@ -1548,7 +1552,7 @@ void Driver::InstallOutputFile()
   }
 }
 
-void Driver::GetAuxFiles(const PathName & baseName, const char * lpszExtension, vector<string> & vec)
+void Driver::GetAuxFiles(const PathName& baseName, const char* lpszExtension, vector<string>& vec)
 {
   PathName pattern(baseName);
   pattern.AppendExtension(lpszExtension);
@@ -1593,7 +1597,7 @@ void Driver::GetAuxFiles(const PathName & baseName, const char * lpszExtension, 
    and lists.
    _________________________________________________________________________ */
 
-void Driver::GetAuxFiles(vector<string> & auxFiles, vector<string> * pIdxFiles)
+void Driver::GetAuxFiles(vector<string>& auxFiles, vector<string>* pIdxFiles)
 {
   auxFiles.clear();
 
@@ -1632,14 +1636,14 @@ void Driver::GetAuxFiles(vector<string> & auxFiles, vector<string> * pIdxFiles)
 
 void Driver::RunViewer()
 {
-  const char * lpszExt = pOptions->outputType == OutputType::PDF ? ".pdf" : ".dvi";
+  const char* lpszExt = pOptions->outputType == OutputType::PDF ? ".pdf" : ".dvi";
 
   PathName pathFileName(jobName);
   pathFileName.AppendExtension(lpszExt);
 
   PathName pathDest(pOptions->startDirectory, pathFileName);
 
-  if (pOptions->viewerOptions.GetArgc() == 0)
+  if (pOptions->viewerOptions.empty())
   {
     pApplication->Verbose(T_("opening %s..."), Q_(pathDest));
 #if defined(MIKTEX_WINDOWS)
@@ -1662,11 +1666,11 @@ void Driver::RunViewer()
 #else
     UNIMPLEMENTED();
 #endif
-    CommandLineBuilder commandLine;
-    commandLine.AppendArguments(pOptions->viewerOptions);
-    commandLine.AppendArgument(pathDest);
-    pApplication->Verbose(T_("running %s %s..."), Q_(szExecutable), commandLine.ToString().c_str());
-    Process::Start(szExecutable, commandLine.ToString(), nullptr, nullptr, nullptr, nullptr, pOptions->startDirectory.GetData());
+    vector<string> args{ PathName(szExecutable).GetFileNameWithoutExtension().ToString() };
+    args.insert(args.end(), pOptions->viewerOptions.begin(), pOptions->viewerOptions.end());
+    args.push_back(pathDest.ToString());
+    pApplication->Verbose(T_("running %s..."), CommandLineBuilder(args).ToString().c_str());
+    Process::Start(szExecutable, args, nullptr, nullptr, nullptr, nullptr, pOptions->startDirectory.GetData());
   }
 }
 
@@ -1958,11 +1962,13 @@ const struct poptOption optionTable[] = {
   POPT_TABLEEND
 };
 
-void McdApp::Run(int argc, const char ** argv)
+void McdApp::Run(int argc, const char** argv)
 {
   Session::InitInfo initInfo(argv[0]);
+  vector<const char*> newargv(&argv[0], &argv[argc + 1]);
+  ExamineArgs(newargv, initInfo);
 
-  PoptWrapper popt(argc, argv, optionTable);
+  PoptWrapper popt(newargv.size() - 1, &newargv[0], optionTable);
 
   int option;
 
@@ -2068,20 +2074,20 @@ void McdApp::Run(int argc, const char ** argv)
       }
       break;
     case OPT_MKIDX_OPTION:
-      options.makeindexOptions.Append(optArg.c_str());
+      options.makeindexOptions.push_back(optArg);
       break;
     case OPT_TEX_OPTION:
-      for (const string & o : forbiddenTexOptions)
+      for (const string& o : forbiddenTexOptions)
       {
         if (optArg.find(o) != string::npos)
         {
           FatalError(T_("TeX option \"--%s\" is not supported."), o.c_str());
         }
       }
-      options.texOptions.Append(optArg.c_str());
+      options.texOptions.push_back(optArg);
       break;
     case OPT_VIEWER_OPTION:
-      options.viewerOptions.Append(optArg.c_str());
+      options.viewerOptions.push_back(optArg);
       break;
     case OPT_RUN_VIEWER:
       options.runViewer = true;
@@ -2122,10 +2128,10 @@ void McdApp::Run(int argc, const char ** argv)
     initInfo.SetTraceFlags(options.traceStreams);
   }
 
-  for (const string & fileName : leftovers)
-  {
-    Init(initInfo);
+  Init(initInfo);
 
+  for (const string& fileName : leftovers)
+  {
     Verbose(T_("processing %s..."), Q_(fileName));
 
     // See if the file exists.  If it doesn't we're in trouble since, // even though the user may be able to reenter a valid filename at
@@ -2139,9 +2145,9 @@ void McdApp::Run(int argc, const char ** argv)
     Driver driver;
     driver.Initialize(this, &options, fileName.c_str());
     driver.Run();
-
-    Finalize();
   }
+
+  Finalize();
 }
 
 #if defined(_UNICODE)
@@ -2152,7 +2158,7 @@ void McdApp::Run(int argc, const char ** argv)
 #  define MAINCHAR char
 #endif
 
-int MAIN(int argc, MAINCHAR** argv)
+int MAIN(int argc, MAINCHAR* argv[])
 {
   try
   {

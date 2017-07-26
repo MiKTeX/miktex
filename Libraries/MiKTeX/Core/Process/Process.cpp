@@ -1,6 +1,6 @@
 /* process.cpp: executing secondary processes
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -23,6 +23,7 @@
 
 #include "internal.h"
 
+#include "miktex/Core/CommandLineBuilder.h"
 #include "miktex/Core/Process.h"
 
 #include "Session/SessionImpl.h"
@@ -34,11 +35,7 @@ Process::~Process() noexcept
 {
 }
 
-Process2::~Process2()
-{
-}
-
-void Process::Start(const PathName & fileName, const string & arguments, FILE * pFileStandardInput, FILE ** ppFileStandardInput, FILE ** ppFileStandardOutput, FILE ** ppFileStandardError, const char * lpszWorkingDirectory)
+void Process::Start(const PathName& fileName, const vector<string>& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory)
 {
   MIKTEX_ASSERT_STRING_OR_NIL(lpszWorkingDirectory);
 
@@ -80,7 +77,7 @@ void Process::Start(const PathName & fileName, const string & arguments, FILE * 
   pProcess->Close();
 }
 
-bool Process::Run(const PathName & fileName, const string & arguments, IRunProcessCallback * pCallback, int * pExitCode, const char * lpszWorkingDirectory)
+bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRunProcessCallback* callback, int* exitCode, const char* lpszWorkingDirectory)
 {
   MIKTEX_ASSERT_STRING_OR_NIL(lpszWorkingDirectory);
 
@@ -91,7 +88,7 @@ bool Process::Run(const PathName & fileName, const string & arguments, IRunProce
 
   startinfo.StandardInput = nullptr;
   startinfo.RedirectStandardInput = false;
-  startinfo.RedirectStandardOutput = pCallback != nullptr;
+  startinfo.RedirectStandardOutput = callback != nullptr;
   startinfo.RedirectStandardError = false;
 
   if (lpszWorkingDirectory != nullptr)
@@ -101,9 +98,9 @@ bool Process::Run(const PathName & fileName, const string & arguments, IRunProce
 
   unique_ptr<Process> pProcess(Process::Start(startinfo));
 
-  if (pCallback != nullptr)
+  if (callback != nullptr)
   {
-    SessionImpl::GetSession()->trace_process->WriteLine("core", T_("start reading the pipe"));
+    SessionImpl::GetSession()->trace_process->WriteLine("core", "start reading the pipe");
     const size_t CHUNK_SIZE = 64;
     char buf[CHUNK_SIZE];
     bool cancelled = false;
@@ -115,71 +112,71 @@ bool Process::Run(const PathName & fileName, const string & arguments, IRunProce
       int err = ferror(stdoutStream.Get());
       if (err != 0 && err != EPIPE)
       {
-	MIKTEX_FATAL_CRT_ERROR_2("fread", "processFileName", fileName.ToString(), "processArguments", arguments);
+        MIKTEX_FATAL_CRT_ERROR_2("fread", "processFileName", fileName.ToString());
       }
       // pass output to caller
       total += n;
-      cancelled = !pCallback->OnProcessOutput(buf, n);
+      cancelled = !callback->OnProcessOutput(buf, n);
     }
-    SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("read %u bytes from the pipe"), static_cast<unsigned>(total));
+    SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "read %u bytes from the pipe", static_cast<unsigned>(total));
   }
 
   // wait for the process to finish
   pProcess->WaitForExit();
 
   // get the exit code & close process
-  int exitCode = pProcess->get_ExitCode();
+  int processExitCode = pProcess->get_ExitCode();
   pProcess->Close();
-  if (pExitCode != nullptr)
+  if (exitCode != nullptr)
   {
-    *pExitCode = exitCode;
+    *exitCode = processExitCode;
     return true;
   }
-  else if (exitCode == 0)
+  else if (processExitCode == 0)
   {
     return true;
   }
   else
   {
-    SessionImpl::GetSession()->trace_error->WriteFormattedLine("core", T_("%s returned with exit code %d"), Q_(fileName), static_cast<int>(exitCode));
+    SessionImpl::GetSession()->trace_error->WriteFormattedLine("core", "%s returned with exit code %d", Q_(fileName), static_cast<int>(processExitCode));
     return false;
   }
 }
 
-void Process::Run(const PathName & fileName, const string & arguments)
+void Process::Run(const PathName& fileName, const vector<string>& arguments)
 {
   Process::Run(fileName, arguments, nullptr);
 }
 
-void Process::Run(const PathName & fileName, const string & arguments, IRunProcessCallback * pCallback)
+void Process::Run(const PathName& fileName, const vector<string>& arguments, IRunProcessCallback* callback)
 {
   int exitCode;
-  if (!Run(fileName, arguments, pCallback, &exitCode, nullptr) || exitCode != 0)
+  if (!Run(fileName, arguments, callback, &exitCode, nullptr) || exitCode != 0)
   {
-    MIKTEX_FATAL_ERROR_2(T_("The executed process did not succeed."), "fileName", fileName.ToString(), "arguments", arguments, "exitCode", std::to_string(exitCode));
+    MIKTEX_FATAL_ERROR_2(T_("The executed process did not succeed."), "fileName", fileName.ToString(), "exitCode", std::to_string(exitCode));
   }
 }
 
-bool Process::ExecuteSystemCommand(const string & commandLine)
+bool Process::ExecuteSystemCommand(const string& commandLine)
 {
   return ExecuteSystemCommand(commandLine, nullptr, nullptr, nullptr);
 }
 
-bool Process::ExecuteSystemCommand(const string & commandLine, int * pExitCode)
+bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode)
 {
-  return ExecuteSystemCommand(commandLine, pExitCode, nullptr, nullptr);
+  return ExecuteSystemCommand(commandLine, exitCode, nullptr, nullptr);
 }
 
-vector<string> Process2::GetInvokerNames()
+vector<string> Process::GetInvokerNames()
 {
   vector<string> result;
-  unique_ptr<Process2> pProcess(Process2::GetCurrentProcess());
-  unique_ptr<Process2> pParentProcess(pProcess->get_Parent());
+  unique_ptr<Process> pProcess(Process::GetCurrentProcess());
+  unique_ptr<Process> pParentProcess(pProcess->get_Parent());
   const int maxLevels = 3;
   for (int level = 0; pParentProcess.get() != nullptr && level < maxLevels; ++level)
   {
     result.push_back(pParentProcess->get_ProcessName());
-    pParentProcess.reset(pParentProcess->get_Parent());
+    pParentProcess = pParentProcess->get_Parent();
   }
   if (pParentProcess.get() != nullptr)
   {

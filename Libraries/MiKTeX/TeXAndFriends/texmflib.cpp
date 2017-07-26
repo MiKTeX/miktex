@@ -42,12 +42,11 @@ STATICFUNC(bool) OpenFontFile(bytefile* pByteFile, const char* lpszFontName, Fil
       MIKTEX_UNEXPECTED();
     }
     PathName baseName = PathName(lpszFontName).GetFileNameWithoutExtension();
-    string arguments;
-    arguments = " -v \"";
-    arguments += baseName.ToString();
-    arguments += "\"";
+    vector<string> arguments{ exe.GetFileNameWithoutExtension().ToString() };
+    arguments.push_back("-v");
+    arguments.push_back(baseName.ToString());
     int exitCode;
-    if (!(Process::Run(exe, arguments.c_str(), nullptr, &exitCode, nullptr) && exitCode == 0))
+    if (!(Process::Run(exe, arguments, nullptr, &exitCode, nullptr) && exitCode == 0))
     {
       return false;
     }

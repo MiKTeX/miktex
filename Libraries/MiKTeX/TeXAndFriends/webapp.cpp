@@ -85,6 +85,8 @@ public:
 public:
   int optBase;
 public:
+  unordered_map<string, vector<string>> optionShortcuts;
+public:
   ICharacterConverter* characterConverter = nullptr;
 public:
   IInitFinalize* initFinalize = nullptr;
@@ -121,16 +123,16 @@ void WebApp::Finalize()
     FileStream stream(File::Open(pimpl->packageListFileName, FileMode::Create, FileAccess::Write));
     vector<FileInfoRecord> fileInfoRecords = session->GetFileInfoRecords();
     set<string> packages;
-    for (vector<FileInfoRecord>::const_iterator it = fileInfoRecords.begin(); it != fileInfoRecords.end(); ++it)
+    for (const FileInfoRecord& fir : fileInfoRecords)
     {
-      if (!it->packageName.empty())
+      if (!fir.packageName.empty())
       {
-	packages.insert(it->packageName);
+	packages.insert(fir.packageName);
       }
     }
-    for (set<string>::const_iterator it2 = packages.begin(); it2 != packages.end(); ++it2)
+    for (const string& pkg : packages)
     {
-      fprintf(stream.Get(), "%s\n", it2->c_str());
+      fprintf(stream.Get(), "%s\n", pkg.c_str());
     }
     stream.Close();
   }
@@ -142,6 +144,7 @@ void WebApp::Finalize()
   pimpl->trademarks = "";
   pimpl->version = "";
   pimpl->options.clear();
+  pimpl->optionShortcuts.clear();
   Application::Finalize();
 }
 
@@ -196,18 +199,12 @@ void WebApp::AddOption(const string& name, const string& help, int val, int argI
 
 void WebApp::AddOption(const string& aliasName, const string& name)
 {
-  for (const poptOption& opt : pimpl->options)
-  {
-    if (opt.longName != nullptr && name == opt.longName)
-    {
-      poptOption alias = opt;
-      alias.longName = pimpl->AddString(aliasName);
-      alias.argInfo |= POPT_ARGFLAG_DOC_HIDDEN;
-      pimpl->options.push_back(alias);
-      return;
-    }
-  }
-  MIKTEX_UNEXPECTED();
+  AddOptionShortcut(aliasName, { "--" + name });
+}
+
+void WebApp::AddOptionShortcut(const std::string& longName, const std::vector<std::string>& args)
+{
+  pimpl->optionShortcuts[longName] = args;
 }
 
 enum {
@@ -322,6 +319,11 @@ void WebApp::ProcessCommandLineOptions()
   }
 
   pimpl->popt.Construct(argc, argv, &pimpl->options[0]);
+  for (auto shortcut : pimpl->optionShortcuts)
+  {
+    Argv argv(shortcut.second);
+    pimpl->popt.AddAlias(shortcut.first.c_str(), 0, argv.GetArgc(), (const char**)argv.CloneFreeable());
+  }
   pimpl->popt.SetOtherOptionHelp(GetUsage());
 
   int opt;

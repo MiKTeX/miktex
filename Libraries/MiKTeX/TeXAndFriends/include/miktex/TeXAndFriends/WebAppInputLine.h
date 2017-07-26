@@ -186,6 +186,12 @@ public:
   MIKTEXMFTHISAPI(bool) AllowFileName(const MiKTeX::Core::PathName& fileName, bool forInput);
 
 protected:
+  MIKTEXMFTHISAPI(void) EnableShellCommands(MiKTeX::Core::ShellCommandMode mode);
+
+protected:
+  MIKTEXMFTHISAPI(MiKTeX::Core::ShellCommandMode) GetShellCommandMode() const;
+
+protected:
   MIKTEXMFTHISAPI(void) EnablePipes(bool f);
 
 protected:

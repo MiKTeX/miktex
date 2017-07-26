@@ -1,6 +1,6 @@
 /* FinishPage.cpp:
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2017 Christian Schenk
 
    This file is part of the MiKTeX Update Wizard.
 
@@ -137,7 +137,7 @@ BOOL FinishPage::OnWizardFinish()
         {
           if (ShellExecuteW(nullptr, L"open", appender->getFile().c_str(), nullptr, nullptr, SW_SHOWNORMAL) <= reinterpret_cast<HINSTANCE>(32))
           {
-            Process::Start("notepad.exe", WU_(appender->getFile()));
+            Process::Start("notepad.exe", vector<string>{ "notepad.exe", WU_(appender->getFile()) });
           }
         }
       }

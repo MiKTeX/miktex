@@ -1,6 +1,6 @@
 /* miktex/unxemu-config.h:                             -*- C++ -*-
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2017 Christian Schenk
 
    This file is part of the MiKTeX UNXEMU Library.
 
@@ -46,6 +46,7 @@
 #cmakedefine HAVE_GETCWD 1
 #cmakedefine HAVE_GETPID 1
 #cmakedefine HAVE_MKDIR 1
+#cmakedefine HAVE_MKSTEMP 1
 #cmakedefine HAVE_OPEN 1
 #cmakedefine HAVE_PCLOSE 1
 #cmakedefine HAVE_POPEN 1

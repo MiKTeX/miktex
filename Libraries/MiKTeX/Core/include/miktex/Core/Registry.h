@@ -1,6 +1,6 @@
 /* miktex/Core/Registry.h: MiKTeX settings              -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -60,21 +60,14 @@
 #define MIKTEX_REGKEY_YAP_SETTINGS \
   MIKTEX_REGKEY_YAP "\\" MIKTEX_REGKEY_SETTINGS
 
-#define MIKTEX_REGVAL_ALLOWED_SHELL_COMMANDS "AllowedShellCommands"
-#define MIKTEX_REGVAL_AUTO_ADMIN "AutoAdmin"
-#define MIKTEX_REGVAL_AUTO_INSTALL "AutoInstall"
 #define MIKTEX_REGVAL_COMMON_CONFIG "CommonConfig"
 #define MIKTEX_REGVAL_COMMON_DATA "CommonData"
 #define MIKTEX_REGVAL_COMMON_INSTALL "CommonInstall"
 #define MIKTEX_REGVAL_COMMON_ROOTS "CommonRoots"
-#define MIKTEX_REGVAL_CREATE_AUX_DIRECTORY "CreateAuxDirectory"
-#define MIKTEX_REGVAL_CREATE_OUTPUT_DIRECTORY "CreateOutputDirectory"
-#define MIKTEX_REGVAL_C_STYLE_ERRORS "CStyleErrors"
 #define MIKTEX_REGVAL_DESTDIR "DestDir"
 #define MIKTEX_REGVAL_DOC_EXTENSIONS "DocExtensions"
 #define MIKTEX_REGVAL_EDITOR "Editor"
 #define MIKTEX_REGVAL_ENABLE_PIPES "EnablePipes"
-#define MIKTEX_REGVAL_ENABLE_WRITE18 "EnableWrite18"
 #define MIKTEX_REGVAL_FORCE_LOCAL_SERVER "ForceLocalServer"
 #define MIKTEX_REGVAL_FTP_MODE "FTPMode"
 #define MIKTEX_REGVAL_GUI_FRAMEWORK "GUIFramework"
@@ -86,6 +79,8 @@
 #define MIKTEX_REGVAL_MAX_REDIRECTS "MaxRedirects"
 #define MIKTEX_REGVAL_MIKTEXDIRECT_ROOT "MiKTeXDirectRoot"
 #define MIKTEX_REGVAL_NO_REGISTRY "NoRegistry"
+#define MIKTEX_REGVAL_OTHER_COMMON_ROOTS "OtherCommonRoots"
+#define MIKTEX_REGVAL_OTHER_USER_ROOTS "OtherUserRoots"
 #define MIKTEX_REGVAL_PARSE_FIRST_LINE "ParseFirstLine"
 #define MIKTEX_REGVAL_PK_FN_TEMPLATE "PKFnTemplate"
 #define MIKTEX_REGVAL_PROXY_AUTH_REQ "ProxyAuthReq"

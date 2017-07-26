@@ -381,6 +381,32 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
   }
 }
 
+bool File::IsSymbolicLink(const PathName& path)
+{
+  struct stat statbuf;
+  if (lstat(path.GetData(), &statbuf) != 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR_2("lstat", "path", path.ToString());
+  }
+  return S_ISLNK(statbuf.st_mode);
+}
+
+PathName File::ReadSymbolicLink(const PathName& path)
+{
+  PathName result;
+  ssize_t len = readlink(path.GetData(), result.GetData(), result.GetCapacity());
+  if (len < 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR_2("readlink", "path", path.ToString());
+  }
+  if (len == result.GetCapacity())
+  {
+    BUF_TOO_SMALL();
+  }
+  result[len] = 0;
+  return result;
+}
+
 size_t File::SetMaxOpen(size_t newMax)
 {
   // FIXME: unimplemented

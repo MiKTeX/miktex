@@ -6,6 +6,7 @@
 
 <!ENTITY mfappdefaults SYSTEM "mfapp.defaults">
 <!ENTITY mfdefaults SYSTEM "mf.defaults">
+<!ENTITY miktexconfigini SYSTEM "miktex-config.ini">
 <!ENTITY mpostdefaults SYSTEM "mpost.defaults">
 <!ENTITY omegadefaults SYSTEM "omega.defaults">
 <!ENTITY pdftexdefaults SYSTEM "pdftex.defaults">
@@ -26,69 +27,6 @@
 <firstname>Christian</firstname>
 <surname>Schenk</surname>
 </author>
-
-<!--
-<revhistory>
-<revision>
-<revnumber>2.4.1779</revnumber>
-<date>November 14, 2004</date>
-<authorinitials>csc</authorinitials>
-<revdescription><itemizedlist>
-<listitem><para>Added recipes for changing the default
-paper size for various programs.</para></listitem>
-</itemizedlist>
-</revdescription></revision>
-<revision>
-<revnumber>2.4.1765</revnumber>
-<date>October 31, 2004</date>
-<authorinitials>csc</authorinitials>
-<revdescription>
-<itemizedlist>
-<listitem><para><command>initexmf &minus;&minus;mkmaps</command> must
-be run when <filename>updmap.cfg</filename> has been edited.</para></listitem>
-<listitem><para>Added <filename>updmap.cfg</filename> appendix.</para></listitem>
-</itemizedlist>
-</revdescription>
-</revision>
-<revision>
-<revnumber>2.4.1588</revnumber>
-<date>May 7, 2004</date>
-<authorinitials>csc</authorinitials>
-<revdescription>
-<itemizedlist>
-<listitem><para>Documented new setup options: <option>&minus;&minus;private</option>,
- <option>&minus;&minus;shared</option>.</para></listitem>
-</itemizedlist>
-</revdescription>
-</revision>
-<revision>
-<revnumber>2.4.1545</revnumber>
-<date>March 25, 2004</date>
-<authorinitials>csc</authorinitials>
-<revdescription>
-<itemizedlist>
-<listitem><para>Documented
-<option>-time-statistics</option>. Added a recipe for
-modifying <filename>pdftex.cfg</filename>.</para></listitem>
-<listitem><para>Added an appendix for
-<filename>pdftex.cfg</filename>.</para></listitem>
-</itemizedlist>
-</revdescription>
-</revision>
-<revision>
-<revnumber>2.4.1520</revnumber>
-<date>February 29, 2004</date>
-<authorinitials>csc</authorinitials>
-<revdescription>
-<itemizedlist>
-<listitem><para>
-Added recipes for modifying <filename>miktex.ini</filename>
-and <filename>updmap.cfg</filename>.</para></listitem>
-</itemizedlist>
-</revdescription>
-</revision>
-</revhistory>
--->
 
 <copyright>
 <year>&year;</year>
@@ -122,7 +60,7 @@ a translation approved by the Free Software Foundation.</para>
 <title>About this Document</title>
 
 <para>This is version &rev; of the &MiKTeX; manual.  It corresponds to
-&MiKTeX;&nbsp;&miktexrev; as at &date;.</para>
+&MiKTeX;&nbsp;&miktexrev; as of &date;.</para>
 
 </preface>
 
@@ -133,12 +71,8 @@ a translation approved by the Free Software Foundation.</para>
 <title>User Guide</title>
 
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/intro.xml" />
-
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/installing.xml" />
-
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/localguide.xml" />
-
-
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Manual/configuring.xml" />
 
 <chapter id="advanced">
@@ -160,23 +94,22 @@ a translation approved by the Free Software Foundation.</para>
 </indexterm>
 
 <para>Information about outline fonts is stored in a file by the name
-of <filename>psfonts.map</filename>.  This file is created in the
-course of the setup/update process. It can be manually created by
+of <filename>psfonts.map</filename>.  This file is normally created
+automatically.  It can be manually created by
 <indexterm>
 <primary>psfonts.map</primary>
 <secondary>creating</secondary>
 </indexterm>
 running <userinput moreinfo="refentry">initexmf --mkmaps</userinput>.</para>
 
-<para><filename>psfonts.map</filename> depends on the
-file <filename>updmap.cfg</filename>. This configuration
-file contains declarative instructions (see
-<xref linkend="updmapcfg"/>), which will be used to
-build <filename>psfonts.map</filename>.</para>
+<para><filename>psfonts.map</filename> depends on the file
+<filename>updmap.cfg</filename>.  This configuration file contains
+declarative instructions (see <xref linkend="updmapcfg"/>), which will
+be used to build <filename>psfonts.map</filename>.</para>
 
 <caution>
 <para>The contents of <filename>psfonts.map</filename> should never be
-edited directly. Your modifications get lost when you install new
+edited directly.  Your modifications get lost when you install new
 packages.</para>
 </caution>
 
@@ -250,18 +183,20 @@ as follows:</para>
 to install the packages.</para></step>
 </procedure>
 
-<para>For example: you want to install the &ConTeXt; package:</para>
+<para>For example: you want to install the &memoir; package:</para>
 
 <procedure>
-<step><para>Locate and select the &ConTeXt; package in the list view, e.g., type the key sequence
+<step><para>Locate and select the &memoir; package in the list view, e.g., type the key sequence
 <keycombo action="seq">
-<keycap>C</keycap>
+<keycap>M</keycap>
+<keycap>E</keycap>
+<keycap>M</keycap>
 <keycap>O</keycap>
-<keycap>N</keycap>
-<keycap>T</keycap>
+<keycap>I</keycap>
+<keycap>R</keycap>
 </keycombo>.</para></step>
-<step><para>You can now click
-<guibutton>+</guibutton> to install the package.</para></step>
+<step><para>You can now click <guibutton>+</guibutton> to install the
+package.</para></step>
 </procedure>
 
 </section>
@@ -280,19 +215,18 @@ the file name information in the file name edit control.  Note that
 the file name information can include wildcard characters
 (<filename>*?</filename>).</para>
 
-<para>For example: you need to download the class file
-<filename>weekly.cls</filename>:</para>
+<para>For example: you need the file <filename>musixflx.lua</filename>:</para>
 
 <procedure>
-<step><para>Enter <userinput>weekly.cls</userinput> in the file name
+<step><para>Enter <userinput>musxflx.lua</userinput> in the file name
 edit control.</para></step>
 <step><para>Click the <guibutton>Filter</guibutton> button.</para></step>
 </procedure>
 
-<para>The list view will be reduced to contain
-only the <filename>calendar</filename> package.
-Selecting <filename>calendar</filename> and pressing <guilabel>+</guilabel>
-will install the package.</para>
+<para>The list view will be reduced to contain only the
+<filename>musixtex</filename> package.  Selecting
+<filename>musixtex</filename> and pressing <guilabel>+</guilabel> will
+install the package.</para>
 
 </section>
 
@@ -312,7 +246,7 @@ number of macros to be predefined; therefore, they support
 more efficiently than ordinary source code.</para>
 
 <para>For example, &LaTeX; macros are stored in the file
-<filename>latex.fmt</filename>. This file is loaded by &pdfTeX;, when
+<filename>latex.fmt</filename>.  This file is loaded by &pdfTeX;, when
 you start &latex;.</para>
 
 <indexterm>
@@ -495,7 +429,18 @@ option of &initexmf; to edit the configuration file, e.g.:</para>
 
 <chapter id="defaults">
 
-<title>&TEXMF; Run-Time Parameters</title>
+<title>Run-Time Defaults</title>
+
+<para>&MiKTeX; configuration settings are initialized with default
+values which are described in this chapter.</para>
+
+<section id="miktexconfig">
+
+<title>All &MiKTeX; Programs</title>
+
+<programlisting>&miktexconfigini;</programlisting>
+
+</section>
 
 <section id="texmfdefaults">
 

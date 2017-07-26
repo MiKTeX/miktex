@@ -475,29 +475,16 @@ void FileCopyPage::ConfigureMiKTeX()
   }
 
   // register components, configure files
-  RunMpm(CommandLineBuilder("--register-components"));
+  RunMpm({ "--register-components" });
 
-  CommandLineBuilder cmdLine;
+  RunIniTeXMF({ "--update-fndb" });
 
-  cmdLine.Clear();
-  cmdLine.AppendOption("--update-fndb");
-  RunIniTeXMF(cmdLine);
+  RunIniTeXMF({"--force", "--mklinks"});
 
-  cmdLine.Clear();
-  cmdLine.AppendOption("--force");
-  cmdLine.AppendOption("--mklinks");
-  RunIniTeXMF(cmdLine);
-
-  cmdLine.Clear();
-#if 0 // experimental
-  cmdLine.AppendOption("--force");
-#endif
-  cmdLine.AppendOption("--mkmaps");
-  cmdLine.AppendOption("--mklangs");
-  RunIniTeXMF(cmdLine);
+  RunIniTeXMF({"--mkmaps", "--mklangs"});
 }
 
-void FileCopyPage::RunMpm(const CommandLineBuilder& cmdLine1)
+void FileCopyPage::RunMpm(const vector<string>& args)
 {
   PathName exePath;
 
@@ -507,20 +494,21 @@ void FileCopyPage::RunMpm(const CommandLineBuilder& cmdLine1)
   }
 
   // make command line
-  CommandLineBuilder cmdLine(cmdLine1);
-  cmdLine.AppendOption("--verbose");
+  vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
+  allArgs.insert(allArgs.end(), args.begin(), args.end());
+  allArgs.push_back("--verbose");
   if (session->IsAdminMode())
   {
-    cmdLine.AppendOption("--admin");
+    allArgs.push_back("--admin");
   }
 
   // run mpm.exe
-  LOG4CXX_INFO(logger, "running 'mpm " << cmdLine.ToString() << "'");
+  LOG4CXX_INFO(logger, "running '" << CommandLineBuilder(allArgs).ToString() << "'");
 
-  Process::Run(exePath, cmdLine.ToString(), this);
+  Process::Run(exePath, allArgs, this);
 }
 
-void FileCopyPage::RunIniTeXMF(const CommandLineBuilder& cmdLine1)
+void FileCopyPage::RunIniTeXMF(const vector<string>& args)
 {
   PathName exePath;
 
@@ -530,19 +518,20 @@ void FileCopyPage::RunIniTeXMF(const CommandLineBuilder& cmdLine1)
   }
 
   // make command line
-  CommandLineBuilder cmdLine(cmdLine1);
-  cmdLine.AppendOption("--verbose");
+  vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
+  allArgs.insert(allArgs.end(), args.begin(), args.end());
+  allArgs.push_back("--verbose");
   if (session->IsAdminMode())
   {
-    cmdLine.AppendOption("--admin");
+    allArgs.push_back("--admin");
   }
 
   // run initexmf.exe
-  LOG4CXX_INFO(logger, "running 'initexmf " << cmdLine.ToString() << "'");
+  LOG4CXX_INFO(logger, "running '" << CommandLineBuilder(allArgs).ToString() << "'");
 
   session->UnloadFilenameDatabase();
 
-  Process::Run(exePath, cmdLine.ToString(), this);
+  Process::Run(exePath, allArgs, this);
 }
 
 void FileCopyPage::Report(bool withLog, const char* lpszFmt, ...)

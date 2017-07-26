@@ -242,15 +242,15 @@ bool Tfm::Make(const string & name)
     MIKTEX_UNEXPECTED();
   }
   PathName baseName = PathName(name).GetFileNameWithoutExtension();
-  CommandLineBuilder commandLine;
-  commandLine.AppendOption("-v");
-  commandLine.AppendArgument(baseName);
-  dviInfo.transcript += commandLine.ToString();
+  vector<string> args{ makeTFM.GetFileNameWithoutExtension().ToString() };
+  args.push_back("-v");
+  args.push_back(baseName.ToString());
+  dviInfo.transcript += CommandLineBuilder(args).ToString();
   dviInfo.transcript += "\r\n";
   pDviImpl->Progress(DviNotification::BeginLoadFont, "%s...", dviInfo.name.c_str());
   ProcessOutput<4096> maketfmOutput;
   int exitCode;
-  bool done = Process::Run(makeTFM, commandLine.ToString(), &maketfmOutput, &exitCode, nullptr) && exitCode == 0;
+  bool done = Process::Run(makeTFM, args, &maketfmOutput, &exitCode, nullptr) && exitCode == 0;
   if (!done)
   {
     trace_error->WriteLine("libdvi", maketfmOutput.StdoutToString());

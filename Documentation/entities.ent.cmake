@@ -2,8 +2,10 @@
 <!ENTITY BasicMiKTeXInstaller "<application>Basic MiKTeX Installer</application>">
 <!ENTITY BibTeX "<application>BibTeX</application>">
 <!ENTITY CD "<acronym>CD</acronym>">
+<!ENTITY CommonConfig "<varname>CommonConfig</varname>">
+<!ENTITY CommonData "<varname>CommonData</varname>">
+<!ENTITY CommonInstall "<varname>CommonInstall</varname>">
 <!ENTITY CTAN "<acronym>CTAN</acronym>">
-<!ENTITY ConTeXt "<application>ConTeXt</application>">
 <!ENTITY Cygwin "<application>Cygwin</application>">
 <!ENTITY DVD "<acronym>DVD</acronym>">
 <!ENTITY DVDdashR "<acronym>DVD-R</acronym>">
@@ -65,6 +67,7 @@
 <!ENTITY SyncTeX "<application>SyncTeX</application>">
 <!ENTITY TCX "<acronym>TCX</acronym>">
 <!ENTITY TDS "<acronym>TDS</acronym>">
+<!ENTITY Terminal "<application>Terminal</application>">
 <!ENTITY TEXMF "<acronym>TEXMF</acronym>">
 <!ENTITY TeX "<application>TeX</application>">
 <!ENTITY TeXAndFriends "<application>TeX</application>&nbsp;&amp;&nbsp;Friends">
@@ -73,7 +76,11 @@
 <!ENTITY TeXnFriends "&TeX;&nbsp;&amp;&nbsp;Friends">
 <!ENTITY TeXworks "<application>TeXworks</application>">
 <!ENTITY Texinfo "<application>Texinfo</application>">
+<!ENTITY Ubuntu "<application>Ubuntu</application>">
 <!ENTITY URL "<acronym>URL</acronym>">
+<!ENTITY UserConfig "<varname>UserConfig</varname>">
+<!ENTITY UserData "<varname>UserData</varname>">
+<!ENTITY UserInstall "<varname>UserInstall</varname>">
 <!ENTITY UTC "<acronym>UTC</acronym>">
 <!ENTITY URW "<acronym>URW</acronym>">
 <!ENTITY Windows "<application>Windows</application>">
@@ -93,8 +100,10 @@
 <!ENTITY XDV "<acronym>XDV</acronym>">
 <!ENTITY XeTeX "<application>XeTeX</application>">
 <!ENTITY Yap "<application>Yap</application>">
+<!ENTITY aptget "<command>apt-get</command>">
 <!ENTITY basicmiktexexe "<command>basic-miktex-${MIKTEX_MAJOR_MINOR_STR}.<replaceable>xxxx</replaceable>${EXESUFFIX}</command>">
 <!ENTITY basicmiktexexefile "<filename>basic-miktex-${MIKTEX_MAJOR_MINOR_STR}.<replaceable>xxxx</replaceable>${EXESUFFIX}</filename>">
+<!ENTITY brew "<command>brew</command>">
 <!ENTITY cabextract "<command>cabextract</command>">
 <!ENTITY commoninstalldir "<filename>${COMMONINSTALL}</filename>">
 <!ENTITY date "${MIKTEX_CACHED_MONTH_NAME} ${MIKTEX_CACHED_MDAY}, ${MIKTEX_CACHED_YEAR}">
@@ -114,6 +123,7 @@
 <!ENTITY macOSSierra "<application>macOS&nbsp;Sierra</application>">
 <!ENTITY makeinfo "<command>makeinfo</command>">
 <!ENTITY md5walk "<command>md5walk</command>">
+<!ENTITY memoir "<application>memoir</application>">
 <!ENTITY miktexdvicopy "<command>${MIKTEX_PREFIX}dvicopy</command>">
 <!ENTITY miktexepstopdf "<command>${MIKTEX_PREFIX}epstopdf</command>">
 <!ENTITY miktexgftodvi "<command>${MIKTEX_PREFIX}gftodvi</command>">
@@ -138,6 +148,8 @@
 <!ENTITY pdfTeX "<application>pdfTeX</application>">
 <!ENTITY progfldr "MiKTeX ${MIKTEX_MAJOR_MINOR_STR}">
 <!ENTITY prompt "${PROMPT}">
+<!ENTITY promptunx "${PROMPTUNX}">
+<!ENTITY promptwin "${PROMPTWIN}">
 <!ENTITY rev "${MIKTEX_MAJOR_MINOR_STR}.${MIKTEX_COMP_J2000_VERSION}">
 <!ENTITY rsync "<command>rsync</command>">
 <!ENTITY setupexe "<command>setup-${MIKTEX_MAJOR_MINOR_STR}.<replaceable>xxxx</replaceable>${EXESUFFIX}</command>">

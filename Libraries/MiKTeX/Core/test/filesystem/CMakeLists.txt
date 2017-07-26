@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2016 Christian Schenk
+## Copyright (C) 2015-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -36,7 +36,5 @@ foreach(t ${tests})
   add_test(
     NAME core_filesystem_test${t}
     COMMAND $<TARGET_FILE:core_filesystem_test${t}>
-        --data-root=${dataroot}
-        --install-root=${installroot}
   )
 endforeach(t)

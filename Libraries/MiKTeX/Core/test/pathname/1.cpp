@@ -19,6 +19,8 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include "config.h"
+
 #include <miktex/Core/Test>
 
 #include <miktex/Core/PathName>
@@ -248,6 +250,15 @@ BEGIN_TEST_FUNCTION(12);
 }
 END_TEST_FUNCTION();
 
+BEGIN_TEST_FUNCTION(13);
+{
+  PathName prefix;
+  TEST(Utils::GetPathNamePrefix("/abc/def/ghi/jkl", "ghi/jkl", prefix));
+  TEST(prefix == "/abc/def");
+  TEST(!Utils::GetPathNamePrefix("/abc/def/ghi/jkl", "ghi/jkl/foo.bar", prefix));
+}
+END_TEST_FUNCTION();
+
 BEGIN_TEST_PROGRAM();
 {
   CALL_TEST_FUNCTION(1);
@@ -262,6 +273,7 @@ BEGIN_TEST_PROGRAM();
   CALL_TEST_FUNCTION(10);
   CALL_TEST_FUNCTION(11);
   CALL_TEST_FUNCTION(12);
+  CALL_TEST_FUNCTION(13);
 }
 END_TEST_PROGRAM();
 

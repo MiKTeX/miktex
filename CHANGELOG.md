@@ -2,9 +2,68 @@
 
 ## MiKTeX NEXT
 
+### New programs
+
+* asy: asymptote - 2D and 3D TeX-Aware Vector Graphics Language
+* lacheck: a consistency checker checker for LaTeX documents
+
+### Upgraded programs
+
+* autosp 2017-06-21
+
 ### Upgraded libraries
 
+* cairo 1.4.10
 * fontconfig 2.12.3
+* freetype 2.8
+* graphite2 1.3.10
+* HarfBuzz 1.4.7
+* libcurl 7.54.1
+* libpng 1.6.30
+* teckit 2.5.7
+* zzip 0.13.66
+
+### Ubuntu 16.04 / Linux Mint 18.x
+
+It is now possible to install MiKTeX on Ubuntu 16.04 64-bit and Linux Mint 18.x 64-bit:
+
+    sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys D6BC243565B2087BC3F897C9277A7293F59E4889
+    echo "deb https://miktex.org/download/ubuntu xenial universe" | sudo tee /etc/apt/sources.list.d/miktex.list
+    sudo apt-get update
+    sudo apt-get install miktex
+
+See [this howto](https://miktex.org/howto/install-miktex-unx) for more info.
+
+### Dockerized build environments
+
+The MiKTeX build environment has been dockerized for the following
+Linux distros:
+
+* [Ubuntu 16.04](https://github.com/MiKTeX/docker-miktex-build-xenial)
+* [Debian 9](https://github.com/MiKTeX/docker-miktex-build-stretch)
+* [Fedora 25](https://github.com/MiKTeX/docker-miktex-build-fedora-25)
+
+This makes it possible to build MiKTeX using Docker.  No build tools
+required.
+
+For example, to build MiKTeX for Debian 9:
+
+    mkdir -p /tmp/miktex
+    curl -fsSL https://miktex.org/download/ctan/systems/win32/miktex/source/miktex-2.9.tar.xz | \
+      tar -xJ --strip-components=1 -C /tmp/miktex
+    docker pull miktex/miktex-build-stretch
+    docker run --rm -t \
+      -v /tmp/miktex:/miktex/source:ro \
+      -v `pwd`:/miktex/build:rw \
+      miktex/miktex-build-stretch
+
+### Closed feature requets
+
+* [345](https://sourceforge.net/p/miktex/feature-requests/345/): Build pdftocairo with libpng support 
+
+### Bug fixes
+
+* dvipdfmx: warning: Ignore invalid attribute dictionary
 
 ## 2.9.6350 - 2017-06-03
 
@@ -25,7 +84,7 @@
   
 ### Upgraded libraries
 
-* [HarfBuzz 1.4.6](https://github.com/behdad/harfbuzz/releases/tag/1.4.6)
+* HarfBuzz 1.4.6
 * libcurl 7.54.0
 * LibreSSL 2.5.3
 * Poppler 0.55.0

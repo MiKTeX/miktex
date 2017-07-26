@@ -1,6 +1,6 @@
 /* stdafx.h:                                            -*- C++ -*-
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -93,4 +93,4 @@ using namespace MiKTeX::Trace;
 using namespace MiKTeX::UI::MFC;
 using namespace MiKTeX::Util;
 using namespace std;
-
+using namespace std::string_literals;

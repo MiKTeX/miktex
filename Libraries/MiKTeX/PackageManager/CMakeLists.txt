@@ -29,12 +29,6 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-if(WITH_SOAP_CLIENT)
-  include_directories(BEFORE
-    ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_GSOAP_DIR}/source/gsoap
-  )
-endif()
-
 set(public_include_directories
   ${CMAKE_CURRENT_BINARY_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -100,21 +94,6 @@ set(mpm_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/internal.h
   ${CMAKE_CURRENT_SOURCE_DIR}/vi/Runtime.cpp
 )
-
-if(WITH_SOAP_CLIENT)
-  list(APPEND mpm_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/SoapRemoteService.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/SoapRemoteService.h
-    ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_MTREP_DIR}/RepositorySoap.nsmap
-    ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_MTREP_DIR}/repositoryC.cpp
-    ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_MTREP_DIR}/repositoryH.h
-    ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_MTREP_DIR}/repositoryRepositorySoapProxy.cpp
-    ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_MTREP_DIR}/repositoryRepositorySoapProxy.h
-    ${CMAKE_SOURCE_DIR}/${MIKTEX_REL_MTREP_DIR}/repositoryStub.h
-    ${MIKTEX_GSOAP_SOURCE}
-    ${MIKTEX_GSOAP_HEADER}
-  )
-endif()
 
 if(MIKTEX_NATIVE_WINDOWS AND WITH_WININET)
   list(APPEND mpm_sources

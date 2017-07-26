@@ -60,13 +60,7 @@ endif()
 ## luatex-miktex-static
 ###############################################################################
 
-set(generated_texmf_sources
-  ${CMAKE_BINARY_DIR}/include/miktex/texapp.defaults.h
-  ${CMAKE_BINARY_DIR}/include/miktex/texmfapp.defaults.h
-)
-
 set(miktex_sources
-  ${generated_texmf_sources}
   miktex/luatex.h
   miktex/miktex.cpp
 )
@@ -74,14 +68,6 @@ set(miktex_sources
 add_library(luatex-miktex-static STATIC ${miktex_sources})
 
 set_property(TARGET luatex-miktex-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-add_dependencies(luatex-miktex-static gen-defaults)
-
-set_source_files_properties(
-  ${generated_texmf_sources}
-  PROPERTIES
-    GENERATED TRUE
-)
 
 target_link_libraries(luatex-miktex-static
   PUBLIC
@@ -483,13 +469,13 @@ foreach(cweb ${luatexlib_cwebs})
     OUTPUT
       ${CMAKE_CURRENT_BINARY_DIR}/${fn}.c
     COMMAND
-      ctangle ${CMAKE_CURRENT_SOURCE_DIR}/${cweb}
+      ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/${cweb}
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     MAIN_DEPENDENCY
       ${cweb}
     DEPENDS
-      ctangle
+      ${MIKTEX_PREFIX}ctangle
       ${CMAKE_CURRENT_SOURCE_DIR}/${cweb}
     VERBATIM
   )
@@ -504,13 +490,13 @@ foreach(ccweb ${luatexlib_ccwebs})
     OUTPUT
       ${CMAKE_CURRENT_BINARY_DIR}/${fn}.cc
     COMMAND
-      ctangle ${CMAKE_CURRENT_SOURCE_DIR}/${ccweb} - ${CMAKE_CURRENT_BINARY_DIR}/${fn}.cc
+      ${MIKTEX_PREFIX}ctangle ${CMAKE_CURRENT_SOURCE_DIR}/${ccweb} - ${CMAKE_CURRENT_BINARY_DIR}/${fn}.cc
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     MAIN_DEPENDENCY
       ${ccweb}
     DEPENDS
-      ctangle
+      ${MIKTEX_PREFIX}ctangle
       ${CMAKE_CURRENT_SOURCE_DIR}/${ccweb}
     VERBATIM
   )
@@ -794,9 +780,9 @@ add_executable(runtexlua ${luatex_program_sources} runtexlua.cpp)
 set_property(TARGET runtexlua PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 if (APPLE)
-  set_target_properties(runtexlua PROPERTIES INSTALL_RPATH "@loader_path/..")
+  set_target_properties(runtexlua PROPERTIES INSTALL_RPATH "@loader_path/../../${CMAKE_INSTALL_LIBDIR}")
 else()
-  set_target_properties(runtexlua PROPERTIES INSTALL_RPATH "$ORIGIN/..")
+  set_target_properties(runtexlua PROPERTIES INSTALL_RPATH "$ORIGIN/../../${CMAKE_INSTALL_LIBDIR}")
 endif()
 
 target_link_libraries(runtexlua

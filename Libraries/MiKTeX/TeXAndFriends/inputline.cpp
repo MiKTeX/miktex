@@ -49,7 +49,7 @@ void Seek(FILE* file, int pos)
   }
 }
 
-void CheckBom(FILE* file)
+int CheckBom(FILE* file)
 {
   long filePosition = ftell(file);
   if (filePosition < 0)
@@ -58,7 +58,7 @@ void CheckBom(FILE* file)
   }
   if (filePosition > 0)
   {
-    return;
+    return 0;
   }
   int val = 0;
   MIKTEX_ASSERT(Bom::UTF8_length >= Bom::UTF16_length);
@@ -73,8 +73,7 @@ void CheckBom(FILE* file)
     int bom = val & Bom::UTF8_mask;
     if (bom == Bom::UTF8)
     {
-      // TODO: logging
-      return;
+      return bom;
     }
     else
     {
@@ -86,12 +85,12 @@ void CheckBom(FILE* file)
     int bom = val & Bom::UTF16_mask;
     if (bom == Bom::UTF16be || bom == Bom::UTF16le)
     {
-      // TODO: logging
       Seek(file, Bom::UTF16_length);
-      return;
+      return bom;
     }
   }
   Seek(file, 0);
+  return 0;
 }
 
 class WebAppInputLine::impl
@@ -107,7 +106,9 @@ public:
 public:
   PathName foundFileFq;
 public:
-  bool enablePipes;
+  ShellCommandMode shellCommandMode = ShellCommandMode::Forbidden;
+public:
+  bool enablePipes = false;
 public:
   PathName lastInputFileName;
 public:
@@ -130,6 +131,7 @@ WebAppInputLine::~WebAppInputLine() noexcept
 void WebAppInputLine::Init(vector<char*>& args)
 {
   WebApp::Init(args);
+  pimpl->shellCommandMode = ShellCommandMode::Forbidden;
   pimpl->enablePipes = false;
 }
 
@@ -143,17 +145,10 @@ void WebAppInputLine::Finalize()
   WebApp::Finalize();
 }
 
-enum {
-  OPT_DISABLE_PIPES,
-  OPT_ENABLE_PIPES,
-};
-
 void WebAppInputLine::AddOptions()
 {
   WebApp::AddOptions();
   pimpl->optBase = (int)GetOptions().size();
-  AddOption(T_("enable-pipes\0Enable input (output) from (to) processes."), FIRST_OPTION_VAL + pimpl->optBase + OPT_ENABLE_PIPES);
-  AddOption(T_("disable-pipes\0Disable input (output) from (to) processes."), FIRST_OPTION_VAL + pimpl->optBase + OPT_DISABLE_PIPES);
 }
 
 bool WebAppInputLine::ProcessOption(int opt, const string& optArg)
@@ -162,14 +157,6 @@ bool WebAppInputLine::ProcessOption(int opt, const string& optArg)
 
   switch (opt - FIRST_OPTION_VAL - pimpl->optBase)
   {
-
-  case OPT_DISABLE_PIPES:
-    pimpl->enablePipes = false;
-    break;
-
-  case OPT_ENABLE_PIPES:
-    pimpl->enablePipes = true;
-    break;
 
   default:
     done = WebApp::ProcessOption(opt, optArg);
@@ -274,7 +261,7 @@ bool WebAppInputLine::AllowFileName(const PathName& fileName, bool forInput)
   {
     if (pimpl->allowInput == TriState::Undetermined)
     {
-      allow = session->GetConfigValue("", "AllowUnsafeInputFiles", true).GetBool();
+      allow = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEINPUTFILES).GetBool();
       pimpl->allowInput = allow ? TriState::True : TriState::False;
     }
     else
@@ -286,7 +273,7 @@ bool WebAppInputLine::AllowFileName(const PathName& fileName, bool forInput)
   {
     if (pimpl->allowOutput == TriState::Undetermined)
     {
-      allow = session->GetConfigValue("", "AllowUnsafeOutputFiles", false).GetBool();
+      allow = session->GetConfigValue(MIKTEX_CONFIG_SECTION_CORE, MIKTEX_CONFIG_VALUE_ALLOWUNSAFEOUTPUTFILES).GetBool();
       pimpl->allowOutput = allow ? TriState::True : TriState::False;
     }
     else
@@ -316,7 +303,42 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
   FILE* file = nullptr;
   if (pimpl->enablePipes && lpszPath[0] == '|')
   {
-    file = session->OpenFile(lpszPath + 1, FileMode::Command, FileAccess::Write, false);
+    string command = lpszPath + 1;
+    Session::ExamineCommandLineResult examineResult;
+    string examinedCommand;
+    string toBeExecuted;
+    tie(examineResult, examinedCommand, toBeExecuted) = session->ExamineCommandLine(command);
+    if (examineResult == Session::ExamineCommandLineResult::SyntaxError)
+    {
+      LogError("command line syntax error: " + command);
+      return false;
+    }
+    if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
+    {
+      LogError("command is unsafe: " + command);
+      return false;
+    }
+    switch (pimpl->shellCommandMode)
+    {
+    case ShellCommandMode::Unrestricted:
+      break;
+    case ShellCommandMode::Forbidden:
+      LogError("command not executed: " + command);
+      return false;
+    case ShellCommandMode::Query:
+      // TODO
+    case ShellCommandMode::Restricted:
+      if (examineResult != Session::ExamineCommandLineResult::ProbablySafe)
+      {
+        LogError("command not allowed: " + command);
+        return false;
+      }
+      break;
+    default:
+      MIKTEX_UNEXPECTED();
+    }
+    LogInfo("executing output pipe: " + toBeExecuted);
+    file = session->OpenFile(toBeExecuted, FileMode::Command, FileAccess::Write, false);
   }
   else
   {
@@ -362,7 +384,9 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
   string utf8FileName;
   if (!Utils::IsUTF8(lpszFileName))
   {
+    LogWarn("converting ANSI file name");
     utf8FileName = StringUtil::AnsiToUTF8(lpszFileName);
+    LogWarn("conversion succeeded: " + utf8FileName);
     lpszFileName = utf8FileName.c_str();
   }
 #endif
@@ -371,7 +395,42 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
 
   if (pimpl->enablePipes && lpszFileName[0] == '|')
   {
-    *ppFile = session->OpenFile(lpszFileName + 1, FileMode::Command, FileAccess::Read, false);
+    string command = lpszFileName + 1;
+    Session::ExamineCommandLineResult examineResult;
+    string examinedCommand;
+    string toBeExecuted;
+    tie(examineResult, examinedCommand, toBeExecuted) = session->ExamineCommandLine(command);
+    if (examineResult == Session::ExamineCommandLineResult::SyntaxError)
+    {
+      LogError("command line syntax error: " + command);
+      return false;
+    }
+    if (examineResult != Session::ExamineCommandLineResult::ProbablySafe && examineResult != Session::ExamineCommandLineResult::MaybeSafe)
+    {
+      LogError("command is unsafe: " + command);
+      return false;
+    }
+    switch (pimpl->shellCommandMode)
+    {
+    case ShellCommandMode::Unrestricted:
+      break;
+    case ShellCommandMode::Forbidden:
+      LogError("command not executed: " + command);
+      return false;
+    case ShellCommandMode::Query:
+      // TODO
+    case ShellCommandMode::Restricted:
+      if (examineResult != Session::ExamineCommandLineResult::ProbablySafe)
+      {
+        LogError("command not allowed: " + command);
+        return false;
+      }
+      break;
+    default:
+      MIKTEX_UNEXPECTED();
+    }
+    LogInfo("executing input pipe: " + toBeExecuted);
+    *ppFile = session->OpenFile(toBeExecuted, FileMode::Command, FileAccess::Read, false);
     pimpl->foundFile.Clear();
     pimpl->foundFileFq.Clear();
   }
@@ -449,7 +508,19 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
   auto openFileInfo = session->TryGetOpenFileInfo(*ppFile);
   if (openFileInfo.first && openFileInfo.second.mode != FileMode::Command)
   {
-    CheckBom(*ppFile);
+    int bom = CheckBom(*ppFile);
+    switch (bom)
+    {
+    case Bom::UTF8:
+      LogInfo("UTF8 BOM detected: " + openFileInfo.second.fileName);
+      break;
+    case Bom::UTF16be:
+      LogInfo("UTF16be BOM detected: " + openFileInfo.second.fileName);
+      break;
+    case Bom::UTF16le:
+      LogInfo("UTF16le BOM detected: " + openFileInfo.second.fileName);
+      break;
+    }
   }
 
   pimpl->lastInputFileName = lpszFileName;
@@ -484,6 +555,11 @@ void WebAppInputLine::TouchJobOutputFile(FILE *) const
 
 void WebAppInputLine::SetOutputDirectory(const PathName& path)
 {
+  if (pimpl->outputDirectory == path)
+  {
+    return;
+  }
+  LogInfo("setting output directory: " + path.ToString());
   pimpl->outputDirectory = path;
 }
 
@@ -494,6 +570,11 @@ PathName WebAppInputLine::GetOutputDirectory() const
 
 void WebAppInputLine::SetAuxDirectory(const PathName& path)
 {
+  if (pimpl->auxDirectory == path)
+  {
+    return;
+  }
+  LogInfo("setting aux directory: " + path.ToString());
   pimpl->auxDirectory = path;
 }
 
@@ -512,8 +593,39 @@ PathName WebAppInputLine::GetFoundFileFq() const
   return pimpl->foundFileFq;
 }
 
+void WebAppInputLine::EnableShellCommands(ShellCommandMode mode)
+{
+  if (mode == pimpl->shellCommandMode)
+  {
+    return;
+  }
+  switch (mode)
+  {
+  case ShellCommandMode::Forbidden:
+    LogInfo("disabling shell commands");
+    break;
+  case ShellCommandMode::Restricted:
+    LogInfo("allowing known shell commands");
+    break;
+  case ShellCommandMode::Unrestricted:
+    LogInfo("allowing all shell commands");
+    break;
+  }
+  pimpl->shellCommandMode = mode;
+}
+
+ShellCommandMode WebAppInputLine::GetShellCommandMode() const
+{
+  return pimpl->shellCommandMode;
+}
+
 void WebAppInputLine::EnablePipes(bool f)
 {
+  if (f == pimpl->enablePipes)
+  {
+    return;
+  }
+  LogInfo((f ? "enabling"s : "disabling"s) + " input (output) from (to) processes"s);
   pimpl->enablePipes = f;
 }
 
@@ -536,7 +648,7 @@ void WebAppInputLine::BufferSizeExceeded() const
 {
   if (GetFormatIdent() == 0)
   {
-    fputs("Buffer size exceeded!", stdout);
+    LogError("buffer size exceeded");
     throw new C4P::Exception9999;
   }
   else

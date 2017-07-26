@@ -143,8 +143,8 @@ makefont(char *name, int dpi, int bdpi)
   if (dontmakefont == 0)
   {
     PathName pathMakePk;
-    std::string arguments = session->MakeMakePkCommandLine(name, dpi, bdpi, mfmode, pathMakePk, TriState::Undetermined);
-    Process::Run(pathMakePk.GetData(), arguments.c_str());
+    std::vector<std::string> arguments = session->MakeMakePkCommandLine(name, dpi, bdpi, mfmode, pathMakePk, TriState::Undetermined);
+    Process::Run(pathMakePk, arguments);
   }
 #else
    register char *p, *q;

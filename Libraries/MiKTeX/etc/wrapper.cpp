@@ -90,7 +90,7 @@ int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 #else
       utf8args.push_back(MiKTeX::Util::StringUtil::AnsiToUTF8(argv[idx]));
 #endif
-	  // FIXME: eliminate const cast
+      // FIXME: eliminate const cast
       args.push_back(const_cast<char*>(utf8args[idx].c_str()));
 #else
       args.push_back(argv[idx]);
@@ -116,25 +116,25 @@ int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 
     int exitCode = MAINFUNC(args.size() - 1, &args[0]);
 
-    app.Finalize();
+    app.Finalize2(exitCode);
 
     return exitCode;
   }
   catch (const MiKTeX::Core::MiKTeXException& ex)
   {
     MiKTeX::App::Application::Sorry(nameOfTheGame, ex);
-    app.Finalize();
+    app.Finalize2(EXIT_FAILURE);
     return EXIT_FAILURE;
   }
   catch (const std::exception& ex)
   {
     MiKTeX::App::Application::Sorry(nameOfTheGame, ex);
-    app.Finalize();
+    app.Finalize2(EXIT_FAILURE);
     return EXIT_FAILURE;
   }
   catch (int exitCode)
   {
-    app.Finalize();
+    app.Finalize2(exitCode);
     return exitCode;
   }
 }

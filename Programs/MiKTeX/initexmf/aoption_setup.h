@@ -17,6 +17,14 @@ const struct poptOption IniTeXMFApp::aoption_setup[] = {
   },
 
   {
+    "clean", 0,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    OPT_CLEAN,
+    nullptr,
+    nullptr
+  },
+
+  {
     "common-config", 0,
     POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_COMMON_CONFIG,
@@ -116,6 +124,14 @@ const struct poptOption IniTeXMFApp::aoption_setup[] = {
     "engine", 0,
     POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_ENGINE,
+    nullptr,
+    nullptr
+  },
+
+  {
+    "find-other-tex", 0,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    OPT_FIND_OTHER_TEX,
     nullptr,
     nullptr
   },
@@ -230,6 +246,14 @@ const struct poptOption IniTeXMFApp::aoption_setup[] = {
     "recursive", 0,
     POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
     OPT_RECURSIVE,
+    nullptr,
+    nullptr
+  },
+
+  {
+    "register-other-roots", 0,
+    POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr,
+    OPT_REGISTER_OTHER_ROOTS,
     nullptr,
     nullptr
   },

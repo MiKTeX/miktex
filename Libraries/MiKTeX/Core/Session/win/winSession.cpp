@@ -1,6 +1,6 @@
 /* winSession.cpp: Windows specials
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -410,6 +410,10 @@ StartupConfig SessionImpl::ReadRegistry(bool common)
     {
       ret.commonRoots = str;
     }
+    if (winRegistry::TryGetRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_OTHER_COMMON_ROOTS, str))
+    {
+      ret.otherCommonRoots = str;
+    }
     if (winRegistry::TryGetRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_COMMON_INSTALL, str))
     {
       ret.commonInstallRoot = str;
@@ -429,6 +433,10 @@ StartupConfig SessionImpl::ReadRegistry(bool common)
     if (winRegistry::TryGetRegistryValue(shared, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_ROOTS, str))
     {
       ret.userRoots = str;
+    }
+    if (winRegistry::TryGetRegistryValue(shared, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_OTHER_USER_ROOTS, str))
+    {
+      ret.otherUserRoots = str;
     }
     if (winRegistry::TryGetRegistryValue(shared, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_INSTALL, str))
     {
@@ -481,9 +489,14 @@ void SessionImpl::WriteRegistry(bool common, const StartupConfig& startupConfig)
   if (common)
   {
     if (!startupConfig.commonRoots.empty()
-      && startupConfig.commonRoots != startupConfig.commonInstallRoot)
+      && startupConfig.commonRoots != defaultConfig.commonRoots)
     {
       winRegistry::SetRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_COMMON_ROOTS, startupConfig.commonRoots.c_str());
+    }
+    if (!startupConfig.otherCommonRoots.empty()
+      && startupConfig.otherCommonRoots != defaultConfig.otherCommonRoots)
+    {
+      winRegistry::SetRegistryValue(TriState::True, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_OTHER_COMMON_ROOTS, startupConfig.otherCommonRoots.c_str());
     }
     if (!startupConfig.commonInstallRoot.Empty()
       && startupConfig.commonInstallRoot != defaultConfig.commonInstallRoot)
@@ -505,9 +518,14 @@ void SessionImpl::WriteRegistry(bool common, const StartupConfig& startupConfig)
   {
     TriState shared = AdminControlsUserConfig() ? TriState::Undetermined : TriState::False;
     if (!startupConfig.userRoots.empty()
-      && startupConfig.userRoots != startupConfig.userInstallRoot)
+      && startupConfig.userRoots != defaultConfig.userRoots)
     {
       winRegistry::SetRegistryValue(shared, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_USER_ROOTS, startupConfig.userRoots.c_str());
+    }
+    if (!startupConfig.otherUserRoots.empty()
+      && startupConfig.otherUserRoots != defaultConfig.otherUserRoots)
+    {
+      winRegistry::SetRegistryValue(shared, MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_OTHER_USER_ROOTS, startupConfig.otherUserRoots.c_str());
     }
     if (!startupConfig.userInstallRoot.Empty()
       && startupConfig.userInstallRoot != defaultConfig.userInstallRoot)

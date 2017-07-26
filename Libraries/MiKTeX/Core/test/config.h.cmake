@@ -1,6 +1,6 @@
 /* config.h (created from config.h.cmake)               -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -19,5 +19,8 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#cmakedefine TEST_SOURCE_DIR "@TEST_SOURCE_DIR@"
-#cmakedefine TEST_BINARY_DIR "@TEST_BINARY_DIR@"
+#define TEST_SOURCE_DIR "@TEST_SOURCE_DIR@"
+#define TEST_BINARY_DIR "@TEST_BINARY_DIR@"
+
+#define DATAROOT "@dataroot@"
+#define INSTALLROOT "@installroot@"

@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -133,14 +133,14 @@ add_custom_command(
   VERBATIM
 )
 
-add_executable(ctangle ${ctangle_sources})
+add_executable(${MIKTEX_PREFIX}ctangle ${ctangle_sources})
 
-set_property(TARGET ctangle PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}ctangle PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(ctangle asInvoker)
-merge_compatibility_manifest(ctangle)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}ctangle asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}ctangle)
 
-target_link_libraries(ctangle
+target_link_libraries(${MIKTEX_PREFIX}ctangle
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
@@ -171,7 +171,7 @@ add_custom_command(
   OUTPUT
     ${CMAKE_CURRENT_BINARY_DIR}/cweave.c
   COMMAND
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
     ${CMAKE_CURRENT_SOURCE_DIR}/source/cweave.w
     ${CMAKE_CURRENT_SOURCE_DIR}/texlive/cweav-w2c.ch
     ${CMAKE_CURRENT_BINARY_DIR}/cweave.c
@@ -180,7 +180,7 @@ add_custom_command(
   MAIN_DEPENDENCY
     ${CMAKE_CURRENT_SOURCE_DIR}/source/cweave.w
   DEPENDS
-    ctangle
+    ${MIKTEX_PREFIX}ctangle
     ${CMAKE_CURRENT_SOURCE_DIR}/source/common.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/cweave.w
     ${CMAKE_CURRENT_SOURCE_DIR}/source/prod.w
@@ -188,14 +188,14 @@ add_custom_command(
   VERBATIM
 )
 
-add_executable(cweave ${cweave_sources})
+add_executable(${MIKTEX_PREFIX}cweave ${cweave_sources})
 
-set_property(TARGET cweave PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}cweave PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(cweave asInvoker)
-merge_compatibility_manifest(cweave)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}cweave asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}cweave)
 
-target_link_libraries(cweave
+target_link_libraries(${MIKTEX_PREFIX}cweave
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
@@ -204,8 +204,8 @@ target_link_libraries(cweave
 
 install(
   TARGETS
-    ctangle
-    cweave
+    ${MIKTEX_PREFIX}ctangle
+    ${MIKTEX_PREFIX}cweave
  DESTINATION
    "${MIKTEX_BINARY_DESTINATION_DIR}"
 )

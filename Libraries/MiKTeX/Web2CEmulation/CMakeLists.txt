@@ -39,10 +39,6 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/include/w2c/c-auto.h
 )
 
-set(generated_texmf_sources
-  ${CMAKE_BINARY_DIR}/include/miktex/texmfapp.defaults.h
-)
-
 configure_file(
   w2cemu-version.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/w2cemu-version.h
@@ -51,7 +47,6 @@ configure_file(
 set(${w2cemu_dll_name}_sources
   ${CMAKE_CURRENT_BINARY_DIR}/include/w2c/c-auto.h
   ${CMAKE_CURRENT_BINARY_DIR}/w2cemu-version.h
-  ${generated_texmf_sources}
   ${public_headers}
   StdAfx.h
   include/c-auto.h
@@ -76,14 +71,6 @@ if(NOT LINK_EVERYTHING_STATICALLY)
   add_library(${w2cemu_dll_name} SHARED ${${w2cemu_dll_name}_sources})
 
   set_property(TARGET ${w2cemu_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-  add_dependencies(${w2cemu_dll_name} gen-defaults)
-
-  set_source_files_properties(
-    ${generated_texmf_sources}
-    PROPERTIES
-      GENERATED TRUE
-  )
 
   set_target_properties(${w2cemu_dll_name}
     PROPERTIES

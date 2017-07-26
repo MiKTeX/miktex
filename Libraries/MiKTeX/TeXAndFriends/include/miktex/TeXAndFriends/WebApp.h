@@ -170,6 +170,10 @@ protected:
 protected:
   MIKTEXMFTHISAPI(void) AddOption(const std::string& aliasName, const std::string& name);
 
+
+protected:
+  MIKTEXMFTHISAPI(void) AddOptionShortcut(const std::string& longName, const std::vector<std::string>& args);
+
 protected:
   MIKTEXMFTHISAPI(std::vector<poptOption>) GetOptions() const;
 
@@ -305,19 +309,19 @@ public:
       app.Init(newargv);
       MIKTEX_ASSERT(!newargv.empty() && newargv.back() == nullptr);
       int exitCode = prog.Run(newargv.size() - 1, &newargv[0]);
-      app.Finalize();
+      app.Finalize2(exitCode);
       return exitCode;
     }
     catch (const MiKTeX::Core::MiKTeXException& ex)
     {
       MiKTeX::App::Application::Sorry(argv[0], ex);
-      app.Finalize();
+      app.Finalize2(1);
       return 1;
     }
     catch (const std::exception& ex)
     {
       MiKTeX::App::Application::Sorry(argv[0], ex);
-      app.Finalize();
+      app.Finalize2(1);
       return 1;
     }
   }

@@ -33,8 +33,6 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace std;
 
-#include <miktex/mpm.defaults.h>
-
 AFX_EXTENSION_MODULE MikuiDLL = { FALSE, nullptr };
 
 extern "C" int APIENTRY DllMain(HINSTANCE hInstance, DWORD reason, LPVOID pReserved)
@@ -67,7 +65,7 @@ MIKTEXUIEXPORT void MIKTEXCEECALL MiKTeX::UI::MFC::InitializeFramework()
 MIKTEXUIEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::MFC::InstallPackageMessageBox(CWnd* parent, shared_ptr<PackageManager> packageManager, const string& packageName, const string& trigger)
 {
   shared_ptr<Session> pSession = Session::Get();
-  TriState enableInstaller = pSession->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, mpm::AutoInstall()).GetTriState();
+  TriState enableInstaller = pSession->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState();
   unsigned int ret;
   if (enableInstaller != TriState::Undetermined)
   {
@@ -88,7 +86,7 @@ MIKTEXUIEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::MFC::InstallPackageMessage
       ret = (dlgRet == IDOK ? YES : NO);
       if (dlgRet == IDOK && !dlg.alwaysAsk)
       {
-	pSession->SetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_AUTO_INSTALL, "1");
+	pSession->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, "1");
       }
     }
   }

@@ -161,9 +161,9 @@ private:
   int twofd[2] = { -1, -1 };
 };
 
-Process* Process::Start(const ProcessStartInfo& startinfo)
+unique_ptr<Process> Process::Start(const ProcessStartInfo& startinfo)
 {
-  return new unxProcess(startinfo);
+  return make_unique<unxProcess>(startinfo);
 }
 
 #if defined(NDEBUG)
@@ -179,7 +179,7 @@ void unxProcess::Create()
     MIKTEX_UNEXPECTED();
   }
 
-  Argv argv(startinfo.FileName, startinfo.Arguments);
+  Argv argv(startinfo.Arguments.empty() ? vector<string>{ PathName(startinfo.FileName).GetFileNameWithoutExtension().ToString() } : startinfo.Arguments);
 
   Pipe pipeStdout;
   Pipe pipeStderr;
@@ -224,7 +224,7 @@ void unxProcess::Create()
   SessionImpl::GetSession()->UnloadFilenameDatabase();
 
   // fork
-  SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", T_("forking..."));
+  SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "forking...");
   if (pipeStdout.GetReadEnd() >= 0
     || pipeStderr.GetReadEnd() >= 0
     || pipeStdin.GetReadEnd() >= 0
@@ -405,7 +405,7 @@ void unxProcess::WaitForExit()
   if (this->pid > 0)
   {
     auto session = SessionImpl::GetSession();
-    session->trace_process->WriteFormattedLine("core", T_("waiting for process %d"), static_cast<int>(this->pid));
+    session->trace_process->WriteFormattedLine("core", "waiting for process %d", static_cast<int>(this->pid));
     pid_t pid = this->pid;
     this->pid = -1;
     if (waitpid(pid, &status, 0) <= 0)
@@ -414,19 +414,19 @@ void unxProcess::WaitForExit()
     }
     if (WIFEXITED(status) != 0)
     {
-      session->trace_process->WriteFormattedLine("core", T_("process %d exited with status %d"), static_cast<int>(pid), WEXITSTATUS(status));
+      session->trace_process->WriteFormattedLine("core", "process %d exited with status %d", static_cast<int>(pid), WEXITSTATUS(status));
     }
     else if (WIFSIGNALED(status) != 0)
     {
-      session->trace_process->WriteFormattedLine("core", T_("process %d terminated due to signal %d"), static_cast<int>(pid), WTERMSIG(status));
+      session->trace_process->WriteFormattedLine("core", "process %d terminated due to signal %d", static_cast<int>(pid), WTERMSIG(status));
     }
     else if (WIFSTOPPED(status) != 0)
     {
-      session->trace_process->WriteFormattedLine("core", T_("process %d stopped due to signal %d"), static_cast<int>(pid), WSTOPSIG(status));
+      session->trace_process->WriteFormattedLine("core", "process %d stopped due to signal %d", static_cast<int>(pid), WSTOPSIG(status));
     }
     else if (WIFCONTINUED(status) != 0)
     {
-      session->trace_process->WriteFormattedLine("core", T_("process %d continued"));
+      session->trace_process->WriteFormattedLine("core", "process %d continued");
     }
   }
 }
@@ -502,46 +502,53 @@ MIKTEXSTATICFUNC(PathName) FindSystemShell()
 #endif
 }
 
-void Process::StartSystemCommand(const string& command)
+MIKTEXSTATICFUNC(vector<string>) Wrap(const string& commandLine)
 {
-  string arguments = "-c '";
-  arguments += command;
-  arguments += '\'';
-  Process::Start(FindSystemShell(), arguments);
+  return vector<string> {
+    FindSystemShell().ToString(),
+    "-c",
+    commandLine
+  };
 }
 
-/*
- *
- * Process::ExecuteSystemCommand
- *
- * Start the shell (usually /bin/sh) with a given command string.
- * Pass output (stdout & stderr) to caller.
- *
- * Suppose the command string is: foo x | bar y > z
- *
- * Then we start as follows:
- *
- *   /bin/sh -c 'foo x | bar y > z'
- */
-bool Process::ExecuteSystemCommand(const string& command, int* exitCode, IRunProcessCallback* callback, const char* directory)
+void Process::StartSystemCommand(const string& commandLine)
 {
-  string arguments = "-c '";
-  arguments += command;
-  arguments += '\'';
-  return Process::Run(FindSystemShell(), arguments, callback, exitCode, directory);
+  vector<string> arguments = Wrap(commandLine);
+  Process::Start(arguments[0], arguments);
 }
 
-Process2* Process2::GetCurrentProcess()
+bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* directory)
 {
-  unxProcess* currentProcess = new unxProcess();
+  vector<string> arguments = Wrap(commandLine);
+  return Process::Run(arguments[0], arguments, callback, exitCode, directory);
+}
+
+unique_ptr<Process> Process::GetCurrentProcess()
+{
+  unique_ptr<unxProcess> currentProcess = make_unique<unxProcess>();
   currentProcess->pid = getpid();
-  return currentProcess;
+  return unique_ptr<Process>(currentProcess.release());
 }
 
-Process2* unxProcess::get_Parent()
+unique_ptr<Process> Process::GetProcess(int systemId)
+{
+  unique_ptr<unxProcess> currentProcess = make_unique<unxProcess>();
+  if (kill(systemId, 0) != 0)
+  {
+    return nullptr;
+  }
+  currentProcess->pid = systemId;
+  return unique_ptr<Process>(currentProcess.release());
+}
+
+unique_ptr<Process> unxProcess::get_Parent()
 {
 #if defined(__linux__)
   string path = "/proc/" + std::to_string(pid) + "/stat";
+  if (!File::Exists(path))
+  {
+    return nullptr;
+  }
   StreamReader reader(path);
   string line;
   while (reader.ReadLine(line))
@@ -550,9 +557,9 @@ Process2* unxProcess::get_Parent()
     ++tok;
     ++tok;
     ++tok;
-    unxProcess* parentProcess = new unxProcess();
+    unique_ptr<unxProcess> parentProcess = make_unique<unxProcess>();
     parentProcess->pid = std::stoi(*tok);
-    return parentProcess;
+    return unique_ptr<Process>(parentProcess.release());
   }
 #elif defined(__APPLE__)
   struct proc_bsdinfo procinfo;
@@ -560,9 +567,9 @@ Process2* unxProcess::get_Parent()
   {
     return nullptr;
   }
-  unxProcess* parentProcess = new unxProcess();
+  unique_ptr<unxProcess> parentProcess = make_unique<unxProcess>();
   parentProcess->pid = procinfo.pbi_ppid;
-  return parentProcess;
+  return unique_ptr<Process>(parentProcess.release());
 #else
   return nullptr;
 #endif
@@ -572,6 +579,10 @@ string unxProcess::get_ProcessName()
 {
 #if defined(__linux__)
   string path = "/proc/" + std::to_string(pid) + "/comm";
+  if (!File::Exists(path))
+  {
+    return "?";
+  }
   StreamReader reader(path);
   string line;
   while (reader.ReadLine(line))
@@ -588,4 +599,9 @@ string unxProcess::get_ProcessName()
 #else
   return "?";
 #endif
+}
+
+int unxProcess::GetSystemId()
+{
+  return this->pid;
 }

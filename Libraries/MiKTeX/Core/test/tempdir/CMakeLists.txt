@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2009-2016 Christian Schenk
+## Copyright (C) 2009-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -38,6 +38,4 @@ target_link_libraries(core_tempdir_test1
 add_test(
   NAME core_tempdir_test1
   COMMAND $<TARGET_FILE:core_tempdir_test1>
-    --data-root=${dataroot}
-    --install-root=${installroot}
 )

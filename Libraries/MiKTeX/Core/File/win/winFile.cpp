@@ -365,6 +365,16 @@ void File::CreateLink(const PathName& oldName, const PathName& newName, CreateLi
   }
 }
 
+bool File::IsSymbolicLink(const PathName& path)
+{
+  UNIMPLEMENTED();
+}
+
+PathName File::ReadSymbolicLink(const PathName& path)
+{
+  UNIMPLEMENTED();
+}
+
 size_t File::SetMaxOpen(size_t newMax)
 {
   newMax = min(newMax, 2048);

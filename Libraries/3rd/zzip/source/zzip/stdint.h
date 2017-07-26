@@ -19,7 +19,7 @@
 #include <inttypes.h>
 #else
     typedef unsigned char uint8_t;      typedef signed char int8_t;
-luatex
+
 # if ZZIP_SIZEOF_INT && ZZIP_SIZEOF_INT == 2
     typedef unsigned int uint16_t;      typedef signed int int16_t;
 # elif ZZIP_SIZEOF_SHORT && ZZIP_SIZEOF_SHORT == 2
