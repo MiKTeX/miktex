@@ -90,7 +90,7 @@ int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
 #else
       utf8args.push_back(MiKTeX::Util::StringUtil::AnsiToUTF8(argv[idx]));
 #endif
-	  // FIXME: eliminate const cast
+      // FIXME: eliminate const cast
       args.push_back(const_cast<char*>(utf8args[idx].c_str()));
 #else
       args.push_back(argv[idx]);
@@ -134,7 +134,7 @@ int MIKTEXCEECALL WRAPPER_MAIN(int argc, WRAPPER_CHAR* argv[])
   }
   catch (int exitCode)
   {
-    app.Finalize2(EXIT_FAILURE);
+    app.Finalize2(exitCode);
     return exitCode;
   }
 }

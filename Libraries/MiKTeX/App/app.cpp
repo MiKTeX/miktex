@@ -304,11 +304,11 @@ void Application::Init(const Session::InitInfo& initInfoArg)
   ConfigureLogging();
   if (pimpl->commandLine.empty())
   {
-    // TODO
+    LOG4CXX_INFO(logger, getpid() << " starting");
   }
   else
   {
-    LOG4CXX_INFO(logger, "starting with command line: " << pimpl->commandLine);
+    LOG4CXX_INFO(logger, getpid() << " starting with command line: " << pimpl->commandLine);
   }
   pimpl->beQuiet = false;
   if (pimpl->enableInstaller == TriState::Undetermined)
@@ -353,7 +353,7 @@ void Application::Finalize2(int exitCode)
 {
   if (logger != nullptr)
   {
-    LOG4CXX_INFO(logger, "finishing with exit code " << exitCode);
+    LOG4CXX_INFO(logger, getpid() << " finishing with exit code " << exitCode);
   }
   Finalize();
 }
