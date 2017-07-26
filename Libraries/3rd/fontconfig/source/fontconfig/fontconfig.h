@@ -52,7 +52,7 @@ typedef int		FcBool;
 
 #define FC_MAJOR	2
 #define FC_MINOR	12
-#define FC_REVISION	1
+#define FC_REVISION	3
 
 #define FC_VERSION	((FC_MAJOR * 10000) + (FC_MINOR * 100) + (FC_REVISION))
 
@@ -128,7 +128,8 @@ typedef int		FcBool;
 #define FC_USER_CACHE_FILE	    ".fonts.cache-" FC_CACHE_VERSION
 
 /* Adjust outline rasterizer */
-#define FC_CHAR_WIDTH	    "charwidth"	/* Int */
+#define FC_CHARWIDTH	    "charwidth"	/* Int */
+#define FC_CHAR_WIDTH	    FC_CHARWIDTH
 #define FC_CHAR_HEIGHT	    "charheight"/* Int */
 #define FC_MATRIX	    "matrix"    /* FcMatrix */
 

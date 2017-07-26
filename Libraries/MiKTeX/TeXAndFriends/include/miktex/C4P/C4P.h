@@ -732,6 +732,16 @@ C4PCEEAPI(int) MakeCommandLine(const std::vector<std::string>& args);
 
 C4PCEEAPI(C4P_integer) Round(double r);
 
+inline double c4p_abs(double x)
+{
+  return ::fabs(x);
+}
+
+inline int c4p_abs(int x)
+{
+  return ::abs(x);
+}
+
 inline double arctan(double x)
 {
   return atan(x);

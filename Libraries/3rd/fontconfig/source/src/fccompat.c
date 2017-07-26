@@ -71,7 +71,6 @@
 #if defined(MIKTEX_WINDOWS)
 typedef int mode_t;
 #endif
-
 #if !defined (HAVE_MKOSTEMP) && !defined(HAVE_MKSTEMP) && !defined(HAVE__MKTEMP_S)
 static int
 mkstemp (char *template)

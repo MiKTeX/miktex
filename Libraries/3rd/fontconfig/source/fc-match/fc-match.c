@@ -26,7 +26,6 @@
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>
 #endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #else
@@ -35,7 +34,6 @@
 #endif
 #define HAVE_GETOPT 1
 #endif
-
 #if defined(MIKTEX)
 #  define main __cdecl Main
 #  if defined(_MSC_VER)

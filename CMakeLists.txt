@@ -2026,12 +2026,18 @@ set(CPACK_DEBIAN_PACKAGE_VERSION
   "${MIKTEX_VERSION_TAG_STR}-${MIKTEX_PACKAGE_REVISION}"
 )
 
-set(CPACK_DEBIAN_PACKAGE_DEPENDS
-  "libbotan-1.10-1, libbz2-1.0, libcairo2, libcurl3, libexpat1, libfontconfig1, libfreetype6, libgd3, libgmp10, libgraphite2-3, libharfbuzz-icu0, libhunspell-1.3-0, libjpeg9, liblog4cxx10v5, liblzma5, libmpfr4, libmspack0, libpixman-1-0, libpng12-0, libpoppler57, libpoppler-qt5-1, libpopt0, libpotrace0, liburiparser1, zlib1g, libzzip-0-13"
-)
+find_program(DPKG_SHLIBDEPS_EXECUTABLE NAMES dpkg-shlibdeps)
+
+if(DPKG_SHLIBDEPS_EXECUTABLE)
+  set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS TRUE)
+else()
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS
+    "libbz2-1.0, libc6 (>= 2.14), libcairo2 (>= 1.2.4), libcurl3-gnutls (>= 7.16.2), libexpat1 (>= 2.0.1), libfontconfig1 (>= 2.11), libfreetype6 (>= 2.3.9), libfribidi0 (>= 0.19.2), libgcc1 (>= 1:4.0), libgd3 (>= 2.1.0~alpha~), libgmp10, libgraphite2-3 (>= 1.2.2), libharfbuzz-icu0 (>= 0.9.9), libharfbuzz0b (>= 1.4.1), libicu57 (>= 57.1-1~), libjpeg62-turbo (>= 1.3.1), liblog4cxx10v5, liblzma5 (>= 5.1.1alpha+20120614), libmpfr4 (>= 3.1.3), libmspack0 (>= 0.4), libpixman-1-0 (>= 0.10.0), libpng16-16 (>= 1.6.2-1), libpoppler57 (>= 0.38.0), libpopt0 (>= 1.14), libpotrace0, libssl1.0.2 (>= 1.0.2d), libstdc++6 (>= 6), liburiparser1 (>= 0.6.0), libzzip-0-13 (>= 0.13.56), zlib1g (>= 1:1.1.4)"
+  )
+endif()
 
 set(CPACK_DEBIAN_PACKAGE_SECTION
-  "TeX Authoring"
+  "TeX"
 )
 
 #set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
