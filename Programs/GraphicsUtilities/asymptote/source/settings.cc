@@ -99,8 +99,12 @@ string systemDir=ASYMPTOTE_SYSDIR;
 string defaultEPSdriver="eps2write";
 
 #ifndef __MSDOS__
-  
+
+#if defined(MIKTEX_WINDOWS)
+bool msdos = true;
+#else
 bool msdos=false;
+#endif
 string HOME="HOME";
 #if defined(MIKTEX)
 string docdir;
@@ -109,12 +113,16 @@ const char pathSeparator = MiKTeX::Core::PathName::PathNameDelimiter;
 string docdir=ASYMPTOTE_DOCDIR;
 const char pathSeparator=':';
 #endif
+#if defined(MIKTEX_WINDOWS)
+string defaultPSViewer = "cmd";
+#else
 string defaultPSViewer="gv";
+#endif
 #ifdef __APPLE__
 string defaultPDFViewer="open";
 #else  
 #if defined(MIKTEX_WINDOWS)
-string defaultPDFViewer = MIKTEX_TEXWORKS_EXE;
+string defaultPDFViewer = "cmd";
 #else
 string defaultPDFViewer="acroread";
 #endif
@@ -125,8 +133,16 @@ string defaultGhostscript = MIKTEX_GS_EXE;
 string defaultGhostscript="gs";
 #endif
 string defaultGhostscriptLibrary="/usr/lib/libgs.so";
+#if defined(MIKTEX_WINDOWS)
+string defaultDisplay = "cmd";
+#else
 string defaultDisplay="display";
+#endif
+#if defined(MIKTEX_WINDOWS)
+string defaultAnimate = "cmd";
+#else
 string defaultAnimate="animate";
+#endif
 void queryRegistry() {}
 const string dirsep="/";
   

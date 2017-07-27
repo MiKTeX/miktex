@@ -427,6 +427,14 @@ const char *setPath(const char *s, bool quiet)
 void push_command(mem::vector<string>& a, const string& s) 
 {
   a.push_back(s);
+#if defined(MIKTEX_WINDOWS) && !defined(__MSDOS__)
+  if (s == "cmd")
+  {
+    a.push_back("/c");
+    a.push_back("start");
+    a.push_back("\"\"");
+  }
+#endif
 #ifdef __MSDOS__
   if(s == "cmd") {
     a.push_back("/c");
