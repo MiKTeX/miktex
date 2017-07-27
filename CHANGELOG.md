@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## MiKTeX NEXT
+## 2.9.6400 - 2017-07-31
 
 ### New programs
 
@@ -60,6 +60,7 @@ For example, to build MiKTeX for Debian 9:
 ### Closed feature requets
 
 * [345](https://sourceforge.net/p/miktex/feature-requests/345/): Build pdftocairo with libpng support 
+* [346](https://sourceforge.net/p/miktex/feature-requests/346/): Include Asymptote 
 
 ### Bug fixes
 
