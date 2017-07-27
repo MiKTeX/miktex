@@ -1,4 +1,4 @@
-char version[12] = "2017-06-21";
+char version[12] = "2017-07-14";
 
 /*  Copyright (C) 2014-17 R. D. Tennent School of Computing,
  *  Queen's University, rdt@cs.queensu.ca
@@ -50,18 +50,28 @@ char version[12] = "2017-06-21";
  *      characters terminator[i] for each staff; '$' is used
  *      as the terminator for the last staff.
  *
- *    generate_notes, which repeatedly uses spacing_note to
+ *    generate_notes, which repeatedly uses spacing_note (i) to
  *      determine spacings[i] of the next spacing note in 
  *      each staff; the current spacing is then the smallest
  *      of these.  If necessary, the current notes command
- *      is terminated and a new notes command initiated.
- *      Then one note (or skip) is generated for each staff.
- *      When necessary, vspacing[i] is set to generate subsequent
- *      skips.  Appoggiaturas and xtuplets are treated separately.
+ *      is terminated by terminate_notes() and a new notes 
+ *      command initiated by initialize_notes(). The current global 
+ *      skip and note commands for each staff are then copied to 
+ *      outstrings[i] using output_notes (i).  When necessary, 
+ *      vspacing[i] is set to generate subsequent skips.
+ *      Appoggiaturas and xtuplets are treated separately.
  *
  *    spacing_note (i), which searches for the next spacing note
  *      in the i'th staff, unless a "virtual note" (skip) is
  *      needed.
+ *  
+ *    output_notes (i), which copies a global_skip string and 
+ *    outstrings[i] to output, using filter_output (i) to discard
+ *    commas and global and large skips, and insert collective-coding 
+ *    prefixes and closing braces.  
+ *
+ *    terminate_notes, which copies outstrings[i] to output,
+ *    in the order determined by TransformNotes2.
  *
  *  Spacing values are expressed as sums of binary multiples of 
  *    SMALL_NOTE (by default, 1/256th); for example, half-note
@@ -176,9 +186,12 @@ PRIVATE char outstrings[MAX_STAFFS][LINE_LEN];
 PRIVATE char *n_outstrings[MAX_STAFFS];
 
 PRIVATE int global_skip;  
-       /* = 1, 2, 3 or 4, for (non-standard) commands \QQsk \HQsk TQsk \Qsk */
-PRIVATE char global_skip_str[5][8] = 
-  { "", "\\qqsk", "\\hqsk", "\\tqsk", "\\qsk"}; 
+   /* = 1, 2, 3, or 4 for (non-standard) commands \QQsk \HQsk \TQsk \Qsk    */
+   /* = 5 for five commas and double-flat accidental spacing                */
+   /* = 6 for six commas                                                    */
+PRIVATE char global_skip_str[7][16]   
+= { "","\\qqsk","\\hqsk","\\tqsk","\\qsk","\\qsk\\qqsk","\\qsk\\hqsk" }; 
+                                   /* all based on \elemskip, not \noteskip */
 
 PRIVATE char TransformNotes2[SHORT_LEN] = {'\0'};      
                                       /* 2nd argument of \TransformNotes    */
@@ -188,7 +201,8 @@ PRIVATE void
 usage ()
 {
   printf ("Usage: autosp [-v | --version | -h | --help]\n");
-  printf ("       autosp [-d | --dotted] [-l | --log] infile[.aspc | .tex] [outfile[.tex]]\n");
+  printf ("       autosp [-d | --dotted] [-l | --log] infile[.aspc] [outfile[.tex]]\n");
+  printf ("       autosp [-d | --dotted] [-l | --log] infile.tex outfile[.tex]\n");
 }
 
 
@@ -277,7 +291,6 @@ status_beam (int i)
   if (active[i])
   { fprintf (logfile, "beaming[%d]=%s\n", i, ps(beaming[i])); }
 }
-
 
 PRIVATE
 void analyze_notes (char **ln) 
@@ -370,7 +383,7 @@ void checkn (char *s)
 }
 
 PRIVATE
-void output_filtered (int i)
+void filter_output (int i)
 { /* discard , \sk \hsk \Qsk \TQsk \HQsk \QQsk and \Cpause */
   char *s = notes[i];
   while (s < current[i])
@@ -404,6 +417,11 @@ void output_notes (int i)
   { fprintf (logfile, "\nEntering output_notes:\n");
     status (i);
   }
+  if (debug)
+  {
+    fprintf (logfile, "\nAppending %s for global_skip=%i\n", global_skip_str[global_skip], global_skip);
+  }
+  append (outstrings[i], &(n_outstrings[i]), global_skip_str[global_skip], LINE_LEN);
   if (vspacing[i] > 0)
   { 
     if (nonvirtual_notes) 
@@ -420,7 +438,7 @@ void output_notes (int i)
     if (!first_collective[i])
       append (outstrings[i], &(n_outstrings[i]), collective[i], LINE_LEN);
     first_collective[i] = false;
-    output_filtered (i);
+    filter_output (i);
     append (outstrings[i], &(n_outstrings[i]), "}", LINE_LEN);
     if (*notes[i] == '}')
     { collective[i][0] = '\0';
@@ -437,7 +455,7 @@ void output_notes (int i)
     }
   }
   else
-    output_filtered (i);
+    filter_output (i);
   if (debug)
   { fprintf (logfile, "\nAfter output_notes:\n");
     status (i);
@@ -463,7 +481,11 @@ void pseudo_output_notes (int i)
 PRIVATE
 void update_global_skip (int n)
 /* global skips may be used in more than one staff */
-{  if (global_skip < n) global_skip = n; }
+{  
+  if (n>6) 
+  { warning ("Too many commas."); n = 6; }
+  if (global_skip < n) global_skip = n; 
+}
 
 PRIVATE
 int collective_note (int i)
@@ -479,27 +501,27 @@ int collective_note (int i)
     while (*s == ',') 
     { n++; s++; } /* global skips */
     update_global_skip (n);
-      /* commas will be discarded by output_filtered (i) */
+      /* commas will be discarded by filter_output (i) */
     if (*s == '.' && new_beaming == 0 && !dottedbeamnotes) 
       spacing = spacing * 1.50; 
-    else if ( beaming[i] > 0 && (*s == '^' || *s == '_' || *s == '=' || *s == '>'))
-    /* leave space for accidentals */
+    else if ( (*s == '^' || *s == '_' || *s == '=' || *s == '>') )
+    /* leave space for normal accidentals */
     { if (debug)
       { fprintf (logfile, "\nLeave space for accidental\n");
         status (i);
         status_beam (i);
         status_collective (i);
       }
-      if (spacings[i] <= SP(16) )  /* spacing for the preceding note */
-        update_global_skip (2); 
-      else if (spacings[i] <= SP(8)+SP(16) )  /* allow for dotted eighth */
-       update_global_skip (1) ;
+      update_global_skip (3) ;
     }
-    else if ( beaming[i] > 0 && (*s == '<'))  /* double flat */
-    { if (spacings[i] <= SP(16) )
-        update_global_skip (3);
-      else if (spacings[i] <= SP(8)+SP(16) )
-        update_global_skip (2) ;
+    else if ( (*s == '<') /* double-flat */ )
+    { if (debug)
+      { fprintf (logfile, "\nLeave space for double-flat\n");
+        status (i);
+        status_beam (i);
+        status_collective (i);
+      }
+      update_global_skip (5);
     }
     else if (isalnum (*s) || *s == '*')
     {  
@@ -896,8 +918,9 @@ int spacing_note (int i)
       else 
         s = skip_arg(t); 
     }
+    else if (prefix ("\\Hsk", s) )
+      update_global_skip (5); 
     else if (prefix ("\\Qsk", s) )
-    /* may have global skips in more than one staff */
       update_global_skip (4); 
     else if (prefix ("\\TQsk", s) )
       update_global_skip (3); 
@@ -1093,7 +1116,7 @@ void terminate_notes ()
     i = atoi (t) -1; t++;
     if (spacing == MAX_SPACING)
     { /* output any commands left in notes[i] */
-      output_filtered (i);
+      filter_output (i);
     }
     fprintf (outfile, "%s", outstrings[i]);
     if (debug) fprintf (logfile, "\noutputting %s from outstrings[%d].\n", outstrings[i], i);
@@ -1101,7 +1124,7 @@ void terminate_notes ()
     n_outstrings[i] = outstrings[i];
     if (spacing < MAX_SPACING && spacing > 2 * old_spacing)
     { /* add extra space *before* much longer notes */
-      fprintf (outfile, "\\off{0.5\\elemskip}");
+      fprintf (outfile, "\\hqsk");
       if (debug) fprintf (logfile, "\nExtra half-notehead space before longer notes.\n");
     }
     if (*t != '\0') 
@@ -1109,7 +1132,7 @@ void terminate_notes ()
   }
   if (spacing == MAX_SPACING && old_spacing < SP(8) )
   { /* add extra space before \en */
-    fprintf (outfile, "\\off{0.5\\elemskip}");
+    fprintf (outfile, "\\hqsk");
     if (debug) fprintf (logfile, "\nExtra half-notehead space before \\en.\n");
   }
   fprintf (outfile, "\\en"); 
@@ -1309,10 +1332,7 @@ void process_xtuplet (void)
   {
     for (i=1; i <= nstaffs; i++)
       if (active[i] && xtuplet[i] == 1)
-      {
-        append (outstrings[i], &(n_outstrings[i]), global_skip_str[global_skip], LINE_LEN);
         output_notes (i);
-      }
     xsp += spacing;
     for (i=1; i <= nstaffs; i++)
     {
@@ -1353,9 +1373,7 @@ void process_xtuplet (void)
     {
       xsp = 0;
       while (true)
-      { 
-        append (outstrings[i], &(n_outstrings[i]), global_skip_str[global_skip], LINE_LEN);
-        output_notes (i);
+      { output_notes (i);
         xsp += spacing;
         if (spacings[i] != spacing && vspacing[i] == 0)
           vspacing[i] = spacings[i] - spacing;
@@ -1388,11 +1406,6 @@ void process_xtuplet (void)
 
 PRIVATE
 void generate_notes ()
-/* Repeatedly call output_notes for each (active) staff 
- * and, if necessary, set up for subsequent "virtual" notes (skips).
- * If spacing has changed, terminate an existing notes command
- * and initialize a new one.
- */
 { int i;
   bool xtuplet_flag;
   while (true)
@@ -1442,10 +1455,7 @@ void generate_notes ()
 
     for (i=1; i <= nstaffs; i++)  /* append current notes to outstrings */
       if (active[i]) 
-      {
-        append (outstrings[i], &(n_outstrings[i]), global_skip_str[global_skip], LINE_LEN);
         output_notes (i);
-      }
     for (i=1; i <= nstaffs; i++)
     {
       /* virtual notes needed?  */

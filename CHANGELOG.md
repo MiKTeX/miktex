@@ -9,7 +9,7 @@
 
 ### Upgraded programs
 
-* autosp 2017-06-21
+* autosp 2017-07-14
 
 ### Upgraded libraries
 
