@@ -23,12 +23,17 @@
 #include <io.h>
 #endif
 
+#include <miktex/App/Application>
+
 #include <miktex/Core/FileStream>
 #include <miktex/Core/Session>
+#include <miktex/Util/StringUtil>
 
 #include "PipeStream.h"
 
+using namespace MiKTeX::App;
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Util;
 using namespace std;
 
 using namespace MiKTeX::Aymptote;
@@ -40,14 +45,14 @@ PipeStream::~PipeStream()
 
 void PipeStream::Open(const PathName& fileName, const vector<string>& arguments)
 {
-  ProcessStartInfo startInfo;
-  startInfo.FileName = fileName.ToString();
-  startInfo.Arguments = arguments;
-  startInfo.RedirectStandardInput = true;
-  startInfo.RedirectStandardError = true;
-  startInfo.RedirectStandardOutput = true;
-  process = Process::Start(startInfo);
-  childStdinFile = process->get_StandardInput();
+  Application::GetApplication()->LogInfo("starting PipeStream child process: " + StringUtil::Flatten(arguments, ' '));
+  childStartInfo.FileName = fileName.ToString();
+  childStartInfo.Arguments = arguments;
+  childStartInfo.RedirectStandardInput = true;
+  childStartInfo.RedirectStandardError = true;
+  childStartInfo.RedirectStandardOutput = true;
+  childProcess = Process::Start(childStartInfo);
+  childStdinFile = childProcess->get_StandardInput();
   StartThreads();
 }
 
@@ -55,9 +60,12 @@ void PipeStream::Close()
 {
   CloseIn();
   StopThreads();
-  if (process != nullptr)
+  if (childProcess != nullptr)
   {
-    process->WaitForExit(1000);
+    if (!childProcess->WaitForExit(1000))
+    {
+      Application::GetApplication()->LogWarn("PipeStream child process still running: " + StringUtil::Flatten(childStartInfo.Arguments, ' '));
+    }
   }
 }
 
@@ -65,7 +73,10 @@ void PipeStream::CloseIn()
 {
   if (childStdinFile != nullptr)
   {
-    fclose(childStdinFile);
+    if (fclose(childStdinFile) != 0)
+    {
+      MIKTEX_FATAL_CRT_ERROR("fclose");
+    }
     childStdinFile = nullptr;
   }
 }
@@ -76,7 +87,10 @@ void PipeStream::Write(const void* buf, size_t size)
   {
     MIKTEX_FATAL_CRT_ERROR("fwrite");
   }
-  fflush(childStdinFile);
+  if (fflush(childStdinFile) != 0)
+  {
+    MIKTEX_FATAL_CRT_ERROR("fflush");
+  }
 }
 
 size_t PipeStream::Read(void* buf, size_t size)
@@ -90,8 +104,11 @@ size_t PipeStream::Read(void* buf, size_t size)
 
 int PipeStream::Wait()
 {
-  process->WaitForExit();
-  return process->get_ExitCode();
+  if (!childProcess->WaitForExit(10000))
+  {
+    MIKTEX_FATAL_ERROR("PipeStream child process did not complete");
+  }
+  return childProcess->get_ExitCode();
 }
 
 void PipeStream::StartThreads()
@@ -103,7 +120,7 @@ void PipeStream::StopThreads()
 {
   if (childStdoutReaderThread.joinable())
   {
-    childStdoutPipe.Close();
+    childStdoutPipe.Done();
     childStdoutReaderThread.join();
   }
 }
@@ -112,7 +129,7 @@ void PipeStream::ChildStdoutReaderThread()
 {
   try
   {
-    FileStream childStdoutFile(process->get_StandardOutput());
+    FileStream childStdoutFile(childProcess->get_StandardOutput());
     HANDLE childStdoutFileHandle = (HANDLE)_get_osfhandle(fileno(childStdoutFile.Get()));
     if (childStdoutFileHandle == INVALID_HANDLE_VALUE)
     {
@@ -127,6 +144,7 @@ void PipeStream::ChildStdoutReaderThread()
       {
         if (GetLastError() == ERROR_BROKEN_PIPE)
         {
+          Application::GetApplication()->LogWarn("broken PipeStream after " + std::to_string(childStdoutTotalBytes) + " bytes");
           break;
         }
         MIKTEX_FATAL_WINDOWS_ERROR("PeekNamedPipe");
@@ -138,20 +156,25 @@ void PipeStream::ChildStdoutReaderThread()
       }
       size_t n = childStdoutFile.Read(inbuf, BUFFER_SIZE > avail ? avail : BUFFER_SIZE);
       childStdoutPipe.Write(inbuf, n);
+      childStdoutTotalBytes += n;
     }
     while (true);
     childStdoutFile.Close();
-    childStdoutPipe.Close();
+    childStdoutPipe.Done();
     Finish(true);
   }
   catch (const MiKTeX::Core::MiKTeXException& e)
   {
     childStdoutReaderThreadException = e;
+    childStdoutPipe.Done();
     Finish(false);
+    Application::GetApplication()->LogError("MiKTeX exception caught: "s + e.what());
   }
   catch (const std::exception& e)
   {
     childStdoutReaderThreadException = MiKTeX::Core::MiKTeXException(e.what());
+    childStdoutPipe.Done();
     Finish(false);
+    Application::GetApplication()->LogError("std exception caught: "s + e.what());
   }
 }

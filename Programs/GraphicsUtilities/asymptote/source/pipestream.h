@@ -29,7 +29,8 @@
 #include "common.h"
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/PipeStream.h>
-typedef int ssize_t;
+#include <cstddef>
+typedef std::ptrdiff_t ssize_t;
 #endif
 
 // bidirectional stream for reading and writing to pipes

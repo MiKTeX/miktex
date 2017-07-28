@@ -83,7 +83,7 @@ public:
   }
 
 private:
-  std::unique_ptr<MiKTeX::Core::Process> process;
+  std::unique_ptr<MiKTeX::Core::Process> childProcess;
 
 private:
   std::thread childStdoutReaderThread;
@@ -123,6 +123,12 @@ protected:
   {
     state = Ready | (successful ? Successful : 0);
   }
+
+protected:
+  MiKTeX::Core::ProcessStartInfo childStartInfo;
+
+protected:
+  std::atomic_size_t childStdoutTotalBytes{ 0 };
 
 protected:
   MiKTeX::Core::MiKTeXException childStdoutReaderThreadException;

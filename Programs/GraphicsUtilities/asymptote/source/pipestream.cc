@@ -190,7 +190,11 @@ string iopipestream::readline()
   do {
     nc=readbuffer();
     sbuffer.append(buffer);
+#if defined(MIKTEX)
+  } while((nc <= 0 || buffer[nc - 1] != '\n') && Running);
+#else
   } while(buffer[nc-1] != '\n' && Running);
+#endif
   return sbuffer;
 }
 
@@ -202,7 +206,11 @@ void iopipestream::wait(const char *prompt)
   do {
     readbuffer();
     sbuffer.append(buffer);
+#if defined(MIKTEX)
+  } while(!tailequals(sbuffer.c_str(), sbuffer.size(), prompt, plen) && Running);
+#else
   } while(!tailequals(sbuffer.c_str(),sbuffer.size(),prompt,plen));
+#endif
 }
 
 int iopipestream::wait()
