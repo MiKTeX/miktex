@@ -45,13 +45,13 @@ PipeStream::~PipeStream()
 
 void PipeStream::Open(const PathName& fileName, const vector<string>& arguments)
 {
-  Application::GetApplication()->LogInfo("starting PipeStream child process: " + StringUtil::Flatten(arguments, ' '));
   childStartInfo.FileName = fileName.ToString();
   childStartInfo.Arguments = arguments;
   childStartInfo.RedirectStandardInput = true;
   childStartInfo.RedirectStandardError = true;
   childStartInfo.RedirectStandardOutput = true;
   childProcess = Process::Start(childStartInfo);
+  Application::GetApplication()->LogInfo("started PipeStream child process " + std::to_string(childProcess->GetSystemId()) + ": " + StringUtil::Flatten(arguments, ' '));
   childStdinFile = childProcess->get_StandardInput();
   StartThreads();
 }
@@ -64,7 +64,7 @@ void PipeStream::Close()
   {
     if (!childProcess->WaitForExit(1000))
     {
-      Application::GetApplication()->LogWarn("PipeStream child process still running: " + StringUtil::Flatten(childStartInfo.Arguments, ' '));
+      Application::GetApplication()->LogWarn("PipeStream child process " + std::to_string(childProcess->GetSystemId()) + " is still running: " + StringUtil::Flatten(childStartInfo.Arguments, ' '));
     }
   }
 }
@@ -152,7 +152,7 @@ void PipeStream::ChildStdoutReaderThread()
       {
         if (GetLastError() == ERROR_BROKEN_PIPE)
         {
-          Application::GetApplication()->LogWarn("broken PipeStream after " + std::to_string(childStdoutTotalBytes) + " bytes");
+          Application::GetApplication()->LogWarn("broken PipeStream (" + std::to_string(childProcess->GetSystemId()) + ") after " + std::to_string(childStdoutTotalBytes) + " bytes");
           break;
         }
         MIKTEX_FATAL_WINDOWS_ERROR("PeekNamedPipe");
