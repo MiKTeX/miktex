@@ -83,6 +83,14 @@ void PipeStream::CloseIn()
 
 void PipeStream::Write(const void* buf, size_t size)
 {
+  if (IsUnsuccessful())
+  {
+    throw childStdoutReaderThreadException;
+  }
+  if (!IsChildRunning())
+  {
+    MIKTEX_FATAL_ERROR_2("Broken pipe", "argv0", childStartInfo.FileName);
+  }
   if (fwrite(buf, 1, size, childStdinFile) != size)
   {
     MIKTEX_FATAL_CRT_ERROR("fwrite");
@@ -159,22 +167,22 @@ void PipeStream::ChildStdoutReaderThread()
       childStdoutTotalBytes += n;
     }
     while (true);
+    Finish(true);
     childStdoutFile.Close();
     childStdoutPipe.Done();
-    Finish(true);
   }
   catch (const MiKTeX::Core::MiKTeXException& e)
   {
     childStdoutReaderThreadException = e;
-    childStdoutPipe.Done();
     Finish(false);
+    childStdoutPipe.Done();
     Application::GetApplication()->LogError("MiKTeX exception caught: "s + e.what());
   }
   catch (const std::exception& e)
   {
     childStdoutReaderThreadException = MiKTeX::Core::MiKTeXException(e.what());
-    childStdoutPipe.Done();
     Finish(false);
+    childStdoutPipe.Done();
     Application::GetApplication()->LogError("std exception caught: "s + e.what());
   }
 }
