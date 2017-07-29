@@ -44,7 +44,7 @@ class InProcPipe
 public:
   InProcPipe()
   {
-    capacity = 1024 * 32;
+    capacity = 1024 * 64;
     buffer = new unsigned char[capacity];
   }
 
@@ -71,10 +71,10 @@ public:
 public:
   void Write(const void* data, size_t count)
   {
-    std::unique_lock<std::mutex> lock(mut);
     size_t written = 0;
     while (written < count)
     {
+      std::unique_lock<std::mutex> lock(mut);
       writeCondition.wait(lock, [this] { return IsDone() || CanWrite(); });
       if (IsDone())
       {
@@ -98,25 +98,20 @@ public:
 public:
   size_t Read(void* data, size_t count)
   {
-    std::unique_lock<std::mutex> lock(mut);
-    size_t read = 0;
-    while (read < count && CanRead())
+    if (!CanRead())
     {
-      readCondition.wait(lock, [this] { return IsDone() || CanRead(); });
-      if (CanRead())
-      {
-        size_t n = std::min(count - read, size.load());
-        size_t num1 = std::min(n, capacity - head);
-        size_t num2 = n - num1;
-        memcpy(reinterpret_cast<unsigned char*>(data) + read, buffer + head, num1);
-        memcpy(reinterpret_cast<unsigned char*>(data) + read + num1, buffer, num2);
-        head = (head + n) % capacity;
-        size -= n;
-        writeCondition.notify_one();
-        read += n;
-      }
+      return 0;
     }
-    return read;
+    std::unique_lock<std::mutex> lock(mut);
+    size_t n = std::min(count, size.load());
+    size_t num1 = std::min(n, capacity - head);
+    size_t num2 = n - num1;
+    memcpy(reinterpret_cast<unsigned char*>(data), buffer + head, num1);
+    memcpy(reinterpret_cast<unsigned char*>(data) + num1, buffer, num2);
+    head = (head + n) % capacity;
+    size -= n;
+    writeCondition.notify_one();
+    return n;
   }
 
 private:

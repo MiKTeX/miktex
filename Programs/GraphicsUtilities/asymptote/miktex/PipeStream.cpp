@@ -53,6 +53,7 @@ void PipeStream::Open(const PathName& fileName, const vector<string>& arguments)
   childProcess = Process::Start(childStartInfo);
   Application::GetApplication()->LogInfo("started PipeStream child process " + std::to_string(childProcess->GetSystemId()) + ": " + StringUtil::Flatten(arguments, ' '));
   childStdinFile = childProcess->get_StandardInput();
+  setvbuf(childStdinFile, nullptr, _IONBF, 0);
   StartThreads();
 }
 
@@ -138,12 +139,13 @@ void PipeStream::ChildStdoutReaderThread()
   try
   {
     FileStream childStdoutFile(childProcess->get_StandardOutput());
+    setvbuf(childStdoutFile.Get(), nullptr, _IONBF, 0);
     HANDLE childStdoutFileHandle = (HANDLE)_get_osfhandle(fileno(childStdoutFile.Get()));
     if (childStdoutFileHandle == INVALID_HANDLE_VALUE)
     {
       MIKTEX_UNEXPECTED();
     }
-    const size_t BUFFER_SIZE = 512;
+    const size_t BUFFER_SIZE = 1024 * 32;
     unsigned char inbuf[BUFFER_SIZE];
     do
     {
@@ -159,7 +161,6 @@ void PipeStream::ChildStdoutReaderThread()
       }
       if (avail == 0)
       {
-        Sleep(1);
         continue;
       }
       size_t n = childStdoutFile.Read(inbuf, BUFFER_SIZE > avail ? avail : BUFFER_SIZE);
