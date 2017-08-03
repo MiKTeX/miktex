@@ -1,5 +1,7 @@
 # MiKTeX Change Log
 
+## NEXT
+
 ## 2.9.6400 - 2017-07-31
 
 ### New programs
