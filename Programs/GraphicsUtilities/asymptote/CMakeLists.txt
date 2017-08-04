@@ -393,6 +393,10 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
+if(MIKTEX_NATIVE_WINDOWS)
+  add_link_flags(${MIKTEX_PREFIX}asy "wsetargv.obj")
+endif()
+
 install(TARGETS ${MIKTEX_PREFIX}asy DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 source_group(MiKTeX FILES
