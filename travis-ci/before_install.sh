@@ -63,6 +63,8 @@ elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     brew outdated cmake || brew upgrade cmake
     brew outdated pkg-config || brew upgrade pkg-config
 
+    ( brew ls -1 | grep -w gdb ) || brew install gdb
+
     ( brew ls -1 | grep -w pandoc ) || brew install pandoc
 
     ( brew ls -1 | grep -w ghostscript ) || brew install ghostscript
