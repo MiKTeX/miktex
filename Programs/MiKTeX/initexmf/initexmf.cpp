@@ -462,7 +462,7 @@ public:
       return;
     }
     FlushPendingTraceMessages();
-    TraceInternal(traceMessage);
+    LogTraceMessage(traceMessage);
   }
 
 private:
@@ -470,16 +470,23 @@ private:
   {
     for (const TraceCallback::TraceMessage& msg : pendingTraceMessages)
     {
-      TraceInternal(msg);
+      if (isLog4cxxConfigured)
+      {
+        LogTraceMessage(msg);
+      }
+      else
+      {
+        cerr << msg.message << endl;
+      }
     }
     pendingTraceMessages.clear();
   }
 
 private:
-  void TraceInternal(const TraceCallback::TraceMessage& traceMessage)
+  void LogTraceMessage(const TraceCallback::TraceMessage& traceMessage)
   {
+    MIKTEX_ASSERT(isLog4cxxConfigured);
     log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(string("trace.initexmf.") + traceMessage.facility);
-
     if (traceMessage.streamName == MIKTEX_TRACE_ERROR)
     {
       LOG4CXX_ERROR(logger, traceMessage.message);
@@ -3224,6 +3231,13 @@ int MAIN(int argc, MAINCHAR* argv[])
       LOG4CXX_FATAL(logger, "Source: " << e.GetSourceFile());
       LOG4CXX_FATAL(logger, "Line: " << e.GetSourceLine());
     }
+    else
+    {
+      cerr << e.what() << endl
+           << "Info: " << e.GetInfo() << endl
+           << "Source: " << e.GetSourceFile() << endl
+           << "Line: " << e.GetSourceLine() << endl;
+    }
     Sorry();
     logger = nullptr;
     return 1;
@@ -3233,6 +3247,10 @@ int MAIN(int argc, MAINCHAR* argv[])
     if (logger != nullptr)
     {
       LOG4CXX_FATAL(logger, e.what());
+    }
+    else
+    {
+      cerr <<  e.what() << endl;
     }
     Sorry();
     logger = nullptr;
