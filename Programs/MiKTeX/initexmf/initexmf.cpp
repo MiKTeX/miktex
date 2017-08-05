@@ -961,8 +961,12 @@ MIKTEXNORETURN void IniTeXMFApp::FatalError(const char* lpszFormat, ...)
   {
     LOG4CXX_FATAL(logger, s);
   }
+  else
+  {
+    cerr << s << endl;
+  }
   Sorry(s);
-  throw (1);
+  throw 1;
 }
 
 bool IniTeXMFApp::InstallPackage(const string& deploymentName, const PathName& trigger, PathName& installRoot)
