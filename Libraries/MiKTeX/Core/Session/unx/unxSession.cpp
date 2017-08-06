@@ -99,7 +99,7 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
   ret.userDataRoot /= "data";
   ret.userInstallRoot = home_miktex_texmfs;
   ret.userInstallRoot /= "install";
-  PathName prefix = GetMyPrefix(true);
+  PathName prefix = GetMyPrefix(false);
   vector<string> splittedPrefix = PathName::Split(prefix);
   size_t n = splittedPrefix.size();
   MIKTEX_ASSERT(n > 0 && splittedPrefix[0] == "/");
