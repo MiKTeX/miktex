@@ -294,7 +294,11 @@ void
 uclose(UFILE* f)
 {
     if (f != 0) {
+#if defined(MIKTEX)
+      MiKTeX::Core::Session::Get()->CloseFile(f->f);
+#else
         fclose(f->f);
+#endif
         if ((f->encodingMode == ICUMAPPING) && (f->conversionData != NULL))
             ucnv_close((UConverter*)(f->conversionData));
         free((void*)f);
