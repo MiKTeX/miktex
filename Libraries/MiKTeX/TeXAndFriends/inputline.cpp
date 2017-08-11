@@ -321,6 +321,7 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
     switch (pimpl->shellCommandMode)
     {
     case ShellCommandMode::Unrestricted:
+      toBeExecuted = command;
       break;
     case ShellCommandMode::Forbidden:
       LogError("command not executed: " + command);
@@ -413,6 +414,7 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
     switch (pimpl->shellCommandMode)
     {
     case ShellCommandMode::Unrestricted:
+      toBeExecuted = command;
       break;
     case ShellCommandMode::Forbidden:
       LogError("command not executed: " + command);
