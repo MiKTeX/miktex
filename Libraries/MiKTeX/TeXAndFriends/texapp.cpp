@@ -382,6 +382,7 @@ TeXApp::Write18Result TeXApp::Write18(const string& command, int& exitCode) cons
   switch (GetShellCommandMode())
   {
   case ShellCommandMode::Unrestricted:
+    toBeExecuted = command;
     break;
   case ShellCommandMode::Forbidden:
     LogError("command not executed: " + command);

@@ -321,6 +321,7 @@ bool WebAppInputLine::OpenOutputFile(C4P::FileRoot& f, const PathName& fileName,
     switch (pimpl->shellCommandMode)
     {
     case ShellCommandMode::Unrestricted:
+      toBeExecuted = command;
       break;
     case ShellCommandMode::Forbidden:
       LogError("command not executed: " + command);
@@ -413,6 +414,7 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
     switch (pimpl->shellCommandMode)
     {
     case ShellCommandMode::Unrestricted:
+      toBeExecuted = command;
       break;
     case ShellCommandMode::Forbidden:
       LogError("command not executed: " + command);
@@ -505,21 +507,24 @@ bool WebAppInputLine::OpenInputFile(FILE** ppFile, const PathName& fileName)
     return false;
   }
 
-  auto openFileInfo = session->TryGetOpenFileInfo(*ppFile);
-  if (openFileInfo.first && openFileInfo.second.mode != FileMode::Command)
+  if (!AmI("xetex"))
   {
-    int bom = CheckBom(*ppFile);
-    switch (bom)
+    auto openFileInfo = session->TryGetOpenFileInfo(*ppFile);
+    if (openFileInfo.first && openFileInfo.second.mode != FileMode::Command)
     {
-    case Bom::UTF8:
-      LogInfo("UTF8 BOM detected: " + openFileInfo.second.fileName);
-      break;
-    case Bom::UTF16be:
-      LogInfo("UTF16be BOM detected: " + openFileInfo.second.fileName);
-      break;
-    case Bom::UTF16le:
-      LogInfo("UTF16le BOM detected: " + openFileInfo.second.fileName);
-      break;
+      int bom = CheckBom(*ppFile);
+      switch (bom)
+      {
+      case Bom::UTF8:
+        LogInfo("UTF8 BOM detected: " + openFileInfo.second.fileName);
+        break;
+      case Bom::UTF16be:
+        LogInfo("UTF16be BOM detected: " + openFileInfo.second.fileName);
+        break;
+      case Bom::UTF16le:
+        LogInfo("UTF16le BOM detected: " + openFileInfo.second.fileName);
+        break;
+      }
     }
   }
 

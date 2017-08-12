@@ -165,7 +165,7 @@ const uint32_t byteMark             = 0x00000080UL;
 /* if the user specifies a paper size or output driver program */
 const char *papersize;
 #if defined(MIKTEX)
-const char *outputdriver = MIKTEX_DVIPDFMX_EXE;
+const char* outputdriver = MIKTEX_DVIPDFMX_EXE;
 const std::vector<std::string> outputdriverargs = {
   "-q",
   "-E"
@@ -294,7 +294,11 @@ void
 uclose(UFILE* f)
 {
     if (f != 0) {
+#if defined(MIKTEX)
+      MiKTeX::Core::Session::Get()->CloseFile(f->f);
+#else
         fclose(f->f);
+#endif
         if ((f->encodingMode == ICUMAPPING) && (f->conversionData != NULL))
             ucnv_close((UConverter*)(f->conversionData));
         free((void*)f);
@@ -1270,8 +1274,8 @@ findnativefont(unsigned char* uname, integer scaled_size)
 #if defined(MIKTEX)
 	    if (namelength >= filenamesize)
             {
-              fprintf (stderr, "\n! Internal error: internal buffer too small\n");
-              throw (3);
+              fprintf(stderr, "\n! Internal error: internal buffer too small\n");
+              throw 3;
             }
 #else
             free(nameoffile);
@@ -2630,7 +2634,7 @@ printglyphname(integer font, integer gid)
 
 int
 #if defined(MIKTEX)
-u_open_in(unicodefile * f, integer mode, integer encodingData)
+u_open_in(unicodefile* f, integer mode, integer encodingData)
 #else
 u_open_in(unicodefile* f, integer filefmt, const_string fopen_mode, integer mode, integer encodingData)
 #endif
@@ -2687,7 +2691,7 @@ Isspace(char c)
 #endif
 
 #if defined(MIKTEX)
-boolean open_dvi_output(C4P::FileRoot & dviFile)
+boolean open_dvi_output(C4P::FileRoot& dviFile)
 {
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
   if (nopdfoutput)
@@ -2837,24 +2841,23 @@ open_dvi_output(FILE** fptr)
 #endif
 
 #if defined(MIKTEX)
-int
-dviclose(/*[in,out]*/ C4P::FileRoot & dviFile)
+int dviclose(C4P::FileRoot& dviFile)
 {
   if (nopdfoutput)
-    {
-    MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->CloseFile (dviFile);
-      return (0);
-    }
+  {
+    MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->CloseFile(dviFile);
+    return 0;
+  }
   else
-    {
-      fclose (dviFile);
-      dviFile.Attach (0, true);
-      outputdriverprocess->WaitForExit();
-      int ret = outputdriverprocess->get_ExitCode();
-      outputdriverprocess->Close ();
-      outputdriverprocess = nullptr;
-      return (ret);
-    }
+  {
+    fclose(dviFile);
+    dviFile.Attach(nullptr, true);
+    outputdriverprocess->WaitForExit();
+    int ret = outputdriverprocess->get_ExitCode();
+    outputdriverprocess->Close();
+    outputdriverprocess = nullptr;
+    return ret;
+  }
 }
 #else
 int
