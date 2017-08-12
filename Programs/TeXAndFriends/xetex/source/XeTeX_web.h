@@ -38,7 +38,7 @@ authorization from the copyright holders.
 
 #include <XeTeX_ext.h>
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -46,7 +46,7 @@ extern "C" {
 
 // declarations from the Pascal/WEB side used in C++ code
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 extern void zprintnl(int s);
 extern void zprintchar(int c);
 extern void begindiagnostic(void);
@@ -61,7 +61,7 @@ extern integer *fontarea;
 extern integer *fontsize;
 #endif
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef __cplusplus
 };
 #endif

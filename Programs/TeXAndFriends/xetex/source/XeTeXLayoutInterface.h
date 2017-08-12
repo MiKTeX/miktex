@@ -34,14 +34,14 @@ authorization from the copyright holders.
 #ifndef XETEX_LAYOUT_INTERFACE_H
 #define XETEX_LAYOUT_INTERFACE_H 1
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef __cplusplus
 extern "C" {
 #endif
 #endif
 typedef struct XeTeXFont_rec* XeTeXFont;
 typedef struct XeTeXLayoutEngine_rec* XeTeXLayoutEngine;
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef __cplusplus
 };
 #endif
@@ -57,7 +57,7 @@ typedef struct XeTeXLayoutEngine_rec* XeTeXLayoutEngine;
 #include "XeTeX_ext.h"
 #include "XeTeXFontMgr.h"
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -169,7 +169,7 @@ char* getGraphiteFeatureSettingLabel(XeTeXLayoutEngine engine, uint32_t feature,
 long findGraphiteFeatureNamed(XeTeXLayoutEngine engine, const char* name, int namelength);
 long findGraphiteFeatureSettingNamed(XeTeXLayoutEngine engine, uint32_t feature, const char* name, int namelength);
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef __cplusplus
 };
 #endif

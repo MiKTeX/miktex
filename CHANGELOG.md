@@ -2,6 +2,11 @@
 
 ## NEXT
 
+### Upgraded programs
+
+* dvipdfmx 20170806, XeTeX
+  Support /Rotate in PDF image inclusion
+
 ## 2.9.6400 - 2017-07-31
 
 ### New programs

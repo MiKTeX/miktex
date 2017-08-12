@@ -40,7 +40,7 @@ typedef struct {
       hb_ot_math_glyph_part_t* parts;
 } GlyphAssembly;
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 /* public "C" APIs for calling from Web(-to-C) code */
 #ifdef __cplusplus
 extern "C" {
@@ -63,7 +63,7 @@ extern "C" {
     int ot_part_full_advance(int f, const GlyphAssembly* a, int i);
     int ot_min_connector_overlap(int f);
 #ifdef __cplusplus
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 };
 #endif
 #endif

@@ -35,7 +35,7 @@ authorization from the copyright holders.
 
 #include "trans.h"
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -45,7 +45,7 @@ extern int pdf_get_rect(char* filename, int page_num, int pdf_box, realrect* box
 
 extern int pdf_count_pages(char* filename);
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef __cplusplus
 };
 #endif

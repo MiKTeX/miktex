@@ -24,6 +24,8 @@
 #include <time.h>
 #include <string.h>
 
+#include "dpxutil.h"
+
 #include "numbers.h"
 #include "system.h"
 #include "mem.h"
@@ -32,6 +34,7 @@
 #include "pdfobj.h"
 #include "pdfdoc.h"
 #include "pdfparse.h"
+#include "pdfdraw.h"
 
 #include "bmpimage.h"
 #include "jpegimage.h"
@@ -40,7 +43,6 @@
 
 #include "dvipdfmx.h"
 #include "pdflimits.h"
-
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/unxemu.h>
 #include <getopt.h>
@@ -260,6 +262,8 @@ static void do_pdf (FILE *fp, char *filename)
   int page_no = Include_Page;
   int count;
   pdf_rect bbox;
+  pdf_tmatrix matrix;
+  pdf_coord   p1, p2, p3, p4;
 
   pf = pdf_open(filename, fp);
   if (!pf) {
@@ -267,7 +271,7 @@ static void do_pdf (FILE *fp, char *filename)
     return;
   }
   count = pdf_doc_get_page_count(pf);
-  page  = pdf_doc_get_page(pf, page_no, PageBox, &bbox, NULL);
+  page  = pdf_doc_get_page(pf, page_no, PageBox, &bbox, &matrix, NULL);
 
   pdf_close(pf);
 
@@ -275,6 +279,24 @@ static void do_pdf (FILE *fp, char *filename)
     return;
 
   pdf_release_obj(page);
+
+  /* Image's attribute "bbox" here is affected by /Rotate entry of included
+   * PDF page.
+   */
+  p1.x = bbox.llx; p1.y = bbox.lly;
+  pdf_dev_transform(&p1, &matrix);
+  p2.x = bbox.urx; p2.y = bbox.lly;
+  pdf_dev_transform(&p2, &matrix);
+  p3.x = bbox.urx; p3.y = bbox.ury;
+  pdf_dev_transform(&p3, &matrix);
+  p4.x = bbox.llx; p4.y = bbox.ury;
+  pdf_dev_transform(&p4, &matrix);
+
+  bbox.llx = min4(p1.x, p2.x, p3.x, p4.x);
+  bbox.lly = min4(p1.y, p2.y, p3.y, p4.y);
+  bbox.urx = max4(p1.x, p2.x, p3.x, p4.x);
+  bbox.ury = max4(p1.y, p2.y, p3.y, p4.y);
+
   write_xbb(filename, bbox.llx, bbox.lly, bbox.urx, bbox.ury,
             pdf_file_get_version(pf), count);
 }

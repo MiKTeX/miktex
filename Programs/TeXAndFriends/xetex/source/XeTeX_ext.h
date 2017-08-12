@@ -190,7 +190,7 @@ extern FT_Library gFreeTypeLibrary;
 #include <stdio.h> /* for FILE */
 
 #ifdef WIN32
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #undef fputs
 #undef putc
 #define fputs win32_fputs
@@ -216,7 +216,7 @@ extern FT_Library gFreeTypeLibrary;
 extern const CFStringRef kXeTeXEmboldenAttributeName;
 #endif
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -341,7 +341,7 @@ typedef void* CFDictionaryRef; /* dummy declaration just so the stubs can compil
     CTFontRef fontFromAttributes(CFDictionaryRef fontAttrs);
     CTFontRef fontFromInteger(integer font);
 #endif
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef __cplusplus
 };
 #endif

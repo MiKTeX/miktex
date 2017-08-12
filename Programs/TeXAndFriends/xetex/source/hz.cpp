@@ -30,7 +30,6 @@ authorization from the copyright holders.
 #if defined(MIKTEX)
 #include "miktex-first.h"
 #endif
-
 #include <w2c/config.h>
 
 #include "XeTeX_web.h"

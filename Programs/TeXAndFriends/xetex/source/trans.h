@@ -75,7 +75,7 @@ typedef struct {
 
 #define setPoint(P,X,Y)			do { (P).x = X; (P).y = Y; } while (0)
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -86,7 +86,7 @@ void maketranslation(transform* t, double dx, double dy);
 void makerotation(transform* t, double a);
 void transformpoint(realpoint* p, const transform* t);
 void transformconcat(transform* t1, const transform* t2);
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #ifdef __cplusplus
 };
 #endif

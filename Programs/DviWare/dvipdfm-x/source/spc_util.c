@@ -42,7 +42,6 @@
 #include <miktex/unxemu.h>
 #endif
 
-
 #ifndef ISBLANK
 #define ISBLANK(c) ((c) == ' ' || (c) == '\t')
 #endif

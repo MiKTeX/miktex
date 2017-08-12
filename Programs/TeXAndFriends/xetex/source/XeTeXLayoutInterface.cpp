@@ -34,7 +34,6 @@ authorization from the copyright holders.
 #if defined(MIKTEX)
 #include "miktex-first.h"
 #endif
-
 #include <w2c/config.h>
 
 #include <unicode/platform.h>   // We need this first

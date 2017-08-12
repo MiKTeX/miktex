@@ -989,7 +989,8 @@ pdf_doc_get_page_count (pdf_file *pf)
 pdf_obj *
 pdf_doc_get_page (pdf_file *pf,
                   int page_no, int options,             /* load options */
-                  pdf_rect *bbox, pdf_obj **resources_p /* returned values */
+                  pdf_rect *bbox, pdf_tmatrix *matrix,  /* returned value */
+                  pdf_obj **resources_p /* returned values */
                   ) {
   pdf_obj *page_tree = NULL;
   pdf_obj *resources = NULL, *box = NULL, *rotate = NULL, *medbox = NULL;
@@ -1177,15 +1178,6 @@ pdf_doc_get_page (pdf_file *pf,
       !PDF_OBJ_DICTTYPE(resources))
     goto error;
 
-  if (PDF_OBJ_NUMBERTYPE(rotate)) {
-    if (pdf_number_value(rotate))
-      WARN("<< /Rotate %d >> found. (Not supported yet)", 
-           (int) pdf_number_value(rotate));
-    pdf_release_obj(rotate);
-    rotate = NULL;
-  } else if (rotate)
-    goto error;
-
   {
     int i;
 
@@ -1226,8 +1218,50 @@ pdf_doc_get_page (pdf_file *pf,
       }
     }
   }
-
   pdf_release_obj(box);
+
+  matrix->a = matrix->d = 1.0;
+  matrix->b = matrix->c = 0.0;
+  matrix->e = matrix->f = 0.0;
+  if (PDF_OBJ_NUMBERTYPE(rotate)) {
+    double deg = pdf_number_value(rotate);
+    if (deg - (int)deg != 0.0)
+    WARN("Invalid value specified for /Rotate: %f", deg);
+    else if (deg != 0.0) {
+      int rot = (int) deg;
+      if (rot % 90 != 0.0) {
+        WARN("Invalid value specified for /Rotate: %f", deg);
+      } else {
+        rot = rot % 360;
+        if (rot < 0) rot += 360;
+        switch (rot) {
+        case 90:
+          matrix->a = matrix->d = 0;
+          matrix->b = -1;
+          matrix->c = 1;
+          matrix->e = bbox->llx - bbox->lly;
+          matrix->f = bbox->lly + bbox->urx;
+          break;
+        case 180:
+          matrix->a = matrix->d = -1;
+          matrix->b = matrix->c = 0;
+          matrix->e = bbox->llx + bbox->urx;
+          matrix->f = bbox->lly + bbox->ury;
+          break;
+        case 270:
+          matrix->a = matrix->d = 0;
+          matrix->b = 1;
+          matrix->c = -1;
+          matrix->e = bbox->llx + bbox->ury;
+          matrix->f = bbox->lly - bbox->llx;
+          break;
+        }
+      }
+    }
+    pdf_release_obj(rotate);
+    rotate = NULL;
+  } else if (rotate)
+    goto error;
 
   if (resources_p)
     *resources_p = resources;

@@ -1,7 +1,7 @@
 /****************************************************************************\
  Part of the XeTeX typesetting system
  Copyright (c) 1994-2008 by SIL International
- Copyright (c) 2009, 2011 by Jonathan Kew
+ Copyright (c) 2009, 2017 by Jonathan Kew
 
  SIL Author(s): Jonathan Kew
 
@@ -33,7 +33,6 @@ authorization from the copyright holders.
 #if defined(MIKTEX)
 #include "miktex-first.h"
 #endif
-
 #include <w2c/config.h>
 
 #include "XeTeX_ext.h"
@@ -100,6 +99,28 @@ pdf_get_rect(char* filename, int page_num, int pdf_box, realrect* box)
 		case pdfbox_art:
 			r = page->getArtBox();
 			break;
+	}
+
+	int RotAngle = 0;
+	RotAngle = (int)page->getRotate() % 360;
+	if (RotAngle < 0)
+		RotAngle += 360;
+	if (RotAngle == 90 || RotAngle == 270) {
+		double tmpvalue;
+		if (r->x1 > r->x2) {
+			tmpvalue = r->x1;
+			r->x1 = r->x2;
+			r->x2 = tmpvalue;
+		}
+		if (r->y1 > r->y2) {
+			tmpvalue = r->y1;
+			r->y1 = r->y2;
+			r->y2 = tmpvalue;
+		}
+
+		tmpvalue = r->x2;
+		r->x2 = r->x1 + r->y2 - r->y1;
+		r->y2 = r->y1 + tmpvalue - r->x1;
 	}
 
 	box->x  = 72.27 / 72 * my_fmin(r->x1, r->x2);
