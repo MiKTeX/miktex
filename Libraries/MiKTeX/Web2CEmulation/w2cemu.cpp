@@ -177,12 +177,22 @@ const char* miktex_web2c_get_output_directory()
 void Web2C::GetSecondsAndMicros(int* seconds, int* micros)
 {
 #if defined(MIKTEX_WINDOWS)
-  unsigned long clock = GetTickCount();
-  *seconds = clock / 1000;
-  *micros = clock % 1000;
+  SYSTEMTIME systemTime;
+  GetSystemTime(&systemTime);
+  FILETIME fileTime;
+  if (!SystemTimeToFileTime(&systemTime, &fileTime))
+  {
+    MIKTEX_FATAL_WINDOWS_ERROR("SystemTimeToFileTime");
+  }
+  ULARGE_INTEGER ularge;
+  ularge.LowPart = fileTime.dwLowDateTime;
+  ularge.HighPart = fileTime.dwHighDateTime;
+  ULONGLONG epoch = 116444736000000000;
+  *seconds = (ularge.QuadPart - epoch) / 10000000;
+  *micros = systemTime.wMilliseconds * 1000;
 #else
   struct timeval tv;
-  gettimeofday(&tv, 0);
+  gettimeofday(&tv, nullptr);
   *seconds = tv.tv_sec;
   *micros = tv.tv_usec;
 #endif
