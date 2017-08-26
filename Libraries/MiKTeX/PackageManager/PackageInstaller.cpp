@@ -1928,7 +1928,17 @@ void PackageInstallerImpl::InstallRemove()
 
   if (!noPostProcessing)
   {
-    RunIniTeXMF({ "--mklinks",  "--mkmaps" });
+    vector<string> args = { "--mkmaps" };
+#if defined(MIKTEX_WINDOWS)
+    bool mklinks = session->IsAdminMode();
+#else
+    bool mklinks = true;
+#endif
+    if (mklinks)
+    {
+      args.push_back("--mklinks");
+    }
+    RunIniTeXMF(args);
   }
 }
 
