@@ -811,7 +811,7 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
 #if defined(WITH_OMEGA)
   if (AmI("omega"))
   {
-    while (last > first && (buffer16[last - 1] == u' ' || buffer16[last - 1] == u'\t' || buffer16[last - 1] == u'\r'))
+    while (last > first && (buffer16[last - 1] == u' ' || buffer16[last - 1] == u'\r'))
     {
       last -= 1;
     }
@@ -819,7 +819,7 @@ bool WebAppInputLine::InputLine(C4P_text& f, C4P_boolean bypassEndOfLine) const
   else
 #endif
   {
-    while (last > first && (buffer[last - 1] == ' ' || buffer[last - 1] == '\t' || buffer[last - 1] == '\r'))
+    while (last > first && (buffer[last - 1] == ' ' || buffer[last - 1] == '\r'))
     {
       last -= 1;
     }
