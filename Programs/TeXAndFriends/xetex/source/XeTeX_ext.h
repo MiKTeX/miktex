@@ -173,7 +173,12 @@ extern const uint32_t byteMask;
 extern const uint32_t byteMark;
 
 extern const char *papersize;
+#if defined(MIKTEX)
+extern std::string dvipdfmxExecutable;
+extern std::vector<std::string> dvipdfmxArgs;
+#else
 extern const char *outputdriver;
+#endif
 
 /* gFreeTypeLibrary is defined in XeTeXFontInst_FT2.cpp,
  * also used in XeTeXFontMgr_FC.cpp and XeTeX_ext.c.  */

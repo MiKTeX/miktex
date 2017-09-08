@@ -136,9 +136,22 @@ public:
       XETEXPROG.nopdfoutput = true;
       break;
     case OPT_OUTPUT_DRIVER:
-      extern const char* outputdriver;
-      outputdriver = strdup(optArg.c_str());
+    {
+      extern std::string dvipdfmxExecutable;
+      extern std::vector<std::string> dvipdfmxArgs;
+      MiKTeX::Core::Argv argv(optArg);
+      if (argv.GetArgc() == 0)
+      {
+        MIKTEX_FATAL_ERROR("--output-driver requires a value");
+      }
+      dvipdfmxExecutable = argv[0];
+      dvipdfmxArgs.clear();
+      for (int idx = 1; idx < argv.GetArgc(); ++idx)
+      {
+        dvipdfmxArgs.push_back(argv[idx]);
+      }
       break;
+    }
     case OPT_PAPERSIZE:
       extern const char* papersize;
       papersize = strdup(optArg.c_str());

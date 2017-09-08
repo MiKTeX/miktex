@@ -165,12 +165,12 @@ const uint32_t byteMark             = 0x00000080UL;
 /* if the user specifies a paper size or output driver program */
 const char *papersize;
 #if defined(MIKTEX)
-const char* outputdriver = MIKTEX_DVIPDFMX_EXE;
-const std::vector<std::string> outputdriverargs = {
+std::string dvipdfmxExecutable = MIKTEX_DVIPDFMX_EXE;
+std::vector<std::string> dvipdfmxArgs = {
   "-q",
   "-E"
 };
-std::unique_ptr<MiKTeX::Core::Process> outputdriverprocess;
+std::unique_ptr<MiKTeX::Core::Process> dvipdfmxProcess;
 #else
 const char *outputdriver = "xdvipdfmx -q -E"; /* default to portable xdvipdfmx driver */
 #endif
@@ -2706,14 +2706,14 @@ boolean open_dvi_output(C4P::FileRoot& dviFile)
   }
   else
   {
-    MiKTeX::Core::PathName xdvipdfmx;
-    if (!session->FindFile(outputdriver, MiKTeX::Core::FileType::EXE, xdvipdfmx))
+    MiKTeX::Core::PathName dvipdfmx;
+    if (!session->FindFile(dvipdfmxExecutable, MiKTeX::Core::FileType::EXE, dvipdfmx))
     {
       return 0;
     }
     MiKTeX::Core::ProcessStartInfo processStartInfo;
-    processStartInfo.FileName = xdvipdfmx.ToString();
-    processStartInfo.Arguments.push_back(outputdriver);
+    processStartInfo.FileName = dvipdfmx.ToString();
+    processStartInfo.Arguments.push_back(dvipdfmxExecutable);
     switch (MiKTeX::App::Application::GetApplication()->GetEnableInstaller())
     {
     case MiKTeX::Core::TriState::False:
@@ -2723,7 +2723,7 @@ boolean open_dvi_output(C4P::FileRoot& dviFile)
       processStartInfo.Arguments.push_back("--miktex-enable-installer");
       break;
     }
-    processStartInfo.Arguments.insert(processStartInfo.Arguments.end(), outputdriverargs.begin(), outputdriverargs.end());
+    processStartInfo.Arguments.insert(processStartInfo.Arguments.end(), dvipdfmxArgs.begin(), dvipdfmxArgs.end());
     MiKTeX::Core::PathName outPath = MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetOutputDirectory() / MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->GetNameOfFile();
     processStartInfo.Arguments.push_back("-o");
     processStartInfo.Arguments.push_back(outPath.ToString());
@@ -2733,8 +2733,8 @@ boolean open_dvi_output(C4P::FileRoot& dviFile)
       processStartInfo.Arguments.push_back(papersize);
     }
     processStartInfo.RedirectStandardInput = true;
-    outputdriverprocess = MiKTeX::Core::Process::Start(processStartInfo);
-    dviFile.Attach(outputdriverprocess->get_StandardInput(), true);
+    dvipdfmxProcess = MiKTeX::Core::Process::Start(processStartInfo);
+    dviFile.Attach(dvipdfmxProcess->get_StandardInput(), true);
     MiKTeX::TeXAndFriends::WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(outPath.GetData());
     return 1;
   }
@@ -2852,10 +2852,10 @@ int dviclose(C4P::FileRoot& dviFile)
   {
     fclose(dviFile);
     dviFile.Attach(nullptr, true);
-    outputdriverprocess->WaitForExit();
-    int ret = outputdriverprocess->get_ExitCode();
-    outputdriverprocess->Close();
-    outputdriverprocess = nullptr;
+    dvipdfmxProcess->WaitForExit();
+    int ret = dvipdfmxProcess->get_ExitCode();
+    dvipdfmxProcess->Close();
+    dvipdfmxProcess = nullptr;
     return ret;
   }
 }
