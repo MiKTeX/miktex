@@ -62,15 +62,15 @@ MpmView::MpmView() :
 {
 }
 
-BOOL MpmView::PreCreateWindow(CREATESTRUCT & cs)
+BOOL MpmView::PreCreateWindow(CREATESTRUCT& cs)
 {
   cs.style |= LVS_REPORT;
   return CListView::PreCreateWindow(cs);
 }
 
-void MpmView::InsertColumn(int colIdx, const char * lpszLabel, const char * lpszLongest)
+void MpmView::InsertColumn(int colIdx, const char* lpszLabel, const char* lpszLongest)
 {
-  CListCtrl & listControl = GetListCtrl();
+  CListCtrl& listControl = GetListCtrl();
   if (listControl.InsertColumn(colIdx, UT_(lpszLabel), LVCFMT_LEFT, listControl.GetStringWidth(UT_(lpszLongest)), colIdx) < 0)
   {
     MIKTEX_FATAL_WINDOWS_ERROR("CListCtrl::InsertColumn");
@@ -83,9 +83,9 @@ void MpmView::OnInitialUpdate()
   {
     CListView::OnInitialUpdate();
 
-    MIKTEX_ASSERT(GetStyle() & LVS_REPORT);
+    MIKTEX_ASSERT(GetStyle()& LVS_REPORT);
 
-    CListCtrl & listctrl = GetListCtrl();
+    CListCtrl& listctrl = GetListCtrl();
 
 #if 1
     listctrl.SetExtendedStyle(listctrl.GetExtendedStyle() | LVS_EX_FULLROWSELECT);
@@ -112,41 +112,41 @@ void MpmView::OnInitialUpdate()
 
     PostMessage(WM_FILLLISTVIEW);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-BOOL MpmView::OnPreparePrinting(CPrintInfo * pInfo)
+BOOL MpmView::OnPreparePrinting(CPrintInfo* pInfo)
 {
   try
   {
     return DoPreparePrinting(pInfo);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return FALSE;
   }
 }
 
-void MpmView::OnBeginPrinting(CDC * pDC, CPrintInfo * pInfo)
+void MpmView::OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo)
 {
   UNUSED_ALWAYS(pDC);
   UNUSED_ALWAYS(pInfo);
 }
 
-void MpmView::OnEndPrinting(CDC * pDC, CPrintInfo * pInfo)
+void MpmView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo)
 {
   UNUSED_ALWAYS(pDC);
   UNUSED_ALWAYS(pInfo);
@@ -189,19 +189,19 @@ LRESULT MpmView::OnFillListView(WPARAM wParam, LPARAM lParam)
     FillListView();
     return 0;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return 0;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return 0;
   }
 }
 
-void MpmView::OnLvnColumnclick(NMHDR * pNMHDR, LRESULT * pResult)
+void MpmView::OnLvnColumnclick(NMHDR* pNMHDR, LRESULT* pResult)
 {
   *pResult = 0;
   try
@@ -221,11 +221,11 @@ void MpmView::OnLvnColumnclick(NMHDR * pNMHDR, LRESULT * pResult)
       MIKTEX_FATAL_WINDOWS_ERROR("CListCtrl::SortItems");
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -233,11 +233,11 @@ void MpmView::OnLvnColumnclick(NMHDR * pNMHDR, LRESULT * pResult)
 
 int CALLBACK MpmView::CompareItems(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
 {
-  MpmView * This = reinterpret_cast<MpmView*>(lParamSort);
+  MpmView* This = reinterpret_cast<MpmView*>(lParamSort);
   try
   {
-    const PackageInfo & packageInfo1 = This->packages[lParam1];
-    const PackageInfo & packageInfo2 = This->packages[lParam2];
+    const PackageInfo& packageInfo1 = This->packages[lParam1];
+    const PackageInfo& packageInfo2 = This->packages[lParam2];
     int ret;
     switch (This->clickedColumn)
     {
@@ -269,12 +269,12 @@ int CALLBACK MpmView::CompareItems(LPARAM lParam1, LPARAM lParam2, LPARAM lParam
     }
     return ret * This->sortOrder;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(This, e);
     return 0;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(This, e);
     return 0;
@@ -285,15 +285,15 @@ void MpmView::OnButtonSearchClicked()
 {
   try
   {
-    CWinApp * pApp = AfxGetApp();
+    CWinApp* pApp = AfxGetApp();
     MIKTEX_ASSERT (pApp->GetMainWnd()->IsKindOf(RUNTIME_CLASS(MainFrame)));
-    MainFrame * pMain = DYNAMIC_DOWNCAST(MainFrame, pApp->GetMainWnd());
+    MainFrame* pMain = DYNAMIC_DOWNCAST(MainFrame, pApp->GetMainWnd());
     CString deploymentName = pMain->GetDlgBarText(IDC_EDIT_PACKAGE_NAME);
     deploymentName.MakeLower();
     CString searchWords = pMain->GetDlgBarText(IDC_EDIT_WORDS);
     searchWords.MakeLower();
     CString fileNamePattern = pMain->GetDlgBarText(IDC_EDIT_FILE_NAME);
-    CListCtrl & listctrl = GetListCtrl();
+    CListCtrl& listctrl = GetListCtrl();
     CWaitCursor cur;
     unique_ptr<PackageIterator> pIter(pManager->CreateIterator());
     PackageInfo packageInfo;
@@ -346,19 +346,19 @@ void MpmView::OnButtonSearchClicked()
     }
     pIter->Dispose();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void MpmView::InsertItem(int idx, const Packages::PackageInfo & packageInfo)
+void MpmView::InsertItem(int idx, const Packages::PackageInfo& packageInfo)
 {
-  CListCtrl & listctrl = GetListCtrl();
+  CListCtrl& listctrl = GetListCtrl();
 
   LVITEM lvitem;
 
@@ -433,11 +433,11 @@ void MpmView::InsertItem(int idx, const Packages::PackageInfo & packageInfo)
   }
 }
 
-void MpmView::OnContextMenu(CWnd * pWnd, CPoint point)
+void MpmView::OnContextMenu(CWnd* pWnd, CPoint point)
 {
   try
   {
-    CListCtrl & listctrl = GetListCtrl();
+    CListCtrl& listctrl = GetListCtrl();
 
     int nInstall = 0;
     int nUninstall = 0;
@@ -481,7 +481,7 @@ void MpmView::OnContextMenu(CWnd * pWnd, CPoint point)
         MIKTEX_FATAL_WINDOWS_ERROR("CMenu::LoadMenu");
       }
     }
-    CMenu * pPopup = menu.GetSubMenu(0);
+    CMenu* pPopup = menu.GetSubMenu(0);
     if (pPopup == nullptr)
     {
       MIKTEX_FATAL_WINDOWS_ERROR("CMenu::GetSubMenu");
@@ -504,10 +504,12 @@ void MpmView::OnContextMenu(CWnd * pWnd, CPoint point)
     UINT cmd = TrackPopupMenu(pPopup->GetSafeHmenu(), TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RETURNCMD, point.x, point.y, 0, pWnd->GetSafeHwnd(), nullptr);
     if (cmd == 0)
     {
+#if 0
       if (::GetLastError() != ERROR_SUCCESS)
       {
         MIKTEX_FATAL_WINDOWS_ERROR("TrackPopupMenu");
       }
+#endif
       return;
     }
     switch (cmd)
@@ -532,24 +534,24 @@ void MpmView::OnContextMenu(CWnd * pWnd, CPoint point)
       break;
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void MpmView::OnNMDblclk(NMHDR * pNMHDR, LRESULT * pResult)
+void MpmView::OnNMDblclk(NMHDR* pNMHDR, LRESULT* pResult)
 {
   UNUSED_ALWAYS(pNMHDR);
   OnProperties();
   *pResult = 0;
 }
 
-void MpmView::OnUpdateInstall(CCmdUI * pCmdUI)
+void MpmView::OnUpdateInstall(CCmdUI* pCmdUI)
 {
   try
   {
@@ -560,7 +562,7 @@ void MpmView::OnUpdateInstall(CCmdUI * pCmdUI)
     }
     else
     {
-      CListCtrl & listctrl = GetListCtrl();
+      CListCtrl& listctrl = GetListCtrl();
       int idx = -1;
       enable = (listctrl.GetSelectedCount() > 0);
       while (enable && (idx = listctrl.GetNextItem(idx, LVNI_SELECTED)) >= 0)
@@ -578,11 +580,11 @@ void MpmView::OnUpdateInstall(CCmdUI * pCmdUI)
     }
     pCmdUI->Enable(enable);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -595,7 +597,7 @@ void MpmView::OnInstall()
     vector<string> toBeInstalled;
     vector<string> toBeRemoved;
     int idx = -1;
-    CListCtrl & listctrl = GetListCtrl();
+    CListCtrl& listctrl = GetListCtrl();
     while ((idx = listctrl.GetNextItem(idx, LVNI_SELECTED)) >= 0)
     {
       PackageInfo packageInfo = packages[listctrl.GetItemData(idx)];
@@ -665,11 +667,11 @@ void MpmView::OnInstall()
     UpdateDialog::DoModal(this, pManager, toBeInstalled, toBeRemoved);
     OnResetView();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -679,7 +681,7 @@ void MpmView::OnProperties()
 {
   try
   {
-    CListCtrl & listctrl = GetListCtrl();
+    CListCtrl& listctrl = GetListCtrl();
     int nItem = listctrl.GetNextItem(-1, LVNI_SELECTED);
     if (nItem < 0)
     {
@@ -692,19 +694,19 @@ void MpmView::OnProperties()
     PackageInfo packageInfo = packages[listctrl.GetItemData(nItem)];
     PropSheetPackage::DoModal(packageInfo, this);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void MpmView::OnUpdateProperties(CCmdUI * pCmdUI)
+void MpmView::OnUpdateProperties(CCmdUI* pCmdUI)
 {
-  CListCtrl & listctrl = GetListCtrl();
+  CListCtrl& listctrl = GetListCtrl();
   pCmdUI->Enable(listctrl.GetSelectedCount() == 1);
 }
 
@@ -713,12 +715,12 @@ void MpmView::OnUninstall()
   OnInstall();
 }
 
-void MpmView::OnUpdateUninstall(CCmdUI * pCmdUI)
+void MpmView::OnUpdateUninstall(CCmdUI* pCmdUI)
 {
   try
   {
     BOOL enable;
-    CListCtrl & listctrl = GetListCtrl();
+    CListCtrl& listctrl = GetListCtrl();
     int idx = -1;
     enable = (listctrl.GetSelectedCount() > 0);
     while (enable && (idx = listctrl.GetNextItem(idx, LVNI_SELECTED)) >= 0)
@@ -735,17 +737,17 @@ void MpmView::OnUpdateUninstall(CCmdUI * pCmdUI)
     }
     pCmdUI->Enable(enable);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void MpmView::OnUpdateResetView(CCmdUI * pCmdUI)
+void MpmView::OnUpdateResetView(CCmdUI* pCmdUI)
 {
   pCmdUI->Enable(TRUE);
 }
@@ -754,9 +756,9 @@ void MpmView::OnResetView()
 {
   try
   {
-    CWinApp * pApp = AfxGetApp();
+    CWinApp* pApp = AfxGetApp();
     MIKTEX_ASSERT(pApp->GetMainWnd()->IsKindOf(RUNTIME_CLASS(MainFrame)));
-    MainFrame * pMain = DYNAMIC_DOWNCAST(MainFrame, pApp->GetMainWnd());
+    MainFrame* pMain = DYNAMIC_DOWNCAST(MainFrame, pApp->GetMainWnd());
     pMain->GetDlgBarItem(IDC_EDIT_PACKAGE_NAME)->SetWindowText(_T(""));
     CString searchWords;
     pMain->GetDlgBarItem(IDC_EDIT_WORDS)->SetWindowText(_T(""));
@@ -764,11 +766,11 @@ void MpmView::OnResetView()
     pMain->GetDlgBarItem(IDC_EDIT_FILE_NAME)->SetWindowText(_T(""));
     FillListView();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -783,11 +785,11 @@ void MpmView::OnSiteWizard()
       OnUpdateDatabase();
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -822,11 +824,11 @@ void MpmView::OnUpdateDatabase()
     OnResetView();
     pProgDlg->StopProgressDialog();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -841,15 +843,15 @@ void MpmView::OnSelectInstallablePackages()
 {
   try
   {
-    CListCtrl & listctrl = GetListCtrl();
-    for (map<LPARAM, PackageInfo>::const_iterator it = packages.begin(); it != packages.end(); ++it)
+    CListCtrl& listctrl = GetListCtrl();
+    for (const auto& entry : packages)
     {
-      const PackageInfo & packageInfo = it->second;
+      const PackageInfo& packageInfo = entry.second;
       if (packageInfo.timeInstalled == 0)
       {
         LVFINDINFO fi;
         fi.flags = LVFI_PARAM;
-        fi.lParam = it->first;
+        fi.lParam = entry.first;
         int idx = listctrl.FindItem(&fi);
         if (idx < 0)
         {
@@ -862,17 +864,17 @@ void MpmView::OnSelectInstallablePackages()
       }
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void MpmView::OnUpdateSelectUpdateablePackages(CCmdUI * pCmdUI)
+void MpmView::OnUpdateSelectUpdateablePackages(CCmdUI* pCmdUI)
 {
   // TODO
   pCmdUI->Enable(FALSE);
@@ -882,7 +884,7 @@ void MpmView::OnSelectAll()
 {
   try
   {
-    CListCtrl & listctrl = GetListCtrl();
+    CListCtrl& listctrl = GetListCtrl();
     int count = listctrl.GetItemCount();
     for (int idx = 0; idx < count; ++idx)
     {
@@ -892,11 +894,11 @@ void MpmView::OnSelectAll()
       }
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -906,66 +908,55 @@ void MpmView::OnUpdateWizard()
 {
   try
   {
-    PathName updateDat = pSession->GetSpecialPath(SpecialPath::InstallRoot);
-    updateDat /= MIKTEX_PATH_INTERNAL_UPDATE_EXE;
-    if (!File::Exists(updateDat))
-    {
-      MIKTEX_UNEXPECTED();
-    }
-    PathName copystart;
-    if (!pSession->FindFile(MIKTEX_COPYSTART_ADMIN_EXE, FileType::EXE, copystart))
-    {
-      MIKTEX_UNEXPECTED();
-    }
     if (!pSession->UnloadFilenameDatabase())
     {
       MIKTEX_UNEXPECTED();
     }
-    Process::Start(copystart, { MIKTEX_COPYSTART_ADMIN_EXE, updateDat.ToString() });
+    Process::Start(pSession->GetSpecialPath(SpecialPath::DistRoot) / MIKTEX_PATH_INTERNAL_UPDATE_EXE);
     // TODO: close app
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void MpmView::OnUpdateSiteWizard(CCmdUI * pCmdUI)
+void MpmView::OnUpdateSiteWizard(CCmdUI* pCmdUI)
 {
   pCmdUI->Enable(!pSession->IsMiKTeXDirect());
 }
 
-void MpmView::OnUpdateUpdateDatabase(CCmdUI * pCmdUI)
+void MpmView::OnUpdateUpdateDatabase(CCmdUI* pCmdUI)
 {
   try
   {
     pCmdUI->Enable(!pSession->IsMiKTeXDirect());
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
 }
 
-void MpmView::OnUpdateUpdateWizard(CCmdUI * pCmdUI)
+void MpmView::OnUpdateUpdateWizard(CCmdUI* pCmdUI)
 {
   try
   {
     pCmdUI->Enable(!pSession->IsMiKTeXDirect());
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
