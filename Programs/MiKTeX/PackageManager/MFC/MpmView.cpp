@@ -842,14 +842,14 @@ void MpmView::OnSelectInstallablePackages()
   try
   {
     CListCtrl& listctrl = GetListCtrl();
-    for (map<LPARAM, PackageInfo>::const_iterator it = packages.begin(); it != packages.end(); ++it)
+    for (const auto& entry : packages)
     {
-      const PackageInfo& packageInfo = it->second;
+      const PackageInfo& packageInfo = entry.second;
       if (packageInfo.timeInstalled == 0)
       {
         LVFINDINFO fi;
         fi.flags = LVFI_PARAM;
-        fi.lParam = it->first;
+        fi.lParam = entry.first;
         int idx = listctrl.FindItem(&fi);
         if (idx < 0)
         {
