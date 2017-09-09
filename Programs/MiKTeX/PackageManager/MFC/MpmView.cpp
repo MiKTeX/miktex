@@ -504,10 +504,12 @@ void MpmView::OnContextMenu(CWnd* pWnd, CPoint point)
     UINT cmd = TrackPopupMenu(pPopup->GetSafeHmenu(), TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RETURNCMD, point.x, point.y, 0, pWnd->GetSafeHwnd(), nullptr);
     if (cmd == 0)
     {
+#if 0
       if (::GetLastError() != ERROR_SUCCESS)
       {
         MIKTEX_FATAL_WINDOWS_ERROR("TrackPopupMenu");
       }
+#endif
       return;
     }
     switch (cmd)
