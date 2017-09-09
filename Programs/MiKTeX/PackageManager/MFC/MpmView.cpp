@@ -906,22 +906,11 @@ void MpmView::OnUpdateWizard()
 {
   try
   {
-    PathName updateDat = pSession->GetSpecialPath(SpecialPath::InstallRoot);
-    updateDat /= MIKTEX_PATH_INTERNAL_UPDATE_EXE;
-    if (!File::Exists(updateDat))
-    {
-      MIKTEX_UNEXPECTED();
-    }
-    PathName copystart;
-    if (!pSession->FindFile(MIKTEX_COPYSTART_ADMIN_EXE, FileType::EXE, copystart))
-    {
-      MIKTEX_UNEXPECTED();
-    }
     if (!pSession->UnloadFilenameDatabase())
     {
       MIKTEX_UNEXPECTED();
     }
-    Process::Start(copystart, { MIKTEX_COPYSTART_ADMIN_EXE, updateDat.ToString() });
+    Process::Start(pSession->GetSpecialPath(SpecialPath::DistRoot) / MIKTEX_PATH_INTERNAL_UPDATE_EXE);
     // TODO: close app
   }
   catch (const MiKTeXException& e)
