@@ -69,6 +69,11 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
   }
 
   vector<string> args{ name.ToString() };
+  vector<string> scriptEngineOptions;
+  if (config->TryGetValue(scriptEngine, name.ToString() + "." + scriptEngine + "." + "options" + "[]", scriptEngineOptions))
+  {
+    args.insert(args.end(), scriptEngineOptions.begin(), scriptEngineOptions.end());
+  }
   if (!scriptEngineArgument.empty())
   {
     args.push_back(scriptEngineArgument);
