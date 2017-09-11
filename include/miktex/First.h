@@ -1,6 +1,6 @@
 /* miktex/First.h:                                      -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -46,21 +46,6 @@ namespace MiKTeX {
     __cdecl OnThrowStdException ();
   }
 }
-
-#include <exception>
-
-#if !defined(_THROW)
-#error _THROW macro is not defined in <exception>
-#endif
-
-#undef _THROW
-
-#define _THROW(x, y)                            \
-  (                                             \
-    MiKTeX::Debug::OnThrowStdException(),       \
-    throw x(y),                                 \
-    0                                           \
-  )
 
 #endif /* Microsoft C++ */
 
