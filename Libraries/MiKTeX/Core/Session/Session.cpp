@@ -112,13 +112,6 @@ void SessionImpl::Initialize(const Session::InitInfo& initInfo)
 
   adminMode = forceAdminMode || initInfo.GetOptions()[InitOption::AdminMode];
 
-#if defined(_MSC_VER)
-  if (Utils::GetEnvironmentString("MIKTEX_DEBUG_ON_STD_EXCEPTION", val))
-  {
-    debugOnStdException = std::stoi(val);
-  }
-#endif
-
 #if defined(MIKTEX_WINDOWS)
   if (initInfo.GetOptions()[InitOption::InitializeCOM])
   {

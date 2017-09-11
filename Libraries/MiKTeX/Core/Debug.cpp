@@ -1,6 +1,6 @@
 /* Debug.cpp: debugging memory allications
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -22,6 +22,8 @@
 #include "StdAfx.h"
 
 #include "internal.h"
+
+#include "core-version.h"
 
 #include "miktex/Core/Exceptions.h"
 
@@ -118,17 +120,10 @@ void MIKTEXCEECALL MiKTeX::Debug::Free(void* ptr, const SourceLocation& sourceLo
   }
 }
 
-#if defined(_MSC_VER)
-BEGIN_INTERNAL_NAMESPACE;
-int debugOnStdException = 0;
-END_INTERNAL_NAMESPACE;
-
+#if defined(_MSC_VER) && MIKTEX_COMP_INTERFACE_VERSION < 3
+// TODO: remove API
 void __declspec(dllexport) __cdecl MiKTeX::Debug::OnThrowStdException()
 {
-  if (debugOnStdException == 1)
-  {
-    DebugBreak();
-  }
 }
 #endif
 
