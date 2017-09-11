@@ -38,7 +38,7 @@ namespace MiKTeX {
 #else
     __declspec(dllimport)
 #endif
-    __cdecl OnThrowStdException ();
+    __cdecl OnThrowStdException();
   }
 }
 
