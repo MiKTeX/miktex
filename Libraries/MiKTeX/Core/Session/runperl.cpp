@@ -59,7 +59,6 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
   {
     MIKTEX_FATAL_ERROR_2(T_("The script is not registered."), "scriptEngine", scriptEngine, "name", name.ToString());
   }
-  config = nullptr;
 
   // find script
   PathName scriptPath;
