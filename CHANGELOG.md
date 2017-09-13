@@ -7,6 +7,16 @@
 * dvipdfmx 20170806, XeTeX
   Support /Rotate in PDF image inclusion
 
+### Bug fixes
+
+* [4](https://github.com/MiKTeX/miktex/issues/4): `xdvipdfmx` with options supplied as `output-driver` to XeLaTeX results in `can't write on file` error
+* [5](https://github.com/MiKTeX/miktex/issues/5): Package manager "Miktex encountered an internal error" *[windows]*
+* [2618](https://sourceforge.net/p/miktex/bugs/2618/): Unknown filter "JPXDecode" Syntax Error
+* [2620](https://sourceforge.net/p/miktex/bugs/2620/): xetex can't input files with BOM anymore
+* [2622](https://sourceforge.net/p/miktex/bugs/2622/): shell commands are not executed correctly
+* [2624](https://sourceforge.net/p/miktex/bugs/2624/): Problem with \pdfresettimer & \pdfelapsedtime
+* [2625](https://sourceforge.net/p/miktex/bugs/2625/): Package installation fails as normal user account
+
 ## 2.9.6400 - 2017-07-31
 
 ### New programs
