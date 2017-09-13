@@ -1,6 +1,6 @@
 /* miktex/First.h:                                      -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -30,11 +30,6 @@
 
 #if defined(_MSC_VER) && defined(__cplusplus)
 
-#if _MSC_VER < 1600
-#undef _SECURE_SCL_THROWS
-#define _SECURE_SCL_THROWS 1
-#endif
-
 namespace MiKTeX {
   namespace Debug {
     void
@@ -43,24 +38,9 @@ namespace MiKTeX {
 #else
     __declspec(dllimport)
 #endif
-    __cdecl OnThrowStdException ();
+    __cdecl OnThrowStdException();
   }
 }
-
-#include <exception>
-
-#if !defined(_THROW)
-#error _THROW macro is not defined in <exception>
-#endif
-
-#undef _THROW
-
-#define _THROW(x, y)                            \
-  (                                             \
-    MiKTeX::Debug::OnThrowStdException(),       \
-    throw x(y),                                 \
-    0                                           \
-  )
 
 #endif /* Microsoft C++ */
 

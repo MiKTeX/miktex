@@ -387,8 +387,6 @@ inline FILE * FdOpen(int fd, const char * lpszMode)
 
 /* _________________________________________________________________________ */
 
-extern int debugOnStdException;
-
 END_INTERNAL_NAMESPACE;
 
 using namespace MiKTeX::ABF3880A6239B84E87DC7E727A8BBFD4;
