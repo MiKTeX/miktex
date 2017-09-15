@@ -1,6 +1,6 @@
 /* fndbmem.h: fndb file format                          -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -31,7 +31,7 @@
 BEGIN_INTERNAL_NAMESPACE;
 
 const size_t FNDB_GRAN = 1024 * 1024;
-const size_t FNDB_EXTRA = 4 * FNDB_GRAN;
+const size_t FNDB_EXTRA = 5 * FNDB_GRAN;
 
 typedef uint32_t FndbWord;
 typedef FndbWord FndbByteOffset;
