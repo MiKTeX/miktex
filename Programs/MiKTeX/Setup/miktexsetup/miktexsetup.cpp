@@ -1,6 +1,6 @@
 /* miktexsetup.cpp:
 
-   Copyright (C) 2014-2016 Christian Schenk
+   Copyright (C) 2014-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -25,7 +25,7 @@
 #  define THE_NAME_OF_THE_GAME T_("MiKTeX Setup Utility")
 #endif
 
-const char * DEFAULT_TRACE_STREAMS =
+const char* DEFAULT_TRACE_STREAMS =
 MIKTEX_TRACE_CORE ","
 MIKTEX_TRACE_CURL ","
 MIKTEX_TRACE_ERROR ","
@@ -68,28 +68,28 @@ public:
   }
 
 public:
-  virtual void ReportLine(const string & str);
+  virtual void ReportLine(const string& str);
 
 public:
-  virtual bool MIKTEXTHISCALL OnRetryableError(const string & message);
+  virtual bool MIKTEXTHISCALL OnRetryableError(const string& message);
 
 public:
   virtual bool MIKTEXTHISCALL OnProgress(MiKTeX::Setup::Notification nf);
 
 public:
-  virtual bool MIKTEXTHISCALL OnProcessOutput(const void * pOutput, size_t n);
+  virtual bool MIKTEXTHISCALL OnProcessOutput(const void* pOutput, size_t n);
 
 public:
-  void Main(int argc, const char ** argv);
+  void Main(int argc, const char** argv);
 
 private:
-  void Verbose(const char * lpszFormat, ...);
+  void Verbose(const char* lpszFormat, ...);
 
 private:
-  void Message(const char * lpszFormat, ...);
+  void Message(const char* lpszFormat, ...);
 
 private:
-  MIKTEXNORETURN void Error(const char * lpszFormat, ...);
+  MIKTEXNORETURN void Error(const char* lpszFormat, ...);
 
 private:
   static void SignalHandler(int sig);
@@ -295,7 +295,7 @@ const struct poptOption Application::aoption[] = {
 
 volatile sig_atomic_t Application::interrupted = false;
 
-void Application::Message(const char *  lpszFormat, ...)
+void Application::Message(const char*  lpszFormat, ...)
 {
   if (quiet)
   {
@@ -307,7 +307,7 @@ void Application::Message(const char *  lpszFormat, ...)
   VA_END(arglist);
 }
 
-void Application::Verbose(const char * lpszFormat, ...)
+void Application::Verbose(const char* lpszFormat, ...)
 {
   if (!verbose)
   {
@@ -319,7 +319,7 @@ void Application::Verbose(const char * lpszFormat, ...)
   VA_END(arglist);
 }
 
-MIKTEXNORETURN void Application::Error(const char * lpszFormat, ...)
+MIKTEXNORETURN void Application::Error(const char* lpszFormat, ...)
 {
   va_list arglist;
   VA_START(arglist, lpszFormat);
@@ -328,12 +328,12 @@ MIKTEXNORETURN void Application::Error(const char * lpszFormat, ...)
   throw 1;
 }
 
-void Application::ReportLine(const string & str)
+void Application::ReportLine(const string& str)
 {
   Verbose("%s", str.c_str());
 }
 
-bool Application::OnRetryableError(const string & message)
+bool Application::OnRetryableError(const string& message)
 {
   return false;
 }
@@ -343,11 +343,11 @@ bool Application::OnProgress(MiKTeX::Setup::Notification nf)
   return !interrupted;
 }
 
-bool Application::OnProcessOutput(const void * pOutput, size_t n)
+bool Application::OnProcessOutput(const void* pOutput, size_t n)
 {
   if (verbose)
   {
-    cout.write(reinterpret_cast<const char *>(pOutput), n);
+    cout.write(reinterpret_cast<const char*>(pOutput), n);
   }
   return !interrupted;
 }
@@ -355,7 +355,7 @@ bool Application::OnProcessOutput(const void * pOutput, size_t n)
 class CountryComparer
 {
 public:
-  inline bool operator() (const RepositoryInfo & lhs, const RepositoryInfo & rhs)
+  inline bool operator() (const RepositoryInfo& lhs, const RepositoryInfo& rhs)
   {
     if (lhs.ranking == rhs.ranking)
     {
@@ -378,7 +378,7 @@ void Application::ListRepositories()
     Message(T_("No package repositories are currently available."));
   }
   sort(repositories.begin(), repositories.end(), CountryComparer());
-  for (const RepositoryInfo & ri : repositories)
+  for (const RepositoryInfo& ri : repositories)
   {
     cout << ri.url << endl;
   }
@@ -480,7 +480,7 @@ void Application::PrintInfo()
   }
 }
 
-void Application::Main(int argc, const char ** argv)
+void Application::Main(int argc, const char** argv)
 {
   Session::InitInfo initInfo;
   initInfo.SetProgramInvocationName(argv[0]);
@@ -643,7 +643,7 @@ void Application::Main(int argc, const char ** argv)
   {
     cout
       << Utils::MakeProgramVersionString(THE_NAME_OF_THE_GAME, VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-      << "Copyright (C) 2014-2016 Christian Schenk" << endl
+      << "Copyright (C) 2014-2017 Christian Schenk" << endl
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
     return;
@@ -823,14 +823,14 @@ extern "C" void Application::SignalHandler(int signalToBeHandled)
 #  define MAINCHAR char
 #endif
 
-int MAIN(int argc, MAINCHAR ** argv)
+int MAIN(int argc, MAINCHAR** argv)
 {
   int retCode = 0;
   try
   {
     vector<string> utf8args;
     utf8args.reserve(argc);
-    vector<const char *> newargv;
+    vector<const char*> newargv;
     newargv.reserve(argc + 1);
     for (int idx = 0; idx < argc; ++idx)
     {
@@ -847,13 +847,13 @@ int MAIN(int argc, MAINCHAR ** argv)
     Application app;
     app.Main(argc, &newargv[0]);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     // TODO: Sorry
     Utils::PrintException(e);
     retCode = 1;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     // TODO: Sorry
     Utils::PrintException(e);
