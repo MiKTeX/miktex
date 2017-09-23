@@ -72,10 +72,10 @@ if(NOT LINK_EVERYTHING_STATICALLY)
 
   set_property(TARGET ${w2cemu_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-  set_target_properties(${w2cemu_dll_name}
-    PROPERTIES
-      VERSION "${MIKTEX_COMP_J2000_VERSION}"
-      SOVERSION "${MIKTEX_COMP_INTERFACE_VERSION}"
+  set_shared_library_version(
+    ${w2cemu_dll_name}
+    ${MIKTEX_COMP_INTERFACE_VERSION}
+    ${MIKTEX_COMP_J2000_VERSION}
   )
 
   target_include_directories(${w2cemu_dll_name}

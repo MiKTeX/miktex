@@ -60,12 +60,12 @@ set_source_files_properties(
     GENERATED TRUE
 )
 
-set_target_properties(${core_dll_name}
-  PROPERTIES
-    VERSION "${MIKTEX_COMP_INTERFACE_VERSION}.${MIKTEX_COMP_J2000_VERSION}"
-    SOVERSION "${MIKTEX_COMP_INTERFACE_VERSION}"
+set_shared_library_version(
+  ${core_dll_name}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
+  ${MIKTEX_COMP_J2000_VERSION}
 )
-
+  
 target_compile_definitions(${core_dll_name}
   PUBLIC
     -DMIKTEX_CORE_SHARED

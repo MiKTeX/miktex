@@ -44,10 +44,10 @@ add_library(${trace_dll_name} SHARED ${${trace_dll_name}_sources})
 
 set_property(TARGET ${trace_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_target_properties(${trace_dll_name}
-  PROPERTIES
-    VERSION "${MIKTEX_COMP_J2000_VERSION}"
-    SOVERSION "${MIKTEX_COMP_INTERFACE_VERSION}"
+set_shared_library_version(
+  ${trace_dll_name}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
+  ${MIKTEX_COMP_J2000_VERSION}
 )
 
 target_compile_definitions(${trace_dll_name}

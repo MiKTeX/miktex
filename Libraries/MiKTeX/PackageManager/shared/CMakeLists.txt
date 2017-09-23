@@ -51,10 +51,10 @@ if(WITH_COM)
   add_dependencies(${mpm_dll_name} gen-core-com)
 endif()
 
-set_target_properties(${mpm_dll_name}
-  PROPERTIES
-  VERSION "${MIKTEX_COMP_J2000_VERSION}"
-  SOVERSION "${MIKTEX_COMP_INTERFACE_VERSION}"
+set_shared_library_version(
+  ${mpm_dll_name}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
+  ${MIKTEX_COMP_J2000_VERSION}
 )
 
 target_compile_definitions(${mpm_dll_name}

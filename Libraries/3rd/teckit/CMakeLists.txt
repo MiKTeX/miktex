@@ -63,10 +63,10 @@ add_library(${teckit_dll_name} SHARED ${${teckit_dll_name}_sources})
 
 set_property(TARGET ${teckit_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_target_properties(${teckit_dll_name}
-  PROPERTIES
-    VERSION "${MIKTEX_COMP_J2000_VERSION}"
-    SOVERSION "${MIKTEX_COMP_INTERFACE_VERSION}"
+set_shared_library_version(
+  ${teckit_dll_name}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
+  ${MIKTEX_COMP_J2000_VERSION}
 )
 
 target_include_directories(${teckit_dll_name}

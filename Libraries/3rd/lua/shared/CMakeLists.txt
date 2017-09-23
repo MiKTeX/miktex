@@ -59,10 +59,10 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-set_target_properties(${lua_dll_name}
-  PROPERTIES
-    VERSION "${MIKTEX_COMP_J2000_VERSION}"
-    SOVERSION "${MIKTEX_COMP_INTERFACE_VERSION}"
+set_shared_library_version(
+  ${lua_dll_name}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
+  ${MIKTEX_COMP_J2000_VERSION}
 )
 
 rebase(${lua_dll_name})

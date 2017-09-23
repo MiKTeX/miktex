@@ -35,10 +35,10 @@ add_library(${unxemu_dll_name} SHARED ${${unxemu_dll_name}_sources})
 
 set_property(TARGET ${unxemu_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_target_properties(${unxemu_dll_name}
-  PROPERTIES
-    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
-    SOVERSION "1"
+set_shared_library_version(
+  ${unxemu_dll_name}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
+  ${MIKTEX_COMP_J2000_VERSION}
 )
 
 target_compile_definitions(${unxemu_dll_name}

@@ -127,10 +127,10 @@ add_library(${ui_qt_dll_name} SHARED
 
 set_property(TARGET ${ui_qt_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_target_properties(${ui_qt_dll_name}
-  PROPERTIES
-  VERSION "${MIKTEX_COMP_J2000_VERSION}"
-  SOVERSION "${MIKTEX_COMP_INTERFACE_VERSION}"
+set_shared_library_version(
+  ${ui_qt_dll_name}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
+  ${MIKTEX_COMP_J2000_VERSION}
 )
 
 target_compile_definitions(${ui_qt_dll_name}

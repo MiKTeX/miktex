@@ -35,10 +35,10 @@ add_library(${kpsemu_dll_name} SHARED ${${kpsemu_dll_name}_sources})
 
 set_property(TARGET ${kpsemu_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_target_properties(${kpsemu_dll_name}
-  PROPERTIES
-    VERSION "${MIKTEX_COMP_J2000_VERSION}"
-    SOVERSION "${MIKTEX_COMP_INTERFACE_VERSION}"
+set_shared_library_version(
+  ${kpsemu_dll_name}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
+  ${MIKTEX_COMP_J2000_VERSION}
 )
 
 target_compile_definitions(${kpsemu_dll_name}
