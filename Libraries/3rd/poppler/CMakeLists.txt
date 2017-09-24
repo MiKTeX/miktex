@@ -367,6 +367,13 @@ add_library(${poppler_lib_name} STATIC ${${poppler_lib_name}_sources})
 
 set_property(TARGET ${poppler_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+if(NOT POPPLER_VERSION VERSION_LESS 0.59.0)
+  set_target_properties(${poppler_lib_name}
+    PROPERTIES
+    INTERFACE_COMPILE_DEFINITIONS MIKTEX_POPPLER_59=1
+  )
+endif()
+
 target_include_directories(${poppler_lib_name}
   PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}/include

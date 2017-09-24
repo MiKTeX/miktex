@@ -529,6 +529,7 @@ static int m_##in##_##function(lua_State * L)                  \
     return 1;                                                  \
 }
 
+#ifndef MIKTEX_POPPLER_59
 #define m_poppler_get_OBJECT(in, function)                     \
 static int m_##in##_##function(lua_State * L)                  \
 {                                                              \
@@ -544,6 +545,23 @@ static int m_##in##_##function(lua_State * L)                  \
     uout->pd = uin->pd;                                        \
     return 1;                                                  \
 }
+#else
+#define m_poppler_get_OBJECT(in, function)                     \
+static int m_##in##_##function(lua_State * L)                  \
+{                                                              \
+    udstruct *uin, *uout;                                      \
+    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);          \
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)             \
+        pdfdoc_changed_error(L);                               \
+    uout = new_Object_userdata(L);                             \
+    uout->d = new Object();                                    \
+    *((Object *)uout->d) = ((in *) uin->d)->function();        \
+    uout->atype = ALLOC_LEPDF;                                 \
+    uout->pc = uin->pc;                                        \
+    uout->pd = uin->pd;                                        \
+    return 1;                                                  \
+}
+#endif
 
 #define m_poppler_do(in, function)                             \
 static int m_##in##_##function(lua_State * L)                  \
@@ -668,13 +686,19 @@ static const struct luaL_Reg Annots_m[] = {
 
 static int m_Array_incRef(lua_State * L)
 {
+#ifndef MIKTEX_POPPLER_59
     int i;
+#endif
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Array);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
+#ifndef MIKTEX_POPPLER_59
     i = ((Array *) uin->d)->incRef();
     lua_pushinteger(L, i);
+#else
+    lua_pushinteger(L, 1);
+#endif
     return 1;
 }
 
@@ -685,8 +709,12 @@ static int m_Array_decRef(lua_State * L)
     uin = (udstruct *) luaL_checkudata(L, 1, M_Array);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
+#ifndef MIKTEX_POPPLER_59
     i = ((Array *) uin->d)->decRef();
     lua_pushinteger(L, i);
+#else
+    lua_pushinteger(L, 1);
+#endif
     return 1;
 }
 
@@ -702,7 +730,11 @@ static int m_Array_add(lua_State * L)
     if ((uin->pd != NULL && uin->pd->pc != uin->pc)
         || (uobj->pd != NULL && uobj->pd->pc != uobj->pc))
         pdfdoc_changed_error(L);
+#ifndef MIKTEX_POPPLER_59
     ((Array *) uin->d)->add(((Object *) uobj->d));
+#else
+    ((Array *) uin->d)->add(std::move(*((Object *) uobj->d)));
+#endif
     return 0;
 }
 
@@ -718,7 +750,11 @@ static int m_Array_get(lua_State * L)
     if (i > 0 && i <= len) {
         uout = new_Object_userdata(L);
         uout->d = new Object();
+#ifndef MIKTEX_POPPLER_59
         ((Array *) uin->d)->get(i - 1, (Object *) uout->d);
+#else
+        *((Object *) uout->d) = ((Array *) uin->d)->get(i - 1);
+#endif
         uout->atype = ALLOC_LEPDF;
         uout->pc = uin->pc;
         uout->pd = uin->pd;
@@ -739,7 +775,11 @@ static int m_Array_getNF(lua_State * L)
     if (i > 0 && i <= len) {
         uout = new_Object_userdata(L);
         uout->d = new Object();
+#ifndef MIKTEX_POPPLER_59
         ((Array *) uin->d)->getNF(i - 1, (Object *) uout->d);
+#else
+        *((Object *) uout->d) = ((Array *) uin->d)->getNF(i - 1);
+#endif
         uout->atype = ALLOC_LEPDF;
         uout->pc = uin->pc;
         uout->pd = uin->pd;
@@ -953,25 +993,37 @@ static const struct luaL_Reg Catalog_m[] = {
 
 static int m_Dict_incRef(lua_State * L)
 {
+#ifndef MIKTEX_POPPLER_59
     int i;
+#endif
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
+#ifndef MIKTEX_POPPLER_59
     i = ((Dict *) uin->d)->incRef();
     lua_pushinteger(L, i);
+#else
+    lua_pushinteger(L, 1);
+#endif
     return 1;
 }
 
 static int m_Dict_decRef(lua_State * L)
 {
+#ifndef MIKTEX_POPPLER_59
     int i;
+#endif
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
+#ifndef MIKTEX_POPPLER_59
     i = ((Dict *) uin->d)->decRef();
     lua_pushinteger(L, i);
+#else
+    lua_pushinteger(L, 1);
+#endif
     return 1;
 }
 
@@ -986,7 +1038,11 @@ static int m_Dict_add(lua_State * L)
         pdfdoc_changed_error(L);
     s = copyString(luaL_checkstring(L, 2));
     uobj = (udstruct *) luaL_checkudata(L, 3, M_Object);
+#ifndef MIKTEX_POPPLER_59
     ((Dict *) uin->d)->add(s, ((Object *) uobj->d));
+#else
+    ((Dict *) uin->d)->add(s, std::move(*((Object *) uobj->d)));
+#endif
     return 0;
 }
 
@@ -999,7 +1055,11 @@ static int m_Dict_set(lua_State * L)
         pdfdoc_changed_error(L);
     s = luaL_checkstring(L, 2);
     uobj = (udstruct *) luaL_checkudata(L, 3, M_Object);
+#ifndef MIKTEX_POPPLER_59
     ((Dict *) uin->d)->set(s, ((Object *) uobj->d));
+#else
+    ((Dict *) uin->d)->set(s, std::move(*((Object *) uobj->d)));
+#endif
     return 0;
 }
 
@@ -1027,7 +1087,11 @@ static int m_Dict_lookup(lua_State * L)
     s = luaL_checkstring(L, 2);
     uout = new_Object_userdata(L);
     uout->d = new Object();
+#ifndef MIKTEX_POPPLER_59
     ((Dict *) uin->d)->lookup(s, (Object *) uout->d);
+#else
+    *((Object *) uout->d) = ((Dict *) uin->d)->lookup(s);
+#endif
     uout->atype = ALLOC_LEPDF;
     uout->pc = uin->pc;
     uout->pd = uin->pd;
@@ -1044,7 +1108,11 @@ static int m_Dict_lookupNF(lua_State * L)
     s = luaL_checkstring(L, 2);
     uout = new_Object_userdata(L);
     uout->d = new Object();
+#ifndef MIKTEX_POPPLER_59
     ((Dict *) uin->d)->lookupNF(s, (Object *) uout->d);
+#else
+    *((Object *) uout->d) = ((Dict *) uin->d)->lookupNF(s);
+#endif
     uout->atype = ALLOC_LEPDF;
     uout->pc = uin->pc;
     uout->pd = uin->pd;
@@ -1096,7 +1164,11 @@ static int m_Dict_getVal(lua_State * L)
     if (i > 0 && i <= len) {
         uout = new_Object_userdata(L);
         uout->d = new Object();
+#ifndef MIKTEX_POPPLER_59
         ((Dict *) uin->d)->getVal(i - 1, (Object *) uout->d);
+#else
+        *((Object *) uout->d) = ((Dict *) uin->d)->getVal(i - 1);
+#endif
         uout->atype = ALLOC_LEPDF;
         uout->pc = uin->pc;
         uout->pd = uin->pd;
@@ -1117,7 +1189,11 @@ static int m_Dict_getValNF(lua_State * L)
     if (i > 0 && i <= len) {
         uout = new_Object_userdata(L);
         uout->d = new Object();
+#ifndef MIKTEX_POPPLER_59
         ((Dict *) uin->d)->getValNF(i - 1, (Object *) uout->d);
+#else
+        *((Object *) uout->d) = ((Dict *) uin->d)->getValNF(i - 1);
+#endif
         uout->atype = ALLOC_LEPDF;
         uout->pc = uin->pc;
         uout->pd = uin->pd;
@@ -1381,9 +1457,17 @@ static int m_Object_initBool(lua_State * L)
         pdfdoc_changed_error(L);
     luaL_checktype(L, 2, LUA_TBOOLEAN);
     if (lua_toboolean(L, 2) != 0)
+#ifndef MIKTEX_POPPLER_59
         ((Object *) uin->d)->initBool(gTrue);
+#else
+        *((Object *) uin->d) = Object(gTrue);
+#endif
     else
+#ifndef MIKTEX_POPPLER_59
         ((Object *) uin->d)->initBool(gFalse);
+#else
+        *((Object *) uin->d) = Object(gFalse);
+#endif
     return 0;
 }
 
@@ -1395,7 +1479,11 @@ static int m_Object_initInt(lua_State * L)
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
     i = luaL_checkint(L, 2);
+#ifndef MIKTEX_POPPLER_59
     ((Object *) uin->d)->initInt(i);
+#else
+    *((Object *) uin->d) = Object(i);
+#endif
     return 0;
 }
 
@@ -1407,7 +1495,11 @@ static int m_Object_initReal(lua_State * L)
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
     d = luaL_checknumber(L, 2);
+#ifndef MIKTEX_POPPLER_59
     ((Object *) uin->d)->initReal(d);
+#else
+    *((Object *) uin->d) = Object(d);
+#endif
     return 0;
 }
 
@@ -1422,7 +1514,11 @@ static int m_Object_initString(lua_State * L)
         pdfdoc_changed_error(L);
     s = luaL_checklstring(L, 2, &len);
     gs = new GooString(s, len);
+#ifndef MIKTEX_POPPLER_59
     ((Object *) uin->d)->initString(gs);
+#else
+    *((Object *) uin->d) = Object(gs);
+#endif
     return 0;
 }
 
@@ -1434,7 +1530,11 @@ static int m_Object_initName(lua_State * L)
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
     s = luaL_checkstring(L, 2);
+#ifndef MIKTEX_POPPLER_59
     ((Object *) uin->d)->initName(s);
+#else
+    *((Object *) uin->d) = Object(objName, s);
+#endif
     return 0;
 }
 
@@ -1444,13 +1544,20 @@ static int m_Object_initNull(lua_State * L)
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
+#ifndef MIKTEX_POPPLER_59
     ((Object *) uin->d)->initNull();
+#else
+    *((Object *) uin->d) = Object(objNull);
+#endif
     return 0;
 }
 
 static int m_Object_initArray(lua_State * L)
 {
     udstruct *uin, *uxref;
+#ifdef MIKTEX_POPPLER_59
+    Array *a;
+#endif
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     uxref = (udstruct *) luaL_checkudata(L, 2, M_XRef);
     if (uin->pd != NULL && uxref->pd != NULL && uin->pd != uxref->pd)
@@ -1458,7 +1565,12 @@ static int m_Object_initArray(lua_State * L)
     if ((uin->pd != NULL && uin->pd->pc != uin->pc)
         || (uxref->pd != NULL && uxref->pd->pc != uxref->pc))
         pdfdoc_changed_error(L);
+#ifndef MIKTEX_POPPLER_59
     ((Object *) uin->d)->initArray((XRef *) uxref->d);
+#else
+    a = new Array((XRef *) uxref->d);
+    *((Object *) uin->d) = Object(a);
+#endif
     return 0;
 }
 
@@ -1469,6 +1581,9 @@ static int m_Object_initArray(lua_State * L)
 static int m_Object_initDict(lua_State * L)
 {
     udstruct *uin, *uxref;
+#ifdef MIKTEX_POPPLER_59
+    Dict *d;
+#endif
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     uxref = (udstruct *) luaL_checkudata(L, 2, M_XRef);
     if (uin->pd != NULL && uxref->pd != NULL && uin->pd != uxref->pd)
@@ -1476,7 +1591,12 @@ static int m_Object_initDict(lua_State * L)
     if ((uin->pd != NULL && uin->pd->pc != uin->pc)
         || (uxref->pd != NULL && uxref->pd->pc != uxref->pc))
         pdfdoc_changed_error(L);
+#ifndef MIKTEX_POPPLER_59
     ((Object *) uin->d)->initDict((XRef *) uxref->d);
+#else
+    d = new Dict((XRef *) uxref->d);
+    *((Object *) uin->d) = Object(d);
+#endif
     return 0;
 }
 
@@ -1490,7 +1610,11 @@ static int m_Object_initStream(lua_State * L)
     if ((uin->pd != NULL && uin->pd->pc != uin->pc)
         || (ustream->pd != NULL && ustream->pd->pc != ustream->pc))
         pdfdoc_changed_error(L);
+#ifndef MIKTEX_POPPLER_59
     ((Object *) uin->d)->initStream((Stream *) ustream->d);
+#else
+    *((Object *) uin->d) = Object((Stream *) ustream->d);
+#endif
     return 0;
 }
 
@@ -1503,7 +1627,11 @@ static int m_Object_initRef(lua_State * L)
         pdfdoc_changed_error(L);
     num = luaL_checkint(L, 2);
     gen = luaL_checkint(L, 3);
+#ifndef MIKTEX_POPPLER_59
     ((Object *) uin->d)->initRef(num, gen);
+#else
+    *((Object *) uin->d) = Object(num, gen);
+#endif
     return 0;
 }
 
@@ -1515,7 +1643,11 @@ static int m_Object_initCmd(lua_State * L)
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
     s = luaL_checkstring(L, 2);
+#ifndef MIKTEX_POPPLER_59
     ((Object *) uin->d)->initCmd(CHARP_CAST s);
+#else
+    *((Object *) uin->d) = Object(objCmd, CHARP_CAST s);
+#endif
     return 0;
 }
 
@@ -1525,7 +1657,11 @@ static int m_Object_initError(lua_State * L)
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
+#ifndef MIKTEX_POPPLER_59
     ((Object *) uin->d)->initError();
+#else
+    *((Object *) uin->d) = Object(objError);
+#endif
     return 0;
 }
 
@@ -1535,7 +1671,11 @@ static int m_Object_initEOF(lua_State * L)
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
+#ifndef MIKTEX_POPPLER_59
     ((Object *) uin->d)->initEOF();
+#else
+    *((Object *) uin->d) = Object(objEOF);
+#endif
     return 0;
 }
 
@@ -1551,7 +1691,11 @@ static int m_Object_fetch(lua_State * L)
         pdfdoc_changed_error(L);
     uout = new_Object_userdata(L);
     uout->d = new Object();
+#ifndef MIKTEX_POPPLER_59
     ((Object *) uin->d)->fetch((XRef *) uxref->d, (Object *) uout->d);
+#else
+    *((Object *) uout->d) = ((Object *) uin->d)->fetch((XRef *) uxref->d);
+#endif
     uout->atype = ALLOC_LEPDF;
     uout->pc = uin->pc;
     uout->pd = uin->pd;
@@ -1816,7 +1960,11 @@ static int m_Object_arrayAdd(lua_State * L)
         pdfdoc_changed_error(L);
     if (!((Object *) uin->d)->isArray())
         luaL_error(L, "Object is not an Array");
+#ifndef MIKTEX_POPPLER_59
     ((Object *) uin->d)->arrayAdd((Object *) uobj->d);
+#else
+    ((Object *) uin->d)->arrayAdd(std::move(*((Object *) uobj->d)));
+#endif
     return 0;
 }
 
@@ -1833,7 +1981,11 @@ static int m_Object_arrayGet(lua_State * L)
         if (i > 0 && i <= len) {
             uout = new_Object_userdata(L);
             uout->d = new Object();
+#ifndef MIKTEX_POPPLER_59
             ((Object *) uin->d)->arrayGet(i - 1, (Object *) uout->d);
+#else
+            *((Object *) uout->d) = ((Object *) uin->d)->arrayGet(i - 1);
+#endif
             uout->atype = ALLOC_LEPDF;
             uout->pc = uin->pc;
             uout->pd = uin->pd;
@@ -1857,7 +2009,11 @@ static int m_Object_arrayGetNF(lua_State * L)
         if (i > 0 && i <= len) {
             uout = new_Object_userdata(L);
             uout->d = new Object();
+#ifndef MIKTEX_POPPLER_59
             ((Object *) uin->d)->arrayGetNF(i - 1, (Object *) uout->d);
+#else
+            *((Object *) uout->d) = ((Object *) uin->d)->arrayGetNF(i - 1);
+#endif
             uout->atype = ALLOC_LEPDF;
             uout->pc = uin->pc;
             uout->pd = uin->pd;
@@ -1897,7 +2053,11 @@ static int m_Object_dictAdd(lua_State * L)
         pdfdoc_changed_error(L);
     if (!((Object *) uin->d)->isDict())
         luaL_error(L, "Object is not a Dict");
+#ifndef MIKTEX_POPPLER_59
     ((Object *) uin->d)->dictAdd(copyString(s), (Object *) uobj->d);
+#else
+    ((Object *) uin->d)->dictAdd(copyString(s), std::move(*((Object *) uobj->d)));
+#endif
     return 0;
 }
 
@@ -1915,7 +2075,11 @@ static int m_Object_dictSet(lua_State * L)
         pdfdoc_changed_error(L);
     if (!((Object *) uin->d)->isDict())
         luaL_error(L, "Object is not a Dict");
+#ifndef MIKTEX_POPPLER_59
     ((Object *) uin->d)->dictSet(s, (Object *) uobj->d);
+#else
+    ((Object *) uin->d)->dictSet(s, std::move(*((Object *) uobj->d)));
+#endif
     return 0;
 }
 
@@ -1930,7 +2094,11 @@ static int m_Object_dictLookup(lua_State * L)
     if (((Object *) uin->d)->isDict()) {
         uout = new_Object_userdata(L);
         uout->d = new Object();
+#ifndef MIKTEX_POPPLER_59
         ((Object *) uin->d)->dictLookup(s, (Object *) uout->d);
+#else
+        *((Object *) uout->d) = ((Object *) uin->d)->dictLookup(s);
+#endif
         uout->atype = ALLOC_LEPDF;
         uout->pc = uin->pc;
         uout->pd = uin->pd;
@@ -1950,7 +2118,11 @@ static int m_Object_dictLookupNF(lua_State * L)
     if (((Object *) uin->d)->isDict()) {
         uout = new_Object_userdata(L);
         uout->d = new Object();
+#ifndef MIKTEX_POPPLER_59
         ((Object *) uin->d)->dictLookupNF(s, (Object *) uout->d);
+#else
+        *((Object *) uout->d) = ((Object *) uin->d)->dictLookupNF(s);
+#endif
         uout->atype = ALLOC_LEPDF;
         uout->pc = uin->pc;
         uout->pd = uin->pd;
@@ -1991,7 +2163,11 @@ static int m_Object_dictGetVal(lua_State * L)
         if (i > 0 && i <= len) {
             uout = new_Object_userdata(L);
             uout->d = new Object();
+#ifndef MIKTEX_POPPLER_59
             ((Object *) uin->d)->dictGetVal(i - 1, (Object *) uout->d);
+#else
+	    *((Object *) uout->d) = ((Object *) uin->d)->dictGetVal(i - 1);
+#endif
             uout->atype = ALLOC_LEPDF;
             uout->pc = uin->pc;
             uout->pd = uin->pd;
@@ -2015,7 +2191,11 @@ static int m_Object_dictGetValNF(lua_State * L)
         if (i > 0 && i <= len) {
             uout = new_Object_userdata(L);
             uout->d = new Object();
+#ifndef MIKTEX_POPPLER_59
             ((Object *) uin->d)->dictGetValNF(i - 1, (Object *) uout->d);
+#else
+            *((Object *) uout->d) = ((Object *) uin->d)->dictGetValNF(i - 1);
+#endif
             uout->atype = ALLOC_LEPDF;
             uout->pc = uin->pc;
             uout->pd = uin->pd;
@@ -2243,7 +2423,11 @@ m_poppler_get_poppler(Page, Stream, getMetadata);
 m_poppler_get_poppler(Page, Dict, getPieceInfo);
 m_poppler_get_poppler(Page, Dict, getSeparationInfo);
 m_poppler_get_poppler(Page, Dict, getResourceDict);
+#ifndef MIKTEX_POPPLER_59
 m_poppler_get_OBJECT(Page, getAnnots);
+#else
+m_poppler_get_OBJECT(Page, getAnnotsObject);
+#endif
 
 m_poppler_get_OBJECT(Page, getContents);
 
@@ -2270,7 +2454,11 @@ static const struct luaL_Reg Page_m[] = {
     {"getPieceInfo", m_Page_getPieceInfo},
     {"getSeparationInfo", m_Page_getSeparationInfo},
     {"getResourceDict", m_Page_getResourceDict},
+#ifndef MIKTEX_POPPLER_59
     {"getAnnots", m_Page_getAnnots},
+#else
+    {"getAnnots", m_Page_getAnnotsObject},
+#endif
     {"getContents", m_Page_getContents},
     {"__tostring", m_Page__tostring},
     {NULL, NULL}                // sentinel
@@ -2520,7 +2708,11 @@ static int m_PDFDoc_getDocInfo(lua_State * L)
     if (((PdfDocument *) uin->d)->doc->getXRef()->isOk()) {
         uout = new_Object_userdata(L);
         uout->d = new Object();
+#ifndef MIKTEX_POPPLER_59
         ((PdfDocument *) uin->d)->doc->getDocInfo((Object *) uout->d);
+#else
+        *((Object *) uout->d) = ((PdfDocument *) uin->d)->doc->getDocInfo();
+#endif
         uout->atype = ALLOC_LEPDF;
         uout->pc = uin->pc;
         uout->pd = uin->pd;
@@ -2538,7 +2730,11 @@ static int m_PDFDoc_getDocInfoNF(lua_State * L)
     if (((PdfDocument *) uin->d)->doc->getXRef()->isOk()) {
         uout = new_Object_userdata(L);
         uout->d = new Object();
+#ifndef MIKTEX_POPPLER_59
         ((PdfDocument *) uin->d)->doc->getDocInfoNF((Object *) uout->d);
+#else
+        *((Object *) uout->d) = ((PdfDocument *) uin->d)->doc->getDocInfoNF();
+#endif
         uout->atype = ALLOC_LEPDF;
         uout->pc = uin->pc;
         uout->pd = uin->pd;
@@ -2841,7 +3037,11 @@ static int m_Attribute_getValue(lua_State * L)
     uout = new_Object_userdata(L);
     uout->d = new Object();
     origin = (Object *) (((Attribute *) uin->d)->getValue());
+#ifndef MIKTEX_POPPLER_59
     origin->copy ( ((Object *)uout->d) );
+#else
+    *((Object *) uout->d) = origin->copy();
+#endif
     uout->atype = ALLOC_LEPDF;
     uout->pc = uin->pc;
     uout->pd = uin->pd;
@@ -3320,7 +3520,11 @@ static int m_StructTreeRoot_findParentElement(lua_State * L)
     parent = root->findParentElement(i-1);
     if (parent != NULL) {
        uout = new_StructElement_userdata(L);
+#ifndef MIKTEX_POPPLER_59
        uout->d = new StructElement( *parent );
+#else
+       uout->d = (StructElement *) parent;
+#endif
        uout->atype = ALLOC_LEPDF;
        uout->pc = uin->pc;
        uout->pd = uin->pd;
@@ -3370,7 +3574,11 @@ static int m_XRef_fetch(lua_State * L)
     gen = luaL_checkint(L, 3);
     uout = new_Object_userdata(L);
     uout->d = new Object();
+#ifndef MIKTEX_POPPLER_59
     ((XRef *) uin->d)->fetch(num, gen, (Object *) uout->d);
+#else
+    *((Object *) uout->d) = ((XRef *) uin->d)->fetch(num, gen);
+#endif
     uout->atype = ALLOC_LEPDF;
     uout->pc = uin->pc;
     uout->pd = uin->pd;

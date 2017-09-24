@@ -236,7 +236,11 @@ PdfDocument *refMemStreamPdfDocument(char *docstream, unsigned long long streams
         free(checksum);
     }
     if (pdf_doc->doc == NULL) {
+#ifndef MIKTEX_POPPLER_59
         docmemstream = new MemStream( docstream,0,streamsize, obj.initNull() );
+#else
+        docmemstream = new MemStream( docstream,0,streamsize, Object(objNull) );
+#endif
         doc = new PDFDoc(docmemstream); /* takes ownership of docmemstream */
         pdf_doc->pc++;
         if (!doc->isOk() || !doc->okToPrint()) {
@@ -420,9 +424,15 @@ static void copyArray(PDF pdf, PdfDocument * pdf_doc, Array * array)
     Object obj1;
     pdf_begin_array(pdf);
     for (i = 0, l = array->getLength(); i < l; ++i) {
+#ifndef MIKTEX_POPPLER_59
         array->getNF(i, &obj1);
+#else
+        obj1 = array->getNF(i);
+#endif
         copyObject(pdf, pdf_doc, &obj1);
+#ifndef MIKTEX_POPPLER_59
         obj1.free();
+#endif
     }
     pdf_end_array(pdf);
 }
@@ -434,9 +444,15 @@ static void copyDict(PDF pdf, PdfDocument * pdf_doc, Dict * dict)
     pdf_begin_dict(pdf);
     for (i = 0, l = dict->getLength(); i < l; ++i) {
         copyName(pdf, dict->getKey(i));
+#ifndef MIKTEX_POPPLER_59
         dict->getValNF(i, &obj1);
+#else
+        obj1 = dict->getValNF(i);
+#endif
         copyObject(pdf, pdf_doc, &obj1);
+#ifndef MIKTEX_POPPLER_59
         obj1.free();
+#endif
     }
     pdf_end_dict(pdf);
 }
@@ -522,13 +538,19 @@ static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
     PDFDoc *doc = pdf_doc->doc;
     xref = doc->getXRef();
     for (r = pdf_doc->inObjList; r != NULL;) {
+#ifndef MIKTEX_POPPLER_59
         xref->fetch(r->ref.num, r->ref.gen, &obj1);
+#else
+        obj1 = xref->fetch(r->ref.num, r->ref.gen);
+#endif
         if (obj1.isStream())
             pdf_begin_obj(pdf, r->num, OBJSTM_NEVER);
         else
             pdf_begin_obj(pdf, r->num, 2);
         copyObject(pdf, pdf_doc, &obj1);
+#ifndef MIKTEX_POPPLER_59
         obj1.free();
+#endif
         pdf_end_obj(pdf);
         n = r->next;
         delete r;
@@ -752,7 +774,11 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
     catalog = doc->getCatalog();
     page = catalog->getPage(img_pagenum(idict));
     pageref = catalog->getPageRef(img_pagenum(idict));
+#ifndef MIKTEX_POPPLER_59
     doc->getXRef()->fetch(pageref->num, pageref->gen, &pageobj);
+#else
+    pageobj = doc->getXRef()->fetch(pageref->num, pageref->gen);
+#endif
     pageDict = pageobj.getDict();
     /* write the Page header */
     pdf_begin_obj(pdf, img_objnum(idict), OBJSTM_NEVER);
@@ -769,12 +795,18 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         pdf_dict_add_int(pdf, "PTEX.PageNumber", (int) img_pagenum(idict));
     }
     if ((suppress_optional_info & 8) == 0) {
+#ifndef MIKTEX_POPPLER_59
         doc->getDocInfoNF(&obj1);
+#else
+        obj1 = doc->getDocInfoNF();
+#endif
         if (obj1.isRef()) {
             /* the info dict must be indirect (PDF Ref p. 61) */
             pdf_dict_add_ref(pdf, "PTEX.InfoDict", addInObj(pdf, pdf_doc, obj1.getRef()));
         }
+#ifndef MIKTEX_POPPLER_59
         obj1.free();
+#endif
     }
     if (img_is_bbox(idict)) {
         bbox[0] = sp2bp(img_bbox(idict)[0]);
@@ -800,19 +832,31 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         Now all relevant parts of the Page dictionary are copied. Metadata validity
         check is needed(as a stream it must be indirect).
     */
+#ifndef MIKTEX_POPPLER_59
     pageDict->lookupNF("Metadata", &obj1);
+#else
+    obj1 = pageDict->lookupNF("Metadata");
+#endif
     if (!obj1.isNull() && !obj1.isRef())
         formatted_warning("pdf inclusion","/Metadata must be indirect object");
+#ifndef MIKTEX_POPPLER_59
     obj1.free();
+#endif
     /* copy selected items in Page dictionary */
     for (i = 0; pagedictkeys[i] != NULL; i++) {
+#ifndef MIKTEX_POPPLER_59
         pageDict->lookupNF(pagedictkeys[i], &obj1);
+#else
+        obj1 = pageDict->lookupNF(pagedictkeys[i]);
+#endif
         if (!obj1.isNull()) {
             pdf_add_name(pdf, pagedictkeys[i]);
             /* preserves indirection */
             copyObject(pdf, pdf_doc, &obj1);
         }
+#ifndef MIKTEX_POPPLER_59
         obj1.free();
+#endif
     }
     /*
         If there are no Resources in the Page dict of the embedded page,
@@ -820,32 +864,58 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         PDF file, climbing up the tree until the Resources are found.
         (This fixes a problem with Scribus 1.3.3.14.)
     */
+#ifndef MIKTEX_POPPLER_59
     pageDict->lookupNF("Resources", &obj1);
+#else
+    obj1 = pageDict->lookupNF("Resources");
+#endif
     if (obj1.isNull()) {
         op1 = &pagesobj1;
         op2 = &pagesobj2;
+#ifndef MIKTEX_POPPLER_59
         pageDict->lookup("Parent", op1);
+#else
+        *op1 = pageDict->lookup("Parent");
+#endif
         while (op1->isDict()) {
+#ifndef MIKTEX_POPPLER_59
             obj1.free();
             op1->dictLookupNF("Resources", &obj1);
+#else
+            obj1 = op1->dictLookupNF("Resources");
+#endif
             if (!obj1.isNull()) {
                 pdf_add_name(pdf, "Resources");
                 copyObject(pdf, pdf_doc, &obj1);
                 break;
             }
+#ifndef MIKTEX_POPPLER_59
             op1->dictLookup("Parent", op2);
+#else
+            *op2 = op1->dictLookup("Parent");
+#endif
             optmp = op1;
             op1 = op2;
             op2 = optmp;
+#ifndef MIKTEX_POPPLER_59
             op2->free();
+#endif
         };
         if (!op1->isDict())
             formatted_warning("pdf inclusion","Page /Resources missing");
+#ifndef MIKTEX_POPPLER_59
         op1->free();
+#endif
     }
+#ifndef MIKTEX_POPPLER_59
     obj1.free();
+#endif
     /* Write the Page contents. */
+#ifndef MIKTEX_POPPLER_59
     page->getContents(&contents);
+#else
+    contents = page->getContents();
+#endif
     if (contents.isStream()) {
         /*
             Variant A: get stream and recompress under control of \pdfcompresslevel
@@ -856,27 +926,45 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
 
             Variant B: copy stream without recompressing
         */
+#ifndef MIKTEX_POPPLER_59
         contents.streamGetDict()->lookup("F", &obj1);
+#else
+        obj1 = contents.streamGetDict()->lookup("F");
+#endif
         if (!obj1.isNull()) {
             normal_error("pdf inclusion","unsupported external stream");
         }
+#ifndef MIKTEX_POPPLER_59
         obj1.free();
         contents.streamGetDict()->lookup("Length", &obj1);
+#else
+        obj1 = contents.streamGetDict()->lookup("Length");
+#endif
         pdf_add_name(pdf, "Length");
         copyObject(pdf, pdf_doc, &obj1);
+#ifndef MIKTEX_POPPLER_59
         obj1.free();
         contents.streamGetDict()->lookup("Filter", &obj1);
+#else
+        obj1 = contents.streamGetDict()->lookup("Filter");
+#endif
         if (!obj1.isNull()) {
             pdf_add_name(pdf, "Filter");
             copyObject(pdf, pdf_doc, &obj1);
+#ifndef MIKTEX_POPPLER_59
             obj1.free();
             contents.streamGetDict()->lookup("DecodeParms", &obj1);
+#else
+            obj1 = contents.streamGetDict()->lookup("DecodeParms");
+#endif
             if (!obj1.isNull()) {
                 pdf_add_name(pdf, "DecodeParms");
                 copyObject(pdf, pdf_doc, &obj1);
             }
         }
+#ifndef MIKTEX_POPPLER_59
         obj1.free();
+#endif
         pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
         copyStreamStream(pdf, contents.getStream()->getUndecodedStream());
@@ -887,8 +975,13 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
         for (i = 0, l = contents.arrayGetLength(); i < l; ++i) {
+#ifndef MIKTEX_POPPLER_59
             copyStreamStream(pdf, (contents.arrayGet(i, &obj1))->getStream());
             obj1.free();
+#else
+            obj1 = contents.arrayGet(i);
+            copyStreamStream(pdf, obj1.getStream());
+#endif
             if (i < (l - 1)) {
                 /*
                     Put a space between streams to be on the safe side (streams
@@ -909,8 +1002,10 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
     }
     /* write out all indirect objects */
     writeRefs(pdf, pdf_doc);
+#ifndef MIKTEX_POPPLER_59
     contents.free();
     pageobj.free();
+#endif
     /*
         unrefPdfDocument() must come after contents.free() and pageobj.free()!
         TH: The next line makes repeated pdf inclusion unacceptably slow

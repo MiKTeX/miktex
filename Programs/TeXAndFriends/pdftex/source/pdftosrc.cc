@@ -103,22 +103,38 @@ int main(int argc, char *argv[])
             objgen = atoi(argv[3]);
     }
     xref = doc->getXRef();
+#ifndef MIKTEX_POPPLER_59
     catalogDict.initNull();
     xref->getCatalog(&catalogDict);
+#else
+    catalogDict = xref->getCatalog();
+#endif
     if (!catalogDict.isDict("Catalog")) {
         fprintf(stderr, "No Catalog found\n");
         exit(1);
     }
+#ifndef MIKTEX_POPPLER_59
     srcStream.initNull();
+#else
+    srcStream = Object(objNull);
+#endif
     if (objnum == 0) {
+#ifndef MIKTEX_POPPLER_59
         catalogDict.dictLookup("SourceObject", &srcStream);
+#else
+        srcStream = catalogDict.dictLookup("SourceObject");
+#endif
         static char const_SourceFile[] = "SourceFile";
         if (!srcStream.isStream(const_SourceFile)) {
             fprintf(stderr, "No SourceObject found\n");
             exit(1);
         }
+#ifndef MIKTEX_POPPLER_59
         srcName.initNull();
         srcStream.getStream()->getDict()->lookup("SourceName", &srcName);
+#else
+        srcName = srcStream.getStream()->getDict()->lookup("SourceName");
+#endif
         if (!srcName.isString()) {
             fprintf(stderr, "No SourceName found\n");
             exit(1);
@@ -127,7 +143,11 @@ int main(int argc, char *argv[])
         // We cannot free srcName, as objname shares its string.
         // srcName.free();
     } else if (objnum > 0) {
+#ifndef MIKTEX_POPPLER_59
         xref->fetch(objnum, objgen, &srcStream);
+#else
+        srcStream = xref->fetch(objnum, objgen);
+#endif
         if (!srcStream.isStream()) {
             fprintf(stderr, "Not a Stream object\n");
             exit(1);
@@ -176,29 +196,51 @@ int main(int argc, char *argv[])
                 int localOffset = 0;
                 Guint firstOffset;
 
+#ifndef MIKTEX_POPPLER_59
                 assert(xref->fetch(e->offset, 0, &objStr)->isStream());
                 nObjects = objStr.streamGetDict()->lookup("N", &obj1)->getInt();
                 obj1.free();
                 first = objStr.streamGetDict()->lookup("First", &obj1)->getInt();
                 obj1.free();
+#else
+                objStr = xref->fetch(e->offset, 0);
+                assert(objStr.isStream());
+                obj1 = objStr.streamGetDict()->lookup("N");
+                nObjects = obj1.getInt();
+                obj1 = objStr.streamGetDict()->lookup("First");
+                first = obj1.getInt();
+#endif
                 firstOffset = objStr.getStream()->getBaseStream()->getStart() + first;
 
                 // parse the header: object numbers and offsets
                 objStr.streamReset();
+#ifndef MIKTEX_POPPLER_59
                 obj1.initNull();
                 str = new EmbedStream(objStr.getStream(), &obj1, gTrue, first);
+#else
+                str = new EmbedStream(objStr.getStream(), Object(objNull), gTrue, first);
+#endif
                 parser = new Parser(xref, new Lexer(xref, str), gFalse);
                 for (n = 0; n < nObjects; ++n) {
+#ifndef MIKTEX_POPPLER_59
                     parser->getObj(&obj1);
                     parser->getObj(&obj2);
+#else
+                    obj1 = parser->getObj();
+                    obj2 = parser->getObj();
+#endif
                     if (n == e->gen)
                         localOffset = obj2.getInt();
+#ifndef MIKTEX_POPPLER_59
                     obj1.free();
                     obj2.free();
+#endif
                 }
                 while (str->getChar() != EOF) ;
                 delete parser;
+#ifndef MIKTEX_POPPLER_59
                 objStr.free();
+#endif
 
                 fprintf(outfile, "%.10lu 00000 n\n",
                         (long unsigned)(firstOffset + localOffset));
@@ -209,7 +251,9 @@ int main(int argc, char *argv[])
         s->reset();
         while ((c = s->getChar()) != EOF)
             fputc(c, outfile);
+#ifndef MIKTEX_POPPLER_59
         srcStream.free();
+#endif
     }
     if (objnum == 0)
         fprintf(stderr, "Source file extracted to %s\n", outname);
@@ -218,7 +262,9 @@ int main(int argc, char *argv[])
     else
         fprintf(stderr, "Cross-reference table extracted to %s\n", outname);
     fclose(outfile);
+#ifndef MIKTEX_POPPLER_59
     catalogDict.free();
+#endif
     delete doc;
     delete globalParams;
 #if defined(MIKTEX)

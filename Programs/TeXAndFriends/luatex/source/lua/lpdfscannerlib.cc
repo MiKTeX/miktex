@@ -634,7 +634,11 @@ static int scanner_scan(lua_State * L)
       int i;
       for (i=0;i<count;i++) {
 	Object *val = new Object();
+#ifndef MIKTEX_POPPLER_59
 	arrayref->get(i, val);
+#else
+	*val = arrayref->get(i);
+#endif
 	if (val->isStream()) {
 	  ObjectList *rover = self->_streams;
 	  ObjectList *item = (ObjectList *)priv_xmalloc (sizeof(ObjectList));

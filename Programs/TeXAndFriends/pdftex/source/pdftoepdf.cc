@@ -112,6 +112,7 @@ extern integer zround(double);
 #define MASK_SUPPRESS_PTEX_PAGENUMBER 0x04
 #define MASK_SUPPRESS_PTEX_INFODICT   0x08
 
+#ifndef MIKTEX_POPPLER_59
 // PdfObject encapsulates the xpdf Object type,
 // and properly frees its resources on destruction.
 // Use obj-> to access members of the Object,
@@ -137,6 +138,7 @@ class PdfObject {
     Object iObject;
 };
 
+#endif
 // When copying the Resources of the selected page, all objects are copied
 // recusively top-down. Indirect objects however are not fetched during
 // copying, but get a new object number from pdfTeX and then will be
@@ -240,6 +242,7 @@ static void delete_document(PdfDocument * pdf_doc)
     delete pdf_doc;
 }
 
+#ifndef MIKTEX_POPPLER_59
 // Replacement for
 //      Object *initDict(Dict *dict1){ initObj(objDict); dict = dict1; return this; }
 
@@ -252,6 +255,7 @@ static void initDictFromDict(PdfObject & obj, Dict * dict)
     }
 }
 
+#endif
 // --------------------------------------------------------------------
 
 static int addEncoding(GfxFont * gfont)
@@ -348,10 +352,18 @@ static void copyName(char *s)
 
 static void copyDictEntry(Object * obj, int i)
 {
+#ifndef MIKTEX_POPPLER_59
     PdfObject obj1;
+#else
+    Object obj1;
+#endif
     copyName(obj->dictGetKey(i));
     pdf_puts(" ");
+#ifndef MIKTEX_POPPLER_59
     obj->dictGetValNF(i, &obj1);
+#else
+    obj1 = obj->dictGetValNF(i);
+#endif
     copyObject(&obj1);
     pdf_puts("\n");
 }
@@ -404,17 +416,31 @@ static void copyStream(Stream * str)
 static void copyProcSet(Object * obj)
 {
     int i, l;
+#ifndef MIKTEX_POPPLER_59
     PdfObject procset;
+#else
+    Object procset;
+#endif
     if (!obj->isArray())
         pdftex_fail("PDF inclusion: invalid ProcSet array type <%s>",
                     obj->getTypeName());
     pdf_puts("/ProcSet [ ");
     for (i = 0, l = obj->arrayGetLength(); i < l; ++i) {
+#ifndef MIKTEX_POPPLER_59
         obj->arrayGetNF(i, &procset);
         if (!procset->isName())
+#else
+        procset = obj->arrayGetNF(i);
+        if (!procset.isName())
+#endif
             pdftex_fail("PDF inclusion: invalid ProcSet entry type <%s>",
+#ifndef MIKTEX_POPPLER_59
                         procset->getTypeName());
         copyName(procset->getName());
+#else
+                        procset.getTypeName());
+        copyName(procset.getName());
+#endif
         pdf_puts(" ");
     }
     pdf_puts("]\n");
@@ -424,7 +450,11 @@ static void copyProcSet(Object * obj)
 
 static void copyFont(char *tag, Object * fontRef)
 {
+#ifndef MIKTEX_POPPLER_59
     PdfObject fontdict, subtype, basefont, fontdescRef, fontdesc, charset,
+#else
+    Object fontdict, subtype, basefont, fontdescRef, fontdesc, charset,
+#endif
         fontfile, ffsubtype, stemV;
     GfxFont *gfont;
     fd_entry *fd;
@@ -441,6 +471,7 @@ static void copyFont(char *tag, Object * fontRef)
     }
     // Only handle included Type1 (and Type1C) fonts; anything else will be copied.
     // Type1C fonts are replaced by Type1 fonts, if REPLACE_TYPE1C is true.
+#ifndef MIKTEX_POPPLER_59
     if (!fixedinclusioncopyfont && fontRef->fetch(xref, &fontdict)->isDict()
         && fontdict->dictLookup("Subtype", &subtype)->isName()
         && !strcmp(subtype->getName(), "Type1")
@@ -454,20 +485,67 @@ static void copyFont(char *tag, Object * fontRef)
                                                      &ffsubtype)->isName()
                 && !strcmp(ffsubtype->getName(), "Type1C")))
         && (fontmap = lookup_fontmap(basefont->getName())) != NULL) {
+#else
+    fontdict = fontRef->fetch(xref);
+    if (fontdict.isDict()) {
+        subtype = fontdict.dictLookup("Subtype");
+        basefont = fontdict.dictLookup("BaseFont");
+        fontdescRef = fontdict.dictLookupNF("FontDescriptor");
+        if (fontdescRef.isRef()) {
+            fontdesc = fontdescRef.fetch(xref);
+            if (fontdesc.isDict()) {
+                fontfile = fontdesc.dictLookup("FontFile");
+                if (!fontfile.isStream() && REPLACE_TYPE1C) {
+                    fontfile = fontdesc.dictLookup("FontFile3");
+                    ffsubtype = fontfile.streamGetDict()->lookup("Subtype");
+                    if (!(ffsubtype.isName() && !strcmp(ffsubtype.getName(), "Type1C"))) {
+                        // not a Type1-C font.
+                        fontfile = Object(objNull);
+                    }
+                }
+            }
+        }
+    }
+    if (!fixedinclusioncopyfont && fontdict.isDict()
+        && subtype.isName()
+        && !strcmp(subtype.getName(), "Type1")
+        && basefont.isName()
+        && fontdescRef.isRef()
+        && fontdesc.isDict()
+        && fontfile.isStream()
+        && (fontmap = lookup_fontmap(basefont.getName())) != NULL) {
+#endif
         // round /StemV value, since the PDF input is a float
         // (see Font Descriptors in PDF reference), but we only store an
         // integer, since we don't want to change the struct.
+#ifndef MIKTEX_POPPLER_59
         fontdesc->dictLookup("StemV", &stemV);
         fd = epdf_create_fontdescriptor(fontmap, zround(stemV->getNum()));
         if (fontdesc->dictLookup("CharSet", &charset) &&
             charset->isString() && is_subsetable(fontmap))
             epdf_mark_glyphs(fd, charset->getString()->getCString());
+#else
+        stemV = fontdesc.dictLookup("StemV");
+        fd = epdf_create_fontdescriptor(fontmap, zround(stemV.getNum()));
+        charset = fontdesc.dictLookup("CharSet");
+        if (!charset.isNull() &&
+            charset.isString() && is_subsetable(fontmap))
+            epdf_mark_glyphs(fd, charset.getString()->getCString());
+#endif
         else
             embed_whole_font(fd);
+#ifndef MIKTEX_POPPLER_59
         addFontDesc(fontdescRef->getRef(), fd);
+#else
+        addFontDesc(fontdescRef.getRef(), fd);
+#endif
         copyName(tag);
         gfont = GfxFont::makeFont(xref, tag, fontRef->getRef(),
+#ifndef MIKTEX_POPPLER_59
                                   fontdict->getDict());
+#else
+                                  fontdict.getDict());
+#endif
         pdf_printf(" %d 0 R ", addFont(fontRef->getRef(), fd,
                                        addEncoding(gfont)));
     } else {
@@ -479,24 +557,41 @@ static void copyFont(char *tag, Object * fontRef)
 
 static void copyFontResources(Object * obj)
 {
+#ifndef MIKTEX_POPPLER_59
     PdfObject fontRef;
+#else
+    Object fontRef;
+#endif
     int i, l;
     if (!obj->isDict())
         pdftex_fail("PDF inclusion: invalid font resources dict type <%s>",
                     obj->getTypeName());
     pdf_puts("/Font << ");
     for (i = 0, l = obj->dictGetLength(); i < l; ++i) {
+#ifndef MIKTEX_POPPLER_59
         obj->dictGetValNF(i, &fontRef);
         if (fontRef->isRef())
+#else
+        fontRef = obj->dictGetValNF(i);
+        if (fontRef.isRef())
+#endif
             copyFont(obj->dictGetKey(i), &fontRef);
+#ifndef MIKTEX_POPPLER_59
         else if (fontRef->isDict()) {   // some programs generate pdf with embedded font object
+#else
+        else if (fontRef.isDict()) {   // some programs generate pdf with embedded font object
+#endif
             copyName(obj->dictGetKey(i));
             pdf_puts(" ");
             copyObject(&fontRef);
         }
         else
             pdftex_fail("PDF inclusion: invalid font in reference type <%s>",
+#ifndef MIKTEX_POPPLER_59
                         fontRef->getTypeName());
+#else
+                        fontRef.getTypeName());
+#endif
     }
     pdf_puts(">>\n");
 }
@@ -585,7 +680,11 @@ static char *convertNumToPDF(double n)
 
 static void copyObject(Object * obj)
 {
+#ifndef MIKTEX_POPPLER_59
     PdfObject obj1;
+#else
+    Object obj1;
+#endif
     int i, l, c;
     Ref ref;
     char *p;
@@ -629,8 +728,13 @@ static void copyObject(Object * obj)
     } else if (obj->isArray()) {
         pdf_puts("[");
         for (i = 0, l = obj->arrayGetLength(); i < l; ++i) {
+#ifndef MIKTEX_POPPLER_59
             obj->arrayGetNF(i, &obj1);
             if (!obj1->isName())
+#else
+            obj1 = obj->arrayGetNF(i);
+            if (!obj1.isName())
+#endif
                 pdf_puts(" ");
             copyObject(&obj1);
         }
@@ -640,7 +744,11 @@ static void copyObject(Object * obj)
         copyDict(obj);
         pdf_puts(">>");
     } else if (obj->isStream()) {
+#ifndef MIKTEX_POPPLER_59
         initDictFromDict(obj1, obj->streamGetDict());
+#else
+        obj1 = Object(obj->streamGetDict());
+#endif
         pdf_puts("<<\n");
         copyDict(&obj1);
         pdf_puts(">>\n");
@@ -666,9 +774,15 @@ static void writeRefs()
     InObj *r;
     for (r = inObjList; r != 0; r = r->next) {
         if (!r->written) {
+#ifndef MIKTEX_POPPLER_59
             Object obj1;
+#endif
             r->written = 1;
+#ifndef MIKTEX_POPPLER_59
             xref->fetch(r->ref.num, r->ref.gen, &obj1);
+#else
+            Object obj1 = xref->fetch(r->ref.num, r->ref.gen);
+#endif
             if (r->type == objFont) {
                 assert(!obj1.isStream());
                 pdfbeginobj(r->num, 2);         // \pdfobjcompresslevel = 2 is for this
@@ -684,7 +798,9 @@ static void writeRefs()
                 pdf_puts("\n");
                 pdfendobj();
             }
+#ifndef MIKTEX_POPPLER_59
             obj1.free();
+#endif
         }
     }
 }
@@ -867,8 +983,13 @@ void write_epdf(void)
     Page *page;
     Ref *pageRef;
     Dict *pageDict;
+#ifndef MIKTEX_POPPLER_59
     PdfObject contents, obj1, obj2, pageObj, dictObj;
     PdfObject groupDict;
+#else
+    Object contents, obj1, obj2, pageObj, dictObj;
+    Object groupDict;
+#endif
     bool writeSepGroup = false;
     Object info;
     char *key;
@@ -895,8 +1016,13 @@ void write_epdf(void)
     encodingList = 0;
     page = pdf_doc->doc->getCatalog()->getPage(epdf_selected_page);
     pageRef = pdf_doc->doc->getCatalog()->getPageRef(epdf_selected_page);
+#ifndef MIKTEX_POPPLER_59
     xref->fetch(pageRef->num, pageRef->gen, &pageObj);
     pageDict = pageObj->getDict();
+#else
+    pageObj = xref->fetch(pageRef->num, pageRef->gen);
+    pageDict = pageObj.getDict();
+#endif
     rotate = page->getRotate();
     PDFRectangle *pagebox;
     // write the Page header
@@ -914,7 +1040,11 @@ void write_epdf(void)
         pdf_printf("/%s.PageNumber %i\n", pdfkeyprefix, (int) epdf_selected_page);
     }
     if ((suppress_ptex_info & MASK_SUPPRESS_PTEX_INFODICT) == 0) {
+#ifndef MIKTEX_POPPLER_59
         pdf_doc->doc->getDocInfoNF(&info);
+#else
+        info = pdf_doc->doc->getDocInfoNF();
+#endif
         if (info.isRef()) {
             // the info dict must be indirect (PDF Ref p. 61)
             pdf_printf("/%s.InfoDict ", pdfkeyprefix);
@@ -970,14 +1100,24 @@ void write_epdf(void)
     pdf_puts(stripzeros(s));
 
     // Metadata validity check (as a stream it must be indirect)
+#ifndef MIKTEX_POPPLER_59
     pageDict->lookupNF("Metadata", &dictObj);
     if (!dictObj->isNull() && !dictObj->isRef())
+#else
+    dictObj = pageDict->lookupNF("Metadata");
+    if (!dictObj.isNull() && !dictObj.isRef())
+#endif
         pdftex_warn("PDF inclusion: /Metadata must be indirect object");
 
     // copy selected items in Page dictionary except Resources & Group
     for (i = 0; pageDictKeys[i] != NULL; i++) {
+#ifndef MIKTEX_POPPLER_59
         pageDict->lookupNF(pageDictKeys[i], &dictObj);
         if (!dictObj->isNull()) {
+#else
+        dictObj = pageDict->lookupNF(pageDictKeys[i]);
+        if (!dictObj.isNull()) {
+#endif
             pdf_newline();
             pdf_printf("/%s ", pageDictKeys[i]);
             copyObject(&dictObj); // preserves indirection
@@ -985,8 +1125,13 @@ void write_epdf(void)
     } 
 
     // handle page group
+#ifndef MIKTEX_POPPLER_59
     pageDict->lookupNF("Group", &dictObj);
     if (!dictObj->isNull()) {
+#else
+    dictObj = pageDict->lookupNF("Group");
+    if (!dictObj.isNull()) {
+#endif
         if (pdfpagegroupval == 0) { 
             // another pdf with page group was included earlier on the
             // same page; copy the Group entry as is.  See manual for
@@ -1000,11 +1145,20 @@ void write_epdf(void)
             copyObject(&dictObj);
         } else {
             // write Group dict as a separate object, since the Page dict also refers to it
+#ifndef MIKTEX_POPPLER_59
             pageDict->lookup("Group", &dictObj);
             if (!dictObj->isDict())
+#else
+            dictObj = pageDict->lookup("Group");
+            if (!dictObj.isDict())
+#endif
                 pdftex_fail("PDF inclusion: /Group dict missing");
             writeSepGroup = true;
+#ifndef MIKTEX_POPPLER_59
             initDictFromDict(groupDict, page->getGroup());
+#else
+            groupDict = Object(page->getGroup());
+#endif
             pdf_printf("/Group %ld 0 R\n", (long)pdfpagegroupval);
         }
     }
@@ -1017,15 +1171,30 @@ void write_epdf(void)
         pdftex_warn
             ("PDF inclusion: /Resources missing. 'This practice is not recommended' (PDF Ref)");
     } else {
+#ifndef MIKTEX_POPPLER_59
         initDictFromDict(obj1, page->getResourceDict());
         if (!obj1->isDict())
+#else
+        obj1 = Object(page->getResourceDict());
+        if (!obj1.isDict())
+#endif
             pdftex_fail("PDF inclusion: invalid resources dict type <%s>",
+#ifndef MIKTEX_POPPLER_59
                         obj1->getTypeName());
+#else
+                        obj1.getTypeName());
+#endif
         pdf_newline();
         pdf_puts("/Resources <<\n");
+#ifndef MIKTEX_POPPLER_59
         for (i = 0, l = obj1->dictGetLength(); i < l; ++i) {
             obj1->dictGetVal(i, &obj2);
             key = obj1->dictGetKey(i);
+#else
+        for (i = 0, l = obj1.dictGetLength(); i < l; ++i) {
+            obj2 = obj1.dictGetVal(i);
+            key = obj1.dictGetKey(i);
+#endif
             if (strcmp("Font", key) == 0)
                 copyFontResources(&obj2);
             else if (strcmp("ProcSet", key) == 0)
@@ -1037,8 +1206,13 @@ void write_epdf(void)
     }
 
     // write the page contents
+#ifndef MIKTEX_POPPLER_59
     page->getContents(&contents);
     if (contents->isStream()) {
+#else
+    contents = page->getContents();
+    if (contents.isStream()) {
+#endif
 
         // Variant A: get stream and recompress under control
         // of \pdfcompresslevel
@@ -1049,36 +1223,70 @@ void write_epdf(void)
 
         // Variant B: copy stream without recompressing
         //
+#ifndef MIKTEX_POPPLER_59
         contents->streamGetDict()->lookup("F", &obj1);
         if (!obj1->isNull()) {
+#else
+        obj1 = contents.streamGetDict()->lookup("F");
+        if (!obj1.isNull()) {
+#endif
             pdftex_fail("PDF inclusion: Unsupported external stream");
         }
+#ifndef MIKTEX_POPPLER_59
         contents->streamGetDict()->lookup("Length", &obj1);
         assert(!obj1->isNull());
+#else
+        obj1 = contents.streamGetDict()->lookup("Length");
+        assert(!obj1.isNull());
+#endif
         pdf_puts("/Length ");
         copyObject(&obj1);
         pdf_puts("\n");
+#ifndef MIKTEX_POPPLER_59
         contents->streamGetDict()->lookup("Filter", &obj1);
         if (!obj1->isNull()) {
+#else
+        obj1 = contents.streamGetDict()->lookup("Filter");
+        if (!obj1.isNull()) {
+#endif
             pdf_puts("/Filter ");
             copyObject(&obj1);
             pdf_puts("\n");
+#ifndef MIKTEX_POPPLER_59
             contents->streamGetDict()->lookup("DecodeParms", &obj1);
             if (!obj1->isNull()) {
+#else
+            obj1 = contents.streamGetDict()->lookup("DecodeParms");
+            if (!obj1.isNull()) {
+#endif
                 pdf_puts("/DecodeParms ");
                 copyObject(&obj1);
                 pdf_puts("\n");
             }
         }
         pdf_puts(">>\nstream\n");
+#ifndef MIKTEX_POPPLER_59
         copyStream(contents->getStream()->getUndecodedStream());
+#else
+        copyStream(contents.getStream()->getUndecodedStream());
+#endif
         pdfendstream();
+#ifndef MIKTEX_POPPLER_59
     } else if (contents->isArray()) {
+#else
+    } else if (contents.isArray()) {
+#endif
         pdfbeginstream();
+#ifndef MIKTEX_POPPLER_59
         for (i = 0, l = contents->arrayGetLength(); i < l; ++i) {
             Object contentsobj;
             copyStream((contents->arrayGet(i, &contentsobj))->getStream());
             contentsobj.free();
+#else
+        for (i = 0, l = contents.arrayGetLength(); i < l; ++i) {
+            Object contentsobj = contents.arrayGet(i);
+            copyStream(contentsobj.getStream());
+#endif
             if (i < l - 1)
                 pdf_newline();  // add a newline after each stream except the last
         }
