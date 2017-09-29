@@ -7,6 +7,10 @@
 * dvipdfmx 20170806, XeTeX
   Support /Rotate in PDF image inclusion
 
+### Upgraded libraries
+
+* Poppler 0.59.0
+
 ### Bug fixes
 
 * [4](https://github.com/MiKTeX/miktex/issues/4): `xdvipdfmx` with options supplied as `output-driver` to XeLaTeX results in `can't write on file` error
