@@ -1,6 +1,6 @@
-/* unxemu.rc: version number					-*- C++ -*-
+/* unxemu.rc: version number				-*- C++ -*-
 
-   Copyright (C) 2007-2016 Christian Schenk
+   Copyright (C) 2007-2017 Christian Schenk
 
    This file is part of the MiKTeX UNXEMU Library.
 
@@ -24,7 +24,7 @@
 #define VER_INTERNALNAME_STR "${unxemu_dll_name}"
 #define VER_ORIGINALFILENAME_STR "${unxemu_dll_name}.dll"
 
-#define VER_FILEDESCRIPTION_STR "Unx Emulation"
+#define VER_FILEDESCRIPTION_STR "${MIKTEX_COMP_DESCRIPTION}"
 
 #define VER_FILETYPE VFT_DLL
 
