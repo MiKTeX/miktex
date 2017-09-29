@@ -16,7 +16,7 @@
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
-// Copyright (C) 2013 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2013, 2017 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -65,14 +65,13 @@ Array::~Array() {
 #endif
 }
 
-Object *Array::copy(XRef *xrefA, Object *obj) {
+Object Array::copy(XRef *xrefA) {
   arrayLocker();
-  obj->initArray(xrefA);
+  Array *a = new Array(xrefA);
   for (int i = 0; i < length; ++i) {
-    Object obj1;
-    obj->arrayAdd(elems[i].copy(&obj1));
+    a->add(elems[i].copy());
   }
-  return obj;
+  return Object(a);
 }
 
 int Array::incRef() {
@@ -87,7 +86,7 @@ int Array::decRef() {
   return ref;
 }
 
-void Array::add(Object *elem) {
+void Array::add(Object &&elem) {
   arrayLocker();
   if (length == size) {
     if (length == 0) {
@@ -97,7 +96,8 @@ void Array::add(Object *elem) {
     }
     elems = (Object *)greallocn(elems, size, sizeof(Object));
   }
-  elems[length] = *elem;
+  elems[length].initNullAfterMalloc();
+  elems[length] = std::move(elem);
   ++length;
 }
 
@@ -114,39 +114,36 @@ void Array::remove(int i) {
   memmove( elems + i, elems + i + 1, sizeof(elems[0]) * (length - i) );
 }
 
-Object *Array::get(int i, Object *obj, int recursion) {
+Object Array::get(int i, int recursion) {
   if (i < 0 || i >= length) {
 #ifdef DEBUG_MEM
     abort();
 #else
-    return obj->initNull();
+    return Object(objNull);
 #endif
   }
-  return elems[i].fetch(xref, obj, recursion);
+  return elems[i].fetch(xref, recursion);
 }
 
-Object *Array::getNF(int i, Object *obj) {
+Object Array::getNF(int i) {
   if (i < 0 || i >= length) {
 #ifdef DEBUG_MEM
     abort();
 #else
-    return obj->initNull();
+    return Object(objNull);
 #endif
   }
-  return elems[i].copy(obj);
+  return elems[i].copy();
 }
 
 GBool Array::getString(int i, GooString *string)
 {
-  Object obj;
-
-  if (getNF(i, &obj)->isString()) {
+  Object obj = getNF(i);
+  if (obj.isString()) {
     string->clear();
     string->append(obj.getString());
-    obj.free();
     return gTrue;
   } else {
-    obj.free();
     return gFalse;
   }
 }

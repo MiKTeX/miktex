@@ -20,7 +20,7 @@
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008 Iñigo Martínez <inigomartinez@gmail.com>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
-// Copyright (C) 2012 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2012, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
 //
@@ -107,8 +107,10 @@ public:
 	? separationInfo.getDict() : (Dict *)NULL; }
   Dict *getResourceDict()
     { return resources.isDict() ? resources.getDict() : (Dict *)NULL; }
-  void replaceResource(Object obj1) 
-  {  resources.free(); obj1.copy(&resources); }
+  Object *getResourceDictObject()
+    { return &resources; }
+  void replaceResource(Object &&obj1)
+  {  resources = std::move(obj1); }
 
   // Clip all other boxes to the MediaBox.
   void clipBoxes();
@@ -141,7 +143,7 @@ class Page {
 public:
 
   // Constructor.
-  Page(PDFDoc *docA, int numA, Dict *pageDict, Ref pageRefA, PageAttrs *attrsA, Form *form);
+  Page(PDFDoc *docA, int numA, Object *pageDict, Ref pageRefA, PageAttrs *attrsA, Form *form);
 
   // Destructor.
   ~Page();
@@ -177,10 +179,11 @@ public:
 
   // Get resource dictionary.
   Dict *getResourceDict();
+  Object *getResourceDictObject();
   Dict *getResourceDictCopy(XRef *xrefA);
 
   // Get annotations array.
-  Object *getAnnots(Object *obj, XRef *xrefA = NULL) { return annotsObj.fetch((xrefA == NULL) ? xref : xrefA, obj); }
+  Object getAnnotsObject(XRef *xrefA = nullptr) { return annotsObj.fetch(xrefA ? xrefA : xref); }
   // Add a new annotation to the page
   void addAnnot(Annot *annot);
   // Remove an existing annotation from the page
@@ -193,14 +196,14 @@ public:
   Annots *getAnnots(XRef *xrefA = NULL);
 
   // Get contents.
-  Object *getContents(Object *obj) { return contents.fetch(xref, obj); }
+  Object getContents() { return contents.fetch(xref); }
 
   // Get thumb.
-  Object *getThumb(Object *obj) { return thumb.fetch(xref, obj); }
+  Object getThumb() { return thumb.fetch(xref); }
   GBool loadThumb(unsigned char **data, int *width, int *height, int *rowstride);
 
   // Get transition.
-  Object *getTrans(Object *obj) { return trans.fetch(xref, obj); }
+  Object getTrans() { return trans.fetch(xref); }
 
   // Get form.
   FormPageWidgets *getFormWidgets();
@@ -211,7 +214,7 @@ public:
   double getDuration() { return duration; }
 
   // Get actions
-  Object *getActions(Object *obj) { return actions.fetch(xref, obj); }
+  Object getActions() { return actions.fetch(xref); }
 
   enum PageAdditionalActionsType {
     actionOpenPage,     ///< Performed when opening the page

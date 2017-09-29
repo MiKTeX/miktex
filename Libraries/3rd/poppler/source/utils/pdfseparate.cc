@@ -9,6 +9,7 @@
 // Copyright (C) 2013, 2016 Pino Toscano <pino@kde.org>
 // Copyright (C) 2013 Daniel Kahn Gillmor <dkg@fifthhorseman.net>
 // Copyright (C) 2013 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
+// Copyright (C) 2017 Léonard Michelet <leonard.michelet@smile.fr>
 //
 //========================================================================
 #include "config.h"
@@ -97,7 +98,7 @@ bool extractPages (const char *srcFileName, const char *destFileName) {
     }
   }
   if (!foundmatch && firstPage != lastPage) {
-    error(errSyntaxError, -1, "'{0:s}' must contain '%d' if more than one page should be extracted", destFileName);
+    error(errSyntaxError, -1, "'{0:s}' must contain '%d' (or any variant respecting printf format) if more than one page should be extracted, in order to print the page number", destFileName);
     free(auxDestFileName);
     delete doc;
     return false;

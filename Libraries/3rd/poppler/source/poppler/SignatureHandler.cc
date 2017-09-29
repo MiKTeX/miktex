@@ -9,6 +9,7 @@
 // Copyright 2015, 2016 Albert Astals Cid <aacid@kde.org>
 // Copyright 2015 Markus Kilås <digital@markuspage.com>
 // Copyright 2017 Sebastian Rasmussen <sebras@gmail.com>
+// Copyright 2017 Hans-Ulrich Jüttner <huj@froreich-bioscientia.de>
 //
 //========================================================================
 
@@ -47,6 +48,26 @@ char *SignatureHandler::getSignerName()
   return CERT_GetCommonName(&cert->subject);
 }
 
+const char * SignatureHandler::getSignerSubjectDN()
+{
+  if (!CMSSignerInfo)
+    return nullptr;
+
+  CERTCertificate *cert = NSS_CMSSignerInfo_GetSigningCertificate(CMSSignerInfo, CERT_GetDefaultCertDB());
+  if (!cert)
+    return nullptr;
+  return cert->subjectName;
+}
+
+HASH_HashType SignatureHandler::getHashAlgorithm()
+{
+  if (hash_context && hash_context->hashobj)
+  {
+    return hash_context->hashobj->type;
+  }
+  return HASH_AlgNULL;
+}
+
 time_t SignatureHandler::getSigningTime()
 {
   PRTime sTime; // time in microseconds since the epoch
@@ -54,7 +75,7 @@ time_t SignatureHandler::getSigningTime()
   if (NSS_CMSSignerInfo_GetSigningTime (CMSSignerInfo, &sTime) != SECSuccess)
     return 0;
 
-  return (time_t) sTime/1000000;
+  return static_cast<time_t>(sTime/1000000);
 }
 
 
@@ -271,7 +292,7 @@ NSSCMSVerificationStatus SignatureHandler::validateSignature()
   }
 }
 
-SECErrorCodes SignatureHandler::validateCertificate()
+SECErrorCodes SignatureHandler::validateCertificate(time_t validation_time)
 {
   SECErrorCodes retVal;
   CERTCertificate *cert;
@@ -282,10 +303,15 @@ SECErrorCodes SignatureHandler::validateCertificate()
   if ((cert = NSS_CMSSignerInfo_GetSigningCertificate(CMSSignerInfo, CERT_GetDefaultCertDB())) == NULL)
     CMSSignerInfo->verificationStatus = NSSCMSVS_SigningCertNotFound;
 
-  CERTValInParam inParams[2];
+  PRTime vTime = 0; // time in microseconds since the epoch, special value 0 means now
+  if (validation_time > 0)
+    vTime = 1000000*(PRTime)validation_time;
+  CERTValInParam inParams[3];
   inParams[0].type = cert_pi_revocationFlags;
   inParams[0].value.pointer.revocation = CERT_GetClassicOCSPEnabledSoftFailurePolicy();
-  inParams[1].type = cert_pi_end;
+  inParams[1].type = cert_pi_date;
+  inParams[1].value.scalar.time = vTime;
+  inParams[2].type = cert_pi_end;
 
   CERT_PKIXVerifyCert(cert, certificateUsageEmailSigner, inParams, NULL,
                 CMSSignerInfo->cmsg->pwfn_arg);

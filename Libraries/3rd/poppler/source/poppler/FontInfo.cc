@@ -3,7 +3,7 @@
 // FontInfo.cc
 //
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005-2008, 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2008, 2010, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Brad Hards <bradh@frogmouth.net>
 // Copyright (C) 2006 Kouhei Sutou <kou@cozmixng.org>
 // Copyright (C) 2009 Pino Toscano <pino@kde.org>
@@ -54,7 +54,6 @@ GooList *FontInfoScanner::scan(int nPages) {
   Page *page;
   Dict *resDict;
   Annots *annots;
-  Object obj1;
   int lastPage;
 
   if (currentPage > doc->getNumPages()) {
@@ -79,10 +78,10 @@ GooList *FontInfoScanner::scan(int nPages) {
     }
     annots = page->getAnnots();
     for (int i = 0; i < annots->getNumAnnots(); ++i) {
-      if (annots->getAnnot(i)->getAppearanceResDict(&obj1)->isDict()) {
+      Object obj1 = annots->getAnnot(i)->getAppearanceResDict();
+      if (obj1.isDict()) {
         scanFonts(xrefA, obj1.getDict(), result);
       }
-      obj1.free();
     }
   }
 
@@ -93,27 +92,24 @@ GooList *FontInfoScanner::scan(int nPages) {
 }
 
 void FontInfoScanner::scanFonts(XRef *xrefA, Dict *resDict, GooList *fontsList) {
-  Object obj1, obj2, objDict, resObj;
   Ref r;
   GfxFontDict *gfxFontDict;
   GfxFont *font;
-  int i;
 
   // scan the fonts in this resource dictionary
   gfxFontDict = NULL;
-  resDict->lookupNF("Font", &obj1);
+  Object obj1 = resDict->lookupNF("Font");
   if (obj1.isRef()) {
-    obj1.fetch(xrefA, &obj2);
+    Object obj2 = obj1.fetch(xrefA);
     if (obj2.isDict()) {
       r = obj1.getRef();
       gfxFontDict = new GfxFontDict(xrefA, &r, obj2.getDict());
     }
-    obj2.free();
   } else if (obj1.isDict()) {
     gfxFontDict = new GfxFontDict(xrefA, NULL, obj1.getDict());
   }
   if (gfxFontDict) {
-    for (i = 0; i < gfxFontDict->getNumFonts(); ++i) {
+    for (int i = 0; i < gfxFontDict->getNumFonts(); ++i) {
       if ((font = gfxFontDict->getFont(i))) {
         Ref fontRef = *font->getID();
 
@@ -126,48 +122,39 @@ void FontInfoScanner::scanFonts(XRef *xrefA, Dict *resDict, GooList *fontsList) 
     }
     delete gfxFontDict;
   }
-  obj1.free();
 
   // recursively scan any resource dictionaries in objects in this
   // resource dictionary
   const char *resTypes[] = { "XObject", "Pattern" };
   for (Guint resType = 0; resType < sizeof(resTypes) / sizeof(resTypes[0]); ++resType) {
-    resDict->lookup(resTypes[resType], &objDict);
+    Object objDict = resDict->lookup(resTypes[resType]);
     if (objDict.isDict()) {
-      for (i = 0; i < objDict.dictGetLength(); ++i) {
-        objDict.dictGetValNF(i, &obj1);
+      for (int i = 0; i < objDict.dictGetLength(); ++i) {
+        obj1 = objDict.dictGetValNF(i);
         if (obj1.isRef()) {
           // check for an already-seen object
           const Ref r = obj1.getRef();
           if (visitedObjects.find(r.num) != visitedObjects.end()) {
-            obj1.free();
             continue;
           }
 
           visitedObjects.insert(r.num);
         }
 
-        obj1.fetch(xrefA, &obj2);
-
+        Object obj2 = obj1.fetch(xrefA);
         if (obj2.isStream()) {
-          obj2.streamGetDict()->lookup("Resources", &resObj);
+          Object resObj = obj2.streamGetDict()->lookup("Resources");
           if (resObj.isDict() && resObj.getDict() != resDict) {
             scanFonts(xrefA, resObj.getDict(), fontsList);
           }
-          resObj.free();
         }
-        obj1.free();
-        obj2.free();
       }
     }
-    objDict.free();
   }
 }
 
 FontInfo::FontInfo(GfxFont *font, XRef *xref) {
   GooString *origName;
-  Object fontObj, toUnicodeObj;
-  int i;
 
   fontRef = *font->getID();
 
@@ -204,16 +191,16 @@ FontInfo::FontInfo(GfxFont *font, XRef *xref) {
 
   // look for a ToUnicode map
   hasToUnicode = gFalse;
-  if (xref->fetch(fontRef.num, fontRef.gen, &fontObj)->isDict()) {
-    hasToUnicode = fontObj.dictLookup("ToUnicode", &toUnicodeObj)->isStream();
-    toUnicodeObj.free();
+  Object fontObj = xref->fetch(fontRef.num, fontRef.gen);
+  if (fontObj.isDict()) {
+    hasToUnicode = fontObj.dictLookup("ToUnicode").isStream();
   }
-  fontObj.free();
 
   // check for a font subset name: capital letters followed by a '+'
   // sign
   subset = gFalse;
   if (name) {
+    int i;
     for (i = 0; i < name->getLength(); ++i) {
       if (name->getChar(i) < 'A' || name->getChar(i) > 'Z') {
 	break;

@@ -17,6 +17,7 @@
 // Copyright 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright 2015 André Guerreiro <aguerreiro1985@gmail.com>
 // Copyright 2015 André Esser <bepandre@hotmail.com>
+// Copyright 2017 Hans-Ulrich Jüttner <huj@froreich-bioscientia.de>
 //
 //========================================================================
 
@@ -27,6 +28,7 @@
 #endif
 
 #include <set>
+#include <limits>
 #include <stddef.h>
 #include <string.h>
 #include "goo/gmem.h"
@@ -85,7 +87,7 @@ FormWidget::FormWidget(PDFDoc *docA, Object *aobj, unsigned num, Ref aref, FormF
   childNum = num;
   doc = docA;
   xref = doc->getXRef();
-  aobj->copy(&obj);
+  obj = aobj->copy();
   type = formUndef;
   field = fieldA;
   widget = NULL;
@@ -95,7 +97,6 @@ FormWidget::~FormWidget()
 {
   if (widget)
     widget->decRefCnt();
-  obj.free ();
 }
 
 #ifdef DEBUG_FORMS
@@ -108,10 +109,8 @@ void FormWidget::createWidgetAnnotation() {
   if (widget)
     return;
 
-  Object obj1;
-  obj1.initRef(ref.num, ref.gen);
-  widget = new AnnotWidget(doc, obj.getDict(), &obj1, field);
-  obj1.free();
+  Object obj1(ref.num, ref.gen);
+  widget = new AnnotWidget(doc, &obj, &obj1, field);
 }
 
 GBool FormWidget::inRect(double x, double y) const {
@@ -178,13 +177,13 @@ FormWidgetButton::FormWidgetButton (PDFDoc *docA, Object *aobj, unsigned num, Re
   type = formButton;
   onStr = NULL;
 
-  Object obj1, obj2;
-
   // Find the name of the ON state in the AP dictionnary
   // The reference say the Off state, if it existe, _must_ be stored in the AP dict under the name /Off
   // The "on" state may be stored under any other name
-  if (obj.dictLookup("AP", &obj1)->isDict()) {
-    if (obj1.dictLookup("N", &obj2)->isDict()) {
+  Object obj1 = obj.dictLookup("AP");
+  if (obj1.isDict()) {
+    Object obj2 = obj1.dictLookup("N");
+    if (obj2.isDict()) {
       for (int i = 0; i < obj2.dictGetLength(); i++) {
         char *key = obj2.dictGetKey(i);
         if (strcmp (key, "Off") != 0) {
@@ -193,9 +192,7 @@ FormWidgetButton::FormWidgetButton (PDFDoc *docA, Object *aobj, unsigned num, Re
         }
       }
     }
-    obj2.free();
   }
-  obj1.free();
 }
 
 char *FormWidgetButton::getOnStr() {
@@ -443,9 +440,148 @@ FormWidgetSignature::FormWidgetSignature(PDFDoc *docA, Object *aobj, unsigned nu
   type = formSignature;
 }
 
-SignatureInfo *FormWidgetSignature::validateSignature(bool doVerifyCert, bool forceRevalidation)
+SignatureInfo *FormWidgetSignature::validateSignature(bool doVerifyCert, bool forceRevalidation, time_t validationTime)
 {
-  return static_cast<FormFieldSignature*>(field)->validateSignature(doVerifyCert, forceRevalidation);
+  return static_cast<FormFieldSignature*>(field)->validateSignature(doVerifyCert, forceRevalidation, validationTime);
+}
+
+std::vector<Goffset> FormWidgetSignature::getSignedRangeBounds()
+{
+  Object* obj = static_cast<FormFieldSignature*>(field)->getByteRange();
+  std::vector<Goffset> range_vec;
+  if (obj->isArray())
+  {
+    if (obj->arrayGetLength() == 4)
+    {
+      for (int i = 0; i < 2; ++i)
+      {
+        Object offsetObj(obj->arrayGet(2*i));
+        Object lenObj(obj->arrayGet(2*i+1));
+        if (offsetObj.isIntOrInt64() && lenObj.isIntOrInt64())
+        {
+          Goffset offset = offsetObj.getIntOrInt64();
+          Goffset len = lenObj.getIntOrInt64();
+          range_vec.push_back(offset);
+          range_vec.push_back(offset+len);
+        }
+      }
+    }
+  }
+  return range_vec;
+}
+
+GooString* FormWidgetSignature::getCheckedSignature(Goffset *checkedFileSize)
+{
+  Goffset start = 0;
+  Goffset end = 0;
+  const std::vector<Goffset> ranges = getSignedRangeBounds();
+  if (ranges.size() == 4)
+  {
+    start = ranges[1];
+    end = ranges[2];
+  }
+  if (end >= start+6)
+  {
+    BaseStream* stream = doc->getBaseStream();
+    *checkedFileSize = stream->getLength();
+    Goffset len = end-start;
+    stream->setPos(end-1);
+    int c2 = stream->lookChar();
+    stream->setPos(start);
+    int c1 = stream->getChar();
+    // PDF signatures are first ASN1 DER, then hex encoded PKCS#7 structures,
+    // possibly padded with 0 characters and enclosed in '<' and '>'.
+    // The ASN1 DER encoding of a PKCS#7 structure must start with the tag 0x30
+    // for SEQUENCE. The next byte must be 0x80 for ASN1 DER indefinite length
+    // encoding or (0x80 + n) for ASN1 DER definite length encoding
+    // where n is the number of subsequent "length bytes" which big-endian
+    // encode the length of the content of the SEQUENCE following them.
+    if (len <= std::numeric_limits<int>::max() && *checkedFileSize > end && c1 == '<' && c2 == '>')
+    {
+      GooString gstr;
+      ++start;
+      --end;
+      len = end-start;
+      Goffset pos = 0;
+      do
+      {
+        c1 = stream->getChar();
+        if (c1 == EOF)
+          return nullptr;
+        gstr.append(static_cast<char>(c1));
+      } while (++pos < len);
+      if (gstr.getChar(0) == '3' && gstr.getChar(1) == '0')
+      {
+        if (gstr.getChar(2) == '8' && gstr.getChar(3) == '0')
+        {
+          // ASN1 DER indefinite length encoding:
+          // We only check that all characters up to the enclosing '>'
+          // are hex characters and that there are two hex encoded 0 bytes
+          // just before the enclosing '>' marking the end of the indefinite
+          // length encoding.
+          int paddingCount = 0;
+          while (gstr.getChar(len-1) == '0' && gstr.getChar(len-2) == '0')
+          {
+            ++paddingCount;
+            len -= 2;
+          }
+          if (paddingCount < 2 || len%2 == 1)
+            len = 0;
+        }
+        else if (gstr.getChar(2) == '8')
+        {
+          // ASN1 DER definite length encoding:
+          // We calculate the length of the following bytes from the length bytes and
+          // check that after the length bytes and the following calculated number of
+          // bytes all bytes up to the enclosing '>' character are hex encoded 0 bytes.
+          int lenBytes = gstr.getChar(3) - '0';
+          if (lenBytes > 0 && lenBytes <= 4)
+          {
+            int sigLen = 0;
+            for (int i = 0; i < 2*lenBytes; ++i)
+            {
+              sigLen <<= 4;
+              char c = gstr.getChar(i+4);
+              if (isdigit(c))
+                sigLen += c - '0';
+              else if (isxdigit(c) && c >= 'a')
+                sigLen += c - 'a' + 10;
+              else if (isxdigit(c) && c >= 'A')
+                sigLen += c - 'A' + 10;
+              else
+              {
+                len = 0;
+                break;
+              }
+            }
+            if (sigLen > 0 && 2*(sigLen+lenBytes) <= len-4)
+            {
+              for (int i = 2*(sigLen+lenBytes)+4; i < len; ++i)
+              {
+                if (gstr.getChar(i) != '0')
+                {
+                  len = 0;
+                  break;
+                }
+              }
+            }
+            else
+              len = 0;
+          }
+        }
+        for (int i = 0; i < len; ++i)
+        {
+          if (!isxdigit(gstr.getChar(i)))
+            len = 0;
+        }
+        if (len > 0)
+        {
+          return new GooString(&gstr, 0, len);
+        }
+      }
+    }
+  }
+  return nullptr;
 }
 
 void FormWidgetSignature::updateWidgetAppearance()
@@ -462,7 +598,7 @@ FormField::FormField(PDFDoc *docA, Object *aobj, const Ref& aref, FormField *par
 {
   doc = docA;
   xref = doc->getXRef();
-  aobj->copy(&obj);
+  obj = aobj->copy();
   Dict* dict = obj.getDict();
   ref.num = ref.gen = 0;
   type = ty;
@@ -479,76 +615,65 @@ FormField::FormField(PDFDoc *docA, Object *aobj, const Ref& aref, FormField *par
 
   ref = aref;
 
-  Object obj1;
   //childs
-  if (dict->lookup("Kids", &obj1)->isArray()) {
+  Object obj1 = dict->lookup("Kids");
+  if (obj1.isArray()) {
     // Load children
     for (int i = 0 ; i < obj1.arrayGetLength(); i++) {
-      Object childRef, childObj;
-
-      if (!obj1.arrayGetNF(i, &childRef)->isRef()) {
+      Object childRef = obj1.arrayGetNF(i);
+      if (!childRef.isRef()) {
         error (errSyntaxError, -1, "Invalid form field renference");
-        childRef.free();
         continue;
       }
-      if (!obj1.arrayGet(i, &childObj)->isDict()) {
+      Object childObj = obj1.arrayGet(i);
+      if (!childObj.isDict()) {
         error (errSyntaxError, -1, "Form field child is not a dictionary");
-        childObj.free();
-        childRef.free();
         continue;
       }
 
       const Ref ref = childRef.getRef();
       if (usedParents->find(ref.num) == usedParents->end()) {
-        Object obj2, obj3;
         // Field child: it could be a form field or a widget or composed dict
-        if (childObj.dictLookupNF("Parent", &obj2)->isRef() || childObj.dictLookup("Parent", &obj3)->isDict()) {
+        Object obj2 = childObj.dictLookupNF("Parent");
+	Object obj3 = childObj.dictLookup("Parent");
+        if (obj2.isRef() || obj3.isDict()) {
           // Child is a form field or composed dict
           // We create the field, if it's composed
           // it will create the widget as a child
           std::set<int> usedParentsAux = *usedParents;
           usedParentsAux.insert(ref.num);
-          obj2.free();
-          obj3.free();
 
           if (terminal) {
             error(errSyntaxWarning, -1, "Field can't have both Widget AND Field as kids\n");
-            childObj.free();
-            childRef.free();
             continue;
           }
 
           numChildren++;
           children = (FormField**)greallocn(children, numChildren, sizeof(FormField*));
           children[numChildren - 1] = Form::createFieldFromDict(&childObj, doc, ref, this, &usedParentsAux);
-        } else if (childObj.dictLookup("Subtype", &obj2)->isName("Widget")) {
-          // Child is a widget annotation
-          if (!terminal && numChildren > 0) {
-            error(errSyntaxWarning, -1, "Field can't have both Widget AND Field as kids\n");
-            obj2.free();
-            obj3.free();
-            childObj.free();
-            childRef.free();
-            continue;
-          }
-          _createWidget(&childObj, ref);
-        }
-        obj2.free();
-        obj3.free();
+        } else {
+	  obj2 = childObj.dictLookup("Subtype");
+	  if (obj2.isName("Widget")) {
+	    // Child is a widget annotation
+	    if (!terminal && numChildren > 0) {
+	      error(errSyntaxWarning, -1, "Field can't have both Widget AND Field as kids\n");
+	      continue;
+	    }
+	    _createWidget(&childObj, ref);
+	  }
+	}
       }
-      childObj.free();
-      childRef.free();
     }
   } else {
     // No children, if it's a composed dict, create the child widget
-    obj1.free();
-    if (dict->lookup("Subtype", &obj1)->isName("Widget"))
+    obj1 = dict->lookup("Subtype");
+    if (obj1.isName("Widget"))
       _createWidget(&obj, ref);
   }
-  obj1.free();
 
   //flags
-  if (Form::fieldLookup(dict, "Ff", &obj1)->isInt()) {
+  obj1 = Form::fieldLookup(dict, "Ff");
+  if (obj1.isInt()) {
     int flags = obj1.getInt();
     if (flags & 0x1) { // 1 -> ReadOnly
       readOnly = true;
@@ -560,39 +685,38 @@ FormField::FormField(PDFDoc *docA, Object *aobj, const Ref& aref, FormField *par
       //TODO
     }
   }
-  obj1.free();
 
   // Variable Text
-  if (Form::fieldLookup(dict, "DA", &obj1)->isString())
+  obj1 = Form::fieldLookup(dict, "DA");
+  if (obj1.isString())
     defaultAppearance = obj1.getString()->copy();
-  obj1.free();
 
-  if (Form::fieldLookup(dict, "Q", &obj1)->isInt()) {
+  obj1 = Form::fieldLookup(dict, "Q");
+  if (obj1.isInt()) {
     quadding = static_cast<VariableTextQuadding>(obj1.getInt());
     hasQuadding = gTrue;
   }
-  obj1.free();
 
-  if (dict->lookup("T", &obj1)->isString()) {
+  obj1 = dict->lookup("T");
+  if (obj1.isString()) {
     partialName = obj1.getString()->copy();
   } else {
     partialName = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("TU", &obj1)->isString()) {
+  obj1 = dict->lookup("TU");
+  if (obj1.isString()) {
     alternateUiName = obj1.getString()->copy();
   } else {
     alternateUiName = NULL;
   }
-  obj1.free();
 
-  if(dict->lookup("TM", &obj1)->isString()) {
+  obj1 = dict->lookup("TM");
+  if(obj1.isString()) {
     mappingName = obj1.getString()->copy();
   } else {
     mappingName = NULL;
   }
-  obj1.free();
 }
 
 void FormField::setPartialName(const GooString &name)
@@ -600,9 +724,7 @@ void FormField::setPartialName(const GooString &name)
   delete partialName;
   partialName = name.copy();
 
-  Object obj1;
-  obj1.initString(name.copy());
-  obj.getDict()->set("T", &obj1);
+  obj.getDict()->set("T", Object(name.copy()));
   xref->setModifiedObject(&obj, ref);
 }
 
@@ -619,7 +741,6 @@ FormField::~FormField()
       delete widgets[i];
     gfree (widgets);
   }
-  obj.free();
 
   delete defaultAppearance;
   delete partialName;
@@ -689,7 +810,6 @@ void FormField::_createWidget (Object *obj, Ref aref)
   default:
     error(errSyntaxWarning, -1, "SubType on non-terminal field, invalid document?");
     numChildren--;
-    terminal = false;
   }
 }
 
@@ -711,7 +831,7 @@ FormWidget* FormField::findWidgetByRef (Ref aref)
 }
 
 GooString* FormField::getFullyQualifiedName() {
-  Object obj1, obj2;
+  Object obj1;
   Object parent;
   GooString *parent_name;
   GooString *full_name;
@@ -722,9 +842,10 @@ GooString* FormField::getFullyQualifiedName() {
 
   full_name = new GooString();
 
-  obj.copy(&obj1);
-  while (obj1.dictLookup("Parent", &parent)->isDict()) {
-    if (parent.dictLookup("T", &obj2)->isString()) {
+  obj1 = obj.copy();
+  while (parent = obj1.dictLookup("Parent"), parent.isDict()) {
+    Object obj2 = parent.dictLookup("T");
+    if (obj2.isString()) {
       parent_name = obj2.getString();
 
       if (unicode_encoded) {
@@ -747,14 +868,9 @@ GooString* FormField::getFullyQualifiedName() {
           full_name->insert(0, parent_name);
         }
       }
-      obj2.free();
     }
-    obj1.free();
-    parent.copy(&obj1);
-    parent.free();
+    obj1 = parent.copy();
   }
-  obj1.free();
-  parent.free();
 
   if (partialName) {
     if (unicode_encoded) {
@@ -821,11 +937,11 @@ FormFieldButton::FormFieldButton(PDFDoc *docA, Object *aobj, const Ref& ref, For
   noAllOff = false;
   siblings = NULL;
   numSiblings = 0;
-  appearanceState.initNull();
+  appearanceState.setToNull();
 
-  Object obj1;
-  btype = formButtonCheck; 
-  if (Form::fieldLookup(dict, "Ff", &obj1)->isInt()) {
+  btype = formButtonCheck;
+  Object obj1 = Form::fieldLookup(dict, "Ff");
+  if (obj1.isInt()) {
     int flags = obj1.getInt();
     
     if (flags & 0x10000) { // 17 -> push button
@@ -844,7 +960,7 @@ FormFieldButton::FormFieldButton(PDFDoc *docA, Object *aobj, const Ref& ref, For
   if (btype != formButtonPush) {
     // Even though V is inheritable we are interested in the value of this
     // field, if not present it's probably because it's a button in a set.
-    dict->lookup("V", &appearanceState);
+    appearanceState = dict->lookup("V");
   }
 }
 
@@ -903,11 +1019,6 @@ void FormFieldButton::fillChildrenSiblingsID()
 
 GBool FormFieldButton::setState(char *state)
 {
-  if (readOnly) {
-    error(errInternal, -1, "FormFieldButton::setState called on a readOnly field\n");
-    return gFalse;
-  }
-
   // A check button could behave as a radio button
   // when it's in a set of more than 1 buttons
   if (btype != formButtonRadio && btype != formButtonCheck)
@@ -973,19 +1084,13 @@ GBool FormFieldButton::getState(char *state) {
 }
 
 void FormFieldButton::updateState(char *state) {
-  Object obj1;
-
-  appearanceState.free();
-  appearanceState.initName(state);
-
-  appearanceState.copy(&obj1);
-  obj.getDict()->set("V", &obj1);
+  appearanceState = Object(objName, state);
+  obj.getDict()->set("V", appearanceState.copy());
   xref->setModifiedObject(&obj, ref);
 }
 
 FormFieldButton::~FormFieldButton()
 {
-  appearanceState.free();
   if (siblings)
     gfree(siblings);
 }
@@ -1002,7 +1107,8 @@ FormFieldText::FormFieldText(PDFDoc *docA, Object *aobj, const Ref& ref, FormFie
   multiline = password = fileSelect = doNotSpellCheck = doNotScroll = comb = richText = false;
   maxLen = 0;
 
-  if (Form::fieldLookup(dict, "Ff", &obj1)->isInt()) {
+  obj1 = Form::fieldLookup(dict, "Ff");
+  if (obj1.isInt()) {
     int flags = obj1.getInt();
     if (flags & 0x1000) // 13 -> Multiline
       multiline = true;
@@ -1019,14 +1125,14 @@ FormFieldText::FormFieldText(PDFDoc *docA, Object *aobj, const Ref& ref, FormFie
     if (flags & 0x2000000)// 26 -> RichText
       richText = true;
   }
-  obj1.free();
 
-  if (Form::fieldLookup(dict, "MaxLen", &obj1)->isInt()) {
+  obj1 = Form::fieldLookup(dict, "MaxLen");
+  if (obj1.isInt()) {
     maxLen = obj1.getInt();
   }
-  obj1.free();
 
-  if (Form::fieldLookup(dict, "V", &obj1)->isString()) {
+  obj1 = Form::fieldLookup(dict, "V");
+  if (obj1.isString()) {
     if (obj1.getString()->hasUnicodeMarker()) {
       if (obj1.getString()->getLength() > 2)
         content = obj1.getString()->copy();
@@ -1038,7 +1144,6 @@ FormFieldText::FormFieldText(PDFDoc *docA, Object *aobj, const Ref& ref, FormFie
       delete [] tmp_str;
     }
   }
-  obj1.free();
 }
 
 #ifdef DEBUG_FORMS
@@ -1070,9 +1175,7 @@ void FormFieldText::setContentCopy (GooString* new_content)
     }
   }
 
-  Object obj1;
-  obj1.initString(content ? content->copy() : new GooString(""));
-  obj.getDict()->set("V", &obj1);
+  obj.getDict()->set("V", Object(content ? content->copy() : new GooString("")));
   xref->setModifiedObject(&obj, ref);
   updateChildrenAppearance();
 }
@@ -1099,7 +1202,8 @@ FormFieldChoice::FormFieldChoice(PDFDoc *docA, Object *aobj, const Ref& ref, For
 
   combo = edit = multiselect = doNotSpellCheck = doCommitOnSelChange = false;
 
-  if (Form::fieldLookup(dict, "Ff", &obj1)->isInt()) {
+  obj1 = Form::fieldLookup(dict, "Ff");
+  if (obj1.isInt()) {
     int flags = obj1.getInt();
     if (flags & 0x20000) // 18 -> Combo
       combo = true; 
@@ -1112,67 +1216,62 @@ FormFieldChoice::FormFieldChoice(PDFDoc *docA, Object *aobj, const Ref& ref, For
     if (flags & 0x4000000) // 27 -> CommitOnSelChange
       doCommitOnSelChange = true;
   }
-  obj1.free();
 
-  if (dict->lookup("TI", &obj1)->isInt())
+  obj1 = dict->lookup("TI");
+  if (obj1.isInt())
     topIdx = obj1.getInt();
-  obj1.free();
 
-  if (dict->lookup("Opt", &obj1)->isArray()) {
-    Object obj2;
-
+  obj1 = dict->lookup("Opt");
+  if (obj1.isArray()) {
     numChoices = obj1.arrayGetLength();
     choices = new ChoiceOpt[numChoices];
     memset(choices, 0, sizeof(ChoiceOpt) * numChoices);
 
     for (int i = 0; i < numChoices; i++) {
-      if (obj1.arrayGet(i, &obj2)->isString()) {
+      Object obj2 = obj1.arrayGet(i);
+      if (obj2.isString()) {
         choices[i].optionName = obj2.getString()->copy();
       } else if (obj2.isArray()) { // [Export_value, Displayed_text]
-        Object obj3;
-
         if (obj2.arrayGetLength() < 2) {
           error(errSyntaxError, -1, "FormWidgetChoice:: invalid Opt entry -- array's length < 2\n");
           continue;
         }
-        if (obj2.arrayGet(0, &obj3)->isString())
+        Object obj3 = obj2.arrayGet(0);
+        if (obj3.isString())
           choices[i].exportVal = obj3.getString()->copy();
         else
           error(errSyntaxError, -1, "FormWidgetChoice:: invalid Opt entry -- exported value not a string\n");
-        obj3.free();
 
-        if (obj2.arrayGet(1, &obj3)->isString())
+        obj3 = obj2.arrayGet(1);
+        if (obj3.isString())
           choices[i].optionName = obj3.getString()->copy();
         else
           error(errSyntaxError, -1, "FormWidgetChoice:: invalid Opt entry -- choice name not a string\n");
-        obj3.free();
       } else {
         error(errSyntaxError, -1, "FormWidgetChoice:: invalid {0:d} Opt entry\n", i);
       }
-      obj2.free();
     }
   } else {
     //empty choice
   }
-  obj1.free();
 
   // Find selected items
   // Note: PDF specs say that /V has precedence over /I, but acroread seems to
   // do the opposite. We do the same.
-  if (Form::fieldLookup(dict, "I", &obj1)->isArray()) {
+  obj1 = Form::fieldLookup(dict, "I");
+  if (obj1.isArray()) {
     for (int i = 0; i < obj1.arrayGetLength(); i++) {
-      Object obj2;
-      if (obj1.arrayGet(i, &obj2)->isInt() && obj2.getInt() >= 0 && obj2.getInt() < numChoices) {
+      Object obj2 = obj1.arrayGet(i);
+      if (obj2.isInt() && obj2.getInt() >= 0 && obj2.getInt() < numChoices) {
         choices[obj2.getInt()].selected = true;
       }
-      obj2.free();
     }
   } else {
-    obj1.free();
     // Note: According to PDF specs, /V should *never* contain the exportVal.
     // However, if /Opt is an array of (exportVal,optionName) pairs, acroread
     // seems to expect the exportVal instead of the optionName and so we do too.
-    if (Form::fieldLookup(dict, "V", &obj1)->isString()) {
+    obj1 = Form::fieldLookup(dict, "V");
+    if (obj1.isString()) {
       GBool optionFound = gFalse;
 
       for (int i = 0; i < numChoices; i++) {
@@ -1199,8 +1298,7 @@ FormFieldChoice::FormFieldChoice(PDFDoc *docA, Object *aobj, const Ref& ref, For
     } else if (obj1.isArray()) {
       for (int i = 0; i < numChoices; i++) {
         for (int j = 0; j < obj1.arrayGetLength(); j++) {
-          Object obj2;
-          obj1.arrayGet(j, &obj2);
+          Object obj2 = obj1.arrayGet(j);
           GBool matches = gFalse;
 
           if (choices[i].exportVal) {
@@ -1213,8 +1311,6 @@ FormFieldChoice::FormFieldChoice(PDFDoc *docA, Object *aobj, const Ref& ref, For
             }
           }
 
-          obj2.free();
-
           if (matches) {
             choices[i].selected = true;
             break; // We've determined that this option is selected. No need to keep on scanning
@@ -1223,7 +1319,6 @@ FormFieldChoice::FormFieldChoice(PDFDoc *docA, Object *aobj, const Ref& ref, For
       }
     }
   }
-  obj1.free();
 }
 
 FormFieldChoice::~FormFieldChoice()
@@ -1245,35 +1340,35 @@ void FormFieldChoice::print(int indent)
 #endif
 
 void FormFieldChoice::updateSelection() {
-  Object objV, objI, obj1;
-  objI.initNull();
+  Object objV, obj1;
+  Object objI(objNull);
 
   if (edit && editedChoice) {
     // This is an editable combo-box with user-entered text
-    objV.initString(editedChoice->copy());
+    objV = Object(editedChoice->copy());
   } else {
     const int numSelected = getNumSelected();
 
     // Create /I array only if multiple selection is allowed (as per PDF spec)
     if (multiselect) {
-      objI.initArray(xref);
+      objI = Object(new Array(xref));
     }
 
     if (numSelected == 0) {
       // No options are selected
-      objV.initString(new GooString(""));
+      objV = Object(new GooString(""));
     } else if (numSelected == 1) {
       // Only one option is selected
       for (int i = 0; i < numChoices; i++) {
         if (choices[i].selected) {
           if (multiselect) {
-            objI.arrayAdd(obj1.initInt(i));
+            objI.arrayAdd(Object(i));
           }
 
           if (choices[i].exportVal) {
-            objV.initString(choices[i].exportVal->copy());
+            objV = Object(choices[i].exportVal->copy());
           } else if (choices[i].optionName) {
-            objV.initString(choices[i].optionName->copy());
+            objV = Object(choices[i].optionName->copy());
           }
 
           break; // We've just written the selected option. No need to keep on scanning
@@ -1281,25 +1376,25 @@ void FormFieldChoice::updateSelection() {
       }
     } else {
       // More than one option is selected
-      objV.initArray(xref);
+      objV = Object(new Array(xref));
       for (int i = 0; i < numChoices; i++) {
         if (choices[i].selected) {
           if (multiselect) {
-            objI.arrayAdd(obj1.initInt(i));
+            objI.arrayAdd(Object(i));
           }
 
           if (choices[i].exportVal) {
-            objV.arrayAdd(obj1.initString(choices[i].exportVal->copy()));
+            objV.arrayAdd(Object(choices[i].exportVal->copy()));
           } else if (choices[i].optionName) {
-            objV.arrayAdd(obj1.initString(choices[i].optionName->copy()));
+            objV.arrayAdd(Object(choices[i].optionName->copy()));
           }
         }
       }
     }
   }
 
-  obj.getDict()->set("V", &objV);
-  obj.getDict()->set("I", &objI);
+  obj.getDict()->set("V", std::move(objV));
+  obj.getDict()->set("I", std::move(objI));
   xref->setModifiedObject(&obj, ref);
   updateChildrenAppearance();
 }
@@ -1390,7 +1485,9 @@ GooString *FormFieldChoice::getSelectedChoice() {
 // FormFieldSignature
 //------------------------------------------------------------------------
 FormFieldSignature::FormFieldSignature(PDFDoc *docA, Object *dict, const Ref& ref, FormField *parent, std::set<int> *usedParents)
-  : FormField(docA, dict, ref, parent, usedParents, formSignature)
+  : FormField(docA, dict, ref, parent, usedParents, formSignature),
+    signature_type(adbe_pkcs7_detached),
+    signature(nullptr), signature_info(nullptr)
 {
   signature = NULL;
 
@@ -1400,7 +1497,6 @@ FormFieldSignature::FormFieldSignature(PDFDoc *docA, Object *dict, const Ref& re
 
 FormFieldSignature::~FormFieldSignature()
 {
-  byte_range.free();
   delete signature_info;
   delete signature;
 }
@@ -1410,39 +1506,40 @@ void FormFieldSignature::parseInfo()
   if (!obj.isDict())
     return;
 
-  Object sig_dict, contents_obj, time_of_signing, subfilterName;
-
   // retrieve PKCS#7
-  obj.dictLookup("V", &sig_dict);
+  Object sig_dict = obj.dictLookup("V");
   if (!sig_dict.isDict()) {
-    sig_dict.free();
     return;
   }
 
-  sig_dict.dictLookup("Contents", &contents_obj);
+  Object contents_obj = sig_dict.dictLookup("Contents");
   if (contents_obj.isString()) {
     signature = contents_obj.getString()->copy();
   }
-  contents_obj.free();
 
-  sig_dict.dictLookup("ByteRange", &byte_range);
+  byte_range = sig_dict.dictLookup("ByteRange");
 
   // retrieve SigningTime
-  sig_dict.dictLookup("M", &time_of_signing);
+  Object time_of_signing = sig_dict.dictLookup("M");
   if (time_of_signing.isString()) {
     GooString *time_str = time_of_signing.getString();
     signature_info->setSigningTime(dateStringToTime(time_str)); // Put this information directly in SignatureInfo object
-    time_of_signing.free();
   }
 
   // check if subfilter is supported for signature validation, only detached signatures work for now
-  sig_dict.dictLookup("SubFilter", &subfilterName);
-  if (subfilterName.isName("adbe.pkcs7.detached") || subfilterName.isName("adbe.pkcs7.sha1")) {
+  Object subfilterName = sig_dict.dictLookup("SubFilter");
+  if (subfilterName.isName("adbe.pkcs7.sha1")) {
+    signature_type = adbe_pkcs7_sha1;
     signature_info->setSubFilterSupport(true);
   }
-
-  subfilterName.free();
-  sig_dict.free();
+  else if (subfilterName.isName("adbe.pkcs7.detached")) {
+    signature_type = adbe_pkcs7_detached;
+    signature_info->setSubFilterSupport(true);
+  }
+  else if (subfilterName.isName("ETSI.CAdES.detached")) {
+    signature_type = ETSI_CAdES_detached;
+    signature_info->setSubFilterSupport(true);
+  }
 }
 
 void FormFieldSignature::hashSignedDataBlock(SignatureHandler *handler, Goffset block_len)
@@ -1471,8 +1568,12 @@ void FormFieldSignature::hashSignedDataBlock(SignatureHandler *handler, Goffset 
 #endif
 }
 
+FormSignatureType FormWidgetSignature::signatureType()
+{
+  return static_cast<FormFieldSignature*>(field)->signature_type;
+}
 
-SignatureInfo *FormFieldSignature::validateSignature(bool doVerifyCert, bool forceRevalidation)
+SignatureInfo *FormFieldSignature::validateSignature(bool doVerifyCert, bool forceRevalidation, time_t validationTime)
 {
 #ifdef ENABLE_NSS3
   if (!signature_info->isSubfilterSupported()) {
@@ -1509,9 +1610,8 @@ SignatureInfo *FormFieldSignature::validateSignature(bool doVerifyCert, bool for
 
   Goffset fileLength = doc->getBaseStream()->getLength();
   for (int i = 0; i < arrayLen/2; i++) {
-    Object offsetObj, lenObj;
-    byte_range.arrayGet(i*2, &offsetObj);
-    byte_range.arrayGet(i*2+1, &lenObj);
+    Object offsetObj = byte_range.arrayGet(i*2);
+    Object lenObj = byte_range.arrayGet(i*2+1);
 
     if (!offsetObj.isIntOrInt64() || !lenObj.isIntOrInt64()) {
       error(errSyntaxError, 0, "Illegal values in ByteRange array");
@@ -1533,6 +1633,8 @@ SignatureInfo *FormFieldSignature::validateSignature(bool doVerifyCert, bool for
   sig_val_state = signature_handler.validateSignature();
   signature_info->setSignatureValStatus(SignatureHandler::NSS_SigTranslate(sig_val_state));
   signature_info->setSignerName(signature_handler.getSignerName());
+  signature_info->setSubjectDN(signature_handler.getSignerSubjectDN());
+  signature_info->setHashAlgorithm(signature_handler.getHashAlgorithm());
 
   // verify if signature contains a 'signing time' attribute
   if (signature_handler.getSigningTime() != 0) {
@@ -1543,7 +1645,7 @@ SignatureInfo *FormFieldSignature::validateSignature(bool doVerifyCert, bool for
     return signature_info;
   }
 
-  cert_val_state = signature_handler.validateCertificate();
+  cert_val_state = signature_handler.validateCertificate(validationTime);
   signature_info->setCertificateValStatus(SignatureHandler::NSS_CertTranslate(cert_val_state));
 
 #endif
@@ -1577,50 +1679,41 @@ Form::Form(PDFDoc *docA, Object* acroFormA)
   defaultAppearance = NULL;
   defaultResources = NULL;
 
-  acroForm->dictLookup("NeedAppearances", &obj1);
+  obj1 = acroForm->dictLookup("NeedAppearances");
   needAppearances = (obj1.isBool() && obj1.getBool());
-  obj1.free();
 
-  if (acroForm->dictLookup("DA", &obj1)->isString())
+  obj1 = acroForm->dictLookup("DA");
+  if (obj1.isString())
     defaultAppearance = obj1.getString()->copy();
-  obj1.free();
 
-  if (acroForm->dictLookup("Q", &obj1)->isInt())
+  obj1 = acroForm->dictLookup("Q");
+  if (obj1.isInt())
     quadding = static_cast<VariableTextQuadding>(obj1.getInt());
-  obj1.free();
 
-  acroForm->dictLookup("DR", &resDict);
+  resDict = acroForm->dictLookup("DR");
   if (resDict.isDict()) {
     // At a minimum, this dictionary shall contain a Font entry
-    if (resDict.dictLookup("Font", &obj1)->isDict())
+    obj1 = resDict.dictLookup("Font");
+    if (obj1.isDict())
       defaultResources = new GfxResources(xref, resDict.getDict(), NULL);
-    obj1.free();
   }
   if (!defaultResources) {
-    resDict.free();
-    resDict.initNull();
+    resDict.setToNull();
   }
 
-  acroForm->dictLookup("Fields", &obj1);
+  obj1 = acroForm->dictLookup("Fields");
   if (obj1.isArray()) {
     Array *array = obj1.getArray();
-    Object obj2;
-    
     for(int i=0; i<array->getLength(); i++) {
-      Object oref;
-      array->get(i, &obj2);
-      array->getNF(i, &oref);
+      Object obj2 = array->get(i);
+      Object oref = array->getNF(i);
       if (!oref.isRef()) {
         error(errSyntaxWarning, -1, "Direct object in rootFields");
-	obj2.free();
-	oref.free();
         continue;
       }
 
       if (!obj2.isDict()) {
         error(errSyntaxWarning, -1, "Reference in Fields array to an invalid or non existent object");
-	obj2.free();
-	oref.free();
 	continue;
       }
 
@@ -1632,32 +1725,24 @@ Form::Form(PDFDoc *docA, Object* acroFormA)
       std::set<int> usedParents;
       rootFields[numFields++] = createFieldFromDict (&obj2, doc, oref.getRef(), NULL, &usedParents);
 
-      obj2.free();
-      oref.free();
     }
   } else {
     error(errSyntaxError, -1, "Can't get Fields array\n");
   }
-  obj1.free ();
 
-  acroForm->dictLookup("CO", &obj1);
+  obj1 = acroForm->dictLookup("CO");
   if (obj1.isArray()) {
     Array *array = obj1.getArray();
     calculateOrder.reserve(array->getLength());
     for(int i=0; i<array->getLength(); i++) {
-      Object oref;
-      array->getNF(i, &oref);
+      Object oref = array->getNF(i);
       if (!oref.isRef()) {
         error(errSyntaxWarning, -1, "Direct object in CO");
-        oref.free();
         continue;
       }
       calculateOrder.push_back(oref.getRef());
-
-      oref.free();
     }
   }
-  obj1.free ();
 
 #ifdef DEBUG_FORMS
   for (int i = 0; i < numFields; i++)
@@ -1672,54 +1757,43 @@ Form::~Form() {
   gfree (rootFields);
   delete defaultAppearance;
   delete defaultResources;
-  resDict.free();
 }
 
 // Look up an inheritable field dictionary entry.
-static Object *fieldLookup(Dict *field, const char *key, Object *obj, std::set<int> *usedParents) {
-  Dict *dict;
-  Object parent;
-
-  dict = field;
-  if (!dict->lookup(key, obj)->isNull()) {
+static Object fieldLookup(Dict *field, const char *key, std::set<int> *usedParents) {
+  Dict *dict = field;
+  Object obj = dict->lookup(key);
+  if (!obj.isNull()) {
     return obj;
   }
-  obj->free();
-  dict->lookupNF("Parent", &parent);
+  Object parent = dict->lookupNF("Parent");
   if (parent.isRef()) {
     const Ref ref = parent.getRef();
     if (usedParents->find(ref.num) == usedParents->end()) {
       usedParents->insert(ref.num);
 
-      Object obj2;
-      parent.fetch(dict->getXRef(), &obj2);
+      Object obj2 = parent.fetch(dict->getXRef());
       if (obj2.isDict()) {
-        fieldLookup(obj2.getDict(), key, obj, usedParents);
-      } else {
-        obj->initNull();
+        return fieldLookup(obj2.getDict(), key, usedParents);
       }
-      obj2.free();
     }
   } else if (parent.isDict()) {
-    fieldLookup(parent.getDict(), key, obj, usedParents);
-  } else {
-    obj->initNull();
+    return fieldLookup(parent.getDict(), key, usedParents);
   }
-  parent.free();
-  return obj;
+  return Object(objNull);
 }
 
-Object *Form::fieldLookup(Dict *field, const char *key, Object *obj) {
+Object Form::fieldLookup(Dict *field, const char *key) {
   std::set<int> usedParents;
-  return ::fieldLookup(field, key, obj, &usedParents);
+  return ::fieldLookup(field, key, &usedParents);
 }
 
 FormField *Form::createFieldFromDict (Object* obj, PDFDoc *docA, const Ref& pref, FormField *parent, std::set<int> *usedParents)
 {
-    Object obj2;
     FormField *field;
 
-    if (Form::fieldLookup(obj->getDict (), "FT", &obj2)->isName("Btn")) {
+    Object obj2 = Form::fieldLookup(obj->getDict (), "FT");
+    if (obj2.isName("Btn")) {
       field = new FormFieldButton(docA, obj, pref, parent, usedParents);
     } else if (obj2.isName("Tx")) {
       field = new FormFieldText(docA, obj, pref, parent, usedParents);
@@ -1730,7 +1804,6 @@ FormField *Form::createFieldFromDict (Object* obj, PDFDoc *docA, const Ref& pref
     } else { //we don't have an FT entry => non-terminal field
       field = new FormField(docA, obj, pref, parent, usedParents);
     }
-    obj2.free();
 
     return field;
 }

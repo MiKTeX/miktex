@@ -16,7 +16,7 @@
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2007-2008 Julien Rebetez <julienr@svn.gnome.org>
-// Copyright (C) 2008, 2010, 2013, 2014 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010, 2013, 2014, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Paweł Wiejacha <pawel.wiejacha@gmail.com>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
@@ -98,7 +98,8 @@ Dict::Dict(Dict* dictA) {
   entries = (DictEntry *)gmallocn(size, sizeof(DictEntry));
   for (int i=0; i<length; i++) {
     entries[i].key = copyString(dictA->entries[i].key);
-    dictA->entries[i].val.copy(&entries[i].val);
+    entries[i].val.initNullAfterMalloc();
+    entries[i].val = dictA->entries[i].val.copy();
   }
 }
 
@@ -108,12 +109,8 @@ Dict *Dict::copy(XRef *xrefA) {
   dictA->xref = xrefA;
   for (int i=0; i<length; i++) {
     if (dictA->entries[i].val.getType() == objDict) {
-       Dict *dict = dictA->entries[i].val.getDict();
-       Object obj;
-       obj.initDict(dict->copy(xrefA));
-       dictA->entries[i].val.free();
-       dictA->entries[i].val = obj;
-       obj.free();
+       Dict *copy = dictA->entries[i].val.getDict()->copy(xrefA);
+       dictA->entries[i].val = Object(copy);
     }
   }
   return dictA;
@@ -144,7 +141,7 @@ int Dict::decRef() {
   return ref;
 }
 
-void Dict::add(char *key, Object *val) {
+void Dict::add(char *key, Object &&val) {
   dictLocker();
   if (sorted) {
     // We use add on very few occasions so
@@ -161,7 +158,8 @@ void Dict::add(char *key, Object *val) {
     entries = (DictEntry *)greallocn(entries, size, sizeof(DictEntry));
   }
   entries[length].key = key;
-  entries[length].val = *val;
+  entries[length].val.initNullAfterMalloc();
+  entries[length].val = std::move(val);
   ++length;
 }
 
@@ -208,7 +206,6 @@ void Dict::remove(const char *key) {
   } else {
     int i; 
     bool found = false;
-    DictEntry tmp;
     if(length == 0) {
       return;
     }
@@ -226,25 +223,26 @@ void Dict::remove(const char *key) {
     gfree(entries[i].key);
     entries[i].val.free();
     length -= 1;
-    tmp = entries[length];
-    if (i!=length) //don't copy the last entry if it is deleted 
-      entries[i] = tmp;
+    if (i!=length) {
+      //don't copy the last entry if it is deleted
+      entries[i].key = entries[length].key;
+      entries[i].val = std::move(entries[length].val);
+    }
   }
 }
 
-void Dict::set(const char *key, Object *val) {
+void Dict::set(const char *key, Object &&val) {
   DictEntry *e;
-  if (val->isNull()) {
+  if (val.isNull()) {
     remove(key);
     return;
   }
   e = find (key);
   if (e) {
     dictLocker();
-    e->val.free();
-    e->val = *val;
+    e->val = std::move(val);
   } else {
-    add (copyString(key), val);
+    add (copyString(key), std::move(val));
   }
 }
 
@@ -255,27 +253,25 @@ GBool Dict::is(const char *type) {
   return (e = find("Type")) && e->val.isName(type);
 }
 
-Object *Dict::lookup(const char *key, Object *obj, int recursion) {
+Object Dict::lookup(const char *key, int recursion) {
   DictEntry *e;
 
-  return (e = find(key)) ? e->val.fetch(xref, obj, recursion) : obj->initNull();
+  return (e = find(key)) ? e->val.fetch(xref, recursion) : Object(objNull);
 }
 
-Object *Dict::lookupNF(const char *key, Object *obj) {
+Object Dict::lookupNF(const char *key) {
   DictEntry *e;
 
-  return (e = find(key)) ? e->val.copy(obj) : obj->initNull();
+  return (e = find(key)) ? e->val.copy() : Object(objNull);
 }
 
 GBool Dict::lookupInt(const char *key, const char *alt_key, int *value)
 {
-  Object obj1;
   GBool success = gFalse;
-  
-  lookup ((char *) key, &obj1);
+  Object obj1 = lookup ((char *) key);
   if (obj1.isNull () && alt_key != NULL) {
     obj1.free ();
-    lookup ((char *) alt_key, &obj1);
+    obj1 = lookup ((char *) alt_key);
   }
   if (obj1.isInt ()) {
     *value = obj1.getInt ();
@@ -291,10 +287,10 @@ char *Dict::getKey(int i) {
   return entries[i].key;
 }
 
-Object *Dict::getVal(int i, Object *obj) {
-  return entries[i].val.fetch(xref, obj);
+Object Dict::getVal(int i) {
+  return entries[i].val.fetch(xref);
 }
 
-Object *Dict::getValNF(int i, Object *obj) {
-  return entries[i].val.copy(obj);
+Object Dict::getValNF(int i) {
+  return entries[i].val.copy();
 }

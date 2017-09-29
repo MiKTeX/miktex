@@ -6,6 +6,20 @@
 //
 //========================================================================
 
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// All changes made under the Poppler project to this file are licensed
+// under GPL version 2 or later
+//
+// Copyright (C) 2017 Albert Astals Cid <aacid@kde.org>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
 #include <config.h>
 
 #ifdef USE_GCC_PRAGMAS
@@ -15,6 +29,7 @@
 #include "gmem.h"
 #include "GooString.h"
 #include "GooHash.h"
+#include "GooLikely.h"
 
 //------------------------------------------------------------------------
 
@@ -338,6 +353,9 @@ void GooHash::expand() {
 
 GooHashBucket *GooHash::find(GooString *key, int *h) {
   GooHashBucket *p;
+
+  if (unlikely(!key))
+    return nullptr;
 
   *h = hash(key);
   for (p = tab[*h]; p; p = p->next) {

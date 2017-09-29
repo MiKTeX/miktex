@@ -166,10 +166,10 @@ const char* convertAnnotLineEndingStyle(AnnotLineEndingStyle style) {
 }
 
 static AnnotExternalDataType parseAnnotExternalData(Dict* dict) {
-  Object obj1;
   AnnotExternalDataType type;
 
-  if (dict->lookup("Subtype", &obj1)->isName()) {
+  Object obj1 = dict->lookup("Subtype");
+  if (obj1.isName()) {
     const char *typeName = obj1.getName();
 
     if (!strcmp(typeName, "Markup3D")) {
@@ -180,7 +180,6 @@ static AnnotExternalDataType parseAnnotExternalData(Dict* dict) {
   } else {
     type = annotExternalDataMarkupUnknown;
   }
-  obj1.free();
 
   return type;
 }
@@ -190,14 +189,10 @@ PDFRectangle *parseDiffRectangle(Array *array, PDFRectangle *rect) {
   if (array->getLength() == 4) {
     // deltas
     Object obj1;
-    double dx1 = (array->get(0, &obj1)->isNum() ? obj1.getNum() : 0);
-    obj1.free();
-    double dy1 = (array->get(1, &obj1)->isNum() ? obj1.getNum() : 0);
-    obj1.free();
-    double dx2 = (array->get(2, &obj1)->isNum() ? obj1.getNum() : 0);
-    obj1.free();
-    double dy2 = (array->get(3, &obj1)->isNum() ? obj1.getNum() : 0);
-    obj1.free();
+    double dx1 = (obj1 = array->get(0), obj1.isNum() ? obj1.getNum() : 0);
+    double dy1 = (obj1 = array->get(1), obj1.isNum() ? obj1.getNum() : 0);
+    double dx2 = (obj1 = array->get(2), obj1.isNum() ? obj1.getNum() : 0);
+    double dy2 = (obj1 = array->get(3), obj1.isNum() ? obj1.getNum() : 0);
 
     // checking that the numbers are valid (i.e. >= 0),
     // and that applying the differences still give us a valid rect
@@ -215,10 +210,10 @@ PDFRectangle *parseDiffRectangle(Array *array, PDFRectangle *rect) {
 }
 
 static LinkAction* getAdditionalAction(Annot::AdditionalActionsType type, Object *additionalActions, PDFDoc *doc) {
-  Object additionalActionsObject;
-  LinkAction *linkAction = NULL;
+  LinkAction *linkAction = nullptr;
+  Object additionalActionsObject = additionalActions->fetch(doc->getXRef());
 
-  if (additionalActions->fetch(doc->getXRef(), &additionalActionsObject)->isDict()) {
+  if (additionalActionsObject.isDict()) {
     const char *key = (type == Annot::actionCursorEntering ? "E" :
                        type == Annot::actionCursorLeaving ?  "X" :
                        type == Annot::actionMousePressed ?   "D" :
@@ -230,36 +225,28 @@ static LinkAction* getAdditionalAction(Annot::AdditionalActionsType type, Object
                        type == Annot::actionPageVisible ?   "PV" :
                        type == Annot::actionPageInvisible ? "PI" : NULL);
 
-    Object actionObject;
-
-    if (additionalActionsObject.dictLookup(key, &actionObject)->isDict())
+    Object actionObject = additionalActionsObject.dictLookup(key);
+    if (actionObject.isDict())
       linkAction = LinkAction::parseAction(&actionObject, doc->getCatalog()->getBaseURI());
-    actionObject.free();
   }
-
-  additionalActionsObject.free();
 
   return linkAction;
 }
 
 static LinkAction* getFormAdditionalAction(Annot::FormAdditionalActionsType type, Object *additionalActions, PDFDoc *doc) {
-  Object additionalActionsObject;
-  LinkAction *linkAction = NULL;
+  LinkAction *linkAction = nullptr;
+  Object additionalActionsObject = additionalActions->fetch(doc->getXRef());
 
-  if (additionalActions->fetch(doc->getXRef(), &additionalActionsObject)->isDict()) {
+  if (additionalActionsObject.isDict()) {
     const char *key = (type == Annot::actionFieldModified ?  "K" :
                        type == Annot::actionFormatField ?    "F" :
                        type == Annot::actionValidateField ?  "V" :
                        type == Annot::actionCalculateField ? "C" : NULL);
 
-    Object actionObject;
-
-    if (additionalActionsObject.dictLookup(key, &actionObject)->isDict())
+    Object actionObject = additionalActionsObject.dictLookup(key);
+    if (actionObject.isDict())
       linkAction = LinkAction::parseAction(&actionObject, doc->getCatalog()->getBaseURI());
-    actionObject.free();
   }
-
-  additionalActionsObject.free();
 
   return linkAction;
 }
@@ -271,7 +258,8 @@ static LinkAction* getFormAdditionalAction(Annot::FormAdditionalActionsType type
 AnnotBorderEffect::AnnotBorderEffect(Dict *dict) {
   Object obj1;
 
-  if (dict->lookup("S", &obj1)->isName()) {
+  obj1 = dict->lookup("S");
+  if (obj1.isName()) {
     const char *effectName = obj1.getName();
 
     if (!strcmp(effectName, "C"))
@@ -281,14 +269,13 @@ AnnotBorderEffect::AnnotBorderEffect(Dict *dict) {
   } else {
     effectType = borderEffectNoEffect;
   }
-  obj1.free();
 
-  if ((dict->lookup("I", &obj1)->isNum()) && effectType == borderEffectCloudy) {
+  obj1 = dict->lookup("I");
+  if (obj1.isNum() && effectType == borderEffectCloudy) {
     intensity = obj1.getNum();
   } else {
     intensity = 0;
   }
-  obj1.free();
 }
 
 //------------------------------------------------------------------------
@@ -351,22 +338,21 @@ void AnnotPath::parsePathArray(Array *array) {
   tempCoords = (AnnotCoord **) gmallocn (tempLength, sizeof(AnnotCoord *));
   memset(tempCoords, 0, tempLength * sizeof(AnnotCoord *));
   for (int i = 0; i < tempLength && correct; i++) {
-    Object obj1;
     double x = 0, y = 0;
 
-    if (array->get(i * 2, &obj1)->isNum()) {
+    Object obj1 = array->get(i * 2);
+    if (obj1.isNum()) {
       x = obj1.getNum();
     } else {
       correct = gFalse;
     }
-    obj1.free();
 
-    if (array->get((i * 2) + 1, &obj1)->isNum()) {
+    obj1 = array->get((i * 2) + 1);
+    if (obj1.isNum()) {
       y = obj1.getNum();
     } else {
       correct = gFalse;
     }
-    obj1.free();
 
     if (!correct) {
       for (int j = i - 1; j >= 0; j--)
@@ -424,16 +410,14 @@ AnnotQuadrilaterals::AnnotQuadrilaterals(Array *array, PDFRectangle *rect) {
 
     for (i = 0; i < quadsLength; i++) {
       for (int j = 0; j < 8; j++) {
-        Object obj;
-        if (array->get(i * 8 + j, &obj)->isNum()) {
+        Object obj = array->get(i * 8 + j);
+        if (obj.isNum()) {
           quadArray[j] = obj.getNum();
         } else {
             correct = gFalse;
-	    obj.free();
 	    error (errSyntaxError, -1, "Invalid QuadPoint in annot");
 	    break;
         }
-        obj.free();
       }
 
       if (!correct)
@@ -540,13 +524,11 @@ GBool AnnotBorder::parseDashArray(Object *dashObj) {
 
   // TODO: check not all zero (Line Dash Pattern Page 217 PDF 8.1)
   for (int i = 0; i < tempLength && i < DASH_LIMIT && correct; i++) {
-    Object obj1;
-
-    if (dashObj->arrayGet(i, &obj1)->isNum()) {
+    Object obj1 = dashObj->arrayGet(i);
+    if (obj1.isNum()) {
       tempDash[i] = obj1.getNum();
 
       correct = tempDash[i] >= 0;
-      obj1.free();
     }
   }
 
@@ -583,30 +565,30 @@ AnnotBorderArray::AnnotBorderArray(Array *array) {
   if (arrayLength == 3 || arrayLength == 4) {
     // implementation note 81 in Appendix H.
 
-    if (array->get(0, &obj1)->isNum())
+    obj1 = array->get(0);
+    if (obj1.isNum())
       horizontalCorner = obj1.getNum();
     else
       correct = gFalse;
-    obj1.free();
 
-    if (array->get(1, &obj1)->isNum())
+    obj1 = array->get(1);
+    if (obj1.isNum())
       verticalCorner = obj1.getNum();
     else
       correct = gFalse;
-    obj1.free();
 
-    if (array->get(2, &obj1)->isNum())
+    obj1 = array->get(2);
+    if (obj1.isNum())
       width = obj1.getNum();
     else
       correct = gFalse;
-    obj1.free();
 
     if (arrayLength == 4) {
-      if (array->get(3, &obj1)->isArray())
+      obj1 = array->get(3);
+      if (obj1.isArray())
         correct = parseDashArray(&obj1);
       else
         correct = gFalse;
-      obj1.free();
     }
   } else {
     correct = gFalse;
@@ -617,21 +599,22 @@ AnnotBorderArray::AnnotBorderArray(Array *array) {
   }
 }
 
-void AnnotBorderArray::writeToObject(XRef *xref, Object *obj1) const {
-  Object obj2;
-
-  obj1->initArray(xref);
-  obj1->arrayAdd(obj2.initReal(horizontalCorner));
-  obj1->arrayAdd(obj2.initReal(verticalCorner));
-  obj1->arrayAdd(obj2.initReal(width));
+Object AnnotBorderArray::writeToObject(XRef *xref) const {
+  Array *borderArray = new Array(xref);
+  borderArray->add(Object(horizontalCorner));
+  borderArray->add(Object(verticalCorner));
+  borderArray->add(Object(width));
 
   if (dashLength > 0) {
-    Object obj3;
+    Array *a = new Array(xref);
 
-    obj1->arrayAdd(obj3.initArray(xref));
     for (int i = 0; i < dashLength; i++)
-      obj3.arrayAdd(obj2.initReal(dash[i]));
+      a->add(Object(dash[i]));
+
+    borderArray->add(Object(a));
   }
+
+  return Object(borderArray);
 }
 
 //------------------------------------------------------------------------
@@ -650,8 +633,8 @@ AnnotBorderBS::AnnotBorderBS(Dict *dict) {
   // that behaviour by veryifying both entries exist
   // otherwise we set the borderWidth to 0
   // --jrmuizel
-  dict->lookup("W", &obj1);
-  dict->lookup("S", &obj2);
+  obj1 = dict->lookup("W");
+  obj2 = dict->lookup("S");
   if (obj1.isNum() && obj2.isName()) {
     const char *styleName = obj2.getName();
 
@@ -673,13 +656,11 @@ AnnotBorderBS::AnnotBorderBS(Dict *dict) {
   } else {
     width = 0;
   }
-  obj2.free();
-  obj1.free();
 
   if (style == borderDashed) {
-    if (dict->lookup("D", &obj1)->isArray())
+    obj1 = dict->lookup("D");
+  if (obj1.isArray())
       parseDashArray(&obj1);
-    obj1.free();
 
     if (!dash) {
       dashLength = 1;
@@ -706,19 +687,18 @@ const char *AnnotBorderBS::getStyleName() const {
   return "S";
 }
 
-void AnnotBorderBS::writeToObject(XRef *xref, Object *obj1) const {
-  Object obj2;
-
-  obj1->initDict(xref);
-  obj1->dictSet("W", obj2.initReal(width));
-  obj1->dictSet("S", obj2.initName(getStyleName()));
+Object AnnotBorderBS::writeToObject(XRef *xref) const {
+  Dict *dict = new Dict(xref);
+  dict->set("W", Object(width));
+  dict->set("S", Object(objName, getStyleName()));
   if (style == borderDashed && dashLength > 0) {
-    Object obj3;
+    Array *a = new Array(xref);
 
-    obj1->dictSet("D", obj3.initArray(xref));
     for (int i = 0; i < dashLength; i++)
-      obj3.arrayAdd(obj2.initReal(dash[i]));
+      a->add(Object(dash[i]));
+    dict->set("D", Object(a));
   }
+  return Object(dict);
 }
 
 //------------------------------------------------------------------------
@@ -763,9 +743,8 @@ AnnotColor::AnnotColor(Array *array, int adjust) {
     length = 4;
 
   for (i = 0; i < length; i++) {
-    Object obj1;
-
-    if (array->get(i, &obj1)->isNum()) {
+    Object obj1 = array->get(i);
+    if (obj1.isNum()) {
       values[i] = obj1.getNum();
 
       if (values[i] < 0 || values[i] > 1)
@@ -773,7 +752,6 @@ AnnotColor::AnnotColor(Array *array, int adjust) {
     } else {
       values[i] = 0;
     }
-    obj1.free();
   }
 
   if (adjust != 0)
@@ -797,16 +775,14 @@ void AnnotColor::adjustColor(int adjust) {
   }
 }
 
-void AnnotColor::writeToObject(XRef *xref, Object *obj1) const {
-  Object obj2;
-  int i;
-
+Object AnnotColor::writeToObject(XRef *xref) const {
   if (length == 0) {
-    obj1->initNull(); // Transparent (no color)
+    return Object(objNull); // Transparent (no color)
   } else {
-    obj1->initArray(xref);
-    for (i = 0; i < length; ++i)
-      obj1->arrayAdd( obj2.initReal( values[i] ) );
+    Array *a = new Array(xref);
+    for (int i = 0; i < length; ++i)
+      a->add( Object( values[i] ) );
+    return Object(a);
   }
 }
 
@@ -817,7 +793,8 @@ void AnnotColor::writeToObject(XRef *xref, Object *obj1) const {
 AnnotIconFit::AnnotIconFit(Dict* dict) {
   Object obj1;
 
-  if (dict->lookup("SW", &obj1)->isName()) {
+  obj1 = dict->lookup("SW");
+  if (obj1.isName()) {
     const char *scaleName = obj1.getName();
 
     if(!strcmp(scaleName, "B")) {
@@ -832,9 +809,9 @@ AnnotIconFit::AnnotIconFit(Dict* dict) {
   } else {
     scaleWhen = scaleAlways;
   }
-  obj1.free();
 
-  if (dict->lookup("S", &obj1)->isName()) {
+  obj1 = dict->lookup("S");
+  if (obj1.isName()) {
     const char *scaleName = obj1.getName();
 
     if(!strcmp(scaleName, "A")) {
@@ -845,14 +822,12 @@ AnnotIconFit::AnnotIconFit(Dict* dict) {
   } else {
     scale = scaleProportional;
   }
-  obj1.free();
 
-  if (dict->lookup("A", &obj1)->isArray() && obj1.arrayGetLength() == 2) {
+  obj1 = dict->lookup("A");
+  if (obj1.isArray() && obj1.arrayGetLength() == 2) {
     Object obj2;
-    (obj1.arrayGet(0, &obj2)->isNum() ? left = obj2.getNum() : left = 0);
-    obj2.free();
-    (obj1.arrayGet(1, &obj2)->isNum() ? bottom = obj2.getNum() : bottom = 0);
-    obj2.free();
+    (obj2 = obj1.arrayGet(0), obj2.isNum() ? left = obj2.getNum() : left = 0);
+    (obj2 = obj1.arrayGet(1), obj2.isNum() ? bottom = obj2.getNum() : bottom = 0);
 
     if (left < 0 || left > 1)
       left = 0.5;
@@ -863,14 +838,13 @@ AnnotIconFit::AnnotIconFit(Dict* dict) {
   } else {
     left = bottom = 0.5;
   }
-  obj1.free();
 
-  if (dict->lookup("FB", &obj1)->isBool()) {
+  obj1 = dict->lookup("FB");
+  if (obj1.isBool()) {
     fullyBounds = obj1.getBool();
   } else {
     fullyBounds = gFalse;
   }
-  obj1.free();
 }
 
 //------------------------------------------------------------------------
@@ -881,55 +855,54 @@ AnnotAppearance::AnnotAppearance(PDFDoc *docA, Object *dict) {
   assert(dict->isDict());
   doc = docA;
   xref = docA->getXRef();
-  dict->copy(&appearDict);
+  appearDict = dict->copy();
 }
 
 AnnotAppearance::~AnnotAppearance() {
-  appearDict.free();
 }
 
-void AnnotAppearance::getAppearanceStream(AnnotAppearanceType type, const char *state, Object *dest) {
-  Object apData, stream;
-  apData.initNull();
+Object AnnotAppearance::getAppearanceStream(AnnotAppearanceType type, const char *state) {
+  Object apData;
 
   // Obtain dictionary or stream associated to appearance type
   switch (type) {
   case appearRollover:
-    if (appearDict.dictLookupNF("R", &apData)->isNull())
-      appearDict.dictLookupNF("N", &apData);
+    apData = appearDict.dictLookupNF("R");
+    if (apData.isNull())
+      apData = appearDict.dictLookupNF("N");
     break;
   case appearDown:
-    if (appearDict.dictLookupNF("D", &apData)->isNull())
-      appearDict.dictLookupNF("N", &apData);
+    apData = appearDict.dictLookupNF("D");
+    if (apData.isNull())
+      apData = appearDict.dictLookupNF("N");
     break;
   case appearNormal:
-    appearDict.dictLookupNF("N", &apData);
+    apData = appearDict.dictLookupNF("N");
     break;
   }
 
-  dest->initNull();
+  Object res;
   if (apData.isDict() && state)
-    apData.dictLookupNF(state, dest);
+    res = apData.dictLookupNF(state);
   else if (apData.isRef())
-    apData.copy(dest);
-  apData.free();
+    res = apData.copy();
+
+  return res;
 }
 
 GooString * AnnotAppearance::getStateKey(int i) {
-  Object obj1;
   GooString * res = NULL;
-  if (appearDict.dictLookupNF("N", &obj1)->isDict())
+  Object obj1 = appearDict.dictLookupNF("N");
+  if (obj1.isDict())
     res = new GooString(obj1.dictGetKey(i));
-  obj1.free();
   return res;
 }
 
 int AnnotAppearance::getNumStates() {
-  Object obj1;
   int res = 0;
-  if (appearDict.dictLookupNF("N", &obj1)->isDict())
+  Object obj1 = appearDict.dictLookupNF("N");
+  if (obj1.isDict())
     res = obj1.dictGetLength();
-  obj1.free();
   return res;
 }
 
@@ -943,15 +916,13 @@ GBool AnnotAppearance::referencesStream(Object *stateObj, Ref refToStream) {
   } else if (stateObj->isDict()) { // Test each value
     const int size = stateObj->dictGetLength();
     for (int i = 0; i < size; ++i) {
-      Object obj1;
-      stateObj->dictGetValNF(i, &obj1);
+      Object obj1 = stateObj->dictGetValNF(i);
       if (obj1.isRef()) {
         Ref r = obj1.getRef();
         if (r.num == refToStream.num && r.gen == refToStream.gen) {
           return gTrue;
         }
       }
-      obj1.free();
     }
   }
   return gFalse; // Not found
@@ -963,21 +934,18 @@ GBool AnnotAppearance::referencesStream(Ref refToStream) {
   GBool found;
 
   // Scan each state's ref/subdictionary
-  appearDict.dictLookupNF("N", &obj1);
+  obj1 = appearDict.dictLookupNF("N");
   found = referencesStream(&obj1, refToStream);
-  obj1.free();
   if (found)
     return gTrue;
 
-  appearDict.dictLookupNF("R", &obj1);
+  obj1 = appearDict.dictLookupNF("R");
   found = referencesStream(&obj1, refToStream);
-  obj1.free();
   if (found)
     return gTrue;
 
-  appearDict.dictLookupNF("D", &obj1);
+  obj1 = appearDict.dictLookupNF("D");
   found = referencesStream(&obj1, refToStream);
-  obj1.free();
   return found;
 }
 
@@ -1011,27 +979,22 @@ void AnnotAppearance::removeStateStreams(Object *obj1) {
   } else if (obj1->isDict()) {
     const int size = obj1->dictGetLength();
     for (int i = 0; i < size; ++i) {
-      Object obj2;
-      obj1->dictGetValNF(i, &obj2);
+      Object obj2 = obj1->dictGetValNF(i);
       if (obj2.isRef()) {
         removeStream(obj2.getRef());
       }
-      obj2.free();
     }
   }
 }
 
 void AnnotAppearance::removeAllStreams() {
   Object obj1;
-  appearDict.dictLookupNF("N", &obj1);
+  obj1 = appearDict.dictLookupNF("N");
   removeStateStreams(&obj1);
-  obj1.free();
-  appearDict.dictLookupNF("R", &obj1);
+  obj1 = appearDict.dictLookupNF("R");
   removeStateStreams(&obj1);
-  obj1.free();
-  appearDict.dictLookupNF("D", &obj1);
+  obj1 = appearDict.dictLookupNF("D");
   removeStateStreams(&obj1);
-  obj1.free();
 }
 
 //------------------------------------------------------------------------
@@ -1041,14 +1004,15 @@ void AnnotAppearance::removeAllStreams() {
 AnnotAppearanceCharacs::AnnotAppearanceCharacs(Dict *dict) {
   Object obj1;
 
-  if (dict->lookup("R", &obj1)->isInt()) {
+  obj1 = dict->lookup("R");
+  if (obj1.isInt()) {
     rotation = obj1.getInt();
   } else {
     rotation = 0;
   }
-  obj1.free();
 
-  if (dict->lookup("BC", &obj1)->isArray()) {
+  obj1 = dict->lookup("BC");
+  if (obj1.isArray()) {
     Array *colorComponents = obj1.getArray();
     if (colorComponents->getLength() > 0) {
       borderColor = new AnnotColor(colorComponents);
@@ -1058,9 +1022,9 @@ AnnotAppearanceCharacs::AnnotAppearanceCharacs(Dict *dict) {
   } else {
     borderColor = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("BG", &obj1)->isArray()) {
+  obj1 = dict->lookup("BG");
+  if (obj1.isArray()) {
     Array *colorComponents = obj1.getArray();
     if (colorComponents->getLength() > 0) {
       backColor = new AnnotColor(colorComponents);
@@ -1070,42 +1034,41 @@ AnnotAppearanceCharacs::AnnotAppearanceCharacs(Dict *dict) {
   } else {
     backColor = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("CA", &obj1)->isString()) {
+  obj1 = dict->lookup("CA");
+  if (obj1.isString()) {
     normalCaption = new GooString(obj1.getString());
   } else {
     normalCaption = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("RC", &obj1)->isString()) {
+  obj1 = dict->lookup("RC");
+  if (obj1.isString()) {
     rolloverCaption = new GooString(obj1.getString());
   } else {
     rolloverCaption = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("AC", &obj1)->isString()) {
+  obj1 = dict->lookup("AC");
+  if (obj1.isString()) {
     alternateCaption = new GooString(obj1.getString());
   } else {
     alternateCaption = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("IF", &obj1)->isDict()) {
+  obj1 = dict->lookup("IF");
+  if (obj1.isDict()) {
     iconFit = new AnnotIconFit(obj1.getDict());
   } else {
     iconFit = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("TP", &obj1)->isInt()) {
+  obj1 = dict->lookup("TP");
+  if (obj1.isInt()) {
     position = (AnnotAppearanceCharacsTextPos) obj1.getInt();
   } else {
     position = captionNoIcon;
   }
-  obj1.free();
 }
 
 AnnotAppearanceCharacs::~AnnotAppearanceCharacs() {
@@ -1185,40 +1148,36 @@ double AnnotAppearanceBBox::getPageYMax() const {
 //------------------------------------------------------------------------
 
 Annot::Annot(PDFDoc *docA, PDFRectangle *rectA) {
-  Object obj1;
 
   refCnt = 1;
   flags = flagUnknown;
   type = typeUnknown;
 
-  obj1.initArray (docA->getXRef());
-  Object obj2;
-  obj1.arrayAdd (obj2.initReal (rectA->x1));
-  obj1.arrayAdd (obj2.initReal (rectA->y1));
-  obj1.arrayAdd (obj2.initReal (rectA->x2));
-  obj1.arrayAdd (obj2.initReal (rectA->y2));
-  obj2.free ();
+  Array *a = new Array(docA->getXRef());
+  a->add(Object(rectA->x1));
+  a->add(Object(rectA->y1));
+  a->add(Object(rectA->x2));
+  a->add(Object(rectA->y2));
 
-  annotObj.initDict (docA->getXRef());
-  annotObj.dictSet ("Type", obj2.initName ("Annot"));
-  annotObj.dictSet ("Rect", &obj1);
-  // obj1 is owned by the dict
+  annotObj = Object(new Dict(docA->getXRef()));
+  annotObj.dictSet ("Type", Object(objName, "Annot"));
+  annotObj.dictSet ("Rect", Object(a));
 
   ref = docA->getXRef()->addIndirectObject (&annotObj);
 
   initialize (docA, annotObj.getDict());
 }
 
-Annot::Annot(PDFDoc *docA, Dict *dict) {
+Annot::Annot(PDFDoc *docA, Object *dictObject) {
   refCnt = 1;
   hasRef = false;
   flags = flagUnknown;
   type = typeUnknown;
-  annotObj.initDict (dict);
-  initialize (docA, dict);
+  annotObj = dictObject->copy();
+  initialize (docA, dictObject->getDict());
 }
 
-Annot::Annot(PDFDoc *docA, Dict *dict, Object *obj) {
+Annot::Annot(PDFDoc *docA, Object *dictObject, Object *obj) {
   refCnt = 1;
   if (obj->isRef()) {
     hasRef = gTrue;
@@ -1228,12 +1187,12 @@ Annot::Annot(PDFDoc *docA, Dict *dict, Object *obj) {
   }
   flags = flagUnknown;
   type = typeUnknown;
-  annotObj.initDict (dict);
-  initialize (docA, dict);
+  annotObj = dictObject->copy();
+  initialize (docA, dictObject->getDict());
 }
 
 void Annot::initialize(PDFDoc *docA, Dict *dict) {
-  Object apObj, asObj, obj1, obj2;
+  Object apObj, asObj, obj1;
 
   ok = gTrue;
   doc = docA;
@@ -1244,20 +1203,17 @@ void Annot::initialize(PDFDoc *docA, Dict *dict) {
   appearBuf = NULL;
   fontSize = 0;
 
-  appearance.initNull();
+  appearance.setToNull();
 
   //----- parse the rectangle
   rect = new PDFRectangle();
-  if (dict->lookup("Rect", &obj1)->isArray() && obj1.arrayGetLength() == 4) {
+  obj1 = dict->lookup("Rect");
+  if (obj1.isArray() && obj1.arrayGetLength() == 4) {
     Object obj2;
-    (obj1.arrayGet(0, &obj2)->isNum() ? rect->x1 = obj2.getNum() : rect->x1 = 0);
-    obj2.free();
-    (obj1.arrayGet(1, &obj2)->isNum() ? rect->y1 = obj2.getNum() : rect->y1 = 0);
-    obj2.free();
-    (obj1.arrayGet(2, &obj2)->isNum() ? rect->x2 = obj2.getNum() : rect->x2 = 1);
-    obj2.free();
-    (obj1.arrayGet(3, &obj2)->isNum() ? rect->y2 = obj2.getNum() : rect->y2 = 1);
-    obj2.free();
+    (obj2 = obj1.arrayGet(0), obj2.isNum() ? rect->x1 = obj2.getNum() : rect->x1 = 0);
+    (obj2 = obj1.arrayGet(1), obj2.isNum() ? rect->y1 = obj2.getNum() : rect->y1 = 0);
+    (obj2 = obj1.arrayGet(2), obj2.isNum() ? rect->x2 = obj2.getNum() : rect->x2 = 1);
+    (obj2 = obj1.arrayGet(3), obj2.isNum() ? rect->y2 = obj2.getNum() : rect->y2 = 1);
 
     if (rect->x1 > rect->x2) {
       double t = rect->x1;
@@ -1276,56 +1232,54 @@ void Annot::initialize(PDFDoc *docA, Dict *dict) {
     error(errSyntaxError, -1, "Bad bounding box for annotation");
     ok = gFalse;
   }
-  obj1.free();
 
-  if (dict->lookup("Contents", &obj1)->isString()) {
+  obj1 = dict->lookup("Contents");
+  if (obj1.isString()) {
     contents = obj1.getString()->copy();
   } else {
     contents = new GooString();
   }
-  obj1.free();
 
   // Note: This value is overwritten by Annots ctor
-  if (dict->lookupNF("P", &obj1)->isRef()) {
+  obj1 = dict->lookupNF("P");
+  if (obj1.isRef()) {
     Ref ref = obj1.getRef();
 
     page = doc->getCatalog()->findPage (ref.num, ref.gen);
   } else {
     page = 0;
   }
-  obj1.free();
 
-  if (dict->lookup("NM", &obj1)->isString()) {
+  obj1 = dict->lookup("NM");
+  if (obj1.isString()) {
     name = obj1.getString()->copy();
   } else {
     name = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("M", &obj1)->isString()) {
+  obj1 = dict->lookup("M");
+  if (obj1.isString()) {
     modified = obj1.getString()->copy();
   } else {
     modified = NULL;
   }
-  obj1.free();
 
   //----- get the flags
-  if (dict->lookup("F", &obj1)->isInt()) {
+  obj1 = dict->lookup("F");
+  if (obj1.isInt()) {
     flags |= obj1.getInt();
   } else {
     flags = flagUnknown;
   }
-  obj1.free();
 
   //----- get the annotation appearance dictionary
-  dict->lookup("AP", &apObj);
+  apObj = dict->lookup("AP");
   if (apObj.isDict()) {
     appearStreams = new AnnotAppearance(doc, &apObj);
   }
-  apObj.free();
 
   //----- get the appearance state
-  dict->lookup("AS", &asObj);
+  asObj = dict->lookup("AS");
   if (asObj.isName()) {
     appearState = new GooString(asObj.getName());
   } else if (appearStreams && appearStreams->getNumStates() != 0) {
@@ -1340,11 +1294,10 @@ void Annot::initialize(PDFDoc *docA, Dict *dict) {
   if (!appearState) {
     appearState = new GooString("Off");
   }
-  asObj.free();
 
   //----- get the annotation appearance
   if (appearStreams) {
-    appearStreams->getAppearanceStream(AnnotAppearance::appearNormal, appearState->getCString(), &appearance);
+    appearance = appearStreams->getAppearanceStream(AnnotAppearance::appearNormal, appearState->getCString());
   }
 
   //----- parse the border style
@@ -1352,27 +1305,27 @@ void Annot::initialize(PDFDoc *docA, Dict *dict) {
   // the border shall be drawn as a solid line with a width of 1 point. But acroread
   // seems to ignore the Border entry for annots that can't have a BS entry. So, we only
   // follow this rule for annots tha can have a BS entry.
-  if (dict->lookup("Border", &obj1)->isArray())
+  obj1 = dict->lookup("Border");
+  if (obj1.isArray())
     border = new AnnotBorderArray(obj1.getArray());
   else
     border = NULL;
-  obj1.free();
 
-  if (dict->lookup("C", &obj1)->isArray()) {
+  obj1 = dict->lookup("C");
+  if (obj1.isArray()) {
     color = new AnnotColor(obj1.getArray());
   } else {
     color = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("StructParent", &obj1)->isInt()) {
+  obj1 = dict->lookup("StructParent");
+  if (obj1.isInt()) {
     treeKey = obj1.getInt();
   } else {
     treeKey = 0;
   }
-  obj1.free();
 
-  dict->lookupNF("OC", &oc);
+  oc = dict->lookupNF("OC");
 
 #if MULTITHREADED
   gInitMutex(&mutex);
@@ -1391,8 +1344,6 @@ void Annot::setRect(PDFRectangle *rect) {
 }
 
 void Annot::setRect(double x1, double y1, double x2, double y2) {
-  Object obj1, obj2;
-
   if (x1 < x2) {
     rect->x1 = x1;
     rect->x2 = x2;
@@ -1409,13 +1360,13 @@ void Annot::setRect(double x1, double y1, double x2, double y2) {
     rect->y2 = y1;
   }
 
-  obj1.initArray (xref);
-  obj1.arrayAdd (obj2.initReal (rect->x1));
-  obj1.arrayAdd (obj2.initReal (rect->y1));
-  obj1.arrayAdd (obj2.initReal (rect->x2));
-  obj1.arrayAdd (obj2.initReal (rect->y2));
+  Array *a = new Array(xref);
+  a->add(Object(rect->x1));
+  a->add(Object(rect->y1));
+  a->add(Object(rect->x2));
+  a->add(Object(rect->y2));
 
-  update("Rect", &obj1);
+  update("Rect", Object(a));
   invalidateAppearance();
 }
 
@@ -1423,19 +1374,17 @@ GBool Annot::inRect(double x, double y) const {
   return rect->contains(x, y);
 }
 
-void Annot::update(const char *key, Object *value) {
+void Annot::update(const char *key, Object &&value) {
   annotLocker();
   /* Set M to current time, unless we are updating M itself */
   if (strcmp(key, "M") != 0) {
     delete modified;
     modified = timeToDateString(NULL);
 
-    Object obj1;
-    obj1.initString (modified->copy());
-    annotObj.dictSet("M", &obj1);
+    annotObj.dictSet("M", Object(modified->copy()));
   }
 
-  annotObj.dictSet(const_cast<char*>(key), value);
+  annotObj.dictSet(const_cast<char*>(key), std::move(value));
   
   xref->setModifiedObject(&annotObj, ref);
 }
@@ -1455,9 +1404,7 @@ void Annot::setContents(GooString *new_content) {
     contents = new GooString();
   }
   
-  Object obj1;
-  obj1.initString(contents->copy());
-  update ("Contents", &obj1);
+  update ("Contents", Object(contents->copy()));
 }
 
 void Annot::setName(GooString *new_name) {
@@ -1470,9 +1417,7 @@ void Annot::setName(GooString *new_name) {
     name = new GooString();
   }
 
-  Object obj1;
-  obj1.initString(name->copy());
-  update ("NM", &obj1);
+  update ("NM", Object(name->copy()));
 }
 
 void Annot::setModified(GooString *new_modified) {
@@ -1484,17 +1429,13 @@ void Annot::setModified(GooString *new_modified) {
   else
     modified = new GooString();
 
-  Object obj1;
-  obj1.initString(modified->copy());
-  update ("M", &obj1);
+  update ("M", Object(modified->copy()));
 }
 
 void Annot::setFlags(Guint new_flags) {
   annotLocker();
-  Object obj1;
   flags = new_flags;
-  obj1.initInt(flags);
-  update ("F", &obj1);
+  update ("F", Object(int(flags)));
 }
 
 void Annot::setBorder(AnnotBorder *new_border) {
@@ -1502,9 +1443,8 @@ void Annot::setBorder(AnnotBorder *new_border) {
   delete border;
 
   if (new_border) {
-    Object obj1;
-    new_border->writeToObject(xref, &obj1);
-    update(new_border->getType() == AnnotBorder::typeArray ? "Border" : "BS", &obj1);
+    Object obj1 = new_border->writeToObject(xref);
+    update(new_border->getType() == AnnotBorder::typeArray ? "Border" : "BS", std::move(obj1));
     border = new_border;
   } else {
     border = NULL;
@@ -1517,9 +1457,8 @@ void Annot::setColor(AnnotColor *new_color) {
   delete color;
 
   if (new_color) {
-    Object obj1;
-    new_color->writeToObject(xref, &obj1);
-    update ("C", &obj1);
+    Object obj1 = new_color->writeToObject(xref);
+    update ("C", std::move(obj1));
     color = new_color;
   } else {
     color = NULL;
@@ -1530,19 +1469,18 @@ void Annot::setColor(AnnotColor *new_color) {
 void Annot::setPage(int pageIndex, GBool updateP) {
   annotLocker();
   Page *pageobj = doc->getPage(pageIndex);
-  Object obj1;
+  Object obj1(objNull);
 
   if (pageobj) {
     Ref pageRef = pageobj->getRef();
-    obj1.initRef(pageRef.num, pageRef.gen);
+    obj1 = Object(pageRef.num, pageRef.gen);
     page = pageIndex;
   } else {
-    obj1.initNull();
     page = 0;
   }
 
   if (updateP) {
-    update("P", &obj1);
+    update("P", std::move(obj1));
   }
 }
 
@@ -1557,16 +1495,13 @@ void Annot::setAppearanceState(const char *state) {
   delete appearBBox;
   appearBBox = NULL;
 
-  Object obj1;
-  obj1.initName(state);
-  update ("AS", &obj1);
+  update ("AS", Object(objName, state));
 
   // The appearance state determines the current appearance stream
-  appearance.free();
   if (appearStreams) {
-    appearStreams->getAppearanceStream(AnnotAppearance::appearNormal, appearState->getCString(), &appearance);
+    appearance = appearStreams->getAppearanceStream(AnnotAppearance::appearNormal, appearState->getCString());
   } else {
-    appearance.initNull();
+    appearance.setToNull();
   }
 }
 
@@ -1584,18 +1519,15 @@ void Annot::invalidateAppearance() {
   delete appearBBox;
   appearBBox = NULL;
 
-  appearance.free();
-  appearance.initNull();
+  appearance.setToNull();
 
-  Object obj1, obj2;
-  obj1.initNull();
-  if (!annotObj.dictLookup("AP", &obj2)->isNull())
-    update ("AP", &obj1); // Remove AP
-  obj2.free();
+  Object obj2 = annotObj.dictLookup("AP");
+  if (!obj2.isNull())
+    update ("AP", Object(objNull)); // Remove AP
 
-  if (!annotObj.dictLookup("AS", &obj2)->isNull())
-    update ("AS", &obj1); // Remove AS
-  obj2.free();
+  obj2 = annotObj.dictLookup("AS");
+  if (!obj2.isNull())
+    update ("AS", Object(objNull)); // Remove AS
 }
 
 double Annot::getXMin() {
@@ -1615,16 +1547,13 @@ double Annot::getYMax() {
 }
 
 void Annot::readArrayNum(Object *pdfArray, int key, double *value) {
-  Object valueObject;
-
-  pdfArray->arrayGet(key, &valueObject);
+  Object valueObject = pdfArray->arrayGet(key);
   if (valueObject.isNum()) {
     *value = valueObject.getNum();
   } else {
     *value = 0;
     ok = gFalse;
   }
-  valueObject.free();
 }
 
 void Annot::removeReferencedObjects() {
@@ -1654,8 +1583,6 @@ void Annot::decRefCnt() {
 }
 
 Annot::~Annot() {
-  annotObj.free();
-  
   delete rect;
   delete contents;
 
@@ -1667,7 +1594,6 @@ Annot::~Annot() {
 
   delete appearStreams;
   delete appearBBox;
-  appearance.free();
 
   if (appearState)
     delete appearState;
@@ -1677,8 +1603,6 @@ Annot::~Annot() {
 
   if (color)
     delete color;
-
-  oc.free();
 
 #if MULTITHREADED
     gDestroyMutex(&mutex);
@@ -1804,74 +1728,66 @@ void Annot::drawCircleBottomRight(double cx, double cy, double r) {
   appearBuf->append("S\n");
 }
 
-void Annot::createForm(double *bbox, GBool transparencyGroup, Object *resDict, Object *aStream) {
-  Object obj1, obj2;
-  Object appearDict;
+Object Annot::createForm(double *bbox, GBool transparencyGroup, Dict *resDict) {
+  Dict *appearDict = new Dict(xref);
+  appearDict->set("Length", Object(appearBuf->getLength()));
+  appearDict->set("Subtype", Object(objName, "Form"));
 
-  appearDict.initDict(xref);
-  appearDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
-  appearDict.dictSet("Subtype", obj1.initName("Form"));
-  obj1.initArray(xref);
-  obj1.arrayAdd(obj2.initReal(bbox[0]));
-  obj1.arrayAdd(obj2.initReal(bbox[1]));
-  obj1.arrayAdd(obj2.initReal(bbox[2]));
-  obj1.arrayAdd(obj2.initReal(bbox[3]));
-  appearDict.dictSet("BBox", &obj1);
+  Array *a = new Array(xref);
+  a->add(Object(bbox[0]));
+  a->add(Object(bbox[1]));
+  a->add(Object(bbox[2]));
+  a->add(Object(bbox[3]));
+  appearDict->set("BBox", Object(a));
   if (transparencyGroup) {
-    Object transDict;
-    transDict.initDict(xref);
-    transDict.dictSet("S", obj1.initName("Transparency"));
-    appearDict.dictSet("Group", &transDict);
+    Dict *d = new Dict(xref);
+    d->set("S", Object(objName, "Transparency"));
+    appearDict->set("Group", Object(d));
   }
   if (resDict)
-    appearDict.dictSet("Resources", resDict);
+    appearDict->set("Resources", Object(resDict));
 
   MemStream *mStream = new MemStream(copyString(appearBuf->getCString()), 0,
-				     appearBuf->getLength(), &appearDict);
+				     appearBuf->getLength(), Object(appearDict));
   mStream->setNeedFree(gTrue);
-  aStream->initStream(mStream);
+  return Object(static_cast<Stream*>(mStream));
 }
 
-void Annot::createResourcesDict(const char *formName, Object *formStream,
+Dict *Annot::createResourcesDict(const char *formName, Object &&formStream,
 				const char *stateName,
-				double opacity, const char *blendMode,
-				Object *resDict) {
-  Object gsDict, stateDict, formDict, obj1;
-
-  gsDict.initDict(xref);
+				double opacity, const char *blendMode) {
+  Dict *gsDict = new Dict(xref);
   if (opacity != 1) {
-    gsDict.dictSet("CA", obj1.initReal(opacity));
-    gsDict.dictSet("ca", obj1.initReal(opacity));
+    gsDict->set("CA", Object(opacity));
+    gsDict->set("ca", Object(opacity));
   }
   if (blendMode)
-    gsDict.dictSet("BM", obj1.initName(blendMode));
-  stateDict.initDict(xref);
-  stateDict.dictSet(stateName, &gsDict);
-  formDict.initDict(xref);
-  formDict.dictSet(formName, formStream);
+    gsDict->set("BM", Object(objName, blendMode));
+  Dict *stateDict = new Dict(xref);
+  stateDict->set(stateName, Object(gsDict));
+  Dict *formDict = new Dict(xref);
+  formDict->set(formName, std::move(formStream));
 
-  resDict->initDict(xref);
-  resDict->dictSet("ExtGState", &stateDict);
-  resDict->dictSet("XObject", &formDict);
+  Dict *resDict = new Dict(xref);
+  resDict->set("ExtGState", Object(stateDict));
+  resDict->set("XObject", Object(formDict));
+
+  return resDict;
 }
 
-Object *Annot::getAppearanceResDict(Object *dest) {
+Object Annot::getAppearanceResDict() {
   Object obj1, obj2;
 
-  dest->initNull(); // Default value
-
   // Fetch appearance's resource dict (if any)
-  appearance.fetch(xref, &obj1);
+  obj1 = appearance.fetch(xref);
   if (obj1.isStream()) {
-    obj1.streamGetDict()->lookup("Resources", &obj2);
+    obj2 = obj1.streamGetDict()->lookup("Resources");
     if (obj2.isDict()) {
-      obj2.copy(dest);
+      return obj2;
     }
-    obj2.free();
   }
-  obj1.free();
 
-  return dest;
+  return Object(objNull);
 }
 
 GBool Annot::isVisible(GBool printing) {
@@ -1905,17 +1821,14 @@ int Annot::getRotation() const
 }
 
 void Annot::draw(Gfx *gfx, GBool printing) {
-  Object obj;
-
   annotLocker();
   if (!isVisible (printing))
     return;
 
   // draw the appearance stream
-  appearance.fetch(gfx->getXRef(), &obj);
+  Object obj = appearance.fetch(gfx->getXRef());
   gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
       rect->x1, rect->y1, rect->x2, rect->y2, getRotation());
-  obj.free();
 }
 
 //------------------------------------------------------------------------
@@ -1928,52 +1841,45 @@ AnnotPopup::AnnotPopup(PDFDoc *docA, PDFRectangle *rect) :
 
   type = typePopup;
 
-  annotObj.dictSet ("Subtype", obj1.initName ("Popup"));
+  annotObj.dictSet ("Subtype", Object(objName, "Popup"));
   initialize (docA, annotObj.getDict());
 }
 
-AnnotPopup::AnnotPopup(PDFDoc *docA, Dict *dict, Object *obj) :
-    Annot(docA, dict, obj) {
+AnnotPopup::AnnotPopup(PDFDoc *docA, Object *dictObject, Object *obj) :
+    Annot(docA, dictObject, obj) {
   type = typePopup;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
 AnnotPopup::~AnnotPopup() {
-  parent.free();
 }
 
 void AnnotPopup::initialize(PDFDoc *docA, Dict *dict) {
-  Object obj1;
-
-  if (!dict->lookupNF("Parent", &parent)->isRef()) {
-    parent.initNull();
+  parent = dict->lookupNF("Parent");
+  if (!parent.isRef()) {
+    parent.setToNull();
   }
 
-  if (dict->lookup("Open", &obj1)->isBool()) {
+  Object obj1 = dict->lookup("Open");
+  if (obj1.isBool()) {
     open = obj1.getBool();
   } else {
     open = gFalse;
   }
-  obj1.free();
 }
 
 void AnnotPopup::setParent(Object *parentA) {
-  parentA->copy(&parent);
-  update ("Parent", &parent);
+  update ("Parent", parentA->copy());
 }
 
 void AnnotPopup::setParent(Annot *parentA) {
-  Ref parentRef = parentA->getRef();
-  parent.initRef(parentRef.num, parentRef.gen);
-  update ("Parent", &parent);
+  const Ref parentRef = parentA->getRef();
+  update ("Parent", Object(parentRef.num, parentRef.gen));
 }
 
 void AnnotPopup::setOpen(GBool openA) {
-  Object obj1;
-
   open = openA;
-  obj1.initBool(open);
-  update ("Open", &obj1);
+  update ("Open", Object(open));
 }
 
 //------------------------------------------------------------------------
@@ -1984,9 +1890,9 @@ AnnotMarkup::AnnotMarkup(PDFDoc *docA, PDFRectangle *rect) :
   initialize(docA, annotObj.getDict(), &annotObj);
 }
 
-AnnotMarkup::AnnotMarkup(PDFDoc *docA, Dict *dict, Object *obj) :
-    Annot(docA, dict, obj) {
-  initialize(docA, dict, obj);
+AnnotMarkup::AnnotMarkup(PDFDoc *docA, Object *dictObject, Object *obj) :
+    Annot(docA, dictObject, obj) {
+  initialize(docA, dictObject->getDict(), obj);
 }
 
 AnnotMarkup::~AnnotMarkup() {
@@ -2006,50 +1912,52 @@ AnnotMarkup::~AnnotMarkup() {
 void AnnotMarkup::initialize(PDFDoc *docA, Dict *dict, Object *obj) {
   Object obj1, obj2;
 
-  if (dict->lookup("T", &obj1)->isString()) {
+  obj1 = dict->lookup("T");
+  if (obj1.isString()) {
     label = obj1.getString()->copy();
   } else {
     label = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("Popup", &obj1)->isDict() && dict->lookupNF("Popup", &obj2)->isRef()) {
-    popup = new AnnotPopup(docA, obj1.getDict(), &obj2);
+  obj1 = dict->lookup("Popup");
+  obj2 = dict->lookupNF("Popup");
+  if (obj1.isDict() && obj2.isRef()) {
+    popup = new AnnotPopup(docA, &obj1, &obj2);
   } else {
     popup = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("CA", &obj1)->isNum()) {
+  obj1 = dict->lookup("CA");
+  if (obj1.isNum()) {
     opacity = obj1.getNum();
   } else {
     opacity = 1.0;
   }
-  obj1.free();
 
-  if (dict->lookup("CreationDate", &obj1)->isString()) {
+  obj1 = dict->lookup("CreationDate");
+  if (obj1.isString()) {
     date = obj1.getString()->copy();
   } else {
     date = NULL;
   }
-  obj1.free();
 
-  if (dict->lookupNF("IRT", &obj1)->isRef()) {
+  obj1 = dict->lookupNF("IRT");
+  if (obj1.isRef()) {
     inReplyTo = obj1.getRef();
   } else {
     inReplyTo.num = 0;
     inReplyTo.gen = 0;
   }
-  obj1.free();
 
-  if (dict->lookup("Subj", &obj1)->isString()) {
+  obj1 = dict->lookup("Subj");
+  if (obj1.isString()) {
     subject = obj1.getString()->copy();
   } else {
     subject = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("RT", &obj1)->isName()) {
+  obj1 = dict->lookup("RT");
+  if (obj1.isName()) {
     const char *replyName = obj1.getName();
 
     if (!strcmp(replyName, "R")) {
@@ -2062,14 +1970,13 @@ void AnnotMarkup::initialize(PDFDoc *docA, Dict *dict, Object *obj) {
   } else {
     replyTo = replyTypeR;
   }
-  obj1.free();
 
-  if (dict->lookup("ExData", &obj1)->isDict()) {
+  obj1 = dict->lookup("ExData");
+  if (obj1.isDict()) {
     exData = parseAnnotExternalData(obj1.getDict());
   } else {
     exData = annotExternalDataMarkupUnknown;
   }
-  obj1.free();
 }
 
 void AnnotMarkup::setLabel(GooString *new_label) {
@@ -2086,9 +1993,7 @@ void AnnotMarkup::setLabel(GooString *new_label) {
     label = new GooString();
   }
 
-  Object obj1;
-  obj1.initString(label->copy());
-  update ("T", &obj1);
+  update ("T", Object(label->copy()));
 }
 
 void AnnotMarkup::setPopup(AnnotPopup *new_popup) {
@@ -2105,11 +2010,8 @@ void AnnotMarkup::setPopup(AnnotPopup *new_popup) {
   delete popup;
 
   if (new_popup) {
-    Object obj1;
-    Ref popupRef = new_popup->getRef();
-
-    obj1.initRef (popupRef.num, popupRef.gen);
-    update ("Popup", &obj1);
+    const Ref popupRef = new_popup->getRef();
+    update ("Popup", Object(popupRef.num, popupRef.gen));
 
     new_popup->setParent(this);
     popup = new_popup;
@@ -2128,11 +2030,8 @@ void AnnotMarkup::setPopup(AnnotPopup *new_popup) {
 }
 
 void AnnotMarkup::setOpacity(double opacityA) {
-  Object obj1;
-
   opacity = opacityA;
-  obj1.initReal(opacity);
-  update ("CA", &obj1);
+  update ("CA", Object(opacity));
   invalidateAppearance();
 }
 
@@ -2144,9 +2043,7 @@ void AnnotMarkup::setDate(GooString *new_date) {
   else
     date = new GooString();
 
-  Object obj1;
-  obj1.initString(date->copy());
-  update ("CreationDate", &obj1);
+  update ("CreationDate", Object(date->copy()));
 }
 
 void AnnotMarkup::removeReferencedObjects() {
@@ -2167,21 +2064,19 @@ void AnnotMarkup::removeReferencedObjects() {
 
 AnnotText::AnnotText(PDFDoc *docA, PDFRectangle *rect) :
     AnnotMarkup(docA, rect) {
-  Object obj1;
-
   type = typeText;
   flags |= flagNoZoom | flagNoRotate;
 
-  annotObj.dictSet ("Subtype", obj1.initName ("Text"));
+  annotObj.dictSet ("Subtype", Object(objName, "Text"));
   initialize (docA, annotObj.getDict());
 }
 
-AnnotText::AnnotText(PDFDoc *docA, Dict *dict, Object *obj) :
-    AnnotMarkup(docA, dict, obj) {
+AnnotText::AnnotText(PDFDoc *docA, Object *dictObject, Object *obj) :
+    AnnotMarkup(docA, dictObject, obj) {
 
   type = typeText;
   flags |= flagNoZoom | flagNoRotate;
-  initialize (docA, dict);
+  initialize (docA, dictObject->getDict());
 }
 
 AnnotText::~AnnotText() {
@@ -2191,24 +2086,25 @@ AnnotText::~AnnotText() {
 void AnnotText::initialize(PDFDoc *docA, Dict *dict) {
   Object obj1;
 
-  if (dict->lookup("Open", &obj1)->isBool())
+  obj1 = dict->lookup("Open");
+  if (obj1.isBool())
     open = obj1.getBool();
   else
     open = gFalse;
-  obj1.free();
 
-  if (dict->lookup("Name", &obj1)->isName()) {
+  obj1 = dict->lookup("Name");
+  if (obj1.isName()) {
     icon = new GooString(obj1.getName());
   } else {
     icon = new GooString("Note");
   }
-  obj1.free();
 
-  if (dict->lookup("StateModel", &obj1)->isString()) {
-    Object obj2;
+  obj1 = dict->lookup("StateModel");
+  if (obj1.isString()) {
     GooString *modelName = obj1.getString();
 
-    if (dict->lookup("State", &obj2)->isString()) {
+    Object obj2 = dict->lookup("State");
+    if (obj2.isString()) {
       GooString *stateName = obj2.getString();
 
       if (!stateName->cmp("Marked")) {
@@ -2231,7 +2127,6 @@ void AnnotText::initialize(PDFDoc *docA, Dict *dict) {
     } else {
       state = stateUnknown;
     }
-    obj2.free();
 
     if (!modelName->cmp("Marked")) {
       switch (state) {
@@ -2266,15 +2161,13 @@ void AnnotText::initialize(PDFDoc *docA, Dict *dict) {
   } else {
     state = stateUnknown;
   }
-  obj1.free();
 }
 
 void AnnotText::setOpen(GBool openA) {
   Object obj1;
 
   open = openA;
-  obj1.initBool(open);
-  update ("Open", &obj1);
+  update ("Open", Object(open));
 }
 
 void AnnotText::setIcon(GooString *new_icon) {
@@ -2289,9 +2182,7 @@ void AnnotText::setIcon(GooString *new_icon) {
     icon = new GooString("Note");
   }
 
-  Object obj1;
-  obj1.initName (icon->getCString());
-  update("Name", &obj1);
+  update("Name", Object(objName, icon->getCString()));
   invalidateAppearance();
 }
 
@@ -2540,7 +2431,6 @@ void AnnotText::setIcon(GooString *new_icon) {
   "19.5 12.5 m S\n"
 
 void AnnotText::draw(Gfx *gfx, GBool printing) {
-  Object obj;
   double ca = 1;
 
   if (!isVisible (printing))
@@ -2583,22 +2473,20 @@ void AnnotText::draw(Gfx *gfx, GBool printing) {
     double bbox[4];
     appearBBox->getBBoxRect(bbox);
     if (ca == 1) {
-      createForm(bbox, gFalse, NULL, &appearance);
+      appearance = createForm(bbox, gFalse, nullptr);
     } else {
-      Object aStream, resDict;
-
-      createForm(bbox, gTrue, NULL, &aStream);
+      Object aStream = createForm(bbox, gTrue, nullptr);
       delete appearBuf;
 
       appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
-      createResourcesDict("Fm0", &aStream, "GS0", ca, NULL, &resDict);
-      createForm(bbox, gFalse, &resDict, &appearance);
+      Dict *resDict = createResourcesDict("Fm0", std::move(aStream), "GS0", ca, NULL);
+      appearance = createForm(bbox, gFalse, resDict);
     }
     delete appearBuf;
   }
 
   // draw the appearance stream
-  appearance.fetch(gfx->getXRef(), &obj);
+  Object obj = appearance.fetch(gfx->getXRef());
   if (appearBBox) {
     gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
                    appearBBox->getPageXMin(), appearBBox->getPageYMin(),
@@ -2608,7 +2496,6 @@ void AnnotText::draw(Gfx *gfx, GBool printing) {
     gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
                    rect->x1, rect->y1, rect->x2, rect->y2, getRotation());
   }
-  obj.free();
 }
 
 //------------------------------------------------------------------------
@@ -2619,15 +2506,15 @@ AnnotLink::AnnotLink(PDFDoc *docA, PDFRectangle *rect) :
   Object obj1;
 
   type = typeLink;
-  annotObj.dictSet ("Subtype", obj1.initName ("Link"));
+  annotObj.dictSet ("Subtype", Object(objName, "Link"));
   initialize (docA, annotObj.getDict());
 }
 
-AnnotLink::AnnotLink(PDFDoc *docA, Dict *dict, Object *obj) :
-    Annot(docA, dict, obj) {
+AnnotLink::AnnotLink(PDFDoc *docA, Object *dictObject, Object *obj) :
+    Annot(docA, dictObject, obj) {
 
   type = typeLink;
-  initialize (docA, dict);
+  initialize (docA, dictObject->getDict());
 }
 
 AnnotLink::~AnnotLink() {
@@ -2646,18 +2533,19 @@ void AnnotLink::initialize(PDFDoc *docA, Dict *dict) {
   action = NULL;
 
   // look for destination
-  if (!dict->lookup("Dest", &obj1)->isNull()) {
+  obj1 = dict->lookup("Dest");
+  if (!obj1.isNull()) {
     action = LinkAction::parseDest(&obj1);
   // look for action
   } else {
-    obj1.free();
-    if (dict->lookup("A", &obj1)->isDict()) {
+    obj1 = dict->lookup("A");
+    if (obj1.isDict()) {
       action = LinkAction::parseAction(&obj1, doc->getCatalog()->getBaseURI());
     }
   }
-  obj1.free();
 
-  if (dict->lookup("H", &obj1)->isName()) {
+  obj1 = dict->lookup("H");
+  if (obj1.isName()) {
     const char *effect = obj1.getName();
 
     if (!strcmp(effect, "N")) {
@@ -2674,43 +2562,40 @@ void AnnotLink::initialize(PDFDoc *docA, Dict *dict) {
   } else {
     linkEffect = effectInvert;
   }
-  obj1.free();
   /*
-  if (dict->lookup("PA", &obj1)->isDict()) {
+  obj1 = dict->lookup("PA");
+  if (obj1.isDict()) {
     uriAction = NULL;
   } else {
     uriAction = NULL;
   }
   obj1.free();
   */
-  if (dict->lookup("QuadPoints", &obj1)->isArray()) {
+  obj1 = dict->lookup("QuadPoints");
+  if (obj1.isArray()) {
     quadrilaterals = new AnnotQuadrilaterals(obj1.getArray(), rect);
   } else {
     quadrilaterals = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("BS", &obj1)->isDict()) {
+  obj1 = dict->lookup("BS");
+  if (obj1.isDict()) {
     delete border;
     border = new AnnotBorderBS(obj1.getDict());
   } else if (!border) {
     border = new AnnotBorderBS();
   }
-  obj1.free();
 }
 
 void AnnotLink::draw(Gfx *gfx, GBool printing) {
-  Object obj;
-
   if (!isVisible (printing))
     return;
 
   annotLocker();
   // draw the appearance stream
-  appearance.fetch(gfx->getXRef(), &obj);
+  Object obj = appearance.fetch(gfx->getXRef());
   gfx->drawAnnot(&obj, border, color,
 		 rect->x1, rect->y1, rect->x2, rect->y2, getRotation());
-  obj.free();
 }
 
 //------------------------------------------------------------------------
@@ -2722,19 +2607,16 @@ AnnotFreeText::AnnotFreeText(PDFDoc *docA, PDFRectangle *rect, GooString *da) :
 
   type = typeFreeText;
 
-  annotObj.dictSet ("Subtype", obj1.initName ("FreeText"));
-
-  Object obj2;
-  obj2.initString (da->copy());
-  annotObj.dictSet("DA", &obj2);
+  annotObj.dictSet ("Subtype", Object(objName, "FreeText"));
+  annotObj.dictSet("DA", Object(da->copy()));
 
   initialize (docA, annotObj.getDict());
 }
 
-AnnotFreeText::AnnotFreeText(PDFDoc *docA, Dict *dict, Object *obj) :
-    AnnotMarkup(docA, dict, obj) {
+AnnotFreeText::AnnotFreeText(PDFDoc *docA, Object *dictObject, Object *obj) :
+    AnnotMarkup(docA, dictObject, obj) {
   type = typeFreeText;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
 AnnotFreeText::~AnnotFreeText() {
@@ -2756,48 +2638,43 @@ AnnotFreeText::~AnnotFreeText() {
 void AnnotFreeText::initialize(PDFDoc *docA, Dict *dict) {
   Object obj1;
 
-  if (dict->lookup("DA", &obj1)->isString()) {
+  obj1 = dict->lookup("DA");
+  if (obj1.isString()) {
     appearanceString = obj1.getString()->copy();
   } else {
     appearanceString = new GooString();
     error(errSyntaxError, -1, "Bad appearance for annotation");
     ok = gFalse;
   }
-  obj1.free();
 
-  if (dict->lookup("Q", &obj1)->isInt()) {
+  obj1 = dict->lookup("Q");
+  if (obj1.isInt()) {
     quadding = (AnnotFreeTextQuadding) obj1.getInt();
   } else {
     quadding = quaddingLeftJustified;
   }
-  obj1.free();
 
-  if (dict->lookup("DS", &obj1)->isString()) {
+  obj1 = dict->lookup("DS");
+  if (obj1.isString()) {
     styleString = obj1.getString()->copy();
   } else {
     styleString = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("CL", &obj1)->isArray() && obj1.arrayGetLength() >= 4) {
+  obj1 = dict->lookup("CL");
+  if (obj1.isArray() && obj1.arrayGetLength() >= 4) {
     double x1, y1, x2, y2;
     Object obj2;
 
-    (obj1.arrayGet(0, &obj2)->isNum() ? x1 = obj2.getNum() : x1 = 0);
-    obj2.free();
-    (obj1.arrayGet(1, &obj2)->isNum() ? y1 = obj2.getNum() : y1 = 0);
-    obj2.free();
-    (obj1.arrayGet(2, &obj2)->isNum() ? x2 = obj2.getNum() : x2 = 0);
-    obj2.free();
-    (obj1.arrayGet(3, &obj2)->isNum() ? y2 = obj2.getNum() : y2 = 0);
-    obj2.free();
+    (obj2 = obj1.arrayGet(0), obj2.isNum() ? x1 = obj2.getNum() : x1 = 0);
+    (obj2 = obj1.arrayGet(1), obj2.isNum() ? y1 = obj2.getNum() : y1 = 0);
+    (obj2 = obj1.arrayGet(2), obj2.isNum() ? x2 = obj2.getNum() : x2 = 0);
+    (obj2 = obj1.arrayGet(3), obj2.isNum() ? y2 = obj2.getNum() : y2 = 0);
 
     if (obj1.arrayGetLength() == 6) {
       double x3, y3;
-      (obj1.arrayGet(4, &obj2)->isNum() ? x3 = obj2.getNum() : x3 = 0);
-      obj2.free();
-      (obj1.arrayGet(5, &obj2)->isNum() ? y3 = obj2.getNum() : y3 = 0);
-      obj2.free();
+      (obj2 = obj1.arrayGet(4), obj2.isNum() ? x3 = obj2.getNum() : x3 = 0);
+      (obj2 = obj1.arrayGet(5), obj2.isNum() ? y3 = obj2.getNum() : y3 = 0);
       calloutLine = new AnnotCalloutMultiLine(x1, y1, x2, y2, x3, y3);
     } else {
       calloutLine = new AnnotCalloutLine(x1, y1, x2, y2);
@@ -2805,9 +2682,9 @@ void AnnotFreeText::initialize(PDFDoc *docA, Dict *dict) {
   } else {
     calloutLine = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("IT", &obj1)->isName()) {
+  obj1 = dict->lookup("IT");
+  if (obj1.isName()) {
     const char *intentName = obj1.getName();
 
     if (!strcmp(intentName, "FreeText")) {
@@ -2822,37 +2699,36 @@ void AnnotFreeText::initialize(PDFDoc *docA, Dict *dict) {
   } else {
     intent = intentFreeText;
   }
-  obj1.free();
 
-  if (dict->lookup("BS", &obj1)->isDict()) {
+  obj1 = dict->lookup("BS");
+  if (obj1.isDict()) {
     delete border;
     border = new AnnotBorderBS(obj1.getDict());
   } else if (!border) {
     border = new AnnotBorderBS();
   }
-  obj1.free();
 
-  if (dict->lookup("BE", &obj1)->isDict()) {
+  obj1 = dict->lookup("BE");
+  if (obj1.isDict()) {
     borderEffect = new AnnotBorderEffect(obj1.getDict());
   } else {
     borderEffect = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("RD", &obj1)->isArray()) {
+  obj1 = dict->lookup("RD");
+  if (obj1.isArray()) {
     rectangle = parseDiffRectangle(obj1.getArray(), rect);
   } else {
     rectangle = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("LE", &obj1)->isName()) {
+  obj1 = dict->lookup("LE");
+  if (obj1.isName()) {
     GooString styleName(obj1.getName());
     endStyle = parseAnnotLineEndingStyle(&styleName);
   } else {
     endStyle = annotLineEndingNone;
   }
-  obj1.free();
 }
 
 void AnnotFreeText::setContents(GooString *new_content) {
@@ -2869,17 +2745,14 @@ void AnnotFreeText::setAppearanceString(GooString *new_string) {
     appearanceString = new GooString();
   }
 
-  Object obj1;
-  obj1.initString(appearanceString->copy());
-  update ("DA", &obj1);
+  update ("DA", Object(appearanceString->copy()));
   invalidateAppearance();
 }
 
 void AnnotFreeText::setQuadding(AnnotFreeTextQuadding new_quadding) {
   Object obj1;
   quadding = new_quadding;
-  obj1.initInt((int)quadding);
-  update ("Q", &obj1);
+  update ("Q", Object((int)quadding));
   invalidateAppearance();
 }
 
@@ -2897,9 +2770,7 @@ void AnnotFreeText::setStyleString(GooString *new_string) {
     styleString = new GooString();
   }
 
-  Object obj1;
-  obj1.initString(styleString->copy());
-  update ("DS", &obj1);
+  update ("DS", Object(styleString->copy()));
 }
 
 void AnnotFreeText::setCalloutLine(AnnotCalloutLine *line) {
@@ -2907,73 +2778,59 @@ void AnnotFreeText::setCalloutLine(AnnotCalloutLine *line) {
 
   Object obj1;
   if (line == NULL) {
-    obj1.initNull();
+    obj1.setToNull();
     calloutLine = NULL;
   } else {
     double x1 = line->getX1(), y1 = line->getY1();
     double x2 = line->getX2(), y2 = line->getY2();
-    Object obj2;
-    obj1.initArray(xref);
-    obj1.arrayAdd( obj2.initReal(x1) );
-    obj1.arrayAdd( obj2.initReal(y1) );
-    obj1.arrayAdd( obj2.initReal(x2) );
-    obj1.arrayAdd( obj2.initReal(y2) );
+    obj1 = Object( new Array(xref) );
+    obj1.arrayAdd( Object(x1) );
+    obj1.arrayAdd( Object(y1) );
+    obj1.arrayAdd( Object(x2) );
+    obj1.arrayAdd( Object(y2) );
 
     AnnotCalloutMultiLine *mline = dynamic_cast<AnnotCalloutMultiLine*>(line);
     if (mline) {
       double x3 = mline->getX3(), y3 = mline->getY3();
-      obj1.arrayAdd( obj2.initReal(x3) );
-      obj1.arrayAdd( obj2.initReal(y3) );
+      obj1.arrayAdd( Object(x3) );
+      obj1.arrayAdd( Object(y3) );
       calloutLine = new AnnotCalloutMultiLine(x1, y1, x2, y2, x3, y3);
     } else {
       calloutLine = new AnnotCalloutLine(x1, y1, x2, y2);
     }
   }
 
-  update("CL", &obj1);
+  update("CL", std::move(obj1));
   invalidateAppearance();
 }
 
 void AnnotFreeText::setIntent(AnnotFreeTextIntent new_intent) {
-  Object obj1;
+  const char *intentName;
 
   intent = new_intent;
   if (new_intent == intentFreeText)
-    obj1.initName("FreeText");
+    intentName = "FreeText";
   else if (new_intent == intentFreeTextCallout)
-    obj1.initName("FreeTextCallout");
+    intentName = "FreeTextCallout";
   else // intentFreeTextTypeWriter
-    obj1.initName("FreeTextTypeWriter");
-  update ("IT", &obj1);
+    intentName = "FreeTextTypeWriter";
+  update ("IT", Object(objName, intentName));
 }
 
-static GfxFont * createAnnotDrawFont(XRef * xref, Object *fontResDict)
+static GfxFont * createAnnotDrawFont(XRef * xref, Dict *fontResDict)
 {
-  Ref dummyRef = { -1, -1 };
+  const Ref dummyRef = { -1, -1 };
 
-  Object baseFontObj, subtypeObj, encodingObj;
-  baseFontObj.initName("Helvetica");
-  subtypeObj.initName("Type0");
-  encodingObj.initName("WinAnsiEncoding");
-
-  Object fontDictObj;
   Dict *fontDict = new Dict(xref);
-  fontDict->decRef();
-  fontDict->add(copyString("BaseFont"), &baseFontObj);
-  fontDict->add(copyString("Subtype"), &subtypeObj);
-  fontDict->add(copyString("Encoding"), &encodingObj);
-  fontDictObj.initDict(fontDict);
+  fontDict->add(copyString("BaseFont"), Object(objName, "Helvetica"));
+  fontDict->add(copyString("Subtype"), Object(objName, "Type0"));
+  fontDict->add(copyString("Encoding"), Object(objName, "WinAnsiEncoding"));
 
-  Object fontsDictObj;
   Dict *fontsDict = new Dict(xref);
-  fontsDict->decRef();
-  fontsDict->add(copyString("AnnotDrawFont"), &fontDictObj);
-  fontsDictObj.initDict(fontsDict);
+  fontsDict->add(copyString("AnnotDrawFont"), Object(fontDict));
 
-  Dict *dict = new Dict(xref);
-  dict->add(copyString("Font"), &fontsDictObj);
+  fontResDict->add(copyString("Font"), Object(fontsDict));
 
-  fontResDict->initDict(dict);
   return GfxFont::makeFont(xref, "AnnotDrawFont", dummyRef, fontDict);
 }
 
@@ -3072,8 +2929,8 @@ void AnnotFreeText::generateFreeTextAppearance()
   const double textwidth = width - 2*textmargin;
   appearBuf->appendf ("{0:.2f} {0:.2f} {1:.2f} {2:.2f} re W n\n", textmargin, textwidth, height - 2*textmargin);
 
-  Object fontResDict;
-  GfxFont *font = createAnnotDrawFont(xref, &fontResDict);
+  Dict *fontResDict = new Dict(xref);
+  GfxFont *font = createAnnotDrawFont(xref, fontResDict);
 
   // Set font state
   setColor(fontcolor, gTrue);
@@ -3114,23 +2971,19 @@ void AnnotFreeText::generateFreeTextAppearance()
   bbox[3] = rect->y2 - rect->y1;
 
   if (ca == 1) {
-    createForm(bbox, gFalse, &fontResDict, &appearance);
+    appearance = createForm(bbox, gFalse, fontResDict);
   } else {
-    Object aStream, resDict;
-
-    createForm(bbox, gTrue, &fontResDict, &aStream);
+    Object aStream = createForm(bbox, gTrue, fontResDict);
     delete appearBuf;
 
     appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
-    createResourcesDict("Fm0", &aStream, "GS0", ca, NULL, &resDict);
-    createForm(bbox, gFalse, &resDict, &appearance);
+    Dict *resDict = createResourcesDict("Fm0", std::move(aStream), "GS0", ca, NULL);
+    appearance = createForm(bbox, gFalse, resDict);
   }
   delete appearBuf;
 }
 
 void AnnotFreeText::draw(Gfx *gfx, GBool printing) {
-  Object obj;
-
   if (!isVisible (printing))
     return;
 
@@ -3140,19 +2993,18 @@ void AnnotFreeText::draw(Gfx *gfx, GBool printing) {
   }
 
   // draw the appearance stream
-  appearance.fetch(gfx->getXRef(), &obj);
+  Object obj = appearance.fetch(gfx->getXRef());
   gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
                  rect->x1, rect->y1, rect->x2, rect->y2, getRotation());
-  obj.free();
 }
 
 // Before retrieving the res dict, regenerate the appearance stream if needed,
 // because AnnotFreeText::draw needs to store font info in the res dict
-Object *AnnotFreeText::getAppearanceResDict(Object *dest) {
+Object AnnotFreeText::getAppearanceResDict() {
   if (appearance.isNull()) {
     generateFreeTextAppearance();
   }
-  return Annot::getAppearanceResDict(dest);
+  return Annot::getAppearanceResDict();
 }
 
 //------------------------------------------------------------------------
@@ -3164,15 +3016,15 @@ AnnotLine::AnnotLine(PDFDoc *docA, PDFRectangle *rect) :
   Object obj1;
 
   type = typeLine;
-  annotObj.dictSet ("Subtype", obj1.initName ("Line"));
+  annotObj.dictSet ("Subtype", Object(objName, "Line"));
 
   initialize (docA, annotObj.getDict());
 }
 
-AnnotLine::AnnotLine(PDFDoc *docA, Dict *dict, Object *obj) :
-    AnnotMarkup(docA, dict, obj) {
+AnnotLine::AnnotLine(PDFDoc *docA, Object *dictObject, Object *obj) :
+    AnnotMarkup(docA, dictObject, obj) {
   type = typeLine;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
 AnnotLine::~AnnotLine() {
@@ -3189,18 +3041,15 @@ AnnotLine::~AnnotLine() {
 void AnnotLine::initialize(PDFDoc *docA, Dict *dict) {
   Object obj1;
 
-  if (dict->lookup("L", &obj1)->isArray() && obj1.arrayGetLength() == 4) {
+  obj1 = dict->lookup("L");
+  if (obj1.isArray() && obj1.arrayGetLength() == 4) {
     Object obj2;
     double x1, y1, x2, y2;
 
-    (obj1.arrayGet(0, &obj2)->isNum() ? x1 = obj2.getNum() : x1 = 0);
-    obj2.free();
-    (obj1.arrayGet(1, &obj2)->isNum() ? y1 = obj2.getNum() : y1 = 0);
-    obj2.free();
-    (obj1.arrayGet(2, &obj2)->isNum() ? x2 = obj2.getNum() : x2 = 0);
-    obj2.free();
-    (obj1.arrayGet(3, &obj2)->isNum() ? y2 = obj2.getNum() : y2 = 0);
-    obj2.free();
+    (obj2 = obj1.arrayGet(0), obj2.isNum() ? x1 = obj2.getNum() : x1 = 0);
+    (obj2 = obj1.arrayGet(1), obj2.isNum() ? y1 = obj2.getNum() : y1 = 0);
+    (obj2 = obj1.arrayGet(2), obj2.isNum() ? x2 = obj2.getNum() : x2 = 0);
+    (obj2 = obj1.arrayGet(3), obj2.isNum() ? y2 = obj2.getNum() : y2 = 0);
 
     coord1 = new AnnotCoord(x1, y1);
     coord2 = new AnnotCoord(x2, y2);
@@ -3208,43 +3057,43 @@ void AnnotLine::initialize(PDFDoc *docA, Dict *dict) {
     coord1 = new AnnotCoord();
     coord2 = new AnnotCoord();
   }
-  obj1.free();
 
-  if (dict->lookup("LE", &obj1)->isArray() && obj1.arrayGetLength() == 2) {
+  obj1 = dict->lookup("LE");
+  if (obj1.isArray() && obj1.arrayGetLength() == 2) {
     Object obj2;
 
-    if(obj1.arrayGet(0, &obj2)->isString())
+    obj2 = obj1.arrayGet(0);
+    if (obj2.isString())
       startStyle = parseAnnotLineEndingStyle(obj2.getString());
     else
       startStyle = annotLineEndingNone;
-    obj2.free();
 
-    if(obj1.arrayGet(1, &obj2)->isString())
+    obj2 = obj1.arrayGet(1);
+    if (obj2.isString())
       endStyle = parseAnnotLineEndingStyle(obj2.getString());
     else
       endStyle = annotLineEndingNone;
-    obj2.free();
 
   } else {
     startStyle = endStyle = annotLineEndingNone;
   }
-  obj1.free();
 
-  if (dict->lookup("IC", &obj1)->isArray()) {
+  obj1 = dict->lookup("IC");
+  if (obj1.isArray()) {
     interiorColor = new AnnotColor(obj1.getArray());
   } else {
     interiorColor = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("LL", &obj1)->isNum()) {
+  obj1 = dict->lookup("LL");
+  if (obj1.isNum()) {
     leaderLineLength = obj1.getNum();
   } else {
     leaderLineLength = 0;
   }
-  obj1.free();
 
-  if (dict->lookup("LLE", &obj1)->isNum()) {
+  obj1 = dict->lookup("LLE");
+  if (obj1.isNum()) {
     leaderLineExtension = obj1.getNum();
 
     if (leaderLineExtension < 0)
@@ -3252,16 +3101,16 @@ void AnnotLine::initialize(PDFDoc *docA, Dict *dict) {
   } else {
     leaderLineExtension = 0;
   }
-  obj1.free();
 
-  if (dict->lookup("Cap", &obj1)->isBool()) {
+  obj1 = dict->lookup("Cap");
+  if (obj1.isBool()) {
     caption = obj1.getBool();
   } else {
     caption = gFalse;
   }
-  obj1.free();
 
-  if (dict->lookup("IT", &obj1)->isName()) {
+  obj1 = dict->lookup("IT");
+  if (obj1.isName()) {
     const char *intentName = obj1.getName();
 
     if(!strcmp(intentName, "LineArrow")) {
@@ -3274,9 +3123,9 @@ void AnnotLine::initialize(PDFDoc *docA, Dict *dict) {
   } else {
     intent = intentLineArrow;
   }
-  obj1.free();
 
-  if (dict->lookup("LLO", &obj1)->isNum()) {
+  obj1 = dict->lookup("LLO");
+  if (obj1.isNum()) {
     leaderLineOffset = obj1.getNum();
 
     if (leaderLineOffset < 0)
@@ -3284,9 +3133,9 @@ void AnnotLine::initialize(PDFDoc *docA, Dict *dict) {
   } else {
     leaderLineOffset = 0;
   }
-  obj1.free();
 
-  if (dict->lookup("CP", &obj1)->isName()) {
+  obj1 = dict->lookup("CP");
+  if (obj1.isName()) {
     const char *captionName = obj1.getName();
 
     if(!strcmp(captionName, "Inline")) {
@@ -3299,36 +3148,33 @@ void AnnotLine::initialize(PDFDoc *docA, Dict *dict) {
   } else {
     captionPos = captionPosInline;
   }
-  obj1.free();
 
-  if (dict->lookup("Measure", &obj1)->isDict()) {
+  obj1 = dict->lookup("Measure");
+  if (obj1.isDict()) {
     measure = NULL;
   } else {
     measure = NULL;
   }
-  obj1.free();
 
-  if ((dict->lookup("CO", &obj1)->isArray()) && (obj1.arrayGetLength() == 2)) {
+  obj1 = dict->lookup("CO");
+  if (obj1.isArray() && (obj1.arrayGetLength() == 2)) {
     Object obj2;
 
-    (obj1.arrayGet(0, &obj2)->isNum() ? captionTextHorizontal = obj2.getNum() :
-      captionTextHorizontal = 0);
-    obj2.free();
-    (obj1.arrayGet(1, &obj2)->isNum() ? captionTextVertical = obj2.getNum() :
-      captionTextVertical = 0);
-    obj2.free();
+    obj2 = obj1.arrayGet(0);
+    captionTextHorizontal = obj2.isNum() ? obj2.getNum() : 0;
+    obj2 = obj1.arrayGet(1);
+    captionTextVertical = obj2.isNum() ? obj2.getNum() : 0;
   } else {
     captionTextHorizontal = captionTextVertical = 0;
   }
-  obj1.free();
 
-  if (dict->lookup("BS", &obj1)->isDict()) {
+  obj1 = dict->lookup("BS");
+  if (obj1.isDict()) {
     delete border;
     border = new AnnotBorderBS(obj1.getDict());
   } else if (!border) {
     border = new AnnotBorderBS();
   }
-  obj1.free();
 }
 
 void AnnotLine::setContents(GooString *new_content) {
@@ -3338,34 +3184,30 @@ void AnnotLine::setContents(GooString *new_content) {
 }
 
 void AnnotLine::setVertices(double x1, double y1, double x2, double y2) {
-  Object obj1, obj2;
-
   delete coord1;
   coord1 = new AnnotCoord(x1, y1);
   delete coord2;
   coord2 = new AnnotCoord(x2, y2);
 
-  obj1.initArray(xref);
-  obj1.arrayAdd( obj2.initReal(x1) );
-  obj1.arrayAdd( obj2.initReal(y1) );
-  obj1.arrayAdd( obj2.initReal(x2) );
-  obj1.arrayAdd( obj2.initReal(y2) );
+  Array *lArray = new Array(xref);
+  lArray->add( Object(x1) );
+  lArray->add( Object(y1) );
+  lArray->add( Object(x2) );
+  lArray->add( Object(y2) );
 
-  update("L", &obj1);
+  update("L", Object(lArray));
   invalidateAppearance();
 }
 
 void AnnotLine::setStartEndStyle(AnnotLineEndingStyle start, AnnotLineEndingStyle end) {
-  Object obj1, obj2;
-
   startStyle = start;
   endStyle = end;
 
-  obj1.initArray(xref);
-  obj1.arrayAdd( obj2.initName(convertAnnotLineEndingStyle( startStyle )) );
-  obj1.arrayAdd( obj2.initName(convertAnnotLineEndingStyle( endStyle )) );
+  Array *leArray = new Array(xref);
+  leArray->add( Object(objName, convertAnnotLineEndingStyle( startStyle )) );
+  leArray->add( Object(objName, convertAnnotLineEndingStyle( endStyle )) );
 
-  update("LE", &obj1);
+  update("LE", Object(leArray));
   invalidateAppearance();
 }
 
@@ -3373,9 +3215,8 @@ void AnnotLine::setInteriorColor(AnnotColor *new_color) {
   delete interiorColor;
 
   if (new_color) {
-    Object obj1;
-    new_color->writeToObject(xref, &obj1);
-    update ("IC", &obj1);
+    Object obj1 = new_color->writeToObject(xref);
+    update ("IC", std::move(obj1));
     interiorColor = new_color;
   } else {
     interiorColor = NULL;
@@ -3384,45 +3225,35 @@ void AnnotLine::setInteriorColor(AnnotColor *new_color) {
 }
 
 void AnnotLine::setLeaderLineLength(double len) {
-  Object obj1;
-
   leaderLineLength = len;
-  obj1.initReal(len);
-  update ("LL", &obj1);
+  update ("LL", Object(len));
   invalidateAppearance();
 }
 
 void AnnotLine::setLeaderLineExtension(double len) {
-  Object obj1;
-
   leaderLineExtension = len;
-  obj1.initReal(len);
-  update ("LLE", &obj1);
+  update ("LLE", Object(len));
 
   // LL is required if LLE is present
-  obj1.initReal(leaderLineLength);
-  update ("LL", &obj1);
+  update ("LL", Object(leaderLineLength));
   invalidateAppearance();
 }
 
 void AnnotLine::setCaption(bool new_cap) {
-  Object obj1;
-
   caption = new_cap;
-  obj1.initBool(new_cap);
-  update ("Cap", &obj1);
+  update ("Cap", Object(new_cap));
   invalidateAppearance();
 }
 
 void AnnotLine::setIntent(AnnotLineIntent new_intent) {
-  Object obj1;
+  const char *intentName;
 
   intent = new_intent;
   if (new_intent == intentLineArrow)
-    obj1.initName("LineArrow");
+    intentName = "LineArrow";
   else // intentLineDimension
-    obj1.initName("LineDimension");
-  update ("IT", &obj1);
+    intentName = "LineDimension";
+  update ("IT", Object(objName, intentName));
 }
 
 void AnnotLine::generateLineAppearance()
@@ -3463,12 +3294,13 @@ void AnnotLine::generateLineAppearance()
   const double captionhmargin = 2; // Left and right margin (inline caption only)
   const double captionmaxwidth = main_len - 2 * captionhmargin;
 
-  Object fontResDict;
+  Dict *fontResDict;
   GfxFont *font;
 
   // Calculate caption width and height
   if (caption) {
-    font = createAnnotDrawFont(xref, &fontResDict);
+    fontResDict = new Dict(xref);
+    font = createAnnotDrawFont(xref, fontResDict);
     int lines = 0;
     int i = 0;
     while (i < contents->getLength()) {
@@ -3487,7 +3319,7 @@ void AnnotLine::generateLineAppearance()
       actualCaptionPos = captionPosTop;
     }
   } else {
-    fontResDict.initNull();
+    fontResDict = nullptr;
     font = NULL;
   }
 
@@ -3579,23 +3411,19 @@ void AnnotLine::generateLineAppearance()
   double bbox[4];
   appearBBox->getBBoxRect(bbox);
   if (ca == 1) {
-    createForm(bbox, gFalse, &fontResDict, &appearance);
+    appearance = createForm(bbox, gFalse, fontResDict);
   } else {
-    Object aStream, resDict;
-
-    createForm(bbox, gTrue, &fontResDict, &aStream);
+    Object aStream = createForm(bbox, gTrue, fontResDict);
     delete appearBuf;
 
     appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
-    createResourcesDict("Fm0", &aStream, "GS0", ca, NULL, &resDict);
-    createForm(bbox, gFalse, &resDict, &appearance);
+    Dict *resDict = createResourcesDict("Fm0", std::move(aStream), "GS0", ca, NULL);
+    appearance = createForm(bbox, gFalse, resDict);
   }
   delete appearBuf;
 }
 
 void AnnotLine::draw(Gfx *gfx, GBool printing) {
-  Object obj;
-
   if (!isVisible (printing))
     return;
 
@@ -3605,7 +3433,7 @@ void AnnotLine::draw(Gfx *gfx, GBool printing) {
   }
 
   // draw the appearance stream
-  appearance.fetch(gfx->getXRef(), &obj);
+  Object obj = appearance.fetch(gfx->getXRef());
   if (appearBBox) {
     gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
                    appearBBox->getPageXMin(), appearBBox->getPageYMin(),
@@ -3615,16 +3443,15 @@ void AnnotLine::draw(Gfx *gfx, GBool printing) {
     gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
                    rect->x1, rect->y1, rect->x2, rect->y2, getRotation());
   }
-  obj.free();
 }
 
 // Before retrieving the res dict, regenerate the appearance stream if needed,
 // because AnnotLine::draw may need to store font info in the res dict
-Object *AnnotLine::getAppearanceResDict(Object *dest) {
+Object AnnotLine::getAppearanceResDict() {
   if (appearance.isNull()) {
     generateLineAppearance();
   }
-  return Annot::getAppearanceResDict(dest);
+  return Annot::getAppearanceResDict();
 }
 
 //------------------------------------------------------------------------
@@ -3636,43 +3463,43 @@ AnnotTextMarkup::AnnotTextMarkup(PDFDoc *docA, PDFRectangle *rect, AnnotSubtype 
 
   switch (subType) {
     case typeHighlight:
-      annotObj.dictSet ("Subtype", obj1.initName ("Highlight"));
+      annotObj.dictSet ("Subtype", Object(objName, "Highlight"));
       break;
     case typeUnderline:
-      annotObj.dictSet ("Subtype", obj1.initName ("Underline"));
+      annotObj.dictSet ("Subtype", Object(objName, "Underline"));
       break;
     case typeSquiggly:
-      annotObj.dictSet ("Subtype", obj1.initName ("Squiggly"));
+      annotObj.dictSet ("Subtype", Object(objName, "Squiggly"));
       break;
     case typeStrikeOut:
-      annotObj.dictSet ("Subtype", obj1.initName ("StrikeOut"));
+      annotObj.dictSet ("Subtype", Object(objName, "StrikeOut"));
       break;
     default:
       assert (0 && "Invalid subtype for AnnotTextMarkup\n");
   }
 
   // Store dummy quadrilateral with null coordinates
-  Object obj2, obj3;
-  obj2.initArray (doc->getXRef());
+  Array *quadPoints = new Array(doc->getXRef());
   for (int i = 0; i < 4*2; ++i) {
-    obj2.arrayAdd (obj3.initReal (0));
+    quadPoints->add(Object(0.));
   }
-  annotObj.dictSet ("QuadPoints", &obj2);
+  annotObj.dictSet ("QuadPoints", Object(quadPoints));
 
   initialize(docA, annotObj.getDict());
 }
 
-AnnotTextMarkup::AnnotTextMarkup(PDFDoc *docA, Dict *dict, Object *obj) :
-  AnnotMarkup(docA, dict, obj) {
+AnnotTextMarkup::AnnotTextMarkup(PDFDoc *docA, Object *dictObject, Object *obj) :
+  AnnotMarkup(docA, dictObject, obj) {
   // the real type will be read in initialize()
   type = typeHighlight;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
 void AnnotTextMarkup::initialize(PDFDoc *docA, Dict *dict) {
   Object obj1;
 
-  if (dict->lookup("Subtype", &obj1)->isName()) {
+  obj1 = dict->lookup("Subtype");
+  if (obj1.isName()) {
     GooString typeName(obj1.getName());
     if (!typeName.cmp("Highlight")) {
       type = typeHighlight;
@@ -3684,76 +3511,70 @@ void AnnotTextMarkup::initialize(PDFDoc *docA, Dict *dict) {
       type = typeStrikeOut;
     }
   }
-  obj1.free();
 
-  if(dict->lookup("QuadPoints", &obj1)->isArray()) {
+  obj1 = dict->lookup("QuadPoints");
+  if (obj1.isArray()) {
     quadrilaterals = new AnnotQuadrilaterals(obj1.getArray(), rect);
   } else {
     error(errSyntaxError, -1, "Bad Annot Text Markup QuadPoints");
     quadrilaterals = NULL;
     ok = gFalse;
   }
-  obj1.free();
 }
 
 AnnotTextMarkup::~AnnotTextMarkup() {
-  if(quadrilaterals) {
-    delete quadrilaterals;
-  }
+  delete quadrilaterals;
 }
 
 void AnnotTextMarkup::setType(AnnotSubtype new_type) {
-  Object obj1;
+  const char *typeName;
 
   switch (new_type) {
     case typeHighlight:
-      obj1.initName("Highlight");
+      typeName = "Highlight";
       break;
     case typeUnderline:
-      obj1.initName("Underline");
+      typeName = "Underline";
       break;
     case typeSquiggly:
-      obj1.initName("Squiggly");
+      typeName = "Squiggly";
       break;
     case typeStrikeOut:
-      obj1.initName("StrikeOut");
+      typeName = "StrikeOut";
       break;
     default:
       assert(!"Invalid subtype");
   }
 
   type = new_type;
-  update("Subtype", &obj1);
+  update("Subtype", Object(objName, typeName));
   invalidateAppearance();
 }
 
 void AnnotTextMarkup::setQuadrilaterals(AnnotQuadrilaterals *quadPoints) {
-  Object obj1, obj2;
-  obj1.initArray (xref);
+  Array *a = new Array(xref);
 
   for (int i = 0; i < quadPoints->getQuadrilateralsLength(); ++i) {
-    obj1.arrayAdd (obj2.initReal (quadPoints->getX1(i)));
-    obj1.arrayAdd (obj2.initReal (quadPoints->getY1(i)));
-    obj1.arrayAdd (obj2.initReal (quadPoints->getX2(i)));
-    obj1.arrayAdd (obj2.initReal (quadPoints->getY2(i)));
-    obj1.arrayAdd (obj2.initReal (quadPoints->getX3(i)));
-    obj1.arrayAdd (obj2.initReal (quadPoints->getY3(i)));
-    obj1.arrayAdd (obj2.initReal (quadPoints->getX4(i)));
-    obj1.arrayAdd (obj2.initReal (quadPoints->getY4(i)));
+    a->add(Object(quadPoints->getX1(i)));
+    a->add(Object(quadPoints->getY1(i)));
+    a->add(Object(quadPoints->getX2(i)));
+    a->add(Object(quadPoints->getY2(i)));
+    a->add(Object(quadPoints->getX3(i)));
+    a->add(Object(quadPoints->getY3(i)));
+    a->add(Object(quadPoints->getX4(i)));
+    a->add(Object(quadPoints->getY4(i)));
   }
 
   delete quadrilaterals;
-  quadrilaterals = new AnnotQuadrilaterals(obj1.getArray(), rect);
+  quadrilaterals = new AnnotQuadrilaterals(a, rect);
 
-  annotObj.dictSet ("QuadPoints", &obj1);
+  annotObj.dictSet ("QuadPoints", Object(a));
   invalidateAppearance();
 }
 
 void AnnotTextMarkup::draw(Gfx *gfx, GBool printing) {
-  Object obj;
   double ca = 1;
   int i;
-  Object obj1, obj2;
 
   if (!isVisible (printing))
     return;
@@ -3850,8 +3671,6 @@ void AnnotTextMarkup::draw(Gfx *gfx, GBool printing) {
       break;
     default:
     case typeHighlight:
-      appearance.free();
-
       if (color)
         setColor(color, gTrue);
 
@@ -3887,32 +3706,32 @@ void AnnotTextMarkup::draw(Gfx *gfx, GBool printing) {
     }
     appearBuf->append ("Q\n");
 
-    Object aStream, resDict;
+    Object aStream;
     double bbox[4];
     bbox[0] = appearBBox->getPageXMin();
     bbox[1] = appearBBox->getPageYMin();
     bbox[2] = appearBBox->getPageXMax();
     bbox[3] = appearBBox->getPageYMax();
-    createForm(bbox, gTrue, NULL, &aStream);
+    aStream = createForm(bbox, gTrue, NULL);
     delete appearBuf;
 
     appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
-    createResourcesDict("Fm0", &aStream, "GS0", 1, blendMultiply ? "Multiply" : NULL, &resDict);
+    Dict *resDict = createResourcesDict("Fm0", std::move(aStream), "GS0", 1, blendMultiply ? "Multiply" : NULL);
     if (ca == 1) {
-      createForm(bbox, gFalse, &resDict, &appearance);
+      appearance = createForm(bbox, gFalse, resDict);
     } else {
-      createForm(bbox, gTrue, &resDict, &aStream);
+      aStream = createForm(bbox, gTrue, resDict);
       delete appearBuf;
 
       appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
-      createResourcesDict("Fm0", &aStream, "GS0", ca, NULL, &resDict);
-      createForm(bbox, gFalse, &resDict, &appearance);
+      Dict *resDict2 = createResourcesDict("Fm0", std::move(aStream), "GS0", ca, NULL);
+      appearance = createForm(bbox, gFalse, resDict2);
     }
     delete appearBuf;
   }
 
   // draw the appearance stream
-  appearance.fetch(gfx->getXRef(), &obj);
+  Object obj = appearance.fetch(gfx->getXRef());
   if (appearBBox) {
     gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
                    appearBBox->getPageXMin(), appearBBox->getPageYMin(),
@@ -3922,25 +3741,24 @@ void AnnotTextMarkup::draw(Gfx *gfx, GBool printing) {
     gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
                    rect->x1, rect->y1, rect->x2, rect->y2, getRotation());
   }
-  obj.free();
 }
 
 //------------------------------------------------------------------------
 // AnnotWidget
 //------------------------------------------------------------------------
 
-AnnotWidget::AnnotWidget(PDFDoc *docA, Dict *dict, Object *obj) :
-    Annot(docA, dict, obj) {
+AnnotWidget::AnnotWidget(PDFDoc *docA, Object *dictObject, Object *obj) :
+    Annot(docA, dictObject, obj) {
   type = typeWidget;
   field = NULL;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
-AnnotWidget::AnnotWidget(PDFDoc *docA, Dict *dict, Object *obj, FormField *fieldA) :
-    Annot(docA, dict, obj) {
+AnnotWidget::AnnotWidget(PDFDoc *docA, Object *dictObject, Object *obj, FormField *fieldA) :
+    Annot(docA, dictObject, obj) {
   type = typeWidget;
   field = fieldA;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
 AnnotWidget::~AnnotWidget() {
@@ -3949,8 +3767,6 @@ AnnotWidget::~AnnotWidget() {
   
   if (action)
     delete action;
-
-  additionalActions.free();
 
   if (parent)
     delete parent;
@@ -3961,7 +3777,8 @@ void AnnotWidget::initialize(PDFDoc *docA, Dict *dict) {
 
   form = doc->getCatalog()->getForm();
 
-  if(dict->lookup("H", &obj1)->isName()) {
+  obj1 = dict->lookup("H");
+  if (obj1.isName()) {
     const char *modeName = obj1.getName();
 
     if(!strcmp(modeName, "N")) {
@@ -3976,35 +3793,34 @@ void AnnotWidget::initialize(PDFDoc *docA, Dict *dict) {
   } else {
     mode = highlightModeInvert;
   }
-  obj1.free();
 
-  if(dict->lookup("MK", &obj1)->isDict()) {
+  obj1 = dict->lookup("MK");
+  if (obj1.isDict()) {
     appearCharacs = new AnnotAppearanceCharacs(obj1.getDict());
   } else {
     appearCharacs = NULL;
   }
-  obj1.free();
 
   action = NULL;
-  if(dict->lookup("A", &obj1)->isDict()) {
+  obj1 = dict->lookup("A");
+  if (obj1.isDict()) {
     action = LinkAction::parseAction(&obj1, doc->getCatalog()->getBaseURI());
   }
-  obj1.free();
 
-  dict->lookupNF("AA", &additionalActions);
+  additionalActions = dict->lookupNF("AA");
 
-  if(dict->lookup("Parent", &obj1)->isDict()) {
+  obj1 = dict->lookup("Parent");
+  if (obj1.isDict()) {
     parent = NULL;
   } else {
     parent = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("BS", &obj1)->isDict()) {
+  obj1 = dict->lookup("BS");
+  if (obj1.isDict()) {
     delete border;
     border = new AnnotBorderBS(obj1.getDict());
   }
-  obj1.free();
 
   updatedAppearanceStream.num = updatedAppearanceStream.gen = -1;
 }
@@ -5037,9 +4853,7 @@ void AnnotWidget::drawFormFieldChoice(GfxResources *resources, GooString *da) {
 }
 
 void AnnotWidget::generateFieldAppearance() {
-  Object appearDict, obj1, obj2;
   GfxResources *resources;
-  MemStream *appearStream;
   GooString *da;
 
   appearBuf = new GooString ();
@@ -5084,28 +4898,26 @@ void AnnotWidget::generateFieldAppearance() {
   }
 
   // build the appearance stream dictionary
-  appearDict.initDict(xref);
-  appearDict.dictAdd(copyString("Length"),
-      obj1.initInt(appearBuf->getLength()));
-  appearDict.dictAdd(copyString("Subtype"), obj1.initName("Form"));
-  obj1.initArray(xref);
-  obj1.arrayAdd(obj2.initReal(0));
-  obj1.arrayAdd(obj2.initReal(0));
-  obj1.arrayAdd(obj2.initReal(rect->x2 - rect->x1));
-  obj1.arrayAdd(obj2.initReal(rect->y2 - rect->y1));
-  appearDict.dictAdd(copyString("BBox"), &obj1);
+  Dict *appearDict = new Dict(xref);
+  appearDict->add(copyString("Length"), Object(appearBuf->getLength()));
+  appearDict->add(copyString("Subtype"), Object(objName, "Form"));
+  Array *bbox = new Array(xref);
+  bbox->add(Object(0));
+  bbox->add(Object(0));
+  bbox->add(Object(rect->x2 - rect->x1));
+  bbox->add(Object(rect->y2 - rect->y1));
+  appearDict->add(copyString("BBox"), Object(bbox));
 
   // set the resource dictionary
   Object *resDict = form->getDefaultResourcesObj();
   if (resDict->isDict()) {
-    appearDict.dictAdd(copyString("Resources"), resDict->copy(&obj1));
+    appearDict->add(copyString("Resources"), resDict->copy());
   }
 
   // build the appearance stream
-  appearStream = new MemStream(copyString(appearBuf->getCString()), 0,
-      appearBuf->getLength(), &appearDict);
-  appearance.free();
-  appearance.initStream(appearStream);
+  MemStream *appearStream = new MemStream(copyString(appearBuf->getCString()), 0,
+      appearBuf->getLength(), Object(appearDict));
+  appearance = Object(static_cast<Stream*>(appearStream));
   delete appearBuf;
 
   appearStream->setNeedFree(gTrue);
@@ -5128,8 +4940,7 @@ void AnnotWidget::updateAppearanceStream()
   generateFieldAppearance();
 
   // Fetch the appearance stream we've just created
-  Object obj1;
-  appearance.fetch(xref, &obj1);
+  Object obj1 = appearance.fetch(xref);
 
   // If this the first time updateAppearanceStream() is called on this widget,
   // create a new AP dictionary containing the new appearance stream.
@@ -5137,26 +4948,22 @@ void AnnotWidget::updateAppearanceStream()
   if (updatedAppearanceStream.num == -1) {
     // Write the appearance stream
     updatedAppearanceStream = xref->addIndirectObject(&obj1);
-    obj1.free();
 
     // Write the AP dictionary
-    Object obj2;
-    obj1.initDict(xref);
-    obj1.dictAdd(copyString("N"), obj2.initRef(updatedAppearanceStream.num, updatedAppearanceStream.gen));
-    update("AP", &obj1);
+    obj1 = Object(new Dict(xref));
+    obj1.dictAdd(copyString("N"), Object(updatedAppearanceStream.num, updatedAppearanceStream.gen));
 
     // Update our internal pointers to the appearance dictionary
     appearStreams = new AnnotAppearance(doc, &obj1);
+
+    update("AP", std::move(obj1));
   } else {
     // Replace the existing appearance stream
     xref->setModifiedObject(&obj1, updatedAppearanceStream);
-    obj1.free();
   }
 }
 
 void AnnotWidget::draw(Gfx *gfx, GBool printing) {
-  Object obj;
-
   if (!isVisible (printing))
     return;
 
@@ -5172,29 +4979,19 @@ void AnnotWidget::draw(Gfx *gfx, GBool printing) {
   }
 
   // draw the appearance stream
-  appearance.fetch(gfx->getXRef(), &obj);
+  Object obj = appearance.fetch(gfx->getXRef());
   if (addDingbatsResource) {
     // We are forcing ZaDb but the font does not exist
     // so create a fake one
-    Object baseFontObj, subtypeObj;
-    baseFontObj.initName("ZapfDingbats");
-    subtypeObj.initName("Type1");
-
-    Object fontDictObj;
     Dict *fontDict = new Dict(gfx->getXRef());
-    fontDict->decRef();
-    fontDict->add(copyString("BaseFont"), &baseFontObj);
-    fontDict->add(copyString("Subtype"), &subtypeObj);
-    fontDictObj.initDict(fontDict);
+    fontDict->add(copyString("BaseFont"), Object(objName, "ZapfDingbats"));
+    fontDict->add(copyString("Subtype"), Object(objName, "Type1"));
 
-    Object fontsDictObj;
     Dict *fontsDict = new Dict(gfx->getXRef());
-    fontsDict->decRef();
-    fontsDict->add(copyString("ZaDb"), &fontDictObj);
-    fontsDictObj.initDict(fontsDict);
+    fontsDict->add(copyString("ZaDb"), Object(fontDict));
 
     Dict *dict = new Dict(gfx->getXRef());
-    dict->add(copyString("Font"), &fontsDictObj);
+    dict->add(copyString("Font"), Object(fontsDict));
     gfx->pushResources(dict);
     delete dict;
   }
@@ -5203,7 +5000,6 @@ void AnnotWidget::draw(Gfx *gfx, GBool printing) {
   if (addDingbatsResource) {
     gfx->popResources();
   }
-  obj.free();
 }
 
 
@@ -5215,7 +5011,7 @@ AnnotMovie::AnnotMovie(PDFDoc *docA, PDFRectangle *rect, Movie *movieA) :
   Object obj1;
 
   type = typeMovie;
-  annotObj.dictSet ("Subtype", obj1.initName ("Movie"));
+  annotObj.dictSet ("Subtype", Object(objName, "Movie"));
 
   movie = movieA->copy();
   // TODO: create movie dict from movieA
@@ -5223,10 +5019,10 @@ AnnotMovie::AnnotMovie(PDFDoc *docA, PDFRectangle *rect, Movie *movieA) :
   initialize(docA, annotObj.getDict());
 }
 
-AnnotMovie::AnnotMovie(PDFDoc *docA, Dict *dict, Object *obj) :
-  Annot(docA, dict, obj) {
+AnnotMovie::AnnotMovie(PDFDoc *docA, Object *dictObject, Object *obj) :
+  Annot(docA, dictObject, obj) {
   type = typeMovie;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
 AnnotMovie::~AnnotMovie() {
@@ -5238,17 +5034,16 @@ AnnotMovie::~AnnotMovie() {
 void AnnotMovie::initialize(PDFDoc *docA, Dict* dict) {
   Object obj1;
 
-  if (dict->lookup("T", &obj1)->isString()) {
+  obj1 = dict->lookup("T");
+  if (obj1.isString()) {
     title = obj1.getString()->copy();
   } else {
     title = NULL;
   }
-  obj1.free();
 
-  Object movieDict;
-  if (dict->lookup("Movie", &movieDict)->isDict()) {
-    Object obj2;
-    dict->lookup("A", &obj2);
+  Object movieDict = dict->lookup("Movie");
+  if (movieDict.isDict()) {
+    Object obj2 = dict->lookup("A");
     if (obj2.isDict())
       movie = new Movie (&movieDict, &obj2);
     else
@@ -5258,79 +5053,66 @@ void AnnotMovie::initialize(PDFDoc *docA, Dict* dict) {
       movie = NULL;
       ok = gFalse;
     }
-    obj2.free();
   } else {
     error(errSyntaxError, -1, "Bad Annot Movie");
     movie = NULL;
     ok = gFalse;
   }
-  movieDict.free();
 }
 
 void AnnotMovie::draw(Gfx *gfx, GBool printing) {
-  Object obj;
-
   if (!isVisible (printing))
     return;
 
   annotLocker();
   if (appearance.isNull() && movie->getShowPoster()) {
     int width, height;
-    Object poster;
-    movie->getPoster(&poster);
+    Object poster = movie->getPoster();
     movie->getAspect(&width, &height);
 
     if (width != -1 && height != -1 && !poster.isNone()) {
-      MemStream *mStream;
-
       appearBuf = new GooString ();
       appearBuf->append ("q\n");
       appearBuf->appendf ("{0:d} 0 0 {1:d} 0 0 cm\n", width, height);
       appearBuf->append ("/MImg Do\n");
       appearBuf->append ("Q\n");
 
-      Object imgDict;
-      imgDict.initDict(gfx->getXRef());
-      imgDict.dictSet ("MImg", &poster);
+      Dict *imgDict = new Dict(gfx->getXRef());
+      imgDict->set("MImg", std::move(poster));
 
-      Object resDict;
-      resDict.initDict(gfx->getXRef());
-      resDict.dictSet ("XObject", &imgDict);
+      Dict *resDict = new Dict(gfx->getXRef());
+      resDict->set("XObject", Object(imgDict));
 
-      Object formDict, obj1, obj2;
-      formDict.initDict(gfx->getXRef());
-      formDict.dictSet("Length", obj1.initInt(appearBuf->getLength()));
-      formDict.dictSet("Subtype", obj1.initName("Form"));
-      formDict.dictSet("Name", obj1.initName("FRM"));
-      obj1.initArray(gfx->getXRef());
-      obj1.arrayAdd(obj2.initInt(0));
-      obj1.arrayAdd(obj2.initInt(0));
-      obj1.arrayAdd(obj2.initInt(width));
-      obj1.arrayAdd(obj2.initInt(height));
-      formDict.dictSet("BBox", &obj1);
-      obj1.initArray(gfx->getXRef());
-      obj1.arrayAdd(obj2.initInt(1));
-      obj1.arrayAdd(obj2.initInt(0));
-      obj1.arrayAdd(obj2.initInt(0));
-      obj1.arrayAdd(obj2.initInt(1));
-      obj1.arrayAdd(obj2.initInt(-width / 2));
-      obj1.arrayAdd(obj2.initInt(-height / 2));
-      formDict.dictSet("Matrix", &obj1);
-      formDict.dictSet("Resources", &resDict);
+      Dict *formDict = new Dict(gfx->getXRef());
+      formDict->set("Length", Object(appearBuf->getLength()));
+      formDict->set("Subtype", Object(objName, "Form"));
+      formDict->set("Name", Object(objName, "FRM"));
+      Array *bboxArray = new Array(gfx->getXRef());
+      bboxArray->add(Object(0));
+      bboxArray->add(Object(0));
+      bboxArray->add(Object(width));
+      bboxArray->add(Object(height));
+      formDict->set("BBox", Object(bboxArray));
+      Array *matrix = new Array(gfx->getXRef());
+      matrix->add(Object(1));
+      matrix->add(Object(0));
+      matrix->add(Object(0));
+      matrix->add(Object(1));
+      matrix->add(Object(-width / 2));
+      matrix->add(Object(-height / 2));
+      formDict->set("Matrix", Object(matrix));
+      formDict->set("Resources", Object(resDict));
 
-      Object aStream;
-      mStream = new MemStream(copyString(appearBuf->getCString()), 0,
-			      appearBuf->getLength(), &formDict);
+      MemStream *mStream = new MemStream(copyString(appearBuf->getCString()), 0,
+			      appearBuf->getLength(), Object(formDict));
       mStream->setNeedFree(gTrue);
-      aStream.initStream(mStream);
       delete appearBuf;
 
-      Object objDict;
-      objDict.initDict(gfx->getXRef());
-      objDict.dictSet ("FRM", &aStream);
+      Dict *dict = new Dict(gfx->getXRef());
+      dict->set("FRM", Object(static_cast<Stream*>(mStream)));
 
-      resDict.initDict(gfx->getXRef());
-      resDict.dictSet ("XObject", &objDict);
+      Dict *resDict2 = new Dict(gfx->getXRef());
+      resDict2->set("XObject", Object(dict));
 
       appearBuf = new GooString ();
       appearBuf->append ("q\n");
@@ -5346,17 +5128,15 @@ void AnnotMovie::draw(Gfx *gfx, GBool printing) {
       bbox[0] = bbox[1] = 0;
       bbox[2] = width;
       bbox[3] = height;
-      createForm(bbox, gFalse, &resDict, &appearance);
+      appearance = createForm(bbox, gFalse, resDict2);
       delete appearBuf;
     }
-    poster.free();
   }
 
   // draw the appearance stream
-  appearance.fetch(gfx->getXRef(), &obj);
+  Object obj = appearance.fetch(gfx->getXRef());
   gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
 		 rect->x1, rect->y1, rect->x2, rect->y2, getRotation());
-  obj.free();
 }
 
 //------------------------------------------------------------------------
@@ -5368,55 +5148,50 @@ AnnotScreen::AnnotScreen(PDFDoc *docA, PDFRectangle *rect) :
 
   type = typeScreen;
 
-  annotObj.dictSet ("Subtype", obj1.initName ("Screen"));
+  annotObj.dictSet ("Subtype", Object(objName, "Screen"));
   initialize(docA, annotObj.getDict());
 }
 
-AnnotScreen::AnnotScreen(PDFDoc *docA, Dict *dict, Object *obj) :
-  Annot(docA, dict, obj) {
+AnnotScreen::AnnotScreen(PDFDoc *docA, Object *dictObject, Object *obj) :
+  Annot(docA, dictObject, obj) {
   type = typeScreen;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
 AnnotScreen::~AnnotScreen() {
-  if (title)
-    delete title;
-  if (appearCharacs)
-    delete appearCharacs;
-  if (action)
-    delete action;
-
-  additionalActions.free();
+  delete title;
+  delete appearCharacs;
+  delete action;
 }
 
 void AnnotScreen::initialize(PDFDoc *docA, Dict* dict) {
   Object obj1;
 
   title = NULL;
-  if (dict->lookup("T", &obj1)->isString()) {
+  obj1 = dict->lookup("T");
+  if (obj1.isString()) {
     title = obj1.getString()->copy();
   }
-  obj1.free();
 
   action = NULL;
-  if (dict->lookup("A", &obj1)->isDict()) {
+  obj1 = dict->lookup("A");
+  if (obj1.isDict()) {
     action = LinkAction::parseAction(&obj1, doc->getCatalog()->getBaseURI());
-    if (action->getKind() == actionRendition && page == 0) {
+    if (action && action->getKind() == actionRendition && page == 0) {
       error (errSyntaxError, -1, "Invalid Rendition action: associated screen annotation without P");
       delete action;
       action = NULL;
       ok = gFalse;
     }
   }
-  obj1.free();
 
-  dict->lookupNF("AA", &additionalActions);
+  additionalActions = dict->lookupNF("AA");
 
   appearCharacs = NULL;
-  if(dict->lookup("MK", &obj1)->isDict()) {
+  obj1 = dict->lookup("MK");
+  if (obj1.isDict()) {
     appearCharacs = new AnnotAppearanceCharacs(obj1.getDict());
   }
-  obj1.free();
 }
 
 LinkAction* AnnotScreen::getAdditionalAction(AdditionalActionsType type)
@@ -5435,14 +5210,14 @@ AnnotStamp::AnnotStamp(PDFDoc *docA, PDFRectangle *rect) :
   Object obj1;
 
   type = typeStamp;
-  annotObj.dictSet ("Subtype", obj1.initName ("Stamp"));
+  annotObj.dictSet ("Subtype", Object(objName, "Stamp"));
   initialize(docA, annotObj.getDict());
 }
 
-AnnotStamp::AnnotStamp(PDFDoc *docA, Dict *dict, Object *obj) :
-  AnnotMarkup(docA, dict, obj) {
+AnnotStamp::AnnotStamp(PDFDoc *docA, Object *dictObject, Object *obj) :
+  AnnotMarkup(docA, dictObject, obj) {
   type = typeStamp;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
 AnnotStamp::~AnnotStamp() {
@@ -5450,14 +5225,12 @@ AnnotStamp::~AnnotStamp() {
 }
 
 void AnnotStamp::initialize(PDFDoc *docA, Dict* dict) {
-  Object obj1;
-
-  if (dict->lookup("Name", &obj1)->isName()) {
+  Object obj1 = dict->lookup("Name");
+  if (obj1.isName()) {
     icon = new GooString(obj1.getName());
   } else {
     icon = new GooString("Draft");
   }
-  obj1.free();
 
 }
 
@@ -5470,9 +5243,7 @@ void AnnotStamp::setIcon(GooString *new_icon) {
     icon = new GooString();
   }
 
-  Object obj1;
-  obj1.initName (icon->getCString());
-  update("Name", &obj1);
+  update("Name", Object(objName, icon->getCString()));
   invalidateAppearance();
 }
 
@@ -5485,10 +5256,10 @@ AnnotGeometry::AnnotGeometry(PDFDoc *docA, PDFRectangle *rect, AnnotSubtype subT
 
   switch (subType) {
     case typeSquare:
-      annotObj.dictSet ("Subtype", obj1.initName ("Square"));
+      annotObj.dictSet ("Subtype", Object(objName, "Square"));
       break;
     case typeCircle:
-      annotObj.dictSet ("Subtype", obj1.initName ("Circle"));
+      annotObj.dictSet ("Subtype", Object(objName, "Circle"));
       break;
     default:
       assert (0 && "Invalid subtype for AnnotGeometry\n");
@@ -5497,11 +5268,11 @@ AnnotGeometry::AnnotGeometry(PDFDoc *docA, PDFRectangle *rect, AnnotSubtype subT
   initialize(docA, annotObj.getDict());
 }
 
-AnnotGeometry::AnnotGeometry(PDFDoc *docA, Dict *dict, Object *obj) :
-  AnnotMarkup(docA, dict, obj) {
+AnnotGeometry::AnnotGeometry(PDFDoc *docA, Object *dictObject, Object *obj) :
+  AnnotMarkup(docA, dictObject, obj) {
   // the real type will be read in initialize()
   type = typeSquare;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
 AnnotGeometry::~AnnotGeometry() {
@@ -5513,7 +5284,8 @@ AnnotGeometry::~AnnotGeometry() {
 void AnnotGeometry::initialize(PDFDoc *docA, Dict* dict) {
   Object obj1;
 
-  if (dict->lookup("Subtype", &obj1)->isName()) {
+  obj1 = dict->lookup("Subtype");
+  if (obj1.isName()) {
     GooString typeName(obj1.getName());
     if (!typeName.cmp("Square")) {
       type = typeSquare;
@@ -5521,54 +5293,52 @@ void AnnotGeometry::initialize(PDFDoc *docA, Dict* dict) {
       type = typeCircle;
     }
   }
-  obj1.free();
 
-  if (dict->lookup("IC", &obj1)->isArray()) {
+  obj1 = dict->lookup("IC");
+  if (obj1.isArray()) {
     interiorColor = new AnnotColor(obj1.getArray());
   } else {
     interiorColor = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("BS", &obj1)->isDict()) {
+  obj1 = dict->lookup("BS");
+  if (obj1.isDict()) {
     delete border;
     border = new AnnotBorderBS(obj1.getDict());
   } else if (!border) {
     border = new AnnotBorderBS();
   }
-  obj1.free();
 
-  if (dict->lookup("BE", &obj1)->isDict()) {
+  obj1 = dict->lookup("BE");
+  if (obj1.isDict()) {
     borderEffect = new AnnotBorderEffect(obj1.getDict());
   } else {
     borderEffect = NULL;
   }
-  obj1.free();
 
   geometryRect = NULL;
-  if (dict->lookup("RD", &obj1)->isArray()) {
+  obj1 = dict->lookup("RD");
+  if (obj1.isArray()) {
     geometryRect = parseDiffRectangle(obj1.getArray(), rect);
   }
-  obj1.free();
-
 }
 
 void AnnotGeometry::setType(AnnotSubtype new_type) {
-  Object obj1;
+  const char *typeName;
 
   switch (new_type) {
     case typeSquare:
-      obj1.initName("Square");
+      typeName = "Square";
       break;
     case typeCircle:
-      obj1.initName("Circle");
+      typeName = "Circle";
       break;
     default:
       assert(!"Invalid subtype");
   }
 
   type = new_type;
-  update("Subtype", &obj1);
+  update("Subtype", Object(objName, typeName));
   invalidateAppearance();
 }
 
@@ -5576,9 +5346,8 @@ void AnnotGeometry::setInteriorColor(AnnotColor *new_color) {
   delete interiorColor;
 
   if (new_color) {
-    Object obj1;
-    new_color->writeToObject(xref, &obj1);
-    update ("IC", &obj1);
+    Object obj1 = new_color->writeToObject(xref);
+    update ("IC", std::move(obj1));
     interiorColor = new_color;
   } else {
     interiorColor = NULL;
@@ -5587,7 +5356,6 @@ void AnnotGeometry::setInteriorColor(AnnotColor *new_color) {
 }
 
 void AnnotGeometry::draw(Gfx *gfx, GBool printing) {
-  Object obj;
   double ca = 1;
 
   if (!isVisible (printing))
@@ -5673,26 +5441,22 @@ void AnnotGeometry::draw(Gfx *gfx, GBool printing) {
     bbox[2] = rect->x2 - rect->x1;
     bbox[3] = rect->y2 - rect->y1;
     if (ca == 1) {
-      createForm(bbox, gFalse, NULL, &appearance);
+      appearance = createForm(bbox, gFalse, nullptr);
     } else {
-      Object aStream;
-
-      createForm(bbox, gTrue, NULL, &aStream);
+      Object aStream = createForm(bbox, gTrue, nullptr);
       delete appearBuf;
 
-      Object resDict;
       appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
-      createResourcesDict("Fm0", &aStream, "GS0", ca, NULL, &resDict);
-      createForm(bbox, gFalse, &resDict, &appearance);
+      Dict *resDict = createResourcesDict("Fm0", std::move(aStream), "GS0", ca, NULL);
+      appearance = createForm(bbox, gFalse, resDict);
     }
     delete appearBuf;
   }
 
   // draw the appearance stream
-  appearance.fetch(gfx->getXRef(), &obj);
+  Object obj = appearance.fetch(gfx->getXRef());
   gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
 		 rect->x1, rect->y1, rect->x2, rect->y2, getRotation());
-  obj.free();
 }
 
 //------------------------------------------------------------------------
@@ -5704,30 +5468,29 @@ AnnotPolygon::AnnotPolygon(PDFDoc *docA, PDFRectangle *rect, AnnotSubtype subTyp
 
   switch (subType) {
     case typePolygon:
-      annotObj.dictSet ("Subtype", obj1.initName ("Polygon"));
+      annotObj.dictSet ("Subtype", Object(objName, "Polygon"));
       break;
     case typePolyLine:
-      annotObj.dictSet ("Subtype", obj1.initName ("PolyLine"));
+      annotObj.dictSet ("Subtype", Object(objName, "PolyLine"));
       break;
     default:
       assert (0 && "Invalid subtype for AnnotGeometry\n");
   }
 
   // Store dummy path with one null vertex only
-  Object obj2, obj3;
-  obj2.initArray (doc->getXRef());
-  obj2.arrayAdd (obj3.initReal (0));
-  obj2.arrayAdd (obj3.initReal (0));
-  annotObj.dictSet ("Vertices", &obj2);
+  Array *a = new Array(doc->getXRef());
+  a->add(Object(0.));
+  a->add(Object(0.));
+  annotObj.dictSet("Vertices", Object(a));
 
   initialize(docA, annotObj.getDict());
 }
 
-AnnotPolygon::AnnotPolygon(PDFDoc *docA, Dict *dict, Object *obj) :
-  AnnotMarkup(docA, dict, obj) {
+AnnotPolygon::AnnotPolygon(PDFDoc *docA, Object *dictObject, Object *obj) :
+  AnnotMarkup(docA, dictObject, obj) {
   // the real type will be read in initialize()
   type = typePolygon;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
 AnnotPolygon::~AnnotPolygon() {
@@ -5743,7 +5506,8 @@ AnnotPolygon::~AnnotPolygon() {
 void AnnotPolygon::initialize(PDFDoc *docA, Dict* dict) {
   Object obj1;
 
-  if (dict->lookup("Subtype", &obj1)->isName()) {
+  obj1 = dict->lookup("Subtype");
+  if (obj1.isName()) {
     GooString typeName(obj1.getName());
     if (!typeName.cmp("Polygon")) {
       type = typePolygon;
@@ -5751,60 +5515,58 @@ void AnnotPolygon::initialize(PDFDoc *docA, Dict* dict) {
       type = typePolyLine;
     }
   }
-  obj1.free();
 
-  if (dict->lookup("Vertices", &obj1)->isArray()) {
+  obj1 = dict->lookup("Vertices");
+  if (obj1.isArray()) {
     vertices = new AnnotPath(obj1.getArray());
   } else {
     vertices = new AnnotPath();
     error(errSyntaxError, -1, "Bad Annot Polygon Vertices");
     ok = gFalse;
   }
-  obj1.free();
 
-  if (dict->lookup("LE", &obj1)->isArray() && obj1.arrayGetLength() == 2) {
-    Object obj2;
-
-    if(obj1.arrayGet(0, &obj2)->isString())
+  obj1 = dict->lookup("LE");
+  if (obj1.isArray() && obj1.arrayGetLength() == 2) {
+    Object obj2 = obj1.arrayGet(0);
+    if(obj2.isString())
       startStyle = parseAnnotLineEndingStyle(obj2.getString());
     else
       startStyle = annotLineEndingNone;
-    obj2.free();
 
-    if(obj1.arrayGet(1, &obj2)->isString())
+    obj2 = obj1.arrayGet(1);
+    if(obj2.isString())
       endStyle = parseAnnotLineEndingStyle(obj2.getString());
     else
       endStyle = annotLineEndingNone;
-    obj2.free();
 
   } else {
     startStyle = endStyle = annotLineEndingNone;
   }
-  obj1.free();
 
-  if (dict->lookup("IC", &obj1)->isArray()) {
+  obj1 = dict->lookup("IC");
+  if (obj1.isArray()) {
     interiorColor = new AnnotColor(obj1.getArray());
   } else {
     interiorColor = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("BS", &obj1)->isDict()) {
+  obj1 = dict->lookup("BS");
+  if (obj1.isDict()) {
     delete border;
     border = new AnnotBorderBS(obj1.getDict());
   } else if (!border) {
     border = new AnnotBorderBS();
   }
-  obj1.free();
 
-  if (dict->lookup("BE", &obj1)->isDict()) {
+  obj1 = dict->lookup("BE");
+  if (obj1.isDict()) {
     borderEffect = new AnnotBorderEffect(obj1.getDict());
   } else {
     borderEffect = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("IT", &obj1)->isName()) {
+  obj1 = dict->lookup("IT");
+  if (obj1.isName()) {
     const char *intentName = obj1.getName();
 
     if(!strcmp(intentName, "PolygonCloud")) {
@@ -5817,56 +5579,51 @@ void AnnotPolygon::initialize(PDFDoc *docA, Dict* dict) {
   } else {
     intent = polygonCloud;
   }
-  obj1.free();
 }
 
 void AnnotPolygon::setType(AnnotSubtype new_type) {
-  Object obj1;
+  const char *typeName;
 
   switch (new_type) {
     case typePolygon:
-      obj1.initName("Polygon");
+      typeName = "Polygon";
       break;
     case typePolyLine:
-      obj1.initName("PolyLine");
+      typeName = "PolyLine";
       break;
     default:
       assert(!"Invalid subtype");
   }
 
   type = new_type;
-  update("Subtype", &obj1);
+  update("Subtype", Object(objName, typeName));
   invalidateAppearance();
 }
 
 void AnnotPolygon::setVertices(AnnotPath *path) {
-  Object obj1, obj2;
   delete vertices;
 
-  obj1.initArray(xref);
-
+  Array *a = new Array(xref);
   for (int i = 0; i < path->getCoordsLength(); i++) {
-    obj1.arrayAdd (obj2.initReal (path->getX(i)));
-    obj1.arrayAdd (obj2.initReal (path->getY(i)));
+    a->add(Object(path->getX(i)));
+    a->add(Object(path->getY(i)));
   }
 
-  vertices = new AnnotPath(obj1.getArray());
+  vertices = new AnnotPath(a);
 
-  update("Vertices", &obj1);
+  update("Vertices", Object(a));
   invalidateAppearance();
 }
 
 void AnnotPolygon::setStartEndStyle(AnnotLineEndingStyle start, AnnotLineEndingStyle end) {
-  Object obj1, obj2;
-
   startStyle = start;
   endStyle = end;
 
-  obj1.initArray(xref);
-  obj1.arrayAdd( obj2.initName(convertAnnotLineEndingStyle( startStyle )) );
-  obj1.arrayAdd( obj2.initName(convertAnnotLineEndingStyle( endStyle )) );
+  Array *a = new Array(xref);
+  a->add( Object(objName, convertAnnotLineEndingStyle( startStyle )) );
+  a->add( Object(objName, convertAnnotLineEndingStyle( endStyle )) );
 
-  update("LE", &obj1);
+  update("LE", Object(a));
   invalidateAppearance();
 }
 
@@ -5874,9 +5631,8 @@ void AnnotPolygon::setInteriorColor(AnnotColor *new_color) {
   delete interiorColor;
 
   if (new_color) {
-    Object obj1;
-    new_color->writeToObject(xref, &obj1);
-    update ("IC", &obj1);
+    Object obj1 = new_color->writeToObject(xref);
+    update ("IC", std::move(obj1));
     interiorColor = new_color;
   } else {
     interiorColor = NULL;
@@ -5885,20 +5641,19 @@ void AnnotPolygon::setInteriorColor(AnnotColor *new_color) {
 }
 
 void AnnotPolygon::setIntent(AnnotPolygonIntent new_intent) {
-  Object obj1;
+  const char *intentName;
 
   intent = new_intent;
   if (new_intent == polygonCloud)
-    obj1.initName("PolygonCloud");
+    intentName = "PolygonCloud";
   else if (new_intent == polylineDimension)
-    obj1.initName("PolyLineDimension");
+    intentName = "PolyLineDimension";
   else // polygonDimension
-    obj1.initName("PolygonDimension");
-  update ("IT", &obj1);
+    intentName = "PolygonDimension";
+  update ("IT", Object(objName, intentName));
 }
 
 void AnnotPolygon::draw(Gfx *gfx, GBool printing) {
-  Object obj;
   double ca = 1;
 
   if (!isVisible (printing))
@@ -5948,22 +5703,20 @@ void AnnotPolygon::draw(Gfx *gfx, GBool printing) {
     double bbox[4];
     appearBBox->getBBoxRect(bbox);
     if (ca == 1) {
-      createForm(bbox, gFalse, NULL, &appearance);
+      appearance = createForm(bbox, gFalse, nullptr);
     } else {
-      Object aStream, resDict;
-
-      createForm(bbox, gTrue, NULL, &aStream);
+      Object aStream = createForm(bbox, gTrue, nullptr);
       delete appearBuf;
 
       appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
-      createResourcesDict("Fm0", &aStream, "GS0", ca, NULL, &resDict);
-      createForm(bbox, gFalse, &resDict, &appearance);
+      Dict *resDict = createResourcesDict("Fm0", std::move(aStream), "GS0", ca, NULL);
+      appearance = createForm(bbox, gFalse, resDict);
     }
     delete appearBuf;
   }
 
   // draw the appearance stream
-  appearance.fetch(gfx->getXRef(), &obj);
+  Object obj = appearance.fetch(gfx->getXRef());
   if (appearBBox) {
     gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
                    appearBBox->getPageXMin(), appearBBox->getPageYMin(),
@@ -5973,7 +5726,6 @@ void AnnotPolygon::draw(Gfx *gfx, GBool printing) {
     gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
                    rect->x1, rect->y1, rect->x2, rect->y2, getRotation());
   }
-  obj.free();
 }
 
 //------------------------------------------------------------------------
@@ -5985,14 +5737,14 @@ AnnotCaret::AnnotCaret(PDFDoc *docA, PDFRectangle *rect) :
 
   type = typeCaret;
 
-  annotObj.dictSet ("Subtype", obj1.initName ("Caret"));
+  annotObj.dictSet ("Subtype", Object(objName, "Caret"));
   initialize(docA, annotObj.getDict());
 }
 
-AnnotCaret::AnnotCaret(PDFDoc *docA, Dict *dict, Object *obj) :
-  AnnotMarkup(docA, dict, obj) {
+AnnotCaret::AnnotCaret(PDFDoc *docA, Object *dictObject, Object *obj) :
+  AnnotMarkup(docA, dictObject, obj) {
   type = typeCaret;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
 AnnotCaret::~AnnotCaret() {
@@ -6003,7 +5755,8 @@ void AnnotCaret::initialize(PDFDoc *docA, Dict* dict) {
   Object obj1;
 
   symbol = symbolNone;
-  if (dict->lookup("Sy", &obj1)->isName()) {
+  obj1 = dict->lookup("Sy");
+  if (obj1.isName()) {
     GooString typeName(obj1.getName());
     if (!typeName.cmp("P")) {
       symbol = symbolP;
@@ -6011,22 +5764,18 @@ void AnnotCaret::initialize(PDFDoc *docA, Dict* dict) {
       symbol = symbolNone;
     }
   }
-  obj1.free();
 
-  if (dict->lookup("RD", &obj1)->isArray()) {
+  obj1 = dict->lookup("RD");
+  if (obj1.isArray()) {
     caretRect = parseDiffRectangle(obj1.getArray(), rect);
   } else {
     caretRect = NULL;
   }
-  obj1.free();
-
 }
 
 void AnnotCaret::setSymbol(AnnotCaretSymbol new_symbol) {
-  Object obj1;
-  obj1.initName( new_symbol == symbolP ? "P" : "None" );
   symbol = new_symbol;
-  update("Sy", &obj1);
+  update("Sy", Object(objName, new_symbol == symbolP ? "P" : "None"));
   invalidateAppearance();
 }
 
@@ -6039,23 +5788,24 @@ AnnotInk::AnnotInk(PDFDoc *docA, PDFRectangle *rect) :
 
   type = typeInk;
 
-  annotObj.dictSet ("Subtype", obj1.initName ("Ink"));
+  annotObj.dictSet ("Subtype", Object(objName, "Ink"));
 
   // Store dummy path with one null vertex only
-  Object obj2, obj3, obj4;
-  obj2.initArray (doc->getXRef());
-  obj2.arrayAdd (obj3.initArray (doc->getXRef()));
-  obj3.arrayAdd (obj4.initReal (0));
-  obj3.arrayAdd (obj4.initReal (0));
-  annotObj.dictSet ("InkList", &obj2);
+  Object obj3, obj4;
+  Array *inkList = new Array(doc->getXRef());
+  Array *vList = new Array(doc->getXRef());
+  vList->add(Object(0.));
+  vList->add(Object(0.));
+  inkList->add(Object(vList));
+  annotObj.dictSet("InkList", Object(inkList));
 
   initialize(docA, annotObj.getDict());
 }
 
-AnnotInk::AnnotInk(PDFDoc *docA, Dict *dict, Object *obj) :
-  AnnotMarkup(docA, dict, obj) {
+AnnotInk::AnnotInk(PDFDoc *docA, Object *dictObject, Object *obj) :
+  AnnotMarkup(docA, dictObject, obj) {
   type = typeInk;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
 AnnotInk::~AnnotInk() {
@@ -6065,7 +5815,8 @@ AnnotInk::~AnnotInk() {
 void AnnotInk::initialize(PDFDoc *docA, Dict* dict) {
   Object obj1;
 
-  if (dict->lookup("InkList", &obj1)->isArray()) {
+  obj1 = dict->lookup("InkList");
+  if (obj1.isArray()) {
     parseInkList(obj1.getArray());
   } else {
     inkListLength = 0;
@@ -6073,27 +5824,25 @@ void AnnotInk::initialize(PDFDoc *docA, Dict* dict) {
     error(errSyntaxError, -1, "Bad Annot Ink List");
     ok = gFalse;
   }
-  obj1.free();
 
-  if (dict->lookup("BS", &obj1)->isDict()) {
+  obj1 = dict->lookup("BS");
+  if (obj1.isDict()) {
     delete border;
     border = new AnnotBorderBS(obj1.getDict());
   } else if (!border) {
     border = new AnnotBorderBS();
   }
-  obj1.free();
 }
 
 void AnnotInk::writeInkList(AnnotPath **paths, int n_paths, Array *dest_array) {
-  Object obj1, obj2;
   for (int i = 0; i < n_paths; ++i) {
     AnnotPath *path = paths[i];
-    obj1.initArray (xref);
+    Array *a = new Array(xref);
     for (int j = 0; j < path->getCoordsLength(); ++j) {
-      obj1.arrayAdd (obj2.initReal (path->getX(j)));
-      obj1.arrayAdd (obj2.initReal (path->getY(j)));
+      a->add(Object(path->getX(j)));
+      a->add(Object(path->getY(j)));
     }
-    dest_array->add (&obj1);
+    dest_array->add(Object(a));
   }
 }
 
@@ -6102,10 +5851,9 @@ void AnnotInk::parseInkList(Array *array) {
   inkList = (AnnotPath **) gmallocn ((inkListLength), sizeof(AnnotPath *));
   memset(inkList, 0, inkListLength * sizeof(AnnotPath *));
   for (int i = 0; i < inkListLength; i++) {
-    Object obj2;
-    if (array->get(i, &obj2)->isArray())
+    Object obj2 = array->get(i);
+    if (obj2.isArray())
       inkList[i] = new AnnotPath(obj2.getArray());
-    obj2.free();
   }
 }
 
@@ -6118,20 +5866,17 @@ void AnnotInk::freeInkList() {
 }
 
 void AnnotInk::setInkList(AnnotPath **paths, int n_paths) {
-  Object obj1;
-
   freeInkList();
 
-  obj1.initArray (xref);
-  writeInkList(paths, n_paths, obj1.getArray());
+  Array *a = new Array(xref);
+  writeInkList(paths, n_paths, a);
 
-  parseInkList(obj1.getArray());
-  annotObj.dictSet ("InkList", &obj1);
+  parseInkList(a);
+  annotObj.dictSet ("InkList", Object(a));
   invalidateAppearance();
 }
 
 void AnnotInk::draw(Gfx *gfx, GBool printing) {
-  Object obj;
   double ca = 1;
 
   if (!isVisible (printing))
@@ -6172,22 +5917,20 @@ void AnnotInk::draw(Gfx *gfx, GBool printing) {
     double bbox[4];
     appearBBox->getBBoxRect(bbox);
     if (ca == 1) {
-      createForm(bbox, gFalse, NULL, &appearance);
+      appearance = createForm(bbox, gFalse, nullptr);
     } else {
-      Object aStream, resDict;
-
-      createForm(bbox, gTrue, NULL, &aStream);
+      Object aStream = createForm(bbox, gTrue, nullptr);
       delete appearBuf;
 
       appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
-      createResourcesDict("Fm0", &aStream, "GS0", ca, NULL, &resDict);
-      createForm(bbox, gFalse, &resDict, &appearance);
+      Dict *resDict = createResourcesDict("Fm0", std::move(aStream), "GS0", ca, NULL);
+      appearance = createForm(bbox, gFalse, resDict);
     }
     delete appearBuf;
   }
 
   // draw the appearance stream
-  appearance.fetch(gfx->getXRef(), &obj);
+  Object obj = appearance.fetch(gfx->getXRef());
   if (appearBBox) {
     gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
                    appearBBox->getPageXMin(), appearBBox->getPageYMin(),
@@ -6197,7 +5940,6 @@ void AnnotInk::draw(Gfx *gfx, GBool printing) {
     gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
                    rect->x1, rect->y1, rect->x2, rect->y2, getRotation());
   }
-  obj.free();
 }
 
 //------------------------------------------------------------------------
@@ -6209,45 +5951,39 @@ AnnotFileAttachment::AnnotFileAttachment(PDFDoc *docA, PDFRectangle *rect, GooSt
 
   type = typeFileAttachment;
 
-  annotObj.dictSet ("Subtype", obj1.initName ("FileAttachment"));
-
-  Object obj2;
-  obj2.initString(filename->copy());
-  annotObj.dictSet ("FS", &obj2);
+  annotObj.dictSet("Subtype", Object(objName, "FileAttachment"));
+  annotObj.dictSet("FS", Object(filename->copy()));
 
   initialize(docA, annotObj.getDict());
 }
 
-AnnotFileAttachment::AnnotFileAttachment(PDFDoc *docA, Dict *dict, Object *obj) :
-  AnnotMarkup(docA, dict, obj) {
+AnnotFileAttachment::AnnotFileAttachment(PDFDoc *docA, Object *dictObject, Object *obj) :
+  AnnotMarkup(docA, dictObject, obj) {
   type = typeFileAttachment;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
 AnnotFileAttachment::~AnnotFileAttachment() {
-  file.free();
-
-  if (name)
-    delete name;
+  delete name;
 }
 
 void AnnotFileAttachment::initialize(PDFDoc *docA, Dict* dict) {
   Object obj1;
 
-  if (dict->lookup("FS", &obj1)->isDict() || dict->lookup("FS", &obj1)->isString()) {
-    obj1.copy(&file);
+  obj1 = dict->lookup("FS");
+  if (obj1.isDict() || obj1.isString()) {
+    file = obj1.copy();
   } else {
     error(errSyntaxError, -1, "Bad Annot File Attachment");
     ok = gFalse;
   }
-  obj1.free();
 
-  if (dict->lookup("Name", &obj1)->isName()) {
+  obj1 = dict->lookup("Name");
+  if (obj1.isName()) {
     name = new GooString(obj1.getName());
   } else {
     name = new GooString("PushPin");
   }
-  obj1.free();
 }
 
 #define ANNOT_FILE_ATTACHMENT_AP_PUSHPIN                                         \
@@ -6363,7 +6099,6 @@ void AnnotFileAttachment::initialize(PDFDoc *docA, Dict* dict) {
   "19.5 17.699 20.91 17.418 22.5 17.5 c S\n"
 
 void AnnotFileAttachment::draw(Gfx *gfx, GBool printing) {
-  Object obj;
   double ca = 1;
 
   if (!isVisible (printing))
@@ -6394,26 +6129,22 @@ void AnnotFileAttachment::draw(Gfx *gfx, GBool printing) {
     bbox[0] = bbox[1] = 0;
     bbox[2] = bbox[3] = 24;
     if (ca == 1) {
-      createForm (bbox, gFalse, NULL, &appearance);
+      appearance = createForm (bbox, gFalse, nullptr);
     } else {
-      Object aStream;
-
-      createForm (bbox, gTrue, NULL, &aStream);
+      Object aStream = createForm (bbox, gTrue, nullptr);
       delete appearBuf;
 
-      Object resDict;
       appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
-      createResourcesDict("Fm0", &aStream, "GS0", ca, NULL, &resDict);
-      createForm(bbox, gFalse, &resDict, &appearance);
+      Dict *resDict = createResourcesDict("Fm0", std::move(aStream), "GS0", ca, NULL);
+      appearance = createForm(bbox, gFalse, resDict);
     }
     delete appearBuf;
   }
 
   // draw the appearance stream
-  appearance.fetch(gfx->getXRef(), &obj);
+  Object obj = appearance.fetch(gfx->getXRef());
   gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
 		 rect->x1, rect->y1, rect->x2, rect->y2, getRotation());
-  obj.free();
 }
 
 //------------------------------------------------------------------------
@@ -6425,21 +6156,16 @@ AnnotSound::AnnotSound(PDFDoc *docA, PDFRectangle *rect, Sound *soundA) :
 
   type = typeSound;
 
-  annotObj.dictSet ("Subtype", obj1.initName ("Sound"));
-
-  Object obj2;
-  Stream *str = soundA->getStream();
-  obj2.initStream (str);
-  str->incRef(); //FIXME: initStream should do this?
-  annotObj.dictSet ("Sound", &obj2);
+  annotObj.dictSet ("Subtype", Object(objName, "Sound"));
+  annotObj.dictSet ("Sound", soundA->getObject()->copy());
 
   initialize(docA, annotObj.getDict());
 }
 
-AnnotSound::AnnotSound(PDFDoc *docA, Dict *dict, Object *obj) :
-  AnnotMarkup(docA, dict, obj) {
+AnnotSound::AnnotSound(PDFDoc *docA, Object *dictObject, Object *obj) :
+  AnnotMarkup(docA, dictObject, obj) {
   type = typeSound;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
 AnnotSound::~AnnotSound() {
@@ -6449,21 +6175,20 @@ AnnotSound::~AnnotSound() {
 }
 
 void AnnotSound::initialize(PDFDoc *docA, Dict* dict) {
-  Object obj1;
+  Object obj1 = dict->lookup("Sound");
 
-  sound = Sound::parseSound(dict->lookup("Sound", &obj1));
+  sound = Sound::parseSound(&obj1);
   if (!sound) {
     error(errSyntaxError, -1, "Bad Annot Sound");
     ok = gFalse;
   }
-  obj1.free();
 
-  if (dict->lookup("Name", &obj1)->isName()) {
+  obj1 = dict->lookup("Name");
+  if (obj1.isName()) {
     name = new GooString(obj1.getName());
   } else {
     name = new GooString("Speaker");
   }
-  obj1.free();
 }
 
 #define ANNOT_SOUND_AP_SPEAKER                                               \
@@ -6557,25 +6282,22 @@ void AnnotSound::draw(Gfx *gfx, GBool printing) {
     bbox[0] = bbox[1] = 0;
     bbox[2] = bbox[3] = 24;
     if (ca == 1) {
-      createForm(bbox, gFalse, NULL, &appearance);
+      appearance = createForm(bbox, gFalse, nullptr);
     } else {
-      Object aStream, resDict;
-
-      createForm(bbox, gTrue, NULL, &aStream);
+      Object aStream = createForm(bbox, gTrue, nullptr);
       delete appearBuf;
 
       appearBuf = new GooString ("/GS0 gs\n/Fm0 Do");
-      createResourcesDict("Fm0", &aStream, "GS0", ca, NULL, &resDict);
-      createForm(bbox, gFalse, &resDict, &appearance);
+      Dict *resDict = createResourcesDict("Fm0", std::move(aStream), "GS0", ca, NULL);
+      appearance = createForm(bbox, gFalse, resDict);
     }
     delete appearBuf;
   }
 
   // draw the appearance stream
-  appearance.fetch(gfx->getXRef(), &obj);
+  obj = appearance.fetch(gfx->getXRef());
   gfx->drawAnnot(&obj, (AnnotBorder *)NULL, color,
 		 rect->x1, rect->y1, rect->x2, rect->y2, getRotation());
-  obj.free();
 }
 
 //------------------------------------------------------------------------
@@ -6587,15 +6309,15 @@ Annot3D::Annot3D(PDFDoc *docA, PDFRectangle *rect) :
 
   type = type3D;
 
-  annotObj.dictSet ("Subtype", obj1.initName ("3D"));
+  annotObj.dictSet ("Subtype", Object(objName, "3D"));
 
   initialize(docA, annotObj.getDict());
 }
 
-Annot3D::Annot3D(PDFDoc *docA, Dict *dict, Object *obj) :
-  Annot(docA, dict, obj) {
+Annot3D::Annot3D(PDFDoc *docA, Object *dictObject, Object *obj) :
+  Annot(docA, dictObject, obj) {
   type = type3D;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
 Annot3D::~Annot3D() {
@@ -6604,20 +6326,19 @@ Annot3D::~Annot3D() {
 }
 
 void Annot3D::initialize(PDFDoc *docA, Dict* dict) {
-  Object obj1;
-
-  if (dict->lookup("3DA", &obj1)->isDict()) {
+  Object obj1 = dict->lookup("3DA");
+  if (obj1.isDict()) {
     activation = new Activation(obj1.getDict());
   } else {
     activation = NULL;
   }
-  obj1.free();
 }
 
 Annot3D::Activation::Activation(Dict *dict) {
   Object obj1;
 
-  if (dict->lookup("A", &obj1)->isName()) {
+  obj1 = dict->lookup("A");
+  if (obj1.isName()) {
     const char *name = obj1.getName();
 
     if(!strcmp(name, "PO")) {
@@ -6632,9 +6353,9 @@ Annot3D::Activation::Activation(Dict *dict) {
   } else {
     aTrigger = aTriggerUnknown;
   }
-  obj1.free();
 
-  if(dict->lookup("AIS", &obj1)->isName()) {
+  obj1 = dict->lookup("AIS");
+  if (obj1.isName()) {
     const char *name = obj1.getName();
 
     if(!strcmp(name, "I")) {
@@ -6647,9 +6368,9 @@ Annot3D::Activation::Activation(Dict *dict) {
   } else {
     aState = aStateUnknown;
   }
-  obj1.free();
 
-  if(dict->lookup("D", &obj1)->isName()) {
+  obj1 = dict->lookup("D");
+  if (obj1.isName()) {
     const char *name = obj1.getName();
 
     if(!strcmp(name, "PC")) {
@@ -6664,9 +6385,9 @@ Annot3D::Activation::Activation(Dict *dict) {
   } else {
     dTrigger = dTriggerUnknown;
   }
-  obj1.free();
 
-  if(dict->lookup("DIS", &obj1)->isName()) {
+  obj1 = dict->lookup("DIS");
+  if (obj1.isName()) {
     const char *name = obj1.getName();
 
     if(!strcmp(name, "U")) {
@@ -6681,21 +6402,20 @@ Annot3D::Activation::Activation(Dict *dict) {
   } else {
     dState = dStateUnknown;
   }
-  obj1.free();
 
-  if (dict->lookup("TB", &obj1)->isBool()) {
+  obj1 = dict->lookup("TB");
+  if (obj1.isBool()) {
     displayToolbar = obj1.getBool();
   } else {
     displayToolbar = gTrue;
   }
-  obj1.free();
 
-  if (dict->lookup("NP", &obj1)->isBool()) {
+  obj1 = dict->lookup("NP");
+  if (obj1.isBool()) {
     displayNavigation = obj1.getBool();
   } else {
     displayNavigation = gFalse;
   }
-  obj1.free();
 }
 
 //------------------------------------------------------------------------
@@ -6707,15 +6427,15 @@ AnnotRichMedia::AnnotRichMedia(PDFDoc *docA, PDFRectangle *rect) :
 
   type = typeRichMedia;
 
-  annotObj.dictSet ("Subtype", obj1.initName ("RichMedia"));
+  annotObj.dictSet ("Subtype", Object(objName, "RichMedia"));
 
   initialize(docA, annotObj.getDict());
 }
 
-AnnotRichMedia::AnnotRichMedia(PDFDoc *docA, Dict *dict, Object *obj) :
-  Annot(docA, dict, obj) {
+AnnotRichMedia::AnnotRichMedia(PDFDoc *docA, Object *dictObject, Object *obj) :
+  Annot(docA, dictObject, obj) {
   type = typeRichMedia;
-  initialize(docA, dict);
+  initialize(docA, dictObject->getDict());
 }
 
 AnnotRichMedia::~AnnotRichMedia() {
@@ -6724,21 +6444,19 @@ AnnotRichMedia::~AnnotRichMedia() {
 }
 
 void AnnotRichMedia::initialize(PDFDoc *docA, Dict* dict) {
-  Object obj1;
-
-  if (dict->lookup("RichMediaContent", &obj1)->isDict()) {
+  Object obj1 = dict->lookup("RichMediaContent");
+  if (obj1.isDict()) {
     content = new AnnotRichMedia::Content(obj1.getDict());
   } else {
     content = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("RichMediaSettings", &obj1)->isDict()) {
+  obj1 = dict->lookup("RichMediaSettings");
+  if (obj1.isDict()) {
     settings = new AnnotRichMedia::Settings(obj1.getDict());
   } else {
     settings = NULL;
   }
-  obj1.free();
 }
 
 AnnotRichMedia::Content* AnnotRichMedia::getContent() const {
@@ -6750,21 +6468,19 @@ AnnotRichMedia::Settings* AnnotRichMedia::getSettings() const {
 }
 
 AnnotRichMedia::Settings::Settings(Dict *dict) {
-  Object obj1;
-
-  if (dict->lookup("Activation", &obj1)->isDict()) {
+  Object obj1 = dict->lookup("Activation");
+  if (obj1.isDict()) {
     activation = new AnnotRichMedia::Activation(obj1.getDict());
   } else {
     activation = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("Deactivation", &obj1)->isDict()) {
+  obj1 = dict->lookup("Deactivation");
+  if (obj1.isDict()) {
     deactivation = new AnnotRichMedia::Deactivation(obj1.getDict());
   } else {
     deactivation = NULL;
   }
-  obj1.free();
 }
 
 AnnotRichMedia::Settings::~Settings() {
@@ -6781,9 +6497,8 @@ AnnotRichMedia::Deactivation* AnnotRichMedia::Settings::getDeactivation() const 
 }
 
 AnnotRichMedia::Activation::Activation(Dict *dict) {
-  Object obj1;
-
-  if (dict->lookup("Condition", &obj1)->isName()) {
+  Object obj1 = dict->lookup("Condition");
+  if (obj1.isName()) {
     const char *name = obj1.getName();
 
     if (!strcmp(name, "PO")) {
@@ -6798,7 +6513,6 @@ AnnotRichMedia::Activation::Activation(Dict *dict) {
   } else {
     condition = conditionUserAction;
   }
-  obj1.free();
 }
 
 AnnotRichMedia::Activation::Condition AnnotRichMedia::Activation::getCondition() const {
@@ -6806,9 +6520,8 @@ AnnotRichMedia::Activation::Condition AnnotRichMedia::Activation::getCondition()
 }
 
 AnnotRichMedia::Deactivation::Deactivation(Dict *dict) {
-  Object obj1;
-
-  if (dict->lookup("Condition", &obj1)->isName()) {
+  Object obj1 = dict->lookup("Condition");
+  if (obj1.isName()) {
     const char *name = obj1.getName();
 
     if (!strcmp(name, "PC")) {
@@ -6823,7 +6536,6 @@ AnnotRichMedia::Deactivation::Deactivation(Dict *dict) {
   } else {
     condition = conditionUserAction;
   }
-  obj1.free();
 }
 
 AnnotRichMedia::Deactivation::Condition AnnotRichMedia::Deactivation::getCondition() const {
@@ -6831,57 +6543,48 @@ AnnotRichMedia::Deactivation::Condition AnnotRichMedia::Deactivation::getConditi
 }
 
 AnnotRichMedia::Content::Content(Dict *dict) {
-  Object obj1;
-
-  if (dict->lookup("Configurations", &obj1)->isArray()) {
+  Object obj1 = dict->lookup("Configurations");
+  if (obj1.isArray()) {
     nConfigurations = obj1.arrayGetLength();
 
     configurations = (Configuration **)gmallocn(nConfigurations, sizeof(Configuration *));
 
     for (int i = 0; i < nConfigurations; ++i) {
-      Object obj2;
-
-      if (obj1.arrayGet(i, &obj2)->isDict()) {
+      Object obj2 = obj1.arrayGet(i);
+      if (obj2.isDict()) {
         configurations[i] = new AnnotRichMedia::Configuration(obj2.getDict());
       } else {
         configurations[i] = NULL;
       }
-      obj2.free();
     }
   } else {
     nConfigurations = 0;
     configurations = NULL;
   }
-  obj1.free();
 
   nAssets = 0;
   assets = NULL;
-  if (dict->lookup("Assets", &obj1)->isDict()) {
-    Object obj2;
-
-    if (obj1.getDict()->lookup("Names", &obj2)->isArray()) {
+  obj1 = dict->lookup("Assets");
+  if (obj1.isDict()) {
+    Object obj2 = obj1.getDict()->lookup("Names");
+    if (obj2.isArray()) {
       nAssets = obj2.arrayGetLength() / 2;
 
       assets = (Asset **)gmallocn(nAssets, sizeof(Asset *));
 
       int counter = 0;
       for (int i = 0; i < obj2.arrayGetLength(); i += 2) {
-        Object objKey;
-
         assets[counter] = new AnnotRichMedia::Asset;
 
-        obj2.arrayGet(i, &objKey);
-        obj2.arrayGet(i + 1, &assets[counter]->fileSpec);
+        Object objKey = obj2.arrayGet(i);
+        assets[counter]->fileSpec = obj2.arrayGet(i + 1);
 
         assets[counter]->name = new GooString( objKey.getString() );
         ++counter;
 
-        objKey.free();
       }
     }
-    obj2.free();
   }
-  obj1.free();
 }
 
 AnnotRichMedia::Content::~Content() {
@@ -6928,7 +6631,6 @@ AnnotRichMedia::Asset::Asset()
 AnnotRichMedia::Asset::~Asset()
 {
   delete name;
-  fileSpec.free();
 }
 
 GooString* AnnotRichMedia::Asset::getName() const {
@@ -6941,36 +6643,33 @@ Object* AnnotRichMedia::Asset::getFileSpec() const {
 
 AnnotRichMedia::Configuration::Configuration(Dict *dict)
 {
-  Object obj1;
-
-  if (dict->lookup("Instances", &obj1)->isArray()) {
+  Object obj1 = dict->lookup("Instances");
+  if (obj1.isArray()) {
     nInstances = obj1.arrayGetLength();
 
     instances = (Instance **)gmallocn(nInstances, sizeof(Instance *));
 
     for (int i = 0; i < nInstances; ++i) {
-      Object obj2;
-
-      if (obj1.arrayGet(i, &obj2)->isDict()) {
+      Object obj2 = obj1.arrayGet(i);
+      if (obj2.isDict()) {
         instances[i] = new AnnotRichMedia::Instance(obj2.getDict());
       } else {
         instances[i] = NULL;
       }
-      obj2.free();
     }
   } else {
     instances = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("Name", &obj1)->isString()) {
+  obj1 = dict->lookup("Name");
+  if (obj1.isString()) {
     name = new GooString(obj1.getString());
   } else {
     name = NULL;
   }
-  obj1.free();
 
-  if (dict->lookup("Subtype", &obj1)->isName()) {
+  obj1 = dict->lookup("Subtype");
+  if (obj1.isName()) {
     const char *name = obj1.getName();
 
     if (!strcmp(name, "3D")) {
@@ -7005,7 +6704,6 @@ AnnotRichMedia::Configuration::Configuration(Dict *dict)
       }
     }
   }
-  obj1.free();
 }
 
 AnnotRichMedia::Configuration::~Configuration()
@@ -7040,9 +6738,7 @@ AnnotRichMedia::Configuration::Type AnnotRichMedia::Configuration::getType() con
 
 AnnotRichMedia::Instance::Instance(Dict *dict)
 {
-  Object obj1;
-
-  dict->lookup("Subtype", &obj1);
+  Object obj1 = dict->lookup("Subtype");
   const char *name = obj1.isName() ? obj1.getName() : "";
 
   if (!strcmp(name, "3D")) {
@@ -7056,14 +6752,13 @@ AnnotRichMedia::Instance::Instance(Dict *dict)
   } else {
     type = typeFlash;
   }
-  obj1.free();
 
-  if (dict->lookup("Params", &obj1)->isDict()) {
+  obj1 = dict->lookup("Params");
+  if (obj1.isDict()) {
     params = new AnnotRichMedia::Params(obj1.getDict());
   } else {
     params = NULL;
   }
-  obj1.free();
 }
 
 AnnotRichMedia::Instance::~Instance()
@@ -7081,14 +6776,12 @@ AnnotRichMedia::Params* AnnotRichMedia::Instance::getParams() const {
 
 AnnotRichMedia::Params::Params(Dict *dict)
 {
-  Object obj1;
-
-  if (dict->lookup("FlashVars", &obj1)->isString()) {
+  Object obj1 = dict->lookup("FlashVars");
+  if (obj1.isString()) {
     flashVars = new GooString(obj1.getString());
   } else {
     flashVars = NULL;
   }
-  obj1.free();
 }
 
 AnnotRichMedia::Params::~Params()
@@ -7106,7 +6799,6 @@ GooString* AnnotRichMedia::Params::getFlashVars() const {
 
 Annots::Annots(PDFDoc *docA, int page, Object *annotsObj) {
   Annot *annot;
-  Object obj1;
   int i;
 
   doc = docA;
@@ -7119,10 +6811,10 @@ Annots::Annots(PDFDoc *docA, int page, Object *annotsObj) {
       //get the Ref to this annot and pass it to Annot constructor 
       //this way, it'll be possible for the annot to retrieve the corresponding
       //form widget
-      Object obj2;
-      if (annotsObj->arrayGet(i, &obj1)->isDict()) {
-        annotsObj->arrayGetNF(i, &obj2);
-        annot = createAnnot (obj1.getDict(), &obj2);
+      Object obj1 = annotsObj->arrayGet(i);
+      if (obj1.isDict()) {
+	Object obj2 = annotsObj->arrayGetNF(i);
+        annot = createAnnot (&obj1, &obj2);
         if (annot) {
           if (annot->isOk()) {
             annot->setPage(page, gFalse); // Don't change /P
@@ -7131,8 +6823,6 @@ Annots::Annots(PDFDoc *docA, int page, Object *annotsObj) {
           annot->decRefCnt();
         }
       }
-      obj2.free();
-      obj1.free();
     }
   }
 }
@@ -7166,49 +6856,48 @@ GBool Annots::removeAnnot(Annot *annot) {
   }
 }
 
-Annot *Annots::createAnnot(Dict* dict, Object *obj) {
-  Annot *annot = NULL;
-  Object obj1;
-
-  if (dict->lookup("Subtype", &obj1)->isName()) {
+Annot *Annots::createAnnot(Object* dictObject, Object *obj) {
+  Annot *annot = nullptr;
+  Object obj1 = dictObject->dictLookup("Subtype");
+  if (obj1.isName()) {
     const char *typeName = obj1.getName();
 
     if (!strcmp(typeName, "Text")) {
-      annot = new AnnotText(doc, dict, obj);
+      annot = new AnnotText(doc, dictObject, obj);
     } else if (!strcmp(typeName, "Link")) {
-      annot = new AnnotLink(doc, dict, obj);
+      annot = new AnnotLink(doc, dictObject, obj);
     } else if (!strcmp(typeName, "FreeText")) {
-      annot = new AnnotFreeText(doc, dict, obj);
+      annot = new AnnotFreeText(doc, dictObject, obj);
     } else if (!strcmp(typeName, "Line")) {
-      annot = new AnnotLine(doc, dict, obj);
+      annot = new AnnotLine(doc, dictObject, obj);
     } else if (!strcmp(typeName, "Square")) {
-      annot = new AnnotGeometry(doc, dict, obj);
+      annot = new AnnotGeometry(doc, dictObject, obj);
     } else if (!strcmp(typeName, "Circle")) {
-      annot = new AnnotGeometry(doc, dict, obj);
+      annot = new AnnotGeometry(doc, dictObject, obj);
     } else if (!strcmp(typeName, "Polygon")) {
-      annot = new AnnotPolygon(doc, dict, obj);
+      annot = new AnnotPolygon(doc, dictObject, obj);
     } else if (!strcmp(typeName, "PolyLine")) {
-      annot = new AnnotPolygon(doc, dict, obj);
+      annot = new AnnotPolygon(doc, dictObject, obj);
     } else if (!strcmp(typeName, "Highlight")) {
-      annot = new AnnotTextMarkup(doc, dict, obj);
+      annot = new AnnotTextMarkup(doc, dictObject, obj);
     } else if (!strcmp(typeName, "Underline")) {
-      annot = new AnnotTextMarkup(doc, dict, obj);
+      annot = new AnnotTextMarkup(doc, dictObject, obj);
     } else if (!strcmp(typeName, "Squiggly")) {
-      annot = new AnnotTextMarkup(doc, dict, obj);
+      annot = new AnnotTextMarkup(doc, dictObject, obj);
     } else if (!strcmp(typeName, "StrikeOut")) {
-      annot = new AnnotTextMarkup(doc, dict, obj);
+      annot = new AnnotTextMarkup(doc, dictObject, obj);
     } else if (!strcmp(typeName, "Stamp")) {
-      annot = new AnnotStamp(doc, dict, obj);
+      annot = new AnnotStamp(doc, dictObject, obj);
     } else if (!strcmp(typeName, "Caret")) {
-      annot = new AnnotCaret(doc, dict, obj);
+      annot = new AnnotCaret(doc, dictObject, obj);
     } else if (!strcmp(typeName, "Ink")) {
-      annot = new AnnotInk(doc, dict, obj);
+      annot = new AnnotInk(doc, dictObject, obj);
     } else if (!strcmp(typeName, "FileAttachment")) {
-      annot = new AnnotFileAttachment(doc, dict, obj);
+      annot = new AnnotFileAttachment(doc, dictObject, obj);
     } else if (!strcmp(typeName, "Sound")) {
-      annot = new AnnotSound(doc, dict, obj);
+      annot = new AnnotSound(doc, dictObject, obj);
     } else if(!strcmp(typeName, "Movie")) {
-      annot = new AnnotMovie(doc, dict, obj);
+      annot = new AnnotMovie(doc, dictObject, obj);
     } else if(!strcmp(typeName, "Widget")) {
       // Find the annot in forms
       if (obj->isRef()) {
@@ -7222,37 +6911,33 @@ Annot *Annots::createAnnot(Dict* dict, Object *obj) {
         }
       }
       if (!annot)
-        annot = new AnnotWidget(doc, dict, obj);
+        annot = new AnnotWidget(doc, dictObject, obj);
     } else if(!strcmp(typeName, "Screen")) {
-      annot = new AnnotScreen(doc, dict, obj);
+      annot = new AnnotScreen(doc, dictObject, obj);
     } else if(!strcmp(typeName, "PrinterMark")) {
-      annot = new Annot(doc, dict, obj);
+      annot = new Annot(doc, dictObject, obj);
     } else if (!strcmp(typeName, "TrapNet")) {
-      annot = new Annot(doc, dict, obj);
+      annot = new Annot(doc, dictObject, obj);
     } else if (!strcmp(typeName, "Watermark")) {
-      annot = new Annot(doc, dict, obj);
+      annot = new Annot(doc, dictObject, obj);
     } else if (!strcmp(typeName, "3D")) {
-      annot = new Annot3D(doc, dict, obj);
+      annot = new Annot3D(doc, dictObject, obj);
     } else if (!strcmp(typeName, "RichMedia")) {
-      annot = new AnnotRichMedia(doc, dict, obj);
+      annot = new AnnotRichMedia(doc, dictObject, obj);
     } else if (!strcmp(typeName, "Popup")) {
       /* Popup annots are already handled by markup annots
        * Here we only care about popup annots without a
        * markup annotation associated
        */
-      Object obj2;
-
-      if (dict->lookup("Parent", &obj2)->isNull())
-        annot = new AnnotPopup(doc, dict, obj);
+      Object obj2 = dictObject->dictLookup("Parent");
+      if (obj2.isNull())
+        annot = new AnnotPopup(doc, dictObject, obj);
       else
         annot = NULL;
-      
-      obj2.free();
     } else {
-      annot = new Annot(doc, dict, obj);
+      annot = new Annot(doc, dictObject, obj);
     }
   }
-  obj1.free();
 
   return annot;
 }

@@ -1,7 +1,7 @@
 /* poppler-private.h: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
  * Copyright (C) 2005, 2008, Brad Hards <bradh@frogmouth.net>
- * Copyright (C) 2006-2009, 2011, 2012 by Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2006-2009, 2011, 2012, 2017 by Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2007-2009, 2011, 2014 by Pino Toscano <pino@kde.org>
  * Copyright (C) 2011 Andreas Hartmetz <ahartmetz@gmail.com>
  * Copyright (C) 2011 Hib Eris <hib@hiberis.nl>
@@ -103,10 +103,8 @@ namespace Poppler {
 	
 	DocumentData(const QByteArray &data, GooString *ownerPassword, GooString *userPassword)
 	    {
-		Object obj;
 		fileContents = data;
-		obj.initNull();
-		MemStream *str = new MemStream((char*)fileContents.data(), 0, fileContents.length(), &obj);
+		MemStream *str = new MemStream((char*)fileContents.data(), 0, fileContents.length(), Object(objNull));
 		init();
 		doc = new PDFDoc(str, ownerPassword, userPassword);
 		delete ownerPassword;

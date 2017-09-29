@@ -20,7 +20,7 @@
 // Copyright (C) 2006 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2007, 2008, 2012 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2008 Koji Otani <sho@bbr.jp>
-// Copyright (C) 2008, 2010-2012, 2014-2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010-2012, 2014-2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008, 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 Ross Moore <ross@maths.mq.edu.au>
@@ -898,6 +898,7 @@ void TextPool::addWord(TextWord *word) {
   // expand the array if needed
   if (unlikely((word->base / textPoolStep) > INT_MAX)) {
       error(errSyntaxWarning, -1, "word->base / textPoolStep > INT_MAX");
+      delete word;
       return;
   }
   wordBaseIdx = (int)(word->base / textPoolStep);

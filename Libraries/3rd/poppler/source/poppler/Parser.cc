@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006, 2009, 201, 2010, 2013, 2014 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2009, 201, 2010, 2013, 2014, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2009 Ilya Gorenbein <igorenbein@finjan.com>
 // Copyright (C) 2012 Hib Eris <hib@hiberis.nl>
@@ -50,50 +50,49 @@ Parser::Parser(XRef *xrefA, Lexer *lexerA, GBool allowStreamsA) {
   lexer = lexerA;
   inlineImg = 0;
   allowStreams = allowStreamsA;
-  lexer->getObj(&buf1);
-  lexer->getObj(&buf2);
+  buf1 = lexer->getObj();
+  buf2 = lexer->getObj();
 }
 
 Parser::~Parser() {
-  buf1.free();
-  buf2.free();
   delete lexer;
 }
 
-Object *Parser::getObj(Object *obj, int recursion)
+Object Parser::getObj(int recursion)
 {
-  return getObj(obj, gFalse, NULL, cryptRC4, 0, 0, 0, recursion);
+  return getObj(gFalse, NULL, cryptRC4, 0, 0, 0, recursion);
 }
 
-Object *Parser::getObj(Object *obj, GBool simpleOnly,
+Object Parser::getObj(GBool simpleOnly,
            Guchar *fileKey,
 		       CryptAlgorithm encAlgorithm, int keyLength,
 		       int objNum, int objGen, int recursion,
 		       GBool strict) {
-  char *key;
+  Object obj;
   Stream *str;
-  Object obj2;
-  int num;
   DecryptStream *decrypt;
   GooString *s, *s2;
   int c;
 
   // refill buffer after inline image data
   if (inlineImg == 2) {
-    buf1.free();
-    buf2.free();
-    lexer->getObj(&buf1);
-    lexer->getObj(&buf2);
+    buf1 = lexer->getObj();
+    buf2 = lexer->getObj();
     inlineImg = 0;
   }
 
+  if (unlikely(recursion >= recursionLimit)) {
+    return Object(objError);
+  }
+
   // array
-  if (!simpleOnly && likely(recursion < recursionLimit) && buf1.isCmd("[")) {
+  if (!simpleOnly && buf1.isCmd("[")) {
     shift();
-    obj->initArray(xref);
-    while (!buf1.isCmd("]") && !buf1.isEOF())
-      obj->arrayAdd(getObj(&obj2, gFalse, fileKey, encAlgorithm, keyLength,
-			   objNum, objGen, recursion + 1));
+    obj = Object(new Array(xref));
+    while (!buf1.isCmd("]") && !buf1.isEOF()) {
+      Object obj2 = getObj(gFalse, fileKey, encAlgorithm, keyLength, objNum, objGen, recursion + 1);
+      obj.arrayAdd(std::move(obj2));
+    }
     if (buf1.isEOF()) {
       error(errSyntaxError, getPos(), "End of file inside array");
       if (strict) goto err;
@@ -101,9 +100,9 @@ Object *Parser::getObj(Object *obj, GBool simpleOnly,
     shift();
 
   // dictionary or stream
-  } else if (!simpleOnly && likely(recursion < recursionLimit) && buf1.isCmd("<<")) {
+  } else if (!simpleOnly && buf1.isCmd("<<")) {
     shift(objNum);
-    obj->initDict(xref);
+    obj = Object(new Dict(xref));
     while (!buf1.isCmd(">>") && !buf1.isEOF()) {
       if (!buf1.isName()) {
 	error(errSyntaxError, getPos(), "Dictionary key must be a name object");
@@ -111,14 +110,19 @@ Object *Parser::getObj(Object *obj, GBool simpleOnly,
 	shift();
       } else {
 	// buf1 might go away in shift(), so construct the key
-	key = copyString(buf1.getName());
+	char *key = copyString(buf1.getName());
 	shift();
 	if (buf1.isEOF() || buf1.isError()) {
 	  gfree(key);
 	  if (strict && buf1.isError()) goto err;
 	  break;
 	}
-	obj->dictAdd(key, getObj(&obj2, gFalse, fileKey, encAlgorithm, keyLength, objNum, objGen, recursion + 1));
+	Object obj2 = getObj(gFalse, fileKey, encAlgorithm, keyLength, objNum, objGen, recursion + 1);
+	if (unlikely(obj2.isError() && recursion + 1 >= recursionLimit)) {
+	  gfree(key);
+	  break;
+	}
+	obj.dictAdd(key, std::move(obj2));
       }
     }
     if (buf1.isEOF()) {
@@ -128,13 +132,12 @@ Object *Parser::getObj(Object *obj, GBool simpleOnly,
     // stream objects are not allowed inside content streams or
     // object streams
     if (buf2.isCmd("stream")) {
-      if (allowStreams && (str = makeStream(obj, fileKey, encAlgorithm, keyLength,
+      if (allowStreams && (str = makeStream(std::move(obj), fileKey, encAlgorithm, keyLength,
                                             objNum, objGen, recursion + 1,
                                             strict))) {
-        obj->initStream(str);
+        return Object(str);
       } else {
-        obj->free();
-        obj->initError();
+        return Object(objError);
       }
     } else {
       shift();
@@ -142,23 +145,22 @@ Object *Parser::getObj(Object *obj, GBool simpleOnly,
 
   // indirect reference or integer
   } else if (buf1.isInt()) {
-    num = buf1.getInt();
+    const int num = buf1.getInt();
     shift();
     if (buf1.isInt() && buf2.isCmd("R")) {
-      obj->initRef(num, buf1.getInt());
+      const int gen = buf1.getInt();
       shift();
       shift();
+      return Object(num, gen);
     } else {
-      obj->initInt(num);
+      return Object(num);
     }
 
   // string
   } else if (buf1.isString() && fileKey) {
     s = buf1.getString();
     s2 = new GooString();
-    obj2.initNull();
-    decrypt = new DecryptStream(new MemStream(s->getCString(), 0,
-					      s->getLength(), &obj2),
+    decrypt = new DecryptStream(new MemStream(s->getCString(), 0, s->getLength(), Object(objNull)),
 				fileKey, encAlgorithm, keyLength,
 				objNum, objGen);
     decrypt->reset();
@@ -166,7 +168,7 @@ Object *Parser::getObj(Object *obj, GBool simpleOnly,
       s2->append((char)c);
     }
     delete decrypt;
-    obj->initString(s2);
+    obj = Object(s2);
     shift();
 
   // simple object
@@ -174,25 +176,20 @@ Object *Parser::getObj(Object *obj, GBool simpleOnly,
     // avoid re-allocating memory for complex objects like strings by
     // shallow copy of <buf1> to <obj> and nulling <buf1> so that
     // subsequent buf1.free() won't free this memory
-    buf1.shallowCopy(obj);
-    buf1.initNull();
+    obj = std::move(buf1);
     shift();
   }
 
   return obj;
 
 err:
-  obj->free();
-  obj->initError();
-  return obj;
-
+  return Object(objError);
 }
 
-Stream *Parser::makeStream(Object *dict, Guchar *fileKey,
+Stream *Parser::makeStream(Object &&dict, Guchar *fileKey,
 			   CryptAlgorithm encAlgorithm, int keyLength,
 			   int objNum, int objGen, int recursion,
                            GBool strict) {
-  Object obj;
   BaseStream *baseStr;
   Stream *str;
   Goffset length;
@@ -206,16 +203,13 @@ Stream *Parser::makeStream(Object *dict, Guchar *fileKey,
   pos = str->getPos();
 
   // get length
-  dict->dictLookup("Length", &obj, recursion);
+  Object obj = dict.dictLookup("Length", recursion);
   if (obj.isInt()) {
     length = obj.getInt();
-    obj.free();
   } else if (obj.isInt64()) {
     length = obj.getInt64();
-    obj.free();
   } else {
     error(errSyntaxError, getPos(), "Bad 'Length' attribute in stream");
-    obj.free();
     if (strict) return NULL;
     length = 0;
   }
@@ -252,9 +246,7 @@ Stream *Parser::makeStream(Object *dict, Guchar *fileKey,
       // shift until we find the proper endstream or we change to another object or reach eof
       length = lexer->getPos() - pos;
       if (buf1.isCmd("endstream")) {
-        obj.initInt64(length);
-        dict->dictSet("Length", &obj);
-        obj.free();
+        dict.dictSet("Length", Object(length));
       }
     } else {
       // When building the xref we can't use it so use this
@@ -265,7 +257,7 @@ Stream *Parser::makeStream(Object *dict, Guchar *fileKey,
   }
 
   // make base stream
-  str = baseStr->makeSubStream(pos, gTrue, length, dict);
+  str = baseStr->makeSubStream(pos, gTrue, length, std::move(dict));
 
   // handle decryption
   if (fileKey) {
@@ -274,7 +266,7 @@ Stream *Parser::makeStream(Object *dict, Guchar *fileKey,
   }
 
   // get filters
-  str = str->addFilters(dict, recursion);
+  str = str->addFilters(str->getDict(), recursion);
 
   return str;
 }
@@ -292,12 +284,12 @@ void Parser::shift(int objNum) {
     lexer->skipChar();		// skip char after 'ID' command
     inlineImg = 1;
   }
-  buf1.free();
-  buf2.shallowCopy(&buf1);
+  buf1 = std::move(buf2);
   if (inlineImg > 0)		// don't buffer inline image data
-    buf2.initNull();
-  else
-    lexer->getObj(&buf2, objNum);
+    buf2.setToNull();
+  else {
+    buf2 = lexer->getObj(objNum);
+  }
 }
 
 void Parser::shift(const char *cmdA, int objNum) {
@@ -313,13 +305,12 @@ void Parser::shift(const char *cmdA, int objNum) {
     lexer->skipChar();		// skip char after 'ID' command
     inlineImg = 1;
   }
-  buf1.free();
-  buf2.shallowCopy(&buf1);
+  buf1 = std::move(buf2);
   if (inlineImg > 0) {
-    buf2.initNull();
+    buf2.setToNull();
   } else if (buf1.isCmd(cmdA)) {
-    lexer->getObj(&buf2, objNum);
+    buf2 = lexer->getObj(objNum);
   } else {
-    lexer->getObj(&buf2, cmdA, objNum);
+    buf2 = lexer->getObj(cmdA, objNum);
   }
 }

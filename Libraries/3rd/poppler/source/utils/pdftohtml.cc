@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2007-2008, 2010, 2012, 2015, 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2008, 2010, 2012, 2015-2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2010 Mike Slegeir <tehpola@yahoo.com>
 // Copyright (C) 2010, 2013 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
@@ -337,7 +337,7 @@ int main(int argc, char *argv[]) {
     goto error;
   }
 
-  doc->getDocInfo(&info);
+  info = doc->getDocInfo();
   if (info.isDict()) {
     docTitle = getInfoString(info.getDict(), "Title");
     author = getInfoString(info.getDict(), "Author");
@@ -347,7 +347,6 @@ int main(int argc, char *argv[]) {
     if( !date )
 	date = getInfoDate(info.getDict(), "CreationDate");
   }
-  info.free();
   if( !docTitle ) docTitle = new GooString(htmlFileName);
 
   if (!singleHtml)
@@ -468,7 +467,8 @@ static GooString* getInfoString(Dict *infoDict, const char *key) {
   // Is rawString UCS2 (as opposed to pdfDocEncoding)
   GBool isUnicode;
 
-  if (infoDict->lookup(key, &obj)->isString()) {
+  obj = infoDict->lookup(key);
+  if (obj.isString()) {
     rawString = obj.getString();
 
     // Convert rawString to unicode
@@ -495,7 +495,6 @@ static GooString* getInfoString(Dict *infoDict, const char *key) {
     delete[] unicodeString;
   }
 
-  obj.free();
   return encodedString;
 }
 
@@ -508,7 +507,8 @@ static GooString* getInfoDate(Dict *infoDict, const char *key) {
   GooString *result = NULL;
   char buf[256];
 
-  if (infoDict->lookup(key, &obj)->isString()) {
+  obj = infoDict->lookup(key);
+  if (obj.isString()) {
     s = obj.getString()->getCString();
     // TODO do something with the timezone info
     if ( parseDateString( s, &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute ) ) {
@@ -531,7 +531,6 @@ static GooString* getInfoDate(Dict *infoDict, const char *key) {
       result = new GooString(s);
     }
   }
-  obj.free();
   return result;
 }
 

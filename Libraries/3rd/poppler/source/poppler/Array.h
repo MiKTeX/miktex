@@ -16,6 +16,7 @@
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2017 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -48,28 +49,30 @@ public:
   // Destructor.
   ~Array();
 
-  // Reference counting.
-  int incRef();
-  int decRef();
-
   // Get number of elements.
   int getLength() { return length; }
 
   // Copy array with new xref
-  Object *copy(XRef *xrefA, Object *obj);
+  Object copy(XRef *xrefA);
 
-  // Add an element.
-  void add(Object *elem);
+  // Add an element
+  // elem becomes a dead object after this call
+  void add(Object &&elem);
 
   // Remove an element by position
   void remove(int i);
 
   // Accessors.
-  Object *get(int i, Object *obj, int resursion = 0);
-  Object *getNF(int i, Object *obj);
+  Object get(int i, int resursion = 0);
+  Object getNF(int i);
   GBool getString(int i, GooString *string);
 
 private:
+  friend class Object; // for incRef/decRef
+
+  // Reference counting.
+  int incRef();
+  int decRef();
 
   XRef *xref;			// the xref table for this PDF file
   Object *elems;		// array of elements

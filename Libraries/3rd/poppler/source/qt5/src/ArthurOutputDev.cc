@@ -22,6 +22,7 @@
 // Copyright (C) 2011 Andreas Hartmetz <ahartmetz@gmail.com>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2013 Dominik Haumann <dhaumann@kde.org>
+// Copyright (C) 2017 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -157,7 +158,14 @@ void ArthurOutputDev::updateAll(GfxState *state)
   m_needFontUpdate = gTrue;
 }
 
-// This looks wrong - why aren't adjusting the matrix?
+// Set CTM (Current Transformation Matrix) to a fixed matrix
+void ArthurOutputDev::setDefaultCTM(double *ctm)
+{
+  m_painter->setTransform(QTransform(ctm[0], ctm[1], ctm[2], ctm[3], ctm[4], ctm[5]));
+}
+
+// Update the CTM (Current Transformation Matrix), i.e., compose the old
+// CTM with a new matrix.
 void ArthurOutputDev::updateCTM(GfxState *state, double m11, double m12,
 				double m21, double m22,
 				double m31, double m32)
@@ -166,6 +174,11 @@ void ArthurOutputDev::updateCTM(GfxState *state, double m11, double m12,
   updateLineJoin(state);
   updateLineCap(state);
   updateLineWidth(state);
+
+  QTransform update(m11, m12, m21, m22, m31, m32);
+
+  // We could also set (rather than update) the painter transformation to state->getCMT();
+  m_painter->setTransform(update, true);
 }
 
 void ArthurOutputDev::updateLineDash(GfxState *state)
@@ -192,7 +205,10 @@ void ArthurOutputDev::updateLineJoin(GfxState *state)
 {
   switch (state->getLineJoin()) {
   case 0:
-    m_currentPen.setJoinStyle(Qt::MiterJoin);
+    // The correct style here is Qt::SvgMiterJoin, *not* Qt::MiterJoin.
+    // The two differ in what to do if the miter limit is exceeded.
+    // See https://bugs.freedesktop.org/show_bug.cgi?id=102356
+    m_currentPen.setJoinStyle(Qt::SvgMiterJoin);
     break;
   case 1:
     m_currentPen.setJoinStyle(Qt::RoundJoin);
@@ -503,7 +519,6 @@ void ArthurOutputDev::updateFont(GfxState *state)
 static QPainterPath convertPath(GfxState *state, GfxPath *path, Qt::FillRule fillRule)
 {
   GfxSubpath *subpath;
-  double x1, y1, x2, y2, x3, y3;
   int i, j;
 
   QPainterPath qPath;
@@ -511,19 +526,16 @@ static QPainterPath convertPath(GfxState *state, GfxPath *path, Qt::FillRule fil
   for (i = 0; i < path->getNumSubpaths(); ++i) {
     subpath = path->getSubpath(i);
     if (subpath->getNumPoints() > 0) {
-      state->transform(subpath->getX(0), subpath->getY(0), &x1, &y1);
-      qPath.moveTo(x1, y1);
+      qPath.moveTo(subpath->getX(0), subpath->getY(0));
       j = 1;
       while (j < subpath->getNumPoints()) {
 	if (subpath->getCurve(j)) {
-	  state->transform(subpath->getX(j), subpath->getY(j), &x1, &y1);
-	  state->transform(subpath->getX(j+1), subpath->getY(j+1), &x2, &y2);
-	  state->transform(subpath->getX(j+2), subpath->getY(j+2), &x3, &y3);
-	  qPath.cubicTo( x1, y1, x2, y2, x3, y3);
+          qPath.cubicTo( subpath->getX(j),   subpath->getY(j),
+                         subpath->getX(j+1), subpath->getY(j+1),
+                         subpath->getX(j+2), subpath->getY(j+2));
 	  j += 3;
 	} else {
-	  state->transform(subpath->getX(j), subpath->getY(j), &x1, &y1);
-	  qPath.lineTo(x1, y1);
+	  qPath.lineTo(subpath->getX(j), subpath->getY(j));
 	  ++j;
 	}
       }
@@ -565,8 +577,6 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
 			       double originX, double originY,
 			       CharCode code, int nBytes, Unicode *u, int uLen) {
 #ifdef HAVE_SPLASH
-  double x1, y1;
-  double x2, y2;
 //   SplashPath *path;
   int render;
 
@@ -599,13 +609,11 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
             qPath.closeSubpath();
         }
         if (fontPath->flags[i] & splashPathFirst) {
-            state->transform(fontPath->pts[i].x+x, -fontPath->pts[i].y+y, &x1, &y1);
-            qPath.moveTo(x1,y1);
+            qPath.moveTo(fontPath->pts[i].x+x,-fontPath->pts[i].y+y);
         }
         if (fontPath->flags[i] & splashPathCurve) {
-            state->transform(fontPath->pts[i].x+x, -fontPath->pts[i].y+y, &x1, &y1);
-            state->transform(fontPath->pts[i+1].x+x, -fontPath->pts[i+1].y+y, &x2, &y2);
-            qPath.quadTo(x1,y1,x2,y2);
+            qPath.quadTo(fontPath->pts[i].x+x,-fontPath->pts[i].y+y,
+                         fontPath->pts[i+1].x+x,-fontPath->pts[i+1].y+y);
             ++i;
         }
         // FIXME fix this
@@ -613,8 +621,7 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
         // 	  qDebug() << "Need to implement arc";
         // 	}
         else {
-            state->transform(fontPath->pts[i].x+x, -fontPath->pts[i].y+y, &x1, &y1);
-            qPath.lineTo(x1,y1);
+            qPath.lineTo(fontPath->pts[i].x+x,-fontPath->pts[i].y+y);
         }
       }
       GfxRGB rgb;
@@ -770,8 +777,6 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   ImageStream *imgStr;
   Guchar *pix;
   int i;
-  double *ctm;
-  QMatrix matrix;
   QImage image;
   int stride;
   
@@ -786,7 +791,9 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   stride = image.bytesPerLine()/4;
   for (y = 0; y < height; y++) {
     pix = imgStr->getLine();
-    line = data+y*stride;
+    // Invert the vertical coordinate: y is increasing from top to bottom
+    // on the page, but y is increasing bottom to top in the picture.
+    line = data+(height-1-y)*stride;
     colorMap->getRGBLine(pix, line, width);
 
     if (maskColors) {
@@ -806,11 +813,9 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     }
   }
 
-  ctm = state->getCTM();
-  matrix.setMatrix(ctm[0] / width, ctm[1] / width, -ctm[2] / height, -ctm[3] / height, ctm[2] + ctm[4], ctm[3] + ctm[5]);
-
-  m_painter->setMatrix(matrix, true);
-  m_painter->drawImage( QPoint(0,0), image );
+  // At this point, the QPainter coordinate transformation (CTM) is such
+  // that QRect(0,0,1,1) is exactly the area of the image.
+  m_painter->drawImage( QRect(0,0,1,1), image );
   delete imgStr;
 
 }

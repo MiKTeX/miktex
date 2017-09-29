@@ -5,7 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright (C) 2009 Koji Otani <sho@bbr.jp>
-// Copyright (C) 2009, 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2010, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Carlos Garcia Campos <carlosgc@gnome.org>
 //
 //========================================================================
@@ -68,7 +68,7 @@ class PopplerObjectCache
     ~PopplerObjectCache();
 
     Object *put(const Ref &ref);
-    Object *lookup(const Ref &ref, Object *obj);
+    Object lookup(const Ref &ref);
 
   private:
     XRef *xref;

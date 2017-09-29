@@ -5,6 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2011 Pino Toscano <pino@kde.org>
+// Copyright 2017 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -19,39 +20,38 @@ ViewerPreferences::ViewerPreferences(Dict *prefDict)
 {
   init();
 
-  Object obj;
-
-  if (prefDict->lookup("HideToolbar", &obj)->isBool()) {
+  Object obj = prefDict->lookup("HideToolbar");
+  if (obj.isBool()) {
     hideToolbar = obj.getBool();
   }
-  obj.free();
 
-  if (prefDict->lookup("HideMenubar", &obj)->isBool()) {
+  obj = prefDict->lookup("HideMenubar");
+  if (obj.isBool()) {
     hideMenubar = obj.getBool();
   }
-  obj.free();
 
-  if (prefDict->lookup("HideWindowUI", &obj)->isBool()) {
+  obj = prefDict->lookup("HideWindowUI");
+  if (obj.isBool()) {
     hideWindowUI = obj.getBool();
   }
-  obj.free();
 
-  if (prefDict->lookup("FitWindow", &obj)->isBool()) {
+  obj = prefDict->lookup("FitWindow");
+  if (obj.isBool()) {
     fitWindow = obj.getBool();
   }
-  obj.free();
 
-  if (prefDict->lookup("CenterWindow", &obj)->isBool()) {
+  obj = prefDict->lookup("CenterWindow");
+  if (obj.isBool()) {
     centerWindow = obj.getBool();
   }
-  obj.free();
 
-  if (prefDict->lookup("DisplayDocTitle", &obj)->isBool()) {
+  obj = prefDict->lookup("DisplayDocTitle");
+  if (obj.isBool()) {
     displayDocTitle = obj.getBool();
   }
-  obj.free();
 
-  if (prefDict->lookup("NonFullScreenPageMode", &obj)->isName()) {
+  obj = prefDict->lookup("NonFullScreenPageMode");
+  if (obj.isName()) {
     const char *mode = obj.getName();
     if (!strcmp(mode, "UseNone")) {
       nonFullScreenPageMode = nfpmUseNone;
@@ -63,9 +63,9 @@ ViewerPreferences::ViewerPreferences(Dict *prefDict)
       nonFullScreenPageMode = nfpmUseOC;
     }
   }
-  obj.free();
 
-  if (prefDict->lookup("Direction", &obj)->isName()) {
+  obj = prefDict->lookup("Direction");
+  if (obj.isName()) {
     const char *dir = obj.getName();
     if (!strcmp(dir, "L2R")) {
       direction = directionL2R;
@@ -73,9 +73,9 @@ ViewerPreferences::ViewerPreferences(Dict *prefDict)
       direction = directionR2L;
     }
   }
-  obj.free();
 
-  if (prefDict->lookup("PrintScaling", &obj)->isName()) {
+  obj = prefDict->lookup("PrintScaling");
+  if (obj.isName()) {
     const char *ps = obj.getName();
     if (!strcmp(ps, "None")) {
       printScaling = printScalingNone;
@@ -83,9 +83,9 @@ ViewerPreferences::ViewerPreferences(Dict *prefDict)
       printScaling = printScalingAppDefault;
     }
   }
-  obj.free();
 
-  if (prefDict->lookup("Duplex", &obj)->isName()) {
+  obj = prefDict->lookup("Duplex");
+  if (obj.isName()) {
     const char *d = obj.getName();
     if (!strcmp(d, "Simplex")) {
       duplex = duplexSimplex;
@@ -95,7 +95,6 @@ ViewerPreferences::ViewerPreferences(Dict *prefDict)
       duplex = duplexDuplexFlipLongEdge;
     }
   }
-  obj.free();
 }
 
 ViewerPreferences::~ViewerPreferences()

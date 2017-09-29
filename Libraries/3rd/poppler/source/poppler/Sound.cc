@@ -1,6 +1,6 @@
 /* Sound.cc - an object that holds the sound structure
  * Copyright (C) 2006-2007, Pino Toscano <pino@kde.org>
- * Copyright (C) 2009, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2009, 2017, Albert Astals Cid <aacid@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,21 +38,18 @@ Sound *Sound::parseSound(Object *obj)
   Dict *dict = str->getDict();
   if (dict == NULL)
     return NULL;
-  Object tmp;
   // the Dict must have the 'R' key of type num
-  dict->lookup("R", &tmp);
+  Object tmp = dict->lookup("R");
   if (tmp.isNum()) {
     return new Sound(obj);
   } else {
-    return NULL;
+    return nullptr;
   }
 }
 
 Sound::Sound(Object *obj, bool readAttrs)
 {
-  streamObj = new Object();
-  streamObj->initNull();
-  obj->copy(streamObj);
+  streamObj = obj->copy();
 
   fileName = NULL;
   samplingRate = 0.0;
@@ -62,43 +59,37 @@ Sound::Sound(Object *obj, bool readAttrs)
 
   if (readAttrs)
   {
-    Object tmp;
-    Dict *dict = streamObj->getStream()->getDict();
-    dict->lookup("F", &tmp);
+    Dict *dict = streamObj.getStream()->getDict();
+    Object tmp = dict->lookup("F");
     if (!tmp.isNull()) {
-      Object obj1;
       // valid 'F' key -> external file
       kind = soundExternal;
-      if (getFileSpecNameForPlatform (&tmp, &obj1)) {
+      Object obj1 = getFileSpecNameForPlatform (&tmp);
+      if (obj1.isString()) {
         fileName = obj1.getString()->copy();
-        obj1.free();
       }
     } else {
       // no file specification, then the sound data have to be
       // extracted from the stream
       kind = soundEmbedded;
     }
-    tmp.free();
     // sampling rate
-    dict->lookup("R", &tmp);
+    tmp = dict->lookup("R");
     if (tmp.isNum()) {
       samplingRate = tmp.getNum();
     }
-    tmp.free();
     // sound channels
-    dict->lookup("C", &tmp);
+    tmp = dict->lookup("C");
     if (tmp.isInt()) {
       channels = tmp.getInt();
     }
-    tmp.free();
     // bits per sample
-    dict->lookup("B", &tmp);
+    tmp = dict->lookup("B");
     if (tmp.isInt()) {
       bitsPerSample = tmp.getInt();
     }
-    tmp.free();
     // encoding format
-    dict->lookup("E", &tmp);
+    tmp = dict->lookup("E");
     if (tmp.isName())
     {
       const char *enc = tmp.getName();
@@ -112,25 +103,22 @@ Sound::Sound(Object *obj, bool readAttrs)
         encoding = soundALaw;
       }
     }
-    tmp.free();
   }
 }
 
 Sound::~Sound()
 {
   delete fileName;
-  streamObj->free();
-  delete streamObj;
 }
 
 Stream *Sound::getStream()
 {
-  return streamObj->getStream();
+  return streamObj.getStream();
 }
 
 Sound *Sound::copy()
 {
-  Sound *newsound = new Sound(streamObj, false);
+  Sound *newsound = new Sound(&streamObj, false);
 
   newsound->kind = kind;
   if (fileName) {

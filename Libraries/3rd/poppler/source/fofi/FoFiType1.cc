@@ -17,6 +17,7 @@
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2010 Jakub Wilk <jwilk@jwilk.net>
 // Copyright (C) 2014 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -209,12 +210,12 @@ char *FoFiType1::getNextLine(char *line) {
 }
 
 void FoFiType1::parse() {
-  char *line, *line1, *p, *p2;
+  char *line, *line1, *firstLine, *p, *p2;
   char buf[256];
   char c;
   int n, code, base, i, j;
   char *tokptr;
-  GBool gotMatrix;
+  GBool gotMatrix, continueLine;
 
   gotMatrix = gFalse;
   for (i = 1, line = (char *)file;
@@ -241,6 +242,7 @@ void FoFiType1::parse() {
       for (j = 0; j < 256; ++j) {
 	encoding[j] = NULL;
       }
+      continueLine = gFalse;
       for (j = 0, line = getNextLine(line);
 	   j < 300 && line && (line1 = getNextLine(line));
 	   ++j, line = line1) {
@@ -248,8 +250,26 @@ void FoFiType1::parse() {
 	  error(errSyntaxWarning, -1, "FoFiType1::parse a line has more than 255 characters, we don't support this");
 	  n = 255;
 	}
-	strncpy(buf, line, n);
-	buf[n] = '\0';
+	if (continueLine) {
+	  continueLine = gFalse;
+	  if ((line1 - firstLine) + 1 > (int)sizeof(buf))
+	    break;
+	  p = firstLine;
+	  p2 = buf;
+	  while (p < line1) {
+	    if (*p == '\n' || *p == '\r') {
+	      *p2++ = ' ';
+	      p++;
+	    } else {
+	      *p2++ = *p++;
+	    }
+	  }
+	  *p2 = '\0';
+	} else {
+	  firstLine = line;
+	  strncpy(buf, line, n);
+	  buf[n] = '\0';
+	}
 	for (p = buf; *p == ' ' || *p == '\t'; ++p) ;
 	if (!strncmp(p, "dup", 3)) {
 	  while (1) {
@@ -261,6 +281,9 @@ void FoFiType1::parse() {
 	      p += 2;
 	    } else if (*p >= '0' && *p <= '9') {
 	      base = 10;
+	    } else if (*p == '\n' || *p == '\r') {
+	      continueLine = gTrue;
+	      break;
 	    } else {
 	      break;
 	    }
@@ -268,7 +291,10 @@ void FoFiType1::parse() {
 	      code = code * base + (*p - '0');
 	    }
 	    for (; *p == ' ' || *p == '\t'; ++p) ;
-	    if (*p != '/') {
+	    if (*p == '\n' || *p == '\r') {
+	      continueLine = gTrue;
+	      break;
+	    } else if (*p != '/') {
 	      break;
 	    }
 	    ++p;
@@ -276,10 +302,15 @@ void FoFiType1::parse() {
 	    if (code >= 0 && code < 256) {
 	      c = *p2;
 	      *p2 = '\0';
+	      gfree(encoding[code]);
 	      encoding[code] = copyString(p);
 	      *p2 = c;
 	    }
 	    for (p = p2; *p == ' ' || *p == '\t'; ++p) ;
+	    if (*p == '\n' || *p == '\r') {
+	      continueLine = gTrue;
+	      break;
+	    }
 	    if (strncmp(p, "put", 3)) {
 	      break;
 	    }

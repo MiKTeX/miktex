@@ -4,6 +4,7 @@
 //
 // Copyright (C) 2014 Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
 // Copyright (C) 2014 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2017 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -23,7 +24,9 @@
 
 #include <dlgs.h>
 #include <commctrl.h>
+#include <commdlg.h>
 #include <windowsx.h>
+#include <winspool.h>
 
 static HDC hdc;
 static HGLOBAL hDevmode = 0;

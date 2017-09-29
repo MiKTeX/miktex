@@ -7,7 +7,7 @@
 //
 // Copyright (C) 2008-2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
-// Copyright (C) 2012 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2012, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2012 Hib Eris <hib@hiberis.nl>
 //
 // To see a description of the changes please see the Changelog file that
@@ -35,40 +35,37 @@ EmbFile::EmbFile(Object *efStream)
   m_checksum = NULL;
   m_mimetype = NULL;
 
-  efStream->copy(&m_objStr);
+  m_objStr = efStream->copy();
 
   if (efStream->isStream()) {
     // dataDict corresponds to Table 3.41 in the PDF1.6 spec.
     Dict *dataDict = efStream->streamGetDict();
 
     // subtype is normally the mimetype
-    Object subtypeName;
-    if (dataDict->lookup("Subtype", &subtypeName)->isName()) {
+    Object subtypeName = dataDict->lookup("Subtype");
+    if (subtypeName.isName()) {
       m_mimetype = new GooString(subtypeName.getName());
     }
-    subtypeName.free();
 
     // paramDict corresponds to Table 3.42 in the PDF1.6 spec
-    Object paramDict;
-    if (dataDict->lookup("Params", &paramDict)->isDict()) {
-      Object paramObj;
-      if (paramDict.dictLookup("ModDate", &paramObj)->isString())
+    Object paramDict = dataDict->lookup("Params");
+    if (paramDict.isDict()) {
+      Object paramObj = paramDict.dictLookup("ModDate");
+      if (paramObj.isString())
         m_modDate = new GooString(paramObj.getString());
-      paramObj.free();
 
-      if (paramDict.dictLookup("CreationDate", &paramObj)->isString())
+      paramObj = paramDict.dictLookup("CreationDate");
+      if (paramObj.isString())
         m_createDate = new GooString(paramObj.getString());
-      paramObj.free();
 
-      if (paramDict.dictLookup("Size", &paramObj)->isInt())
+      paramObj = paramDict.dictLookup("Size");
+      if (paramObj.isInt())
         m_size = paramObj.getInt();
-      paramObj.free();
 
-      if (paramDict.dictLookup("CheckSum", &paramObj)->isString())
+      paramObj = paramDict.dictLookup("CheckSum");
+      if (paramObj.isString())
         m_checksum = new GooString(paramObj.getString());
-      paramObj.free();
     }
-    paramDict.free();
   }
 }
 
@@ -78,7 +75,6 @@ EmbFile::~EmbFile()
   delete m_modDate;
   delete m_checksum;
   delete m_mimetype;
-  m_objStr.free();
 }
 
 GBool EmbFile::save(const char *path) {
@@ -110,41 +106,37 @@ FileSpec::FileSpec(Object *fileSpecA)
   platformFileName = NULL;
   embFile = NULL;
   desc = NULL;
-  fileSpecA->copy(&fileSpec);
+  fileSpec = fileSpecA->copy();
 
-  Object obj1;
-  if (!getFileSpecName(fileSpecA, &obj1)) {
+  Object obj1 = getFileSpecName(fileSpecA);
+  if (!obj1.isString()) {
     ok = gFalse;
-    obj1.free();
     error(errSyntaxError, -1, "Invalid FileSpec");
     return;
   }
 
   fileName = obj1.getString()->copy();
-  obj1.free();
 
   if (fileSpec.isDict()) {
-    if (fileSpec.dictLookup("EF", &obj1)->isDict()) {
-      if (!obj1.dictLookupNF("F", &fileStream)->isRef()) {
+    obj1 = fileSpec.dictLookup("EF");
+    if (obj1.isDict()) {
+      fileStream = obj1.dictLookupNF("F");
+      if (!fileStream.isRef()) {
         ok = gFalse;
-        fileStream.free();
+        fileStream.setToNull();
         error(errSyntaxError, -1, "Invalid FileSpec: Embedded file stream is not an indirect reference");
-        obj1.free();
         return;
       }
     }
-    obj1.free();
   }
 
-  if (fileSpec.dictLookup("Desc", &obj1)->isString())
+  obj1 = fileSpec.dictLookup("Desc");
+  if (obj1.isString())
     desc = obj1.getString()->copy();
-  obj1.free();
 }
 
 FileSpec::~FileSpec()
 {
-  fileSpec.free();
-  fileStream.free();
   delete fileName;
   delete platformFileName;
   delete embFile;
@@ -161,8 +153,8 @@ EmbFile *FileSpec::getEmbeddedFile()
 
   Object obj1;
   XRef *xref = fileSpec.getDict()->getXRef();
-  embFile = new EmbFile(fileStream.fetch(xref, &obj1));
-  obj1.free();
+  obj1 = fileStream.fetch(xref);
+  embFile = new EmbFile(&obj1);
 
   return embFile;
 }
@@ -172,84 +164,77 @@ GooString *FileSpec::getFileNameForPlatform()
   if (platformFileName)
     return platformFileName;
 
-  Object obj1;
-  if (getFileSpecNameForPlatform(&fileSpec, &obj1))
+  Object obj1 = getFileSpecNameForPlatform(&fileSpec);
+  if (obj1.isString())
     platformFileName = obj1.getString()->copy();
-  obj1.free();
 
   return platformFileName;
 }
 
-GBool getFileSpecName (Object *fileSpec, Object *fileName)
+Object getFileSpecName (Object *fileSpec)
 {
   if (fileSpec->isString()) {
-    fileSpec->copy(fileName);
-    return gTrue;
+    return fileSpec->copy();
   }
   
   if (fileSpec->isDict()) {
-    fileSpec->dictLookup("UF", fileName);
-    if (fileName->isString()) {
-      return gTrue;
+    Object fileName = fileSpec->dictLookup("UF");
+    if (fileName.isString()) {
+      return fileName;
     }
-    fileName->free();
-    fileSpec->dictLookup("F", fileName);
-    if (fileName->isString()) {
-      return gTrue;
+    fileName = fileSpec->dictLookup("F");
+    if (fileName.isString()) {
+      return fileName;
     }
-    fileName->free();
-    fileSpec->dictLookup("DOS", fileName);
-    if (fileName->isString()) {
-      return gTrue;
+    fileName = fileSpec->dictLookup("DOS");
+    if (fileName.isString()) {
+      return fileName;
     }
-    fileName->free();
-    fileSpec->dictLookup("Mac", fileName);
-    if (fileName->isString()) {
-      return gTrue;
+    fileName = fileSpec->dictLookup("Mac");
+    if (fileName.isString()) {
+      return fileName;
     }
-    fileName->free();
-    fileSpec->dictLookup("Unix", fileName);
-    if (fileName->isString()) {
-      return gTrue;
+    fileName = fileSpec->dictLookup("Unix");
+    if (fileName.isString()) {
+      return fileName;
     }
-    fileName->free();
   }
-  return gFalse;
+  return Object();
 }
 
-GBool getFileSpecNameForPlatform (Object *fileSpec, Object *fileName)
+Object getFileSpecNameForPlatform (Object *fileSpec)
 {
   if (fileSpec->isString()) {
-    fileSpec->copy(fileName);
-    return gTrue;
+    return fileSpec->copy();
   }
 
+  Object fileName;
   if (fileSpec->isDict()) {
-    if (!fileSpec->dictLookup("UF", fileName)->isString ()) {
-      fileName->free();
-      if (!fileSpec->dictLookup("F", fileName)->isString ()) {
-        fileName->free();
+    fileName = fileSpec->dictLookup("UF");
+    if (!fileName.isString ()) {
+      fileName = fileSpec->dictLookup("F");
+      if (!fileName.isString ()) {
 #ifdef _WIN32
 	const char *platform = "DOS";
 #else
 	const char *platform = "Unix";
 #endif
-	if (!fileSpec->dictLookup(platform, fileName)->isString ()) {
-	  fileName->free();
+        fileName = fileSpec->dictLookup(platform);
+	if (!fileName.isString ()) {
 	  error(errSyntaxError, -1, "Illegal file spec");
-	  return gFalse;
+	  return Object();
 	}
       }
     }
   } else {
     error(errSyntaxError, -1, "Illegal file spec");
-    return gFalse;
+    return Object();
   }
 
   // system-dependent path manipulation
 #ifdef _WIN32
   int i, j;
-  GooString *name = fileName->getString();
+  GooString *name = fileName.getString();
   // "//...."             --> "\...."
   // "/x/...."            --> "x:\...."
   // "/server/share/...." --> "\\server\share\...."
@@ -291,5 +276,5 @@ GBool getFileSpecNameForPlatform (Object *fileSpec, Object *fileName)
   }
 #endif /* _WIN32 */
 
-  return gTrue;
+  return fileName;
 }

@@ -16,7 +16,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2006 Dominic Lachowicz <cinamod@hotmail.com>
-// Copyright (C) 2007-2008, 2010, 2011 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2008, 2010, 2011, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Jan Jockusch <jan@jockusch.de>
 // Copyright (C) 2010, 2013 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2010 Kenneth Berland <ken@hero.com>
@@ -327,15 +327,14 @@ int main(int argc, char *argv[]) {
     fputs("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">", f);
     fputs("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n", f);
     fputs("<head>\n", f);
-    doc->getDocInfo(&info);
+    info = doc->getDocInfo();
     if (info.isDict()) {
-      Object obj;
-      if (info.getDict()->lookup("Title", &obj)->isString()) {
+      Object obj = info.getDict()->lookup("Title");
+      if (obj.isString()) {
         printInfoString(f, info.getDict(), "Title", "<title>", "</title>\n", uMap);
       } else {
         fputs("<title></title>\n", f);
       }
-      obj.free();
       printInfoString(f, info.getDict(), "Subject",
 		      "<meta name=\"Subject\" content=\"", "\"/>\n", uMap);
       printInfoString(f, info.getDict(), "Keywords",
@@ -351,7 +350,6 @@ int main(int argc, char *argv[]) {
       printInfoDate(f, info.getDict(), "LastModifiedDate",
 		    "<meta name=\"ModDate\" content=\"\"/>\n");
     }
-    info.free();
     fputs("</head>\n", f);
     fputs("<body>\n", f);
     if (!bbox) {
@@ -442,14 +440,14 @@ int main(int argc, char *argv[]) {
 
 static void printInfoString(FILE *f, Dict *infoDict, const char *key,
 			    const char *text1, const char *text2, UnicodeMap *uMap) {
-  Object obj;
   GooString *s1;
   GBool isUnicode;
   Unicode u;
   char buf[9];
   int i, n;
 
-  if (infoDict->lookup(key, &obj)->isString()) {
+  Object obj = infoDict->lookup(key);
+  if (obj.isString()) {
     fputs(text1, f);
     s1 = obj.getString();
     if ((s1->getChar(0) & 0xff) == 0xfe &&
@@ -476,21 +474,17 @@ static void printInfoString(FILE *f, Dict *infoDict, const char *key,
     }
     fputs(text2, f);
   }
-  obj.free();
 }
 
 static void printInfoDate(FILE *f, Dict *infoDict, const char *key, const char *fmt) {
-  Object obj;
-  char *s;
-
-  if (infoDict->lookup(key, &obj)->isString()) {
-    s = obj.getString()->getCString();
+  Object obj = infoDict->lookup(key);
+  if (obj.isString()) {
+    char *s = obj.getString()->getCString();
     if (s[0] == 'D' && s[1] == ':') {
       s += 2;
     }
     fprintf(f, fmt, s);
   }
-  obj.free();
 }
 
 void printLine(FILE *f, TextLine *line) {

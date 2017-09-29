@@ -19,7 +19,7 @@
 // Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright (C) 2009, 2010 Albert Astals Cid <aacid@kde.org>
-// Copyright (C) 2010, 2011-2016 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2010, 2011-2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2010, 2014 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2010 Jonathan Liu <net147@gmail.com>
 // Copyright (C) 2010 William Bader <williambader@hotmail.com>
@@ -131,6 +131,10 @@ static GBool quiet = gFalse;
 static GBool printVersion = gFalse;
 static GBool printHelp = gFalse;
 
+static GooString jpegOpt;
+static int jpegQuality = -1;
+static bool jpegProgressive = false;
+
 static GooString printer;
 static GooString printOpt;
 #ifdef CAIRO_HAS_WIN32_SURFACE
@@ -145,6 +149,8 @@ static const ArgDesc argDesc[] = {
 #if ENABLE_LIBJPEG
   {"-jpeg",   argFlag,     &jpeg,           0,
    "generate a JPEG file"},
+  {"-jpegopt",  argGooString, &jpegOpt,    0,
+   "jpeg options, with format <opt1>=<val1>[,<optN>=<valN>]*"},
 #endif
 #if ENABLE_LIBTIFF
   {"-tiff",    argFlag,     &tiff,           0,
@@ -324,6 +330,58 @@ static GBool parseAntialiasOption(GooString *antialias, cairo_antialias_t *antia
   return gFalse;
 }
 
+static GBool parseJpegOptions()
+{
+  //jpegOpt format is: <opt1>=<val1>,<opt2>=<val2>,...
+  const char *nextOpt = jpegOpt.getCString();
+  while (nextOpt && *nextOpt)
+  {
+    const char *comma = strchr(nextOpt, ',');
+    GooString opt;
+    if (comma) {
+      opt.Set(nextOpt, comma - nextOpt);
+      nextOpt = comma + 1;
+    } else {
+      opt.Set(nextOpt);
+      nextOpt = NULL;
+    }
+    //here opt is "<optN>=<valN> "
+    const char *equal = strchr(opt.getCString(), '=');
+    if (!equal) {
+      fprintf(stderr, "Unknown jpeg option \"%s\"\n", opt.getCString());
+      return gFalse;
+    }
+    int iequal = equal - opt.getCString();
+    GooString value(&opt, iequal + 1, opt.getLength() - iequal - 1);
+    opt.del(iequal, opt.getLength() - iequal);
+    //here opt is "<optN>" and value is "<valN>"
+
+    if (opt.cmp("quality") == 0) {
+      if (!isInt(value.getCString())) {
+	fprintf(stderr, "Invalid jpeg quality\n");
+	return gFalse;
+      }
+      jpegQuality = atoi(value.getCString());
+      if (jpegQuality < 0 || jpegQuality > 100) {
+	fprintf(stderr, "jpeg quality must be between 0 and 100\n");
+	return gFalse;
+      }
+    } else if (opt.cmp("progressive") == 0) {
+      jpegProgressive = gFalse;
+      if (value.cmp("y") == 0) {
+	jpegProgressive = gTrue;
+      } else if (value.cmp("n") != 0) {
+	fprintf(stderr, "jpeg progressive option must be \"y\" or \"n\"\n");
+	return gFalse;
+      }
+    } else {
+      fprintf(stderr, "Unknown jpeg option \"%s\"\n", opt.getCString());
+      return gFalse;
+    }
+  }
+  return gTrue;
+}
+
 static void writePageImage(GooString *filename)
 {
   ImgWriter *writer = 0;
@@ -368,6 +426,10 @@ static void writePageImage(GooString *filename)
       writer = new JpegWriter(JpegWriter::GRAY);
     else
       writer = new JpegWriter(JpegWriter::RGB);
+
+    static_cast<JpegWriter*>(writer)->setProgressive(jpegProgressive);
+    if (jpegQuality >= 0)
+      static_cast<JpegWriter*>(writer)->setQuality(jpegQuality);
 #endif
   } else if (tiff) {
 #if ENABLE_LIBTIFF
@@ -984,6 +1046,15 @@ int main(int argc, char *argv[]) {
   if (mono && !(png || tiff)) {
     fprintf(stderr, "Error: -mono may only be used with png or tiff output.\n");
     exit(99);
+  }
+
+  if (jpegOpt.getLength() > 0) {
+    if (!jpeg) {
+      fprintf(stderr, "Error: -jpegopt may only be used with jpeg output.\n");
+      exit(99);
+    }
+    if (!parseJpegOptions())
+      exit(99);
   }
 
   if (strlen(tiffCompressionStr) > 0 && !tiff) {

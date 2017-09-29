@@ -39,6 +39,7 @@
 // Copyright (C) 2013 Johannes Brandstätter <jbrandstaetter@gmail.com>
 // Copyright (C) 2014 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2016 Vincent Le Garrec <legarrec.vincent@gmail.com>
+// Copyright (C) 2017 Caolán McNamara <caolanm@redhat.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1433,8 +1434,9 @@ void HtmlOutputDev::drawPngImage(GfxState *state, Stream *str, int width, int he
     int invert_bits = 0xff;
     if (colorMap) {
       GfxGray gray;
-      Guchar zero = 0;
-      colorMap->getGray(&zero, &gray);
+      Guchar zero[gfxColorMaxComps];
+      memset(zero, 0, sizeof(zero));
+      colorMap->getGray(zero, &gray);
       if (colToByte(gray) == 0)
         invert_bits = 0x00;
     }

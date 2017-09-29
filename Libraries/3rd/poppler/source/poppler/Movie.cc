@@ -6,7 +6,7 @@
 // Hugo Mercier <hmercier31[at]gmail.com> (c) 2008
 // Pino Toscano <pino@kde.org> (c) 2008
 // Carlos Garcia Campos <carlosgc@gnome.org> (c) 2010
-// Albert Astals Cid <aacid@kde.org> (c) 2010
+// Albert Astals Cid <aacid@kde.org> (c) 2010, 2017
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -47,9 +47,8 @@ MovieActivationParameters::~MovieActivationParameters() {
 }
 
 void MovieActivationParameters::parseMovieActivation(Object* aDict) {
-  Object obj1;
-
-  if (!aDict->dictLookup("Start", &obj1)->isNull()) {
+  Object obj1 = aDict->dictLookup("Start");
+  if (obj1.isNull()) {
     if (obj1.isInt()) {
       // If it is representable as an integer (subject to the implementation limit for
       // integers, as described in Appendix C), it should be specified as such.
@@ -64,26 +63,23 @@ void MovieActivationParameters::parseMovieActivation(Object* aDict) {
     } else if (obj1.isArray()) {
       Array* a = obj1.getArray();
 
-      Object tmp;
-      a->get(0, &tmp);
+      Object tmp = a->get(0);
       if (tmp.isInt()) {
         start.units = tmp.getInt();
       }
       if (tmp.isString()) {
         // UNSUPPORTED
       }
-      tmp.free();
 
-      a->get(1, &tmp);
+      tmp = a->get(1);
       if (tmp.isInt()) {
         start.units_per_second = tmp.getInt();
       }
-      tmp.free();
     }
   }
-  obj1.free();
 
-  if (!aDict->dictLookup("Duration", &obj1)->isNull()) {
+  obj1 = aDict->dictLookup("Duration");
+  if (obj1.isNull()) {
     if (obj1.isInt()) {
       duration.units = obj1.getInt();
     } else if (obj1.isString()) {
@@ -91,47 +87,44 @@ void MovieActivationParameters::parseMovieActivation(Object* aDict) {
     } else if (obj1.isArray()) {
       Array* a = obj1.getArray();
 
-      Object tmp;
-      a->get(0, &tmp);
+      Object tmp = a->get(0);
       if (tmp.isInt()) {
         duration.units = tmp.getInt();
       }
       if (tmp.isString()) {
         // UNSUPPORTED
       }
-      tmp.free();
 
-      a->get(1, &tmp);
+      tmp = a->get(1);
       if (tmp.isInt()) {
         duration.units_per_second = tmp.getInt();
       }
-      tmp.free();
     }
   }
-  obj1.free();
 
-  if (aDict->dictLookup("Rate", &obj1)->isNum()) {
+  obj1 = aDict->dictLookup("Rate");
+  if (obj1.isNum()) {
     rate = obj1.getNum();
   }
-  obj1.free();
 
-  if (aDict->dictLookup("Volume", &obj1)->isNum()) {
+  obj1 = aDict->dictLookup("Volume");
+  if (obj1.isNum()) {
     // convert volume to [0 100]
     volume = int((obj1.getNum() + 1.0) * 50);
   }
-  obj1.free();
 
-  if (aDict->dictLookup("ShowControls", &obj1)->isBool()) {
+  obj1 = aDict->dictLookup("ShowControls");
+  if (obj1.isBool()) {
     showControls = obj1.getBool();
   }
-  obj1.free();
 
-  if (aDict->dictLookup("Synchronous", &obj1)->isBool()) {
+  obj1 = aDict->dictLookup("Synchronous");
+  if (obj1.isBool()) {
     synchronousPlay = obj1.getBool();
   }
-  obj1.free();
 
-  if (aDict->dictLookup("Mode", &obj1)->isName()) {
+  obj1 = aDict->dictLookup("Mode");
+  if (obj1.isName()) {
     char* name = obj1.getName();
     if (!strcmp(name, "Once")) {
       repeatMode = repeatModeOnce;
@@ -143,43 +136,40 @@ void MovieActivationParameters::parseMovieActivation(Object* aDict) {
       repeatMode = repeatModePalindrome;
     }
   }
-  obj1.free();
 
-  if (aDict->dictLookup("FWScale", &obj1)->isArray()) {
+  obj1 = aDict->dictLookup("FWScale");
+  if (obj1.isArray()) {
     // the presence of that entry implies that the movie is to be played
     // in a floating window
     floatingWindow = gTrue;
 
     Array* scale = obj1.getArray();
     if (scale->getLength() >= 2) {
-      Object tmp;
-      if (scale->get(0, &tmp)->isInt()) {
+      Object tmp = scale->get(1);
+      if (tmp.isInt()) {
         znum = tmp.getInt();
       }
-      tmp.free();
-      if (scale->get(1, &tmp)->isInt()) {
+      tmp = scale->get(1);
+      if (tmp.isInt()) {
         zdenum = tmp.getInt();
       }
-      tmp.free();
     }
   }
-  obj1.free();
 
-  if (aDict->dictLookup("FWPosition", &obj1)->isArray()) {
+  obj1 = aDict->dictLookup("FWPosition");
+  if (obj1.isArray()) {
     Array* pos = obj1.getArray();
     if (pos->getLength() >= 2) {
-      Object tmp;
-      if (pos->get(0, &tmp)->isNum()) {
+      Object tmp = pos->get(0);
+      if (tmp.isNum()) {
         xPosition = tmp.getNum();
       }
-      tmp.free();
-      if (pos->get(1, &tmp)->isNum()) {
+      tmp = pos->get(1);
+      if (tmp.isNum()) {
         yPosition = tmp.getNum();
       }
-      tmp.free();
     }
   }
-  obj1.free();
 }
 
 void Movie::parseMovie (Object *movieDict) {
@@ -189,59 +179,55 @@ void Movie::parseMovie (Object *movieDict) {
   height = -1;
   showPoster = gFalse;
 
-  Object obj1, obj2;
-  if (getFileSpecNameForPlatform(movieDict->dictLookup("F", &obj1), &obj2)) {
+  Object obj1 = movieDict->dictLookup("F");
+  Object obj2 = getFileSpecNameForPlatform(&obj1);
+  if (obj2.isString()) {
     fileName = obj2.getString()->copy();
-    obj2.free();
   } else {
     error (errSyntaxError, -1, "Invalid Movie");
     ok = gFalse;
-    obj1.free();
     return;
   }
-  obj1.free();
 
-  if (movieDict->dictLookup("Aspect", &obj1)->isArray()) {
+  obj1 = movieDict->dictLookup("Aspect");
+  if (obj1.isArray()) {
     Array* aspect = obj1.getArray();
     if (aspect->getLength() >= 2) {
-      Object tmp;
-      if( aspect->get(0, &tmp)->isNum() ) {
-        width = (int)floor( aspect->get(0, &tmp)->getNum() + 0.5 );
+      Object tmp = aspect->get(0);
+      if( tmp.isNum() ) {
+        width = (int)floor( tmp.getNum() + 0.5 );
       }
-      tmp.free();
-      if( aspect->get(1, &tmp)->isNum() ) {
-        height = (int)floor( aspect->get(1, &tmp)->getNum() + 0.5 );
+      tmp = aspect->get(1);
+      if( tmp.isNum() ) {
+        height = (int)floor( tmp.getNum() + 0.5 );
       }
-      tmp.free();
     }
   }
-  obj1.free();
 
-  if (movieDict->dictLookup("Rotate", &obj1)->isInt()) {
+  obj1 = movieDict->dictLookup("Rotate");
+  if (obj1.isInt()) {
     // round up to 90°
     rotationAngle = (((obj1.getInt() + 360) % 360) % 90) * 90;
   }
-  obj1.free();
 
   //
   // movie poster
   //
-  if (!movieDict->dictLookupNF("Poster", &poster)->isNull()) {
+  poster = movieDict->dictLookupNF("Poster");
+  if (!poster.isNull()) {
     if (poster.isRef() || poster.isStream()) {
       showPoster = gTrue;
     } else if (poster.isBool()) {
       showPoster = poster.getBool();
-      poster.free();
+      poster.setToNull();
     } else {
-      poster.free();
+      poster.setToNull();
     }
   }
 }
 
 Movie::~Movie() {
-  if (fileName)
-    delete fileName;
-  poster.free();
+  delete fileName;
 }
 
 Movie::Movie(Object *movieDict) {
@@ -265,6 +251,23 @@ Movie::Movie(Object *movieDict, Object *aDict) {
   }
 }
 
+Movie::Movie(const Movie &other)
+{
+  ok = other.ok;
+  rotationAngle = other.rotationAngle;
+  width = other.width;
+  height = other.height;
+  showPoster = other.showPoster;
+  MA = other.MA;
+
+  poster = other.poster.copy();
+
+  if (other.fileName)
+    fileName = other.fileName->copy();
+  else
+    fileName = nullptr;
+}
+
 void Movie::getFloatingWindowSize(int *widthA, int *heightA)
 {
   *widthA = int(width * double(MA.znum) / MA.zdenum);
@@ -272,14 +275,5 @@ void Movie::getFloatingWindowSize(int *widthA, int *heightA)
 }
 
 Movie* Movie::copy() {
-
-  // call default copy constructor
-  Movie* new_movie = new Movie(*this);
-
-  if (fileName)
-    new_movie->fileName = fileName->copy();
-
-  poster.copy(&new_movie->poster);
-
-  return new_movie;
+  return new Movie(*this);
 }

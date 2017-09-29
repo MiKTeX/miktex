@@ -87,6 +87,9 @@ static GBool png = gFalse;
 static GBool jpeg = gFalse;
 static GBool jpegcmyk = gFalse;
 static GBool tiff = gFalse;
+static GooString jpegOpt;
+static int jpegQuality = -1;
+static bool jpegProgressive = false;
 #if SPLASH_CMYK
 static GBool overprint = gFalse;
 #endif
@@ -160,6 +163,8 @@ static const ArgDesc argDesc[] = {
   {"-jpegcmyk",argFlag,    &jpegcmyk,       0,
    "generate a CMYK JPEG file"},
 #endif
+  {"-jpegopt",  argGooString, &jpegOpt,    0,
+   "jpeg options, with format <opt1>=<val1>[,<optN>=<valN>]*"},
 #endif
 #if SPLASH_CMYK
   {"-overprint",argFlag,   &overprint,      0,
@@ -208,6 +213,58 @@ static const ArgDesc argDesc[] = {
   {NULL}
 };
 
+static GBool parseJpegOptions()
+{
+  //jpegOpt format is: <opt1>=<val1>,<opt2>=<val2>,...
+  const char *nextOpt = jpegOpt.getCString();
+  while (nextOpt && *nextOpt)
+  {
+    const char *comma = strchr(nextOpt, ',');
+    GooString opt;
+    if (comma) {
+      opt.Set(nextOpt, comma - nextOpt);
+      nextOpt = comma + 1;
+    } else {
+      opt.Set(nextOpt);
+      nextOpt = NULL;
+    }
+    //here opt is "<optN>=<valN> "
+    const char *equal = strchr(opt.getCString(), '=');
+    if (!equal) {
+      fprintf(stderr, "Unknown jpeg option \"%s\"\n", opt.getCString());
+      return gFalse;
+    }
+    int iequal = equal - opt.getCString();
+    GooString value(&opt, iequal + 1, opt.getLength() - iequal - 1);
+    opt.del(iequal, opt.getLength() - iequal);
+    //here opt is "<optN>" and value is "<valN>"
+
+    if (opt.cmp("quality") == 0) {
+      if (!isInt(value.getCString())) {
+	fprintf(stderr, "Invalid jpeg quality\n");
+	return gFalse;
+      }
+      jpegQuality = atoi(value.getCString());
+      if (jpegQuality < 0 || jpegQuality > 100) {
+	fprintf(stderr, "jpeg quality must be between 0 and 100\n");
+	return gFalse;
+      }
+    } else if (opt.cmp("progressive") == 0) {
+      jpegProgressive = gFalse;
+      if (value.cmp("y") == 0) {
+	jpegProgressive = gTrue;
+      } else if (value.cmp("n") != 0) {
+	fprintf(stderr, "jpeg progressive option must be \"y\" or \"n\"\n");
+	return gFalse;
+      }
+    } else {
+      fprintf(stderr, "Unknown jpeg option \"%s\"\n", opt.getCString());
+      return gFalse;
+    }
+  }
+  return gTrue;
+}
+
 static void savePageSlice(PDFDoc *doc,
                    SplashOutputDev *splashOut, 
                    int pg, int x, int y, int w, int h, 
@@ -225,16 +282,21 @@ static void savePageSlice(PDFDoc *doc,
   );
 
   SplashBitmap *bitmap = splashOut->getBitmap();
-  
+
+  SplashBitmap::WriteImgParams params;
+  params.jpegQuality = jpegQuality;
+  params.jpegProgressive = jpegProgressive;
+  params.tiffCompression.Set(TiffCompressionStr);
+
   if (ppmFile != NULL) {
     if (png) {
       bitmap->writeImgFile(splashFormatPng, ppmFile, x_resolution, y_resolution);
     } else if (jpeg) {
-      bitmap->writeImgFile(splashFormatJpeg, ppmFile, x_resolution, y_resolution);
+      bitmap->writeImgFile(splashFormatJpeg, ppmFile, x_resolution, y_resolution, &params);
     } else if (jpegcmyk) {
-      bitmap->writeImgFile(splashFormatJpegCMYK, ppmFile, x_resolution, y_resolution);
+      bitmap->writeImgFile(splashFormatJpegCMYK, ppmFile, x_resolution, y_resolution, &params);
     } else if (tiff) {
-      bitmap->writeImgFile(splashFormatTiff, ppmFile, x_resolution, y_resolution, TiffCompressionStr);
+      bitmap->writeImgFile(splashFormatTiff, ppmFile, x_resolution, y_resolution, &params);
     } else {
       bitmap->writePNMFile(ppmFile);
     }
@@ -246,9 +308,9 @@ static void savePageSlice(PDFDoc *doc,
     if (png) {
       bitmap->writeImgFile(splashFormatPng, stdout, x_resolution, y_resolution);
     } else if (jpeg) {
-      bitmap->writeImgFile(splashFormatJpeg, stdout, x_resolution, y_resolution);
+      bitmap->writeImgFile(splashFormatJpeg, stdout, x_resolution, y_resolution, &params);
     } else if (tiff) {
-      bitmap->writeImgFile(splashFormatTiff, stdout, x_resolution, y_resolution, TiffCompressionStr);
+      bitmap->writeImgFile(splashFormatTiff, stdout, x_resolution, y_resolution, &params);
     } else {
       bitmap->writePNMFile(stdout);
     }
@@ -374,6 +436,12 @@ int main(int argc, char *argv[]) {
     if (!GlobalParams::parseYesNo2(vectorAntialiasStr, &vectorAntialias)) {
       fprintf(stderr, "Bad '-aaVector' value on command line\n");
     }
+  }
+
+  if (jpegOpt.getLength() > 0) {
+    if (!jpeg)
+      fprintf(stderr, "Warning: -jpegopt only valid with jpeg output.\n");
+    parseJpegOptions();
   }
 
   // read config file

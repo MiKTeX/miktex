@@ -13,6 +13,8 @@
 // Copyright 2013 Adrian Johnson <ajohnson@redneon.com>
 // Copyright 2015 André Guerreiro <aguerreiro1985@gmail.com>
 // Copyright 2015 André Esser <bepandre@hotmail.com>
+// Copyright 2017 Roland Hieber <r.hieber@pengutronix.de>
+// Copyright 2017 Hans-Ulrich Jüttner <huj@froreich-bioscientia.de>
 //
 //========================================================================
 
@@ -27,6 +29,7 @@
 #include "Annot.h"
 
 #include <set>
+#include <vector>
 
 class GooString;
 class Array;
@@ -58,6 +61,12 @@ enum VariableTextQuadding {
   quaddingLeftJustified,
   quaddingCentered,
   quaddingRightJustified
+};
+
+enum FormSignatureType {
+  adbe_pkcs7_sha1,
+  adbe_pkcs7_detached,
+  ETSI_CAdES_detached
 };
 
 class Form;
@@ -251,7 +260,18 @@ public:
   FormWidgetSignature(PDFDoc *docA, Object *dict, unsigned num, Ref ref, FormField *p);
   void updateWidgetAppearance() override;
 
-  SignatureInfo *validateSignature(bool doVerifyCert, bool forceRevalidation);
+  FormSignatureType signatureType();
+  // Use -1 for now as validationTime
+  SignatureInfo *validateSignature(bool doVerifyCert, bool forceRevalidation, time_t validationTime);
+
+  // returns a list with the boundaries of the signed ranges
+  // the elements of the list are of type Goffset
+  std::vector<Goffset> getSignedRangeBounds();
+
+  // checks the length encoding of the signature and returns the hex encoded signature
+  // if the check passed (and the checked file size as output parameter in checkedFileSize)
+  // otherwise a nullptr is returned
+  GooString* getCheckedSignature(Goffset *checkedFileSize);
 };
 
 //------------------------------------------------------------------------
@@ -490,16 +510,22 @@ protected:
 //------------------------------------------------------------------------
 
 class FormFieldSignature: public FormField {
+  friend class FormWidgetSignature;
 public:
   FormFieldSignature(PDFDoc *docA, Object *dict, const Ref& ref, FormField *parent, std::set<int> *usedParents);
 
-  SignatureInfo *validateSignature(bool doVerifyCert, bool forceRevalidation);
+  // Use -1 for now as validationTime
+  SignatureInfo *validateSignature(bool doVerifyCert, bool forceRevalidation, time_t validationTime);
 
   ~FormFieldSignature();
+  Object* getByteRange() { return &byte_range; }
+  GooString* getSignature() { return signature; }
 
 private:
   void parseInfo();
   void hashSignedDataBlock(SignatureHandler *handler, Goffset block_len);
+
+  FormSignatureType signature_type;
   Object byte_range;
   GooString *signature;
   SignatureInfo *signature_info;
@@ -522,7 +548,7 @@ public:
   ~Form();
 
   // Look up an inheritable field dictionary entry.
-  static Object *fieldLookup(Dict *field, const char *key, Object *obj);
+  static Object fieldLookup(Dict *field, const char *key);
   
   /* Creates a new Field of the type specified in obj's dict.
      used in Form::Form and FormField::FormField */

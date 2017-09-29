@@ -15,14 +15,14 @@
 //
 // Copyright (C) 2005 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2008 Julien Rebetez <julien@fhtagn.net>
-// Copyright (C) 2008, 2010, 2011, 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010, 2011, 2016, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2011, 2012, 2016 William Bader <williambader@hotmail.com>
 // Copyright (C) 2012, 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2012, 2013 Fabio D'Urso <fabiodurso@hotmail.it>
-// Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2013 Peter Breitenlohner <peb@mppmu.mpg.de>
 // Copyright (C) 2013 Adam Reichold <adamreichold@myopera.com>
 // Copyright (C) 2013 Pino Toscano <pino@kde.org>
@@ -104,10 +104,6 @@ public:
 
   // Destructor.
   virtual ~Stream();
-
-  // Reference counting.
-  int incRef();
-  int decRef();
 
   // Get kind of stream.
   virtual StreamKind getKind() = 0;
@@ -213,6 +209,7 @@ public:
 
   // Get the dictionary associated with this stream.
   virtual Dict *getDict() = 0;
+  virtual Object *getDictObject() = 0;
 
   // Is this an encoding filter?
   virtual GBool isEncoder() { return gFalse; }
@@ -226,13 +223,19 @@ public:
 
   // Add filters to this stream according to the parameters in <dict>.
   // Returns the new stream.
-  Stream *addFilters(Object *dict, int recursion = 0);
+  Stream *addFilters(Dict *dict, int recursion = 0);
 
 private:
+  friend class Object; // for incRef/decRef
+
+  // Reference counting.
+  int incRef();
+  int decRef();
+
   virtual GBool hasGetChars() { return false; }
   virtual int getChars(int nChars, Guchar *buffer);
 
-  Stream *makeFilter(char *name, Stream *str, Object *params, int recursion = 0, Object *dict = NULL);
+  Stream *makeFilter(char *name, Stream *str, Object *params, int recursion = 0, Dict *dict = nullptr);
 
   int ref;			// reference count
 #if MULTITHREADED
@@ -254,10 +257,6 @@ public:
   // Desctructor.
   virtual ~OutStream ();
 
-  // Reference counting.
-  int incRef() { return ++ref; }
-  int decRef() { return --ref; }
-
   // Close the stream
   virtual void close() = 0;
 
@@ -268,10 +267,6 @@ public:
   virtual void put (char c) = 0;
 
   virtual void printf (const char *format, ...) GCC_PRINTF_FORMAT(2,3) = 0;
-
-private:
-  int ref; // reference count
-    
 };
 
 //------------------------------------------------------------------------
@@ -306,16 +301,18 @@ private:
 class BaseStream: public Stream {
 public:
 
-  BaseStream(Object *dictA, Goffset lengthA);
+    // TODO Mirar si puedo hacer que dictA sea un puntero
+  BaseStream(Object &&dictA, Goffset lengthA);
   ~BaseStream();
   virtual BaseStream *copy() = 0;
   virtual Stream *makeSubStream(Goffset start, GBool limited,
-				Goffset length, Object *dict) = 0;
+				Goffset length, Object &&dict) = 0;
   void setPos(Goffset pos, int dir = 0) override = 0;
   GBool isBinary(GBool last = gTrue) override { return last; }
   BaseStream *getBaseStream() override { return this; }
   Stream *getUndecodedStream() override { return this; }
   Dict *getDict() override { return dict.getDict(); }
+  Object *getDictObject() override { return &dict; }
   virtual GooString *getFileName() { return NULL; }
   virtual Goffset getLength() { return length; }
 
@@ -346,6 +343,7 @@ public:
   BaseStream *getBaseStream() override { return str->getBaseStream(); }
   Stream *getUndecodedStream() override { return str->getUndecodedStream(); }
   Dict *getDict() override { return str->getDict(); }
+  Object *getDictObject() override { return str->getDictObject(); }
   Stream *getNextStream() override { return str; }
 
   int getUnfilteredChar () override { return str->getUnfilteredChar(); }
@@ -447,11 +445,11 @@ class FileStream: public BaseStream {
 public:
 
   FileStream(GooFile* fileA, Goffset startA, GBool limitedA,
-	     Goffset lengthA, Object *dictA);
+	     Goffset lengthA, Object &&dictA);
   ~FileStream();
   BaseStream *copy() override;
   Stream *makeSubStream(Goffset startA, GBool limitedA,
-				Goffset lengthA, Object *dictA) override;
+				Goffset lengthA, Object &&dictA) override;
   StreamKind getKind() override { return strFile; }
   void reset() override;
   void close() override;
@@ -517,11 +515,11 @@ class CachedFileStream: public BaseStream {
 public:
 
   CachedFileStream(CachedFile *ccA, Goffset startA, GBool limitedA,
-	     Goffset lengthA, Object *dictA);
+	     Goffset lengthA, Object &&dictA);
   ~CachedFileStream();
   BaseStream *copy() override;
   Stream *makeSubStream(Goffset startA, GBool limitedA,
-				Goffset lengthA, Object *dictA) override;
+				Goffset lengthA, Object &&dictA) override;
   StreamKind getKind() override { return strCachedFile; }
   void reset() override;
   void close() override;
@@ -560,11 +558,11 @@ private:
 class MemStream: public BaseStream {
 public:
 
-  MemStream(char *bufA, Goffset startA, Goffset lengthA, Object *dictA);
+  MemStream(char *bufA, Goffset startA, Goffset lengthA, Object &&dictA);
   ~MemStream();
   BaseStream *copy() override;
   Stream *makeSubStream(Goffset start, GBool limited,
-				Goffset lengthA, Object *dictA) override;
+				Goffset lengthA, Object &&dictA) override;
   StreamKind getKind() override { return strWeird; }
   void reset() override;
   void close() override;
@@ -609,16 +607,16 @@ private:
 class EmbedStream: public BaseStream {
 public:
 
-  EmbedStream(Stream *strA, Object *dictA, GBool limitedA, Goffset lengthA);
+  EmbedStream(Stream *strA, Object &&dictA, GBool limitedA, Goffset lengthA, GBool reusableA = gFalse);
   ~EmbedStream();
   BaseStream *copy() override;
   Stream *makeSubStream(Goffset start, GBool limitedA,
-				Goffset lengthA, Object *dictA) override;
+				Goffset lengthA, Object &&dictA) override;
   StreamKind getKind() override { return str->getKind(); }
   void reset() override {}
   int getChar() override;
   int lookChar() override;
-  Goffset getPos() override { return str->getPos(); }
+  Goffset getPos() override;
   void setPos(Goffset pos, int dir = 0) override;
   Goffset getStart() override;
   void moveStart(Goffset delta) override;
@@ -626,6 +624,8 @@ public:
   int getUnfilteredChar () override { return str->getUnfilteredChar(); }
   void unfilteredReset () override { str->unfilteredReset(); }
 
+  void rewind();
+  void restore();
 
 private:
 
@@ -634,6 +634,14 @@ private:
 
   Stream *str;
   GBool limited;
+  GBool reusable;
+  GBool record;
+  GBool replay;
+  unsigned char *bufData;
+  long bufMax;
+  long bufLen;
+  long bufPos;
+
 };
 
 //------------------------------------------------------------------------
@@ -868,17 +876,17 @@ struct DCTHuffTable {
 class DCTStream: public FilterStream {
 public:
 
-  DCTStream(Stream *strA, int colorXformA, Object *dict, int recursion);
+  DCTStream(Stream *strA, int colorXformA, Dict *dict, int recursion);
   virtual ~DCTStream();
-  virtual StreamKind getKind() { return strDCT; }
-  virtual void reset();
-  virtual void close();
-  virtual int getChar();
-  virtual int lookChar();
-  virtual GooString *getPSFilter(int psLevel, const char *indent);
-  virtual GBool isBinary(GBool last = gTrue);
+  StreamKind getKind() override { return strDCT; }
+  void reset() override;
+  void close() override;
+  int getChar() override;
+  int lookChar() override;
+  GooString *getPSFilter(int psLevel, const char *indent) override;
+  GBool isBinary(GBool last = gTrue) override;
 
-  virtual void unfilteredReset();
+  void unfilteredReset() override;
 
 private:
 

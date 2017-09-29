@@ -249,12 +249,10 @@ namespace Poppler {
 	QByteArray result;
 	if (fi.isEmbedded())
 	{
-		Object refObj, strObj;
 		XRef *xref = m_doc->doc->getXRef()->copy();
 
-		refObj.initRef(fi.m_data->embRef.num, fi.m_data->embRef.gen);
-		refObj.fetch(xref, &strObj);
-		refObj.free();
+		Object refObj(fi.m_data->embRef.num, fi.m_data->embRef.gen);
+		Object strObj = refObj.fetch(xref);
 		if (strObj.isStream())
 		{
 			int c;
@@ -265,7 +263,6 @@ namespace Poppler {
 			}
 			strObj.streamClose();
 		}
-		strObj.free();
 		delete xref;
 	}
 	return result;
@@ -426,14 +423,13 @@ namespace Poppler {
     {
 	QStringList keys;
 
-	Object info;
 	if ( m_doc->locked )
 	    return QStringList();
 
 	QScopedPointer<XRef> xref(m_doc->doc->getXRef()->copy());
 	if (!xref)
 		return QStringList();
-	xref->getDocInfo(&info);
+	Object info = xref->getDocInfo();
 	if ( !info.isDict() )
 	    return QStringList();
 
@@ -444,7 +440,6 @@ namespace Poppler {
 	    keys.append( QString::fromLatin1(infoDict->getKey(i)) );
 	}
 
-	info.free();
 	return keys;
     }
 

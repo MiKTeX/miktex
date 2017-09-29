@@ -5,7 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010, 2012 Hib Eris <hib@hiberis.nl>
-// Copyright 2010, 2011, 2013, 2014, 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright 2010, 2011, 2013, 2014, 2016, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright 2010, 2013 Pino Toscano <pino@kde.org>
 // Copyright 2013 Adrian Johnson <ajohnson@redneon.com>
 // Copyright 2014 Fabio D'Urso <fabiodurso@hotmail.it>
@@ -181,42 +181,38 @@ void Hints::readTables(BaseStream *str, Linearization *linearization, XRef *xref
   hintsLength2 = linearization->getHintsLength2();
 
   Parser *parser;
-  Object obj;
 
   int bufLength = hintsLength + hintsLength2;
 
   std::vector<char> buf(bufLength);
   char *p = &buf[0];
 
-  obj.initNull();
-  Stream *s = str->makeSubStream(hintsOffset, gFalse, hintsLength, &obj);
+  Stream *s = str->makeSubStream(hintsOffset, gFalse, hintsLength, Object(objNull));
   s->reset();
   for (Guint i=0; i < hintsLength; i++) { *p++ = s->getChar(); }
   delete s;
 
   if (hintsOffset2 && hintsLength2) {
-    obj.initNull();
-    s = str->makeSubStream(hintsOffset2, gFalse, hintsLength2, &obj);
+    s = str->makeSubStream(hintsOffset2, gFalse, hintsLength2, Object(objNull));
     s->reset();
     for (Guint i=0; i < hintsLength2; i++) { *p++ = s->getChar(); }
     delete s;
   }
 
-  obj.initNull();
-  MemStream *memStream = new MemStream (&buf[0], 0, bufLength, &obj);
+  MemStream *memStream = new MemStream (&buf[0], 0, bufLength, Object(objNull));
 
-  obj.initNull();
   parser = new Parser(xref, new Lexer(xref, memStream), gTrue);
 
   int num, gen;
-  if (parser->getObj(&obj)->isInt() &&
-     (num = obj.getInt(), obj.free(), parser->getObj(&obj)->isInt()) &&
-     (gen = obj.getInt(), obj.free(), parser->getObj(&obj)->isCmd("obj")) &&
-     (obj.free(), parser->getObj(&obj, gFalse,
+  Object obj;
+  if ((obj = parser->getObj(), obj.isInt()) &&
+     (num = obj.getInt(), obj = parser->getObj(), obj.isInt()) &&
+     (gen = obj.getInt(), obj = parser->getObj(), obj.isCmd("obj")) &&
+     (obj = parser->getObj(gFalse,
          secHdlr ? secHdlr->getFileKey() : (Guchar *)NULL,
          secHdlr ? secHdlr->getEncAlgorithm() : cryptRC4,
          secHdlr ? secHdlr->getFileKeyLength() : 0,
-         num, gen, 0, gTrue)->isStream())) {
+         num, gen, 0, gTrue), obj.isStream())) {
     Stream *hintsStream = obj.getStream();
     Dict *hintsDict = obj.streamGetDict();
 
@@ -238,7 +234,6 @@ void Hints::readTables(BaseStream *str, Linearization *linearization, XRef *xref
   } else {
     error(errSyntaxWarning, -1, "Failed parsing hints table object");
   }
-  obj.free();
 
   delete parser;
 }

@@ -17,7 +17,7 @@
 // Copyright (C) 2005-2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2005 Martin Kretzschmar <martink@gnome.org>
-// Copyright (C) 2005, 2009, 2012, 2013, 2015 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2009, 2012, 2013, 2015, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006, 2007, 2010, 2011 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2008, 2009 Chris Wilson <chris@chris-wilson.co.uk>
@@ -708,7 +708,8 @@ _render_type3_glyph (cairo_scaled_font_t  *scaled_font,
   output_dev->startDoc(info->doc, info->fontEngine);
   output_dev->startPage (1, gfx->getState(), gfx->getXRef());
   output_dev->setInType3Char(gTrue);
-  gfx->display(charProcs->getVal(glyph, &charProc));
+  charProc = charProcs->getVal(glyph);
+  gfx->display(&charProc);
 
   output_dev->getType3GlyphWidth (&wx, &wy);
   cairo_matrix_transform_distance (&matrix, &wx, &wy);
@@ -727,7 +728,6 @@ _render_type3_glyph (cairo_scaled_font_t  *scaled_font,
 
   delete gfx;
   delete output_dev;
-  charProc.free();
 
   return CAIRO_STATUS_SUCCESS;
 }

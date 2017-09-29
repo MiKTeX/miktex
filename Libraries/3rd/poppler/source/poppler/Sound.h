@@ -1,5 +1,6 @@
 /* Sound.h - an object that holds the sound structure
  * Copyright (C) 2006-2007, Pino Toscano <pino@kde.org>
+ * Copyright (C) 2017, Albert Astals Cid <aacid@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +47,7 @@ public:
   // Destructor
   ~Sound();
 
-  Object *getObject() { return streamObj; }
+  Object *getObject() { return &streamObj; }
   Stream *getStream();
 
   SoundKind getSoundKind() { return kind; }
@@ -62,7 +63,7 @@ private:
   // Create a sound. The Object obj is ensured to be a Stream with a Dict
   Sound(Object *obj, bool readAttrs = true);
 
-  Object *streamObj;
+  Object streamObj;
   SoundKind kind;
   GooString *fileName;
   double samplingRate;

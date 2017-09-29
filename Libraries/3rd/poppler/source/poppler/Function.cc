@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006, 2008-2010, 2013-2015 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2008-2010, 2013-2015, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 // Copyright (C) 2011 Andrea Canciani <ranma42@gmail.com>
@@ -67,7 +67,6 @@ Function *Function::parse(Object *funcObj, std::set<int> *usedParents) {
   Function *func;
   Dict *dict;
   int funcType;
-  Object obj1;
 
   if (funcObj->isStream()) {
     dict = funcObj->streamGetDict();
@@ -80,13 +79,12 @@ Function *Function::parse(Object *funcObj, std::set<int> *usedParents) {
     return NULL;
   }
 
-  if (!dict->lookup("FunctionType", &obj1)->isInt()) {
+  Object obj1 = dict->lookup("FunctionType");
+  if (!obj1.isInt()) {
     error(errSyntaxError, -1, "Function type is missing or wrong type");
-    obj1.free();
-    return NULL;
+    return nullptr;
   }
   funcType = obj1.getInt();
-  obj1.free();
 
   if (funcType == 0) {
     func = new SampledFunction(funcObj, dict);
@@ -119,75 +117,65 @@ Function::Function(const Function *func) {
 }
 
 GBool Function::init(Dict *dict) {
-  Object obj1, obj2;
+  Object obj1;
   int i;
 
   //----- Domain
-  if (!dict->lookup("Domain", &obj1)->isArray()) {
+  obj1 = dict->lookup("Domain");
+  if (!obj1.isArray()) {
     error(errSyntaxError, -1, "Function is missing domain");
-    goto err2;
+    return gFalse;
   }
   m = obj1.arrayGetLength() / 2;
   if (m > funcMaxInputs) {
     error(errSyntaxError, -1, "Functions with more than {0:d} inputs are unsupported",
 	  funcMaxInputs);
-    goto err2;
+    return gFalse;
   }
   for (i = 0; i < m; ++i) {
-    obj1.arrayGet(2*i, &obj2);
+    Object obj2 = obj1.arrayGet(2*i);
     if (!obj2.isNum()) {
       error(errSyntaxError, -1, "Illegal value in function domain array");
-      goto err1;
+      return gFalse;
     }
     domain[i][0] = obj2.getNum();
-    obj2.free();
-    obj1.arrayGet(2*i+1, &obj2);
+    obj2 = obj1.arrayGet(2*i+1);
     if (!obj2.isNum()) {
       error(errSyntaxError, -1, "Illegal value in function domain array");
-      goto err1;
+      return gFalse;
     }
     domain[i][1] = obj2.getNum();
-    obj2.free();
   }
-  obj1.free();
 
   //----- Range
   hasRange = gFalse;
   n = 0;
-  if (dict->lookup("Range", &obj1)->isArray()) {
+  obj1 = dict->lookup("Range");
+  if (obj1.isArray()) {
     hasRange = gTrue;
     n = obj1.arrayGetLength() / 2;
     if (n > funcMaxOutputs) {
       error(errSyntaxError, -1, "Functions with more than {0:d} outputs are unsupported",
 	    funcMaxOutputs);
-      goto err2;
+      return gFalse;
     }
     for (i = 0; i < n; ++i) {
-      obj1.arrayGet(2*i, &obj2);
+      Object obj2 = obj1.arrayGet(2*i);
       if (!obj2.isNum()) {
 	error(errSyntaxError, -1, "Illegal value in function range array");
-	goto err1;
+	return gFalse;
       }
       range[i][0] = obj2.getNum();
-      obj2.free();
-      obj1.arrayGet(2*i+1, &obj2);
+      obj2 = obj1.arrayGet(2*i+1);
       if (!obj2.isNum()) {
 	error(errSyntaxError, -1, "Illegal value in function range array");
-	goto err1;
+	return gFalse;
       }
       range[i][1] = obj2.getNum();
-      obj2.free();
     }
   }
-  obj1.free();
 
   return gTrue;
-
- err1:
-  obj2.free();
- err2:
-  obj1.free();
-  return gFalse;
 }
 
 //------------------------------------------------------------------------
@@ -227,7 +215,7 @@ SampledFunction::SampledFunction(Object *funcObj, Dict *dict) {
   Stream *str;
   int sampleBits;
   double sampleMul;
-  Object obj1, obj2;
+  Object obj1;
   Guint buf, bitMask;
   int bits;
   Guint s;
@@ -241,16 +229,16 @@ SampledFunction::SampledFunction(Object *funcObj, Dict *dict) {
 
   //----- initialize the generic stuff
   if (!init(dict)) {
-    goto err1;
+    return;
   }
   if (!hasRange) {
     error(errSyntaxError, -1, "Type 0 function is missing range");
-    goto err1;
+    return;
   }
   if (m > sampledFuncMaxInputs) {
     error(errSyntaxError, -1, "Sampled functions with more than {0:d} inputs are unsupported",
 	  sampledFuncMaxInputs);
-    goto err1;
+    return;
   }
 
   //----- buffer
@@ -259,30 +247,28 @@ SampledFunction::SampledFunction(Object *funcObj, Dict *dict) {
   //----- get the stream
   if (!funcObj->isStream()) {
     error(errSyntaxError, -1, "Type 0 function isn't a stream");
-    goto err1;
+    return;
   }
   str = funcObj->getStream();
 
   //----- Size
-  if (!dict->lookup("Size", &obj1)->isArray() ||
-      obj1.arrayGetLength() != m) {
+  obj1 = dict->lookup("Size");
+  if (!obj1.isArray() || obj1.arrayGetLength() != m) {
     error(errSyntaxError, -1, "Function has missing or invalid size array");
-    goto err2;
+    return;
   }
   for (i = 0; i < m; ++i) {
-    obj1.arrayGet(i, &obj2);
+    Object obj2 = obj1.arrayGet(i);
     if (!obj2.isInt()) {
       error(errSyntaxError, -1, "Illegal value in function size array");
-      goto err3;
+      return;
     }
     sampleSize[i] = obj2.getInt();
     if (sampleSize[i] <= 0) {
       error(errSyntaxError, -1, "Illegal non-positive value in function size array");
-      goto err3;
+      return;
     }
-    obj2.free();
   }
-  obj1.free();
   idxOffset = (int *)gmallocn(1 << m, sizeof(int));
   for (i = 0; i < (1<<m); ++i) {
     idx = 0;
@@ -303,32 +289,30 @@ SampledFunction::SampledFunction(Object *funcObj, Dict *dict) {
   }
 
   //----- BitsPerSample
-  if (!dict->lookup("BitsPerSample", &obj1)->isInt()) {
+  obj1 = dict->lookup("BitsPerSample");
+  if (!obj1.isInt()) {
     error(errSyntaxError, -1, "Function has missing or invalid BitsPerSample");
-    goto err2;
+    return;
   }
   sampleBits = obj1.getInt();
   sampleMul = 1.0 / (pow(2.0, (double)sampleBits) - 1);
-  obj1.free();
 
   //----- Encode
-  if (dict->lookup("Encode", &obj1)->isArray() &&
-      obj1.arrayGetLength() == 2*m) {
+  obj1 = dict->lookup("Encode");
+  if (obj1.isArray() && obj1.arrayGetLength() == 2*m) {
     for (i = 0; i < m; ++i) {
-      obj1.arrayGet(2*i, &obj2);
+      Object obj2 = obj1.arrayGet(2*i);
       if (!obj2.isNum()) {
 	error(errSyntaxError, -1, "Illegal value in function encode array");
-	goto err3;
+	return;
       }
       encode[i][0] = obj2.getNum();
-      obj2.free();
-      obj1.arrayGet(2*i+1, &obj2);
+      obj2 = obj1.arrayGet(2*i+1);
       if (!obj2.isNum()) {
 	error(errSyntaxError, -1, "Illegal value in function encode array");
-	goto err3;
+	return;
       }
       encode[i][1] = obj2.getNum();
-      obj2.free();
     }
   } else {
     for (i = 0; i < m; ++i) {
@@ -336,30 +320,28 @@ SampledFunction::SampledFunction(Object *funcObj, Dict *dict) {
       encode[i][1] = sampleSize[i] - 1;
     }
   }
-  obj1.free();
   for (i = 0; i < m; ++i) {
     inputMul[i] = (encode[i][1] - encode[i][0]) /
                   (domain[i][1] - domain[i][0]);
   }
 
   //----- Decode
-  if (dict->lookup("Decode", &obj1)->isArray() &&
+  obj1 = dict->lookup("Decode");
+  if (obj1.isArray() &&
       obj1.arrayGetLength() == 2*n) {
     for (i = 0; i < n; ++i) {
-      obj1.arrayGet(2*i, &obj2);
+      Object obj2 = obj1.arrayGet(2*i);
       if (!obj2.isNum()) {
 	error(errSyntaxError, -1, "Illegal value in function decode array");
-	goto err3;
+	return;
       }
       decode[i][0] = obj2.getNum();
-      obj2.free();
-      obj1.arrayGet(2*i+1, &obj2);
+      obj2 = obj1.arrayGet(2*i+1);
       if (!obj2.isNum()) {
 	error(errSyntaxError, -1, "Illegal value in function decode array");
-	goto err3;
+	return;
       }
       decode[i][1] = obj2.getNum();
-      obj2.free();
     }
   } else {
     for (i = 0; i < n; ++i) {
@@ -367,7 +349,6 @@ SampledFunction::SampledFunction(Object *funcObj, Dict *dict) {
       decode[i][1] = range[i][1];
     }
   }
-  obj1.free();
 
   //----- samples
   nSamples = n;
@@ -409,14 +390,6 @@ SampledFunction::SampledFunction(Object *funcObj, Dict *dict) {
   transform(in, cacheOut);
 
   ok = gTrue;
-  return;
-
- err3:
-  obj2.free();
- err2:
-  obj1.free();
- err1:
-  return;
 }
 
 SampledFunction::~SampledFunction() {
@@ -556,92 +529,81 @@ GBool SampledFunction::hasDifferentResultSet(Function *func) {
 //------------------------------------------------------------------------
 
 ExponentialFunction::ExponentialFunction(Object *funcObj, Dict *dict) {
-  Object obj1, obj2;
-  int i;
+  Object obj1;
 
   ok = gFalse;
 
   //----- initialize the generic stuff
   if (!init(dict)) {
-    goto err1;
+    return;
   }
   if (m != 1) {
     error(errSyntaxError, -1, "Exponential function with more than one input");
-    goto err1;
+    return;
   }
 
   //----- C0
-  if (dict->lookup("C0", &obj1)->isArray()) {
+  obj1 = dict->lookup("C0");
+  if (obj1.isArray()) {
     if (hasRange && obj1.arrayGetLength() != n) {
       error(errSyntaxError, -1, "Function's C0 array is wrong length");
-      goto err2;
+      return;
     }
     n = obj1.arrayGetLength();
     if (unlikely(n > funcMaxOutputs)) {
       error(errSyntaxError, -1, "Function's C0 array is wrong length");
       n = funcMaxOutputs;
     }
-    for (i = 0; i < n; ++i) {
-      obj1.arrayGet(i, &obj2);
+    for (int i = 0; i < n; ++i) {
+      Object obj2 = obj1.arrayGet(i);
       if (!obj2.isNum()) {
 	error(errSyntaxError, -1, "Illegal value in function C0 array");
-	goto err3;
+	return;
       }
       c0[i] = obj2.getNum();
-      obj2.free();
     }
   } else {
     if (hasRange && n != 1) {
       error(errSyntaxError, -1, "Function's C0 array is wrong length");
-      goto err2;
+      return;
     }
     n = 1;
     c0[0] = 0;
   }
-  obj1.free();
 
   //----- C1
-  if (dict->lookup("C1", &obj1)->isArray()) {
+  obj1 = dict->lookup("C1");
+  if (obj1.isArray()) {
     if (obj1.arrayGetLength() != n) {
       error(errSyntaxError, -1, "Function's C1 array is wrong length");
-      goto err2;
+      return;
     }
-    for (i = 0; i < n; ++i) {
-      obj1.arrayGet(i, &obj2);
+    for (int i = 0; i < n; ++i) {
+      Object obj2 = obj1.arrayGet(i);
       if (!obj2.isNum()) {
 	error(errSyntaxError, -1, "Illegal value in function C1 array");
-	goto err3;
+	return;
       }
       c1[i] = obj2.getNum();
-      obj2.free();
     }
   } else {
     if (n != 1) {
       error(errSyntaxError, -1, "Function's C1 array is wrong length");
-      goto err2;
+      return;
     }
     c1[0] = 1;
   }
-  obj1.free();
 
   //----- N (exponent)
-  if (!dict->lookup("N", &obj1)->isNum()) {
+  obj1 = dict->lookup("N");
+  if (!obj1.isNum()) {
     error(errSyntaxError, -1, "Function has missing or invalid N");
-    goto err2;
+    return;
   }
   e = obj1.getNum();
-  obj1.free();
 
   isLinear = fabs(e-1.) < 1e-10;
   ok = gTrue;
-  return;
-
- err3:
-  obj2.free();
- err2:
-  obj1.free();
- err1:
-  return;
 }
 
 ExponentialFunction::~ExponentialFunction() {
@@ -685,7 +647,7 @@ void ExponentialFunction::transform(double *in, double *out) {
 //------------------------------------------------------------------------
 
 StitchingFunction::StitchingFunction(Object *funcObj, Dict *dict, std::set<int> *usedParents) {
-  Object obj1, obj2;
+  Object obj1;
   int i;
 
   ok = gFalse;
@@ -696,17 +658,18 @@ StitchingFunction::StitchingFunction(Object *funcObj, Dict *dict, std::set<int> 
 
   //----- initialize the generic stuff
   if (!init(dict)) {
-    goto err1;
+    return;
   }
   if (m != 1) {
     error(errSyntaxError, -1, "Stitching function with more than one input");
-    goto err1;
+    return;
   }
 
   //----- Functions
-  if (!dict->lookup("Functions", &obj1)->isArray()) {
+  obj1 = dict->lookup("Functions");
+  if (!obj1.isArray()) {
     error(errSyntaxError, -1, "Missing 'Functions' entry in stitching function");
-    goto err1;
+    return;
   }
   k = obj1.arrayGetLength();
   funcs = (Function **)gmallocn(k, sizeof(Function *));
@@ -718,63 +681,58 @@ StitchingFunction::StitchingFunction(Object *funcObj, Dict *dict, std::set<int> 
   }
   for (i = 0; i < k; ++i) {
     std::set<int> usedParentsAux = *usedParents;
-    obj1.arrayGetNF(i, &obj2);
+    Object obj2 = obj1.arrayGetNF(i);
     if (obj2.isRef()) {
       const Ref ref = obj2.getRef();
       if (usedParentsAux.find(ref.num) == usedParentsAux.end()) {
         usedParentsAux.insert(ref.num);
-        obj2.free();
-        obj1.arrayGet(i, &obj2);
+        obj2 = obj1.arrayGet(i);
       } else {
-        goto err2;
+        return;
       }
     }
     if (!(funcs[i] = Function::parse(&obj2, &usedParentsAux))) {
-      goto err2;
+      return;
     }
     if (funcs[i]->getInputSize() != 1 ||
 	(i > 0 && funcs[i]->getOutputSize() != funcs[0]->getOutputSize())) {
       error(errSyntaxError, -1,
 	    "Incompatible subfunctions in stitching function");
-      goto err2;
+      return;
     }
-    obj2.free();
   }
-  obj1.free();
 
   //----- Bounds
-  if (!dict->lookup("Bounds", &obj1)->isArray() ||
-      obj1.arrayGetLength() != k - 1) {
+  obj1 = dict->lookup("Bounds");
+  if (!obj1.isArray() || obj1.arrayGetLength() != k - 1) {
     error(errSyntaxError, -1, "Missing or invalid 'Bounds' entry in stitching function");
-    goto err1;
+    return;
   }
   bounds[0] = domain[0][0];
   for (i = 1; i < k; ++i) {
-    if (!obj1.arrayGet(i - 1, &obj2)->isNum()) {
+    Object obj2 = obj1.arrayGet(i - 1);
+    if (!obj2.isNum()) {
       error(errSyntaxError, -1, "Invalid type in 'Bounds' array in stitching function");
-      goto err2;
+      return;
     }
     bounds[i] = obj2.getNum();
-    obj2.free();
   }
   bounds[k] = domain[0][1];
-  obj1.free();
 
   //----- Encode
-  if (!dict->lookup("Encode", &obj1)->isArray() ||
-      obj1.arrayGetLength() != 2 * k) {
+  obj1 = dict->lookup("Encode");
+  if (!obj1.isArray() || obj1.arrayGetLength() != 2 * k) {
     error(errSyntaxError, -1, "Missing or invalid 'Encode' entry in stitching function");
-    goto err1;
+    return;
   }
   for (i = 0; i < 2 * k; ++i) {
-    if (!obj1.arrayGet(i, &obj2)->isNum()) {
+    Object obj2 = obj1.arrayGet(i);
+    if (!obj2.isNum()) {
       error(errSyntaxError, -1, "Invalid type in 'Encode' array in stitching function");
-      goto err2;
+      return;
     }
     encode[i] = obj2.getNum();
-    obj2.free();
   }
-  obj1.free();
 
   //----- pre-compute the scale factors
   for (i = 0; i < k; ++i) {
@@ -790,11 +748,6 @@ StitchingFunction::StitchingFunction(Object *funcObj, Dict *dict, std::set<int> 
   n = funcs[0]->getOutputSize();
   ok = gTrue;
   return;
-
- err2:
-  obj2.free();
- err1:
-  obj1.free();
 }
 
 StitchingFunction::StitchingFunction(const StitchingFunction *func) : Function(func) {
@@ -1623,7 +1576,9 @@ void PostScriptFunction::exec(PSStack *stack, int codePtr) {
       case psOpIdiv:
 	i2 = stack->popInt();
 	i1 = stack->popInt();
-	stack->pushInt(i1 / i2);
+	if (likely(i2 != 0)) {
+	  stack->pushInt(i1 / i2);
+	}
 	break;
       case psOpIndex:
 	stack->index(stack->popInt());
@@ -1659,7 +1614,9 @@ void PostScriptFunction::exec(PSStack *stack, int codePtr) {
       case psOpMod:
 	i2 = stack->popInt();
 	i1 = stack->popInt();
-	stack->pushInt(i1 % i2);
+	if (likely(i2 != 0)) {
+	  stack->pushInt(i1 % i2);
+	}
 	break;
       case psOpMul:
 	if (stack->topTwoAreInts()) {

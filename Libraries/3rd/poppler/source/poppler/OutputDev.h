@@ -23,6 +23,7 @@
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2012 William Bader <williambader@hotmail.com>
+// Copyright (C) 2017 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -167,6 +168,12 @@ public:
 
   //----- update graphics state
   virtual void updateAll(GfxState *state);
+
+  // Update the Current Transformation Matrix (CTM), i.e., the new matrix
+  // given in m11, ..., m32 is combined with the current value of the CTM.
+  // At the same time, when this method is called, state->getCTM() already
+  // contains the correct new CTM, so one may as well replace the
+  // CTM of the renderer with that.
   virtual void updateCTM(GfxState * /*state*/, double /*m11*/, double /*m12*/,
 			 double /*m21*/, double /*m22*/, double /*m31*/, double /*m32*/) {}
   virtual void updateLineDash(GfxState * /*state*/) {}
@@ -242,6 +249,16 @@ public:
   virtual void endStringOp(GfxState * /*state*/) {}
   virtual void beginString(GfxState * /*state*/, GooString * /*s*/) {}
   virtual void endString(GfxState * /*state*/) {}
+
+  // Draw one glyph at a specified position
+  //
+  // Arguments are:
+  // CharCode code: This is the character code in the content stream. It needs to be mapped back to a glyph index.
+  // int nBytes: The text strings in the content stream can consists of either 8-bit or 16-bit
+  //             character codes depending on the font. nBytes is the number of bytes in the character code.
+  // Unicode *u: The UCS-4 mapping used for text extraction (TextOutputDev).
+  // int uLen: The number of unicode entries in u.  Usually '1', for a single character,
+  //           but it may also have larger values, for example for ligatures.
   virtual void drawChar(GfxState * /*state*/, double /*x*/, double /*y*/,
 			double /*dx*/, double /*dy*/,
 			double /*originX*/, double /*originY*/,

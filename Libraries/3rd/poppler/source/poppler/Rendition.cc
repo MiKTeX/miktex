@@ -7,6 +7,7 @@
 // Pino Toscano <pino@kde.org> (c) 2008
 // Carlos Garcia Campos <carlosgc@gnome.org> (c) 2010
 // Tobias Koenig <tobias.koenig@kdab.com> (c) 2012
+// Albert Astals Cid <aacid@kde.org> (C) 2017
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -44,26 +45,26 @@ MediaWindowParameters::~MediaWindowParameters() {
 }
 
 void MediaWindowParameters::parseFWParams(Object* obj) {
-  Object tmp;
-
-  if (obj->dictLookup("D", &tmp)->isArray()) {
+  Object tmp = obj->dictLookup("D");
+  if (tmp.isArray()) {
     Array * dim = tmp.getArray();
     
     if (dim->getLength() >= 2) {
-      Object dd;
-      if (dim->get(0, &dd)->isInt()) {
+      Object dd = dim->get(0);
+      if (dd.isInt()) {
 	width = dd.getInt();
       }
-      dd.free();
-      if (dim->get(1, &dd)->isInt()) {
+
+      dd = dim->get(1);
+      if (dd.isInt()) {
 	height = dd.getInt();
       }
-      dd.free();
+
     }
   }
-  tmp.free();
 
-  if (obj->dictLookup("RT", &tmp)->isInt()) {
+  tmp = obj->dictLookup("RT");
+  if (tmp.isInt()) {
     int t = tmp.getInt();
     switch(t) {
     case 0: relativeTo = windowRelativeToDocument; break;
@@ -71,9 +72,9 @@ void MediaWindowParameters::parseFWParams(Object* obj) {
     case 2: relativeTo = windowRelativeToDesktop; break;
     }
   }
-  tmp.free();
 
-  if (obj->dictLookup("P",&tmp)->isInt()) {
+  tmp = obj->dictLookup("P");
+  if (tmp.isInt()) {
     int t = tmp.getInt();
 
     switch(t) {
@@ -115,21 +116,19 @@ void MediaWindowParameters::parseFWParams(Object* obj) {
       break;
     }
   }
-  tmp.free();
 
-  if (obj->dictLookup("T", &tmp)->isBool()) {
+  tmp = obj->dictLookup("T");
+  if (tmp.isBool()) {
     hasTitleBar = tmp.getBool();
   }
-  tmp.free();
-  if (obj->dictLookup("UC", &tmp)->isBool()) {
+  tmp = obj->dictLookup("UC");
+  if (tmp.isBool()) {
     hasCloseButton = tmp.getBool();
   }
-  tmp.free();
-  if (obj->dictLookup("R", &tmp)->isInt()) {
+  tmp = obj->dictLookup("R");
+  if (tmp.isInt()) {
     isResizeable = (tmp.getInt() != 0);
   }
-  tmp.free();
-
 }
 
 MediaParameters::MediaParameters() {
@@ -148,20 +147,18 @@ MediaParameters::~MediaParameters() {
 }
 
 void MediaParameters::parseMediaPlayParameters(Object* obj) {
-  
-  Object tmp;
-
-  if (obj->dictLookup("V", &tmp)->isInt()) {
+  Object tmp = obj->dictLookup("V");
+  if (tmp.isInt()) {
     volume = tmp.getInt();
   }
-  tmp.free();
 
-  if (obj->dictLookup("C", &tmp)->isBool()) {
+  tmp = obj->dictLookup("C");
+  if (tmp.isBool()) {
     showControls = tmp.getBool();
   }
-  tmp.free();
 
-  if (obj->dictLookup("F", &tmp)->isInt()) {
+  tmp = obj->dictLookup("F");
+  if (tmp.isInt()) {
     int t = tmp.getInt();
     
     switch(t) {
@@ -173,47 +170,42 @@ void MediaParameters::parseMediaPlayParameters(Object* obj) {
     case 5: fittingPolicy = fittingUndefined; break;
     }
   }
-  tmp.free();
 
   // duration parsing
   // duration's default value is set to 0, which means : intrinsinc media duration
-  if (obj->dictLookup("D", &tmp)->isDict()) {
-    Object oname, ddict, tmp2;
-    if (tmp.dictLookup("S", &oname)->isName()) {
+  tmp = obj->dictLookup("D");
+  if (tmp.isDict()) {
+    Object oname = tmp.dictLookup("S");
+    if (oname.isName()) {
       char* name = oname.getName();
       if (!strcmp(name, "F"))
 	duration = -1; // infinity
       else if (!strcmp(name, "T")) {
-	if (tmp.dictLookup("T", &ddict)->isDict()) {
-	  if (ddict.dictLookup("V", &tmp2)->isNum()) {
+	Object ddict = tmp.dictLookup("T");
+	if (ddict.isDict()) {
+	  Object tmp2 = ddict.dictLookup("V");
+	  if (tmp2.isNum()) {
 	    duration = Gulong(tmp2.getNum());
 	  }
-	  tmp2.free();
 	}
-	ddict.free();
       }
     }
-    oname.free();
   }
-  tmp.free();
 
-
-  if (obj->dictLookup("A", &tmp)->isBool()) {
+  tmp = obj->dictLookup("A");
+  if (tmp.isBool()) {
     autoPlay = tmp.getBool();
   }
-  tmp.free();
 
-  if (obj->dictLookup("RC", &tmp)->isNum()) {
+  tmp = obj->dictLookup("RC");
+  if (tmp.isNum()) {
     repeatCount = tmp.getNum();
   }
-  tmp.free();
-
 }
 
 void MediaParameters::parseMediaScreenParameters(Object* obj) {
-  Object tmp;
-
-  if (obj->dictLookup("W", &tmp)->isInt()) {
+  Object tmp = obj->dictLookup("W");
+  if (tmp.isInt()) {
     int t = tmp.getInt();
     
     switch(t) {
@@ -223,102 +215,84 @@ void MediaParameters::parseMediaScreenParameters(Object* obj) {
     case 3: windowParams.type = MediaWindowParameters::windowEmbedded; break;
     }
   }
-  tmp.free();
 
   // background color
-  if (obj->dictLookup("B", &tmp)->isArray()) {
+  tmp = obj->dictLookup("B");
+  if (tmp.isArray()) {
     Array* color = tmp.getArray();
 
-    Object component;
-    
-    color->get(0, &component);
+    Object component = color->get(0);
     bgColor.r = component.getNum();
-    component.free();
 
-    color->get(1, &component);
+    component = color->get(1);
     bgColor.g = component.getNum();
-    component.free();
 
-    color->get(2, &component);
+    component = color->get(2);
     bgColor.b = component.getNum();
-    component.free();
   }
-  tmp.free();
-
 
   // opacity
-  if (obj->dictLookup("O", &tmp)->isNum()) {
+  tmp = obj->dictLookup("O");
+  if (tmp.isNum()) {
     opacity = tmp.getNum();
   }
-  tmp.free();
 
   if (windowParams.type == MediaWindowParameters::windowFloating) {
-    Object winDict;
-    if (obj->dictLookup("F",&winDict)->isDict()) {
+    Object winDict = obj->dictLookup("F");
+    if (winDict.isDict()) {
       windowParams.parseFWParams(&winDict);
     }
-    winDict.free();
   }
 }
 
 MediaRendition::~MediaRendition() {
-  if (fileName)
-    delete fileName;
-  if (contentType)
-    delete contentType;
-
-  if (embeddedStream && (!embeddedStream->decRef())) {
-    delete embeddedStream;
-  }
+  delete fileName;
+  delete contentType;
 }
 
 MediaRendition::MediaRendition(Object* obj) {
-  Object tmp, tmp2;
   GBool hasClip = gFalse;
 
   ok = gTrue;
   fileName = NULL;
   contentType = NULL;
   isEmbedded = gFalse;
-  embeddedStream = NULL;
 
   //
   // Parse media clip data
   //
-  if (obj->dictLookup("C", &tmp2)->isDict()) { // media clip
+  Object tmp2 = obj->dictLookup("C");
+  if (tmp2.isDict()) { // media clip
     hasClip = gTrue;
-    if (tmp2.dictLookup("S", &tmp)->isName()) {
+    Object tmp = tmp2.dictLookup("S");
+    if (tmp.isName()) {
       if (!strcmp(tmp.getName(), "MCD")) { // media clip data
-        Object obj1, obj2;
-	if (tmp2.dictLookup("D", &obj1)->isDict()) {
-	  if (obj1.dictLookup("F", &obj2)->isString()) {
+        Object obj1 = tmp2.dictLookup("D");
+	if (obj1.isDict()) {
+	  Object obj2 = obj1.dictLookup("F");
+	  if (obj2.isString()) {
 	    fileName = obj2.getString()->copy();
 	  }
-	  obj2.free();
-	  if (obj1.dictLookup("EF", &obj2)->isDict()) {
-	    Object embedded;
-	    if (obj2.dictLookup("F", &embedded)->isStream()) {
+	  obj2 = obj1.dictLookup("EF");
+	  if (obj2.isDict()) {
+	    Object embedded = obj2.dictLookup("F");
+	    if (embedded.isStream()) {
 	      isEmbedded = gTrue;
-	      embeddedStream = embedded.getStream();
-	      // "copy" stream
-	      embeddedStream->incRef();
+	      embeddedStreamObject = embedded.copy();
 	    }
-	    embedded.free();
 	  }
-	  obj2.free();
 
 	  // TODO: D might be a form XObject too
 	} else {
 	  error (errSyntaxError, -1, "Invalid Media Clip Data");
 	  ok = gFalse;
 	}
-	obj1.free();
 
 	// FIXME: ignore CT if D is a form XObject
-	if (tmp2.dictLookup("CT", &obj1)->isString()) {
+	obj1 = tmp2.dictLookup("CT");
+	if (obj1.isString()) {
 	  contentType = obj1.getString()->copy();
 	}
-	obj1.free();
       } else if (!strcmp(tmp.getName(), "MCS")) { // media clip data
         // TODO
       }
@@ -326,55 +300,69 @@ MediaRendition::MediaRendition(Object* obj) {
       error (errSyntaxError, -1, "Invalid Media Clip");
       ok = gFalse;
     }
-    tmp.free();
   }
-  tmp2.free();
 
   if (!ok)
     return;
 
   //
   // parse Media Play Parameters
-  if (obj->dictLookup("P", &tmp2)->isDict()) { // media play parameters
-    Object params;
-    if (tmp2.dictLookup("MH", &params)->isDict()) {
+  tmp2 = obj->dictLookup("P");
+  if (tmp2.isDict()) { // media play parameters
+    Object params = tmp2.dictLookup("MH");
+    if (params.isDict()) {
       MH.parseMediaPlayParameters(&params);
     }
-    params.free();
-    if (tmp2.dictLookup("BE", &params)->isDict()) {
+    params = tmp2.dictLookup("BE");
+    if (params.isDict()) {
       BE.parseMediaPlayParameters(&params);
     }
-    params.free();
   } else if (!hasClip) {
     error (errSyntaxError, -1, "Invalid Media Rendition");
     ok = gFalse;
   }
-  tmp2.free();
 
   //
   // parse Media Screen Parameters
-  if (obj->dictLookup("SP", &tmp2)->isDict()) { // media screen parameters
-    Object params;
-    if (tmp2.dictLookup("MH", &params)->isDict()) {
+  tmp2 = obj->dictLookup("SP");
+  if (tmp2.isDict()) { // media screen parameters
+    Object params = tmp2.dictLookup("MH");
+    if (params.isDict()) {
       MH.parseMediaScreenParameters(&params);
     }
-    params.free();
-    if (tmp2.dictLookup("BE", &params)->isDict()) {
+    params = tmp2.dictLookup("BE");
+    if (params.isDict()) {
       BE.parseMediaScreenParameters(&params);
     }
-    params.free();
   }
-  tmp2.free();
+}
+
+MediaRendition::MediaRendition(const MediaRendition &other) {
+  ok = other.ok;
+  MH = other.MH;
+  BE = other.BE;
+  isEmbedded = other.isEmbedded;
+  embeddedStreamObject = other.embeddedStreamObject.copy();
+
+  if (other.contentType)
+    contentType = other.contentType->copy();
+  else
+    contentType = nullptr;
+
+  if (other.fileName)
+    fileName = other.fileName->copy();
+  else
+    fileName = nullptr;
 }
 
 void MediaRendition::outputToFile(FILE* fp) {
   if (!isEmbedded)
     return;
 
-  embeddedStream->reset();
+  embeddedStreamObject.streamReset();
 
   while (1) {
-    int c = embeddedStream->getChar();
+    int c = embeddedStreamObject.streamGetChar();
     if (c == EOF)
       break;
     
@@ -383,19 +371,9 @@ void MediaRendition::outputToFile(FILE* fp) {
   
 }
 
-MediaRendition *MediaRendition::copy() {
-  // call default copy constructor
-  MediaRendition* new_media = new MediaRendition(*this);
-
-  if (contentType)
-    new_media->contentType = contentType->copy();
-  if (fileName)
-    new_media->fileName = fileName->copy();
-
-  if (new_media->embeddedStream)
-    new_media->embeddedStream->incRef();
-
-  return new_media;
+MediaRendition* MediaRendition::copy()
+{
+  return new MediaRendition(*this);
 }
 
 // TODO: SelectorRendition

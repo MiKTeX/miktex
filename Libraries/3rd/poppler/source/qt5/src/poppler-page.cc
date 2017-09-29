@@ -1,7 +1,7 @@
 /* poppler-page.cc: qt interface to poppler
  * Copyright (C) 2005, Net Integration Technologies, Inc.
  * Copyright (C) 2005, Brad Hards <bradh@frogmouth.net>
- * Copyright (C) 2005-2016, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2005-2017, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2005, Stefan Kebekus <stefan.kebekus@math.uni-koeln.de>
  * Copyright (C) 2006-2011, Pino Toscano <pino@kde.org>
  * Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
@@ -17,6 +17,7 @@
  * Copyright (C) 2015 William Bader <williambader@hotmail.com>
  * Copyright (C) 2016 Arseniy Lartsev <arseniy@alumni.chalmers.se>
  * Copyright (C) 2016, Hanno Meyer-Thurow <h.mth@web.de>
+ * Copyright (C) 2017, Oliver Sander <oliver.sander@tu-dresden.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -413,6 +414,13 @@ QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h,
       QSize size = pageSize();
       QImage tmpimg(w == -1 ? qRound( size.width() * xres / 72.0 ) : w, h == -1 ? qRound( size.height() * yres / 72.0 ) : h, QImage::Format_ARGB32);
 
+      QColor bgColor(m_page->parentDoc->paperColor.red(),
+                     m_page->parentDoc->paperColor.green(),
+                     m_page->parentDoc->paperColor.blue(),
+                     m_page->parentDoc->paperColor.alpha());
+
+      tmpimg.fill(bgColor);
+
       QPainter painter(&tmpimg);
       renderToPainter(&painter, xres, yres, x, y, w, h, rotate, DontSaveAndRestore);
       painter.end();
@@ -636,11 +644,10 @@ QList<TextBox*> Page::textList(Rotation rotate) const
 PageTransition *Page::transition() const
 {
   if (!m_page->transition) {
-    Object o;
+    Object o = m_page->page->getTrans();
     PageTransitionParams params;
-    params.dictObj = m_page->page->getTrans(&o);
+    params.dictObj = &o;
     if (params.dictObj->isDict()) m_page->transition = new PageTransition(params);
-    o.free();
   }
   return m_page->transition;
 }
@@ -649,20 +656,15 @@ Link *Page::action( PageAction act ) const
 {
   if ( act == Page::Opening || act == Page::Closing )
   {
-    Object o;
-    m_page->page->getActions(&o);
+    Object o = m_page->page->getActions();
     if (!o.isDict())
     {
-      o.free();
       return 0;
     }
     Dict *dict = o.getDict();
-    Object o2;
     const char *key = act == Page::Opening ? "O" : "C";
-    dict->lookup((char*)key, &o2);
+    Object o2 = dict->lookup((char*)key);
     ::LinkAction *lact = ::LinkAction::parseAction(&o2, m_page->parentDoc->doc->getCatalog()->getBaseURI() );
-    o2.free();
-    o.free();
     Link *popplerLink = NULL;
     if (lact != NULL)
     {

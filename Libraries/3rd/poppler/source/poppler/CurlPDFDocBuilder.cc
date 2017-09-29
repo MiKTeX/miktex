@@ -24,14 +24,11 @@ PDFDoc *
 CurlPDFDocBuilder::buildPDFDoc(const GooString &uri,
         GooString *ownerPassword, GooString *userPassword, void *guiDataA)
 {
-    Object obj;
-
     CachedFile *cachedFile = new CachedFile(
         new CurlCachedFileLoader(), uri.copy());
 
-    obj.initNull();
     BaseStream *str = new CachedFileStream(
-         cachedFile, 0, gFalse, cachedFile->getLength(), &obj);
+         cachedFile, 0, gFalse, cachedFile->getLength(), Object(objNull));
 
     return new PDFDoc(str, ownerPassword, userPassword, guiDataA);
 }

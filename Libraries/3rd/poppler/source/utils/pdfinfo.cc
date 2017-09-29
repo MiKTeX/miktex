@@ -15,10 +15,10 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2006 Dom Lachowicz <cinamod@hotmail.com>
-// Copyright (C) 2007-2010, 2012, 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2010, 2012, 2016, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2011 Vittal Aithal <vittal.aithal@cognidox.com>
-// Copyright (C) 2012, 2013, 2016 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2012, 2013, 2016, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Adrian Perez de Castro <aperez@igalia.com>
 // Copyright (C) 2013 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
@@ -36,6 +36,7 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
+#include <map>
 #include "parseargs.h"
 #include "printencodings.h"
 #include "goo/GooString.h"
@@ -77,6 +78,7 @@ static GBool printHelp = gFalse;
 static GBool printEnc = gFalse;
 static GBool printStructure = gFalse;
 static GBool printStructureText = gFalse;
+static GBool printDests = gFalse;
 
 static const ArgDesc argDesc[] = {
   {"-f",      argInt,      &firstPage,        0,
@@ -97,6 +99,8 @@ static const ArgDesc argDesc[] = {
    "print the dates in ISO-8601 format"},
   {"-rawdates", argFlag,   &rawDates,         0,
    "print the undecoded date strings directly from the PDF file"},
+  {"-dests",     argFlag,  &printDests,       0,
+   "print all named destinations in the PDF"},
   {"-enc",    argString,   textEncName,    sizeof(textEncName),
    "output text encoding name"},
   {"-listenc",argFlag,     &printEnc,      0,
@@ -120,13 +124,13 @@ static const ArgDesc argDesc[] = {
 
 static void printInfoString(Dict *infoDict, const char *key, const char *text,
 			    UnicodeMap *uMap) {
-  Object obj;
   GooString *s1;
   Unicode *u;
   char buf[8];
   int i, n, len;
 
-  if (infoDict->lookup(key, &obj)->isString()) {
+  Object obj = infoDict->lookup(key);
+  if (obj.isString()) {
     fputs(text, stdout);
     s1 = obj.getString();
     len = TextStringToUCS4(s1, &u);
@@ -137,11 +141,9 @@ static void printInfoString(Dict *infoDict, const char *key, const char *text,
     gfree(u);
     fputc('\n', stdout);
   }
-  obj.free();
 }
 
 static void printInfoDate(Dict *infoDict, const char *key, const char *text) {
-  Object obj;
   char *s;
   int year, mon, day, hour, min, sec, tz_hour, tz_minute;
   char tz;
@@ -149,7 +151,8 @@ static void printInfoDate(Dict *infoDict, const char *key, const char *text) {
   time_t time;
   char buf[256];
 
-  if (infoDict->lookup(key, &obj)->isString()) {
+  Object obj = infoDict->lookup(key);
+  if (obj.isString()) {
     fputs(text, stdout);
     s = obj.getString()->getCString();
     // TODO do something with the timezone info
@@ -181,17 +184,16 @@ static void printInfoDate(Dict *infoDict, const char *key, const char *text) {
     }
     fputc('\n', stdout);
   }
-  obj.free();
 }
 
 void printISODate(Dict *infoDict, const char *key, const char *text)
 {
-  Object obj;
   char *s;
   int year, mon, day, hour, min, sec, tz_hour, tz_minute;
   char tz;
 
-  if (infoDict->lookup(key, &obj)->isString()) {
+  Object obj = infoDict->lookup(key);
+  if (obj.isString()) {
     fputs(text, stdout);
     s = obj.getString()->getCString();
     if ( parseDateString( s, &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute ) ) {
@@ -208,7 +210,6 @@ void printISODate(Dict *infoDict, const char *key, const char *text)
     }
     fputc('\n', stdout);
   }
-  obj.free();
 }
 
 static void printBox(const char *text, PDFRectangle *box) {
@@ -289,16 +290,154 @@ static void printStruct(const StructElement *element, unsigned indent) {
   }
 }
 
+struct RefCompare {
+  bool operator() (const Ref& lhs, const Ref& rhs) const {
+    return lhs.num < rhs.num;
+  }
+};
+
+struct GooStringCompare {
+  bool operator() (GooString* lhs, GooString* rhs) const {
+    return lhs->cmp(const_cast<GooString*>(rhs)) < 0;
+  }
+};
+
+static void printLinkDest(LinkDest *dest) {
+  GooString s;
+
+  switch (dest->getKind()) {
+    case destXYZ:
+      s.append("[ XYZ ");
+      if (dest->getChangeLeft()) {
+	s.appendf("{0:4.0g} ", dest->getLeft());
+      } else {
+	s.append("null ");
+      }
+      if (dest->getChangeTop()) {
+	s.appendf("{0:4.0g} ", dest->getTop());
+      } else {
+	s.append("null ");
+      }
+      if (dest->getChangeZoom()) {
+	s.appendf("{0:4.2f} ", dest->getZoom());
+      } else {
+	s.append("null ");
+      }
+      break;
+    case destFit:
+      s.append("[ Fit ");
+      break;
+    case destFitH:
+      if (dest->getChangeTop()) {
+	s.appendf("[ FitH {0:4.0g} ", dest->getTop());
+      } else {
+	s.append("[ FitH null ");
+      }
+      break;
+    case destFitV:
+      if (dest->getChangeLeft()) {
+	s.appendf("[ FitV {0:4.0g} ", dest->getLeft());
+      } else {
+	s.append("[ FitV null ");
+      }
+      break;
+    case destFitR:
+      s.appendf("[ FitR {0:4.0g} {1:4.0g} {2:4.0g} {3:4.0g} ",
+	      dest->getLeft(),
+	      dest->getBottom(),
+	      dest->getRight(),
+	      dest->getTop());
+      break;
+    case destFitB:
+      s.append("[ FitB ");
+      break;
+    case destFitBH:
+      if (dest->getChangeTop()) {
+	s.appendf("[ FitBH {0:4.0g} ", dest->getTop());
+      } else {
+	s.append("[ FitBH null ");
+      }
+      break;
+    case destFitBV:
+      if (dest->getChangeLeft()) {
+	s.appendf("[ FitBV {0:4.0g} ", dest->getLeft());
+      } else {
+	s.append("[ FitBV null ");
+      }
+      break;
+  }
+
+  s.append("                                ");
+  s.setChar(26, ']');
+  s.setChar(27, '\0');
+  printf("%s", s.getCString());
+}
+
+static void printDestinations(PDFDoc *doc, UnicodeMap *uMap) {
+  std::map<Ref,std::map<GooString*,LinkDest*,GooStringCompare>, RefCompare > map;
+
+  int numDests = doc->getCatalog()->numDestNameTree();
+  for (int i = 0; i < numDests; i++) {
+    GooString *name = new GooString(doc->getCatalog()->getDestNameTreeName(i));
+    LinkDest *dest = doc->getCatalog()->getDestNameTreeDest(i);
+    if (dest && dest->isPageRef()) {
+      map[dest->getPageRef()].insert(std::make_pair(name, dest));
+    } else {
+      delete name;
+      delete dest;
+    }
+  }
+
+  numDests = doc->getCatalog()->numDests();
+  for (int i = 0; i < numDests; i++) {
+    GooString *name = new GooString(doc->getCatalog()->getDestsName(i));
+    LinkDest *dest = doc->getCatalog()->getDestsDest(i);
+    if (dest && dest->isPageRef()) {
+      map[dest->getPageRef()].insert(std::make_pair(name, dest));
+    } else {
+      delete name;
+      delete dest;
+    }
+  }
+
+  printf("Page  Destination                 Name\n");
+  for (int i = firstPage; i <= lastPage; i++) {
+    Ref *ref = doc->getCatalog()->getPageRef(i);
+    if (ref) {
+      auto pageDests = map.find(*ref);
+      if (pageDests != map.end()) {
+	for (auto& it: pageDests->second) {
+	  it.first->getCString()[4] = 0;
+	  printf("%4d ", i);
+	  printLinkDest(it.second);
+	  printf(" \"");
+	  Unicode *u;
+	  char buf[8];
+	  int n, len;
+	  len = TextStringToUCS4(it.first, &u);
+	  for (int i = 0; i < len; i++) {
+	    n = uMap->mapUnicode(u[i], buf, sizeof(buf));
+	    fwrite(buf, 1, n, stdout);
+	  }
+	  gfree(u);
+	  printf("\"\n");
+	  delete it.first;
+	  delete it.second;
+	}
+      }
+    }
+  }
+}
+
 void printInfo(PDFDoc *doc, UnicodeMap *uMap, long long filesize, GBool multiPage) {
   Page *page;
-  Object info;
   char buf[256];
   double w, h, wISO, hISO;
   int pg, i;
   int r;
 
   // print doc info
-  doc->getDocInfo(&info);
+  Object info = doc->getDocInfo();
   if (info.isDict()) {
     printInfoString(info.getDict(), "Title",        "Title:          ", uMap);
     printInfoString(info.getDict(), "Subject",      "Subject:        ", uMap);
@@ -319,7 +458,6 @@ void printInfo(PDFDoc *doc, UnicodeMap *uMap, long long filesize, GBool multiPag
       printInfoDate(info.getDict(),   "ModDate",      "ModDate:        ");
     }
   }
-  info.free();
 
   // print tagging info
    printf("Tagged:         %s\n",
@@ -558,7 +696,6 @@ int main(int argc, char *argv[]) {
   }
   if (lastPage == 0) {
     multiPage = gFalse;
-    lastPage = 1;
   } else {
     multiPage = gTrue;
   }
@@ -592,6 +729,8 @@ int main(int argc, char *argv[]) {
 	printStruct(structTree->getChild(i), 0);
       }
     }
+  } else if (printDests) {
+    printDestinations(doc, uMap);
   } else {
     // print info
     long long filesize = 0;
@@ -606,6 +745,10 @@ int main(int argc, char *argv[]) {
       filesize = Gftell(f);
       fclose(f);
     }
+
+    if (multiPage == gFalse)
+      lastPage = 1;
+
     printInfo(doc, uMap, filesize, multiPage);
   }
   exitCode = 0;

@@ -5,7 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
-// Copyright 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright 2010, 2017 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -23,12 +23,9 @@ PDFDoc *
 StdinPDFDocBuilder::buildPDFDoc(const GooString &uri, GooString *ownerPassword,
                                     GooString *userPassword, void *guiDataA)
 {
-  Object obj;
-
-  obj.initNull();
   CachedFile *cachedFile = new CachedFile(new StdinCacheLoader(), NULL);
   return new PDFDoc(new CachedFileStream(cachedFile, 0, gFalse,
-                                         cachedFile->getLength(), &obj),
+                                         cachedFile->getLength(), Object(objNull)),
                     ownerPassword, userPassword);
 }
 

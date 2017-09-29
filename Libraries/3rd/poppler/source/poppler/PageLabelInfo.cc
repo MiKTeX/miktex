@@ -3,7 +3,7 @@
 // This file is under the GPLv2 or later license
 //
 // Copyright (C) 2005-2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005, 2009, 2013 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2009, 2013, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2011 Simon Kellner <kellner@kit.edu>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 //
@@ -22,10 +22,9 @@
 #include "PageLabelInfo_p.h"
 
 PageLabelInfo::Interval::Interval(Object *dict, int baseA) {
-  Object obj;
-
   style = None;
-  if (dict->dictLookup("S", &obj)->isName()) {
+  Object obj = dict->dictLookup("S");
+  if (obj.isName()) {
     if (obj.isName("D")) {
       style = Arabic;
     } else if (obj.isName("R")) {
@@ -38,19 +37,18 @@ PageLabelInfo::Interval::Interval(Object *dict, int baseA) {
       style = LowercaseLatin;
     }
   }
-  obj.free();
 
-  if (dict->dictLookup("P", &obj)->isString())
+  obj = dict->dictLookup("P");
+  if (obj.isString())
     prefix = obj.getString()->copy();
   else
     prefix = new GooString("");
-  obj.free();
 
-  if (dict->dictLookup("St", &obj)->isInt())
+  obj = dict->dictLookup("St");
+  if (obj.isInt())
     first = obj.getInt();
   else
     first = 1;
-  obj.free();
 
   base = baseA;
 }
@@ -86,40 +84,32 @@ PageLabelInfo::~PageLabelInfo() {
 }
 
 void PageLabelInfo::parse(Object *tree) {
-  Object nums, obj;
-  Object kids, kid, limits, low, high;
-  int i, base;
-  Interval *interval;
-
   // leaf node
-  if (tree->dictLookup("Nums", &nums)->isArray()) {
-    for (i = 0; i < nums.arrayGetLength(); i += 2) {
-      if (!nums.arrayGet(i, &obj)->isInt()) {
-	obj.free();
+  Object nums = tree->dictLookup("Nums");
+  if (nums.isArray()) {
+    for (int i = 0; i < nums.arrayGetLength(); i += 2) {
+      Object obj = nums.arrayGet(i);
+      if (!obj.isInt()) {
 	continue;
       }
-      base = obj.getInt();
-      obj.free();
-      if (!nums.arrayGet(i + 1, &obj)->isDict()) {
-	obj.free();
+      int base = obj.getInt();
+      obj = nums.arrayGet(i + 1);
+      if (!obj.isDict()) {
 	continue;
       }
 
-      interval = new Interval(&obj, base);
-      obj.free();
-      intervals.append(interval);
+      intervals.append(new Interval(&obj, base));
     }
   }
-  nums.free();
 
-  if (tree->dictLookup("Kids", &kids)->isArray()) {
-    for (i = 0; i < kids.arrayGetLength(); ++i) {
-      if (kids.arrayGet(i, &kid)->isDict())
+  Object kids = tree->dictLookup("Kids");
+  if (kids.isArray()) {
+    for (int i = 0; i < kids.arrayGetLength(); ++i) {
+      Object kid = kids.arrayGet(i);
+      if (kid.isDict())
 	parse(&kid);
-      kid.free();
     }
   }
-  kids.free();
 }
 
 GBool PageLabelInfo::labelToIndex(GooString *label, int *index)

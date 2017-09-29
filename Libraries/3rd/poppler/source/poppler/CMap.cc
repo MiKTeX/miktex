@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2008 Koji Otani <sho@bbr.jp>
-// Copyright (C) 2008, 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2009, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2013 Fabio D'Urso <fabiodurso@hotmail.it>
 //
 // To see a description of the changes please see the Changelog file that
@@ -116,15 +116,11 @@ CMap *CMap::parse(CMapCache *cache, GooString *collectionA,
 }
 
 CMap *CMap::parse(CMapCache *cache, GooString *collectionA, Stream *str) {
-  Object obj1;
-  CMap *cMap;
-
-  cMap = new CMap(collectionA->copy(), NULL);
-
-  if (!str->getDict()->lookup("UseCMap", &obj1)->isNull()) {
+  CMap *cMap = new CMap(collectionA->copy(), NULL);
+  Object obj1 = str->getDict()->lookup("UseCMap");
+  if (!obj1.isNull()) {
     cMap->useCMap(cache, &obj1);
   }
-  obj1.free();
 
   str->reset();
   cMap->parse2(cache, &getCharFromStream, str);

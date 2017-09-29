@@ -16,7 +16,7 @@
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2007-2008 Julien Rebetez <julienr@svn.gnome.org>
-// Copyright (C) 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Paweł Wiejacha <pawel.wiejacha@gmail.com>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 //
@@ -56,18 +56,16 @@ public:
   // Destructor.
   ~Dict();
 
-  // Reference counting.
-  int incRef();
-  int decRef();
-
   // Get number of entries.
   int getLength() { return length; }
 
   // Add an entry.  NB: does not copy key.
-  void add(char *key, Object *val);
+  // val becomes a dead object after the call
+  void add(char *key, Object &&val);
 
   // Update the value of an existing entry, otherwise create it
-  void set(const char *key, Object *val);
+  // val becomes a dead object after the call
+  void set(const char *key, Object &&val);
   // Remove an entry. This invalidate indexes
   void remove(const char *key);
 
@@ -76,14 +74,14 @@ public:
 
   // Look up an entry and return the value.  Returns a null object
   // if <key> is not in the dictionary.
-  Object *lookup(const char *key, Object *obj, int recursion = 0);
-  Object *lookupNF(const char *key, Object *obj);
+  Object lookup(const char *key, int recursion = 0);
+  Object lookupNF(const char *key);
   GBool lookupInt(const char *key, const char *alt_key, int *value);
 
   // Iterative accessors.
   char *getKey(int i);
-  Object *getVal(int i, Object *obj);
-  Object *getValNF(int i, Object *obj);
+  Object getVal(int i);
+  Object getValNF(int i);
 
   // Set the xref pointer.  This is only used in one special case: the
   // trailer dictionary, which is read before the xref table is
@@ -95,6 +93,11 @@ public:
   GBool hasKey(const char *key);
 
 private:
+  friend class Object; // for incRef/decRef
+
+  // Reference counting.
+  int incRef();
+  int decRef();
 
   GBool sorted;
   XRef *xref;			// the xref table for this PDF file

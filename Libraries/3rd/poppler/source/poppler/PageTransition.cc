@@ -1,6 +1,6 @@
 /* PageTransition.cc
  * Copyright (C) 2005, Net Integration Technologies, Inc.
- * Copyright (C) 2010, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2010, 2017, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
  * Copyright (C) 2015, Arseniy Lartsev <arseniy@alumni.chalmers.se>
  *
@@ -50,7 +50,8 @@ PageTransition::PageTransition (Object *trans) {
   dict = trans->getDict();
 
   // get type
-  if (dict->lookup("S", &obj)->isName()) {
+  obj = dict->lookup("S");
+  if (obj.isName()) {
     const char *s = obj.getName();
     
     if (strcmp("R", s) == 0)
@@ -78,16 +79,16 @@ PageTransition::PageTransition (Object *trans) {
     else if (strcmp("Fade", s) == 0)
       type = transitionFade;
   }
-  obj.free();
 
   // get duration
-  if (dict->lookup("D", &obj)->isNum()) {
+  obj = dict->lookup("D");
+  if (obj.isNum()) {
     duration = obj.getNum();
   }
-  obj.free();
 
   // get alignment
-  if (dict->lookup("Dm", &obj)->isName()) {
+  obj = dict->lookup("Dm");
+  if (obj.isName()) {
     const char *dm = obj.getName();
     
     if (strcmp("H", dm) == 0)
@@ -95,10 +96,10 @@ PageTransition::PageTransition (Object *trans) {
     else if (strcmp("V", dm) == 0)
       alignment = transitionVertical;
   }
-  obj.free();
 
   // get direction
-  if (dict->lookup("M", &obj)->isName()) {
+  obj = dict->lookup("M");
+  if (obj.isName()) {
     const char *m = obj.getName();
     
     if (strcmp("I", m) == 0)
@@ -106,31 +107,30 @@ PageTransition::PageTransition (Object *trans) {
     else if (strcmp("O", m) == 0)
       direction = transitionOutward;
   }
-  obj.free();
 
   // get angle
-  if (dict->lookup("Di", &obj)->isInt()) {
+  obj = dict->lookup("Di");
+  if (obj.isInt()) {
     angle = obj.getInt();
   }
-  obj.free();
 
-  if (dict->lookup("Di", &obj)->isName()) {
+  obj = dict->lookup("Di");
+  if (obj.isName()) {
     if (strcmp("None", obj.getName()) == 0)
       angle = 0;
   }
-  obj.free();
 
   // get scale
-  if (dict->lookup("SS", &obj)->isNum()) {
+  obj = dict->lookup("SS");
+  if (obj.isNum()) {
     scale = obj.getNum();
   }
-  obj.free();
 
   // get rectangular
-  if (dict->lookup("B", &obj)->isBool()) {
+  obj = dict->lookup("B");
+  if (obj.isBool()) {
     rectangular = obj.getBool();
   }
-  obj.free();
 }
 
 PageTransition::~PageTransition()

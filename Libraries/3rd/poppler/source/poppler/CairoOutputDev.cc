@@ -16,11 +16,11 @@
 //
 // Copyright (C) 2005-2008 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005, 2009, 2012 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2009, 2012, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Nickolay V. Shmyrev <nshmyrev@yandex.ru>
 // Copyright (C) 2006-2011, 2013, 2014 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2008 Carl Worth <cworth@cworth.org>
-// Copyright (C) 2008-2016 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2008-2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
 // Copyright (C) 2008, 2009 Chris Wilson <chris@chris-wilson.co.uk>
 // Copyright (C) 2008, 2012 Hib Eris <hib@hiberis.nl>
@@ -143,7 +143,11 @@ CairoOutputDev::CairoOutputDev() {
   strokePathClip = NULL;
   cairo = NULL;
   currentFont = NULL;
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 14, 0)
+  prescaleImages = gFalse;
+#else
   prescaleImages = gTrue;
+#endif
   printing = gTrue;
   use_show_text_glyphs = gFalse;
   inUncoloredPattern = gFalse;
@@ -1961,7 +1965,7 @@ CairoOutputDev::getFilterForSurface(cairo_surface_t *image,
 				    GBool interpolate)
 {
   if (interpolate)
-    return CAIRO_FILTER_BILINEAR;
+    return CAIRO_FILTER_BEST;
 
   int orig_width = cairo_image_surface_get_width (image);
   int orig_height = cairo_image_surface_get_height (image);
@@ -1981,7 +1985,7 @@ CairoOutputDev::getFilterForSurface(cairo_surface_t *image,
   if (scaled_width / orig_width >= 4 || scaled_height / orig_height >= 4)
 	  return CAIRO_FILTER_NEAREST;
 
-  return CAIRO_FILTER_BILINEAR;
+  return CAIRO_FILTER_BEST;
 }
 
 void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
@@ -2956,9 +2960,8 @@ void CairoOutputDev::setMimeData(GfxState *state, Stream *str, Object *ref,
       return;
   }
 
-  str->getDict()->lookup("ColorSpace", &obj);
+  obj = str->getDict()->lookup("ColorSpace");
   colorSpace = GfxColorSpace::parse(NULL, &obj, this, state);
-  obj.free();
 
   // colorspace in stream dict may be different from colorspace in jpx
   // data

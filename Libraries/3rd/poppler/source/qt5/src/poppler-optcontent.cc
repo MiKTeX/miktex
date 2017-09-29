@@ -3,7 +3,7 @@
  * Copyright (C) 2007, Brad Hards <bradh@kde.org>
  * Copyright (C) 2008, 2014, Pino Toscano <pino@kde.org>
  * Copyright (C) 2008, Carlos Garcia Campos <carlosgc@gnome.org>
- * Copyright (C) 2015, 2016, Albert Astals Cid <aacid@kde.org>
+ * Copyright (C) 2015-2017, Albert Astals Cid <aacid@kde.org>
  * Copyright (C) 2017, Hubert Figuière <hub@figuiere.net>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -44,8 +44,7 @@ namespace Poppler
   {
     itemsInGroup.reserve(rbarray->getLength());
     for (int i = 0; i < rbarray->getLength(); ++i) {
-      Object ref;
-      rbarray->getNF( i, &ref );
+      Object ref = rbarray->getNF( i );
       if ( ! ref.isRef() ) {
 	qDebug() << "expected ref, but got:" << ref.getType();
       }
@@ -202,11 +201,9 @@ namespace Poppler
   {
     OptContentItem *lastItem = parentNode;
     for (int i = 0; i < orderArray->getLength(); ++i) {
-      Object orderItem;
-      orderArray->get(i, &orderItem);
+      Object orderItem = orderArray->get(i);
       if ( orderItem.isDict() ) {
-	Object item;
-	orderArray->getNF(i, &item);
+	Object item = orderArray->getNF(i);
 	if (item.isRef() ) {
           OptContentItem *ocItem = m_optContentItems.value(QString::number(item.getRefNum()), 0);
 	  if (ocItem) {
@@ -216,7 +213,6 @@ namespace Poppler
             qDebug() << "could not find group for object" << item.getRefNum();
 	  }
 	}
-	item.free();
       } else if ( (orderItem.isArray()) && (orderItem.arrayGetLength() > 0) ) {
 	parseOrderArray(lastItem, orderItem.getArray());
       } else if ( orderItem.isString() ) {
@@ -229,7 +225,6 @@ namespace Poppler
       } else {
 	qDebug() << "something unexpected";
       }	
-      orderItem.free();
     }
   }
 
@@ -240,8 +235,7 @@ namespace Poppler
     }
     // This is an array of array(s)
     for (int i = 0; i < rBGroupArray->getLength(); ++i) {
-      Object rbObj;
-      rBGroupArray->get(i, &rbObj);
+      Object rbObj = rBGroupArray->get(i);
       if ( ! rbObj.isArray() ) {
 	qDebug() << "expected inner array, got:" << rbObj.getType();
 	return;
@@ -249,7 +243,6 @@ namespace Poppler
       Array *rbarray = rbObj.getArray();
       RadioButtonGroup *rbg = new RadioButtonGroup( this, rbarray );
       m_rbgroups.append( rbg );
-      rbObj.free();
     }
   }
 

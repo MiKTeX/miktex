@@ -19,6 +19,7 @@
 // Copyright (C) 2010 Pino Toscano <pino@kde.org>
 // Copyright (C) 2011 Andreas Hartmetz <ahartmetz@gmail.com>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2017 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -48,7 +49,7 @@ class SplashFontEngine;
 struct SplashGlyphBitmap;
 
 //------------------------------------------------------------------------
-// ArthurOutputDev - Qt 4 QPainter renderer
+// ArthurOutputDev - Qt 5 QPainter renderer
 //------------------------------------------------------------------------
 
 class ArthurOutputDev: public OutputDev {
@@ -85,6 +86,9 @@ public:
   GBool interpretType3Chars() override { return gTrue; }
 
   //----- initialization and control
+
+  // Set Current Transformation Matrix to a fixed matrix given in ctm[0],...,ctm[5]
+  void setDefaultCTM(double *ctm) override;
 
   // Start a page.
   void startPage(int pageNum, GfxState *state, XRef *xref) override;

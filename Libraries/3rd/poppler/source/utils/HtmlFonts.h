@@ -18,7 +18,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2010 OSSD CDAC Mumbai by Leena Chourey (leenac@cdacmumbai.in) and Onkar Potdar (onkar@cdacmumbai.in)
-// Copyright (C) 2010, 2012 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2010, 2012, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2011 Steven Murdoch <Steven.Murdoch@cl.cam.ac.uk>
 // Copyright (C) 2011 Joshua Richardson <jric@chegg.com>
 // Copyright (C) 2012 Igor Slepchin <igor.slepchin@gmail.com>
@@ -72,7 +72,6 @@ class HtmlFont{
    double rotSkewMat[4]; // only four values needed for rotation and skew
 public:  
 
-   HtmlFont(){FontName=NULL; rotOrSkewed = gFalse;}
    HtmlFont(GfxFont *font,int _size, GfxRGB rgb);
    HtmlFont(const HtmlFont& x);
    HtmlFont& operator=(const HtmlFont& x);

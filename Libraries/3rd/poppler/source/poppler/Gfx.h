@@ -17,7 +17,7 @@
 // Copyright (C) 2007 Iñigo Martínez <inigomartinez@gmail.com>
 // Copyright (C) 2008 Brad Hards <bradh@kde.org>
 // Copyright (C) 2008, 2010 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2009-2013 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009-2013, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009, 2010, 2012, 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2010 David Benjamin <davidben@mit.edu>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
@@ -113,14 +113,14 @@ public:
   ~GfxResources();
 
   GfxFont *lookupFont(char *name);
-  GBool lookupXObject(char *name, Object *obj);
-  GBool lookupXObjectNF(char *name, Object *obj);
-  GBool lookupMarkedContentNF(char *name, Object *obj);
-  void lookupColorSpace(const char *name, Object *obj);
+  Object lookupXObject(char *name);
+  Object lookupXObjectNF(char *name);
+  Object lookupMarkedContentNF(char *name);
+  Object lookupColorSpace(const char *name);
   GfxPattern *lookupPattern(char *name, OutputDev *out, GfxState *state);
   GfxShading *lookupShading(char *name, OutputDev *out, GfxState *state);
-  GBool lookupGState(char *name, Object *obj);
-  GBool lookupGStateNF(char *name, Object *obj);
+  Object lookupGState(char *name);
+  Object lookupGStateNF(char *name);
 
   GfxResources *getNext() { return next; }
 

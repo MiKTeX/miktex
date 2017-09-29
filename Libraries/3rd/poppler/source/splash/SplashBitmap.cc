@@ -15,7 +15,7 @@
 // Copyright (C) 2007 Ilmari Heikkinen <ilmari.heikkinen@gmail.com>
 // Copyright (C) 2009 Shen Liang <shenzhuxi@gmail.com>
 // Copyright (C) 2009 Stefan Thomas <thomas@eload24.com>
-// Copyright (C) 2010, 2012 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2010, 2012, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2010 Harry Roberts <harry.roberts@midnight-labs.org>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 // Copyright (C) 2010, 2015 William Bader <williambader@hotmail.com>
@@ -341,7 +341,7 @@ SplashColorPtr SplashBitmap::takeData() {
   return data2;
 }
 
-SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, char *fileName, int hDPI, int vDPI, const char *compressionString) {
+SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, char *fileName, int hDPI, int vDPI, WriteImgParams* params) {
   FILE *f;
   SplashError e;
 
@@ -349,13 +349,24 @@ SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, char *fileN
     return splashErrOpenFile;
   }
 
-  e = writeImgFile(format, f, hDPI, vDPI, compressionString);
-  
+  e = writeImgFile(format, f, hDPI, vDPI, params);
+
   fclose(f);
   return e;
 }
 
-SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f, int hDPI, int vDPI, const char *compressionString) {
+void SplashBitmap::setJpegParams(ImgWriter *writer, WriteImgParams* params)
+{
+#ifdef ENABLE_LIBJPEG
+  if (params) {
+    static_cast<JpegWriter*>(writer)->setProgressive(params->jpegProgressive);
+    if (params->jpegQuality >= 0)
+      static_cast<JpegWriter*>(writer)->setQuality(params->jpegQuality);
+  }
+#endif
+}
+
+SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f, int hDPI, int vDPI, WriteImgParams* params) {
   ImgWriter *writer;
 	SplashError e;
   
@@ -372,10 +383,12 @@ SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f, in
     #if SPLASH_CMYK
     case splashFormatJpegCMYK:
       writer = new JpegWriter(JpegWriter::CMYK);
+      setJpegParams(writer, params);
       break;
     #endif
     case splashFormatJpeg:
       writer = new JpegWriter();
+      setJpegParams(writer, params);
       break;
     #endif
 	
@@ -404,8 +417,8 @@ SplashError SplashBitmap::writeImgFile(SplashImageFileFormat format, FILE *f, in
         fprintf(stderr, "TiffWriter: Mode %d not supported\n", mode);
         writer = new TiffWriter();
       }
-      if (writer) {
-        ((TiffWriter *)writer)->setCompressionString(compressionString);
+      if (writer && params) {
+        ((TiffWriter *)writer)->setCompressionString(params->tiffCompression.getCString());
       }
       break;
     #endif

@@ -154,7 +154,7 @@ class POPPLER_QT5_EXPORT AnnotationUtils
  * annotations are always positioned as if they were being positioned at the
  * default page orientation.
  *
- * Just like regular annotations, %Poppler Qt4 exposes normalized coordinates
+ * Just like regular annotations, %Poppler Qt5 exposes normalized coordinates
  * relative to the page's default orientation. However, behind the scenes, the
  * coordinate system is different and %Poppler transparently transforms each
  * shape. If you never call either Annotation::setFlags or

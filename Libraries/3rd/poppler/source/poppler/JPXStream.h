@@ -262,15 +262,15 @@ public:
 
   JPXStream(Stream *strA);
   virtual ~JPXStream();
-  virtual StreamKind getKind() { return strJPX; }
-  virtual void reset();
-  virtual void close();
-  virtual int getChar();
-  virtual int lookChar();
-  virtual GooString *getPSFilter(int psLevel, const char *indent);
-  virtual GBool isBinary(GBool last = gTrue);
+  virtual StreamKind getKind() override { return strJPX; }
+  virtual void reset() override;
+  virtual void close() override;
+  virtual int getChar() override;
+  virtual int lookChar() override;
+  virtual GooString *getPSFilter(int psLevel, const char *indent) override;
+  virtual GBool isBinary(GBool last = gTrue) override;
   virtual void getImageParams(int *bitsPerComponent,
-			      StreamColorSpaceMode *csMode);
+			      StreamColorSpaceMode *csMode) override;
 
 private:
 

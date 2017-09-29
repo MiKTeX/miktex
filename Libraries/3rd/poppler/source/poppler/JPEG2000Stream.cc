@@ -4,7 +4,7 @@
 //
 // A JPX stream decoder using OpenJPEG
 //
-// Copyright 2008-2010, 2012 Albert Astals Cid <aacid@kde.org>
+// Copyright 2008-2010, 2012, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright 2011 Daniel Glöckner <daniel-gl@gmx.net>
 // Copyright 2014, 2016 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright 2013, 2014 Adrian Johnson <ajohnson@redneon.com>
@@ -196,25 +196,20 @@ static void libopenjpeg_warning_callback(const char *msg, void * /*client_data*/
 void JPXStream::init()
 {
   Object oLen, cspace, smaskInData;
-  if (getDict()) getDict()->lookup("Length", &oLen);
-  if (getDict()) getDict()->lookup("ColorSpace", &cspace);
-  if (getDict()) getDict()->lookup("SMaskInData", &smaskInData);
+  if (getDict()) oLen = getDict()->lookup("Length");
+  if (getDict()) cspace = getDict()->lookup("ColorSpace");
+  if (getDict()) smaskInData = getDict()->lookup("SMaskInData");
 
   int bufSize = BUFFER_INITIAL_SIZE;
   if (oLen.isInt()) bufSize = oLen.getInt();
-  oLen.free();
 
   if (cspace.isArray() && cspace.arrayGetLength() > 0) {
-    Object cstype;
-    cspace.arrayGet(0, &cstype);
+    Object cstype = cspace.arrayGet(0);
     if (cstype.isName("Indexed")) priv->indexed = gTrue;
-    cstype.free();
   }
-  cspace.free();
 
   priv->smaskInData = 0;
   if (smaskInData.isInt()) priv->smaskInData = smaskInData.getInt();
-  smaskInData.free();
 
   int length = 0;
   unsigned char *buf = str->toUnsignedChars(&length, bufSize);
@@ -363,25 +358,22 @@ static OPJ_BOOL jpxSeek_callback(OPJ_OFF_T seek_pos, void * p_user_data)
 void JPXStream::init()
 {
   Object oLen, cspace, smaskInData;
-  if (getDict()) getDict()->lookup("Length", &oLen);
-  if (getDict()) getDict()->lookup("ColorSpace", &cspace);
-  if (getDict()) getDict()->lookup("SMaskInData", &smaskInData);
+  if (getDict()) {
+    oLen = getDict()->lookup("Length");
+    cspace = getDict()->lookup("ColorSpace");
+    smaskInData = getDict()->lookup("SMaskInData");
+  }
 
   int bufSize = BUFFER_INITIAL_SIZE;
   if (oLen.isInt()) bufSize = oLen.getInt();
-  oLen.free();
 
   if (cspace.isArray() && cspace.arrayGetLength() > 0) {
-    Object cstype;
-    cspace.arrayGet(0, &cstype);
+    Object cstype = cspace.arrayGet(0);
     if (cstype.isName("Indexed")) priv->indexed = gTrue;
-    cstype.free();
   }
-  cspace.free();
 
   priv->smaskInData = 0;
   if (smaskInData.isInt()) priv->smaskInData = smaskInData.getInt();
-  smaskInData.free();
 
   int length = 0;
   unsigned char *buf = str->toUnsignedChars(&length, bufSize);
@@ -504,6 +496,7 @@ void JPXStreamPrivate::init2(OPJ_CODEC_FORMAT format, unsigned char *buf, int le
     return;
 
 error:
+  opj_stream_destroy(stream);
   opj_destroy_codec(decoder);
   if (format == OPJ_CODEC_JP2) {
     error(errSyntaxWarning, -1, "Did no succeed opening JPX Stream as JP2, trying as J2K.");

@@ -14,9 +14,10 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Marco Pesenti Gritti <mpg@redhat.com>
-// Copyright (C) 2008, 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2016, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Nick Jones <nick.jones@network-box.com>
 // Copyright (C) 2016 Jason Crain <jason@aquaticape.us>
+// Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -41,15 +42,12 @@
 //------------------------------------------------------------------------
 
 Outline::Outline(Object *outlineObj, XRef *xref) {
-  Object first, last;
-
-  items = NULL;
+  items = nullptr;
   if (!outlineObj->isDict()) {
     return;
   }
-  items = OutlineItem::readItemList(outlineObj->dictLookupNF("First", &first), xref);
-  first.free();
-  last.free();
+  Object first = outlineObj->dictLookupNF("First");
+  items = OutlineItem::readItemList(&first, xref);
 }
 
 Outline::~Outline() {
@@ -62,42 +60,42 @@ Outline::~Outline() {
 
 OutlineItem::OutlineItem(Dict *dict, XRef *xrefA) {
   Object obj1;
-  GooString *s;
 
   xref = xrefA;
   title = NULL;
   action = NULL;
   kids = NULL;
 
-  if (dict->lookup("Title", &obj1)->isString()) {
-    s = obj1.getString();
+
+  obj1 = dict->lookup("Title");
+  if (obj1.isString()) {
+    GooString *s = obj1.getString();
     titleLen = TextStringToUCS4(s, &title);
   } else {
     titleLen = 0;
   }
-  obj1.free();
 
-  if (!dict->lookup("Dest", &obj1)->isNull()) {
+  obj1 = dict->lookup("Dest");
+  if (!obj1.isNull()) {
     action = LinkAction::parseDest(&obj1);
   } else {
-      obj1.free();
-    if (!dict->lookup("A", &obj1)->isNull()) {
-        action = LinkAction::parseAction(&obj1);
+    obj1 = dict->lookup("A");
+    if (!obj1.isNull()) {
+      action = LinkAction::parseAction(&obj1);
+    }
   }
-  }
-  obj1.free();
 
-  dict->lookupNF("First", &firstRef);
-  dict->lookupNF("Last", &lastRef);
-  dict->lookupNF("Next", &nextRef);
+  firstRef = dict->lookupNF("First");
+  lastRef = dict->lookupNF("Last");
+  nextRef = dict->lookupNF("Next");
 
   startsOpen = gFalse;
-  if (dict->lookup("Count", &obj1)->isInt()) {
+  obj1 = dict->lookup("Count");
+  if (obj1.isInt()) {
     if (obj1.getInt() > 0) {
       startsOpen = gTrue;
     }
   }
-  obj1.free();
 }
 
 OutlineItem::~OutlineItem() {
@@ -108,16 +106,12 @@ OutlineItem::~OutlineItem() {
   if (action) {
     delete action;
   }
-  firstRef.free();
-  lastRef.free();
-  nextRef.free();
 }
 
 GooList *OutlineItem::readItemList(Object *firstItemRef, XRef *xrefA) {
   GooList *items;
   char* alreadyRead;
   OutlineItem *item;
-  Object obj;
   Object *p;
 
   items = new GooList();
@@ -130,13 +124,12 @@ GooList *OutlineItem::readItemList(Object *firstItemRef, XRef *xrefA) {
 	 (p->getRefNum() >= 0) && 
          (p->getRefNum() < xrefA->getNumObjects()) && 
          !alreadyRead[p->getRefNum()]) {
-    if (!p->fetch(xrefA, &obj)->isDict()) {
-      obj.free();
+    Object obj = p->fetch(xrefA);
+    if (!obj.isDict()) {
       break;
     }
     alreadyRead[p->getRefNum()] = 1;
     item = new OutlineItem(obj.getDict(), xrefA);
-    obj.free();
     items->append(item);
     p = &item->nextRef;
   }

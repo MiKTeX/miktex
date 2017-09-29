@@ -22,6 +22,7 @@
 // Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2014 Bogdan Cristea <cristeab@gmail.com>
 // Copyright (C) 2014 Peter Breitenlohner <peb@mppmu.mpg.de>
+// Copyright (C) 2017 Christoph Cullmann <cullmann@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -199,7 +200,7 @@ private:
   GooString *path;		// directory path
   GBool doStat;			// call stat() for each entry?
 #if defined(_WIN32) && !defined(MIKTEX)
-  WIN32_FIND_DATA ffd;
+  WIN32_FIND_DATAA ffd;
   HANDLE hnd;
 #elif defined(ACORN)
 #elif defined(MACOS)
