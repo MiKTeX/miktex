@@ -448,14 +448,36 @@ static void copyProcSet(Object * obj)
 
 #define REPLACE_TYPE1C true
 
+#ifdef MIKTEX_POPPLER_59
+static bool embeddableFont(Object * fontdesc)
+{
+    Object fontfile, ffsubtype;
+
+    if (!fontdesc->isDict())
+        return false;
+    fontfile = fontdesc->dictLookup("FontFile");
+    if (fontfile.isStream())
+        return true;
+    if (REPLACE_TYPE1C) {
+        fontfile = fontdesc->dictLookup("FontFile3");
+        if (!fontfile.isStream())
+            return false;
+        ffsubtype = fontfile.streamGetDict()->lookup("Subtype");
+        return ffsubtype.isName() && !strcmp(ffsubtype.getName(), "Type1C");
+    }
+    return false;
+}
+
+#endif
 static void copyFont(char *tag, Object * fontRef)
 {
 #ifndef MIKTEX_POPPLER_59
     PdfObject fontdict, subtype, basefont, fontdescRef, fontdesc, charset,
+        fontfile, ffsubtype, stemV;
 #else
     Object fontdict, subtype, basefont, fontdescRef, fontdesc, charset,
+        stemV;
 #endif
-        fontfile, ffsubtype, stemV;
     GfxFont *gfont;
     fd_entry *fd;
     fm_entry *fontmap;
@@ -487,23 +509,13 @@ static void copyFont(char *tag, Object * fontRef)
         && (fontmap = lookup_fontmap(basefont->getName())) != NULL) {
 #else
     fontdict = fontRef->fetch(xref);
+    fontdesc = Object(objNull);
     if (fontdict.isDict()) {
         subtype = fontdict.dictLookup("Subtype");
         basefont = fontdict.dictLookup("BaseFont");
         fontdescRef = fontdict.dictLookupNF("FontDescriptor");
         if (fontdescRef.isRef()) {
             fontdesc = fontdescRef.fetch(xref);
-            if (fontdesc.isDict()) {
-                fontfile = fontdesc.dictLookup("FontFile");
-                if (!fontfile.isStream() && REPLACE_TYPE1C) {
-                    fontfile = fontdesc.dictLookup("FontFile3");
-                    ffsubtype = fontfile.streamGetDict()->lookup("Subtype");
-                    if (!(ffsubtype.isName() && !strcmp(ffsubtype.getName(), "Type1C"))) {
-                        // not a Type1-C font.
-                        fontfile = Object(objNull);
-                    }
-                }
-            }
         }
     }
     if (!fixedinclusioncopyfont && fontdict.isDict()
@@ -512,7 +524,7 @@ static void copyFont(char *tag, Object * fontRef)
         && basefont.isName()
         && fontdescRef.isRef()
         && fontdesc.isDict()
-        && fontfile.isStream()
+        && embeddableFont(&fontdesc)
         && (fontmap = lookup_fontmap(basefont.getName())) != NULL) {
 #endif
         // round /StemV value, since the PDF input is a float
@@ -746,11 +758,13 @@ static void copyObject(Object * obj)
     } else if (obj->isStream()) {
 #ifndef MIKTEX_POPPLER_59
         initDictFromDict(obj1, obj->streamGetDict());
-#else
-        obj1 = Object(obj->streamGetDict());
 #endif
         pdf_puts("<<\n");
+#ifndef MIKTEX_POPPLER_59
         copyDict(&obj1);
+#else
+        copyDict(obj->getStream()->getDictObject());
+#endif
         pdf_puts(">>\n");
         pdf_puts("stream\n");
         copyStream(obj->getStream()->getUndecodedStream());
@@ -1173,28 +1187,21 @@ void write_epdf(void)
     } else {
 #ifndef MIKTEX_POPPLER_59
         initDictFromDict(obj1, page->getResourceDict());
+#else
+        Object *obj1 = page->getResourceDictObject();
+#endif
         if (!obj1->isDict())
-#else
-        obj1 = Object(page->getResourceDict());
-        if (!obj1.isDict())
-#endif
             pdftex_fail("PDF inclusion: invalid resources dict type <%s>",
-#ifndef MIKTEX_POPPLER_59
                         obj1->getTypeName());
-#else
-                        obj1.getTypeName());
-#endif
         pdf_newline();
         pdf_puts("/Resources <<\n");
-#ifndef MIKTEX_POPPLER_59
         for (i = 0, l = obj1->dictGetLength(); i < l; ++i) {
+#ifndef MIKTEX_POPPLER_59
             obj1->dictGetVal(i, &obj2);
-            key = obj1->dictGetKey(i);
 #else
-        for (i = 0, l = obj1.dictGetLength(); i < l; ++i) {
-            obj2 = obj1.dictGetVal(i);
-            key = obj1.dictGetKey(i);
+            obj2 = obj1->dictGetVal(i);
 #endif
+            key = obj1->dictGetKey(i);
             if (strcmp("Font", key) == 0)
                 copyFontResources(&obj2);
             else if (strcmp("ProcSet", key) == 0)
