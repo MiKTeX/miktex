@@ -7,6 +7,10 @@
 * dvipdfmx 20170806, XeTeX
   Support /Rotate in PDF image inclusion
 
+### Upgraded libraries
+
+* FreeType 2.8.1
+
 ### Bug fixes
 
 * [4](https://github.com/MiKTeX/miktex/issues/4): `xdvipdfmx` with options supplied as `output-driver` to XeLaTeX results in `can't write on file` error
@@ -32,7 +36,7 @@
 
 * cairo 1.4.10
 * fontconfig 2.12.3
-* freetype 2.8
+* FreeType 2.8
 * graphite2 1.3.10
 * HarfBuzz 1.4.7
 * libcurl 7.54.1
