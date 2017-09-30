@@ -9,6 +9,7 @@
 
 ### Upgraded libraries
 
+* FreeType 2.8.1
 * Poppler 0.59.0
 
 ### Bug fixes
@@ -36,7 +37,7 @@
 
 * cairo 1.4.10
 * fontconfig 2.12.3
-* freetype 2.8
+* FreeType 2.8
 * graphite2 1.3.10
 * HarfBuzz 1.4.7
 * libcurl 7.54.1
