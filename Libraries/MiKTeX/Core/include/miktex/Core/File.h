@@ -140,6 +140,13 @@ enum class CreateLinkOption
 
 typedef OptionSet<CreateLinkOption> CreateLinkOptionSet;
 
+enum class FileExistsOption
+{
+  SymbolicLink
+};
+
+typedef OptionSet<FileExistsOption> FileExistsOptionSet;
+
 /// File class.
 class MIKTEXNOVTABLE File
 {
@@ -167,6 +174,10 @@ public:
 
 public:
   static MIKTEXCORECEEAPI(void) Delete(const PathName& path);
+
+  /// Tests if a file exists.
+public:
+  static MIKTEXCORECEEAPI(bool) Exists(const PathName& path, FileExistsOptionSet options);
 
   /// Tests if a file exists.
 public:
