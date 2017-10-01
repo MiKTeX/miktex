@@ -31,6 +31,11 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
+bool File::Exists(const PathName& path)
+{
+  return File::Exists(path, {});
+}
+
 void File::Delete(const PathName& path, FileDeleteOptionSet options)
 {
   shared_ptr<SessionImpl> session = SessionImpl::GetSession();

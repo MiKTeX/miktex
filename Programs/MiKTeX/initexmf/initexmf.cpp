@@ -1287,18 +1287,33 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
   }
   for (const string& linkName : fileLink.linkNames)
   {
-    if (File::Exists(linkName))
+    FileExistsOptionSet fileExistsOptions;
+#if defined(MIKTEX_UNIX)
+    fileExistsOptions += FileExistsOption::SymbolicLink;
+#endif
+    if (File::Exists(linkName, fileExistsOptions))
     {
       if (!isRemoveRequested && (!allowOverwrite || (linkType == LinkType::Copy && File::Equals(fileLink.target, linkName))))
       {
         continue;
       }
 #if defined(MIKTEX_UNIX)
-      bool isMiKTeXSymlinked = File::IsSymbolicLink(linkName) && File::ReadSymbolicLink(linkName).GetFileName() == PathName(fileLink.target).GetFileName();
-      if (!isMiKTeXSymlinked)
+      if (File::IsSymbolicLink(linkName))
       {
-        LOG4CXX_TRACE(logger, Q_(linkName) << "is not symlinked to a MiKTeX executable");
-        continue;
+        PathName linkTarget = File::ReadSymbolicLink(linkName);
+        bool isMiKTeXSymlinked = linkTarget.GetFileName() == PathName(fileLink.target).GetFileName();
+        if (!isMiKTeXSymlinked)
+        {
+          if (File::Exists(linkTarget))
+          {
+            LOG4CXX_WARN(logger, Q_(linkName) << " already symlinked to " << Q_(linkTarget));
+            continue;
+          }
+          else
+          {
+            LOG4CXX_TRACE(logger, Q_(linkName) << " is symlinked to non-existing " << Q_(linkTarget));
+          }
+        }
       }
 #endif
       PrintOnly("rm %s", Q_(linkName));

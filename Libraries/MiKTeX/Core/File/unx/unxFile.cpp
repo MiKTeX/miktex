@@ -31,10 +31,19 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-bool File::Exists(const PathName& path)
+bool File::Exists(const PathName& path, FileExistsOptionSet options)
 {
   struct stat statbuf;
-  if (stat(path.GetData(), &statbuf) == 0)
+  int statret;
+  if (options[FileExistsOption::SymbolicLink])
+  {
+    statret = lstat(path.GetData(), &statbuf);
+  }
+  else
+  {
+    statret = stat(path.GetData(), &statbuf);
+  }    
+  if (statret == 0)
   {
     if (S_ISDIR(statbuf.st_mode) != 0)
     {

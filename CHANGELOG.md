@@ -10,6 +10,7 @@
 ### Upgraded libraries
 
 * FreeType 2.8.1
+* HarfBuzz 1.5.1
 * Poppler 0.59.0
 
 ### Bug fixes

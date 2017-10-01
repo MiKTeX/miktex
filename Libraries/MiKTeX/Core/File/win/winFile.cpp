@@ -42,8 +42,12 @@ static unsigned long GetFileAttributes_harmlessErrors[] = {
   ERROR_BAD_PATHNAME, // 161
 };
 
-bool File::Exists(const PathName& path)
+bool File::Exists(const PathName& path, FileExistsOptionSet options)
 {
+  if (options[FileExistsOption::SymbolicLink])
+  {
+    UNIMPLEMENTED();
+  }
   unsigned long attributes = GetFileAttributesW(path.ToWideCharString().c_str());
   if (attributes != INVALID_FILE_ATTRIBUTES)
   {
