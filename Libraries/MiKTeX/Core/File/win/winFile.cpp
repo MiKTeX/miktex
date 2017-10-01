@@ -44,7 +44,7 @@ static unsigned long GetFileAttributes_harmlessErrors[] = {
 
 bool File::Exists(const PathName& path, FileExistsOptionSet options)
 {
-  if (!options[FileExistsOption::SymbolicLink])
+  if (options[FileExistsOption::SymbolicLink])
   {
     UNIMPLEMENTED();
   }
