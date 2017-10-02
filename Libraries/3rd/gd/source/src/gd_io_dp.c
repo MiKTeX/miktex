@@ -180,6 +180,9 @@ static int dynamicSeek(struct gdIOCtx *ctx, const int pos)
 	dynamicPtr *dp;
 	dpIOCtx *dctx;
 
+	if (pos < 0) {
+		return FALSE;
+	}
 	dctx = (dpIOCtx *)ctx;
 	dp = dctx->dp;
 
@@ -290,6 +293,10 @@ static int dynamicGetbuf(gdIOCtxPtr ctx, void *buf, int len)
 
 	if (dp->pos + rlen > dp->realSize) {
 		rlen = dp->realSize - dp->pos;
+	}
+
+	if (rlen < 0) {
+		return 0;
 	}
 
 	memcpy(buf, (void *) ((char *)dp->data + dp->pos), rlen);

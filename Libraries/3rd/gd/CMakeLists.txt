@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -37,7 +37,7 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 configure_file(
-  config.h.cmake
+  source/src/config.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
 )
 
