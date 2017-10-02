@@ -11,6 +11,7 @@
 
 * FreeType 2.8.1
 * HarfBuzz 1.5.1
+* libpng 1.6.34
 
 ### Bug fixes
 
