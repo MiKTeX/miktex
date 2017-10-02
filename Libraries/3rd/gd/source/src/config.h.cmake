@@ -1,31 +1,31 @@
-/* config.h.cmake for MiKTeX; Derived from source/src/config.h.cmake. */
+/* Generated from config.hin via autoheader for cmake; see bootstrap.sh. */
 
 /* Define is you are building for Win32 API */
 #cmakedefine BGDWIN32
 
 /* Define to 1 if you have the <dirent.h> header file. */
-#cmakedefine HAVE_DIRENT_H 1
+#cmakedefine HAVE_DIRENT_H
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-#cmakedefine HAVE_DLFCN_H 1
+#cmakedefine HAVE_DLFCN_H
 
 /* Define to 1 if you have the <errno.h> header file. */
-#cmakedefine HAVE_ERRNO_H 1
+#cmakedefine HAVE_ERRNO_H
 
 /* Define if you have the ft2build.h header. */
-#cmakedefine HAVE_FT2BUILD_H 1
+#cmakedefine HAVE_FT2BUILD_H
 
 /* Define if you have the iconv() function and it works. */
 #cmakedefine HAVE_ICONV
 
 /* Define to 1 if you have the <iconv.h> header file. */
-#cmakedefine HAVE_ICONV_H 1
+#cmakedefine HAVE_ICONV_H
 
 /* Define if <iconv.h> defines iconv_t. */
 #cmakedefine HAVE_ICONV_T_DEF
 
 /* Define to 1 if you have the <inttypes.h> header file. */
-#cmakedefine HAVE_INTTYPES_H 1
+#cmakedefine HAVE_INTTYPES_H
 
 /* Define if you have fontconfig */
 #cmakedefine HAVE_LIBFONTCONFIG
@@ -40,7 +40,7 @@
 #cmakedefine HAVE_LIBJPEG
 
 /* Define to 1 if you have the `m' library (-lm). */
-#cmakedefine HAVE_LIBM 1
+#cmakedefine HAVE_LIBM
 
 /* Define if you have png */
 #cmakedefine HAVE_LIBPNG
@@ -49,7 +49,7 @@
 #cmakedefine HAVE_LIBTIFF
 
 /* Define if you have webp */
-#cmakedefine HAVE_LIBWEBP 1
+#cmakedefine HAVE_LIBWEBP
 
 /* Define if you have xpm */
 #cmakedefine HAVE_LIBXPM
@@ -58,10 +58,10 @@
 #cmakedefine HAVE_LIBZ
 
 /* Define to 1 if you have the <limits.h> header file. */
-#cmakedefine HAVE_LIMITS_H 1
+#cmakedefine HAVE_LIMITS_H
 
 /* Define to 1 if you have the <memory.h> header file. */
-#cmakedefine HAVE_MEMORY_H 1
+#cmakedefine HAVE_MEMORY_H
 
 /* Define if OpenMP is enabled */
 #cmakedefine HAVE_OPENMP
@@ -73,38 +73,37 @@
 #cmakedefine HAVE_PTHREAD_PRIO_INHERIT
 
 /* Define to 1 if you have the <stddef.h> header file. */
-#cmakedefine HAVE_STDDEF_H 1
+#cmakedefine HAVE_STDDEF_H
 
 /* Define to 1 if you have the <stdint.h> header file. */
-#cmakedefine HAVE_STDINT_H 1
+#cmakedefine HAVE_STDINT_H
 
 /* Define to 1 if you have the <stdlib.h> header file. */
-#cmakedefine HAVE_STDLIB_H 1
+#cmakedefine HAVE_STDLIB_H
 
 /* Define to 1 if you have the <strings.h> header file. */
-#cmakedefine HAVE_STRINGS_H 1
+#cmakedefine HAVE_STRINGS_H
 
 /* Define to 1 if you have the <string.h> header file. */
-#cmakedefine HAVE_STRING_H 1
+#cmakedefine HAVE_STRING_H
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
-#cmakedefine HAVE_SYS_STAT_H 1
+#cmakedefine HAVE_SYS_STAT_H
 
 /* Define to 1 if you have the <sys/types.h> header file. */
-#cmakedefine HAVE_SYS_TYPES_H 1
+#cmakedefine HAVE_SYS_TYPES_H
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H
 
 /* Define to 1 or 0, depending whether the compiler supports simple visibility
    declarations. */
-#cmakedefine HAVE_VISIBILITY 1
+#cmakedefine HAVE_VISIBILITY
 
 /* Define as const if the declaration of iconv() needs const. */
 #cmakedefine ICONV_CONST
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 #cmakedefine LT_OBJDIR
 
 /* Name of package */
@@ -133,7 +132,7 @@
 #cmakedefine PTHREAD_CREATE_JOINABLE
 
 /* Define to 1 if you have the ANSI C header files. */
-#cmakedefine STDC_HEADERS 1
+#cmakedefine STDC_HEADERS
 
 /* Version number of package */
 #cmakedefine VERSION

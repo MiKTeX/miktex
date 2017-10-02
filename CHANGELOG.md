@@ -11,6 +11,8 @@
 
 * FreeType 2.8.1
 * HarfBuzz 1.5.1
+* LibGD 2.2.5
+* libpng 1.6.34
 * Poppler 0.59.0
 
 ### Bug fixes

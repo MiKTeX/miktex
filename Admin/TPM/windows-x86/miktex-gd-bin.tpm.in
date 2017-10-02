@@ -5,7 +5,7 @@
     <TPM:Name>GD lib win32</TPM:Name>
     <TPM:Title>GD runtime library, Windows x86</TPM:Title>
     <TPM:License type="permissive"/>
-    <TPM:Version>2.2.4</TPM:Version>
+    <TPM:Version>2.2.5</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
