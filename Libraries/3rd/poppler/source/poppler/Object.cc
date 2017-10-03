@@ -160,11 +160,11 @@ void Object::free() {
   type = objNone;
 }
 
-const char *Object::getTypeName() {
+const char *Object::getTypeName() const {
   return objTypeNames[type];
 }
 
-void Object::print(FILE *f) {
+void Object::print(FILE *f) const {
   Object obj;
   int i;
 

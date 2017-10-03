@@ -31,7 +31,7 @@ struct tm *localtime_r(const time_t *timep, struct tm *result);
 time_t timegm(struct tm *tm);
 #endif
 
-};
+}
 
 #endif // GLIBC_H
 

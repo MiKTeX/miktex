@@ -163,7 +163,7 @@ void Dict::add(char *key, Object &&val) {
   ++length;
 }
 
-inline DictEntry *Dict::find(const char *key) {
+inline DictEntry *Dict::find(const char *key) const {
   if (!sorted && length >= SORT_LENGTH_LOWER_LIMIT)
   {
       dictLocker();
@@ -187,7 +187,7 @@ inline DictEntry *Dict::find(const char *key) {
   return NULL;
 }
 
-GBool Dict::hasKey(const char *key) {
+GBool Dict::hasKey(const char *key) const {
   return find(key) != NULL;
 }
 
@@ -247,25 +247,25 @@ void Dict::set(const char *key, Object &&val) {
 }
 
 
-GBool Dict::is(const char *type) {
+GBool Dict::is(const char *type) const {
   DictEntry *e;
 
   return (e = find("Type")) && e->val.isName(type);
 }
 
-Object Dict::lookup(const char *key, int recursion) {
+Object Dict::lookup(const char *key, int recursion) const {
   DictEntry *e;
 
   return (e = find(key)) ? e->val.fetch(xref, recursion) : Object(objNull);
 }
 
-Object Dict::lookupNF(const char *key) {
+Object Dict::lookupNF(const char *key) const {
   DictEntry *e;
 
   return (e = find(key)) ? e->val.copy() : Object(objNull);
 }
 
-GBool Dict::lookupInt(const char *key, const char *alt_key, int *value)
+GBool Dict::lookupInt(const char *key, const char *alt_key, int *value) const
 {
   GBool success = gFalse;
   Object obj1 = lookup ((char *) key);
@@ -283,14 +283,14 @@ GBool Dict::lookupInt(const char *key, const char *alt_key, int *value)
   return success;
 }
 
-char *Dict::getKey(int i) {
+char *Dict::getKey(int i) const {
   return entries[i].key;
 }
 
-Object Dict::getVal(int i) {
+Object Dict::getVal(int i) const {
   return entries[i].val.fetch(xref);
 }
 
-Object Dict::getValNF(int i) {
+Object Dict::getValNF(int i) const {
   return entries[i].val.copy();
 }

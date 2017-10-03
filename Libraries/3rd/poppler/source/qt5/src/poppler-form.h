@@ -277,6 +277,16 @@ namespace Poppler {
 	 */
 	bool canBeSpellChecked() const;
 
+	/**
+	  The font size of the text in the form field
+	 */
+	double getFontSize() const;
+
+	/**
+	  Set the font size of the text in the form field (currently only as integer)
+	 */
+	void setFontSize(int fontSize);
+
     private:
 	Q_DISABLE_COPY(FormFieldText)
     };

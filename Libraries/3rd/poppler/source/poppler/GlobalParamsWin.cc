@@ -78,7 +78,7 @@ description for all fonts available in Windows. That's how MuPDF works.
 #define DEFAULT_CID_FONT_AK1_MSWIN "Batang"    /* Adobe-Korea1 */
 #define DEFAULT_CID_FONT_MSWIN "ArialUnicode"  /* Unknown */
 
-static struct {
+static const struct {
     const char *name;
     const char *t1FileName;
     const char *ttFileName;

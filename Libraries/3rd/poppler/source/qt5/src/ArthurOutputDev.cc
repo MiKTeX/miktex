@@ -22,6 +22,7 @@
 // Copyright (C) 2011 Andreas Hartmetz <ahartmetz@gmail.com>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2013 Dominik Haumann <dhaumann@kde.org>
+// Copyright (C) 2013 Mihai Niculescu <q.quark@gmail.com>
 // Copyright (C) 2017 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 // To see a description of the changes please see the Changelog file that
@@ -50,17 +51,15 @@
 #include "ArthurOutputDev.h"
 
 #include <QtCore/QtDebug>
+#include <QRawFont>
+#include <QGlyphRun>
 #include <QtGui/QPainterPath>
 //------------------------------------------------------------------------
 
 #ifdef HAVE_SPLASH
 #include "splash/SplashFontFileID.h"
-#include "splash/SplashFontFile.h"
+#include "splash/SplashFTFontFile.h"
 #include "splash/SplashFontEngine.h"
-#include "splash/SplashFont.h"
-#include "splash/SplashMath.h"
-#include "splash/SplashPath.h"
-#include "splash/SplashGlyphBitmap.h"
 //------------------------------------------------------------------------
 // SplashOutFontFileID
 //------------------------------------------------------------------------
@@ -94,7 +93,6 @@ ArthurOutputDev::ArthurOutputDev(QPainter *painter):
 {
   m_currentBrush = QBrush(Qt::SolidPattern);
   m_fontEngine = 0;
-  m_font = 0;
 }
 
 ArthurOutputDev::~ArthurOutputDev()
@@ -187,9 +185,23 @@ void ArthurOutputDev::updateLineDash(GfxState *state)
   int dashLength;
   double dashStart;
   state->getLineDash(&dashPattern, &dashLength, &dashStart);
+
+  // Special handling for zero-length patterns, i.e., solid lines.
+  // Simply calling QPen::setDashPattern with an empty pattern does *not*
+  // result in a solid line.  Rather, the current pattern is unchanged.
+  // See the implementation of the setDashPattern method in the file qpen.cpp.
+  if (dashLength==0)
+  {
+    m_currentPen.setStyle(Qt::SolidLine);
+    m_painter->setPen(m_currentPen);
+    return;
+  }
+
   QVector<qreal> pattern(dashLength);
   for (int i = 0; i < dashLength; ++i) {
-    pattern[i] = dashPattern[i];
+    // pdf measures the dash pattern in dots, but Qt uses the
+    // line width as the unit.
+    pattern[i] = dashPattern[i] / state->getLineWidth();
   }
   m_currentPen.setDashPattern(pattern);
   m_currentPen.setDashOffset(dashStart);
@@ -246,6 +258,11 @@ void ArthurOutputDev::updateLineWidth(GfxState *state)
 {
   m_currentPen.setWidthF(state->getLineWidth());
   m_painter->setPen(m_currentPen);
+  // The updateLineDash method needs to know the line width, but it is sometimes
+  // called before the updateLineWidth method.  To make sure that the last call
+  // to updateLineDash before a drawing operation is always with the correct line
+  // width, we call it here, right after a change to the line width.
+  updateLineDash(state);
 }
 
 void ArthurOutputDev::updateFillColor(GfxState *state)
@@ -284,6 +301,71 @@ void ArthurOutputDev::updateStrokeOpacity(GfxState *state)
 
 void ArthurOutputDev::updateFont(GfxState *state)
 {
+  GfxFont *font = state->getFont();
+  if (!font)
+  {
+    return;
+  }
+
+  // is the font in the cache?
+  ArthurFontID fontID = {*font->getID(), state->getFontSize()};
+  auto cacheEntry = m_rawFontCache.find(fontID);
+
+  if (cacheEntry!=m_rawFontCache.end()) {
+
+    // Take the font from the cache
+    m_rawFont = cacheEntry->second.get();
+
+  } else {
+
+    // New font: load it into the cache
+    float fontSize = state->getFontSize();
+
+    GfxFontLoc* fontLoc = font->locateFont(xref, nullptr);
+
+    if (fontLoc) {
+      // load the font from respective location
+      switch (fontLoc->locType) {
+      case gfxFontLocEmbedded: {// if there is an embedded font, read it to memory
+        int fontDataLen;
+        const char* fontData = font->readEmbFontFile(xref, &fontDataLen);
+
+        m_rawFont = new QRawFont(QByteArray(fontData, fontDataLen), fontSize);
+        m_rawFontCache.insert(std::make_pair(fontID,std::unique_ptr<QRawFont>(m_rawFont)));
+        break;
+      }
+      case gfxFontLocExternal:{ // font is in an external font file
+        QString fontFile(fontLoc->path->getCString());
+        m_rawFont = new QRawFont(fontFile, fontSize);
+        m_rawFontCache.insert(std::make_pair(fontID,std::unique_ptr<QRawFont>(m_rawFont)));
+        break;
+      }
+      case gfxFontLocResident:{ // font resides in a PS printer
+        qDebug() << "Font Resident Encoding:" << fontLoc->encoding->getCString() << ", not implemented yet!";
+
+      break;
+      }
+      }// end switch
+
+    } else {
+      qDebug() << "Font location not found!";
+      return;
+    }
+  }
+
+  if (!m_rawFont->isValid()) {
+    qDebug() << "RawFont is not valid";
+  }
+
+  // *****************************************************************************
+  //  We have now successfully loaded the font into a QRawFont object.  This
+  //  allows us to draw all the glyphs in the font.  However, what is missing is
+  //  the charcode-to-glyph-index mapping.  Apparently, Qt does not provide this
+  //  information at all.  We therefore now load the font again, this time into
+  //  a Splash font object.  This is wasteful, but I see no other way to access
+  //  the important glyph-index mapping.
+  // *****************************************************************************
+
 #ifdef HAVE_SPLASH
   GfxFont *gfxFont;
   GfxFontLoc *fontLoc;
@@ -297,15 +379,13 @@ void ArthurOutputDev::updateFont(GfxState *state)
   char *tmpBuf;
   int tmpBufLen = 0;
   int *codeToGID;
-  double *textMat;
-  double m11, m12, m21, m22, fontSize;
-  SplashCoord mat[4];
+  SplashCoord mat[4] = {0,0,0,0};
   int n;
   int faceIndex = 0;
-  SplashCoord matrix[6];
+  SplashCoord matrix[6] = {1,0,0,1,0,0};
+  SplashFTFontFile* ftFontFile;
 
   m_needFontUpdate = false;
-  m_font = NULL;
   fileName = NULL;
   tmpBuf = NULL;
   fontLoc = NULL;
@@ -317,6 +397,9 @@ void ArthurOutputDev::updateFont(GfxState *state)
   if (fontType == fontType3) {
     goto err1;
   }
+
+  // Default: no codeToGID table
+  m_codeToGID = nullptr;
 
   // check the font file cache
   id = new SplashOutFontFileID(gfxFont->getID());
@@ -478,28 +561,15 @@ void ArthurOutputDev::updateFont(GfxState *state)
     }
   }
 
-  // get the font matrix
-  textMat = state->getTextMat();
-  fontSize = state->getFontSize();
-  m11 = textMat[0] * fontSize * state->getHorizScaling();
-  m12 = textMat[1] * fontSize * state->getHorizScaling();
-  m21 = textMat[2] * fontSize;
-  m22 = textMat[3] * fontSize;
+  ftFontFile = dynamic_cast<SplashFTFontFile*>(fontFile);
+  if (ftFontFile)
+    m_codeToGID = ftFontFile->getCodeToGID();
 
-  {
-  QMatrix painterMatrix = m_painter->worldMatrix();
-  matrix[0] = painterMatrix.m11();
-  matrix[1] = painterMatrix.m12();
-  matrix[2] = painterMatrix.m21();
-  matrix[3] = painterMatrix.m22();
-  matrix[4] = painterMatrix.dx();
-  matrix[5] = painterMatrix.dy();
-  }
-
-  // create the scaled font
-  mat[0] = m11;  mat[1] = -m12;
-  mat[2] = m21;  mat[3] = -m22;
-  m_font = m_fontEngine->getFont(fontFile, mat, matrix);
+  // create dummy font
+  // The font matrices are bogus, but we will never use the glyphs anyway.
+  // However we need to call m_fontEngine->getFont, in order to have the
+  // font in the Splash font cache.  Otherwise we'd load it again and again.
+  m_fontEngine->getFont(fontFile, mat, matrix);
 
   delete fontLoc;
   if (fontsrc && !fontsrc->isFile)
@@ -576,92 +646,71 @@ void ArthurOutputDev::drawChar(GfxState *state, double x, double y,
 			       double dx, double dy,
 			       double originX, double originY,
 			       CharCode code, int nBytes, Unicode *u, int uLen) {
-#ifdef HAVE_SPLASH
-//   SplashPath *path;
-  int render;
-
-  if (m_needFontUpdate) {
-    updateFont(state);
-  }
-  if (!m_font) {
-    return;
-  }
 
   // check for invisible text -- this is used by Acrobat Capture
-  render = state->getRender();
-  if (render == 3) {
+  int render = state->getRender();
+  if (render == 3 || !m_rawFont) {
+    qDebug() << "Invisible text found!";
     return;
   }
 
-  x -= originX;
-  y -= originY;
+  if (!(render & 1))
+  {
+    quint32 glyphIndex = (m_codeToGID) ? m_codeToGID[code] : code;
+    QPointF glyphPosition = QPointF(x-originX, y-originY);
 
-  // fill
-  if (!(render & 1)) {
-    SplashPath * fontPath;
-    fontPath = m_font->getGlyphPath(code);
-    if (fontPath) {
-      QPainterPath qPath;
-      qPath.setFillRule(Qt::WindingFill);
-      for (int i = 0; i < fontPath->length; ++i) {
-        // SplashPath.flags: bitwise or allowed
-        if (fontPath->flags[i] & splashPathLast || fontPath->flags[i] & splashPathClosed) {
-            qPath.closeSubpath();
-        }
-        if (fontPath->flags[i] & splashPathFirst) {
-            qPath.moveTo(fontPath->pts[i].x+x,-fontPath->pts[i].y+y);
-        }
-        if (fontPath->flags[i] & splashPathCurve) {
-            qPath.quadTo(fontPath->pts[i].x+x,-fontPath->pts[i].y+y,
-                         fontPath->pts[i+1].x+x,-fontPath->pts[i+1].y+y);
-            ++i;
-        }
-        // FIXME fix this
-        // 	else if (fontPath->flags[i] & splashPathArcCW) {
-        // 	  qDebug() << "Need to implement arc";
-        // 	}
-        else {
-            qPath.lineTo(fontPath->pts[i].x+x,-fontPath->pts[i].y+y);
-        }
-      }
-      GfxRGB rgb;
-      QColor brushColour = m_currentBrush.color();
-      state->getFillRGB(&rgb);
-      brushColour.setRgbF(colToDbl(rgb.r), colToDbl(rgb.g), colToDbl(rgb.b), state->getFillOpacity());
-      m_painter->setBrush(brushColour);
-      m_painter->setPen(Qt::NoPen);
-      m_painter->drawPath(qPath);
-      delete fontPath;
-    }
-  }
+    // QGlyphRun objects can hold an entire sequence of glyphs, and it would possibly
+    // be more efficient to simply note the glyph and glyph position here and then
+    // draw several glyphs at once in the endString method.  What keeps us from doing
+    // that is the transformation below: each glyph needs to be drawn upside down,
+    // i.e., reflected at its own baseline.  Since we have no guarantee that this
+    // baseline is the same for all glyphs in a string we have to do it one by one.
+    QGlyphRun glyphRun;
+    glyphRun.setRawData(&glyphIndex, &glyphPosition, 1);
+    glyphRun.setRawFont(*m_rawFont);
 
-  // stroke
-  if ((render & 3) == 1 || (render & 3) == 2) {
-    qDebug() << "no stroke";
-    /*
-    if ((path = m_font->getGlyphPath(code))) {
-      path->offset((SplashCoord)x1, (SplashCoord)y1);
-      splash->stroke(path);
-      delete path;
-    }
-    */
-  }
+    // Store the QPainter state; we need to modify it temporarily
+    m_painter->save();
 
-  // clip
-  if (render & 4) {
-    qDebug() << "no clip";
-    /*
-    path = m_font->getGlyphPath(code);
-    path->offset((SplashCoord)x1, (SplashCoord)y1);
-    if (textClipPath) {
-      textClipPath->append(path);
-      delete path;
-    } else {
-      textClipPath = path;
-    }
-    */
+    // Apply the text matrix to the glyph.  The glyph is not scaled by the font size,
+    // because the font in m_rawFont already has the correct size.
+    // Additionally, the CTM is upside down, i.e., it contains a negative Y-scaling
+    // entry.  Therefore, Qt will paint the glyphs upside down.  We need to temporarily
+    // reflect the page at glyphPosition.y().
+
+    // Make the glyph position the coordinate origin -- that's our center of scaling
+    const double *textMat = state->getTextMat();
+
+    m_painter->translate(QPointF(glyphPosition.x(),glyphPosition.y()));
+
+    QTransform textTransform(textMat[0] * state->getHorizScaling(),
+                             textMat[1] * state->getHorizScaling(),
+                             -textMat[2], // reflect at the horizontal axis,
+                             -textMat[3], // because CTM is upside-down.
+                             0,
+                             0);
+
+    m_painter->setTransform(textTransform,true);
+
+    // We are painting a filled glyph here.  But QPainter uses the pen to draw even filled text,
+    // not the brush.  (see, e.g.,  http://doc.qt.io/qt-5/qpainter.html#setPen )
+    // Therefore we have to temporarily overwrite the pen color.
+
+    // Since we are drawing a filled glyph, one would really expect to have m_currentBrush
+    // have the correct color.  However, somehow state->getFillRGB can change without
+    // updateFillColor getting called.  Then m_currentBrush may not contain the correct color.
+    GfxRGB rgb;
+    state->getFillRGB(&rgb);
+    QColor fontColor;
+    fontColor.setRgbF(colToDbl(rgb.r), colToDbl(rgb.g), colToDbl(rgb.b), state->getFillOpacity());
+    m_painter->setPen(fontColor);
+
+    // Actually draw the glyph
+    m_painter->drawGlyphRun(QPointF(-glyphPosition.x(),-glyphPosition.y()), glyphRun);
+
+    // Restore transformation and pen color
+    m_painter->restore();
   }
-#endif
 }
 
 GBool ArthurOutputDev::beginType3Char(GfxState *state, double x, double y,
@@ -819,3 +868,70 @@ void ArthurOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   delete imgStr;
 
 }
+
+void ArthurOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
+                                          int width, int height,
+                                          GfxImageColorMap *colorMap,
+                                          GBool interpolate,
+                                          Stream *maskStr,
+                                          int maskWidth, int maskHeight,
+                                          GfxImageColorMap *maskColorMap,
+                                          GBool maskInterpolate)
+{
+  // Bail out if the image size doesn't match the mask size.  I don't know
+  // what to do in this case.
+  if (width!=maskWidth || height!=maskHeight)
+  {
+    qDebug() << "Soft mask size does not match image size!";
+    drawImage(state, ref, str, width, height, colorMap, interpolate, nullptr, gFalse);
+  }
+
+  // Bail out if the mask isn't a single channel.  I don't know
+  // what to do in this case.
+  if (maskColorMap->getColorSpace()->getNComps() != 1)
+  {
+    qDebug() << "Soft mask is not a single 8-bit channel!";
+    drawImage(state, ref, str, width, height, colorMap, interpolate, nullptr, gFalse);
+  }
+
+  /* TODO: Do we want to cache these? */
+  std::unique_ptr<ImageStream> imgStr(new ImageStream(str, width,
+                                                      colorMap->getNumPixelComps(),
+                                                      colorMap->getBits()));
+  imgStr->reset();
+
+  std::unique_ptr<ImageStream> maskImageStr(new ImageStream(maskStr, maskWidth,
+                                                            maskColorMap->getNumPixelComps(),
+                                                            maskColorMap->getBits()));
+  maskImageStr->reset();
+
+  QImage image(width, height, QImage::Format_ARGB32);
+  unsigned int *data = (unsigned int *)image.bits();
+  int stride = image.bytesPerLine()/4;
+
+  std::vector<Guchar> maskLine(maskWidth);
+
+  for (int y = 0; y < height; y++) {
+
+    Guchar *pix = imgStr->getLine();
+    Guchar *maskPix = maskImageStr->getLine();
+
+    // Invert the vertical coordinate: y is increasing from top to bottom
+    // on the page, but y is increasing bottom to top in the picture.
+    unsigned int* line = data+(height-1-y)*stride;
+    colorMap->getRGBLine(pix, line, width);
+
+    // Apply the mask values to the image alpha channel
+    maskColorMap->getGrayLine(maskPix, maskLine.data(), width);
+    for (int x = 0; x < width; x++)
+    {
+      *line = *line | (maskLine[x]<<24);
+      line++;
+    }
+  }
+
+  // At this point, the QPainter coordinate transformation (CTM) is such
+  // that QRect(0,0,1,1) is exactly the area of the image.
+  m_painter->drawImage( QRect(0,0,1,1), image );
+}
+

@@ -226,13 +226,13 @@ static GBool isTextString(Object *value)
       return okay;                                                      \
     }
 
-ARRAY_CHECKER(isRGBColorOrOptionalArray4, isRGBColor,        4, gTrue,  gTrue );
-ARRAY_CHECKER(isPositiveOrOptionalArray4, isPositive,        4, gTrue,  gTrue );
-ARRAY_CHECKER(isPositiveOrArray4,         isPositive,        4, gTrue,  gFalse);
-ARRAY_CHECKER(isBorderStyle,              isBorderStyleName, 4, gTrue,  gTrue );
-ARRAY_CHECKER(isNumberArray4,             isNumber,          4, gFalse, gFalse);
-ARRAY_CHECKER(isNumberOrArrayN,           isNumber,          0, gTrue,  gFalse);
-ARRAY_CHECKER(isTableHeaders,             isTextString,      0, gFalse, gFalse);
+ARRAY_CHECKER(isRGBColorOrOptionalArray4, isRGBColor,        4, gTrue,  gTrue )
+ARRAY_CHECKER(isPositiveOrOptionalArray4, isPositive,        4, gTrue,  gTrue )
+ARRAY_CHECKER(isPositiveOrArray4,         isPositive,        4, gTrue,  gFalse)
+ARRAY_CHECKER(isBorderStyle,              isBorderStyleName, 4, gTrue,  gTrue )
+ARRAY_CHECKER(isNumberArray4,             isNumber,          4, gFalse, gFalse)
+ARRAY_CHECKER(isNumberOrArrayN,           isNumber,          0, gTrue,  gFalse)
+ARRAY_CHECKER(isTableHeaders,             isTextString,      0, gFalse, gFalse)
 
 
 // Type of functions used to do type-checking on attribute values
@@ -248,6 +248,8 @@ struct AttributeMapEntry {
 };
 
 struct AttributeDefaults {
+  AttributeDefaults() {}; // needed to support old clang
+
   Object Inline  = Object(objName, "Inline");
   Object LrTb = Object(objName, "LrTb");
   Object Normal = Object(objName, "Normal");

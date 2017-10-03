@@ -19,6 +19,7 @@
 // Copyright (C) 2010 Pino Toscano <pino@kde.org>
 // Copyright (C) 2011 Andreas Hartmetz <ahartmetz@gmail.com>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2013 Mihai Niculescu <q.quark@gmail.com>
 // Copyright (C) 2017 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 // To see a description of the changes please see the Changelog file that
@@ -33,6 +34,9 @@
 #pragma interface
 #endif
 
+#include <memory>
+#include <map>
+
 #include "goo/gtypes.h"
 #include "OutputDev.h"
 #include "GfxState.h"
@@ -44,9 +48,9 @@ class GfxPath;
 class Gfx8BitFont;
 struct GfxRGB;
 
-class SplashFont;
 class SplashFontEngine;
-struct SplashGlyphBitmap;
+
+class QRawFont;
 
 //------------------------------------------------------------------------
 // ArthurOutputDev - Qt 5 QPainter renderer
@@ -147,6 +151,15 @@ public:
 		 int width, int height, GfxImageColorMap *colorMap,
 		 GBool interpolate, int *maskColors, GBool inlineImg) override;
 
+  void drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
+                           int width, int height,
+                           GfxImageColorMap *colorMap,
+                           GBool interpolate,
+                           Stream *maskStr,
+                           int maskWidth, int maskHeight,
+                           GfxImageColorMap *maskColorMap,
+                           GBool maskInterpolate) override;
+
   //----- Type 3 font operators
   void type3D0(GfxState *state, double wx, double wy) override;
   void type3D1(GfxState *state, double wx, double wy,
@@ -167,8 +180,29 @@ private:
   QBrush m_currentBrush;
   GBool m_needFontUpdate;		// set when the font needs to be updated
   SplashFontEngine *m_fontEngine;
-  SplashFont *m_font;		// current font
   XRef *xref;			// xref table for current document
+
+  // The current font in use
+  QRawFont* m_rawFont;
+
+  // Identify a font by its 'Ref' and its font size
+  struct ArthurFontID
+  {
+    Ref ref;
+    double fontSize;
+
+    bool operator<(const ArthurFontID& other) const
+    {
+      return (ref.num < other.ref.num)
+             ||  ((ref.num == other.ref.num) && (fontSize < other.fontSize));
+    }
+  };
+
+  // Cache all fonts
+  std::map<ArthurFontID,std::unique_ptr<QRawFont> > m_rawFontCache;
+
+  // The table that maps character codes to glyph indexes
+  int* m_codeToGID;
 };
 
 #endif

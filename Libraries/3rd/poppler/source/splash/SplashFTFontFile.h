@@ -12,6 +12,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
+// Copyright (C) 2017 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -61,6 +62,9 @@ public:
   // file.
   SplashFont *makeFont(SplashCoord *mat,
 		       SplashCoord *textMat) override;
+
+  // Provide access to the code-to-GID map
+  int* getCodeToGID();
 
 private:
 

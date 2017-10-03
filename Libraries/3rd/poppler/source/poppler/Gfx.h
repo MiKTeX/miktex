@@ -228,6 +228,7 @@ private:
   Parser *parser;		// parser for page content stream(s)
   
   std::set<int> formsDrawing;	// the forms that are being drawn
+  std::set<int> charProcDrawing;	// the charProc that are being drawn
 
   GBool				// callback to check for an abort
     (*abortCheckCbk)(void *data);

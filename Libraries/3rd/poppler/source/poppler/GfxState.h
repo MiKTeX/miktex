@@ -17,7 +17,7 @@
 // Copyright (C) 2006, 2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2006 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Koji Otani <sho@bbr.jp>
-// Copyright (C) 2009-2011, 2013, 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009-2011, 2013, 2016, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 // Copyright (C) 2011 Andrea Canciani <ranma42@gmail.com>
 // Copyright (C) 2011-2014, 2016 Thomas Freitag <Thomas.Freitag@alfa.de>
@@ -762,18 +762,21 @@ private:
 class GfxPattern {
 public:
 
-  GfxPattern(int typeA);
+  GfxPattern(int typeA, int patternRefNumA);
   virtual ~GfxPattern();
 
-  static GfxPattern *parse(GfxResources *res, Object *obj, OutputDev *out, GfxState *state);
+  static GfxPattern *parse(GfxResources *res, Object *obj, OutputDev *out, GfxState *state, int patternRefNum);
 
   virtual GfxPattern *copy() = 0;
 
   int getType() { return type; }
 
+  int getPatternRefNum() const { return patternRefNum; }
+
 private:
 
   int type;
+  int patternRefNum;
 };
 
 //------------------------------------------------------------------------
@@ -783,7 +786,7 @@ private:
 class GfxTilingPattern: public GfxPattern {
 public:
 
-  static GfxTilingPattern *parse(Object *patObj);
+  static GfxTilingPattern *parse(Object *patObj, int patternRefNum);
   ~GfxTilingPattern();
 
   GfxPattern *copy() override;
@@ -803,7 +806,7 @@ private:
   GfxTilingPattern(int paintTypeA, int tilingTypeA,
 		   double *bboxA, double xStepA, double yStepA,
 		   Object *resDictA, double *matrixA,
-		   Object *contentStreamA);
+		   Object *contentStreamA, int patternRefNumA);
 
   int paintType;
   int tilingType;
@@ -821,7 +824,7 @@ private:
 class GfxShadingPattern: public GfxPattern {
 public:
 
-  static GfxShadingPattern *parse(GfxResources *res, Object *patObj, OutputDev *out, GfxState *state);
+  static GfxShadingPattern *parse(GfxResources *res, Object *patObj, OutputDev *out, GfxState *state, int patternRefNum);
   ~GfxShadingPattern();
 
   GfxPattern *copy() override;
@@ -831,7 +834,7 @@ public:
 
 private:
 
-  GfxShadingPattern(GfxShading *shadingA, double *matrixA);
+  GfxShadingPattern(GfxShading *shadingA, double *matrixA, int patternRefNumA);
 
   GfxShading *shading;
   double matrix[6];

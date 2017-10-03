@@ -3351,14 +3351,17 @@ void GfxPatternColorSpace::getDefaultColor(GfxColor *color) {
 // Pattern
 //------------------------------------------------------------------------
 
-GfxPattern::GfxPattern(int typeA) {
-  type = typeA;
+GfxPattern::GfxPattern(int typeA, int patternRefNumA)
+ : type(typeA)
+ , patternRefNum(patternRefNumA)
+{
+
 }
 
 GfxPattern::~GfxPattern() {
 }
 
-GfxPattern *GfxPattern::parse(GfxResources *res, Object *obj, OutputDev *out, GfxState *state) {
+GfxPattern *GfxPattern::parse(GfxResources *res, Object *obj, OutputDev *out, GfxState *state, int patternRefNum) {
   GfxPattern *pattern;
   Object obj1;
 
@@ -3371,9 +3374,9 @@ GfxPattern *GfxPattern::parse(GfxResources *res, Object *obj, OutputDev *out, Gf
   }
   pattern = NULL;
   if (obj1.isInt() && obj1.getInt() == 1) {
-    pattern = GfxTilingPattern::parse(obj);
+    pattern = GfxTilingPattern::parse(obj, patternRefNum);
   } else if (obj1.isInt() && obj1.getInt() == 2) {
-    pattern = GfxShadingPattern::parse(res, obj, out, state);
+    pattern = GfxShadingPattern::parse(res, obj, out, state, patternRefNum);
   }
   return pattern;
 }
@@ -3382,7 +3385,7 @@ GfxPattern *GfxPattern::parse(GfxResources *res, Object *obj, OutputDev *out, Gf
 // GfxTilingPattern
 //------------------------------------------------------------------------
 
-GfxTilingPattern *GfxTilingPattern::parse(Object *patObj) {
+GfxTilingPattern *GfxTilingPattern::parse(Object *patObj, int patternRefNum) {
   Dict *dict;
   int paintTypeA, tilingTypeA;
   double bboxA[4], matrixA[6];
@@ -3455,14 +3458,14 @@ GfxTilingPattern *GfxTilingPattern::parse(Object *patObj) {
   }
 
   return new GfxTilingPattern(paintTypeA, tilingTypeA, bboxA, xStepA, yStepA,
-			     &resDictA, matrixA, patObj);
+			     &resDictA, matrixA, patObj, patternRefNum);
 }
 
 GfxTilingPattern::GfxTilingPattern(int paintTypeA, int tilingTypeA,
 				   double *bboxA, double xStepA, double yStepA,
 				   Object *resDictA, double *matrixA,
-				   Object *contentStreamA):
-  GfxPattern(1)
+				   Object *contentStreamA, int patternRefNumA) :
+  GfxPattern(1, patternRefNumA)
 {
   int i;
 
@@ -3485,14 +3488,14 @@ GfxTilingPattern::~GfxTilingPattern() {
 
 GfxPattern *GfxTilingPattern::copy() {
   return new GfxTilingPattern(paintType, tilingType, bbox, xStep, yStep,
-			      &resDict, matrix, &contentStream);
+			      &resDict, matrix, &contentStream, getPatternRefNum());
 }
 
 //------------------------------------------------------------------------
 // GfxShadingPattern
 //------------------------------------------------------------------------
 
-GfxShadingPattern *GfxShadingPattern::parse(GfxResources *res, Object *patObj, OutputDev *out, GfxState *state) {
+GfxShadingPattern *GfxShadingPattern::parse(GfxResources *res, Object *patObj, OutputDev *out, GfxState *state, int patternRefNum) {
   Dict *dict;
   GfxShading *shadingA;
   double matrixA[6];
@@ -3523,11 +3526,11 @@ GfxShadingPattern *GfxShadingPattern::parse(GfxResources *res, Object *patObj, O
     }
   }
 
-  return new GfxShadingPattern(shadingA, matrixA);
+  return new GfxShadingPattern(shadingA, matrixA, patternRefNum);
 }
 
-GfxShadingPattern::GfxShadingPattern(GfxShading *shadingA, double *matrixA):
-  GfxPattern(2)
+GfxShadingPattern::GfxShadingPattern(GfxShading *shadingA, double *matrixA, int patternRefNumA):
+  GfxPattern(2, patternRefNumA)
 {
   int i;
 
@@ -3542,7 +3545,7 @@ GfxShadingPattern::~GfxShadingPattern() {
 }
 
 GfxPattern *GfxShadingPattern::copy() {
-  return new GfxShadingPattern(shading->copy(), matrix);
+  return new GfxShadingPattern(shading->copy(), matrix, getPatternRefNum());
 }
 
 //------------------------------------------------------------------------

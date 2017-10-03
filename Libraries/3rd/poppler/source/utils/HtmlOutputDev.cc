@@ -1656,10 +1656,9 @@ GooString* HtmlOutputDev::getLinkDest(AnnotLink *link){
 	  return file;
 	  }
       case actionLaunch:
-	  {
-	  LinkLaunch *ha=(LinkLaunch *) link->getAction();
-	  GooString* file=new GooString(ha->getFileName()->getCString());
-	  if (printHtml) { 
+	  if (printHtml) {
+	      LinkLaunch *ha=(LinkLaunch *) link->getAction();
+	      GooString* file=new GooString(ha->getFileName()->getCString());
 	      p=file->getCString()+file->getLength()-4;
 	      if (!strcmp(p, ".pdf") || !strcmp(p, ".PDF")){
 		  file->del(file->getLength()-4,4);
@@ -1670,7 +1669,7 @@ GooString* HtmlOutputDev::getLinkDest(AnnotLink *link){
 	      return file;      
   
 	  }
-	  }
+	  // fallthrough
       default:
 	  return new GooString();
   }

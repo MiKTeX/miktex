@@ -2964,8 +2964,8 @@ JBIG2Bitmap *JBIG2Stream::readGenericBitmap(GBool mmr, int w, int h,
     mmrDecoder->reset();
     if (w > INT_MAX - 2) {
       error(errSyntaxError, curStr->getPos(), "Bad width in JBIG2 generic bitmap");
-      // force a call to gmalloc(-1), which will throw an exception
-      w = -3;
+      delete bitmap;
+      return NULL;
     }
     // 0 <= codingLine[0] < codingLine[1] < ... < codingLine[n] = w
     // ---> max codingLine size = w + 1

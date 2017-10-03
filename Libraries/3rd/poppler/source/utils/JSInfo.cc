@@ -236,4 +236,4 @@ void JSInfo::scan(int nPages) {
 
 GBool JSInfo::containsJS() {
   return hasJS;
-};
+}

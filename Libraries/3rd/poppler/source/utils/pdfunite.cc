@@ -43,7 +43,7 @@ static const ArgDesc argDesc[] = {
   {NULL}
 };
 
-void doMergeNameTree(PDFDoc *doc, XRef *srcXRef, XRef *countRef, int oldRefNum, int newRefNum, Dict *srcNameTree, Dict *mergeNameTree, int numOffset) {
+static void doMergeNameTree(PDFDoc *doc, XRef *srcXRef, XRef *countRef, int oldRefNum, int newRefNum, Dict *srcNameTree, Dict *mergeNameTree, int numOffset) {
   Object mergeNameArray = mergeNameTree->lookup("Names");
   Object srcNameArray = srcNameTree->lookup("Names");
   if (mergeNameArray.isArray() && srcNameArray.isArray()) {
@@ -100,7 +100,7 @@ void doMergeNameTree(PDFDoc *doc, XRef *srcXRef, XRef *countRef, int oldRefNum, 
   }
 }
 
-void doMergeNameDict(PDFDoc *doc, XRef *srcXRef, XRef *countRef, int oldRefNum, int newRefNum, Dict *srcNameDict, Dict *mergeNameDict, int numOffset) {
+static void doMergeNameDict(PDFDoc *doc, XRef *srcXRef, XRef *countRef, int oldRefNum, int newRefNum, Dict *srcNameDict, Dict *mergeNameDict, int numOffset) {
   for (int i = 0; i < mergeNameDict->getLength(); i++) {
     const char *key = mergeNameDict->getKey(i);
     Object mergeNameTree = mergeNameDict->lookup(key);
@@ -115,7 +115,7 @@ void doMergeNameDict(PDFDoc *doc, XRef *srcXRef, XRef *countRef, int oldRefNum, 
   }
 }
 
-void doMergeFormDict(Dict *srcFormDict, Dict *mergeFormDict, int numOffset) {
+static void doMergeFormDict(Dict *srcFormDict, Dict *mergeFormDict, int numOffset) {
   Object srcFields = srcFormDict->lookup("Fields");
   Object mergeFields = mergeFormDict->lookup("Fields");
   if (srcFields.isArray() && mergeFields.isArray()) {

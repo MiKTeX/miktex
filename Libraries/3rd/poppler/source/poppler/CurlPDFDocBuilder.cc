@@ -5,7 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
-// Copyright 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright 2010, 2017 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -15,6 +15,7 @@
 
 #include "CachedFile.h"
 #include "CurlCachedFile.h"
+#include "ErrorCodes.h"
 
 //------------------------------------------------------------------------
 // CurlPDFDocBuilder
@@ -26,6 +27,11 @@ CurlPDFDocBuilder::buildPDFDoc(const GooString &uri,
 {
     CachedFile *cachedFile = new CachedFile(
         new CurlCachedFileLoader(), uri.copy());
+
+    if (cachedFile->getLength() == ((Guint) -1)) {
+        cachedFile->decRefCnt();
+        return PDFDoc::ErrorPDFDoc(errOpenFile, uri.copy());
+    }
 
     BaseStream *str = new CachedFileStream(
          cachedFile, 0, gFalse, cachedFile->getLength(), Object(objNull));

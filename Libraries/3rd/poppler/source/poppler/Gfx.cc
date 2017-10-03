@@ -458,9 +458,15 @@ GfxPattern *GfxResources::lookupPattern(char *name, OutputDev *out, GfxState *st
 
   for (resPtr = this; resPtr; resPtr = resPtr->next) {
     if (resPtr->patternDict.isDict()) {
-      Object obj = resPtr->patternDict.dictLookup(name);
+      Object obj = resPtr->patternDict.dictLookupNF(name);
       if (!obj.isNull()) {
-	pattern = GfxPattern::parse(resPtr, &obj, out, state);
+	Ref patternRef = { -1, -1 };
+	if (obj.isRef()) {
+	  patternRef = obj.getRef();
+	  obj = obj.fetch(resPtr->patternDict.getDict()->getXRef());
+	}
+
+	pattern = GfxPattern::parse(resPtr, &obj, out, state, patternRef.num);
 	return pattern;
       }
     }
@@ -2224,18 +2230,34 @@ void Gfx::doTilingPatternFill(GfxTilingPattern *tPat,
 		       xi0, yi0, xi1, yi1, xstep, ystep)) {
     goto restore;
   } else {
-    out->updatePatternOpacity(state);
-    for (yi = yi0; yi < yi1; ++yi) {
-      for (xi = xi0; xi < xi1; ++xi) {
-        x = xi * xstep;
-        y = yi * ystep;
-        m1[4] = x * m[0] + y * m[2] + m[4];
-        m1[5] = x * m[1] + y * m[3] + m[5];
-        drawForm(tPat->getContentStream(), tPat->getResDict(),
-        	  m1, tPat->getBBox());
+    bool shouldDrawForm = gTrue;
+    std::set<int>::iterator patternRefIt;
+    const int patternRefNum = tPat->getPatternRefNum();
+    if (patternRefNum != -1) {
+      if (formsDrawing.find(patternRefNum) == formsDrawing.end()) {
+	patternRefIt = formsDrawing.insert(patternRefNum).first;
+      } else {
+	shouldDrawForm = gFalse;
       }
     }
-    out->clearPatternOpacity(state);
+
+    if (shouldDrawForm) {
+      out->updatePatternOpacity(state);
+      for (yi = yi0; yi < yi1; ++yi) {
+	for (xi = xi0; xi < xi1; ++xi) {
+	  x = xi * xstep;
+	  y = yi * ystep;
+	  m1[4] = x * m[0] + y * m[2] + m[4];
+	  m1[5] = x * m[1] + y * m[3] + m[5];
+	  drawForm(tPat->getContentStream(), tPat->getResDict(),
+		  m1, tPat->getBBox());
+	}
+      }
+      out->clearPatternOpacity(state);
+      if (patternRefNum != -1) {
+	formsDrawing.erase(patternRefIt);
+      }
+    }
   }
 
   // restore graphics state
@@ -3953,12 +3975,33 @@ void Gfx::doShowText(GooString *s) {
       state->transformDelta(dx, dy, &ddx, &ddy);
       if (!out->beginType3Char(state, curX + riseX, curY + riseY, ddx, ddy,
 			       code, u, uLen)) {
-	Object charProc = ((Gfx8BitFont *)font)->getCharProc(code);
+	Object charProc = ((Gfx8BitFont *)font)->getCharProcNF(code);
+	int refNum = -1;
+	if (charProc.isRef()) {
+	  refNum = charProc.getRef().num;
+	  charProc = charProc.fetch(((Gfx8BitFont *)font)->getCharProcs()->getXRef());
+	}
 	if ((resDict = ((Gfx8BitFont *)font)->getResources())) {
 	  pushResources(resDict);
 	}
 	if (charProc.isStream()) {
-	  display(&charProc, gFalse);
+	  std::set<int>::iterator charProcDrawingIt;
+	  bool displayCharProc = true;
+	  if (refNum != -1) {
+	    if (charProcDrawing.find(refNum) == charProcDrawing.end()) {
+	      charProcDrawingIt = charProcDrawing.insert(refNum).first;
+	    } else {
+	      displayCharProc = false;
+	      error(errSyntaxError, -1, "CharProc wants to draw a CharProc that is already beign drawn");
+	    }
+	  }
+	  if (displayCharProc) {
+	    display(&charProc, gFalse);
+
+	    if (refNum != -1) {
+	      charProcDrawing.erase(charProcDrawingIt);
+	    }
+	  }
 	} else {
 	  error(errSyntaxError, getPos(), "Missing or bad Type3 CharProc entry");
 	}

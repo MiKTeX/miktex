@@ -23,7 +23,7 @@
 // Copyright (C) 2009-2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2009, 2011, 2012, 2014-2016 William Bader <williambader@hotmail.com>
+// Copyright (C) 2009, 2011, 2012, 2014-2017 William Bader <williambader@hotmail.com>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 // Copyright (C) 2009-2011, 2013-2015 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2012, 2014 Fabio D'Urso <fabiodurso@hotmail.it>
@@ -1318,7 +1318,6 @@ void PSOutputDev::postInit()
   Catalog *catalog;
   PDFRectangle *box;
   PSOutPaperSize *size;
-  GooList *names;
   int w, h, i;
 
   if (postInitDone || !ok) {
@@ -1412,11 +1411,6 @@ void PSOutputDev::postInit()
   for (i = 0; i < 14; ++i) {
     fontNames->add(new GooString(psBase14SubstFonts[i].psName), 1);
   }
-  names = globalParams->getPSResidentFonts();
-  for (i = 0; i < names->getLength(); ++i) {
-    fontNames->add((GooString *)names->get(i), 1);
-  }
-  delete names;
   t1FontNameSize = 64;
   t1FontNameLen = 0;
   t1FontNames = (PST1FontName *)gmallocn(t1FontNameSize, sizeof(PST1FontName));
@@ -2551,6 +2545,14 @@ void PSOutputDev::setupExternalTrueTypeFont(GfxFont *font, GooString *fileName,
   writePS("%%EndResource\n");
 }
 
+void PSOutputDev::updateFontMaxValidGlyph(GfxFont *font, int maxValidGlyph) {
+  if (maxValidGlyph >= 0 && font->getName()) {
+    if (maxValidGlyph > fontMaxValidGlyph->lookupInt(font->getName())) {
+      fontMaxValidGlyph->replace(font->getName()->copy(), maxValidGlyph);
+    }
+  }
+}
+
 void PSOutputDev::setupExternalCIDTrueTypeFont(GfxFont *font,
 					       GooString *fileName,
 					       GooString *psName,
@@ -2601,9 +2603,7 @@ void PSOutputDev::setupExternalCIDTrueTypeFont(GfxFont *font,
 		needVerticalMetrics,
 		&maxValidGlyph,
 		outputFunc, outputStream);
-	if (maxValidGlyph >= 0 && font->getName()) {
-	  fontMaxValidGlyph->replace(font->getName()->copy(), maxValidGlyph);
-	}
+	updateFontMaxValidGlyph(font, maxValidGlyph);
       }
       gfree(codeToGID);
     } else {
@@ -2703,9 +2703,7 @@ void PSOutputDev::setupEmbeddedCIDTrueTypeFont(GfxFont *font, Ref *id,
 			     needVerticalMetrics,
 			     &maxValidGlyph,
 			     outputFunc, outputStream);
-	if (maxValidGlyph > 0 && font->getName()) {
-	  fontMaxValidGlyph->replace(font->getName()->copy(), maxValidGlyph);
-	}
+	updateFontMaxValidGlyph(font, maxValidGlyph);
       }
       delete ffTT;
     }

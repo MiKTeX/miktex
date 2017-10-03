@@ -18,7 +18,7 @@
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2005, 2009, 2012, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Nickolay V. Shmyrev <nshmyrev@yandex.ru>
-// Copyright (C) 2006-2011, 2013, 2014 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2006-2011, 2013, 2014, 2017 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2008 Carl Worth <cworth@cworth.org>
 // Copyright (C) 2008-2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
@@ -2178,9 +2178,6 @@ void CairoOutputDev::drawImageMaskRegular(GfxState *state, Object *ref, Stream *
 
   cairo_pattern_set_filter (pattern, filter);
 
-  if (!printing)
-    cairo_pattern_set_extend (pattern, CAIRO_EXTEND_PAD);
-
   cairo_matrix_init_translate (&matrix, 0, height);
   cairo_matrix_scale (&matrix, width, -height);
   cairo_pattern_set_matrix (pattern, &matrix);
@@ -2196,6 +2193,11 @@ void CairoOutputDev::drawImageMaskRegular(GfxState *state, Object *ref, Stream *
     cairo_save (cairo);
     cairo_rectangle (cairo, 0., 0., 1., 1.);
     cairo_clip (cairo);
+    if (strokePathClip) {
+      cairo_push_group (cairo);
+      fillToStrokePathClip (state);
+      cairo_pop_group_to_source (cairo);
+    }
     cairo_mask (cairo, pattern);
     cairo_restore (cairo);
   } else {
@@ -3075,7 +3077,13 @@ public:
       }
     }
 
-    if (printing || scaledWidth >= width || scaledHeight >= height) {
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 14, 0)
+    bool needsCustomDownscaling = false;
+#else
+    bool needsCustomDownscaling = true;
+#endif
+
+    if (!needsCustomDownscaling || printing || scaledWidth >= width || scaledHeight >= height) {
       // No downscaling. Create cairo image containing the source image data.
       unsigned char *buffer;
       int stride;
@@ -3189,7 +3197,7 @@ void CairoOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
   cairo_matrix_t matrix;
   int width, height;
   int scaledWidth, scaledHeight;
-  cairo_filter_t filter = CAIRO_FILTER_BILINEAR;
+  cairo_filter_t filter = CAIRO_FILTER_BEST;
   RescaleDrawImage rescale;
 
   LOG (printf ("drawImage %dx%d\n", widthA, heightA));

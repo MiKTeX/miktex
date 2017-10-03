@@ -1526,6 +1526,9 @@ GBool XRef::parseEntry(Goffset offset, XRefEntry *entry)
 {
   GBool r;
 
+  if (unlikely(entry == nullptr))
+    return gFalse;
+
   Parser parser(NULL, new Lexer(NULL,
      str->makeSubStream(offset, gFalse, 20, Object(objNull))), gTrue);
 

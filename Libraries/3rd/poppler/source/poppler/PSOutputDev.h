@@ -20,7 +20,7 @@
 // Copyright (C) 2009-2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2009, 2011, 2015-2016 William Bader <williambader@hotmail.com>
+// Copyright (C) 2009, 2011, 2015-2017 William Bader <williambader@hotmail.com>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2011, 2014 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
@@ -355,6 +355,7 @@ private:
   void setupFonts(Dict *resDict);
   void setupFont(GfxFont *font, Dict *parentResDict);
   void setupEmbeddedType1Font(Ref *id, GooString *psName);
+  void updateFontMaxValidGlyph(GfxFont *font, int maxValidGlyph);
   void setupExternalType1Font(GooString *fileName, GooString *psName);
   void setupEmbeddedType1CFont(GfxFont *font, Ref *id, GooString *psName);
   void setupEmbeddedOpenTypeT1CFont(GfxFont *font, Ref *id, GooString *psName);

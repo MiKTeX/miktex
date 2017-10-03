@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Takashi Iwai <tiwai@suse.de>
-// Copyright (C) 2007-2010 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2007-2010, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Jonathan Kew <jonathan_kew@sil.org>
 //
 // To see a description of the changes please see the Changelog file that
@@ -44,7 +44,7 @@ extern void *gmalloc_checkoverflow(size_t size);
  * returns NULL.  If <p> is NULL, calls malloc instead of realloc().
  */
 extern void *grealloc(void *p, size_t size);
-extern void *grealloc_checkoverflow(size_t size);
+extern void *grealloc_checkoverflow(void *p, size_t size);
 
 /*
  * These are similar to gmalloc and grealloc, but take an object count

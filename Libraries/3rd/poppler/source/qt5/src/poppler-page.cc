@@ -368,9 +368,24 @@ QImage Page::renderToImage(double xres, double yres, int x, int y, int w, int h,
 
       splash_output.startDoc(m_page->parentDoc->doc);
 
+      const GBool hideAnnotations = m_page->parentDoc->m_hints & Document::HideAnnotations;
+
+      // Callback that filters out everything but form fields
+      auto annotDisplayDecideCbk = [](Annot *annot, void *user_data)
+      {
+        // Hide everything but forms
+        return (annot->getType() == Annot::typeWidget);
+      };
+
+      // A nullptr, but with the type of a function pointer
+      // Needed to make the ternary operator below happy.
+      GBool (*nullCallBack)(Annot *annot, void *user_data) = nullptr;
+
       m_page->parentDoc->doc->displayPageSlice(&splash_output, m_page->index + 1, xres, yres,
                                                rotation, false, true, false, x, y, w, h,
-                                               NULL, NULL, NULL, NULL, gTrue);
+                                               nullptr, nullptr,
+                                               (hideAnnotations) ? annotDisplayDecideCbk : nullCallBack,
+                                               nullptr, gTrue);
 
       SplashBitmap *bitmap = splash_output.getBitmap();
 
@@ -453,6 +468,20 @@ bool Page::renderToPainter(QPainter* painter, double xres, double yres, int x, i
       painter->translate(x == -1 ? 0 : -x, y == -1 ? 0 : -y);
       ArthurOutputDev arthur_output(painter);
       arthur_output.startDoc(m_page->parentDoc->doc->getXRef());
+
+      const GBool hideAnnotations = m_page->parentDoc->m_hints & Document::HideAnnotations;
+
+      // Callback that filters out everything but form fields
+      auto annotDisplayDecideCbk = [](Annot *annot, void *user_data)
+      {
+        // Hide everything but forms
+        return (annot->getType() == Annot::typeWidget);
+      };
+
+      // A nullptr, but with the type of a function pointer
+      // Needed to make the ternary operator below happy.
+      GBool (*nullCallBack)(Annot *annot, void *user_data) = nullptr;
+
       m_page->parentDoc->doc->displayPageSlice(&arthur_output,
                                                m_page->index + 1,
                                                xres,
@@ -464,7 +493,10 @@ bool Page::renderToPainter(QPainter* painter, double xres, double yres, int x, i
                                                x,
                                                y,
                                                w,
-                                               h);
+                                               h,
+                                               nullptr,
+                                               nullptr,
+                                               (hideAnnotations) ? annotDisplayDecideCbk : nullCallBack);
       if (savePainter)
          painter->restore();
       return true;

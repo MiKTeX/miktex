@@ -57,7 +57,7 @@ public:
   ~Dict();
 
   // Get number of entries.
-  int getLength() { return length; }
+  int getLength() const { return length; }
 
   // Add an entry.  NB: does not copy key.
   // val becomes a dead object after the call
@@ -70,27 +70,27 @@ public:
   void remove(const char *key);
 
   // Check if dictionary is of specified type.
-  GBool is(const char *type);
+  GBool is(const char *type) const;
 
   // Look up an entry and return the value.  Returns a null object
   // if <key> is not in the dictionary.
-  Object lookup(const char *key, int recursion = 0);
-  Object lookupNF(const char *key);
-  GBool lookupInt(const char *key, const char *alt_key, int *value);
+  Object lookup(const char *key, int recursion = 0) const;
+  Object lookupNF(const char *key) const;
+  GBool lookupInt(const char *key, const char *alt_key, int *value) const;
 
   // Iterative accessors.
-  char *getKey(int i);
-  Object getVal(int i);
-  Object getValNF(int i);
+  char *getKey(int i) const;
+  Object getVal(int i) const;
+  Object getValNF(int i) const;
 
   // Set the xref pointer.  This is only used in one special case: the
   // trailer dictionary, which is read before the xref table is
   // parsed.
   void setXRef(XRef *xrefA) { xref = xrefA; }
   
-  XRef *getXRef() { return xref; }
+  XRef *getXRef() const { return xref; }
   
-  GBool hasKey(const char *key);
+  GBool hasKey(const char *key) const;
 
 private:
   friend class Object; // for incRef/decRef
@@ -99,17 +99,17 @@ private:
   int incRef();
   int decRef();
 
-  GBool sorted;
+  mutable GBool sorted;
   XRef *xref;			// the xref table for this PDF file
   DictEntry *entries;		// array of entries
   int size;			// size of <entries> array
   int length;			// number of entries in dictionary
   int ref;			// reference count
 #if MULTITHREADED
-  GooMutex mutex;
+  mutable GooMutex mutex;
 #endif
 
-  DictEntry *find(const char *key);
+  DictEntry *find(const char *key) const;
 };
 
 #endif

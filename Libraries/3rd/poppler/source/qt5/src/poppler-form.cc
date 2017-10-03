@@ -189,7 +189,6 @@ Link *FormField::additionalAction(AdditionalActionType type) const
   return action;
 }
 
-
 FormFieldButton::FormFieldButton(DocumentData *doc, ::Page *p, ::FormWidgetButton *w)
   : FormField(*new FormFieldData(doc, p, w))
 {
@@ -351,6 +350,17 @@ bool FormFieldText::canBeSpellChecked() const
   return !fwt->noSpellCheck();
 }
 
+double FormFieldText::getFontSize() const
+{
+  FormWidgetText* fwt = static_cast<FormWidgetText*>(m_formData->fm);
+  return fwt->getTextFontSize();
+}
+
+void FormFieldText::setFontSize(int fontSize)
+{
+  FormWidgetText* fwt = static_cast<FormWidgetText*>(m_formData->fm);
+  fwt->setTextFontSize(fontSize);
+}
 
 FormFieldChoice::FormFieldChoice(DocumentData *doc, ::Page *p, ::FormWidgetChoice *w)
   : FormField(*new FormFieldData(doc, p, w))

@@ -81,22 +81,6 @@ enum SysFontType {
 
 //------------------------------------------------------------------------
 
-class PSFontParam16 {
-public:
-
-  GooString *name;		// PDF font name for psResidentFont16;
-				//   char collection name for psResidentFontCC
-  int wMode;			// writing mode (0=horiz, 1=vert)
-  GooString *psFontName;		// PostScript font name
-  GooString *encoding;		// encoding
-
-  PSFontParam16(GooString *nameA, int wModeA,
-		GooString *psFontNameA, GooString *encodingA);
-  ~PSFontParam16();
-};
-
-//------------------------------------------------------------------------
-
 enum PSLevel {
   psLevel1,
   psLevel1Sep,
@@ -156,15 +140,10 @@ public:
   GooString *findSystemFontFile(GfxFont *font, SysFontType *type,
 			      int *fontNum, GooString *substituteFontName = NULL, 
 		              GooString *base14Name = NULL);
-  GooString *findCCFontFile(GooString *collection);
   GBool getPSExpandSmaller();
   GBool getPSShrinkLarger();
   GBool getPSCenter();
   PSLevel getPSLevel();
-  GooString *getPSResidentFont(GooString *fontName);
-  GooList *getPSResidentFonts();
-  PSFontParam16 *getPSResidentFont16(GooString *fontName, int wMode);
-  PSFontParam16 *getPSResidentFontCC(GooString *collection, int wMode);
   GooString *getTextEncodingName();
   EndOfLineKind getTextEOL();
   GBool getTextPageBreaks();
@@ -198,7 +177,6 @@ public:
 
   //----- functions to set parameters
   void addFontFile(GooString *fontName, GooString *path);
-  void setPSFile(char *file);
   void setPSExpandSmaller(GBool expand);
   void setPSShrinkLarger(GBool shrink);
   void setPSCenter(GBool center);
@@ -270,24 +248,11 @@ private:
 #endif
   GooHash *fontFiles;		// font files: font name mapped to path
 				//   [GString]
-  GooList *fontDirs;		// list of font dirs [GString]
-  GooHash *ccFontFiles;	// character collection font files:
-				//   collection name  mapped to path [GString]
   SysFontList *sysFonts;	// system fonts
-  GooString *psFile;		// PostScript file or command (for xpdf)
   GBool psExpandSmaller;	// expand smaller pages to fill paper
   GBool psShrinkLarger;		// shrink larger pages to fit paper
   GBool psCenter;		// center pages on the paper
   PSLevel psLevel;		// PostScript level to generate
-  GooHash *psResidentFonts;	// 8-bit fonts resident in printer:
-				//   PDF font name mapped to PS font name
-				//   [GString]
-  GooList *psResidentFonts16;	// 16-bit fonts resident in printer:
-				//   PDF font name mapped to font info
-				//   [PSFontParam16]
-  GooList *psResidentFontsCC;	// 16-bit character collection fonts
-				//   resident in printer: collection name
-				//   mapped to font info [PSFontParam16]
   GooString *textEncoding;	// encoding (unicodeMap) to use for text
 				//   output
   EndOfLineKind textEOL;	// type of EOL marker to use for text
@@ -310,7 +275,6 @@ private:
   GBool printCommands;		// print the drawing commands
   GBool profileCommands;	// profile the drawing commands
   GBool errQuiet;		// suppress error messages?
-  double splashResolution;	// resolution when rasterizing images
 
   CharCodeToUnicodeCache *cidToUnicodeCache;
   CharCodeToUnicodeCache *unicodeToUnicodeCache;

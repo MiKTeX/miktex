@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2008 Julien Rebetez <julien@fhtagn.net>
-// Copyright (C) 2008, 2010, 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010, 2016, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Matthias Franz <matthias@ktug.or.kr>
 // Copyright (C) 2009 David Benjamin <davidben@mit.edu>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
@@ -1345,7 +1345,7 @@ static inline Guint sha256sigma1(Guint x) {
   return rotr(x, 17) ^ rotr(x, 19) ^ (x >> 10);
 }
 
-void sha256HashBlock(Guchar *blk, Guint *H) {
+static void sha256HashBlock(Guchar *blk, Guint *H) {
   Guint W[64];
   Guint a, b, c, d, e, f, g, h;
   Guint T1, T2;

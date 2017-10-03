@@ -487,7 +487,7 @@ static void printInfoDate(FILE *f, Dict *infoDict, const char *key, const char *
   }
 }
 
-void printLine(FILE *f, TextLine *line) {
+static void printLine(FILE *f, TextLine *line) {
   double xMin, yMin, xMax, yMax;
   double lineXMin = 0, lineYMin = 0, lineXMax = 0, lineYMax = 0;
   TextWord *word;

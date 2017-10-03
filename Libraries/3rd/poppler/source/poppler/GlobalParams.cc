@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2005 Martin Kretzschmar <martink@gnome.org>
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005, 2007-2010, 2012, 2015 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2007-2010, 2012, 2015, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Jonathan Blandford <jrb@redhat.com>
 // Copyright (C) 2006, 2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
@@ -126,24 +126,6 @@ extern XpdfPluginVecTable xpdfPluginVecTable;
 //------------------------------------------------------------------------
 
 GlobalParams *globalParams = NULL;
-
-//------------------------------------------------------------------------
-// PSFontParam16
-//------------------------------------------------------------------------
-
-PSFontParam16::PSFontParam16(GooString *nameA, int wModeA,
-			     GooString *psFontNameA, GooString *encodingA) {
-  name = nameA;
-  wMode = wModeA;
-  psFontName = psFontNameA;
-  encoding = encodingA;
-}
-
-PSFontParam16::~PSFontParam16() {
-  delete name;
-  delete psFontName;
-  delete encoding;
-}
 
 #if ENABLE_RELOCATABLE && defined(_WIN32)
 
@@ -587,17 +569,11 @@ GlobalParams::GlobalParams(const char *customPopplerDataDir)
   cMapDirs = new GooHash(gTrue);
   toUnicodeDirs = new GooList();
   fontFiles = new GooHash(gTrue);
-  fontDirs = new GooList();
-  ccFontFiles = new GooHash(gTrue);
   sysFonts = new SysFontList();
   psExpandSmaller = gFalse;
   psShrinkLarger = gTrue;
   psCenter = gTrue;
   psLevel = psLevel2;
-  psFile = NULL;
-  psResidentFonts = new GooHash(gTrue);
-  psResidentFonts16 = new GooList();
-  psResidentFontsCC = new GooList();
   textEncoding = new GooString("UTF-8");
 #if defined(_WIN32)
   textEOL = eolDOS;
@@ -796,18 +772,10 @@ GlobalParams::~GlobalParams() {
   deleteGooHash(unicodeMaps, GooString);
   deleteGooList(toUnicodeDirs, GooString);
   deleteGooHash(fontFiles, GooString);
-  deleteGooList(fontDirs, GooString);
-  deleteGooHash(ccFontFiles, GooString);
 #ifdef _WIN32
   deleteGooHash(substFiles, GooString);
 #endif
   delete sysFonts;
-  if (psFile) {
-    delete psFile;
-  }
-  deleteGooHash(psResidentFonts, GooString);
-  deleteGooList(psResidentFonts16, PSFontParam16);
-  deleteGooList(psResidentFontsCC, PSFontParam16);
   delete textEncoding;
 
   GooHashIter *iter;
@@ -1105,14 +1073,7 @@ static FcPattern *buildFcPattern(GfxFont *font, GooString *base14Name)
 #endif
 
 GooString *GlobalParams::findFontFile(GooString *fontName) {
-  static const char *exts[] = { ".pfa", ".pfb", ".ttf", ".ttc", ".otf" };
-  GooString *path, *dir;
-#ifdef WIN32
-  GooString *fontNameU;
-#endif
-  const char *ext;
-  FILE *f;
-  int i, j;
+  GooString *path;
 
   setupBaseFonts(NULL);
   lockGlobalParams;
@@ -1120,26 +1081,6 @@ GooString *GlobalParams::findFontFile(GooString *fontName) {
     path = path->copy();
     unlockGlobalParams;
     return path;
-  }
-  for (i = 0; i < fontDirs->getLength(); ++i) {
-    dir = (GooString *)fontDirs->get(i);
-    for (j = 0; j < (int)(sizeof(exts) / sizeof(exts[0])); ++j) {
-      ext = exts[j];
-#if defined(WIN32) && !defined(MIKTEX)
-      fontNameU = fileNameToUTF8(fontName->getCString());
-      path = appendToPath(dir->copy(), fontNameU->getCString());
-      delete fontNameU;
-#else
-      path = appendToPath(dir->copy(), fontName->getCString());
-#endif
-      path->append(ext);
-      if ((f = openFile(path->getCString(), "rb"))) {
-	fclose(f);
-	unlockGlobalParams;
-	return path;
-      }
-      delete path;
-    }
   }
   unlockGlobalParams;
   return NULL;
@@ -1425,18 +1366,6 @@ GooString *GlobalParams::findSystemFontFile(GfxFont *font,
 }
 #endif
 
-GooString *GlobalParams::findCCFontFile(GooString *collection) {
-  GooString *path;
-
-  lockGlobalParams;
-  if ((path = (GooString *)ccFontFiles->lookup(collection))) {
-    path = path->copy();
-  }
-  unlockGlobalParams;
-  return path;
-}
-
-
 GBool GlobalParams::getPSExpandSmaller() {
   GBool f;
 
@@ -1471,67 +1400,6 @@ PSLevel GlobalParams::getPSLevel() {
   level = psLevel;
   unlockGlobalParams;
   return level;
-}
-
-GooString *GlobalParams::getPSResidentFont(GooString *fontName) {
-  GooString *psName;
-
-  lockGlobalParams;
-  psName = (GooString *)psResidentFonts->lookup(fontName);
-  unlockGlobalParams;
-  return psName;
-}
-
-GooList *GlobalParams::getPSResidentFonts() {
-  GooList *names;
-  GooHashIter *iter;
-  GooString *name;
-  GooString *psName;
-
-  names = new GooList();
-  lockGlobalParams;
-  psResidentFonts->startIter(&iter);
-  while (psResidentFonts->getNext(&iter, &name, (void **)&psName)) {
-    names->append(psName->copy());
-  }
-  unlockGlobalParams;
-  return names;
-}
-
-PSFontParam16 *GlobalParams::getPSResidentFont16(GooString *fontName,
-						 int wMode) {
-  PSFontParam16 *p;
-  int i;
-
-  lockGlobalParams;
-  p = NULL;
-  for (i = 0; i < psResidentFonts16->getLength(); ++i) {
-    p = (PSFontParam16 *)psResidentFonts16->get(i);
-    if (!(p->name->cmp(fontName)) && p->wMode == wMode) {
-      break;
-    }
-    p = NULL;
-  }
-  unlockGlobalParams;
-  return p;
-}
-
-PSFontParam16 *GlobalParams::getPSResidentFontCC(GooString *collection,
-						 int wMode) {
-  PSFontParam16 *p;
-  int i;
-
-  lockGlobalParams;
-  p = NULL;
-  for (i = 0; i < psResidentFontsCC->getLength(); ++i) {
-    p = (PSFontParam16 *)psResidentFontsCC->get(i);
-    if (!(p->name->cmp(collection)) && p->wMode == wMode) {
-      break;
-    }
-    p = NULL;
-  }
-  unlockGlobalParams;
-  return p;
 }
 
 GooString *GlobalParams::getTextEncodingName() {
@@ -1788,15 +1656,6 @@ GooList *GlobalParams::getEncodingNames()
 void GlobalParams::addFontFile(GooString *fontName, GooString *path) {
   lockGlobalParams;
   fontFiles->add(fontName, path);
-  unlockGlobalParams;
-}
-
-void GlobalParams::setPSFile(char *file) {
-  lockGlobalParams;
-  if (psFile) {
-    delete psFile;
-  }
-  psFile = new GooString(file);
   unlockGlobalParams;
 }
 

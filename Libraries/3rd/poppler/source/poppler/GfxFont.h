@@ -353,6 +353,7 @@ public:
 
   // Return the Type 3 CharProc for the character associated with <code>.
   Object getCharProc(int code);
+  Object getCharProcNF(int code);
 
   // Return the Type 3 Resources dictionary, or NULL if none.
   Dict *getResources();

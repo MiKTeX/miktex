@@ -13,6 +13,7 @@
 //
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2014 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2017 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -143,6 +144,10 @@ SplashFont *SplashFTFontFile::makeFont(SplashCoord *mat,
   font = new SplashFTFont(this, mat, textMat);
   font->initCache();
   return font;
+}
+
+int *SplashFTFontFile::getCodeToGID() {
+  return codeToGID;
 }
 
 #endif // HAVE_FREETYPE_FREETYPE_H || HAVE_FREETYPE_H

@@ -50,10 +50,10 @@ public:
   ~Array();
 
   // Get number of elements.
-  int getLength() { return length; }
+  int getLength() const { return length; }
 
   // Copy array with new xref
-  Object copy(XRef *xrefA);
+  Object copy(XRef *xrefA) const;
 
   // Add an element
   // elem becomes a dead object after this call
@@ -63,9 +63,9 @@ public:
   void remove(int i);
 
   // Accessors.
-  Object get(int i, int resursion = 0);
-  Object getNF(int i);
-  GBool getString(int i, GooString *string);
+  Object get(int i, int resursion = 0) const;
+  Object getNF(int i) const;
+  GBool getString(int i, GooString *string) const;
 
 private:
   friend class Object; // for incRef/decRef
@@ -80,7 +80,7 @@ private:
   int length;			// number of elements in array
   int ref;			// reference count
 #if MULTITHREADED
-  GooMutex mutex;
+  mutable GooMutex mutex;
 #endif
 };
 

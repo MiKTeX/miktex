@@ -284,7 +284,7 @@ public:
 
   void put (char c) override;
 
-  void printf (const char *format, ...) override;
+  void printf (const char *format, ...) override GCC_PRINTF_FORMAT(2,3);
 private:
   FILE *f;
   Goffset start;

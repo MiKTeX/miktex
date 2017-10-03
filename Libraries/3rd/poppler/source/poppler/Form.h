@@ -25,6 +25,7 @@
 #pragma interface
 #endif
 
+#include "goo/GooList.h"
 #include "Object.h"
 #include "Annot.h"
 
@@ -206,6 +207,11 @@ public:
   bool isComb () const; 
   bool isRichText () const;
   int getMaxLen () const;
+  //return the font size of the field's text
+  double getTextFontSize();
+  //set the font size of the field's text (currently only integer values)
+  void setTextFontSize(int fontSize);
+
 protected:
   FormFieldText *parent() const;
 };
@@ -421,10 +427,20 @@ public:
 
   int getMaxLen () const { return maxLen; }
 
+  //return the font size of the field's text
+  double getTextFontSize();
+  //set the font size of the field's text (currently only integer values)
+  void setTextFontSize(int fontSize);
+
 #ifdef DEBUG_FORMS
   void print(int indent = 0);
 #endif
+
+  static int tokenizeDA(GooString* daString, GooList* daToks, const char* searchTok);
+
 protected:
+  int parseDA(GooList* daToks);
+
   GooString* content;
   bool multiline;
   bool password;

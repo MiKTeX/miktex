@@ -16,7 +16,7 @@
 // Copyright (C) 2006 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2007 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2008, 2009, 2012, 2014-2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2009, 2012, 2014-2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Tomas Are Haavet <tomasare@gmail.com>
 // Copyright (C) 2012 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
 // Copyright (C) 2012 Adrian Johnson <ajohnson@redneon.com>
@@ -451,7 +451,7 @@ int FoFiTrueType::mapNameToGID(char *name) {
 GBool FoFiTrueType::getCFFBlock(char **start, int *length) {
   int i;
 
-  if (!openTypeCFF) {
+  if (!openTypeCFF || !tables) {
     return gFalse;
   }
   i = seekTable("CFF ");
@@ -1307,8 +1307,10 @@ Guint FoFiTrueType::computeTableChecksum(Guchar *data, int length) {
     switch (length & 3) {
     case 3:
       word |= (data[i+2] & 0xff) <<  8;
+      // fallthrough
     case 2:
       word |= (data[i+1] & 0xff) << 16;
+      // fallthrough
     case 1:
       word |= (data[i  ] & 0xff) << 24;
       break;

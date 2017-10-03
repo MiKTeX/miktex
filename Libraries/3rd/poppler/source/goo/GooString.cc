@@ -18,7 +18,7 @@
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2007 Jeff Muizelaar <jeff@infidigm.net>
-// Copyright (C) 2008-2011, 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008-2011, 2016, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2011 Kenji Uno <ku@digitaldolphins.jp>
 // Copyright (C) 2012, 2013 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2012 Adrian Johnson <ajohnson@redneon.com>
@@ -917,7 +917,13 @@ GBool GooString::hasUnicodeMarker(void) const
   return length > 1 && (s[0] & 0xff) == 0xfe && (s[1] & 0xff) == 0xff;
 }
 
-GooString *GooString::sanitizedName(GBool psmode)
+void GooString::prependUnicodeMarker()
+{
+    insert(0, (char)0xff);
+    insert(0, (char)0xfe);
+}
+
+GooString *GooString::sanitizedName(GBool psmode) const
 {
   GooString *name;
   char buf[8];

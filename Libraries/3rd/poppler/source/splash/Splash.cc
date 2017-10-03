@@ -11,7 +11,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2005-2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Marco Pesenti Gritti <mpg@redhat.com>
 // Copyright (C) 2010-2016 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
@@ -580,12 +580,14 @@ void Splash::pipeRun(SplashPipe *pipe) {
 #endif
 	case splashModeXBGR8:
 	  cSrcNonIso[3] = 255;
+      // fallthrough
 	case splashModeRGB8:
 	case splashModeBGR8:
 	  cSrcNonIso[2] = clip255(pipe->cSrc[2] +
 				  ((pipe->cSrc[2] - cDest[2]) * t) / 255);
 	  cSrcNonIso[1] = clip255(pipe->cSrc[1] +
 				  ((pipe->cSrc[1] - cDest[1]) * t) / 255);
+      // fallthrough
 	case splashModeMono1:
 	case splashModeMono8:
 	  cSrcNonIso[0] = clip255(pipe->cSrc[0] +
@@ -4134,7 +4136,7 @@ SplashError Splash::arbitraryTransformImage(SplashImageSource src, SplashICCTran
 static GBool isImageInterpolationRequired(int srcWidth, int srcHeight,
                                           int scaledWidth, int scaledHeight,
                                           GBool interpolate) {
-  if (interpolate)
+  if (interpolate || srcWidth == 0 || srcHeight == 0)
     return gTrue;
 
   /* When scale factor is >= 400% we don't interpolate. See bugs #25268, #9860 */
@@ -4152,7 +4154,7 @@ SplashBitmap *Splash::scaleImage(SplashImageSource src, void *srcData,
   SplashBitmap *dest;
 
   dest = new SplashBitmap(scaledWidth, scaledHeight, 1, srcMode, srcAlpha, gTrue, bitmap->getSeparationList());
-  if (dest->getDataPtr() != NULL) {
+  if (dest->getDataPtr() != NULL && srcHeight > 0 && srcWidth > 0) {
     if (scaledHeight < srcHeight) {
       if (scaledWidth < srcWidth) {
 	scaleImageYdXd(src, srcData, srcMode, nComps, srcAlpha,

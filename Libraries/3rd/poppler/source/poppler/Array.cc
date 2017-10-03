@@ -65,7 +65,7 @@ Array::~Array() {
 #endif
 }
 
-Object Array::copy(XRef *xrefA) {
+Object Array::copy(XRef *xrefA) const {
   arrayLocker();
   Array *a = new Array(xrefA);
   for (int i = 0; i < length; ++i) {
@@ -114,7 +114,7 @@ void Array::remove(int i) {
   memmove( elems + i, elems + i + 1, sizeof(elems[0]) * (length - i) );
 }
 
-Object Array::get(int i, int recursion) {
+Object Array::get(int i, int recursion) const {
   if (i < 0 || i >= length) {
 #ifdef DEBUG_MEM
     abort();
@@ -125,7 +125,7 @@ Object Array::get(int i, int recursion) {
   return elems[i].fetch(xref, recursion);
 }
 
-Object Array::getNF(int i) {
+Object Array::getNF(int i) const {
   if (i < 0 || i >= length) {
 #ifdef DEBUG_MEM
     abort();
@@ -136,7 +136,7 @@ Object Array::getNF(int i) {
   return elems[i].copy();
 }
 
-GBool Array::getString(int i, GooString *string)
+GBool Array::getString(int i, GooString *string) const
 {
   Object obj = getNF(i);
   if (obj.isString()) {

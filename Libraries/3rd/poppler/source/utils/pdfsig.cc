@@ -30,7 +30,7 @@
 #include "GlobalParams.h"
 #include "SignatureInfo.h"
 
-const char * getReadableSigState(SignatureValidationStatus sig_vs)
+static const char * getReadableSigState(SignatureValidationStatus sig_vs)
 {
   switch(sig_vs) {
     case SIGNATURE_VALID:
@@ -53,7 +53,7 @@ const char * getReadableSigState(SignatureValidationStatus sig_vs)
   }
 }
 
-const char * getReadableCertState(CertificateValidationStatus cert_vs)
+static const char * getReadableCertState(CertificateValidationStatus cert_vs)
 {
   switch(cert_vs) {
     case CERTIFICATE_TRUSTED:
@@ -79,7 +79,7 @@ const char * getReadableCertState(CertificateValidationStatus cert_vs)
   }
 }
 
-char *getReadableTime(time_t unix_time)
+static char *getReadableTime(time_t unix_time)
 {
   char * time_str = (char *) gmalloc(64);
   strftime(time_str, 64, "%b %d %Y %H:%M:%S", localtime(&unix_time));

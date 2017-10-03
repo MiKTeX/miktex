@@ -35,6 +35,7 @@
 // Copyright (C) 2015 Petr Gajdos <pgajdos@suse.cz>
 // Copyright (C) 2015 Philipp Reinkemeier <philipp.reinkemeier@offis.de>
 // Copyright (C) 2015 Tamas Szekeres <szekerest@gmail.com>
+// Copyright (C) 2017 Hans-Ulrich Jüttner <huj@froreich-bioscientia.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -112,7 +113,7 @@
 // = (4 * (sqrt(2) - 1) / 3) * r
 #define bezierCircle 0.55228475
 
-AnnotLineEndingStyle parseAnnotLineEndingStyle(GooString *string) {
+static AnnotLineEndingStyle parseAnnotLineEndingStyle(GooString *string) {
   if (string != NULL) {
     if (!string->cmp("Square")) {
       return annotLineEndingSquare;
@@ -140,7 +141,7 @@ AnnotLineEndingStyle parseAnnotLineEndingStyle(GooString *string) {
   }  
 }
 
-const char* convertAnnotLineEndingStyle(AnnotLineEndingStyle style) {
+static const char* convertAnnotLineEndingStyle(AnnotLineEndingStyle style) {
   switch (style) {
     case annotLineEndingSquare:
       return "Square";
@@ -184,7 +185,7 @@ static AnnotExternalDataType parseAnnotExternalData(Dict* dict) {
   return type;
 }
 
-PDFRectangle *parseDiffRectangle(Array *array, PDFRectangle *rect) {
+static PDFRectangle *parseDiffRectangle(Array *array, PDFRectangle *rect) {
   PDFRectangle *newRect = NULL;
   if (array->getLength() == 4) {
     // deltas
@@ -1397,8 +1398,7 @@ void Annot::setContents(GooString *new_content) {
     contents = new GooString(new_content);
     //append the unicode marker <FE FF> if needed	
     if (!contents->hasUnicodeMarker()) {
-      contents->insert(0, 0xff);
-      contents->insert(0, 0xfe);
+      contents->prependUnicodeMarker();
     }
   } else {
     contents = new GooString();
@@ -1986,8 +1986,7 @@ void AnnotMarkup::setLabel(GooString *new_label) {
     label = new GooString(new_label);
     //append the unicode marker <FE FF> if needed
     if (!label->hasUnicodeMarker()) {
-      label->insert(0, 0xff);
-      label->insert(0, 0xfe);
+      label->prependUnicodeMarker();
     }
   } else {
     label = new GooString();
@@ -2763,8 +2762,7 @@ void AnnotFreeText::setStyleString(GooString *new_string) {
     styleString = new GooString(new_string);
     //append the unicode marker <FE FF> if needed
     if (!styleString->hasUnicodeMarker()) {
-      styleString->insert(0, 0xff);
-      styleString->insert(0, 0xfe);
+      styleString->prependUnicodeMarker();
     }
   } else {
     styleString = new GooString();
@@ -2839,29 +2837,14 @@ void AnnotFreeText::parseAppearanceString(GooString *da, double &fontsize, Annot
   fontcolor = NULL;
   if (da) {
     GooList * daToks = new GooList();
-    int j, i = 0;
+    int i = FormFieldText::tokenizeDA(da, daToks, "Tf");
 
-    // Tokenize
-    while (i < da->getLength()) {
-      while (i < da->getLength() && Lexer::isSpace(da->getChar(i))) {
-        ++i;
-      }
-      if (i < da->getLength()) {
-        for (j = i + 1; j < da->getLength() && !Lexer::isSpace(da->getChar(j)); ++j) {
-        }
-        daToks->append(new GooString(da, i, j - i));
-        i = j;
-      }
+    if (i >= 1) {
+      fontsize = gatof(( (GooString *)daToks->get(i-1) )->getCString());
+      // TODO: Font name
     }
-
     // Scan backwards: we are looking for the last set value
     for (i = daToks->getLength()-1; i >= 0; --i) {
-      if (fontsize == -1) {
-        if (!((GooString *)daToks->get(i))->cmp("Tf") && i >= 2) {
-            // TODO: Font name
-            fontsize = gatof(( (GooString *)daToks->get(i-1) )->getCString());
-        }
-      }
       if (fontcolor == NULL) {
         if (!((GooString *)daToks->get(i))->cmp("g") && i >= 1) {
           fontcolor = new AnnotColor(gatof(( (GooString *)daToks->get(i-1) )->getCString()));
@@ -4698,7 +4681,7 @@ void AnnotWidget::drawBorder() {
         appearBuf->appendf(" {0:.2f}", dash[i]);
       }
       appearBuf->append("] 0 d\n");
-      // fall through to the solid case
+      // fallthrough
     case AnnotBorder::borderSolid:
     case AnnotBorder::borderUnderlined:
       appearBuf->appendf("{0:.2f} w\n", w);
@@ -4730,7 +4713,7 @@ void AnnotWidget::drawBorder() {
         appearBuf->appendf(" {0:.2f}", dash[i]);
       }
       appearBuf->append("] 0 d\n");
-      // fall through to the solid case
+      // fallthrough
     case AnnotBorder::borderSolid:
       appearBuf->appendf("{0:.2f} w\n", w);
       setColor(aColor, gFalse);
@@ -6573,11 +6556,11 @@ AnnotRichMedia::Content::Content(Dict *dict) {
       assets = (Asset **)gmallocn(nAssets, sizeof(Asset *));
 
       int counter = 0;
-      for (int i = 0; i < obj2.arrayGetLength(); i += 2) {
+      for (int i = 0; i < nAssets; ++i) {
         assets[counter] = new AnnotRichMedia::Asset;
 
-        Object objKey = obj2.arrayGet(i);
-        assets[counter]->fileSpec = obj2.arrayGet(i + 1);
+        Object objKey = obj2.arrayGet(i * 2);
+        assets[counter]->fileSpec = obj2.arrayGet(i * 2 + 1);
 
         assets[counter]->name = new GooString( objKey.getString() );
         ++counter;
@@ -6681,26 +6664,30 @@ AnnotRichMedia::Configuration::Configuration(Dict *dict)
     } else if (!strcmp(name, "Video")) {
       type = typeVideo;
     } else {
-      // determine from first instance
+      // determine from first non null instance
+      type = typeFlash; // default in case all instances are null
       if (instances && nInstances > 0) {
-        AnnotRichMedia::Instance *instance = instances[0];
-        switch (instance->getType()) {
-          case AnnotRichMedia::Instance::type3D:
-            type = type3D;
-            break;
-          case AnnotRichMedia::Instance::typeFlash:
-            type = typeFlash;
-            break;
-          case AnnotRichMedia::Instance::typeSound:
-            type = typeSound;
-            break;
-          case AnnotRichMedia::Instance::typeVideo:
-            type = typeVideo;
-            break;
-          default:
-            type = typeFlash;
-            break;
-        }
+	for (int i = 0; i < nInstances; ++i) {
+	  AnnotRichMedia::Instance *instance = instances[i];
+	  if (instance) {
+	    switch (instance->getType()) {
+	      case AnnotRichMedia::Instance::type3D:
+		type = type3D;
+		break;
+	      case AnnotRichMedia::Instance::typeFlash:
+		type = typeFlash;
+		break;
+	      case AnnotRichMedia::Instance::typeSound:
+		type = typeSound;
+		break;
+	      case AnnotRichMedia::Instance::typeVideo:
+		type = typeVideo;
+		break;
+	    }
+	    // break the loop since we found the first non null instance
+	    break;
+	  }
+	}
       }
     }
   }

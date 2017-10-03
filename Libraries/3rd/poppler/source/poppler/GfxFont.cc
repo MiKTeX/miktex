@@ -594,7 +594,6 @@ GfxFontLoc *GfxFont::locateFont(XRef *xref, PSOutputDev *ps) {
   GfxFontLoc *fontLoc;
   SysFontType sysFontType;
   GooString *path, *base14Name, *substName;
-  PSFontParam16 *psFont16;
   int substIdx, fontNum;
   GBool embed;
 
@@ -715,17 +714,6 @@ GfxFontLoc *GfxFont::locateFont(XRef *xref, PSOutputDev *ps) {
 
   if (!isCIDFont()) {
 
-    //----- 8-bit PS resident font
-    if (name && ps) {
-      if ((path = globalParams->getPSResidentFont(name))) {
-	fontLoc = new GfxFontLoc();
-	fontLoc->locType = gfxFontLocResident;
-	fontLoc->fontType = fontType1;
-	fontLoc->path = path;
-	return fontLoc;
-      }
-    }
-
     //----- 8-bit font substitution
     if (flags & fontFixedWidth) {
       substIdx = 0;
@@ -766,42 +754,6 @@ GfxFontLoc *GfxFont::locateFont(XRef *xref, PSOutputDev *ps) {
 
     // failed to find a substitute font
     return NULL;
-  }
-
-  //----- 16-bit PS resident font
-  if (ps && ((psFont16 = globalParams->getPSResidentFont16(
-					 name,
-					 ((GfxCIDFont *)this)->getWMode())))) {
-    fontLoc = new GfxFontLoc();
-    fontLoc->locType = gfxFontLocResident;
-    fontLoc->fontType = fontCIDType0; // this is not used
-    fontLoc->path = psFont16->psFontName->copy();
-    fontLoc->encoding = psFont16->encoding->copy();
-    fontLoc->wMode = psFont16->wMode;
-    return fontLoc;
-  }
-  if (ps && ((psFont16 = globalParams->getPSResidentFontCC(
-				 ((GfxCIDFont *)this)->getCollection(),
-				 ((GfxCIDFont *)this)->getWMode())))) {
-    error(errSyntaxWarning, -1, "Substituting font '{0:t}' for '{1:t}'",
-	  psFont16->psFontName, name);
-    fontLoc = new GfxFontLoc();
-    fontLoc->locType = gfxFontLocResident;
-    fontLoc->fontType = fontCIDType0; // this is not used
-    fontLoc->path = psFont16->psFontName->copy();
-    fontLoc->encoding = psFont16->encoding->copy();
-    fontLoc->wMode = psFont16->wMode;
-    return fontLoc;
-  }
-
-  //----- CID font substitution
-  if ((path = globalParams->findCCFontFile(
-				((GfxCIDFont *)this)->getCollection()))) {
-    if ((fontLoc = getExternalFont(path, gTrue))) {
-      error(errSyntaxWarning, -1, "Substituting font '{0:t}' for '{1:t}'",
-	    fontLoc->path, name);
-      return fontLoc;
-    }
   }
 
   // failed to find a substitute font
@@ -1754,6 +1706,14 @@ Dict *Gfx8BitFont::getCharProcs() {
 Object Gfx8BitFont::getCharProc(int code) {
   if (enc[code] && charProcs.isDict()) {
     return charProcs.dictLookup(enc[code]);
+  } else {
+    return Object(objNull);
+  }
+}
+
+Object Gfx8BitFont::getCharProcNF(int code) {
+  if (enc[code] && charProcs.isDict()) {
+    return charProcs.dictLookupNF(enc[code]);
   } else {
     return Object(objNull);
   }

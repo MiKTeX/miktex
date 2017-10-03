@@ -213,7 +213,7 @@ static HWND createStaticText(HWND parent, HINSTANCE hinstance, HMENU id, const c
   return hwnd;
 }
 
-HWND createPageScaleComboBox(HWND parent, HINSTANCE hinstance, HMENU id, RECT *rect)
+static HWND createPageScaleComboBox(HWND parent, HINSTANCE hinstance, HMENU id, RECT *rect)
 {
   HWND hwnd = CreateWindowA(WC_COMBOBOX,
 			    "",

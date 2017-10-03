@@ -16,6 +16,7 @@
  * Copyright (C) 2012, 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
  * Copyright (C) 2013 Anthony Granger <grangeranthony@gmail.com>
  * Copyright (C) 2016 Jakub Alba <jakubalba@gmail.com>
+ * Copyright (C) 2017 Oliver Sander <oliver.sander@tu-dresden.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -893,7 +894,8 @@ delete it;
 	    OverprintPreview = 0x00000010,  ///< Overprint preview \since 0.22
 	    ThinLineSolid = 0x00000020,     ///< Enhance thin lines solid \since 0.24
 	    ThinLineShape = 0x00000040,     ///< Enhance thin lines shape. Wins over ThinLineSolid \since 0.24
-	    IgnorePaperColor = 0x00000080   ///< Do not compose with the paper color \since 0.35
+	    IgnorePaperColor = 0x00000080,  ///< Do not compose with the paper color \since 0.35
+	    HideAnnotations = 0x00000100    ///< Do not render annotations \since 0.60
 	};
 	Q_DECLARE_FLAGS( RenderHints, RenderHint )
 
