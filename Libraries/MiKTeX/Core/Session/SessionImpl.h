@@ -751,10 +751,7 @@ public:
   unsigned GetUserInstallRoot();
 
 public:
-  MiKTeX::Core::PathName GetBootstrappingDirectory();
-
-public:
-  unsigned GetDistRoot();
+  MiKTeX::Core::PathName GetDistRootDirectory();
 
 private:
   bool IsManagedRoot(unsigned root);

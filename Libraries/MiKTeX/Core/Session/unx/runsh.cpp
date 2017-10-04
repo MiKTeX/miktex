@@ -39,7 +39,7 @@ int SessionImpl::RunSh(int argc, const char** argv)
   PathName name = PathName(argv[0]).GetFileName();
 
   // get relative script path
-  PathName scriptsIni = GetSpecialPath(SpecialPath::DistRoot);
+  PathName scriptsIni = GetSpecialPath(SpecialPath::InstallRoot);
   scriptsIni /= MIKTEX_PATH_SCRIPTS_INI;
   unique_ptr<Cfg> config(Cfg::Create());
   config->Read(scriptsIni, true);
