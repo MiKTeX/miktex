@@ -77,6 +77,8 @@ set(curl_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/md4.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/md5.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/memdebug.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/mime.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/mime.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/mprintf.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/multi.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/lib/netrc.c
