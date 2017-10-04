@@ -4,7 +4,7 @@
 
 if [ -d ~/.miktex/texmfs/data/miktex/log ]; then
     cd ~/.miktex/texmfs/data/miktex/log
-    grep FAIL *
+    grep FATAL *
 fi
 
 if [ -f "${TRAVIS_BUILD_DIR}/miktex-testing/build/Testing/Temporary/LastTest.log" ]; then
