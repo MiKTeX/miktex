@@ -67,7 +67,7 @@ void SessionImpl::ConnectToServer()
       WCHAR wszCLSID[50];
       if (StringFromGUID2(__uuidof(MiKTeXSessionLib::MAKE_CURVER_ID(MiKTeXSession)), wszCLSID, sizeof(wszCLSID) / sizeof(wszCLSID[0])) < 0)
       {
-	MIKTEX_FATAL_ERROR(MSG_CANNOT_START_SERVER);
+        MIKTEX_FATAL_ERROR(MSG_CANNOT_START_SERVER);
       }
       wstring monikerName;
       monikerName = L"Elevation:Administrator!new:";
@@ -80,12 +80,12 @@ void SessionImpl::ConnectToServer()
       HResult hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXSessionLib::ISession), reinterpret_cast<void**>(&localServer.pSession));
       if (hr == CO_E_NOTINITIALIZED)
       {
-	MyCoInitialize();
-	hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXSessionLib::ISession), reinterpret_cast<void**>(&localServer.pSession));
+        MyCoInitialize();
+        hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXSessionLib::ISession), reinterpret_cast<void**>(&localServer.pSession));
       }
       if (hr.Failed())
       {
-	MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.GetText());
+        MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.GetText());
       }
     }
     else
@@ -93,12 +93,12 @@ void SessionImpl::ConnectToServer()
       HResult hr = localServer.pSession.CoCreateInstance(__uuidof(MiKTeXSessionLib::MAKE_CURVER_ID(MiKTeXSession)), nullptr, CLSCTX_LOCAL_SERVER);
       if (hr == CO_E_NOTINITIALIZED)
       {
-	MyCoInitialize();
-	hr = localServer.pSession.CoCreateInstance(__uuidof(MiKTeXSessionLib::MAKE_CURVER_ID(MiKTeXSession)), nullptr, CLSCTX_LOCAL_SERVER);
+        MyCoInitialize();
+        hr = localServer.pSession.CoCreateInstance(__uuidof(MiKTeXSessionLib::MAKE_CURVER_ID(MiKTeXSession)), nullptr, CLSCTX_LOCAL_SERVER);
       }
       if (hr.Failed())
       {
-	MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.GetText());
+        MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.GetText());
       }
     }
   }
@@ -241,18 +241,14 @@ PathName SessionImpl::GetDllPathName(bool canonicalized)
 
 #endif
 
-/* _________________________________________________________________________
-
-   SessionImpl::DefaultConfig
-
-   UserInstall:   %USERPROFILE%\AppData\Roaming\MiKTeX\X.Y\
-   UserConfig:    %USERPROFILE%\AppData\Roaming\MiKTeX\X.Y\
-   UserData:      %USERPROFILE%\AppData\Local\MiKTeX\X.Y\
-   CommonInstall: C:\Program Files\MiKTeX X.Y\
-   CommonConfig:  C:\ProgramData\MiKTeX\X.Y\
-   CommonData:    C:\ProgramData\MiKTeX\X.Y\
-   _________________________________________________________________________ */
-
+/*
+ * UserConfig:    %USERPROFILE%\AppData\Roaming\MiKTeX\2.9
+ * UserData:      %USERPROFILE%\AppData\Local\MiKTeX\2.9
+ * UserInstall:   %USERPROFILE%\AppData\Local\Programs\MiKTeX\2.9
+ * CommonConfig:  C:\ProgramData\MiKTeX\2.9
+ * CommonData:    C:\ProgramData\MiKTeX\2.9
+ * CommonInstall: C:\Program Files\MiKTeX 2.9
+ */
 StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathName& commonPrefixArg, const PathName& userPrefixArg)
 {
   StartupConfig ret;
@@ -280,13 +276,13 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
       ret.commonInstallRoot = commonPrefix;
       if (!isLegacy)
       {
-	ret.commonConfigRoot = portableRoot / MIKTEX_PORTABLE_REL_CONFIG_DIR;
-	ret.commonDataRoot = portableRoot / MIKTEX_PORTABLE_REL_DATA_DIR;
+        ret.commonConfigRoot = portableRoot / MIKTEX_PORTABLE_REL_CONFIG_DIR;
+        ret.commonDataRoot = portableRoot / MIKTEX_PORTABLE_REL_DATA_DIR;
       }
       else
       {
-	ret.commonConfigRoot = commonPrefix;
-	ret.commonDataRoot = commonPrefix;
+        ret.commonConfigRoot = commonPrefix;
+        ret.commonDataRoot = commonPrefix;
       }
     }
     if (!userPrefix.Empty())
@@ -296,13 +292,13 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
       ret.userInstallRoot = userPrefix;
       if (!isLegacy)
       {
-	ret.userConfigRoot = portableRoot / MIKTEX_PORTABLE_REL_CONFIG_DIR;
-	ret.userDataRoot = portableRoot / MIKTEX_PORTABLE_REL_DATA_DIR;
+        ret.userConfigRoot = portableRoot / MIKTEX_PORTABLE_REL_CONFIG_DIR;
+        ret.userDataRoot = portableRoot / MIKTEX_PORTABLE_REL_DATA_DIR;
       }
       else
       {
-	ret.userConfigRoot = userPrefix;
-	ret.userDataRoot = userPrefix;
+        ret.userConfigRoot = userPrefix;
+        ret.userDataRoot = userPrefix;
       }
     }
     if (userPrefix.Empty() || commonPrefix.Empty())
@@ -310,39 +306,39 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
       PathName myloc(GetMyLocation(false));
       PathName prefix;
       if (Utils::GetPathNamePrefix(myloc, MIKTEX_PATH_INTERNAL_BIN_DIR, prefix)
-	|| Utils::GetPathNamePrefix(myloc, MIKTEX_PATH_BIN_DIR, prefix)
-	|| Utils::GetPathNamePrefix(myloc, MIKTEX_PATH_MIKTEX_TEMP_DIR, prefix))
+        || Utils::GetPathNamePrefix(myloc, MIKTEX_PATH_BIN_DIR, prefix)
+        || Utils::GetPathNamePrefix(myloc, MIKTEX_PATH_MIKTEX_TEMP_DIR, prefix))
       {
-	PathName portableRoot;
-	bool isLegacy = !Utils::GetPathNamePrefix(prefix, MIKTEX_PORTABLE_REL_INSTALL_DIR, portableRoot);
-	if (commonPrefix.Empty())
-	{
-	  ret.commonInstallRoot = prefix;
-	  if (!isLegacy)
-	  {
-	    ret.commonConfigRoot = portableRoot / MIKTEX_PORTABLE_REL_CONFIG_DIR;
-	    ret.commonDataRoot = portableRoot / MIKTEX_PORTABLE_REL_DATA_DIR;
-	  }
-	  else
-	  {
-	    ret.commonConfigRoot = prefix;
-	    ret.commonDataRoot = prefix;
-	  }
-	}
-	if (userPrefix.Empty())
-	{
-	  ret.userInstallRoot = prefix;
-	  if (!isLegacy)
-	  {
-	    ret.userConfigRoot = portableRoot / MIKTEX_PORTABLE_REL_CONFIG_DIR;
-	    ret.userDataRoot = portableRoot / MIKTEX_PORTABLE_REL_DATA_DIR;
-	  }
-	  else
-	  {
-	    ret.userConfigRoot = prefix;
-	    ret.userDataRoot = prefix;
-	  }
-	}
+        PathName portableRoot;
+        bool isLegacy = !Utils::GetPathNamePrefix(prefix, MIKTEX_PORTABLE_REL_INSTALL_DIR, portableRoot);
+        if (commonPrefix.Empty())
+        {
+          ret.commonInstallRoot = prefix;
+          if (!isLegacy)
+          {
+            ret.commonConfigRoot = portableRoot / MIKTEX_PORTABLE_REL_CONFIG_DIR;
+            ret.commonDataRoot = portableRoot / MIKTEX_PORTABLE_REL_DATA_DIR;
+          }
+          else
+          {
+            ret.commonConfigRoot = prefix;
+            ret.commonDataRoot = prefix;
+          }
+        }
+        if (userPrefix.Empty())
+        {
+          ret.userInstallRoot = prefix;
+          if (!isLegacy)
+          {
+            ret.userConfigRoot = portableRoot / MIKTEX_PORTABLE_REL_CONFIG_DIR;
+            ret.userDataRoot = portableRoot / MIKTEX_PORTABLE_REL_DATA_DIR;
+          }
+          else
+          {
+            ret.userConfigRoot = prefix;
+            ret.userDataRoot = prefix;
+          }
+        }
       }
     }
   }
@@ -356,7 +352,7 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
       PathName prefix;
       if (!Utils::GetPathNamePrefix(myloc, MIKTEX_PATH_BIN_DIR, prefix))
       {
-	MIKTEX_UNEXPECTED();
+        MIKTEX_UNEXPECTED();
       }
       ret.commonInstallRoot = prefix;
     }
@@ -366,8 +362,8 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
       wchar_t szProgramFiles[MAX_PATH];
       if (SHGetFolderPathW(nullptr, CSIDL_PROGRAM_FILES, nullptr, SHGFP_TYPE_CURRENT, szProgramFiles) == S_OK)
       {
-	ret.commonInstallRoot = szProgramFiles;
-	ret.commonInstallRoot /= "MiKTeX" " " MIKTEX_MAJOR_MINOR_STR;
+        ret.commonInstallRoot = szProgramFiles;
+        ret.commonInstallRoot /= "MiKTeX" " " MIKTEX_MAJOR_MINOR_STR;
       }
     }
     wchar_t szPath[MAX_PATH];
@@ -573,7 +569,7 @@ bool SessionImpl::GetAcrobatFontDir(PathName& path)
       fontDir = dir / ".." / "Resource" / "Font";
       if (!Directory::Exists(fontDir))
       {
-	return false;
+        return false;
       }
     }
 
@@ -660,7 +656,7 @@ bool SessionImpl::GetPsFontDirs(string& psFontDirs)
     {
       if (!this->psFontDirs.empty())
       {
-	this->psFontDirs += PathName::PathNameDelimiter;
+        this->psFontDirs += PathName::PathNameDelimiter;
       }
       this->psFontDirs += path.GetData();
     }
@@ -668,7 +664,7 @@ bool SessionImpl::GetPsFontDirs(string& psFontDirs)
     {
       if (!this->psFontDirs.empty())
       {
-	this->psFontDirs += PathName::PathNameDelimiter;
+        this->psFontDirs += PathName::PathNameDelimiter;
       }
       this->psFontDirs += path.GetData();
     }
@@ -694,7 +690,7 @@ bool SessionImpl::GetTTFDirs(string& ttfDirs)
     {
       if (!this->ttfDirs.empty())
       {
-	this->ttfDirs += PathName::PathNameDelimiter;;
+        this->ttfDirs += PathName::PathNameDelimiter;;
       }
       this->ttfDirs += path.GetData();
     }
@@ -720,7 +716,7 @@ bool SessionImpl::GetOTFDirs(string& otfDirs)
     {
       if (!this->otfDirs.empty())
       {
-	this->otfDirs += PathName::PathNameDelimiter;
+        this->otfDirs += PathName::PathNameDelimiter;
       }
       this->otfDirs += path.GetData();
     }
@@ -846,7 +842,7 @@ bool SessionImpl::IsUserMemberOfGroup(DWORD localGroup)
     {
       if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hThread))
       {
-	return false;
+        return false;
       }
     }
     else
@@ -974,11 +970,11 @@ bool SessionImpl::RunningAsAdministrator()
     {
       if (WindowsVersion::IsWindowsVistaOrGreater() && !RunningElevated())
       {
-	runningAsAdministrator = TriState::False;
+        runningAsAdministrator = TriState::False;
       }
       else
       {
-	runningAsAdministrator = TriState::True;
+        runningAsAdministrator = TriState::True;
       }
     }
     else
@@ -997,11 +993,11 @@ bool SessionImpl::RunningAsPowerUser()
     {
       if (WindowsVersion::IsWindowsVistaOrGreater() && !RunningElevated())
       {
-	runningAsPowerUser = TriState::False;
+        runningAsPowerUser = TriState::False;
       }
       else
       {
-	runningAsPowerUser = TriState::True;
+        runningAsPowerUser = TriState::True;
       }
     }
     else
