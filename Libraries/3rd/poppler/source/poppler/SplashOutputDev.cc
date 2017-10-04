@@ -77,9 +77,6 @@
 #include "splash/Splash.h"
 #include "SplashOutputDev.h"
 #include <algorithm>
-#if defined(MIKTEX)
-#  define isfinite std::isfinite
-#endif
 
 #ifdef VMS
 #if (__VMS_VER < 70000000)
@@ -87,7 +84,14 @@ extern "C" int unlink(char *filename);
 #endif
 #endif
 
-#if !defined(MIKTEX)
+#if defined(MIKTEX)
+#if defined(_MSC_VER)
+#include <cmath>
+#ifndef isfinite
+#define isfinite(x) std::isfinite(x)
+#endif
+#endif
+#else
 #ifdef _MSC_VER
 #include <float.h>
 #define isfinite(x) _finite(x)
