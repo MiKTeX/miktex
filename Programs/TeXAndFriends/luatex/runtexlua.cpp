@@ -92,8 +92,11 @@ int MAIN(int argc, MAINCHAR** argv)
 #endif
 
     // get relative script path
-    PathName scriptsIni = app.GetSession()->GetSpecialPath(SpecialPath::InstallRoot);
-    scriptsIni /= MIKTEX_PATH_SCRIPTS_INI;
+    PathName scriptsIni;
+    if (!app.GetSession()->FindFile(MIKTEX_PATH_SCRIPTS_INI, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptsIni))
+    {
+      MIKTEX_FATAL_ERROR(MIKTEXTEXT("The script configuration file cannot be found."));
+    }
     unique_ptr<Cfg> scriptConfig(Cfg::Create());
     scriptConfig->Read(scriptsIni, true);
     std::string relScriptPath;

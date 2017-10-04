@@ -39,8 +39,11 @@ int SessionImpl::RunBatch(int argc, const char ** argv)
   PathName name = PathName(argv[0]).GetFileNameWithoutExtension();
 
   // get relative script path
-  PathName scriptsIni = GetSpecialPath(SpecialPath::InstallRoot);
-  scriptsIni /= MIKTEX_PATH_SCRIPTS_INI;
+  PathName scriptsIni;
+  if (!FindFile(MIKTEX_PATH_SCRIPTS_INI, MIKTEX_PATH_TEXMF_PLACEHOLDER, scriptsIni))
+  {
+    MIKTEX_FATAL_ERROR(T_("The script configuration file cannot be found."));
+  }
   unique_ptr<Cfg> config(Cfg::Create());
   config->Read(scriptsIni, true);
   string relScriptPath;
