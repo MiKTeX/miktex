@@ -11,6 +11,7 @@
 
 * FreeType 2.8.1
 * HarfBuzz 1.5.1
+* libcurl 7.56.0
 * LibGD 2.2.5
 * libpng 1.6.34
 
