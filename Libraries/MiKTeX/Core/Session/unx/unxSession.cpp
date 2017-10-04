@@ -123,7 +123,7 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
     ret.commonConfigRoot = destdir / PathName(MIKTEX_SYSTEM_VAR_LIB_DIR + 1) / MIKTEX_PREFIX "texmf";
     MIKTEX_ASSERT(MIKTEX_SYSTEM_VAR_CACHE_DIR[0] == '/');
     ret.commonDataRoot = destdir / PathName(MIKTEX_SYSTEM_VAR_CACHE_DIR + 1) / MIKTEX_PREFIX "texmf";
-    ret.commonInstallRoot = destdir / "usr/local" / MIKTEX_TEXMF_DIR;
+    ret.commonInstallRoot = destdir / "usr/local" / MIKTEX_INSTALL_DIR;
   }
   else
   {

@@ -175,7 +175,7 @@ bool SessionImpl::FindStartupConfigFile(bool common, PathName& path)
     // try /usr/share/miktex-texmf/miktex/config/miktexstartup.ini
     prefix = GetMyPrefix(true);
     path = prefix;
-    path /= MIKTEX_TEXMF_DIR;
+    path /= MIKTEX_INSTALL_DIR;
     path /= MIKTEX_PATH_STARTUP_CONFIG_FILE;
     if (File::Exists(path))
     {

@@ -739,7 +739,7 @@ if(WITH_MIKTEX_DOC)
     FILES
       local.txt
     DESTINATION
-      ${MIKTEX_TEXMF_DIR}/doc/latex/00LocalGuide
+      ${MIKTEX_DIST_DIR}/doc/latex/00LocalGuide
   )
 endif()
 

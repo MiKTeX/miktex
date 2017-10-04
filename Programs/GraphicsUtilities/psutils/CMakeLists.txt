@@ -94,6 +94,6 @@ if(WITH_SCRIPTS)
       source/extractres
       source/psjoin
     DESTINATION
-      ${MIKTEX_TEXMF_DIR}/scripts/psutils
+      ${MIKTEX_DIST_DIR}/scripts/psutils
   )
 endif()

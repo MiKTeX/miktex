@@ -461,7 +461,7 @@ PathName SessionImpl::GetDistRootDirectory()
   }
   MIKTEX_UNEXPECTED();
 #else
-  return GetMyPrefix(true) / MIKTEX_TEXMF_DIR;
+  return GetMyPrefix(true) / MIKTEX_DIST_DIR;
 #endif
 }
 
