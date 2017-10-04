@@ -139,11 +139,6 @@ enum class SpecialPath
   /// The portable mount directory.
   PortableMount,
 
-  /// The distro root directory.
-  /// This is either CommonInstallRoot (for a shared installation) or
-  /// UserInstallRoot (for single user installation)
-  DistRoot,
-
   /// The effective directory for symbolic links to MiKTeX binaries.
   LocalBinDirectory,
 
@@ -151,7 +146,7 @@ enum class SpecialPath
   LogDirectory,
 
   /// The root directory of the MiKTeX installation.
-  BootstrappingRoot,
+  DistRoot,
 };
 
 /// Paper size info.

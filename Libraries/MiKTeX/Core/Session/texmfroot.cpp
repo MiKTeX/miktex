@@ -441,7 +441,7 @@ unsigned SessionImpl::GetUserInstallRoot()
   return userInstallRootIndex;
 }
 
-PathName SessionImpl::GetBootstrappingDirectory()
+PathName SessionImpl::GetDistRootDirectory()
 {
 #if defined(MIKTEX_WINDOWS)
   PathName myloc = GetMyLocation(true);
@@ -461,13 +461,8 @@ PathName SessionImpl::GetBootstrappingDirectory()
   }
   MIKTEX_UNEXPECTED();
 #else
-  return GetMyPrefix(true) / MIKTEX_TEXMF_DIR;
+  return GetMyPrefix(true) / MIKTEX_DIST_DIR;
 #endif
-}
-
-unsigned SessionImpl::GetDistRoot()
-{
-  return IsSharedSetup() ? GetCommonInstallRoot() : GetUserInstallRoot();
 }
 
 void SessionImpl::SaveRootDirectories(

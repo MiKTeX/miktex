@@ -175,7 +175,7 @@ bool SessionImpl::FindStartupConfigFile(bool common, PathName& path)
     // try /usr/share/miktex-texmf/miktex/config/miktexstartup.ini
     prefix = GetMyPrefix(true);
     path = prefix;
-    path /= MIKTEX_TEXMF_DIR;
+    path /= MIKTEX_INSTALL_DIR;
     path /= MIKTEX_PATH_STARTUP_CONFIG_FILE;
     if (File::Exists(path))
     {
@@ -236,26 +236,14 @@ StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName& pa
 {
   StartupConfig ret;
 
-  unique_ptr<Cfg> pcfg(Cfg::Create());
+  unique_ptr<Cfg> cfg(Cfg::Create());
 
-  pcfg->Read(path);
+  cfg->Read(path);
 
   string str;
 
-  if (pcfg->TryGetValue("Auto", "Config", str))
+  if (cfg->TryGetValue("Auto", "Config", str))
   {
-    if (common)
-    {
-      ret.commonConfigRoot = "";
-      ret.commonDataRoot = "";
-      ret.commonInstallRoot = "";
-    }
-    else
-    {
-      ret.userConfigRoot = "";
-      ret.userDataRoot = "";
-      ret.userInstallRoot = "";
-    }
     if (str == "Regular")
     {
       ret.config = MiKTeXConfiguration::Regular;
@@ -279,27 +267,27 @@ StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName& pa
 
   if (common)
   {
-    if (pcfg->TryGetValue("Paths", MIKTEX_REGVAL_COMMON_ROOTS, str))
+    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_COMMON_ROOTS, str))
     {
       Absolutize(str, relativeFrom);
       ret.commonRoots = str;
     }
-    if (pcfg->TryGetValue("Paths", MIKTEX_REGVAL_OTHER_COMMON_ROOTS, str))
+    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_OTHER_COMMON_ROOTS, str))
     {
       Absolutize(str, relativeFrom);
       ret.otherCommonRoots = str;
     }
-    if (pcfg->TryGetValue("Paths", MIKTEX_REGVAL_COMMON_INSTALL, str))
+    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_COMMON_INSTALL, str))
     {
       Absolutize(str, relativeFrom);
       ret.commonInstallRoot = str;
     }
-    if (pcfg->TryGetValue("Paths", MIKTEX_REGVAL_COMMON_DATA, str))
+    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_COMMON_DATA, str))
     {
       Absolutize(str, relativeFrom);
       ret.commonDataRoot = str;
     }
-    if (pcfg->TryGetValue("Paths", MIKTEX_REGVAL_COMMON_CONFIG, str))
+    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_COMMON_CONFIG, str))
     {
       Absolutize(str, relativeFrom);
       ret.commonConfigRoot = str;
@@ -307,33 +295,33 @@ StartupConfig SessionImpl::ReadStartupConfigFile(bool common, const PathName& pa
   }
   if (!common || AdminControlsUserConfig())
   {
-    if (pcfg->TryGetValue("Paths", MIKTEX_REGVAL_USER_ROOTS, str))
+    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_USER_ROOTS, str))
     {
       Absolutize(str, relativeFrom);
       ret.userRoots = str;
     }
-    if (pcfg->TryGetValue("Paths", MIKTEX_REGVAL_OTHER_USER_ROOTS, str))
+    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_OTHER_USER_ROOTS, str))
     {
       Absolutize(str, relativeFrom);
       ret.otherUserRoots = str;
     }
-    if (pcfg->TryGetValue("Paths", MIKTEX_REGVAL_USER_INSTALL, str))
+    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_USER_INSTALL, str))
     {
       Absolutize(str, relativeFrom);
       ret.userInstallRoot = str;
     }
-    if (pcfg->TryGetValue("Paths", MIKTEX_REGVAL_USER_DATA, str))
+    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_USER_DATA, str))
     {
       Absolutize(str, relativeFrom);
       ret.userDataRoot = str;
     }
-    if (pcfg->TryGetValue("Paths", MIKTEX_REGVAL_USER_CONFIG, str))
+    if (cfg->TryGetValue("Paths", MIKTEX_REGVAL_USER_CONFIG, str))
     {
       Absolutize(str, relativeFrom);
       ret.userConfigRoot = str;
     }
   }
-  pcfg = nullptr;
+  cfg = nullptr;
 
   // inherit to child processes
   Utils::SetEnvironmentString(common ? MIKTEX_ENV_COMMON_STARTUP_FILE : MIKTEX_ENV_USER_STARTUP_FILE, path.ToString());

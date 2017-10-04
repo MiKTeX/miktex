@@ -2,14 +2,13 @@
 
 #set -ev
 
-if [ -f "${TRAVIS_BUILD_DIR}/miktex-testing/build/Testing/Temporary/LastTest.log" ]; then
-   curl -sT "${TRAVIS_BUILD_DIR}/miktex-testing/build/Testing/Temporary/LastTest.log" chunk.io
-fi
-
 if [ -d ~/.miktex/texmfs/data/miktex/log ]; then
     cd ~/.miktex/texmfs/data/miktex/log
-    tar -cJf logs.tar.xz *
-    curl -sT logs.tar.xz chunk.io
+    grep FATAL *
+fi
+
+if [ -f "${TRAVIS_BUILD_DIR}/miktex-testing/build/Testing/Temporary/LastTest.log" ]; then
+    cat "${TRAVIS_BUILD_DIR}/miktex-testing/build/Testing/Temporary/LastTest.log"
 fi
 
 for core in /tmp/*.core; do
