@@ -19,9 +19,7 @@ matrix:
       sudo: required
       env: MIKTEX_BUILD_POPPLER=yes MIKTEX_BUILD_HARFBUZZ=yes
     - os: osx
-      osx_image: xcode6.4
-    - os: osx
-      osx_image: xcode9
+      osx_image: xcode9.1
 
 before_install: ./travis-ci/before_install.sh
 before_script: ./travis-ci/before_script.sh
