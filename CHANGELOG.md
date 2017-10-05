@@ -4,7 +4,7 @@
 
 ### Upgraded programs
 
-* dvipdfmx 20170806, XeTeX
+* dvipdfmx 20170918, XeTeX
   Support /Rotate in PDF image inclusion
 * LuaTeX 1.06.1
 

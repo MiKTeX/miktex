@@ -39,7 +39,6 @@
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/unxemu.h>
 #endif
-
 #include "system.h"
 #include "mem.h"
 #include "error.h"
@@ -709,6 +708,7 @@ clear_state (void)
   dvi_state.h = 0; dvi_state.v = 0; dvi_state.w = 0;
   dvi_state.x = 0; dvi_state.y = 0; dvi_state.z = 0;
   dvi_state.d = 0; /* direction */
+  pdf_dev_set_dirmode(0);
   dvi_stack_depth = 0;
   current_font    = -1;
 }
