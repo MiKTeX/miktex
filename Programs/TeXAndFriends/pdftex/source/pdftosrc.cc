@@ -1,5 +1,5 @@
 /*
-Copyright 1996-2014 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2017 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -190,6 +190,7 @@ int main(int argc, char *argv[])
                         (e->type == xrefEntryFree ? "f" : "n"));
             else {              // e->offset is the object number of the object stream
                 Stream *str;
+                Lexer *lexer;
                 Parser *parser;
                 Object objStr, obj1, obj2;
                 int nObjects, first, n;
@@ -220,7 +221,8 @@ int main(int argc, char *argv[])
 #else
                 str = new EmbedStream(objStr.getStream(), Object(objNull), gTrue, first);
 #endif
-                parser = new Parser(xref, new Lexer(xref, str), gFalse);
+                lexer = new Lexer(xref, str);
+                parser = new Parser(xref, lexer, gFalse);
                 for (n = 0; n < nObjects; ++n) {
 #ifndef MIKTEX_POPPLER_59
                     parser->getObj(&obj1);
@@ -236,7 +238,11 @@ int main(int argc, char *argv[])
                     obj2.free();
 #endif
                 }
+#ifdef POPPLER_VERSION /* 0.57.0 or older (or xpdf 3.04) */
                 while (str->getChar() != EOF) ;
+#else /* xpdf 4.00 */
+                lexer->skipToEOF();
+#endif
                 delete parser;
 #ifndef MIKTEX_POPPLER_59
                 objStr.free();

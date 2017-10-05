@@ -20,7 +20,6 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #if defined(MIKTEX)
 #include "miktex-first.h"
 #endif
-
 /* Do this early in order to avoid a conflict between
    MINGW32 <rpcndr.h> defining 'boolean' as 'unsigned char' and
    <kpathsea/types.h> defining Pascal's boolean as 'int'.

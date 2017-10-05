@@ -21,7 +21,6 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "miktex-first.h"
 #include "pdftex-version.h"
 #endif
-
 #include <w2c/config.h>		/* for large file support */
 #include <sys/types.h>
 #include <regex.h>
@@ -52,7 +51,6 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #if defined(MIKTEX)
 #include "texlive/texmfmp.h"
 #endif
-
 #define check_nprintf(size_get, size_want) \
     if ((unsigned)(size_get) >= (unsigned)(size_want)) \
         pdftex_fail ("snprintf failed: file %s, line %d", __FILE__, __LINE__);
