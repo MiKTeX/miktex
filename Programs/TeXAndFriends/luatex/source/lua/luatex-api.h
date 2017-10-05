@@ -130,6 +130,7 @@ extern int luaopen_font(lua_State * L);
 extern int luaopen_vf(lua_State * L);
 extern int font_to_lua(lua_State * L, int f);
 extern int font_from_lua(lua_State * L, int f); /* return is boolean */
+extern int characters_from_lua(lua_State * L, int f); /* return is boolean */
 
 extern int luaopen_token(lua_State * L);
 extern void tokenlist_to_lua(lua_State * L, int p);
@@ -224,10 +225,13 @@ extern int loader_Call_luatex(lua_State * L, const char *name, const char *filen
 
 extern void init_tex_table(lua_State * L);
 
+/*
 extern int tex_table_id;
 extern int pdf_table_id;
 extern int token_table_id;
 extern int node_table_id;
+*/
+
 extern int main_initialize(void);
 
 extern int do_run_callback(int special, const char *values, va_list vl);
@@ -503,7 +507,6 @@ make_lua_key(area);\
 make_lua_key(art);\
 make_lua_key(attr);\
 make_lua_key(attributes);\
-make_lua_key(auto_expand);\
 make_lua_key(bbox);\
 make_lua_key(before_display);\
 make_lua_key(best_ins_ptr);\
@@ -715,6 +718,7 @@ make_lua_key(pagesattributes);\
 make_lua_key(parameters);\
 make_lua_key(pardir);\
 make_lua_key(parshape);\
+make_lua_key(pdf);\
 make_lua_key(pdf_data);\
 make_lua_key(pdf_destination);\
 make_lua_key(pdf_literal);\
@@ -875,7 +879,6 @@ init_lua_key(area);\
 init_lua_key(art);\
 init_lua_key(attr);\
 init_lua_key(attributes);\
-init_lua_key(auto_expand);\
 init_lua_key(bbox);\
 init_lua_key(before_display);\
 init_lua_key(best_ins_ptr);\
@@ -1220,6 +1223,7 @@ init_lua_key_alias(pLTL,"+LTL");\
 init_lua_key_alias(pRTT,"+RTT");\
 init_lua_key_alias(pTLT,"+TLT");\
 init_lua_key_alias(pTRT,"+TRT");\
+init_lua_key_alias(pdf,"pdf");\
 init_lua_key_alias(pdf_data,"pdf.data");\
 init_lua_key_alias(term_and_log,"term and log")
 
@@ -1294,7 +1298,6 @@ use_lua_key(area);
 use_lua_key(art);
 use_lua_key(attr);
 use_lua_key(attributes);
-use_lua_key(auto_expand);
 use_lua_key(bbox);
 use_lua_key(before_display);
 use_lua_key(best_ins_ptr);
@@ -1506,6 +1509,7 @@ use_lua_key(pagesattributes);
 use_lua_key(parameters);
 use_lua_key(pardir);
 use_lua_key(parshape);
+use_lua_key(pdf);
 use_lua_key(pdf_data);
 use_lua_key(pdf_destination);
 use_lua_key(pdf_literal);

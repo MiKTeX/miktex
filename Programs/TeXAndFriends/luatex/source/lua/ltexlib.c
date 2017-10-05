@@ -2956,11 +2956,12 @@ static int tex_run_boot(lua_State * L)
     /* Initialize synctex primitive */
     synctexinitcommand();
     /* tex is ready to go, now */
+    /*
     unhide_lua_table(Luas, "tex", tex_table_id);
     unhide_lua_table(Luas, "pdf", pdf_table_id);
     unhide_lua_table(Luas, "token", token_table_id);
     unhide_lua_table(Luas, "node", node_table_id);
-
+    */
     lua_pushboolean(L, 1);      /* true */
     return 1;
 }
@@ -3172,6 +3173,62 @@ static int tex_build_page(lua_State * L)
     return 0;
 }
 
+/* synctex */
+
+static int lua_set_synctex_mode(lua_State * L)
+{
+    halfword mode = lua_tointeger(L, 1);
+    synctex_set_mode(mode);
+    return 0;
+}
+static int lua_get_synctex_mode(lua_State * L)
+{
+    lua_pushinteger(L,synctex_get_mode());
+    return 1;
+}
+
+static int lua_set_synctex_tag(lua_State * L)
+{
+    halfword tag = lua_tointeger(L, 1);
+    synctex_set_tag(tag);
+    return 0;
+}
+
+static int lua_get_synctex_tag(lua_State * L)
+{
+    lua_pushinteger(L,synctex_get_tag());
+    return 1;
+}
+
+static int lua_force_synctex_tag(lua_State * L)
+{
+    halfword tag = lua_tointeger(L, 1);
+    synctex_force_tag(tag);
+    return 0;
+}
+
+static int lua_force_synctex_line(lua_State * L)
+{
+    halfword line = lua_tointeger(L, 1);
+    synctex_force_line(line);
+    return 0;
+}
+
+static int lua_set_synctex_line(lua_State * L)
+{
+    halfword line = lua_tointeger(L, 1);
+    synctex_set_line(line);
+    return 0;
+}
+
+static int lua_get_synctex_line(lua_State * L)
+{
+    lua_pushinteger(L,synctex_get_line());
+    return 1;
+}
+
+/* till here */
+
 void init_tex_table(lua_State * L)
 {
     lua_createtable(L, 0, 3);
@@ -3271,6 +3328,15 @@ static const struct luaL_Reg texlib[] = {
     { "getboxresourcedimensions", tex_get_box_resource_dimensions },
     /* just for testing: it will probably stay but maybe with options */
     { "triggerbuildpage", tex_build_page },
+    /* not the best place but better than in node */
+    { "set_synctex_mode", lua_set_synctex_mode },
+    { "get_synctex_mode", lua_get_synctex_mode },
+    { "set_synctex_tag", lua_set_synctex_tag },
+    { "get_synctex_tag", lua_get_synctex_tag },
+    { "force_synctex_tag", lua_force_synctex_tag },
+    { "force_synctex_line", lua_force_synctex_line },
+    { "set_synctex_line", lua_set_synctex_line },
+    { "get_synctex_line", lua_get_synctex_line },
     /* sentinel */
     { NULL, NULL }
 };

@@ -1,7 +1,7 @@
 /*
-** $Id: lptypes.h,v 1.14 2015/09/28 17:17:41 roberto Exp $
+** $Id: lptypes.h,v 1.16 2017/01/13 13:33:17 roberto Exp $
 ** LPeg - PEG pattern matching for Lua
-** Copyright 2007-2015, Lua.org & PUC-Rio  (see 'lpeg.html' for license)
+** Copyright 2007-2017, Lua.org & PUC-Rio  (see 'lpeg.html' for license)
 ** written by Roberto Ierusalimschy
 */
 
@@ -29,7 +29,7 @@
 #include "lua.h"
 #include "lauxlib.h"
 
-#define VERSION         "1.0.0"
+#define VERSION         "1.0.1"
 
 
 #define PATTERN_T	"lpeg-pattern"
@@ -49,8 +49,9 @@
 #define lua_rawlen		lua_objlen
 
 #define luaL_setfuncs(L,f,n)	luaL_register(L,NULL,f)
+#if !defined(LuajitTeX)
 #define luaL_newlib(L,f)	luaL_register(L,"lpeg",f)
-
+#endif
 #endif
 
 
@@ -158,20 +159,33 @@ typedef struct Charset {
 #endif
 
 /*
-** $Id: lpcap.h,v 1.2 2015/02/27 17:13:17 roberto Exp $
+** $Id: lpcap.h,v 1.3 2016/09/13 17:45:58 roberto Exp $
 */
 
 #if !defined(lpcap_h)
 #define lpcap_h
 
 
-/*#include "lptypes.h"*/
+/* #include "lptypes.h" */
 
 
 /* kinds of captures */
 typedef enum CapKind {
-  Cclose, Cposition, Cconst, Cbackref, Carg, Csimple, Ctable, Cfunction,
-  Cquery, Cstring, Cnum, Csubst, Cfold, Cruntime, Cgroup
+  Cclose,  /* not used in trees */
+  Cposition,
+  Cconst,  /* ktable[key] is Lua constant */
+  Cbackref,  /* ktable[key] is "name" of group to get capture */
+  Carg,  /* 'key' is arg's number */
+  Csimple,  /* next node is pattern */
+  Ctable,  /* next node is pattern */
+  Cfunction,  /* ktable[key] is function; next node is pattern */
+  Cquery,  /* ktable[key] is table; next node is pattern */
+  Cstring,  /* ktable[key] is string; next node is pattern */
+  Cnum,  /* numbered capture; 'key' is number of value to return */
+  Csubst,  /* substitution capture; next node is pattern */
+  Cfold,  /* ktable[key] is function; next node is pattern */
+  Cruntime,  /* not used in trees (is uses another type for tree) */
+  Cgroup  /* ktable[key] is group's "name" */
 } CapKind;
 
 
@@ -201,52 +215,57 @@ int finddyncap (Capture *cap, Capture *last);
 
 
 /*  
-** $Id: lptree.h,v 1.2 2013/03/24 13:51:12 roberto Exp $
+** $Id: lptree.h,v 1.3 2016/09/13 18:07:51 roberto Exp $
 */
 
 #if !defined(lptree_h)
 #define lptree_h
 
 
-/*#include "lptypes.h" */
+/* #include "lptypes.h"  */
 
 
 /*
 ** types of trees
 */
 typedef enum TTag {
-  TChar = 0, TSet, TAny,  /* standard PEG elements */
-  TTrue, TFalse,
-  TRep,
-  TSeq, TChoice,
-  TNot, TAnd,
-  TCall,
-  TOpenCall,
-  TRule,  /* sib1 is rule's pattern, sib2 is 'next' rule */
-  TGrammar,  /* sib1 is initial (and first) rule */
-  TBehind,  /* match behind */
-  TCapture,  /* regular capture */
-  TRunTime  /* run-time capture */
+  TChar = 0,  /* 'n' = char */
+  TSet,  /* the set is stored in next CHARSETSIZE bytes */
+  TAny,
+  TTrue,
+  TFalse,
+  TRep,  /* 'sib1'* */
+  TSeq,  /* 'sib1' 'sib2' */
+  TChoice,  /* 'sib1' / 'sib2' */
+  TNot,  /* !'sib1' */
+  TAnd,  /* &'sib1' */
+  TCall,  /* ktable[key] is rule's key; 'sib2' is rule being called */
+  TOpenCall,  /* ktable[key] is rule's key */
+  TRule,  /* ktable[key] is rule's key (but key == 0 for unused rules);
+             'sib1' is rule's pattern;
+             'sib2' is next rule; 'cap' is rule's sequential number */
+  TGrammar,  /* 'sib1' is initial (and first) rule */
+  TBehind,  /* 'sib1' is pattern, 'n' is how much to go back */
+  TCapture,  /* captures: 'cap' is kind of capture (enum 'CapKind');
+                ktable[key] is Lua value associated with capture;
+                'sib1' is capture body */
+  TRunTime  /* run-time capture: 'key' is Lua function;
+               'sib1' is capture body */
 } TTag;
-
-/* number of siblings for each tree */
-extern const byte numsiblings[];
 
 
 /*
 ** Tree trees
-** The first sibling of a tree (if there is one) is immediately after
-** the tree.  A reference to a second sibling (ps) is its position
-** relative to the position of the tree itself.  A key in ktable
-** uses the (unique) address of the original tree that created that
-** entry. NULL means no data.
+** The first child of a tree (if there is one) is immediately after
+** the tree.  A reference to a second child (ps) is its position
+** relative to the position of the tree itself.
 */
 typedef struct TTree {
   byte tag;
   byte cap;  /* kind of capture (if it is a capture) */
   unsigned short key;  /* key in ktable for Lua data (0 if no key) */
   union {
-    int ps;  /* occasional second sibling */
+    int ps;  /* occasional second child */
     int n;  /* occasional counter */
   } u;
 } TTree;
@@ -263,10 +282,10 @@ typedef struct Pattern {
 } Pattern;
 
 
-/* number of siblings for each tree */
+/* number of children for each tree */
 extern const byte numsiblings[];
 
-/* access to siblings */
+/* access to children */
 #define sib1(t)         ((t) + 1)
 #define sib2(t)         ((t) + (t)->u.ps)
 
@@ -277,7 +296,6 @@ extern const byte numsiblings[];
 
 #endif
 
-
 /*
 ** $Id: lpvm.h,v 1.3 2014/02/21 13:06:41 roberto Exp $
 */
@@ -285,7 +303,7 @@ extern const byte numsiblings[];
 #if !defined(lpvm_h)
 #define lpvm_h
 
-/*#include "lpcap.h"*/
+/* #include "lpcap.h" */
 
 
 /* Virtual Machine's instructions */
@@ -336,10 +354,8 @@ const char *match (lua_State *L, const char *o, const char *s, const char *e,
 
 #endif
 
-
-
 /*
-** $Id: lpcode.h,v 1.7 2015/06/12 18:24:45 roberto Exp $
+** $Id: lpcode.h,v 1.8 2016/09/15 17:46:13 roberto Exp $
 */
 
 #if !defined(lpcode_h)
@@ -347,13 +363,13 @@ const char *match (lua_State *L, const char *o, const char *s, const char *e,
 
 /*#include "lua.h"*/
 
-/*#include "lptypes.h"*/
-/*#include "lptree.h"*/
-/*#include "lpvm.h"*/
+/* #include "lptypes.h" */
+/* #include "lptree.h" */
+/* #include "lpvm.h" */
 
 int tocharset (TTree *tree, Charset *cs);
 int checkaux (TTree *tree, int pred);
-int fixedlenx (TTree *tree, int count, int len);
+int fixedlen (TTree *tree);
 int hascaptures (TTree *tree);
 int lp_gc (lua_State *L);
 Instruction *compile (lua_State *L, Pattern *p);
@@ -375,13 +391,9 @@ int sizei (const Instruction *i);
 */
 #define nullable(t)	checkaux(t, PEnullable)
 
-#define fixedlen(t)     fixedlenx(t, 0, 0)
-
 
 
 #endif
-
-
 /*
 ** $Id: lpprint.h,v 1.2 2015/06/12 18:18:08 roberto Exp $
 */

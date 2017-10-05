@@ -387,7 +387,12 @@ static size_t unpack_vararg(lua_State* L, int i, char* to)
         } else if (ct.type == INT64_TYPE) {
             *(int64_t*) to = *(int64_t*) p;
             return sizeof(int64_t);
-        }
+
+        } else if (ct.type == FUNCTION_PTR_TYPE) {
+	  *(cfunction *) to = *(cfunction *)p;
+	  return sizeof(cfunction);
+	}
+
         goto err;
 
     case LUA_TNIL:

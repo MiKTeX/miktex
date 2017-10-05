@@ -988,8 +988,9 @@ void start_input(void)
     update_terminal();
     istate = new_line;
     /* Prepare new file {\sl Sync\TeX} information */
-    synctexstartinput();        /* Give control to the {\sl Sync\TeX} controller */
-
+    if (synctex_par) {
+        synctexstartinput();        /* Give control to the {\sl Sync\TeX} controller */
+    }
     /* Read the first line of the new file */
     /* Here we have to remember to tell the |lua_input_ln| routine not to
        start with a |get|. If the file is empty, it is considered to

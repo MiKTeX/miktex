@@ -901,6 +901,13 @@ ids, but the strings that are written out use CID indexes, and those are
 limited to 16-bit values.
 
 @c
+/*
+    This is old code ... it fails when the order of using the same font at
+    different extends changes. Probably because widths get overwritten or
+    set wrong. The loop also looks kind of weird (why a loop).
+*/
+
+/*
 static void mark_cid_subset_glyphs(fo_entry * fo, internal_font_number f)
 {
     int i, k, l;
@@ -921,6 +928,32 @@ static void mark_cid_subset_glyphs(fo_entry * fo, internal_font_number f)
                         xfree(j);
                     }
                 }
+            }
+        }
+    }
+}
+*/
+
+/*
+    So, let's try the following.
+*/
+
+static void mark_cid_subset_glyphs(fo_entry * fo, internal_font_number f)
+{
+    glw_entry *j;
+    void *aa;
+    int l = font_size(f);
+    int i;
+    for (i = font_bc(f); i <= font_ec(f); i++) {
+        if (quick_char_exists(f, i) && char_used(f, i)) {
+            j = xtalloc(1, glw_entry);
+            j->id = (unsigned) char_index(f, i);
+            j->wd = divide_scaled_n(char_width(f, i), l, 10000.0);
+            if ((glw_entry *) avl_find(fo->fd->gl_tree, j) == NULL) {
+                aa = avl_probe(fo->fd->gl_tree, j);
+                assert(aa != NULL);
+            } else {
+                xfree(j);
             }
         }
     }

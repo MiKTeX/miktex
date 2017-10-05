@@ -155,15 +155,15 @@ static int frozenfont(lua_State * L)
 
 static int setfont(lua_State * L)
 {
-    int i = luaL_checkinteger(L, -2);
+    int t = lua_gettop(L);
+    int i = luaL_checkinteger(L,1);
     if (i) {
-        luaL_checktype(L, -1, LUA_TTABLE);
+        luaL_checktype(L, t, LUA_TTABLE);
         if (is_valid_font(i)) {
-            if (!(font_touched(i) || font_used(i))) {
+            if (! (font_touched(i) || font_used(i))) {
                 font_from_lua(L, i);
             } else {
-                luaL_error(L,
-                           "that font has been accessed already, changing it is forbidden");
+                luaL_error(L, "that font has been accessed already, changing it is forbidden");
             }
         } else {
             luaL_error(L, "that integer id is not a valid font");
@@ -172,10 +172,56 @@ static int setfont(lua_State * L)
     return 0;
 }
 
+static int addcharacters(lua_State * L)
+{
+    int t = lua_gettop(L);
+    int i = luaL_checkinteger(L,1);
+    if (i) {
+        luaL_checktype(L, t, LUA_TTABLE);
+        if (is_valid_font(i)) {
+            characters_from_lua(L, i);
+        } else {
+            luaL_error(L, "that integer id is not a valid font");
+        }
+    }
+    return 0;
+}
+
+static int setexpansion(lua_State * L)
+{
+    int f = luaL_checkinteger(L,1);
+    if (f) {
+        if (is_valid_font(f)) {
+            int fstretch = luaL_checkinteger(L,2);
+            int fshrink = luaL_checkinteger(L,3);
+            int fstep = luaL_checkinteger(L,4);
+            set_expand_params(f, fstretch, fshrink, fstep);
+        } else {
+            luaL_error(L, "that integer id is not a valid font");
+        }
+    }
+    return 0;
+}
+
+/* font.define(id,table) */
+/* font.define(table) */
 
 static int deffont(lua_State * L)
 {
-    int i = get_fontid();
+    int i = 0;
+    int t = lua_gettop(L);
+    if (t == 2) {
+        i = lua_tointeger(L,1);
+        if ((i <= 0) || ! is_valid_font(i)) {
+            lua_pop(L, 1);          /* pop the broken table */
+            luaL_error(L, "font creation failed, invalid id passed");
+        }
+    } else if (t == 1) {
+        i = get_fontid();
+    } else {
+        luaL_error(L, "font creation failed, no table passed");
+        return 0;
+    }
     luaL_checktype(L, -1, LUA_TTABLE);
     if (font_from_lua(L, i)) {
         lua_pushinteger(L, i);
@@ -183,20 +229,24 @@ static int deffont(lua_State * L)
     } else {
         lua_pop(L, 1);          /* pop the broken table */
         delete_font(i);
-        luaL_error(L, "font creation failed");
+        luaL_error(L, "font creation failed, error in table");
     }
     return 0;                   /* not reached */
 }
 
 /* this returns the expected (!) next fontid. */
+/* first arg true will keep the id */
+
 static int nextfontid(lua_State * L)
 {
+    int b = ((lua_gettop(L) == 1) && lua_toboolean(L,1));
     int i = get_fontid();
     lua_pushinteger(L, i);
-    delete_font(i);
+    if (b == 0) {
+        delete_font(i);
+    }
     return 1;
 }
-
 
 static int getfont(lua_State * L)
 {
@@ -206,7 +256,6 @@ static int getfont(lua_State * L)
     lua_pushnil(L);
     return 1;
 }
-
 
 static int getfontid(lua_State * L)
 {
@@ -228,7 +277,6 @@ static int getfontid(lua_State * L)
     return 1;
 }
 
-
 static const struct luaL_Reg fontlib[] = {
     {"read_tfm", font_read_tfm},
     {"read_vf", font_read_vf},
@@ -237,6 +285,8 @@ static const struct luaL_Reg fontlib[] = {
     {"each", tex_each_font},
     {"getfont", getfont},
     {"setfont", setfont},
+    {"addcharacters", addcharacters},
+    {"setexpansion", setexpansion},
     {"define", deffont},
     {"nextid", nextfontid},
     {"id", getfontid},

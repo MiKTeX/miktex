@@ -705,6 +705,7 @@ static void init_main_control (void) {
     non_math(sup_mark_cmd, insert_dollar_sign);
     non_math(sub_mark_cmd, insert_dollar_sign);
     non_math(super_sub_script_cmd, insert_dollar_sign);
+    non_math(no_super_sub_script_cmd, insert_dollar_sign);
     non_math(math_comp_cmd, insert_dollar_sign);
     non_math(delim_num_cmd, insert_dollar_sign);
     non_math(left_right_cmd, insert_dollar_sign);
@@ -825,6 +826,7 @@ static void init_main_control (void) {
     jump_table[mmode + sub_mark_cmd] = sub_sup;
     jump_table[mmode + sup_mark_cmd] = sub_sup;
     jump_table[mmode + super_sub_script_cmd] = sub_sup;
+    jump_table[mmode + no_super_sub_script_cmd] = no_sub_sup;
     jump_table[mmode + left_right_cmd] = math_left_right;
     jump_table[mmode + math_shift_cmd] = run_math_shift;
     jump_table[mmode + math_shift_cs_cmd] = run_math_shift;
@@ -1759,18 +1761,42 @@ void append_discretionary(void)
     if (cur_chr == explicit_disc) {
         /* \- */
         c = get_pre_hyphen_char(cur_lang_par);
-        if (c != 0) {
+        if (c > 0) {
             vlink(pre_break(tail)) = new_char(equiv(cur_font_loc), c);
             alink(vlink(pre_break(tail))) = pre_break(tail);
             tlink(pre_break(tail)) = vlink(pre_break(tail));
         }
         c = get_post_hyphen_char(cur_lang_par);
-        if (c != 0) {
+        if (c > 0) {
             vlink(post_break(tail)) = new_char(equiv(cur_font_loc), c);
             alink(vlink(post_break(tail))) = post_break(tail);
             tlink(post_break(tail)) = vlink(post_break(tail));
         }
         set_explicit_disc_penalty(tail);
+    } else if (cur_chr == automatic_disc) {
+        /* - as done in hyphenator */
+        c = get_pre_exhyphen_char(cur_lang_par);
+        if (c <= 0) {
+            c = ex_hyphen_char_par;
+        }
+        if (c > 0) {
+            vlink(pre_break(tail)) = new_char(equiv(cur_font_loc), c);
+            alink(vlink(pre_break(tail))) = pre_break(tail);
+            tlink(pre_break(tail)) = vlink(pre_break(tail));
+        }
+        c = get_post_exhyphen_char(cur_lang_par);
+        if (c > 0) {
+            vlink(post_break(tail)) = new_char(equiv(cur_font_loc), c);
+            alink(vlink(post_break(tail))) = post_break(tail);
+            tlink(post_break(tail)) = vlink(post_break(tail));
+        }
+        c = ex_hyphen_char_par;
+        if (c > 0) {
+            vlink(no_break(tail)) = new_char(equiv(cur_font_loc), c);
+            alink(vlink(no_break(tail))) = no_break(tail);
+            tlink(no_break(tail)) = vlink(no_break(tail));
+        }
+        set_automatic_disc_penalty(tail);
     } else {
         /* \discretionary */
         if (scan_keyword("penalty")) {
@@ -3601,6 +3627,8 @@ void initialize(void)
         hang_after_par = 1;
         max_dead_cycles_par = 25;
         math_pre_display_gap_factor_par = 2000;
+        pre_bin_op_penalty_par = inf_penalty;
+        pre_rel_penalty_par = inf_penalty;
         escape_char_par = '\\';
         end_line_char_par = carriage_return;
         set_del_code('.', 0, 0, 0, 0, level_one); /* this null delimiter is used in error recovery */

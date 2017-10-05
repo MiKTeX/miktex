@@ -6,7 +6,7 @@
     <TPM:Title>LuaTeX, Windows x64</TPM:Title>
     <TPM:Copyright owner="Taco Hoekwater, the LuaTeX Team" year="2006-2016"/>
     <TPM:License type="gpl2"/>
-    <TPM:Version>1.0.4</TPM:Version>
+    <TPM:Version>1.06.1</TPM:Version>
     <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

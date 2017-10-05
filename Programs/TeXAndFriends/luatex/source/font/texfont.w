@@ -348,12 +348,11 @@ int char_exists(internal_font_number f, int c)
 }
 
 @ @c
-#if 0
-static int lua_char_exists_callback(internal_font_number f, int c)
+int lua_glyph_not_found_callback(internal_font_number f, int c)
 {
     int callback_id;
     int ret = 0;
-    callback_id = callback_defined(char_exists_callback);
+    callback_id = callback_defined(glyph_not_found_callback);
     if (callback_id != 0) {
         if (!get_callback(Luas, callback_id)) {
             lua_pop(Luas, 2);
@@ -368,10 +367,11 @@ static int lua_char_exists_callback(internal_font_number f, int c)
         } else {
             ret = lua_toboolean(Luas, -1);
         }
+    } else {
+        char_warning(f,c);
     }
     return ret;
 }
-#endif
 
 @ @c
 extinfo *new_variant(int glyph, int startconnect, int endconnect,
@@ -1535,7 +1535,6 @@ static void dump_font_entry(texfont * f)
     dump_int(f->font_max_shrink);
     dump_int(f->font_max_stretch);
     dump_int(f->_font_step);
-    dump_int(f->_font_auto_expand);
     dump_int(f->_font_tounicode);
     dump_int(f->_font_type);
     dump_int(f->_font_format);
@@ -1715,7 +1714,6 @@ static void undump_font_entry(texfont * f)
     undump_int(x); f->font_max_shrink = x;
     undump_int(x); f->font_max_stretch = x;
     undump_int(x); f->_font_step = x;
-    undump_int(x); f->_font_auto_expand = x;
     undump_int(x); f->_font_tounicode = (char)x;
     undump_int(x); f->_font_type = x;
     undump_int(x); f->_font_format = x;
@@ -1845,11 +1843,9 @@ int fix_expand_value(internal_font_number f, int e)
 }
 
 @ @c
-void set_expand_params(internal_font_number f, boolean auto_expand,
-                       int stretch_limit, int shrink_limit, int font_step)
-{                               /* expand a font with given parameters */
+void set_expand_params(internal_font_number f, int stretch_limit, int shrink_limit, int font_step)
+{
     set_font_step(f, font_step);
-    set_font_auto_expand(f, auto_expand);
     set_font_max_shrink(f, shrink_limit);
     set_font_max_stretch(f, stretch_limit);
 }
@@ -1859,7 +1855,6 @@ void read_expand_font(void)
 {                               /* read font expansion spec and load expanded font */
     int shrink_limit, stretch_limit, font_step;
     internal_font_number f;
-    boolean auto_expand;
     /* read font expansion parameters */
     scan_font_ident();
     f = cur_val;
@@ -1885,15 +1880,13 @@ void read_expand_font(void)
         shrink_limit = 0;
     if ((stretch_limit == 0) && (shrink_limit == 0))
         normal_error("font expansion", "invalid limit(s)");
-    auto_expand = false;
     if (scan_keyword("autoexpand")) {
-        auto_expand = true;
+        normal_warning("font expansion", "autoexpand not supported");
         /* Scan an optional space */
         get_x_token();
         if (cur_cmd != spacer_cmd)
             back_input();
     }
-
     if (font_step(f) != 0) {
         /* this font has been expanded, ensure the expansion parameters are identical */
         if (font_step(f) != font_step)
@@ -1908,14 +1901,10 @@ void read_expand_font(void)
             ((font_max_shrink(f) > 0)
              && (font_max_shrink(f) != shrink_limit)))
             normal_error("font expansion","font has been expanded with different shrink limit");
-
-        if (font_auto_expand(f) != auto_expand)
-            normal_error("font expansion","font has been expanded with different auto expansion value");
     } else {
         if (font_used(f))
             normal_warning("font expansion", "font should be expanded before its first use");
-        set_expand_params(f, auto_expand, stretch_limit, shrink_limit,
-                          font_step);
+        set_expand_params(f, stretch_limit, shrink_limit, font_step);
     }
 }
 

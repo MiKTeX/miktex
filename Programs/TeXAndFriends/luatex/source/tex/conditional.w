@@ -152,6 +152,7 @@ static boolean test_for_cs(void)
     halfword q;                 /*for traversing token lists in \.{\\ifx} tests */
     halfword n = get_avail();
     halfword p = n;             /*head of the list of characters */
+is_in_csname += 1;
     while (1) {
         get_x_token();
         if (cur_cs != 0)
@@ -165,6 +166,7 @@ static boolean test_for_cs(void)
                 get_x_token();
             } while (cur_cmd != end_cs_name_cmd);
             flush_list(n);
+is_in_csname -= 1;
             return b;
         } else {
             complain_missing_csname();
@@ -205,6 +207,7 @@ static boolean test_for_cs(void)
     b = (eq_type(cur_cs) != undefined_cs_cmd);
     flush_list(n);
     last_cs_name = cur_cs;
+is_in_csname -= 1;
     return b;
 }
 

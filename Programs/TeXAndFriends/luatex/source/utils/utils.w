@@ -39,6 +39,7 @@
 #include "md5.h"
 
 #include "lua/luatex-api.h"     /* for luatex_banner */
+#include "luatex_svnversion.h"
 
 #include "png.h"
 #include "mplib.h"
@@ -253,24 +254,39 @@ char *stripzeros(char *a)
 @ @c
 void initversionstring(char **versions)
 {
+#ifdef LuajitTeX
+#define LUA_VER_STRING  LUAJIT_VERSION
+#else
+#define LUA_VER_STRING  "lua version " LUA_VERSION_MAJOR "." LUA_VERSION_MINOR "." LUA_VERSION_RELEASE
+#endif
+#define STR(tok) STR2(tok)
+#define STR2(tok) #tok
     const_string fmt =
                     "Compiled with libpng %s; using %s\n"
-                    "Compiled with zlib %s; using %s\n"
+                    "Compiled with %s\n" /* Lua or LuaJIT */
+                    "Compiled with mplib version %s\n"
                     "Compiled with poppler version %s\n"
-                    "Compiled with mplib version %s\n";
+                    "Compiled with zlib %s; using %s\n"
+                    "\nDevelopment id: %s\n";
     size_t len = strlen(fmt)
                     + strlen(PNG_LIBPNG_VER_STRING) + strlen(png_libpng_ver)
-                    + strlen(ZLIB_VERSION) + strlen(zlib_version)
-                    + strlen(POPPLER_VERSION)
+                    + strlen(LUA_VER_STRING) 
                     + strlen(mp_metapost_version())
+                    + strlen(POPPLER_VERSION)
+                    + strlen(ZLIB_VERSION) + strlen(zlib_version)
+                    + strlen(STR(luatex_svn_revision))
                     + 1;
 
     /* len will be more than enough, because of the placeholder chars in fmt
        that get replaced by the arguments.  */
     *versions = xmalloc(len);
     sprintf(*versions, fmt,
-                    PNG_LIBPNG_VER_STRING, png_libpng_ver,
-                    ZLIB_VERSION, zlib_version, POPPLER_VERSION, mp_metapost_version());
+                    PNG_LIBPNG_VER_STRING, png_libpng_ver, LUA_VER_STRING,
+                    mp_metapost_version(),POPPLER_VERSION,
+                    ZLIB_VERSION, zlib_version,STR(luatex_svn_revision));
+#undef STR2
+#undef STR
+#undef LUA_VER_STRING
 }
 
 @ @c
@@ -363,17 +379,16 @@ int do_zround(double r)
 }
 
 
-@ MSVC doesn't have |rint|.
+@ Old MSVC doesn't have |rint|.
 @c
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER <= 1600
 
-#if !defined(MIKTEX)
 #  include <math.h>
 double rint(double x)
 {
     return floor(x+0.5);
 }
-#endif
+
 #endif
 
 @ replace tmpfile() on Windows

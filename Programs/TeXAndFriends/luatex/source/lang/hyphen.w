@@ -776,6 +776,8 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
 }
 
 @ @c
+extern halfword insert_syllable_discretionary(halfword t, lang_variables * lan);
+
 void hnj_hyphen_hyphenate(HyphenDict * dict,
                           halfword first1,
                           halfword last1,
@@ -791,9 +793,9 @@ void hnj_hyphen_hyphenate(HyphenDict * dict,
     char *hyphens = hnj_malloc(hyphen_len + 1);
 
     /* Add a '.' to beginning and end to facilitate matching */
-    set_vlink(begin_point, first1);
-    set_vlink(end_point, get_vlink(last1));
-    set_vlink(last1, end_point);
+    vlink(begin_point) = first1;
+    vlink(end_point) = vlink(last1);
+    vlink(last1) = end_point;
 
     for (char_num = 0; char_num < hyphen_len; char_num++) {
         hyphens[char_num] = '0';
@@ -801,16 +803,16 @@ void hnj_hyphen_hyphenate(HyphenDict * dict,
     hyphens[hyphen_len] = 0;
 
     /* now, run the finite state machine */
-    for (char_num = 0, here = begin_point; here != get_vlink(end_point);
-         here = get_vlink(here)) {
+    for (char_num = 0, here = begin_point; here != vlink(end_point);
+         here = vlink(here)) {
 
         int ch;
         if (here == begin_point || here == end_point) {
             ch = '.';
         } else {
-            ch = get_hj_code(char_lang(here),get_character(here));
+            ch = get_hj_code(char_lang(here),character(here));
             if (ch <= 32) {
-                ch = get_character(here);
+                ch = character(here);
             }
         }
         while (state != -1) {
@@ -857,14 +859,14 @@ void hnj_hyphen_hyphenate(HyphenDict * dict,
     }
 
     /* restore the correct pointers */
-    set_vlink(last1, get_vlink(end_point));
+    vlink(last1) = vlink(end_point);
 
     /* pattern is \.{\^.\^w\^o\^r\^d\^.\^}   |word_len|=4, |ext_word_len|=6, |hyphens|=7
      * check      \.{    \^ \^ \^    }   so drop first two and stop after |word_len-1|
      */
-    for (here = first1, char_num = 2; here != left; here = get_vlink(here))
+    for (here = first1, char_num = 2; here != left; here = vlink(here))
         char_num++;
-    for (; here != right; here = get_vlink(here)) {
+    for (; here != right; here = vlink(here)) {
         if (hyphens[char_num] & 1)
             here = insert_syllable_discretionary(here, lan);
         char_num++;

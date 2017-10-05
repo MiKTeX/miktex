@@ -286,8 +286,7 @@ static int set_luaname(lua_State * L)
 
 static int get_luaname(lua_State * L)
 {
-    int k;
-    k = (int) luaL_checkinteger(L, 2);
+    int k = (int) luaL_checkinteger(L, 2);
     if (k > 65535 || k < 0) {
         /* error */
         lua_pushnil(L);
@@ -306,6 +305,13 @@ static int lua_functions_get_table(lua_State * L) /* hh */
     return 1;
 }
 
+static int new_table(lua_State * L) /* hh */
+{
+    int i = (int) luaL_checkinteger(L, 1);
+    int h = (int) luaL_checkinteger(L, 2);
+    lua_createtable(L,i,h);
+    return 1;
+}
 
 static const struct luaL_Reg lualib[] = {
     /* *INDENT-OFF* */
@@ -313,6 +319,7 @@ static const struct luaL_Reg lualib[] = {
     {"setluaname",  set_luaname},
     {"getbytecode", get_bytecode},
     {"setbytecode", set_bytecode},
+    {"newtable",    new_table},
     {"get_functions_table",lua_functions_get_table},
     /* *INDENT-ON* */
     {NULL, NULL}                /* sentinel */

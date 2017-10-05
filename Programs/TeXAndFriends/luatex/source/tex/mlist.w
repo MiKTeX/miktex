@@ -1348,29 +1348,30 @@ static void endless_loop_error(internal_font_number g, int y)
     tex_error(s, hlp);
 }
 
-static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat, int cur_style, boolean shift, boolean *stack, scaled *delta)
+static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat, int cur_style, boolean shift, boolean *stack, scaled *delta, int *same)
 {
-    pointer b;                  /* the box that will be constructed */
-    internal_font_number f, g;  /* best-so-far and tentative font codes */
-    int c, i, x, y;             /* best-so-far and tentative character codes */
-    scaled u;                   /* height-plus-depth of a tentative character */
-    scaled w;                   /* largest height-plus-depth so far */
-    int z;                      /* runs through font family members */
-    boolean large_attempt;      /* are we trying the ``large'' variant? */
-    pointer att;                /* to save the current attribute list */
-    boolean do_parts;
+    pointer b;                     /* the box that will be constructed */
+    internal_font_number f, g;     /* best-so-far and tentative font codes */
+    int c, i, x, y;                /* best-so-far and tentative character codes */
+    scaled u;                      /* height-plus-depth of a tentative character */
+    scaled w = 0;                  /* largest height-plus-depth so far */
+    int z;                         /* runs through font family members */
+    boolean large_attempt = false; /* are we trying the ``large'' variant? */
+    pointer att = null;            /* to save the current attribute list */
+    int emas = 0 ;
+    boolean do_parts = false;
     extinfo *ext;
-    att = null;
     f = null_font;
     c = 0;
-    w = 0;
-    do_parts = false;
-    large_attempt = false;
     if (d == null)
         goto FOUND;
     z = small_fam(d);
     x = small_char(d);
     i = 0;
+    if (same != NULL) {
+        emas = *same ;
+        same = 0;
+    }
     while (true) {
         /*
             The search process is complicated slightly by the facts that some of the
@@ -1448,6 +1449,9 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
             if (stack != NULL)
                 *stack = true ;
         } else {
+            if (same != NULL && x == c) {
+                *same = emas;
+            }
             b = char_box(f, c, att);
             if (!do_new_math(f)) {
                 /* italic gets added to width */
@@ -1475,10 +1479,12 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
             *stack = false ;
     }
     if (!flat) {
-        /* vertical variant */
-        shift_amount(b) = half(height(b) - depth(b));
-        if (shift) {
-            shift_amount(b) -= math_axis_size(s);
+        if (emas == 0 || ! delimitermodenoshift) {
+            /* vertical variant */
+            shift_amount(b) = half(height(b) - depth(b));
+            if (shift) {
+                shift_amount(b) -= math_axis_size(s);
+            }
         }
     }
     delete_attribute_ref(att);
@@ -1605,7 +1611,7 @@ static void math_kern(pointer p, scaled m)
             f = f + unity;
         }
         width(p) = mu_mult(width(p));
-        subtype(p) = italic_kern;
+        subtype(p) = italic_kern; /* this is weird, it's not a italic but explicit_kern */
     }
 }
 
@@ -1666,21 +1672,21 @@ static pointer clean_box(pointer p, int s, int cur_style)
     pointer r;            /* temporary pointer */
     pointer mlist = null; /* beginning of mlist to be translated */
     switch (type(p)) {
-    case math_char_node:
-        mlist = new_noad();
-        r = math_clone(p);
-        nucleus(mlist) = r;
-        break;
-    case sub_box_node:
-        q = math_list(p);
-        goto FOUND;
-        break;
-    case sub_mlist_node:
-        mlist = math_list(p);
-        break;
-    default:
-        q = new_null_box();
-        goto FOUND;
+        case math_char_node:
+            mlist = new_noad();
+            r = math_clone(p);
+            nucleus(mlist) = r;
+            break;
+        case sub_box_node:
+            q = math_list(p);
+            goto FOUND;
+            break;
+        case sub_mlist_node:
+            mlist = math_list(p);
+            break;
+        default:
+            q = new_null_box();
+            goto FOUND;
     }
     mlist_to_hlist(mlist, false, s);
     q = vlink(temp_head); /* recursive call */
@@ -1857,7 +1863,7 @@ static void make_hextension(pointer q, int cur_style)
     pointer e, p;
     halfword w;
     boolean stack = false;
-    e = do_delimiter(q, left_delimiter(q), cur_size, radicalwidth(q), true, cur_style, true, &stack, NULL);
+    e = do_delimiter(q, left_delimiter(q), cur_size, radicalwidth(q), true, cur_style, true, &stack, NULL, NULL);
     w = width(e);
     if (!stack&& (radicalwidth(q) != 0) && (radicalwidth(q) != width(e))) {
         if (radicalmiddle(q)) {
@@ -1887,7 +1893,7 @@ static void make_radical(pointer q, int cur_style)
     if (theta == undefined_math_parameter) {
         /* a real radical */
         theta = fraction_rule(cur_style);
-        y = do_delimiter(q, left_delimiter(q), cur_size, height(x) + depth(x) + clr + theta, false, cur_style, true, NULL, NULL);
+        y = do_delimiter(q, left_delimiter(q), cur_size, height(x) + depth(x) + clr + theta, false, cur_style, true, NULL, NULL, NULL);
         /*
             If |y| is a composite then set |theta| to the height of its top
             character, else set it to the height of |y|.
@@ -1907,7 +1913,7 @@ static void make_radical(pointer q, int cur_style)
         }
     } else {
         /* not really a radical but we use its node, historical sharing (like in mathml) */
-        y = do_delimiter(q, left_delimiter(q), cur_size, height(x) + depth(x) + clr + theta, false, cur_style, true, NULL, NULL);
+        y = do_delimiter(q, left_delimiter(q), cur_size, height(x) + depth(x) + clr + theta, false, cur_style, true, NULL, NULL, NULL);
     }
     left_delimiter(q) = null;
     delta = (depth(y) + height(y) - theta) - (height(x) + depth(x) + clr);
@@ -2034,7 +2040,7 @@ static void make_over_delimiter(pointer q, int cur_style)
     boolean stack;
     x = clean_box(nucleus(q), sub_style(cur_style), cur_style);
     check_widths(q,x);
-    y = do_delimiter(q, left_delimiter(q), cur_size, wd, true, cur_style, true, &stack, NULL);
+    y = do_delimiter(q, left_delimiter(q), cur_size, wd, true, cur_style, true, &stack, NULL, NULL);
     left_delimiter(q) = null;
     check_radical(q,stack,y,x);
     fixup_widths(q, x, y);
@@ -2061,7 +2067,7 @@ static void make_under_delimiter(pointer q, int cur_style)
     boolean stack;
     y = clean_box(nucleus(q), sup_style(cur_style), cur_style);
     check_widths(q,y);
-    x = do_delimiter(q, left_delimiter(q), cur_size, wd, true, cur_style, true, &stack, NULL);
+    x = do_delimiter(q, left_delimiter(q), cur_size, wd, true, cur_style, true, &stack, NULL, NULL);
     left_delimiter(q) = null;
     check_radical(q,stack,x,y);
     fixup_widths(q, x, y);
@@ -2088,7 +2094,7 @@ static void make_delimiter_over(pointer q, int cur_style)
     boolean stack;
     y = clean_box(nucleus(q), cur_style, cur_style);
     check_widths(q,y);
-    x = do_delimiter(q, left_delimiter(q), cur_size + (cur_size == script_script_size ? 0 : 1), wd, true, cur_style, true, &stack, NULL);
+    x = do_delimiter(q, left_delimiter(q), cur_size + (cur_size == script_script_size ? 0 : 1), wd, true, cur_style, true, &stack, NULL, NULL);
     left_delimiter(q) = null;
     check_radical(q,stack,x,y);
     fixup_widths(q, x, y);
@@ -2115,7 +2121,7 @@ static void make_delimiter_under(pointer q, int cur_style)
     boolean stack;
     x = clean_box(nucleus(q), cur_style, cur_style);
     check_widths(q,x);
-    y = do_delimiter(q, left_delimiter(q), cur_size + (cur_size == script_script_size ? 0 : 1), wd, true, cur_style, true, &stack, NULL);
+    y = do_delimiter(q, left_delimiter(q), cur_size + (cur_size == script_script_size ? 0 : 1), wd, true, cur_style, true, &stack, NULL, NULL);
     left_delimiter(q) = null;
     check_radical(q,stack,y,x);
     fixup_widths(q, x, y);
@@ -2423,7 +2429,7 @@ static void make_fraction(pointer q, int cur_style)
 
     if (middle_delimiter(q) != null) {
         delta = 0;
-        m = do_delimiter(q, middle_delimiter(q), cur_size, delta, false, cur_style, true, NULL, NULL);
+        m = do_delimiter(q, middle_delimiter(q), cur_size, delta, false, cur_style, true, NULL, NULL, NULL);
         middle_delimiter(q) = null;
     } else {
         m = null ;
@@ -2592,9 +2598,9 @@ static void make_fraction(pointer q, int cur_style)
     } else {
         delta = fraction_del_size_old(cur_style);
     }
-    l = do_delimiter(q, left_delimiter(q), cur_size, delta, false, cur_style, true, NULL, NULL);
+    l = do_delimiter(q, left_delimiter(q), cur_size, delta, false, cur_style, true, NULL, NULL, NULL);
     left_delimiter(q) = null;
-    r = do_delimiter(q, right_delimiter(q), cur_size, delta, false, cur_style, true, NULL, NULL);
+    r = do_delimiter(q, right_delimiter(q), cur_size, delta, false, cur_style, true, NULL, NULL, NULL);
     right_delimiter(q) = null;
     couple_nodes(l,v);
     couple_nodes(v,r);
@@ -2619,7 +2625,7 @@ the limits have been set above and below the operator. In that case,
 
 @c
 static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled supshift, scaled subshift);
-static pointer check_nucleus_complexity(halfword q, scaled * delta, int cur_style);
+static pointer check_nucleus_complexity(halfword q, scaled * delta, int cur_style, int *same);
 
 static scaled make_op(pointer q, int cur_style)
 {
@@ -2644,7 +2650,7 @@ static scaled make_op(pointer q, int cur_style)
                 reset_attributes(y, node_attr(q));
                 small_fam(y) = math_fam(nucleus(q));
                 small_char(y) = math_character(nucleus(q));
-                x = do_delimiter(q, y, text_size, ok_size, false, cur_style, true, NULL, &delta);
+                x = do_delimiter(q, y, text_size, ok_size, false, cur_style, true, NULL, &delta, NULL);
                 if (delta != 0) {
                     if (do_new_math(cur_f)) {
                         /* we never added italic correction */
@@ -2705,7 +2711,7 @@ static scaled make_op(pointer q, int cur_style)
                     delta = half(delta) ;
                 }
             */
-            p = check_nucleus_complexity(q, &dummy, cur_style);
+            p = check_nucleus_complexity(q, &dummy, cur_style, NULL);
             if ((subscr(q) == null) && (supscr(q) == null)) {
                 assign_new_hlist(q, p);
             } else {
@@ -2752,7 +2758,7 @@ static scaled make_op(pointer q, int cur_style)
             delta = 0;
         } else {
             /* similar code then the caller (before CHECK_DIMENSIONS) */
-            p = check_nucleus_complexity(q, &delta, cur_style);
+            p = check_nucleus_complexity(q, &delta, cur_style, NULL);
             if ((subscr(q) == null) && (supscr(q) == null)) {
                 assign_new_hlist(q, p);
             } else {
@@ -2923,6 +2929,7 @@ static void make_ord(pointer q)
             /* add italic correction */
             if (do_new_math(cur_f) && (char_italic(cur_f,math_character(nucleus(q))) != 0)) {
                 p = new_kern(char_italic(cur_f,math_character(nucleus(q))));
+                subtype(p) = italic_kern;
                 reset_attributes(p, node_attr(q));
                 couple_nodes(p,vlink(q));
                 couple_nodes(q,p);
@@ -3237,6 +3244,9 @@ the new fonts so eventualy there will be an option to ignore such corrections.
     }                                                                            \
   } while (0)
 
+#define x_su_style(n,cur_style,su_style) \
+    (noadoptionnosubscript(n) ? cur_style : su_style(cur_style))
+
 static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled supshift, scaled subshift)
 {
     pointer x, y, z;                  /* temporary registers for box construction */
@@ -3265,6 +3275,7 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
             if ((subscr(q) == null) && (delta1 != 0)) {
                 /* todo: selective */
                 x = new_kern(delta1); /* italic correction */
+                subtype(x) = italic_kern;
                 reset_attributes(x, node_attr(nucleus(q)));
                 couple_nodes(p,x);
                 delta1 = 0;
@@ -3296,7 +3307,8 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
             when there is a subscript without a superscript, the top of the subscript
             should not exceed the baseline plus four-fifths of the x-height.
         */
-        x = clean_box(subscr(q), sub_style(cur_style), cur_style);
+    /*  x = clean_box(subscr(q), sub_style(cur_style), cur_style); */
+        x = clean_box(subscr(q), (noadoptionnosubscript(q) ? cur_style : sub_style(cur_style)), cur_style);
         width(x) = width(x) + space_after_script(cur_style);
         switch (math_scripts_mode_par) {
             case 1:
@@ -3346,7 +3358,8 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
             the bottom of a superscript should never descend below the baseline plus
             one-fourth of the x-height.
         */
-        x = clean_box(supscr(q), sup_style(cur_style), cur_style);
+    /*  x = clean_box(supscr(q), sup_style(cur_style), cur_style); */
+        x = clean_box(supscr(q), (noadoptionnosupscript(q) ? cur_style : sup_style(cur_style)), cur_style);
         width(x) = width(x) + space_after_script(cur_style);
         switch (math_scripts_mode_par) {
             case 1:
@@ -3401,7 +3414,8 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
                 both subscript and superscript move up so that the bottom of the superscript
                 is at least as high as the baseline plus four-fifths of the x-height
             */
-            y = clean_box(subscr(q), sub_style(cur_style), cur_style);
+        /*  y = clean_box(subscr(q) sub_style(cur_style), cur_style); */
+            y = clean_box(subscr(q), (noadoptionnosubscript(q) ? cur_style : sub_style(cur_style)), cur_style);
             width(y) = width(y) + space_after_script(cur_style);
             switch (math_scripts_mode_par) {
                 case 1:
@@ -3508,23 +3522,17 @@ static small_number make_left_right(pointer q, int style, scaled max_d, scaled m
 {
     scaled delta;
     pointer tmp, lst;
-    scaled hd_asked = 0;
     scaled ic = 0;
     boolean stack = false;
     boolean axis = false;
-    /*
-        scaled hd_done = 0;
-        boolean fitting = true;
-        boolean fence = false;
-        int chr = 0;
-        int cls = 0;
-    */
+    int same = subtype(q);
+
     setup_cur_size(style);
 
     if ((delimiterheight(q)!=0) || (delimiterdepth(q)!=0)) {
 
-        hd_asked = delimiterheight(q) + delimiterdepth(q);
-        tmp = do_delimiter(q, delimiter(q), cur_size, hd_asked, false, style, false, &stack, &ic);
+        delta = delimiterheight(q) + delimiterdepth(q);
+        tmp = do_delimiter(q, delimiter(q), cur_size, delta, false, style, false, &stack, &ic, &same);
         delimiteritalic(q) = ic;
 
         /* beware, a stacked delimiter has a shift but no corrected height/depth (yet) */
@@ -3532,19 +3540,6 @@ static small_number make_left_right(pointer q, int style, scaled max_d, scaled m
         if (stack) {
             shift_amount(tmp) = delimiterdepth(q);
         }
-
-        /*
-            hd_done = height(tmp) + depth(tmp);
-            fitting = stack || ((hd_done-hd_asked) == 0);
-
-            if (type(delimiter(q)) == delim_node && (small_char(delimiter(q)) != 0)) {
-                chr = small_char(delimiter(q));
-                cls = get_math_code(chr).class_value ;
-                fence = (cls == 4) || (cls == 5) ;
-            }
-
-            printf("delimiter stack %i fence %i fitting %i\n",stack,fence,fitting);
-        */
 
         if (delimiterexact(q)) {
             delimiterheight(q) = height(tmp) - shift_amount(tmp);
@@ -3566,11 +3561,12 @@ static small_number make_left_right(pointer q, int style, scaled max_d, scaled m
     } else {
         axis = ! delimiternoaxis(q);
         delta = get_delimiter_height(max_d,max_h,axis);
-        tmp = do_delimiter(q, delimiter(q), cur_size, delta, false, style, axis, &stack, &ic);
+        tmp = do_delimiter(q, delimiter(q), cur_size, delta, false, style, axis, &stack, &ic, &same);
         delimiteritalic(q) = ic;
     }
     delimiter(q) = null;
     assign_new_hlist(q, tmp);
+    delimitersamesize(q) = same; /* new */
     if (delimiterclass(q) >= ord_noad_type) {
         if (delimiterclass(q) <= inner_noad_type) {
             return delimiterclass(q);
@@ -3797,58 +3793,67 @@ static pointer math_spacing_glue(int l_type, int r_type, int mstyle, scaled mmu)
 }
 
 @ @c
-static pointer check_nucleus_complexity(halfword q, scaled * delta, int cur_style)
+static pointer check_nucleus_complexity(halfword q, scaled * delta, int cur_style, int *same)
 {
     pointer p = null;
+    pointer t = null;
+    if (same != NULL) {
+        *same = 0;
+    }
     switch (type(nucleus(q))) {
-    case math_char_node:
-    case math_text_char_node:
-        fetch(nucleus(q));
-        if (char_exists(cur_f, cur_c)) {
-            /* we could look at neighbours */
-            if (do_new_math(cur_f)) {
-                *delta = 0 ; /* cf spec only the last one */
-            } else {
-                *delta = char_italic(cur_f, cur_c);
-            }
-            p = new_glyph(cur_f, cur_c);
-            reset_attributes(p, node_attr(nucleus(q)));
-            if (do_new_math(cur_f)) {
-                if (! math_no_char_italic_par) {
-                    /* keep italic, but bad with two successive letters */
-                } else if (get_char_cat_code(cur_c) == 11) {
+        case math_char_node:
+        case math_text_char_node:
+            fetch(nucleus(q));
+            if (char_exists(cur_f, cur_c)) {
+                /* we could look at neighbours */
+                if (do_new_math(cur_f)) {
+                    *delta = 0 ; /* cf spec only the last one */
+                } else {
+                    *delta = char_italic(cur_f, cur_c);
+                }
+                p = new_glyph(cur_f, cur_c);
+                reset_attributes(p, node_attr(nucleus(q)));
+                if (do_new_math(cur_f)) {
+                    if (! math_no_char_italic_par) {
+                        /* keep italic, but bad with two successive letters */
+                    } else if (get_char_cat_code(cur_c) == 11) {
+                        /* no italic correction in mid-word of text font */
+                        *delta = 0;
+                    }
+                } else {
                     /* no italic correction in mid-word of text font */
-                    *delta = 0;
+                    if (((type(nucleus(q))) == math_text_char_node) && (space(cur_f) != 0)) {
+                        *delta = 0;
+                    }
                 }
-            } else {
-                /* no italic correction in mid-word of text font */
-                if (((type(nucleus(q))) == math_text_char_node) && (space(cur_f) != 0)) {
+                /* so we only add italic correction when we have no scripts */
+                if ((subscr(q) == null) && (supscr(q) == null) && (*delta != 0)) {
+                    pointer x = new_kern(*delta);
+                    subtype(x) = italic_kern;
+                    reset_attributes(x, node_attr(nucleus(q)));
+                    couple_nodes(p,x);
                     *delta = 0;
+                } else /* needs checking but looks ok */
+                if (do_new_math(cur_f)) {
+                    *delta = char_italic(cur_f, cur_c); /* must be more selective */
                 }
             }
-            /* so we only add italic correction when we have no scripts */
-            if ((subscr(q) == null) && (supscr(q) == null) && (*delta != 0)) {
-                pointer x = new_kern(*delta);
-                reset_attributes(x, node_attr(nucleus(q)));
-                couple_nodes(p,x);
-                *delta = 0;
-            }
-            if (do_new_math(cur_f)) {
-                *delta = char_italic(cur_f, cur_c); /* must be more selective */
-            }
-        }
-        break;
-    case sub_box_node:
-        p = math_list(nucleus(q));
-        break;
-    case sub_mlist_node:
-        mlist_to_hlist(math_list(nucleus(q)), false, cur_style);   /* recursive call */
-        setup_cur_size(cur_style);
-        p = hpack(vlink(temp_head), 0, additional, -1);
-        reset_attributes(p, node_attr(nucleus(q)));
-        break;
-    default:
-        confusion("mlist2");    /* this can't happen mlist2 */
+            break;
+        case sub_box_node:
+            p = math_list(nucleus(q));
+            break;
+        case sub_mlist_node:
+            t = math_list(nucleus(q));
+            mlist_to_hlist(t, false, cur_style);   /* recursive call */
+if (same != NULL && type(t) == fence_noad && delimitersamesize(t)) {
+    *same = delimitersamesize(t) ;
+}
+            setup_cur_size(cur_style);
+            p = hpack(vlink(temp_head), 0, additional, -1);
+            reset_attributes(p, node_attr(nucleus(q)));
+            break;
+        default:
+            confusion("mlist2");    /* this can't happen mlist2 */
     }
     return p;
 }
@@ -3867,9 +3872,12 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
     int t;                                /* the effective |type| of noad |q| during the second pass */
     int t_subtype;                        /* the effective |subtype| of noad |q| during the second pass */
     pointer p = null;
+    pointer pp = null;
     pointer z = null;
     halfword nxt ;
+    int same = 0;
     int pen;                              /* a penalty to be inserted */
+    int prepen;                           /* a penalty to be inserted */
     scaled max_hl = 0;                    /* maximum height of the list translated so far */
     scaled max_d = 0;                     /* maximum depth of the list translated so far */
     scaled delta;                         /* italic correction offset for subscript and superscript */
@@ -3877,6 +3885,10 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
     r_subtype = op_noad_type_normal;
     setup_cur_size(cur_style);
     cur_mu = x_over_n(get_math_quad_size(cur_size), 18);
+    if (math_penalties_mode_par) {
+        /* we could do this via the callback but it's nice to have it as primitive too */
+        penalties = 1;
+    }
     while (q != null) {
         /*
             we use the fact that no character nodes appear in an mlist, hence
@@ -3891,179 +3903,180 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
         delta = 0;
         nxt = vlink(q);
         switch (type(q)) {
-        case simple_noad:
-            switch (subtype(q)) {
-            case bin_noad_type:
-                switch (r_type) {
-                case simple_noad:
-                    switch (r_subtype) {
-                    case bin_noad_type:
-                    case op_noad_type_normal:
-                    case op_noad_type_limits:
-                    case op_noad_type_no_limits:
-                    case rel_noad_type:
-                    case open_noad_type:
-                    case punct_noad_type:
-                        subtype(q) = ord_noad_type;
-                        goto RESWITCH;
+            case simple_noad:
+                switch (subtype(q)) {
+                case bin_noad_type:
+                    switch (r_type) {
+                    case simple_noad:
+                        switch (r_subtype) {
+                        case bin_noad_type:
+                        case op_noad_type_normal:
+                        case op_noad_type_limits:
+                        case op_noad_type_no_limits:
+                        case rel_noad_type:
+                        case open_noad_type:
+                        case punct_noad_type:
+                            subtype(q) = ord_noad_type;
+                            goto RESWITCH;
+                            break;
+                        }
+                        break;
+                    case fence_noad:
+                        if (r_subtype == left_noad_side) {
+                            subtype(q) = ord_noad_type; /* so these can best be the same size */
+                            goto RESWITCH;
+                        }
                         break;
                     }
                     break;
-                case fence_noad:
-                    if (r_subtype == left_noad_side) {
-                        subtype(q) = ord_noad_type; /* so these can best be the same size */
-                        goto RESWITCH;
+                case over_noad_type:
+                    make_over(q, cur_style, cur_size, math_rules_fam_par);
+                    break;
+                case under_noad_type:
+                    make_under(q, cur_style, cur_size, math_rules_fam_par);
+                    break;
+                case vcenter_noad_type:
+                    make_vcenter(q);
+                    break;
+                case rel_noad_type:
+                case close_noad_type:
+                case punct_noad_type:
+                    if (r_type == simple_noad && r_subtype == bin_noad_type) {
+                        type(r) = simple_noad; /* assumes the same size .. can't this go */
+                        subtype(r) = ord_noad_type;
                     }
+                    break;
+                case op_noad_type_normal:
+                case op_noad_type_limits:
+                case op_noad_type_no_limits:
+                    delta = make_op(q, cur_style);
+                    if ((subtype(q) == op_noad_type_limits) || (subtype(q) == op_noad_type_no_limits))
+                        goto CHECK_DIMENSIONS;
+                    break;
+                case ord_noad_type:
+                    make_ord(q);
+                    break;
+                case open_noad_type:
+                case inner_noad_type:
                     break;
                 }
                 break;
-            case over_noad_type:
-                make_over(q, cur_style, cur_size, math_rules_fam_par);
-                break;
-            case under_noad_type:
-                make_under(q, cur_style, cur_size, math_rules_fam_par);
-                break;
-            case vcenter_noad_type:
-                make_vcenter(q);
-                break;
-            case rel_noad_type:
-            case close_noad_type:
-            case punct_noad_type:
-                if (r_type == simple_noad && r_subtype == bin_noad_type) {
-                    type(r) = simple_noad; /* assumes the same size .. can't this go */
-                    subtype(r) = ord_noad_type;
+            case fence_noad:
+                if (subtype(q) != left_noad_side) {
+                    if (r_type == simple_noad && r_subtype == bin_noad_type) {
+                        type(r) = simple_noad; /* assumes the same size  */
+                        subtype(r) = ord_noad_type;
+                    }
                 }
+                goto DONE_WITH_NOAD;
                 break;
-            case op_noad_type_normal:
-            case op_noad_type_limits:
-            case op_noad_type_no_limits:
-                delta = make_op(q, cur_style);
-                if ((subtype(q) == op_noad_type_limits) || (subtype(q) == op_noad_type_no_limits))
-                    goto CHECK_DIMENSIONS;
+            case fraction_noad:
+                make_fraction(q, cur_style);
+                goto CHECK_DIMENSIONS;
                 break;
-            case ord_noad_type:
-                make_ord(q);
+            case radical_noad:
+                if (subtype(q) == 7)
+                    make_hextension(q, cur_style);
+                else if (subtype(q) == 6)
+                    make_delimiter_over(q, cur_style);
+                else if (subtype(q) == 5)
+                    make_delimiter_under(q, cur_style);
+                else if (subtype(q) == 4)
+                    make_over_delimiter(q, cur_style);
+                else if (subtype(q) == 3)
+                    make_under_delimiter(q, cur_style);
+                else
+                    make_radical(q, cur_style);
                 break;
-            case open_noad_type:
-            case inner_noad_type:
+            case accent_noad:
+                make_math_accent(q, cur_style);
                 break;
-            }
-            break;
-        case fence_noad:
-            if (subtype(q) != left_noad_side)
-                if (r_type == simple_noad && r_subtype == bin_noad_type) {
-                    type(r) = simple_noad; /* assumes the same size  */
-                    subtype(r) = ord_noad_type;
+            case style_node:
+                cur_style = subtype(q);
+                setup_cur_size(cur_style);
+                cur_mu = x_over_n(get_math_quad_style(cur_style), 18);
+                goto DONE_WITH_NODE;
+                break;
+            case choice_node:
+                switch (cur_style / 2) {
+                case 0: /* |display_style=0| */
+                    choose_mlist(display_mlist);
+                    break;
+                case 1: /* |text_style=2| */
+                    choose_mlist(text_mlist);
+                    break;
+                case 2: /* |script_style=4| */
+                    choose_mlist(script_mlist);
+                    break;
+                case 3: /* |script_script_style=6| */
+                    choose_mlist(script_script_mlist);
+                    break;
                 }
-            goto DONE_WITH_NOAD;
-            break;
-        case fraction_noad:
-            make_fraction(q, cur_style);
-            goto CHECK_DIMENSIONS;
-            break;
-        case radical_noad:
-            if (subtype(q) == 7)
-                make_hextension(q, cur_style);
-            else if (subtype(q) == 6)
-                make_delimiter_over(q, cur_style);
-            else if (subtype(q) == 5)
-                make_delimiter_under(q, cur_style);
-            else if (subtype(q) == 4)
-                make_over_delimiter(q, cur_style);
-            else if (subtype(q) == 3)
-                make_under_delimiter(q, cur_style);
-            else
-                make_radical(q, cur_style);
-            break;
-        case accent_noad:
-          make_math_accent(q, cur_style);
-            break;
-        case style_node:
-            cur_style = subtype(q);
-            setup_cur_size(cur_style);
-            cur_mu = x_over_n(get_math_quad_style(cur_style), 18);
-            goto DONE_WITH_NODE;
-            break;
-        case choice_node:
-            switch (cur_style / 2) {
-            case 0: /* |display_style=0| */
-                choose_mlist(display_mlist);
+                flush_node_list(display_mlist(q));
+                flush_node_list(text_mlist(q));
+                flush_node_list(script_mlist(q));
+                flush_node_list(script_script_mlist(q));
+                type(q) = style_node;
+                subtype(q) = (quarterword) cur_style;
+                if (p != null) {
+                    z = vlink(q);
+                    couple_nodes(q,p);
+                    while (vlink(p) != null)
+                        p = vlink(p);
+                    try_couple_nodes(p,z);
+                }
+                goto DONE_WITH_NODE;
                 break;
-            case 1: /* |text_style=2| */
-                choose_mlist(text_mlist);
+            case ins_node:
+            case mark_node:
+            case adjust_node:
+            case boundary_node:
+            case whatsit_node:
+            case penalty_node:
+            case disc_node:
+                goto DONE_WITH_NODE;
                 break;
-            case 2: /* |script_style=4| */
-                choose_mlist(script_mlist);
+            case rule_node:
+                if (height(q) > max_hl)
+                    max_hl = height(q);
+                if (depth(q) > max_d)
+                    max_d = depth(q);
+                goto DONE_WITH_NODE;
                 break;
-            case 3: /* |script_script_style=6| */
-                choose_mlist(script_script_mlist);
-                break;
-            }
-            flush_node_list(display_mlist(q));
-            flush_node_list(text_mlist(q));
-            flush_node_list(script_mlist(q));
-            flush_node_list(script_script_mlist(q));
-            type(q) = style_node;
-            subtype(q) = (quarterword) cur_style;
-            if (p != null) {
-                z = vlink(q);
-                couple_nodes(q,p);
-                while (vlink(p) != null)
-                    p = vlink(p);
-                try_couple_nodes(p,z);
-            }
-            goto DONE_WITH_NODE;
-            break;
-        case ins_node:
-        case mark_node:
-        case adjust_node:
-        case boundary_node:
-        case whatsit_node:
-        case penalty_node:
-        case disc_node:
-            goto DONE_WITH_NODE;
-            break;
-        case rule_node:
-            if (height(q) > max_hl)
-                max_hl = height(q);
-            if (depth(q) > max_d)
-                max_d = depth(q);
-            goto DONE_WITH_NODE;
-            break;
-        case glue_node:
-            /*
-                conditional math glue (`\.{\\nonscript}') results in a |glue_node|
-                pointing to |zero_glue|, with |subtype(q)=cond_math_glue|; in such a case
-                the node following will be eliminated if it is a glue or kern node and if the
-                current size is different from |text_size|
+            case glue_node:
+                /*
+                    conditional math glue (`\.{\\nonscript}') results in a |glue_node|
+                    pointing to |zero_glue|, with |subtype(q)=cond_math_glue|; in such a case
+                    the node following will be eliminated if it is a glue or kern node and if the
+                    current size is different from |text_size|
 
-                unconditional math glue (`\.{\\muskip}') is converted to normal glue by
-                multiplying the dimensions by |cur_mu|
+                    unconditional math glue (`\.{\\muskip}') is converted to normal glue by
+                    multiplying the dimensions by |cur_mu|
 
-            */
-            if (subtype(q) == mu_glue) {
-                math_glue_to_glue(q, cur_mu);
-            } else if ((cur_size != text_size) && (subtype(q) == cond_math_glue)) {
-                p = vlink(q);
-         	if (p != null)
-                     if ((type(p) == glue_node) || (type(p) == kern_node)) {
-                       if (vlink(p) != null) {
-                            couple_nodes(q,vlink(p));
-                            vlink(p) = null;
-                        } else {
-                            vlink(q) = null;
+                */
+                if (subtype(q) == mu_glue) {
+                    math_glue_to_glue(q, cur_mu);
+                } else if ((cur_size != text_size) && (subtype(q) == cond_math_glue)) {
+                    p = vlink(q);
+                    if (p != null)
+                        if ((type(p) == glue_node) || (type(p) == kern_node)) {
+                            if (vlink(p) != null) {
+                                couple_nodes(q,vlink(p));
+                                vlink(p) = null;
+                            } else {
+                                vlink(q) = null;
+                            }
+                            flush_node_list(p);
                         }
-                        flush_node_list(p);
-                     }
-            }
-	    goto DONE_WITH_NODE;
-            break;
-        case kern_node:
-            math_kern(q, cur_mu);
-            goto DONE_WITH_NODE;
-            break;
-        default:
-            confusion("mlist1");
+                }
+                goto DONE_WITH_NODE;
+                break;
+            case kern_node:
+                math_kern(q, cur_mu);
+                goto DONE_WITH_NODE;
+                break;
+            default:
+                confusion("mlist1");
         }
         /*
             When we get to the following part of the program, we have ``fallen through''
@@ -4077,7 +4090,11 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
             when both are present.
 
         */
-        p = check_nucleus_complexity(q, &delta, cur_style);
+same = 0 ;
+        p = check_nucleus_complexity(q, &delta, cur_style, &same);
+if (same) {
+    noadextra4(q) = same ;
+}
         if ((subscr(q) == null) && (supscr(q) == null)) {
             /*
                 Adding italic correction here is kind of fuzzy because some
@@ -4094,8 +4111,12 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
                         case open_noad_type:
                         case close_noad_type:
                         case punct_noad_type:
-                        case inner_noad_type:
                             delta = 0;
+                            break;
+                        case inner_noad_type:
+                            if (! delimitermodeitalics) {
+                                delta = 0;
+                            }
                             break;
                         case op_noad_type_normal:
                         case op_noad_type_limits:
@@ -4110,6 +4131,7 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
                 }
                 if (delta != 0) {
                     pointer d = new_kern(delta);
+                    subtype(d) = italic_kern;
                     reset_attributes(d, node_attr(q));
                     couple_nodes(p,d);
                 }
@@ -4178,15 +4200,18 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
         t = simple_noad;
         t_subtype = ord_noad_type;
         pen = inf_penalty;
+        prepen = inf_penalty;
         switch (type(q)) {
         case simple_noad:
             t_subtype = subtype(q);
             switch (t_subtype) {
             case bin_noad_type:
                 pen = bin_op_penalty_par;
+                prepen = pre_bin_op_penalty_par;
                 break;
             case rel_noad_type:
                 pen = rel_penalty_par;
+                prepen = pre_rel_penalty_par;
                 break;
             case vcenter_noad_type:
             case over_noad_type:
@@ -4233,8 +4258,20 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
         /* Append inter-element spacing based on |r_type| and |t| */
         if (r_type > 0) {
             /* not the first noad */
+            pp = p;
+if (delimitermodeordinal && t_subtype == inner_noad_type && noadextra4(q) == 1) {
+    z = math_spacing_glue(r_subtype, ord_noad_type, cur_style, cur_mu);
+} else {
             z = math_spacing_glue(r_subtype, t_subtype, cur_style, cur_mu);
+}
             if (z != null) {
+                reset_attributes(z, node_attr(p));
+                couple_nodes(p,z);
+                p = z;
+            }
+            if (penalties && prepen < inf_penalty && type(pp) != penalty_node) {
+                /* no checking of prev node type */
+                z = new_penalty(prepen,noad_penalty);
                 reset_attributes(z, node_attr(p));
                 couple_nodes(p,z);
                 p = z;

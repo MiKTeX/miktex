@@ -1,7 +1,7 @@
 #include "lpeg.h"
 
 /*
-** $Id: lpprint.c,v 1.9 2015/06/15 16:09:57 roberto Exp $
+** $Id: lpprint.c,v 1.10 2016/09/13 16:06:03 roberto Exp $
 ** Copyright 2007, Lua.org & PUC-Rio  (see 'lpeg.html' for license)
 */
 
@@ -39,13 +39,13 @@ void printcharset (const byte *st) {
 }
 
 
-static void printcapkind (int kind) {
+static const char *capkind (int kind) {
   const char *const modes[] = {
     "close", "position", "constant", "backref",
     "argument", "simple", "table", "function",
     "query", "string", "num", "substitution", "fold",
     "runtime", "group"};
-  printf("%s", modes[kind]);
+  return modes[kind];
 }
 
 
@@ -75,13 +75,12 @@ void printinst (const Instruction *op, const Instruction *p) {
       break;
     }
     case IFullCapture: {
-      printcapkind(getkind(p));
-      printf(" (size = %d)  (idx = %d)", getoff(p), p->i.key);
+      printf("%s (size = %d)  (idx = %d)",
+             capkind(getkind(p)), getoff(p), p->i.key);
       break;
     }
     case IOpenCapture: {
-      printcapkind(getkind(p));
-      printf(" (idx = %d)", p->i.key);
+      printf("%s (idx = %d)", capkind(getkind(p)), p->i.key);
       break;
     }
     case ISet: {
@@ -126,8 +125,8 @@ void printpatt (Instruction *p, int n) {
 
 #if defined(LPEG_DEBUG)
 static void printcap (Capture *cap) {
-  printcapkind(cap->kind);
-  printf(" (idx: %d - size: %d) -> %p\n", cap->idx, cap->siz, cap->s);
+  printf("%s (idx: %d - size: %d) -> %p\n",
+         capkind(cap->kind), cap->idx, cap->siz, cap->s);
 }
 
 
@@ -179,7 +178,8 @@ void printtree (TTree *tree, int ident) {
       break;
     }
     case TOpenCall: case TCall: {
-      printf(" key: %d\n", tree->key);
+      assert(sib2(tree)->tag == TRule);
+      printf(" key: %d  (rule: %d)\n", tree->key, sib2(tree)->cap);
       break;
     }
     case TBehind: {
@@ -188,7 +188,7 @@ void printtree (TTree *tree, int ident) {
       break;
     }
     case TCapture: {
-      printf(" cap: %d  key: %d  n: %d\n", tree->cap, tree->key, tree->u.n);
+      printf(" kind: '%s'  key: %d\n", capkind(tree->cap), tree->key);
       printtree(sib1(tree), ident + 2);
       break;
     }
@@ -244,9 +244,8 @@ void printktable (lua_State *L, int idx) {
 /* }====================================================== */
 
 #endif
-
 /*
-** $Id: lpvm.c,v 1.6 2015/09/28 17:01:25 roberto Exp $
+** $Id: lpvm.c,v 1.9 2016/06/03 20:11:18 roberto Exp $
 ** Copyright 2007, Lua.org & PUC-Rio  (see 'lpeg.html' for license)
 */
 
@@ -292,14 +291,16 @@ typedef struct Stack {
 
 
 /*
-** Double the size of the array of captures
+** Make the size of the array of captures 'cap' twice as large as needed
+** (which is 'captop'). ('n' is the number of new elements.)
 */
-static Capture *doublecap (lua_State *L, Capture *cap, int captop, int ptop) {
+static Capture *doublecap (lua_State *L, Capture *cap, int captop,
+                                         int n, int ptop) {
   Capture *newc;
   if (captop >= INT_MAX/((int)sizeof(Capture) * 2))
     luaL_error(L, "too many captures");
   newc = (Capture *)lua_newuserdata(L, captop * 2 * sizeof(Capture));
-  memcpy(newc, cap, captop * sizeof(Capture));
+  memcpy(newc, cap, (captop - n) * sizeof(Capture));
   lua_replace(L, caplistidx(ptop));
   return newc;
 }
@@ -360,8 +361,8 @@ static int resdyncaptures (lua_State *L, int fr, int curr, int limit) {
 */
 static void adddyncaptures (const char *s, Capture *base, int n, int fd) {
   int i;
-  /* Cgroup capture is already there */
-  assert(base[0].kind == Cgroup && base[0].siz == 0);
+  base[0].kind = Cgroup;  /* create group capture */
+  base[0].siz = 0;
   base[0].idx = 0;  /* make it an anonymous group */
   for (i = 1; i <= n; i++) {  /* add runtime captures */
     base[i].kind = Cruntime;
@@ -404,10 +405,11 @@ const char *match (lua_State *L, const char *o, const char *s, const char *e,
   lua_pushlightuserdata(L, stackbase);
   for (;;) {
 #if defined(DEBUG)
-      printf("s: |%s| stck:%d, dyncaps:%d, caps:%d  ",
-             s, stack - getstackbase(L, ptop), ndyncap, captop);
-      printinst(op, p);
+      printf("-------------------------------------\n");
       printcaplist(capture, capture + captop);
+      printf("s: |%s| stck:%d, dyncaps:%d, caps:%d  ",
+             s, (int)(stack - getstackbase(L, ptop)), ndyncap, captop);
+      printinst(op, p);
 #endif
     assert(stackidx(ptop) + ndyncap == lua_gettop(L) && ndyncap <= captop);
     switch ((Opcode)p->i.code) {
@@ -531,6 +533,9 @@ const char *match (lua_State *L, const char *o, const char *s, const char *e,
           ndyncap -= removedyncap(L, capture, stack->caplevel, captop);
         captop = stack->caplevel;
         p = stack->p;
+#if defined(DEBUG)
+        printf("**FAIL**\n");
+#endif
         continue;
       }
       case ICloseRunTime: {
@@ -540,16 +545,19 @@ const char *match (lua_State *L, const char *o, const char *s, const char *e,
         cs.s = o; cs.L = L; cs.ocap = capture; cs.ptop = ptop;
         n = runtimecap(&cs, capture + captop, s, &rem);  /* call function */
         captop -= n;  /* remove nested captures */
+        ndyncap -= rem;  /* update number of dynamic captures */
         fr -= rem;  /* 'rem' items were popped from Lua stack */
         res = resdyncaptures(L, fr, s - o, e - o);  /* get result */
         if (res == -1)  /* fail? */
           goto fail;
         s = o + res;  /* else update current position */
         n = lua_gettop(L) - fr + 1;  /* number of new captures */
-        ndyncap += n - rem;  /* update number of dynamic captures */
+        ndyncap += n;  /* update number of dynamic captures */
         if (n > 0) {  /* any new capture? */
+          if (fr + n >= SHRT_MAX)
+            luaL_error(L, "too many results in match-time capture");
           if ((captop += n + 2) >= capsize) {
-            capture = doublecap(L, capture, captop, ptop);
+            capture = doublecap(L, capture, captop, n + 2, ptop);
             capsize = 2 * captop;
           }
           /* add new captures to 'capture' list */
@@ -586,7 +594,7 @@ const char *match (lua_State *L, const char *o, const char *s, const char *e,
         capture[captop].idx = p->i.key;
         capture[captop].kind = getkind(p);
         if (++captop >= capsize) {
-          capture = doublecap(L, capture, captop, ptop);
+          capture = doublecap(L, capture, captop, 0, ptop);
           capsize = 2 * captop;
         }
         p++;
@@ -601,7 +609,7 @@ const char *match (lua_State *L, const char *o, const char *s, const char *e,
 
 
 /*
-** $Id: lpcode.c,v 1.23 2015/06/12 18:36:47 roberto Exp $
+** $Id: lpcode.c,v 1.24 2016/09/15 17:46:13 roberto Exp $
 ** Copyright 2007, Lua.org & PUC-Rio  (see 'lpeg.html' for license)
 */
 
@@ -728,6 +736,27 @@ int tocharset (TTree *tree, Charset *cs) {
 
 
 /*
+** Visit a TCall node taking care to stop recursion. If node not yet
+** visited, return 'f(sib2(tree))', otherwise return 'def' (default
+** value)
+*/
+static int callrecursive (TTree *tree, int f (TTree *t), int def) {
+  int key = tree->key;
+  assert(tree->tag == TCall);
+  assert(sib2(tree)->tag == TRule);
+  if (key == 0)  /* node already visited? */
+    return def;  /* return default value */
+  else {  /* first visit */
+    int result;
+    tree->key = 0;  /* mark call as already visited */
+    result = f(sib2(tree));  /* go to called rule */
+    tree->key = key;  /* restore tree */
+    return result;
+  }
+}
+
+
+/*
 ** Check whether a pattern tree has captures
 */
 int hascaptures (TTree *tree) {
@@ -736,14 +765,17 @@ int hascaptures (TTree *tree) {
     case TCapture: case TRunTime:
       return 1;
     case TCall:
-      tree = sib2(tree); goto tailcall;  /* return hascaptures(sib2(tree)); */
+      return callrecursive(tree, hascaptures, 0);
+    case TRule:  /* do not follow siblings */
+      tree = sib1(tree); goto tailcall;
     case TOpenCall: assert(0);
     default: {
       switch (numsiblings[tree->tag]) {
         case 1:  /* return hascaptures(sib1(tree)); */
           tree = sib1(tree); goto tailcall;
         case 2:
-          if (hascaptures(sib1(tree))) return 1;
+          if (hascaptures(sib1(tree)))
+            return 1;
           /* else return hascaptures(sib2(tree)); */
           tree = sib2(tree); goto tailcall;
         default: assert(numsiblings[tree->tag] == 0); return 0;
@@ -810,9 +842,9 @@ int checkaux (TTree *tree, int pred) {
 
 /*
 ** number of characters to match a pattern (or -1 if variable)
-** ('count' avoids infinite loops for grammars)
 */
-int fixedlenx (TTree *tree, int count, int len) {
+int fixedlen (TTree *tree) {
+  int len = 0;  /* to accumulate in tail calls */
  tailcall:
   switch (tree->tag) {
     case TChar: case TSet: case TAny:
@@ -822,26 +854,29 @@ int fixedlenx (TTree *tree, int count, int len) {
     case TRep: case TRunTime: case TOpenCall:
       return -1;
     case TCapture: case TRule: case TGrammar:
-      /* return fixedlenx(sib1(tree), count); */
+      /* return fixedlen(sib1(tree)); */
       tree = sib1(tree); goto tailcall;
-    case TCall:
-      if (count++ >= MAXRULES)
-        return -1;  /* may be a loop */
-      /* else return fixedlenx(sib2(tree), count); */
-      tree = sib2(tree); goto tailcall;
+    case TCall: {
+      int n1 = callrecursive(tree, fixedlen, -1);
+      if (n1 < 0)
+        return -1;
+      else
+        return len + n1;
+    }
     case TSeq: {
-      len = fixedlenx(sib1(tree), count, len);
-      if (len < 0) return -1;
-      /* else return fixedlenx(sib2(tree), count, len); */
-      tree = sib2(tree); goto tailcall;
+      int n1 = fixedlen(sib1(tree));
+      if (n1 < 0)
+        return -1;
+      /* else return fixedlen(sib2(tree)) + len; */
+      len += n1; tree = sib2(tree); goto tailcall;
     }
     case TChoice: {
-      int n1, n2;
-      n1 = fixedlenx(sib1(tree), count, len);
-      if (n1 < 0) return -1;
-      n2 = fixedlenx(sib2(tree), count, len);
-      if (n1 == n2) return n1;
-      else return -1;
+      int n1 = fixedlen(sib1(tree));
+      int n2 = fixedlen(sib2(tree));
+      if (n1 != n2 || n1 < 0)
+        return -1;
+      else
+        return len + n1;
     }
     default: assert(0); return 0;
   };
@@ -1312,9 +1347,10 @@ static void codeand (CompileState *compst, TTree *tree, int tt) {
 
 
 /*
-** Captures: if pattern has fixed (and not too big) length, use
-** a single IFullCapture instruction after the match; otherwise,
-** enclose the pattern with OpenCapture - CloseCapture.
+** Captures: if pattern has fixed (and not too big) length, and it
+** has no nested captures, use a single IFullCapture instruction
+** after the match; otherwise, enclose the pattern with OpenCapture -
+** CloseCapture.
 */
 static void codecapture (CompileState *compst, TTree *tree, int tt,
                          const Charset *fl) {
@@ -1585,8 +1621,6 @@ Instruction *compile (lua_State *L, Pattern *p) {
 
 
 /* }====================================================== */
-
-
 
 /*
 ** $Id: lpcap.c,v 1.6 2015/06/15 16:09:57 roberto Exp $
@@ -2126,7 +2160,7 @@ int getcaptures (lua_State *L, const char *s, const char *r, int ptop) {
 
 
 /*
-** $Id: lptree.c,v 1.21 2015/09/28 17:01:25 roberto Exp $
+** $Id: lptree.c,v 1.22 2016/09/13 18:10:22 roberto Exp $
 ** Copyright 2013, Lua.org & PUC-Rio  (see 'lpeg.html' for license)
 */
 
@@ -2191,7 +2225,7 @@ static void fixonecall (lua_State *L, int postable, TTree *g, TTree *t) {
   t->tag = TCall;
   t->u.ps = n - (t - g);  /* position relative to node */
   assert(sib2(t)->tag == TRule);
-  sib2(t)->key = t->key;
+  sib2(t)->key = t->key;  /* fix rule's key */
 }
 
 
@@ -3062,7 +3096,7 @@ static void buildgrammar (lua_State *L, TTree *grammar, int frule, int n) {
     int rulesize;
     TTree *rn = gettree(L, ridx, &rulesize);
     nd->tag = TRule;
-    nd->key = 0;
+    nd->key = 0;  /* will be fixed when rule is used */
     nd->cap = i;  /* rule number */
     nd->u.ps = rulesize + 1;  /* point to next rule */
     memcpy(sib1(nd), rn, rulesize * sizeof(TTree));  /* copy rule */
@@ -3096,6 +3130,11 @@ static int checkloops (TTree *tree) {
 }
 
 
+/*
+** Give appropriate error message for 'verifyrule'. If a rule appears
+** twice in 'passed', there is path from it back to itself without
+** advancing the subject.
+*/
 static int verifyerror (lua_State *L, int *passed, int npassed) {
   int i, j;
   for (i = npassed - 1; i >= 0; i--) {  /* search for a repetition */
@@ -3117,6 +3156,8 @@ static int verifyerror (lua_State *L, int *passed, int npassed) {
 ** is only relevant if the first is nullable.
 ** Parameter 'nb' works as an accumulator, to allow tail calls in
 ** choices. ('nb' true makes function returns true.)
+** Parameter 'passed' is a list of already visited rules, 'npassed'
+** counts the elements in 'passed'.
 ** Assume ktable at the top of the stack.
 */
 static int verifyrule (lua_State *L, TTree *tree, int *passed, int npassed,
@@ -3414,11 +3455,14 @@ int luaopen_lpeg (lua_State *L) {
   lua_pushnumber(L, MAXBACK);  /* initialize maximum backtracking */
   lua_setfield(L, LUA_REGISTRYINDEX, MAXSTACKIDX);
   luaL_setfuncs(L, metareg, 0);
+#if defined(LuajitTeX)
+  luaL_register(L,"lpeg",pattreg);
+#else
   luaL_newlib(L, pattreg);
+#endif
   lua_pushvalue(L, -1);
   lua_setfield(L, -3, "__index");
   return 1;
 }
 
 /* }====================================================== */
-

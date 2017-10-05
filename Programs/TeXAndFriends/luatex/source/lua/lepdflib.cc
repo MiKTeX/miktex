@@ -21,7 +21,9 @@
 
 #include "image/epdf.h"
 
-
+// Patches for the new poppler 0.59 from 
+// https://www.mail-archive.com/arch-commits@archlinux.org/msg357548.html
+// with some modifications to comply the poppler API.
 
 // define DEBUG
 
@@ -253,6 +255,12 @@ static int l_new_Attribute(lua_State * L)
    lua_settable(L,-3)
 
 
+#define OBJECT_TYPE(name)                   \
+   lua_pushstring(L, #name);                \
+   lua_pushinteger(L, (int)name);           \
+   lua_settable(L,-3)
+
+
 #define STRUCTELEMENT_TYPE_ENTRY(name)      \
    lua_pushstring(L, #name);                \
    lua_pushinteger(L, StructElement::name); \
@@ -305,6 +313,28 @@ static int l_Attribute_Type(lua_State * L) {
    ATTRIBUTE_TYPE_ENTRY(checked);
    return 1;
 }
+
+static int l_Object_Type(lua_State * L) {
+   lua_createtable(L,0,16);/*nr of ObjType values*/ ;
+   OBJECT_TYPE(objBool);
+   OBJECT_TYPE(objInt);
+   OBJECT_TYPE(objReal);
+   OBJECT_TYPE(objString);
+   OBJECT_TYPE(objName);
+   OBJECT_TYPE(objNull);
+   OBJECT_TYPE(objArray);
+   OBJECT_TYPE(objDict);
+   OBJECT_TYPE(objStream);
+   OBJECT_TYPE(objRef);
+   OBJECT_TYPE(objCmd);
+   OBJECT_TYPE(objError);
+   OBJECT_TYPE(objEOF);
+   OBJECT_TYPE(objNone);
+   OBJECT_TYPE(objInt64);
+   OBJECT_TYPE(objDead);
+   return 1;
+}
+
 
 static int l_StructElement_Type(lua_State * L) {
    lua_createtable (L, 0, 50);
@@ -398,13 +428,135 @@ static int l_new_Dict(lua_State * L)
 static int l_new_Object(lua_State * L)
 {
     udstruct *uout;
+    int n = lua_gettop(L); // number of arguments
     uout = new_Object_userdata(L);
-    uout->d = new Object();     // automatic init to type "none"
-    uout->atype = ALLOC_LEPDF;
-    uout->pc = 0;
-    uout->pd = NULL;            // not connected to any PDFDoc
+    switch(n) {
+    case 0:
+      uout->d = new Object();     // automatic init to type "none"
+      uout->atype = ALLOC_LEPDF;
+      uout->pc = 0;
+      uout->pd = NULL;            // not connected to any PDFDoc
+      break;
+    case 1:
+      if (lua_isboolean (L,1)) {
+	uout->d = new Object(lua_toboolean(L, 1)? gTrue : gFalse);
+	uout->atype = ALLOC_LEPDF;
+	uout->pc = 0;
+	uout->pd = NULL;            
+      } else if (lua_isnumber (L,1)) {
+	double d = lua_tonumber(L,1);
+	// Missed :Object(long long int64gA)
+	if (d==((int)d)) {
+	  uout->d = new Object((int)d);
+	} else {
+	  uout->d = new Object(d);
+	}
+	uout->atype = ALLOC_LEPDF;
+	uout->pc = 0;
+	uout->pd = NULL;            
+      } else if (lua_isstring (L,1)){
+	GooString *gs;
+	const char *s;
+	size_t len;
+	s = luaL_checklstring(L, 2, &len);
+	gs = new GooString(s, len);
+	uout->d = new Object(gs);
+	uout->atype = ALLOC_LEPDF;
+	uout->pc = 0;
+	uout->pd = NULL;            
+      } else if (luaL_testudata(L,1,M_Array)){
+	udstruct *u;
+	Array *a;
+	u = (udstruct *) luaL_checkudata(L, 1, M_Array);
+	a = (Array *)u->d;
+	uout->d = new Object(a);
+	uout->atype = ALLOC_LEPDF;
+	uout->pc = 0;
+	uout->pd = NULL;            
+      } else if (luaL_testudata(L,1,M_Dict)){
+	udstruct *u;
+	Dict *d;
+	u = (udstruct *) luaL_checkudata(L, 1, M_Dict);
+	d = (Dict *)u->d;
+	uout->d = new Object(d);
+	uout->atype = ALLOC_LEPDF;
+	uout->pc = 0;
+	uout->pd = NULL;            
+      } else if (luaL_testudata(L,1,M_Stream)){
+	udstruct *u;
+	Stream *s;
+	u = (udstruct *) luaL_checkudata(L, 1, M_Stream);
+	s = (Stream *)u->d;
+	*((Object *) uout->d) = Object(s);
+      } else
+	luaL_error(L, "Invalid/unsupported value for Object constructor");
+      break;
+    case 2:
+      if (lua_isnumber (L,1) && lua_isnumber (L,2)) {
+	double numA = lua_tonumber(L,1);
+	double genA = lua_tonumber(L,2);
+	if ( ((numA)==(int)(numA)) && ((genA)==(int)(genA)) ){
+	  uout->d = new Object((int)(numA), (int)(genA));
+	  uout->atype = ALLOC_LEPDF;
+	  uout->pc = 0;
+	  uout->pd = NULL;            
+	}
+      } else if (lua_isnumber (L,1) && (lua_isstring(L,2)|| lua_isnoneornil(L,2))) {
+	double d_typeA = lua_tonumber(L,1);
+	int typeA = (int)(d_typeA);
+	if (d_typeA==typeA){
+	  switch((int)(typeA)) {
+	  case     objBool:
+	  case     objInt:
+	  case     objReal:
+	  case     objString:
+	  case     objName:
+	  case     objNull:
+	  case     objArray:
+	  case     objDict:
+	  case     objStream:
+	  case     objRef:
+	  case     objCmd:
+	  case     objError:
+	  case     objEOF:
+	  case     objNone:
+	  case     objInt64:
+	  case     objDead:
+	    if (lua_isstring(L,2))
+	      uout->d = new Object((ObjType)(typeA), luaL_checkstring(L, 2));
+	    else
+	      uout->d = new Object((ObjType)(typeA));
+	    uout->atype = ALLOC_LEPDF;
+	    uout->pc = 0;
+	    uout->pd = NULL;            
+
+	    break;
+	  default:
+	    luaL_error(L, "Invalid values for Object constructor");
+	    break;
+	  }//switch((int)(d))
+	} else //  (d_typeA)!=(typeA) 
+	  luaL_error(L, "Invalid/unsupported values for Object constructor");	   
+      } // if (lua_isnumber (L,1) && (lua_isstring(L,2)|| lua_isnoneornil(L,2))) 
+      break;
+    default:
+      luaL_error(L, "Invalid specification for Object constructor");	   
+    }
+    lua_settop(L,1);
     return 1;
 }
+
+// static int l_new_Object(lua_State * L)
+// {
+//     udstruct *uout;
+//     uout = new_Object_userdata(L);
+//     uout->d = new Object();     // automatic init to type "none"
+//     uout->atype = ALLOC_LEPDF;
+//     uout->pc = 0;
+//     uout->pd = NULL;            // not connected to any PDFDoc
+//     return 1;
+// }
+
 
 // PDFRectangle see Page.h
 
@@ -429,6 +581,7 @@ static const struct luaL_Reg epdflib_f[] = {
     {"AttributeOwner_Type",l_AttributeOwner_Type},
     {"Dict", l_new_Dict},
     {"Object", l_new_Object},
+    {"Object_Type", l_Object_Type},
     {"PDFRectangle", l_new_PDFRectangle},
     {NULL, NULL}                // sentinel
 };
@@ -555,7 +708,7 @@ static int m_##in##_##function(lua_State * L)                  \
         pdfdoc_changed_error(L);                               \
     uout = new_Object_userdata(L);                             \
     uout->d = new Object();                                    \
-    *((Object *)uout->d) = ((in *) uin->d)->function();        \
+    *((Object *)uout->d) = ((in *) uin->d)->function();                  \
     uout->atype = ALLOC_LEPDF;                                 \
     uout->pc = uin->pc;                                        \
     uout->pd = uin->pd;                                        \
@@ -683,40 +836,27 @@ static const struct luaL_Reg Annots_m[] = {
 
 //**********************************************************************
 // Array
-
-static int m_Array_incRef(lua_State * L)
-{
-#ifndef MIKTEX_POPPLER_59
-    int i;
-#endif
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Array);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-#ifndef MIKTEX_POPPLER_59
-    i = ((Array *) uin->d)->incRef();
-    lua_pushinteger(L, i);
-#else
-    lua_pushinteger(L, 1);
-#endif
-    return 1;
-}
-
-static int m_Array_decRef(lua_State * L)
-{
-    int i;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Array);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-#ifndef MIKTEX_POPPLER_59
-    i = ((Array *) uin->d)->decRef();
-    lua_pushinteger(L, i);
-#else
-    lua_pushinteger(L, 1);
-#endif
-    return 1;
-}
+// Now private
+// static int m_Array_incRef(lua_State * L)
+// {
+//     udstruct *uin;
+//     uin = (udstruct *) luaL_checkudata(L, 1, M_Array);
+//     if (uin->pd != NULL && uin->pd->pc != uin->pc)
+//         pdfdoc_changed_error(L);
+//     lua_pushinteger(L, 1);
+//     return 1;
+// }
+// Now private
+// static int m_Array_decRef(lua_State * L)
+// {
+//     int i;
+//     udstruct *uin;
+//     uin = (udstruct *) luaL_checkudata(L, 1, M_Array);
+//     if (uin->pd != NULL && uin->pd->pc != uin->pc)
+//         pdfdoc_changed_error(L);
+//     lua_pushinteger(L, 1);
+//     return 1;
+// }
 
 m_poppler_get_INT(Array, getLength);
 
@@ -813,8 +953,8 @@ static int m_Array_getString(lua_State * L)
 m_poppler__tostring(Array);
 
 static const struct luaL_Reg Array_m[] = {
-    {"incRef", m_Array_incRef},
-    {"decRef", m_Array_decRef},
+    // {"incRef", m_Array_incRef},// Now private
+    // {"decRef", m_Array_decRef},// Now private
     {"getLength", m_Array_getLength},
     {"add", m_Array_add},
     {"get", m_Array_get},
@@ -990,42 +1130,26 @@ static const struct luaL_Reg Catalog_m[] = {
 
 //**********************************************************************
 // Dict
-
-static int m_Dict_incRef(lua_State * L)
-{
-#ifndef MIKTEX_POPPLER_59
-    int i;
-#endif
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-#ifndef MIKTEX_POPPLER_59
-    i = ((Dict *) uin->d)->incRef();
-    lua_pushinteger(L, i);
-#else
-    lua_pushinteger(L, 1);
-#endif
-    return 1;
-}
-
-static int m_Dict_decRef(lua_State * L)
-{
-#ifndef MIKTEX_POPPLER_59
-    int i;
-#endif
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-#ifndef MIKTEX_POPPLER_59
-    i = ((Dict *) uin->d)->decRef();
-    lua_pushinteger(L, i);
-#else
-    lua_pushinteger(L, 1);
-#endif
-    return 1;
-}
+// Now private
+// static int m_Dict_incRef(lua_State * L)
+// {
+//     udstruct *uin;
+//     uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
+//     if (uin->pd != NULL && uin->pd->pc != uin->pc)
+//         pdfdoc_changed_error(L);
+//     lua_pushinteger(L, 1);
+//     return 1;
+// }
+// Now private
+// static int m_Dict_decRef(lua_State * L)
+// {
+//     udstruct *uin;
+//     uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
+//     if (uin->pd != NULL && uin->pd->pc != uin->pc)
+//         pdfdoc_changed_error(L);
+//     lua_pushinteger(L, 1);
+//     return 1;
+// }
 
 m_poppler_get_INT(Dict, getLength);
 
@@ -1207,8 +1331,8 @@ m_poppler_check_string(Dict, hasKey);
 m_poppler__tostring(Dict);
 
 static const struct luaL_Reg Dict_m[] = {
-    {"incRef", m_Dict_incRef},
-    {"decRef", m_Dict_decRef},
+    // {"incRef", m_Dict_incRef},// Now private
+    // {"decRef", m_Dict_decRef},// Now private
     {"getLength", m_Dict_getLength},
     {"add", m_Dict_add},
     {"set", m_Dict_set},
@@ -2455,9 +2579,9 @@ static const struct luaL_Reg Page_m[] = {
     {"getSeparationInfo", m_Page_getSeparationInfo},
     {"getResourceDict", m_Page_getResourceDict},
 #ifndef MIKTEX_POPPLER_59
-    {"getAnnots", m_Page_getAnnots},
+    {"getAnnotsObject", m_Page_getAnnots},
 #else
-    {"getAnnots", m_Page_getAnnotsObject},
+    {"getAnnotsObject", m_Page_getAnnotsObject},
 #endif
     {"getContents", m_Page_getContents},
     {"__tostring", m_Page__tostring},
@@ -3520,6 +3644,7 @@ static int m_StructTreeRoot_findParentElement(lua_State * L)
     parent = root->findParentElement(i-1);
     if (parent != NULL) {
        uout = new_StructElement_userdata(L);
+       // see https://isocpp.org/wiki/faq/const-correctness#aliasing-and-const
 #ifndef MIKTEX_POPPLER_59
        uout->d = new StructElement( *parent );
 #else
@@ -3535,7 +3660,6 @@ static int m_StructTreeRoot_findParentElement(lua_State * L)
 
 
 static const struct luaL_Reg StructTreeRoot_m[] = {
-  {"findParentElement", m_StructTreeRoot_findParentElement},
   {"getDoc",m_StructTreeRoot_getDoc},
   {"getRoleMap",m_StructTreeRoot_getRoleMap},
   {"getClassMap",m_StructTreeRoot_getClassMap},

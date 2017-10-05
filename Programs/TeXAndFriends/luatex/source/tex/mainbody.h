@@ -23,7 +23,6 @@
 
 extern int luatex_version;
 extern int luatex_revision;
-extern int luatex_date_info;
 extern const char *luatex_version_string;
 extern const char *engine_name;
 
@@ -218,7 +217,6 @@ is conditionally compiled in the C code.
 
 extern int get_luatexversion(void);
 extern str_number get_luatexrevision(void);
-extern int get_luatex_date_info(void);
 
 extern int ready_already;
 

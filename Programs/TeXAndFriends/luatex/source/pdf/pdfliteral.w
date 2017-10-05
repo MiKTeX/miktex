@@ -103,13 +103,14 @@ void pdf_literal(PDF pdf, str_number s, int literal_mode, boolean warn)
     if (s >= STRING_OFFSET) {
         /* needed for |out_save| */
         j = 0;
-        /* the next is obsolete, in fact, specials are obsolete in pdf mode */
+        /* unfortunately we always go through this when we have vf specials (and also via temp strings) */
         if (literal_mode == scan_special) {
             if (!(str_in_cstr(s, "PDF:", 0) || str_in_cstr(s, "pdf:", 0))) {
                 if (warn && ((!(str_in_cstr(s, "SRC:", 0) || str_in_cstr(s, "src:", 0))) || (str_length(s) == 0)))
                     tprint_nl("Non-PDF special ignored!");
                 return;
             }
+            /*
             j = j + (pool_pointer) strlen("PDF:");
             if (str_in_cstr(s, "direct:", strlen("PDF:"))) {
                 j = j + (pool_pointer) strlen("direct:");
@@ -120,6 +121,26 @@ void pdf_literal(PDF pdf, str_number s, int literal_mode, boolean warn)
             } else if (str_in_cstr(s, "raw:", strlen("PDF:"))) {
                 j = j + (pool_pointer) strlen("raw:");
                 literal_mode = direct_raw;
+            } else if (str_in_cstr(s, "origin:", strlen("PDF:"))) {
+                j = j + (pool_pointer) strlen("origin:");
+                literal_mode = set_origin;
+            } else {
+                literal_mode = set_origin;
+            }
+            */
+            j = j + (pool_pointer) 4;                   /* strlen("PDF:") */
+            if (str_in_cstr(s, "direct:", 4)) {         /* strlen("PDF:") */
+                j = j + (pool_pointer) 7;               /* strlen("direct:") */
+                literal_mode = direct_always;
+            } else if (str_in_cstr(s, "page:", 4)) {    /* strlen("PDF:") */
+                j = j + (pool_pointer) 5;               /* strlen("page:") */
+                literal_mode = direct_page;
+            } else if (str_in_cstr(s, "raw:", 4)) {     /* strlen("PDF:") */
+                j = j + (pool_pointer) 4;               /* strlen("raw:") */
+                literal_mode = direct_raw;
+            } else if (str_in_cstr(s, "origin:", 4)) {  /* strlen("PDF:") */
+                j = j + (pool_pointer) 7;               /* strlen("origin:") */
+                literal_mode = set_origin;
             } else {
                 literal_mode = set_origin;
             }

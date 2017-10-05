@@ -1,4 +1,4 @@
-% commands.w
+f% commands.w
 %
 % Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 %
@@ -74,9 +74,13 @@ void initialize_commands(void)
     primitive_tex("displaywidowpenalty", assign_int_cmd, int_base + display_widow_penalty_code, int_base);
     primitive_tex("brokenpenalty", assign_int_cmd, int_base + broken_penalty_code, int_base);
     primitive_tex("binoppenalty", assign_int_cmd, int_base + bin_op_penalty_code, int_base);
+    primitive_luatex("prerelpenalty", assign_int_cmd, int_base + pre_rel_penalty_code, int_base);
+    primitive_luatex("prebinoppenalty", assign_int_cmd, int_base + pre_bin_op_penalty_code, int_base);
     primitive_tex("relpenalty", assign_int_cmd, int_base + rel_penalty_code, int_base);
     primitive_tex("predisplaypenalty", assign_int_cmd, int_base + pre_display_penalty_code, int_base);
     primitive_tex("postdisplaypenalty", assign_int_cmd, int_base + post_display_penalty_code, int_base);
+    primitive_luatex("mathpenaltiesmode", assign_int_cmd, int_base + math_penalties_mode_code, int_base);
+    primitive_luatex("mathdelimitersmode", assign_int_cmd, int_base + math_delimiters_mode_code, int_base);
     primitive_tex("interlinepenalty", assign_int_cmd, int_base + inter_line_penalty_code, int_base);
     primitive_tex("doublehyphendemerits", assign_int_cmd, int_base + double_hyphen_demerits_code, int_base);
     primitive_tex("finalhyphendemerits", assign_int_cmd, int_base + final_hyphen_demerits_code, int_base);
@@ -160,6 +164,8 @@ void initialize_commands(void)
     primitive_luatex("hyphenpenaltymode", assign_int_cmd, int_base + hyphen_penalty_mode_code, int_base);
     primitive_luatex("automatichyphenpenalty", assign_int_cmd, int_base + automatic_hyphen_penalty_code, int_base);
     primitive_luatex("explicithyphenpenalty", assign_int_cmd, int_base + explicit_hyphen_penalty_code, int_base);
+    primitive_luatex("automatichyphenmode", assign_int_cmd, int_base + automatic_hyphen_mode_code, int_base);
+    primitive_luatex("breakafterdirmode", assign_int_cmd, int_base + break_after_dir_mode_code, int_base);
 
     /* Many of \TeX's primitives need no |equiv|, since they are identifiable
        by their |eq_type| alone. These primitives are loaded into the hash table
@@ -317,7 +323,6 @@ void initialize_commands(void)
     primitive_tex("fontname", convert_cmd, font_name_code, 0);
     primitive_luatex("fontid", convert_cmd, font_id_code, 0);
     primitive_luatex("luatexrevision", convert_cmd, luatex_revision_code, 0);
-    primitive_luatex("luatexdatestamp", convert_cmd, luatex_date_code, 0);
     primitive_luatex("luatexbanner", convert_cmd, luatex_banner_code, 0);
     primitive_luatex("leftmarginkern", convert_cmd, left_margin_kern_code, 0);
     primitive_luatex("rightmarginkern", convert_cmd, right_margin_kern_code, 0);
@@ -445,8 +450,10 @@ void initialize_commands(void)
     primitive_tex("unhcopy", un_hbox_cmd, copy_code, 0);
     primitive_tex("unvbox", un_vbox_cmd, box_code, 0);
     primitive_tex("unvcopy", un_vbox_cmd, copy_code, 0);
-    primitive_tex("-", discretionary_cmd, explicit_disc, 0);
+    primitive_tex("-", discretionary_cmd, explicit_disc, 0); /* good old tex */
     primitive_tex("discretionary", discretionary_cmd, discretionary_disc, 0);
+    primitive_luatex("explicitdiscretionary", discretionary_cmd, explicit_disc, 0);
+    primitive_luatex("automaticdiscretionary", discretionary_cmd, automatic_disc, 0);
     primitive_luatex("localleftbox", assign_local_box_cmd, 0, 0);
     primitive_luatex("localrightbox", assign_local_box_cmd, 1, 0);
 
@@ -479,6 +486,8 @@ void initialize_commands(void)
     primitive_luatex("crampedscriptscriptstyle", math_style_cmd, cramped_script_script_style, 0);
     primitive_luatex("Usuperscript", super_sub_script_cmd, sup_mark_cmd, sup_mark_cmd);
     primitive_luatex("Usubscript", super_sub_script_cmd, sub_mark_cmd, sup_mark_cmd);
+    primitive_luatex("Unosuperscript", no_super_sub_script_cmd, sup_mark_cmd, sup_mark_cmd);
+    primitive_luatex("Unosubscript", no_super_sub_script_cmd, sub_mark_cmd, sup_mark_cmd);
     primitive_tex("above", above_cmd, above_code, 0);
     primitive_tex("over", above_cmd, over_code, 0);
     primitive_tex("atop", above_cmd, atop_code, 0);

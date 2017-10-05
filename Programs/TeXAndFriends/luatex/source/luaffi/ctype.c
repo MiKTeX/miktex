@@ -245,6 +245,8 @@ void* to_cdata(lua_State* L, int idx, struct ctype* ct)
 
     lua_pop(L, 1); /* mt */
     cd = (struct cdata*) lua_touserdata(L, idx);
+     
+    if (!cd) {lua_pushnil(L);return NULL;}  
     *ct = cd->type;
     lua_getuservalue(L, idx);
 

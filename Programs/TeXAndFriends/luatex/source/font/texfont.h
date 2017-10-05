@@ -144,7 +144,6 @@ typedef struct texfont {
     int font_max_shrink;
     int font_max_stretch;
     int _font_step;             /* amount of one step of expansion */
-    boolean _font_auto_expand;  /* this font is auto-expanded? */
 
     char _font_tounicode;       /* 1 if info is present */
     fm_entry *_font_map;
@@ -345,9 +344,6 @@ boolean cmp_font_area(int, str_number);
 #  define font_step(a)                   font_tables[a]->_font_step
 #  define set_font_step(a,b)             font_step(a) = b
 
-#  define font_auto_expand(a)            font_tables[a]->_font_auto_expand
-#  define set_font_auto_expand(a,b)      font_auto_expand(a) = b
-
 #  define font_tounicode(a)              font_tables[a]->_font_tounicode
 #  define set_font_tounicode(a,b)        font_tounicode(a) = b
 
@@ -439,6 +435,7 @@ typedef enum {
 
 extern charinfo *get_charinfo(internal_font_number f, int c);
 extern int char_exists(internal_font_number f, int c);
+extern int lua_glyph_not_found_callback(internal_font_number f, int c);
 extern charinfo *char_info(internal_font_number f, int c);
 
 /*
@@ -627,6 +624,7 @@ typedef enum { packet_char_code,
     packet_end_code,
     packet_scale_code,
     packet_lua_code,
+    packet_pdf_code,
 } packet_command_codes;
 
 extern scaled store_scaled_f(scaled sq, int fw);
@@ -655,9 +653,7 @@ extern internal_font_number tfm_lookup(char *s, scaled fs);
 
 extern int fix_expand_value(internal_font_number f, int e);
 
-extern void set_expand_params(internal_font_number f, boolean auto_expand,
-                              int stretch_limit, int shrink_limit,
-                              int font_step);
+extern void set_expand_params(internal_font_number f, int stretch_limit, int shrink_limit, int font_step);
 
 extern void read_expand_font(void);
 extern void new_letterspaced_font(small_number a);

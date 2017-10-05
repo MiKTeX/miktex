@@ -197,8 +197,11 @@ void pdf_place_glyph(PDF pdf, internal_font_number f, int c, int ex)
     boolean move;
     pdfstructure *p = pdf->pstruct;
     scaledpos pos = pdf->posstruct->pos;
-    if (!char_exists(f, c))
-        return;
+    /* already done:
+        if (!char_exists(f, c)) {
+            return;
+        }
+    */
     if (font_writingmode(f) == vertical_writingmode) {
         if (p->wmode != WMODE_V) {
             p->wmode = WMODE_V;

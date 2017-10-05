@@ -41,7 +41,8 @@ scaled_whd output_one_char(PDF pdf, halfword p)
     int ex_glyph = ex_glyph(p)/1000;
     scaled_whd ci = get_charinfo_whd(f, c); /* the real width, height and depth of the character */
     if (!(char_exists(f,c))) {
-        char_warning(f,c);
+        lua_glyph_not_found_callback(f,c);
+        /* char_warning(f,c); */
         return ci;
     }
     ci.wd = ext_xn_over_d(ci.wd, 1000000 + ex_glyph(p), 1000000);

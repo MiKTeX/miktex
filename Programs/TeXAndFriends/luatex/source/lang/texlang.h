@@ -67,7 +67,7 @@ extern int get_post_exhyphen_char(int lan);
 extern void set_hyphenation_min(int lan, int val);
 extern int get_hyphenation_min(int lan);
 
-extern halfword compound_word_break(halfword t, int clang);
+/* extern halfword compound_word_break(halfword t, int clang); */
 
 extern void dump_language_data(void);
 extern void undump_language_data(void);
@@ -82,5 +82,7 @@ extern void new_post_exhyphen_char(void);
 extern void new_hyphenation_min(void);
 extern void new_hj_code(void);
 
+extern void set_disc_field(halfword f, halfword t);
+extern halfword insert_syllable_discretionary(halfword t, lang_variables * lan);
 
 #endif

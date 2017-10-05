@@ -96,6 +96,7 @@ command_item command_names[] = {
     {"boundary", boundary_cmd, NULL},
     {"radical", radical_cmd, NULL},
     {"super_sub_script", super_sub_script_cmd, NULL},
+    {"no_super_sub_script", no_super_sub_script_cmd, NULL},
     {"math_shift_cs", math_shift_cs_cmd, NULL},
     {"end_cs_name", end_cs_name_cmd, NULL},
     {"char_ghost", char_ghost_cmd, NULL},

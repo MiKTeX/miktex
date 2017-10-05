@@ -401,14 +401,13 @@ static void parse_options(int ac, char **av)
         if (g == -1)            /* End of arguments, exit the loop.  */
             break;
         if (g == '?')  {         /* Unknown option.  */
-#if defined(MIKTEX)
           if (!luainit)
+#if defined(MIKTEX)
           {
             fprintf(stderr,"%s: unrecognized option '%s'\n", argv[0], argv[optind-1]);
             exit (1);
           }
 #else
-          if (!luainit)
             fprintf(stderr,"%s: unrecognized option '%s'\n", argv[0], argv[optind-1]);
 #endif
           continue;
@@ -566,7 +565,7 @@ static void parse_options(int ac, char **av)
                  "kpathsea  : Karl Berry, Olaf Weber and others\n"
                  "lua       : Roberto Ierusalimschy, Waldemar Celes and Luiz Henrique de Figueiredo\n"
                  "metapost  : John Hobby, Taco Hoekwater and friends\n"
-                 "poppler   : Derek Noonburg, Kristian H\\ogsberg (partial)\n"
+                 "poppler   : Derek Noonburg, Kristian Hogsberg (partial)\n"
                  "fontforge : George Williams (partial)\n"
                  "luajit    : Mike Pall (used in LuajitTeX)\n");
             /* *INDENT-ON* */
@@ -910,10 +909,12 @@ static void setup_lua_path(lua_State * L)
 @ helper variables for the safe keeping of table ids
 
 @c
+/*
 int tex_table_id;
 int pdf_table_id;
 int token_table_id;
 int node_table_id;
+*/
 
 @ @c
 int l_pack_type_index       [PACK_TYPE_SIZE] ;
@@ -1096,8 +1097,8 @@ void lua_initialize(int ac, char **av)
         /* If setlocale fails here, then the state   */
         /* could be compromised, and we exit.        */
         env_locale = setlocale (LC_ALL, "");
-	if (!env_locale) {
-	  fprintf(stderr,"Unable to read environment locale:exit now.\n");
+	if (!env_locale && !lua_only) {
+	  fprintf(stderr,"Unable to read environment locale: exit now.\n");
 	  exit(1);
 	}
         tmp = setlocale (LC_CTYPE, NULL);
@@ -1117,7 +1118,7 @@ void lua_initialize(int ac, char **av)
 	/* we can't ensure a 'sane' locale for lua.   */
 	env_locale = setlocale (LC_ALL, old_locale);
 	if (!env_locale) {
-	  fprintf(stderr,"Unable to restore original locale:exit now.\n");
+	  fprintf(stderr,"Unable to restore original locale %s: exit now.\n",old_locale);
 	  exit(1);
 	}
         xfree(old_locale);
@@ -1166,47 +1167,53 @@ void lua_initialize(int ac, char **av)
     /* now run the file */
     if (startup_filename != NULL) {
         char *v1;
-        /* hide the 'tex' and 'pdf' table */
-        tex_table_id = hide_lua_table(Luas, "tex");
-        token_table_id = hide_lua_table(Luas, "token");
-        node_table_id = hide_lua_table(Luas, "node");
-        pdf_table_id = hide_lua_table(Luas, "pdf");
-
+        int tex_table_id = hide_lua_table(Luas, "tex");
+        int token_table_id = hide_lua_table(Luas, "token");
+        int node_table_id = hide_lua_table(Luas, "node");
+        int pdf_table_id = hide_lua_table(Luas, "pdf");
+        if (lua_only) {
+            /* hide the 'tex' and 'pdf' table */
+            if (load_luatex_core_lua(Luas)) {
+                fprintf(stderr, "Error in execution of luatex-core.lua .\n");
+            }
+            if (luaL_loadfile(Luas, startup_filename)) {
+                fprintf(stdout, "%s\n", lua_tostring(Luas, -1));
+                exit(1);
+            }
+            init_tex_table(Luas); /* needed ? */
+            if (lua_pcall(Luas, 0, 0, 0)) {
+                fprintf(stdout, "%s\n", lua_tostring(Luas, -1));
+                lua_traceback(Luas);
+             /* lua_close(Luas); */
+                exit(1);
+            } else {
+                if (given_file)
+                    free(given_file);
+             /* lua_close(Luas); */
+                exit(0);
+            }
+        }
+        /* a normal tex run */
+        init_tex_table(Luas);
+        unhide_lua_table(Luas, "tex", tex_table_id);
+        unhide_lua_table(Luas, "pdf", pdf_table_id);
+        unhide_lua_table(Luas, "token", token_table_id);
+        unhide_lua_table(Luas, "node", node_table_id);
         if (luaL_loadfile(Luas, startup_filename)) {
             fprintf(stdout, "%s\n", lua_tostring(Luas, -1));
             exit(1);
         }
-        /* */
-        init_tex_table(Luas);
-        if (lua_only) {
-          if (load_luatex_core_lua(Luas))
-            fprintf(stderr, "Error in execution of luatex-core.lua .\n");
-        }
         if (lua_pcall(Luas, 0, 0, 0)) {
             fprintf(stdout, "%s\n", lua_tostring(Luas, -1));
-        lua_traceback(Luas);
+            lua_traceback(Luas);
             exit(1);
         }
-        /* no filename? quit now! */
         if (!input_name) {
             get_lua_string("texconfig", "jobname", &input_name);
         }
         if (!dump_name) {
             get_lua_string("texconfig", "formatname", &dump_name);
         }
-        if (lua_only) {
-            if (given_file)
-                free(given_file);
-            /* this is not strictly needed but it pleases valgrind */
-            lua_close(Luas);
-            exit(0);
-        }
-        /* unhide the 'tex' and 'pdf' table */
-        unhide_lua_table(Luas, "tex", tex_table_id);
-        unhide_lua_table(Luas, "pdf", pdf_table_id);
-        unhide_lua_table(Luas, "token", token_table_id);
-        unhide_lua_table(Luas, "node", node_table_id);
-
         /* |kpse_init| */
         kpse_init = -1;
         get_lua_boolean("texconfig", "kpse_init", &kpse_init);

@@ -142,6 +142,7 @@ typedef enum {
     boundary_cmd,                         /* insert boundry node with value ( \.{\\*boundary} ) */
     radical_cmd,                          /* square root and similar signs ( \.{\\radical} ) */
     super_sub_script_cmd,                 /* explicit super- or subscript */
+    no_super_sub_script_cmd,              /* explicit no super- or subscript */
     math_shift_cs_cmd,                    /* start- and endmath */
     end_cs_name_cmd,                      /* end control sequence ( \.{\\endcsname} ) */
     char_ghost_cmd,                       /* \.{\\leftghost}, \.{\\rightghost} character for kerning */
@@ -259,7 +260,6 @@ typedef enum {
     format_name_code,           /* command code for \.{\\AlephVersion} */
     luatex_banner_code,         /* command code for \.{\\luatexbanner}: */
     luatex_revision_code,       /* command code for \.{\\luatexrevision} */
-    luatex_date_code,           /* command code for \.{\\luatexdate} */
     etex_code,                  /* command code for \.{\\eTeXVersion} */
     eTeX_revision_code,         /* command code for \.{\\eTeXrevision} */
     font_identifier_code,       /* command code for \.{tex.fontidentifier} (virtual) */

@@ -12,6 +12,7 @@
 
 /* We |#define DLLPROC| in order to build LuaTeX and LuajitTeX as DLL
    for W32TeX.  */
+
 #if defined LuajitTeX
 #define DLLPROC dllluajittexmain
 #else
@@ -21,20 +22,20 @@
 #include "ptexlib.h"
 #include "luatex.h"
 #include "lua/luatex-api.h"
-/*
-#include "luatex_svnversion.h"
-*/
-
 
 #define TeX
 
-/* for tl17 update, change luatex_date_info but nothing else,
-   as context depends on the numeric version number. */
-int luatex_version = 100;        /* \.{\\luatexversion}  */
-int luatex_revision = '4';      /* \.{\\luatexrevision}  */
-int luatex_date_info = 2017060901;     /* the compile date is now hardwired :YEAR MONTH DAY HOUR*/
-const char *luatex_version_string = "1.0.4";
-const char *engine_name = my_name;     /* the name of this engine */
+/*
+    The version number can be queried with \.{\\luatexversion} and the revision with
+    with \.{\\luatexrevision}. Traditionally the revision can be any character and
+    pdf\TeX\ occasionally used no digits. Here we still use a character but we will
+    stick to "0" upto "9" so users can expect a number represented as string.
+*/
+
+int luatex_version = 106;
+int luatex_revision = '1';
+const char *luatex_version_string = "1.06.1";
+const char *engine_name = my_name;
 
 #include <kpathsea/c-ctype.h>
 #include <kpathsea/line.h>
@@ -613,52 +614,86 @@ main (int ac, string *av)
 
     return EXIT_SUCCESS;
 }
-
 
-/* This is supposed to ``open the terminal for input'', but what we
-   really do is copy command line arguments into TeX's or Metafont's
-   buffer, so they can handle them.  If nothing is available, or we've
-   been called already (and hence, argc==0), we return with
-   `last=first'.  */
+
+/*
+    This is supposed to ``open the terminal for input'', but what we
+    really do is copy command line arguments into TeX's or Metafont's
+    buffer, so they can handle them.  If nothing is available, or we've
+    been called already (and hence, argc==0), we return with
+   `last=first'.
+*/
 
 void topenin(void)
 {
     int i;
 
+    buffer[first] = 0;          /* In case there are no arguments. */
 
-    buffer[first] = 0;          /* In case there are no arguments.  */
-
-    if (optind < argc) {        /* We have command line arguments.  */
+    if (optind < argc) {        /* We have command line arguments. */
         int k = first;
         for (i = optind; i < argc; i++) {
             char *ptr = &(argv[i][0]);
-            /* Don't use strcat, since in Aleph the buffer elements aren't
-               single bytes.  */
+            /*
+                We cannot use strcat, because we have multibyte UTF-8 input.
+            */
             while (*ptr) {
                 buffer[k++] = (packed_ASCII_code) * (ptr++);
             }
             buffer[k++] = ' ';
         }
-        argc = 0;               /* Don't do this again.  */
+        argc = 0;               /* Don't do this again. */
         buffer[k] = 0;
     }
 
-    /* Find the end of the buffer.  */
+    /*
+        Find the end of the buffer looking at spaces and newlines.
+    */
+
     for (last = first; buffer[last]; ++last);
 
-    /* Make `last' be one past the last non-blank character in `buffer'.  */
-    /* ??? The test for '\r' should not be necessary.  */
-    for (--last; last >= first
-         && ISBLANK(buffer[last]) && buffer[last] != '\r'; --last);
-    last++;
+    /*
+        We conform to the way Web2c does handle trailing tabs and spaces. This
+        decade old behaviour was changed in September 2017 and can introduce
+        compatibility issues in existing workflows. Because we don't want too
+        many differences with upstream TeXlive we just follow up on that patch
+        and it's up to macro packages to deal with possible issues (which can be
+        done via the usual callbacks. One can wonder why we then still prune
+        spaces but we leave that to the reader.
+    */
 
-    /* One more time, this time converting to TeX's internal character
-       representation.  */
+    /*  Patched original comment:
+
+        Make `last' be one past the last non-space character in `buffer',
+        ignoring line terminators (but not, e.g., tabs).  This is because
+        we are supposed to treat this like a line of TeX input.  Although
+        there are pathological cases (SPC CR SPC CR) where this differs
+        from input_line below, and from previous behavior of removing all
+        whitespace, the simplicity of removing all trailing line terminators
+        seems more in keeping with actual command line processing.
+    */
+
+    /*
+        The IS_SPC_OR_EOL macro deals with space characters (SPACE 32) and
+        newlines (CR and LF) and no longer looks at tabs (TAB 9).
+
+    */
+
+#define IS_SPC_OR_EOL(c) ((c) == ' ' || (c) == '\r' || (c) == '\n')
+  for (--last; last >= first && IS_SPC_OR_EOL (buffer[last]); --last)
+    ;
+  last++;
+
+    /*
+        One more time, this time converting to TeX's internal character
+        representation.
+    */
 }
-
+
 /* IPC for TeX.  By Tom Rokicki for the NeXT; it makes TeX ship out the
    DVI file in a pipe to TeXView so that the output can be displayed
    incrementally.  Shamim Mohamed adapted it for Web2c.  */
+
 #if defined (TeX) && defined (IPC)
 
 #ifdef WIN32
@@ -1095,9 +1130,10 @@ boolean input_line(FILE * f)
                     ;
                 else {
                     int k3 = getc (f);
-
-                    if (k1 == 0xef && k2 == 0xbb && k3 == 0xbf) /* UTF-8 */
-                        ;
+                    int k4 = getc (f);
+                    if (k1 == 0xef && k2 == 0xbb && k3 == 0xbf &&
+                        k4 >= 0 && k4 <= 0x7e) /* UTF-8 */
+                        ungetc (k4, f);
                     else
                         rewind (f);
                 }
@@ -1132,8 +1168,13 @@ boolean input_line(FILE * f)
             ungetc(i, f);
     }
 
-    /* Trim trailing whitespace.  */
-    while (last > first && ISBLANK(buffer[last - 1]))
+  /* Trim trailing space character (but not, e.g., tabs).  We can't have
+     line terminators because we stopped reading at the first \r or \n.
+     TeX's rule is to strip only trailing spaces (and eols).  David
+     Fuchs mentions that this stripping was done to ensure portability
+     of TeX documents given the padding with spaces on fixed-record
+     "lines" on some systems of the time, e.g., IBM VM/CMS and OS/360.  */
+  while (last > first && buffer[last - 1] == ' ')
         --last;
 
     /* Don't bother using xord if we don't need to.  */

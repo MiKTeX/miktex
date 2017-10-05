@@ -230,12 +230,6 @@ str_number get_luatexrevision(void)
     return luatex_revision;
 }
 
-int get_luatex_date_info(void)
-{
-    return luatex_date_info;    /* todo, silly value */
-}
-
-
 @ This is it: the part of \TeX\ that executes all those procedures we have
 written.
 
@@ -541,7 +535,18 @@ void close_files_and_terminate(void)
     /* rubish, these pdf arguments, passed, needs to be fixed, e.g. with a dummy in dvi */
     wrapup_backend();
     /* Close {\sl Sync\TeX} file and write status */
-    synctexterminate(log_opened_global);       /* Let the {\sl Sync\TeX} controller close its files. */
+    synctexterminate(log_opened_global);
+    /*
+        The following is needed because synctex removes files and we want to keep them which
+        means renaming a temp file .. we can't bypass the terminate because it might do mem
+        cleanup.
+    */
+    if (synctex_get_mode() > 0) {
+        callback_id = callback_defined(finish_synctex_callback);
+        if (callback_id > 0) {
+            run_callback(callback_id, "->");
+        }
+    }
     free_text_codes();
     free_math_codes();
     if (log_opened_global) {

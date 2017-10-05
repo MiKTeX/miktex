@@ -1727,7 +1727,7 @@ void build_choices(void)
 action procedure called |sub_sup|.
 
 @c
-void sub_sup(void)
+static void do_sub_sup(int no)
 {
     pointer q;
     if (tail == head || (!scripts_allowed(tail))) {
@@ -1745,6 +1745,9 @@ void sub_sup(void)
             nucleus(tail) = q;
             tex_error("Double superscript", hlp);
         }
+        if (no) {
+            noadoptions(tail) = noadoptions(tail) | noad_option_no_super_script ;
+        }
         q = new_node(math_char_node, 0);
         supscr(tail) = q;
         (void) scan_math(supscr(tail), sup_style(m_style));
@@ -1758,11 +1761,25 @@ void sub_sup(void)
             nucleus(tail) = q;
             tex_error("Double subscript", hlp);
         }
+        if (no) {
+            noadoptions(tail) = noadoptions(tail) | noad_option_no_sub_script ;
+        }
         q = new_node(math_char_node, 0);
         subscr(tail) = q;
         (void) scan_math(subscr(tail), sub_style(m_style));
     }
 }
+
+void sub_sup(void)
+{
+    do_sub_sup(0);
+}
+
+void no_sub_sup(void)
+{
+    do_sub_sup(1);
+}
+
 
 @ An operation like `\.{\\over}' causes the current mlist to go into a
 state of suspended animation: |incompleat_noad| points to a |fraction_noad|
@@ -2029,9 +2046,9 @@ void math_left_right(void)
         delimiteroptions(p) = options;
         delimiterclass(p) = type;
         delimiteritalic(p) = 0;
+        delimitersamesize(p) = 0;
 
         scan_delimiter(delimiter(p), no_mathcode);
-
         if (t == no_noad_side) {
             tail_append(new_noad());
             subtype(tail) = inner_noad_type;
@@ -2133,36 +2150,41 @@ At this time we are in vertical mode (or internal vertical mode).
 
 @c
 #define inject_display_skip_before(g) \
-    switch (display_skip_mode_par) { \
-        case 0 : /* normal tex */ \
-            tail_append(new_param_glue(g)); \
-            break;\
-        case 1 : /* always */ \
-            tail_append(new_param_glue(g)); \
-            break; \
-        case 2 : /* non-zero */ \
-            if (g != 0 && ! glue_is_zero(glue_par(g))) \
+    if (g > 0) { \
+        switch (display_skip_mode_par) { \
+            case 0 : /* normal tex | always */ \
+            case 1 : /* always */ \
                 tail_append(new_param_glue(g)); \
-            break; \
-        case 3: /* ignore */ \
-            break; \
+                break; \
+            case 2 : /* non-zero */ \
+                if (! glue_is_zero(glue_par(g))) \
+                    tail_append(new_param_glue(g)); \
+                break; \
+            case 3: /* ignore */ \
+                break; \
+            default: /* > 3 reserved for future use */ \
+                tail_append(new_param_glue(g)); \
+                break; \
+        } \
     }
 
 #define inject_display_skip_after(g) \
-    switch (display_skip_mode_par) { \
-        case 0 : /* normal tex */ \
-            if (g != 0 && glue_is_positive(glue_par(g))) \
+    if (g > 0) { \
+        switch (display_skip_mode_par) { \
+            case 0 : /* normal tex | always */ \
+            case 1 : /* always */ \
                 tail_append(new_param_glue(g)); \
-            break; \
-        case 1 : /* always */ \
-            tail_append(new_param_glue(g)); \
-            break; \
-        case 2 : /* non-zero */ \
-            if (g != 0 && ! glue_is_zero(glue_par(g))) \
+                break; \
+            case 2 : /* non-zero */ \
+                if (! glue_is_zero(glue_par(g))) \
+                    tail_append(new_param_glue(g)); \
+                break; \
+            case 3: /* ignore */ \
+                break; \
+            default: /* > 3 reserved for future use */ \
                 tail_append(new_param_glue(g)); \
-            break; \
-        case 3: /* ignore */ \
-            break; \
+                break; \
+        } \
     }
 
 static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)

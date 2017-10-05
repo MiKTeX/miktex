@@ -88,6 +88,9 @@ int vf_packet_bytes(charinfo * co)
         case packet_rule_code:
             vfp += 8;
             break;
+        case packet_pdf_code:
+            vfp += 4;
+            /* plus a string so we fall through */
         case packet_special_code:
             packet_number(k);   /* +4 */
             vfp += (int) k;
@@ -104,7 +107,7 @@ int vf_packet_bytes(charinfo * co)
 @c
 const char *packet_command_names[] = {
     "char", "font", "pop", "push", "special", "image",
-    "right", "down", "rule", "node", "nop", "end", "scale", "lua", NULL
+    "right", "down", "rule", "node", "nop", "end", "scale", "lua", "pdf", NULL
 };
 
 @ @c
@@ -135,7 +138,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c, int ex_glyph)
     eight_bits *vfp;
     posstructure *save_posstruct, localpos;
     vf_struct *save_vfstruct, localvfstruct, *vp;
-    int cmd, w;
+    int cmd, w, mode;
     unsigned k;
     scaledpos size;
     scaled i;
@@ -218,7 +221,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c, int ex_glyph)
             packet_scaled(size.h, vp->fs_f);
             if (size.h > 0 && size.v > 0)
                 backend_out[rule_node](pdf, 0, size);  /* the 0 is unused */
-           mat_p->pos.h += size.h;
+            mat_p->pos.h += size.h;
             break;
         case packet_right_code:
             packet_scaled(i, vp->fs_f);
@@ -227,6 +230,18 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c, int ex_glyph)
         case packet_down_code:
             packet_scaled(i, vp->fs_f);
             mat_p->pos.v += i;
+            break;
+        case packet_pdf_code:
+            packet_number(mode);
+            packet_number(k);
+            str_room(k);
+            while (k > 0) {
+                k--;
+                append_char(*(vfp++));
+            }
+            s = make_string();
+            pdf_literal(pdf, s, mode, false);
+            flush_str(s);
             break;
         case packet_special_code:
             packet_number(k);
@@ -387,6 +402,9 @@ replace_packet_fonts(internal_font_number f, int *old_fontid,
                 case packet_rule_code:
                     vfp += 8;
                     break;
+                case packet_pdf_code:
+                    vfp += 4;
+                    /* plus a string so we fall through */
                 case packet_special_code:
                     packet_number(k);
                     vfp += k;

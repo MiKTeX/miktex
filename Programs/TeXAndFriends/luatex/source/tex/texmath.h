@@ -70,6 +70,7 @@ extern void math_ac(void);
 extern pointer new_style(small_number);
 extern void append_choices(void);
 extern void sub_sup(void);
+extern void no_sub_sup(void);
 extern void math_fraction(void);
 extern void math_left_right(void);
 extern void after_math(void);

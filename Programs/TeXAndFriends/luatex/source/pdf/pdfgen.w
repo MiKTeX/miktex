@@ -2184,11 +2184,7 @@ static int pdf_print_info(PDF pdf, int luatexversion,
     if ((pdf_suppress_optional_info & 128) == 0 && !producer_given) {
         pdf_add_name(pdf, "Producer");
         pdf_puts(pdf, " (LuaTeX-");
-        pdf_print_int(pdf, luatexversion / 100);
-        pdf_out(pdf, '.');
-        pdf_print_int(pdf, luatexversion % 100);
-        pdf_out(pdf, '.');
-        pdf_print(pdf, luatexrevision);
+        pdf_puts(pdf, luatex_version_string);
         pdf_out(pdf, ')');
     }
     if ((pdf_suppress_optional_info & 16) == 0 && !creator_given) {

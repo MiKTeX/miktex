@@ -1857,20 +1857,16 @@ void ext_do_line_break(int paragraph_dir,
                         to see whether or not a breakpoint is legal at |cur_p|,
                         as explained above.
 
-                        The |precedes_break| test also considers dir nodes and prohibits
-                        a break after an opening dir_node (positive dir). In |\textdir TRT x|
-                        the space after |TRT| is preserved and therefore the dir node
-                        is bound to the |x|. Being more clever makes no sense: users
-                        should code their input properly.
+                        We only break after certain nodes (see texnodes.h), a font related
+                        kern and a dir node when |\breakafterdirmode=1|.
                     */
                     if (auto_breaking) {
                         halfword prev_p = alink(cur_p);
                         if (prev_p != temp_head && (
                                 is_char_node(prev_p)
                              || precedes_break(prev_p)
-                             || ( (type(prev_p) == kern_node) && (
-                                        subtype(prev_p) == font_kern || subtype(prev_p) == accent_kern)
-                                )
+                             || precedes_kern(prev_p)
+                             || precedes_dir(prev_p)
                             )) {
                             ext_try_break(0, unhyphenated_node, line_break_dir, adjust_spacing,
                                           par_shape_ptr, adj_demerits,

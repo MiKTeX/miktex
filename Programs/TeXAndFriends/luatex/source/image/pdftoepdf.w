@@ -32,6 +32,10 @@
 /*
     This file is mostly C and not very much C++; it's just used to interface
     the functions of poppler, which happens to be written in C++.
+    Patches for the new poppler 0.59 from 
+    https://www.mail-archive.com/arch-commits@archlinux.org/msg357548.html
+    with some modifications to comply the poppler API.
+
 */
 
 extern void md5(Guchar *msg, int msgLen, Guchar *digest);
@@ -82,7 +86,7 @@ static char *get_file_checksum(const char *a, file_error_mode fe)
 				 PRIu64, (uint64_t) size,
                  (uint64_t) mtime);
 #else
-        snprintf(ck, PDF_CHECKSUM_SIZE, "%" PRIu64 "_%" PRIu64, (uint64_t) size,(uint64_t) mtime);
+        snprintf(ck, PDF_CHECKSUM_SIZE, "%"@= @>PRIu64@= @>"_%"@=  @>PRIu64, (uint64_t) size,(uint64_t) mtime);
 #endif
    } else {
         switch (fe) {

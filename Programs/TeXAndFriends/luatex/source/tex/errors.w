@@ -215,6 +215,8 @@ boolean use_err_help;           /* should the |err_help| list be shown? */
 exits the program. It is used when there is no recovery from a particular error.
 
 @c
+int defaultexitcode = 0; /* the exit code can be overloaded */
+
 __attribute__ ((noreturn))
 void do_final_end(void)
 {
@@ -224,7 +226,7 @@ void do_final_end(void)
     if ((history != spotless) && (history != warning_issued))
         uexit(1);
     else
-        uexit(0);
+        uexit(defaultexitcode);
 }
 
 __attribute__ ((noreturn))

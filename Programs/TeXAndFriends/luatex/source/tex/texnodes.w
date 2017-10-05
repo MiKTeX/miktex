@@ -828,6 +828,55 @@ static int copy_error(halfword p)
 }
 
 @ @c
+static halfword synctex_anyway_mode = 0; /* 2 also glyphs */
+static halfword synctex_line_field = 0;
+
+void synctex_set_mode(int m)
+{
+    synctex_anyway_mode = m;
+};
+
+int synctex_get_mode(void)
+{
+    return synctex_anyway_mode;
+};
+
+void synctex_set_tag(int t)
+{
+    cur_input.synctex_tag_field = t;
+};
+
+int synctex_get_tag(void)
+{
+    return (int) cur_input.synctex_tag_field;
+};
+
+int synctex_get_line(void)
+{
+    return (int) synctex_line_field;
+};
+
+static int forced_tag  = 0;
+static int forced_line = 0;
+
+void synctex_force_tag(int t)
+{
+    forced_tag = t;
+};
+
+void synctex_force_line(int t)
+{
+    forced_line = t;
+};
+
+void synctex_set_line(int l)
+{
+    synctex_line_field = l;
+};
+
+@ @c
+/* if_stack is called a lot so maybe optimize */
+
 halfword new_node(int i, int j)
 {
     int s = get_node_size(i, j);
@@ -892,13 +941,54 @@ halfword new_node(int i, int j)
         default:
             break;
     }
-    if (synctex_par) {
+    if (synctex_anyway_mode) {
+        switch (i) {
+            /* 1 = all but glyphs  */
+            /* 2 = also glyphs     */
+            /* 3 = glyphs and glue */
+            /* 4 = only glyphs     */
+            case glyph_node:
+                if (synctex_anyway_mode > 1) {
+                    synctex_tag_glyph(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
+                    synctex_line_glyph(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+                }
+                break;
+            case glue_node:
+                if (synctex_anyway_mode < 4) {
+                    synctex_tag_glue(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
+                    synctex_line_glue(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+                }
+                break;
+            case kern_node:
+                if (synctex_anyway_mode < 3) {
+                    synctex_tag_kern(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
+                    synctex_line_kern(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+                }
+                break;
+            case hlist_node:
+            case vlist_node:
+            case unset_node: /* useless */
+                if (synctex_anyway_mode < 3) {
+                    synctex_tag_box(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
+                    synctex_line_box(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+                }
+                break;
+            case rule_node:
+                if (synctex_anyway_mode < 3) {
+                    synctex_tag_rule(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
+                    synctex_line_rule(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+                }
+                break;
+            case math_node: /* noads probably make more sense */
+                if (synctex_anyway_mode < 3) {
+                    synctex_tag_math(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
+                    synctex_line_math(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+                }
+                break;
+        }
+    } else if (synctex_par) {
         /* handle synctex extension */
         switch (i) {
-            case math_node:
-                synctex_tag_math(n) = cur_input.synctex_tag_field;
-                synctex_line_math(n) = line;
-                break;
             case glue_node:
                 synctex_tag_glue(n) = cur_input.synctex_tag_field;
                 synctex_line_glue(n) = line;
@@ -919,6 +1009,10 @@ halfword new_node(int i, int j)
                 synctex_tag_rule(n) = cur_input.synctex_tag_field;
                 synctex_line_rule(n) = line;
                 break;
+            case math_node:
+                synctex_tag_math(n) = cur_input.synctex_tag_field;
+                synctex_line_math(n) = line;
+                break;
         }
     }
     /* take care of attributes */
@@ -935,6 +1029,10 @@ halfword raw_glyph_node(void)
 {
     register halfword n = get_node(glyph_node_size);
     (void) memset((void *) (varmem + n + 1), 0, (sizeof(memory_word) * (glyph_node_size - 1)));
+    if (synctex_anyway_mode > 1) {
+        synctex_tag_glyph(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
+        synctex_line_glyph(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+    }
     type(n) = glyph_node;
     subtype(n) = 0;
     return n;
@@ -944,6 +1042,10 @@ halfword new_glyph_node(void)
 {
     register halfword n = get_node(glyph_node_size);
     (void) memset((void *) (varmem + n + 1), 0, (sizeof(memory_word) * (glyph_node_size - 1)));
+    if (synctex_anyway_mode > 1) {
+        synctex_tag_glyph(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
+        synctex_line_glyph(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+    }
     type(n) = glyph_node;
     subtype(n) = 0;
     build_attribute_list(n);
@@ -1102,7 +1204,16 @@ halfword copy_node(const halfword p)
         }
     */
 
-    if (synctex_par) {
+    if (synctex_anyway_mode) {
+        /*
+        if (t == glyph_node) {
+            if (synctex_anyway_mode > 1) {
+                synctex_tag_glyph(r) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
+                synctex_line_glyph(r) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+            }
+        }
+        */
+    } else if (synctex_par) {
         /* handle synctex extension */
         switch (t) {
             case math_node:
@@ -1718,18 +1829,19 @@ void check_node(halfword p)
 }
 
 @ @c
-void fix_node_list(halfword head)
+halfword fix_node_list(halfword head)
 {
-    halfword p, q;
+    halfword next, tail;
     if (head == null)
-        return;
-    p = head;
-    q = vlink(p);
-    while (q != null) {
-        alink(q) = p;
-        p = q;
-        q = vlink(p);
+        return null;
+    tail = head;
+    next = vlink(head);
+    while (next != null) {
+        alink(next) = tail;
+        tail = next;
+        next = vlink(tail);
     }
+    return tail;
 }
 
 @ @c

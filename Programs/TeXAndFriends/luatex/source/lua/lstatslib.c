@@ -20,6 +20,7 @@
 
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
+#include "luatex_svnversion.h"
 
 typedef struct statistic {
     const char *name;
@@ -260,6 +261,11 @@ static lua_Number kpse_used_state(void)
     }
 }
 
+static lua_Number get_development_id(void)
+{
+    return (lua_Number) luatex_svn_revision ;
+}
+
 
 /* temp, for backward compat */
 static int init_pool_ptr = 0;
@@ -293,6 +299,7 @@ static struct statistic stats[] = {
     {"banner", 'S', (void *) &getbanner},
     {"luatex_version", 'G', &get_luatexversion},
     {"luatex_revision", 'S', (void *) &luatexrevision},
+    {"development_id", 'N', &get_development_id},
     {"luatex_hashtype", 'S', (void *) &get_luatexhashtype},
     {"luatex_hashchars", 'N',  &get_luatexhashchars},
     {"luatex_engine", 'S', (void *) &getenginename},
@@ -471,9 +478,15 @@ static int resetmessages(lua_State * L)
     return 0;
 }
 
+static int setexitcode(lua_State * L) {
+    defaultexitcode = luaL_checkinteger(L,1);
+    return 0;
+}
+
 static const struct luaL_Reg statslib[] = {
     {"list", statslist},
     {"resetmessages", resetmessages},
+    {"setexitcode", setexitcode},
     {NULL, NULL}                /* sentinel */
 };
 

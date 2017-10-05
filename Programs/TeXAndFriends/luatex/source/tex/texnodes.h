@@ -23,19 +23,6 @@
 #ifndef __NODES_H__
 #  define __NODES_H__
 
-/* these are in texlang.c */
-
-#  define set_vlink(a,b)  vlink(a)=b
-#  define get_vlink(a)  vlink(a)
-#  define get_character(a)  character(a)
-
-extern halfword insert_discretionary(halfword t, halfword pre, halfword post, halfword replace, int penalty);
-extern halfword insert_syllable_discretionary(halfword t, lang_variables * lan);
-extern halfword insert_word_discretionary(halfword t, lang_variables * lan);
-extern halfword insert_complex_discretionary(halfword t, lang_variables * lan, halfword pre, halfword post, halfword replace);
-extern halfword insert_character(halfword t, int n);
-extern void set_disc_field(halfword f, halfword t);
-
 #  define varmemcast(a) (memory_word *)(a)
 
 extern memory_word *volatile varmem;
@@ -297,15 +284,17 @@ typedef enum {
 #  define adjust_pre       subtype
 #  define adjust_ptr(a)    vlink(a+2)
 
-#  define glyph_node_size 6
-#  define character(a)    vinfo((a)+2)
-#  define font(a)         vlink((a)+2)
-#  define lang_data(a)    vinfo((a)+3)
-#  define lig_ptr(a)      vlink((a)+3)
-#  define x_displace(a)   vinfo((a)+4)
-#  define y_displace(a)   vlink((a)+4)
-#  define ex_glyph(a)     vinfo((a)+5)  /* expansion factor (hz) */
-#  define x_advance(a)    vlink((a)+5)
+#  define glyph_node_size       7
+#  define character(a)          vinfo((a)+2)
+#  define font(a)               vlink((a)+2)
+#  define lang_data(a)          vinfo((a)+3)
+#  define lig_ptr(a)            vlink((a)+3)
+#  define x_displace(a)         vinfo((a)+4)
+#  define y_displace(a)         vlink((a)+4)
+#  define ex_glyph(a)           vinfo((a)+5)  /* expansion factor (hz) */
+#  define x_advance(a)          vlink((a)+5)  /* obsolete, can become user field */
+#  define synctex_tag_glyph(a)  vinfo((a)+6)
+#  define synctex_line_glyph(a) vlink((a)+6)
 
 #  define is_char_node(a)  (a!=null && type(a)==glyph_node)
 
@@ -432,6 +421,8 @@ typedef enum {
 */
 
 #  define precedes_break(a)  (type(a)<=last_preceding_break_node)
+#  define precedes_kern(a)   ((type(a) == kern_node) && (subtype(a) == font_kern || subtype(a) == accent_kern))
+#  define precedes_dir(a)    ((type(a) == dir_node) && (break_after_dir_mode_par == 1))
 #  define non_discardable(a) (type(a)<=last_non_discardable_node)
 
 #  define known_node_type(i) ( i >= 0 && i <= MAX_NODE_TYPE)
@@ -492,9 +483,9 @@ typedef enum {
 #  define noadheight(a)  vlink((a)+5)
 #  define noaddepth(a)   vinfo((a)+5)
 #  define noadextra1(a)  vlink((a)+6) /* we need to match delimiter (saves copy) */
-#  define noadextra2(a)  vinfo((a)+6)
+#  define noadoptions(a) vinfo((a)+6)
 #  define noadextra3(a)  vlink((a)+7) /* see (!) below */
-#  define noadextra4(a)  vinfo((a)+7)
+#  define noadextra4(a)  vinfo((a)+7) /* used to store samesize */
 
 /* accent noads */
 
@@ -506,34 +497,54 @@ typedef enum {
 
 /* left and right noads */
 
-#  define fence_noad_size     8            /* needs to match noad size */
-#  define delimiteritalic(a)  vlink((a)+4)
-/* define delimiterwidth(a)   vinfo((a)+4) */
-#  define delimiterheight(a)  vlink((a)+5)
-#  define delimiterdepth(a)   vinfo((a)+5)
-#  define delimiter(a)        vlink((a)+6) /* |delimiter| field in left and right noads */
-#  define delimiteroptions(a) vinfo((a)+6)
-#  define delimiterclass(a)   vlink((a)+7) /* (!) we could probably pack some more in 6 */
-#  define delimiterextra1(a)  vinfo((a)+7) /* not used */
+#  define fence_noad_size      8            /* needs to match noad size */
+#  define delimiteritalic(a)   vlink((a)+4)
+/* define delimiterwidth(a)    vinfo((a)+4) */
+#  define delimiterheight(a)   vlink((a)+5)
+#  define delimiterdepth(a)    vinfo((a)+5)
+#  define delimiter(a)         vlink((a)+6) /* |delimiter| field in left and right noads */
+#  define delimiteroptions(a)  vinfo((a)+6)
+#  define delimiterclass(a)    vlink((a)+7) /* (!) we could probably pack some more in 6 */
+#  define delimitersamesize(a) vinfo((a)+7) /* set by engine */
 
 /* when dimensions then axis else noaxis */
 
 typedef enum {
-    noad_option_set      =        0x08,
-    noad_option_unused_1 = 0x00 + 0x08,
-    noad_option_unused_2 = 0x01 + 0x08,
-    noad_option_axis     = 0x02 + 0x08,
-    noad_option_no_axis  = 0x04 + 0x08,
-    noad_option_exact    = 0x10 + 0x08,
-    noad_option_left     = 0x11 + 0x08,
-    noad_option_middle   = 0x12 + 0x08,
-    noad_option_right    = 0x14 + 0x08,
+    noad_option_set             =        0x08,
+    noad_option_unused_1        = 0x00 + 0x08,
+    noad_option_unused_2        = 0x01 + 0x08,
+    noad_option_axis            = 0x02 + 0x08,
+    noad_option_no_axis         = 0x04 + 0x08,
+    noad_option_exact           = 0x10 + 0x08,
+    noad_option_left            = 0x11 + 0x08,
+    noad_option_middle          = 0x12 + 0x08,
+    noad_option_right           = 0x14 + 0x08,
+    noad_option_no_sub_script   = 0x21 + 0x08,
+    noad_option_no_super_script = 0x22 + 0x08,
+    noad_option_no_script       = 0x23 + 0x08,
 } delimiter_options ;
 
 #  define delimiteroptionset(a) ((delimiteroptions(a) & noad_option_set    ) == noad_option_set    )
 #  define delimiteraxis(a)      ((delimiteroptions(a) & noad_option_axis   ) == noad_option_axis   )
 #  define delimiternoaxis(a)    ((delimiteroptions(a) & noad_option_no_axis) == noad_option_no_axis)
 #  define delimiterexact(a)     ((delimiteroptions(a) & noad_option_exact  ) == noad_option_exact  )
+
+#  define noadoptionnosubscript(a) ( (type(a) == simple_noad) && ( \
+                                     ((delimiteroptions(a) & noad_option_no_sub_script  ) == noad_option_no_sub_script) || \
+                                     ((delimiteroptions(a) & noad_option_no_script      ) == noad_option_no_script    ) ))
+#  define noadoptionnosupscript(a) ( (type(a) == simple_noad) && ( \
+                                     ((delimiteroptions(a) & noad_option_no_super_script) == noad_option_no_super_script) || \
+                                     ((delimiteroptions(a) & noad_option_no_script      ) == noad_option_no_script      ) ))
+
+typedef enum {
+    noad_delimiter_mode_noshift = 0x01,
+    noad_delimiter_mode_italics = 0x02,
+    noad_delimiter_mode_ordinal = 0x04,
+} delimiter_modes ;
+
+#  define delimitermodenoshift ((math_delimiters_mode_par & noad_delimiter_mode_noshift) == noad_delimiter_mode_noshift)
+#  define delimitermodeitalics ((math_delimiters_mode_par & noad_delimiter_mode_italics) == noad_delimiter_mode_italics)
+#  define delimitermodeordinal ((math_delimiters_mode_par & noad_delimiter_mode_ordinal) == noad_delimiter_mode_ordinal)
 
 /* subtype of fence noads */
 
@@ -928,7 +939,7 @@ extern halfword do_copy_node_list(halfword, halfword);
 extern halfword copy_node_list(halfword);
 extern halfword copy_node(const halfword);
 extern void check_node(halfword);
-extern void fix_node_list(halfword);
+extern halfword fix_node_list(halfword);
 extern int fix_node_lists;
 extern char *sprint_node_mem_usage(void);
 extern halfword raw_glyph_node(void);
@@ -1012,6 +1023,15 @@ extern int lua_properties_level ;
 extern int lua_properties_use_metatable ;
 
 extern halfword make_local_par_node(int mode);
+
+extern void synctex_set_mode(int mode);
+extern int synctex_get_mode(void);
+extern void synctex_set_tag(int tag);
+extern void synctex_set_line(int line);
+extern void synctex_force_tag(int tag);
+extern void synctex_force_line(int tag);
+extern int synctex_get_tag(void);
+extern int synctex_get_line(void);
 
 #endif
 

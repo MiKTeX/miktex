@@ -37,6 +37,8 @@ typedef enum {
 extern int interaction;         /* current level of interaction */
 extern int interactionoption;   /* set from command line */
 
+extern int defaultexitcode; /* the exit code can be overloaded */
+
 extern void initialize_errors(void);
 
 extern char *last_error;
