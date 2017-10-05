@@ -421,7 +421,6 @@ static int fsyscp_remove(char *name);
 #if defined(MIKTEX)
 #  include <miktex/W2C/Emulation.h> /* output_directory */
 #endif
-
 typedef void (*synctex_recorder_t) (halfword);  /* recorders know how to record a node */
 typedef int (*synctex_fprintf_t) (void *, const char *, ...);   /* print formatted to either FILE * or gzFile */
 

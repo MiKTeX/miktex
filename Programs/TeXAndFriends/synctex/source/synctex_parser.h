@@ -50,11 +50,11 @@
 #ifndef __SYNCTEX_PARSER__
 #   define __SYNCTEX_PARSER__
 
+#include "synctex_version.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-#   define SYNCTEX_VERSION_STRING "1.19"
     
     /*  The main synctex object is a scanner.
      *  Its implementation is considered private.
@@ -274,13 +274,18 @@ extern "C" {
      *  When the tag is known, the scanner of the node
      *  will also give that same file name, see
      *  synctex_scanner_get_name below.
+     *  For an hbox node, the mean line is the mean
+     *  of all the lines of the child nodes.
+     *  Sometimes, when synchronization form pdf to source
+     *  fails with the line, one should try with the
+     *  mean line.
      */
     int synctex_node_tag(synctex_node_p node);
     int synctex_node_line(synctex_node_p node);
+    int synctex_node_mean_line(synctex_node_p node);
     int synctex_node_column(synctex_node_p node);
     const char * synctex_node_get_name(synctex_node_p node);
     
-
     /**
      This is the page where the node appears.
      *  This is a 1 based index as given by TeX.

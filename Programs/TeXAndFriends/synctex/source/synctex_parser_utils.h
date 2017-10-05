@@ -46,6 +46,8 @@ authorization from the copyright holder.
  *  The problem mainly comes from file name management: path separator, encoding...
  */
 
+#include "synctex_version.h"
+
 typedef int synctex_bool_t;
 #	define synctex_YES (0==0)
 #	define synctex_NO (0==1)
