@@ -33,12 +33,12 @@ authorization from the copyright holders.
 #if defined(MIKTEX)
 #include "miktex-first.h"
 #endif
-
 #include <w2c/config.h>
 #if defined(MIKTEX)
 #define C4PEXTERN extern
 #include "xetex-miktex.h"
 #endif
+
 #include "XeTeX_web.h"
 
 #ifdef XETEX_MAC

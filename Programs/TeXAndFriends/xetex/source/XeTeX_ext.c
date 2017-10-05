@@ -495,8 +495,9 @@ static uint32_t *utf32Buf = NULL;
     if (last >= maxbufstack)
         maxbufstack = last;
 
-    /* Trim trailing whitespace.  */
-    while (last > first && ISBLANK(buffer[last - 1]))
+    /* Trim trailing space or EOL characters. */
+#define IS_SPC_OR_EOL(c) ((c) == ' ' || (c) == '\r' || (c) == '\n')
+    while (last > first && IS_SPC_OR_EOL(buffer[last - 1]))
         --last;
 
     return true;
