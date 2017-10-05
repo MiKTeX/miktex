@@ -1359,17 +1359,16 @@ otl_gsub_add_feat (otl_gsub *gsub_list,
   return retval;
 }
 
-static const char *
+static int
 scan_otl_tag (const char *otl_tags, const char *endptr,
               char *script, char *language, char *feature)
 {
   const char *p, *period;
 
   ASSERT(script && language && feature);
-  ASSERT(otl_tags < endptr);
 
-  if (!otl_tags)
-    return NULL;
+  if (!otl_tags || otl_tags >= endptr)
+    return -1;
 
   memset(script, ' ', 4);   script[4]   = 0;
   memset(language, ' ', 4); language[4] = 0;
@@ -1384,6 +1383,7 @@ scan_otl_tag (const char *otl_tags, const char *endptr,
       strncpy(script, p, period - p);
     } else {
       WARN("Invalid OTL script tag found: %s", p);
+      return -1;
     }
     p = period + 1;
     period = strchr(p, '.');
@@ -1393,6 +1393,7 @@ scan_otl_tag (const char *otl_tags, const char *endptr,
         strncpy(language, p, period - p);
       } else {
         WARN("Invalid OTL lanuage tag found: %s", p);
+        return -1;
       }
       p = period + 1;
     }
@@ -1400,13 +1401,17 @@ scan_otl_tag (const char *otl_tags, const char *endptr,
     strcpy(script, "*");
     strcpy(language, "*");
   }
+
   /* Finally feature */
-  if (p < endptr) {
+  if (p + 4 <= endptr) {
     strncpy(feature, p, endptr - p);
     p = endptr;
+  } else {
+    WARN("No valid OTL feature tag specified.");
+    return -1;
   }
 
-  return p;
+  return 0;
 }
 
 void
@@ -1598,21 +1603,23 @@ otl_gsub_set_chain (otl_gsub *gsub_list, const char *otl_tags) {
     nextptr = strchr(p, ':');
     if (!nextptr)
       nextptr = endptr;
-    scan_otl_tag(p, nextptr, script, language, feature);
-    idx = gsub_find(gsub_list, script, language, feature);
-    if (idx >= 0 && idx <= gsub_list->num_gsubs) {
-      struct gsub_entry *entry;
-      entry = NEW(1, struct gsub_entry);
-      if (prev)
-        prev->next = entry;
-      entry->index = idx;
-      prev = entry;
+    if (scan_otl_tag(p, nextptr, script, language, feature) >= 0) {
+      idx = gsub_find(gsub_list, script, language, feature);
+      if (idx >= 0 && idx <= gsub_list->num_gsubs) {
+        struct gsub_entry *entry;
+        entry = NEW(1, struct gsub_entry);
+          if (!gsub_list->first)
+            gsub_list->first = entry;
+        if (prev)
+          prev->next = entry;
+        entry->index = idx;
+        prev = entry;
+      }
     }
     nextptr++;
   }
   if (prev)
     prev->next = NULL;
-  gsub_list->first = prev;
 
   return 0;
 }
@@ -1633,10 +1640,11 @@ otl_gsub_add_feat_list (otl_gsub *gsub_list, const char *otl_tags, sfnt *sfont)
     nextptr = strchr(p, ':');
     if (!nextptr)
       nextptr = endptr;
-    scan_otl_tag(p, nextptr, script, language, feature);
-    idx = gsub_find(gsub_list, script, language, feature);
-    if (idx < 0) {
-      otl_gsub_add_feat(gsub_list, script, language, feature, sfont);
+    if (scan_otl_tag(p, nextptr, script, language, feature) >= 0) {
+      idx = gsub_find(gsub_list, script, language, feature);
+      if (idx < 0) {
+        otl_gsub_add_feat(gsub_list, script, language, feature, sfont);
+      }
     }
     nextptr++;
   }

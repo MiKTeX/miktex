@@ -1,6 +1,6 @@
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2007-2016 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2007-2017 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
     
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -102,6 +102,5 @@ pdf_ximage_set_attr (int xobj_id,
                      double llx, double lly, double urx, double ury);
 
 /* Migrated from pdfobj.h. Those are not PDF object related... */
-#define MAX_IMAGES 5000 /* This may be enough */
 
 #endif /* _PDFXIMAGE_H_ */
