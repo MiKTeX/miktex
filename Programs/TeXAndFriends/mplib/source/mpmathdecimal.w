@@ -615,10 +615,11 @@ void mp_free_decimal_math (MP mp) {
   free_number (((math_data *)mp->math)->p_over_v_threshold_t);
   free_number (((math_data *)mp->math)->equation_threshold_t);
   free_number (((math_data *)mp->math)->tfm_warn_threshold_t);
-  for (i = 0; i <= last_cached_factorial; i++) {
-    free(factorials[i]);
-  }
-  free(factorials);
+  /* For sake of speed, we accept this memory leak. */
+  /* for (i = 0; i <= last_cached_factorial; i++) {*/
+  /*  free(factorials[i]);*/
+  /* }*/
+  /* free(factorials); */
   free(mp->math);
 }
 

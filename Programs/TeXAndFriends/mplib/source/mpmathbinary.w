@@ -221,31 +221,37 @@ static mpfr_t fraction_one_plus_mpfr_t;
 static mpfr_t PI_mpfr_t;
 static mpfr_t epsilon_mpfr_t;
 static mpfr_t EL_GORDO_mpfr_t;
+static boolean initialized = false;
+
 
 @ @c
 void init_binary_constants (void) {
-  mpfr_inits2 (precision_bits, one, minusone, zero, two_mpfr_t, three_mpfr_t, four_mpfr_t, fraction_multiplier_mpfr_t,
+  if (!initialized) {
+    mpfr_inits2 (precision_bits, one, minusone, zero, two_mpfr_t, three_mpfr_t, four_mpfr_t, fraction_multiplier_mpfr_t,
               fraction_one_mpfr_t, fraction_one_plus_mpfr_t,  angle_multiplier_mpfr_t, PI_mpfr_t, 
               epsilon_mpfr_t, EL_GORDO_mpfr_t, (mpfr_ptr) 0);
-  mpfr_set_si (one, 1, ROUNDING);
-  mpfr_set_si (minusone, -1, ROUNDING);
-  mpfr_set_si (zero, 0, ROUNDING);
-  mpfr_set_si (two_mpfr_t, two, ROUNDING);
-  mpfr_set_si (three_mpfr_t, three, ROUNDING);
-  mpfr_set_si (four_mpfr_t, four, ROUNDING);
-  mpfr_set_si (fraction_multiplier_mpfr_t, fraction_multiplier, ROUNDING);
-  mpfr_set_si (fraction_one_mpfr_t, fraction_one, ROUNDING);
-  mpfr_set_si (fraction_one_plus_mpfr_t, (fraction_one+1), ROUNDING);
-  mpfr_set_si (angle_multiplier_mpfr_t, angle_multiplier, ROUNDING);
-  mpfr_set_str (PI_mpfr_t, PI_STRING, 10, ROUNDING);
-  mpfr_set_str (epsilon_mpfr_t, epsilon, 10, ROUNDING);
-  mpfr_set_str (EL_GORDO_mpfr_t, EL_GORDO, 10, ROUNDING);
+    mpfr_set_si (one, 1, ROUNDING);
+    mpfr_set_si (minusone, -1, ROUNDING);
+    mpfr_set_si (zero, 0, ROUNDING);
+    mpfr_set_si (two_mpfr_t, two, ROUNDING);
+    mpfr_set_si (three_mpfr_t, three, ROUNDING);
+    mpfr_set_si (four_mpfr_t, four, ROUNDING);
+    mpfr_set_si (fraction_multiplier_mpfr_t, fraction_multiplier, ROUNDING);
+    mpfr_set_si (fraction_one_mpfr_t, fraction_one, ROUNDING);
+    mpfr_set_si (fraction_one_plus_mpfr_t, (fraction_one+1), ROUNDING);
+    mpfr_set_si (angle_multiplier_mpfr_t, angle_multiplier, ROUNDING);
+    mpfr_set_str (PI_mpfr_t, PI_STRING, 10, ROUNDING);
+    mpfr_set_str (epsilon_mpfr_t, epsilon, 10, ROUNDING);
+    mpfr_set_str (EL_GORDO_mpfr_t, EL_GORDO, 10, ROUNDING);
+    initialized = true;
+  }
 }
 void free_binary_constants (void) {
-  mpfr_clears (one, minusone, zero, two_mpfr_t, three_mpfr_t, four_mpfr_t, fraction_multiplier_mpfr_t,
-              fraction_one_mpfr_t, fraction_one_plus_mpfr_t,  angle_multiplier_mpfr_t, PI_mpfr_t, 
-              epsilon_mpfr_t, EL_GORDO_mpfr_t, (mpfr_ptr) 0);
-  mpfr_free_cache ();
+  /* For sake of speed, we accept this memory leak. */
+  /*mpfr_clears (one, minusone, zero, two_mpfr_t, three_mpfr_t, four_mpfr_t, fraction_multiplier_mpfr_t,*/
+  /*            fraction_one_mpfr_t, fraction_one_plus_mpfr_t,  angle_multiplier_mpfr_t, PI_mpfr_t, */
+  /*            epsilon_mpfr_t, EL_GORDO_mpfr_t, (mpfr_ptr) 0); */
+  /*mpfr_free_cache ();*/
 }
 
 @ |precision_max| is limited to 1000, because the precision of already initialized 
