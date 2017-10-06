@@ -63,12 +63,14 @@ public:
   std::string GetCurlErrorString(CURLMcode code) const
   {
 #if LIBCURL_VERSION_NUM >= 0x70c00
-    return curl_multi_strerror(code);
-#else
+    if (curlVersionInfo->version_num >= 0x70c00)
+    {
+      return curl_multi_strerror(code);
+    }
+#endif
     std::string str = T_("The cURL multi interface returned an error code: ");
     str += std::to_string(code);
     return str;
-#endif
   }
 
 private:
@@ -105,12 +107,17 @@ public:
   std::string GetCurlErrorString(CURLcode code) const
   {
 #if LIBCURL_VERSION_NUM >= 0x70c00
-    return curl_easy_strerror(code);
-#else
-    std::string str = T_("The cURL easy interface returned an error code: ");
-    str += std::to_string(code);
-    return str;
+    if (curlVersionInfo->version_num >= 0x70c00)
+    {
+      return curl_easy_strerror(code);
+    }
+    else
 #endif
+    {
+      std::string str = T_("The cURL easy interface returned an error code: ");
+      str += std::to_string(code);
+      return str;
+    }
   }
 
 public:
@@ -152,6 +159,9 @@ private:
 
 private:
   struct curl_slist* headers = nullptr;
+
+private:
+  curl_version_info_data* curlVersionInfo = nullptr;
 
 private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_curl;

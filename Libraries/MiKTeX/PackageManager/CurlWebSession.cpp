@@ -46,7 +46,9 @@ CurlWebSession::CurlWebSession(IProgressNotify_* pIProgressNotify) :
 
 void CurlWebSession::Initialize()
 {
-  trace_curl->WriteFormattedLine("libmpm", T_("initializing cURL library version %s"), LIBCURL_VERSION);
+  curlVersionInfo = curl_version_info(CURLVERSION_NOW);
+
+  trace_curl->WriteFormattedLine("libmpm", T_("initializing cURL library version %s"), curlVersionInfo->version);
 
   pCurlm = curl_multi_init();
 
@@ -105,7 +107,10 @@ void CurlWebSession::Initialize()
   SetOption(CURLOPT_CONNECTTIMEOUT, DEFAULT_CONNECTION_TIMEOUT_SECONDS);
 
 #if LIBCURL_VERSION_NUM >= 0x70a08
-  SetOption(CURLOPT_FTP_RESPONSE_TIMEOUT, DEFAULT_FTP_RESPONSE_TIMEOUT_SECONDS);
+  if (curlVersionInfo->version_num >= 0x70a08)
+  {
+    SetOption(CURLOPT_FTP_RESPONSE_TIMEOUT, DEFAULT_FTP_RESPONSE_TIMEOUT_SECONDS);
+  }
 #endif
 
   // SF 2855025
@@ -117,10 +122,16 @@ void CurlWebSession::Initialize()
 
   // SF #2548
 #if LIBCURL_VERSION_NUM >= 0x72c00
-  SetOption(CURLOPT_SSL_OPTIONS, CURLSSLOPT_NO_REVOKE);
+  if (curlVersionInfo->version_num >= 0x72c00)
+  {
+    SetOption(CURLOPT_SSL_OPTIONS, CURLSSLOPT_NO_REVOKE);
+  }
 #endif
 #if LIBCURL_VERSION_NUM >= 0x73400
-  SetOption(CURLOPT_PROXY_SSL_OPTIONS, CURLSSLOPT_NO_REVOKE);
+  if (curlVersionInfo->version_num >= 0x73400)
+  {
+    SetOption(CURLOPT_PROXY_SSL_OPTIONS, CURLSSLOPT_NO_REVOKE);
+  }
 #endif
 
   SetOption(CURLOPT_NOSIGNAL, static_cast<long>(true));
@@ -339,10 +350,15 @@ void CurlWebSession::ReadInformationals()
     long responseCode;
     CURLcode r;
 #if LIBCURL_VERSION_NUM >= 0x70a08
-    r = curl_easy_getinfo(pCurlMsg->easy_handle, CURLINFO_RESPONSE_CODE, &responseCode);
-#else
-    r = curl_easy_getinfo(pCurlMsg->easy_handle, CURLINFO_HTTP_CODE, &responseCode);
+    if (curlVersionInfo->version_num >= 0x70a08)
+    {
+      r = curl_easy_getinfo(pCurlMsg->easy_handle, CURLINFO_RESPONSE_CODE, &responseCode);
+    }
+    else
 #endif
+    {
+      r = curl_easy_getinfo(pCurlMsg->easy_handle, CURLINFO_HTTP_CODE, &responseCode);
+    }
     if (r != CURLE_OK)
     {
       MIKTEX_FATAL_ERROR(GetCurlErrorString(r));
