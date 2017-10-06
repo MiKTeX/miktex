@@ -1,6 +1,6 @@
 /* CurlWebSession.h:                                    -*- C++ -*-
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -33,19 +33,19 @@ class CurlWebSession :
   public WebSession
 {
 public:
-  CurlWebSession(IProgressNotify_ * pIProgressNotify);
+  CurlWebSession(IProgressNotify_* pIProgressNotify);
 
 public:
   ~CurlWebSession() override;
 
 public:
-  std::unique_ptr<WebFile> OpenUrl(const std::string & url) override
+  std::unique_ptr<WebFile> OpenUrl(const std::string& url) override
   {
     return OpenUrl(url, {});
   }
 
 public:
-  std::unique_ptr<WebFile> OpenUrl(const std::string & url, const std::unordered_map<std::string, std::string> & formData) override;
+  std::unique_ptr<WebFile> OpenUrl(const std::string& url, const std::unordered_map<std::string, std::string>& formData) override;
 
 public:
   void Dispose() override;
@@ -72,16 +72,16 @@ public:
   }
 
 private:
-  CURL * pCurl = nullptr;
+  CURL* pCurl = nullptr;
 
 private:
-  CURLM * pCurlm = nullptr;
+  CURLM* pCurlm = nullptr;
 
 private:
   int runningHandles = -1;
 
 private:
-  IProgressNotify_ * pIProgressNotify;
+  IProgressNotify_* pIProgressNotify;
 
 public:
   bool IsReady() const
@@ -90,13 +90,13 @@ public:
   }
 
 public:
-  CURL * GetEasyHandle() const throw ()
+  CURL* GetEasyHandle() const throw ()
   {
     return pCurl;
   }
 
 public:
-  CURLM * GetMultiHandle() const throw ()
+  CURLM* GetMultiHandle() const throw ()
   {
     return pCurlm;
   }
@@ -124,25 +124,25 @@ public:
   }
 
 public:
-  std::string UrlEncode(const std::string & s) const
+  std::string UrlEncode(const std::string& s) const
   {
-    char * encoded = curl_easy_escape(pCurl, s.c_str(), s.length());
+    char* encoded = curl_easy_escape(pCurl, s.c_str(), s.length());
     std::string result = encoded;
     curl_free(encoded);
     return result;
   }
 
 public:
-  void SetCustomHeaders(const std::unordered_map<std::string, std::string> & headers) override;
+  void SetCustomHeaders(const std::unordered_map<std::string, std::string>& headers) override;
 
 private:
   void Initialize();
 
 private:
-  static int ProgressCallback(void * pv, double dltotal, double dlnow, double ultotal, double ulnow);
+  static int ProgressCallback(void* pv, double dltotal, double dlnow, double ultotal, double ulnow);
 
 private:
-  static int DebugCallback(CURL * pCurl, curl_infotype infoType, char * pData, size_t sizeData, void * pv);
+  static int DebugCallback(CURL* pCurl, curl_infotype infoType, char* pData, size_t sizeData, void* pv);
 
 private:
   std::string proxyPort;
@@ -151,7 +151,7 @@ private:
   std::string userPassword;
 
 private:
-  struct curl_slist * headers = nullptr;
+  struct curl_slist* headers = nullptr;
 
 private:
   std::unique_ptr<MiKTeX::Trace::TraceStream> trace_curl;
@@ -161,8 +161,8 @@ private:
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
-  };
+};
 
 END_INTERNAL_NAMESPACE;
 
-#endif // libCURL
+#endif
