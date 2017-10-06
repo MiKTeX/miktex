@@ -37,7 +37,7 @@ const long DEFAULT_FTP_RESPONSE_TIMEOUT_SECONDS = 30;
 #define ALLOW_REDIRECTS 1
 #define DEFAULT_MAX_REDIRECTS 20
 
-CurlWebSession::CurlWebSession(IProgressNotify_ * pIProgressNotify) :
+CurlWebSession::CurlWebSession(IProgressNotify_* pIProgressNotify) :
   pIProgressNotify(pIProgressNotify),
   trace_mpm(TraceStream::Open(MIKTEX_TRACE_MPM)),
   trace_curl(TraceStream::Open(MIKTEX_TRACE_CURL))
@@ -164,7 +164,7 @@ CurlWebSession::~CurlWebSession()
   }
 }
 
-unique_ptr<WebFile> CurlWebSession::OpenUrl(const string & url, const std::unordered_map<std::string, std::string> & formData)
+unique_ptr<WebFile> CurlWebSession::OpenUrl(const string& url, const std::unordered_map<std::string, std::string>& formData)
 {
   runningHandles = -1;
   if (pCurl == nullptr)
@@ -175,14 +175,14 @@ unique_ptr<WebFile> CurlWebSession::OpenUrl(const string & url, const std::unord
   return make_unique<CurlWebFile>(shared_from_this(), url, formData);
 }
 
-void CurlWebSession::SetCustomHeaders(const unordered_map<string, string> & headers)
+void CurlWebSession::SetCustomHeaders(const unordered_map<string, string>& headers)
 {
   if (this->headers != nullptr)
   {
     curl_slist_free_all(this->headers);
     this->headers = nullptr;
   }
-  for (const auto & kv : headers)
+  for (const auto& kv : headers)
   {
     string header = kv.first + ": " + kv.second;
     this->headers = curl_slist_append(this->headers, header.c_str());
@@ -324,7 +324,7 @@ void CurlWebSession::Perform()
 
 void CurlWebSession::ReadInformationals()
 {
-  CURLMsg * pCurlMsg;
+  CURLMsg* pCurlMsg;
   int remaining;
   while ((pCurlMsg = curl_multi_info_read(pCurlm, &remaining)) != nullptr)
   {
@@ -348,7 +348,7 @@ void CurlWebSession::ReadInformationals()
       MIKTEX_FATAL_ERROR(GetCurlErrorString(r));
     }
     trace_mpm->WriteFormattedLine("libmpm", T_("response code: %ld"), responseCode);
-    char * lpszEffectiveUrl = nullptr;
+    char* lpszEffectiveUrl = nullptr;
     r = curl_easy_getinfo(pCurlMsg->easy_handle, CURLINFO_EFFECTIVE_URL, &lpszEffectiveUrl);
     if (r != CURLE_OK)
     {
@@ -390,7 +390,7 @@ void CurlWebSession::ReadInformationals()
   }
 }
 
-int CurlWebSession::ProgressCallback(void * pv, double dltotal, double dlnow, double ultotal, double ulnow)
+int CurlWebSession::ProgressCallback(void* pv, double dltotal, double dlnow, double ultotal, double ulnow)
 {
   UNUSED_ALWAYS(dltotal);
   UNUSED_ALWAYS(dlnow);
@@ -402,7 +402,7 @@ int CurlWebSession::ProgressCallback(void * pv, double dltotal, double dlnow, do
 #else
   try
   {
-    CurlWebFile * This = reinterpret_cast<CurlWebSession*>(pv);
+    CurlWebFile* This = reinterpret_cast<CurlWebSession*>(pv);
     if (This->pIProgressNotify != nullptr)
     {
       This->pIProgressNotify->OnProgress();
@@ -416,12 +416,12 @@ int CurlWebSession::ProgressCallback(void * pv, double dltotal, double dlnow, do
 #endif
     }
 
-int CurlWebSession::DebugCallback(CURL * pCurl, curl_infotype infoType, char * pData, size_t sizeData, void * pv)
+int CurlWebSession::DebugCallback(CURL* pCurl, curl_infotype infoType, char* pData, size_t sizeData, void* pv)
 {
   UNUSED_ALWAYS(pCurl);
   try
   {
-    CurlWebSession * This = reinterpret_cast<CurlWebSession*>(pv);
+    CurlWebSession* This = reinterpret_cast<CurlWebSession*>(pv);
     if (infoType == CURLINFO_TEXT)
     {
       MIKTEX_ASSERT(pData != nullptr);
