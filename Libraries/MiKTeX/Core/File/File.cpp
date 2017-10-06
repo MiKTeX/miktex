@@ -45,17 +45,21 @@ void File::Delete(const PathName& path, FileDeleteOptionSet options)
     Fndb::Remove(path);
   }
 
+#if defined(MIKTEX_WINDOWS)
   FileAttributeSet attributes = File::GetAttributes(path);
+#endif
 
   bool done;
 
   try
   {
+#if defined(MIKTEX_WINDOWS)
     if (attributes[FileAttribute::ReadOnly])
     {
       attributes -= FileAttribute::ReadOnly;
       File::SetAttributes(path, attributes);
     }
+#endif
     File::Delete(path);
     done = true;
   }
