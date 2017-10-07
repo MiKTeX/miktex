@@ -174,6 +174,11 @@ scan (FILE *f, char *file, FcCharSetFreezer *freezer)
 	    if (sscanf (line, "%x-%x", &start, &end) != 2)
 		fatal (file, lineno, "parse error");
 	}
+	else if (strstr (line, ".."))
+	{
+	    if (sscanf (line, "%x..%x", &start, &end) != 2)
+		fatal (file, lineno, "parse error");
+	}
 	else
 	{
 	    if (sscanf (line, "%x", &start) != 1)
@@ -561,6 +566,9 @@ main (int argc FC_UNUSED, char **argv)
 	while (setRangeChar <= c && c <= 'z')
 	    setRangeStart[setRangeChar++ - 'a'] = i;
     }
+    while (setRangeChar <= 'z') /* no language code starts with these letters */
+	setRangeStart[setRangeChar++ - 'a'] = i;
+
     for (setRangeChar = 'a'; setRangeChar < 'z'; setRangeChar++)
 	setRangeEnd[setRangeChar - 'a'] = setRangeStart[setRangeChar+1-'a'] - 1;
     setRangeEnd[setRangeChar - 'a'] = i - 1;

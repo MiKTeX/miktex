@@ -28,7 +28,7 @@
 /* Objects MT-safe for readonly access. */
 
 typedef struct {
-    const FcChar8    	lang[8];
+    const FcChar8    	lang[16];
     const FcCharSet	charset;
 } FcLangCharSet;
 
@@ -188,7 +188,12 @@ FcLangNormalize (const FcChar8 *lang)
     if (!lang || !*lang)
 	return NULL;
 
+    /* might be called without initialization */
+    FcInitDebug ();
+
     if (FcStrCmpIgnoreCase (lang, (const FcChar8 *)"C") == 0 ||
+	FcStrCmpIgnoreCase (lang, (const FcChar8 *)"C.UTF-8") == 0 ||
+	FcStrCmpIgnoreCase (lang, (const FcChar8 *)"C.utf8") == 0 ||
 	FcStrCmpIgnoreCase (lang, (const FcChar8 *)"POSIX") == 0)
     {
 	result = FcStrCopy ((const FcChar8 *)"en");
@@ -257,7 +262,8 @@ FcLangNormalize (const FcChar8 *lang)
 		 lang);
 	goto bail0;
     }
-    if (territory && (tlen < 2 || tlen > 3))
+    if (territory && (tlen < 2 || tlen > 3) &&
+	!(territory[0] == 'z' && tlen < 5))
     {
 	fprintf (stderr, "Fontconfig warning: ignoring %s: not a valid region tag\n",
 		 lang);
@@ -349,6 +355,13 @@ FcLangCompare (const FcChar8 *s1, const FcChar8 *s2)
 {
     FcChar8	    c1, c2;
     FcLangResult    result = FcLangDifferentLang;
+    const FcChar8  *s1_orig = s1;
+    FcBool	    is_und;
+
+    is_und = FcToLower (s1[0]) == 'u' &&
+	     FcToLower (s1[1]) == 'n' &&
+	     FcToLower (s1[2]) == 'd' &&
+	     FcLangEnd (s1[3]);
 
     for (;;)
     {
@@ -359,14 +372,24 @@ FcLangCompare (const FcChar8 *s1, const FcChar8 *s2)
 	c2 = FcToLower (c2);
 	if (c1 != c2)
 	{
-	    if (FcLangEnd (c1) && FcLangEnd (c2))
+	    if (!is_und && FcLangEnd (c1) && FcLangEnd (c2))
 		result = FcLangDifferentTerritory;
 	    return result;
 	}
 	else if (!c1)
-	    return FcLangEqual;
+	{
+	    return is_und ? result : FcLangEqual;
+	}
 	else if (c1 == '-')
-	    result = FcLangDifferentTerritory;
+	{
+	    if (!is_und)
+		result = FcLangDifferentTerritory;
+	}
+
+	/* If we parsed past "und-", then do not consider it undefined anymore,
+	 * as there's *something* specified. */
+	if (is_und && s1 - s1_orig == 4)
+	    is_und = FcFalse;
     }
 }
 
@@ -505,6 +528,15 @@ bail0:
     return 0;
 }
 
+/* When the language isn't found, the return value r is such that:
+ *  1) r < 0
+ *  2) -r -1 is the index of the first language in fcLangCharSets that comes
+ *     after the 'lang' argument in lexicographic order.
+ *
+ *  The -1 is necessary to avoid problems with language id 0 (otherwise, we
+ *  wouldn't be able to distinguish between “language found, id is 0” and
+ *  “language not found, sorts right before the language with id 0”).
+ */
 static int
 FcLangSetIndex (const FcChar8 *lang)
 {
@@ -529,7 +561,7 @@ FcLangSetIndex (const FcChar8 *lang)
 	high = fcLangCharSetRanges[firstChar - 'a'].end;
 	/* no matches */
 	if (low > high)
-	    return -low; /* next entry after where it would be */
+	    return -(low+1); /* one past next entry after where it would be */
     }
 
     while (low <= high)
@@ -671,6 +703,7 @@ FcLangSetCompare (const FcLangSet *lsa, const FcLangSet *lsb)
 {
     int		    i, j, count;
     FcLangResult    best, r;
+    FcChar32 aInCountrySet, bInCountrySet;
 
     count = FC_MIN (lsa->map_size, lsb->map_size);
     count = FC_MIN (NUM_LANG_SET_MAP, count);
@@ -679,13 +712,22 @@ FcLangSetCompare (const FcLangSet *lsa, const FcLangSet *lsb)
 	    return FcLangEqual;
     best = FcLangDifferentLang;
     for (j = 0; j < NUM_COUNTRY_SET; j++)
+    {
+	aInCountrySet = 0;
+	bInCountrySet = 0;
+
 	for (i = 0; i < count; i++)
-	    if ((lsa->map[i] & fcLangCountrySets[j][i]) &&
-		(lsb->map[i] & fcLangCountrySets[j][i]))
+	{
+	    aInCountrySet |= lsa->map[i] & fcLangCountrySets[j][i];
+	    bInCountrySet |= lsb->map[i] & fcLangCountrySets[j][i];
+
+	    if (aInCountrySet && bInCountrySet)
 	    {
 		best = FcLangDifferentTerritory;
 		break;
 	    }
+	}
+    }
     if (lsa->extra)
     {
 	r = FcLangSetCompareStrSet (lsb, lsa->extra);
@@ -723,7 +765,7 @@ FcLangSetPromote (const FcChar8 *lang, FcValuePromotionBuffer *vbuf)
     if (lang)
     {
 	id = FcLangSetIndex (lang);
-	if (id > 0)
+	if (id >= 0)
 	{
 	    FcLangSetBitSet (&buf->ls, id);
 	}

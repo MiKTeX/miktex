@@ -1164,7 +1164,6 @@ FcFreeTypeQueryFace (const FT_Face  face,
     int		    weight = -1;
     int		    width = -1;
     FcBool	    decorative = FcFalse;
-    int		    i;
     FcCharSet	    *cs;
     FcLangSet	    *ls;
 #if 0
@@ -1220,14 +1219,11 @@ FcFreeTypeQueryFace (const FT_Face  face,
 	int has_outline = !!(face->face_flags & FT_FACE_FLAG_SCALABLE);
 	int has_color = 0;
 
-#ifdef FT_FACE_FLAG_COLOR
-	has_color = !!(face->face_flags & FT_FACE_FLAG_COLOR);
-#endif
-
 	if (!FcPatternAddBool (pat, FC_OUTLINE, has_outline))
 	    goto bail1;
 
 #ifdef FT_FACE_FLAG_COLOR
+	has_color = !!(face->face_flags & FT_FACE_FLAG_COLOR);
 	if (!FcPatternAddBool (pat, FC_COLOR, has_color))
 	    goto bail1;
 #endif
@@ -1274,7 +1270,7 @@ FcFreeTypeQueryFace (const FT_Face  face,
     /*
      * Get the OS/2 table
      */
-    os2 = (TT_OS2 *) FT_Get_Sfnt_Table (face, ft_sfnt_os2);
+    os2 = (TT_OS2 *) FT_Get_Sfnt_Table (face, FT_SFNT_OS2);
 
     /*
      * Look first in the OS/2 table for the foundry, if
@@ -1529,6 +1525,7 @@ FcFreeTypeQueryFace (const FT_Face  face,
     tmp = FT_Get_Postscript_Name (face);
     if (!tmp)
     {
+	unsigned int i;
 	FcChar8 *family, *familylang = NULL;
 	size_t len;
 	int n = 0;
@@ -1606,6 +1603,7 @@ FcFreeTypeQueryFace (const FT_Face  face,
 
     if (os2 && os2->version >= 0x0001 && os2->version != 0xffff)
     {
+	unsigned int i;
 	for (i = 0; i < NUM_CODE_PAGE_RANGE; i++)
 	{
 	    FT_ULong	bits;
@@ -1920,6 +1918,7 @@ FcFreeTypeQueryFace (const FT_Face  face,
 
     if (!(face->face_flags & FT_FACE_FLAG_SCALABLE))
     {
+	int i;
 	for (i = 0; i < face->num_fixed_sizes; i++)
 	    if (!FcPatternAddDouble (pat, FC_PIXEL_SIZE,
 				     FcGetPixelSize (face, i)))
