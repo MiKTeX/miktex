@@ -967,7 +967,11 @@ void CfgImpl::Read(const PathName& path, const string& defaultKeyName, int level
   AutoRestore<int> autoRestore1(lineno);
   AutoRestore<PathName> autoRestore(currentFile);
   std::ifstream reader;
+#if defined(MIKTEX_WINDOWS)
+  reader.open(path.ToWideCharString());
+#else
   reader.open(path.ToString());
+#endif
   Read(reader, defaultKeyName, level, mustBeSigned, publicKeyFile);
   reader.close();
 }
