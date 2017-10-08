@@ -133,5 +133,16 @@ if(HAVE_STRNLEN)
   add_definitions(-DHAVE_STRNLEN)
 endif()
 
+set(HAVE_INET_NTOP TRUE)
+set(HAVE_INET_PTON TRUE)
+
+if(HAVE_INET_NTOP)
+  add_definitions(-DHAVE_INET_NTOP)
+endif()
+
+if(HAVE_INET_PTON)
+  add_definitions(-DHAVE_INET_PTON)
+endif()
+
 add_subdirectory(crypto)
 #add_subdirectory(ssl)
