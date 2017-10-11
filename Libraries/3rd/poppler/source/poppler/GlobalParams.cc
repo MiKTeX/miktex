@@ -125,6 +125,9 @@ extern XpdfPluginVecTable xpdfPluginVecTable;
 
 //------------------------------------------------------------------------
 
+#if defined(MIKTEX)
+MIKTEX_POPPLER_EXPORT
+#endif
 GlobalParams *globalParams = NULL;
 
 #if ENABLE_RELOCATABLE && defined(_WIN32)

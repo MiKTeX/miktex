@@ -68,7 +68,11 @@ class SysFontList;
 //------------------------------------------------------------------------
 
 // The global parameters object.
+#if defined(MIKTEX)
+extern MIKTEX_POPPLER_EXPORT GlobalParams *globalParams;
+#else
 extern GlobalParams *globalParams;
+#endif
 
 //------------------------------------------------------------------------
 

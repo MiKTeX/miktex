@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2009-2016 Christian Schenk
+## Copyright (C) 2009-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -92,7 +92,7 @@ target_link_libraries(${poppler_qt_dll_name}
     Qt5::Xml
     ${core_dll_name}
   PUBLIC
-    ${poppler_lib_name}
+    ${poppler_dll_name}
 )
 
 rebase(${poppler_qt_dll_name})

@@ -173,6 +173,7 @@ char * strtok_r (char *s, const char *delim, char **save_ptr);
 
 #if defined(MIKTEX)
 #  define MIKTEX_TEXWORKS_PATCHES
+#  include <miktex/poppler/export.h>
 #endif
 //------------------------------------------------------------------------
 // Compiler

@@ -17,20 +17,24 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/poppler")
 
 set(projdir ${CMAKE_CURRENT_SOURCE_DIR})
   
-set(POPPLER_MAJOR_VERSION "0")
-set(POPPLER_MINOR_VERSION "60")
-set(POPPLER_MICRO_VERSION "0")
-set(POPPLER_VERSION "${POPPLER_MAJOR_VERSION}.${POPPLER_MINOR_VERSION}.${POPPLER_MICRO_VERSION}")
-
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo
+)
+
+set(public_include_directories
+  ${CMAKE_CURRENT_BINARY_DIR}/include
+  ${CMAKE_CURRENT_BINARY_DIR}/include/poppler
+  ${CMAKE_CURRENT_SOURCE_DIR}/source
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler
 )
 
 set(ENABLE_LIBCURL TRUE)
@@ -67,6 +71,11 @@ add_definitions(-DHAVE_CONFIG_H=1)
 ignore_warnings()
 
 configure_file(
+  poppler-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/poppler-version.h
+)
+
+configure_file(
   source/config.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
 )
@@ -76,7 +85,7 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/include/poppler/poppler-config.h
 )
 
-set(${poppler_lib_name}_sources
+set(poppler_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gfile.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/gmempp.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/goo/GooHash.cc
@@ -166,7 +175,7 @@ set(${poppler_lib_name}_sources
 )
 
 if(ENABLE_SPLASH)
-  set(${poppler_lib_name}_sources ${${poppler_lib_name}_sources}
+  list(APPEND poppler_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/SplashOutputDev.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/Splash.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/splash/SplashBitmap.cc
@@ -191,41 +200,41 @@ if(ENABLE_SPLASH)
 endif()
 
 if(ENABLE_LIBCURL)
-  set(${poppler_lib_name}_sources ${${poppler_lib_name}_sources}
+  list(APPEND poppler_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CurlCachedFile.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/CurlPDFDocBuilder.cc
   )
 endif()
 
 if(ENABLE_LIBJPEG)
-  set(${poppler_lib_name}_sources ${${poppler_lib_name}_sources}
+  list(APPEND poppler_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/DCTStream.cc
   )
 endif()
 
 if(ENABLE_ZLIB)
-  set(${poppler_lib_name}_sources ${${poppler_lib_name}_sources}
+  list(APPEND poppler_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/FlateStream.cc
   )
 endif()
 
 if(ENABLE_ZLIB_UNCOMPRESS)
-  set(${poppler_lib_name}_sources ${${poppler_lib_name}_sources}
+  list(APPEND poppler_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/FlateEncoder.cc
   )
 endif()
 
 if(ENABLE_NSS3)
-  set(${poppler_lib_name}_sources ${${poppler_lib_name}_sources}
+  list(APPEND poppler_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/SignatureHandler.cc
   )
 endif()
 
-set(${poppler_lib_name}_sources ${${poppler_lib_name}_sources}
+list(APPEND poppler_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler/JPXStream.cc
 )
 
-set(${poppler_lib_name}_sources ${${poppler_lib_name}_sources}
+list(APPEND poppler_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi/FoFiBase.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi/FoFiEncodings.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/fofi/FoFiIdentifier.h
@@ -363,98 +372,17 @@ set(${poppler_lib_name}_sources ${${poppler_lib_name}_sources}
   ${CMAKE_CURRENT_BINARY_DIR}/include/poppler/poppler-config.h
 )
 
-add_library(${poppler_lib_name} STATIC ${${poppler_lib_name}_sources})
+add_subdirectory(shared)
+add_subdirectory(static)
 
-set_property(TARGET ${poppler_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-if(NOT POPPLER_VERSION VERSION_LESS 0.59.0)
-  set_target_properties(${poppler_lib_name}
-    PROPERTIES
-    INTERFACE_COMPILE_DEFINITIONS MIKTEX_POPPLER_59=1
-  )
-endif()
-
-target_include_directories(${poppler_lib_name}
-  PUBLIC
-    ${CMAKE_CURRENT_BINARY_DIR}/include
-    ${CMAKE_CURRENT_BINARY_DIR}/include/poppler
-    ${CMAKE_CURRENT_SOURCE_DIR}/source
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/poppler
+generate_export_header(${poppler_dll_name}
+  BASE_NAME MIKTEX_POPPLER
+  EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/include//miktex/poppler/export.h
+  STATIC_DEFINE MIKTEX_POPPLER_STATIC
 )
-
-target_link_libraries(${poppler_lib_name}
-  PUBLIC
-    ${core_dll_name}
-    ${tiff_dll_name}
-    Threads::Threads
-)
-
-if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(${poppler_lib_name}
-    PUBLIC
-      ${unxemu_dll_name}
-      ${utf8wrap_dll_name}
-  )
-endif()
-
-if(USE_SYSTEM_CAIRO)
-  target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::CAIRO)
-else()
-  target_link_libraries(${poppler_lib_name} PUBLIC ${cairo_dll_name})
-endif()
-
-if(USE_SYSTEM_FREETYPE2)
-  target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::FREETYPE2)
-else()
-  target_link_libraries(${poppler_lib_name} PUBLIC ${freetype2_dll_name})
-endif()
-
-if(USE_SYSTEM_PNG)
-  target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::PNG)
-else()
-  target_link_libraries(${poppler_lib_name} PUBLIC ${png_dll_name})
-endif()
-
-if(USE_SYSTEM_ZLIB)
-  target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::ZLIB)
-else()
-  target_link_libraries(${poppler_lib_name} PUBLIC ${zlib_dll_name})
-endif()
-
-if(ENABLE_LIBCURL)
-  if(USE_SYSTEM_CURL)
-    target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::CURL)
-  else()
-    target_link_libraries(${poppler_lib_name} PUBLIC ${curl_dll_name})
-  endif()
-endif()
-
-if(ENABLE_LIBJPEG)
-  if(USE_SYSTEM_JPEG)
-    target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::JPEG)
-  else()
-    target_link_libraries(${poppler_lib_name} PUBLIC ${jpeg_dll_name})
-  endif()
-endif()
-
-if(ENABLE_ZLIB)
-  if(USE_SYSTEM_ZLIB)
-    target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::ZLIB)
-  else()
-    target_link_libraries(${poppler_lib_name} PUBLIC ${zlib_dll_name})
-  endif()
-endif()
-
-if(WITH_FONTCONFIGURATION_FONTCONFIG)
-  if(USE_SYSTEM_FONTCONFIG)
-    target_link_libraries(${poppler_lib_name} PUBLIC MiKTeX::Imported::FONTCONFIG)
-  else()
-    target_link_libraries(${poppler_lib_name} PUBLIC ${fontconfig_dll_name})
-  endif()
-endif()
 
 if(WITH_UI_QT)
-  add_subdirectory(qt-shared)
+  add_subdirectory(qt5/shared)
 endif()
 
 add_subdirectory(utils)

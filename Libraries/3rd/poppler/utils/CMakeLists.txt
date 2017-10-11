@@ -38,7 +38,7 @@ if(ENABLE_SPLASH)
   set_property(TARGET ${MIKTEX_PREFIX}pdftoppm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   target_link_libraries(${MIKTEX_PREFIX}pdftoppm
     ${app_dll_name}
-    ${poppler_lib_name}
+    ${poppler_dll_name}
   )
   install(TARGETS ${MIKTEX_PREFIX}pdftoppm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 endif()
@@ -57,7 +57,7 @@ if(HAVE_CAIRO)
   set_property(TARGET ${MIKTEX_PREFIX}pdftocairo PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   target_link_libraries(${MIKTEX_PREFIX}pdftocairo
     ${app_dll_name}
-    ${poppler_lib_name}
+    ${poppler_dll_name}
   )
   install(TARGETS ${MIKTEX_PREFIX}pdftocairo DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 endif()
@@ -71,7 +71,7 @@ add_executable(${MIKTEX_PREFIX}pdfdetach ${pdfdetach_sources})
 set_property(TARGET ${MIKTEX_PREFIX}pdfdetach PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(${MIKTEX_PREFIX}pdfdetach
   ${app_dll_name}
-  ${poppler_lib_name}
+  ${poppler_dll_name}
 )
 install(TARGETS ${MIKTEX_PREFIX}pdfdetach DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
@@ -84,7 +84,7 @@ add_executable(${MIKTEX_PREFIX}pdffonts ${pdffonts_sources})
 set_property(TARGET ${MIKTEX_PREFIX}pdffonts PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(${MIKTEX_PREFIX}pdffonts
   ${app_dll_name}
-  ${poppler_lib_name}
+  ${poppler_dll_name}
 )
 install(TARGETS ${MIKTEX_PREFIX}pdffonts DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
@@ -101,7 +101,7 @@ add_executable(${MIKTEX_PREFIX}pdfimages ${pdfimages_sources})
 set_property(TARGET ${MIKTEX_PREFIX}pdfimages PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(${MIKTEX_PREFIX}pdfimages
   ${app_dll_name}
-  ${poppler_lib_name}
+  ${poppler_dll_name}
 )
 install(TARGETS ${MIKTEX_PREFIX}pdfimages DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
@@ -117,7 +117,7 @@ add_executable(${MIKTEX_PREFIX}pdfinfo ${pdfinfo_sources})
 set_property(TARGET ${MIKTEX_PREFIX}pdfinfo PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(${MIKTEX_PREFIX}pdfinfo
   ${app_dll_name}
-  ${poppler_lib_name}
+  ${poppler_dll_name}
 )
 install(TARGETS ${MIKTEX_PREFIX}pdfinfo DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
@@ -130,7 +130,7 @@ add_executable(${MIKTEX_PREFIX}pdftops ${pdftops_sources})
 set_property(TARGET ${MIKTEX_PREFIX}pdftops PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(${MIKTEX_PREFIX}pdftops
   ${app_dll_name}
-  ${poppler_lib_name}
+  ${poppler_dll_name}
 )
 install(TARGETS ${MIKTEX_PREFIX}pdftops DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
@@ -144,7 +144,7 @@ add_executable(${MIKTEX_PREFIX}pdftotext ${pdftotext_sources})
 set_property(TARGET ${MIKTEX_PREFIX}pdftotext PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(${MIKTEX_PREFIX}pdftotext
   ${app_dll_name}
-  ${poppler_lib_name}
+  ${poppler_dll_name}
 )
 install(TARGETS ${MIKTEX_PREFIX}pdftotext DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
@@ -160,7 +160,7 @@ add_executable(${MIKTEX_PREFIX}pdftohtml ${pdftohtml_sources})
 set_property(TARGET ${MIKTEX_PREFIX}pdftohtml PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(${MIKTEX_PREFIX}pdftohtml
   ${app_dll_name}
-  ${poppler_lib_name}
+  ${poppler_dll_name}
 )
 install(TARGETS ${MIKTEX_PREFIX}pdftohtml DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
@@ -173,7 +173,7 @@ add_executable(${MIKTEX_PREFIX}pdfseparate ${pdfseparate_sources})
 set_property(TARGET ${MIKTEX_PREFIX}pdfseparate PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(${MIKTEX_PREFIX}pdfseparate
   ${app_dll_name}
-  ${poppler_lib_name}
+  ${poppler_dll_name}
 )
 install(TARGETS ${MIKTEX_PREFIX}pdfseparate DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
@@ -186,7 +186,7 @@ add_executable(${MIKTEX_PREFIX}pdfunite ${pdfunite_sources})
 set_property(TARGET ${MIKTEX_PREFIX}pdfunite PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(${MIKTEX_PREFIX}pdfunite
   ${app_dll_name}
-  ${poppler_lib_name}
+  ${poppler_dll_name}
 )
 install(TARGETS ${MIKTEX_PREFIX}pdfunite DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
@@ -200,7 +200,7 @@ if(ENABLE_NSS3)
   set_property(TARGET ${MIKTEX_PREFIX}pdfsig PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   target_link_libraries(${MIKTEX_PREFIX}pdfsig
     ${app_dll_name}
-    ${poppler_lib_name}
+    ${poppler_dll_name}
   )
   install(TARGETS ${MIKTEX_PREFIX}pdfsig DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 endif()

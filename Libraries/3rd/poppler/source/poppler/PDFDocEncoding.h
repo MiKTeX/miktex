@@ -27,7 +27,12 @@
 
 class GooString;
 
+#if defined(MIKTEX)
+#include <miktex/poppler/export.h>
+extern MIKTEX_POPPLER_EXPORT Unicode pdfDocEncoding[256]; 
+#else
 extern Unicode pdfDocEncoding[256];
+#endif
 
 char* pdfDocEncodingToUTF16 (GooString* orig, int* length);
 
