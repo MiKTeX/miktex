@@ -298,7 +298,7 @@ endif()
 if(USE_SYSTEM_POPPLER)
   target_link_libraries(${xetex_target_name} PRIVATE MiKTeX::Imported::POPPLER)
 else()
-  target_link_libraries(${xetex_target_name} PRIVATE ${poppler_lib_name})
+  target_link_libraries(${xetex_target_name} PRIVATE ${poppler_dll_name})
 endif()
 
 if(USE_SYSTEM_ZLIB)
