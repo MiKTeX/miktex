@@ -33,6 +33,13 @@ add_library(${poppler_dll_name} SHARED ${${poppler_dll_name}_sources})
 
 set_property(TARGET ${poppler_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+if(NOT POPPLER_VERSION VERSION_LESS 0.59.0)
+  set_target_properties(${poppler_dll_name}
+    PROPERTIES
+    INTERFACE_COMPILE_DEFINITIONS MIKTEX_POPPLER_59=1
+  )
+endif()
+
 set_property(TARGET ${poppler_dll_name} PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
 set_shared_library_version(
