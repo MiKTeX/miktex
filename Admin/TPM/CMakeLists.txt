@@ -102,6 +102,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-poppler-bin.tpm.in
     windows-x86/miktex-popt-bin.tpm.in
     windows-x86/miktex-posix-bin.tpm.in
+    windows-x86/miktex-potrace-bin.tpm.in
     windows-x86/miktex-ps2pk-bin.tpm.in
     windows-x86/miktex-psutils-bin.tpm.in
     windows-x86/miktex-runtime-bin.tpm.in
@@ -190,6 +191,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-poppler-bin-x64.tpm.in
     windows-x64/miktex-popt-bin-x64.tpm.in
     windows-x64/miktex-posix-bin-x64.tpm.in
+    windows-x64/miktex-potrace-bin-x64.tpm.in
     windows-x64/miktex-ps2pk-bin-x64.tpm.in
     windows-x64/miktex-psutils-bin-x64.tpm.in
     windows-x64/miktex-runtime-bin-x64.tpm.in

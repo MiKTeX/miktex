@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/miktex/">
+    <TPM:Name>Potrace lib win64</TPM:Name>
+    <TPM:Title>Potrace runtime library, Windows x86</TPM:Title>
+    <TPM:Copyright owner="Peter Selinger" year="2017"/>
+    <TPM:License type="gpl2"/>
+    <TPM:Version>1.14</TPM:Version>
+    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      Potrace is a tool for tracing a bitmap, which means,
+      transforming a bitmap into a smooth, scalable image. The input
+      is a bitmap (PBM, PGM, PPM, or BMP format), and the output is
+      one of several vector file formats. A typical use is to create
+      SVG or PDF files from scanned data, such as company or
+      university logos, handwritten notes, etc. The resulting image is
+      not "jaggy" like a bitmap, but smooth. It can then be rendered
+      at any resolution.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${potrace_dll_name}.dll
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

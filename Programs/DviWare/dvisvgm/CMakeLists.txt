@@ -476,7 +476,7 @@ endif()
 if(USE_SYSTEM_POTRACE)
   target_link_libraries(${MIKTEX_PREFIX}dvisvgm MiKTeX::Imported::POTRACE)
 else()
-  target_link_libraries(${MIKTEX_PREFIX}dvisvgm ${potrace_lib_name})
+  target_link_libraries(${MIKTEX_PREFIX}dvisvgm ${potrace_dll_name})
 endif()
 
 if(USE_SYSTEM_ZLIB)
