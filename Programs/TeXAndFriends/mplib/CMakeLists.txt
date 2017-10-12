@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_TEX_AND_FRIENDS_FOLDER}/MetaPost")
 
 include_directories(BEFORE
@@ -224,7 +226,13 @@ add_custom_command(
   VERBATIM
 )
 
+configure_file(
+  metapost-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/metapost-version.h
+)
+
 set(mplib_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/metapost-version.h
   ${mplib_cweb_sources}
   source/avl.c
   source/avl.h
@@ -235,46 +243,56 @@ set(mplib_sources
   source/decNumberLocal.h
 )
 
-add_library(${mp_lib_name} STATIC ${mplib_sources})
+if(MIKTEX_NATIVE_WINDOWS)
+  configure_file(
+    mplib.rc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/mplib.rc
+  )
+  list(APPEND mpllib_sources mplib.rc)
+endif()
 
-set_property(TARGET ${mp_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+add_library(${metapost_dll_name} SHARED ${mplib_sources})
 
-target_include_directories(${mp_lib_name}
+set_property(TARGET ${metapost_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+set_property(TARGET ${metapost_dll_name} PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+  
+target_include_directories(${metapost_dll_name}
   PUBLIC
     ${CMAKE_BINARY_DIR}/${MIKTEX_REL_MP_DIR}
 )
 
 if(USE_SYSTEM_CAIRO)
-  target_link_libraries(${mp_lib_name} PUBLIC MiKTeX::Imported::CAIRO)
+  target_link_libraries(${metapost_dll_name} PUBLIC MiKTeX::Imported::CAIRO)
 else()
-  target_link_libraries(${mp_lib_name} PUBLIC ${cairo_dll_name})
+  target_link_libraries(${metapost_dll_name} PUBLIC ${cairo_dll_name})
 endif()
 
 if(USE_SYSTEM_GMP)
-  target_link_libraries(${mp_lib_name} PUBLIC MiKTeX::Imported::GMP)
+  target_link_libraries(${metapost_dll_name} PUBLIC MiKTeX::Imported::GMP)
 else()
-  target_link_libraries(${mp_lib_name} PUBLIC ${gmp_lib_name})
+  target_link_libraries(${metapost_dll_name} PUBLIC ${gmp_lib_name})
 endif()
 
 if(USE_SYSTEM_MPFR)
-  target_link_libraries(${mp_lib_name} PUBLIC MiKTeX::Imported::MPFR)
+  target_link_libraries(${metapost_dll_name} PUBLIC MiKTeX::Imported::MPFR)
 else()
-  target_link_libraries(${mp_lib_name} PUBLIC ${mpfr_lib_name})
+  target_link_libraries(${metapost_dll_name} PUBLIC ${mpfr_lib_name})
 endif()
 
 if(USE_SYSTEM_PIXMAN)
-  target_link_libraries(${mp_lib_name} PUBLIC MiKTeX::Imported::PIXMAN)
+  target_link_libraries(${metapost_dll_name} PUBLIC MiKTeX::Imported::PIXMAN)
 else()
-  target_link_libraries(${mp_lib_name} PUBLIC ${pixman_lib_name})
+  target_link_libraries(${metapost_dll_name} PUBLIC ${pixman_lib_name})
 endif()
 
 if(USE_SYSTEM_PNG)
-  target_link_libraries(${mp_lib_name} PUBLIC MiKTeX::Imported::PNG)
+  target_link_libraries(${metapost_dll_name} PUBLIC MiKTeX::Imported::PNG)
 else()
-  target_link_libraries(${mp_lib_name} PUBLIC ${png_dll_name})
+  target_link_libraries(${metapost_dll_name} PUBLIC ${png_dll_name})
 endif()
 
-target_link_libraries(${mp_lib_name}
+target_link_libraries(${metapost_dll_name}
   PUBLIC
     ${core_dll_name}
     ${kpsemu_dll_name}
@@ -322,12 +340,16 @@ add_custom_command(
 )
 
 set(mpost_sources
-  ${mpost_cweb_sources}
+  ${CMAKE_CURRENT_BINARY_DIR}/metapost-version.h
   ${MIKTEX_LIBRARY_WRAPPER}
-  mpost-version.h
+  ${mpost_cweb_sources}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
+  configure_file(
+    mpost.rc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/mpost.rc
+  )
   list(APPEND mpost_sources mpost.rc)
 endif()
 
@@ -339,7 +361,7 @@ target_link_libraries(${MIKTEX_PREFIX}mpost
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
-  ${mp_lib_name}
+  ${metapost_dll_name}
   ${w2cemu_dll_name}
 )
 

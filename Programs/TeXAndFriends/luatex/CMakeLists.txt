@@ -649,7 +649,7 @@ target_link_libraries(luatex-static
     ${core_dll_name}
     ${kpsemu_dll_name}
     ${lua_lib_name}
-    ${mp_lib_name}
+    ${metapost_dll_name}
     ${w2cemu_dll_name}
     luatex-luaffi-static
     luatex-luamisc-static
