@@ -372,17 +372,22 @@ list(APPEND poppler_sources
   ${CMAKE_CURRENT_BINARY_DIR}/include/poppler/poppler-config.h
 )
 
-add_subdirectory(shared)
+if(NOT LINK_EVERYTHING_STATICALLY)
+  add_subdirectory(shared)
+  if(WITH_UI_QT)
+    add_subdirectory(qt5/shared)
+  endif()
+  set(poppler_target_library ${poppler_dll_name})
+else()
+  set(poppler_target_library ${poppler_lib_name})
+endif()
+
 add_subdirectory(static)
 
-generate_export_header(${poppler_dll_name}
+generate_export_header(${poppler_target_library}
   BASE_NAME MIKTEX_POPPLER
   EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/include//miktex/poppler/export.h
   STATIC_DEFINE MIKTEX_POPPLER_STATIC
 )
-
-if(WITH_UI_QT)
-  add_subdirectory(qt5/shared)
-endif()
 
 add_subdirectory(utils)

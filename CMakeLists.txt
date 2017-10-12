@@ -431,7 +431,7 @@ option(
 
 option(
   LINK_EVERYTHING_STATICALLY
-  "Don't build and use shared MiKTeX libraries."
+  "Don't build and use shared libraries."
   FALSE
 )
 
@@ -815,7 +815,7 @@ endif()
 ## find/check stuff
 
 if(LINK_EVERYTHING_STATICALLY)
-  set(CMAKE_FIND_LIBRARY_SUFFIXES .a)
+  set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
 endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -1971,9 +1971,7 @@ endif()
 if(WITH_UI_QT)
   add_subdirectory(${MIKTEX_REL_MPM_QT_DIR})
   add_subdirectory(${MIKTEX_REL_TEXWORKS_DIR})
-  if(NOT LINK_EVERYTHING_STATICALLY)
-    add_subdirectory(${MIKTEX_REL_UI_QT_DIR})
-  endif()
+  add_subdirectory(${MIKTEX_REL_UI_QT_DIR})
 endif()
 
 if(WITH_UI_MFC)
@@ -2006,7 +2004,7 @@ if(MIKTEX_NATIVE_WINDOWS)
   add_subdirectory(${MIKTEX_REL_UTF8WRAP_DIR})
 endif()
 
-if(NOT LINK_EVERYTHING_STATICALLY AND MIKTEX_NATIVE_WINDOWS)
+if(MIKTEX_NATIVE_WINDOWS)
   add_subdirectory(${MIKTEX_REL_LUAJIT_DIR})
 endif()
 
