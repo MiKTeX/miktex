@@ -61,7 +61,15 @@ see https://www.gnu.org/licenses/.  */
 /* Instantiated by configure. */
 #if ! defined (__GMP_WITHIN_CONFIGURE)
 @DEFN_LONG_LONG_LIMB@
+#if defined(MIKTEX)
+#if defined(MIKTEX_GMP_STATIC)
+#define __GMP_LIBGMP_DLL 0
+#else
+#define __GMP_LIBGMP_DLL 1
+#endif
+#else
 #define __GMP_LIBGMP_DLL  @LIBGMP_DLL@
+#endif
 #endif
 
 

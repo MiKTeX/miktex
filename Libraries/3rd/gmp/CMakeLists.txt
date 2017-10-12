@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2016 Christian Schenk
+## Copyright (C) 2015-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,9 +17,9 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/gmp")
+include(component.cmake)
 
-set(LIBGMP_DLL 0)
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/gmp")
 
 set(DEFN_LONG_LONG_LIMB "#define _LONG_LONG_LIMB 1")
 
@@ -41,11 +41,14 @@ endif()
 
 set(WANT_TMP_REENTRANT 1)
 set(SIZEOF_MP_LIMB_T ${LONG_LONG})
-set(VERSION "6.0.0")
+set(VERSION "${MIKTEX_COMP_ORIG_VERSION_STR}")
 
 add_definitions(-DNO_ASM -D__GMP_WITHIN_GMP)
 
 ignore_warnings()
+
+# set to TRUE, if we build the complete GMP library
+set(gmp_complete FALSE)
 
 set(fqsrcdir ${CMAKE_CURRENT_SOURCE_DIR}/source)
 
@@ -53,6 +56,10 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${fqsrcdir}
   ${fqsrcdir}/mpn/generic
+)
+
+set(public_include_directories
+  ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
 configure_file(
@@ -64,6 +71,11 @@ configure_file(
 configure_file(
   config.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
+configure_file(
+  gmp-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/gmp-version.h
 )
 
 set(generators
@@ -93,24 +105,24 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/perfsqr.h
     ${CMAKE_CURRENT_BINARY_DIR}/trialdivtab.h
   COMMAND gen-bases header ${GMP_LIMB_BITS} ${GMP_NAIL_BITS}
-		> ${CMAKE_CURRENT_BINARY_DIR}/mp_bases.h
+                > ${CMAKE_CURRENT_BINARY_DIR}/mp_bases.h
   COMMAND gen-bases table ${GMP_LIMB_BITS} ${GMP_NAIL_BITS}
-		> ${CMAKE_CURRENT_BINARY_DIR}/mp_bases.c
+                > ${CMAKE_CURRENT_BINARY_DIR}/mp_bases.c
   COMMAND gen-fac ${GMP_LIMB_BITS} ${GMP_NAIL_BITS}
-		> ${CMAKE_CURRENT_BINARY_DIR}/fac_table.h
+                > ${CMAKE_CURRENT_BINARY_DIR}/fac_table.h
   COMMAND gen-fib header ${GMP_LIMB_BITS} ${GMP_NAIL_BITS}
-		> ${CMAKE_CURRENT_BINARY_DIR}/fib_table.h
+                > ${CMAKE_CURRENT_BINARY_DIR}/fib_table.h
   COMMAND gen-fib table ${GMP_LIMB_BITS} ${GMP_NAIL_BITS}
-		> ${CMAKE_CURRENT_BINARY_DIR}/fib_table.c
+                > ${CMAKE_CURRENT_BINARY_DIR}/fib_table.c
   COMMAND gen-jacobitab ${GMP_LIMB_BITS} ${GMP_NAIL_BITS}
-		> ${CMAKE_CURRENT_BINARY_DIR}/jacobitab.h
+                > ${CMAKE_CURRENT_BINARY_DIR}/jacobitab.h
   COMMAND gen-psqr ${GMP_LIMB_BITS} ${GMP_NAIL_BITS}
-		> ${CMAKE_CURRENT_BINARY_DIR}/perfsqr.h
+                > ${CMAKE_CURRENT_BINARY_DIR}/perfsqr.h
   COMMAND gen-trialdivtab ${GMP_LIMB_BITS} 8000
-		> ${CMAKE_CURRENT_BINARY_DIR}/trialdivtab.h
+                > ${CMAKE_CURRENT_BINARY_DIR}/trialdivtab.h
 )
 
-set_source_files_properties(
+set(generated_gmp_sources
   ${CMAKE_CURRENT_BINARY_DIR}/mp_bases.h
   ${CMAKE_CURRENT_BINARY_DIR}/mp_bases.c
   ${CMAKE_CURRENT_BINARY_DIR}/fac_table.h
@@ -119,7 +131,10 @@ set_source_files_properties(
   ${CMAKE_CURRENT_BINARY_DIR}/jacobitab.h
   ${CMAKE_CURRENT_BINARY_DIR}/perfsqr.h
   ${CMAKE_CURRENT_BINARY_DIR}/trialdivtab.h
-  PROPERTIES GENERATED TRUE
+)
+
+add_custom_target(gen-gmp-sources DEPENDS
+  ${generated_gmp_sources}
 )
 
 set(basic_sources
@@ -375,7 +390,7 @@ set(mpz_sources
   ${fqsrcdir}/mpz/ui_pow_ui.c
 )
 
-set(${gmp_lib_name}_sources
+set(gmp_sources
   ${basic_sources}
   ${mpn_sources}
   ${mpz_sources}
@@ -386,13 +401,10 @@ set(${gmp_lib_name}_sources
   ${CMAKE_CURRENT_BINARY_DIR}/mp_bases.h
 )
 
-add_library(${gmp_lib_name} STATIC ${${gmp_lib_name}_sources})
+if(gmp_complete AND NOT LINK_EVERYTHING_STATICALLY)
+  add_subdirectory(shared)
+endif()
 
-set_property(TARGET ${gmp_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-target_include_directories(${gmp_lib_name}
-  PUBLIC
-    ${CMAKE_CURRENT_BINARY_DIR}/include
-)
+add_subdirectory(static)
 
 add_subdirectory(test)
