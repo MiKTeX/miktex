@@ -125,33 +125,33 @@ target_include_directories(${cairo_dll_name}
 )
 
 if(USE_SYSTEM_FONTCONFIG)
-  target_link_libraries(${cairo_dll_name} PUBLIC MiKTeX::Imported::FONTCONFIG)
+  target_link_libraries(${cairo_dll_name} PRIVATE MiKTeX::Imported::FONTCONFIG)
 else()
-  target_link_libraries(${cairo_dll_name} PUBLIC ${fontconfig_dll_name})
+  target_link_libraries(${cairo_dll_name} PRIVATE ${fontconfig_dll_name})
 endif()
 
 if(USE_SYSTEM_FREETYPE2)
-  target_link_libraries(${cairo_dll_name} PUBLIC MiKTeX::Imported::FREETYPE2)
+  target_link_libraries(${cairo_dll_name} PRIVATE MiKTeX::Imported::FREETYPE2)
 else()
-  target_link_libraries(${cairo_dll_name} PUBLIC ${freetype2_dll_name})
+  target_link_libraries(${cairo_dll_name} PRIVATE ${freetype2_dll_name})
 endif()
 
 if(USE_SYSTEM_PIXMAN)
-  target_link_libraries(${cairo_dll_name} PUBLIC MiKTeX::Imported::PIXMAN)
+  target_link_libraries(${cairo_dll_name} PRIVATE MiKTeX::Imported::PIXMAN)
 else()
-  target_link_libraries(${cairo_dll_name} PUBLIC ${pixman_lib_name})
+  target_link_libraries(${cairo_dll_name} PRIVATE ${pixman_lib_name})
 endif()
 
 if(USE_SYSTEM_PNG)
-  target_link_libraries(${cairo_dll_name} PUBLIC MiKTeX::Imported::PNG)
+  target_link_libraries(${cairo_dll_name} PRIVATE MiKTeX::Imported::PNG)
 else()
-  target_link_libraries(${cairo_dll_name} PUBLIC ${png_dll_name})
+  target_link_libraries(${cairo_dll_name} PRIVATE ${png_dll_name})
 endif()
 
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(${cairo_dll_name} PUBLIC MiKTeX::Imported::ZLIB)
+  target_link_libraries(${cairo_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(${cairo_dll_name} PUBLIC ${zlib_dll_name})
+  target_link_libraries(${cairo_dll_name} PRIVATE ${zlib_dll_name})
 endif()
 
 target_link_libraries(${cairo_dll_name}

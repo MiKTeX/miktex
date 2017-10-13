@@ -684,7 +684,6 @@ set(libs
   ${kpsemu_dll_name}
   ${lua_lib_name}
   ${md5_dll_name}
-#  ${mp_lib_name}
   ${w2cemu_dll_name}
 
   luatex-luaffi-static
@@ -697,24 +696,6 @@ set(libs
 
   luatex-miktex-static
 )
-
-if(USE_SYSTEM_CAIRO)
-  list(APPEND libs MiKTeX::Imported::CAIRO)
-else()
-  list(APPEND libs ${cairo_dll_name})
-endif()
-
-if(USE_SYSTEM_JPEG)
-  list(APPEND libs MiKTeX::Imported::JPEG)
-else()
-  list(APPEND libs ${jpeg_dll_name})
-endif()
-
-if(USE_SYSTEM_PIXMAN)
-  list(APPEND libs MiKTeX::Imported::PIXMAN)
-else()
-  list(APPEND libs ${pixman_lib_name})
-endif()
 
 if(USE_SYSTEM_PNG)
   list(APPEND libs MiKTeX::Imported::PNG)

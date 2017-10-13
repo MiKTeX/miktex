@@ -51,7 +51,7 @@ set_shared_library_version(
 target_include_directories(${poppler_dll_name} PUBLIC ${public_include_directories})
 
 target_link_libraries(${poppler_dll_name}
-  PUBLIC
+  PRIVATE
     ${core_dll_name}
     ${tiff_dll_name}
     Threads::Threads
@@ -59,65 +59,65 @@ target_link_libraries(${poppler_dll_name}
 
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${poppler_dll_name}
-    PUBLIC
+    PRIVATE
       ${unxemu_dll_name}
       ${utf8wrap_dll_name}
   )
 endif()
 
 if(USE_SYSTEM_CAIRO)
-  target_link_libraries(${poppler_dll_name} PUBLIC MiKTeX::Imported::CAIRO)
+  target_link_libraries(${poppler_dll_name} PRIVATE MiKTeX::Imported::CAIRO)
 else()
-  target_link_libraries(${poppler_dll_name} PUBLIC ${cairo_dll_name})
+  target_link_libraries(${poppler_dll_name} PRIVATE ${cairo_dll_name})
 endif()
 
 if(USE_SYSTEM_FREETYPE2)
-  target_link_libraries(${poppler_dll_name} PUBLIC MiKTeX::Imported::FREETYPE2)
+  target_link_libraries(${poppler_dll_name} PRIVATE MiKTeX::Imported::FREETYPE2)
 else()
-  target_link_libraries(${poppler_dll_name} PUBLIC ${freetype2_dll_name})
+  target_link_libraries(${poppler_dll_name} PRIVATE ${freetype2_dll_name})
 endif()
 
 if(USE_SYSTEM_PNG)
-  target_link_libraries(${poppler_dll_name} PUBLIC MiKTeX::Imported::PNG)
+  target_link_libraries(${poppler_dll_name} PRIVATE MiKTeX::Imported::PNG)
 else()
-  target_link_libraries(${poppler_dll_name} PUBLIC ${png_dll_name})
+  target_link_libraries(${poppler_dll_name} PRIVATE ${png_dll_name})
 endif()
 
 if(USE_SYSTEM_ZLIB)
-  target_link_libraries(${poppler_dll_name} PUBLIC MiKTeX::Imported::ZLIB)
+  target_link_libraries(${poppler_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
 else()
-  target_link_libraries(${poppler_dll_name} PUBLIC ${zlib_dll_name})
+  target_link_libraries(${poppler_dll_name} PRIVATE ${zlib_dll_name})
 endif()
 
 if(ENABLE_LIBCURL)
   if(USE_SYSTEM_CURL)
-    target_link_libraries(${poppler_dll_name} PUBLIC MiKTeX::Imported::CURL)
+    target_link_libraries(${poppler_dll_name} PRIVATE MiKTeX::Imported::CURL)
   else()
-    target_link_libraries(${poppler_dll_name} PUBLIC ${curl_dll_name})
+    target_link_libraries(${poppler_dll_name} PRIVATE ${curl_dll_name})
   endif()
 endif()
 
 if(ENABLE_LIBJPEG)
   if(USE_SYSTEM_JPEG)
-    target_link_libraries(${poppler_dll_name} PUBLIC MiKTeX::Imported::JPEG)
+    target_link_libraries(${poppler_dll_name} PRIVATE MiKTeX::Imported::JPEG)
   else()
-    target_link_libraries(${poppler_dll_name} PUBLIC ${jpeg_dll_name})
+    target_link_libraries(${poppler_dll_name} PRIVATE ${jpeg_dll_name})
   endif()
 endif()
 
 if(ENABLE_ZLIB)
   if(USE_SYSTEM_ZLIB)
-    target_link_libraries(${poppler_dll_name} PUBLIC MiKTeX::Imported::ZLIB)
+    target_link_libraries(${poppler_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
   else()
-    target_link_libraries(${poppler_dll_name} PUBLIC ${zlib_dll_name})
+    target_link_libraries(${poppler_dll_name} PRIVATE ${zlib_dll_name})
   endif()
 endif()
 
 if(WITH_FONTCONFIGURATION_FONTCONFIG)
   if(USE_SYSTEM_FONTCONFIG)
-    target_link_libraries(${poppler_dll_name} PUBLIC MiKTeX::Imported::FONTCONFIG)
+    target_link_libraries(${poppler_dll_name} PRIVATE MiKTeX::Imported::FONTCONFIG)
   else()
-    target_link_libraries(${poppler_dll_name} PUBLIC ${fontconfig_dll_name})
+    target_link_libraries(${poppler_dll_name} PRIVATE ${fontconfig_dll_name})
   endif()
 endif()
 

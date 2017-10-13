@@ -263,37 +263,43 @@ target_include_directories(${metapost_dll_name}
 )
 
 if(USE_SYSTEM_CAIRO)
-  target_link_libraries(${metapost_dll_name} PUBLIC MiKTeX::Imported::CAIRO)
+  target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::CAIRO)
 else()
-  target_link_libraries(${metapost_dll_name} PUBLIC ${cairo_dll_name})
+  target_link_libraries(${metapost_dll_name} PRIVATE ${cairo_dll_name})
 endif()
 
 if(USE_SYSTEM_GMP)
-  target_link_libraries(${metapost_dll_name} PUBLIC MiKTeX::Imported::GMP)
+  target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::GMP)
 else()
-  target_link_libraries(${metapost_dll_name} PUBLIC ${gmp_lib_name})
+  target_link_libraries(${metapost_dll_name} PRIVATE ${gmp_lib_name})
 endif()
 
 if(USE_SYSTEM_MPFR)
-  target_link_libraries(${metapost_dll_name} PUBLIC MiKTeX::Imported::MPFR)
+  target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::MPFR)
 else()
-  target_link_libraries(${metapost_dll_name} PUBLIC ${mpfr_lib_name})
+  target_link_libraries(${metapost_dll_name} PRIVATE ${mpfr_lib_name})
 endif()
 
 if(USE_SYSTEM_PIXMAN)
-  target_link_libraries(${metapost_dll_name} PUBLIC MiKTeX::Imported::PIXMAN)
+  target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::PIXMAN)
 else()
-  target_link_libraries(${metapost_dll_name} PUBLIC ${pixman_lib_name})
+  target_link_libraries(${metapost_dll_name} PRIVATE ${pixman_lib_name})
 endif()
 
 if(USE_SYSTEM_PNG)
-  target_link_libraries(${metapost_dll_name} PUBLIC MiKTeX::Imported::PNG)
+  target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::PNG)
 else()
-  target_link_libraries(${metapost_dll_name} PUBLIC ${png_dll_name})
+  target_link_libraries(${metapost_dll_name} PRIVATE ${png_dll_name})
+endif()
+
+if(USE_SYSTEM_ZLIB)
+  target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::ZLIB)
+else()
+  target_link_libraries(${metapost_dll_name} PRIVATE ${zlib_dll_name})
 endif()
 
 target_link_libraries(${metapost_dll_name}
-  PUBLIC
+  PRIVATE
     ${core_dll_name}
     ${kpsemu_dll_name}
     ${w2cemu_dll_name}
