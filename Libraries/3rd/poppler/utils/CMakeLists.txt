@@ -40,6 +40,11 @@ if(ENABLE_SPLASH)
     ${app_dll_name}
     ${poppler_dll_name}
   )
+  if(MIKTEX_NATIVE_WINDOWS)
+    target_link_libraries(${MIKTEX_PREFIX}pdftoppm
+      ${utf8wrap_dll_name}
+    )
+  endif()
   install(TARGETS ${MIKTEX_PREFIX}pdftoppm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 endif()
 
@@ -59,6 +64,17 @@ if(HAVE_CAIRO)
     ${app_dll_name}
     ${poppler_dll_name}
   )
+  if(USE_SYSTEM_CAIRO)
+    target_link_libraries(${MIKTEX_PREFIX}pdftocairo MiKTeX::Imported::CAIRO)
+  else()
+    target_link_libraries(${MIKTEX_PREFIX}pdftocairo ${cairo_dll_name})
+  endif()
+  if(MIKTEX_NATIVE_WINDOWS)
+    target_link_libraries(${MIKTEX_PREFIX}pdftocairo
+      ${unxemu_dll_name}
+      ${utf8wrap_dll_name}
+    )
+  endif()
   install(TARGETS ${MIKTEX_PREFIX}pdftocairo DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 endif()
 
@@ -72,7 +88,13 @@ set_property(TARGET ${MIKTEX_PREFIX}pdfdetach PROPERTY FOLDER ${MIKTEX_CURRENT_F
 target_link_libraries(${MIKTEX_PREFIX}pdfdetach
   ${app_dll_name}
   ${poppler_dll_name}
+  ${utf8wrap_dll_name}
 )
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}pdfdetach
+    ${utf8wrap_dll_name}
+  )
+endif()
 install(TARGETS ${MIKTEX_PREFIX}pdfdetach DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(pdffonts_sources
@@ -86,6 +108,11 @@ target_link_libraries(${MIKTEX_PREFIX}pdffonts
   ${app_dll_name}
   ${poppler_dll_name}
 )
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}pdffonts
+    ${utf8wrap_dll_name}
+  )
+endif()
 install(TARGETS ${MIKTEX_PREFIX}pdffonts DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(pdfimages_sources
@@ -103,6 +130,11 @@ target_link_libraries(${MIKTEX_PREFIX}pdfimages
   ${app_dll_name}
   ${poppler_dll_name}
 )
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}pdfimages
+    ${utf8wrap_dll_name}
+  )
+endif()
 install(TARGETS ${MIKTEX_PREFIX}pdfimages DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(pdfinfo_sources
@@ -119,6 +151,12 @@ target_link_libraries(${MIKTEX_PREFIX}pdfinfo
   ${app_dll_name}
   ${poppler_dll_name}
 )
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}pdfinfo
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+  )
+endif()
 install(TARGETS ${MIKTEX_PREFIX}pdfinfo DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(pdftops_sources
@@ -132,6 +170,11 @@ target_link_libraries(${MIKTEX_PREFIX}pdftops
   ${app_dll_name}
   ${poppler_dll_name}
 )
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}pdftops
+    ${utf8wrap_dll_name}
+  )
+endif()
 install(TARGETS ${MIKTEX_PREFIX}pdftops DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(pdftotext_sources
@@ -146,6 +189,11 @@ target_link_libraries(${MIKTEX_PREFIX}pdftotext
   ${app_dll_name}
   ${poppler_dll_name}
 )
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}pdftotext
+    ${utf8wrap_dll_name}
+  )
+endif()
 install(TARGETS ${MIKTEX_PREFIX}pdftotext DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(pdftohtml_sources
@@ -162,6 +210,17 @@ target_link_libraries(${MIKTEX_PREFIX}pdftohtml
   ${app_dll_name}
   ${poppler_dll_name}
 )
+if(USE_SYSTEM_CAIRO)
+  target_link_libraries(${MIKTEX_PREFIX}pdftohtml MiKTeX::Imported::PNG)
+else()
+  target_link_libraries(${MIKTEX_PREFIX}pdftohtml ${png_dll_name})
+endif()
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}pdftohtml
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+  )
+endif()
 install(TARGETS ${MIKTEX_PREFIX}pdftohtml DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(pdfseparate_sources
@@ -175,6 +234,11 @@ target_link_libraries(${MIKTEX_PREFIX}pdfseparate
   ${app_dll_name}
   ${poppler_dll_name}
 )
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}pdfseparate
+    ${utf8wrap_dll_name}
+  )
+endif()
 install(TARGETS ${MIKTEX_PREFIX}pdfseparate DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(pdfunite_sources
@@ -188,6 +252,11 @@ target_link_libraries(${MIKTEX_PREFIX}pdfunite
   ${app_dll_name}
   ${poppler_dll_name}
 )
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}pdfunite
+    ${utf8wrap_dll_name}
+  )
+endif()
 install(TARGETS ${MIKTEX_PREFIX}pdfunite DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 if(ENABLE_NSS3)

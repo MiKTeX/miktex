@@ -125,15 +125,15 @@ target_include_directories(${cairo_dll_name}
 )
 
 if(USE_SYSTEM_FONTCONFIG)
-  target_link_libraries(${cairo_dll_name} PRIVATE MiKTeX::Imported::FONTCONFIG)
+  target_link_libraries(${cairo_dll_name} PUBLIC MiKTeX::Imported::FONTCONFIG)
 else()
-  target_link_libraries(${cairo_dll_name} PRIVATE ${fontconfig_dll_name})
+  target_link_libraries(${cairo_dll_name} PUBLIC ${fontconfig_dll_name})
 endif()
 
 if(USE_SYSTEM_FREETYPE2)
-  target_link_libraries(${cairo_dll_name} PRIVATE MiKTeX::Imported::FREETYPE2)
+  target_link_libraries(${cairo_dll_name} PUBLIC MiKTeX::Imported::FREETYPE2)
 else()
-  target_link_libraries(${cairo_dll_name} PRIVATE ${freetype2_dll_name})
+  target_link_libraries(${cairo_dll_name} PUBLIC ${freetype2_dll_name})
 endif()
 
 if(USE_SYSTEM_PIXMAN)

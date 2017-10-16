@@ -91,11 +91,17 @@ target_link_libraries(${poppler_qt_dll_name}
     Qt5::Gui
     Qt5::Xml
     ${core_dll_name}
-    ${unxemu_dll_name}
-    ${utf8wrap_dll_name}
   PUBLIC
     ${poppler_dll_name}
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${poppler_qt_dll_name}
+    PRIVATE
+      ${unxemu_dll_name}
+      ${utf8wrap_dll_name}
+  )
+endif()
 
 if(USE_SYSTEM_FREETYPE2)
   target_link_libraries(${poppler_qt_dll_name} PRIVATE MiKTeX::Imported::FREETYPE2)
