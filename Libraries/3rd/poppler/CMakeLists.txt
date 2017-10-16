@@ -53,7 +53,8 @@ else()
   set(WITH_FONTCONFIGURATION_FONTCONFIG FALSE)
 endif()
 
-set(MULTITHREADED TRUE)
+## see: https://github.com/MiKTeX/miktex/issues/20
+#set(MULTITHREADED TRUE)
 set(OPI_SUPPORT TRUE)
 set(TEXTOUT_WORD_LIST TRUE)
 
