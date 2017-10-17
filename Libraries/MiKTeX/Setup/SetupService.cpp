@@ -647,7 +647,9 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
       {
         options.Config.commonInstallRoot = GetDefaultCommonInstallDir();
       }
+#if 0
       options.Config.userInstallRoot = "";
+#endif
     }
     else
     {
@@ -655,7 +657,9 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
       {
         options.Config.userInstallRoot = GetDefaultUserInstallDir();
       }
+#if 0
       options.Config.commonInstallRoot = "";
+#endif
     }
   }
   if (options.Task == SetupTask::Download || options.Task == SetupTask::InstallFromLocalRepository)
