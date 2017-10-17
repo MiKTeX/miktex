@@ -54,7 +54,7 @@ else()
 endif()
 
 ## see: https://github.com/MiKTeX/miktex/issues/20
-#set(MULTITHREADED TRUE)
+set(MULTITHREADED TRUE)
 set(OPI_SUPPORT TRUE)
 set(TEXTOUT_WORD_LIST TRUE)
 
