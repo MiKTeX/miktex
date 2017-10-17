@@ -16,6 +16,14 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along
 with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+/*
+This is based on the patch texlive-poppler-0.59.patch <2017-09-19> at
+https://git.archlinux.org/svntogit/packages.git/plain/texlive-bin/trunk
+by Arch Linux. The poppler should be 0.59.0 or newer versions.
+POPPLER_VERSION should be defined.
+*/
+
 #if defined(MIKTEX_WINDOWS)
 #define MIKTEX_UTF8_WRAP_ALL 1
 #include <miktex/utf8wrap.h>

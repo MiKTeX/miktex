@@ -1,5 +1,5 @@
 /*
-Copyright 1996-2016 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2017 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -15,6 +15,15 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along
 with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/*
+This is based on the patch texlive-poppler-0.59.patch <2017-09-19> at
+https://git.archlinux.org/svntogit/packages.git/plain/texlive-bin/trunk
+by Arch Linux. A little modifications are made to avoid a crash for
+some kind of pdf images, such as figure_missing.pdf in gnuplot.
+The poppler should be 0.59.0 or newer versions.
+POPPLER_VERSION should be defined.
 */
 
 #if defined(MIKTEX)
@@ -1170,7 +1179,36 @@ void write_epdf(void)
 #ifndef MIKTEX_POPPLER_59
             initDictFromDict(groupDict, page->getGroup());
 #else
+#if 0
             groupDict = Object(page->getGroup());
+#else
+/*
+This part is only a single line
+            groupDict = Object(page->getGroup());
+in the original patch. In this case, however, pdftex crashes at
+"delete pdf_doc->doc" in "delete_document()" for inclusion of some
+kind of pdf images, for example, figure_missing.pdf in gnuplot.
+A change
+            groupDict = Object(page->getGroup()).copy();
+does not improve the situation.
+The changes below seem to work fine. 
+*/
+// begin modification
+            groupDict = pageDict->lookup("Group");
+            Dict dic1 = page->getGroup();
+            Dict dic2 = groupDict.getDict();
+            // replace dic2 in groupDict with dic1
+            l = dic2.getLength();
+            for (i = 0; i < l; i++) {
+                groupDict.dictRemove(dic2.getKey(i));
+            }
+            l = dic1.getLength();
+            for (i = 0; i < l; i++) {
+                groupDict.dictAdd(copyString(dic1.getKey(i)),
+                                  dic1.getValNF(i));
+            }
+// end modification
+#endif
 #endif
             pdf_printf("/Group %ld 0 R\n", (long)pdfpagegroupval);
         }
