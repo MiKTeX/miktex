@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2016 Christian Schenk
+## Copyright (C) 2015-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -47,12 +47,14 @@ target_include_directories(${libressl_ssl_dll_name}
 )
 
 target_link_libraries(${libressl_ssl_dll_name}
-  ${libressl_crypto_dll_name}
+  PRIVATE
+    ${libressl_crypto_dll_name}
 )
 
 if (MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${libressl_ssl_dll_name}
-    Ws2_32.lib)
+    PRIVATE
+      Ws2_32.lib)
 endif()
 
 rebase(${libressl_ssl_dll_name})

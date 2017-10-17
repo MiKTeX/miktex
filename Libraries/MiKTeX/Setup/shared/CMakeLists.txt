@@ -53,9 +53,9 @@ target_include_directories(${setup_dll_name}
 
 target_link_libraries(${setup_dll_name}
   PRIVATE
-  ${core_dll_name}
-  ${extractor_dll_name}
-  ${mpm_dll_name}
+    ${core_dll_name}
+    ${extractor_dll_name}
+    ${mpm_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

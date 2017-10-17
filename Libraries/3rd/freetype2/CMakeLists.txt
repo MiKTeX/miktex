@@ -277,7 +277,6 @@ target_include_directories(${freetype2_dll_name}
 target_link_libraries(${freetype2_dll_name}
   PRIVATE
     ${unxemu_dll_name}
-    ${utf8wrap_dll_name}
 )
 
 target_link_libraries(${freetype2_dll_name}
