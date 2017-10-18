@@ -72,6 +72,9 @@
 /* Define to 1 if you have the `mprotect' function. */
 #cmakedefine HAVE_MPROTECT 1
 
+/* Define to 1 if you have the `newlocale' function. */
+#cmakedefine HAVE_NEWLOCALE 1
+
 /* Have native OpenType Layout backend */
 #cmakedefine HAVE_OT 1
 
