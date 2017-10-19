@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:TPM="http://texlive.dante.de/">
+  <rdf:Description about="http://www.miktex.org/packages/miktex/">
+    <TPM:Name>HarfBuzz lib win32</TPM:Name>
+    <TPM:Title>OpenType text shaping engine, Windows x86</TPM:Title>
+    <TPM:Copyright owner="Mozilla Foundation" year="2015"/>
+    <TPM:Copyright owner="Google, Inc." year="2015"/>
+    <TPM:License type="mit"/>
+    <TPM:Version>1.6.0</TPM:Version>
+    <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
+    <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
+    <TPM:Description>
+      HarfBuzz (loose transliteration of Persian حرف‌باز harf-bāz,
+      meaning "Opentype") is a software development library for text
+      shaping, which is the process of converting Unicode text to
+      glyph indices and positions.
+    </TPM:Description>
+    <TPM:RunFiles>
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${harfbuzz_dll_name}.dll
+    </TPM:RunFiles>
+  </rdf:Description>
+</rdf:RDF>

@@ -71,6 +71,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-graphite2-bin.tpm.in
     windows-x86/miktex-gregorio-bin.tpm.in
     windows-x86/miktex-gsf2pk-bin.tpm.in
+    windows-x86/miktex-harfbuzz-bin.tpm.in
     windows-x86/miktex-hunspell-bin.tpm.in
     windows-x86/miktex-int-bin.tpm.in
     windows-x86/miktex-jpeg-bin.tpm.in
@@ -160,6 +161,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-graphite2-bin-x64.tpm.in
     windows-x64/miktex-gregorio-bin-x64.tpm.in
     windows-x64/miktex-gsf2pk-bin-x64.tpm.in
+    windows-x64/miktex-harfbuzz-bin-x64.tpm.in
     windows-x64/miktex-hunspell-bin-x64.tpm.in
     windows-x64/miktex-int-bin-x64.tpm.in
     windows-x64/miktex-jpeg-bin-x64.tpm.in

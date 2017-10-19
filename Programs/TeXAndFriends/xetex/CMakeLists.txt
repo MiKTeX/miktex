@@ -273,7 +273,7 @@ if(USE_SYSTEM_HARFBUZZ_ICU)
   target_link_libraries(${xetex_target_name} PRIVATE MiKTeX::Imported::HARFBUZZ_ICU)
   target_link_libraries(${xetex_target_name} PRIVATE MiKTeX::Imported::HARFBUZZ)
 else()
-  target_link_libraries(${xetex_target_name} PRIVATE ${harfbuzz_lib_name})
+  target_link_libraries(${xetex_target_name} PRIVATE ${harfbuzz_dll_name})
 endif()
 
 if(USE_SYSTEM_ICU)
