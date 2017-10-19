@@ -208,7 +208,9 @@ to minimize dependencies.
 @c
 extern const char *COMPILED_CAIRO_VERSION_STRING;
 extern const char* cairo_version_string (void);
+#if !defined(MIKTEX)
 extern const char *COMPILED_PIXMAN_VERSION_STRING;
+#endif
 extern const char* pixman_version_string (void);
 extern void mp_png_backend_initialize (MP mp);
 extern void mp_png_backend_free (MP mp);
@@ -30678,7 +30680,9 @@ char *mp_metapost_version (void) {
 }
 void mp_show_library_versions (void) {
   fprintf(stdout, "Compiled with cairo %s; using %s\n", COMPILED_CAIRO_VERSION_STRING, cairo_version_string());
+#if !defined(MIKTEX)
   fprintf(stdout, "Compiled with pixman %s; using %s\n",COMPILED_PIXMAN_VERSION_STRING, pixman_version_string());
+#endif
   fprintf(stdout, "Compiled with libpng %s; using %s\n", PNG_LIBPNG_VER_STRING, png_libpng_ver);
   fprintf(stdout, "Compiled with zlib %s; using %s\n", ZLIB_VERSION, zlibVersion());
   fprintf(stdout, "Compiled with mpfr %s; using %s\n", MPFR_VERSION_STRING, mpfr_get_version());

@@ -280,12 +280,6 @@ else()
   target_link_libraries(${metapost_dll_name} PRIVATE ${mpfr_lib_name})
 endif()
 
-if(USE_SYSTEM_PIXMAN)
-  target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::PIXMAN)
-else()
-  target_link_libraries(${metapost_dll_name} PRIVATE ${pixman_lib_name})
-endif()
-
 if(USE_SYSTEM_PNG)
   target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::PNG)
 else()
