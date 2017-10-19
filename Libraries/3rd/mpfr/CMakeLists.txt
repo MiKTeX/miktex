@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2016 Christian Schenk
+## Copyright (C) 2015-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -16,6 +16,8 @@
 ## along with this file; if not, write to the Free Software
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
+
+include(component.cmake)
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/mpfr")
 
@@ -43,8 +45,12 @@ configure_file(
   @ONLY
 )
 
+configure_file(
+  mpfr-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/mpfr-version.h
+)
 
-set(sources
+set(mpfr_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/abort_prec_max.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/add.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/add1.c
@@ -131,6 +137,7 @@ set(sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/setmax.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/setmin.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/sgn.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/si_op.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/sin.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/sin_cos.c
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/sqr.c
@@ -147,21 +154,6 @@ set(sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/version.c
 )
 
-add_library(${mpfr_lib_name} STATIC ${sources})
-
-set_property(TARGET ${mpfr_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-if(USE_SYSTEM_GMP)
-  target_link_libraries(${mpfr_lib_name} PUBLIC MiKTeX::Imported::GMP)
-else()
-  target_link_libraries(${mpfr_lib_name} PUBLIC ${gmp_lib_name})
-endif()
-
-target_include_directories(${mpfr_lib_name}
-  PUBLIC
-    ${public_include_directories}
-)
-
 set(public_headers
   mpfr.h
   mpf2mpfr.h
@@ -176,3 +168,9 @@ foreach(hdr ${public_headers})
 endforeach()
 
 add_subdirectory(test)
+
+if(NOT LINK_EVERYTHING_STATICALLY)
+  add_subdirectory(shared)
+endif()
+
+add_subdirectory(static)

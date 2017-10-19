@@ -91,6 +91,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-mkfntmap-bin.tpm.in
     windows-x86/miktex-mktex-bin.tpm.in
     windows-x86/miktex-mo-bin.tpm.in
+    windows-x86/miktex-mpfr-bin.tpm.in
     windows-x86/miktex-mpm-bin.tpm.in
     windows-x86/miktex-mpmcli-bin.tpm.in
     windows-x86/miktex-mspack-bin.tpm.in
@@ -182,6 +183,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-mkfntmap-bin-x64.tpm.in
     windows-x64/miktex-mktex-bin-x64.tpm.in
     windows-x64/miktex-mo-bin-x64.tpm.in
+    windows-x64/miktex-mpfr-bin-x64.tpm.in
     windows-x64/miktex-mpm-bin-x64.tpm.in
     windows-x64/miktex-mpmcli-bin-x64.tpm.in
     windows-x64/miktex-mspack-bin-x64.tpm.in

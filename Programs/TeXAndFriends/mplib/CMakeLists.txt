@@ -277,7 +277,7 @@ endif()
 if(USE_SYSTEM_MPFR)
   target_link_libraries(${metapost_dll_name} PRIVATE MiKTeX::Imported::MPFR)
 else()
-  target_link_libraries(${metapost_dll_name} PRIVATE ${mpfr_lib_name})
+  target_link_libraries(${metapost_dll_name} PRIVATE ${mpfr_dll_name})
 endif()
 
 if(USE_SYSTEM_PNG)
