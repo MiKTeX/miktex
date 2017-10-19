@@ -43,8 +43,6 @@ set_shared_library_version(
 
 target_include_directories(${harfbuzz_dll_name} PUBLIC ${public_include_directories})
 
-rebase(${harfbuzz_dll_name})
-
 if(USE_SYSTEM_GRAPHITE2)
   target_link_libraries(${harfbuzz_dll_name} PUBLIC MiKTeX::Imported::GRAPHITE2)
 else()
@@ -56,3 +54,12 @@ target_link_libraries(${harfbuzz_dll_name}
     ICU::i18n
     ICU::uc
 )
+
+rebase(${harfbuzz_dll_name})
+
+install(TARGETS ${harfbuzz_dll_name}
+  RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
+  LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+  ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
+)
+
