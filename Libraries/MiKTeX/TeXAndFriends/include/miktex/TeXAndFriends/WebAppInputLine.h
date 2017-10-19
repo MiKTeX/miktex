@@ -234,9 +234,9 @@ template<class FileType> inline bool miktexopeninputfile(FileType& f)
   if (done)
   {
 #if defined(MIKTEX_OMEGA)
-    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->MangleNameOfFile(WebAppInputLine::GetWebAppInputLine()->GetFoundFile().GetData()));
+    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->MangleNameOfFile(WebAppInputLine::GetWebAppInputLine()->GetFoundFileFq().GetData()));
 #else
-    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->GetFoundFile());
+    WebAppInputLine::GetWebAppInputLine()->SetNameOfFile(WebAppInputLine::GetWebAppInputLine()->GetFoundFileFq());
 #endif
   }
   return done;
