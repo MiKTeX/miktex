@@ -357,6 +357,8 @@ set(mpost_sources
   ${CMAKE_CURRENT_BINARY_DIR}/metapost-version.h
   ${MIKTEX_LIBRARY_WRAPPER}
   ${mpost_cweb_sources}
+  miktex/mpost.cpp
+  miktex/mpost.h
 )
 
 if(MIKTEX_NATIVE_WINDOWS)

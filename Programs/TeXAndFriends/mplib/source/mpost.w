@@ -29,6 +29,7 @@ have our customary command-line interface.
 #if defined(MIKTEX_WINDOWS)
 #  define MIKTEX_UTF8_WRAP_ALL 1
 #  include <miktex/utf8wrap.h>
+#  include <miktex/mpost.h>
 #endif
 #include <w2c/config.h>
 #include <stdio.h>
@@ -1177,6 +1178,9 @@ fprintf(stdout,
   mpost_xfree(s);
   if (!dvitomp_only) {
      mp_show_library_versions();
+#if defined(MIKTEX)
+     miktex_show_library_versions();
+#endif
   }
   exit(EXIT_SUCCESS);
 }
