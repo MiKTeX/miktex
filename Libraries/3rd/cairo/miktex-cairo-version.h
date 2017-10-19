@@ -19,7 +19,7 @@
 
 #include "source/cairo-version.h"
 
-#define MIKTEX_COMP_J2000_VERSION 6384
+#define MIKTEX_COMP_J2000_VERSION 6501
 
 #define MIKTEX_COMP_ORIG_VERSION_STR "1.14.10"
 

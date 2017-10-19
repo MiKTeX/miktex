@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2013-2016 Christian Schenk
+## Copyright (C) 2013-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,7 +17,7 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-add_library(${pixman_lib_name} STATIC ${sources})
+add_library(${pixman_lib_name} STATIC ${pixman_sources})
 
 set_property(TARGET ${pixman_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 

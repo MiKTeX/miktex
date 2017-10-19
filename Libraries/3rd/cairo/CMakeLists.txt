@@ -139,7 +139,7 @@ endif()
 if(USE_SYSTEM_PIXMAN)
   target_link_libraries(${cairo_dll_name} PRIVATE MiKTeX::Imported::PIXMAN)
 else()
-  target_link_libraries(${cairo_dll_name} PRIVATE ${pixman_lib_name})
+  target_link_libraries(${cairo_dll_name} PRIVATE ${pixman_dll_name})
 endif()
 
 if(USE_SYSTEM_PNG)
