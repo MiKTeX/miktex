@@ -942,7 +942,7 @@ private:
   bool makeFonts = true;
 
 private:
-  typedef std::unordered_map<std::string, std::unique_ptr<MiKTeX::Core::Cfg>, MiKTeX::Core::hash_icase, MiKTeX::Core::equal_icase> ConfigurationSettings;
+  typedef std::unordered_map<std::string, std::unique_ptr<MiKTeX::Core::Cfg>> ConfigurationSettings;
 
 private:
   ConfigurationSettings configurationSettings;

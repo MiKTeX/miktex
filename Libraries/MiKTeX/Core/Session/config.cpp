@@ -687,21 +687,23 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
   // iterate over application tags, e.g.: latex;tex;miktex
   for (CsvList app(applicationNames, PathName::PathNameDelimiter); !haveValue && app; ++app)
   {
+    string lookupKeyName = Utils::MakeLower(*app);
+
     Cfg* cfg = nullptr;
 
     // read configuration files
     if (!initInfo.GetOptions()[InitOption::NoConfigFiles])
     {
-      ConfigurationSettings::iterator it = configurationSettings.find(*app);
+      ConfigurationSettings::iterator it = configurationSettings.find(lookupKeyName);
       if (it != configurationSettings.end())
       {
         cfg = it->second.get();
       }
       else
       {
-        pair<ConfigurationSettings::iterator, bool> p = configurationSettings.insert(ConfigurationSettings::value_type(*app, Cfg::Create()));
+        pair<ConfigurationSettings::iterator, bool> p = configurationSettings.insert(ConfigurationSettings::value_type(lookupKeyName, Cfg::Create()));
         cfg = p.first->second.get();
-        ReadAllConfigFiles(*app, *cfg);
+        ReadAllConfigFiles(lookupKeyName, *cfg);
       }
     }
 
