@@ -118,7 +118,7 @@ set_property(TARGET luatex-luasocket-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOL
 
 target_link_libraries(luatex-luasocket-static
   PUBLIC
-    ${lua_lib_name}
+    ${lua_dll_name}
 )
 
 ###############################################################################
@@ -159,13 +159,14 @@ endif()
 target_link_libraries(luatex-luamisc-static
   PUBLIC
     ${core_dll_name}
-    ${lua_lib_name}
+    ${lua_dll_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(luatex-luamisc-static
     PUBLIC
       ${unxemu_dll_name}
+      ${utf8wrap_dll_name}
   )
 endif()
 
@@ -316,10 +317,17 @@ target_link_libraries(luatex-luafontforge-static
   PUBLIC
     ${core_dll_name}
     ${kpsemu_dll_name}
-    ${lua_lib_name}
+    ${lua_dll_name}
     ${w2cemu_dll_name}
     luatex-unilib-static
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(luatex-luafontforge-static
+    PUBLIC
+      ${utf8wrap_dll_name}
+  )
+endif()
 
 ###############################################################################
 ## luatex-luaffi-static
@@ -348,7 +356,7 @@ target_include_directories(luatex-luaffi-static
 
 target_link_libraries(luatex-luaffi-static
   PUBLIC
-    ${lua_lib_name}
+    ${lua_dll_name}
 )
 
 if(USE_SYSTEM_ZLIB)
@@ -648,7 +656,7 @@ target_link_libraries(luatex-static
   PUBLIC
     ${core_dll_name}
     ${kpsemu_dll_name}
-    ${lua_lib_name}
+    ${lua_dll_name}
     ${metapost_dll_name}
     ${w2cemu_dll_name}
     luatex-luaffi-static
@@ -682,7 +690,7 @@ set(libs
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
-  ${lua_lib_name}
+  ${lua_dll_name}
   ${md5_dll_name}
   ${w2cemu_dll_name}
 

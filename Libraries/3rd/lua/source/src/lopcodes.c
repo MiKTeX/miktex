@@ -14,7 +14,11 @@
 
 /* ORDER OP */
 
+#if defined(MIKTEX)
+MIKTEX_LUA_EXPORT const char *const luaP_opnames[NUM_OPCODES+1] = {
+#else
 LUAI_DDEF const char *const luaP_opnames[NUM_OPCODES+1] = {
+#endif
   "MOVE",
   "LOADK",
   "LOADKX",
@@ -61,7 +65,11 @@ LUAI_DDEF const char *const luaP_opnames[NUM_OPCODES+1] = {
 
 #define opmode(t,a,b,c,m) (((t)<<7) | ((a)<<6) | ((b)<<4) | ((c)<<2) | (m))
 
+#if defined(MIKTEX_WINDOWS)
+MIKTEX_LUA_EXPORT const lu_byte luaP_opmodes[NUM_OPCODES] = {
+#else
 LUAI_DDEF const lu_byte luaP_opmodes[NUM_OPCODES] = {
+#endif
 /*       T  A    B       C     mode		   opcode	*/
   opmode(0, 1, OpArgR, OpArgN, iABC)		/* OP_MOVE */
  ,opmode(0, 1, OpArgK, OpArgN, iABx)		/* OP_LOADK */

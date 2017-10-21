@@ -83,6 +83,7 @@ include(sources.cmake)
 
 if(NOT LINK_EVERYTHING_STATICALLY)
   add_subdirectory(shared)
+  set(lua_target_library ${lua_dll_name})
   if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND lua_sources
       lua.rc
@@ -97,9 +98,17 @@ if(NOT LINK_EVERYTHING_STATICALLY)
   merge_compatibility_manifest(${MIKTEX_PREFIX}lua)
   target_link_libraries(${MIKTEX_PREFIX}lua ${lua_dll_name})
   install(TARGETS ${MIKTEX_PREFIX}lua DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+else()
+  set(lua_target_library ${lua_lib_name})
 endif()
 
 add_subdirectory(static)
+
+generate_export_header(${lua_target_library}
+  BASE_NAME MIKTEX_LUA
+  EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/lua/export.h
+  STATIC_DEFINE MIKTEX_LUA_STATIC
+)
 
 add_executable(${MIKTEX_PREFIX}luac ${luac_sources})
 

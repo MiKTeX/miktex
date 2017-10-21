@@ -21,6 +21,11 @@ add_library(${lua_lib_name} STATIC ${lua_lib_sources})
 
 set_property(TARGET ${lua_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+target_compile_definitions(${lua_lib_name}
+  PUBLIC
+    -DMIKTEX_LUA_STATIC
+)
+
 target_include_directories(${lua_lib_name}
   PUBLIC
     ${public_include_directories}

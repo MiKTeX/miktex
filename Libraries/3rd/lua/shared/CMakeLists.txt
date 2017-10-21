@@ -33,12 +33,7 @@ add_library(${lua_dll_name} SHARED ${${lua_dll_name}_sources})
 
 set_property(TARGET ${lua_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-if(MIKTEX_NATIVE_WINDOWS)
-  target_compile_definitions(${lua_dll_name}
-    PRIVATE
-      -DLUA_BUILD_AS_DLL 
-  )
-endif()
+set_property(TARGET ${lua_dll_name} PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
 target_include_directories(${lua_dll_name}
   PUBLIC

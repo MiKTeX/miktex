@@ -269,7 +269,11 @@ enum OpArgMask {
   OpArgK   /* argument is a constant or register/constant */
 };
 
+#if defined(MIKTEX)
+MIKTEX_LUA_EXPORT const lu_byte luaP_opmodes[NUM_OPCODES];
+#else
 LUAI_DDEC const lu_byte luaP_opmodes[NUM_OPCODES];
+#endif
 
 #define getOpMode(m)	(cast(enum OpMode, luaP_opmodes[m] & 3))
 #define getBMode(m)	(cast(enum OpArgMask, (luaP_opmodes[m] >> 4) & 3))
@@ -278,7 +282,11 @@ LUAI_DDEC const lu_byte luaP_opmodes[NUM_OPCODES];
 #define testTMode(m)	(luaP_opmodes[m] & (1 << 7))
 
 
+#if defined(MIKTEX)
+MIKTEX_LUA_EXPORT const char *const luaP_opnames[NUM_OPCODES+1];  /* opcode names */
+#else
 LUAI_DDEC const char *const luaP_opnames[NUM_OPCODES+1];  /* opcode names */
+#endif
 
 
 /* number of list items to accumulate before a SETLIST instruction */

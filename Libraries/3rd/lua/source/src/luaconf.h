@@ -10,6 +10,9 @@
 
 #include <limits.h>
 #include <stddef.h>
+#if defined(MIKTEX)
+#include <miktex/lua/export.h>
+#endif
 
 
 /*
