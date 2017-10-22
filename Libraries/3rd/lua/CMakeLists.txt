@@ -32,6 +32,7 @@ set(public_include_directories
 
 set(public_compile_definitions
   -DLUA_COMPAT_MODULE
+  -DLUAI_HASHLIMIT=6
 )
 
 if(MIKTEX_UNIX_ALIKE)
