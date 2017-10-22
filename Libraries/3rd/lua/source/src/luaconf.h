@@ -506,6 +506,9 @@
 #define LUA_MSASMTRICK
 #define LUA_IEEEENDIAN		0
 #define LUA_NANTRICK
+#elif defined(MIKTEX_WINDOWS) && defined(_MSC_VER) && defined(_M_AMD64)
+#define LUA_IEEE754TRICK
+#define LUA_IEEEENDIAN		0
 
 
 /* pentium 32 bits? */
