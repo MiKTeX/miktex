@@ -88,7 +88,6 @@ set_property(TARGET ${MIKTEX_PREFIX}pdfdetach PROPERTY FOLDER ${MIKTEX_CURRENT_F
 target_link_libraries(${MIKTEX_PREFIX}pdfdetach
   ${app_dll_name}
   ${poppler_dll_name}
-  ${utf8wrap_dll_name}
 )
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${MIKTEX_PREFIX}pdfdetach

@@ -324,7 +324,7 @@ option(
 option(
   USE_SYSTEM_POPPLER
   "Use the system Poppler PDF Rendering library."
-  ${MIKTEX_UNIX_ALIKE}
+  FALSE
 )
 
 option(
@@ -1788,7 +1788,9 @@ if(USE_SYSTEM_POPPLER)
       IMPORTED_LOCATION "${POPPLER_LIBRARY}"
       INTERFACE_INCLUDE_DIRECTORIES "${POPPLER_INCLUDE_DIRS}"
   )
-  if(NOT POPPLER_VERSION VERSION_LESS 0.59.0)
+  if(POPPLER_VERSION VERSION_LESS 0.59.0)
+    message(FATAL_ERROR "libpoppler >=0.59.0 is required.")
+  else()
     set_target_properties(MiKTeX::Imported::POPPLER
       PROPERTIES
         INTERFACE_COMPILE_DEFINITIONS MIKTEX_POPPLER_59=1
