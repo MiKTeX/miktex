@@ -117,6 +117,6 @@ set_property(TARGET ${MIKTEX_PREFIX}luac PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER
 merge_trustinfo_manifest(${MIKTEX_PREFIX}luac asInvoker)
 merge_compatibility_manifest(${MIKTEX_PREFIX}luac)
 
-target_link_libraries(${MIKTEX_PREFIX}luac ${lua_lib_name})
+target_link_libraries(${MIKTEX_PREFIX}luac ${lua_dll_name})
 
 install(TARGETS ${MIKTEX_PREFIX}luac DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

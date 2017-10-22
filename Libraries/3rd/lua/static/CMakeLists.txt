@@ -41,7 +41,7 @@ endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${lua_lib_name}
-    PUBLIC
+    PRIVATE
       ${utf8wrap_dll_name}
   )
 endif()
