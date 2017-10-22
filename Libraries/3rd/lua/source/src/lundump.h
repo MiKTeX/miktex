@@ -17,7 +17,11 @@ LUAI_FUNC Closure* luaU_undump (lua_State* L, ZIO* Z, Mbuffer* buff, const char*
 LUAI_FUNC void luaU_header (lu_byte* h);
 
 /* dump one chunk; from ldump.c */
+#if defined(MIKTEX)
+MIKTEX_LUA_EXPORT int luaU_dump (lua_State* L, const Proto* f, lua_Writer w, void* data, int strip);
+#else
 LUAI_FUNC int luaU_dump (lua_State* L, const Proto* f, lua_Writer w, void* data, int strip);
+#endif
 
 /* data to catch conversion errors */
 #define LUAC_TAIL		"\x19\x93\r\n\x1a\n"

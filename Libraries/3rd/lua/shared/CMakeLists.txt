@@ -48,6 +48,7 @@ target_include_directories(${lua_dll_name}
 if(MIKTEX_UNIX_ALIKE)
   target_link_libraries(${lua_dll_name}
     PUBLIC
+      ${CMAKE_DL_LIBS}
       ${MATH_LIBRARY}
   )
 endif()
