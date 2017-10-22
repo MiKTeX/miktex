@@ -23,6 +23,7 @@ set_property(TARGET ${lua_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_compile_definitions(${lua_lib_name}
   PUBLIC
+    ${public_compile_definitions}
     -DMIKTEX_LUA_STATIC
 )
 

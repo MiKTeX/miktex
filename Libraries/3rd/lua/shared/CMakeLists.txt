@@ -35,6 +35,11 @@ set_property(TARGET ${lua_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 set_property(TARGET ${lua_dll_name} PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
+target_compile_definitions(${lua_dll_name}
+  PUBLIC
+    ${public_compile_definitions}
+)
+
 target_include_directories(${lua_dll_name}
   PUBLIC
     ${public_include_directories}

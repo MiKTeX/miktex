@@ -30,10 +30,12 @@ set(public_include_directories
   ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
-add_definitions(-DLUA_COMPAT_MODULE)
+set(public_compile_definitions
+  -DLUA_COMPAT_MODULE
+)
 
 if(MIKTEX_UNIX_ALIKE)
-  add_definitions(-DLUA_USE_POSIX)
+  list(APPEND public_compile_definitions -DLUA_USE_POSIX)
 endif()
 
 ignore_warnings()
