@@ -30,11 +30,9 @@ add_definitions(
   -DAPPTAG=luatex
   -DMIKTEX_LUATEX
   -DNO_DUMP_SHARE
-  -DPDF_PARSER_ONLY
   -DSYNCTEX_ENGINE_H="synctex-luatex.h"
   -DUSE_MIKTEX_EXIT
   -DpdfTeX
-  -DHAVE_STRUCTTREEROOT_H
 )
 
 if(MIKTEX_UNIX_ALIKE)
