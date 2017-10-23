@@ -949,6 +949,25 @@ static int getpdfcreationdate(lua_State * L)
     return 1 ;
 }
 
+static int getpdfmajorversion(lua_State * L)
+{
+ /* lua_pushinteger(L,static_pdf->major_version); */
+    lua_pushinteger(L,pdf_major_version);
+    return 1 ;
+}
+
+static int setpdfmajorversion(lua_State * L)
+{
+    if (lua_type(L, 1) == LUA_TNUMBER) {
+        int c = (int) lua_tointeger(L, 1);
+        if ((c >= 1) && (c <= 2)) {
+            static_pdf->major_version = c;
+            set_pdf_major_version(c);
+        }
+    }
+    return 0 ;
+}
+
 static int getpdfminorversion(lua_State * L)
 {
  /* lua_pushinteger(L,static_pdf->minor_version); */
@@ -1199,6 +1218,8 @@ static const struct luaL_Reg pdflib[] = {
     { "xformname", getpdfxformname },
     { "getversion", getpdfversion },
     { "getcreationdate", getpdfcreationdate },
+    { "getmajorversion", getpdfmajorversion },
+    { "setmajorversion", setpdfmajorversion },
     { "getminorversion", getpdfminorversion },
     { "setminorversion", setpdfminorversion },
     { "newcolorstack", newpdfcolorstack },

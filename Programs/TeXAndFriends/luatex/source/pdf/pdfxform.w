@@ -89,6 +89,12 @@ void scan_pdfxform(PDF pdf)
     } else {
         set_obj_xform_resources(pdf, k, null);
     }
+    if (scan_keyword("margin")) {
+        scan_int();
+        set_obj_xform_margin(pdf, k, cur_val);
+    } else {
+        set_obj_xform_margin(pdf, k, pdf_xform_margin);
+    }
     set_obj_xform_resources_str(pdf, k, null);
     scan_int();
     p = box(cur_val);

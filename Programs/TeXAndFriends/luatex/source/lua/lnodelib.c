@@ -451,6 +451,8 @@ static int lua_nodelib_direct_getfont(lua_State * L)
             lua_pushinteger(L, font(n));
         } else if ((t == math_char_node) || (t == math_text_char_node)) {
             lua_pushinteger(L, fam_fnt(math_fam(n), 0));
+        } else if (t == delim_node) {
+            lua_pushinteger(L, fam_fnt(small_fam(n), 0));
         } else {
             lua_pushnil(L);
         }
@@ -486,6 +488,8 @@ static int lua_nodelib_direct_setfont(lua_State * L)
                 lua_pushinteger(L, font(*n));
             } else if ((t == math_char_node) || (t == math_text_char_node)) {
                 lua_pushinteger(L, fam_fnt(math_fam(*n), 0));
+            } else if (t == delim_node) {
+                lua_pushinteger(L, fam_fnt(small_fam(*n), 0));
             } else {
                 lua_pushnil(L);
             }
@@ -505,6 +509,27 @@ static int lua_nodelib_direct_getchar(lua_State * L)
             lua_pushinteger(L, character(n));
         } else if ((t == math_char_node) || (t == math_text_char_node)) {
             lua_pushinteger(L, math_character(n));
+        } else if (t == delim_node) {
+             /* used in wide fonts */
+            lua_pushinteger(L, small_char(n));
+        } else {
+            lua_pushnil(L);
+        }
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+static int lua_nodelib_direct_getfam(lua_State * L)
+{
+    halfword n = lua_tointeger(L, 1);
+    if (n) {
+        halfword t = type(n);
+        if ((t == math_char_node) || (t == math_text_char_node)) {
+            lua_pushinteger(L, math_fam(n));
+        } else if (t == delim_node) {
+            lua_pushinteger(L, small_fam(n));
         } else {
             lua_pushnil(L);
         }
@@ -523,23 +548,47 @@ static int lua_nodelib_direct_setchar(lua_State * L)
             character(n) = (halfword) lua_tointeger(L, 2);
         } else if ((t == math_char_node) || (t == math_text_char_node)) {
             math_character(n) = (halfword) lua_tointeger(L, 2);
+        } else if (t == delim_node) {
+            /* used in wide fonts */
+            small_char(n) = (halfword) lua_tointeger(L, 2);
         }
     }
     return 0;
 }
 
+static int lua_nodelib_direct_setfam(lua_State * L)
+{
+    halfword n = lua_tointeger(L, 1);
+    if ((n) && (lua_type(L, 2) == LUA_TNUMBER)) {
+        halfword t = type(n);
+        if ((t == math_char_node) || (t == math_text_char_node)) {
+            math_fam(n) = (halfword) lua_tointeger(L, 2);
+        } else if (t == delim_node) {
+            small_fam(n) = (halfword) lua_tointeger(L, 2);
+        }
+    }
+    return 0;
+}
 
     /* node.getchar */
 
     static int lua_nodelib_getchar(lua_State * L)
     {
         halfword *n = lua_touserdata(L, 1);
-        if ( (n == NULL) || (! lua_getmetatable(L,1)) ) {
+        if ((n == NULL) || (! lua_getmetatable(L,1))) {
             lua_pushnil(L);
-        } else if (type(*n) == glyph_node) {
-            lua_pushinteger(L, character(*n));
-        } else if ((type(*n) == math_char_node) || (type(*n) == math_text_char_node)) {
-            lua_pushinteger(L, math_character(*n));
+        } else {
+            halfword t = type(*n);
+            if (t == glyph_node) {
+                lua_pushinteger(L, character(*n));
+            } else if ((t == math_char_node) || (t == math_text_char_node)) {
+                lua_pushinteger(L, math_character(*n));
+            } else if (t == delim_node) {
+                /* used in wide fonts */
+                lua_pushinteger(L, small_char(*n));
+            } else {
+                lua_pushnil(L);
+            }
         }
         return 1;
     }
@@ -7961,6 +8010,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"getshift", lua_nodelib_direct_getshift},
     {"getfield", lua_nodelib_direct_getfield},
     {"getfont", lua_nodelib_direct_getfont},
+    {"setfam", lua_nodelib_direct_getfam},
     {"getid", lua_nodelib_direct_getid},
     {"getnext", lua_nodelib_direct_getnext},
     {"getprev", lua_nodelib_direct_getprev},
@@ -8002,6 +8052,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"setfield", lua_nodelib_direct_setfield},
     {"setchar", lua_nodelib_direct_setchar},
     {"setfont", lua_nodelib_direct_setfont},
+    {"setfam", lua_nodelib_direct_setfam},
     {"setcomponents", lua_nodelib_direct_setcomponents},
     {"setlang", lua_nodelib_direct_setlang},
     {"setkern", lua_nodelib_direct_setkern},

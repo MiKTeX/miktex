@@ -123,6 +123,7 @@ typedef enum {
     c_pdf_image_resolution,
     c_pdf_pk_resolution,
     c_pdf_unique_resname,
+    c_pdf_major_version,
     c_pdf_minor_version,
     c_pdf_pagebox,
     c_pdf_inclusion_errorlevel,
@@ -170,6 +171,7 @@ extern int pdf_retval;
 #  define pdf_image_resolution          get_tex_extension_count_register(c_pdf_image_resolution)
 #  define pdf_pk_resolution             get_tex_extension_count_register(c_pdf_pk_resolution)
 #  define pdf_unique_resname            get_tex_extension_count_register(c_pdf_unique_resname)
+#  define pdf_major_version             get_tex_extension_count_register(c_pdf_major_version)
 #  define pdf_minor_version             get_tex_extension_count_register(c_pdf_minor_version)
 #  define pdf_pagebox                   get_tex_extension_count_register(c_pdf_pagebox)
 #  define pdf_inclusion_errorlevel      get_tex_extension_count_register(c_pdf_inclusion_errorlevel)
@@ -200,6 +202,7 @@ extern int pdf_retval;
 #  define pdf_pk_mode                   get_tex_extension_toks_register(t_pdf_pk_mode)
 #  define pdf_trailer_id                get_tex_extension_toks_register(t_pdf_trailer_id)
 
+#  define set_pdf_major_version(i)      set_tex_extension_count_register(c_pdf_major_version,i)
 #  define set_pdf_minor_version(i)      set_tex_extension_count_register(c_pdf_minor_version,i)
 #  define set_pdf_compress_level(i)     set_tex_extension_count_register(c_pdf_compress_level,i)
 #  define set_pdf_obj_compress_level(i) set_tex_extension_count_register(c_pdf_obj_compress_level,i)

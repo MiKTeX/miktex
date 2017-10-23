@@ -3660,7 +3660,9 @@ void initialize(void)
         set_eq_level(end_write, level_one);
         set_eq_type(end_write, outer_call_cmd);
         set_equiv(end_write, null);
-
+        /* bah */
+        set_pdf_major_version(1);
+        set_pdf_minor_version(0);
     }
     synctexoffset = int_base + synctex_code;
 

@@ -578,7 +578,7 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
                 assert(0);
         }
     }
-    if ((! pdf->omit_cidset) && (cidset != 0)) {
+    if ((! pdf->omit_cidset) && (pdf->major_version == 1) && (cidset != 0) ) {
         pdf_dict_add_ref(pdf, "CIDSet", cidset);
     }
     /*

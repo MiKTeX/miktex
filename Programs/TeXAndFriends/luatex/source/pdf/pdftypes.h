@@ -297,6 +297,7 @@ typedef struct pdf_output_file_ {
     int gen_tounicode;
     int omit_cidset;
     int inclusion_copy_font;
+    int major_version;          /* fixed major part of the PDF version */
     int minor_version;          /* fixed minor part of the PDF version */
     int compress_level;         /* level for zlib object stream compression */
     int objcompresslevel;       /* fixed level for activating PDF object streams */

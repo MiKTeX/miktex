@@ -100,7 +100,7 @@ that a type has been found.
 #define HEADER_PNG "\x89PNG\r\n\x1A\n"
 #define HEADER_JBIG2 "\x97\x4A\x42\x32\x0D\x0A\x1A\x0A"
 #define HEADER_JP2 "\x6A\x50\x20\x20"
-#define HEADER_PDF "%PDF-1."
+#define HEADER_PDF "%PDF-"
 #define MAX_HEADER (sizeof(HEADER_PNG)-1)
 #define HEADER_PDF_MEMSTREAM "data:application/pdf," /* see epdf.h */
 #define LEN_PDF_MEMSTREAM 21 /* see epdf.h */
@@ -217,7 +217,8 @@ image_dict *new_image_dict(void)
     img_index(p) = -1; /* -1 = unused, used count from 0 */
     img_luaref(p) = 0;
     img_errorlevel(p) = pdf_inclusion_errorlevel;
-    fix_pdf_minorversion(static_pdf);
+    fix_pdf_version(static_pdf);
+    img_pdfmajorversion(p) = pdf_major_version;
     img_pdfminorversion(p) = pdf_minor_version;
     return p;
 }

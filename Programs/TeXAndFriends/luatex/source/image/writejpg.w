@@ -132,9 +132,9 @@ static unsigned int read_exif_bytes(unsigned char **p, int n, int b)
 XResolution, YResolution and ResolutionUnit (tag 282, 283 and 296)
 as well as PixelPerUnitX, PixelPerUnitY and PixelUnit (tag 0x5111,
 0x5112 and 0x5110). Tags 282, 293 and 296 have the priority,
-with ResolutionUnit set to inch by default, then 
+with ResolutionUnit set to inch by default, then
 tag 0x5110, 0x5111 and 0x5112, where the only valid value for PixelUnit is 0.0254,
-and finally the given value xx and yy, 
+and finally the given value xx and yy,
 choosen if the Exif x and y resolution are not strictly positive.
 
 
@@ -256,7 +256,7 @@ static void read_APP1_Exif (FILE *fp, unsigned short length, int *xx, int *yy, i
 		        res_unit_ms = 0.0254; /* Unit is meter */
 			break;
 		    default:
-  		        res_unit_ms = 0; 
+  		        res_unit_ms = 0;
 		}
 	   case 0x5111: /* PixelPerUnitX */
                 found_x_ms = true ;
@@ -269,13 +269,13 @@ static void read_APP1_Exif (FILE *fp, unsigned short length, int *xx, int *yy, i
            }
 
 
-    }    
+    }
     if (found_x && found_y && res_unit>0) {
-     found_res = true; 
+     found_res = true;
      tempx = (int)(xres * res_unit+0.5);
      tempy = (int)(yres * res_unit+0.5);
     } else if (found_x_ms && found_y_ms && res_unit_ms==0.0254) {
-     found_res = true; 
+     found_res = true;
      tempx = (int)(xres_ms * res_unit_ms+0.5);
      tempy = (int)(yres_ms * res_unit_ms+0.5);
     }
@@ -394,7 +394,7 @@ void read_jpg_info(image_dict * idict)
                 formatted_error("readjpg","unsupported compression SOF_%d", i - M_SOF0);
                 break;
             case M_SOF2:
-                if (img_pdfminorversion(idict) <= 2) {
+                if (img_pdfmajorversion(idict) < 2 && img_pdfminorversion(idict) <= 2) {
                     normal_error("readjpg","progressive DCT with PDF-1.2 is not permitted");
                 }
             case M_SOF0:

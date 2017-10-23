@@ -81,7 +81,7 @@ extern int ten_pow[10];
 extern void pdf_flush(PDF);
 extern void pdf_room(PDF, int);
 
-extern void fix_pdf_minorversion(PDF);
+extern void fix_pdf_version(PDF);
 
 /* output a byte to PDF buffer without checking of overflow */
 

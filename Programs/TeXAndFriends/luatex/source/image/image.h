@@ -126,6 +126,7 @@ typedef struct {
     int luaref ;
     boolean keepopen;
     int errorlevel;
+    int pdfmajorversion;
     int pdfminorversion;
     union {
         pdf_stream_struct *pdfstream;
@@ -171,6 +172,7 @@ typedef struct {
 #  define img_luaref(N)           ((N)->luaref)
 #  define img_keepopen(N)         ((N)->keepopen)
 #  define img_errorlevel(N)       ((N)->errorlevel)
+#  define img_pdfmajorversion(N)  ((N)->pdfmajorversion)
 #  define img_pdfminorversion(N)  ((N)->pdfminorversion)
 
 #  define img_pdfstream_ptr(N)    ((N)->img_struct.pdfstream)

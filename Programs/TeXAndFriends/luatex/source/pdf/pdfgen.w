@@ -190,6 +190,7 @@ PDF init_pdf_struct(PDF pdf)
     memset(pdf->obj_tab, 0, sizeof(obj_entry));
 
     pdf->minor_version = -1;
+    pdf->major_version = -1;
     pdf->decimal_digits = 4;
     pdf->gamma = 65536;
     pdf->image_gamma = 65536;
@@ -262,35 +263,43 @@ void fix_o_mode(void)
     }
 }
 
-@ This ensures that |pdfminorversion| is set only before any bytes have been
-written to the generated \.{PDF} file. Here also all variables for \.{PDF} output
-are initialized, the \.{PDF} file is opened by |ensure_pdf_open|, and the \.{PDF}
-header is written.
+@ This ensures that |pdfmajorversion| and |pdfminorversion| are set only before any
+bytes have been written to the generated \.{PDF} file. Here also all variables for
+\.{PDF} output are initialized, the \.{PDF} file is opened by |ensure_pdf_open|, and
+the \.{PDF} header is written.
 
 @c
-void fix_pdf_minorversion(PDF pdf)
+void fix_pdf_version(PDF pdf)
 {
-    if (pdf->minor_version < 0) {       /* unset */
+    if (pdf->major_version < 0) { /* unset */
+        if (pdf_major_version == 0) {
+            normal_warning("pdf backend","unset major version, using 1 instead");
+            pdf->major_version = 1;
+        } else if ((pdf_major_version < 0) || (pdf_major_version > 2)) {
+            formatted_warning("pdf backend","illegal major version %d, using 1 instead",pdf_major_version);
+            pdf->major_version = 1;
+        } else {
+            pdf->major_version = pdf_major_version;
+        }
+    } else if (pdf->major_version != pdf_major_version) {
+        normal_warning("pdf backend", "the major version cannot be changed after data is written to the PDF file");
+    }
+    if (pdf->minor_version < 0) { /* unset */
         if ((pdf_minor_version < 0) || (pdf_minor_version > 9)) {
-            const char *hlp[] = { "The pdfminorversion must be between 0 and 9.", "I changed this to 4.", NULL };
-            char msg[256];
-            (void) snprintf(msg, 255, "LuaTeX error (illegal pdfminorversion %d)", (int) pdf_minor_version);
-            tex_error(msg, hlp);
+            formatted_warning("pdf backend","illegal minor version %d, using 4 instead",pdf_minor_version);
             pdf->minor_version = 4;
         } else {
             pdf->minor_version = pdf_minor_version;
         }
-    } else {
-        /* Check that variables for \.{PDF} output are unchanged */
-        if (pdf->minor_version != pdf_minor_version)
-            normal_error("pdf backend", "minorversion cannot be changed after data is written to the PDF file");
+    } else if (pdf->minor_version != pdf_minor_version) {
+        normal_warning("pdf backend", "minorversion cannot be changed after data is written to the PDF file");
     }
 }
 
 static void fix_pdf_draftmode(PDF pdf)
 {
     if (pdf->draftmode != draft_mode_par)
-        normal_error("pdf backend", "draftmode cannot be changed after data is written to the PDF file");
+        normal_warning("pdf backend", "draftmode cannot be changed after data is written to the PDF file");
     if (pdf->draftmode != 0) {
         pdf->compress_level = 0;        /* re-fix it, might have been changed inbetween */
         pdf->objcompresslevel = 0;
@@ -1027,11 +1036,11 @@ static void ensure_output_file_open(PDF pdf, const char *ext)
 static void ensure_pdf_header_written(PDF pdf)
 {
     /* Initialize variables for \.{PDF} output */
-    fix_pdf_minorversion(pdf);
+    fix_pdf_version(pdf);
     init_pdf_outputparameters(pdf);
     fix_pdf_draftmode(pdf);
     /* Write \.{PDF} header */
-    pdf_printf(pdf, "%%PDF-1.%d\n", pdf->minor_version);
+    pdf_printf(pdf, "%%PDF-%d.%d\n", pdf->major_version, pdf->minor_version);
     /* The next blob will be removed 1.0. */
     pdf_out(pdf, '%');
     pdf_out(pdf, 'P' + 128);
@@ -1734,6 +1743,7 @@ void pdf_begin_page(PDF pdf)
             pdf_dict_add_int(pdf, "FormType", 1);
         }
         xform_attributes = pdf_xform_attr; /* lookup once */
+        form_margin = obj_xform_margin(pdf, pdf_cur_form); /* now stored in object */
         if (xform_attributes != null)
             pdf_print_toks(pdf, xform_attributes);
         if (obj_xform_attr(pdf, pdf_cur_form) != null) {
@@ -2064,19 +2074,21 @@ void pdf_end_page(PDF pdf)
         pdf_end_dict(pdf);
     }
     /* Generate ProcSet */
-    pdf_add_name(pdf, "ProcSet");
-    pdf_begin_array(pdf);
-    if ((procset & PROCSET_PDF) != 0)
-        pdf_add_name(pdf, "PDF");
-    if ((procset & PROCSET_TEXT) != 0)
-        pdf_add_name(pdf, "Text");
-    if ((procset & PROCSET_IMAGE_B) != 0)
-        pdf_add_name(pdf, "ImageB");
-    if ((procset & PROCSET_IMAGE_C) != 0)
-        pdf_add_name(pdf, "ImageC");
-    if ((procset & PROCSET_IMAGE_I) != 0)
-        pdf_add_name(pdf, "ImageI");
-    pdf_end_array(pdf);
+    if (pdf->major_version == 1) {
+        pdf_add_name(pdf, "ProcSet");
+        pdf_begin_array(pdf);
+        if ((procset & PROCSET_PDF) != 0)
+            pdf_add_name(pdf, "PDF");
+        if ((procset & PROCSET_TEXT) != 0)
+            pdf_add_name(pdf, "Text");
+        if ((procset & PROCSET_IMAGE_B) != 0)
+            pdf_add_name(pdf, "ImageB");
+        if ((procset & PROCSET_IMAGE_C) != 0)
+            pdf_add_name(pdf, "ImageC");
+        if ((procset & PROCSET_IMAGE_I) != 0)
+            pdf_add_name(pdf, "ImageI");
+        pdf_end_array(pdf);
+    }
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
 }

@@ -755,6 +755,14 @@ Replacement texts and discretionary texts are supposed to contain
 only character nodes, kern nodes, and box or rule nodes.
 
 @c
+#define bad_node_in_disc_error(p) { \
+    if (type(p) == whatsit_node) { \
+        formatted_error("linebreak","invalid node with type %s and subtype %i found in discretionary",node_data[type(p)].name,subtype(p)); \
+    } else { \
+        formatted_error("linebreak","invalid node with type %s found in discretionary",node_data[type(p)].name); \
+    } \
+}
+
 static void add_to_widths(halfword s, int line_break_dir, int adjust_spacing, scaled * widths)
 {
     while (s != null) {
@@ -783,7 +791,8 @@ static void add_to_widths(halfword s, int line_break_dir, int adjust_spacing, sc
                 case disc_node:    /* TH temp */
                     break;
                 default:
-                    confusion("invalid node found in discretionary"); /* todo: report type */
+                    bad_node_in_disc_error(s);
+                    break;
             }
         }
         s = vlink(s);
@@ -825,7 +834,7 @@ static void sub_from_widths(halfword s, int line_break_dir, int adjust_spacing, 
                 case disc_node:    /* TH temp */
                     break;
                 default:
-                    confusion("invalid node found in discretionary"); /* todo: report type */
+                    bad_node_in_disc_error(s);
                     break;
             }
         }

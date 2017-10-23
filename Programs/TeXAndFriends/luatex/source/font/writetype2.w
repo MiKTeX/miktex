@@ -387,24 +387,26 @@ boolean make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buff, int buflen)
     /* CIDSet: a table of bits indexed by cid, bytes with high order bit first,
        each (set) bit is a (present) CID. */
     if (is_subsetted(fd->fm)) {
-        cidset = pdf_create_obj(pdf, obj_type_others, 0);
-        if (cidset != 0) {
-            size_t l = (last_cid / 8) + 1;
-            char *stream = xmalloc(l);
-            memset(stream, 0, l);
-            for (cid = 1; cid <= (long) last_cid; cid++) {
-                if (used_chars[cid]) {
-                    stream[(cid / 8)] |= (1 << (7 - (cid % 8)));
+        if ((! pdf->omit_cidset) && (pdf->major_version == 1)) {
+            cidset = pdf_create_obj(pdf, obj_type_others, 0);
+            if (cidset != 0) {
+                size_t l = (last_cid / 8) + 1;
+                char *stream = xmalloc(l);
+                memset(stream, 0, l);
+                for (cid = 1; cid <= (long) last_cid; cid++) {
+                    if (used_chars[cid]) {
+                        stream[(cid / 8)] |= (1 << (7 - (cid % 8)));
+                    }
                 }
+                pdf_begin_obj(pdf, cidset, OBJSTM_NEVER);
+                pdf_begin_dict(pdf);
+                pdf_dict_add_streaminfo(pdf);
+                pdf_end_dict(pdf);
+                pdf_begin_stream(pdf);
+                pdf_out_block(pdf, stream, l);
+                pdf_end_stream(pdf);
+                pdf_end_obj(pdf);
             }
-            pdf_begin_obj(pdf, cidset, OBJSTM_NEVER);
-            pdf_begin_dict(pdf);
-            pdf_dict_add_streaminfo(pdf);
-            pdf_end_dict(pdf);
-            pdf_begin_stream(pdf);
-            pdf_out_block(pdf, stream, l);
-            pdf_end_stream(pdf);
-            pdf_end_obj(pdf);
         }
     }
 

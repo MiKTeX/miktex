@@ -762,7 +762,7 @@ static void wr_jbig2(PDF pdf, image_dict * idict, FILEINFO * fip,
 @ @c
 boolean supported_jbig2(image_dict * idict)
 {
-    if (img_pdfminorversion(idict) < 4) {
+    if (img_pdfmajorversion(idict) < 2 && img_pdfminorversion(idict) < 4) {
         normal_error("readjbig2","you need to generate at least PDF 1.4");
         return false;
     } else {

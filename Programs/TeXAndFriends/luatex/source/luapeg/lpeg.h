@@ -13,7 +13,7 @@
 #if !defined(lptypes_h)
 #define lptypes_h
 
-
+#define LPEG_DEBUG
 #if !defined(LPEG_DEBUG)
 #define NDEBUG
 #endif

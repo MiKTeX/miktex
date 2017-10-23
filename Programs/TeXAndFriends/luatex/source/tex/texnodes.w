@@ -656,11 +656,14 @@ static int test_count = 1;
 
 #define check_action_ref(a)    { dorangetest(p,a,var_mem_max); }
 #define check_attribute_ref(a) { dorangetest(p,a,var_mem_max); }
-#define check_token_ref(a) { \
+
+/* hm, we can just pass p then */
+
+#define check_token_ref(p) { \
     if (type(p) == whatsit_node) { \
-        formatted_error("nodes","fuzzy token cleanup in whatsit node with id %i and subtype %i",type(p),subtype(p)); \
+        formatted_error("nodes","fuzzy token cleanup in whatsit node with type %s and subtype %i",node_data[type(p)].name,subtype(p)); \
     } else { \
-        formatted_error("nodes","fuzzy token cleanup in node with id %i",type(p)); \
+        formatted_error("nodes","fuzzy token cleanup in node with type %s",node_data[type(p)].name); \
     } \
 }
 
@@ -1631,7 +1634,7 @@ static void check_node_wrapup_core(halfword p)
     switch (subtype(p)) {
         /* frontend code */
         case special_node:
-            check_token_ref(write_tokens(p));
+            check_token_ref(p);
             break;
         case user_defined_node:
             switch (user_node_type(p)) {
@@ -1639,7 +1642,7 @@ static void check_node_wrapup_core(halfword p)
                     check_attribute_ref(user_node_value(p));
                     break;
                 case 't':
-                    check_token_ref(user_node_value(p));
+                    check_token_ref(p);
                     break;
                 case 'n':
                     dorangetest(p, user_node_value(p), var_mem_max);
@@ -1669,39 +1672,39 @@ void check_node_wrapup_pdf(halfword p)
     switch (subtype(p)) {
         case pdf_literal_node:
             if (pdf_literal_type(p) == normal)
-                check_token_ref(pdf_literal_data(p));
+                check_token_ref(p);
             break;
         case pdf_colorstack_node:
             if (pdf_colorstack_cmd(p) <= colorstack_data)
-                check_token_ref(pdf_colorstack_data(p));
+                check_token_ref(p);
             break;
         case pdf_setmatrix_node:
-            check_token_ref(pdf_setmatrix_data(p));
+            check_token_ref(p);
             break;
         case late_lua_node:
             if (late_lua_name(p) > 0)
-                check_token_ref(late_lua_name(p));
+                check_token_ref(p);
             if (late_lua_type(p) == normal)
-                check_token_ref(late_lua_data(p));
+                check_token_ref(p);
             break;
         case pdf_annot_node:
-            check_token_ref(pdf_annot_data(p));
+            check_token_ref(p);
             break;
         case pdf_start_link_node:
             if (pdf_link_attr(p) != null)
-                check_token_ref(pdf_link_attr(p));
+                check_token_ref(p);
             check_action_ref(pdf_link_action(p));
             break;
         case pdf_dest_node:
             if (pdf_dest_named_id(p) > 0)
-                check_token_ref(pdf_dest_id(p));
+                check_token_ref(p);
             break;
         case pdf_thread_node:
         case pdf_start_thread_node:
             if (pdf_thread_named_id(p) > 0)
-                check_token_ref(pdf_thread_id(p));
+                check_token_ref(p);
             if (pdf_thread_attr(p) != null)
-                check_token_ref(pdf_thread_attr(p));
+                check_token_ref(p);
             break;
         case pdf_save_node:
         case pdf_restore_node:

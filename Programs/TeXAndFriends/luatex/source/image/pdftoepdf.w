@@ -32,7 +32,7 @@
 /*
     This file is mostly C and not very much C++; it's just used to interface
     the functions of poppler, which happens to be written in C++.
-    Patches for the new poppler 0.59 from 
+    Patches for the new poppler 0.59 from
     https://www.mail-archive.com/arch-commits@archlinux.org/msg357548.html
     with some modifications to comply the poppler API.
 
@@ -634,7 +634,7 @@ void read_pdf_info(image_dict * idict)
         pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL);
     else if (img_type(idict) == IMG_TYPE_PDFMEMSTREAM) {
         pdf_doc = findPdfDocument(img_filepath(idict)) ;
-        if (pdf_doc == NULL ) 
+        if (pdf_doc == NULL )
            normal_error("pdf inclusion", "memstream not initialized");
         if (pdf_doc->doc == NULL)
            normal_error("pdf inclusion", "memstream document is empty");
@@ -651,12 +651,12 @@ void read_pdf_info(image_dict * idict)
     */
     pdf_major_version_found = doc->getPDFMajorVersion();
     pdf_minor_version_found = doc->getPDFMinorVersion();
-    if ((pdf_major_version_found > 1) || (pdf_minor_version_found > img_pdfminorversion(idict))) {
-        const char *msg = "PDF inclusion: found PDF version '%d.%d', but at most version '1.%d' allowed";
+    if ((100 * pdf_major_version_found + pdf_major_version_found) > (100 * img_pdfmajorversion(idict) + img_pdfminorversion(idict))) {
+        const char *msg = "PDF inclusion: found PDF version '%d.%d', but at most version '%d.%d' allowed";
         if (img_errorlevel(idict) > 0) {
-            formatted_error("pdf inclusion",msg, pdf_major_version_found, pdf_minor_version_found, img_pdfminorversion(idict));
+            formatted_error("pdf inclusion",msg, pdf_major_version_found, pdf_minor_version_found, img_pdfmajorversion(idict), img_pdfminorversion(idict));
         } else {
-            formatted_warning("pdf inclusion",msg, pdf_major_version_found, pdf_minor_version_found, img_pdfminorversion(idict));
+            formatted_warning("pdf inclusion",msg, pdf_major_version_found, pdf_minor_version_found, img_pdfmajorversion(idict), img_pdfminorversion(idict));
         }
     }
     img_totalpages(idict) = catalog->getNumPages();
