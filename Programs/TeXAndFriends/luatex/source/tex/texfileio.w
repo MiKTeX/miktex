@@ -1176,7 +1176,11 @@ boolean zopen_w_input(FILE ** f, const char *fname, int format,
         res = luatex_open_input(f, fname, format, fopen_mode, true);
     }
     if (res) {
+#if defined(MIKTEX)
+        gz_fmtfile = gzdopen(dup(fileno(*f)), "rb" COMPRESSION);
+#else
         gz_fmtfile = gzdopen(fileno(*f), "rb" COMPRESSION);
+#endif
     }
     return res;
 }
@@ -1194,7 +1198,11 @@ boolean zopen_w_output(FILE ** f, const char *s, const_string fopen_mode)
         res = luatex_open_output(f, s, fopen_mode);
     }
     if (res) {
+#if defined(MIKTEX)
+        gz_fmtfile = gzdopen(dup(fileno(*f)), "wb" COMPRESSION);
+#else
         gz_fmtfile = gzdopen(fileno(*f), "wb" COMPRESSION);
+#endif
     }
     return res;
 }
