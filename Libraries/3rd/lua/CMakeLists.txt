@@ -36,7 +36,10 @@ set(public_compile_definitions
 )
 
 if(MIKTEX_UNIX_ALIKE)
-  list(APPEND public_compile_definitions -DLUA_USE_POSIX)
+  list(APPEND public_compile_definitions
+    -DLUA_USE_DLOPEN
+    -DLUA_USE_POSIX
+  )
 endif()
 
 ignore_warnings()
