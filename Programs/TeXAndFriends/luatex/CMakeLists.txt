@@ -113,6 +113,11 @@ add_library(luatex-luasocket-static STATIC ${luasocket_sources})
 
 set_property(TARGET luatex-luasocket-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+target_compile_definitions(luatex-luasocket-static
+  PRIVATE
+    -DLUASOCKET_DEBUG
+)
+
 target_link_libraries(luatex-luasocket-static
   PUBLIC
     ${lua_dll_name}
@@ -294,13 +299,9 @@ set_property(TARGET luatex-luafontforge-static PROPERTY FOLDER ${MIKTEX_CURRENT_
 
 target_compile_definitions(luatex-luafontforge-static
   PRIVATE
-    -DFONTFORGE_CONFIG_NO_WINDOWING_UI=1
     -DLUA_FF_LIB=1
-    -DNODYNAMIC=1
     -DUSE_OUR_MEMORY=1
     -DX_DISPLAY_MISSING=1
-    -D_NO_FREETYPE=1
-    -D_NO_LIBUNINAMESLIST=1
     -D_NO_PYTHON=1
 )
   
@@ -630,6 +631,11 @@ set(luatexlib_sources
 add_library(luatex-static STATIC ${luatexlib_sources})
 
 set_property(TARGET luatex-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+
+target_compile_definitions(luatex-static
+  PRIVATE
+    -DLUA_FF_LIB=1
+)
 
 if(USE_SYSTEM_PNG)
   target_link_libraries(luatex-static PUBLIC MiKTeX::Imported::PNG)
