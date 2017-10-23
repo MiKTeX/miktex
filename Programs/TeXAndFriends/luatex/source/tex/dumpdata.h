@@ -27,7 +27,7 @@ extern FILE *fmt_file;          /* for input or output of format information */
 
 extern void store_fmt_file(void);
 #if defined(MIKTEX)
-extern boolean load_fmt_file(const char *, boolean);
+extern boolean load_fmt_file(const char*, boolean);
 #else
 extern boolean load_fmt_file(const char *);
 #endif

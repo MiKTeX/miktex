@@ -43,7 +43,7 @@
 #define MKDIR(A,B) mkdir(A,B)
 #endif
 
-#if defined(MIKTEX) && (! defined(P_tmpdir) || _MSC_VER > 1700)
+#if defined(MIKTEX) && (!defined(P_tmpdir) || _MSC_VER > 1700)
 #  define P_tmpdir "/tmp"
 #endif
 

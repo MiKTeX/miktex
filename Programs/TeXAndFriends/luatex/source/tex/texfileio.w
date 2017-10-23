@@ -125,7 +125,7 @@ char *luatex_find_read_file(const char *s, int n, int callback_index)
         /* use kpathsea here */
         ftemp = find_in_output_directory(s);
         if (!ftemp)
-#if MIKTEX
+#if defined(MIKTEX)
             ftemp = kpse_find_file(s, kpse_tex_format, n == 0);
 #else
             ftemp = kpse_find_file(s, kpse_tex_format, 1);
@@ -263,7 +263,7 @@ boolean luatex_open_output(FILE ** f_ptr, const char *fn,
 
 #if defined(MIKTEX)
     int isAux = !miktex_is_output_file(fn);
-    const char * auxDirectory = miktex_get_aux_directory();
+    const char* auxDirectory = miktex_get_aux_directory();
     if (isAux && auxDirectory != 0 && !absolute)
     {
       fname = concat3(auxDirectory, DIR_SEP_STRING, fn);

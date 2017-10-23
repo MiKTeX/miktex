@@ -22,13 +22,13 @@
 
 #ifndef EPDF_H
 #  define EPDF_H
-# if ! defined(MIKTEX)
+# if !defined(MIKTEX)
 extern "C" {
 #endif
 #ifdef HAVE_CONFIG_H
 #include <w2c/config.h>
 #endif
-# if ! defined(MIKTEX)
+# if !defined(MIKTEX)
 }
 #endif
 #  include <stdlib.h>
@@ -64,7 +64,7 @@ extern "C" {
 
 #  include <kpathsea/c-auto.h>
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
     extern char *xstrdup(const char *);
 #endif
 
@@ -72,7 +72,7 @@ extern "C" {
 
 /* the following code is extremly ugly but needed for including web2c/config.h */
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
     typedef const char *const_string;   /* including kpathsea/types.h doesn't work on some systems */
 #endif
 
@@ -94,7 +94,7 @@ extern "C" {
 
     /* pdfgen.w */
     extern int ten_pow[10];
-#if ! (defined(MIKTEX) && defined(_MSC_VER))
+#if !(defined(MIKTEX) && defined(_MSC_VER))
     __attribute__ ((format(printf, 2, 3)))
 #endif
     extern void pdf_printf(PDF, const char *fmt, ...);

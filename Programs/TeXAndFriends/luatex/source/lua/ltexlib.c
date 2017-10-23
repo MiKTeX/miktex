@@ -2988,21 +2988,21 @@ static int tex_run_boot(lua_State * L)
             return 1;
         }
 #if defined(MIKTEX)
-        if (! load_fmt_file(format, true))
-	{
-            zwclose (fmt_file);
-	    miktex_luatex_renew_format_file (format);
-	    if (! zopen_w_input(&fmt_file, format, DUMP_FORMAT, FOPEN_RBIN_MODE))
-	    {
-	      lua_pushboolean (L, 0);
-	      return (1);
-	    }
-	    if (! load_fmt_file(format, false))
-	    {
-	      zwclose (fmt_file);
-	      lua_pushboolean (L, 0);
-	      return (1);
-	    }
+        if (!load_fmt_file(format, true))
+        {
+          zwclose(fmt_file);
+          miktex_luatex_renew_format_file(format);
+          if (!zopen_w_input(&fmt_file, format, DUMP_FORMAT, FOPEN_RBIN_MODE))
+          {
+            lua_pushboolean(L, 0);
+            return 1;
+          }
+          if (!load_fmt_file(format, false))
+          {
+            zwclose(fmt_file);
+            lua_pushboolean(L, 0);
+            return 1;
+          }
         }
 #else
         if (!load_fmt_file(format)) {

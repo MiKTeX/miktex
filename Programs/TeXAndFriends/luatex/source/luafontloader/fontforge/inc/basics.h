@@ -37,7 +37,7 @@
 #endif
 # include <w2c/config.h>
 #if defined(MIKTEX)
-#  if ! defined(_INC_CTYPE)
+#  if !defined(_INC_CTYPE)
      /* prevent inclusion of ctype.h */
 #    define _INC_CTYPE 1
 #  endif

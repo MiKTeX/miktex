@@ -85,7 +85,7 @@
 #define MAX_DIR_LENGTH 1023
 typedef struct dir_data {
 	int  closed;
-#if defined(_WIN32) && ! defined(MIKTEX)
+#if defined(_WIN32) && !defined(MIKTEX)
 	long hFile;
 	char pattern[MAX_DIR_LENGTH+1];
 #else
@@ -101,13 +101,13 @@ typedef struct dir_data {
   #define STAT_STRUCT struct stati64
  #else
   #define lfs_setmode(L,file,m)   ((void)L, _setmode(_fileno(file), m))
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
   #define STAT_STRUCT struct stat
 #else
   #define STAT_STRUCT struct _stati64
 #endif
  #endif
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
 #define STAT_FUNC stat
 #else
 #define STAT_FUNC _stati64
@@ -237,16 +237,16 @@ typedef struct lfs_Lock {
 static int lfs_lock_dir(lua_State *L) {
   size_t pathl; HANDLE fd;
   lfs_Lock *lock;
-#if defined(MIKTEX)
-  wchar_t *ln;
-  const wchar_t *lockfile = L"/lockfile.lfs";
+#if defined(MIKTEX_WINDOWS)
+  wchar_t* ln;
+  const wchar_t* lockfile = L"/lockfile.lfs";
   size_t sizePath;
 #else
   char *ln;
   const char *lockfile = "/lockfile.lfs";
 #endif
   const char *path = luaL_checklstring(L, 1, &pathl);
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
   sizePath = pathl + wcslen(lockfile) + 1;
   ln = (wchar_t*)malloc(sizePath * sizeof(wchar_t));;
 #else
@@ -255,8 +255,9 @@ static int lfs_lock_dir(lua_State *L) {
   if(!ln) { 
     lua_pushnil(L); lua_pushstring(L, strerror(errno)); return 2;
   }
-#if defined(MIKTEX)
-  miktex_utf8_to_wide_char(path, sizePath, ln); wcscat(ln, lockfile);
+#if defined(MIKTEX_WINDOWS)
+  miktex_utf8_to_wide_char(path, sizePath, ln);
+  wcscat(ln, lockfile);
 #else
   strcpy(ln, path); strcat(ln, lockfile);
 #endif
@@ -441,14 +442,14 @@ static int remove_dir (lua_State *L) {
 ** Directory iterator
 */
 static int dir_iter (lua_State *L) {
-#if ! defined(MIKTEX) && defined(_WIN32)
+#if defined(_WIN32) && !defined(MIKTEX)
 	struct _finddata_t c_file;
 #else
 	struct dirent *entry;
 #endif
 	dir_data *d = (dir_data *)luaL_checkudata (L, 1, DIR_METATABLE);
 	luaL_argcheck (L, !d->closed, 1, "closed directory");
-#if ! defined(MIKTEX) && defined(_WIN32)
+#if defined(_WIN32) && !defined(MIKTEX)
 	if (d->hFile == 0L) { /* first entry */
 		if ((d->hFile = _findfirst (d->pattern, &c_file)) == -1L) {
 			lua_pushnil (L);
@@ -488,7 +489,7 @@ static int dir_iter (lua_State *L) {
 */
 static int dir_close (lua_State *L) {
 	dir_data *d = (dir_data *)lua_touserdata (L, 1);
-#if ! defined(MIKTEX) && defined(_WIN32)
+#if defined(_WIN32) && !defined(MIKTEX)
 	if (!d->closed && d->hFile) {
 		_findclose (d->hFile);
 		d->closed = 1;
@@ -512,7 +513,7 @@ static int dir_iter_factory (lua_State *L) {
 	lua_pushcfunction (L, dir_iter);
 	d = (dir_data *) lua_newuserdata (L, sizeof(dir_data));
 	d->closed = 0;
-#if ! defined(MIKTEX) && defined(_WIN32)
+#if defined(_WIN32) && !defined(MIKTEX)
 	d->hFile = 0L;
 	luaL_getmetatable (L, DIR_METATABLE);
 	lua_setmetatable (L, -2);

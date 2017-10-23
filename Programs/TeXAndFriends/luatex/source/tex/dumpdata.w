@@ -354,7 +354,7 @@ read an integer value |x| that is supposed to be in the range |a<=x<=b|.
 
 @ @c
 #if defined(MIKTEX)
-boolean load_fmt_file(const char *fmtname, boolean silent)
+boolean load_fmt_file(const char* fmtname, boolean silent)
 #else
 boolean load_fmt_file(const char *fmtname)
 #endif
@@ -525,9 +525,9 @@ boolean load_fmt_file(const char *fmtname)
   BAD_FMT:
 #if defined(MIKTEX)
     if (silent)
-	{
-		return (false);
-	}
+    {
+      return false;
+    }
 #endif
     wake_up_terminal();
     wterm_cr();

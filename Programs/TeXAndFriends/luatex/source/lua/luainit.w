@@ -404,8 +404,8 @@ static void parse_options(int ac, char **av)
           if (!luainit)
 #if defined(MIKTEX)
           {
-            fprintf(stderr,"%s: unrecognized option '%s'\n", argv[0], argv[optind-1]);
-            exit (1);
+            fprintf(stderr, "%s: unrecognized option '%s'\n", argv[0], argv[optind-1]);
+            exit(1);
           }
 #else
             fprintf(stderr,"%s: unrecognized option '%s'\n", argv[0], argv[optind-1]);
@@ -587,8 +587,8 @@ static void parse_options(int ac, char **av)
     } else if (argv[optind] && argv[optind][0] != '\\') {
 #if defined(MIKTEX_WINDOWS)
         {
-          char * lpsz;
-          for (lpsz = argv[optind]; *lpsz != 0; ++ lpsz)
+          char* lpsz;
+          for (lpsz = argv[optind]; *lpsz != 0; ++lpsz)
           {
             if (*lpsz == '\\')
             {
@@ -1041,7 +1041,9 @@ void lua_initialize(int ac, char **av)
             exit(luac_main(ac, av));
 #if defined(MIKTEX)
         if (FILESTRCASEEQ(kpse_invocation_name, MIKTEX_PREFIX "texluajitc"))
-            exit(luac_main(ac, av));
+        {
+          exit(luac_main(ac, av));
+        }
 #endif
         if (STREQ(argv[1], "--luaconly") || STREQ(argv[1], "--luac")) {
             char *argv1 = xmalloc (strlen ("luajittex") + 1);
@@ -1054,7 +1056,9 @@ void lua_initialize(int ac, char **av)
             exit(luac_main(ac, av));
 #if defined(MIKTEX)
         if (FILESTRCASEEQ(kpse_invocation_name, MIKTEX_PREFIX "texluac"))
-            exit(luac_main(ac, av));
+        {
+          exit(luac_main(ac, av));
+        }
 #endif
         if (STREQ(argv[1], "--luaconly") || STREQ(argv[1], "--luac")) {
             strcpy(av[1], "luatex");
