@@ -56,35 +56,55 @@ MIKTEXCORECEEAPI(void) miktex_uncompress_file(const char* lpszPathIn, char* lpsz
 MIKTEXCORECEEAPI(void*) miktex_core_malloc(size_t size, const char* lpszFileName, int line)
 {
   C_FUNC_BEGIN();
-  return MiKTeX::Debug::Malloc(size, SourceLocation("", lpszFileName == nullptr ? "" : lpszFileName, line))
+#if defined(MIKTEX_DEBUG)
+  return MiKTeX::Debug::Malloc(size, SourceLocation("", lpszFileName == nullptr ? "" : lpszFileName, line));
+#else
+  return MiKTeX::Debug::Malloc(size, SourceLocation());
+#endif
   C_FUNC_END();
 }
 
 MIKTEXCORECEEAPI(void) miktex_core_free(void* ptr, const char* lpszFileName, int line)
 {
   C_FUNC_BEGIN();
+#if defined(MIKTEX_DEBUG)
   MiKTeX::Debug::Free(ptr, SourceLocation("", lpszFileName == nullptr ? "" : lpszFileName, line));
+#else
+  MiKTeX::Debug::Free(ptr, SourceLocation());
+#endif
   C_FUNC_END();
 }
 
 MIKTEXCORECEEAPI(void*) miktex_core_calloc(size_t num, size_t size, const char* lpszFileName, int line)
 {
   C_FUNC_BEGIN();
+#if defined(MIKTEX_DEBUG)
   return MiKTeX::Debug::Calloc(num, size, SourceLocation("", lpszFileName == nullptr ? "" : lpszFileName, line));
+#else
+  return MiKTeX::Debug::Calloc(num, size, SourceLocation());
+#endif
   C_FUNC_END();
 }
 
 MIKTEXCORECEEAPI(void*) miktex_core_realloc(void* ptr, size_t size, const char* lpszFileName, int line)
 {
   C_FUNC_BEGIN();
+#if defined(MIKTEX_DEBUG)
   return MiKTeX::Debug::Realloc(ptr, size, SourceLocation("", lpszFileName == nullptr ? "" : lpszFileName, line));
+#else
+  return MiKTeX::Debug::Realloc(ptr, size, SourceLocation());
+#endif
   C_FUNC_END();
 }
 
 MIKTEXCORECEEAPI(char*) miktex_core_strdup(const char* lpsz, const char* lpszFileName, int line)
 {
   C_FUNC_BEGIN();
+#if defined(MIKTEX_DEBUG)
   return MiKTeX::Debug::StrDup(lpsz, SourceLocation("", lpszFileName == nullptr ? "" : lpszFileName, line));
+#else
+  return MiKTeX::Debug::StrDup(lpsz, SourceLocation());
+#endif
   C_FUNC_END();
 }
 
