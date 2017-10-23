@@ -33,11 +33,11 @@ using namespace MiKTeX::Util;
 void* MIKTEXCEECALL MiKTeX::Debug::Malloc(size_t size, const SourceLocation& sourceLocation)
 {
 #if 0 // too costly
-#if defined(MIKTEX_DEBUG)
+#if defined(MIKTEX_DEBUG) && defined(MIKTEX_DEBUG)
   Utils::CheckHeap();
 #endif
 #endif
-#if defined(_MSC_VER) && defined(_DEBUG)
+#if defined(_MSC_VER) && defined(_DEBUG) && defined(MIKTEX_DEBUG)
   void* ptr = _malloc_dbg(size, _NORMAL_BLOCK, sourceLocation.fileName.c_str(), sourceLocation.lineNo);
 #else
   void* ptr = malloc(size);
@@ -52,11 +52,11 @@ void* MIKTEXCEECALL MiKTeX::Debug::Malloc(size_t size, const SourceLocation& sou
 void* MIKTEXCEECALL MiKTeX::Debug::Calloc(size_t num, size_t size, const SourceLocation& sourceLocation)
 {
 #if 0 // too costly
-#if defined(MIKTEX_DEBUG)
+#if defined(MIKTEX_DEBUG) && defined(MIKTEX_DEBUG)
   Utils::CheckHeap();
 #endif
 #endif
-#if defined(_MSC_VER) && defined(_DEBUG)
+#if defined(_MSC_VER) && defined(_DEBUG) && defined(MIKTEX_DEBUG)
   void* ptr = _calloc_dbg(num, size, _NORMAL_BLOCK, sourceLocation.fileName.c_str(), sourceLocation.lineNo);
 #else
   void* ptr = calloc(num, size);
@@ -71,11 +71,11 @@ void* MIKTEXCEECALL MiKTeX::Debug::Calloc(size_t num, size_t size, const SourceL
 void* MIKTEXCEECALL MiKTeX::Debug::Realloc(void* ptr, size_t size, const SourceLocation& sourceLocation)
 {
 #if 0 // too costly
-#if defined(MIKTEX_DEBUG)
+#if defined(MIKTEX_DEBUG) && defined(MIKTEX_DEBUG)
   Utils::CheckHeap();
 #endif
 #endif
-#if defined(_MSC_VER) && defined(_DEBUG)
+#if defined(_MSC_VER) && defined(_DEBUG) && defined(MIKTEX_DEBUG)
   ptr = _realloc_dbg(ptr, size, _NORMAL_BLOCK, sourceLocation.fileName.c_str(), sourceLocation.lineNo);
 #else
   ptr = realloc(ptr, size);
@@ -98,18 +98,18 @@ char* MIKTEXCEECALL MiKTeX::Debug::StrDup(const char* lpsz, const SourceLocation
 void MIKTEXCEECALL MiKTeX::Debug::Free(void* ptr, const SourceLocation& sourceLocation)
 {
   int oldErrno = errno;
-#if defined(_MSC_VER) && defined(_DEBUG)
+#if defined(_MSC_VER) && defined(_DEBUG) && defined(MIKTEX_DEBUG)
   if (ptr != nullptr && !_CrtIsValidHeapPointer(ptr))
   {
     MIKTEX_UNEXPECTED();
   }
 #endif
 #if 0 // too costly
-#if defined(MIKTEX_DEBUG)
+#if defined(MIKTEX_DEBUG) && defined(MIKTEX_DEBUG)
   Utils::CheckHeap();
 #endif
 #endif
-#if defined(_MSC_VER) && defined(_DEBUG)
+#if defined(_MSC_VER) && defined(_DEBUG) && defined(MIKTEX_DEBUG)
   _free_dbg(ptr, _NORMAL_BLOCK);
 #else
   free(ptr);
