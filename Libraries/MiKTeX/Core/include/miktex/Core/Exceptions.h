@@ -53,6 +53,12 @@ struct SourceLocation
 #define MIKTEX_SOURCE_LOCATION()                                \
   MiKTeX::Core::SourceLocation(__func__, __FILE__, __LINE__)
 
+#if defined(MIKTEX_DEBUG)
+#define MIKTEX_SOURCE_LOCATION_DEBUG() MIKTEX_SOURCE_LOCATION()
+#else
+#define MIKTEX_SOURCE_LOCATION_DEBUG() MiKTeX::Core::SourceLocation()
+#endif
+
 /// The MiKTeX exception base class.
 class MiKTeXException : public std::exception
 {

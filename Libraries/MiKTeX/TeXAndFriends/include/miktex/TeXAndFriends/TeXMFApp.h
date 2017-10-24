@@ -443,7 +443,7 @@ inline void miktexontexmfstartjob()
   TeXMFApp::GetTeXMFApp()->OnTeXMFStartJob();
 }
 
-#define miktexreallocate(p, n) miktexreallocate_(#p, p, n, MIKTEX_SOURCE_LOCATION())
+#define miktexreallocate(p, n) miktexreallocate_(#p, p, n, MIKTEX_SOURCE_LOCATION_DEBUG())
 
 template<typename T> T* miktexreallocate_(const std::string& arrayName, T* p, size_t n, const MiKTeX::Core::SourceLocation& sourceLocation)
 {

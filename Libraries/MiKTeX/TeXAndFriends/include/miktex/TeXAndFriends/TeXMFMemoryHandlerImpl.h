@@ -116,14 +116,14 @@ protected:
 protected:
   template<typename T> T* AllocateArray(const std::string& arrayName, T*& ptr, std::size_t n)
   {
-    ptr = (T*)ReallocateArray(arrayName, nullptr, sizeof(*ptr), n, MIKTEX_SOURCE_LOCATION());
+    ptr = (T*)ReallocateArray(arrayName, nullptr, sizeof(*ptr), n, MIKTEX_SOURCE_LOCATION_DEBUG());
     return ptr;
   }
 
 protected:
   template<typename T> void FreeArray(const std::string& arrayName, T*& ptr)
   {
-    ReallocateArray(arrayName, ptr, sizeof(*ptr), 0, MIKTEX_SOURCE_LOCATION());
+    ReallocateArray(arrayName, ptr, sizeof(*ptr), 0, MIKTEX_SOURCE_LOCATION_DEBUG());
     ptr = nullptr;
   }
 

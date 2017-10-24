@@ -92,19 +92,19 @@ MIKTEXCOREEXPORT void MIKTEXNORETURN MIKTEXCEECALL miktex_core_fatal_error(const
 MIKTEX_END_EXTERN_C_BLOCK;
 
 #define MIKTEX_MALLOC(size)                             \
-  MiKTeX::Debug::Malloc((size), MIKTEX_SOURCE_LOCATION())
+  MiKTeX::Debug::Malloc((size), MIKTEX_SOURCE_LOCATION_DEBUG())
 
 #define MIKTEX_REALLOC(ptr, size)                               \
-  MiKTeX::Debug::Realloc((ptr), (size), MIKTEX_SOURCE_LOCATION())
+  MiKTeX::Debug::Realloc((ptr), (size), MIKTEX_SOURCE_LOCATION_DEBUG())
 
 #define MIKTEX_CALLOC(num, size)                        \
-  MiKTeX::Debug::Calloc(num, size, MIKTEX_SOURCE_LOCATION())
+  MiKTeX::Debug::Calloc(num, size, MIKTEX_SOURCE_LOCATION_DEBUG())
 
 #  define MIKTEX_STRDUP(str)                            \
-  MiKTeX::Debug::StrDup((str), MIKTEX_SOURCE_LOCATION())
+  MiKTeX::Debug::StrDup((str), MIKTEX_SOURCE_LOCATION_DEBUG())
 
 #define MIKTEX_FREE(ptr)                                \
-  MiKTeX::Debug::Free((ptr), MIKTEX_SOURCE_LOCATION())
+  MiKTeX::Debug::Free((ptr), MIKTEX_SOURCE_LOCATION_DEBUG())
 
 #if defined(MIKTEX_DEBUG)
 #  define MIKTEX_ASSERT(expr)                                           \
