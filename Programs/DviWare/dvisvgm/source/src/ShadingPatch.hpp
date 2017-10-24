@@ -21,6 +21,7 @@
 #ifndef SHADINGPATCH_HPP
 #define SHADINGPATCH_HPP
 
+#include <memory>
 #include "Color.hpp"
 #include "GraphicsPath.hpp"
 #include "MessageException.hpp"
@@ -34,8 +35,8 @@ class ShadingPatch
 			virtual void patchSegment (GraphicsPath<double> &path, const Color &color) =0;
 		};
 
-		typedef std::vector<DPair> PointVec;
-		typedef std::vector<Color> ColorVec;
+		using PointVec = std::vector<DPair>;
+		using ColorVec = std::vector<Color>;
 
 	public:
 		ShadingPatch (Color::ColorSpace colorSpace) : _colorspace(colorSpace) {}
@@ -50,11 +51,11 @@ class ShadingPatch
 		virtual int numColors (int edgeflag) const =0;
 		virtual Color averageColor() const =0;
 		Color::ColorSpace colorSpace () const {return _colorspace;}
-		static ShadingPatch* create (int psShadingType, Color::ColorSpace cspace);
+		static std::unique_ptr<ShadingPatch> create (int psShadingType, Color::ColorSpace cspace);
 
 	protected:
-		typedef void (Color::*ColorGetter)(std::valarray<double> &va) const;
-		typedef void (Color::*ColorSetter)(const std::valarray<double> &va);
+		using ColorGetter = void (Color::*)(std::valarray<double> &va) const;
+		using ColorSetter = void (Color::*)(const std::valarray<double> &va);
 		void colorQueryFuncs (ColorGetter &getter, ColorSetter &setter) const;
 
 	private:

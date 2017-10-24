@@ -21,8 +21,8 @@
 #ifndef DVISVGMSPECIALHANDLER_HPP
 #define DVISVGMSPECIALHANDLER_HPP
 
-#include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include "SpecialHandler.hpp"
 
@@ -31,14 +31,14 @@ class SpecialActions;
 
 class DvisvgmSpecialHandler : public SpecialHandler, public DVIPreprocessingListener, public DVIEndPageListener
 {
-	typedef std::vector<std::string> StringVector;
-	typedef std::map<std::string, StringVector> MacroMap;
+	using StringVector = std::vector<std::string>;
+	using MacroMap = std::unordered_map<std::string, StringVector>;
 
 	public:
 		DvisvgmSpecialHandler ();
 		const char* name () const override {return "dvisvgm";}
 		const char* info () const override {return "special set for embedding raw SVG snippets";}
-		const char** prefixes () const override;
+		const std::vector<const char*> prefixes () const override;
 		void preprocess (const char *prefix, std::istream &is, SpecialActions &actions) override;
 		bool process (const char *prefix, std::istream &is, SpecialActions &actions) override;
 

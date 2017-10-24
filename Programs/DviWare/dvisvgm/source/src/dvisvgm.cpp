@@ -18,13 +18,11 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#if defined(MIKTEX)
-#include "config.h"
-#endif
-
+#include <config.h>
 #include <clipper.hpp>
 #include <fstream>
 #include <iostream>
+#include <list>
 #include <potracelib.h>
 #include <sstream>
 #include <xxhash.h>
@@ -38,7 +36,7 @@
 #include "Font.hpp"
 #include "FontEngine.hpp"
 #include "Ghostscript.hpp"
-#include "HtmlSpecialHandler.hpp"
+#include "HyperlinkManager.hpp"
 #include "Message.hpp"
 #include "PageSize.hpp"
 #include "PSInterpreter.hpp"
@@ -46,12 +44,14 @@
 #include "SignalHandler.hpp"
 #include "SVGOutput.hpp"
 #include "System.hpp"
+#include "utility.hpp"
 #include "version.hpp"
 
 #ifndef DISABLE_WOFF
+#include <brotli/encode.h>
+#include <woff2/version.h>
 #include "ffwrapper.h"
 #endif
-
 #if defined(MIKTEX)
 #  include <miktex/Definitions>
 #  if defined(MIKTEX_WINDOWS)
@@ -148,9 +148,8 @@ static bool set_temp_dir (const CommandLine &args) {
 
 
 static bool check_bbox (const string &bboxstr) {
-	const char *formats[] = {"none", "min", "preview", "papersize", "dvi", 0};
-	for (const char **p=formats; *p; ++p)
-		if (bboxstr == *p)
+	for (const char *fmt : {"none", "min", "preview", "papersize", "dvi"})
+		if (bboxstr == fmt)
 			return true;
 	if (isalpha(bboxstr[0])) {
 		try {
@@ -175,36 +174,93 @@ static bool check_bbox (const string &bboxstr) {
 }
 
 
-static void print_version (bool extended) {
-	ostringstream oss;
-	oss << "dvisvgm " << PROGRAM_VERSION;
-	if (extended) {
-		if (strlen(TARGET_SYSTEM) > 0)
-			oss << " (" TARGET_SYSTEM ")";
-		int len = oss.str().length();
-		oss << "\n" << string(len, '-') << "\n"
-			"clipper:     " << CLIPPER_VERSION "\n";
-#ifndef DISABLE_WOFF
-		oss << "fontforge:   " << ff_version() << '\n';
-#endif
-		oss << "freetype:    " << FontEngine::version() << "\n";
+// Helper class to generate a list of version information of the used libraries.
+class VersionInfo {
+	public:
+		void add (const string &name, const string &version, bool ignoreEmpty=false) {
+			if (!version.empty() || !ignoreEmpty)
+				append(name, util::trim(version));
+		}
 
-		Ghostscript gs;
-		string gsver = gs.revision(true);
-		if (!gsver.empty())
-			oss << "Ghostscript: " << gsver + "\n";
-		const unsigned xxh_ver = XXH_versionNumber();
-		oss <<
-#ifdef MIKTEX_COM
-			"MiKTeX:      " << FileFinder::instance().version() << "\n"
-#else
-			"kpathsea:    " << FileFinder::instance().version() << "\n"
+		void add (const string &name, const char *version, bool ignoreEmpty=false) {
+			if (version && *version)
+				append(name, util::trim(version));
+			else if (!ignoreEmpty)
+				append(name, "");
+		}
+
+		/** Adds a version number given as a single unsigned integer, and optionally
+		 *  extracts its components, e.g. 0x00010203 => "1.2.3" (3 components separated
+		 *  by multiples of 256).
+		 *  @param[in] name library name
+		 *  @param[in] version version number
+		 *  @param[in] compcount number of components the version consists of
+		 *  @param[in] factor factor used to separate the components */
+		void add (const string &name, uint32_t version, int compcount=1, uint32_t factor=0xffffffff) {
+			string str;
+			while (compcount-- > 0) {
+				if (!str.empty())
+					str.insert(0, ".");
+				str.insert(0, to_string(version % factor));
+				version /= factor;
+			}
+			append(name, str);
+		}
+
+		/** Writes the version information to the given output stream. */
+		void write (ostream &os) {
+			using Entry = pair<string,string>;
+			_versionPairs.sort([](const Entry &e1, const Entry &e2) {
+				return util::tolower(e1.first) < util::tolower(e2.first);
+			});
+			size_t maxNameLength=0;
+			for (const Entry &versionPair : _versionPairs)
+				maxNameLength = max(maxNameLength, versionPair.first.length());
+			for (const Entry &versionPair : _versionPairs) {
+				string name = versionPair.first+":";
+				os << left << setw(maxNameLength+2) << name;
+				os << (versionPair.second.empty() ? "unknown" : versionPair.second) << '\n';
+			}
+		}
+
+	protected:
+		void append (const string &name, const string &version) {
+			_versionPairs.emplace_back(pair<string,string>(name, version));
+		}
+
+	private:
+		list<pair<string,string>> _versionPairs;
+};
+
+
+static void print_version (bool extended) {
+	string versionstr = string(PROGRAM_NAME)+" "+PROGRAM_VERSION;
+#ifdef TARGET_SYSTEM
+	if (extended && strlen(TARGET_SYSTEM) > 0)
+		versionstr += " (" TARGET_SYSTEM ")";
 #endif
-			"potrace:     " << (strchr(potrace_version(), ' ') ? strchr(potrace_version(), ' ')+1 : "unknown") << "\n"
-			"xxhash:      " << xxh_ver/10000 << '.' << (xxh_ver/100)%100 << '.' << xxh_ver%100 << "\n"
-			"zlib:        " << zlibVersion();
+	cout << versionstr << '\n';
+	if (extended) {
+		cout << string(versionstr.length(), '-') << '\n';
+		VersionInfo versionInfo;
+		versionInfo.add("clipper", CLIPPER_VERSION);
+		versionInfo.add("freetype", FontEngine::version());
+		versionInfo.add("potrace", strchr(potrace_version(), ' '));
+		versionInfo.add("xxhash", XXH_versionNumber(), 3, 100);
+		versionInfo.add("zlib", zlibVersion());
+		versionInfo.add("Ghostscript", Ghostscript().revision(true), true);
+#ifndef DISABLE_WOFF
+		versionInfo.add("brotli", BrotliEncoderVersion(), 3, 0x1000);
+		versionInfo.add("woff2", woff2::version, 3, 0x100);
+		versionInfo.add("fontforge", ff_version());
+#endif
+#ifdef MIKTEX_COM
+		versionInfo.add("MiKTeX", FileFinder::instance().version());
+#else
+		versionInfo.add("kpathsea", FileFinder::instance().version());
+#endif
+		versionInfo.write(cout);
 	}
-	cout << oss.str() << endl;
 }
 
 
@@ -212,10 +268,11 @@ static void init_fontmap (const CommandLine &cmdline) {
 	const char *mapseq = cmdline.fontmapOpt.given() ? cmdline.fontmapOpt.value().c_str() : 0;
 	bool additional = mapseq && strchr("+-=", *mapseq);
 	if (!mapseq || additional) {
-		const char *mapfiles[] = {"ps2pk.map", "dvipdfm.map", "psfonts.map", 0};
 		bool found = false;
-		for (const char **p=mapfiles; *p && !found; p++)
-			found = FontMap::instance().read(*p);
+		for (string mapfile : {"ps2pk", "pdftex", "dvipdfm", "psfonts"}) {
+			if ((found = FontMap::instance().read(mapfile+".map")))
+				break;
+		}
 		if (!found)
 			Message::wstream(true) << "none of the default map files could be found\n";
 	}
@@ -290,7 +347,7 @@ int main (int argc, char *argv[]) {
 		}
 		if (!check_bbox(cmdline.bboxOpt.value()))
 			return 1;
-		if (!HtmlSpecialHandler::setLinkMarker(cmdline.linkmarkOpt.value()))
+		if (!HyperlinkManager::setLinkMarker(cmdline.linkmarkOpt.value()))
 			Message::wstream(true) << "invalid argument '"+cmdline.linkmarkOpt.value()+"' supplied for option --linkmark\n";
 		if (argc > 1 && cmdline.filenames().size() < 1) {
 			Message::estream(true) << "no input file given\n";

@@ -18,7 +18,7 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
+#include <array>
 #include <sstream>
 #include "CMap.hpp"
 #include "CMapManager.hpp"
@@ -38,7 +38,7 @@ CMapManager& CMapManager::instance () {
 
 /** Loads a cmap and returns the corresponding object. */
 CMap* CMapManager::lookup (const string &name) {
-	CMaps::iterator it = _cmaps.find(name);
+	auto it = _cmaps.find(name);
 	if (it != _cmaps.end())
 		return it->second.get();
 
@@ -49,16 +49,17 @@ CMap* CMapManager::lookup (const string &name) {
 		throw CMapReaderException(oss.str());
 	}
 
-	CMap *cmap=0;
+	unique_ptr<CMap> cmap_ptr;
 	if (name == "Identity-H")
-		cmap = new IdentityHCMap;
+		cmap_ptr = util::make_unique<IdentityHCMap>();
 	else if (name == "Identity-V")
-		cmap = new IdentityVCMap;
+		cmap_ptr = util::make_unique<IdentityVCMap>();
 	else if (name == "unicode")
-		cmap = new UnicodeCMap;
-	if (cmap) {
-		_cmaps[name].reset(cmap);
-		return cmap;
+		cmap_ptr = util::make_unique<UnicodeCMap>();
+	if (cmap_ptr) {
+		CMap *ret = cmap_ptr.get();
+		_cmaps[name] = std::move(cmap_ptr);
+		return ret;
 	}
 	// Load cmap data of file <name> and also process all cmaps referenced by operator "usecmap".
 	// This can lead to a sequence of further calls of lookup(). In order to prevent infinite loops
@@ -66,20 +67,22 @@ CMap* CMapManager::lookup (const string &name) {
 	// a sequence of inclusions.
 	_includedCMaps.insert(name);  // save name of current cmap being processed
 	_level++;                     // increase nesting level
+	CMap *ret=nullptr;
 	try {
 		CMapReader reader;
-		if (!(cmap = reader.read(name))) {
+		if (!(cmap_ptr = reader.read(name))) {
 			_level = 1;
 			Message::wstream(true) << "CMap file '" << name << "' not found\n";
 		}
-		_cmaps[name].reset(cmap);
+		ret = cmap_ptr.get();
+		_cmaps[name] = std::move(cmap_ptr);
 	}
 	catch (const CMapReaderException &e) {
 		Message::estream(true) << "CMap file " << name << ": " << e.what() << "\n";
 	}
 	if (--_level == 0)            // back again at initial nesting level?
 		_includedCMaps.clear();    // => names of included cmaps are no longer needed
-	return cmap;
+	return ret;
 }
 
 
@@ -95,10 +98,11 @@ const CMap* CMapManager::findCompatibleBaseFontMap (const PhysicalFont *font, co
 	if (!font || !cmap)
 		return 0;
 
-	static const struct CharMapIDToEncName {
+	struct CharMapIDToEncName {
 		CharMapID id;
 		const char *encname;
-	} encodings[] = {
+	};
+	const array<CharMapIDToEncName, 10> encodings {{
 		{CharMapID::WIN_UCS4,         "UCS4"},
 		{CharMapID::WIN_UCS2,         "UCS2"},
 		{CharMapID::WIN_SHIFTJIS,     "90ms-RKSJ"},
@@ -109,23 +113,22 @@ const CMap* CMapManager::findCompatibleBaseFontMap (const PhysicalFont *font, co
 		{CharMapID::MAC_TRADCHINESE,  "B5pc"},
 		{CharMapID::MAC_SIMPLCHINESE, "GBpc-EUC"},
 		{CharMapID::MAC_KOREAN,       "KSCpc-EUC"}
-	};
+	}};
 
 	// get IDs of all available charmaps in font
 	vector<CharMapID> charmapIDs;
 	font->collectCharMapIDs(charmapIDs);
 
-	const bool is_unicode_map = bool(dynamic_cast<const UnicodeCMap*>(cmap));
-	const size_t num_encodings = is_unicode_map ? 2 : sizeof(encodings)/sizeof(CharMapIDToEncName);
 
 	// try to find a compatible encoding CMap
+	const bool is_unicode_map = bool(dynamic_cast<const UnicodeCMap*>(cmap));
 	const string ro = cmap->getROString();
-	for (const CharMapIDToEncName *enc=encodings; enc < enc+num_encodings; enc++) {
+	for (const CharMapIDToEncName &enc : encodings) {
 		for (size_t i=0; i < charmapIDs.size(); i++) {
-			if (enc->id == charmapIDs[i]) {
-				string cmapname = ro+"-"+enc->encname;
+			if (enc.id == charmapIDs[i]) {
+				string cmapname = ro+"-"+enc.encname;
 				if (is_unicode_map || FileFinder::instance().lookup(cmapname, "cmap", false)) {
-					charmapID = enc->id;
+					charmapID = enc.id;
 					return is_unicode_map ? cmap : lookup(cmapname);
 				}
 			}

@@ -18,7 +18,7 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
+#include <array>
 #include <cstring>
 #include <utility>
 #include "DvisvgmSpecialHandler.hpp"
@@ -42,20 +42,21 @@ void DvisvgmSpecialHandler::preprocess (const char*, istream &is, SpecialActions
 	struct Command {
 		const char *name;
 		void (DvisvgmSpecialHandler::*handler)(InputReader&);
-	} commands[] = {
+	};
+	constexpr array<Command, 5> commands {{
 		{"raw",       &DvisvgmSpecialHandler::preprocessRaw},
 		{"rawdef",    &DvisvgmSpecialHandler::preprocessRawDef},
 		{"rawset",    &DvisvgmSpecialHandler::preprocessRawSet},
 		{"endrawset", &DvisvgmSpecialHandler::preprocessEndRawSet},
-		{"rawput",    &DvisvgmSpecialHandler::preprocessRawPut},
-	};
+		{"rawput",    &DvisvgmSpecialHandler::preprocessRawPut}
+	}};
 
 	StreamInputReader ir(is);
-	string cmd = ir.getWord();
-	for (size_t i=0; i < sizeof(commands)/sizeof(Command); i++) {
-		if (commands[i].name == cmd) {
+	string cmdstr = ir.getWord();
+	for (const Command &command : commands) {
+		if (command.name == cmdstr) {
 			ir.skipSpace();
-			(this->*commands[i].handler)(ir);
+			(this->*command.handler)(ir);
 			return;
 		}
 	}
@@ -119,21 +120,22 @@ bool DvisvgmSpecialHandler::process (const char *prefix, istream &is, SpecialAct
 	struct Command {
 		const char *name;
 		void (DvisvgmSpecialHandler::*handler)(InputReader&, SpecialActions&);
-	} commands[] = {
+	};
+	constexpr array<Command, 7> commands {{
 		{"raw",       &DvisvgmSpecialHandler::processRaw},
 		{"rawdef",    &DvisvgmSpecialHandler::processRawDef},
 		{"rawset",    &DvisvgmSpecialHandler::processRawSet},
 		{"endrawset", &DvisvgmSpecialHandler::processEndRawSet},
 		{"rawput",    &DvisvgmSpecialHandler::processRawPut},
 		{"bbox",      &DvisvgmSpecialHandler::processBBox},
-		{"img",       &DvisvgmSpecialHandler::processImg},
-	};
+		{"img",       &DvisvgmSpecialHandler::processImg}
+	}};
 	StreamInputReader ir(is);
-	string cmd = ir.getWord();
-	for (size_t i=0; i < sizeof(commands)/sizeof(Command); i++) {
-		if (commands[i].name == cmd) {
+	string cmdstr = ir.getWord();
+	for (const Command &command : commands) {
+		if (command.name == cmdstr) {
 			ir.skipSpace();
-			(this->*commands[i].handler)(ir, actions);
+			(this->*command.handler)(ir, actions);
 			return true;
 		}
 	}
@@ -145,20 +147,9 @@ bool DvisvgmSpecialHandler::process (const char *prefix, istream &is, SpecialAct
  *  @param[in,out] str text to expand
  *  @param[in] actions interfcae to the world outside the special handler */
 static void expand_constants (string &str, SpecialActions &actions) {
-	struct Constant {
-		const char *name;
-		string val;
-	}
-	constants[] = {
-		{"x", XMLString(actions.getX())},
-		{"y", XMLString(actions.getY())},
-		{"color", actions.getColor().svgColorString()},
-		{"nl", "\n"},
-		{0, ""}
-	};
 	bool repl_bbox = true;
 	while (repl_bbox) {
-		size_t pos = str.find(string("{?bbox "));
+		size_t pos = str.find("{?bbox ");
 		if (pos == string::npos)
 			repl_bbox = false;
 		else {
@@ -173,12 +164,22 @@ static void expand_constants (string &str, SpecialActions &actions) {
 				repl_bbox = false;
 		}
 	}
-	for (const Constant *p=constants; p->name; p++) {
-		const string pattern = string("{?")+p->name+"}";
+	struct Constant {
+		const char *name;
+		string val;
+	};
+	const array<Constant, 4> constants {{
+		{"x",     XMLString(actions.getX())},
+		{"y",     XMLString(actions.getY())},
+		{"color", actions.getColor().svgColorString()},
+		{"nl",    "\n"},
+	}};
+	for (const Constant &constant : constants) {
+		const string pattern = string("{?")+constant.name+"}";
 		size_t pos = str.find(pattern);
 		while (pos != string::npos) {
-			str.replace(pos, strlen(p->name)+3, p->val);
-			pos = str.find(pattern, pos+p->val.length());  // look for further matches
+			str.replace(pos, strlen(constant.name)+3, constant.val);
+			pos = str.find(pattern, pos+constant.val.length());  // look for further matches
 		}
 	}
 }
@@ -221,7 +222,7 @@ void DvisvgmSpecialHandler::processRawPut (InputReader &ir, SpecialActions &acti
 	if (_nestingLevel > 0)
 		return;
 	string id = ir.getString();
-	MacroMap::iterator it = _macros.find(id);
+	auto it = _macros.find(id);
 	if (it == _macros.end())
 		throw SpecialException("undefined SVG fragment '" + id + "' referenced");
 
@@ -248,11 +249,20 @@ void DvisvgmSpecialHandler::processRawPut (InputReader &ir, SpecialActions &acti
  *  @param[in] h height of the rectangle in PS point units
  *  @param[in] d depth of the rectangle in PS point units
  *  @param[in] actions object providing the actions that can be performed by the SpecialHandler */
-static void update_bbox (double w, double h, double d, SpecialActions &actions) {
+static void update_bbox (Length w, Length h, Length d, SpecialActions &actions) {
 	double x = actions.getX();
 	double y = actions.getY();
-	actions.embed(BoundingBox(x, y, x+w, y-h));
-	actions.embed(BoundingBox(x, y, x+w, y+d));
+	actions.embed(BoundingBox(x, y, x+w.bp(), y-h.bp()));
+	actions.embed(BoundingBox(x, y, x+w.bp(), y+d.bp()));
+}
+
+
+/** Reads a length value including a trailing unit specifier and returns it. */
+static Length read_length (InputReader &ir) {
+	ir.skipSpace();
+	double val = ir.getDouble();
+	string unit = isalpha(ir.peek()) ? ir.getString(2) : "pt";
+	return Length(val, unit);
 }
 
 
@@ -264,57 +274,66 @@ static void update_bbox (double w, double h, double d, SpecialActions &actions) 
 void DvisvgmSpecialHandler::processBBox (InputReader &ir, SpecialActions &actions) {
 	ir.skipSpace();
 	int c = ir.peek();
-	if (isalpha(c)) {
-		while (!isspace(ir.peek()))  // skip trailing characters
-			ir.get();
-		if (c == 'n') {
-			ir.skipSpace();
-			string name;
-			while (isalnum(ir.peek()))
-				name += char(ir.get());
-			ir.skipSpace();
-			if (!name.empty() && ir.eof())
-				actions.bbox(name, true); // create new user box
-		}
-		else if (c == 'a' || c == 'f') {
-			double p[4];
-			for (int i=0; i < 4; i++)
-				p[i] = ir.getDouble()*Length::pt2bp;
-			BoundingBox b(p[0], p[1], p[2], p[3]);
-			if (c == 'a')
-				actions.embed(b);
-			else {
-				actions.bbox() = b;
-				actions.bbox().lock();
+	try {
+		if (!isalpha(c))
+			c = 'r';   // no mode specifier => relative box parameters
+		else {
+			while (!isspace(ir.peek()))  // skip trailing characters
+				ir.get();
+			if (c == 'n') {   // "new": create new local bounding box
+				ir.skipSpace();
+				string name;
+				while (isalnum(ir.peek()))
+					name += char(ir.get());
+				ir.skipSpace();
+				if (!name.empty() && ir.eof())
+					actions.bbox(name, true); // create new user box
+			}
+			else if (c == 'a' || c == 'f') {  // "abs" or "fix"
+				Length lengths[4];
+				for (int i=0; i < 4; i++)
+					lengths[i] = read_length(ir);
+				BoundingBox b(lengths[0], lengths[1], lengths[2], lengths[3]);
+				if (c == 'a')
+					actions.embed(b);
+				else {
+					actions.bbox() = b;
+					actions.bbox().lock();
+				}
 			}
 		}
+		if (c == 'r') {
+			Length w = read_length(ir);
+			Length h = read_length(ir);
+			Length d = read_length(ir);
+			update_bbox(w, h, d, actions);
+		}
 	}
-	else
-		c = 'r';   // no mode specifier => relative box parameters
-
-	if (c == 'r') {
-		double w = ir.getDouble()*Length::pt2bp;
-		double h = ir.getDouble()*Length::pt2bp;
-		double d = ir.getDouble()*Length::pt2bp;
-		update_bbox(w, h, d, actions);
+	catch (const UnitException &e) {
+		throw SpecialException(string("dvisvgm:bbox: ") + e.what());
 	}
 }
 
 
 void DvisvgmSpecialHandler::processImg (InputReader &ir, SpecialActions &actions) {
-	double w = ir.getDouble()*Length::pt2bp;
-	double h = ir.getDouble()*Length::pt2bp;
-	string f = ir.getString();
-	update_bbox(w, h, 0, actions);
-	XMLElementNode *img = new XMLElementNode("image");
-	img->addAttribute("x", actions.getX());
-	img->addAttribute("y", actions.getY());
-	img->addAttribute("width", w);
-	img->addAttribute("height", h);
-	img->addAttribute("xlink:href", f);
-	if (!actions.getMatrix().isIdentity())
-		img->addAttribute("transform", actions.getMatrix().getSVG());
-	actions.appendToPage(img);
+	try {
+		Length w = read_length(ir);
+		Length h = read_length(ir);
+		string f = ir.getString();
+		update_bbox(w, h, 0, actions);
+		XMLElementNode *img = new XMLElementNode("image");
+		img->addAttribute("x", actions.getX());
+		img->addAttribute("y", actions.getY());
+		img->addAttribute("width", w.bp());
+		img->addAttribute("height", h.bp());
+		img->addAttribute("xlink:href", f);
+		if (!actions.getMatrix().isIdentity())
+			img->addAttribute("transform", actions.getMatrix().getSVG());
+		actions.appendToPage(img);
+	}
+	catch (const UnitException &e) {
+		throw SpecialException(string("dvisvgm:img: ") + e.what());
+	}
 }
 
 
@@ -342,7 +361,7 @@ void DvisvgmSpecialHandler::dviEndPage (unsigned, SpecialActions&) {
 }
 
 
-const char** DvisvgmSpecialHandler::prefixes () const {
-	static const char *pfx[] = {"dvisvgm:", 0};
+const vector<const char*> DvisvgmSpecialHandler::prefixes () const {
+	const vector<const char*> pfx {"dvisvgm:"};
 	return pfx;
 }

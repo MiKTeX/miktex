@@ -19,7 +19,6 @@
 #include <io.h>
 #endif
 #endif
-
 #if defined(MIKTEX)
 #include <miktex/Core/File>
 #include <miktex/Core/TemporaryFile>

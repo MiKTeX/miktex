@@ -28,8 +28,7 @@
 struct CharMapID;
 class PhysicalFont;
 
-struct FontEncoding
-{
+struct FontEncoding {
 	virtual ~FontEncoding () =default;
 	virtual Character decode (uint32_t c) const =0;
 	virtual bool mapsToCharIndex () const =0;
@@ -38,15 +37,13 @@ struct FontEncoding
 };
 
 
-struct NamedFontEncoding : public FontEncoding
-{
+struct NamedFontEncoding : public FontEncoding {
 	virtual const char* name () const =0;
 	virtual const char* path () const =0;
 };
 
 
-class FontEncodingPair : public FontEncoding
-{
+class FontEncodingPair : public FontEncoding {
 	public:
 		FontEncodingPair (const FontEncoding *enc1) : _enc1(enc1), _enc2(0) {}
 		FontEncodingPair (const FontEncoding *enc1, const FontEncoding *enc2) : _enc1(enc1), _enc2(enc2) {}

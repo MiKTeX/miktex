@@ -18,7 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
+#if defined(MIKTEX)
+#  include <config.h>
+#endif
 #include <algorithm>
 #include <array>
 #include "FontWriter.hpp"
@@ -28,7 +30,7 @@ using namespace std;
 
 bool FontWriter::AUTOHINT_FONTS = false;
 
-const array<FontWriter::FontFormatInfo, 4> FontWriter::_formatInfos = {{
+const array<FontWriter::FontFormatInfo, 4> FontWriter::_formatInfos {{
 	{FontWriter::FontFormat::SVG, "image/svg+xml", "svg", "svg"},
 	{FontWriter::FontFormat::TTF, "application/x-font-ttf", "ttf", "truetype"},
 	{FontWriter::FontFormat::WOFF, "application/x-font-woff", "woff", "woff"},
@@ -38,7 +40,7 @@ const array<FontWriter::FontFormatInfo, 4> FontWriter::_formatInfos = {{
 
 /** Returns the corresponding FontFormat for a given format name (e.g. "svg", "woff" etc.). */
 FontWriter::FontFormat FontWriter::toFontFormat (string formatstr) {
-	util::tolower(formatstr);
+	formatstr = util::tolower(formatstr);
 	for (const FontFormatInfo &info : _formatInfos) {
 		if (formatstr == info.formatstr_short)
 			return info.format;
@@ -66,6 +68,8 @@ vector<string> FontWriter::supportedFormats () {
 }
 
 
+#include <config.h>
+
 #ifdef DISABLE_WOFF
 // dummy functions used if WOFF support is disabled
 FontWriter::FontWriter (const PhysicalFont &font) : _font(font) {}
@@ -76,8 +80,8 @@ bool FontWriter::writeCSSFontFace (FontFormat format, const set<int> &charcodes,
 #include <fstream>
 #include <iomanip>
 #include <sstream>
-#include <woff2_enc.h>
-#include <file.h>
+#include <woff2/encode.h>
+#include <woff2/file.h>
 #include "ffwrapper.h"
 #include "Bezier.hpp"
 #include "FileSystem.hpp"

@@ -66,11 +66,14 @@
 #cmakedefine HAVE_MEMSET 1
 
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
-#cmakedefine HAVE_NDIR_H
+#cmakedefine HAVE_NDIR_H 1
+
+/* Define to 1 if you have the `sigaction' function. */
+#cmakedefine HAVE_SIGACTION 1
 
 /* Define to 1 if `stat' has the bug that it succeeds when given the
    zero-length file name argument. */
-#cmakedefine HAVE_STAT_EMPTY_STRING_BUG
+#cmakedefine HAVE_STAT_EMPTY_STRING_BUG 1
 
 /* Define to 1 if stdbool.h conforms to C99. */
 #cmakedefine HAVE_STDBOOL_H 1
@@ -148,7 +151,7 @@
 #cmakedefine PACKAGE_NAME
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "dvisvgm 2.1.3"
+#define PACKAGE_STRING "dvisvgm 2.2"
 
 /* Define to the one symbol short name of this package. */
 #cmakedefine PACKAGE_TARNAME
@@ -169,7 +172,7 @@
 #cmakedefine TM_IN_SYS_TIME 1
 
 /* Version number of package */
-#define VERSION "2.1"
+#define VERSION "2.2"
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #cmakedefine const

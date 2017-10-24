@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <algorithm>
 #include <array>
 #include <fstream>
@@ -28,26 +27,26 @@
 #include "CMapReader.hpp"
 #include "FileFinder.hpp"
 #include "InputReader.hpp"
+#include "utility.hpp"
 
 using namespace std;
 
 
-CMapReader::CMapReader () : _cmap(0), _inCMap(false)
-{
+CMapReader::CMapReader () : _inCMap(false) {
 }
 
 
 /** Reads a cmap file and returns the corresponding CMap object.
  *  @param fname[in] name/path of cmap file
  *  @return CMap object representing the read data, or 0 if file could not be read */
-CMap* CMapReader::read (const string &fname) {
+unique_ptr<CMap> CMapReader::read (const string &fname) {
 	if (const char *path = FileFinder::instance().lookup(fname.c_str(), "cmap", false)) {
 		ifstream ifs(path);
 		if (ifs)
 			return read(ifs, fname);
 	}
 	_tokens.clear();
-	return 0;
+	return unique_ptr<CMap>();
 }
 
 
@@ -55,9 +54,9 @@ CMap* CMapReader::read (const string &fname) {
  *  @param is[in] cmap data input stream
  *  @param is[in] name name of CMap to be read
  *  @return CMap object representing the read data, or 0 if file could not be read */
-CMap* CMapReader::read (std::istream& is, const string &name) {
+unique_ptr<CMap> CMapReader::read (std::istream& is, const string &name) {
 	_tokens.clear();
-	_cmap = new SegmentedCMap(name);
+	_cmap = util::make_unique<SegmentedCMap>(name);
 	StreamInputReader ir(is);
 	try {
 		while (ir) {
@@ -75,11 +74,10 @@ CMap* CMapReader::read (std::istream& is, const string &name) {
 		}
 	}
 	catch (CMapReaderException &e) {
-		delete _cmap;
-		_cmap = 0;
+		_cmap.release();
 		throw;
 	}
-	return _cmap;
+	return std::move(_cmap);
 }
 
 
@@ -91,7 +89,7 @@ void CMapReader::executeOperator (const string &opname, InputReader &ir) {
 		const char *name;
 		void (CMapReader::*handler)(InputReader&);
 	};
-	array<Operator, 6> operators = {{
+	constexpr array<Operator, 6> operators {{
 		{"beginbfchar",   &CMapReader::op_beginbfchar},
 		{"beginbfrange",  &CMapReader::op_beginbfrange},
 		{"begincidrange", &CMapReader::op_begincidrange},

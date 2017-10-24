@@ -21,10 +21,10 @@
 #ifndef CMAPMANAGER_HPP
 #define CMAPMANAGER_HPP
 
-#include <map>
 #include <memory>
-#include <set>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include "CharMapID.hpp"
 
 struct CMap;
@@ -34,7 +34,6 @@ class PhysicalFont;
 
 class CMapManager
 {
-	typedef std::map<std::string, std::unique_ptr<CMap>> CMaps;
 	public:
 		CMap* lookup (const std::string &name);
 		const CMap* findCompatibleBaseFontMap (const PhysicalFont *font, const CMap *cmap, CharMapID &charmapID);
@@ -44,9 +43,9 @@ class CMapManager
 		CMapManager () : _level(0) {}
 
 	private:
-		CMaps _cmaps;  ///< loaded cmaps
+		std::unordered_map<std::string, std::unique_ptr<CMap>> _cmaps;  ///< loaded cmaps
+		std::unordered_set<std::string> _includedCMaps;  ///< names of cmaps loaded by "usecmap"
 		int _level;    ///< current inclusion depth; >0 if a cmap loaded by "usecmap" is being processed
-		std::set<std::string> _includedCMaps;  ///< names of cmaps loaded by "usecmap"
 };
 
 #endif

@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <cstring>
 #include <sstream>
 #include <vector>
@@ -114,8 +113,8 @@ bool ColorSpecialHandler::process (const char *, istream &is, SpecialActions &ac
 }
 
 
-const char** ColorSpecialHandler::prefixes () const {
-	static const char *pfx[] = {"color", 0};
+const vector<const char*> ColorSpecialHandler::prefixes () const {
+	const vector<const char*> pfx {"color"};
 	return pfx;
 }
 

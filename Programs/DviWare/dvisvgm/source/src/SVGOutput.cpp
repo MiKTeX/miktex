@@ -30,7 +30,6 @@
 #include "SVGOutput.hpp"
 #include "utility.hpp"
 #include "ZLibOutputStream.hpp"
-
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
 #define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
@@ -59,12 +58,12 @@ ostream& SVGOutput::getPageStream (int page, int numPages) const {
 
 	_page = page;
 	if (_zipLevel > 0)
-		_osptr.reset(new ZLibOutputStream(fname, _zipLevel));
+		_osptr = util::make_unique<ZLibOutputStream>(fname, _zipLevel);
 	else
 #if defined(MIKTEX_WINDOWS)
-                _osptr.reset(new ofstream(UW_(fname.c_str())));
+                _osptr = util::make_unique<ofstream>(UW_(fname.c_str()));
 #else
-		_osptr.reset(new ofstream(fname.c_str()));
+		_osptr = util::make_unique<ofstream>(fname.c_str());
 #endif
 	if (!_osptr)
 		throw MessageException("can't open file "+fname+" for writing");

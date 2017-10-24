@@ -56,9 +56,54 @@ string util::normalize_space (string str, const char *ws) {
 }
 
 
-string& util::tolower (string &str) {
-	transform(str.begin(), str.end(), str.begin(), ::tolower);
+/** Replaces all occurences of a substring with another string.
+ *  @param[in] str string to search through
+ *  @param[in] find string to look for
+ *  @param[in] repl replacement for "find"
+ *  @return the resulting string */
+string util::replace (string str, const string &find, const string &repl) {
+	if (!find.empty() && !repl.empty()) {
+		size_t first = str.find(find);
+		while (first != string::npos) {
+			str.replace(first, find.length(), repl);
+			first = str.find(find, first+repl.length());
+		}
+	}
 	return str;
+}
+
+
+/** Splits a string at all occurences of a given separator string and
+ *  returns the substrings.
+ *  @param[in] str string to split
+ *  @param[in] sep separator to look for
+ *  @return the substrings between the separators */
+vector<string> util::split (const string &str, const string &sep) {
+	vector<string> parts;
+	if (str.empty() || sep.empty())
+		parts.emplace_back(str);
+	else {
+		size_t left=0;
+		while (left <= str.length()) {
+			size_t right = str.find(sep, left);
+			if (right == string::npos) {
+				parts.emplace_back(str.substr(left));
+				left = string::npos;
+			}
+			else {
+				parts.emplace_back(str.substr(left, right-left));
+				left = right+sep.length();
+			}
+		}
+	}
+	return parts;
+}
+
+
+string util::tolower (const string &str) {
+	string ret=str;
+	transform(str.begin(), str.end(), ret.begin(), ::tolower);
+	return ret;
 }
 
 

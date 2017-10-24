@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <cstring>
 #include <cstdlib>
 #include <fstream>
@@ -48,7 +47,7 @@ int FontManager::fontID (int n) const {
 		auto it = _num2id.find(n);
 		return (it == _num2id.end()) ? -1 : it->second;
 	}
-	VfNum2IdMap::const_iterator vit = _vfnum2id.find(_vfStack.top());
+	auto vit = _vfnum2id.find(_vfStack.top());
 	if (vit == _vfnum2id.end())
 		return -1;
 	const Num2IdMap &num2id = vit->second;
@@ -102,7 +101,7 @@ int FontManager::fontnum (int id) const {
 
 
 int FontManager::vfFirstFontNum (const VirtualFont *vf) const {
-	VfFirstFontMap::const_iterator it = _vfFirstFontMap.find(vf);
+	auto it = _vfFirstFontMap.find(vf);
 	return (it == _vfFirstFontMap.end()) ? -1 : (int) it->second;
 }
 
@@ -137,7 +136,7 @@ const VirtualFont* FontManager::getVF () const {
 }
 
 
-static Font* create_font (const string &filename, const string &fontname, int fontindex, uint32_t checksum, double dsize, double ssize) {
+static unique_ptr<Font> create_font (const string &filename, const string &fontname, int fontindex, uint32_t checksum, double dsize, double ssize) {
 	string ext;
 	if (const char *dot = strrchr(filename.c_str(), '.'))
 		ext = dot+1;
@@ -174,10 +173,10 @@ int FontManager::registerFont (uint32_t fontnum, const string &name, uint32_t ch
 
 	unique_ptr<Font> newfont;
 	const int newid = _fonts.size();   // the new font gets this ID
-	Name2IdMap::iterator it = _name2id.find(name);
+	auto it = _name2id.find(name);
 	if (it != _name2id.end()) {  // font with same name already registered?
 		const auto &font = _fonts[it->second];
-		newfont.reset(font->clone(dsize, ssize));
+		newfont = font->clone(dsize, ssize);
 	}
 	else {
 		string filename = name;
@@ -189,12 +188,12 @@ int FontManager::registerFont (uint32_t fontnum, const string &name, uint32_t ch
 		}
 		// try to find font file with the exact given name
 		if (filename.rfind(".") != string::npos)
-			newfont.reset(create_font(filename, name, fontindex, checksum, dsize, ssize));
+			newfont = create_font(filename, name, fontindex, checksum, dsize, ssize);
 		else {
 			// try various font file formats if the given file has no extension
 			const char *exts[] = {"pfb", "otf", "ttc", "ttf", "vf", "mf", 0};
 			for (const char **p = exts; *p && !newfont; ++p)
-				newfont.reset(create_font(filename+"."+*p, name, fontindex, checksum, dsize, ssize));
+				newfont = create_font(filename+"."+*p, name, fontindex, checksum, dsize, ssize);
 		}
 		if (newfont) {
 			if (!newfont->findAndAssignBaseFontMap())
@@ -204,7 +203,7 @@ int FontManager::registerFont (uint32_t fontnum, const string &name, uint32_t ch
 		}
 		else {
 			// create dummy font as a placeholder if the proper font is not available
-			newfont.reset(new EmptyFont(name));
+			newfont = util::make_unique<EmptyFont>(name);
 			if (filename.rfind(".") == string::npos)
 				filename += ".mf";
 			// print warning message about missing font file (only once for each filename)
@@ -262,10 +261,10 @@ int FontManager::registerFont (uint32_t fontnum, string filename, int fontIndex,
 	const char *path = filename.c_str();
 	unique_ptr<Font> newfont;
 	const int newid = _fonts.size();   // the new font gets this ID
-	Name2IdMap::iterator it = _name2id.find(fontname);
+	auto it = _name2id.find(fontname);
 	if (it != _name2id.end()) {  // font with same name already registered?
 		if (NativeFont *font = dynamic_cast<NativeFont*>(_fonts[it->second].get()))
-			newfont.reset(font->clone(ptsize, style, color));
+			newfont = font->clone(ptsize, style, color);
 	}
 	else {
 		if (!FileSystem::exists(path))
@@ -276,7 +275,7 @@ int FontManager::registerFont (uint32_t fontnum, string filename, int fontIndex,
 		}
 		if (!newfont) {
 			// create dummy font as a placeholder if the proper font is not available
-			newfont.reset(new EmptyFont(filename));
+			newfont = util::make_unique<EmptyFont>(filename);
 			// print warning message about missing font file (only once for each filename)
 			static set<string> missing_fonts;
 			if (missing_fonts.find(filename) == missing_fonts.end()) {

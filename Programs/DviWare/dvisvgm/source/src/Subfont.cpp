@@ -26,6 +26,7 @@
 #include "FileFinder.hpp"
 #include "Message.hpp"
 #include "Subfont.hpp"
+#include "utility.hpp"
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
@@ -37,7 +38,7 @@ using namespace std;
 // helper functions
 
 static int skip_mapping_data (istream &is);
-static bool scan_line (const char *line, int lineno, uint16_t *mapping, const string &fname, long &pos);
+static bool scan_line (const char *line, int lineno, vector<uint16_t> &mapping, const string &fname, long &pos);
 
 
 /** Constructs a new SubfontDefinition object.
@@ -60,19 +61,13 @@ SubfontDefinition::SubfontDefinition (const string &name, const char *fpath) : _
 			while (is && !isspace(is.peek()))
 				id += is.get();
 			if (!id.empty()) {
-				auto state = _subfonts.emplace(pair<string,Subfont*>(id, (Subfont*)0));
+				auto state = _subfonts.emplace(pair<string,unique_ptr<Subfont>>(id, unique_ptr<Subfont>()));
 				if (state.second) // id was not present in map already
-					state.first->second = new Subfont(*this, state.first->first);
+					state.first->second = unique_ptr<Subfont>(new Subfont(*this, state.first->first));
 				skip_mapping_data(is);
 			}
 		}
 	}
-}
-
-
-SubfontDefinition::~SubfontDefinition () {
-	for (auto &entry : _subfonts)
-		delete entry.second;
 }
 
 
@@ -81,16 +76,16 @@ SubfontDefinition::~SubfontDefinition () {
  *  @param[in] name name of subfont definition to lookup
  *  @return pointer to subfont definition object or 0 if it doesn't exist */
 SubfontDefinition* SubfontDefinition::lookup (const std::string &name) {
-	static map<string,unique_ptr<SubfontDefinition>> sfdMap;
+	static unordered_map<string,unique_ptr<SubfontDefinition>> sfdMap;
 	auto it = sfdMap.find(name);
 	if (it != sfdMap.end())
 		return it->second.get();
-	unique_ptr<SubfontDefinition> sfd;
+	SubfontDefinition *sfd=nullptr;
 	if (const char *path = FileFinder::instance().lookup(name+".sfd", false)) {
-		sfd.reset(new SubfontDefinition(name, path));
-		sfdMap[name] = std::move(sfd);
+		sfd = new SubfontDefinition(name, path);
+		sfdMap[name] = unique_ptr<SubfontDefinition>(sfd);
 	}
-	return sfd.get();
+	return sfd;
 }
 
 
@@ -104,23 +99,19 @@ const char* SubfontDefinition::path () const {
 Subfont* SubfontDefinition::subfont (const string &id) const {
 	auto it = _subfonts.find(id);
 	if (it != _subfonts.end())
-		return it->second;
-	return 0;
+		return it->second.get();
+	return nullptr;
 }
 
 
 /** Returns all subfonts defined in this SFD. */
 int SubfontDefinition::subfonts (vector<Subfont*> &sfs) const {
 	for (const auto &strsfpair : _subfonts)
-		sfs.push_back(strsfpair.second);
+		sfs.push_back(strsfpair.second.get());
 	return int(sfs.size());
 }
 
 //////////////////////////////////////////////////////////////////////
-
-Subfont::~Subfont () {
-	delete [] _mapping;
-}
 
 
 /** Reads the character mappings for a given subfont ID.
@@ -136,7 +127,7 @@ Subfont::~Subfont () {
  *  to c=10, 11 and 12, respectively.
  *  @return true if the data has been read successfully */
 bool Subfont::read () {
-	if (_mapping)  // if there's already a mapping assigned, we're finished here
+	if (!_mapping.empty())  // if there's already a mapping assigned, we're finished here
 		return true;
 	if (const char *p = _sfd.path()) {
 #if defined(MIKTEX_WINDOWS)
@@ -146,7 +137,6 @@ bool Subfont::read () {
 #endif
 		if (!is)
 			return false;
-
 		int lineno=1;
 		while (is) {
 			if (is.peek() == '#' || is.peek() == '\n') {
@@ -163,14 +153,13 @@ bool Subfont::read () {
 					lineno += skip_mapping_data(is);
 				else {
 					// build mapping array
-					_mapping = new uint16_t[256];
-					memset(_mapping, 0, 256*sizeof(uint16_t));
+					_mapping.resize(256, 0);
 					long pos=0;
 					char buf[1024];
 					bool complete=false;
 					while (!complete) {
 						is.getline(buf, 1024);
-						complete = scan_line(buf, lineno, _mapping, _sfd.filename() ,pos);
+						complete = scan_line(buf, lineno, _mapping, _sfd.filename(), pos);
 					}
 					return true;
 				}
@@ -186,7 +175,7 @@ bool Subfont::read () {
  *  @param[in] c local character code relative to the subfont
  *  @return character code of the target font */
 uint16_t Subfont::decode (unsigned char c) {
-	if (!_mapping && !read())
+	if (_mapping.empty() && !read())
 		return 0;
 	return _mapping[c];
 }
@@ -222,7 +211,7 @@ static int skip_mapping_data (istream &is) {
  *  @param[in] fname name of the mapfile being scanned
  *  @param[in,out] offset position/index of next mapping value
  *  @return true if the line is the last one the current mapping sequence, i.e. the line doesn't end with a backslash */
-static bool scan_line (const char *line, int lineno, uint16_t *mapping, const string &fname, long &offset) {
+static bool scan_line (const char *line, int lineno, vector<uint16_t> &mapping, const string &fname, long &offset) {
 	const char *p=line;
 	char *q;
 	for (; *p && isspace(*p); p++);
@@ -235,11 +224,10 @@ static bool scan_line (const char *line, int lineno, uint16_t *mapping, const st
 		else {
 			long val1 = strtol(p, &q, 0); // first value of range
 			long val2 = -1;               // last value of range
-			ostringstream oss; // output stream for exception messages
 			switch (*q) {
 				case ':':
 					if (val1 < 0 || val1 > 255)
-						throw SubfontException(oss << "offset value " << val1 << " out of range (0-255)", fname, lineno);
+						throw SubfontException("offset value "+to_string(val1)+" out of range (0-255)", fname, lineno);
 					offset = val1;
 					val1 = -1;
 					q++;
@@ -248,25 +236,25 @@ static bool scan_line (const char *line, int lineno, uint16_t *mapping, const st
 					p = q+1;
 					val2 = strtol(p, &q, 0);
 					if (val1 < 0 || val1 > 0xffffL)
-						throw SubfontException(oss << "table value " << val1 << " out of range", fname, lineno);
+						throw SubfontException("table value "+to_string(val1)+" out of range", fname, lineno);
 					if (val2 < 0 || val2 > 0xffffL)
-						throw SubfontException(oss << "table value " << val2 << " out of range", fname, lineno);
+						throw SubfontException("table value "+to_string(val2)+" out of range", fname, lineno);
 					if (p == q || (!isspace(*q) && *q != '\\' && *q))
-						throw SubfontException(oss << "unexpected character '" << *q << "'", fname, lineno);
+						throw SubfontException("unexpected character '"+to_string(*q)+"'", fname, lineno);
 					break;
 				default:
 					if (p == q || (!isspace(*q) && *q != '\\' && *q))
-						throw SubfontException(oss << "unexpected character '" << *q << "'", fname, lineno);
+						throw SubfontException("unexpected character '"+to_string(*q)+"'", fname, lineno);
 					if (val1 < 0 || val1 > 0xffffL)
 						throw SubfontException("invalid character code", fname, lineno);
 					val2 = val1;
 			}
 			if (val1 >= 0) {
 				if (val1 > val2 || offset+val2-val1 > 255)
-					throw SubfontException(oss << "invalid range in mapping table: " << hex << val1 << '_' << val2, fname, lineno);
+					throw SubfontException("invalid range in mapping table: "+util::tohex(val1)+"_"+util::tohex(val2), fname, lineno);
 				for (long v=val1; v <= val2; v++) {
 					if (mapping[offset])
-						throw SubfontException(oss << "mapping of character " << offset << " already defined", fname, lineno);
+						throw SubfontException("mapping of character "+to_string(offset)+" already defined", fname, lineno);
 					mapping[offset++] = static_cast<uint16_t>(v);
 				}
 			}

@@ -21,12 +21,11 @@
 #ifndef SVGCHARHANDLERFACTORY_HPP
 #define SVGCHARHANDLERFACTORY_HPP
 
+#include <memory>
 #include "SVGCharHandler.hpp"
 
-
-struct SVGCharHandlerFactory
-{
-	static SVGCharHandler* createHandler ();
+struct SVGCharHandlerFactory {
+	static std::unique_ptr<SVGCharHandler> createHandler ();
 };
 
 #endif

@@ -36,7 +36,7 @@ struct VFActions;
 
 class VFReader : public StreamReader
 {
-	typedef bool (*ApproveAction)(int);
+	using ApproveAction = bool (*)(int);
 	public:
 		VFReader (std::istream &is);
 		virtual ~VFReader ();

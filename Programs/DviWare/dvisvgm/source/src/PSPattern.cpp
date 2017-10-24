@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <sstream>
 #include <vector>
 #include "BoundingBox.hpp"
@@ -138,7 +137,7 @@ PSUncoloredTilingPattern::~PSUncoloredTilingPattern () {
 /** Returns an SVG id value that identifies this pattern with the current color applied. */
 string PSUncoloredTilingPattern::svgID () const {
 	ostringstream oss;
-	oss << PSPattern::svgID() << '-' << hex << _currentColor;
+	oss << PSPattern::svgID() << '-' << hex << uint32_t(_currentColor);
 	return oss.str();
 }
 

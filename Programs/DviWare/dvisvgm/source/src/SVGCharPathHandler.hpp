@@ -25,7 +25,7 @@
 
 /** Creates SVG path elements for all characters. */
 class SVGCharPathHandler : public SVGCharHandler {
-	typedef void (SVGCharPathHandler::*AppendMethod)(uint32_t c, double x, double y, const Matrix &matrix);
+	using AppendMethod = void (SVGCharPathHandler::*)(uint32_t c, double x, double y, const Matrix &matrix);
 
 	public:
 		SVGCharPathHandler (bool createUseElements, bool relativePathsCommands);

@@ -30,7 +30,7 @@ class NoPsSpecialHandler : public SpecialHandler, public DVIEndPageListener
 		bool process (const char *prefix, std::istream &is, SpecialActions &actions) override;
 		const char* name () const override {return 0;}
 		const char* info () const override {return 0;}
-		const char** prefixes () const override;
+		const std::vector<const char*> prefixes () const override;
 
 	protected:
 		void dviEndPage (unsigned pageno, SpecialActions &actions) override;

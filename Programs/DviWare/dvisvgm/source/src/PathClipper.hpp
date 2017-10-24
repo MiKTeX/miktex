@@ -34,7 +34,7 @@ using ClipperLib::IntPoint;
 class PathClipper
 {
 	public:
-		typedef GraphicsPath<double> CurvedPath;
+		using CurvedPath = GraphicsPath<double>;
 
 	public:
 		PathClipper () : _numLines(0) {}

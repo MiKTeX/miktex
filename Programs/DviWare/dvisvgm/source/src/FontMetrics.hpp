@@ -22,10 +22,10 @@
 #define FONTMETRICS_HPP
 
 #include <istream>
+#include <memory>
 #include "MessageException.hpp"
 
-struct FontMetrics
-{
+struct FontMetrics {
 	virtual ~FontMetrics () =default;
 	virtual double getDesignSize () const =0;
 	virtual double getCharWidth (int c) const =0;
@@ -42,12 +42,11 @@ struct FontMetrics
 	virtual uint32_t getChecksum () const =0;
 	virtual uint16_t firstChar () const =0;
 	virtual uint16_t lastChar () const =0;
-	static FontMetrics* read (const char *fontname);
+	static std::unique_ptr<FontMetrics> read (const char *fontname);
 };
 
 
-struct NullFontMetric : public FontMetrics
-{
+struct NullFontMetric : public FontMetrics {
 	double getDesignSize () const override      {return 1;}
 	double getCharWidth (int c) const override  {return 0;}
 	double getCharHeight (int c) const override {return 0;}
@@ -66,8 +65,7 @@ struct NullFontMetric : public FontMetrics
 };
 
 
-struct FontMetricException : public MessageException
-{
+struct FontMetricException : public MessageException {
 	FontMetricException (const std::string &msg) : MessageException(msg) {}
 };
 

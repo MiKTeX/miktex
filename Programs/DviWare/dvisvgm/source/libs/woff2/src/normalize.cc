@@ -1,18 +1,10 @@
-// Copyright 2013 Google Inc. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// Glyph normalization
+/* Copyright 2013 Google Inc. All Rights Reserved.
+
+   Distributed under MIT license.
+   See file LICENSE for detail or copy at https://opensource.org/licenses/MIT
+*/
+
+/* Glyph normalization */
 
 #include "./normalize.h"
 
@@ -52,7 +44,7 @@ bool WriteNormalizedLoca(int index_fmt, int num_glyphs, Font* font) {
   loca_table->buffer.resize(Round4(num_glyphs + 1) * glyph_sz);
   loca_table->length = (num_glyphs + 1) * glyph_sz;
 
-  uint8_t* glyf_dst = &glyf_table->buffer[0];
+  uint8_t* glyf_dst = num_glyphs ? &glyf_table->buffer[0] : NULL;
   uint8_t* loca_dst = &loca_table->buffer[0];
   uint32_t glyf_offset = 0;
   size_t loca_offset = 0;
@@ -78,16 +70,13 @@ bool WriteNormalizedLoca(int index_fmt, int num_glyphs, Font* font) {
     }
     glyf_offset += glyf_dst_size;
   }
-  if (glyf_offset == 0) {
-    return false;
-  }
 
   StoreLoca(index_fmt, glyf_offset, &loca_offset, loca_dst);
 
   glyf_table->buffer.resize(glyf_offset);
-  glyf_table->data = &glyf_table->buffer[0];
+  glyf_table->data = glyf_offset ? &glyf_table->buffer[0] : NULL;
   glyf_table->length = glyf_offset;
-  loca_table->data = &loca_table->buffer[0];
+  loca_table->data = loca_offset ? &loca_table->buffer[0] : NULL;
 
   return true;
 }
@@ -221,7 +210,6 @@ bool FixChecksums(Font* font) {
   size_t offset = 8;
   StoreU32(0, &offset, head_buf);
   uint32_t file_checksum = 0;
-  uint32_t head_checksum = 0;
   for (auto& i : font->tables) {
     Font::Table* table = &i.second;
     if (table->IsReused()) {
@@ -229,10 +217,6 @@ bool FixChecksums(Font* font) {
     }
     table->checksum = ComputeULongSum(table->data, table->length);
     file_checksum += table->checksum;
-
-    if (table->tag == kHeadTableTag) {
-      head_checksum = table->checksum;
-    }
   }
 
   file_checksum += ComputeHeaderChecksum(*font);

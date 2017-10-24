@@ -75,7 +75,7 @@ class CommandLine : public CL::CommandLine
 		const char* section (size_t n) const override {return n < _sections.size() ? _sections[n] : nullptr;}
 
 	private:
-		std::array<const char*, 5> _sections = {{
+		std::array<const char*, 5> _sections {{
 			"Input options",
 			"SVG output options",
 			"SVG transformations",

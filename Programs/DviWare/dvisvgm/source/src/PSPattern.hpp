@@ -32,8 +32,7 @@ class SpecialActions;
 class SVGTree;
 class XMLElementNode;
 
-class PSPattern
-{
+class PSPattern {
 	public:
 		virtual ~PSPattern () =default;
 		virtual int psID () const {return _id;}
@@ -49,8 +48,7 @@ class PSPattern
 };
 
 
-class PSTilingPattern : public PSPattern
-{
+class PSTilingPattern : public PSPattern {
 	public:
 		~PSTilingPattern ();
 		virtual XMLElementNode* getContainerNode ()     {return _groupNode;}
@@ -72,15 +70,13 @@ class PSTilingPattern : public PSPattern
 };
 
 
-class PSColoredTilingPattern : public PSTilingPattern
-{
+class PSColoredTilingPattern : public PSTilingPattern {
 	public:
 		PSColoredTilingPattern (int id, BoundingBox &bbox, Matrix &matrix, double xstep, double ystep);
 };
 
 
-class PSUncoloredTilingPattern : public PSTilingPattern
-{
+class PSUncoloredTilingPattern : public PSTilingPattern {
 	public:
 		PSUncoloredTilingPattern (int id, BoundingBox &bbox, Matrix &matrix, double xstep, double ystep);
 		~PSUncoloredTilingPattern ();

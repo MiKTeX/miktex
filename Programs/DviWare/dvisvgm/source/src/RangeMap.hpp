@@ -58,7 +58,7 @@ class RangeMap {
 			uint32_t _minval;
 	};
 
-	typedef std::vector<Range> Ranges;
+	using Ranges = std::vector<Range>;
 
 	public:
 		void addRange (uint32_t first, uint32_t last, uint32_t cid);

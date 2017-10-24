@@ -21,15 +21,13 @@
 #ifndef FONTCACHE_HPP
 #define FONTCACHE_HPP
 
-#include <string>
 #include <map>
+#include <string>
 #include "Glyph.hpp"
 
 
 class FontCache
 {
-	typedef std::map<int, Glyph> GlyphMap;
-
 	public:
 		struct FontInfo
 		{
@@ -61,7 +59,7 @@ class FontCache
 	private:
 		static const uint8_t FORMAT_VERSION;
 		std::string _fontname;
-		GlyphMap _glyphs;
+		std::map<int, Glyph> _glyphs;
 		bool _changed;
 };
 

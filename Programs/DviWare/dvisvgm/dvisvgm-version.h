@@ -17,9 +17,9 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION 6494
+#define MIKTEX_COMP_J2000_VERSION 6506
 
-#define MIKTEX_COMP_ORIG_VERSION_STR "2.1.3"
+#define MIKTEX_COMP_ORIG_VERSION_STR "2.2"
 
 #define MIKTEX_COMP_COPYRIGHT_STR "Copyright (C) 2005-2017 Martin Gieseking"
 #define MIKTEX_COMP_COPYRIGHT_STR_1252 "© 2005-2017 Martin Gieseking"

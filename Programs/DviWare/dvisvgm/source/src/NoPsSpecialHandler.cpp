@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include "Message.hpp"
 #include "NoPsSpecialHandler.hpp"
 
@@ -40,7 +39,7 @@ void NoPsSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actions) {
 }
 
 
-const char** NoPsSpecialHandler::prefixes () const {
-	static const char *pfx[] = {"header=", "psfile=", "PSfile=", "ps:", "ps::", "!", "\"", 0};
+const vector<const char*> NoPsSpecialHandler::prefixes () const {
+	const vector<const char*> pfx {"header=", "psfile=", "PSfile=", "ps:", "ps::", "!", "\""};
 	return pfx;
 }

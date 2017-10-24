@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <algorithm>
 #include <cctype>
 #include <cmath>
@@ -29,40 +28,39 @@
 using namespace std;
 
 
-/** Computes width and height of ISO/DIN An in millimeters.
+/** Computes width and height of ISO/DIN An.
  *  @param[in]  n the A level (e.g. n=4 => DIN A4)
  *  @param[out] width contains the page width when function returns
  *  @param[out] height contains the page height when function returns */
-static void computeASize (int n, double &width, double &height) {
-	double sqrt2 = sqrt(2.0);
-	height = floor(1189.0/pow(sqrt2, n)+0.5);
-	width  = floor(height/sqrt2+0.5);
+static void computeASize (int n, Length &width, Length &height) {
+	height.set(floor(1189.0/pow(math::SQRT2, n)+0.5), Length::Unit::MM);
+	width.set(floor(height.mm()/math::SQRT2+0.5), Length::Unit::MM);
 }
 
 
-/** Computes width and height of ISO/DIN Bn in millimeters.
+/** Computes width and height of ISO/DIN Bn.
  *  @param[in]  n the B level (e.g. n=4 => DIN B4)
  *  @param[out] width contains the page width when function returns
  *  @param[out] height contains the page height when function returns */
-static void computeBSize (int n, double &width, double &height) {
-	double w, h;
+static void computeBSize (int n, Length &width, Length &height) {
+	Length w, h;
 	computeASize(n, width, height);
 	computeASize(n-1, w, h);
-	width = floor(sqrt(width * w)+0.5);
-	height = floor(sqrt(height * h)+0.5);
+	width.set(floor(sqrt(width.mm() * w.mm())+0.5), Length::Unit::MM);
+	height.set(floor(sqrt(height.mm() * h.mm())+0.5), Length::Unit::MM);
 }
 
 
-/** Computes width and height of ISO/DIN Cn in millimeters.
+/** Computes width and height of ISO/DIN Cn.
  *  @param[in] n the C level (e.g. n=4 => DIN C4)
  *  @param[out] width contains the page width when function returns
  *  @param[out] height contains the page height when function returns */
-static void computeCSize (int n, double &width, double &height) {
-	double w, h;
+static void computeCSize (int n, Length &width, Length &height) {
+	Length w, h;
 	computeASize(n, width, height);
 	computeBSize(n, w, h);
-	width = floor(sqrt(width * w)+0.5);
-	height = floor(sqrt(height * h)+0.5);
+	width.set(floor(sqrt(width.mm() * w.mm())+0.5), Length::Unit::MM);
+	height.set(floor(sqrt(height.mm() * h.mm())+0.5), Length::Unit::MM);
 }
 
 
@@ -70,12 +68,12 @@ static void computeCSize (int n, double &width, double &height) {
  *  @param[in] n the D level (e.g. n=4 => DIN D4)
  *  @param[out] width contains the page width when function returns
  *  @param[out] height contains the page height when function returns */
-static void computeDSize (int n, double &width, double &height) {
-	double w, h;
+static void computeDSize (int n, Length &width, Length &height) {
+	Length w, h;
 	computeASize(n, width, height);
 	computeBSize(n+1, w, h);
-	width = floor(sqrt(width * w)+0.5);
-	height = floor(sqrt(height * h)+0.5);
+	width.set(floor(sqrt(width.mm() * w.mm())+0.5), Length::Unit::MM);
+	height.set(floor(sqrt(height.mm() * h.mm())+0.5), Length::Unit::MM);
 }
 
 
@@ -86,16 +84,17 @@ PageSize::PageSize (const string &name) : _width(0), _height(0) {
 }
 
 
-void PageSize::resize (double w, double h) {
+void PageSize::resize (Length w, Length h) {
 	_width = w;
 	_height = h;
 }
+
 
 void PageSize::resize (string name) {
 	if (name.length() < 2)
 		throw PageSizeException("unknown page format: "+name);
 
-	util::tolower(name);
+	name = util::tolower(name);
 	// extract optional suffix
 	size_t pos = name.rfind("-");
 	bool landscape = false;
@@ -109,24 +108,24 @@ void PageSize::resize (string name) {
 	}
 
 	if (name == "invoice") {
-		_width = 140;
-		_height = 216;
+		_width = 140_mm;
+		_height = 216_mm;
 	}
 	else if (name == "executive") {
-		_width = 184;
-		_height = 267;
+		_width = 184_mm;
+		_height = 267_mm;
 	}
 	else if (name == "legal") {
-		_width = 216;
-		_height = 356;
+		_width = 216_mm;
+		_height = 356_mm;;
 	}
 	else if (name == "letter") {
-		_width = 216;
-		_height = 279;
+		_width = 216_mm;
+		_height = 279_mm;
 	}
 	else if (name == "ledger") {
-		_width = 279;
-		_height = 432;
+		_width = 279_mm;;
+		_height = 432_mm;
 	}
 	else if (isdigit(name[1]) && name.length() < 5) {  // limit length of number to prevent arithmetic errors
 		istringstream iss(name.substr(1));
@@ -140,13 +139,8 @@ void PageSize::resize (string name) {
 			default  : throw PageSizeException("invalid page format: "+name);
 		}
 	}
-	if (_width == 0 || _height == 0)
+	if (_width.pt() == 0 || _height.pt() == 0)
 		throw PageSizeException("unknown page format: "+name);
 	if (landscape)
 		swap(_width, _height);
-
-	const double bppmm = 72/25.4; // PS points per millimeter (72pt = 1in = 25.4mm)
-	_width *= bppmm;
-	_height *= bppmm;
 }
-

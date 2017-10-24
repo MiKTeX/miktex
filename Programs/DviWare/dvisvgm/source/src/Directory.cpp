@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include "Directory.hpp"
 
 using namespace std;
@@ -28,7 +27,7 @@ using namespace std;
 #include <miktex/Core/DirectoryLister>
 #else
 #ifdef _WIN32
-	#include <windows.h>
+	#include "windows.hpp"
 #else
 	#include <errno.h>
 	#include <sys/stat.h>

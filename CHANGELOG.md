@@ -6,6 +6,7 @@
 
 * dvipdfmx 20170918, XeTeX
   Support /Rotate in PDF image inclusion
+* Dvisvgm 2.2
 * LuaTeX 1.06.2
 
 ### Upgraded libraries

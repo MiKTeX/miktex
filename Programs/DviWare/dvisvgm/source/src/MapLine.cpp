@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <cstring>
 #include <sstream>
 #include "InputBuffer.hpp"
@@ -124,8 +123,8 @@ void MapLine::parseDVIPSLine (InputReader &ir) {
 	while (ir.peek() == '<' || ir.peek() == '"') {
 		if (ir.peek() == '<') {
 			ir.get();
-			if (ir.peek() == '[')
-				ir.get();
+			if (ir.peek() == '[' || ir.peek() == '<')
+				ir.get();  // skip second char of "<[" and "<<"
 			string name = ir.getString();
 			if (name.length() > 4 && name.substr(name.length()-4) == ".enc")
 				_encname = name.substr(0, name.length()-4);

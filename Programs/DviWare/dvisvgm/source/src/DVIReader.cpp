@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <algorithm>
 #include <cstdarg>
 #include <fstream>
@@ -29,7 +28,6 @@
 #include "Font.hpp"
 #include "FontManager.hpp"
 #include "VectorStream.hpp"
-
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
 #define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()

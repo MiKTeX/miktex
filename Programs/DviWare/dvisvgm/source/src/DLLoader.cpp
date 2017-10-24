@@ -18,37 +18,50 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include "DLLoader.hpp"
-
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
 #define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 #endif
 
-DLLoader::DLLoader (const char *dlname) : _handle(0)
-{
-	if (dlname && *dlname) {
+using namespace std;
+
+
+/** Creates a new DLLoader object and tries to load the given dynamic/shared library.
+ *  @param[in] dlname name of library to load */
+DLLoader::DLLoader (const string &dlname) : _handle(nullptr) {
+	loadLibrary(dlname);
+}
+
+
+/** Releases the currently assigned dynamic/shared library and loads another one.
+ *  @param[in] dlname name of library to load */
+bool DLLoader::loadLibrary (const string &dlname) {
+	closeLibrary();
+	if (!dlname.empty()) {
 #ifdef _WIN32
 #if defined(MIKTEX)
                 _handle = LoadLibraryW(UW_(dlname));
 #else
-		_handle = LoadLibrary(dlname);
+		_handle = LoadLibrary(dlname.c_str());
 #endif
 #else
-		_handle = dlopen(dlname, RTLD_LAZY);
+		_handle = dlopen(dlname.c_str(), RTLD_LAZY);
 #endif
 	}
+	return _handle != nullptr;
 }
 
 
-DLLoader::~DLLoader () {
+/** Releases the library currently assigned to the DLLoader object. */
+void DLLoader::closeLibrary () {
 	if (_handle) {
 #ifdef _WIN32
 		FreeLibrary(_handle);
 #else
 		dlclose(_handle);
 #endif
+		_handle = nullptr;
 	}
 }
 
@@ -64,5 +77,5 @@ void* DLLoader::loadSymbol (const char *name) {
 		return dlsym(_handle, name);
 #endif
 	}
-	return 0;
+	return nullptr;
 }

@@ -53,13 +53,11 @@ static string get_path_from_registry () {
 	mode |= KEY_WOW64_32KEY;
 #endif
 #endif
-	static const char *gs_companies[] = {"GPL", "GNU", "AFPL", "Aladdin"};
-	for (size_t i=0; i < sizeof(gs_companies)/sizeof(char*); i++) {
-		const string reg_path = string("SOFTWARE\\") + gs_companies[i] + " Ghostscript";
-		static HKEY reg_roots[] = {HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE};
-		for (size_t j=0; j < sizeof(reg_roots)/sizeof(HKEY); j++) {
+	for (const char *gs_company : {"GPL", "GNU", "AFPL", "Aladdin"}) {
+		const string reg_path = string("SOFTWARE\\") + gs_company + " Ghostscript";
+		for (HKEY reg_root : {HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE}) {
 			HKEY hkey;
-			if (RegOpenKeyExA(reg_roots[j], reg_path.c_str(), 0, mode, &hkey) == ERROR_SUCCESS) {
+			if (RegOpenKeyExA(reg_root, reg_path.c_str(), 0, mode, &hkey) == ERROR_SUCCESS) {
 				char subkey[16];
 				for (int k=0; RegEnumKeyA(hkey, k, subkey, 16) == ERROR_SUCCESS; k++) {
 					istringstream iss(subkey);
@@ -118,15 +116,19 @@ static string get_libgs (const string &fname) {
 	// try to find libgs.so.X on the user's system
 	const int abi_min=7, abi_max=9; // supported libgs ABI versions
 	for (int i=abi_max; i >= abi_min; i--) {
-		ostringstream oss;
 #if defined(__CYGWIN__)
-		oss << "cyggs-" << i << ".dll";
+		string dlname = "cyggs-" + to_string(i) + ".dll";
 #else
-		oss << "libgs.so." << i;
+		string dlname = "libgs.so." + to_string(i);
 #endif
-		DLLoader loader(oss.str().c_str());
+		DLLoader loader(dlname);
 		if (loader.loaded())
-			return oss.str();
+			return dlname;
+#if defined(__APPLE__)
+		dlname = "libgs." + to_string(i) + ".dylib";
+		if (loader.loadLibrary(dlname))
+			return dlname;
+#endif
 	}
 #endif
 	// no appropriate library found
@@ -139,7 +141,7 @@ static string get_libgs (const string &fname) {
  *  constructor should only be used to call available() and revision(). */
 Ghostscript::Ghostscript ()
 #if !defined(HAVE_LIBGS)
-	: DLLoader(get_libgs(LIBGS_NAME).c_str())
+	: DLLoader(get_libgs(LIBGS_NAME))
 #endif
 {
 	_inst = 0;
@@ -152,7 +154,7 @@ Ghostscript::Ghostscript ()
  * @param[in] caller this parameter is passed to all callback functions */
 Ghostscript::Ghostscript (int argc, const char **argv, void *caller)
 #if !defined(HAVE_LIBGS)
-	: DLLoader(get_libgs(LIBGS_NAME).c_str())
+	: DLLoader(get_libgs(LIBGS_NAME))
 #endif
 {
 	_inst = 0;

@@ -22,13 +22,12 @@
 #define INPUTREADER_HPP
 
 #include <istream>
-#include <map>
 #include <string>
+#include <unordered_map>
+#include <vector>
 #include "InputBuffer.hpp"
 
-
-class InputReader
-{
+class InputReader {
 	public:
 		virtual ~InputReader() =default;
 		virtual int get () =0;
@@ -39,7 +38,7 @@ class InputReader
 		virtual bool check (const char *s, bool consume=true);
 		virtual int compare (const char *s, bool consume=true);
 		virtual void skip (size_t n);
-		virtual bool skipUntil (const char *s, bool consume=true);
+		virtual bool skipUntil (const char *s);
 		virtual int find (char c) const;
 		virtual void skipSpace ();
 		virtual int getInt ();
@@ -53,28 +52,28 @@ class InputReader
 		virtual std::string getQuotedString (char quotechar);
 		virtual std::string getString ();
 		virtual std::string getString (size_t n);
+		virtual std::string getString (const char *delim);
 		virtual std::string getLine ();
-		virtual int parseAttributes (std::map<std::string,std::string> &attr, char quotechar=0);
+		virtual int parseAttributes (std::unordered_map<std::string,std::string> &attr, char quotechar=0);
 		virtual operator bool () const {return !eof();}
 };
 
 
-class StreamInputReader : public InputReader
-{
+class StreamInputReader : public InputReader {
 	public:
 		StreamInputReader (std::istream &is) : _is(is) {}
 		int get () override        {return _is.get();}
 		int peek () const override {return _is.peek();}
 		int peek (size_t n) const override;
 		bool eof () const override {return !_is || _is.eof();}
+		std::istream& getStream () {return _is;}
 
 	private:
 		std::istream &_is;
 };
 
 
-class BufferInputReader : public InputReader
-{
+class BufferInputReader : public InputReader {
 	public:
 		BufferInputReader (InputBuffer &ib) : _ib(&ib) {}
 		void assign (InputBuffer &ib) {_ib = &ib;}
@@ -86,5 +85,23 @@ class BufferInputReader : public InputReader
 	private:
 		InputBuffer *_ib;
 };
+
+
+/** Implementation of the Knuth-Morris-Pratt search algorithm.
+ *  http://www.inf.fh-flensburg.de/lang/algorithmen/pattern/kmpen.htm */
+class StringMatcher {
+	public:
+		StringMatcher () : _charsRead(0) {}
+		StringMatcher (const std::string &pattern) : _charsRead(0) {setPattern(pattern);}
+		void setPattern (const std::string &pattern);
+		bool match (InputReader &ir);
+		size_t charsRead () const {return _charsRead;}
+
+	private:
+		std::string _pattern;
+		std::vector<size_t> _borders;
+		size_t _charsRead;
+};
+
 
 #endif

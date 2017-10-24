@@ -22,6 +22,7 @@
 #define MIKTEXCOM_HPP
 
 #include <string>
+#include "windows.hpp"
 
 #ifdef _MSC_VER
 #import <MiKTeX209-session.tlb>
@@ -30,9 +31,7 @@ using namespace MiKTeXSession2_9;
 #include "miktex209-session.h"
 #endif
 
-
-class MiKTeXCom
-{
+class MiKTeXCom {
 	public:
 		MiKTeXCom ();
 		~MiKTeXCom ();
@@ -47,6 +46,5 @@ class MiKTeXCom
 		ISession2 *_session;
 #endif
 };
-
 
 #endif

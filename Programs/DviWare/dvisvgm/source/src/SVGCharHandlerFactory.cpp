@@ -23,14 +23,14 @@
 #include "SVGSingleCharTextHandler.hpp"
 #include "SVGCharTspanTextHandler.hpp"
 #include "SVGTree.hpp"
+#include "utility.hpp"
 
+using namespace std;
 
-SVGCharHandler* SVGCharHandlerFactory::createHandler () {
+unique_ptr<SVGCharHandler> SVGCharHandlerFactory::createHandler () {
 	if (!SVGTree::USE_FONTS)
-		return new SVGCharPathHandler(SVGTree::CREATE_USE_ELEMENTS, SVGTree::RELATIVE_PATH_CMDS);
+		return util::make_unique<SVGCharPathHandler>(SVGTree::CREATE_USE_ELEMENTS, SVGTree::RELATIVE_PATH_CMDS);
 	if (SVGTree::MERGE_CHARS)
-		return new SVGCharTspanTextHandler(SVGTree::CREATE_CSS);
-	else
-		return new SVGSingleCharTextHandler(SVGTree::CREATE_CSS);
-	return 0;
+		return util::make_unique<SVGCharTspanTextHandler>(SVGTree::CREATE_CSS);
+	return util::make_unique<SVGSingleCharTextHandler>(SVGTree::CREATE_CSS);
 }

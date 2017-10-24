@@ -21,25 +21,24 @@
 #ifndef SPECIALMANAGER_HPP
 #define SPECIALMANAGER_HPP
 
-#include <map>
+#include <memory>
 #include <ostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include "SpecialHandler.hpp"
 
 class SpecialActions;
 
-class SpecialManager
-{
+class SpecialManager {
 	private:
-		typedef std::vector<SpecialHandler*> HandlerPool;
-		typedef std::map<std::string,SpecialHandler*> HandlerMap;
+		using HandlerPool = std::vector<std::unique_ptr<SpecialHandler>>;
+		using HandlerMap = std::unordered_map<std::string,SpecialHandler*>;
 
 	public:
-		~SpecialManager ();
 		static SpecialManager& instance ();
-		void registerHandler (SpecialHandler *handler);
-		void registerHandlers (SpecialHandler **handlers, const char *ignorelist);
+		void registerHandler (std::unique_ptr<SpecialHandler> &&handler);
+		void registerHandlers (std::vector<std::unique_ptr<SpecialHandler>> &handlers, const char *ignorelist);
 		void unregisterHandlers ();
 		void preprocess (const std::string &special, SpecialActions &actions) const;
 		bool process (const std::string &special, double dvi2bp, SpecialActions &actions) const;
@@ -48,15 +47,16 @@ class SpecialManager
 		void notifyEndPage (unsigned pageno, SpecialActions &actions) const;
 		void notifyPositionChange (double x, double y, SpecialActions &actions) const;
 		void writeHandlerInfo (std::ostream &os) const;
+		SpecialHandler* findHandlerByName (const std::string &name) const;
 
 	protected:
-		SpecialManager () {}
-		SpecialManager (const SpecialManager &) {}
-		SpecialHandler* findHandler (const std::string &prefix) const;
+		SpecialManager () =default;
+		SpecialManager (const SpecialManager &) =delete;
+		SpecialHandler* findHandlerByPrefix (const std::string &prefix) const;
 
 	private:
-		HandlerPool _pool;     ///< stores pointers to all handlers
-		HandlerMap _handlers;  ///< pointers to handlers for corresponding prefixes
+		HandlerPool _handlerPool;      ///< stores pointers to all handlers
+		HandlerMap _handlersByPrefix;  ///< pointers to handlers for corresponding prefixes
 		std::vector<DVIPreprocessingListener*> _preprocListeners;
 		std::vector<DVIBeginPageListener*> _beginPageListeners;
 		std::vector<DVIEndPageListener*> _endPageListeners;

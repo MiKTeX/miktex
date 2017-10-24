@@ -21,8 +21,8 @@
 #ifndef DVITOSVGACTIONS_HPP
 #define DVITOSVGACTIONS_HPP
 
-#include <map>
-#include <set>
+#include <unordered_map>
+#include <unordered_set>
 #include "BoundingBox.hpp"
 #include "DVIActions.hpp"
 #include "Matrix.hpp"
@@ -36,15 +36,14 @@ class FileFinder;
 class Font;
 class XMLNode;
 
-class DVIToSVGActions : public DVIActions, public SpecialActions
-{
-	typedef std::map<const Font*, std::set<int>> CharMap;
-	typedef std::set<const Font*> FontSet;
-	typedef std::map<std::string,BoundingBox> BoxMap;
+class DVIToSVGActions : public DVIActions, public SpecialActions {
+	using CharMap = std::unordered_map<const Font*, std::set<int>>;
+	using FontSet = std::unordered_set<const Font*>;
+	using BoxMap = std::unordered_map<std::string,BoundingBox>;
 
 	public:
 		DVIToSVGActions (DVIToSVG &dvisvg, SVGTree &svg);
-		void reset ();
+		void reset () override;
 		void setChar (double x, double y, unsigned c, bool vertical, const Font &f) override;
 		void setRule (double x, double y, double height, double width) override;
 		void setBgColor (const Color &color) override;

@@ -57,7 +57,9 @@ class Matrix
 		Matrix& lmultiply (const Matrix &tm);
 		Matrix& rmultiply (const Matrix &tm);
 		Matrix& translate (double tx, double ty);
+		Matrix& translate (const DPair &p)   {return translate(p.x(), p.y());}
 		Matrix& scale (double sx, double sy);
+		Matrix& scale (const DPair &p)       {return scale(p.x(), p.y());}
 		Matrix& rotate (double deg);
 		Matrix& xskewByAngle (double deg);
 		Matrix& yskewByAngle (double deg);

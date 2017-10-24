@@ -30,7 +30,7 @@
 #endif
 
 #ifdef _WIN32
-#include <windows.h>
+#include "windows.hpp"
 #endif
 
 #include <cstdio>

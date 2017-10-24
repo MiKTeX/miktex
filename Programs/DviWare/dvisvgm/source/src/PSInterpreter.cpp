@@ -18,7 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
+#if defined(MIKTEX)
+#  include <config.h>
+#endif
 #include <cstring>
 #include <fstream>
 #include <sstream>

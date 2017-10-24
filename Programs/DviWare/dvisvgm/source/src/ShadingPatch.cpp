@@ -22,6 +22,7 @@
 #include "ShadingPatch.hpp"
 #include "TensorProductPatch.hpp"
 #include "TriangularPatch.hpp"
+#include "utility.hpp"
 
 using namespace std;
 
@@ -48,12 +49,12 @@ void ShadingPatch::colorQueryFuncs (ColorGetter &getter, ColorSetter &setter) co
 
 
 /** Factory method: Creates a shading patch object depending on the given PostScript shading type. */
-ShadingPatch* ShadingPatch::create (int psShadingType, Color::ColorSpace cspace) {
+unique_ptr<ShadingPatch> ShadingPatch::create (int psShadingType, Color::ColorSpace cspace) {
 	switch (psShadingType) {
-		case 4: return new TriangularPatch(cspace);
-		case 5: return new LatticeTriangularPatch(cspace);
-		case 6: return new CoonsPatch(cspace);
-		case 7: return new TensorProductPatch(cspace);
+		case 4: return util::make_unique<TriangularPatch>(cspace);
+		case 5: return util::make_unique<LatticeTriangularPatch>(cspace);
+		case 6: return util::make_unique<CoonsPatch>(cspace);
+		case 7: return util::make_unique<TensorProductPatch>(cspace);
 	}
 	ostringstream oss;
 	if (psShadingType > 0 && psShadingType < 4)

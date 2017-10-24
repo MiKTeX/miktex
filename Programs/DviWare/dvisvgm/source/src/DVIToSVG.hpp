@@ -30,11 +30,9 @@ struct DVIActions;
 class Matrix;
 struct SVGOutputBase;
 
-class DVIToSVG : public DVIReader
-{
+class DVIToSVG : public DVIReader {
 	public:
 		explicit DVIToSVG (std::istream &is, SVGOutputBase &out);
-		~DVIToSVG ();
 		void convert (const std::string &range, std::pair<int,int> *pageinfo=0);
 		void setPageSize (const std::string &format)         {_bboxFormatString = format;}
 		void setPageTransformation (const std::string &cmds) {_transCmds = cmds;}
@@ -54,7 +52,7 @@ class DVIToSVG : public DVIReader
 		static char TRACE_MODE;
 
 	protected:
-		DVIToSVG (const DVIToSVG&);
+		DVIToSVG (const DVIToSVG&) =delete;
 		void convert (unsigned firstPage, unsigned lastPage, std::pair<int,int> *pageinfo=0);
 		int executeCommand () override;
 		void enterBeginPage (unsigned pageno, const std::vector<int32_t> &c);
@@ -82,7 +80,7 @@ class DVIToSVG : public DVIReader
 	private:
 		SVGTree _svg;
 		SVGOutputBase &_out;
-		DVIActions *_actions;
+		std::unique_ptr<DVIActions> _actions;
 		std::string _bboxFormatString;  ///< bounding box size/format set by the user
 		std::string _transCmds;         ///< page transformation commands set by the user
 		double _pageHeight, _pageWidth; ///< global page height and width stored in the postamble

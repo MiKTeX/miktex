@@ -25,6 +25,7 @@
 #include <memory>
 #include <set>
 #include <stack>
+#include <unordered_set>
 #include "Color.hpp"
 #include "FontWriter.hpp"
 #include "GFGlyphTracer.hpp"
@@ -51,7 +52,7 @@ class SVGTree {
 		void appendToDoc (XMLNode *node)  {_doc.append(node);}
 		void appendToRoot (XMLNode *node) {_root->append(node);}
 		void appendChar (int c, double x, double y) {_charHandler->appendChar(c, x, y);}
-		void appendFontStyles (const std::set<const Font*> &fonts);
+		void appendFontStyles (const std::unordered_set<const Font*> &fonts);
 		void append (const PhysicalFont &font, const std::set<int> &chars, GFGlyphTracer::Callback *callback=0);
 		void pushContextElement (XMLElementNode *node);
 		void popContextElement ();

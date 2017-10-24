@@ -40,9 +40,9 @@
 #if defined(DISABLE_GS)
 struct Ghostscript
 {
-	typedef int (GSDLLCALLPTR Stdin) (void *caller, char *buf, int len);
-	typedef int (GSDLLCALLPTR Stdout) (void *caller, const char *str, int len);
-	typedef int (GSDLLCALLPTR Stderr) (void *caller, const char *str, int len);
+	using Stdin  = int (GSDLLCALLPTR)(void *caller, char *buf, int len);
+	using Stdout = int (GSDLLCALLPTR)(void *caller, const char *str, int len);
+	using Stderr = int (GSDLLCALLPTR)(void *caller, const char *str, int len);
 
 	Ghostscript () {}
 	Ghostscript (int argc, const char **argv, void *caller=0) {}
@@ -67,9 +67,9 @@ class Ghostscript
 #endif
 {
 	public:
-		typedef int (GSDLLCALLPTR Stdin) (void *caller, char *buf, int len);
-		typedef int (GSDLLCALLPTR Stdout) (void *caller, const char *str, int len);
-		typedef int (GSDLLCALLPTR Stderr) (void *caller, const char *str, int len);
+		using Stdin  = int (GSDLLCALLPTR)(void *caller, char *buf, int len);
+		using Stdout = int (GSDLLCALLPTR)(void *caller, const char *str, int len);
+		using Stderr = int (GSDLLCALLPTR)(void *caller, const char *str, int len);
 
 	public:
 		Ghostscript ();

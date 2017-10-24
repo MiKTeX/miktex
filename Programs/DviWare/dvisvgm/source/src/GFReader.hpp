@@ -22,8 +22,8 @@
 #define GFREADER_HPP
 
 #include <istream>
-#include <map>
 #include <string>
+#include <unordered_map>
 #include "Bitmap.hpp"
 #include "MessageException.hpp"
 
@@ -101,7 +101,7 @@ class GFReader
 		double _designSize;    ///< designSize in PS points
 		double _hppp, _vppp;   ///< horizontal and vertical pixel per point
 		uint32_t _checksum;
-		std::map<uint8_t,CharInfo> _charInfoMap;
+		std::unordered_map<uint8_t,CharInfo> _charInfoMap;
 		bool _insideCharDef;   ///< true if inside a character definition (between BOC and EOC)
 		bool _penDown;
 };

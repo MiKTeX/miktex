@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <fstream>
 #include "Font.hpp"
 #include "EncFile.hpp"
@@ -26,7 +25,6 @@
 #include "InputReader.hpp"
 #include "FileFinder.hpp"
 #include "Message.hpp"
-
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
 #define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()

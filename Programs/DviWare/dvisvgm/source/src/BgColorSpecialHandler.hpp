@@ -33,13 +33,13 @@ class BgColorSpecialHandler : public SpecialHandler, public DVIBeginPageListener
 		bool process (const char *prefix, std::istream &is, SpecialActions &actions) override;
 		const char* info () const override {return "background color special";}
 		const char* name () const override {return "bgcolor";}
-		const char**  prefixes () const override;
+		const std::vector<const char*> prefixes () const override;
 
 	protected:
 		void dviBeginPage (unsigned pageno, SpecialActions &actions) override;
 
 	private:
-		typedef std::pair<unsigned,Color> PageColor;  // page number and color
+		using PageColor = std::pair<unsigned,Color>;  // page number and color
 		std::vector<PageColor> _pageColors;
 };
 

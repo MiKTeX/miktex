@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <fstream>
 #include <potracelib.h>
 #include "GFTracer.hpp"

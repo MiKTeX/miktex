@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <algorithm>
 #include "BgColorSpecialHandler.hpp"
 #include "ColorSpecialHandler.hpp"
@@ -69,7 +68,7 @@ void BgColorSpecialHandler::dviBeginPage (unsigned pageno, SpecialActions &actio
 }
 
 
-const char** BgColorSpecialHandler::prefixes () const {
-	static const char *pfx[] = {"background", 0};
+const vector<const char*> BgColorSpecialHandler::prefixes () const {
+	const vector<const char*> pfx {"background"};
 	return pfx;
 }

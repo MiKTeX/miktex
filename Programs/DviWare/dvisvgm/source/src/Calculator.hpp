@@ -22,8 +22,8 @@
 #define CALCULATOR_HPP
 
 #include <istream>
-#include <map>
 #include <string>
+#include <unordered_map>
 #include "MessageException.hpp"
 
 
@@ -49,7 +49,7 @@ class Calculator
 		char lookAhead (std::istream &is);
 
 	private:
-		std::map<std::string,double> _variables;
+		std::unordered_map<std::string,double> _variables;
 		double _numValue;
 		std::string _strValue;
 };

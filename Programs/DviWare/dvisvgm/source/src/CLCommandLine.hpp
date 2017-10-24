@@ -40,7 +40,7 @@ class CommandLine {
 		const std::vector<std::string>& filenames () const {return _files;}
 
 	protected:
-		typedef std::pair<Option*,int> OptSectPair;
+		using OptSectPair = std::pair<Option*,int>;
 		void parseShortOption (std::istringstream &is, int argc, char **argv, int &argn);
 		void parseLongOption (std::istream &is);
 		virtual std::vector<OptSectPair>& options () const =0;

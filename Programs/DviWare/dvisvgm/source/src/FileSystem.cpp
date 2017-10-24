@@ -45,10 +45,10 @@ using namespace std;
 
 #ifdef _WIN32
 	#include <direct.h>
-	#include <windows.h>
+	#include "windows.hpp"
 	const char *FileSystem::DEVNULL = "nul";
 	const char FileSystem::PATHSEP = '\\';
-#if !defined(MIKTEX)
+#if !defined(MIKTEX_WINDOWS)
 	#define unlink _unlink
 #endif
 #else

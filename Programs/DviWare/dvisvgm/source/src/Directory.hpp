@@ -27,7 +27,7 @@
 #  include <miktex/Core/DirectoryLister>
 #else
 #ifdef _WIN32
-	#include <windows.h>
+	#include "windows.hpp"
 #else
 	#include <dirent.h>
 #endif

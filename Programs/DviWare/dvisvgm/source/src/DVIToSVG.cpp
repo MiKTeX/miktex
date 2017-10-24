@@ -37,6 +37,7 @@
 #include "PreScanDVIReader.hpp"
 #include "SignalHandler.hpp"
 #include "SVGOutput.hpp"
+#include "utility.hpp"
 #include "version.hpp"
 
 ///////////////////////////////////
@@ -49,13 +50,13 @@
 #include "HtmlSpecialHandler.hpp"
 #include "PapersizeSpecialHandler.hpp"
 #include "PdfSpecialHandler.hpp"
+#include "TpicSpecialHandler.hpp"
 #ifndef HAVE_LIBGS
 	#include "NoPsSpecialHandler.hpp"
 #endif
 #ifndef DISABLE_GS
 	#include "PsSpecialHandler.hpp"
 #endif
-#include "TpicSpecialHandler.hpp"
 
 ///////////////////////////////////
 
@@ -75,12 +76,7 @@ DVIToSVG::DVIToSVG (istream &is, SVGOutputBase &out) : DVIReader(is), _out(out)
 	_pageByte = 0;
 	_prevXPos = _prevYPos = numeric_limits<double>::min();
 	_prevWritingMode = WritingMode::LR;
-	_actions = new DVIToSVGActions(*this, _svg);
-}
-
-
-DVIToSVG::~DVIToSVG () {
-	delete _actions;
+	_actions = util::make_unique<DVIToSVGActions>(*this, _svg);
 }
 
 
@@ -112,7 +108,7 @@ void DVIToSVG::convert (unsigned first, unsigned last, pair<int,int> *pageinfo) 
 		else
 			Message::wstream(true) << "failed to write output to " << fname << '\n';
 		_svg.reset();
-		static_cast<DVIToSVGActions*>(_actions)->reset();
+		_actions->reset();
 	}
 	if (pageinfo) {
 		pageinfo->first = last-first+1;
@@ -130,7 +126,7 @@ void DVIToSVG::convert (const string &rangestr, pair<int,int> *pageinfo) {
 		throw MessageException("invalid page range format");
 
 	Message::mstream(false, Message::MC_PAGE_NUMBER) << "pre-processing DVI file (format version "  << getDVIVersion() << ")\n";
-	if (DVIToSVGActions *actions = dynamic_cast<DVIToSVGActions*>(_actions)) {
+	if (DVIToSVGActions *actions = dynamic_cast<DVIToSVGActions*>(_actions.get())) {
 		PreScanDVIReader prescan(getInputStream(), actions);
 		actions->setDVIReader(prescan);
 		prescan.executeAllPages();
@@ -171,7 +167,7 @@ int DVIToSVG::executeCommand () {
  *  @param[in] pageno physical page number (1 = first page)
  *  @param[in] c contains information about the page (page number etc.) */
 void DVIToSVG::enterBeginPage (unsigned pageno, const vector<int32_t> &c) {
-	if (dynamic_cast<DVIToSVGActions*>(_actions)) {
+	if (dynamic_cast<DVIToSVGActions*>(_actions.get())) {
 		Message::mstream().indent(0);
 		Message::mstream(false, Message::MC_PAGE_NUMBER) << "processing page " << pageno;
 		if (pageno != (unsigned)c[0])  // Does page number shown on page differ from physical page number?
@@ -185,7 +181,7 @@ void DVIToSVG::enterBeginPage (unsigned pageno, const vector<int32_t> &c) {
 /** This template method is called by DVIReader::cmdEop() after
  *  executing the EOP actions. */
 void DVIToSVG::leaveEndPage (unsigned) {
-	if (!dynamic_cast<DVIToSVGActions*>(_actions))
+	if (!dynamic_cast<DVIToSVGActions*>(_actions.get()))
 		return;
 
 	// set bounding box and apply page transformations
@@ -212,13 +208,12 @@ void DVIToSVG::leaveEndPage (unsigned) {
 				// convention: DVI position (0,0) equals (1in, 1in) relative
 				// to the upper left vertex of the page (see DVI specification)
 				const double border = -72;
-				bbox = BoundingBox(border, border, size.widthInBP()+border, size.heightInBP()+border);
+				bbox = BoundingBox(border, border, size.width().bp()+border, size.height().bp()+border);
 			}
 		}
 		else { // set/modify bounding box by explicitly given values
 			try {
-				vector<Length> lengths;
-				BoundingBox::extractLengths(_bboxFormatString, lengths);
+				vector<Length> lengths = BoundingBox::extractLengths(_bboxFormatString);
 				if (lengths.size() == 1 || lengths.size() == 2) {  // relative box size?
 					// apply the page transformation and adjust the bbox afterwards
 					Matrix matrix;
@@ -269,7 +264,7 @@ void DVIToSVG::getPageTransformation(Matrix &matrix) const {
 }
 
 
-static void collect_chars (map<const Font*, set<int>> &fontmap) {
+static void collect_chars (unordered_map<const Font*, set<int>> &fontmap) {
 	for (const auto &entry : fontmap) {
 		if (entry.first->uniqueFont() != entry.first) {
 			for (int c : entry.second)
@@ -282,18 +277,16 @@ static void collect_chars (map<const Font*, set<int>> &fontmap) {
 /** Adds the font information to the SVG tree.
  *  @param[in] svgElement the font nodes are added to this node */
 void DVIToSVG::embedFonts (XMLElementNode *svgElement) {
-	if (!svgElement)
-		return;
-	if (!_actions)  // no dvi actions => no chars written => no fonts to embed
+	if (!svgElement || !_actions) // no dvi actions => no chars written => no fonts to embed
 		return;
 
-	const DVIToSVGActions *svgActions = static_cast<DVIToSVGActions*>(_actions);
-	map<const Font*,set<int>> &usedCharsMap = svgActions->getUsedChars();
+	const DVIToSVGActions *svgActions = static_cast<DVIToSVGActions*>(_actions.get());
+	auto &usedCharsMap = svgActions->getUsedChars();
 
 	collect_chars(usedCharsMap);
 
 	GlyphTracerMessages messages;
-	set<const Font*> tracedFonts;  // collect unique fonts already traced
+	unordered_set<const Font*> tracedFonts;  // collect unique fonts already traced
 	for (const auto &fontchar : usedCharsMap) {
 		const Font *font = fontchar.first;
 		if (const PhysicalFont *ph_font = dynamic_cast<const PhysicalFont*>(font)) {
@@ -324,32 +317,28 @@ void DVIToSVG::embedFonts (XMLElementNode *svgElement) {
  *  @param[in] pswarning if true, shows warning about disabled PS support
  *  @return the SpecialManager that handles special statements */
 void DVIToSVG::setProcessSpecials (const char *ignorelist, bool pswarning) {
-	if (ignorelist && strcmp(ignorelist, "*") == 0) { // ignore all specials?
+	if (ignorelist && strcmp(ignorelist, "*") == 0)  // ignore all specials?
 		SpecialManager::instance().unregisterHandlers();
-	}
 	else {
 		// add special handlers
-		SpecialHandler *handlers[] = {
-			0,                           // placeholder for PsSpecialHandler
-			new BgColorSpecialHandler,   // handles background color special
-			new ColorSpecialHandler,     // handles color specials
-			new DvisvgmSpecialHandler,   // handles raw SVG embeddings
-			new EmSpecialHandler,        // handles emTeX specials
-			new HtmlSpecialHandler,      // handles hyperref specials
-			new PapersizeSpecialHandler, // handles papersize special
-			new PdfSpecialHandler,       // handles pdf specials
-			new TpicSpecialHandler,      // handles tpic specials
-			0
-		};
-		SpecialHandler **p = handlers;
+		vector<unique_ptr<SpecialHandler>> handlers;
+		handlers.emplace_back(util::make_unique<BgColorSpecialHandler>());   // handles background color special
+		handlers.emplace_back(util::make_unique<ColorSpecialHandler>());     // handles color specials
+		handlers.emplace_back(util::make_unique<DvisvgmSpecialHandler>());   // handles raw SVG embeddings
+		handlers.emplace_back(util::make_unique<EmSpecialHandler>());        // handles emTeX specials
+		handlers.emplace_back(util::make_unique<HtmlSpecialHandler>());      // handles hyperref specials
+		handlers.emplace_back(util::make_unique<PapersizeSpecialHandler>()); // handles papersize special
+		handlers.emplace_back(util::make_unique<PdfSpecialHandler>());       // handles pdf specials
+		handlers.emplace_back(util::make_unique<TpicSpecialHandler>());      // handles tpic specials
 #ifndef DISABLE_GS
 		if (Ghostscript().available())
-			*p = new PsSpecialHandler;
+			handlers.emplace_back(util::make_unique<PsSpecialHandler>());     // handles PostScript specials
 		else
 #endif
 		{
 #ifndef HAVE_LIBGS
-			*p = new NoPsSpecialHandler; // dummy PS special handler that only prints warning messages
+			// dummy PS special handler that only prints warning messages
+			handlers.emplace_back(util::make_unique<NoPsSpecialHandler>());
 			if (pswarning) {
 #ifdef DISABLE_GS
 				Message::wstream() << "processing of PostScript specials has been disabled permanently\n";
@@ -360,7 +349,7 @@ void DVIToSVG::setProcessSpecials (const char *ignorelist, bool pswarning) {
 #endif
 		}
 		SpecialManager::instance().unregisterHandlers();
-		SpecialManager::instance().registerHandlers(p, ignorelist);
+		SpecialManager::instance().registerHandlers(handlers, ignorelist);
 	}
 }
 

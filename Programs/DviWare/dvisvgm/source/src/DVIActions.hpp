@@ -27,10 +27,9 @@
 class BoundingBox;
 class Font;
 
-
-struct DVIActions
-{
+struct DVIActions{
 	virtual ~DVIActions () =default;
+	virtual void reset () {}
 	virtual void setChar (double x, double y, unsigned c, bool vertical, const Font &f) {}
 	virtual void setRule (double x, double y, double height, double width) {}
 	virtual void setTextOrientation (bool vertical) {}

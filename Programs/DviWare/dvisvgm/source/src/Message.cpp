@@ -18,12 +18,11 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <cstdarg>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include <map>
+#include <unordered_map>
 #include "Message.hpp"
 #include "Terminal.hpp"
 
@@ -218,7 +217,7 @@ static bool colorchar2int (char colorchar, int *val) {
  *  - 0-7: dark colors
  *  - 8-F: light colors
  *  - *: default color
- *  Example: num:01 sets page number messages to red on black background */
+ *  Example: pn:01 sets page number messages to red on black background */
 void Message::init () {
 	if (_initialized || !Message::COLORIZE)
 		return;
@@ -234,7 +233,7 @@ void Message::init () {
 	_classColors[MC_PROGRESS]     = Color(Terminal::MAGENTA);
 
 	if (const char *color_str = getenv("DVISVGM_COLORS")) {
-		map<string, MessageClass> classes = {
+		unordered_map<string, MessageClass> classes = {
 			{"er", MC_ERROR},
 			{"wn", MC_WARNING},
 			{"pn", MC_PAGE_NUMBER},
@@ -263,7 +262,7 @@ void Message::init () {
 			p += 5;
 
 			// skip trailing characters in a malformed entry
-			while (!isspace(*p) && *p != ':' && *p != ';')
+			while (*p && !isspace(*p) && *p != ':' && *p != ';')
 				++p;
 			// skip separation characters
 			while (isspace(*p) || *p == ':' || *p == ';')

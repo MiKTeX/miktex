@@ -20,7 +20,7 @@
 
 #include <algorithm>
 #include <cstring>
-#include <map>
+#include <unordered_map>
 #include "CLCommandLine.hpp"
 #include "version.hpp"
 
@@ -192,7 +192,7 @@ void CommandLine::help (ostream &os, int mode) const {
 		os << '\n';
 
 	// compute width of first column of help output
-	map<Option*, pair<string,string>> linecols;
+	unordered_map<Option*, pair<string,string>> linecols;
 	size_t col1width=0;
 	for (const OptSectPair &ospair : options()) {
 		string line = ospair.first->helpline();

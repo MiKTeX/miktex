@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <cctype>
 #include "FilePath.hpp"
 #include "FileSystem.hpp"
@@ -70,14 +69,12 @@ static char adapt_current_path (string &path, char target_drive) {
 
 
 bool FilePath::Directory::operator == (const Directory &dir) const {
-	string dirstr1 = _dirstr;
-	string dirstr2 = dir._dirstr;
 #ifdef _WIN32
 	// letter case is not significant on Windows systems
-	util::tolower(dirstr1);
-	util::tolower(dirstr2);
+	return util::tolower(_dirstr) == util::tolower(dir._dirstr);
+#else
+	return _dirstr == dir._dirstr;
 #endif
-	return dirstr1 == dirstr2;
 }
 
 

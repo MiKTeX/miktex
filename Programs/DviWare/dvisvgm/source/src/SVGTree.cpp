@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <algorithm>
 #include <array>
 #include <sstream>
@@ -50,7 +49,7 @@ double SVGTree::ZOOM_FACTOR=1.0;
 
 
 SVGTree::SVGTree () {
-	_charHandler.reset(SVGCharHandlerFactory::createHandler());
+	_charHandler = SVGCharHandlerFactory::createHandler();
 	reset();
 }
 
@@ -208,7 +207,7 @@ static string font_info (const Font &font) {
 }
 
 
-void SVGTree::appendFontStyles (const set<const Font*> &fonts) {
+void SVGTree::appendFontStyles (const unordered_set<const Font*> &fonts) {
 	if (CREATE_CSS && USE_FONTS && !fonts.empty() && _page) {
 		map<int, const Font*> sortmap;
 		for (const Font *font : fonts)
@@ -356,9 +355,7 @@ void SVGTree::removeRedundantElements () {
 		idTree.removeDependencyPath(idref);
 	}
 	descendants.clear();
-	vector<string> ids;
-	idTree.getKeys(ids);
-	for (const string &str : ids) {
+	for (const string &str : idTree.getKeys()) {
 		XMLElementNode *node = _defs->getFirstDescendant("clipPath", "id", str.c_str());
 		_defs->remove(node);
 	}

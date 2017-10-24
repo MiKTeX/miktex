@@ -23,13 +23,38 @@
 #include <csignal>
 #include <cstdlib>
 #include "SignalHandler.hpp"
+#include "utility.hpp"
 
 using namespace std;
 
-bool SignalHandler::_break = false;
+volatile bool SignalHandler::_break = false;
+
+/** Helper class that encapsulates the system-specific parts of
+ *  registering and handling CTRL-C (SIGINT) events. */
+class SignalHandler::Impl {
+	using HandlerFunc = void (*)(int);
+	public:
+		Impl ();
+		bool setSigintHandler (HandlerFunc handler);
+		bool restoreSigintHandler ();
+
+	private:
+#ifdef HAVE_SIGACTION
+		struct sigaction _currentSigaction;
+		struct sigaction _origSigaction;
+#else
+		HandlerFunc _origHandlerFunc;
+#endif
+};
 
 
-SignalHandler::~SignalHandler() {
+SignalHandler::SignalHandler ()
+	: _active(false), _impl(util::make_unique<SignalHandler::Impl>())
+{
+}
+
+
+SignalHandler::~SignalHandler () {
 	stop();
 }
 
@@ -46,19 +71,17 @@ SignalHandler& SignalHandler::instance() {
 bool SignalHandler::start () {
 	if (!_active) {
 		_break = false;
-		if (signal(SIGINT, SignalHandler::callback) != SIG_ERR) {
+		if (_impl->setSigintHandler(callback))
 			_active = true;
-			return true;
-		}
 	}
-	return false;
+	return _active;
 }
 
 
 /** Stops listening for CTRL-C signals. */
 void SignalHandler::stop () {
 	if (_active) {
-		signal(SIGINT, SIG_DFL);
+		_impl->restoreSigintHandler();
 		_active = false;
 	}
 }
@@ -84,3 +107,47 @@ void SignalHandler::callback (int) {
 	_break = true;
 }
 
+
+// Prefer sigaction() to signal() due to its more reliable interface and behavior.
+// Use signal() as fallback on systems that don't provide sigaction().
+
+#ifdef HAVE_SIGACTION
+
+SignalHandler::Impl::Impl () {
+	_origSigaction.sa_handler = nullptr;
+}
+
+
+bool SignalHandler::Impl::setSigintHandler (HandlerFunc handler) {
+	sigemptyset(&_currentSigaction.sa_mask);
+	_currentSigaction.sa_handler = handler;
+	_currentSigaction.sa_flags = SA_SIGINFO;
+	return (sigaction(SIGINT, &_currentSigaction, &_origSigaction) == 0);
+}
+
+
+bool SignalHandler::Impl::restoreSigintHandler () {
+	if (_origSigaction.sa_handler == nullptr)
+		return false;
+	return (sigaction(SIGINT, &_origSigaction, 0) == 0);
+}
+
+#else  // !HAVE_SIGACTION
+
+SignalHandler::Impl::Impl () : _origHandlerFunc(SIG_ERR) {
+}
+
+
+bool SignalHandler::Impl::setSigintHandler (HandlerFunc handler) {
+	_origHandlerFunc = signal(SIGINT, handler);
+	return _origHandlerFunc != SIG_ERR;
+}
+
+
+bool SignalHandler::Impl::restoreSigintHandler () {
+	if (_origHandlerFunc == SIG_ERR)
+		return false;
+	return (signal(SIGINT, _origHandlerFunc) != SIG_ERR);
+}
+
+#endif

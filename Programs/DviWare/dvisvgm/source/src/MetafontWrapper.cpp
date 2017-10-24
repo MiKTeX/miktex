@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <cstdlib>
 #include <cctype>
 #include <fstream>
@@ -29,7 +28,6 @@
 #include "MetafontWrapper.hpp"
 #include "Process.hpp"
 #include "XMLString.hpp"
-
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
 #define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()

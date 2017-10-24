@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-
 /* The following table provides a compact mapping from PostScript character names
  * to Unicode points. Instead of using the character names directly it maps the
  * hash values (xxhash32) of the names to the corresponding code points.
@@ -33,7 +32,7 @@ struct HashCodepointPair {
 	uint32_t codepoint;
 };
 
-std::array<HashCodepointPair, 4048> hash2unicode = {{
+std::array<HashCodepointPair, 4048> hash2unicode {{
 	{0x001cf4a9, 0x0118}, // Eogonek
 	{0x003b11fb, 0x055f}, // abbreviationmarkarmenian
 	{0x0050a316, 0x0444}, // afii10086

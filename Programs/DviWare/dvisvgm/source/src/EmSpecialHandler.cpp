@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <sstream>
 #include "EmSpecialHandler.hpp"
 #include "InputBuffer.hpp"
@@ -230,8 +229,8 @@ void EmSpecialHandler::line (InputReader &ir, SpecialActions& actions) {
 	double linewidth = _linewidth;
 	if (ir.getPunct() == ',')
 		linewidth = read_length(ir);
-	map<int,DPair>::iterator it1=_points.find(pointnum1);
-	map<int,DPair>::iterator it2=_points.find(pointnum2);
+	auto it1=_points.find(pointnum1);
+	auto it2=_points.find(pointnum2);
 	if (it1 != _points.end() && it2 != _points.end())
 		create_line(it1->second, it2->second, char(cut1), char(cut2), linewidth, actions);
 	else {
@@ -259,7 +258,7 @@ void EmSpecialHandler::dviEndPage (unsigned pageno, SpecialActions &actions) {
 }
 
 
-const char** EmSpecialHandler::prefixes () const {
-	static const char *pfx[] = {"em:", 0};
+const vector<const char*> EmSpecialHandler::prefixes () const {
+	const vector<const char*> pfx {"em:"};
 	return pfx;
 }

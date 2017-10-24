@@ -21,12 +21,11 @@
 #ifndef FONTMAP_HPP
 #define FONTMAP_HPP
 
-#include <map>
 #include <memory>
 #include <ostream>
 #include <string>
+#include <unordered_map>
 #include "FontStyle.hpp"
-
 
 struct FontEncoding;
 class MapLine;
@@ -71,7 +70,7 @@ class FontMap
 		FontMap () =default;
 
 	private:
-		std::map<std::string,std::unique_ptr<Entry>> _entries;
+		std::unordered_map<std::string,std::unique_ptr<Entry>> _entries;
 };
 
 #endif

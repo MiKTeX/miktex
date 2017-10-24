@@ -23,6 +23,7 @@
 
 #include <cstdlib>
 #include <istream>
+#include <memory>
 #include <string>
 #include <vector>
 #include "MessageException.hpp"
@@ -31,10 +32,8 @@
 struct CMap;
 class InputReader;
 
-class CMapReader
-{
-	class Token
-	{
+class CMapReader {
+	class Token	{
 		public:
 			enum class Type {UNKNOWN, END, DELIM, NUMBER, STRING, NAME, OPERATOR};
 
@@ -52,8 +51,8 @@ class CMapReader
 
 	public:
 		CMapReader ();
-		CMap* read (const std::string &fname);
-		CMap* read (std::istream &is, const std::string &name);
+		std::unique_ptr<CMap> read (const std::string &fname);
+		std::unique_ptr<CMap> read (std::istream &is, const std::string &name);
 
 	protected:
 		Token popToken () {Token t=_tokens.back(); _tokens.pop_back(); return t;}
@@ -66,15 +65,14 @@ class CMapReader
 		void op_usecmap (InputReader &ir);
 
 	private:
-		SegmentedCMap *_cmap;        ///< CMap being read
-		std::vector<Token> _tokens;  ///< stack of tokens to be processed
-		bool _inCMap;                ///< operator begincmap has been executed
+		std::unique_ptr<SegmentedCMap> _cmap; ///< pointer to CMap being read
+		std::vector<Token> _tokens; ///< stack of tokens to be processed
+		bool _inCMap;               ///< operator begincmap has been executed
 };
 
 
 
-struct CMapReaderException : public MessageException
-{
+struct CMapReaderException : public MessageException {
 	CMapReaderException (const std::string &msg) : MessageException(msg) {}
 };
 

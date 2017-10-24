@@ -18,7 +18,9 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
+#if defined(MIKTEX)
+#  include <config.h>
+#endif
 #include <sstream>
 #include <ft2build.h>
 #include FT_ADVANCES_H
@@ -30,6 +32,7 @@
 #include "FontEngine.hpp"
 #include "FontStyle.hpp"
 #include "Message.hpp"
+#include "utility.hpp"
 
 using namespace std;
 
@@ -143,7 +146,7 @@ void FontEngine::buildCharMap (RangeMap &charmap) {
 
 /** Creates a charmap that maps from the custom character encoding to unicode.
  *  @return pointer to charmap if it could be created, 0 otherwise */
-const RangeMap* FontEngine::createCustomToUnicodeMap () {
+unique_ptr<const RangeMap> FontEngine::createCustomToUnicodeMap () {
 	FT_CharMap ftcharmap = _currentFace->charmap;
 	if (FT_Select_Charmap(_currentFace, FT_ENCODING_ADOBE_CUSTOM) != 0)
 		return 0;
@@ -151,7 +154,7 @@ const RangeMap* FontEngine::createCustomToUnicodeMap () {
 	buildCharMap(index_to_source_chrcode);
 	if (FT_Select_Charmap(_currentFace, FT_ENCODING_UNICODE) != 0)
 		return 0;
-	RangeMap *charmap = new RangeMap;
+	auto charmap = util::make_unique<RangeMap>();
 	FT_UInt glyph_index;
 	uint32_t unicode_point = FT_Get_First_Char(_currentFace, &glyph_index);
 	while (glyph_index) {
@@ -160,7 +163,7 @@ const RangeMap* FontEngine::createCustomToUnicodeMap () {
 		unicode_point = FT_Get_Next_Char(_currentFace, unicode_point, &glyph_index);
 	}
 	FT_Set_Charmap(_currentFace, ftcharmap);
-	return charmap;
+	return std::move(charmap);
 }
 
 
@@ -326,9 +329,9 @@ CharMapID FontEngine::setCustomCharMap () {
 
 // handle API change in freetype version 2.2.1
 #if FREETYPE_MAJOR > 2 || (FREETYPE_MAJOR == 2 && (FREETYPE_MINOR > 2 || (FREETYPE_MINOR == 2 && FREETYPE_PATCH >= 1)))
-	typedef const FT_Vector *FTVectorPtr;
+	using FTVectorPtr = const FT_Vector*;
 #else
-	typedef FT_Vector *FTVectorPtr;
+	using FTVectorPtr = FT_Vector*;
 #endif
 
 

@@ -31,20 +31,24 @@ class TpicSpecialHandler : public SpecialHandler, public DVIEndPageListener
 		TpicSpecialHandler ();
 		const char* info () const override {return "TPIC specials";}
 		const char* name () const override {return "tpic";}
-		const char** prefixes () const override;
+		const std::vector<const char*> prefixes () const override;
 		bool process (const char *prefix, std::istream &is, SpecialActions &actions) override;
+		double penwidth () const  {return _penwidth;}
+		double grayLevel () const {return _grayLevel;}
+		Color fillColor (bool grayOnly) const;
 
 	protected:
 		void dviEndPage (unsigned pageno, SpecialActions &actions) override;
 		void reset ();
-		void drawLines (bool stroke, bool fill, double ddist, SpecialActions &actions);
+		void drawLines (double ddist, SpecialActions &actions);
 		void drawSplines (double ddist, SpecialActions &actions);
 		void drawArc (double cx, double cy, double rx, double ry, double angle1, double angle2, SpecialActions &actions);
 
 	private:
-		double _penwidth; ///< pen width in PS point units
-		double _fill;     ///< fill intensity [0,1]; if < 0, we don't fill anything
+		double _penwidth;  ///< pen width in PS point units
+		double _grayLevel; ///< [0,1]; 0=white, 1=black, if < 0, we don't fill anything
 		std::vector<DPair> _points;
+		Color _dviColor;   ///< current DVI color
 };
 
 #endif

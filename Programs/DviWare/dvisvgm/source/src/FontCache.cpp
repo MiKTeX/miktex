@@ -18,8 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-
-#include <config.h>
 #include <algorithm>
 #include <cstring>
 #include <fstream>
@@ -32,7 +30,6 @@
 #include "Pair.hpp"
 #include "StreamReader.hpp"
 #include "StreamWriter.hpp"
-
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
 #define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
@@ -70,7 +67,7 @@ void FontCache::setGlyph (int c, const Glyph &glyph) {
  *  @param[in] c character code
  *  @return font glyph data (0 if no matching data was found) */
 const Glyph* FontCache::getGlyph (int c) const {
-	GlyphMap::const_iterator it = _glyphs.find(c);
+	auto it = _glyphs.find(c);
 	return (it != _glyphs.end()) ? &it->second : 0;
 }
 

@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <algorithm>
 #include <cstring>
 #include <fstream>
@@ -32,13 +31,12 @@
 #include "MapLine.hpp"
 #include "Message.hpp"
 #include "Subfont.hpp"
-
-using namespace std;
-
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
 #define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
 #endif
+
+using namespace std;
 
 /** Returns the singleton instance. */
 FontMap& FontMap::instance() {

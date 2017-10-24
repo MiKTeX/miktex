@@ -19,9 +19,8 @@
 *************************************************************************/
 
 #if defined(MIKTEX)
-#include "config.h"
+#  include <config.h>
 #endif
-
 #include "PSInterpreter.hpp"
 
 const char *PSInterpreter::PSDEFS =

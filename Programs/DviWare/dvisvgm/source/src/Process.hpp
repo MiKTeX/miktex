@@ -23,15 +23,13 @@
 
 #include <string>
 
-class Process
-{
+class Process {
 	public:
 		Process (const std::string &cmd, const std::string &paramstr);
+		Process (const Process &orig) =delete;
+		Process (Process &&orig) =delete;
 		bool run (std::string *out=0);
 		bool run (const std::string &dir, std::string *out=0);
-
-	protected:
-		Process (const Process &orig) =default;
 
 	private:
 		std::string _cmd;

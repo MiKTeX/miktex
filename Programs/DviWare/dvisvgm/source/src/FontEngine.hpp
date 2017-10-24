@@ -25,6 +25,7 @@
 #include FT_FREETYPE_H
 #include FT_CID_H
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 #include "Character.hpp"
@@ -36,8 +37,7 @@ class Font;
 
 /** This class provides methods to handle font files and font data.
  *  It's a wrapper for the Freetype font library. */
-class FontEngine
-{
+class FontEngine {
 	public:
 		~FontEngine ();
 		static FontEngine& instance ();
@@ -65,7 +65,7 @@ class FontEngine
 		int getCharByGlyphName (const char *name) const;
 		bool setCharMap (const CharMapID &charMapID);
 		void buildCharMap (RangeMap &charmap);
-		const RangeMap* createCustomToUnicodeMap ();
+		std::unique_ptr<const RangeMap> createCustomToUnicodeMap ();
 
 	protected:
 		FontEngine ();

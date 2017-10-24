@@ -18,14 +18,45 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <cmath>
 #include <functional>
-#include <vector>
 #include "InputReader.hpp"
 
 using namespace std;
 
+
+void StringMatcher::setPattern (const string &pattern) {
+	_pattern = pattern;
+	_charsRead = 0;
+	_borders.resize(pattern.length()+1);
+	// preprocessing to set up the border indexes
+	_borders[0] = -1;
+	int i=0, j=-1;
+	const int len = static_cast<int>(pattern.length());
+	while (i < len) {
+		while (j >= 0 && _pattern[i] != _pattern[j])
+			j = _borders[j];
+		_borders[++i] = ++j;
+	}
+}
+
+
+bool StringMatcher::match (InputReader &ir) {
+	_charsRead = 0;
+	int c;
+	int i=0;
+	const int len = static_cast<int>(_pattern.length());
+	while ((c = ir.get()) >= 0) {
+		_charsRead++;
+		while (i >= 0 && c != _pattern[i])
+			i = _borders[i];
+		if (++i == len)
+			return true;
+	}
+	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////
 
 /** Skips n characters. */
 void InputReader::skip (size_t n) {
@@ -43,14 +74,11 @@ void InputReader::skipSpace () {
 
 
 /** Tries to find a given string and skips all characters preceding that string.
- *  @param[in] s string to look for (must not be longer than the maximal buffer size)
- *  @param[in] consume if true, the buffer pointer is moved to the first character following string s
+ *  @param[in] str string to look for (must not be longer than the maximal buffer size)
  *  @return true if s was found */
-bool InputReader::skipUntil (const char *s, bool consume) {
-	bool found = false;
-	while (!eof() && !(found = check(s, consume)))
-		get();
-	return found;
+bool InputReader::skipUntil (const char *str) {
+	StringMatcher matcher(str);
+	return matcher.match(*this);
 }
 
 
@@ -298,6 +326,20 @@ string InputReader::getString (size_t n) {
 }
 
 
+/** Reads a string delimited by EOF or a single character from a given set of characters.
+ *  @param[in] delim characters delimiting the string
+ *  @return the read string */
+string InputReader::getString (const char *delim) {
+	if (!delim || !delim[0])
+		return getString();
+	string ret;
+	skipSpace();
+	while (!eof() && peek() > 0 && !strchr(delim, peek()))
+		ret += get();
+	return ret;
+}
+
+
 string InputReader::getLine () {
 	string ret;
 	skipSpace();
@@ -313,7 +355,7 @@ string InputReader::getLine () {
  *  @param[out] attr the scanned atributes
  *  @param[in] quotechar quote character used to enclose the attribute values
  *  @return number of attributes scanned */
-int InputReader::parseAttributes (map<string,string> &attr, char quotechar) {
+int InputReader::parseAttributes (unordered_map<string,string> &attr, char quotechar) {
 	bool ready=false;
 	while (!eof() && !ready) {
 		string key;

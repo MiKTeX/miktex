@@ -19,9 +19,9 @@
 *************************************************************************/
 
 #include <config.h>
-
 #ifdef MIKTEX_COM
 	#include "MiKTeXCom.hpp"
+	#include "utility.hpp"
 #else
 	#ifdef KPSE_CXX_UNSAFE
 	extern "C" {
@@ -34,16 +34,17 @@
 
 #include <cstdlib>
 #include <fstream>
-#include <map>
 #include <set>
+#include <unordered_map>
 #include "FileFinder.hpp"
+#include "FilePath.hpp"
 #include "FileSystem.hpp"
 #include "FontMap.hpp"
 #include "Message.hpp"
 #include "MessageException.hpp"
 #include "Process.hpp"
 
-const char *FileFinder::_argv0 = nullptr;
+std::string FileFinder::_argv0;
 std::string FileFinder::_progname;
 bool FileFinder::_enableMktex = false;
 
@@ -55,11 +56,9 @@ bool FileFinder::_enableMktex = false;
 FileFinder::FileFinder () {
 	addLookupDir(".");  // always lookup files in the current working directory
 #ifdef MIKTEX_COM
-	_miktex.reset(new MiKTeXCom);
+	_miktex = util::make_unique<MiKTeXCom>();
 #else
-	if (_argv0 == nullptr)
-		_argv0 = "";
-	kpse_set_program_name(_argv0, _progname.c_str());
+	kpse_set_program_name(_argv0.c_str(), _progname.c_str());
 	// enable tfm and mf generation (actually invoked by calls of kpse_make_tex)
 	kpse_set_program_enabled(kpse_tfm_format, 1, kpse_src_env);
 	kpse_set_program_enabled(kpse_mf_format, 1, kpse_src_env);
@@ -71,9 +70,9 @@ FileFinder::FileFinder () {
 }
 
 
-void FileFinder::init (const char *argv0, const char *progname, bool enable_mktexmf) {
+void FileFinder::init (const std::string &argv0, const std::string &progname, bool enable_mktexmf) {
 	_argv0 = argv0;
-	_progname = progname;
+	_progname = progname.c_str();
 	_enableMktex = enable_mktexmf;
 }
 
@@ -99,7 +98,8 @@ std::string FileFinder::version () const {
 
 
 void FileFinder::addLookupDir (const std::string &path) {
-	_additionalDirs.insert(path);
+	FilePath filepath(path);
+	_additionalDirs.insert(filepath.absolute());
 }
 
 
@@ -115,11 +115,7 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 	static std::string buf;
 	// try to lookup the file in the additionally specified directories
 	for (const std::string &dir : _additionalDirs) {
-		if (dir[0] == '/')
-			buf.clear();
-		else
-			buf = FileSystem::getcwd()+"/";
-		buf += dir + "/" + fname;
+		buf = dir + "/" + fname;
 		if (FileSystem::exists(buf))
 			return buf.c_str();
 	}
@@ -178,7 +174,7 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 		return 0;
 	}
 #endif
-	static std::map<std::string, kpse_file_format_type> types = {
+	static std::unordered_map<std::string, kpse_file_format_type> types = {
 		{"tfm",  kpse_tfm_format},
 		{"pfb",  kpse_type1_format},
 		{"vf",   kpse_vf_format},
@@ -192,6 +188,7 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 		{"enc",  kpse_enc_format},
 		{"pro",  kpse_tex_ps_header_format},
 		{"sfd",  kpse_sfd_format},
+		{"eps",  kpse_pict_format},
 	};
 	auto it = types.find(ext.c_str());
 	if (it == types.end())

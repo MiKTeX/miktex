@@ -18,7 +18,6 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <algorithm>
 #include <sstream>
 #include "BoundingBox.hpp"
@@ -70,25 +69,16 @@ BoundingBox::BoundingBox (const string &boxstr)
 /** Extracts a sequence of length values from a string like "5cm, 2.4in, 0pt".
  *  @param[in] boxstr whitespace and/or comma separated string of lengths.
  *  @param[out] the extracted lengths */
-void BoundingBox::extractLengths (string boxstr, vector<Length> &lengths) {
-	boxstr = util::trim(boxstr);
-	const size_t len = boxstr.length();
-	size_t left=0;
-	string lenstr;
-	do {
-		while (left < len && isspace(boxstr[left]))
-			left++;
-		size_t right=left;
-		while (right < len && !isspace(boxstr[right]) && boxstr[right] != ',')
-			right++;
-		lenstr = boxstr.substr(left, right-left);
-		if (!lenstr.empty()) {
+vector<Length> BoundingBox::extractLengths (string boxstr) {
+	vector<Length> lengths;
+	boxstr = util::replace(boxstr, ",", " ");
+	boxstr = util::normalize_space(boxstr);
+	vector<string> lengthStrings = util::split(boxstr, " ");
+	for (string lenstr : lengthStrings) {
+		if (!lenstr.empty())
 			lengths.emplace_back(Length(lenstr));
-			if (boxstr[right] == ',')
-				right++;
-			left = right;
-		}
-	} while (!lenstr.empty() && lengths.size() < 4);
+	}
+	return lengths;
 }
 
 
@@ -98,8 +88,7 @@ void BoundingBox::extractLengths (string boxstr, vector<Length> &lengths) {
  *  left and (l,l) to the lower right corner.
  *  @param[in] boxstr whitespace and/or comma separated string of lengths. */
 void BoundingBox::set (const string &boxstr) {
-	vector<Length> coord;
-	extractLengths(boxstr, coord);
+	vector<Length> coord = extractLengths(boxstr);
 	set(coord);
 }
 

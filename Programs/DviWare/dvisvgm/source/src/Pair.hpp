@@ -34,6 +34,7 @@ class Pair
 		Pair operator -= (const Pair &p)       {_x -= p._x; _y -= p._y; return *this;}
 		Pair operator *= (T c)                 {_x *= c; _y *= c; return *this;}
 		Pair operator /= (T c)                 {_x /= c; _y /= c; return *this;}
+		Pair operator - () const               {return Pair(-_x, -_y);}
 		Pair ortho () const                    {return Pair(-_y, _x);}
 		double length () const                 {return std::sqrt(_x*_x + _y*_y);}
 		bool operator == (const Pair &p) const {return _x == p._x && _y == p._y;}
@@ -48,6 +49,10 @@ class Pair
 		T _x, _y;
 };
 
+template <typename T>
+inline Pair<T> abs (const Pair<T> &p) {
+	return Pair<T>(std::abs(p.x()), std::abs(p.y()));
+}
 
 struct Pair32 : public Pair<int32_t>
 {

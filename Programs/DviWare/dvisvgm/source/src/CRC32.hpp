@@ -24,10 +24,10 @@
 #include <cstdlib>
 #include <istream>
 
-class CRC32
-{
+class CRC32 {
 	public:
 		CRC32 ();
+		CRC32 (const CRC32 &crc32) =delete;
 		void update (const uint8_t *bytes, size_t len);
 		void update (uint32_t n, int bytes=4);
 		void update (const char *str);
@@ -37,9 +37,6 @@ class CRC32
 		static uint32_t compute (const uint8_t *bytes, size_t len);
 		static uint32_t compute (const char *str);
 		static uint32_t compute (std::istream &is);
-
-	protected:
-		CRC32 (const CRC32 &crc32) {}
 
 	private:
 		uint32_t _crc32;

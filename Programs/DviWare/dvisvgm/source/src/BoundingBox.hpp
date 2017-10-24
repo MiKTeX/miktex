@@ -33,14 +33,12 @@ class Matrix;
 class XMLElementNode;
 
 
-struct BoundingBoxException : MessageException
-{
+struct BoundingBoxException : MessageException {
 	BoundingBoxException (const std::string &msg) : MessageException(msg) {}
 };
 
 
-class BoundingBox
-{
+class BoundingBox {
 	public:
 		BoundingBox ();
 		BoundingBox (double ulxx, double ulyy, double lrxx, double lryy);
@@ -54,7 +52,7 @@ class BoundingBox
 		void embed (const DPair &p) {embed(p.x(), p.y());}
 		void embed (const DPair &c, double r);
 
-		static void extractLengths (std::string boxstr, std::vector<Length> &lengths);
+		static std::vector<Length> extractLengths (std::string boxstr);
 
 		template <typename T>
 		void embed (const Pair<T> &p) {embed(p.x(), p.y());}

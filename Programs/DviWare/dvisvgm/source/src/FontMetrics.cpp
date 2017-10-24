@@ -18,12 +18,12 @@
 ** along with this program; if not, see <http://www.gnu.org/licenses/>. **
 *************************************************************************/
 
-#include <config.h>
 #include <fstream>
+#include <memory>
 #include "FileFinder.hpp"
 #include "FontMetrics.hpp"
 #include "JFM.hpp"
-
+#include "utility.hpp"
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Util/CharBuffer>
 #define UW_(x) MiKTeX::Util::CharBuffer<wchar_t>(x).GetData()
@@ -32,7 +32,7 @@
 using namespace std;
 
 
-FontMetrics* FontMetrics::read (const char *fontname) {
+unique_ptr<FontMetrics> FontMetrics::read (const char *fontname) {
 	const char *path = FileFinder::instance().lookup(string(fontname) + ".tfm");
 #if defined(MIKTEX_WINDOWS)
         ifstream ifs(UW_(path), ios::binary);
@@ -40,10 +40,10 @@ FontMetrics* FontMetrics::read (const char *fontname) {
 	ifstream ifs(path, ios::binary);
 #endif
 	if (!ifs)
-		return 0;
+		return unique_ptr<FontMetrics>();
 	uint16_t id = 256*ifs.get();
 	id += ifs.get();
 	if (id == 9 || id == 11)  // Japanese font metric file?
-		return new JFM(ifs);
-	return new TFM(ifs);
+		return util::make_unique<JFM>(ifs);
+	return util::make_unique<TFM>(ifs);
 }

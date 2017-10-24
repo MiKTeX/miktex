@@ -25,15 +25,10 @@ include_directories(BEFORE
   source/libs/clipper
   source/libs/ff-woff/fontforge
   source/libs/ff-woff/inc
-  source/libs/woff2/brotli/enc
-  source/libs/woff2/src
+  source/libs/variant/include
+  source/libs/woff2/brotli/include
+  source/libs/woff2/include
   source/libs/xxHash
-)
-
-add_definitions(
-  -DHAVE_LIBKPATHSEA
-  -DHAVE_LIBPOTRACE
-  -DHAVE_LIBZ
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -48,8 +43,6 @@ if(CMAKE_CL_64)
     -D_WIN64
   )
 endif()
-
-set(HAVE_CXX11 1)
 
 configure_file(
   config.h.cmake
@@ -67,58 +60,80 @@ set(libxxhash_sources
 )
 
 set(libbrotli_sources
-  source/libs/woff2/brotli/enc/backward_references.cc
+  source/libs/woff2/brotli/common/constants.h
+  source/libs/woff2/brotli/common/dictionary.c
+  source/libs/woff2/brotli/common/dictionary.h
+  source/libs/woff2/brotli/common/version.h
+  source/libs/woff2/brotli/enc/backward_references.c
   source/libs/woff2/brotli/enc/backward_references.h
+  source/libs/woff2/brotli/enc/backward_references_hq.c
+  source/libs/woff2/brotli/enc/backward_references_hq.h
+  source/libs/woff2/brotli/enc/backward_references_inc.h
+  source/libs/woff2/brotli/enc/bit_cost.c
   source/libs/woff2/brotli/enc/bit_cost.h
-  source/libs/woff2/brotli/enc/block_splitter.cc
+  source/libs/woff2/brotli/enc/bit_cost_inc.h
+  source/libs/woff2/brotli/enc/block_encoder_inc.h
+  source/libs/woff2/brotli/enc/block_splitter.c
   source/libs/woff2/brotli/enc/block_splitter.h
-  source/libs/woff2/brotli/enc/brotli_bit_stream.cc
+  source/libs/woff2/brotli/enc/block_splitter_inc.h
+  source/libs/woff2/brotli/enc/brotli_bit_stream.c
   source/libs/woff2/brotli/enc/brotli_bit_stream.h
+  source/libs/woff2/brotli/enc/cluster.c
   source/libs/woff2/brotli/enc/cluster.h
+  source/libs/woff2/brotli/enc/cluster_inc.h
   source/libs/woff2/brotli/enc/command.h
-  source/libs/woff2/brotli/enc/compress_fragment.cc
+  source/libs/woff2/brotli/enc/compress_fragment.c
   source/libs/woff2/brotli/enc/compress_fragment.h
-  source/libs/woff2/brotli/enc/compress_fragment_two_pass.cc
+  source/libs/woff2/brotli/enc/compress_fragment_two_pass.c
   source/libs/woff2/brotli/enc/compress_fragment_two_pass.h
-  source/libs/woff2/brotli/enc/compressor.h
   source/libs/woff2/brotli/enc/context.h
-  source/libs/woff2/brotli/enc/dictionary.cc
-  source/libs/woff2/brotli/enc/dictionary.h
+  source/libs/woff2/brotli/enc/dictionary_hash.c
   source/libs/woff2/brotli/enc/dictionary_hash.h
-  source/libs/woff2/brotli/enc/encode.cc
-  source/libs/woff2/brotli/enc/encode.h
-  source/libs/woff2/brotli/enc/encode_parallel.cc
-  source/libs/woff2/brotli/enc/encode_parallel.h
-  source/libs/woff2/brotli/enc/entropy_encode.cc
+  source/libs/woff2/brotli/enc/encode.c
+  source/libs/woff2/brotli/enc/entropy_encode.c
   source/libs/woff2/brotli/enc/entropy_encode.h
   source/libs/woff2/brotli/enc/entropy_encode_static.h
   source/libs/woff2/brotli/enc/fast_log.h
   source/libs/woff2/brotli/enc/find_match_length.h
+  source/libs/woff2/brotli/enc/hash_forgetful_chain_inc.h
   source/libs/woff2/brotli/enc/hash.h
-  source/libs/woff2/brotli/enc/histogram.cc
+  source/libs/woff2/brotli/enc/hash_longest_match64_inc.h
+  source/libs/woff2/brotli/enc/hash_longest_match_inc.h
+  source/libs/woff2/brotli/enc/hash_longest_match_quickly_inc.h
+  source/libs/woff2/brotli/enc/hash_to_binary_tree_inc.h
+  source/libs/woff2/brotli/enc/histogram.c
   source/libs/woff2/brotli/enc/histogram.h
-  source/libs/woff2/brotli/enc/literal_cost.cc
+  source/libs/woff2/brotli/enc/histogram_inc.h
+  source/libs/woff2/brotli/enc/literal_cost.c
   source/libs/woff2/brotli/enc/literal_cost.h
-  source/libs/woff2/brotli/enc/metablock.cc
+  source/libs/woff2/brotli/enc/memory.c
+  source/libs/woff2/brotli/enc/memory.h
+  source/libs/woff2/brotli/enc/metablock.c
   source/libs/woff2/brotli/enc/metablock.h
+  source/libs/woff2/brotli/enc/metablock_inc.h
   source/libs/woff2/brotli/enc/port.h
   source/libs/woff2/brotli/enc/prefix.h
+  source/libs/woff2/brotli/enc/quality.h
   source/libs/woff2/brotli/enc/ringbuffer.h
-  source/libs/woff2/brotli/enc/static_dict.cc
+  source/libs/woff2/brotli/enc/static_dict.c
   source/libs/woff2/brotli/enc/static_dict.h
   source/libs/woff2/brotli/enc/static_dict_lut.h
-  source/libs/woff2/brotli/enc/streams.cc
-  source/libs/woff2/brotli/enc/streams.h
-  source/libs/woff2/brotli/enc/transform.h
-  source/libs/woff2/brotli/enc/types.h
-  source/libs/woff2/brotli/enc/utf8_util.cc
+  source/libs/woff2/brotli/enc/utf8_util.c
   source/libs/woff2/brotli/enc/utf8_util.h
   source/libs/woff2/brotli/enc/write_bits.h
+  source/libs/woff2/brotli/include/brotli/decode.h
+  source/libs/woff2/brotli/include/brotli/encode.h
+  source/libs/woff2/brotli/include/brotli/port.h
+  source/libs/woff2/brotli/include/brotli/types.h
 )
 
 set(libwoff2_sources
+  source/libs/woff2/include/woff2/decode.h
+  source/libs/woff2/include/woff2/encode.h
+  source/libs/woff2/include/woff2/file.h
+  source/libs/woff2/include/woff2/output.h
+  source/libs/woff2/include/woff2/version.h
   source/libs/woff2/src/buffer.h
-  source/libs/woff2/src/file.h
   source/libs/woff2/src/font.cc
   source/libs/woff2/src/font.h
   source/libs/woff2/src/glyph.cc
@@ -136,63 +151,55 @@ set(libwoff2_sources
   source/libs/woff2/src/variable_length.h
   source/libs/woff2/src/woff2_common.cc
   source/libs/woff2/src/woff2_common.h
-  source/libs/woff2/src/woff2_dec.h
   source/libs/woff2/src/woff2_enc.cc
-  source/libs/woff2/src/woff2_enc.h
   source/libs/woff2/src/woff2_out.cc
-  source/libs/woff2/src/woff2_out.h
 )
 
 set(libffwoff_sources
   source/libs/ff-woff/fontforge/PfEd.h
+  source/libs/ff-woff/fontforge/alphabet.c
+  source/libs/ff-woff/fontforge/asmfpst.c
+  source/libs/ff-woff/fontforge/autohint.c
+  source/libs/ff-woff/fontforge/char.c
+  source/libs/ff-woff/fontforge/cjk.c
   source/libs/ff-woff/fontforge/configure-fontforge.h
+  source/libs/ff-woff/fontforge/cvundoes.c
+  source/libs/ff-woff/fontforge/dumppfa.c
   source/libs/ff-woff/fontforge/edgelist.h
   source/libs/ff-woff/fontforge/edgelist2.h
+  source/libs/ff-woff/fontforge/encoding.c
   source/libs/ff-woff/fontforge/encoding.h
   source/libs/ff-woff/fontforge/fflocale.c
   source/libs/ff-woff/fontforge/fflocale.h
   source/libs/ff-woff/fontforge/fontforge-config.h
   source/libs/ff-woff/fontforge/fontforge.h
   source/libs/ff-woff/fontforge/fontforgevw.h
-  source/libs/ff-woff/fontforge/libffstamp.h
-  source/libs/ff-woff/fontforge/namehash.h
-  source/libs/ff-woff/fontforge/psfont.h
-  source/libs/ff-woff/fontforge/sd.h
-  source/libs/ff-woff/fontforge/sfd1.h
-  source/libs/ff-woff/fontforge/splinefont.h
-  source/libs/ff-woff/fontforge/stemdb.h
-  source/libs/ff-woff/fontforge/tables.h
-  source/libs/ff-woff/fontforge/ttf.h
-  source/libs/ff-woff/fontforge/ttfinstrs.h
-  source/libs/ff-woff/fontforge/uiinterface.h
-  source/libs/ff-woff/fontforge/alphabet.c
-  source/libs/ff-woff/fontforge/asmfpst.c
-  source/libs/ff-woff/fontforge/autohint.c
-  source/libs/ff-woff/fontforge/char.c
-  source/libs/ff-woff/fontforge/cjk.c
-  source/libs/ff-woff/fontforge/cvundoes.c
-  source/libs/ff-woff/fontforge/dumppfa.c
-  source/libs/ff-woff/fontforge/encoding.c
   source/libs/ff-woff/fontforge/fvfonts.c
   source/libs/ff-woff/fontforge/gwwiconv.c
+  source/libs/ff-woff/fontforge/libffstamp.h
   source/libs/ff-woff/fontforge/lookups.c
   source/libs/ff-woff/fontforge/macbinary.c
   source/libs/ff-woff/fontforge/macenc.c
   source/libs/ff-woff/fontforge/mathconstants.c
   source/libs/ff-woff/fontforge/memory.c
   source/libs/ff-woff/fontforge/mm.c
+  source/libs/ff-woff/fontforge/namehash.h
   source/libs/ff-woff/fontforge/namelist.c
   source/libs/ff-woff/fontforge/nouiutil.c
   source/libs/ff-woff/fontforge/nowakowskittfinstr.c
   source/libs/ff-woff/fontforge/parsepfa.c
   source/libs/ff-woff/fontforge/parsettf.c
   source/libs/ff-woff/fontforge/parsettfatt.c
+  source/libs/ff-woff/fontforge/psfont.h
   source/libs/ff-woff/fontforge/psread.c
   source/libs/ff-woff/fontforge/pua.c
+  source/libs/ff-woff/fontforge/sd.h
   source/libs/ff-woff/fontforge/sfd.c
   source/libs/ff-woff/fontforge/sfd1.c
+  source/libs/ff-woff/fontforge/sfd1.h
   source/libs/ff-woff/fontforge/splinechar.c
   source/libs/ff-woff/fontforge/splinefont.c
+  source/libs/ff-woff/fontforge/splinefont.h
   source/libs/ff-woff/fontforge/splineorder2.c
   source/libs/ff-woff/fontforge/splineoverlap.c
   source/libs/ff-woff/fontforge/splinerefigure.c
@@ -202,13 +209,18 @@ set(libffwoff_sources
   source/libs/ff-woff/fontforge/splineutil2.c
   source/libs/ff-woff/fontforge/start.c
   source/libs/ff-woff/fontforge/stemdb.c
+  source/libs/ff-woff/fontforge/stemdb.h
+  source/libs/ff-woff/fontforge/tables.h
   source/libs/ff-woff/fontforge/tmpfile2.cpp
   source/libs/ff-woff/fontforge/tottf.c
   source/libs/ff-woff/fontforge/tottfaat.c
   source/libs/ff-woff/fontforge/tottfgpos.c
   source/libs/ff-woff/fontforge/tottfvar.c
+  source/libs/ff-woff/fontforge/ttf.h
   source/libs/ff-woff/fontforge/ttfinstrs.c
+  source/libs/ff-woff/fontforge/ttfinstrs.h
   source/libs/ff-woff/fontforge/ttfspecial.c
+  source/libs/ff-woff/fontforge/uiinterface.h
   source/libs/ff-woff/fontforge/unialt.c
   source/libs/ff-woff/fontforge/ustring.c
   source/libs/ff-woff/fontforge/utype.c
@@ -316,6 +328,8 @@ set(libdvisvgm_sources
   source/src/GraphicsPath.hpp
   source/src/HtmlSpecialHandler.cpp
   source/src/HtmlSpecialHandler.hpp
+  source/src/HyperlinkManager.cpp
+  source/src/HyperlinkManager.hpp
   source/src/InputBuffer.cpp
   source/src/InputBuffer.hpp
   source/src/InputReader.cpp
@@ -336,6 +350,8 @@ set(libdvisvgm_sources
   source/src/NoPsSpecialHandler.cpp
   source/src/NoPsSpecialHandler.hpp
   source/src/NumericRanges.hpp
+  source/src/PDFParser.cpp
+  source/src/PDFParser.hpp
   source/src/PSFilter.hpp
   source/src/PSInterpreter.cpp
   source/src/PSInterpreter.hpp
@@ -423,6 +439,7 @@ set(libdvisvgm_sources
   source/src/utility.cpp
   source/src/utility.hpp
   source/src/version.hpp
+  source/src/windows.hpp
 )
 
 list(APPEND libdvisvgm_sources
