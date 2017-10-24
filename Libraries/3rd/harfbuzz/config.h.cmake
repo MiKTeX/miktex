@@ -105,6 +105,9 @@
 /* Define to 1 if you have the <string.h> header file. */
 #cmakedefine HAVE_STRING_H 1
 
+/* Define to 1 if you have the `strtod_l' function. */
+#cmakedefine HAVE_STRTOD_L 1
+
 /* Define to 1 if you have the `sysconf' function. */
 #cmakedefine HAVE_SYSCONF 1
 
@@ -132,8 +135,10 @@
 /* Define to 1 if you have the <windows.h> header file. */
 #cmakedefine HAVE_WINDOWS_H 1
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to 1 if you have the <xlocale.h> header file. */
+#cmakedefine HAVE_XLOCALE_H 1
+
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 #cmakedefine LT_OBJDIR 1
 
 /* Define to the address where bug reports for this package should be sent. */

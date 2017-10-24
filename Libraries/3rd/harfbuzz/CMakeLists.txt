@@ -72,7 +72,6 @@ list(APPEND harfbuzz_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-private.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer-serialize.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-buffer.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-cache-private.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-common.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-face-private.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-face.cc
@@ -93,13 +92,14 @@ list(APPEND harfbuzz_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-post-table.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-ot-tag.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-set-digest-private.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-set-private.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-set.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shape.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shape-plan-private.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shape-plan.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shaper-list.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shape.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shaper-impl-private.hh
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shaper-list.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shaper-private.hh
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-shaper.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src/hb-unicode-private.hh
