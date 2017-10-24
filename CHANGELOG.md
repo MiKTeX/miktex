@@ -24,6 +24,7 @@
 * [4](https://github.com/MiKTeX/miktex/issues/4): `xdvipdfmx` with options supplied as `output-driver` to XeLaTeX results in `can't write on file` error
 * [5](https://github.com/MiKTeX/miktex/issues/5): Package manager "Miktex encountered an internal error" *[windows]*
 * [19](https://github.com/MiKTeX/miktex/issues/19): option --user-install of MiKTeX setup utility is ignored *[windows]*
+* [22](https://github.com/MiKTeX/miktex/issues/22): miktex is noticably slower than texlive
 * [2618](https://sourceforge.net/p/miktex/bugs/2618/): Unknown filter "JPXDecode" Syntax Error
 * [2620](https://sourceforge.net/p/miktex/bugs/2620/): xetex can't input files with BOM anymore
 * [2622](https://sourceforge.net/p/miktex/bugs/2622/): shell commands are not executed correctly
