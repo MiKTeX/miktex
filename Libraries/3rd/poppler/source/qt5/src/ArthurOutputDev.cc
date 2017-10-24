@@ -884,6 +884,7 @@ void ArthurOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *
   {
     qDebug() << "Soft mask size does not match image size!";
     drawImage(state, ref, str, width, height, colorMap, interpolate, nullptr, gFalse);
+    return;
   }
 
   // Bail out if the mask isn't a single channel.  I don't know
@@ -892,6 +893,7 @@ void ArthurOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *
   {
     qDebug() << "Soft mask is not a single 8-bit channel!";
     drawImage(state, ref, str, width, height, colorMap, interpolate, nullptr, gFalse);
+    return;
   }
 
   /* TODO: Do we want to cache these? */
