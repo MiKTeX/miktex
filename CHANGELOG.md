@@ -19,6 +19,7 @@
 * LibGD 2.2.5
 * libpng 1.6.34
 * Poppler 0.60.1
+* Qt 5.9.2
 
 ### Bug fixes
 
