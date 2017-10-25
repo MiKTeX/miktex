@@ -156,6 +156,7 @@ struct hb_set_t
     elt_t const &elt (hb_codepoint_t g) const { return v[(g & MASK) / ELT_BITS]; }
     elt_t mask (hb_codepoint_t g) const { return elt_t (1) << (g & ELT_MASK); }
   };
+  static_assert (page_t::PAGE_BITS == sizeof (page_t) * 8, "");
 
   hb_object_header_t header;
   ASSERT_POD ();
@@ -175,15 +176,6 @@ struct hb_set_t
     return true;
   }
 
-  inline void init (void) {
-    hb_object_init (this);
-    page_map.init ();
-    pages.init ();
-  }
-  inline void fini (void) {
-    page_map.finish ();
-    pages.finish ();
-  }
   inline void clear (void) {
     if (unlikely (hb_object_is_inert (this)))
       return;
@@ -282,11 +274,11 @@ struct hb_set_t
   {
     if (unlikely (in_error)) return;
 
-    int na = pages.len;
-    int nb = other->pages.len;
+    unsigned int na = pages.len;
+    unsigned int nb = other->pages.len;
 
     unsigned int count = 0;
-    int a = 0, b = 0;
+    unsigned int a = 0, b = 0;
     for (; a < na && b < nb; )
     {
       if (page_map[a].major == other->page_map[b].major)
@@ -317,32 +309,35 @@ struct hb_set_t
       return;
 
     /* Process in-place backward. */
-    a = na - 1, b = nb - 1;
-    for (; a >= 0 && b >= 0; )
+    a = na;
+    b = nb;
+    for (; a && b; )
     {
       if (page_map[a].major == other->page_map[b].major)
       {
-        Op::process (page_at (--count).v, page_at (a).v, other->page_at (b).v);
 	a--;
 	b--;
+        Op::process (page_at (--count).v, page_at (a).v, other->page_at (b).v);
       }
       else if (page_map[a].major > other->page_map[b].major)
       {
+        a--;
         if (Op::passthru_left)
 	  page_at (--count).v = page_at (a).v;
-        a--;
       }
       else
       {
+        b--;
         if (Op::passthru_right)
 	  page_at (--count).v = other->page_at (b).v;
-        b--;
       }
     }
-    while (a >= 0)
-      page_at (--count).v = page_at (--a).v;
-    while (b >= 0)
-      page_at (--count).v = other->page_at (--b).v;
+    if (Op::passthru_left)
+      while (a)
+	page_at (--count).v = page_at (--a).v;
+    if (Op::passthru_right)
+      while (b)
+	page_at (--count).v = other->page_at (--b).v;
     assert (!count);
   }
 
@@ -369,14 +364,14 @@ struct hb_set_t
       return *codepoint != INVALID;
     }
 
-    page_map_t map = {major (*codepoint), 0};
+    page_map_t map = {get_major (*codepoint), 0};
     unsigned int i;
     page_map.bfind (&map, &i);
     if (i < page_map.len)
     {
       if (pages[page_map[i].index].next (codepoint))
       {
-	*codepoint += page_map[i].major * PAGE_SIZE;
+	*codepoint += page_map[i].major * page_t::PAGE_BITS;
         return true;
       }
       i++;
@@ -386,7 +381,7 @@ struct hb_set_t
       hb_codepoint_t m = pages[page_map[i].index].get_min ();
       if (m != INVALID)
       {
-	*codepoint = page_map[i].major * PAGE_SIZE + m;
+	*codepoint = page_map[i].major * page_t::PAGE_BITS + m;
 	return true;
       }
     }
@@ -424,7 +419,7 @@ struct hb_set_t
     unsigned int count = pages.len;
     for (unsigned int i = 0; i < count; i++)
       if (!page_at (i).is_empty ())
-        return page_map[i].major * PAGE_SIZE + page_at (i).get_min ();
+        return page_map[i].major * page_t::PAGE_BITS + page_at (i).get_min ();
     return INVALID;
   }
   inline hb_codepoint_t get_max (void) const
@@ -432,16 +427,15 @@ struct hb_set_t
     unsigned int count = pages.len;
     for (int i = count - 1; i >= 0; i++)
       if (!page_at (i).is_empty ())
-        return page_map[i].major * PAGE_SIZE + page_at (i).get_max ();
+        return page_map[i].major * page_t::PAGE_BITS + page_at (i).get_max ();
     return INVALID;
   }
 
-  static const unsigned int PAGE_SIZE = sizeof (page_t) * 8;
   static  const hb_codepoint_t INVALID = HB_SET_VALUE_INVALID;
 
   page_t *page_for_insert (hb_codepoint_t g)
   {
-    page_map_t map = {major (g), pages.len};
+    page_map_t map = {get_major (g), pages.len};
     unsigned int i;
     if (!page_map.bfind (&map, &i))
     {
@@ -456,7 +450,7 @@ struct hb_set_t
   }
   page_t *page_for (hb_codepoint_t g)
   {
-    page_map_t key = {major (g)};
+    page_map_t key = {get_major (g)};
     const page_map_t *found = page_map.bsearch (&key);
     if (found)
       return &pages[found->index];
@@ -464,7 +458,7 @@ struct hb_set_t
   }
   const page_t *page_for (hb_codepoint_t g) const
   {
-    page_map_t key = {major (g)};
+    page_map_t key = {get_major (g)};
     const page_map_t *found = page_map.bsearch (&key);
     if (found)
       return &pages[found->index];
@@ -472,7 +466,7 @@ struct hb_set_t
   }
   page_t &page_at (unsigned int i) { return pages[page_map[i].index]; }
   const page_t &page_at (unsigned int i) const { return pages[page_map[i].index]; }
-  unsigned int major (hb_codepoint_t g) const { return g / PAGE_SIZE; }
+  unsigned int get_major (hb_codepoint_t g) const { return g / page_t::PAGE_BITS; }
 };
 
 
