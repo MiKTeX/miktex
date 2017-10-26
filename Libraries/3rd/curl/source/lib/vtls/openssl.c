@@ -69,7 +69,9 @@
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 
-#ifdef HAVE_OPENSSL_PKCS12_H
+#ifndef OPENSSL_IS_BORINGSSL
+/* BoringSSL does not support PKCS12 */
+#define HAVE_PKCS12_SUPPORT 1
 #include <openssl/pkcs12.h>
 #endif
 
@@ -151,14 +153,13 @@ static unsigned long OpenSSL_version_num(void)
 /*
  * Whether SSL_CTX_set_keylog_callback is available.
  * OpenSSL: supported since 1.1.1 https://github.com/openssl/openssl/pull/2287
- * BoringSSL: supported since d28f59c27bac (committed 2015-11-19), the
- *            BORINGSSL_201512 macro from 2016-01-21 should be close enough.
+ * BoringSSL: supported since d28f59c27bac (committed 2015-11-19)
  * LibreSSL: unsupported in at least 2.5.1 (explicitly check for it since it
  *           lies and pretends to be OpenSSL 2.0.0).
  */
 #if (OPENSSL_VERSION_NUMBER >= 0x10101000L && \
      !defined(LIBRESSL_VERSION_NUMBER)) || \
-    defined(BORINGSSL_201512)
+    defined(OPENSSL_IS_BORINGSSL)
 #define HAVE_KEYLOG_CALLBACK
 #endif
 
@@ -653,7 +654,7 @@ int cert_stuff(struct connectdata *conn,
 
     case SSL_FILETYPE_PKCS12:
     {
-#ifdef HAVE_OPENSSL_PKCS12_H
+#ifdef HAVE_PKCS12_SUPPORT
       FILE *f;
       PKCS12 *p12;
       EVP_PKEY *pri;
@@ -837,7 +838,7 @@ int cert_stuff(struct connectdata *conn,
       EVP_PKEY_free(pktmp);
     }
 
-#ifndef OPENSSL_NO_RSA
+#if !defined(OPENSSL_NO_RSA) && defined(HAVE_OPAQUE_EVP_PKEY)
     {
       /* If RSA is used, don't check the private key if its flags indicate
        * it doesn't support it. */
@@ -3636,7 +3637,7 @@ const struct Curl_ssl Curl_ssl_openssl = {
   Curl_ossl_connect,             /* connect */
   Curl_ossl_connect_nonblocking, /* connect_nonblocking */
   Curl_ossl_get_internals,       /* get_internals */
-  Curl_ossl_close,               /* close */
+  Curl_ossl_close,               /* close_one */
   Curl_ossl_close_all,           /* close_all */
   Curl_ossl_session_free,        /* session_free */
   Curl_ossl_set_engine,          /* set_engine */

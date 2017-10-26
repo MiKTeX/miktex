@@ -590,7 +590,7 @@ Vista
 #    define HAVE_GETADDRINFO            1
 #    define HAVE_GETADDRINFO_THREADSAFE 1
 #    define HAVE_GETNAMEINFO            1
-#  elif defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0501) || defined(MIKTEX)
+#  elif defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0501)
 #    define HAVE_FREEADDRINFO           1
 #    define HAVE_GETADDRINFO            1
 #    define HAVE_GETADDRINFO_THREADSAFE 1
@@ -709,9 +709,7 @@ Vista
 #endif
 
 /* Define to use the Windows crypto library. */
-#if !defined(USE_OPENSSL) && !defined(USE_NSS)
 #define USE_WIN32_CRYPTO
-#endif
 
 /* ---------------------------------------------------------------- */
 /*                       ADDITIONAL DEFINITIONS                     */

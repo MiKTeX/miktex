@@ -6,7 +6,7 @@
     <TPM:Title>libcurl, Windows x86</TPM:Title>
     <TPM:Copyright owner="Daniel Stenberg, et al." year="1998-2017"/>
     <TPM:License type="permissive"/>
-    <TPM:Version>7.56.0</TPM:Version>
+    <TPM:Version>7.56.1</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

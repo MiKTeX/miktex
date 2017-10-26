@@ -1457,25 +1457,22 @@ static CURLcode ftp_state_list(struct connectdata *conn)
      then just do LIST (in that case: nothing to do here)
   */
   char *cmd, *lstArg, *slashPos;
+  const char *inpath = data->state.path;
 
   lstArg = NULL;
   if((data->set.ftp_filemethod == FTPFILE_NOCWD) &&
-     data->state.path &&
-     data->state.path[0] &&
-     strchr(data->state.path, '/')) {
-
-    lstArg = strdup(data->state.path);
-    if(!lstArg)
-      return CURLE_OUT_OF_MEMORY;
+     inpath && inpath[0] && strchr(inpath, '/')) {
+    size_t n = strlen(inpath);
 
     /* Check if path does not end with /, as then we cut off the file part */
-    if(lstArg[strlen(lstArg) - 1] != '/') {
-
+    if(inpath[n - 1] != '/') {
       /* chop off the file part if format is dir/dir/file */
-      slashPos = strrchr(lstArg, '/');
-      if(slashPos)
-        *(slashPos + 1) = '\0';
+      slashPos = strrchr(inpath, '/');
+      n = slashPos - inpath;
     }
+    result = Curl_urldecode(data, inpath, n, &lstArg, NULL, FALSE);
+    if(result)
+      return result;
   }
 
   cmd = aprintf("%s%s%s",
@@ -1877,8 +1874,8 @@ static CURLcode ftp_state_pasv_resp(struct connectdata *conn,
   else if((ftpc->count1 == 1) &&
           (ftpcode == 227)) {
     /* positive PASV response */
-    int ip[4];
-    int port[2];
+    unsigned int ip[4];
+    unsigned int port[2];
 
     /*
      * Scan for a sequence of six comma-separated numbers and use them as
@@ -1890,14 +1887,15 @@ static CURLcode ftp_state_pasv_resp(struct connectdata *conn,
      * "227 Entering passive mode. 127,0,0,1,4,51"
      */
     while(*str) {
-      if(6 == sscanf(str, "%d,%d,%d,%d,%d,%d",
+      if(6 == sscanf(str, "%u,%u,%u,%u,%u,%u",
                      &ip[0], &ip[1], &ip[2], &ip[3],
                      &port[0], &port[1]))
         break;
       str++;
     }
 
-    if(!*str) {
+    if(!*str || (ip[0] > 255) || (ip[1] > 255)  || (ip[2] > 255)  ||
+       (ip[3] > 255) || (port[0] > 255)  || (port[1] > 255) ) {
       failf(data, "Couldn't interpret the 227-response");
       return CURLE_FTP_WEIRD_227_FORMAT;
     }
@@ -2419,8 +2417,8 @@ static CURLcode ftp_state_get_resp(struct connectdata *conn,
       char *bytes;
       char *buf = data->state.buffer;
       bytes = strstr(buf, " bytes");
-      if(bytes--) {
-        long in = (long)(bytes-buf);
+      if(bytes) {
+        long in = (long)(--bytes-buf);
         /* this is a hint there is size information in there! ;-) */
         while(--in) {
           /* scan for the left parenthesis and break there */
