@@ -182,7 +182,6 @@ private:
 #endif
 
 #if defined(_WIN32) || defined(__CYGWIN__)
-#if !defined(MIKTEX)
    /* We need Windows Vista for both Uniscribe backend and for
     * MemoryBarrier.  We don't support compiling on Windows XP,
     * though we run on it fine. */
@@ -198,7 +197,6 @@ private:
 #  ifndef STRICT
 #    define STRICT 1
 #  endif
-#endif
 
 #  if defined(_WIN32_WCE)
      /* Some things not defined on Windows CE. */

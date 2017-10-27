@@ -95,7 +95,7 @@ struct hb_set_t
 	  goto found;
       for (i++; i < len (); i++)
         if (v[i])
-	  for (unsigned int j = 0; j < ELT_BITS; j++)
+	  for (j = 0; j < ELT_BITS; j++)
 	    if (v[i] & (elt_t (1) << j))
 	      goto found;
 
@@ -313,13 +313,13 @@ struct hb_set_t
     b = nb;
     for (; a && b; )
     {
-      if (page_map[a].major == other->page_map[b].major)
+      if (page_map[a - 1].major == other->page_map[b - 1].major)
       {
 	a--;
 	b--;
         Op::process (page_at (--count).v, page_at (a).v, other->page_at (b).v);
       }
-      else if (page_map[a].major > other->page_map[b].major)
+      else if (page_map[a - 1].major > other->page_map[b - 1].major)
       {
         a--;
         if (Op::passthru_left)
