@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-#set -ev
+set -v
 
 if [ -d ~/.miktex/texmfs/data/miktex/log ]; then
     cd ~/.miktex/texmfs/data/miktex/log

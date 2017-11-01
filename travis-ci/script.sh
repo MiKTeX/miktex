@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
-set -ev
+set -e
+set -v
 
 cd "${TRAVIS_BUILD_DIR}/build"
 make

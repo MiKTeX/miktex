@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
-set -ev
+set -e
+set -v
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     mkdir "${TRAVIS_BUILD_DIR}/mycmake"

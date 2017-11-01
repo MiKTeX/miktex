@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
-set -ev
+set -e
+set -v
 
 mkdir "${TRAVIS_BUILD_DIR}/build"
 cd "${TRAVIS_BUILD_DIR}/build"
