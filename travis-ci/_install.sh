@@ -4,7 +4,7 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     sudo=sudo
 fi
 
-function runmiktex {
+function runmiktex () {
     set +e
     "$@"
     local status=$?
