@@ -912,7 +912,9 @@ void MpmView::OnUpdateWizard()
     {
       MIKTEX_UNEXPECTED();
     }
-    Process::Start(pSession->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_INTERNAL_UPDATE_EXE);
+    PathName exePath = pSession->GetSpecialPath(SpecialPath::InternalBinDirectory);
+    exePath /= pSession->IsAdminMode() ? MIKTEX_UPDATE_ADMIN_EXE : MIKTEX_UPDATE_EXE;
+    Process::Start(exePath);
     // TODO: close app
   }
   catch (const MiKTeXException& e)
