@@ -752,7 +752,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValu
   }
   else if (varName == "TEXMFDIST" || varName == "TEXMFMAIN")
   {
-    path = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
+    path = session->GetSpecialPath(SpecialPath::DistRoot);
     varValue = path.ToUnix().ToString();
     result = true;
   }
