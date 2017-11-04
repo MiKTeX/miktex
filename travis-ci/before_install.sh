@@ -16,7 +16,6 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
 
     sudo apt-get install -y dpkg-dev
 
-    sudo apt-get install -y pandoc
     sudo apt-get install -y xsltproc
 
     sudo apt-get install -y fontconfig
@@ -65,8 +64,6 @@ elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     brew outdated pkg-config || brew upgrade pkg-config
 
     ( brew ls -1 | grep -w gdb ) || brew install gdb
-
-    ( brew ls -1 | grep -w pandoc ) || brew install pandoc
 
     ( brew ls -1 | grep -w ghostscript ) || brew install ghostscript
     ( brew ls -1 | grep -w md5sha1sum ) || brew install md5sha1sum
