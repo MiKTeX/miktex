@@ -98,12 +98,6 @@ if(NOT LINK_EVERYTHING_STATICALLY)
       luac.rc
     )
   endif()
-  add_executable(${MIKTEX_PREFIX}lua ${lua_sources})
-  set_property(TARGET ${MIKTEX_PREFIX}lua PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  merge_trustinfo_manifest(${MIKTEX_PREFIX}lua asInvoker)
-  merge_compatibility_manifest(${MIKTEX_PREFIX}lua)
-  target_link_libraries(${MIKTEX_PREFIX}lua ${lua_dll_name})
-  install(TARGETS ${MIKTEX_PREFIX}lua DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 else()
   set(lua_target_library ${lua_lib_name})
 endif()
@@ -116,13 +110,16 @@ generate_export_header(${lua_target_library}
   STATIC_DEFINE MIKTEX_LUA_STATIC
 )
 
+add_executable(${MIKTEX_PREFIX}lua ${lua_sources})
+set_property(TARGET ${MIKTEX_PREFIX}lua PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+merge_trustinfo_manifest(${MIKTEX_PREFIX}lua asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}lua)
+target_link_libraries(${MIKTEX_PREFIX}lua ${lua_target_library})
+install(TARGETS ${MIKTEX_PREFIX}lua DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
 add_executable(${MIKTEX_PREFIX}luac ${luac_sources})
-
 set_property(TARGET ${MIKTEX_PREFIX}luac PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
 merge_trustinfo_manifest(${MIKTEX_PREFIX}luac asInvoker)
 merge_compatibility_manifest(${MIKTEX_PREFIX}luac)
-
-target_link_libraries(${MIKTEX_PREFIX}luac ${lua_dll_name})
-
+target_link_libraries(${MIKTEX_PREFIX}luac ${lua_target_library})
 install(TARGETS ${MIKTEX_PREFIX}luac DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
