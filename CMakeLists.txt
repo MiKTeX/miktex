@@ -841,6 +841,7 @@ endif()
 
 set(required_programs
   cat
+  diff
   sed
   xsltproc
 )

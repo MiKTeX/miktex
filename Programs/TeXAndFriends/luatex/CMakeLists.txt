@@ -804,3 +804,9 @@ if(WITH_CONTEXT_SUPPORT)
   merge_compatibility_manifest(runmtxrun)
   install(TARGETS runmtxrun DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}")
 endif()
+
+###############################################################################
+## run tests
+###############################################################################
+
+add_subdirectory(test)

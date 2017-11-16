@@ -123,3 +123,5 @@ merge_trustinfo_manifest(${MIKTEX_PREFIX}luac asInvoker)
 merge_compatibility_manifest(${MIKTEX_PREFIX}luac)
 target_link_libraries(${MIKTEX_PREFIX}luac ${lua_target_library})
 install(TARGETS ${MIKTEX_PREFIX}luac DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+add_subdirectory(test)
