@@ -19,6 +19,11 @@
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_TEX_AND_FRIENDS_FOLDER}/LuaTeX")
 
+# FIXME: this breaks luatex under xenial:
+# set(lua_target_name ${lua_dll_name})
+
+set(lua_target_name ${lua_lib_name})
+
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -120,7 +125,7 @@ target_compile_definitions(luatex-luasocket-static
 
 target_link_libraries(luatex-luasocket-static
   PUBLIC
-    ${lua_dll_name}
+    ${lua_target_name}
 )
 
 ###############################################################################
@@ -161,7 +166,7 @@ endif()
 target_link_libraries(luatex-luamisc-static
   PUBLIC
     ${core_dll_name}
-    ${lua_dll_name}
+    ${lua_target_name}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -315,7 +320,7 @@ target_link_libraries(luatex-luafontforge-static
   PUBLIC
     ${core_dll_name}
     ${kpsemu_dll_name}
-    ${lua_dll_name}
+    ${lua_target_name}
     ${w2cemu_dll_name}
     luatex-unilib-static
 )
@@ -354,7 +359,7 @@ target_include_directories(luatex-luaffi-static
 
 target_link_libraries(luatex-luaffi-static
   PUBLIC
-    ${lua_dll_name}
+    ${lua_target_name}
 )
 
 if(USE_SYSTEM_ZLIB)
@@ -659,7 +664,7 @@ target_link_libraries(luatex-static
   PUBLIC
     ${core_dll_name}
     ${kpsemu_dll_name}
-    ${lua_dll_name}
+    ${lua_target_name}
     ${metapost_dll_name}
     ${w2cemu_dll_name}
     luatex-luaffi-static
@@ -693,7 +698,7 @@ set(libs
   ${app_dll_name}
   ${core_dll_name}
   ${kpsemu_dll_name}
-  ${lua_dll_name}
+  ${lua_target_name}
   ${md5_dll_name}
   ${w2cemu_dll_name}
 
