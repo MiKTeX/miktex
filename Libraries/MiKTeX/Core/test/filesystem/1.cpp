@@ -59,7 +59,7 @@ END_TEST_FUNCTION();
 
 BEGIN_TEST_FUNCTION(2);
 {
-  FILE * stream = MiKTeX::Core::File::Open("abc.def", MiKTeX::Core::FileMode::Create, MiKTeX::Core::FileAccess::Write, true, MiKTeX::Core::FileShare::None);
+  FILE* stream = MiKTeX::Core::File::Open("abc.def", MiKTeX::Core::FileMode::Create, MiKTeX::Core::FileAccess::Write, true, MiKTeX::Core::FileShare::None);
   TEST(stream != nullptr);
   fprintf(stream, "hello, world!\n");
   fclose(stream);
@@ -118,7 +118,7 @@ BEGIN_TEST_FUNCTION(5);
     MiKTeX::Core::File::Delete(myself);
     deletedMyself = true;
   }
-  catch (const MiKTeX::Core::MiKTeXException & ex)
+  catch (const MiKTeX::Core::MiKTeXException& ex)
   {
     TEST(dynamic_cast<const MiKTeX::Core::UnauthorizedAccessException*>(&ex) != nullptr);
     deletedMyself = false;
