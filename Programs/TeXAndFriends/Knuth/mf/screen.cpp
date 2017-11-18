@@ -97,20 +97,16 @@ LRESULT CALLBACK ScreenWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
   }
 
   default:
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    return DefWindowProcW(hwnd, uMsg, wParam, lParam);
   }
 }
 
 DWORD WINAPI ScreenThreadFunc(LPVOID lpv)
 {
   LPPOINT ppt = reinterpret_cast<LPPOINT>(lpv);
-  char szWindowName[100];
-#if _MSC_VER >= 1400
-  sprintf_s(szWindowName, 100, MIKTEXTEXT("METAFONT Screen (%d x %d)"), ppt->x, ppt->y);
-#else
-  sprintf(szWindowName, MIKTEXTEXT("METAFONT Screen (%d x %d)"), ppt->x, ppt->y);
-#endif
-  g_hwnd = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, "MF_Screen", szWindowName, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, g_hinstance, nullptr);
+  wchar_t szWindowName[100];
+  swprintf_s(szWindowName, 100, L"METAFONT Screen (%d x %d)", ppt->x, ppt->y);
+  g_hwnd = CreateWindowExW(WS_EX_OVERLAPPEDWINDOW, L"MF_Screen", szWindowName, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, g_hinstance, nullptr);
   if (g_hwnd == nullptr)
   {
     SetEvent(g_hEvtReady);
@@ -119,12 +115,12 @@ DWORD WINAPI ScreenThreadFunc(LPVOID lpv)
   ShowWindow(g_hwnd, SW_SHOWNOACTIVATE);
   SetEvent(g_hEvtReady);
   MSG msg;
-  while (GetMessage(&msg, g_hwnd, 0, 0))
+  while (GetMessageW(&msg, g_hwnd, 0, 0))
   {
     TranslateMessage(&msg);
-    DispatchMessage(&msg);
+    DispatchMessageW(&msg);
   }
-  UnregisterClass("MF_Screen", g_hinstance);
+  UnregisterClassW(L"MF_Screen", g_hinstance);
   return 0;
 }
 
@@ -139,21 +135,21 @@ C4P_boolean miktexinitscreen(int w, int h)
     return false;
   }
 
-  WNDCLASS wc;
-  ZeroMemory(&wc, sizeof(WNDCLASS));
+  WNDCLASSW wc;
+  ZeroMemory(&wc, sizeof(wc));
   wc.style = CS_NOCLOSE;
   wc.lpfnWndProc = ScreenWindowProc;
   wc.hInstance = g_hinstance;
-  wc.hIcon = LoadIcon(g_hinstance, MAKEINTRESOURCE(IDR_MFSCREEN));
-  wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+  wc.hIcon = LoadIconW(g_hinstance, MAKEINTRESOURCEW(IDR_MFSCREEN));
+  wc.hCursor = LoadCursorW(nullptr, MAKEINTRESOURCEW(32512)); // IDC_ARROW
   wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_BTNFACE + 1);
-  wc.lpszClassName = "MF_Screen";
-  RegisterClass(&wc);
+  wc.lpszClassName = L"MF_Screen";
+  RegisterClassW(&wc);
 
   g_pt.x = w;
   g_pt.y = h;
 
-  g_hEvtReady = CreateEvent(0, FALSE, FALSE, 0);
+  g_hEvtReady = CreateEventW(nullptr, FALSE, FALSE, nullptr);
   if (g_hEvtReady == nullptr)
   {
     return false;
