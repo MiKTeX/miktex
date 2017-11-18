@@ -45,13 +45,12 @@ LRESULT CALLBACK ScreenWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 {
   static HBITMAP hbitmap;       // <fixme/>
 
-  lock_guard<mutex> lockGuard(screenMutex);
-
   switch (uMsg)
   {
 
   case WM_CREATE:
   {
+    lock_guard<mutex> lockGuard(screenMutex);
     HDC hPaintDC = GetDC(hwnd);
     g_hdc = CreateCompatibleDC(hPaintDC);
     if (g_hdc == nullptr)
@@ -78,6 +77,8 @@ LRESULT CALLBACK ScreenWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
   }
 
   case WM_DESTROY:
+  {
+    lock_guard<mutex> lockGuard(screenMutex);
     DeleteObject(hbitmap);
     hbitmap = nullptr;
     DeleteDC(g_hdc);
@@ -85,9 +86,11 @@ LRESULT CALLBACK ScreenWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
     PostQuitMessage(0);
     return 0;
     break;
+  }
 
   case WM_PAINT:
   {
+    lock_guard<mutex> lockGuard(screenMutex);
     PAINTSTRUCT ps;
     HDC hPaintDC = BeginPaint(hwnd, &ps);
     BitBlt(hPaintDC, 0, 0, g_pt.x, g_pt.y, g_hdc, 0, 0, SRCCOPY);
