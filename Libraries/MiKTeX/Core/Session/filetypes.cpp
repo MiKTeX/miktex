@@ -169,6 +169,16 @@ void SessionImpl::RegisterFileType(FileType fileType)
     {
       searchPath.push_back(myLocationCanon.ToString());
     }
+    PathName myPrefixBin = GetMyPrefix(false) / MIKTEX_BINARY_DESTINATION_DIR;
+    if (std::find(searchPath.begin(), searchPath.end(), myPrefixBin.ToString()) == searchPath.end())
+    {
+      searchPath.push_back(myPrefixBin.ToString());
+    }
+    PathName myPrefixBinCanon = GetMyPrefix(true) / MIKTEX_BINARY_DESTINATION_DIR;
+    if (std::find(searchPath.begin(), searchPath.end(), myPrefixBinCanon.ToString()) == searchPath.end())
+    {
+      searchPath.push_back(myPrefixBinCanon.ToString());
+    }
     break;
   }
   case FileType::OTF:
