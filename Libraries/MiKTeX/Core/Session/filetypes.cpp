@@ -120,6 +120,7 @@ void SessionImpl::RegisterFileType(FileType fileType)
   }
   vector<string> extensions;
   vector<string> searchPath;
+  vector<string> searchPath2;
   switch (fileType)
   {
   case FileType::EXE:
@@ -184,13 +185,13 @@ void SessionImpl::RegisterFileType(FileType fileType)
     break;
   }
   case FileType::OTF:
-    searchPath = StringUtil::Split(GetLocalFontDirectories(), PathName::PathNameDelimiter);
+    searchPath2 = StringUtil::Split(GetLocalFontDirectories(), PathName::PathNameDelimiter);
     break;
   case FileType::TTF:
-    searchPath = StringUtil::Split(GetLocalFontDirectories(), PathName::PathNameDelimiter);
+    searchPath2 = StringUtil::Split(GetLocalFontDirectories(), PathName::PathNameDelimiter);
     break;
   case FileType::TYPE1:
-    searchPath = StringUtil::Split(GetLocalFontDirectories(), PathName::PathNameDelimiter);
+    searchPath2 = StringUtil::Split(GetLocalFontDirectories(), PathName::PathNameDelimiter);
     break;
   }
   InternalFileTypeInfo fti;
@@ -219,6 +220,7 @@ void SessionImpl::RegisterFileType(FileType fileType)
   }
   fti.fileNameExtensions.insert(fti.fileNameExtensions.end(), extensions.begin(), extensions.end());
   fti.searchPath.insert(fti.searchPath.begin(), searchPath.begin(), searchPath.end());
+  fti.searchPath.insert(fti.searchPath.end(), searchPath2.begin(), searchPath2.end());
   fileTypes.resize((size_t)FileType::E_N_D);
   fileTypes[(size_t)fileType] = fti;
 }
