@@ -31,6 +31,18 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
+mode_t GetFileCreationMask()
+{
+#if 0
+  // not atomic
+  mode_t cmask = umask(0);
+  umask(cmask);
+  return cmask;
+#else
+  return 022;
+#endif
+}
+
 bool File::Exists(const PathName& path, FileExistsOptionSet options)
 {
   struct stat statbuf;
@@ -74,15 +86,15 @@ FileAttributeSet File::GetAttributes(const PathName& path)
   }
 
   if (((attributes & S_IWUSR) == 0)
-    || ((attributes & S_IWGRP) == 0)
-    || ((attributes & S_IWOTH) == 0))
+    && ((attributes & S_IWGRP) == 0)
+    && ((attributes & S_IWOTH) == 0))
   {
     result += FileAttribute::ReadOnly;
   }
 
   if (((attributes & S_IXUSR) != 0)
-    && ((attributes & S_IXGRP) != 0)
-    && ((attributes & S_IXOTH) != 0))
+    || ((attributes & S_IXGRP) != 0)
+    || ((attributes & S_IXOTH) != 0))
   {
     result += FileAttribute::Executable;
   }
@@ -108,26 +120,24 @@ void File::SetAttributes(const PathName& path, FileAttributeSet attributes)
 
   mode_t newAttributes = oldAttributes;
 
-  bool isWritable = (oldAttributes & S_IWUSR) != 0 && (oldAttributes & S_IWGRP) != 0 && (oldAttributes & S_IWOTH) != 0;
+  mode_t cmask = GetFileCreationMask();
 
-  if (attributes[FileAttribute::ReadOnly] && isWritable)
+  if (attributes[FileAttribute::ReadOnly])
   {
     newAttributes &= ~(S_IWUSR | S_IWGRP | S_IWOTH);
   }
-  else if (!attributes[FileAttribute::ReadOnly] && !isWritable)
+  else
   {
-    newAttributes |= (S_IWUSR | S_IWGRP | S_IWOTH);
+    newAttributes |= (~cmask) & (S_IWUSR | S_IWGRP | S_IWOTH);
   }
 
-  bool isExecutable = (oldAttributes & S_IXUSR) != 0 && (oldAttributes & S_IXGRP) != 0 && (oldAttributes & S_IXOTH) != 0;
-
-  if (!attributes[FileAttribute::Executable] && isExecutable)
+  if (!attributes[FileAttribute::Executable])
   {
     newAttributes &= ~(S_IXUSR | S_IXGRP | S_IXOTH);
   }
-  else if (attributes[FileAttribute::Executable] && !isExecutable)
+  else
   {
-    newAttributes |= (S_IXUSR | S_IXGRP | S_IXOTH);
+    newAttributes |= (~cmask) & (S_IXUSR | S_IXGRP | S_IXOTH);
   }
 
   if (newAttributes == oldAttributes)

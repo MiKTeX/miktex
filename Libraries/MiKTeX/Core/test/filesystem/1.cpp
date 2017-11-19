@@ -44,12 +44,21 @@ BEGIN_TEST_FUNCTION(1);
 {
   TEST(!MiKTeX::Core::File::Exists("xxx.zzz"));
   Touch("xxx.zzz");
+#if defined(MIKTEX_UNIX)
+  LOG4CXX_INFO(logger, "xxx.zzz permissions: " << std::oct << MiKTeX::Core::File::GetNativeAttributes("xxx.zzz"));
+#endif
   TEST(MiKTeX::Core::File::Exists("xxx.zzz"));
   TESTX(MiKTeX::Core::File::SetAttributes("xxx.zzz", { MiKTeX::Core::FileAttribute::ReadOnly }));
+#if defined(MIKTEX_UNIX)
+  LOG4CXX_INFO(logger, "xxx.zzz permissions: " << std::oct << MiKTeX::Core::File::GetNativeAttributes("xxx.zzz"));
+#endif
   MiKTeX::Core::FileAttributeSet attributes = MiKTeX::Core::File::GetAttributes("xxx.zzz");
   TEST(attributes[MiKTeX::Core::FileAttribute::ReadOnly]);
   attributes -= MiKTeX::Core::FileAttribute::ReadOnly;
   TESTX(MiKTeX::Core::File::SetAttributes("xxx.zzz", attributes));
+#if defined(MIKTEX_UNIX)
+  LOG4CXX_INFO(logger, "xxx.zzz permissions: " << std::oct << MiKTeX::Core::File::GetNativeAttributes("xxx.zzz"));
+#endif
   attributes = MiKTeX::Core::File::GetAttributes("xxx.zzz");
   TEST(!attributes[MiKTeX::Core::FileAttribute::ReadOnly]);
   TESTX(MiKTeX::Core::File::Move("xxx.zzz", "zzz.xxx"));
