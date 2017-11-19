@@ -1660,7 +1660,9 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_PDFIMAGES_EXE, { "pdfimages" } },
   { MIKTEX_PDFINFO_EXE, { "pdfinfo" } },
   { MIKTEX_PDFSEPARATE_EXE, { "pdfseparate" } },
+#if 0
   { MIKTEX_PDFSIG_EXE, { "pdfsig" } },
+#endif
   { MIKTEX_PDFTOCAIRO_EXE,{ "pdftocairo" } },
   { MIKTEX_PDFTOHTML_EXE, { "pdftohtml" } },
   { MIKTEX_PDFTOPPM_EXE, { "pdftoppm" } },
