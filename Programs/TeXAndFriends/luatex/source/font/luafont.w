@@ -746,14 +746,14 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                     /* we could be sparse but no real reason */
                     cmd = packet_nop_code;
                     lua_rawgeti(L, -2, 2);
-                    n = (int) luaL_checkinteger(L, -1);
+                    n = (int) lua_roundnumber(L, -1);
                     if (n == 0) {
                         sf = f;
                     } else {
                         sf = (n > max_f ? l_fonts[1] : l_fonts[n]);
                     }
                     lua_rawgeti(L, -3, 3);
-                    n = (int) luaL_checkinteger(L, -1);
+                    n = (int) lua_roundnumber(L, -1);
                     lua_pop(L, 2);
                     append_packet(packet_font_code);
                     do_store_four(sf);
@@ -792,7 +792,7 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                     case packet_font_code:
                         append_packet(cmd);
                         lua_rawgeti(L, -2, 2);
-                        n = (int) luaL_checkinteger(L, -1);
+                        n = (int) lua_roundnumber(L, -1);
                         if (n == 0) {
                             ff = n;
                         } else {
@@ -811,7 +811,7 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                     case packet_char_code:
                         append_packet(cmd);
                         lua_rawgeti(L, -2, 2);
-                        n = (int) luaL_checkinteger(L, -1);
+                        n = (int) lua_roundnumber(L, -1);
                         do_store_four(n);
                         lua_pop(L, 1);
                         break;
@@ -819,17 +819,17 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                     case packet_down_code:
                         append_packet(cmd);
                         lua_rawgeti(L, -2, 2);
-                        n = (int) luaL_checkinteger(L, -1);
+                        n = (int) lua_roundnumber(L, -1);
                         do_store_four(sp_to_dvi(n, atsize));
                         lua_pop(L, 1);
                         break;
                     case packet_rule_code:
                         append_packet(cmd);
                         lua_rawgeti(L, -2, 2);
-                        n = (int) luaL_checkinteger(L, -1);
+                        n = (int) lua_roundnumber(L, -1);
                         do_store_four(sp_to_dvi(n, atsize));
                         lua_rawgeti(L, -3, 3);
-                        n = (int) luaL_checkinteger(L, -1);
+                        n = (int) lua_roundnumber(L, -1);
                         do_store_four(sp_to_dvi(n, atsize));
                         lua_pop(L, 2);
                         break;
@@ -853,7 +853,7 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                                     n = set_origin ;
                                 }
                             } else {
-                                n = (int) luaL_checkinteger(L, -1);
+                                n = (int) lua_roundnumber(L, -1);
                                 if (n < set_origin || n > direct_raw) {
                                     n = set_origin ;
                                 }

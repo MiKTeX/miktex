@@ -2730,7 +2730,7 @@ static int tex_enableprimitives(lua_State * L)
 #define get_dimen_par(A,B)  do {          \
     lua_key_rawgeti(A);                   \
     if (lua_type(L, -1) == LUA_TNUMBER) { \
-        A = (int) lua_tointeger(L, -1);   \
+        A = (int) lua_roundnumber(L, -1); \
     } else {                              \
         A = (B);                          \
     }                                     \

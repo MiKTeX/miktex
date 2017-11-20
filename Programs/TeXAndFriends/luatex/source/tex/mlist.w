@@ -3089,7 +3089,8 @@ static scaled find_math_kern(internal_font_number l_f, int l_c,
 {
     scaled corr_height_top = 0, corr_height_bot = 0;
     scaled krn_l = 0, krn_r = 0, krn = 0;
-    if ((!do_new_math(l_f)) || (!do_new_math(r_f)) || (!char_exists(l_f, l_c)) || (!char_exists(r_f, r_c)))
+//    if ((!do_new_math(l_f)) || (!do_new_math(r_f)) || (!char_exists(l_f, l_c)) || (!char_exists(r_f, r_c)))
+    if ((!(do_new_math(l_f) || do_new_math(r_f))) || (!char_exists(l_f, l_c)) || (!char_exists(r_f, r_c)))
         return MATH_KERN_NOT_FOUND;
 
     if (cmd == sup_mark_cmd) {
@@ -3210,39 +3211,88 @@ kerns assuming that is italic correction. The heuristics are unreliable for
 the new fonts so eventualy there will be an option to ignore such corrections.
 
 @ @c
-#define analyze_script(init,su_n,su_f,su_c) do {                                 \
-    su_n = init;                                                                 \
-    if (su_n != null) {                                                          \
-        if (type(su_n) == sub_mlist_node && math_list(su_n)) {                   \
-            su_n = math_list(su_n);                                              \
-            if (su_n != null) {                                                  \
-                while (su_n) {                                                   \
-                    if ((type(su_n) == kern_node) || (type(su_n) == glue_node)) {\
-                        su_n = vlink(su_n);                                      \
-                    } else if (type(su_n) == simple_noad) {                      \
-                        su_n = nucleus(su_n);                                    \
-                        if (type(su_n) != math_char_node) {                      \
-                            su_n = null;                                         \
-                        }                                                        \
-                        break;                                                   \
-                    } else {                                                     \
-                        su_n = null;                                             \
-                        break;                                                   \
-                    }                                                            \
-                }                                                                \
-            }                                                                    \
-        }                                                                        \
-        if ((su_n != null) && (type(su_n) == math_char_node)) {                  \
-            fetch(su_n);                                                         \
-            if (char_exists(cur_f, cur_c)) {                                     \
-                su_f = cur_f;                                                    \
-                su_c = cur_c;                                                    \
-            } else {                                                             \
-                su_n = null;                                                     \
-            }                                                                    \
-        }                                                                        \
-    }                                                                            \
-  } while (0)
+#define analyze_script(init,su_n,su_f,su_c) do { \
+    su_n = init; \
+    if (su_n != null) { \
+        if (math_script_box_mode_par > 0 && type(su_n) == sub_mlist_node) { \
+            su_n = math_list(su_n); \
+            while (su_n != null) { \
+                if ((type(su_n) == kern_node) || (type(su_n) == glue_node)) { \
+                    su_n = vlink(su_n); \
+                } else if (type(su_n) == simple_noad) { \
+                    su_n = nucleus(su_n); \
+                    if (type(su_n) == math_char_node) { \
+                        fetch(su_n); \
+                        if (char_exists(cur_f, cur_c)) { \
+                            su_f = cur_f; \
+                            su_c = cur_c; \
+                        } else { \
+                            su_n = null; \
+                        } \
+                    } else { \
+                        su_n = null; \
+                    } \
+                    break; \
+                } else { \
+                    su_n = null; \
+                    break; \
+                } \
+            } \
+        } else if (type(su_n) == sub_box_node) { \
+            su_n = math_list(su_n); \
+            if (su_n != null) { \
+                if (type(su_n) == hlist_node) { \
+                    su_n = list_ptr(su_n); \
+                } \
+                if (su_n != null) { \
+                    if (math_script_box_mode_par == 2) { \
+                        while (su_n != null) { \
+                            if ((type(su_n) == kern_node) || (type(su_n) == glue_node)) { \
+                                su_n = vlink(su_n); \
+                            } else if (type(su_n) == glyph_node) { \
+                                if (char_exists(font(su_n), character(su_n))) { \
+                                    su_f = font(su_n); \
+                                    su_c = character(su_n); \
+                                } else { \
+                                    su_n = null; \
+                                } \
+                                break ; \
+                            } else { \
+                                su_n = null; \
+                                break; \
+                            } \
+                        } \
+                    } else if (math_script_box_mode_par == 3) { \
+                        int boundary = -1; \
+                        while (su_n != null) { \
+                            if ((type(su_n) == boundary_node) && (subtype(su_n) == user_boundary)) { \
+                                boundary = boundary_value(su_n); \
+                                su_n = vlink(su_n); \
+                            } else if ((type(su_n) == kern_node) || (type(su_n) == glue_node)) { \
+                                su_n = vlink(su_n); \
+                            } else if ((boundary > -1) && (type(su_n) == glyph_node)) { \
+                                if (char_exists(font(su_n), character(su_n))) { \
+                                    su_f = font(su_n); \
+                                    su_c = character(su_n); \
+                                } else { \
+                                    su_n = null; \
+                                } \
+                                break ; \
+                            } else { \
+                                su_n = null; \
+                                break; \
+                            } \
+                        } \
+                    } \
+                } \
+            } else { \
+                su_n = null; \
+            } \
+        } else { \
+            su_n = null; \
+        } \
+    } \
+  } while (0) \
 
 #define x_su_style(n,cur_style,su_style) \
     (noadoptionnosubscript(n) ? cur_style : su_style(cur_style))
@@ -3573,8 +3623,6 @@ static small_number make_left_right(pointer q, int style, scaled max_d, scaled m
         } else {
             return ord_noad_type;
         }
-    } else if (subtype(q) == no_noad_side) {
-        return open_noad_type;
     } else if (subtype(q) == left_noad_side) {
         return open_noad_type;
     } else {

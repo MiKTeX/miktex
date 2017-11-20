@@ -1353,6 +1353,17 @@ is sufficiently large, the |cur_chr| is treated as an active character and
 nothing is appended.
 
 @c
+#define math_class_to_type(target,source) \
+    switch (source) { \
+        case 0: target = ord_noad_type; break; \
+        case 1: target = op_noad_type_normal; break; \
+        case 2: target = bin_noad_type; break; \
+        case 3: target = rel_noad_type; break; \
+        case 4: target = open_noad_type; break; \
+        case 5: target = close_noad_type; break; \
+        case 6: target = punct_noad_type; break; \
+    }
+
 void set_math_char(mathcodeval mval)
 {
     pointer p;                  /* the new noad */
@@ -1375,17 +1386,7 @@ void set_math_char(mathcodeval mval)
                 math_fam(nucleus(p)) = cur_fam_par;
             subtype(p) = ord_noad_type;
         } else {
-            switch (mval.class_value) {
-                  /* *INDENT-OFF* */
-                case 0: subtype(p) = ord_noad_type; break;
-                case 1: subtype(p) = op_noad_type_normal; break;
-                case 2: subtype(p) = bin_noad_type; break;
-                case 3: subtype(p) = rel_noad_type; break;
-                case 4: subtype(p) = open_noad_type; break;
-                case 5: subtype(p) = close_noad_type; break;
-                case 6: subtype(p) = punct_noad_type; break;
-                  /* *INDENT-ON* */
-            }
+            math_class_to_type(subtype(p),mval.class_value);
         }
         vlink(tail) = p;
         tail = p;
@@ -2008,7 +2009,7 @@ void math_left_right(void)
                 options = options | noad_option_exact ;
             } else if (scan_keyword("class")) {
                 scan_int();
-                type = cur_val ;
+                math_class_to_type(type,cur_val);
             } else {
                 break;
             }

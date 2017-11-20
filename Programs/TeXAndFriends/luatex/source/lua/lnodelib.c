@@ -847,7 +847,7 @@ static int lua_nodelib_direct_setkern(lua_State * L)
         halfword t = type(n);
         if (t == kern_node || t == margin_kern_node) {
             if (lua_type(L, 2) == LUA_TNUMBER) {
-                width(n) = (halfword) lua_tointeger(L, 2);
+                width(n) = (halfword) lua_roundnumber(L, 2);
             } else {
                 width(n) = 0;
             }
@@ -856,7 +856,7 @@ static int lua_nodelib_direct_setkern(lua_State * L)
             }
         } else if (t == math_node) {
             if (lua_type(L, 2) == LUA_TNUMBER) {
-                surround(n) = (halfword) lua_tointeger(L, 2);
+                surround(n) = (halfword) lua_roundnumber(L, 2);
             } else {
                 surround(n) = 0;
             }
@@ -929,10 +929,10 @@ static int lua_nodelib_direct_setoffsets(lua_State * L)
     halfword n = lua_tointeger(L, 1);
     if ((n) && (type(n) == glyph_node)) {
         if ((lua_type(L, 2) == LUA_TNUMBER)) {
-            x_displace(n) = (halfword) lua_tointeger(L, 2);
+            x_displace(n) = (halfword) lua_roundnumber(L, 2);
         }
         if ((lua_type(L, 3) == LUA_TNUMBER)) {
-            y_displace(n) = (halfword) lua_tointeger(L, 3);
+            y_displace(n) = (halfword) lua_roundnumber(L, 3);
         }
     }
     return 0;
@@ -3061,7 +3061,7 @@ static int lua_nodelib_direct_setwidth(lua_State * L)
         if (t == hlist_node || t == vlist_node || t == rule_node || t == glue_node || t == glue_spec_node || t == math_node ||
                 t == kern_node || t == margin_kern_node ||  t == ins_node || t == unset_node) {
             if (lua_type(L, 2) == LUA_TNUMBER) {
-                width(n) = lua_tointeger(L,2);
+                width(n) = lua_roundnumber(L,2);
             } else {
                 width(n) = 0;
             }
@@ -3097,7 +3097,7 @@ static int lua_nodelib_direct_setheight(lua_State * L)
         halfword t = type(n);
         if (t == hlist_node || t == vlist_node || t == rule_node || t == unset_node) {
             if (lua_type(L, 2) == LUA_TNUMBER) {
-                height(n) = lua_tointeger(L,2);
+                height(n) = lua_roundnumber(L,2);
             } else {
                 height(n) = 0;
             }
@@ -3133,7 +3133,7 @@ static int lua_nodelib_direct_setdepth(lua_State * L)
         halfword t = type(n);
         if (t == hlist_node || t == vlist_node || t == rule_node || t == unset_node) {
             if (lua_type(L, 2) == LUA_TNUMBER) {
-                depth(n) = lua_tointeger(L,2);
+                depth(n) = lua_roundnumber(L,2);
             } else {
                 depth(n) = 0;
             }
@@ -3166,7 +3166,7 @@ static int lua_nodelib_direct_setshift(lua_State * L)
         halfword t = type(n);
         if (t == hlist_node || t == vlist_node) {
             if (lua_type(L, 2) == LUA_TNUMBER) {
-                shift_amount(n) = lua_tointeger(L,2);
+                shift_amount(n) = lua_roundnumber(L,2);
             } else {
                 shift_amount(n) = 0;
             }

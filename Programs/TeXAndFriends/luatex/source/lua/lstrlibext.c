@@ -359,6 +359,133 @@ static int str_bytetable (lua_State *L) {
     return 1;
 }
 
+/*
+    We provide a few helpers that we derived from the lua utf8 module
+    and slunicode. That way we're sort of covering a decent mix.
+
+*/
+
+#define MAXUNICODE	0x10FFFF
+
+/*
+    This is a combination of slunicode and utf8 converters but without mode
+    and a bit faster on the average than the utf8 one.
+*/
+
+static void utf8_enco (luaL_Buffer *b, unsigned c)
+{
+    if (c > MAXUNICODE) {
+        /* we silently ignore the bad character */
+        return;
+    }
+	if (0x80 > c) {
+		luaL_addchar(b, c);
+		return;
+	}
+	if (0x800 > c)
+		luaL_addchar(b, 0xC0|(c>>6));
+	else {
+		if (0x10000 > c)
+			luaL_addchar(b, 0xE0|(c>>12));
+		else {
+			luaL_addchar(b, 0xF0|(c>>18));
+			luaL_addchar(b, 0x80|(0x3F&(c>>12)));
+		}
+		luaL_addchar(b, 0x80|(0x3F&(c>>6)));
+	}
+	luaL_addchar(b, 0x80|(0x3F&c));
+}
+
+static int str_character (lua_State *L) {
+    int n = lua_gettop(L);  /* number of arguments */
+    int i;
+    luaL_Buffer b;
+    luaL_buffinit(L,&b);
+    for (i = 1; i <= n; i++) {
+        utf8_enco (&b, (unsigned) lua_tointeger(L, i));
+    }
+    luaL_pushresult(&b);
+    return 1;
+}
+
+/*
+    The utf8 codepoint function takes two arguments, being positions in the
+    string, while slunicode byte takes two arguments representing the number of
+    utf characters. The variant below always returns all codepoints.
+
+*/
+
+static int str_utfvalue (lua_State *L) {
+    size_t ls;
+    int ind = 0;
+    int num = 0;
+    const char *s = lua_tolstring(L, 1, &ls);
+    while (ind<(int)ls) {
+        unsigned char i = (unsigned)*(s+ind);
+        if (i<0x80) {
+            lua_pushinteger(L, i);
+            num += 1;
+            ind += 1;
+        } else if (i>=0xF0) {
+            if ((ind+3)<(int)ls && ((unsigned)*(s+ind+1))>=0x80 && ((unsigned)*(s+ind+2))>=0x80 && ((unsigned)*(s+ind+3))>=0x80) {
+                unsigned char j = ((unsigned)*(s+ind+1))-128;
+                unsigned char k = ((unsigned)*(s+ind+2))-128;
+                unsigned char l = ((unsigned)*(s+ind+3))-128;
+                lua_pushinteger(L, (((((i-0xF0)*64) + j)*64) + k)*64 + l);
+                num += 1;
+            }
+            ind += 4;
+        } else if (i>=0xE0) {
+            if ((ind+2)<(int)ls && ((unsigned)*(s+ind+1))>=0x80 && ((unsigned)*(s+ind+2))>=0x80) {
+                unsigned char j = ((unsigned)*(s+ind+1))-128;
+                unsigned char k = ((unsigned)*(s+ind+2))-128;
+                lua_pushinteger(L, (((i-0xE0)*64) + j)*64 + k);
+                num += 1;
+            }
+            ind += 3;
+        } else if (i>=0xC0) {
+            if ((ind+1)<(int)ls && ((unsigned)*(s+ind+1))>=0x80) {
+                unsigned char j = ((unsigned)*(s+ind+1))-128;
+                lua_pushinteger(L, ((i-0xC0)*64) + j);
+                num += 1;
+            }
+            ind += 2;
+        } else {
+            ind += 1;
+        }
+    }
+    return num;
+}
+
+/* This is a simplified version of utf8.len but without range. */
+
+static int str_utflength (lua_State *L) {
+    size_t ls;
+    int ind = 0;
+    int num = 0;
+    const char *s = lua_tolstring(L, 1, &ls);
+    while (ind<(int)ls) {
+        unsigned char i = (unsigned)*(s+ind);
+        if (i<0x80) {
+            ind += 1;
+        } else if (i>=0xF0) {
+            ind += 4;
+        } else if (i>=0xE0) {
+            ind += 3;
+        } else if (i>=0xC0) {
+            ind += 2;
+        } else {
+            /* bad news, stupid recovery */
+            ind += 1;
+        }
+        num += 1;
+    }
+    lua_pushinteger(L, num);
+    return 1;
+}
+
+/* end of convenience inclusion */
+
 static const luaL_Reg strlibext[] = {
   {"utfvalues", str_utfvalues},
   {"utfcharacters", str_utfcharacters},
@@ -368,6 +495,9 @@ static const luaL_Reg strlibext[] = {
   {"bytepairs", str_bytepairs},
   {"bytetable", str_bytetable},
   {"explode", str_split},
+  {"utfcharacter", str_character},
+  {"utfvalue", str_utfvalue},
+  {"utflength", str_utflength},
 #ifdef LuajitTeX
   /* luajit has dump built in */
 #else

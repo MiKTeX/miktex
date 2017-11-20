@@ -3628,6 +3628,7 @@ void initialize(void)
         max_dead_cycles_par = 25;
         math_pre_display_gap_factor_par = 2000;
         pre_bin_op_penalty_par = inf_penalty;
+        math_script_box_mode_par = 1;
         pre_rel_penalty_par = inf_penalty;
         escape_char_par = '\\';
         end_line_char_par = carriage_return;
