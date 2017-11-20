@@ -1,5 +1,5 @@
 /*
-Copyright 1996-2015 Han The Thanh, <thanh@pdftex.org>
+Copyright 1996-2017 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -260,7 +260,7 @@ void pdftex_fail(const char *fmt, ...)
     // calling exit() is not the recommended way to terminate a C++
     // program; we do better by throwing an exeption (which will be
     // caught in main()
-    throw (1);
+    throw 1;
 #else
     if (kpathsea_debug) {
         safe_print("kpathsea_debug enabled, calling abort()...");
@@ -269,7 +269,7 @@ void pdftex_fail(const char *fmt, ...)
     } else {
         exit(EXIT_FAILURE);
     }
-#endif /* MIKTEX */
+#endif
 }
 
 /* The output format of this fuction must be the same as pdf_warn in
@@ -327,7 +327,7 @@ void setjobid(int year, int month, int day, int time)
                  year, month, day, time / 60, time % 60,
                  name_string, format_string, ptexbanner,
                  versionstring, kpathsea_version_string);
-#endif /* MIKTEX */
+#endif
     check_nprintf(i, slen);
     job_id_string = xstrdup(s);
     xfree(s);
@@ -356,7 +356,7 @@ void makepdftexbanner(void)
     /* The Web2c version string starts with a space.  */
     i = snprintf(s, slen,
                  "%s%s %s", ptexbanner, versionstring, kpathsea_version_string);
-#endif /* MIKTEX */
+#endif
     check_nprintf(i, slen);
     pdftexbanner = maketexstring(s);
     xfree(s);
@@ -729,9 +729,10 @@ void unescapehex(poolpointer in)
   </blockquote>
   This stipulates only that the two IDs must be identical when the file is
   created and that they should be reasonably unique. Since it's difficult
-  to get the file size at this point in the execution of pdfTeX and
-  scanning the info dict is also difficult, we start with a simpler
-  implementation using just the first two items.
+  to get the file size at this point in the execution of pdfTeX, scanning
+  the info dict is also difficult, and any variability in the current
+  directory name leads to non-reproducible builds, we start with a
+  simpler implementation using just the current time and the file name.
  */
 void printID(strnumber filename)
 {
@@ -739,34 +740,13 @@ void printID(strnumber filename)
     md5_byte_t digest[16];
     char id[64];
     char *file_name;
-    char pwd[4096];
     /* start md5 */
     md5_init(&state);
     /* get the time */
     initstarttime();
     md5_append(&state, (const md5_byte_t *) start_time_str, strlen(start_time_str));
     /* get the file name */
-    if (getcwd(pwd, sizeof(pwd)) == NULL)
-        pdftex_fail("getcwd() failed (%s), path too long?", strerror(errno));
-#ifdef WIN32
-    {
-        char *p;
-        for (p = pwd; *p; p++) {
-#if defined(MIKTEX)
-            if (*p == '\\')
-                *p = '/';
-#else
-            if (*p == '\\')
-                *p = '/';
-            else if (IS_KANJI(p))
-                p++;
-#endif
-        }
-    }
-#endif
     file_name = makecstring(filename);
-    md5_append(&state, (const md5_byte_t *) pwd, strlen(pwd));
-    md5_append(&state, (const md5_byte_t *) "/", 1);
     md5_append(&state, (const md5_byte_t *) file_name, strlen(file_name));
     /* finish md5 */
     md5_finish(&state, digest);
@@ -1025,7 +1005,7 @@ char *stripzeros(char *a)
     return a;
 }
 
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 void initversionstring(char **versions)
 {
     const_string fmt =
@@ -1045,7 +1025,7 @@ void initversionstring(char **versions)
                     PNG_LIBPNG_VER_STRING, png_libpng_ver,
                     ZLIB_VERSION, zlib_version, xpdfString, xpdfVersion);
 }
-#endif /* MIKTEX */
+#endif
 
 
 /*************************************************/

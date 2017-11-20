@@ -16093,12 +16093,12 @@ begin
     must_insert_space := false;
     must_end_string := false;
 
-{     print_nl("s_out = "); print_scaled(s_out); }
-{     print_nl("space(f) = "); print_scaled(space(f)); }
-{     print_nl("space_shrink(f) = "); print_scaled(space_shrink(f)); }
-{     print_nl("x_height(f) = "); print_scaled(x_height(f)); }
-{     print_nl("v = "); print_scaled(v); }
-{     print_nl("v_out = "); print_scaled(v_out); }
+@{    print_nl("s_out = "); print_scaled(s_out); @}
+@{    print_nl("space(f) = "); print_scaled(space(f)); @}
+@{    print_nl("space_shrink(f) = "); print_scaled(space_shrink(f)); @}
+@{    print_nl("x_height(f) = "); print_scaled(x_height(f)); @}
+@{    print_nl("v = "); print_scaled(v); @}
+@{    print_nl("v_out = "); print_scaled(v_out); @}
 
     if gen_faked_interword_space and
         ((abs(v_out) > 2*x_height(f)) or
@@ -39556,10 +39556,10 @@ if arith_error then
   if active_short(r)>0 then g:=max_dimen@+else g:=-max_dimen;
 if g>0 then
   @<Set the value of |b| to the badness of the last line for stretching,
-    compute the corresponding |fit_class|, and |goto found||@>
+    compute the corresponding |fit_class|, and |goto found|@>
 else if g<0 then
   @<Set the value of |b| to the badness of the last line for shrinking,
-    compute the corresponding |fit_class|, and |goto found||@>;
+    compute the corresponding |fit_class|, and |goto found|@>;
 not_found:end
 
 @ These badness computations are rather similar to those of the standard
