@@ -2917,6 +2917,10 @@ get_uni_c(UFILE* f)
                         return 0xfffd;      /* return without adjusting by offsetsFromUTF8 */
                 };
                 rval -= offsetsFromUTF8[extraBytes];
+                if (rval < 0 || rval > 0x10ffff) {
+                    badutf8warning();
+                    return 0xfffd;
+                }
             }
             break;
 
