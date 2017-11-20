@@ -1,6 +1,12 @@
 # MiKTeX Change Log
 
-## 2.9.6500 - not yet released
+## 2.9.6530 - 2017-11-20
+
+### Bug fixes
+
+* luatex does not work properly on Ubuntu
+
+## 2.9.6500 - 2017-11-04
 
 ### Upgraded programs
 
