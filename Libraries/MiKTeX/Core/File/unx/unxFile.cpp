@@ -116,7 +116,7 @@ unsigned long File::GetNativeAttributes(const PathName& path)
 
 void File::SetAttributes(const PathName& path, FileAttributeSet attributes)
 {
-  mode_t newAttributes = 0;
+  mode_t newAttributes = S_IRUSR | S_IRGRP | S_IROTH;
   mode_t cmask = GetFileCreationMask();
   if (!attributes[FileAttribute::ReadOnly])
   {
