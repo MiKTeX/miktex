@@ -1072,6 +1072,21 @@ private:
   PackageFilterSet filter;
 };
 
+class NotFoundException : public MiKTeX::Core::MiKTeXException
+{
+public:
+  NotFoundException()
+    : MiKTeX::Core::MiKTeXException(T_("Requested resource not found."))
+  {
+  }
+
+public:
+  NotFoundException(const std::string& programInvocationName, const std::string& message, const MiKTeX::Core::MiKTeXException::KVMAP& info, const MiKTeX::Core::SourceLocation& sourceLocation)
+    : MiKTeX::Core::MiKTeXException(programInvocationName, message, info, sourceLocation)
+  {
+  }
+};
+
 END_INTERNAL_NAMESPACE;
 
 using namespace MiKTeX::Packages::D6AAD62216146D44B580E92711724B78;

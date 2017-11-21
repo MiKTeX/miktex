@@ -391,6 +391,8 @@ void CurlWebSession::ReadInformationals()
       string msg;
       switch (responseCode)
       {
+      case 404:
+        throw NotFoundException();
       case 503:
         msg = T_("The server is currently unavailable (because it is overloaded or down for maintenance). Generally, this is a temporary state.");
         msg += " ";

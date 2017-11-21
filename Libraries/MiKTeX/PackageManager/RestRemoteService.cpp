@@ -1,6 +1,6 @@
 /* RestRemoteService.cpp
 
-   Copyright (C) 2001-2016 Christian Schenk
+   Copyright (C) 2001-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -240,19 +240,19 @@ pair<bool, RepositoryInfo> RestRemoteService::TryGetRepositoryInfo(const string 
   char buf[1024];
   size_t n;
   stringstream response;
-  while ((n = webFile->Read(buf, sizeof(buf))) > 0)
+  try
   {
-    response.write(buf, n);
+    while ((n = webFile->Read(buf, sizeof(buf))) > 0)
+    {
+      response.write(buf, n);
+    }
   }
-  json j_response = json::parse(response);
-  if (j_response.empty())
+  catch (const NotFoundException& ex)
   {
     return make_pair(false, RepositoryInfo());
   }
-  else
-  {
-    return make_pair(true, Deserialize(j_response));
-  }
+  json j_response = json::parse(response);
+  return make_pair(true, Deserialize(j_response));
 }
 
 RepositoryInfo RestRemoteService::Verify(const string & repositoryUrl)
