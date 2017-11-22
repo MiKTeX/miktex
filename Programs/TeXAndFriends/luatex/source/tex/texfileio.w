@@ -154,9 +154,6 @@ char *luatex_find_file(const char *s, int callback_index)
         case find_enc_file_callback:
             ftemp = kpse_find_file(s, kpse_enc_format, 0);
             break;
-        case find_sfd_file_callback:
-            ftemp = kpse_find_file(s, kpse_sfd_format, 0);
-            break;
         case find_map_file_callback:
             ftemp = kpse_find_file(s, kpse_fontmap_format, 0);
             break;
@@ -988,14 +985,13 @@ void start_input(void)
     update_terminal();
     istate = new_line;
     /* Prepare new file {\sl Sync\TeX} information */
-    if (synctex_par) {
+    if (! synctex_get_no_files()) {
         synctexstartinput();        /* Give control to the {\sl Sync\TeX} controller */
     }
     /* Read the first line of the new file */
     /* Here we have to remember to tell the |lua_input_ln| routine not to
        start with a |get|. If the file is empty, it is considered to
        contain a single blank line. */
-
     line = 1;
     if (lua_input_ln(cur_file, 0, false)) {
         ;

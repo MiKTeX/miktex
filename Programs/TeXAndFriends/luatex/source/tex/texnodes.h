@@ -1031,6 +1031,8 @@ extern void synctex_set_line(int line);
 extern void synctex_force_tag(int tag);
 extern void synctex_force_line(int tag);
 extern int synctex_get_tag(void);
+extern void synctex_set_no_files(int flag);
+extern int synctex_get_no_files(void);
 extern int synctex_get_line(void);
 
 #endif

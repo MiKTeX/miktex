@@ -2352,7 +2352,7 @@ static const struct luaL_Reg nest_m[] = {
 static void init_nest_lib(lua_State * L)
 {
     luaL_newmetatable(L, NEST_METATABLE);
-    luaL_register(L, NULL, nest_m);
+    luaL_openlib(L, NULL, nest_m, 0);
     lua_pop(L, 1);
 }
 
@@ -3308,6 +3308,13 @@ static int lua_get_synctex_line(lua_State * L)
     return 1;
 }
 
+static int lua_set_synctex_no_files(lua_State * L)
+{
+    halfword flag = lua_tointeger(L, 1);
+    synctex_set_no_files(flag);
+    return 0;
+}
+
 /* till here */
 
 void init_tex_table(lua_State * L)
@@ -3414,6 +3421,7 @@ static const struct luaL_Reg texlib[] = {
     { "get_synctex_mode", lua_get_synctex_mode },
     { "set_synctex_tag", lua_set_synctex_tag },
     { "get_synctex_tag", lua_get_synctex_tag },
+    { "set_synctex_no_files", lua_set_synctex_no_files },
     { "force_synctex_tag", lua_force_synctex_tag },
     { "force_synctex_line", lua_force_synctex_line },
     { "set_synctex_line", lua_set_synctex_line },
@@ -3424,7 +3432,7 @@ static const struct luaL_Reg texlib[] = {
 
 int luaopen_tex(lua_State * L)
 {
-    luaL_register(L, "tex", texlib);
+    luaL_openlib(L, "tex", texlib, 0);
     /* *INDENT-OFF* */
     make_table(L, "attribute", "tex.attribute", "getattribute", "setattribute");
     make_table(L, "skip",      "tex.skip",      "getskip",      "setskip");

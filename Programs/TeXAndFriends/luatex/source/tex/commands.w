@@ -762,6 +762,7 @@ void initialize_etex_commands(void)
     primitive_etex("savinghyphcodes", assign_int_cmd, int_base + saving_hyph_codes_code, int_base);
     primitive_luatex("suppressfontnotfounderror", assign_int_cmd, int_base + suppress_fontnotfound_error_code, int_base);
     primitive_luatex("suppresslongerror", assign_int_cmd, int_base + suppress_long_error_code, int_base);
+    primitive_luatex("suppressprimitiveerror", assign_int_cmd, int_base + suppress_primitive_error_code, int_base);
     primitive_luatex("suppressmathparerror", assign_int_cmd, int_base + suppress_mathpar_error_code, int_base);
     primitive_luatex("suppressifcsnameerror", assign_int_cmd, int_base + suppress_ifcsname_error_code, int_base);
     primitive_luatex("suppressoutererror", assign_int_cmd, int_base + suppress_outer_error_code, int_base);

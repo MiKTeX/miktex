@@ -832,7 +832,8 @@ static int copy_error(halfword p)
 
 @ @c
 static halfword synctex_anyway_mode = 0; /* 2 also glyphs */
-static halfword synctex_line_field = 0;
+static halfword synctex_line_field  = 0;
+static halfword synctex_no_files    = 0;
 
 void synctex_set_mode(int m)
 {
@@ -844,6 +845,16 @@ int synctex_get_mode(void)
     return synctex_anyway_mode;
 };
 
+void synctex_set_no_files(int f)
+{
+    synctex_no_files = f;
+};
+
+int synctex_get_no_files(void)
+{
+    return (int) synctex_no_files ;
+};
+
 void synctex_set_tag(int t)
 {
     cur_input.synctex_tag_field = t;
@@ -853,6 +864,7 @@ int synctex_get_tag(void)
 {
     return (int) cur_input.synctex_tag_field;
 };
+
 
 int synctex_get_line(void)
 {

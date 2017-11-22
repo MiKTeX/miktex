@@ -209,7 +209,7 @@ void expand(void)
                         iloc = p;
                         istart = p;
                     }
-                } else {
+                } else if (suppress_primitive_error_par == 0) {
                     print_err("Missing primitive name");
                     help2
                         ("The control sequence marked <to be read again> does not",
