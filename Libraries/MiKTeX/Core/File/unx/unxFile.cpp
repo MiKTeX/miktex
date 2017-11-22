@@ -117,7 +117,6 @@ unsigned long File::GetNativeAttributes(const PathName& path)
 void File::SetAttributes(const PathName& path, FileAttributeSet attributes)
 {
   mode_t newAttributes = S_IRUSR | S_IRGRP | S_IROTH;
-  mode_t cmask = GetFileCreationMask();
   if (!attributes[FileAttribute::ReadOnly])
   {
     newAttributes |= S_IWUSR | S_IWGRP | S_IWOTH;
@@ -126,7 +125,7 @@ void File::SetAttributes(const PathName& path, FileAttributeSet attributes)
   {
     newAttributes |= S_IXUSR | S_IXGRP | S_IXOTH;
   }
-  newAttributes &= ~cmask;
+  newAttributes &= ~GetFileCreationMask();
   if (newAttributes != static_cast<unsigned long>(GetNativeAttributes(path)))
   {
     SetNativeAttributes(path, static_cast<unsigned long>(newAttributes));
