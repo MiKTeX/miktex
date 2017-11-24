@@ -27,12 +27,6 @@
 #  define THE_NAME_OF_THE_GAME T_("MiKTeX Package Manager")
 #endif
 
-#if defined(MIKTEX_WINDOWS)
-#  define ENABLE_OPT_INSTALL_ROOT 0
-#else
-#  define ENABLE_OPT_INSTALL_ROOT 1
-#endif
-
 #define ENABLE_OPT_INSTALL_SOME 1
 #define ENABLE_OPT_UPDATE_SOME 1
 
@@ -318,7 +312,6 @@ enum Option
   OPT_IMPORT,
   OPT_IMPORT_ALL,
   OPT_INSTALL,
-  OPT_INSTALL_ROOT,             // deprecated
   OPT_INSTALL_SOME,             // deprecated
   OPT_LIST,
   OPT_LIST_PACKAGE_NAMES,
@@ -410,14 +403,6 @@ const struct poptOption Application::aoption[] = {
     T_("Install the specified packages."),
     T_("[@]PACKAGELIST")
   },
-
-#if ENABLE_OPT_INSTALL_ROOT
-  {                             // deprecated
-    "install-root", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_INSTALL_ROOT,
-    T_("Use the specified directory as the installation destination."),
-    T_("DIR")
-  },
-#endif
 
 #if ENABLE_OPT_INSTALL_SOME
   {                             // deprecated
@@ -1433,10 +1418,6 @@ void Application::Main(int argc, const char** argv)
       break;
     case OPT_INSTALL:
       ParseList(optArg, toBeInstalled);
-      break;
-    case OPT_INSTALL_ROOT:
-      startupConfig.commonInstallRoot = optArg;
-      startupConfig.userInstallRoot = optArg;
       break;
     case OPT_INSTALL_SOME:
 #if 0
