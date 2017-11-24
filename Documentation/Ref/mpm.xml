@@ -200,6 +200,23 @@ specified package.</para></listitem>
 </varlistentry>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../Options/quiet.xml" />
 <varlistentry>
+<term><option>--require=<replaceable>packagelist</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--require=packagelist</primary>
+</indexterm>
+<para>Install packages which are not already installed.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--require=@<replaceable>listfile</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--require=@listfile</primary>
+</indexterm>
+<para>Install packages which are not already installed. Package names
+are read from <replaceable>listfile</replaceable>.</para></listitem>
+</varlistentry>
+<varlistentry>
 <term><option>--repository=<replaceable>location</replaceable></option></term>
 <listitem><para>Use the specified location as the package repository.
 The location can be either a fully qualified path name (a local

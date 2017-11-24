@@ -328,6 +328,7 @@ enum Option
   OPT_REGISTER_COMPONENTS,      // experimental
   OPT_REPOSITORY,
   OPT_REPOSITORY_RELEASE_STATE,
+  OPT_REQUIRE,
   OPT_REVERSE,                  // experimental
   OPT_SET_REPOSITORY,
   OPT_SORT,                     // experimental
@@ -508,6 +509,12 @@ const struct poptOption Application::aoption[] = {
     "repository-release-state", 0, POPT_ARG_STRING, nullptr, OPT_REPOSITORY_RELEASE_STATE,
     T_("Select the repository release state (one of: stable, next)."),
     T_("STATE")
+  },
+
+  {
+    "require", 0, POPT_ARG_STRING, nullptr, OPT_REQUIRE,
+    T_("Make sure that the specified packages are installed."),
+    T_("[@]PACKAGELIST")
   },
 
   {
@@ -1365,6 +1372,7 @@ void Application::Main(int argc, const char** argv)
   vector<string> toBeRemoved;
   vector<string> toBeVerified;
   vector<string> updates;
+  vector<string> required;
   RepositoryReleaseState optRepositoryReleaseState = RepositoryReleaseState::Unknown;
 
   bool changeProxy = false;
@@ -1565,6 +1573,9 @@ void Application::Main(int argc, const char** argv)
       {
         Error(T_("Repository release state must be one of: stable, next."));
       }
+    case OPT_REQUIRE:
+      ParseList(optArg, required);
+      break;
     case OPT_REVERSE:
       PackageInfoComparer::reverse = true;
       break;
@@ -1798,6 +1809,14 @@ void Application::Main(int argc, const char** argv)
   {
     FindUpgrades(optPackageLevel);
     restartWindowed = false;
+  }
+
+  for (const string& package : required)
+  {
+    if (!pPackageManager->GetPackageInfo(package).IsInstalled())
+    {
+      toBeInstalled.push_back(package);
+    }
   }
 
   if (toBeInstalled.size() > 0 || toBeRemoved.size() > 0)
