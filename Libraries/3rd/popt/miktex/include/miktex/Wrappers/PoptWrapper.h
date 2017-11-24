@@ -87,6 +87,12 @@ public:
   }
 
 public:
+  void Reset()
+  {
+    poptResetContext(ctx);
+  }
+
+public:
   int AddAlias(const char* longName, char shortName, int argc, const char** argvFreeable)
   {
     return poptAddAlias(ctx, { longName, shortName, argc, argvFreeable }, 0);
