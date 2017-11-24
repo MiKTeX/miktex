@@ -135,15 +135,6 @@ root directory must be specified via
 <para>Install the specified package.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><option>--install-some=<replaceable>file</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--install-some=file</primary>
-</indexterm>
-<para>Install packages listed (line-by-line) in the specified
-file.</para></listitem>
-</varlistentry>
-<varlistentry>
 <term><option>--list</option></term>
 <listitem>
 <indexterm>
@@ -266,15 +257,6 @@ in the package repository.  Update all installed packages, if
 </indexterm>
 <para>Synchronize the local package database with the package
 repository.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><option>--update-some=<replaceable>file</replaceable></option></term>
-<listitem>
-<indexterm>
-<primary>--update-some=file</primary>
-</indexterm>
-<para>Update packages listed (line-by-line) in the specified
-file.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--upgrade</option></term>

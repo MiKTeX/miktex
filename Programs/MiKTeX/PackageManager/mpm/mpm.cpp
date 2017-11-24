@@ -33,6 +33,9 @@
 #  define ENABLE_OPT_INSTALL_ROOT 1
 #endif
 
+#define ENABLE_OPT_INSTALL_SOME 1
+#define ENABLE_OPT_UPDATE_SOME 1
+
 #if defined(MIKTEX_WINDOWS)
 const char PATH_DELIMITER = ';';
 #define PATH_DELIMITER_STRING ";"
@@ -231,9 +234,6 @@ private:
   void RestartWindowed();
 
 private:
-  void ReadFileList(const PathName& path, vector<string>& files);
-
-private:
   static void SignalHandler(int sig);
 
 private:
@@ -319,7 +319,7 @@ enum Option
   OPT_IMPORT_ALL,
   OPT_INSTALL,
   OPT_INSTALL_ROOT,             // deprecated
-  OPT_INSTALL_SOME,
+  OPT_INSTALL_SOME,             // deprecated
   OPT_LIST,
   OPT_LIST_PACKAGE_NAMES,
   OPT_LIST_REPOSITORIES,
@@ -345,7 +345,7 @@ enum Option
   OPT_UPDATE_ALL,               // experimental
   OPT_UPDATE_DB,
   OPT_UPDATE_FNDB,              // experimental
-  OPT_UPDATE_SOME,
+  OPT_UPDATE_SOME,              // deprecated
   OPT_UPGRADE,
   OPT_VERBOSE,
   OPT_VERIFY,
@@ -407,8 +407,8 @@ const struct poptOption Application::aoption[] = {
 
   {
     "install", 0, POPT_ARG_STRING, nullptr, OPT_INSTALL,
-    T_("Install the specified package."),
-    T_("PACKAGE")
+    T_("Install the specified packages."),
+    T_("[@]PACKAGELIST")
   },
 
 #if ENABLE_OPT_INSTALL_ROOT
@@ -419,11 +419,13 @@ const struct poptOption Application::aoption[] = {
   },
 #endif
 
-  {
-    "install-some", 0, POPT_ARG_STRING, nullptr, OPT_INSTALL_SOME,
-    T_("Install packages listed (line-by-line) in the specified file."),
-    T_("FILE")
+#if ENABLE_OPT_INSTALL_SOME
+  {                             // deprecated
+    "install-some", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_INSTALL_SOME,
+    nullptr,
+    nullptr
   },
+#endif
 
   {
     "list", 0, POPT_ARG_NONE, nullptr, OPT_LIST,
@@ -558,8 +560,8 @@ const struct poptOption Application::aoption[] = {
 
   {
     "update", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr, OPT_UPDATE,
-    T_("Update the specified package, if an updated version is available in the package repository.  Install all updateable packages, if the package name is omitted."),
-    T_("PACKAGE")
+    T_("Update specified packages, if an updated version is available in the package repository.  Install all updateable packages, if the package list is omitted."),
+    T_("[@]PACKAGELIST")
   },
 
   {                             // experimental
@@ -580,11 +582,13 @@ const struct poptOption Application::aoption[] = {
     nullptr
   },
 
-  {
-    "update-some", 0, POPT_ARG_STRING, nullptr, OPT_UPDATE_SOME,
-    T_("Update packages listed (line-by-line) in the specified file."),
-    T_("FILE")
+#if ENABLE_OPT_UPDATE_SOME
+  {                             // deprecated
+    "update-some", 0, POPT_ARG_STRING | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_UPDATE_SOME,
+    nullptr,
+    nullptr
   },
+#endif
 
   {
     "upgrade", 0, POPT_ARG_NONE, nullptr, OPT_UPGRADE,
@@ -601,7 +605,7 @@ const struct poptOption Application::aoption[] = {
   {
     "verify", 0, POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL, nullptr, OPT_VERIFY,
     T_("Verify the integrity of the installed packages."),
-    T_("PACKAGE")
+    T_("[@]PACKAGELIST")
   },
 
   {                             // experimental
@@ -1298,7 +1302,7 @@ void Application::RestartWindowed()
   Process::Start(mpmgui, options);
 }
 
-void Application::ReadFileList(const PathName& path, vector<string>& files)
+vector<string> ReadNames(const PathName& path, vector<string>& list)
 {
   StreamReader reader(path);
   string line;
@@ -1307,10 +1311,36 @@ void Application::ReadFileList(const PathName& path, vector<string>& files)
     Tokenizer tok(line, " \t\n\r");
     if (tok)
     {
-      files.push_back(*tok);
+      string name = *tok;
+      if (name[0] == '@')
+      {
+        // RECURSION
+        ReadNames(&name[1], list);
+      }
+      else
+      {
+        list.push_back(name);
+      }
     }
   }
   reader.Close();
+  return list;
+}
+
+vector<string> ParseList(const string& s, vector<string>& list)
+{
+  if (s.length() > 0 && s[0] == '@')
+  {
+    return ReadNames(&s[1], list);
+  }
+  else
+  {
+    for (Tokenizer tok(s, " ,;"); tok; ++tok)
+    {
+      list.push_back(*tok);
+    }
+  }
+  return list;
 }
 
 void Application::Main(int argc, const char** argv)
@@ -1351,11 +1381,9 @@ void Application::Main(int argc, const char** argv)
   string optProxyPassword;
   string optProxyUser;
   string toBeImported;
-  vector<string> installSome;
   vector<string> toBeInstalled;
   vector<string> toBeRemoved;
   vector<string> toBeVerified;
-  vector<string> updateSome;
   vector<string> updates;
   RepositoryReleaseState optRepositoryReleaseState = RepositoryReleaseState::Unknown;
 
@@ -1404,14 +1432,18 @@ void Application::Main(int argc, const char** argv)
       optImportAll = true;
       break;
     case OPT_INSTALL:
-      toBeInstalled.push_back(optArg);
+      ParseList(optArg, toBeInstalled);
       break;
     case OPT_INSTALL_ROOT:
       startupConfig.commonInstallRoot = optArg;
       startupConfig.userInstallRoot = optArg;
       break;
     case OPT_INSTALL_SOME:
-      installSome.push_back(optArg);
+#if 0
+      // TODO
+      Warn(T_("Option --install-some is deprecated"));
+#endif
+      ReadNames(optArg, toBeInstalled);
       break;
     case OPT_LIST:
       optList = true;
@@ -1570,7 +1602,7 @@ void Application::Main(int argc, const char** argv)
           Error(T_("Already updating all packages."));
         }
         optUpdate = true;
-        updates.push_back(optArg);
+        ParseList(optArg, updates);
       }
       else
       {
@@ -1595,7 +1627,16 @@ void Application::Main(int argc, const char** argv)
       optUpdateFndb = true;
       break;
     case OPT_UPDATE_SOME:
-      updateSome.push_back(optArg);
+#if 0
+      // TODO
+      Warn(T_("Option --update-some is deprecated"));
+#endif
+      if (optUpdateAll)
+      {
+        Error(T_("Already updating all packages."));
+      }
+      optUpdate = true;
+      ReadNames(optArg, updates);
       break;
     case OPT_UPGRADE:
       optUpgrade = true;
@@ -1610,7 +1651,7 @@ void Application::Main(int argc, const char** argv)
     case OPT_VERIFY:
       if (!optArg.empty())
       {
-        toBeVerified.push_back(optArg);
+        ParseList(optArg, toBeVerified);
       }
       optVerify = true;
       break;
@@ -1774,11 +1815,6 @@ void Application::Main(int argc, const char** argv)
     restartWindowed = false;
   }
 
-  for (const string& name : installSome)
-  {
-    ReadFileList(name, toBeInstalled);
-  }
-
   if (toBeInstalled.size() > 0 || toBeRemoved.size() > 0)
   {
     Install(toBeInstalled, toBeRemoved);
@@ -1796,11 +1832,6 @@ void Application::Main(int argc, const char** argv)
     restartWindowed = false;
   }
 #endif
-
-  for (const string& name : updateSome)
-  {
-    ReadFileList(name, updates);
-  }
 
   if (optUpdateAll || !updates.empty())
   {
