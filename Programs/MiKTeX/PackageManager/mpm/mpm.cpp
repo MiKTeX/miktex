@@ -1330,11 +1330,6 @@ vector<string> ParseList(const string& s, vector<string>& list)
 
 void Application::Main(int argc, const char** argv)
 {
-  StartupConfig startupConfig;
-  Session::InitInfo initInfo;
-  initInfo.SetTraceCallback(this);
-  initInfo.SetProgramInvocationName(argv[0]);
-
   bool optAdmin = false;
   bool optFindConflicts = false;
   bool optFindUpdates = false;
@@ -1375,11 +1370,32 @@ void Application::Main(int argc, const char** argv)
   bool changeProxy = false;
 
   PoptWrapper popt(argc, argv, aoption);
+  int option;
 
-  //  popt.SetOtherOptionHelp (T_("[OPTION...]"));
+  // initialize session
+  Session::InitInfo initInfo;
+  initInfo.SetTraceCallback(this);
+  initInfo.SetProgramInvocationName(argv[0]);
+  while ((option = popt.GetNextOpt()) >= 0)
+  {
+    string optArg = popt.GetOptArg();
+    switch (option)
+    {
+    case OPT_TRACE:
+      if (optArg.empty())
+      {
+        initInfo.SetTraceFlags(DEFAULT_TRACE_STREAMS);
+      }
+      else
+      {
+        initInfo.SetTraceFlags(optArg);
+      }
+    }
+  }
+  pSession = Session::Create(initInfo);
 
   // process command-line options
-  int option;
+  popt.Reset();
   while ((option = popt.GetNextOpt()) >= 0)
   {
     string optArg = popt.GetOptArg();
@@ -1403,7 +1419,6 @@ void Application::Main(int argc, const char** argv)
 #if defined (MIKTEX_WINDOWS)
     case OPT_HHELP:
     {
-      pSession = Session::Create(initInfo);
       pSession->ShowManualPageAndWait(0, MIKTEXHELP_MPMCON);
       pSession = nullptr;
       return;
@@ -1558,14 +1573,7 @@ void Application::Main(int argc, const char** argv)
       repository = optArg;
       break;
     case OPT_TRACE:
-      if (optArg.empty())
-      {
-        initInfo.SetTraceFlags(DEFAULT_TRACE_STREAMS);
-      }
-      else
-      {
-        initInfo.SetTraceFlags(optArg);
-      }
+      // see above
       break;
     case OPT_UNINSTALL:
       toBeRemoved.push_back(optArg);
@@ -1667,10 +1675,6 @@ void Application::Main(int argc, const char** argv)
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
     return;
   }
-
-  initInfo.SetStartupConfig(startupConfig);
-
-  pSession = Session::Create(initInfo);
 
   if (optAdmin)
   {
