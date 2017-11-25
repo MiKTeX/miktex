@@ -127,12 +127,21 @@ root directory must be specified via
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><option>--install=<replaceable>package</replaceable></option></term>
+<term><option>--install=<replaceable>packagelist</replaceable></option></term>
 <listitem>
 <indexterm>
-<primary>--install=package</primary>
+<primary>--install=packagelist</primary>
 </indexterm>
-<para>Install the specified package.</para></listitem>
+<para>Install the specified packages.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--install=@<replaceable>listfile</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--install=@listfile</primary>
+</indexterm>
+<para>Install packages. Package names are read from
+<replaceable>listfile</replaceable>.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--list</option></term>
@@ -257,14 +266,29 @@ package repository).</para></listitem>
 <para>Uninstall the specified package.</para></listitem>
 </varlistentry>
 <varlistentry>
-<term><option>--update=<optional><replaceable>package</replaceable></optional></option></term>
+<term><option>--update</option></term>
 <listitem>
 <indexterm>
-<primary>--update=package</primary>
+<primary>--update</primary>
 </indexterm>
-<para>Update the specified package, if an updated version is available
-in the package repository.  Update all installed packages, if
-<replaceable>package</replaceable> is omitted.</para></listitem>
+<para>Update all installed packages.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--update=<replaceable>packagelist</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--update=packagelist</primary>
+</indexterm>
+<para>Update the specified packages.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--update=@<replaceable>listfile</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--update=@listfile</primary>
+</indexterm>
+<para>Update packages. Package names are read from
+<replaceable>listfile</replaceable>.</para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>--update-db</option></term>
@@ -295,12 +319,22 @@ all the missing packages.</para></listitem>
 </listitem>
 </varlistentry>
 <varlistentry>
-<term><option>--verify=<replaceable>package</replaceable></option></term>
+<term><option>--verify=<replaceable>packagelist</replaceable></option></term>
 <listitem>
 <indexterm>
-<primary>--verify=package</primary>
+<primary>--verify=packagelist</primary>
 </indexterm>
-<para>Verify the integrity of the specified package.</para>
+<para>Verify the integrity of the specified packages.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><option>--verify=@<replaceable>listfile</replaceable></option></term>
+<listitem>
+<indexterm>
+<primary>--verify=@listfile</primary>
+</indexterm>
+<para>Verify the integrity packages. Package names are read from
+<replaceable>listfile</replaceable>.</para>
 </listitem>
 </varlistentry>
 <varlistentry>
