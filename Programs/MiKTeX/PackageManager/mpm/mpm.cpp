@@ -537,8 +537,8 @@ const struct poptOption Application::aoption[] = {
 
   {
     "uninstall", 0, POPT_ARG_STRING, nullptr, OPT_UNINSTALL,
-    T_("Uninstall the specified package."),
-    T_("PACKAGE")
+    T_("Uninstall the specified packages."),
+    T_("[@]PACKAGELIST")
   },
 
 #if defined(MIKTEX_WINDOWS)
@@ -1587,7 +1587,7 @@ void Application::Main(int argc, const char** argv)
       // see above
       break;
     case OPT_UNINSTALL:
-      toBeRemoved.push_back(optArg);
+      ParseList(optArg, toBeRemoved);
       break;
 #if defined (MIKTEX_WINDOWS)
     case OPT_UNREGISTER_COMPONENTS:
