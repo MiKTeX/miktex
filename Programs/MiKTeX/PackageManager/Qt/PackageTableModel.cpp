@@ -1,6 +1,6 @@
 /* PackageTableModel.cpp:
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -28,24 +28,24 @@
 using namespace MiKTeX::Packages;
 using namespace std;
 
-PackageTableModel::PackageTableModel(std::shared_ptr<MiKTeX::Packages::PackageManager> pManager, QObject * pParent) :
-  QAbstractTableModel(pParent),
-  pManager(pManager)
+PackageTableModel::PackageTableModel(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, QObject* parent) :
+  QAbstractTableModel(parent),
+  packageManager(packageManager)
 {
   Reload();
 }
 
-int PackageTableModel::rowCount(const QModelIndex & parent) const
+int PackageTableModel::rowCount(const QModelIndex& parent) const
 {
   return parent.isValid() ? 0 : packages.size();
 }
 
-int PackageTableModel::columnCount(const QModelIndex & parent) const
+int PackageTableModel::columnCount(const QModelIndex& parent) const
 {
   return parent.isValid() ? 0 : 6;
 }
 
-QVariant PackageTableModel::data(const QModelIndex & index, int role) const
+QVariant PackageTableModel::data(const QModelIndex& index, int role) const
 {
   if (!(index.isValid() && index.row() >= 0 && index.row() < packages.size()))
   {
@@ -62,7 +62,7 @@ QVariant PackageTableModel::data(const QModelIndex & index, int role) const
       case 0:
         return packageInfo.deploymentName.c_str();
       case 1:
-        return pManager->GetContainerPath(packageInfo.deploymentName, true).c_str();
+        return packageManager->GetContainerPath(packageInfo.deploymentName, true).c_str();
       case 2:
         return (qlonglong)packageInfo.GetSize();
       case 3:
@@ -112,11 +112,11 @@ void PackageTableModel::Reload()
 {
   beginResetModel();
   packages.clear();
-  pManager->UnloadDatabase();
-  unique_ptr<PackageIterator> pIter(pManager->CreateIterator());
+  packageManager->UnloadDatabase();
+  unique_ptr<PackageIterator> iter(packageManager->CreateIterator());
   PackageInfo packageInfo;
   int row = 0;
-  while (pIter->GetNext(packageInfo))
+  while (iter->GetNext(packageInfo))
   {
     if (!packageInfo.IsPureContainer())
     {
@@ -124,6 +124,6 @@ void PackageTableModel::Reload()
       ++row;
     }
   }
-  pIter->Dispose();
+  iter->Dispose();
   endResetModel();
 }

@@ -1,6 +1,6 @@
 /* MainWindow.cpp:
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -57,22 +57,22 @@ void MainWindow::Unimplemented()
 }
 
 MainWindow::MainWindow() :
-  pManager(PackageManager::Create())
+  packageManager(PackageManager::Create())
 {
   setupUi(this);
-  if (pSession->IsAdminMode())
+  if (session->IsAdminMode())
   {
     setWindowTitle(windowTitle() + " (Admin)");
   }
-  pModel = new PackageTableModel(pManager, this);
-  pProxyModel = new QSortFilterProxyModel(this);
-  pProxyModel->setSourceModel(pModel);
-  pProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-  treeView->setModel(pProxyModel);
+  model = new PackageTableModel(packageManager, this);
+  proxyModel = new QSortFilterProxyModel(this);
+  proxyModel->setSourceModel(model);
+  proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+  treeView->setModel(proxyModel);
   treeView->sortByColumn(0, Qt::AscendingOrder);
 
   connect(treeView->selectionModel(),
-    SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+    SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
     this,
     SLOT(EnableActions()));
   connect(actionProperties,
@@ -114,7 +114,7 @@ void MainWindow::EnableActions()
     actionProperties->setEnabled(selectedRows.count() == 1);
     bool enableInstall = (selectedRows.count() > 0);
     bool enableUninstall = (selectedRows.count() > 0);
-    if (pSession->IsMiKTeXDirect())
+    if (session->IsMiKTeXDirect())
     {
       enableInstall = false;
       enableUninstall = false;
@@ -122,7 +122,7 @@ void MainWindow::EnableActions()
     for (QModelIndexList::const_iterator it = selectedRows.begin(); it != selectedRows.end() && (enableInstall || enableUninstall); ++it)
     {
       PackageInfo packageInfo;
-      if (!pModel->TryGetPackageInfo(pProxyModel->mapToSource(*it), packageInfo))
+      if (!model->TryGetPackageInfo(proxyModel->mapToSource(*it), packageInfo))
       {
         MIKTEX_UNEXPECTED();
       }
@@ -139,11 +139,11 @@ void MainWindow::EnableActions()
     actionInstall->setEnabled(enableInstall);
     actionUninstall->setEnabled(enableUninstall);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -169,7 +169,7 @@ void MainWindow::Install()
     for (QModelIndexList::const_iterator it = selectedRows.begin(); it != selectedRows.end(); ++it)
     {
       PackageInfo packageInfo;
-      if (!pModel->TryGetPackageInfo(pProxyModel->mapToSource(*it), packageInfo))
+      if (!model->TryGetPackageInfo(proxyModel->mapToSource(*it), packageInfo))
       {
         MIKTEX_UNEXPECTED();
       }
@@ -187,9 +187,9 @@ void MainWindow::Install()
       + tr("%n package(s) will be installed\n", "", toBeInstalled.size())
       + tr("%n package(s) will be removed", "", toBeRemoved.size());
 #if defined(MIKTEX_WINDOWS) && _WIN32_WINNT >= _WIN32_WINNT_VISTA
-    if (WindowsVersion::IsWindowsVistaOrGreater() && pSession->IsAdminMode())
+    if (WindowsVersion::IsWindowsVistaOrGreater() && session->IsAdminMode())
     {
-      DllProc4<HRESULT, const TASKDIALOGCONFIG *, int *, int *, BOOL *> taskDialogIndirect("comctl32.dll", "TaskDialogIndirect");
+      DllProc4<HRESULT, const TASKDIALOGCONFIG*, int*, int*, BOOL*> taskDialogIndirect("comctl32.dll", "TaskDialogIndirect");
       TASKDIALOGCONFIG taskDialogConfig;
       memset(&taskDialogConfig, 0, sizeof(taskDialogConfig));
       taskDialogConfig.cbSize = sizeof(TASKDIALOGCONFIG);
@@ -228,18 +228,18 @@ void MainWindow::Install()
         return;
       }
     }
-    int ret = UpdateDialog::DoModal(this, pManager, toBeInstalled, toBeRemoved);
+    int ret = UpdateDialog::DoModal(this, packageManager, toBeInstalled, toBeRemoved);
     if (ret == QDialog::Accepted)
     {
-      pModel->Reload();
+      model->Reload();
       treeView->update();
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -259,11 +259,11 @@ void MainWindow::RepositoryWizard()
       emit Synchronize();
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -273,7 +273,7 @@ void MainWindow::Synchronize()
 {
   try
   {
-    unique_ptr<PackageInstaller> pInstaller(pManager->CreateInstaller());
+    unique_ptr<PackageInstaller> pInstaller(packageManager->CreateInstaller());
     pInstaller->UpdateDbAsync();
     int numSteps = 10;
     QProgressDialog progress(tr("Synchronizing the package database..."), tr("Cancel"), 0, numSteps, this);
@@ -293,18 +293,18 @@ void MainWindow::Synchronize()
       this_thread::sleep_for(chrono::milliseconds(1000));
     }
     pInstaller->Dispose();
-    pModel->Reload();
+    model->Reload();
     treeView->update();
     if (!progress.wasCanceled())
     {
       progress.setValue(numSteps);
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }

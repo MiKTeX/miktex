@@ -1,6 +1,6 @@
 /* MainWindow.h:                                        -*- C++ -*-
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -84,16 +84,16 @@ private:
   void Unimplemented();
 
 private:
-  PackageTableModel * pModel;
+  PackageTableModel* model;
 
 private:
-  QSortFilterProxyModel * pProxyModel;
+  QSortFilterProxyModel* proxyModel;
 
 private:
-  std::shared_ptr<MiKTeX::Packages::PackageManager> pManager;
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 
 private:
-  std::shared_ptr<MiKTeX::Core::Session> pSession = MiKTeX::Core::Session::Get();
+  std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 };
 
 #endif

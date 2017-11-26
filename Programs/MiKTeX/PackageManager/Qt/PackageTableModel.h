@@ -1,6 +1,6 @@
 /* PackageTableModel.h:                                 -*- C++ -*-
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -36,16 +36,16 @@ private:
   Q_OBJECT;
 
 public:
-  PackageTableModel(std::shared_ptr<MiKTeX::Packages::PackageManager> pManager, QObject * pParent = 0);
+  PackageTableModel(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, QObject* parent = 0);
 
 public:
-  virtual int rowCount(const QModelIndex & parent) const;
+  virtual int rowCount(const QModelIndex& parent) const;
 
 public:
-  virtual int columnCount(const QModelIndex & parent) const;
+  virtual int columnCount(const QModelIndex& parent) const;
 
 public:
-  virtual QVariant data(const QModelIndex & index, int role) const;
+  virtual QVariant data(const QModelIndex& index, int role) const;
 
 public:
   virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
@@ -54,7 +54,7 @@ public:
   void Reload();
 
 public:
-  bool TryGetPackageInfo(const QModelIndex & index, MiKTeX::Packages::PackageInfo & packageInfo) const
+  bool TryGetPackageInfo(const QModelIndex& index, MiKTeX::Packages::PackageInfo& packageInfo) const
   {
     std::map<int, MiKTeX::Packages::PackageInfo>::const_iterator it = packages.find(index.row());
     if (it == packages.end())
@@ -69,7 +69,7 @@ public:
   }
 
 private:
-  std::shared_ptr<MiKTeX::Packages::PackageManager> pManager;
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 
 private:
   std::map<int, MiKTeX::Packages::PackageInfo> packages;

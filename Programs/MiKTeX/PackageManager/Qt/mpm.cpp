@@ -1,6 +1,6 @@
 /* mpm.cpp:
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -46,7 +46,7 @@ namespace {
   };
 }
 
-int main(int argc, char * argv[])
+int main(int argc, char* argv[])
 {
   QApplication application(argc, argv);
   int ret = 0;
@@ -66,31 +66,31 @@ int main(int argc, char * argv[])
         break;
       }
     }
-    shared_ptr<Session> pSession;
+    shared_ptr<Session> session;
     initInfo.SetProgramInvocationName(argv[0]);
-    pSession = Session::Create(initInfo);
+    session = Session::Create(initInfo);
     if (optAdmin)
     {
-      if (!pSession->RunningAsAdministrator())
+      if (!session->RunningAsAdministrator())
       {
 #if defined(MIKTEX_WINDOWS)
         QMessageBox::critical(0, "MiKTeX Package Manager", "Not running as administrator.");
 #else
         QMessageBox::critical(0, "MiKTeX Package Manager", "Not running as root.");
 #endif
-        return 1;;
+        return 1;
       }
-      pSession->SetAdminMode(true);
+      session->SetAdminMode(true);
     }
     MainWindow mainWindow;
     mainWindow.show();
     ret = application.exec();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ret = 1;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ret = 1;
   }
