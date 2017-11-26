@@ -46,7 +46,7 @@ namespace {
   };
 }
 
-int main(int argc, char ** argv)
+int main(int argc, char * argv[])
 {
   QApplication application(argc, argv);
   int ret = 0;
