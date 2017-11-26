@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2008-2016 Christian Schenk
+## Copyright (C) 2008-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -64,12 +64,18 @@ qt5_wrap_cpp(mpm_qt_ui_mocs ${mpm_qt_ui_headers})
 
 qt5_add_resources(mpm_qt_rcc_sources ${mpm_qt_rcs_files})
 
-add_executable(mpm_qt
+set(sources
   ${mpm_qt_sources}
   ${mpm_qt_mocs}
   ${mpm_qt_ui_mocs}
   ${mpm_qt_rcc_sources}
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+  add_executable(mpm_qt WIN32 ${sources})
+else()
+  add_executable(mpm_qt ${sources})
+endif()
 
 set_property(TARGET mpm_qt PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
@@ -88,12 +94,7 @@ merge_compatibility_manifest(mpm_qt)
 
 if(MIKTEX_NATIVE_WINDOWS)
   install(TARGETS mpm_qt DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
-  add_executable(mpm_qt${MIKTEX_ADMIN_SUFFIX}
-    ${mpm_qt_sources}
-    ${mpm_qt_mocs}
-    ${mpm_qt_ui_mocs}
-    ${mpm_qt_rcc_sources}
-  )
+  add_executable(mpm_qt${MIKTEX_ADMIN_SUFFIX} WIN32 ${sources})
   set_property(TARGET mpm_qt${MIKTEX_ADMIN_SUFFIX} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   target_link_libraries(mpm_qt${MIKTEX_ADMIN_SUFFIX} ${libs})
   merge_trustinfo_manifest(mpm_qt${MIKTEX_ADMIN_SUFFIX} requireAdministrator)
