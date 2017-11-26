@@ -80,8 +80,20 @@ private slots:
 private slots:
   void AboutDialog();
 
+private slots:
+  void Filter();
+
 private:
   void Unimplemented();
+
+private:
+  QToolBar* toolBarFilter;
+
+private:
+  QLineEdit* lineEditFileName;
+
+private:
+  void SetupFilterToolBar();
 
 private:
   PackageTableModel* model;

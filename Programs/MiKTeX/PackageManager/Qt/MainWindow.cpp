@@ -56,10 +56,23 @@ void MainWindow::Unimplemented()
   QMessageBox::information(this, tr("MiKTeX Package Manager"), tr("This is an unimplemented feature."));
 }
 
+void MainWindow::SetupFilterToolBar()
+{
+  toolBarFilter = new QToolBar(this);
+  toolBarFilter->setObjectName(QStringLiteral("fiterToolBar"));
+  addToolBar(Qt::TopToolBarArea, toolBarFilter);
+  QLabel* label = new QLabel(tr("File name:"));
+  toolBarFilter->addWidget(label);
+  lineEditFileName = new QLineEdit(toolBarFilter);
+  toolBarFilter->addWidget(lineEditFileName);
+  toolBarFilter->addAction(actionFilter);
+}
+
 MainWindow::MainWindow() :
   packageManager(PackageManager::Create())
 {
   setupUi(this);
+  SetupFilterToolBar();
   if (session->IsAdminMode())
   {
     setWindowTitle(windowTitle() + " (Admin)");
@@ -102,6 +115,10 @@ MainWindow::MainWindow() :
   connect(actionAbout,
     SIGNAL(triggered()), this,
     SLOT(AboutDialog()));
+  connect(actionFilter,
+    SIGNAL(triggered()),
+    this,
+    SLOT(Filter()));
 
   EnableActions();
 }
@@ -318,4 +335,9 @@ void MainWindow::AboutDialog()
   message += "\n\n";
   message += tr("MiKTeX Package Manager is free software. You are welcome to redistribute it under certain conditions. See the help file for more information.\n\nMiKTeX Package Manager comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.");
   QMessageBox::about(this, tr("MiKTeX Package Manager"), message);
+}
+
+void MainWindow::Filter()
+{
+  // TODO
 }
