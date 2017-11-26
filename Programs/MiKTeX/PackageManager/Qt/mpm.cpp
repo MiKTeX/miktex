@@ -66,9 +66,8 @@ int main(int argc, char* argv[])
         break;
       }
     }
-    shared_ptr<Session> session;
     initInfo.SetProgramInvocationName(argv[0]);
-    session = Session::Create(initInfo);
+    shared_ptr<Session> session = Session::Create(initInfo);
     if (optAdmin)
     {
       if (!session->RunningAsAdministrator())

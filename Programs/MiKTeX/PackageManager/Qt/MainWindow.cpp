@@ -165,11 +165,10 @@ void MainWindow::Install()
   {
     vector<string> toBeInstalled;
     vector<string> toBeRemoved;
-    QModelIndexList selectedRows = treeView->selectionModel()->selectedRows();
-    for (QModelIndexList::const_iterator it = selectedRows.begin(); it != selectedRows.end(); ++it)
+    for (const QModelIndex& ind : treeView->selectionModel()->selectedRows())
     {
       PackageInfo packageInfo;
-      if (!model->TryGetPackageInfo(proxyModel->mapToSource(*it), packageInfo))
+      if (!model->TryGetPackageInfo(proxyModel->mapToSource(ind), packageInfo))
       {
         MIKTEX_UNEXPECTED();
       }

@@ -36,7 +36,7 @@ private:
   Q_OBJECT;
 
 public:
-  PackageTableModel(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, QObject* parent = 0);
+  PackageTableModel(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, QObject* parent = nullptr);
 
 public:
   virtual int rowCount(const QModelIndex& parent) const;
