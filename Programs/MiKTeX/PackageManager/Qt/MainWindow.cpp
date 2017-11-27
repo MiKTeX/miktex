@@ -42,6 +42,7 @@
 #endif
 
 #include "MainWindow.h"
+#include "PackageProxyModel.h"
 #include "PackageTableModel.h"
 
 #include "mpm-version.h"
@@ -63,8 +64,8 @@ void MainWindow::SetupFilterToolBar()
   addToolBar(Qt::TopToolBarArea, toolBarFilter);
   QLabel* label = new QLabel(tr("File name:"));
   toolBarFilter->addWidget(label);
-  lineEditFileName = new QLineEdit(toolBarFilter);
-  toolBarFilter->addWidget(lineEditFileName);
+  lineEditFileNamePattern = new QLineEdit(toolBarFilter);
+  toolBarFilter->addWidget(lineEditFileNamePattern);
   toolBarFilter->addAction(actionFilter);
 }
 
@@ -78,7 +79,7 @@ MainWindow::MainWindow() :
     setWindowTitle(windowTitle() + " (Admin)");
   }
   model = new PackageTableModel(packageManager, this);
-  proxyModel = new QSortFilterProxyModel(this);
+  proxyModel = new PackageProxyModel(this);
   proxyModel->setSourceModel(model);
   proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
   treeView->setModel(proxyModel);
@@ -339,5 +340,5 @@ void MainWindow::AboutDialog()
 
 void MainWindow::Filter()
 {
-  // TODO
+  proxyModel->SetFileNamePattern(lineEditFileNamePattern->text().toUtf8().constData());  
 }

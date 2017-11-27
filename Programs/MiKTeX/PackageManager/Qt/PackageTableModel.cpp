@@ -25,6 +25,7 @@
 
 #include "PackageTableModel.h"
 
+using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
 using namespace std;
 
@@ -42,7 +43,7 @@ int PackageTableModel::rowCount(const QModelIndex& parent) const
 
 int PackageTableModel::columnCount(const QModelIndex& parent) const
 {
-  return parent.isValid() ? 0 : 6;
+  return parent.isValid() ? 0 : 7;
 }
 
 QVariant PackageTableModel::data(const QModelIndex& index, int role) const
@@ -52,7 +53,7 @@ QVariant PackageTableModel::data(const QModelIndex& index, int role) const
     return QVariant();
   }
 
-  if (role == Qt::DisplayRole)
+  if (role == Qt::DisplayRole || role == Qt::UserRole)
   {
     PackageInfo packageInfo;
     if (TryGetPackageInfo(index, packageInfo))
@@ -78,6 +79,23 @@ QVariant PackageTableModel::data(const QModelIndex& index, int role) const
         }
       case 5:
         return packageInfo.title.c_str();
+      case 6:
+        if (role == Qt::DisplayRole)
+        {
+          if (!packageInfo.runFiles.empty())
+          {
+            return QString("%1 +%2").arg(QString::fromUtf8(PathName(packageInfo.runFiles[0]).GetFileName().GetData())).arg(packageInfo.runFiles.size());
+          }
+        }
+        else
+        {
+          QList<QVariant> runFiles;
+          for (const string& s : packageInfo.runFiles)
+          {
+            runFiles.append(QString::fromUtf8(s.c_str()));
+          }
+          return runFiles;
+        }
       }
     }
   }
@@ -103,6 +121,8 @@ QVariant PackageTableModel::headerData(int section, Qt::Orientation orientation,
       return tr("Installed on");
     case 5:
       return tr("Title");
+    case 6:
+      return tr("Files");
     }
   }
   return QAbstractTableModel::headerData(section, orientation, role);

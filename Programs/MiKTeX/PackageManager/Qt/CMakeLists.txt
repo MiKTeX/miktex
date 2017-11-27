@@ -31,6 +31,8 @@ include_directories(BEFORE
 set(mpm_qt_sources
   MainWindow.cpp
   MainWindow.h
+  PackageProxyModel.cpp
+  PackageProxyModel.h
   PackageTableModel.cpp
   PackageTableModel.h
   mpm.cpp
@@ -45,6 +47,7 @@ endif()
 
 set(mpm_qt_moc_sources
   MainWindow.h
+  PackageProxyModel.h
   PackageTableModel.h
 )
 

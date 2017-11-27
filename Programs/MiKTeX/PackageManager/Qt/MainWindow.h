@@ -43,8 +43,8 @@
 
 #include "ui_MainWindow.h"
 
+class PackageProxyModel;
 class PackageTableModel;
-class QSortFilterProxyModel;
 
 class MainWindow :
   public QMainWindow,
@@ -90,7 +90,7 @@ private:
   QToolBar* toolBarFilter;
 
 private:
-  QLineEdit* lineEditFileName;
+  QLineEdit* lineEditFileNamePattern;
 
 private:
   void SetupFilterToolBar();
@@ -99,7 +99,7 @@ private:
   PackageTableModel* model;
 
 private:
-  QSortFilterProxyModel* proxyModel;
+  PackageProxyModel* proxyModel;
 
 private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
