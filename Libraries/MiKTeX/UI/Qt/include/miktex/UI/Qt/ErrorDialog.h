@@ -1,6 +1,6 @@
 /* miktex/UI/Qt/ErrorDialog.h:                          -*- C++ -*-
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2017 Christian Schenk
 
    This file is part of MiKTeX UI Library.
 
