@@ -114,7 +114,8 @@ MainWindow::MainWindow() :
     this,
     SLOT(Synchronize()));
   connect(actionAbout,
-    SIGNAL(triggered()), this,
+    SIGNAL(triggered()),
+    this,
     SLOT(AboutDialog()));
   connect(actionFilter,
     SIGNAL(triggered()),
