@@ -90,7 +90,7 @@ private:
   QToolBar* toolBarFilter;
 
 private:
-  QLineEdit* lineEditFileNamePattern;
+  QLineEdit* lineEditFilter;
 
 private:
   void SetupFilterToolBar();

@@ -62,11 +62,11 @@ void MainWindow::SetupFilterToolBar()
   toolBarFilter = new QToolBar(this);
   toolBarFilter->setObjectName(QStringLiteral("fiterToolBar"));
   addToolBar(Qt::TopToolBarArea, toolBarFilter);
-  QLabel* label = new QLabel(tr("File name:"));
-  toolBarFilter->addWidget(label);
-  lineEditFileNamePattern = new QLineEdit(toolBarFilter);
-  toolBarFilter->addWidget(lineEditFileNamePattern);
+  lineEditFilter = new QLineEdit(toolBarFilter);
+  lineEditFilter->setClearButtonEnabled(true);
+  toolBarFilter->addWidget(lineEditFilter);
   toolBarFilter->addAction(actionFilter);
+  connect(lineEditFilter, SIGNAL(returnPressed()), this, SLOT(Filter()));
 }
 
 MainWindow::MainWindow() :
@@ -341,5 +341,5 @@ void MainWindow::AboutDialog()
 
 void MainWindow::Filter()
 {
-  proxyModel->SetFileNamePattern(lineEditFileNamePattern->text().toUtf8().constData());  
+  proxyModel->SetFilter(lineEditFilter->text().toUtf8().constData());
 }

@@ -53,7 +53,7 @@ QVariant PackageTableModel::data(const QModelIndex& index, int role) const
     return QVariant();
   }
 
-  if (role == Qt::DisplayRole || role == Qt::UserRole)
+  if (role == Qt::DisplayRole)
   {
     PackageInfo packageInfo;
     if (TryGetPackageInfo(index, packageInfo))
@@ -80,21 +80,9 @@ QVariant PackageTableModel::data(const QModelIndex& index, int role) const
       case 5:
         return packageInfo.title.c_str();
       case 6:
-        if (role == Qt::DisplayRole)
+        if (!packageInfo.runFiles.empty())
         {
-          if (!packageInfo.runFiles.empty())
-          {
-            return QString("%1 +%2").arg(QString::fromUtf8(PathName(packageInfo.runFiles[0]).GetFileName().GetData())).arg(packageInfo.runFiles.size());
-          }
-        }
-        else
-        {
-          QList<QVariant> runFiles;
-          for (const string& s : packageInfo.runFiles)
-          {
-            runFiles.append(QString::fromUtf8(s.c_str()));
-          }
-          return runFiles;
+          return QString("%1 +%2").arg(QString::fromUtf8(PathName(packageInfo.runFiles[0]).GetFileName().GetData())).arg(packageInfo.runFiles.size());
         }
       }
     }

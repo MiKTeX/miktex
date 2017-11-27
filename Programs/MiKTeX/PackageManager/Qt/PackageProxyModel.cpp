@@ -20,32 +20,58 @@
    02111-1307, USA. */
 
 #include <miktex/Core/PathName>
+#include <miktex/PackageManager/PackageManager>
 
 #include "PackageProxyModel.h"
+#include "PackageTableModel.h"
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Packages;
+using namespace std;
 
 PackageProxyModel::PackageProxyModel(QObject* parent) :
   QSortFilterProxyModel(parent)
 {
 }
 
+void PackageProxyModel::SetFilter(const string& filter)
+{
+  this->filterText = filter;
+  invalidateFilter();
+}
+
 bool PackageProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
 {
-  if (!fileNamePattern.empty())
+  if (filterText.empty())
   {
-    QModelIndex index6 = sourceModel()->index(sourceRow, 6, sourceParent);
-    QList<QVariant> runFiles = sourceModel()->data(index6, Qt::UserRole).toList();
-    bool found = false;
-    for (const QVariant& v : runFiles)
+    return true;
+  }
+  PackageTableModel* packageTableModel = dynamic_cast<PackageTableModel*>(sourceModel());
+  MIKTEX_ASSERT(packageTableModel != nullptr);
+  PackageInfo packageInfo;
+  if (!packageTableModel->TryGetPackageInfo(sourceModel()->index(sourceRow, 0, sourceParent), packageInfo))
+  {
+    return false;
+  }
+  bool accept = false;
+  if (!accept)
+  {
+    accept = PathName::Match(filterText.c_str(), packageInfo.deploymentName);
+  }
+  if (!accept)
+  {
+    accept = packageInfo.title.find(filterText) != string::npos;
+  }
+  if (!accept)
+  {
+    for (const string& f : packageInfo.runFiles)
     {
-      found = PathName::Match(fileNamePattern.c_str(), PathName(v.toString().toUtf8().constData()).RemoveDirectorySpec());
-      if (found)
+      accept = PathName::Match(filterText.c_str(), PathName(f).RemoveDirectorySpec());
+      if (accept)
       {
         break;
       }
     }
-    return found;
   }
-  return true;
+  return accept;
 }

@@ -38,17 +38,13 @@ public:
   PackageProxyModel(QObject* parent = nullptr);
 
 public:
-  void SetFileNamePattern(const std::string& fileNamePattern)
-  {
-    this->fileNamePattern = fileNamePattern;
-    invalidateFilter();
-  }
+  void SetFilter(const std::string& filter);
 
 protected:
   bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
 
 private:
-  std::string fileNamePattern;
+  std::string filterText;
 };
 
 #endif
