@@ -49,6 +49,8 @@ set(${ui_qt_dll_name}_sources
   ErrorDialog.h
   InstallPackageDialog.cpp
   InstallPackageDialog.h
+  PackageInfoDialog.cpp
+  PackageInfoDialog.h
   ProxyAuthenticationDialog.cpp
   ProxyAuthenticationDialog.h
   RepositoryTableModel.cpp
@@ -84,6 +86,7 @@ set(${ui_qt_dll_name}_moc_sources
   ConnectionSettingsDialog.h
   ErrorDialog.h
   InstallPackageDialog.h
+  PackageInfoDialog.h
   ProxyAuthenticationDialog.h
   RepositoryTableModel.h
   SiteWizDrive.h
@@ -98,6 +101,7 @@ set(${ui_qt_dll_name}_ui_files
   ConnectionSettingsDialog.ui
   ErrorDialog.ui
   InstallPackageDialog.ui
+  PackageInfoDialog.ui
   ProxyAuthenticationDialog.ui
   SiteWizDrive.ui
   SiteWizLocal.ui
@@ -174,10 +178,12 @@ if(INSTALL_MIKTEX_HEADERS)
     FILES
       include/miktex/UI/Qt/ErrorDialog
       include/miktex/UI/Qt/ErrorDialog.h
-      include/miktex/UI/Qt/SiteWizSheet
-      include/miktex/UI/Qt/SiteWizSheet.h
+      include/miktex/UI/Qt/PackageInfoDialog
+      include/miktex/UI/Qt/PackageInfoDialog.h
       include/miktex/UI/Qt/Prototypes
       include/miktex/UI/Qt/Prototypes.h
+      include/miktex/UI/Qt/SiteWizSheet
+      include/miktex/UI/Qt/SiteWizSheet.h
       include/miktex/UI/Qt/UpdateDialog
       include/miktex/UI/Qt/UpdateDialog.h
     DESTINATION
