@@ -114,6 +114,8 @@
    </attribute>
    <addaction name="actionInstall"/>
    <addaction name="actionUninstall"/>
+   <addaction name="separator"/>
+   <addaction name="actionProperties"/>
   </widget>
   <action name="actionExit">
    <property name="text">
@@ -154,6 +156,10 @@
    </property>
   </action>
   <action name="actionProperties">
+   <property name="icon">
+    <iconset resource="mpm.qrc">
+     <normaloff>:/Icons/package-properties-16x16.png</normaloff>:/Icons/package-properties-16x16.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Properties</string>
    </property>
