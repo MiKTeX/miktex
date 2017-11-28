@@ -70,11 +70,21 @@ void MainWindow::SetupFilterToolBar()
   connect(lineEditFilter, SIGNAL(returnPressed()), this, SLOT(Filter()));
 }
 
+void MainWindow::SetupContextMenu()
+{
+  contextMenu = new QMenu(treeView);
+  treeView->setContextMenuPolicy(Qt::ActionsContextMenu);
+  treeView->addAction(actionInstall);
+  treeView->addAction(actionUninstall);
+  treeView->addAction(actionProperties);
+}
+
 MainWindow::MainWindow() :
   packageManager(PackageManager::Create())
 {
   setupUi(this);
   SetupFilterToolBar();
+  SetupContextMenu();
   if (session->IsAdminMode())
   {
     setWindowTitle(windowTitle() + " (Admin)");
@@ -363,4 +373,13 @@ void MainWindow::AboutDialog()
 void MainWindow::Filter()
 {
   proxyModel->SetFilter(lineEditFilter->text().toUtf8().constData());
+}
+
+void MainWindow::ContextMenu(const QPoint& point)
+{
+  QModelIndex index = treeView->indexAt(point);
+  if (index.isValid())
+  {
+    contextMenu->exec(treeView->mapToGlobal(point));
+  }
 }

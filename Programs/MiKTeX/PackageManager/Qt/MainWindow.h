@@ -83,6 +83,9 @@ private slots:
 private slots:
   void Filter();
 
+private slots:
+  void ContextMenu(const QPoint& point);
+
 private:
   void Unimplemented();
 
@@ -93,7 +96,13 @@ private:
   QLineEdit* lineEditFilter;
 
 private:
+  QMenu* contextMenu;
+
+private:
   void SetupFilterToolBar();
+
+private:
+  void SetupContextMenu();
 
 private:
   PackageTableModel* model;
