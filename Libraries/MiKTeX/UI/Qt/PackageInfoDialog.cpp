@@ -19,17 +19,32 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
+#include "StdAfx.h"
+
+#include "internal.h"
+
+#include "miktex/UI/Qt/PackageInfoDialog.h"
+
 #include "PackageInfoDialog.h"
 #include "ui_PackageInfoDialog.h"
 
-PackageInfoDialog::PackageInfoDialog(QWidget* parent) :
+using namespace MiKTeX::Packages;
+using namespace MiKTeX::UI::Qt;
+
+PackageInfoDialogImpl::PackageInfoDialogImpl(QWidget* parent, const PackageInfo& packageInfo) :
   QDialog(parent),
   ui(new Ui::PackageInfoDialog)
 {
   ui->setupUi(this);
 }
 
-PackageInfoDialog::~PackageInfoDialog()
+PackageInfoDialogImpl::~PackageInfoDialogImpl()
 {
   delete ui;
+}
+
+int PackageInfoDialog::DoModal(QWidget* parent, const PackageInfo& packageInfo)
+{
+  PackageInfoDialogImpl dlg(parent, packageInfo);
+  return dlg.exec();
 }

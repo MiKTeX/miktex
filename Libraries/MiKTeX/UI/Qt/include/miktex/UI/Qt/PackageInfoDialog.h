@@ -23,9 +23,18 @@
 #  pragma once
 #endif
 
+#if !defined(E99E278BF7794F128543A2811B07D6CB)
+#define E99E278BF7794F128543A2811B07D6CB
+
 #include "Prototypes"
 
-#include <miktex/PackageManager/PackageManager>
+namespace MiKTeX
+{
+  namespace Packages
+  {
+    struct PackageInfo;
+  }
+}
 
 class QWidget;
 
@@ -56,3 +65,5 @@ public:
 };
 
 MIKUI_QT_END_NAMESPACE;
+
+#endif

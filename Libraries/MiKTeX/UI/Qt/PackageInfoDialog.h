@@ -19,25 +19,38 @@
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
-#ifndef PACKAGEINFODIALOG_H
-#define PACKAGEINFODIALOG_H
+#if defined(_MSC_VER)
+#  pragma once
+#endif
 
+#if !defined(C555C707F6764B24A91B67B35FBAFCBA)
+#define C555C707F6764B24A91B67B35FBAFCBA
+
+#include <miktex/PackageManager/PackageManager>
 #include <QDialog>
 
-namespace Ui {
+namespace Ui
+{
   class PackageInfoDialog;
 }
 
-class PackageInfoDialog : public QDialog
+class PackageInfoDialogImpl :
+  public QDialog
 {
-  Q_OBJECT
+private:
+  Q_OBJECT;
 
 public:
-  explicit PackageInfoDialog(QWidget* parent = nullptr);
-  ~PackageInfoDialog();
+  explicit PackageInfoDialogImpl(QWidget* parent, const MiKTeX::Packages::PackageInfo& packageInfo);
+
+public:
+  ~PackageInfoDialogImpl();
 
 private:
   Ui::PackageInfoDialog* ui;
+
+private:
+  MiKTeX::Packages::PackageInfo packageInfo;
 };
 
 #endif

@@ -32,6 +32,7 @@
 #include <miktex/Core/Debug>
 #include <miktex/Core/Exceptions>
 #include <miktex/UI/Qt/ErrorDialog>
+#include <miktex/UI/Qt/PackageInfoDialog>
 #include <miktex/UI/Qt/SiteWizSheet>
 #include <miktex/UI/Qt/UpdateDialog>
 
@@ -170,7 +171,27 @@ void MainWindow::EnableActions()
 
 void MainWindow::PropertyDialog()
 {
-  Unimplemented();
+  try
+  {
+    for (const QModelIndex& ind : treeView->selectionModel()->selectedRows())
+    {
+      PackageInfo packageInfo;
+      if (!model->TryGetPackageInfo(proxyModel->mapToSource(ind), packageInfo))
+      {
+        MIKTEX_UNEXPECTED();
+      }
+      PackageInfoDialog::DoModal(this, packageInfo);
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    ErrorDialog::DoModal(this, e);
+  }
+  catch (const exception& e)
+  {
+    ErrorDialog::DoModal(this, e);
+  }
+
 }
 
 void MainWindow::SelectInstallablePackages()

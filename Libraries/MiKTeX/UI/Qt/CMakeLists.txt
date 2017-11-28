@@ -30,6 +30,7 @@ include_directories(BEFORE
 
 set(public_headers
   include/miktex/UI/Qt/ErrorDialog.h
+  include/miktex/UI/Qt/PackageInfoDialog.h
   include/miktex/UI/Qt/Prototypes.h
   include/miktex/UI/Qt/SiteWizSheet.h
   include/miktex/UI/Qt/UpdateDialog.h
