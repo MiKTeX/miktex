@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="mpm.qrc">
-    <normaloff>:/Resources/Icons/MiKTeX/32x32/apps/miktex.png</normaloff>:/Resources/Icons/MiKTeX/32x32/apps/miktex.png</iconset>
+    <normaloff>:/Icons/miktex-32x32.png</normaloff>:/Icons/miktex-32x32.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -186,7 +186,7 @@
   <action name="actionInstall">
    <property name="icon">
     <iconset resource="mpm.qrc">
-     <normaloff>:/Resources/Icons/MiKTeX/16x16/actions/package-install.png</normaloff>:/Resources/Icons/MiKTeX/16x16/actions/package-install.png</iconset>
+     <normaloff>:/Icons/package-install-16x16.png</normaloff>:/Icons/package-install-16x16.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Install...</string>
@@ -201,7 +201,7 @@
   <action name="actionUninstall">
    <property name="icon">
     <iconset resource="mpm.qrc">
-     <normaloff>:/Resources/Icons/MiKTeX/16x16/actions/package-uninstall.png</normaloff>:/Resources/Icons/MiKTeX/16x16/actions/package-uninstall.png</iconset>
+     <normaloff>:/Icons/package-uninstall-16x16.png</normaloff>:/Icons/package-uninstall-16x16.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Uninstall...</string>
