@@ -116,6 +116,9 @@
    <addaction name="actionUninstall"/>
    <addaction name="separator"/>
    <addaction name="actionProperties"/>
+   <addaction name="separator"/>
+   <addaction name="actionSynchronize"/>
+   <addaction name="actionChangeRepository"/>
   </widget>
   <action name="actionExit">
    <property name="text">
