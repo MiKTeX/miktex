@@ -31,11 +31,23 @@
 using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
 
+QDateTime ToDateTime(time_t t)
+{
+  return QDateTime::fromTime_t(t);
+}
+
 PackageInfoDialogImpl::PackageInfoDialogImpl(QWidget* parent, const PackageInfo& packageInfo) :
   QDialog(parent),
   ui(new Ui::PackageInfoDialog)
 {
   ui->setupUi(this);
+  ui->leName->setText(QString::fromUtf8(packageInfo.deploymentName.c_str()));
+  ui->leDate->setText(ToDateTime(packageInfo.timePackaged).toString());
+  ui->leVersion->setText(QString::fromUtf8(packageInfo.version.c_str()));
+  ui->leMaintainer->setText(QString::fromUtf8(packageInfo.copyrightOwner.c_str()));
+  ui->pteTitle->setPlainText(QString::fromUtf8(packageInfo.title.c_str()));
+  ui->pteDescription->setPlainText(QString::fromUtf8(packageInfo.description.c_str()));
+  ui->leSize->setText(QString("%1 Bytes").arg(packageInfo.GetSize()));
 }
 
 PackageInfoDialogImpl::~PackageInfoDialogImpl()
