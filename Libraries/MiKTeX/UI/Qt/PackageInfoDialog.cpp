@@ -25,6 +25,7 @@
 
 #include "miktex/UI/Qt/PackageInfoDialog.h"
 
+#include "FileTableModel.h"
 #include "PackageInfoDialog.h"
 #include "ui_PackageInfoDialog.h"
 
@@ -48,6 +49,17 @@ PackageInfoDialogImpl::PackageInfoDialogImpl(QWidget* parent, const PackageInfo&
   ui->pteTitle->setPlainText(QString::fromUtf8(packageInfo.title.c_str()));
   ui->pteDescription->setPlainText(QString::fromUtf8(packageInfo.description.c_str()));
   ui->leSize->setText(QString("%1 Bytes").arg(packageInfo.GetSize()));
+
+  FileTableModel* runFiles = new FileTableModel(parent, packageInfo.runFiles);
+  QSortFilterProxyModel* runProxyModel = new QSortFilterProxyModel(this);
+  runProxyModel->setSourceModel(runFiles);
+  ui->tvRunFiles->setModel(runProxyModel);
+  ui->tvRunFiles->sortByColumn(0, Qt::AscendingOrder);
+  FileTableModel* docFiles = new FileTableModel(parent, packageInfo.docFiles);
+  QSortFilterProxyModel* docProxyModel = new QSortFilterProxyModel(this);
+  docProxyModel->setSourceModel(docFiles);
+  ui->tvDocFiles->setModel(docProxyModel);
+  ui->tvDocFiles->sortByColumn(0, Qt::AscendingOrder);
 }
 
 PackageInfoDialogImpl::~PackageInfoDialogImpl()

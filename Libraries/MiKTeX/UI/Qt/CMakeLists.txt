@@ -48,6 +48,8 @@ set(${ui_qt_dll_name}_sources
   ConnectionSettingsDialog.h
   ErrorDialog.cpp
   ErrorDialog.h
+  FileTableModel.cpp
+  FileTableModel.h
   InstallPackageDialog.cpp
   InstallPackageDialog.h
   PackageInfoDialog.cpp
@@ -86,6 +88,7 @@ endif()
 set(${ui_qt_dll_name}_moc_sources
   ConnectionSettingsDialog.h
   ErrorDialog.h
+  FileTableModel.h
   InstallPackageDialog.h
   PackageInfoDialog.h
   ProxyAuthenticationDialog.h
