@@ -46,16 +46,16 @@ public:
   }
 
 public:
-  virtual int rowCount(const QModelIndex& parent) const;
+  int rowCount(const QModelIndex& parent) const override;
 
 public:
-  virtual int columnCount(const QModelIndex& parent) const;
+  int columnCount(const QModelIndex& parent) const override;
 
 public:
-  virtual QVariant data(const QModelIndex& index, int role) const;
+  QVariant data(const QModelIndex& index, int role) const override;
 
 public:
-  virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+  QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
 private:
   std::vector<MiKTeX::Packages::RepositoryInfo> repositories;
