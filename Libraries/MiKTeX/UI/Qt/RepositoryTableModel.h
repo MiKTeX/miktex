@@ -1,6 +1,6 @@
 /* RepositoryTableModel.h:                              -*- C++ -*-
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -30,28 +30,29 @@
 #include <miktex/PackageManager/PackageManager>
 #include <vector>
 
-class RepositoryTableModel : public QAbstractTableModel
+class RepositoryTableModel :
+  public QAbstractTableModel
 {
 private:
   Q_OBJECT;
 
 public:
-  RepositoryTableModel(QObject * pParent = nullptr);
+  RepositoryTableModel(QObject* parent = nullptr);
 
 public:
-  void SetRepositories(std::vector<MiKTeX::Packages::RepositoryInfo> & repositories)
+  void SetRepositories(std::vector<MiKTeX::Packages::RepositoryInfo>& repositories)
   {
     this->repositories = repositories;
   }
 
 public:
-  virtual int rowCount(const QModelIndex & parent) const;
+  virtual int rowCount(const QModelIndex& parent) const;
 
 public:
-  virtual int columnCount(const QModelIndex & parent) const;
+  virtual int columnCount(const QModelIndex& parent) const;
 
 public:
-  virtual QVariant data(const QModelIndex & index, int role) const;
+  virtual QVariant data(const QModelIndex& index, int role) const;
 
 public:
   virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;

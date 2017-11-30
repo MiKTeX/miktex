@@ -1,6 +1,6 @@
 /* RepositoryTableModel.cpp:
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2017 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -26,22 +26,22 @@
 using namespace MiKTeX::Packages;
 using namespace std;
 
-RepositoryTableModel::RepositoryTableModel(QObject * pParent) :
-  QAbstractTableModel(pParent)
+RepositoryTableModel::RepositoryTableModel(QObject* parent) :
+  QAbstractTableModel(parent)
 {
 }
 
-int RepositoryTableModel::rowCount(const QModelIndex & parent) const
+int RepositoryTableModel::rowCount(const QModelIndex& parent) const
 {
   return parent.isValid() ? 0 : repositories.size();
 }
 
-int RepositoryTableModel::columnCount(const QModelIndex & parent) const
+int RepositoryTableModel::columnCount(const QModelIndex& parent) const
 {
   return parent.isValid() ? 0 : 5;
 }
 
-QVariant RepositoryTableModel::data(const QModelIndex & index, int role) const
+QVariant RepositoryTableModel::data(const QModelIndex& index, int role) const
 {
   if (!(index.isValid() && index.row() >= 0 && index.row() < repositories.size()))
   {
@@ -50,7 +50,7 @@ QVariant RepositoryTableModel::data(const QModelIndex & index, int role) const
 
   if (role == Qt::DisplayRole)
   {
-    const RepositoryInfo & repositoryInfo = repositories[index.row()];
+    const RepositoryInfo& repositoryInfo = repositories[index.row()];
     switch (index.column())
     {
     case 0:
