@@ -196,21 +196,21 @@ void MainWindow::PropertyDialog()
   {
     ErrorDialog::DoModal(this, e);
   }
-
 }
 
 void MainWindow::SelectInstallablePackages()
 {
   try
   {
+    QItemSelection selection;
     for (const auto& p : model->GetData())
     {
       if (p.second.timeInstalled == 0)
       {
-        QModelIndex selectedItem = proxyModel->mapFromSource(model->index(p.first, 0));
-        treeView->selectionModel()->select(selectedItem, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+        selection.append(QItemSelectionRange(proxyModel->mapFromSource(model->index(p.first, 0))));
       }
     }
+    treeView->selectionModel()->select(selection, QItemSelectionModel::Select | QItemSelectionModel::Rows);
   }
   catch (const MiKTeXException& e)
   {
