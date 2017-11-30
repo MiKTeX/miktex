@@ -87,9 +87,6 @@ private slots:
   void ContextMenu(const QPoint& point);
 
 private:
-  void Unimplemented();
-
-private:
   QToolBar* toolBarFilter;
 
 private:

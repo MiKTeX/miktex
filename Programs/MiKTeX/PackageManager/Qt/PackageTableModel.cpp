@@ -135,3 +135,17 @@ void PackageTableModel::Reload()
   iter->Dispose();
   endResetModel();
 }
+
+bool PackageTableModel::TryGetPackageInfo(const QModelIndex& index, PackageInfo& packageInfo) const
+{
+  map<int, PackageInfo>::const_iterator it = packages.find(index.row());
+  if (it == packages.end())
+  {
+    return false;
+  }
+  else
+  {
+    packageInfo = it->second;
+    return true;
+  }
+}

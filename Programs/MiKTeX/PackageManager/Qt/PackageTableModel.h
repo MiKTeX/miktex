@@ -54,25 +54,19 @@ public:
   void Reload();
 
 public:
-  bool TryGetPackageInfo(const QModelIndex& index, MiKTeX::Packages::PackageInfo& packageInfo) const
-  {
-    std::map<int, MiKTeX::Packages::PackageInfo>::const_iterator it = packages.find(index.row());
-    if (it == packages.end())
-    {
-      return false;
-    }
-    else
-    {
-      packageInfo = it->second;
-      return true;
-    }
-  }
+  bool TryGetPackageInfo(const QModelIndex& index, MiKTeX::Packages::PackageInfo& packageInfo) const;
 
 private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 
 private:
   std::map<int, MiKTeX::Packages::PackageInfo> packages;
+
+public:
+  const std::map<int, MiKTeX::Packages::PackageInfo>& GetData() const
+  {
+    return packages;
+  }
 };
 
 #endif

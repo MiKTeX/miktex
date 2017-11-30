@@ -53,11 +53,6 @@ using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
 using namespace std;
 
-void MainWindow::Unimplemented()
-{
-  QMessageBox::information(this, tr("MiKTeX Package Manager"), tr("This is an unimplemented feature."));
-}
-
 void MainWindow::SetupFilterToolBar()
 {
   toolBarFilter = new QToolBar(this);
@@ -206,7 +201,25 @@ void MainWindow::PropertyDialog()
 
 void MainWindow::SelectInstallablePackages()
 {
-  Unimplemented();
+  try
+  {
+    for (const auto& p : model->GetData())
+    {
+      if (p.second.timeInstalled == 0)
+      {
+        QModelIndex selectedItem = proxyModel->mapFromSource(model->index(p.first, 0));
+        treeView->selectionModel()->select(selectedItem, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+      }
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    ErrorDialog::DoModal(this, e);
+  }
+  catch (const exception& e)
+  {
+    ErrorDialog::DoModal(this, e);
+  }
 }
 
 void MainWindow::Install()
