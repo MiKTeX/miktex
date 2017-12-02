@@ -1271,21 +1271,21 @@ void Application::RestartWindowed()
 
   vector<string> options{ "" };
 
-#if defined(MIKTEX_ATLMFC)
-  string mpmGuiName = pSession->IsAdminMode() ? MIKTEX_MPM_MFC_ADMIN_EXE : MIKTEX_MPM_MFC_EXE;
-#else
+#if defined(MIKTEX_WINDOWS)
   string mpmGuiName = pSession->IsAdminMode() ? MIKTEX_MPM_QT_ADMIN_EXE : MIKTEX_MPM_QT_EXE;
+#else
+  string mpmGuiName = MIKTEX_MPM_QT_EXE;
+#endif
   if (pSession->IsAdminMode())
   {
     options.push_back("--admin");
   }
-#endif
 
   options[0] = mpmGuiName;
 
   PathName mpmgui;
 
-  // locate mpm_mfc
+  // locate mpm_qt
   if (!pSession->FindFile(mpmGuiName, FileType::EXE, mpmgui))
   {
     Error(T_("Could not restart in windowed mode."));
