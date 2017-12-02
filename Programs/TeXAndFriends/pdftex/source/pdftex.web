@@ -184,7 +184,7 @@
 % and should use:
 %    \toks0=\expandafter{\title}
 %    \edef\title{...\the\toks0...}
-\let\maybe=\iffalse % print only changed modules
+\let\maybe=\iftrue % print only changed modules
 \def\topofcontents{\hsize 5.5in
   \vglue 0pt plus 1fil minus 1.5in
   \def\?##1]{\hbox to 1in{\hfil##1.\ }}
@@ -5176,10 +5176,12 @@ locations for control sequences that are perpetually defined
 @d end_write=frozen_control_sequence+8 {permanent `\.{\\endwrite}'}
 @d frozen_dont_expand=frozen_control_sequence+9
   {permanent `\.{\\notexpanded:}'}
+@d prim_size=2100 {maximum number of primitives }
 @d frozen_null_font=frozen_control_sequence+10
   {permanent `\.{\\nullfont}'}
 @d frozen_primitive=frozen_control_sequence+11
   {permanent `\.{\\pdfprimitive}'}
+@d prim_eqtb_base=frozen_primitive+1
 @d font_id_base=frozen_null_font-font_base
   {begins table of 257 permanent font identifiers}
 @d undefined_control_sequence=frozen_null_font+257 {dummy location}
@@ -6455,7 +6457,6 @@ A global boolean variable called |no_new_control_sequence| is set to
 
 @ Primitive support needs a few extra variables and definitions
 
-@d prim_size=2100 {maximum number of primitives }
 @d prim_prime=1777 {about 85\pct! of |primitive_size|}
 @d prim_base=1
 @d prim_next(#) == prim[#].lh {link for coalesced lists}
@@ -6464,25 +6465,20 @@ A global boolean variable called |no_new_control_sequence| is set to
 @d prim_eq_level_field(#)==#.hh.b1
 @d prim_eq_type_field(#)==#.hh.b0
 @d prim_equiv_field(#)==#.hh.rh
-@d prim_eq_level(#)==prim_eq_level_field(prim_eqtb[#]) {level of definition}
-@d prim_eq_type(#)==prim_eq_type_field(prim_eqtb[#]) {command code for equivalent}
-@d prim_equiv(#)==prim_equiv_field(prim_eqtb[#]) {equivalent value}
+@d prim_eq_level(#)==prim_eq_level_field(eqtb[prim_eqtb_base+#]) {level of definition}
+@d prim_eq_type(#)==prim_eq_type_field(eqtb[prim_eqtb_base+#]) {command code for equivalent}
+@d prim_equiv(#)==prim_equiv_field(eqtb[prim_eqtb_base+#]) {equivalent value}
 @d undefined_primitive=0
 @d biggest_char=255 { 65535 in XeTeX }
 
 @<Glob...@>=
 @!prim: array [0..prim_size] of two_halves;  {the primitives table}
 @!prim_used:pointer; {allocation pointer for |prim|}
-@!prim_eqtb:array[0..prim_size] of memory_word;
 
 @ @<Set init...@>=
 no_new_control_sequence:=true; {new identifiers are usually forbidden}
 prim_next(0):=0; prim_text(0):=0;
 for k:=1 to prim_size do prim[k]:=prim[0];
-prim_eq_level(0) := level_zero;
-prim_eq_type(0) := undefined_cs;
-prim_equiv(0) := null;
-for k:=1 to prim_size do prim_eqtb[k]:=prim_eqtb[0];
 next(hash_base):=0; text(hash_base):=0;
 for k:=hash_base+1 to undefined_control_sequence-1 do hash[k]:=hash[hash_base];
 
@@ -6642,7 +6638,9 @@ begin if p<hash_base then {single character}
 else if p>=undefined_control_sequence then print_esc("IMPOSSIBLE.")
 else if (text(p)<0)or(text(p)>=str_ptr) then print_esc("NONEXISTENT.")
 @.NONEXISTENT@>
-else  begin print_esc(text(p));
+else  begin
+  if (p>=prim_eqtb_base)and(p<frozen_null_font) then
+    print_esc(prim_text(p-prim_eqtb_base)-1) else print_esc(text(p));
   print_char(" ");
   end;
 end;
@@ -6657,6 +6655,8 @@ begin if p<hash_base then
   else  if p<null_cs then print_esc(p-single_base)
     else  begin print_esc("csname"); print_esc("endcsname");
       end
+else if (p>=prim_eqtb_base)and(p<frozen_null_font) then
+    print_esc(prim_text(p-prim_eqtb_base)-1)
 else print_esc(text(p));
 end;
 
@@ -6665,6 +6665,57 @@ table, together with their command code (which will be the |eq_type|)
 and an operand (which will be the |equiv|). The |primitive| procedure
 does this, in a way that no \TeX\ user can. The global value |cur_val|
 contains the new |eqtb| pointer after |primitive| has acted.
+
+Until pdf\TeX\ 1.40.19 (released in 2018), a bug in primitive handling
+caused, e.g., \.{\\pdfprimitive\\ \\q} to swallow the \.{\\q} instead of
+giving an undefined control sequence error. The original report was
+posted by Hironori Kitagawa
+(\.{tug.org/pipermail/tex-k/2017-October/002816.html}). Largely
+quoting from that message:
+
+The cause was |cur_tok| not being set in the ``Cases of |main_control|\dots''
+module, because |back_input| unscans the token, but only looks at
+|cur_tok|, which represents the internalized \.{\\pdfprimitive} at that
+time.  So \.{\\pdfprimitive\\vrule\\q} becomes ``(internalized
+\.{\\pdfprimitive})''\.{\\q}, hence no error (and \.{\\vrule} disappears).
+
+Hironori's explanation of the previous behavior and fix continues (off-list):
+
+\yskip\textindent{*} |back_input| (and similar routine $\langle\,$Insert token
+|p| into \TeX's input$\,\rangle$) only stores |cur_tok| to a token list.
+
+\textindent{*} When \TeX\ gets input from a token list (at module
+$\langle\,$Input from token list, |goto restart| \dots$\,\rangle$),
+\TeX\ looks at the saved |cur_tok| value $t$, and recover the command
+code (|cur_cmd|) and its fmodifier (|cur_chr|) from it:
+
+{\advance\leftskip by 1.5em
+\textindent{--} If |t>=cs_token_flag|, $t$ points to an |eqtb| location
+|t - cs_token_flag|.
+
+\textindent{--} If |t<cs_token_flag|, |cur_cmd| and |cur_chr| are set
+with |cur_cmd:=t div @'400; cur_chr:=t mod @'400|.
+
+\textindent{--} This $t$ is used to display the token (|show_token_list|).
+\par}
+
+\textindent{*} pdf\TeX\ defines |cs_token_flag| as \.{"FFF}.  So simply
+using |cur_tok:=(cur_cmd*@'400)+cur_chr| by \.{\\pdfprimitive} does not
+work correctly with primitives whose command codes |cur_cmd| $\ge16$.
+
+Increasing |cs_token_flag| to \.{"FFFF} or somewhat higher
+might suffice for fixing this situation in pdf\TeX.
+However, this approach does not seem good, because
+
+\textindent{1)} an (indirect) mapping from |cur_tok| to control sequence
+name is needed anyway, for displaying the token, and
+
+\textindent{2)} this does not work in Japanese e-(u)p\TeX.
+
+Thus, we now put |prim_eqtb| entries into the end of region 2 of
+|eqtb| (which contains some frozen primitives, such as ``frozen \.{\\fi}''
+and ``frozen \.{\\cr}''), thus treating |prim_eqtb| entries as a permanent
+location for primitives.
 
 @p @!init procedure primitive(@!s:str_number;@!c:quarterword;@!o:halfword);
 var k:pool_pointer; {index into |str_pool|}
@@ -8939,12 +8990,6 @@ if cur_cs<>undefined_primitive then begin
     p:=get_avail; info(p):=cs_token_flag+frozen_primitive;
     link(p):=loc; loc:=p; start:=p;
     end;
-  end
-else begin
-  print_err("Missing primitive name");
-  help2("The control sequence marked <to be read again> does not")@/
-    ("represent any known primitive.");
-  back_error;
   end;
 end
 
@@ -8958,11 +9003,15 @@ expansion creating new errors.
 @<Reset |cur_tok| for unexpandable primitives, goto restart @>=
 begin
 get_token;
-cur_cs := prim_lookup(text(cur_cs));
+if cur_cs < hash_base then
+  cur_cs := prim_lookup(cur_cs-single_base)
+else
+  cur_cs  := prim_lookup(text(cur_cs));
 if cur_cs<>undefined_primitive then begin
   cur_cmd := prim_eq_type(cur_cs);
   cur_chr := prim_equiv(cur_cs);
-  cur_tok := (cur_cmd*@'400)+cur_chr;
+  cur_cs  := prim_eqtb_base+cur_cs;
+  cur_tok := cs_token_flag+cur_cs;
   end
 else begin
   cur_cmd := relax;
@@ -28807,6 +28856,7 @@ any_mode(ignore_spaces): begin
     if cur_cs<>undefined_primitive then begin
       cur_cmd := prim_eq_type(cur_cs);
       cur_chr := prim_equiv(cur_cs);
+      cur_tok := cs_token_flag+prim_eqtb_base+cur_cs;
       goto reswitch;
       end;
     end;
@@ -32706,7 +32756,6 @@ for |p>=hash_used|, so the remaining entries are output in a~block.
 
 @<Dump the hash table@>=
 for p:=0 to prim_size do dump_hh(prim[p]);
-for p:=0 to prim_size do dump_wd(prim_eqtb[p]);
 dump_int(hash_used); cs_count:=frozen_control_sequence-1-hash_used;
 for p:=hash_base to hash_used do if text(p)<>0 then
   begin dump_int(p); dump_hh(hash[p]); incr(cs_count);
@@ -32717,7 +32766,6 @@ print_ln; print_int(cs_count); print(" multiletter control sequences")
 
 @ @<Undump the hash table@>=
 for p:=0 to prim_size do undump_hh(prim[p]);
-for p:=0 to prim_size do undump_wd(prim_eqtb[p]);
 undump(hash_base)(frozen_control_sequence)(hash_used); p:=hash_base-1;
 repeat undump(p+1)(hash_used)(p); undump_hh(hash[p]);
 until p=hash_used;
