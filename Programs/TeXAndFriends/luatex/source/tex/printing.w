@@ -842,25 +842,66 @@ int font_in_short_display; /* an internal font number */
 sort of ``complicated'' are indicated only by printing `\.{[]}'.
 
 @c
+
+/*
+So, 0, 1 as well as any large value will behave the same as before. The reason
+for this extension is that a \name not always makes sense.
+
+0   \foo xyz
+1   \foo (bar)
+2   <bar> xyz
+3   <bar @@ ..> xyz
+4   <id>
+5   <id: bar>
+6   <id: bar @@ ..> xyz
+
+*/
+
 void print_font_identifier(internal_font_number f)
 {
     str_number fonttext;
     fonttext = font_id_text(f);
-    if (fonttext > 0) {
-        print_esc(fonttext);
-    } else {
-        tprint_esc("FONT");
-        print_int(f);
-    }
-    if (tracing_fonts_par > 0) {
-        tprint(" (");
-        print_font_name(f);
-        if (font_size(f) != font_dsize(f)) {
-            tprint("@@");
-            print_scaled(font_size(f));
-            tprint("pt");
+    if (tracing_fonts_par >= 2 && tracing_fonts_par <= 6) {
+        /* < > is less likely to clash with text parenthesis */
+        tprint("<");
+        if (tracing_fonts_par >= 2 && tracing_fonts_par <= 3) {
+            print_font_name(f);
+            if (tracing_fonts_par >= 3 || font_size(f) != font_dsize(f)) {
+                tprint(" @@ ");
+                print_scaled(font_size(f));
+                tprint("pt");
+            }
+        } else if (tracing_fonts_par >= 4 && tracing_fonts_par <= 6) {
+            print_int(f);
+            if (tracing_fonts_par >= 5) {
+                tprint(": ");
+                print_font_name(f);
+                if (tracing_fonts_par >= 6 || font_size(f) != font_dsize(f)) {
+                    tprint(" @@ ");
+                    print_scaled(font_size(f));
+                    tprint("pt");
+                }
+            }
         }
-        print_char(')');
+        print_char('>');
+    } else {
+        /* old method, inherited from pdftex  */
+        if (fonttext > 0) {
+            print_esc(fonttext);
+        } else {
+            tprint_esc("FONT");
+            print_int(f);
+        }
+        if (tracing_fonts_par > 0) {
+            tprint(" (");
+            print_font_name(f);
+            if (font_size(f) != font_dsize(f)) {
+                tprint("@@");
+                print_scaled(font_size(f));
+                tprint("pt");
+            }
+            print_char(')');
+        }
     }
 }
 
