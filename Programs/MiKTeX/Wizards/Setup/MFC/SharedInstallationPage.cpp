@@ -1,6 +1,6 @@
 /* SharedInstallationPage.cpp:
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2017 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -77,9 +77,8 @@ BOOL SharedInstallationPage::OnInitDialog()
     str += _T(" ");
     str += szLogonName;
     wchar_t szDisplayName[30];
-    DllProc3<BOOLEAN, EXTENDED_NAME_FORMAT, LPWSTR, PULONG> getUserNameExW("Secur32.dll", "GetUserNameExW");
     ULONG sizeDisplayName = sizeof(szDisplayName) / sizeof(szDisplayName[0]);
-    if (getUserNameExW(NameDisplay, szDisplayName, &sizeDisplayName))
+    if (GetUserNameExW(NameDisplay, szDisplayName, &sizeDisplayName))
     {
       str += _T(" (");
       str += szDisplayName;

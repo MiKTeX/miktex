@@ -55,7 +55,6 @@
 #include <miktex/Core/Urls>
 
 #if defined(MIKTEX_WINDOWS)
-#  include "miktex/Core/win/DllProc.h"
 #  include "miktex/Core/win/winAutoResource.h"
 #  include "miktex/Core/win/WindowsVersion.h"
 #endif

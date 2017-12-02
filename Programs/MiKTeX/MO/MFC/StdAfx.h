@@ -49,13 +49,6 @@
 #  include <afxcmn.h>
 #endif
 
-#if _WIN32_WINNT < _WIN32_WINNT_VISTA
-// borrowed from CommCtrl.h
-#define BCM_SETSHIELD            (BCM_FIRST + 0x000C)
-#define Button_SetElevationRequiredState(hwnd, fRequired) \
-    (LRESULT)SNDMSG((hwnd), BCM_SETSHIELD, 0, (LPARAM)fRequired)
-#endif
-
 #include "mo-version.h"
 
 #include <miktex/Core/BufferSizes>
@@ -73,7 +66,6 @@
 #include <miktex/Core/Registry>
 #include <miktex/Core/Session>
 #include <miktex/Core/win/winAutoResource>
-#include <miktex/Core/win/DllProc>
 #include <miktex/Core/win/WindowsVersion>
 #include <miktex/Util/StringUtil>
 

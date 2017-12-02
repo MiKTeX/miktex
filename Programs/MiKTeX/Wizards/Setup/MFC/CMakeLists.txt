@@ -148,6 +148,7 @@ target_link_libraries(setup
 
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(setup
+    Secur32
     version
     Wldap32
     wininet

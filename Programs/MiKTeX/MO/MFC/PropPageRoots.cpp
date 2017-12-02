@@ -825,7 +825,7 @@ void PropPageTeXMFRoots::OnGetInfoTip(NMHDR * pNMHDR, LRESULT * pResult)
 
 void PropPageTeXMFRoots::SetElevationRequired(bool f)
 {
-  if (WindowsVersion::IsWindowsVistaOrGreater() && session->IsAdminMode())
+  if (session->IsAdminMode())
   {
     HWND hwnd = ::GetDlgItem(::GetParent(m_hWnd), IDOK);
     if (hwnd == nullptr)

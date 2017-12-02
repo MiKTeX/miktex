@@ -1,6 +1,6 @@
 /* Ruler.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of Yap.
 
@@ -37,7 +37,6 @@ void MakeTransparent(HWND hwnd, COLORREF transparencyColor, unsigned char opacit
   const long my_LWA_ALPHA = 0x00000002;
   const LONG_PTR my_WS_EX_LAYERED = 0x00080000;
 
-  static DllProc4<BOOL, HWND, COLORREF, BYTE, DWORD> SetLayeredWindowAttributes_("user32", "SetLayeredWindowAttributes");
 #if defined(_WIN64)
   LONG_PTR newStyles;
 #else
@@ -46,7 +45,7 @@ void MakeTransparent(HWND hwnd, COLORREF transparencyColor, unsigned char opacit
   newStyles = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
   newStyles |= my_WS_EX_LAYERED;
   SetWindowLongPtr(hwnd, GWL_EXSTYLE, newStyles);
-  if (!SetLayeredWindowAttributes_(hwnd, transparencyColor, opacity, my_LWA_ALPHA))
+  if (!SetLayeredWindowAttributes(hwnd, transparencyColor, opacity, my_LWA_ALPHA))
   {MIKTEX_FATAL_WINDOWS_ERROR("SetLayeredWindowAttributes");
   }
 }

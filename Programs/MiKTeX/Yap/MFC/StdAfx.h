@@ -1,6 +1,6 @@
 /* StdAfx.h: includes precompiled header files          -*- C++ -*-
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of Yap.
 
@@ -103,7 +103,6 @@
 #include <miktex/Core/Registry>
 #include <miktex/Core/Session>
 #include <miktex/Core/win/winAutoResource>
-#include <miktex/Core/win/DllProc>
 #include <miktex/Core/win/HResult>
 #include <miktex/DVI/Dvi>
 #include <miktex/Graphics/DibChunker>

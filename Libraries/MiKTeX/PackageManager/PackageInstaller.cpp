@@ -1435,44 +1435,28 @@ void PackageInstallerImpl::ConnectToServer()
   {
     if (localServer.pManager == nullptr)
     {
-      if (WindowsVersion::IsWindowsVistaOrGreater())
+      WCHAR wszCLSID[50];
+      if (StringFromGUID2(__uuidof(MiKTeXPackageManagerLib::MAKE_CURVER_ID(PackageManager)), wszCLSID, sizeof(wszCLSID) / sizeof(wszCLSID[0])) < 0)
       {
-        WCHAR wszCLSID[50];
-        if (StringFromGUID2(__uuidof(MiKTeXPackageManagerLib::MAKE_CURVER_ID(PackageManager)), wszCLSID, sizeof(wszCLSID) / sizeof(wszCLSID[0])) < 0)
-        {
-          MIKTEX_FATAL_ERROR(MSG_CANNOT_START_SERVER);
-        }
-        wstring monikerName;
-        monikerName = L"Elevation:Administrator!new:";
-        monikerName += wszCLSID;
-        BIND_OPTS3 bo;
-        memset(&bo, 0, sizeof(bo));
-        bo.cbStruct = sizeof(bo);
-        bo.hwnd = GetForegroundWindow();
-        bo.dwClassContext = CLSCTX_LOCAL_SERVER;
-        HResult hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXPackageManagerLib::IPackageManager), reinterpret_cast<void**>(&localServer.pManager));
-        if (hr == CO_E_NOTINITIALIZED || hr == MK_E_SYNTAX)
-        {
-          MyCoInitialize();
-          hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXPackageManagerLib::IPackageManager), reinterpret_cast<void**>(&localServer.pManager));
-        }
-        if (hr.Failed())
-        {
-          MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.GetText());
-        }
+        MIKTEX_FATAL_ERROR(MSG_CANNOT_START_SERVER);
       }
-      else
+      wstring monikerName;
+      monikerName = L"Elevation:Administrator!new:";
+      monikerName += wszCLSID;
+      BIND_OPTS3 bo;
+      memset(&bo, 0, sizeof(bo));
+      bo.cbStruct = sizeof(bo);
+      bo.hwnd = GetForegroundWindow();
+      bo.dwClassContext = CLSCTX_LOCAL_SERVER;
+      HResult hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXPackageManagerLib::IPackageManager), reinterpret_cast<void**>(&localServer.pManager));
+      if (hr == CO_E_NOTINITIALIZED || hr == MK_E_SYNTAX)
       {
-        HResult hr = localServer.pManager.CoCreateInstance(__uuidof(MiKTeXPackageManagerLib::MAKE_CURVER_ID(PackageManager)), nullptr, CLSCTX_LOCAL_SERVER);
-        if (hr == CO_E_NOTINITIALIZED)
-        {
-          MyCoInitialize();
-          hr = localServer.pManager.CoCreateInstance(__uuidof(MiKTeXPackageManagerLib::MAKE_CURVER_ID(PackageManager)), nullptr, CLSCTX_LOCAL_SERVER);
-        }
-        if (hr.Failed())
-        {
-          MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.GetText());
-        }
+        MyCoInitialize();
+        hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXPackageManagerLib::IPackageManager), reinterpret_cast<void**>(&localServer.pManager));
+      }
+      if (hr.Failed())
+      {
+        MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.GetText());
       }
     }
     HResult hr = localServer.pManager->CreateInstaller(&localServer.pInstaller);
@@ -1619,7 +1603,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister, const vector<stri
           path /= comp;
           if (File::Exists(path))
           {
-            RegisterComponent(doRegister, path, doRegister && WindowsVersion::IsWindowsVistaOrGreater());
+            RegisterComponent(doRegister, path, doRegister);
           }
           else
           {
@@ -1667,7 +1651,7 @@ void PackageInstallerImpl::RegisterComponents(bool doRegister)
       path /= comp;
       if (File::Exists(path))
       {
-        RegisterComponent(doRegister, path, doRegister && WindowsVersion::IsWindowsVistaOrGreater());
+        RegisterComponent(doRegister, path, doRegister);
       }
       else
       {
@@ -2535,7 +2519,7 @@ bool PackageInstallerImpl::UseLocalServer()
     return false;
   }
 #if defined(MIKTEX_WINDOWS)
-  bool elevationRequired = WindowsVersion::IsWindowsVistaOrGreater() && !session->RunningAsAdministrator();
+  bool elevationRequired = !session->RunningAsAdministrator();
   bool forceLocalServer = session->GetConfigValue(MIKTEX_REGKEY_PACKAGE_MANAGER, MIKTEX_REGVAL_FORCE_LOCAL_SERVER, false).GetBool();
   return elevationRequired || forceLocalServer;
 #else

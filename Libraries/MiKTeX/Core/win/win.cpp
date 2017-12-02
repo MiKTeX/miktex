@@ -1,6 +1,6 @@
 /* win.cpp: Windows specials
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -25,7 +25,6 @@
 
 #include "miktex/Core/Directory.h"
 #include "miktex/Core/Exceptions.h"
-#include "miktex/Core/win/DllProc.h"
 #include "miktex/Core/win/HResult.h"
 #include "miktex/Core/win/winAutoResource.h"
 

@@ -1,6 +1,6 @@
 /* winSetupService.cpp:
 
-   Copyright (C) 2014-2016 Christian Schenk
+   Copyright (C) 2014-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -39,22 +39,11 @@ PathName SetupService::GetDefaultCommonInstallDir()
 PathName SetupService::GetDefaultUserInstallDir()
 {
   PathName path;
-  if (WindowsVersion::IsWindowsVistaOrGreater())
+  PWSTR pwstr;
+  if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_UserProgramFiles, KF_FLAG_CREATE, nullptr, &pwstr)))
   {
-#if _WIN32_WINNT < _WIN32_WINNT_VISTA
-// borrowed from ShlObj.h
-typedef enum
-{
-    KF_FLAG_CREATE          = 0x00008000,
-} KNOWN_FOLDER_FLAG;
-#endif
-    DllProc4<HRESULT, REFKNOWNFOLDERID, DWORD, HANDLE, PWSTR*> SHGetKnownFolderPath_("Shell32.dll", "SHGetKnownFolderPath");
-    PWSTR pwstr;
-    if (SUCCEEDED(SHGetKnownFolderPath_(FOLDERID_UserProgramFiles, KF_FLAG_CREATE, nullptr, &pwstr)))
-    {
-      AutoCoTaskMem xxx(pwstr);
-      path = pwstr;
-    }
+    AutoCoTaskMem xxx(pwstr);
+    path = pwstr;
   }
   if (path.Empty())
   {

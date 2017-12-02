@@ -1,6 +1,6 @@
 /* miktex/UI/UI.h:                                      -*- C++ -*-
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is part of MiKTeX UI Library.
 
@@ -69,13 +69,6 @@ inline int defaultFramework()
     if (defaultGUIFramework == (int)Framework::None)
     {
       defaultGUIFramework = (int)Framework::Qt;
-#if defined(MIKTEX_WINDOWS)
-      // Windows XP
-      if (!WindowsVersion::IsWindowsVistaOrGreater())
-      {
-        defaultGUIFramework = (int)Framework::None;
-      }
-#endif
     }
 #endif
 #if defined(MIKTEX_UI_MFC)

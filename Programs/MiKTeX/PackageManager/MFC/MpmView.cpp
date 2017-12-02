@@ -621,10 +621,8 @@ void MpmView::OnInstall()
     str2.Format(_T("%u"), toBeRemoved.size());
     CString str;
     AfxFormatString2(str, IDP_UPDATE_MESSAGE, str1, str2);
-#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
-    if (WindowsVersion::IsWindowsVistaOrGreater() && pSession->IsAdminMode())
+    if (pSession->IsAdminMode())
     {
-      DllProc4<HRESULT, const TASKDIALOGCONFIG *, int *, int *, BOOL *> taskDialogIndirect("comctl32.dll", "TaskDialogIndirect");
       TASKDIALOGCONFIG taskDialogConfig;
       memset(&taskDialogConfig, 0, sizeof(taskDialogConfig));
       taskDialogConfig.cbSize = sizeof(TASKDIALOGCONFIG);
@@ -644,7 +642,7 @@ void MpmView::OnInstall()
       taskDialogConfig.pButtons = buttons;
       taskDialogConfig.nDefaultButton = IDOK;
       int result = 0;
-      if (SUCCEEDED(taskDialogIndirect(&taskDialogConfig, &result, nullptr, nullptr)))
+      if (SUCCEEDED(TaskDialogIndirect(&taskDialogConfig, &result, nullptr, nullptr)))
       {
         if (IDOK != result)
         {
@@ -657,7 +655,6 @@ void MpmView::OnInstall()
       }
     }
     else
-#endif
     {
       if (AfxMessageBox(str, MB_OKCANCEL | MB_ICONINFORMATION) == IDCANCEL)
       {

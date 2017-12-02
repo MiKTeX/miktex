@@ -62,44 +62,28 @@ void SessionImpl::ConnectToServer()
   const char* MSG_CANNOT_START_SERVER = T_("Cannot start MiKTeX session.");
   if (localServer.pSession == nullptr)
   {
-    if (WindowsVersion::IsWindowsVistaOrGreater())
+    WCHAR wszCLSID[50];
+    if (StringFromGUID2(__uuidof(MiKTeXSessionLib::MAKE_CURVER_ID(MiKTeXSession)), wszCLSID, sizeof(wszCLSID) / sizeof(wszCLSID[0])) < 0)
     {
-      WCHAR wszCLSID[50];
-      if (StringFromGUID2(__uuidof(MiKTeXSessionLib::MAKE_CURVER_ID(MiKTeXSession)), wszCLSID, sizeof(wszCLSID) / sizeof(wszCLSID[0])) < 0)
-      {
-        MIKTEX_FATAL_ERROR(MSG_CANNOT_START_SERVER);
-      }
-      wstring monikerName;
-      monikerName = L"Elevation:Administrator!new:";
-      monikerName += wszCLSID;
-      BIND_OPTS3 bo;
-      memset(&bo, 0, sizeof(bo));
-      bo.cbStruct = sizeof(bo);
-      bo.hwnd = GetForegroundWindow();
-      bo.dwClassContext = CLSCTX_LOCAL_SERVER;
-      HResult hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXSessionLib::ISession), reinterpret_cast<void**>(&localServer.pSession));
-      if (hr == CO_E_NOTINITIALIZED)
-      {
-        MyCoInitialize();
-        hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXSessionLib::ISession), reinterpret_cast<void**>(&localServer.pSession));
-      }
-      if (hr.Failed())
-      {
-        MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.GetText());
-      }
+      MIKTEX_FATAL_ERROR(MSG_CANNOT_START_SERVER);
     }
-    else
+    wstring monikerName;
+    monikerName = L"Elevation:Administrator!new:";
+    monikerName += wszCLSID;
+    BIND_OPTS3 bo;
+    memset(&bo, 0, sizeof(bo));
+    bo.cbStruct = sizeof(bo);
+    bo.hwnd = GetForegroundWindow();
+    bo.dwClassContext = CLSCTX_LOCAL_SERVER;
+    HResult hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXSessionLib::ISession), reinterpret_cast<void**>(&localServer.pSession));
+    if (hr == CO_E_NOTINITIALIZED)
     {
-      HResult hr = localServer.pSession.CoCreateInstance(__uuidof(MiKTeXSessionLib::MAKE_CURVER_ID(MiKTeXSession)), nullptr, CLSCTX_LOCAL_SERVER);
-      if (hr == CO_E_NOTINITIALIZED)
-      {
-        MyCoInitialize();
-        hr = localServer.pSession.CoCreateInstance(__uuidof(MiKTeXSessionLib::MAKE_CURVER_ID(MiKTeXSession)), nullptr, CLSCTX_LOCAL_SERVER);
-      }
-      if (hr.Failed())
-      {
-        MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.GetText());
-      }
+      MyCoInitialize();
+      hr = CoGetObject(monikerName.c_str(), &bo, __uuidof(MiKTeXSessionLib::ISession), reinterpret_cast<void**>(&localServer.pSession));
+    }
+    if (hr.Failed())
+    {
+      MIKTEX_FATAL_ERROR_2(MSG_CANNOT_START_SERVER, "hr", hr.GetText());
     }
   }
 }
@@ -117,7 +101,7 @@ bool SessionImpl::UseLocalServer()
     return false;
   }
 #if defined(MIKTEX_WINDOWS)
-  bool elevationRequired = (WindowsVersion::IsWindowsVistaOrGreater() && IsAdminMode() && !RunningAsAdministrator());
+  bool elevationRequired = (IsAdminMode() && !RunningAsAdministrator());
   return elevationRequired;
 #else
   return false;
@@ -968,7 +952,7 @@ bool SessionImpl::RunningAsAdministrator()
   {
     if (IsUserAnAdministrator())
     {
-      if (WindowsVersion::IsWindowsVistaOrGreater() && !RunningElevated())
+      if (!RunningElevated())
       {
         runningAsAdministrator = TriState::False;
       }
@@ -991,7 +975,7 @@ bool SessionImpl::RunningAsPowerUser()
   {
     if (IsUserAPowerUser())
     {
-      if (WindowsVersion::IsWindowsVistaOrGreater() && !RunningElevated())
+      if (!RunningElevated())
       {
         runningAsPowerUser = TriState::False;
       }

@@ -90,6 +90,12 @@ set(libs
   miktex-popt-wrapper
 )
 
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND libs
+    Comctl32.lib
+  )
+endif()
+
 target_link_libraries(mpm_qt ${libs})  
 
 merge_trustinfo_manifest(mpm_qt asInvoker)

@@ -1,6 +1,6 @@
 /* InstallPackageDialog.cpp:
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2017 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -153,42 +153,21 @@ void InstallPackageDialog::on_cbInstallationDirectory_currentIndexChanged(int id
   {
     bool iconSet = false;
 #if defined(MIKTEX_WINDOWS)
-    if (WindowsVersion::IsWindowsVistaOrGreater())
+    SHSTOCKICONINFO sii;
+    sii.cbSize = sizeof(sii);
+    if (SUCCEEDED(SHGetStockIconInfo(SIID_SHIELD, SHGSI_ICON | SHGSI_SMALLICON, &sii)))
     {
-#if _WIN32_WINNT < _WIN32_WINNT_VISTA
-// borrowed from shellapi.h
-typedef struct _SHSTOCKICONINFO
-{
-    DWORD cbSize;
-    HICON hIcon;
-    int   iSysImageIndex;
-    int   iIcon;
-    WCHAR szPath[MAX_PATH];
-} SHSTOCKICONINFO;
-#define SHGSI_ICON              SHGFI_ICON
-#define SHGSI_SMALLICON         SHGFI_SMALLICON
-typedef enum SHSTOCKICONID
-{
-    SIID_SHIELD = 77,             // Security shield. Use for UAC prompts only.
-};
-#endif
-      DllProc3<HRESULT, SHSTOCKICONID, UINT, SHSTOCKICONINFO *>shGetStockIconInfo("Shell32.dll", "SHGetStockIconInfo");
-      SHSTOCKICONINFO sii;
-      sii.cbSize = sizeof(sii);
-      if (SUCCEEDED(shGetStockIconInfo(SIID_SHIELD, SHGSI_ICON | SHGSI_SMALLICON, &sii)))
+      HICON hiconShield = sii.hIcon;
+      ICONINFO iconInfo;
+      if (GetIconInfo(hiconShield, &iconInfo))
       {
-	HICON hiconShield = sii.hIcon;
-	ICONINFO iconInfo;
-	if (GetIconInfo(hiconShield, &iconInfo))
-	{
-	  QPixmap pixmapShield = QtWin::fromHBITMAP(iconInfo.hbmColor, QtWin::HBitmapAlpha);
-	  DeleteObject(iconInfo.hbmColor);
-	  DeleteObject(iconInfo.hbmMask);
-	  pOKButton->setIcon(QIcon(pixmapShield));
-	  iconSet = true;
-	}
-	DestroyIcon(hiconShield);
+	QPixmap pixmapShield = QtWin::fromHBITMAP(iconInfo.hbmColor, QtWin::HBitmapAlpha);
+	DeleteObject(iconInfo.hbmColor);
+	DeleteObject(iconInfo.hbmMask);
+	pOKButton->setIcon(QIcon(pixmapShield));
+	iconSet = true;
       }
+      DestroyIcon(hiconShield);
     }
 #endif
     if (!iconSet)

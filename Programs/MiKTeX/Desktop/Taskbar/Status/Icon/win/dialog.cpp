@@ -1,6 +1,6 @@
 /* StdAfx.cpp:
 
-   Copyright (C) 2009-2016 Christian Schenk
+   Copyright (C) 2009-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published

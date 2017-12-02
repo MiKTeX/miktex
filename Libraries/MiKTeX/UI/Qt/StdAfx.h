@@ -50,5 +50,4 @@
 #if defined(MIKTEX_WINDOWS)
 #  include <miktex/Core/win/winAutoResource>
 #  include <miktex/Core/win/WindowsVersion>
-#  include <miktex/Core/win/DllProc>
 #endif

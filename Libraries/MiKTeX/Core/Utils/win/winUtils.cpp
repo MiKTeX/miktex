@@ -26,7 +26,6 @@
 #include "miktex/Core/Directory.h"
 #include "miktex/Core/PathName.h"
 #include "miktex/Core/Paths.h"
-#include "miktex/Core/win/DllProc.h"
 #include "miktex/Core/win/WindowsVersion.h"
 
 #include "Session/SessionImpl.h"
@@ -760,10 +759,9 @@ bool Utils::GetDefPrinter(string& printerName)
     }
     if (osv.dwMajorVersion >= 5)
     {
-      DllProc2<BOOL, wchar_t *, LPDWORD> getDefaultPrinterW("winspool.drv", "GetDefaultPrinterW");
       CharBuffer<wchar_t> printerNameBuf;
       DWORD dwBufferSize = printerNameBuf.GetCapacity();
-      BOOL bDone = getDefaultPrinterW(printerNameBuf.GetData(), &dwBufferSize);
+      BOOL bDone = GetDefaultPrinterW(printerNameBuf.GetData(), &dwBufferSize);
       if (!bDone)
       {
         if (::GetLastError() == ERROR_FILE_NOT_FOUND)

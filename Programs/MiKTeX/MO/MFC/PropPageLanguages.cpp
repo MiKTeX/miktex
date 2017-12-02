@@ -1,6 +1,6 @@
 /* PropPageLanguages.cpp:
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is part of MiKTeX Options.
 
@@ -113,10 +113,8 @@ bool PropPageLanguages::InstallLanguagePackages(const vector<string> toBeInstall
   str1.Format(_T("%u"), toBeInstalled.size());
   CString str;
   AfxFormatString2(str, IDP_UPDATE_MESSAGE, str1, _T("0"));
-#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
-  if (WindowsVersion::IsWindowsVistaOrGreater() && session->IsAdminMode())
+  if (session->IsAdminMode())
   {
-    DllProc4<HRESULT, const TASKDIALOGCONFIG *, int *, int *, BOOL *> taskDialogIndirect("comctl32.dll", "TaskDialogIndirect");
     TASKDIALOGCONFIG taskDialogConfig;
     memset(&taskDialogConfig, 0, sizeof(taskDialogConfig));
     taskDialogConfig.cbSize = sizeof(TASKDIALOGCONFIG);
@@ -136,7 +134,7 @@ bool PropPageLanguages::InstallLanguagePackages(const vector<string> toBeInstall
     taskDialogConfig.pButtons = buttons;
     taskDialogConfig.nDefaultButton = IDOK;
     int result = 0;
-    if (SUCCEEDED(taskDialogIndirect(&taskDialogConfig, &result, nullptr, nullptr)))
+    if (SUCCEEDED(TaskDialogIndirect(&taskDialogConfig, &result, nullptr, nullptr)))
     {
       if (IDOK != result)
       {
@@ -149,7 +147,6 @@ bool PropPageLanguages::InstallLanguagePackages(const vector<string> toBeInstall
     }
   }
   else
-#endif
   {
     if (AfxMessageBox(str, MB_OKCANCEL | MB_ICONINFORMATION) == IDCANCEL)
     {
@@ -428,7 +425,7 @@ void PropPageLanguages::EnableButtons()
 
 void PropPageLanguages::SetElevationRequired(bool f)
 {
-  if (WindowsVersion::IsWindowsVistaOrGreater() && session->IsAdminMode())
+  if (session->IsAdminMode())
   {
     HWND hwnd = ::GetDlgItem(::GetParent(m_hWnd), IDOK);
     if (hwnd == nullptr)

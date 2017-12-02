@@ -1,6 +1,6 @@
 /* PropPagePackages.cpp:
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is part of MiKTeX Options.
 
@@ -109,10 +109,8 @@ BOOL PropPagePackages::OnApply()
     str2.Format(_T("%u"), toBeRemoved.size());
     CString str;
     AfxFormatString2(str, IDP_UPDATE_MESSAGE, str1, str2);
-#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
-    if (WindowsVersion::IsWindowsVistaOrGreater() && session->IsAdminMode())
+    if (session->IsAdminMode())
     {
-      DllProc4<HRESULT, const TASKDIALOGCONFIG *, int *, int *, BOOL *> taskDialogIndirect("comctl32.dll", "TaskDialogIndirect");
       TASKDIALOGCONFIG taskDialogConfig;
       memset(&taskDialogConfig, 0, sizeof(taskDialogConfig));
       taskDialogConfig.cbSize = sizeof(TASKDIALOGCONFIG);
@@ -132,7 +130,7 @@ BOOL PropPagePackages::OnApply()
       taskDialogConfig.pButtons = buttons;
       taskDialogConfig.nDefaultButton = IDOK;
       int result = 0;
-      if (SUCCEEDED(taskDialogIndirect(&taskDialogConfig, &result, nullptr, nullptr)))
+      if (SUCCEEDED(TaskDialogIndirect(&taskDialogConfig, &result, nullptr, nullptr)))
       {
         if (IDOK != result)
         {
@@ -145,7 +143,6 @@ BOOL PropPagePackages::OnApply()
       }
     }
     else
-#endif
     {
       if (AfxMessageBox(str, MB_OKCANCEL | MB_ICONINFORMATION) == IDCANCEL)
       {
@@ -445,7 +442,7 @@ void PropPagePackages::OnGetInfoTip(NMHDR * pNMHDR, LRESULT * pResult)
 
 void PropPagePackages::SetElevationRequired(bool f)
 {
-  if (WindowsVersion::IsWindowsVistaOrGreater() && session->IsAdminMode())
+  if (session->IsAdminMode())
   {
     HWND hwnd = ::GetDlgItem(::GetParent(m_hWnd), IDOK);
     if (hwnd == nullptr)

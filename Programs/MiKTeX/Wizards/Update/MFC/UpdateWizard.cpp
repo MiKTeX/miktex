@@ -1,6 +1,6 @@
 /* UpdateWizard.cpp:
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2017 Christian Schenk
 
    This file is part of the MiKTeX Update Wizard.
 
@@ -36,11 +36,6 @@ UpdateWizard::UpdateWizard()
   NONCLIENTMETRICS ncm;
   memset(&ncm, 0, sizeof(ncm));
   ncm.cbSize = sizeof(ncm);
-  if (WINVER >= 0x0600 && !WindowsVersion::IsWindowsVistaOrGreater())
-  {
-    // work-around SDK bug
-    ncm.cbSize -= sizeof(int/*NONCLIENTMETRICS::iPaddedBorderWidth*/);
-  }
   if (!SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &ncm, 0))
   {
     MIKTEX_FATAL_WINDOWS_ERROR("SystemParametersInfo");

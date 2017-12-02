@@ -39,8 +39,6 @@ string Ghostscript::LIBGS_NAME;
 #ifndef HAVE_LIBGS
 
 #ifdef _WIN32
-#if defined(MIKTEX) && _WIN32_WINNT < _WIN32_WINNT_VISTA
-#else
 /** Looks up the path of the Ghostscript DLL in the Windows registry and returns it.
  *  If there is no proper registry entry, the returned string is empty. */
 static string get_path_from_registry () {
@@ -79,7 +77,6 @@ static string get_path_from_registry () {
 #endif  // RRF_RT_REG_SZ
 	return "";
 }
-#endif
 #endif  // _WIN32
 
 
@@ -100,13 +97,10 @@ static string get_libgs (const string &fname) {
 		return gsdll_path;
 #endif // MIKTEX
 #if defined(_WIN32)
-#if defined(MIKTEX) && _WIN32_WINNT < _WIN32_WINNT_VISTA
-#else
 	// try to look up the path of the Ghostscript DLL in the Windows registry
 	string gsdll_path = get_path_from_registry();
 	if (!gsdll_path.empty())
 		return gsdll_path;
-#endif
 #endif
 #if defined(_WIN64)
 	return "gsdll64.dll";

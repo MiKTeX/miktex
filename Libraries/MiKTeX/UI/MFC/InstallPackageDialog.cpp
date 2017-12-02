@@ -1,6 +1,6 @@
 /* InstallPackageDialog.cpp:
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -74,14 +74,8 @@ BOOL InstallPackageDialog::OnInitDialog()
     {
       FormatControlText(IDC_EDIT_REPOSITORY_LOCATION, "%s", T_("<Random package repository>"));
     }
-    if (WindowsVersion::IsWindowsVistaOrGreater() && session->IsAdminMode())
+    if (session->IsAdminMode())
     {
-#if _WIN32_WINNT < _WIN32_WINNT_VISTA
-// borrowed from shellapi.h
-#define BCM_SETSHIELD            (BCM_FIRST + 0x000C)
-#define Button_SetElevationRequiredState(hwnd, fRequired) \
-    (LRESULT)SNDMSG((hwnd), BCM_SETSHIELD, 0, (LPARAM)fRequired)
-#endif
       HWND hwnd = ::GetDlgItem(m_hWnd, IDOK);
       if (hwnd == nullptr)
       {

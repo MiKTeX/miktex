@@ -66,7 +66,6 @@
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
 #include <miktex/Core/Session>
-#include <miktex/Core/win/DllProc>
 #include <miktex/Core/win/WindowsVersion>
 #include <miktex/PackageManager/PackageManager>
 #include <miktex/Trace/TraceStream>

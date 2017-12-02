@@ -38,7 +38,6 @@
 
 #if defined(MIKTEX_WINDOWS)
 #include <miktex/Core/win/WindowsVersion.h>
-#include <miktex/Core/win/DllProc>
 #include <commctrl.h>
 #endif
 
@@ -248,10 +247,9 @@ void MainWindow::Install()
       tr("Your MiKTeX installation will now be updated:\n\n")
       + tr("%n package(s) will be installed\n", "", toBeInstalled.size())
       + tr("%n package(s) will be removed", "", toBeRemoved.size());
-#if defined(MIKTEX_WINDOWS) && _WIN32_WINNT >= _WIN32_WINNT_VISTA
-    if (WindowsVersion::IsWindowsVistaOrGreater() && session->IsAdminMode())
+#if defined(MIKTEX_WINDOWS)
+    if (session->IsAdminMode())
     {
-      DllProc4<HRESULT, const TASKDIALOGCONFIG*, int*, int*, BOOL*> taskDialogIndirect("comctl32.dll", "TaskDialogIndirect");
       TASKDIALOGCONFIG taskDialogConfig;
       memset(&taskDialogConfig, 0, sizeof(taskDialogConfig));
       taskDialogConfig.cbSize = sizeof(TASKDIALOGCONFIG);
@@ -270,7 +268,7 @@ void MainWindow::Install()
       taskDialogConfig.pButtons = buttons;
       taskDialogConfig.nDefaultButton = IDOK;
       int result = 0;
-      if (SUCCEEDED(taskDialogIndirect(&taskDialogConfig, &result, nullptr, nullptr)))
+      if (SUCCEEDED(TaskDialogIndirect(&taskDialogConfig, &result, nullptr, nullptr)))
       {
         if (IDOK != result)
         {
