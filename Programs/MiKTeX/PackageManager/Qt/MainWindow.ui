@@ -91,6 +91,8 @@
     </property>
     <addaction name="actionInstall"/>
     <addaction name="actionUninstall"/>
+    <addaction name="separator"/>
+    <addaction name="actionUpdateWizard"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menu_Edit"/>
@@ -119,6 +121,8 @@
    <addaction name="separator"/>
    <addaction name="actionSynchronize"/>
    <addaction name="actionChangeRepository"/>
+   <addaction name="separator"/>
+   <addaction name="actionUpdateWizard"/>
   </widget>
   <action name="actionExit">
    <property name="text">
@@ -231,6 +235,17 @@
    </property>
    <property name="statusTip">
     <string>Applies the filter on the package list view.</string>
+   </property>
+  </action>
+  <action name="actionUpdateWizard">
+   <property name="text">
+    <string>Update Wizard...</string>
+   </property>
+   <property name="toolTip">
+    <string>Update Wizard</string>
+   </property>
+   <property name="statusTip">
+    <string>Starts the update wizard.</string>
    </property>
   </action>
  </widget>

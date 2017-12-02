@@ -75,6 +75,9 @@ private slots:
   void RepositoryWizard();
 
 private slots:
+  void UpdateWizard();
+
+private slots:
   void Synchronize();
 
 private slots:

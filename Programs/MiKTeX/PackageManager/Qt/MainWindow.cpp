@@ -29,8 +29,11 @@
 #include <memory>
 #include <thread>
 
+#include "mpm-version.h"
+
 #include <miktex/Core/Debug>
 #include <miktex/Core/Exceptions>
+#include <miktex/Core/Paths>
 #include <miktex/UI/Qt/ErrorDialog>
 #include <miktex/UI/Qt/PackageInfoDialog>
 #include <miktex/UI/Qt/SiteWizSheet>
@@ -44,8 +47,6 @@
 #include "MainWindow.h"
 #include "PackageProxyModel.h"
 #include "PackageTableModel.h"
-
-#include "mpm-version.h"
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Packages;
@@ -114,6 +115,10 @@ MainWindow::MainWindow() :
     SIGNAL(triggered()),
     this,
     SLOT(RepositoryWizard()));
+  connect(actionUpdateWizard,
+    SIGNAL(triggered()),
+    this,
+    SLOT(UpdateWizard()));
   connect(actionSynchronize,
     SIGNAL(triggered()),
     this,
@@ -392,5 +397,27 @@ void MainWindow::ContextMenu(const QPoint& point)
   if (index.isValid())
   {
     contextMenu->exec(treeView->mapToGlobal(point));
+  }
+}
+
+void MainWindow::UpdateWizard()
+{
+  try
+  {
+    if (!session->UnloadFilenameDatabase())
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    PathName exePath = session->GetSpecialPath(SpecialPath::InternalBinDirectory);
+    exePath /= session->IsAdminMode() ? MIKTEX_UPDATE_ADMIN_EXE : MIKTEX_UPDATE_EXE;
+    Process::Start(exePath);
+  }
+  catch (const MiKTeXException& e)
+  {
+    ErrorDialog::DoModal(this, e);
+  }
+  catch (const exception& e)
+  {
+    ErrorDialog::DoModal(this, e);
   }
 }
