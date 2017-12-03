@@ -210,6 +210,12 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
+if(APPLE)
+  list(APPEND libs
+    "-framework CoreServices"
+  )
+endif()
+
 add_executable(${MIKTEX_PREFIX}texworks WIN32
   ${texworks_sources}
   ${texworks_ui_headers}
