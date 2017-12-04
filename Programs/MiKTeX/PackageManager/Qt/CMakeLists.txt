@@ -74,11 +74,7 @@ set(sources
   ${mpm_qt_rcc_sources}
 )
 
-if(MIKTEX_NATIVE_WINDOWS)
-  add_executable(mpm_qt WIN32 ${sources})
-else()
-  add_executable(mpm_qt ${sources})
-endif()
+add_executable(mpm_qt WIN32 MACOSX_BUNDLE ${sources})
 
 set_property(TARGET mpm_qt PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
@@ -103,7 +99,7 @@ merge_compatibility_manifest(mpm_qt)
 
 install(TARGETS mpm_qt DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
-add_executable(mpm_qt${MIKTEX_ADMIN_SUFFIX} WIN32 ${sources})
+add_executable(mpm_qt${MIKTEX_ADMIN_SUFFIX} WIN32 MACOSX_BUNDLE ${sources})
 set_property(TARGET mpm_qt${MIKTEX_ADMIN_SUFFIX} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(mpm_qt${MIKTEX_ADMIN_SUFFIX} ${libs})
 merge_trustinfo_manifest(mpm_qt${MIKTEX_ADMIN_SUFFIX} requireAdministrator)

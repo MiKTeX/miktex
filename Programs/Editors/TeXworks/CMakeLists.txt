@@ -216,7 +216,7 @@ if(APPLE)
   )
 endif()
 
-add_executable(${MIKTEX_PREFIX}texworks WIN32
+add_executable(${MIKTEX_PREFIX}texworks WIN32 MACOSX_BUNDLE
   ${texworks_sources}
   ${texworks_ui_headers}
   ${texworks_rcc_sources}
