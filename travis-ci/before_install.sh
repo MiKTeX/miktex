@@ -47,6 +47,10 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     sudo apt-get install -y liburiparser-dev
     sudo apt-get install -y libzzip-dev
 
+    sudo apt-get install -y qtbase5-dev
+    sudo apt-get install -y qtscript5-dev
+    sudo apt-get install -y qttools5-dev
+    
     if [ -z $MIKTEX_BUILD_HARFBUZZ ]; then
         sudo apt-get install -y libharfbuzz-dev
     fi
@@ -55,6 +59,7 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
 	sudo apt-get install -y poppler-utils
 	sudo apt-get install -y libpoppler-dev
 	sudo apt-get install -y libpoppler-private-dev
+	sudo apt-get install -y libpoppler-qt5-dev
     fi
 
 elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
