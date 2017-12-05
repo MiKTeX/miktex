@@ -3,8 +3,11 @@
 set -v
 
 if [ -d ~/.miktex/texmfs/data/miktex/log ]; then
-    cd ~/.miktex/texmfs/data/miktex/log
-    grep FATAL *
+    (cd ~/.miktex/texmfs/data/miktex/log; grep FATAL *)
+fi
+
+if [ -d ${TRAVIS_BUILD_DIR}/build/sandbox/miktex/log ]; then
+    (cd ${TRAVIS_BUILD_DIR}/build/sandbox/miktex/log; grep FATAL *)
 fi
 
 if [ -f "${TRAVIS_BUILD_DIR}/miktex-testing/build/Testing/Temporary/LastTest.log" ]; then
