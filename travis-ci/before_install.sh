@@ -94,6 +94,7 @@ elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     ( brew ls -1 | grep -w poppler ) || brew install poppler
     ( brew ls -1 | grep -w popt ) || brew install popt
     ( brew ls -1 | grep -w potrace ) || brew install potrace
+    ( brew ls -1 | grep -w qt ) || brew install qt
     ( brew ls -1 | grep -w uriparser ) || brew install uriparser
     ( brew ls -1 | grep -w xz ) || brew install xz
 fi
