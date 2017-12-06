@@ -106,6 +106,4 @@ if(MIKTEX_NATIVE_WINDOWS)
   install(TARGETS mpm_qt${MIKTEX_ADMIN_SUFFIX}
     RUNTIME DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR}
   )
-else()
-  # TODO: create symbolic link
 endif()
