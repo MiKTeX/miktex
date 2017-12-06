@@ -74,10 +74,6 @@ set(sources
   ${mpm_qt_rcc_sources}
 )
 
-add_executable(mpm_qt WIN32 MACOSX_BUNDLE ${sources})
-
-set_property(TARGET mpm_qt PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
 set(libs
   ${core_dll_name}
   ${mpm_dll_name}
@@ -92,11 +88,11 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
+add_executable(mpm_qt WIN32 MACOSX_BUNDLE ${sources})
+set_property(TARGET mpm_qt PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(mpm_qt ${libs})  
-
 merge_trustinfo_manifest(mpm_qt asInvoker)
 merge_compatibility_manifest(mpm_qt)
-
 install(TARGETS mpm_qt DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 add_executable(mpm_qt${MIKTEX_ADMIN_SUFFIX} WIN32 MACOSX_BUNDLE ${sources})
