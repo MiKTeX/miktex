@@ -93,11 +93,17 @@ set_property(TARGET mpm_qt PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(mpm_qt ${libs})  
 merge_trustinfo_manifest(mpm_qt asInvoker)
 merge_compatibility_manifest(mpm_qt)
-install(TARGETS mpm_qt DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS mpm_qt
+  BUNDLE DESTINATION ${MIKTEX_BUNDLE_DESTINATION_DIR}
+  RUNTIME DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR}
+)
 
 add_executable(mpm_qt${MIKTEX_ADMIN_SUFFIX} WIN32 MACOSX_BUNDLE ${sources})
 set_property(TARGET mpm_qt${MIKTEX_ADMIN_SUFFIX} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(mpm_qt${MIKTEX_ADMIN_SUFFIX} ${libs})
 merge_trustinfo_manifest(mpm_qt${MIKTEX_ADMIN_SUFFIX} requireAdministrator)
 merge_compatibility_manifest(mpm_qt${MIKTEX_ADMIN_SUFFIX})
-install(TARGETS mpm_qt${MIKTEX_ADMIN_SUFFIX} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+install(TARGETS mpm_qt${MIKTEX_ADMIN_SUFFIX}
+  BUNDLE DESTINATION ${MIKTEX_BUNDLE_DESTINATION_DIR}
+  RUNTIME DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR}
+)
