@@ -64,6 +64,8 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
   }
 }
 
+#define MIKTEX_MACOS_MIKTEX_LIBRARY_FOLDER "Library/Application Support/MiKTeX"
+
 /*
  * UserConfig:    $HOME/.miktex/texmfs/config
  * UserData:      $HOME/.miktex/texmfs/data
@@ -90,7 +92,11 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
     MIKTEX_FATAL_ERROR(T_("Environment variable HOME is not set."));
   }
   PathName home_miktex(home);
+#if defined(MIKTEX_MACOS_BUNDLE)
+  home_miktex /= MIKTEX_MACOS_MIKTEX_LIBRARY_FOLDER;
+#else
   home_miktex /= ".miktex";
+#endif
   PathName home_miktex_texmfs(home_miktex);
   home_miktex_texmfs /= "texmfs";
   ret.userConfigRoot = home_miktex_texmfs;
@@ -99,6 +105,7 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
   ret.userDataRoot /= "data";
   ret.userInstallRoot = home_miktex_texmfs;
   ret.userInstallRoot /= "install";
+#if !defined(MIKTEX_MACOS_BUNDLE)
   PathName prefix = GetMyPrefix(false);
   vector<string> splittedPrefix = PathName::Split(prefix);
   size_t n = splittedPrefix.size();
@@ -125,15 +132,23 @@ StartupConfig SessionImpl::DefaultConfig(MiKTeXConfiguration config, const PathN
     ret.commonDataRoot = destdir / PathName(MIKTEX_SYSTEM_VAR_CACHE_DIR + 1) / MIKTEX_PREFIX "texmf";
     ret.commonInstallRoot = destdir / "usr/local" / MIKTEX_INSTALL_DIR;
   }
-  else
+#endif
+  if (ret.commonConfigRoot.Empty())
   {
+#if defined(MIKTEX_MACOS_BUNDLE)
+    PathName system_miktex_texmfs("/");
+    system_miktex_texmfs /= MIKTEX_MACOS_MIKTEX_LIBRARY_FOLDER;
+#else
     if (!PathName::Match("*miktex*", prefix.GetData()))
     {
       // TODO: log funny installation prefix
     }
-    ret.commonConfigRoot = prefix / "texmfs" / "config";
-    ret.commonDataRoot = prefix / "texmfs" / "data";
-    ret.commonInstallRoot = prefix / "texmfs" / "install";
+    PathName system_miktex_texmfs(prefix);
+#endif
+    system_miktex_texmfs /= "texmfs";
+    ret.commonConfigRoot = system_miktex_texmfs / "config";
+    ret.commonDataRoot = system_miktex_texmfs / "data";
+    ret.commonInstallRoot = system_miktex_texmfs / "install";
   }
   return ret;
 }

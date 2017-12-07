@@ -171,7 +171,7 @@ bool SessionImpl::FindStartupConfigFile(bool common, PathName& path)
     {
       return true;
     }
-#if defined(MIKTEX_UNIX)
+#if defined(MIKTEX_UNIX) && !defined(MIKTEX_MACOS_BUNDLE)
     // try /usr/share/miktex-texmf/miktex/config/miktexstartup.ini
     prefix = GetMyPrefix(true);
     path = prefix;

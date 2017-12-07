@@ -98,25 +98,29 @@ else()
 endif()
 
 ###############################################################################
-## change default install prefix (Windows)
+## macOS: bundle vs Homebrew detection
+
+string(SUBSTRING ${CMAKE_INSTALL_PREFIX} 0 17 homebrew_cellar)
+if(homebrew_cellar STREQUAL "/usr/local/Cellar")
+  set(MIKTEX_HOMEBREW TRUE)
+endif()
+
+if(APPLE AND NOT MIKTEX_HOMEBREW)
+  set(MIKTEX_MACOS_BUNDLE TRUE)
+endif()
+
+###############################################################################
+## change default install prefix (Windows/macOS)
 ##
 ## CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT is currently an
 ## internal variable; see:
 ## shttps://cmake.org/pipermail/cmake/2011-March/043531.html
 
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND MIKTEX_NATIVE_WINDOWS)
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND (MIKTEX_NATIVE_WINDOWS OR MIKTEX_MACOS_BUNDLE))
   set(CMAKE_INSTALL_PREFIX
     "${CMAKE_BINARY_DIR}-install"
     CACHE PATH "MiKTeX install prefix." FORCE
   )
-endif()
-
-###############################################################################
-## Homebrew detection
-
-string(SUBSTRING ${CMAKE_INSTALL_PREFIX} 0 17 homebrew_cellar)
-if(homebrew_cellar STREQUAL "/usr/local/Cellar")
-  set(MIKTEX_HOMEBREW TRUE)
 endif()
 
 ###############################################################################
@@ -128,7 +132,7 @@ elseif(CMAKE_INSTALL_PREFIX STREQUAL "/usr/local")
   set(MIKTEX_SELF_CONTAINED_DEFAULT FALSE)
 elseif(MIKTEX_HOMEBREW)
   set(MIKTEX_SELF_CONTAINED_DEFAULT FALSE)
-elseif(MIKTEX_UNIX_ALIKE)
+elseif(MIKTEX_UNIX_ALIKE AND NOT MIKTEX_MACOS_BUNDLE)
   set(MIKTEX_SELF_CONTAINED_DEFAULT TRUE)
 endif()
 
@@ -1241,6 +1245,11 @@ elseif(MIKTEX_UNIX_ALIKE)
   add_definitions(
     -DMIKTEX_UNIX
   )
+  if(MIKTEX_MACOS_BUNDLE)
+  add_definitions(
+    -DMIKTEX_MACOS_BUNDLE
+  )
+  endif()
 endif()
 
 ###############################################################################
