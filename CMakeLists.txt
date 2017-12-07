@@ -543,9 +543,6 @@ set(MIKTEX_DOC_BASE_URL "${MIKTEX_DOC_BASE_URL_NO_SLASH}/")
 set(MIKTEX_PREFIX "miktex-")
 set(MIKTEX_ADMIN_SUFFIX "_admin")
 
-## check all dyn.sed files, if you alter C4P_VAR_NAME_PREFIX
-set(C4P_VAR_NAME_PREFIX "g_")
-
 ## autotools compatibility names
 set(PACKAGE_NAME ${MIKTEX_PRODUCT_NAME})
 set(top_srcdir "${CMAKE_SOURCE_DIR}")
