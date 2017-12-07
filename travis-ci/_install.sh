@@ -20,8 +20,16 @@ runmiktex() {
 
 ${sudo} make install
 
+if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
+    export PATH=${TRAVIS_BUILD_DIR}/build-install/MiKTeX.app/Contents/bin;$PATH
+fi
+
 runmiktex ${sudo} initexmf --admin --disable-installer --update-fndb --mklinks
 runmiktex ${sudo} mpm --admin --package-level=basic --upgrade
 runmiktex ${sudo} initexmf --admin --mkmaps
 
-${sudo} rm -fr ~/.miktex
+if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+    rm -fr ~/.miktex
+else
+    rm -fr "~/Library/Application Support/MiKTeX"
+fi
