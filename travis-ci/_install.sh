@@ -21,7 +21,7 @@ runmiktex() {
 ${sudo} make install
 
 if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
-    export PATH=${TRAVIS_BUILD_DIR}/build-install/MiKTeX.app/Contents/bin;$PATH
+    export PATH="${TRAVIS_BUILD_DIR}/build-install/MiKTeX.app/Contents/bin:$PATH"
 fi
 
 runmiktex ${sudo} initexmf --admin --disable-installer --update-fndb --mklinks
