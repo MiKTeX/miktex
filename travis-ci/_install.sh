@@ -22,7 +22,11 @@ ${sudo} make install
 
 if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     export PATH="${TRAVIS_BUILD_DIR}/build-install/MiKTeX.app/Contents/bin:$PATH"
-    export MIKTEX_SHAREDSETUP=t
+    sudo mkdir -p "/Library/Application Support/MiKTeX/miktex/config"
+    sudo cat <<EOF >"/Library/Application Support/MiKTeX/miktex/config/miktex.ini"
+[Core]
+  SharedSetup=1
+EOF
     sudo=sudo
 fi
 
