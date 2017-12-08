@@ -17,10 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-if(MIKTEX_NATIVE_WINDOWS)
+if(MIKTEX_NATIVE_WINDOWS OR MIKTEX_MACOS_BUNDLE)
   set(MIKTEX_INSTALL_DIR "texmf")
-elseif(MIKTEX_MACOS_BUNDLE)
-  set(MIKTEX_INSTALL_DIR "${MIKTEX_PRODUCT_NAME}.app/Contents/texmf")
 elseif(MIKTEX_SELF_CONTAINED)
   set(MIKTEX_INSTALL_DIR "texmfs/install")
 else()

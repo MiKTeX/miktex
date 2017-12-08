@@ -6,6 +6,10 @@ if [ -d ~/.miktex/texmfs/data/miktex/log ]; then
     (cd ~/.miktex/texmfs/data/miktex/log; grep FATAL *)
 fi
 
+if [ -d "~/Library/Application Support/MiKTeX/texmfs/data/miktex/log" ]; then
+    (cd "~/Library/Application Support/MiKTeX/texmfs/data/miktex/log"; grep FATAL *)
+fi
+
 if [ -d ${TRAVIS_BUILD_DIR}/build/sandbox/miktex/log ]; then
     (cd ${TRAVIS_BUILD_DIR}/build/sandbox/miktex/log; grep FATAL *)
 fi
