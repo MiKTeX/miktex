@@ -1,16 +1,20 @@
 cd "${TRAVIS_BUILD_DIR}/build"
 
-if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-    sudo=sudo
+if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
+    miktex_bin="${TRAVIS_BUILD_DIR}/build-install/MiKTeX.app/Contents/bin"
+    miktex_home="$HOME/Library/Application Support/MiKTeX"
+else
+    miktex_bin="/usr/local/bin"
+    miktex_home="$HOME/.miktex"
 fi
 
-runmiktex() {
+sudomiktex() {
     set +e
-    "$@"
+    sudo MIKTEX_SHAREDSETUP=t "${miktex_bin}/$@"
     local status=$?
     if [ $status -ne 0 ]; then
-	if [ -d ~/.miktex/texmfs/data/miktex/log ]; then
-	    cd ~/.miktex/texmfs/data/miktex/log
+	if [ -d "$miktex_home/texmfs/data/miktex/log" ]; then
+	    cd "$miktex_home/texmfs/data/miktex/log"
 	    grep FATAL *
 	fi
     fi
@@ -18,25 +22,10 @@ runmiktex() {
     return $status
 }
 
-${sudo} make install
+sudo make install
 
-if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
-    export PATH="${TRAVIS_BUILD_DIR}/build-install/MiKTeX.app/Contents/bin:$PATH"
-    sudo mkdir -p "/Library/Application Support/MiKTeX/miktex/config"
-    cat <<EOF >/tmp/miktex.ini
-[Core]
-  SharedSetup=1
-EOF
-    sudo cp /tmp/miktex.ini "/Library/Application Support/MiKTeX/miktex/config/"
-    sudo=sudo
-fi
+sudomiktex initexmf --admin --disable-installer --update-fndb --mklinks
+sudomiktex mpm --admin --package-level=basic --upgrade
+sudomiktex initexmf --admin --mkmaps
 
-runmiktex ${sudo} initexmf --admin --disable-installer --update-fndb --mklinks
-runmiktex ${sudo} mpm --admin --package-level=basic --upgrade
-runmiktex ${sudo} initexmf --admin --mkmaps
-
-if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-    rm -fr ~/.miktex
-else
-    rm -fr "~/Library/Application Support/MiKTeX"
-fi
+rm -fr "${miktex_home}

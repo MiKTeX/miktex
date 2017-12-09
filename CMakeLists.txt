@@ -111,16 +111,21 @@ endif()
 
 ###############################################################################
 ## change default install prefix (Windows/macOS)
-##
-## CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT is currently an
-## internal variable; see:
-## shttps://cmake.org/pipermail/cmake/2011-March/043531.html
 
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND (MIKTEX_NATIVE_WINDOWS OR MIKTEX_MACOS_BUNDLE))
-  set(CMAKE_INSTALL_PREFIX
-    "${CMAKE_BINARY_DIR}-install"
-    CACHE PATH "MiKTeX install prefix." FORCE
-  )
+  if(MIKTEX_NATIVE_WINDOWS)
+    set(CMAKE_INSTALL_PREFIX
+      "${CMAKE_BINARY_DIR}-install"
+      CACHE PATH "MiKTeX install prefix." FORCE
+    )
+  endif()
+  if(MIKTEX_MACOS_BUNDLE)
+    set(MIKTEX_MACOS_BUNDLE_DIR "${CMAKE_BINARY_DIR}-install")
+    set(CMAKE_INSTALL_PREFIX
+      "${MIKTEX_MACOS_BUNDLE_DIR}/${MIKTEX_PRODUCT_NAME}.app/Contents"
+      CACHE PATH "MiKTeX install prefix." FORCE
+    )
+  endif()
 endif()
 
 ###############################################################################
