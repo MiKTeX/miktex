@@ -1,6 +1,6 @@
 /* unxMemoryMappedFile.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -85,7 +85,7 @@ void unxMemoryMappedFile::OpenFile()
   filedes = open(path.GetData(), oflag);
   if (filedes < 0)
   {
-    MIKTEX_FATAL_CRT_ERROR_2("open", "path", path.ToString());
+    MIKTEX_FATAL_CRT_ERROR_2("open", "path", path.ToString(), "readWrite", readWrite ? "true" : "false");
   }
 }
 
