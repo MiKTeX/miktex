@@ -2,16 +2,18 @@
 
 set -v
 
-if [ -d ~/.miktex/texmfs/data/miktex/log ]; then
-    (cd ~/.miktex/texmfs/data/miktex/log; grep FATAL *)
+if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
+    miktex_home="$HOME/Library/Application Support/MiKTeX"
+else
+    miktex_home="$HOME/.miktex"
 fi
 
-if [ -d "~/Library/Application Support/MiKTeX/texmfs/data/miktex/log" ]; then
-    (cd "~/Library/Application Support/MiKTeX/texmfs/data/miktex/log"; grep FATAL *)
+if [ -d "$miktex_home/texmfs/data/miktex/log" ]; then
+    (cd "$miktex_home/texmfs/data/miktex/log"; cat *)
 fi
 
-if [ -d ${TRAVIS_BUILD_DIR}/build/sandbox/miktex/log ]; then
-    (cd ${TRAVIS_BUILD_DIR}/build/sandbox/miktex/log; grep FATAL *)
+if [ -d "${TRAVIS_BUILD_DIR}/build/sandbox/miktex/log" ]; then
+    (cd "${TRAVIS_BUILD_DIR}/build/sandbox/miktex/log"; grep FATAL *)
 fi
 
 if [ -f "${TRAVIS_BUILD_DIR}/miktex-testing/build/Testing/Temporary/LastTest.log" ]; then
