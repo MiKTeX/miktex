@@ -32,7 +32,6 @@ elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
 		     -DUSE_SYSTEM_HARFBUZZ_ICU=FALSE \
 		     -DUSE_SYSTEM_POPPLER=FALSE \
 		     -DUSE_SYSTEM_POPPLER_QT5=FALSE \
-		     -DMIKTEX_MPM_AUTO_ADMIN=t \
 		     -DMIKTEX_MPM_AUTO_INSTALL=t \
 		     -DMIKTEX_SYSTEM_ETC_FONTS_CONFD_DIR="${etcdir}/fonts/conf.d" \
 		     -DMIKTEX_SYSTEM_VAR_CACHE_DIR="${vardir}/cache" \
