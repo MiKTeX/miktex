@@ -28,4 +28,4 @@ sudomiktex initexmf --admin --disable-installer --update-fndb --mklinks
 sudomiktex mpm --admin --package-level=basic --upgrade
 sudomiktex initexmf --admin --mkmaps
 
-rm -fr "${miktex_home}
+rm -fr "${miktex_home}"
