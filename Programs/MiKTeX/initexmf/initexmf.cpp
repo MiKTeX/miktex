@@ -1167,7 +1167,7 @@ void IniTeXMFApp::RunMakeTeX(const string& makeProg, const vector<string>& argum
     break;
   }
 
-  LOG4CXX_INFO(logger, "running '" << makeProg << "'");
+  LOG4CXX_INFO(logger, "running: " << CommandLineBuilder(xArguments));
   RunProcess(exe, xArguments);
 }
 
@@ -3238,8 +3238,10 @@ int MAIN(int argc, MAINCHAR* argv[])
     newargv.push_back(nullptr);
     IniTeXMFApp app;
     app.Init(argc, &newargv[0]);
+    LOG4CXX_INFO(logger, "starting with command line: " << CommandLineBuilder(utf8args));
     app.Run(argc, &newargv[0]);
     app.Finalize(false);
+    LOG4CXX_INFO(logger, "finishing with exit code 0");
     logger = nullptr;
     return 0;
   }
