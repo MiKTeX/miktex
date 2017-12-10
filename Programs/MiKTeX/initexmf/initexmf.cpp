@@ -41,6 +41,7 @@ const char* const TheNameOfTheGame = T_("MiKTeX Configuration Utility");
 #define PROGNAME "initexmf"
 
 static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger(PROGNAME));
+static bool isLog4cxxConfigured = false;
 
 template<class VALTYPE> class AutoRestore
 {
@@ -427,9 +428,6 @@ public:
   
 public:
   bool OnProgress(Notification nf) override;
-
-private:
-  bool isLog4cxxConfigured = false;
 
 private:
   vector<TraceCallback::TraceMessage> pendingTraceMessages;
@@ -3247,7 +3245,7 @@ int MAIN(int argc, MAINCHAR* argv[])
   }
   catch (const MiKTeXException& e)
   {
-    if (logger != nullptr)
+    if (logger != nullptr && isLog4cxxConfigured)
     {
       LOG4CXX_FATAL(logger, e.what());
       LOG4CXX_FATAL(logger, "Info: " << e.GetInfo());
@@ -3267,7 +3265,7 @@ int MAIN(int argc, MAINCHAR* argv[])
   }
   catch (const exception& e)
   {
-    if (logger != nullptr)
+    if (logger != nullptr && isLog4cxxConfigured)
     {
       LOG4CXX_FATAL(logger, e.what());
     }
