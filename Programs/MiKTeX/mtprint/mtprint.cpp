@@ -626,6 +626,7 @@ void PrintUtility::Run(int argc, const char** argv)
 
 int MAIN(int argc, MAINCHAR** argv)
 {
+  PrintUtility app;
   try
   {
     vector<string> utf8args;
@@ -643,10 +644,9 @@ int MAIN(int argc, MAINCHAR** argv)
       newargv.push_back(const_cast<char*>(utf8args[idx].c_str()));
     }
     newargv.push_back(nullptr);
-    PrintUtility app;
     app.Init(newargv);
     app.Run(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
-    app.Finalize();
+    app.Finalize2(0);
     return 0;
   }
   catch (const MiKTeXException& e)

@@ -1369,6 +1369,7 @@ void MakeFontMapApp::Run()
 
 int MAIN(int argc, MAINCHAR** argv)
 {
+  MakeFontMapApp app;
   try
   {
     vector<string> utf8args;
@@ -1387,9 +1388,9 @@ int MAIN(int argc, MAINCHAR** argv)
       newargv.push_back(utf8args[idx].c_str());
     }
     newargv.push_back(nullptr);
-    MakeFontMapApp app;
     app.Init(newargv.size() - 1, &newargv[0]);
     app.Run();
+    app.Finalize2(0);
     logger = nullptr;
     return 0;
   }

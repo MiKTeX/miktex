@@ -2160,6 +2160,7 @@ void McdApp::Run(int argc, const char** argv)
 
 int MAIN(int argc, MAINCHAR* argv[])
 {
+  McdApp app;
   try
   {
     vector<string> utf8args;
@@ -2178,8 +2179,8 @@ int MAIN(int argc, MAINCHAR* argv[])
       newargv.push_back(utf8args[idx].c_str());
     }
     newargv.push_back(nullptr);
-    McdApp app;
     app.Run(argc, &newargv[0]);
+    app.Finalize2(0);
     return 0;
   }
 

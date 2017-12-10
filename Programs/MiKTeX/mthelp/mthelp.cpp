@@ -591,6 +591,7 @@ void MiKTeXHelp::Run(int argc, const char** argv)
 
 int MAIN(int argc, MAINCHAR** argv)
 {
+  MiKTeXHelp app;
   try
   {
     vector<string> utf8args;
@@ -610,11 +611,10 @@ int MAIN(int argc, MAINCHAR** argv)
       newargv.push_back(const_cast<char*>(utf8args[idx].c_str()));
     }
     newargv.push_back(nullptr);
-    MiKTeXHelp app;
     app.Init(Session::InitInfo(newargv[0]), newargv);
     app.EnableInstaller(TriState::False);
     app.Run(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
-    app.Finalize();
+    app.Finalize2(0);
     return 0;
   }
   catch (const MiKTeXException& ex)

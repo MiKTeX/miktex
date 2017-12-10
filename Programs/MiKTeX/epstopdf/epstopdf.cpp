@@ -976,7 +976,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
     gsProcess = nullptr;
   }
 
-  Finalize();
+  Finalize2(0);
 }
 
 #if defined(_UNICODE)
@@ -989,6 +989,7 @@ void EpsToPdfApp::Run(int argc, const char** argv)
 
 int MAIN(int argc, MAINCHAR** argv)
 {
+  EpsToPdfApp app;
   try
   {
     vector<string> utf8args;
@@ -1007,7 +1008,6 @@ int MAIN(int argc, MAINCHAR** argv)
       newargv.push_back(utf8args[idx].c_str());
     }
     newargv.push_back(nullptr);
-    EpsToPdfApp app;
     app.Run(argc, &newargv[0]);
     return 0;
   }

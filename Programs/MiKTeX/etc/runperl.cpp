@@ -36,6 +36,7 @@ int wmain(int argc, wchar_t** argv)
 int main(int argc, char** argv)
 #endif
 {
+  Application app;
   try
   {
     vector<string> utf8args;
@@ -55,7 +56,6 @@ int main(int argc, char** argv)
       newargv.push_back(const_cast<char*>(utf8args[idx].c_str()));
     }
     newargv.push_back(nullptr);
-    Application app;
     app.Init(newargv);
     int exitCode = app.GetSession()->RunPerl(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
     app.Finalize2(exitCode);

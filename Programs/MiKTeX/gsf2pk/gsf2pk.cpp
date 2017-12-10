@@ -1,6 +1,6 @@
 /* gsf2pk.cpp: Gsf-to-Pk converter (based on gsftopk)
 
-   Copyright (C) 2004-2016 Christian Schenk
+   Copyright (C) 2004-2017 Christian Schenk
    Copyright (C) 1993-2000 Paul Vojta
 
    Permission is hereby granted, free of charge, to any person
@@ -1454,7 +1454,7 @@ void Converter::Main(int argc, const char * * argv)
     case OPT_VERSION:
       cout
         << Utils::MakeProgramVersionString("gsf2pk", VersionNumber(MIKTEX_MAJOR_VERSION, MIKTEX_MINOR_VERSION, MIKTEX_COMP_J2000_VERSION, 0)) << endl
-        << "Copyright (C) 2004-2016 Christian Schenk" << endl
+        << "Copyright (C) 2004-2017 Christian Schenk" << endl
         << "Copyright (C) 1993-2000 Paul Vojta" << endl
         << "This is free software; see the source for copying conditions.  There is NO" << endl
         << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
@@ -1489,7 +1489,7 @@ void Converter::Main(int argc, const char * * argv)
     leftovers[5].c_str(),        // "600"
     leftovers[6].c_str());       // "utmr8a.pk"
 
-  Finalize();
+  Finalize2(0);
 }
 
 #if defined(_UNICODE)
@@ -1502,6 +1502,7 @@ void Converter::Main(int argc, const char * * argv)
 
 int MAIN(int argc, MAINCHAR ** argv)
 {
+  Converter conv;
   try
   {
     vector<string> utf8args;
@@ -1520,7 +1521,6 @@ int MAIN(int argc, MAINCHAR ** argv)
       newargv.push_back(utf8args[idx].c_str());
     }
     newargv.push_back(nullptr);
-    Converter conv;
     conv.Main(argc, &newargv[0]);
     return 0;
   }

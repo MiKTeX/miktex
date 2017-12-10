@@ -19,5 +19,5 @@ cd build
 
 ${cmake} -DMIKTEX_BINARY_DIR="$miktex_bin" ..
 
-export MIKTEX_TRACE=error
+#export MIKTEX_TRACE=error
 make test

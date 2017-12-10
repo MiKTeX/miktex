@@ -749,13 +749,13 @@ void ArCtrl::Run(int argc, const char** argv)
 
 extern "C" __declspec(dllexport) int __cdecl arctrlmain(int argc, char** argv)
 {
+  ArCtrl app;
   try
   {
-    ArCtrl app;
     vector<char*> newargv{ argv, argv + argc + 1 };
     app.Init(newargv);
     app.Run(newargv.size(), const_cast<const char**>(&newargv[0]));
-    app.Finalize();
+    app.Finalize2(0);
     return 0;
   }
   catch (const MiKTeXException& e)

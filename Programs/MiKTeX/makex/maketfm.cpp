@@ -235,6 +235,7 @@ void MakeTfm::Run(int argc, const char** argv)
 
 int MAIN(int argc, MAINCHAR** argv)
 {
+  MakeTfm app;
   try
   {
     vector<string> utf8args;
@@ -254,10 +255,9 @@ int MAIN(int argc, MAINCHAR** argv)
       newargv.push_back(const_cast<char*>(utf8args[idx].c_str()));
     }
     newargv.push_back(nullptr);
-    MakeTfm app;
     app.Init(Session::InitInfo(newargv[0]), newargv);
     app.Run(newargv.size() - 1, const_cast<const char**>(&newargv[0]));
-    app.Finalize();
+    app.Finalize2(0);
     logger = nullptr;
     return 0;
   }
