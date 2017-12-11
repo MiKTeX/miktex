@@ -21,10 +21,6 @@
 
 #include "StdAfx.h"
 
-#if defined(__APPLE__)
-#include <mach-o/dyld.h>
-#endif
-
 #include "internal.h"
 
 #include "miktex/Core/File.h"
@@ -39,15 +35,6 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
   // we do this once
   if (myProgramFile.Empty())
   {
-#if defined(__linux__)
-    myProgramFile = File::ReadSymbolicLink("/proc/self/exe");
-#elif defined(__APPLE__)
-    uint32_t size = (uint32_t)myProgramFile.GetCapacity();
-    if (_NSGetExecutablePath(myProgramFile.GetData(), &size) != 0)
-    {
-      BUF_TOO_SMALL();
-    }
-#else
     string invocationName = initInfo.GetProgramInvocationName();
     if (invocationName.empty())
     {
@@ -65,7 +52,6 @@ PathName SessionImpl::GetMyProgramFile(bool canonicalized)
     {
       MIKTEX_FATAL_ERROR_2(T_("The invoked program could not be found in the PATH."), "invocationName", invocationName);
     }
-#endif
     myProgramFileCanon = myProgramFile;
     myProgramFileCanon.Canonicalize();
   }
