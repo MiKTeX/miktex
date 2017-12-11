@@ -23,14 +23,14 @@
  */
 
 #if defined(MIKTEX)
-#  define main __cdecl Main
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#  define main Main
 #  if defined(MIKTEX_WINDOWS)
+#    define MIKTEX_UTF8_WRAP_ALL 1
+#    include <miktex/utf8wrap.h>
 #    include <io.h>
 #    include <fcntl.h>
 #  endif
-#endif /* MIKTEX */
+#endif
 #include <fontconfig/fontconfig.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -178,7 +178,7 @@ main (int argc, char **argv)
     {
 	int	j;
 
-#if defined(MIKTEX) && defined(MIKTEX_WINDOWS)
+#if defined(MIKTEX_WINDOWS)
 	_setmode (_fileno(stdout), _O_BINARY);
 #endif
 	for (j = 0; j < fs->nfont; j++)

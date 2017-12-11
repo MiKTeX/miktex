@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_FONT_UTILITIES_FOLDER}/fontconfig")
 
 include_directories(BEFORE
@@ -29,8 +31,13 @@ include_directories(BEFORE
 add_definitions(
   -DHAVE_CONFIG_H
   -DDONT_USE_MIKTEX_EXIT
-  -D_UNICODE -DUNICODE
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+  add_definitions(
+    -D_UNICODE -DUNICODE
+  )
+endif()
 
 set(fqsrcdir ${CMAKE_CURRENT_SOURCE_DIR}/source)
 
@@ -57,11 +64,16 @@ merge_compatibility_manifest(fc-case)
 
 target_link_libraries(fc-case
   ${app_dll_name}
-  $(core_dll_name)
-  ${getopt_dll_name}
-  ${unxemu_dll_name}
-  ${utf8wrap_dll_name}
+  ${core_dll_name}
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(fc-case
+    ${getopt_dll_name}
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+  )
+endif()
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/fccase.h
@@ -355,11 +367,16 @@ merge_compatibility_manifest(fc-lang)
 
 target_link_libraries(fc-lang
   ${app_dll_name}
-  $(core_dll_name)
-  ${getopt_dll_name}
-  ${unxemu_dll_name}
-  ${utf8wrap_dll_name}
+  ${core_dll_name}
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(fc-lang
+    ${getopt_dll_name}
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+  )
+endif()
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/fcaliastail.h
@@ -399,11 +416,16 @@ merge_compatibility_manifest(fc-glyphname)
 
 target_link_libraries(fc-glyphname
   ${app_dll_name}
-  $(core_dll_name)
-  ${getopt_dll_name}
-  ${unxemu_dll_name}
-  ${utf8wrap_dll_name}
+  ${core_dll_name}
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(fc-glyphname
+    ${getopt_dll_name}
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+  )
+endif()
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/fcglyphname.h
@@ -427,14 +449,21 @@ set_property(TARGET gen-fcglyphname-header PROPERTY FOLDER ${MIKTEX_CURRENT_FOLD
 ###############################################################################
 ## lib
 
+configure_file(
+  fontconfig-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/fontconfig-version.h
+)
+
 set(${fontconfig_dll_name}_sources
-  ${CMAKE_CURRENT_BINARY_DIR}/fccase.h
-  ${CMAKE_CURRENT_BINARY_DIR}/fcglyphname.h
-  ${CMAKE_CURRENT_BINARY_DIR}/fclang.h
   ${CMAKE_CURRENT_BINARY_DIR}/fcalias.h
   ${CMAKE_CURRENT_BINARY_DIR}/fcaliastail.h
+  ${CMAKE_CURRENT_BINARY_DIR}/fccase.h
   ${CMAKE_CURRENT_BINARY_DIR}/fcftalias.h
   ${CMAKE_CURRENT_BINARY_DIR}/fcftaliastail.h
+  ${CMAKE_CURRENT_BINARY_DIR}/fcglyphname.h
+  ${CMAKE_CURRENT_BINARY_DIR}/fclang.h
+  ${CMAKE_CURRENT_BINARY_DIR}/fontconfig-version.h
+
   source/src/fcatomic.c
   source/src/fcatomic.h
   source/src/fcblanks.c
@@ -475,7 +504,6 @@ set(${fontconfig_dll_name}_sources
 
   fcmiktex.cpp
   fcmiktex.h
-  fontconfig-version.h
 )
 
 set_source_files_properties(
@@ -494,7 +522,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     fontconfig.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/fontconfig.rc
   )
-  set(${fontconfig_dll_name}_sources ${${fontconfig_dll_name}_sources}
+  list(APPEND ${fontconfig_dll_name}_sources
     fontconfig.def
     ${CMAKE_CURRENT_BINARY_DIR}/fontconfig.rc
   )
@@ -504,10 +532,10 @@ add_library(${fontconfig_dll_name} SHARED ${${fontconfig_dll_name}_sources})
 
 set_property(TARGET ${fontconfig_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_target_properties(${fontconfig_dll_name}
-  PROPERTIES
-    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
-    SOVERSION "1"
+set_shared_library_version(
+  ${fontconfig_dll_name}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
+  ${MIKTEX_COMP_J2000_VERSION}
 )
 
 target_compile_definitions(${fontconfig_dll_name}
@@ -525,9 +553,15 @@ target_include_directories(${fontconfig_dll_name}
 target_link_libraries(${fontconfig_dll_name}
   PRIVATE
     ${core_dll_name}
-    ${unxemu_dll_name}
-    ${utf8wrap_dll_name}
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${fontconfig_dll_name}
+    PRIVATE
+      ${unxemu_dll_name}
+      ${utf8wrap_dll_name}
+  )
+endif()
 
 if(USE_SYSTEM_EXPAT)
   target_link_libraries(${fontconfig_dll_name} PRIVATE MiKTeX::Imported::EXPAT)
@@ -579,9 +613,14 @@ set_property(TARGET fcarch PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_link_libraries(fcarch
   ${core_dll_name}
-  ${unxemu_dll_name}
-  ${utf8wrap_dll_name}
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(fcarch
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+  )
+endif()
 
 install(TARGETS ${fontconfig_dll_name}
   RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
@@ -605,28 +644,33 @@ set_source_files_properties(
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  set(fc-cache_sources ${fc-cache_sources}
+  list(APPEND fc-cache_sources
     fc-cache.rc
   )
 endif()
 
-add_executable(fc-cache ${fc-cache_sources})
+add_executable(${MIKTEX_PREFIX}fc-cache ${fc-cache_sources})
 
-set_property(TARGET fc-cache PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}fc-cache PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(fc-cache asInvoker)
-merge_compatibility_manifest(fc-cache)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}fc-cache asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}fc-cache)
 
-target_link_libraries(fc-cache
+target_link_libraries(${MIKTEX_PREFIX}fc-cache
   ${app_dll_name}
   ${core_dll_name}
   ${fontconfig_dll_name}
-  ${getopt_dll_name}
-  ${unxemu_dll_name}
-  ${utf8wrap_dll_name}
 )
 
-install(TARGETS fc-cache DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}fc-cache
+    ${getopt_dll_name}
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}fc-cache DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 ###############################################################################
 ## fc-cat
@@ -644,28 +688,33 @@ set_source_files_properties(
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  set(fc-cat_sources ${fc-cat_sources}
+  list(APPEND fc-cat_sources
     fc-cat.rc
   )
 endif()
 
-add_executable(fc-cat ${fc-cat_sources})
+add_executable(${MIKTEX_PREFIX}fc-cat ${fc-cat_sources})
 
-set_property(TARGET fc-cat PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}fc-cat PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(fc-cat asInvoker)
-merge_compatibility_manifest(fc-cat)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}fc-cat asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}fc-cat)
 
-target_link_libraries(fc-cat
+target_link_libraries(${MIKTEX_PREFIX}fc-cat
   ${app_dll_name}
   ${core_dll_name}
   ${fontconfig_dll_name}
-  ${getopt_dll_name}
-  ${unxemu_dll_name}
-  ${utf8wrap_dll_name}
 )
 
-install(TARGETS fc-cat DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}fc-cat
+    ${getopt_dll_name}
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}fc-cat DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 ###############################################################################
 ## fc-list
@@ -677,28 +726,33 @@ set(fc-list_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  set(fc-list_sources ${fc-list_sources}
+  list(APPEND fc-list_sources
     fc-list.rc
   )
 endif()
 
-add_executable(fc-list ${fc-list_sources})
+add_executable(${MIKTEX_PREFIX}fc-list ${fc-list_sources})
 
-set_property(TARGET fc-list PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}fc-list PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(fc-list asInvoker)
-merge_compatibility_manifest(fc-list)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}fc-list asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}fc-list)
 
-target_link_libraries(fc-list
+target_link_libraries(${MIKTEX_PREFIX}fc-list
   ${app_dll_name}
   ${core_dll_name}
   ${fontconfig_dll_name}
-  ${getopt_dll_name}
-  ${unxemu_dll_name}
-  ${utf8wrap_dll_name}
 )
 
-install(TARGETS fc-list DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}fc-list
+    ${getopt_dll_name}
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+  )
+endif()
+  
+install(TARGETS ${MIKTEX_PREFIX}fc-list DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 ###############################################################################
 ## fc-match
@@ -710,28 +764,33 @@ set(fc-match_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  set(fc-match_sources ${fc-match_sources}
+  list(APPEND fc-match_sources
     fc-match.rc
   )
 endif()
 
-add_executable(fc-match ${fc-match_sources})
+add_executable(${MIKTEX_PREFIX}fc-match ${fc-match_sources})
 
-set_property(TARGET fc-match PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}fc-match PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(fc-match asInvoker)
-merge_compatibility_manifest(fc-match)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}fc-match asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}fc-match)
 
-target_link_libraries(fc-match
+target_link_libraries(${MIKTEX_PREFIX}fc-match
   ${app_dll_name}
   ${core_dll_name}
   ${fontconfig_dll_name}
-  ${getopt_dll_name}
-  ${unxemu_dll_name}
-  ${utf8wrap_dll_name}
 )
 
-install(TARGETS fc-match DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}fc-match
+    ${getopt_dll_name}
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}fc-match DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 ###############################################################################
 ## fc-pattern
@@ -743,28 +802,33 @@ set(fc-pattern_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  set(fc-pattern_sources ${fc-pattern_sources}
+  list(APPEND fc-pattern_sources
     fc-pattern.rc
   )
 endif()
 
-add_executable(fc-pattern ${fc-pattern_sources})
+add_executable(${MIKTEX_PREFIX}fc-pattern ${fc-pattern_sources})
 
-set_property(TARGET fc-pattern PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}fc-pattern PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(fc-pattern asInvoker)
-merge_compatibility_manifest(fc-pattern)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}fc-pattern asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}fc-pattern)
 
-target_link_libraries(fc-pattern
+target_link_libraries(${MIKTEX_PREFIX}fc-pattern
   ${app_dll_name}
   ${core_dll_name}
   ${fontconfig_dll_name}
-  ${getopt_dll_name}
-  ${unxemu_dll_name}
-  ${utf8wrap_dll_name}
 )
 
-install(TARGETS fc-pattern DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}fc-pattern
+    ${getopt_dll_name}
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}fc-pattern DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 ###############################################################################
 ## fc-query
@@ -776,28 +840,33 @@ set(fc-query_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  set(fc-query_sources ${fc-query_sources}
+  list(APPEND fc-query_sources
     fc-query.rc
   )
 endif()
 
-add_executable(fc-query ${fc-query_sources})
+add_executable(${MIKTEX_PREFIX}fc-query ${fc-query_sources})
 
-set_property(TARGET fc-query PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}fc-query PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(fc-query asInvoker)
-merge_compatibility_manifest(fc-query)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}fc-query asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}fc-query)
 
-target_link_libraries(fc-query
+target_link_libraries(${MIKTEX_PREFIX}fc-query
   ${app_dll_name}
   ${core_dll_name}
   ${fontconfig_dll_name}
-  ${getopt_dll_name}
-  ${unxemu_dll_name}
-  ${utf8wrap_dll_name}
 )
 
-install(TARGETS fc-query DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}fc-query
+    ${getopt_dll_name}
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}fc-query DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 ###############################################################################
 ## fc-scan
@@ -809,28 +878,33 @@ set(fc-scan_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  set(fc-scan_sources ${fc-scan_sources}
+  list(APPEND fc-scan_sources
     fc-scan.rc
   )
 endif()
 
-add_executable(fc-scan ${fc-scan_sources})
+add_executable(${MIKTEX_PREFIX}fc-scan ${fc-scan_sources})
 
-set_property(TARGET fc-scan PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}fc-scan PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(fc-scan asInvoker)
-merge_compatibility_manifest(fc-scan)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}fc-scan asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}fc-scan)
 
-target_link_libraries(fc-scan
+target_link_libraries(${MIKTEX_PREFIX}fc-scan
   ${app_dll_name}
   ${core_dll_name}
   ${fontconfig_dll_name}
-  ${getopt_dll_name}
-  ${unxemu_dll_name}
-  ${utf8wrap_dll_name}
 )
 
-install(TARGETS fc-scan DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}fc-scan
+    ${getopt_dll_name}
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}fc-scan DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 ###############################################################################
 ## fc-validate
@@ -842,25 +916,30 @@ set(fc-validate_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  set(fc-validate_sources ${fc-validate_sources}
+  list(APPEND fc-validate_sources
     fc-validate.rc
   )
 endif()
 
-add_executable(fc-validate ${fc-validate_sources})
+add_executable(${MIKTEX_PREFIX}fc-validate ${fc-validate_sources})
 
-set_property(TARGET fc-validate PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${MIKTEX_PREFIX}fc-validate PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(fc-validate asInvoker)
-merge_compatibility_manifest(fc-validate)
+merge_trustinfo_manifest(${MIKTEX_PREFIX}fc-validate asInvoker)
+merge_compatibility_manifest(${MIKTEX_PREFIX}fc-validate)
 
-target_link_libraries(fc-validate
+target_link_libraries(${MIKTEX_PREFIX}fc-validate
   ${app_dll_name}
   ${core_dll_name}
   ${fontconfig_dll_name}
-  ${getopt_dll_name}
-  ${unxemu_dll_name}
-  ${utf8wrap_dll_name}
 )
 
-install(TARGETS fc-validate DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${MIKTEX_PREFIX}fc-validate
+    ${getopt_dll_name}
+    ${unxemu_dll_name}
+    ${utf8wrap_dll_name}
+  )
+endif()
+
+install(TARGETS ${MIKTEX_PREFIX}fc-validate DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

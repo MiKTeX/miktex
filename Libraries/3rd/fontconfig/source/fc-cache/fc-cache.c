@@ -22,7 +22,7 @@
  * PERFORMANCE OF THIS SOFTWARE.
  */
 
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
 #define MIKTEX_UTF8_WRAP_ALL 1
 #include <miktex/utf8wrap.h>
 #include <miktex/unxemu.h>
@@ -36,11 +36,11 @@
 #define HAVE_GETOPT 1
 #endif
 #if defined(MIKTEX)
-#  define main __cdecl Main
+#  define main Main
 #  if defined(_MSC_VER)
 #    include <io.h>
 #  endif
-#endif /* MIKTEX */
+#endif
 
 #include <fontconfig/fontconfig.h>
 #include <stdio.h>

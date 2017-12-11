@@ -25,9 +25,11 @@
  */
 
 #if defined(MIKTEX)
-#  define main __cdecl Main
-#  define MIKTEX_UTF8_WRAP_ALL 1
-#  include <miktex/utf8wrap.h>
+#  define main Main
+#  if defined(MIKTEX_WINDOWS)
+#    define MIKTEX_UTF8_WRAP_ALL 1
+#    include <miktex/utf8wrap.h>
+#  endif
 #endif
 #ifdef HAVE_CONFIG_H
 #include <config.h>

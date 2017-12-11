@@ -1,6 +1,6 @@
-/* fontconfig.rc: version number			-*- C++ -*-
+/* fontconfig.rc: version number                        -*- C++ -*-
 
-   Copyright (C) 2007-2016 Christian Schenk
+   Copyright (C) 2007-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,7 +19,7 @@
 
 #include "fontconfig-version.h"
 
-#define VER_FILEDESCRIPTION_STR "Fontconfig - a library for configuring and customizing font access"
+#define VER_FILEDESCRIPTION_STR "${MIKTEX_COMP_DESCRIPTION}"
 #define VER_FILETYPE VFT_DLL
 #define VER_INTERNALNAME_STR "${fontconfig_dll_name}"
 #define VER_ORIGINALFILENAME_STR "${fontconfig_dll_name}.dll"

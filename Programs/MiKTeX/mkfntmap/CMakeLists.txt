@@ -31,7 +31,13 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
+configure_file(
+  config.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
 set(mkfntmap_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
   internal.h
   mkfntmap-version.h
   mkfntmap.cpp
