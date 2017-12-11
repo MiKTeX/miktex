@@ -634,7 +634,8 @@ PathName SessionImpl::GetBinDirectory(bool canonicalized)
   ret /= MIKTEX_PATH_BIN_DIR;
   return ret;
 #elif defined(MIKTEX_MACOS_BUNDLE)
-  return GetDistRootDirectory() / MIKTEX_BINARY_DESTINATION_DIR;
+  // FIXME
+  return GetMyPrefix(true) / "bin";
 #else
   return GetMyLocation(canonicalized);
 #endif
