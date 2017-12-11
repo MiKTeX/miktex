@@ -70,7 +70,7 @@ int SessionImpl::RunScript(const string& scriptEngine, const string& scriptEngin
     MIKTEX_FATAL_ERROR_2(T_("The script could not be found."), "scriptEngine", scriptEngine, "name", name.ToString(), "path", relScriptPath);
   }
 
-  vector<string> args{ name.ToString() };
+  vector<string> args{ scriptEngine };
   vector<string> scriptEngineOptions;
   if (config->TryGetValue(scriptEngine, name.ToString() + "." + scriptEngine + "." + "options" + "[]", scriptEngineOptions))
   {
