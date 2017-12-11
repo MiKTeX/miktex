@@ -36,6 +36,7 @@ int wmain(int argc, wchar_t** argv)
 int main(int argc, char** argv)
 #endif
 {
+  Application app;
   try
   {
     vector<string> utf8args;
@@ -54,10 +55,9 @@ int main(int argc, char** argv)
       newargv.push_back(utf8args[idx].c_str());
     }
     newargv.push_back(nullptr);
-    Application app;
     app.Init(newargv);
     int exitCode = app.GetSession()->RunSh(argc, &newargv[0]);
-    app.Finalize();
+    app.Finalize2(exitCode);
     return exitCode;
   }
   catch (const MiKTeXException& e)
