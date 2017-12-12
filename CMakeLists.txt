@@ -246,7 +246,7 @@ option(
   ${MIKTEX_UNIX_ALIKE}
 )
 
-if(MIKTEX_HOMEBREW || MIKTEX_MACOS_BUNDLE)
+if(MIKTEX_HOMEBREW OR MIKTEX_MACOS_BUNDLE)
   set(use_system_harfbuzz_default FALSE)
 elseif(MIKTEX_UNIX_ALIKE)
   set(use_system_harfbuzz_default TRUE)
