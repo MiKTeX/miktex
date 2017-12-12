@@ -4,10 +4,10 @@
 #cmakedefine AC_APPLE_UNIVERSAL_BUILD
 
 /* The normal alignment of `double', in bytes. */
-#cmakedefine ALIGNOF_DOUBLE
+#define ALIGNOF_DOUBLE 8
 
 /* The normal alignment of `void *', in bytes. */
-#cmakedefine ALIGNOF_VOID_P
+#define ALIGNOF_VOID_P 8
 
 /* Use libxml2 instead of Expat */
 #cmakedefine ENABLE_LIBXML2
@@ -22,7 +22,7 @@
 #cmakedefine FC_DEFAULT_FONTS
 
 /* The type of len parameter of the gperf hash/lookup function */
-#cmakedefine FC_GPERF_SIZE_T
+#define FC_GPERF_SIZE_T unsigned int
 
 /* Define to nothing if C supports flexible array members, and to 1 if it does
    not. That way, with a declaration like `struct s { int n; double
@@ -31,7 +31,7 @@
    (struct s)' as it overestimates the size. Use 'offsetof (struct s, d)'
    instead. Don't use 'offsetof (struct s, d[0])', as this doesn't work with
    MSVC and with C++ compilers. */
-#cmakedefine FLEXIBLE_ARRAY_MEMBER
+#define FLEXIBLE_ARRAY_MEMBER
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
@@ -53,22 +53,22 @@
 #cmakedefine HAVE_FSTATVFS 1
 
 /* FT_Bitmap_Size structure includes y_ppem field */
-#cmakedefine HAVE_FT_BITMAP_SIZE_Y_PPEM
+#define HAVE_FT_BITMAP_SIZE_Y_PPEM 1
 
 /* Define to 1 if you have the `FT_Get_BDF_Property' function. */
-#cmakedefine HAVE_FT_GET_BDF_PROPERTY 1
+#define HAVE_FT_GET_BDF_PROPERTY 1
 
 /* Define to 1 if you have the `FT_Get_Next_Char' function. */
-#cmakedefine HAVE_FT_GET_NEXT_CHAR 1
+#define HAVE_FT_GET_NEXT_CHAR 1
 
 /* Define to 1 if you have the `FT_Get_PS_Font_Info' function. */
-#cmakedefine HAVE_FT_GET_PS_FONT_INFO 1
+#define HAVE_FT_GET_PS_FONT_INFO 1
 
 /* Define to 1 if you have the `FT_Get_X11_Font_Format' function. */
 #cmakedefine HAVE_FT_GET_X11_FONT_FORMAT 1
 
 /* Define to 1 if you have the `FT_Has_PS_Glyph_Names' function. */
-#cmakedefine HAVE_FT_HAS_PS_GLYPH_NAMES 1
+#define HAVE_FT_HAS_PS_GLYPH_NAMES 1
 
 /* Define to 1 if you have the `FT_Select_Size' function. */
 #cmakedefine HAVE_FT_SELECT_SIZE 1
@@ -77,10 +77,10 @@
 #cmakedefine HAVE_GETEXECNAME 1
 
 /* Define to 1 if you have the `getopt' function. */
-#cmakedefine HAVE_GETOPT 1
+#define HAVE_GETOPT 1
 
 /* Define to 1 if you have the `getopt_long' function. */
-#cmakedefine HAVE_GETOPT_LONG 1
+#define HAVE_GETOPT_LONG 1
 
 /* Define to 1 if you have the `getpagesize' function. */
 #cmakedefine HAVE_GETPAGESIZE 1
@@ -125,7 +125,12 @@
 #cmakedefine HAVE_POSIX_FADVISE 1
 
 /* Have POSIX threads */
-#cmakedefine HAVE_PTHREAD
+#cmakedefine CMAKE_USE_PTHREADS_INIT ${CMAKE_USE_PTHREADS_INIT}
+#if defined(CMAKE_USE_PTHREADS_INIT) && CMAKE_USE_PTHREADS_INIT
+#  define HAVE_PTHREAD 1
+#else
+#  undef HAVE_PTHREAD
+#endif
 
 /* Have PTHREAD_PRIO_INHERIT. */
 #cmakedefine HAVE_PTHREAD_PRIO_INHERIT
@@ -353,7 +358,7 @@
 /* Define to `__inline__' or `__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */
 #ifndef __cplusplus
-#undef inline
+#define inline __inline
 #endif
 
 /* Define to `int' if <sys/types.h> does not define. */

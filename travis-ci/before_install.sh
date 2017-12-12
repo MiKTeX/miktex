@@ -76,7 +76,6 @@ elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     ( brew ls -1 | grep -w icu4c ) || brew install icu4c
     
     ( brew ls -1 | grep -w cairo ) || brew install cairo
-    ( brew ls -1 | grep -w fontconfig ) || brew install fontconfig
     ( brew ls -1 | grep -w freetype ) || brew install freetype
     ( brew ls -1 | grep -w fribidi ) || brew install fribidi
     ( brew ls -1 | grep -w gd ) || brew install gd
@@ -91,7 +90,6 @@ elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     ( brew ls -1 | grep -w mpfr ) || brew install mpfr
     ( brew ls -1 | grep -w openssl ) || brew install openssl
     ( brew ls -1 | grep -w pixman ) || brew install pixman
-    ( brew ls -1 | grep -w poppler ) || brew install poppler
     ( brew ls -1 | grep -w popt ) || brew install popt
     ( brew ls -1 | grep -w potrace ) || brew install potrace
     ( brew ls -1 | grep -w qt ) || brew install qt

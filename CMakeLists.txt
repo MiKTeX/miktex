@@ -204,10 +204,16 @@ option(
   ${MIKTEX_UNIX_ALIKE}
 )
 
+if(MIKTEX_MACOS_BUNDLE)
+  set(use_system_fontconfig_default FALSE)
+elseif(MIKTEX_UNIX_ALIKE)
+  set(use_system_fontconfig_default TRUE)
+endif()
+
 option(
   USE_SYSTEM_FONTCONFIG
   "Use the system Fontconfig library."
-  ${MIKTEX_UNIX_ALIKE}
+  ${use_system_fontconfig_default}
 )
 
 option(
@@ -240,7 +246,7 @@ option(
   ${MIKTEX_UNIX_ALIKE}
 )
 
-if(MIKTEX_HOMEBREW)
+if(MIKTEX_HOMEBREW || MIKTEX_MACOS_BUNDLE)
   set(use_system_harfbuzz_default FALSE)
 elseif(MIKTEX_UNIX_ALIKE)
   set(use_system_harfbuzz_default TRUE)
@@ -1071,6 +1077,7 @@ else()
   check_function_exists(alloca HAVE_ALLOCA)
 endif()
 
+check_function_exists(_mktemp_s HAVE__MKTEMP_S)
 check_function_exists(access HAVE_ACCESS)
 check_function_exists(chdir HAVE_CHDIR)
 check_function_exists(chmod HAVE_CHMOD)
@@ -1080,6 +1087,8 @@ check_function_exists(confstr HAVE_CONFSTR)
 check_function_exists(finite HAVE_FINITE)
 check_function_exists(fork HAVE_FORK)
 check_function_exists(fseeko64 HAVE_FSEEKO64)
+check_function_exists(fstatfs HAVE_FSTATFS)
+check_function_exists(fstatvfs HAVE_FSTATVFS)
 check_function_exists(ftello64 HAVE_FTELLO64)
 check_function_exists(ftime HAVE_FTIME)
 check_function_exists(futimes HAVE_FUTIMES)
@@ -1088,21 +1097,34 @@ check_function_exists(getenv HAVE_GETENV)
 check_function_exists(geteuid HAVE_GETEUID)
 check_function_exists(getopt_long HAVE_GETOPT_LONG)
 check_function_exists(getpagesize HAVE_GETPAGESIZE)
-check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
 check_function_exists(getpid HAVE_GETPID)
+check_function_exists(getprogname HAVE_GETPROGNAME)
+check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
+check_function_exists(link HAVE_LINK)
+check_function_exists(lrand48 HAVE_LRAND48)
+check_function_exists(lstat HAVE_LSTAT)
 check_function_exists(memcmp HAVE_MEMCMP)
 check_function_exists(memmove HAVE_MEMMOVE)
 check_function_exists(memset HAVE_MEMSET)
 check_function_exists(mkdir HAVE_MKDIR)
+check_function_exists(mkostemp HAVE_MKOSTEMP)
+check_function_exists(mkstemp HAVE_MKSTEMP)
 check_function_exists(mmap HAVE_MMAP)
 check_function_exists(open HAVE_OPEN)
 check_function_exists(opendir HAVE_OPENDIR)
 check_function_exists(pclose HAVE_PCLOSE)
 check_function_exists(popen HAVE_POPEN)
+check_function_exists(posix_fadvise HAVE_POSIX_FADVISE)
 check_function_exists(putenv HAVE_PUTENV)
+check_function_exists(rand HAVE_RAND)
+check_function_exists(rand_r HAVE_RAND_R)
+check_function_exists(random HAVE_RANDOM)
+check_function_exists(random_r HAVE_RANDOM_R)
 check_function_exists(readdir HAVE_READDIR)
+check_function_exists(readlink HAVE_READLINK)
 check_function_exists(regexec HAVE_REGEXEC)
 check_function_exists(rmdir HAVE_RMDIR)
+check_function_exists(sched_yield HAVE_SCHED_YIELD)
 check_function_exists(setenv HAVE_SETENV)
 check_function_exists(setreuid HAVE_SETREUID)
 check_function_exists(setuid HAVE_SETUID)
@@ -1122,8 +1144,8 @@ check_function_exists(strtoll HAVE_STRTOLL)
 check_function_exists(uname HAVE_UNAME_SYSCALL)
 check_function_exists(unlink HAVE_UNLINK)
 check_function_exists(utime HAVE_UTIME)
-check_function_exists(vprintf HAVE_VPRINTF)
 check_function_exists(vfork HAVE_VFORK)
+check_function_exists(vprintf HAVE_VPRINTF)
 
 if(WITH_UI_MFC)
   set(HAVE_AFXWIN_H "YES")
@@ -1156,9 +1178,11 @@ check_include_files(string.h HAVE_STRING_H)
 check_include_files(strings.h HAVE_STRINGS_H)
 check_include_files(sys/dir.h HAVE_SYS_DIR_H)
 check_include_files(sys/mman.h HAVE_SYS_MMAN_H)
+check_include_files(sys/mount.h HAVE_SYS_MOUNT_H)
 check_include_files(sys/ndir.h HAVE_SYS_NDIR_H)
 check_include_files(sys/param.h HAVE_SYS_PARAM_H)
 check_include_files(sys/stat.h HAVE_SYS_STAT_H)
+check_include_files(sys/statfs.h HAVE_SYS_STATFS_H)
 check_include_files(sys/statvfs.h HAVE_SYS_STATVFS_H)
 check_include_files(sys/time.h HAVE_SYS_TIME_H)
 check_include_files(sys/timeb.h HAVE_SYS_TIMEB_H)
@@ -1166,8 +1190,11 @@ check_include_files(sys/types.h HAVE_SYS_TYPES_H)
 check_include_files(sys/utime.h HAVE_SYS_UTIME_H)
 check_include_files(sys/utsname.h HAVE_SYS_UTSNAME_H)
 check_include_files(sys/wait.h HAVE_SYS_WAIT_H)
+check_include_files(sys/vfs.h HAVE_SYS_VFS_H)
 check_include_files(unistd.h HAVE_UNISTD_H)
 check_include_files(utime.h HAVE_UTIME_H)
+
+check_include_files(sched.h HAVE_SCHED_H)
 
 check_struct_has_member("struct tm" tm_gmtoff time.h HAVE_TM_GMTOFF)
 
@@ -1182,6 +1209,31 @@ endif()
 try_compile(HAVE_STRUCT_DIRENT_D_TYPE
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/cmake/modules/HAVE_STRUCT_DIRENT_D_TYPE.c
+)
+
+try_compile(HAVE_STRUCT_STATFS_F_FLAGS
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/cmake/modules/HAVE_STRUCT_STATFS_F_FLAGS.c
+)
+
+try_compile(HAVE_STRUCT_STATFS_F_FSTYPENAME
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/cmake/modules/HAVE_STRUCT_STATFS_F_FSTYPENAME.c
+)
+
+try_compile(HAVE_STRUCT_STATVFS_F_BASETYPE
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/cmake/modules/HAVE_STRUCT_STATVFS_F_BASETYPE.c
+)
+
+try_compile(HAVE_STRUCT_STATVFS_F_FSTYPENAME
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/cmake/modules/HAVE_STRUCT_STATVFS_F_FSTYPENAME.c
+)
+
+try_compile(HAVE_STRUCT_STAT_ST_MTIM
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/cmake/modules/HAVE_STRUCT_STAT_ST_MTIM.c
 )
 
 ###############################################################################

@@ -23,19 +23,14 @@ if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     "${mycmake}" .. ${cmakeflags}	  
 elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     brewprefix="`brew --prefix`"
-    etcdir="${brewprefix}/etc"
-    vardir="${brewprefix}/var"
     CMAKE_PREFIX_PATH="${brewprefix}/opt/icu4c:${brewprefix}/opt/openssl:${brewprefix}/opt/icu4c:${brewprefix}/opt/qt:${CMAKE_PREFIX_PATH}" \
 		     cmake .. $cmakeflags \
-		     -DUSE_SYSTEM_MSPACK=FALSE \
+		     -DUSE_SYSTEM_FONTCONFIG=FALSE \
 		     -DUSE_SYSTEM_HARFBUZZ=FALSE \
 		     -DUSE_SYSTEM_HARFBUZZ_ICU=FALSE \
+		     -DUSE_SYSTEM_MSPACK=FALSE \
 		     -DUSE_SYSTEM_POPPLER=FALSE \
 		     -DUSE_SYSTEM_POPPLER_QT5=FALSE \
 		     -DMIKTEX_MPM_AUTO_INSTALL=t \
-		     -DMIKTEX_SYSTEM_ETC_FONTS_CONFD_DIR="${etcdir}/fonts/conf.d" \
-		     -DMIKTEX_SYSTEM_VAR_CACHE_DIR="${vardir}/cache" \
-		     -DMIKTEX_SYSTEM_VAR_LIB_DIR="${vardir}/lib" \
-		     -DMIKTEX_SYSTEM_VAR_LOG_DIR="${vardir}/log" \
 		     -DWITH_UI_QT=TRUE
 fi
