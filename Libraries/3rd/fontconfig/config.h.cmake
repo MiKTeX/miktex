@@ -1,36 +1,28 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define if building universal (internal helper macro) */
-#undef AC_APPLE_UNIVERSAL_BUILD
+#cmakedefine AC_APPLE_UNIVERSAL_BUILD
 
 /* The normal alignment of `double', in bytes. */
-#if defined(MIKTEX_WINDOWS)
-#define ALIGNOF_DOUBLE 8
-#else
-#undef ALIGNOF_DOUBLE
-#endif
+#cmakedefine ALIGNOF_DOUBLE
 
 /* The normal alignment of `void *', in bytes. */
-#if defined(MIKTEX_WINDOWS)
-#define ALIGNOF_VOID_P 8
-#else
-#undef ALIGNOF_VOID_P
-#endif
+#cmakedefine ALIGNOF_VOID_P
 
 /* Use libxml2 instead of Expat */
-/* #undef ENABLE_LIBXML2 */
+#cmakedefine ENABLE_LIBXML2
 
 /* Additional font directories */
-/* #undef FC_ADD_FONTS */
+#cmakedefine FC_ADD_FONTS
 
 /* Architecture prefix to use for cache file names */
-/* #undef FC_ARCHITECTURE */
+#cmakedefine FC_ARCHITECTURE
 
 /* System font directory */
-/* #undef FC_DEFAULT_FONTS */
+#cmakedefine FC_DEFAULT_FONTS
 
 /* The type of len parameter of the gperf hash/lookup function */
-#define FC_GPERF_SIZE_T unsigned int
+#cmakedefine FC_GPERF_SIZE_T
 
 /* Define to nothing if C supports flexible array members, and to 1 if it does
    not. That way, with a declaration like `struct s { int n; double
@@ -39,271 +31,263 @@
    (struct s)' as it overestimates the size. Use 'offsetof (struct s, d)'
    instead. Don't use 'offsetof (struct s, d[0])', as this doesn't work with
    MSVC and with C++ compilers. */
-#define FLEXIBLE_ARRAY_MEMBER
+#cmakedefine FLEXIBLE_ARRAY_MEMBER
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
-/* #undef HAVE_DIRENT_H */
+#cmakedefine HAVE_DIRENT_H 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-/* #undef HAVE_DLFCN_H */
+#cmakedefine HAVE_DLFCN_H 1
 
 /* Define to 1 if you don't have `vprintf' but do have `_doprnt.' */
-/* #undef HAVE_DOPRNT */
+#cmakedefine HAVE_DOPRNT 1
 
 /* Define to 1 if you have the <fcntl.h> header file. */
-#define HAVE_FCNTL_H 1
+#cmakedefine HAVE_FCNTL_H 1
 
 /* Define to 1 if you have the `fstatfs' function. */
-/* #undef HAVE_FSTATFS */
+#cmakedefine HAVE_FSTATFS 1
 
 /* Define to 1 if you have the `fstatvfs' function. */
-/* #undef HAVE_FSTATVFS */
+#cmakedefine HAVE_FSTATVFS 1
 
 /* FT_Bitmap_Size structure includes y_ppem field */
-#define HAVE_FT_BITMAP_SIZE_Y_PPEM 1
+#cmakedefine HAVE_FT_BITMAP_SIZE_Y_PPEM
 
 /* Define to 1 if you have the `FT_Get_BDF_Property' function. */
-#define HAVE_FT_GET_BDF_PROPERTY 1
+#cmakedefine HAVE_FT_GET_BDF_PROPERTY 1
 
 /* Define to 1 if you have the `FT_Get_Next_Char' function. */
-#define HAVE_FT_GET_NEXT_CHAR 1
+#cmakedefine HAVE_FT_GET_NEXT_CHAR 1
 
 /* Define to 1 if you have the `FT_Get_PS_Font_Info' function. */
-#define HAVE_FT_GET_PS_FONT_INFO 1
+#cmakedefine HAVE_FT_GET_PS_FONT_INFO 1
 
 /* Define to 1 if you have the `FT_Get_X11_Font_Format' function. */
-/* #undef HAVE_FT_GET_X11_FONT_FORMAT */
+#cmakedefine HAVE_FT_GET_X11_FONT_FORMAT 1
 
 /* Define to 1 if you have the `FT_Has_PS_Glyph_Names' function. */
-#define HAVE_FT_HAS_PS_GLYPH_NAMES 1
+#cmakedefine HAVE_FT_HAS_PS_GLYPH_NAMES 1
 
 /* Define to 1 if you have the `FT_Select_Size' function. */
-/* #undef HAVE_FT_SELECT_SIZE */
+#cmakedefine HAVE_FT_SELECT_SIZE 1
 
 /* Define to 1 if you have the `getexecname' function. */
-/* #undef HAVE_GETEXECNAME */
+#cmakedefine HAVE_GETEXECNAME 1
 
 /* Define to 1 if you have the `getopt' function. */
-#define HAVE_GETOPT 1
+#cmakedefine HAVE_GETOPT 1
 
 /* Define to 1 if you have the `getopt_long' function. */
-#define HAVE_GETOPT_LONG 1
+#cmakedefine HAVE_GETOPT_LONG 1
 
 /* Define to 1 if you have the `getpagesize' function. */
-/* #undef HAVE_GETPAGESIZE */
+#cmakedefine HAVE_GETPAGESIZE 1
 
 /* Define to 1 if you have the `getprogname' function. */
-/* #undef HAVE_GETPROGNAME */
+#cmakedefine HAVE_GETPROGNAME 1
 
 /* Have Intel __sync_* atomic primitives */
-/* #undef HAVE_INTEL_ATOMIC_PRIMITIVES */
+#cmakedefine HAVE_INTEL_ATOMIC_PRIMITIVES
 
 /* Define to 1 if you have the <inttypes.h> header file. */
-/* #undef HAVE_INTTYPES_H */
+#cmakedefine HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the `link' function. */
-/* #undef HAVE_LINK */
+#cmakedefine HAVE_LINK 1
 
 /* Define to 1 if you have the `lrand48' function. */
-/* #undef HAVE_LRAND48 */
+#cmakedefine HAVE_LRAND48 1
 
 /* Define to 1 if you have the `lstat' function. */
-/* #undef HAVE_LSTAT */
+#cmakedefine HAVE_LSTAT 1
 
 /* Define to 1 if you have the <memory.h> header file. */
-/* #undef HAVE_MEMORY_H */
+#cmakedefine HAVE_MEMORY_H 1
 
 /* Define to 1 if you have the `mkdtemp' function. */
-/* #undef HAVE_MKDTEMP */
+#cmakedefine HAVE_MKDTEMP 1
 
 /* Define to 1 if you have the `mkostemp' function. */
-/* #undef HAVE_MKOSTEMP */
+#cmakedefine HAVE_MKOSTEMP 1
 
 /* Define to 1 if you have the `mkstemp' function. */
-/* #undef HAVE_MKSTEMP */
+#cmakedefine HAVE_MKSTEMP 1
 
 /* Define to 1 if you have a working `mmap' system call. */
-/* #undef HAVE_MMAP */
+#cmakedefine HAVE_MMAP 1
 
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
-/* #undef HAVE_NDIR_H */
+#cmakedefine HAVE_NDIR_H 1
 
 /* Define to 1 if you have the 'posix_fadvise' function. */
-/* #undef HAVE_POSIX_FADVISE */
+#cmakedefine HAVE_POSIX_FADVISE 1
 
 /* Have POSIX threads */
-/* #undef HAVE_PTHREAD */
+#cmakedefine HAVE_PTHREAD
 
 /* Have PTHREAD_PRIO_INHERIT. */
-/* #undef HAVE_PTHREAD_PRIO_INHERIT */
+#cmakedefine HAVE_PTHREAD_PRIO_INHERIT
 
 /* Define to 1 if you have the `rand' function. */
-#define HAVE_RAND 1
+#cmakedefine HAVE_RAND 1
 
 /* Define to 1 if you have the `random' function. */
-/* #undef HAVE_RANDOM */
+#cmakedefine HAVE_RANDOM 1
 
 /* Define to 1 if you have the `random_r' function. */
-/* #undef HAVE_RANDOM_R */
+#cmakedefine HAVE_RANDOM_R 1
 
 /* Define to 1 if you have the `rand_r' function. */
-/* #undef HAVE_RAND_R */
+#cmakedefine HAVE_RAND_R 1
 
 /* Define to 1 if you have the `readlink' function. */
-/* #undef HAVE_READLINK */
+#cmakedefine HAVE_READLINK 1
 
 /* Define to 1 if you have the <sched.h> header file. */
-/* #undef HAVE_SCHED_H */
+#cmakedefine HAVE_SCHED_H 1
 
 /* Have sched_yield */
-/* #undef HAVE_SCHED_YIELD */
+#cmakedefine HAVE_SCHED_YIELD
 
 /* Have Solaris __machine_*_barrier and atomic_* operations */
-/* #undef HAVE_SOLARIS_ATOMIC_OPS */
+#cmakedefine HAVE_SOLARIS_ATOMIC_OPS
 
 /* Define to 1 if you have the <stdint.h> header file. */
-#define HAVE_STDINT_H 1
+#cmakedefine HAVE_STDINT_H 1
 
 /* Define to 1 if you have the <stdlib.h> header file. */
-/* #undef HAVE_STDLIB_H */
+#cmakedefine HAVE_STDLIB_H 1
 
 /* Define to 1 if you have the <strings.h> header file. */
-/* #undef HAVE_STRINGS_H */
+#cmakedefine HAVE_STRINGS_H 1
 
 /* Define to 1 if you have the <string.h> header file. */
-/* #undef HAVE_STRING_H */
+#cmakedefine HAVE_STRING_H 1
 
 /* Define to 1 if `d_type' is a member of `struct dirent'. */
-/* #undef HAVE_STRUCT_DIRENT_D_TYPE */
+#cmakedefine HAVE_STRUCT_DIRENT_D_TYPE 1
 
 /* Define to 1 if `f_flags' is a member of `struct statfs'. */
-/* #undef HAVE_STRUCT_STATFS_F_FLAGS */
+#cmakedefine HAVE_STRUCT_STATFS_F_FLAGS 1
 
 /* Define to 1 if `f_fstypename' is a member of `struct statfs'. */
-/* #undef HAVE_STRUCT_STATFS_F_FSTYPENAME */
+#cmakedefine HAVE_STRUCT_STATFS_F_FSTYPENAME 1
 
 /* Define to 1 if `f_basetype' is a member of `struct statvfs'. */
-/* #undef HAVE_STRUCT_STATVFS_F_BASETYPE */
+#cmakedefine HAVE_STRUCT_STATVFS_F_BASETYPE 1
 
 /* Define to 1 if `f_fstypename' is a member of `struct statvfs'. */
-/* #undef HAVE_STRUCT_STATVFS_F_FSTYPENAME */
+#cmakedefine HAVE_STRUCT_STATVFS_F_FSTYPENAME 1
 
 /* Define to 1 if `st_mtim' is a member of `struct stat'. */
-/* #undef HAVE_STRUCT_STAT_ST_MTIM */
+#cmakedefine HAVE_STRUCT_STAT_ST_MTIM 1
 
 /* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
    */
-/* #undef HAVE_SYS_DIR_H */
+#cmakedefine HAVE_SYS_DIR_H 1
 
 /* Define to 1 if you have the <sys/mount.h> header file. */
-/* #undef HAVE_SYS_MOUNT_H */
+#cmakedefine HAVE_SYS_MOUNT_H 1
 
 /* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'.
    */
-/* #undef HAVE_SYS_NDIR_H */
+#cmakedefine HAVE_SYS_NDIR_H 1
 
 /* Define to 1 if you have the <sys/param.h> header file. */
-/* #undef HAVE_SYS_PARAM_H */
+#cmakedefine HAVE_SYS_PARAM_H 1
 
 /* Define to 1 if you have the <sys/statfs.h> header file. */
-/* #undef HAVE_SYS_STATFS_H */
+#cmakedefine HAVE_SYS_STATFS_H 1
 
 /* Define to 1 if you have the <sys/statvfs.h> header file. */
-/* #undef HAVE_SYS_STATVFS_H */
+#cmakedefine HAVE_SYS_STATVFS_H 1
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
-#define HAVE_SYS_STAT_H 1
+#cmakedefine HAVE_SYS_STAT_H 1
 
 /* Define to 1 if you have the <sys/types.h> header file. */
-#define HAVE_SYS_TYPES_H 1
+#cmakedefine HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the <sys/vfs.h> header file. */
-/* #undef HAVE_SYS_VFS_H */
+#cmakedefine HAVE_SYS_VFS_H 1
 
 /* Define to 1 if `usLowerOpticalPointSize' is a member of `TT_OS2'. */
-/* #undef HAVE_TT_OS2_USLOWEROPTICALPOINTSIZE */
+#cmakedefine HAVE_TT_OS2_USLOWEROPTICALPOINTSIZE 1
 
 /* Define to 1 if `usUpperOpticalPointSize' is a member of `TT_OS2'. */
-/* #undef HAVE_TT_OS2_USUPPEROPTICALPOINTSIZE */
+#cmakedefine HAVE_TT_OS2_USUPPEROPTICALPOINTSIZE 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
-/* #undef HAVE_UNISTD_H */
+#cmakedefine HAVE_UNISTD_H 1
 
 /* Define to 1 if you have the `vprintf' function. */
-/* #undef HAVE_VPRINTF */
+#cmakedefine HAVE_VPRINTF 1
 
 /* Can use #warning in C files */
-/* #undef HAVE_WARNING_CPP_DIRECTIVE */
+#cmakedefine HAVE_WARNING_CPP_DIRECTIVE
 
 /* Use xmlparse.h instead of expat.h */
-/* #undef HAVE_XMLPARSE_H */
+#cmakedefine HAVE_XMLPARSE_H
 
 /* Define to 1 if you have the `XML_SetDoctypeDeclHandler' function. */
-/* #undef HAVE_XML_SETDOCTYPEDECLHANDLER */
+#cmakedefine HAVE_XML_SETDOCTYPEDECLHANDLER 1
 
 /* Define to 1 if you have the `_mktemp_s' function. */
-/* #undef HAVE__MKTEMP_S */
+#cmakedefine HAVE__MKTEMP_S 1
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
-/* #undef LT_OBJDIR */
+#cmakedefine LT_OBJDIR
 
 /* Name of package */
-/* #undef PACKAGE */
+#cmakedefine PACKAGE
 
 /* Define to the address where bug reports for this package should be sent. */
-/* #undef PACKAGE_BUGREPORT */
+#cmakedefine PACKAGE_BUGREPORT
 
 /* Define to the full name of this package. */
-/* #undef PACKAGE_NAME */
+#cmakedefine PACKAGE_NAME
 
 /* Define to the full name and version of this package. */
-/* #undef PACKAGE_STRING */
+#cmakedefine PACKAGE_STRING
 
 /* Define to the one symbol short name of this package. */
-/* #undef PACKAGE_TARNAME */
+#cmakedefine PACKAGE_TARNAME
 
 /* Define to the home page for this package. */
-/* #undef PACKAGE_URL */
+#cmakedefine PACKAGE_URL
 
 /* Define to the version of this package. */
-/* #undef PACKAGE_VERSION */
+#cmakedefine PACKAGE_VERSION
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
-/* #undef PTHREAD_CREATE_JOINABLE */
+#cmakedefine PTHREAD_CREATE_JOINABLE
 
 /* The size of `char', as computed by sizeof. */
-/* #undef SIZEOF_CHAR */
+#cmakedefine SIZEOF_CHAR
 
 /* The size of `int', as computed by sizeof. */
-/* #undef SIZEOF_INT */
+#cmakedefine SIZEOF_INT
 
 /* The size of `long', as computed by sizeof. */
-/* #undef SIZEOF_LONG */
+#cmakedefine SIZEOF_LONG
 
 /* The size of `short', as computed by sizeof. */
-/* #undef SIZEOF_SHORT */
+#cmakedefine SIZEOF_SHORT
 
 /* The size of `void*', as computed by sizeof. */
-/* #undef SIZEOF_VOIDP */
+#cmakedefine SIZEOF_VOIDP
 
 /* The size of `void *', as computed by sizeof. */
-#if defined(MIKTEX_WINDOWS)
-#if defined(_WIN64)
-#  define SIZEOF_VOID_P 8
-#else
-#  define SIZEOF_VOID_P 4
-#endif
-#else
-#undef SIZEOF_VOID_P
-#endif
+#cmakedefine SIZEOF_VOID_P
 
 /* Define to 1 if you have the ANSI C header files. */
-/* #undef STDC_HEADERS */
+#cmakedefine STDC_HEADERS 1
 
 /* Use iconv. */
-/* #undef USE_ICONV */
+#cmakedefine USE_ICONV
 
 /* Enable extensions on AIX 3, Interix.  */
 #ifndef _ALL_SOURCE
@@ -328,7 +312,7 @@
 
 
 /* Version number of package */
-/* #undef VERSION */
+#cmakedefine VERSION
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
@@ -348,38 +332,31 @@
 #endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */
-/* #undef _FILE_OFFSET_BITS */
+#cmakedefine _FILE_OFFSET_BITS
 
 /* Define for large files, on AIX-style hosts. */
-/* #undef _LARGE_FILES */
+#cmakedefine _LARGE_FILES
 
 /* Define to 1 if on MINIX. */
-/* #undef _MINIX */
+#cmakedefine _MINIX 1
 
 /* Define to 2 if the system does not provide POSIX.1 features except with
    this defined. */
-/* #undef _POSIX_1_SOURCE */
+#cmakedefine _POSIX_1_SOURCE
 
 /* Define to 1 if you need to in order for `stat' and other things to work. */
-#undef _POSIX_SOURCE
+#cmakedefine _POSIX_SOURCE 1
 
 /* Define to empty if `const' does not conform to ANSI C. */
-/* #undef const */
+#undef const
 
 /* Define to `__inline__' or `__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */
 #ifndef __cplusplus
-#define inline __inline
+#undef inline
 #endif
 
 /* Define to `int' if <sys/types.h> does not define. */
-/* #undef pid_t */
+#undef pid_t
 
 #include "config-fixups.h"
-#if defined(MIKTEX) && !defined(DONT_USE_MIKTEX_EXIT)
-#if defined(MIKTEX_WINDOWS)
-#  define MIKTEX_USE_UTF8_FILE_NAMES 1
-#endif
-#  define USE_MIKTEX_EXIT
-#  undef USE_FCSTAT_WORKAROUND
-#endif

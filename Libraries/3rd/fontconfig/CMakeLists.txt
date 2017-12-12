@@ -28,9 +28,13 @@ include_directories(BEFORE
   source
 )
 
+configure_file(
+  config.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
 add_definitions(
   -DHAVE_CONFIG_H
-  -DDONT_USE_MIKTEX_EXIT
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -455,6 +459,7 @@ configure_file(
 )
 
 set(${fontconfig_dll_name}_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
   ${CMAKE_CURRENT_BINARY_DIR}/fcalias.h
   ${CMAKE_CURRENT_BINARY_DIR}/fcaliastail.h
   ${CMAKE_CURRENT_BINARY_DIR}/fccase.h

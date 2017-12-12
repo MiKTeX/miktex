@@ -161,7 +161,7 @@ main (int argc, char **argv)
     if (!ignore_blanks)
 	blanks = FcConfigGetBlanks (NULL);
 #if defined(MIKTEX_WINDOWS)
-    _setmode (_fileno(stdout), _O_BINARY);
+    _setmode(_fileno(stdout), _O_BINARY);
 #endif
     for (; i < argc; i++)
     {

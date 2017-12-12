@@ -1895,7 +1895,7 @@ DllMain (HINSTANCE hinstDLL,
 #define FONTCONFIG_PATH fontconfig_path
 
 #endif /* !_WIN32 */
-#endif /* !MIKTEX */
+#endif
 
 #ifndef FONTCONFIG_FILE
 #define FONTCONFIG_FILE	"fonts.conf"
@@ -2008,7 +2008,7 @@ FcConfigGetPath (void)
 		strcat ((char *) fontconfig_path, "\\fonts");
 	}
 #endif
-#endif    
+#endif
     dir = (FcChar8 *) FONTCONFIG_PATH;
     path[i] = malloc (strlen ((char *) dir) + 1);
     if (!path[i])
