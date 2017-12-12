@@ -1,6 +1,6 @@
 /* fcmiktex.cpp:                                        -*- C++ -*-
 
-   Copyright (C) 2007-2016 Christian Schenk
+   Copyright (C) 2007-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -36,7 +36,7 @@
 using namespace MiKTeX::Core;
 using namespace std;
 
-extern "C" const char * miktex_fontconfig_path()
+extern "C" const char* miktex_fontconfig_path()
 {
   try
   {
@@ -49,19 +49,19 @@ extern "C" const char * miktex_fontconfig_path()
     }
     return path.GetData();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
     exit(1);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     Utils::PrintException(e);
     exit(1);
   }
 }
 
-extern "C" const char * miktex_fc_cachedir()
+extern "C" const char* miktex_fc_cachedir()
 {
   try
   {
@@ -74,19 +74,19 @@ extern "C" const char * miktex_fc_cachedir()
     }
     return path.GetData();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
     exit(1);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     Utils::PrintException(e);
     exit(1);
   }
 }
 
-extern "C" const char * miktex_fc_default_fonts()
+extern "C" const char* miktex_fc_default_fonts()
 {
   try
   {
@@ -102,24 +102,24 @@ extern "C" const char * miktex_fc_default_fonts()
     }
     return (path.GetData());
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
     exit(1);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     Utils::PrintException(e);
     exit(1);
   }
 }
 
-extern "C" const char * miktex_fontconfig_file()
+extern "C" const char* miktex_fontconfig_file()
 {
   return MIKTEX_FONTS_CONF;
 }
 
-extern "C" int miktex_get_fontconfig_config_dirs(char ** pPaths, int nPaths)
+extern "C" int miktex_get_fontconfig_config_dirs(char** pPaths, int nPaths)
 {
   try
   {
@@ -137,27 +137,24 @@ extern "C" int miktex_get_fontconfig_config_dirs(char ** pPaths, int nPaths)
     }
     return static_cast<int>(nConfigDirs);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
     exit(1);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     Utils::PrintException(e);
     exit(1);
   }
 }
 
-extern "C" void miktex_close_cache_file(int fd, const char  * lpszDir)
+extern "C" void miktex_close_cache_file(int fd, const char* directory)
 {
   try
   {
     time_t dirCreationTime, dirAccessTime, dirWriteTime;
-    File::GetTimes(lpszDir,
-      dirCreationTime,
-      dirAccessTime,
-      dirWriteTime);
+    File::GetTimes(directory, dirCreationTime, dirAccessTime, dirWriteTime);
     time_t cache_mtime = time(nullptr);
     static set<time_t> modificationTimes;
     if (dirWriteTime != static_cast<time_t>(-1) && cache_mtime < dirWriteTime)
@@ -175,19 +172,19 @@ extern "C" void miktex_close_cache_file(int fd, const char  * lpszDir)
       fprintf(stderr, "cannot close file: %s\n", strerror(errno));
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
     exit(1);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     Utils::PrintException(e);
     exit(1);
   }
 }
 
-extern "C" void miktex_report_crt_error(const char * message, ...)
+extern "C" void miktex_report_crt_error(const char* message, ...)
 {
   va_list arglist;
   va_start(arglist, message);
@@ -196,7 +193,7 @@ extern "C" void miktex_report_crt_error(const char * message, ...)
   fprintf(stderr, ": %s\n", strerror(errno));
 }
 
-extern "C" void miktex_report_problem(const char * message, ...)
+extern "C" void miktex_report_problem(const char* message, ...)
 {
   va_list arglist;
   va_start(arglist, message);
@@ -205,19 +202,19 @@ extern "C" void miktex_report_problem(const char * message, ...)
   fputc('\n', stderr);
 }
 
-extern "C" int miktex_file_delete(const char * path)
+extern "C" int miktex_file_delete(const char* path)
 {
   try
   {
     File::Delete(path, { FileDeleteOption::TryHard, FileDeleteOption::UpdateFndb });
     return 1;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     Utils::PrintException(e);
     return 0;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     Utils::PrintException(e);
     return 0;
