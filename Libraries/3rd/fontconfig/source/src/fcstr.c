@@ -1099,7 +1099,7 @@ FcStrCanonFilename (const FcChar8 *s)
 {
 #ifdef _WIN32
     FcChar8 full[FC_MAX_FILE_LEN + 2];
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
   wchar_t sw[FC_MAX_FILE_LEN + 2];
   wchar_t fullW[FC_MAX_FILE_LEN + 2];
   miktex_utf8_to_wide_char(s, FC_MAX_FILE_LEN + 2, sw);

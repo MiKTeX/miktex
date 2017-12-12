@@ -1196,6 +1196,12 @@ check_include_files(utime.h HAVE_UTIME_H)
 
 check_include_files(sched.h HAVE_SCHED_H)
 
+check_struct_has_member("struct dirent" d_type dirent.h HAVE_STRUCT_DIRENT_D_TYPE)
+check_struct_has_member("struct stat" st_mtim sys/stat.h HAVE_STRUCT_STAT_ST_MTIM)
+check_struct_has_member("struct statfs" f_flags sys/statfs.h HAVE_STRUCT_STATFS_F_FLAGS)
+check_struct_has_member("struct statfs" f_fstypename sys/statfs.h HAVE_STRUCT_STATFS_F_FSTYPENAME)
+check_struct_has_member("struct statvfs" f_basetype sys/statvfs.h HAVE_STRUCT_STATVFS_F_BASETYPE)
+check_struct_has_member("struct statvfs" f_fstypename sys/statvfs.h HAVE_STRUCT_STATVFS_F_FSTYPENAME)
 check_struct_has_member("struct tm" tm_gmtoff time.h HAVE_TM_GMTOFF)
 
 check_variable_exists(timezone HAVE_TIMEZONE)
@@ -1205,36 +1211,6 @@ check_type_size("long long" LONG_LONG)
 if(HAVE_LIMITS_H)
   set(STDC_HEADERS)
 endif()
-
-try_compile(HAVE_STRUCT_DIRENT_D_TYPE
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/cmake/modules/HAVE_STRUCT_DIRENT_D_TYPE.c
-)
-
-try_compile(HAVE_STRUCT_STATFS_F_FLAGS
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/cmake/modules/HAVE_STRUCT_STATFS_F_FLAGS.c
-)
-
-try_compile(HAVE_STRUCT_STATFS_F_FSTYPENAME
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/cmake/modules/HAVE_STRUCT_STATFS_F_FSTYPENAME.c
-)
-
-try_compile(HAVE_STRUCT_STATVFS_F_BASETYPE
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/cmake/modules/HAVE_STRUCT_STATVFS_F_BASETYPE.c
-)
-
-try_compile(HAVE_STRUCT_STATVFS_F_FSTYPENAME
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/cmake/modules/HAVE_STRUCT_STATVFS_F_FSTYPENAME.c
-)
-
-try_compile(HAVE_STRUCT_STAT_ST_MTIM
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/cmake/modules/HAVE_STRUCT_STAT_ST_MTIM.c
-)
 
 ###############################################################################
 ## set the build type

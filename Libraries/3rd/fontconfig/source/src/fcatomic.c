@@ -175,7 +175,7 @@ FcAtomicLock (FcAtomic *atomic)
 	}
 	return FcFalse;
     }
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
     if (access(atomic->new, 0) == 0)
     {
       miktex_file_delete(atomic->new);
@@ -202,7 +202,7 @@ FcBool
 FcAtomicReplaceOrig (FcAtomic *atomic)
 {
 #ifdef _WIN32
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
   if (access(atomic->file, 0) == 0)
   {
     miktex_file_delete(atomic->file);
@@ -227,7 +227,7 @@ FcAtomicReplaceOrig (FcAtomic *atomic)
 void
 FcAtomicDeleteNew (FcAtomic *atomic)
 {
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
   miktex_file_delete(atomic->new);
 #else
     unlink ((char *) atomic->new);

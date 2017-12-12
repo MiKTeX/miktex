@@ -22,7 +22,9 @@
 #include <cstdarg>
 #include <cstdlib>
 
+#if defined(MIKTEX_WINDOWS)
 #include <io.h>
+#endif
 
 #include <exception>
 #include <memory>
@@ -93,14 +95,16 @@ extern "C" const char* miktex_fc_default_fonts()
     static PathName path;
     if (path.Empty())
     {
+#if defined(MIKTEX_WINDOWS)
       UINT l = GetWindowsDirectoryA(path.GetData(), static_cast<UINT>(path.GetCapacity()));
       if (l == 0 || l >= path.GetCapacity())
       {
         path = "C:/wInDoWs";
       }
       path /= "Fonts";
+#endif
     }
-    return (path.GetData());
+    return path.GetData();
   }
   catch (const MiKTeXException& e)
   {
@@ -149,6 +153,7 @@ extern "C" int miktex_get_fontconfig_config_dirs(char** pPaths, int nPaths)
   }
 }
 
+#if defined(MIKTEX_WINDOWS)
 extern "C" void miktex_close_cache_file(int fd, const char* directory)
 {
   try
@@ -167,7 +172,7 @@ extern "C" void miktex_close_cache_file(int fd, const char* directory)
     } while (modificationTimes.find(cache_mtime) != modificationTimes.end());
     File::SetTimes(fd, cache_mtime, cache_mtime, cache_mtime);
     modificationTimes.insert(cache_mtime);
-    if (_close(fd) < 0)
+    if (close(fd) < 0)
     {
       fprintf(stderr, "cannot close file: %s\n", strerror(errno));
     }
@@ -183,6 +188,7 @@ extern "C" void miktex_close_cache_file(int fd, const char* directory)
     exit(1);
   }
 }
+#endif
 
 extern "C" void miktex_report_crt_error(const char* message, ...)
 {

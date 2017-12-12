@@ -1838,7 +1838,7 @@ FcConfigSubstitute (FcConfig	*config,
     return FcConfigSubstituteWithPat (config, p, 0, kind);
 }
 
-#if !defined(MIKTEX)
+#if !defined(MIKTEX_WINDOWS)
 #if defined (_WIN32)
 
 static FcChar8 fontconfig_path[1000] = ""; /* MT-dontcare */

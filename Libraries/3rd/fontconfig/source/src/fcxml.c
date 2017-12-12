@@ -52,7 +52,7 @@
 
 #endif /* ENABLE_LIBXML2 */
 
-#if !defined(MIKTEX)
+#if !defined(MIKTEX_WINDOWS)
 #ifdef _WIN32
 #include <mbstring.h>
 extern FcChar8 fontconfig_instprefix[];
@@ -2209,7 +2209,7 @@ FcParseCacheDir (FcConfigParse *parse)
 	FcStrFree (data);
 	data = prefix;
     }
-#if !defined(MIKTEX)
+#if !defined(MIKTEX_WINDOWS)
 #ifdef _WIN32
     else if (data[0] == '/' && fontconfig_instprefix[0] != '\0')
     {

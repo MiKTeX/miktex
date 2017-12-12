@@ -142,7 +142,7 @@ FcDirCacheUnlink (const FcChar8 *dir, FcConfig *config)
 	    cache_hashed = FcStrBuildFilename (cache_dir, cache_base, NULL);
         if (!cache_hashed)
 	    break;
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
         miktex_file_delete(cache_hashed);
 #else
 	(void) unlink ((char *) cache_hashed);
@@ -262,10 +262,10 @@ struct _FcCacheSkip {
     ino_t	    cache_ino;
     time_t	    cache_mtime;
     long	    cache_mtime_nano;
-#if defined(MIKTEX) && !MIKTEX_USE_FCSTAT_WORKAROUND
-    time_t	    cache_atime;
-    time_t	    cache_ctime;
-    size_t	    cache_size;
+#if defined(MIKTEX_WINDOWS) && !MIKTEX_USE_FCSTAT_WORKAROUND
+    time_t          cache_atime;
+    time_t          cache_ctime;
+    size_t          cache_size;
 #endif
     FcCacheSkip	    *next[1];
 };
@@ -399,10 +399,10 @@ FcCacheInsert (FcCache *cache, struct stat *cache_stat)
 #else
 	s->cache_mtime_nano = 0;
 #endif
-#if defined(MIKTEX) && !MIKTEX_USE_FCSTAT_WORKAROUND
-	s->cache_atime = cache_stat->st_atime;
-	s->cache_ctime = cache_stat->st_ctime;
-	s->cache_size = cache_stat->st_size;
+#if defined(MIKTEX_WINDOWS) && !MIKTEX_USE_FCSTAT_WORKAROUND
+        s->cache_atime = cache_stat->st_atime;
+        s->cache_ctime = cache_stat->st_ctime;
+        s->cache_size = cache_stat->st_size;
 #endif
     }
     else
@@ -411,10 +411,10 @@ FcCacheInsert (FcCache *cache, struct stat *cache_stat)
 	s->cache_ino = 0;
 	s->cache_mtime = 0;
 	s->cache_mtime_nano = 0;
-#if defined(MIKTEX) && !MIKTEX_USE_FCSTAT_WORKAROUND
-	s->cache_atime = 0;
-	s->cache_ctime = 0;
-	s->cache_size = 0;
+#if defined(MIKTEX_WINDOWS) && !MIKTEX_USE_FCSTAT_WORKAROUND
+        s->cache_atime = 0;
+        s->cache_ctime = 0;
+        s->cache_size = 0;
 #endif
     }
 
@@ -501,10 +501,10 @@ FcCacheFindByStat (struct stat *cache_stat)
     for (s = fcCacheChains[0]; s; s = s->next[0])
 	if (s->cache_dev == cache_stat->st_dev &&
 	    s->cache_ino == cache_stat->st_ino &&
-#if defined(MIKTEX) && !MIKTEX_USE_FCSTAT_WORKAROUND
-	    s->cache_atime == cache_stat->st_atime &&
-	    s->cache_ctime == cache_stat->st_ctime &&
-	    s->cache_size == cache_stat->st_size &&
+#if defined(MIKTEX_WINDOWS) && !MIKTEX_USE_FCSTAT_WORKAROUND
+            s->cache_atime == cache_stat->st_atime &&
+            s->cache_ctime == cache_stat->st_ctime &&
+            s->cache_size == cache_stat->st_size &&
 #endif
 	    s->cache_mtime == cache_stat->st_mtime)
 	{
@@ -1113,7 +1113,7 @@ FcDirCacheWrite (FcCache *cache, FcConfig *config)
 	goto bail5;
     }
 
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
     miktex_close_cache_file (fd, dir);
 #else
     close(fd);
@@ -1246,7 +1246,7 @@ FcDirCacheClean (const FcChar8 *cache_dir, FcBool verbose)
 	}
 	if (remove)
 	{
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
           ret = miktex_file_delete(file_name) ? ret : FcFalse;
 #else
 	    if (unlink ((char *) file_name) < 0)

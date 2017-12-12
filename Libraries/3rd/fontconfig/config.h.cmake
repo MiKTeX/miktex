@@ -10,16 +10,16 @@
 #define ALIGNOF_VOID_P 8
 
 /* Use libxml2 instead of Expat */
-#cmakedefine ENABLE_LIBXML2
+#undef ENABLE_LIBXML2
 
 /* Additional font directories */
-#cmakedefine FC_ADD_FONTS
+#undef FC_ADD_FONTS
 
 /* Architecture prefix to use for cache file names */
-#cmakedefine FC_ARCHITECTURE
+#undef FC_ARCHITECTURE
 
 /* System font directory */
-#cmakedefine FC_DEFAULT_FONTS
+#undef FC_DEFAULT_FONTS
 
 /* The type of len parameter of the gperf hash/lookup function */
 #define FC_GPERF_SIZE_T unsigned int
@@ -89,7 +89,7 @@
 #cmakedefine HAVE_GETPROGNAME 1
 
 /* Have Intel __sync_* atomic primitives */
-#cmakedefine HAVE_INTEL_ATOMIC_PRIMITIVES
+#undef HAVE_INTEL_ATOMIC_PRIMITIVES
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #cmakedefine HAVE_INTTYPES_H 1
@@ -133,7 +133,7 @@
 #endif
 
 /* Have PTHREAD_PRIO_INHERIT. */
-#cmakedefine HAVE_PTHREAD_PRIO_INHERIT
+#undef HAVE_PTHREAD_PRIO_INHERIT
 
 /* Define to 1 if you have the `rand' function. */
 #cmakedefine HAVE_RAND 1
@@ -154,10 +154,10 @@
 #cmakedefine HAVE_SCHED_H 1
 
 /* Have sched_yield */
-#cmakedefine HAVE_SCHED_YIELD
+#cmakedefine HAVE_SCHED_YIELD 1
 
 /* Have Solaris __machine_*_barrier and atomic_* operations */
-#cmakedefine HAVE_SOLARIS_ATOMIC_OPS
+#undef HAVE_SOLARIS_ATOMIC_OPS
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #cmakedefine HAVE_STDINT_H 1
@@ -219,10 +219,10 @@
 #cmakedefine HAVE_SYS_VFS_H 1
 
 /* Define to 1 if `usLowerOpticalPointSize' is a member of `TT_OS2'. */
-#cmakedefine HAVE_TT_OS2_USLOWEROPTICALPOINTSIZE 1
+#undef HAVE_TT_OS2_USLOWEROPTICALPOINTSIZE 1
 
 /* Define to 1 if `usUpperOpticalPointSize' is a member of `TT_OS2'. */
-#cmakedefine HAVE_TT_OS2_USUPPEROPTICALPOINTSIZE 1
+#undef HAVE_TT_OS2_USUPPEROPTICALPOINTSIZE 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1
@@ -231,10 +231,10 @@
 #cmakedefine HAVE_VPRINTF 1
 
 /* Can use #warning in C files */
-#cmakedefine HAVE_WARNING_CPP_DIRECTIVE
+#undef HAVE_WARNING_CPP_DIRECTIVE
 
 /* Use xmlparse.h instead of expat.h */
-#cmakedefine HAVE_XMLPARSE_H
+#undef HAVE_XMLPARSE_H
 
 /* Define to 1 if you have the `XML_SetDoctypeDeclHandler' function. */
 #cmakedefine HAVE_XML_SETDOCTYPEDECLHANDLER 1
@@ -243,56 +243,56 @@
 #cmakedefine HAVE__MKTEMP_S 1
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
-#cmakedefine LT_OBJDIR
+#undef LT_OBJDIR
 
 /* Name of package */
-#cmakedefine PACKAGE
+#undef PACKAGE
 
 /* Define to the address where bug reports for this package should be sent. */
-#cmakedefine PACKAGE_BUGREPORT
+#undef PACKAGE_BUGREPORT
 
 /* Define to the full name of this package. */
-#cmakedefine PACKAGE_NAME
+#undef PACKAGE_NAME
 
 /* Define to the full name and version of this package. */
-#cmakedefine PACKAGE_STRING
+#undef PACKAGE_STRING
 
 /* Define to the one symbol short name of this package. */
-#cmakedefine PACKAGE_TARNAME
+#undef PACKAGE_TARNAME
 
 /* Define to the home page for this package. */
-#cmakedefine PACKAGE_URL
+#undef PACKAGE_URL
 
 /* Define to the version of this package. */
-#cmakedefine PACKAGE_VERSION
+#undef PACKAGE_VERSION
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
-#cmakedefine PTHREAD_CREATE_JOINABLE
+#undef PTHREAD_CREATE_JOINABLE
 
 /* The size of `char', as computed by sizeof. */
-#cmakedefine SIZEOF_CHAR
+#undef SIZEOF_CHAR
 
 /* The size of `int', as computed by sizeof. */
-#cmakedefine SIZEOF_INT
+#undef SIZEOF_INT
 
 /* The size of `long', as computed by sizeof. */
-#cmakedefine SIZEOF_LONG
+#undef SIZEOF_LONG
 
 /* The size of `short', as computed by sizeof. */
-#cmakedefine SIZEOF_SHORT
+#undef SIZEOF_SHORT
 
 /* The size of `void*', as computed by sizeof. */
-#cmakedefine SIZEOF_VOIDP
+#undef SIZEOF_VOIDP
 
 /* The size of `void *', as computed by sizeof. */
-#cmakedefine SIZEOF_VOID_P
+#define SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P}
 
 /* Define to 1 if you have the ANSI C header files. */
 #cmakedefine STDC_HEADERS 1
 
 /* Use iconv. */
-#cmakedefine USE_ICONV
+#undef USE_ICONV
 
 /* Enable extensions on AIX 3, Interix.  */
 #ifndef _ALL_SOURCE
@@ -317,7 +317,7 @@
 
 
 /* Version number of package */
-#cmakedefine VERSION
+#undef VERSION
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
@@ -337,20 +337,20 @@
 #endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */
-#cmakedefine _FILE_OFFSET_BITS
+#undef _FILE_OFFSET_BITS
 
 /* Define for large files, on AIX-style hosts. */
-#cmakedefine _LARGE_FILES
+#undef _LARGE_FILES
 
 /* Define to 1 if on MINIX. */
-#cmakedefine _MINIX 1
+#undef _MINIX 1
 
 /* Define to 2 if the system does not provide POSIX.1 features except with
    this defined. */
-#cmakedefine _POSIX_1_SOURCE
+#undef _POSIX_1_SOURCE
 
 /* Define to 1 if you need to in order for `stat' and other things to work. */
-#cmakedefine _POSIX_SOURCE 1
+#undef _POSIX_SOURCE 1
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const

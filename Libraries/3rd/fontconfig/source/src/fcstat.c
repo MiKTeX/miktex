@@ -75,12 +75,12 @@ typedef __int64 INT64;
 int
 FcStat (const FcChar8 *file, struct stat *statb)
 {
-#if defined(MIKTEX) && !MIKTEX_USE_FCSTAT_WORKAROUND
+#if defined(MIKTEX_WINDOWS) && !MIKTEX_USE_FCSTAT_WORKAROUND
   return stat((char*)file, statb);
 #else
     WIN32_FILE_ATTRIBUTE_DATA wfad;
     char full_path_name[MAX_PATH];
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
     wchar_t file_W[MAX_PATH];
     wchar_t full_path_name_W[MAX_PATH];
     wchar_t * basename_W;
@@ -89,7 +89,7 @@ FcStat (const FcChar8 *file, struct stat *statb)
 #endif
     DWORD rc;
 
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
     miktex_utf8_to_wide_char(file, MAX_PATH, file_W);
 
     if (!GetFileAttributesExW(file_W, GetFileExInfoStandard, &wfad))
@@ -107,7 +107,7 @@ FcStat (const FcChar8 *file, struct stat *statb)
      * Call GetLongPathName() to get the spelling of the path name as it
      * is on disk.
      */
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
     rc = GetFullPathNameW(file_W, MAX_PATH, full_path_name_W, &basename_W);
     if (rc == 0 || rc > MAX_PATH)
     {
@@ -119,7 +119,7 @@ FcStat (const FcChar8 *file, struct stat *statb)
 	return -1;
 #endif
 
-#if defined(MIKTEX)
+#if defined(MIKTEX_WINDOWS)
     rc = GetLongPathNameW(full_path_name_W, full_path_name_W, MAX_PATH);
     if (rc != 0 && rc >= MAX_PATH)
     {

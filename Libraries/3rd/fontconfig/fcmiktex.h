@@ -27,7 +27,9 @@ const char* miktex_fontconfig_file();
 
 int miktex_get_fontconfig_config_dirs(char** pPaths, int nPaths);
 
+#if defined(MIKTEX_WINDOWS)
 void miktex_close_cache_file(int fd, const char* directory);
+#endif
 
 void miktex_report_crt_error(const char* message, ...);
 
