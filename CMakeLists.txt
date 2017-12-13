@@ -1453,6 +1453,25 @@ else()
   add_subdirectory(${MIKTEX_REL_BZIP2_DIR})
 endif()
 
+if(USE_SYSTEM_FREETYPE2)
+  message(INFO "FREETYPE_LIBRARY: ${FREETYPE_LIBRARY}")
+  message(INFO "FREETYPE_INCLUDE_DIRS: ${FREETYPE_INCLUDE_DIRS}")
+  get_filename_component(suffix ${FREETYPE_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::FREETYPE2 SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::FREETYPE2 STATIC IMPORTED)
+  endif()
+  set_target_properties(MiKTeX::Imported::FREETYPE2
+    PROPERTIES
+      IMPORTED_LOCATION "${FREETYPE_LIBRARY}"
+      INTERFACE_COMPILE_DEFINITIONS "HAVE_FT2BUILD_H=1;HAVE_LIBFREETYPE=1"
+      INTERFACE_INCLUDE_DIRECTORIES "${FREETYPE_INCLUDE_DIRS}"
+  )
+else()
+  add_subdirectory(${MIKTEX_REL_FREETYPE2_DIR})
+endif()
+
 if(USE_SYSTEM_CAIRO)
   get_filename_component(suffix ${CAIRO_LIBRARY} EXT)
   if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
@@ -1518,25 +1537,6 @@ if(USE_SYSTEM_FONTCONFIG)
   )
 else()
   add_subdirectory(${MIKTEX_REL_FONTCONFIG_DIR})
-endif()
-
-if(USE_SYSTEM_FREETYPE2)
-  message(INFO "FREETYPE_LIBRARY: ${FREETYPE_LIBRARY}")
-  message(INFO "FREETYPE_INCLUDE_DIRS: ${FREETYPE_INCLUDE_DIRS}")
-  get_filename_component(suffix ${FREETYPE_LIBRARY} EXT)
-  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
-    add_library(MiKTeX::Imported::FREETYPE2 SHARED IMPORTED)
-  else()
-    add_library(MiKTeX::Imported::FREETYPE2 STATIC IMPORTED)
-  endif()
-  set_target_properties(MiKTeX::Imported::FREETYPE2
-    PROPERTIES
-      IMPORTED_LOCATION "${FREETYPE_LIBRARY}"
-      INTERFACE_COMPILE_DEFINITIONS "HAVE_FT2BUILD_H=1;HAVE_LIBFREETYPE=1"
-      INTERFACE_INCLUDE_DIRECTORIES "${FREETYPE_INCLUDE_DIRS}"
-  )
-else()
-  add_subdirectory(${MIKTEX_REL_FREETYPE2_DIR})
 endif()
 
 if(USE_SYSTEM_FRIBIDI)
