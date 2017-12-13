@@ -22,7 +22,7 @@
 #undef FC_DEFAULT_FONTS
 
 /* The type of len parameter of the gperf hash/lookup function */
-#define FC_GPERF_SIZE_T unsigned int
+#define FC_GPERF_SIZE_T size_t
 
 /* Define to nothing if C supports flexible array members, and to 1 if it does
    not. That way, with a declaration like `struct s { int n; double
@@ -219,10 +219,10 @@
 #cmakedefine HAVE_SYS_VFS_H 1
 
 /* Define to 1 if `usLowerOpticalPointSize' is a member of `TT_OS2'. */
-#undef HAVE_TT_OS2_USLOWEROPTICALPOINTSIZE 1
+#cmakedefine HAVE_TT_OS2_USLOWEROPTICALPOINTSIZE 1
 
 /* Define to 1 if `usUpperOpticalPointSize' is a member of `TT_OS2'. */
-#undef HAVE_TT_OS2_USUPPEROPTICALPOINTSIZE 1
+#cmakedefine HAVE_TT_OS2_USUPPEROPTICALPOINTSIZE 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1
