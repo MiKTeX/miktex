@@ -343,14 +343,14 @@
 #undef _LARGE_FILES
 
 /* Define to 1 if on MINIX. */
-#undef _MINIX 1
+#cmakedefine _MINIX 1
 
 /* Define to 2 if the system does not provide POSIX.1 features except with
    this defined. */
 #undef _POSIX_1_SOURCE
 
 /* Define to 1 if you need to in order for `stat' and other things to work. */
-#undef _POSIX_SOURCE 1
+#cmakedefine _POSIX_SOURCE 1
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
