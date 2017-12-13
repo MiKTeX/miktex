@@ -1838,8 +1838,8 @@ FcConfigSubstitute (FcConfig	*config,
     return FcConfigSubstituteWithPat (config, p, 0, kind);
 }
 
-#if !defined(MIKTEX_WINDOWS)
 #if defined (_WIN32)
+#if !defined(MIKTEX_WINDOWS)
 
 static FcChar8 fontconfig_path[1000] = ""; /* MT-dontcare */
 FcChar8 fontconfig_instprefix[1000] = ""; /* MT-dontcare */
@@ -1894,8 +1894,8 @@ DllMain (HINSTANCE hinstDLL,
 #undef FONTCONFIG_PATH
 #define FONTCONFIG_PATH fontconfig_path
 
-#endif /* !_WIN32 */
 #endif
+#endif /* !_WIN32 */
 
 #ifndef FONTCONFIG_FILE
 #define FONTCONFIG_FILE	"fonts.conf"
@@ -1994,10 +1994,11 @@ FcConfigGetPath (void)
 	}
     }
 
-#ifdef _WIN32
 #if defined(MIKTEX)
     i += miktex_get_fontconfig_config_dirs(path, i);
-#else
+#endif
+#ifdef _WIN32
+#if !defined(MIKTEX_WINDOWS)
 	if (fontconfig_path[0] == '\0')
 	{
 		char *p;

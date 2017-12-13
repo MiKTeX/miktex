@@ -91,7 +91,6 @@ FcStat (const FcChar8 *file, struct stat *statb)
 
 #if defined(MIKTEX_WINDOWS)
     miktex_utf8_to_wide_char(file, MAX_PATH, file_W);
-
     if (!GetFileAttributesExW(file_W, GetFileExInfoStandard, &wfad))
     {
       return -1;
