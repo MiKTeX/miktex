@@ -53,7 +53,10 @@ add_custom_command(
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND tex2xindy_sources tex2xindy.rc)
+  list(APPEND tex2xindy_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    tex2xindy.rc
+  )
 endif()
 
 add_executable(tex2xindy ${tex2xindy_sources})
@@ -71,8 +74,5 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${utf8wrap_dll_name}
   )
 endif()
-
-merge_trustinfo_manifest(tex2xindy asInvoker)
-merge_compatibility_manifest(tex2xindy)
 
 install(TARGETS tex2xindy DESTINATION ${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR})

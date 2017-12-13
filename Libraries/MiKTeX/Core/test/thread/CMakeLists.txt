@@ -21,9 +21,6 @@ add_executable(core_thread_test1 1.cpp ${test_sources})
 
 set_property(TARGET core_thread_test1 PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(core_thread_test1 asInvoker)
-merge_compatibility_manifest(core_thread_test1)
-
 if(USE_SYSTEM_LOG4CXX)
   target_link_libraries(core_thread_test1 MiKTeX::Imported::LOG4CXX)
 else()

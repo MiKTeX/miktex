@@ -231,6 +231,7 @@ list(APPEND dvipdfm_x_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND dvipdfm_x_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     ${CMAKE_CURRENT_BINARY_DIR}/dvipdfm-x.rc
   )
 endif()
@@ -262,9 +263,6 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-merge_trustinfo_manifest(${MIKTEX_PREFIX}dvipdfmx asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}dvipdfmx)
-
 install(TARGETS ${MIKTEX_PREFIX}dvipdfmx DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(dvipdft_sources
@@ -274,6 +272,7 @@ set(dvipdft_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND dvipdft_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     dvipdft.rc
   )
 endif()
@@ -281,9 +280,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}dvipdft ${dvipdft_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}dvipdft PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}dvipdft asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}dvipdft)
 
 target_link_libraries(${MIKTEX_PREFIX}dvipdft
   ${app_dll_name}

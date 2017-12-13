@@ -51,6 +51,7 @@ set(t4ht_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND t4ht_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     t4ht.rc
   )
 endif()
@@ -58,9 +59,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}t4ht ${t4ht_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}t4ht PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}t4ht asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}t4ht)
 
 target_link_libraries(${MIKTEX_PREFIX}t4ht
   ${app_dll_name}
@@ -84,6 +82,7 @@ set(tex4ht_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND tex4ht_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     tex4ht.rc
   )
 endif()
@@ -91,9 +90,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}tex4ht ${tex4ht_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}tex4ht PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}tex4ht asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}tex4ht)
 
 target_link_libraries(${MIKTEX_PREFIX}tex4ht
   ${app_dll_name}

@@ -159,7 +159,7 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
       HEADER_FILE_ONLY TRUE
   )
 
-  if(MSVC)
+  if(MIKTEX_NATIVE_WINDOWS)
     set_source_files_properties(
       ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}wrapper.cpp
       PROPERTIES COMPILE_FLAGS
@@ -265,6 +265,9 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
       list(APPEND ${_short_name_l}_program_sources
         ${CMAKE_CURRENT_BINARY_DIR}/${_short_name_l}.rc)
     endif()
+    list(APPEND ${_short_name_l}_program_sources
+      ${MIKTEX_COMPATIBILITY_MANIFEST}
+    )
   endif()
 
   add_library(${_lib_name} STATIC ${${_lib_name}_sources})
@@ -286,8 +289,6 @@ MIKTEX_DEFINE_WEBAPP(MiKTeX_${_name_u},
   set_property(TARGET ${_invocation_name} PROPERTY FOLDER ${_folder})
 
   target_link_libraries(${_invocation_name} ${_lib_name})
-
-  merge_manifests(${_invocation_name} asInvoker)
 
   install(
     TARGETS ${_invocation_name}

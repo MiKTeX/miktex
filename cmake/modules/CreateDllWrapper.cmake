@@ -28,11 +28,17 @@ macro(create_dll_wrapper _name _libname)
     ${CMAKE_CURRENT_BINARY_DIR}/${_name}wrapper.cpp
     COPYONLY
   )
-  add_executable(${_name} ${CMAKE_CURRENT_BINARY_DIR}/${_name}wrapper.cpp)
+  set(_sources ${CMAKE_CURRENT_BINARY_DIR}/${_name}wrapper.cpp)
+  if(MIKTEX_NATIVE_WINDOWS)
+    list(APPEND _sources
+      ${MIKTEX_COMPATIBILITY_MANIFEST}
+    )
+  endif()
+  add_executable(${_name} ${_sources})
   if(MIKTEX_CURRENT_FOLDER)
     set_property(TARGET ${_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   endif()
-  if(MSVC)
+  if(MIKTEX_NATIVE_WINDOWS)
     set_source_files_properties(
       ${CMAKE_CURRENT_BINARY_DIR}/${_name}wrapper.cpp
       COMPILE_FLAGS "-DFUNC=${_funcname} -D_UNICODE"
@@ -44,6 +50,5 @@ macro(create_dll_wrapper _name _libname)
     )
   endif()
   target_link_libraries(${_name} ${core_dll_name} ${_libname})
-  merge_trustinfo_manifest(${_name} asInvoker)
   install(TARGETS ${_name} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 endmacro()

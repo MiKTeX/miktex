@@ -339,6 +339,7 @@ set(asy_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND asy_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     ${CMAKE_CURRENT_BINARY_DIR}/asy.rc
   )
 endif()
@@ -346,9 +347,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}asy ${asy_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}asy PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}asy asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}asy)
 
 target_link_libraries(${MIKTEX_PREFIX}asy
   PUBLIC

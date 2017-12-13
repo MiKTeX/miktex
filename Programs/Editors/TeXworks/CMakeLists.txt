@@ -137,7 +137,8 @@ set(texworks_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  set(texworks_sources ${texworks_sources}
+  list(APPEND texworks_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     texworks.rc
   )
 endif()
@@ -225,9 +226,6 @@ add_executable(${MIKTEX_PREFIX}texworks WIN32
 set_property(TARGET ${MIKTEX_PREFIX}texworks PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_link_libraries(${MIKTEX_PREFIX}texworks ${libs})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}texworks asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}texworks)
 
 install(TARGETS ${MIKTEX_PREFIX}texworks DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 

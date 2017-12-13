@@ -69,6 +69,7 @@ set(executables
 
 foreach(x ${executables})
   add_executable(${MIKTEX_PREFIX}${x}
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     ${MIKTEX_LIBRARY_WRAPPER}
     source/${x}.c
   )
@@ -82,8 +83,6 @@ foreach(x ${executables})
       ${unxemu_dll_name}
     )
   endif()
-  merge_trustinfo_manifest(${MIKTEX_PREFIX}${x} asInvoker)
-  merge_compatibility_manifest(${MIKTEX_PREFIX}${x})
   set_property(TARGET ${MIKTEX_PREFIX}${x} PROPERTY FOLDER ${folder})
   install(TARGETS ${MIKTEX_PREFIX}${x} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 endforeach()

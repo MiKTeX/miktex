@@ -468,6 +468,7 @@ ignore_warnings()
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND dvisvgm_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     dvisvgm.rc
   )
 endif()
@@ -480,9 +481,6 @@ set_source_files_properties(${MIKTEX_LIBRARY_WRAPPER}
 add_executable(${MIKTEX_PREFIX}dvisvgm ${dvisvgm_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}dvisvgm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}dvisvgm asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}dvisvgm)
 
 if(USE_SYSTEM_FREETYPE2)
   target_link_libraries(${MIKTEX_PREFIX}dvisvgm MiKTeX::Imported::FREETYPE2)

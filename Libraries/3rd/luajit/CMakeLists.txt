@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2016 Christian Schenk
+## Copyright (C) 2015-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -57,14 +57,19 @@ set_source_files_properties(
     GENERATED TRUE
 )
 
-add_executable(minilua EXCLUDE_FROM_ALL
+set(minilua_sources
   source/src/host/minilua.c
 )
 
-set_property(TARGET minilua PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND minilua_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+  )
+endif()
 
-merge_trustinfo_manifest(minilua asInvoker)
-merge_compatibility_manifest(minilua)
+add_executable(minilua EXCLUDE_FROM_ALL ${minilua_sources})
+
+set_property(TARGET minilua PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
   set(dasmflags -D WIN -D JIT -D FFI -D P64)
@@ -94,12 +99,15 @@ set(buildvm_sources
   source/src/host/buildvm_peobj.c
 )
 
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND buildvm_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+  )
+endif()
+
 add_executable(buildvm EXCLUDE_FROM_ALL ${buildvm_sources})
 
 set_property(TARGET buildvm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(buildvm asInvoker)
-merge_compatibility_manifest(buildvm)
 
 set(ljlib_c
   ${CMAKE_CURRENT_SOURCE_DIR}/lbitlib.c
@@ -377,7 +385,8 @@ set(luajit_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  set(luajit_sources ${luajit_sources}
+  list(APPEND luajit_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     luajit.rc
   )
 endif()
@@ -385,9 +394,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}luajit ${luajit_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}luajit PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}luajit asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}luajit)
 
 target_link_libraries(${MIKTEX_PREFIX}luajit ${luajit_dll_name})
 

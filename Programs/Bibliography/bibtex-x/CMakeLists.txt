@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -82,7 +82,10 @@ set(common_sources
 set(bibtex8_sources ${common_sources})
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND bibtex8_sources bibtex8.rc)
+  list(APPEND bibtex8_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    bibtex8.rc
+  )
 endif()
 
 add_executable(${MIKTEX_PREFIX}bibtex8 ${bibtex8_sources})
@@ -90,9 +93,6 @@ add_executable(${MIKTEX_PREFIX}bibtex8 ${bibtex8_sources})
 set_property(TARGET ${MIKTEX_PREFIX}bibtex8 PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 set_target_properties(${MIKTEX_PREFIX}bibtex8 PROPERTIES COMPILE_DEFINITIONS "SUPPORT_8BIT")
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}bibtex8 asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}bibtex8)
 
 target_link_libraries(${MIKTEX_PREFIX}bibtex8
   ${app_dll_name}
@@ -112,7 +112,10 @@ install(TARGETS ${MIKTEX_PREFIX}bibtex8 DESTINATION ${MIKTEX_BINARY_DESTINATION_
 set(bibtexu_sources ${common_sources})
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND bibtexu_sources bibtexu.rc)
+  list(APPEND bibtexu_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    bibtexu.rc
+  )
 endif()
 
 add_executable(${MIKTEX_PREFIX}bibtexu ${bibtexu_sources})
@@ -120,9 +123,6 @@ add_executable(${MIKTEX_PREFIX}bibtexu ${bibtexu_sources})
 set_property(TARGET ${MIKTEX_PREFIX}bibtexu PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 set_target_properties(${MIKTEX_PREFIX}bibtexu PROPERTIES COMPILE_DEFINITIONS "UTF_8")
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}bibtexu asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}bibtexu)
 
 target_include_directories(${MIKTEX_PREFIX}bibtexu
   PRIVATE

@@ -120,6 +120,7 @@ list(APPEND gregorio_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND gregorio_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     ${CMAKE_CURRENT_BINARY_DIR}/gregorio.rc
   )
 endif()
@@ -127,9 +128,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}gregorio ${gregorio_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}gregorio PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}gregorio asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}gregorio)
 
 target_link_libraries(${MIKTEX_PREFIX}gregorio
   ${app_dll_name}

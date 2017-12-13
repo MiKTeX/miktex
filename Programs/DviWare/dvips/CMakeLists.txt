@@ -100,6 +100,7 @@ set_source_files_properties(${dvips_c_sources}
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND dvips_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     dvips.rc
   )
 endif()
@@ -107,9 +108,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}dvips ${dvips_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}dvips PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}dvips asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}dvips)
 
 target_link_libraries(${MIKTEX_PREFIX}dvips
   PRIVATE
@@ -143,6 +141,7 @@ set_source_files_properties(source/afm2tfm.c
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND afm2tfm_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     afm2tfm.rc
   )
 endif()
@@ -150,9 +149,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}afm2tfm ${afm2tfm_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}afm2tfm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}afm2tfm asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}afm2tfm)
 
 target_link_libraries(${MIKTEX_PREFIX}afm2tfm
   ${app_dll_name}

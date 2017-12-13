@@ -71,6 +71,7 @@ set(ttf2pk_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND ttf2pk_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     ttf2pk.rc
   )
 endif()
@@ -78,9 +79,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}ttf2pk ${ttf2pk_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}ttf2pk PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}ttf2pk asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}ttf2pk)
 
 if(USE_SYSTEM_FREETYPE2)
   target_link_libraries(${MIKTEX_PREFIX}ttf2pk MiKTeX::Imported::FREETYPE2)
@@ -126,6 +124,7 @@ set(ttf2tfm_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND ttf2tfm_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     ttf2tfm.rc
   )
 endif()
@@ -133,9 +132,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}ttf2tfm ${ttf2tfm_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}ttf2tfm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}ttf2tfm asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}ttf2tfm)
 
 if(USE_SYSTEM_FREETYPE2)
   target_link_libraries(${MIKTEX_PREFIX}ttf2tfm MiKTeX::Imported::FREETYPE2)
@@ -162,4 +158,3 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 install(TARGETS ${MIKTEX_PREFIX}ttf2tfm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
-

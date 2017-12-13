@@ -70,7 +70,10 @@ set_source_files_properties(${makeindex_c_sources}
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND makeindex_sources makeindex.rc)
+  list(APPEND makeindex_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    makeindex.rc
+  )
 endif()
 
 add_executable(${MIKTEX_PREFIX}makeindex ${makeindex_sources})
@@ -90,8 +93,5 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${utf8wrap_dll_name}
   )
 endif()
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}makeindex asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}makeindex)
 
 install(TARGETS ${MIKTEX_PREFIX}makeindex DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

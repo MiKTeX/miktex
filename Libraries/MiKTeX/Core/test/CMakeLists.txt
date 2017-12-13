@@ -37,6 +37,12 @@ set(test_sources
   ${CMAKE_SOURCE_DIR}/Libraries/MiKTeX/Core/include/miktex/Core/Test.h
 )
 
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND test_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+  )
+endif()
+
 configure_file(
   log4cxx.xml.in
   ${installroot}/miktex/config/log4cxx.xml

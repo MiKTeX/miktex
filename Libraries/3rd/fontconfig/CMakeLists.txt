@@ -63,8 +63,7 @@ set(fc-case_sources source/fc-case/fc-case.c)
 
 if (MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-case_sources
-    ${CMAKE_SOURCE_DIR}/Resources/Manifests/asInvoker.manifest
-    ${CMAKE_SOURCE_DIR}/Resources/Manifests/Compatibility.manifest
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
   )
 endif()
 
@@ -368,8 +367,7 @@ set_source_files_properties(
 
 if (MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-lang_sources
-    ${CMAKE_SOURCE_DIR}/Resources/Manifests/asInvoker.manifest
-    ${CMAKE_SOURCE_DIR}/Resources/Manifests/Compatibility.manifest
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
   )
 endif()
 
@@ -425,8 +423,7 @@ set(fc-glyphname_sources source/fc-glyphname/fc-glyphname.c)
 
 if (MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-glyphname_sources
-    ${CMAKE_SOURCE_DIR}/Resources/Manifests/asInvoker.manifest
-    ${CMAKE_SOURCE_DIR}/Resources/Manifests/Compatibility.manifest
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
   )
 endif()
 
@@ -666,6 +663,7 @@ set_source_files_properties(
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-cache_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     fc-cache.rc
   )
 endif()
@@ -673,9 +671,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}fc-cache ${fc-cache_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}fc-cache PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}fc-cache asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}fc-cache)
 
 target_link_libraries(${MIKTEX_PREFIX}fc-cache
   ${app_dll_name}
@@ -710,6 +705,7 @@ set_source_files_properties(
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-cat_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     fc-cat.rc
   )
 endif()
@@ -717,9 +713,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}fc-cat ${fc-cat_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}fc-cat PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}fc-cat asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}fc-cat)
 
 target_link_libraries(${MIKTEX_PREFIX}fc-cat
   ${app_dll_name}
@@ -748,6 +741,7 @@ set(fc-list_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-list_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     fc-list.rc
   )
 endif()
@@ -755,9 +749,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}fc-list ${fc-list_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}fc-list PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}fc-list asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}fc-list)
 
 target_link_libraries(${MIKTEX_PREFIX}fc-list
   ${app_dll_name}
@@ -786,6 +777,7 @@ set(fc-match_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-match_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     fc-match.rc
   )
 endif()
@@ -793,9 +785,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}fc-match ${fc-match_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}fc-match PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}fc-match asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}fc-match)
 
 target_link_libraries(${MIKTEX_PREFIX}fc-match
   ${app_dll_name}
@@ -824,6 +813,7 @@ set(fc-pattern_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-pattern_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     fc-pattern.rc
   )
 endif()
@@ -831,9 +821,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}fc-pattern ${fc-pattern_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}fc-pattern PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}fc-pattern asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}fc-pattern)
 
 target_link_libraries(${MIKTEX_PREFIX}fc-pattern
   ${app_dll_name}
@@ -862,6 +849,7 @@ set(fc-query_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-query_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     fc-query.rc
   )
 endif()
@@ -869,9 +857,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}fc-query ${fc-query_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}fc-query PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}fc-query asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}fc-query)
 
 target_link_libraries(${MIKTEX_PREFIX}fc-query
   ${app_dll_name}
@@ -900,6 +885,7 @@ set(fc-scan_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-scan_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     fc-scan.rc
   )
 endif()
@@ -907,9 +893,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}fc-scan ${fc-scan_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}fc-scan PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}fc-scan asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}fc-scan)
 
 target_link_libraries(${MIKTEX_PREFIX}fc-scan
   ${app_dll_name}
@@ -938,6 +921,7 @@ set(fc-validate_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fc-validate_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     fc-validate.rc
   )
 endif()
@@ -945,9 +929,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}fc-validate ${fc-validate_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}fc-validate PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}fc-validate asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}fc-validate)
 
 target_link_libraries(${MIKTEX_PREFIX}fc-validate
   ${app_dll_name}

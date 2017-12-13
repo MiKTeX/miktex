@@ -90,14 +90,6 @@ include(sources.cmake)
 if(NOT LINK_EVERYTHING_STATICALLY)
   add_subdirectory(shared)
   set(lua_target_library ${lua_dll_name})
-  if(MIKTEX_NATIVE_WINDOWS)
-    list(APPEND lua_sources
-      lua.rc
-    )
-    list(APPEND luac_sources
-      luac.rc
-    )
-  endif()
 else()
   set(lua_target_library ${lua_lib_name})
 endif()
@@ -110,17 +102,24 @@ generate_export_header(${lua_target_library}
   STATIC_DEFINE MIKTEX_LUA_STATIC
 )
 
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND lua_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    lua.rc
+  )
+  list(APPEND luac_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    luac.rc
+  )
+endif()
+
 add_executable(${MIKTEX_PREFIX}lua ${lua_sources})
 set_property(TARGET ${MIKTEX_PREFIX}lua PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-merge_trustinfo_manifest(${MIKTEX_PREFIX}lua asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}lua)
 target_link_libraries(${MIKTEX_PREFIX}lua ${lua_target_library})
 install(TARGETS ${MIKTEX_PREFIX}lua DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 add_executable(${MIKTEX_PREFIX}luac ${luac_sources})
 set_property(TARGET ${MIKTEX_PREFIX}luac PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-merge_trustinfo_manifest(${MIKTEX_PREFIX}luac asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}luac)
 target_link_libraries(${MIKTEX_PREFIX}luac ${lua_target_library})
 install(TARGETS ${MIKTEX_PREFIX}luac DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 

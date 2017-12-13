@@ -66,6 +66,7 @@ set(pk2bm_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND pk2bm_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     pk2bm.rc
   )
 endif()
@@ -73,9 +74,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}pk2bm ${pk2bm_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}pk2bm PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}pk2bm asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}pk2bm)
 
 target_link_libraries(${MIKTEX_PREFIX}pk2bm
   ${app_dll_name}
@@ -155,6 +153,7 @@ set(ps2pk_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND ps2pk_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     ps2pk.rc
   )
 endif()
@@ -162,9 +161,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}ps2pk ${ps2pk_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}ps2pk PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}ps2pk asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}ps2pk)
 
 target_link_libraries(${MIKTEX_PREFIX}ps2pk
   ${app_dll_name}

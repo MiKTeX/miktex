@@ -93,6 +93,7 @@ ignore_warnings()
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND dvipng_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     dvipng.rc
   )
 endif()
@@ -116,9 +117,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}dvipng ${dvipng_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}dvipng PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}dvipng asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}dvipng)
 
 if(USE_SYSTEM_FREETYPE2)
   target_link_libraries(${MIKTEX_PREFIX}dvipng MiKTeX::Imported::FREETYPE2)

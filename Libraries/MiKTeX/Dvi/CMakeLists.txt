@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -31,12 +31,17 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
 )
 
-add_executable(makebitcounts EXCLUDE_FROM_ALL makebitcounts.cpp)
+set(makebitcounts_sources makebitcounts.cpp)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND makebitcounts_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+  )
+endif()
+  
+add_executable(makebitcounts EXCLUDE_FROM_ALL ${makebitcounts_sources})
 
 set_property(TARGET makebitcounts PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(makebitcounts asInvoker)
-merge_compatibility_manifest(makebitcounts)
 
 set(public_headers
   include/miktex/DVI/Dvi
@@ -133,12 +138,17 @@ target_link_libraries(${dvi_dll_name}
 
 rebase(${dvi_dll_name})
 
-add_executable(dviscan dviscan.cpp)
+set(dviscan_sources dviscan.cpp)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND dviscan_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+  )
+endif()
+
+add_executable(dviscan ${dviscan_sources})
 
 set_property(TARGET dviscan PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(dviscan asInvoker)
-merge_compatibility_manifest(dviscan)
 
 add_dependencies(dviscan ${dvi_dll_name})
 

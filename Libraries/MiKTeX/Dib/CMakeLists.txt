@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -74,12 +74,17 @@ target_link_libraries(${dib_dll_name}
 
 rebase(${dib_dll_name})
 
-add_executable(chunkdib chunkdib.cpp)
+set(chunkdib_sources chunkdib.cpp)
+
+if(MIKTEX_NATIVE_WINDOWS)
+  list(APPEND chunkdib_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+  )
+endif()
+
+add_executable(chunkdib ${chunkdib_sources})
 
 set_property(TARGET chunkdib PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(chunkdib asInvoker)
-merge_compatibility_manifest(chunkdib)
 
 add_dependencies(chunkdib ${dib_dll_name})
 

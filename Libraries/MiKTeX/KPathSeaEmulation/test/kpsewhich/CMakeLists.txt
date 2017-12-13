@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2016 Christian Schenk
+## Copyright (C) 2015-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -37,7 +37,10 @@ set(kpsewhich_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND kpsewhich_sources kpsewhich.rc)
+  list(APPEND kpsewhich_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    kpsewhich.rc
+  )
 endif()
 
 add_executable(${MIKTEX_PREFIX}kpsewhich ${kpsewhich_sources})
@@ -61,8 +64,5 @@ if(NOT HAVE_GETOPT_LONG)
 endif()
 
 target_link_libraries(${MIKTEX_PREFIX}kpsewhich ${libs})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}kpsewhich asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}kpsewhich)
 
 install(TARGETS ${MIKTEX_PREFIX}kpsewhich DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

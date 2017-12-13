@@ -37,6 +37,7 @@ set(bg5conv_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND bg5conv_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     bg5conv.rc
   )
 endif()
@@ -59,9 +60,6 @@ add_executable(${MIKTEX_PREFIX}bg5conv ${bg5conv_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}bg5conv PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(${MIKTEX_PREFIX}bg5conv asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}bg5conv)
-
 install(TARGETS ${MIKTEX_PREFIX}bg5conv DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 foreach(t cef5conv cefconv cefsconv)
@@ -71,6 +69,7 @@ foreach(t cef5conv cefconv cefsconv)
   )
   if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND ${t}_sources
+      ${MIKTEX_COMPATIBILITY_MANIFEST}
       ${t}.rc
     )
   endif()
@@ -89,8 +88,6 @@ foreach(t cef5conv cefconv cefsconv)
   )
   add_executable(${MIKTEX_PREFIX}${t} ${${t}_sources})
   set_property(TARGET ${MIKTEX_PREFIX}${t} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  merge_trustinfo_manifest(${MIKTEX_PREFIX}${t} asInvoker)
-  merge_compatibility_manifest(${MIKTEX_PREFIX}${t})
   install(TARGETS ${MIKTEX_PREFIX}${t} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 endforeach()
 
@@ -101,6 +98,7 @@ set(extconv_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
  list(APPEND extconv_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     extconv.rc
  )
 endif()
@@ -123,9 +121,6 @@ add_executable(${MIKTEX_PREFIX}extconv ${extconv_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}extconv PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(${MIKTEX_PREFIX}extconv asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}extconv)
-
 install(TARGETS ${MIKTEX_PREFIX}extconv DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(hbf2gf_sources
@@ -137,6 +132,7 @@ set(hbf2gf_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND hbf2gf_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     hbf2gf.rc
   )
 endif()
@@ -162,9 +158,6 @@ add_executable(${MIKTEX_PREFIX}hbf2gf ${hbf2gf_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}hbf2gf PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(${MIKTEX_PREFIX}hbf2gf asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}hbf2gf)
-
 target_include_directories(${MIKTEX_PREFIX}hbf2gf
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/source/utils/hbf2gf
@@ -186,6 +179,7 @@ set(sjisconv_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND sjisconv_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     sjisconv.rc
   )
 endif()
@@ -207,9 +201,6 @@ add_custom_command(
 add_executable(${MIKTEX_PREFIX}sjisconv ${sjisconv_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}sjisconv PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}sjisconv asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}sjisconv)
 
 install(TARGETS ${MIKTEX_PREFIX}sjisconv DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 

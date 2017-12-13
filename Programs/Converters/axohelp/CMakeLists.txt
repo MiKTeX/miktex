@@ -60,6 +60,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${CMAKE_CURRENT_BINARY_DIR}/axohelp.rc
   )
   list(APPEND axohelp_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     ${CMAKE_CURRENT_BINARY_DIR}/axohelp.rc
   )
 endif()
@@ -67,9 +68,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}axohelp ${axohelp_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}axohelp PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}axohelp asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}axohelp)
 
 target_link_libraries(${MIKTEX_PREFIX}axohelp
   ${app_dll_name}

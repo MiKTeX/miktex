@@ -26,9 +26,6 @@ add_executable(core_compression_test1
 
 set_property(TARGET core_compression_test1 PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(core_compression_test1 asInvoker)
-merge_compatibility_manifest(core_compression_test1)
-
 if(USE_SYSTEM_LOG4CXX)
   target_link_libraries(core_compression_test1 MiKTeX::Imported::LOG4CXX)
 else()

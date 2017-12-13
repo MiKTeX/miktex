@@ -126,6 +126,8 @@ endforeach()
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND setup_mfc_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ${MIKTEX_DPIAWARE_MANIFEST}
     ${CMAKE_CURRENT_BINARY_DIR}/Setup.rc)
 endif()
 
@@ -136,6 +138,7 @@ set_property(TARGET setup PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 add_dependencies(setup gen-LICENSE-txt)
 
 if(MIKTEX_NATIVE_WINDOWS)
+  add_link_flags(setup "/MANIFESTUAC:level='highestAvailable'")
   add_link_flags(setup "/ENTRY:\"wWinMainCRTStartup\"")
 endif()
 
@@ -156,10 +159,6 @@ if(MIKTEX_NATIVE_WINDOWS)
     ws2_32
   )
 endif()
-
-merge_compatibility_manifest(setup)
-merge_dpi_aware_manifest(setup)
-merge_trustinfo_manifest(setup highestAvailable)
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_custom_command(

@@ -42,6 +42,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${CMAKE_CURRENT_BINARY_DIR}/cjklatex.rc
   )
   list(APPEND cjklatex_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     ${CMAKE_CURRENT_BINARY_DIR}/cjklatex.rc
   )
 endif()
