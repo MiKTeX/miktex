@@ -59,12 +59,18 @@ ignore_warnings()
 ###############################################################################
 ## fc-case
 
-add_executable(fc-case source/fc-case/fc-case.c)
+set(fc-case_sources source/fc-case/fc-case.c)
+
+if (MIKTEX_NATIVE_WINDOWS)
+  list(APPEND fc-case_sources
+    ${CMAKE_SOURCE_DIR}/Resources/Manifests/asInvoker.manifest
+    ${CMAKE_SOURCE_DIR}/Resources/Manifests/Compatibility.manifest
+  )
+endif()
+
+add_executable(fc-case ${fc-case_sources})
 
 set_property(TARGET fc-case PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(fc-case asInvoker)
-merge_compatibility_manifest(fc-case)
 
 target_link_libraries(fc-case
   ${app_dll_name}
@@ -360,14 +366,18 @@ set_source_files_properties(
   PROPERTIES GENERATED TRUE
 )
 
+if (MIKTEX_NATIVE_WINDOWS)
+  list(APPEND fc-lang_sources
+    ${CMAKE_SOURCE_DIR}/Resources/Manifests/asInvoker.manifest
+    ${CMAKE_SOURCE_DIR}/Resources/Manifests/Compatibility.manifest
+  )
+endif()
+
 add_executable(fc-lang ${fc-lang_sources})
 
 set_property(TARGET fc-lang PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 add_dependencies(fc-lang gen-fccase-header)
-
-merge_trustinfo_manifest(fc-lang asInvoker)
-merge_compatibility_manifest(fc-lang)
 
 target_link_libraries(fc-lang
   ${app_dll_name}
@@ -411,12 +421,18 @@ set_property(TARGET gen-fclang-header PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 ###############################################################################
 ## fc-glyphname
 
-add_executable(fc-glyphname source/fc-glyphname/fc-glyphname.c)
+set(fc-glyphname_sources source/fc-glyphname/fc-glyphname.c)
+
+if (MIKTEX_NATIVE_WINDOWS)
+  list(APPEND fc-glyphname_sources
+    ${CMAKE_SOURCE_DIR}/Resources/Manifests/asInvoker.manifest
+    ${CMAKE_SOURCE_DIR}/Resources/Manifests/Compatibility.manifest
+  )
+endif()
+
+add_executable(fc-glyphname ${fc-glyphname_sources})
 
 set_property(TARGET fc-glyphname PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(fc-glyphname asInvoker)
-merge_compatibility_manifest(fc-glyphname)
 
 target_link_libraries(fc-glyphname
   ${app_dll_name}
