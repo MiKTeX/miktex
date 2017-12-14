@@ -1340,11 +1340,6 @@ configure_file(
 )
 
 configure_file(
-  Resources/Manifests/Common-Controls.manifest.in
-  ${CMAKE_CURRENT_BINARY_DIR}/Resources/Manifests/Common-Controls.manifest
-)
-
-configure_file(
   SDK/doc/mainpage.doxygen.in
   ${CMAKE_CURRENT_BINARY_DIR}/SDK/doc/mainpage.doxygen
 )
