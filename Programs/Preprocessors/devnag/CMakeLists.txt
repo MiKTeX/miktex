@@ -29,7 +29,8 @@ ignore_warnings()
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(
-    -D_UNICODE -DUNICODE
+    -DUNICODE
+    -D_UNICODE
   )
 endif()
 
@@ -46,6 +47,7 @@ set(devnag_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND devnag_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     devnag.rc
   )
 endif()
@@ -53,9 +55,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}devnag ${devnag_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}devnag PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}devnag asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}devnag)
 
 target_link_libraries(${MIKTEX_PREFIX}devnag
   ${app_dll_name}

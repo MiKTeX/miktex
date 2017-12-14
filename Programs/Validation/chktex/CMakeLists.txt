@@ -86,6 +86,7 @@ set(chktex_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND chktex_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     chktex.rc
   )
 endif()
@@ -93,9 +94,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}chktex ${chktex_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}chktex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}chktex asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}chktex)
 
 target_link_libraries(${MIKTEX_PREFIX}chktex
   ${app_dll_name}

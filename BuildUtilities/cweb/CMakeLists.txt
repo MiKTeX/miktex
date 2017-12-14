@@ -45,7 +45,10 @@ set_source_files_properties(
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  set(initctangle_sources ${initctangle_sources} ctangle.rc)
+  list(APPEND initctangle_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ctangle.rc
+  )
 endif()
 
 add_executable(initctangle ${initctangle_sources})
@@ -58,9 +61,6 @@ target_link_libraries(initctangle
   ${kpsemu_dll_name}
   ${w2cemu_dll_name}
 )
-
-merge_trustinfo_manifest(initctangle asInvoker)
-merge_compatibility_manifest(initctangle)
 
 set(ctangle_sources
   ${CMAKE_CURRENT_BINARY_DIR}/common.c
@@ -90,7 +90,10 @@ set_source_files_properties(
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  set(ctangle_sources ${ctangle_sources} ctangle.rc)
+  list(APPEND ctangle_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    ctangle.rc
+  )
 endif()
 
 add_custom_command(
@@ -137,9 +140,6 @@ add_executable(${MIKTEX_PREFIX}ctangle ${ctangle_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}ctangle PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(${MIKTEX_PREFIX}ctangle asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}ctangle)
-
 target_link_libraries(${MIKTEX_PREFIX}ctangle
   ${app_dll_name}
   ${core_dll_name}
@@ -164,7 +164,10 @@ set_source_files_properties(
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  set(cweave_sources ${cweave_sources} cweave.rc)
+  list(APPEND cweave_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    cweave.rc
+  )
 endif()
 
 add_custom_command(
@@ -191,9 +194,6 @@ add_custom_command(
 add_executable(${MIKTEX_PREFIX}cweave ${cweave_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}cweave PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}cweave asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}cweave)
 
 target_link_libraries(${MIKTEX_PREFIX}cweave
   ${app_dll_name}

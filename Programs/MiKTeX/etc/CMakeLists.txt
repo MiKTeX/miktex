@@ -43,7 +43,13 @@ else()
 endif()
 
 foreach(t ${executables})
-  add_executable(${t} ${t}.cpp)
+  set(${t}_sources ${t}.cpp)
+  if(MIKTEX_NATIVE_WINDOWS)
+    list(APPEND ${t}_sources
+      ${MIKTEX_COMPATIBILITY_MANIFEST}
+    )
+  endif()
+  add_executable(${t} ${${t}_sources})
   set_property(TARGET ${t} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
   if (APPLE)
     set_target_properties(${t} PROPERTIES INSTALL_RPATH "@loader_path/../../${CMAKE_INSTALL_LIBDIR}")
@@ -54,7 +60,5 @@ foreach(t ${executables})
     ${app_dll_name}
     ${core_dll_name}
   )
-  merge_trustinfo_manifest(${t} asInvoker)
-  merge_compatibility_manifest(${t})
   install(TARGETS ${t} DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}")
 endforeach()

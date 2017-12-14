@@ -29,7 +29,8 @@ include_directories(BEFORE
 )
 
 add_definitions(
-  -D_UNICODE -DUNICODE
+  -DUNICODE
+  -D_UNICODE
 )
 
 set(ENABLE_ADDTEXMF FALSE)
@@ -60,6 +61,10 @@ set(setup_mfc_sources
   ${CMAKE_CURRENT_BINARY_DIR}/ConnectionSettingsDialog.h
   ${CMAKE_CURRENT_BINARY_DIR}/ProxyAuthenticationDialog.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/ProxyAuthenticationDialog.h
+  ${CMAKE_CURRENT_BINARY_DIR}/Setup.rc
+  ${CMAKE_CURRENT_BINARY_DIR}/res/Setup.manifest
+  ${MIKTEX_COMPATIBILITY_MANIFEST}
+  ${MIKTEX_DPIAWARE_MANIFEST}
   FileCopyPage.cpp
   FileCopyPage.h
   FinishPage.cpp
@@ -124,23 +129,14 @@ foreach(f
   )
 endforeach()
 
-if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND setup_mfc_sources
-    ${MIKTEX_COMPATIBILITY_MANIFEST}
-    ${MIKTEX_DPIAWARE_MANIFEST}
-    ${CMAKE_CURRENT_BINARY_DIR}/Setup.rc)
-endif()
-
 add_executable(setup WIN32 ${setup_mfc_sources})
 
 set_property(TARGET setup PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 add_dependencies(setup gen-LICENSE-txt)
 
-if(MIKTEX_NATIVE_WINDOWS)
-  add_link_flags(setup "/MANIFESTUAC:level='highestAvailable'")
-  add_link_flags(setup "/ENTRY:\"wWinMainCRTStartup\"")
-endif()
+add_link_flags(setup "/MANIFESTUAC:level='highestAvailable'")
+add_link_flags(setup "/ENTRY:\"wWinMainCRTStartup\"")
 
 target_link_libraries(setup
   ${core_lib_name}
@@ -149,29 +145,13 @@ target_link_libraries(setup
   ${setup_lib_name}
 )
 
-if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(setup
-    Secur32
-    version
-    Wldap32
-    wininet
-    winmm
-    ws2_32
-  )
-endif()
-
-if(MIKTEX_NATIVE_WINDOWS)
-  add_custom_command(
-    TARGET
-      setup
-    POST_BUILD
-    COMMAND
-      ${MT_EXECUTABLE}
-      -nologo
-      -manifest ${CMAKE_CURRENT_BINARY_DIR}/res/Setup.manifest
-      -updateresource:$<TARGET_FILE:setup>\;1
-    VERBATIM
-  )
-endif()
+target_link_libraries(setup
+  Secur32
+  Wldap32
+  version
+  wininet
+  winmm
+  ws2_32
+)
 
 install(TARGETS setup DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

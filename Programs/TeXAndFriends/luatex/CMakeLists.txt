@@ -695,6 +695,7 @@ if(MIKTEX_NATIVE_WINDOWS)
     )
   list(APPEND luatex_program_sources
     ${CMAKE_CURRENT_BINARY_DIR}/luatex.rc
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
   )
 endif()
 
@@ -767,9 +768,6 @@ target_link_libraries(${MIKTEX_PREFIX}luatex
   ${program_libs}
 )
 
-merge_trustinfo_manifest(${MIKTEX_PREFIX}luatex asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}luatex)
-
 install(TARGETS ${MIKTEX_PREFIX}luatex DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}")
 
 ###############################################################################
@@ -792,9 +790,6 @@ target_link_libraries(runtexlua
   ${program_libs}
 )
 
-merge_trustinfo_manifest(runtexlua asInvoker)
-merge_compatibility_manifest(runtexlua)
-
 install(TARGETS runtexlua DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}")
 
 ###############################################################################
@@ -809,8 +804,6 @@ if(WITH_CONTEXT_SUPPORT)
     ${core_dll_name}
     ${program_libs}
   )
-  merge_trustinfo_manifest(runmtxrun asInvoker)
-  merge_compatibility_manifest(runmtxrun)
   install(TARGETS runmtxrun DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}")
 endif()
 

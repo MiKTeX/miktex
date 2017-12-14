@@ -298,13 +298,12 @@ foreach(p ${programs})
   )
   if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND ${p}_sources
+      ${MIKTEX_COMPATIBILITY_MANIFEST}
       ${p}.rc
     )
   endif()
   add_executable(${MIKTEX_PREFIX}${p} ${${p}_sources})
   set_property(TARGET ${MIKTEX_PREFIX}${p} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  merge_trustinfo_manifest(${MIKTEX_PREFIX}${p} asInvoker)
-  merge_compatibility_manifest(${MIKTEX_PREFIX}${p})
   target_link_libraries(${MIKTEX_PREFIX}${p}
     f2c
   )

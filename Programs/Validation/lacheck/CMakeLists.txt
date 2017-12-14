@@ -60,6 +60,7 @@ set(lacheck_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND lacheck_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     lacheck.rc
   )
 endif()
@@ -67,9 +68,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}lacheck ${lacheck_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}lacheck PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}lacheck asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}lacheck)
 
 target_link_libraries(${MIKTEX_PREFIX}lacheck
   ${app_dll_name}

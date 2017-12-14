@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2016 Christian Schenk
+## Copyright (C) 2016-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,15 +17,13 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-include(MergeCompatibilityManifest)
-
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/tdsutil")
 
 if(LINK_EVERYTHING_STATICALLY)
   use_static_crt()
 endif()
 
-if(MSVC)
+if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(
     -DUNICODE
     -D_UNICODE
@@ -43,7 +41,10 @@ set(tdsutil_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND tdsutil_sources tdsutil.rc)
+  list(APPEND tdsutil_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    tdsutil.rc
+  )
 endif()
 
 add_executable(tdsutil ${tdsutil_sources})
@@ -55,8 +56,5 @@ target_link_libraries(tdsutil
   ${core_dll_name}
   miktex-popt-wrapper
 )
-
-merge_trustinfo_manifest(tdsutil asInvoker)
-merge_compatibility_manifest(tdsutil)
 
 install(TARGETS tdsutil DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

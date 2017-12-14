@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2009-2016 Christian Schenk
+## Copyright (C) 2009-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -27,8 +27,8 @@ include_directories(BEFORE
 )
 
 add_definitions(
-  -D_UNICODE
   -DUNICODE
+  -D_UNICODE
 )
 
 configure_file(
@@ -44,9 +44,10 @@ configure_file(
 
 add_executable(${MIKTEX_PREFIX}taskbar-icon WIN32
   ${CMAKE_CURRENT_BINARY_DIR}/dialog.rc
+  ${MIKTEX_COMPATIBILITY_MANIFEST}
+  StdAfx.h
   dialog.cpp
   resource.h
-  StdAfx.h
 )
 
 set_property(TARGET ${MIKTEX_PREFIX}taskbar-icon PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
@@ -55,9 +56,6 @@ target_link_libraries(${MIKTEX_PREFIX}taskbar-icon
   ${core_lib_name}
   comctl32.lib
 )
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}taskbar-icon asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}taskbar-icon)
 
 install(
   TARGETS ${MIKTEX_PREFIX}taskbar-icon

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -27,15 +27,15 @@ set(mpc_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND mpc_sources mpc.rc)
+  list(APPEND mpc_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    mpc.rc
+  )
 endif()
 
 add_executable(mpc ${mpc_sources})
 
 set_property(TARGET mpc PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(mpc asInvoker)
-merge_compatibility_manifest(mpc)
 
 target_link_libraries(mpc
   ${core_dll_name}

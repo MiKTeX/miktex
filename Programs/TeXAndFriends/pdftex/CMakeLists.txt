@@ -75,6 +75,7 @@ set(pdftosrc_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND pdftosrc_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     pdftosrc.rc
   )
 endif()
@@ -108,8 +109,6 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${utf8wrap_dll_name}
   )
 endif()
-merge_trustinfo_manifest(${MIKTEX_PREFIX}pdftosrc asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}pdftosrc)
 install(TARGETS ${MIKTEX_PREFIX}pdftosrc DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(ttf2afm_sources
@@ -130,6 +129,7 @@ set_source_files_properties(
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND ttf2afm_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     ttf2afm.rc
   )
 endif()
@@ -148,8 +148,6 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${utf8wrap_dll_name}
   )
 endif()
-merge_trustinfo_manifest(${MIKTEX_PREFIX}ttf2afm asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}ttf2afm)
 install(TARGETS ${MIKTEX_PREFIX}ttf2afm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(miktex_synctex_changefiles ${TEX_MIKTEX_SYNCTEX_CH})

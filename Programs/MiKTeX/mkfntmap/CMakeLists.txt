@@ -49,7 +49,9 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${CMAKE_CURRENT_BINARY_DIR}/mkfntmap.rc
   )
   list(APPEND mkfntmap_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/mkfntmap.rc)
+    ${CMAKE_CURRENT_BINARY_DIR}/mkfntmap.rc
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+  )
 endif()
 
 add_executable(mkfntmap ${mkfntmap_sources})

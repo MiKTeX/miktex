@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -27,8 +27,9 @@ include_directories(BEFORE
 )
 
 add_definitions(
+  -DUNICODE
   -D_AFXDLL
-  -D_UNICODE -DUNICODE
+  -D_UNICODE
 )
 
 configure_file(
@@ -42,6 +43,10 @@ configure_file(
 )
 
 set(mpm_mfc_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/mpm.rc
+  ${CMAKE_CURRENT_BINARY_DIR}/res/mpm.manifest
+  ${MIKTEX_COMPATIBILITY_MANIFEST}
+  ${MIKTEX_DPIAWARE_MANIFEST}
   MainFrame.cpp
   MainFrame.h
   MpmDoc.cpp
@@ -55,11 +60,6 @@ set(mpm_mfc_sources
   stdafx.h
 )
 
-if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND mpm_mfc_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/mpm.rc)
-endif()
-
 set(libs
   ${core_dll_name}
   ${mpm_dll_name}
@@ -70,29 +70,9 @@ add_executable(mpm_mfc WIN32 ${mpm_mfc_sources})
 
 set_property(TARGET mpm_mfc PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-if(MIKTEX_NATIVE_WINDOWS)
-  add_link_flags(mpm_mfc "/ENTRY:\"wWinMainCRTStartup\"")
-endif()
+add_link_flags(mpm_mfc "/ENTRY:\"wWinMainCRTStartup\"")
 
 target_link_libraries(mpm_mfc ${libs})
-
-merge_compatibility_manifest(mpm_mfc)
-merge_dpi_aware_manifest(mpm_mfc)
-merge_trustinfo_manifest(mpm_mfc asInvoker)
-
-if(MIKTEX_NATIVE_WINDOWS)
-  add_custom_command(
-    TARGET
-      mpm_mfc
-    POST_BUILD
-    COMMAND
-      ${MT_EXECUTABLE}
-      -nologo
-      -manifest ${CMAKE_CURRENT_BINARY_DIR}/res/mpm.manifest
-      -updateresource:$<TARGET_FILE:mpm_mfc>\;1
-    VERBATIM
-  )
-endif()
 
 install(TARGETS mpm_mfc DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
@@ -100,28 +80,9 @@ add_executable(mpm_mfc${MIKTEX_ADMIN_SUFFIX} WIN32 ${mpm_mfc_sources})
 
 set_property(TARGET mpm_mfc${MIKTEX_ADMIN_SUFFIX} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-if(MIKTEX_NATIVE_WINDOWS)
-  add_link_flags(mpm_mfc${MIKTEX_ADMIN_SUFFIX} "/ENTRY:\"wWinMainCRTStartup\"")
-endif()
+add_link_flags(mpm_mfc${MIKTEX_ADMIN_SUFFIX} "/MANIFESTUAC:level='requireAdministrator'")
+add_link_flags(mpm_mfc${MIKTEX_ADMIN_SUFFIX} "/ENTRY:\"wWinMainCRTStartup\"")
 
 target_link_libraries(mpm_mfc${MIKTEX_ADMIN_SUFFIX} ${libs})
-
-merge_compatibility_manifest(mpm_mfc${MIKTEX_ADMIN_SUFFIX})
-merge_dpi_aware_manifest(mpm_mfc${MIKTEX_ADMIN_SUFFIX})
-merge_trustinfo_manifest(mpm_mfc${MIKTEX_ADMIN_SUFFIX} requireAdministrator)
-
-if(MIKTEX_NATIVE_WINDOWS)
-  add_custom_command(
-    TARGET
-      mpm_mfc${MIKTEX_ADMIN_SUFFIX}
-    POST_BUILD
-    COMMAND
-      ${MT_EXECUTABLE}
-      -nologo
-      -manifest ${CMAKE_CURRENT_BINARY_DIR}/res/mpm.manifest
-      -updateresource:$<TARGET_FILE:mpm_mfc${MIKTEX_ADMIN_SUFFIX}>\;1
-    VERBATIM
-  )
-endif()
 
 install(TARGETS mpm_mfc${MIKTEX_ADMIN_SUFFIX} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

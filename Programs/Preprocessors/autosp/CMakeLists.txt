@@ -36,6 +36,7 @@ list(APPEND autosp_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND autosp_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     autosp.rc
   )
 endif()
@@ -47,10 +48,6 @@ set_property(TARGET ${MIKTEX_PREFIX}autosp PROPERTY FOLDER ${MIKTEX_CURRENT_FOLD
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${MIKTEX_PREFIX}autosp ${getopt_dll_name})
 endif()
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}autosp asInvoker)
-
-merge_compatibility_manifest(${MIKTEX_PREFIX}autosp)
 
 install(TARGETS ${MIKTEX_PREFIX}autosp DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
@@ -66,6 +63,7 @@ list(APPEND rebar_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND rebar_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     rebar.rc
   )
 endif()
@@ -77,9 +75,5 @@ set_property(TARGET ${MIKTEX_PREFIX}rebar PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDE
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(${MIKTEX_PREFIX}rebar ${getopt_dll_name})
 endif()
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}rebar asInvoker)
-
-merge_compatibility_manifest(${MIKTEX_PREFIX}rebar)
 
 install(TARGETS ${MIKTEX_PREFIX}rebar DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

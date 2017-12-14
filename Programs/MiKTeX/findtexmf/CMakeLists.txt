@@ -42,7 +42,9 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${CMAKE_CURRENT_BINARY_DIR}/findtexmf.rc
   )
   list(APPEND findtexmf_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/findtexmf.rc)
+    ${CMAKE_CURRENT_BINARY_DIR}/findtexmf.rc
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+  )
 endif()
 
 add_executable(findtexmf ${findtexmf_sources})

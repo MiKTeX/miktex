@@ -32,7 +32,10 @@ set(epstopdf_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND epstopdf_sources epstopdf.rc)
+  list(APPEND epstopdf_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    epstopdf.rc
+  )
 endif()
 
 add_executable(${MIKTEX_PREFIX}epstopdf ${epstopdf_sources})
@@ -44,8 +47,5 @@ target_link_libraries(${MIKTEX_PREFIX}epstopdf
   ${texmf_dll_name}
   miktex-popt-wrapper
 )
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}epstopdf asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}epstopdf)
 
 install(TARGETS ${MIKTEX_PREFIX}epstopdf DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

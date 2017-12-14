@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2007-2016 Christian Schenk
+## Copyright (C) 2007-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -28,8 +28,5 @@ set(padout_sources
 add_executable(padout ${padout_sources})
 
 set_property(TARGET padout PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(padout asInvoker)
-merge_compatibility_manifest(padout)
 
 install(TARGETS padout DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

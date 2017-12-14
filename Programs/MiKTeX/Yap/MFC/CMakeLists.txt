@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -27,8 +27,9 @@ include_directories(BEFORE
 )
 
 add_definitions(
+  -DUNICODE
   -D_AFXDLL
-  -D_UNICODE -DUNICODE
+  -D_UNICODE
 )
 
 configure_file(
@@ -42,7 +43,11 @@ configure_file(
 )
 
 set(yap_mfc_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/res/yap.manifest
+  ${CMAKE_CURRENT_BINARY_DIR}/yap.rc
   ${CMAKE_CURRENT_BINARY_DIR}/yaphelp.h
+  ${MIKTEX_COMPATIBILITY_MANIFEST}
+  ${MIKTEX_DPIAWARE_MANIFEST}
   AddChangeEditorDialog.cpp
   AddChangeEditorDialog.h
   AdvancedOptionsPage.cpp
@@ -97,15 +102,10 @@ set(yap_mfc_sources
   tpic.cpp
   winplace.cpp
   winplace.h
+  yap-version.h
   yap.cpp
   yap.h
-  yap-version.h
 )
-
-if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND yap_mfc_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/yap.rc)
-endif()
 
 add_custom_command(
   OUTPUT
@@ -156,9 +156,7 @@ add_executable(yap WIN32 ${yap_mfc_sources})
 
 set_property(TARGET yap PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-if(MIKTEX_NATIVE_WINDOWS)
-  add_link_flags(yap "/ENTRY:\"wWinMainCRTStartup\"")
-endif()
+add_link_flags(yap "/ENTRY:\"wWinMainCRTStartup\"")
 
 target_link_libraries(yap
   ${core_dll_name}
@@ -166,23 +164,6 @@ target_link_libraries(yap
   ${ui_mfc_dll_name}
   miktex-popt-wrapper
 )
-
-merge_trustinfo_manifest(yap asInvoker)
-merge_compatibility_manifest(yap)
-
-if(MIKTEX_NATIVE_WINDOWS)
-  add_custom_command(
-    TARGET
-      yap
-    POST_BUILD
-    COMMAND
-      ${MT_EXECUTABLE}
-      -nologo
-      -manifest ${CMAKE_CURRENT_BINARY_DIR}/res/yap.manifest
-      -updateresource:$<TARGET_FILE:yap>\;1
-    VERBATIM
-  )
-endif()
 
 install(TARGETS yap DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 

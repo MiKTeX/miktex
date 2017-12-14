@@ -33,6 +33,7 @@ set(fribidixetex_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND fribidixetex_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     fribidixetex.rc
   )
 endif()
@@ -40,9 +41,6 @@ endif()
 add_executable(${MIKTEX_PREFIX}fribidixetex ${fribidixetex_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}fribidixetex PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}fribidixetex asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}fribidixetex)
 
 if(USE_SYSTEM_FRIBIDI)
   target_link_libraries(${MIKTEX_PREFIX}fribidixetex MiKTeX::Imported::FRIBIDI)

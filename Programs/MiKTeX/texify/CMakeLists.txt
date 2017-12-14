@@ -42,7 +42,9 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${CMAKE_CURRENT_BINARY_DIR}/mcd.rc
   )
   list(APPEND mcd_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/mcd.rc)
+    ${CMAKE_CURRENT_BINARY_DIR}/mcd.rc
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+  )
 endif()
 
 add_executable(texify ${mcd_sources})

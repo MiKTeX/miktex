@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -47,6 +47,10 @@ set(update_mfc_sources
   ${CMAKE_CURRENT_BINARY_DIR}/ConnectionSettingsDialog.h
   ${CMAKE_CURRENT_BINARY_DIR}/ProxyAuthenticationDialog.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/ProxyAuthenticationDialog.h
+  ${CMAKE_CURRENT_BINARY_DIR}/Update.rc
+  ${CMAKE_CURRENT_BINARY_DIR}/res/Update.manifest
+  ${MIKTEX_COMPATIBILITY_MANIFEST}
+  ${MIKTEX_DPIAWARE_MANIFEST}
   CdPage.cpp
   CdPage.h
   FileCopyPage.cpp
@@ -92,15 +96,15 @@ foreach(f
   )
 endforeach()
 
-if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND update_mfc_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/Update.rc)
-endif()
-
 set(libs
   ${core_lib_name}
   ${getopt_lib_name}
   ${mpm_lib_name}
+  Wldap32
+  version
+  wininet
+  winmm
+  ws2_32
 )
 
 if (USE_SYSTEM_LOG4CXX)
@@ -109,43 +113,13 @@ else()
   list(APPEND libs ${log4cxx_lib_name})
 endif()
 
-if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND libs
-    Wldap32
-    version
-    wininet
-    winmm
-    ws2_32
-  )
-endif()
-
 add_executable(update_mfc WIN32 ${update_mfc_sources})
 
 set_property(TARGET update_mfc PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-if(MIKTEX_NATIVE_WINDOWS)
-  add_link_flags(update_mfc "/ENTRY:\"wWinMainCRTStartup\"")
-endif()
+add_link_flags(update_mfc "/ENTRY:\"wWinMainCRTStartup\"")
 
 target_link_libraries(update_mfc ${libs})
-
-merge_compatibility_manifest(update_mfc)
-merge_dpi_aware_manifest(update_mfc)
-merge_trustinfo_manifest(update_mfc asInvoker)
-
-if(MIKTEX_NATIVE_WINDOWS)
-  add_custom_command(
-    TARGET
-      update_mfc
-    POST_BUILD
-    COMMAND
-      ${MT_EXECUTABLE}
-      -nologo
-      -manifest ${CMAKE_CURRENT_BINARY_DIR}/res/Update.manifest
-      -updateresource:$<TARGET_FILE:update_mfc>\;1
-    VERBATIM
-  )
-endif()
 
 install(
   FILES $<TARGET_FILE:update_mfc>
@@ -157,29 +131,10 @@ add_executable(update_mfc${MIKTEX_ADMIN_SUFFIX} WIN32 ${update_mfc_sources})
 
 set_property(TARGET update_mfc${MIKTEX_ADMIN_SUFFIX} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-if(MIKTEX_NATIVE_WINDOWS)
-  add_link_flags(update_mfc${MIKTEX_ADMIN_SUFFIX} "/ENTRY:\"wWinMainCRTStartup\"")
-endif()
+add_link_flags(update_mfc${MIKTEX_ADMIN_SUFFIX} "/MANIFESTUAC:level='requireAdministrator'")
+add_link_flags(update_mfc${MIKTEX_ADMIN_SUFFIX} "/ENTRY:\"wWinMainCRTStartup\"")
 
 target_link_libraries(update_mfc${MIKTEX_ADMIN_SUFFIX} ${libs})
-
-merge_compatibility_manifest(update_mfc${MIKTEX_ADMIN_SUFFIX})
-merge_dpi_aware_manifest(update_mfc${MIKTEX_ADMIN_SUFFIX})
-merge_trustinfo_manifest(update_mfc${MIKTEX_ADMIN_SUFFIX} requireAdministrator)
-
-if(MIKTEX_NATIVE_WINDOWS)
-  add_custom_command(
-    TARGET
-      update_mfc${MIKTEX_ADMIN_SUFFIX}
-    POST_BUILD
-    COMMAND
-      ${MT_EXECUTABLE}
-      -nologo
-      -manifest ${CMAKE_CURRENT_BINARY_DIR}/res/Update.manifest
-      -updateresource:$<TARGET_FILE:update_mfc${MIKTEX_ADMIN_SUFFIX}>\;1
-    VERBATIM
-  )
-endif()
 
 install(
   FILES $<TARGET_FILE:update_mfc${MIKTEX_ADMIN_SUFFIX}>

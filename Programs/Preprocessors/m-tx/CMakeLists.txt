@@ -68,6 +68,7 @@ list(APPEND prepmx_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND prepmx_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     prepmx.rc
   )
 endif()
@@ -75,9 +76,5 @@ endif()
 add_executable(${MIKTEX_PREFIX}prepmx ${prepmx_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}prepmx PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}prepmx asInvoker)
-
-merge_compatibility_manifest(${MIKTEX_PREFIX}prepmx)
 
 install(TARGETS ${MIKTEX_PREFIX}prepmx DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

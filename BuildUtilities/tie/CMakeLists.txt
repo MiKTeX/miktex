@@ -48,7 +48,4 @@ add_executable(${MIKTEX_PREFIX}tie ${tie_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}tie PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-merge_trustinfo_manifest(${MIKTEX_PREFIX}tie asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}tie)
-
 install(TARGETS ${MIKTEX_PREFIX}tie DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}")

@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -30,12 +30,16 @@ set(mpm_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(
-    -D_UNICODE -DUNICODE
+    -DUNICODE
+    -D_UNICODE
   )
 endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND mpm_sources mpm.rc)
+  list(APPEND mpm_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    mpm.rc
+  )
 endif()
 
 add_executable(mpm ${mpm_sources})
@@ -63,8 +67,5 @@ if(MIKTEX_NATIVE_WINDOWS)
     ws2_32
   )
 endif()
-
-merge_trustinfo_manifest(mpm asInvoker)
-merge_compatibility_manifest(mpm)
 
 install(TARGETS mpm DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

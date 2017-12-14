@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -27,15 +27,15 @@ set(touch_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND touch_sources touch.rc)
+  list(APPEND touch_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    touch.rc
+  )
 endif()
 
 add_executable(${MIKTEX_PREFIX}touch ${touch_sources})
 
 set_property(TARGET ${MIKTEX_PREFIX}touch PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}touch asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}touch)
 
 target_link_libraries(${MIKTEX_PREFIX}touch
   ${core_lib_name}

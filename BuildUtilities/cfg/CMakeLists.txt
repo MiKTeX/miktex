@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -27,15 +27,15 @@ set(cfg_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND cfg_sources cfg.rc)
+  list(APPEND cfg_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    cfg.rc
+  )
 endif()
 
 add_executable(cfg ${cfg_sources})
 
 set_property(TARGET cfg PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(cfg asInvoker)
-merge_compatibility_manifest(cfg)
 
 target_link_libraries(cfg
   ${core_dll_name}

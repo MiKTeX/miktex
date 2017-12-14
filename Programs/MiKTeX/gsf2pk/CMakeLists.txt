@@ -32,7 +32,10 @@ set(gsf2pk_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND gsf2pk_sources gsf2pk.rc)
+  list(APPEND gsf2pk_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    gsf2pk.rc
+  )
 endif()
 
 add_executable(gsf2pk ${gsf2pk_sources})
@@ -46,8 +49,5 @@ target_link_libraries(gsf2pk
   Threads::Threads
   miktex-popt-wrapper
 )
-
-merge_trustinfo_manifest(gsf2pk asInvoker)
-merge_compatibility_manifest(gsf2pk)
 
 install(TARGETS gsf2pk DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

@@ -47,6 +47,7 @@ foreach(t ${exes})
   set(${t}_sources ${t}.cpp ${t}-version.h ${common_sources})
   if(MIKTEX_NATIVE_WINDOWS)
     list(APPEND ${t}_sources
+      ${MIKTEX_COMPATIBILITY_MANIFEST}
       ${t}.rc
     )
   endif()

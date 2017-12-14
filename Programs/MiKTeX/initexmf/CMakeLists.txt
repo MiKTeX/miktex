@@ -17,8 +17,6 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-include(MergeCompatibilityManifest)
-
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_SETTINGS_FOLDER}/initexmf")
 
 if(LINK_EVERYTHING_STATICALLY)
@@ -29,6 +27,7 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
 add_definitions(
   -DHAVE_CONFIG_H=1
 )
@@ -39,7 +38,7 @@ if(NOT USE_SYSTEM_POPPLER)
   )
 endif()
 
-if(MSVC)
+if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(
     -DUNICODE
     -D_UNICODE
@@ -62,7 +61,10 @@ set(initexmf_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND initexmf_sources initexmf.rc)
+  list(APPEND initexmf_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    initexmf.rc
+  )
 endif()
 
 add_executable(initexmf ${initexmf_sources})
@@ -86,6 +88,3 @@ target_link_libraries(initexmf
 target_link_libraries(initexmf
   ${texmf_dll_name}
 )
-
-merge_trustinfo_manifest(initexmf asInvoker)
-merge_compatibility_manifest(initexmf)

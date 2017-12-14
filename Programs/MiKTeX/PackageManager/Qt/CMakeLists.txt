@@ -42,6 +42,7 @@ set(mpm_qt_sources
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND mpm_qt_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/mpm.rc
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
   )
 endif()
 
@@ -91,8 +92,6 @@ endif()
 add_executable(mpm_qt WIN32 ${sources})
 set_property(TARGET mpm_qt PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(mpm_qt ${libs})  
-merge_trustinfo_manifest(mpm_qt asInvoker)
-merge_compatibility_manifest(mpm_qt)
 install(TARGETS mpm_qt
   RUNTIME DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR}
 )
@@ -100,9 +99,8 @@ install(TARGETS mpm_qt
 if(MIKTEX_NATIVE_WINDOWS)
   add_executable(mpm_qt${MIKTEX_ADMIN_SUFFIX} WIN32 ${sources})
   set_property(TARGET mpm_qt${MIKTEX_ADMIN_SUFFIX} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  add_link_flags(mpm_qt${MIKTEX_ADMIN_SUFFIX} "/MANIFESTUAC:level='requireAdministrator'")
   target_link_libraries(mpm_qt${MIKTEX_ADMIN_SUFFIX} ${libs})
-  merge_trustinfo_manifest(mpm_qt${MIKTEX_ADMIN_SUFFIX} requireAdministrator)
-  merge_compatibility_manifest(mpm_qt${MIKTEX_ADMIN_SUFFIX})
   install(TARGETS mpm_qt${MIKTEX_ADMIN_SUFFIX}
     RUNTIME DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR}
   )

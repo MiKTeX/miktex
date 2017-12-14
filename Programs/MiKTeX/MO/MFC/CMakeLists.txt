@@ -27,8 +27,9 @@ include_directories(BEFORE
 )
 
 add_definitions(
+  -DUNICODE
   -D_AFXDLL
-  -D_UNICODE -DUNICODE
+  -D_UNICODE
 )
 
 configure_file(
@@ -42,6 +43,10 @@ configure_file(
 )
 
 set(mo_mfc_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/mo.rc
+  ${CMAKE_CURRENT_BINARY_DIR}/res/mo.manifest
+  ${MIKTEX_COMPATIBILITY_MANIFEST}
+  ${MIKTEX_DPIAWARE_MANIFEST}
   FormatDefinitionDialog.cpp
   FormatDefinitionDialog.h
   PropPageFormats.cpp
@@ -64,50 +69,20 @@ set(mo_mfc_sources
   resource.hm
 )
 
-if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND mo_mfc_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/mo.rc)
-endif()
-
 set(libs
   ${core_dll_name}
   ${mpm_dll_name}
   ${ui_mfc_dll_name}
+  htmlhelp.lib
 )
-
-if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND libs
-    htmlhelp.lib
-  )
-endif()
 
 add_executable(mo WIN32 ${mo_mfc_sources})
 
 set_property(TARGET mo PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-if(MIKTEX_NATIVE_WINDOWS)
-  add_link_flags(mo "/ENTRY:\"wWinMainCRTStartup\"")
-endif()
+add_link_flags(mo "/ENTRY:\"wWinMainCRTStartup\"")
 
 target_link_libraries(mo ${libs})
-
-merge_compatibility_manifest(mo)
-merge_dpi_aware_manifest(mo)
-merge_trustinfo_manifest(mo asInvoker)
-
-if(MIKTEX_NATIVE_WINDOWS)
-  add_custom_command(
-    TARGET
-      mo
-    POST_BUILD
-    COMMAND
-      ${MT_EXECUTABLE}
-      -nologo
-      -manifest ${CMAKE_CURRENT_BINARY_DIR}/res/mo.manifest
-      -updateresource:$<TARGET_FILE:mo>\;1
-    VERBATIM
-  )
-endif()
 
 install(TARGETS mo DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
@@ -115,28 +90,9 @@ add_executable(mo${MIKTEX_ADMIN_SUFFIX} WIN32 ${mo_mfc_sources})
 
 set_property(TARGET mo${MIKTEX_ADMIN_SUFFIX} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-if(MIKTEX_NATIVE_WINDOWS)
-  add_link_flags(mo${MIKTEX_ADMIN_SUFFIX} "/ENTRY:\"wWinMainCRTStartup\"")
-endif()
+add_link_flags(mo${MIKTEX_ADMIN_SUFFIX} "/MANIFESTUAC:level='requireAdministrator'")
+add_link_flags(mo${MIKTEX_ADMIN_SUFFIX} "/ENTRY:\"wWinMainCRTStartup\"")
 
 target_link_libraries(mo${MIKTEX_ADMIN_SUFFIX} ${libs})
-
-merge_compatibility_manifest(mo${MIKTEX_ADMIN_SUFFIX})
-merge_dpi_aware_manifest(mo${MIKTEX_ADMIN_SUFFIX})
-merge_trustinfo_manifest(mo${MIKTEX_ADMIN_SUFFIX} requireAdministrator)
-
-if(MIKTEX_NATIVE_WINDOWS)
-  add_custom_command(
-    TARGET
-      mo${MIKTEX_ADMIN_SUFFIX}
-    POST_BUILD
-    COMMAND
-      ${MT_EXECUTABLE}
-      -nologo
-      -manifest ${CMAKE_CURRENT_BINARY_DIR}/res/mo.manifest
-      -updateresource:$<TARGET_FILE:mo${MIKTEX_ADMIN_SUFFIX}>\;1
-    VERBATIM
-  )
-endif()
 
 install(TARGETS mo${MIKTEX_ADMIN_SUFFIX} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

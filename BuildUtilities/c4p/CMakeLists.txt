@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -72,15 +72,15 @@ add_custom_command(
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND c4p_sources c4p.rc)
+  list(APPEND c4p_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    c4p.rc
+  )
 endif()
 
 add_executable(c4p ${c4p_sources})
 
 set_property(TARGET c4p PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(c4p asInvoker)
-merge_compatibility_manifest(c4p)
 
 if(NOT HAVE_GETOPT_LONG)
   target_link_libraries(c4p ${getopt_lib_name})

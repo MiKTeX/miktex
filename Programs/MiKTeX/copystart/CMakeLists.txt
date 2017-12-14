@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -22,44 +22,44 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_PROGRAMS_FOLDER}/copystart")
 use_static_crt()
 
 add_definitions(
-  -D_UNICODE
   -DUNICODE
+  -D_UNICODE
 )
 
 set(libs
   ${core_lib_name}
 )
 
-if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND libs
-    shlwapi
-  )
-endif()
+list(APPEND libs
+  shlwapi
+)
 
-add_executable(copystart WIN32 copystart.cpp)
+set(copystart_sources copystart.cpp)
+
+list(APPEND copystart_sources
+  ${MIKTEX_COMPATIBILITY_MANIFEST}
+)
+
+add_executable(copystart WIN32 ${copystart_sources})
 
 set_property(TARGET copystart PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
 target_link_libraries(copystart ${libs})
-
-merge_trustinfo_manifest(copystart asInvoker)
-merge_compatibility_manifest(copystart)
 
 install(
   TARGETS copystart
   DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}"
 )
 
-add_executable(copystart${MIKTEX_ADMIN_SUFFIX} WIN32 copystart.cpp)
+add_executable(copystart${MIKTEX_ADMIN_SUFFIX} WIN32 ${copystart_sources})
 
 set_property(TARGET copystart${MIKTEX_ADMIN_SUFFIX} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+add_link_flags(copystart${MIKTEX_ADMIN_SUFFIX} "/MANIFESTUAC:level='requireAdministrator'")
+
 target_link_libraries(copystart${MIKTEX_ADMIN_SUFFIX} ${libs})
 
-merge_trustinfo_manifest(copystart${MIKTEX_ADMIN_SUFFIX} requireAdministrator)
-merge_compatibility_manifest(copystart${MIKTEX_ADMIN_SUFFIX})
-
 install(
-  TARGETS copystart${MIKTEX_ADMIN_SUFFIX}
-  DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}"
+    TARGETS copystart${MIKTEX_ADMIN_SUFFIX}
+    DESTINATION "${MIKTEX_INTERNAL_BINARY_DESTINATION_DIR}"
 )

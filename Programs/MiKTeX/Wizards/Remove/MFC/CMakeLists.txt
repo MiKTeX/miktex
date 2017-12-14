@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -29,7 +29,8 @@ include_directories(BEFORE
 )
 
 add_definitions(
-  -D_UNICODE -DUNICODE
+  -DUNICODE
+  -D_UNICODE
 )
 
 configure_file(
@@ -43,6 +44,10 @@ configure_file(
 )
 
 set(remove_mfc_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/Remove.rc
+  ${CMAKE_CURRENT_BINARY_DIR}/res/Remove.manifest
+  ${MIKTEX_COMPATIBILITY_MANIFEST}
+  ${MIKTEX_DPIAWARE_MANIFEST}
   FinishPage.cpp
   FinishPage.h
   Remove-version.h
@@ -59,55 +64,25 @@ set(remove_mfc_sources
   targetver.h
 )
 
-if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND remove_mfc_sources
-    ${CMAKE_CURRENT_BINARY_DIR}/Remove.rc)
-endif()
-
 set(libs
   ${core_lib_name}
   ${getopt_lib_name}
   ${mpm_lib_name}
   ${setup_lib_name}
+  Wldap32
+  version
+  wininet
+  winmm
+  ws2_32
 )
-
-if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND libs
-    Wldap32
-    version
-    wininet
-    winmm
-    ws2_32
-  )
-endif()
 
 add_executable(remove_mfc WIN32 ${remove_mfc_sources})
 
 set_property(TARGET remove_mfc PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-if(MIKTEX_NATIVE_WINDOWS)
-  add_link_flags(remove_mfc "/ENTRY:\"wWinMainCRTStartup\"")
-endif()
+add_link_flags(remove_mfc "/ENTRY:\"wWinMainCRTStartup\"")
 
 target_link_libraries(remove_mfc ${libs})
-
-merge_compatibility_manifest(remove_mfc)
-merge_dpi_aware_manifest(remove_mfc)
-merge_trustinfo_manifest(remove_mfc asInvoker)
-
-if(MIKTEX_NATIVE_WINDOWS)
-  add_custom_command(
-    TARGET
-      remove_mfc
-    POST_BUILD
-    COMMAND
-      ${MT_EXECUTABLE}
-      -nologo
-      -manifest ${CMAKE_CURRENT_BINARY_DIR}/res/Remove.manifest
-      -updateresource:$<TARGET_FILE:remove_mfc>\;1
-    VERBATIM
-  )
-endif()
 
 install(
   FILES $<TARGET_FILE:remove_mfc>
@@ -119,29 +94,10 @@ add_executable(remove_mfc${MIKTEX_ADMIN_SUFFIX} WIN32 ${remove_mfc_sources})
 
 set_property(TARGET remove_mfc${MIKTEX_ADMIN_SUFFIX} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-if(MIKTEX_NATIVE_WINDOWS)
-  add_link_flags(remove_mfc${MIKTEX_ADMIN_SUFFIX} "/ENTRY:\"wWinMainCRTStartup\"")
-endif()
+add_link_flags(remove_mfc${MIKTEX_ADMIN_SUFFIX} "/MANIFESTUAC:level='requireAdministrator'")
+add_link_flags(remove_mfc${MIKTEX_ADMIN_SUFFIX} "/ENTRY:\"wWinMainCRTStartup\"")
 
 target_link_libraries(remove_mfc${MIKTEX_ADMIN_SUFFIX} ${libs})
-
-merge_compatibility_manifest(remove_mfc${MIKTEX_ADMIN_SUFFIX})
-merge_dpi_aware_manifest(remove_mfc${MIKTEX_ADMIN_SUFFIX})
-merge_trustinfo_manifest(remove_mfc${MIKTEX_ADMIN_SUFFIX} requireAdministrator)
-
-if(MIKTEX_NATIVE_WINDOWS)
-  add_custom_command(
-    TARGET
-      remove_mfc${MIKTEX_ADMIN_SUFFIX}
-    POST_BUILD
-    COMMAND
-      ${MT_EXECUTABLE}
-      -nologo
-      -manifest ${CMAKE_CURRENT_BINARY_DIR}/res/Remove.manifest
-      -updateresource:$<TARGET_FILE:remove_mfc${MIKTEX_ADMIN_SUFFIX}>\;1
-    VERBATIM
-  )
-endif()
 
 install(
   FILES $<TARGET_FILE:remove_mfc${MIKTEX_ADMIN_SUFFIX}>

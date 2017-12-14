@@ -26,6 +26,3 @@ set(inipool_sources
 add_executable(inipool ${inipool_sources})
 
 set_property(TARGET inipool PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-merge_trustinfo_manifest(inipool asInvoker)
-merge_compatibility_manifest(inipool)

@@ -38,6 +38,7 @@ set(mkocp_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND mkocp_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     mkocp.rc
   )
 endif()
@@ -51,9 +52,6 @@ target_link_libraries(${MIKTEX_PREFIX}mkocp
   ${core_dll_name}
 )
 
-merge_trustinfo_manifest(${MIKTEX_PREFIX}mkocp asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}mkocp)
-
 install(TARGETS ${MIKTEX_PREFIX}mkocp DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
 set(outocp_sources
@@ -64,6 +62,7 @@ set(outocp_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND outocp_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     outocp.rc
   )
 endif()
@@ -84,9 +83,6 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${getopt_dll_name}
   )
 endif()
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}outocp asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}outocp)
 
 install(TARGETS ${MIKTEX_PREFIX}outocp DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
@@ -130,6 +126,7 @@ add_custom_command(
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND otp2ocp_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     otp2ocp.rc
   )
 endif()
@@ -151,8 +148,5 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${unxemu_dll_name}
   )
 endif()
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}otp2ocp asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}otp2ocp)
 
 install(TARGETS ${MIKTEX_PREFIX}otp2ocp DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

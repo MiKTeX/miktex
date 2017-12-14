@@ -1,6 +1,6 @@
 ## CMakeLists.txt					-*- CMake -*-
 ##
-## Copyright (C) 2006-2016 Christian Schenk
+## Copyright (C) 2006-2017 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -27,7 +27,10 @@ set(md5walk_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND md5walk_sources md5walk.rc)
+  list(APPEND md5walk_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    md5walk.rc
+  )
 endif()
 
 add_executable(md5walk ${md5walk_sources})
@@ -38,8 +41,5 @@ target_link_libraries(md5walk
   ${core_lib_name}
   miktex-popt-wrapper-static
 )
-
-merge_trustinfo_manifest(md5walk asInvoker)
-merge_compatibility_manifest(md5walk)
 
 install(TARGETS md5walk DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})

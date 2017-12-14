@@ -360,7 +360,10 @@ if(MIKTEX_NATIVE_WINDOWS)
     mpost.rc.in
     ${CMAKE_CURRENT_BINARY_DIR}/mpost.rc
   )
-  list(APPEND mpost_sources mpost.rc)
+  list(APPEND mpost_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
+    mpost.rc
+  )
 endif()
 
 add_executable(${MIKTEX_PREFIX}mpost ${mpost_sources})
@@ -381,8 +384,5 @@ if(MIKTEX_NATIVE_WINDOWS)
     ${utf8wrap_dll_name}
   )
 endif()
-
-merge_trustinfo_manifest(${MIKTEX_PREFIX}mpost asInvoker)
-merge_compatibility_manifest(${MIKTEX_PREFIX}mpost)
 
 install(TARGETS ${MIKTEX_PREFIX}mpost DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}")

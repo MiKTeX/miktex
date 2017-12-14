@@ -30,6 +30,7 @@ set(arctrl_sources
 
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND arctrl_sources
+    ${MIKTEX_COMPATIBILITY_MANIFEST}
     arctrl.rc)
 endif()
 
