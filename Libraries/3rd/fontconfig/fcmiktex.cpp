@@ -92,19 +92,30 @@ extern "C" const char* miktex_fc_default_fonts()
 {
   try
   {
-    static PathName path;
-    if (path.Empty())
+    static string fontPath;
+    if (fontPath.empty())
     {
 #if defined(MIKTEX_WINDOWS)
+      PathName path;
       UINT l = GetWindowsDirectoryA(path.GetData(), static_cast<UINT>(path.GetCapacity()));
       if (l == 0 || l >= path.GetCapacity())
       {
         path = "C:/wInDoWs";
       }
       path /= "Fonts";
+      fontPath = path.GetData();
+#endif
+#if defined(__APPLE__)
+      // TODO
+      // https://support.apple.com/en-us/HT201722
+      // ~/Library/Fonts/
+      // /Library/Fonts/
+      // /Network/Library/Fonts/
+      // /System/Library/Fonts/
+      // /System Folder/Fonts/
 #endif
     }
-    return path.GetData();
+    return fontPath.c_str();
   }
   catch (const MiKTeXException& e)
   {
