@@ -185,11 +185,7 @@ void SessionImpl::RegisterFileType(FileType fileType)
     break;
   }
   case FileType::OTF:
-    searchPath2 = StringUtil::Split(GetLocalFontDirectories(), PathName::PathNameDelimiter);
-    break;
   case FileType::TTF:
-    searchPath2 = StringUtil::Split(GetLocalFontDirectories(), PathName::PathNameDelimiter);
-    break;
   case FileType::TYPE1:
     searchPath2 = StringUtil::Split(GetLocalFontDirectories(), PathName::PathNameDelimiter);
     break;
