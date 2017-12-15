@@ -39,7 +39,7 @@
  *	Adrian Johnson <ajohnson@redneon.com>
  */
 
-#define _BSD_SOURCE /* for snprintf() */
+#define _DEFAULT_SOURCE /* for snprintf() */
 #include "cairoint.h"
 
 #include "cairo-pdf.h"

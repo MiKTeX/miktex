@@ -1,5 +1,11 @@
 # MiKTeX Change Log
 
+## NEXT
+
+### Upgraded libraries
+
+* cairo 1.14.12
+
 ## 2.9.6530 - 2017-11-20
 
 ### Bug fixes

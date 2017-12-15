@@ -223,7 +223,7 @@ _cairo_fixed_integer_ceil (cairo_fixed_t f)
     if (f > 0)
 	return ((f - 1)>>CAIRO_FIXED_FRAC_BITS) + 1;
     else
-	return - (-f >> CAIRO_FIXED_FRAC_BITS);
+	return - ((cairo_fixed_t)(-(cairo_fixed_unsigned_t)f) >> CAIRO_FIXED_FRAC_BITS);
 }
 
 /* A bunch of explicit 16.16 operators; we need these

@@ -2907,6 +2907,7 @@ _cairo_scaled_font_free_last_glyph (cairo_scaled_font_t *scaled_font,
 {
     cairo_scaled_glyph_page_t *page;
 
+    assert (scaled_font->cache_frozen);
     assert (! cairo_list_is_empty (&scaled_font->glyph_pages));
     page = cairo_list_last_entry (&scaled_font->glyph_pages,
                                   cairo_scaled_glyph_page_t,
@@ -2916,6 +2917,9 @@ _cairo_scaled_font_free_last_glyph (cairo_scaled_font_t *scaled_font,
     _cairo_scaled_glyph_fini (scaled_font, scaled_glyph);
 
     if (--page->num_glyphs == 0) {
+	_cairo_scaled_font_thaw_cache (scaled_font);
+	CAIRO_MUTEX_LOCK (scaled_font->mutex);
+
 	CAIRO_MUTEX_LOCK (_cairo_scaled_glyph_page_cache_mutex);
 	/* Temporarily disconnect callback to avoid recursive locking */
 	cairo_scaled_glyph_page_cache.entry_destroy = NULL;
@@ -2924,6 +2928,9 @@ _cairo_scaled_font_free_last_glyph (cairo_scaled_font_t *scaled_font,
 	_cairo_scaled_glyph_page_destroy (scaled_font, page);
 	cairo_scaled_glyph_page_cache.entry_destroy = _cairo_scaled_glyph_page_pluck;
 	CAIRO_MUTEX_UNLOCK (_cairo_scaled_glyph_page_cache_mutex);
+
+	CAIRO_MUTEX_UNLOCK (scaled_font->mutex);
+	_cairo_scaled_font_freeze_cache (scaled_font);
     }
 }
 

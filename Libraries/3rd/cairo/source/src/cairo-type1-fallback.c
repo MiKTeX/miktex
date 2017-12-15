@@ -33,7 +33,7 @@
  *	Adrian Johnson <ajohnson@redneon.com>
  */
 
-#define _BSD_SOURCE /* for snprintf(), strdup() */
+#define _DEFAULT_SOURCE /* for snprintf(), strdup() */
 #include "cairoint.h"
 
 #include "cairo-array-private.h"

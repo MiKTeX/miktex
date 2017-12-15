@@ -158,6 +158,14 @@ png_simple_warning_callback (png_structp png,
      */
 }
 
+static int
+png_setjmp (png_struct *png)
+{
+#ifdef PNG_SETJMP_SUPPORTED
+    return setjmp (png_jmpbuf (png));
+#endif
+    return 0;
+}
 
 /* Starting with libpng-1.2.30, we must explicitly specify an output_flush_fn.
  * Otherwise, we will segfault if we are writing to a stream. */
@@ -229,10 +237,8 @@ write_png (cairo_surface_t	*surface,
 	goto BAIL4;
     }
 
-#ifdef PNG_SETJMP_SUPPORTED
-    if (setjmp (png_jmpbuf (png)))
+    if (png_setjmp (png))
 	goto BAIL4;
-#endif
 
     png_set_write_fn (png, closure, write_func, png_simple_output_flush_fn);
 
@@ -571,12 +577,11 @@ read_png (struct png_read_closure_t *png_closure)
     png_set_read_fn (png, png_closure, stream_read_func);
 
     status = CAIRO_STATUS_SUCCESS;
-#ifdef PNG_SETJMP_SUPPORTED
-    if (setjmp (png_jmpbuf (png))) {
+
+    if (png_setjmp (png)) {
 	surface = _cairo_surface_create_in_error (status);
 	goto BAIL;
     }
-#endif
 
     png_read_info (png, info);
 

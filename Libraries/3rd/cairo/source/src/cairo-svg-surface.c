@@ -39,7 +39,7 @@
  *	Carl Worth <cworth@cworth.org>
  */
 
-#define _BSD_SOURCE /* for snprintf() */
+#define _DEFAULT_SOURCE /* for snprintf() */
 #include "cairoint.h"
 
 #include "cairo-svg.h"
