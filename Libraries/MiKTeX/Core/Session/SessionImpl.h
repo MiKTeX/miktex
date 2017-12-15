@@ -416,7 +416,7 @@ public:
   void SetTheNameOfTheGame(const std::string& name) override;
 
 public:
-  std::string GetLocalFontDirectories() override;
+  std::vector<std::string> GetFontDirectories() override;
 
 public:
   MiKTeX::Core::FileTypeInfo GetFileTypeInfo(MiKTeX::Core::FileType fileType) override;
@@ -619,7 +619,7 @@ public:
 private:
   enum class InternalFlag
   {
-    CachedLocalFontDirs,
+    CachedSystemFontDirs,
     CachedPsFontDirs,
     CachedTtfDirs,
     CachedOtfDirs,
@@ -635,7 +635,7 @@ private:
   std::bitset<32> flags;
 
 private:
-  std::string localFontDirs;
+  std::vector<std::string> systemFontDirs;
 
 private:
   std::string psFontDirs;

@@ -820,7 +820,7 @@ bool SessionImpl::GetSessionValue(const string& sectionName, const string& value
 #endif
   else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_LOCALFONTDIRS))
   {
-    value = SessionImpl::GetSession()->GetLocalFontDirectories();
+    value = StringUtil::Flatten(SessionImpl::GetSession()->GetFontDirectories(), PathName::PathNameDelimiter);
     haveValue = true;
   }
   else if (!haveValue && Utils::EqualsIgnoreCase(valueName, CFG_MACRO_NAME_PSFONTDIRS))

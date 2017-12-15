@@ -1209,7 +1209,7 @@ void MakeFontMapApp::CreateFontconfigLocalfontsConf()
 #endif
   vector<string> paths;
 #if !defined(USE_SYSTEM_FONTCONFIG)
-  for (const string& path : StringUtil::Split(session->GetLocalFontDirectories(), PathName::PathNameDelimiter))
+  for (const string& path : session->GetFontDirectories())
   {
     paths.push_back(path);
   }

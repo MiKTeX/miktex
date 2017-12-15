@@ -1061,7 +1061,7 @@ public:
   virtual void MIKTEXTHISCALL SetTheNameOfTheGame(const std::string& name) = 0;
 
 public:
-  virtual std::string MIKTEXTHISCALL GetLocalFontDirectories() = 0;
+  virtual std::vector<std::string> MIKTEXTHISCALL GetFontDirectories() = 0;
 
 public:
   virtual FileTypeInfo MIKTEXTHISCALL GetFileTypeInfo(FileType fileType) = 0;

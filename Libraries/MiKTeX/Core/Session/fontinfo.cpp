@@ -382,41 +382,28 @@ bool SessionImpl::GetFontInfo(const string& fontName, string& supplier, string& 
   return true;
 }
 
-string SessionImpl::GetLocalFontDirectories()
+vector<string> SessionImpl::GetFontDirectories()
 {
-  if (!flags.test((size_t)InternalFlag::CachedLocalFontDirs))
+  if (!flags.test((size_t)InternalFlag::CachedSystemFontDirs))
   {
-    flags.set((size_t)InternalFlag::CachedLocalFontDirs);
+    flags.set((size_t)InternalFlag::CachedSystemFontDirs);
 #if defined(MIKTEX_WINDOWS)
     PathName winFontDir;
     if (GetWindowsFontsDirectory(winFontDir))
     {
-      if (!localFontDirs.empty())
-      {
-        localFontDirs += PathName::PathNameDelimiter;
-      }
-      localFontDirs += winFontDir.GetData();
+      systemFontDirs.push_back(winFontDir.ToString());
     }
     PathName atmFontDir;
     if (GetATMFontDir(atmFontDir))
     {
-      if (!localFontDirs.empty())
-      {
-        localFontDirs += PathName::PathNameDelimiter;
-      }
-      localFontDirs += atmFontDir.GetData();
+      systemFontDirs.push_back(atmFontDir.ToString());
     }
     PathName acrobatFontDir;
     if (GetAcrobatFontDir(acrobatFontDir))
     {
-      if (!localFontDirs.empty())
-      {
-        localFontDirs += PathName::PathNameDelimiter;
-      }
-      localFontDirs += acrobatFontDir.GetData();
+      systemFontDirs.push_back(acrobatFontDir.ToString());
     }
 #endif
   }
-
-  return localFontDirs;
+  return systemFontDirs;
 }
