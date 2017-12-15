@@ -26,7 +26,7 @@
 #include <miktex/Core/Session>
 #include <miktex/Wrappers/PoptWrapper>
 
-#include "MainWindow.h"
+#include "mainwindow.h"
 
 using namespace MiKTeX::Core;
 using namespace MiKTeX::Wrappers;
