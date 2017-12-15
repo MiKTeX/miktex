@@ -1,5 +1,7 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+#pragma once
+
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
@@ -313,13 +315,13 @@
 #undef SHARED_LIB_EXT
 
 /* The size of `int', as computed by sizeof. */
-#undef SIZEOF_INT
+#define SIZEOF_INT ${SIZEOF_INT}
 
 /* The size of `long', as computed by sizeof. */
-#undef SIZEOF_LONG
+#define SIZEOF_LONG ${SIZEOF_LONG}
 
 /* The size of `long long', as computed by sizeof. */
-#undef SIZEOF_LONG_LONG
+#define SIZEOF_LONG_LONG ${SIZEOF_LONG_LONG}
 
 /* The size of `size_t', as computed by sizeof. */
 #undef SIZEOF_SIZE_T

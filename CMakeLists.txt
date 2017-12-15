@@ -1208,6 +1208,9 @@ check_struct_has_member("struct tm" tm_gmtoff time.h HAVE_TM_GMTOFF)
 check_variable_exists(timezone HAVE_TIMEZONE)
 
 check_type_size("long long" LONG_LONG)
+set(SIZEOF_LONG_LONG ${LONG_LONG})
+check_type_size("int" SIZEOF_INT)
+check_type_size("long" SIZEOF_LONG)
 
 if(HAVE_LIMITS_H)
   set(STDC_HEADERS)
