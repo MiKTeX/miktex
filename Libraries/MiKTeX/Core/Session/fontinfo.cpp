@@ -36,17 +36,17 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-const char * WHITESPACE = " \t\r\n";
+const char* WHITESPACE = " \t\r\n";
 
-const char * const MAP_SEARCH_PATH = MAKE_SEARCH_PATH("fontname");
+const char* const MAP_SEARCH_PATH = MAKE_SEARCH_PATH("fontname");
 
-MIKTEXSTATICFUNC(int) IsPrefixOf(const string & s1, const string & s2)
+MIKTEXSTATICFUNC(int) IsPrefixOf(const string& s1, const string& s2)
 {
   size_t l1 = s1.length();
   return l1 <= s2.length() && strncmp(s1.c_str(), s2.c_str(), l1) == 0;
 }
 
-MIKTEXSTATICFUNC(bool) SessionImpl::FindInTypefaceMap(const string & fontName, string & typeface)
+MIKTEXSTATICFUNC(bool) SessionImpl::FindInTypefaceMap(const string& fontName, string& typeface)
 {
   const size_t FONT_ABBREV_LENGTH = 2;
 
@@ -87,7 +87,7 @@ MIKTEXSTATICFUNC(bool) SessionImpl::FindInTypefaceMap(const string & fontName, s
   return false;
 }
 
-bool SessionImpl::FindInSupplierMap(const string & fontName, string & supplier, string & typeface)
+bool SessionImpl::FindInSupplierMap(const string& fontName, string& supplier, string& typeface)
 {
   const size_t SUPPLIER_ABBREV_LENGTH = 1;
 
@@ -129,13 +129,13 @@ bool SessionImpl::FindInSupplierMap(const string & fontName, string & supplier, 
   return found && FindInTypefaceMap(fontName, typeface);
 }
 
-char GetLastChar(const string & s)
+char GetLastChar(const string& s)
 {
   size_t len = s.length();
   return len < 2 ? 0 : s[len - 1];
 }
 
-bool SessionImpl::FindInSpecialMap(const string & fontName, string & supplier, string & typeface)
+bool SessionImpl::FindInSpecialMap(const string& fontName, string& supplier, string& typeface)
 {
   PathName specialMap;
   if (!FindFile("special.map", MAP_SEARCH_PATH, specialMap))
@@ -177,12 +177,12 @@ bool SessionImpl::FindInSpecialMap(const string & fontName, string & supplier, s
   return false;
 }
 
-bool SessionImpl::InternalGetFontInfo(const string & fontName, string & supplier, string & typeface)
+bool SessionImpl::InternalGetFontInfo(const string& fontName, string& supplier, string& typeface)
 {
   return FindInSpecialMap(fontName, supplier, typeface) || FindInSupplierMap(fontName, supplier, typeface);
 }
 
-void SessionImpl::SplitFontPath(const PathName & fontPath, string * fontType, string * supplier, string * typeface, string * fontName, string * pointSize)
+void SessionImpl::SplitFontPath(const PathName& fontPath, string* fontType, string* supplier, string* typeface, string* fontName, string* pointSize)
 {
   if (supplier != nullptr || typeface != nullptr)
   {
@@ -244,7 +244,7 @@ void SessionImpl::SplitFontPath(const PathName & fontPath, string * fontType, st
   if (fontName != nullptr || pointSize != nullptr)
   {
     PathName fileName = fontPath.GetFileNameWithoutExtension();
-    char * lpsz = fileName.GetData() + fileName.GetLength() - 1;
+    char* lpsz = fileName.GetData() + fileName.GetLength() - 1;
     while (IsDigit(*lpsz))
     {
       --lpsz;
@@ -269,13 +269,13 @@ void SessionImpl::SplitFontPath(const PathName & fontPath, string * fontType, st
   }
 }
 
-int Comp2(const string & s1, const string & s2)
+int Comp2(const string& s1, const string& s2)
 {
   MIKTEX_ASSERT(s1.length() >= 2 && s2.length() == 2);
   return ToLower(s1[0]) == ToLower(s2[0]) && ToLower(s1[1]) == ToLower(s2[1]);
 }
 
-bool SessionImpl::GetFontInfo(const string & fontName, string & supplier, string & typeface, double * genSize)
+bool SessionImpl::GetFontInfo(const string& fontName, string& supplier, string& typeface, double* genSize)
 {
   PathName pathFileName;
 
@@ -368,9 +368,9 @@ bool SessionImpl::GetFontInfo(const string & fontName, string & supplier, string
     else if (l == 4 || l == 5)
     {
       /* The new convention is to have three or four letters for
-	 the font name and four digits for the pointsize. The
-	 number is pointsize * 100. We effectively divide by 100
-	 by ignoring the last two digits. */
+         the font name and four digits for the pointsize. The
+         number is pointsize * 100. We effectively divide by 100
+         by ignoring the last two digits. */
       *genSize = std::stoi(pointSize) / 100.0;
     }
     else
@@ -393,7 +393,7 @@ string SessionImpl::GetLocalFontDirectories()
     {
       if (!localFontDirs.empty())
       {
-	localFontDirs += PathName::PathNameDelimiter;
+        localFontDirs += PathName::PathNameDelimiter;
       }
       localFontDirs += winFontDir.GetData();
     }
@@ -402,7 +402,7 @@ string SessionImpl::GetLocalFontDirectories()
     {
       if (!localFontDirs.empty())
       {
-	localFontDirs += PathName::PathNameDelimiter;
+        localFontDirs += PathName::PathNameDelimiter;
       }
       localFontDirs += atmFontDir.GetData();
     }
@@ -411,7 +411,7 @@ string SessionImpl::GetLocalFontDirectories()
     {
       if (!localFontDirs.empty())
       {
-	localFontDirs += PathName::PathNameDelimiter;
+        localFontDirs += PathName::PathNameDelimiter;
       }
       localFontDirs += acrobatFontDir.GetData();
     }
