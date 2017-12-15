@@ -75,7 +75,6 @@ elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
 
     ( brew ls -1 | grep -w icu4c ) || brew install icu4c
     
-    ( brew ls -1 | grep -w cairo ) || brew install cairo
     ( brew ls -1 | grep -w freetype ) || brew install freetype
     ( brew ls -1 | grep -w fribidi ) || brew install fribidi
     ( brew ls -1 | grep -w gd ) || brew install gd
