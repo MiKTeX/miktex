@@ -52,6 +52,7 @@ if(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x86")
     windows-x86/miktex-cairo-bin.tpm.in
     windows-x86/miktex-chktex-bin.tpm.in
     windows-x86/miktex-cjkutils-bin.tpm.in
+    windows-x86/miktex-console-bin.tpm.in
     windows-x86/miktex-curl-bin.tpm.in
     windows-x86/miktex-cweb-bin.tpm.in
     windows-x86/miktex-devnag-bin.tpm.in
@@ -144,6 +145,7 @@ elseif(${MIKTEX_TARGET_SYSTEM_TAG} STREQUAL "windows-x64")
     windows-x64/miktex-cairo-bin-x64.tpm.in
     windows-x64/miktex-chktex-bin-x64.tpm.in
     windows-x64/miktex-cjkutils-bin-x64.tpm.in
+    windows-x64/miktex-console-bin-x64.tpm.in
     windows-x64/miktex-curl-bin-x64.tpm.in
     windows-x64/miktex-cweb-bin-x64.tpm.in
     windows-x64/miktex-devnag-bin-x64.tpm.in
