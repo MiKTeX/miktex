@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/cairo")
 
 add_definitions(-D__STDC__=1)
@@ -91,11 +93,16 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src
 )
 
+configure_file(
+  miktex-cairo-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/miktex-cairo-version.h
+)
+
 set(${cairo_dll_name}_sources
   ${enabled_cairo_sources}
   ${cairo_headers}
   ${cairo_private}
-  miktex-cairo-version.h
+  ${CMAKE_CURRENT_BINARY_DIR}/miktex-cairo-version.h
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -112,10 +119,10 @@ add_library(${cairo_dll_name} SHARED ${${cairo_dll_name}_sources})
 
 set_property(TARGET ${cairo_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_target_properties(${cairo_dll_name}
-  PROPERTIES
-    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
-    SOVERSION "1"
+set_shared_library_version(
+  ${cairo_dll_name}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
+  ${MIKTEX_COMP_J2000_VERSION}
 )
 
 target_include_directories(${cairo_dll_name}
@@ -154,12 +161,14 @@ else()
   target_link_libraries(${cairo_dll_name} PRIVATE ${zlib_dll_name})
 endif()
 
-target_link_libraries(${cairo_dll_name}
-  PRIVATE
-    gdi32.lib
-    msimg32.lib
-    user32.lib
-)
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${cairo_dll_name}
+    PRIVATE
+      gdi32.lib
+      msimg32.lib
+      user32.lib
+  )
+endif()
 
 #delay_load(${cairo_dll_name}
 #)
