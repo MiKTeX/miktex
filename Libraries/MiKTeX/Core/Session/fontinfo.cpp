@@ -25,6 +25,7 @@
 
 #include "internal.h"
 
+#include "miktex/Core/Directory.h"
 #include "miktex/Core/PathNameParser.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/StreamReader.h"
@@ -402,6 +403,15 @@ vector<string> SessionImpl::GetFontDirectories()
     if (GetAcrobatFontDir(acrobatFontDir))
     {
       systemFontDirs.push_back(acrobatFontDir.ToString());
+    }
+#elif defined(__APPLE__)
+    // https://support.apple.com/en-us/HT201722
+    for (const string& dir : { "/Library/Fonts/"s, "/System/Library/Fonts/"s })
+    {
+      if (Directory::Exists(dir))
+      {
+        systemFontDirs.push_back(dir);
+      }
     }
 #endif
   }
