@@ -1466,6 +1466,40 @@ else()
   add_subdirectory(${MIKTEX_REL_FREETYPE2_DIR})
 endif()
 
+if(USE_SYSTEM_PIXMAN)
+  get_filename_component(suffix ${PIXMAN_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::PIXMAN SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::PIXMAN STATIC IMPORTED)
+  endif()
+  set_target_properties(MiKTeX::Imported::PIXMAN
+    PROPERTIES
+      IMPORTED_LOCATION "${PIXMAN_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${PIXMAN_INCLUDE_DIRS}"
+  )
+else()
+  add_subdirectory(${MIKTEX_REL_PIXMAN_DIR})
+endif()
+
+if(USE_SYSTEM_PNG)
+  get_filename_component(suffix ${PNG_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::PNG SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::PNG STATIC IMPORTED)
+  endif()
+  set_target_properties(MiKTeX::Imported::PNG
+    PROPERTIES
+      IMPORTED_LOCATION "${PNG_LIBRARY}"
+      INTERFACE_COMPILE_DEFINITIONS HAVE_LIBPNG=1
+      INTERFACE_INCLUDE_DIRECTORIES "${PNG_INCLUDE_DIRS}"
+      INTERFACE_LINK_LIBRARIES MiKTeX::Imported::ZLIB
+  )
+else()
+  add_subdirectory(${MIKTEX_REL_PNG_DIR})
+endif()
+
 if(USE_SYSTEM_CAIRO)
   get_filename_component(suffix ${CAIRO_LIBRARY} EXT)
   if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
@@ -1775,40 +1809,6 @@ elseif(WITH_LIBRESSL_CRYPTO)
   add_subdirectory(${MIKTEX_REL_LIBRESSL_DIR})
   set(openssl_crypto_dll_name ${libressl_crypto_dll_name})
   set(openssl_crypto_lib_name ${libressl_crypto_lib_name})
-endif()
-
-if(USE_SYSTEM_PIXMAN)
-  get_filename_component(suffix ${PIXMAN_LIBRARY} EXT)
-  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
-    add_library(MiKTeX::Imported::PIXMAN SHARED IMPORTED)
-  else()
-    add_library(MiKTeX::Imported::PIXMAN STATIC IMPORTED)
-  endif()
-  set_target_properties(MiKTeX::Imported::PIXMAN
-    PROPERTIES
-      IMPORTED_LOCATION "${PIXMAN_LIBRARY}"
-      INTERFACE_INCLUDE_DIRECTORIES "${PIXMAN_INCLUDE_DIRS}"
-  )
-else()
-  add_subdirectory(${MIKTEX_REL_PIXMAN_DIR})
-endif()
-
-if(USE_SYSTEM_PNG)
-  get_filename_component(suffix ${PNG_LIBRARY} EXT)
-  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
-    add_library(MiKTeX::Imported::PNG SHARED IMPORTED)
-  else()
-    add_library(MiKTeX::Imported::PNG STATIC IMPORTED)
-  endif()
-  set_target_properties(MiKTeX::Imported::PNG
-    PROPERTIES
-      IMPORTED_LOCATION "${PNG_LIBRARY}"
-      INTERFACE_COMPILE_DEFINITIONS HAVE_LIBPNG=1
-      INTERFACE_INCLUDE_DIRECTORIES "${PNG_INCLUDE_DIRS}"
-      INTERFACE_LINK_LIBRARIES MiKTeX::Imported::ZLIB
-  )
-else()
-  add_subdirectory(${MIKTEX_REL_PNG_DIR})
 endif()
 
 if(USE_SYSTEM_POPPLER)
