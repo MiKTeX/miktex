@@ -142,7 +142,7 @@ else()
   target_link_libraries(${gd_dll_name} PRIVATE ${fontconfig_dll_name})
 endif()
 
-if(USE_SYSTEM_FONTCONFIG)
+if(USE_SYSTEM_FREETYPE2)
   target_link_libraries(${gd_dll_name} PRIVATE MiKTeX::Imported::FREETYPE2)
 else()
   target_link_libraries(${gd_dll_name} PRIVATE ${freetype2_dll_name})

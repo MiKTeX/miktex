@@ -1598,6 +1598,23 @@ if(WITH_GC)
   add_subdirectory(${MIKTEX_REL_GC_DIR})
 endif()
 
+if(USE_SYSTEM_JPEG)
+  get_filename_component(suffix ${JPEG_LIBRARY} EXT)
+  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
+    add_library(MiKTeX::Imported::JPEG SHARED IMPORTED)
+  else()
+    add_library(MiKTeX::Imported::JPEG STATIC IMPORTED)
+  endif()
+  set_target_properties(MiKTeX::Imported::JPEG
+    PROPERTIES
+      IMPORTED_LOCATION "${JPEG_LIBRARY}"
+      INTERFACE_COMPILE_DEFINITIONS HAVE_LIBJPEG=1
+      INTERFACE_INCLUDE_DIRECTORIES "${JPEG_INCLUDE_DIR}"
+  )
+else()
+  add_subdirectory(${MIKTEX_REL_JPEG_DIR})
+endif()
+
 if(USE_SYSTEM_GD)
   get_filename_component(suffix ${GD_LIBRARY} EXT)
   if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
@@ -1692,23 +1709,6 @@ if(USE_SYSTEM_HUNSPELL)
   )
 else()
   add_subdirectory(${MIKTEX_REL_HUNSPELL_DIR})
-endif()
-
-if(USE_SYSTEM_JPEG)
-  get_filename_component(suffix ${JPEG_LIBRARY} EXT)
-  if (suffix STREQUAL CMAKE_SHARED_LIBRARY_SUFFIX)
-    add_library(MiKTeX::Imported::JPEG SHARED IMPORTED)
-  else()
-    add_library(MiKTeX::Imported::JPEG STATIC IMPORTED)
-  endif()
-  set_target_properties(MiKTeX::Imported::JPEG
-    PROPERTIES
-      IMPORTED_LOCATION "${JPEG_LIBRARY}"
-      INTERFACE_COMPILE_DEFINITIONS HAVE_LIBJPEG=1
-      INTERFACE_INCLUDE_DIRECTORIES "${JPEG_INCLUDE_DIR}"
-  )
-else()
-  add_subdirectory(${MIKTEX_REL_JPEG_DIR})
 endif()
 
 if(WITH_LIBATOMIC_OPS)
