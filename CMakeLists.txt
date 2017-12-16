@@ -2024,7 +2024,6 @@ if(WITH_OMEGA)
 endif()
 
 if(WITH_UI_QT)
-  add_subdirectory(${MIKTEX_REL_CONSOLE_QT_DIR})
   add_subdirectory(${MIKTEX_REL_MPM_QT_DIR})
   add_subdirectory(${MIKTEX_REL_TEXWORKS_DIR})
   add_subdirectory(${MIKTEX_REL_UI_QT_DIR})
@@ -2070,6 +2069,10 @@ endif()
 
 if(NOT HAVE_REGEXEC)
   add_subdirectory(${MIKTEX_REL_REGEX_DIR})
+endif()
+
+if(WITH_UI_QT)
+  add_subdirectory(${MIKTEX_REL_CONSOLE_QT_DIR})
 endif()
 
 ###############################################################################
