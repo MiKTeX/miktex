@@ -272,7 +272,7 @@ option(
   ${use_system_harfbuzz_default}
 )
 
-if(MIKTEX_HOMEBREW)
+if(MIKTEX_HOMEBREW OR MIKTEX_MACOS_BUNDLE)
   set(use_system_harfbuzz_icu_default FALSE)
 elseif(MIKTEX_UNIX_ALIKE)
   set(use_system_harfbuzz_icu_default TRUE)
@@ -320,7 +320,7 @@ option(
   ${MIKTEX_UNIX_ALIKE}
 )
 
-if(MIKTEX_HOMEBREW)
+if(MIKTEX_HOMEBREW OR MIKTEX_MACOS_BUNDLE)
   set(use_system_mspack_default FALSE)
 elseif(MIKTEX_UNIX_ALIKE)
   set(use_system_mspack_default TRUE)
@@ -359,7 +359,7 @@ option(
 option(
   USE_SYSTEM_POPPLER_QT5
   "Use the system Poppler PDF Rendring (Qt5 Wrapper) library."
-  ${MIKTEX_UNIX_ALIKE}
+  FALSE
 )
 
 option(

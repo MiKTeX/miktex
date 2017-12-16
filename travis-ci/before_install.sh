@@ -77,7 +77,6 @@ elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     
     ( brew ls -1 | grep -w freetype ) || brew install freetype
     ( brew ls -1 | grep -w fribidi ) || brew install fribidi
-    ( brew ls -1 | grep -w gd ) || brew install gd
     ( brew ls -1 | grep -w gmp ) || brew install gmp
     ( brew ls -1 | grep -w graphite2 ) || brew install graphite2
     ( brew ls -1 | grep -w hunspell ) || brew install hunspell
