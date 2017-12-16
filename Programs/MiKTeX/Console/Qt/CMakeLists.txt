@@ -17,7 +17,7 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-include(InstallQt5Plugin.cmake)
+include(InstallQt5Plugin)
 
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_CONSOLE_FOLDER}/Qt")
 
