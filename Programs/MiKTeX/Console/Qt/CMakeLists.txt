@@ -81,6 +81,17 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
+# stibizt: https://github.com/Kitware/CMake/blob/master/Source/QtDialog/CMakeLists.txt
+if(MIKTEX_MACOS_BUNDLE)
+  install_qt5_plugin("Qt5::QCocoaIntegrationPlugin" QT_PLUGINS)
+  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
+    "[Paths]\nPlugins = ${_qt_plugin_dir}\n")
+  install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
+    DESTINATION "Resources"
+  )
+endif()
+
 add_executable(console_qt WIN32 MACOSX_BUNDLE ${sources})
 set_property(TARGET console_qt PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(console_qt ${libs})  

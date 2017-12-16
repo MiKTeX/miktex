@@ -1,6 +1,8 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
+# stibizt: https://github.com/Kitware/CMake/blob/master/Source/QtDialog/CMakeLists.txt
+
 macro(install_qt5_plugin _qt_plugin_name _qt_plugins_var)
   get_target_property(_qt_plugin_path "${_qt_plugin_name}" LOCATION)
   if(EXISTS "${_qt_plugin_path}")
