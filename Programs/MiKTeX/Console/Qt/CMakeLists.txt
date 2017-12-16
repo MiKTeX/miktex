@@ -17,6 +17,8 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(InstallQt5Plugin.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_MIKTEX_CONSOLE_FOLDER}/Qt")
 
 include_directories(BEFORE
@@ -86,6 +88,8 @@ if(MIKTEX_MACOS_BUNDLE)
   set_target_properties(console_qt
     PROPERTIES
       OUTPUT_NAME ${MIKTEX_PRODUCT_NAME}
+      MACOSX_BUNDLE_SHORT_VERSION_STRING "${MIKTEX_MAJOR_VERSION}.${MIKTEX_MINOR_VERSION}.${MIKTEX_J2000_VERSION}"
+      MACOSX_BUNDLE_GUI_IDENTIFIER "org.miktex.miktex"
   )
 endif()
 install(TARGETS console_qt
