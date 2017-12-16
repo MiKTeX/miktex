@@ -90,6 +90,9 @@ if(MIKTEX_MACOS_BUNDLE)
     FILES "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
     DESTINATION "Resources"
   )
+  get_property(_Qt5_Core_LOCATION TARGET Qt5::Core PROPERTY LOCATION)
+  get_filename_component(Qt_BIN_DIR "${_Qt5_Core_LOCATION}" PATH)
+  get_filename_component(Qt_BIN_DIR "${Qt_BIN_DIR}" PATH)
 endif()
 
 add_executable(console_qt WIN32 MACOSX_BUNDLE ${sources})
@@ -107,6 +110,16 @@ install(TARGETS console_qt
   RUNTIME DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR}
   BUNDLE DESTINATION ${MIKTEX_MACOS_BUNDLE_DIR}
 )
+
+# stibizt: https://github.com/Kitware/CMake/blob/master/Source/QtDialog/CMakeLists.txt
+if(MIKTEX_MACOS_BUNDLE)
+  set(fixup_exe "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/MacOS/${MIKTEX_PRODUCT_NAME}")
+  install(CODE "
+    include(BundleUtilities)
+    set(BU_CHMOD_BUNDLE_ITEMS ON)
+    fixup_bundle(\"${fixup_exe}\" \"${QT_PLUGINS}\" \"${Qt_BIN_DIR};${QT_LIBRARY_DIR};${QT_BINARY_DIR}\")
+  ")
+endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_executable(console_qt${MIKTEX_ADMIN_SUFFIX} WIN32 ${sources})
