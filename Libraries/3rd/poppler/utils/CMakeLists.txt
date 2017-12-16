@@ -209,7 +209,7 @@ target_link_libraries(${MIKTEX_PREFIX}pdftohtml
   ${app_dll_name}
   ${poppler_dll_name}
 )
-if(USE_SYSTEM_CAIRO)
+if(USE_SYSTEM_PNG)
   target_link_libraries(${MIKTEX_PREFIX}pdftohtml MiKTeX::Imported::PNG)
 else()
   target_link_libraries(${MIKTEX_PREFIX}pdftohtml ${png_dll_name})
