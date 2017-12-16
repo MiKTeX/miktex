@@ -17,18 +17,14 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
+include(component.cmake)
+
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/gd")
 
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
-
-add_definitions(
-  -DHAVE_CONFIG_H
-)
-
-ignore_warnings()
 
 if(MIKTEX_NATIVE_WINDOWS)
   add_definitions(
@@ -41,7 +37,13 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
 )
 
+configure_file(
+  gd-version.h.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/gd-version.h
+)
+
 set(sources
+  ${CMAKE_CURRENT_BINARY_DIR}/gd-version.h
   source/src/bmp.h
   source/src/gd.c
   source/src/gd.h
@@ -107,8 +109,6 @@ set(sources
   source/src/jisx0208.h
   source/src/wbmp.c
   source/src/wbmp.h
-
-  gd-version.h
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -125,10 +125,10 @@ add_library(${gd_dll_name} SHARED ${sources})
 
 set_property(TARGET ${gd_dll_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-set_target_properties(${gd_dll_name}
-  PROPERTIES
-    VERSION "${MIKTEX_MAJOR_MINOR_STR}"
-    SOVERSION "1"
+set_shared_library_version(
+  ${gd_dll_name}
+  ${MIKTEX_COMP_INTERFACE_VERSION}
+  ${MIKTEX_COMP_J2000_VERSION}
 )
 
 target_include_directories(${gd_dll_name}
@@ -166,10 +166,12 @@ else()
   target_link_libraries(${gd_dll_name} PRIVATE ${zlib_dll_name})
 endif()
 
-target_link_libraries(${gd_dll_name}
-  PRIVATE
-    ${utf8wrap_dll_name}
-)
+if(MIKTEX_NATIVE_WINDOWS)
+  target_link_libraries(${gd_dll_name}
+    PRIVATE
+      ${utf8wrap_dll_name}
+  )
+endif()
 
 delay_load(${gd_dll_name}
   ${fontconfig_dll_name}

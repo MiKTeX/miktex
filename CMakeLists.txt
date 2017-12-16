@@ -236,10 +236,16 @@ option(
   ${MIKTEX_UNIX_ALIKE}
 )
 
+if(MIKTEX_MACOS_BUNDLE)
+  set(use_system_gd_default FALSE)
+elseif(MIKTEX_UNIX_ALIKE)
+  set(use_system_gd_default TRUE)
+endif()
+
 option(
   USE_SYSTEM_GD
   "Use the system GD graphics library."
-  ${MIKTEX_UNIX_ALIKE}
+  ${use_system_gd_default}
 )
 
 option(
