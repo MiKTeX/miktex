@@ -82,6 +82,12 @@ endif()
 add_executable(console_qt WIN32 MACOSX_BUNDLE ${sources})
 set_property(TARGET console_qt PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(console_qt ${libs})  
+if(MIKTEX_MACOS_BUNDLE)
+  set_target_properties(console_qt
+    PROPERTIES
+      OUTPUT_NAME ${MIKTEX_PRODUCT_NAME}
+  )
+endif()
 install(TARGETS console_qt
   RUNTIME DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR}
   BUNDLE DESTINATION ${MIKTEX_MACOS_BUNDLE_DIR}
