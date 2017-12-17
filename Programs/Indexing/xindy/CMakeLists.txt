@@ -63,6 +63,14 @@ add_executable(tex2xindy ${tex2xindy_sources})
 
 set_property(TARGET tex2xindy PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
+if(MIKTEX_MACOS_BUNDLE)
+  set_target_properties(tex2xindy PROPERTIES INSTALL_RPATH "@loader_path/../${CMAKE_INSTALL_LIBDIR}")
+elseif(APPLE)
+  set_target_properties(tex2xindy PROPERTIES INSTALL_RPATH "@loader_path/../../${CMAKE_INSTALL_LIBDIR}")
+else()
+  set_target_properties(tex2xindy PROPERTIES INSTALL_RPATH "$ORIGIN/../../${CMAKE_INSTALL_LIBDIR}")
+endif()
+
 target_link_libraries(tex2xindy
   ${app_dll_name}
   ${core_dll_name}
