@@ -113,8 +113,8 @@ endif()
 ## macOS: set bundle location and adjust install prefix
 
 if(MIKTEX_MACOS_BUNDLE)
+  set(MIKTEX_MACOS_BUNDLE_DIR ${CMAKE_INSTALL_PREFIX})
   set(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/${MIKTEX_PRODUCT_NAME}.app/Contents")
-  set(MIKTEX_MACOS_BUNDLE_DIR "../..")
 endif()
 
 ###############################################################################
@@ -2119,6 +2119,10 @@ find_program(RPMBUILD_EXECUTABLE NAMES rpmbuild)
 
 if(RPMBUILD_EXECUTABLE)
   list(APPEND CPACK_GENERATOR RPM)
+endif()
+
+if(MIKTEX_MACOS_BUNDLE)
+  set(CPACK_GENERATOR DragNDrop)
 endif()
 
 set(CPACK_PROJECT_CONFIG_FILE
