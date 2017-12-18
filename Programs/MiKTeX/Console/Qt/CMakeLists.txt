@@ -108,7 +108,7 @@ if(MIKTEX_MACOS_BUNDLE)
 endif()
 install(TARGETS console_qt
   RUNTIME DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR}
-  BUNDLE DESTINATION ${MIKTEX_MACOS_BUNDLE_DIR}
+  BUNDLE DESTINATION .
 )
 
 # stibizt: https://github.com/Kitware/CMake/blob/master/Source/QtDialog/CMakeLists.txt
