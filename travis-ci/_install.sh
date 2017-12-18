@@ -22,7 +22,7 @@ sudomiktex() {
     return $status
 }
 
-sudo make install
+#sudo make install
 
 sudomiktex initexmf --admin --disable-installer --update-fndb --mklinks
 sudomiktex mpm --admin --package-level=basic --upgrade
