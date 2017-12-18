@@ -25,6 +25,7 @@ elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
     brewprefix="`brew --prefix`"
     CMAKE_PREFIX_PATH="${brewprefix}/opt/icu4c:${brewprefix}/opt/openssl:${brewprefix}/opt/icu4c:${brewprefix}/opt/qt:${CMAKE_PREFIX_PATH}" \
 		     cmake .. $cmakeflags \
+		     -DCMAKE_INSTALL_PREFIX="${TRAVIS_BUILD_DIR}/install" \
 		     -DMIKTEX_MPM_AUTO_INSTALL=t \
 		     -DWITH_UI_QT=TRUE
 fi

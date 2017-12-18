@@ -1,7 +1,7 @@
 cd "${TRAVIS_BUILD_DIR}/build"
 
 if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
-    miktex_bin="${TRAVIS_BUILD_DIR}/build-install/MiKTeX.app/Contents/bin"
+    miktex_bin="${TRAVIS_BUILD_DIR}/install/MiKTeX.app/Contents/bin"
     miktex_home="$HOME/Library/Application Support/MiKTeX"
 else
     miktex_bin="/usr/local/bin"
