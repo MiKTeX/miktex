@@ -110,24 +110,11 @@ if(APPLE AND NOT MIKTEX_HOMEBREW)
 endif()
 
 ###############################################################################
-## change default install prefix (Windows/macOS)
+## macOS: set bundle location and adjust install prefix
 
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND (MIKTEX_NATIVE_WINDOWS OR MIKTEX_MACOS_BUNDLE))
-  if(MIKTEX_NATIVE_WINDOWS)
-    set(CMAKE_INSTALL_PREFIX
-      "${CMAKE_BINARY_DIR}-install"
-      CACHE PATH "MiKTeX install prefix." FORCE
-    )
-  endif()
-  if(MIKTEX_MACOS_BUNDLE)
-    set(MIKTEX_MACOS_BUNDLE_DIR
-      "${CMAKE_BINARY_DIR}-install"
-      CACHE INTERNAL "MiKTeX bundle location.")
-    set(CMAKE_INSTALL_PREFIX
-      "${MIKTEX_MACOS_BUNDLE_DIR}/${MIKTEX_PRODUCT_NAME}.app/Contents"
-      CACHE PATH "MiKTeX install prefix." FORCE
-    )
-  endif()
+if(MIKTEX_MACOS_BUNDLE)
+  set(MIKTEX_MACOS_BUNDLE_DIR ${CMAKE_INSTALL_PREFIX})
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/${MIKTEX_PRODUCT_NAME}.app/Contents")
 endif()
 
 ###############################################################################
