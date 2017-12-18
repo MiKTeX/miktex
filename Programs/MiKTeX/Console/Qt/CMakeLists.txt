@@ -88,7 +88,7 @@ if(MIKTEX_MACOS_BUNDLE)
     "[Paths]\nPlugins = ${_qt_plugin_dir}\n")
   install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
-    DESTINATION "Resources"
+    DESTINATION "${MIKTEX_MACOS_BUNDLE_DIR}/Resources"
   )
   get_property(_Qt5_Core_LOCATION TARGET Qt5::Core PROPERTY LOCATION)
   get_filename_component(Qt_BIN_DIR "${_Qt5_Core_LOCATION}" PATH)
