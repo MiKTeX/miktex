@@ -113,8 +113,8 @@ endif()
 ## macOS: set bundle location and adjust install prefix
 
 if(MIKTEX_MACOS_BUNDLE)
-  set(MIKTEX_MACOS_BUNDLE_DIR ${CMAKE_INSTALL_PREFIX})
   set(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/${MIKTEX_PRODUCT_NAME}.app/Contents")
+  set(MIKTEX_MACOS_BUNDLE_DIR "../..")
 endif()
 
 ###############################################################################
