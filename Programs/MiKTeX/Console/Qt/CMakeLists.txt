@@ -113,9 +113,9 @@ install(TARGETS console_qt
 
 # stibizt: https://github.com/Kitware/CMake/blob/master/Source/QtDialog/CMakeLists.txt
 if(MIKTEX_MACOS_BUNDLE)
-  set(fixup_exe "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/MacOS/${MIKTEX_PRODUCT_NAME}")
+  set(fixup_exe "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_MACOS_BUNDLE_DIR}/MacOS/${MIKTEX_PRODUCT_NAME}")
   # FIXME: icu lib dir
-  set(libs "/usr/local/opt/icu4c/lib;${CMAKE_INSTALL_PREFIX}/lib")
+  set(libs "/usr/local/opt/icu4c/lib;\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_LIBRARY_DESTINATION_DIR}")
   install(CODE "
     include(BundleUtilities)
     set(BU_CHMOD_BUNDLE_ITEMS ON)
