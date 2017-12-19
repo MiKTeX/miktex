@@ -171,11 +171,13 @@ void SessionImpl::RegisterFileType(FileType fileType)
       searchPath.push_back(myLocationCanon.ToString());
     }
 #if defined(MIKTEX_UNIX)
+#if !defined(MIKTEX_MACOS_BUNDLE)
     PathName myPrefixBin = GetMyPrefix(false) / MIKTEX_BINARY_DESTINATION_DIR;
     if (std::find(searchPath.begin(), searchPath.end(), myPrefixBin.ToString()) == searchPath.end())
     {
       searchPath.push_back(myPrefixBin.ToString());
     }
+#endif
     PathName myPrefixBinCanon = GetMyPrefix(true) / MIKTEX_BINARY_DESTINATION_DIR;
     if (std::find(searchPath.begin(), searchPath.end(), myPrefixBinCanon.ToString()) == searchPath.end())
     {
