@@ -688,6 +688,14 @@ void Application::Sorry(const string& name, const MiKTeXException& ex)
     LOG4CXX_FATAL(logger, "Source: " << ex.GetSourceFile());
     LOG4CXX_FATAL(logger, "Line: " << ex.GetSourceLine());
   }
+  else
+  {
+    cerr
+      << "ERROR: " << ex.what() << "\n"
+      << "ERROR: Info: " << ex.GetInfo() << "\n"
+      << "ERROR: Source: " << ex.GetSourceFile() << "\n"
+      << "ERROR: Line: " << ex.GetSourceLine() << "\n";
+  }
   Sorry(name);
 }
 
@@ -696,6 +704,11 @@ void Application::Sorry(const string& name, const exception& ex)
   if (logger != nullptr)
   {
     LOG4CXX_FATAL(logger, ex.what());
+  }
+  else
+  {
+    cerr
+      << "ERROR: " << ex.what() << "\n";
   }
   Sorry(name);
 }
