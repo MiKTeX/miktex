@@ -104,7 +104,7 @@ PathName SessionImpl::GetMyPrefix(bool canonicalized)
       return prefix;
     }
   }
-  MIKTEX_FATAL_ERROR("Cannot derive the path prefix of the running executable.");
+  MIKTEX_FATAL_ERROR_2("Cannot derive the path prefix of the running executable.", "bindir", bindir.ToString(), "canonicalized", canonicalized ? "true" : "false");
 }
 
 bool SessionImpl::FindStartupConfigFile(bool common, PathName& path)
