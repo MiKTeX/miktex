@@ -110,14 +110,6 @@ if(APPLE AND NOT MIKTEX_HOMEBREW)
 endif()
 
 ###############################################################################
-## macOS: set bundle location and adjust install prefix
-
-#if(MIKTEX_MACOS_BUNDLE)
-#  set(MIKTEX_MACOS_BUNDLE_DIR ${CMAKE_INSTALL_PREFIX})
-#  set(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/${MIKTEX_PRODUCT_NAME}.app/Contents")
-#endif()
-
-###############################################################################
 ## handle install prefix standards
 
 if(CMAKE_INSTALL_PREFIX STREQUAL "/usr")
