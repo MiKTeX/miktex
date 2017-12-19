@@ -312,11 +312,13 @@ void SessionImpl::SetEnvironmentVariables()
     Utils::SetEnvironmentString("PATH", newEnvPath);
     envPath = newEnvPath;
   }
+#if !defined(MIKTEX_MACOS_BUNDLE)
   if (FixProgramSearchPath(envPath, GetBinDirectory(false), false, newEnvPath, competition))
   {
     Utils::SetEnvironmentString("PATH", newEnvPath);
     envPath = newEnvPath;
   }
+#endif
 }
 
 void SessionImpl::SetTheNameOfTheGame(const string& name)
