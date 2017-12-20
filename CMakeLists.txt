@@ -2117,8 +2117,14 @@ if(MIKTEX_MACOS_BUNDLE)
   set(CPACK_GENERATOR DragNDrop)
 endif()
 
+configure_file(
+  "${CMAKE_SOURCE_DIR}/Packaging/cpack-config.cmake.in"
+  "${CMAKE_BINARY_DIR}/Packaging/cpack-config.cmake"
+  @ONLY
+)
+
 set(CPACK_PROJECT_CONFIG_FILE
-  "${CMAKE_SOURCE_DIR}/Packaging/cpack-config.cmake"
+  "${CMAKE_BINARY_DIR}/Packaging/cpack-config.cmake"
 )
 
 set(CPACK_PACKAGE_DESCRIPTION_FILE
