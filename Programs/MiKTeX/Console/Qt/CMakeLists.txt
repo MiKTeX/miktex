@@ -41,13 +41,15 @@ if(MIKTEX_NATIVE_WINDOWS)
 endif()
 
 if(MIKTEX_MACOS_BUNDLE)
+  # FIXME
+  set(MACOSX_BUNDLE_ICON_FILE miktex.icns)
   list(APPEND console_qt_sources
     ${MIKTEX_ICNS}
   )
-  set(MACOSX_BUNDLE_ICON_FILE ${MIKTEX_ICNS})
   set_source_files_properties(${MIKTEX_ICNS}
     PROPERTIES
-      MACOSX_PACKAGE_LOCATION Resources)
+      MACOSX_PACKAGE_LOCATION Resources
+  )
 endif()
 
 set(console_qt_moc_sources
@@ -95,7 +97,7 @@ endif()
 if(MIKTEX_MACOS_BUNDLE)
   install_qt5_plugin("Qt5::QCocoaIntegrationPlugin" QT_PLUGINS)
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
-    "[Paths]\nPlugins = ${_qt_plugin_dir}\n")
+    "[Paths]\nPlugins = PlugIns\n")
   install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
     DESTINATION "${MIKTEX_MACOS_BUNDLE_DIR}/Resources"
