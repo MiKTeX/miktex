@@ -1,8 +1,8 @@
 if("${CPACK_GENERATOR}" STREQUAL "DragNDrop")
   set(CPACK_DMG_BACKGROUND_IMAGE
-    "@CMake_SOURCE_DIR@/Packaging/dmg/background.png"
+    "@CMAKE_SOURCE_DIR@/Packaging/dmg/background.png"
   )
   set(CPACK_DMG_DS_STORE_SETUP_SCRIPT
-    "@CMake_SOURCE_DIR@/Packaging/dmg/setup.scpt"
+    "@CMAKE_SOURCE_DIR@/Packaging/dmg/setup.scpt"
   )
 endif()
