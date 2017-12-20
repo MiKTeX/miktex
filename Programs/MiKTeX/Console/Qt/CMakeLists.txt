@@ -40,6 +40,16 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
+if(MIKTEX_MACOS_BUNDLE)
+  list(APPEND console_qt_sources
+    ${MIKTEX_ICNS}
+  )
+  set(MACOSX_BUNDLE_ICON_FILE ${MIKTEX_ICNS})
+  set_source_files_properties(${MIKTEX_ICNS}
+    PROPERTIES
+      MACOSX_PACKAGE_LOCATION Resources)
+endif()
+
 set(console_qt_moc_sources
   mainwindow.h
 )
