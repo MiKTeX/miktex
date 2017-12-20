@@ -185,6 +185,7 @@ set(MIKTEX_XML_CATALOG_FILE     "${CMAKE_BINARY_DIR}/BuildUtilities/docbook/cata
 set(MIKTEX_DOWNLOAD_ANIMATION           "${CMAKE_SOURCE_DIR}/Resources/Videos/download.avi")
 set(MIKTEX_FILECOPY_ANIMATION           "${CMAKE_SOURCE_DIR}/Resources/Videos/filecopy.avi")
 set(MIKTEX_ICON                         "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex.ico")
+set(MIKTEX_ICNS                         "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex.icns")
 set(MIKTEX_WIZARD_HEADER_BITMAP         "${CMAKE_SOURCE_DIR}/Resources/Graphics/wiz97-header.bmp")
 set(MIKTEX_WIZARD_WATERMARK_BITMAP      "${CMAKE_SOURCE_DIR}/Resources/Graphics/wiz97-watermark.bmp")
 set(MIKTEX_COMPATIBILITY_MANIFEST       "${CMAKE_SOURCE_DIR}/Resources/Manifests/Compatibility.manifest")
