@@ -130,6 +130,7 @@ if(MIKTEX_MACOS_BUNDLE)
   set(libs "/usr/local/opt/icu4c/lib;\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_LIBRARY_DESTINATION_DIR}")
   install(CODE "
     include(BundleUtilities)
+    include(BundleUtilitiesOverrides)
     set(BU_CHMOD_BUNDLE_ITEMS ON)
     fixup_bundle(\"${fixup_exe}\" \"${QT_PLUGINS}\" \"${Qt_BIN_DIR};${QT_LIBRARY_DIR};${QT_BINARY_DIR};${libs}\")
   ")

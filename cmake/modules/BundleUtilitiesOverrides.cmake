@@ -1,0 +1,7 @@
+function(gp_item_default_embedded_path_override item default_embedded_path_var)
+  set(path "${${default_embedded_path_var}}")
+  if(item MATCHES "\\.dylib$")
+    set(path "@executable_path/../lib")
+  endif()
+  set(${default_embedded_path_var} "${path}" PARENT_SCOPE)
+endfunction()
