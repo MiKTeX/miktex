@@ -129,8 +129,8 @@ if(MIKTEX_MACOS_BUNDLE)
   # FIXME: icu lib dir
   set(libs "/usr/local/opt/icu4c/lib;\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_LIBRARY_DESTINATION_DIR}")
   install(CODE "
+    include(${CMAKE_SOURCE_DIR}/cmake/modules/BundleUtilitiesOverrides.cmake)
     include(BundleUtilities)
-    include(BundleUtilitiesOverrides)
     set(BU_CHMOD_BUNDLE_ITEMS ON)
     fixup_bundle(\"${fixup_exe}\" \"${QT_PLUGINS}\" \"${Qt_BIN_DIR};${QT_LIBRARY_DIR};${QT_BINARY_DIR};${libs}\")
   ")
