@@ -96,6 +96,9 @@ PathName SessionImpl::GetMyPrefix(bool canonicalized)
     MIKTEX_INTERNAL_BINARY_DESTINATION_DIR,
     MIKTEX_PATH_BIN_DIR,
     MIKTEX_PATH_INTERNAL_BIN_DIR,
+#if defined(MIKTEX_MACOS_BUNDLE)
+    MIKTEX_MACOS_DESTINATION_DIR
+#endif
   })
   {
     PathName prefix;
