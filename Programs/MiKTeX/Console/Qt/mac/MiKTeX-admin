@@ -1,0 +1,5 @@
+#!/usr/bin/env osascript
+
+set MiKTeXAdmin to POSIX path of ((path to me as text) & "::") & "MiKTeX --admin"
+
+do shell script MiKTeXAdmin with administrator privileges
