@@ -41,7 +41,7 @@ namespace {
   struct poptOption const aoption[] = {
     {
       "admin", 0, POPT_ARG_NONE, nullptr, OPT_ADMIN,
-      "Run in administrative mode.", nullptr
+      "Run in administrator mode.", nullptr
     },
     POPT_TABLEEND
   };
@@ -74,9 +74,9 @@ int main(int argc, char* argv[])
       if (!session->RunningAsAdministrator())
       {
 #if defined(MIKTEX_WINDOWS)
-        QMessageBox::critical(0, "MiKTeX Console", "Not running as administrator.");
+        QMessageBox::critical(nullptr, "MiKTeX Console", "Administrator mode was requested (--admin), but the program is not running elevated (as Administrator).");
 #else
-        QMessageBox::critical(0, "MiKTeX Console", "Not running as root.");
+        QMessageBox::critical(nullptr, "MiKTeX Console", "Administrator mode was requested (--admin), but the program is not running as root user.");
 #endif
         return 1;
       }

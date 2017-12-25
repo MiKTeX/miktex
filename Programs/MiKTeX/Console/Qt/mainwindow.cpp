@@ -40,7 +40,11 @@ MainWindow::MainWindow(QWidget* parent) :
   {
     ui->adminMode->hide();
   }
-  ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::BinDirectory).GetData()));
+  if (Utils::CheckPath(false))
+  {
+    ui->hintPath->hide();
+  }
+  ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
   ui->installdir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::InstallRoot).GetData()));
 }
 

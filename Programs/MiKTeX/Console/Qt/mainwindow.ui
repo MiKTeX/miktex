@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>MiKTeX Console</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
@@ -42,12 +42,24 @@
     </item>
     <item>
      <widget class="QStackedWidget" name="verticalStackedWidget">
-      <widget class="QWidget" name="overview" native="true">
+      <widget class="QWidget" name="overview">
        <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Welcome!</string>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Welcome!&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This is the MiKTeX Console. It will assist you in making changes to the MiKTeX setup.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>This is the MiKTeX Console. It will assist you in making changes to your MiKTeX configuration.</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -91,7 +103,7 @@
            <item>
             <widget class="QLabel" name="label_4">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This tool currently operates on the private (per-user) MiKTeX setup.&lt;/p&gt;&lt;p&gt;If you are an administrator, you may want to switch to admin-mode in order to operate on the shared (system-wide) setup. Please read &lt;a href=&quot;https://miktex.org/howto/admin-mode&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;this HOWTO,&lt;/span&gt;&lt;/a&gt; for more information.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This tool currently operates on the private (per-user) MiKTeX configuration.&lt;/p&gt;&lt;p&gt;If you are an administrator, you may want to switch to administrator mode in order to operate on the shared (system-wide) configuration. Please read &lt;a href=&quot;https://miktex.org/howto/admin-mode&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;this HOWTO,&lt;/span&gt;&lt;/a&gt; for more information.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -125,7 +137,7 @@
            <item>
             <widget class="QLabel" name="label_3">
              <property name="text">
-              <string>This tool currently operates on the shared (system-wide) MiKTeX setup.</string>
+              <string>This tool currently operates on the shared (system-wide) MiKTeX configuration.</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -172,7 +184,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_5">
+            <widget class="QLabel" name="hintPath">
              <property name="text">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;It may be necessary to add this location to the environment variable PATH. Please read &lt;a href=&quot;htttps://miktex.org/howto/set-path&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;this HOWTO&lt;/span&gt;&lt;/a&gt;, for more information.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
@@ -235,7 +247,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>
