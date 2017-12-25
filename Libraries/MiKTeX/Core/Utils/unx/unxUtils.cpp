@@ -23,6 +23,7 @@
 
 #include "internal.h"
 
+#include "miktex/Core/Directory.h"
 #include "miktex/Core/PathName.h"
 
 #include "Session/SessionImpl.h"
@@ -93,4 +94,55 @@ void Utils::ShowWebPage(const string& url)
 bool Utils::SupportsHardLinks(const PathName& path)
 {
   return true;
+}
+
+bool Utils::CheckPath(bool repair)
+{
+#if 1
+  // TODO
+  if (repair)
+  {
+    UNIMPLEMENTED();
+  }
+#endif
+  
+  shared_ptr<Session> session = Session::Get();
+
+  string envPath;
+  if (!Utils::GetEnvironmentString("PATH", envPath))
+  {
+    return false;
+  }
+  
+  PathName localBinDir = session->GetSpecialPath(SpecialPath::LocalBinDirectory);
+
+  string repairedPath;
+  bool pathCompetition;
+  
+  bool pathOkay = !Directory::Exists(localBinDir) || !FixProgramSearchPath(envPath, localBinDir, true, repairedPath, pathCompetition);
+
+  bool repaired = false;
+
+  if (!pathOkay && !repair)
+  {
+    SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Something is wrong with the PATH:"));
+    SessionImpl::GetSession()->trace_error->WriteLine("core", envPath.c_str());
+  }
+  else if (!pathOkay && repair)
+  {
+    SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Setting new PATH:"));
+    SessionImpl::GetSession()->trace_error->WriteLine("core", repairedPath.c_str());
+    envPath = repairedPath;
+    if (session->IsAdminMode())
+    {
+      // TODO: edit system configuration
+    }
+    else
+    {
+      // TODO: edit user configuration
+    }
+    pathOkay = true;
+    repaired = true;
+  }
+  return repaired || pathOkay;
 }

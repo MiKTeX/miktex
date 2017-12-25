@@ -276,10 +276,8 @@ public:
     return str2;
   }
 
-#if defined(MIKTEX_WINDOWS)
 public:
   static MIKTEXCORECEEAPI(bool) CheckPath(bool repair);
-#endif
 
 #if defined(MIKTEX_WINDOWS)
 public:
