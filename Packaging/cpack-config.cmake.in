@@ -6,3 +6,6 @@ if("${CPACK_GENERATOR}" STREQUAL "DragNDrop")
     "@CMAKE_SOURCE_DIR@/Packaging/dmg/setup.scpt"
   )
 endif()
+
+if("${CPACK_GENERATOR}" STREQUAL "productbuild")
+endif()
