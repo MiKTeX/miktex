@@ -1276,8 +1276,9 @@ bool SessionImpl::IsSharedSetup()
         PathName myLoc = GetMyLocation(true);
 #if defined(MIKTEX_MACOS_BUNDLE)
         isSharedSetup = Utils::IsParentDirectoryOf("/usr", myLoc) || Utils::IsParentDirectoryOf("/Applications", myLoc) ? TriState::True : TriState::False;
-#endif
+#else
         isSharedSetup = Utils::IsParentDirectoryOf("/usr", myLoc) || Utils::IsParentDirectoryOf("/opt", myLoc) ? TriState::True : TriState::False;
+#endif
 #endif
       }
     }
