@@ -1,6 +1,6 @@
 /* session.cpp: MiKTeX session
 
-   Copyright (C) 2006-2016 Christian Schenk
+   Copyright (C) 2006-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -42,7 +42,7 @@ STDAPI DllCanUnloadNow()
   return _AtlModule.DllCanUnloadNow();
 }
 
-STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID * ppv)
+STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
 {
   return _AtlModule.DllGetClassObject(rclsid, riid, ppv);
 }

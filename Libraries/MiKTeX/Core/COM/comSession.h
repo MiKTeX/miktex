@@ -1,6 +1,6 @@
 /* comSession.h: MiKTeX session                         -*- C++ -*-
 
-   Copyright (C) 2006-2016 Christian Schenk
+   Copyright (C) 2006-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -75,19 +75,19 @@ public:
   STDMETHOD(RegisterRootDirectories) (BSTR rootDirectories);
 
 public:
-  STDMETHOD(FindPkFile) (BSTR fontName, BSTR mode, LONG dpi, BSTR * path, VARIANT_BOOL * found);
+  STDMETHOD(FindPkFile) (BSTR fontName, BSTR mode, LONG dpi, BSTR* path, VARIANT_BOOL* found);
 
 public:
-  STDMETHOD(GetErrorInfo) (MiKTeXSessionLib::ErrorInfo * pErrorInfo);
+  STDMETHOD(GetErrorInfo) (MiKTeXSessionLib::ErrorInfo* pErrorInfo);
 
 public:
-  STDMETHOD(GetMiKTeXSetupInfo) (MiKTeXSessionLib::MiKTeXSetupInfo * setupInfo);
+  STDMETHOD(GetMiKTeXSetupInfo) (MiKTeXSessionLib::MiKTeXSetupInfo* setupInfo);
 
 public:
-  STDMETHOD(GetRootDirectory) (LONG rootIdx, BSTR * rootDirectory);
+  STDMETHOD(GetRootDirectory) (LONG rootIdx, BSTR* rootDirectory);
 
 public:
-  STDMETHOD(FindFile) (BSTR fileName, BSTR * path, VARIANT_BOOL * found);
+  STDMETHOD(FindFile) (BSTR fileName, BSTR* path, VARIANT_BOOL* found);
 
 private:
   void CreateSession();

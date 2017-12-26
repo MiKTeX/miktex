@@ -1,6 +1,6 @@
 /* session.h: MiKTeX session                            -*- C++ -*-
 
-   Copyright (C) 2006-2016 Christian Schenk
+   Copyright (C) 2006-2017 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 

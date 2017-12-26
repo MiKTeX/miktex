@@ -41,7 +41,7 @@ comSession::~comSession()
   {
     session = nullptr;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -52,19 +52,19 @@ void comSession::FinalRelease()
   {
     session = nullptr;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
 
 STDMETHODIMP comSession::InterfaceSupportsErrorInfo(REFIID riid)
 {
-  static const IID * const interfaces[] =
+  static const IID* const interfaces[] =
   {
     &__uuidof(ISession),
     &__uuidof(ISession2)
   };
-  for (const IID * iid : interfaces)
+  for (const IID* iid : interfaces)
   {
     if (InlineIsEqualGUID(*iid, riid))
     {
@@ -83,16 +83,16 @@ STDMETHODIMP comSession::RegisterRootDirectories(BSTR rootDirectories)
     CreateSession();
     session->RegisterRootDirectories(WU_(rootDirectories), false);
   }
-  catch (const _com_error & e)
+  catch (const _com_error& e)
   {
     hr = e.Error();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     lastMiKTeXException = e;
     hr = E_FAIL;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     lastMiKTeXException = MiKTeXException("sessionsvc", e.what(), nullptr, __FILE__, __LINE__);
     hr = E_FAIL;
@@ -100,7 +100,7 @@ STDMETHODIMP comSession::RegisterRootDirectories(BSTR rootDirectories)
   return hr;
 }
 
-STDMETHODIMP comSession::FindPkFile(BSTR fontName, BSTR mode, LONG dpi, BSTR * path, VARIANT_BOOL * found)
+STDMETHODIMP comSession::FindPkFile(BSTR fontName, BSTR mode, LONG dpi, BSTR* path, VARIANT_BOOL* found)
 {
   SessionImpl::runningAsLocalServer = true;
   HRESULT hr = S_OK;
@@ -119,16 +119,16 @@ STDMETHODIMP comSession::FindPkFile(BSTR fontName, BSTR mode, LONG dpi, BSTR * p
       *found = VARIANT_FALSE;
     }
   }
-  catch (const _com_error & e)
+  catch (const _com_error& e)
   {
     hr = e.Error();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     lastMiKTeXException = e;
     hr = E_FAIL;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     lastMiKTeXException = MiKTeXException("sessionsvc", e.what(), nullptr, __FILE__, __LINE__);
     hr = E_FAIL;
@@ -136,7 +136,7 @@ STDMETHODIMP comSession::FindPkFile(BSTR fontName, BSTR mode, LONG dpi, BSTR * p
   return hr;
 }
 
-STDMETHODIMP comSession::GetErrorInfo(ErrorInfo * pErrorInfo)
+STDMETHODIMP comSession::GetErrorInfo(ErrorInfo* pErrorInfo)
 {
   if (lastMiKTeXException.what() == nullptr)
   {
@@ -153,17 +153,17 @@ STDMETHODIMP comSession::GetErrorInfo(ErrorInfo * pErrorInfo)
     pErrorInfo->sourceLine = lastMiKTeXException.GetSourceLine();
     return S_OK;
   }
-  catch (const _com_error & e)
+  catch (const _com_error& e)
   {
     return e.Error();
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     return E_FAIL;
   }
 }
 
-STDMETHODIMP comSession::GetMiKTeXSetupInfo(MiKTeXSetupInfo * setupInfo)
+STDMETHODIMP comSession::GetMiKTeXSetupInfo(MiKTeXSetupInfo* setupInfo)
 {
   SessionImpl::runningAsLocalServer = true;
   HRESULT hr = S_OK;
@@ -192,16 +192,16 @@ STDMETHODIMP comSession::GetMiKTeXSetupInfo(MiKTeXSetupInfo * setupInfo)
     return S_OK;
 
   }
-  catch (const _com_error & e)
+  catch (const _com_error& e)
   {
     hr = e.Error();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     lastMiKTeXException = e;
     hr = E_FAIL;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     lastMiKTeXException = MiKTeXException("sessionsvc", e.what(), nullptr, __FILE__, __LINE__);
     hr = E_FAIL;
@@ -209,7 +209,7 @@ STDMETHODIMP comSession::GetMiKTeXSetupInfo(MiKTeXSetupInfo * setupInfo)
   return hr;
 }
 
-STDMETHODIMP comSession::GetRootDirectory(LONG rootIdx, BSTR * rootDirectory)
+STDMETHODIMP comSession::GetRootDirectory(LONG rootIdx, BSTR* rootDirectory)
 {
   SessionImpl::runningAsLocalServer = true;
   HRESULT hr = S_OK;
@@ -219,16 +219,16 @@ STDMETHODIMP comSession::GetRootDirectory(LONG rootIdx, BSTR * rootDirectory)
     *rootDirectory = _bstr_t(session->GetRootDirectory(rootIdx).ToWideCharString().c_str()).Detach();
     return S_OK;
   }
-  catch (const _com_error & e)
+  catch (const _com_error& e)
   {
     hr = e.Error();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     lastMiKTeXException = e;
     hr = E_FAIL;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     lastMiKTeXException = MiKTeXException("sessionsvc", e.what(), nullptr, __FILE__, __LINE__);
     hr = E_FAIL;
@@ -236,7 +236,7 @@ STDMETHODIMP comSession::GetRootDirectory(LONG rootIdx, BSTR * rootDirectory)
   return hr;
 }
 
-STDMETHODIMP comSession::FindFile(BSTR fileName, BSTR * path, VARIANT_BOOL * found)
+STDMETHODIMP comSession::FindFile(BSTR fileName, BSTR* path, VARIANT_BOOL* found)
 {
   SessionImpl::runningAsLocalServer = true;
   HRESULT hr = S_OK;
@@ -260,16 +260,16 @@ STDMETHODIMP comSession::FindFile(BSTR fileName, BSTR * path, VARIANT_BOOL * fou
       *found = VARIANT_FALSE;
     }
   }
-  catch (const _com_error & e)
+  catch (const _com_error& e)
   {
     hr = e.Error();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     lastMiKTeXException = e;
     hr = E_FAIL;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     lastMiKTeXException = MiKTeXException("sessionsvc", e.what(), nullptr, __FILE__, __LINE__);
     hr = E_FAIL;
@@ -296,12 +296,12 @@ void comSession::CreateSession()
 }
 
 // see MSDN "The COM Elevation Moniker"
-static ULONG GetAccessPermissionsForLUAServer(SECURITY_DESCRIPTOR ** ppSD)
+static ULONG GetAccessPermissionsForLUAServer(SECURITY_DESCRIPTOR** ppSD)
 {
   LPWSTR lpszSDDL = L"O:BAG:BAD:(A;;0x3;;;IU)(A;;0x3;;;SY)";
-  SECURITY_DESCRIPTOR * pSD = nullptr;
+  SECURITY_DESCRIPTOR* pSD = nullptr;
   ULONG size = 0;
-  if (!ConvertStringSecurityDescriptorToSecurityDescriptorW(lpszSDDL, SDDL_REVISION_1, reinterpret_cast<PSECURITY_DESCRIPTOR *>(&pSD), &size))
+  if (!ConvertStringSecurityDescriptorToSecurityDescriptorW(lpszSDDL, SDDL_REVISION_1, reinterpret_cast<PSECURITY_DESCRIPTOR*>(&pSD), &size))
   {
     MIKTEX_FATAL_WINDOWS_ERROR("ConvertStringSecurityDescriptorToSecurityDescriptorW");
   }
@@ -316,7 +316,7 @@ HRESULT WINAPI comSession::UpdateRegistry(BOOL doRegister)
   {
     vector<_ATL_REGMAP_ENTRY> regMapEntries;
     _ATL_REGMAP_ENTRY rme;
-    SECURITY_DESCRIPTOR * pSd;
+    SECURITY_DESCRIPTOR* pSd;
     ULONG sizeSd = GetAccessPermissionsForLUAServer(&pSd);
     AutoLocalMem toBeFreed(pSd);
     rme.szKey = L"ACCESS_SD";
@@ -336,7 +336,7 @@ HRESULT WINAPI comSession::UpdateRegistry(BOOL doRegister)
       //
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
     hr = E_FAIL;
   }

@@ -1,4 +1,4 @@
-/* session.idl:						-*- IDL -*-
+/* session.idl:                                         -*- IDL -*-
 
    Copyright (C) 2006-2017 Christian Schenk
 
@@ -86,7 +86,7 @@ interface ISession : IDispatch
     id(2),
     helpstring("method FindPkFile")
   ]
-  HRESULT FindPkFile([in] BSTR fontName, [in] BSTR mode, [in] LONG dpi, [out] BSTR * path, [out,retval] VARIANT_BOOL * found);
+  HRESULT FindPkFile([in] BSTR fontName, [in] BSTR mode, [in] LONG dpi, [out] BSTR* path, [out, retval] VARIANT_BOOL* found);
 
   /// @brief Get information about the last error.
   /// @return Returns an error information record.
@@ -94,7 +94,7 @@ interface ISession : IDispatch
     id(3),
     helpstring("method GetErrorInfo")
   ]
-  HRESULT GetErrorInfo ([out,retval] ErrorInfo * errorInfo);
+  HRESULT GetErrorInfo([out, retval] ErrorInfo* errorInfo);
 
   /// @brief Get information about the MiKTeX setup.
   /// @return Returns an MiKTeX setup info record.
@@ -102,7 +102,7 @@ interface ISession : IDispatch
     id(4),
     helpstring("method GetMiKTeXSetupInfo")
   ]
-  HRESULT GetMiKTeXSetupInfo ([out,retval] MiKTeXSetupInfo * setupInfo);
+  HRESULT GetMiKTeXSetupInfo([out, retval] MiKTeXSetupInfo* setupInfo);
 
   /// @brief Get a configured root directory.
   /// @param[in] rootIdx Index of the requested root directory.
@@ -111,7 +111,7 @@ interface ISession : IDispatch
     id(5),
     helpstring("method GetRootDirectory")
   ]
-  HRESULT GetRootDirectory ([in] LONG rootIdx, [out,retval] BSTR * rootDirectory);
+  HRESULT GetRootDirectory([in] LONG rootIdx, [out, retval] BSTR* rootDirectory);
 };
 
 /// @brief The MiKTeX session interface (version 2).
@@ -136,7 +136,7 @@ interface ISession2 : ISession
     id(6),
     helpstring("method FindFile")
   ]
-  HRESULT FindFile ([in] BSTR fileName, [out] BSTR * path, [out,retval] VARIANT_BOOL * found);
+  HRESULT FindFile([in] BSTR fileName, [out] BSTR* path, [out, retval] VARIANT_BOOL* found);
 };
 
 /// @brief The MiKTeX Session type library.
