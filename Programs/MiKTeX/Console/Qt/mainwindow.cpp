@@ -23,6 +23,7 @@
 #include "ui_mainwindow.h"
 
 #include <miktex/Core/PathName>
+#include <miktex/Core/Registry>
 #include <miktex/Core/Session>
 
 using namespace MiKTeX::Core;
@@ -32,6 +33,14 @@ MainWindow::MainWindow(QWidget* parent) :
   ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
+
+  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
+  time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
+  bool isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0;
+
+  int startPage = isSetupMode ? 0 : 1;
+  ui->pages->setCurrentIndex(startPage);
+  
   if (session->IsAdminMode())
   {
     ui->userMode->hide();
@@ -46,9 +55,26 @@ MainWindow::MainWindow(QWidget* parent) :
   }
   ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
   ui->installdir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::InstallRoot).GetData()));
+
+  connect(ui->buttonRestartAdmin, SIGNAL(clicked()), this, SLOT(RestartAdmin()));
+  connect(ui->buttonFinishSetup, SIGNAL(clicked()), this, SLOT(FinishSetup()));
 }
 
 MainWindow::~MainWindow()
 {
   delete ui;
+}
+
+void MainWindow::RestartAdmin()
+{
+#if defined(MIKTEX_WINDOWS) || defined(MIKTEX_MACOS_BUNDLE)
+  // TODO
+#else
+  // TODO
+#endif
+}
+
+void MainWindow::FinishSetup()
+{
+
 }

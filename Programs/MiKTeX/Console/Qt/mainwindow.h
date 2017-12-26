@@ -36,8 +36,16 @@ class MainWindow : public QMainWindow
 {
   Q_OBJECT;
 
+private slots:
+  void RestartAdmin();
+
+private slots:
+  void FinishSetup();
+
 public:
   explicit MainWindow(QWidget* parent = nullptr);
+
+public:
   ~MainWindow();
 
 private:
