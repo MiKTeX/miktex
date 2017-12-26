@@ -86,6 +86,9 @@
                 <property name="text">
                  <string>Restart as administrator</string>
                 </property>
+                <property name="flat">
+                 <bool>false</bool>
+                </property>
                </widget>
               </item>
               <item>

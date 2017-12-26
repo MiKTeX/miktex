@@ -23,10 +23,12 @@
 #include "ui_mainwindow.h"
 
 #include <miktex/Core/PathName>
+#include <miktex/Core/Paths>
 #include <miktex/Core/Registry>
 #include <miktex/Core/Session>
 
 using namespace MiKTeX::Core;
+using namespace std;
 
 MainWindow::MainWindow(QWidget* parent) :
   QMainWindow(parent),
@@ -68,7 +70,15 @@ MainWindow::~MainWindow()
 void MainWindow::RestartAdmin()
 {
 #if defined(MIKTEX_WINDOWS) || defined(MIKTEX_MACOS_BUNDLE)
-  // TODO
+  PathName me = session->GetMyProgramFile(true);
+  PathName adminFileName = me.GetFileNameWithoutExtension();
+  adminFileName += MIKTEX_ADMIN_SUFFIX;
+  PathName meAdmin(me);
+  meAdmin.RemoveFileSpec();
+  meAdmin /= adminFileName;
+  meAdmin.SetExtension(me.GetExtension());
+  Process::Start(meAdmin, { adminFileName.ToString(), "--admin" });
+  this->close();
 #else
   // TODO
 #endif
