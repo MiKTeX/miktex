@@ -1009,6 +1009,9 @@ public:
   virtual std::vector<LanguageInfo> MIKTEXTHISCALL GetLanguages() = 0;
 
 public:
+  virtual PathName MIKTEXTHISCALL GetMyProgramFile(bool canonicalized) = 0;
+
+public:
   virtual PathName MIKTEXTHISCALL GetMyLocation(bool canonicalized) = 0;
 
 public:

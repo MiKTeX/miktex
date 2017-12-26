@@ -364,6 +364,9 @@ public:
   std::vector<MiKTeX::Core::LanguageInfo> GetLanguages() override;
 
 public:
+  MiKTeX::Core::PathName GetMyProgramFile(bool canonicalized) override;
+
+public:
   MiKTeX::Core::PathName GetMyLocation(bool canonicalized) override;
 
 public:
@@ -484,10 +487,6 @@ public:
 
 public:
   MiKTeX::Core::PathName GetTempDirectory();
-
-  // FIXME: make this an API
-public:
-  MiKTeX::Core::PathName GetMyProgramFile(bool canonicalized);
 
 #if defined(MIKTEX_WINDOWS) && defined(MIKTEX_CORE_SHARED)
 public:
