@@ -49,6 +49,9 @@ namespace {
 
 int main(int argc, char* argv[])
 {
+#if QT_VERSION >= 0x050600
+  QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
   QApplication application(argc, argv);
   int ret = 0;
   bool optAdmin = false;
