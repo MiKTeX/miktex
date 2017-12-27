@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>MiKTeX Console</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="console.qrc">
+    <normaloff>:/Icons/miktex-32x32.png</normaloff>:/Icons/miktex-32x32.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
     <property name="spacing">
@@ -63,67 +67,15 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="setupUserMode" native="true">
-          <property name="enabled">
-           <bool>true</bool>
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>We will now finish the MiKTeX setup.</string>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_7">
-           <item>
-            <widget class="QLabel" name="label_8">
-             <property name="text">
-              <string>We will now finish the private (for you only) MiKTeX setup. If you want to create a shared (system-wide) MiKTeX setup, then you can restart in administrator mode:</string>
-             </property>
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QWidget" name="horizontalWidget" native="true">
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
-              <item>
-               <widget class="QPushButton" name="buttonRestartAdmin">
-                <property name="text">
-                 <string>Restart as administrator</string>
-                </property>
-                <property name="flat">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_2">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-           </item>
-          </layout>
          </widget>
         </item>
         <item>
          <widget class="QWidget" name="setupAdminMode" native="true">
-          <layout class="QVBoxLayout" name="verticalLayout_8">
-           <item>
-            <widget class="QLabel" name="label_9">
-             <property name="text">
-              <string>We will now finish the shared (system-wide) MiKTeX setup.</string>
-             </property>
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <layout class="QVBoxLayout" name="verticalLayout_8"/>
          </widget>
         </item>
         <item>
@@ -143,29 +95,23 @@
          </spacer>
         </item>
         <item>
-         <widget class="QWidget" name="horizontalWidget" native="true">
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QPushButton" name="buttonFinishSetup">
-             <property name="text">
-              <string>Finish setup</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
+         <widget class="QCommandLinkButton" name="buttonAdminSetup">
+          <property name="text">
+           <string>Restart as administrator and finish setup</string>
+          </property>
+          <property name="description">
+           <string>MiKTeX will be available for all users.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCommandLinkButton" name="buttonUserSetup">
+          <property name="text">
+           <string>Finish private setup</string>
+          </property>
+          <property name="description">
+           <string>MiKTeX will be available for your private use only.</string>
+          </property>
          </widget>
         </item>
         <item>
@@ -391,14 +337,81 @@
      <height>20</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionRestartAdmin"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionRestartAdmin">
    <property name="text">
-    <string>RestartAdmin</string>
+    <string>Restart as &amp;administrator</string>
+   </property>
+   <property name="toolTip">
+    <string>Restart this program as administrator</string>
+   </property>
+   <property name="statusTip">
+    <string>Restarts this application as administrator.</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>E&amp;xit</string>
+   </property>
+   <property name="toolTip">
+    <string>Exit</string>
+   </property>
+   <property name="statusTip">
+    <string>Quits the application.</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/miktex-16x16.png</normaloff>:/Icons/miktex-16x16.png</iconset>
+   </property>
+   <property name="text">
+    <string>About &amp;MiKTeX...</string>
+   </property>
+   <property name="toolTip">
+    <string>About</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows the version number and copying conditions.</string>
    </property>
   </action>
  </widget>
- <resources/>
- <connections/>
+ <resources>
+  <include location="console.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

@@ -1,5 +1,9 @@
 #!/usr/bin/env osascript
 
-set MiKTeXAdmin to POSIX path of ((path to me as text) & "::") & "MiKTeX --admin"
-
-do shell script MiKTeXAdmin with administrator privileges
+on run argv
+    set MiKTeX to POSIX path of ((path to me as text) & "::") & "MiKTeX"
+    repeat with i from 1 to number of items in argv
+        set MiKTeX to MiKTeX & " " & (item i of argv)
+    end repeat
+    do shell script MiKTeX with administrator privileges
+end run

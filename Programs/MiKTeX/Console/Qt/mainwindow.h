@@ -37,16 +37,34 @@ class MainWindow : public QMainWindow
   Q_OBJECT;
 
 private slots:
+  void EnableActions();
+
+private slots:
+  void AboutDialog();
+  
+private slots:
   void RestartAdmin();
 
 private slots:
-  void FinishSetup();
+  void on_buttonAdminSetup_clicked();
+
+private slots:
+  void on_buttonUserSetup_clicked();
 
 public:
   explicit MainWindow(QWidget* parent = nullptr);
 
+private:
+  void RestartAdminWithArguments(const std::vector<std::string>& args);
+
+private:
+  void FinishSetup();
+
 public:
   ~MainWindow();
+
+private:
+  bool isSetupMode = false;
 
 private:
   Ui::MainWindow* ui;
