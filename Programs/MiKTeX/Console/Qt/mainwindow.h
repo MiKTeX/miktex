@@ -51,17 +51,20 @@ private slots:
 private slots:
   void on_buttonUserSetup_clicked();
 
+public slots:
+  void FinishSetup();
+
 public:
   explicit MainWindow(QWidget* parent = nullptr);
+
+public:
+  ~MainWindow();
 
 private:
   void RestartAdminWithArguments(const std::vector<std::string>& args);
 
 private:
-  void FinishSetup();
-
-public:
-  ~MainWindow();
+  void UpdateWidgets();
 
 private:
   bool isSetupMode = false;

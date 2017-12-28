@@ -19,7 +19,11 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
+#include <QProgressDialog>
+#include <QTimer>
 #include <QtWidgets>
+
+#include <thread>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -28,6 +32,7 @@
 
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
+#include <miktex/Core/Process>
 #include <miktex/Core/Registry>
 #include <miktex/Core/Session>
 #include <miktex/UI/Qt/ErrorDialog>
@@ -63,23 +68,26 @@ MainWindow::MainWindow(QWidget* parent) :
     ui->adminMode->hide();
   }
 
-  if (Utils::CheckPath(false))
-  {
-    ui->hintPath->hide();
-  }
-
-  ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
-  ui->installdir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::InstallRoot).GetData()));
-
   connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(AboutDialog()));
   connect(ui->actionRestartAdmin, SIGNAL(triggered()), this, SLOT(RestartAdmin()));
 
+  UpdateWidgets();
   EnableActions();
 }
 
 MainWindow::~MainWindow()
 {
   delete ui;
+}
+
+void MainWindow::UpdateWidgets()
+{
+  if (Utils::CheckPath(false))
+  {
+    ui->hintPath->hide();
+  }
+  ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
+  ui->installdir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::InstallRoot).GetData()));
 }
 
 void MainWindow::EnableActions()
@@ -189,5 +197,60 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
 
 void MainWindow::FinishSetup()
 {
-  // TODO
+  try
+  {
+    PathName initexmf(session->GetSpecialPath(SpecialPath::BinDirectory));
+    initexmf /= MIKTEX_PATH_BIN_DIR;
+    initexmf /= MIKTEX_INITEXMF_EXE;
+    vector<string> commonArgs{ "--disable-installer" };
+    if (session->IsAdminMode())
+    {
+      commonArgs.push_back("--admin");
+    }
+    vector<vector<string>> stepArgs = {
+      { "--update-fndb" },
+      { "--force", "--mklinks" },
+      { "--update-fndb" },
+    };
+    QProgressDialog progress(tr("Finishing MiKTeX setup..."), tr("Cancel"), 0, (int)stepArgs.size(), this);
+    int exitCode = 0;
+    for (int step = 0; step < stepArgs.size() && !progress.wasCanceled() && exitCode == 0; ++step)
+    {
+      progress.setValue(step);
+      ProcessStartInfo si(initexmf);
+      si.Arguments = commonArgs;
+      si.Arguments.insert(si.Arguments.end(), stepArgs[step].begin(), stepArgs[step].end());
+      unique_ptr<Process> process = Process::Start(si);
+      while (!progress.wasCanceled() && !process->WaitForExit(100))
+      {
+      }
+      if (!progress.wasCanceled())
+      {
+        exitCode = process->get_ExitCode();
+      }
+    }
+    if (!progress.wasCanceled())
+    {
+      progress.setValue(stepArgs.size());
+    }
+    if (exitCode == 0 && !progress.wasCanceled())
+    {
+      isSetupMode = false;
+      ui->pages->setCurrentIndex(1);
+      UpdateWidgets();
+      EnableActions();
+    }
+    else
+    {
+      // TODO
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    ErrorDialog::DoModal(this, e);
+  }
+  catch (const exception& e)
+  {
+    ErrorDialog::DoModal(this, e);
+  }
 }

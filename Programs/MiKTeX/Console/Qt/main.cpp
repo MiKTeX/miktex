@@ -35,6 +35,7 @@ using namespace std;
 enum {
   OPT_AAA = 1,
   OPT_ADMIN,
+  OPT_FINISH_SETUP
 };
 
 namespace {
@@ -42,6 +43,10 @@ namespace {
     {
       "admin", 0, POPT_ARG_NONE, nullptr, OPT_ADMIN,
       "Run in administrator mode.", nullptr
+    },
+    {
+      "finish-setup", 0, POPT_ARG_NONE, nullptr, OPT_FINISH_SETUP,
+      "Finish the MiKTeX setup.", nullptr
     },
     POPT_TABLEEND
   };
@@ -55,6 +60,7 @@ int main(int argc, char* argv[])
   QApplication application(argc, argv);
   int ret = 0;
   bool optAdmin = false;
+  bool optFinishSetup = false;
   try
   {
     Session::InitInfo initInfo;
@@ -67,6 +73,9 @@ int main(int argc, char* argv[])
       {
       case OPT_ADMIN:
         optAdmin = true;
+        break;
+      case OPT_FINISH_SETUP:
+        optFinishSetup = true;
         break;
       }
     }
@@ -87,6 +96,10 @@ int main(int argc, char* argv[])
     }
     MainWindow mainWindow;
     mainWindow.show();
+    if (optFinishSetup)
+    {
+      QTimer::singleShot(100, &mainWindow, SLOT(FinishSetup()));
+    }
     ret = application.exec();
   }
   catch (const MiKTeXException& e)
