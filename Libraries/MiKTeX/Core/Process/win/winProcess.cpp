@@ -483,10 +483,10 @@ MIKTEXSTATICFUNC(vector<string>) Wrap(const string& commandLine)
   };
 }
 
-bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* lpszDirectory)
+bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* workingDirectory)
 {
   vector<string> arguments = Wrap(commandLine);
-  return Process::Run(arguments[0], arguments, callback, exitCode, lpszDirectory);
+  return Process::Run(arguments[0], arguments, callback, exitCode, workingDirectory);
 }
 
 void Process::StartSystemCommand(const string& commandLine)

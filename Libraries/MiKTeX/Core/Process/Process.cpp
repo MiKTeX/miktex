@@ -35,9 +35,9 @@ Process::~Process() noexcept
 {
 }
 
-void Process::Start(const PathName& fileName, const vector<string>& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory)
+void Process::Start(const PathName& fileName, const vector<string>& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* workingDirectory)
 {
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszWorkingDirectory);
+  MIKTEX_ASSERT_STRING_OR_NIL(workingDirectory);
 
   MIKTEX_ASSERT(pFileStandardInput == nullptr || ppFileStandardInput == nullptr);
 
@@ -52,34 +52,34 @@ void Process::Start(const PathName& fileName, const vector<string>& arguments, F
   startinfo.RedirectStandardOutput = ppFileStandardOutput != nullptr;
   startinfo.RedirectStandardError = ppFileStandardError != nullptr;
 
-  if (lpszWorkingDirectory != nullptr)
+  if (workingDirectory != nullptr)
   {
-    startinfo.WorkingDirectory = lpszWorkingDirectory;
+    startinfo.WorkingDirectory = workingDirectory;
   }
 
-  unique_ptr<Process> pProcess(Process::Start(startinfo));
+  unique_ptr<Process> process(Process::Start(startinfo));
 
   if (ppFileStandardInput != nullptr)
   {
-    *ppFileStandardInput = pProcess->get_StandardInput();
+    *ppFileStandardInput = process->get_StandardInput();
   }
 
   if (ppFileStandardOutput != nullptr)
   {
-    *ppFileStandardOutput = pProcess->get_StandardOutput();
+    *ppFileStandardOutput = process->get_StandardOutput();
   }
 
   if (ppFileStandardError != nullptr)
   {
-    *ppFileStandardError = pProcess->get_StandardError();
+    *ppFileStandardError = process->get_StandardError();
   }
 
-  pProcess->Close();
+  process->Close();
 }
 
-bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRunProcessCallback* callback, int* exitCode, const char* lpszWorkingDirectory)
+bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRunProcessCallback* callback, int* exitCode, const char* workingDirectory)
 {
-  MIKTEX_ASSERT_STRING_OR_NIL(lpszWorkingDirectory);
+  MIKTEX_ASSERT_STRING_OR_NIL(workingDirectory);
 
   ProcessStartInfo startinfo;
 
@@ -91,12 +91,12 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRu
   startinfo.RedirectStandardOutput = callback != nullptr;
   startinfo.RedirectStandardError = false;
 
-  if (lpszWorkingDirectory != nullptr)
+  if (workingDirectory != nullptr)
   {
-    startinfo.WorkingDirectory = lpszWorkingDirectory;
+    startinfo.WorkingDirectory = workingDirectory;
   }
 
-  unique_ptr<Process> pProcess(Process::Start(startinfo));
+  unique_ptr<Process> process(Process::Start(startinfo));
 
   if (callback != nullptr)
   {
@@ -104,7 +104,7 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRu
     const size_t CHUNK_SIZE = 64;
     char buf[CHUNK_SIZE];
     bool cancelled = false;
-    FileStream stdoutStream(pProcess->get_StandardOutput());
+    FileStream stdoutStream(process->get_StandardOutput());
     size_t total = 0;
     while (!cancelled && feof(stdoutStream.Get()) == 0)
     {
@@ -122,11 +122,11 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRu
   }
 
   // wait for the process to finish
-  pProcess->WaitForExit();
+  process->WaitForExit();
 
   // get the exit code & close process
-  int processExitCode = pProcess->get_ExitCode();
-  pProcess->Close();
+  int processExitCode = process->get_ExitCode();
+  process->Close();
   if (exitCode != nullptr)
   {
     *exitCode = processExitCode;
@@ -170,15 +170,15 @@ bool Process::ExecuteSystemCommand(const string& commandLine, int* exitCode)
 vector<string> Process::GetInvokerNames()
 {
   vector<string> result;
-  unique_ptr<Process> pProcess(Process::GetCurrentProcess());
-  unique_ptr<Process> pParentProcess(pProcess->get_Parent());
+  unique_ptr<Process> process(Process::GetCurrentProcess());
+  unique_ptr<Process> parentProcess(process->get_Parent());
   const int maxLevels = 3;
-  for (int level = 0; pParentProcess.get() != nullptr && level < maxLevels; ++level)
+  for (int level = 0; parentProcess.get() != nullptr && level < maxLevels; ++level)
   {
-    result.push_back(pParentProcess->get_ProcessName());
-    pParentProcess = pParentProcess->get_Parent();
+    result.push_back(parentProcess->get_ProcessName());
+    parentProcess = parentProcess->get_Parent();
   }
-  if (pParentProcess.get() != nullptr)
+  if (parentProcess.get() != nullptr)
   {
     result.push_back("...");
   }

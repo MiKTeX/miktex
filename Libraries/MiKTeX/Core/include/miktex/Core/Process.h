@@ -47,20 +47,20 @@ class MIKTEXNOVTABLE IRunProcessCallback
 {
   /// Output function. Called by the Process object if new output text
   /// is available.
-  /// @param pOutput Output text bytes.
+  /// @param output Output text bytes.
   /// @param n Number of output text bytes.
   /// @return Returns true, of the Process object shall continue.
 public:
-  virtual bool MIKTEXTHISCALL OnProcessOutput(const void* pOutput, std::size_t n) = 0;
+  virtual bool MIKTEXTHISCALL OnProcessOutput(const void* output, std::size_t n) = 0;
 
 #if 0
   /// Error function. Called by the Process object if new error text
   /// is available.
-  /// @param pError Error text bytes.
+  /// @param error Error text bytes.
   /// @param n Number of error text bytes.
   /// @return Returns true, of the Process object shall continue.
 public:
-  virtual bool MIKTEXTHISCALL OnProcessError(const void* pError, std::size_t n) = 0;
+  virtual bool MIKTEXTHISCALL OnProcessError(const void* error, std::size_t n) = 0;
 #endif
 };
 
@@ -206,37 +206,37 @@ public:
   static MIKTEXCORECEEAPI(std::vector<std::string>) GetInvokerNames();
 
   /// Start the system shell to execute a command.
-  /// @param lpszCommandLine Command to be executed.
+  /// @param commandLine Command to be executed.
 public:
   static MIKTEXCORECEEAPI(void) StartSystemCommand(const std::string& commandLine);
 
   /// Executes the system shell to execute a command.
-  /// @param lpszCommandLine Command to be executed.
+  /// @param commandLine Command to be executed.
   /// @return Returns true, if the command exited successfully.
 public:
   static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string& commandLine);
 
   /// Executes the system shell to execute a command.
-  /// @param lpszCommandLine Command to be executed.
-  /// @param pExitCode To be filled with the exit code of the command.
+  /// @param commandLine Command to be executed.
+  /// @param exitCode To be filled with the exit code of the command.
   /// @return Returns true, if the process exited successfully, or
-  /// if pExitCode isn't null.
+  /// if exitCode isn't null.
 public:
   static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string& commandLine, int* exitCode);
 
   /// Executes the system shell to execute a command.
-  /// @param lpszCommandLine Command to be executed.
-  /// @param pExitCode To be filled with the exit code of the command.
+  /// @param commandLine Command to be executed.
+  /// @param exitCode To be filled with the exit code of the command.
   /// @param callback Callback interface.
-  /// @param lpszWorkingDirectory Working directory for the command.
+  /// @param workingDirectory Working directory for the command.
   /// @return Returns true, if the process exited successfully, or
-  /// if pExitCode isn't null.
+  /// if exitCode isn't null.
 public:
-  static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* lpszWorkingDirectory);
+  static MIKTEXCORECEEAPI(bool) ExecuteSystemCommand(const std::string& commandLine, int* exitCode, IRunProcessCallback* callback, const char* workingDirectory);
 
   /// Executes a process.
-  /// @param lpszFileName The name of an executable file to run in the process.
-  /// @param lpszArguments The command-line arguments to pass when starting
+  /// @param fileName The name of an executable file to run in the process.
+  /// @param arguments The command-line arguments to pass when starting
   /// the process.
 public:
   static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::vector<std::string>& arguments);
@@ -251,13 +251,13 @@ public:
   static MIKTEXCORECEEAPI(void) Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback);
 
 public:
-  static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback, int* pExitCode, const char* lpszWorkingDirectory);
+  static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback, int* exitCode, const char* workingDirectory);
 
 public:
   static MIKTEXCORECEEAPI(std::unique_ptr<Process>) Start(const ProcessStartInfo& startinfo);
 
 public:
-  static MIKTEXCORECEEAPI(void) Start(const PathName& fileName, const std::vector<std::string>& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* lpszWorkingDirectory);
+  static MIKTEXCORECEEAPI(void) Start(const PathName& fileName, const std::vector<std::string>& arguments, FILE* pFileStandardInput, FILE** ppFileStandardInput, FILE** ppFileStandardOutput, FILE** ppFileStandardError, const char* workingDirectory);
 
 public:
   static void Start(const PathName& fileName)
