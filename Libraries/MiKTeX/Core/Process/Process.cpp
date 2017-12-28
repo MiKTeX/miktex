@@ -77,7 +77,7 @@ void Process::Start(const PathName& fileName, const vector<string>& arguments, F
   process->Close();
 }
 
-bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRunProcessCallback* callback, int* exitCode, const char* workingDirectory)
+bool Process::Run(const PathName& fileName, const vector<string>& arguments, function<bool(const void*, size_t)> callback, int* exitCode, const char* workingDirectory)
 {
   MIKTEX_ASSERT_STRING_OR_NIL(workingDirectory);
 
@@ -88,7 +88,7 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRu
 
   startinfo.StandardInput = nullptr;
   startinfo.RedirectStandardInput = false;
-  startinfo.RedirectStandardOutput = callback != nullptr;
+  startinfo.RedirectStandardOutput = callback ? true : false;
   startinfo.RedirectStandardError = false;
 
   if (workingDirectory != nullptr)
@@ -98,7 +98,7 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRu
 
   unique_ptr<Process> process(Process::Start(startinfo));
 
-  if (callback != nullptr)
+  if (callback)
   {
     SessionImpl::GetSession()->trace_process->WriteLine("core", "start reading the pipe");
     const size_t CHUNK_SIZE = 64;
@@ -116,7 +116,7 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRu
       }
       // pass output to caller
       total += n;
-      cancelled = !callback->OnProcessOutput(buf, n);
+      cancelled = !callback(buf, n);
     }
     SessionImpl::GetSession()->trace_process->WriteFormattedLine("core", "read %u bytes from the pipe", static_cast<unsigned>(total));
   }
@@ -141,6 +141,16 @@ bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRu
     SessionImpl::GetSession()->trace_error->WriteFormattedLine("core", "%s returned with exit code %d", Q_(fileName), static_cast<int>(processExitCode));
     return false;
   }
+}
+
+bool Process::Run(const PathName& fileName, const vector<string>& arguments, IRunProcessCallback* callback, int* exitCode, const char* workingDirectory)
+{
+  function<bool(const void*, size_t)> fcallback;
+  if (callback != nullptr)
+  {
+    fcallback = [callback](const void* output, size_t n) { return callback->OnProcessOutput(output, n); };
+  }
+  return Run(fileName, arguments, fcallback, exitCode, workingDirectory);
 }
 
 void Process::Run(const PathName& fileName, const vector<string>& arguments)

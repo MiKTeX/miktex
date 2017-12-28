@@ -34,6 +34,7 @@
 
 #include <algorithm>
 #include <array>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -252,6 +253,9 @@ public:
 
 public:
   static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::vector<std::string>& arguments, IRunProcessCallback* callback, int* exitCode, const char* workingDirectory);
+
+public:
+  static MIKTEXCORECEEAPI(bool) Run(const PathName& fileName, const std::vector<std::string>& arguments, std::function<bool(const void*, std::size_t)> callback, int* exitCode, const char* workingDirectory);
 
 public:
   static MIKTEXCORECEEAPI(std::unique_ptr<Process>) Start(const ProcessStartInfo& startinfo);
