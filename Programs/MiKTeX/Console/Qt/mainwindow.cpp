@@ -200,9 +200,8 @@ void MainWindow::FinishSetup()
   try
   {
     PathName initexmf(session->GetSpecialPath(SpecialPath::BinDirectory));
-    initexmf /= MIKTEX_PATH_BIN_DIR;
     initexmf /= MIKTEX_INITEXMF_EXE;
-    vector<string> commonArgs{ "--disable-installer" };
+    vector<string> commonArgs{ MIKTEX_INITEXMF_EXE, "--disable-installer" };
     if (session->IsAdminMode())
     {
       commonArgs.push_back("--admin");
@@ -212,17 +211,22 @@ void MainWindow::FinishSetup()
       { "--force", "--mklinks" },
       { "--update-fndb" },
     };
-    QProgressDialog progress(tr("Finishing MiKTeX setup..."), tr("Cancel"), 0, (int)stepArgs.size(), this);
+    int maxTime = 60;
+    QProgressDialog progress(tr("Finishing MiKTeX setup..."), tr("Cancel"), 0, maxTime, this);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setMinimumDuration(0);
     int exitCode = 0;
+    time_t start = time(nullptr);
     for (int step = 0; step < stepArgs.size() && !progress.wasCanceled() && exitCode == 0; ++step)
     {
-      progress.setValue(step);
       ProcessStartInfo si(initexmf);
       si.Arguments = commonArgs;
       si.Arguments.insert(si.Arguments.end(), stepArgs[step].begin(), stepArgs[step].end());
       unique_ptr<Process> process = Process::Start(si);
       while (!progress.wasCanceled() && !process->WaitForExit(100))
       {
+        int elapsed = time(nullptr) - start;
+        progress.setValue(elapsed > maxTime ? maxTime : elapsed);
       }
       if (!progress.wasCanceled())
       {
