@@ -1291,11 +1291,18 @@ void SetupServiceImpl::ConfigureMiKTeX()
       return;
     }
 
-    RunIniTeXMF({ "--rmfndb" });
+
+    if (options.Task != SetupTask::FinishSetup)
+    {
+      RunIniTeXMF({ "--rmfndb" });
+    }
 
     // register components, configure files
 #if defined(MIKTEX_WINDOWS)
-    RunMpm({ "--register-components" });
+    if (options.Task != SetupTask::FinishSetup)
+    {
+      RunMpm({ "--register-components" });
+    }
 #endif
 
     // create filename database files
@@ -1372,7 +1379,7 @@ PathName SetupServiceImpl::GetBinDir() const
   if (options.Task == SetupTask::FinishSetup)
   {
     shared_ptr<Session> session = Session::Get();
-    return session->GetMyLocation(true);
+    return session->GetSpecialPath(SpecialPath::BinDirectory);
   }
   else
   {
@@ -1395,6 +1402,7 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args)
     allArgs.push_back("--admin");
   }
   allArgs.push_back("--log-file=" + GetULogFileName().ToString());
+  allArgs.push_back("--disable-installer");
   allArgs.push_back("--verbose");
 
   // run initexmf.exe
