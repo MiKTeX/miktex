@@ -1,6 +1,6 @@
 /* internal.h:                                          -*- C++ -*-
 
-   Copyright (C) 2014-2016 Christian Schenk
+   Copyright (C) 2014-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -20,8 +20,8 @@
 #define T_(x) MIKTEXTEXT(x)
 #define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
-#define VA_START(arglist, lpszFormat   )        \
-va_start(arglist, lpszFormat);                  \
+#define VA_START(arglist, format)               \
+va_start(arglist, format);                      \
 try                                             \
 {
 

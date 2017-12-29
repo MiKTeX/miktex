@@ -77,19 +77,19 @@ public:
   virtual bool MIKTEXTHISCALL OnProgress(MiKTeX::Setup::Notification nf);
 
 public:
-  virtual bool MIKTEXTHISCALL OnProcessOutput(const void* pOutput, size_t n);
+  virtual bool MIKTEXTHISCALL OnProcessOutput(const void* output, size_t n);
 
 public:
   void Main(int argc, const char** argv);
 
 private:
-  void Verbose(const char* lpszFormat, ...);
+  void Verbose(const char* format, ...);
 
 private:
-  void Message(const char* lpszFormat, ...);
+  void Message(const char* format, ...);
 
 private:
-  MIKTEXNORETURN void Error(const char* lpszFormat, ...);
+  MIKTEXNORETURN void Error(const char* format, ...);
 
 private:
   static void SignalHandler(int sig);
@@ -295,35 +295,35 @@ const struct poptOption Application::aoption[] = {
 
 volatile sig_atomic_t Application::interrupted = false;
 
-void Application::Message(const char*  lpszFormat, ...)
+void Application::Message(const char*  format, ...)
 {
   if (quiet)
   {
     return;
   }
   va_list arglist;
-  VA_START(arglist, lpszFormat);
-  cout << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
+  VA_START(arglist, format);
+  cout << StringUtil::FormatStringVA(format, arglist) << endl;
   VA_END(arglist);
 }
 
-void Application::Verbose(const char* lpszFormat, ...)
+void Application::Verbose(const char* format, ...)
 {
   if (!verbose)
   {
     return;
   }
   va_list arglist;
-  VA_START(arglist, lpszFormat);
-  cout << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
+  VA_START(arglist, format);
+  cout << StringUtil::FormatStringVA(format, arglist) << endl;
   VA_END(arglist);
 }
 
-MIKTEXNORETURN void Application::Error(const char* lpszFormat, ...)
+MIKTEXNORETURN void Application::Error(const char* format, ...)
 {
   va_list arglist;
-  VA_START(arglist, lpszFormat);
-  cerr << "miktexsetup: " << StringUtil::FormatStringVA(lpszFormat, arglist) << endl;
+  VA_START(arglist, format);
+  cerr << "miktexsetup: " << StringUtil::FormatStringVA(format, arglist) << endl;
   VA_END(arglist);
   throw 1;
 }
@@ -343,11 +343,11 @@ bool Application::OnProgress(MiKTeX::Setup::Notification nf)
   return !interrupted;
 }
 
-bool Application::OnProcessOutput(const void* pOutput, size_t n)
+bool Application::OnProcessOutput(const void* output, size_t n)
 {
   if (verbose)
   {
-    cout.write(reinterpret_cast<const char*>(pOutput), n);
+    cout.write(reinterpret_cast<const char*>(output), n);
   }
   return !interrupted;
 }
