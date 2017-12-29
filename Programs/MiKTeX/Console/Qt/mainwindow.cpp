@@ -202,15 +202,24 @@ void MainWindow::FinishSetup()
     PathName initexmf(session->GetSpecialPath(SpecialPath::BinDirectory));
     initexmf /= MIKTEX_INITEXMF_EXE;
     vector<string> commonArgs{ MIKTEX_INITEXMF_EXE, "--disable-installer" };
+    vector<vector<string>> stepArgs;
     if (session->IsAdminMode())
     {
       commonArgs.push_back("--admin");
+      stepArgs = {
+        { "--update-fndb" },
+        { "--force", "--mklinks" },
+        { "--update-fndb" },
+      };
     }
-    vector<vector<string>> stepArgs = {
-      { "--update-fndb" },
-      { "--force", "--mklinks" },
-      { "--update-fndb" },
-    };
+    else
+    {
+      stepArgs = {
+        { "--update-fndb" },
+        { "--force", "--mklinks" },
+        { "--update-fndb" },
+      };
+    }
     int maxTime = 60;
     QProgressDialog progress(tr("Finishing MiKTeX setup..."), tr("Cancel"), 0, maxTime, this);
     progress.setWindowModality(Qt::WindowModal);
