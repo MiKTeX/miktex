@@ -133,7 +133,7 @@ unique_ptr<SetupService> SetupService::Create()
 #if defined(MIKTEX_WINDOWS)
   return make_unique<winSetupServiceImpl>();
 #else
-  MIKTEX_UNEXPECTED();
+  return make_unique<SetupServiceImpl>();
 #endif
 }
 
@@ -1332,11 +1332,14 @@ void SetupServiceImpl::ConfigureMiKTeX()
   }
 
   // set paper size
-  if (!options.PaperSize.empty())
+  if (options.Task != SetupTask::FinishSetup)
   {
-    RunIniTeXMF({ "--default-paper-size=" + options.PaperSize });
+    if (!options.PaperSize.empty())
+    {
+      RunIniTeXMF({ "--default-paper-size=" + options.PaperSize });
+    }
   }
-
+  
   // set auto-install
   string valueSpec = "[" MIKTEX_CONFIG_SECTION_MPM "]";
   valueSpec += MIKTEX_CONFIG_VALUE_AUTOINSTALL;
@@ -1401,7 +1404,10 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args)
   {
     allArgs.push_back("--admin");
   }
-  allArgs.push_back("--log-file=" + GetULogFileName().ToString());
+  if (options.Task != SetupTask::FinishSetup)
+  {
+    allArgs.push_back("--log-file=" + GetULogFileName().ToString());
+  }
   allArgs.push_back("--disable-installer");
   allArgs.push_back("--verbose");
 

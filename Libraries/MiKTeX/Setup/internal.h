@@ -227,7 +227,7 @@ public:
   virtual MIKTEXTHISCALL ~SetupServiceImpl();
 
 public:
-  virtual void MIKTEXTHISCALL Initialize() = 0;
+  void MIKTEXTHISCALL Initialize() override;
 
 public:
   virtual SetupOptions MIKTEXTHISCALL GetOptions()
@@ -281,18 +281,26 @@ public:
   }
 
 protected:
-  virtual void RegisterUninstaller() = 0;
+  virtual void RegisterUninstaller()
+  {
+  }
 
 protected:
-  virtual void UnregisterPath(bool shared) = 0;
+  virtual void UnregisterPath(bool shared)
+  {
+  }
 
 protected:
-  virtual void UnregisterShellFileTypes() = 0;
+  virtual void UnregisterShellFileTypes()
+  {
+  };
 
 protected:
-  virtual void RemoveRegistryKeys() = 0;
+  virtual void RemoveRegistryKeys()
+  {
+  }
 
-protected:
+public:
   SetupServiceImpl();
 
 protected:
