@@ -591,6 +591,15 @@ void SetupServiceImpl::SetCallback(SetupServiceCallback* pCallback)
   this->pCallback = pCallback;
 }
 
+void SetupServiceImpl::SetCallbacks(std::function<void(const string&)> f_ReportLine, function<bool(const string&)> f_OnRetryableError, function<bool(MiKTeX::Setup::Notification)> f_OnProgress, function<bool(const void*, size_t)> f_OnProcessOutput)
+{
+  myCallbacks.f_ReportLine = f_ReportLine;
+  myCallbacks.f_OnRetryableError = f_OnRetryableError;
+  myCallbacks.f_OnProgress = f_OnProgress;
+  myCallbacks.f_OnProcessOutput = f_OnProcessOutput;
+  this->pCallback = &myCallbacks;
+}
+
 void SetupServiceImpl::Run()
 {
   Initialize();

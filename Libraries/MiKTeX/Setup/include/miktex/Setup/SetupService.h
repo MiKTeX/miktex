@@ -44,6 +44,7 @@
     }                                           \
   }
 
+#include <functional>
 #include <memory>
 #include <string>
 
@@ -324,9 +325,12 @@ public:
   virtual ProgressInfo MIKTEXTHISCALL GetProgressInfo() = 0;
 
   /// Sets the callback interface.
-  /// @param pCallback Pointer to an interface.
+  /// @param callback Pointer to an interface.
 public:
   virtual void MIKTEXTHISCALL SetCallback(SetupServiceCallback* callback) = 0;
+
+public:
+  virtual void MIKTEXTHISCALL SetCallbacks(std::function<void(const std::string&)> f_ReportLine, std::function<bool(const std::string&)> f_OnRetryableError, std::function<bool(MiKTeX::Setup::Notification)> f_OnProgress, std::function<bool(const void*, size_t)> f_OnProcessOutput) = 0;
 
 public:
   virtual void MIKTEXTHISCALL Run() = 0;

@@ -269,6 +269,9 @@ public:
   virtual void SetCallback(SetupServiceCallback* callback);
 
 public:
+  void SetCallbacks(std::function<void(const std::string&)> f_ReportLine, std::function<bool(const std::string&)> f_OnRetryableError, std::function<bool(MiKTeX::Setup::Notification)> f_OnProgress, std::function<bool(const void*, size_t)> f_OnProcessOutput) override;
+
+public:
   virtual void Run();
 
 public:
@@ -409,6 +412,43 @@ protected:
 
 protected:
   LogFile logFile;
+
+protected:
+  class InternalCallbacks :
+    public SetupServiceCallback
+  {
+  public:
+    std::function<void(const std::string&)> f_ReportLine;
+  public:
+    void MIKTEXTHISCALL ReportLine(const std::string& str) override
+    {
+      if (f_ReportLine)
+      {
+        f_ReportLine(str);
+      }
+    }
+  public:
+    std::function<bool(const std::string&)> f_OnRetryableError;
+  public:
+    bool MIKTEXTHISCALL OnRetryableError(const std::string& message) override
+    {
+      return f_OnRetryableError ? f_OnRetryableError(message) : true;
+    }
+  public:
+    std::function<bool(MiKTeX::Setup::Notification)> f_OnProgress;
+  public:
+    bool MIKTEXTHISCALL OnProgress(MiKTeX::Setup::Notification nf) override
+    {
+      return f_OnProgress ? f_OnProgress(nf) : true;
+    }
+  public:
+    std::function<bool(const void*, size_t)> f_OnProcessOutput;
+  public:
+    bool MIKTEXTHISCALL OnProcessOutput(const void* output, size_t n) override
+    {
+      return f_OnProcessOutput ? f_OnProcessOutput(output, n) : true;
+    }
+  } myCallbacks;
 };
 
 void RemoveEmptyDirectoryChain(const MiKTeX::Core::PathName& directory);
