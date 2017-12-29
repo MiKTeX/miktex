@@ -1033,9 +1033,7 @@ void SetupServiceImpl::DoTheUninstallation()
     session->UnloadFilenameDatabase();
     if (options.IsThoroughly)
     {
-      for (vector<PathName>::const_iterator it = roots.begin();
-      it != roots.end();
-        ++it)
+      for (vector<PathName>::const_iterator it = roots.begin(); it != roots.end(); ++it)
       {
         if (Directory::Exists(*it))
         {
