@@ -305,6 +305,9 @@ protected:
   void DoTheInstallation();
 
 protected:
+  void DoFinishSetup();
+
+protected:
   void DoTheUninstallation();
 
 protected:
@@ -355,6 +358,9 @@ protected:
       return options.IsCommonSetup ? options.Config.commonInstallRoot : options.Config.userInstallRoot;
     }
   }
+
+protected:
+  MiKTeX::Core::PathName GetBinDir() const;
 
 protected:
   void ConfigureMiKTeX();

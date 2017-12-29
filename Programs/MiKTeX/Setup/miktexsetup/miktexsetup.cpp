@@ -397,6 +397,9 @@ void Application::PrintInfo()
   case SetupTask::InstallFromLocalRepository:
     task = "install from local package repository";
     break;
+  case SetupTask::FinishSetup:
+    task = "finish setup";
+    break;
   case SetupTask::Uninstall:
     task = "uninstall";
     break;
@@ -428,7 +431,7 @@ void Application::PrintInfo()
   {
     cout << "remote package repository: " << Q_(options.RemotePackageRepository) << endl;
   }
-  if (options.Task == SetupTask::InstallFromLocalRepository)
+  if (options.Task == SetupTask::InstallFromLocalRepository || options.Task == SetupTask::FinishSetup)
   {
     cout << "install for all users?: " << (options.IsCommonSetup ? "yes" : "no") << endl;
     cout << "portable? : " << (options.IsPortable ? "yes" : "no") << endl;
@@ -511,7 +514,7 @@ void Application::Main(int argc, const char** argv)
   string optPortableRoot;
 
   PoptWrapper popt(argc, argv, aoption);
-  popt.SetOtherOptionHelp("download|install|uninstall");
+  popt.SetOtherOptionHelp("download|install|finish|uninstall");
 
   int option;
 
@@ -690,6 +693,10 @@ void Application::Main(int argc, const char** argv)
   else if (leftovers[0] == "install")
   {
     setupOptions.Task = SetupTask::InstallFromLocalRepository;
+  }
+  else if (leftovers[0] == "finish")
+  {
+    setupOptions.Task = SetupTask::FinishSetup;
   }
   else if (leftovers[0] == "uninstall")
   {

@@ -64,6 +64,7 @@ enum class SetupTask
   InstallFromLocalRepository,
   InstallFromRemoteRepository, // <todo/>
   PrepareMiKTeXDirect,
+  FinishSetup,
   Uninstall
 };
 

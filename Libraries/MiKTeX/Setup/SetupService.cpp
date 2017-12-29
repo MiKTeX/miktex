@@ -609,6 +609,9 @@ void SetupServiceImpl::Run()
   case SetupTask::InstallFromLocalRepository:
     DoTheInstallation();
     break;
+  case SetupTask::FinishSetup:
+    DoFinishSetup();
+    break;
   case SetupTask::Uninstall:
     DoTheUninstallation();
     break;
@@ -974,6 +977,25 @@ void SetupServiceImpl::DoTheInstallation()
   }
 }
 
+void SetupServiceImpl::DoFinishSetup()
+{
+  ReportLine("finishing setup...");
+
+  // run IniTeXMF
+  ConfigureMiKTeX();
+
+  if (cancelled)
+  {
+    return;
+  }
+
+  // register path
+  if (options.IsRegisterPathEnabled)
+  {
+    Utils::CheckPath(true);
+  }
+}
+
 void SetupServiceImpl::DoTheUninstallation()
 {
   shared_ptr<Session> session = Session::Get();
@@ -1186,10 +1208,6 @@ void SetupServiceImpl::UnregisterComponents()
 
 void SetupServiceImpl::ConfigureMiKTeX()
 {
-  PathName initexmf(GetInstallRoot());
-  initexmf /= MIKTEX_PATH_BIN_DIR;
-  initexmf /= MIKTEX_INITEXMF_EXE;
-
   if (pCallback != nullptr && !pCallback->OnProgress(MiKTeX::Setup::Notification::ConfigureBegin))
   {
     cancelled = true;
@@ -1239,6 +1257,8 @@ void SetupServiceImpl::ConfigureMiKTeX()
         args.push_back("--create-config-file="s + MIKTEX_PATH_MIKTEX_INI);
         args.push_back("--set-config-value="s + "[" + MIKTEX_REGKEY_CORE + "]" + MIKTEX_REGVAL_NO_REGISTRY + "=1");
       }
+#else
+      args.push_back("--create-config-file="s + MIKTEX_PATH_MIKTEX_INI);
 #endif
       if (options.IsCommonSetup)
       {
@@ -1253,7 +1273,10 @@ void SetupServiceImpl::ConfigureMiKTeX()
     {
       args.push_back("--user-roots=" + options.Config.userRoots);
     }
-    RunIniTeXMF(args);
+    if (!args.empty())
+    {
+      RunIniTeXMF(args);
+    }
     if (cancelled)
     {
       return;
@@ -1262,7 +1285,9 @@ void SetupServiceImpl::ConfigureMiKTeX()
     RunIniTeXMF({ "--rmfndb" });
 
     // register components, configure files
+#if defined(MIKTEX_WINDOWS)
     RunMpm({ "--register-components" });
+#endif
 
     // create filename database files
     RunIniTeXMF({ "--update-fndb" });
@@ -1279,7 +1304,11 @@ void SetupServiceImpl::ConfigureMiKTeX()
     }
 
     // create font map files and language.dat
-    RunIniTeXMF({ "--mkmaps", "--mklangs" });
+    if (options.Task != SetupTask::FinishSetup)
+    {
+      RunIniTeXMF({ "--mkmaps", "--mklangs" });
+    }
+
     if (cancelled)
     {
       return;
@@ -1311,7 +1340,9 @@ void SetupServiceImpl::ConfigureMiKTeX()
 
   if (!options.IsPortable)
   {
+#if defined(MIKTEX_WINDOWS)
     RunIniTeXMF({ "--register-shell-file-types" });
+#endif
   }
 
   if (!options.IsPortable && options.IsRegisterPathEnabled)
@@ -1327,15 +1358,25 @@ void SetupServiceImpl::ConfigureMiKTeX()
   }
 }
 
+PathName SetupServiceImpl::GetBinDir() const
+{
+  if (options.Task == SetupTask::FinishSetup)
+  {
+    shared_ptr<Session> session = Session::Get();
+    return session->GetMyLocation(true);
+  }
+  else
+  {
+    return GetInstallRoot() / MIKTEX_PATH_BIN_DIR;
+  }
+}
+
 void SetupServiceImpl::RunIniTeXMF(const vector<string>& args)
 {
   shared_ptr<Session> session = Session::Get();
 
   // make absolute exe path name
-  PathName exePath;
-  exePath = GetInstallRoot();
-  exePath /= MIKTEX_PATH_BIN_DIR;
-  exePath /= MIKTEX_INITEXMF_EXE;
+  PathName exePath = GetBinDir() / MIKTEX_INITEXMF_EXE;
 
   // make command line
   vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
@@ -1362,10 +1403,7 @@ void SetupServiceImpl::RunMpm(const vector<string>& args)
 {
   shared_ptr<Session> session = Session::Get();
   // make absolute exe path name
-  PathName exePath;
-  exePath = GetInstallRoot();
-  exePath /= MIKTEX_PATH_BIN_DIR;
-  exePath /= MIKTEX_MPM_EXE;
+  PathName exePath = GetBinDir() / MIKTEX_PATH_BIN_DIR;
 
   // make command line
   vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
