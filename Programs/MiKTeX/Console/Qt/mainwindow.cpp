@@ -35,10 +35,12 @@
 #include <miktex/Core/Process>
 #include <miktex/Core/Registry>
 #include <miktex/Core/Session>
+#include <miktex/Setup/SetupService>
 #include <miktex/UI/Qt/ErrorDialog>
 #include <miktex/Util/StringUtil>
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Setup;
 using namespace MiKTeX::UI::Qt;
 using namespace MiKTeX::Util;
 using namespace std;
@@ -197,73 +199,41 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
 
 void MainWindow::FinishSetup()
 {
-  try
-  {
-    PathName initexmf(session->GetSpecialPath(SpecialPath::BinDirectory));
-    initexmf /= MIKTEX_INITEXMF_EXE;
-    vector<string> commonArgs{ MIKTEX_INITEXMF_EXE, "--disable-installer" };
-    vector<vector<string>> stepArgs;
-    if (session->IsAdminMode())
-    {
-      commonArgs.push_back("--admin");
-      stepArgs = {
-        { "--update-fndb" },
-        { "--force", "--mklinks" },
-        { "--update-fndb" },
-      };
-    }
-    else
-    {
-      stepArgs = {
-        { "--update-fndb" },
-        { "--force", "--mklinks" },
-        { "--update-fndb" },
-      };
-    }
-    int maxTime = 60;
-    QProgressDialog progress(tr("Finishing MiKTeX setup..."), tr("Cancel"), 0, maxTime, this);
-    progress.setWindowModality(Qt::WindowModal);
-    progress.setMinimumDuration(0);
-    int exitCode = 0;
-    time_t start = time(nullptr);
-    for (int step = 0; step < stepArgs.size() && !progress.wasCanceled() && exitCode == 0; ++step)
-    {
-      ProcessStartInfo si(initexmf);
-      si.Arguments = commonArgs;
-      si.Arguments.insert(si.Arguments.end(), stepArgs[step].begin(), stepArgs[step].end());
-      unique_ptr<Process> process = Process::Start(si);
-      while (!progress.wasCanceled() && !process->WaitForExit(100))
-      {
-        int elapsed = time(nullptr) - start;
-        progress.setValue(elapsed > maxTime ? maxTime : elapsed);
-      }
-      if (!progress.wasCanceled())
-      {
-        exitCode = process->get_ExitCode();
-      }
-    }
+  int maxTime = 60;
+  time_t start = time(nullptr);
+  QProgressDialog progress(tr("Finishing MiKTeX setup..."), tr("Cancel"), 0, maxTime, this);
+  progress.setWindowModality(Qt::WindowModal);
+  progress.setMinimumDuration(0);
+  function<bool(MiKTeX::Setup::Notification)> onProgress = [maxTime, start, &progress](MiKTeX::Setup::Notification nf) {
     if (!progress.wasCanceled())
     {
-      progress.setValue(stepArgs.size());
+      int elapsed = time(nullptr) - start;
+      progress.setValue(elapsed > maxTime ? maxTime : elapsed);
     }
-    if (exitCode == 0 && !progress.wasCanceled())
+    return !progress.wasCanceled();
+  };
+  try
+  {
+    unique_ptr<SetupService> service = SetupService::Create();
+    SetupOptions options = service->GetOptions();
+    options.Task = SetupTask::FinishSetup;
+    options.IsCommonSetup = session->IsAdminMode();
+    service->SetOptions(options);
+    service->SetCallbacks({}, {}, onProgress, {});
+    service->Run();
+    if (!progress.wasCanceled())
     {
-      isSetupMode = false;
-      ui->pages->setCurrentIndex(1);
-      UpdateWidgets();
-      EnableActions();
-    }
-    else
-    {
-      // TODO
+      progress.setValue(maxTime);
     }
   }
   catch (const MiKTeXException& e)
   {
+    progress.setValue(maxTime);
     ErrorDialog::DoModal(this, e);
   }
   catch (const exception& e)
   {
+    progress.setValue(maxTime);
     ErrorDialog::DoModal(this, e);
   }
 }

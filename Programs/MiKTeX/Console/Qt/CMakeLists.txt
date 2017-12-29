@@ -82,6 +82,7 @@ set(sources
 set(libs
   ${core_dll_name}
   ${mpm_dll_name}
+  ${setup_dll_name}
   ${ui_qt_dll_name}
   Qt5::Widgets
   miktex-popt-wrapper
