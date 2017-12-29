@@ -43,7 +43,7 @@ using namespace std::string_literals;
 #define COMPLETE_MIKTEX_LEGACY "\"Total MiKTeX\""
 #define ESSENTIAL_MIKTEX "\"Essential MiKTeX\""
 
-SETUPSTATICFUNC(int) ComparePaths(const PathName & path1, const PathName & path2, bool shortify)
+SETUPSTATICFUNC(int) ComparePaths(const PathName& path1, const PathName& path2, bool shortify)
 {
 #if defined(MIKTEX_WINDOWS)
   wchar_t szShortPath1[BufferSizes::MaxPath];
@@ -61,7 +61,7 @@ SETUPSTATICFUNC(int) ComparePaths(const PathName & path1, const PathName & path2
 
 BEGIN_INTERNAL_NAMESPACE;
 
-void RemoveEmptyDirectoryChain(const PathName & directory)
+void RemoveEmptyDirectoryChain(const PathName& directory)
 {
   unique_ptr<DirectoryLister> pLister = DirectoryLister::Open(directory);
   DirectoryEntry dirEntry;
@@ -87,9 +87,9 @@ void RemoveEmptyDirectoryChain(const PathName & directory)
   RemoveEmptyDirectoryChain(parentDir);
 }
 
-bool Contains(const vector<PathName> & vec, const PathName & pathName)
+bool Contains(const vector<PathName>& vec, const PathName& pathName)
 {
-  for (const PathName & p : vec)
+  for (const PathName& p : vec)
   {
     if (p == pathName)
     {
@@ -160,7 +160,7 @@ PathName SetupService::GetDefaultLocalRepository()
   return ret;
 }
 
-PackageLevel SetupService::SearchLocalRepository(PathName & localRepository, PackageLevel requestedPackageLevel, bool & prefabricated)
+PackageLevel SetupService::SearchLocalRepository(PathName& localRepository, PackageLevel requestedPackageLevel, bool& prefabricated)
 {
   PackageLevel packageLevel_ = PackageLevel::None;
 
@@ -210,7 +210,7 @@ PackageLevel SetupService::SearchLocalRepository(PathName & localRepository, Pac
   return PackageLevel::None;
 }
 
-PackageLevel SetupService::TestLocalRepository(const PathName & pathRepository, PackageLevel requestedPackageLevel)
+PackageLevel SetupService::TestLocalRepository(const PathName& pathRepository, PackageLevel requestedPackageLevel)
 {
   PathName pathInfoFile(pathRepository, DOWNLOAD_INFO_FILE);
   if (!File::Exists(pathInfoFile))
@@ -252,7 +252,7 @@ PackageLevel SetupService::TestLocalRepository(const PathName & pathRepository, 
   return packageLevel_;
 }
 
-bool SetupService::IsMiKTeXDirect(PathName & root)
+bool SetupService::IsMiKTeXDirect(PathName& root)
 {
   // check ..\texmf\miktex\config\miktexstartup.ini
   shared_ptr<Session> session = Session::Get();
@@ -318,7 +318,7 @@ unique_ptr<TemporaryDirectory> SetupService::ExtractFiles()
   return nullptr;
 }
 
-SetupOptions SetupServiceImpl::SetOptions(const SetupOptions & options)
+SetupOptions SetupServiceImpl::SetOptions(const SetupOptions& options)
 {
   this->options = options;
   CompleteOptions(false);
@@ -433,7 +433,7 @@ void SetupServiceImpl::LogHeader()
 {
   Log(T_("%s %s Report\n\n"), options.Banner.c_str(), options.Version.c_str());
   time_t t = time(nullptr);
-  struct tm * pTm = localtime(&t);
+  struct tm* pTm = localtime(&t);
   char dateString[128];
   strftime(dateString, 128, "%A, %B %d, %Y", pTm);
   char timeString[128];
@@ -473,15 +473,15 @@ void SetupServiceImpl::LogHeader()
   }
 }
 
-void SetupServiceImpl::Log(const char * lpszFormat, ...)
+void SetupServiceImpl::Log(const char* format, ...)
 {
   va_list argList;
-  va_start(argList, lpszFormat);
-  LogV(lpszFormat, argList);
+  va_start(argList, format);
+  LogV(format, argList);
   va_end(argList);
 }
 
-void SetupServiceImpl::LogV(const char * lpszFormat, va_list argList)
+void SetupServiceImpl::LogV(const char* format, va_list argList)
 {
 #if 0
   lock_guard<mutex> lockGuard(logStreamMutex);
@@ -491,9 +491,9 @@ void SetupServiceImpl::LogV(const char * lpszFormat, va_list argList)
     logging = true;
     LogHeader();
   }
-  string formatted = StringUtil::FormatStringVA(lpszFormat, argList);
+  string formatted = StringUtil::FormatStringVA(format, argList);
   static string currentLine;
-  for (const char * lpsz = formatted.c_str(); *lpsz != 0; ++lpsz)
+  for (const char* lpsz = formatted.c_str(); *lpsz != 0; ++lpsz)
   {
     if (lpsz[0] == '\n' || (lpsz[0] == '\r' && lpsz[1] == '\n'))
     {
@@ -567,7 +567,7 @@ void SetupServiceImpl::ULogClose(bool finalize)
   uninstStream.Close();
 }
 
-void SetupServiceImpl::ULogAddFile(const PathName & path)
+void SetupServiceImpl::ULogAddFile(const PathName& path)
 {
   if (!uninstStream.IsOpen())
   {
@@ -586,7 +586,7 @@ void SetupServiceImpl::ULogAddFile(const PathName & path)
   uninstStream.WriteLine(absolutePath.GetData());
 }
 
-void SetupServiceImpl::SetCallback(SetupServiceCallback * pCallback)
+void SetupServiceImpl::SetCallback(SetupServiceCallback* pCallback)
 {
   this->pCallback = pCallback;
 }
@@ -982,7 +982,7 @@ void SetupServiceImpl::DoTheUninstallation()
   {
     UnregisterShellFileTypes();
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportLine(e.what());
   }
@@ -999,7 +999,7 @@ void SetupServiceImpl::DoTheUninstallation()
     }
     UnregisterPath(false);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportLine(e.what());
   }
@@ -1008,7 +1008,7 @@ void SetupServiceImpl::DoTheUninstallation()
   {
     UnregisterComponents();
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportLine(e.what());
   }
@@ -1019,7 +1019,7 @@ void SetupServiceImpl::DoTheUninstallation()
     {
       logFile.Process();
     }
-    catch (const exception & e)
+    catch (const exception& e)
     {
       ReportLine(e.what());
     }
@@ -1120,7 +1120,7 @@ void SetupServiceImpl::DoTheUninstallation()
       }
     }
 }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportLine(e.what());
   }
@@ -1129,7 +1129,7 @@ void SetupServiceImpl::DoTheUninstallation()
   {
     RemoveRegistryKeys();
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportLine(e.what());
   }
@@ -1392,7 +1392,7 @@ void SetupServiceImpl::RunMpm(const vector<string>& args)
 void SetupServiceImpl::CreateInfoFile()
 {
   StreamWriter stream(PathName(options.LocalPackageRepository, DOWNLOAD_INFO_FILE));
-  const char * lpszPackageSet;
+  const char* lpszPackageSet;
   switch (options.PackageLevel)
   {
   case PackageLevel::Essential:
@@ -1482,7 +1482,7 @@ SetupService::ProgressInfo SetupServiceImpl::GetProgressInfo()
   return progressInfo;
 }
 
-bool SetupServiceImpl::OnProcessOutput(const void * pOutput, size_t n)
+bool SetupServiceImpl::OnProcessOutput(const void* pOutput, size_t n)
 {
   if (pCallback != nullptr && !pCallback->OnProcessOutput(pOutput, n))
   {
@@ -1492,7 +1492,7 @@ bool SetupServiceImpl::OnProcessOutput(const void * pOutput, size_t n)
   return true;
 }
 
-void SetupServiceImpl::ReportLine(const string & str)
+void SetupServiceImpl::ReportLine(const string& str)
 {
   if (pCallback != nullptr)
   {
@@ -1500,7 +1500,7 @@ void SetupServiceImpl::ReportLine(const string & str)
   }
 }
 
-bool SetupServiceImpl::OnRetryableError(const string & message)
+bool SetupServiceImpl::OnRetryableError(const string& message)
 {
   if (pCallback != nullptr && !pCallback->OnRetryableError(message))
   {
@@ -1549,9 +1549,9 @@ bool SetupServiceImpl::OnProgress(MiKTeX::Packages::Notification nf)
   return true;
 }
 
-wstring & SetupServiceImpl::Expand(const char * lpszSource, wstring & dest)
+wstring& SetupServiceImpl::Expand(const char* source, wstring& dest)
 {
-  dest = StringUtil::UTF8ToWideChar(lpszSource);
+  dest = StringUtil::UTF8ToWideChar(source);
   wstring::size_type pos;
   while ((pos = dest.find(L"%MIKTEX_INSTALL%")) != wstring::npos)
   {
@@ -1560,7 +1560,7 @@ wstring & SetupServiceImpl::Expand(const char * lpszSource, wstring & dest)
   return dest;
 }
 
-bool SetupServiceImpl::FindFile(const PathName & fileName, PathName & result)
+bool SetupServiceImpl::FindFile(const PathName& fileName, PathName& result)
 {
   shared_ptr<Session> session = Session::Get();
 

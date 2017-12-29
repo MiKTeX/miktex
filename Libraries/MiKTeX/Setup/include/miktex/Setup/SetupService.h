@@ -1,6 +1,6 @@
 /* miktex/Setup/SetupService.h:                         -*- C++ -*-
 
-   Copyright (C) 2013-2016 Christian Schenk
+   Copyright (C) 2013-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -167,14 +167,14 @@ class MIKTEXNOVTABLE SetupServiceCallback
   /// is available.
   /// @param lpszLine One-line message.
 public:
-  virtual void MIKTEXTHISCALL ReportLine(const std::string & str) = 0;
+  virtual void MIKTEXTHISCALL ReportLine(const std::string& str) = 0;
 
   /// Error handling. This method is called by the installer if a
   /// problem was detected which can be remedied by the user.
   /// @param lpszMessage Message to be presented to the user.
   /// @returns Returns true, if the user has fixed the problem.
 public:
-  virtual bool MIKTEXTHISCALL OnRetryableError(const std::string & message) = 0;
+  virtual bool MIKTEXTHISCALL OnRetryableError(const std::string& message) = 0;
 
   /// Progress. This method is called by the installer if new
   /// progress information is available. Also gives the opportunity
@@ -186,11 +186,11 @@ public:
 
   /// Output function. Called by the Process object if new output text
   /// is available.
-  /// @param pOutput Output text bytes.
+  /// @param output Output text bytes.
   /// @param n Number of output text bytes.
   /// @return Returns true, of the Process object shall continue.
 public:
-  virtual bool MIKTEXTHISCALL OnProcessOutput(const void * pOutput, size_t n) = 0;
+  virtual bool MIKTEXTHISCALL OnProcessOutput(const void* output, size_t n) = 0;
 };
 
 class MIKTEXNOVTABLE SetupService
@@ -205,7 +205,7 @@ public:
   virtual SetupOptions MIKTEXTHISCALL GetOptions() = 0;
 
 public:
-  virtual SetupOptions MIKTEXTHISCALL SetOptions(const SetupOptions & options) = 0;
+  virtual SetupOptions MIKTEXTHISCALL SetOptions(const SetupOptions& options) = 0;
 
 public:
   virtual void MIKTEXTHISCALL OpenLog() = 0;
@@ -214,10 +214,10 @@ public:
   virtual MiKTeX::Core::PathName MIKTEXTHISCALL CloseLog(bool cancel) = 0;
 
 public:
-  virtual void MIKTEXCEECALL Log(const char * lpszFormat, ...) = 0;
+  virtual void MIKTEXCEECALL Log(const char* format, ...) = 0;
 
 public:
-  virtual void MIKTEXTHISCALL LogV(const char * lpszFormat, va_list argList) = 0;
+  virtual void MIKTEXTHISCALL LogV(const char* format, va_list argList) = 0;
 
 public:
   virtual void MIKTEXTHISCALL ULogOpen() = 0;
@@ -229,11 +229,11 @@ public:
   virtual MiKTeX::Core::PathName MIKTEXTHISCALL GetULogFileName() = 0;
 
 public:
-  virtual void ULogAddFile(const MiKTeX::Core::PathName & path) = 0;
+  virtual void ULogAddFile(const MiKTeX::Core::PathName& path) = 0;
 
 #if defined(MIKTEX_WINDOWS)
 public:
-  virtual void ULogAddRegValue(HKEY hkey, const std::string & valueName, const std::string & value) = 0;
+  virtual void ULogAddRegValue(HKEY hkey, const std::string& valueName, const std::string& value) = 0;
 #endif
 
   /// Progress info struct.
@@ -325,7 +325,7 @@ public:
   /// Sets the callback interface.
   /// @param pCallback Pointer to an interface.
 public:
-  virtual void MIKTEXTHISCALL SetCallback(SetupServiceCallback * pCallback) = 0;
+  virtual void MIKTEXTHISCALL SetCallback(SetupServiceCallback* callback) = 0;
 
 public:
   virtual void MIKTEXTHISCALL Run() = 0;
@@ -339,13 +339,13 @@ public:
   static MIKTEXSETUPCEEAPI(std::unique_ptr<SetupService>) Create();
 
 public:
-  static MIKTEXSETUPCEEAPI(MiKTeX::Packages::PackageLevel) TestLocalRepository(const MiKTeX::Core::PathName & pathRepository, MiKTeX::Packages::PackageLevel requestedPackageLevel);
+  static MIKTEXSETUPCEEAPI(MiKTeX::Packages::PackageLevel) TestLocalRepository(const MiKTeX::Core::PathName& pathRepository, MiKTeX::Packages::PackageLevel requestedPackageLevel);
 
 public:
   static MIKTEXSETUPCEEAPI(MiKTeX::Core::PathName) GetDefaultLocalRepository();
 
 public:
-  static MIKTEXSETUPCEEAPI(MiKTeX::Packages::PackageLevel) SearchLocalRepository(MiKTeX::Core::PathName & localRepository, MiKTeX::Packages::PackageLevel requestedPackageLevel, bool & prefabricated);
+  static MIKTEXSETUPCEEAPI(MiKTeX::Packages::PackageLevel) SearchLocalRepository(MiKTeX::Core::PathName& localRepository, MiKTeX::Packages::PackageLevel requestedPackageLevel, bool& prefabricated);
 
 public:
   static MIKTEXSETUPCEEAPI(MiKTeX::Core::PathName) GetDefaultCommonInstallDir();
@@ -357,7 +357,7 @@ public:
   static MIKTEXSETUPCEEAPI(MiKTeX::Core::PathName) GetDefaultPortableRoot();
 
 public:
-  static MIKTEXSETUPCEEAPI(bool) IsMiKTeXDirect(MiKTeX::Core::PathName & MiKTeXDirectRoot);
+  static MIKTEXSETUPCEEAPI(bool) IsMiKTeXDirect(MiKTeX::Core::PathName& MiKTeXDirectRoot);
 
 public:
   static MIKTEXSETUPCEEAPI(std::unique_ptr<MiKTeX::Core::TemporaryDirectory>) ExtractFiles();

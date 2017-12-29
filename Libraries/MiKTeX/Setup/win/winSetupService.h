@@ -1,6 +1,6 @@
 /* winSetupService.h: internal definitions              -*- C++ -*-
 
-   Copyright (C) 2014-2016 Christian Schenk
+   Copyright (C) 2014-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -22,20 +22,21 @@ BEGIN_INTERNAL_NAMESPACE;
 struct ShellLinkData
 {
   bool isUrl;
-  const char * lpszFolder;
-  const char * lpszName;
-  const char * lpszPathName;
+  const char* lpszFolder;
+  const char* lpszName;
+  const char* lpszPathName;
   unsigned long flags;
-  const char * lpszDescription;
-  const char * lpszArgs;
-  const char * lpszIconPath;
+  const char* lpszDescription;
+  const char* lpszArgs;
+  const char* lpszIconPath;
   int iconIndex;
-  const char * lpszWorkingDir;
+  const char* lpszWorkingDir;
   int showCmd;
   WORD hotKey;
 };
 
-class winSetupServiceImpl : public SetupServiceImpl
+class winSetupServiceImpl :
+  public SetupServiceImpl
 {
 public:
   winSetupServiceImpl();
@@ -44,7 +45,7 @@ public:
   virtual void Initialize();
 
 private:
-  virtual void ULogAddRegValue(HKEY hkey, const std::string & valueName, const std::string & value);
+  virtual void ULogAddRegValue(HKEY hkey, const std::string& valueName, const std::string& value);
 
 private:
   virtual void CreateProgramIcons();
@@ -62,31 +63,31 @@ private:
   virtual void UnregisterPath(bool shared);
 
 private:
-  void RemoveRegistryKey(HKEY hkeyRoot, const MiKTeX::Core::PathName & subKey);
+  void RemoveRegistryKey(HKEY hkeyRoot, const MiKTeX::Core::PathName& subKey);
 
 private:
-  bool Exists(HKEY hkeyRoot, const MiKTeX::Core::PathName & subKey);
+  bool Exists(HKEY hkeyRoot, const MiKTeX::Core::PathName& subKey);
 
 private:
-  bool IsEmpty(HKEY hkeyRoot, const MiKTeX::Core::PathName & subKey);
+  bool IsEmpty(HKEY hkeyRoot, const MiKTeX::Core::PathName& subKey);
 
 private:
-  bool winSetupServiceImpl::RemoveBinDirFromPath(std::string & path);
+  bool winSetupServiceImpl::RemoveBinDirFromPath(std::string& path);
 
 private:
-  void AddUninstallerRegValue(HKEY hkey, const char * lpszValueName, const char * lpszValue);
+  void AddUninstallerRegValue(HKEY hkey, const char* valueName, const char* value);
 
 private:
-  void AddUninstallerRegValue(HKEY hkey, const char * lpszValueName, DWORD value);
+  void AddUninstallerRegValue(HKEY hkey, const char* valueName, DWORD value);
 
 private:
   MiKTeX::Core::PathName CreateProgramFolder();
 
 private:
-  void CreateShellLink(const MiKTeX::Core::PathName & pathFolder, const ShellLinkData & ld);
+  void CreateShellLink(const MiKTeX::Core::PathName& pathFolder, const ShellLinkData& ld);
 
 private:
-  void CreateInternetShortcut(const MiKTeX::Core::PathName & path, const char * lpszUrl);
+  void CreateInternetShortcut(const MiKTeX::Core::PathName& path, const char* url);
 };
 
 END_INTERNAL_NAMESPACE;

@@ -114,7 +114,7 @@ BEGIN_INTERNAL_NAMESPACE;
 
 #define ARRAY_SIZE(buf) (sizeof(buf)/sizeof(buf[0]))
 
-inline void AssertValidBuf(void * lp, size_t n)
+inline void AssertValidBuf(void* lp, size_t n)
 {
 #if defined(MIKTEX_DEBUG)
   MIKTEX_ASSERT(lp != 0);
@@ -127,7 +127,7 @@ inline void AssertValidBuf(void * lp, size_t n)
 #endif
 }
 
-inline void AssertValidString(const char * lp, size_t n = 4096)
+inline void AssertValidString(const char* lp, size_t n = 4096)
 {
 #if defined(MIKTEX_DEBUG)
   MIKTEX_ASSERT(lp != 0);
@@ -143,13 +143,13 @@ inline void AssertValidString(const char * lp, size_t n = 4096)
 class LogFile
 {
 public:
-  void SetCallback(class SetupServiceImpl * pService)
+  void SetCallback(class SetupServiceImpl* service)
   {
-    this->pService = pService;
+    this->pService = service;
   }
 
 public:
-  void SetLogFileName(const MiKTeX::Core::PathName & logFileName)
+  void SetLogFileName(const MiKTeX::Core::PathName& logFileName)
   {
     this->logFileName = logFileName;
   }
@@ -184,7 +184,7 @@ private:
   void AddPackages();
 
 private:
-  void AddFile(const MiKTeX::Core::PathName & path);
+  void AddFile(const MiKTeX::Core::PathName& path);
 
 private:
   MiKTeX::Core::PathName currentFile;
@@ -212,7 +212,7 @@ private:
 #endif
 
 private:
-  class SetupServiceImpl * pService = 0;
+  class SetupServiceImpl* pService = 0;
 
 private:
   MiKTeX::Core::PathName logFileName;
@@ -236,7 +236,7 @@ public:
   }
 
 public:
-  virtual SetupOptions MIKTEXTHISCALL SetOptions(const SetupOptions & options);
+  virtual SetupOptions MIKTEXTHISCALL SetOptions(const SetupOptions& options);
 
 public:
   virtual void MIKTEXTHISCALL OpenLog();
@@ -245,10 +245,10 @@ public:
   virtual MiKTeX::Core::PathName MIKTEXTHISCALL CloseLog(bool cancel);
 
 public:
-  virtual void MIKTEXCEECALL Log(const char * lpszFormat, ...);
+  virtual void MIKTEXCEECALL Log(const char* format, ...);
 
 public:
-  virtual void MIKTEXTHISCALL LogV(const char * lpszFormat, va_list argList);
+  virtual void MIKTEXTHISCALL LogV(const char* format, va_list argList);
 
 public:
   virtual void ULogOpen();
@@ -260,13 +260,13 @@ public:
   virtual MiKTeX::Core::PathName GetULogFileName();
 
 public:
-  virtual void ULogAddFile(const MiKTeX::Core::PathName & path);
+  virtual void ULogAddFile(const MiKTeX::Core::PathName& path);
 
 public:
   virtual ProgressInfo GetProgressInfo();
 
 public:
-  virtual void SetCallback(SetupServiceCallback * pCallback);
+  virtual void SetCallback(SetupServiceCallback* callback);
 
 public:
   virtual void Run();
@@ -308,13 +308,13 @@ protected:
   void DoTheUninstallation();
 
 protected:
-  virtual bool OnProcessOutput(const void * pOutput, size_t n);
+  virtual bool OnProcessOutput(const void* output, size_t n);
 
 protected:
-  virtual void ReportLine(const std::string & str);
+  virtual void ReportLine(const std::string& str);
 
 protected:
-  virtual bool OnRetryableError(const std::string & message);
+  virtual bool OnRetryableError(const std::string& message);
 
 protected:
   virtual bool OnProgress(MiKTeX::Packages::Notification nf);
@@ -366,10 +366,10 @@ protected:
   void RunMpm(const std::vector<std::string>& args);
 
 protected:
-  std::wstring & Expand(const char * lpszSource, std::wstring & dest);
+  std::wstring& Expand(const char* source, std::wstring& dest);
 
 protected:
-  bool FindFile(const MiKTeX::Core::PathName & fileName, MiKTeX::Core::PathName & result);
+  bool FindFile(const MiKTeX::Core::PathName& fileName, MiKTeX::Core::PathName& result);
 
 protected:
   void CreateInfoFile();
@@ -399,13 +399,13 @@ protected:
   std::shared_ptr<MiKTeX::Packages::PackageInstaller> pInstaller;
 
 protected:
-  SetupServiceCallback * pCallback = nullptr;
+  SetupServiceCallback* pCallback = nullptr;
 
 protected:
   LogFile logFile;
 };
 
-void RemoveEmptyDirectoryChain(const MiKTeX::Core::PathName & directory);
+void RemoveEmptyDirectoryChain(const MiKTeX::Core::PathName& directory);
 
 END_INTERNAL_NAMESPACE;
 

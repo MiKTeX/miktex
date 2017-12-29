@@ -1,6 +1,6 @@
 /* LogFile.cpp:
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2017 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -26,7 +26,7 @@ using namespace MiKTeX::Trace;
 using namespace MiKTeX::Util;
 using namespace std;
 
-bool SkipPrefix(const string & str, const char * lpszPrefix, string & str2)
+bool SkipPrefix(const string& str, const char* lpszPrefix, string& str2)
 {
   size_t n = StrLen(lpszPrefix);
   if (str.compare(0, n, lpszPrefix) != 0)
@@ -38,7 +38,7 @@ bool SkipPrefix(const string & str, const char * lpszPrefix, string & str2)
 }
 
 
-void LogFile::AddFile(const PathName & path)
+void LogFile::AddFile(const PathName& path)
 {
   shared_ptr<Session> session = Session::Get();
   string fileName;
