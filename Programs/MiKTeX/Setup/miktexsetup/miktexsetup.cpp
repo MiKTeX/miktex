@@ -150,25 +150,25 @@ const struct poptOption Application::aoption[] = {
   {
     "common-config", 0, POPT_ARG_STRING, nullptr, OPT_COMMON_CONFIG,
     T_("Set the location of the common configuration directory. This option requires administrator privileges."),
-    "DIR"
+    T_("DIR")
   },
 
   {
     "common-data", 0, POPT_ARG_STRING, nullptr, OPT_COMMON_DATA,
     T_("Set the location of the common data directory. This option requires administrator privileges."),
-    "DIR"
+    T_("DIR")
   },
 
   {
     "common-install", 0, POPT_ARG_STRING, nullptr, OPT_COMMON_INSTALL,
     T_("Set the location of the common installation directory. This option requires administrator privileges."),
-    "DIR"
+    T_("DIR")
   },
 
   {
     "common-roots", 0, POPT_ARG_STRING, nullptr, OPT_COMMON_ROOTS,
     T_("Register additional directories for all users. DIRS must be a semicolon-separated list of fully qualified path names. This option requires administrator privileges."),
-    "DIRS"
+    T_("DIRS")
   },
 
   {
@@ -180,7 +180,7 @@ const struct poptOption Application::aoption[] = {
   {
     "local-package-repository", 0, POPT_ARG_STRING, nullptr, OPT_LOCAL_PACKAGE_REPOSITORY,
     T_("Download into (install from) the specified directory."),
-    "DIR"
+    T_("DIR")
   },
 
   {
@@ -192,13 +192,13 @@ const struct poptOption Application::aoption[] = {
   {
     "package-set", 0, POPT_ARG_STRING, nullptr, OPT_PACKAGE_SET,
     T_("Set the package set (one of: essential, basic, complete)."),
-    "SET"
+    T_("SET")
   },
 
   {
     "portable", 0, POPT_ARG_STRING, nullptr, OPT_PORTABLE,
     T_("Set up MiKTeX Portable."),
-    "DIR"
+    T_("DIR")
   },
 
   {
@@ -217,7 +217,7 @@ const struct poptOption Application::aoption[] = {
   {
     "program-folder", 0, POPT_ARG_STRING, nullptr, OPT_PROGRAM_FOLDER,
     T_("Add shortcuts to the specified program folder."),
-    "FOLDER"
+    T_("FOLDER")
   },
 #endif
   
@@ -256,25 +256,25 @@ const struct poptOption Application::aoption[] = {
   {
     "user-config", 0, POPT_ARG_STRING, nullptr, OPT_USER_CONFIG,
     T_("Set the location of the user configuration directory."),
-    "DIR"
+    T_("DIR")
   },
 
   {
     "user-data", 0, POPT_ARG_STRING, nullptr, OPT_USER_DATA,
     T_("Set the location of the user data directory."),
-    "DIR"
+    T_("DIR")
   },
 
   {
     "user-install", 0, POPT_ARG_STRING, nullptr, OPT_USER_INSTALL,
     T_("Set the location of the user installation directory."),
-    "DIR"
+    T_("DIR")
   },
 
   {
     "user-roots", 0, POPT_ARG_STRING, nullptr, OPT_USER_ROOTS,
     T_("Register additional directories for the current user. DIRS must be a semicolon-separated list of fully qualified path names."),
-    "DIRS"
+    T_("DIRS")
   },
 
   {
@@ -672,12 +672,12 @@ void Application::Main(int argc, const char** argv)
 
   if (leftovers.empty())
   {
-    Error("Nothing to do?\nTry '%s --help' for more information.", argv[0]);
+    Error(T_("Nothing to do?\nTry '%s --help' for more information."), argv[0]);
   }
 
   if (leftovers.size() > 1)
   {
-    Error("Too many arguments.");
+    Error(T_("Too many arguments."));
   }
 
   pSetupService = SetupService::Create();
