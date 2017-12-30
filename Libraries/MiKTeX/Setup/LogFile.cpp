@@ -37,15 +37,14 @@ bool SkipPrefix(const string& str, const char* lpszPrefix, string& str2)
   return true;
 }
 
-
 void LogFile::AddFile(const PathName& path)
 {
   shared_ptr<Session> session = Session::Get();
   string fileName;
-  if (SkipPrefix(path.GetData(), T_("texmf/"), fileName)
-    || SkipPrefix(path.GetData(), T_("texmf\\"), fileName)
-    || SkipPrefix(path.GetData(), T_("./texmf/"), fileName)
-    || SkipPrefix(path.GetData(), T_(".\\texmf\\"), fileName))
+  if (SkipPrefix(path.GetData(), "texmf/", fileName)
+    || SkipPrefix(path.GetData(), "texmf\\", fileName)
+    || SkipPrefix(path.GetData(), "./texmf/", fileName)
+    || SkipPrefix(path.GetData(), ".\\texmf\\", fileName))
   {
     PathName absPath(session->GetSpecialPath(SpecialPath::InstallRoot));
     absPath /= fileName;
@@ -56,7 +55,7 @@ void LogFile::AddFile(const PathName& path)
 void LogFile::AddPackages()
 {
   // add packages.ini
-  AddFile(PathName(T_("texmf"), MIKTEX_PATH_PACKAGES_INI));
+  AddFile(PathName("texmf", MIKTEX_PATH_PACKAGES_INI));
 
   // iterate over all known packages
   PackageInfo pi;
@@ -65,7 +64,7 @@ void LogFile::AddPackages()
   while (pIter->GetNext(pi))
   {
     // add .tpm file
-    PathName tpmFile(T_("texmf"), MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
+    PathName tpmFile("texmf", MIKTEX_PATH_PACKAGE_DEFINITION_DIR);
     tpmFile /= pi.deploymentName;
     tpmFile.AppendExtension(MIKTEX_PACKAGE_DEFINITION_FILE_SUFFIX);
     AddFile(tpmFile);
@@ -114,12 +113,12 @@ void LogFile::ReadLogFile()
     {
       line[--cchLine] = 0;
     }
-    if (line == T_("[files]"))
+    if (line == "[files]")
     {
       section = Files;
       continue;
     }
-    else if (line == T_("[hkcu]"))
+    else if (line == "[hkcu]")
     {
       section = HKCU;
       continue;

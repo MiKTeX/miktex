@@ -109,7 +109,7 @@ SetupServiceImpl::SetupServiceImpl()
 {
   traceStream = TraceStream::Open("setup");
   TraceStream::SetTraceFlags("error,extractor,mpm,process,config,setup");
-  pManager = PackageManager::Create();
+  packageManager = PackageManager::Create();
   shared_ptr<Session> session = Session::Get();
   PathName logFileName = session->GetSpecialPath(SpecialPath::InstallRoot);
   logFileName /= MIKTEX_PATH_UNINST_LOG;
@@ -586,9 +586,9 @@ void SetupServiceImpl::ULogAddFile(const PathName& path)
   uninstStream.WriteLine(absolutePath.GetData());
 }
 
-void SetupServiceImpl::SetCallback(SetupServiceCallback* pCallback)
+void SetupServiceImpl::SetCallback(SetupServiceCallback* callback)
 {
-  this->pCallback = pCallback;
+  this->callback = callback;
 }
 
 void SetupServiceImpl::SetCallbacks(std::function<void(const string&)> f_ReportLine, function<bool(const string&)> f_OnRetryableError, function<bool(MiKTeX::Setup::Notification)> f_OnProgress, function<bool(const void*, size_t)> f_OnProcessOutput)
@@ -597,7 +597,7 @@ void SetupServiceImpl::SetCallbacks(std::function<void(const string&)> f_ReportL
   myCallbacks.f_OnRetryableError = f_OnRetryableError;
   myCallbacks.f_OnProgress = f_OnProgress;
   myCallbacks.f_OnProcessOutput = f_OnProcessOutput;
-  this->pCallback = &myCallbacks;
+  this->callback = &myCallbacks;
 }
 
 void SetupServiceImpl::Run()
@@ -704,9 +704,9 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
   }
   if ((options.RemotePackageRepository.empty() && options.Task == SetupTask::Download) || options.Task == SetupTask::InstallFromRemoteRepository)
   {
-    if (!pManager->TryGetRemotePackageRepository(options.RemotePackageRepository) && allowRemoteCalls)
+    if (!packageManager->TryGetRemotePackageRepository(options.RemotePackageRepository) && allowRemoteCalls)
     {
-      options.RemotePackageRepository = pManager->PickRepositoryUrl();
+      options.RemotePackageRepository = packageManager->PickRepositoryUrl();
     }
   }
 }
@@ -723,12 +723,12 @@ void SetupServiceImpl::Initialize()
 
   ReportLine("initializing setup service...");
 
-  pInstaller = pManager->CreateInstaller();
-  pInstaller->SetNoPostProcessing(true);
-  pInstaller->SetNoLocalServer(true);
+  packageInstaller = packageManager->CreateInstaller();
+  packageInstaller->SetNoPostProcessing(true);
+  packageInstaller->SetNoLocalServer(true);
   cancelled = false;
 
-  pInstaller->SetCallback(this);
+  packageInstaller->SetCallback(this);
 
   CompleteOptions(true);
 
@@ -740,23 +740,23 @@ void SetupServiceImpl::Initialize()
   // initialize installer
   if (options.Task == SetupTask::InstallFromCD)
   {
-    pInstaller->SetRepository(options.MiKTeXDirectRoot.GetData());
+    packageInstaller->SetRepository(options.MiKTeXDirectRoot.GetData());
   }
   else if (options.Task == SetupTask::Download)
   {
-    pInstaller->SetRepository(options.RemotePackageRepository);
-    pInstaller->SetDownloadDirectory(options.LocalPackageRepository);
+    packageInstaller->SetRepository(options.RemotePackageRepository);
+    packageInstaller->SetDownloadDirectory(options.LocalPackageRepository);
   }
   else if (options.Task == SetupTask::InstallFromLocalRepository)
   {
-    pInstaller->SetRepository(options.LocalPackageRepository.GetData());
+    packageInstaller->SetRepository(options.LocalPackageRepository.GetData());
     // remember local repository folder
     if (!options.IsPrefabricated)
     {
-      pManager->SetLocalPackageRepository(options.LocalPackageRepository);
+      packageManager->SetLocalPackageRepository(options.LocalPackageRepository);
     }
   }
-  pInstaller->SetPackageLevel(options.PackageLevel);
+  packageInstaller->SetPackageLevel(options.PackageLevel);
 }
 
 void SetupServiceImpl::DoTheDownload()
@@ -772,10 +772,10 @@ void SetupServiceImpl::DoTheDownload()
   Directory::Create(options.LocalPackageRepository);
 
   // start downloader in the background
-  pInstaller->DownloadAsync();
+  packageInstaller->DownloadAsync();
 
   // wait for downloader thread
-  pInstaller->WaitForCompletion();
+  packageInstaller->WaitForCompletion();
 
   if (cancelled)
   {
@@ -900,7 +900,7 @@ void SetupServiceImpl::DoTheInstallation()
     pathDB /= MIKTEX_MPM_DB_FULL_FILE_NAME;
   }
   ReportLine(T_("Loading package database..."));
-  pManager->LoadDatabase(pathDB);
+  packageManager->LoadDatabase(pathDB);
 
   // create the destination directory
   Directory::Create(GetInstallRoot());
@@ -913,7 +913,7 @@ void SetupServiceImpl::DoTheInstallation()
 #endif
 
   // run installer
-  pInstaller->InstallRemove();
+  packageInstaller->InstallRemove();
 
   if (cancelled)
   {
@@ -921,8 +921,8 @@ void SetupServiceImpl::DoTheInstallation()
   }
 
   // install package definition files
-  pManager->UnloadDatabase();
-  pInstaller->UpdateDb();
+  packageManager->UnloadDatabase();
+  packageInstaller->UpdateDb();
 
   if (cancelled)
   {
@@ -1208,16 +1208,16 @@ void SetupServiceImpl::UnregisterComponents()
 #endif
       )
   {
-    std::shared_ptr<MiKTeX::Packages::PackageManager> pManager(PackageManager::Create());
-    shared_ptr<PackageInstaller> pInstaller(pManager->CreateInstaller());
-    pInstaller->RegisterComponents(false);
-    pInstaller->Dispose();
+    std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager(PackageManager::Create());
+    shared_ptr<PackageInstaller> packageInstaller(packageManager->CreateInstaller());
+    packageInstaller->RegisterComponents(false);
+    packageInstaller->Dispose();
   }
 }
 
 void SetupServiceImpl::ConfigureMiKTeX()
 {
-  if (pCallback != nullptr && !pCallback->OnProgress(MiKTeX::Setup::Notification::ConfigureBegin))
+  if (!callback->OnProgress(MiKTeX::Setup::Notification::ConfigureBegin))
   {
     cancelled = true;
     return;
@@ -1488,7 +1488,7 @@ For more information, visit the MiKTeX project page at\n\
 http://miktex.org.\n"), lpszPackageSet, setupExe.GetData());
   stream.Close();
   RepositoryInfo repositoryInfo;
-  if (pManager->TryGetRepositoryInfo(options.RemotePackageRepository, repositoryInfo))
+  if (packageManager->TryGetRepositoryInfo(options.RemotePackageRepository, repositoryInfo))
   {
     StreamWriter stream(PathName(options.LocalPackageRepository, "pr.ini"));
     stream.WriteFormattedLine("[repository]");
@@ -1510,7 +1510,7 @@ SetupService::ProgressInfo SetupServiceImpl::GetProgressInfo()
   }
   else
   {
-    PackageInstaller::ProgressInfo pi = pInstaller->GetProgressInfo();
+    PackageInstaller::ProgressInfo pi = packageInstaller->GetProgressInfo();
     progressInfo.deploymentName = pi.deploymentName;
     progressInfo.displayName = pi.displayName;
     progressInfo.fileName = pi.fileName;
@@ -1543,7 +1543,7 @@ SetupService::ProgressInfo SetupServiceImpl::GetProgressInfo()
 
 bool SetupServiceImpl::OnProcessOutput(const void* pOutput, size_t n)
 {
-  if (pCallback != nullptr && !pCallback->OnProcessOutput(pOutput, n))
+  if (!callback->OnProcessOutput(pOutput, n))
   {
     cancelled = true;
     return false;
@@ -1553,15 +1553,12 @@ bool SetupServiceImpl::OnProcessOutput(const void* pOutput, size_t n)
 
 void SetupServiceImpl::ReportLine(const string& str)
 {
-  if (pCallback != nullptr)
-  {
-    pCallback->ReportLine(str);
-  }
+  callback->ReportLine(str);
 }
 
 bool SetupServiceImpl::OnRetryableError(const string& message)
 {
-  if (pCallback != nullptr && !pCallback->OnRetryableError(message))
+  if (!callback->OnRetryableError(message))
   {
     cancelled = true;
     return false;
@@ -1571,39 +1568,36 @@ bool SetupServiceImpl::OnRetryableError(const string& message)
 
 bool SetupServiceImpl::OnProgress(MiKTeX::Packages::Notification nf)
 {
-  if (pCallback != nullptr)
+  MiKTeX::Setup::Notification setupNotification(Setup::Notification::None);
+  switch (nf)
   {
-    MiKTeX::Setup::Notification setupNotification(Setup::Notification::None);
-    switch (nf)
-    {
-    case MiKTeX::Packages::Notification::DownloadPackageStart:
-      setupNotification = MiKTeX::Setup::Notification::DownloadPackageStart; break;
-    case MiKTeX::Packages::Notification::DownloadPackageEnd:
-      setupNotification = MiKTeX::Setup::Notification::DownloadPackageEnd; break;
-    case MiKTeX::Packages::Notification::InstallFileStart:
-      setupNotification = MiKTeX::Setup::Notification::InstallFileStart; break;
-    case MiKTeX::Packages::Notification::InstallFileEnd:
-      setupNotification = MiKTeX::Setup::Notification::InstallFileEnd; break;
-    case MiKTeX::Packages::Notification::InstallPackageStart:
-      setupNotification = MiKTeX::Setup::Notification::InstallPackageStart; break;
-    case MiKTeX::Packages::Notification::InstallPackageEnd:
-      setupNotification = MiKTeX::Setup::Notification::InstallPackageEnd; break;
-    case MiKTeX::Packages::Notification::RemoveFileStart:
-      setupNotification = MiKTeX::Setup::Notification::RemoveFileStart; break;
-    case MiKTeX::Packages::Notification::RemoveFileEnd:
-      setupNotification = MiKTeX::Setup::Notification::RemoveFileEnd; break;
-    case MiKTeX::Packages::Notification::RemovePackageStart:
-      setupNotification = MiKTeX::Setup::Notification::RemovePackageStart; break;
-    case MiKTeX::Packages::Notification::RemovePackageEnd:
-      setupNotification = MiKTeX::Setup::Notification::RemovePackageEnd; break;
-    default:
-      break;
-    }
-    if (!pCallback->OnProgress(setupNotification))
-    {
-      cancelled = true;
-      return false;
-    }
+  case MiKTeX::Packages::Notification::DownloadPackageStart:
+    setupNotification = MiKTeX::Setup::Notification::DownloadPackageStart; break;
+  case MiKTeX::Packages::Notification::DownloadPackageEnd:
+    setupNotification = MiKTeX::Setup::Notification::DownloadPackageEnd; break;
+  case MiKTeX::Packages::Notification::InstallFileStart:
+    setupNotification = MiKTeX::Setup::Notification::InstallFileStart; break;
+  case MiKTeX::Packages::Notification::InstallFileEnd:
+    setupNotification = MiKTeX::Setup::Notification::InstallFileEnd; break;
+  case MiKTeX::Packages::Notification::InstallPackageStart:
+    setupNotification = MiKTeX::Setup::Notification::InstallPackageStart; break;
+  case MiKTeX::Packages::Notification::InstallPackageEnd:
+    setupNotification = MiKTeX::Setup::Notification::InstallPackageEnd; break;
+  case MiKTeX::Packages::Notification::RemoveFileStart:
+    setupNotification = MiKTeX::Setup::Notification::RemoveFileStart; break;
+  case MiKTeX::Packages::Notification::RemoveFileEnd:
+    setupNotification = MiKTeX::Setup::Notification::RemoveFileEnd; break;
+  case MiKTeX::Packages::Notification::RemovePackageStart:
+    setupNotification = MiKTeX::Setup::Notification::RemovePackageStart; break;
+  case MiKTeX::Packages::Notification::RemovePackageEnd:
+    setupNotification = MiKTeX::Setup::Notification::RemovePackageEnd; break;
+  default:
+    break;
+  }
+  if (!callback->OnProgress(setupNotification))
+  {
+    cancelled = true;
+    return false;
   }
   return true;
 }

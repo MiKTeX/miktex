@@ -224,55 +224,55 @@ class SetupServiceImpl :
   public MiKTeX::Packages::PackageInstallerCallback
 {
 public:
-  virtual MIKTEXTHISCALL ~SetupServiceImpl();
+  virtual ~SetupServiceImpl();
 
 public:
-  void MIKTEXTHISCALL Initialize() override;
+  void Initialize() override;
 
 public:
-  virtual SetupOptions MIKTEXTHISCALL GetOptions()
+  SetupOptions GetOptions() override
   {
     return this->options;
   }
 
 public:
-  virtual SetupOptions MIKTEXTHISCALL SetOptions(const SetupOptions& options);
+  SetupOptions SetOptions(const SetupOptions& options) override;
 
 public:
-  virtual void MIKTEXTHISCALL OpenLog();
+  void OpenLog() override;
 
 public:
-  virtual MiKTeX::Core::PathName MIKTEXTHISCALL CloseLog(bool cancel);
+  MiKTeX::Core::PathName CloseLog(bool cancel) override;
 
 public:
-  virtual void MIKTEXCEECALL Log(const char* format, ...);
+  void MIKTEXCEECALL Log(const char* format, ...) override;
 
 public:
-  virtual void MIKTEXTHISCALL LogV(const char* format, va_list argList);
+  void LogV(const char* format, va_list argList) override;
 
 public:
-  virtual void ULogOpen();
+  void ULogOpen() override;
 
 public:
-  virtual void ULogClose(bool finalize);
+  void ULogClose(bool finalize) override;
 
 public:
-  virtual MiKTeX::Core::PathName GetULogFileName();
+  MiKTeX::Core::PathName GetULogFileName() override;
 
 public:
-  virtual void ULogAddFile(const MiKTeX::Core::PathName& path);
+  void ULogAddFile(const MiKTeX::Core::PathName& path) override;
 
 public:
-  virtual ProgressInfo GetProgressInfo();
+  ProgressInfo GetProgressInfo() override;
 
 public:
-  virtual void SetCallback(SetupServiceCallback* callback);
+  void SetCallback(SetupServiceCallback* callback) override;
 
 public:
   void SetCallbacks(std::function<void(const std::string&)> f_ReportLine, std::function<bool(const std::string&)> f_OnRetryableError, std::function<bool(MiKTeX::Setup::Notification)> f_OnProgress, std::function<bool(const void*, size_t)> f_OnProcessOutput) override;
 
 public:
-  virtual void Run();
+  void Run() override;
 
 public:
   bool IsCancelled()
@@ -322,16 +322,16 @@ protected:
   void DoTheUninstallation();
 
 protected:
-  virtual bool OnProcessOutput(const void* output, size_t n);
+  bool OnProcessOutput(const void* output, size_t n) override;
 
 protected:
-  virtual void ReportLine(const std::string& str);
+  void ReportLine(const std::string& str) override;
 
 protected:
-  virtual bool OnRetryableError(const std::string& message);
+  bool OnRetryableError(const std::string& message) override;
 
 protected:
-  virtual bool OnProgress(MiKTeX::Packages::Notification nf);
+  bool OnProgress(MiKTeX::Packages::Notification nf) override;
 
 protected:
   SetupOptions options;
@@ -410,13 +410,10 @@ protected:
   bool initialized = false;
 
 protected:
-  std::shared_ptr<MiKTeX::Packages::PackageManager> pManager;
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 
 protected:
-  std::shared_ptr<MiKTeX::Packages::PackageInstaller> pInstaller;
-
-protected:
-  SetupServiceCallback* pCallback = nullptr;
+  std::shared_ptr<MiKTeX::Packages::PackageInstaller> packageInstaller;
 
 protected:
   LogFile logFile;
@@ -428,7 +425,7 @@ protected:
   public:
     std::function<void(const std::string&)> f_ReportLine;
   public:
-    void MIKTEXTHISCALL ReportLine(const std::string& str) override
+    void ReportLine(const std::string& str) override
     {
       if (f_ReportLine)
       {
@@ -438,25 +435,28 @@ protected:
   public:
     std::function<bool(const std::string&)> f_OnRetryableError;
   public:
-    bool MIKTEXTHISCALL OnRetryableError(const std::string& message) override
+    bool OnRetryableError(const std::string& message) override
     {
       return f_OnRetryableError ? f_OnRetryableError(message) : true;
     }
   public:
     std::function<bool(MiKTeX::Setup::Notification)> f_OnProgress;
   public:
-    bool MIKTEXTHISCALL OnProgress(MiKTeX::Setup::Notification nf) override
+    bool OnProgress(MiKTeX::Setup::Notification nf) override
     {
       return f_OnProgress ? f_OnProgress(nf) : true;
     }
   public:
     std::function<bool(const void*, size_t)> f_OnProcessOutput;
   public:
-    bool MIKTEXTHISCALL OnProcessOutput(const void* output, size_t n) override
+    bool OnProcessOutput(const void* output, size_t n) override
     {
       return f_OnProcessOutput ? f_OnProcessOutput(output, n) : true;
     }
   } myCallbacks;
+
+protected:
+  SetupServiceCallback* callback = &myCallbacks;
 };
 
 void RemoveEmptyDirectoryChain(const MiKTeX::Core::PathName& directory);

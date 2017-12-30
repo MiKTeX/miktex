@@ -45,22 +45,22 @@ public:
   virtual void Initialize();
 
 private:
-  virtual void ULogAddRegValue(HKEY hkey, const std::string& valueName, const std::string& value);
+  void ULogAddRegValue(HKEY hkey, const std::string& valueName, const std::string& value) override;
 
 private:
-  virtual void CreateProgramIcons();
+  void CreateProgramIcons() override;
 
 private:
-  virtual void RegisterUninstaller();
+  void RegisterUninstaller() override;
 
 private:
-  virtual void UnregisterShellFileTypes();
+  void UnregisterShellFileTypes() override;
 
 private:
-  virtual void RemoveRegistryKeys();
+  void RemoveRegistryKeys() override;
 
 private:
-  virtual void UnregisterPath(bool shared);
+  void UnregisterPath(bool shared) override;
 
 private:
   void RemoveRegistryKey(HKEY hkeyRoot, const MiKTeX::Core::PathName& subKey);
