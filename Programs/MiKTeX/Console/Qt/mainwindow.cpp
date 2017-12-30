@@ -266,7 +266,7 @@ void MainWindow::FinishSetup()
       progress.setValue(maxTime);
     }
     isSetupMode = false;
-    // TODO: reset session
+    session->Reset();
     UpdateWidgets();
     EnableActions();
     SetCurrentPage(1);
