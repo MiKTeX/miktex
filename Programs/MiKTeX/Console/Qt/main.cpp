@@ -81,19 +81,24 @@ int main(int argc, char* argv[])
     }
     initInfo.SetProgramInvocationName(argv[0]);
     shared_ptr<Session> session = Session::Create(initInfo);
+    QString displayName = "MiKTeX Console";
     if (optAdmin)
     {
       if (!session->RunningAsAdministrator())
       {
 #if defined(MIKTEX_WINDOWS)
-        QMessageBox::critical(nullptr, "MiKTeX Console", "Administrator mode was requested (--admin), but the program is not running elevated (as Administrator).");
+        QMessageBox::critical(nullptr, displayName, "Administrator mode was requested (--admin), but the program is not running elevated (as Administrator).");
 #else
-        QMessageBox::critical(nullptr, "MiKTeX Console", "Administrator mode was requested (--admin), but the program is not running as root user.");
+        QMessageBox::critical(nullptr, displayName, "Administrator mode was requested (--admin), but the program is not running as root user.");
 #endif
         return 1;
       }
       session->SetAdminMode(true);
+      displayName += " (Admin)";
     }
+#if QT_VERSION >= 0x050000
+    application.setApplicationDisplayName(displayName);
+#endif
     MainWindow mainWindow;
     mainWindow.show();
     if (optFinishSetup)

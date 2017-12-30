@@ -108,6 +108,11 @@ void MainWindow::EnableActions()
   }
 }
 
+void MainWindow::SetCurrentPage(int idx)
+{
+  ui->pages->setCurrentIndex(idx);
+}
+
 void MainWindow::AboutDialog()
 {
   QString message;
@@ -204,13 +209,14 @@ void MainWindow::FinishSetup()
   QProgressDialog progress(tr("Finishing MiKTeX setup..."), tr("Cancel"), 0, maxTime, this);
   progress.setWindowModality(Qt::WindowModal);
   progress.setMinimumDuration(0);
-  function<bool(MiKTeX::Setup::Notification)> onProgress = [maxTime, start, &progress](MiKTeX::Setup::Notification nf) {
-    if (!progress.wasCanceled())
+  function<bool(const void* output, size_t n)> onProcessOutput = [maxTime, start, &progress](auto output, auto n) {
+    if (progress.wasCanceled())
     {
-      int elapsed = time(nullptr) - start;
-      progress.setValue(elapsed > maxTime ? maxTime : elapsed);
+      return false;
     }
-    return !progress.wasCanceled();
+    int elapsed = time(nullptr) - start;
+    progress.setValue(elapsed >= maxTime ? maxTime - 1 : elapsed);
+    return true;
   };
   try
   {
@@ -219,12 +225,13 @@ void MainWindow::FinishSetup()
     options.Task = SetupTask::FinishSetup;
     options.IsCommonSetup = session->IsAdminMode();
     service->SetOptions(options);
-    service->SetCallbacks({}, {}, onProgress, {});
+    service->SetCallbacks({}, {}, {}, onProcessOutput);
     service->Run();
     if (!progress.wasCanceled())
     {
       progress.setValue(maxTime);
     }
+    SetCurrentPage(1);
   }
   catch (const MiKTeXException& e)
   {

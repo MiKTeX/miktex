@@ -67,6 +67,9 @@ private:
   void UpdateWidgets();
 
 private:
+  void SetCurrentPage(int idx);
+
+private:
   bool isSetupMode = false;
 
 private:
