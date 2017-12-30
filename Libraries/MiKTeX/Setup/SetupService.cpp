@@ -509,6 +509,10 @@ void SetupServiceImpl::LogV(const char* format, va_list argList)
 
 void SetupServiceImpl::ULogOpen()
 {
+  if (options.Task == SetupTask::Download || options.Task == SetupTask::FinishSetup || options.Task == SetupTask::Uninstall)
+  {
+    return;
+  }
   PathName uninstLog(GetULogFileName());
   FileMode mode = (File::Exists(uninstLog) ? FileMode::Append : FileMode::Create);
   uninstStream.Attach(File::Open(uninstLog, mode, FileAccess::Write));;
