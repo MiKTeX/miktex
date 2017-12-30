@@ -99,8 +99,7 @@ void winSetupServiceImpl::ULogAddRegValue(HKEY hkey, const string & valueName, c
 PathName winSetupServiceImpl::CreateProgramFolder()
 {
   int cidl = (options.IsCommonSetup ? CSIDL_COMMON_PROGRAMS : CSIDL_PROGRAMS);
-  PathName path = Utils::GetFolderPath(cidl, cidl, true);
-  path /= options.FolderName;
+  PathName path = Utils::GetFolderPath(cidl, cidl, true) / options.FolderName;
   Directory::Create(path);
   return path;
 }

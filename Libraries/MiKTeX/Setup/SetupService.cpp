@@ -111,10 +111,8 @@ SetupServiceImpl::SetupServiceImpl()
   TraceStream::SetTraceFlags("error,extractor,mpm,process,config,setup");
   packageManager = PackageManager::Create();
   shared_ptr<Session> session = Session::Get();
-  PathName logFileName = session->GetSpecialPath(SpecialPath::InstallRoot);
-  logFileName /= MIKTEX_PATH_UNINST_LOG;
   logFile.SetCallback(this);
-  logFile.SetLogFileName(logFileName);
+  logFile.SetLogFileName(session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_UNINST_LOG);
   options.IsCommonSetup = session->RunningAsAdministrator();
 }
 
@@ -184,10 +182,7 @@ PackageLevel SetupService::SearchLocalRepository(PathName& localRepository, Pack
   }
 
   // try ..\tm\packages
-  localRepository = session->GetMyLocation(false);
-  localRepository /= "..";
-  localRepository /= "tm";
-  localRepository /= "packages";
+  localRepository = session->GetMyLocation(false) / ".." / "tm" / "packages";
   localRepository.MakeAbsolute();
   packageLevel_ = SetupService::TestLocalRepository(localRepository, requestedPackageLevel);
   if (packageLevel_ != PackageLevel::None)
@@ -256,12 +251,9 @@ bool SetupService::IsMiKTeXDirect(PathName& root)
 {
   // check ..\texmf\miktex\config\miktexstartup.ini
   shared_ptr<Session> session = Session::Get();
-  root = session->GetMyLocation(false);
-  root /= "..";
+  root = session->GetMyLocation(false) / "..";
   root.MakeAbsolute();
-  PathName pathStartupConfig = root;
-  pathStartupConfig /= "texmf";
-  pathStartupConfig /= MIKTEX_PATH_STARTUP_CONFIG_FILE;
+  PathName pathStartupConfig = root / "texmf" / MIKTEX_PATH_STARTUP_CONFIG_FILE;
   if (!File::Exists(pathStartupConfig))
   {
     return false;
@@ -532,8 +524,7 @@ PathName SetupServiceImpl::GetULogFileName()
   }
   else
   {
-    ret = GetInstallRoot();
-    ret /= MIKTEX_PATH_MIKTEX_CONFIG_DIR;
+    ret = GetInstallRoot() / MIKTEX_PATH_MIKTEX_CONFIG_DIR;
   }
   Directory::Create(ret);
   ret /= MIKTEX_UNINSTALL_LOG;
@@ -864,8 +855,7 @@ void SetupServiceImpl::DoTheInstallation()
   StartupConfig startupConfig;
   if (options.IsPortable)
   {
-    startupConfig.commonInstallRoot = options.PortableRoot;
-    startupConfig.commonInstallRoot /= MIKTEX_PORTABLE_REL_INSTALL_DIR;
+    startupConfig.commonInstallRoot = options.PortableRoot / MIKTEX_PORTABLE_REL_INSTALL_DIR;
     startupConfig.userInstallRoot = startupConfig.commonInstallRoot;
   }
   else if (options.IsCommonSetup)
@@ -890,14 +880,11 @@ void SetupServiceImpl::DoTheInstallation()
   PathName pathDB;
   if (options.Task == SetupTask::InstallFromCD)
   {
-    pathDB = options.MiKTeXDirectRoot;
-    pathDB /= "texmf";
-    pathDB /= MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
+    pathDB = options.MiKTeXDirectRoot / "texmf" / MIKTEX_PATH_PACKAGE_DEFINITION_DIR;
   }
   else
   {
-    pathDB = options.LocalPackageRepository;
-    pathDB /= MIKTEX_MPM_DB_FULL_FILE_NAME;
+    pathDB = options.LocalPackageRepository / MIKTEX_MPM_DB_FULL_FILE_NAME;
   }
   ReportLine(T_("Loading package database..."));
   packageManager->LoadDatabase(pathDB);
@@ -1077,35 +1064,30 @@ void SetupServiceImpl::DoTheUninstallation()
       PathName dir;
       if (!session->IsMiKTeXDirect())
       {
-        dir = session->GetSpecialPath(SpecialPath::InstallRoot);
-        dir/= MIKTEX_PATH_MIKTEX_DIR;
+        dir = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_MIKTEX_DIR;
         if (Directory::Exists(dir))
         {
           Directory::Delete(dir, true);
         }
       }
-      dir = session->GetSpecialPath(SpecialPath::UserDataRoot);
-      dir /= MIKTEX_PATH_MIKTEX_DIR;
+      dir = session->GetSpecialPath(SpecialPath::UserDataRoot) / MIKTEX_PATH_MIKTEX_DIR;
       if (Directory::Exists(dir))
       {
         Directory::Delete(dir, true);
       }
-      dir = session->GetSpecialPath(SpecialPath::UserConfigRoot);
-      dir /= MIKTEX_PATH_MIKTEX_DIR;
+      dir = session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_MIKTEX_DIR;
       if (Directory::Exists(dir))
       {
         Directory::Delete(dir, true);
       }
       if (session->IsAdminMode())
       {
-        dir = session->GetSpecialPath(SpecialPath::CommonDataRoot);
-        dir /= MIKTEX_PATH_MIKTEX_DIR;
+        dir = session->GetSpecialPath(SpecialPath::CommonDataRoot) / MIKTEX_PATH_MIKTEX_DIR;
         if (Directory::Exists(dir))
         {
           Directory::Delete(dir, true);
         }
-        dir = session->GetSpecialPath(SpecialPath::CommonConfigRoot);
-        dir /= MIKTEX_PATH_MIKTEX_DIR;
+        dir = session->GetSpecialPath(SpecialPath::CommonConfigRoot) / MIKTEX_PATH_MIKTEX_DIR;
         if (Directory::Exists(dir))
         {
           Directory::Delete(dir, true);
@@ -1618,16 +1600,14 @@ bool SetupServiceImpl::FindFile(const PathName& fileName, PathName& result)
   shared_ptr<Session> session = Session::Get();
 
   // try my directory
-  result = session->GetMyLocation(false);
-  result /= fileName;
+  result = session->GetMyLocation(false) / fileName;
   if (File::Exists(result))
   {
     return true;
   }
 
   // try the current directory
-  result.SetToCurrentDirectory();
-  result /= fileName;
+  result.SetToCurrentDirectory() / fileName;
   if (File::Exists(result))
   {
     return true;
