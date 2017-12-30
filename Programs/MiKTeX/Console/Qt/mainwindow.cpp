@@ -243,6 +243,7 @@ void MainWindow::FinishSetup()
   QProgressDialog progress(tr("Finishing MiKTeX setup..."), tr("Cancel"), 0, maxTime, this);
   progress.setWindowModality(Qt::WindowModal);
   progress.setMinimumDuration(0);
+  progress.setValue(0);
   function<bool(const void* output, size_t n)> onProcessOutput = [maxTime, start, &progress](auto output, auto n) {
     if (progress.wasCanceled())
     {
@@ -266,7 +267,9 @@ void MainWindow::FinishSetup()
       progress.setValue(maxTime);
     }
     isSetupMode = false;
+    bool isAdminMode = session->IsAdminMode();
     session->Reset();
+    session->SetAdminMode(isAdminMode);
     UpdateWidgets();
     EnableActions();
     SetCurrentPage(1);
