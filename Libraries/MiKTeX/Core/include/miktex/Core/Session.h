@@ -757,6 +757,9 @@ public:
   virtual MIKTEXTHISCALL ~Session() noexcept = 0;
 
 public:
+  virtual void MIKTEXTHISCALL Reset() = 0;
+
+public:
   virtual void MIKTEXTHISCALL PushAppName(const std::string& name) = 0;
 
 public:

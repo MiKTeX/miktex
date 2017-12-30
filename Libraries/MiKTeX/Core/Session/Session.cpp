@@ -233,6 +233,14 @@ void SessionImpl::Uninitialize()
 #endif
 }
 
+void SessionImpl::Reset()
+{
+  InitInfo initInfo = this->initInfo;
+  this->~SessionImpl();
+  new (this) SessionImpl();
+  Initialize(initInfo);
+}
+
 void SessionImpl::SetEnvironmentVariables()
 {
 #if MIKTEX_WINDOWS

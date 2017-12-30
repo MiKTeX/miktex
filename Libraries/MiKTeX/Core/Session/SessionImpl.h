@@ -117,6 +117,9 @@ private:
   void Uninitialize();
 
 public:
+  void Reset() override;
+
+public:
   void PushAppName(const std::string& name) override;
 
 public:
