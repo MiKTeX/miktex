@@ -132,11 +132,18 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
 #endif
     break;
   case SpecialPath::LocalBinDirectory:
-#if defined(MIKTEX_WINDOWS)
+#if defined(MIKTEX_WINDOWSx)
     path = GetSpecialPath(SpecialPath::BinDirectory);
 #else
-    // FIXME: hard-coded path
-    path = "/usr/local/bin";
+    // FIXME: hard-coded paths
+    if (IsSharedSetup())
+    {
+      path = "/usr/local/bin";
+    }
+    else
+    {
+      path = GetHomeDirectory() / "bin";
+    }
 #endif
     break;
   case SpecialPath::LogDirectory:
