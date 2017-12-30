@@ -1255,10 +1255,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
 #else
       args.push_back("--create-config-file="s + MIKTEX_PATH_MIKTEX_INI);
 #endif
-      if (options.IsCommonSetup)
-      {
-        args.push_back("--set-config-value="s + "[" + MIKTEX_REGKEY_CORE + "]" + MIKTEX_REGVAL_SHARED_SETUP + "=1");
-      }
+      args.push_back("--set-config-value="s + "[" + MIKTEX_REGKEY_CORE + "]" + MIKTEX_REGVAL_SHARED_SETUP + "=" + (options.IsCommonSetup ? "1" : "0"));
     }
     if (!options.Config.commonRoots.empty())
     {
@@ -1276,7 +1273,6 @@ void SetupServiceImpl::ConfigureMiKTeX()
     {
       return;
     }
-
 
     if (options.Task != SetupTask::FinishSetup)
     {
