@@ -51,6 +51,12 @@ private slots:
 private slots:
   void on_buttonUserSetup_clicked();
 
+private slots:
+  void on_buttonOverview_clicked();
+
+private slots:
+  void on_buttonPackages_clicked();
+
 public slots:
   void FinishSetup();
 

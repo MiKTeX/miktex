@@ -57,17 +57,11 @@ MainWindow::MainWindow(QWidget* parent) :
 
   int startPage = isSetupMode ? 0 : 1;
 
-  ui->pages->setCurrentIndex(startPage);
+  SetCurrentPage(startPage);
 
   if (session->IsAdminMode())
   {
     setWindowTitle(windowTitle() + " (Admin)");
-    ui->userMode->hide();
-    ui->buttonAdminSetup->setText(tr("Finish shared setup"));
-  }
-  else
-  {
-    ui->adminMode->hide();
   }
 
   connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(AboutDialog()));
@@ -84,19 +78,38 @@ MainWindow::~MainWindow()
 
 void MainWindow::UpdateWidgets()
 {
+  if (session->IsAdminMode())
+  {
+    ui->privateMode->hide();
+    ui->userMode->hide();
+    ui->buttonAdminSetup->setText(tr("Finish shared setup"));
+  }
+  else
+  {
+    ui->adminMode->hide();
+    if (session->IsSharedSetup())
+    {
+      ui->privateMode->hide();
+    }
+    else
+    {
+      ui->userMode->hide();
+    }
+  }
+  ui->buttonOverview->setEnabled(!isSetupMode);
+  ui->buttonPackages->setEnabled(!isSetupMode);
   if (Utils::CheckPath(false))
   {
     ui->hintPath->hide();
   }
   ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
-  ui->installdir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::InstallRoot).GetData()));
 }
 
 void MainWindow::EnableActions()
 {
   try
   {
-    ui->actionRestartAdmin->setEnabled(!session->RunningAsAdministrator());
+    ui->actionRestartAdmin->setEnabled(session->IsSharedSetup() && !session->IsAdminMode());
   }
   catch (const MiKTeXException& e)
   {
@@ -110,6 +123,17 @@ void MainWindow::EnableActions()
 
 void MainWindow::SetCurrentPage(int idx)
 {
+  switch (idx)
+  {
+  case 0:
+    break;
+  case 1:
+    ui->buttonOverview->setChecked(true);
+    break;
+  case 2:
+    ui->buttonPackages->setChecked(true);
+    break;
+  }
   ui->pages->setCurrentIndex(idx);
 }
 
@@ -128,7 +152,7 @@ void MainWindow::on_buttonAdminSetup_clicked()
 {
   try
   {
-    if (session->RunningAsAdministrator())
+    if (session->IsAdminMode())
     {
       FinishSetup();
     }
@@ -161,6 +185,16 @@ void MainWindow::on_buttonUserSetup_clicked()
   {
     ErrorDialog::DoModal(this, e);
   }
+}
+
+void MainWindow::on_buttonOverview_clicked()
+{
+  SetCurrentPage(1);
+}
+
+void MainWindow::on_buttonPackages_clicked()
+{
+  SetCurrentPage(2);
 }
 
 void MainWindow::RestartAdmin()
@@ -231,6 +265,9 @@ void MainWindow::FinishSetup()
     {
       progress.setValue(maxTime);
     }
+    isSetupMode = false;
+    UpdateWidgets();
+    EnableActions();
     SetCurrentPage(1);
   }
   catch (const MiKTeXException& e)
