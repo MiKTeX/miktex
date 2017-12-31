@@ -33,7 +33,7 @@ using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
 using namespace std;
 
-static QApplication * pApplication = nullptr;
+static QApplication* pApplication = nullptr;
 
 MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
 {
@@ -51,7 +51,7 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
   bool useGUI = true;
 #endif
   static int argc = 0;
-  static char ** argv = nullptr;
+  static char** argv = nullptr;
 #if defined(MIKTEX_WINDOWS)
   INITCOMMONCONTROLSEX icce;
   icce.dwSize = sizeof(icce);
@@ -116,7 +116,7 @@ MIKTEXUIQTEXPORT unsigned int MIKTEXCEECALL MiKTeX::UI::Qt::InstallPackageMessag
   return ret;
 }
 
-MIKTEXUIQTEXPORT bool MIKTEXCEECALL MiKTeX::UI::Qt::ProxyAuthenticationDialog(QWidget * pParent)
+MIKTEXUIQTEXPORT bool MIKTEXCEECALL MiKTeX::UI::Qt::ProxyAuthenticationDialog(QWidget* parent)
 {
   ProxySettings proxySettings;
 
@@ -127,7 +127,7 @@ MIKTEXUIQTEXPORT bool MIKTEXCEECALL MiKTeX::UI::Qt::ProxyAuthenticationDialog(QW
     && proxySettings.authenticationRequired
     && proxySettings.user.empty())
   {
-    ::ProxyAuthenticationDialog dlg(pParent);
+    ::ProxyAuthenticationDialog dlg(parent);
     if (dlg.exec() == QDialog::Accepted)
     {
       proxySettings.user = dlg.GetName().toUtf8().constData();

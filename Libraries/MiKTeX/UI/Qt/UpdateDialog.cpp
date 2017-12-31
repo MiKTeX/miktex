@@ -1,6 +1,6 @@
 /* UpdateDialog.cpp:
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2017 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -35,24 +35,24 @@ using namespace std;
 
 const int PROGRESS_MAX = 1000;
 
-int UpdateDialog::DoModal(QWidget * pParent, shared_ptr<PackageManager> pManager, const vector<string> & toBeInstalled, const vector<string> & toBeRemoved)
+int UpdateDialog::DoModal(QWidget* parent, shared_ptr<PackageManager> packageManager, const vector<string>& toBeInstalled, const vector<string>& toBeRemoved)
 {
   string url;
   RepositoryType repositoryType(RepositoryType::Unknown);
   if (toBeInstalled.size() > 0
     && PackageManager::TryGetDefaultPackageRepository(repositoryType, url)
     && repositoryType == RepositoryType::Remote
-    && !ProxyAuthenticationDialog(pParent))
+    && !ProxyAuthenticationDialog(parent))
   {
     return QDialog::Rejected;
   }
-  UpdateDialogImpl dlg(pParent, pManager, toBeInstalled, toBeRemoved);
+  UpdateDialogImpl dlg(parent, packageManager, toBeInstalled, toBeRemoved);
   return dlg.exec();
 }
 
 void UpdateDialogImpl::WorkerThread::run()
 {
-  UpdateDialogImpl * This = reinterpret_cast<UpdateDialogImpl *>(parent());
+  UpdateDialogImpl* This = reinterpret_cast<UpdateDialogImpl*>(parent());
 #if defined(MIKTEX_WINDOWS)
   HRESULT hr = E_FAIL;
 #endif
@@ -65,15 +65,15 @@ void UpdateDialogImpl::WorkerThread::run()
       MIKTEX_UNEXPECTED();
     }
 #endif
-    This->pInstaller->SetCallback(This);
-    This->pInstaller->InstallRemove();
+    This->packageInstaller->SetCallback(This);
+    This->packageInstaller->InstallRemove();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     threadMiKTeXException = e;
     error = true;
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
   This->sharedData.ready = true;
@@ -86,10 +86,10 @@ void UpdateDialogImpl::WorkerThread::run()
   emit This->ProgressChanged();
 }
 
-UpdateDialogImpl::UpdateDialogImpl(QWidget * pParent, std::shared_ptr<MiKTeX::Packages::PackageManager> pManager, const vector<string> & toBeInstalled, const vector<string> & toBeRemoved) :
-  QDialog(pParent),
-  pManager(pManager),
-  pInstaller(pManager->CreateInstaller())
+UpdateDialogImpl::UpdateDialogImpl(QWidget* parent, std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, const vector<string>& toBeInstalled, const vector<string>& toBeRemoved) :
+  QDialog(parent),
+  packageManager(packageManager),
+  packageInstaller(packageManager->CreateInstaller())
 {
   setupUi(this);
   connect(this, SIGNAL(ProgressChanged()), this, SLOT(ShowProgress()));
@@ -100,33 +100,33 @@ UpdateDialogImpl::UpdateDialogImpl(QWidget * pParent, std::shared_ptr<MiKTeX::Pa
   progressBar2->setMinimum(0);
   progressBar2->setMaximum(PROGRESS_MAX);
   progressBar2->setValue(0);
-  pInstaller->SetFileLists(toBeInstalled, toBeRemoved);
-  pWorkerThread = new WorkerThread(this);
-  pWorkerThread->start();
+  packageInstaller->SetFileLists(toBeInstalled, toBeRemoved);
+  workerThread = new WorkerThread(this);
+  workerThread->start();
 }
 
 UpdateDialogImpl::~UpdateDialogImpl()
 {
   try
   {
-    if (pInstaller != nullptr)
+    if (packageInstaller != nullptr)
     {
-      pInstaller->Dispose();
-      pInstaller = nullptr;
+      packageInstaller->Dispose();
+      packageInstaller = nullptr;
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
 
-void UpdateDialogImpl::Report(bool immediate, const char * lpszFmt, ...)
+void UpdateDialogImpl::Report(bool immediate, const char* format, ...)
 {
-  MIKTEX_ASSERT(lpszFmt != nullptr);
+  MIKTEX_ASSERT(format != nullptr);
   QString str;
   va_list args;
-  va_start(args, lpszFmt);
-  str.vsprintf(lpszFmt, args);
+  va_start(args, format);
+  str.vsprintf(format, args);
   va_end(args);
   {
     lock_guard<mutex> lockGuard(sharedDataMutex);
@@ -139,12 +139,12 @@ void UpdateDialogImpl::Report(bool immediate, const char * lpszFmt, ...)
   }
 }
 
-void UpdateDialogImpl::ReportLine(const string & str)
+void UpdateDialogImpl::ReportLine(const string& str)
 {
   Report(true, "%s\n", str.c_str());
 }
 
-bool UpdateDialogImpl::OnRetryableError(const string & message)
+bool UpdateDialogImpl::OnRetryableError(const string& message)
 {
   return false;
 }
@@ -158,7 +158,7 @@ bool UpdateDialogImpl::OnProgress(Notification nf)
       || nf == Notification::InstallPackageEnd
       || nf == Notification::RemoveFileEnd
       || nf == Notification::RemovePackageEnd);
-  PackageInstaller::ProgressInfo progressInfo = pInstaller->GetProgressInfo();
+  PackageInstaller::ProgressInfo progressInfo = packageInstaller->GetProgressInfo();
   sharedData.progressInfo = progressInfo;
   if (nf == Notification::InstallPackageStart
     || nf == Notification::DownloadPackageStart)
@@ -175,8 +175,7 @@ bool UpdateDialogImpl::OnProgress(Notification nf)
       (((static_cast<double>(progressInfo.cbPackageDownloadCompleted)
         / progressInfo.cbPackageDownloadTotal)
         * PROGRESS_MAX));
-    visibleProgress =
-      (visibleProgress || (sharedData.progress1Pos != oldValue));
+    visibleProgress = (visibleProgress || (sharedData.progress1Pos != oldValue));
   }
   if (progressInfo.cbDownloadTotal > 0)
   {
@@ -186,14 +185,12 @@ bool UpdateDialogImpl::OnProgress(Notification nf)
       (((static_cast<double>(progressInfo.cbDownloadCompleted)
         / progressInfo.cbDownloadTotal)
         * PROGRESS_MAX));
-    visibleProgress =
-      (visibleProgress || (sharedData.progress2Pos != oldValue));
+    visibleProgress = (visibleProgress || (sharedData.progress2Pos != oldValue));
   }
   unsigned oldValue = sharedData.secondsRemaining;
   sharedData.secondsRemaining
     = static_cast<unsigned>(progressInfo.timeRemaining / 1000);
-  visibleProgress =
-    (visibleProgress || (sharedData.secondsRemaining != oldValue));
+  visibleProgress = (visibleProgress || (sharedData.secondsRemaining != oldValue));
   if (visibleProgress)
   {
     emit ProgressChanged();
@@ -205,10 +202,10 @@ void UpdateDialogImpl::ShowProgress()
 {
   try
   {
-    if (pWorkerThread->error)
+    if (workerThread->error)
     {
-      pWorkerThread->error = false;
-      ReportError(pWorkerThread->threadMiKTeXException);
+      workerThread->error = false;
+      ReportError(workerThread->threadMiKTeXException);
     }
 
     lock_guard<mutex> lockGuard(sharedDataMutex);
@@ -296,11 +293,11 @@ void UpdateDialogImpl::ShowProgress()
           / 1024.0)));
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
   }
@@ -318,11 +315,11 @@ void UpdateDialogImpl::Cancel()
       emit ProgressChanged();
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
   }

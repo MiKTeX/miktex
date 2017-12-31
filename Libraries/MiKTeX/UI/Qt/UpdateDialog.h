@@ -1,6 +1,6 @@
 /* UpdateDialog.h:                                      -*- C++ -*-
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2017 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -45,16 +45,16 @@ private:
   Q_OBJECT;
 
 public:
-  UpdateDialogImpl(QWidget * pParent, std::shared_ptr<MiKTeX::Packages::PackageManager> pManager, const std::vector<std::string> & toBeInstalled, const std::vector<std::string> & toBeRemoved);
+  UpdateDialogImpl(QWidget* parent, std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, const std::vector<std::string>& toBeInstalled, const std::vector<std::string>& toBeRemoved);
 
 public:
   ~UpdateDialogImpl();
 
 public:
-  virtual void MIKTEXTHISCALL ReportLine(const std::string & str);
+  virtual void MIKTEXTHISCALL ReportLine(const std::string& str);
 
 public:
-  virtual bool MIKTEXTHISCALL OnRetryableError(const std::string & message);
+  virtual bool MIKTEXTHISCALL OnRetryableError(const std::string& message);
 
 public:
   virtual bool MIKTEXTHISCALL OnProgress(MiKTeX::Packages::Notification nf);
@@ -79,17 +79,17 @@ signals:
   void ProgressChanged();
 
 private:
-  void Report(bool immediate, const char * lpszFmt, ...);
+  void Report(bool immediate, const char* format, ...);
 
 private:
-  void ReportError(const MiKTeX::Core::MiKTeXException & e)
+  void ReportError(const MiKTeX::Core::MiKTeXException& e)
   {
     errorOccured = true;
     MiKTeX::UI::Qt::ErrorDialog::DoModal(this, e);
   }
 
 private:
-  void ReportError(const std::exception & e)
+  void ReportError(const std::exception& e)
   {
     errorOccured = true;
     MiKTeX::UI::Qt::ErrorDialog::DoModal(this, e);
@@ -105,15 +105,15 @@ private:
   bool cancelled = false;
 
 private:
-  std::shared_ptr<MiKTeX::Packages::PackageManager> pManager;
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 
 private:
   class WorkerThread :
     public QThread
   {
   public:
-    WorkerThread(UpdateDialogImpl * pParent) :
-      QThread(pParent)
+    WorkerThread(UpdateDialogImpl* parent) :
+      QThread(parent)
     {
     }
   public:
@@ -125,7 +125,7 @@ private:
   };
 
 private:
-  WorkerThread * pWorkerThread;
+  WorkerThread* workerThread;
 
 private:
   struct SharedData
@@ -146,7 +146,7 @@ private:
   SharedData sharedData;
 
 private:
-  std::shared_ptr<MiKTeX::Packages::PackageInstaller> pInstaller;
+  std::shared_ptr<MiKTeX::Packages::PackageInstaller> packageInstaller;
 };
 
 #endif
