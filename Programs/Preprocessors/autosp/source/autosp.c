@@ -1,4 +1,4 @@
-char version[12] = "2017-07-14";
+char version[12] = "2017-12-22";
 
 /*  Copyright (C) 2014-17 R. D. Tennent School of Computing,
  *  Queen's University, rdt@cs.queensu.ca
@@ -105,7 +105,6 @@ char version[12] = "2017-07-14";
 
 # define PRIVATE static
 
-# define LINE_LEN 1024
 # define SHORT_LEN 256
 # define MAX_STAFFS 9
 
@@ -149,6 +148,9 @@ PRIVATE int spacing = MAX_SPACING;      /* spacing for current notes          */
 PRIVATE int old_spacing = MAX_SPACING;
 
 PRIVATE int vspacing[MAX_STAFFS];       /* virtual-note (skip) spacing        */
+PRIVATE bool vspacing_active[MAX_STAFFS]; /* virtual-note spacing active?       */
+                      /* used to preclude unnecessary pre-accidental skips    */
+
 PRIVATE bool nonvirtual_notes;          
                            /* used to preclude output of *only* virtual notes */
 
@@ -273,6 +275,8 @@ status_all (void)
     if (active[i]) status (i);
   status_spacing ();
   fprintf (logfile, "nastaffs=%d\n", nastaffs);
+  if (dottedbeamnotes) 
+    fprintf (logfile, "dottedbeamnotes == true\n");
 }
 
 PRIVATE void
@@ -352,6 +356,7 @@ void analyze_notes (char **ln)
     { n_outstrings[i] = outstrings[i];
       *n_outstrings[i] = '\0';
       vspacing[i] = 0;  
+      vspacing_active[i] = false;  
       collective[i][0] = '\0'; 
       cspacing[i] = MAX_SPACING; 
       first_collective[i] = false;
@@ -384,19 +389,21 @@ void checkn (char *s)
 
 PRIVATE
 void filter_output (int i)
-{ /* discard , \sk \hsk \Qsk \TQsk \HQsk \QQsk and \Cpause */
+{ /* discard \sk \bsk \Qsk \TQsk \HQsk \QQsk and \Cpause */
   char *s = notes[i];
   while (s < current[i])
   { char *t;
     t = strpbrk (s+1, "\\&|$");
     if (t == NULL || t > current[i]) t = current[i];
     if (!prefix ("\\sk", s)
-     && !prefix ("\\hsk", s)
+     && !prefix ("\\bsk", s)
      && !prefix ("\\Cpause", s) 
      && !prefix ("\\Qsk", s) 
      && !prefix ("\\HQsk", s) 
      && !prefix ("\\TQsk", s) 
-     && !prefix ("\\QQsk", s) )
+     && !prefix ("\\QQsk", s) 
+     && !prefix ("\\Triolet", s)
+     && !prefix ("\\Xtuplet", s) )
     {
       while (s < t) 
       { while (*s == ',') s++; /* global skips */
@@ -442,6 +449,7 @@ void output_notes (int i)
     append (outstrings[i], &(n_outstrings[i]), "}", LINE_LEN);
     if (*notes[i] == '}')
     { collective[i][0] = '\0';
+      cspacing[i] = 0;
       notes[i]++;
     }
     if (*notes[i] == '}')  /* close of {\tinynotesize..{}}? */
@@ -504,24 +512,28 @@ int collective_note (int i)
       /* commas will be discarded by filter_output (i) */
     if (*s == '.' && new_beaming == 0 && !dottedbeamnotes) 
       spacing = spacing * 1.50; 
-    else if ( (*s == '^' || *s == '_' || *s == '=' || *s == '>') )
+    else if ( (*s == '^' || *s == '_' || *s == '=' || *s == '>') 
+              && !vspacing_active[i]  /* is additional spacing needed? */
+            )
     /* leave space for normal accidentals */
-    { if (debug)
+    { update_global_skip (3) ;
+      if (debug)
       { fprintf (logfile, "\nLeave space for accidental\n");
         status (i);
         status_beam (i);
         status_collective (i);
       }
-      update_global_skip (3) ;
     }
-    else if ( (*s == '<') /* double-flat */ )
-    { if (debug)
+    else if ( (*s == '<') /* double-flat */ 
+              && !vspacing_active[i]  /* is additional spacing needed? */
+            )
+    { update_global_skip (5);
+      if (debug)
       { fprintf (logfile, "\nLeave space for double-flat\n");
         status (i);
         status_beam (i);
         status_collective (i);
       }
-      update_global_skip (5);
     }
     else if (isalnum (*s) || *s == '*')
     {  
@@ -535,6 +547,7 @@ int collective_note (int i)
         status (i);
         status_collective (i);
       }
+      vspacing_active[i] = false;
       return spacing; 
     }
     s++;
@@ -766,7 +779,8 @@ int spacing_note (int i)
       break;
     }
 
-    if (prefix("\\tqqq", s) )
+    if (prefix("\\tqqq", s) ||
+        prefix("\\nqqq", s) )
     { if (beaming[i] > SP(32)) 
         beaming[i] = SP(32);
       spacing = beaming[i];
@@ -780,7 +794,8 @@ int spacing_note (int i)
       break;
     }
 
-    if (prefix("\\tqq", s) )
+    if (prefix("\\tqq", s) ||
+        prefix("\\nqq", s) )
     { if (beaming[i] > SP(16)) 
         beaming[i] = SP(16);
       spacing = beaming[i];
@@ -820,13 +835,16 @@ int spacing_note (int i)
     /* non-spacing beam termination */
       new_beaming = 0; 
 
-    else if ( prefix("\\xtuplet", s))
+    else if ( prefix("\\xtuplet", s) ||
+              prefix("\\xxtuplet", s)||
+              prefix("\\Xtuplet", s) )
     { char *t = s+1;
       while (!isdigit(*t)) t++;
       xtuplet[i] = atoi(t);
     }
     else 
     if ( prefix("\\triolet", s)
+      || prefix("\\Triolet", s)
       || prefix("\\uptrio", s)
       || prefix("\\downtrio", s)
       || prefix("\\uptuplet", s)
@@ -948,6 +966,7 @@ int spacing_note (int i)
   if (prefix ("\\whpp", s)
    || prefix ("\\hupp", s)
    || prefix ("\\hlpp", s)
+   || prefix ("\\happ", s)
    || prefix ("\\hspp", s)
    || prefix ("\\hppp", s)
    || prefix ("\\hpausepp", s)
@@ -971,6 +990,7 @@ int spacing_note (int i)
   if (prefix ("\\whp", s)
    || prefix ("\\hup", s)
    || prefix ("\\hlp", s)
+   || prefix ("\\hap", s)
    || prefix ("\\hsp", s)
    || prefix ("\\hpp", s)
    || prefix ("\\hpausep", s)
@@ -1012,6 +1032,7 @@ int spacing_note (int i)
   { fprintf (logfile, "\nAfter spacing_note:\n");
     status (i);
   }
+  vspacing_active[i] = false;
   return spacing;
 }
 
@@ -1045,6 +1066,9 @@ void initialize_notes ()
   { fprintf (logfile, "\nEntering initialize_notes\n");
     status_all ();
   }
+  if ( nastaffs == 1 && spacing != MAX_SPACING && restbars > 0) 
+    output_rests ();
+
   if (spacing == MAX_SPACING)
     fprintf (outfile, "\\znotes");
   else if (spacing == SP(1)+SP(2) || spacing == SP(1)+SP(2)+SP(4))
@@ -1270,7 +1294,10 @@ void process_xtuplet (void)
     }
   }
 
-  if (debug) fprintf (logfile, "\nDetermine xtuplet duration:\n");
+  if (debug) 
+  { fprintf (logfile, "\nDetermine xtuplet duration:\n");
+    fflush (logfile);
+  }
   for (i=1; i <= nstaffs; i++)
     if (xtuplet[i] > 1)
     {
@@ -1278,14 +1305,13 @@ void process_xtuplet (void)
       save_state (xi);
       pseudo_output_notes (xi);
       xspacing = spacings[xi];
-      do
+      while (xspacing % xtuplet[xi] != 0)
       { 
         xspacing +=  spacing_note (xi);
         pseudo_output_notes (xi);
         if (xspacing >= MAX_SPACING) 
           error ("Can't determine xtuplet duration.");
       }
-      while (xspacing % xtuplet[xi] != 0);
       restore_state (xi);
       break;
     }
@@ -1448,8 +1474,7 @@ void generate_notes ()
         return;
       }
       if (old_spacing < MAX_SPACING) putc ('\n', outfile);
-      if ( nastaffs == 1 && spacing != MAX_SPACING && restbars > 0) 
-        output_rests ();
+
       initialize_notes ();
     }
 
@@ -1462,6 +1487,7 @@ void generate_notes ()
       if (active[i] && spacings[i] != MAX_SPACING && spacings[i] != spacing && vspacing[i] == 0 )
       {
         vspacing[i] = spacings[i];
+        vspacing_active[i] = true;
         vspacing[i] = vspacing[i] - spacing;
         if (debug)
         { fprintf (logfile, "\nAfter vspacing initialization:\n");
@@ -1527,11 +1553,18 @@ void process_command (char **ln)
            active[nstaffs] = true;
         }
       }   
+      nastaffs = nstaffs;
+      if (debug)
+        fprintf (logfile, "default TransformNotes2=%s\n", TransformNotes2);
     }
-    if (debug)
-      fprintf (logfile, "default TransformNotes2=%s\n", TransformNotes2);
     if (nstaffs == 1) fprintf (outfile, "\\nostartrule\n");
-    nastaffs = nstaffs;
+    if (debug)
+    {
+      int j;
+      fprintf (logfile, "ninstr=%d nstaffs=%d nastaffs=%d\n", ninstr, nstaffs, nastaffs);
+      for (j=1; j <= nstaffs; j++)
+        fprintf (logfile, "active[%d]=%d\n", j, active[j]);
+    }
     fprintf (outfile, "\\startpiece");
     t = strpbrk (*ln+1, "\\%\n");
     *ln = t;
@@ -1555,11 +1588,11 @@ void process_command (char **ln)
            active[nstaffs] = true;
         }
       }   
+      nastaffs = nstaffs;
+      if (debug)
+        fprintf (logfile, "default TransformNotes2=%s\n", TransformNotes2);
     }
-    if (debug)
-      fprintf (logfile, "default TransformNotes2=%s\n", TransformNotes2);
     if (nstaffs == 1) fprintf (outfile, "\\nostartrule\n");
-    nastaffs = nstaffs;
     fprintf (outfile, "\\startextract");
     t = strpbrk (*ln+1, "\\%\n");
     *ln = t;
@@ -1610,6 +1643,13 @@ void process_command (char **ln)
       nastaffs++;
       t = strpbrk (t+1, "#}"); 
       if (t == NULL) break;
+    }
+    if (debug)
+    {
+      int j;
+      fprintf (logfile, "ninstr=%d nstaffs=%d nastaffs=%d\n", ninstr, nstaffs, nastaffs);
+      for (j=1; j <= nstaffs; j++)
+        fprintf (logfile, "active[%d]=%d\n", j, active[j]);
     }
 
     /* output \TransformNotes...  as a comment:  */
@@ -1805,6 +1845,7 @@ void process_command (char **ln)
 
   else if ( prefix ("\\bar", *ln) && !prefix ("\\barno", *ln))
   { int i;
+    char *s, *t;
     bool atnextbar = false; 
     for (i=1; i <= nstaffs; i++)
       if (active[i] && bar_rest[i]) 
@@ -1824,16 +1865,24 @@ void process_command (char **ln)
     else
     { if (atnextbar)
       { fprintf (outfile, "\\def\\atnextbar{\\znotes");
-        for (i=1; i <= nstaffs; i++)
+        t = TransformNotes2;
+        while (true)
         {
+          s = strchr (t, '#');
+          if (s == NULL) 
+            break;
+          while (t < s)  /* output any initial \transpose etc. */
+          { putc (*t, outfile); t++; }
+          t++; /* skip # */
+          i = atoi (t) -1; t++;
           if (active[i])
           {
             if (bar_rest[i])
               fprintf (outfile, "\\centerpause");
             bar_rest[i] = false;
           }
-          if ( (terminator[i] == '&') || (terminator[i] == '|') ) 
-            putc (terminator[i], outfile);
+          if (*t != '\0') 
+          { putc (*t, outfile); t++; }  /* terminator */
         }
         fprintf (outfile, "\\en}%%\n");
       }
@@ -1960,6 +2009,12 @@ void process_command (char **ln)
     }
     fputs (*ln, outfile);
     *ln = *ln + strlen(*ln);
+  }
+
+  else if ( prefix ("\\end", *ln))
+  {
+    fprintf (outfile, "\\end\n");
+    exit(0);
   }
 
 
