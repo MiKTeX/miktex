@@ -188,8 +188,7 @@ bool UpdateDialogImpl::OnProgress(Notification nf)
     visibleProgress = (visibleProgress || (sharedData.progress2Pos != oldValue));
   }
   unsigned oldValue = sharedData.secondsRemaining;
-  sharedData.secondsRemaining
-    = static_cast<unsigned>(progressInfo.timeRemaining / 1000);
+  sharedData.secondsRemaining = static_cast<unsigned>(progressInfo.timeRemaining / 1000);
   visibleProgress = (visibleProgress || (sharedData.secondsRemaining != oldValue));
   if (visibleProgress)
   {
@@ -283,8 +282,7 @@ void UpdateDialogImpl::ShowProgress()
         .arg(sharedData.progressInfo.cbDownloadCompleted));
 
       // update "Package"
-      labelPackageName->setText(
-        sharedData.progressInfo.displayName.c_str());
+      labelPackageName->setText(sharedData.progressInfo.displayName.c_str());
 
       // update "KB/s"
       format = "%1";
