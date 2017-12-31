@@ -1631,9 +1631,6 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_VPTOVF_EXE, { "vptovf" } },
   { MIKTEX_WEAVE_EXE, { "weave" } },
   { MIKTEX_XETEX_EXE, { "xetex", MIKTEX_XELATEX_EXE } },
-#if !defined(MIKTEX_WINDOWS) && defined(MIKTEX_QT)
-  { MIKTEX_MPM_QT_EXE, { MIKTEX_MPM_QT_ADMIN_EXE } },
-#endif
 #if defined(WITH_KPSEWHICH)
   { MIKTEX_KPSEWHICH_EXE, { "kpsewhich" } },
 #endif
