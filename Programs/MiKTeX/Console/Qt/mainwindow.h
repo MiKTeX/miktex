@@ -41,6 +41,9 @@ private slots:
   void on_buttonOverview_clicked();
 
 private slots:
+  void on_buttonUpdates_clicked();
+
+private slots:
   void on_buttonPackages_clicked();
 
 private slots:
@@ -77,7 +80,15 @@ private:
   void UpdateWidgets();
 
 private:
-  void SetCurrentPage(int idx);
+  enum class Pages {
+    Setup = 0,
+    Overview = 1,
+    Updates = 2,
+    Packages = 3,
+  };
+
+private:
+  void SetCurrentPage(Pages p);
 
 private:
   bool isSetupMode = false;

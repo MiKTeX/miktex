@@ -96,6 +96,34 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="buttonUpdates">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="statusTip">
+          <string>Check for MiKTeX updates</string>
+         </property>
+         <property name="text">
+          <string>Updates</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="autoExclusive">
+          <bool>true</bool>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="buttonPackages">
          <property name="minimumSize">
           <size>
@@ -145,7 +173,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="setup">
        <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -473,10 +501,48 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="updates">
+       <layout class="QVBoxLayout" name="_22">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QPushButton" name="Check">
+            <property name="text">
+             <string>Check for updates</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="Check_2">
+            <property name="text">
+             <string>Update now</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTreeView" name="tvUpdates"/>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="packages">
        <layout class="QVBoxLayout" name="_2">
         <item>
-         <widget class="QTreeView" name="treeView"/>
+         <widget class="QTreeView" name="tvPackages"/>
         </item>
        </layout>
       </widget>

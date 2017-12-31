@@ -58,9 +58,7 @@ MainWindow::MainWindow(QWidget* parent) :
   time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
   isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0;
 
-  int startPage = isSetupMode ? 0 : 1;
-
-  SetCurrentPage(startPage);
+  SetCurrentPage(isSetupMode ? Pages::Setup : Pages::Overview);
 
   if (session->IsAdminMode())
   {
@@ -100,12 +98,17 @@ void MainWindow::UpdateWidgets()
     }
   }
   ui->buttonOverview->setEnabled(!isSetupMode);
+  ui->buttonUpdates->setEnabled(!isSetupMode);
   ui->buttonPackages->setEnabled(!isSetupMode);
   if (Utils::CheckPath(false))
   {
     ui->hintPath->hide();
   }
   ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
+  if (packageManager->GetPackageInfo("ltxbase").IsInstalled())
+  {
+    ui->hintUpgrade->hide();
+  }
 }
 
 void MainWindow::EnableActions()
@@ -124,20 +127,23 @@ void MainWindow::EnableActions()
   }
 }
 
-void MainWindow::SetCurrentPage(int idx)
+void MainWindow::SetCurrentPage(MainWindow::Pages p)
 {
-  switch (idx)
+  switch (p)
   {
-  case 0:
+  case Pages::Setup:
     break;
-  case 1:
+  case Pages::Overview:
     ui->buttonOverview->setChecked(true);
     break;
-  case 2:
+  case Pages::Updates:
+    ui->buttonUpdates->setChecked(true);
+    break;
+  case Pages::Packages:
     ui->buttonPackages->setChecked(true);
     break;
   }
-  ui->pages->setCurrentIndex(idx);
+  ui->pages->setCurrentIndex((int)p);
 }
 
 void MainWindow::AboutDialog()
@@ -153,12 +159,17 @@ void MainWindow::AboutDialog()
 
 void MainWindow::on_buttonOverview_clicked()
 {
-  SetCurrentPage(1);
+  SetCurrentPage(Pages::Overview);
+}
+
+void MainWindow::on_buttonUpdates_clicked()
+{
+  SetCurrentPage(Pages::Updates);
 }
 
 void MainWindow::on_buttonPackages_clicked()
 {
-  SetCurrentPage(2);
+  SetCurrentPage(Pages::Packages);
 }
 
 void MainWindow::on_buttonAdminSetup_clicked()
@@ -310,7 +321,7 @@ void MainWindow::FinishSetup()
     session->SetAdminMode(isAdminMode);
     UpdateWidgets();
     EnableActions();
-    SetCurrentPage(1);
+    SetCurrentPage(Pages::Overview);
   }
   catch (const MiKTeXException& e)
   {
