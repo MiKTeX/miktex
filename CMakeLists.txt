@@ -2055,6 +2055,18 @@ if(WITH_UI_QT)
 endif()
 
 ###############################################################################
+## configure Qt plugins (macOS)
+
+if(MIKTEX_MACOS_BUNDLE)
+  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
+    "[Paths]\nPlugins = ../PlugIns\n")
+  install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
+    DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
+  )
+endif()
+
+###############################################################################
 ## bootstrapping
 
 if(WITH_BOOTSTRAPPING)
