@@ -23,6 +23,7 @@
 #define MAINWINDOW_H
 
 #include <miktex/Core/Session>
+#include <miktex/PackageManager/PackageManager>
 
 #include <memory>
 
@@ -37,13 +38,10 @@ class MainWindow : public QMainWindow
   Q_OBJECT;
 
 private slots:
-  void EnableActions();
+  void on_buttonOverview_clicked();
 
 private slots:
-  void AboutDialog();
-  
-private slots:
-  void RestartAdmin();
+  void on_buttonPackages_clicked();
 
 private slots:
   void on_buttonAdminSetup_clicked();
@@ -52,10 +50,16 @@ private slots:
   void on_buttonUserSetup_clicked();
 
 private slots:
-  void on_buttonOverview_clicked();
+  void on_buttonUpgrade_clicked();
 
 private slots:
-  void on_buttonPackages_clicked();
+  void EnableActions();
+
+private slots:
+  void AboutDialog();
+  
+private slots:
+  void RestartAdmin();
 
 public slots:
   void FinishSetup();
@@ -83,6 +87,9 @@ private:
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
+
+private:
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 };
 
 #endif

@@ -37,9 +37,11 @@
 #include <miktex/Core/Session>
 #include <miktex/Setup/SetupService>
 #include <miktex/UI/Qt/ErrorDialog>
+#include <miktex/UI/Qt/UpdateDialog>
 #include <miktex/Util/StringUtil>
 
 using namespace MiKTeX::Core;
+using namespace MiKTeX::Packages;
 using namespace MiKTeX::Setup;
 using namespace MiKTeX::UI::Qt;
 using namespace MiKTeX::Util;
@@ -47,7 +49,8 @@ using namespace std;
 
 MainWindow::MainWindow(QWidget* parent) :
   QMainWindow(parent),
-  ui(new Ui::MainWindow)
+  ui(new Ui::MainWindow),
+  packageManager(PackageManager::Create())
 {
   ui->setupUi(this);
 
@@ -148,6 +151,16 @@ void MainWindow::AboutDialog()
   QMessageBox::about(this, tr("MiKTeX Console"), message);
 }
 
+void MainWindow::on_buttonOverview_clicked()
+{
+  SetCurrentPage(1);
+}
+
+void MainWindow::on_buttonPackages_clicked()
+{
+  SetCurrentPage(2);
+}
+
 void MainWindow::on_buttonAdminSetup_clicked()
 {
   try
@@ -187,14 +200,39 @@ void MainWindow::on_buttonUserSetup_clicked()
   }
 }
 
-void MainWindow::on_buttonOverview_clicked()
+void MainWindow::on_buttonUpgrade_clicked()
 {
-  SetCurrentPage(1);
-}
+  try
+  {
+    shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
+    // TODO: installer->SetCallback(this);
+    installer->FindUpgrades(PackageLevel::Basic);
+    vector<PackageInstaller::UpgradeInfo> upgrades = installer->GetUpgrades();
+    if (upgrades.empty())
+    {
+      // TODO: Message(T_("There are currently no upgrades available."));
+      return;
+    }
+    vector<string> toBeInstalled;
+    for (const PackageInstaller::UpgradeInfo& upg : upgrades)
+    {
+      toBeInstalled.push_back(upg.deploymentName);
+    }
+    int ret = UpdateDialog::DoModal(this, packageManager, toBeInstalled, {});
+    if (ret == QDialog::Accepted)
+    {
+      UpdateWidgets();
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    ErrorDialog::DoModal(this, e);
+  }
+  catch (const exception& e)
+  {
+    ErrorDialog::DoModal(this, e);
+  }
 
-void MainWindow::on_buttonPackages_clicked()
-{
-  SetCurrentPage(2);
 }
 
 void MainWindow::RestartAdmin()
