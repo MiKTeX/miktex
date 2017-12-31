@@ -39,7 +39,7 @@ int UpdateDialog::DoModal(QWidget* parent, shared_ptr<PackageManager> packageMan
 {
   string url;
   RepositoryType repositoryType(RepositoryType::Unknown);
-  if (toBeInstalled.size() > 0
+  if (!toBeInstalled.empty()
     && PackageManager::TryGetDefaultPackageRepository(repositoryType, url)
     && repositoryType == RepositoryType::Remote
     && !ProxyAuthenticationDialog(parent))
@@ -149,6 +149,11 @@ bool UpdateDialogImpl::OnRetryableError(const string& message)
   return false;
 }
 
+inline double Divide(double a, double b)
+{
+  return a / b;
+}
+
 bool UpdateDialogImpl::OnProgress(Notification nf)
 {
   lock_guard<mutex> lockGuard(sharedDataMutex);
@@ -170,21 +175,13 @@ bool UpdateDialogImpl::OnProgress(Notification nf)
   if (progressInfo.cbPackageDownloadTotal > 0)
   {
     int oldValue = sharedData.progress1Pos;
-    sharedData.progress1Pos
-      = static_cast<int>
-      (((static_cast<double>(progressInfo.cbPackageDownloadCompleted)
-        / progressInfo.cbPackageDownloadTotal)
-        * PROGRESS_MAX));
+    sharedData.progress1Pos = static_cast<int>(Divide(progressInfo.cbPackageDownloadCompleted, progressInfo.cbPackageDownloadTotal) * PROGRESS_MAX);
     visibleProgress = (visibleProgress || (sharedData.progress1Pos != oldValue));
   }
   if (progressInfo.cbDownloadTotal > 0)
   {
     int oldValue = sharedData.progress2Pos;
-    sharedData.progress2Pos
-      = static_cast<int>
-      (((static_cast<double>(progressInfo.cbDownloadCompleted)
-        / progressInfo.cbDownloadTotal)
-        * PROGRESS_MAX));
+    sharedData.progress2Pos = static_cast<int>(Divide(progressInfo.cbDownloadCompleted, progressInfo.cbDownloadTotal) * PROGRESS_MAX);
     visibleProgress = (visibleProgress || (sharedData.progress2Pos != oldValue));
   }
   unsigned oldValue = sharedData.secondsRemaining;
@@ -278,17 +275,14 @@ void UpdateDialogImpl::ShowProgress()
 
       // update "Downloaded bytes"
       format = "%1";
-      labelDownloadedBytes->setText(format
-        .arg(sharedData.progressInfo.cbDownloadCompleted));
+      labelDownloadedBytes->setText(format.arg(sharedData.progressInfo.cbDownloadCompleted));
 
       // update "Package"
       labelPackageName->setText(sharedData.progressInfo.displayName.c_str());
 
       // update "KB/s"
       format = "%1";
-      labelKbytesSec->setText(format
-        .arg((static_cast<double>(sharedData.progressInfo.bytesPerSecond)
-          / 1024.0)));
+      labelKbytesSec->setText(format.arg(Divide(sharedData.progressInfo.bytesPerSecond, 1024.0)));
     }
   }
   catch (const MiKTeXException& e)
@@ -305,7 +299,7 @@ void UpdateDialogImpl::Cancel()
 {
   try
   {
-    if (QMessageBox::Ok == QMessageBox::information(this, "MiKTeX Package Manager", "The update operation will now be cancelled.", QMessageBox::Ok | QMessageBox::Cancel))
+    if (QMessageBox::Ok == QMessageBox::information(this, "MiKTeX Package Manager", tr("The update operation will now be cancelled."), QMessageBox::Ok | QMessageBox::Cancel))
     {
       cancelled = true;
       disconnect(pushButton, SIGNAL(clicked()), this, SLOT(Cancel()));
