@@ -51,13 +51,13 @@ public:
   ~UpdateDialogImpl();
 
 public:
-  virtual void MIKTEXTHISCALL ReportLine(const std::string& str);
+  void ReportLine(const std::string& str) override;
 
 public:
-  virtual bool MIKTEXTHISCALL OnRetryableError(const std::string& message);
+  bool OnRetryableError(const std::string& message) override;
 
 public:
-  virtual bool MIKTEXTHISCALL OnProgress(MiKTeX::Packages::Notification nf);
+  bool OnProgress(MiKTeX::Packages::Notification nf) override;
 
 public:
   bool GetCancelFlag() const
@@ -117,7 +117,7 @@ private:
     {
     }
   public:
-    virtual void run();
+    void run() override;
   public:
     MiKTeX::Core::MiKTeXException threadMiKTeXException;
   public:
