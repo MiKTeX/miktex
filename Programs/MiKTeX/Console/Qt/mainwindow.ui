@@ -150,9 +150,16 @@
       <widget class="QWidget" name="setup">
        <layout class="QVBoxLayout" name="verticalLayout_6">
         <item>
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>&lt;h2&gt;Welcome!&lt;/h2&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QLabel" name="label_9">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thank you for giving MiKTeX a try!&lt;/p&gt;&lt;p&gt;We will now finish the MiKTeX setup by populating the &lt;span style=&quot; font-style:italic;&quot;&gt;bin&lt;/span&gt; directory with links to the to actual MiKTeX binaries. The location of the &lt;span style=&quot; font-style:italic;&quot;&gt;bin&lt;/span&gt; directory depends on your choice:&lt;br/&gt;&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;/usr/local/bin&lt;/span&gt; for a shared (system-wide) MiKTeX installation. You must have administrator privileges.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;~/bin&lt;/span&gt; for a private MiKTeX installation.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/shared-vs-private&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;Shared vs. private installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thank you for giving MiKTeX a try!&lt;/p&gt;&lt;p&gt;We will now finish the MiKTeX setup by populating the &lt;span style=&quot; font-style:italic;&quot;&gt;bin&lt;/span&gt; directory with links to the to actual MiKTeX binaries. The location of the &lt;span style=&quot; font-style:italic;&quot;&gt;bin&lt;/span&gt; directory depends on your choice:&lt;br/&gt;&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;/usr/local/bin&lt;/span&gt; for a shared (system-wide) MiKTeX installation. This option requires administrator privileges.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;~/bin&lt;/span&gt; for a private MiKTeX installation.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/shared-vs-private&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;Shared vs. private installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -230,7 +237,7 @@
         <item>
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>This is the MiKTeX Console. It will assist you in making changes to your MiKTeX configuration.</string>
+           <string>This is the MiKTeX Console. It will assist you in managing your MiKTeX configuration.</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -359,13 +366,13 @@
         <item>
          <widget class="QGroupBox" name="verticalGroupBox">
           <property name="title">
-           <string>Binaries</string>
+           <string>Executables</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
             <widget class="QLabel" name="label_2">
              <property name="text">
-              <string>This is the location of the MiKTeX binaries:</string>
+              <string>MiKTeX exececutables have been installed in:</string>
              </property>
             </widget>
            </item>
@@ -379,7 +386,7 @@
            <item>
             <widget class="QLabel" name="hintPath">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You should add this location to PATH so that you can invoke them from a shell.&lt;br/&gt;More information: &lt;a href=&quot;https://miktex.org/howto/modify-path&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: modify PATH so that MiKTeX binaries will be found&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Currently this directory is not in the search path for executables. You should add this directory to PATH so that you can invoke MiKTeX executables from a shell.&lt;br/&gt;More information: &lt;a href=&quot;https://miktex.org/howto/modify-path&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: modify PATH&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
