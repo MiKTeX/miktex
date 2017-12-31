@@ -75,6 +75,12 @@
            <height>30</height>
           </size>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="statusTip">
+          <string>MiKTeX configuration overview</string>
+         </property>
          <property name="text">
           <string>Overview</string>
          </property>
@@ -96,6 +102,12 @@
            <width>0</width>
            <height>30</height>
           </size>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="statusTip">
+          <string>MiKTeX package management</string>
          </property>
          <property name="text">
           <string>Packages</string>
