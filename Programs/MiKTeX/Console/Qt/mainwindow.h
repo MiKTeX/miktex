@@ -37,34 +37,34 @@ class MainWindow : public QMainWindow
 {
   Q_OBJECT;
 
-private slots:
+  private slots:
   void on_buttonOverview_clicked();
 
-private slots:
+  private slots:
   void on_buttonUpdates_clicked();
 
-private slots:
+  private slots:
   void on_buttonPackages_clicked();
 
-private slots:
+  private slots:
   void on_buttonAdminSetup_clicked();
 
-private slots:
+  private slots:
   void on_buttonUserSetup_clicked();
 
-private slots:
+  private slots:
   void on_buttonUpgrade_clicked();
 
-private slots:
+  private slots:
   void EnableActions();
 
-private slots:
+  private slots:
   void AboutDialog();
-  
-private slots:
+
+  private slots:
   void RestartAdmin();
 
-public slots:
+  public slots:
   void FinishSetup();
 
 public:
@@ -91,6 +91,21 @@ private:
   void SetCurrentPage(Pages p);
 
 private:
+  void CriticalError(const QString& text, const MiKTeX::Core::MiKTeXException& e);
+
+private:
+  void CriticalError(const MiKTeX::Core::MiKTeXException& e)
+  {
+    CriticalError(tr("Sorry, something went wrong."), e);
+  }
+
+private:
+  void CriticalError(const std::exception& e)
+  {
+    CriticalError(MiKTeX::Core::MiKTeXException(e.what()));
+  }
+
+private:
   bool isSetupMode = false;
 
 private:
@@ -103,20 +118,58 @@ private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 };
 
-class FinishSetupWorker :
+class BackgroundWorker :
   public QObject
 {
 private:
   Q_OBJECT;
 
 public slots:
-  void Process();
+  virtual void Process() = 0;
+
+public:
+  MiKTeX::Core::MiKTeXException GetMiKTeXException() const
+  {
+    return e;
+  }
+
+protected:
+  MiKTeX::Core::MiKTeXException e;
 
 signals:
-  void OnError();
+  void OnMiKTeXException();
 
 signals:
   void OnFinish();
+};
+
+class FinishSetupWorker :
+  public BackgroundWorker
+{
+private:
+  Q_OBJECT;
+
+public slots:
+  void Process() override;
+};
+
+class UpgradeWorker :
+  public BackgroundWorker
+{
+private:
+  Q_OBJECT;
+
+public:
+  UpgradeWorker(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager) :
+    packageManager(packageManager)
+  {
+  }
+
+private:
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
+
+public slots:
+  void Process() override;
 };
 
 #endif

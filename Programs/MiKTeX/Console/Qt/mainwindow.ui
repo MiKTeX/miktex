@@ -173,7 +173,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="setup">
        <property name="enabled">
@@ -250,7 +250,7 @@
            <enum>QFrame::Plain</enum>
           </property>
           <property name="text">
-           <string>Please wait while the setup is completed...</string>
+           <string>Please wait a moment. It doesn't take long...</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -504,6 +504,13 @@
               </spacer>
              </item>
             </layout>
+           </item>
+           <item>
+            <widget class="QProgressBar" name="progressBarUpgrade">
+             <property name="value">
+              <number>24</number>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>

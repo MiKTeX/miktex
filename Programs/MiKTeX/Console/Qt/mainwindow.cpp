@@ -75,6 +75,16 @@ MainWindow::~MainWindow()
   delete ui;
 }
 
+void MainWindow::CriticalError(const QString& text, const MiKTeXException& e)
+{
+  if (QMessageBox::critical(this, tr("MiKTeX Console"), text + "\n\n" + tr("Do you want to see the error details?"),
+    QMessageBox::StandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No))
+    == QMessageBox::StandardButton::Yes)
+  {
+    ErrorDialog::DoModal(this, e);
+  }
+}
+
 void MainWindow::UpdateWidgets()
 {
   ui->labelSetupWait->hide();
@@ -118,11 +128,11 @@ void MainWindow::EnableActions()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    CriticalError(e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    CriticalError(e);
   }
 }
 
@@ -186,11 +196,11 @@ void MainWindow::on_buttonAdminSetup_clicked()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    CriticalError(e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    CriticalError(e);
   }
 }
 
@@ -202,15 +212,15 @@ void MainWindow::on_buttonUserSetup_clicked()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    CriticalError(e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    CriticalError(e);
   }
 }
 
-void MainWindow::on_buttonUpgrade_clicked()
+void UpgradeWorker::Process()
 {
   try
   {
@@ -228,21 +238,35 @@ void MainWindow::on_buttonUpgrade_clicked()
     {
       toBeInstalled.push_back(upg.deploymentName);
     }
-    int ret = UpdateDialog::DoModal(this, packageManager, toBeInstalled, {});
-    if (ret == QDialog::Accepted)
-    {
-      UpdateWidgets();
-    }
+    installer->SetFileLists(toBeInstalled, vector<string>());
+    installer->InstallRemove();
   }
   catch (const MiKTeXException& e)
   {
-  ErrorDialog::DoModal(this, e);
+    this->e = e;
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    this->e = MiKTeXException(e.what());
   }
+}
 
+void MainWindow::on_buttonUpgrade_clicked()
+{
+  QThread* thread = new QThread;
+  UpgradeWorker* worker = new UpgradeWorker(packageManager);
+  worker->moveToThread(thread);
+  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  connect(worker, &UpgradeWorker::OnFinish, this, [this]() {
+  });
+  connect(worker, &UpgradeWorker::OnMiKTeXException, this, [this]() {
+    CriticalError(tr("Something went wrong while finishing the MiKTeX setup."), ((FinishSetupWorker*)sender())->GetMiKTeXException());
+  });
+  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  connect(worker, SIGNAL(OnFinish()), worker, SLOT(deleteLater()));
+  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  thread->start();
+  ui->buttonUpgrade->hide();
 }
 
 void MainWindow::RestartAdmin()
@@ -253,11 +277,11 @@ void MainWindow::RestartAdmin()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+    CriticalError(e);
   }
   catch (const exception& e)
   {
-    ErrorDialog::DoModal(this, e);
+    CriticalError(e);
   }
 }
 
@@ -297,13 +321,15 @@ void FinishSetupWorker::Process()
     service->Run();
     emit OnFinish();
   }
-  catch (const MiKTeXException&)
+  catch (const MiKTeXException& e)
   {
-    emit OnError();
+    this->e = e;
+    emit OnMiKTeXException();
   }
-  catch (const exception&)
+  catch (const exception& e)
   {
-    emit OnError();
+    this->e = MiKTeXException(e.what());
+    emit OnMiKTeXException();
   }
 }
 
@@ -324,9 +350,8 @@ void MainWindow::FinishSetup()
     EnableActions();
     SetCurrentPage(Pages::Overview);
   });
-  connect(worker, &FinishSetupWorker::OnError, this, [this]() {
-    // TODO: error context
-    QMessageBox::critical(this, tr("MiKTeX Console"), tr("Something went wrong while finishing the MiKTeX setup."));
+  connect(worker, &FinishSetupWorker::OnMiKTeXException, this, [this]() {
+    CriticalError(tr("Something went wrong while finishing the MiKTeX setup."), ((FinishSetupWorker*)sender())->GetMiKTeXException());
     ui->labelSetupWait->hide();
   });
   connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
