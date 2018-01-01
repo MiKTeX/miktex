@@ -1,6 +1,6 @@
 /* MainWindow.cpp:
 
-   Copyright (C) 2008-2017 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -252,47 +252,11 @@ void MainWindow::Install()
       tr("Your MiKTeX installation will now be updated:\n\n")
       + tr("%n package(s) will be installed\n", "", toBeInstalled.size())
       + tr("%n package(s) will be removed", "", toBeRemoved.size());
-#if defined(MIKTEX_WINDOWS)
-    if (session->IsAdminMode())
+    if (QMessageBox::Ok != QMessageBox::information(this, "MiKTeX Package Manager", message, QMessageBox::Ok | QMessageBox::Cancel))
     {
-      TASKDIALOGCONFIG taskDialogConfig;
-      memset(&taskDialogConfig, 0, sizeof(taskDialogConfig));
-      taskDialogConfig.cbSize = sizeof(TASKDIALOGCONFIG);
-      taskDialogConfig.hwndParent = nullptr;
-      taskDialogConfig.hInstance = nullptr;
-      taskDialogConfig.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION;
-      taskDialogConfig.pszMainIcon = TD_SHIELD_ICON;
-      taskDialogConfig.pszWindowTitle = L"MiKTeX Package Manager";
-      taskDialogConfig.pszMainInstruction = L"Do you want to proceed?";
-      taskDialogConfig.pszContent = reinterpret_cast<PCWSTR>(message.utf16());
-      taskDialogConfig.cButtons = 2;
-      TASKDIALOG_BUTTON const buttons[] = {
-        {IDOK, L"Proceed"},
-        {IDCANCEL, L"Cancel"}
-      };
-      taskDialogConfig.pButtons = buttons;
-      taskDialogConfig.nDefaultButton = IDOK;
-      int result = 0;
-      if (SUCCEEDED(TaskDialogIndirect(&taskDialogConfig, &result, nullptr, nullptr)))
-      {
-        if (IDOK != result)
-        {
-          return;
-        }
-      }
-      else
-      {
-        MIKTEX_UNEXPECTED();
-      }
+      return;
     }
-    else
-#endif
-    {
-      if (QMessageBox::Ok != QMessageBox::information(this, "MiKTeX Package Manager", message, QMessageBox::Ok | QMessageBox::Cancel))
-      {
-        return;
-      }
-    }
+
     int ret = UpdateDialog::DoModal(this, packageManager, toBeInstalled, toBeRemoved);
     if (ret == QDialog::Accepted)
     {

@@ -1,6 +1,6 @@
 /* mikuiqt.cpp:
 
-   Copyright (C) 2008-2017 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -52,13 +52,6 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
 #endif
   static int argc = 0;
   static char** argv = nullptr;
-#if defined(MIKTEX_WINDOWS)
-  INITCOMMONCONTROLSEX icce;
-  icce.dwSize = sizeof(icce);
-  icce.dwICC = 0;
-  icce.dwICC |= ICC_STANDARD_CLASSES;
-  InitCommonControlsEx(&icce);
-#endif
   pApplication = new QApplication(argc, argv, useGUI);
 }
 

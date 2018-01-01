@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2008-2017 Christian Schenk
+## Copyright (C) 2008-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -165,7 +165,6 @@ if(MIKTEX_NATIVE_WINDOWS)
     PRIVATE
       Qt5::WinExtras
       Secur32
-      comctl32
   )
 endif()
 

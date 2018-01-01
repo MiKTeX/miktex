@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2008-2017 Christian Schenk
+## Copyright (C) 2008-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -82,12 +82,6 @@ set(libs
   Qt5::Widgets
   miktex-popt-wrapper
 )
-
-if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND libs
-    Comctl32.lib
-  )
-endif()
 
 add_executable(mpm_qt WIN32 ${sources})
 set_property(TARGET mpm_qt PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
