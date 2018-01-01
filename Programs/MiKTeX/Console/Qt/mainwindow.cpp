@@ -1,6 +1,6 @@
 /* mainwindow.cpp:
 
-   Copyright (C) 2017 Christian Schenk
+   Copyright (C) 2017-2018 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -19,11 +19,9 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#include <QProgressDialog>
+#include <QThread>
 #include <QTimer>
 #include <QtWidgets>
-
-#include <thread>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -79,6 +77,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::UpdateWidgets()
 {
+  ui->labelSetupWait->hide();
   if (session->IsAdminMode())
   {
     ui->privateMode->hide();
@@ -237,7 +236,7 @@ void MainWindow::on_buttonUpgrade_clicked()
   }
   catch (const MiKTeXException& e)
   {
-    ErrorDialog::DoModal(this, e);
+  ErrorDialog::DoModal(this, e);
   }
   catch (const exception& e)
   {
@@ -285,36 +284,38 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
   this->close();
 }
 
-void MainWindow::FinishSetup()
+void FinishSetupWorker::Process()
 {
-  int maxTime = 60;
-  time_t start = time(nullptr);
-  QProgressDialog progress(tr("Finishing MiKTeX setup..."), tr("Cancel"), 0, maxTime, this);
-  progress.setWindowModality(Qt::WindowModal);
-  progress.setMinimumDuration(0);
-  progress.setValue(0);
-  function<bool(const void* output, size_t n)> onProcessOutput = [maxTime, start, &progress](auto output, auto n) {
-    if (progress.wasCanceled())
-    {
-      return false;
-    }
-    int elapsed = time(nullptr) - start;
-    progress.setValue(elapsed >= maxTime ? maxTime - 1 : elapsed);
-    return true;
-  };
   try
   {
+    shared_ptr<Session> session = Session::Get();
     unique_ptr<SetupService> service = SetupService::Create();
     SetupOptions options = service->GetOptions();
     options.Task = SetupTask::FinishSetup;
     options.IsCommonSetup = session->IsAdminMode();
     service->SetOptions(options);
-    service->SetCallbacks({}, {}, {}, onProcessOutput);
     service->Run();
-    if (!progress.wasCanceled())
-    {
-      progress.setValue(maxTime);
-    }
+    emit OnFinish();
+  }
+  catch (const MiKTeXException&)
+  {
+    emit OnError();
+  }
+  catch (const exception&)
+  {
+    emit OnError();
+  }
+}
+
+void MainWindow::FinishSetup()
+{
+  ui->buttonAdminSetup->setEnabled(false);
+  ui->buttonUserSetup->setEnabled(false);
+  QThread* thread = new QThread;
+  FinishSetupWorker* worker = new FinishSetupWorker;
+  worker->moveToThread(thread);
+  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  connect(worker, &FinishSetupWorker::OnFinish, this, [this]() {
     isSetupMode = false;
     bool isAdminMode = session->IsAdminMode();
     session->Reset();
@@ -322,15 +323,15 @@ void MainWindow::FinishSetup()
     UpdateWidgets();
     EnableActions();
     SetCurrentPage(Pages::Overview);
-  }
-  catch (const MiKTeXException& e)
-  {
-    progress.setValue(maxTime);
-    ErrorDialog::DoModal(this, e);
-  }
-  catch (const exception& e)
-  {
-    progress.setValue(maxTime);
-    ErrorDialog::DoModal(this, e);
-  }
+  });
+  connect(worker, &FinishSetupWorker::OnError, this, [this]() {
+    // TODO: error context
+    QMessageBox::critical(this, tr("MiKTeX Console"), tr("Something went wrong while finishing the MiKTeX setup."));
+    ui->labelSetupWait->hide();
+  });
+  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  connect(worker, SIGNAL(OnFinish()), worker, SLOT(deleteLater()));
+  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  thread->start();
+  ui->labelSetupWait->show();
 }

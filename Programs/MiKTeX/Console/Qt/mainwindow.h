@@ -1,6 +1,6 @@
 /* mainwindow.h:                                        -*- C++ -*-
 
-   Copyright (C) 2017 Christian Schenk
+   Copyright (C) 2017-2018 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -101,6 +101,22 @@ private:
 
 private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
+};
+
+class FinishSetupWorker :
+  public QObject
+{
+private:
+  Q_OBJECT;
+
+public slots:
+  void Process();
+
+signals:
+  void OnError();
+
+signals:
+  void OnFinish();
 };
 
 #endif
