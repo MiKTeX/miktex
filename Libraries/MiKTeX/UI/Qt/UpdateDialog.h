@@ -1,6 +1,6 @@
 /* UpdateDialog.h:                                      -*- C++ -*-
 
-   Copyright (C) 2008-2017 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 

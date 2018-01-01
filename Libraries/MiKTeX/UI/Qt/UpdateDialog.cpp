@@ -1,6 +1,6 @@
 /* UpdateDialog.cpp:
 
-   Copyright (C) 2008-2017 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -260,29 +260,17 @@ void UpdateDialogImpl::ShowProgress()
       progressBar1->setValue(sharedData.progress1Pos);
       progressBar2->setValue(sharedData.progress2Pos);
 
-      // update "Removed files (packages)"
-      QString format;
-      format = "%1 (%2)";
-      labelRemovedFiles->setText(format
-        .arg(sharedData.progressInfo.cFilesRemoveCompleted)
-        .arg(sharedData.progressInfo.cPackagesRemoveCompleted));
+      // update "Packages"
+      labelPackages->setText(QString::number(sharedData.progressInfo.cPackagesRemoveCompleted + sharedData.progressInfo.cPackagesInstallCompleted));
 
-      // update "New files (packages)"
-      format = "%1 (%2)";
-      labelInstalledFiles->setText(format
-        .arg(sharedData.progressInfo.cFilesInstallCompleted)
-        .arg(sharedData.progressInfo.cPackagesInstallCompleted));
+      // update "Files"
+      labelFiles->setText(QString::number(sharedData.progressInfo.cFilesRemoveCompleted + sharedData.progressInfo.cFilesInstallCompleted));
 
-      // update "Downloaded bytes"
-      format = "%1";
-      labelDownloadedBytes->setText(format.arg(sharedData.progressInfo.cbDownloadCompleted));
+      // update "MB"
+      labelMB->setText(QString::number(Divide(sharedData.progressInfo.cbDownloadCompleted, 1000000), 'f', 2));
 
-      // update "Package"
-      labelPackageName->setText(sharedData.progressInfo.displayName.c_str());
-
-      // update "KB/s"
-      format = "%1";
-      labelKbytesSec->setText(format.arg(Divide(sharedData.progressInfo.bytesPerSecond, 1024.0)));
+      // update "Mbit/s"
+      labelMbits->setText(QString::number(Divide(sharedData.progressInfo.bytesPerSecond, 125000), 'f', 2));
     }
   }
   catch (const MiKTeXException& e)
