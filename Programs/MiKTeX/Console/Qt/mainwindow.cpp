@@ -45,6 +45,13 @@ using namespace MiKTeX::UI::Qt;
 using namespace MiKTeX::Util;
 using namespace std;
 
+inline double Divide(double a, double b)
+{
+  return a / b;
+}
+
+const int PROGRESS_MAX = 1000;
+
 MainWindow::MainWindow(QWidget* parent) :
   QMainWindow(parent),
   ui(new Ui::MainWindow),
@@ -117,6 +124,10 @@ void MainWindow::UpdateWidgets()
   if (packageManager->GetPackageInfo("ltxbase").IsInstalled())
   {
     ui->hintUpgrade->hide();
+  }
+  else
+  {
+    ui->upgradeStatus->hide();
   }
 }
 
@@ -224,49 +235,87 @@ void UpgradeWorker::Process()
 {
   try
   {
-    shared_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
-    // TODO: installer->SetCallback(this);
-    installer->FindUpgrades(PackageLevel::Basic);
-    vector<PackageInstaller::UpgradeInfo> upgrades = installer->GetUpgrades();
+    status = Status::Synchronize;
+    packageInstaller = packageManager->CreateInstaller();
+    packageInstaller->SetCallback(this);
+    packageInstaller->FindUpgrades(PackageLevel::Basic);
+    vector<PackageInstaller::UpgradeInfo> upgrades = packageInstaller->GetUpgrades();
     if (upgrades.empty())
     {
-      // TODO: Message(T_("There are currently no upgrades available."));
-      return;
+      emit OnFinish();
     }
     vector<string> toBeInstalled;
     for (const PackageInstaller::UpgradeInfo& upg : upgrades)
     {
       toBeInstalled.push_back(upg.deploymentName);
     }
-    installer->SetFileLists(toBeInstalled, vector<string>());
-    installer->InstallRemove();
+    packageInstaller->SetFileLists(toBeInstalled, vector<string>());
+    packageInstaller->InstallRemove();
+    emit OnFinish();
   }
   catch (const MiKTeXException& e)
   {
     this->e = e;
+    emit OnMiKTeXException();
   }
   catch (const exception& e)
   {
     this->e = MiKTeXException(e.what());
+    emit OnMiKTeXException();
   }
 }
 
 void MainWindow::on_buttonUpgrade_clicked()
 {
+  ui->buttonUpgrade->setEnabled(false);
   QThread* thread = new QThread;
   UpgradeWorker* worker = new UpgradeWorker(packageManager);
   worker->moveToThread(thread);
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &UpgradeWorker::OnFinish, this, [this]() {
+    ui->labelUpgradeStatus->setText(tr("Done"));
+    ui->labelUpgradePercent->setText("100%");
+    ui->labelUpgradeDetails->setText("");
+  });
+  connect(worker, &UpgradeWorker::OnUpgradeProgress, this, [this]() {
+    PackageInstaller::ProgressInfo progressInfo = ((UpgradeWorker*)sender())->GetProgressInfo();
+    UpgradeWorker::Status status = ((UpgradeWorker*)sender())->GetStatus();
+    if (progressInfo.cbDownloadTotal > 0)
+    {
+      ui->labelUpgradePercent->setText(QString("%1%").arg(static_cast<int>(Divide(progressInfo.cbDownloadCompleted, progressInfo.cbDownloadTotal) * 100)));
+    }
+    if (status == UpgradeWorker::Status::Synchronize)
+    {
+      ui->labelUpgradeDetails->setText(tr("(synchronizing package database)"));
+    }
+    else if (status == UpgradeWorker::Status::Download)
+    {
+      ui->labelUpgradeDetails->setText(tr("(downloading: %1)").arg(QString::fromUtf8(progressInfo.deploymentName.c_str())));
+    }
+    else if (status == UpgradeWorker::Status::Install)
+    {
+      ui->labelUpgradeDetails->setText(tr("(installing: %1)").arg(QString::fromUtf8(progressInfo.deploymentName.c_str())));
+    }
+    else
+    {
+      ui->labelUpgradeDetails->setText("");
+    }
   });
   connect(worker, &UpgradeWorker::OnMiKTeXException, this, [this]() {
-    CriticalError(tr("Something went wrong while finishing the MiKTeX setup."), ((FinishSetupWorker*)sender())->GetMiKTeXException());
+    CriticalError(tr("Something went wrong while installing packages."), ((FinishSetupWorker*)sender())->GetMiKTeXException());
+    ui->labelUpgradeStatus->setText(tr("Error"));
+    ui->labelUpgradePercent->setText("");
+    ui->labelUpgradeDetails->setText("");
+    ui->buttonUpgrade->setEnabled(true);
   });
   connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
   connect(worker, SIGNAL(OnFinish()), worker, SLOT(deleteLater()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  ui->upgradeStatus->show();
+  ui->labelUpgradeStatus->setText(tr("Upgrade in progress..."));
+  ui->labelUpgradePercent->setText("0%");
+  ui->labelUpgradeDetails->setText(tr("(initializing)"));
   thread->start();
-  ui->buttonUpgrade->hide();
 }
 
 void MainWindow::RestartAdmin()

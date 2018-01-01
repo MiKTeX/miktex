@@ -506,10 +506,43 @@
             </layout>
            </item>
            <item>
-            <widget class="QProgressBar" name="progressBarUpgrade">
-             <property name="value">
-              <number>24</number>
-             </property>
+            <widget class="QWidget" name="upgradeStatus" native="true">
+             <layout class="QHBoxLayout" name="updateStatus">
+              <item>
+               <widget class="QLabel" name="labelUpgradeStatus">
+                <property name="text">
+                 <string>Upgrade in progress...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="labelUpgradePercent">
+                <property name="text">
+                 <string>0%</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="labelUpgradeDetails">
+                <property name="text">
+                 <string>(synchronizing package database)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>

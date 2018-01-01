@@ -154,7 +154,8 @@ public slots:
 };
 
 class UpgradeWorker :
-  public BackgroundWorker
+  public BackgroundWorker,
+  public MiKTeX::Packages::PackageInstallerCallback
 {
 private:
   Q_OBJECT;
@@ -168,8 +169,72 @@ public:
 private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 
+private:
+  std::unique_ptr<MiKTeX::Packages::PackageInstaller> packageInstaller;
+
+private:
+  MiKTeX::Packages::PackageInstaller::ProgressInfo progressInfo;
+
+public:
+  MiKTeX::Packages::PackageInstaller::ProgressInfo GetProgressInfo() const
+  {
+    return progressInfo;
+  }
+
+public:
+  enum class Status {
+    None,
+    Synchronize,
+    Download,
+    Install
+  };
+  
+private:
+  Status status;
+
+public:
+  Status GetStatus() const
+  {
+    return status;
+  }
+
 public slots:
   void Process() override;
+
+signals:
+  void OnUpgradeProgress();
+
+private:
+  void ReportLine(const std::string& str) override
+  {
+  }
+
+private:
+  bool OnRetryableError(const std::string& message) override
+  {
+    return false;
+  }
+
+private:
+  bool OnProgress(MiKTeX::Packages::Notification notification) override
+  {
+    switch (notification)
+    {
+    case MiKTeX::Packages::Notification::DownloadPackageStart:
+      status = Status::Download;
+      break;
+    case MiKTeX::Packages::Notification::InstallPackageStart:
+      status = Status::Install;
+      break;
+    case MiKTeX::Packages::Notification::DownloadPackageEnd:
+    case MiKTeX::Packages::Notification::InstallPackageEnd:
+      status = Status::None;
+      break;
+    }
+    progressInfo = packageInstaller->GetProgressInfo();
+    emit OnUpgradeProgress();
+    return true;
+  }
 };
 
 #endif
