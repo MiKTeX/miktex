@@ -156,6 +156,48 @@
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Preferred</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item alignment="Qt::AlignHCenter">
+        <widget class="QToolButton" name="buttonTeXworks">
+         <property name="statusTip">
+          <string>Start the TeXworks front-end</string>
+         </property>
+         <property name="text">
+          <string>TeXworks</string>
+         </property>
+         <property name="icon">
+          <iconset resource="console.qrc">
+           <normaloff>:/Icons/texworks-32x32.png</normaloff>:/Icons/texworks-32x32.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonIconOnly</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_8">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
@@ -173,7 +215,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="setup">
        <property name="enabled">
@@ -250,7 +292,7 @@
            <enum>QFrame::Plain</enum>
           </property>
           <property name="text">
-           <string>Please wait a moment. It doesn't too take long...</string>
+           <string>Please wait a few moments. It doesn't too take long...</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>

@@ -46,13 +46,13 @@ using namespace MiKTeX::Util;
 using namespace std;
 
 atomic_int BackgroundWorker::instances = 0;
+atomic_bool FinishSetupWorker::running = false;
 atomic_bool UpgradeWorker::running = false;
 
 inline double Divide(double a, double b)
 {
   return a / b;
 }
-
 
 MainWindow::MainWindow(QWidget* parent) :
   QMainWindow(parent),
@@ -98,7 +98,10 @@ void MainWindow::UpdateWidgets()
 {
   try
   {
-    ui->labelSetupWait->hide();
+    if (!FinishSetupWorker::IsRunnning())
+    {
+      ui->labelSetupWait->hide();
+    }
     if (session->IsAdminMode())
     {
       ui->privateMode->hide();
@@ -120,6 +123,7 @@ void MainWindow::UpdateWidgets()
     ui->buttonOverview->setEnabled(!isSetupMode);
     ui->buttonUpdates->setEnabled(!isSetupMode);
     ui->buttonPackages->setEnabled(!isSetupMode);
+    ui->buttonTeXworks->setEnabled(UpgradeWorker::GetCount() == 0 && !isSetupMode);
     if (!isSetupMode)
     {
       if (Utils::CheckPath(false))
@@ -135,7 +139,7 @@ void MainWindow::UpdateWidgets()
         }
         else
         {
-          ui->upgradeStatus->setEnabled(BackgroundWorker::GetCount() == 0);
+          ui->buttonUpgrade->setEnabled(BackgroundWorker::GetCount() == 0);
           ui->upgradeStatus->hide();
         }
       }
@@ -286,7 +290,6 @@ void UpgradeWorker::Process()
 
 void MainWindow::on_buttonUpgrade_clicked()
 {
-  ui->buttonUpgrade->setEnabled(false);
   QThread* thread = new QThread;
   UpgradeWorker* worker = new UpgradeWorker(packageManager);
   worker->moveToThread(thread);
@@ -301,7 +304,8 @@ void MainWindow::on_buttonUpgrade_clicked()
     UpgradeWorker::Status status = ((UpgradeWorker*)sender())->GetStatus();
     if (progressInfo.cbDownloadTotal > 0)
     {
-      ui->labelUpgradePercent->setText(QString("%1%").arg(static_cast<int>(Divide(progressInfo.cbDownloadCompleted, progressInfo.cbDownloadTotal) * 100)));
+      int percent = static_cast<int>(Divide(progressInfo.cbDownloadCompleted, progressInfo.cbDownloadTotal) * 100);
+      ui->labelUpgradePercent->setText(percent == 100 ? tr("we're almost done") : QString("%1%").arg(percent));
     }
     if (status == UpgradeWorker::Status::Synchronize)
     {
@@ -431,11 +435,48 @@ void MainWindow::FinishSetup()
   });
   connect(worker, &FinishSetupWorker::OnMiKTeXException, this, [this]() {
     CriticalError(tr("Something went wrong while finishing the MiKTeX setup."), ((FinishSetupWorker*)sender())->GetMiKTeXException());
-    ui->labelSetupWait->hide();
+    UpdateWidgets();
+    EnableActions();
   });
   connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
   connect(worker, SIGNAL(OnFinish()), worker, SLOT(deleteLater()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
   thread->start();
-  ui->labelSetupWait->show();
+  UpdateWidgets();
+  EnableActions();
+}
+
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+  if (BackgroundWorker::GetCount() > 0)
+  {
+    if (QMessageBox::question(this, tr("MiKTeX Console"), tr("A task is running in the background. Are you sure you want to quit?"))
+      != QMessageBox::Yes)
+    {
+      event->ignore();
+      return;
+    }
+  }
+  event->accept();
+}
+
+void MainWindow::on_buttonTeXworks_clicked()
+{
+  try
+  {
+    PathName exePath;
+    if (session->FindFile(MIKTEX_TEXWORKS_EXE, FileType::EXE, exePath))
+    {
+      session->UnloadFilenameDatabase();
+      Process::Start(exePath);
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
 }

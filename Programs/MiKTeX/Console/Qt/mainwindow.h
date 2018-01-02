@@ -38,35 +38,41 @@ class MainWindow : public QMainWindow
 {
   Q_OBJECT;
 
-  private slots:
+private slots:
   void on_buttonOverview_clicked();
 
-  private slots:
+private slots:
   void on_buttonUpdates_clicked();
 
-  private slots:
+private slots:
   void on_buttonPackages_clicked();
 
-  private slots:
+private slots:
   void on_buttonAdminSetup_clicked();
 
-  private slots:
+private slots:
   void on_buttonUserSetup_clicked();
 
-  private slots:
+private slots:
   void on_buttonUpgrade_clicked();
 
-  private slots:
+private slots:
+  void on_buttonTeXworks_clicked();
+
+private slots:
   void EnableActions();
 
-  private slots:
+private slots:
   void AboutDialog();
 
-  private slots:
+private slots:
   void RestartAdmin();
 
-  public slots:
+public slots:
   void FinishSetup();
+
+private:
+  void closeEvent(QCloseEvent* event);
 
 public:
   explicit MainWindow(QWidget* parent = nullptr);
@@ -170,6 +176,29 @@ class FinishSetupWorker :
 {
 private:
   Q_OBJECT;
+
+private:
+  static std::atomic_bool running;
+
+public:
+  FinishSetupWorker()
+  {
+    MIKTEX_ASSERT(!running);
+    running = true;
+  }
+
+public:
+  virtual ~FinishSetupWorker()
+  {
+    MIKTEX_ASSERT(running);
+    running = false;
+  }
+
+public:
+  static bool IsRunnning()
+  {
+    return running;
+  }
 
 public slots:
   void Process() override;
