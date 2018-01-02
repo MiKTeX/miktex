@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2009-2017 Christian Schenk
+## Copyright (C) 2009-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -51,6 +51,12 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/source/src
 )
+
+if(MIKTEX_NATIVE_WINDOWS)
+  add_definitions(
+    -DNOMINMAX
+  )
+endif()
 
 add_definitions(
   -DHAVE_POPPLER_XPDF_HEADERS
