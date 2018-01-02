@@ -45,9 +45,9 @@ using namespace MiKTeX::UI::Qt;
 using namespace MiKTeX::Util;
 using namespace std;
 
-atomic_int BackgroundWorker::instances = 0;
-atomic_bool FinishSetupWorker::running = false;
-atomic_bool UpgradeWorker::running = false;
+atomic_int BackgroundWorker::instances{ 0 };
+atomic_bool FinishSetupWorker::running{ false };
+atomic_bool UpgradeWorker::running{ false };
 
 inline double Divide(double a, double b)
 {
