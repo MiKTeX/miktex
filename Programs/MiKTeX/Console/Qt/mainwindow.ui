@@ -173,7 +173,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="setup">
        <property name="enabled">
@@ -190,7 +190,7 @@
         <item>
          <widget class="QLabel" name="label_9">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thank you for giving MiKTeX a try!&lt;/p&gt;&lt;p&gt;We will now finish the MiKTeX setup by populating the &lt;span style=&quot; font-style:italic;&quot;&gt;bin&lt;/span&gt; directory with links to the to actual MiKTeX binaries. The location of the &lt;span style=&quot; font-style:italic;&quot;&gt;bin&lt;/span&gt; directory depends on your choice:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;/usr/local/bin&lt;/span&gt; for a shared (system-wide) MiKTeX installation. This option requires administrator privileges.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;~/bin&lt;/span&gt; for a private MiKTeX installation.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/shared-vs-private&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;Shared vs. private installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thank you for giving MiKTeX a try!&lt;/p&gt;&lt;p&gt;We will now finish the MiKTeX setup by populating the &lt;span style=&quot;font-style:italic;&quot;&gt;bin&lt;/span&gt; directory with links to the to actual MiKTeX binaries. The location of the &lt;span style=&quot; font-style:italic;&quot;&gt;bin&lt;/span&gt; directory depends on your choice:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-family:'Courier New';&quot;&gt;/usr/local/bin&lt;/span&gt; for a shared (system-wide) MiKTeX installation. This option requires administrator privileges.&lt;/li&gt;&lt;li&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;~/bin&lt;/span&gt; for a private MiKTeX installation.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/shared-vs-private&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;KB: shared vs. private installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -356,7 +356,7 @@
            <item>
             <widget class="QLabel" name="label_4">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This tool currently operates on the private (per-user) MiKTeX configuration.&lt;/p&gt;&lt;p&gt;You may want to switch to administrator mode in order to operate on the shared (system-wide) configuration.&lt;br/&gt;More information: &lt;a href=&quot;https://miktex.org/howto/admin-mode&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: switch to admin mode&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This tool currently operates on the private (per-user) MiKTeX configuration.&lt;/p&gt;&lt;p&gt;You may want to switch to administrator mode in order to operate on the shared (system-wide) configuration.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/howto/admin-mode&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: switch to admin mode&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -436,7 +436,7 @@
            <item>
             <widget class="QLabel" name="hintPath">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Currently this directory is not in the search path for executables. You should add this directory to PATH so that you can invoke MiKTeX executables from a shell.&lt;br/&gt;More information: &lt;a href=&quot;https://miktex.org/howto/modify-path&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: modify PATH&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Currently this directory is not in the search path for executables. You should add this directory to PATH so that you can invoke MiKTeX executables from a shell.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/howto/modify-path&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: modify PATH&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -473,10 +473,19 @@
           <layout class="QVBoxLayout">
            <item>
             <widget class="QLabel" name="label_7">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="text">
-              <string>You can now install basic packages. This is completely optional. MiKTeX will install missing packages on-the-fly from the Internet.</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can upgrade your minimal TeX installation to a standard TeX installation. This is completely optional because MiKTeX is a scalable TeX distribution which installs missing packages on-the-fly. More information:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://miktex.org/howto/upgrade&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: upgrade MiKTeX&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://miktex.org/kb/just-enough-tex&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: &amp;quot;Just enough TeX&amp;quot;&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="openExternalLinks">
               <bool>true</bool>
              </property>
             </widget>
@@ -488,6 +497,33 @@
                <property name="text">
                 <string>Upgrade now</string>
                </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QWidget" name="upgradeStatus" native="true">
+               <layout class="QHBoxLayout" name="updateStatus">
+                <item>
+                 <widget class="QLabel" name="labelUpgradeStatus">
+                  <property name="text">
+                   <string>Upgrade in progress...</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelUpgradePercent">
+                  <property name="text">
+                   <string>0%</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelUpgradeDetails">
+                  <property name="text">
+                   <string>(synchronizing package database)</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
              </item>
              <item>
@@ -504,46 +540,6 @@
               </spacer>
              </item>
             </layout>
-           </item>
-           <item>
-            <widget class="QWidget" name="upgradeStatus" native="true">
-             <layout class="QHBoxLayout" name="updateStatus">
-              <item>
-               <widget class="QLabel" name="labelUpgradeStatus">
-                <property name="text">
-                 <string>Upgrade in progress...</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="labelUpgradePercent">
-                <property name="text">
-                 <string>0%</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="labelUpgradeDetails">
-                <property name="text">
-                 <string>(synchronizing package database)</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_3">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
            </item>
           </layout>
          </widget>

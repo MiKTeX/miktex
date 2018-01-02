@@ -2070,13 +2070,17 @@ endif()
 ## bootstrapping
 
 if(WITH_BOOTSTRAPPING)
+  set(MIKTEX_DEFAULT_REPOSITORY
+    "http://ctan.org/tex-archive/systems/win32/miktex/tm/packages/"
+    CACHE STRING "MiKTeX package repository"
+  )
   if(MIKTEX_RELEASE_STATE EQUAL 1)
     set(remote_repository
-      "http://ctan.org/tex-archive/systems/win32/miktex/tm/packages/next"
+      "${MIKTEX_DEFAULT_REPOSITORY}next/"
     )
   else()
     set(remote_repository
-      "http://ctan.org/tex-archive/systems/win32/miktex/tm/packages/"
+      "${MIKTEX_DEFAULT_REPOSITORY}"
     )
   endif()
   list(APPEND bootstrapping_files

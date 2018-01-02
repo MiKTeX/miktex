@@ -116,18 +116,21 @@ void MainWindow::UpdateWidgets()
   ui->buttonOverview->setEnabled(!isSetupMode);
   ui->buttonUpdates->setEnabled(!isSetupMode);
   ui->buttonPackages->setEnabled(!isSetupMode);
-  if (Utils::CheckPath(false))
+  if (!isSetupMode)
   {
-    ui->hintPath->hide();
-  }
-  ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
-  if (packageManager->GetPackageInfo("ltxbase").IsInstalled())
-  {
-    ui->hintUpgrade->hide();
-  }
-  else
-  {
-    ui->upgradeStatus->hide();
+    if (Utils::CheckPath(false))
+    {
+      ui->hintPath->hide();
+    }
+    ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
+    if (packageManager->GetPackageInfo("ltxbase").IsInstalled())
+    {
+      ui->hintUpgrade->hide();
+    }
+    else
+    {
+      ui->upgradeStatus->hide();
+    }
   }
 }
 
