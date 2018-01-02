@@ -132,7 +132,7 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
 #endif
     break;
   case SpecialPath::LocalBinDirectory:
-#if defined(MIKTEX_WINDOWSx)
+#if defined(MIKTEX_WINDOWS)
     path = GetSpecialPath(SpecialPath::BinDirectory);
 #else
     // FIXME: hard-coded paths
