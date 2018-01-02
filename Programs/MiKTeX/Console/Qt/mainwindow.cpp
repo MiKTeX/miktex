@@ -61,6 +61,10 @@ MainWindow::MainWindow(QWidget* parent) :
 {
   ui->setupUi(this);
 
+#if !defined(QT_NO_SYSTEMTRAYICON)
+  CreateTrayIcon();
+#endif
+
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
   isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0;
@@ -74,6 +78,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
   connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(AboutDialog()));
   connect(ui->actionRestartAdmin, SIGNAL(triggered()), this, SLOT(RestartAdmin()));
+  connect(ui->actionTeXworks, SIGNAL(triggered()), this, SLOT(StartTeXworks()));
 
   UpdateWidgets();
   EnableActions();
@@ -93,6 +98,55 @@ void MainWindow::CriticalError(const QString& text, const MiKTeXException& e)
     ErrorDialog::DoModal(this, e);
   }
 }
+
+#if !defined(QT_NO_SYSTEMTRAYICON)
+void MainWindow::CreateTrayIcon()
+{
+  if (!QSystemTrayIcon::isSystemTrayAvailable())
+  {
+    return;
+  }
+  trayIconMenu = new QMenu(this);
+  trayIconMenu->addAction(ui->actionTeXworks);
+  trayIconMenu->addSeparator();
+  trayIconMenu->addAction(ui->actionMinimize);
+  trayIconMenu->addAction(ui->actionRestore);
+  trayIconMenu->addSeparator();
+  trayIconMenu->addAction(ui->actionExit);
+  trayIcon = new QSystemTrayIcon(this);
+  trayIcon->setContextMenu(trayIconMenu);
+#if defined(MIKTEX_WINDOWS)
+  trayIcon->setIcon(QIcon((":/Icons/miktex-16x16.png")));
+#else
+  trayIcon->setIcon(QIcon((":/Icons/miktex-32x32.png")));
+#endif
+  trayIcon->setToolTip(tr("MiKTeX Console"));
+  trayIcon->show();
+
+  connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::TrayIconActivated);
+  connect(trayIcon, &QSystemTrayIcon::messageClicked, this, &MainWindow::TrayMessageClicked);
+}
+
+void MainWindow::TrayIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+  switch (reason)
+  {
+  case QSystemTrayIcon::Trigger:
+    if (isHidden())
+    {
+      showNormal();
+    }
+    break;
+  default:
+    ;
+  }
+}
+
+void MainWindow::TrayMessageClicked()
+{
+}
+
+#endif
 
 void MainWindow::UpdateWidgets()
 {
@@ -157,6 +211,9 @@ void MainWindow::UpdateWidgets()
 
 void MainWindow::EnableActions()
 {
+#if !defined(QT_NO_SYSTEMTRAYICON)
+
+#endif
   try
   {
     ui->actionRestartAdmin->setEnabled(BackgroundWorker::GetCount() == 0 && session->IsSharedSetup() && !session->IsAdminMode());
@@ -460,7 +517,14 @@ void MainWindow::closeEvent(QCloseEvent* event)
   event->accept();
 }
 
-void MainWindow::on_buttonTeXworks_clicked()
+void MainWindow::setVisible(bool visible)
+{
+  ui->actionMinimize->setEnabled(visible);
+  ui->actionRestore->setEnabled(!visible);
+  QMainWindow::setVisible(visible);
+}
+
+void MainWindow::StartTeXworks()
 {
   try
   {

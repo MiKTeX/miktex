@@ -717,6 +717,25 @@
     <string>Shows the version number and copying conditions.</string>
    </property>
   </action>
+  <action name="actionMinimize">
+   <property name="text">
+    <string>Mi&amp;nimize</string>
+   </property>
+  </action>
+  <action name="actionRestore">
+   <property name="text">
+    <string>&amp;Restore</string>
+   </property>
+  </action>
+  <action name="actionTeXworks">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/texworks-32x32.png</normaloff>:/Icons/texworks-32x32.png</iconset>
+   </property>
+   <property name="text">
+    <string>TeXworks</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="console.qrc"/>
@@ -735,6 +754,38 @@
     <hint type="destinationlabel">
      <x>399</x>
      <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMinimize</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>278</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionRestore</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>showNormal()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>278</y>
     </hint>
    </hints>
   </connection>

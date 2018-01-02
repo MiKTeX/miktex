@@ -29,6 +29,7 @@
 #include <memory>
 
 #include <QMainWindow>
+#include <QSystemTrayIcon>
 
 namespace Ui {
   class MainWindow;
@@ -56,8 +57,14 @@ private slots:
 private slots:
   void on_buttonUpgrade_clicked();
 
+public slots:
+  void StartTeXworks();
+
 private slots:
-  void on_buttonTeXworks_clicked();
+  void on_buttonTeXworks_clicked()
+  {
+    StartTeXworks();
+  }
 
 private slots:
   void EnableActions();
@@ -72,7 +79,10 @@ public slots:
   void FinishSetup();
 
 private:
-  void closeEvent(QCloseEvent* event);
+  void closeEvent(QCloseEvent* event) override;
+
+private:
+  void setVisible(bool visible) override;
 
 public:
   explicit MainWindow(QWidget* parent = nullptr);
@@ -97,6 +107,23 @@ private:
 private:
   void SetCurrentPage(Pages p);
 
+#if !defined(QT_NO_SYSTEMTRAYICON)
+private:
+  QSystemTrayIcon* trayIcon = nullptr;
+
+private:
+  QMenu* trayIconMenu = nullptr;
+
+private:
+  void CreateTrayIcon();
+
+private slots:
+  void TrayIconActivated(QSystemTrayIcon::ActivationReason reason);
+
+private slots:
+  void TrayMessageClicked();
+#endif
+
 private:
   void CriticalError(const QString& text, const MiKTeX::Core::MiKTeXException& e);
 
@@ -116,7 +143,7 @@ private:
   bool isSetupMode = false;
 
 private:
-  Ui::MainWindow* ui;
+  Ui::MainWindow* ui = nullptr;
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
