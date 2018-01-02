@@ -45,12 +45,14 @@ using namespace MiKTeX::UI::Qt;
 using namespace MiKTeX::Util;
 using namespace std;
 
+atomic_int BackgroundWorker::instances = 0;
+atomic_bool UpgradeWorker::running = false;
+
 inline double Divide(double a, double b)
 {
   return a / b;
 }
 
-const int PROGRESS_MAX = 1000;
 
 MainWindow::MainWindow(QWidget* parent) :
   QMainWindow(parent),
@@ -94,43 +96,58 @@ void MainWindow::CriticalError(const QString& text, const MiKTeXException& e)
 
 void MainWindow::UpdateWidgets()
 {
-  ui->labelSetupWait->hide();
-  if (session->IsAdminMode())
+  try
   {
-    ui->privateMode->hide();
-    ui->userMode->hide();
-    ui->buttonAdminSetup->setText(tr("Finish shared setup"));
-  }
-  else
-  {
-    ui->adminMode->hide();
-    if (session->IsSharedSetup())
+    ui->labelSetupWait->hide();
+    if (session->IsAdminMode())
     {
       ui->privateMode->hide();
+      ui->userMode->hide();
+      ui->buttonAdminSetup->setText(tr("Finish shared setup"));
     }
     else
     {
-      ui->userMode->hide();
+      ui->adminMode->hide();
+      if (session->IsSharedSetup())
+      {
+        ui->privateMode->hide();
+      }
+      else
+      {
+        ui->userMode->hide();
+      }
+    }
+    ui->buttonOverview->setEnabled(!isSetupMode);
+    ui->buttonUpdates->setEnabled(!isSetupMode);
+    ui->buttonPackages->setEnabled(!isSetupMode);
+    if (!isSetupMode)
+    {
+      if (Utils::CheckPath(false))
+      {
+        ui->hintPath->hide();
+      }
+      ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
+      if (!UpgradeWorker::IsRunnning())
+      {
+        if (packageManager->GetPackageInfo("ltxbase").IsInstalled() && packageManager->GetPackageInfo("amsfonts").IsInstalled())
+        {
+          ui->hintUpgrade->hide();
+        }
+        else
+        {
+          ui->upgradeStatus->setEnabled(BackgroundWorker::GetCount() == 0);
+          ui->upgradeStatus->hide();
+        }
+      }
     }
   }
-  ui->buttonOverview->setEnabled(!isSetupMode);
-  ui->buttonUpdates->setEnabled(!isSetupMode);
-  ui->buttonPackages->setEnabled(!isSetupMode);
-  if (!isSetupMode)
+  catch (const MiKTeXException& e)
   {
-    if (Utils::CheckPath(false))
-    {
-      ui->hintPath->hide();
-    }
-    ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
-    if (packageManager->GetPackageInfo("ltxbase").IsInstalled())
-    {
-      ui->hintUpgrade->hide();
-    }
-    else
-    {
-      ui->upgradeStatus->hide();
-    }
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
   }
 }
 
@@ -138,7 +155,7 @@ void MainWindow::EnableActions()
 {
   try
   {
-    ui->actionRestartAdmin->setEnabled(session->IsSharedSetup() && !session->IsAdminMode());
+    ui->actionRestartAdmin->setEnabled(BackgroundWorker::GetCount() == 0 && session->IsSharedSetup() && !session->IsAdminMode());
   }
   catch (const MiKTeXException& e)
   {
@@ -243,17 +260,16 @@ void UpgradeWorker::Process()
     packageInstaller->SetCallback(this);
     packageInstaller->FindUpgrades(PackageLevel::Basic);
     vector<PackageInstaller::UpgradeInfo> upgrades = packageInstaller->GetUpgrades();
-    if (upgrades.empty())
+    if (!upgrades.empty())
     {
-      emit OnFinish();
+      vector<string> toBeInstalled;
+      for (const PackageInstaller::UpgradeInfo& upg : upgrades)
+      {
+        toBeInstalled.push_back(upg.deploymentName);
+      }
+      packageInstaller->SetFileLists(toBeInstalled, vector<string>());
+      packageInstaller->InstallRemove();
     }
-    vector<string> toBeInstalled;
-    for (const PackageInstaller::UpgradeInfo& upg : upgrades)
-    {
-      toBeInstalled.push_back(upg.deploymentName);
-    }
-    packageInstaller->SetFileLists(toBeInstalled, vector<string>());
-    packageInstaller->InstallRemove();
     emit OnFinish();
   }
   catch (const MiKTeXException& e)
@@ -277,7 +293,7 @@ void MainWindow::on_buttonUpgrade_clicked()
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &UpgradeWorker::OnFinish, this, [this]() {
     ui->labelUpgradeStatus->setText(tr("Done"));
-    ui->labelUpgradePercent->setText("100%");
+    ui->labelUpgradePercent->setText("");
     ui->labelUpgradeDetails->setText("");
   });
   connect(worker, &UpgradeWorker::OnUpgradeProgress, this, [this]() {
@@ -395,9 +411,20 @@ void MainWindow::FinishSetup()
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &FinishSetupWorker::OnFinish, this, [this]() {
     isSetupMode = false;
-    bool isAdminMode = session->IsAdminMode();
-    session->Reset();
-    session->SetAdminMode(isAdminMode);
+    try
+    {
+      bool isAdminMode = session->IsAdminMode();
+      session->Reset();
+      session->SetAdminMode(isAdminMode);
+    }
+    catch (const MiKTeXException& e)
+    {
+      CriticalError(e);
+    }
+    catch (const exception& e)
+    {
+      CriticalError(e);
+    }
     UpdateWidgets();
     EnableActions();
     SetCurrentPage(Pages::Overview);

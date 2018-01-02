@@ -173,7 +173,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="setup">
        <property name="enabled">
@@ -250,7 +250,10 @@
            <enum>QFrame::Plain</enum>
           </property>
           <property name="text">
-           <string>Please wait a moment. It doesn't take long...</string>
+           <string>Please wait a moment. It doesn't too take long...</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -436,7 +439,7 @@
            <item>
             <widget class="QLabel" name="hintPath">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Currently this directory is not in the search path for executables. You should add this directory to PATH so that you can invoke MiKTeX executables from a shell.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/howto/modify-path&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: modify PATH&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Currently this directory is not in the search path for executables. You should add it to the environment variable PATH so that you can invoke the MiKTeX executables from a shell.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/howto/modify-path&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: modify PATH&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -512,7 +515,7 @@
                 <item>
                  <widget class="QLabel" name="labelUpgradePercent">
                   <property name="text">
-                   <string>0%</string>
+                   <string>100%</string>
                   </property>
                  </widget>
                 </item>

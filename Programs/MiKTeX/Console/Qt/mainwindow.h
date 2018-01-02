@@ -25,6 +25,7 @@
 #include <miktex/Core/Session>
 #include <miktex/PackageManager/PackageManager>
 
+#include <atomic>
 #include <memory>
 
 #include <QMainWindow>
@@ -127,6 +128,27 @@ private:
 public slots:
   virtual void Process() = 0;
 
+private:
+  static std::atomic_int instances;
+
+public:
+  BackgroundWorker()
+  {
+    instances++;
+  }
+
+public:
+  virtual ~BackgroundWorker()
+  {
+    instances--;
+  }
+
+public:
+  static int GetCount()
+  {
+    return instances;
+  }
+
 public:
   MiKTeX::Core::MiKTeXException GetMiKTeXException() const
   {
@@ -160,10 +182,28 @@ class UpgradeWorker :
 private:
   Q_OBJECT;
 
+private:
+  static std::atomic_bool running;
+
+public:
+  static bool IsRunnning()
+  {
+    return running;
+  }
+
 public:
   UpgradeWorker(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager) :
     packageManager(packageManager)
   {
+    MIKTEX_ASSERT(!running);
+    running = true;
+  }
+
+public:
+  virtual ~UpgradeWorker()
+  {
+    MIKTEX_ASSERT(!running);
+    running = false;
   }
 
 private:
