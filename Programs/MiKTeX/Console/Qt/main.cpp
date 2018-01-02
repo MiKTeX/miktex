@@ -1,6 +1,6 @@
 /* main.cpp:
 
-   Copyright (C) 2017 Christian Schenk
+   Copyright (C) 2017-2018 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -21,6 +21,7 @@
 
 #include <QApplication>
 #include <QtWidgets>
+#include <QSystemTrayIcon>
 
 #include <miktex/Core/Exceptions>
 #include <miktex/Core/Session>
@@ -35,7 +36,8 @@ using namespace std;
 enum {
   OPT_AAA = 1,
   OPT_ADMIN,
-  OPT_FINISH_SETUP
+  OPT_FINISH_SETUP,
+  OPT_HIDE
 };
 
 namespace {
@@ -45,9 +47,15 @@ namespace {
       "Run in administrator mode.", nullptr
     },
     {
-      "finish-setup", 0, POPT_ARG_NONE, nullptr, OPT_FINISH_SETUP,
-      "Finish the MiKTeX setup.", nullptr
+      "finish-setup", 0, POPT_ARG_NONE | POPT_ARGFLAG_DOC_HIDDEN, nullptr, OPT_FINISH_SETUP,
+      nullptr, nullptr
     },
+#if !defined(QT_NO_SYSTEMTRAYICON)
+    {
+      "hide", 0, POPT_ARG_NONE, nullptr, OPT_HIDE,
+      "Hide the main window.", nullptr
+    },
+#endif
     POPT_TABLEEND
   };
 }
@@ -61,6 +69,7 @@ int main(int argc, char* argv[])
   int ret = 0;
   bool optAdmin = false;
   bool optFinishSetup = false;
+  bool optHide = false;
   try
   {
     Session::InitInfo initInfo;
@@ -73,6 +82,9 @@ int main(int argc, char* argv[])
       {
       case OPT_ADMIN:
         optAdmin = true;
+        break;
+      case OPT_HIDE:
+        optHide = true;
         break;
       case OPT_FINISH_SETUP:
         optFinishSetup = true;
@@ -100,7 +112,14 @@ int main(int argc, char* argv[])
     application.setApplicationDisplayName(displayName);
 #endif
     MainWindow mainWindow;
-    mainWindow.show();
+    if (optHide)
+    {
+      mainWindow.hide();
+    }
+    else
+    {
+      mainWindow.show();
+    }
     if (optFinishSetup)
     {
       QTimer::singleShot(100, &mainWindow, SLOT(FinishSetup()));
