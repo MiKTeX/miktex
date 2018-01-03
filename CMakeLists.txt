@@ -1,6 +1,6 @@
 ## CMakeLists.txt: top-level CMake file for building MiKTeX
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -804,6 +804,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${outdir}")
 if(WITH_BOOTSTRAPPING)
   list(APPEND MIKTEX_BOOTSTRAPPING_PACKAGES
     miktex-config-${MIKTEX_MAJOR_MINOR_STR}
+    miktex-dvips
     miktex-misc
   )
 endif()

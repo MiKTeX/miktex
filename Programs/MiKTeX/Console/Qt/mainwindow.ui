@@ -604,21 +604,21 @@
                 <item>
                  <widget class="QLabel" name="labelUpgradeStatus">
                   <property name="text">
-                   <string>Upgrade in progress...</string>
+                   <string/>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QLabel" name="labelUpgradePercent">
                   <property name="text">
-                   <string>100%</string>
+                   <string/>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QLabel" name="labelUpgradeDetails">
                   <property name="text">
-                   <string>(synchronizing package database)</string>
+                   <string/>
                   </property>
                  </widget>
                 </item>
@@ -675,29 +675,48 @@
               <property name="title">
                <string>Paper</string>
               </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <layout class="QVBoxLayout" name="verticalLayout_10">
                <item>
-                <widget class="QLabel" name="label_10">
+                <layout class="QHBoxLayout" name="horizontalLayout_4">
+                 <item>
+                  <widget class="QLabel" name="label_10">
+                   <property name="text">
+                    <string>Select your default paper format:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="comboPaper"/>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_3">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_12">
+                 <property name="font">
+                  <font>
+                   <italic>true</italic>
+                  </font>
+                 </property>
                  <property name="text">
-                  <string>Select your default paper format:</string>
+                  <string>Changing the paper format triggers a rebuild of the format files.</string>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
                  </property>
                 </widget>
-               </item>
-               <item>
-                <widget class="QComboBox" name="comboBox"/>
-               </item>
-               <item>
-                <spacer name="horizontalSpacer_3">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
                </item>
               </layout>
              </widget>
@@ -711,7 +730,7 @@
                <item>
                 <widget class="QLabel" name="label_11">
                  <property name="text">
-                  <string>You can choose wheter missing packages are to be installed on-the-fly.</string>
+                  <string>You can choose whether missing packages are to be installed on-the-fly.</string>
                  </property>
                  <property name="wordWrap">
                   <bool>true</bool>
@@ -719,21 +738,21 @@
                 </widget>
                </item>
                <item>
-                <widget class="QRadioButton" name="radioButton">
+                <widget class="QRadioButton" name="radioAutoInstallAsk">
+                 <property name="text">
+                  <string>Ask me</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioAutoInstallYes">
                  <property name="text">
                   <string>Always install missing packages on-the-fly</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QRadioButton" name="radioButton_2">
-                 <property name="text">
-                  <string>Ask me before installing a missing package</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="radioButton_3">
+                <widget class="QRadioButton" name="radioAutoInstallNo">
                  <property name="text">
                   <string>Never install missing packages on-the-fly</string>
                  </property>

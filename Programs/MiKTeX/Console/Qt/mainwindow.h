@@ -43,6 +43,9 @@ private slots:
   void on_buttonOverview_clicked();
 
 private slots:
+  void on_buttonSettings_clicked();
+  
+private slots:
   void on_buttonUpdates_clicked();
 
 private slots:
@@ -56,6 +59,18 @@ private slots:
 
 private slots:
   void on_buttonUpgrade_clicked();
+
+private slots:
+  void on_comboPaper_activated(int idx);
+
+private slots:
+  void on_radioAutoInstallAsk_clicked();
+
+private slots:
+  void on_radioAutoInstallYes_clicked();
+
+private slots:
+  void on_radioAutoInstallNo_clicked();
 
 private slots:
   void StartTeXworks();
@@ -109,8 +124,9 @@ private:
   enum class Pages {
     Setup = 0,
     Overview = 1,
-    Updates = 2,
-    Packages = 3,
+    Settings = 2,
+    Updates = 3,
+    Packages = 4,
   };
 
 private:
@@ -152,6 +168,15 @@ private:
   bool isSetupMode = false;
 
 private:
+  std::atomic_int backgroundWorkers{ 0 };
+
+private:
+  bool IsBackgroundWorkerActive()
+  {
+    return backgroundWorkers > 0;
+  }
+
+private:
   Ui::MainWindow* ui = nullptr;
 
 private:
@@ -168,28 +193,20 @@ private:
   Q_OBJECT;
 
 public slots:
-  virtual void Process() = 0;
-
-private:
-  static std::atomic_int instances;
-
-public:
-  BackgroundWorker()
+  virtual void Process()
   {
-    instances++;
+    if (Run())
+    {
+      emit OnFinish();
+    }
+    else
+    {
+      emit OnMiKTeXException();
+    }
   }
 
-public:
-  virtual ~BackgroundWorker()
-  {
-    instances--;
-  }
-
-public:
-  static int GetCount()
-  {
-    return instances;
-  }
+protected:
+  virtual bool Run() = 0;
 
 public:
   MiKTeX::Core::MiKTeXException GetMiKTeXException() const
@@ -213,31 +230,8 @@ class FinishSetupWorker :
 private:
   Q_OBJECT;
 
-private:
-  static std::atomic_bool running;
-
-public:
-  FinishSetupWorker()
-  {
-    MIKTEX_ASSERT(!running);
-    running = true;
-  }
-
-public:
-  virtual ~FinishSetupWorker()
-  {
-    MIKTEX_ASSERT(running);
-    running = false;
-  }
-
-public:
-  static bool IsRunnning()
-  {
-    return running;
-  }
-
-public slots:
-  void Process() override;
+protected:
+  bool Run() override;
 };
 
 class UpgradeWorker :
@@ -247,28 +241,10 @@ class UpgradeWorker :
 private:
   Q_OBJECT;
 
-private:
-  static std::atomic_bool running;
-
-public:
-  static bool IsRunnning()
-  {
-    return running;
-  }
-
 public:
   UpgradeWorker(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager) :
     packageManager(packageManager)
   {
-    MIKTEX_ASSERT(!running);
-    running = true;
-  }
-
-public:
-  virtual ~UpgradeWorker()
-  {
-    MIKTEX_ASSERT(!running);
-    running = false;
   }
 
 private:
@@ -303,8 +279,8 @@ public:
     return status;
   }
 
-public slots:
-  void Process() override;
+protected:
+  bool Run() override;
 
 signals:
   void OnUpgradeProgress();

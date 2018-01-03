@@ -28,6 +28,7 @@
 
 #include "console-version.h"
 
+#include <miktex/Core/ConfigNames>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
@@ -44,10 +45,6 @@ using namespace MiKTeX::Setup;
 using namespace MiKTeX::UI::Qt;
 using namespace MiKTeX::Util;
 using namespace std;
-
-atomic_int BackgroundWorker::instances{ 0 };
-atomic_bool FinishSetupWorker::running{ false };
-atomic_bool UpgradeWorker::running{ false };
 
 inline double Divide(double a, double b)
 {
@@ -66,7 +63,7 @@ MainWindow::MainWindow(QWidget* parent) :
   isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0;
 
 #if defined(MIKTEX_WINDOWS)
-  bool withTrayIcon = !isSetupMode; // && session->IsMiKTeXPortable();
+  bool withTrayIcon = true; // session->IsMiKTeXPortable();
 #else
   bool withTrayIcon = false;
 #endif
@@ -77,7 +74,6 @@ MainWindow::MainWindow(QWidget* parent) :
     CreateTrayIcon();
   }
 #endif
-
 
   SetCurrentPage(isSetupMode ? Pages::Setup : Pages::Overview);
 
@@ -153,7 +149,11 @@ void MainWindow::UpdateWidgets()
 {
   try
   {
-    if (!FinishSetupWorker::IsRunnning())
+    if (isSetupMode && IsBackgroundWorkerActive())
+    {
+      ui->labelSetupWait->show();
+    }
+    else
     {
       ui->labelSetupWait->hide();
     }
@@ -176,28 +176,70 @@ void MainWindow::UpdateWidgets()
       }
     }
     ui->buttonOverview->setEnabled(!isSetupMode);
+    ui->buttonSettings->setEnabled(!isSetupMode);
     ui->buttonUpdates->setEnabled(!isSetupMode);
     ui->buttonPackages->setEnabled(!isSetupMode);
-    ui->buttonTeXworks->setEnabled(UpgradeWorker::GetCount() == 0 && !isSetupMode && !session->IsAdminMode());
-    ui->buttonTerminal->setEnabled(UpgradeWorker::GetCount() == 0 && !isSetupMode);
-    if (!isSetupMode)
+    ui->buttonTeXworks->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !session->IsAdminMode());
+    ui->buttonTerminal->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
+    if (isSetupMode)
     {
-      if (Utils::CheckPath(false))
-      {
-        ui->hintPath->hide();
-      }
-      ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
-      if (!UpgradeWorker::IsRunnning())
+      return;
+    }
+    ui->comboPaper->setEnabled(!IsBackgroundWorkerActive());
+    ui->radioAutoInstallAsk->setEnabled(!IsBackgroundWorkerActive());
+    ui->radioAutoInstallYes->setEnabled(!IsBackgroundWorkerActive());
+    ui->radioAutoInstallNo->setEnabled(!IsBackgroundWorkerActive());
+    if (Utils::CheckPath(false))
+    {
+      ui->hintPath->hide();
+    }
+    ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
+    if (!IsBackgroundWorkerActive())
+    {
+      if (ui->labelUpgradeStatus->text().isEmpty())
       {
         if (packageManager->GetPackageInfo("ltxbase").IsInstalled() && packageManager->GetPackageInfo("amsfonts").IsInstalled())
         {
           ui->hintUpgrade->hide();
         }
-        else
+      }
+    }
+    switch (session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState())
+    {
+    case TriState::True:
+      ui->radioAutoInstallYes->setChecked(true);
+      break;
+    case TriState::False:
+      ui->radioAutoInstallNo->setChecked(true);
+      break;
+    case TriState::Undetermined:
+      ui->radioAutoInstallAsk->setChecked(true);
+      break;
+    }
+    if (ui->comboPaper->count() == 0)
+    {
+      PaperSizeInfo defaultPaperSizeInfo;
+      session->GetPaperSizeInfo(-1, defaultPaperSizeInfo);
+      PaperSizeInfo paperSizeInfo;
+      int currentIndex = -1;
+      for (int idx = 0; session->GetPaperSizeInfo(idx, paperSizeInfo); ++idx)
+      {
+        QString displayName = QString::fromUtf8(paperSizeInfo.name.c_str());
+        if (!Utils::EqualsIgnoreCase(paperSizeInfo.name, paperSizeInfo.dvipsName))
         {
-          ui->buttonUpgrade->setEnabled(BackgroundWorker::GetCount() == 0);
-          ui->upgradeStatus->hide();
+          displayName += " (";
+          displayName += QString::fromUtf8(paperSizeInfo.dvipsName.c_str());
+          displayName += ")";
         }
+        ui->comboPaper->addItem(displayName);
+        if (Utils::EqualsIgnoreCase(paperSizeInfo.dvipsName, defaultPaperSizeInfo.dvipsName))
+        {
+          currentIndex = idx;
+        }
+      }
+      if (currentIndex >= 0)
+      {
+        ui->comboPaper->setCurrentIndex(currentIndex);
       }
     }
   }
@@ -215,9 +257,9 @@ void MainWindow::EnableActions()
 {
   try
   {
-    ui->actionRestartAdmin->setEnabled(BackgroundWorker::GetCount() == 0 && session->IsSharedSetup() && !session->IsAdminMode());
-    ui->actionTeXworks->setEnabled(UpgradeWorker::GetCount() == 0 && !isSetupMode && !session->IsAdminMode());
-    ui->actionTerminal->setEnabled(UpgradeWorker::GetCount() == 0 && !isSetupMode);
+    ui->actionRestartAdmin->setEnabled(!IsBackgroundWorkerActive() && session->IsSharedSetup() && !session->IsAdminMode());
+    ui->actionTeXworks->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !session->IsAdminMode());
+    ui->actionTerminal->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
   }
   catch (const MiKTeXException& e)
   {
@@ -237,6 +279,9 @@ void MainWindow::SetCurrentPage(MainWindow::Pages p)
     break;
   case Pages::Overview:
     ui->buttonOverview->setChecked(true);
+    break;
+  case Pages::Settings:
+    ui->buttonSettings->setChecked(true);
     break;
   case Pages::Updates:
     ui->buttonUpdates->setChecked(true);
@@ -262,6 +307,11 @@ void MainWindow::AboutDialog()
 void MainWindow::on_buttonOverview_clicked()
 {
   SetCurrentPage(Pages::Overview);
+}
+
+void MainWindow::on_buttonSettings_clicked()
+{
+  SetCurrentPage(Pages::Settings);
 }
 
 void MainWindow::on_buttonUpdates_clicked()
@@ -313,8 +363,9 @@ void MainWindow::on_buttonUserSetup_clicked()
   }
 }
 
-void UpgradeWorker::Process()
+bool UpgradeWorker::Run()
 {
+  bool result = false;
   try
   {
     status = Status::Synchronize;
@@ -332,30 +383,34 @@ void UpgradeWorker::Process()
       packageInstaller->SetFileLists(toBeInstalled, vector<string>());
       packageInstaller->InstallRemove();
     }
-    emit OnFinish();
+    result = true;
   }
   catch (const MiKTeXException& e)
   {
     this->e = e;
-    emit OnMiKTeXException();
   }
   catch (const exception& e)
   {
     this->e = MiKTeXException(e.what());
-    emit OnMiKTeXException();
   }
+  return result;
 }
 
 void MainWindow::on_buttonUpgrade_clicked()
 {
+  ui->buttonUpgrade->setEnabled(false);
   QThread* thread = new QThread;
   UpgradeWorker* worker = new UpgradeWorker(packageManager);
+  backgroundWorkers++;
   worker->moveToThread(thread);
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &UpgradeWorker::OnFinish, this, [this]() {
-    ui->labelUpgradeStatus->setText(tr("Done"));
+    ui->labelUpgradeStatus->setText(tr("done"));
     ui->labelUpgradePercent->setText("");
     ui->labelUpgradeDetails->setText("");
+    backgroundWorkers--;
+    UpdateWidgets();
+    EnableActions();
   });
   connect(worker, &UpgradeWorker::OnUpgradeProgress, this, [this]() {
     PackageInstaller::ProgressInfo progressInfo = ((UpgradeWorker*)sender())->GetProgressInfo();
@@ -387,16 +442,19 @@ void MainWindow::on_buttonUpgrade_clicked()
     ui->labelUpgradeStatus->setText(tr("Error"));
     ui->labelUpgradePercent->setText("");
     ui->labelUpgradeDetails->setText("");
-    ui->buttonUpgrade->setEnabled(true);
+    backgroundWorkers--;
+    UpdateWidgets();
+    EnableActions();
   });
   connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
   connect(worker, SIGNAL(OnFinish()), worker, SLOT(deleteLater()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-  ui->upgradeStatus->show();
   ui->labelUpgradeStatus->setText(tr("Upgrade in progress..."));
   ui->labelUpgradePercent->setText("0%");
   ui->labelUpgradeDetails->setText(tr("(initializing)"));
   thread->start();
+  UpdateWidgets();
+  EnableActions();
 }
 
 void MainWindow::RestartAdmin()
@@ -438,8 +496,9 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
   this->close();
 }
 
-void FinishSetupWorker::Process()
+bool FinishSetupWorker::Run()
 {
+  bool result = false;
   try
   {
     shared_ptr<Session> session = Session::Get();
@@ -449,18 +508,17 @@ void FinishSetupWorker::Process()
     options.IsCommonSetup = session->IsAdminMode();
     service->SetOptions(options);
     service->Run();
-    emit OnFinish();
+    result = true;
   }
   catch (const MiKTeXException& e)
   {
     this->e = e;
-    emit OnMiKTeXException();
   }
   catch (const exception& e)
   {
     this->e = MiKTeXException(e.what());
-    emit OnMiKTeXException();
   }
+  return result;
 }
 
 void MainWindow::FinishSetup()
@@ -469,6 +527,7 @@ void MainWindow::FinishSetup()
   ui->buttonUserSetup->setEnabled(false);
   QThread* thread = new QThread;
   FinishSetupWorker* worker = new FinishSetupWorker;
+  backgroundWorkers++;
   worker->moveToThread(thread);
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &FinishSetupWorker::OnFinish, this, [this]() {
@@ -487,12 +546,14 @@ void MainWindow::FinishSetup()
     {
       CriticalError(e);
     }
+    backgroundWorkers--;
     UpdateWidgets();
     EnableActions();
     SetCurrentPage(Pages::Overview);
   });
   connect(worker, &FinishSetupWorker::OnMiKTeXException, this, [this]() {
     CriticalError(tr("Something went wrong while finishing the MiKTeX setup."), ((FinishSetupWorker*)sender())->GetMiKTeXException());
+    backgroundWorkers--;
     UpdateWidgets();
     EnableActions();
   });
@@ -506,7 +567,7 @@ void MainWindow::FinishSetup()
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-  if (BackgroundWorker::GetCount() > 0)
+  if (IsBackgroundWorkerActive())
   {
     if (QMessageBox::question(this, tr("MiKTeX Console"), tr("A task is running in the background. Are you sure you want to quit?"))
       != QMessageBox::Yes)
@@ -599,4 +660,51 @@ void MainWindow::StartTerminal()
   {
     CriticalError(e);
   }
+}
+
+void MainWindow::on_comboPaper_activated(int idx)
+{
+  try
+  {
+    PaperSizeInfo paperSizeInfo;
+    if (!session->GetPaperSizeInfo(idx, paperSizeInfo))
+    {
+      MIKTEX_UNEXPECTED();
+    }
+    session->SetDefaultPaperSize(paperSizeInfo.dvipsName.c_str());
+    for (const FormatInfo& formatInfo : session->GetFormats())
+    {
+      vector<PathName> files;
+      if (session->FindFile(formatInfo.name, FileType::FMT, files))
+      {
+        for (const PathName& file : files)
+        {
+          File::Delete(file, { FileDeleteOption::UpdateFndb });
+        }
+      }
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+void MainWindow::on_radioAutoInstallAsk_clicked()
+{
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::Undetermined);
+}
+
+void MainWindow::on_radioAutoInstallYes_clicked()
+{
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::True);
+}
+
+void MainWindow::on_radioAutoInstallNo_clicked()
+{
+  session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::False);
 }
