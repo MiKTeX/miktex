@@ -57,13 +57,22 @@ private slots:
 private slots:
   void on_buttonUpgrade_clicked();
 
-public slots:
+private slots:
   void StartTeXworks();
 
 private slots:
   void on_buttonTeXworks_clicked()
   {
     StartTeXworks();
+  }
+
+private slots:
+  void StartTerminal();
+
+private slots:
+  void on_buttonTerminal_clicked()
+  {
+    StartTerminal();
   }
 
 private slots:

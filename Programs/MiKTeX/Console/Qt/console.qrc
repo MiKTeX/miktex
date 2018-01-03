@@ -2,6 +2,9 @@
   <qresource prefix="/Icons" >
     <file alias="miktex-16x16.png">../../../../Resources/Icons/MiKTeX/16x16/apps/miktex.png</file>
     <file alias="miktex-32x32.png">../../../../Resources/Icons/MiKTeX/32x32/apps/miktex.png</file>
+    <file alias="texworks-16x16.png">../../../../Resources/Icons/TeXworks/16x16/apps/TeXworks.png</file>
     <file alias="texworks-32x32.png">../../../../Resources/Icons/TeXworks/32x32/apps/TeXworks.png</file>
+    <file alias="terminal-16x16.png">../../../../Resources/Icons/oxygen-icons5/16x16/apps/utilities-terminal.png</file>
+    <file alias="terminal-32x32.png">../../../../Resources/Icons/oxygen-icons5/32x32/apps/utilities-terminal.png</file>
   </qresource>
 </RCC>

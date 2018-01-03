@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2017 Christian Schenk
+## Copyright (C) 2017-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -150,7 +150,9 @@ endif()
 
 if(MIKTEX_MACOS_BUNDLE)
   install(
-    PROGRAMS mac/${MIKTEX_PRODUCT_NAME}${MIKTEX_ADMIN_SUFFIX}
+    PROGRAMS
+      mac/${MIKTEX_PRODUCT_NAME}${MIKTEX_ADMIN_SUFFIX}
+      mac/Terminal
     DESTINATION "${MIKTEX_MACOS_BUNDLE_DIR}/MacOS"
   )
 endif()

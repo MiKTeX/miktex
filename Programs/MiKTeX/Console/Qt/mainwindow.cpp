@@ -61,13 +61,23 @@ MainWindow::MainWindow(QWidget* parent) :
 {
   ui->setupUi(this);
 
-#if !defined(QT_NO_SYSTEMTRAYICON)
-  CreateTrayIcon();
-#endif
-
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
   isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0;
+
+#if defined(MIKTEX_WINDOWS)
+  bool withTrayIcon = !isSetupMode; // && session->IsMiKTeXPortable();
+#else
+  bool withTrayIcon = false;
+#endif
+
+#if !defined(QT_NO_SYSTEMTRAYICON)
+  if (withTrayIcon)
+  {
+    CreateTrayIcon();
+  }
+#endif
+
 
   SetCurrentPage(isSetupMode ? Pages::Setup : Pages::Overview);
 
@@ -79,6 +89,7 @@ MainWindow::MainWindow(QWidget* parent) :
   connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(AboutDialog()));
   connect(ui->actionRestartAdmin, SIGNAL(triggered()), this, SLOT(RestartAdmin()));
   connect(ui->actionTeXworks, SIGNAL(triggered()), this, SLOT(StartTeXworks()));
+  connect(ui->actionTerminal, SIGNAL(triggered()), this, SLOT(StartTerminal()));
 
   UpdateWidgets();
   EnableActions();
@@ -108,6 +119,7 @@ void MainWindow::CreateTrayIcon()
   }
   trayIconMenu = new QMenu(this);
   trayIconMenu->addAction(ui->actionTeXworks);
+  trayIconMenu->addAction(ui->actionTerminal);
   trayIconMenu->addSeparator();
   trayIconMenu->addAction(ui->actionMinimize);
   trayIconMenu->addAction(ui->actionRestore);
@@ -129,17 +141,6 @@ void MainWindow::CreateTrayIcon()
 
 void MainWindow::TrayIconActivated(QSystemTrayIcon::ActivationReason reason)
 {
-  switch (reason)
-  {
-  case QSystemTrayIcon::Trigger:
-    if (isHidden())
-    {
-      showNormal();
-    }
-    break;
-  default:
-    ;
-  }
 }
 
 void MainWindow::TrayMessageClicked()
@@ -177,7 +178,8 @@ void MainWindow::UpdateWidgets()
     ui->buttonOverview->setEnabled(!isSetupMode);
     ui->buttonUpdates->setEnabled(!isSetupMode);
     ui->buttonPackages->setEnabled(!isSetupMode);
-    ui->buttonTeXworks->setEnabled(UpgradeWorker::GetCount() == 0 && !isSetupMode);
+    ui->buttonTeXworks->setEnabled(UpgradeWorker::GetCount() == 0 && !isSetupMode && !session->IsAdminMode());
+    ui->buttonTerminal->setEnabled(UpgradeWorker::GetCount() == 0 && !isSetupMode);
     if (!isSetupMode)
     {
       if (Utils::CheckPath(false))
@@ -211,12 +213,11 @@ void MainWindow::UpdateWidgets()
 
 void MainWindow::EnableActions()
 {
-#if !defined(QT_NO_SYSTEMTRAYICON)
-
-#endif
   try
   {
     ui->actionRestartAdmin->setEnabled(BackgroundWorker::GetCount() == 0 && session->IsSharedSetup() && !session->IsAdminMode());
+    ui->actionTeXworks->setEnabled(UpgradeWorker::GetCount() == 0 && !isSetupMode && !session->IsAdminMode());
+    ui->actionTerminal->setEnabled(UpgradeWorker::GetCount() == 0 && !isSetupMode);
   }
   catch (const MiKTeXException& e)
   {
@@ -533,6 +534,61 @@ void MainWindow::StartTeXworks()
     {
       session->UnloadFilenameDatabase();
       Process::Start(exePath);
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+void MainWindow::StartTerminal()
+{
+  try
+  {
+    PathName localBinDir = session->GetSpecialPath(SpecialPath::LocalBinDirectory);
+    string newPath = localBinDir.ToString();
+    string oldPath;
+    bool haveOldPath = Utils::GetEnvironmentString("PATH", oldPath);
+    if (haveOldPath)
+    {
+      newPath += PathName::PathNameDelimiter;
+      newPath += oldPath;
+    }
+    Utils::SetEnvironmentString("PATH", newPath);
+    PathName cmd;
+#if defined(MIKTEX_WINDOWS)
+    if (!Utils::GetEnvironmentString("COMSPEC", cmd))
+    {
+      cmd = "cmd.exe";
+    }
+#elif defined(MIKTEX_MACOS_BUNDLE)
+    cmd = session->GetMyProgramFile(true);
+    cmd.RemoveFileSpec();
+    cmd /= "Terminal";
+#else
+    const static string terminals[] = { "konsole", "gnome-terminal", "xterm" };
+    for (const string& term : terminals)
+    {
+      if (session->FindFile(term, newPath, cmd))
+      {
+        break;
+      }
+    }
+    if (cmd.Empty())
+    {
+      cmd = "xterm";
+    }
+#endif
+    session->UnloadFilenameDatabase();
+    Process::Start(cmd);
+    if (haveOldPath)
+    {
+      Utils::SetEnvironmentString("PATH", oldPath);
     }
   }
   catch (const MiKTeXException& e)
