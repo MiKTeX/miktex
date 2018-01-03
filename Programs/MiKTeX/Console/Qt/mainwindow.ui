@@ -671,7 +671,76 @@
            </attribute>
            <layout class="QVBoxLayout" name="xxxx">
             <item>
-             <widget class="QGroupBox" name="horizontalGroupBox">
+             <widget class="QGroupBox" name="groupPackageInstallation">
+              <property name="title">
+               <string>Package installation</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_9">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_5">
+                 <item>
+                  <widget class="QLabel" name="label_13">
+                   <property name="text">
+                    <string>Packages are installed from:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="editRepository">
+                   <property name="readOnly">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="buttonChangeRepository">
+                   <property name="text">
+                    <string>Change...</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_11">
+                 <item>
+                  <widget class="QLabel" name="label_11">
+                   <property name="text">
+                    <string>You can choose whether missing packages are to be installed on-the-fly.</string>
+                   </property>
+                   <property name="wordWrap">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="radioAutoInstallAsk">
+                   <property name="text">
+                    <string>Ask me</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="radioAutoInstallYes">
+                   <property name="text">
+                    <string>Always install missing packages on-the-fly</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="radioAutoInstallNo">
+                   <property name="text">
+                    <string>Never install missing packages on-the-fly</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupPaper">
               <property name="title">
                <string>Paper</string>
               </property>
@@ -715,46 +784,6 @@
                  </property>
                  <property name="wordWrap">
                   <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="verticalGroupBox">
-              <property name="title">
-               <string>Package installation</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_9">
-               <item>
-                <widget class="QLabel" name="label_11">
-                 <property name="text">
-                  <string>You can choose whether missing packages are to be installed on-the-fly.</string>
-                 </property>
-                 <property name="wordWrap">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="radioAutoInstallAsk">
-                 <property name="text">
-                  <string>Ask me</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="radioAutoInstallYes">
-                 <property name="text">
-                  <string>Always install missing packages on-the-fly</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="radioAutoInstallNo">
-                 <property name="text">
-                  <string>Never install missing packages on-the-fly</string>
                  </property>
                 </widget>
                </item>

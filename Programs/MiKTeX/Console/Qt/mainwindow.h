@@ -61,6 +61,9 @@ private slots:
   void on_buttonUpgrade_clicked();
 
 private slots:
+  void on_buttonChangeRepository_clicked();
+
+private slots:
   void on_comboPaper_activated(int idx);
 
 private slots:

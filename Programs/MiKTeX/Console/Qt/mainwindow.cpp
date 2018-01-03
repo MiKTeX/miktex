@@ -36,6 +36,7 @@
 #include <miktex/Core/Session>
 #include <miktex/Setup/SetupService>
 #include <miktex/UI/Qt/ErrorDialog>
+#include <miktex/UI/Qt/SiteWizSheet>
 #include <miktex/UI/Qt/UpdateDialog>
 #include <miktex/Util/StringUtil>
 
@@ -185,10 +186,8 @@ void MainWindow::UpdateWidgets()
     {
       return;
     }
-    ui->comboPaper->setEnabled(!IsBackgroundWorkerActive());
-    ui->radioAutoInstallAsk->setEnabled(!IsBackgroundWorkerActive());
-    ui->radioAutoInstallYes->setEnabled(!IsBackgroundWorkerActive());
-    ui->radioAutoInstallNo->setEnabled(!IsBackgroundWorkerActive());
+    ui->groupPaper->setEnabled(!IsBackgroundWorkerActive());
+    ui->groupPackageInstallation->setEnabled(!IsBackgroundWorkerActive());
     if (Utils::CheckPath(false))
     {
       ui->hintPath->hide();
@@ -203,6 +202,12 @@ void MainWindow::UpdateWidgets()
           ui->hintUpgrade->hide();
         }
       }
+    }
+    string repository;
+    RepositoryType repositoryType(RepositoryType::Unknown);
+    if (packageManager->TryGetDefaultPackageRepository(repositoryType, repository))
+    {
+      ui->editRepository->setText(QString::fromUtf8(repository.c_str()));
     }
     switch (session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState())
     {
@@ -707,4 +712,24 @@ void MainWindow::on_radioAutoInstallYes_clicked()
 void MainWindow::on_radioAutoInstallNo_clicked()
 {
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::False);
+}
+
+void MainWindow::on_buttonChangeRepository_clicked()
+{
+  try
+  {
+    if (SiteWizSheet::DoModal(this) == QDialog::Accepted)
+    {
+      UpdateWidgets();
+      EnableActions();
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
 }
