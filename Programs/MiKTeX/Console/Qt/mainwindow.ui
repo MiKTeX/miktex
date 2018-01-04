@@ -811,7 +811,7 @@
            </attribute>
            <layout class="QVBoxLayout" name="yyyy">
             <item>
-             <widget class="QGroupBox" name="verticalGroupBox">
+             <widget class="QGroupBox" name="groupDirectories">
               <property name="title">
                <string>TEXMF root directories</string>
               </property>
@@ -824,11 +824,42 @@
                 </widget>
                </item>
                <item>
-                <widget class="QTreeView" name="treeViewRoots">
-                 <property name="selectionMode">
-                  <enum>QAbstractItemView::NoSelection</enum>
-                 </property>
-                </widget>
+                <layout class="QHBoxLayout" name="horizontalLayout_6">
+                 <item>
+                  <widget class="QTreeView" name="treeViewRoots">
+                   <property name="selectionMode">
+                    <enum>QAbstractItemView::NoSelection</enum>
+                   </property>
+                   <property name="allColumnsShowFocus">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_13">
+                   <item>
+                    <widget class="QPushButton" name="buttonAddRoot">
+                     <property name="text">
+                      <string>Add...</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="verticalSpacer_11">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
                </item>
               </layout>
              </widget>

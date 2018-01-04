@@ -30,6 +30,7 @@
 #include "console-version.h"
 
 #include <miktex/Core/ConfigNames>
+#include <miktex/Core/DirectoryLister>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
@@ -192,6 +193,7 @@ void MainWindow::UpdateWidgets()
     }
     ui->groupPaper->setEnabled(!IsBackgroundWorkerActive());
     ui->groupPackageInstallation->setEnabled(!IsBackgroundWorkerActive());
+    ui->groupDirectories->setEnabled(!IsBackgroundWorkerActive());
     if (Utils::CheckPath(false))
     {
       ui->hintPath->hide();
@@ -737,5 +739,69 @@ void MainWindow::on_buttonChangeRepository_clicked()
   catch (const exception& e)
   {
     CriticalError(e);
+  }
+}
+
+const char* tdsDirs[] = {
+  "bibtex",
+  "dvipdfm",
+  "dvips",
+  "fontname",
+  "fonts",
+  "makeindex",
+  "metafont",
+  "metapost",
+  "mft",
+  "miktex",
+  "pdftex",
+  "psutils",
+  "scripts",
+  "tex",
+  "tpm",
+  "ttf2pfb",
+  "ttf2tfm",
+};
+
+bool CheckRoot(const PathName& root)
+{
+  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(root);
+  DirectoryEntry entry;
+  bool isEmpty = true;
+  while (lister->GetNext(entry))
+  {
+    isEmpty = false;
+    if (entry.isDirectory)
+    {
+      PathName name(entry.name);
+      for (const char* dir : tdsDirs)
+      {
+        if (name == dir)
+        {
+          return true;
+        }
+      }
+    }
+  }
+  if (!isEmpty)
+  {
+    return false;
+  }
+}
+
+void MainWindow::on_buttonAddRoot_clicked()
+{
+  QString directory = QFileDialog::getExistingDirectory(this);
+  if (directory.isNull())
+  {
+    return;
+  }
+  PathName root = directory.toUtf8().toStdString();
+  if (!CheckRoot(root))
+  {
+    if (QMessageBox::question(this, tr("MiKTeX Console"), tr("This does not look like a TDS-compliant root directory. Are you sure you want to add it?"))
+      != QMessageBox::Yes)
+    {
+      return;
+    }
   }
 }

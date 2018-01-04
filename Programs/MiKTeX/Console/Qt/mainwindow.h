@@ -78,6 +78,9 @@ private slots:
   void on_radioAutoInstallNo_clicked();
 
 private slots:
+  void on_buttonAddRoot_clicked();
+
+private slots:
   void StartTeXworks();
 
 private slots:
