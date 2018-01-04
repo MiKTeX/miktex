@@ -1,6 +1,6 @@
 /* texmfroot.cpp: managing TEXMF root directories
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -107,7 +107,7 @@ unsigned SessionImpl::RegisterRootDirectory(const PathName& root, bool common, b
     }
   }
   trace_config->WriteFormattedLine("core", T_("registering %s TEXMF root: %s"), common ? "common" : "user", root.GetData());
-  RootDirectory rootDirectory(root, ExpandEnvironmentVariables(root.GetData()));
+  RootDirectoryInternals rootDirectory(root, ExpandEnvironmentVariables(root.GetData()));
   rootDirectory.set_Common(common);
   rootDirectory.set_Other(other);
   rootDirectories.reserve(10);
@@ -487,7 +487,7 @@ void SessionImpl::SaveRootDirectories(
   startupConfig.otherUserRoots.reserve(n * 30);
   for (unsigned idx = 0; idx < n; ++idx)
   {
-    const RootDirectory rootDirectory = this->rootDirectories[idx];
+    const RootDirectoryInternals rootDirectory = this->rootDirectories[idx];
     if (rootDirectory.IsCommon())
     {
       if (idx == commonDataRootIndex
@@ -910,7 +910,7 @@ shared_ptr<FileNameDatabase> SessionImpl::GetFileNameDatabase(unsigned r, TriSta
 
   lock_guard<mutex> lockGuard(fndbMutex);
 
-  RootDirectory& root = rootDirectories[r];
+  RootDirectoryInternals& root = rootDirectories[r];
 
   shared_ptr<FileNameDatabase> fndb = root.GetFndb();
   if (fndb != nullptr)

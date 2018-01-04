@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -379,7 +379,7 @@ set(temporaryfile_sources
 set(session_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/FormatInfo.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/LanguageInfo.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/Session/RootDirectory.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/Session/RootDirectoryInternals.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/Session.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/SessionImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Session/appnames.cpp

@@ -1,6 +1,6 @@
 /* SessionImpl.h: Session impl class                    -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -35,7 +35,7 @@
 
 #include "core-version.h"
 #include "Fndb/FileNameDatabase.h"
-#include "RootDirectory.h"
+#include "RootDirectoryInternals.h"
 
 BEGIN_INTERNAL_NAMESPACE;
 
@@ -1018,10 +1018,10 @@ public:
 
   // registered root directories
 private:
-  std::vector<RootDirectory> rootDirectories;
+  std::vector<RootDirectoryInternals> rootDirectories;
 
 private:
-  std::vector<RootDirectory>& get_RootDirectories()
+  std::vector<RootDirectoryInternals>& get_RootDirectories()
   {
     return rootDirectories;
   }

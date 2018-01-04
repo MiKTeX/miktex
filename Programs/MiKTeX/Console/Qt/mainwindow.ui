@@ -663,7 +663,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="settingsGeneral">
            <attribute name="title">
@@ -809,7 +809,18 @@
            <attribute name="title">
             <string>Roots</string>
            </attribute>
-           <layout class="QVBoxLayout" name="yyyy"/>
+           <layout class="QVBoxLayout" name="yyyy">
+            <item>
+             <widget class="QLabel" name="label_14">
+              <property name="text">
+               <string>This is the list of registered root directories. The order in the list determines the order, in which files are searched.</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTreeView" name="treeViewRoots"/>
+            </item>
+           </layout>
           </widget>
          </widget>
         </item>

@@ -1,6 +1,6 @@
-/* RootDirectory.h:                                     -*- C++ -*-
+/* RootDirectoryInternals.h:                            -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -30,15 +30,15 @@
 
 BEGIN_INTERNAL_NAMESPACE;
 
-struct RootDirectory
+struct RootDirectoryInternals
 {
 public:
-  RootDirectory()
+  RootDirectoryInternals()
   {
   }
 
 public:
-  RootDirectory(const MiKTeX::Core::PathName& unexpandedPath, const MiKTeX::Core::PathName& path) :
+  RootDirectoryInternals(const MiKTeX::Core::PathName& unexpandedPath, const MiKTeX::Core::PathName& path) :
     unexpandedPath(unexpandedPath),
     path(path)
   {
