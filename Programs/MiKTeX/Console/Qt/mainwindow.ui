@@ -813,12 +813,29 @@
             <item>
              <widget class="QLabel" name="label_14">
               <property name="text">
-               <string>This is the list of registered root directories. The order in the list determines the order, in which files are searched.</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the list of TEXMF root directories. The order in the list determines the order, in which files are searched.&lt;/p&gt;&lt;p&gt;A root directory can have multiple purposes: &lt;span style=&quot; font-style:italic;&quot;&gt;Config&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Data&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Install&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;If the scope of a root directory is &lt;span style=&quot; font-style:italic;&quot;&gt;system-wide&lt;/span&gt;, it is shared by all users.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/texmf-roots&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: TEXMF root directories&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QTreeView" name="treeViewRoots"/>
+             <widget class="QTreeView" name="treeViewRoots">
+              <property name="selectionMode">
+               <enum>QAbstractItemView::NoSelection</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_10">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </widget>

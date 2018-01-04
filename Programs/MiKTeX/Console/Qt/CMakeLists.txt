@@ -26,11 +26,9 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-#  RootProxyModel.cpp
-#  RootProxyModel.h
-#  RootTableModel.cpp
-#  RootTableModel.h
 set(console_qt_sources
+  RootTableModel.cpp
+  RootTableModel.h
   console-version.h
   main.cpp
   mainwindow.cpp
@@ -56,9 +54,8 @@ if(MIKTEX_MACOS_BUNDLE)
   )
 endif()
 
-#  RootProxyModel.h
-#  RootTableModel.h
 set(console_qt_moc_sources
+  RootTableModel.h
   mainwindow.h
 )
 

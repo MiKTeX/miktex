@@ -31,6 +31,8 @@
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 
+class RootTableModel;
+
 namespace Ui {
   class MainWindow;
 }
@@ -166,6 +168,9 @@ private:
   {
     CriticalError(MiKTeX::Core::MiKTeXException(e.what()));
   }
+
+private:
+  RootTableModel* rootModel = nullptr;
 
 private:
   bool isSetupMode = false;

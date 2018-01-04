@@ -23,6 +23,7 @@
 #include <QTimer>
 #include <QtWidgets>
 
+#include "RootTableModel.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -58,6 +59,9 @@ MainWindow::MainWindow(QWidget* parent) :
   packageManager(PackageManager::Create())
 {
   ui->setupUi(this);
+
+  rootModel = new RootTableModel(this);
+  ui->treeViewRoots->setModel(rootModel);
 
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
@@ -247,6 +251,7 @@ void MainWindow::UpdateWidgets()
         ui->comboPaper->setCurrentIndex(currentIndex);
       }
     }
+    rootModel->Reload();
   }
   catch (const MiKTeXException& e)
   {
