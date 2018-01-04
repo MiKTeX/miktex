@@ -26,11 +26,13 @@
 #if !defined(FFCF19389D64414EBC1FB50A73140032)
 #define FFCF19389D64414EBC1FB50A73140032
 
+#include "miktex/Core/RootDirectoryInfo.h"
 #include "Fndb/FileNameDatabase.h"
 
 BEGIN_INTERNAL_NAMESPACE;
 
-struct RootDirectoryInternals
+struct RootDirectoryInternals :
+  MiKTeX::Core::RootDirectoryInfo
 {
 public:
   RootDirectoryInternals()
@@ -39,9 +41,9 @@ public:
 
 public:
   RootDirectoryInternals(const MiKTeX::Core::PathName& unexpandedPath, const MiKTeX::Core::PathName& path) :
-    unexpandedPath(unexpandedPath),
-    path(path)
+    unexpandedPath(unexpandedPath)
   {
+    this->path = path;
   }
 
 public:
@@ -107,10 +109,6 @@ public:
 private:
   MiKTeX::Core::PathName unexpandedPath;
 
-  // fully qualified path to root directory
-private:
-  MiKTeX::Core::PathName path;
-
   // associated file name database object
 private:
   std::shared_ptr<FileNameDatabase> fndb;
@@ -118,14 +116,6 @@ private:
   // true, if a file name database doesn't exist
 private:
   bool noFndb = false;
-
-  // true, if this is a system-wide root directory
-private:
-  bool common = false;
-
-  // true, if this is a root directory of another distro
-private:
-  bool other = false;
 };
 
 END_INTERNAL_NAMESPACE;

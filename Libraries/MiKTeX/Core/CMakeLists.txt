@@ -154,6 +154,8 @@ set(public_headers_core
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Quoter.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Registry
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Registry.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/RootDirectoryInfo
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/RootDirectoryInfo.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Session
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Session.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/miktex/Core/Stream
