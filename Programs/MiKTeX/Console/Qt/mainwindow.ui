@@ -663,7 +663,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="settingsGeneral">
            <attribute name="title">
@@ -805,23 +805,32 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="settingsRoots">
+          <widget class="QWidget" name="settingsDirectories">
            <attribute name="title">
-            <string>Roots</string>
+            <string>Directories</string>
            </attribute>
            <layout class="QVBoxLayout" name="yyyy">
             <item>
-             <widget class="QLabel" name="label_14">
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the list of TEXMF root directories. The order in the list determines the order, in which files are searched.&lt;/p&gt;&lt;p&gt;A root directory can have multiple purposes: &lt;span style=&quot; font-style:italic;&quot;&gt;Config&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Data&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Install&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;If the scope of a root directory is &lt;span style=&quot; font-style:italic;&quot;&gt;system-wide&lt;/span&gt;, it is shared by all users.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/texmf-roots&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: TEXMF root directories&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <widget class="QGroupBox" name="verticalGroupBox">
+              <property name="title">
+               <string>TEXMF root directories</string>
               </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QTreeView" name="treeViewRoots">
-              <property name="selectionMode">
-               <enum>QAbstractItemView::NoSelection</enum>
-              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_12">
+               <item>
+                <widget class="QLabel" name="label_14">
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the list of TEXMF root directories. The order in the list determines the order, in which files are searched.&lt;/p&gt;&lt;p&gt;A root directory can have multiple purposes: &lt;span style=&quot; font-style:italic;&quot;&gt;Config&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Data&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Install&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;If a root directory has the &lt;span style=&quot; font-style:italic;&quot;&gt;Common&lt;/span&gt; attribute, it is shared by all users.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/texmf-roots&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: TEXMF root directories&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QTreeView" name="treeViewRoots">
+                 <property name="selectionMode">
+                  <enum>QAbstractItemView::NoSelection</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </widget>
             </item>
             <item>

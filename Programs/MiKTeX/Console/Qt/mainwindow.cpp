@@ -252,6 +252,7 @@ void MainWindow::UpdateWidgets()
       }
     }
     rootModel->Reload();
+    ui->treeViewRoots->resizeColumnToContents(0);
   }
   catch (const MiKTeXException& e)
   {

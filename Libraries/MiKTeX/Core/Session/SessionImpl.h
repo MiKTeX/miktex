@@ -762,7 +762,7 @@ private:
   bool IsManagedRoot(unsigned root);
 
 private:
-  unsigned RegisterRootDirectory(const MiKTeX::Core::PathName& root, bool common, bool other);
+  unsigned RegisterRootDirectory(const MiKTeX::Core::PathName& root, MiKTeX::Core::RootDirectoryInfo::Purpose purpose, bool common, bool other);
 
 private:
   bool FindStartupConfigFile(bool common, MiKTeX::Core::PathName& path);

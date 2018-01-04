@@ -73,25 +73,39 @@ public:
 public:
   void set_Common(bool common)
   {
-    this->common = common;
+    if (common)
+    {
+      this->attributes += Attribute::Common;
+    }
+    else
+    {
+      this->attributes -= Attribute::Common;
+    }
   }
 
 public:
   bool IsCommon() const
   {
-    return common;
+    return attributes[Attribute::Common];
   }
 
 public:
   void set_Other(bool other)
   {
-    this->other = other;
+    if (other)
+    {
+      this->attributes += Attribute::Other;
+    }
+    else
+    {
+      this->attributes -= Attribute::Other;
+    }
   }
 
 public:
   bool IsOther() const
   {
-    return other;
+    return attributes[Attribute::Other];
   }
 
 public:

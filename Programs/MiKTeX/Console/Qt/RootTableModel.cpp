@@ -46,9 +46,13 @@ int RootTableModel::columnCount(const QModelIndex& parent) const
   return parent.isValid() ? 0 : 3;
 }
 
-vector<string> GetPurposesString(RootDirectoryInfo::Purposes purposes)
+vector<string> GetPurposesStrings(RootDirectoryInfo::Purposes purposes)
 {
   vector<string> result;
+  if (purposes[RootDirectoryInfo::Purpose::Generic])
+  {
+    result.push_back("Generic");
+  }
   if (purposes[RootDirectoryInfo::Purpose::Config])
   {
     result.push_back("Config");
@@ -60,6 +64,20 @@ vector<string> GetPurposesString(RootDirectoryInfo::Purposes purposes)
   if (purposes[RootDirectoryInfo::Purpose::Install])
   {
     result.push_back("Install");
+  }
+  return result;
+}
+
+vector<string> GetAttributesStrings(RootDirectoryInfo::Attributes attributes)
+{
+  vector<string> result;
+  if (attributes[RootDirectoryInfo::Attribute::Common])
+  {
+    result.push_back("Common");
+  }
+  if (attributes[RootDirectoryInfo::Attribute::Other])
+  {
+    result.push_back("Other");
   }
   return result;
 }
@@ -79,9 +97,9 @@ QVariant RootTableModel::data(const QModelIndex& index, int role) const
     case 0:
       return QString::fromUtf8(root.path.GetData());
     case 1:
-      return QString::fromUtf8(StringUtil::Flatten(GetPurposesString(root.purposes), ',').c_str());
+      return QString::fromUtf8(StringUtil::Flatten(GetPurposesStrings(root.purposes), ',').c_str());
     case 2:
-      return root.common ? "system-wide" : "";
+      return QString::fromUtf8(StringUtil::Flatten(GetAttributesStrings(root.attributes), ',').c_str());
     }
   }
 
@@ -97,9 +115,9 @@ QVariant RootTableModel::headerData(int section, Qt::Orientation orientation, in
     case 0:
       return tr("Path");
     case 1:
-      return tr("Purpose");
+      return tr("Purposes");
     case 2:
-      return tr("Scope");
+      return tr("Attributes");
     }
   }
   return QAbstractTableModel::headerData(section, orientation, role);

@@ -38,6 +38,7 @@ struct RootDirectoryInfo
 public:
   enum class Purpose
   {
+    Generic,
     Config,
     Data,
     Install
@@ -45,7 +46,18 @@ public:
 
 public:
   typedef MiKTeX::Core::OptionSet<Purpose> Purposes;
-  
+
+public:
+  enum class Attribute
+  {
+    Common,
+    Other
+  };
+
+public:
+  typedef MiKTeX::Core::OptionSet<Attribute> Attributes;
+
+
   // fully qualified path to root directory
 public:
   MiKTeX::Core::PathName path;
@@ -53,13 +65,8 @@ public:
 public:
   Purposes purposes;
 
-  // true, if this is a system-wide root directory
 public:
-  bool common = false;
-
-  // true, if this is a root directory of another distro
-public:
-  bool other = false;
+  Attributes attributes;
 };
 
 MIKTEX_CORE_END_NAMESPACE;
