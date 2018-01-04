@@ -1,6 +1,6 @@
 /* miktex/Core/Session.h:                               -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -779,7 +779,7 @@ public:
   virtual unsigned MIKTEXTHISCALL GetNumberOfTEXMFRoots() = 0;
 
 public:
-  virtual PathName MIKTEXTHISCALL GetRootDirectory(unsigned r) = 0;
+  virtual PathName MIKTEXTHISCALL GetRootDirectoryPath(unsigned r) = 0;
 
 public:
   virtual bool MIKTEXTHISCALL IsCommonRootDirectory(unsigned r) = 0;

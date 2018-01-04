@@ -1,6 +1,6 @@
 /* mkfntmap.cpp:
 
-   Copyright (C) 2002-2017 Christian Schenk
+   Copyright (C) 2002-2018 Christian Schenk
 
    This file is part of MkFntMap.
 
@@ -1216,7 +1216,7 @@ void MakeFontMapApp::CreateFontconfigLocalfontsConf()
 #endif
   for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
   {
-    PathName root = session->GetRootDirectory(r);
+    PathName root = session->GetRootDirectoryPath(r);
     for (const char* dir : topDirs)
     {
       PathName path = root;

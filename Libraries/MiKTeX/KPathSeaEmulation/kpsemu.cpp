@@ -1,7 +1,7 @@
 /* kpsemu.cpp: kpathsea emulation
 
    Copyright (C) 1994, 95 Karl Berry
-   Copyright (C) 2000-2017 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of the MiKTeX KPSEMU Library.
 
@@ -739,7 +739,7 @@ MIKTEXSTATICFUNC(bool) VarValue(const std::string& varName, std::string& varValu
       {
         varValue += ',';
       }
-      varValue += session->GetRootDirectory(r).ToUnix().ToString();
+      varValue += session->GetRootDirectoryPath(r).ToUnix().ToString();
     }
     varValue += '}';
     result = true;

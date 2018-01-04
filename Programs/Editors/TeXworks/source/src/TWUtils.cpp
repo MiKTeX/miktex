@@ -458,7 +458,7 @@ QHash<QString, QString>* TWUtils::getDictionaryList(const bool forceReload /* = 
         std::shared_ptr<MiKTeX::Core::Session> pSession = MiKTeX::Core::Session::Get();
 	for (unsigned r = 0; r < pSession->GetNumberOfTEXMFRoots(); ++ r)
 	{
-	  MiKTeX::Core::PathName dicPath = pSession->GetRootDirectory(r);
+	  MiKTeX::Core::PathName dicPath = pSession->GetRootDirectoryPath(r);
 	  dicPath /= MIKTEX_PATH_HUNSPELL_DICT_DIR;
 	  QDir dicDir (dicPath.GetData());
 	  foreach (QFileInfo affFileInfo, dicDir.entryInfoList(QStringList("*.aff"),
@@ -509,7 +509,7 @@ Hunhandle* TWUtils::getDictionary(const QString& language)
         std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
         for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
         {
-          MiKTeX::Core::PathName dicPath = session->GetRootDirectory(r);
+          MiKTeX::Core::PathName dicPath = session->GetRootDirectoryPath(r);
           dicPath /= MIKTEX_PATH_HUNSPELL_DICT_DIR;
           const QString dictPath = QString::fromStdWString(dicPath.ToWideCharString());
           QFileInfo affFile(dictPath + "/" + language + ".aff");

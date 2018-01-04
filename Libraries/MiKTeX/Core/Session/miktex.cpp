@@ -1,6 +1,6 @@
 /* miktex.cpp:
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -161,41 +161,41 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     }
     break;
   case SpecialPath::CommonInstallRoot:
-    path = GetRootDirectory(GetCommonInstallRoot());
+    path = GetRootDirectoryPath(GetCommonInstallRoot());
     break;
   case SpecialPath::UserInstallRoot:
-    path = GetRootDirectory(GetUserInstallRoot());
+    path = GetRootDirectoryPath(GetUserInstallRoot());
     break;
   case SpecialPath::InstallRoot:
-    path = GetRootDirectory(GetInstallRoot());
+    path = GetRootDirectoryPath(GetInstallRoot());
     break;
   case SpecialPath::DistRoot:
     path = GetDistRootDirectory();
     break;
   case SpecialPath::CommonDataRoot:
-    path = GetRootDirectory(GetCommonDataRoot());
+    path = GetRootDirectoryPath(GetCommonDataRoot());
     break;
   case SpecialPath::UserDataRoot:
-    path = GetRootDirectory(GetUserDataRoot());
+    path = GetRootDirectoryPath(GetUserDataRoot());
     break;
   case SpecialPath::DataRoot:
-    path = GetRootDirectory(GetDataRoot());
+    path = GetRootDirectoryPath(GetDataRoot());
     break;
   case SpecialPath::CommonConfigRoot:
-    path = GetRootDirectory(GetCommonConfigRoot());
+    path = GetRootDirectoryPath(GetCommonConfigRoot());
     break;
   case SpecialPath::UserConfigRoot:
-    path = GetRootDirectory(GetUserConfigRoot());
+    path = GetRootDirectoryPath(GetUserConfigRoot());
     break;
   case SpecialPath::ConfigRoot:
-    path = GetRootDirectory(GetConfigRoot());
+    path = GetRootDirectoryPath(GetConfigRoot());
     break;
   case SpecialPath::PortableRoot:
     if (!IsMiKTeXPortable())
     {
       MIKTEX_UNEXPECTED();
     }
-    path = GetRootDirectory(GetInstallRoot());
+    path = GetRootDirectoryPath(GetInstallRoot());
     break;
   case SpecialPath::PortableMount:
     if (!IsMiKTeXPortable())
@@ -204,9 +204,9 @@ PathName SessionImpl::GetSpecialPath(SpecialPath specialPath)
     }
 #if MIKTEX_WINDOWS
     // FIXME: ANSI
-    if (!GetVolumePathNameA(GetRootDirectory(GetInstallRoot()).GetData(), path.GetData(), path.GetCapacity()))
+    if (!GetVolumePathNameA(GetRootDirectoryPath(GetInstallRoot()).GetData(), path.GetData(), path.GetCapacity()))
     {
-      MIKTEX_FATAL_WINDOWS_ERROR_2("GetVolumePathNameA", "path", GetRootDirectory(GetInstallRoot()).ToString());
+      MIKTEX_FATAL_WINDOWS_ERROR_2("GetVolumePathNameA", "path", GetRootDirectoryPath(GetInstallRoot()).ToString());
     }
 #else
     MIKTEX_UNEXPECTED();

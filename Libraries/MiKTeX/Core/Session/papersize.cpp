@@ -1,6 +1,6 @@
 /* papersize.cpp: paper size info
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -456,7 +456,7 @@ bool SessionImpl::TryCreateFromTemplate(const PathName& path)
   {
     return false;
   }
-  const char* lpszRelPath = Utils::GetRelativizedPath(path.GetData(), GetRootDirectory(r).GetData());
+  const char* lpszRelPath = Utils::GetRelativizedPath(path.GetData(), GetRootDirectoryPath(r).GetData());
   if (lpszRelPath == nullptr)
   {
     MIKTEX_UNEXPECTED();

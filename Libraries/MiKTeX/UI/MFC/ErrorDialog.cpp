@@ -1,6 +1,6 @@
 /* ErrorDialog.cpp:
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of MiKTeX UI Library.
 
@@ -240,7 +240,7 @@ string ErrorDialogImpl::CreateReport()
       for (unsigned idx = 0; idx < pSession->GetNumberOfTEXMFRoots(); ++idx)
       {
 	PathName absFileName;
-	PathName root = pSession->GetRootDirectory(idx);
+	PathName root = pSession->GetRootDirectoryPath(idx);
 	s << "Root" << idx << ": " << root.GetData() << endl;
       }
       s << "UserInstall: "

@@ -356,17 +356,17 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
 
   RegisterRootDirectory(MPM_ROOT_PATH, IsAdminMode(), false);
 
-  trace_config->WriteFormattedLine("core", "UserData: %s", GetRootDirectory(userDataRootIndex).GetData());
+  trace_config->WriteFormattedLine("core", "UserData: %s", GetRootDirectoryPath(userDataRootIndex).GetData());
 
-  trace_config->WriteFormattedLine("core", "UserConfig: %s", GetRootDirectory(userConfigRootIndex).GetData());
+  trace_config->WriteFormattedLine("core", "UserConfig: %s", GetRootDirectoryPath(userConfigRootIndex).GetData());
 
-  trace_config->WriteFormattedLine("core", "UserInstall: %s", GetRootDirectory(userInstallRootIndex).GetData());
+  trace_config->WriteFormattedLine("core", "UserInstall: %s", GetRootDirectoryPath(userInstallRootIndex).GetData());
 
-  trace_config->WriteFormattedLine("core", "CommonData: %s", GetRootDirectory(commonDataRootIndex).GetData());
+  trace_config->WriteFormattedLine("core", "CommonData: %s", GetRootDirectoryPath(commonDataRootIndex).GetData());
 
-  trace_config->WriteFormattedLine("core", "CommonConfig: %s", GetRootDirectory(commonConfigRootIndex).GetData());
+  trace_config->WriteFormattedLine("core", "CommonConfig: %s", GetRootDirectoryPath(commonConfigRootIndex).GetData());
 
-  trace_config->WriteFormattedLine("core", "CommonInstall: %s", GetRootDirectory(commonInstallRootIndex).GetData());
+  trace_config->WriteFormattedLine("core", "CommonInstall: %s", GetRootDirectoryPath(commonInstallRootIndex).GetData());
 }
 
 unsigned SessionImpl::GetNumberOfTEXMFRoots()
@@ -384,7 +384,7 @@ unsigned SessionImpl::GetNumberOfTEXMFRoots()
   return n - 1;
 }
 
-PathName SessionImpl::GetRootDirectory(unsigned r)
+PathName SessionImpl::GetRootDirectoryPath(unsigned r)
 {
   unsigned n = GetNumberOfTEXMFRoots();
   if (r == INVALID_ROOT_INDEX || r >= n)
@@ -695,30 +695,30 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& startupConfig, Re
 
   if (startupConfig_.commonInstallRoot.Empty() && commonInstallRootIndex != INVALID_ROOT_INDEX)
   {
-    startupConfig_.commonInstallRoot = GetRootDirectory(commonInstallRootIndex);
+    startupConfig_.commonInstallRoot = GetRootDirectoryPath(commonInstallRootIndex);
   }
   if (startupConfig_.commonDataRoot.Empty() && commonDataRootIndex != INVALID_ROOT_INDEX)
   {
-    startupConfig_.commonDataRoot = GetRootDirectory(commonDataRootIndex);
+    startupConfig_.commonDataRoot = GetRootDirectoryPath(commonDataRootIndex);
   }
   if (startupConfig_.commonConfigRoot.Empty() && commonConfigRootIndex != INVALID_ROOT_INDEX)
   {
-    startupConfig_.commonConfigRoot = GetRootDirectory(commonConfigRootIndex);
+    startupConfig_.commonConfigRoot = GetRootDirectoryPath(commonConfigRootIndex);
   }
 
   if (startupConfig_.userInstallRoot.Empty() && userInstallRootIndex != INVALID_ROOT_INDEX)
   {
-    startupConfig_.userInstallRoot = GetRootDirectory(userInstallRootIndex);
+    startupConfig_.userInstallRoot = GetRootDirectoryPath(userInstallRootIndex);
   }
 
   if (startupConfig_.userDataRoot.Empty() && userDataRootIndex != INVALID_ROOT_INDEX)
   {
-    startupConfig_.userDataRoot = GetRootDirectory(userDataRootIndex);
+    startupConfig_.userDataRoot = GetRootDirectoryPath(userDataRootIndex);
   }
 
   if (startupConfig_.userConfigRoot.Empty() && userConfigRootIndex != INVALID_ROOT_INDEX)
   {
-    startupConfig_.userConfigRoot = GetRootDirectory(userConfigRootIndex);
+    startupConfig_.userConfigRoot = GetRootDirectoryPath(userConfigRootIndex);
   }
 
   MergeStartupConfig(startupConfig_, DefaultConfig());
@@ -995,7 +995,7 @@ unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName& path)
 
   for (unsigned idx = 0; idx < n; ++idx)
   {
-    PathName pathRoot = GetRootDirectory(idx);
+    PathName pathRoot = GetRootDirectoryPath(idx);
     size_t rootlen = pathRoot.GetLength();
     if (PathName::Compare(pathRoot, path, rootlen) == 0 && (pathRoot.EndsWithDirectoryDelimiter() || path[rootlen] == 0 || IsDirectoryDelimiter(path[rootlen])))
     {
@@ -1003,7 +1003,7 @@ unsigned SessionImpl::TryDeriveTEXMFRoot(const PathName& path)
       {
         rootDirectoryIndex = idx;
       }
-      else if (GetRootDirectory(rootDirectoryIndex).GetLength() < rootlen)
+      else if (GetRootDirectoryPath(rootDirectoryIndex).GetLength() < rootlen)
       {
         rootDirectoryIndex = idx;
       }
@@ -1080,7 +1080,7 @@ bool SessionImpl::IsTEXMFFile(const PathName& path, PathName& relPath, unsigned&
 {
   for (unsigned r = 0; r < GetNumberOfTEXMFRoots(); ++r)
   {
-    PathName pathRoot = GetRootDirectory(r);
+    PathName pathRoot = GetRootDirectoryPath(r);
     size_t cchRoot = pathRoot.GetLength();
     if (PathName::Compare(pathRoot, path, cchRoot) == 0 && (path[cchRoot] == 0 || IsDirectoryDelimiter(path[cchRoot])))
     {
@@ -1101,7 +1101,7 @@ unsigned SessionImpl::SplitTEXMFPath(const PathName& path, PathName& root, PathN
 {
   for (unsigned r = 0; r < GetNumberOfTEXMFRoots(); ++r)
   {
-    PathName rootDir = GetRootDirectory(r);
+    PathName rootDir = GetRootDirectoryPath(r);
     size_t rootDirLen = rootDir.GetLength();
     if (PathName::Compare(rootDir, path, rootDirLen) == 0 && (path[rootDirLen] == 0 || IsDirectoryDelimiter(path[rootDirLen])))
     {

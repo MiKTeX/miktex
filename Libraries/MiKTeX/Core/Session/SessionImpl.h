@@ -135,7 +135,7 @@ public:
   unsigned GetNumberOfTEXMFRoots() override;
 
 public:
-  MiKTeX::Core::PathName GetRootDirectory(unsigned r) override;
+  MiKTeX::Core::PathName GetRootDirectoryPath(unsigned r) override;
 
 public:
   bool IsCommonRootDirectory(unsigned r) override;

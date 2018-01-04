@@ -1,6 +1,6 @@
 /* initexmf.cpp: MiKTeX configuration utility
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of IniTeXMF.
 
@@ -1051,7 +1051,7 @@ void IniTeXMFApp::UpdateFilenameDatabase(const PathName& root)
 
 void IniTeXMFApp::UpdateFilenameDatabase(unsigned root)
 {
-  UpdateFilenameDatabase(session->GetRootDirectory(root));
+  UpdateFilenameDatabase(session->GetRootDirectoryPath(root));
 }
 
 void IniTeXMFApp::ListFormats()
@@ -1093,7 +1093,7 @@ void IniTeXMFApp::RemoveFndb()
     PrintOnly("rm %s", Q_(path));
     if (!printOnly && File::Exists(path))
     {
-      Verbose(T_("Removing fndb (%s)..."), Q_(session->GetRootDirectory(r)));
+      Verbose(T_("Removing fndb (%s)..."), Q_(session->GetRootDirectoryPath(r)));
       File::Delete(path, { FileDeleteOption::TryHard });
     }
   }
@@ -1387,7 +1387,7 @@ void IniTeXMFApp::RegisterRoots(const vector<PathName>& roots, bool other, bool 
 
   for (unsigned r = 0; r < session->GetNumberOfTEXMFRoots(); ++r)
   {
-    PathName root = session->GetRootDirectory(r);
+    PathName root = session->GetRootDirectoryPath(r);
     int rootOrdinal = session->DeriveTEXMFRoot(root);
     if (session->IsAdminMode() && !session->IsCommonRootDirectory(rootOrdinal))
     {
@@ -2171,7 +2171,7 @@ void IniTeXMFApp::ReportRoots()
     for (unsigned idx = 0; idx < session->GetNumberOfTEXMFRoots(); ++idx)
     {
       xmlWriter.StartElement("path");
-      PathName root = session->GetRootDirectory(idx);
+      PathName root = session->GetRootDirectoryPath(idx);
       xmlWriter.AddAttribute("index", std::to_string(idx));
       if (root == session->GetSpecialPath(SpecialPath::UserInstallRoot))
       {
@@ -2206,7 +2206,7 @@ void IniTeXMFApp::ReportRoots()
   {
     for (unsigned idx = 0; idx < session->GetNumberOfTEXMFRoots(); ++idx)
     {
-      cout << StringUtil::FormatString(T_("Root #%u"), idx) << ": " << session->GetRootDirectory(idx) << endl;
+      cout << StringUtil::FormatString(T_("Root #%u"), idx) << ": " << session->GetRootDirectoryPath(idx) << endl;
     }
     cout << "UserInstall: " << session->GetSpecialPath(SpecialPath::UserInstallRoot) << endl;
     cout << "UserData: " << session->GetSpecialPath(SpecialPath::UserDataRoot) << endl;
@@ -3096,7 +3096,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
           }
           else
           {
-            Verbose(T_("Skipping user root directory (%s)..."), Q_(session->GetRootDirectory(r)));
+            Verbose(T_("Skipping user root directory (%s)..."), Q_(session->GetRootDirectoryPath(r)));
           }
         }
         else
@@ -3107,7 +3107,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
           }
           else
           {
-            Verbose(T_("Skipping common root directory (%s)..."), Q_(session->GetRootDirectory(r)));
+            Verbose(T_("Skipping common root directory (%s)..."), Q_(session->GetRootDirectoryPath(r)));
           }
         }
       }

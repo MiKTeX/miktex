@@ -1,6 +1,6 @@
 /* comSession.cpp: MiKTeX session
 
-   Copyright (C) 2006-2017 Christian Schenk
+   Copyright (C) 2006-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -216,7 +216,7 @@ STDMETHODIMP comSession::GetRootDirectory(LONG rootIdx, BSTR* rootDirectory)
   try
   {
     CreateSession();
-    *rootDirectory = _bstr_t(session->GetRootDirectory(rootIdx).ToWideCharString().c_str()).Detach();
+    *rootDirectory = _bstr_t(session->GetRootDirectoryPath(rootIdx).ToWideCharString().c_str()).Detach();
     return S_OK;
   }
   catch (const _com_error& e)

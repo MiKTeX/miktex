@@ -1,6 +1,6 @@
 /* InverseSearchOptionsPage.cpp:
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of Yap.
 
@@ -565,7 +565,7 @@ void InverseSearchOptionsPage::CollectEditors()
 
   for (unsigned r = session->GetNumberOfTEXMFRoots(); r > 0; --r)
   {
-    PathName editorsIni = session->GetRootDirectory(r - 1);
+    PathName editorsIni = session->GetRootDirectoryPath(r - 1);
     editorsIni /= MIKTEX_PATH_EDITORS_INI;
     if (File::Exists(editorsIni))
     {

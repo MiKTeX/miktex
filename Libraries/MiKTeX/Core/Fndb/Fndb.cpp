@@ -1,6 +1,6 @@
 /* FileNameDatabase.cpp: file name database (public)
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -57,7 +57,7 @@ void Fndb::Add(const PathName & path, const string & fileNameInfo)
     // create the fndb file
     // FIXME: the file name info hasn't been added, if the file exists
     PathName pathFndbFile = session->GetFilenameDatabasePathName(root);
-    if (!Fndb::Create(pathFndbFile.GetData(), session->GetRootDirectory(root).GetData(), nullptr))
+    if (!Fndb::Create(pathFndbFile.GetData(), session->GetRootDirectoryPath(root).GetData(), nullptr))
     {
       MIKTEX_UNEXPECTED();
     }

@@ -1,6 +1,6 @@
 /* makefndb.cpp: creating the file name database
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -532,7 +532,7 @@ bool Fndb::Refresh(const PathName& path, ICreateFndbCallback* callback)
 {
   unsigned root = SessionImpl::GetSession()->DeriveTEXMFRoot(path);
   PathName pathFndbPath = SessionImpl::GetSession()->GetFilenameDatabasePathName(root);
-  return Fndb::Create(pathFndbPath.GetData(), SessionImpl::GetSession()->GetRootDirectory(root).GetData(), callback);
+  return Fndb::Create(pathFndbPath.GetData(), SessionImpl::GetSession()->GetRootDirectoryPath(root).GetData(), callback);
 }
 
 bool Fndb::Refresh(ICreateFndbCallback* callback)
@@ -545,7 +545,7 @@ bool Fndb::Refresh(ICreateFndbCallback* callback)
     {
       continue;
     }
-    PathName rootDirectory = SessionImpl::GetSession()->GetRootDirectory(ord);
+    PathName rootDirectory = SessionImpl::GetSession()->GetRootDirectoryPath(ord);
     PathName pathFndbPath = SessionImpl::GetSession()->GetFilenameDatabasePathName(ord);
     if (!Fndb::Create(pathFndbPath, rootDirectory, callback))
     {

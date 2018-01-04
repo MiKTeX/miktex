@@ -1,6 +1,6 @@
 /* PropPageRoots.cpp:
 
-   Copyright (C) 2000-2017 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of MiKTeX Options.
 
@@ -585,7 +585,7 @@ void PropPageTeXMFRoots::Refresh()
     {
       continue;
     }
-    PathName root = session->GetRootDirectory(rootOrd);
+    PathName root = session->GetRootDirectoryPath(rootOrd);
     if (!showHiddenRoots && IsHiddenRoot(root))
     {
       continue;

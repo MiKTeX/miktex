@@ -1,6 +1,6 @@
 /* FileCopyPage.cpp: the actual update process
 
-   Copyright (C) 2002-2017 Christian Schenk
+   Copyright (C) 2002-2018 Christian Schenk
 
    This file is part of MiKTeX Update Wizard.
 
@@ -669,7 +669,7 @@ void FileCopyPage::RemoveFalseConfigFiles()
   unsigned n = pSession->GetNumberOfTEXMFRoots();
   for (unsigned r = 0; r < n; ++r)
   {
-    PathName path = pSession->GetRootDirectory(r);
+    PathName path = pSession->GetRootDirectoryPath(r);
     if (path != installRoot && path != configRoot)
     {
       for (size_t idx = 0; idx < sizeof(configFiles) / sizeof(configFiles[0]); ++idx)

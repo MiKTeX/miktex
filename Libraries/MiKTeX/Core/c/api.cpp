@@ -1,6 +1,6 @@
 /* api.cpp: C API
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -283,7 +283,7 @@ MIKTEXCORECEEAPI(char*) miktex_get_root_directory(unsigned r, char* lpszPath)
 {
   C_FUNC_BEGIN();
   MIKTEX_ASSERT_PATH_BUFFER(lpszPath);
-  StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, SessionImpl::GetSession()->GetRootDirectory(r).GetData());
+  StringUtil::CopyString(lpszPath, BufferSizes::MaxPath, SessionImpl::GetSession()->GetRootDirectoryPath(r).GetData());
   return lpszPath;
   C_FUNC_END();
 }

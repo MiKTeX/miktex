@@ -1,6 +1,6 @@
 /* searchpath.cpp: managing search paths
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -42,7 +42,7 @@ void SessionImpl::ExpandRootDirectories(const string& toBeExpanded, vector<PathN
     }
     for (unsigned idx = 0; idx < GetNumberOfTEXMFRoots(); ++idx)
     {
-      PathName path = GetRootDirectory(idx);
+      PathName path = GetRootDirectoryPath(idx);
       path.AppendDirectoryDelimiter();
       path.Append(suffix, false);
       paths.push_back(path);
