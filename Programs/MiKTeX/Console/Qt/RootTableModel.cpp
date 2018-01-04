@@ -46,18 +46,18 @@ int RootTableModel::columnCount(const QModelIndex& parent) const
   return parent.isValid() ? 0 : 3;
 }
 
-vector<string> GetPurposesString(RootDirectoryInfo::Roles roles)
+vector<string> GetPurposesString(RootDirectoryInfo::Purposes purposes)
 {
   vector<string> result;
-  if (roles[RootDirectoryInfo::Role::Config])
+  if (purposes[RootDirectoryInfo::Purpose::Config])
   {
     result.push_back("Config");
   }
-  if (roles[RootDirectoryInfo::Role::Data])
+  if (purposes[RootDirectoryInfo::Purpose::Data])
   {
     result.push_back("Data");
   }
-  if (roles[RootDirectoryInfo::Role::Install])
+  if (purposes[RootDirectoryInfo::Purpose::Install])
   {
     result.push_back("Install");
   }
@@ -79,7 +79,7 @@ QVariant RootTableModel::data(const QModelIndex& index, int role) const
     case 0:
       return QString::fromUtf8(root.path.GetData());
     case 1:
-      return QString::fromUtf8(StringUtil::Flatten(GetPurposesString(root.roles), ',').c_str());
+      return QString::fromUtf8(StringUtil::Flatten(GetPurposesString(root.purposes), ',').c_str());
     case 2:
       return root.common ? "system-wide" : "";
     }

@@ -36,7 +36,7 @@ MIKTEX_CORE_BEGIN_NAMESPACE;
 struct RootDirectoryInfo
 {
 public:
-  enum class Role
+  enum class Purpose
   {
     Config,
     Data,
@@ -44,14 +44,14 @@ public:
   };
 
 public:
-  typedef MiKTeX::Core::OptionSet<Role> Roles;
+  typedef MiKTeX::Core::OptionSet<Purpose> Purposes;
   
   // fully qualified path to root directory
 public:
   MiKTeX::Core::PathName path;
 
 public:
-  Roles roles;
+  Purposes purposes;
 
   // true, if this is a system-wide root directory
 public:
