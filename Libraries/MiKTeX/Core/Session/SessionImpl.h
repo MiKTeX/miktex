@@ -132,6 +132,9 @@ public:
   MiKTeX::Core::PathName GetSpecialPath(MiKTeX::Core::SpecialPath specialPath) override;
 
 public:
+  std::vector<MiKTeX::Core::RootDirectoryInfo> GetRootDirectories() override;
+
+public:
   unsigned GetNumberOfTEXMFRoots() override;
 
 public:

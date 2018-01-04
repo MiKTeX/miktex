@@ -369,6 +369,21 @@ void SessionImpl::InitializeRootDirectories(const StartupConfig& startupConfig)
   trace_config->WriteFormattedLine("core", "CommonInstall: %s", GetRootDirectoryPath(commonInstallRootIndex).GetData());
 }
 
+vector<RootDirectoryInfo> SessionImpl::GetRootDirectories()
+{
+  vector<RootDirectoryInfo> result;
+  MIKTEX_ASSERT(rootDirectories.size() > 1);
+  if (rootDirectories.size() <= 1)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  for (size_t r = 0; r < rootDirectories.size() - 1; ++r)
+  {
+    result.push_back(rootDirectories[r]);
+  }
+  return result;
+}
+
 unsigned SessionImpl::GetNumberOfTEXMFRoots()
 {
   unsigned n = static_cast<unsigned>(rootDirectories.size());

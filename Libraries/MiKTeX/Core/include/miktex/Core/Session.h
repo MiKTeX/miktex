@@ -47,6 +47,7 @@
 #include "PathName.h"
 #include "OptionSet.h"
 #include "Process.h"
+#include "RootDirectoryInfo.h"
 #include "TriState.h"
 
 MIKTEX_CORE_BEGIN_NAMESPACE;
@@ -773,6 +774,9 @@ public:
   /// @return Returns a path name.
 public:
   virtual PathName MIKTEXTHISCALL GetSpecialPath(SpecialPath specialPath) = 0;
+
+public:
+  virtual std::vector<RootDirectoryInfo> GetRootDirectories() = 0;
 
   /// Gets the number of root directories.
 public:
