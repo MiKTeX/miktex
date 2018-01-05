@@ -513,7 +513,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QGroupBox" name="verticalGroupBox">
+         <widget class="QGroupBox" name="groupPathIssue">
           <property name="title">
            <string>Executables</string>
           </property>
@@ -533,7 +533,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="hintPath">
+            <widget class="QLabel" name="label_15">
              <property name="text">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Currently this directory is not in the search path for executables. You should add it to the environment variable PATH so that you can invoke the MiKTeX executables from a shell.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/howto/modify-path&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: modify PATH&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
@@ -565,7 +565,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QGroupBox" name="hintUpgrade">
+         <widget class="QGroupBox" name="groupUpgrade">
           <property name="title">
            <string>Upgrade</string>
           </property>
@@ -661,7 +661,7 @@
       <widget class="QWidget" name="settings">
        <layout class="QVBoxLayout" name="_224">
         <item>
-         <widget class="QTabWidget" name="tabWidget">
+         <widget class="QTabWidget" name="tabWidgetSettings">
           <property name="currentIndex">
            <number>1</number>
           </property>
@@ -827,7 +827,10 @@
                 </widget>
                </item>
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_6">
+                <layout class="QVBoxLayout" name="vboxTreeViewRootDirectories">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
                  <item>
                   <widget class="QTreeView" name="treeViewRootDirectories">
                    <property name="selectionMode">
@@ -840,30 +843,6 @@
                     <bool>true</bool>
                    </property>
                   </widget>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_13">
-                   <item>
-                    <widget class="QPushButton" name="buttonAddRootDirectory">
-                     <property name="text">
-                      <string>Add...</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="verticalSpacer_11">
-                     <property name="orientation">
-                      <enum>Qt::Vertical</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>20</width>
-                       <height>40</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                  </layout>
                  </item>
                 </layout>
                </item>
@@ -1031,8 +1010,63 @@
    </property>
   </action>
   <action name="actionRemoveRootDirectory">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/list-remove-16x16.png</normaloff>:/Icons/list-remove-16x16.png</iconset>
+   </property>
    <property name="text">
     <string>Remove root directory</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove</string>
+   </property>
+   <property name="statusTip">
+    <string>Removes the selected TEXMF root directory from the list</string>
+   </property>
+  </action>
+  <action name="actionAddRootDirectory">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/list-add-16x16.png</normaloff>:/Icons/list-add-16x16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add root directory</string>
+   </property>
+   <property name="toolTip">
+    <string>Add</string>
+   </property>
+   <property name="statusTip">
+    <string>Adds a TEXMF root directory to the list</string>
+   </property>
+  </action>
+  <action name="actionRootDirectoryMoveDown">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/go-down-16x16.png</normaloff>:/Icons/go-down-16x16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Move down</string>
+   </property>
+   <property name="toolTip">
+    <string>Down</string>
+   </property>
+   <property name="statusTip">
+    <string>Moves the selected TEXMF root directory down in the list</string>
+   </property>
+  </action>
+  <action name="actionRootDirectoryMoveUp">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/go-up-16x16.png</normaloff>:/Icons/go-up-16x16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Move up</string>
+   </property>
+   <property name="toolTip">
+    <string>Up</string>
+   </property>
+   <property name="statusTip">
+    <string>Moves the selected TEXMF root directory up in the list</string>
    </property>
   </action>
  </widget>

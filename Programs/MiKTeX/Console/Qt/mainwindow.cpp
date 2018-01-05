@@ -81,6 +81,7 @@ MainWindow::MainWindow(QWidget* parent) :
 #endif
 
   SetCurrentPage(isSetupMode ? Pages::Setup : Pages::Overview);
+  ui->tabWidgetSettings->setCurrentIndex(0);
 
   if (session->IsAdminMode())
   {
@@ -147,7 +148,6 @@ void MainWindow::TrayIconActivated(QSystemTrayIcon::ActivationReason reason)
 void MainWindow::TrayMessageClicked()
 {
 }
-
 #endif
 
 void MainWindow::UpdateWidgets()
@@ -195,7 +195,7 @@ void MainWindow::UpdateWidgets()
     ui->groupDirectories->setEnabled(!IsBackgroundWorkerActive());
     if (Utils::CheckPath(false))
     {
-      ui->hintPath->hide();
+      ui->groupPathIssue->hide();
     }
     ui->bindir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
     if (!IsBackgroundWorkerActive())
@@ -204,7 +204,7 @@ void MainWindow::UpdateWidgets()
       {
         if (packageManager->GetPackageInfo("ltxbase").IsInstalled() && packageManager->GetPackageInfo("amsfonts").IsInstalled())
         {
-          ui->hintUpgrade->hide();
+          ui->groupUpgrade->hide();
         }
       }
     }
@@ -744,12 +744,29 @@ void MainWindow::on_buttonChangeRepository_clicked()
 void MainWindow::SetupUiRootDirectories()
 {
   rootDirectoryModel = new RootTableModel(this);
+  toolBarRootDirectories = new QToolBar(this);
+  toolBarRootDirectories->setIconSize(QSize(16, 16));
+  toolBarRootDirectories->addAction(ui->actionAddRootDirectory);
+  toolBarRootDirectories->addAction(ui->actionRemoveRootDirectory);
+  toolBarRootDirectories->addSeparator();
+  toolBarRootDirectories->addAction(ui->actionRootDirectoryMoveUp);
+  toolBarRootDirectories->addAction(ui->actionRootDirectoryMoveDown);
+  ui->vboxTreeViewRootDirectories->insertWidget(0, toolBarRootDirectories);
   ui->treeViewRootDirectories->setModel(rootDirectoryModel);
+  contextMenuRootDirectoriesBackground = new QMenu(ui->treeViewRootDirectories);
+  contextMenuRootDirectoriesBackground->addAction(ui->actionAddRootDirectory);
   contextMenuRootDirectory = new QMenu(ui->treeViewRootDirectories);
+  contextMenuRootDirectory->addAction(ui->actionRootDirectoryMoveUp);
+  contextMenuRootDirectory->addAction(ui->actionRootDirectoryMoveDown);
   contextMenuRootDirectory->addAction(ui->actionRemoveRootDirectory);
+  contextMenuRootDirectory->addSeparator();
+  contextMenuRootDirectory->addAction(ui->actionAddRootDirectory);
   ui->treeViewRootDirectories->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(ui->treeViewRootDirectories, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuRootDirectories(const QPoint&)));
+  connect(ui->actionRootDirectoryMoveUp, SIGNAL(triggered()), this, SLOT(MoveRootDirectoryUp()));
+  connect(ui->actionRootDirectoryMoveDown, SIGNAL(triggered()), this, SLOT(MoveRootDirectoryDown()));
   connect(ui->actionRemoveRootDirectory, SIGNAL(triggered()), this, SLOT(RemoveRootDirectory()));
+  connect(ui->actionAddRootDirectory, SIGNAL(triggered()), this, SLOT(AddRootDirectory()));
   connect(ui->treeViewRootDirectories->selectionModel(),
     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
     this,
@@ -764,13 +781,20 @@ void MainWindow::UpdateUiRootDirectories()
 
 void MainWindow::UpdateActionsRootDirectories()
 {
-  QModelIndexList selectedRows = ui->treeViewRootDirectories->selectionModel()->selectedRows();
-  bool enableRemove = (selectedRows.count() > 0);
-  for (QModelIndexList::const_iterator it = selectedRows.begin(); it != selectedRows.end() && enableRemove; ++it)
+  int selectedCount = ui->treeViewRootDirectories->selectionModel()->selectedRows().count();
+  bool enableUp = selectedCount == 1;
+  bool enableDown = selectedCount == 1;
+  bool enableRemove = selectedCount > 0;
+  for (const QModelIndex& index : ui->treeViewRootDirectories->selectionModel()->selectedRows())
   {
-    enableRemove = rootDirectoryModel->CanRemove(*it);
+    enableUp = enableUp && rootDirectoryModel->CanMoveUp(index);
+    enableDown = enableDown && rootDirectoryModel->CanMoveDown(index);
+    enableRemove = enableRemove && rootDirectoryModel->CanRemove(index);
   }
+  ui->actionRootDirectoryMoveUp->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && enableUp);
+  ui->actionRootDirectoryMoveDown->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && enableDown);
   ui->actionRemoveRootDirectory->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && enableRemove);
+  ui->actionAddRootDirectory->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
 }
 
 const char* tdsDirs[] = {
@@ -816,7 +840,7 @@ bool CheckRoot(const PathName& root)
   return isEmpty;
 }
 
-void MainWindow::on_buttonAddRootDirectory_clicked()
+void MainWindow::AddRootDirectory()
 {
   try
   {
@@ -848,9 +872,61 @@ void MainWindow::on_buttonAddRootDirectory_clicked()
   }
 }
 
+void MainWindow::MoveRootDirectoryUp()
+{
+  try
+  {
+    for (const QModelIndex& index : ui->treeViewRootDirectories->selectionModel()->selectedRows())
+    {
+      rootDirectoryModel->MoveUp(index);
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+void MainWindow::MoveRootDirectoryDown()
+{
+  try
+  {
+    for (const QModelIndex& index : ui->treeViewRootDirectories->selectionModel()->selectedRows())
+    {
+      rootDirectoryModel->MoveDown(index);
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
 void MainWindow::RemoveRootDirectory()
 {
-  ;
+  try
+  {
+    for (const QModelIndex& index : ui->treeViewRootDirectories->selectionModel()->selectedRows())
+    {
+      rootDirectoryModel->Remove(index);
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
 }
 
 void MainWindow::OnContextMenuRootDirectories(const QPoint& pos)
@@ -859,5 +935,9 @@ void MainWindow::OnContextMenuRootDirectories(const QPoint& pos)
   if (index.isValid())
   {
     contextMenuRootDirectory->exec(ui->treeViewRootDirectories->mapToGlobal(pos));
+  }
+  else
+  {
+    contextMenuRootDirectoriesBackground->exec(ui->treeViewRootDirectories->mapToGlobal(pos));
   }
 }

@@ -130,10 +130,35 @@ void RootTableModel::Reload()
   endResetModel();
 }
 
+bool RootTableModel::CanMoveUp(const QModelIndex& index)
+{
+  return false;
+}
+
+void RootTableModel::MoveUp(const QModelIndex& index)
+{
+  // TODO
+}
+
+bool RootTableModel::CanMoveDown(const QModelIndex& index)
+{
+  return false;
+}
+
+void RootTableModel::MoveDown(const QModelIndex& index)
+{
+  // TODO
+}
+
 bool RootTableModel::CanRemove(const QModelIndex& index)
 {
   const RootDirectoryInfo& root = roots[index.row()];
   bool canRemove = root.purposes == RootDirectoryInfo::Purposes({ RootDirectoryInfo::Purpose::Generic });
   // TODO: check common
   return canRemove;
+}
+
+void RootTableModel::Remove(const QModelIndex& index)
+{
+  session->UnregisterRootDirectory(roots[index.row()].path);
 }

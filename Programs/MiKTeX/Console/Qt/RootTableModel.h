@@ -59,7 +59,22 @@ public:
   void Reload();
 
 public:
+  bool CanMoveUp(const QModelIndex& index);
+
+public:
+  void MoveUp(const QModelIndex& index);
+
+public:
+  bool CanMoveDown(const QModelIndex& index);
+
+public:
+  void MoveDown(const QModelIndex& index);
+
+public:
   bool CanRemove(const QModelIndex& index);
+
+public:
+  void Remove(const QModelIndex& index);
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();

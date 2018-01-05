@@ -90,16 +90,28 @@ private:
   RootTableModel* rootDirectoryModel = nullptr;
 
 private slots:
-  void on_buttonAddRootDirectory_clicked();
+  void AddRootDirectory();
 
 private:
   QMenu* contextMenuRootDirectory = nullptr;
+
+private:
+  QMenu* contextMenuRootDirectoriesBackground = nullptr;
 
 private slots:
   void OnContextMenuRootDirectories(const QPoint& pos);
 
 private slots:
   void RemoveRootDirectory();
+
+private slots:
+  void MoveRootDirectoryUp();
+
+private slots:
+  void MoveRootDirectoryDown();
+
+private:
+  QToolBar* toolBarRootDirectories = nullptr;
 
 private slots:
   void StartTeXworks();
