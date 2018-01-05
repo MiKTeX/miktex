@@ -264,154 +264,21 @@
      </widget>
     </item>
     <item>
-     <widget class="QStackedWidget" name="pages">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="currentIndex">
-       <number>1</number>
-      </property>
-      <widget class="QWidget" name="setup">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_6">
-        <item>
-         <widget class="QLabel" name="label_8">
-          <property name="text">
-           <string>&lt;h2&gt;Welcome!&lt;/h2&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_9">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thank you for giving MiKTeX a try!&lt;/p&gt;&lt;p&gt;We will now finish the MiKTeX setup by populating the &lt;span style=&quot;font-style:italic;&quot;&gt;bin&lt;/span&gt; directory with links to the to actual MiKTeX binaries. The location of the &lt;span style=&quot; font-style:italic;&quot;&gt;bin&lt;/span&gt; directory depends on your choice:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-family:'Courier New';&quot;&gt;/usr/local/bin&lt;/span&gt; for a shared (system-wide) MiKTeX installation. This option requires administrator privileges.&lt;/li&gt;&lt;li&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;~/bin&lt;/span&gt; for a private MiKTeX installation.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/shared-vs-private&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;KB: shared vs. private installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="wordWrap">
+     <widget class="QWidget" name="widget" native="true">
+      <layout class="QVBoxLayout" name="_3">
+       <item>
+        <widget class="QStackedWidget" name="pages">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="currentIndex">
+          <number>4</number>
+         </property>
+         <widget class="QWidget" name="setup">
+          <property name="enabled">
            <bool>true</bool>
           </property>
-          <property name="openExternalLinks">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QWidget" name="setupAdminMode" native="true">
-          <layout class="QVBoxLayout" name="verticalLayout_8"/>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_5">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Preferred</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QCommandLinkButton" name="buttonAdminSetup">
-          <property name="text">
-           <string>Restart as administrator and finish setup</string>
-          </property>
-          <property name="description">
-           <string>MiKTeX binaries will be available for all users.</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCommandLinkButton" name="buttonUserSetup">
-          <property name="text">
-           <string>Finish private setup</string>
-          </property>
-          <property name="description">
-           <string>MiKTeX binaries will be available for your private use only.</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="labelSetupWait">
-          <property name="frameShape">
-           <enum>QFrame::Box</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="text">
-           <string>Please wait a few moments. It doesn't too take long...</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-          <property name="margin">
-           <number>10</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="overview">
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>&lt;h2&gt;Welcome!&lt;/h2&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>This is the MiKTeX Console. It will assist you in managing your MiKTeX configuration.</string>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Preferred</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QWidget" name="privateMode" native="true">
-          <layout class="QVBoxLayout" name="verticalLayout_5">
+          <layout class="QVBoxLayout" name="verticalLayout_6">
            <property name="leftMargin">
             <number>0</number>
            </property>
@@ -425,21 +292,105 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="label_6">
+            <widget class="QLabel" name="label_8">
              <property name="text">
-              <string>You have installed MiKTeX for your private use.</string>
+              <string>&lt;h2&gt;Welcome!&lt;/h2&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_9">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thank you for giving MiKTeX a try!&lt;/p&gt;&lt;p&gt;We will now finish the MiKTeX setup by populating the &lt;span style=&quot;font-style:italic;&quot;&gt;bin&lt;/span&gt; directory with links to the to actual MiKTeX binaries. The location of the &lt;span style=&quot; font-style:italic;&quot;&gt;bin&lt;/span&gt; directory depends on your choice:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-family:'Courier New';&quot;&gt;/usr/local/bin&lt;/span&gt; for a shared (system-wide) MiKTeX installation. This option requires administrator privileges.&lt;/li&gt;&lt;li&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;~/bin&lt;/span&gt; for a private MiKTeX installation.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/shared-vs-private&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;KB: shared vs. private installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
              </property>
+             <property name="openExternalLinks">
+              <bool>true</bool>
+             </property>
             </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="setupAdminMode" native="true">
+             <layout class="QVBoxLayout" name="verticalLayout_8"/>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Preferred</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QCommandLinkButton" name="buttonAdminSetup">
+             <property name="text">
+              <string>Restart as administrator and finish setup</string>
+             </property>
+             <property name="description">
+              <string>MiKTeX binaries will be available for all users.</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCommandLinkButton" name="buttonUserSetup">
+             <property name="text">
+              <string>Finish private setup</string>
+             </property>
+             <property name="description">
+              <string>MiKTeX binaries will be available for your private use only.</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelSetupWait">
+             <property name="frameShape">
+              <enum>QFrame::Box</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Plain</enum>
+             </property>
+             <property name="text">
+              <string>Please wait a few moments. It doesn't too take long...</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="margin">
+              <number>10</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
-        </item>
-        <item>
-         <widget class="QWidget" name="userMode" native="true">
-          <layout class="QVBoxLayout" name="verticalLayout_2">
+         <widget class="QWidget" name="overview">
+          <layout class="QVBoxLayout" name="verticalLayout">
            <property name="leftMargin">
             <number>0</number>
            </property>
@@ -453,24 +404,289 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="label_4">
+            <widget class="QLabel" name="label_5">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This tool currently operates on the private (per-user) MiKTeX configuration.&lt;/p&gt;&lt;p&gt;You may want to switch to administrator mode in order to operate on the shared (system-wide) configuration.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/howto/admin-mode&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: switch to admin mode&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;h2&gt;Welcome!&lt;/h2&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>This is the MiKTeX Console. It will assist you in managing your MiKTeX configuration.</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
              </property>
-             <property name="openExternalLinks">
-              <bool>true</bool>
-             </property>
             </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Preferred</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QWidget" name="privateMode" native="true">
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="label_6">
+                <property name="text">
+                 <string>You have installed MiKTeX for your private use.</string>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="userMode" native="true">
+             <layout class="QVBoxLayout" name="verticalLayout_2">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This tool currently operates on the private (per-user) MiKTeX configuration.&lt;/p&gt;&lt;p&gt;You may want to switch to administrator mode in order to operate on the shared (system-wide) configuration.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/howto/admin-mode&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: switch to admin mode&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+                <property name="openExternalLinks">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="adminMode" native="true">
+             <layout class="QVBoxLayout" name="verticalLayout_3">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>This tool currently operates on the shared (system-wide) MiKTeX configuration.</string>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Preferred</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupPathIssue">
+             <property name="title">
+              <string>Executables</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <item>
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>MiKTeX exececutables have been installed in:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="bindir">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_15">
+                <property name="text">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Currently this directory is not in the search path for executables. You should add it to the environment variable PATH so that you can invoke the MiKTeX executables from a shell.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/howto/modify-path&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: modify PATH&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+                <property name="openExternalLinks">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_7">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Preferred</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupUpgrade">
+             <property name="title">
+              <string>Upgrade</string>
+             </property>
+             <layout class="QVBoxLayout">
+              <item>
+               <widget class="QLabel" name="label_7">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can upgrade your minimal TeX installation to a standard TeX installation. This is completely optional because MiKTeX is a scalable TeX distribution which installs missing packages on-the-fly. More information:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://miktex.org/howto/upgrade&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: upgrade MiKTeX&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://miktex.org/kb/just-enough-tex&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: &amp;quot;Just enough TeX&amp;quot;&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+                <property name="openExternalLinks">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <item>
+                 <widget class="QPushButton" name="buttonUpgrade">
+                  <property name="text">
+                   <string>Upgrade now</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QWidget" name="upgradeStatus" native="true">
+                  <layout class="QHBoxLayout" name="updateStatus">
+                   <item>
+                    <widget class="QLabel" name="labelUpgradeStatus">
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="labelUpgradePercent">
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="labelUpgradeDetails">
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
-        </item>
-        <item>
-         <widget class="QWidget" name="adminMode" native="true">
-          <layout class="QVBoxLayout" name="verticalLayout_3">
+         <widget class="QWidget" name="settings">
+          <layout class="QVBoxLayout" name="_224">
            <property name="leftMargin">
             <number>0</number>
            </property>
@@ -484,149 +700,245 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="label_3">
-             <property name="text">
-              <string>This tool currently operates on the shared (system-wide) MiKTeX configuration.</string>
+            <widget class="QTabWidget" name="tabWidgetSettings">
+             <property name="currentIndex">
+              <number>1</number>
              </property>
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
+             <widget class="QWidget" name="settingsGeneral">
+              <attribute name="title">
+               <string>General</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="xxxx">
+               <item>
+                <widget class="QGroupBox" name="groupPackageInstallation">
+                 <property name="title">
+                  <string>Package installation</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_9">
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_5">
+                    <item>
+                     <widget class="QLabel" name="label_13">
+                      <property name="text">
+                       <string>Packages are installed from:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="editRepository">
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="buttonChangeRepository">
+                      <property name="text">
+                       <string>Change...</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QVBoxLayout" name="verticalLayout_11">
+                    <item>
+                     <widget class="QLabel" name="label_11">
+                      <property name="text">
+                       <string>You can choose whether missing packages are to be installed on-the-fly.</string>
+                      </property>
+                      <property name="wordWrap">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QRadioButton" name="radioAutoInstallAsk">
+                      <property name="text">
+                       <string>Ask me</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QRadioButton" name="radioAutoInstallYes">
+                      <property name="text">
+                       <string>Always install missing packages on-the-fly</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QRadioButton" name="radioAutoInstallNo">
+                      <property name="text">
+                       <string>Never install missing packages on-the-fly</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="groupPaper">
+                 <property name="title">
+                  <string>Paper</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_10">
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_4">
+                    <item>
+                     <widget class="QLabel" name="label_10">
+                      <property name="text">
+                       <string>Select your default paper format:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QComboBox" name="comboPaper"/>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_3">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_12">
+                    <property name="font">
+                     <font>
+                      <italic>true</italic>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Changing the paper format triggers a rebuild of the format files.</string>
+                    </property>
+                    <property name="wordWrap">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_9">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="settingsDirectories">
+              <attribute name="title">
+               <string>Directories</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="yyyy">
+               <item>
+                <widget class="QGroupBox" name="groupDirectories">
+                 <property name="title">
+                  <string>TEXMF root directories</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_12">
+                  <item>
+                   <widget class="QLabel" name="label_14">
+                    <property name="text">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the list of TEXMF root directories. The order in the list determines the order, in which files are searched.&lt;/p&gt;&lt;p&gt;A root directory can have multiple purposes: &lt;span style=&quot; font-style:italic;&quot;&gt;Config&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Data&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Install&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;If a root directory has the &lt;span style=&quot; font-style:italic;&quot;&gt;Common&lt;/span&gt; attribute, it is shared by all users.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/texmf-roots&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: TEXMF root directories&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="wordWrap">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <layout class="QVBoxLayout" name="vboxTreeViewRootDirectories">
+                    <property name="spacing">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QTreeView" name="treeViewRootDirectories">
+                      <property name="selectionMode">
+                       <enum>QAbstractItemView::ExtendedSelection</enum>
+                      </property>
+                      <property name="rootIsDecorated">
+                       <bool>false</bool>
+                      </property>
+                      <property name="allColumnsShowFocus">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_10">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
             </widget>
            </item>
           </layout>
          </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Preferred</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupPathIssue">
-          <property name="title">
-           <string>Executables</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
+         <widget class="QWidget" name="updates">
+          <layout class="QVBoxLayout" name="_22">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>MiKTeX exececutables have been installed in:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="bindir">
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_15">
-             <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Currently this directory is not in the search path for executables. You should add it to the environment variable PATH so that you can invoke the MiKTeX executables from a shell.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/howto/modify-path&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: modify PATH&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-             <property name="openExternalLinks">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_7">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Preferred</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupUpgrade">
-          <property name="title">
-           <string>Upgrade</string>
-          </property>
-          <layout class="QVBoxLayout">
-           <item>
-            <widget class="QLabel" name="label_7">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can upgrade your minimal TeX installation to a standard TeX installation. This is completely optional because MiKTeX is a scalable TeX distribution which installs missing packages on-the-fly. More information:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://miktex.org/howto/upgrade&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: upgrade MiKTeX&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://miktex.org/kb/just-enough-tex&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: &amp;quot;Just enough TeX&amp;quot;&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-             <property name="openExternalLinks">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
-              <widget class="QPushButton" name="buttonUpgrade">
+              <widget class="QPushButton" name="Check">
                <property name="text">
-                <string>Upgrade now</string>
+                <string>Check for updates</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QWidget" name="upgradeStatus" native="true">
-               <layout class="QHBoxLayout" name="updateStatus">
-                <item>
-                 <widget class="QLabel" name="labelUpgradeStatus">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="labelUpgradePercent">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="labelUpgradeDetails">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+              <widget class="QPushButton" name="Check_2">
+               <property name="text">
+                <string>Update now</string>
+               </property>
               </widget>
              </item>
              <item>
-              <spacer name="horizontalSpacer">
+              <spacer name="horizontalSpacer_2">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -640,279 +952,46 @@
              </item>
             </layout>
            </item>
+           <item>
+            <widget class="QTreeView" name="tvUpdates"/>
+           </item>
           </layout>
          </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="settings">
-       <layout class="QVBoxLayout" name="_224">
-        <item>
-         <widget class="QTabWidget" name="tabWidgetSettings">
-          <property name="currentIndex">
-           <number>1</number>
-          </property>
-          <widget class="QWidget" name="settingsGeneral">
-           <attribute name="title">
-            <string>General</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="xxxx">
-            <item>
-             <widget class="QGroupBox" name="groupPackageInstallation">
-              <property name="title">
-               <string>Package installation</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_9">
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_5">
-                 <item>
-                  <widget class="QLabel" name="label_13">
-                   <property name="text">
-                    <string>Packages are installed from:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="editRepository">
-                   <property name="readOnly">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="buttonChangeRepository">
-                   <property name="text">
-                    <string>Change...</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QVBoxLayout" name="verticalLayout_11">
-                 <item>
-                  <widget class="QLabel" name="label_11">
-                   <property name="text">
-                    <string>You can choose whether missing packages are to be installed on-the-fly.</string>
-                   </property>
-                   <property name="wordWrap">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QRadioButton" name="radioAutoInstallAsk">
-                   <property name="text">
-                    <string>Ask me</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QRadioButton" name="radioAutoInstallYes">
-                   <property name="text">
-                    <string>Always install missing packages on-the-fly</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QRadioButton" name="radioAutoInstallNo">
-                   <property name="text">
-                    <string>Never install missing packages on-the-fly</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupPaper">
-              <property name="title">
-               <string>Paper</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_10">
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_4">
-                 <item>
-                  <widget class="QLabel" name="label_10">
-                   <property name="text">
-                    <string>Select your default paper format:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QComboBox" name="comboPaper"/>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_3">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_12">
-                 <property name="font">
-                  <font>
-                   <italic>true</italic>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Changing the paper format triggers a rebuild of the format files.</string>
-                 </property>
-                 <property name="wordWrap">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_9">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="settingsDirectories">
-           <attribute name="title">
-            <string>Directories</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="yyyy">
-            <item>
-             <widget class="QGroupBox" name="groupDirectories">
-              <property name="title">
-               <string>TEXMF root directories</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_12">
-               <item>
-                <widget class="QLabel" name="label_14">
-                 <property name="text">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the list of TEXMF root directories. The order in the list determines the order, in which files are searched.&lt;/p&gt;&lt;p&gt;A root directory can have multiple purposes: &lt;span style=&quot; font-style:italic;&quot;&gt;Config&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Data&lt;/span&gt;, &lt;span style=&quot; font-style:italic;&quot;&gt;Install&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;If a root directory has the &lt;span style=&quot; font-style:italic;&quot;&gt;Common&lt;/span&gt; attribute, it is shared by all users.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/texmf-roots&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: TEXMF root directories&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="wordWrap">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QVBoxLayout" name="vboxTreeViewRootDirectories">
-                 <property name="spacing">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QTreeView" name="treeViewRootDirectories">
-                   <property name="selectionMode">
-                    <enum>QAbstractItemView::ExtendedSelection</enum>
-                   </property>
-                   <property name="rootIsDecorated">
-                    <bool>false</bool>
-                   </property>
-                   <property name="allColumnsShowFocus">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_10">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
+         <widget class="QWidget" name="packages">
+          <layout class="QVBoxLayout" name="_2">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QTreeView" name="tvPackages"/>
+           </item>
+          </layout>
          </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="updates">
-       <layout class="QVBoxLayout" name="_22">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="QPushButton" name="Check">
-            <property name="text">
-             <string>Check for updates</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="Check_2">
-            <property name="text">
-             <string>Update now</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QTreeView" name="tvUpdates"/>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="packages">
-       <layout class="QVBoxLayout" name="_2">
-        <item>
-         <widget class="QTreeView" name="tvPackages"/>
-        </item>
-       </layout>
-      </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelBackgroundTask">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
