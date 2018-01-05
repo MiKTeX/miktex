@@ -177,6 +177,12 @@ public:
   void RegisterRootDirectories(const MiKTeX::Core::StartupConfig& startupConfig, MiKTeX::Core::RegisterRootDirectoriesOptionSet options) override;
 
 public:
+  void RegisterRootDirectory(const MiKTeX::Core::PathName& path) override;
+
+public:
+  void UnregisterRootDirectory(const MiKTeX::Core::PathName& path) override;
+
+public:
   bool IsMiKTeXDirect() override;
 
 public:

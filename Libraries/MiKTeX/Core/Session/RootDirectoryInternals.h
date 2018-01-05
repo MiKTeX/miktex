@@ -109,6 +109,12 @@ public:
   }
 
 public:
+  bool IsManaged() const
+  {
+    return purposes[Purpose::Config] || purposes[Purpose::Data] || purposes[Purpose::Install];
+  }
+
+public:
   void SetFndb(std::shared_ptr<FileNameDatabase> fndb)
   {
     this->fndb = fndb;

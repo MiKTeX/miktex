@@ -838,6 +838,12 @@ public:
   virtual void MIKTEXTHISCALL RegisterRootDirectories(const StartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options) = 0;
 
 public:
+  virtual void MIKTEXTHISCALL RegisterRootDirectory(const PathName& path) = 0;
+
+public:
+  virtual void MIKTEXTHISCALL UnregisterRootDirectory(const PathName& path) = 0;
+
+public:
   virtual bool MIKTEXTHISCALL IsMiKTeXDirect() = 0;
 
 public:

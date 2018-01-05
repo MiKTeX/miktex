@@ -697,6 +697,56 @@ void SessionImpl::RegisterRootDirectories(const string& roots, bool other)
   RegisterRootDirectories(startupConfig, options);
 }
 
+void SessionImpl::RegisterRootDirectory(const PathName& path)
+{
+  vector<string> toBeRegistered;
+  for (size_t r = 0; r < GetNumberOfTEXMFRoots(); ++r)
+  {
+    const RootDirectoryInternals& root = rootDirectories[r];
+    bool skipit = root.IsOther();
+    skipit = skipit || IsAdminMode() && !root.IsCommon();
+    skipit = skipit || !IsAdminMode() && root.IsCommon();
+    skipit = skipit || root.IsManaged();
+    if (!skipit)
+    {
+      toBeRegistered.push_back(rootDirectories[r].path.ToString());
+    }
+  }
+  toBeRegistered.push_back(path.ToString());
+  RegisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathName::PathNameDelimiter), false);
+}
+
+void SessionImpl::UnregisterRootDirectory(const PathName& path)
+{
+  vector<string> toBeRegistered;
+  bool found = false;
+  for (size_t r = 0; r < GetNumberOfTEXMFRoots(); ++r)
+  {
+    const RootDirectoryInternals& root = rootDirectories[r];
+    bool skipit = root.IsOther();
+    skipit = skipit || IsAdminMode() && !root.IsCommon();
+    skipit = skipit || !IsAdminMode() && root.IsCommon();
+    skipit = skipit || root.IsManaged();
+    if (!skipit)
+    {
+      skipit = root.path == path;
+      if (skipit)
+      {
+        found = true;
+      }
+      else
+      {
+        toBeRegistered.push_back(rootDirectories[r].path.ToString());
+      }
+    }
+  }
+  if (!found)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  RegisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathName::PathNameDelimiter), false);
+}
+
 void SessionImpl::RegisterRootDirectories(const StartupConfig& startupConfig, RegisterRootDirectoriesOptionSet options)
 {
   if (IsMiKTeXDirect())
