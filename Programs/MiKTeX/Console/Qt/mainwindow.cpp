@@ -157,6 +157,15 @@ void MainWindow::UpdateWidgets()
 {
   try
   {
+    if (IsBackgroundWorkerActive())
+    {
+      ui->labelBackgroundTask->show();
+    }
+    else
+    {
+      ui->labelBackgroundTask->hide();
+    }
+	
     if (isSetupMode && IsBackgroundWorkerActive())
     {
       ui->labelSetupWait->show();
@@ -419,6 +428,7 @@ void MainWindow::on_buttonUpgrade_clicked()
   QThread* thread = new QThread;
   UpgradeWorker* worker = new UpgradeWorker(packageManager);
   backgroundWorkers++;
+  ui->labelBackgroundTask->setText(tr("Installing packages..."));
   worker->moveToThread(thread);
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &UpgradeWorker::OnFinish, this, [this]() {
@@ -498,6 +508,7 @@ void MainWindow::RefreshFndb()
   QThread* thread = new QThread;
   RefreshFndbWorker* worker = new RefreshFndbWorker;
   backgroundWorkers++;
+  ui->labelBackgroundTask->setText(tr("Refreshing file name database..."));
   worker->moveToThread(thread);
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &RefreshFndbWorker::OnFinish, this, [this]() {
@@ -543,6 +554,7 @@ void MainWindow::RefreshFontMaps()
   QThread* thread = new QThread;
   RefreshFontMapsWorker* worker = new RefreshFontMapsWorker;
   backgroundWorkers++;
+  ui->labelBackgroundTask->setText(tr("Refreshing font map files..."));  
   worker->moveToThread(thread);
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &RefreshFontMapsWorker::OnFinish, this, [this]() {
@@ -635,6 +647,7 @@ void MainWindow::FinishSetup()
   QThread* thread = new QThread;
   FinishSetupWorker* worker = new FinishSetupWorker;
   backgroundWorkers++;
+  ui->labelBackgroundTask->setText(tr("Finishing the MiKTeX setup..."));
   worker->moveToThread(thread);
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &FinishSetupWorker::OnFinish, this, [this]() {
