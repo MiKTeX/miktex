@@ -844,6 +844,12 @@ public:
   virtual void MIKTEXTHISCALL UnregisterRootDirectory(const PathName& path) = 0;
 
 public:
+  virtual void MIKTEXTHISCALL MoveRootDirectoryUp(unsigned r) = 0;
+
+public:
+  virtual void MIKTEXTHISCALL MoveRootDirectoryDown(unsigned r) = 0;
+
+public:
   virtual bool MIKTEXTHISCALL IsMiKTeXDirect() = 0;
 
 public:

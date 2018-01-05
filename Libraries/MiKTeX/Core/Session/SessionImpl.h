@@ -183,6 +183,12 @@ public:
   void UnregisterRootDirectory(const MiKTeX::Core::PathName& path) override;
 
 public:
+  void MoveRootDirectoryUp(unsigned r) override;
+
+public:
+  void MoveRootDirectoryDown(unsigned r) override;
+
+public:
   bool IsMiKTeXDirect() override;
 
 public:
@@ -766,6 +772,9 @@ public:
 
 private:
   bool IsManagedRoot(unsigned root);
+
+private:
+  void MoveRootDirectory(unsigned r, int dir);
 
 private:
   unsigned RegisterRootDirectory(const MiKTeX::Core::PathName& root, MiKTeX::Core::RootDirectoryInfo::Purpose purpose, bool common, bool other);

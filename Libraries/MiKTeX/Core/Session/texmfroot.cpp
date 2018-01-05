@@ -804,6 +804,64 @@ void SessionImpl::RegisterRootDirectories(const StartupConfig& startupConfig, Re
   }
 }
 
+void SessionImpl::MoveRootDirectory(unsigned r, int dir)
+{
+  MIKTEX_ASSERT(dir == -1 || dir == 1);
+  bool up = dir < 0;
+  unsigned n = GetNumberOfTEXMFRoots();
+  if (r == INVALID_ROOT_INDEX || r >= n)
+  {
+    INVALID_ARGUMENT("index", std::to_string(r));
+  }
+  const RootDirectoryInternals& root = rootDirectories[r];
+  bool canMove = !root.IsManaged();
+  canMove = canMove && (!IsAdminMode() || root.IsCommon());
+  canMove = canMove && (IsAdminMode() || !root.IsCommon());
+  if (up)
+  {
+    canMove = canMove && r > 0;
+    canMove = canMove && !rootDirectories[r - 1].IsManaged();
+  }
+  else
+  {
+    canMove = canMove && r < n - 1;
+    canMove = canMove && !rootDirectories[r + 1].IsManaged();
+  }  
+  if (!canMove)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  vector<RootDirectoryInternals> newRoots = rootDirectories;
+  if (up)
+  {
+    swap(newRoots[r], newRoots[r - 1]);
+  }
+  else
+  {
+    swap(newRoots[r], newRoots[r + 1]);
+  }
+  vector<string> toBeRegistered;
+  for (unsigned r = 0; r < GetNumberOfTEXMFRoots(); ++r)
+  {
+    const RootDirectoryInternals& root = newRoots[r];
+    if (!root.IsManaged() && (IsAdminMode() && root.IsCommon() || !IsAdminMode() && !root.IsCommon()))
+    {
+      toBeRegistered.push_back(root.path.ToString());
+    }
+  }
+  RegisterRootDirectories(StringUtil::Flatten(toBeRegistered, PathName::PathNameDelimiter), false);
+}
+
+void SessionImpl::MoveRootDirectoryUp(unsigned r)
+{
+  MoveRootDirectory(r, -1);
+}
+
+void SessionImpl::MoveRootDirectoryDown(unsigned r)
+{
+  MoveRootDirectory(r, 1);
+}
+
 unsigned SessionImpl::GetDataRoot()
 {
   if (IsAdminMode())

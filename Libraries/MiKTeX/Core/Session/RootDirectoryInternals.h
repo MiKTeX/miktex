@@ -84,12 +84,6 @@ public:
   }
 
 public:
-  bool IsCommon() const
-  {
-    return attributes[Attribute::Common];
-  }
-
-public:
   void set_Other(bool other)
   {
     if (other)
@@ -100,18 +94,6 @@ public:
     {
       this->attributes -= Attribute::Other;
     }
-  }
-
-public:
-  bool IsOther() const
-  {
-    return attributes[Attribute::Other];
-  }
-
-public:
-  bool IsManaged() const
-  {
-    return purposes[Purpose::Config] || purposes[Purpose::Data] || purposes[Purpose::Install];
   }
 
 public:

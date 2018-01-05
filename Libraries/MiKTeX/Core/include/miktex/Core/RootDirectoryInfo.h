@@ -57,8 +57,6 @@ public:
 public:
   typedef MiKTeX::Core::OptionSet<Attribute> Attributes;
 
-
-  // fully qualified path to root directory
 public:
   MiKTeX::Core::PathName path;
 
@@ -67,6 +65,24 @@ public:
 
 public:
   Attributes attributes;
+
+public:
+  bool IsCommon() const
+  {
+    return attributes[Attribute::Common];
+  }
+
+public:
+  bool IsOther() const
+  {
+    return attributes[Attribute::Other];
+  }
+
+public:
+  bool IsManaged() const
+  {
+    return purposes[Purpose::Config] || purposes[Purpose::Data] || purposes[Purpose::Install];
+  }
 };
 
 MIKTEX_CORE_END_NAMESPACE;
