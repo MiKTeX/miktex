@@ -61,8 +61,7 @@ MainWindow::MainWindow(QWidget* parent) :
 {
   ui->setupUi(this);
 
-  rootModel = new RootTableModel(this);
-  ui->treeViewRoots->setModel(rootModel);
+  SetupUiRootDirectories();
 
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
@@ -253,8 +252,7 @@ void MainWindow::UpdateWidgets()
         ui->comboPaper->setCurrentIndex(currentIndex);
       }
     }
-    rootModel->Reload();
-    ui->treeViewRoots->resizeColumnToContents(0);
+    UpdateUiRootDirectories();
   }
   catch (const MiKTeXException& e)
   {
@@ -273,6 +271,7 @@ void MainWindow::EnableActions()
     ui->actionRestartAdmin->setEnabled(!IsBackgroundWorkerActive() && session->IsSharedSetup() && !session->IsAdminMode());
     ui->actionTeXworks->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !session->IsAdminMode());
     ui->actionTerminal->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
+    UpdateActionsRootDirectories();
   }
   catch (const MiKTeXException& e)
   {
@@ -742,6 +741,38 @@ void MainWindow::on_buttonChangeRepository_clicked()
   }
 }
 
+void MainWindow::SetupUiRootDirectories()
+{
+  rootDirectoryModel = new RootTableModel(this);
+  ui->treeViewRootDirectories->setModel(rootDirectoryModel);
+  contextMenuRootDirectory = new QMenu(ui->treeViewRootDirectories);
+  contextMenuRootDirectory->addAction(ui->actionRemoveRootDirectory);
+  ui->treeViewRootDirectories->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(ui->treeViewRootDirectories, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuRootDirectories(const QPoint&)));
+  connect(ui->actionRemoveRootDirectory, SIGNAL(triggered()), this, SLOT(RemoveRootDirectory()));
+  connect(ui->treeViewRootDirectories->selectionModel(),
+    SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+    this,
+    SLOT(UpdateActionsRootDirectories()));
+}
+
+void MainWindow::UpdateUiRootDirectories()
+{
+  rootDirectoryModel->Reload();
+  ui->treeViewRootDirectories->resizeColumnToContents(0);
+}
+
+void MainWindow::UpdateActionsRootDirectories()
+{
+  QModelIndexList selectedRows = ui->treeViewRootDirectories->selectionModel()->selectedRows();
+  bool enableRemove = (selectedRows.count() > 0);
+  for (QModelIndexList::const_iterator it = selectedRows.begin(); it != selectedRows.end() && enableRemove; ++it)
+  {
+    enableRemove = rootDirectoryModel->CanRemove(*it);
+  }
+  ui->actionRemoveRootDirectory->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && enableRemove);
+}
+
 const char* tdsDirs[] = {
   "bibtex",
   "dvipdfm",
@@ -782,26 +813,51 @@ bool CheckRoot(const PathName& root)
       }
     }
   }
-  if (!isEmpty)
-  {
-    return false;
-  }
+  return isEmpty;
 }
 
-void MainWindow::on_buttonAddRoot_clicked()
+void MainWindow::on_buttonAddRootDirectory_clicked()
 {
-  QString directory = QFileDialog::getExistingDirectory(this);
-  if (directory.isNull())
+  try
   {
-    return;
-  }
-  PathName root = directory.toUtf8().toStdString();
-  if (!CheckRoot(root))
-  {
-    if (QMessageBox::question(this, tr("MiKTeX Console"), tr("This does not look like a TDS-compliant root directory. Are you sure you want to add it?"))
-      != QMessageBox::Yes)
+    QString directory = QFileDialog::getExistingDirectory(this);
+    if (directory.isNull())
     {
       return;
     }
+    PathName root = directory.toUtf8().toStdString();
+    if (!CheckRoot(root))
+    {
+      if (QMessageBox::question(this, tr("MiKTeX Console"), tr("This does not look like a <a href=\"https://miktex.org/kb/tds\">TDS-compliant</a> root directory. Are you sure you want to add it?"))
+        != QMessageBox::Yes)
+      {
+        return;
+      }
+    }
+    session->RegisterRootDirectory(root);
+    UpdateWidgets();
+    EnableActions();
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+void MainWindow::RemoveRootDirectory()
+{
+  ;
+}
+
+void MainWindow::OnContextMenuRootDirectories(const QPoint& pos)
+{
+  QModelIndex index = ui->treeViewRootDirectories->indexAt(pos);
+  if (index.isValid())
+  {
+    contextMenuRootDirectory->exec(ui->treeViewRootDirectories->mapToGlobal(pos));
   }
 }

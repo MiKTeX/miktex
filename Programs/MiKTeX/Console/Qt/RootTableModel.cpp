@@ -46,7 +46,7 @@ int RootTableModel::columnCount(const QModelIndex& parent) const
   return parent.isValid() ? 0 : 3;
 }
 
-vector<string> GetPurposesStrings(RootDirectoryInfo::Purposes purposes)
+vector<string> GetPurposesString(RootDirectoryInfo::Purposes purposes)
 {
   vector<string> result;
   if (purposes[RootDirectoryInfo::Purpose::Generic])
@@ -68,7 +68,7 @@ vector<string> GetPurposesStrings(RootDirectoryInfo::Purposes purposes)
   return result;
 }
 
-vector<string> GetAttributesStrings(RootDirectoryInfo::Attributes attributes)
+vector<string> GetAttributesString(RootDirectoryInfo::Attributes attributes)
 {
   vector<string> result;
   if (attributes[RootDirectoryInfo::Attribute::Common])
@@ -97,9 +97,9 @@ QVariant RootTableModel::data(const QModelIndex& index, int role) const
     case 0:
       return QString::fromUtf8(root.path.GetData());
     case 1:
-      return QString::fromUtf8(StringUtil::Flatten(GetPurposesStrings(root.purposes), ',').c_str());
+      return QString::fromUtf8(StringUtil::Flatten(GetPurposesString(root.purposes), ',').c_str());
     case 2:
-      return QString::fromUtf8(StringUtil::Flatten(GetAttributesStrings(root.attributes), ',').c_str());
+      return QString::fromUtf8(StringUtil::Flatten(GetAttributesString(root.attributes), ',').c_str());
     }
   }
 
@@ -128,4 +128,12 @@ void RootTableModel::Reload()
   beginResetModel();
   roots = session->GetRootDirectories();
   endResetModel();
+}
+
+bool RootTableModel::CanRemove(const QModelIndex& index)
+{
+  const RootDirectoryInfo& root = roots[index.row()];
+  bool canRemove = root.purposes == RootDirectoryInfo::Purposes({ RootDirectoryInfo::Purpose::Generic });
+  // TODO: check common
+  return canRemove;
 }

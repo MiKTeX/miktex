@@ -77,8 +77,29 @@ private slots:
 private slots:
   void on_radioAutoInstallNo_clicked();
 
+private:
+  void SetupUiRootDirectories();
+
 private slots:
-  void on_buttonAddRoot_clicked();
+  void UpdateActionsRootDirectories();
+
+private:
+  void UpdateUiRootDirectories();
+
+private:
+  RootTableModel* rootDirectoryModel = nullptr;
+
+private slots:
+  void on_buttonAddRootDirectory_clicked();
+
+private:
+  QMenu* contextMenuRootDirectory = nullptr;
+
+private slots:
+  void OnContextMenuRootDirectories(const QPoint& pos);
+
+private slots:
+  void RemoveRootDirectory();
 
 private slots:
   void StartTeXworks();
@@ -171,9 +192,6 @@ private:
   {
     CriticalError(MiKTeX::Core::MiKTeXException(e.what()));
   }
-
-private:
-  RootTableModel* rootModel = nullptr;
 
 private:
   bool isSetupMode = false;

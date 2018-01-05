@@ -58,6 +58,9 @@ public:
 public:
   void Reload();
 
+public:
+  bool CanRemove(const QModelIndex& index);
+
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 
