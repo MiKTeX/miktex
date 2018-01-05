@@ -269,7 +269,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="setup">
        <property name="enabled">
@@ -940,7 +940,15 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuTasks">
+    <property name="title">
+     <string>Tasks</string>
+    </property>
+    <addaction name="actionRefreshFileNameDatabase"/>
+    <addaction name="actionRefreshFontMapFiles"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuTasks"/>
    <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -1067,6 +1075,28 @@
    </property>
    <property name="statusTip">
     <string>Moves the selected TEXMF root directory up in the list</string>
+   </property>
+  </action>
+  <action name="actionRefreshFileNameDatabase">
+   <property name="text">
+    <string>Refresh file name database</string>
+   </property>
+   <property name="toolTip">
+    <string>Refresh FNDB</string>
+   </property>
+   <property name="statusTip">
+    <string>Refreshes the file name database</string>
+   </property>
+  </action>
+  <action name="actionRefreshFontMapFiles">
+   <property name="text">
+    <string>Refresh font map files</string>
+   </property>
+   <property name="toolTip">
+    <string>Refresh font maps</string>
+   </property>
+   <property name="statusTip">
+    <string>Refreshes the font map files</string>
    </property>
   </action>
  </widget>

@@ -31,6 +31,7 @@
 
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/DirectoryLister>
+#include <miktex/Core/Fndb.h>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
 #include <miktex/Core/Process>
@@ -90,6 +91,8 @@ MainWindow::MainWindow(QWidget* parent) :
 
   connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(AboutDialog()));
   connect(ui->actionRestartAdmin, SIGNAL(triggered()), this, SLOT(RestartAdmin()));
+  connect(ui->actionRefreshFileNameDatabase, SIGNAL(triggered()), this, SLOT(RefreshFndb()));
+  connect(ui->actionRefreshFontMapFiles, SIGNAL(triggered()), this, SLOT(RefreshFontMaps()));
   connect(ui->actionTeXworks, SIGNAL(triggered()), this, SLOT(StartTeXworks()));
   connect(ui->actionTerminal, SIGNAL(triggered()), this, SLOT(StartTerminal()));
 
@@ -269,6 +272,8 @@ void MainWindow::EnableActions()
   try
   {
     ui->actionRestartAdmin->setEnabled(!IsBackgroundWorkerActive() && session->IsSharedSetup() && !session->IsAdminMode());
+    ui->actionRefreshFileNameDatabase->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
+    ui->actionRefreshFontMapFiles->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
     ui->actionTeXworks->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !session->IsAdminMode());
     ui->actionTerminal->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
     UpdateActionsRootDirectories();
@@ -464,6 +469,96 @@ void MainWindow::on_buttonUpgrade_clicked()
   ui->labelUpgradeStatus->setText(tr("Upgrade in progress..."));
   ui->labelUpgradePercent->setText("0%");
   ui->labelUpgradeDetails->setText(tr("(initializing)"));
+  thread->start();
+  UpdateWidgets();
+  EnableActions();
+}
+
+bool RefreshFndbWorker::Run()
+{
+  bool result = false;
+  try
+  {
+    Fndb::Refresh(nullptr);
+    result = true;
+  }
+  catch (const MiKTeXException& e)
+  {
+    this->e = e;
+  }
+  catch (const exception& e)
+  {
+    this->e = MiKTeXException(e.what());
+  }
+  return result;
+}
+
+void MainWindow::RefreshFndb()
+{
+  QThread* thread = new QThread;
+  RefreshFndbWorker* worker = new RefreshFndbWorker;
+  backgroundWorkers++;
+  worker->moveToThread(thread);
+  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  connect(worker, &RefreshFndbWorker::OnFinish, this, [this]() {
+    backgroundWorkers--;
+    UpdateWidgets();
+    EnableActions();
+  });
+  connect(worker, &RefreshFndbWorker::OnMiKTeXException, this, [this]() {
+    CriticalError(tr("Something went wrong while refreshing the file name database."), ((RefreshFndbWorker*)sender())->GetMiKTeXException());
+    backgroundWorkers--;
+    UpdateWidgets();
+    EnableActions();
+  });
+  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  connect(worker, SIGNAL(OnFinish()), worker, SLOT(deleteLater()));
+  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  thread->start();
+  UpdateWidgets();
+  EnableActions();
+}
+
+bool RefreshFontMapsWorker::Run()
+{
+  bool result = false;
+  try
+  {
+    // TODO
+    result = true;
+  }
+  catch (const MiKTeXException& e)
+  {
+    this->e = e;
+  }
+  catch (const exception& e)
+  {
+    this->e = MiKTeXException(e.what());
+  }
+  return result;
+}
+
+void MainWindow::RefreshFontMaps()
+{
+  QThread* thread = new QThread;
+  RefreshFontMapsWorker* worker = new RefreshFontMapsWorker;
+  backgroundWorkers++;
+  worker->moveToThread(thread);
+  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  connect(worker, &RefreshFontMapsWorker::OnFinish, this, [this]() {
+    backgroundWorkers--;
+    UpdateWidgets();
+    EnableActions();
+  });
+  connect(worker, &RefreshFontMapsWorker::OnMiKTeXException, this, [this]() {
+    CriticalError(tr("Something went wrong while refreshing the font map files."), ((RefreshFontMapsWorker*)sender())->GetMiKTeXException());
+    backgroundWorkers--;
+    UpdateWidgets();
+    EnableActions();
+  });
+  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  connect(worker, SIGNAL(OnFinish()), worker, SLOT(deleteLater()));
+  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
   thread->start();
   UpdateWidgets();
   EnableActions();

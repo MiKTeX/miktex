@@ -41,6 +41,18 @@ class MainWindow : public QMainWindow
 {
   Q_OBJECT;
 
+public:
+  explicit MainWindow(QWidget* parent = nullptr);
+
+public:
+  ~MainWindow();
+
+private:
+  void UpdateWidgets();
+
+private slots:
+  void EnableActions();
+
 private slots:
   void on_buttonOverview_clicked();
 
@@ -52,15 +64,6 @@ private slots:
 
 private slots:
   void on_buttonPackages_clicked();
-
-private slots:
-  void on_buttonAdminSetup_clicked();
-
-private slots:
-  void on_buttonUserSetup_clicked();
-
-private slots:
-  void on_buttonUpgrade_clicked();
 
 private slots:
   void on_buttonChangeRepository_clicked();
@@ -132,13 +135,31 @@ private slots:
   }
 
 private slots:
-  void EnableActions();
-
-private slots:
   void AboutDialog();
 
 private slots:
   void RestartAdmin();
+
+private slots:
+  void RefreshFndb();
+
+private slots:
+  void RefreshFontMaps();
+
+private:
+  void RestartAdminWithArguments(const std::vector<std::string>& args);
+
+private slots:
+  void on_buttonAdminSetup_clicked();
+
+private slots:
+  void on_buttonUserSetup_clicked();
+
+private slots:
+  void on_buttonUpgrade_clicked();
+
+private:
+  bool isSetupMode = false;
 
 public slots:
   void FinishSetup();
@@ -148,18 +169,6 @@ private:
 
 private:
   void setVisible(bool visible) override;
-
-public:
-  explicit MainWindow(QWidget* parent = nullptr);
-
-public:
-  ~MainWindow();
-
-private:
-  void RestartAdminWithArguments(const std::vector<std::string>& args);
-
-private:
-  void UpdateWidgets();
 
 private:
   enum class Pages {
@@ -204,9 +213,6 @@ private:
   {
     CriticalError(MiKTeX::Core::MiKTeXException(e.what()));
   }
-
-private:
-  bool isSetupMode = false;
 
 private:
   std::atomic_int backgroundWorkers{ 0 };
@@ -357,6 +363,26 @@ private:
     emit OnUpgradeProgress();
     return true;
   }
+};
+
+class RefreshFndbWorker :
+  public BackgroundWorker
+{
+private:
+  Q_OBJECT;
+
+protected:
+  bool Run() override;
+};
+
+class RefreshFontMapsWorker :
+  public BackgroundWorker
+{
+private:
+  Q_OBJECT;
+
+protected:
+  bool Run() override;
 };
 
 #endif
