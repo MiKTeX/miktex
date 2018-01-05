@@ -132,29 +132,42 @@ void RootTableModel::Reload()
 
 bool RootTableModel::CanMoveUp(const QModelIndex& index)
 {
-  return false;
+  const RootDirectoryInfo& root = roots[index.row()];
+  bool canMoveUp = !root.IsManaged();
+  canMoveUp = canMoveUp && (!session->IsAdminMode() || root.IsCommon());
+  canMoveUp = canMoveUp && (session->IsAdminMode() || !root.IsCommon());
+  canMoveUp = canMoveUp && index.row() > 0;
+  canMoveUp = canMoveUp && !roots[index.row() - 1].IsManaged();
+  return canMoveUp;
 }
 
 void RootTableModel::MoveUp(const QModelIndex& index)
 {
-  // TODO
+  session->MoveRootDirectoryUp(index.row());
 }
 
 bool RootTableModel::CanMoveDown(const QModelIndex& index)
 {
-  return false;
+  const RootDirectoryInfo& root = roots[index.row()];
+  bool canMoveDown = !root.IsManaged();
+  canMoveDown = canMoveDown && (!session->IsAdminMode() || root.IsCommon());
+  canMoveDown = canMoveDown && (session->IsAdminMode() || !root.IsCommon());
+  canMoveDown = canMoveDown && index.row() < roots.size() - 1;
+  canMoveDown = canMoveDown && !roots[index.row() + 1].IsManaged();
+  return canMoveDown;
 }
 
 void RootTableModel::MoveDown(const QModelIndex& index)
 {
-  // TODO
+  session->MoveRootDirectoryDown(index.row());
 }
 
 bool RootTableModel::CanRemove(const QModelIndex& index)
 {
   const RootDirectoryInfo& root = roots[index.row()];
-  bool canRemove = root.purposes == RootDirectoryInfo::Purposes({ RootDirectoryInfo::Purpose::Generic });
-  // TODO: check common
+  bool canRemove = !root.IsManaged();
+  canRemove = canRemove && (!session->IsAdminMode() || root.IsCommon());
+  canRemove = canRemove && (session->IsAdminMode() || !root.IsCommon());
   return canRemove;
 }
 

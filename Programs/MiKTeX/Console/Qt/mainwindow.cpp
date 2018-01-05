@@ -880,6 +880,8 @@ void MainWindow::MoveRootDirectoryUp()
     {
       rootDirectoryModel->MoveUp(index);
     }
+    UpdateWidgets();
+    EnableActions();
   }
   catch (const MiKTeXException& e)
   {
@@ -899,6 +901,8 @@ void MainWindow::MoveRootDirectoryDown()
     {
       rootDirectoryModel->MoveDown(index);
     }
+    UpdateWidgets();
+    EnableActions();
   }
   catch (const MiKTeXException& e)
   {
@@ -918,6 +922,8 @@ void MainWindow::RemoveRootDirectory()
     {
       rootDirectoryModel->Remove(index);
     }
+    UpdateWidgets();
+    EnableActions();
   }
   catch (const MiKTeXException& e)
   {
