@@ -1,6 +1,6 @@
 /* util.cpp: generi utilities
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -24,6 +24,7 @@
 #include "internal.h"
 
 #include "miktex/Core/CsvList.h"
+#include "miktex/Core/Directory.h"
 #include "miktex/Core/PathName.h"
 #include "miktex/Core/Paths.h"
 #include "miktex/Core/PathNameParser.h"
@@ -979,4 +980,24 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
     modified = true;
   }
   return modified;
+}
+
+bool Utils::CheckPath()
+{
+  shared_ptr<Session> session = Session::Get();
+  string envPath;
+  if (!Utils::GetEnvironmentString("PATH", envPath))
+  {
+    return false;
+  }
+  PathName localBinDir = session->GetSpecialPath(SpecialPath::LocalBinDirectory);
+  string repairedPath;
+  bool pathCompetition;
+  bool pathOkay = !Directory::Exists(localBinDir) || !FixProgramSearchPath(envPath, localBinDir, true, repairedPath, pathCompetition);
+  if (!pathOkay)
+  {
+    SessionImpl::GetSession()->trace_error->WriteLine("core", T_("Something is wrong with the PATH:"));
+    SessionImpl::GetSession()->trace_error->WriteLine("core", envPath.c_str());
+  }
+  return pathOkay;
 }

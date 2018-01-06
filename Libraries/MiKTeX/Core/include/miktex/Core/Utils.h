@@ -1,6 +1,6 @@
 /* miktex/Core/Utils.h:                                 -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -275,6 +275,9 @@ public:
     std::transform(str.begin(), str.end(), str2.begin(), ::tolower);
     return str2;
   }
+
+public:
+  static MIKTEXCORECEEAPI(bool) CheckPath();
 
 public:
   static MIKTEXCORECEEAPI(bool) CheckPath(bool repair);
