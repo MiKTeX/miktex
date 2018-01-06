@@ -1044,8 +1044,6 @@
     <property name="title">
      <string>Tasks</string>
     </property>
-    <addaction name="actionCheckUpdates"/>
-    <addaction name="separator"/>
     <addaction name="actionRefreshFileNameDatabase"/>
     <addaction name="actionRefreshFontMapFiles"/>
    </widget>

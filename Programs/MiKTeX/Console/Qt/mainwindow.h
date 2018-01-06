@@ -138,6 +138,15 @@ private slots:
     CheckUpdates();
   }
 
+private:
+  void Update();
+
+private slots:
+  void on_buttonUpdateNow_clicked()
+  {
+    Update();
+  }
+
 private slots:
   void StartTeXworks();
 
@@ -440,9 +449,6 @@ public:
 protected:
   bool Run() override;
 
-signals:
-  void OnCheckUpdatesProgress();
-
 private:
   std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> updates;
 
@@ -451,6 +457,94 @@ public:
   {
     return updates;
   }
+};
+
+class UpdateWorker :
+  public BackgroundWorker,
+  public MiKTeX::Packages::PackageInstallerCallback
+{
+private:
+  Q_OBJECT;
+
+public:
+  UpdateWorker(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo>& updates) :
+    packageManager(packageManager),
+    updates(updates)
+  {
+  }
+
+private:
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
+
+private:
+  std::unique_ptr<MiKTeX::Packages::PackageInstaller> packageInstaller;
+
+private:
+  MiKTeX::Packages::PackageInstaller::ProgressInfo progressInfo;
+
+public:
+  MiKTeX::Packages::PackageInstaller::ProgressInfo GetProgressInfo() const
+  {
+    return progressInfo;
+  }
+
+public:
+  enum class Status {
+    None,
+    Synchronize,
+    Download,
+    Install
+  };
+
+private:
+  Status status;
+
+public:
+  Status GetStatus() const
+  {
+    return status;
+  }
+
+protected:
+  bool Run() override;
+
+signals:
+  void OnUpdateProgress();
+
+private:
+  void ReportLine(const std::string& str) override
+  {
+  }
+
+private:
+  bool OnRetryableError(const std::string& message) override
+  {
+    return false;
+  }
+
+private:
+  bool OnProgress(MiKTeX::Packages::Notification notification) override
+  {
+    switch (notification)
+    {
+    case MiKTeX::Packages::Notification::DownloadPackageStart:
+      status = Status::Download;
+      break;
+    case MiKTeX::Packages::Notification::InstallPackageStart:
+      status = Status::Install;
+      break;
+    case MiKTeX::Packages::Notification::DownloadPackageEnd:
+    case MiKTeX::Packages::Notification::InstallPackageEnd:
+      status = Status::None;
+      break;
+    }
+    progressInfo = packageInstaller->GetProgressInfo();
+    emit OnUpdateProgress();
+    return true;
+  }
+
+private:
+  std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> updates;
 };
 
 #endif

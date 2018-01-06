@@ -58,6 +58,12 @@ public:
 public:
   void SetData(const std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo>& updates);
 
+public:
+  std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> GetData() const
+  {
+    return updates;
+  }
+
 private:
   std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 

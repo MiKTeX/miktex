@@ -33,7 +33,8 @@ using namespace MiKTeX::Util;
 using namespace std;
 
 UpdateTableModel::UpdateTableModel(shared_ptr<PackageManager> packageManager, QObject* parent) :
-  QAbstractTableModel(parent)
+  QAbstractTableModel(parent),
+  packageManager(packageManager)
 {
 }
 
@@ -45,6 +46,16 @@ int UpdateTableModel::rowCount(const QModelIndex& parent) const
 int UpdateTableModel::columnCount(const QModelIndex& parent) const
 {
   return parent.isValid() ? 0 : 3;
+}
+
+template<typename T> QString FormatPackageVersion(const T& packageInfo)
+{
+  QString str = QString::fromUtf8(packageInfo.version.c_str());
+  if (!str.isEmpty())
+  {
+    str += " / ";
+  }
+  return str + QDateTime::fromTime_t(packageInfo.timePackaged).date().toString();
 }
 
 QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
@@ -62,9 +73,35 @@ QVariant UpdateTableModel::data(const QModelIndex& index, int role) const
     case 0:
       return QString::fromUtf8(update.deploymentName.c_str());
     case 1:
-      return "TODO";
+    {
+      PackageInfo oldPackageInfo;
+      if (!packageManager->TryGetPackageInfo(update.deploymentName, oldPackageInfo))
+      {
+        return QVariant();
+      }
+      if (oldPackageInfo.timeInstalled > 0)
+      {
+        return FormatPackageVersion(oldPackageInfo);
+      }
+      return QVariant();
+    }
     case 2:
-      return QDateTime::fromTime_t(update.timePackaged).date().toString() + " " + QString::fromUtf8(update.version.c_str());
+      if (update.action == PackageInstaller::UpdateInfo::Repair)
+      {
+        return tr("to be repaired");
+      }
+      else if (update.action == PackageInstaller::UpdateInfo::ReleaseStateChange)
+      {
+        return tr("release state change");
+      }
+      else if (update.action == PackageInstaller::UpdateInfo::ForceRemove || update.action == PackageInstaller::UpdateInfo::KeepObsolete)
+      {
+        return tr("obsolete (to be removed)");
+      }
+      else
+      {
+        return FormatPackageVersion(update);
+      }
     }
   }
 

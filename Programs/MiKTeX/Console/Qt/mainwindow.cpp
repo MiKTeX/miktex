@@ -1005,7 +1005,7 @@ void MainWindow::AddRootDirectory()
     {
       return;
     }
-    PathName root = directory.toUtf8().toStdString();
+    PathName root = directory.toUtf8().constData();
     if (!CheckRoot(root))
     {
       if (QMessageBox::question(this, tr("MiKTeX Console"), tr("This does not look like a <a href=\"https://miktex.org/kb/tds\">TDS-compliant</a> root directory. Are you sure you want to add it?"))
@@ -1180,6 +1180,109 @@ void MainWindow::CheckUpdates()
   ui->labelUpdateStatus->setText(tr("Checking..."));
   ui->labelUpdatePercent->setText("");
   ui->labelUpdateDetails->setText("");
+  thread->start();
+  UpdateWidgets();
+  EnableActions();
+}
+
+bool UpdateWorker::Run()
+{
+  bool result = false;
+  try
+  {
+    status = Status::Synchronize;
+    packageInstaller = packageManager->CreateInstaller();
+    packageInstaller->SetCallback(this);
+    packageInstaller->FindUpgrades(PackageLevel::Basic);
+    vector<string> toBeUpdated;
+    vector<string> toBeRemoved;
+    for (const PackageInstaller::UpdateInfo& update : updates)
+    {
+      switch (update.action)
+      {
+      case PackageInstaller::UpdateInfo::Repair:
+      case PackageInstaller::UpdateInfo::ReleaseStateChange:
+      case PackageInstaller::UpdateInfo::Update:
+      case PackageInstaller::UpdateInfo::ForceUpdate:
+        toBeUpdated.push_back(update.deploymentName);
+        break;
+      case PackageInstaller::UpdateInfo::ForceRemove:
+        toBeRemoved.push_back(update.deploymentName);
+        break;
+      }
+    }
+    packageInstaller->SetFileLists(toBeUpdated, toBeRemoved);
+    packageInstaller->InstallRemove();
+    result = true;
+  }
+  catch (const MiKTeXException& e)
+  {
+    this->e = e;
+  }
+  catch (const exception& e)
+  {
+    this->e = MiKTeXException(e.what());
+  }
+  return result;
+}
+
+void MainWindow::Update()
+{
+  QThread* thread = new QThread;
+  UpdateWorker* worker = new UpdateWorker(packageManager, updateModel->GetData());
+  backgroundWorkers++;
+  ui->labelBackgroundTask->setText(tr("Installing package updates..."));
+  worker->moveToThread(thread);
+  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  connect(worker, &UpdateWorker::OnFinish, this, [this]() {
+    ui->labelUpdateStatus->setText(tr("done"));
+    ui->labelUpdatePercent->setText("");
+    ui->labelUpdateDetails->setText("");
+    backgroundWorkers--;
+    updateModel->SetData({});
+    UpdateWidgets();
+    EnableActions();
+  });
+  connect(worker, &UpdateWorker::OnUpdateProgress, this, [this]() {
+    PackageInstaller::ProgressInfo progressInfo = ((UpdateWorker*)sender())->GetProgressInfo();
+    UpdateWorker::Status status = ((UpdateWorker*)sender())->GetStatus();
+    if (progressInfo.cbDownloadTotal > 0)
+    {
+      int percent = static_cast<int>(Divide(progressInfo.cbDownloadCompleted, progressInfo.cbDownloadTotal) * 100);
+      ui->labelUpdatePercent->setText(percent == 100 ? tr("we're almost done") : QString("%1%").arg(percent));
+    }
+    if (status == UpdateWorker::Status::Synchronize)
+    {
+      ui->labelUpdateDetails->setText(tr("(synchronizing package database)"));
+    }
+    else if (status == UpdateWorker::Status::Download)
+    {
+      ui->labelUpdateDetails->setText(tr("(downloading: %1)").arg(QString::fromUtf8(progressInfo.deploymentName.c_str())));
+    }
+    else if (status == UpdateWorker::Status::Install)
+    {
+      ui->labelUpdateDetails->setText(tr("(installing: %1)").arg(QString::fromUtf8(progressInfo.deploymentName.c_str())));
+    }
+    else
+    {
+      ui->labelUpdateDetails->setText("");
+    }
+  });
+  connect(worker, &UpdateWorker::OnMiKTeXException, this, [this]() {
+    CriticalError(tr("Something went wrong while installing package updates."), ((UpdateWorker*)sender())->GetMiKTeXException());
+    ui->labelUpdateStatus->setText(tr("Error"));
+    ui->labelUpdatePercent->setText("");
+    ui->labelUpdateDetails->setText("");
+    backgroundWorkers--;
+    UpdateWidgets();
+    EnableActions();
+  });
+  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  connect(worker, SIGNAL(OnFinish()), worker, SLOT(deleteLater()));
+  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  ui->labelUpdateStatus->setText(tr("Update in progress..."));
+  ui->labelUpdatePercent->setText("0%");
+  ui->labelUpdateDetails->setText(tr("(initializing)"));
   thread->start();
   UpdateWidgets();
   EnableActions();
