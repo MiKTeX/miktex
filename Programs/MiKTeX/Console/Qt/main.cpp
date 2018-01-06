@@ -73,6 +73,7 @@ int main(int argc, char* argv[])
   try
   {
     Session::InitInfo initInfo;
+    initInfo.SetOptions({ Session::InitOption::NoFixPath });
     PoptWrapper popt(argc, const_cast<const char**>(argv), aoption);
     int option;
     while ((option = popt.GetNextOpt()) >= 0)
