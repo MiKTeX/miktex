@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>558</height>
+    <height>644</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -967,7 +967,14 @@
             </widget>
            </item>
            <item>
-            <widget class="QTreeView" name="treeViewUpdates"/>
+            <widget class="QTreeView" name="treeViewUpdates">
+             <property name="selectionMode">
+              <enum>QAbstractItemView::NoSelection</enum>
+             </property>
+             <property name="rootIsDecorated">
+              <bool>false</bool>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -1037,6 +1044,8 @@
     <property name="title">
      <string>Tasks</string>
     </property>
+    <addaction name="actionCheckUpdates"/>
+    <addaction name="separator"/>
     <addaction name="actionRefreshFileNameDatabase"/>
     <addaction name="actionRefreshFontMapFiles"/>
    </widget>
@@ -1190,6 +1199,17 @@
    </property>
    <property name="statusTip">
     <string>Refreshes the font map files</string>
+   </property>
+  </action>
+  <action name="actionCheckUpdates">
+   <property name="text">
+    <string>Check for updates</string>
+   </property>
+   <property name="toolTip">
+    <string>Check updates</string>
+   </property>
+   <property name="statusTip">
+    <string>Checks for MiKTeX package updates</string>
    </property>
   </action>
  </widget>

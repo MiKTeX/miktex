@@ -32,6 +32,7 @@
 #include <QSystemTrayIcon>
 
 class RootTableModel;
+class UpdateTableModel;
 
 namespace Ui {
   class MainWindow;
@@ -115,6 +116,27 @@ private slots:
 
 private:
   QToolBar* toolBarRootDirectories = nullptr;
+
+private:
+  void SetupUiUpdates();
+
+private slots:
+  void UpdateActionsUpdates();
+
+private:
+  void UpdateUiUpdates();
+
+private:
+  UpdateTableModel* updateModel = nullptr;
+
+private slots:
+  void CheckUpdates();
+
+private slots:
+  void on_buttonUpdateCheck_clicked()
+  {
+    CheckUpdates();
+  }
 
 private slots:
   void StartTeXworks();
@@ -383,6 +405,52 @@ private:
 
 protected:
   bool Run() override;
+};
+
+class CkeckUpdatesWorker :
+  public BackgroundWorker
+{
+private:
+  Q_OBJECT;
+
+public:
+  CkeckUpdatesWorker(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager) :
+    packageManager(packageManager)
+  {
+  }
+
+private:
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
+
+public:
+  enum class Status {
+    None,
+    Checking
+  };
+
+private:
+  Status status;
+
+public:
+  Status GetStatus() const
+  {
+    return status;
+  }
+
+protected:
+  bool Run() override;
+
+signals:
+  void OnCheckUpdatesProgress();
+
+private:
+  std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> updates;
+
+public:
+  std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> GetUpdates() const
+  {
+    return updates;
+  }
 };
 
 #endif

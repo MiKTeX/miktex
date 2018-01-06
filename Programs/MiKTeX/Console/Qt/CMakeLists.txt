@@ -29,6 +29,8 @@ include_directories(BEFORE
 set(console_qt_sources
   RootTableModel.cpp
   RootTableModel.h
+  UpdateTableModel.cpp
+  UpdateTableModel.h
   console-version.h
   main.cpp
   mainwindow.cpp
@@ -56,6 +58,7 @@ endif()
 
 set(console_qt_moc_sources
   RootTableModel.h
+  UpdateTableModel.h
   mainwindow.h
 )
 

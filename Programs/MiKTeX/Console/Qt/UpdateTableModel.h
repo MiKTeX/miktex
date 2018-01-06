@@ -1,4 +1,4 @@
-/* RootTableModel.h:                                     -*- C++ -*-
+/* UpdateTableModel.h:                                  -*- C++ -*-
 
    Copyright (C) 2018 Christian Schenk
 
@@ -23,25 +23,25 @@
 #  pragma once
 #endif
 
-#if !defined(FC4537A8F7134B64BFC4AEF045615338)
-#define FC4537A8F7134B64BFC4AEF045615338
+#if !defined(CD58483D25BC46209CBD09828620E255)
+#define CD58483D25BC46209CBD09828620E255
 
 #include <QAbstractTableModel>
 
 #include <memory>
 #include <vector>
 
-#include <miktex/Core/RootDirectoryInfo>
+#include <miktex/PackageManager/PackageManager>
 #include <miktex/Core/Session>
 
-class RootTableModel :
+class UpdateTableModel :
   public QAbstractTableModel
 {
 private:
   Q_OBJECT;
 
 public:
-  RootTableModel(QObject* parent = nullptr);
+  UpdateTableModel(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, QObject* parent = nullptr);
 
 public:
   int rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -56,31 +56,16 @@ public:
   QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
 public:
-  void Reload();
+  void SetData(const std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo>& updates);
 
-public:
-  bool CanMoveUp(const QModelIndex& index);
-
-public:
-  void MoveUp(const QModelIndex& index);
-
-public:
-  bool CanMoveDown(const QModelIndex& index);
-
-public:
-  void MoveDown(const QModelIndex& index);
-
-public:
-  bool CanRemove(const QModelIndex& index);
-
-public:
-  void Remove(const QModelIndex& index);
+private:
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
 
 private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 
 private:
-  std::vector<MiKTeX::Core::RootDirectoryInfo> roots;
+  std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> updates;
 };
 
 #endif

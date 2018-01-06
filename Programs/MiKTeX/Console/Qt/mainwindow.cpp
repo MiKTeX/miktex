@@ -23,7 +23,10 @@
 #include <QTimer>
 #include <QtWidgets>
 
+#include <iomanip>
+
 #include "RootTableModel.h"
+#include "UpdateTableModel.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -31,6 +34,7 @@
 
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/DirectoryLister>
+#include <miktex/Core/FileStream>
 #include <miktex/Core/Fndb.h>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
@@ -63,6 +67,7 @@ MainWindow::MainWindow(QWidget* parent) :
   ui->setupUi(this);
 
   SetupUiRootDirectories();
+  SetupUiUpdates();
 
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
@@ -204,7 +209,6 @@ void MainWindow::UpdateWidgets()
     }
     ui->groupPaper->setEnabled(!IsBackgroundWorkerActive());
     ui->groupPackageInstallation->setEnabled(!IsBackgroundWorkerActive());
-    ui->groupDirectories->setEnabled(!IsBackgroundWorkerActive());
     if (!Utils::CheckPath())
     {
       ui->groupPathIssue->show();
@@ -269,6 +273,7 @@ void MainWindow::UpdateWidgets()
       }
     }
     UpdateUiRootDirectories();
+    UpdateUiUpdates();
   }
   catch (const MiKTeXException& e)
   {
@@ -290,6 +295,7 @@ void MainWindow::EnableActions()
     ui->actionTeXworks->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !session->IsAdminMode());
     ui->actionTerminal->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
     UpdateActionsRootDirectories();
+    UpdateActionsUpdates();
   }
   catch (const MiKTeXException& e)
   {
@@ -469,7 +475,7 @@ void MainWindow::on_buttonUpgrade_clicked()
     }
   });
   connect(worker, &UpgradeWorker::OnMiKTeXException, this, [this]() {
-    CriticalError(tr("Something went wrong while installing packages."), ((FinishSetupWorker*)sender())->GetMiKTeXException());
+    CriticalError(tr("Something went wrong while installing packages."), ((UpgradeWorker*)sender())->GetMiKTeXException());
     ui->labelUpgradeStatus->setText(tr("Error"));
     ui->labelUpgradePercent->setText("");
     ui->labelUpgradeDetails->setText("");
@@ -534,12 +540,49 @@ void MainWindow::RefreshFndb()
   EnableActions();
 }
 
+string Timestamp()
+{
+  auto now = time(nullptr);
+  stringstream s;
+  s << std::put_time(localtime(&now), "%Y-%m-%d-%H%M%S");
+  return s.str();
+}
+
 bool RefreshFontMapsWorker::Run()
 {
   bool result = false;
   try
   {
-    // TODO
+    shared_ptr<Session> session = Session::Get();
+    PathName initexmf;
+    if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
+    {
+      MIKTEX_FATAL_ERROR("The MiKTeX configuration utility executable (initexmf) could not be found.");
+    }
+    vector<string> args{
+      initexmf.GetFileNameWithoutExtension().ToString(),
+      "--mkmaps"
+    };
+    if (session->IsAdminMode())
+    {
+      args.push_back("--admin");
+    }
+    ProcessOutput<4096> output;
+    int exitCode;
+    Process::Run(initexmf, args, &output, &exitCode, nullptr);
+    if (exitCode != 0)
+    {
+      auto outputBytes = output.GetStandardOutput();
+      PathName outfile = session->GetSpecialPath(SpecialPath::LogDirectory) / initexmf.GetFileNameWithoutExtension();
+      outfile += "_";
+      outfile += Timestamp().c_str();
+      outfile.SetExtension(".out");
+      FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
+      outstream.Write(&outputBytes[0], outputBytes.size());
+      outstream.Close();
+      MIKTEX_FATAL_ERROR_2("The MiKTeX configuration utility failed for some reason. The process output has been saved to a file.",
+        "fileName", initexmf.ToString(), "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
+    }
     result = true;
   }
   catch (const MiKTeXException& e)
@@ -889,6 +932,7 @@ void MainWindow::UpdateUiRootDirectories()
 {
   rootDirectoryModel->Reload();
   ui->treeViewRootDirectories->resizeColumnToContents(0);
+  ui->groupDirectories->setEnabled(!IsBackgroundWorkerActive());
 }
 
 void MainWindow::UpdateActionsRootDirectories()
@@ -1058,4 +1102,85 @@ void MainWindow::OnContextMenuRootDirectories(const QPoint& pos)
   {
     contextMenuRootDirectoriesBackground->exec(ui->treeViewRootDirectories->mapToGlobal(pos));
   }
+}
+
+void MainWindow::SetupUiUpdates()
+{
+  updateModel = new UpdateTableModel(packageManager, this);
+  ui->treeViewUpdates->setModel(updateModel);
+  connect(ui->treeViewUpdates->selectionModel(),
+    SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+    this,
+    SLOT(UpdateActionsUpdates()));
+}
+
+void MainWindow::UpdateUiUpdates()
+{
+  ui->buttonUpdateNow->setEnabled(!IsBackgroundWorkerActive() && updateModel->rowCount() > 0);
+  ui->groupUpdates->setEnabled(!IsBackgroundWorkerActive());
+  ui->treeViewUpdates->setEnabled(!IsBackgroundWorkerActive());
+}
+
+void MainWindow::UpdateActionsUpdates()
+{
+  ui->actionCheckUpdates->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
+}
+
+bool CkeckUpdatesWorker::Run()
+{
+  bool result = false;
+  try
+  {
+    status = Status::Checking;
+    unique_ptr<PackageInstaller> packageInstaller = packageManager->CreateInstaller();
+    packageInstaller->FindUpdates();
+    updates = packageInstaller->GetUpdates();
+    result = true;
+  }
+  catch (const MiKTeXException& e)
+  {
+    this->e = e;
+  }
+  catch (const exception& e)
+  {
+    this->e = MiKTeXException(e.what());
+  }
+  return result;
+}
+
+void MainWindow::CheckUpdates()
+{
+  QThread* thread = new QThread;
+  CkeckUpdatesWorker* worker = new CkeckUpdatesWorker(packageManager);
+  backgroundWorkers++;
+  ui->labelBackgroundTask->setText(tr("Checking for updates..."));
+  worker->moveToThread(thread);
+  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  connect(worker, &CkeckUpdatesWorker::OnFinish, this, [this]() {
+    backgroundWorkers--;
+    updateModel->SetData(((CkeckUpdatesWorker*)sender())->GetUpdates());
+    ui->labelUpdateStatus->setText("");
+    ui->labelUpdatePercent->setText("");
+    ui->labelUpdateDetails->setText("");
+    UpdateWidgets();
+    EnableActions();
+  });
+  connect(worker, &CkeckUpdatesWorker::OnMiKTeXException, this, [this]() {
+    CriticalError(tr("Something went wrong while checking for updates."), ((CkeckUpdatesWorker*)sender())->GetMiKTeXException());
+    ui->labelUpdateStatus->setText(tr("Error"));
+    ui->labelUpdatePercent->setText("");
+    ui->labelUpdateDetails->setText("");
+    backgroundWorkers--;
+    UpdateWidgets();
+    EnableActions();
+  });
+  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  connect(worker, SIGNAL(OnFinish()), worker, SLOT(deleteLater()));
+  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  ui->labelUpdateStatus->setText(tr("Checking..."));
+  ui->labelUpdatePercent->setText("");
+  ui->labelUpdateDetails->setText("");
+  thread->start();
+  UpdateWidgets();
+  EnableActions();
 }
