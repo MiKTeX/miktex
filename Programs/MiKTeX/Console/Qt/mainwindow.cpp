@@ -205,7 +205,11 @@ void MainWindow::UpdateWidgets()
     ui->groupPaper->setEnabled(!IsBackgroundWorkerActive());
     ui->groupPackageInstallation->setEnabled(!IsBackgroundWorkerActive());
     ui->groupDirectories->setEnabled(!IsBackgroundWorkerActive());
-    if (Utils::CheckPath(false))
+    if (!Utils::CheckPath(false))
+    {
+      ui->groupPathIssue->show();
+    }
+    else
     {
       ui->groupPathIssue->hide();
     }
