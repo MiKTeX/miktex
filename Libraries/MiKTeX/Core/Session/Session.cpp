@@ -1,6 +1,6 @@
 /* Session.cpp: session initialization
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -308,25 +308,28 @@ void SessionImpl::SetEnvironmentVariables()
 
   SetCWDEnv();
 
-  string envPath;
-  if (!GetEnvironmentString("PATH", envPath))
+  if (!initInfo.GetOptions()[InitOption::NoFixPath])
   {
-    envPath = "";
-  }
-  string newEnvPath;
-  bool competition;
-  if (FixProgramSearchPath(envPath, GetBinDirectory(true), false, newEnvPath, competition))
-  {
-    Utils::SetEnvironmentString("PATH", newEnvPath);
-    envPath = newEnvPath;
-  }
+    string envPath;
+    if (!GetEnvironmentString("PATH", envPath))
+    {
+      envPath = "";
+    }
+    string newEnvPath;
+    bool competition;
+    if (FixProgramSearchPath(envPath, GetBinDirectory(true), false, newEnvPath, competition))
+    {
+      Utils::SetEnvironmentString("PATH", newEnvPath);
+      envPath = newEnvPath;
+    }
 #if !defined(MIKTEX_MACOS_BUNDLE)
-  if (FixProgramSearchPath(envPath, GetBinDirectory(false), false, newEnvPath, competition))
-  {
-    Utils::SetEnvironmentString("PATH", newEnvPath);
-    envPath = newEnvPath;
-  }
+    if (FixProgramSearchPath(envPath, GetBinDirectory(false), false, newEnvPath, competition))
+    {
+      Utils::SetEnvironmentString("PATH", newEnvPath);
+      envPath = newEnvPath;
+    }
 #endif
+  }
 }
 
 void SessionImpl::SetTheNameOfTheGame(const string& name)

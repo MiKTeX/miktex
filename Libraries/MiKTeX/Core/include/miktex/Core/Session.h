@@ -580,6 +580,8 @@ public:
   {
     /// No config files will be loaded.
     NoConfigFiles,
+    /// Don't fix PATH.
+    NoFixPath,
 #if defined(MIKTEX_WINDOWS)
     /// Initialize the COM library.
     InitializeCOM,
