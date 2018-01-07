@@ -423,8 +423,9 @@ private:
   Q_OBJECT;
 
 public:
-  CkeckUpdatesWorker(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager) :
-    packageManager(packageManager)
+  CkeckUpdatesWorker(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, UpdateTableModel* updateModel) :
+    packageManager(packageManager),
+    updateModel(updateModel)
   {
   }
 
@@ -450,13 +451,7 @@ protected:
   bool Run() override;
 
 private:
-  std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> updates;
-
-public:
-  std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> GetUpdates() const
-  {
-    return updates;
-  }
+  UpdateTableModel* updateModel = nullptr;
 };
 
 class UpdateWorker :
@@ -467,7 +462,7 @@ private:
   Q_OBJECT;
 
 public:
-  UpdateWorker(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo>& updates) :
+  UpdateWorker(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, const std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo>& updates) :
     packageManager(packageManager),
     updates(updates)
   {

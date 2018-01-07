@@ -1134,7 +1134,7 @@ bool CkeckUpdatesWorker::Run()
     status = Status::Checking;
     unique_ptr<PackageInstaller> packageInstaller = packageManager->CreateInstaller();
     packageInstaller->FindUpdates();
-    updates = packageInstaller->GetUpdates();
+    updateModel->SetData(packageInstaller->GetUpdates());
     result = true;
   }
   catch (const MiKTeXException& e)
@@ -1151,17 +1151,16 @@ bool CkeckUpdatesWorker::Run()
 void MainWindow::CheckUpdates()
 {
   QThread* thread = new QThread;
-  CkeckUpdatesWorker* worker = new CkeckUpdatesWorker(packageManager);
+  CkeckUpdatesWorker* worker = new CkeckUpdatesWorker(packageManager, updateModel);
   backgroundWorkers++;
   ui->labelBackgroundTask->setText(tr("Checking for updates..."));
   worker->moveToThread(thread);
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &CkeckUpdatesWorker::OnFinish, this, [this]() {
-    backgroundWorkers--;
-    updateModel->SetData(((CkeckUpdatesWorker*)sender())->GetUpdates());
     ui->labelUpdateStatus->setText("");
     ui->labelUpdatePercent->setText("");
     ui->labelUpdateDetails->setText("");
+    backgroundWorkers--;
     UpdateWidgets();
     EnableActions();
   });
@@ -1193,7 +1192,6 @@ bool UpdateWorker::Run()
     status = Status::Synchronize;
     packageInstaller = packageManager->CreateInstaller();
     packageInstaller->SetCallback(this);
-    packageInstaller->FindUpgrades(PackageLevel::Basic);
     vector<string> toBeUpdated;
     vector<string> toBeRemoved;
     for (const PackageInstaller::UpdateInfo& update : updates)
