@@ -4,5 +4,5 @@ Version=1.0
 Name=MiKTeX Console
 Comment=MiKTeX management console
 Icon=MiKTeX
-Exec=console_qt
+Exec=miktex-console
 Categories=Utility;Qt;
