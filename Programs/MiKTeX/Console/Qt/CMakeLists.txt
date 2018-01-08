@@ -26,7 +26,7 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-set(console_qt_sources
+set(console_sources
   RootTableModel.cpp
   RootTableModel.h
   UpdateTableModel.cpp
@@ -38,7 +38,7 @@ set(console_qt_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
-  list(APPEND console_qt_sources
+  list(APPEND console_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/console.rc
     ${MIKTEX_COMPATIBILITY_MANIFEST}
   )
@@ -47,7 +47,7 @@ endif()
 if(MIKTEX_MACOS_BUNDLE)
   # FIXME
   set(MACOSX_BUNDLE_ICON_FILE miktex.icns)
-  list(APPEND console_qt_sources
+  list(APPEND console_sources
     ${MIKTEX_ICNS}
   )
   set_source_files_properties(${MIKTEX_ICNS}
@@ -56,33 +56,33 @@ if(MIKTEX_MACOS_BUNDLE)
   )
 endif()
 
-set(console_qt_moc_sources
+set(console_moc_sources
   RootTableModel.h
   UpdateTableModel.h
   mainwindow.h
 )
 
-set(console_qt_ui_files
+set(console_ui_files
   mainwindow.ui
 )
 
-set(console_qt_rcs_files
+set(console_rcs_files
   console.qrc
 )
 
-qt5_wrap_cpp(console_qt_mocs ${console_qt_moc_sources})
+qt5_wrap_cpp(console_mocs ${console_moc_sources})
 
-qt5_wrap_ui(console_qt_ui_headers ${console_qt_ui_files})
+qt5_wrap_ui(console_ui_headers ${console_ui_files})
 
-qt5_wrap_cpp(console_qt_ui_mocs ${console_qt_ui_headers})
+qt5_wrap_cpp(console_ui_mocs ${console_ui_headers})
 
-qt5_add_resources(console_qt_rcc_sources ${console_qt_rcs_files})
+qt5_add_resources(console_rcc_sources ${console_rcs_files})
 
 set(sources
-  ${console_qt_sources}
-  ${console_qt_mocs}
-  ${console_qt_ui_mocs}
-  ${console_qt_rcc_sources}
+  ${console_sources}
+  ${console_mocs}
+  ${console_ui_mocs}
+  ${console_rcc_sources}
 )
 
 set(libs
@@ -114,11 +114,11 @@ if(MIKTEX_MACOS_BUNDLE)
   get_filename_component(Qt_BIN_DIR "${Qt_BIN_DIR}" PATH)
 endif()
 
-add_executable(console_qt WIN32 MACOSX_BUNDLE ${sources})
-set_property(TARGET console_qt PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-target_link_libraries(console_qt ${libs})  
+add_executable(miktex-console WIN32 MACOSX_BUNDLE ${sources})
+set_property(TARGET miktex-console PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+target_link_libraries(miktex-console ${libs})  
 if(MIKTEX_MACOS_BUNDLE)
-  set_target_properties(console_qt
+  set_target_properties(miktex-console
     PROPERTIES
       OUTPUT_NAME ${MIKTEX_PRODUCT_NAME}
       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/mac/Info.plist.in"
@@ -132,7 +132,7 @@ if(UNIX AND NOT APPLE)
     DESTINATION "${MIKTEX_XDG_APPLICATIONS_DIR}"
   )
 endif()
-install(TARGETS console_qt
+install(TARGETS miktex-console
   RUNTIME DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR}
   BUNDLE DESTINATION .
 )
@@ -151,11 +151,11 @@ if(MIKTEX_MACOS_BUNDLE)
 endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
-  add_executable(console_qt${MIKTEX_ADMIN_SUFFIX} WIN32 ${sources})
-  set_property(TARGET console_qt${MIKTEX_ADMIN_SUFFIX} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  add_link_flags(console_qt${MIKTEX_ADMIN_SUFFIX} "/MANIFESTUAC:level='requireAdministrator'")
-  target_link_libraries(console_qt${MIKTEX_ADMIN_SUFFIX} ${libs})
-  install(TARGETS console_qt${MIKTEX_ADMIN_SUFFIX}
+  add_executable(miktex-console${MIKTEX_ADMIN_SUFFIX} WIN32 ${sources})
+  set_property(TARGET miktex-console${MIKTEX_ADMIN_SUFFIX} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  add_link_flags(miktex-console${MIKTEX_ADMIN_SUFFIX} "/MANIFESTUAC:level='requireAdministrator'")
+  target_link_libraries(miktex-console${MIKTEX_ADMIN_SUFFIX} ${libs})
+  install(TARGETS miktex-console${MIKTEX_ADMIN_SUFFIX}
     RUNTIME DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR}
   )
 endif()

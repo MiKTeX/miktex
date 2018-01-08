@@ -13,8 +13,8 @@
       This package includes the MiKTeX Console.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/console_qt.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/console_qt${MIKTEX_ADMIN_SUFFIX}.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/miktex-console.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/miktex-console${MIKTEX_ADMIN_SUFFIX}.exe
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>
