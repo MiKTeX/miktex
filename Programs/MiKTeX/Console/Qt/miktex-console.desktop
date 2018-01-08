@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=MiKTeX Console
+Comment=MiKTeX management console
+Icon=MiKTeX
+Exec=console_qt
+Categories=Utility;Qt;

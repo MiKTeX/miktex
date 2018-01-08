@@ -126,6 +126,12 @@ if(MIKTEX_MACOS_BUNDLE)
       MACOSX_BUNDLE_GUI_IDENTIFIER "org.miktex.miktex"
   )
 endif()
+if(UNIX AND NOT APPLE)
+  install(
+    FILES miktex-console.desktop
+    DESTINATION "${MIKTEX_XDG_APPLICATIONS_DIR}"
+  )
+endif()
 install(TARGETS console_qt
   RUNTIME DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR}
   BUNDLE DESTINATION .

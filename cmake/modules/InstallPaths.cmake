@@ -1,6 +1,6 @@
 ## InstallPaths.cmake
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -81,6 +81,8 @@ else()
     set(MIKTEX_MAN_DESTINATION_DIR "${CMAKE_INSTALL_MANDIR}")
   endif()
 endif()
+
+set(MIKTEX_XDG_APPLICATIONS_DIR "${CMAKE_INSTALL_DATAROOTDIR}/applications")
 
 set(MIKTEX_REL_DOC_DIR "doc")
 
