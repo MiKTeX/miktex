@@ -1,6 +1,6 @@
 /* console.rc:
 
-   Copyright (C) 2017 Christian Schenk
+   Copyright (C) 2017-2018 Christian Schenk
 
    This file is part of MiKTeX Console.
 
@@ -21,9 +21,9 @@
 
 #include "console-version.h"
 
-#define VER_INTERNALNAME_STR "console_qt"
-#define VER_ORIGINALFILENAME_STR "console_qt.exe"
+#define VER_INTERNALNAME_STR "miktex-console"
+#define VER_ORIGINALFILENAME_STR "miktex-console.exe"
 
-#define VER_FILEDESCRIPTION_STR "MiKTeX Console (Qt GUI)"
+#define VER_FILEDESCRIPTION_STR "MiKTeX Console"
 
 #include <miktex/win/version.rc>
