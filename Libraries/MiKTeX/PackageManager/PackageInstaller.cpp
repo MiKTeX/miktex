@@ -1,6 +1,6 @@
 /* PackageInstaller.cpp:
 
-   Copyright (C) 2001-2017 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is part of MiKTeX Package Manager.
 
@@ -608,6 +608,11 @@ void PackageInstallerImpl::FindUpdates()
       }
     }
   }
+
+  session->SetConfigValue(
+    MIKTEX_REGKEY_PACKAGE_MANAGER,
+    session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE_CHECK : MIKTEX_REGVAL_LAST_USER_UPDATE_CHECK,
+    std::to_string(time(nullptr)));
 }
 
 void PackageInstallerImpl::FindUpdatesAsync()

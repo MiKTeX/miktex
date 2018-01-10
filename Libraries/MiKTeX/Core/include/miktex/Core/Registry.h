@@ -1,6 +1,6 @@
 /* miktex/Core/Registry.h: MiKTeX settings              -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -74,6 +74,8 @@
 #define MIKTEX_REGVAL_INSIST_ON_REPAIR "InsistOnRepair"
 #define MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE "LastAdminMaintenance"
 #define MIKTEX_REGVAL_LAST_USER_MAINTENANCE "LastUserMaintenance"
+#define MIKTEX_REGVAL_LAST_ADMIN_UPDATE_CHECK "LastAdminUpdateCheck"
+#define MIKTEX_REGVAL_LAST_USER_UPDATE_CHECK "LastUserUpdateCheck"
 #define MIKTEX_REGVAL_USERINFO_FILE "UserInfoFile"
 #define MIKTEX_REGVAL_LOCAL_REPOSITORY "LocalRepository"
 #define MIKTEX_REGVAL_MAX_REDIRECTS "MaxRedirects"
