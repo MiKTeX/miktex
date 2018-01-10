@@ -202,6 +202,7 @@ void MainWindow::UpdateWidgets()
     ui->buttonSettings->setEnabled(!isSetupMode);
     ui->buttonUpdates->setEnabled(!isSetupMode);
     ui->buttonPackages->setEnabled(!isSetupMode);
+    ui->buttonTroubleshoot->setEnabled(!isSetupMode);
     ui->buttonTeXworks->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !session->IsAdminMode());
     ui->buttonTerminal->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
     if (isSetupMode)
@@ -1098,7 +1099,18 @@ void MainWindow::SetupUiUpdates()
 {
   connect(ui->actionCheckUpdates, SIGNAL(triggered()), this, SLOT(CheckUpdates()));
   updateModel = new UpdateTableModel(packageManager, this);
-  ui->labelUpdateSummary->setText(tr("Last checked: TODO"));
+  string lastUpdateCheck;
+  if (session->TryGetConfigValue(
+    MIKTEX_REGKEY_PACKAGE_MANAGER,
+    session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE_CHECK : MIKTEX_REGVAL_LAST_USER_UPDATE_CHECK,
+    lastUpdateCheck))
+  {
+    ui->labelUpdateSummary->setText(tr("Last checked: %1").arg(QDateTime::fromTime_t(std::stoi(lastUpdateCheck)).date().toString()));
+  }
+  else
+  {
+    ui->labelUpdateSummary->setText(tr("You have not yet checked for updates."));
+  }
   connect(updateModel, &UpdateTableModel::modelReset, this, [this]() {
     int n = updateModel->rowCount();
     QString text = tr("Updates");
