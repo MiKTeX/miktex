@@ -55,16 +55,34 @@ private slots:
   void EnableActions();
 
 private slots:
-  void on_buttonOverview_clicked();
+  void on_buttonOverview_clicked()
+  {
+    SetCurrentPage(Pages::Overview);
+  }
 
 private slots:
-  void on_buttonSettings_clicked();
-  
-private slots:
-  void on_buttonUpdates_clicked();
+  void on_buttonSettings_clicked()
+  {
+    SetCurrentPage(Pages::Settings);
+  }
 
 private slots:
-  void on_buttonPackages_clicked();
+  void on_buttonUpdates_clicked()
+  {
+    SetCurrentPage(Pages::Updates);
+  }
+
+private slots:
+  void on_buttonPackages_clicked()
+  {
+    SetCurrentPage(Pages::Packages);
+  }
+
+private slots:
+  void on_buttonTroubleshoot_clicked()
+  {
+    SetCurrentPage(Pages::Troubleshoot);
+  }
 
 private slots:
   void on_buttonChangeRepository_clicked();
@@ -138,6 +156,12 @@ private slots:
     CheckUpdates();
   }
 
+private slots:
+  void on_buttonCheckUpdates_clicked()
+  {
+    CheckUpdates();
+  }
+
 private:
   void Update();
 
@@ -145,6 +169,15 @@ private slots:
   void on_buttonUpdateNow_clicked()
   {
     Update();
+  }
+
+private slots:
+  void on_labelUpdatesAvailable_linkActivated(const QString& link)
+  {
+    if (link == "#updates")
+    {
+      SetCurrentPage(Pages::Updates);
+    }
   }
 
 private slots:
@@ -208,6 +241,7 @@ private:
     Settings = 2,
     Updates = 3,
     Packages = 4,
+    Troubleshoot = 5,
   };
 
 private:
@@ -270,17 +304,20 @@ class BackgroundWorker :
 private:
   Q_OBJECT;
 
+private:
+  bool result;
+
+public:
+  bool GetResult() const
+  {
+    return result;
+  }
+
 public slots:
   virtual void Process()
   {
-    if (Run())
-    {
-      emit OnFinish();
-    }
-    else
-    {
-      emit OnMiKTeXException();
-    }
+    result = Run();
+    emit OnFinish();
   }
 
 protected:
@@ -294,9 +331,6 @@ public:
 
 protected:
   MiKTeX::Core::MiKTeXException e;
-
-signals:
-  void OnMiKTeXException();
 
 signals:
   void OnFinish();
@@ -423,9 +457,8 @@ private:
   Q_OBJECT;
 
 public:
-  CkeckUpdatesWorker(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager, UpdateTableModel* updateModel) :
-    packageManager(packageManager),
-    updateModel(updateModel)
+  CkeckUpdatesWorker(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager) :
+    packageManager(packageManager)
   {
   }
 
@@ -451,7 +484,14 @@ protected:
   bool Run() override;
 
 private:
-  UpdateTableModel* updateModel = nullptr;
+  std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> updates;
+
+
+public:
+  std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> GetUpdates() const
+  {
+    return updates;
+  }
 };
 
 class UpdateWorker :

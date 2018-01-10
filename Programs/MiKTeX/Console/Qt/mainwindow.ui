@@ -7,8 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>644</height>
+    <height>777</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>MiKTeX Console</string>
@@ -180,6 +186,34 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="buttonTroubleshoot">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="statusTip">
+          <string>MiKTeX package management</string>
+         </property>
+         <property name="text">
+          <string>Troubleshoot</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="autoExclusive">
+          <bool>true</bool>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_6">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -272,7 +306,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>5</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -513,9 +547,122 @@
             </spacer>
            </item>
            <item>
+            <widget class="QGroupBox" name="groupCheckUpdates">
+             <property name="title">
+              <string>Updates</string>
+             </property>
+             <layout class="QVBoxLayout" name="_5">
+              <property name="leftMargin">
+               <number>9</number>
+              </property>
+              <property name="topMargin">
+               <number>9</number>
+              </property>
+              <property name="rightMargin">
+               <number>9</number>
+              </property>
+              <property name="bottomMargin">
+               <number>9</number>
+              </property>
+              <item>
+               <widget class="QWidget" name="groupCheckUpdatesAdvice" native="true">
+                <layout class="QVBoxLayout" name="verticalLayout_13">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="labelLastUpdateCheck">
+                   <property name="text">
+                    <string>You can now check for package updates.</string>
+                   </property>
+                   <property name="wordWrap">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_7">
+                   <item>
+                    <widget class="QPushButton" name="buttonCheckUpdates">
+                     <property name="text">
+                      <string>Check for updates</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="labelCheckUpdatesStatus">
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="horizontalSpacer_4">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="labelNoUpdatesAvailable">
+                <property name="text">
+                 <string>There are currently no updates available. Try again tomorrow.</string>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="labelUpdatesAvailable">
+                <property name="text">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;There are updates available! You can review the updates on the &lt;a href=&quot;#updates&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;Updates page&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_11">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
             <widget class="QGroupBox" name="groupPathIssue">
              <property name="title">
-              <string>Executables</string>
+              <string>PATH issue</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_4">
               <item>
@@ -535,7 +682,7 @@
               <item>
                <widget class="QLabel" name="label_15">
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Currently this directory is not in the search list for executables or it is at the wrong position in the list. You can fix this issue by adding the directory to the environment variable PATH. This makes is possible to invoke the MiKTeX executables everywhere.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/howto/modify-path&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: modify PATH&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Currently this directory is not in the search list for executables or it is at the wrong position in the list. You can fix this issue by adding the directory to the environment variable PATH. This makes is possible to invoke the MiKTeX executables everywhere.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/howto/modify-path&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: modify PATH&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="wordWrap">
                  <bool>true</bool>
@@ -836,6 +983,9 @@
                     <property name="wordWrap">
                      <bool>true</bool>
                     </property>
+                    <property name="openExternalLinks">
+                     <bool>true</bool>
+                    </property>
                    </widget>
                   </item>
                   <item>
@@ -967,6 +1117,13 @@
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="labelUpdateSummary">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QTreeView" name="treeViewUpdates">
              <property name="selectionMode">
               <enum>QAbstractItemView::NoSelection</enum>
@@ -975,6 +1132,22 @@
               <bool>false</bool>
              </property>
             </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_12">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Preferred</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
@@ -994,6 +1167,75 @@
            </property>
            <item>
             <widget class="QTreeView" name="tvPackages"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="troubleshoot">
+          <layout class="QVBoxLayout" name="_22ads">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QGroupBox" name="verticalGroupBox">
+             <property name="title">
+              <string>Log files</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_14">
+              <item>
+               <widget class="QLabel" name="label_16">
+                <property name="text">
+                 <string>If something goes wrong, you can check the log files in:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_8">
+                <item>
+                 <widget class="QLineEdit" name="lineEditLogFiles">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_14">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_13">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
@@ -1044,6 +1286,8 @@
     <property name="title">
      <string>Tasks</string>
     </property>
+    <addaction name="actionCheckUpdates"/>
+    <addaction name="separator"/>
     <addaction name="actionRefreshFileNameDatabase"/>
     <addaction name="actionRefreshFontMapFiles"/>
    </widget>

@@ -66,6 +66,8 @@ MainWindow::MainWindow(QWidget* parent) :
 {
   ui->setupUi(this);
 
+  resize(800, 600);
+
   SetupUiRootDirectories();
   SetupUiUpdates();
 
@@ -170,7 +172,6 @@ void MainWindow::UpdateWidgets()
     {
       ui->labelBackgroundTask->hide();
     }
-	
     if (isSetupMode && IsBackgroundWorkerActive())
     {
       ui->labelSetupWait->show();
@@ -207,8 +208,12 @@ void MainWindow::UpdateWidgets()
     {
       return;
     }
-    ui->groupPaper->setEnabled(!IsBackgroundWorkerActive());
-    ui->groupPackageInstallation->setEnabled(!IsBackgroundWorkerActive());
+    ui->comboPaper->setEnabled(!IsBackgroundWorkerActive());
+    ui->editRepository->setEnabled(!IsBackgroundWorkerActive());
+    ui->buttonChangeRepository->setEnabled(!IsBackgroundWorkerActive());
+    ui->radioAutoInstallAsk->setEnabled(!IsBackgroundWorkerActive());
+    ui->radioAutoInstallNo->setEnabled(!IsBackgroundWorkerActive());
+    ui->radioAutoInstallYes->setEnabled(!IsBackgroundWorkerActive());
     if (!Utils::CheckPath())
     {
       ui->groupPathIssue->show();
@@ -225,6 +230,10 @@ void MainWindow::UpdateWidgets()
         if (packageManager->GetPackageInfo("ltxbase").IsInstalled() && packageManager->GetPackageInfo("amsfonts").IsInstalled())
         {
           ui->groupUpgrade->hide();
+        }
+        else
+        {
+          ui->groupCheckUpdates->hide();
         }
       }
     }
@@ -340,26 +349,6 @@ void MainWindow::AboutDialog()
   QMessageBox::about(this, tr("MiKTeX Console"), message);
 }
 
-void MainWindow::on_buttonOverview_clicked()
-{
-  SetCurrentPage(Pages::Overview);
-}
-
-void MainWindow::on_buttonSettings_clicked()
-{
-  SetCurrentPage(Pages::Settings);
-}
-
-void MainWindow::on_buttonUpdates_clicked()
-{
-  SetCurrentPage(Pages::Updates);
-}
-
-void MainWindow::on_buttonPackages_clicked()
-{
-  SetCurrentPage(Pages::Packages);
-}
-
 void MainWindow::on_buttonAdminSetup_clicked()
 {
   try
@@ -442,12 +431,22 @@ void MainWindow::on_buttonUpgrade_clicked()
   worker->moveToThread(thread);
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &UpgradeWorker::OnFinish, this, [this]() {
-    ui->labelUpgradeStatus->setText(tr("done"));
+    UpgradeWorker* worker = (UpgradeWorker*)sender();
+    if (worker->GetResult())
+    {
+      ui->labelUpgradeStatus->setText(tr("Done"));
+    }
+    else
+    {
+      CriticalError(tr("Something went wrong while installing packages."), worker->GetMiKTeXException());
+      ui->labelUpgradeStatus->setText(tr("Error"));
+    }
     ui->labelUpgradePercent->setText("");
     ui->labelUpgradeDetails->setText("");
     backgroundWorkers--;
     UpdateWidgets();
     EnableActions();
+    worker->deleteLater();
   });
   connect(worker, &UpgradeWorker::OnUpgradeProgress, this, [this]() {
     PackageInstaller::ProgressInfo progressInfo = ((UpgradeWorker*)sender())->GetProgressInfo();
@@ -474,17 +473,7 @@ void MainWindow::on_buttonUpgrade_clicked()
       ui->labelUpgradeDetails->setText("");
     }
   });
-  connect(worker, &UpgradeWorker::OnMiKTeXException, this, [this]() {
-    CriticalError(tr("Something went wrong while installing packages."), ((UpgradeWorker*)sender())->GetMiKTeXException());
-    ui->labelUpgradeStatus->setText(tr("Error"));
-    ui->labelUpgradePercent->setText("");
-    ui->labelUpgradeDetails->setText("");
-    backgroundWorkers--;
-    UpdateWidgets();
-    EnableActions();
-  });
   connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(worker, SIGNAL(OnFinish()), worker, SLOT(deleteLater()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
   ui->labelUpgradeStatus->setText(tr("Upgrade in progress..."));
   ui->labelUpgradePercent->setText("0%");
@@ -522,18 +511,17 @@ void MainWindow::RefreshFndb()
   worker->moveToThread(thread);
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &RefreshFndbWorker::OnFinish, this, [this]() {
+    RefreshFndbWorker* worker = (RefreshFndbWorker*)sender();
+    if (!worker->GetResult())
+    {
+      CriticalError(tr("Something went wrong while refreshing the file name database."), ((RefreshFndbWorker*)sender())->GetMiKTeXException());
+    }
     backgroundWorkers--;
     UpdateWidgets();
     EnableActions();
-  });
-  connect(worker, &RefreshFndbWorker::OnMiKTeXException, this, [this]() {
-    CriticalError(tr("Something went wrong while refreshing the file name database."), ((RefreshFndbWorker*)sender())->GetMiKTeXException());
-    backgroundWorkers--;
-    UpdateWidgets();
-    EnableActions();
+    worker->deleteLater();
   });
   connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(worker, SIGNAL(OnFinish()), worker, SLOT(deleteLater()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
   thread->start();
   UpdateWidgets();
@@ -605,18 +593,17 @@ void MainWindow::RefreshFontMaps()
   worker->moveToThread(thread);
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &RefreshFontMapsWorker::OnFinish, this, [this]() {
+    RefreshFontMapsWorker* worker = (RefreshFontMapsWorker*)sender();
+    if (!worker->GetResult())
+    {
+      CriticalError(tr("Something went wrong while refreshing the font map files."), worker->GetMiKTeXException());
+    }
     backgroundWorkers--;
     UpdateWidgets();
     EnableActions();
-  });
-  connect(worker, &RefreshFontMapsWorker::OnMiKTeXException, this, [this]() {
-    CriticalError(tr("Something went wrong while refreshing the font map files."), ((RefreshFontMapsWorker*)sender())->GetMiKTeXException());
-    backgroundWorkers--;
-    UpdateWidgets();
-    EnableActions();
+    worker->deleteLater();
   });
   connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(worker, SIGNAL(OnFinish()), worker, SLOT(deleteLater()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
   thread->start();
   UpdateWidgets();
@@ -698,34 +685,36 @@ void MainWindow::FinishSetup()
   worker->moveToThread(thread);
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &FinishSetupWorker::OnFinish, this, [this]() {
-    isSetupMode = false;
-    try
+    FinishSetupWorker* worker = (FinishSetupWorker*)sender();
+    if (worker->GetResult())
     {
-      bool isAdminMode = session->IsAdminMode();
-      session->Reset();
-      session->SetAdminMode(isAdminMode);
+      isSetupMode = false;
+      try
+      {
+        bool isAdminMode = session->IsAdminMode();
+        session->Reset();
+        session->SetAdminMode(isAdminMode);
+      }
+      catch (const MiKTeXException& e)
+      {
+        CriticalError(e);
+      }
+      catch (const exception& e)
+      {
+        CriticalError(e);
+      }
+      SetCurrentPage(Pages::Overview);
     }
-    catch (const MiKTeXException& e)
+    else
     {
-      CriticalError(e);
-    }
-    catch (const exception& e)
-    {
-      CriticalError(e);
+      CriticalError(tr("Something went wrong while finishing the MiKTeX setup."), worker->GetMiKTeXException());
     }
     backgroundWorkers--;
     UpdateWidgets();
     EnableActions();
-    SetCurrentPage(Pages::Overview);
-  });
-  connect(worker, &FinishSetupWorker::OnMiKTeXException, this, [this]() {
-    CriticalError(tr("Something went wrong while finishing the MiKTeX setup."), ((FinishSetupWorker*)sender())->GetMiKTeXException());
-    backgroundWorkers--;
-    UpdateWidgets();
-    EnableActions();
+    worker->deleteLater();
   });
   connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(worker, SIGNAL(OnFinish()), worker, SLOT(deleteLater()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
   thread->start();
   UpdateWidgets();
@@ -932,7 +921,8 @@ void MainWindow::UpdateUiRootDirectories()
 {
   rootDirectoryModel->Reload();
   ui->treeViewRootDirectories->resizeColumnToContents(0);
-  ui->groupDirectories->setEnabled(!IsBackgroundWorkerActive());
+  toolBarRootDirectories->setEnabled(!IsBackgroundWorkerActive());
+  ui->treeViewRootDirectories->setEnabled(!IsBackgroundWorkerActive());
 }
 
 void MainWindow::UpdateActionsRootDirectories()
@@ -1106,18 +1096,41 @@ void MainWindow::OnContextMenuRootDirectories(const QPoint& pos)
 
 void MainWindow::SetupUiUpdates()
 {
+  connect(ui->actionCheckUpdates, SIGNAL(triggered()), this, SLOT(CheckUpdates()));
   updateModel = new UpdateTableModel(packageManager, this);
+  ui->labelUpdateSummary->setText(tr("Last checked: TODO"));
+  connect(updateModel, &UpdateTableModel::modelReset, this, [this]() {
+    int n = updateModel->rowCount();
+    QString text = tr("Updates");
+    if (n == 0)
+    {
+      ui->labelUpdatesAvailable->hide();
+      ui->labelNoUpdatesAvailable->show();
+      ui->labelUpdateSummary->setText(tr("There are currently no updates available."));
+    }
+    else
+    {
+      ui->labelUpdatesAvailable->show();
+      ui->labelNoUpdatesAvailable->hide();
+      ui->labelUpdateSummary->setText(tr("The following updates are available:"));
+      text += QString(" (%1)").arg(n);
+    }
+    ui->buttonUpdates->setText(text);
+  });
   ui->treeViewUpdates->setModel(updateModel);
   connect(ui->treeViewUpdates->selectionModel(),
     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
     this,
     SLOT(UpdateActionsUpdates()));
+  ui->labelUpdatesAvailable->hide();
+  ui->labelNoUpdatesAvailable->hide();
 }
 
 void MainWindow::UpdateUiUpdates()
 {
+  ui->buttonCheckUpdates->setEnabled(!IsBackgroundWorkerActive());
+  ui->buttonUpdateCheck->setEnabled(!IsBackgroundWorkerActive());
   ui->buttonUpdateNow->setEnabled(!IsBackgroundWorkerActive() && updateModel->rowCount() > 0);
-  ui->groupUpdates->setEnabled(!IsBackgroundWorkerActive());
   ui->treeViewUpdates->setEnabled(!IsBackgroundWorkerActive());
 }
 
@@ -1134,7 +1147,7 @@ bool CkeckUpdatesWorker::Run()
     status = Status::Checking;
     unique_ptr<PackageInstaller> packageInstaller = packageManager->CreateInstaller();
     packageInstaller->FindUpdates();
-    updateModel->SetData(packageInstaller->GetUpdates());
+    updates = packageInstaller->GetUpdates();
     result = true;
   }
   catch (const MiKTeXException& e)
@@ -1151,32 +1164,52 @@ bool CkeckUpdatesWorker::Run()
 void MainWindow::CheckUpdates()
 {
   QThread* thread = new QThread;
-  CkeckUpdatesWorker* worker = new CkeckUpdatesWorker(packageManager, updateModel);
+  CkeckUpdatesWorker* worker = new CkeckUpdatesWorker(packageManager);
   backgroundWorkers++;
   ui->labelBackgroundTask->setText(tr("Checking for updates..."));
   worker->moveToThread(thread);
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &CkeckUpdatesWorker::OnFinish, this, [this]() {
-    ui->labelUpdateStatus->setText("");
+    CkeckUpdatesWorker* worker = (CkeckUpdatesWorker*)sender();
+    if (worker->GetResult())
+    {
+      vector<PackageInstaller::UpdateInfo> updates;
+      for (const PackageInstaller::UpdateInfo& u : worker->GetUpdates())
+      {
+        if (u.action == PackageInstaller::UpdateInfo::ForceUpdate
+          || u.action == PackageInstaller::UpdateInfo::ForceRemove
+          || u.action == PackageInstaller::UpdateInfo::Update
+          || u.action == PackageInstaller::UpdateInfo::Repair
+          || u.action == PackageInstaller::UpdateInfo::ReleaseStateChange)
+        {
+          updates.push_back(u);
+        }
+        else if (u.action == PackageInstaller::UpdateInfo::KeepAdmin || u.action == PackageInstaller::UpdateInfo::KeepObsolete)
+        {
+          // TODO: adminPackage.push_back(u);
+        }
+      }
+      updateModel->SetData(updates);
+      ui->labelUpdateStatus->setText("");
+      ui->labelCheckUpdatesStatus->setText("");
+    }
+    else
+    {
+      CriticalError(tr("Something went wrong while checking for updates."), worker->GetMiKTeXException());
+      ui->labelUpdateStatus->setText(tr("Error"));
+      ui->labelCheckUpdatesStatus->setText("Error");
+    }
     ui->labelUpdatePercent->setText("");
     ui->labelUpdateDetails->setText("");
     backgroundWorkers--;
     UpdateWidgets();
     EnableActions();
-  });
-  connect(worker, &CkeckUpdatesWorker::OnMiKTeXException, this, [this]() {
-    CriticalError(tr("Something went wrong while checking for updates."), ((CkeckUpdatesWorker*)sender())->GetMiKTeXException());
-    ui->labelUpdateStatus->setText(tr("Error"));
-    ui->labelUpdatePercent->setText("");
-    ui->labelUpdateDetails->setText("");
-    backgroundWorkers--;
-    UpdateWidgets();
-    EnableActions();
+    worker->deleteLater();
   });
   connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(worker, SIGNAL(OnFinish()), worker, SLOT(deleteLater()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
   ui->labelUpdateStatus->setText(tr("Checking..."));
+  ui->labelCheckUpdatesStatus->setText(tr("Checking..."));
   ui->labelUpdatePercent->setText("");
   ui->labelUpdateDetails->setText("");
   thread->start();
@@ -1233,16 +1266,27 @@ void MainWindow::Update()
   worker->moveToThread(thread);
   connect(thread, SIGNAL(started()), worker, SLOT(Process()));
   connect(worker, &UpdateWorker::OnFinish, this, [this]() {
-    ui->labelUpdateStatus->setText(tr("done"));
+    UpdateWorker* worker = (UpdateWorker*)sender();
+    if (worker->GetResult())
+    {
+      ui->labelUpdateStatus->setText(tr("Done"));
+    }
+    else
+    {
+      CriticalError(tr("Something went wrong while installing package updates."), worker->GetMiKTeXException());
+      ui->labelUpdateStatus->setText(tr("Error"));
+    }
     ui->labelUpdatePercent->setText("");
     ui->labelUpdateDetails->setText("");
     backgroundWorkers--;
     updateModel->SetData({});
     UpdateWidgets();
     EnableActions();
+    worker->deleteLater();
   });
   connect(worker, &UpdateWorker::OnUpdateProgress, this, [this]() {
-    PackageInstaller::ProgressInfo progressInfo = ((UpdateWorker*)sender())->GetProgressInfo();
+    UpdateWorker* worker = (UpdateWorker*)sender();
+    PackageInstaller::ProgressInfo progressInfo = worker->GetProgressInfo();
     UpdateWorker::Status status = ((UpdateWorker*)sender())->GetStatus();
     if (progressInfo.cbDownloadTotal > 0)
     {
@@ -1266,17 +1310,7 @@ void MainWindow::Update()
       ui->labelUpdateDetails->setText("");
     }
   });
-  connect(worker, &UpdateWorker::OnMiKTeXException, this, [this]() {
-    CriticalError(tr("Something went wrong while installing package updates."), ((UpdateWorker*)sender())->GetMiKTeXException());
-    ui->labelUpdateStatus->setText(tr("Error"));
-    ui->labelUpdatePercent->setText("");
-    ui->labelUpdateDetails->setText("");
-    backgroundWorkers--;
-    UpdateWidgets();
-    EnableActions();
-  });
   connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(worker, SIGNAL(OnFinish()), worker, SLOT(deleteLater()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
   ui->labelUpdateStatus->setText(tr("Update in progress..."));
   ui->labelUpdatePercent->setText("0%");
