@@ -306,7 +306,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>5</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -664,6 +664,9 @@
              <property name="title">
               <string>PATH issue</string>
              </property>
+             <property name="checkable">
+              <bool>false</bool>
+             </property>
              <layout class="QVBoxLayout" name="verticalLayout_4">
               <item>
                <widget class="QLabel" name="label_2">
@@ -682,7 +685,7 @@
               <item>
                <widget class="QLabel" name="label_15">
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Currently this directory is not in the search list for executables or it is at the wrong position in the list. You can fix this issue by adding the directory to the environment variable PATH. This makes is possible to invoke the MiKTeX executables everywhere.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/howto/modify-path&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: modify PATH&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This directory is not in the search list for executables or it is at the wrong position in the list. You can fix this issue by adding the directory to the environment variable PATH. This makes is possible to invoke the MiKTeX executables everywhere.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/howto/modify-path&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: modify PATH&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="wordWrap">
                  <bool>true</bool>
