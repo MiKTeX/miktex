@@ -306,7 +306,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>4</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -395,7 +395,7 @@
               <enum>QFrame::Plain</enum>
              </property>
              <property name="text">
-              <string>Please wait a few moments. It doesn't too take long...</string>
+              <string>Please wait a few moments. It doesn't take too long...</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
