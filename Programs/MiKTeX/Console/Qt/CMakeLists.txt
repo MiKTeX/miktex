@@ -27,6 +27,10 @@ include_directories(BEFORE
 )
 
 set(console_sources
+  PackageProxyModel.cpp
+  PackageProxyModel.h
+  PackageTableModel.cpp
+  PackageTableModel.h
   RootTableModel.cpp
   RootTableModel.h
   UpdateTableModel.cpp
@@ -57,6 +61,8 @@ if(MIKTEX_MACOS_BUNDLE)
 endif()
 
 set(console_moc_sources
+  PackageProxyModel.h
+  PackageTableModel.h
   RootTableModel.h
   UpdateTableModel.h
   mainwindow.h

@@ -42,6 +42,9 @@ class MainWindow : public QMainWindow
 {
   Q_OBJECT;
 
+private:
+  Ui::MainWindow* ui = nullptr;
+
 public:
   explicit MainWindow(QWidget* parent = nullptr);
 
@@ -49,10 +52,62 @@ public:
   ~MainWindow();
 
 private:
-  void UpdateWidgets();
+  void closeEvent(QCloseEvent* event) override;
+
+private:
+  void setVisible(bool visible) override;
+
+private:
+  void CriticalError(const QString& text, const MiKTeX::Core::MiKTeXException& e);
+
+private:
+  void CriticalError(const MiKTeX::Core::MiKTeXException& e)
+  {
+    CriticalError(tr("Sorry, something went wrong."), e);
+  }
+
+private:
+  void CriticalError(const std::exception& e)
+  {
+    CriticalError(MiKTeX::Core::MiKTeXException(e.what()));
+  }
+
+private:
+  void UpdateUi();
 
 private slots:
-  void EnableActions();
+  void UpdateActions();
+
+#if !defined(QT_NO_SYSTEMTRAYICON)
+private:
+  QSystemTrayIcon* trayIcon = nullptr;
+
+private:
+  QMenu* trayIconMenu = nullptr;
+
+private:
+  void CreateTrayIcon();
+
+private slots:
+  void TrayIconActivated(QSystemTrayIcon::ActivationReason reason);
+
+private slots:
+  void TrayMessageClicked();
+#endif
+
+private:
+  enum class Pages
+  {
+    Setup = 0,
+    Overview = 1,
+    Settings = 2,
+    Updates = 3,
+    Packages = 4,
+    Troubleshoot = 5,
+  };
+
+private:
+  void SetCurrentPage(Pages p);
 
 private slots:
   void on_buttonOverview_clicked()
@@ -85,64 +140,64 @@ private slots:
   }
 
 private slots:
-  void on_buttonChangeRepository_clicked();
+  void StartTeXworks();
 
 private slots:
-  void on_comboPaper_activated(int idx);
+  void on_buttonTeXworks_clicked()
+  {
+    StartTeXworks();
+  }
 
 private slots:
-  void on_radioAutoInstallAsk_clicked();
+  void StartTerminal();
 
 private slots:
-  void on_radioAutoInstallYes_clicked();
+  void on_buttonTerminal_clicked()
+  {
+    StartTerminal();
+  }
 
 private slots:
-  void on_radioAutoInstallNo_clicked();
+  void AboutDialog();
+
+private slots:
+  void RestartAdmin();
 
 private:
-  void SetupUiRootDirectories();
+  void RestartAdminWithArguments(const std::vector<std::string>& args);
 
 private slots:
-  void UpdateActionsRootDirectories();
+  void on_buttonAdminSetup_clicked();
+
+private slots:
+  void on_buttonUserSetup_clicked()
+  {
+    FinishSetup();
+  }
 
 private:
-  void UpdateUiRootDirectories();
+  bool isSetupMode = false;
 
-private:
-  RootTableModel* rootDirectoryModel = nullptr;
-
-private slots:
-  void AddRootDirectory();
-
-private:
-  QMenu* contextMenuRootDirectory = nullptr;
-
-private:
-  QMenu* contextMenuRootDirectoriesBackground = nullptr;
+public slots:
+  void FinishSetup();
 
 private slots:
-  void OnContextMenuRootDirectories(const QPoint& pos);
+  void on_buttonUpgrade_clicked();
 
 private slots:
-  void RemoveRootDirectory();
+  void RefreshFndb();
 
 private slots:
-  void MoveRootDirectoryUp();
-
-private slots:
-  void MoveRootDirectoryDown();
-
-private:
-  QToolBar* toolBarRootDirectories = nullptr;
+  void RefreshFontMaps();
 
 private:
   void SetupUiUpdates();
 
-private slots:
-  void UpdateActionsUpdates();
-
 private:
   void UpdateUiUpdates();
+
+private slots:
+  void UpdateActionsUpdates();
 
 private:
   UpdateTableModel* updateModel = nullptr;
@@ -180,104 +235,62 @@ private slots:
     }
   }
 
-private slots:
-  void StartTeXworks();
+private:
+  void UpdateUiPackageInstallation();
 
 private slots:
-  void on_buttonTeXworks_clicked()
-  {
-    StartTeXworks();
-  }
+  void on_buttonChangeRepository_clicked();
 
 private slots:
-  void StartTerminal();
+  void on_radioAutoInstallAsk_clicked();
 
 private slots:
-  void on_buttonTerminal_clicked()
-  {
-    StartTerminal();
-  }
+  void on_radioAutoInstallYes_clicked();
 
 private slots:
-  void AboutDialog();
-
-private slots:
-  void RestartAdmin();
-
-private slots:
-  void RefreshFndb();
-
-private slots:
-  void RefreshFontMaps();
+  void on_radioAutoInstallNo_clicked();
 
 private:
-  void RestartAdminWithArguments(const std::vector<std::string>& args);
+  void UpdateUiPaper();
 
 private slots:
-  void on_buttonAdminSetup_clicked();
+  void on_comboPaper_activated(int idx);
+
+private:
+  QToolBar* toolBarRootDirectories = nullptr;
+
+private:
+  void SetupUiRootDirectories();
+
+private:
+  void UpdateUiRootDirectories();
+  
+private slots:
+  void UpdateActionsRootDirectories();
+
+private:
+  RootTableModel* rootDirectoryModel = nullptr;
 
 private slots:
-  void on_buttonUserSetup_clicked();
+  void AddRootDirectory();
 
 private slots:
-  void on_buttonUpgrade_clicked();
-
-private:
-  bool isSetupMode = false;
-
-public slots:
-  void FinishSetup();
-
-private:
-  void closeEvent(QCloseEvent* event) override;
-
-private:
-  void setVisible(bool visible) override;
-
-private:
-  enum class Pages {
-    Setup = 0,
-    Overview = 1,
-    Settings = 2,
-    Updates = 3,
-    Packages = 4,
-    Troubleshoot = 5,
-  };
-
-private:
-  void SetCurrentPage(Pages p);
-
-#if !defined(QT_NO_SYSTEMTRAYICON)
-private:
-  QSystemTrayIcon* trayIcon = nullptr;
-
-private:
-  QMenu* trayIconMenu = nullptr;
-
-private:
-  void CreateTrayIcon();
+  void RemoveRootDirectory();
 
 private slots:
-  void TrayIconActivated(QSystemTrayIcon::ActivationReason reason);
+  void MoveRootDirectoryUp();
 
 private slots:
-  void TrayMessageClicked();
-#endif
+  void MoveRootDirectoryDown();
 
 private:
-  void CriticalError(const QString& text, const MiKTeX::Core::MiKTeXException& e);
+  QMenu* contextMenuRootDirectory = nullptr;
 
 private:
-  void CriticalError(const MiKTeX::Core::MiKTeXException& e)
-  {
-    CriticalError(tr("Sorry, something went wrong."), e);
-  }
+  QMenu* contextMenuRootDirectoriesBackground = nullptr;
 
-private:
-  void CriticalError(const std::exception& e)
-  {
-    CriticalError(MiKTeX::Core::MiKTeXException(e.what()));
-  }
+private slots:
+  void OnContextMenuRootDirectories(const QPoint& pos);
 
 private:
   std::atomic_int backgroundWorkers{ 0 };
@@ -289,13 +302,10 @@ private:
   }
 
 private:
-  Ui::MainWindow* ui = nullptr;
-
-private:
   std::shared_ptr<MiKTeX::Core::Session> session = MiKTeX::Core::Session::Get();
 
 private:
-  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager = MiKTeX::Packages::PackageManager::Create();
 };
 
 class BackgroundWorker :

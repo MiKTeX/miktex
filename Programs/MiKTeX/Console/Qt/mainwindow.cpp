@@ -61,8 +61,7 @@ inline double Divide(double a, double b)
 
 MainWindow::MainWindow(QWidget* parent) :
   QMainWindow(parent),
-  ui(new Ui::MainWindow),
-  packageManager(PackageManager::Create())
+  ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
 
@@ -103,13 +102,34 @@ MainWindow::MainWindow(QWidget* parent) :
   connect(ui->actionTeXworks, SIGNAL(triggered()), this, SLOT(StartTeXworks()));
   connect(ui->actionTerminal, SIGNAL(triggered()), this, SLOT(StartTerminal()));
 
-  UpdateWidgets();
-  EnableActions();
+  UpdateUi();
+  UpdateActions();
 }
 
 MainWindow::~MainWindow()
 {
   delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+  if (IsBackgroundWorkerActive())
+  {
+    if (QMessageBox::question(this, tr("MiKTeX Console"), tr("A task is running in the background. Are you sure you want to quit?"))
+      != QMessageBox::Yes)
+    {
+      event->ignore();
+      return;
+    }
+  }
+  event->accept();
+}
+
+void MainWindow::setVisible(bool visible)
+{
+  ui->actionMinimize->setEnabled(visible);
+  ui->actionRestore->setEnabled(!visible);
+  QMainWindow::setVisible(visible);
 }
 
 void MainWindow::CriticalError(const QString& text, const MiKTeXException& e)
@@ -122,45 +142,7 @@ void MainWindow::CriticalError(const QString& text, const MiKTeXException& e)
   }
 }
 
-#if !defined(QT_NO_SYSTEMTRAYICON)
-void MainWindow::CreateTrayIcon()
-{
-  if (!QSystemTrayIcon::isSystemTrayAvailable())
-  {
-    return;
-  }
-  trayIconMenu = new QMenu(this);
-  trayIconMenu->addAction(ui->actionTeXworks);
-  trayIconMenu->addAction(ui->actionTerminal);
-  trayIconMenu->addSeparator();
-  trayIconMenu->addAction(ui->actionMinimize);
-  trayIconMenu->addAction(ui->actionRestore);
-  trayIconMenu->addSeparator();
-  trayIconMenu->addAction(ui->actionExit);
-  trayIcon = new QSystemTrayIcon(this);
-  trayIcon->setContextMenu(trayIconMenu);
-#if defined(MIKTEX_WINDOWS)
-  trayIcon->setIcon(QIcon((":/Icons/miktex-16x16.png")));
-#else
-  trayIcon->setIcon(QIcon((":/Icons/miktex-32x32.png")));
-#endif
-  trayIcon->setToolTip(tr("MiKTeX Console"));
-  trayIcon->show();
-
-  connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::TrayIconActivated);
-  connect(trayIcon, &QSystemTrayIcon::messageClicked, this, &MainWindow::TrayMessageClicked);
-}
-
-void MainWindow::TrayIconActivated(QSystemTrayIcon::ActivationReason reason)
-{
-}
-
-void MainWindow::TrayMessageClicked()
-{
-}
-#endif
-
-void MainWindow::UpdateWidgets()
+void MainWindow::UpdateUi()
 {
   try
   {
@@ -209,12 +191,6 @@ void MainWindow::UpdateWidgets()
     {
       return;
     }
-    ui->comboPaper->setEnabled(!IsBackgroundWorkerActive());
-    ui->editRepository->setEnabled(!IsBackgroundWorkerActive());
-    ui->buttonChangeRepository->setEnabled(!IsBackgroundWorkerActive());
-    ui->radioAutoInstallAsk->setEnabled(!IsBackgroundWorkerActive());
-    ui->radioAutoInstallNo->setEnabled(!IsBackgroundWorkerActive());
-    ui->radioAutoInstallYes->setEnabled(!IsBackgroundWorkerActive());
     if (!Utils::CheckPath())
     {
       ui->groupPathIssue->show();
@@ -238,50 +214,8 @@ void MainWindow::UpdateWidgets()
         }
       }
     }
-    string repository;
-    RepositoryType repositoryType(RepositoryType::Unknown);
-    if (packageManager->TryGetDefaultPackageRepository(repositoryType, repository))
-    {
-      ui->editRepository->setText(QString::fromUtf8(repository.c_str()));
-    }
-    switch (session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState())
-    {
-    case TriState::True:
-      ui->radioAutoInstallYes->setChecked(true);
-      break;
-    case TriState::False:
-      ui->radioAutoInstallNo->setChecked(true);
-      break;
-    case TriState::Undetermined:
-      ui->radioAutoInstallAsk->setChecked(true);
-      break;
-    }
-    if (ui->comboPaper->count() == 0)
-    {
-      PaperSizeInfo defaultPaperSizeInfo;
-      session->GetPaperSizeInfo(-1, defaultPaperSizeInfo);
-      PaperSizeInfo paperSizeInfo;
-      int currentIndex = -1;
-      for (int idx = 0; session->GetPaperSizeInfo(idx, paperSizeInfo); ++idx)
-      {
-        QString displayName = QString::fromUtf8(paperSizeInfo.name.c_str());
-        if (!Utils::EqualsIgnoreCase(paperSizeInfo.name, paperSizeInfo.dvipsName))
-        {
-          displayName += " (";
-          displayName += QString::fromUtf8(paperSizeInfo.dvipsName.c_str());
-          displayName += ")";
-        }
-        ui->comboPaper->addItem(displayName);
-        if (Utils::EqualsIgnoreCase(paperSizeInfo.dvipsName, defaultPaperSizeInfo.dvipsName))
-        {
-          currentIndex = idx;
-        }
-      }
-      if (currentIndex >= 0)
-      {
-        ui->comboPaper->setCurrentIndex(currentIndex);
-      }
-    }
+    UpdateUiPaper();
+    UpdateUiPackageInstallation();
     UpdateUiRootDirectories();
     UpdateUiUpdates();
   }
@@ -295,7 +229,7 @@ void MainWindow::UpdateWidgets()
   }
 }
 
-void MainWindow::EnableActions()
+void MainWindow::UpdateActions()
 {
   try
   {
@@ -317,6 +251,44 @@ void MainWindow::EnableActions()
   }
 }
 
+#if !defined(QT_NO_SYSTEMTRAYICON)
+void MainWindow::CreateTrayIcon()
+{
+  if (!QSystemTrayIcon::isSystemTrayAvailable())
+  {
+    return;
+  }
+  trayIconMenu = new QMenu(this);
+  trayIconMenu->addAction(ui->actionTeXworks);
+  trayIconMenu->addAction(ui->actionTerminal);
+  trayIconMenu->addSeparator();
+  trayIconMenu->addAction(ui->actionMinimize);
+  trayIconMenu->addAction(ui->actionRestore);
+  trayIconMenu->addSeparator();
+  trayIconMenu->addAction(ui->actionExit);
+  trayIcon = new QSystemTrayIcon(this);
+  trayIcon->setContextMenu(trayIconMenu);
+#if defined(MIKTEX_WINDOWS)
+  trayIcon->setIcon(QIcon((":/Icons/miktex-16x16.png")));
+#else
+  trayIcon->setIcon(QIcon((":/Icons/miktex-32x32.png")));
+#endif
+  trayIcon->setToolTip(tr("MiKTeX Console"));
+  trayIcon->show();
+
+  connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::TrayIconActivated);
+  connect(trayIcon, &QSystemTrayIcon::messageClicked, this, &MainWindow::TrayMessageClicked);
+}
+
+void MainWindow::TrayIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+}
+
+void MainWindow::TrayMessageClicked()
+{
+}
+#endif
+
 void MainWindow::SetCurrentPage(MainWindow::Pages p)
 {
   switch (p)
@@ -335,412 +307,11 @@ void MainWindow::SetCurrentPage(MainWindow::Pages p)
   case Pages::Packages:
     ui->buttonPackages->setChecked(true);
     break;
+  case Pages::Troubleshoot:
+    ui->buttonTroubleshoot->setChecked(true);
+    break;
   }
   ui->pages->setCurrentIndex((int)p);
-}
-
-void MainWindow::AboutDialog()
-{
-  QString message;
-  message = tr("MiKTeX Console");
-  message += " ";
-  message += MIKTEX_COMPONENT_VERSION_STR;
-  message += "\n\n";
-  message += tr("MiKTeX Console is free software. You are welcome to redistribute it under certain conditions. See the help file for more information.\n\nMiKTeX Console comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.");
-  QMessageBox::about(this, tr("MiKTeX Console"), message);
-}
-
-void MainWindow::on_buttonAdminSetup_clicked()
-{
-  try
-  {
-    if (session->IsAdminMode())
-    {
-      FinishSetup();
-    }
-    else
-    {
-      RestartAdminWithArguments({ "--admin", "--finish-setup" });
-    }
-  }
-  catch (const MiKTeXException& e)
-  {
-    CriticalError(e);
-  }
-  catch (const exception& e)
-  {
-    CriticalError(e);
-  }
-}
-
-void MainWindow::on_buttonUserSetup_clicked()
-{
-  try
-  {
-    FinishSetup();
-  }
-  catch (const MiKTeXException& e)
-  {
-    CriticalError(e);
-  }
-  catch (const exception& e)
-  {
-    CriticalError(e);
-  }
-}
-
-bool UpgradeWorker::Run()
-{
-  bool result = false;
-  try
-  {
-    status = Status::Synchronize;
-    packageInstaller = packageManager->CreateInstaller();
-    packageInstaller->SetCallback(this);
-    packageInstaller->FindUpgrades(PackageLevel::Basic);
-    vector<PackageInstaller::UpgradeInfo> upgrades = packageInstaller->GetUpgrades();
-    if (!upgrades.empty())
-    {
-      vector<string> toBeInstalled;
-      for (const PackageInstaller::UpgradeInfo& upg : upgrades)
-      {
-        toBeInstalled.push_back(upg.deploymentName);
-      }
-      packageInstaller->SetFileLists(toBeInstalled, vector<string>());
-      packageInstaller->InstallRemove();
-    }
-    result = true;
-  }
-  catch (const MiKTeXException& e)
-  {
-    this->e = e;
-  }
-  catch (const exception& e)
-  {
-    this->e = MiKTeXException(e.what());
-  }
-  return result;
-}
-
-void MainWindow::on_buttonUpgrade_clicked()
-{
-  ui->buttonUpgrade->setEnabled(false);
-  QThread* thread = new QThread;
-  UpgradeWorker* worker = new UpgradeWorker(packageManager);
-  backgroundWorkers++;
-  ui->labelBackgroundTask->setText(tr("Installing packages..."));
-  worker->moveToThread(thread);
-  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-  connect(worker, &UpgradeWorker::OnFinish, this, [this]() {
-    UpgradeWorker* worker = (UpgradeWorker*)sender();
-    if (worker->GetResult())
-    {
-      ui->labelUpgradeStatus->setText(tr("Done"));
-    }
-    else
-    {
-      CriticalError(tr("Something went wrong while installing packages."), worker->GetMiKTeXException());
-      ui->labelUpgradeStatus->setText(tr("Error"));
-    }
-    ui->labelUpgradePercent->setText("");
-    ui->labelUpgradeDetails->setText("");
-    backgroundWorkers--;
-    UpdateWidgets();
-    EnableActions();
-    worker->deleteLater();
-  });
-  connect(worker, &UpgradeWorker::OnUpgradeProgress, this, [this]() {
-    PackageInstaller::ProgressInfo progressInfo = ((UpgradeWorker*)sender())->GetProgressInfo();
-    UpgradeWorker::Status status = ((UpgradeWorker*)sender())->GetStatus();
-    if (progressInfo.cbDownloadTotal > 0)
-    {
-      int percent = static_cast<int>(Divide(progressInfo.cbDownloadCompleted, progressInfo.cbDownloadTotal) * 100);
-      ui->labelUpgradePercent->setText(percent == 100 ? tr("we're almost done") : QString("%1%").arg(percent));
-    }
-    if (status == UpgradeWorker::Status::Synchronize)
-    {
-      ui->labelUpgradeDetails->setText(tr("(synchronizing package database)"));
-    }
-    else if (status == UpgradeWorker::Status::Download)
-    {
-      ui->labelUpgradeDetails->setText(tr("(downloading: %1)").arg(QString::fromUtf8(progressInfo.deploymentName.c_str())));
-    }
-    else if (status == UpgradeWorker::Status::Install)
-    {
-      ui->labelUpgradeDetails->setText(tr("(installing: %1)").arg(QString::fromUtf8(progressInfo.deploymentName.c_str())));
-    }
-    else
-    {
-      ui->labelUpgradeDetails->setText("");
-    }
-  });
-  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-  ui->labelUpgradeStatus->setText(tr("Upgrade in progress..."));
-  ui->labelUpgradePercent->setText("0%");
-  ui->labelUpgradeDetails->setText(tr("(initializing)"));
-  thread->start();
-  UpdateWidgets();
-  EnableActions();
-}
-
-bool RefreshFndbWorker::Run()
-{
-  bool result = false;
-  try
-  {
-    Fndb::Refresh(nullptr);
-    result = true;
-  }
-  catch (const MiKTeXException& e)
-  {
-    this->e = e;
-  }
-  catch (const exception& e)
-  {
-    this->e = MiKTeXException(e.what());
-  }
-  return result;
-}
-
-void MainWindow::RefreshFndb()
-{
-  QThread* thread = new QThread;
-  RefreshFndbWorker* worker = new RefreshFndbWorker;
-  backgroundWorkers++;
-  ui->labelBackgroundTask->setText(tr("Refreshing file name database..."));
-  worker->moveToThread(thread);
-  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-  connect(worker, &RefreshFndbWorker::OnFinish, this, [this]() {
-    RefreshFndbWorker* worker = (RefreshFndbWorker*)sender();
-    if (!worker->GetResult())
-    {
-      CriticalError(tr("Something went wrong while refreshing the file name database."), ((RefreshFndbWorker*)sender())->GetMiKTeXException());
-    }
-    backgroundWorkers--;
-    UpdateWidgets();
-    EnableActions();
-    worker->deleteLater();
-  });
-  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-  thread->start();
-  UpdateWidgets();
-  EnableActions();
-}
-
-string Timestamp()
-{
-  auto now = time(nullptr);
-  stringstream s;
-  s << std::put_time(localtime(&now), "%Y-%m-%d-%H%M%S");
-  return s.str();
-}
-
-bool RefreshFontMapsWorker::Run()
-{
-  bool result = false;
-  try
-  {
-    shared_ptr<Session> session = Session::Get();
-    PathName initexmf;
-    if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
-    {
-      MIKTEX_FATAL_ERROR("The MiKTeX configuration utility executable (initexmf) could not be found.");
-    }
-    vector<string> args{
-      initexmf.GetFileNameWithoutExtension().ToString(),
-      "--mkmaps"
-    };
-    if (session->IsAdminMode())
-    {
-      args.push_back("--admin");
-    }
-    ProcessOutput<4096> output;
-    int exitCode;
-    Process::Run(initexmf, args, &output, &exitCode, nullptr);
-    if (exitCode != 0)
-    {
-      auto outputBytes = output.GetStandardOutput();
-      PathName outfile = session->GetSpecialPath(SpecialPath::LogDirectory) / initexmf.GetFileNameWithoutExtension();
-      outfile += "_";
-      outfile += Timestamp().c_str();
-      outfile.SetExtension(".out");
-      FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
-      outstream.Write(&outputBytes[0], outputBytes.size());
-      outstream.Close();
-      MIKTEX_FATAL_ERROR_2("The MiKTeX configuration utility failed for some reason. The process output has been saved to a file.",
-        "fileName", initexmf.ToString(), "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
-    }
-    result = true;
-  }
-  catch (const MiKTeXException& e)
-  {
-    this->e = e;
-  }
-  catch (const exception& e)
-  {
-    this->e = MiKTeXException(e.what());
-  }
-  return result;
-}
-
-void MainWindow::RefreshFontMaps()
-{
-  QThread* thread = new QThread;
-  RefreshFontMapsWorker* worker = new RefreshFontMapsWorker;
-  backgroundWorkers++;
-  ui->labelBackgroundTask->setText(tr("Refreshing font map files..."));  
-  worker->moveToThread(thread);
-  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-  connect(worker, &RefreshFontMapsWorker::OnFinish, this, [this]() {
-    RefreshFontMapsWorker* worker = (RefreshFontMapsWorker*)sender();
-    if (!worker->GetResult())
-    {
-      CriticalError(tr("Something went wrong while refreshing the font map files."), worker->GetMiKTeXException());
-    }
-    backgroundWorkers--;
-    UpdateWidgets();
-    EnableActions();
-    worker->deleteLater();
-  });
-  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-  thread->start();
-  UpdateWidgets();
-  EnableActions();
-}
-
-void MainWindow::RestartAdmin()
-{
-  try
-  {
-    RestartAdminWithArguments({ "--admin" });
-  }
-  catch (const MiKTeXException& e)
-  {
-    CriticalError(e);
-  }
-  catch (const exception& e)
-  {
-    CriticalError(e);
-  }
-}
-
-void MainWindow::RestartAdminWithArguments(const vector<string>& args)
-{
-#if defined(MIKTEX_WINDOWS) || defined(MIKTEX_MACOS_BUNDLE)
-  PathName me = session->GetMyProgramFile(true);
-  PathName adminFileName = me.GetFileNameWithoutExtension();
-  adminFileName += MIKTEX_ADMIN_SUFFIX;
-  PathName meAdmin(me);
-  meAdmin.RemoveFileSpec();
-  meAdmin /= adminFileName;
-  meAdmin.SetExtension(me.GetExtension());
-#if defined(MIKTEX_WINDOWS)
-  ShellExecuteW(nullptr, L"open", meAdmin.ToWideCharString().c_str(), StringUtil::UTF8ToWideChar(StringUtil::Flatten(args, ' ')).c_str(), nullptr, SW_NORMAL);
-#else
-  vector<string> meAdminArgs{ adminFileName.ToString() };
-  meAdminArgs.insert(meAdminArgs.end(), args.begin(), args.end());
-  Process::Start(meAdmin, meAdminArgs);
-#endif
-#else
-  // TODO
-#endif
-  this->close();
-}
-
-bool FinishSetupWorker::Run()
-{
-  bool result = false;
-  try
-  {
-    shared_ptr<Session> session = Session::Get();
-    unique_ptr<SetupService> service = SetupService::Create();
-    SetupOptions options = service->GetOptions();
-    options.Task = SetupTask::FinishSetup;
-    options.IsCommonSetup = session->IsAdminMode();
-    service->SetOptions(options);
-    service->Run();
-    result = true;
-  }
-  catch (const MiKTeXException& e)
-  {
-    this->e = e;
-  }
-  catch (const exception& e)
-  {
-    this->e = MiKTeXException(e.what());
-  }
-  return result;
-}
-
-void MainWindow::FinishSetup()
-{
-  ui->buttonAdminSetup->setEnabled(false);
-  ui->buttonUserSetup->setEnabled(false);
-  QThread* thread = new QThread;
-  FinishSetupWorker* worker = new FinishSetupWorker;
-  backgroundWorkers++;
-  ui->labelBackgroundTask->setText(tr("Finishing the MiKTeX setup..."));
-  worker->moveToThread(thread);
-  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-  connect(worker, &FinishSetupWorker::OnFinish, this, [this]() {
-    FinishSetupWorker* worker = (FinishSetupWorker*)sender();
-    if (worker->GetResult())
-    {
-      isSetupMode = false;
-      try
-      {
-        bool isAdminMode = session->IsAdminMode();
-        session->Reset();
-        session->SetAdminMode(isAdminMode);
-      }
-      catch (const MiKTeXException& e)
-      {
-        CriticalError(e);
-      }
-      catch (const exception& e)
-      {
-        CriticalError(e);
-      }
-      SetCurrentPage(Pages::Overview);
-    }
-    else
-    {
-      CriticalError(tr("Something went wrong while finishing the MiKTeX setup."), worker->GetMiKTeXException());
-    }
-    backgroundWorkers--;
-    UpdateWidgets();
-    EnableActions();
-    worker->deleteLater();
-  });
-  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-  thread->start();
-  UpdateWidgets();
-  EnableActions();
-}
-
-void MainWindow::closeEvent(QCloseEvent* event)
-{
-  if (IsBackgroundWorkerActive())
-  {
-    if (QMessageBox::question(this, tr("MiKTeX Console"), tr("A task is running in the background. Are you sure you want to quit?"))
-      != QMessageBox::Yes)
-    {
-      event->ignore();
-      return;
-    }
-  }
-  event->accept();
-}
-
-void MainWindow::setVisible(bool visible)
-{
-  ui->actionMinimize->setEnabled(visible);
-  ui->actionRestore->setEnabled(!visible);
-  QMainWindow::setVisible(visible);
 }
 
 void MainWindow::StartTeXworks()
@@ -819,26 +390,656 @@ void MainWindow::StartTerminal()
   }
 }
 
-void MainWindow::on_comboPaper_activated(int idx)
+void MainWindow::AboutDialog()
+{
+  QString message;
+  message = tr("MiKTeX Console");
+  message += " ";
+  message += MIKTEX_COMPONENT_VERSION_STR;
+  message += "\n\n";
+  message += tr("MiKTeX Console is free software. You are welcome to redistribute it under certain conditions. See the help file for more information.\n\nMiKTeX Console comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.");
+  QMessageBox::about(this, tr("MiKTeX Console"), message);
+}
+
+void MainWindow::RestartAdmin()
 {
   try
   {
-    PaperSizeInfo paperSizeInfo;
-    if (!session->GetPaperSizeInfo(idx, paperSizeInfo))
+    RestartAdminWithArguments({ "--admin" });
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+void MainWindow::RestartAdminWithArguments(const vector<string>& args)
+{
+#if defined(MIKTEX_WINDOWS) || defined(MIKTEX_MACOS_BUNDLE)
+  PathName me = session->GetMyProgramFile(true);
+  PathName adminFileName = me.GetFileNameWithoutExtension();
+  adminFileName += MIKTEX_ADMIN_SUFFIX;
+  PathName meAdmin(me);
+  meAdmin.RemoveFileSpec();
+  meAdmin /= adminFileName;
+  meAdmin.SetExtension(me.GetExtension());
+#if defined(MIKTEX_WINDOWS)
+  ShellExecuteW(nullptr, L"open", meAdmin.ToWideCharString().c_str(), StringUtil::UTF8ToWideChar(StringUtil::Flatten(args, ' ')).c_str(), nullptr, SW_NORMAL);
+#else
+  vector<string> meAdminArgs{ adminFileName.ToString() };
+  meAdminArgs.insert(meAdminArgs.end(), args.begin(), args.end());
+  Process::Start(meAdmin, meAdminArgs);
+#endif
+#else
+  // TODO
+#endif
+  this->close();
+}
+
+void MainWindow::on_buttonAdminSetup_clicked()
+{
+  try
+  {
+    if (session->IsAdminMode())
     {
-      MIKTEX_UNEXPECTED();
+      FinishSetup();
     }
-    session->SetDefaultPaperSize(paperSizeInfo.dvipsName.c_str());
-    for (const FormatInfo& formatInfo : session->GetFormats())
+    else
     {
-      vector<PathName> files;
-      if (session->FindFile(formatInfo.name, FileType::FMT, files))
+      RestartAdminWithArguments({ "--admin", "--finish-setup" });
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+bool FinishSetupWorker::Run()
+{
+  bool result = false;
+  try
+  {
+    shared_ptr<Session> session = Session::Get();
+    unique_ptr<SetupService> service = SetupService::Create();
+    SetupOptions options = service->GetOptions();
+    options.Task = SetupTask::FinishSetup;
+    options.IsCommonSetup = session->IsAdminMode();
+    service->SetOptions(options);
+    service->Run();
+    result = true;
+  }
+  catch (const MiKTeXException& e)
+  {
+    this->e = e;
+  }
+  catch (const exception& e)
+  {
+    this->e = MiKTeXException(e.what());
+  }
+  return result;
+}
+
+void MainWindow::FinishSetup()
+{
+  try
+  {
+    ui->buttonAdminSetup->setEnabled(false);
+    ui->buttonUserSetup->setEnabled(false);
+    QThread* thread = new QThread;
+    FinishSetupWorker* worker = new FinishSetupWorker;
+    backgroundWorkers++;
+    ui->labelBackgroundTask->setText(tr("Finishing the MiKTeX setup..."));
+    worker->moveToThread(thread);
+    connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+    connect(worker, &FinishSetupWorker::OnFinish, this, [this]() {
+      FinishSetupWorker* worker = (FinishSetupWorker*)sender();
+      if (worker->GetResult())
       {
-        for (const PathName& file : files)
+        isSetupMode = false;
+        try
         {
-          File::Delete(file, { FileDeleteOption::UpdateFndb });
+          bool isAdminMode = session->IsAdminMode();
+          session->Reset();
+          session->SetAdminMode(isAdminMode);
+        }
+        catch (const MiKTeXException& e)
+        {
+          CriticalError(e);
+        }
+        catch (const exception& e)
+        {
+          CriticalError(e);
+        }
+        SetCurrentPage(Pages::Overview);
+      }
+      else
+      {
+        CriticalError(tr("Something went wrong while finishing the MiKTeX setup."), worker->GetMiKTeXException());
+      }
+      backgroundWorkers--;
+      UpdateUi();
+      UpdateActions();
+      worker->deleteLater();
+    });
+    connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    thread->start();
+    UpdateUi();
+    UpdateActions();
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+bool UpgradeWorker::Run()
+{
+  bool result = false;
+  try
+  {
+    status = Status::Synchronize;
+    packageInstaller = packageManager->CreateInstaller();
+    packageInstaller->SetCallback(this);
+    packageInstaller->FindUpgrades(PackageLevel::Basic);
+    vector<PackageInstaller::UpgradeInfo> upgrades = packageInstaller->GetUpgrades();
+    if (!upgrades.empty())
+    {
+      vector<string> toBeInstalled;
+      for (const PackageInstaller::UpgradeInfo& upg : upgrades)
+      {
+        toBeInstalled.push_back(upg.deploymentName);
+      }
+      packageInstaller->SetFileLists(toBeInstalled, vector<string>());
+      packageInstaller->InstallRemove();
+    }
+    result = true;
+  }
+  catch (const MiKTeXException& e)
+  {
+    this->e = e;
+  }
+  catch (const exception& e)
+  {
+    this->e = MiKTeXException(e.what());
+  }
+  return result;
+}
+
+void MainWindow::on_buttonUpgrade_clicked()
+{
+  ui->buttonUpgrade->setEnabled(false);
+  QThread* thread = new QThread;
+  UpgradeWorker* worker = new UpgradeWorker(packageManager);
+  backgroundWorkers++;
+  ui->labelBackgroundTask->setText(tr("Installing packages..."));
+  worker->moveToThread(thread);
+  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  connect(worker, &UpgradeWorker::OnFinish, this, [this]() {
+    UpgradeWorker* worker = (UpgradeWorker*)sender();
+    if (worker->GetResult())
+    {
+      ui->labelUpgradeStatus->setText(tr("Done"));
+    }
+    else
+    {
+      CriticalError(tr("Something went wrong while installing packages."), worker->GetMiKTeXException());
+      ui->labelUpgradeStatus->setText(tr("Error"));
+    }
+    ui->labelUpgradePercent->setText("");
+    ui->labelUpgradeDetails->setText("");
+    backgroundWorkers--;
+    UpdateUi();
+    UpdateActions();
+    worker->deleteLater();
+  });
+  connect(worker, &UpgradeWorker::OnUpgradeProgress, this, [this]() {
+    PackageInstaller::ProgressInfo progressInfo = ((UpgradeWorker*)sender())->GetProgressInfo();
+    UpgradeWorker::Status status = ((UpgradeWorker*)sender())->GetStatus();
+    if (progressInfo.cbDownloadTotal > 0)
+    {
+      int percent = static_cast<int>(Divide(progressInfo.cbDownloadCompleted, progressInfo.cbDownloadTotal) * 100);
+      ui->labelUpgradePercent->setText(percent == 100 ? tr("we're almost done") : QString("%1%").arg(percent));
+    }
+    if (status == UpgradeWorker::Status::Synchronize)
+    {
+      ui->labelUpgradeDetails->setText(tr("(synchronizing package database)"));
+    }
+    else if (status == UpgradeWorker::Status::Download)
+    {
+      ui->labelUpgradeDetails->setText(tr("(downloading: %1)").arg(QString::fromUtf8(progressInfo.deploymentName.c_str())));
+    }
+    else if (status == UpgradeWorker::Status::Install)
+    {
+      ui->labelUpgradeDetails->setText(tr("(installing: %1)").arg(QString::fromUtf8(progressInfo.deploymentName.c_str())));
+    }
+    else
+    {
+      ui->labelUpgradeDetails->setText("");
+    }
+  });
+  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  ui->labelUpgradeStatus->setText(tr("Upgrade in progress..."));
+  ui->labelUpgradePercent->setText("0%");
+  ui->labelUpgradeDetails->setText(tr("(initializing)"));
+  thread->start();
+  UpdateUi();
+  UpdateActions();
+}
+
+bool RefreshFndbWorker::Run()
+{
+  bool result = false;
+  try
+  {
+    Fndb::Refresh(nullptr);
+    result = true;
+  }
+  catch (const MiKTeXException& e)
+  {
+    this->e = e;
+  }
+  catch (const exception& e)
+  {
+    this->e = MiKTeXException(e.what());
+  }
+  return result;
+}
+
+void MainWindow::RefreshFndb()
+{
+  QThread* thread = new QThread;
+  RefreshFndbWorker* worker = new RefreshFndbWorker;
+  backgroundWorkers++;
+  ui->labelBackgroundTask->setText(tr("Refreshing file name database..."));
+  worker->moveToThread(thread);
+  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  connect(worker, &RefreshFndbWorker::OnFinish, this, [this]() {
+    RefreshFndbWorker* worker = (RefreshFndbWorker*)sender();
+    if (!worker->GetResult())
+    {
+      CriticalError(tr("Something went wrong while refreshing the file name database."), ((RefreshFndbWorker*)sender())->GetMiKTeXException());
+    }
+    backgroundWorkers--;
+    UpdateUi();
+    UpdateActions();
+    worker->deleteLater();
+  });
+  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  thread->start();
+  UpdateUi();
+  UpdateActions();
+}
+
+string Timestamp()
+{
+  auto now = time(nullptr);
+  stringstream s;
+  s << std::put_time(localtime(&now), "%Y-%m-%d-%H%M%S");
+  return s.str();
+}
+
+bool RefreshFontMapsWorker::Run()
+{
+  bool result = false;
+  try
+  {
+    shared_ptr<Session> session = Session::Get();
+    PathName initexmf;
+    if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
+    {
+      MIKTEX_FATAL_ERROR("The MiKTeX configuration utility executable (initexmf) could not be found.");
+    }
+    vector<string> args{
+      initexmf.GetFileNameWithoutExtension().ToString(),
+      "--mkmaps"
+    };
+    if (session->IsAdminMode())
+    {
+      args.push_back("--admin");
+    }
+    ProcessOutput<4096> output;
+    int exitCode;
+    Process::Run(initexmf, args, &output, &exitCode, nullptr);
+    if (exitCode != 0)
+    {
+      auto outputBytes = output.GetStandardOutput();
+      PathName outfile = session->GetSpecialPath(SpecialPath::LogDirectory) / initexmf.GetFileNameWithoutExtension();
+      outfile += "_";
+      outfile += Timestamp().c_str();
+      outfile.SetExtension(".out");
+      FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
+      outstream.Write(&outputBytes[0], outputBytes.size());
+      outstream.Close();
+      MIKTEX_FATAL_ERROR_2("The MiKTeX configuration utility failed for some reason. The process output has been saved to a file.",
+        "fileName", initexmf.ToString(), "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
+    }
+    result = true;
+  }
+  catch (const MiKTeXException& e)
+  {
+    this->e = e;
+  }
+  catch (const exception& e)
+  {
+    this->e = MiKTeXException(e.what());
+  }
+  return result;
+}
+
+void MainWindow::RefreshFontMaps()
+{
+  QThread* thread = new QThread;
+  RefreshFontMapsWorker* worker = new RefreshFontMapsWorker;
+  backgroundWorkers++;
+  ui->labelBackgroundTask->setText(tr("Refreshing font map files..."));  
+  worker->moveToThread(thread);
+  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  connect(worker, &RefreshFontMapsWorker::OnFinish, this, [this]() {
+    RefreshFontMapsWorker* worker = (RefreshFontMapsWorker*)sender();
+    if (!worker->GetResult())
+    {
+      CriticalError(tr("Something went wrong while refreshing the font map files."), worker->GetMiKTeXException());
+    }
+    backgroundWorkers--;
+    UpdateUi();
+    UpdateActions();
+    worker->deleteLater();
+  });
+  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  thread->start();
+  UpdateUi();
+  UpdateActions();
+}
+
+void MainWindow::SetupUiUpdates()
+{
+  connect(ui->actionCheckUpdates, SIGNAL(triggered()), this, SLOT(CheckUpdates()));
+  updateModel = new UpdateTableModel(packageManager, this);
+  string lastUpdateCheck;
+  if (session->TryGetConfigValue(
+    MIKTEX_REGKEY_PACKAGE_MANAGER,
+    session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE_CHECK : MIKTEX_REGVAL_LAST_USER_UPDATE_CHECK,
+    lastUpdateCheck))
+  {
+    ui->labelUpdateSummary->setText(tr("Last checked: %1").arg(QDateTime::fromTime_t(std::stoi(lastUpdateCheck)).date().toString()));
+  }
+  else
+  {
+    ui->labelUpdateSummary->setText(tr("You have not yet checked for updates."));
+  }
+  connect(updateModel, &UpdateTableModel::modelReset, this, [this]() {
+    int n = updateModel->rowCount();
+    QString text = tr("Updates");
+    if (n == 0)
+    {
+      ui->labelUpdatesAvailable->hide();
+      ui->labelNoUpdatesAvailable->show();
+      ui->labelUpdateSummary->setText(tr("There are currently no updates available."));
+    }
+    else
+    {
+      ui->labelUpdatesAvailable->show();
+      ui->labelNoUpdatesAvailable->hide();
+      ui->labelUpdateSummary->setText(tr("The following updates are available:"));
+      text += QString(" (%1)").arg(n);
+    }
+    ui->buttonUpdates->setText(text);
+  });
+  ui->treeViewUpdates->setModel(updateModel);
+  connect(ui->treeViewUpdates->selectionModel(),
+    SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+    this,
+    SLOT(UpdateActionsUpdates()));
+  ui->labelUpdatesAvailable->hide();
+  ui->labelNoUpdatesAvailable->hide();
+}
+
+void MainWindow::UpdateUiUpdates()
+{
+  ui->buttonCheckUpdates->setEnabled(!IsBackgroundWorkerActive());
+  ui->buttonUpdateCheck->setEnabled(!IsBackgroundWorkerActive());
+  ui->buttonUpdateNow->setEnabled(!IsBackgroundWorkerActive() && updateModel->rowCount() > 0);
+  ui->treeViewUpdates->setEnabled(!IsBackgroundWorkerActive());
+}
+
+void MainWindow::UpdateActionsUpdates()
+{
+  ui->actionCheckUpdates->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
+}
+
+bool CkeckUpdatesWorker::Run()
+{
+  bool result = false;
+  try
+  {
+    status = Status::Checking;
+    unique_ptr<PackageInstaller> packageInstaller = packageManager->CreateInstaller();
+    packageInstaller->FindUpdates();
+    updates = packageInstaller->GetUpdates();
+    result = true;
+  }
+  catch (const MiKTeXException& e)
+  {
+    this->e = e;
+  }
+  catch (const exception& e)
+  {
+    this->e = MiKTeXException(e.what());
+  }
+  return result;
+}
+
+void MainWindow::CheckUpdates()
+{
+  QThread* thread = new QThread;
+  CkeckUpdatesWorker* worker = new CkeckUpdatesWorker(packageManager);
+  backgroundWorkers++;
+  ui->labelBackgroundTask->setText(tr("Checking for updates..."));
+  worker->moveToThread(thread);
+  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  connect(worker, &CkeckUpdatesWorker::OnFinish, this, [this]() {
+    CkeckUpdatesWorker* worker = (CkeckUpdatesWorker*)sender();
+    if (worker->GetResult())
+    {
+      vector<PackageInstaller::UpdateInfo> updates;
+      for (const PackageInstaller::UpdateInfo& u : worker->GetUpdates())
+      {
+        if (u.action == PackageInstaller::UpdateInfo::ForceUpdate
+          || u.action == PackageInstaller::UpdateInfo::ForceRemove
+          || u.action == PackageInstaller::UpdateInfo::Update
+          || u.action == PackageInstaller::UpdateInfo::Repair
+          || u.action == PackageInstaller::UpdateInfo::ReleaseStateChange)
+        {
+          updates.push_back(u);
+        }
+        else if (u.action == PackageInstaller::UpdateInfo::KeepAdmin || u.action == PackageInstaller::UpdateInfo::KeepObsolete)
+        {
+          // TODO: adminPackage.push_back(u);
         }
       }
+      updateModel->SetData(updates);
+      ui->labelUpdateStatus->setText("");
+      ui->labelCheckUpdatesStatus->setText("");
+    }
+    else
+    {
+      CriticalError(tr("Something went wrong while checking for updates."), worker->GetMiKTeXException());
+      ui->labelUpdateStatus->setText(tr("Error"));
+      ui->labelCheckUpdatesStatus->setText("Error");
+    }
+    ui->labelUpdatePercent->setText("");
+    ui->labelUpdateDetails->setText("");
+    backgroundWorkers--;
+    UpdateUi();
+    UpdateActions();
+    worker->deleteLater();
+  });
+  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  ui->labelUpdateStatus->setText(tr("Checking..."));
+  ui->labelCheckUpdatesStatus->setText(tr("Checking..."));
+  ui->labelUpdatePercent->setText("");
+  ui->labelUpdateDetails->setText("");
+  thread->start();
+  UpdateUi();
+  UpdateActions();
+}
+
+bool UpdateWorker::Run()
+{
+  bool result = false;
+  try
+  {
+    status = Status::Synchronize;
+    packageInstaller = packageManager->CreateInstaller();
+    packageInstaller->SetCallback(this);
+    vector<string> toBeUpdated;
+    vector<string> toBeRemoved;
+    for (const PackageInstaller::UpdateInfo& update : updates)
+    {
+      switch (update.action)
+      {
+      case PackageInstaller::UpdateInfo::Repair:
+      case PackageInstaller::UpdateInfo::ReleaseStateChange:
+      case PackageInstaller::UpdateInfo::Update:
+      case PackageInstaller::UpdateInfo::ForceUpdate:
+        toBeUpdated.push_back(update.deploymentName);
+        break;
+      case PackageInstaller::UpdateInfo::ForceRemove:
+        toBeRemoved.push_back(update.deploymentName);
+        break;
+      }
+    }
+    packageInstaller->SetFileLists(toBeUpdated, toBeRemoved);
+    packageInstaller->InstallRemove();
+    result = true;
+  }
+  catch (const MiKTeXException& e)
+  {
+    this->e = e;
+  }
+  catch (const exception& e)
+  {
+    this->e = MiKTeXException(e.what());
+  }
+  return result;
+}
+
+void MainWindow::Update()
+{
+  QThread* thread = new QThread;
+  UpdateWorker* worker = new UpdateWorker(packageManager, updateModel->GetData());
+  backgroundWorkers++;
+  ui->labelBackgroundTask->setText(tr("Installing package updates..."));
+  worker->moveToThread(thread);
+  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  connect(worker, &UpdateWorker::OnFinish, this, [this]() {
+    UpdateWorker* worker = (UpdateWorker*)sender();
+    if (worker->GetResult())
+    {
+      ui->labelUpdateStatus->setText(tr("Done"));
+    }
+    else
+    {
+      CriticalError(tr("Something went wrong while installing package updates."), worker->GetMiKTeXException());
+      ui->labelUpdateStatus->setText(tr("Error"));
+    }
+    ui->labelUpdatePercent->setText("");
+    ui->labelUpdateDetails->setText("");
+    backgroundWorkers--;
+    updateModel->SetData({});
+    UpdateUi();
+    UpdateActions();
+    worker->deleteLater();
+  });
+  connect(worker, &UpdateWorker::OnUpdateProgress, this, [this]() {
+    UpdateWorker* worker = (UpdateWorker*)sender();
+    PackageInstaller::ProgressInfo progressInfo = worker->GetProgressInfo();
+    UpdateWorker::Status status = ((UpdateWorker*)sender())->GetStatus();
+    if (progressInfo.cbDownloadTotal > 0)
+    {
+      int percent = static_cast<int>(Divide(progressInfo.cbDownloadCompleted, progressInfo.cbDownloadTotal) * 100);
+      ui->labelUpdatePercent->setText(percent == 100 ? tr("we're almost done") : QString("%1%").arg(percent));
+    }
+    if (status == UpdateWorker::Status::Synchronize)
+    {
+      ui->labelUpdateDetails->setText(tr("(synchronizing package database)"));
+    }
+    else if (status == UpdateWorker::Status::Download)
+    {
+      ui->labelUpdateDetails->setText(tr("(downloading: %1)").arg(QString::fromUtf8(progressInfo.deploymentName.c_str())));
+    }
+    else if (status == UpdateWorker::Status::Install)
+    {
+      ui->labelUpdateDetails->setText(tr("(installing: %1)").arg(QString::fromUtf8(progressInfo.deploymentName.c_str())));
+    }
+    else
+    {
+      ui->labelUpdateDetails->setText("");
+    }
+  });
+  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  ui->labelUpdateStatus->setText(tr("Update in progress..."));
+  ui->labelUpdatePercent->setText("0%");
+  ui->labelUpdateDetails->setText(tr("(initializing)"));
+  thread->start();
+  UpdateUi();
+  UpdateActions();
+}
+
+void MainWindow::UpdateUiPackageInstallation()
+{
+  string repository;
+  RepositoryType repositoryType(RepositoryType::Unknown);
+  if (packageManager->TryGetDefaultPackageRepository(repositoryType, repository))
+  {
+    ui->editRepository->setText(QString::fromUtf8(repository.c_str()));
+  }
+  switch (session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState())
+  {
+  case TriState::True:
+    ui->radioAutoInstallYes->setChecked(true);
+    break;
+  case TriState::False:
+    ui->radioAutoInstallNo->setChecked(true);
+    break;
+  case TriState::Undetermined:
+    ui->radioAutoInstallAsk->setChecked(true);
+    break;
+  }
+  ui->editRepository->setEnabled(!IsBackgroundWorkerActive());
+  ui->buttonChangeRepository->setEnabled(!IsBackgroundWorkerActive());
+  ui->radioAutoInstallAsk->setEnabled(!IsBackgroundWorkerActive());
+  ui->radioAutoInstallYes->setEnabled(!IsBackgroundWorkerActive());
+  ui->radioAutoInstallNo->setEnabled(!IsBackgroundWorkerActive());
+}
+
+void MainWindow::on_buttonChangeRepository_clicked()
+{
+  try
+  {
+    if (SiteWizSheet::DoModal(this) == QDialog::Accepted)
+    {
+      UpdateUi();
+      UpdateActions();
     }
   }
   catch (const MiKTeXException& e)
@@ -866,14 +1067,57 @@ void MainWindow::on_radioAutoInstallNo_clicked()
   session->SetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL, (int)TriState::False);
 }
 
-void MainWindow::on_buttonChangeRepository_clicked()
+void MainWindow::UpdateUiPaper()
+{
+  ui->comboPaper->setEnabled(!IsBackgroundWorkerActive());
+  if (ui->comboPaper->count() == 0)
+  {
+    PaperSizeInfo defaultPaperSizeInfo;
+    session->GetPaperSizeInfo(-1, defaultPaperSizeInfo);
+    PaperSizeInfo paperSizeInfo;
+    int currentIndex = -1;
+    for (int idx = 0; session->GetPaperSizeInfo(idx, paperSizeInfo); ++idx)
+    {
+      QString displayName = QString::fromUtf8(paperSizeInfo.name.c_str());
+      if (!Utils::EqualsIgnoreCase(paperSizeInfo.name, paperSizeInfo.dvipsName))
+      {
+        displayName += " (";
+        displayName += QString::fromUtf8(paperSizeInfo.dvipsName.c_str());
+        displayName += ")";
+      }
+      ui->comboPaper->addItem(displayName);
+      if (Utils::EqualsIgnoreCase(paperSizeInfo.dvipsName, defaultPaperSizeInfo.dvipsName))
+      {
+        currentIndex = idx;
+      }
+    }
+    if (currentIndex >= 0)
+    {
+      ui->comboPaper->setCurrentIndex(currentIndex);
+    }
+  }
+}
+
+void MainWindow::on_comboPaper_activated(int idx)
 {
   try
   {
-    if (SiteWizSheet::DoModal(this) == QDialog::Accepted)
+    PaperSizeInfo paperSizeInfo;
+    if (!session->GetPaperSizeInfo(idx, paperSizeInfo))
     {
-      UpdateWidgets();
-      EnableActions();
+      MIKTEX_UNEXPECTED();
+    }
+    session->SetDefaultPaperSize(paperSizeInfo.dvipsName.c_str());
+    for (const FormatInfo& formatInfo : session->GetFormats())
+    {
+      vector<PathName> files;
+      if (session->FindFile(formatInfo.name, FileType::FMT, files))
+      {
+        for (const PathName& file : files)
+        {
+          File::Delete(file, { FileDeleteOption::UpdateFndb });
+        }
+      }
     }
   }
   catch (const MiKTeXException& e)
@@ -1006,50 +1250,8 @@ void MainWindow::AddRootDirectory()
       }
     }
     session->RegisterRootDirectory(root);
-    UpdateWidgets();
-    EnableActions();
-  }
-  catch (const MiKTeXException& e)
-  {
-    CriticalError(e);
-  }
-  catch (const exception& e)
-  {
-    CriticalError(e);
-  }
-}
-
-void MainWindow::MoveRootDirectoryUp()
-{
-  try
-  {
-    for (const QModelIndex& index : ui->treeViewRootDirectories->selectionModel()->selectedRows())
-    {
-      rootDirectoryModel->MoveUp(index);
-    }
-    UpdateWidgets();
-    EnableActions();
-  }
-  catch (const MiKTeXException& e)
-  {
-    CriticalError(e);
-  }
-  catch (const exception& e)
-  {
-    CriticalError(e);
-  }
-}
-
-void MainWindow::MoveRootDirectoryDown()
-{
-  try
-  {
-    for (const QModelIndex& index : ui->treeViewRootDirectories->selectionModel()->selectedRows())
-    {
-      rootDirectoryModel->MoveDown(index);
-    }
-    UpdateWidgets();
-    EnableActions();
+    UpdateUi();
+    UpdateActions();
   }
   catch (const MiKTeXException& e)
   {
@@ -1069,8 +1271,50 @@ void MainWindow::RemoveRootDirectory()
     {
       rootDirectoryModel->Remove(index);
     }
-    UpdateWidgets();
-    EnableActions();
+    UpdateUi();
+    UpdateActions();
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+void MainWindow::MoveRootDirectoryUp()
+{
+  try
+  {
+    for (const QModelIndex& index : ui->treeViewRootDirectories->selectionModel()->selectedRows())
+    {
+      rootDirectoryModel->MoveUp(index);
+    }
+    UpdateUi();
+    UpdateActions();
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+void MainWindow::MoveRootDirectoryDown()
+{
+  try
+  {
+    for (const QModelIndex& index : ui->treeViewRootDirectories->selectionModel()->selectedRows())
+    {
+      rootDirectoryModel->MoveDown(index);
+    }
+    UpdateUi();
+    UpdateActions();
   }
   catch (const MiKTeXException& e)
   {
@@ -1093,241 +1337,4 @@ void MainWindow::OnContextMenuRootDirectories(const QPoint& pos)
   {
     contextMenuRootDirectoriesBackground->exec(ui->treeViewRootDirectories->mapToGlobal(pos));
   }
-}
-
-void MainWindow::SetupUiUpdates()
-{
-  connect(ui->actionCheckUpdates, SIGNAL(triggered()), this, SLOT(CheckUpdates()));
-  updateModel = new UpdateTableModel(packageManager, this);
-  string lastUpdateCheck;
-  if (session->TryGetConfigValue(
-    MIKTEX_REGKEY_PACKAGE_MANAGER,
-    session->IsAdminMode() ? MIKTEX_REGVAL_LAST_ADMIN_UPDATE_CHECK : MIKTEX_REGVAL_LAST_USER_UPDATE_CHECK,
-    lastUpdateCheck))
-  {
-    ui->labelUpdateSummary->setText(tr("Last checked: %1").arg(QDateTime::fromTime_t(std::stoi(lastUpdateCheck)).date().toString()));
-  }
-  else
-  {
-    ui->labelUpdateSummary->setText(tr("You have not yet checked for updates."));
-  }
-  connect(updateModel, &UpdateTableModel::modelReset, this, [this]() {
-    int n = updateModel->rowCount();
-    QString text = tr("Updates");
-    if (n == 0)
-    {
-      ui->labelUpdatesAvailable->hide();
-      ui->labelNoUpdatesAvailable->show();
-      ui->labelUpdateSummary->setText(tr("There are currently no updates available."));
-    }
-    else
-    {
-      ui->labelUpdatesAvailable->show();
-      ui->labelNoUpdatesAvailable->hide();
-      ui->labelUpdateSummary->setText(tr("The following updates are available:"));
-      text += QString(" (%1)").arg(n);
-    }
-    ui->buttonUpdates->setText(text);
-  });
-  ui->treeViewUpdates->setModel(updateModel);
-  connect(ui->treeViewUpdates->selectionModel(),
-    SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
-    this,
-    SLOT(UpdateActionsUpdates()));
-  ui->labelUpdatesAvailable->hide();
-  ui->labelNoUpdatesAvailable->hide();
-}
-
-void MainWindow::UpdateUiUpdates()
-{
-  ui->buttonCheckUpdates->setEnabled(!IsBackgroundWorkerActive());
-  ui->buttonUpdateCheck->setEnabled(!IsBackgroundWorkerActive());
-  ui->buttonUpdateNow->setEnabled(!IsBackgroundWorkerActive() && updateModel->rowCount() > 0);
-  ui->treeViewUpdates->setEnabled(!IsBackgroundWorkerActive());
-}
-
-void MainWindow::UpdateActionsUpdates()
-{
-  ui->actionCheckUpdates->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
-}
-
-bool CkeckUpdatesWorker::Run()
-{
-  bool result = false;
-  try
-  {
-    status = Status::Checking;
-    unique_ptr<PackageInstaller> packageInstaller = packageManager->CreateInstaller();
-    packageInstaller->FindUpdates();
-    updates = packageInstaller->GetUpdates();
-    result = true;
-  }
-  catch (const MiKTeXException& e)
-  {
-    this->e = e;
-  }
-  catch (const exception& e)
-  {
-    this->e = MiKTeXException(e.what());
-  }
-  return result;
-}
-
-void MainWindow::CheckUpdates()
-{
-  QThread* thread = new QThread;
-  CkeckUpdatesWorker* worker = new CkeckUpdatesWorker(packageManager);
-  backgroundWorkers++;
-  ui->labelBackgroundTask->setText(tr("Checking for updates..."));
-  worker->moveToThread(thread);
-  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-  connect(worker, &CkeckUpdatesWorker::OnFinish, this, [this]() {
-    CkeckUpdatesWorker* worker = (CkeckUpdatesWorker*)sender();
-    if (worker->GetResult())
-    {
-      vector<PackageInstaller::UpdateInfo> updates;
-      for (const PackageInstaller::UpdateInfo& u : worker->GetUpdates())
-      {
-        if (u.action == PackageInstaller::UpdateInfo::ForceUpdate
-          || u.action == PackageInstaller::UpdateInfo::ForceRemove
-          || u.action == PackageInstaller::UpdateInfo::Update
-          || u.action == PackageInstaller::UpdateInfo::Repair
-          || u.action == PackageInstaller::UpdateInfo::ReleaseStateChange)
-        {
-          updates.push_back(u);
-        }
-        else if (u.action == PackageInstaller::UpdateInfo::KeepAdmin || u.action == PackageInstaller::UpdateInfo::KeepObsolete)
-        {
-          // TODO: adminPackage.push_back(u);
-        }
-      }
-      updateModel->SetData(updates);
-      ui->labelUpdateStatus->setText("");
-      ui->labelCheckUpdatesStatus->setText("");
-    }
-    else
-    {
-      CriticalError(tr("Something went wrong while checking for updates."), worker->GetMiKTeXException());
-      ui->labelUpdateStatus->setText(tr("Error"));
-      ui->labelCheckUpdatesStatus->setText("Error");
-    }
-    ui->labelUpdatePercent->setText("");
-    ui->labelUpdateDetails->setText("");
-    backgroundWorkers--;
-    UpdateWidgets();
-    EnableActions();
-    worker->deleteLater();
-  });
-  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-  ui->labelUpdateStatus->setText(tr("Checking..."));
-  ui->labelCheckUpdatesStatus->setText(tr("Checking..."));
-  ui->labelUpdatePercent->setText("");
-  ui->labelUpdateDetails->setText("");
-  thread->start();
-  UpdateWidgets();
-  EnableActions();
-}
-
-bool UpdateWorker::Run()
-{
-  bool result = false;
-  try
-  {
-    status = Status::Synchronize;
-    packageInstaller = packageManager->CreateInstaller();
-    packageInstaller->SetCallback(this);
-    vector<string> toBeUpdated;
-    vector<string> toBeRemoved;
-    for (const PackageInstaller::UpdateInfo& update : updates)
-    {
-      switch (update.action)
-      {
-      case PackageInstaller::UpdateInfo::Repair:
-      case PackageInstaller::UpdateInfo::ReleaseStateChange:
-      case PackageInstaller::UpdateInfo::Update:
-      case PackageInstaller::UpdateInfo::ForceUpdate:
-        toBeUpdated.push_back(update.deploymentName);
-        break;
-      case PackageInstaller::UpdateInfo::ForceRemove:
-        toBeRemoved.push_back(update.deploymentName);
-        break;
-      }
-    }
-    packageInstaller->SetFileLists(toBeUpdated, toBeRemoved);
-    packageInstaller->InstallRemove();
-    result = true;
-  }
-  catch (const MiKTeXException& e)
-  {
-    this->e = e;
-  }
-  catch (const exception& e)
-  {
-    this->e = MiKTeXException(e.what());
-  }
-  return result;
-}
-
-void MainWindow::Update()
-{
-  QThread* thread = new QThread;
-  UpdateWorker* worker = new UpdateWorker(packageManager, updateModel->GetData());
-  backgroundWorkers++;
-  ui->labelBackgroundTask->setText(tr("Installing package updates..."));
-  worker->moveToThread(thread);
-  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
-  connect(worker, &UpdateWorker::OnFinish, this, [this]() {
-    UpdateWorker* worker = (UpdateWorker*)sender();
-    if (worker->GetResult())
-    {
-      ui->labelUpdateStatus->setText(tr("Done"));
-    }
-    else
-    {
-      CriticalError(tr("Something went wrong while installing package updates."), worker->GetMiKTeXException());
-      ui->labelUpdateStatus->setText(tr("Error"));
-    }
-    ui->labelUpdatePercent->setText("");
-    ui->labelUpdateDetails->setText("");
-    backgroundWorkers--;
-    updateModel->SetData({});
-    UpdateWidgets();
-    EnableActions();
-    worker->deleteLater();
-  });
-  connect(worker, &UpdateWorker::OnUpdateProgress, this, [this]() {
-    UpdateWorker* worker = (UpdateWorker*)sender();
-    PackageInstaller::ProgressInfo progressInfo = worker->GetProgressInfo();
-    UpdateWorker::Status status = ((UpdateWorker*)sender())->GetStatus();
-    if (progressInfo.cbDownloadTotal > 0)
-    {
-      int percent = static_cast<int>(Divide(progressInfo.cbDownloadCompleted, progressInfo.cbDownloadTotal) * 100);
-      ui->labelUpdatePercent->setText(percent == 100 ? tr("we're almost done") : QString("%1%").arg(percent));
-    }
-    if (status == UpdateWorker::Status::Synchronize)
-    {
-      ui->labelUpdateDetails->setText(tr("(synchronizing package database)"));
-    }
-    else if (status == UpdateWorker::Status::Download)
-    {
-      ui->labelUpdateDetails->setText(tr("(downloading: %1)").arg(QString::fromUtf8(progressInfo.deploymentName.c_str())));
-    }
-    else if (status == UpdateWorker::Status::Install)
-    {
-      ui->labelUpdateDetails->setText(tr("(installing: %1)").arg(QString::fromUtf8(progressInfo.deploymentName.c_str())));
-    }
-    else
-    {
-      ui->labelUpdateDetails->setText("");
-    }
-  });
-  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
-  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-  ui->labelUpdateStatus->setText(tr("Update in progress..."));
-  ui->labelUpdatePercent->setText("0%");
-  ui->labelUpdateDetails->setText(tr("(initializing)"));
-  thread->start();
-  UpdateWidgets();
-  EnableActions();
 }
