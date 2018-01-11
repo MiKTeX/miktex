@@ -306,7 +306,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>4</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -1169,7 +1169,21 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QTreeView" name="tvPackages"/>
+            <layout class="QVBoxLayout" name="vboxPackages">
+             <item>
+              <layout class="QHBoxLayout" name="hboxPackageToolBar"/>
+             </item>
+             <item>
+              <widget class="QTreeView" name="treeViewPackages">
+               <property name="selectionMode">
+                <enum>QAbstractItemView::ExtendedSelection</enum>
+               </property>
+               <property name="rootIsDecorated">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
@@ -1455,6 +1469,73 @@
    </property>
    <property name="statusTip">
     <string>Checks for MiKTeX package updates</string>
+   </property>
+  </action>
+  <action name="actionInstallPackage">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/list-add-16x16.png</normaloff>:/Icons/list-add-16x16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Install package</string>
+   </property>
+   <property name="toolTip">
+    <string>Install</string>
+   </property>
+   <property name="statusTip">
+    <string>Installs the selected packages.</string>
+   </property>
+  </action>
+  <action name="actionUninstallPackage">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/list-remove-16x16.png</normaloff>:/Icons/list-remove-16x16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Uninstall package</string>
+   </property>
+   <property name="toolTip">
+    <string>Uninstall</string>
+   </property>
+   <property name="statusTip">
+    <string>Uninstalls the selected packages.</string>
+   </property>
+  </action>
+  <action name="actionPackageProperties">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/properties-16x16.png</normaloff>:/Icons/properties-16x16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Package Properties</string>
+   </property>
+   <property name="toolTip">
+    <string>Properties</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows package properties.</string>
+   </property>
+  </action>
+  <action name="actionFilterPackages">
+   <property name="text">
+    <string>Filter packages</string>
+   </property>
+   <property name="toolTip">
+    <string>Apply the package filter</string>
+   </property>
+   <property name="statusTip">
+    <string>Applies the filter on the package list view.</string>
+   </property>
+  </action>
+  <action name="actionSynchronizePackageDatabase">
+   <property name="text">
+    <string>Synchronize package database</string>
+   </property>
+   <property name="toolTip">
+    <string>Synchronize</string>
+   </property>
+   <property name="statusTip">
+    <string>Synchronizes the package database.</string>
    </property>
   </action>
  </widget>

@@ -6,9 +6,9 @@
     <file alias="list-remove-16x16.png">../../../../Resources/Icons/tango/16x16/actions/list-remove.png</file>
     <file alias="miktex-16x16.png">../../../../Resources/Icons/MiKTeX/16x16/apps/miktex.png</file>
     <file alias="miktex-32x32.png">../../../../Resources/Icons/MiKTeX/32x32/apps/miktex.png</file>
+    <file alias="properties-16x16.png">../../../../Resources/Icons/tango/16x16/actions/document-properties.png</file>
     <file alias="terminal-16x16.png">../../../../Resources/Icons/oxygen-icons5/16x16/apps/utilities-terminal.png</file>
     <file alias="terminal-32x32.png">../../../../Resources/Icons/oxygen-icons5/32x32/apps/utilities-terminal.png</file>
     <file alias="texworks-16x16.png">../../../../Resources/Icons/TeXworks/16x16/apps/TeXworks.png</file>
-    <file alias="texworks-32x32.png">../../../../Resources/Icons/TeXworks/32x32/apps/TeXworks.png</file>
-  </qresource>
+    <file alias="texworks-32x32.png">../../../../Resources/Icons/TeXworks/32x32/apps/TeXworks.png</file>  </qresource>
 </RCC>

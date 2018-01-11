@@ -31,6 +31,10 @@
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 
+class QLineEdit;
+
+class PackageProxyModel;
+class PackageTableModel;
 class RootTableModel;
 class UpdateTableModel;
 
@@ -291,6 +295,48 @@ private:
 
 private slots:
   void OnContextMenuRootDirectories(const QPoint& pos);
+
+private:
+  PackageTableModel* packageModel;
+
+private:
+  PackageProxyModel* packageProxyModel;
+
+private:
+  QToolBar* toolBarPackages = nullptr;
+
+private:
+  QToolBar* toolBarPackageFilter = nullptr;
+
+private:
+  QLineEdit* lineEditPackageFilter = nullptr;
+
+private:
+  QMenu* contextMenuPackage = nullptr;
+
+private:
+  void SetupUiPackages();
+
+private:
+  void UpdateUiPackages();
+
+private:
+  void UpdateActionsPackages();
+
+private slots:
+  void PackagePropertyDialog();
+
+private slots:
+  void InstallPackage();
+
+private slots:
+  void UninstallPackage();
+
+private slots:
+  void FilterPackages();
+
+private slots:
+  void SynchronizePackageDatabase();
 
 private:
   std::atomic_int backgroundWorkers{ 0 };

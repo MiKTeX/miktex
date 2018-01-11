@@ -1,23 +1,23 @@
 /* PackageTableModel.cpp:
 
-   Copyright (C) 2008-2017 Christian Schenk
+   Copyright (C) 2018 Christian Schenk
 
-   This file is part of MiKTeX Package Manager.
+   This file is part of MiKTeX Console.
 
-   MiKTeX Package Manager is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2, or
-   (at your option) any later version.
+   MiKTeX Console is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2, or (at
+   your option) any later version.
 
-   MiKTeX Package Manager is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   MiKTeX Console is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with MiKTeX Package Manager; if not, write to the Free
-   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-   02111-1307, USA. */
+   along with MiKTeX Console; if not, write to the Free Software
+   Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+   USA. */
 
 #include <memory>
 
@@ -33,6 +33,7 @@ PackageTableModel::PackageTableModel(std::shared_ptr<MiKTeX::Packages::PackageMa
   QAbstractTableModel(parent),
   packageManager(packageManager)
 {
+  Reload();
 }
 
 int PackageTableModel::rowCount(const QModelIndex& parent) const
@@ -60,9 +61,9 @@ QVariant PackageTableModel::data(const QModelIndex& index, int role) const
       switch (index.column())
       {
       case 0:
-        return QString::fromUtf8(packageInfo.deploymentName.c_str());
+        return packageInfo.deploymentName.c_str();
       case 1:
-        return QString::fromUtf8(packageManager->GetContainerPath(packageInfo.deploymentName, true).c_str());
+        return packageManager->GetContainerPath(packageInfo.deploymentName, true).c_str();
       case 2:
         return (qlonglong)packageInfo.GetSize();
       case 3:
@@ -77,7 +78,7 @@ QVariant PackageTableModel::data(const QModelIndex& index, int role) const
           return QDateTime::fromTime_t(packageInfo.timeInstalled).date();
         }
       case 5:
-        return QString::fromUtf8(packageInfo.title.c_str());
+        return packageInfo.title.c_str();
       case 6:
         if (!packageInfo.runFiles.empty())
         {

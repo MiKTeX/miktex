@@ -25,6 +25,8 @@
 
 #include <iomanip>
 
+#include "PackageProxyModel.h"
+#include "PackageTableModel.h"
 #include "RootTableModel.h"
 #include "UpdateTableModel.h"
 #include "mainwindow.h"
@@ -43,6 +45,7 @@
 #include <miktex/Core/Session>
 #include <miktex/Setup/SetupService>
 #include <miktex/UI/Qt/ErrorDialog>
+#include <miktex/UI/Qt/PackageInfoDialog>
 #include <miktex/UI/Qt/SiteWizSheet>
 #include <miktex/UI/Qt/UpdateDialog>
 #include <miktex/Util/StringUtil>
@@ -69,6 +72,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
   SetupUiRootDirectories();
   SetupUiUpdates();
+  SetupUiPackages();
 
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
@@ -218,6 +222,7 @@ void MainWindow::UpdateUi()
     UpdateUiPackageInstallation();
     UpdateUiRootDirectories();
     UpdateUiUpdates();
+    UpdateUiPackages();
   }
   catch (const MiKTeXException& e)
   {
@@ -240,6 +245,7 @@ void MainWindow::UpdateActions()
     ui->actionTerminal->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
     UpdateActionsRootDirectories();
     UpdateActionsUpdates();
+    UpdateActionsPackages();
   }
   catch (const MiKTeXException& e)
   {
@@ -306,6 +312,10 @@ void MainWindow::SetCurrentPage(MainWindow::Pages p)
     break;
   case Pages::Packages:
     ui->buttonPackages->setChecked(true);
+    if (packageModel->rowCount() == 0)
+    {
+      QTimer::singleShot(100, packageModel, SLOT(Reload()));
+    }
     break;
   case Pages::Troubleshoot:
     ui->buttonTroubleshoot->setChecked(true);
@@ -1040,6 +1050,12 @@ void MainWindow::on_buttonChangeRepository_clicked()
     {
       UpdateUi();
       UpdateActions();
+#if 0
+      if (QMessageBox())
+      {
+        SynchronizePackageDatabase();
+      }
+#endif
     }
   }
   catch (const MiKTeXException& e)
@@ -1336,5 +1352,225 @@ void MainWindow::OnContextMenuRootDirectories(const QPoint& pos)
   else
   {
     contextMenuRootDirectoriesBackground->exec(ui->treeViewRootDirectories->mapToGlobal(pos));
+  }
+}
+
+void MainWindow::SetupUiPackages()
+{
+  toolBarPackages = new QToolBar(this);
+  toolBarPackages->setIconSize(QSize(16, 16));
+  toolBarPackages->addAction(ui->actionInstallPackage);
+  toolBarPackages->addAction(ui->actionUninstallPackage);
+  toolBarPackages->addSeparator();
+  toolBarPackages->addAction(ui->actionPackageProperties);
+  ui->hboxPackageToolBar->addWidget(toolBarPackages);
+  toolBarPackageFilter = new QToolBar(this);
+  toolBarPackageFilter->setIconSize(QSize(16, 16));
+  lineEditPackageFilter = new QLineEdit(toolBarPackageFilter);
+  lineEditPackageFilter->setClearButtonEnabled(true);
+  toolBarPackageFilter->addWidget(lineEditPackageFilter);
+  lineEditPackageFilter->addAction(ui->actionFilterPackages);  
+  connect(lineEditPackageFilter, SIGNAL(returnPressed()), this, SLOT(FilterPackages()));
+  ui->hboxPackageToolBar->addWidget(toolBarPackageFilter);
+  ui->hboxPackageToolBar->addStretch();
+  packageModel = new PackageTableModel(packageManager, this);
+  packageProxyModel = new PackageProxyModel(this);
+  packageProxyModel->setSourceModel(packageModel);
+  packageProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+  ui->treeViewPackages->setModel(packageProxyModel);
+  ui->treeViewPackages->sortByColumn(0, Qt::AscendingOrder);
+  connect(ui->treeViewPackages->selectionModel(),
+    SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+    this,
+    SLOT(UpdateActionsPackages()));
+  connect(ui->actionPackageProperties,
+    SIGNAL(triggered()),
+    this,
+    SLOT(PackagePropertyDialog()));
+  connect(ui->actionInstallPackage,
+    SIGNAL(triggered()),
+    this,
+    SLOT(InstallPackage()));
+  connect(ui->actionUninstallPackage,
+    SIGNAL(triggered()),
+    this,
+    SLOT(UninstallPackage()));
+  connect(ui->actionSynchronizePackageDatabase,
+    SIGNAL(triggered()),
+    this,
+    SLOT(SynchronizePackageDatabase()));
+  connect(ui->actionFilterPackages,
+    SIGNAL(triggered()),
+    this,
+    SLOT(FilterPackages()));
+}
+
+void MainWindow::UpdateUiPackages()
+{
+}
+
+void MainWindow::UpdateActionsPackages()
+{
+  try
+  {
+    QModelIndexList selectedRows = ui->treeViewPackages->selectionModel()->selectedRows();
+    ui->actionPackageProperties->setEnabled(!IsBackgroundWorkerActive() && selectedRows.count() == 1);
+    bool enableInstall = (selectedRows.count() > 0);
+    bool enableUninstall = (selectedRows.count() > 0);
+    if (session->IsMiKTeXDirect())
+    {
+      enableInstall = false;
+      enableUninstall = false;
+    }
+    for (QModelIndexList::const_iterator it = selectedRows.begin(); it != selectedRows.end() && (enableInstall || enableUninstall); ++it)
+    {
+      PackageInfo packageInfo;
+      if (!packageModel->TryGetPackageInfo(packageProxyModel->mapToSource(*it), packageInfo))
+      {
+        MIKTEX_UNEXPECTED();
+      }
+      if (packageInfo.timeInstalled > 0)
+      {
+        enableInstall = false;
+        enableUninstall = (enableUninstall && packageInfo.isRemovable);
+      }
+      else
+      {
+        enableUninstall = false;
+      }
+    }
+    ui->actionInstallPackage->setEnabled(!IsBackgroundWorkerActive() && enableInstall);
+    ui->actionUninstallPackage->setEnabled(!IsBackgroundWorkerActive() && enableUninstall);
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+void MainWindow::PackagePropertyDialog()
+{
+  try
+  {
+    for (const QModelIndex& ind : ui->treeViewPackages->selectionModel()->selectedRows())
+    {
+      PackageInfo packageInfo;
+      if (!packageModel->TryGetPackageInfo(packageProxyModel->mapToSource(ind), packageInfo))
+      {
+        MIKTEX_UNEXPECTED();
+      }
+      PackageInfoDialog::DoModal(this, packageInfo);
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
+}
+
+void MainWindow::InstallPackage()
+{
+  try
+  {
+    vector<string> toBeInstalled;
+    vector<string> toBeRemoved;
+    for (const QModelIndex& ind : ui->treeViewPackages->selectionModel()->selectedRows())
+    {
+      PackageInfo packageInfo;
+      if (!packageModel->TryGetPackageInfo(packageProxyModel->mapToSource(ind), packageInfo))
+      {
+        MIKTEX_UNEXPECTED();
+      }
+      else if (packageInfo.timeInstalled == 0)
+      {
+        toBeInstalled.push_back(packageInfo.deploymentName);
+      }
+      else
+      {
+        toBeRemoved.push_back(packageInfo.deploymentName);
+      }
+    }
+    QString message =
+      tr("Your MiKTeX installation will now be updated:\n\n")
+      + tr("%n package(s) will be installed\n", "", toBeInstalled.size())
+      + tr("%n package(s) will be removed", "", toBeRemoved.size());
+    if (QMessageBox::Ok != QMessageBox::information(this, tr("MiKTeX Console"), message, QMessageBox::Ok | QMessageBox::Cancel))
+    {
+      return;
+    }
+
+    int ret = UpdateDialog::DoModal(this, packageManager, toBeInstalled, toBeRemoved);
+    if (ret == QDialog::Accepted)
+    {
+      packageModel->Reload();
+      ui->treeViewPackages->update();
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    ErrorDialog::DoModal(this, e);
+  }
+  catch (const exception& e)
+  {
+    ErrorDialog::DoModal(this, e);
+  }
+}
+
+void MainWindow::UninstallPackage()
+{
+  InstallPackage();
+}
+
+void MainWindow::FilterPackages()
+{
+  packageProxyModel->SetFilter(lineEditPackageFilter->text().toUtf8().constData());
+}
+
+void MainWindow::SynchronizePackageDatabase()
+{
+  try
+  {
+    unique_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
+    installer->UpdateDbAsync();
+    int numSteps = 10;
+    QProgressDialog progress(tr("Synchronizing the package database..."), tr("Cancel"), 0, numSteps, this);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setMinimumDuration(1000);
+    for (int step = 0; !progress.wasCanceled(); ++step)
+    {
+      if (step < numSteps)
+      {
+        progress.setValue(step);
+      }
+      PackageInstaller::ProgressInfo progressinfo = installer->GetProgressInfo();
+      if (progressinfo.ready)
+      {
+        break;
+      }
+      this_thread::sleep_for(chrono::milliseconds(1000));
+    }
+    installer->Dispose();
+    packageModel->Reload();
+    ui->treeViewPackages->update();
+    if (!progress.wasCanceled())
+    {
+      progress.setValue(numSteps);
+    }
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
   }
 }
