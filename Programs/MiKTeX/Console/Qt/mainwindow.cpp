@@ -439,7 +439,7 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
 #elif defined(MIKTEX_MACOS_BUNDLE)
   PathName console = session->GetMyLocation(true) / ".." / "Resources" / MIKTEX_CONSOLE_ADMIN_EXE;
   vector<string> consoleArgs{ MIKTEX_CONSOLE_ADMIN_EXE };
-  meAdminArgs.insert(consoleArgs.end(), args.begin(), args.end());
+  consoleArgs.insert(consoleArgs.end(), args.begin(), args.end());
   Process::Start(console, consoleArgs);
 #else
   // TODO
