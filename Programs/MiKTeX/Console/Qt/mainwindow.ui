@@ -306,7 +306,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -661,6 +661,11 @@
            </item>
            <item>
             <widget class="QGroupBox" name="groupPathIssue">
+             <property name="styleSheet">
+              <string notr="true">QGroupBox::title {
+color: red;
+}</string>
+             </property>
              <property name="title">
               <string>PATH issue</string>
              </property>

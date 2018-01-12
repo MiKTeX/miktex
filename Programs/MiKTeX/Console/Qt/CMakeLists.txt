@@ -126,10 +126,10 @@ target_link_libraries(miktex-console ${libs})
 if(MIKTEX_MACOS_BUNDLE)
   set_target_properties(miktex-console
     PROPERTIES
-      OUTPUT_NAME ${MIKTEX_PRODUCT_NAME}
       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/mac/Info.plist.in"
+      MACOSX_BUNDLE_BUNDLE_NAME "MiKTeX Console"
       MACOSX_BUNDLE_SHORT_VERSION_STRING "${MIKTEX_MAJOR_VERSION}.${MIKTEX_MINOR_VERSION}.${MIKTEX_J2000_VERSION}"
-      MACOSX_BUNDLE_GUI_IDENTIFIER "org.miktex.miktex"
+      MACOSX_BUNDLE_GUI_IDENTIFIER "org.miktex.console"
   )
 endif()
 if(UNIX AND NOT APPLE)
