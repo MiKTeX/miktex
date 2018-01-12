@@ -33,6 +33,7 @@ PackageTableModel::PackageTableModel(std::shared_ptr<MiKTeX::Packages::PackageMa
   QAbstractTableModel(parent),
   packageManager(packageManager)
 {
+  Reload();
 }
 
 int PackageTableModel::rowCount(const QModelIndex& parent) const
