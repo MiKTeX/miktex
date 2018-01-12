@@ -39,7 +39,7 @@ on run argv
         set statusbar visible to false
         set toolbar visible to false
         set the bounds to { 400, 100, 900, 465 }
-        set position of item "MiKTeX.app" to { 133, 200 }
+        set position of item "MiKTeX Console.app" to { 133, 200 }
         set position of item "Applications" to { 378, 200 }
       end tell
       update without registering applications

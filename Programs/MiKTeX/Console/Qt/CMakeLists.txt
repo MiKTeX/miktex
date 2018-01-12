@@ -126,8 +126,9 @@ target_link_libraries(miktex-console ${libs})
 if(MIKTEX_MACOS_BUNDLE)
   set_target_properties(miktex-console
     PROPERTIES
+      OUTPUT_NAME ${MIKTEX_MACOS_BUNDLE_NAME}
       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/mac/Info.plist.in"
-      MACOSX_BUNDLE_BUNDLE_NAME "MiKTeX Console"
+      MACOSX_BUNDLE_BUNDLE_NAME ${MIKTEX_MACOS_BUNDLE_NAME}
       MACOSX_BUNDLE_SHORT_VERSION_STRING "${MIKTEX_MAJOR_VERSION}.${MIKTEX_MINOR_VERSION}.${MIKTEX_J2000_VERSION}"
       MACOSX_BUNDLE_GUI_IDENTIFIER "org.miktex.console"
   )
@@ -145,7 +146,7 @@ install(TARGETS miktex-console
 
 # stibizt: https://github.com/Kitware/CMake/blob/master/Source/QtDialog/CMakeLists.txt
 if(MIKTEX_MACOS_BUNDLE)
-  set(fixup_exe "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_MACOS_BUNDLE_DIR}/MacOS/${MIKTEX_PRODUCT_NAME}")
+  set(fixup_exe "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_MACOS_BUNDLE_DIR}/MacOS/${MIKTEX_MACOS_BUNDLE_NAME}")
   # FIXME: icu lib dir
   set(libs "/usr/local/opt/icu4c/lib;\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_LIBRARY_DESTINATION_DIR}")
   install(CODE "
@@ -169,7 +170,7 @@ endif()
 if(MIKTEX_MACOS_BUNDLE)
   install(
     PROGRAMS
-      mac/${MIKTEX_PRODUCT_NAME}${MIKTEX_ADMIN_SUFFIX}
+      mac/MiKTeX${MIKTEX_ADMIN_SUFFIX}
       mac/Terminal
     DESTINATION "${MIKTEX_MACOS_BUNDLE_DIR}/MacOS"
   )
