@@ -366,9 +366,7 @@ void MainWindow::StartTerminal()
       cmd = "cmd.exe";
     }
 #elif defined(MIKTEX_MACOS_BUNDLE)
-    cmd = session->GetMyProgramFile(true);
-    cmd.RemoveFileSpec();
-    cmd /= "Terminal";
+    cmd = session->GetMyLocation(true) / ".." / "Resources" / "Terminal";
 #else
     const static string terminals[] = { "konsole", "gnome-terminal", "xterm" };
     for (const string& term : terminals)
@@ -429,7 +427,7 @@ void MainWindow::RestartAdmin()
 
 void MainWindow::RestartAdminWithArguments(const vector<string>& args)
 {
-#if defined(MIKTEX_WINDOWS) || defined(MIKTEX_MACOS_BUNDLE)
+#if defined(MIKTEX_WINDOWS)
   PathName me = session->GetMyProgramFile(true);
   PathName adminFileName = me.GetFileNameWithoutExtension();
   adminFileName += MIKTEX_ADMIN_SUFFIX;
@@ -437,13 +435,12 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
   meAdmin.RemoveFileSpec();
   meAdmin /= adminFileName;
   meAdmin.SetExtension(me.GetExtension());
-#if defined(MIKTEX_WINDOWS)
   ShellExecuteW(nullptr, L"open", meAdmin.ToWideCharString().c_str(), StringUtil::UTF8ToWideChar(StringUtil::Flatten(args, ' ')).c_str(), nullptr, SW_NORMAL);
-#else
-  vector<string> meAdminArgs{ adminFileName.ToString() };
-  meAdminArgs.insert(meAdminArgs.end(), args.begin(), args.end());
-  Process::Start(meAdmin, meAdminArgs);
-#endif
+#elif defined(MIKTEX_MACOS_BUNDLE)
+  PathName console = session->GetMyLocation(true) / ".." / "Resources" / MIKTEX_CONSOLE_ADMIN_EXE;
+  vector<string> consoleArgs{ MIKTEX_CONSOLE_ADMIN_EXE };
+  meAdminArgs.insert(consoleArgs.end(), args.begin(), args.end());
+  Process::Start(console, consoleArgs);
 #else
   // TODO
 #endif

@@ -170,8 +170,8 @@ endif()
 if(MIKTEX_MACOS_BUNDLE)
   install(
     PROGRAMS
-      mac/MiKTeX${MIKTEX_ADMIN_SUFFIX}
+      mac/miktex-console${MIKTEX_ADMIN_SUFFIX}
       mac/Terminal
-    DESTINATION "${MIKTEX_MACOS_BUNDLE_DIR}/MacOS"
+    DESTINATION "${MIKTEX_MACOS_BUNDLE_DIR}/Resources"
   )
 endif()

@@ -1312,6 +1312,8 @@ color: red;
     <addaction name="separator"/>
     <addaction name="actionRefreshFileNameDatabase"/>
     <addaction name="actionRefreshFontMapFiles"/>
+    <addaction name="separator"/>
+    <addaction name="actionSynchronizePackageDatabase"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTasks"/>

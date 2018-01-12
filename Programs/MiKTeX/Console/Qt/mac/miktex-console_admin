@@ -1,0 +1,9 @@
+#!/usr/bin/env osascript
+
+on run argv
+    set miktex_console to POSIX path of ((path to me as text) & "::") & "../Resources/miktex-console"
+    repeat with i from 1 to number of items in argv
+        set miktex_console to miktex_console & " " & (item i of argv)
+    end repeat
+    do shell script miktex_console with administrator privileges
+end run
