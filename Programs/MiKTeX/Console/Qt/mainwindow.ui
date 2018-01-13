@@ -447,9 +447,12 @@
            <item>
             <widget class="QLabel" name="label">
              <property name="text">
-              <string>This is the MiKTeX Console. It will assist you in managing your MiKTeX configuration.</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the MiKTeX Console. It will assist you in managing your MiKTeX configuration.&lt;/p&gt;&lt;p&gt;You can start with a online tutorial: &lt;a href=&quot;https://miktex.org/howto/miktex-console&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: manage MiKTeX with the MiKTeX Console&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="openExternalLinks">
               <bool>true</bool>
              </property>
             </widget>
@@ -734,7 +737,7 @@ color: red;
                  </sizepolicy>
                 </property>
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can upgrade your minimal TeX installation to a standard TeX installation. This is completely optional because MiKTeX is a scalable TeX distribution which installs missing packages on-the-fly. More information:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://miktex.org/howto/upgrade&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: upgrade MiKTeX&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://miktex.org/kb/just-enough-tex&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: &amp;quot;Just enough TeX&amp;quot;&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can upgrade your minimal TeX installation to a standard TeX installation. This is completely optional because MiKTeX is a scalable TeX distribution which installs missing packages on-the-fly. More information:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://miktex.org/howto/upgrade&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: upgrade MiKTeX&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://miktex.org/kb/just-enough-tex&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: “Just enough TeX”&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="wordWrap">
                  <bool>true</bool>
@@ -830,7 +833,7 @@ color: red;
            <item>
             <widget class="QTabWidget" name="tabWidgetSettings">
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="settingsGeneral">
               <attribute name="title">
@@ -1186,6 +1189,12 @@ color: red;
                <property name="rootIsDecorated">
                 <bool>false</bool>
                </property>
+               <property name="sortingEnabled">
+                <bool>true</bool>
+               </property>
+               <property name="allColumnsShowFocus">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
             </layout>
@@ -1220,28 +1229,35 @@ color: red;
                </widget>
               </item>
               <item>
+               <widget class="QLineEdit" name="lineEditLogFiles">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
                <layout class="QHBoxLayout" name="horizontalLayout_8">
                 <item>
-                 <widget class="QLineEdit" name="lineEditLogFiles">
-                  <property name="readOnly">
-                   <bool>true</bool>
+                 <widget class="QPushButton" name="pushButtonShowLogDirectory">
+                  <property name="text">
+                   <string>Open in file explorer</string>
                   </property>
                  </widget>
                 </item>
+                <item>
+                 <spacer name="horizontalSpacer_5">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
                </layout>
-              </item>
-              <item>
-               <spacer name="verticalSpacer_14">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
               </item>
              </layout>
             </widget>
@@ -1313,7 +1329,7 @@ color: red;
     <addaction name="actionRefreshFileNameDatabase"/>
     <addaction name="actionRefreshFontMapFiles"/>
     <addaction name="separator"/>
-    <addaction name="actionSynchronizePackageDatabase"/>
+    <addaction name="actionUpdatePackageDatabase"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTasks"/>
@@ -1348,7 +1364,7 @@ color: red;
      <normaloff>:/Icons/miktex-16x16.png</normaloff>:/Icons/miktex-16x16.png</iconset>
    </property>
    <property name="text">
-    <string>About &amp;MiKTeX...</string>
+    <string>About &amp;MiKTeX Console...</string>
    </property>
    <property name="toolTip">
     <string>About</string>
@@ -1514,7 +1530,7 @@ color: red;
      <normaloff>:/Icons/properties-16x16.png</normaloff>:/Icons/properties-16x16.png</iconset>
    </property>
    <property name="text">
-    <string>Package Properties</string>
+    <string>Package properties</string>
    </property>
    <property name="toolTip">
     <string>Properties</string>
@@ -1524,6 +1540,10 @@ color: red;
    </property>
   </action>
   <action name="actionFilterPackages">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/filter-16x16.png</normaloff>:/Icons/filter-16x16.png</iconset>
+   </property>
    <property name="text">
     <string>Filter packages</string>
    </property>
@@ -1534,15 +1554,34 @@ color: red;
     <string>Applies the filter on the package list view.</string>
    </property>
   </action>
-  <action name="actionSynchronizePackageDatabase">
+  <action name="actionUpdatePackageDatabase">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/update-package-db-16x16.png</normaloff>:/Icons/update-package-db-16x16.png</iconset>
+   </property>
    <property name="text">
-    <string>Synchronize package database</string>
+    <string>Update package database</string>
    </property>
    <property name="toolTip">
-    <string>Synchronize</string>
+    <string>Update DB</string>
    </property>
    <property name="statusTip">
-    <string>Synchronizes the package database.</string>
+    <string>Updates the package database.</string>
+   </property>
+  </action>
+  <action name="actionRootDirectoryOpen">
+   <property name="icon">
+    <iconset resource="console.qrc">
+     <normaloff>:/Icons/file-browser-16x16.png</normaloff>:/Icons/file-browser-16x16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="toolTip">
+    <string>Open in file browser</string>
+   </property>
+   <property name="statusTip">
+    <string>Opens the TEXMF root directory in the system file browser.</string>
    </property>
   </action>
  </widget>

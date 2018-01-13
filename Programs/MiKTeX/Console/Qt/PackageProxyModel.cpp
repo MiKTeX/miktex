@@ -56,7 +56,7 @@ bool PackageProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourc
   bool accept = false;
   if (!accept)
   {
-    accept = PathName::Match(filterText.c_str(), packageInfo.deploymentName);
+    accept = packageInfo.deploymentName.find(filterText) != string::npos;
   }
   if (!accept)
   {

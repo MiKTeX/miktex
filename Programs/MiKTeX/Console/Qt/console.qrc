@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/Icons" >
+    <file alias="file-browser-16x16.png">../../../../Resources/Icons/tango/16x16/apps/system-file-manager.png</file>
+    <file alias="filter-16x16.png">../../../../Resources/Icons/oxygen-icons5/16x16/actions/view-filter.png</file>
     <file alias="go-down-16x16.png">../../../../Resources/Icons/tango/16x16/actions/go-down.png</file>
     <file alias="go-up-16x16.png">../../../../Resources/Icons/tango/16x16/actions/go-up.png</file>
     <file alias="list-add-16x16.png">../../../../Resources/Icons/tango/16x16/actions/list-add.png</file>
@@ -10,5 +12,7 @@
     <file alias="terminal-16x16.png">../../../../Resources/Icons/oxygen-icons5/16x16/apps/utilities-terminal.png</file>
     <file alias="terminal-32x32.png">../../../../Resources/Icons/oxygen-icons5/32x32/apps/utilities-terminal.png</file>
     <file alias="texworks-16x16.png">../../../../Resources/Icons/TeXworks/16x16/apps/TeXworks.png</file>
-    <file alias="texworks-32x32.png">../../../../Resources/Icons/TeXworks/32x32/apps/TeXworks.png</file>  </qresource>
+    <file alias="texworks-32x32.png">../../../../Resources/Icons/TeXworks/32x32/apps/TeXworks.png</file>
+    <file alias="update-package-db-16x16.png">../../../../Resources/Icons/oxygen-icons5/16x16/actions/svn-update.png</file>
+  </qresource>
 </RCC>

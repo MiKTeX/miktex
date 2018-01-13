@@ -287,6 +287,9 @@ private slots:
 private slots:
   void MoveRootDirectoryDown();
 
+private slots:
+  void OpenRootDirectory();
+
 private:
   QMenu* contextMenuRootDirectory = nullptr;
 
@@ -306,13 +309,7 @@ private:
   QToolBar* toolBarPackages = nullptr;
 
 private:
-  QToolBar* toolBarPackageFilter = nullptr;
-
-private:
   QLineEdit* lineEditPackageFilter = nullptr;
-
-private:
-  QMenu* contextMenuPackage = nullptr;
 
 private:
   void SetupUiPackages();
@@ -320,7 +317,7 @@ private:
 private:
   void UpdateUiPackages();
 
-private:
+private slots:
   void UpdateActionsPackages();
 
 private slots:
@@ -336,7 +333,28 @@ private slots:
   void FilterPackages();
 
 private slots:
-  void SynchronizePackageDatabase();
+  void UpdatePackageDatabase();
+
+private:
+  QMenu* contextMenuPackage = nullptr;
+
+private:
+  QMenu* contextMenuPackagesBackground = nullptr;
+
+private slots:
+  void OnContextMenuPackages(const QPoint& pos);
+
+private:
+  void SetupUiTroubleshoot();
+
+private:
+  void UpdateUiTroubleshoot();
+
+private slots:
+  void UpdateActionsTroubleshoot();
+
+private slots:
+  void on_pushButtonShowLogDirectory_clicked();
 
 private:
   std::atomic_int backgroundWorkers{ 0 };
@@ -636,6 +654,25 @@ private:
 
 private:
   std::vector<MiKTeX::Packages::PackageInstaller::UpdateInfo> updates;
+};
+
+class UpdateDbWorker :
+  public BackgroundWorker
+{
+private:
+  Q_OBJECT;
+
+public:
+  UpdateDbWorker(std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager) :
+    packageManager(packageManager)
+  {
+  }
+
+private:
+  std::shared_ptr<MiKTeX::Packages::PackageManager> packageManager;
+
+protected:
+  bool Run() override;
 };
 
 #endif

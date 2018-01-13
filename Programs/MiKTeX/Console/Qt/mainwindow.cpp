@@ -62,6 +62,26 @@ inline double Divide(double a, double b)
   return a / b;
 }
 
+void OpenDirectoryInFileBrowser(const QString& path_)
+{
+  QString path(path_);
+  if (!path.startsWith('/'))
+  {
+    path.insert(0, '/');
+  }
+  QDesktopServices::openUrl(QUrl(QString("file://%1").arg(path), QUrl::TolerantMode));
+}
+
+void OpenDirectoryInFileBrowser(const PathName& dir_)
+{
+  PathName dir(dir_);
+  dir.AppendAltDirectoryDelimiter();
+#if defined(MIKTEX_WINDOWS)
+  dir.ConvertToUnix();
+#endif
+  OpenDirectoryInFileBrowser(QString::fromUtf8(dir.GetData()));
+}
+
 MainWindow::MainWindow(QWidget* parent) :
   QMainWindow(parent),
   ui(new Ui::MainWindow)
@@ -73,6 +93,7 @@ MainWindow::MainWindow(QWidget* parent) :
   SetupUiRootDirectories();
   SetupUiUpdates();
   SetupUiPackages();
+  SetupUiTroubleshoot();
 
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
@@ -223,6 +244,7 @@ void MainWindow::UpdateUi()
     UpdateUiRootDirectories();
     UpdateUiUpdates();
     UpdateUiPackages();
+    UpdateUiTroubleshoot();
   }
   catch (const MiKTeXException& e)
   {
@@ -246,6 +268,7 @@ void MainWindow::UpdateActions()
     UpdateActionsRootDirectories();
     UpdateActionsUpdates();
     UpdateActionsPackages();
+    UpdateActionsTroubleshoot();
   }
   catch (const MiKTeXException& e)
   {
@@ -314,7 +337,7 @@ void MainWindow::SetCurrentPage(MainWindow::Pages p)
     ui->buttonPackages->setChecked(true);
     if (packageModel->rowCount() == 0)
     {
-      QTimer::singleShot(100, packageModel, SLOT(Reload()));
+      packageModel->Reload();
     }
     break;
   case Pages::Troubleshoot:
@@ -405,7 +428,7 @@ void MainWindow::AboutDialog()
   message += " ";
   message += MIKTEX_COMPONENT_VERSION_STR;
   message += "\n\n";
-  message += tr("MiKTeX Console is free software. You are welcome to redistribute it under certain conditions. See the help file for more information.\n\nMiKTeX Console comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.");
+  message += tr("MiKTeX Console is free software. You are welcome to redistribute it under certain conditions.\n\nMiKTeX Console comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.");
   QMessageBox::about(this, tr("MiKTeX Console"), message);
 }
 
@@ -623,7 +646,7 @@ void MainWindow::on_buttonUpgrade_clicked()
     }
     if (status == UpgradeWorker::Status::Synchronize)
     {
-      ui->labelUpgradeDetails->setText(tr("(synchronizing package database)"));
+      ui->labelUpgradeDetails->setText(tr("(updating package database)"));
     }
     else if (status == UpgradeWorker::Status::Download)
     {
@@ -987,7 +1010,7 @@ void MainWindow::Update()
     }
     if (status == UpdateWorker::Status::Synchronize)
     {
-      ui->labelUpdateDetails->setText(tr("(synchronizing package database)"));
+      ui->labelUpdateDetails->setText(tr("(updating package database)"));
     }
     else if (status == UpdateWorker::Status::Download)
     {
@@ -1153,6 +1176,8 @@ void MainWindow::SetupUiRootDirectories()
   toolBarRootDirectories->addSeparator();
   toolBarRootDirectories->addAction(ui->actionRootDirectoryMoveUp);
   toolBarRootDirectories->addAction(ui->actionRootDirectoryMoveDown);
+  toolBarRootDirectories->addSeparator();
+  toolBarRootDirectories->addAction(ui->actionRootDirectoryOpen);
   ui->vboxTreeViewRootDirectories->insertWidget(0, toolBarRootDirectories);
   ui->treeViewRootDirectories->setModel(rootDirectoryModel);
   contextMenuRootDirectoriesBackground = new QMenu(ui->treeViewRootDirectories);
@@ -1160,6 +1185,7 @@ void MainWindow::SetupUiRootDirectories()
   contextMenuRootDirectory = new QMenu(ui->treeViewRootDirectories);
   contextMenuRootDirectory->addAction(ui->actionRootDirectoryMoveUp);
   contextMenuRootDirectory->addAction(ui->actionRootDirectoryMoveDown);
+  contextMenuRootDirectory->addAction(ui->actionRootDirectoryOpen);
   contextMenuRootDirectory->addAction(ui->actionRemoveRootDirectory);
   contextMenuRootDirectory->addSeparator();
   contextMenuRootDirectory->addAction(ui->actionAddRootDirectory);
@@ -1167,6 +1193,7 @@ void MainWindow::SetupUiRootDirectories()
   connect(ui->treeViewRootDirectories, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuRootDirectories(const QPoint&)));
   connect(ui->actionRootDirectoryMoveUp, SIGNAL(triggered()), this, SLOT(MoveRootDirectoryUp()));
   connect(ui->actionRootDirectoryMoveDown, SIGNAL(triggered()), this, SLOT(MoveRootDirectoryDown()));
+  connect(ui->actionRootDirectoryOpen, SIGNAL(triggered()), this, SLOT(OpenRootDirectory()));
   connect(ui->actionRemoveRootDirectory, SIGNAL(triggered()), this, SLOT(RemoveRootDirectory()));
   connect(ui->actionAddRootDirectory, SIGNAL(triggered()), this, SLOT(AddRootDirectory()));
   connect(ui->treeViewRootDirectories->selectionModel(),
@@ -1177,10 +1204,11 @@ void MainWindow::SetupUiRootDirectories()
 
 void MainWindow::UpdateUiRootDirectories()
 {
-  rootDirectoryModel->Reload();
-  ui->treeViewRootDirectories->resizeColumnToContents(0);
-  toolBarRootDirectories->setEnabled(!IsBackgroundWorkerActive());
-  ui->treeViewRootDirectories->setEnabled(!IsBackgroundWorkerActive());
+  if (!IsBackgroundWorkerActive())
+  {
+    rootDirectoryModel->Reload();
+    ui->treeViewRootDirectories->resizeColumnToContents(0);
+  }
 }
 
 void MainWindow::UpdateActionsRootDirectories()
@@ -1197,6 +1225,7 @@ void MainWindow::UpdateActionsRootDirectories()
   }
   ui->actionRootDirectoryMoveUp->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && enableUp);
   ui->actionRootDirectoryMoveDown->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && enableDown);
+  ui->actionRootDirectoryOpen->setEnabled(selectedCount > 0);
   ui->actionRemoveRootDirectory->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && enableRemove);
   ui->actionAddRootDirectory->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
 }
@@ -1339,6 +1368,14 @@ void MainWindow::MoveRootDirectoryDown()
   }
 }
 
+void MainWindow::OpenRootDirectory()
+{
+  for (const QModelIndex& index : ui->treeViewRootDirectories->selectionModel()->selectedRows())
+  {
+    OpenDirectoryInFileBrowser(rootDirectoryModel->data(index, Qt::DisplayRole).toString());
+  }
+}
+
 void MainWindow::OnContextMenuRootDirectories(const QPoint& pos)
 {
   QModelIndex index = ui->treeViewRootDirectories->indexAt(pos);
@@ -1360,15 +1397,15 @@ void MainWindow::SetupUiPackages()
   toolBarPackages->addAction(ui->actionUninstallPackage);
   toolBarPackages->addSeparator();
   toolBarPackages->addAction(ui->actionPackageProperties);
-  ui->hboxPackageToolBar->addWidget(toolBarPackages);
-  toolBarPackageFilter = new QToolBar(this);
-  toolBarPackageFilter->setIconSize(QSize(16, 16));
-  lineEditPackageFilter = new QLineEdit(toolBarPackageFilter);
+  toolBarPackages->addSeparator();
+  toolBarPackages->addAction(ui->actionUpdatePackageDatabase);
+  toolBarPackages->addSeparator();
+  lineEditPackageFilter = new QLineEdit(toolBarPackages);
   lineEditPackageFilter->setClearButtonEnabled(true);
-  toolBarPackageFilter->addWidget(lineEditPackageFilter);
-  lineEditPackageFilter->addAction(ui->actionFilterPackages);  
+  toolBarPackages->addWidget(lineEditPackageFilter);
+  toolBarPackages->addAction(ui->actionFilterPackages);
   connect(lineEditPackageFilter, SIGNAL(returnPressed()), this, SLOT(FilterPackages()));
-  ui->hboxPackageToolBar->addWidget(toolBarPackageFilter);
+  ui->hboxPackageToolBar->addWidget(toolBarPackages);
   ui->hboxPackageToolBar->addStretch();
   packageModel = new PackageTableModel(packageManager, this);
   packageProxyModel = new PackageProxyModel(this);
@@ -1376,6 +1413,17 @@ void MainWindow::SetupUiPackages()
   packageProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
   ui->treeViewPackages->setModel(packageProxyModel);
   ui->treeViewPackages->sortByColumn(0, Qt::AscendingOrder);
+  contextMenuPackagesBackground = new QMenu(ui->treeViewPackages);
+  contextMenuPackagesBackground->addAction(ui->actionUpdatePackageDatabase);
+  contextMenuPackage = new QMenu(ui->treeViewPackages);
+  contextMenuPackage->addAction(ui->actionInstallPackage);
+  contextMenuPackage->addAction(ui->actionUninstallPackage);
+  contextMenuPackage->addSeparator();
+  contextMenuPackage->addAction(ui->actionUpdatePackageDatabase);
+  contextMenuPackage->addSeparator();
+  contextMenuPackage->addAction(ui->actionPackageProperties);
+  ui->treeViewPackages->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(ui->treeViewPackages, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuPackages(const QPoint&)));
   connect(ui->treeViewPackages->selectionModel(),
     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
     this,
@@ -1392,10 +1440,10 @@ void MainWindow::SetupUiPackages()
     SIGNAL(triggered()),
     this,
     SLOT(UninstallPackage()));
-  connect(ui->actionSynchronizePackageDatabase,
+  connect(ui->actionUpdatePackageDatabase,
     SIGNAL(triggered()),
     this,
-    SLOT(SynchronizePackageDatabase()));
+    SLOT(UpdatePackageDatabase()));
   connect(ui->actionFilterPackages,
     SIGNAL(triggered()),
     this,
@@ -1410,6 +1458,8 @@ void MainWindow::UpdateActionsPackages()
 {
   try
   {
+    ui->actionUpdatePackageDatabase->setEnabled(!IsBackgroundWorkerActive());
+    ui->actionFilterPackages->setEnabled(!IsBackgroundWorkerActive());
     QModelIndexList selectedRows = ui->treeViewPackages->selectionModel()->selectedRows();
     ui->actionPackageProperties->setEnabled(!IsBackgroundWorkerActive() && selectedRows.count() == 1);
     bool enableInstall = (selectedRows.count() > 0);
@@ -1503,7 +1553,6 @@ void MainWindow::InstallPackage()
     {
       return;
     }
-
     int ret = UpdateDialog::DoModal(this, packageManager, toBeInstalled, toBeRemoved);
     if (ret == QDialog::Accepted)
     {
@@ -1531,43 +1580,84 @@ void MainWindow::FilterPackages()
   packageProxyModel->SetFilter(lineEditPackageFilter->text().toUtf8().constData());
 }
 
-void MainWindow::SynchronizePackageDatabase()
+bool UpdateDbWorker::Run()
 {
+  bool result = false;
   try
   {
-    unique_ptr<PackageInstaller> installer(packageManager->CreateInstaller());
-    installer->UpdateDbAsync();
-    int numSteps = 10;
-    QProgressDialog progress(tr("Synchronizing the package database..."), tr("Cancel"), 0, numSteps, this);
-    progress.setWindowModality(Qt::WindowModal);
-    progress.setMinimumDuration(1000);
-    for (int step = 0; !progress.wasCanceled(); ++step)
-    {
-      if (step < numSteps)
-      {
-        progress.setValue(step);
-      }
-      PackageInstaller::ProgressInfo progressinfo = installer->GetProgressInfo();
-      if (progressinfo.ready)
-      {
-        break;
-      }
-      this_thread::sleep_for(chrono::milliseconds(1000));
-    }
-    installer->Dispose();
-    packageModel->Reload();
-    ui->treeViewPackages->update();
-    if (!progress.wasCanceled())
-    {
-      progress.setValue(numSteps);
-    }
+    unique_ptr<PackageInstaller> installer = packageManager->CreateInstaller();
+    installer->UpdateDb();
+    result = true;
   }
   catch (const MiKTeXException& e)
   {
-    CriticalError(e);
+    this->e = e;
   }
   catch (const exception& e)
   {
-    CriticalError(e);
+    this->e = MiKTeXException(e.what());
   }
+  return result;
+}
+
+void MainWindow::UpdatePackageDatabase()
+{
+  QThread* thread = new QThread;
+  UpdateDbWorker* worker = new UpdateDbWorker(packageManager);
+  backgroundWorkers++;
+  ui->labelBackgroundTask->setText(tr("Updating the package database..."));
+  worker->moveToThread(thread);
+  connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+  connect(worker, &UpdateDbWorker::OnFinish, this, [this]() {
+    UpdateDbWorker* worker = (UpdateDbWorker*)sender();
+    if (!worker->GetResult())
+    {
+      CriticalError(tr("Something went wrong while updating the package database."), worker->GetMiKTeXException());
+    }
+    packageModel->Reload();
+    ui->treeViewPackages->update();
+    backgroundWorkers--;
+    UpdateUi();
+    UpdateActions();
+    worker->deleteLater();
+  });
+  connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  thread->start();
+  UpdateUi();
+  UpdateActions();
+}
+
+void MainWindow::OnContextMenuPackages(const QPoint& pos)
+{
+  QModelIndex index = ui->treeViewPackages->indexAt(pos);
+  if (index.isValid())
+  {
+    contextMenuPackage->exec(ui->treeViewPackages->mapToGlobal(pos));
+  }
+  else
+  {
+    contextMenuPackagesBackground->exec(ui->treeViewPackages->mapToGlobal(pos));
+  }
+}
+
+void MainWindow::SetupUiTroubleshoot()
+{
+
+}
+
+void MainWindow::UpdateUiTroubleshoot()
+{
+
+}
+
+void MainWindow::UpdateActionsTroubleshoot()
+{
+  PathName logDir = session->GetSpecialPath(SpecialPath::LogDirectory);
+  ui->lineEditLogFiles->setText(QString::fromUtf8(logDir.GetData()));
+}
+
+void MainWindow::on_pushButtonShowLogDirectory_clicked()
+{
+  OpenDirectoryInFileBrowser(session->GetSpecialPath(SpecialPath::LogDirectory));
 }
