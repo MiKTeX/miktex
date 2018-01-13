@@ -75,7 +75,7 @@ void OpenDirectoryInFileBrowser(const QString& path_)
 void OpenDirectoryInFileBrowser(const PathName& dir_)
 {
   PathName dir(dir_);
-  dir.AppendAltDirectoryDelimiter();
+  dir.AppendDirectoryDelimiter();
 #if defined(MIKTEX_WINDOWS)
   dir.ConvertToUnix();
 #endif
