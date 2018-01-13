@@ -119,7 +119,7 @@ QVariant UpdateTableModel::headerData(int section, Qt::Orientation orientation, 
     case 1:
       return tr("Installed");
     case 2:
-      return tr("Current");
+      return tr("New");
     }
   }
   return QAbstractTableModel::headerData(section, orientation, role);
