@@ -1378,6 +1378,23 @@ void SetupServiceImpl::ConfigureMiKTeX()
   }
 }
 
+PathName SetupServiceImpl::GetInstallRoot() const
+{
+  if (options.IsPortable)
+  {
+    return options.PortableRoot / MIKTEX_PORTABLE_REL_INSTALL_DIR;
+  }
+  else if (options.Task == SetupTask::FinishSetup || options.Task == SetupTask::FinishUpdate)
+  {
+    shared_ptr<Session> session = Session::Get();
+    return session->GetSpecialPath(SpecialPath::InstallRoot);
+  }
+  else
+  {
+    return options.IsCommonSetup ? options.Config.commonInstallRoot : options.Config.userInstallRoot;
+  }
+}
+
 PathName SetupServiceImpl::GetBinDir() const
 {
   if (options.Task == SetupTask::FinishSetup || options.Task == SetupTask::FinishUpdate)

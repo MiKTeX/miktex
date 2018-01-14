@@ -361,17 +361,7 @@ protected:
   std::unique_ptr<MiKTeX::Trace::TraceStream> traceStream;
 
 protected:
-  MiKTeX::Core::PathName GetInstallRoot() const
-  {
-    if (options.IsPortable)
-    {
-      return options.PortableRoot / MIKTEX_PORTABLE_REL_INSTALL_DIR;
-    }
-    else
-    {
-      return options.IsCommonSetup ? options.Config.commonInstallRoot : options.Config.userInstallRoot;
-    }
-  }
+  MiKTeX::Core::PathName GetInstallRoot() const;
 
 protected:
   MiKTeX::Core::PathName GetBinDir() const;
