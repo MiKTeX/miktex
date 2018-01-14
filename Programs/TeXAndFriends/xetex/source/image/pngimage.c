@@ -47,7 +47,7 @@
 */
 
 #if HAVE_CONFIG_H
-#if ! defined(MIKTEX)
+#if !defined(MIKTEX)
 #include <w2c/config.h>
 #endif
 #endif

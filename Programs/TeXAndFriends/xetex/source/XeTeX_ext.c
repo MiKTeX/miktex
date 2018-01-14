@@ -1272,7 +1272,7 @@ findnativefont(unsigned char* uname, integer scaled_size)
             if (varString != NULL)
                 namelength += strlen(varString) + 1;
 #if defined(MIKTEX)
-	    if (namelength >= filenamesize)
+            if (namelength >= filenamesize)
             {
               fprintf(stderr, "\n! Internal error: internal buffer too small\n");
               throw 3;

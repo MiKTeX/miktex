@@ -1,6 +1,6 @@
 /****************************************************************************\
  Part of the XeTeX typesetting system
- Copyright (c) 1994-2009 by SIL International
+ Copyright (c) 1994-2017 by SIL International
 
  SIL Author(s): Jonathan Kew
 
@@ -24,7 +24,7 @@
 
 /* This is dvipdfmx, an eXtended version of dvipdfm by Mark A. Wicks.
 
-    Copyright (C) 2002-2015 by Jin-Hwan Cho and Shunsaku Hirata,
+    Copyright (C) 2002-2017 by Jin-Hwan Cho and Shunsaku Hirata,
     the dvipdfmx project team.
 
     Copyright (C) 1998, 1999 by Mark A. Wicks <mwicks@kettering.edu>
@@ -417,7 +417,7 @@ JPEG_scan_file (struct JPEG_info *j_info, FILE *fp)
   found_SOFn = 0;
   while (!found_SOFn &&
 #if defined(MIKTEX)
-	 (marker = (JPEG_marker)JPEG_get_marker(fp)) != (JPEG_marker) -1) {
+         (marker = (JPEG_marker)JPEG_get_marker(fp)) != (JPEG_marker) -1) {
 #else
 	 (marker = JPEG_get_marker(fp)) != (JPEG_marker) -1) {
 #endif
@@ -506,6 +506,14 @@ JPEG_scan_file (struct JPEG_info *j_info, FILE *fp)
       break;
     }
     count++;
+  }
+
+/*
+ * If j_info->xdpi, and j_info->ydpi are not yet determined,
+ * they are assumed to be 72.0 to avoid division by zero.
+ */
+  if (j_info->xdpi < 0.1 && j_info->ydpi < 0.1) {
+    j_info->xdpi = j_info->ydpi = 72.0;
   }
 
   return (found_SOFn ? 0 : -1);
