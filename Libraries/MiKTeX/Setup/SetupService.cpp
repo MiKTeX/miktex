@@ -1380,7 +1380,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
 
 PathName SetupServiceImpl::GetBinDir() const
 {
-  if (options.Task == SetupTask::FinishSetup)
+  if (options.Task == SetupTask::FinishSetup || options.Task == SetupTask::FinishUpdate)
   {
     shared_ptr<Session> session = Session::Get();
     return session->GetSpecialPath(SpecialPath::BinDirectory);
@@ -1405,7 +1405,7 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args)
   {
     allArgs.push_back("--admin");
   }
-  if (options.Task != SetupTask::FinishSetup)
+  if (options.Task != SetupTask::FinishSetup && options.Task != SetupTask::FinishUpdate)
   {
     allArgs.push_back("--log-file=" + GetULogFileName().ToString());
   }
@@ -1427,7 +1427,7 @@ void SetupServiceImpl::RunMpm(const vector<string>& args)
 {
   shared_ptr<Session> session = Session::Get();
   // make absolute exe path name
-  PathName exePath = GetBinDir() / MIKTEX_PATH_BIN_DIR;
+  PathName exePath = GetBinDir() / MIKTEX_MPM_EXE;
 
   // make command line
   vector<string> allArgs{ exePath.GetFileNameWithoutExtension().ToString() };
