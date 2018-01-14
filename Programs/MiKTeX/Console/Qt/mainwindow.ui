@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>777</height>
+    <height>802</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -494,6 +494,9 @@
            </item>
            <item>
             <widget class="QGroupBox" name="userMode">
+             <property name="styleSheet">
+              <string notr="true">QGroupBox::title { color: orange; }</string>
+             </property>
              <property name="title">
               <string>User mode</string>
              </property>
@@ -665,9 +668,7 @@
            <item>
             <widget class="QGroupBox" name="groupPathIssue">
              <property name="styleSheet">
-              <string notr="true">QGroupBox::title {
-color: red;
-}</string>
+              <string notr="true">QGroupBox::title { color: red; }</string>
              </property>
              <property name="title">
               <string>PATH issue</string>
