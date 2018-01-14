@@ -1,6 +1,6 @@
 /* SetupService.cpp:
 
-   Copyright (C) 2013-2017 Christian Schenk
+   Copyright (C) 2013-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -509,7 +509,7 @@ void SetupServiceImpl::LogV(const char* format, va_list argList)
 
 void SetupServiceImpl::ULogOpen()
 {
-  if (options.Task == SetupTask::Download || options.Task == SetupTask::FinishSetup || options.Task == SetupTask::Uninstall)
+  if (options.Task == SetupTask::Download || options.Task == SetupTask::FinishSetup || options.Task == SetupTask::FinishUpdate || options.Task == SetupTask::Uninstall)
   {
     return;
   }
@@ -615,6 +615,9 @@ void SetupServiceImpl::Run()
     break;
   case SetupTask::FinishSetup:
     DoFinishSetup();
+    break;
+  case SetupTask::FinishUpdate:
+    DoFinishUpdate();
     break;
   case SetupTask::Uninstall:
     DoTheUninstallation();
@@ -993,6 +996,23 @@ void SetupServiceImpl::DoFinishSetup()
   if (options.IsRegisterPathEnabled)
   {
     Utils::CheckPath(true);
+  }
+}
+
+void SetupServiceImpl::DoFinishUpdate()
+{
+  ReportLine("finishing update...");
+
+  if (cancelled)
+  {
+    return;
+  }
+
+  if (!options.IsPortable)
+  {
+#if defined(MIKTEX_WINDOWS)
+    CreateProgramIcons();
+#endif
   }
 }
 
