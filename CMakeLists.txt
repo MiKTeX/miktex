@@ -805,7 +805,9 @@ if(WITH_BOOTSTRAPPING)
   list(APPEND MIKTEX_BOOTSTRAPPING_PACKAGES
     miktex-config-${MIKTEX_MAJOR_MINOR_STR}
     miktex-dvips
+    miktex-fontconfig
     miktex-misc
+    tetex
   )
 endif()
 
