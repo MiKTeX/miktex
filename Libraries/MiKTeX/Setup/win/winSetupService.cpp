@@ -62,7 +62,7 @@ PathName SetupService::GetDefaultPortableRoot()
 
 winSetupServiceImpl::winSetupServiceImpl()
 {
-  if (FAILED(CoInitialize(0)))
+  if (FAILED(CoInitialize(nullptr)))
   {
     MIKTEX_FATAL_ERROR(T_("COM could not be initialized"));
   }
