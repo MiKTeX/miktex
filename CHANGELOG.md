@@ -9,6 +9,7 @@
 ### Upgraded programs
 
 * Dvisvgm 2.3.1
+* LuaTeX 1.06.3
 
 ### Upgraded libraries
 

@@ -2188,11 +2188,24 @@ static boolean compute_accent_skew(pointer q, int flags, scaled *s)
             * use the positioning of the nucleus of that noad, recursing until
             * the inner most |accent_noad|. This way multiple stacked accents are
             * aligned to the inner most one.
+
+            the vlink test was added in version 1.06, so that we only consider a lone
+            noad:
+
+            $
+                \Umathaccent bottom 0 0 "023DF {   \Umathaccent fixed 0 0 "00302 { m } r } \quad
+                \Umathaccent bottom 0 0 "023DF { l \Umathaccent fixed 0 0 "00302 { m } r } \quad
+                \Umathaccent bottom 0 0 "023DF { l \Umathaccent fixed 0 0 "00302 { m }   } \quad
+                \Umathaccent bottom 0 0 "023DF {   \Umathaccent fixed 0 0 "00302 { m }   } \quad
+                \Umathaccent bottom 0 0 "023DF { l                                      r }
+            $
+
         */
         p = math_list(nucleus(q));
-        if (type(p) == accent_noad) {
+        if (type(p) == accent_noad && vlink(p) == null) {
             s_is_absolute = compute_accent_skew(p, flags, s);
         }
+    } else {
     }
 
     return s_is_absolute;

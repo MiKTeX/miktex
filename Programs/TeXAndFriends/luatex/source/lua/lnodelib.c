@@ -1133,6 +1133,8 @@ static int lua_nodelib_direct_getlist(lua_State * L)
             nodelib_pushdirect_or_nil_alink(list_ptr(n));
         } else if ((t == sub_box_node) || (t == sub_mlist_node)) {
             nodelib_pushdirect_or_nil_alink(math_list(n));
+        } else if (t == ins_node) {
+            nodelib_pushdirect_or_nil_alink(ins_ptr(n));
         } else if (t == adjust_node) {
             nodelib_pushdirect_or_nil_alink(adjust_ptr(n));
         } else {
@@ -1159,6 +1161,12 @@ static int lua_nodelib_direct_setlist(lua_State * L)
             } else {
                 math_list(n) = null;
             }
+        } else if (t == ins_node) {
+            if (lua_type(L,2) == LUA_TNUMBER) {
+                ins_ptr(n) = (halfword) lua_tointeger(L, 2);
+            } else {
+                ins_ptr(n) = null;
+            }
         } else if (t == adjust_node) {
             if (lua_type(L,2) == LUA_TNUMBER) {
                 adjust_ptr(n) = (halfword) lua_tointeger(L, 2);
@@ -1182,6 +1190,10 @@ static int lua_nodelib_direct_setlist(lua_State * L)
             fast_metatable_or_nil_alink(list_ptr(*n));
         } else if ((type(*n) == sub_box_node) || (type(*n) == sub_mlist_node)) {
             fast_metatable_or_nil_alink(math_list(*n));
+        } else if (type(*n) == ins_node) {
+            fast_metatable_or_nil_alink(ins_ptr(*n));
+        } else if (type(*n) == adjust_node) {
+            fast_metatable_or_nil_alink(adjust_ptr(*n));
         } else {
             lua_pushnil(L);
         }
@@ -3248,7 +3260,7 @@ static int lua_nodelib_get_glue(lua_State * L)
     halfword n = *check_isnode(L, 1);
     if (n) {
         halfword t = type(n);
-        if (t == glue_node || t == glue_spec_node || t == math_node || t== ins_node) {
+        if (t == glue_node || t == glue_spec_node || t == math_node || t == ins_node) {
             lua_pushinteger(L,width(n));
             lua_pushinteger(L,stretch(n));
             lua_pushinteger(L,shrink(n));
@@ -8010,7 +8022,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"getshift", lua_nodelib_direct_getshift},
     {"getfield", lua_nodelib_direct_getfield},
     {"getfont", lua_nodelib_direct_getfont},
-    {"setfam", lua_nodelib_direct_getfam},
+    {"getfam", lua_nodelib_direct_getfam},
     {"getid", lua_nodelib_direct_getid},
     {"getnext", lua_nodelib_direct_getnext},
     {"getprev", lua_nodelib_direct_getprev},
