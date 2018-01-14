@@ -1,6 +1,6 @@
 /* xetex-version.h: version number                      -*- C++ -*-
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -19,7 +19,7 @@
 
 #include "xetex_version.h"
 
-#define MIKTEX_COMP_J2000_VERSION 6533
+#define MIKTEX_COMP_J2000_VERSION 6588
 
 #define MIKTEX_COMP_ORIG_VERSION_STR XETEX_VERSION
 
