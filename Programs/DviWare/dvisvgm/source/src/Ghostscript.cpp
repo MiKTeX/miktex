@@ -342,7 +342,7 @@ const char* Ghostscript::error_name (int code) {
 #if defined(HAVE_LIBGS)
 	// use array defined in libgs to avoid linking the error strings into the binary
 	return gs_error_names[code-1];
-#elif defined(_WIN32)
+#elif defined(_WIN32) || defined(MIKTEX)
 	// gs_error_names is private in the Ghostscript DLL so we can't access it here
 	return error_names[code-1];
 #else
