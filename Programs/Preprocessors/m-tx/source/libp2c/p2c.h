@@ -428,10 +428,10 @@ typedef struct {
 
 /* Memory allocation */
 #ifdef __GCC__
-# define Malloc(n)  (malloc(n) ?: (Anyptr)_OutMem())
+# define Malloc(n)  (malloc(n) ?: (Anyptr)(size_t)_OutMem())
 #else
 extern Anyptr __MallocTemp__;
-# define Malloc(n)  ((__MallocTemp__ = malloc(n)) ? __MallocTemp__ : (Anyptr)_OutMem())
+# define Malloc(n)  ((__MallocTemp__ = malloc(n)) ? __MallocTemp__ : (Anyptr)(size_t)_OutMem())
 #endif
 #define FreeR(p)    (free((Anyptr)(p)))    /* used if arg is an rvalue */
 #define Free(p)     (free((Anyptr)(p)), (p)=NULL)

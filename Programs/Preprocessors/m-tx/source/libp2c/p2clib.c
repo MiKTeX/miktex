@@ -87,7 +87,6 @@ register int n;
     return d;
 }
 
-
 #ifdef __STDC__
 Anyptr my_memcpy(Anyptr d, Const Anyptr s, size_t n)
 #else
@@ -101,6 +100,7 @@ register int n;
 	*dd++ = *ss++;
     return d;
 }
+
 
 #ifdef __STDC__
 int my_memcmp(Const Anyptr s1, Const Anyptr s2, size_t n)

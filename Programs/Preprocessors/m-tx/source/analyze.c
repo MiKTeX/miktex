@@ -85,7 +85,7 @@ void testParagraph(void)
   if (top > bottom)
     return;
   pickup = 0;
-  multi_bar_rest = false;
+  *multi_bar_rest = '\0';
   FORLIM = bottom;
   for (voice = top; voice <= FORLIM; voice++) {
     mus = musicLineNo(voice);
@@ -93,7 +93,7 @@ void testParagraph(void)
       nv++;
       line_no = orig_line_no[mus-1];
       scanMusic(voice, &l);
-      if (multi_bar_rest && nv > 1)
+      if (*multi_bar_rest != '\0' && nv > 1)
 	error("Multi-bar rest allows only one voice", print);
       if (!pmx_preamble_done) {
 	if (voice == top)
@@ -103,7 +103,7 @@ void testParagraph(void)
       }
       nbar = numberOfBars(voice);
       extra = ExtraLength(voice);
-      if (multi_bar_rest && (nbar > 0 || extra > 0))
+      if (*multi_bar_rest != '\0' && (nbar > 0 || extra > 0))
 	error3(voice, "Multi-bar rest allows no other rests or notes");
       if (nbar > nbars || nbar == nbars && extra > nleft) {
 	nbars = nbar;

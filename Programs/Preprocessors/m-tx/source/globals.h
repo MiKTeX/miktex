@@ -109,7 +109,8 @@ vextern Char voice_label[maxvoices][256];
 vextern Char clef[maxstaves];
 vextern voice_index0 instr[maxstaves], stave[maxstaves],
 		     first_on_stave[maxstaves], number_on_stave[maxstaves];
-vextern short nspace[maxstaves], stave_size[maxstaves];
+vextern short stave_size[maxstaves];
+vextern short nspace[maxstaves + 1];
 vextern voice_index0 nvoices, nstaves, ninstr, bottom, top;
 vextern short one_beat, full_bar, line_no, short_note, musicsize, meternum,
 	      meterdenom, pmnum, pmdenom, paragraph_no, bar_no, pickup, nbars,
@@ -120,9 +121,10 @@ vextern paragraph P, orig_P;
 vextern line_nos orig_line_no;
 vextern FILE *infile, *outfile, *stylefile;
 vextern Char default_duration;
-vextern Char fracindent[256], this_version[256], this_version_date[256];
+vextern Char fracindent[256], this_version[256], this_version_date[256],
+	     multi_bar_rest[256];
 vextern boolean pmx_preamble_done, first_paragraph, final_paragraph,
-		must_respace, must_restyle, multi_bar_rest, some_vocal;
+		must_respace, must_restyle, some_vocal;
 vextern Char infile_NAME[_FNSIZE];
 vextern Char outfile_NAME[_FNSIZE];
 vextern Char stylefile_NAME[_FNSIZE];

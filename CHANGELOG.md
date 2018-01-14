@@ -10,6 +10,7 @@
 
 * Dvisvgm 2.3.1
 * LuaTeX 1.06.3
+* m-tx 0.63
 
 ### Upgraded libraries
 

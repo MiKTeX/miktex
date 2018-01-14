@@ -212,9 +212,9 @@ Static boolean isMultiBarRest(Char *rest_)
     return false;
   if (rest_[1] != 'm')
     return false;
-  if (multi_bar_rest)
+  if (*multi_bar_rest != '\0')
     error("Only one multibar rest allowed per line", print);
-  multi_bar_rest = true;
+  strcpy(multi_bar_rest, rest_);
   return true;
 }
 
@@ -384,7 +384,7 @@ void scanMusic(voice_index voice_, short *left_over)
     V.count = 0;
     /*    if isNoteOrRest(note) and not (isPause(note) or isMultibarRest(note))
           then note:=toStandard(note); */
-    V.doublex = (pos1('D', V.note) > 0);
+    V.doublex = (pos1('D', V.note) > 0 || pos1('F', V.note) > 0);
     if (nscan == mword) {
       if (*V.note == '\0')
 	error3(V.voice, "You may not end a line with a meter change");
@@ -393,7 +393,9 @@ void scanMusic(voice_index voice_, short *left_over)
       else
 	V.bar = barLength(V.note);
     } else if (nscan == rword) {
-      if (!(isPause(V.note) || isMultiBarRest(V.note))) {
+      if (!(isPause(V.note) || isMultiBarRest(V.note) ||
+	    V.ngrace + V.nmulti > 0))
+      {   /*0.63: allow rests in xtuples*/
 	processNote(V.note, xnote, dur1, &lastdur, &V.count);
 	checkSticky(V.note, rest_attrib[V.voice-1]);
       }
@@ -404,7 +406,7 @@ void scanMusic(voice_index voice_, short *left_over)
     if (nscan == macro || nscan == endmacro)
       examineMacro(&V);
     if (nscan == abcdefg) {
-      if (!multi_bar_rest && V.ngrace + V.nmulti == 0) {
+      if (*multi_bar_rest == '\0' && V.ngrace + V.nmulti == 0) {
 	processNote(enote, xnote, dur1, &lastdur, &V.count);
 	if (*xnote != '\0') {
 	  checkSticky(enote, note_attrib[V.voice-1]);
@@ -426,7 +428,7 @@ void scanMusic(voice_index voice_, short *left_over)
 	markBar(V.voice);
       else if (numberOfBars(V.voice) == 0 && V.bar_length < V.bar) {
 	if (has_next)
-	  has_next = false;   /*Should check whether pickups are equal*/
+	  has_next = false;   /*TODO Should check whether pickups are equal*/
 	else if (*left_over > 0)
 	  error3(V.voice, "Bar is too short");
 	*left_over = V.bar_length;
@@ -441,7 +443,7 @@ void scanMusic(voice_index voice_, short *left_over)
       has_next = true;
     } else if (isPause(V.note))
       V.bar_length += V.bar;
-    else if (!multi_bar_rest) {   /*do nothing*/
+    else if (*multi_bar_rest == '\0') {   /*do nothing*/
       if (!done && isNoteOrRest(V.note))
 	countIt(&V);
       else
@@ -453,7 +455,7 @@ void scanMusic(voice_index voice_, short *left_over)
 	printf("%d %d\n", V.voice, V.bar_length);
       barForward(V.voice, V.bar_length / V.bar);
       V.bar_length %= V.bar;
-/* p2c: mtx.pas, line 268:
+/* p2c: mtx.pas, line 269:
  * Note: Using % for possibly-negative arguments [317] */
     }
   } while (!done);

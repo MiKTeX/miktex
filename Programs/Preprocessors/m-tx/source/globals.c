@@ -88,16 +88,23 @@ Char *meterChange(Char *Result, short n1, short n2, boolean blind)
 void setSpace(Char *line_)
 {
   Char line[256];
-  short i = 0;
+  short i;
   Char word[256];
+  Char STR1[256];
 
   strcpy(line, line_);
+  i = pos1(';', line);
+  if (i > 0) {
+    getNum(substr_(STR1, line, 1, i - 1), nspace);
+    predelete(line, i);
+  }
+  i = 0;
   while (i < ninstr) {
     GetNextWord(word, line, blank, dummy);
     if (*word == '\0')
       return;
     i++;
-    getNum(word, &nspace[i-1]);
+    getNum(word, &nspace[i]);
   }
 }
 

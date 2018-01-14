@@ -12,20 +12,20 @@
 /* These should be recoded in C instead of using the p2c code. */
 
 
-extern Void scan1 PP((Char *s, int p, short *n));
+extern void scan1(Char *s, short p, short *n);
 /* Read an integer at position p of s */
-extern boolean startsWith PP((Char *s1, Char *s2));
-extern short pos1 PP((int c, Char *s));
-extern short posNot PP((int c, Char *s));
-extern Void insertChar PP((int c, Char *s, int p));
-extern Char *substr_ PP((Char *Result, Char *s, int start, int count));
-extern Void getNum PP((Char *line, short *k));
-extern Void getTwoNums PP((Char *line, short *k1, short *k2));
-extern Void toUpper PP((Char *s));
-extern Void delete1 PP((Char *s, int p));
-extern Void predelete PP((Char *s, int l));
-extern Void shorten PP((Char *s, int new_length));
-extern short nextWordBound PP((Char *s, int trigger, int p));
+extern boolean startsWith(Char *s1, Char *s2);
+extern short pos1(Char c, Char *s);
+extern short posNot(Char c, Char *s);
+extern void insertChar(Char c, Char *s, short p);
+extern Char *substr_(Char *Result, Char *s, short start, short count);
+extern void getNum(Char *line, short *k);
+extern void getTwoNums(Char *line, short *k1, short *k2);
+extern void toUpper(Char *s);
+extern void delete1(Char *s, short p);
+extern void predelete(Char *s, short l);
+extern void shorten(Char *s, short new_length);
+extern short nextWordBound(Char *s, Char trigger, short p);
 /* find end of first word starting with trigger after s[p] */
 
 

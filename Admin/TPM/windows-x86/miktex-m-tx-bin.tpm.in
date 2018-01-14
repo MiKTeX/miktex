@@ -4,8 +4,8 @@
   <rdf:Description about="http://www.miktex.org/packages/m-tx/">
     <TPM:Name>m-tx win32</TPM:Name>
     <TPM:Title>M-Tx, Windows x86</TPM:Title>
-    <TPM:License type="gpl2"/>
-    <TPM:Version>0.62</TPM:Version>
+    <TPM:License type="mit"/>
+    <TPM:Version>0.63</TPM:Version>
     <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>

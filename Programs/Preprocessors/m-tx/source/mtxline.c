@@ -667,7 +667,10 @@ void getNextMusWord(Char *buf_, Char *note_, music_word *nscan)
     break;
 
   case ']':
-    *nscan = rbrac;
+    if (!strcmp(V.note, "]["))
+      *nscan = other;
+    else
+      *nscan = rbrac;
     break;
 
   case '@':

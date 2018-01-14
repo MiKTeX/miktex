@@ -564,36 +564,38 @@ Static void doEnable(Char *line, boolean choice)
 Static void setRange(Char *line_)
 {
   Char line[256];
-  short v, p, FORLIM;
-  Char STR1[256];
-  Char STR2[256];
+  short v, p;
+  Char vl[256];
+  short FORLIM;
+  Char STR1[256], STR2[256];
 
   strcpy(line, line_);
   line_no = orig_range_line;
   FORLIM = nvoices;
   for (v = 1; v <= FORLIM; v++) {
-    sprintf(STR1, "%s=", voice_label[v-1]);
+    strcpy(vl, voice_label[v-1]);
+    sprintf(STR1, "%s=", vl);
     p = strpos2(line, STR1, 1);
     if (p > 0) {
       if (strlen(line) < p + 6) {
-	sprintf(STR2, "At least five characters must follow \"%s=\"",
-		voice_label[v-1]);
+	sprintf(STR2, "At least five characters must follow \"%s=\"", vl);
 	error(STR2, print);
       }
-      defineRange(v, substr_(STR2, line, p + 2, 5));
-    } else
+      defineRange(v, substr_(STR2, line, p + strlen(vl) + 1, 5));
+    } else {
+      sprintf(STR2, "No range defined for voice %s", vl);
+      warning(STR2, print);
       defineRange(v, "");
+    }
   }
 }
 
 
+/* TODO: This procedure should test for assertions in a comment
+ or be removed */
 Static boolean isAssertion(Char *line)
 {
-  boolean Result;
-
-/* p2c: preamble.pas, line 369:
- * Note: Attempting to EXIT beyond this function [188] */
-  return Result;
+  return false;
 }
 
 
@@ -604,7 +606,9 @@ Static line_type doCommand(Char *line_)
   Char command[256];
   command_type last_command;
   boolean starts_with_note;
-  Char STR1[256], STR3[256];
+  Char STR1[256];
+  Char STR3[70];
+  Char STR4[256];
 
   strcpy(line, line_);
   if (line[0] == comment && !isAssertion(line))
@@ -622,14 +626,20 @@ Static line_type doCommand(Char *line_)
     else if (last_command == range)
       orig_range_line = line_no;
     if (last_command != none) {
-      if (mustAppend(last_command) && redefined[(long)last_command])
+      if (mustAppend(last_command) && redefined[(long)last_command]) {
+	if (strlen(cline[(long)last_command]) + strlen(line) > 254) {
+	  sprintf(STR3,
+		  "Total length of preamble command %s must not exceed 255",
+		  commands[(long)last_command]);
+	  error(STR3, !print);
+	}
 	sprintf(cline[(long)last_command] + strlen(cline[(long)last_command]),
 		"\n%s", line);
-      else {
+      } else {
 	strcpy(cline[(long)last_command], line);
 	if (warn_redefine && redefined[(long)last_command]) {
-	  sprintf(STR3, "You have redefined preamble command %s", command);
-	  warning(STR3, print);
+	  sprintf(STR4, "You have redefined preamble command %s", command);
+	  warning(STR4, print);
 	}
       }
       if (last_command == start)
@@ -638,8 +648,8 @@ Static line_type doCommand(Char *line_)
       return Result;
     }
     Result = colon_line;
-    sprintf(STR3, "%s%c %s", command, colon_, line);
-    addStyle(STR3);
+    sprintf(STR4, "%s%c %s", command, colon_, line);
+    addStyle(STR4);
     orig_style_line[known_styles-1] = line_no;
     return Result;
   } else if (starts_with_note)
@@ -787,10 +797,12 @@ void preambleDefaults(void)
   style_supplied = false;
   for (i = 1; i <= maxvoices; i++)
     setVocal(i, false);
-  for (i = 0; i <= maxstaves - 1; i++) {
-    nspace[i] = unspec;
+  for (i = 0; i <= maxstaves - 1; i++)
     stave_size[i] = unspec;
-  }
+  for (i = 0; i <= maxstaves; i++)
+    nspace[i] = unspec;
+  nspace[i] = unspec;
+  stave_size[i-1] = unspec;
   n_pages = 1;
   n_systems = 1;
   readStyles();
@@ -928,14 +940,14 @@ void respace(void)
 
   for (i = ninstr; i >= 2; i--) {
     j = ninstr - i + 1;
-    if (nspace[j-1] != unspec) {
+    if (nspace[j] != unspec) {
       sprintf(STR3, "\\mtxInterInstrument{%s}{%s}",
-	      toString(STR1, i - 1), toString(STR2, nspace[j-1]));
+	      toString(STR1, i - 1), toString(STR2, nspace[j]));
       TeXtype2(STR3);
     }
   }
-  if (nspace[ninstr-1] != unspec) {
-    sprintf(STR3, "\\mtxStaffBottom{%s}", toString(STR1, nspace[ninstr-1]));
+  if (nspace[ninstr] != unspec) {
+    sprintf(STR3, "\\mtxStaffBottom{%s}", toString(STR1, nspace[ninstr]));
     TeXtype2(STR3);
   }
   must_respace = false;
@@ -951,6 +963,7 @@ void restyle(void)
 Static short clefno(Char cl)
 {
   short Result;
+  Char STR2[44];
 
   switch (cl) {
 
@@ -997,7 +1010,8 @@ Static short clefno(Char cl)
     break;
 
   default:
-    warning("Unknown clef code - replaced by treble", print);
+    sprintf(STR2, "Unknown clef code \"%c\" - replaced by treble", cl);
+    warning(STR2, print);
     Result = 0;
     break;
   }
@@ -1095,8 +1109,7 @@ void doPMXpreamble(void)
   static Char clefcode[9] = "0123456";
   short i, j;
   Char clefs[256];
-  Char STR1[256];
-  Char STR2[256];
+  Char STR1[256], STR2[256];
   Char STR3[58];
   short FORLIM;
   Char STR5[256];
@@ -1157,13 +1170,16 @@ void doPMXpreamble(void)
     putLine("Ti");
     putLine(part_line);
   }
-  if (*title_line != '\0') {
-    putLine("Tt");
-    putLine("\\mtxTitle");
-  }
   if (*composer_line != '\0') {
     putLine("Tc");
     putLine("\\mtxPoetComposer");
+  }
+  if (*title_line != '\0') {
+    fprintf(outfile, "Tt");
+    if (nspace[0] != unspec)
+      fputs(toString(STR1, nspace[0]), outfile);
+    putc('\n', outfile);
+    putLine("\\mtxTitle");
   }
   if (*pmx_line != '\0')
     putLine(pmx_line);

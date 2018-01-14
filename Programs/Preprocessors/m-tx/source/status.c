@@ -72,12 +72,14 @@ meaningful, a and b (which come after g) are translated to h and i. */
 void checkRange(short voice, Char *note_)
 {
   Char note[256];
+  Char orig_note[256];
   Char STR1[4];
   Char STR3[256];
 
   strcpy(note, note_);
   if (*voice_range[voice-1] == '\0')
     return;
+  strcpy(orig_note, note);
   if (strlen(note) > 2) {   /* assume usual PMX form with octave */
     sprintf(STR1, "%c%c", note[2], note[0]);
     strcpy(note, STR1);
@@ -89,7 +91,7 @@ void checkRange(short voice, Char *note_)
   if (strcmp(note, range_low[voice-1]) < 0 ||
       strcmp(note, range_high[voice-1]) > 0) {
     sprintf(STR3, "%s is out of range, specified as %s",
-	    note, voice_range[voice-1]);
+	    orig_note, voice_range[voice-1]);
     error3(voice, STR3);
   }
 }
@@ -140,7 +142,7 @@ void chordTie(short voice, Char *lab)
     *lab = WITH->chord_tie_label[n-1];
   (*lab)++;
   sprintf(WITH->chord_tie_label + strlen(WITH->chord_tie_label), "%c", *lab);
-/* p2c: status.pas, line 113:
+/* p2c: status.pas, line 115:
  * Note: Possible string truncation in assignment [145] */
   n++;
   WITH->chord_tie_pitch[n-1] = WITH->chord_pitch;

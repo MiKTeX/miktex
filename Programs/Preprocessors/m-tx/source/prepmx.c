@@ -66,14 +66,12 @@
 
 /** M-Tx preprocessor to PMX     Dirk Laurie */
 
-#define version         "0.62"
-#define version_date    "<08 February 2016>"
+#define version         "0.63"
+#define version_date    "<7 January 2018>"
 
-/** See file "Corrections" for updates later than those listed below
-*/
+/** See file "Corrections" for updates */
 
 /** To do next:
-   Take notice of recent improvements in musixtex, pmx and musixlyr
 {* Current bugs:
 {* Old bugs:
    Does not check PMX syntax
@@ -363,7 +361,7 @@ Local void lookahead(struct LOC_processLine *LINK)
 	    processOther(STR2, getMusicWord(STR3, LINK->voice), LINK));
 }
 
-Local void processNote_(struct LOC_processLine *LINK)
+Local void processUsual(struct LOC_processLine *LINK)
 {
   if (hasVerseNumber(LINK->voice))
     strcat(LINK->pretex, "\\mtxVerse");
@@ -418,7 +416,7 @@ Static void processLine(voice_index voice_, short bar_no)
     switch (thisNote(V.voice)) {
 
     case rword:
-      if (multi_bar_rest) {
+      if (*multi_bar_rest != '\0') {
 	if (uptextOnRests())
 	  addUptext(V.voice, &V.no_uptext, V.pretex);
       } else {
@@ -431,13 +429,14 @@ Static void processLine(voice_index voice_, short bar_no)
 	}
 	if (uptextOnRests())
 	  addUptext(V.voice, &V.no_uptext, V.pretex);
-	if (!isPause(V.note))
-	  resetDuration(V.voice, durationCode(V.note));
+	if (!(isPause(V.note) || V.in_group))
+	      /*0.63: allow rests in xtuples*/
+		resetDuration(V.voice, durationCode(V.note));
       }
       break;
 
     case abcdefg:
-      processNote_(&V);
+      processUsual(&V);
       break;
 
     case barword:
@@ -579,17 +578,23 @@ Local void putMeter(Char *new_meter_word, struct LOC_musicParagraph *LINK)
 
 Local void processMBR(struct LOC_musicParagraph *LINK)
 {
-  short bars_of_rest;
+  short s, bars_of_rest;
   Char mbr[256];
+  short FORLIM;
   Char STR1[256];
   Char STR3[256];
 
-  strcpy(mbr, P[0]);
+  strcpy(mbr, multi_bar_rest);
   predelete(mbr, 2);
   getNum(mbr, &bars_of_rest);
   bar_no += bars_of_rest;
-  sprintf(STR3, "rm%s /", toString(STR1, bars_of_rest));
-  putLine(STR3);
+  FORLIM = nstaves;
+  for (s = 1; s <= FORLIM; s++) {
+    if (pickup > 0)
+      put(rests(STR1, pickup, meterdenom, visible), nospace);
+    sprintf(STR3, "rm%s /", toString(STR1, bars_of_rest));
+    putLine(STR3);
+  }
   putLine("");
 }
 
@@ -661,7 +666,7 @@ Static void musicParagraph(void)
     putMeter(meterChange(STR2, beatsPerLine(), meterdenom, true), &V);
   if (nleft > 0)
     nbars++;
-  if (nbars == 0 && multi_bar_rest)
+  if (nbars == 0 && *multi_bar_rest != '\0')
     processMBR(&V);
   else {
     FORLIM1 = nbars;
@@ -753,7 +758,7 @@ Static boolean isControlParagraph(Char (*P)[256], paragraph_index para_len)
 Static void topOfPMXfile(void)
 {
   Char STR2[24];
-  Char STR3[34];
+  Char STR3[32];
 
   putLine("---");
   sprintf(STR2, "\\def\\mtxversion{%s}", version);
