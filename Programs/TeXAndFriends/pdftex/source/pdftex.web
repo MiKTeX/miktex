@@ -1,4 +1,4 @@
-% Copyright 1996-2017 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh,
+% Copyright 1996-2018 Han Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh,
 % <thanh@@pdftex.org>
 
 % This file is part of pdfTeX.
@@ -15784,7 +15784,7 @@ var w, s_out: scaled;
     s: integer;
 begin
     w := char_width(f)(char_info(f)(c));
-    if hasfmentry(f) then begin
+    if isscalable(f) then begin
         if pdf_cur_Tm_a = 0 then begin
             call_func(divide_scaled(w, pdf_font_size[f], 4));
             pdf_delta_h := pdf_delta_h + scaled_out;
@@ -15995,7 +15995,7 @@ begin
     {if |f| is auto expanded then ensure the base font is initialized}
     if pdf_font_auto_expand[f] and (pdf_font_blink[f] <> null_font) then begin
         b := pdf_font_blink[f];
-        if not hasfmentry(b) then
+        if not isscalable(b) then
             pdf_error("font expansion", "auto expansion is only possible with scalable fonts");
         if not font_used[b] then
             pdf_init_font(b);
@@ -16006,11 +16006,11 @@ begin
     here: 1) |f| and |k| have the same tfm name (so they have been loaded at
     different sizes, eg 'cmr10' and 'cmr10 at 11pt'); 2) |f| has been auto
     expanded from |k|}
-    if hasfmentry(f) then begin
+    if isscalable(f) then begin
         i := head_tab[obj_type_font];
         while i <> 0 do begin
             k := obj_info(i);
-            if hasfmentry(k) and
+            if isscalable(k) and
                (pdf_font_map[k] = pdf_font_map[f]) and
                (str_eq_str(font_name[k], font_name[f]) or
                 (pdf_font_auto_expand[f] and
@@ -16249,6 +16249,19 @@ begin
     pdf_print_ln("]");
 end;
 
+{Prints first |len| characters of string |s| (if it's that long).
+ There must be a better way to print a substring?}
+procedure slow_print_substr(@!s,@!max_len:integer);
+var j:pool_pointer; {current character code position}
+begin if (s>=str_ptr) or (s<256) then print(s)
+else begin j:=str_start[s];
+  while (j<str_start[s+1]) and (j<=str_start[s]+max_len) do
+    begin print(so(str_pool[j])); incr(j);
+    end;
+  end;
+  if j<str_start[s+1] then print("..."); {indicate truncation}
+end;
+
 procedure literal(s: str_number; literal_mode: integer; warn: boolean);
 var j: pool_pointer; {current character code position}
 begin
@@ -16257,8 +16270,13 @@ begin
         if not (str_in_str(s, "PDF:", 0) or str_in_str(s, "pdf:", 0)) then begin
             if warn and not (str_in_str(s, "SRC:", 0)
                 or str_in_str(s, "src:", 0)
-                or (length(s) = 0)) then
+                or (length(s) = 0)) then begin
                     print_nl("Non-PDF special ignored!");
+                    print_nl("<special> ");
+                    slow_print_substr(s, 64);
+                    {length of printed line should be <=78; good enough.}
+                    print_ln;
+            end;
             return;
         end;
         j := j + length("PDF:");
@@ -33807,11 +33825,12 @@ procedure compare_strings; {to implement \.{\\pdfstrcmp}}
 label done;
 var s1, s2: str_number;
     i1, i2, j1, j2: pool_pointer;
+    save_cur_cs: pointer;
 begin
-    call_func(scan_toks(false, true));
+    save_cur_cs:=cur_cs; call_func(scan_toks(false, true));
     s1 := tokens_to_string(def_ref);
     delete_token_ref(def_ref);
-    call_func(scan_toks(false, true));
+    cur_cs:=save_cur_cs; call_func(scan_toks(false, true));
     s2 := tokens_to_string(def_ref);
     delete_token_ref(def_ref);
     i1 := str_start[s1];

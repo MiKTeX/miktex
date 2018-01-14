@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -70,7 +70,7 @@ set(pdftex_ch_synctex
 set(pdftosrc_sources
   ${MIKTEX_LIBRARY_WRAPPER}
   pdftosrc-version.h
-  source/pdftosrc.cc
+  source/pdftosrc-newpoppler.cc
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
@@ -266,7 +266,7 @@ set(${pdftex_target_name}_sources
   source/mapfile.c
   source/pdftex-common.h
   source/pdftex.h
-  source/pdftoepdf.cc
+  source/pdftoepdf-newpoppler.cc
   source/pkin.c
   source/ptexlib.h
   source/ptexmac.h

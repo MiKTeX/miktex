@@ -1,5 +1,6 @@
 /* mapfile.c: handling of map files/lines
-Copyright 1996-2017 Han The Thanh, <thanh@pdftex.org>
+
+Copyright 1996-2018 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -350,6 +351,27 @@ static int check_fm_entry(fm_entry * fm, boolean warn)
         a += 32;
     }
 
+    /* font file for bitmap PK fonts is determinated by kpse and depends
+       on current font size; writet3.c ignores font file for bitmap PK fonts */
+    if (is_fontfile(fm) && is_pk(fm)) {
+        if (warn)
+            pdftex_warn
+                ("invalid entry for `%s': "
+                 "FontFile cannot be specified for bitmap PK font: %s",
+                 fm->tfm_name, fm_fontfile(fm));
+        a += 64;
+    }
+
+    /* ps name cannot be stored into PDF file for PDF Type3 fonts */
+    if (fm->ps_name != NULL && is_pk(fm)) {
+        if (warn)
+            pdftex_warn
+                ("invalid entry for `%s': "
+                 "PsName cannot be specified for bitmap PK font: %s",
+                 fm->tfm_name, fm->ps_name);
+        a += 128;
+    }
+
     return a;
 }
 
@@ -547,6 +569,9 @@ static void fm_scan_line(void)
             set_opentype(fm);
         else
             set_type1(fm);
+    } else if (fm->ps_name == NULL) {
+        set_pk(fm);             /* font without ps_name and without fontfile,
+                                   it can be only bitmap PK font */
     } else
         set_type1(fm);          /* assume a builtin font is Type1 */
 
@@ -631,6 +656,11 @@ boolean hasfmentry(internalfontnumber f)
         pdffontmap[f] = fmlookup(f);
     assert(pdffontmap[f] != NULL);
     return pdffontmap[f] != (fmentryptr) dummy_fm_entry();
+}
+
+boolean isscalable(internalfontnumber f)
+{
+    return hasfmentry(f) && (!is_pk((fm_entry *)pdffontmap[f]));
 }
 
 /* check whether a map entry is valid for font replacement */

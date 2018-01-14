@@ -1,5 +1,5 @@
 /*
-Copyright 2006-2014 Han The Thanh, <thanh@pdftex.org>
+Copyright 2006-2017 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -75,7 +75,7 @@ void deftounicode(strnumber glyph, strnumber unistr)
         p++;                    /* ignore leading spaces */
     l = strlen(p);
     while (l > 0 && p[l - 1] == ' ')
-        l--;                    /* ignore traling spaces */
+        l--;                    /* ignore trailing spaces */
     valid_unistr = 1;           /* a unicode value is the most common case */
     for (i = 0; i < l; i++) {
         if (p[i] == ' ')
@@ -117,6 +117,11 @@ void deftounicode(strnumber glyph, strnumber unistr)
     } else {
         i = sscanf(p, "%lX", &(gu->code));
         assert(i == 1);
+        if (gu->code < 0 || gu->code > 0x10FFFF) {
+            pdftex_warn("ToUnicode: value out of range [0,10FFFF]: %X",
+                        gu->code);
+            gu->code = UNI_UNDEF;
+        }
     }
     aa = avl_probe(glyph_unicode_tree, gu);
     assert(aa != NULL);

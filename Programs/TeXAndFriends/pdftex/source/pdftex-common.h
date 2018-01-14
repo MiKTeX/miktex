@@ -61,7 +61,7 @@ extern void zpdfosgetosbuf(integer);
 #define pdfosgetosbuf(s) zpdfosgetosbuf((integer) (s))
 extern void zpdfbeginobj(integer, integer);
 #define pdfbeginobj(i, pdfoslevel) zpdfbeginobj((integer) (i), (integer) (pdfoslevel))
-#endif /* MIKTEX */
+#endif
 
 /* epdf.c */
 #ifdef __cplusplus

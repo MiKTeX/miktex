@@ -1,5 +1,5 @@
-/*
-Copyright 1996-2017 Han The Thanh, <thanh@pdftex.org>
+/* ptexlib.h: macros for pdfTeX library code.
+Copyright 1996-2018 Han The Thanh, <thanh@pdftex.org>
 
 This file is part of pdfTeX.
 
@@ -199,6 +199,7 @@ extern const char *ptexbanner;
 
 /* mapfile.c */
 extern boolean hasfmentry(internalfontnumber);
+extern boolean isscalable(internalfontnumber);
 extern void fm_free(void);
 extern void fm_read_info(void);
 extern ff_entry *check_ff_exist(char *, boolean);
@@ -360,7 +361,7 @@ extern void writet1(fd_entry *);
 extern void t1_free(void);
 
 /* writet3.c */
-extern void writet3(int, internalfontnumber);
+extern void writet3(fm_entry *, int, internalfontnumber);
 extern scaled getpkcharwidth(internalfontnumber, scaled);
 
 /* writettf.c */

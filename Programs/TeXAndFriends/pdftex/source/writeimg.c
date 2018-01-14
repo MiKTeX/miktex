@@ -498,7 +498,7 @@ void img_free(void)
       s = a ;					\
     } else { s = NULL; }			\
   } while (0)
-#endif /* MIKTEX */
+#endif
 
 
 

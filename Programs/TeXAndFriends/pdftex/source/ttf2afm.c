@@ -153,7 +153,7 @@ static void ttf_fail(const char *fmt, ...)
     fprintf(stderr, "\n");
     va_end(args);
 #if defined(MIKTEX)
-    throw (1);
+    throw 1;
 #else
     exit(-1);
 #endif
@@ -1027,7 +1027,7 @@ static void usage(void)
             "    fontfile:    the TrueType fontfile\n"
             "\nPlease send bug reports or feature requests to <pdftex@tug.org>\n");
 #if defined(MIKTEX)
-    throw (1);
+    throw 1;
 #else
     _exit(-1);
 #endif
@@ -1079,7 +1079,7 @@ int main(int argc, char **argv)
                     "named COPYING and the pdfTeX source.\n"
                     "Primary author of ttf2afm: Han The Thanh.\n");
 #if defined(MIKTEX)
-	    throw (0);
+	    throw 0;
 #else
             _exit(0);
 #endif
