@@ -2,7 +2,7 @@
 ** PsSpecialHandler.cpp                                                 **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -59,13 +59,13 @@ int PsSpecialHandler::SHADING_SEGMENT_SIZE = 20;
 double PsSpecialHandler::SHADING_SIMPLIFY_DELTA = 0.01;
 
 
-PsSpecialHandler::PsSpecialHandler () : _psi(this), _actions(0), _previewFilter(_psi), _psSection(PS_NONE), _xmlnode(0)
+PsSpecialHandler::PsSpecialHandler () : _psi(this), _actions(), _previewFilter(_psi), _psSection(PS_NONE), _xmlnode(), _savenode()
 {
 }
 
 
 PsSpecialHandler::~PsSpecialHandler () {
-	_psi.setActions(0);     // ensure no further PS actions are performed
+	_psi.setActions(nullptr);     // ensure no further PS actions are performed
 }
 
 
@@ -91,10 +91,10 @@ void PsSpecialHandler::initgraphics () {
 	_linewidth = 1;
 	_linecap = _linejoin = 0;  // butt end caps and miter joins
 	_miterlimit = 4;
-	_xmlnode = _savenode = 0;
+	_xmlnode = _savenode = nullptr;
 	_opacityalpha = 1;  // fully opaque
 	_sx = _sy = _cos = 1.0;
-	_pattern = 0;
+	_pattern = nullptr;
 	_currentcolor = Color::BLACK;
 	_dashoffset = 0;
 	_dashpattern.clear();
@@ -343,26 +343,25 @@ void PsSpecialHandler::psfile (const string &fname, const unordered_map<string,s
 	DPair urTrans = _actions->getMatrix()*DPair(urx, -ury);
 	DPair dviposTrans = _actions->getMatrix()*DPair(x, y);
 
-	_xmlnode = new XMLElementNode("g");  // append following elements to this group
+	auto groupNode = util::make_unique<XMLElementNode>("g");  // append following elements to this group
+	_xmlnode = groupNode.get();
 	_psi.execute("\n@beginspecial @setspecial "); // enter \special environment
 	EPSFile epsfile(filepath);
 	_psi.limit(epsfile.pslength());  // limit the number of bytes going to be processed
 	_psi.execute(epsfile.istream()); // process EPS file
 	_psi.limit(0);                   // disable limitation
 	_psi.execute("\n@endspecial ");  // leave special environment
-	if (_xmlnode->empty())           // nothing been drawn?
-		delete _xmlnode;              // => don't need to add empty group node
-	else {                           // has anything been drawn?
+	if (!groupNode->empty()) {       // has anything been drawn?
 		Matrix matrix(1);
 		matrix.rotate(angle).scale(hscale/100, vscale/100).translate(hoffset, voffset);
 		matrix.translate(-llTrans);
 		matrix.scale(sx, sy);          // resize image to width "rwi" and height "rhi"
 		matrix.translate(dviposTrans); // move image to current DVI position
 		if (!matrix.isIdentity())
-			_xmlnode->addAttribute("transform", matrix.getSVG());
-		_actions->appendToPage(_xmlnode);
+			groupNode->addAttribute("transform", matrix.getSVG());
+		_actions->appendToPage(std::move(groupNode));
 	}
-	_xmlnode = 0;   // append following elements to page group again
+	_xmlnode = nullptr;   // append following elements to page group again
 
 	// restore DVI position
 	_actions->setX(x);
@@ -546,14 +545,14 @@ void PsSpecialHandler::stroke (vector<double> &p) {
 	}
 	if (_clipStack.clippathLoaded() && _clipStack.top())
 		_path.prepend(*_clipStack.top());
-	XMLElementNode *path=0;
+	unique_ptr<XMLElementNode> path;
 	Pair<double> point;
 	if (_path.isDot(point)) {  // zero-length path?
 		if (_linecap == 1) {    // round line ends?  => draw dot
 			double x = point.x();
 			double y = point.y();
 			double r = _linewidth/2.0;
-			path = new XMLElementNode("circle");
+			path = util::make_unique<XMLElementNode>("circle");
 			path->addAttribute("cx", x);
 			path->addAttribute("cy", y);
 			path->addAttribute("r", r);
@@ -568,7 +567,7 @@ void PsSpecialHandler::stroke (vector<double> &p) {
 
 		ostringstream oss;
 		_path.writeSVG(oss, SVGTree::RELATIVE_PATH_CMDS);
-		path = new XMLElementNode("path");
+		path = util::make_unique<XMLElementNode>("path");
 		path->addAttribute("d", oss.str());
 		path->addAttribute("stroke", _actions->getColor().svgColorString());
 		path->addAttribute("fill", "none");
@@ -603,9 +602,9 @@ void PsSpecialHandler::stroke (vector<double> &p) {
 		_clipStack.setClippathLoaded(false);
 	}
 	if (_xmlnode)
-		_xmlnode->append(path);
+		_xmlnode->append(std::move(path));
 	else {
-		_actions->appendToPage(path);
+		_actions->appendToPage(std::move(path));
 		_actions->embed(bbox);
 	}
 	_path.clear();
@@ -633,7 +632,7 @@ void PsSpecialHandler::fill (vector<double> &p, bool evenodd) {
 
 	ostringstream oss;
 	_path.writeSVG(oss, SVGTree::RELATIVE_PATH_CMDS);
-	XMLElementNode *path = new XMLElementNode("path");
+	unique_ptr<XMLElementNode> path = util::make_unique<XMLElementNode>("path");
 	path->addAttribute("d", oss.str());
 	if (_pattern)
 		path->addAttribute("fill", XMLString("url(#")+_pattern->svgID()+")");
@@ -652,9 +651,9 @@ void PsSpecialHandler::fill (vector<double> &p, bool evenodd) {
 	if (_opacityalpha < 1)
 		path->addAttribute("fill-opacity", _opacityalpha);
 	if (_xmlnode)
-		_xmlnode->append(path);
+		_xmlnode->append(std::move(path));
 	else {
-		_actions->appendToPage(path);
+		_actions->appendToPage(std::move(path));
 		_actions->embed(bbox);
 	}
 	_path.clear();
@@ -703,7 +702,7 @@ void PsSpecialHandler::makepattern (vector<double> &p) {
 			// pattern definition completed
 			if (_savenode) {
 				_xmlnode = _savenode;
-				_savenode = 0;
+				_savenode = nullptr;
 			}
 			break;
 		case 1: {  // tiling pattern
@@ -720,9 +719,9 @@ void PsSpecialHandler::makepattern (vector<double> &p) {
 				pattern = util::make_unique<PSColoredTilingPattern>(id, bbox, matrix, xstep, ystep);
 			else
 				pattern = util::make_unique<PSUncoloredTilingPattern>(id, bbox, matrix, xstep, ystep);
-			_patterns[id] = std::move(pattern);
 			_savenode = _xmlnode;
 			_xmlnode = pattern->getContainerNode();  // insert the following SVG elements into this node
+			_patterns[id] = std::move(pattern);
 			break;
 		}
 		case 2: {
@@ -737,18 +736,18 @@ void PsSpecialHandler::makepattern (vector<double> &p) {
  *  1-3: (optional) RGB values for uncolored tiling patterns
  *  further parameters depend on the pattern type */
 void PsSpecialHandler::setpattern (vector<double> &p) {
-	int pattern_id = static_cast<int>(p[0]);
+	int patternID = static_cast<int>(p[0]);
 	Color color;
 	if (p.size() == 4)
 		color.setRGB(p[1], p[2], p[3]);
-	auto it = _patterns.find(pattern_id);
+	auto it = _patterns.find(patternID);
 	if (it == _patterns.end())
-		_pattern = 0;
+		_pattern = nullptr;
 	else {
-		if (PSUncoloredTilingPattern *pattern = dynamic_cast<PSUncoloredTilingPattern*>(it->second.get()))
+		if (auto *pattern = dynamic_cast<PSUncoloredTilingPattern*>(it->second.get()))
 			pattern->setColor(color);
 		it->second->apply(*_actions);
-		if (PSTilingPattern *pattern = dynamic_cast<PSTilingPattern*>(it->second.get()))
+		if (auto *pattern = dynamic_cast<PSTilingPattern*>(it->second.get()))
 			_pattern = pattern;
 		else
 			_pattern = nullptr;
@@ -816,19 +815,19 @@ void PsSpecialHandler::clip (Path &path, bool evenodd) {
 		intersectedPath.writeSVG(oss, SVGTree::RELATIVE_PATH_CMDS);
 	}
 
-	XMLElementNode *pathElem = new XMLElementNode("path");
+	auto pathElem = util::make_unique<XMLElementNode>("path");
 	pathElem->addAttribute("d", oss.str());
 	if (evenodd)
 		pathElem->addAttribute("clip-rule", "evenodd");
 
 	int newID = _clipStack.topID();
-	XMLElementNode *clipElem = new XMLElementNode("clipPath");
+	auto clipElem = util::make_unique<XMLElementNode>("clipPath");
 	clipElem->addAttribute("id", XMLString("clip")+XMLString(newID));
 	if (!COMPUTE_CLIPPATHS_INTERSECTIONS && oldID)
 		clipElem->addAttribute("clip-path", XMLString("url(#clip")+XMLString(oldID)+")");
 
-	clipElem->append(pathElem);
-	_actions->appendToDefs(clipElem);
+	clipElem->append(std::move(pathElem));
+	_actions->appendToDefs(std::move(clipElem));
 }
 
 
@@ -939,12 +938,14 @@ static void read_patch_data (ShadingPatch &patch, int edgeflag,
 class ShadingCallback : public ShadingPatch::Callback {
 	public:
 		ShadingCallback (SpecialActions &actions, XMLElementNode *parent, int clippathID)
-			: _actions(actions), _group(new XMLElementNode("g"))
+			: _actions(actions)
 		{
+			auto group = util::make_unique<XMLElementNode>("g");
+			_group = group.get();
 			if (parent)
-				parent->append(_group);
+				parent->append(std::move(group));
 			else
-				actions.appendToPage(_group);
+				actions.appendToPage(std::move(group));
 			if (clippathID > 0)
 				_group->addAttribute("clip-path", XMLString("url(#clip")+XMLString(clippathID)+")");
 		}
@@ -956,10 +957,10 @@ class ShadingCallback : public ShadingPatch::Callback {
 			// draw a single patch segment
 			ostringstream oss;
 			path.writeSVG(oss, SVGTree::RELATIVE_PATH_CMDS);
-			XMLElementNode *pathElem = new XMLElementNode("path");
+			auto pathElem = util::make_unique<XMLElementNode>("path");
 			pathElem->addAttribute("d", oss.str());
 			pathElem->addAttribute("fill", color.svgColorString());
-			_group->append(pathElem);
+			_group->append(std::move(pathElem));
 		}
 
 	private:
@@ -976,9 +977,7 @@ void PsSpecialHandler::processSequentialPatchMesh (int shadingTypeID, ColorSpace
 		int edgeflag = static_cast<int>(*it++);
 		vector<DPair> points;
 		vector<Color> colors;
-		unique_ptr<ShadingPatch> patch;
-
-		patch = unique_ptr<ShadingPatch>(ShadingPatch::create(shadingTypeID, colorSpace));
+		unique_ptr<ShadingPatch> patch = ShadingPatch::create(shadingTypeID, colorSpace);
 		read_patch_data(*patch, edgeflag, it, points, colors);
 		patch->setPoints(points, edgeflag, previousPatch.get());
 		patch->setColors(colors, edgeflag, previousPatch.get());

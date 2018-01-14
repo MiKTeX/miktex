@@ -2,7 +2,7 @@
 ** StreamWriter.cpp                                                     **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -41,12 +41,28 @@ void StreamWriter::writeSigned (int32_t val, int n) {
 }
 
 
-/** Writes a signed integer to the output stream.
- *  @param[in] val the value to write
+void StreamWriter::writeBytes (const std::vector<uint8_t> &bytes) {
+	_os.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+}
+
+
+void StreamWriter::writeBytes (const uint8_t *buf, size_t bufsize) {
+	_os.write(reinterpret_cast<const char*>(buf), bufsize);
+}
+
+
+void StreamWriter::writeBytes (int byte, size_t count) {
+	while (count-- > 0)
+		_os.put(byte);
+}
+
+
+/** Writes a string to the output stream.
+ *  @param[in] str the string to write
  *  @param[in] finalZero if true, a final 0-byte is appended */
 void StreamWriter::writeString (const string &str, bool finalZero) {
-	for (size_t i=0; i < str.length(); i++)
-		_os.put(str[i]);
+	for (char c : str)
+		_os.put(c);
 	if (finalZero)
 		_os.put(0);
 }

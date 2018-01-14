@@ -2,7 +2,7 @@
 ** FileSystem.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -321,7 +321,7 @@ bool FileSystem::rmdir (const string &dirname) {
 			struct dirent *ent;
 			while ((ent = readdir(dir)) && ok) {
 				const char *fname = ent->d_name;
-				string path = string(fname) + "/" + fname;
+				string path = dirname + "/" + fname;
 				if (isDirectory(path)) {
 					if (strcmp(fname, ".") != 0 && strcmp(fname, "..") != 0)
 						ok = rmdir(path) && s_rmdir(path);
@@ -397,7 +397,7 @@ bool FileSystem::isFile (const string &fname) {
 }
 
 
-int FileSystem::collect (const char *dirname, vector<string> &entries) {
+int FileSystem::collect (const std::string &dirname, vector<string> &entries) {
 	entries.clear();
 #if defined(MIKTEX)
         unique_ptr<MiKTeX::Core::DirectoryLister> lister = MiKTeX::Core::DirectoryLister::Open(dirname);
@@ -415,13 +415,13 @@ int FileSystem::collect (const char *dirname, vector<string> &entries) {
         lister->Close();
 #else
 #ifdef _WIN32
-	string pattern = string(dirname) + "/*";
+	string pattern = dirname + "/*";
 	WIN32_FIND_DATA data;
 	HANDLE h = FindFirstFile(pattern.c_str(), &data);
 	bool ready = (h == INVALID_HANDLE_VALUE);
 	while (!ready) {
 		string fname = data.cFileName;
-		string path = string(dirname)+"/"+fname;
+		string path = dirname+"/"+fname;
 		string typechar = isFile(path) ? "f" : isDirectory(path) ? "d" : "?";
 		if (fname != "." && fname != "..")
 			entries.emplace_back(typechar+fname);
@@ -429,11 +429,11 @@ int FileSystem::collect (const char *dirname, vector<string> &entries) {
 	}
 	FindClose(h);
 #else
-	if (DIR *dir = opendir(dirname)) {
+	if (DIR *dir = opendir(dirname.c_str())) {
 		struct dirent *ent;
 		while ((ent = readdir(dir))) {
 			string fname = ent->d_name;
-			string path = string(dirname)+"/"+fname;
+			string path = dirname+"/"+fname;
 			string typechar = isFile(path) ? "f" : isDirectory(path) ? "d" : "?";
 			if (fname != "." && fname != "..")
 				entries.emplace_back(typechar+fname);

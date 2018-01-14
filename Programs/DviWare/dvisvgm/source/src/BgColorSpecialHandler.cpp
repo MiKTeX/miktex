@@ -2,7 +2,7 @@
 ** BgColorSpecialHandler.cpp                                            **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -43,12 +43,6 @@ void BgColorSpecialHandler::preprocess (const char*, std::istream &is, SpecialAc
 
 bool BgColorSpecialHandler::process (const char*, istream &, SpecialActions&) {
 	return true;
-}
-
-
-static bool operator < (const pair<unsigned,Color> &pc1, const pair<unsigned,Color> &pc2) {
-	// order PageColor objects by page number
-	return pc1.first < pc2.first;
 }
 
 

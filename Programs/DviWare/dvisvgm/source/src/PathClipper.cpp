@@ -2,7 +2,7 @@
 ** PathClipper.cpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -188,12 +188,6 @@ static int32_t segment_id (const IntPoint &p1, const IntPoint &p2, double &t1, d
 	// if we get here, it's not possible to identify the segment
 	// => the edge is going to be handled as line segment
 	return 0;
-}
-
-
-inline int32_t edge_id (const IntPoint &p1, const IntPoint &p2) {
-	double t=0;
-	return segment_id(p1, p2, t, t);
 }
 
 

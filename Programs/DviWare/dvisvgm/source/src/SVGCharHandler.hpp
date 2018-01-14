@@ -2,7 +2,7 @@
 ** SVGCharHandler.hpp                                                   **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -21,6 +21,7 @@
 #ifndef SVGCHARHANDLER_HPP
 #define SVGCHARHANDLER_HPP
 
+#include <memory>
 #include <stack>
 #include "Color.hpp"
 #include "Font.hpp"
@@ -73,7 +74,7 @@ class SVGCharHandler {
 
 	protected:
 		virtual void resetContextNode ();
-		void pushContextNode (XMLElementNode *node);
+		XMLElementNode* pushContextNode (std::unique_ptr<XMLElementNode> &&node);
 		void popContextNode ();
 
 		XMLElementNode* contextNode () const {
@@ -98,7 +99,7 @@ class SVGCharTextHandler : public SVGCharHandler {
 		SVGCharTextHandler (bool selectFontByClass) : _selectFontByClass(selectFontByClass) {}
 
 	protected:
-		XMLElementNode* createTextNode (double x, double y) const;
+		std::unique_ptr<XMLElementNode> createTextNode (double x, double y) const;
 
 	private:
 		bool _selectFontByClass;

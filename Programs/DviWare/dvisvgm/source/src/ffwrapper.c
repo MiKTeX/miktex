@@ -2,7 +2,7 @@
 ** ffwrapper.c                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -78,23 +78,6 @@ int ff_sfd_to_ttf (const char *sfdname, const char *ttfname, int autohint) {
 		if (autohint)
 			ff_autohint(sf, true);
 		ret = WriteTTFFont((char*)ttfname, sf, ff_ttf, 0, 0, 0, sf->map, ly_fore);
-		SplineFontFree(sf);
-	}
-	return ret;
-}
-
-
-/** Creates a WOFF font from a FontForge SFD file.
- *  @param[in] sfdname name of SFD file
- *  @param[in] woffname name of WOFF file
- *  @param[in] autohint run the autohinter if != 0 */
-int ff_sfd_to_woff (const char *sfdname, const char *woffname, int autohint) {
-	int ret=0;
-	SplineFont *sf = SFDRead((char*)sfdname);
-	if (sf) {
-		if (autohint)
-			ff_autohint(sf, false);
-		ret = WriteWOFFFont((char*)woffname, sf, ff_woff, 0, 0, 0, sf->map, ly_fore);
 		SplineFontFree(sf);
 	}
 	return ret;

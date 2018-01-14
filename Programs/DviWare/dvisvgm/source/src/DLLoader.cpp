@@ -2,7 +2,7 @@
 ** DLLoader.cpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -65,17 +65,3 @@ void DLLoader::closeLibrary () {
 	}
 }
 
-
-/** Loads a function or variable from the dynamic/shared library.
- *  @param[in] name name of function/variable to load
- *  @return pointer to loaded symbol, or 0 if the symbol could not be loaded */
-void* DLLoader::loadSymbol (const char *name) {
-	if (_handle) {
-#ifdef _WIN32
-		return (void*)GetProcAddress(_handle, name);
-#else
-		return dlsym(_handle, name);
-#endif
-	}
-	return nullptr;
-}

@@ -6,6 +6,10 @@
 
 * [MiKTeX Console](https://miktex.org/announcement/miktex-console): the new MiKTeX management tool which combines MiKTeX Update Wizard, MiKTeX Package Manager and MiKTeX Settings.
 
+### Upgraded programs
+
+* Dvisvgm 2.3.1
+
 ### Upgraded libraries
 
 * cairo 1.14.12

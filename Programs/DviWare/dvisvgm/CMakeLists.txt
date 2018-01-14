@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2015-2017 Christian Schenk
+## Copyright (C) 2015-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -22,11 +22,11 @@ set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_DVIWARE_FOLDER}/dvisvgm")
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
+  source/libs/brotli/include
   source/libs/clipper
   source/libs/ff-woff/fontforge
   source/libs/ff-woff/inc
   source/libs/variant/include
-  source/libs/woff2/brotli/include
   source/libs/woff2/include
   source/libs/xxHash
 )
@@ -44,6 +44,8 @@ if(CMAKE_CL_64)
   )
 endif()
 
+set(HAVE_CXX11 1)
+
 configure_file(
   config.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/config.h
@@ -60,71 +62,71 @@ set(libxxhash_sources
 )
 
 set(libbrotli_sources
-  source/libs/woff2/brotli/common/constants.h
-  source/libs/woff2/brotli/common/dictionary.c
-  source/libs/woff2/brotli/common/dictionary.h
-  source/libs/woff2/brotli/common/version.h
-  source/libs/woff2/brotli/enc/backward_references.c
-  source/libs/woff2/brotli/enc/backward_references.h
-  source/libs/woff2/brotli/enc/backward_references_hq.c
-  source/libs/woff2/brotli/enc/backward_references_hq.h
-  source/libs/woff2/brotli/enc/backward_references_inc.h
-  source/libs/woff2/brotli/enc/bit_cost.c
-  source/libs/woff2/brotli/enc/bit_cost.h
-  source/libs/woff2/brotli/enc/bit_cost_inc.h
-  source/libs/woff2/brotli/enc/block_encoder_inc.h
-  source/libs/woff2/brotli/enc/block_splitter.c
-  source/libs/woff2/brotli/enc/block_splitter.h
-  source/libs/woff2/brotli/enc/block_splitter_inc.h
-  source/libs/woff2/brotli/enc/brotli_bit_stream.c
-  source/libs/woff2/brotli/enc/brotli_bit_stream.h
-  source/libs/woff2/brotli/enc/cluster.c
-  source/libs/woff2/brotli/enc/cluster.h
-  source/libs/woff2/brotli/enc/cluster_inc.h
-  source/libs/woff2/brotli/enc/command.h
-  source/libs/woff2/brotli/enc/compress_fragment.c
-  source/libs/woff2/brotli/enc/compress_fragment.h
-  source/libs/woff2/brotli/enc/compress_fragment_two_pass.c
-  source/libs/woff2/brotli/enc/compress_fragment_two_pass.h
-  source/libs/woff2/brotli/enc/context.h
-  source/libs/woff2/brotli/enc/dictionary_hash.c
-  source/libs/woff2/brotli/enc/dictionary_hash.h
-  source/libs/woff2/brotli/enc/encode.c
-  source/libs/woff2/brotli/enc/entropy_encode.c
-  source/libs/woff2/brotli/enc/entropy_encode.h
-  source/libs/woff2/brotli/enc/entropy_encode_static.h
-  source/libs/woff2/brotli/enc/fast_log.h
-  source/libs/woff2/brotli/enc/find_match_length.h
-  source/libs/woff2/brotli/enc/hash_forgetful_chain_inc.h
-  source/libs/woff2/brotli/enc/hash.h
-  source/libs/woff2/brotli/enc/hash_longest_match64_inc.h
-  source/libs/woff2/brotli/enc/hash_longest_match_inc.h
-  source/libs/woff2/brotli/enc/hash_longest_match_quickly_inc.h
-  source/libs/woff2/brotli/enc/hash_to_binary_tree_inc.h
-  source/libs/woff2/brotli/enc/histogram.c
-  source/libs/woff2/brotli/enc/histogram.h
-  source/libs/woff2/brotli/enc/histogram_inc.h
-  source/libs/woff2/brotli/enc/literal_cost.c
-  source/libs/woff2/brotli/enc/literal_cost.h
-  source/libs/woff2/brotli/enc/memory.c
-  source/libs/woff2/brotli/enc/memory.h
-  source/libs/woff2/brotli/enc/metablock.c
-  source/libs/woff2/brotli/enc/metablock.h
-  source/libs/woff2/brotli/enc/metablock_inc.h
-  source/libs/woff2/brotli/enc/port.h
-  source/libs/woff2/brotli/enc/prefix.h
-  source/libs/woff2/brotli/enc/quality.h
-  source/libs/woff2/brotli/enc/ringbuffer.h
-  source/libs/woff2/brotli/enc/static_dict.c
-  source/libs/woff2/brotli/enc/static_dict.h
-  source/libs/woff2/brotli/enc/static_dict_lut.h
-  source/libs/woff2/brotli/enc/utf8_util.c
-  source/libs/woff2/brotli/enc/utf8_util.h
-  source/libs/woff2/brotli/enc/write_bits.h
-  source/libs/woff2/brotli/include/brotli/decode.h
-  source/libs/woff2/brotli/include/brotli/encode.h
-  source/libs/woff2/brotli/include/brotli/port.h
-  source/libs/woff2/brotli/include/brotli/types.h
+  source/libs/brotli/common/constants.h
+  source/libs/brotli/common/dictionary.c
+  source/libs/brotli/common/dictionary.h
+  source/libs/brotli/common/version.h
+  source/libs/brotli/enc/backward_references.c
+  source/libs/brotli/enc/backward_references.h
+  source/libs/brotli/enc/backward_references_hq.c
+  source/libs/brotli/enc/backward_references_hq.h
+  source/libs/brotli/enc/backward_references_inc.h
+  source/libs/brotli/enc/bit_cost.c
+  source/libs/brotli/enc/bit_cost.h
+  source/libs/brotli/enc/bit_cost_inc.h
+  source/libs/brotli/enc/block_encoder_inc.h
+  source/libs/brotli/enc/block_splitter.c
+  source/libs/brotli/enc/block_splitter.h
+  source/libs/brotli/enc/block_splitter_inc.h
+  source/libs/brotli/enc/brotli_bit_stream.c
+  source/libs/brotli/enc/brotli_bit_stream.h
+  source/libs/brotli/enc/cluster.c
+  source/libs/brotli/enc/cluster.h
+  source/libs/brotli/enc/cluster_inc.h
+  source/libs/brotli/enc/command.h
+  source/libs/brotli/enc/compress_fragment.c
+  source/libs/brotli/enc/compress_fragment.h
+  source/libs/brotli/enc/compress_fragment_two_pass.c
+  source/libs/brotli/enc/compress_fragment_two_pass.h
+  source/libs/brotli/enc/context.h
+  source/libs/brotli/enc/dictionary_hash.c
+  source/libs/brotli/enc/dictionary_hash.h
+  source/libs/brotli/enc/encode.c
+  source/libs/brotli/enc/entropy_encode.c
+  source/libs/brotli/enc/entropy_encode.h
+  source/libs/brotli/enc/entropy_encode_static.h
+  source/libs/brotli/enc/fast_log.h
+  source/libs/brotli/enc/find_match_length.h
+  source/libs/brotli/enc/hash_forgetful_chain_inc.h
+  source/libs/brotli/enc/hash.h
+  source/libs/brotli/enc/hash_longest_match64_inc.h
+  source/libs/brotli/enc/hash_longest_match_inc.h
+  source/libs/brotli/enc/hash_longest_match_quickly_inc.h
+  source/libs/brotli/enc/hash_to_binary_tree_inc.h
+  source/libs/brotli/enc/histogram.c
+  source/libs/brotli/enc/histogram.h
+  source/libs/brotli/enc/histogram_inc.h
+  source/libs/brotli/enc/literal_cost.c
+  source/libs/brotli/enc/literal_cost.h
+  source/libs/brotli/enc/memory.c
+  source/libs/brotli/enc/memory.h
+  source/libs/brotli/enc/metablock.c
+  source/libs/brotli/enc/metablock.h
+  source/libs/brotli/enc/metablock_inc.h
+  source/libs/brotli/enc/port.h
+  source/libs/brotli/enc/prefix.h
+  source/libs/brotli/enc/quality.h
+  source/libs/brotli/enc/ringbuffer.h
+  source/libs/brotli/enc/static_dict.c
+  source/libs/brotli/enc/static_dict.h
+  source/libs/brotli/enc/static_dict_lut.h
+  source/libs/brotli/enc/utf8_util.c
+  source/libs/brotli/enc/utf8_util.h
+  source/libs/brotli/enc/write_bits.h
+  source/libs/brotli/include/brotli/decode.h
+  source/libs/brotli/include/brotli/encode.h
+  source/libs/brotli/include/brotli/port.h
+  source/libs/brotli/include/brotli/types.h
 )
 
 set(libwoff2_sources
@@ -410,6 +412,8 @@ set(libdvisvgm_sources
   source/src/System.hpp
   source/src/TFM.cpp
   source/src/TFM.hpp
+  source/src/TTFAutohint.cpp
+  source/src/TTFAutohint.hpp
   source/src/TensorProductPatch.cpp
   source/src/TensorProductPatch.hpp
   source/src/Terminal.cpp
@@ -420,6 +424,8 @@ set(libdvisvgm_sources
   source/src/TpicSpecialHandler.hpp
   source/src/TriangularPatch.cpp
   source/src/TriangularPatch.hpp
+  source/src/TrueTypeFont.cpp
+  source/src/TrueTypeFont.hpp
   source/src/Unicode.cpp
   source/src/Unicode.hpp
   source/src/VFActions.hpp

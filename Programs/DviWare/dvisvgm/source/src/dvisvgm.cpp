@@ -2,7 +2,7 @@
 ** dvisvgm.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -51,6 +51,7 @@
 #include <brotli/encode.h>
 #include <woff2/version.h>
 #include "ffwrapper.h"
+#include "TTFAutohint.hpp"
 #endif
 #if defined(MIKTEX)
 #  include <miktex/Definitions>
@@ -189,6 +190,16 @@ class VersionInfo {
 				append(name, "");
 		}
 
+		void add (const string &name, const vector<int> &versionComponents) {
+			string version;
+			for (auto it=versionComponents.begin(); it != versionComponents.end(); ++it) {
+				if (it != versionComponents.begin())
+					version += '.';
+				version += to_string(*it);
+			}
+			append(name, version);
+		}
+
 		/** Adds a version number given as a single unsigned integer, and optionally
 		 *  extracts its components, e.g. 0x00010203 => "1.2.3" (3 components separated
 		 *  by multiples of 256).
@@ -253,6 +264,7 @@ static void print_version (bool extended) {
 		versionInfo.add("brotli", BrotliEncoderVersion(), 3, 0x1000);
 		versionInfo.add("woff2", woff2::version, 3, 0x100);
 		versionInfo.add("fontforge", ff_version());
+		versionInfo.add("ttfautohint", TTFAutohint().version(), true);
 #endif
 #ifdef MIKTEX_COM
 		versionInfo.add("MiKTeX", FileFinder::instance().version());
@@ -265,9 +277,11 @@ static void print_version (bool extended) {
 
 
 static void init_fontmap (const CommandLine &cmdline) {
-	const char *mapseq = cmdline.fontmapOpt.given() ? cmdline.fontmapOpt.value().c_str() : 0;
-	bool additional = mapseq && strchr("+-=", *mapseq);
-	if (!mapseq || additional) {
+	string mapseq;
+	if (cmdline.fontmapOpt.given())
+		mapseq = cmdline.fontmapOpt.value();
+	bool additional = !mapseq.empty() && strchr("+-=", mapseq[0]);
+	if (mapseq.empty() || additional) {
 		bool found = false;
 		for (string mapfile : {"ps2pk", "pdftex", "dvipdfm", "psfonts"}) {
 			if ((found = FontMap::instance().read(mapfile+".map")))
@@ -276,7 +290,7 @@ static void init_fontmap (const CommandLine &cmdline) {
 		if (!found)
 			Message::wstream(true) << "none of the default map files could be found\n";
 	}
-	if (mapseq)
+	if (!mapseq.empty())
 		FontMap::instance().read(mapseq);
 }
 

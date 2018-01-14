@@ -2,7 +2,7 @@
 ** InputReader.hpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -36,7 +36,6 @@ class InputReader {
 		virtual bool eof () const =0;
 		virtual bool check (char c) const {return peek() == c;}
 		virtual bool check (const char *s, bool consume=true);
-		virtual int compare (const char *s, bool consume=true);
 		virtual void skip (size_t n);
 		virtual bool skipUntil (const char *s);
 		virtual int find (char c) const;
@@ -102,6 +101,5 @@ class StringMatcher {
 		std::vector<size_t> _borders;
 		size_t _charsRead;
 };
-
 
 #endif

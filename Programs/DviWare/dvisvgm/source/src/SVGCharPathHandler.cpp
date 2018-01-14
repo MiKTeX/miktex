@@ -2,7 +2,7 @@
 ** SVGCharPathHandler.cpp                                               **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -22,6 +22,7 @@
 #include "Font.hpp"
 #include "FontManager.hpp"
 #include "SVGCharPathHandler.hpp"
+#include "utility.hpp"
 #include "XMLNode.hpp"
 
 using namespace std;
@@ -68,8 +69,7 @@ void SVGCharPathHandler::appendChar (uint32_t c, double x, double y) {
 	if (color.changed() || _matrix.changed()) {
 		resetContextNode();
 		if (applyColor || applyMatrix) {
-			_groupNode = new XMLElementNode("g");
-			pushContextNode(_groupNode);
+			_groupNode = pushContextNode(util::make_unique<XMLElementNode>("g"));
 			if (applyColor)
 				contextNode()->addAttribute("fill", color.get().svgColorString());
 			if (applyMatrix)
@@ -108,15 +108,14 @@ void SVGCharPathHandler::appendChar (uint32_t c, double x, double y) {
 
 
 void SVGCharPathHandler::appendUseElement (uint32_t c, double x, double y, const Matrix &matrix) {
-	ostringstream oss;
-	oss << "#g" << FontManager::instance().fontID(_font) << '-' << c;
-	XMLElementNode *useNode = new XMLElementNode("use");
+	string id = "#g" + to_string(FontManager::instance().fontID(_font)) + "-" + to_string(c);
+	auto useNode = util::make_unique<XMLElementNode>("use");
 	useNode->addAttribute("x", XMLString(x));
 	useNode->addAttribute("y", XMLString(y));
-	useNode->addAttribute("xlink:href", oss.str());
+	useNode->addAttribute("xlink:href", id);
 	if (!matrix.isIdentity())
 		useNode->addAttribute("transform", matrix.getSVG());
-	contextNode()->append(useNode);
+	contextNode()->append(std::move(useNode));
 }
 
 
@@ -128,10 +127,10 @@ void SVGCharPathHandler::appendPathElement (uint32_t c, double x, double y, cons
 		double sy = -sx;
 		ostringstream oss;
 		glyph.writeSVG(oss, _relativePathCommands, sx, sy, x, y);
-		XMLElementNode *glyphNode = new XMLElementNode("path");
+		auto glyphNode = util::make_unique<XMLElementNode>("path");
 		glyphNode->addAttribute("d", oss.str());
 		if (!matrix.isIdentity())
 			glyphNode->addAttribute("transform", matrix.getSVG());
-		contextNode()->append(glyphNode);
+		contextNode()->append(std::move(glyphNode));
 	}
 }

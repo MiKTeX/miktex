@@ -2,7 +2,7 @@
 ** ffwrapper.h                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -28,7 +28,6 @@ extern "C" {
 void ff_init ();
 int ff_version ();
 int ff_sfd_to_ttf (const char *sfdname, const char *ttfname, int autohint);
-int ff_sfd_to_woff (const char *sfdname, const char *woffname, int autohint);
 
 #ifdef __cplusplus
 }

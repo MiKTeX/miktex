@@ -2,7 +2,7 @@
 ** FontManager.cpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -111,28 +111,28 @@ int FontManager::vfFirstFontNum (const VirtualFont *vf) const {
  *  @return pointer to font if font was found, 0 otherwise */
 Font* FontManager::getFont (int n) const {
 	int id = fontID(n);
-	return (id < 0) ? 0 : _fonts[id].get();
+	return (id < 0) ? nullptr : _fonts[id].get();
 }
 
 
 Font* FontManager::getFont (const string &name) const {
 	int id = fontID(name);
 	if (id < 0)
-		return 0;
+		return nullptr;
 	return _fonts[id].get();
 }
 
 
 Font* FontManager::getFontById (int id) const {
 	if (id < 0 || size_t(id) >= _fonts.size())
-		return 0;
+		return nullptr;
 	return _fonts[id].get();
 }
 
 
 /** Returns the current active virtual font. */
 const VirtualFont* FontManager::getVF () const {
-	return _vfStack.empty() ? 0 : _vfStack.top();
+	return _vfStack.empty() ? nullptr : _vfStack.top();
 }
 
 
@@ -154,7 +154,7 @@ static unique_ptr<Font> create_font (const string &filename, const string &fontn
 		if (ext == "mf")
 			return PhysicalFont::create(fontname, checksum, dsize, ssize, PhysicalFont::Type::MF);
 	}
-	return 0;
+	return nullptr;
 }
 
 

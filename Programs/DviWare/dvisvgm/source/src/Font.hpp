@@ -2,7 +2,7 @@
 ** Font.hpp                                                             **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -77,7 +77,7 @@ class Font {
 		virtual bool verticalLayout () const     {return getMetrics() ? getMetrics()->verticalLayout() : false;}
 		virtual bool verifyChecksums () const    {return true;}
 		virtual int fontIndex () const           {return 0;}
-		virtual const FontStyle* style () const  {return 0;}
+		virtual const FontStyle* style () const  {return nullptr;}
 		virtual Color color () const             {return Color::BLACK;}
 		virtual const FontMap::Entry* fontMapEntry () const;
 };
@@ -98,8 +98,8 @@ class EmptyFont : public Font {
 		double charHeight (int c) const override           {return 6.833;} // height of cmr10's 'M' in pt
 		double charDepth (int c) const override            {return 0;}
 		double italicCorr (int c) const override           {return 0;}
-		const FontMetrics* getMetrics () const override    {return 0;}
-		const char* path () const override                 {return 0;}
+		const FontMetrics* getMetrics () const override    {return nullptr;}
+		const char* path () const override                 {return nullptr;}
 		bool getGlyph (int c, Glyph &glyph, GFGlyphTracer::Callback *cb=0) const override {return false;}
 
 	private:
@@ -115,9 +115,9 @@ class PhysicalFont : public virtual Font {
 		static std::unique_ptr<Font> create (const std::string &name, uint32_t checksum, double dsize, double ssize, PhysicalFont::Type type);
 		static std::unique_ptr<Font> create (const std::string &name, int fontindex, uint32_t checksum, double dsize, double ssize);
 		virtual Type type () const =0;
-		virtual bool getGlyph (int c, Glyph &glyph, GFGlyphTracer::Callback *cb=0) const override;
-		virtual bool getExactGlyphBox (int c, BoundingBox &bbox, GFGlyphTracer::Callback *cb=0) const;
-		virtual bool getExactGlyphBox (int c, GlyphMetrics &metrics, bool vertical, GFGlyphTracer::Callback *cb=0) const;
+		virtual bool getGlyph (int c, Glyph &glyph, GFGlyphTracer::Callback *cb=nullptr) const override;
+		virtual bool getExactGlyphBox (int c, BoundingBox &bbox, GFGlyphTracer::Callback *cb=nullptr) const;
+		virtual bool getExactGlyphBox (int c, GlyphMetrics &metrics, bool vertical, GFGlyphTracer::Callback *cb=nullptr) const;
 		virtual bool isCIDFont () const;
 		virtual int hAdvance () const;
 		virtual std::string familyName () const;
@@ -129,7 +129,7 @@ class PhysicalFont : public virtual Font {
 		virtual double scaledAscent () const;
 		virtual int ascent () const;
 		virtual int descent () const;
-		virtual int traceAllGlyphs (bool includeCached, GFGlyphTracer::Callback *cb=0) const;
+		virtual int traceAllGlyphs (bool includeCached, GFGlyphTracer::Callback *cb=nullptr) const;
 		virtual int collectCharMapIDs (std::vector<CharMapID> &charmapIDs) const;
 		virtual CharMapID getCharMapID () const =0;
 		virtual void setCharMapID (const CharMapID &id) {}
@@ -159,7 +159,7 @@ class VirtualFont : public virtual Font {
 	public:
 		static std::unique_ptr<Font> create (const std::string &name, uint32_t checksum, double dsize, double ssize);
 		virtual const DVIVector* getDVI (int c) const =0;
-		bool getGlyph (int c, Glyph &glyph, GFGlyphTracer::Callback *cb=0) const override {return false;}
+		bool getGlyph (int c, Glyph &glyph, GFGlyphTracer::Callback *cb=nullptr) const override {return false;}
 
 	protected:
 		virtual void assignChar (uint32_t c, DVIVector &&dvi) =0;
@@ -236,8 +236,7 @@ class PhysicalFontImpl : public PhysicalFont, public TFMFont {
 		const Font* uniqueFont () const override             {return this;}
 		Type type () const override                          {return _filetype;}
 		int fontIndex() const override                       {return _fontIndex;}
-		const FontStyle* style () const override             {return _fontMapEntry ? &_fontMapEntry->style : 0;}
-		const FontMap::Entry* fontMapEntry () const override {return _fontMapEntry;}
+		const FontStyle* style () const override;
 		const FontEncoding* encoding () const override;
 		uint32_t unicode (uint32_t c) const override;
 		bool findAndAssignBaseFontMap () override;
@@ -250,7 +249,6 @@ class PhysicalFontImpl : public PhysicalFont, public TFMFont {
 	private:
 		Type _filetype;
 		int _fontIndex;
-		const FontMap::Entry *_fontMapEntry;
 		FontEncodingPair _encodingPair;
 		CharMapID _charmapID;  ///< ID of the font's charmap to use
 		std::unique_ptr<const RangeMap> _localCharMap;
@@ -269,10 +267,10 @@ class NativeFont : public PhysicalFont {
 		double charDepth (int c) const override;
 		double charHeight (int c) const override;
 		double italicCorr (int c) const override         {return 0;}
-		const FontMetrics* getMetrics () const override  {return 0;}
+		const FontMetrics* getMetrics () const override  {return nullptr;}
 		const FontStyle* style () const override         {return &_style;}
 		Color color () const override                    {return _color;}
-		const FontMap::Entry* fontMapEntry () const override {return 0;}
+		const FontMap::Entry* fontMapEntry () const override {return nullptr;}
 		static std::string uniqueName (const std::string &path, const FontStyle &style);
 
 	protected:
@@ -392,8 +390,7 @@ class VirtualFontImpl : public VirtualFont, public TFMFont {
 };
 
 
-struct FontException : public MessageException
-{
+struct FontException : public MessageException {
 	FontException (const std::string &msg) : MessageException(msg) {}
 };
 

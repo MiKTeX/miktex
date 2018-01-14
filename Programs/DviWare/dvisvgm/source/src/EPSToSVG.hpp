@@ -2,7 +2,7 @@
 ** EPSToSVG.hpp                                                         **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -21,14 +21,14 @@
 #ifndef EPSTOSVG_HPP
 #define EPSTOSVG_HPP
 
+#include <memory>
 #include <string>
 #include "SpecialActions.hpp"
 #include "SVGTree.hpp"
 
 struct SVGOutputBase;
 
-class EPSToSVG : protected SpecialActions
-{
+class EPSToSVG : protected SpecialActions {
 	public:
 		EPSToSVG (const std::string &fname, SVGOutputBase &out) : _fname(fname), _out(out), _x(0), _y(0) {}
 		void convert ();
@@ -48,10 +48,10 @@ class EPSToSVG : protected SpecialActions
 		const Matrix& getMatrix () const override               {return _svg.getMatrix();}
 		void getPageTransform (Matrix &matrix) const override   {}
 		void setBgColor (const Color &color) override           {}
-		void appendToPage (XMLNode *node) override              {_svg.appendToPage(node);}
-		void appendToDefs (XMLNode *node) override              {_svg.appendToDefs(node);}
-		void prependToPage (XMLNode *node) override             {_svg.prependToPage(node);}
-		void pushContextElement (XMLElementNode *node) override {_svg.pushContextElement(node);}
+		void appendToPage(std::unique_ptr<XMLNode> &&node) override  {_svg.appendToPage(std::move(node));}
+		void appendToDefs(std::unique_ptr<XMLNode> &&node) override  {_svg.appendToDefs(std::move(node));}
+		void prependToPage(std::unique_ptr<XMLNode> &&node) override {_svg.prependToPage(std::move(node));}
+		void pushContextElement (std::unique_ptr<XMLElementNode> &&node) override {_svg.pushContextElement(std::move(node));}
 		void popContextElement () override                      {_svg.popContextElement();}
 		void embed (const BoundingBox &bbox) override           {_bbox.embed(bbox);}
 		void embed (const DPair &p, double r=0) override        {if (r==0) _bbox.embed(p); else _bbox.embed(p, r);}

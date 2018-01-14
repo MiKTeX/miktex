@@ -90,7 +90,7 @@
 /*    is followed by the resource section (padded to a mult of 128 bytes) */
 
 /* Crc code taken from: */
-/* http://www.ctan.org/tex-archive/tools/macutils/crc/ */
+/* http:// mirror.ctan.org/tools/macutils/crc */
 /* MacBinary files use the same CRC that binhex does (in the MacBinary header) */
 
 /* ******************************** Creation ******************************** */

@@ -2,7 +2,7 @@
 ** DVIReader.hpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -34,14 +34,12 @@ class FontStyle;
 class NativeFont;
 class VirtualFont;
 
-class DVIReader : public BasicDVIReader, public VFActions
-{
+class DVIReader : public BasicDVIReader, public VFActions {
 	protected:
 		enum class WritingMode {LR=0, TB=1, BT=3};
 		enum class SetFontMode {SF_SHORT, SF_LONG, VF_ENTER, VF_LEAVE};
 
-		struct DVIState
-		{
+		struct DVIState {
 			double h, v;        ///< horizontal and vertical cursor position
 			double x, w, y, z;  ///< additional registers to store horizontal (x, w) and vertical (y, z) positions
 			WritingMode d;      ///< direction: 0: horizontal, 1: vertical(top->bottom), 3: vertical (bottom->top)

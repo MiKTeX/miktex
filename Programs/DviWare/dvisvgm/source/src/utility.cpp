@@ -2,7 +2,7 @@
 ** utility.cpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -20,7 +20,9 @@
 
 #include <algorithm>
 #include <cctype>
+#include <fstream>
 #include <functional>
+#include <iterator>
 #include "utility.hpp"
 
 using namespace std;
@@ -116,4 +118,22 @@ int util::ilog10 (int n) {
 		n /= 10;
 	}
 	return result;
+}
+
+
+/** Returns the contents of a file.
+ *  @param[in] fname name/path of the file */
+string util::read_file_contents (const string &fname) {
+	ifstream ifs(fname.c_str(), ios::binary);
+	return string(istreambuf_iterator<char>(ifs.rdbuf()), istreambuf_iterator<char>());
+}
+
+
+/** Writes a sequence of bytes given as a string to a file.
+ *  @param[in] name/path of the file to write
+ *  @param[in] start iterator pointing to the begin of the byte sequence
+ *  @param[in] end iterator pointing to the first byte after the byte sequence to write */
+void util::write_file_contents (const string &fname, string::iterator start, string::iterator end) {
+	ofstream ofs(fname.c_str(), ios::binary);
+	copy(start, end, ostream_iterator<char>(ofs));
 }

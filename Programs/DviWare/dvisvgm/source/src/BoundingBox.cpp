@@ -2,7 +2,7 @@
 ** BoundingBox.cpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -261,8 +261,8 @@ ostream& BoundingBox::write (ostream &os) const {
 }
 
 
-XMLElementNode* BoundingBox::createSVGRect () const {
-	XMLElementNode *rect = new XMLElementNode("rect");
+unique_ptr<XMLElementNode> BoundingBox::createSVGRect () const {
+	auto rect = util::make_unique<XMLElementNode>("rect");
 	rect->addAttribute("x", minX());
 	rect->addAttribute("y", minY());
 	rect->addAttribute("width", width());

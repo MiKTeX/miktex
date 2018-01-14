@@ -2,7 +2,7 @@
 ** HyperlinkManager.cpp                                                 **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -23,6 +23,7 @@
 #include "Message.hpp"
 #include "SpecialActions.hpp"
 #include "SVGTree.hpp"
+#include "utility.hpp"
 #include "XMLNode.hpp"
 
 using namespace std;
@@ -105,10 +106,10 @@ void HyperlinkManager::createLink (string uri, SpecialActions &actions) {
 			uri = "/" + uri;
 		uri = _base + uri;
 	}
-	XMLElementNode *anchor = new XMLElementNode("a");
-	anchor->addAttribute("xlink:href", uri);
-	anchor->addAttribute("xlink:title", XMLString(name.empty() ? uri : name, false));
-	actions.pushContextElement(anchor);
+	auto anchorNode = util::make_unique<XMLElementNode>("a");
+	anchorNode->addAttribute("xlink:href", uri);
+	anchorNode->addAttribute("xlink:title", XMLString(name.empty() ? uri : name, false));
+	actions.pushContextElement(std::move(anchorNode));
 	actions.bbox("{anchor}", true);  // start computing the bounding box of the linked area
 	_depthThreshold = actions.getDVIStackDepth();
 	_anchorType = AnchorType::HREF;
@@ -147,7 +148,7 @@ void HyperlinkManager::markLinkedBox (SpecialActions &actions) {
 	if (bbox.width() > 0 && bbox.height() > 0) {  // does the bounding box extend in both dimensions?
 		if (MARKER_TYPE != MarkerType::NONE) {
 			const double linewidth = _linewidth >= 0 ? _linewidth : min(0.5, bbox.height()/15);
-			XMLElementNode *rect = new XMLElementNode("rect");
+			auto rect = util::make_unique<XMLElementNode>("rect");
 			double x = bbox.minX();
 			double y = bbox.maxY()+linewidth;
 			double w = bbox.width();
@@ -178,7 +179,7 @@ void HyperlinkManager::markLinkedBox (SpecialActions &actions) {
 			rect->addAttribute("y", y);
 			rect->addAttribute("width", w);
 			rect->addAttribute("height", h);
-			actions.prependToPage(rect);
+			actions.prependToPage(std::move(rect));
 			if (MARKER_TYPE == MarkerType::BOX || MARKER_TYPE == MarkerType::BGCOLOR) {
 				// slightly enlarge the boxed area
 				x -= linewidth;
@@ -191,14 +192,14 @@ void HyperlinkManager::markLinkedBox (SpecialActions &actions) {
 		// Create an invisible rectangle around the linked area so that it's easier to access.
 		// This is only necessary when using paths rather than real text elements together with fonts.
 		if (!SVGTree::USE_FONTS) {
-			XMLElementNode *rect = new XMLElementNode("rect");
+			auto rect = util::make_unique<XMLElementNode>("rect");
 			rect->addAttribute("x", bbox.minX());
 			rect->addAttribute("y", bbox.minY());
 			rect->addAttribute("width", bbox.width());
 			rect->addAttribute("height", bbox.height());
 			rect->addAttribute("fill", "white");
 			rect->addAttribute("fill-opacity", 0);
-			actions.appendToPage(rect);
+			actions.appendToPage(std::move(rect));
 		}
 	}
 }
@@ -212,10 +213,10 @@ void HyperlinkManager::createViews (unsigned pageno, SpecialActions &actions) {
 			ostringstream oss;
 			oss << pagebox.minX() << ' ' << stranchorpair.second.pos << ' '
 				 << pagebox.width() << ' ' << pagebox.height();
-			XMLElementNode *view = new XMLElementNode("view");
+			auto view = util::make_unique<XMLElementNode>("view");
 			view->addAttribute("id", "loc"+XMLString(stranchorpair.second.id));
 			view->addAttribute("viewBox", oss.str());
-			actions.appendToDefs(view);
+			actions.appendToDefs(std::move(view));
 		}
 	}
 	closeAnchor(actions);

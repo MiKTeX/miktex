@@ -2,7 +2,7 @@
 ** FileSystem.hpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -39,7 +39,7 @@ class FileSystem
 		static bool exists (const std::string &fname);
 		static bool mkdir (const std::string &dirname);
 		static bool rmdir (const std::string &dirname);
-		static int collect (const char *dirname, std::vector<std::string> &entries);
+		static int collect (const std::string &dirname, std::vector<std::string> &entries);
 		static bool isDirectory (const std::string &fname);
 		static bool isFile (const std::string &fname);
 		static const char* userdir ();

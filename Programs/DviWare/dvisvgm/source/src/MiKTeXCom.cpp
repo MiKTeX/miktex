@@ -2,7 +2,7 @@
 ** MiKTeXCom.cpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -28,8 +28,8 @@ using namespace std;
 
 
 /** Constructs a COM object representing a MiKTeX session. */
-MiKTeXCom::MiKTeXCom () : _session(0) {
-	if (FAILED(CoInitialize(0)))
+MiKTeXCom::MiKTeXCom () : _session() {
+	if (FAILED(CoInitialize(nullptr)))
 		throw MessageException("COM library could not be initialized\n");
 	// try to initialize the MiKTeX session object
 #ifdef _MSC_VER
@@ -53,7 +53,7 @@ MiKTeXCom::~MiKTeXCom () {
 #else
 		_session->Release();
 #endif
-		_session = 0; // prevent automatic call of Release() after CoUninitialize()
+		_session = nullptr; // prevent automatic call of Release() after CoUninitialize()
 	}
 	CoUninitialize();
 }
@@ -104,7 +104,7 @@ const char* MiKTeXCom::findFile (const char *fname) {
 			ret = _bstr_t(path);
 			return ret.c_str();
 		}
-		return 0;
+		return nullptr;
 	}
 	catch (_com_error &e) {
 		throw MessageException((const char*)e.Description());

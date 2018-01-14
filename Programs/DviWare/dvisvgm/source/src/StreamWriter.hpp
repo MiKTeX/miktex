@@ -2,7 +2,7 @@
 ** StreamWriter.hpp                                                     **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -22,17 +22,19 @@
 #define STREAMWRITER_HPP
 
 #include <ostream>
-
+#include <vector>
 
 class CRC32;
 
-class StreamWriter
-{
+class StreamWriter {
 	public:
 		StreamWriter (std::ostream &os) : _os(os) {}
 		virtual ~StreamWriter () =default;
 		void writeUnsigned (uint32_t val, int n);
 		void writeSigned (int32_t val, int n);
+		void writeBytes (const std::vector<uint8_t> &bytes);
+		void writeBytes (const uint8_t *buf, size_t bufsize);
+		void writeBytes (int byte, size_t count);
 		void writeString (const std::string &str, bool finalZero=false);
 		void writeUnsigned (uint32_t val, int n, CRC32 &crc32);
 		void writeSigned (int32_t val, int n, CRC32 &crc32);

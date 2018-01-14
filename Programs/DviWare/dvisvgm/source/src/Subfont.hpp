@@ -2,7 +2,7 @@
 ** Subfont.hpp                                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -22,10 +22,10 @@
 #define SUBFONT_HPP
 
 #include <istream>
+#include <map>
 #include <memory>
 #include <sstream>
 #include <string>
-#include <unordered_map>
 #include <vector>
 #include "MessageException.hpp"
 
@@ -35,7 +35,7 @@ class Subfont;
 /** Represents a collection of subfont mappings as defined in a .sfd file, and
  *  encapsulates the evaluation of these files. */
 class SubfontDefinition {
-	using Subfonts = std::unordered_map<std::string, std::unique_ptr<Subfont>>;
+	using Subfonts = std::map<std::string, std::unique_ptr<Subfont>>;
 	public:
 		static SubfontDefinition* lookup (const std::string &name);
 //		int getIDs (std::vector<std::string> &ids) const;

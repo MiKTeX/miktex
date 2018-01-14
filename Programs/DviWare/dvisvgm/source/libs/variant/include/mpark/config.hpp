@@ -9,7 +9,7 @@
 #define MPARK_CONFIG_HPP
 
 // MSVC 2015 Update 3.
-#if __cplusplus < 201103L && (!defined(_MSC_VER) || _MSC_FULL_VER < 190024215)
+#if __cplusplus < 201103L && (!defined(_MSC_VER) || _MSC_FULL_VER < 190024210)
 #error "MPark.Variant requires C++11 support."
 #endif
 

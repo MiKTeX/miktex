@@ -2,7 +2,7 @@
 ** SVGCharTspanTextHandler.cpp                                          **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -19,6 +19,7 @@
 *************************************************************************/
 
 #include "SVGCharTspanTextHandler.hpp"
+#include "utility.hpp"
 #include "XMLNode.hpp"
 
 using namespace std;
@@ -34,8 +35,7 @@ void SVGCharTspanTextHandler::appendChar (uint32_t c, double x, double y) {
 	// changes of fonts and transformations require a new text element
 	if (!_textNode || _font.changed() || _matrix.changed() || _vertical.changed()) {
 		resetContextNode();
-		_textNode = createTextNode(x, y);
-		pushContextNode(_textNode);
+		_textNode = pushContextNode(createTextNode(x, y));
 		_color.changed(true);  // force creating tspan with color attribute if current color differs from font color
 	}
 	if (_tspanNode && (_xchanged || _ychanged || _color.changed())) {
@@ -47,8 +47,7 @@ void SVGCharTspanTextHandler::appendChar (uint32_t c, double x, double y) {
 	// Glyphs of non-black fonts (e.g. defined in a XeTeX document) can't change their color.
 	bool applyColor = _color.get() != Color::BLACK && _font.get()->color() == Color::BLACK;
 	if (_xchanged || _ychanged || (_color.changed() && applyColor)) {
-		_tspanNode = new XMLElementNode("tspan");
-		pushContextNode(_tspanNode);
+		_tspanNode = pushContextNode(util::make_unique<XMLElementNode>("tspan"));
 		if (applyColor)
 			_tspanNode->addAttribute("fill", _color.get().svgColorString());
 		_color.changed(false);

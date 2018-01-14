@@ -2,7 +2,7 @@
 ** InputReader.cpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -107,22 +107,6 @@ bool InputReader::check (const char *s, bool consume) {
 	if (consume)
 		skip(count);
 	return true;
-}
-
-
-int InputReader::compare (const char *s, bool consume) {
-	size_t count = 0;
-	for (const char *p=s; *p; p++) {
-		int c = peek(count++);
-		if (c != *p)
-			return c < *p ? -1 : 1;
-	}
-	int c = peek(count);
-	if (c < 0 || !isspace(c))
-		return 1;
-	if (consume)
-		skip(count);
-	return 0;
 }
 
 

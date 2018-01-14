@@ -2,7 +2,7 @@
 ** DVIToSVGActions.cpp                                                  **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -158,7 +158,7 @@ void DVIToSVGActions::setChar (double x, double y, unsigned c, bool vertical, co
  *  @param[in] width length of the horizontal edges */
 void DVIToSVGActions::setRule (double x, double y, double height, double width) {
 	// (x,y) is the lower left corner of the rectangle
-	XMLElementNode *rect = new XMLElementNode("rect");
+	auto rect = util::make_unique<XMLElementNode>("rect");
 	rect->addAttribute("x", x);
 	rect->addAttribute("y", y-height);
 	rect->addAttribute("height", height);
@@ -167,7 +167,7 @@ void DVIToSVGActions::setRule (double x, double y, double height, double width) 
 		rect->addAttribute("transform", getMatrix().getSVG());
 	if (getColor() != Color::BLACK)
 		rect->addAttribute("fill", _svg.getColor().svgColorString());
-	_svg.appendToPage(rect);
+	_svg.appendToPage(std::move(rect));
 
 	// update bounding box
 	BoundingBox bb(x, y-height, x+width, y);
@@ -225,13 +225,13 @@ void DVIToSVGActions::endPage (unsigned pageno) {
 	_svg.transformPage(matrix);
 	if (_bgcolor != Color::TRANSPARENT) {
 		// create a rectangle filled with the background color
-		XMLElementNode *r = new XMLElementNode("rect");
-		r->addAttribute("x", _bbox.minX());
-		r->addAttribute("y", _bbox.minY());
-		r->addAttribute("width", _bbox.width());
-		r->addAttribute("height", _bbox.height());
-		r->addAttribute("fill", _bgcolor.svgColorString());
-		_svg.prependToPage(r);
+		auto rect = util::make_unique<XMLElementNode>("rect");
+		rect->addAttribute("x", _bbox.minX());
+		rect->addAttribute("y", _bbox.minY());
+		rect->addAttribute("width", _bbox.width());
+		rect->addAttribute("height", _bbox.height());
+		rect->addAttribute("fill", _bgcolor.svgColorString());
+		_svg.prependToPage(std::move(rect));
 	}
 }
 

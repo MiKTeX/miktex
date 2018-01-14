@@ -2,7 +2,7 @@
 ** XMLDocument.cpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -22,8 +22,8 @@
 
 using namespace std;
 
-XMLDocument::XMLDocument (XMLElementNode *root)
-	: _rootElement(root)
+XMLDocument::XMLDocument (unique_ptr<XMLElementNode> &&root)
+	: _rootElement(std::move(root))
 {
 }
 
@@ -34,18 +34,18 @@ void XMLDocument::clear () {
 }
 
 
-void XMLDocument::append (XMLNode *node) {
+void XMLDocument::append (unique_ptr<XMLNode> &&node) {
 	if (node) {
-		if (XMLElementNode *newRoot = dynamic_cast<XMLElementNode*>(node))
-			_rootElement.reset(newRoot);
+		if (dynamic_cast<XMLElementNode*>(node.get()))
+			_rootElement = util::static_unique_ptr_cast<XMLElementNode>(std::move(node));
 		else
-			_nodes.emplace_back(unique_ptr<XMLNode>(node));
+			_nodes.emplace_back(std::move(node));
 	}
 }
 
 
-void XMLDocument::setRootNode (XMLElementNode *root) {
-	_rootElement.reset(root);
+void XMLDocument::setRootNode (unique_ptr<XMLElementNode> &&root) {
+	_rootElement = std::move(root);
 }
 
 

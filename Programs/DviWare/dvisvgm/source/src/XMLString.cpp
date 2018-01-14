@@ -2,7 +2,7 @@
 ** XMLString.cpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -20,8 +20,6 @@
 
 #include <cmath>
 #include <cstdlib>
-#include <iomanip>
-#include <sstream>
 #include "Unicode.hpp"
 #include "XMLString.hpp"
 
@@ -46,7 +44,7 @@ XMLString::XMLString (const string &str, bool plain) {
 		assign(str);
 	else {
 		for (char c : str)
-			*this += translate(c);
+			append(translate(c));
 	}
 }
 
@@ -57,20 +55,15 @@ XMLString::XMLString (const char *str, bool plain) {
 			assign(str);
 		else {
 			while (*str)
-				*this += translate(*str++);
+				append(translate(*str++));
 		}
 	}
 }
 
 
-XMLString::XMLString (int n, bool cast) {
-	if (cast) {
-		stringstream ss;
-		ss << n;
-		ss >> *this;
-	}
-	else
-		*this += translate(n);
+XMLString::XMLString (int n, bool cast)
+	: string(cast ? to_string(n) : translate(n))
+{
 }
 
 
@@ -89,14 +82,21 @@ static inline double round (double x, int n) {
 
 
 XMLString::XMLString (double x) {
-	stringstream ss;
 	if (DECIMAL_PLACES > 0) {
 		// don't use fixed and setprecision() manipulators here to avoid
 		// banker's rounding applied in some STL implementations
 		x = round(x, DECIMAL_PLACES);
 	}
-	if (std::abs(x) < 1e-7)
+	if (std::abs(x) < 1e-6)
 		x = 0;
-	ss << x;
-	ss >> *this;
+	assign(to_string(x));
+	size_t pos = find('.');
+	if (pos != string::npos) {
+		pos = find_last_not_of('0');
+		if (pos != string::npos) {
+			erase(pos+1);   // remove trailing zeros
+			if (at(length()-1) == '.')
+				pop_back();  // remove trailing dot
+		}
+	}
 }

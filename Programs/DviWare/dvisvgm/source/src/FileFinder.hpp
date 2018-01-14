@@ -27,8 +27,7 @@
 
 class MiKTeXCom;
 
-class FileFinder
-{
+class FileFinder {
 	public:
 		static void init (const std::string &argv0, const std::string &progname, bool enable_mktexmf);
 		static FileFinder& instance ();

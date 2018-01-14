@@ -2,7 +2,7 @@
 ** DvisvgmSpecialHandler.cpp                                            **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -26,6 +26,7 @@
 #include "InputReader.hpp"
 #include "Length.hpp"
 #include "SpecialActions.hpp"
+#include "utility.hpp"
 #include "XMLNode.hpp"
 #include "XMLString.hpp"
 
@@ -93,7 +94,7 @@ void DvisvgmSpecialHandler::preprocessRaw (InputReader &ir) {
 		return;
 	string str = ir.getLine();
 	if (!str.empty())
-		_currentMacro->second.emplace_back(string("P")+str);
+		_currentMacro->second.emplace_back("P"+str);
 }
 
 
@@ -102,7 +103,7 @@ void DvisvgmSpecialHandler::preprocessRawDef (InputReader &ir) {
 		return;
 	string str = ir.getLine();
 	if (!str.empty())
-		_currentMacro->second.emplace_back(string("D")+str);
+		_currentMacro->second.emplace_back("D"+str);
 }
 
 
@@ -190,7 +191,7 @@ void DvisvgmSpecialHandler::processRaw (InputReader &ir, SpecialActions &actions
 		string str = ir.getLine();
 		if (!str.empty()) {
 			expand_constants(str, actions);
-			actions.appendToPage(new XMLTextNode(str));
+			actions.appendToPage(util::make_unique<XMLTextNode>(str));
 		}
 	}
 }
@@ -201,7 +202,7 @@ void DvisvgmSpecialHandler::processRawDef (InputReader &ir, SpecialActions &acti
 		string str = ir.getLine();
 		if (!str.empty()) {
 			expand_constants(str, actions);
-			actions.appendToDefs(new XMLTextNode(str));
+			actions.appendToDefs(util::make_unique<XMLTextNode>(str));
 		}
 	}
 }
@@ -233,9 +234,9 @@ void DvisvgmSpecialHandler::processRawPut (InputReader &ir, SpecialActions &acti
 		if ((type == 'P' || type == 'D') && !def.empty()) {
 			expand_constants(def, actions);
 			if (type == 'P')
-				actions.appendToPage(new XMLTextNode(def));
+				actions.appendToPage(util::make_unique<XMLTextNode>(def));
 			else {          // type == 'D'
-				actions.appendToDefs(new XMLTextNode(def));
+				actions.appendToDefs(util::make_unique<XMLTextNode>(def));
 				type = 'L';  // locked
 			}
 		}
@@ -321,7 +322,7 @@ void DvisvgmSpecialHandler::processImg (InputReader &ir, SpecialActions &actions
 		Length h = read_length(ir);
 		string f = ir.getString();
 		update_bbox(w, h, 0, actions);
-		XMLElementNode *img = new XMLElementNode("image");
+		auto img = util::make_unique<XMLElementNode>("image");
 		img->addAttribute("x", actions.getX());
 		img->addAttribute("y", actions.getY());
 		img->addAttribute("width", w.bp());
@@ -329,7 +330,7 @@ void DvisvgmSpecialHandler::processImg (InputReader &ir, SpecialActions &actions
 		img->addAttribute("xlink:href", f);
 		if (!actions.getMatrix().isIdentity())
 			img->addAttribute("transform", actions.getMatrix().getSVG());
-		actions.appendToPage(img);
+		actions.appendToPage(std::move(img));
 	}
 	catch (const UnitException &e) {
 		throw SpecialException(string("dvisvgm:img: ") + e.what());

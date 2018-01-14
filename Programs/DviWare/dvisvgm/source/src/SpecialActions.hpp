@@ -2,7 +2,7 @@
 ** SpecialActions.hpp                                                   **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -22,6 +22,7 @@
 #define SPECIALACTIONS_HPP
 
 #include <string>
+#include <memory>
 #include "BoundingBox.hpp"
 #include "Color.hpp"
 #include "Matrix.hpp"
@@ -29,8 +30,7 @@
 class XMLNode;
 class XMLElementNode;
 
-class SpecialActions
-{
+class SpecialActions {
 	public:
 		virtual ~SpecialActions () =default;
 		virtual double getX () const =0;
@@ -44,10 +44,10 @@ class SpecialActions
 		virtual const Matrix& getMatrix () const =0;
 		virtual void getPageTransform (Matrix &matrix) const =0;
 		virtual void setBgColor (const Color &color) =0;
-		virtual void appendToPage (XMLNode *node) =0;
-		virtual void appendToDefs (XMLNode *node) =0;
-		virtual void prependToPage (XMLNode *node) =0;
-		virtual void pushContextElement (XMLElementNode *node) =0;
+		virtual void appendToPage(std::unique_ptr<XMLNode> &&node) =0;
+		virtual void appendToDefs(std::unique_ptr<XMLNode> &&node) =0;
+		virtual void prependToPage(std::unique_ptr<XMLNode> &&node) =0;
+		virtual void pushContextElement (std::unique_ptr<XMLElementNode> &&node) =0;
 		virtual void popContextElement () =0;
 		virtual BoundingBox& bbox () =0;
 		virtual BoundingBox& bbox (const std::string &name, bool reset=false) =0;
@@ -63,8 +63,7 @@ class SpecialActions
 };
 
 
-class EmptySpecialActions : public SpecialActions
-{
+class EmptySpecialActions : public SpecialActions {
 	public:
 		double getX () const override {return 0;}
 		double getY () const override {return 0;}
@@ -77,10 +76,10 @@ class EmptySpecialActions : public SpecialActions
 		void setMatrix (const Matrix &m) override {}
 		const Matrix& getMatrix () const override {return _matrix;}
 		void getPageTransform (Matrix &matrix) const override {}
-		void appendToPage (XMLNode *node) override {}
-		void appendToDefs (XMLNode *node) override {}
-		void prependToPage (XMLNode *node) override {}
-		void pushContextElement (XMLElementNode *node) override {}
+		void appendToPage(std::unique_ptr<XMLNode> &&node) override {}
+		void appendToDefs(std::unique_ptr<XMLNode> &&node) override {}
+		void prependToPage(std::unique_ptr<XMLNode> &&node) override {}
+		void pushContextElement (std::unique_ptr<XMLElementNode> &&node) override {}
 		void popContextElement () override {}
 		BoundingBox& bbox () override {return _bbox;}
 		BoundingBox& bbox (const std::string &name, bool reset=false) override {return _bbox;}

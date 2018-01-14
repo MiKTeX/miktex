@@ -2,7 +2,7 @@
 ** Font.cpp                                                             **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -51,7 +51,7 @@ uint32_t Font::unicode (uint32_t c) const {
 const FontEncoding* Font::encoding () const {
 	if (const FontMap::Entry *entry = fontMapEntry())
 		return FontEncoding::encoding(entry->encname);
-	return 0;
+	return nullptr;
 }
 
 
@@ -113,7 +113,7 @@ TFMFont::TFMFont (const string &name, uint32_t cs, double ds, double ss)
 const FontMetrics* TFMFont::getMetrics () const {
 	if (!_metrics) {
 		try {
-			_metrics = FontMetrics::read(_fontname.c_str());
+			_metrics = FontMetrics::read(_fontname);
 			if (!_metrics) {
 				_metrics = util::make_unique<NullFontMetric>();
 				Message::wstream(true) << "can't find "+_fontname+".tfm\n";
@@ -130,18 +130,18 @@ const FontMetrics* TFMFont::getMetrics () const {
 
 double TFMFont::charWidth (int c) const {
 	double w = getMetrics() ? getMetrics()->getCharWidth(c) : 0;
-	if (style()) {
+	if (style())
 		w *= style()->extend;
-		w += fabs(style()->slant*charHeight(c));  // slant := tan(phi) = dx/height
-	}
 	return w;
 }
 
 
 double TFMFont::italicCorr (int c) const {
 	double w = getMetrics() ? getMetrics()->getItalicCorr(c) : 0;
-	if (style())
+	if (style()) {
+		w += abs(style()->slant*charHeight(c));  // slant := tan(phi) = dx/height
 		w *= style()->extend;
+	}
 	return w;
 }
 
@@ -329,7 +329,7 @@ bool PhysicalFont::getGlyph (int c, GraphicsPath<int32_t> &glyph, GFGlyphTracer:
 		const Glyph *cached_glyph=0;
 		if (CACHE_PATH) {
 			_cache.write(CACHE_PATH);
-			_cache.read(name().c_str(), CACHE_PATH);
+			_cache.read(name(), CACHE_PATH);
 			cached_glyph = _cache.getGlyph(c);
 		}
 		if (cached_glyph) {
@@ -402,7 +402,7 @@ int PhysicalFont::traceAllGlyphs (bool includeCached, GFGlyphTracer::Callback *c
 			string gfname;
 			Glyph glyph;
 			if (createGF(gfname)) {
-				_cache.read(name().c_str(), CACHE_PATH);
+				_cache.read(name(), CACHE_PATH);
 				double ds = getMetrics() ? getMetrics()->getDesignSize() : 1;
 				GFGlyphTracer tracer(gfname, unitsPerEm()/ds, cb);
 				tracer.setGlyph(glyph);
@@ -476,7 +476,7 @@ unique_ptr<Font> VirtualFont::create (const string &name, uint32_t checksum, dou
 
 PhysicalFontImpl::PhysicalFontImpl (const string &name, int fontindex, uint32_t cs, double ds, double ss, PhysicalFont::Type type)
 	: TFMFont(name, cs, ds, ss),
-	_filetype(type), _fontIndex(fontindex), _fontMapEntry(Font::fontMapEntry()), _encodingPair(Font::encoding())
+	_filetype(type), _fontIndex(fontindex), _encodingPair(Font::encoding())
 {
 }
 
@@ -491,7 +491,7 @@ PhysicalFontImpl::~PhysicalFontImpl () {
 
 const FontEncoding* PhysicalFontImpl::encoding () const {
 	if (!_encodingPair.enc1())
-		return 0;
+		return nullptr;
 	return &_encodingPair;
 }
 
@@ -547,6 +547,13 @@ uint32_t PhysicalFontImpl::unicode (uint32_t c) const {
 	// Now we should look for a smart alternative but at the moment
 	// it's sufficient to simply choose a valid unused codepoint.
 	return Unicode::charToCodepoint(chr.number());
+}
+
+
+const FontStyle* PhysicalFontImpl::style () const {
+	if (auto *entry = fontMapEntry())
+		return &entry->style;
+	return nullptr;
 }
 
 

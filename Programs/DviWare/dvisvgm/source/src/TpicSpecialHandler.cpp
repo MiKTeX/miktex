@@ -2,7 +2,7 @@
 ** TpicSpecialHandler.cpp                                               **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -81,9 +81,9 @@ static void add_stroke_attribs (XMLElementNode *elem, double penwidth, Color pen
 }
 
 
-static XMLElementNode* create_ellipse_element (double cx, double cy, double rx, double ry) {
+static unique_ptr<XMLElementNode> create_ellipse_element (double cx, double cy, double rx, double ry) {
 	bool is_circle = (rx == ry);
-	XMLElementNode *elem = new XMLElementNode(is_circle ? "circle" : "ellipse");
+	auto elem = util::make_unique<XMLElementNode>(is_circle ? "circle" : "ellipse");
 	elem->addAttribute("cx", XMLString(cx));
 	elem->addAttribute("cy", XMLString(cy));
 	if (is_circle)
@@ -101,7 +101,7 @@ static XMLElementNode* create_ellipse_element (double cx, double cy, double rx, 
  *  @param[in] actions object providing the actions that can be performed by the SpecialHandler */
 void TpicSpecialHandler::drawLines (double ddist, SpecialActions &actions) {
 	if (!_points.empty() && (_penwidth > 0 || _grayLevel >= 0)) {
-		XMLElementNode *elem=0;
+		unique_ptr<XMLElementNode> elem;
 		if (_points.size() == 1) {
 			const DPair &p = _points.back();
 			elem = create_ellipse_element(p.x()+actions.getX(), p.y()+actions.getY(), _penwidth/2.0, _penwidth/2.0);
@@ -109,14 +109,14 @@ void TpicSpecialHandler::drawLines (double ddist, SpecialActions &actions) {
 		}
 		else {
 			if (_points.size() == 2 || (_grayLevel < 0 && _points.front() != _points.back())) {
-				elem = new XMLElementNode("polyline");
+				elem = util::make_unique<XMLElementNode>("polyline");
 				elem->addAttribute("fill", "none");
 				elem->addAttribute("stroke-linecap", "round");
 			}
 			else {
 				while (_points.front() == _points.back())
 					_points.pop_back();
-				elem = new XMLElementNode("polygon");
+				elem = util::make_unique<XMLElementNode>("polygon");
 				elem->addAttribute("fill", _grayLevel < 0 ? "none" : fillColor(false).svgColorString());
 			}
 			ostringstream oss;
@@ -129,9 +129,9 @@ void TpicSpecialHandler::drawLines (double ddist, SpecialActions &actions) {
 				actions.embed(DPair(x, y));
 			}
 			elem->addAttribute("points", oss.str());
-			add_stroke_attribs(elem, _penwidth, Color::BLACK, ddist);
+			add_stroke_attribs(elem.get(), _penwidth, Color::BLACK, ddist);
 		}
-		actions.appendToPage(elem);
+		actions.appendToPage(std::move(elem));
 	}
 	reset();
 }
@@ -174,13 +174,13 @@ void TpicSpecialHandler::drawSplines (double ddist, SpecialActions &actions) {
 				path.lineto(p+_points[numPoints-1]);
 				actions.embed(p+_points[numPoints-1]);
 			}
-			XMLElementNode *pathElem = new XMLElementNode("path");
+			auto pathElem = util::make_unique<XMLElementNode>("path");
 			pathElem->addAttribute("fill", "none");
 			ostringstream oss;
 			path.writeSVG(oss, SVGTree::RELATIVE_PATH_CMDS);
 			pathElem->addAttribute("d", oss.str());
-			add_stroke_attribs(pathElem, _penwidth, _dviColor, ddist);
-			actions.appendToPage(pathElem);
+			add_stroke_attribs(pathElem.get(), _penwidth, _dviColor, ddist);
+			actions.appendToPage(std::move(pathElem));
 		}
 	}
 	reset();
@@ -209,7 +209,7 @@ void TpicSpecialHandler::drawArc (double cx, double cy, double rx, double ry, do
 		angle2 = -angle2;
 		cx += actions.getX();
 		cy += actions.getY();
-		XMLElementNode *elem=0;
+		unique_ptr<XMLElementNode> elem;
 		bool closed=true;
 		if (abs(angle2-angle1) >= math::TWO_PI) // closed ellipse?
 			elem = create_ellipse_element(cx, cy, rx, ry);
@@ -228,7 +228,7 @@ void TpicSpecialHandler::drawArc (double cx, double cy, double rx, double ry, do
 				oss << 'Z';
 			else
 				closed = false;
-			elem = new XMLElementNode("path");
+			elem = util::make_unique<XMLElementNode>("path");
 			elem->addAttribute("d", oss.str());
 		}
 		if (_penwidth > 0) {
@@ -238,7 +238,7 @@ void TpicSpecialHandler::drawArc (double cx, double cy, double rx, double ry, do
 				elem->addAttribute("stroke-linecap", "round");
 		}
 		elem->addAttribute("fill", _grayLevel < 0 ? "none" : fillColor(true).svgColorString());
-		actions.appendToPage(elem);
+		actions.appendToPage(std::move(elem));
 		double pw = _penwidth/2.0;
 		actions.embed(BoundingBox(cx-rx-pw, cy-ry-pw, cx+rx+pw, cy+ry+pw));
 	}

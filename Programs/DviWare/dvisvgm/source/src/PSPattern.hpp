@@ -2,7 +2,7 @@
 ** PSPattern.hpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -21,11 +21,13 @@
 #ifndef PSPATTERN_HPP
 #define PSPATTERN_HPP
 
+#include <memory>
 #include <set>
 #include <string>
 #include "BoundingBox.hpp"
 #include "Color.hpp"
 #include "Matrix.hpp"
+#include "XMLNode.hpp"
 
 
 class SpecialActions;
@@ -41,7 +43,7 @@ class PSPattern {
 
 	protected:
 		PSPattern (int id) : _id(id) {}
-		virtual XMLElementNode* createPatternNode () const =0;
+		virtual std::unique_ptr<XMLElementNode> createPatternNode () const =0;
 
 	private:
 		int _id;  ///< PostSCript ID of this pattern
@@ -50,42 +52,41 @@ class PSPattern {
 
 class PSTilingPattern : public PSPattern {
 	public:
-		~PSTilingPattern ();
-		virtual XMLElementNode* getContainerNode ()     {return _groupNode;}
+		virtual XMLElementNode* getContainerNode ()     {return _groupNode.get();}
 		void apply (SpecialActions &actions) override;
 
 	protected:
 		PSTilingPattern (int id, BoundingBox &bbox, Matrix &matrix, double xstep, double ystep);
-		XMLElementNode* createPatternNode () const override;
-		virtual XMLElementNode* createClipNode () const;
-		virtual XMLElementNode* createGroupNode () const;
-		virtual XMLElementNode* getGroupNode () const    {return _groupNode;}
-		virtual void setGroupNode (XMLElementNode *node) {_groupNode = node;}
+		std::unique_ptr<XMLElementNode> createPatternNode () const override;
+		virtual std::unique_ptr<XMLElementNode> createClipNode () const;
+		virtual std::unique_ptr<XMLElementNode> createGroupNode () const;
+		virtual XMLElementNode* getGroupNode () const    {return _groupNodePtr;}
+		virtual void setGroupNode (std::unique_ptr<XMLElementNode> &&node);
 
 	private:
 		BoundingBox _bbox;           ///< bounding box of the tile graphics
 		Matrix _matrix;              ///< tile transformation
 		double _xstep, _ystep;       ///< horizontal and vertical distance between neighboured tiles
-		XMLElementNode *_groupNode;  ///< group containing the drawing elements
+		mutable std::unique_ptr<XMLElementNode> _groupNode;  ///< group containing the drawing elements
+		XMLElementNode *_groupNodePtr; ///< keeps a pointer to the group node even after moving _groupNode to the SVGTree
 };
 
 
-class PSColoredTilingPattern : public PSTilingPattern {
+class PSColoredTilingPattern final : public PSTilingPattern {
 	public:
 		PSColoredTilingPattern (int id, BoundingBox &bbox, Matrix &matrix, double xstep, double ystep);
 };
 
 
-class PSUncoloredTilingPattern : public PSTilingPattern {
+class PSUncoloredTilingPattern final : public PSTilingPattern {
 	public:
 		PSUncoloredTilingPattern (int id, BoundingBox &bbox, Matrix &matrix, double xstep, double ystep);
-		~PSUncoloredTilingPattern ();
 		std::string svgID () const override;
 		void setColor (Color color) {_currentColor = color;}
 		void apply (SpecialActions &actions) override;
 
 	protected:
-		XMLElementNode* createClipNode () const override;
+		std::unique_ptr<XMLElementNode> createClipNode () const override;
 
 	private:
 		std::set<Color> _colors;  ///< colors this pattern has already been drawn with

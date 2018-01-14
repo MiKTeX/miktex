@@ -2,7 +2,7 @@
 ** FontCache.cpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -77,12 +77,12 @@ const Glyph* FontCache::getGlyph (int c) const {
  *  @param[in] fontname name of current font
  *  @param[in] dir directory where the cache file should go
  *  @return true if writing was successful */
-bool FontCache::write (const char *fontname, const char *dir) const {
+bool FontCache::write (const string &fontname, const string &dir) const {
 	if (!_changed)
 		return true;
 
-	if (fontname && strlen(fontname) > 0) {
-		string dirstr = (dir == 0 || strlen(dir) == 0) ? FileSystem::getcwd() : dir;
+	if (!fontname.empty()) {
+		string dirstr = dir.empty() ? FileSystem::getcwd() : dir;
 		ostringstream oss;
 		oss << dirstr << '/' << fontname << ".fgd";
 #if defined(MIKTEX_WINDOWS)
@@ -96,8 +96,8 @@ bool FontCache::write (const char *fontname, const char *dir) const {
 }
 
 
-bool FontCache::write (const char* dir) const {
-	return _fontname.empty() ? false : write(_fontname.c_str(), dir);
+bool FontCache::write (const string &dir) const {
+	return _fontname.empty() ? false : write(_fontname, dir);
 }
 
 
@@ -130,7 +130,7 @@ static int max_int_size (const Pair<int32_t> *pairs, size_t n) {
  *  @param[in] fontname name of current font
  *  @param[in] os output stream
  *  @return true if writing was successful */
-bool FontCache::write (const char *fontname, ostream &os) const {
+bool FontCache::write (const string &fontname, ostream &os) const {
 	if (!_changed)
 		return true;
 	if (!os)
@@ -176,13 +176,13 @@ bool FontCache::write (const char *fontname, ostream &os) const {
  *  @param[in] fontname name of font data to read
  *  @param[in] dir directory where the cache files are located
  *  @return true if reading was successful */
-bool FontCache::read (const char *fontname, const char *dir) {
-	if (!fontname || strlen(fontname) == 0)
+bool FontCache::read (const string &fontname, const string &dir) {
+	if (fontname.empty())
 		return false;
 	if (_fontname == fontname)
 		return true;
 	clear();
-	string dirstr = (dir == 0 || strlen(dir) == 0) ? FileSystem::getcwd() : dir;
+	string dirstr = dir.empty() ? FileSystem::getcwd() : dir;
 	ostringstream oss;
 	oss << dirstr << '/' << fontname << ".fgd";
 #if defined(MIKTEX_WINDOWS)
@@ -198,7 +198,7 @@ bool FontCache::read (const char *fontname, const char *dir) {
  *  @param[in] fontname name of font data to read
  *  @param[in] is input stream to read the glyph data from
  *  @return true if reading was successful */
-bool FontCache::read (const char *fontname, istream &is) {
+bool FontCache::read (const string &fontname, istream &is) {
 	if (_fontname == fontname)
 		return true;
 	clear();
@@ -267,16 +267,16 @@ bool FontCache::read (const char *fontname, istream &is) {
  *  @param[out] infos the collected font information
  *  @param[out] invalid names of outdated/corrupted cache files
  *  @return true on success */
-bool FontCache::fontinfo (const char *dirname, vector<FontInfo> &infos, vector<string> &invalid) {
+bool FontCache::fontinfo (const string &dirname, vector<FontInfo> &infos, vector<string> &invalid) {
 	infos.clear();
 	invalid.clear();
-	if (dirname) {
+	if (!dirname.empty()) {
 		vector<string> fnames;
 		FileSystem::collect(dirname, fnames);
 		for (const string &fname : fnames) {
 			if (fname[0] == 'f' && fname.length() > 5 && fname.substr(fname.length()-4) == ".fgd") {
 				FontInfo info;
-				string path = string(dirname)+"/"+(fname.substr(1));
+				string path = dirname+"/"+(fname.substr(1));
 #if defined(MIKTEX_WINDOWS)
                                 ifstream ifs(UW_(path.c_str()), ios::binary);
 #else
@@ -359,8 +359,8 @@ bool FontCache::fontinfo (std::istream &is, FontInfo &info) {
  *  @param[in] dirname path to font cache directory
  *  @param[in] os output is written to this stream
  *  @param[in] purge if true, outdated and corrupted cache files are removed */
-void FontCache::fontinfo (const char *dirname, ostream &os, bool purge) {
-	if (dirname) {
+void FontCache::fontinfo (const string &dirname, ostream &os, bool purge) {
+	if (!dirname.empty()) {
 		ios::fmtflags osflags(os.flags());
 		vector<FontInfo> infos;
 		vector<string> invalid_files;
@@ -383,7 +383,7 @@ void FontCache::fontinfo (const char *dirname, ostream &os, bool purge) {
 		}
 		if (purge) {
 			for (const string &str : invalid_files) {
-				string path=string(dirname)+"/"+str;
+				string path=dirname+"/"+str;
 				if (FileSystem::remove(path))
 					os << "invalid cache file " << str << " removed\n";
 			}

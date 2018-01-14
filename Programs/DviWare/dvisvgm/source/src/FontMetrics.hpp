@@ -2,7 +2,7 @@
 ** FontMetrics.hpp                                                      **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -23,6 +23,7 @@
 
 #include <istream>
 #include <memory>
+#include <string>
 #include "MessageException.hpp"
 
 struct FontMetrics {
@@ -42,7 +43,7 @@ struct FontMetrics {
 	virtual uint32_t getChecksum () const =0;
 	virtual uint16_t firstChar () const =0;
 	virtual uint16_t lastChar () const =0;
-	static std::unique_ptr<FontMetrics> read (const char *fontname);
+	static std::unique_ptr<FontMetrics> read (const std::string &fontname);
 };
 
 

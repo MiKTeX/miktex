@@ -2,7 +2,7 @@
 ** Directory.hpp                                                        **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -33,8 +33,7 @@
 #endif
 #endif
 
-class Directory
-{
+class Directory {
 	public:
 		enum EntryType {ET_FILE, ET_DIR, ET_FILE_OR_DIR};
 

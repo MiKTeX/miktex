@@ -2,7 +2,7 @@
 ** PsSpecialHandler.hpp                                                 **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -36,8 +36,7 @@
 class PSPattern;
 class XMLElementNode;
 
-class PsSpecialHandler : public SpecialHandler, public DVIEndPageListener, protected PSActions
-{
+class PsSpecialHandler : public SpecialHandler, public DVIEndPageListener, protected PSActions {
 	using Path = GraphicsPath<double>;
 	using ColorSpace = Color::ColorSpace;
 
@@ -108,7 +107,7 @@ class PsSpecialHandler : public SpecialHandler, public DVIEndPageListener, prote
 		void processLatticeTriangularPatchMesh (ColorSpace colorSpace, VectorIterator<double> &it);
 
 		/// scale given value by current PS scale factors
-		double scale (double v) const {return v*(_sx*_cos*_cos + _sy*(1-_cos*_cos));}
+		double scale (double v) const {return v*(_sx*(1-_cos*_cos) + _sy*_cos*_cos);}
 
 		void applyscalevals (std::vector<double> &p) override  {_sx = p[0]; _sy = p[1]; _cos = p[2];}
 		void clip (std::vector<double> &p) override            {clip(p, false);}
@@ -139,7 +138,7 @@ class PsSpecialHandler : public SpecialHandler, public DVIEndPageListener, prote
 		void sethsbcolor (std::vector<double> &hsb) override;
 		void setlinecap (std::vector<double> &p) override      {_linecap = uint8_t(p[0]);}
 		void setlinejoin (std::vector<double> &p) override     {_linejoin = uint8_t(p[0]);}
-		void setlinewidth (std::vector<double> &p) override    {_linewidth = p[0] ? scale(p[0]) : 0.5;}
+		void setlinewidth (std::vector<double> &p) override    {_linewidth = scale(p[0] ? p[0] : 0.5);}
 		void setmatrix (std::vector<double> &p) override;
 		void setmiterlimit (std::vector<double> &p) override   {_miterlimit = p[0];}
 		void setopacityalpha (std::vector<double> &p) override {_opacityalpha = p[0];}

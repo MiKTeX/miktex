@@ -2,7 +2,7 @@
 ** FileFinder.cpp                                                       **
 **                                                                      **
 ** This file is part of dvisvgm -- a fast DVI to SVG converter          **
-** Copyright (C) 2005-2017 Martin Gieseking <martin.gieseking@uos.de>   **
+** Copyright (C) 2005-2018 Martin Gieseking <martin.gieseking@uos.de>   **
 **                                                                      **
 ** This program is free software; you can redistribute it and/or        **
 ** modify it under the terms of the GNU General Public License as       **
@@ -34,8 +34,8 @@
 
 #include <cstdlib>
 #include <fstream>
+#include <map>
 #include <set>
-#include <unordered_map>
 #include "FileFinder.hpp"
 #include "FilePath.hpp"
 #include "FileSystem.hpp"
@@ -110,7 +110,7 @@ void FileFinder::addLookupDir (const std::string &path) {
  *  @return file path on success, 0 otherwise */
 const char* FileFinder::findFile (const std::string &fname, const char *ftype) const {
 	if (fname.empty())
-		return 0;
+		return nullptr;
 
 	static std::string buf;
 	// try to lookup the file in the additionally specified directories
@@ -119,14 +119,13 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 		if (FileSystem::exists(buf))
 			return buf.c_str();
 	}
-
 	std::string ext;
 	if (ftype)
 		ext = ftype;
 	else {
 		size_t pos = fname.rfind('.');
 		if (pos == std::string::npos)
-			return 0;  // no extension and no file type => no search
+			return nullptr;  // no extension and no file type => no search
 		ext = fname.substr(pos+1);
 	}
 
@@ -141,15 +140,15 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 		// The MiKTeX SDK doesn't support the lookup of files without suffix (yet), thus
 		// it's not possible to find cmap files which usually don't have a suffix. In order
 		// to work around this, we try to lookup the files by calling kpsewhich.
-		Process process("kpsewhich", std::string("-format=cmap ")+fname);
+		Process process("kpsewhich", "-format=cmap "+fname);
 		process.run(&buf);
-		return buf.empty() ? 0 : buf.c_str();
+		return buf.empty() ? nullptr : buf.c_str();
 	}
 	try {
 		return _miktex->findFile(fname.c_str());
 	}
 	catch (const MessageException &e) {
-		return 0;
+		return nullptr;
 	}
 #else
 #if defined(MIKTEX)
@@ -169,12 +168,12 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 		// lookup exe files in directory where dvisvgm is located
 		if (const char *path = kpse_var_value("SELFAUTOLOC")) {
 			buf = std::string(path) + "/" + fname;
-			return FileSystem::exists(buf) ? buf.c_str() : 0;
+			return FileSystem::exists(buf) ? buf.c_str() : nullptr;
 		}
-		return 0;
+		return nullptr;
 	}
 #endif
-	static std::unordered_map<std::string, kpse_file_format_type> types = {
+	static std::map<std::string, kpse_file_format_type> types = {
 		{"tfm",  kpse_tfm_format},
 		{"pfb",  kpse_type1_format},
 		{"vf",   kpse_vf_format},
@@ -190,9 +189,9 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 		{"sfd",  kpse_sfd_format},
 		{"eps",  kpse_pict_format},
 	};
-	auto it = types.find(ext.c_str());
+	auto it = types.find(ext);
 	if (it == types.end())
-		return 0;
+		return nullptr;
 
 	if (char *path = kpse_find_file(fname.c_str(), it->second, 0)) {
 		// In the current version of libkpathsea, each call of kpse_find_file produces
@@ -202,7 +201,7 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 		std::free(path);
 		return buf.c_str();
 	}
-	return 0;
+	return nullptr;
 #endif
 }
 
@@ -214,11 +213,11 @@ const char* FileFinder::findFile (const std::string &fname, const char *ftype) c
 const char* FileFinder::findMappedFile (std::string fname) const {
 	size_t pos = fname.rfind('.');
 	if (pos == std::string::npos)
-		return 0;
+		return nullptr;
 	const std::string ext  = fname.substr(pos+1);  // file extension
 	const std::string base = fname.substr(0, pos);
 	if (const FontMap::Entry *entry = FontMap::instance().lookup(base)) {
-		const char *path=0;
+		const char *path=nullptr;
 		if (entry->fontname.find('.') != std::string::npos)  // does the mapped filename has an extension?
 			path = findFile(entry->fontname, 0);             // look for that file
 		else {                             // otherwise, use extension of unmapped file
@@ -227,7 +226,7 @@ const char* FileFinder::findMappedFile (std::string fname) const {
 		}
 		return path;
 	}
-	return 0;
+	return nullptr;
 }
 
 
@@ -237,13 +236,13 @@ const char* FileFinder::findMappedFile (std::string fname) const {
 const char* FileFinder::mktex (const std::string &fname) const {
 	size_t pos = fname.rfind('.');
 	if (!_enableMktex || pos == std::string::npos)
-		return 0;
+		return nullptr;
 
 	std::string ext  = fname.substr(pos+1);  // file extension
 	if (ext != "tfm" && ext != "mf")
-		return 0;
+		return nullptr;
 
-	const char *path = 0;
+	const char *path = nullptr;
 #ifdef MIKTEX
 	// maketfm and makemf are located in miktex/bin which is in the search PATH
 	std::string toolname = (ext == "tfm" ? "miktex-maketfm" : "miktex-makemf");
@@ -272,5 +271,5 @@ const char* FileFinder::lookup (const std::string &fname, const char *ftype, boo
 	const char *path;
 	if ((path = findFile(fname, ftype)) || (extended  && ((path = findMappedFile(fname)) || (path = mktex(fname)))))
 		return path;
-	return 0;
+	return nullptr;
 }
