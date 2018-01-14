@@ -125,14 +125,14 @@ BEGIN_ANONYMOUS_NAMESPACE;
 
 const ShellLinkData shellLinks[] = {
 
-  // "TeXworks"
+  // "MiKTeX Console"
   {
     false,
     nullptr,
-    "TeXworks",
-    EXEPATH(MIKTEX_TEXWORKS_EXE),
-    LD_USESHOWCMD,
-    nullptr,
+    "MiKTeX Console",
+    EXEPATH(MIKTEX_CONSOLE_EXE),
+    LD_USESHOWCMD | LD_USEDESC,
+    "The MiKTeX Console helps you to manage the MiKTeX configuration.",
     nullptr,
     nullptr,
     0,
@@ -141,6 +141,23 @@ const ShellLinkData shellLinks[] = {
     0,
   },
 
+  // "TeXworks"
+  {
+    false,
+    nullptr,
+    "TeXworks",
+    EXEPATH(MIKTEX_TEXWORKS_EXE),
+    LD_USESHOWCMD | LD_USEDESC,
+    "TeXworks is a simple TeX front-end program.",
+    nullptr,
+    nullptr,
+    0,
+    nullptr,
+    SW_SHOWNORMAL,
+    0,
+  },
+
+#if 0
   // "Previewer"
   {
     false,
@@ -156,103 +173,9 @@ const ShellLinkData shellLinks[] = {
     SW_SHOWNORMAL,
     0,
   },
+#endif
 
-  // "Maintenance->Settings"
-  {
-    false,
-    "Maintenance",
-    "MiKTeX Settings",
-    EXEPATH(MIKTEX_MO_EXE),
-    LD_USESHOWCMD,
-    nullptr,
-    nullptr,
-    nullptr,
-    0,
-    nullptr,
-    SW_SHOWNORMAL,
-    0,
-  },
-
-  // "Maintenance->Update"
-  {
-    false,
-    "Maintenance",
-    "MiKTeX Update",
-    INTEXEPATH(MIKTEX_COPYSTART_EXE),
-    LD_USESHOWCMD | LD_USEARGS | LD_USEICON,
-    nullptr,
-    "\"" INTEXEPATH(MIKTEX_UPDATE_EXE) "\"",
-    INTEXEPATH(MIKTEX_UPDATE_EXE),
-    0,
-    nullptr,
-    SW_SHOWNORMAL,
-    0,
-  },
-
-  // "Maintenance->Package Manager"
-  {
-    false,
-    "Maintenance",
-    "MiKTeX Package Manager",
-    EXEPATH(MIKTEX_MPM_MFC_EXE),
-    LD_USESHOWCMD,
-    nullptr,
-    nullptr,
-    nullptr,
-    0,
-    nullptr,
-    SW_SHOWNORMAL,
-    0,
-  },
-
-  // "Maintenance (Admin)->Settings (Admin)"
-  {
-    false,
-    "Maintenance (Admin)",
-    "MiKTeX Settings (Admin)",
-    EXEPATH(MIKTEX_MO_ADMIN_EXE),
-    LD_IFCOMMON | LD_USESHOWCMD,
-    nullptr,
-    nullptr,
-    nullptr,
-    0,
-    nullptr,
-    SW_SHOWNORMAL,
-    0,
-  },
-
-  // "Maintenance (Admin)->Update (Admin)"
-  {
-    false,
-    "Maintenance (Admin)",
-    "MiKTeX Update (Admin)",
-    INTEXEPATH(MIKTEX_COPYSTART_ADMIN_EXE),
-    LD_IFCOMMON | LD_USESHOWCMD | LD_USEARGS | LD_USEICON,
-    nullptr,
-    "\"" INTEXEPATH(MIKTEX_UPDATE_ADMIN_EXE) "\"",
-    INTEXEPATH(MIKTEX_UPDATE_ADMIN_EXE),
-    0,
-    nullptr,
-    SW_SHOWNORMAL,
-    0,
-  },
-
-  // "Maintenance (Admin)->Package Manager (Admin)"
-  {
-    false,
-    "Maintenance (Admin)",
-    "MiKTeX Package Manager (Admin)",
-    EXEPATH(MIKTEX_MPM_MFC_ADMIN_EXE),
-    LD_IFCOMMON | LD_USESHOWCMD,
-    nullptr,
-    nullptr,
-    nullptr,
-    0,
-    nullptr,
-    SW_SHOWNORMAL,
-    0,
-  },
-
+#if 0
   // "Help->Manual"
   {
     false,
@@ -268,7 +191,9 @@ const ShellLinkData shellLinks[] = {
     SW_SHOWNORMAL,
     0,
   },
+#endif
 
+#if 0
   // "Help->FAQ"
   {
     false,
@@ -284,7 +209,9 @@ const ShellLinkData shellLinks[] = {
     SW_SHOWNORMAL,
     0,
   },
+#endif
 
+#if 0
   // "MiKTeX on the Web->MiKTeX Project Page"
   {
     true,
@@ -300,7 +227,9 @@ const ShellLinkData shellLinks[] = {
     0,
     0,
   },
+#endif
 
+#if 0
   // "MiKTeX on the Web->Support"
   {
     true,
@@ -316,7 +245,9 @@ const ShellLinkData shellLinks[] = {
     0,
     0,
   },
+#endif
 
+#if 0
   // "MiKTeX on the Web->Give back"
   {
     true,
@@ -332,7 +263,9 @@ const ShellLinkData shellLinks[] = {
     0,
     0,
   },
+#endif
 
+#if 0
   // "MiKTeX on the Web->Known Issues"
   {
     true,
@@ -348,10 +281,8 @@ const ShellLinkData shellLinks[] = {
     0,
     0,
   },
-
+#endif
 };
-
-size_t nShellLinks = sizeof(shellLinks) / sizeof(shellLinks[0]);
 
 END_ANONYMOUS_NAMESPACE;
 
