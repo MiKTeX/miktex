@@ -358,9 +358,9 @@ END_ANONYMOUS_NAMESPACE;
 void winSetupServiceImpl::CreateProgramIcons()
 {
   PathName path = CreateProgramFolder();
-  for (size_t i = 0; i < nShellLinks; ++i)
+  for (const ShellLinkData& shlnk : shellLinks)
   {
-    CreateShellLink(path, shellLinks[i]);
+    CreateShellLink(path, shlnk);
   }
 }
 
