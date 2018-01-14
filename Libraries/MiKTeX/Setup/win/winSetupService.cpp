@@ -1,6 +1,6 @@
 /* winSetupService.cpp:
 
-   Copyright (C) 2014-2017 Christian Schenk
+   Copyright (C) 2014-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -77,7 +77,7 @@ void winSetupServiceImpl::Initialize()
   SetupServiceImpl::Initialize();
 }
 
-void winSetupServiceImpl::ULogAddRegValue(HKEY hkey, const string & valueName, const string & value)
+void winSetupServiceImpl::ULogAddRegValue(HKEY hkey, const string& valueName, const string& value)
 {
   if (!uninstStream.IsOpen())
   {
@@ -364,7 +364,7 @@ void winSetupServiceImpl::CreateProgramIcons()
   }
 }
 
-void winSetupServiceImpl::CreateShellLink(const PathName & pathFolder, const ShellLinkData & ld)
+void winSetupServiceImpl::CreateShellLink(const PathName& pathFolder, const ShellLinkData& ld)
 {
   if ((ld.flags & LD_IFCOMMON) != 0 && !options.IsCommonSetup)
   {
@@ -426,7 +426,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName & pathFolder, const She
 
     IShellLinkWPtr psl;
 
-    HRESULT hr = CoCreateInstance(CLSID_ShellLink, 0, CLSCTX_INPROC_SERVER, IID_IShellLinkW, reinterpret_cast<void **>(&psl));
+    HRESULT hr = CoCreateInstance(CLSID_ShellLink, 0, CLSCTX_INPROC_SERVER, IID_IShellLinkW, reinterpret_cast<void**>(&psl));
 
     if (FAILED(hr))
     {
@@ -506,7 +506,7 @@ void winSetupServiceImpl::CreateShellLink(const PathName & pathFolder, const She
 
     IPersistFilePtr ppf;
 
-    hr = psl->QueryInterface(IID_IPersistFile, reinterpret_cast<void **>(&ppf));
+    hr = psl->QueryInterface(IID_IPersistFile, reinterpret_cast<void**>(&ppf));
 
     if (FAILED(hr))
     {
@@ -526,13 +526,13 @@ void winSetupServiceImpl::CreateShellLink(const PathName & pathFolder, const She
   ULogAddFile(pathLink.GetData());
 }
 
-void winSetupServiceImpl::CreateInternetShortcut(const PathName & path, const char * lpszUrl)
+void winSetupServiceImpl::CreateInternetShortcut(const PathName& path, const char* lpszUrl)
 {
   _COM_SMARTPTR_TYPEDEF(IUniformResourceLocatorW, IID_IUniformResourceLocatorW);
 
   IUniformResourceLocatorWPtr pURL;
 
-  HRESULT hr = CoCreateInstance(CLSID_InternetShortcut, 0, CLSCTX_INPROC_SERVER, IID_IUniformResourceLocatorW, reinterpret_cast<void **>(&pURL));
+  HRESULT hr = CoCreateInstance(CLSID_InternetShortcut, 0, CLSCTX_INPROC_SERVER, IID_IUniformResourceLocatorW, reinterpret_cast<void**>(&pURL));
 
   if (FAILED(hr))
   {
@@ -550,7 +550,7 @@ void winSetupServiceImpl::CreateInternetShortcut(const PathName & path, const ch
 
   IPersistFilePtr pPF;
 
-  hr = pURL->QueryInterface(IID_IPersistFile, reinterpret_cast<void **>(&pPF));
+  hr = pURL->QueryInterface(IID_IPersistFile, reinterpret_cast<void**>(&pPF));
 
   if (FAILED(hr))
   {
@@ -643,10 +643,10 @@ void winSetupServiceImpl::RegisterUninstaller()
   AddUninstallerRegValue(hkey, "UrlUpdateInfo", UNINST_UPDATE_URL);
 }
 
-void winSetupServiceImpl::AddUninstallerRegValue(HKEY hkey, const char * lpszValueName, const char * lpszValue)
+void winSetupServiceImpl::AddUninstallerRegValue(HKEY hkey, const char* lpszValueName, const char* lpszValue)
 {
   wstring value(UW_(lpszValue));
-  LONG result = RegSetValueExW(hkey, UW_(lpszValueName), 0, REG_SZ, reinterpret_cast<const BYTE *>(value.c_str()), static_cast<DWORD>((value.length() + 1) * sizeof(wchar_t)));
+  LONG result = RegSetValueExW(hkey, UW_(lpszValueName), 0, REG_SZ, reinterpret_cast<const BYTE*>(value.c_str()), static_cast<DWORD>((value.length() + 1) * sizeof(wchar_t)));
   if (result != ERROR_SUCCESS)
   {
     MIKTEX_FATAL_WINDOWS_RESULT("RegSetValueExW", result);
@@ -654,9 +654,9 @@ void winSetupServiceImpl::AddUninstallerRegValue(HKEY hkey, const char * lpszVal
   ULogAddRegValue(UNINST_HKEY_ROOT, UNINST_REG_PATH, lpszValueName);
 }
 
-void winSetupServiceImpl::AddUninstallerRegValue(HKEY hkey, const char * lpszValueName, DWORD value)
+void winSetupServiceImpl::AddUninstallerRegValue(HKEY hkey, const char* lpszValueName, DWORD value)
 {
-  LONG result = RegSetValueExW(hkey, UW_(lpszValueName), 0, REG_DWORD, reinterpret_cast<const BYTE *>(&value), static_cast<DWORD>(sizeof(value)));
+  LONG result = RegSetValueExW(hkey, UW_(lpszValueName), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), static_cast<DWORD>(sizeof(value)));
   if (result != ERROR_SUCCESS)
   {
     MIKTEX_FATAL_WINDOWS_RESULT("RegSetValueExW", result);
@@ -723,7 +723,7 @@ void winSetupServiceImpl::UnregisterPath(bool shared)
     if (RemoveBinDirFromPath(path))
     {
       CharBuffer<wchar_t> wpath(UW_(path.c_str()));
-      result = RegSetValueExW(hkey, L"Path", 0, type, reinterpret_cast<const BYTE *>(wpath.GetData()), static_cast<DWORD>((StrLen(wpath.GetData()) + 1) * sizeof(wpath.GetData()[0])));
+      result = RegSetValueExW(hkey, L"Path", 0, type, reinterpret_cast<const BYTE*>(wpath.GetData()), static_cast<DWORD>((StrLen(wpath.GetData()) + 1) * sizeof(wpath.GetData()[0])));
 
       if (result != ERROR_SUCCESS)
       {
@@ -743,7 +743,7 @@ void winSetupServiceImpl::UnregisterPath(bool shared)
   }
 }
 
-bool winSetupServiceImpl::RemoveBinDirFromPath(string & path)
+bool winSetupServiceImpl::RemoveBinDirFromPath(string& path)
 {
   shared_ptr<Session> session = Session::Get();
   bool removed = false;
@@ -825,7 +825,7 @@ void winSetupServiceImpl::RemoveRegistryKeys()
   }
 }
 
-void winSetupServiceImpl::RemoveRegistryKey(HKEY hkeyRoot, const PathName & subKey)
+void winSetupServiceImpl::RemoveRegistryKey(HKEY hkeyRoot, const PathName& subKey)
 {
   AutoHKEY hkeySub;
 
@@ -862,7 +862,7 @@ void winSetupServiceImpl::RemoveRegistryKey(HKEY hkeyRoot, const PathName & subK
   }
 }
 
-bool winSetupServiceImpl::Exists(HKEY hkeyRoot, const PathName & subKey)
+bool winSetupServiceImpl::Exists(HKEY hkeyRoot, const PathName& subKey)
 {
   AutoHKEY hkeySub;
 
@@ -880,7 +880,7 @@ bool winSetupServiceImpl::Exists(HKEY hkeyRoot, const PathName & subKey)
   return true;
 }
 
-bool winSetupServiceImpl::IsEmpty(HKEY hkeyRoot, const PathName & subKey)
+bool winSetupServiceImpl::IsEmpty(HKEY hkeyRoot, const PathName& subKey)
 {
   AutoHKEY hkeySub;
 
