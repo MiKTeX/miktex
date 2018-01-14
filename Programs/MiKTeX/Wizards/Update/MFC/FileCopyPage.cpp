@@ -352,12 +352,12 @@ bool FileCopyPage::OnRetryableError(const string& message)
   return u != IDCANCEL;
 }
 
-bool FileCopyPage::OnProgress(Notification nf)
+bool FileCopyPage::OnProgress(MiKTeX::Packages::Notification nf)
 {
   CSingleLock singlelock(&criticalSectionMonitor, TRUE);
   bool visibleProgress = false;
   PackageInstaller::ProgressInfo progressInfo = pInstaller->GetProgressInfo();
-  if (nf == Notification::InstallPackageStart || nf == Notification::DownloadPackageStart)
+  if (nf == MiKTeX::Packages::Notification::InstallPackageStart || nf == MiKTeX::Packages::Notification::DownloadPackageStart)
   {
     visibleProgress = true;
     sharedData.newPackage = true;
@@ -464,24 +464,11 @@ void FileCopyPage::DoTheUpdate()
 
 void FileCopyPage::ConfigureMiKTeX()
 {
-#if REMOVE_FORMAT_FILES
-  RemoveFormatFiles();
-#endif
-
-  if (UpdateWizardApplication::upgrading)
-  {
-    RemoveFalseConfigFiles();
-    RemoveOldRegistrySettings();
-  }
-
-  // register components, configure files
-  RunMpm({ "--register-components" });
-
-  RunIniTeXMF({ "--update-fndb" });
-
-  RunIniTeXMF({"--force", "--mklinks"});
-
-  RunIniTeXMF({"--mkmaps", "--mklangs"});
+  unique_ptr<SetupService> service = SetupService::Create();
+  SetupOptions options = service->GetOptions();
+  options.Task = SetupTask::FinishUpdate;
+  service->SetOptions(options);
+  service->Run();
 }
 
 void FileCopyPage::RunMpm(const vector<string>& args)
@@ -593,57 +580,6 @@ void FileCopyPage::EnableControl(UINT controlId, bool enable)
 {
   GetControl(controlId)->EnableWindow(enable ? TRUE : FALSE);
 }
-
-void FileCopyPage::CollectFiles(vector<PathName>& vec, const PathName& dir, const char* lpszExt)
-{
-  unique_ptr<DirectoryLister> lister = DirectoryLister::Open(dir);
-  DirectoryEntry entry;
-  vector<string> subDirs;
-  while (lister->GetNext(entry))
-  {
-    if (entry.isDirectory)
-    {
-      subDirs.push_back(entry.name);
-    }
-    else
-    {
-      PathName path(dir, entry.name);
-      if (path.HasExtension(lpszExt))
-      {
-        vec.push_back(path);
-      }
-    }
-  }
-  lister->Close();
-  for(const string& s : subDirs)
-  {
-    // RECURSION
-    CollectFiles(vec, PathName(dir, s), lpszExt);
-  }
-}
-
-#if REMOVE_FORMAT_FILES
-void FileCopyPage::RemoveFormatFiles()
-{
-  vector<PathName> toBeDeleted;
-  PathName pathFmt (session->GetSpecialPath(SpecialPath::DataRoot));
-  pathFmt /= MIKTEX_PATH_FMT_DIR;
-  if (Directory::Exists(pathFmt))
-  {
-    CollectFiles(toBeDeleted, pathFmt, MIKTEX_FORMAT_FILE_SUFFIX);
-  }
-  PathName pathFmt2 (session->GetSpecialPath(SpecialPath::UserDataRoot));
-  pathFmt2 /= MIKTEX_PATH_FMT_DIR;
-  if (pathFmt != pathFmt2 && Directory::Exists(pathFmt2))
-  {
-    CollectFiles(toBeDeleted, pathFmt2, MIKTEX_FORMAT_FILE_SUFFIX);
-  }
-  for (const PathName& f : toBeDeleted)
-  {
-    File::Delete(f);
-  }
-}
-#endif
 
 static const char* const configFiles[] = {
   MIKTEX_PATH_PDFTEXCONFIG_TEX,

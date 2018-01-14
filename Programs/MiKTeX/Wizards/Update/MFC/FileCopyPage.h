@@ -1,6 +1,6 @@
 /* FileCopyPage.h:                                      -*- C++ -*-
 
-   Copyright (C) 2002-2017 Christian Schenk
+   Copyright (C) 2002-2018 Christian Schenk
 
    This file is part of the MiKTeX Update Wizard.
 
@@ -79,7 +79,7 @@ public:
   virtual bool MIKTEXTHISCALL OnRetryableError(const std::string& message);
 
 public:
-  virtual bool MIKTEXTHISCALL OnProgress(Notification nf);
+  virtual bool MIKTEXTHISCALL OnProgress(MiKTeX::Packages::Notification nf);
 
 private:
   static UINT WorkerThread(void* pParam);
@@ -101,9 +101,6 @@ private:
 
 private:
   void CollectFiles(vector<PathName>& vec, const PathName& dir, const char* lpszExt);
-
-private:
-  void RemoveFormatFiles();
 
 private:
   void RemoveFalseConfigFiles();

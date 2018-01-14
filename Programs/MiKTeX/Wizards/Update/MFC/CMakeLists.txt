@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -100,6 +100,7 @@ set(libs
   ${core_lib_name}
   ${getopt_lib_name}
   ${mpm_lib_name}
+  ${setup_lib_name}
   Wldap32
   version
   wininet

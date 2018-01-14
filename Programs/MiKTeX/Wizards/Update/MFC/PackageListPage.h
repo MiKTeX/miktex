@@ -1,6 +1,6 @@
 /* PackageListPag.h:                                    -*- C++ -*-
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2018 Christian Schenk
 
    This file is part of the MiKTeX Update Wizard.
 
@@ -94,7 +94,7 @@ public:
   virtual bool MIKTEXTHISCALL OnRetryableError(const std::string & message);
 
 public:
-  virtual bool MIKTEXTHISCALL OnProgress(Notification nf);
+  virtual bool MIKTEXTHISCALL OnProgress(MiKTeX::Packages::Notification nf);
 
 private:
   void EnableSelectButtons();

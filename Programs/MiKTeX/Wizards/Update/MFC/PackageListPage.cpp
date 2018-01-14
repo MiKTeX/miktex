@@ -1,6 +1,6 @@
 /* PackageListPag.cpp:
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2018 Christian Schenk
 
    This file is part of the MiKTeX Update Wizard.
 
@@ -611,7 +611,7 @@ bool PackageListPage::OnRetryableError(const string & message)
   return ::MessageBoxW(0, UW_(str.c_str()), 0, style) != IDCANCEL;
 }
 
-bool PackageListPage::OnProgress(Notification nf)
+bool PackageListPage::OnProgress(MiKTeX::Packages::Notification nf)
 {
   UNUSED_ALWAYS(nf);
   return !(pSheet->GetErrorFlag() || pSheet->GetCancelFlag());

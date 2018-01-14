@@ -1,6 +1,6 @@
 /* Update.h:                                            -*- C++ -*-
 
-   Copyright (C) 2002-2016 Christian Schenk
+   Copyright (C) 2002-2018 Christian Schenk
 
    This file is part of the MiKTeX Update Wizard.
 
@@ -24,8 +24,6 @@
 #include "resource.h"
 
 class UpdateWizardCommandLineInfo;
-
-#define REMOVE_FORMAT_FILES 1
 
 #define T_(x) MIKTEXTEXT(x)
 

@@ -959,6 +959,12 @@ bool UpdateWorker::Run()
     }
     packageInstaller->SetFileLists(toBeUpdated, toBeRemoved);
     packageInstaller->InstallRemove();
+    packageInstaller = nullptr;
+    unique_ptr<SetupService> service = SetupService::Create();
+    SetupOptions options = service->GetOptions();
+    options.Task = SetupTask::FinishUpdate;
+    service->SetOptions(options);
+    service->Run();
     result = true;
   }
   catch (const MiKTeXException& e)

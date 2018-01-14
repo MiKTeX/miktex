@@ -392,6 +392,12 @@ protected:
   bool FindFile(const MiKTeX::Core::PathName& fileName, MiKTeX::Core::PathName& result);
 
 protected:
+  void RemoveFormatFiles();
+
+protected:
+  void CollectFiles(std::vector<MiKTeX::Core::PathName>& vec, const MiKTeX::Core::PathName& dir, const char* lpszExt);
+
+protected:
   void CreateInfoFile();
 
 protected:
