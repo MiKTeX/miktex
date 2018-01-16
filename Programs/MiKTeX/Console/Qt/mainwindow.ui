@@ -306,7 +306,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -335,7 +335,7 @@
            <item>
             <widget class="QLabel" name="label_9">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thank you for giving MiKTeX a try!&lt;/p&gt;&lt;p&gt;We will now finish the MiKTeX setup by populating the &lt;span style=&quot;font-style:italic;&quot;&gt;bin&lt;/span&gt; directory with links to the to actual MiKTeX binaries. The location of the &lt;span style=&quot; font-style:italic;&quot;&gt;bin&lt;/span&gt; directory depends on your choice:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-family:'Courier New';&quot;&gt;/usr/local/bin&lt;/span&gt; for a shared (system-wide) MiKTeX installation. This option requires administrator privileges.&lt;/li&gt;&lt;li&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;~/bin&lt;/span&gt; for a private MiKTeX installation.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/private-vs-shared&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;KB: shared vs. private installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thank you for giving MiKTeX a try!&lt;/p&gt;&lt;p&gt;We will now finish the MiKTeX setup by populating the &lt;span style=&quot; font-style:italic;&quot;&gt;bin&lt;/span&gt; directory with links to the to actual MiKTeX binaries. The location of the &lt;span style=&quot; font-style:italic;&quot;&gt;bin&lt;/span&gt; directory depends on your choice:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;~/bin&lt;/span&gt; for a private MiKTeX installation.&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;/usr/local/bin&lt;/span&gt; for a shared (system-wide) MiKTeX installation. This option requires administrator privileges.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/private-vs-shared&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;KB: private vs. shared installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -367,22 +367,22 @@
             </spacer>
            </item>
            <item>
-            <widget class="QCommandLinkButton" name="buttonAdminSetup">
-             <property name="text">
-              <string>Restart as administrator and finish setup</string>
-             </property>
-             <property name="description">
-              <string>MiKTeX binaries will be available for all users.</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QCommandLinkButton" name="buttonUserSetup">
              <property name="text">
               <string>Finish private setup</string>
              </property>
              <property name="description">
               <string>MiKTeX binaries will be available for your private use only.</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCommandLinkButton" name="buttonAdminSetup">
+             <property name="text">
+              <string>Restart as administrator and finish setup</string>
+             </property>
+             <property name="description">
+              <string>MiKTeX binaries will be available for all users.</string>
              </property>
             </widget>
            </item>
