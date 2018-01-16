@@ -167,6 +167,12 @@ private slots:
 private slots:
   void RestartAdmin();
 
+private slots:
+  void on_buttonRestartAdmin_clicked()
+  {
+    RestartAdmin();
+  }
+
 private:
   void RestartAdminWithArguments(const std::vector<std::string>& args);
 

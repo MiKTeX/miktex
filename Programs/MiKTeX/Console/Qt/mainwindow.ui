@@ -335,7 +335,7 @@
            <item>
             <widget class="QLabel" name="label_9">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thank you for giving MiKTeX a try!&lt;/p&gt;&lt;p&gt;We will now finish the MiKTeX setup by populating the &lt;span style=&quot;font-style:italic;&quot;&gt;bin&lt;/span&gt; directory with links to the to actual MiKTeX binaries. The location of the &lt;span style=&quot; font-style:italic;&quot;&gt;bin&lt;/span&gt; directory depends on your choice:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-family:'Courier New';&quot;&gt;/usr/local/bin&lt;/span&gt; for a shared (system-wide) MiKTeX installation. This option requires administrator privileges.&lt;/li&gt;&lt;li&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;~/bin&lt;/span&gt; for a private MiKTeX installation.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/shared-vs-private&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;KB: shared vs. private installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thank you for giving MiKTeX a try!&lt;/p&gt;&lt;p&gt;We will now finish the MiKTeX setup by populating the &lt;span style=&quot;font-style:italic;&quot;&gt;bin&lt;/span&gt; directory with links to the to actual MiKTeX binaries. The location of the &lt;span style=&quot; font-style:italic;&quot;&gt;bin&lt;/span&gt; directory depends on your choice:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-family:'Courier New';&quot;&gt;/usr/local/bin&lt;/span&gt; for a shared (system-wide) MiKTeX installation. This option requires administrator privileges.&lt;/li&gt;&lt;li&gt;&lt;span style=&quot; font-family:'Courier New';&quot;&gt;~/bin&lt;/span&gt; for a private MiKTeX installation.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/kb/private-vs-shared&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;KB: shared vs. private installation&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -504,13 +504,22 @@
               <item>
                <widget class="QLabel" name="label_4">
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This tool currently operates on the private (per-user) MiKTeX configuration.&lt;/p&gt;&lt;p&gt;You may want to switch to administrator mode in order to operate on the shared (system-wide) configuration.&lt;/p&gt;&lt;p&gt;More information: &lt;a href=&quot;https://miktex.org/howto/admin-mode&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: switch to admin mode&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>This tool currently operates on the private (per-user) MiKTeX configuration.
+
+You may want to restart this application as administrator in order to operate on the shared (system-wide) configuration.</string>
                 </property>
                 <property name="wordWrap">
                  <bool>true</bool>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCommandLinkButton" name="buttonRestartAdmin">
+                <property name="text">
+                 <string>Restart as administrator</string>
                 </property>
                </widget>
               </item>
