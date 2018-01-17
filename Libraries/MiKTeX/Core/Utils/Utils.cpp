@@ -941,7 +941,13 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
         int exitCode;
         ProcessOutput<80> pdfTeXOutput;
         bool isOtherPdfTeX = true;
-        if (Process::Run(otherPdfTeX, vector<string>{ "pdftex", "--version" }, &pdfTeXOutput, &exitCode, nullptr) && exitCode == 0)
+        vector<string> args{ "pdftex", "--version" };
+        shared_ptr<Session> session = Session::Get();
+        if (session->IsAdminMode())
+        {
+          args.push_back("--miktex-admin");
+        }
+        if (Process::Run(otherPdfTeX, args, &pdfTeXOutput, &exitCode, nullptr) && exitCode == 0)
         {
           if (pdfTeXOutput.StdoutToString().find("MiKTeX") != string::npos)
           {
