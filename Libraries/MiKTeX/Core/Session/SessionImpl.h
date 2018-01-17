@@ -770,6 +770,9 @@ public:
 public:
   MiKTeX::Core::PathName GetDistRootDirectory();
 
+public:
+  std::pair<bool, MiKTeX::Core::PathName> TryGetDistRootDirectory();
+
 private:
   bool IsManagedRoot(unsigned root);
 

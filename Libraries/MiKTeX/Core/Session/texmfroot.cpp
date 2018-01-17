@@ -459,7 +459,7 @@ unsigned SessionImpl::GetUserInstallRoot()
   return userInstallRootIndex;
 }
 
-PathName SessionImpl::GetDistRootDirectory()
+pair<bool, PathName> SessionImpl::TryGetDistRootDirectory()
 {
 #if defined(MIKTEX_WINDOWS)
   PathName myloc = GetMyLocation(true);
@@ -469,18 +469,28 @@ PathName SessionImpl::GetDistRootDirectory()
   PathName prefix;
   if (Utils::GetPathNamePrefix(myloc, internalBindir, prefix))
   {
-    return prefix;
+    return make_pair(true, prefix);
   }
   PathName bindir(MIKTEX_PATH_BIN_DIR);
   RemoveDirectoryDelimiter(bindir.GetData());
   if (Utils::GetPathNamePrefix(myloc, bindir, prefix))
   {
-    return prefix;
+    return make_pair(true, prefix);
   }
-  MIKTEX_UNEXPECTED();
+  return make_pair(false, PathName());
 #else
-  return GetMyPrefix(true) / MIKTEX_DIST_DIR;
+  return make_pair(true, GetMyPrefix(true) / MIKTEX_DIST_DIR);
 #endif
+}
+
+PathName SessionImpl::GetDistRootDirectory()
+{
+  auto result = TryGetDistRootDirectory();
+  if (!result.first)
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  return result.second;
 }
 
 void SessionImpl::SaveRootDirectories(

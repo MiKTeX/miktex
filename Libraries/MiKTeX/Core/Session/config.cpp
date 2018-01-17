@@ -1,6 +1,6 @@
 /* config.cpp: MiKTeX configuration settings
 
-   Copyright (C) 1996-2017 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -633,9 +633,17 @@ bool SessionImpl::IsMiKTeXPortable()
 PathName SessionImpl::GetBinDirectory(bool canonicalized)
 {
 #if defined(MIKTEX_WINDOWS)
-  PathName ret = GetDistRootDirectory();
-  ret /= MIKTEX_PATH_BIN_DIR;
-  return ret;
+  auto distRoot = TryGetDistRootDirectory();
+  if (distRoot.first)
+  {
+    return distRoot.second / MIKTEX_PATH_BIN_DIR;
+  }
+  string env;
+  if (!Utils::GetEnvironmentString(MIKTEX_ENV_BIN_DIR, env))
+  {
+    MIKTEX_UNEXPECTED();
+  }
+  return env;
 #elif defined(MIKTEX_MACOS_BUNDLE)
   return GetMyPrefix(canonicalized) / MIKTEX_BINARY_DESTINATION_DIR;
 #else
