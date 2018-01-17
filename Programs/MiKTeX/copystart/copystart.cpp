@@ -38,7 +38,7 @@ using namespace MiKTeX::Core;
 using namespace MiKTeX::Util;
 using namespace std;
 
-void CopyStart(const wchar_t * lpszFileName, const wchar_t * lpszArgs)
+void CopyStart(const wchar_t* lpszFileName, const wchar_t* lpszArgs)
 {
   shared_ptr<Session> session = Session::Create(Session::InitInfo("copystart"));
 
@@ -91,7 +91,7 @@ void CopyStart(const wchar_t * lpszFileName, const wchar_t * lpszArgs)
   Process::Start(pathExe, vector<string>{ pathExe.GetFileNameWithoutExtension().ToString(), StringUtil::WideCharToUTF8(lpszArgs) });
 }
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, wchar_t * lpCmdLine, int nCmdShow)
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, wchar_t* lpCmdLine, int nCmdShow)
 {
   UNUSED_ALWAYS(hInstance);
   UNUSED_ALWAYS(hPrevInstance);
@@ -166,13 +166,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, wchar_t * lpCm
 
     return 0;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     UNUSED_ALWAYS(e);
     MessageBoxW(nullptr, UW_(e.what()), L"MiKTeX", MB_OK | MB_ICONSTOP);
     return 1;
   }
-  catch (const wchar_t * lpszMessage)
+  catch (const wchar_t* lpszMessage)
   {
     MessageBoxW(nullptr, lpszMessage, L"MiKTeX", MB_OK | MB_ICONSTOP);
     return 1;
