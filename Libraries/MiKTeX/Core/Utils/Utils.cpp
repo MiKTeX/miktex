@@ -941,7 +941,7 @@ MIKTEXINTERNALFUNC(bool) FixProgramSearchPath(const string& oldPath, const PathN
         int exitCode;
         ProcessOutput<80> pdfTeXOutput;
         bool isOtherPdfTeX = true;
-        vector<string> args{ "pdftex", "--version" };
+        vector<string> args{ "pdftex", "--miktex-disable-installer", "--version" };
         shared_ptr<Session> session = Session::Get();
         if (session->IsAdminMode())
         {
