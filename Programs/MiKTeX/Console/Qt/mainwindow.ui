@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>802</height>
+    <height>818</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -306,7 +306,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>4</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -1186,6 +1186,34 @@ You may want to restart this application as administrator in order to operate on
            <property name="bottomMargin">
             <number>0</number>
            </property>
+           <item>
+            <layout class="QFormLayout" name="formLayout">
+             <item row="0" column="0">
+              <widget class="QLabel" name="labelInstallFrom">
+               <property name="text">
+                <string>Install from:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="labelInstallTo">
+               <property name="text">
+                <string>Install to:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="lineEditInstallRoot">
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QComboBox" name="comboRepository"/>
+             </item>
+            </layout>
+           </item>
            <item>
             <layout class="QVBoxLayout" name="vboxPackages">
              <item>

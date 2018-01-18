@@ -1049,6 +1049,10 @@ void MainWindow::UpdateUiPackageInstallation()
   {
     ui->editRepository->setText(QString::fromUtf8(repository.c_str()));
   }
+  else
+  {
+    ui->editRepository->setText(tr("<Random package repository>"));
+  }
   switch (session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState())
   {
   case TriState::True:
@@ -1429,6 +1433,32 @@ void MainWindow::SetupUiPackages()
   contextMenuPackage->addSeparator();
   contextMenuPackage->addAction(ui->actionPackageProperties);
   ui->treeViewPackages->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(ui->comboRepository, QOverload<int>::of(&QComboBox::activated), this, [this](int index)
+  {
+    if (index == 1)
+    {
+      try
+      {
+        if (SiteWizSheet::DoModal(this) == QDialog::Accepted)
+        {
+          UpdateUi();
+          UpdateActions();
+        }
+        else
+        {
+          ui->comboRepository->setCurrentIndex(0);
+        }
+      }
+      catch (const MiKTeXException& e)
+      {
+        CriticalError(e);
+      }
+      catch (const exception& e)
+      {
+        CriticalError(e);
+      }
+    }
+  });
   connect(ui->treeViewPackages, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuPackages(const QPoint&)));
   connect(ui->treeViewPackages->selectionModel(),
     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
@@ -1458,6 +1488,19 @@ void MainWindow::SetupUiPackages()
 
 void MainWindow::UpdateUiPackages()
 {
+  ui->comboRepository->clear();
+  RepositoryType repositoryType(RepositoryType::Unknown);
+  string repository;
+  if (packageManager->TryGetDefaultPackageRepository(repositoryType, repository))
+  {
+    ui->comboRepository->addItem(QString::fromUtf8(repository.c_str()));
+  }
+  else
+  {
+    ui->comboRepository->addItem(tr("a random package repository on the Internet"));
+  }
+  ui->comboRepository->addItem(tr("Change..."));
+  ui->lineEditInstallRoot->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::InstallRoot).GetData()));
 }
 
 void MainWindow::UpdateActionsPackages()
