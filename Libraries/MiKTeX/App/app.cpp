@@ -1,6 +1,6 @@
 /* app.cpp:
 
-   Copyright (C) 2005-2017 Christian Schenk
+   Copyright (C) 2005-2018 Christian Schenk
  
    This file is part of the MiKTeX App Library.
 
@@ -90,6 +90,8 @@ public:
 public:
   bool beQuiet = false;
 public:
+  TriState enableMaintenance = TriState::Undetermined;
+public:
   shared_ptr<Session> session;
 public:
   bool isLog4cxxConfigured = false;
@@ -158,6 +160,14 @@ template<typename T> void ExamineArgs(vector<T>& args, Session::InitInfo& initIn
     else if (strcmp(*it, "--miktex-enable-installer") == 0)
     {
       pimpl->enableInstaller = TriState::True;
+    }
+    else if (strcmp(*it, "--miktex-disable-maintenance") == 0)
+    {
+      pimpl->enableMaintenance = TriState::False;
+    }
+    else if (strcmp(*it, "--miktex-enable-maintenance") == 0)
+    {
+      pimpl->enableMaintenance = TriState::True;
     }
     else
     {
@@ -318,7 +328,14 @@ void Application::Init(const Session::InitInfo& initInfoArg)
   pimpl->mpmAutoAdmin = pimpl->session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOADMIN).GetTriState();
   InstallSignalHandler(SIGINT);
   InstallSignalHandler(SIGTERM);
-  AutoMaintenance();
+  if (pimpl->enableMaintenance == TriState::Undetermined)
+  {
+    pimpl->enableMaintenance = TriState::True;
+  }
+  if (pimpl->enableMaintenance == TriState::True)
+  {
+    AutoMaintenance();
+  }
 }
 
 void Application::Init(vector<const char*>& args)
