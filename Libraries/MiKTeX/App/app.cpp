@@ -88,7 +88,7 @@ public:
 public:
   TriState enableInstaller = TriState::Undetermined;
 public:
-  bool beQuiet;
+  bool beQuiet = false;
 public:
   shared_ptr<Session> session;
 public:
