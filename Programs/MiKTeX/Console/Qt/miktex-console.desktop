@@ -3,6 +3,6 @@ Type=Application
 Version=1.0
 Name=MiKTeX Console
 Comment=MiKTeX management console
-Icon=MiKTeX
+Icon=miktex-console
 Exec=miktex-console
 Categories=Utility;Qt;

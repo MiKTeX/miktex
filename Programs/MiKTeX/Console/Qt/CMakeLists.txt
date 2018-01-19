@@ -42,19 +42,23 @@ set(console_sources
 )
 
 if(MIKTEX_NATIVE_WINDOWS)
+  configure_file(
+    console.rc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/console.rc
+  )
   list(APPEND console_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/console.rc
+    ${CMAKE_CURRENT_BINARY_DIR}/console.rc
     ${MIKTEX_COMPATIBILITY_MANIFEST}
   )
 endif()
 
 if(MIKTEX_MACOS_BUNDLE)
   # FIXME
-  set(MACOSX_BUNDLE_ICON_FILE miktex.icns)
+  set(MACOSX_BUNDLE_ICON_FILE miktex-console.icns)
   list(APPEND console_sources
-    ${MIKTEX_ICNS}
+    ${MIKTEX_CONSOLE_ICNS}
   )
-  set_source_files_properties(${MIKTEX_ICNS}
+  set_source_files_properties(${MIKTEX_CONSOLE_ICNS}
     PROPERTIES
       MACOSX_PACKAGE_LOCATION Resources
   )
@@ -134,6 +138,12 @@ if(MIKTEX_MACOS_BUNDLE)
   )
 endif()
 if(UNIX AND NOT APPLE)
+  foreach (size IN ITEMS 32 128)
+    install(
+      FILES "${CMAKE_SOURCE_DIR}/Resources/Icons/MiKTeX/${size}x${size}/apps/miktex-console.png"
+      DESTINATION "${MIKTEX_XDG_APPLICATIONS_DIR}/icons/hicolor/${size}x${size}/apps"
+    )
+  endforeach()
   install(
     FILES miktex-console.desktop
     DESTINATION "${MIKTEX_XDG_APPLICATIONS_DIR}"

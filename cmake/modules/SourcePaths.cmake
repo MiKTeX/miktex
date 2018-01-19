@@ -1,6 +1,6 @@
 ## SourcePaths.cmake
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -182,14 +182,16 @@ set(MIKTEX_MANUAL_STYLES        "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_CSS_DIR}/mikte
 set(MIKTEX_XML_CATALOG_FILE     "${CMAKE_BINARY_DIR}/BuildUtilities/docbook/catalog")
 
 # resources
+set(MIKTEX_COMPATIBILITY_MANIFEST       "${CMAKE_SOURCE_DIR}/Resources/Manifests/Compatibility.manifest")
+set(MIKTEX_CONSOLE_ICNS                 "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex-console.icns")
+set(MIKTEX_CONSOLE_ICON                 "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex-console.ico")
 set(MIKTEX_DOWNLOAD_ANIMATION           "${CMAKE_SOURCE_DIR}/Resources/Videos/download.avi")
+set(MIKTEX_DPIAWARE_MANIFEST            "${CMAKE_SOURCE_DIR}/Resources/Manifests/dpiAware.manifest")
 set(MIKTEX_FILECOPY_ANIMATION           "${CMAKE_SOURCE_DIR}/Resources/Videos/filecopy.avi")
-set(MIKTEX_ICON                         "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex.ico")
 set(MIKTEX_ICNS                         "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex.icns")
+set(MIKTEX_ICON                         "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex.ico")
 set(MIKTEX_WIZARD_HEADER_BITMAP         "${CMAKE_SOURCE_DIR}/Resources/Graphics/wiz97-header.bmp")
 set(MIKTEX_WIZARD_WATERMARK_BITMAP      "${CMAKE_SOURCE_DIR}/Resources/Graphics/wiz97-watermark.bmp")
-set(MIKTEX_COMPATIBILITY_MANIFEST       "${CMAKE_SOURCE_DIR}/Resources/Manifests/Compatibility.manifest")
-set(MIKTEX_DPIAWARE_MANIFEST            "${CMAKE_SOURCE_DIR}/Resources/Manifests/dpiAware.manifest")
 
 # sed scripts
 set(MIKTEX_DYN_ETEX_SCRIPT      "${CMAKE_SOURCE_DIR}/${MIKTEX_REL_ETEX_DIR}/dyn.sed")

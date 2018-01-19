@@ -19,6 +19,10 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
+#ifdef RC_INVOKED
+IDI_ICON1 ICON DISCARDABLE "${MIKTEX_CONSOLE_ICON}"
+#endif
+
 #include "console-version.h"
 
 #define VER_INTERNALNAME_STR "miktex-console"

@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="console.qrc">
-    <normaloff>:/Icons/miktex-32x32.png</normaloff>:/Icons/miktex-32x32.png</iconset>
+    <normaloff>:/Icons/miktex-console-32x32.png</normaloff>:/Icons/miktex-console-32x32.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
@@ -1399,7 +1399,7 @@ You may want to restart this application as administrator in order to operate on
   <action name="actionAbout">
    <property name="icon">
     <iconset resource="console.qrc">
-     <normaloff>:/Icons/miktex-16x16.png</normaloff>:/Icons/miktex-16x16.png</iconset>
+     <normaloff>:/Icons/miktex-console-16x16.png</normaloff>:/Icons/miktex-console-16x16.png</iconset>
    </property>
    <property name="text">
     <string>About &amp;MiKTeX Console...</string>
