@@ -1194,6 +1194,9 @@ You may want to restart this application as administrator in order to operate on
            </property>
            <item>
             <layout class="QFormLayout" name="formLayout">
+             <property name="labelAlignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
              <item row="0" column="0">
               <widget class="QLabel" name="labelInstallFrom">
                <property name="text">
