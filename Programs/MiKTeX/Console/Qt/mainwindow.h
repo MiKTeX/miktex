@@ -246,10 +246,13 @@ private slots:
   }
 
 private:
+  void SetupUiPackageInstallation();
+
+private:
   void UpdateUiPackageInstallation();
 
-private slots:
-  void on_buttonChangeRepository_clicked();
+  private slots:
+  void ChangeRepository();
 
 private slots:
   void on_radioAutoInstallAsk_clicked();

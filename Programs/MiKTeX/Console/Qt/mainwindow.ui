@@ -866,18 +866,24 @@ You may want to restart this application as administrator in order to operate on
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="editRepository">
-                      <property name="readOnly">
-                       <bool>true</bool>
+                     <widget class="QComboBox" name="comboRepository2">
+                      <property name="sizeAdjustPolicy">
+                       <enum>QComboBox::AdjustToContents</enum>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="buttonChangeRepository">
-                      <property name="text">
-                       <string>Change...</string>
+                     <spacer name="horizontalSpacer_6">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
                       </property>
-                     </widget>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
                     </item>
                    </layout>
                   </item>

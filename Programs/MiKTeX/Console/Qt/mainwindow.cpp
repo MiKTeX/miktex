@@ -92,6 +92,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
   SetupUiRootDirectories();
   SetupUiUpdates();
+  SetupUiPackageInstallation();
   SetupUiPackages();
   SetupUiTroubleshoot();
 
@@ -1041,18 +1042,31 @@ void MainWindow::Update()
   UpdateActions();
 }
 
+void MainWindow::SetupUiPackageInstallation()
+{
+  connect(ui->comboRepository2, static_cast<void(QComboBox::*)(int)> (&QComboBox::activated), this, [this](int index)
+  {
+    if (index == 1)
+    {
+      ChangeRepository();
+    }
+  });
+}
+
 void MainWindow::UpdateUiPackageInstallation()
 {
+  ui->comboRepository2->clear();
   string repository;
   RepositoryType repositoryType(RepositoryType::Unknown);
   if (packageManager->TryGetDefaultPackageRepository(repositoryType, repository))
   {
-    ui->editRepository->setText(QString::fromUtf8(repository.c_str()));
+    ui->comboRepository2->addItem(QString::fromUtf8(repository.c_str()));
   }
   else
   {
-    ui->editRepository->setText(tr("<Random package repository>"));
+    ui->comboRepository2->addItem(tr("a random package repository on the Internet"));
   }
+  ui->comboRepository2->addItem(tr("Change..."));
   switch (session->GetConfigValue(MIKTEX_CONFIG_SECTION_MPM, MIKTEX_CONFIG_VALUE_AUTOINSTALL).GetTriState())
   {
   case TriState::True:
@@ -1065,28 +1079,19 @@ void MainWindow::UpdateUiPackageInstallation()
     ui->radioAutoInstallAsk->setChecked(true);
     break;
   }
-  ui->editRepository->setEnabled(!IsBackgroundWorkerActive());
-  ui->buttonChangeRepository->setEnabled(!IsBackgroundWorkerActive());
+  ui->comboRepository2->setEnabled(!IsBackgroundWorkerActive());
   ui->radioAutoInstallAsk->setEnabled(!IsBackgroundWorkerActive());
   ui->radioAutoInstallYes->setEnabled(!IsBackgroundWorkerActive());
   ui->radioAutoInstallNo->setEnabled(!IsBackgroundWorkerActive());
 }
 
-void MainWindow::on_buttonChangeRepository_clicked()
+void MainWindow::ChangeRepository()
 {
   try
   {
-    if (SiteWizSheet::DoModal(this) == QDialog::Accepted)
-    {
-      UpdateUi();
-      UpdateActions();
-#if 0
-      if (QMessageBox())
-      {
-        SynchronizePackageDatabase();
-      }
-#endif
-    }
+    SiteWizSheet::DoModal(this);
+    UpdateUi();
+    UpdateActions();
   }
   catch (const MiKTeXException& e)
   {
@@ -1433,30 +1438,11 @@ void MainWindow::SetupUiPackages()
   contextMenuPackage->addSeparator();
   contextMenuPackage->addAction(ui->actionPackageProperties);
   ui->treeViewPackages->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(ui->comboRepository, QOverload<int>::of(&QComboBox::activated), this, [this](int index)
+  connect(ui->comboRepository, static_cast<void(QComboBox::*)(int)> (&QComboBox::activated), this, [this](int index)
   {
     if (index == 1)
     {
-      try
-      {
-        if (SiteWizSheet::DoModal(this) == QDialog::Accepted)
-        {
-          UpdateUi();
-          UpdateActions();
-        }
-        else
-        {
-          ui->comboRepository->setCurrentIndex(0);
-        }
-      }
-      catch (const MiKTeXException& e)
-      {
-        CriticalError(e);
-      }
-      catch (const exception& e)
-      {
-        CriticalError(e);
-      }
+      ChangeRepository();
     }
   });
   connect(ui->treeViewPackages, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnContextMenuPackages(const QPoint&)));
