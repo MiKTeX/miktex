@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2017 Christian Schenk
+## Copyright (C) 2010-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -17,23 +17,23 @@
 ## Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 ## USA.
 
-add_library(${lua_lib_name} STATIC ${lua_lib_sources})
+add_library(${lua52_lib_name} STATIC ${lua_lib_sources})
 
-set_property(TARGET ${lua_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+set_property(TARGET ${lua52_lib_name} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 
-target_compile_definitions(${lua_lib_name}
+target_compile_definitions(${lua52_lib_name}
   PUBLIC
     ${public_compile_definitions}
     -DMIKTEX_LUA_STATIC
 )
 
-target_include_directories(${lua_lib_name}
+target_include_directories(${lua52_lib_name}
   PUBLIC
     ${public_include_directories}
 )
 
 if(MIKTEX_UNIX_ALIKE)
-  target_link_libraries(${lua_lib_name}
+  target_link_libraries(${lua52_lib_name}
     PUBLIC
       ${CMAKE_DL_LIBS}
       ${MATH_LIBRARY}
@@ -41,14 +41,14 @@ if(MIKTEX_UNIX_ALIKE)
 endif()
 
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(${lua_lib_name}
+  target_link_libraries(${lua52_lib_name}
     PRIVATE
       ${utf8wrap_dll_name}
   )
 endif()
 
 if(INSTALL_STATIC_LIBRARIES)
-  install(TARGETS ${lua_lib_name}
+  install(TARGETS ${lua52_lib_name}
     RUNTIME DESTINATION "${MIKTEX_BINARY_DESTINATION_DIR}"
     LIBRARY DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"
     ARCHIVE DESTINATION "${MIKTEX_LIBRARY_DESTINATION_DIR}"

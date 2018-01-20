@@ -24,7 +24,7 @@
       rapid prototyping.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${lua_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${lua52_dll_name}.dll
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

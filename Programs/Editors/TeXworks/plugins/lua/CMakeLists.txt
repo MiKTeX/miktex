@@ -1,6 +1,6 @@
-## CMakeLists.txt					-*- CMake -*-
+## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2016 Christian Schenk
+## Copyright (C) 2010-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -31,7 +31,7 @@ set_property(TARGET twluaplugin-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
 target_link_libraries(twluaplugin-static
   PUBLIC
     ${core_dll_name}
-    ${lua_dll_name}
+    ${lua52_dll_name}
     Qt5::Core
     Qt5::Gui
     Qt5::UiTools

@@ -89,9 +89,9 @@ include(sources.cmake)
 
 if(NOT LINK_EVERYTHING_STATICALLY)
   add_subdirectory(shared)
-  set(lua_target_library ${lua_dll_name})
+  set(lua_target_library ${lua52_dll_name})
 else()
-  set(lua_target_library ${lua_lib_name})
+  set(lua_target_library ${lua52_lib_name})
 endif()
 
 add_subdirectory(static)

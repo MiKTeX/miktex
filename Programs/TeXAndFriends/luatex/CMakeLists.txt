@@ -20,12 +20,12 @@
 set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_TEX_AND_FRIENDS_FOLDER}/LuaTeX")
 
 # FIXME: this breaks luatex under xenial:
-# set(lua_target_name ${lua_dll_name})
+# set(lua_target_name ${lua52_dll_name})
 
 if(MIKTEX_NATIVE_WINDOWS)
-  set(lua_target_name ${lua_dll_name})
+  set(lua_target_name ${lua52_dll_name})
 else()
-  set(lua_target_name ${lua_lib_name})
+  set(lua_target_name ${lua52_lib_name})
 endif()
 
 include_directories(BEFORE
