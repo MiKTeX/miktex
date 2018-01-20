@@ -451,7 +451,7 @@ void MainWindow::RestartAdmin()
 
 void MainWindow::RestartAdminWithArguments(const vector<string>& args)
 {
-#if defined(MIKTEX_WINDOWS)
+#if defined(MIKTEX_WINDOWSx)
   PathName me = session->GetMyProgramFile(true);
   PathName adminFileName = me.GetFileNameWithoutExtension();
   adminFileName += MIKTEX_ADMIN_SUFFIX;
@@ -466,7 +466,22 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
   consoleArgs.insert(consoleArgs.end(), args.begin(), args.end());
   Process::Start(console, consoleArgs);
 #else
-  // TODO
+  const static string frontends[] = { "kdesu", "gksu" };
+  PathName frontend;
+  for (const string& f : frontends)
+  {
+    if (session->FindFile(f, FileType::EXE, frontend))
+    {
+      break;
+    }
+  }
+  if (frontend.Empty())
+  {
+    MIKTEX_FATAL_ERROR(tr("No graphical sudo frontend is available. Please install 'kdesu' (KDE) or 'gksu' (Gnome).").toStdString());
+  }
+  vector<string> frontendArgs{ frontend.GetFileNameWithoutExtension().ToString(), MIKTEX_CONSOLE_EXE };
+  frontendArgs.insert(frontendArgs.end(), args.begin(), args.end());
+  Process::Start(frontend, frontendArgs);
 #endif
   this->close();
 }
@@ -734,7 +749,7 @@ bool RefreshFontMapsWorker::Run()
     PathName initexmf;
     if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
     {
-      MIKTEX_FATAL_ERROR("The MiKTeX configuration utility executable (initexmf) could not be found.");
+      MIKTEX_FATAL_ERROR(tr("The MiKTeX configuration utility executable (initexmf) could not be found.").toStdString());
     }
     vector<string> args{
       initexmf.GetFileNameWithoutExtension().ToString(),
@@ -757,7 +772,7 @@ bool RefreshFontMapsWorker::Run()
       FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
       outstream.Write(&outputBytes[0], outputBytes.size());
       outstream.Close();
-      MIKTEX_FATAL_ERROR_2("The MiKTeX configuration utility failed for some reason. The process output has been saved to a file.",
+      MIKTEX_FATAL_ERROR_2(tr("The MiKTeX configuration utility failed for some reason. The process output has been saved to a file.").toStdString(),
         "fileName", initexmf.ToString(), "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
     }
     result = true;
@@ -801,6 +816,13 @@ void MainWindow::RefreshFontMaps()
 
 void MainWindow::SetupUiUpdates()
 {
+  connect(ui->comboRepository3, static_cast<void(QComboBox::*)(int)> (&QComboBox::activated), this, [this](int index)
+  {
+    if (index == 1)
+    {
+      ChangeRepository();
+    }
+  });
   connect(ui->actionCheckUpdates, SIGNAL(triggered()), this, SLOT(CheckUpdates()));
   updateModel = new UpdateTableModel(packageManager, this);
   string lastUpdateCheck;
@@ -844,6 +866,20 @@ void MainWindow::SetupUiUpdates()
 
 void MainWindow::UpdateUiUpdates()
 {
+  ui->comboRepository3->clear();
+  RepositoryType repositoryType(RepositoryType::Unknown);
+  string repository;
+  if (packageManager->TryGetDefaultPackageRepository(repositoryType, repository))
+  {
+    ui->comboRepository3->addItem(QString::fromUtf8(repository.c_str()));
+  }
+  else
+  {
+    ui->comboRepository3->addItem(tr("a random package repository on the Internet"));
+  }
+  ui->comboRepository3->addItem(tr("Change..."));
+  ui->lineEditInstallRoot2->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::InstallRoot).GetData()));
+  ui->comboRepository3->setEnabled(!IsBackgroundWorkerActive());
   ui->buttonCheckUpdates->setEnabled(!IsBackgroundWorkerActive());
   ui->buttonUpdateCheck->setEnabled(!IsBackgroundWorkerActive());
   ui->buttonUpdateNow->setEnabled(!IsBackgroundWorkerActive() && updateModel->rowCount() > 0);
@@ -1487,6 +1523,7 @@ void MainWindow::UpdateUiPackages()
   }
   ui->comboRepository->addItem(tr("Change..."));
   ui->lineEditInstallRoot->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::InstallRoot).GetData()));
+  ui->comboRepository->setEnabled(!IsBackgroundWorkerActive());
 }
 
 void MainWindow::UpdateActionsPackages()

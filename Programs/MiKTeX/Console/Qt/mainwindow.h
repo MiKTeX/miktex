@@ -251,7 +251,7 @@ private:
 private:
   void UpdateUiPackageInstallation();
 
-  private slots:
+private slots:
   void ChangeRepository();
 
 private slots:

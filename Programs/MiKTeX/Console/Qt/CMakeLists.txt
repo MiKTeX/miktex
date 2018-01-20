@@ -138,6 +138,12 @@ if(MIKTEX_MACOS_BUNDLE)
   )
 endif()
 if(UNIX AND NOT APPLE)
+  # Gnome
+  install(
+    FILES "${CMAKE_SOURCE_DIR}/Resources/Icons/MiKTeX/128x128/apps/miktex-console.png"
+    DESTINATION "${MIKTEX_XDG_APPLICATIONS_DIR}/pixmaps"
+  )
+  # KDE
   foreach (size IN ITEMS 32 128)
     install(
       FILES "${CMAKE_SOURCE_DIR}/Resources/Icons/MiKTeX/${size}x${size}/apps/miktex-console.png"

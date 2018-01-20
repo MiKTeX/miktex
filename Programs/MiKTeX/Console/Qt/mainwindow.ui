@@ -110,7 +110,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::TabFocus</enum>
+          <enum>Qt::NoFocus</enum>
          </property>
          <property name="statusTip">
           <string>Check and modify MiKTeX configuration settings</string>
@@ -306,7 +306,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>4</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -1071,6 +1071,37 @@ You may want to restart this application as administrator in order to operate on
            <property name="bottomMargin">
             <number>0</number>
            </property>
+           <item>
+            <layout class="QFormLayout" name="formLayoutx">
+             <property name="labelAlignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <item row="0" column="0">
+              <widget class="QLabel" name="labelInstallFrom2">
+               <property name="text">
+                <string>Install from:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="labelInstallTo2">
+               <property name="text">
+                <string>Install to:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="lineEditInstallRoot2">
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QComboBox" name="comboRepository3"/>
+             </item>
+            </layout>
+           </item>
            <item>
             <widget class="QWidget" name="groupUpdates" native="true">
              <layout class="QHBoxLayout" name="horizontalLayout_3">
