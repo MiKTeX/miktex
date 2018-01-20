@@ -2,12 +2,12 @@
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:TPM="http://texlive.dante.de/">
   <rdf:Description about="http://www.miktex.org/packages/miktex/">
-    <TPM:Name>Lua 5.2 lib win32</TPM:Name>
-    <TPM:Title>Lua 5.2 runtime library, Windows x86</TPM:Title>
-    <TPM:Copyright owner="Lua.org, PUC-Rio" year="1994-2015"/>
+    <TPM:Name>Lua 5.3 lib win64</TPM:Name>
+    <TPM:Title>Lua 5.3 runtime library, Windows x64</TPM:Title>
+    <TPM:Copyright owner="Lua.org, PUC-Rio" year="1994-2017"/>
     <TPM:License type="mit"/>
-    <TPM:Version>5.2.4</TPM:Version>
-    <TPM:TargetSystem>windows-x86</TPM:TargetSystem>
+    <TPM:Version>5.3.4</TPM:Version>
+    <TPM:TargetSystem>windows-x64</TPM:TargetSystem>
     <TPM:Date>@MIKTEX_DATETIME_STR@</TPM:Date>
     <TPM:Description>
       Lua is a powerful, efficient, lightweight, embeddable scripting
@@ -24,7 +24,9 @@
       rapid prototyping.
     </TPM:Description>
     <TPM:RunFiles>
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${lua_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${lua53_dll_name}.dll
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/miktex-lua.exe
+texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/miktex-luac.exe
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>

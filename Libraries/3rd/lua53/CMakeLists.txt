@@ -19,7 +19,7 @@
 
 include(component.cmake)
 
-set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/lua")
+set(MIKTEX_CURRENT_FOLDER "${MIKTEX_IDE_3RD_LIBRARIES_FOLDER}/lua53")
 
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -31,8 +31,9 @@ set(public_include_directories
 )
 
 set(public_compile_definitions
-  -DLUA_COMPAT_MODULE
   -DLUAI_HASHLIMIT=6
+  -DLUA_COMPAT_5_2
+  -DLUA_COMPAT_MODULE
 )
 
 if(MIKTEX_UNIX_ALIKE)
@@ -89,14 +90,14 @@ include(sources.cmake)
 
 if(NOT LINK_EVERYTHING_STATICALLY)
   add_subdirectory(shared)
-  set(lua_target_library ${lua_dll_name})
+  set(lua53_target_library ${lua53_dll_name})
 else()
-  set(lua_target_library ${lua_lib_name})
+  set(lua53_target_library ${lua53_lib_name})
 endif()
 
 add_subdirectory(static)
 
-generate_export_header(${lua_target_library}
+generate_export_header(${lua53_target_library}
   BASE_NAME MIKTEX_LUA
   EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/include/miktex/lua/export.h
   STATIC_DEFINE MIKTEX_LUA_STATIC
@@ -113,16 +114,14 @@ if(MIKTEX_NATIVE_WINDOWS)
   )
 endif()
 
-if(FALSE)
-  add_executable(${MIKTEX_PREFIX}lua ${lua_sources})
-  set_property(TARGET ${MIKTEX_PREFIX}lua PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_link_libraries(${MIKTEX_PREFIX}lua ${lua_target_library})
-  install(TARGETS ${MIKTEX_PREFIX}lua DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
-  
-  add_executable(${MIKTEX_PREFIX}luac ${luac_sources})
-  set_property(TARGET ${MIKTEX_PREFIX}luac PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-  target_link_libraries(${MIKTEX_PREFIX}luac ${lua_target_library})
-  install(TARGETS ${MIKTEX_PREFIX}luac DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+add_executable(${MIKTEX_PREFIX}lua ${lua_sources})
+set_property(TARGET ${MIKTEX_PREFIX}lua PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+target_link_libraries(${MIKTEX_PREFIX}lua ${lua53_target_library})
+install(TARGETS ${MIKTEX_PREFIX}lua DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
 
-  add_subdirectory(test)
-endif()
+add_executable(${MIKTEX_PREFIX}luac ${luac_sources})
+set_property(TARGET ${MIKTEX_PREFIX}luac PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+target_link_libraries(${MIKTEX_PREFIX}luac ${lua53_target_library})
+install(TARGETS ${MIKTEX_PREFIX}luac DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+add_subdirectory(test)

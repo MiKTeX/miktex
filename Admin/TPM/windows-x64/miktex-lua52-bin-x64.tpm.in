@@ -25,8 +25,6 @@
     </TPM:Description>
     <TPM:RunFiles>
 texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/${lua_dll_name}.dll
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/miktex-lua.exe
-texmf/${MIKTEX_REL_MIKTEX_BIN_DIR}/miktex-luac.exe
     </TPM:RunFiles>
   </rdf:Description>
 </rdf:RDF>
