@@ -7984,7 +7984,7 @@ static void lua_new_properties_table(lua_State * L)
     lua_pushstring(L,"node.properties.indirect");
     lua_newtable(L);
     luaL_newmetatable(L,"node.properties.indirect.meta");
-    luaL_register(L, NULL, nodelib_p);
+    luaL_openlib(L, NULL, nodelib_p, 0);
     lua_setmetatable(L,-2);
     lua_settable(L,LUA_REGISTRYINDEX);
 }
@@ -8239,12 +8239,12 @@ int luaopen_node(lua_State * L)
     /* the main metatable of node userdata */
     luaL_newmetatable(L, NODE_METATABLE);
     /* node.* */
-    luaL_register(L, NULL, nodelib_m);
-    luaL_register(L, "node", nodelib_f);
+    luaL_openlib(L, NULL, nodelib_m, 0);
+    luaL_openlib(L, "node", nodelib_f, 0);
     /* node.direct */
     lua_pushstring(L,"direct");
     lua_newtable(L);
-    luaL_register(L, NULL, direct_nodelib_f);
+    luaL_openlib(L, NULL, direct_nodelib_f, 0);
     lua_rawset(L,-3);
     return 1;
 }

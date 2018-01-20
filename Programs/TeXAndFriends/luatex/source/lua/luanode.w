@@ -410,6 +410,7 @@ void show_pdf_literal(pointer p)
     tprint_esc("pdfliteral");
     switch (pdf_literal_mode(p)) {
         case set_origin:
+            tprint(" origin");
             break;
         case direct_page:
             tprint(" page");

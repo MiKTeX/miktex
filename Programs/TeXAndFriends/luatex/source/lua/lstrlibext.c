@@ -311,6 +311,7 @@ static int str_split (lua_State *L) {
 #ifdef LuajitTeX
     /* dump is built in */
 #else
+#if (LUA_VERSION_NUM == 502) 
 static int writer (lua_State *L, const void* b, size_t size, void* B) {
   (void)L;
   luaL_addlstring((luaL_Buffer*) B, (const char *)b, size);
@@ -331,6 +332,7 @@ static int lua_sdump (lua_State *L, lua_Writer writer, void *data, int stripping
   return status;
 }
 
+
 static int str_dump (lua_State *L) {
   luaL_Buffer b;
   int stripping = 0;
@@ -345,6 +347,7 @@ static int str_dump (lua_State *L) {
   luaL_pushresult(&b);
   return 1;
 }
+#endif
 #endif /*ifdef LuajitTeX*/
 
 static int str_bytetable (lua_State *L) {
@@ -501,8 +504,12 @@ static const luaL_Reg strlibext[] = {
 #ifdef LuajitTeX
   /* luajit has dump built in */
 #else
+/* lua 5.3.4 doesn't need this patch */
+#if (LUA_VERSION_NUM == 502) 
   {"dump", str_dump},
 #endif
+  
+#endif /* #ifdef LuajitTeX */
   {NULL, NULL}
 };
 

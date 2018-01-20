@@ -863,7 +863,7 @@ int luaopen_kpse(lua_State * L)
     luaL_newmetatable(L, KPATHSEA_METATABLE);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
-    luaL_register(L, NULL, kpselib_m);
-    luaL_register(L, "kpse", kpselib_l);
+    luaL_openlib(L, NULL, kpselib_m, 0);
+    luaL_openlib(L, "kpse", kpselib_l, 0);
     return 1;
 }

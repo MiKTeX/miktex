@@ -2589,142 +2589,6 @@ static long cs_copy_charstring(card8 * dst, long dstlen, card8 * src, long srcle
     return (long) (dst - save);
 }
 
-@* encodings.
-
-@ Encoding and Charset arrays always begin with GID = 1.
-
-@c
-long cff_read_encoding(cff_font * cff)
-{
-    cff_encoding *encoding;
-    long offset, length;
-    card8 i;
-
-    if (cff->topdict == NULL) {
-        normal_error("cff","top DICT data not found");
-    }
-
-    if (!cff_dict_known(cff->topdict, "Encoding")) {
-        cff->flag |= ENCODING_STANDARD;
-        cff->encoding = NULL;
-        return 0;
-    }
-
-    offset = (long) cff_dict_get(cff->topdict, "Encoding", 0);
-    if (offset == 0) {          /* predefined */
-        cff->flag |= ENCODING_STANDARD;
-        cff->encoding = NULL;
-        return 0;
-    } else if (offset == 1) {
-        cff->flag |= ENCODING_EXPERT;
-        cff->encoding = NULL;
-        return 0;
-    }
-
-    cff->offset = (l_offset) offset;
-    cff->encoding = encoding = xcalloc(1, sizeof(cff_encoding));
-    encoding->format = get_card8(cff);
-    length = 1;
-
-    switch (encoding->format & (~0x80)) {
-    case 0:
-        encoding->num_entries = get_card8(cff);
-        (encoding->data).codes = xmalloc(encoding->num_entries * sizeof(card8));
-        for (i = 0; i < (encoding->num_entries); i++) {
-            (encoding->data).codes[i] = get_card8(cff);
-        }
-        length += encoding->num_entries + 1;
-        break;
-    case 1:
-        {
-            cff_range1 *ranges;
-            encoding->num_entries = get_card8(cff);
-            encoding->data.range1 = ranges
-                = xcalloc(encoding->num_entries, sizeof(cff_range1));
-            for (i = 0; i < (encoding->num_entries); i++) {
-                ranges[i].first = get_card8(cff);
-                ranges[i].n_left = get_card8(cff);
-            }
-            length += (encoding->num_entries) * 2 + 1;
-        }
-        break;
-    default:
-        xfree(encoding);
-        normal_error("cff","unknown encoding format");
-        break;
-    }
-    /* Supplementary data */
-    if ((encoding->format) & 0x80) {
-        cff_map *map;
-        encoding->num_supps = get_card8(cff);
-        encoding->supp = map = xcalloc(encoding->num_supps, sizeof(cff_map));
-        for (i = 0; i < (encoding->num_supps); i++) {
-            map[i].code = get_card8(cff);
-            map[i].glyph = get_card16(cff);     /* SID */
-        }
-        length += (encoding->num_supps) * 3 + 1;
-    } else {
-        encoding->num_supps = 0;
-        encoding->supp = NULL;
-    }
-
-    return length;
-}
-
-@ @c
-long cff_pack_encoding(cff_font * cff, card8 * dest, long destlen)
-{
-    long len = 0;
-    cff_encoding *encoding;
-    card16 i;
-
-    if (cff->flag & HAVE_STANDARD_ENCODING || cff->encoding == NULL)
-        return 0;
-
-    if (destlen < 2)
-        normal_error("cff","buffer overflow (19)");
-
-    encoding = cff->encoding;
-
-    dest[len++] = encoding->format;
-    dest[len++] = encoding->num_entries;
-    switch (encoding->format & (~0x80)) {
-    case 0:
-        if (destlen < len + encoding->num_entries)
-            normal_error("cff","buffer overflow (20)");
-        for (i = 0; i < (encoding->num_entries); i++) {
-            dest[len++] = (encoding->data).codes[i];
-        }
-        break;
-    case 1:
-        {
-            if (destlen < len + (encoding->num_entries) * 2)
-                normal_error("cff","buffer overflow (21)");
-            for (i = 0; i < (encoding->num_entries); i++) {
-                dest[len++] = (card8) ((encoding->data).range1[i].first & 0xff);
-                dest[len++] = (card8) ((encoding->data).range1[i].n_left);
-            }
-        }
-        break;
-    default:
-        normal_error("cff","unknown encoding format");
-        break;
-    }
-
-    if ((encoding->format) & 0x80) {
-        if (destlen < len + (encoding->num_supps) * 3 + 1)
-            normal_error("cff","buffer overflow (22)");
-        dest[len++] = encoding->num_supps;
-        for (i = 0; i < (encoding->num_supps); i++) {
-            dest[len++] = (card8) ((encoding->supp)[i].code);
-            dest[len++] = (card8) (((encoding->supp)[i].glyph >> 8) & 0xff);
-            dest[len++] = (card8) ((encoding->supp)[i].glyph & 0xff);
-        }
-    }
-
-    return len;
-}
-
 @ CID-Keyed font specific
 @c
 long cff_read_fdselect(cff_font * cff)
@@ -3230,68 +3094,6 @@ cffont->_string = NULL;
 }
 
 @ @c
-#undef ERROR /* for mingw */
-#define ERROR(a) { perror(a); return 0; }
-
-@ Input : SID or CID (16-bit unsigned int) Output: glyph index
-
-@c
-card16 cff_charsets_lookup(cff_font * cff, card16 cid)
-{
-    card16 gid = 0;
-    cff_charsets *charset;
-    card16 i;
-
-    if (cff->flag & (CHARSETS_ISOADOBE | CHARSETS_EXPERT | CHARSETS_EXPSUB)) {
-        ERROR("Predefined CFF charsets not supported yet");
-    } else if (cff->charsets == NULL) {
-        normal_error("cff","charsets data not available");
-    }
-
-    if (cid == 0) {
-        return 0;               /* GID 0 (.notdef) */
-    }
-
-    charset = cff->charsets;
-
-    gid = 0;
-    switch (charset->format) {
-    case 0:
-        for (i = 0; i < charset->num_entries; i++) {
-            if (cid == charset->data.glyphs[i]) {
-                gid = (card16) (i + 1);
-                return gid;
-            }
-        }
-        break;
-    case 1:
-        for (i = 0; i < charset->num_entries; i++) {
-            if (cid >= charset->data.range1[i].first &&
-                cid <= charset->data.range1[i].first + charset->data.range1[i].n_left) {
-                gid = (card16) (gid + cid - charset->data.range1[i].first + 1);
-                return gid;
-            }
-            gid = (card16) (gid + charset->data.range1[i].n_left + 1);
-        }
-        break;
-    case 2:
-        for (i = 0; i < charset->num_entries; i++) {
-            if (cid >= charset->data.range2[i].first &&
-                cid <= charset->data.range2[i].first + charset->data.range2[i].n_left) {
-                gid = (card16) (gid + cid - charset->data.range2[i].first + 1);
-                return gid;
-            }
-            gid = (card16) (gid + charset->data.range2[i].n_left + 1);
-        }
-        break;
-    default:
-        normal_error("cff","unknown charset format");
-    }
-
-    return 0;                   /* not found */
-}
-
-@ @c
 #define is_cidfont(a) ((a)->flag & FONTTYPE_CIDFONT)
 #define CID_MAX 65535
 
@@ -3319,7 +3121,7 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     cff_charsets *charset = NULL;
 
     if (!is_cidfont(cffont)) {
-        perror("Not a CIDfont.");
+        normal_error("cff","invalid CIDfont");
         return;
     }
 
@@ -3359,9 +3161,6 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     for (cid = 0; cid <= CID_MAX; cid++) {
         glyph->id = (unsigned) cid;
         if (avl_find(fd->gl_tree, glyph) != NULL) {
-            /*
-                gid = (card16) cff_charsets_lookup(cffont, (card16) cid);
-            */
             gid = (card16) cid;
             CIDToGIDMap[2 * cid] = (unsigned char) ((gid >> 8) & 0xff);
             CIDToGIDMap[2 * cid + 1] = (unsigned char) (gid & 0xff);

@@ -24,7 +24,7 @@
 #  define F_INCLUDED          (1 << 0)
 #  define F_SUBSETTED         (1 << 1)
 #  define F_STDT1FONT         (1 << 2)
-#  define F_SUBFONT           (1 << 3)
+/* we don't support sub fonts */
 #  define F_TYPE1             (1 << 4)
 #  define F_TRUETYPE          (1 << 5)
 #  define F_OTF               (1 << 6)
@@ -38,7 +38,6 @@ typedef enum { MAPFILE, MAPLINE } maptype;
 #  define set_included(fm)    ((fm)->type =  (unsigned short)((fm)->type | F_INCLUDED))
 #  define set_subsetted(fm)   ((fm)->type =  (unsigned short)((fm)->type | F_SUBSETTED))
 #  define set_std_t1font(fm)  ((fm)->type =  (unsigned short)((fm)->type | F_STDT1FONT))
-#  define set_subfont(fm)     ((fm)->type =  (unsigned short)((fm)->type | F_SUBFONT))
 #  define set_type1(fm)       ((fm)->type =  (unsigned short)((fm)->type | F_TYPE1))
 #  define set_truetype(fm)    ((fm)->type =  (unsigned short)((fm)->type | F_TRUETYPE))
 #  define set_opentype(fm)    ((fm)->type =  (unsigned short)((fm)->type | F_OTF))
@@ -50,7 +49,6 @@ typedef enum { MAPFILE, MAPLINE } maptype;
 #  define unset_included(fm)  ((fm)->type = (unsigned short)((fm)->type & ~F_INCLUDED))
 #  define unset_subsetted(fm) ((fm)->type = (unsigned short)((fm)->type & ~F_SUBSETTED))
 #  define unset_std_t1font(fm)((fm)->type = (unsigned short)((fm)->type & ~F_STDT1FONT))
-#  define unset_subfont(fm)   ((fm)->type = (unsigned short)((fm)->type & ~F_SUBFONT))
 #  define unset_type1(fm)     ((fm)->type = (unsigned short)((fm)->type & ~F_TYPE1))
 #  define unset_truetype(fm)  ((fm)->type = (unsigned short)((fm)->type & ~F_TRUETYPE))
 #  define unset_opentype(fm)  ((fm)->type = (unsigned short)((fm)->type & ~F_OTF))
@@ -62,7 +60,6 @@ typedef enum { MAPFILE, MAPLINE } maptype;
 #  define is_included(fm)     (((fm)->type & F_INCLUDED) != 0)
 #  define is_subsetted(fm)    (((fm)->type & F_SUBSETTED) != 0)
 #  define is_std_t1font(fm)   (((fm)->type & F_STDT1FONT) != 0)
-#  define is_subfont(fm)      (((fm)->type & F_SUBFONT) != 0)
 #  define is_type1(fm)        (((fm)->type & F_TYPE1) != 0)
 #  define is_truetype(fm)     (((fm)->type & F_TRUETYPE) != 0)
 #  define is_opentype(fm)     (((fm)->type & F_OTF) != 0)
@@ -85,7 +82,6 @@ typedef enum { MAPFILE, MAPLINE } maptype;
 typedef struct {
     /* parameters scanned from the map file: */
     char *tfm_name;             /* TFM file name (1st field in map line) */
-    char *sfd_name;             /* subfont directory name, like @sfd_name@ */
     char *ps_name;              /* PostScript name (optional 2nd field in map line) */
     int fd_flags;               /* font descriptor /Flags (PDF Ref. section 5.7.1) */
     int slant;                  /* SlantFont */
@@ -93,10 +89,6 @@ typedef struct {
     char *encname;              /* encoding file name */
     char *ff_name;              /* font file name */
     unsigned short type;        /* various flags */
-    short pid;                  /* Pid for truetype fonts */
-    short eid;                  /* Eid for truetype fonts */
-    /* parameters NOT scanned from the map file: */
-    subfont_entry *subfont;     /* subfont mapping */
 } fm_entry;
 
 typedef struct {

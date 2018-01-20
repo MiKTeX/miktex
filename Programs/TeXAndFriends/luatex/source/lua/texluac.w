@@ -269,10 +269,24 @@ int luac_main(int ac, char *av[])
 
 #define VOID(p)		((const void*)(p))
 
+#if (defined(LuajitTeX)) || (LUA_VERSION_NUM == 502) 
+#define TSVALUE(o) rawtsvalue(o)
+#endif
+#if (LUA_VERSION_NUM == 503) 
+#define TSVALUE(o) tsvalue(o)
+#endif
+
+
 static void PrintString(const TString* ts)
 {
  const char* s=getstr(ts);
- size_t i,n=ts->tsv.len;
+ size_t i,n;
+#if (defined(LuajitTeX)) || (LUA_VERSION_NUM == 502) 
+  n=ts->tsv.len;
+#endif
+#if (LUA_VERSION_NUM == 503) 
+  n=ts->u.lnglen;
+#endif
  printf("%c",'"');
  for (i=0; i<n; i++)
  {
@@ -312,7 +326,7 @@ static void PrintConstant(const Proto* f, int i)
 	printf(LUA_NUMBER_FMT,nvalue(o));
 	break;
   case LUA_TSTRING:
-	PrintString(rawtsvalue(o));
+        PrintString(TSVALUE(o));
 	break;
   default:				/* cannot happen */
 	printf("? type=%d",ttype(o));

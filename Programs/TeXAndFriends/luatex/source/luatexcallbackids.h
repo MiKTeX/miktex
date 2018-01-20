@@ -35,7 +35,6 @@ typedef enum {
     find_type1_file_callback, read_type1_file_callback,
     find_truetype_file_callback, read_truetype_file_callback,
     find_opentype_file_callback, read_opentype_file_callback,
-    find_sfd_file_callback, read_sfd_file_callback,
     find_cidmap_file_callback, read_cidmap_file_callback,
     find_pk_file_callback, read_pk_file_callback,
     show_error_hook_callback,

@@ -63,18 +63,7 @@ typedef struct {
 
 extern const key_entry font_key[FONT_KEYS_NUM];
 
-typedef struct _subfont_entry {
-    char *infix;                /* infix for this subfont, eg "01" */
-    long charcodes[256];        /* the mapping for this subfont as read from sfd */
-    struct _subfont_entry *next;
-} subfont_entry;
-
 #  include "mapfile.h"
-
-typedef struct {
-    char *name;                 /* sfd name, eg "Unicode" */
-    subfont_entry *subfont;     /* linked list of subfonts */
-} sfd_entry;
 
 typedef struct {
     int val;                    /* value */
@@ -181,10 +170,6 @@ pdf_obj *pdf_new_stream(void);
 void pdf_add_stream(pdf_obj * stream, unsigned char *buf, long len);
 void pdf_release_obj(pdf_obj * stream);
 unsigned long ttc_read_offset(sfnt * sfont, int ttc_idx, fd_entry *fd);
-
-/* subfont.c */
-void sfd_free(void);
-boolean handle_subfont_fm(fm_entry *, int);
 
 /* writeenc.c */
 fe_entry *get_fe_entry(char *);

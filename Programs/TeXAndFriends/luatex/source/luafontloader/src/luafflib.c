@@ -3330,7 +3330,7 @@ int luaopen_ff(lua_State * L)
     default_encoding = FindOrMakeEncoding("ISO8859-1");
     SaveTablesPref = SaveTablesPref_string;
     luaL_newmetatable(L, FONT_METATABLE);
-    luaL_register(L, NULL, fflib_m);
+    luaL_openlib(L, NULL, fflib_m, 0);
 
     /* virtual subfont table */
     luaL_newmetatable(L, FONT_SUBFONT_METATABLE);

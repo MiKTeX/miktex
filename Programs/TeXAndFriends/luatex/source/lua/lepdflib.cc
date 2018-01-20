@@ -21,7 +21,7 @@
 
 #include "image/epdf.h"
 
-// Patches for the new poppler 0.59 from 
+// Patches for the new poppler 0.59 from
 // https://www.mail-archive.com/arch-commits@archlinux.org/msg357548.html
 // with some modifications to comply the poppler API.
 
@@ -442,7 +442,7 @@ static int l_new_Object(lua_State * L)
 	uout->d = new Object(lua_toboolean(L, 1)? gTrue : gFalse);
 	uout->atype = ALLOC_LEPDF;
 	uout->pc = 0;
-	uout->pd = NULL;            
+	uout->pd = NULL;
       } else if (lua_isnumber (L,1)) {
 	double d = lua_tonumber(L,1);
 	// Missed :Object(long long int64gA)
@@ -453,7 +453,7 @@ static int l_new_Object(lua_State * L)
 	}
 	uout->atype = ALLOC_LEPDF;
 	uout->pc = 0;
-	uout->pd = NULL;            
+	uout->pd = NULL;
       } else if (lua_isstring (L,1)){
 	GooString *gs;
 	const char *s;
@@ -463,7 +463,7 @@ static int l_new_Object(lua_State * L)
 	uout->d = new Object(gs);
 	uout->atype = ALLOC_LEPDF;
 	uout->pc = 0;
-	uout->pd = NULL;            
+	uout->pd = NULL;
       } else if (luaL_testudata(L,1,M_Array)){
 	udstruct *u;
 	Array *a;
@@ -472,7 +472,7 @@ static int l_new_Object(lua_State * L)
 	uout->d = new Object(a);
 	uout->atype = ALLOC_LEPDF;
 	uout->pc = 0;
-	uout->pd = NULL;            
+	uout->pd = NULL;
       } else if (luaL_testudata(L,1,M_Dict)){
 	udstruct *u;
 	Dict *d;
@@ -481,7 +481,7 @@ static int l_new_Object(lua_State * L)
 	uout->d = new Object(d);
 	uout->atype = ALLOC_LEPDF;
 	uout->pc = 0;
-	uout->pd = NULL;            
+	uout->pd = NULL;
       } else if (luaL_testudata(L,1,M_Stream)){
 	udstruct *u;
 	Stream *s;
@@ -499,7 +499,7 @@ static int l_new_Object(lua_State * L)
 	  uout->d = new Object((int)(numA), (int)(genA));
 	  uout->atype = ALLOC_LEPDF;
 	  uout->pc = 0;
-	  uout->pd = NULL;            
+	  uout->pd = NULL;
 	}
       } else if (lua_isnumber (L,1) && (lua_isstring(L,2)|| lua_isnoneornil(L,2))) {
 	double d_typeA = lua_tonumber(L,1);
@@ -528,19 +528,19 @@ static int l_new_Object(lua_State * L)
 	      uout->d = new Object((ObjType)(typeA));
 	    uout->atype = ALLOC_LEPDF;
 	    uout->pc = 0;
-	    uout->pd = NULL;            
+	    uout->pd = NULL;
 
 	    break;
 	  default:
 	    luaL_error(L, "Invalid values for Object constructor");
 	    break;
 	  }//switch((int)(d))
-	} else //  (d_typeA)!=(typeA) 
-	  luaL_error(L, "Invalid/unsupported values for Object constructor");	   
-      } // if (lua_isnumber (L,1) && (lua_isstring(L,2)|| lua_isnoneornil(L,2))) 
+	} else //  (d_typeA)!=(typeA)
+	  luaL_error(L, "Invalid/unsupported values for Object constructor");
+      } // if (lua_isnumber (L,1) && (lua_isstring(L,2)|| lua_isnoneornil(L,2)))
       break;
     default:
-      luaL_error(L, "Invalid specification for Object constructor");	   
+      luaL_error(L, "Invalid specification for Object constructor");
     }
     lua_settop(L,1);
     return 1;
@@ -3599,7 +3599,7 @@ static const struct luaL_Reg XRefEntry_m[] = {
     lua_setfield(L, -2, "__index");         \
     lua_pushstring(L, "no user access");    \
     lua_setfield(L, -2, "__metatable");     \
-    luaL_register(L, NULL, type##_m)
+    luaL_openlib(L, NULL, type##_m, 0)
 #else
 #define setfuncs_meta(type)                 \
     luaL_newmetatable(L, M_##type);         \
@@ -3634,6 +3634,6 @@ int luaopen_epdf(lua_State * L)
     setfuncs_meta(TextSpan);
     setfuncs_meta(XRef);
     setfuncs_meta(XRefEntry);
-    luaL_register(L, "epdf", epdflib_f);
+    luaL_openlib(L, "epdf", epdflib_f, 0);
     return 1;
 }

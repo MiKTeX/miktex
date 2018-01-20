@@ -112,7 +112,6 @@ extern int synctexoffset;
 
 extern pool_pointer edit_name_start;
 extern int edit_name_length, edit_line;
-extern int ipcon;
 extern boolean stop_at_space;
 extern int shellenabledp;
 extern int restrictedshell;

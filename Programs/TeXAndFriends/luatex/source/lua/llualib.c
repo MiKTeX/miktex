@@ -212,6 +212,12 @@ static int set_bytecode(lua_State * L)
 {
     int k, ltype;
     unsigned int i;
+    int strip = 0;
+    int top = lua_gettop(L);
+    if (lua_type(L,top) == LUA_TBOOLEAN) {
+        strip = lua_toboolean(L,top);
+        lua_settop(L,top - 1);
+    }
     k = (int) luaL_checkinteger(L, -2);
     i = (unsigned) k + 1;
     if ((int) (UINT_MAX32 / sizeof(bytecode) + 1) < i) {
@@ -254,7 +260,17 @@ static int set_bytecode(lua_State * L)
         lua_bytecode_registers[k].buf = xmalloc(LOAD_BUF_SIZE);
         lua_bytecode_registers[k].alloc = LOAD_BUF_SIZE;
         memset(lua_bytecode_registers[k].buf, 0, LOAD_BUF_SIZE);
-        lua_dump(L, writer, (void *) (lua_bytecode_registers + k));
+#ifdef LuajitTeX
+        RESERVED_lua_dump(L, writer, (void *) (lua_bytecode_registers + k),strip);
+        /*lua_dump(L, writer, (void *) (lua_bytecode_registers + k));*/
+#else
+#if LUA_VERSION_NUM == 503
+        lua_dump(L, writer, (void *) (lua_bytecode_registers + k),strip);
+#endif
+#if LUA_VERSION_NUM == 502
+        lua_dump(L, writer, (void *) (lua_bytecode_registers + k));    
+#endif
+#endif
     }
     lua_pop(L, 1);
     return 0;
@@ -327,7 +343,7 @@ static const struct luaL_Reg lualib[] = {
 
 int luaopen_lua(lua_State * L, char *fname)
 {
-    luaL_register(L, "lua", lualib);
+    luaL_openlib(L, "lua", lualib, 0);
     make_table(L, "bytecode", "tex.bytecode", "getbytecode", "setbytecode");
     make_table(L, "name",     "tex.name", "getluaname", "setluaname");
     lua_newtable(L);

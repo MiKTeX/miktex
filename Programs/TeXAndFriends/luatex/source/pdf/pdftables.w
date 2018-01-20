@@ -32,6 +32,7 @@ int pdf_last_annot;
 int pdf_last_link;
 int pdf_last_obj;
 int pdf_retval;                 /* global multi-purpose return value */
+int pdf_cur_form;               /* the form being output */
 
 @ AVL sort entry into |avl_table[]|
 @c
@@ -272,7 +273,6 @@ void libpdffinish(PDF pdf)
     enc_free();
     epdf_free();
     ttf_free();
-    sfd_free();
     glyph_unicode_free();
     zip_free(pdf);
 }

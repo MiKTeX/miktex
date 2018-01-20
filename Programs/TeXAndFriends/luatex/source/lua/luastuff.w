@@ -153,6 +153,9 @@ static const luaL_Reg lualibs[] = {
     /* coroutine is loaded in a special way */
     { "bit",	   luaopen_bit },
 #else
+#if LUA_VERSION_NUM == 503
+    { "utf8",      luaopen_utf8 },
+#endif
     { "coroutine", luaopen_coroutine },
 #endif
     /* additional (public) libraries */

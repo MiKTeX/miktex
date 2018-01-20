@@ -83,10 +83,11 @@ int vf_packet_bytes(charinfo * co)
         case packet_image_code:
         case packet_node_code:
         case packet_right_code:
-            vfp += 4;
-            break;
         case packet_rule_code:
             vfp += 8;
+            break;
+        case packet_pdf_mode:
+            vfp += 4;
             break;
         case packet_pdf_code:
             vfp += 4;
@@ -243,6 +244,10 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c, int ex_glyph)
             pdf_literal(pdf, s, mode, false);
             flush_str(s);
             break;
+        case packet_pdf_mode:
+            packet_number(mode);
+            pdf_literal_set_mode(pdf, mode);
+            break;
         case packet_special_code:
             packet_number(k);
             str_room(k);
@@ -397,10 +402,11 @@ replace_packet_fonts(internal_font_number f, int *old_fontid,
                 case packet_image_code:
                 case packet_node_code:
                 case packet_right_code:
-                    vfp += 4;
-                    break;
                 case packet_rule_code:
                     vfp += 8;
+                    break;
+                case packet_pdf_mode:
+                    vfp += 4;
                     break;
                 case packet_pdf_code:
                     vfp += 4;

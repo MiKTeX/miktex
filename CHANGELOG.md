@@ -4,12 +4,15 @@
 
 ### New programs
 
-* [MiKTeX Console](https://miktex.org/announcement/miktex-console): the new MiKTeX management tool which combines MiKTeX Update Wizard, MiKTeX Package Manager and MiKTeX Settings.
+* [MiKTeX Console](https://miktex.org/announcement/miktex-console): the new MiKTeX management tool which combines three UI applications into one:
+  - MiKTeX Package Manager
+  - MiKTeX Settings
+  - MiKTeX Update Wizard
 
 ### Upgraded programs
 
 * Dvisvgm 2.3.1
-* LuaTeX 1.06.3
+* LuaTeX 1.07.0
 * m-tx 0.63
 
 ### Upgraded libraries

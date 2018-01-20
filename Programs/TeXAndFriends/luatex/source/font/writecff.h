@@ -247,22 +247,14 @@ extern long cff_set_name(cff_font * cff, char *name);
 extern long cff_read_subrs(cff_font * cff);
 
 /* Encoding */
-extern long cff_read_encoding(cff_font * cff);
-extern long cff_pack_encoding(cff_font * cff, card8 * dest, long destlen);
-extern card16 cff_encoding_lookup(cff_font * cff, card8 code);
 extern void cff_release_encoding(cff_encoding * encoding);
 
 /* Charsets */
 extern long cff_read_charsets(cff_font * cff);
 extern long cff_pack_charsets(cff_font * cff, card8 * dest, long destlen);
 
-/* Returns GID of PS name "glyph" */
-extern card16 cff_glyph_lookup(cff_font * cff, const char *glyph);
-/* Returns GID of glyph with SID/CID "cid" */
-extern card16 cff_charsets_lookup(cff_font * cff, card16 cid);
 extern void cff_release_charsets(cff_charsets * charset);
 /* Returns SID or CID */
-extern card16 cff_charsets_lookup_inverse(cff_font * cff, card16 gid);
 
 /* FDSelect */
 extern long cff_read_fdselect(cff_font * cff);

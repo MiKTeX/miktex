@@ -3205,11 +3205,17 @@ void show_node_list(int p)
                 /*  An ``explicit'' kern value is indicated implicitly by an explicit space. */
                 if (subtype(p) != mu_glue) {
                     tprint_esc("kern");
+                    /*
                     if (subtype(p) != normal)
                         print_char(' ');
+                    */
                     print_scaled(width(p));
-                    if (subtype(p) == accent_kern)
-                        tprint(" (for accent)");
+                    if (subtype(p) == font_kern)
+                        tprint(" (font)");
+                    else if (subtype(p) == italic_kern)
+                        tprint(" (italic)");
+                    else if (subtype(p) == accent_kern)
+                        tprint(" (accent)");
                 } else {
                     tprint_esc("mkern");
                     print_scaled(width(p));

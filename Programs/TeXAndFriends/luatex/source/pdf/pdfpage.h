@@ -38,6 +38,7 @@ boolean calc_pdfpos(pdfstructure * p, scaledpos pos);
 void pdf_end_string_nl(PDF pdf);
 void pdf_goto_pagemode(PDF pdf);
 void pdf_goto_textmode(PDF pdf);
+void pdf_goto_fontmode(PDF pdf);
 void init_pdf_pagecalculations(PDF pdf);
 void pdf_print_cm(PDF pdf, pdffloat * cm);
 void pdf_set_pos(PDF pdf, scaledpos pos);

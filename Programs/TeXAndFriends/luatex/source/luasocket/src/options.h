@@ -18,14 +18,9 @@ typedef struct t_opt {
 } t_opt;
 typedef t_opt *p_opt;
 
-#ifndef IPV6_V6ONLY
-#define IPV6_V6ONLY 27
-#endif
-
 /* supported options for setoption */
 int opt_set_dontroute(lua_State *L, p_socket ps);
 int opt_set_broadcast(lua_State *L, p_socket ps);
-int opt_set_reuseaddr(lua_State *L, p_socket ps);
 int opt_set_tcp_nodelay(lua_State *L, p_socket ps);
 int opt_set_keepalive(lua_State *L, p_socket ps);
 int opt_set_linger(lua_State *L, p_socket ps);
@@ -36,16 +31,29 @@ int opt_set_ip_multicast_ttl(lua_State *L, p_socket ps);
 int opt_set_ip_multicast_loop(lua_State *L, p_socket ps);
 int opt_set_ip_add_membership(lua_State *L, p_socket ps);
 int opt_set_ip_drop_membersip(lua_State *L, p_socket ps);
+int opt_set_ip6_unicast_hops(lua_State *L, p_socket ps);
+int opt_set_ip6_multicast_hops(lua_State *L, p_socket ps);
+int opt_set_ip6_multicast_loop(lua_State *L, p_socket ps);
+int opt_set_ip6_add_membership(lua_State *L, p_socket ps);
+int opt_set_ip6_drop_membersip(lua_State *L, p_socket ps);
 int opt_set_ip6_v6only(lua_State *L, p_socket ps);
 
 /* supported options for getoption */
+int opt_get_dontroute(lua_State *L, p_socket ps);
+int opt_get_broadcast(lua_State *L, p_socket ps);
 int opt_get_reuseaddr(lua_State *L, p_socket ps);
+int opt_get_reuseport(lua_State *L, p_socket ps);
 int opt_get_tcp_nodelay(lua_State *L, p_socket ps);
 int opt_get_keepalive(lua_State *L, p_socket ps);
 int opt_get_linger(lua_State *L, p_socket ps);
-int opt_get_reuseaddr(lua_State *L, p_socket ps);
 int opt_get_ip_multicast_loop(lua_State *L, p_socket ps);
 int opt_get_ip_multicast_if(lua_State *L, p_socket ps);
+int opt_get_error(lua_State *L, p_socket ps);
+int opt_get_ip6_multicast_loop(lua_State *L, p_socket ps);
+int opt_get_ip6_multicast_hops(lua_State *L, p_socket ps);
+int opt_get_ip6_unicast_hops(lua_State *L, p_socket ps);
+int opt_get_ip6_v6only(lua_State *L, p_socket ps);
+int opt_get_reuseport(lua_State *L, p_socket ps);
 
 /* invokes the appropriate option handler */
 int opt_meth_setoption(lua_State *L, p_opt opt, p_socket ps);

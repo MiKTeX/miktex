@@ -164,6 +164,7 @@ extern int pdf_last_annot;
 extern int pdf_last_link;
 extern int pdf_last_obj;
 extern int pdf_retval;
+extern int pdf_cur_form;
 
 #  define pdf_compress_level            get_tex_extension_count_register(c_pdf_compress_level)
 #  define pdf_obj_compress_level        get_tex_extension_count_register(c_pdf_obj_compress_level)

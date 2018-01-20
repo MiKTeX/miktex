@@ -307,7 +307,7 @@ int luaopen_lang(lua_State * L)
     luaL_newmetatable(L, LANG_METATABLE);
     lua_pushvalue(L, -1);       /* push metatable */
     lua_setfield(L, -2, "__index");     /* metatable.__index = metatable */
-    luaL_register(L, NULL, langlib_d);  /* dict methods */
-    luaL_register(L, "lang", langlib);
+    luaL_openlib(L, NULL, langlib_d, 0);  /* dict methods */
+    luaL_openlib(L, "lang", langlib, 0);
     return 1;
 }

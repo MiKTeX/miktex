@@ -17,10 +17,7 @@
 \*=========================================================================*/
 #include "lua.h"
 #include "lauxlib.h"
-
-#if !defined(LUA_VERSION_NUM) || (LUA_VERSION_NUM < 501)
-#include "compat-5.1.h"
-#endif
+#include "compat.h" /* Luajittex is managed in compat.h */
 
 /*=========================================================================*\
 * LuaSocket includes
@@ -67,7 +64,7 @@ static luaL_Reg func[] = {
 * Skip a few arguments
 \*-------------------------------------------------------------------------*/
 static int global_skip(lua_State *L) {
-    int amount = luaL_checkint(L, 1);
+    int amount = luaL_checkinteger(L, 1);
     int ret = lua_gettop(L) - amount - 1;
     return ret >= 0 ? ret : 0;
 }
@@ -87,7 +84,9 @@ static int global_unload(lua_State *L) {
 static int base_open(lua_State *L) {
     if (socket_open()) {
         /* export functions (and leave namespace table on top of stack) */
-        luaL_openlib(L, "socket", func, 0);
+        /*lua_newtable(L);*/
+        /*luaL_setfuncs(L, func, 0);*/
+	luaL_openlib(L, "socket", func, 0);
 #ifdef LUASOCKET_DEBUG
         lua_pushstring(L, "_DEBUG");
         lua_pushboolean(L, 1);

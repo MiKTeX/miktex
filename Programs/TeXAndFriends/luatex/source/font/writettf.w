@@ -38,7 +38,6 @@ int ttf_curbyte = 0;
 
 typedef struct {
     char *name;                 /* name of glyph */
-    long code;                  /* charcode in case of subfonts */
     long newindex;              /* new index of glyph in output file */
 
 } ttfenc_entry;
@@ -569,30 +568,6 @@ static void ttf_copy_encoding(void)
              q = (int *) avl_t_next(&t)) {
             assert(*q >= 0 && *q < 256);
             ttfenc_tab[*q].name = glyph_names[*q];
-        }
-        make_subset_tag(fd_cur);
-    } else if (is_subfont(fd_cur->fm)) {
-        charcodes = fd_cur->fm->subfont->charcodes;
-        assert(charcodes != NULL);
-
-        for (i = 0; i < 256; i++)
-            ttfenc_tab[i].code = -1;
-
-        /* take over collected characters from \TeX */
-        avl_t_init(&t, fd_cur->tx_tree);
-        for (q = (int *) avl_t_first(&t, fd_cur->tx_tree); q != NULL;
-             q = (int *) avl_t_next(&t)) {
-            assert(*q >= 0 && *q < 256);
-            e = ttfenc_tab + *q;
-            e->code = charcodes[*q];
-            if (e->code == -1)
-                formatted_warning("ttf font", "character %i in subfont %s is not mapped to any charcode", *q, fd_cur->fm->tfm_name);
-            else {
-                assert(e->code < 0x10000);
-                sprintf(buf, "/c%4.4X", (int) e->code);
-                aa = avl_probe(fd_cur->gl_tree, xstrdup(buf));
-                assert(aa != NULL);
-            }
         }
         make_subset_tag(fd_cur);
     } else
@@ -1366,33 +1341,6 @@ static void ttf_reindex_glyphs(void)
     for (e = ttfenc_tab; e - ttfenc_tab < 256; e++) {
         e->newindex = 0;        /* index of ".notdef" glyph */
 
-        /* handle case of subfonts first */
-        if (is_subfont(fd_cur->fm)) {
-            if (e->code == -1)
-                continue;
-            assert(fd_cur->fm->pid != -1 && fd_cur->fm->eid != -1);
-            if (cmap == NULL && !cmap_not_found) {
-                cmap =
-                    ttf_read_cmap(fd_cur->fm->ff_name, fd_cur->fm->pid,
-                                  fd_cur->fm->eid, true);
-                if (cmap == NULL)
-                    cmap_not_found = true;
-            }
-            if (cmap == NULL)
-                continue;
-            t = cmap->table;
-            assert(t != NULL && e->code < 0x10000);
-            if (t[e->code] < 0) {
-                formatted_warning("ttf font",
-                    "subfont %s has a wrong mapping, character %li -> 0x%4.4lX -> .notdef",
-                     fd_cur->fm->tfm_name, (long) (e - ttfenc_tab), e->code);
-                continue;
-            }
-            assert(t[e->code] >= 0 && t[e->code] < glyphs_count);       /* t has been read from ttf */
-            glyph = glyph_tab + t[e->code];
-            goto append_new_glyph;
-        }
-
         /* handle case of reencoded fonts */
         if (e->name == notdef)
             continue;
@@ -1706,8 +1654,8 @@ void writettf(PDF pdf, fd_entry * fd)
     assert(is_truetype(fd_cur->fm));
     assert(is_included(fd_cur->fm));
 
-    if (is_subsetted(fd_cur->fm) && (fd_cur->fe == NULL) && !is_subfont(fd_cur->fm)) {
-        normal_error("ttf font","subset must be a reencoded or a subfont");
+    if (is_subsetted(fd_cur->fm) && (fd_cur->fe == NULL)) {
+        normal_error("ttf font","subset must be a reencoded font");
     }
     ttf_curbyte = 0;
     ttf_size = 0;

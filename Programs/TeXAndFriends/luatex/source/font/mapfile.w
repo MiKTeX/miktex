@@ -73,7 +73,6 @@ fm_entry *new_fm_entry(void)
     fm_entry *fm;
     fm = xtalloc(1, fm_entry);
     fm->tfm_name = NULL;
-    fm->sfd_name = NULL;
     fm->ps_name = NULL;
     fm->fd_flags = FD_FLAGS_NOT_SET_IN_MAPLINE;
     fm->ff_name = NULL;
@@ -81,9 +80,6 @@ fm_entry *new_fm_entry(void)
     fm->type = 0;
     fm->slant = 0;
     fm->extend = 1000;
-    fm->pid = -1;
-    fm->eid = -1;
-    fm->subfont = NULL;
     unset_slantset(fm);
     unset_extendset(fm);
     unset_inuse(fm);
@@ -93,7 +89,6 @@ fm_entry *new_fm_entry(void)
 void delete_fm_entry(fm_entry * fm)
 {
     xfree(fm->tfm_name);
-    xfree(fm->sfd_name);
     xfree(fm->ps_name);
     xfree(fm->ff_name);
     xfree(fm);
@@ -251,15 +246,6 @@ static int check_fm_entry(fm_entry * fm, boolean warn)
         a += 16;
     }
 
-    /* subfonts must be used with subsetted non-reencoded TrueType fonts */
-    if (fm->pid != -1 &&
-        !(is_truetype(fm) && is_subsetted(fm) && !is_reencoded(fm))) {
-        if (warn)
-            formatted_warning("map file", "invalid entry for '%s': PidEid can be used only with subsetted non-reencoded TrueType fonts",
-                 fm->tfm_name);
-        a += 32;
-    }
-
     return a;
 }
 
@@ -408,13 +394,10 @@ static void fm_scan_line(void)
                 goto bad_line;
             }
             break;
-        case 'P':              /* handle cases for subfonts like 'PidEid=3,1' */
-            if (sscanf(r, "PidEid=%i, %i %n", &a, &b, &c) >= 2) {
-                fm->pid = (short) a;
-                fm->eid = (short) b;
-                r += c;
-                break;
-            }
+        case 'P':              /* handle cases for sub fonts like 'PidEid=3,1' */
+            formatted_warning("map file", "invalid entry for '%s': subfonts are not supported", fm->tfm_name);
+            goto bad_line;
+            break;
         default:               /* encoding or font file specification */
             a = b = 0;
             if (*r == '<') {
@@ -468,8 +451,6 @@ static void fm_scan_line(void)
        fm points to a valid, freshly filled-out fm_entry structure.
        Now follows the actual work of registering/deleting.
      */
-    if (handle_subfont_fm(fm, mitem->mode))     /* is this a subfont? */
-        return;
     if (avl_do_entry(fm, mitem->mode) == 0)
         return;
   bad_line:

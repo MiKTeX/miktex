@@ -142,8 +142,12 @@ static void do_extension_pdf(int immediate)
             set_pdf_literal_mode(tail, direct_always);
         else if (scan_keyword("page"))
             set_pdf_literal_mode(tail, direct_page);
+        else if (scan_keyword("text"))
+            set_pdf_literal_mode(tail, direct_text);
         else if (scan_keyword("raw"))
             set_pdf_literal_mode(tail, direct_raw);
+        else if (scan_keyword("origin"))
+            set_pdf_literal_mode(tail, set_origin);
         else
             set_pdf_literal_mode(tail, set_origin);
         scan_toks(false, true);
@@ -1191,7 +1195,6 @@ system-dependent section allows easy integration of Web2c and e-\TeX, etc.)
 @c
 pool_pointer edit_name_start;   /* where the filename to switch to starts */
 int edit_name_length, edit_line;        /* what line to start editing at */
-int ipcon;                      /* level of IPC action, 0 for none [default] */
 boolean stop_at_space;          /* whether |more_name| returns false for space */
 
 @ The |edit_name_start| will be set to point into |str_pool| somewhere after

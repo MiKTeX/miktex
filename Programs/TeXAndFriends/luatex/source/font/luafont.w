@@ -834,16 +834,31 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                         lua_pop(L, 2);
                         break;
                     case packet_pdf_code:
-                        append_packet(cmd);
                         ts = (int) lua_rawlen(L, -2);
                         lua_rawgeti(L, -2, 2);
                         if (ts == 3) {
+                            /* mode on stack */
+                            s = lua_tostring(L, -1);
                             if (lua_type(L, -1) == LUA_TSTRING) {
-                                s = lua_tostring(L, -1);
+                                /* <pdf> <mode> <direct|page|text|raw|origin> */
+                                if (lua_key_eq(s, mode)) {
+                                    cmd = packet_pdf_mode;
+                                    lua_rawgeti(L, -3, 3);
+                                    /* mode on stack */
+                                    s = lua_tostring(L, -1);
+                                }
+                            } else {
+                                /* <pdf> <direct|page|text|raw|origin> <string> */
+                            }
+                            if (lua_type(L, -1) == LUA_TSTRING) {
                                 if (lua_key_eq(s, direct)) {
                                     n = direct_always;
                                 } else if (lua_key_eq(s, page)) {
                                     n = direct_page;
+                                } else if (lua_key_eq(s, text)) {
+                                    n = direct_text;
+                                } else if (lua_key_eq(s, font)) {
+                                    n = direct_font;
                                 } else if (lua_key_eq(s, raw)) {
                                     n = direct_raw;
                                 } else if (lua_key_eq(s, origin)) {
@@ -854,23 +869,29 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                                 }
                             } else {
                                 n = (int) lua_roundnumber(L, -1);
-                                if (n < set_origin || n > direct_raw) {
+                                if (n < set_origin || n >= scan_special) {
                                     n = set_origin ;
                                 }
                             }
-                            lua_rawgeti(L, -3, 3);
+                            if (cmd == packet_pdf_code) {
+                                lua_rawgeti(L, -3, 3);
+                                /* string on stack */
+                            }
                         } else {
                             n = set_origin;
                         }
+                        append_packet(cmd);
                         do_store_four(n);
-                        s = luaL_checklstring(L, -1, &l);
-                        if (l > 0) {
+                        if (cmd == packet_pdf_code) {
+                            s = luaL_checklstring(L, -1, &l);
                             do_store_four(l);
-                            m = (int) l;
-                            while (m > 0) {
-                                n = *s++;
-                                m--;
-                                append_packet(n);
+                            if (l > 0) {
+                                m = (int) l;
+                                while (m > 0) {
+                                    n = *s++;
+                                    m--;
+                                    append_packet(n);
+                                }
                             }
                         }
                         lua_pop(L,ts == 3 ? 2 : 1);

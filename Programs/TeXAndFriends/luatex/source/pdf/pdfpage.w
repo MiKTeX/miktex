@@ -257,3 +257,18 @@ void pdf_goto_textmode(PDF pdf)
             normal_error("pdf backend","text mode expected in goto_text_mode");
     }
 }
+
+void pdf_goto_fontmode(PDF pdf){
+    pdfstructure *p = pdf->pstruct;
+    const scaledpos origin = {
+        0, 0
+    };
+    if (is_charmode(p))
+        end_charmode(pdf);
+    if (is_chararraymode(p))
+        end_chararray(pdf);
+    if (is_textmode(p))
+        end_text(pdf);
+    pdf_set_pos(pdf, origin);
+    p->mode = PMODE_PAGE;
+}

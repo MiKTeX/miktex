@@ -3,16 +3,17 @@
 #include "lua.h"
 #include "lauxlib.h"
 
-#include "headers_lua.c"
-#include "mbox_lua.c"
-#include "socket_lua.c"
 #include "ftp_lua.c"
+#include "headers_lua.c" 
 #include "http_lua.c"
-#include "smtp_lua.c"
-#include "tp_lua.c"
-#include "url_lua.c"
 #include "ltn12_lua.c"
+#include "mbox_lua.c"
 #include "mime_lua.c"
+#include "smtp_lua.c"
+#include "socket_lua.c"
+#include "tp_lua.c"
+#include "url_lua.c"        
+
 
 #define TEST(A) do { if (A) {						\
     fprintf(stderr,"FATAL error while preloading lua module " #A);	\

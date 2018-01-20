@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2010-2017 Christian Schenk
+## Copyright (C) 2010-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -91,6 +91,8 @@ set(luasocket_sources
   source/luasocket/src/auxiliar.h
   source/luasocket/src/buffer.c
   source/luasocket/src/buffer.h
+  source/luasocket/src/compat.c
+  source/luasocket/src/compat.h
   source/luasocket/src/except.c
   source/luasocket/src/except.h
   source/luasocket/src/inet.c
@@ -104,6 +106,7 @@ set(luasocket_sources
   source/luasocket/src/mime.h
   source/luasocket/src/options.c
   source/luasocket/src/options.h
+  source/luasocket/src/pierror.h
   source/luasocket/src/select.c
   source/luasocket/src/select.h
   source/luasocket/src/serial.c
@@ -383,7 +386,6 @@ set(luatexlib_cwebs
   source/font/mapfile.w
   source/font/pkin.w
   source/font/sfnt.w
-  source/font/subfont.w
   source/font/texfont.w
   source/font/tfmofm.w
   source/font/tounicode.w

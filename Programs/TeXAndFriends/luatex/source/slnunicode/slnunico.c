@@ -5,7 +5,7 @@
 *	Available under "Lua 5.0 license", see http://www.lua.org/license.html#5
 *	$Id: slnunico.c,v 1.5 2006/07/26 17:20:04 paul Exp $
 *
-*	contains code from 
+*	contains code from
 ** lstrlib.c,v 1.109 2004/12/01 15:46:06 roberto Exp
 ** Standard library for string operations and pattern-matching
 ** See Copyright Notice in lua.h
@@ -44,7 +44,7 @@ MODIFICATIONS.
 
 GOVERNMENT USE: If you are acquiring this software on behalf of the
 U.S. government, the Government shall have only "Restricted Rights"
-in the software and related documentation as defined in the Federal 
+in the software and related documentation as defined in the Federal
 Acquisition Regulations (FARs) in Clause 52.227.19 (c) (2).  If you
 are acquiring the software on behalf of the Department of Defense, the
 software shall be classified as "Commercial Computer Software" and the
@@ -52,7 +52,7 @@ Government shall have only "Restricted Rights" as defined in Clause
 252.227-7013 (c) (1) of DFARs.  Notwithstanding the foregoing, the
 authors grant the U.S. Government and others acting in its behalf
 permission to use and distribute the software in accordance with the
-terms specified in this license. 
+terms specified in this license.
 
 (end of Tcl license terms)
 */
@@ -114,10 +114,10 @@ http://www.unicode.org/Public/UNIDATA/PropList.txt
 
 /*
 UTF-8 Bit Distribution pag 103 Unicode 5.0
-First byte  Lenght 
+First byte  Lenght
 00..7f       1 byte
 c0..df       2 bytes
-e0..ef       3 bytes 
+e0..ef       3 bytes
 f0..f7       4 bytes
 */
 #define U8_LENGTH(c) ((unsigned char)(c)<=0x7f ? 1 : ((unsigned char)(c)<=0xdf ? 2 : ((unsigned char)(c)<=0xef ? 3 :  ((unsigned char)(c)<=0xf7 ? 4:-1))))
@@ -410,7 +410,7 @@ static int unic_char (lua_State *L) {
 	int mode = lua_tointeger(L, lua_upvalueindex(1)), mb = MODE_MBYTE(mode);
     /* TH: add the 256 out-of-range glyphs in 'plane 18' */
 	unsigned lim = mb ? 0x110100 : 0x100;
- 
+
 	luaL_Buffer b;
 	luaL_buffinit(L, &b);
 	for (i=1; i<=n; i++) {
@@ -435,8 +435,16 @@ static int str_dump (lua_State *L) {
 	luaL_checktype(L, 1, LUA_TFUNCTION);
 	lua_settop(L, 1);
 	luaL_buffinit(L,&b);
+#if defined(LuajitTeX)
 	if (lua_dump(L, writer, &b) != 0)
-		luaL_error(L, "unable to dump given function");
+#else
+#if LUA_VERSION_NUM == 503
+	if (lua_dump(L, writer, &b,0) != 0)
+#else
+	if (lua_dump(L, writer, &b) != 0)
+#endif
+#endif
+	luaL_error(L, "unable to dump given function");
 	luaL_pushresult(&b);
 	return 1;
 }
@@ -523,7 +531,7 @@ static const char *classend (MatchState *ms, const char *p)
  * The following macros are used for fast character category tests.  The
  * x_BITS values are shifted right by the category value to determine whether
  * the given category is included in the set.
- */ 
+ */
 
 #define LETTER_BITS ((1 << UPPERCASE_LETTER) | (1 << LOWERCASE_LETTER) \
     | (1 << TITLECASE_LETTER) | (1 << MODIFIER_LETTER) | (1 << OTHER_LETTER))
@@ -603,7 +611,7 @@ static const char *singlematch (const MatchState *ms,
 	else
 		c = utf8_deco(&s, ms->src_end);
 #endif
-	
+
 	switch (*p) {
 	case L_ESC:
 		if (match_class(c, uchar(p[1]), ms->mode)) {
@@ -946,7 +954,7 @@ static int unic_find_aux (lua_State *L, int find) {
 					lua_pushinteger(L, s1-s+1);  /* start */
 					lua_pushinteger(L, res-s);   /* end */
 					return push_captures(&ms, NULL, 0) + 2;
-				} else  
+				} else
 					return push_captures(&ms, s1, res);
 			}
 			s1 = s1 + (ms.mode > MODE_LATIN ? U8_LENGTH( uchar(s1[0])) : 1) ;
@@ -963,8 +971,8 @@ static int unic_find (lua_State *L) {
 
 static int unic_match (lua_State *L) {
 	return unic_find_aux(L, 0);
-} 
-    
+}
+
 
 
 static int gmatch_aux (lua_State *L) {
@@ -1359,8 +1367,8 @@ static void createmetatable (lua_State *L) {
 */
 LUALIB_API int luaopen_unicode (lua_State *L) {
 	/* register unicode itself so require("unicode") works */
-	luaL_register(L, SLN_UNICODENAME,
-		uniclib + (sizeof uniclib/sizeof uniclib[0] - 1)); /* empty func list */
+	luaL_openlib(L, SLN_UNICODENAME,
+		uniclib + (sizeof uniclib/sizeof uniclib[0] - 1), 0); /* empty func list */
 	lua_pop(L, 1);
 	lua_getglobal(L,SLN_UNICODENAME);
 	lua_newtable(L);

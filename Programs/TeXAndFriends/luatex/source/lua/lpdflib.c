@@ -43,9 +43,13 @@ static int luapdfprint(lua_State * L)
                 literal_mode = direct_always;
             else if (lua_key_eq(modestr_s,page))
                 literal_mode = direct_page;
+            else if (lua_key_eq(modestr_s,text))
+                literal_mode = direct_text;
             else if (lua_key_eq(modestr_s,raw))
                 literal_mode = direct_raw;
-            else {
+            else if (lua_key_eq(modestr_s,origin))
+                literal_mode = set_origin;
+            else  {
                 luaL_error(L, "invalid first argument for print literal mode");
             }
         }
@@ -61,6 +65,10 @@ static int luapdfprint(lua_State * L)
             break;
         case (direct_page):
             pdf_goto_pagemode(static_pdf);
+            (void) calc_pdfpos(static_pdf->pstruct, static_pdf->posstruct->pos);
+            break;
+        case (direct_text):
+            pdf_goto_textmode(static_pdf);
             (void) calc_pdfpos(static_pdf->pstruct, static_pdf->posstruct->pos);
             break;
         case (direct_always):
@@ -1126,6 +1134,8 @@ static int newpdfcolorstack(lua_State * L)
             literal_mode = set_origin;
         } else if (lua_key_eq(l,page))  {
             literal_mode = direct_page;
+        } else if (lua_key_eq(l,text))  {
+            literal_mode = direct_text;
         } else if (lua_key_eq(l,direct)) {
             literal_mode = direct_always;
         } else if (lua_key_eq(l,raw)) {
@@ -1255,7 +1265,7 @@ int luaopen_pdf(lua_State * L)
     lua_newtable(L);
     lua_settable(L,LUA_REGISTRYINDEX);
     /* */
-    luaL_register(L, "pdf", pdflib);
+    luaL_openlib(L, "pdf", pdflib, 0);
     /*
     luaL_newmetatable(L, "pdf.meta");
     lua_pushstring(L, "__index");

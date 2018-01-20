@@ -698,7 +698,7 @@ void read_pdf_info(image_dict * idict)
             unrefPdfDocument(img_filepath(idict));
         }
 
-        and also unref'd in the finalizer zo we got an extra unrefs when garbage was
+        and also unref'd in the finalizer so we got an extra unrefs when garbage was
         collected. However it is more efficient to keep the file open so we do that
         now. The (slower) alternative is to unref here (which in most cases forcing a
         close of the file) but then we must not call flush_pdf_info.
@@ -898,6 +898,12 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
 
         unrefPdfDocument(img_filepath(idict));
     */
+
+if (! img_keepopen(idict)) {
+    unrefPdfDocument(img_filepath(idict));
+}
+
+
 }
 
 /* Deallocate a PdfDocument with all its resources. */

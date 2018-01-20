@@ -430,14 +430,30 @@ void scan_pdfximage(PDF pdf) /* static_pdf */
 @ @c
 void scan_pdfrefximage(PDF pdf)
 {
-    int transform = 0;          /* one could scan transform as well */
+    /* one could scan transform as well */
+    int transform = 0;
+    /* begin of experiment */
+    int open = 0;
+    /* end of experiment */
     image_dict *idict;
+    /* scans |<rule spec>| to |alt_rule| */
     scaled_whd alt_rule, dim;
-    alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
+    alt_rule = scan_alt_rule();
+    /* begin of experiment */
+    if (scan_keyword("keepopen")) {
+        open = 1;
+    }
+    /* end of experiment */
     scan_int();
     check_obj_type(pdf, obj_type_ximage, cur_val);
     tail_append(new_rule(image_rule));
     idict = idict_array[obj_data_ptr(pdf, cur_val)];
+    /* begin of experiment */
+    if (open) {
+        /* so we keep the original value when no close is given */
+        idict->keepopen = 1;
+    }
+    /* end of experiment */
     if (img_state(idict) == DICT_NEW) {
         normal_warning("image","don't rely on the image data to be okay");
         width(tail_par) = 0;

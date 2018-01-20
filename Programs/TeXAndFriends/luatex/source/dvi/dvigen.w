@@ -1165,25 +1165,6 @@ void dvi_end_page(PDF pdf)
 {
     (void) pdf;
     dvi_out(eop);
-
-#ifdef IPC
-    if (ipcon > 0) {
-        if (dvi_limit == half_buf) {
-            write_dvi(half_buf, dvi_buf_size - 1);
-	    fflush(static_pdf->file);
-            dvi_gone = dvi_gone + half_buf;
-        }
-        if (dvi_ptr > 0) {
-            write_dvi(0, dvi_ptr - 1);
-	    fflush(static_pdf->file);
-            dvi_offset = dvi_offset + dvi_ptr;
-            dvi_gone = dvi_gone + dvi_ptr;
-        }
-        dvi_ptr = 0;
-        dvi_limit = dvi_buf_size;
-        ipcpage(dvi_gone);
-    }
-#endif                          /* IPC */
 }
 
 @ At the end of the program, we must finish things off by writing the
