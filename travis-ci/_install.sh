@@ -10,7 +10,7 @@ fi
 
 sudomiktex() {
     set +e
-    sudo MIKTEX_SHAREDSETUP=t PATH="${miktex_bin}:$PATH" $@
+    sudo MIKTEX_SHAREDSETUP=t "$miktex_bin"/$1 $2 $3 $4 $5 $6 $7 $8 $9
     local status=$?
     if [ $status -ne 0 ]; then
 	if [ -d "$miktex_home/texmfs/data/miktex/log" ]; then
