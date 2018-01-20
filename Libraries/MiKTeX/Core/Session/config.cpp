@@ -1238,6 +1238,10 @@ void SessionImpl::SetConfigValue(const std::string& sectionName, const string& v
 
   pCfg->PutValue(sectionName, valueName, value.GetString());
   pCfg->Write(pathConfigFile);
+  if (!Fndb::FileExists(pathConfigFile))
+  {
+    Fndb::Add(pathConfigFile);
+  }
   configurationSettings.clear();
 }
 
