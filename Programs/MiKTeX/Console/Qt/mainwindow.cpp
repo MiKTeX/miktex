@@ -299,9 +299,9 @@ void MainWindow::CreateTrayIcon()
   trayIcon = new QSystemTrayIcon(this);
   trayIcon->setContextMenu(trayIconMenu);
 #if defined(MIKTEX_WINDOWS)
-  trayIcon->setIcon(QIcon((":/Icons/miktex-16x16.png")));
+  trayIcon->setIcon(QIcon((":/Icons/miktex-console-16x16.png")));
 #else
-  trayIcon->setIcon(QIcon((":/Icons/miktex-32x32.png")));
+  trayIcon->setIcon(QIcon((":/Icons/miktex-console-32x32.png")));
 #endif
   trayIcon->setToolTip(tr("MiKTeX Console"));
   trayIcon->show();
