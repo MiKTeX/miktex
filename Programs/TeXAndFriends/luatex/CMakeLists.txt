@@ -188,7 +188,7 @@ endif()
 target_link_libraries(luatex-lua52misc-static
   PUBLIC
     ${core_dll_name}
-    ${lua53_target_name}
+    ${lua52_target_name}
 )
 if(MIKTEX_NATIVE_WINDOWS)
   target_link_libraries(luatex-lua52misc-static
