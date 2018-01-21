@@ -788,7 +788,7 @@ if(WITH_LUA53TEX)
       luatex-lua53ffi-static
       luatex-lua53misc-static
       luatex-lua53socket-static
-      luatex-lua52fontforge-static
+      luatex-lua53fontforge-static
   )
 endif()
 
