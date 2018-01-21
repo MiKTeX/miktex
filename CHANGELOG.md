@@ -2,44 +2,46 @@
 
 ## NEXT
 
-### New programs
+### MiKTeX Console
 
-* [MiKTeX Console](https://miktex.org/announcement/miktex-console):
-  the new MiKTeX management tool which combines three UI applications
-  into one:
-  - MiKTeX Package Manager
-  - MiKTeX Settings
-  - MiKTeX Update Wizard
+[MiKTeX Console](https://miktex.org/announcement/miktex-console) is
+the new MiKTeX management tool which combines three UI applications
+into one:
 
-### Lua 5.3 LuaTeX 
+* MiKTeX Package Manager
+* MiKTeX Settings
+* MiKTeX Update Wizard
 
-#### Switching between 5.2/5.3
+### Lua53TeX
 
 A new experimental LuaTeX engine is now available which incorporates a
 Lua 5.3 script interpreter.
 
-You can switch LuaTeX engines by setting a special configuration value. To use Lua 5.3:
+#### Switching engines
+
+You can switch the LuaTeX engine by setting a configuration value. To
+use the new 5.3 based engine:
 
     initexmf --set-config-value [luatex]luaver=5.3
 
-To switch back to the classic 5.2 engine:
+To switch back to the 5.2 based engine:
 
     initexmf --set-config-value [luatex]luaver=5.2
 
-You have to recreate the links after the switch:
+Please remember to recreate the links after you have switch the
+engine:
 
     initexmf --force --mklinks
 
-As always, run `initexmf` with administrator privileges and add the
+As always: run `initexmf` with administrator privileges and add the
 `--admin` option, if you manage a shared MiKTeX installation.
 
 #### Direct invocation
 
-It is also possible to invoke the new engine directly. This might be
-useful if you don't need the actual engine but want to execute a
-script:
+It is possible to invoke the 5.3 based engine directly, for example if
+you want to test a Lua script:
 
-    miktex-lua53tex --luaonly myscript.lua
+    miktex-lua53tex --luaonly test.lua
 
 ### Upgraded programs
 

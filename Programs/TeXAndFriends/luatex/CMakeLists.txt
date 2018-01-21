@@ -346,25 +346,21 @@ set(luafontforge_sources
   source/luafontloader/src/luafflib.c
 )
 
-add_library(luatex-luafontforge-static STATIC ${luafontforge_sources})
-
-set_property(TARGET luatex-luafontforge-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-target_compile_definitions(luatex-luafontforge-static
+add_library(luatex-lua52fontforge-static STATIC ${luafontforge_sources})
+set_property(TARGET luatex-lua52fontforge-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+target_compile_definitions(luatex-lua52fontforge-static
   PRIVATE
     -DLUA_FF_LIB=1
     -DUSE_OUR_MEMORY=1
     -DX_DISPLAY_MISSING=1
     -D_NO_PYTHON=1
 )
-  
-target_include_directories(luatex-luafontforge-static
+target_include_directories(luatex-lua52fontforge-static
   PRIVATE
     source/luafontloader/fontforge/fontforge
     source/luafontloader/fontforge/inc
 )
-
-target_link_libraries(luatex-luafontforge-static
+target_link_libraries(luatex-lua52fontforge-static
   PUBLIC
     ${core_dll_name}
     ${kpsemu_dll_name}
@@ -372,12 +368,42 @@ target_link_libraries(luatex-luafontforge-static
     ${w2cemu_dll_name}
     luatex-unilib-static
 )
-
 if(MIKTEX_NATIVE_WINDOWS)
-  target_link_libraries(luatex-luafontforge-static
+  target_link_libraries(luatex-lua52fontforge-static
     PUBLIC
       ${utf8wrap_dll_name}
   )
+endif()
+
+if(WITH_LUA53TEX)
+  add_library(luatex-lua53fontforge-static STATIC ${luafontforge_sources})
+  set_property(TARGET luatex-lua53fontforge-static PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+  target_compile_definitions(luatex-lua53fontforge-static
+    PRIVATE
+      -DLUA_FF_LIB=1
+      -DUSE_OUR_MEMORY=1
+      -DX_DISPLAY_MISSING=1
+      -D_NO_PYTHON=1
+  )
+  target_include_directories(luatex-lua53fontforge-static
+    PRIVATE
+      source/luafontloader/fontforge/fontforge
+      source/luafontloader/fontforge/inc
+  )
+  target_link_libraries(luatex-lua53fontforge-static
+    PUBLIC
+      ${core_dll_name}
+      ${kpsemu_dll_name}
+      ${lua53_target_name}
+      ${w2cemu_dll_name}
+      luatex-unilib-static
+  )
+  if(MIKTEX_NATIVE_WINDOWS)
+    target_link_libraries(luatex-lua53fontforge-static
+      PUBLIC
+        ${utf8wrap_dll_name}
+    )
+  endif()
 endif()
 
 ###############################################################################
@@ -725,7 +751,7 @@ target_link_libraries(lua52tex-static
     luatex-lua52ffi-static
     luatex-lua52misc-static
     luatex-lua52socket-static
-    luatex-luafontforge-static
+    luatex-lua52fontforge-static
 )
 
 if(WITH_LUA53TEX)
@@ -760,7 +786,7 @@ if(WITH_LUA53TEX)
       luatex-lua53ffi-static
       luatex-lua53misc-static
       luatex-lua53socket-static
-      luatex-luafontforge-static
+      luatex-lua52fontforge-static
   )
 endif()
 
@@ -794,7 +820,6 @@ set(libs
   ${md5_dll_name}
   ${w2cemu_dll_name}
 
-  luatex-luafontforge-static
   luatex-unilib-static
 
   luatex-miktex-static
@@ -837,6 +862,7 @@ endif()
 set(libs52 ${libs})
 list(APPEND libs52
   ${lua52_target_name}
+  luatex-lua52fontforge-static
   luatex-lua52ffi-static
   luatex-lua52misc-static
   luatex-lua52socket-static
@@ -861,6 +887,7 @@ if(WITH_LUA53TEX)
   set(libs53 ${libs})
   list(APPEND libs53
     ${lua53_target_name}
+    luatex-lua53fontforge-static
     luatex-lua53ffi-static
     luatex-lua53misc-static
     luatex-lua53socket-static
