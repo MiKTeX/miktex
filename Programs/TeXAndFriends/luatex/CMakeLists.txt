@@ -748,6 +748,7 @@ target_link_libraries(lua52tex-static
     ${lua52_target_name}
     ${metapost_dll_name}
     ${w2cemu_dll_name}
+    luatex-miktex-static
     luatex-lua52ffi-static
     luatex-lua52misc-static
     luatex-lua52socket-static
@@ -783,6 +784,7 @@ if(WITH_LUA53TEX)
       ${lua53_target_name}
       ${metapost_dll_name}
       ${w2cemu_dll_name}
+      luatex-miktex-static
       luatex-lua53ffi-static
       luatex-lua53misc-static
       luatex-lua53socket-static
