@@ -438,6 +438,12 @@ option(
 )
 
 option(
+  WITH_LUA53TEX
+  "Enable LuaTeX linked to Lua 5.3."
+  TRUE
+)
+
+option(
   LINK_EVERYTHING_STATICALLY
   "Don't build and use shared libraries."
   FALSE
