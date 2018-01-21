@@ -1,6 +1,6 @@
 /* makefmt.cpp: make TeX format files
 
-   Copyright (C) 1998-2017 Christian Schenk
+   Copyright (C) 1998-2018 Christian Schenk
 
    This file is part of MiKTeX MakeFMT.
 
@@ -18,6 +18,8 @@
    along with MiKTeX MakeFMT; if not, write to the Free Software
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
+
+#include "config.h"
 
 #include "makefmt-version.h"
 #include "MakeUtility.h"
@@ -157,7 +159,11 @@ private:
     switch (engine)
     {
     case Engine::LuaTeX:
+#if defined(WITH_LUA53TEX)
+      return useLua53 ? MIKTEX_LUA53TEX_EXE : MIKTEX_LUATEX_EXE;
+#else
       return MIKTEX_LUATEX_EXE;
+#endif
     case Engine::TeX:
       return MIKTEX_TEX_EXE;
     case Engine::pdfTeX:
@@ -211,6 +217,11 @@ private:
 
 private:
   vector<string> engineOptions;
+
+#if defined(WITH_LUA53TEX)
+private:
+  bool useLua53 = false;
+#endif
 };
 
 void MakeFmt::Usage()
@@ -326,6 +337,18 @@ void MakeFmt::InstallPdftexConfigTeX() const
 
 void MakeFmt::Run(int argc, const char** argv)
 {
+#if defined(WITH_LUA53TEX)
+  string luaver;
+  if (session->TryGetConfigValue("luatex", "luaver", luaver))
+  {
+    if (luaver != "5.2" && luaver != "5.3")
+    {
+      MIKTEX_FATAL_ERROR_2(T_("Invalid configuration value."), "name", "luaver", "value", luaver);
+    }
+    useLua53 = luaver == "5.3";
+  }
+#endif
+
   // get options and file name
   int optionIndex = 0;
   GetOptions(argc, argv, aLongOptions, optionIndex);

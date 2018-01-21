@@ -1582,7 +1582,6 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_GREGORIO_EXE, { "gregorio" } },
   { MIKTEX_HBF2GF_EXE, { "hbf2gf" } },
   { MIKTEX_LACHECK_EXE, { "lacheck" } },
-  { MIKTEX_LUATEX_EXE, { MIKTEX_PREFIX "texlua", MIKTEX_PREFIX "texluac", "luatex", "texlua", "texluac", MIKTEX_LUALATEX_EXE } },
   { MIKTEX_MAKEBASE_EXE, { "makebase" } },
   { MIKTEX_MAKEFMT_EXE, { "makefmt" } },
   { MIKTEX_MAKEINDEX_EXE, { "makeindex" } },
@@ -1667,15 +1666,53 @@ vector<FileLink> miktexFileLinks =
 #endif
 };
 
+vector<FileLink> lua52texLinks =
+{
+  { MIKTEX_LUATEX_EXE, { MIKTEX_PREFIX "texlua", MIKTEX_PREFIX "texluac", "luatex", "texlua", "texluac", MIKTEX_LUALATEX_EXE } },
+};
+
+#if defined(WITH_LUA53TEX)
+vector<FileLink> lua53texLinks =
+{
+  { MIKTEX_LUA53TEX_EXE, { MIKTEX_PREFIX "texlua", MIKTEX_PREFIX "texluac", "luatex", "texlua", "texluac", MIKTEX_LUALATEX_EXE } },
+};
+#endif
+
 vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
 {
   vector<FileLink> result;
   PathName pathLocalBinDir = session->GetSpecialPath(SpecialPath::LocalBinDirectory);
   PathName pathBinDir = session->GetSpecialPath(SpecialPath::BinDirectory);
 
+#if defined(WITH_LUA53TEX)
+  bool useLua53 = false;
+  string luaver;
+  if (session->TryGetConfigValue("luatex", "luaver", luaver))
+  {
+    if (luaver != "5.2" && luaver != "5.3")
+    {
+      MIKTEX_FATAL_ERROR_2(T_("Invalid configuration value."), "name", "luaver", "value", luaver);
+    }
+    useLua53 = luaver == "5.3";
+  }
+#endif
+
   if (linkCategories[LinkCategory::MiKTeX])
   {
-    for (const FileLink& fileLink : miktexFileLinks)
+    vector<FileLink> links = miktexFileLinks;
+#if defined(WITH_LUA53TEX)
+    if (useLua53)
+    {
+      links.insert(links.end(), lua53texLinks.begin(), lua53texLinks.end());
+    }
+    else
+    {
+      links.insert(links.end(), lua52texLinks.begin(), lua52texLinks.end());
+    }
+#else
+    links.insert(links.end(), lua52texLinks.begin(), lua52texLinks.end());
+#endif
+    for (const FileLink& fileLink : links)
     {
       PathName targetPath = pathBinDir / fileLink.target;
       string extension = targetPath.GetExtension();
@@ -1708,10 +1745,17 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
       {
         continue;
       }
-      PathName compilerPath;
-      if (!session->FindFile(string(MIKTEX_PREFIX) + formatInfo.compiler, FileType::EXE, compilerPath))
+      string engine = formatInfo.compiler;
+#if defined(WITH_LUA53TEX)
+      if (engine == "luatex" && useLua53)
       {
-        Warning(T_("The %s executable could not be found."), formatInfo.compiler.c_str());
+        engine = "lua53tex";
+      }
+#endif
+      PathName enginePath;
+      if (!session->FindFile(string(MIKTEX_PREFIX) + engine, FileType::EXE, enginePath))
+      {
+        Warning(T_("The %s executable could not be found."), engine.c_str());
         continue;
       }
       PathName exePath(pathLocalBinDir, formatInfo.name);
@@ -1719,9 +1763,9 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
       {
         exePath.AppendExtension(MIKTEX_EXE_FILE_SUFFIX);
       }
-      if (!(compilerPath == exePath))
+      if (!(enginePath == exePath))
       {
-        result.push_back(FileLink(compilerPath.ToString(), { exePath.ToString() }));
+        result.push_back(FileLink(enginePath.ToString(), { exePath.ToString() }));
       }
     }
   }
@@ -1742,6 +1786,12 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
       wrapper.AppendDirectoryDelimiter();
       wrapper.Append("run", false);
       wrapper.Append(key->GetName(), false);
+#if defined(WITH_LUA53TEX)
+      if (useLua53 && key->GetName() == "texlua")
+      {
+        wrapper.Append("53", false);
+      }
+#endif
       wrapper.Append(MIKTEX_EXE_FILE_SUFFIX, false);
       if (!File::Exists(wrapper))
       {
@@ -2938,7 +2988,7 @@ void IniTeXMFApp::Run(int argc, const char* argv[])
     cout
       << Utils::MakeProgramVersionString(TheNameOfTheGame, MIKTEX_COMPONENT_VERSION_STR) << endl
       << endl
-      << "Copyright (C) 1996-2017 Christian Schenk" << endl
+      << "Copyright (C) 1996-2018 Christian Schenk" << endl
       << "This is free software; see the source for copying conditions.  There is NO" << endl
       << "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." << endl;
     return;

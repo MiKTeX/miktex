@@ -1,6 +1,6 @@
 /* makefmt-version.h: version number                    -*- C++ -*-
 
-   Copyright (C) 1998-2017 Christian Schenk
+   Copyright (C) 1998-2018 Christian Schenk
 
    This file is part of MiKTeX MakeFMT.
 
@@ -19,6 +19,6 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA. */
 
-#define MIKTEX_COMP_J2000_VERSION 6553
+#define MIKTEX_COMP_J2000_VERSION 6595
 
 #include <miktex/Version>

@@ -1,6 +1,6 @@
-/* initexmf-version.h: version number                   -*- C++ -*-
+/* config.h (created from config.h.cmake)               -*- C++ -*-
 
-   Copyright (C) 1996-2018 Christian Schenk
+   Copyright (C) 2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -17,6 +17,4 @@
    Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307,
    USA.  */
 
-#define MIKTEX_COMP_J2000_VERSION 6595
-
-#include <miktex/Version>
+#cmakedefine WITH_LUA53TEX 1
