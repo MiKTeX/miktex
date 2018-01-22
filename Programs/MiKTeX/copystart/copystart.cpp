@@ -1,6 +1,6 @@
 /* copystart.cpp: MiKTeX copy starter
 
-   Copyright (C) 2001-2017 Christian Schenk
+   Copyright (C) 2001-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -45,7 +45,7 @@ void CopyStart(const wchar_t* lpszFileName, const wchar_t* lpszArgs)
   MD5 digest = MD5::FromFile(StringUtil::WideCharToUTF8(lpszFileName).c_str());
 
   // set MIKTEX_BINDIR
-  Utils::SetEnvironmentString(MIKTEX_ENV_BIN_DIR, session->GetMyLocation(false).ToString());
+  Utils::SetEnvironmentString(MIKTEX_ENV_BIN_DIR, (session->GetMyPrefix(false) / MIKTEX_PATH_BIN_DIR).ToString());
 
   // set MIKTEX_*STARTUPFILE
   if (session->IsMiKTeXPortable())
