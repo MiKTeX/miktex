@@ -107,7 +107,7 @@ private:
     Settings = 2,
     Updates = 3,
     Packages = 4,
-    Troubleshoot = 5,
+    Diagnose = 5,
   };
 
 private:
@@ -138,9 +138,9 @@ private slots:
   }
 
 private slots:
-  void on_buttonTroubleshoot_clicked()
+  void on_buttonDiagnose_clicked()
   {
-    SetCurrentPage(Pages::Troubleshoot);
+    SetCurrentPage(Pages::Diagnose);
   }
 
 private slots:
@@ -171,6 +171,24 @@ private slots:
   void on_buttonRestartAdmin_clicked()
   {
     RestartAdmin();
+  }
+
+private:
+  bool okayUserMode = false;
+
+private:
+  void OkayUserMode();
+
+private slots:
+  void on_buttonOkayUserMode_clicked()
+  {
+    OkayUserMode();
+  }
+
+private:
+  bool IsUserModeBlocked()
+  {
+    return session->IsSharedSetup() && !session->IsAdminMode() && !okayUserMode;
   }
 
 private:
@@ -354,13 +372,13 @@ private slots:
   void OnContextMenuPackages(const QPoint& pos);
 
 private:
-  void SetupUiTroubleshoot();
+  void SetupUiDiagnose();
 
 private:
-  void UpdateUiTroubleshoot();
+  void UpdateUiDiagnose();
 
 private slots:
-  void UpdateActionsTroubleshoot();
+  void UpdateActionsDiagnose();
 
 private slots:
   void on_pushButtonShowLogDirectory_clicked();

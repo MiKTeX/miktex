@@ -40,6 +40,7 @@
 #include <miktex/Core/Fndb.h>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
+#include <miktex/Core/Quoter>
 #include <miktex/Core/Process>
 #include <miktex/Core/Registry>
 #include <miktex/Core/Session>
@@ -56,6 +57,8 @@ using namespace MiKTeX::Setup;
 using namespace MiKTeX::UI::Qt;
 using namespace MiKTeX::Util;
 using namespace std;
+
+#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 inline double Divide(double a, double b)
 {
@@ -94,7 +97,7 @@ MainWindow::MainWindow(QWidget* parent) :
   SetupUiUpdates();
   SetupUiPackageInstallation();
   SetupUiPackages();
-  SetupUiTroubleshoot();
+  SetupUiDiagnose();
 
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
@@ -206,13 +209,13 @@ void MainWindow::UpdateUi()
         ui->userMode->hide();
       }
     }
-    ui->buttonOverview->setEnabled(!isSetupMode);
-    ui->buttonSettings->setEnabled(!isSetupMode);
-    ui->buttonUpdates->setEnabled(!isSetupMode);
-    ui->buttonPackages->setEnabled(!isSetupMode);
-    ui->buttonTroubleshoot->setEnabled(!isSetupMode);
+    ui->buttonOverview->setEnabled(!isSetupMode && !IsUserModeBlocked());
+    ui->buttonSettings->setEnabled(!isSetupMode && !IsUserModeBlocked());
+    ui->buttonUpdates->setEnabled(!isSetupMode && !IsUserModeBlocked());
+    ui->buttonPackages->setEnabled(!isSetupMode && !IsUserModeBlocked());
+    ui->buttonDiagnose->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonTeXworks->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !session->IsAdminMode());
-    ui->buttonTerminal->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
+    ui->buttonTerminal->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !IsUserModeBlocked());
     if (isSetupMode)
     {
       return;
@@ -233,10 +236,12 @@ void MainWindow::UpdateUi()
         if (packageManager->GetPackageInfo("ltxbase").IsInstalled() && packageManager->GetPackageInfo("amsfonts").IsInstalled())
         {
           ui->groupUpgrade->hide();
+          ui->groupCheckUpdates->setEnabled(!IsUserModeBlocked());
         }
         else
         {
           ui->groupCheckUpdates->hide();
+          ui->groupUpgrade->setEnabled(!IsUserModeBlocked());
         }
       }
     }
@@ -245,7 +250,7 @@ void MainWindow::UpdateUi()
     UpdateUiRootDirectories();
     UpdateUiUpdates();
     UpdateUiPackages();
-    UpdateUiTroubleshoot();
+    UpdateUiDiagnose();
   }
   catch (const MiKTeXException& e)
   {
@@ -262,14 +267,14 @@ void MainWindow::UpdateActions()
   try
   {
     ui->actionRestartAdmin->setEnabled(!IsBackgroundWorkerActive() && session->IsSharedSetup() && !session->IsAdminMode());
-    ui->actionRefreshFileNameDatabase->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
-    ui->actionRefreshFontMapFiles->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
+    ui->actionRefreshFileNameDatabase->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !IsUserModeBlocked());
+    ui->actionRefreshFontMapFiles->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !IsUserModeBlocked());
     ui->actionTeXworks->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !session->IsAdminMode());
-    ui->actionTerminal->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
+    ui->actionTerminal->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !IsUserModeBlocked());
     UpdateActionsRootDirectories();
     UpdateActionsUpdates();
     UpdateActionsPackages();
-    UpdateActionsTroubleshoot();
+    UpdateActionsDiagnose();
   }
   catch (const MiKTeXException& e)
   {
@@ -341,8 +346,8 @@ void MainWindow::SetCurrentPage(MainWindow::Pages p)
       packageModel->Reload();
     }
     break;
-  case Pages::Troubleshoot:
-    ui->buttonTroubleshoot->setChecked(true);
+  case Pages::Diagnose:
+    ui->buttonDiagnose->setChecked(true);
     break;
   }
   ui->pages->setCurrentIndex((int)p);
@@ -451,7 +456,7 @@ void MainWindow::RestartAdmin()
 
 void MainWindow::RestartAdminWithArguments(const vector<string>& args)
 {
-#if defined(MIKTEX_WINDOWSx)
+#if defined(MIKTEX_WINDOWS)
   PathName me = session->GetMyProgramFile(true);
   PathName adminFileName = me.GetFileNameWithoutExtension();
   adminFileName += MIKTEX_ADMIN_SUFFIX;
@@ -466,24 +471,39 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
   consoleArgs.insert(consoleArgs.end(), args.begin(), args.end());
   Process::Start(console, consoleArgs);
 #else
-  const static string frontends[] = { "kdesu", "gksu" };
   PathName frontend;
-  for (const string& f : frontends)
+  vector<string> frontendArgs;
+  if (session->FindFile("kdesu", FileType::EXE, frontend))
   {
-    if (session->FindFile(f, FileType::EXE, frontend))
-    {
-      break;
-    }
+    frontendArgs = {
+      "kdesu",
+      "-c",
+      Q_(StringUtil::Flatten(args, ' ')),
+      "-i", "miktex-console"
+    };
   }
-  if (frontend.Empty())
+  else if (session->FindFile("gksu", FileType::EXE, frontend))
+  {
+    frontendArgs = {
+      "gksu",
+      "-D", "MiKTeX Console",
+      Q_(StringUtil::Flatten(args, ' '))
+    };
+  }
+  else
   {
     MIKTEX_FATAL_ERROR(tr("No graphical sudo frontend is available. Please install 'kdesu' (KDE) or 'gksu' (Gnome).").toStdString());
   }
-  vector<string> frontendArgs{ frontend.GetFileNameWithoutExtension().ToString(), MIKTEX_CONSOLE_EXE };
-  frontendArgs.insert(frontendArgs.end(), args.begin(), args.end());
   Process::Start(frontend, frontendArgs);
 #endif
   this->close();
+}
+
+void MainWindow::OkayUserMode()
+{
+  okayUserMode = true;
+  UpdateUi();
+  UpdateActions();
 }
 
 void MainWindow::on_buttonAdminSetup_clicked()
@@ -888,7 +908,7 @@ void MainWindow::UpdateUiUpdates()
 
 void MainWindow::UpdateActionsUpdates()
 {
-  ui->actionCheckUpdates->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode);
+  ui->actionCheckUpdates->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !IsUserModeBlocked());
 }
 
 bool CkeckUpdatesWorker::Run()
@@ -1530,7 +1550,7 @@ void MainWindow::UpdateActionsPackages()
 {
   try
   {
-    ui->actionUpdatePackageDatabase->setEnabled(!IsBackgroundWorkerActive());
+    ui->actionUpdatePackageDatabase->setEnabled(!IsBackgroundWorkerActive() && !IsUserModeBlocked());
     ui->actionFilterPackages->setEnabled(!IsBackgroundWorkerActive());
     QModelIndexList selectedRows = ui->treeViewPackages->selectionModel()->selectedRows();
     ui->actionPackageProperties->setEnabled(!IsBackgroundWorkerActive() && selectedRows.count() == 1);
@@ -1713,17 +1733,17 @@ void MainWindow::OnContextMenuPackages(const QPoint& pos)
   }
 }
 
-void MainWindow::SetupUiTroubleshoot()
+void MainWindow::SetupUiDiagnose()
 {
 
 }
 
-void MainWindow::UpdateUiTroubleshoot()
+void MainWindow::UpdateUiDiagnose()
 {
 
 }
 
-void MainWindow::UpdateActionsTroubleshoot()
+void MainWindow::UpdateActionsDiagnose()
 {
   PathName logDir = session->GetSpecialPath(SpecialPath::LogDirectory);
   ui->lineEditLogFiles->setText(QString::fromUtf8(logDir.GetData()));

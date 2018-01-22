@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>818</height>
+    <height>867</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -186,7 +186,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="buttonTroubleshoot">
+        <widget class="QPushButton" name="buttonDiagnose">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -200,7 +200,7 @@
           <string>MiKTeX package management</string>
          </property>
          <property name="text">
-          <string>Troubleshoot</string>
+          <string>Diagnose</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -306,7 +306,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>5</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -329,6 +329,13 @@
             <widget class="QLabel" name="label_8">
              <property name="text">
               <string>&lt;h2&gt;Welcome!&lt;/h2&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
              </property>
             </widget>
            </item>
@@ -445,6 +452,13 @@
             </widget>
            </item>
            <item>
+            <widget class="Line" name="line_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QLabel" name="label">
              <property name="text">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the MiKTeX Console. It will assist you in managing your MiKTeX configuration.&lt;/p&gt;&lt;p&gt;You can start with a online tutorial: &lt;a href=&quot;https://miktex.org/howto/miktex-console&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: manage MiKTeX with the MiKTeX Console&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -504,9 +518,9 @@
               <item>
                <widget class="QLabel" name="label_4">
                 <property name="text">
-                 <string>This tool currently operates on the private (per-user) MiKTeX configuration.
+                 <string>This tool currently runs in user mode and thus operates on the private (per-user) MiKTeX configuration. You may want to restart this application as administrator in order to operate on the shared (system-wide) configuration.
 
-You may want to restart this application as administrator in order to operate on the shared (system-wide) configuration.</string>
+Decide now how you would like to proceed:</string>
                 </property>
                 <property name="wordWrap">
                  <bool>true</bool>
@@ -520,6 +534,19 @@ You may want to restart this application as administrator in order to operate on
                <widget class="QCommandLinkButton" name="buttonRestartAdmin">
                 <property name="text">
                  <string>Restart as administrator</string>
+                </property>
+                <property name="description">
+                 <string>Restart MiKTeX Console with elevated privileges.</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCommandLinkButton" name="buttonOkayUserMode">
+                <property name="text">
+                 <string>I want to stay in user mode</string>
+                </property>
+                <property name="description">
+                 <string/>
                 </property>
                </widget>
               </item>
@@ -841,6 +868,20 @@ You may want to restart this application as administrator in order to operate on
             <number>0</number>
            </property>
            <item>
+            <widget class="QLabel" name="label_i98">
+             <property name="text">
+              <string>&lt;h2&gt;Settings&lt;/h2&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QTabWidget" name="tabWidgetSettings">
              <property name="currentIndex">
               <number>0</number>
@@ -977,7 +1018,7 @@ You may want to restart this application as administrator in order to operate on
                 </widget>
                </item>
                <item>
-                <spacer name="verticalSpacer_9">
+                <spacer name="verticalSpacer_10">
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
                  </property>
@@ -1039,7 +1080,7 @@ You may want to restart this application as administrator in order to operate on
                 </widget>
                </item>
                <item>
-                <spacer name="verticalSpacer_10">
+                <spacer name="verticalSpacer_9">
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
                  </property>
@@ -1054,6 +1095,19 @@ You may want to restart this application as administrator in order to operate on
               </layout>
              </widget>
             </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_x6">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
@@ -1071,6 +1125,20 @@ You may want to restart this application as administrator in order to operate on
            <property name="bottomMargin">
             <number>0</number>
            </property>
+           <item>
+            <widget class="QLabel" name="label_i98x">
+             <property name="text">
+              <string>&lt;h2&gt;Updates&lt;/h2&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
            <item>
             <layout class="QFormLayout" name="formLayoutx">
              <property name="labelAlignment">
@@ -1224,6 +1292,20 @@ You may want to restart this application as administrator in order to operate on
             <number>0</number>
            </property>
            <item>
+            <widget class="QLabel" name="label_i98xx">
+             <property name="text">
+              <string>&lt;h2&gt;Packages&lt;/h2&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_5">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
             <layout class="QFormLayout" name="formLayout">
              <property name="labelAlignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1279,7 +1361,7 @@ You may want to restart this application as administrator in order to operate on
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="troubleshoot">
+         <widget class="QWidget" name="diagnose">
           <layout class="QVBoxLayout" name="_22ads">
            <property name="leftMargin">
             <number>0</number>
@@ -1293,6 +1375,20 @@ You may want to restart this application as administrator in order to operate on
            <property name="bottomMargin">
             <number>0</number>
            </property>
+           <item>
+            <widget class="QLabel" name="label_ixxx">
+             <property name="text">
+              <string>&lt;h2&gt;Diagnose&lt;/h2&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_6">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
            <item>
             <widget class="QGroupBox" name="verticalGroupBox">
              <property name="title">
@@ -1336,6 +1432,25 @@ You may want to restart this application as administrator in order to operate on
                  </spacer>
                 </item>
                </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox">
+             <property name="title">
+              <string>Online help</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_15">
+              <item>
+               <widget class="QLabel" name="label_17">
+                <property name="text">
+                 <string>Please visit the &lt;a href=&quot;https://miktex.org&quot;&gt;MiKTeX project page&lt;/a&gt;, if you need assistance.</string>
+                </property>
+                <property name="openExternalLinks">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>

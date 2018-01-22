@@ -141,7 +141,7 @@ if(UNIX AND NOT APPLE)
   # Gnome
   install(
     FILES "${CMAKE_SOURCE_DIR}/Resources/Icons/MiKTeX/128x128/apps/miktex-console.png"
-    DESTINATION "${MIKTEX_XDG_APPLICATIONS_DIR}/pixmaps"
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/pixmaps"
   )
   # KDE
   foreach (size IN ITEMS 32 128)
