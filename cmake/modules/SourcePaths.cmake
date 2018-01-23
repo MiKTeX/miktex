@@ -190,7 +190,7 @@ set(MIKTEX_DOWNLOAD_ANIMATION           "${CMAKE_SOURCE_DIR}/Resources/Videos/do
 set(MIKTEX_DPIAWARE_MANIFEST            "${CMAKE_SOURCE_DIR}/Resources/Manifests/dpiAware.manifest")
 set(MIKTEX_FILECOPY_ANIMATION           "${CMAKE_SOURCE_DIR}/Resources/Videos/filecopy.avi")
 set(MIKTEX_ICNS                         "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex.icns")
-set(MIKTEX_ICON                         "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex.ico")
+set(MIKTEX_ICON                         "${CMAKE_SOURCE_DIR}/Resources/Graphics/miktex2018.ico")
 set(MIKTEX_WIZARD_HEADER_BITMAP         "${CMAKE_SOURCE_DIR}/Resources/Graphics/wiz97-header.bmp")
 set(MIKTEX_WIZARD_WATERMARK_BITMAP      "${CMAKE_SOURCE_DIR}/Resources/Graphics/wiz97-watermark.bmp")
 
