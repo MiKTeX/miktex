@@ -35,6 +35,9 @@
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <layout class="QFormLayout" name="formLayout">
+         <property name="labelAlignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
          <item row="0" column="0">
           <widget class="QLabel" name="label">
            <property name="text">
@@ -156,7 +159,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QTreeView" name="tvRunFiles"/>
+        <widget class="QTreeView" name="tvRunFiles">
+         <property name="rootIsDecorated">
+          <bool>false</bool>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_9">
@@ -166,7 +173,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QTreeView" name="tvDocFiles"/>
+        <widget class="QTreeView" name="tvDocFiles">
+         <property name="rootIsDecorated">
+          <bool>false</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

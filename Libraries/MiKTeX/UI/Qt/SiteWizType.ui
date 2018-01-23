@@ -12,10 +12,10 @@
    </rect>
   </property>
   <property name="title">
-   <string>Installation Source</string>
+   <string>Package Source</string>
   </property>
   <property name="subTitle">
-   <string>Choose where you want to install packages from.</string>
+   <string>You can choose from where packages are retrieved:</string>
   </property>
   <layout class="QVBoxLayout">
    <item>
@@ -23,7 +23,7 @@
      <item>
       <widget class="QRadioButton" name="rbRemote">
        <property name="text">
-        <string>Packages shall be installed from the &amp;Internet.</string>
+        <string>Remote package repository</string>
        </property>
       </widget>
      </item>
@@ -76,7 +76,7 @@
         <bool>false</bool>
        </property>
        <property name="text">
-        <string>Get pre-release (experimental) packages.</string>
+        <string>Get pre-release (experimental) packages</string>
        </property>
       </widget>
      </item>
@@ -85,14 +85,14 @@
    <item>
     <widget class="QRadioButton" name="rbLocal">
      <property name="text">
-      <string>Packages shall be installed from a &amp;directory.</string>
+      <string>Local package repository</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QRadioButton" name="rbCD">
      <property name="text">
-      <string>Packages shall be installed from a &amp;MiKTeX CD/DVD.</string>
+      <string>MiKTeX CD/DVD</string>
      </property>
     </widget>
    </item>

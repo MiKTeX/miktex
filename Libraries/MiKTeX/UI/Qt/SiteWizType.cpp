@@ -1,6 +1,6 @@
 /* SiteWizType.cpp:
 
-   Copyright (C) 2008-2016 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
    This file is part of the MiKTeX UI Library.
 
@@ -34,9 +34,9 @@ using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
 using namespace std;
 
-SiteWizType::SiteWizType(shared_ptr<PackageManager> pManager) :
+SiteWizType::SiteWizType(shared_ptr<PackageManager> packageManager) :
   QWizardPage(nullptr),
-  pManager(pManager)
+  pManager(packageManager)
 {
   setupUi(this);
   connect(rbRemote, SIGNAL(clicked()), this, SIGNAL(completeChanged()));
@@ -57,29 +57,23 @@ void SiteWizType::initializePage()
       switch (repositoryType)
       {
       case RepositoryType::Remote:
-	rbRemote->setChecked(true);
-	break;
+        rbRemote->setChecked(true);
+        break;
       case RepositoryType::Local:
-	rbLocal->setChecked(true);
-	break;
+        rbLocal->setChecked(true);
+        break;
       case RepositoryType::MiKTeXDirect:
-	rbCD->setChecked(true);
-	break;
+        rbCD->setChecked(true);
+        break;
       }
     }
-#if 0
-    else
-    {
-      rbRemote->setChecked(true);
-    }
-#endif
     chkMiKTeXNext->setChecked(repositoryReleaseState == RepositoryReleaseState::Next);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
   }
@@ -102,17 +96,17 @@ bool SiteWizType::validatePage()
     {
       if (!ProxyAuthenticationDialog(this))
       {
-	return false;
+        return false;
       }
     }
     return true;
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ErrorDialog::DoModal(this, e);
     return false;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ErrorDialog::DoModal(this, e);
     return false;
@@ -150,8 +144,8 @@ void SiteWizType::on_chkMiKTeXNext_clicked()
   if (chkMiKTeXNext->isChecked() && !isMiKTeXNextWarningIssued)
   {
     QMessageBox::warning(this,
-      "MiKTeX Package Manager",
-      "You have chosen to get untested packages. Although every effort has been made to ensure the correctness of these packages, a hassle-free operation cannot be guaranteed.\r\n\r\nPlease visit http://miktex.org/kb/miktex-next, for more information.",
+      tr("MiKTeX Package Manager"),
+      tr("You have chosen to get untested packages. Although every effort has been made to ensure the correctness of these packages, a hassle-free operation cannot be guaranteed.\n\nPlease visit http://miktex.org/kb/miktex-next, for more information."),
       QMessageBox::Ok);
     isMiKTeXNextWarningIssued = true;
   }

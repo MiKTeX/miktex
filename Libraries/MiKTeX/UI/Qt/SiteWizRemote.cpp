@@ -121,6 +121,7 @@ void SiteWizRemote::FillList()
     pProxyModel->setSourceModel(pModel);
 
     treeView->setModel(pProxyModel);
+    treeView->setColumnHidden(0, true);
     treeView->sortByColumn(0, Qt::AscendingOrder);
 
     treeView->header()->resizeSections(QHeaderView::ResizeToContents);

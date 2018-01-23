@@ -1,8 +1,9 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <author>Christian Schenk</author>
  <class>SiteWizLocal</class>
- <widget class="QWizardPage" name="SiteWizLocal" >
-  <property name="geometry" >
+ <widget class="QWizardPage" name="SiteWizLocal">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -10,41 +11,34 @@
     <height>220</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Form</string>
   </property>
-  <property name="title" >
+  <property name="title">
    <string>Local Package Repository</string>
   </property>
-  <property name="subTitle" >
+  <property name="subTitle">
    <string>Packages will be installed from a directory on your computer.</string>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QVBoxLayout">
    <item>
-    <widget class="QLabel" name="label" >
-     <property name="text" >
-      <string>Packages will be installed from this directory:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" >
+    <layout class="QHBoxLayout">
      <item>
-      <widget class="QLineEdit" name="leDirectory" >
-       <property name="readOnly" >
+      <widget class="QLineEdit" name="leDirectory">
+       <property name="readOnly">
         <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
       <spacer>
-       <property name="orientation" >
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeType" >
+       <property name="sizeType">
         <enum>QSizePolicy::Minimum</enum>
        </property>
-       <property name="sizeHint" stdset="0" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>6</width>
          <height>20</height>
@@ -53,8 +47,8 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="btnBrowse" >
-       <property name="text" >
+      <widget class="QPushButton" name="btnBrowse">
+       <property name="text">
         <string>Bro&amp;wse...</string>
        </property>
       </widget>
@@ -63,10 +57,10 @@
    </item>
    <item>
     <spacer>
-     <property name="orientation" >
+     <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeHint" stdset="0" >
+     <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
        <height>40</height>

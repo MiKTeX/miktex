@@ -1,21 +1,21 @@
 /* RepositoryTableModel.cpp:
 
-   Copyright (C) 2008-2017 Christian Schenk
+   Copyright (C) 2008-2018 Christian Schenk
 
-   This file is part of MiKTeX Package Manager.
+   This file is part of the MiKTeX UI Library.
 
-   MiKTeX Package Manager is free software; you can redistribute it
+   The MiKTeX UI Library is free software; you can redistribute it
    and/or modify it under the terms of the GNU General Public License
    as published by the Free Software Foundation; either version 2, or
    (at your option) any later version.
 
-   MiKTeX Package Manager is distributed in the hope that it will be
+   The MiKTeX UI Library is distributed in the hope that it will be
    useful, but WITHOUT ANY WARRANTY; without even the implied warranty
    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with MiKTeX Package Manager; if not, write to the Free
+   along with the MiKTeX UI Library; if not, write to the Free
    Software Foundation, 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA. */
 
@@ -54,21 +54,21 @@ QVariant RepositoryTableModel::data(const QModelIndex& index, int role) const
     switch (index.column())
     {
     case 0:
-      return QString::fromUtf8(repositoryInfo.country.c_str());
+      return repositoryInfo.ranking;
     case 1:
+      return QString::fromUtf8(repositoryInfo.country.c_str());
+    case 2:
     {
       QUrl url(QString::fromUtf8(repositoryInfo.url.c_str()));
       return url.scheme().toUpper();
     }
-    case 2:
+    case 3:
     {
       QUrl url(QString::fromUtf8(repositoryInfo.url.c_str()));
       return url.host();
     }
-    case 3:
-      return QDateTime::fromTime_t(repositoryInfo.timeDate).date();
     case 4:
-      return QString::fromUtf8(repositoryInfo.description.c_str());
+      return QDateTime::fromTime_t(repositoryInfo.timeDate).date();
     }
   }
 
@@ -82,15 +82,15 @@ QVariant RepositoryTableModel::headerData(int section, Qt::Orientation orientati
     switch (section)
     {
     case 0:
-      return tr("Country");
+      return tr("Ranking");
     case 1:
-      return tr("Protocol");
+      return tr("Country");
     case 2:
-      return tr("Host");
+      return tr("Protocol");
     case 3:
-      return tr("Version");
+      return tr("Host");
     case 4:
-      return tr("Description");
+      return tr("Date");
     }
   }
   return QAbstractTableModel::headerData(section, orientation, role);

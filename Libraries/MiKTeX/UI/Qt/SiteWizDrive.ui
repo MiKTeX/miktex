@@ -1,8 +1,9 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <author>Christian Schenk</author>
  <class>SiteWizDrive</class>
- <widget class="QWizardPage" name="SiteWizDrive" >
-  <property name="geometry" >
+ <widget class="QWizardPage" name="SiteWizDrive">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -10,32 +11,22 @@
     <height>220</height>
    </rect>
   </property>
-  <property name="title" >
+  <property name="title">
    <string>MiKTeX CD/DVD</string>
   </property>
-  <property name="subTitle" >
+  <property name="subTitle">
    <string>Packages will be installed from a MiKTeX CD/DVD.</string>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QVBoxLayout">
    <item>
-    <widget class="QLabel" name="label" >
-     <property name="text" >
-      <string>Packages will be installed from this &amp;location:</string>
-     </property>
-     <property name="buddy" >
-      <cstring>cbDrives</cstring>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QComboBox" name="cbDrives" />
+    <widget class="QComboBox" name="cbDrives"/>
    </item>
    <item>
     <spacer>
-     <property name="orientation" >
+     <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeHint" stdset="0" >
+     <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
        <height>40</height>
