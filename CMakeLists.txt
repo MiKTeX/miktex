@@ -2211,18 +2211,31 @@ set(CPACK_DEBIAN_PACKAGE_SECTION
   "tex"
 )
 
+#list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
+#  "${CMAKE_SOURCE_DIR}/Packaging/deb/config"
+#)
+
+#list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
+#  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst"
+#)
+
 list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
-  "${CMAKE_SOURCE_DIR}/Packaging/deb/config"
-  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst"
   "${CMAKE_SOURCE_DIR}/Packaging/deb/prerm"
-  "${CMAKE_SOURCE_DIR}/Packaging/deb/templates"
 )
+
+#list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
+#  "${CMAKE_SOURCE_DIR}/Packaging/deb/postrm"
+#)
+
+#list(APPEND CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
+#  "${CMAKE_SOURCE_DIR}/Packaging/deb/templates"
+#)
 
 set(CPACK_RPM_PACKAGE_RELEASE ${MIKTEX_PACKAGE_REVISION})
 
-set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE
-  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst"
-)
+#set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE
+#  "${CMAKE_SOURCE_DIR}/Packaging/deb/postinst"
+#)
 
 set(CPACK_STRIP_SYMBOLS TRUE)
 
