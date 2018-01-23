@@ -40,7 +40,6 @@
 #include <miktex/Core/Fndb.h>
 #include <miktex/Core/PathName>
 #include <miktex/Core/Paths>
-#include <miktex/Core/Quoter>
 #include <miktex/Core/Process>
 #include <miktex/Core/Registry>
 #include <miktex/Core/Session>
@@ -57,8 +56,6 @@ using namespace MiKTeX::Setup;
 using namespace MiKTeX::UI::Qt;
 using namespace MiKTeX::Util;
 using namespace std;
-
-#define Q_(x) MiKTeX::Core::Quoter<char>(x).GetData()
 
 inline double Divide(double a, double b)
 {
@@ -478,7 +475,7 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
     frontendArgs = {
       "kdesu",
       "-c",
-      Q_(StringUtil::Flatten(args, ' ')),
+      StringUtil::Flatten(args, ' '),
       "-i", "miktex-console"
     };
   }
@@ -487,7 +484,7 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
     frontendArgs = {
       "gksu",
       "-D", "MiKTeX Console",
-      Q_(StringUtil::Flatten(args, ' '))
+      StringUtil::Flatten(args, ' ')
     };
   }
   else

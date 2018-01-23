@@ -306,7 +306,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>5</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -933,7 +933,7 @@ Decide now how you would like to proceed:</string>
                     <item>
                      <widget class="QLabel" name="label_11">
                       <property name="text">
-                       <string>You can choose whether missing packages are to be installed on-the-fly.</string>
+                       <string>You can choose whether missing packages are to be installed on-the-fly:</string>
                       </property>
                       <property name="wordWrap">
                        <bool>true</bool>
@@ -941,25 +941,49 @@ Decide now how you would like to proceed:</string>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QRadioButton" name="radioAutoInstallAsk">
-                      <property name="text">
-                       <string>Ask me</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QRadioButton" name="radioAutoInstallYes">
-                      <property name="text">
-                       <string>Always install missing packages on-the-fly</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QRadioButton" name="radioAutoInstallNo">
-                      <property name="text">
-                       <string>Never install missing packages on-the-fly</string>
-                      </property>
-                     </widget>
+                     <layout class="QHBoxLayout" name="horizontalLayout_9">
+                      <item>
+                       <spacer name="horizontalSpacer_7">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                         <enum>QSizePolicy::Fixed</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>20</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <layout class="QVBoxLayout" name="verticalLayout_16">
+                        <item>
+                         <widget class="QRadioButton" name="radioAutoInstallYes">
+                          <property name="text">
+                           <string>Always install missing packages on-the-fly</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QRadioButton" name="radioAutoInstallAsk">
+                          <property name="text">
+                           <string>Ask me</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QRadioButton" name="radioAutoInstallNo">
+                          <property name="text">
+                           <string>Never install missing packages on-the-fly</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                     </layout>
                     </item>
                    </layout>
                   </item>
@@ -1496,7 +1520,7 @@ Decide now how you would like to proceed:</string>
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
