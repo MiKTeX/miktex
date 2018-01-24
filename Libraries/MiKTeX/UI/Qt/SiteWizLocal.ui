@@ -18,9 +18,22 @@
    <string>Local Package Repository</string>
   </property>
   <property name="subTitle">
-   <string>Packages will be installed from a directory on your computer.</string>
+   <string>A local MiKTeX package repository is a directory on your file system which mirrors a remote package repository.</string>
   </property>
   <layout class="QVBoxLayout">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Please choose the directory which contains the repository contents:</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item>
     <layout class="QHBoxLayout">
      <item>
@@ -54,6 +67,20 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>&lt;p&gt;If you do not have a local package repository yet, it is easy to set one up: &lt;a href=&quot;https://miktex.org/howto/local-repository&quot;&gt;HOWTO: set up a local package repository&lt;/a&gt;&lt;/p&gt;
+</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <spacer>

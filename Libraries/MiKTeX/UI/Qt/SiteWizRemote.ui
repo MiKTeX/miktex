@@ -15,9 +15,19 @@
    <string>Remote Package Repository</string>
   </property>
   <property name="subTitle">
-   <string>For easy selection, the repository list is sorted by network proximity.</string>
+   <string>Many servers on the Internet host a MiKTeX package repository.</string>
   </property>
   <layout class="QVBoxLayout">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>For easy selection, the following list is sorted by network proximity. It is recommended that you select a host in your country which supports a secure transport protocol:</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item>
     <widget class="QTreeView" name="treeView">
      <property name="rootIsDecorated">
