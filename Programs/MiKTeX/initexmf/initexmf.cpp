@@ -1324,13 +1324,17 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
     {
       continue;
     }
+    PathName targetDirectory(linkName);
+    targetDirectory.RemoveFileSpec();
+    if (!Directory::Exists(targetDirectory))
+    {
+      Directory::Create(targetDirectory);
+    }
     switch (linkType)
     {
     case LinkType::Symbolic:
       {
-        PathName directory (linkName);
-        directory.RemoveFileSpec();
-        const char* target = Utils::GetRelativizedPath(fileLink.target.c_str(), directory.GetData());
+        const char* target = Utils::GetRelativizedPath(fileLink.target.c_str(), targetDirectory.GetData());
         if (target == nullptr)
         {
           target = fileLink.target.c_str();
