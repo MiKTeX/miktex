@@ -241,9 +241,27 @@ void Application::ConfigureLogging()
 
 void Application::AutoMaintenance()
 {
+  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(pimpl->session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
+  time_t lastUserMaintenance = static_cast<time_t>(std::stoll(pimpl->session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
+  bool isSetupMode = lastAdminMaintenance == 0 && lastUserMaintenance == 0;
+  if (isSetupMode)
+  {
+    cerr
+      << "\n"
+      << "It seems that this is a fresh TeX installation.\n"
+      << "Please finish the setup before proceeding.\n"
+      << "For more information, visit:\n"
+#if defined(MIKTEX_WINDOWS)
+      << "https://miktex.org/howto/install-miktex-win" << "\n";
+#elif defined(__APPLE__)
+      << "https://miktex.org/howto/install-miktex-mac" << "\n";
+#else
+      << "https://miktex.org/howto/install-miktex-unx" << "\n";
+#endif
+    throw 1;
+  }
   PathName lockdir = pimpl->session->GetSpecialPath(SpecialPath::UserDataRoot) / MIKTEX_PATH_MIKTEX_DIR / "locks";
   PathName lockfile = lockdir / "A6D646EE9FBF44D6A3E6C1A3A72FF7E3.lck";
-  time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(pimpl->session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   PathName mpmDatabasePath(pimpl->session->GetMpmDatabasePathName());
   bool mustRefreshFndb = !File::Exists(mpmDatabasePath) || (!pimpl->session->IsAdminMode() && lastAdminMaintenance + 30 > File::GetLastWriteTime(mpmDatabasePath));
   PathName userLanguageDat = pimpl->session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_LANGUAGE_DAT;
