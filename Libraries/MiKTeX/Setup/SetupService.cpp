@@ -1484,26 +1484,18 @@ void SetupServiceImpl::CreateInfoFile()
   default:
     MIKTEX_ASSERT(false);
   }
-  wchar_t szSetupPath[BufferSizes::MaxPath];
+  stream.WriteFormattedLine(T_("This folder contains the %s package set.\n\n"), lpszPackageSet);
 #if defined(MIKTEX_WINDOWS)
+  wchar_t szSetupPath[BufferSizes::MaxPath];
   if (GetModuleFileNameW(0, szSetupPath, BufferSizes::MaxPath) == 0)
   {
     MIKTEX_FATAL_WINDOWS_ERROR("GetModuleFileNameW");
   }
-#else
-  // TODO: get path of running executable
-  UNIMPLEMENTED();
-#endif
   PathName setupExe(szSetupPath);
   setupExe.RemoveDirectorySpec();
-  stream.WriteFormattedLine(
-    T_("\
-This folder contains the %s package set.\n\
-\n\
-To install MiKTeX, run %s.\n\
-\n\
-For more information, visit the MiKTeX project page at\n\
-http://miktex.org.\n"), lpszPackageSet, setupExe.GetData());
+  stream.WriteFormattedLine(T_("To install MiKTeX, run %s.\n\n"), setupExe.GetData());
+#endif
+  stream.WriteFormattedLine(T_("For more information, visit the MiKTeX project page at\n\https://miktex.org.\n"));
   stream.Close();
   RepositoryInfo repositoryInfo;
   if (packageManager->TryGetRepositoryInfo(options.RemotePackageRepository, repositoryInfo))
