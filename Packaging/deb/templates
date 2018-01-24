@@ -14,14 +14,7 @@ Description: Create symbolic links in '/usr/local/bin'?
 
 Template: miktex/autoinstall
 Type: boolean
-Default: true
+Default: false
 Description: Install missing files on-the-fly?
  MiKTeX can be configured to install missing files from the MiKTeX package
  repository.
-
-Template: miktex/othertexmf
-Type: boolean
-Default: true
-Description: Add other TEXMF directories?
- Another TeX distribution has been detected.
- You can allow to add their TEXMF directories to the MiKTeX search path.
