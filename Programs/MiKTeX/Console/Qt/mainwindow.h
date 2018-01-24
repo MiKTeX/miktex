@@ -108,6 +108,7 @@ private:
     Updates = 3,
     Packages = 4,
     Diagnose = 5,
+    Cleanup = 6
   };
 
 private:
@@ -144,6 +145,12 @@ private slots:
   }
 
 private slots:
+  void on_buttonCleanup_clicked()
+  {
+    SetCurrentPage(Pages::Cleanup);
+  }
+
+  private slots:
   void StartTeXworks();
 
 private slots:
@@ -291,13 +298,13 @@ private:
   QToolBar* toolBarRootDirectories = nullptr;
 
 private:
-  void SetupUiRootDirectories();
+  void SetupUiDirectories();
 
 private:
-  void UpdateUiRootDirectories();
+  void UpdateUiDirectories();
   
 private slots:
-  void UpdateActionsRootDirectories();
+  void UpdateActionsDirectories();
 
 private:
   RootTableModel* rootDirectoryModel = nullptr;
@@ -382,6 +389,24 @@ private slots:
 
 private slots:
   void on_pushButtonShowLogDirectory_clicked();
+
+private:
+  void SetupUiCleanup();
+
+private:
+  void UpdateUiCleanup();
+
+private slots:
+  void UpdateActionsCleanup();
+
+private slots:
+  void FactoryReset();
+
+private slots:
+  void on_buttonFactoryReset_clicked()
+  {
+    FactoryReset();
+  }
 
 private:
   std::atomic_int backgroundWorkers{ 0 };

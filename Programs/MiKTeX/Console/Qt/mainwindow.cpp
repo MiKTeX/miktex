@@ -90,11 +90,12 @@ MainWindow::MainWindow(QWidget* parent) :
 
   resize(800, 600);
 
-  SetupUiRootDirectories();
+  SetupUiDirectories();
   SetupUiUpdates();
   SetupUiPackageInstallation();
   SetupUiPackages();
   SetupUiDiagnose();
+  SetupUiCleanup();
 
   time_t lastAdminMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_ADMIN_MAINTENANCE, "0").GetString()));
   time_t lastUserMaintenance = static_cast<time_t>(std::stoll(session->GetConfigValue(MIKTEX_REGKEY_CORE, MIKTEX_REGVAL_LAST_USER_MAINTENANCE, "0").GetString()));
@@ -211,6 +212,7 @@ void MainWindow::UpdateUi()
     ui->buttonUpdates->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonPackages->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonDiagnose->setEnabled(!isSetupMode && !IsUserModeBlocked());
+    ui->buttonCleanup->setEnabled(!isSetupMode && !IsUserModeBlocked());
     ui->buttonTeXworks->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !session->IsAdminMode());
     ui->buttonTerminal->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !IsUserModeBlocked());
     if (isSetupMode)
@@ -244,10 +246,11 @@ void MainWindow::UpdateUi()
     }
     UpdateUiPaper();
     UpdateUiPackageInstallation();
-    UpdateUiRootDirectories();
+    UpdateUiDirectories();
     UpdateUiUpdates();
     UpdateUiPackages();
     UpdateUiDiagnose();
+    UpdateUiCleanup();
   }
   catch (const MiKTeXException& e)
   {
@@ -268,10 +271,11 @@ void MainWindow::UpdateActions()
     ui->actionRefreshFontMapFiles->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !IsUserModeBlocked());
     ui->actionTeXworks->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !session->IsAdminMode());
     ui->actionTerminal->setEnabled(!IsBackgroundWorkerActive() && !isSetupMode && !IsUserModeBlocked());
-    UpdateActionsRootDirectories();
+    UpdateActionsDirectories();
     UpdateActionsUpdates();
     UpdateActionsPackages();
     UpdateActionsDiagnose();
+    UpdateActionsCleanup();
   }
   catch (const MiKTeXException& e)
   {
@@ -345,6 +349,9 @@ void MainWindow::SetCurrentPage(MainWindow::Pages p)
     break;
   case Pages::Diagnose:
     ui->buttonDiagnose->setChecked(true);
+    break;
+  case Pages::Cleanup:
+    ui->buttonCleanup->setChecked(true);
     break;
   }
   ui->pages->setCurrentIndex((int)p);
@@ -427,11 +434,12 @@ void MainWindow::StartTerminal()
 void MainWindow::AboutDialog()
 {
   QString message;
-  message = tr("MiKTeX Console");
-  message += " ";
+  message = tr("<p>MiKTeX Console ");
   message += MIKTEX_COMPONENT_VERSION_STR;
-  message += "\n\n";
-  message += tr("MiKTeX Console is free software. You are welcome to redistribute it under certain conditions.\n\nMiKTeX Console comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.");
+  message += "</p>";
+  message += tr("<p>MiKTeX Console is free software. You are welcome to redistribute it under certain conditions.</p>");
+  message += tr("<p>MiKTeX Console comes WITH ABSOLUTELY NO WARRANTY OF ANY KIND.</p>");
+  message += tr("<p>You can support the project by giving back: <a href=\"https://miktex.org/giveback\">https://miktex.org/giveback</a><br>Thank you!</p>");
   QMessageBox::about(this, tr("MiKTeX Console"), message);
 }
 
@@ -453,8 +461,8 @@ void MainWindow::RestartAdmin()
 
 void MainWindow::RestartAdminWithArguments(const vector<string>& args)
 {
-#if defined(MIKTEX_WINDOWS)
   PathName me = session->GetMyProgramFile(true);
+#if defined(MIKTEX_WINDOWS)
   PathName adminFileName = me.GetFileNameWithoutExtension();
   adminFileName += MIKTEX_ADMIN_SUFFIX;
   PathName meAdmin(me);
@@ -475,7 +483,8 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
     frontendArgs = {
       "kdesu",
       "-c",
-      StringUtil::Flatten(args, ' '),
+      // TODO: quote me
+      me.ToString() + " "s + StringUtil::Flatten(args, ' '),
       "-i", "miktex-console"
     };
   }
@@ -484,7 +493,8 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
     frontendArgs = {
       "gksu",
       "-D", "MiKTeX Console",
-      StringUtil::Flatten(args, ' ')
+      // TODO: quote me
+      me.ToString() + " "s + StringUtil::Flatten(args, ' ')
     };
   }
   else
@@ -856,7 +866,6 @@ void MainWindow::SetupUiUpdates()
   }
   connect(updateModel, &UpdateTableModel::modelReset, this, [this]() {
     int n = updateModel->rowCount();
-    QString text = tr("Updates");
     if (n == 0)
     {
       ui->labelUpdatesAvailable->hide();
@@ -868,9 +877,8 @@ void MainWindow::SetupUiUpdates()
       ui->labelUpdatesAvailable->show();
       ui->labelNoUpdatesAvailable->hide();
       ui->labelUpdateSummary->setText(tr("The following updates are available:"));
-      text += QString(" (%1)").arg(n);
     }
-    ui->buttonUpdates->setText(text);
+    ui->buttonUpdates->setText(tr("Updates (%1)").arg(n));
   });
   ui->treeViewUpdates->setModel(updateModel);
   connect(ui->treeViewUpdates->selectionModel(),
@@ -1234,7 +1242,7 @@ void MainWindow::on_comboPaper_activated(int idx)
   }
 }
 
-void MainWindow::SetupUiRootDirectories()
+void MainWindow::SetupUiDirectories()
 {
   rootDirectoryModel = new RootTableModel(this);
   toolBarRootDirectories = new QToolBar(this);
@@ -1267,19 +1275,21 @@ void MainWindow::SetupUiRootDirectories()
   connect(ui->treeViewRootDirectories->selectionModel(),
     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
     this,
-    SLOT(UpdateActionsRootDirectories()));
+    SLOT(UpdateActionsDirectories()));
 }
 
-void MainWindow::UpdateUiRootDirectories()
+void MainWindow::UpdateUiDirectories()
 {
   if (!IsBackgroundWorkerActive())
   {
     rootDirectoryModel->Reload();
     ui->treeViewRootDirectories->resizeColumnToContents(0);
+    ui->lineEditBinDir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LocalBinDirectory).GetData()));
+    ui->lineEditLogDir->setText(QString::fromUtf8(session->GetSpecialPath(SpecialPath::LogDirectory).GetData()));
   }
 }
 
-void MainWindow::UpdateActionsRootDirectories()
+void MainWindow::UpdateActionsDirectories()
 {
   int selectedCount = ui->treeViewRootDirectories->selectionModel()->selectedRows().count();
   bool enableUp = selectedCount == 1;
@@ -1749,4 +1759,24 @@ void MainWindow::UpdateActionsDiagnose()
 void MainWindow::on_pushButtonShowLogDirectory_clicked()
 {
   OpenDirectoryInFileBrowser(session->GetSpecialPath(SpecialPath::LogDirectory));
+}
+
+void MainWindow::SetupUiCleanup()
+{
+  connect(ui->actionFactoryReset, SIGNAL(triggered()), this, SLOT(FactoryReset()));
+}
+
+void MainWindow::UpdateUiCleanup()
+{
+  ui->buttonFactoryReset->setEnabled(!IsBackgroundWorkerActive());
+}
+
+void MainWindow::UpdateActionsCleanup()
+{
+  ui->actionFactoryReset->setEnabled(!IsBackgroundWorkerActive());
+}
+
+void MainWindow::FactoryReset()
+{
+  QMessageBox::warning(this, tr("MiKTeX Console"), "Not implemented");
 }
