@@ -1792,6 +1792,38 @@ bool FactoryResetWorker::Run()
   bool result = false;
   try
   {
+    shared_ptr<Session> session = Session::Get();
+    PathName initexmf;
+    if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
+    {
+      MIKTEX_FATAL_ERROR(tr("The MiKTeX configuration utility executable (initexmf) could not be found.").toStdString());
+    }
+    vector<string> args{
+      initexmf.GetFileNameWithoutExtension().ToString(),
+      "--force",
+      "--remove-links"
+    };
+    if (session->IsAdminMode())
+    {
+      args.push_back("--admin");
+    }
+    ProcessOutput<4096> output;
+    int exitCode;
+    Process::Run(initexmf, args, &output, &exitCode, nullptr);
+    if (exitCode != 0)
+    {
+      auto outputBytes = output.GetStandardOutput();
+      PathName outfile = session->GetSpecialPath(SpecialPath::LogDirectory) / initexmf.GetFileNameWithoutExtension();
+      outfile += "_";
+      outfile += Timestamp().c_str();
+      outfile.SetExtension(".out");
+      FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
+      outstream.Write(&outputBytes[0], outputBytes.size());
+      outstream.Close();
+      MIKTEX_FATAL_ERROR_2(tr("The MiKTeX configuration utility failed for some reason. The process output has been saved to a file.").toStdString(),
+        "fileName", initexmf.ToString(), "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
+    }
+    session->UnloadFilenameDatabase();
     unique_ptr<TemporaryFile> script = TemporaryFile::Create();
     StreamWriter scriptWriter(script->GetPathName());
 #if defined(MIKTEX_UNIX)
