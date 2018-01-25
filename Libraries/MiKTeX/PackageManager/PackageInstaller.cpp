@@ -444,12 +444,6 @@ int CompareSerieses(const string& ver1, const string& ver2)
   }
 }
 
-#if defined(MIKTEX_WINDOWS_64)
-#define MAVERICK "miktex-bin" "-" "x64" "-" MIKTEX_MAJOR_MINOR_STR
-#else
-#define MAVERICK "miktex-bin" "-" MIKTEX_MAJOR_MINOR_STR
-#endif
-
 void PackageInstallerImpl::FindUpdates()
 {
   trace_mpm->WriteLine("libmpm", T_("searching for updateable packages"));
@@ -460,7 +454,6 @@ void PackageInstallerImpl::FindUpdates()
 
   updates.clear();
 
-  bool maverick = false;
   for (string deploymentName = dbLight.FirstPackage(); !deploymentName.empty(); deploymentName = dbLight.NextPackage())
   {
     Notify();
@@ -564,11 +557,6 @@ void PackageInstallerImpl::FindUpdates()
         trace_mpm->WriteFormattedLine("libmpm", T_("%s: no permission to update package"), deploymentName.c_str());
         updateInfo.action = UpdateInfo::KeepAdmin;
       }
-      else if (PathName::Compare(deploymentName, MAVERICK) == 0)
-      {
-        maverick = true;
-        updateInfo.action = UpdateInfo::ForceUpdate;
-      }
       else
       {
         updateInfo.action = isReleaseStateDiff ? UpdateInfo::ReleaseStateChange : UpdateInfo::Update;
@@ -596,17 +584,6 @@ void PackageInstallerImpl::FindUpdates()
       updateInfo.action = UpdateInfo::KeepObsolete;
     }
     updates.push_back(updateInfo);
-  }
-
-  if (maverick)
-  {
-    for (UpdateInfo& upd : updates)
-    {
-      if (PathName::Compare(upd.deploymentName, MAVERICK) != 0 && upd.action == UpdateInfo::Update)
-      {
-        upd.action = UpdateInfo::Keep;
-      }
-    }
   }
 
   session->SetConfigValue(
