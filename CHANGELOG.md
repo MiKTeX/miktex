@@ -14,7 +14,7 @@ into one:
 
 ### `miktex-lua53tex`
 
-The LuaTeX engines now comes in two variants:
+LuaTeX now comes in two variants:
 
 * `miktex-luatex` is the default engine with Lua 5.2 inside
 * `miktex-lua53tex` is the new engine with Lua 5.3 inside
@@ -24,7 +24,7 @@ The LuaTeX engines now comes in two variants:
 By default, the LuaTeX executables (`luatex`, `lualatex`, ...) are
 linked to the 5.2 engine.
 
-You can switch the LuaTeX engine by setting a configuration value and
+You can switch the engine by setting a configuration value and
 recreating links to the executables.
 
 To use the new 5.3 based engine:
@@ -39,13 +39,6 @@ To switch back to the 5.2 based engine:
 
 As always: run `initexmf` with administrator privileges and add the
 `--admin` option, if you manage a shared MiKTeX installation.
-
-#### Direct invocation
-
-It is possible to invoke the 5.3 based engine directly, for example if
-you want to test a Lua script:
-
-    miktex-lua53tex --luaonly test.lua
 
 ### Upgraded programs
 
