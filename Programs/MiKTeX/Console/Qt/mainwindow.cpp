@@ -35,6 +35,7 @@
 #include "console-version.h"
 
 #include <miktex/Core/ConfigNames>
+#include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
 #include <miktex/Core/FileStream>
 #include <miktex/Core/Fndb.h>
@@ -43,6 +44,8 @@
 #include <miktex/Core/Process>
 #include <miktex/Core/Registry>
 #include <miktex/Core/Session>
+#include <miktex/Core/StreamWriter>
+#include <miktex/Core/TemporaryFile>
 #include <miktex/Setup/SetupService>
 #include <miktex/UI/Qt/ErrorDialog>
 #include <miktex/UI/Qt/PackageInfoDialog>
@@ -1766,17 +1769,135 @@ void MainWindow::SetupUiCleanup()
   connect(ui->actionFactoryReset, SIGNAL(triggered()), this, SLOT(FactoryReset()));
 }
 
+inline bool IsFactoryResetPossible()
+{
+#if defined(MIKTEX_WINDOWS)
+  return false;
+#else
+  return true;
+#endif
+}
 void MainWindow::UpdateUiCleanup()
 {
-  ui->buttonFactoryReset->setEnabled(!IsBackgroundWorkerActive());
+  ui->buttonFactoryReset->setEnabled(IsFactoryResetPossible() && !IsBackgroundWorkerActive());
 }
 
 void MainWindow::UpdateActionsCleanup()
 {
-  ui->actionFactoryReset->setEnabled(!IsBackgroundWorkerActive());
+  ui->actionFactoryReset->setEnabled(IsFactoryResetPossible() && !IsBackgroundWorkerActive());
+}
+
+bool FactoryResetWorker::Run()
+{
+  bool result = false;
+  try
+  {
+    unique_ptr<TemporaryFile> script = TemporaryFile::Create();
+    StreamWriter scriptWriter(script->GetPathName());
+#if defined(MIKTEX_UNIX)
+    scriptWriter.WriteFormattedLine("#!/usr/bin/env sh");
+    scriptWriter.WriteFormattedLine("set -e");
+#endif
+    bool succeeded = true;
+    for (const PathName& dir : toBeRemoved)
+    {
+      try
+      {
+        if (Directory::Exists(dir))
+        {
+#if defined(MIKTEX_UNIX)
+          scriptWriter.WriteFormattedLine("rm -fr \"%s\"", dir.GetData());
+#endif
+#if 1
+          // TESTING
+          MIKTEX_INTERNAL_ERROR();
+#else
+          // TODO
+          Directory::Delete(dir, true);
+#endif
+        }
+      }
+      catch (const exception&)
+      {
+        succeeded = false;
+      }
+    }
+    scriptWriter.Close();
+#if defined(MIKTEX_UNIX)
+    File::SetAttributes(script->GetPathName(), File::GetAttributes(script->GetPathName()) + FileAttribute::Executable);
+#endif
+    if (!succeeded)
+    {
+      script->Keep();
+      MIKTEX_FATAL_ERROR(tr("At least one of the directory removals failed.\nYou can execute this script to try it by hand:").arg(QString::fromUtf8(script->GetPathName().GetData())).toStdString());
+    }
+    result = true;
+  }
+  catch (const MiKTeXException& e)
+  {
+    this->e = e;
+  }
+  catch (const exception& e)
+  {
+    this->e = MiKTeXException(e.what());
+  }
+  return result;
 }
 
 void MainWindow::FactoryReset()
 {
-  QMessageBox::warning(this, tr("MiKTeX Console"), "Not implemented");
+  QString message = tr("<h3>Reset the TeX installation to factory defaults<h3>");
+  message += tr("<p>You are about to reset your TeX installation. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.");
+  message += tr(" In other words: your TeX installation will be restored to its original state, as when it was first installed.</p>");
+  message += tr("Are you sure?");
+  if (QMessageBox::warning(this, tr("MiKTeX Console"), message) != QMessageBox::Ok)
+  {
+    return;
+  }
+  try
+  {
+    vector<PathName> toBeRemoved = { session->GetSpecialPath(SpecialPath::LogDirectory) };
+    PathName distRoot = session->GetSpecialPath(SpecialPath::DistRoot);
+    for (const RootDirectoryInfo& root : session->GetRootDirectories())
+    {
+      if (root.path != distRoot)
+      {
+        toBeRemoved.push_back(root.path);
+      }
+    }
+    QThread* thread = new QThread;
+    FactoryResetWorker* worker = new FactoryResetWorker(toBeRemoved);
+    backgroundWorkers++;
+    ui->labelBackgroundTask->setText(tr("Resetting the TeX installation..."));
+    worker->moveToThread(thread);
+    connect(thread, SIGNAL(started()), worker, SLOT(Process()));
+    connect(worker, &FactoryResetWorker::OnFinish, this, [this]() {
+      FactoryResetWorker* worker = (FactoryResetWorker*)sender();
+      if (worker->GetResult())
+      {
+        QMessageBox::information(this, tr("MiKTeX Console"), tr("The TeX installation has been restored to its initial state.\n\nThe application window will now be closed."));
+      }
+      else
+      {
+        QMessageBox::warning(this, tr("MiKTeX Console"), QString::fromUtf8(worker->GetMiKTeXException().what()) + tr("\n\nThe application window will now be closed."));
+      }
+      backgroundWorkers--;
+      worker->deleteLater();
+      this->close();
+    });
+    connect(worker, SIGNAL(OnFinish()), thread, SLOT(quit()));
+    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    UpdateUi();
+    UpdateActions();
+    session->UnloadFilenameDatabase();
+    thread->start();
+  }
+  catch (const MiKTeXException& e)
+  {
+    CriticalError(e);
+  }
+  catch (const exception& e)
+  {
+    CriticalError(e);
+  }
 }

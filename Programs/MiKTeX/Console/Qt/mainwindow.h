@@ -727,4 +727,23 @@ protected:
   bool Run() override;
 };
 
+class FactoryResetWorker :
+  public BackgroundWorker
+{
+public:
+  FactoryResetWorker(const std::vector<MiKTeX::Core::PathName>& toBeRemoved) :
+    toBeRemoved(toBeRemoved)
+  {
+  }
+
+private:
+  std::vector<MiKTeX::Core::PathName> toBeRemoved;
+
+private:
+  Q_OBJECT;
+
+protected:
+  bool Run() override;
+};
+
 #endif
