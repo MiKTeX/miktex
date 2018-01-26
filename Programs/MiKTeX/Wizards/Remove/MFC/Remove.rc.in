@@ -88,7 +88,6 @@ BEGIN
     LTEXT           "Welcome to the Remove MiKTeX! Wizard",IDC_WELCOME,115,8,195,24
     LTEXT           "This Wizard removes the following MiKTeX items from your computer:",IDC_STATIC,115,40,195,16
     LISTBOX         IDC_LIST,115,58,195,81,LBS_NOINTEGRALHEIGHT | LBS_NOSEL | WS_VSCROLL
-    CONTROL         "&Tidy up thoroughly",IDC_THOROUGHLY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,115,144,195,10
     LTEXT           "To remove MiKTeX now, click Remove.",IDC_STATIC,115,178,195,8
 END
 

@@ -49,6 +49,7 @@
 #include <string>
 
 #include <miktex/Core/PathName>
+#include <miktex/Core/OptionSet>
 #include <miktex/Core/Session>
 #include <miktex/Core/TemporaryDirectory>
 #include <miktex/Core/TriState>
@@ -67,8 +68,21 @@ enum class SetupTask
   PrepareMiKTeXDirect,
   FinishSetup,
   FinishUpdate,
-  Uninstall
+  CleanUp
 };
+
+enum class CleanupOption
+{
+  Components,
+  Links,
+  FileTypes,
+  Path,
+  Registry,
+  RootDirectories,
+  StartMenu
+};
+
+typedef MiKTeX::Core::OptionSet<CleanupOption> CleanupOptionSet;
 
 struct SetupOptions
 {
@@ -102,7 +116,7 @@ public:
 #endif
 
 public:
-  bool IsThoroughly = false;
+  CleanupOptionSet CleanupOptions;
 
 public:
   MiKTeX::Core::TriState IsInstallOnTheFlyEnabled = MiKTeX::Core::TriState::Undetermined;

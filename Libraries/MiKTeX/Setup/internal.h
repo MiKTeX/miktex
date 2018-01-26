@@ -322,7 +322,7 @@ protected:
   void DoFinishUpdate();
 
 protected:
-  void DoTheUninstallation();
+  void DoCleanUp();
 
 protected:
   bool OnProcessOutput(const void* output, size_t n) override;

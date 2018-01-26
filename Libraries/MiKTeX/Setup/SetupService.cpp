@@ -509,7 +509,7 @@ void SetupServiceImpl::LogV(const char* format, va_list argList)
 
 void SetupServiceImpl::ULogOpen()
 {
-  if (options.Task == SetupTask::Download || options.Task == SetupTask::FinishSetup || options.Task == SetupTask::FinishUpdate || options.Task == SetupTask::Uninstall)
+  if (options.Task == SetupTask::Download || options.Task == SetupTask::FinishSetup || options.Task == SetupTask::FinishUpdate || options.Task == SetupTask::CleanUp)
   {
     return;
   }
@@ -619,8 +619,8 @@ void SetupServiceImpl::Run()
   case SetupTask::FinishUpdate:
     DoFinishUpdate();
     break;
-  case SetupTask::Uninstall:
-    DoTheUninstallation();
+  case SetupTask::CleanUp:
+    DoCleanUp();
     break;
   default:
     MIKTEX_UNEXPECTED();
@@ -632,7 +632,7 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
 {
   shared_ptr<Session> session = Session::Get();
 
-  if (options.Task == SetupTask::Uninstall)
+  if (options.Task == SetupTask::CleanUp)
   {
     options.Config.commonInstallRoot = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
     options.Config.commonConfigRoot = session->GetSpecialPath(SpecialPath::CommonConfigRoot);
@@ -730,7 +730,7 @@ void SetupServiceImpl::Initialize()
 
   CompleteOptions(true);
 
-  if (options.Task == SetupTask::Uninstall)
+  if (options.Task == SetupTask::CleanUp)
   {
     return;
   }
@@ -1015,50 +1015,15 @@ void SetupServiceImpl::DoFinishUpdate()
   }
 }
 
-void SetupServiceImpl::DoTheUninstallation()
+void SetupServiceImpl::DoCleanUp()
 {
   shared_ptr<Session> session = Session::Get();
 
-  try
-  {
-    UnregisterShellFileTypes();
-  }
-  catch (const exception& e)
-  {
-    ReportLine(e.what());
-  }
-
-  try
-  {
-    if (session->RunningAsAdministrator()
-#if defined(MIKTEX_WINDOWS)
-      || session->RunningAsPowerUser()
-#endif
-        )
-    {
-      UnregisterPath(true);
-    }
-    UnregisterPath(false);
-  }
-  catch (const exception& e)
-  {
-    ReportLine(e.what());
-  }
-
-  try
-  {
-    UnregisterComponents();
-  }
-  catch (const exception& e)
-  {
-    ReportLine(e.what());
-  }
-
-  if (!session->IsMiKTeXDirect())
+  if (options.CleanupOptions[CleanupOption::Links])
   {
     try
     {
-      logFile.Process();
+      RunIniTeXMF({ "--force", "--remove-links" });
     }
     catch (const exception& e)
     {
@@ -1066,106 +1031,142 @@ void SetupServiceImpl::DoTheUninstallation()
     }
   }
 
-  try
+  if (options.CleanupOptions[CleanupOption::FileTypes])
   {
-    PathName parent;
-    vector<PathName> roots = GetRoots();
-    shared_ptr<Session> session = Session::Get();
-    session->UnloadFilenameDatabase();
-    if (options.IsThoroughly)
+    try
     {
-      for (vector<PathName>::const_iterator it = roots.begin(); it != roots.end(); ++it)
+      UnregisterShellFileTypes();
+    }
+    catch (const exception& e)
+    {
+      ReportLine(e.what());
+    }
+  }
+
+  if (options.CleanupOptions[CleanupOption::Path])
+  {
+    try
+    {
+      if (session->RunningAsAdministrator()
+#if defined(MIKTEX_WINDOWS)
+        || session->RunningAsPowerUser()
+#endif
+        )
       {
-        if (Directory::Exists(*it))
+        UnregisterPath(true);
+      }
+      UnregisterPath(false);
+    }
+    catch (const exception& e)
+    {
+      ReportLine(e.what());
+    }
+  }
+
+  if (options.CleanupOptions[CleanupOption::Components])
+  {
+    try
+    {
+      UnregisterComponents();
+    }
+    catch (const exception& e)
+    {
+      ReportLine(e.what());
+    }
+  }
+
+  if (options.CleanupOptions[CleanupOption::StartMenu] && !session->IsMiKTeXDirect())
+  {
+    try
+    {
+#if defined(MIKTEX_WINDOWS)
+      logFile.Process();
+#endif
+    }
+    catch (const exception& e)
+    {
+      ReportLine(e.what());
+    }
+  }
+
+  if (options.CleanupOptions[CleanupOption::RootDirectories])
+  {
+    try
+    {
+      PathName parent;
+      vector<PathName> roots = GetRoots();
+      shared_ptr<Session> session = Session::Get();
+      session->UnloadFilenameDatabase();
+      for (const PathName& root : roots)
+      {
+        if (Directory::Exists(root))
         {
-          Directory::Delete(*it, true);
+          Directory::Delete(root, true);
         }
       }
-    }
-    else
-    {
-      PathName dir;
       if (!session->IsMiKTeXDirect())
       {
-        dir = session->GetSpecialPath(SpecialPath::InstallRoot) / MIKTEX_PATH_MIKTEX_DIR;
-        if (Directory::Exists(dir))
+        parent = session->GetSpecialPath(SpecialPath::InstallRoot);
+        parent.CutOffLastComponent();
+        if (Directory::Exists(parent))
         {
-          Directory::Delete(dir, true);
+          RemoveEmptyDirectoryChain(parent);
         }
       }
-      dir = session->GetSpecialPath(SpecialPath::UserDataRoot) / MIKTEX_PATH_MIKTEX_DIR;
-      if (Directory::Exists(dir))
+      parent = session->GetSpecialPath(SpecialPath::UserDataRoot);
+      parent.CutOffLastComponent();
+      if (Directory::Exists(parent))
       {
-        Directory::Delete(dir, true);
+        RemoveEmptyDirectoryChain(parent);
       }
-      dir = session->GetSpecialPath(SpecialPath::UserConfigRoot) / MIKTEX_PATH_MIKTEX_DIR;
-      if (Directory::Exists(dir))
+      parent = session->GetSpecialPath(SpecialPath::UserConfigRoot);
+      parent.CutOffLastComponent();
+      if (Directory::Exists(parent))
       {
-        Directory::Delete(dir, true);
+        RemoveEmptyDirectoryChain(parent);
       }
       if (session->IsAdminMode())
       {
-        dir = session->GetSpecialPath(SpecialPath::CommonDataRoot) / MIKTEX_PATH_MIKTEX_DIR;
-        if (Directory::Exists(dir))
+        parent = session->GetSpecialPath(SpecialPath::CommonDataRoot);
+        parent.CutOffLastComponent();
+        if (Directory::Exists(parent))
         {
-          Directory::Delete(dir, true);
+          RemoveEmptyDirectoryChain(parent);
         }
-        dir = session->GetSpecialPath(SpecialPath::CommonConfigRoot) / MIKTEX_PATH_MIKTEX_DIR;
-        if (Directory::Exists(dir))
+        parent = session->GetSpecialPath(SpecialPath::CommonConfigRoot);
+        parent.CutOffLastComponent();
+        if (Directory::Exists(parent))
         {
-          Directory::Delete(dir, true);
+          RemoveEmptyDirectoryChain(parent);
         }
       }
     }
-    if (!session->IsMiKTeXDirect())
+    catch (const exception& e)
     {
-      parent = session->GetSpecialPath(SpecialPath::InstallRoot);
-      parent.CutOffLastComponent();
-      if (Directory::Exists(parent))
-      {
-        RemoveEmptyDirectoryChain(parent);
-      }
+      ReportLine(e.what());
     }
-    parent = session->GetSpecialPath(SpecialPath::UserDataRoot);
-    parent.CutOffLastComponent();
-    if (Directory::Exists(parent))
-    {
-      RemoveEmptyDirectoryChain(parent);
-    }
-    parent = session->GetSpecialPath(SpecialPath::UserConfigRoot);
-    parent.CutOffLastComponent();
-    if (Directory::Exists(parent))
-    {
-      RemoveEmptyDirectoryChain(parent);
-    }
-    if (session->IsAdminMode())
-    {
-      parent = session->GetSpecialPath(SpecialPath::CommonDataRoot);
-      parent.CutOffLastComponent();
-      if (Directory::Exists(parent))
-      {
-        RemoveEmptyDirectoryChain(parent);
-      }
-      parent = session->GetSpecialPath(SpecialPath::CommonConfigRoot);
-      parent.CutOffLastComponent();
-      if (Directory::Exists(parent))
-      {
-        RemoveEmptyDirectoryChain(parent);
-      }
-    }
-}
-  catch (const exception& e)
-  {
-    ReportLine(e.what());
   }
 
-  try
+  if (options.CleanupOptions[CleanupOption::Registry])
   {
-    RemoveRegistryKeys();
-  }
-  catch (const exception& e)
-  {
-    ReportLine(e.what());
+    try
+    {
+#if defined(MIKTEX_WINDOWS)
+      RemoveRegistryKeys();
+#else
+      PathName fontConfig(MIKTEX_SYSTEM_ETC_FONTS_CONFD_DIR);
+      // FIXME: hard-coded file name
+      fontConfig /= "09-miktex.conf";
+      if (session->RunningAsAdministrator() && File::Exists(fontConfig))
+      {
+        File::Delete(fontConfig);
+      }
+#endif
+    }
+    catch (const exception& e)
+    {
+      ReportLine(e.what());
+    }
   }
 }
 
@@ -1321,10 +1322,7 @@ void SetupServiceImpl::ConfigureMiKTeX()
     }
 
     // create font map files and language.dat
-    if (options.Task != SetupTask::FinishSetup)
-    {
-      RunIniTeXMF({ "--mkmaps", "--mklangs" });
-    }
+    RunIniTeXMF({ "--mkmaps", "--mklangs" });
 
     if (cancelled)
     {
@@ -1333,12 +1331,9 @@ void SetupServiceImpl::ConfigureMiKTeX()
   }
 
   // set paper size
-  if (options.Task != SetupTask::FinishSetup)
+  if (!options.PaperSize.empty())
   {
-    if (!options.PaperSize.empty())
-    {
-      RunIniTeXMF({ "--default-paper-size=" + options.PaperSize });
-    }
+    RunIniTeXMF({ "--default-paper-size=" + options.PaperSize });
   }
   
   // set auto-install
@@ -1511,7 +1506,7 @@ void SetupServiceImpl::CreateInfoFile()
 SetupService::ProgressInfo SetupServiceImpl::GetProgressInfo()
 {
   ProgressInfo progressInfo;
-  if (options.Task == SetupTask::Uninstall)
+  if (options.Task == SetupTask::CleanUp)
   {
     LogFile::ProgressInfo pi = logFile.GetProgressInfo();
     progressInfo.fileName = pi.fileName;

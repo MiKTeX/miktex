@@ -1,6 +1,6 @@
 /* RemoveFilesPage.cpp:
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of the Remove MiKTeX! Wizard.
 
@@ -151,8 +151,8 @@ void RemoveFilesPage::RemoveMiKTeX()
 {
   pSetupService = SetupService::Create();
   SetupOptions setupOptions = pSetupService->GetOptions();
-  setupOptions.IsThoroughly = pSheet->GetThoroughlyFlag();
-  setupOptions.Task = SetupTask::Uninstall;
+  setupOptions.CleanupOptions = { CleanupOption::Components, CleanupOption::FileTypes, CleanupOption::Links, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories, CleanupOption::StartMenu };
+  setupOptions.Task = SetupTask::CleanUp;
   pSetupService->SetOptions(setupOptions);
   pSetupService->SetCallback(this);
   pSetupService->Run();

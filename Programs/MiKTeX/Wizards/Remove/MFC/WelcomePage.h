@@ -1,6 +1,6 @@
 /* WelcomePage.h:                                       -*- C++ -*-
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of the Remove MiKTeX! Wizard.
 
@@ -45,9 +45,6 @@ protected:
 protected:
   virtual BOOL OnKillActive();
 
-protected:
-  afx_msg void OnThoroughly();
-
 private:
   void ShowItems();
 
@@ -56,12 +53,6 @@ private:
 
 private:
   class RemoveWizard * pSheet = nullptr;
-
-private:
-  BOOL thoroughly = TRUE;
-
-private:
-  CButton thoroughlyButton;
 
 private:
   CString oldNextText;

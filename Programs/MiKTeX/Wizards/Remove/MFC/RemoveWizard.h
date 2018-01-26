@@ -1,6 +1,6 @@
 /* RemoveWizard.h:                                      -*- C++ -*-
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of the Remove MiKTeX! Wizard.
 
@@ -59,18 +59,6 @@ public:
   }
 
 public:
-  void SetThoroughlyFlag(bool f)
-  {
-    thorough = f;
-  }
-
-public:
-  bool GetThoroughlyFlag() const
-  {
-    return thorough;
-  }
-
-public:
   void EnableCloseButton()
   {
     SetWizardButtons(PSWIZB_FINISH);
@@ -95,9 +83,6 @@ private:
 
 private:
   bool cancelled = false;
-
-private:
-  bool thorough;
 
 private:
   CBitmap watermarkBitmap;

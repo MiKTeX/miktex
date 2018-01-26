@@ -1,6 +1,6 @@
 /* WelcomePage.cpp:
 
-   Copyright (C) 2000-2016 Christian Schenk
+   Copyright (C) 2000-2018 Christian Schenk
 
    This file is part of the Remove MiKTeX! Wizard.
 
@@ -26,7 +26,6 @@
 #include "WelcomePage.h"
 
 BEGIN_MESSAGE_MAP(WelcomePage, CPropertyPage)
-  ON_BN_CLICKED(IDC_THOROUGHLY, &WelcomePage::OnThoroughly)
 END_MESSAGE_MAP();
 
 WelcomePage::WelcomePage() :
@@ -40,8 +39,6 @@ void WelcomePage::DoDataExchange(CDataExchange * pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Control(pDX, IDC_LIST, listBox);
-  DDX_Check(pDX, IDC_THOROUGHLY, thoroughly);
-  DDX_Control(pDX, IDC_THOROUGHLY, thoroughlyButton);
 }
 
 BOOL WelcomePage::OnInitDialog()
@@ -101,7 +98,6 @@ BOOL WelcomePage::OnKillActive()
   {
     try
     {
-      pSheet->SetThoroughlyFlag(thoroughly != FALSE);
       pSheet->SetNextText(TU_(oldNextText));
     }
     catch (const MiKTeXException & e)
@@ -116,12 +112,6 @@ BOOL WelcomePage::OnKillActive()
     }
   }
   return ret;
-}
-
-void WelcomePage::OnThoroughly()
-{
-  thoroughly = thoroughlyButton.GetCheck();
-  ShowItems();
 }
 
 void WelcomePage::ShowItems()
@@ -148,15 +138,12 @@ void WelcomePage::ShowItems()
       MIKTEX_FATAL_WINDOWS_ERROR("CListBox::AddString");
     }
   }
-  if (thoroughly != FALSE)
+  vector<PathName> vec = GetRoots();
+  for (vector<PathName>::const_iterator it = vec.begin(); it != vec.end(); ++it)
   {
-    vector<PathName> vec = GetRoots();
-    for (vector<PathName>::const_iterator it = vec.begin(); it != vec.end(); ++it)
+    if (listBox.AddString(it->ToWideCharString().c_str()) < 0)
     {
-      if (listBox.AddString(it->ToWideCharString().c_str()) < 0)
-      {
-        MIKTEX_FATAL_WINDOWS_ERROR("CListBox::AddString");
-      }
+      MIKTEX_FATAL_WINDOWS_ERROR("CListBox::AddString");
     }
   }
 }

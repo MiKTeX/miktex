@@ -24,8 +24,7 @@ sudomiktex() {
 
 sudo make install
 
-sudomiktex initexmf --admin --disable-installer --update-fndb --mklinks
+sudomiktex miktexsetup --shared=yes finish
 sudomiktex mpm --admin --package-level=basic --upgrade
-sudomiktex initexmf --admin --mkmaps
 
 rm -fr "${miktex_home}"

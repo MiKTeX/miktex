@@ -400,8 +400,8 @@ void Application::PrintInfo()
   case SetupTask::FinishSetup:
     task = "finish setup";
     break;
-  case SetupTask::Uninstall:
-    task = "uninstall";
+  case SetupTask::CleanUp:
+    task = "factory reset";
     break;
   default:
     break;
@@ -422,7 +422,7 @@ void Application::PrintInfo()
     break;
   }
   printf("setup task: %s\n", task.c_str());
-  if (options.Task != SetupTask::Uninstall)
+  if (options.Task != SetupTask::CleanUp)
   {
     cout << "local package repository: " << Q_(options.LocalPackageRepository) << endl;
     cout << "package set: " << level << endl;
@@ -450,9 +450,8 @@ void Application::PrintInfo()
     }
 #endif
   }
-  if (options.Task == SetupTask::Uninstall)
+  if (options.Task == SetupTask::CleanUp)
   {
-    cout << "uninstall thoroughly?: " << (options.IsThoroughly ? "yes" : "no") << endl;
   }
   if (options.Task != SetupTask::Download)
   {
@@ -490,7 +489,6 @@ void Application::Main(int argc, const char** argv)
 
   bool optShared = false;
   bool optModifyPath = true;
-  bool optThoroughly = true;
 #if defined(MIKTEX_WINDOWS)
   string optProgramFolder;
   bool optUseRegistry = true;
@@ -514,7 +512,7 @@ void Application::Main(int argc, const char** argv)
   string optPortableRoot;
 
   PoptWrapper popt(argc, argv, aoption);
-  popt.SetOtherOptionHelp("download|install|finish|uninstall");
+  popt.SetOtherOptionHelp("download|install|finish|factoryreset");
 
   int option;
 
@@ -700,9 +698,10 @@ void Application::Main(int argc, const char** argv)
   {
     setupOptions.Task = SetupTask::FinishSetup;
   }
-  else if (leftovers[0] == "uninstall")
+  else if (leftovers[0] == "factoryreset")
   {
-    setupOptions.Task = SetupTask::Uninstall;
+    setupOptions.Task = SetupTask::CleanUp;
+    setupOptions.CleanupOptions = { CleanupOption::Links, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories };
   }
   else
   {
@@ -738,8 +737,6 @@ void Application::Main(int argc, const char** argv)
   {
     setupOptions.IsRegisterPathEnabled = true;
   }
-
-  setupOptions.IsThoroughly = optThoroughly;
 
   if (!optLocalPackageRepository.empty())
   {

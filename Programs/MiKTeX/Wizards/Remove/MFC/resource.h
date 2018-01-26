@@ -17,7 +17,6 @@
 #define IDC_PROGRESS                    1000
 #define IDC_LIST                        1001
 #define IDC_CURRENT_FILE                1002
-#define IDC_THOROUGHLY                  1003
 #define IDC_WELCOME                     1004
 #define IDC_PROMPT                      1005
 
