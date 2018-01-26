@@ -409,6 +409,9 @@ private slots:
   }
 
 private:
+  bool IsFactoryResetPossible();
+
+private:
   std::atomic_int backgroundWorkers{ 0 };
 
 private:
@@ -730,15 +733,6 @@ protected:
 class FactoryResetWorker :
   public BackgroundWorker
 {
-public:
-  FactoryResetWorker(const std::vector<MiKTeX::Core::PathName>& toBeRemoved) :
-    toBeRemoved(toBeRemoved)
-  {
-  }
-
-private:
-  std::vector<MiKTeX::Core::PathName> toBeRemoved;
-
 private:
   Q_OBJECT;
 

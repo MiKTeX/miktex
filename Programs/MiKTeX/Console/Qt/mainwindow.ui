@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>867</height>
+    <width>841</width>
+    <height>1058</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -337,7 +337,7 @@
           <bool>true</bool>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="setup">
           <property name="enabled">
@@ -492,7 +492,7 @@
            <item>
             <widget class="QLabel" name="label">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the MiKTeX Console. It will assist you in managing your MiKTeX configuration.&lt;/p&gt;&lt;p&gt;You can start with a online tutorial: &lt;a href=&quot;https://miktex.org/howto/miktex-console&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: manage MiKTeX with the MiKTeX Console&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the MiKTeX Console. It will assist you in managing your MiKTeX configuration.&lt;/p&gt;&lt;p&gt;You can start with an online tutorial: &lt;a href=&quot;https://miktex.org/howto/miktex-console&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: manage MiKTeX with the MiKTeX Console&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -543,15 +543,13 @@
               <string notr="true">QGroupBox::title { color: orange; }</string>
              </property>
              <property name="title">
-              <string>User mode</string>
+              <string>Opeation mode</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_2">
               <item>
                <widget class="QLabel" name="label_4">
                 <property name="text">
-                 <string>This tool currently runs in user mode and thus operates on the private (per-user) MiKTeX configuration. You may want to restart this application as administrator in order to operate on the shared (system-wide) configuration.
-
-Decide now how you would like to proceed:</string>
+                 <string>Decide now how you would like to proceed:</string>
                 </property>
                 <property name="wordWrap">
                  <bool>true</bool>
@@ -567,17 +565,17 @@ Decide now how you would like to proceed:</string>
                  <string>Restart as administrator</string>
                 </property>
                 <property name="description">
-                 <string>Restart MiKTeX Console with elevated privileges.</string>
+                 <string>Use this option, if you want to operate on the shared (system-wide) configuration.</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QCommandLinkButton" name="buttonOkayUserMode">
                 <property name="text">
-                 <string>I want to stay in user mode</string>
+                 <string>I want to stay in private mode</string>
                 </property>
                 <property name="description">
-                 <string>I intend to work on the private configuration, although this TeX installation is shared by multiple users.</string>
+                 <string>Use this option, if you want to operate on the private configuration.</string>
                 </property>
                </widget>
               </item>
@@ -1680,7 +1678,7 @@ Decide now how you would like to proceed:</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>841</width>
      <height>21</height>
     </rect>
    </property>

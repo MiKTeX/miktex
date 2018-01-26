@@ -1769,14 +1769,15 @@ void MainWindow::SetupUiCleanup()
   connect(ui->actionFactoryReset, SIGNAL(triggered()), this, SLOT(FactoryReset()));
 }
 
-inline bool IsFactoryResetPossible()
+bool MainWindow::IsFactoryResetPossible()
 {
 #if defined(MIKTEX_WINDOWS)
   return false;
 #else
-  return true;
+  return !session->IsSharedSetup() || session->IsAdminMode();
 #endif
 }
+
 void MainWindow::UpdateUiCleanup()
 {
   ui->buttonFactoryReset->setEnabled(IsFactoryResetPossible() && !IsBackgroundWorkerActive());
@@ -1793,76 +1794,12 @@ bool FactoryResetWorker::Run()
   try
   {
     shared_ptr<Session> session = Session::Get();
-    PathName initexmf;
-    if (!session->FindFile(MIKTEX_INITEXMF_EXE, FileType::EXE, initexmf))
-    {
-      MIKTEX_FATAL_ERROR(tr("The MiKTeX configuration utility executable (initexmf) could not be found.").toStdString());
-    }
-    vector<string> args{
-      initexmf.GetFileNameWithoutExtension().ToString(),
-      "--force",
-      "--remove-links"
-    };
-    if (session->IsAdminMode())
-    {
-      args.push_back("--admin");
-    }
-    ProcessOutput<4096> output;
-    int exitCode;
-    Process::Run(initexmf, args, &output, &exitCode, nullptr);
-    if (exitCode != 0)
-    {
-      auto outputBytes = output.GetStandardOutput();
-      PathName outfile = session->GetSpecialPath(SpecialPath::LogDirectory) / initexmf.GetFileNameWithoutExtension();
-      outfile += "_";
-      outfile += Timestamp().c_str();
-      outfile.SetExtension(".out");
-      FileStream outstream(File::Open(outfile, FileMode::Create, FileAccess::Write, false));
-      outstream.Write(&outputBytes[0], outputBytes.size());
-      outstream.Close();
-      MIKTEX_FATAL_ERROR_2(tr("The MiKTeX configuration utility failed for some reason. The process output has been saved to a file.").toStdString(),
-        "fileName", initexmf.ToString(), "exitCode", std::to_string(exitCode), "savedOutput", outfile.ToString());
-    }
-    session->UnloadFilenameDatabase();
-    unique_ptr<TemporaryFile> script = TemporaryFile::Create();
-    StreamWriter scriptWriter(script->GetPathName());
-#if defined(MIKTEX_UNIX)
-    scriptWriter.WriteFormattedLine("#!/usr/bin/env sh");
-    scriptWriter.WriteFormattedLine("set -e");
-#endif
-    bool succeeded = true;
-    for (const PathName& dir : toBeRemoved)
-    {
-      try
-      {
-        if (Directory::Exists(dir))
-        {
-#if defined(MIKTEX_UNIX)
-          scriptWriter.WriteFormattedLine("rm -fr \"%s\"", dir.GetData());
-#endif
-#if 1
-          // TESTING
-          MIKTEX_INTERNAL_ERROR();
-#else
-          // TODO
-          Directory::Delete(dir, true);
-#endif
-        }
-      }
-      catch (const exception&)
-      {
-        succeeded = false;
-      }
-    }
-    scriptWriter.Close();
-#if defined(MIKTEX_UNIX)
-    File::SetAttributes(script->GetPathName(), File::GetAttributes(script->GetPathName()) + FileAttribute::Executable);
-#endif
-    if (!succeeded)
-    {
-      script->Keep();
-      MIKTEX_FATAL_ERROR(tr("At least one of the directory removals failed.\nYou can execute this script to try it by hand:").arg(QString::fromUtf8(script->GetPathName().GetData())).toStdString());
-    }
+    unique_ptr<SetupService> service = SetupService::Create();
+    SetupOptions options = service->GetOptions();
+    options.Task = SetupTask::CleanUp;
+    options.CleanupOptions = { CleanupOption::Links, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories };
+    service->SetOptions(options);
+    service->Run();
     result = true;
   }
   catch (const MiKTeXException& e)
@@ -1878,7 +1815,7 @@ bool FactoryResetWorker::Run()
 
 void MainWindow::FactoryReset()
 {
-  QString message = tr("<h3>Reset the TeX installation to factory defaults<h3>");
+  QString message = tr("<h3>Reset the TeX installation to factory defaults</h3>");
   message += tr("<p>You are about to reset your TeX installation. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.");
   message += tr(" In other words: your TeX installation will be restored to its original state, as when it was first installed.</p>");
   message += tr("Are you sure?");
@@ -1888,17 +1825,8 @@ void MainWindow::FactoryReset()
   }
   try
   {
-    vector<PathName> toBeRemoved = { session->GetSpecialPath(SpecialPath::LogDirectory) };
-    PathName distRoot = session->GetSpecialPath(SpecialPath::DistRoot);
-    for (const RootDirectoryInfo& root : session->GetRootDirectories())
-    {
-      if (root.path != distRoot)
-      {
-        toBeRemoved.push_back(root.path);
-      }
-    }
     QThread* thread = new QThread;
-    FactoryResetWorker* worker = new FactoryResetWorker(toBeRemoved);
+    FactoryResetWorker* worker = new FactoryResetWorker;
     backgroundWorkers++;
     ui->labelBackgroundTask->setText(tr("Resetting the TeX installation..."));
     worker->moveToThread(thread);
@@ -1921,7 +1849,6 @@ void MainWindow::FactoryReset()
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     UpdateUi();
     UpdateActions();
-    session->UnloadFilenameDatabase();
     thread->start();
   }
   catch (const MiKTeXException& e)
