@@ -17,7 +17,7 @@ into one:
 LuaTeX now comes in two variants:
 
 * `miktex-luatex` is the default engine with Lua 5.2 inside
-* `miktex-lua53tex` is the new engine with Lua 5.3 inside
+* `miktex-lua53tex` is the experimental engine with Lua 5.3 inside
 
 #### Switching engines
 
