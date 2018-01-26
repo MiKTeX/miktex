@@ -1,12 +1,2 @@
 #!/bin/sh -e
-. /usr/share/debconf/confmodule
-initexmf --admin --disable-installer --update-fndb
-db_get miktex/mklinks
-if [ "$RET" = "force" ]; then
-    initexmf --admin --disable-installer --force --mklinks
-elif [ "$RET" = "yes" ]; then
-    initexmf --admin --disable-installer --mklinks
-fi
-initexmf --admin --disable-installer --update-fndb
-db_get miktex/autoinstall
-initexmf --admin --set-config-value=[MPM]AutoInstall="$RET"
+miktexsetup --shared=yes finish
