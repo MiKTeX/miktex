@@ -33,7 +33,7 @@ using namespace MiKTeX::Packages;
 using namespace MiKTeX::UI::Qt;
 using namespace std;
 
-static QApplication* pApplication = nullptr;
+static QCoreApplication* pApplication = nullptr;
 
 MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
 {
@@ -50,9 +50,20 @@ MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::InitializeFramework()
 #else
   bool useGUI = true;
 #endif
-  static int argc = 0;
-  static char** argv = nullptr;
-  pApplication = new QApplication(argc, argv, useGUI);
+  static int argc = 1;
+  static PathName argv0;
+  static char* argv[2];
+  argv0 = Session::Get()->GetMyProgramFile(false).GetFileNameWithoutExtension();
+  argv[0] = argv0.GetData();
+  argv[1] = nullptr;
+  if (useGUI)
+  {
+    pApplication = new QApplication(argc, argv);
+  }
+  else
+  {
+    pApplication = new QCoreApplication(argc, argv);
+  }
 }
 
 MIKTEXUIQTEXPORT void MIKTEXCEECALL MiKTeX::UI::Qt::FinalizeFramework()
