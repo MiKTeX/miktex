@@ -17,6 +17,10 @@ sudomiktex() {
 	    cd "$miktex_home/texmfs/data/miktex/log"
 	    grep FATAL *
 	fi
+	if [ -d "/var/log/miktex" ]; then
+	    cd "/var/log/miktex"
+	    grep FATAL *
+	fi
     fi
     set -e
     return $status
