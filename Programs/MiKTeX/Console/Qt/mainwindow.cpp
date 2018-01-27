@@ -1797,7 +1797,8 @@ bool FactoryResetWorker::Run()
     unique_ptr<SetupService> service = SetupService::Create();
     SetupOptions options = service->GetOptions();
     options.Task = SetupTask::CleanUp;
-    options.CleanupOptions = { CleanupOption::Links, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories };
+    options.IsCommonSetup = session->IsAdminMode();
+    options.CleanupOptions = { CleanupOption::Links, CleanupOption::LogFiles, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories };
     service->SetOptions(options);
     service->Run();
     result = true;
@@ -1819,7 +1820,7 @@ void MainWindow::FactoryReset()
   message += tr("<p>You are about to reset your TeX installation. All TEXMF root directories will be removed and you will loose all configuration settings, log files, data files and packages.");
   message += tr(" In other words: your TeX installation will be restored to its original state, as when it was first installed.</p>");
   message += tr("Are you sure?");
-  if (QMessageBox::warning(this, tr("MiKTeX Console"), message) != QMessageBox::Ok)
+  if (QMessageBox::warning(this, tr("MiKTeX Console"), message, QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
   {
     return;
   }

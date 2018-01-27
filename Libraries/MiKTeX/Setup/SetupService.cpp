@@ -1021,14 +1021,7 @@ void SetupServiceImpl::DoCleanUp()
 
   if (options.CleanupOptions[CleanupOption::Links])
   {
-    try
-    {
-      RunIniTeXMF({ "--force", "--remove-links" });
-    }
-    catch (const exception& e)
-    {
-      ReportLine(e.what());
-    }
+    RunIniTeXMF({ "--force", "--remove-links" });
   }
 
   if (options.CleanupOptions[CleanupOption::FileTypes])
@@ -1162,6 +1155,22 @@ void SetupServiceImpl::DoCleanUp()
         File::Delete(fontConfig);
       }
 #endif
+    }
+    catch (const exception& e)
+    {
+      ReportLine(e.what());
+    }
+  }
+
+  if (options.CleanupOptions[CleanupOption::LogFiles])
+  {
+    try
+    {
+      PathName logDir = session->GetSpecialPath(SpecialPath::LogDirectory);
+      if (Directory::Exists(logDir))
+      {
+	Directory::Delete(logDir, true);
+      }
     }
     catch (const exception& e)
     {
@@ -1379,7 +1388,7 @@ PathName SetupServiceImpl::GetInstallRoot() const
   {
     return options.PortableRoot / MIKTEX_PORTABLE_REL_INSTALL_DIR;
   }
-  else if (options.Task == SetupTask::FinishSetup || options.Task == SetupTask::FinishUpdate)
+  else if (options.Task == SetupTask::FinishSetup || options.Task == SetupTask::FinishUpdate || options.Task == SetupTask::CleanUp)
   {
     shared_ptr<Session> session = Session::Get();
     return session->GetSpecialPath(SpecialPath::InstallRoot);
@@ -1392,7 +1401,7 @@ PathName SetupServiceImpl::GetInstallRoot() const
 
 PathName SetupServiceImpl::GetBinDir() const
 {
-  if (options.Task == SetupTask::FinishSetup || options.Task == SetupTask::FinishUpdate)
+  if (options.Task == SetupTask::FinishSetup || options.Task == SetupTask::FinishUpdate || options.Task == SetupTask::CleanUp)
   {
     shared_ptr<Session> session = Session::Get();
     return session->GetSpecialPath(SpecialPath::BinDirectory);
@@ -1417,7 +1426,7 @@ void SetupServiceImpl::RunIniTeXMF(const vector<string>& args)
   {
     allArgs.push_back("--admin");
   }
-  if (options.Task != SetupTask::FinishSetup && options.Task != SetupTask::FinishUpdate)
+  if (options.Task != SetupTask::FinishSetup && options.Task != SetupTask::FinishUpdate && options.Task != SetupTask::CleanUp)
   {
     allArgs.push_back("--log-file=" + GetULogFileName().ToString());
   }

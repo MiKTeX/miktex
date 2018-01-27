@@ -488,7 +488,11 @@ void Application::Main(int argc, const char** argv)
   initInfo.SetProgramInvocationName(argv[0]);
 
   bool optShared = false;
+#if defined(MIKTEX_WINDOWS)
   bool optModifyPath = true;
+#else
+  bool optModifyPath = false;
+#endif
 #if defined(MIKTEX_WINDOWS)
   string optProgramFolder;
   bool optUseRegistry = true;
@@ -656,7 +660,7 @@ void Application::Main(int argc, const char** argv)
     return;
   }
 
-  initInfo.AddOption(Session::InitOption::NoFixPath);
+  //initInfo.AddOption(Session::InitOption::NoFixPath);
 
   pSession = Session::Create(initInfo);
 
@@ -701,7 +705,7 @@ void Application::Main(int argc, const char** argv)
   else if (leftovers[0] == "factoryreset")
   {
     setupOptions.Task = SetupTask::CleanUp;
-    setupOptions.CleanupOptions = { CleanupOption::Links, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories };
+    setupOptions.CleanupOptions = { CleanupOption::Links, CleanupOption::LogFiles, CleanupOption::Path, CleanupOption::Registry, CleanupOption::RootDirectories };
   }
   else
   {

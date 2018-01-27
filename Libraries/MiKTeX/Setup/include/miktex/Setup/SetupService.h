@@ -76,6 +76,7 @@ enum class CleanupOption
   Components,
   Links,
   FileTypes,
+  LogFiles,
   Path,
   Registry,
   RootDirectories,
