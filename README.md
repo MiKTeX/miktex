@@ -12,9 +12,10 @@ This readme file is located in the top-level directory of the MiKTeX
 source code tree.
 
 The MiKTeX source code allows you to build and install a bare TeX
-system (aka "Just enough TeX").  MiKTeX provides an integrated package
-manager, which can automatically download and install missing
-packages.  Thus:
+system (["Just enough TeX"](https://miktex.org/kb/just-enough-tex)).
+
+MiKTeX provides an integrated package manager, which can automatically
+download and install missing packages.  Thus:
 
 * you start with MiKTeX executables and man pages
 * in the course of authoring your documents: only necessary packages
@@ -95,14 +96,11 @@ In addition, you can try one of the Dockerized build environments to build MiKTe
   * pixman
   * png
   * poppler
+  * poppler-qt5
   * popt
   * potrace
   * uriparser
   * zzip
-
-  When building UI components with Qt5:
-
-  * poppler-qt5
 
 Please consult the platform-specific HOWTO, for more information.
 
@@ -148,9 +146,9 @@ The most useful build variables are:
     Use this prefix, if you want to create a self-contained MiKTeX
     setup which does not conflict with other system packages.
 
-* `WITH_UI_QT=ON`
+* `WITH_UI_QT=OFF`
 
-  Build UI applications (experimental).
+  Don't build UI applications.
 
 ## Building MiKTeX
 
@@ -166,8 +164,7 @@ or, if you build with NMake on Windows:
 
 CMake has created a standard `install` target which you can use to
 install everything in the standard location (see the
-`CMAKE_INSTALL_PREFIX` description above).  On Linux and macOS, you
-would run
+`CMAKE_INSTALL_PREFIX` description above).  On Linux, you would run
 
     make install
 
@@ -299,9 +296,10 @@ There are a couple of MiKTeX directories which have to be removed
 manually.  For example:
 
     rm -fr ~/.miktex
-    rm -fr /var/lib/miktex-texmf
-    rm -fr /var/cache/miktex-texmf
     rm -fr /usr/local/share/miktex-texmf
+    rm -fr /var/cache/miktex-texmf
+    rm -fr /var/lib/miktex-texmf
+    rm -fr /var/log/miktex
 
 Please inspect the output of `initexmf --report` in order to find out
 the exact locations.
