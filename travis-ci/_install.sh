@@ -29,6 +29,7 @@ sudomiktex() {
 sudo make install
 
 sudomiktex miktexsetup --shared=yes finish
+sudomiktex initexmf --admin --set-config-value=[MPM]AutoInstall=1
 sudomiktex mpm --admin --package-level=basic --upgrade
 
 rm -fr "${miktex_home}"
