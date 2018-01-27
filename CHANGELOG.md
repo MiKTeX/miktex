@@ -1,6 +1,6 @@
 # MiKTeX Change Log
 
-## NEXT
+## 2.9.6600 - not yet released
 
 ### MiKTeX Console
 
