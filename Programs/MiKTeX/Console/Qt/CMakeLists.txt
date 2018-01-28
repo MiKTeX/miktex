@@ -104,6 +104,12 @@ set(libs
   miktex-popt-wrapper
 )
 
+if (USE_SYSTEM_LOG4CXX)
+  list(APPEND libs MiKTeX::Imported::LOG4CXX)
+else()
+  list(APPEND libs ${log4cxx_dll_name})
+endif()
+
 if(MIKTEX_NATIVE_WINDOWS)
   list(APPEND libs
     Comctl32.lib
