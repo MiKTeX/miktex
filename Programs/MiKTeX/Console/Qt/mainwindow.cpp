@@ -466,13 +466,22 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
 {
   PathName me = session->GetMyProgramFile(true);
 #if defined(MIKTEX_WINDOWS)
-  PathName adminFileName = me.GetFileNameWithoutExtension();
-  adminFileName += MIKTEX_ADMIN_SUFFIX;
   PathName meAdmin(me);
   meAdmin.RemoveFileSpec();
-  meAdmin /= adminFileName;
+  meAdmin /= me.GetFileNameWithoutExtension();
+  meAdmin += MIKTEX_ADMIN_SUFFIX;
   meAdmin.SetExtension(me.GetExtension());
-  ShellExecuteW(nullptr, L"open", meAdmin.ToWideCharString().c_str(), StringUtil::UTF8ToWideChar(StringUtil::Flatten(args, ' ')).c_str(), nullptr, SW_NORMAL);
+  CharBuffer<wchar_t> file(meAdmin.GetData());
+  CharBuffer<wchar_t> parameters(StringUtil::Flatten(args, ' '));
+  SHELLEXECUTEINFOW sei = SHELLEXECUTEINFOW();
+  sei.cbSize = sizeof(sei);
+  sei.lpFile = file.GetData();
+  sei.lpParameters = parameters.GetData();
+  sei.nShow = SW_NORMAL;
+  if (!ShellExecuteExW(&sei))
+  {
+    MIKTEX_FATAL_WINDOWS_ERROR("ShellExecuteExW");
+  }
 #elif defined(MIKTEX_MACOS_BUNDLE)
   PathName console = session->GetMyLocation(true) / ".." / "Resources" / MIKTEX_CONSOLE_ADMIN_EXE;
   vector<string> consoleArgs{ MIKTEX_CONSOLE_ADMIN_EXE };
