@@ -478,6 +478,7 @@ void MainWindow::RestartAdminWithArguments(const vector<string>& args)
   sei.lpFile = file.GetData();
   sei.lpParameters = parameters.GetData();
   sei.nShow = SW_NORMAL;
+  session->UnloadFilenameDatabase();
   if (!ShellExecuteExW(&sei))
   {
     MIKTEX_FATAL_WINDOWS_ERROR("ShellExecuteExW");
