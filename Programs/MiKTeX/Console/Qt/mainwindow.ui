@@ -543,13 +543,13 @@
               <string notr="true">QGroupBox::title { color: orange; }</string>
              </property>
              <property name="title">
-              <string>Opeation mode</string>
+              <string>Operation mode</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_2">
               <item>
                <widget class="QLabel" name="label_4">
                 <property name="text">
-                 <string>Decide now how you would like to proceed:</string>
+                 <string>Please decide how you wish to continue:</string>
                 </property>
                 <property name="wordWrap">
                  <bool>true</bool>
@@ -572,7 +572,7 @@
               <item>
                <widget class="QCommandLinkButton" name="buttonOkayUserMode">
                 <property name="text">
-                 <string>I want to stay in private mode</string>
+                 <string>Stay in user mode</string>
                 </property>
                 <property name="description">
                  <string>Use this option, if you want to operate on the private configuration.</string>
@@ -1679,7 +1679,7 @@
      <x>0</x>
      <y>0</y>
      <width>841</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
