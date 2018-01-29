@@ -197,7 +197,7 @@
           <enum>Qt::NoFocus</enum>
          </property>
          <property name="statusTip">
-          <string>MiKTeX package management</string>
+          <string>Diagnose</string>
          </property>
          <property name="text">
           <string>Diagnose</string>
