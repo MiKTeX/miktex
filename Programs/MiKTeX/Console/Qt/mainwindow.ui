@@ -492,7 +492,7 @@
            <item>
             <widget class="QLabel" name="label">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the MiKTeX Console. It will assist you in managing your MiKTeX configuration.&lt;/p&gt;&lt;p&gt;You can start with an online tutorial: &lt;a href=&quot;https://miktex.org/howto/miktex-console&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: manage MiKTeX with the MiKTeX Console&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the MiKTeX Console. It will assist you in managing your MiKTeX configuration.&lt;/p&gt;&lt;p&gt;If you want, you can start with an online tutorial: &lt;a href=&quot;https://miktex.org/howto/miktex-console&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;HOWTO: manage MiKTeX with the MiKTeX Console&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -521,7 +521,7 @@
            <item>
             <widget class="QGroupBox" name="privateMode">
              <property name="title">
-              <string>Private installation</string>
+              <string>Operation mode</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_5">
               <item>
@@ -539,9 +539,6 @@
            </item>
            <item>
             <widget class="QGroupBox" name="userMode">
-             <property name="styleSheet">
-              <string notr="true">QGroupBox::title { color: orange; }</string>
-             </property>
              <property name="title">
               <string>Operation mode</string>
              </property>
@@ -565,7 +562,8 @@
                  <string>Restart as administrator</string>
                 </property>
                 <property name="description">
-                 <string>Use this option, if you want to operate on the shared (system-wide) configuration.</string>
+                 <string>Restart MiKTeX Console with elevated privileges and switch to admin mode.
+Use this option, if you want to operate on the shared (system-wide) configuration.</string>
                 </property>
                </widget>
               </item>
@@ -575,7 +573,8 @@
                  <string>Stay in user mode</string>
                 </property>
                 <property name="description">
-                 <string>Use this option, if you want to operate on the private configuration.</string>
+                 <string>Continue to work with MiKTeX Console in user mode.
+Use this option, if you want to operate on the private configuration.</string>
                 </property>
                </widget>
               </item>
@@ -585,7 +584,7 @@
            <item>
             <widget class="QGroupBox" name="adminMode">
              <property name="title">
-              <string>Admin mode</string>
+              <string>Operation mode</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
@@ -721,6 +720,9 @@
             <spacer name="verticalSpacer_11">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Preferred</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
