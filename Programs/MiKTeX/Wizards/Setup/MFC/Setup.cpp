@@ -26,7 +26,7 @@
 // this runs the wizard
 SetupApp setupWizardApplication;
 
-SetupApp * SetupApp::Instance = &setupWizardApplication;
+SetupApp* SetupApp::Instance = &setupWizardApplication;
 
 class SetupCommandLineInfo
   : public CCommandLineInfo
@@ -89,7 +89,7 @@ public:
   PathName optPortableRoot;
 };
 
-void AddArgument (const string & argument, int & argc, char ** & argv, int & argMax)
+void AddArgument(const string& argument, int& argc, char**& argv, int& argMax)
 {
   if (argc == argMax)
   {
@@ -99,21 +99,21 @@ void AddArgument (const string & argument, int & argc, char ** & argv, int & arg
   argv[argc++] = strdup(argument.c_str());
 }
 
-void GetArguments (const char * lpszCommandLine, const char * lpszExeName, int & argc, char ** & argv)
+void GetArguments(const char* commandLine, const char* exeName, int& argc, char**& argv)
 {
   argc = 0;
   argv = nullptr;
 
   int argMax = 0;
 
-  AddArgument(string(lpszExeName), argc, argv, argMax);
+  AddArgument(string(exeName), argc, argv, argMax);
 
   string arg;
 
   bool copying = false;
   bool inQuotedArg = false;
 
-  const char * lpsz = lpszCommandLine;
+  const char* lpsz = commandLine;
 
   while (*lpsz != 0)
   {
@@ -145,7 +145,7 @@ void GetArguments (const char * lpszCommandLine, const char * lpszExeName, int &
   }
 }
 
-void FreeArguments(int argc, char ** & argv)
+void FreeArguments(int argc, char**& argv)
 {
   for (int i = 0; i < argc; ++i)
   {
@@ -270,7 +270,7 @@ void ShowHelpAndExit(int retCode = 0)
   exit(retCode);
 }
 
-void CheckStartupConfig(StartupConfig & startupConfig)
+void CheckStartupConfig(StartupConfig& startupConfig)
 {
 #if 1
   string commonRoots;
@@ -359,7 +359,7 @@ void CheckStartupConfig(StartupConfig & startupConfig)
 #endif
 }
 
-void ParseSetupCommandLine(int argc, char ** argv, SetupCommandLineInfo & cmdinfo)
+void ParseSetupCommandLine(int argc, char** argv, SetupCommandLineInfo& cmdinfo)
 {
   shared_ptr<Session> session = Session::Get();
 
@@ -556,7 +556,7 @@ void ParseSetupCommandLine(int argc, char ** argv, SetupCommandLineInfo & cmdinf
   }
 }
 
-bool FindFile(const PathName & fileName, PathName & result)
+bool FindFile(const PathName& fileName, PathName& result)
 {
   std::shared_ptr<Session> session = Session::Get();
 
@@ -579,7 +579,7 @@ bool FindFile(const PathName & fileName, PathName & result)
   return false;
 }
 
-bool ReadSetupWizIni(SetupCommandLineInfo & cmdinfo)
+bool ReadSetupWizIni(SetupCommandLineInfo& cmdinfo)
 {
   PathName fileName;
   if (!FindFile("setupwiz.opt", fileName))
@@ -596,7 +596,7 @@ bool ReadSetupWizIni(SetupCommandLineInfo & cmdinfo)
   }
   reader.Close();
   int argc;
-  char ** argv;
+  char** argv;
   GetArguments(commandLine.c_str(), TU_(AfxGetAppName()), argc, argv);
   ParseSetupCommandLine(argc, argv, cmdinfo);
   FreeArguments(argc, argv);
@@ -615,7 +615,7 @@ SetupApp::SetupApp()
 }
 
 #if ENABLE_ADDTEXMF
-void CheckAddTEXMFDirs(vector<PathName> & vec)
+void CheckAddTEXMFDirs(vector<PathName>& vec)
 {
   CsvList path(directories, ';');
   vec.clear();
@@ -641,7 +641,7 @@ void CheckAddTEXMFDirs(vector<PathName> & vec)
 }
 #endif
 
-void SetupGlobalVars(const SetupCommandLineInfo & cmdinfo)
+void SetupGlobalVars(const SetupCommandLineInfo& cmdinfo)
 {
   std::shared_ptr<Session> session = Session::Get();
 
@@ -885,7 +885,7 @@ BOOL SetupApp::InitInstance()
 
     // get command-line arguments
     int argc;
-    char ** argv;
+    char** argv;
     GetArguments(TU_(m_lpCmdLine), TU_(AfxGetAppName()), argc, argv);
     SetupCommandLineInfo cmdinfo;
     ReadSetupWizIni(cmdinfo);
@@ -958,11 +958,11 @@ BOOL SetupApp::InitInstance()
     session = nullptr;
   }
 
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
   }
@@ -997,7 +997,7 @@ bool Reboot()
 }
 #endif
 
-void DDV_Path(CDataExchange * pDX, const CString & str)
+void DDV_Path(CDataExchange* pDX, const CString& str)
 {
   if (!pDX->m_bSaveAndValidate)
   {
@@ -1049,7 +1049,7 @@ void DDV_Path(CDataExchange * pDX, const CString & str)
   }
 }
 
-void ReportError(const MiKTeXException & e)
+void ReportError(const MiKTeXException& e)
 {
   try
   {
@@ -1077,7 +1077,7 @@ void ReportError(const MiKTeXException & e)
   }
 }
 
-void ReportError(const exception & e)
+void ReportError(const exception& e)
 {
   try
   {

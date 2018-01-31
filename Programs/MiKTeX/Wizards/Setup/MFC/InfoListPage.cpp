@@ -1,6 +1,6 @@
 /* InfoListPage.cpp:
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -50,12 +50,12 @@ BOOL InfoListPage::OnSetActive()
       CreateReport();
       oldNextText = pSheet->SetNextText(T_(_T("&Start")));
     }
-    catch (const MiKTeXException & e)
+    catch (const MiKTeXException& e)
     {
       pSheet->ReportError(e);
       ret = FALSE;
     }
-    catch (const exception & e)
+    catch (const exception& e)
     {
       pSheet->ReportError(e);
       ret = FALSE;
@@ -65,7 +65,7 @@ BOOL InfoListPage::OnSetActive()
   return ret;
 }
 
-void InfoListPage::DoDataExchange(CDataExchange * pDX)
+void InfoListPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Text(pDX, IDC_INFO, info);
@@ -80,12 +80,12 @@ BOOL InfoListPage::OnKillActive()
     {
       pSheet->SetNextText(oldNextText);
     }
-    catch (const MiKTeXException & e)
+    catch (const MiKTeXException& e)
     {
       pSheet->ReportError(e);
       ret = FALSE;
     }
-    catch (const exception & e)
+    catch (const exception& e)
     {
       pSheet->ReportError(e);
       ret = FALSE;
@@ -147,14 +147,14 @@ void InfoListPage::CreateReport()
     if (SetupApp::Instance->Service->GetOptions().IsPrefabricated)
     {
       info += (T_(_T("Install ")) + packageSet + T_(_T(" to ")) + CRLF
-	+ TAB + UT_(SetupApp::Instance->GetInstallRoot().GetData()));
+        + TAB + UT_(SetupApp::Instance->GetInstallRoot().GetData()));
     }
     else
     {
       info += (T_(_T("Install ")) + packageSet + T_(_T(" from ")) + CRLF
-	+ TAB + UT_(SetupApp::Instance->GetLocalPackageRepository().GetData()) + CRLF
-	+ T_(_T(" to ")) + CRLF
-	+ TAB + UT_(SetupApp::Instance->GetInstallRoot().GetData()));
+        + TAB + UT_(SetupApp::Instance->GetLocalPackageRepository().GetData()) + CRLF
+        + T_(_T(" to ")) + CRLF
+        + TAB + UT_(SetupApp::Instance->GetInstallRoot().GetData()));
     }
     break;
   case SetupTask::InstallFromRemoteRepository:
@@ -181,15 +181,15 @@ void InfoListPage::CreateReport()
     {
       if (SetupApp::Instance->IsPortable())
       {
-	info += T_("Install MiKTeX Portable");
+        info += T_("Install MiKTeX Portable");
       }
       else if (SetupApp::Instance->IsCommonSetup())
       {
-	info += T_("Install MiKTeX for all users");
+        info += T_("Install MiKTeX for all users");
       }
       else
       {
-	info += T_("Install MiKTeX only for the current user");
+        info += T_("Install MiKTeX only for the current user");
       }
       info += CRLF;
       info += CRLF;
@@ -210,25 +210,25 @@ void InfoListPage::CreateReport()
       switch (SetupApp::Instance->Service->GetOptions().IsInstallOnTheFlyEnabled)
       {
       case TriState::True:
-	info += T_("Packages will be installed on-the-fly");
-	break;
+        info += T_("Packages will be installed on-the-fly");
+        break;
       case TriState::False:
-	info += T_("Packages will not be installed on-the-fly");
-	break;
+        info += T_("Packages will not be installed on-the-fly");
+        break;
       case TriState::Undetermined:
-	info +=
-	  T_("Packages will be installed after confirmation by user");
-	break;
+        info +=
+          T_("Packages will be installed after confirmation by user");
+        break;
       }
       info += CRLF;
       info += CRLF;
     }
   }
 
-  CWnd * pWnd = GetDlgItem(IDC_INFO);
-  if (pWnd == nullptr)
+  CWnd* wnd = GetDlgItem(IDC_INFO);
+  if (wnd == nullptr)
   {
     MIKTEX_UNEXPECTED();
   }
-  pWnd->SetWindowText(info);
+  wnd->SetWindowText(info);
 }
