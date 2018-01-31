@@ -92,8 +92,10 @@ PathName SessionImpl::GetMyPrefix(bool canonicalized)
   PathName bindir = GetMyLocation(canonicalized);
   RemoveDirectoryDelimiter(bindir.GetData());
   for (const string& subdir : {
+#if !defined(MIKTEX_WINDOWS)
     MIKTEX_BINARY_DESTINATION_DIR,
     MIKTEX_INTERNAL_BINARY_DESTINATION_DIR,
+#endif
     MIKTEX_PATH_BIN_DIR,
     MIKTEX_PATH_INTERNAL_BIN_DIR,
 #if defined(MIKTEX_MACOS_BUNDLE)
