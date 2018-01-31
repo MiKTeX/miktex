@@ -1,6 +1,6 @@
 ## CMakeLists.txt                                       -*- CMake -*-
 ##
-## Copyright (C) 2006-2017 Christian Schenk
+## Copyright (C) 2006-2018 Christian Schenk
 ## 
 ## This file is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published
@@ -129,29 +129,30 @@ foreach(f
   )
 endforeach()
 
-add_executable(setup WIN32 ${setup_mfc_sources})
-
-set_property(TARGET setup PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
-
-add_dependencies(setup gen-LICENSE-txt)
-
-add_link_flags(setup "/MANIFESTUAC:level='highestAvailable'")
-add_link_flags(setup "/ENTRY:\"wWinMainCRTStartup\"")
-
-target_link_libraries(setup
+set(libs
   ${core_lib_name}
   ${getopt_lib_name}
   ${mpm_lib_name}
   ${setup_lib_name}
-)
-
-target_link_libraries(setup
   Secur32
   Wldap32
   version
   wininet
   winmm
   ws2_32
-)
+)  
 
+add_executable(setup WIN32 ${setup_mfc_sources})
+set_property(TARGET setup PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+add_dependencies(setup gen-LICENSE-txt)
+add_link_flags(setup "/ENTRY:\"wWinMainCRTStartup\"")
+target_link_libraries(setup ${libs})
 install(TARGETS setup DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+add_executable(setup_admin WIN32 ${setup_mfc_sources})
+set_property(TARGET setup_admin PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+add_dependencies(setup_admin gen-LICENSE-txt)
+add_link_flags(setup_admin "/MANIFESTUAC:level='highestAvailable'")
+add_link_flags(setup_admin "/ENTRY:\"wWinMainCRTStartup\"")
+target_link_libraries(setup_admin ${libs})
+install(TARGETS setup_admin DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
