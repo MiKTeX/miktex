@@ -156,3 +156,11 @@ add_link_flags(setup${MIKTEX_ADMIN_SUFFIX} "/MANIFESTUAC:level='requireAdministr
 add_link_flags(setup${MIKTEX_ADMIN_SUFFIX} "/ENTRY:\"wWinMainCRTStartup\"")
 target_link_libraries(setup${MIKTEX_ADMIN_SUFFIX} ${libs})
 install(TARGETS setup${MIKTEX_ADMIN_SUFFIX} DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
+
+add_executable(setup_highest WIN32 ${setup_mfc_sources})
+set_property(TARGET setup_highest PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
+add_dependencies(setup_highest gen-LICENSE-txt)
+add_link_flags(setup_highest "/MANIFESTUAC:level='highestAvailable'")
+add_link_flags(setup_highest "/ENTRY:\"wWinMainCRTStartup\"")
+target_link_libraries(setup_highest ${libs})
+install(TARGETS setup_highest DESTINATION ${MIKTEX_BINARY_DESTINATION_DIR})
