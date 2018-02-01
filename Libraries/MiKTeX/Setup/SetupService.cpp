@@ -632,6 +632,10 @@ void SetupServiceImpl::CompleteOptions(bool allowRemoteCalls)
 {
   shared_ptr<Session> session = Session::Get();
 
+  if (options.Task == SetupTask::FinishUpdate || options.Task == SetupTask::CleanUp)
+  {
+    options.IsCommonSetup = session->IsSharedSetup();
+  }
   if (options.Task == SetupTask::CleanUp)
   {
     options.Config.commonInstallRoot = session->GetSpecialPath(SpecialPath::CommonInstallRoot);
