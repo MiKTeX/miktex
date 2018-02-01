@@ -1,6 +1,6 @@
 /* SharedInstallationPage.h:                            -*- C++ -*-
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -50,9 +50,6 @@ protected:
 
 protected:
   virtual BOOL OnKillActive();
-
-protected:
-  afx_msg void OnShared();
 
 private:
   int commonUserSetup = -1;

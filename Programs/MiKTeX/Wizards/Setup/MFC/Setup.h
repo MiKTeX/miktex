@@ -196,6 +196,9 @@ public:
 
 public:
   bool IsUnattended = false;
+
+public:
+  bool IsRestarted = false;
 };
 
 #if ENABLE_ADDTEXMF

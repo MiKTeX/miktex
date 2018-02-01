@@ -49,6 +49,10 @@ BOOL InfoListPage::OnSetActive()
     {
       CreateReport();
       oldNextText = pSheet->SetNextText(T_(_T("&Start")));
+      if (SetupApp::Instance->IsCommonSetup() && !(session->RunningAsAdministrator() || session->RunningAsPowerUser()))
+      {
+        ((CButton*)pSheet->GetDlgItem(ID_WIZNEXT))->SetShield(TRUE);
+      }
     }
     catch (const MiKTeXException& e)
     {
@@ -78,6 +82,10 @@ BOOL InfoListPage::OnKillActive()
   {
     try
     {
+      if (SetupApp::Instance->IsCommonSetup() && !(session->RunningAsAdministrator() || session->RunningAsPowerUser()))
+      {
+        EndDialog(IDRETRY);
+      }
       pSheet->SetNextText(oldNextText);
     }
     catch (const MiKTeXException& e)

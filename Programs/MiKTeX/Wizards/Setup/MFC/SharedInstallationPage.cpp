@@ -27,7 +27,6 @@
 #include "SharedInstallationPage.h"
 
 BEGIN_MESSAGE_MAP(SharedInstallationPage, CPropertyPage)
-  ON_BN_CLICKED(IDC_SHARED, &SharedInstallationPage::OnShared)
 END_MESSAGE_MAP();
 
 SharedInstallationPage::SharedInstallationPage() :
@@ -45,7 +44,7 @@ BOOL SharedInstallationPage::OnInitDialog()
 
   try
   {
-    if (!(session->RunningAsAdministrator() || session->RunningAsPowerUser()))
+    if (!(session->IsUserAnAdministrator() || session->IsUserAPowerUser()))
     {
       CWnd* wnd = GetDlgItem(IDC_SHARED);
       if (wnd == nullptr)
@@ -162,25 +161,4 @@ BOOL SharedInstallationPage::OnKillActive()
     SetupApp::Instance->Service->SetOptions(options);
   }
   return ret;
-}
-
-void SharedInstallationPage::OnShared()
-{
-  try
-  {
-    if (!(session->RunningAsAdministrator() || session->RunningAsPowerUser()))
-    {
-      AfxMessageBox(T_(_T("You must have administrator privileges to set up a shared MiKTeX system.")), MB_OK | MB_ICONSTOP);
-      commonUserSetup = 1;
-      UpdateData(FALSE);
-    }
-  }
-  catch (const MiKTeXException& e)
-  {
-    ReportError(e);
-  }
-  catch (const exception& e)
-  {
-    ReportError(e);
-  }
 }

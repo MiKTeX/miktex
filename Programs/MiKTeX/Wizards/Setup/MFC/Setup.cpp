@@ -73,6 +73,9 @@ public:
   bool optUnattended = false;
 
 public:
+  bool optRestarted = false;
+
+public:
   PackageLevel packageLevel = PackageLevel::None;
 
 #if FEATURE_1874934
@@ -166,6 +169,7 @@ enum {
   OPT_COMMON_DATA,
   OPT_COMMON_INSTALL,
   OPT_COMMON_ROOTS,
+  OPT_CONTINUE,
   OPT_DOWNLOAD_ONLY,
   OPT_DRY_RUN,
   OPT_HELP,
@@ -199,6 +203,7 @@ const struct option long_options[] =
   { "common-data", required_argument, 0, OPT_COMMON_DATA },
   { "common-install", required_argument, 0, OPT_COMMON_INSTALL },
   { "common-roots", required_argument, 0, OPT_COMMON_ROOTS },
+  { "continue", no_argument, 0, OPT_CONTINUE },
   { "download-only", no_argument, 0, OPT_DOWNLOAD_ONLY },
   { "dry-run", no_argument, 0, OPT_DRY_RUN },
   { "help", no_argument, 0, OPT_HELP },
@@ -432,6 +437,10 @@ void ParseSetupCommandLine(int argc, char** argv, SetupCommandLineInfo& cmdinfo)
       cmdinfo.startupConfig.commonRoots = optarg;
       break;
 
+    case OPT_CONTINUE:
+      cmdinfo.optRestarted = true;
+      break;
+
     case OPT_DOWNLOAD_ONLY:
       cmdinfo.task = SetupTask::Download;
       break;
@@ -657,6 +666,7 @@ void SetupGlobalVars(const SetupCommandLineInfo& cmdinfo)
 
   SetupApp::Instance->AllowUnattendedReboot = cmdinfo.optAllowUnattendedReboot;
   SetupApp::Instance->IsUnattended = cmdinfo.optUnattended;
+  SetupApp::Instance->IsRestarted = cmdinfo.optRestarted;
 
   // check to see whether setup is started from a MiKTeXDirect location
   SetupApp::Instance->IsMiKTeXDirect = SetupService::IsMiKTeXDirect(options.MiKTeXDirectRoot);
@@ -939,7 +949,7 @@ BOOL SetupApp::InitInstance()
     }
 
     // clean up
-    PathName pathLogFile = Service->CloseLog(dlgRet == IDCANCEL);
+    PathName pathLogFile = Service->CloseLog(dlgRet == IDCANCEL || dlgRet == IDRETRY);
     if (SetupApp::Instance->ShowLogFileOnExit && !pathLogFile.Empty())
     {
       INT_PTR r = reinterpret_cast<INT_PTR>(ShellExecuteW(nullptr, L"open", pathLogFile.ToWideCharString().c_str(), nullptr, nullptr, SW_SHOWNORMAL));
@@ -951,9 +961,69 @@ BOOL SetupApp::InitInstance()
     traceStream.reset();
     packageManager->UnloadDatabase();
     packageManager = nullptr;
+    if (dlgRet == IDRETRY)
+    {
+      options = Service->GetOptions();
+    }
     Service = nullptr;
     session->UnloadFilenameDatabase();
     scratchRoot = nullptr;
+    if (dlgRet == IDRETRY && sfxDir != nullptr)
+    {
+      string packageLevel;
+      switch (options.PackageLevel)
+      {
+      case PackageLevel::Advanced:
+        packageLevel = "advanced";
+        break;
+      case PackageLevel::Basic:
+        packageLevel = "basic";
+        break;
+      case PackageLevel::Complete:
+        packageLevel = "complete";
+        break;
+      case PackageLevel::Essential:
+        packageLevel = "essential";
+        break;
+      }
+      string autoInstall;
+      switch (options.IsInstallOnTheFlyEnabled)
+      {
+      case TriState::True:
+        autoInstall = "yes";
+        break;
+      case TriState::False:
+        autoInstall = "no";
+        break;
+      default:
+        autoInstall = "ask";
+        break;
+      }
+      vector<string> args = {
+        "--auto-install", autoInstall,
+        "--common-install", options.Config.commonInstallRoot.ToString(),
+        "--continue",
+        "--install-from-local-repository",
+        "--local-package-repository", sfxDir->GetPathName().ToString(),
+        "--package-set", packageLevel,
+        "--paper-size", options.PaperSize,
+        "--program-folder", options.FolderName.ToString(),
+        "--shared"
+      };
+      SHELLEXECUTEINFOW sei = SHELLEXECUTEINFOW();
+      sei.cbSize = sizeof(sei);
+      CharBuffer<wchar_t> file((sfxDir->GetPathName() / "setup" MIKTEX_ADMIN_SUFFIX MIKTEX_EXE_FILE_SUFFIX).GetData());
+      sei.lpFile = file.GetData();
+      CharBuffer<wchar_t> parameters(CommandLineBuilder(args).ToString());
+      sei.lpParameters = parameters.GetData();
+      sei.nShow = SW_NORMAL;
+      if (!ShellExecuteExW(&sei))
+      {
+        MIKTEX_FATAL_WINDOWS_ERROR("ShellExecuteExW");
+      }
+      WaitForSingleObject(sei.hProcess, INFINITE);
+      CloseHandle(sei.hProcess);
+    }
     sfxDir = nullptr;
     session = nullptr;
   }

@@ -65,7 +65,7 @@ SetupWizard::SetupWizard(shared_ptr<PackageManager> packageManager) :
 
   Construct(IDS_SETUPWIZ, nullptr, 0, watermarkBitmap, nullptr, headerBitmap);
 
-  if (!SetupApp::Instance->IsUnattended)
+  if (!(SetupApp::Instance->IsUnattended || SetupApp::Instance->IsRestarted))
   {
     AddPage(&welcomePage);
     AddPage(&licensePage);
