@@ -49,7 +49,7 @@ public:
   static SetupApp* Instance;
 
 public:
-  virtual BOOL InitInstance();
+  BOOL InitInstance() override;
 
 public:
   DECLARE_MESSAGE_MAP();
@@ -205,7 +205,7 @@ public:
 void CheckAddTEXMFDirs(string& directories, vector<PathName>& vec);
 #endif
 
-void DDV_Path(CDataExchange* DX, const CString& str);
+void DDV_Path(CDataExchange* dx, const CString& str);
 
 bool FindFile(const PathName& fileName, PathName& result);
 
