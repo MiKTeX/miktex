@@ -1012,7 +1012,8 @@ BOOL SetupApp::InitInstance()
       };
       SHELLEXECUTEINFOW sei = SHELLEXECUTEINFOW();
       sei.cbSize = sizeof(sei);
-      CharBuffer<wchar_t> file((sfxDir->GetPathName() / "setup" MIKTEX_ADMIN_SUFFIX MIKTEX_EXE_FILE_SUFFIX).GetData());
+      sei.fMask = SEE_MASK_NOCLOSEPROCESS;
+      CharBuffer<wchar_t> file((sfxDir->GetPathName() / "miktex-setup-wizard" MIKTEX_EXE_FILE_SUFFIX).GetData());
       sei.lpFile = file.GetData();
       CharBuffer<wchar_t> parameters(CommandLineBuilder(args).ToString());
       sei.lpParameters = parameters.GetData();

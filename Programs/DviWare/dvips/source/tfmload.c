@@ -100,6 +100,15 @@ tfm16(void)
    return ( a * 256 + tfmbyte () );
 }
 
+uinteger
+tfm24_kanji(void)
+{
+   register uinteger a;
+   a = tfmbyte ();
+   a = a * 256 + tfmbyte ();
+   return ( a + tfmbyte () * 65536 );
+}
+
 integer
 tfm32(void)
 {
@@ -119,7 +128,7 @@ tfmload(register fontdesctype *curfnt)
    integer nw, hd;
    integer bc, ec;
    integer nco=0, ncw=0, npc=0, no_repeats = 0;
-   halfword *index = NULL;
+   uinteger *index = NULL;
    halfword *chartype = NULL;
    integer *scaled;
    integer *chardat;
@@ -189,13 +198,14 @@ tfmload(register fontdesctype *curfnt)
       chardat = (integer *)xmalloc(256*sizeof(integer));
       for (i=2; i<hd; i++)
          li = tfm32();
-      index = (halfword *)malloc(nt * sizeof(halfword));
+      index = (uinteger *)malloc(nt * sizeof(uinteger));
       chartype = (halfword *)malloc(nt * sizeof(halfword));
       li = tfm16();
       li = tfm16();
       for (i=1; i<nt; i++) {
-         index[i] = tfm16();
-         chartype[i] = tfm16();
+         /* support new JFM spec by texjporg */
+         index[i] = tfm24_kanji();
+         chartype[i] = tfmbyte();
       }
       for (i=0; i<256; i++)
          chardat[i] = 256;

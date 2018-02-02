@@ -84,6 +84,16 @@ unsigned int get_unsigned_triple(FILE *file)
   return triple;
 }
 
+#ifndef WITHOUT_ASCII_PTEX
+unsigned int get_unsigned_triple_kanji(FILE *file)
+{
+  unsigned int triple = get_unsigned_byte(file);
+  triple = (triple << 8) | get_unsigned_byte(file);
+  triple = triple | (get_unsigned_byte(file)<<16);
+  return triple;
+}
+#endif
+
 signed int get_signed_triple(FILE *file)
 {
   int i;

@@ -145,7 +145,11 @@ BOOL SetupWizard::OnInitDialog()
       title.Format(T_(_T("MiKTeX %s Net Installer (%d-bit)")), UT_(MIKTEX_VERSION_STR), static_cast<int>(sizeof(void*)) * 8);
     }
     SetTitle(title);
-    SetActivePage(&licensePage);
+    if (!SetupApp::Instance->IsRestarted)
+    {
+      PushPage(IDD_WELCOME);
+      SetActivePage(&licensePage);
+    }
   }
   catch (const MiKTeXException& e)
   {
