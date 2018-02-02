@@ -40,7 +40,7 @@ protected:
   virtual BOOL OnSetActive();
 
 protected:
-  virtual void DoDataExchange(CDataExchange* pDX);
+  virtual void DoDataExchange(CDataExchange* dx);
 
 protected:
   virtual BOOL OnKillActive();

@@ -1,6 +1,6 @@
 /* PackageSetPage.h:                                    -*- C++ -*-
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -45,7 +45,7 @@ protected:
   virtual BOOL OnSetActive();
 
 protected:
-  virtual void DoDataExchange(CDataExchange * pDX);
+  virtual void DoDataExchange(CDataExchange* dx);
 
 protected:
   virtual LRESULT OnWizardNext();
@@ -66,5 +66,5 @@ private:
   int packageSet = 0;
 
 private:
-  class SetupWizard * pSheet = nullptr;
+  class SetupWizard* pSheet = nullptr;
 };

@@ -1,6 +1,6 @@
 /* SetupWizard.h:                                       -*- C++ -*-
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -57,10 +57,10 @@ public:
   virtual BOOL OnInitDialog();
 
 public:
-  void ReportError(const exception & e);
+  void ReportError(const exception& e);
 
 public:
-  void ReportError(const MiKTeXException & e);
+  void ReportError(const MiKTeXException& e);
 
 public:
   void SetErrorFlag()
@@ -113,7 +113,7 @@ public:
   }
 
 public:
-  CString SetNextText(LPCTSTR lpszText);
+  CString SetNextText(LPCTSTR text);
 
 private:
   void EnableCancelButton(bool enable);

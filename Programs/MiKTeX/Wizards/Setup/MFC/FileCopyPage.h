@@ -1,6 +1,6 @@
 /* FileCopyPage.h:                                      -*- C++ -*-
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -44,7 +44,7 @@ protected:
   virtual BOOL OnSetActive();
 
 protected:
-  virtual void DoDataExchange(CDataExchange * pDX);
+  virtual void DoDataExchange(CDataExchange* dx);
 
 protected:
   virtual LRESULT OnWizardNext();
@@ -65,34 +65,34 @@ protected:
   afx_msg LRESULT OnProgress(WPARAM wParam, LPARAM lParam);
 
 private:
-  virtual bool MIKTEXTHISCALL OnProcessOutput(const void * pOutput, size_t n);
+  virtual bool MIKTEXTHISCALL OnProcessOutput(const void* output, size_t n);
 
 public:
-  virtual void MIKTEXTHISCALL ReportLine(const std::string & str);
+  virtual void MIKTEXTHISCALL ReportLine(const std::string& str);
 
 public:
-  virtual bool MIKTEXTHISCALL OnRetryableError(const std::string & message);
+  virtual bool MIKTEXTHISCALL OnRetryableError(const std::string& message);
 
 public:
   virtual bool MIKTEXTHISCALL OnProgress(MiKTeX::Setup::Notification nf);
 
 private:
-  static UINT WorkerThread(void * pParam);
+  static UINT WorkerThread(void* fileCopyPage);
 
 private:
-  void Report(bool writeLog, const char * lpszFmt, ...);
+  void Report(bool writeLog, const char* format, ...);
 
 private:
-  CWnd * GetControl(UINT controlId);
+  CWnd* GetControl(UINT id);
 
 private:
-  void EnableControl(UINT controlId, bool enable);
+  void EnableControl(UINT id, bool enable);
 
 private:
-  void ReportError(const exception & e);
+  void ReportError(const exception& e);
 
 private:
-  void ReportError(const MiKTeXException & e);
+  void ReportError(const MiKTeXException& e);
 
 private:
   CAnimateCtrl animationControl;
@@ -132,7 +132,7 @@ private:
   DWORD timeOfLastProgressRefresh;
 
 private:
-  class SetupWizard * pSheet = nullptr;
+  class SetupWizard* pSheet = nullptr;
 
 private:
   shared_ptr<Session> session = Session::Get();
