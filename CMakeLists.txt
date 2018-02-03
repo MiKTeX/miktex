@@ -2247,6 +2247,15 @@ set(CPACK_STRIP_SYMBOLS TRUE)
 
 include(CPack)
 
+if(MIKTEX_MACOS_BUNDLE AND WITH_CODE_SIGNING)
+  add_custom_target(signed-package
+    COMMAND
+      "${CMAKE_CPACK_COMMAND}" --config "${CMAKE_BINARY_DIR}/CPackConfig.cmake"
+    COMMAND
+      codesign -s "Developer ID" *.dmg
+  )
+endif()
+
 ###############################################################################
 ## uninstall (see CMAKE FAQ)
 
