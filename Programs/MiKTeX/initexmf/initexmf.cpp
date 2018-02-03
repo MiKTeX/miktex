@@ -1324,22 +1324,22 @@ void IniTeXMFApp::ManageLink(const FileLink& fileLink, bool supportsHardLinks, b
     {
       continue;
     }
-    PathName targetDirectory(linkName);
-    targetDirectory.RemoveFileSpec();
-    if (!Directory::Exists(targetDirectory))
+    PathName sourceDirectory(linkName);
+    sourceDirectory.RemoveFileSpec();
+    if (!Directory::Exists(sourceDirectory) && !printOnly)
     {
-      Directory::Create(targetDirectory);
+      Directory::Create(sourceDirectory);
     }
     switch (linkType)
     {
     case LinkType::Symbolic:
       {
-        const char* target = Utils::GetRelativizedPath(fileLink.target.c_str(), targetDirectory.GetData());
+        const char* target = Utils::GetRelativizedPath(fileLink.target.c_str(), sourceDirectory.GetData());
         if (target == nullptr)
         {
           target = fileLink.target.c_str();
         }
-        PrintOnly("ln -s %s %s", Q_(target), Q_(linkName));
+        PrintOnly("ln -s %s %s", Q_(linkName), Q_(target));
         if (!printOnly)
         {
           File::CreateLink(target, linkName, { CreateLinkOption::UpdateFndb, CreateLinkOption::Symbolic });
@@ -1721,11 +1721,21 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
     links.insert(links.end(), lua52texLinks.begin(), lua52texLinks.end());
 #endif
 #if defined(MIKTEX_MACOS_BUNDLE)
-    links.push_back(FileLink((session->GetMyLocation(true) / ".." / "MacOS" / "MiKTeX Console").ToString(), { (pathLocalBinDir / MIKTEX_CONSOLE_EXE).ToString() }, LinkType::Symbolic));
+    PathName console(session->GetMyLocation(true) / ".." / "MacOS" / "MiKTeX Console");
+    console.MakeAbsolute();
+    links.push_back(FileLink(console.ToString(), { MIKTEX_CONSOLE_EXE }, LinkType::Symbolic));
 #endif
     for (const FileLink& fileLink : links)
     {
-      PathName targetPath = pathBinDir / fileLink.target;
+      PathName targetPath;
+      if (Utils::IsAbsolutePath(fileLink.target))
+      {
+	targetPath = fileLink.target;
+      }
+      else
+      {
+	targetPath = pathBinDir / fileLink.target;
+      }
       string extension = targetPath.GetExtension();
       if (File::Exists(targetPath))
       {
