@@ -1720,6 +1720,9 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
 #else
     links.insert(links.end(), lua52texLinks.begin(), lua52texLinks.end());
 #endif
+#if defined(MIKTEX_MACOS_BUNDLE)
+    links.push_back(FileLink((session->GetMyLocation(true) / ".." / "MacOS" / "MiKTeX Console").ToString(), { (pathLocalBinDir / MIKTEX_CONSOLE_EXE).ToString() }, LinkType::Symbolic));
+#endif
     for (const FileLink& fileLink : links)
     {
       PathName targetPath = pathBinDir / fileLink.target;
