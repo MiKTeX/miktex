@@ -390,6 +390,12 @@ option(
 )
 
 option(
+  WITH_CODE_SIGNING
+  "Sign MiKTeX executables."
+  FALSE
+)
+
+option(
   WITH_LIBRESSL_CRYPTO
   "Use the LibreSSL crypto library supplied with MiKTeX."
   ${WIN32}

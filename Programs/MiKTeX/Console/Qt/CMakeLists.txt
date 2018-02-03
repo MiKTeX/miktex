@@ -179,6 +179,12 @@ if(MIKTEX_MACOS_BUNDLE)
   ")
 endif()
 
+if(MIKTEX_MACOS_BUNDLE AND WITH_CODE_SIGNING)
+  install(CODE
+    "execute_process(COMMAND \"${CMAKE_SOURCE_DIR}/BuildUtilities/sign/mac/codesign_miktex\" \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MIKTEX_MACOS_BUNDLE_NAME}.app\")"
+  )
+endif()
+
 if(MIKTEX_NATIVE_WINDOWS)
   add_executable(miktex-console${MIKTEX_ADMIN_SUFFIX} WIN32 ${sources})
   set_property(TARGET miktex-console${MIKTEX_ADMIN_SUFFIX} PROPERTY FOLDER ${MIKTEX_CURRENT_FOLDER})
