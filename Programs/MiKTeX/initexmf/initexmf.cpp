@@ -1637,6 +1637,11 @@ vector<FileLink> miktexFileLinks =
 #if defined(WITH_KPSEWHICH)
   { MIKTEX_KPSEWHICH_EXE, { "kpsewhich" } },
 #endif
+#if defined(MIKTEX_MACOS_BUNDLE)
+  { MIKTEX_CONSOLE_EXE, { MIKTEX_CONSOLE_EXE } },
+  { MIKTEX_INITEXMF_EXE, { MIKTEX_INITEXMF_EXE }},
+  { MIKTEX_MPM_EXE, { MIKTEX_MPM_EXE } },
+#endif
 #if defined(WITH_MKTEXLSR)
   { MIKTEX_INITEXMF_EXE, { "mktexlsr" }, LinkType::Copy },
 #endif
@@ -1726,6 +1731,10 @@ vector<FileLink> IniTeXMFApp::CollectLinks(LinkCategoryOptions linkCategories)
         for (const string& linkName : fileLink.linkNames)
         {
           PathName linkPath = pathLocalBinDir / linkName;
+          if (linkPath == targetPath)
+          {
+            continue;
+          }
           if (!extension.empty())
           {
             linkPath.AppendExtension(extension);
