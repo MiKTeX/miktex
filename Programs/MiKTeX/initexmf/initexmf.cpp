@@ -1638,7 +1638,6 @@ vector<FileLink> miktexFileLinks =
   { MIKTEX_KPSEWHICH_EXE, { "kpsewhich" } },
 #endif
 #if defined(MIKTEX_MACOS_BUNDLE)
-  { MIKTEX_CONSOLE_EXE, { MIKTEX_CONSOLE_EXE } },
   { MIKTEX_INITEXMF_EXE, { MIKTEX_INITEXMF_EXE }},
   { MIKTEX_MPM_EXE, { MIKTEX_MPM_EXE } },
 #endif
