@@ -1022,8 +1022,19 @@ BOOL SetupApp::InitInstance()
       {
         MIKTEX_FATAL_WINDOWS_ERROR("ShellExecuteExW");
       }
-      WaitForSingleObject(sei.hProcess, INFINITE);
-      CloseHandle(sei.hProcess);
+      if (sei.hProcess == nullptr)
+      {
+        MIKTEX_FATAL_ERROR(T_("Process handle is null."));
+      }
+      DWORD wait = WaitForSingleObject(sei.hProcess, INFINITE);
+      if (wait != WAIT_OBJECT_0)
+      {
+        MIKTEX_FATAL_ERROR_2(T_("Process wait failure."), "wait", std::to_string(wait));
+      }
+      if (!CloseHandle(sei.hProcess))
+      {
+        MIKTEX_FATAL_WINDOWS_ERROR("CloseHandle");
+      }
     }
     sfxDir = nullptr;
     session = nullptr;
