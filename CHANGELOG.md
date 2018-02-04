@@ -45,6 +45,7 @@ As always: run `initexmf` with administrator privileges and add the
 * Dvisvgm 2.3.1
 * LuaTeX 1.07.0
 * m-tx 0.63
+* XeTeX 0.99999
 
 ### Upgraded libraries
 

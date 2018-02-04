@@ -168,9 +168,7 @@ has been detected. It has five possible values: |spotless|, |warning_issued|,
 @x [17.222] l.4523 - frozen_special, for source specials.
 @d frozen_null_font=frozen_control_sequence+11
 @y
-@d frozen_primitive=frozen_control_sequence+11
-  {permanent `\.{\\primitive}'}
-@d frozen_null_font=frozen_control_sequence+12
+@d frozen_null_font=frozen_control_sequence+12+prim_size
 @z
 
 @x [17.230] l.4731

@@ -1,6 +1,6 @@
 /* xetex-miktex.h:                                      -*- C++ -*-
    
-   Copyright (C) 2007-2017 Christian Schenk
+   Copyright (C) 2007-2018 Christian Schenk
 
    This file is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published
@@ -413,6 +413,11 @@ inline bool miktexopentfmfile(XETEXPROGCLASS::bytefile& f, const XETEXPROGCLASS:
 inline char* xmallocchararray(size_t size)
 {
   return (char*)xmalloc(size + 1);
+}
+
+inline void uclose(unicodefile& f)
+{
+  u_close_inout(&f);
 }
 
 inline int uopenin(unicodefile& f, int mode, int encodingData)
