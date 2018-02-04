@@ -13,6 +13,7 @@ app_dir=$1
 
 find "$app_dir"/Contents/Frameworks -type f -exec codesign --force --verbose --sign "$code_sign_identity" {} \;
 find "$app_dir"/Contents/bin -type f -exec codesign --force --verbose --sign "$code_sign_identity" {} \;
+find "$app_dir"/Contents/libexec -type f -exec codesign --force --verbose --sign "$code_sign_identity" {} \;
 find "$app_dir"/Contents/MacOS -type f -exec codesign --force --verbose --sign "$code_sign_identity" {} \;
 
 find "$app_dir"/Contents/PlugIns -name "*.dylib" -exec codesign --force --verbose --sign "$code_sign_identity" {} \;
