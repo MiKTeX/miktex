@@ -73,16 +73,16 @@ BOOL SharedInstallationPage::OnInitDialog()
     }
     CString str;
     wnd->GetWindowText(str);
-    str += _T(" ");
+    str += _T(" (");
     str += logonName;
     wchar_t displayName[30];
     ULONG sizeDisplayName = sizeof(displayName) / sizeof(displayName[0]);
     if (GetUserNameExW(NameDisplay, displayName, &sizeDisplayName))
     {
-      str += _T(" (");
+      str += _T(", ");
       str += displayName;
-      str += _T(')');
     }
+    str += _T(')');
     wnd->SetWindowText(str);
   }
   catch (const MiKTeXException& e)
