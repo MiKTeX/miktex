@@ -116,7 +116,7 @@
           <string>Check and modify MiKTeX configuration settings</string>
          </property>
          <property name="text">
-          <string>Setttings</string>
+          <string>Settings</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
