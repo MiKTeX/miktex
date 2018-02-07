@@ -1,6 +1,6 @@
 /* FileNameDatabase.cpp: file name database
 
-   Copyright (C) 1996-2016 Christian Schenk
+   Copyright (C) 1996-2018 Christian Schenk
 
    This file is part of the MiKTeX Core Library.
 
@@ -482,7 +482,7 @@ MIKTEXSTATICFUNC(bool) Match(const char * lpszPathPattern, const char * lpszPath
     }
     return false;
   }
-  return (*lpszPathPattern == 0 || strcmp(lpszPathPattern, RECURSION_INDICATOR) == 0) && *lpszPath == 0;
+  return (*lpszPathPattern == 0 || strcmp(lpszPathPattern, RECURSION_INDICATOR) == 0 || strcmp(lpszPathPattern, "/") == 0) && *lpszPath == 0;
 }
 
 bool FileNameDatabase::Search(const PathName & relativePath, const char * lpszPathPattern, bool firstMatchOnly, vector<PathName> & result, vector<string> & fileNameInfo) const
