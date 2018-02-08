@@ -157,7 +157,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
 void MainWindow::setVisible(bool visible)
 {
-  ui->actionMinimize->setEnabled(visible);
+  ui->actionHide->setEnabled(visible);
   ui->actionRestore->setEnabled(!visible);
   QMainWindow::setVisible(visible);
 }
@@ -298,10 +298,12 @@ void MainWindow::CreateTrayIcon()
     return;
   }
   trayIconMenu = new QMenu(this);
+  trayIconMenu->addAction(ui->actionCheckUpdates);
+  trayIconMenu->addSeparator();
   trayIconMenu->addAction(ui->actionTeXworks);
   trayIconMenu->addAction(ui->actionTerminal);
   trayIconMenu->addSeparator();
-  trayIconMenu->addAction(ui->actionMinimize);
+  trayIconMenu->addAction(ui->actionHide);
   trayIconMenu->addAction(ui->actionRestore);
   trayIconMenu->addSeparator();
   trayIconMenu->addAction(ui->actionExit);
@@ -325,6 +327,16 @@ void MainWindow::TrayIconActivated(QSystemTrayIcon::ActivationReason reason)
 
 void MainWindow::TrayMessageClicked()
 {
+  if (this->isHidden())
+  {
+    this->showNormal();
+  }
+  switch (trayMessageContext)
+  {
+  case TrayMessageContext::Updates:
+    SetCurrentPage(Pages::Updates);
+    break;
+  }
 }
 #endif
 
@@ -982,6 +994,29 @@ void MainWindow::CheckUpdates()
       updateModel->SetData(updates);
       ui->labelUpdateStatus->setText("");
       ui->labelCheckUpdatesStatus->setText("");
+#if !defined(QT_NO_SYSTEMTRAYICON)
+      if (trayIcon != nullptr && QSystemTrayIcon::supportsMessages())
+      {
+        QString msg;
+        if (updates.empty())
+        {
+          msg = tr("There are currently no updates available.");
+        }
+        else
+        {
+          if (updates.size() == 1)
+          {
+            msg = tr("There is an update available!");
+          }
+          else
+          {
+            msg = tr("There is are %1 updates available!").arg(updates.size());
+          }
+        }
+        trayMessageContext = TrayMessageContext::Updates;
+        trayIcon->showMessage(tr("MiKTeX Console"), msg);
+      }
+#endif
     }
     else
     {

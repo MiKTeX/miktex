@@ -1751,9 +1751,12 @@ Use this option, if you want to operate on the private configuration.</string>
     <string>Shows the version number and copying conditions.</string>
    </property>
   </action>
-  <action name="actionMinimize">
+  <action name="actionHide">
    <property name="text">
-    <string>Mi&amp;nimize</string>
+    <string>&amp;Hide</string>
+   </property>
+   <property name="toolTip">
+    <string>Hide</string>
    </property>
   </action>
   <action name="actionRestore">
@@ -1995,7 +1998,7 @@ Use this option, if you want to operate on the private configuration.</string>
    </hints>
   </connection>
   <connection>
-   <sender>actionMinimize</sender>
+   <sender>actionHide</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>hide()</slot>

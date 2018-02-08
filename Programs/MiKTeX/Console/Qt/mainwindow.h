@@ -97,6 +97,17 @@ private slots:
 
 private slots:
   void TrayMessageClicked();
+
+private:
+  enum class TrayMessageContext
+  {
+    None,
+    Error,
+    Updates
+  };
+
+private:
+  TrayMessageContext trayMessageContext = TrayMessageContext::None;
 #endif
 
 private:
