@@ -1,7 +1,7 @@
 /*
   	#[ License :
 
-    (C) 2016 by authors:
+    (C) 2016-2018 by authors:
             John Collins (jcc8 at psu dot edu)
             Jos Vermaseren (t68 at nikhef dot nl) 
 
@@ -74,9 +74,9 @@
 */
 
 #define NAME "axohelp"
-#define VERSIONDATE "2016 May 23"
+#define VERSIONDATE "2018 Jan 23"
 #define VERSION 1
-#define SUBVERSION 0
+#define SUBVERSION 1
 
 #define COMMENTCHAR '%'
 #define TERMCHAR ';'
@@ -1161,15 +1161,28 @@ int DoOneObject(char *cinput)
 void PrintHelp(char *name)
 {
     fprintf(stderr,"This is %s v. %d.%d of %s\n", NAME, VERSION, SUBVERSION, VERSIONDATE);
-    fprintf(stderr,"Proper use is: %s [-h] [-v] filename\n",name);
-    fprintf(stderr,"Input will then be from filename.ax1, output to filename.ax2\n");
-    fprintf(stderr,"-h : prints this help information and terminates.\n");
-    fprintf(stderr,"-v : prints information about each function treated in stdout.\n");
-    exit(-1);
+    fprintf(stderr,"Usage: %s [OPTION] filename\n",name);
+    fprintf(stderr,"Input will then be from filename.ax1, output to filename.ax2.\n");
+    fprintf(stderr,"-h, --help : prints this help information and terminates.\n");
+    fprintf(stderr,"-v, --version : prints version information and terminates.\n");
+    fprintf(stderr,"-V : prints information about each function treated in stdout.\n");
+    fprintf(stderr,"     (NOT CURRENTLY IMPLEMENTED)\n\n");
+    fprintf(stderr,"Please report bugs to jcc8@psu.edu.\n");
+    fprintf(stderr,"axodraw2 web page: https://ctan.org/pkg/axodraw2\n");
 }
 
 /*
   	#] PrintHelp : 
+  	#[ PrintHelpPrompt :
+*/
+
+void PrintHelpPrompt(char *name)
+{
+    fprintf(stderr,"Try '%s --help' for more information.\n", name);
+}
+
+/*
+  	#] PrintHelpPrompt : 
   	#[ Inivars :
 */
 
@@ -1194,45 +1207,65 @@ int main(int argc,char **argv)
     Inivars();
     argc--;
     axohelp = *argv++;
-    if ( argc <= 0 ) PrintHelp(axohelp);
-    s = *argv;
-    while ( *s == '-' ) {   /* we have arguments */
-        if ( s[1] == 'h' && s[2] == 0 ) PrintHelp(axohelp);
-        else if ( s[1] == 'v' && s[2] == 0 ) {
+    if ( argc <= 0 ) {
+        PrintHelp(axohelp);
+	return -1;
+    }
+    while ( (*argv)[0] == '-' ) {   /* we have options */
+        s = *argv;
+        if ( s[1] == '-' ) {
+  	    /* Double "--", treat as "-" */
+	    s++;
+        }
+        if ( ( strcmp(s,"-h") == 0) || ( strcmp(s,"-help") == 0 ) ) {
+  	    PrintHelp(axohelp);
+	    return 0;
+	}
+        else if ( ( strcmp(s,"-v") == 0 ) || ( strcmp(s,"-version") == 0 ) ) {
+            fprintf(stderr,
+		    "%s %d.%d\n(release date %s)\n"
+		    "Copyright 2018 John Collins and Jos Vermaseren.\n"
+                    "License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\n"
+                    "There is NO WARRANTY, to the extent permitted by law.\n",
+		    axohelp, VERSION, SUBVERSION, VERSIONDATE);
+   	    return 0;
+	}
+        else if ( strcmp( s, "-V" ) == 0 ) {
             VerboseFlag = 1;
         }
         else {
-            fprintf(stderr,"Illegal option %s in call to %s\n",s,axohelp);
-            PrintHelp(axohelp);
+ 	    fprintf(stderr,"%s: Illegal option %s\n", axohelp, *argv);
+            PrintHelpPrompt(axohelp);
+	    return -1;
         }
         argc--; argv++;
         if ( argc <= 0 ) {
-            fprintf(stderr,"Not enough arguments in call to %s\n",axohelp);
-            PrintHelp(axohelp);
+            fprintf(stderr,"%s: Not enough arguments\n",axohelp);
+            PrintHelpPrompt(axohelp);
+	    return -1;
         }
-        s = *argv;
     }
     if ( argc != 1 ) {
-        fprintf(stderr,"Too many arguments in call to %s\n",axohelp);
-        PrintHelp(axohelp);
+        fprintf(stderr,"%s: Too many arguments\n",axohelp);
+        PrintHelpPrompt(axohelp);
+        return -1;
     }
 /*
-    The filename is now in s. We should copy it to a separate string and
-    paste on the extension .ax1 (if needed). We should also construct the
+    The filename is now in s. We copy it to a separate string and
+    paste on the extension .ax1 (if needed), and construct the
     name of the output file.
 */
+    s = *argv;
     length = strlen(s);
     inname  = strcpy(malloc((length+5)*sizeof(char)),s);
     outname = strcpy(malloc((length+5)*sizeof(char)),s);
     s = inname + length;
-    if ( length > 4 && s[-4] == '.' && s[-3] == 'a' && s[-2] == 'x' && s[-1] == '1' ) {
+    if ( (length > 4) && (strcmp(s+length-4, ".ax1") == 0) ) {
         outname[length-1] = '2';
     }
     else {
-        inname[length] = '.'; inname[length+1] = 'a';
-        inname[length+2] = 'x'; inname[length+3] = '1'; inname[length+4] = 0;
-        outname[length] = '.'; outname[length+1] = 'a';
-        outname[length+2] = 'x'; outname[length+3] = '2'; outname[length+4] = 0;
+        strcpy( inname+length, ".ax1" );
+        strcpy( outname+length, ".ax2" );
     }
     if ( ( inbuffer = ReadInput(inname) ) == 0 ) return(-1);
     if ( ( outfile = fopen(outname,"w") ) == 0 ) {
