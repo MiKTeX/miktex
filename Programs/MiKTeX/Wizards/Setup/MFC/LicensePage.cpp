@@ -1,6 +1,6 @@
 /* LicensePage.cpp:
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -34,11 +34,11 @@ LicensePage::LicensePage() :
 {
 }
 
-static void * pLicense = nullptr;
+static void* pLicense = nullptr;
 static long offset;
 static long sizeLicense;
 
-static DWORD CALLBACK StreamInCallback(DWORD_PTR cookie, unsigned char * pBuf, long sizeBuf, long * pRead)
+static DWORD CALLBACK StreamInCallback(DWORD_PTR cookie, unsigned char* pBuf, long sizeBuf, long* pRead)
 {
   UNUSED_ALWAYS(cookie);
   if (sizeBuf < sizeLicense - offset)
@@ -94,11 +94,11 @@ BOOL LicensePage::OnInitDialog()
     editStream.pfnCallback = StreamInCallback;
     licenseControl.StreamIn(SF_TEXT, editStream);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
@@ -115,7 +115,7 @@ BOOL LicensePage::OnSetActive()
   return ret;
 }
 
-void LicensePage::DoDataExchange(CDataExchange * pDX)
+void LicensePage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Control(pDX, IDC_LICENSE, licenseControl);
@@ -129,10 +129,10 @@ LRESULT LicensePage::OnWizardNext()
     (SetupApp::Instance->IsMiKTeXDirect
       ? IDD_MD_TASK
       : (SetupApp::Instance->Service->GetOptions().IsPrefabricated
-	? (SetupApp::Instance->prefabricatedPackageLevel == PackageLevel::Complete
-	  ? IDD_PACKAGE_SET_INSTALL
-	  : IDD_SHARED)
-	: IDD_TASK));
+        ? (SetupApp::Instance->prefabricatedPackageLevel == PackageLevel::Complete
+          ? IDD_PACKAGE_SET_INSTALL
+          : IDD_SHARED)
+        : IDD_TASK));
   return reinterpret_cast<LRESULT>(MAKEINTRESOURCE(next));
 }
 

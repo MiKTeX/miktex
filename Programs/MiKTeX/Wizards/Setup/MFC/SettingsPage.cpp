@@ -1,6 +1,6 @@
 /* SettingsPage.cpp:
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -58,7 +58,7 @@ BOOL SettingsPage::OnInitDialog()
   return ret;
 }
 
-void SettingsPage::DoDataExchange(CDataExchange * pDX)
+void SettingsPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_CBString(pDX, IDC_COMBO1, paperSize);

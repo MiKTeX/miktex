@@ -1,6 +1,6 @@
 /* RemoteRepositoryPag.cpp:
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -68,11 +68,11 @@ BOOL RemoteRepositoryPage::OnInitDialog()
     ++colIdx;
 #endif
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
@@ -90,21 +90,21 @@ BOOL RemoteRepositoryPage::OnSetActive()
     {
       if (firstSetActive)
       {
-	firstSetActive = false;
-	SetProgressText(T_("Connecting..."));
-	pSheet->SetWizardButtons(0);
-	AfxBeginThread(WorkerThread, this);
+        firstSetActive = false;
+        SetProgressText(T_("Connecting..."));
+        pSheet->SetWizardButtons(0);
+        AfxBeginThread(WorkerThread, this);
       }
       else
       {
-	OnFillList(0, 0);
+        OnFillList(0, 0);
       }
     }
-    catch (const MiKTeXException & e)
+    catch (const MiKTeXException& e)
     {
       pSheet->ReportError(e);
     }
-    catch (const exception & e)
+    catch (const exception& e)
     {
       pSheet->ReportError(e);
     }
@@ -112,7 +112,7 @@ BOOL RemoteRepositoryPage::OnSetActive()
   return ret;
 }
 
-void RemoteRepositoryPage::DoDataExchange(CDataExchange * pDX)
+void RemoteRepositoryPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Control(pDX, IDC_LIST, listControl);
@@ -151,18 +151,18 @@ BOOL RemoteRepositoryPage::OnKillActive()
       POSITION pos = listControl.GetFirstSelectedItemPosition();
       if (pos != nullptr)
       {
-	SetupOptions options = SetupApp::Instance->Service->GetOptions();
-	int i = listControl.GetNextSelectedItem(pos);
-	options.RemotePackageRepository = repositories[i].url;
-	SetupApp::Instance->Service->SetOptions(options);
+        SetupOptions options = SetupApp::Instance->Service->GetOptions();
+        int i = listControl.GetNextSelectedItem(pos);
+        options.RemotePackageRepository = repositories[i].url;
+        SetupApp::Instance->Service->SetOptions(options);
       }
     }
-    catch (const MiKTeXException & e)
+    catch (const MiKTeXException& e)
     {
       pSheet->ReportError(e);
       ret = FALSE;
     }
-    catch (const exception & e)
+    catch (const exception& e)
     {
       pSheet->ReportError(e);
       ret = FALSE;
@@ -182,18 +182,18 @@ BOOL RemoteRepositoryPage::OnQueryCancel()
     pSheet->SetCancelFlag();
     SetProgressText(T_("Cancelling..."));
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
   return FALSE;
 }
 
-void SplitUrl(const string & url, string & protocol, string & host)
+void SplitUrl(const string& url, string& protocol, string& host)
 {
   wchar_t szProtocol[200];
   wchar_t szHost[200];
@@ -239,7 +239,7 @@ LRESULT RemoteRepositoryPage::OnFillList(WPARAM wParam, LPARAM lParam)
 #if MIKTEX_RELEASE_STATE < 4
       if (it->packageLevel < SetupApp::Instance->GetPackageLevel())
       {
-	continue;
+        continue;
       }
 #endif
 
@@ -252,7 +252,7 @@ LRESULT RemoteRepositoryPage::OnFillList(WPARAM wParam, LPARAM lParam)
 
       if (listControl.InsertItem(&lvitem) < 0)
       {
-	MIKTEX_FATAL_WINDOWS_ERROR("CListCtrl::InsertItem");
+        MIKTEX_FATAL_WINDOWS_ERROR("CListCtrl::InsertItem");
       }
 
       string protocol;
@@ -272,21 +272,21 @@ LRESULT RemoteRepositoryPage::OnFillList(WPARAM wParam, LPARAM lParam)
 
       if (it->url == SetupApp::Instance->GetRemotePackageRepository())
       {
-	if (!listControl.SetItemState(idx, LVIS_SELECTED, LVIS_SELECTED))
-	{
-	  MIKTEX_FATAL_WINDOWS_ERROR("CListCtrl::SetItemState");
-	}
-	selected = true;
+        if (!listControl.SetItemState(idx, LVIS_SELECTED, LVIS_SELECTED))
+        {
+          MIKTEX_FATAL_WINDOWS_ERROR("CListCtrl::SetItemState");
+        }
+        selected = true;
       }
     }
 
     pSheet->SetWizardButtons(PSWIZB_BACK | (selected ? PSWIZB_NEXT : 0));
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
@@ -294,7 +294,7 @@ LRESULT RemoteRepositoryPage::OnFillList(WPARAM wParam, LPARAM lParam)
   return 0;
 }
 
-void RemoteRepositoryPage::OnItemChanged(NMHDR * pNMHDR, LRESULT * pResult)
+void RemoteRepositoryPage::OnItemChanged(NMHDR* pNMHDR, LRESULT* pResult)
 {
   UNUSED_ALWAYS(pNMHDR);
   *pResult = 0;
@@ -307,7 +307,7 @@ void RemoteRepositoryPage::OnItemChanged(NMHDR * pNMHDR, LRESULT * pResult)
 class CountryComparer
 {
 public:
-  inline bool operator() (const RepositoryInfo & lhs, const RepositoryInfo & rhs)
+  inline bool operator() (const RepositoryInfo& lhs, const RepositoryInfo& rhs)
   {
     if (lhs.ranking == rhs.ranking)
     {
@@ -320,9 +320,9 @@ public:
   }
 };
 
-UINT RemoteRepositoryPage::WorkerThread(void * pv)
+UINT RemoteRepositoryPage::WorkerThread(void* pv)
 {
-  RemoteRepositoryPage * This = reinterpret_cast<RemoteRepositoryPage *>(pv);
+  RemoteRepositoryPage* This = reinterpret_cast<RemoteRepositoryPage *>(pv);
   try
   {
     SetupApp::Instance->packageManager->DownloadRepositoryList();
@@ -332,11 +332,11 @@ UINT RemoteRepositoryPage::WorkerThread(void * pv)
   catch (const OperationCancelledException &)
   {
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     This->pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     This->pSheet->ReportError(e);
   }
@@ -348,11 +348,11 @@ UINT RemoteRepositoryPage::WorkerThread(void * pv)
       MIKTEX_FATAL_WINDOWS_ERROR("CWnd::PostMessage");
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     This->pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     This->pSheet->ReportError(e);
   }
@@ -362,7 +362,7 @@ UINT RemoteRepositoryPage::WorkerThread(void * pv)
   return 0;
 }
 
-void RemoteRepositoryPage::InsertColumn(int colIdx, const char * lpszLabel, const char * lpszLongest)
+void RemoteRepositoryPage::InsertColumn(int colIdx, const char* lpszLabel, const char* lpszLongest)
 {
   if (listControl.InsertColumn(colIdx, UT_(lpszLabel), LVCFMT_LEFT, listControl.GetStringWidth(UT_(lpszLongest)), colIdx) < 0)
   {
@@ -370,7 +370,7 @@ void RemoteRepositoryPage::InsertColumn(int colIdx, const char * lpszLabel, cons
   }
 }
 
-void RemoteRepositoryPage::SetItemText(int itemIdx, int colIdx, const char * lpszText)
+void RemoteRepositoryPage::SetItemText(int itemIdx, int colIdx, const char* lpszText)
 {
   if (!listControl.SetItemText(itemIdx, colIdx, UT_(lpszText)))
   {
@@ -378,7 +378,7 @@ void RemoteRepositoryPage::SetItemText(int itemIdx, int colIdx, const char * lps
   }
 }
 
-void RemoteRepositoryPage::SetProgressText(const char * lpszText)
+void RemoteRepositoryPage::SetProgressText(const char* lpszText)
 {
   if (!listControl.DeleteAllItems())
   {

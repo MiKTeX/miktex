@@ -1,6 +1,6 @@
 /* FileCopyPage.cpp: the actual setup process
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of MiKTeX Setup Wizard.
 
@@ -65,11 +65,11 @@ BOOL FileCopyPage::OnInitDialog()
   {
     session->SetAdminMode(SetupApp::Instance->IsCommonSetup(), true);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
   }
@@ -101,12 +101,12 @@ BOOL FileCopyPage::OnSetActive()
         MIKTEX_FATAL_WINDOWS_ERROR("CWnd::PostMessage");
       }
     }
-    catch (const MiKTeXException & e)
+    catch (const MiKTeXException& e)
     {
       ReportError(e);
       ret = FALSE;
     }
-    catch (const exception & e)
+    catch (const exception& e)
     {
       ReportError(e);
       ret = FALSE;
@@ -116,7 +116,7 @@ BOOL FileCopyPage::OnSetActive()
   return TRUE;
 }
 
-void FileCopyPage::DoDataExchange(CDataExchange * pDX)
+void FileCopyPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Control(pDX, IDC_ANI, animationControl);
@@ -140,12 +140,12 @@ BOOL FileCopyPage::OnKillActive()
     {
       SetupApp::Instance->Service->ULogClose(!pSheet->GetErrorFlag());
     }
-    catch (const MiKTeXException & e)
+    catch (const MiKTeXException& e)
     {
       ReportError(e);
       ret = FALSE;
     }
-    catch (const exception & e)
+    catch (const exception& e)
     {
       ReportError(e);
       ret = FALSE;
@@ -177,11 +177,11 @@ BOOL FileCopyPage::OnQueryCancel()
       SetupApp::Instance->Service->Log(T_("No!>>>\n"));
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
   }
@@ -217,7 +217,7 @@ LRESULT FileCopyPage::OnStartFileCopy(WPARAM wParam, LPARAM lParam)
     }
 
     // create the worker thread
-    CWinThread * pThread = AfxBeginThread(WorkerThread, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+    CWinThread* pThread = AfxBeginThread(WorkerThread, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
     MIKTEX_ASSERT(pThread != nullptr);
     MIKTEX_ASSERT(pThread->m_hThread != nullptr);
     if (!DuplicateHandle(GetCurrentProcess(), pThread->m_hThread, GetCurrentProcess(), &hWorkerThread, 0, FALSE, DUPLICATE_SAME_ACCESS))
@@ -226,11 +226,11 @@ LRESULT FileCopyPage::OnStartFileCopy(WPARAM wParam, LPARAM lParam)
     }
     pThread->ResumeThread();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
   }
@@ -328,13 +328,13 @@ LRESULT FileCopyPage::OnProgress(WPARAM wParam, LPARAM lParam)
 #endif
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     ReportError(e);
     pSheet->SetWizardButtons(PSWIZB_NEXT);
     sharedData.waitingForClickOnNext = true;
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     ReportError(e);
     pSheet->SetWizardButtons(PSWIZB_NEXT);
@@ -353,18 +353,18 @@ LRESULT FileCopyPage::OnReport(WPARAM wParam, LPARAM lParam)
   return 0;
 }
 
-bool FileCopyPage::OnProcessOutput(const void * pOutput, size_t n)
+bool FileCopyPage::OnProcessOutput(const void* pOutput, size_t n)
 {
   Report(true, "%.*s", n, reinterpret_cast<const char *>(pOutput));
   return !(pSheet->GetErrorFlag() || pSheet->GetCancelFlag());
 }
 
-void FileCopyPage::ReportLine(const string & str)
+void FileCopyPage::ReportLine(const string& str)
 {
   Report(true, "%s\n", str.c_str());
 }
 
-bool FileCopyPage::OnRetryableError(const string & message)
+bool FileCopyPage::OnRetryableError(const string& message)
 {
   UINT uType = MB_ICONSTOP;
   uType |= MB_RETRYCANCEL;
@@ -449,9 +449,9 @@ bool FileCopyPage::OnProgress(MiKTeX::Setup::Notification nf)
   return !(pSheet->GetErrorFlag() || pSheet->GetCancelFlag());
 }
 
-UINT FileCopyPage::WorkerThread(void * pParam)
+UINT FileCopyPage::WorkerThread(void* pParam)
 {
-  FileCopyPage * This = reinterpret_cast<FileCopyPage*>(pParam);
+  FileCopyPage* This = reinterpret_cast<FileCopyPage*>(pParam);
 
   This->timeOfLastProgressRefresh = 0;
 
@@ -469,11 +469,11 @@ UINT FileCopyPage::WorkerThread(void * pParam)
     SetupApp::Instance->Service->SetCallback(This);
     SetupApp::Instance->Service->Run();
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     This->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     This->ReportError(e);
   }
@@ -492,11 +492,11 @@ UINT FileCopyPage::WorkerThread(void * pParam)
       MIKTEX_FATAL_WINDOWS_ERROR("CWnd::PostMessage");
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     This->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     This->ReportError(e);
   }
@@ -504,7 +504,7 @@ UINT FileCopyPage::WorkerThread(void * pParam)
   return 0;
 }
 
-void FileCopyPage::Report(bool writeLog, const char * lpszFmt, ...)
+void FileCopyPage::Report(bool writeLog, const char* lpszFmt, ...)
 {
   MIKTEX_ASSERT(lpszFmt != nullptr);
   va_list args;
@@ -538,9 +538,9 @@ void FileCopyPage::Report(bool writeLog, const char * lpszFmt, ...)
   }
 }
 
-CWnd * FileCopyPage::GetControl(UINT controlId)
+CWnd* FileCopyPage::GetControl(UINT controlId)
 {
-  CWnd * pWnd = GetDlgItem(controlId);
+  CWnd* pWnd = GetDlgItem(controlId);
   if (pWnd == nullptr)
   {
     MIKTEX_UNEXPECTED();
@@ -553,13 +553,13 @@ void FileCopyPage::EnableControl(UINT controlId, bool enable)
   GetControl(controlId)->EnableWindow(enable ? TRUE : FALSE);
 }
 
-void FileCopyPage::ReportError(const MiKTeXException & e)
+void FileCopyPage::ReportError(const MiKTeXException& e)
 {
   Report(false, T_("\nError: %s\n"), e.what());
   pSheet->ReportError(e);
 }
 
-void FileCopyPage::ReportError(const exception & e)
+void FileCopyPage::ReportError(const exception& e)
 {
   Report(false, T_("\nError: %s\n"), e.what());
   pSheet->ReportError(e);

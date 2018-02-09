@@ -40,7 +40,7 @@ protected:
   virtual BOOL OnSetActive();
 
 protected:
-  virtual void DoDataExchange(CDataExchange * pDX);
+  virtual void DoDataExchange(CDataExchange* dx);
 
 protected:
   virtual LRESULT OnWizardNext();
@@ -55,7 +55,7 @@ private:
   int commonUserSetup = -1;
 
 private:
-  class SetupWizard * pSheet = nullptr;
+  class SetupWizard* pSheet = nullptr;
 
 private:
   shared_ptr<Session> session = Session::Get();

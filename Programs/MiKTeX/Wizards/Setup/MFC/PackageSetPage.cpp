@@ -1,6 +1,6 @@
 /* PackageSet.cpp:
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -60,7 +60,7 @@ BOOL PackageSetPage::OnSetActive()
   return ret;
 }
 
-void PackageSetPage::DoDataExchange(CDataExchange * pDX)
+void PackageSetPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Radio(pDX, IDC_SMALL, packageSet);

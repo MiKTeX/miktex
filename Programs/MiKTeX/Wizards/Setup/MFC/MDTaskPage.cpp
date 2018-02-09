@@ -65,7 +65,7 @@ BOOL MDTaskPage::OnSetActive()
   return ret;
 }
 
-void MDTaskPage::DoDataExchange(CDataExchange * pDX)
+void MDTaskPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Radio(pDX, IDC_PREPARE_MIKTEXDIRECT, task);

@@ -1,6 +1,6 @@
 /* WelcomePage.cpp:
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -40,7 +40,7 @@ BOOL WelcomePage::OnInitDialog()
   BOOL ret = CPropertyPage::OnInitDialog();
   try
   {
-    CWnd * pWnd = GetDlgItem(IDC_WELCOME);
+    CWnd* pWnd = GetDlgItem(IDC_WELCOME);
     if (pWnd == nullptr)
     {
       MIKTEX_UNEXPECTED();
@@ -48,11 +48,11 @@ BOOL WelcomePage::OnInitDialog()
     extern CFont fntWelcome;
     pWnd->SetFont(&fntWelcome);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
@@ -65,7 +65,7 @@ BOOL WelcomePage::OnSetActive()
   return CPropertyPage::OnSetActive();
 }
 
-void WelcomePage::DoDataExchange(CDataExchange * pDX)
+void WelcomePage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
 }

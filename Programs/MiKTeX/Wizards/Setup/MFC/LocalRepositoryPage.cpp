@@ -1,6 +1,6 @@
 /* LocalRepositoryPag.cpp:
 
-   Copyright (C) 1999-2016 Christian Schenk
+   Copyright (C) 1999-2018 Christian Schenk
 
    This file is part of the MiKTeX Setup Wizard.
 
@@ -50,40 +50,40 @@ BOOL LocalRepositoryPage::OnSetActive()
   {
     try
     {
-      CWnd * pWnd = GetDlgItem(IDC_FILENAME);
+      CWnd* pWnd = GetDlgItem(IDC_FILENAME);
       if (pWnd == nullptr)
       {
-	MIKTEX_UNEXPECTED();
+        MIKTEX_UNEXPECTED();
       }
       pWnd->SetWindowText(fileName);
       if (fileName.GetLength() > 0)
       {
-	pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
+        pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
       }
       else
       {
-	pSheet->SetWizardButtons(PSWIZB_BACK);
+        pSheet->SetWizardButtons(PSWIZB_BACK);
       }
       pWnd = GetDlgItem(IDC_MESSAGE);
       if (pWnd == nullptr)
       {
-	MIKTEX_UNEXPECTED();
+        MIKTEX_UNEXPECTED();
       }
       if (SetupApp::Instance->GetTask() == SetupTask::Download)
       {
-	pWnd->SetWindowText(T_(_T("Download the MiKTeX distribution to:")));
+        pWnd->SetWindowText(T_(_T("Download the MiKTeX distribution to:")));
       }
       else
       {
-	pWnd->SetWindowText(T_(_T("Install MiKTeX from:")));
+        pWnd->SetWindowText(T_(_T("Install MiKTeX from:")));
       }
     }
-    catch (const MiKTeXException & e)
+    catch (const MiKTeXException& e)
     {
       pSheet->ReportError(e);
       ret = FALSE;
     }
-    catch (const exception & e)
+    catch (const exception& e)
     {
       pSheet->ReportError(e);
       ret = FALSE;
@@ -92,7 +92,7 @@ BOOL LocalRepositoryPage::OnSetActive()
   return ret;
 }
 
-void LocalRepositoryPage::DoDataExchange(CDataExchange * pDX)
+void LocalRepositoryPage::DoDataExchange(CDataExchange* pDX)
 {
   CPropertyPage::DoDataExchange(pDX);
   DDX_Text(pDX, IDC_FILENAME, fileName);
@@ -134,28 +134,28 @@ BOOL LocalRepositoryPage::OnKillActive()
     {
       if (SetupApp::Instance->GetTask() == SetupTask::InstallFromLocalRepository)
       {
-	PackageLevel foundPackageLevel = SetupService::TestLocalRepository(PathName(fileName), SetupApp::Instance->GetPackageLevel());
-	if (foundPackageLevel == PackageLevel::None)
-	{
-	  CString message;
-	  AfxFormatString1(message, IDP_NOT_LOCAL_REPOSITORY, fileName);
-	  AfxMessageBox(message, MB_OK | MB_ICONSTOP);
-	  ret = FALSE;
-	}
+        PackageLevel foundPackageLevel = SetupService::TestLocalRepository(PathName(fileName), SetupApp::Instance->GetPackageLevel());
+        if (foundPackageLevel == PackageLevel::None)
+        {
+          CString message;
+          AfxFormatString1(message, IDP_NOT_LOCAL_REPOSITORY, fileName);
+          AfxMessageBox(message, MB_OK | MB_ICONSTOP);
+          ret = FALSE;
+        }
       }
       if (ret)
       {
-	SetupOptions options = SetupApp::Instance->Service->GetOptions();
-	options.LocalPackageRepository = static_cast<LPCTSTR>(fileName);
-	SetupApp::Instance->Service->SetOptions(options);
+        SetupOptions options = SetupApp::Instance->Service->GetOptions();
+        options.LocalPackageRepository = static_cast<LPCTSTR>(fileName);
+        SetupApp::Instance->Service->SetOptions(options);
       }
     }
-    catch (const MiKTeXException & e)
+    catch (const MiKTeXException& e)
     {
       pSheet->ReportError(e);
       ret = FALSE;
     }
-    catch (const exception & e)
+    catch (const exception& e)
     {
       pSheet->ReportError(e);
       ret = FALSE;
@@ -199,11 +199,11 @@ void LocalRepositoryPage::OnBrowse()
     UpdateData(FALSE);
     pSheet->SetWizardButtons(PSWIZB_BACK | PSWIZB_NEXT);
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }
@@ -213,7 +213,7 @@ void LocalRepositoryPage::OnChangePathName()
 {
   try
   {
-    CWnd * pWnd = GetDlgItem(IDC_FILENAME);
+    CWnd* pWnd = GetDlgItem(IDC_FILENAME);
     if (pWnd == nullptr)
     {
       MIKTEX_UNEXPECTED();
@@ -227,11 +227,11 @@ void LocalRepositoryPage::OnChangePathName()
       pSheet->SetWizardButtons(PSWIZB_BACK);
     }
   }
-  catch (const MiKTeXException & e)
+  catch (const MiKTeXException& e)
   {
     pSheet->ReportError(e);
   }
-  catch (const exception & e)
+  catch (const exception& e)
   {
     pSheet->ReportError(e);
   }

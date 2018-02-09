@@ -1154,7 +1154,7 @@ void ReportError(const MiKTeXException& e)
       SetupApp::Instance->Service->Log(T_("  info: %s\n"), e.GetInfo().c_str());
     }
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
@@ -1169,7 +1169,7 @@ void ReportError(const exception& e)
     SetupApp::Instance->Service->Log("\n%s\n", str.c_str());
     AfxMessageBox(UT_(str), MB_OK | MB_ICONSTOP);
   }
-  catch (const exception &)
+  catch (const exception&)
   {
   }
 }
