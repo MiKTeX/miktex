@@ -346,7 +346,7 @@ const char* Ghostscript::error_name (int code) {
 	// gs_error_names is private in the Ghostscript DLL so we can't access it here
 	return error_names[code-1];
 #else
-	if (auto error_names = LOAD_SYMBOL(gs_error_names))
+	if (auto error_names = loadSymbol<const char**>("gs_error_names"))
 		return error_names[code-1];
 	return nullptr;
 #endif

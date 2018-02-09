@@ -97,8 +97,8 @@ class SegmentedCMap : public CMap
 		void write (std::ostream &os) const;
 		bool vertical () const override  {return _vertical;}
 		bool mapsToCID () const override {return _mapsToCID;}
-		size_t numCIDRanges () const     {return _cidranges.size();}
-		size_t numBFRanges () const      {return _bfranges.size();}
+		size_t numCIDRanges () const     {return _cidranges.numRanges();}
+		size_t numBFRanges () const      {return _bfranges.numRanges();}
 		std::string getROString () const override;
 
 	private:

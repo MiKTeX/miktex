@@ -287,7 +287,7 @@ void DVIReader::cmdSetChar0 (int c) {
 	Font *font = FontManager::instance().getFont(_currFontNum);
 	dviSetChar0(c, font); // template method that may trigger further actions
 	putVFChar(font, c);   // further character processing if current font is a virtual font
-	moveRight(font->charWidth(c)*font->scaleFactor()*_mag/1000.0);
+	moveRight(font->charWidth(c)*font->scaleFactor()*_mag/1000.0, MoveMode::SETCHAR);
 }
 
 
@@ -304,7 +304,7 @@ void DVIReader::cmdSetChar (int len) {
 	Font *font = FontManager::instance().getFont(_currFontNum);
 	dviSetChar(c, font); // template method that may trigger further actions
 	putVFChar(font, c);  // further character processing if current font is a virtual font
-	moveRight(font->charWidth(c)*font->scaleFactor()*_mag/1000.0);
+	moveRight(font->charWidth(c)*font->scaleFactor()*_mag/1000.0, MoveMode::SETCHAR);
 }
 
 
@@ -334,7 +334,7 @@ void DVIReader::cmdSetRule (int) {
 	double height = _dvi2bp*readSigned(4);
 	double width  = _dvi2bp*readSigned(4);
 	dviSetRule(height, width);
-	moveRight(width);
+	moveRight(width, MoveMode::CHANGEPOS);
 }
 
 
@@ -351,7 +351,7 @@ void DVIReader::cmdPutRule (int) {
 }
 
 
-void DVIReader::moveRight (double dx) {
+void DVIReader::moveRight (double dx, MoveMode) {
 	switch (_dviState.d) {
 		case WritingMode::LR: _dviState.h += dx; break;
 		case WritingMode::TB: _dviState.v += dx; break;
@@ -360,7 +360,7 @@ void DVIReader::moveRight (double dx) {
 }
 
 
-void DVIReader::moveDown (double dy) {
+void DVIReader::moveDown (double dy, MoveMode) {
 	switch (_dviState.d) {
 		case WritingMode::LR: _dviState.v += dy; break;
 		case WritingMode::TB: _dviState.h -= dy; break;
@@ -371,29 +371,29 @@ void DVIReader::moveDown (double dy) {
 
 void DVIReader::cmdRight (int len) {
 	double dx = _dvi2bp*readSigned(len);
-	moveRight(dx);
+	moveRight(dx, MoveMode::CHANGEPOS);
 	dviRight(dx);
 }
 
 
 void DVIReader::cmdDown (int len) {
 	double dy = _dvi2bp*readSigned(len);
-	moveDown(dy);
+	moveDown(dy, MoveMode::CHANGEPOS);
 	dviDown(dy);
 }
 
 
 void DVIReader::cmdNop (int) {dviNop();}
-void DVIReader::cmdX0 (int)  {moveRight(_dviState.x); dviX0();}
-void DVIReader::cmdY0 (int)  {moveDown(_dviState.y); dviY0();}
-void DVIReader::cmdW0 (int)  {moveRight(_dviState.w); dviW0();}
-void DVIReader::cmdZ0 (int)  {moveDown(_dviState.z); dviZ0();}
+void DVIReader::cmdX0 (int)  {moveRight(_dviState.x, MoveMode::CHANGEPOS); dviX0();}
+void DVIReader::cmdY0 (int)  {moveDown(_dviState.y, MoveMode::CHANGEPOS); dviY0();}
+void DVIReader::cmdW0 (int)  {moveRight(_dviState.w, MoveMode::CHANGEPOS); dviW0();}
+void DVIReader::cmdZ0 (int)  {moveDown(_dviState.z, MoveMode::CHANGEPOS); dviZ0();}
 
 
 void DVIReader::cmdX (int len) {
 	double dx = _dvi2bp*readSigned(len);
 	_dviState.x = dx;
-	moveRight(dx);
+	moveRight(dx, MoveMode::CHANGEPOS);
 	dviX(dx);
 }
 
@@ -401,7 +401,7 @@ void DVIReader::cmdX (int len) {
 void DVIReader::cmdY (int len) {
 	double dy = _dvi2bp*readSigned(len);
 	_dviState.y = dy;
-	moveDown(dy);
+	moveDown(dy, MoveMode::CHANGEPOS);
 	dviY(dy);
 }
 
@@ -409,7 +409,7 @@ void DVIReader::cmdY (int len) {
 void DVIReader::cmdW (int len) {
 	double dx = _dvi2bp*readSigned(len);
 	_dviState.w = dx;
-	moveRight(dx);
+	moveRight(dx, MoveMode::CHANGEPOS);
 	dviW(dx);
 }
 
@@ -417,7 +417,7 @@ void DVIReader::cmdW (int len) {
 void DVIReader::cmdZ (int len) {
 	double dy = _dvi2bp*readSigned(len);
 	_dviState.z = dy;
-	moveDown(dy);
+	moveDown(dy, MoveMode::CHANGEPOS);
 	dviZ(dy);
 }
 
@@ -618,7 +618,7 @@ void DVIReader::cmdXGlyphArray (int) {
 		dviXGlyphArray(dx, dy, glyphs, *font);
 	else
 		throw DVIException("missing setfont prior to xglypharray");
-	moveRight(width);
+	moveRight(width, MoveMode::SETCHAR);
 }
 
 
@@ -633,7 +633,7 @@ void DVIReader::cmdXGlyphString (int) {
 		dviXGlyphString(dx, glyphs, *font);
 	else
 		throw DVIException("missing setfont prior to xglyphstring");
-	moveRight(width);
+	moveRight(width, MoveMode::SETCHAR);
 }
 
 
@@ -655,7 +655,7 @@ void DVIReader::cmdXTextAndGlyphs (int) {
 		dviXTextAndGlyphs(x, y, chars, glyphs, *font);
 	else
 		throw DVIException("missing setfont prior to xtextandglyphs");
-	moveRight(width);
+	moveRight(width, MoveMode::SETCHAR);
 }
 
 

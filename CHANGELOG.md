@@ -43,7 +43,7 @@ As always: run `initexmf` with administrator privileges and add the
 ### Upgraded programs
 
 * axohelp 1.1
-* Dvisvgm 2.3.1
+* Dvisvgm 2.3.2
 * LuaTeX 1.07.0
 * m-tx 0.63
 * XeTeX 0.99999

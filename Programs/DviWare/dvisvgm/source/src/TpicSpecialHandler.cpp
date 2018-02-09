@@ -262,7 +262,7 @@ static double bit_sequence_to_gray (const string &hexstr) {
 		setbits += bitset<CHUNKBITS>(val).count();
 		totalbits += 4*digitcount;
 	}
-	return 1.0-double(setbits)/double(totalbits);
+	return totalbits == 0 ? 1.0 : 1.0-double(setbits)/double(totalbits);
 }
 
 
