@@ -164,11 +164,18 @@ void MainWindow::setVisible(bool visible)
 
 void MainWindow::CriticalError(const QString& text, const MiKTeXException& e)
 {
-  if (QMessageBox::critical(this, tr("MiKTeX Console"), text + "\n\n" + tr("Do you want to see the error details?"),
-    QMessageBox::StandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No))
-    == QMessageBox::StandardButton::Yes)
+  if (this->isHidden())
   {
-    ErrorDialog::DoModal(this, e);
+    ShowTrayMessage(TrayMessageContext::Error, text);
+  }
+  else
+  {
+    if (QMessageBox::critical(this, tr("MiKTeX Console"), text + "\n\n" + tr("Do you want to see the error details?"),
+      QMessageBox::StandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No))
+      == QMessageBox::StandardButton::Yes)
+    {
+      ErrorDialog::DoModal(this, e);
+    }
   }
 }
 
@@ -336,6 +343,30 @@ void MainWindow::TrayMessageClicked()
   case TrayMessageContext::Updates:
     SetCurrentPage(Pages::Updates);
     break;
+  }
+}
+
+void MainWindow::ShowTrayMessage(TrayMessageContext context, const QString& message)
+{
+  if (trayIcon != nullptr && QSystemTrayIcon::supportsMessages())
+  {
+    this->trayMessageContext = context;
+    QString title;
+    QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::MessageIcon::Information;
+    switch (context)
+    {
+    default:
+      title = tr("MiKTeX Console");
+      break;
+    case TrayMessageContext::Error:
+      title = tr("MiKTeX Problem");
+      icon = QSystemTrayIcon::MessageIcon::Critical;
+      break;
+    case TrayMessageContext::Updates:
+      title = tr("MiKTeX Update");
+      break;
+    }
+    trayIcon->showMessage(title, message, icon);
   }
 }
 #endif
@@ -624,6 +655,7 @@ void MainWindow::FinishSetup()
         CriticalError(tr("Something went wrong while finishing the MiKTeX setup."), worker->GetMiKTeXException());
       }
       backgroundWorkers--;
+      session->UnloadFilenameDatabase();
       UpdateUi();
       UpdateActions();
       worker->deleteLater();
@@ -700,6 +732,7 @@ void MainWindow::on_buttonUpgrade_clicked()
     ui->labelUpgradePercent->setText("");
     ui->labelUpgradeDetails->setText("");
     backgroundWorkers--;
+    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
@@ -773,6 +806,7 @@ void MainWindow::RefreshFndb()
       CriticalError(tr("Something went wrong while refreshing the file name database."), ((RefreshFndbWorker*)sender())->GetMiKTeXException());
     }
     backgroundWorkers--;
+    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
@@ -855,6 +889,7 @@ void MainWindow::RefreshFontMaps()
       CriticalError(tr("Something went wrong while refreshing the font map files."), worker->GetMiKTeXException());
     }
     backgroundWorkers--;
+    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
@@ -995,7 +1030,7 @@ void MainWindow::CheckUpdates()
       ui->labelUpdateStatus->setText("");
       ui->labelCheckUpdatesStatus->setText("");
 #if !defined(QT_NO_SYSTEMTRAYICON)
-      if (trayIcon != nullptr && QSystemTrayIcon::supportsMessages())
+      if (this->isHidden())
       {
         QString msg;
         if (updates.empty())
@@ -1013,8 +1048,7 @@ void MainWindow::CheckUpdates()
             msg = tr("There is are %1 updates available!").arg(updates.size());
           }
         }
-        trayMessageContext = TrayMessageContext::Updates;
-        trayIcon->showMessage(tr("MiKTeX Console"), msg);
+        ShowTrayMessage(TrayMessageContext::Updates, msg);
       }
 #endif
     }
@@ -1027,6 +1061,7 @@ void MainWindow::CheckUpdates()
     ui->labelUpdatePercent->setText("");
     ui->labelUpdateDetails->setText("");
     backgroundWorkers--;
+    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
@@ -1110,6 +1145,7 @@ void MainWindow::Update()
     ui->labelUpdatePercent->setText("");
     ui->labelUpdateDetails->setText("");
     backgroundWorkers--;
+    session->UnloadFilenameDatabase();
     updateModel->SetData({});
     UpdateUi();
     UpdateActions();
@@ -1764,6 +1800,7 @@ void MainWindow::UpdatePackageDatabase()
     packageModel->Reload();
     ui->treeViewPackages->update();
     backgroundWorkers--;
+    session->UnloadFilenameDatabase();
     UpdateUi();
     UpdateActions();
     worker->deleteLater();
@@ -1888,6 +1925,7 @@ void MainWindow::FactoryReset()
         QMessageBox::warning(this, tr("MiKTeX Console"), QString::fromUtf8(worker->GetMiKTeXException().what()) + tr("\n\nThe application window will now be closed."));
       }
       backgroundWorkers--;
+      session->UnloadFilenameDatabase();
       worker->deleteLater();
       this->close();
     });

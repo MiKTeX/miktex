@@ -108,6 +108,9 @@ private:
 
 private:
   TrayMessageContext trayMessageContext = TrayMessageContext::None;
+
+private:
+  void ShowTrayMessage(TrayMessageContext context, const QString& message);
 #endif
 
 private:
