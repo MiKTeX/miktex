@@ -34,6 +34,7 @@
 
 #include "console-version.h"
 
+#include <miktex/Core/Cfg>
 #include <miktex/Core/ConfigNames>
 #include <miktex/Core/Directory>
 #include <miktex/Core/DirectoryLister>
@@ -92,6 +93,7 @@ MainWindow::MainWindow(QWidget* parent) :
   ui->setupUi(this);
 
   resize(800, 600);
+  ReadSettings();
 
   SetupUiDirectories();
   SetupUiUpdates();
@@ -152,6 +154,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
       return;
     }
   }
+  WriteSettings();
   event->accept();
 }
 
@@ -1943,4 +1946,28 @@ void MainWindow::FactoryReset()
   {
     CriticalError(e);
   }
+}
+
+void MainWindow::ReadSettings()
+{
+  PathName consoleIni = session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / "console.ini";
+  if (!File::Exists(consoleIni))
+  {
+    return;
+  }
+  unique_ptr<Cfg> settings = Cfg::Create();
+  settings->Read(consoleIni);
+  string s;
+  if (!settings->TryGetValue("MainWindow", "geometry", s))
+  {
+    return;
+  }
+  restoreGeometry(QByteArray::fromHex(s.c_str()));
+}
+
+void MainWindow::WriteSettings()
+{
+  unique_ptr<Cfg> settings = Cfg::Create();
+  settings->PutValue("MainWindow", "geometry", saveGeometry().toHex().constData());
+  settings->Write(session->GetSpecialPath(SpecialPath::ConfigRoot) / MIKTEX_PATH_MIKTEX_CONFIG_DIR / "console.ini");
 }

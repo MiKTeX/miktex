@@ -426,6 +426,12 @@ private:
   bool IsFactoryResetPossible();
 
 private:
+  void ReadSettings();
+
+private:
+  void WriteSettings();
+
+private:
   std::atomic_int backgroundWorkers{ 0 };
 
 private:
