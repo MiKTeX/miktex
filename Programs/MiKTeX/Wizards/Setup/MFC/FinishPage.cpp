@@ -115,6 +115,9 @@ BOOL FinishPage::OnSetActive()
     {
       viewReleaseNotes = BST_UNCHECKED;
       UpdateData(FALSE);
+#if 1
+      checkBox.ShowWindow(SW_HIDE);
+#endif
     }
 
     CancelToClose();
